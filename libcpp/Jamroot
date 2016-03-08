@@ -14,12 +14,17 @@ if ! [ python.configured ]
 use-project boost
   : /usr/local/boost_1_60_0 ;
 
+lib z3 : : <name>z3 ;
+explicit z3 ;
+
+
 # Set up the project-wide requirements that everything uses the
 # boost_python library from the project whose global ID is
 # /boost/python.
 project
   : requirements <library>/boost/python//boost_python 
                  <implicit-dependency>/boost//headers 
+                 <library>z3
   : usage-requirements <implicit-dependency>/boost//headers 
   ;
 

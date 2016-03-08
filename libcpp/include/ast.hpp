@@ -1,6 +1,7 @@
 #ifndef __AST_H_DEFINED__
 
 #include <string>
+#include <z3++.h>
 
 namespace ila 
 {
@@ -13,6 +14,7 @@ namespace ila
     public:
         void setName(std::string n);
         std::string getName();
+        void doSomething();
     };
 }
 
