@@ -33,5 +33,13 @@ namespace ila
         case unknown: std::cout << "unknown\n"; break;
         }
     }
+
+    BitvectorExpr::~BitvectorExpr()
+    {
+    }
+
+    BitvectorVar::~BitvectorVar()
+    {
+    }
 }
 
