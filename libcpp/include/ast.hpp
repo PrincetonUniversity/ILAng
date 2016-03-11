@@ -1,43 +1,13 @@
 #ifndef __AST_H_DEFINED__
 
+#include <iostream>
 #include <string>
 #include <z3++.h>
 #include <assert.h>
+#include <type.hpp>
 
 namespace ila 
 {
-    class NodeType { 
-        enum Type { INVALID, BOOL, BITVECTOR, MEM } type;
-        union { 
-            int bitWidth;
-            struct {
-                int addrWidth;
-                int dataWidth;
-            };
-        };
-        NodeType(Type t) 
-          : type(BOOL) 
-        { 
-            assert(type == BOOL); 
-        }
-
-        NodeType(Type t, int w)
-          : type(BITVECTOR)
-          , bitWidth(w) 
-        { 
-            assert(type == BITVECTOR); 
-        }
-
-        NodeType(Type t, int aw, int dw)
-          : type(MEM)
-          , addrWidth(aw)
-          , dataWidth(dw)
-        {
-            assert(type == MEM);
-        }
-
-    };
-
     class Node {
     protected:
         std::string name;
