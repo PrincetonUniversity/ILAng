@@ -21,7 +21,10 @@ BOOST_PYTHON_MODULE(ila)
 
     class_<NodeType>("Type", init<>())
         .def(init<NodeType::Type>())
+        .def(init<NodeType::Type, int>())
+        .def(init<NodeType::Type, int, int>())
         .def(self_ns::str(self))
+        .def(!self)
     ;
 
     class_<Node>("Node")

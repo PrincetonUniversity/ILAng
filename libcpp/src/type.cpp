@@ -24,10 +24,48 @@ namespace ila
         return out;
     }
 
+    // constructor (bool).
     NodeType::NodeType(Type t) : type(BOOL) 
     { 
         if (t != BOOL) {
-            throw PyILAException(PyExc_ValueError, "Invalid type in constructor.");
+            throw PyILAException(PyExc_TypeError, "Invalid type argument in constructor for Type.");
+        }
+    }
+
+    // constructor (bitvector).
+    NodeType::NodeType(Type t, int w)
+      : type(BITVECTOR)
+      , bitWidth(w) 
+    { 
+        if (t != BITVECTOR) {
+            throw PyILAException(PyExc_TypeError, "Invalid type argument in constructor for Type.");
+        }
+        if (w <= 0) {
+            throw PyILAException(PyExc_TypeError, "Invalid bitvector width argument.");
+        }
+    }
+
+    // constructor (mem).
+    NodeType::NodeType(Type t, int aw, int dw)
+      : type(MEM)
+      , addrWidth(aw)
+      , dataWidth(dw)
+    {
+        if (t != MEM) {
+            throw PyILAException(PyExc_TypeError, "Invalid type argument in constructor for Type.");
+        }
+        if (aw <= 0 || dw <= 0) {
+            throw PyILAException(PyExc_TypeError, "Invalid bitvector width argument.");
+        }
+    }
+
+    // constructor (operator!).
+    bool NodeType::operator! (void) const
+    {
+        if (type == INVALID) {
+            return true;
+        } else {
+            return false;
         }
     }
 }

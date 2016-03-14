@@ -19,26 +19,14 @@ namespace ila {
 
         // default constructor.
         NodeType() : type(INVALID) { }
-
         // construct a bool.
         NodeType(Type t);
-
         // construct a bitvector.
-        NodeType(Type t, int w)
-          : type(BITVECTOR)
-          , bitWidth(w) 
-        { 
-            assert(type == BITVECTOR); 
-        }
-
+        NodeType(Type t, int w);
         // construct a memory.
-        NodeType(Type t, int aw, int dw)
-          : type(MEM)
-          , addrWidth(aw)
-          , dataWidth(dw)
-        {
-            assert(type == MEM);
-        }
+        NodeType(Type t, int aw, int dw);
+
+        bool operator! (void) const;
     };
 
     // stream output operator, required for boost::lexical_cast<>
