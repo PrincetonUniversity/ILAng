@@ -9,9 +9,14 @@
 namespace ila 
 {
     class Node {
-    protected:
-        std::string name;
     public:
+        // member variables.
+        std::string name;
+        NodeType type;
+
+        // constructor.
+        Node(NodeType t) : type(t) {}
+
         void setName(std::string n);
         std::string getName();
         void doSomething();
@@ -19,7 +24,9 @@ namespace ila
 
     class BitvectorExpr : public Node {
     public:
-        BitvectorExpr(int width) {}
+        BitvectorExpr(int width) 
+          : Node(NodeType::getBitvector(width))
+        {}
         virtual ~BitvectorExpr();
     };
 

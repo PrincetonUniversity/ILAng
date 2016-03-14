@@ -68,4 +68,9 @@ namespace ila
             return false;
         }
     }
+
+    // static helper construction functions.
+    NodeType NodeType::getBool() { return NodeType(BOOL); }
+    NodeType NodeType::getBitvector(int w) { return NodeType(BITVECTOR, w); }
+    NodeType NodeType::getMem(int aw, int dw) { return NodeType(MEM, aw, dw); }
 }

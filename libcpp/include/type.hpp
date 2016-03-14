@@ -27,6 +27,11 @@ namespace ila {
         NodeType(Type t, int aw, int dw);
 
         bool operator! (void) const;
+
+        // static helper construction functions.
+        static NodeType getBool();
+        static NodeType getBitvector(int w);
+        static NodeType getMem(int aw, int dw);
     };
 
     // stream output operator, required for boost::lexical_cast<>

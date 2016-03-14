@@ -27,7 +27,8 @@ BOOST_PYTHON_MODULE(ila)
         .def(!self)
     ;
 
-    class_<Node>("Node")
+    class_<Node>("Node", init<NodeType>())
+        .def_readonly("type", &Node::type)
         .def("setName", &Node::setName)
         .def("getName", &Node::getName)
         .def("doSomething", &Node::doSomething)
