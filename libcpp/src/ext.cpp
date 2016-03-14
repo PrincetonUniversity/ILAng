@@ -29,8 +29,13 @@ BOOST_PYTHON_MODULE(ila)
 
     class_<Node>("Node", init<NodeType>())
         .def_readonly("type", &Node::type)
-        .def("setName", &Node::setName)
-        .def("getName", &Node::getName)
+        .def_readonly("name", &Node::name)
         .def("doSomething", &Node::doSomething)
+    ;
+
+    class_<BitvectorExpr, bases<Node> >("BitvectorExpr", init<int>())
+    ;
+
+    class_<BitvectorVar, bases<BitvectorExpr> >("BitvectorVar", init<std::string, int>())
     ;
 }

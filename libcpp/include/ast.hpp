@@ -9,16 +9,21 @@
 namespace ila 
 {
     class Node {
+        static int totalObjCnt;
     public:
         // member variables.
         std::string name;
+        int id;
         NodeType type;
 
         // constructor.
-        Node(NodeType t) : type(t) {}
+        Node(NodeType t) 
+          : id(totalObjCnt)
+          , type(t) 
+        {
+            totalObjCnt += 1;
+        }
 
-        void setName(std::string n);
-        std::string getName();
         void doSomething();
     };
 

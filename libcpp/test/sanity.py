@@ -1,9 +1,8 @@
 import ila
 
 def main():
-    n = ila.Node(ila.Type(ila.Types.BOOL))
-    n.setName('test passed')
-    print n.getName()
+    n = ila.BitvectorVar("test", 16)
+    print n.name
     print n.type
     n.doSomething()
 

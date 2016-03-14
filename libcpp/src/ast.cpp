@@ -4,16 +4,7 @@ using namespace z3;
 
 namespace ila
 {
-    void Node::setName(std::string n)
-    {
-        name = n;
-    }
-
-    std::string Node::getName()
-    {
-        return name;
-    }
-
+    int Node::totalObjCnt = 0;
 
     void Node::doSomething()
     {
