@@ -2,6 +2,9 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
+#include <memory>
+
 #include <z3++.h>
 #include <assert.h>
 #include <type.hpp>
@@ -16,15 +19,20 @@ namespace ila
         int id;
         NodeType type;
 
+        // default constructor.
+        Node()
+          : id(totalObjCnt++)
+          , type(NodeType())
+        { }
+
         // constructor.
         Node(NodeType t) 
-          : id(totalObjCnt)
+          : id(totalObjCnt++)
           , type(t) 
-        {
-            totalObjCnt += 1;
-        }
+        { }
 
         void doSomething();
+        virtual Node* clone() const;
     };
 
     class BitvectorExpr : public Node {
@@ -37,13 +45,54 @@ namespace ila
 
     class BitvectorVar : public BitvectorExpr {
     public:
+        // constructor.
         BitvectorVar(std::string n, int width) 
           : BitvectorExpr(width)
         {
             this->name = n;
         }
 
+        // destructor.
         virtual ~BitvectorVar();
+
+        // clone.
+        virtual Node* clone() const;
+    };
+
+    class BitvectorOp : public BitvectorExpr {
+    public:
+        // Number of operands.
+        enum Arity { UNARY, BINARY, TERNARY } arity; 
+
+        // What is the operation?
+        enum Op { 
+            // unary
+            NEGATE, COMPLEMENT, LNOT, NONZERO,  
+            // binary.
+            ADD, SUB, AND, OR, XOR, XNOR, NAND, NOR,
+            // ternary
+            IF
+        } op;
+
+        // the operands themselves.
+        std::vector< std::unique_ptr<Node> > args;
+
+        // Don't forget to update these helper functions below.
+        static bool isUnary(Op op) { return op >= NEGATE && op <= NONZERO; }
+        static bool isBinary(Op op) { return op >= ADD && op <= NOR; }
+        static bool isTernary(Op op) { return op >= IF && op <= IF; }
+        static int getUnaryResultWidth(Op op, const Node& n);
+        static bool checkUnaryOpWidth(Op op, const Node& n, int width);
+
+        // constructors.
+        BitvectorOp(Op op, const Node& n1);
+        BitvectorOp(Op op, const Node& n1, const Node& n2);
+
+        // destructors.
+        virtual ~BitvectorOp();
+
+        // clone.
+        virtual Node* clone() const;
     };
 
 }

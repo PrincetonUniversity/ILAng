@@ -25,7 +25,7 @@ namespace ila
     }
 
     // constructor (bool).
-    NodeType::NodeType(Type t) : type(BOOL) 
+    NodeType::NodeType(Type t) : type(BOOL), bitWidth(0), addrWidth(0), dataWidth(0)
     { 
         if (t != BOOL) {
             throw PyILAException(PyExc_TypeError, "Invalid type argument in constructor for Type.");
@@ -36,6 +36,8 @@ namespace ila
     NodeType::NodeType(Type t, int w)
       : type(BITVECTOR)
       , bitWidth(w) 
+      , addrWidth(0)
+      , dataWidth(0)
     { 
         if (t != BITVECTOR) {
             throw PyILAException(PyExc_TypeError, "Invalid type argument in constructor for Type.");
@@ -48,6 +50,7 @@ namespace ila
     // constructor (mem).
     NodeType::NodeType(Type t, int aw, int dw)
       : type(MEM)
+      , bitWidth(0)
       , addrWidth(aw)
       , dataWidth(dw)
     {

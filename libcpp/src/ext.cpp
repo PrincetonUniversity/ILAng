@@ -20,6 +20,9 @@ BOOST_PYTHON_MODULE(ila)
     ;
 
     class_<NodeType>("Type", init<>())
+        .def_readonly("bitwidth", &NodeType::bitWidth)
+        .def_readonly("addrwidth", &NodeType::addrWidth)
+        .def_readonly("datawidth", &NodeType::dataWidth)
         .def(init<NodeType::Type>())
         .def(init<NodeType::Type, int>())
         .def(init<NodeType::Type, int, int>())

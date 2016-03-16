@@ -9,16 +9,12 @@ namespace ila {
     // Class for types of nodes.
     struct NodeType { 
         enum Type { INVALID, BOOL, BITVECTOR, MEM } type;
-        union { 
-            int bitWidth;
-            struct {
-                int addrWidth;
-                int dataWidth;
-            };
-        };
+        int bitWidth;
+        int addrWidth;
+        int dataWidth;
 
         // default constructor.
-        NodeType() : type(INVALID) { }
+        NodeType() : type(INVALID), bitWidth(0) { }
         // construct a bool.
         NodeType(Type t);
         // construct a bitvector.
@@ -27,6 +23,19 @@ namespace ila {
         NodeType(Type t, int aw, int dw);
 
         bool operator! (void) const;
+
+        // Is this a bool?
+        bool isBool() const {
+            return type == BOOL;
+        }
+        // Is this a bitvector with the specified width?
+        bool isBitvector(int width) const {
+            return type == BITVECTOR && bitWidth == width;
+        }
+        // Is this a memory with the correct dimensions?
+        bool isMem(int aw, int dw) const {
+            return type == MEM && addrWidth == aw && dataWidth == dw;
+        }
 
         // static helper construction functions.
         static NodeType getBool();
