@@ -17,6 +17,17 @@ use-project boost
 lib z3 : : <name>z3 ;
 explicit z3 ;
 
+import feature ;
+
+feature.feature cpp11 :
+    on :
+    composite optional propagated
+    ;
+
+feature.compose <cpp11>on :
+        <cxxflags>"-std=c++11"
+        <define>BOOST_NO_CXX11_NUMERIC_LIMITS=1
+    ;
 
 # Set up the project-wide requirements that everything uses the
 # boost_python library from the project whose global ID is
@@ -25,6 +36,7 @@ project
   : requirements <library>/boost/python//boost_python 
                  <implicit-dependency>/boost//headers 
                  <library>z3
+                 <cpp11>on
   : usage-requirements <implicit-dependency>/boost//headers 
   ;
 
