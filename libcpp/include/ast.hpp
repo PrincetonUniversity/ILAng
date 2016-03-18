@@ -13,6 +13,8 @@ namespace ila
 {
     class Node {
         static int totalObjCnt;
+    private:
+        void _initName();
     public:
         // member variables.
         std::string name;
@@ -23,16 +25,24 @@ namespace ila
         Node()
           : id(totalObjCnt++)
           , type(NodeType())
-        { }
+        { 
+            _initName();
+        }
 
         // constructor.
         Node(NodeType t) 
           : id(totalObjCnt++)
           , type(t) 
-        { }
+        {
+            _initName();
+        }
+
+        virtual ~Node();
 
         void doSomething();
         virtual Node* clone() const;
+        virtual Node* complement() const;
+        virtual Node* negate() const;
     };
 
     class BitvectorExpr : public Node {
@@ -57,6 +67,9 @@ namespace ila
 
         // clone.
         virtual Node* clone() const;
+
+        // operators.
+        virtual Node* complement() const;
     };
 
     class BitvectorOp : public BitvectorExpr {

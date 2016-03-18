@@ -1,15 +1,39 @@
 #include <ast.hpp>
 #include <util.hpp>
 #include <exception.hpp>
+#include <boost/lexical_cast.hpp>
+#include <iostream>
 
 
 namespace ila
 {
     int Node::totalObjCnt = 0;
 
+    Node::~Node()
+    {
+        std::cout << "node destroyed; name:" << name << std::endl;
+    }
+
+    void Node::_initName()
+    {
+        name = "n" + boost::lexical_cast<std::string>(id);
+        std::cout << "node created." << std::endl;
+    }
+
     Node* Node::clone() const
     {
         return new Node();
+    }
+
+    Node* Node::complement() const
+    {
+        throw PyILAException(PyExc_NotImplementedError, "Complement not implemented.");
+        return NULL;
+    }
+
+    Node* Node::negate() const
+    {
+        throw PyILAException(PyExc_NotImplementedError, "Negate not implemented.");
     }
 
     void Node::doSomething()
@@ -38,6 +62,11 @@ namespace ila
 
     BitvectorVar::~BitvectorVar()
     {
+    }
+
+    Node* BitvectorVar::complement() const
+    {
+        return new BitvectorOp(BitvectorOp::COMPLEMENT, *this);
     }
 
     Node* BitvectorVar::clone() const

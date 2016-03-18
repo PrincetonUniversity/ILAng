@@ -25,8 +25,9 @@ feature.feature cpp11 :
     ;
 
 feature.compose <cpp11>on :
-        <cxxflags>"-std=c++11"
+        <cxxflags>"-std=c++11 -Wno-unused-local-typedefs"
         <define>BOOST_NO_CXX11_NUMERIC_LIMITS=1
+        <define>DISABLE_ICE_DEPRECATION_WARNINGS
     ;
 
 # Set up the project-wide requirements that everything uses the
