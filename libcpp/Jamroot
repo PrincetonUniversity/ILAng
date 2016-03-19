@@ -43,7 +43,12 @@ project
 
 # Declare the three extension modules.  You can specify multiple
 # source files after the colon separated by spaces.
-python-extension ila : src/ext.cpp src/ast.cpp src/type.cpp src/exception.cpp src/util.cpp : <include>./include ;
+python-extension ila : src/ext.cpp 
+                       src/ast.cpp src/ast/node.cpp src/ast/bitvec.cpp 
+                       src/type.cpp 
+                       src/exception.cpp 
+                       src/util.cpp 
+                     : <include>./include ;
 
 # Put the extension and Boost.Python DLL in the current directory, so
 # that running script by hand works.
