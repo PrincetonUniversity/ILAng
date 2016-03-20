@@ -9,6 +9,21 @@ namespace ila
 {
     int Node::totalObjCnt = 0;
 
+    Node::Node()
+      : ctx(NULL)
+      , id(-1)
+      , type(NodeType())
+    {
+    }
+
+    Node::Node(Context* c, NodeType t) 
+      : ctx(c)
+      , id(ctx->getObjId())
+      , type(t) 
+    {
+        _initName();
+    }
+
     Node::~Node()
     {
         std::cout << "node destroyed; name:" << name << std::endl;
@@ -18,6 +33,16 @@ namespace ila
     {
         name = "n" + boost::lexical_cast<std::string>(id);
         std::cout << "node created." << std::endl;
+    }
+
+    std::string Node::getName() const
+    {
+        return name;
+    }
+
+    NodeType Node::getType() const
+    {
+        return type;
     }
 
     Node* Node::clone() const

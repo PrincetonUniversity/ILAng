@@ -12,37 +12,50 @@
 
 namespace ila 
 {
+    class Context;
+
     class Node {
+        // ----------------- PRIVATE MEMBERS ----------------- //
         static int totalObjCnt;
     private:
+        // ----------------- PRIVATE METHODS ----------------- //
         void _initName();
+    protected:
+        // -------------------- DATA MEMBERS ----------------- //
+        // context pointer.
+        Context* ctx;
     public:
-        // member variables.
+        // name for this node.
         std::string name;
-        int id;
+        // unique id.
+        const int id;
+        // type of this node.
         NodeType type;
 
+    public:
+        // ------------ CONSTRUCTORS/DESTRUCTORS ------------ //
         // default constructor.
-        Node()
-          : id(totalObjCnt++)
-          , type(NodeType())
-        { 
-            _initName();
-        }
-
+        Node();
         // constructor.
-        Node(NodeType t) 
-          : id(totalObjCnt++)
-          , type(t) 
-        {
-            _initName();
-        }
-
+        Node(Context* c, NodeType t);
+        // destructor.
         virtual ~Node();
 
+        // ---------------------- METHODS ------------------- //
+        // fake method we use to test the Z3 integration.
         void doSomething();
+        // polymorphic clone method.
         virtual Node* clone() const;
+
+
+        // -------------------- ACCESSORS ------------------- //
+        std::string getName() const;
+        NodeType getType() const;
+
+        // --------------------- OPERATORS ------------------ //
+        // bitwise complement.
         virtual Node* complement() const;
+        // negation. 
         virtual Node* negate() const;
     };
 }

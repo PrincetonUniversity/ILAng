@@ -6,6 +6,12 @@
 
 namespace ila
 {
+    // ---------------------------------------------------------------------- //
+    BitvectorExpr::BitvectorExpr(Context *c, int width) 
+        : Node(c, NodeType::getBitvector(width))
+    {
+    }
+
     BitvectorExpr::~BitvectorExpr()
     {
     }
@@ -14,16 +20,24 @@ namespace ila
     {
     }
 
+    // ---------------------------------------------------------------------- //
+    BitvectorVar::BitvectorVar(Context* c, std::string n, int width) 
+        : BitvectorExpr(c, width)
+    {
+        this->name = n;
+    }
+
     Node* BitvectorVar::complement() const
     {
-        return new BitvectorOp(BitvectorOp::COMPLEMENT, *this);
+        return new BitvectorOp(ctx, BitvectorOp::COMPLEMENT, *this);
     }
 
     Node* BitvectorVar::clone() const
     {
-        return new BitvectorVar(name, type.bitWidth);
+        return new BitvectorVar(ctx, name, type.bitWidth);
     }
 
+    // ---------------------------------------------------------------------- //
     int BitvectorOp::getUnaryResultWidth(Op op, const Node& n)
     {
         // FIXME: add more code when operators are added.
@@ -37,8 +51,8 @@ namespace ila
     }
 
     // constructor.
-    BitvectorOp::BitvectorOp(Op op, const Node& n1)
-      : BitvectorExpr(getUnaryResultWidth(op, n1))
+    BitvectorOp::BitvectorOp(Context* c, Op op, const Node& n1)
+      : BitvectorExpr(c, getUnaryResultWidth(op, n1))
       , arity(UNARY)
       , op(op)
     {
@@ -66,7 +80,7 @@ namespace ila
     {
         ILA_ASSERT(arity == UNARY, "Unsupported arity in BitvectorOp");
         ILA_ASSERT(args.size() == 1, "Unary op must have exactly one argument.");
-        return new BitvectorOp(op, *args[0]);
+        return new BitvectorOp(ctx, op, *args[0]);
     }
 }
 

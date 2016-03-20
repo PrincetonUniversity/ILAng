@@ -30,15 +30,13 @@ BOOST_PYTHON_MODULE(ila)
         .def(!self)
     ;
 
-    class_<Node>("Node", init<NodeType>())
-        .def_readonly("type", &Node::type)
-        .def_readonly("name", &Node::name)
-        .def("doSomething", &Node::doSomething)
+    class_<NodeRef>("Node")
+        .add_property("name", &NodeRef::getName)
+        .add_property("type", &NodeRef::getType)
+        .def("doSomething", &NodeRef::doSomething)
     ;
 
-    class_<BitvectorExpr, bases<Node> >("BitvectorExpr", init<int>())
-    ;
-
-    class_<BitvectorVar, bases<BitvectorExpr> >("BitvectorVar", init<std::string, int>())
+    class_<Context>("Context", init<>())
+        .def("BitvectorVar", &Context::BitvectorVar, return_value_policy<manage_new_object>())
     ;
 }

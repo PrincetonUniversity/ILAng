@@ -15,22 +15,24 @@
 
 namespace ila 
 {
+    class Context;
+
+    // ---------------------------------------------------------------------- //
+    // Bitvector expressions are derived from this class.
     class BitvectorExpr : public Node {
     public:
-        BitvectorExpr(int width) 
-          : Node(NodeType::getBitvector(width))
-        {}
+        // constructor.
+        BitvectorExpr(Context* c, int width);
+        // destructor.
         virtual ~BitvectorExpr();
     };
 
+    // ---------------------------------------------------------------------- //
+    // Bitvector variables.
     class BitvectorVar : public BitvectorExpr {
     public:
         // constructor.
-        BitvectorVar(std::string n, int width) 
-          : BitvectorExpr(width)
-        {
-            this->name = n;
-        }
+        BitvectorVar(Context* c, std::string n, int width) ;
 
         // destructor.
         virtual ~BitvectorVar();
@@ -42,6 +44,8 @@ namespace ila
         virtual Node* complement() const;
     };
 
+    // ---------------------------------------------------------------------- //
+    // Bitvector operators.
     class BitvectorOp : public BitvectorExpr {
     public:
         // Number of operands.
@@ -68,8 +72,8 @@ namespace ila
         static bool checkUnaryOpWidth(Op op, const Node& n, int width);
 
         // constructors.
-        BitvectorOp(Op op, const Node& n1);
-        BitvectorOp(Op op, const Node& n1, const Node& n2);
+        BitvectorOp(Context* c, Op op, const Node& n1);
+        BitvectorOp(Context* c, Op op, const Node& n1, const Node& n2);
 
         // destructors.
         virtual ~BitvectorOp();
