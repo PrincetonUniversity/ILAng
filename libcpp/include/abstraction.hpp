@@ -19,7 +19,7 @@ namespace ila
         // Destructor.
         ~Abstraction();
         // Create a bitvector variable.
-        NodeRef* BitvectorVar(const std::string& name, int width);
+        NodeRef* addRegister(const std::string& name, int width);
 
         friend class Node;
     };

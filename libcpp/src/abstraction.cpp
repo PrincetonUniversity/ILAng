@@ -16,4 +16,10 @@ namespace ila
     Abstraction::~Abstraction()
     {
     }
+
+    // ---------------------------------------------------------------------- //
+    NodeRef* Abstraction::addRegister(const std::string& name, int width)
+    {
+        return new NodeRef(new ila::BitvectorVar(this, name, width));
+    }
 }

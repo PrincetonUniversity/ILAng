@@ -51,6 +51,6 @@ BOOST_PYTHON_MODULE(ila)
 
     // This is the top-level class.
     class_<Abstraction>("Abstraction", init<>())
-        .def("BitvectorVar", &Abstraction::BitvectorVar, return_value_policy<manage_new_object>())
+        .def("addRegister", &Abstraction::addRegister, return_value_policy<manage_new_object>())
     ;
 }

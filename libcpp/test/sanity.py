@@ -2,7 +2,7 @@ import ila
 
 def main():
     c = ila.Abstraction()
-    n = c.BitvectorVar("test", 16)
+    n = c.addRegister("test", 16)
     print n.name
     print n.type
     print n.type.bitwidth
@@ -11,7 +11,7 @@ def main():
     del n
 
     print 'creating new bitvecvar'
-    m = c.BitvectorVar('mambo', 24)
+    m = c.addRegister('mambo', 24)
     n = m
     del m
     print n.name

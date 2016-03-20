@@ -10,12 +10,6 @@ namespace ila
 {
 
     // ---------------------------------------------------------------------- //
-    NodeRef* Abstraction::BitvectorVar(const std::string& name, int width)
-    {
-        return new NodeRef(new ila::BitvectorVar(this, name, width));
-    }
-
-    // ---------------------------------------------------------------------- //
     NodeRef::NodeRef()
       : node(new Node())
     {
