@@ -14,7 +14,7 @@ namespace ila
     };
 
     // ---------------------------------------------------------------------- //
-    BitvectorExpr::BitvectorExpr(Context *c, int width) 
+    BitvectorExpr::BitvectorExpr(Abstraction *c, int width) 
         : Node(c, NodeType::getBitvector(width))
     {
     }
@@ -34,7 +34,7 @@ namespace ila
     }
 
     // ---------------------------------------------------------------------- //
-    BitvectorVar::BitvectorVar(Context* c, std::string n, int width) 
+    BitvectorVar::BitvectorVar(Abstraction* c, std::string n, int width) 
         : BitvectorExpr(c, width)
     {
         this->name = n;
@@ -64,7 +64,7 @@ namespace ila
     }
 
     // constructor.
-    BitvectorOp::BitvectorOp(Context* c, Op op, boost::shared_ptr<Node> n1)
+    BitvectorOp::BitvectorOp(Abstraction* c, Op op, boost::shared_ptr<Node> n1)
       : BitvectorExpr(c, getUnaryResultWidth(op, n1))
       , arity(UNARY)
       , op(op)

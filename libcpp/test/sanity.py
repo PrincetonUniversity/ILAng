@@ -1,7 +1,7 @@
 import ila
 
 def main():
-    c = ila.Context()
+    c = ila.Abstraction()
     n = c.BitvectorVar("test", 16)
     print n.name
     print n.type

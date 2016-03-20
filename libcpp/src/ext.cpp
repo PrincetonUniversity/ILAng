@@ -38,7 +38,7 @@ BOOST_PYTHON_MODULE(ila)
         .def(self_ns::str(self))
     ;
 
-    class_<Context>("Context", init<>())
-        .def("BitvectorVar", &Context::BitvectorVar, return_value_policy<manage_new_object>())
+    class_<Abstraction>("Abstraction", init<>())
+        .def("BitvectorVar", &Abstraction::BitvectorVar, return_value_policy<manage_new_object>())
     ;
 }

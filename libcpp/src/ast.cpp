@@ -7,22 +7,22 @@
 namespace ila
 {
     // ---------------------------------------------------------------------- //
-    int Context::getObjId()
+    int Abstraction::getObjId()
     {
         return objCnt++;
     }
 
-    Context::Context()
+    Abstraction::Abstraction()
       : objCnt(0)
     {
     }
 
-    Context::~Context()
+    Abstraction::~Abstraction()
     {
     }
 
     // ---------------------------------------------------------------------- //
-    NodeRef* Context::BitvectorVar(const std::string& name, int width)
+    NodeRef* Abstraction::BitvectorVar(const std::string& name, int width)
     {
         return new NodeRef(new ila::BitvectorVar(this, name, width));
     }

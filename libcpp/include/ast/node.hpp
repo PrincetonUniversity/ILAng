@@ -12,7 +12,7 @@
 
 namespace ila 
 {
-    class Context;
+    class Abstraction;
     class NodeRef;
 
     class Node {
@@ -24,7 +24,7 @@ namespace ila
     protected:
         // -------------------- DATA MEMBERS ----------------- //
         // context pointer.
-        Context* ctx;
+        Abstraction* ctx;
         // Pointer back to the shared_ptr which holds this node.
         NodeRef* nodeRef;
     public:
@@ -40,7 +40,7 @@ namespace ila
         // default constructor.
         Node();
         // constructor.
-        Node(Context* c, NodeType t);
+        Node(Abstraction* c, NodeType t);
         // destructor.
         virtual ~Node();
 

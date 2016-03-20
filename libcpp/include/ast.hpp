@@ -46,7 +46,7 @@ namespace ila
     // stream output.
     std::ostream& operator<<(std::ostream& out, const NodeRef& node);
 
-    class Context
+    class Abstraction
     {
     private:
         int objCnt;
@@ -55,9 +55,9 @@ namespace ila
         int getObjId();
     public:
         // Constructor.
-        Context();
+        Abstraction();
         // Destructor.
-        ~Context();
+        ~Abstraction();
         // Create a bitvector variable.
         NodeRef* BitvectorVar(const std::string& name, int width);
 

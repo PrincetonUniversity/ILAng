@@ -7,8 +7,10 @@
 
 namespace ila
 {
+    // ---------------------------------------------------------------------- //
     int Node::totalObjCnt = 0;
 
+    // ---------------------------------------------------------------------- //
     Node::Node()
       : ctx(NULL)
       , nodeRef(NULL)
@@ -17,7 +19,7 @@ namespace ila
     {
     }
 
-    Node::Node(Context* c, NodeType t) 
+    Node::Node(Abstraction* c, NodeType t) 
       : ctx(c)
       , nodeRef(NULL)
       , id(ctx->getObjId())
@@ -30,6 +32,7 @@ namespace ila
     {
     }
 
+    // ---------------------------------------------------------------------- //
     void Node::_initName()
     {
         name = "n" + boost::lexical_cast<std::string>(id);
@@ -40,6 +43,7 @@ namespace ila
         nodeRef = nr;
     }
 
+    // ---------------------------------------------------------------------- //
     Node* Node::clone() const
     {
         return new Node();
@@ -56,6 +60,7 @@ namespace ila
         throw PyILAException(PyExc_NotImplementedError, "Negate not implemented.");
     }
 
+    // ---------------------------------------------------------------------- //
     void Node::doSomething()
     {
         using namespace z3;
