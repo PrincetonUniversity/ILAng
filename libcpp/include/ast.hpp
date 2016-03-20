@@ -16,10 +16,12 @@
 
 namespace ila
 {
-    class NodeRef 
+    struct NodeRef 
     {
+        // ------------------------ MEMBERS ----------------------------- //
         boost::shared_ptr<Node> node;
-    public:
+
+        // --------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
         // Default constructor. DO NOT USE. Will throw an exception.
         NodeRef(); 
         // Constructor. DO NOT USE. Call factory methods in Context instead.
@@ -38,8 +40,7 @@ namespace ila
         void doSomething();
 
         // ---------------------- OPERATORS ----------------------------- //
-        NodeRef complement() const;
-        NodeRef negate() const;
+        NodeRef* complement() const; 
     };
 
     class Context

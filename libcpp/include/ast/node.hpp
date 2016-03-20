@@ -13,6 +13,7 @@
 namespace ila 
 {
     class Context;
+    class NodeRef;
 
     class Node {
         // ----------------- PRIVATE MEMBERS ----------------- //
@@ -24,6 +25,8 @@ namespace ila
         // -------------------- DATA MEMBERS ----------------- //
         // context pointer.
         Context* ctx;
+        // Pointer back to the shared_ptr which holds this node.
+        NodeRef* nodeRef;
     public:
         // name for this node.
         std::string name;
@@ -49,8 +52,7 @@ namespace ila
 
 
         // -------------------- ACCESSORS ------------------- //
-        std::string getName() const;
-        NodeType getType() const;
+        void setNodeRef(NodeRef* nr);
 
         // --------------------- OPERATORS ------------------ //
         // bitwise complement.

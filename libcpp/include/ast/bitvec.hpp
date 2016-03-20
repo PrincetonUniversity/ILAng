@@ -5,7 +5,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <memory>
+#include <boost/shared_ptr.hpp>
 
 #include <z3++.h>
 #include <assert.h>
@@ -25,6 +25,8 @@ namespace ila
         BitvectorExpr(Context* c, int width);
         // destructor.
         virtual ~BitvectorExpr();
+        // operators.
+        virtual Node* complement() const;
     };
 
     // ---------------------------------------------------------------------- //
@@ -40,8 +42,6 @@ namespace ila
         // clone.
         virtual Node* clone() const;
 
-        // operators.
-        virtual Node* complement() const;
     };
 
     // ---------------------------------------------------------------------- //
@@ -62,18 +62,18 @@ namespace ila
         } op;
 
         // the operands themselves.
-        std::vector< std::unique_ptr<Node> > args;
+        std::vector< boost::shared_ptr<Node> > args;
 
         // Don't forget to update these helper functions below.
         static bool isUnary(Op op) { return op >= NEGATE && op <= NONZERO; }
         static bool isBinary(Op op) { return op >= ADD && op <= NOR; }
         static bool isTernary(Op op) { return op >= IF && op <= IF; }
-        static int getUnaryResultWidth(Op op, const Node& n);
-        static bool checkUnaryOpWidth(Op op, const Node& n, int width);
+        static int getUnaryResultWidth(Op op, boost::shared_ptr<Node> n);
+        static bool checkUnaryOpWidth(Op op, boost::shared_ptr<Node> n, int width);
 
         // constructors.
-        BitvectorOp(Context* c, Op op, const Node& n1);
-        BitvectorOp(Context* c, Op op, const Node& n1, const Node& n2);
+        BitvectorOp(Context* c, Op op, boost::shared_ptr<Node> n1);
+        BitvectorOp(Context* c, Op op, boost::shared_ptr<Node> n1, boost::shared_ptr<Node> n2);
 
         // destructors.
         virtual ~BitvectorOp();

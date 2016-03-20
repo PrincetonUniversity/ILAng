@@ -32,16 +32,19 @@ namespace ila
       : node(new Node())
     {
         throw PyILAException(PyExc_RuntimeError, "Cannot create node's directly. Use the context object.");
+        node->setNodeRef(this);
     }
 
     NodeRef::NodeRef(Node* n)
       : node(n)
     {
+        node->setNodeRef(this);
     }
 
     NodeRef::NodeRef(const NodeRef& nr)
       : node(nr.node)
     {
+        node->setNodeRef(this);
     }
 
     NodeRef::~NodeRef()
@@ -52,6 +55,7 @@ namespace ila
     {
         if(this != &other) { 
             node = other.node;
+            node->setNodeRef(this);
         }
         return *this;
     }
@@ -70,5 +74,12 @@ namespace ila
     void NodeRef::doSomething() 
     {
         return node->doSomething();
+    }
+
+    // ---------------------------------------------------------------------- //
+    NodeRef* NodeRef::complement() const
+    {
+        Node* nprime = node->complement();
+        return new NodeRef(nprime);
     }
 }

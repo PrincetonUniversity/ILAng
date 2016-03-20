@@ -14,6 +14,10 @@ def main():
     n = m
     del m
     print n.name
+    p = ~n
+    print p.name
+    print p.type
+    print p.type.bitwidth
 
 
 

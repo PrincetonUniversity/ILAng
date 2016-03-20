@@ -11,6 +11,7 @@ namespace ila
 
     Node::Node()
       : ctx(NULL)
+      , nodeRef(NULL)
       , id(-1)
       , type(NodeType())
     {
@@ -18,6 +19,7 @@ namespace ila
 
     Node::Node(Context* c, NodeType t) 
       : ctx(c)
+      , nodeRef(NULL)
       , id(ctx->getObjId())
       , type(t) 
     {
@@ -35,14 +37,9 @@ namespace ila
         std::cout << "node created." << std::endl;
     }
 
-    std::string Node::getName() const
+    void Node::setNodeRef(NodeRef* nr)
     {
-        return name;
-    }
-
-    NodeType Node::getType() const
-    {
-        return type;
+        nodeRef = nr;
     }
 
     Node* Node::clone() const

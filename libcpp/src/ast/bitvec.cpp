@@ -20,16 +20,17 @@ namespace ila
     {
     }
 
+    Node* BitvectorExpr::complement() const
+    {
+        ILA_ASSERT(nodeRef != NULL, "Node::nodeRef not initialized.");
+        return new BitvectorOp(ctx, BitvectorOp::COMPLEMENT, nodeRef->node);
+    }
+
     // ---------------------------------------------------------------------- //
     BitvectorVar::BitvectorVar(Context* c, std::string n, int width) 
         : BitvectorExpr(c, width)
     {
         this->name = n;
-    }
-
-    Node* BitvectorVar::complement() const
-    {
-        return new BitvectorOp(ctx, BitvectorOp::COMPLEMENT, *this);
     }
 
     Node* BitvectorVar::clone() const
@@ -38,20 +39,20 @@ namespace ila
     }
 
     // ---------------------------------------------------------------------- //
-    int BitvectorOp::getUnaryResultWidth(Op op, const Node& n)
+    int BitvectorOp::getUnaryResultWidth(Op op, boost::shared_ptr<Node> n)
     {
         // FIXME: add more code when operators are added.
-        return n.type.bitWidth;
+        return n->type.bitWidth;
     }
 
-    bool BitvectorOp::checkUnaryOpWidth(Op op, const Node& arg0, int width)
+    bool BitvectorOp::checkUnaryOpWidth(Op op, boost::shared_ptr<Node> arg0, int width)
     {
         // FIXME: add more code when operators are added.
-        return arg0.type.isBitvector(width);
+        return arg0->type.isBitvector(width);
     }
 
     // constructor.
-    BitvectorOp::BitvectorOp(Context* c, Op op, const Node& n1)
+    BitvectorOp::BitvectorOp(Context* c, Op op, boost::shared_ptr<Node> n1)
       : BitvectorExpr(c, getUnaryResultWidth(op, n1))
       , arity(UNARY)
       , op(op)
@@ -67,7 +68,7 @@ namespace ila
         }
 
         // push this into the vector.
-        args.push_back( std::unique_ptr<Node>(n1.clone()) );
+        args.push_back( n1 );
     }
 
     // destructor.
@@ -80,7 +81,7 @@ namespace ila
     {
         ILA_ASSERT(arity == UNARY, "Unsupported arity in BitvectorOp");
         ILA_ASSERT(args.size() == 1, "Unary op must have exactly one argument.");
-        return new BitvectorOp(ctx, op, *args[0]);
+        return new BitvectorOp(ctx, op, args[0]);
     }
 }
 
