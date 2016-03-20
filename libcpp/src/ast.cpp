@@ -1,25 +1,13 @@
+#include <iostream>
+#include <boost/lexical_cast.hpp>
+
 #include <ast.hpp>
 #include <util.hpp>
 #include <exception.hpp>
-#include <boost/lexical_cast.hpp>
-#include <iostream>
+#include <abstraction.hpp>
 
 namespace ila
 {
-    // ---------------------------------------------------------------------- //
-    int Abstraction::getObjId()
-    {
-        return objCnt++;
-    }
-
-    Abstraction::Abstraction()
-      : objCnt(0)
-    {
-    }
-
-    Abstraction::~Abstraction()
-    {
-    }
 
     // ---------------------------------------------------------------------- //
     NodeRef* Abstraction::BitvectorVar(const std::string& name, int width)
