@@ -7,6 +7,7 @@ def main():
     print n.type
     print n.type.bitwidth
     n.doSomething()
+    print n
     del n
 
     print 'creating new bitvecvar'
@@ -15,6 +16,9 @@ def main():
     del m
     print n.name
     p = ~n
+    print n
+    print p
+    del n
     print p.name
     print p.type
     print p.type.bitwidth

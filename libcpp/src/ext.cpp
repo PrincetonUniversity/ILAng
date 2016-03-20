@@ -35,6 +35,7 @@ BOOST_PYTHON_MODULE(ila)
         .add_property("type", &NodeRef::getType)
         .def("doSomething", &NodeRef::doSomething)
         .def("__invert__", &NodeRef::complement, return_value_policy<manage_new_object>())
+        .def(self_ns::str(self))
     ;
 
     class_<Context>("Context", init<>())

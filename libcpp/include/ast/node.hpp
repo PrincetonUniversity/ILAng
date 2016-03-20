@@ -50,7 +50,6 @@ namespace ila
         // polymorphic clone method.
         virtual Node* clone() const;
 
-
         // -------------------- ACCESSORS ------------------- //
         void setNodeRef(NodeRef* nr);
 
@@ -59,6 +58,8 @@ namespace ila
         virtual Node* complement() const;
         // negation. 
         virtual Node* negate() const;
+        // output to a stream.
+        virtual std::ostream& write(std::ostream& out) const;
     };
 }
 

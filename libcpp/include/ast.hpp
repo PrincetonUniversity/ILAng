@@ -43,6 +43,9 @@ namespace ila
         NodeRef* complement() const; 
     };
 
+    // stream output.
+    std::ostream& operator<<(std::ostream& out, const NodeRef& node);
+
     class Context
     {
     private:

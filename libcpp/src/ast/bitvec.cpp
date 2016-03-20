@@ -7,6 +7,13 @@
 namespace ila
 {
     // ---------------------------------------------------------------------- //
+    const char* BitvectorOp::operatorNames[] = {
+        "-", "~", "not", "nonzero"
+        "+", "-", "&", "|", "xor", "xnor", "nand", "nor",
+        "if"
+    };
+
+    // ---------------------------------------------------------------------- //
     BitvectorExpr::BitvectorExpr(Context *c, int width) 
         : Node(c, NodeType::getBitvector(width))
     {
@@ -36,6 +43,11 @@ namespace ila
     Node* BitvectorVar::clone() const
     {
         return new BitvectorVar(ctx, name, type.bitWidth);
+    }
+
+    std::ostream& BitvectorVar::write(std::ostream& out) const
+    {
+        return (out << name);
     }
 
     // ---------------------------------------------------------------------- //
@@ -82,6 +94,17 @@ namespace ila
         ILA_ASSERT(arity == UNARY, "Unsupported arity in BitvectorOp");
         ILA_ASSERT(args.size() == 1, "Unary op must have exactly one argument.");
         return new BitvectorOp(ctx, op, args[0]);
+    }
+
+    // stream output.
+    std::ostream& BitvectorOp::write(std::ostream& out) const
+    {
+        out << "(" << operatorNames[(int)op];
+        for (auto arg: args) {
+            arg->write(out << " ");
+        }
+        out << ")";
+        return out;
     }
 }
 

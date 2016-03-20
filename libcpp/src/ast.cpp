@@ -82,4 +82,10 @@ namespace ila
         Node* nprime = node->complement();
         return new NodeRef(nprime);
     }
+
+    // ---------------------------------------------------------------------- //
+    std::ostream& operator<<(std::ostream& out, const NodeRef& n)
+    {
+        return (n.node->write(out));
+    }
 }

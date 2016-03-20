@@ -42,6 +42,9 @@ namespace ila
         // clone.
         virtual Node* clone() const;
 
+        // stream output.
+        virtual std::ostream& write(std::ostream& out) const;
+
     };
 
     // ---------------------------------------------------------------------- //
@@ -60,6 +63,8 @@ namespace ila
             // ternary
             IF
         } op;
+
+        static const char* operatorNames[];
 
         // the operands themselves.
         std::vector< boost::shared_ptr<Node> > args;
@@ -80,6 +85,9 @@ namespace ila
 
         // clone.
         virtual Node* clone() const;
+
+        // stream output.
+        virtual std::ostream& write(std::ostream& out) const;
     };
 }
 #endif

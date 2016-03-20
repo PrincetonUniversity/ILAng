@@ -28,13 +28,11 @@ namespace ila
 
     Node::~Node()
     {
-        std::cout << "node destroyed; name:" << name << std::endl;
     }
 
     void Node::_initName()
     {
         name = "n" + boost::lexical_cast<std::string>(id);
-        std::cout << "node created." << std::endl;
     }
 
     void Node::setNodeRef(NodeRef* nr)
@@ -76,5 +74,10 @@ namespace ila
         case sat:     std::cout << "de-Morgan is not valid\n"; break;
         case unknown: std::cout << "unknown\n"; break;
         }
+    }
+
+    std::ostream& Node::write(std::ostream& out) const
+    {
+        return (out << name);
     }
 }
