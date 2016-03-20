@@ -8,7 +8,7 @@ namespace ila
 {
     // ---------------------------------------------------------------------- //
     const char* BitvectorOp::operatorNames[] = {
-        "-", "~", "not", "nonzero"
+        "-", "~", "not", 
         "+", "-", "&", "|", "xor", "xnor", "nand", "nor",
         "if"
     };
@@ -31,6 +31,19 @@ namespace ila
     {
         ILA_ASSERT(nodeRef != NULL, "Node::nodeRef not initialized.");
         return new BitvectorOp(ctx, BitvectorOp::COMPLEMENT, nodeRef->node);
+    }
+
+    Node* BitvectorExpr::negate() const
+    {
+        ILA_ASSERT(nodeRef != NULL, "Node::nodeRef not initialized.");
+        return new BitvectorOp(ctx, BitvectorOp::NEGATE, nodeRef->node);
+    }
+
+    Node* BitvectorExpr::logicalNot() const
+    {
+        // FIXME: this must return a bool.
+        ILA_ASSERT(nodeRef != NULL, "Node::nodeRef not initialized.");
+        return new BitvectorOp(ctx, BitvectorOp::LNOT, nodeRef->node);
     }
 
     // ---------------------------------------------------------------------- //

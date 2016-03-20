@@ -58,6 +58,8 @@ namespace ila
         virtual Node* complement() const;
         // negation. 
         virtual Node* negate() const;
+        // logical negation.
+        virtual Node* logicalNot() const;
         // output to a stream.
         virtual std::ostream& write(std::ostream& out) const;
     };

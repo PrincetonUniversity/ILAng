@@ -10,8 +10,10 @@ using namespace ila;
 BOOST_PYTHON_MODULE(ila)
 {
     // setup the exception translator.
-    register_exception_translator<PyILAException>(translateILAException);
+    register_exception_translator
+        <PyILAException>(translateILAException);
 
+    // Enum for the types we recognize.
     enum_<NodeType::Type>("Types")
         .value("INVALID", NodeType::INVALID)
         .value("BOOL", NodeType::BOOL)
@@ -19,6 +21,7 @@ BOOST_PYTHON_MODULE(ila)
         .value("MEM", NodeType::MEM)
     ;
 
+    // This is the typename + size (so the "real" type).
     class_<NodeType>("Type", init<>())
         .def_readonly("bitwidth", &NodeType::bitWidth)
         .def_readonly("addrwidth", &NodeType::addrWidth)
@@ -30,14 +33,21 @@ BOOST_PYTHON_MODULE(ila)
         .def(!self)
     ;
 
+    // This is the real node type.
     class_<NodeRef>("Node")
         .add_property("name", &NodeRef::getName)
         .add_property("type", &NodeRef::getType)
         .def("doSomething", &NodeRef::doSomething)
-        .def("__invert__", &NodeRef::complement, return_value_policy<manage_new_object>())
+        .def("__invert__", 
+                &NodeRef::complement, 
+                return_value_policy<manage_new_object>())
+        .def("__neg__", 
+                &NodeRef::negate, 
+                return_value_policy<manage_new_object>())
         .def(self_ns::str(self))
     ;
 
+    // This is the top-level class.
     class_<Abstraction>("Abstraction", init<>())
         .def("BitvectorVar", &Abstraction::BitvectorVar, return_value_policy<manage_new_object>())
     ;

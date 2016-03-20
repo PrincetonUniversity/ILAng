@@ -27,6 +27,8 @@ namespace ila
         virtual ~BitvectorExpr();
         // operators.
         virtual Node* complement() const;
+        virtual Node* negate() const;
+        virtual Node* logicalNot() const;
     };
 
     // ---------------------------------------------------------------------- //
@@ -57,7 +59,7 @@ namespace ila
         // What is the operation?
         enum Op { 
             // unary
-            NEGATE, COMPLEMENT, LNOT, NONZERO,  
+            NEGATE, COMPLEMENT, LNOT, 
             // binary.
             ADD, SUB, AND, OR, XOR, XNOR, NAND, NOR,
             // ternary
@@ -70,15 +72,18 @@ namespace ila
         std::vector< boost::shared_ptr<Node> > args;
 
         // Don't forget to update these helper functions below.
-        static bool isUnary(Op op) { return op >= NEGATE && op <= NONZERO; }
+        static bool isUnary(Op op) { return op >= NEGATE && op <= LNOT; }
         static bool isBinary(Op op) { return op >= ADD && op <= NOR; }
         static bool isTernary(Op op) { return op >= IF && op <= IF; }
         static int getUnaryResultWidth(Op op, boost::shared_ptr<Node> n);
         static bool checkUnaryOpWidth(Op op, boost::shared_ptr<Node> n, int width);
 
         // constructors.
-        BitvectorOp(Abstraction* c, Op op, boost::shared_ptr<Node> n1);
-        BitvectorOp(Abstraction* c, Op op, boost::shared_ptr<Node> n1, boost::shared_ptr<Node> n2);
+        BitvectorOp(Abstraction* c, Op op, 
+                    boost::shared_ptr<Node> n1);
+        BitvectorOp(Abstraction* c, Op op, 
+                    boost::shared_ptr<Node> n1, 
+                    boost::shared_ptr<Node> n2);
 
         // destructors.
         virtual ~BitvectorOp();

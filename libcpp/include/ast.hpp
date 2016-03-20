@@ -41,6 +41,8 @@ namespace ila
 
         // ---------------------- OPERATORS ----------------------------- //
         NodeRef* complement() const; 
+        NodeRef* negate() const;
+        NodeRef* logicalNot() const;
     };
 
     // stream output.

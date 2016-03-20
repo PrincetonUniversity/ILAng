@@ -83,6 +83,18 @@ namespace ila
         return new NodeRef(nprime);
     }
 
+    NodeRef* NodeRef::negate() const
+    {
+        Node* nprime = node->negate();
+        return new NodeRef(nprime);
+    }
+
+    NodeRef* NodeRef::logicalNot() const
+    {
+        Node* nprime = node->logicalNot();
+        return new NodeRef(nprime);
+    }
+
     // ---------------------------------------------------------------------- //
     std::ostream& operator<<(std::ostream& out, const NodeRef& n)
     {

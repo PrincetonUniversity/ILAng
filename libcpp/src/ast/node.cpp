@@ -58,6 +58,13 @@ namespace ila
     Node* Node::negate() const
     {
         throw PyILAException(PyExc_NotImplementedError, "Negate not implemented.");
+        return NULL;
+    }
+
+    Node* Node::logicalNot() const
+    {
+        throw PyILAException(PyExc_NotImplementedError, "Negate not implemented.");
+        return NULL;
     }
 
     // ---------------------------------------------------------------------- //

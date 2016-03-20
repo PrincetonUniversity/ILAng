@@ -18,6 +18,7 @@ def main():
     p = ~n
     print n
     print p
+    print -p
     del n
     print p.name
     print p.type
