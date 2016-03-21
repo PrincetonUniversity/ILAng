@@ -77,6 +77,12 @@ namespace ila
         return new NodeRef(nprime);
     }
 
+    NodeRef* NodeRef::add(NodeRef* other) const
+    {
+        Node* nprime = node->add(other->node);
+        return new NodeRef(nprime);
+    }
+
     // ---------------------------------------------------------------------- //
     std::ostream& operator<<(std::ostream& out, const NodeRef& n)
     {

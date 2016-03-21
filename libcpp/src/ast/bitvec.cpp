@@ -48,6 +48,14 @@ namespace ila
         return new BitvectorOp(ctx, BitvectorOp::LNOT, nodeRef->node);
     }
 
+    Node* BitvectorExpr::add(boost::shared_ptr<Node> n2) const
+    {
+        ILA_ASSERT(nodeRef != NULL, "Node::nodeRef not initialized.");
+        return new BitvectorOp(
+            ctx, BitvectorOp::ADD,
+            nodeRef->node, n2);
+    }
+
     // ---------------------------------------------------------------------- //
     BitvectorVar::BitvectorVar(Abstraction* c, std::string n, int width) 
         : BitvectorExpr(c, width)
@@ -72,30 +80,80 @@ namespace ila
         return n->type.bitWidth;
     }
 
+    int BitvectorOp::getBinaryResultWidth(
+        Op op, boost::shared_ptr<Node> n1, boost::shared_ptr<Node> n2)
+    {
+        // FIXME: add more code when operators are added.
+        return n1->type.bitWidth;
+    }
+
     bool BitvectorOp::checkUnaryOpWidth(Op op, boost::shared_ptr<Node> arg0, int width)
     {
         // FIXME: add more code when operators are added.
         return arg0->type.isBitvector(width);
     }
 
-    // constructor.
-    BitvectorOp::BitvectorOp(Abstraction* c, Op op, boost::shared_ptr<Node> n1)
+    bool BitvectorOp::checkBinaryOpWidth(
+        Op op, 
+        boost::shared_ptr<Node> n1, 
+        boost::shared_ptr<Node> n2,
+        int width)
+    {
+        // FIXME: add more code when operators are added.
+        return n1->type.isBitvector(width) &&
+               n2->type.isBitvector(width);
+    }
+
+    // constructor: unary ops.
+    BitvectorOp::BitvectorOp(Abstraction* c, 
+        Op op, 
+        boost::shared_ptr<Node> n1
+    )
+
       : BitvectorExpr(c, getUnaryResultWidth(op, n1))
       , arity(UNARY)
       , op(op)
     {
 
         // check if for the correct operator.
-        if(!isUnary(op)) {
-            throw PyILAException(PyExc_ValueError, "Invalid unary operator.");
+        if (!isUnary(op)) {
+            throw PyILAException(PyExc_ValueError, 
+                                 "Invalid unary operator.");
         }
         // check for the right type.
-        if(!checkUnaryOpWidth(op, n1, type.bitWidth)) {
-            throw PyILAException(PyExc_TypeError, "Invalid type for unary operator argument.");
+        if (!checkUnaryOpWidth(op, n1, type.bitWidth)) {
+            throw PyILAException(
+                PyExc_TypeError, 
+                "Invalid type for unary operator argument.");
         }
 
         // push this into the vector.
         args.push_back( n1 );
+    }
+
+    // constructor: binary ops.
+    BitvectorOp::BitvectorOp(Abstraction* c, 
+        Op op,
+        boost::shared_ptr<Node> n1,
+        boost::shared_ptr<Node> n2
+    )
+      : BitvectorExpr(c, getBinaryResultWidth(op, n1, n2))
+      , arity(BINARY)
+      , op(op)
+    {
+        if (!isBinary(op)) {
+            throw PyILAException(PyExc_ValueError,
+                                 "Invalid binary operator.");
+        }
+
+        if (!checkBinaryOpWidth(op, n1, n2, type.bitWidth)) {
+            throw PyILAException(
+                PyExc_TypeError, 
+                "Invalid type for binary operator argument.");
+        }
+
+        args.push_back( n1 );
+        args.push_back( n2 );
     }
 
     // destructor.
@@ -106,9 +164,18 @@ namespace ila
     // clone.
     Node* BitvectorOp::clone() const
     {
-        ILA_ASSERT(arity == UNARY, "Unsupported arity in BitvectorOp");
-        ILA_ASSERT(args.size() == 1, "Unary op must have exactly one argument.");
-        return new BitvectorOp(ctx, op, args[0]);
+        if (arity == UNARY) {
+            ILA_ASSERT(args.size() == 1, 
+                "Unary op must have exactly one argument.");
+            return new BitvectorOp(ctx, op, args[0]);
+        } else if(arity == BINARY) {
+            ILA_ASSERT(args.size() == 2,
+                "Binary op must have exactly two arguments.");
+            return new BitvectorOp(ctx, op, args[0], args[1]);
+        } else {
+            ILA_ASSERT(false, "Unsupported arity in BitvectorOp");
+            return NULL;
+        }
     }
 
     // stream output.

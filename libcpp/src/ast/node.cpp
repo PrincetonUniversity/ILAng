@@ -53,19 +53,25 @@ namespace ila
 
     Node* Node::complement() const
     {
-        throw PyILAException(PyExc_NotImplementedError, "Complement not implemented.");
+        throw PyILAException(PyExc_NotImplementedError, "complement not implemented.");
         return NULL;
     }
 
     Node* Node::negate() const
     {
-        throw PyILAException(PyExc_NotImplementedError, "Negate not implemented.");
+        throw PyILAException(PyExc_NotImplementedError, "negate not implemented.");
         return NULL;
     }
 
     Node* Node::logicalNot() const
     {
-        throw PyILAException(PyExc_NotImplementedError, "Negate not implemented.");
+        throw PyILAException(PyExc_NotImplementedError, "logical not not implemented.");
+        return NULL;
+    }
+
+    Node* Node::add(boost::shared_ptr<Node> n2) const
+    {
+        throw PyILAException(PyExc_NotImplementedError, "add not implemented.");
         return NULL;
     }
 

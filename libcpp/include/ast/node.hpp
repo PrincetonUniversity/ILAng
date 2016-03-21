@@ -10,6 +10,8 @@
 #include <assert.h>
 #include <type.hpp>
 
+#include <boost/shared_ptr.hpp>
+
 namespace ila 
 {
     class Abstraction;
@@ -60,6 +62,8 @@ namespace ila
         virtual Node* negate() const;
         // logical negation.
         virtual Node* logicalNot() const;
+        // addition.
+        virtual Node* add(boost::shared_ptr<Node> n2) const;
         // output to a stream.
         virtual std::ostream& write(std::ostream& out) const;
     };

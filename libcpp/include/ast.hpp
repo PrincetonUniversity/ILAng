@@ -43,6 +43,7 @@ namespace ila
         NodeRef* complement() const; 
         NodeRef* negate() const;
         NodeRef* logicalNot() const;
+        NodeRef* add(NodeRef* other) const;
     };
 
     // stream output.

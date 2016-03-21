@@ -23,7 +23,14 @@ def main():
     print p.name
     print p.type
     print p.type.bitwidth
+    del p
 
+    n1 = c.addRegister('n1', 16)
+    n2 = c.addRegister('n2', 16)
+    n2p = ~n2
+    n3 = n1 + n2p
+    print n3
+    print n3.type
 
 
 if __name__ == '__main__':

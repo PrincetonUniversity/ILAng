@@ -29,6 +29,7 @@ namespace ila
         virtual Node* complement() const;
         virtual Node* negate() const;
         virtual Node* logicalNot() const;
+        virtual Node* add(boost::shared_ptr<Node> n2) const;
     };
 
     // ---------------------------------------------------------------------- //
@@ -75,8 +76,23 @@ namespace ila
         static bool isUnary(Op op) { return op >= NEGATE && op <= LNOT; }
         static bool isBinary(Op op) { return op >= ADD && op <= NOR; }
         static bool isTernary(Op op) { return op >= IF && op <= IF; }
-        static int getUnaryResultWidth(Op op, boost::shared_ptr<Node> n);
-        static bool checkUnaryOpWidth(Op op, boost::shared_ptr<Node> n, int width);
+        // helper functions to determine result and argument types.
+        static int getUnaryResultWidth(
+            Op op, 
+            boost::shared_ptr<Node> n);
+        static int getBinaryResultWidth(
+            Op op, 
+            boost::shared_ptr<Node> n1, 
+            boost::shared_ptr<Node> n2);
+        static bool checkUnaryOpWidth(
+            Op op, 
+            boost::shared_ptr<Node> n, 
+            int width);
+        static bool checkBinaryOpWidth(
+            Op op, 
+            boost::shared_ptr<Node> n1, 
+            boost::shared_ptr<Node> n2, 
+            int width);
 
         // constructors.
         BitvectorOp(Abstraction* c, Op op, 
