@@ -45,6 +45,7 @@ namespace ila
         NodeRef* logicalNot() const;
         NodeRef* add(NodeRef* other) const;
         NodeRef* addInt(int r) const;
+        NodeRef* raddInt(int r) const;
     };
 
     // stream output.

@@ -66,6 +66,8 @@ namespace ila
         virtual Node* add(boost::shared_ptr<Node> n2) const;
         // addition with an integer.
         virtual Node* addInt(int r) const;
+        // addition from the right with an integer.
+        virtual Node* raddInt(int r) const;
         // output to a stream.
         virtual std::ostream& write(std::ostream& out) const;
     };

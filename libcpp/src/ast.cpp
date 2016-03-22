@@ -89,6 +89,12 @@ namespace ila
         return new NodeRef(nprime);
     }
 
+    NodeRef* NodeRef::raddInt(int r) const
+    {
+        Node* nprime = node->raddInt(r);
+        return new NodeRef(nprime);
+    }
+
     // ---------------------------------------------------------------------- //
     std::ostream& operator<<(std::ostream& out, const NodeRef& n)
     {

@@ -42,6 +42,10 @@ def main():
     print x
     print x.type
 
+    y = 32 + ~(c1 + c2)
+    print y
+    print y.type
+
 
 if __name__ == '__main__':
     main()

@@ -81,6 +81,12 @@ namespace ila
         return NULL;
     }
 
+    Node* Node::raddInt(int n2) const
+    {
+        throw PyILAException(PyExc_NotImplementedError, "addint not implemented.");
+        return NULL;
+    }
+
     // ---------------------------------------------------------------------- //
     void Node::doSomething()
     {
