@@ -55,6 +55,15 @@ BOOST_PYTHON_MODULE(ila)
         .def("__radd__",
                 &NodeRef::raddInt,
                 return_value_policy<manage_new_object>())
+        .def("__sub__",
+                &NodeRef::sub,
+                return_value_policy<manage_new_object>())
+        .def("__sub__",
+                &NodeRef::subInt,
+                return_value_policy<manage_new_object>())
+        .def("__rsub__",
+                &NodeRef::rsubInt,
+                return_value_policy<manage_new_object>())
         .def(self_ns::str(self))
     ;
 

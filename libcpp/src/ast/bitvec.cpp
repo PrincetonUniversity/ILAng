@@ -70,6 +70,32 @@ namespace ila
             n2, nodeRef->node);
     }
 
+    Node* BitvectorExpr::sub(boost::shared_ptr<Node> n2) const
+    {
+        ILA_ASSERT(nodeRef != NULL, "Node::nodeRef not initialized.");
+        return new BitvectorOp(
+            ctx, BitvectorOp::SUB,
+            nodeRef->node, n2);
+    }
+
+    Node* BitvectorExpr::subInt(int v2) const
+    {
+        ILA_ASSERT(nodeRef != NULL, "Node::nodeRef not initialized.");
+        boost::shared_ptr<Node> n2(new BitvectorConst(ctx, v2, type.bitWidth));
+        return new BitvectorOp(
+            ctx, BitvectorOp::SUB,
+            nodeRef->node, n2);
+    }
+
+    Node* BitvectorExpr::rsubInt(int v2) const
+    {
+        ILA_ASSERT(nodeRef != NULL, "Node::nodeRef not initialized.");
+        boost::shared_ptr<Node> n2(new BitvectorConst(ctx, v2, type.bitWidth));
+        return new BitvectorOp(
+            ctx, BitvectorOp::SUB,
+            n2, nodeRef->node);
+    }
+
     // ---------------------------------------------------------------------- //
     BitvectorVar::BitvectorVar(Abstraction* c, std::string n, int width) 
         : BitvectorExpr(c, width)

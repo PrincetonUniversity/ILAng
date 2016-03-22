@@ -95,6 +95,24 @@ namespace ila
         return new NodeRef(nprime);
     }
 
+    NodeRef* NodeRef::sub(NodeRef* other) const
+    {
+        Node* nprime = node->sub(other->node);
+        return new NodeRef(nprime);
+    }
+
+    NodeRef* NodeRef::subInt(int r) const
+    {
+        Node* nprime = node->subInt(r);
+        return new NodeRef(nprime);
+    }
+
+    NodeRef* NodeRef::rsubInt(int r) const
+    {
+        Node* nprime = node->rsubInt(r);
+        return new NodeRef(nprime);
+    }
+
     // ---------------------------------------------------------------------- //
     std::ostream& operator<<(std::ostream& out, const NodeRef& n)
     {

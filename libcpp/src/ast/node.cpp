@@ -87,6 +87,24 @@ namespace ila
         return NULL;
     }
 
+    Node* Node::sub(boost::shared_ptr<Node> n2) const
+    {
+        throw PyILAException(PyExc_NotImplementedError, "sub not implemented.");
+        return NULL;
+    }
+
+    Node* Node::subInt(int n2) const
+    {
+        throw PyILAException(PyExc_NotImplementedError, "subint not implemented.");
+        return NULL;
+    }
+
+    Node* Node::rsubInt(int n2) const
+    {
+        throw PyILAException(PyExc_NotImplementedError, "subint not implemented.");
+        return NULL;
+    }
+
     // ---------------------------------------------------------------------- //
     void Node::doSomething()
     {

@@ -46,6 +46,9 @@ namespace ila
         NodeRef* add(NodeRef* other) const;
         NodeRef* addInt(int r) const;
         NodeRef* raddInt(int r) const;
+        NodeRef* sub(NodeRef* other) const;
+        NodeRef* subInt(int r) const;
+        NodeRef* rsubInt(int r) const;
     };
 
     // stream output.

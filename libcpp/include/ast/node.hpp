@@ -68,6 +68,12 @@ namespace ila
         virtual Node* addInt(int r) const;
         // addition from the right with an integer.
         virtual Node* raddInt(int r) const;
+        // subtraction.
+        virtual Node* sub(boost::shared_ptr<Node> n2) const;
+        // subtraction with an integer.
+        virtual Node* subInt(int r) const;
+        // subtraction from the right with an integer.
+        virtual Node* rsubInt(int r) const;
         // output to a stream.
         virtual std::ostream& write(std::ostream& out) const;
     };

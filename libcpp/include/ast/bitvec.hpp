@@ -33,6 +33,9 @@ namespace ila
         virtual Node* add(boost::shared_ptr<Node> n2) const;
         virtual Node* addInt(int n2) const;
         virtual Node* raddInt(int n2) const;
+        virtual Node* sub(boost::shared_ptr<Node> n2) const;
+        virtual Node* subInt(int n2) const;
+        virtual Node* rsubInt(int n2) const;
     };
 
     // ---------------------------------------------------------------------- //
