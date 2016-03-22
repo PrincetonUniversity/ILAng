@@ -44,6 +44,7 @@ namespace ila
         NodeRef* negate() const;
         NodeRef* logicalNot() const;
         NodeRef* add(NodeRef* other) const;
+        NodeRef* addInt(int r) const;
     };
 
     // stream output.

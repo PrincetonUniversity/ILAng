@@ -31,6 +31,7 @@ namespace ila
         virtual Node* negate() const;
         virtual Node* logicalNot() const;
         virtual Node* add(boost::shared_ptr<Node> n2) const;
+        virtual Node* addInt(int n2) const;
     };
 
     // ---------------------------------------------------------------------- //

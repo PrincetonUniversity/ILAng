@@ -64,6 +64,8 @@ namespace ila
         virtual Node* logicalNot() const;
         // addition.
         virtual Node* add(boost::shared_ptr<Node> n2) const;
+        // addition with an integer.
+        virtual Node* addInt(int r) const;
         // output to a stream.
         virtual std::ostream& write(std::ostream& out) const;
     };

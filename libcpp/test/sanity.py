@@ -37,6 +37,10 @@ def main():
 
     c2 = c.const(0x80, 16)
     print ~(c1 + c2)
+    
+    x =  ~(c1 + c2) + 32
+    print x
+    print x.type
 
 
 if __name__ == '__main__':

@@ -49,6 +49,9 @@ BOOST_PYTHON_MODULE(ila)
         .def("__add__",
                 &NodeRef::add,
                 return_value_policy<manage_new_object>())
+        .def("__add__",
+                &NodeRef::addInt,
+                return_value_policy<manage_new_object>())
         .def(self_ns::str(self))
     ;
 

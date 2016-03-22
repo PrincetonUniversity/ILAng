@@ -52,6 +52,15 @@ namespace ila
             nodeRef->node, n2);
     }
 
+    Node* BitvectorExpr::addInt(int v2) const
+    {
+        ILA_ASSERT(nodeRef != NULL, "Node::nodeRef not initialized.");
+        boost::shared_ptr<Node> n2(new BitvectorConst(ctx, v2, type.bitWidth));
+        return new BitvectorOp(
+            ctx, BitvectorOp::ADD,
+            nodeRef->node, n2);
+    }
+
     // ---------------------------------------------------------------------- //
     BitvectorVar::BitvectorVar(Abstraction* c, std::string n, int width) 
         : BitvectorExpr(c, width)
