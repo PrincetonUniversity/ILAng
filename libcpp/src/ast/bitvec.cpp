@@ -25,10 +25,6 @@ namespace ila
     {
     }
 
-    BitvectorVar::~BitvectorVar()
-    {
-    }
-
     Node* BitvectorExpr::complement() const
     {
         ILA_ASSERT(nodeRef != NULL, "Node::nodeRef not initialized.");
@@ -63,6 +59,10 @@ namespace ila
         this->name = n;
     }
 
+    BitvectorVar::~BitvectorVar()
+    {
+    }
+
     Node* BitvectorVar::clone() const
     {
         return new BitvectorVar(ctx, name, type.bitWidth);
@@ -71,6 +71,34 @@ namespace ila
     std::ostream& BitvectorVar::write(std::ostream& out) const
     {
         return (out << name);
+    }
+
+    // ---------------------------------------------------------------------- //
+    BitvectorConst::BitvectorConst(Abstraction* c, boost::python::long_ v, int w)
+        : BitvectorExpr(c, w)
+        , value(v)
+    {
+    }
+
+    BitvectorConst::BitvectorConst(Abstraction* c, int v, int w)
+        : BitvectorExpr(c, w)
+        , value(v)
+    {
+    }
+
+    BitvectorConst::~BitvectorConst()
+    {
+    }
+
+    Node* BitvectorConst::clone() const
+    {
+        return new BitvectorConst(ctx, value, type.bitWidth);
+    }
+
+    std::ostream& BitvectorConst::write(std::ostream& out) const
+    {
+        std::string string_value = boost::python::extract<std::string>(boost::python::str(value));
+        return (out << string_value);
     }
 
     // ---------------------------------------------------------------------- //

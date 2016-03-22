@@ -32,6 +32,12 @@ def main():
     print n3
     print n3.type
 
+    c1 = c.const(0x80L, 16)
+    print ~c1
+
+    c2 = c.const(0x80, 16)
+    print ~(c1 + c2)
+
 
 if __name__ == '__main__':
     main()

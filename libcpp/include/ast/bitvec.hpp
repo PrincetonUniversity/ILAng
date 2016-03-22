@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <boost/shared_ptr.hpp>
+#include <boost/python.hpp>
 
 #include <z3++.h>
 #include <assert.h>
@@ -38,16 +39,30 @@ namespace ila
     public:
         // constructor.
         BitvectorVar(Abstraction* c, std::string n, int width) ;
-
         // destructor.
         virtual ~BitvectorVar();
-
         // clone.
         virtual Node* clone() const;
-
         // stream output.
         virtual std::ostream& write(std::ostream& out) const;
 
+    };
+
+    // ---------------------------------------------------------------------- //
+    // Bitvector variables.
+    class BitvectorConst : public BitvectorExpr {
+        boost::python::long_ value;
+    public:
+        // constructor with longs.
+        BitvectorConst(Abstraction* c, boost::python::long_ v, int width);
+        // constructor with ints.
+        BitvectorConst(Abstraction* c, int v, int width);
+        // destructor.
+        virtual ~BitvectorConst();
+        // clone
+        virtual Node* clone() const;
+        // stream output.
+        virtual std::ostream& write(std::ostream& out) const;
     };
 
     // ---------------------------------------------------------------------- //

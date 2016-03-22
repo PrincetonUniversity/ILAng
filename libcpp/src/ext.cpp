@@ -55,5 +55,7 @@ BOOST_PYTHON_MODULE(ila)
     // This is the top-level class.
     class_<Abstraction>("Abstraction", init<>())
         .def("addRegister", &Abstraction::addRegister, return_value_policy<manage_new_object>())
+        .def("const", &Abstraction::bvConstLong, return_value_policy<manage_new_object>())
+        .def("const", &Abstraction::bvConstInt, return_value_policy<manage_new_object>())
     ;
 }
