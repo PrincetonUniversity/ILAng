@@ -12,6 +12,7 @@
 
 #include <ast/node.hpp>
 #include <ast/bitvec.hpp>
+#include <ast/bool.hpp>
 #include <boost/shared_ptr.hpp>
 
 namespace ila
