@@ -72,5 +72,6 @@ BOOST_PYTHON_MODULE(ila)
         .def("addRegister", &Abstraction::addRegister, return_value_policy<manage_new_object>())
         .def("const", &Abstraction::bvConstLong, return_value_policy<manage_new_object>())
         .def("const", &Abstraction::bvConstInt, return_value_policy<manage_new_object>())
+        .def("synthesize", &Abstraction::synthesize)
     ;
 }
