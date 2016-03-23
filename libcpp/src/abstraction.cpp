@@ -37,14 +37,17 @@ namespace ila
     {
         using namespace boost::python;
 
-        dict d;
-        d["arg"] = 1;
+        dict args;
+        args["arg"] = 1;
 
-        dict dp = call<dict>(pyfun, d);
+        object result = call<object, dict>(pyfun, args);
+        extract<dict> res(result);
 
-        std::cout << "finished call." << std::endl;
-
-        int result = extract<int>(dp["arg"]);
-        std::cout << "result=" << result << std::endl;
+        if (res.check()) {
+            int result = extract<int>(res()["arg"]);
+            std::cout << "result=" << result << std::endl;
+        } else {
+            std::cout << "got nonsense." << std::endl;
+        }
     }
 }
