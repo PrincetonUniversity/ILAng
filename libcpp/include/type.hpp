@@ -37,6 +37,8 @@ namespace ila {
             return type == MEM && addrWidth == aw && dataWidth == dw;
         }
 
+        bool operator==(const NodeType& t) const;
+
         // static helper construction functions.
         static NodeType getBool();
         static NodeType getBitvector(int w);

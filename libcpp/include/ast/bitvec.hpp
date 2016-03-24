@@ -43,19 +43,19 @@ namespace ila
     class BitvectorVar : public BitvectorExpr {
     public:
         // constructor.
-        BitvectorVar(Abstraction* c, std::string n, int width) ;
+        BitvectorVar(Abstraction* c, const std::string& n, int width) ;
         // destructor.
         virtual ~BitvectorVar();
         // clone.
         virtual Node* clone() const;
         // stream output.
         virtual std::ostream& write(std::ostream& out) const;
-
     };
 
     // ---------------------------------------------------------------------- //
     // Bitvector variables.
     class BitvectorConst : public BitvectorExpr {
+    protected:
         boost::python::long_ value;
     public:
         // constructor with longs.

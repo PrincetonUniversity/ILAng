@@ -62,11 +62,25 @@ namespace ila
         }
     }
 
-    // constructor (operator!).
+    // operator!
     bool NodeType::operator! (void) const
     {
         if (type == INVALID) {
             return true;
+        } else {
+            return false;
+        }
+    }
+
+    bool NodeType::operator==(const NodeType& t) const
+    {
+        if (type == BOOL && t.type == BOOL) {
+            return true;
+        } else if (type == BITVECTOR && t.type == BITVECTOR) {
+            return bitWidth == t.bitWidth;
+        } else if (type == MEM && t.type == MEM) {
+            return addrWidth == t.addrWidth &&
+                   dataWidth == t.dataWidth;
         } else {
             return false;
         }

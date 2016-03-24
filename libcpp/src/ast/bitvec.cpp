@@ -11,7 +11,7 @@ namespace ila
     // ---------------------------------------------------------------------- //
     const char* BitvectorOp::operatorNames[] = {
         "-", "~", "not", 
-        "+", "-", "&", "|", "xor", "xnor", "nand", "nor",
+        "+", "-", "and", "or", "xor", "xnor", "nand", "nor",
         "if"
     };
 
@@ -97,7 +97,7 @@ namespace ila
     }
 
     // ---------------------------------------------------------------------- //
-    BitvectorVar::BitvectorVar(Abstraction* c, std::string n, int width) 
+    BitvectorVar::BitvectorVar(Abstraction* c, const std::string& n, int width) 
         : BitvectorExpr(c, width)
     {
         this->name = n;
