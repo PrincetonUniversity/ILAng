@@ -9,7 +9,8 @@
 namespace ila
 {
     // ---------------------------------------------------------------------- //
-    const char* BoolOp::operatorNames[] = {
+    const std::string BoolOp::operatorNames[] = {
+        "invalid",
         "not", 
         "and", "or", "xor", "xnor", "nand", "nor",
         "if"

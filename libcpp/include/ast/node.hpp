@@ -51,31 +51,13 @@ namespace ila
         void doSomething();
         // polymorphic clone method.
         virtual Node* clone() const;
+        // output to a stream.
+        virtual std::ostream& write(std::ostream& out) const;
 
         // -------------------- ACCESSORS ------------------- //
         void setNodeRef(NodeRef* nr);
 
-        // --------------------- OPERATORS ------------------ //
-        // bitwise complement.
-        virtual Node* complement() const;
-        // negation. 
-        virtual Node* negate() const;
-        // logical negation.
-        virtual Node* logicalNot() const;
-        // addition.
-        virtual Node* add(boost::shared_ptr<Node> n2) const;
-        // addition with an integer.
-        virtual Node* addInt(int r) const;
-        // addition from the right with an integer.
-        virtual Node* raddInt(int r) const;
-        // subtraction.
-        virtual Node* sub(boost::shared_ptr<Node> n2) const;
-        // subtraction with an integer.
-        virtual Node* subInt(int r) const;
-        // subtraction from the right with an integer.
-        virtual Node* rsubInt(int r) const;
-        // output to a stream.
-        virtual std::ostream& write(std::ostream& out) const;
+        friend class NodeRef;
     };
 }
 

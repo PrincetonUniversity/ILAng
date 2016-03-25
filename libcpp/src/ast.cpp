@@ -61,56 +61,114 @@ namespace ila
     // ---------------------------------------------------------------------- //
     NodeRef* NodeRef::complement() const
     {
-        Node* nprime = node->complement();
-        return new NodeRef(nprime);
+        return _unOp(
+            BoolOp::NOT,
+            BitvectorOp::COMPLEMENT,
+            "complement");
     }
 
     NodeRef* NodeRef::negate() const
     {
-        Node* nprime = node->negate();
-        return new NodeRef(nprime);
+        return _unOp(
+            BoolOp::INVALID,
+            BitvectorOp::NEGATE,
+            "negate");
     }
 
     NodeRef* NodeRef::logicalNot() const
     {
-        Node* nprime = node->logicalNot();
-        return new NodeRef(nprime);
+        return _unOp(
+            BoolOp::NOT,
+            BitvectorOp::INVALID,
+            "not");
     }
 
     NodeRef* NodeRef::add(NodeRef* other) const
     {
-        Node* nprime = node->add(other->node);
-        return new NodeRef(nprime);
+        return _binOp(BitvectorOp::ADD, other);
     }
 
     NodeRef* NodeRef::addInt(int r) const
     {
-        Node* nprime = node->addInt(r);
-        return new NodeRef(nprime);
+        return _binOp(BitvectorOp::ADD, r);
     }
 
     NodeRef* NodeRef::raddInt(int r) const
     {
-        Node* nprime = node->raddInt(r);
-        return new NodeRef(nprime);
+        return _binOpR(BitvectorOp::ADD, r);
     }
 
     NodeRef* NodeRef::sub(NodeRef* other) const
     {
-        Node* nprime = node->sub(other->node);
-        return new NodeRef(nprime);
+        return _binOp(BitvectorOp::SUB, other);
     }
 
     NodeRef* NodeRef::subInt(int r) const
     {
-        Node* nprime = node->subInt(r);
-        return new NodeRef(nprime);
+        return _binOp(BitvectorOp::SUB, r);
     }
 
     NodeRef* NodeRef::rsubInt(int r) const
     {
-        Node* nprime = node->rsubInt(r);
-        return new NodeRef(nprime);
+        return _binOpR(BitvectorOp::SUB, r);
+    }
+
+    // ---------------------------------------------------------------------- //
+    NodeRef* NodeRef::_unOp(
+        BoolOp::Op opBool, BitvectorOp::Op opBv, const char* opName) const
+    {
+        if (opBv != BitvectorOp::INVALID && node->type.isBitvector()) {
+            return new NodeRef(new BitvectorOp(node->ctx, opBv, node));
+        } else if (opBool != BoolOp::INVALID && node->type.isBool()) {
+            return new NodeRef(new BoolOp(node->ctx, opBool, node));
+        } else {
+            throw PyILAException(PyExc_TypeError,
+                                 std::string("Incorrect type for ") + 
+                                 opName);
+            return NULL;
+        }
+    }
+
+    NodeRef* NodeRef::_binOp(BitvectorOp::Op op, NodeRef* other) const
+    {
+        if (node->type.isBitvector()) {
+            return new NodeRef(new BitvectorOp(
+                        node->ctx, op, node, other->node));
+        } else {
+            throw PyILAException(PyExc_TypeError,
+                                 "Incorrect type for " + 
+                                 BitvectorOp::operatorNames[op]);
+        }
+    }
+
+    NodeRef* NodeRef::_binOp(BitvectorOp::Op op, int r) const
+    {
+        if (node->type.isBitvector()) {
+            boost::shared_ptr<Node> node_r(
+                new BitvectorConst(node->ctx, r, node->type.bitWidth));
+
+            return new NodeRef(new BitvectorOp(
+                        node->ctx, op, node, node_r));
+        } else {
+            throw PyILAException(PyExc_TypeError,
+                                 "Incorrect type for " +
+                                 BitvectorOp::operatorNames[op]);
+        }
+    }
+
+    NodeRef* NodeRef::_binOpR(BitvectorOp::Op op, int r) const
+    {
+        if (node->type.isBitvector()) {
+            boost::shared_ptr<Node> node_r(
+                new BitvectorConst(node->ctx, r, node->type.bitWidth));
+
+            return new NodeRef(new BitvectorOp(
+                        node->ctx, op, node_r, node));
+        } else {
+            throw PyILAException(PyExc_TypeError,
+                                 "Incorrect type for " +
+                                 BitvectorOp::operatorNames[op]);
+        }
     }
 
     // ---------------------------------------------------------------------- //

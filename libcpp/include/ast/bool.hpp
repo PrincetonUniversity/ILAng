@@ -25,18 +25,6 @@ namespace ila
         BoolExpr(Abstraction* c);
         // destructor.
         virtual ~BoolExpr();
-        // operators.
-        /*
-        virtual Node* complement() const;
-        virtual Node* negate() const;
-        virtual Node* logicalNot() const;
-        virtual Node* add(boost::shared_ptr<Node> n2) const;
-        virtual Node* addInt(int n2) const;
-        virtual Node* raddInt(int n2) const;
-        virtual Node* sub(boost::shared_ptr<Node> n2) const;
-        virtual Node* subInt(int n2) const;
-        virtual Node* rsubInt(int n2) const;
-        */
     };
 
     // ---------------------------------------------------------------------- //
@@ -72,6 +60,8 @@ namespace ila
 
         // What is the operation?
         enum Op { 
+            // invalid
+            INVALID,
             // unary
             NOT, 
             // binary.
@@ -81,7 +71,7 @@ namespace ila
             IF
         } op;
 
-        static const char* operatorNames[];
+        static const std::string operatorNames[];
 
         // the operands themselves.
         std::vector< boost::shared_ptr<Node> > args;

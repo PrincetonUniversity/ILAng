@@ -29,8 +29,9 @@ namespace ila {
             return type == BOOL;
         }
         // Is this a bitvector with the specified width?
-        bool isBitvector(int width) const {
-            return type == BITVECTOR && bitWidth == width;
+        // -1 means any width.
+        bool isBitvector(int width = -1) const {
+            return type == BITVECTOR && (bitWidth == width || width == -1);
         }
         // Is this a memory with the correct dimensions?
         bool isMem(int aw, int dw) const {

@@ -50,6 +50,13 @@ namespace ila
         NodeRef* sub(NodeRef* other) const;
         NodeRef* subInt(int r) const;
         NodeRef* rsubInt(int r) const;
+
+    private:
+        // ---------------------- HELPERS ----------------------------- //
+        NodeRef* _unOp(BoolOp::Op opBool, BitvectorOp::Op opBv, const char* opName) const;
+        NodeRef* _binOp(BitvectorOp::Op op, NodeRef* other) const;
+        NodeRef* _binOp(BitvectorOp::Op op, int r) const;
+        NodeRef* _binOpR(BitvectorOp::Op op, int r) const;
     };
 
     // stream output.

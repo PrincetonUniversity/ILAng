@@ -9,7 +9,8 @@
 namespace ila
 {
     // ---------------------------------------------------------------------- //
-    const char* BitvectorOp::operatorNames[] = {
+    const std::string BitvectorOp::operatorNames[] = {
+        "invalid",
         "-", "~", "not", 
         "+", "-", "and", "or", "xor", "xnor", "nand", "nor",
         "if"
@@ -23,77 +24,6 @@ namespace ila
 
     BitvectorExpr::~BitvectorExpr()
     {
-    }
-
-    Node* BitvectorExpr::complement() const
-    {
-        ILA_ASSERT(nodeRef != NULL, "Node::nodeRef not initialized.");
-        return new BitvectorOp(ctx, BitvectorOp::COMPLEMENT, nodeRef->node);
-    }
-
-    Node* BitvectorExpr::negate() const
-    {
-        ILA_ASSERT(nodeRef != NULL, "Node::nodeRef not initialized.");
-        return new BitvectorOp(ctx, BitvectorOp::NEGATE, nodeRef->node);
-    }
-
-    Node* BitvectorExpr::logicalNot() const
-    {
-        // FIXME: this must return a bool.
-        ILA_ASSERT(nodeRef != NULL, "Node::nodeRef not initialized.");
-        return new BitvectorOp(ctx, BitvectorOp::LNOT, nodeRef->node);
-    }
-
-    Node* BitvectorExpr::add(boost::shared_ptr<Node> n2) const
-    {
-        ILA_ASSERT(nodeRef != NULL, "Node::nodeRef not initialized.");
-        return new BitvectorOp(
-            ctx, BitvectorOp::ADD,
-            nodeRef->node, n2);
-    }
-
-    Node* BitvectorExpr::addInt(int v2) const
-    {
-        ILA_ASSERT(nodeRef != NULL, "Node::nodeRef not initialized.");
-        boost::shared_ptr<Node> n2(new BitvectorConst(ctx, v2, type.bitWidth));
-        return new BitvectorOp(
-            ctx, BitvectorOp::ADD,
-            nodeRef->node, n2);
-    }
-
-    Node* BitvectorExpr::raddInt(int v2) const
-    {
-        ILA_ASSERT(nodeRef != NULL, "Node::nodeRef not initialized.");
-        boost::shared_ptr<Node> n2(new BitvectorConst(ctx, v2, type.bitWidth));
-        return new BitvectorOp(
-            ctx, BitvectorOp::ADD,
-            n2, nodeRef->node);
-    }
-
-    Node* BitvectorExpr::sub(boost::shared_ptr<Node> n2) const
-    {
-        ILA_ASSERT(nodeRef != NULL, "Node::nodeRef not initialized.");
-        return new BitvectorOp(
-            ctx, BitvectorOp::SUB,
-            nodeRef->node, n2);
-    }
-
-    Node* BitvectorExpr::subInt(int v2) const
-    {
-        ILA_ASSERT(nodeRef != NULL, "Node::nodeRef not initialized.");
-        boost::shared_ptr<Node> n2(new BitvectorConst(ctx, v2, type.bitWidth));
-        return new BitvectorOp(
-            ctx, BitvectorOp::SUB,
-            nodeRef->node, n2);
-    }
-
-    Node* BitvectorExpr::rsubInt(int v2) const
-    {
-        ILA_ASSERT(nodeRef != NULL, "Node::nodeRef not initialized.");
-        boost::shared_ptr<Node> n2(new BitvectorConst(ctx, v2, type.bitWidth));
-        return new BitvectorOp(
-            ctx, BitvectorOp::SUB,
-            n2, nodeRef->node);
     }
 
     // ---------------------------------------------------------------------- //
