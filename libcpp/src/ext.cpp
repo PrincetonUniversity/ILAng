@@ -46,6 +46,15 @@ BOOST_PYTHON_MODULE(ila)
         .def("__neg__", 
                 &NodeRef::negate, 
                 return_value_policy<manage_new_object>())
+        .def("__and__",
+                &NodeRef::logicalAnd,
+                return_value_policy<manage_new_object>())
+        .def("__or__",
+                &NodeRef::logicalOr,
+                return_value_policy<manage_new_object>())
+        .def("__xor__",
+                &NodeRef::logicalXor,
+                return_value_policy<manage_new_object>())
         .def("__add__",
                 &NodeRef::add,
                 return_value_policy<manage_new_object>())
@@ -69,9 +78,10 @@ BOOST_PYTHON_MODULE(ila)
 
     // This is the top-level class.
     class_<Abstraction>("Abstraction", init<>())
-        .def("addRegister", &Abstraction::addRegister, return_value_policy<manage_new_object>())
+        .def("addReg", &Abstraction::addRegister, return_value_policy<manage_new_object>())
         .def("const", &Abstraction::bvConstLong, return_value_policy<manage_new_object>())
         .def("const", &Abstraction::bvConstInt, return_value_policy<manage_new_object>())
+        .def("addBoolReg", &Abstraction::addBooleanRegister, return_value_policy<manage_new_object>())
         .def("synthesize", &Abstraction::synthesize)
     ;
 }

@@ -2,7 +2,7 @@ import ila
 
 def main():
     c = ila.Abstraction()
-    n = c.addRegister("test", 16)
+    n = c.addReg("test", 16)
     print n.name
     print n.type
     print n.type.bitwidth
@@ -11,7 +11,7 @@ def main():
     del n
 
     print 'creating new bitvecvar'
-    m = c.addRegister('mambo', 24)
+    m = c.addReg('mambo', 24)
     n = m
     del m
     print n.name
@@ -25,8 +25,8 @@ def main():
     print p.type.bitwidth
     del p
 
-    n1 = c.addRegister('n1', 16)
-    n2 = c.addRegister('n2', 16)
+    n1 = c.addReg('n1', 16)
+    n2 = c.addReg('n2', 16)
     n2p = ~n2
     n3 = n1 + n2p
     print n3
@@ -53,6 +53,14 @@ def main():
     y = 32 - ~(c1 - c2)
     print y
     print y.type
+
+    p = c.addBoolReg('pix')
+    q = c.addBoolReg('qix')
+    pn = ~p
+    qn = ~q
+    r = (p & q) | (pn & qn)
+    print r.type
+    print r
 
 
 if __name__ == '__main__':

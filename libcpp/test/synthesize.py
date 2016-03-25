@@ -12,8 +12,8 @@ def bar(d):
 
 def main():
     sys = ila.Abstraction()
-    r0 = sys.addRegister('r0', 8)
-    r1 = sys.addRegister('r1', 8)
+    r0 = sys.addReg('r0', 8)
+    r1 = sys.addReg('r1', 8)
     sys.synthesize(r0 + r1, foo)
     sys.synthesize(r0 + r1, bar)
 

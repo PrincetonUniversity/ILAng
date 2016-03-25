@@ -22,6 +22,8 @@ namespace ila
 
         // Create a bitvector variable.
         NodeRef* addRegister(const std::string& name, int width);
+        // Create a boolean variable.
+        NodeRef* addBooleanRegister(const std::string& name);
         // Create a bitvector constant with a long integer.
         NodeRef* bvConstLong(boost::python::long_ l, int width);
         // Create a bitvector constant with an integer.

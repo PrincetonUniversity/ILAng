@@ -23,6 +23,11 @@ namespace ila
         return new NodeRef(new ila::BitvectorVar(this, name, width));
     }
 
+    NodeRef* Abstraction::addBooleanRegister(const std::string& name)
+    {
+        return new NodeRef(new ila::BoolVar(this, name));
+    }
+
     NodeRef* Abstraction::bvConstLong(boost::python::long_ l, int w)
     {
         return new NodeRef(new ila::BitvectorConst(this, l, w));

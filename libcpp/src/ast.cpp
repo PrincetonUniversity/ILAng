@@ -83,6 +83,30 @@ namespace ila
             "not");
     }
 
+    NodeRef* NodeRef::logicalAnd(NodeRef* other) const
+    {
+        return _binOp(BoolOp::AND, BitvectorOp::AND,
+                        "and", other);
+    }
+
+    NodeRef* NodeRef::logicalOr(NodeRef* other) const
+    {
+        return _binOp(BoolOp::OR, BitvectorOp::OR,
+                        "or", other);
+    }
+
+    NodeRef* NodeRef::logicalXor(NodeRef* other) const
+    {
+        return _binOp(BoolOp::XOR, BitvectorOp::XOR,
+                        "xor", other);
+    }
+
+    NodeRef* NodeRef::logicalXnor(NodeRef* other) const
+    {
+        return _binOp(BoolOp::XNOR, BitvectorOp::XNOR,
+                        "xnor", other);
+    }
+
     NodeRef* NodeRef::add(NodeRef* other) const
     {
         return _binOp(BitvectorOp::ADD, other);
@@ -126,6 +150,25 @@ namespace ila
                                  std::string("Incorrect type for ") + 
                                  opName);
             return NULL;
+        }
+    }
+
+    NodeRef* NodeRef::_binOp(
+        BoolOp::Op boolOp, 
+        BitvectorOp::Op bvOp, 
+        const char* opName,
+        NodeRef* other) const
+    {
+        if (boolOp != BoolOp::INVALID && node->type.isBool()) {
+            return new NodeRef(new BoolOp(
+                        node->ctx, boolOp, node, other->node));
+        } else if (bvOp != BitvectorOp::INVALID && node->type.isBitvector()) {
+            return new NodeRef(new BitvectorOp(
+                        node->ctx, bvOp, node, other->node));
+        } else {
+            throw PyILAException(PyExc_TypeError,
+                                 std::string("Incorrect type for ")
+                                 + opName);
         }
     }
 

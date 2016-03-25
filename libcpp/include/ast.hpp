@@ -43,7 +43,13 @@ namespace ila
         // ---------------------- OPERATORS ----------------------------- //
         NodeRef* complement() const; 
         NodeRef* negate() const;
+
         NodeRef* logicalNot() const;
+        NodeRef* logicalAnd(NodeRef* other) const;
+        NodeRef* logicalOr(NodeRef* other) const;
+        NodeRef* logicalXor(NodeRef* other) const;
+        NodeRef* logicalXnor(NodeRef* other) const;
+
         NodeRef* add(NodeRef* other) const;
         NodeRef* addInt(int r) const;
         NodeRef* raddInt(int r) const;
@@ -53,7 +59,9 @@ namespace ila
 
     private:
         // ---------------------- HELPERS ----------------------------- //
-        NodeRef* _unOp(BoolOp::Op opBool, BitvectorOp::Op opBv, const char* opName) const;
+        NodeRef* _unOp(BoolOp::Op boolOp, BitvectorOp::Op bvOp, const char* opName) const;
+        NodeRef* _binOp(BoolOp::Op boolOp, BitvectorOp::Op bvOp, 
+                        const char* opName, NodeRef* other) const;
         NodeRef* _binOp(BitvectorOp::Op op, NodeRef* other) const;
         NodeRef* _binOp(BitvectorOp::Op op, int r) const;
         NodeRef* _binOpR(BitvectorOp::Op op, int r) const;
