@@ -62,6 +62,15 @@ def main():
     print r.type
     print r
 
+    w = (n3 == n1)
+    print w
+    print w.type
+
+    x = (r == p)
+    print x
+    print x.type
+
+
 
 if __name__ == '__main__':
     main()

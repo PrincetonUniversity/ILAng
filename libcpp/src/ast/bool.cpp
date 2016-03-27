@@ -13,6 +13,7 @@ namespace ila
         "invalid",
         "not", 
         "and", "or", "xor", "xnor", "nand", "nor",
+        "eq", "neq",
         "if"
     };
 

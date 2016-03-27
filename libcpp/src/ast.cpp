@@ -137,6 +137,16 @@ namespace ila
         return _binOpR(BitvectorOp::SUB, r);
     }
 
+    NodeRef* NodeRef::eq(NodeRef* other) const
+    {
+        return _cmpOp(BoolOp::EQUAL, node, other->node);
+    }
+
+    NodeRef* NodeRef::neq(NodeRef* other) const
+    {
+        return _cmpOp(BoolOp::DISTINCT, node, other->node);
+    }
+
     // ---------------------------------------------------------------------- //
     NodeRef* NodeRef::_unOp(
         BoolOp::Op opBool, BitvectorOp::Op opBv, const char* opName) const
@@ -214,6 +224,20 @@ namespace ila
         }
     }
 
+    NodeRef* NodeRef::_cmpOp(BoolOp::Op op, 
+                             boost::shared_ptr<Node> n1,
+                             boost::shared_ptr<Node> n2) const
+    {
+        if (n1->type == n2->type) {
+            return new NodeRef(
+                        new BoolOp(n1->ctx, op, n1, n2));
+        } else {
+            throw PyILAException(PyExc_TypeError,
+                                  "Incorrect type for" + 
+                                  BoolOp::operatorNames[op]);
+            return NULL;
+        }
+    }
     // ---------------------------------------------------------------------- //
     std::ostream& operator<<(std::ostream& out, const NodeRef& n)
     {

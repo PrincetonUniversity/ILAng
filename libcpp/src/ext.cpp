@@ -73,6 +73,12 @@ BOOST_PYTHON_MODULE(ila)
         .def("__rsub__",
                 &NodeRef::rsubInt,
                 return_value_policy<manage_new_object>())
+        .def("__eq__",
+                &NodeRef::eq,
+                return_value_policy<manage_new_object>())
+        .def("__neq__",
+                &NodeRef::neq,
+                return_value_policy<manage_new_object>())
         .def(self_ns::str(self))
     ;
 

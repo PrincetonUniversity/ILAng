@@ -57,6 +57,9 @@ namespace ila
         NodeRef* subInt(int r) const;
         NodeRef* rsubInt(int r) const;
 
+        NodeRef* eq(NodeRef* other) const;
+        NodeRef* neq(NodeRef* other) const;
+
     private:
         // ---------------------- HELPERS ----------------------------- //
         NodeRef* _unOp(BoolOp::Op boolOp, BitvectorOp::Op bvOp, const char* opName) const;
@@ -65,6 +68,9 @@ namespace ila
         NodeRef* _binOp(BitvectorOp::Op op, NodeRef* other) const;
         NodeRef* _binOp(BitvectorOp::Op op, int r) const;
         NodeRef* _binOpR(BitvectorOp::Op op, int r) const;
+        NodeRef* _cmpOp(BoolOp::Op op,
+                        boost::shared_ptr<Node> n1,
+                        boost::shared_ptr<Node> n2) const;
     };
 
     // stream output.
