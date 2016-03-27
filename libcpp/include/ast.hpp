@@ -69,8 +69,7 @@ namespace ila
         NodeRef* _binOp(BitvectorOp::Op op, int r) const;
         NodeRef* _binOpR(BitvectorOp::Op op, int r) const;
         NodeRef* _cmpOp(BoolOp::Op op,
-                        boost::shared_ptr<Node> n1,
-                        boost::shared_ptr<Node> n2) const;
+                        NodeRef* other) const;
     };
 
     // stream output.

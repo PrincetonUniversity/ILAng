@@ -139,12 +139,12 @@ namespace ila
 
     NodeRef* NodeRef::eq(NodeRef* other) const
     {
-        return _cmpOp(BoolOp::EQUAL, node, other->node);
+        return _cmpOp(BoolOp::EQUAL, other);
     }
 
     NodeRef* NodeRef::neq(NodeRef* other) const
     {
-        return _cmpOp(BoolOp::DISTINCT, node, other->node);
+        return _cmpOp(BoolOp::DISTINCT, other);
     }
 
     // ---------------------------------------------------------------------- //
@@ -169,7 +169,12 @@ namespace ila
         const char* opName,
         NodeRef* other) const
     {
-        if (boolOp != BoolOp::INVALID && node->type.isBool()) {
+        if (node->ctx != other->node->ctx) {
+            throw PyILAException(
+                PyExc_RuntimeError,
+                "Both operands of a binary operator must be from the same Abstraction.");
+            return NULL;
+        } else if (boolOp != BoolOp::INVALID && node->type.isBool()) {
             return new NodeRef(new BoolOp(
                         node->ctx, boolOp, node, other->node));
         } else if (bvOp != BitvectorOp::INVALID && node->type.isBitvector()) {
@@ -184,7 +189,12 @@ namespace ila
 
     NodeRef* NodeRef::_binOp(BitvectorOp::Op op, NodeRef* other) const
     {
-        if (node->type.isBitvector()) {
+        if (node->ctx != other->node->ctx) {
+            throw PyILAException(
+                PyExc_RuntimeError,
+                "Both operands of a binary operator must be from the same Abstraction.");
+            return NULL;
+        } else if (node->type.isBitvector()) {
             return new NodeRef(new BitvectorOp(
                         node->ctx, op, node, other->node));
         } else {
@@ -225,12 +235,16 @@ namespace ila
     }
 
     NodeRef* NodeRef::_cmpOp(BoolOp::Op op, 
-                             boost::shared_ptr<Node> n1,
-                             boost::shared_ptr<Node> n2) const
+                             NodeRef* other) const
     {
-        if (n1->type == n2->type) {
+        if (node->ctx != other->node->ctx) {
+            throw PyILAException(
+                PyExc_RuntimeError,
+                "Operands must belong to the same Abstraction.");
+            return NULL;
+        } else if (node->type == other->node->type) {
             return new NodeRef(
-                        new BoolOp(n1->ctx, op, n1, n2));
+                        new BoolOp(node->ctx, op, node, other->node));
         } else {
             throw PyILAException(PyExc_TypeError,
                                   "Incorrect type for" + 
@@ -238,6 +252,7 @@ namespace ila
             return NULL;
         }
     }
+
     // ---------------------------------------------------------------------- //
     std::ostream& operator<<(std::ostream& out, const NodeRef& n)
     {

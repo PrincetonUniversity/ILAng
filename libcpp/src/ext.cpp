@@ -76,7 +76,7 @@ BOOST_PYTHON_MODULE(ila)
         .def("__eq__",
                 &NodeRef::eq,
                 return_value_policy<manage_new_object>())
-        .def("__neq__",
+        .def("__ne__",
                 &NodeRef::neq,
                 return_value_policy<manage_new_object>())
         .def(self_ns::str(self))

@@ -70,6 +70,12 @@ def main():
     print x
     print x.type
 
+    wp = (n3 != n1)
+    print wp, wp.type
+
+    xp = (r != p)
+    print xp, xp.type
+
 
 
 if __name__ == '__main__':
