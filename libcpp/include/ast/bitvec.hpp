@@ -66,6 +66,8 @@ namespace ila
         virtual boost::python::object getValue() const;
         // stream output.
         virtual std::ostream& write(std::ostream& out) const;
+        // convert to an SMT expr.
+        virtual z3::expr toZ3(Z3AdapterI& c) const;
     };
 
     // ---------------------------------------------------------------------- //
@@ -132,6 +134,9 @@ namespace ila
 
         // stream output.
         virtual std::ostream& write(std::ostream& out) const;
+
+        // convert to an SMT expr.
+        virtual z3::expr toZ3(Z3AdapterI& c) const;
     };
 }
 #endif

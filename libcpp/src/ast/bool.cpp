@@ -58,6 +58,11 @@ namespace ila
         return (out << name);
     }
 
+    z3::expr BoolVar::toZ3(Z3AdapterI& c) const
+    {
+        return c.boolVar(name);
+    }
+
     // ---------------------------------------------------------------------- //
     BoolConst::BoolConst(Abstraction* c, bool v)
       : BoolExpr(c)
@@ -105,6 +110,11 @@ namespace ila
     std::ostream& BoolConst::write(std::ostream& out) const
     {
         return (out << (value ? "true" : "false"));
+    }
+
+    z3::expr BoolConst::toZ3(Z3AdapterI& c) const
+    {
+        return c.ctx().bool_val(value);
     }
 
     // ---------------------------------------------------------------------- //
@@ -230,4 +240,31 @@ namespace ila
         out << ")";
         return out;
     }
+
+    z3::expr BoolOp::toZ3(Z3AdapterI& c) const
+    {
+        using namespace z3;
+
+        if (isUnary(op)) {
+            expr arg = c.expr(args[0].get());
+            return !arg;
+        } else if (isBinary(op)) {
+            expr arg0 = c.expr(args[0].get());
+            expr arg1 = c.expr(args[1].get());
+            Z3_ast args_[2] = { arg0, arg1 };
+
+            if (op == AND) {
+                return (arg0 && arg1);
+            } else if (op == OR) {
+                return (arg0 || arg1);
+            } else if (op == XOR) {
+                Z3_ast r = Z3_mk_xor(c.ctx(), args_[0], args_[1]);
+                return expr(c.ctx(), r);
+            }
+        }
+        throw PyILAException(PyExc_RuntimeError, 
+                "Unable to create Z3 expression for operator.");
+        return c.ctx().bool_val(false);
+    }
+
 }

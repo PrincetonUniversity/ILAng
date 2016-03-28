@@ -13,6 +13,8 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/python.hpp>
 
+#include <smt.hpp>
+
 namespace ila 
 {
     class Abstraction;
@@ -59,6 +61,8 @@ namespace ila
         // return the value associated with this object (or None) 
         // if it doesn't exist.
         virtual boost::python::object getValue() const;
+        // convert to an SMT expr.
+        virtual z3::expr toZ3(Z3AdapterI& c) const;
 
         // -------------------- ACCESSORS ------------------- //
         void setNodeRef(NodeRef* nr);

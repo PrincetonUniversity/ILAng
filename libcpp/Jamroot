@@ -47,6 +47,7 @@ python-extension ila : src/ext.cpp
                        src/ast.cpp 
                        src/abstraction.cpp
                        src/ast/node.cpp src/ast/bitvec.cpp src/ast/bool.cpp
+                       src/smt.cpp
                        src/type.cpp 
                        src/exception.cpp 
                        src/util.cpp 
