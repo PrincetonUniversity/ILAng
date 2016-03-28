@@ -38,6 +38,8 @@ namespace ila
         virtual ~BitvectorVar();
         // clone.
         virtual Node* clone() const;
+        // equality method.
+        virtual bool equal(const Node* that) const;
         // stream output.
         virtual std::ostream& write(std::ostream& out) const;
     };
@@ -46,16 +48,22 @@ namespace ila
     // Bitvector variables.
     class BitvectorConst : public BitvectorExpr {
     protected:
-        boost::python::long_ value;
+        boost::python::object value;
     public:
         // constructor with longs.
         BitvectorConst(Abstraction* c, boost::python::long_ v, int width);
         // constructor with ints.
         BitvectorConst(Abstraction* c, int v, int width);
+        // copy constructor.
+        BitvectorConst(const BitvectorConst& other);
         // destructor.
         virtual ~BitvectorConst();
         // clone
         virtual Node* clone() const;
+        // equality method.
+        virtual bool equal(const Node* that) const;
+        // return value.
+        virtual boost::python::object getValue() const;
         // stream output.
         virtual std::ostream& write(std::ostream& out) const;
     };
@@ -118,6 +126,9 @@ namespace ila
 
         // clone.
         virtual Node* clone() const;
+
+        // equality method.
+        virtual bool equal(const Node* that) const;
 
         // stream output.
         virtual std::ostream& write(std::ostream& out) const;

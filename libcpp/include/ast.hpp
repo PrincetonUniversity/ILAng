@@ -14,6 +14,7 @@
 #include <ast/bitvec.hpp>
 #include <ast/bool.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/python.hpp>
 
 namespace ila
 {
@@ -39,6 +40,7 @@ namespace ila
         std::string getName() const;
         NodeType getType() const;
         void doSomething();
+        bool equal(NodeRef* other) const;
 
         // ---------------------- OPERATORS ----------------------------- //
         NodeRef* complement() const; 
@@ -59,6 +61,9 @@ namespace ila
 
         NodeRef* eq(NodeRef* other) const;
         NodeRef* neq(NodeRef* other) const;
+
+        boost::python::object value() const;
+
 
     private:
         // ---------------------- HELPERS ----------------------------- //

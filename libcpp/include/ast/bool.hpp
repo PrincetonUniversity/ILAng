@@ -34,6 +34,7 @@ namespace ila
         BoolVar(Abstraction* c, const std::string& name);
         virtual ~BoolVar();
         virtual Node* clone() const;
+        virtual bool equal(const Node* that) const;
         virtual std::ostream& write(std::ostream& out) const;
     };
 
@@ -48,6 +49,8 @@ namespace ila
         BoolConst(Abstraction* c, boost::python::long_ l);
         virtual ~BoolConst();
         virtual Node* clone() const;
+        virtual bool equal(const Node* that) const;
+        virtual boost::python::object getValue() const;
         virtual std::ostream& write(std::ostream& out) const;
     };
 
@@ -100,6 +103,9 @@ namespace ila
 
         // clone.
         virtual Node* clone() const;
+
+        // equal.
+        virtual bool equal(const Node* that) const;
 
         // stream output.
         virtual std::ostream& write(std::ostream& out) const;

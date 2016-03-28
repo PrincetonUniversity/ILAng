@@ -58,6 +58,11 @@ namespace ila
         return node->doSomething();
     }
 
+    bool NodeRef::equal(NodeRef* other) const
+    {
+        return node->equal(other->node.get());
+    }
+
     // ---------------------------------------------------------------------- //
     NodeRef* NodeRef::complement() const
     {
@@ -145,6 +150,11 @@ namespace ila
     NodeRef* NodeRef::neq(NodeRef* other) const
     {
         return _cmpOp(BoolOp::DISTINCT, other);
+    }
+
+    boost::python::object NodeRef::value() const
+    {
+        return node->getValue();
     }
 
     // ---------------------------------------------------------------------- //
@@ -247,7 +257,7 @@ namespace ila
                         new BoolOp(node->ctx, op, node, other->node));
         } else {
             throw PyILAException(PyExc_TypeError,
-                                  "Incorrect type for" + 
+                                  "Incorrect type for " + 
                                   BoolOp::operatorNames[op]);
             return NULL;
         }

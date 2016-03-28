@@ -38,6 +38,21 @@ namespace ila
         return new NodeRef(new ila::BitvectorConst(this, l, w));
     }
 
+    NodeRef* Abstraction::boolConstB(bool b)
+    {
+        return new NodeRef(new ila::BoolConst(this, b));
+    }
+
+    NodeRef* Abstraction::boolConstI(int b)
+    {
+        return new NodeRef(new ila::BoolConst(this, b));
+    }
+
+    NodeRef* Abstraction::boolConstL(boost::python::long_ l)
+    {
+        return new NodeRef(new ila::BoolConst(this, l));
+    }
+
     void Abstraction::synthesize(NodeRef* expr, PyObject* pyfun)
     {
         using namespace boost::python;

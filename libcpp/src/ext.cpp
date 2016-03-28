@@ -40,6 +40,8 @@ BOOST_PYTHON_MODULE(ila)
         .add_property("name", &NodeRef::getName)
         .add_property("type", &NodeRef::getType)
         .def("doSomething", &NodeRef::doSomething)
+        .def("equal", &NodeRef::equal)
+        .def_readonly("value", &NodeRef::value)
         .def("__invert__", 
                 &NodeRef::complement, 
                 return_value_policy<manage_new_object>())
@@ -87,6 +89,9 @@ BOOST_PYTHON_MODULE(ila)
         .def("addReg", &Abstraction::addRegister, return_value_policy<manage_new_object>())
         .def("const", &Abstraction::bvConstLong, return_value_policy<manage_new_object>())
         .def("const", &Abstraction::bvConstInt, return_value_policy<manage_new_object>())
+        .def("bool", &Abstraction::boolConstB, return_value_policy<manage_new_object>())
+        .def("bool", &Abstraction::boolConstI, return_value_policy<manage_new_object>())
+        .def("bool", &Abstraction::boolConstL, return_value_policy<manage_new_object>())
         .def("addBoolReg", &Abstraction::addBooleanRegister, return_value_policy<manage_new_object>())
         .def("synthesize", &Abstraction::synthesize)
     ;

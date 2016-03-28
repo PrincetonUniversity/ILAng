@@ -28,6 +28,12 @@ namespace ila
         NodeRef* bvConstLong(boost::python::long_ l, int width);
         // Create a bitvector constant with an integer.
         NodeRef* bvConstInt(int l, int width);
+        // Create a boolean constant (from a bool).
+        NodeRef* boolConstB(bool b);
+        // Create a boolean constant (from an integer: nonzero = true).
+        NodeRef* boolConstI(int b);
+        // Create a boolean constant (from an python long).
+        NodeRef* boolConstL(boost::python::long_ b);
 
         // the synthesis function.
         void synthesize(NodeRef* expr, PyObject* fun);

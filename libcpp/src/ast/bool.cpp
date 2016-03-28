@@ -43,6 +43,16 @@ namespace ila
         return new BoolVar(ctx, name);
     }
 
+    bool BoolVar::equal(const Node* that_) const
+    {
+        const BoolVar* that = dynamic_cast<const BoolVar*>(that_);
+        if (that != NULL) {
+            return that->name == this->name;
+        } else {
+            return false;
+        }
+    }
+
     std::ostream& BoolVar::write(std::ostream& out) const
     {
         return (out << name);
@@ -74,6 +84,22 @@ namespace ila
     Node* BoolConst::clone() const
     {
         return new BoolConst(ctx, value);
+    }
+
+    bool BoolConst::equal(const Node* that_) const
+    {
+        const BoolConst* that = dynamic_cast<const BoolConst*>(that_);
+        if (that != NULL) {
+            return that->value == this->value;
+        } else {
+            return false;
+        }
+    }
+
+    boost::python::object BoolConst::getValue() const
+    {
+        boost::python::object obj(value);
+        return obj;
     }
 
     std::ostream& BoolConst::write(std::ostream& out) const
@@ -170,6 +196,27 @@ namespace ila
         } else {
             ILA_ASSERT(false, "Unsupported arity in BoolOp");
             return NULL;
+        }
+    }
+
+    bool BoolOp::equal(const Node* that_) const
+    {
+        const BoolOp* that = dynamic_cast<const BoolOp*>(that_);
+        if (that != NULL) {
+            bool t1 = that->type == this->type && this->op == that->op &&
+                      that->args.size() == this->args.size();
+            if (t1) {
+                for (unsigned i=0; i < args.size(); i++) {
+                    if (!this->args[i]->equal(that->args[i].get())) {
+                        return false;
+                    }
+                }
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
         }
     }
 

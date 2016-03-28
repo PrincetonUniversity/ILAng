@@ -11,6 +11,7 @@
 #include <type.hpp>
 
 #include <boost/shared_ptr.hpp>
+#include <boost/python.hpp>
 
 namespace ila 
 {
@@ -49,10 +50,15 @@ namespace ila
         // ---------------------- METHODS ------------------- //
         // fake method we use to test the Z3 integration.
         void doSomething();
-        // polymorphic clone method.
+        // polymorphic clone method: do we need this?
         virtual Node* clone() const;
+        // polymorphic equality method.
+        virtual bool equal(const Node* that) const;
         // output to a stream.
         virtual std::ostream& write(std::ostream& out) const;
+        // return the value associated with this object (or None) 
+        // if it doesn't exist.
+        virtual boost::python::object getValue() const;
 
         // -------------------- ACCESSORS ------------------- //
         void setNodeRef(NodeRef* nr);

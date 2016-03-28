@@ -47,6 +47,17 @@ namespace ila
         return (out << name);
     }
 
+    bool BitvectorVar::equal(const Node* that_) const
+    {
+        const BitvectorVar* that = dynamic_cast<const BitvectorVar*>(that_);
+        if (that != NULL) {
+            return that->type == this->type &&
+                   that->name == this->name;
+        } else {
+            return false;
+        }
+    }
+
     // ---------------------------------------------------------------------- //
     BitvectorConst::BitvectorConst(Abstraction* c, boost::python::long_ v, int w)
         : BitvectorExpr(c, w)
@@ -60,13 +71,35 @@ namespace ila
     {
     }
 
+    BitvectorConst::BitvectorConst(const BitvectorConst& that)
+        : BitvectorExpr(that.ctx, that.type.bitWidth)
+        , value(that.value)
+    {
+    }
+
     BitvectorConst::~BitvectorConst()
     {
     }
 
     Node* BitvectorConst::clone() const
     {
-        return new BitvectorConst(ctx, value, type.bitWidth);
+        return new BitvectorConst(*this);
+    }
+
+    bool BitvectorConst::equal(const Node* that_) const
+    {
+        const BitvectorConst* that = dynamic_cast<const BitvectorConst*>(that_);
+        if (that != NULL) {
+            return that->type == this->type &&
+                   that->value == this->value;
+        } else {
+            return false;
+        }
+    }
+
+    boost::python::object BitvectorConst::getValue() const
+    {
+        return value;
     }
 
     std::ostream& BitvectorConst::write(std::ostream& out) const
@@ -177,6 +210,28 @@ namespace ila
         } else {
             ILA_ASSERT(false, "Unsupported arity in BitvectorOp");
             return NULL;
+        }
+    }
+
+    // equal.
+    bool BitvectorOp::equal(const Node* that_) const
+    {
+        const BitvectorOp* that = dynamic_cast<const BitvectorOp*>(that_);
+        if (that != NULL) {
+            bool t1 = that->type == this->type && this->op == that->op &&
+                      that->args.size() == this->args.size();
+            if (t1) {
+                for (unsigned i=0; i < args.size(); i++) {
+                    if (!this->args[i]->equal(that->args[i].get())) {
+                        return false;
+                    }
+                }
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
         }
     }
 

@@ -51,6 +51,19 @@ namespace ila
         return new Node();
     }
 
+    bool Node::equal(const Node* that) const
+    {
+        throw new PyILAException(
+            PyExc_RuntimeError, 
+            "Node::equal not implemented.");
+        return false;
+    }
+
+    boost::python::object Node::getValue() const
+    {
+        return boost::python::object();
+    }
+
     // ---------------------------------------------------------------------- //
     void Node::doSomething()
     {
