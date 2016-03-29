@@ -55,6 +55,27 @@ namespace ila
         return new NodeRef(new ila::BoolConst(this, l));
     }
 
+    NodeRef* Abstraction::choice2(
+        const std::string& name,
+        NodeRef* e1, NodeRef* e2)
+    {
+        std::vector< boost::shared_ptr<Node> > args = { 
+            e1->node,
+            e2->node
+        };
+        NodeType t = Choice::getChoiceType(args);
+        if (!t) {
+            throw PyILAException(
+                PyExc_TypeError,
+                "Type error in choice arguments.");
+            return NULL;
+        } else {
+            return new NodeRef(
+                        new BitvectorChoice(this, name, args));
+        }
+    }
+
+
     void Abstraction::synthesize(NodeRef* expr, PyObject* pyfun)
     {
         using namespace boost::python;

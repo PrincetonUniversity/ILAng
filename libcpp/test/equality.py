@@ -33,7 +33,7 @@ def main():
                 break
         varnames.add(varname)
 
-        bv = c.addBoolReg(varname)
+        bv = c.bit(varname)
         boolvars.append(bv)
         assert bv.name == varname
 
@@ -71,7 +71,7 @@ def main():
         varnames.add(varname)
 
         sz = random.choice([4, 8, 16, 32])
-        bv = c.addReg(varname, sz)
+        bv = c.reg(varname, sz)
         bvvars.append(bv)
         assert bv.name == varname
         assert sz == bv.type.bitwidth

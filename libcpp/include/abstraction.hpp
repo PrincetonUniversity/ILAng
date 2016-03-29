@@ -34,6 +34,10 @@ namespace ila
         NodeRef* boolConstI(int b);
         // Create a boolean constant (from an python long).
         NodeRef* boolConstL(boost::python::long_ b);
+        // Create a choice operator.
+        NodeRef* choice2(const std::string& name,
+                        NodeRef* e1,
+                        NodeRef* e2);
 
         // the synthesis function.
         void synthesize(NodeRef* expr, PyObject* fun);

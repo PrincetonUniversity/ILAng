@@ -13,8 +13,8 @@ namespace ila
         virtual z3::expr expr(Node* obj) = 0;
         virtual z3::context& ctx() = 0;
 
-        virtual z3::expr boolVar(const std::string& name) = 0;
-        virtual z3::expr bitvectorVar(const std::string& name, int bitWidth) = 0;
+        virtual z3::expr boolVar(const std::string& name, bool syn) = 0;
+        virtual z3::expr bitvectorVar(const std::string& name, int bitWidth, bool syn) = 0;
     };
 
     class Z3Adapter : public Z3AdapterI
@@ -34,8 +34,8 @@ namespace ila
 
         virtual z3::expr expr(Node* obj);
         virtual z3::context& ctx();
-        virtual z3::expr boolVar(const std::string& name);
-        virtual z3::expr bitvectorVar(const std::string& name, int w);
+        virtual z3::expr boolVar(const std::string& name, bool syn);
+        virtual z3::expr bitvectorVar(const std::string& name, int w, bool syn);
     };
 }
 

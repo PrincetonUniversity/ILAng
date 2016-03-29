@@ -60,7 +60,7 @@ namespace ila
 
     z3::expr BitvectorVar::toZ3(Z3AdapterI& c) const
     {
-        return c.bitvectorVar(name, type.bitWidth);
+        return c.bitvectorVar(name, type.bitWidth, false);
     }
 
 

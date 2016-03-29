@@ -60,7 +60,7 @@ namespace ila
 
     z3::expr BoolVar::toZ3(Z3AdapterI& c) const
     {
-        return c.boolVar(name);
+        return c.boolVar(name, false);
     }
 
     // ---------------------------------------------------------------------- //

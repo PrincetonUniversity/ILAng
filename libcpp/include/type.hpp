@@ -39,6 +39,9 @@ namespace ila {
         }
 
         bool operator==(const NodeType& t) const;
+        bool operator!=(const NodeType& t) const {
+            return !operator==(t);
+        }
 
         // static helper construction functions.
         static NodeType getBool();

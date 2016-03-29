@@ -89,8 +89,6 @@ namespace ila
             ADD, SUB, AND, OR, XOR, XNOR, NAND, NOR,
             // ternary
             IF,
-            // n-ary
-            CHOICE
         } op;
 
         static const std::string operatorNames[];
@@ -110,7 +108,7 @@ namespace ila
             return op >= IF && op <= IF; 
         }
         static bool isNary(Op op) {
-            return op >= CHOICE && op <= CHOICE;
+            return false;
         }
         // helper functions to determine result and argument types.
         static int getUnaryResultWidth(
