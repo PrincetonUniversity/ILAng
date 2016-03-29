@@ -77,7 +77,7 @@ namespace ila
     class BitvectorOp : public BitvectorExpr {
     public:
         // Number of operands.
-        enum Arity { UNARY, BINARY, TERNARY } arity; 
+        enum Arity { UNARY, BINARY, TERNARY, NARY } arity; 
 
         // What is the operation?
         enum Op { 
@@ -88,18 +88,30 @@ namespace ila
             // binary.
             ADD, SUB, AND, OR, XOR, XNOR, NAND, NOR,
             // ternary
-            IF
+            IF,
+            // n-ary
+            CHOICE
         } op;
 
         static const std::string operatorNames[];
 
+    protected:
         // the operands themselves.
         std::vector< boost::shared_ptr<Node> > args;
 
         // Don't forget to update these helper functions below.
-        static bool isUnary(Op op) { return op >= NEGATE && op <= LNOT; }
-        static bool isBinary(Op op) { return op >= ADD && op <= NOR; }
-        static bool isTernary(Op op) { return op >= IF && op <= IF; }
+        static bool isUnary(Op op) { 
+            return op >= NEGATE && op <= LNOT; 
+        }
+        static bool isBinary(Op op) { 
+            return op >= ADD && op <= NOR; 
+        }
+        static bool isTernary(Op op) { 
+            return op >= IF && op <= IF; 
+        }
+        static bool isNary(Op op) {
+            return op >= CHOICE && op <= CHOICE;
+        }
         // helper functions to determine result and argument types.
         static int getUnaryResultWidth(
             Op op, 
@@ -108,23 +120,30 @@ namespace ila
             Op op, 
             boost::shared_ptr<Node> n1, 
             boost::shared_ptr<Node> n2);
+        static int getNaryResultWidth(
+            Op op, std::vector< boost::shared_ptr<Node> >& args);
         static bool checkUnaryOpWidth(
             Op op, 
             boost::shared_ptr<Node> n, 
             int width);
-        static bool checkBinaryOpWidth(
+        static int checkBinaryOpWidth(
             Op op, 
             boost::shared_ptr<Node> n1, 
             boost::shared_ptr<Node> n2, 
             int width);
-
+        static int checkNaryOpWidth(
+            Op op,
+            std::vector< boost::shared_ptr<Node> > args,
+            int width);
+    public:
         // constructors.
         BitvectorOp(Abstraction* c, Op op, 
                     boost::shared_ptr<Node> n1);
         BitvectorOp(Abstraction* c, Op op, 
                     boost::shared_ptr<Node> n1, 
                     boost::shared_ptr<Node> n2);
-
+        BitvectorOp(Abstraction* c, Op op,
+                    std::vector< boost::shared_ptr<Node> >& args);
         // destructors.
         virtual ~BitvectorOp();
 

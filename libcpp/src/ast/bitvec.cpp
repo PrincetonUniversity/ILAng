@@ -136,21 +136,50 @@ namespace ila
         return n1->type.bitWidth;
     }
 
+    int BitvectorOp::getNaryResultWidth(
+        Op op, std::vector< boost::shared_ptr<Node> >& args)
+    {
+        // FIXME: add more code when operators are added.
+        if (args.size() == 0) {
+            return 1;
+        } else {
+            return args[0]->type.bitWidth;
+        }
+    }
+
     bool BitvectorOp::checkUnaryOpWidth(Op op, boost::shared_ptr<Node> arg0, int width)
     {
         // FIXME: add more code when operators are added.
         return arg0->type.isBitvector(width);
     }
 
-    bool BitvectorOp::checkBinaryOpWidth(
+    int BitvectorOp::checkBinaryOpWidth(
         Op op, 
         boost::shared_ptr<Node> n1, 
         boost::shared_ptr<Node> n2,
         int width)
     {
         // FIXME: add more code when operators are added.
-        return n1->type.isBitvector(width) &&
-               n2->type.isBitvector(width);
+        if (!n1->type.isBitvector(width)) {
+            return 1;
+        }
+        if (!n2->type.isBitvector(width)) {
+            return 2;
+        }
+        return 0;
+    }
+
+    int BitvectorOp::checkNaryOpWidth(
+        Op op,
+        std::vector< boost::shared_ptr<Node> > args,
+        int width)
+    {
+        for (unsigned i=0; i != args.size(); i++) {
+            if (!args[i]->type.isBitvector(width)) {
+                return i+1;
+            }
+        }
+        return 0;
     }
 
     // constructor: unary ops.
@@ -167,7 +196,8 @@ namespace ila
         // check if for the correct operator.
         if (!isUnary(op)) {
             throw PyILAException(PyExc_ValueError, 
-                                 "Invalid unary operator.");
+                                 "Invalid unary operator: " +
+                                 operatorNames[op]);
         }
         // check for the right type.
         if (!checkUnaryOpWidth(op, n1, type.bitWidth)) {
@@ -192,17 +222,42 @@ namespace ila
     {
         if (!isBinary(op)) {
             throw PyILAException(PyExc_ValueError,
-                                 "Invalid binary operator.");
+                                 "Invalid binary operator: " + 
+                                 operatorNames[op]);
         }
 
-        if (!checkBinaryOpWidth(op, n1, n2, type.bitWidth)) {
-            throw PyILAException(
-                PyExc_TypeError, 
-                "Invalid type for binary operator argument.");
+        int error = checkBinaryOpWidth(op, n1, n2, type.bitWidth);
+        if (error != 0) {
+            throw PyILAException(PyExc_TypeError,
+                "Invalid operand (" + 
+                boost::lexical_cast<std::string>(error) +
+                ") for operator: " + operatorNames[op]);
         }
-
         args.push_back( n1 );
         args.push_back( n2 );
+    }
+
+    BitvectorOp::BitvectorOp(
+        Abstraction* c, Op op,
+        std::vector< boost::shared_ptr<Node> >& args_
+    )
+      : BitvectorExpr(c, getNaryResultWidth(op, args_))
+      , arity(NARY)
+      , op(op)
+      , args(args_)
+    {
+        if (!isNary(op)) {
+            throw PyILAException(PyExc_ValueError,
+                                 "Invalid n-ary operator: " + 
+                                 operatorNames[op]);
+        }
+        int error = checkNaryOpWidth(op, args, type.bitWidth);
+        if (error != 0) {
+            throw PyILAException(PyExc_TypeError,
+                "Invalid operand (" + 
+                boost::lexical_cast<std::string>(error) +
+                ") for operator: " + operatorNames[op]);
+        }
     }
 
     // destructor.
