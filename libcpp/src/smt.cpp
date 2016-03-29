@@ -39,12 +39,12 @@ namespace ila
     z3::expr Z3Adapter::boolVar(const std::string& n_, bool syn)
     {
         std::string name(syn ? (n_ + suffix) : n_);
-        return c.bool_const(n_.c_str());
+        return c.bool_const(name.c_str());
     }
 
     z3::expr Z3Adapter::bitvectorVar(const std::string& n_, int w, bool syn)
     {
         std::string name(syn ? (n_ + suffix) : n_);
-        return c.bv_const(n_.c_str(), w);
+        return c.bv_const(name.c_str(), w);
     }
 }

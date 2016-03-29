@@ -20,14 +20,18 @@ namespace ila
     }
 
     // ---------------------------------------------------------------------- //
-    NodeRef* Abstraction::addRegister(const std::string& name, int width)
+    NodeRef* Abstraction::addReg(const std::string& name, int width)
     {
-        return new NodeRef(new ila::BitvectorVar(this, name, width));
+        NodeRef* n = new NodeRef(new ila::BitvectorVar(this, name, width));
+        regs.push_back(n->node);
+        return n;
     }
 
-    NodeRef* Abstraction::addBooleanRegister(const std::string& name)
+    NodeRef* Abstraction::addBit(const std::string& name)
     {
-        return new NodeRef(new ila::BoolVar(this, name));
+        NodeRef* n = new NodeRef(new ila::BoolVar(this, name));
+        bits.push_back(n->node);
+        return n;
     }
 
     NodeRef* Abstraction::bvConstLong(boost::python::long_ l, int w)
@@ -76,14 +80,40 @@ namespace ila
     }
 
 
-    void Abstraction::synthesize(NodeRef* expr, PyObject* pyfun)
+    void Abstraction::synthesize(NodeRef* ex, PyObject* pyfun)
     {
         using namespace boost::python;
+        using namespace z3;
 
+        context c_;
+        Z3Adapter c1(c_, ":1");
+        Z3Adapter c2(c_, ":2");
+
+        expr e1 = c1.expr(ex->node.get());
+        expr e2 = c2.expr(ex->node.get());
+        expr y  = c_.bool_const("_mitre.output");
+
+        solver S(c_);
+        S.add((y == (e1 != e2)));
+        S.push();
+        S.add(y);
+
+        std::cout << S << std::endl;
+
+        check_result r;
+        int i = 1;
+        while ((r = S.check()) != unsat) {
+            std::cout << "iteration #" << i++ << std::endl;
+            break;
+        }
+        std::cout << "i=" << i << std::endl;
+        S.pop();
+        
         dict args;
         args["arg"] = 1;
 
-        object result = call<object, dict>(pyfun, args);
+        boost::python::object result = 
+            call<boost::python::object, dict>(pyfun, args);
         extract<dict> res(result);
 
         if (res.check()) {

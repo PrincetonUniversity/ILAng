@@ -34,6 +34,23 @@ def main():
     assert not c.areEqual(e1, e3)
     assert not c.areEqual(e4, e3)
 
+    #xram = c.mem('xram', 16, 8)
+    #rom = c.mem('rom', 16, 8)
+    #pc = c.reg('pc', 16)
+    #opcode = concat(rom[pc], rom[pc+1])
+    #c.set_opcode(opcode)
+
+    #insts = []
+    #for i in range(0, 256):
+    #    inst_i = (opcode == i)
+    #    insts.append(inst_i)
+    #c.set_decode(insts)
+    
+
+
+
+
+
 
 
 if __name__ == '__main__':

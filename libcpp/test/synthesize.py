@@ -15,10 +15,7 @@ def main():
     r0 = sys.reg('r0', 8)
     r1 = sys.reg('r1', 8)
     ex = sys.choice("function", r0+r1, r0-r1)
-    print ex
-
-    sys.synthesize(r0 + r1, foo)
-    sys.synthesize(r0 + r1, bar)
+    sys.synthesize(ex, foo)
 
 
 if __name__ == '__main__':

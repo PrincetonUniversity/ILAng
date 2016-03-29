@@ -4,6 +4,7 @@
 #include <string>
 #include <ast.hpp>
 #include <boost/python.hpp>
+#include <list>
 
 namespace ila
 {
@@ -14,6 +15,10 @@ namespace ila
     protected:
         // Get a new ID.
         int getObjId();
+        // list of registers.
+        std::vector< boost::shared_ptr<Node> > regs;
+        // list of bits.
+        std::vector< boost::shared_ptr<Node> > bits;
     public:
         // Constructor.
         Abstraction();
@@ -21,9 +26,9 @@ namespace ila
         ~Abstraction();
 
         // Create a bitvector variable.
-        NodeRef* addRegister(const std::string& name, int width);
+        NodeRef* addReg(const std::string& name, int width);
         // Create a boolean variable.
-        NodeRef* addBooleanRegister(const std::string& name);
+        NodeRef* addBit(const std::string& name);
         // Create a bitvector constant with a long integer.
         NodeRef* bvConstLong(boost::python::long_ l, int width);
         // Create a bitvector constant with an integer.
