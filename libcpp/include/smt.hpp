@@ -17,7 +17,6 @@ namespace ila
         virtual z3::expr bitvectorVar(const std::string& name, int bitWidth) = 0;
     };
 
-    /*
     class Z3Adapter : public Z3AdapterI
     {
     public:
@@ -27,14 +26,17 @@ namespace ila
         // now member variables.
         z3::context& c;
         expr_map_t exprmap;
+        std::string suffix;
     public:
-        Z3Adapter(z3::context& c);
+        Z3Adapter(z3::context& c, const std::string& suffix);
+        Z3Adapter(z3::context& c, const char* suffix);
         virtual ~Z3Adapter();
 
         virtual z3::expr expr(Node* obj);
         virtual z3::context& ctx();
+        virtual z3::expr boolVar(const std::string& name);
+        virtual z3::expr bitvectorVar(const std::string& name, int w);
     };
-    */
 }
 
 #endif

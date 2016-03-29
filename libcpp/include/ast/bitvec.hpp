@@ -42,6 +42,8 @@ namespace ila
         virtual bool equal(const Node* that) const;
         // stream output.
         virtual std::ostream& write(std::ostream& out) const;
+        // convert to an SMT expr.
+        virtual z3::expr toZ3(Z3AdapterI& c) const;
     };
 
     // ---------------------------------------------------------------------- //

@@ -38,6 +38,9 @@ namespace ila
         // the synthesis function.
         void synthesize(NodeRef* expr, PyObject* fun);
 
+        // check equality function.
+        bool areEqual(NodeRef* left, NodeRef* right) const;
+
         friend class Node;
     };
 }

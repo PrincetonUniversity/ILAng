@@ -94,5 +94,6 @@ BOOST_PYTHON_MODULE(ila)
         .def("bool", &Abstraction::boolConstL, return_value_policy<manage_new_object>())
         .def("addBoolReg", &Abstraction::addBooleanRegister, return_value_policy<manage_new_object>())
         .def("synthesize", &Abstraction::synthesize)
+        .def("areEqual", &Abstraction::areEqual)
     ;
 }

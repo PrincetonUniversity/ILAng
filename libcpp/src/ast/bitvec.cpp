@@ -42,11 +42,6 @@ namespace ila
         return new BitvectorVar(ctx, name, type.bitWidth);
     }
 
-    std::ostream& BitvectorVar::write(std::ostream& out) const
-    {
-        return (out << name);
-    }
-
     bool BitvectorVar::equal(const Node* that_) const
     {
         const BitvectorVar* that = dynamic_cast<const BitvectorVar*>(that_);
@@ -57,6 +52,17 @@ namespace ila
             return false;
         }
     }
+
+    std::ostream& BitvectorVar::write(std::ostream& out) const
+    {
+        return (out << name);
+    }
+
+    z3::expr BitvectorVar::toZ3(Z3AdapterI& c) const
+    {
+        return c.bitvectorVar(name, type.bitWidth);
+    }
+
 
     // ---------------------------------------------------------------------- //
     BitvectorConst::BitvectorConst(Abstraction* c, boost::python::long_ v, int w)
@@ -106,6 +112,14 @@ namespace ila
     {
         std::string string_value = boost::python::extract<std::string>(boost::python::str(value));
         return (out << string_value);
+    }
+
+    z3::expr BitvectorConst::toZ3(Z3AdapterI& c) const
+    {
+        std::string string_value = 
+            boost::python::extract<std::string>(
+                boost::python::str(value));
+        return c.ctx().bv_val(string_value.c_str(), type.bitWidth);
     }
 
     // ---------------------------------------------------------------------- //
@@ -244,6 +258,54 @@ namespace ila
         }
         out << ")";
         return out;
+    }
+
+    z3::expr BitvectorOp::toZ3(Z3AdapterI& c) const
+    {
+        using namespace z3;
+
+        if (isUnary(op)) {
+            expr arg = c.expr(args[0].get());
+            if (op == NEGATE) {
+                return -arg;
+            } else if (op == COMPLEMENT) {
+                return ~arg;
+            }
+        } else if (isBinary(op)) {
+            expr arg0 = c.expr(args[0].get());
+            expr arg1 = c.expr(args[1].get());
+
+            if (op == ADD) {
+                return arg0 + arg1;
+            } else if (op == SUB) {
+                return arg0 - arg1;
+            } else if (op == AND) {
+                return (arg0 & arg1);
+            } else if (op == OR) {
+                return (arg0 | arg1);
+            } else if (op == XOR) {
+                Z3_ast r = Z3_mk_bvxor(c.ctx(), arg0, arg1);
+                return expr(c.ctx(), r);
+            } else if (op == XNOR) {
+                Z3_ast r = Z3_mk_bvxnor(c.ctx(), arg0, arg1);
+                return expr(c.ctx(), r);
+            } else if (op == NAND) {
+                return ~(arg0 & arg1);
+            } else if (op == NOR) {
+                return ~(arg0 | arg1);
+            }
+        } else if (isTernary(op)) {
+            expr arg0 = c.expr(args[0].get());
+            expr arg1 = c.expr(args[1].get());
+            expr arg2 = c.expr(args[2].get());
+
+            if (op == IF) {
+                return ite(arg0, arg1, arg2);
+            }
+        }
+        throw PyILAException(PyExc_RuntimeError, 
+                "Unable to create Z3 expression for operator: " + operatorNames[op]);
+        return c.ctx().bool_val(false);
     }
 }
 

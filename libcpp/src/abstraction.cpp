@@ -1,4 +1,6 @@
 #include <abstraction.hpp>
+#include <exception.hpp>
+#include <smt.hpp>
 
 namespace ila
 {
@@ -68,6 +70,37 @@ namespace ila
             std::cout << "result=" << result << std::endl;
         } else {
             std::cout << "got nonsense." << std::endl;
+        }
+    }
+
+    bool Abstraction::areEqual(NodeRef* left, NodeRef* right) const
+    {
+        using namespace z3;
+
+        context c_;
+        Z3Adapter c(c_, "");
+
+        //left->node->write(std::cout << "left: ") << std::endl;
+        //right->node->write(std::cout << "right: ") << std::endl;
+
+        expr e1 = c.expr(left->node.get());
+        //std::cout << "e1:" << e1 << std::endl;
+        expr e2 = c.expr(right->node.get());
+        //std::cout << "e2:" << e2 << std::endl;
+        expr mitre = (e1 != e2);
+        //std::cout << "mitre:" << mitre << std::endl;
+
+
+        solver S(c_);
+        S.add(mitre);
+        auto r = S.check();
+        if (r == sat) {
+            return false;
+        } else if (r == unsat) {
+            return true;
+        } else {
+            throw PyILAException(PyExc_RuntimeError, "Indeterminate result from Z3.");
+            return false;
         }
     }
 }

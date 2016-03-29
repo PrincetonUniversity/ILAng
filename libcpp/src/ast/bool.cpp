@@ -246,20 +246,40 @@ namespace ila
         using namespace z3;
 
         if (isUnary(op)) {
-            expr arg = c.expr(args[0].get());
-            return !arg;
+            if (op == NOT) {
+                expr arg = c.expr(args[0].get());
+                return !arg;
+            }
         } else if (isBinary(op)) {
             expr arg0 = c.expr(args[0].get());
             expr arg1 = c.expr(args[1].get());
-            Z3_ast args_[2] = { arg0, arg1 };
 
             if (op == AND) {
                 return (arg0 && arg1);
             } else if (op == OR) {
                 return (arg0 || arg1);
             } else if (op == XOR) {
-                Z3_ast r = Z3_mk_xor(c.ctx(), args_[0], args_[1]);
+                Z3_ast r = Z3_mk_xor(c.ctx(), arg0, arg1);
                 return expr(c.ctx(), r);
+            } else if (op == XNOR) {
+                Z3_ast r = Z3_mk_xor(c.ctx(), arg0, arg1);
+                return !expr(c.ctx(), r);
+            } else if (op == NAND) {
+                return !(arg0 && arg1);
+            } else if (op == NOR) {
+                return !(arg0 || arg1);
+            } else if (op == EQUAL) {
+                return (arg0 == arg1);
+            } else if (op == DISTINCT) {
+                return (arg0 != arg1);
+            }
+        } else if (isTernary(op)) {
+            expr arg0 = c.expr(args[0].get());
+            expr arg1 = c.expr(args[1].get());
+            expr arg2 = c.expr(args[2].get());
+
+            if (op == IF) {
+                return ite(arg0, arg1, arg2);
             }
         }
         throw PyILAException(PyExc_RuntimeError, 
