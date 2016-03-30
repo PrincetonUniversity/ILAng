@@ -85,10 +85,14 @@ namespace ila
             INVALID,
             // unary
             NEGATE, COMPLEMENT, LNOT, 
+			LROTATE, RROTATE,
             // binary.
             ADD, SUB, AND, OR, XOR, XNOR, NAND, NOR,
+			SDIV, UDIV, SREM, UREM, SMOD, SHL, LSHR, ASHR, 
+			SLT, SGT, SLE, SGE, ULT, UGT, ULE, UGE, COMP,
+			MUL, CONCAT, // REPEAT
             // ternary
-            IF,
+            IF, // EXTRACT,
         } op;
 
         static const std::string operatorNames[];
@@ -99,10 +103,10 @@ namespace ila
 
         // Don't forget to update these helper functions below.
         static bool isUnary(Op op) { 
-            return op >= NEGATE && op <= LNOT; 
+            return op >= NEGATE && op <= RROTATE; 
         }
         static bool isBinary(Op op) { 
-            return op >= ADD && op <= NOR; 
+            return op >= ADD && op <= CONCAT;
         }
         static bool isTernary(Op op) { 
             return op >= IF && op <= IF; 
