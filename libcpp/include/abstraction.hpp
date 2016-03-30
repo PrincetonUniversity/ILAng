@@ -19,6 +19,13 @@ namespace ila
         std::vector< boost::shared_ptr<Node> > regs;
         // list of bits.
         std::vector< boost::shared_ptr<Node> > bits;
+
+        void extractModelValues(
+            Z3AdapterI& c,
+            z3::model& m, 
+            boost::python::dict& result
+        );
+                
     public:
         // Constructor.
         Abstraction();

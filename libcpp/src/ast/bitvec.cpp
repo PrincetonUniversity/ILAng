@@ -17,7 +17,7 @@ namespace ila
         // binary
 		"+", "-", "and", "or", "xor", "xnor", "nand", "nor",
 		"div", "udiv", "rem", "urem", "mod", "<<", ">>>", ">>", 
-		"<", ">", "<=", ">=", "|<|", "|>|", "|<=|", "|>=|", "==",
+		"<", ">", "<=", ">=", "|<|", "|>|", "|<=|", "|>=|", "==", "!="
 		"*", "::",
 		// ternary
         "if"
@@ -142,7 +142,7 @@ namespace ila
         // FIXME: add more code when operators are added.
 		if (op >= ADD && op <= ASHR) {
 			return n1->type.bitWidth;
-		} else if (op >= SLT && op <= COMP) {
+		} else if (op >= SLT && op <= DISTINCT) {
 			return 0; 
 		} else if (op >= MUL && op <= CONCAT) {
 			return n1->type.bitWidth + n2->type.bitWidth;
@@ -420,8 +420,12 @@ namespace ila
 			} else if (op == UGE) {
 				Z3_ast r = Z3_mk_bvuge( c.ctx(), arg0, arg1);
 				return expr(c.ctx(), r);
-			} else if (op == COMP) {
+			} else if (op == EQUAL) {
 				Z3_ast r = Z3_mk_eq( c.ctx(), arg0, arg1);
+				return expr(c.ctx(), r);
+			} else if (op == DISTINCT) {
+				Z3_ast eq = Z3_mk_eq( c.ctx(), arg0, arg1);
+				Z3_ast r = Z3_mk_not( c.ctx(), eq);
 				return expr(c.ctx(), r);
 			} else if (op == MUL) {
 				Z3_ast r = Z3_mk_bvmul( c.ctx(), arg0, arg1);
