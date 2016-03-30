@@ -88,9 +88,9 @@ namespace ila
 			LROTATE, RROTATE,
             // binary.
             ADD, SUB, AND, OR, XOR, XNOR, NAND, NOR,
-			SDIV, UDIV, SREM, UREM, SMOD, SHL, LSHR, ASHR, 
-			SLT, SGT, SLE, SGE, ULT, UGT, ULE, UGE, EQUAL, DISTINCT,
-			MUL, CONCAT, // REPEAT
+            SDIV, UDIV, SREM, UREM, SMOD, SHL, LSHR, ASHR, 
+            SLT, SGT, SLE, SGE, ULT, UGT, ULE, UGE, EQUAL, DISTINCT,
+            MUL, CONCAT, // REPEAT
             // ternary
             IF, // EXTRACT,
         } op;
