@@ -11,8 +11,15 @@ namespace ila
     // ---------------------------------------------------------------------- //
     const std::string BitvectorOp::operatorNames[] = {
         "invalid",
-        "-", "~", "not", 
-        "+", "-", "and", "or", "xor", "xnor", "nand", "nor",
+        // unary
+		"-", "~", "not", 
+		"lrot", "rrot",
+        // binary
+		"+", "-", "and", "or", "xor", "xnor", "nand", "nor",
+		"div", "udiv", "rem", "urem", "mod", "<<", ">>>", ">>", 
+		"<", ">", "<=", ">=", "|<|", "|>|", "|<=|", "|>=|", "==",
+		"*", "::",
+		// ternary
         "if"
     };
 
@@ -133,7 +140,15 @@ namespace ila
         Op op, boost::shared_ptr<Node> n1, boost::shared_ptr<Node> n2)
     {
         // FIXME: add more code when operators are added.
-        return n1->type.bitWidth;
+		if (op >= ADD && op <= ASHR) {
+			return n1->type.bitWidth;
+		} else if (op >= SLT && op <= COMP) {
+			return 0; 
+		} else if (op >= MUL && op <= CONCAT) {
+			return n1->type.bitWidth + n2->type.bitWidth;
+		} else { 
+			return n1->type.bitWidth; // INVALID
+		}
     }
 
     int BitvectorOp::getNaryResultWidth(
@@ -160,12 +175,16 @@ namespace ila
         int width)
     {
         // FIXME: add more code when operators are added.
-        if (!n1->type.isBitvector(width)) {
-            return 1;
-        }
-        if (!n2->type.isBitvector(width)) {
-            return 2;
-        }
+		if (op >= ADD && op <= MUL) {
+			if (!n1->type.isBitvector(width)) {
+            	return 1;
+        	}
+	        if (!n2->type.isBitvector(width)) {
+    	        return 2;
+	        }
+			return 0;
+		}
+		// CONCAT can have different operand width
         return 0;
     }
 
@@ -187,7 +206,6 @@ namespace ila
         Op op, 
         boost::shared_ptr<Node> n1
     )
-
       : BitvectorExpr(c, getUnaryResultWidth(op, n1))
       , arity(UNARY)
       , op(op)
@@ -325,7 +343,13 @@ namespace ila
                 return -arg;
             } else if (op == COMPLEMENT) {
                 return ~arg;
-            }
+            } else if (op == LROTATE) {
+				Z3_ast r = Z3_mk_rotate_left(c.ctx(), 1, arg);
+				return expr(c.ctx(), r);
+			} else if (op == RROTATE) {
+				Z3_ast r = Z3_mk_rotate_right(c.ctx(), 1, arg);
+				return expr(c.ctx(), r);
+			}
         } else if (isBinary(op)) {
             expr arg0 = c.expr(args[0].get());
             expr arg1 = c.expr(args[1].get());
@@ -348,7 +372,64 @@ namespace ila
                 return ~(arg0 & arg1);
             } else if (op == NOR) {
                 return ~(arg0 | arg1);
-            }
+			} else if (op == SDIV) {
+				Z3_ast r = Z3_mk_bvsdiv( c.ctx(), arg0, arg1);
+				return expr(c.ctx(), r);
+			} else if (op == UDIV) {
+				Z3_ast r = Z3_mk_bvudiv( c.ctx(), arg0, arg1);
+				return expr(c.ctx(), r);
+			} else if (op == SREM) {
+				Z3_ast r = Z3_mk_bvsrem( c.ctx(), arg0, arg1);
+				return expr(c.ctx(), r);
+			} else if (op == UREM) {
+				Z3_ast r = Z3_mk_bvurem( c.ctx(), arg0, arg1);
+				return expr(c.ctx(), r);
+			} else if (op == SMOD) {
+				Z3_ast r = Z3_mk_bvsmod( c.ctx(), arg0, arg1);
+				return expr(c.ctx(), r);
+			} else if (op == SHL) {
+				Z3_ast r = Z3_mk_bvshl( c.ctx(), arg0, arg1);
+				return expr(c.ctx(), r);
+			} else if (op == LSHR) {
+				Z3_ast r = Z3_mk_bvlshr( c.ctx(), arg0, arg1);
+				return expr(c.ctx(), r);
+			} else if (op == ASHR) {
+				Z3_ast r = Z3_mk_bvashr( c.ctx(), arg0, arg1);
+				return expr(c.ctx(), r);
+            } else if (op == SLT) {
+				Z3_ast r = Z3_mk_bvslt( c.ctx(), arg0, arg1);
+				return expr(c.ctx(), r);
+			} else if (op == SGT) {
+				Z3_ast r = Z3_mk_bvsgt( c.ctx(), arg0, arg1);
+				return expr(c.ctx(), r);
+			} else if (op == SLE) {
+				Z3_ast r = Z3_mk_bvsle( c.ctx(), arg0, arg1);
+				return expr(c.ctx(), r);
+			} else if (op == SGE) {
+				Z3_ast r = Z3_mk_bvsge( c.ctx(), arg0, arg1);
+				return expr(c.ctx(), r);
+			} else if (op == ULT) {
+				Z3_ast r = Z3_mk_bvult( c.ctx(), arg0, arg1);
+				return expr(c.ctx(), r);
+			} else if (op == UGT) {
+				Z3_ast r = Z3_mk_bvugt( c.ctx(), arg0, arg1);
+				return expr(c.ctx(), r);
+			} else if (op == ULE) {
+				Z3_ast r = Z3_mk_bvule( c.ctx(), arg0, arg1);
+				return expr(c.ctx(), r);
+			} else if (op == UGE) {
+				Z3_ast r = Z3_mk_bvuge( c.ctx(), arg0, arg1);
+				return expr(c.ctx(), r);
+			} else if (op == COMP) {
+				Z3_ast r = Z3_mk_eq( c.ctx(), arg0, arg1);
+				return expr(c.ctx(), r);
+			} else if (op == MUL) {
+				Z3_ast r = Z3_mk_bvmul( c.ctx(), arg0, arg1);
+				return expr(c.ctx(), r);
+			} else if (op == CONCAT) {
+				Z3_ast r = Z3_mk_concat( c.ctx(), arg0, arg1);
+				return expr(c.ctx(), r);
+			}
         } else if (isTernary(op)) {
             expr arg0 = c.expr(args[0].get());
             expr arg1 = c.expr(args[1].get());
