@@ -95,21 +95,21 @@ namespace ila
 
         solver S(c_);
         S.add((y == (e1 != e2)));
-        S.push();
-        S.add(y);
 
         std::cout << S << std::endl;
 
         check_result r;
         int i = 1;
-        while ((r = S.check()) != unsat) {
-            std::cout << "iteration #" << i++ << std::endl;
+        dict args;
+
+        while ((r = S.check(1, &y)) == sat) {
+            std::cout << "iterator #" << i++ << std::endl;
+            model m = S.get_model();
+            extractModelValues(c1, m, args);
             break;
         }
         std::cout << "i=" << i << std::endl;
-        S.pop();
         
-        dict args;
         args["arg"] = 1;
 
         boost::python::object result = 
@@ -121,6 +121,27 @@ namespace ila
             std::cout << "result=" << result << std::endl;
         } else {
             std::cout << "got nonsense." << std::endl;
+        }
+    }
+
+    void Abstraction::extractModelValues(Z3AdapterI& c, z3::model& m, boost::python::dict& d)
+    {
+        using namespace z3;
+        for (auto r : regs) {
+            using namespace boost::python;
+
+            // extract int from z3.
+            expr r_e = c.expr(r.get());
+            expr m_e = m.eval(r_e, true);
+            std::string s_e(Z3_get_numeral_string(c.ctx(), m_e));
+
+            // dump output.
+            std::cout << r->name << "=" << m_e << "/" << s_e << std::endl;
+
+            // convert to python.
+            PyObject* l_e = PyLong_FromString((char*) s_e.c_str(), NULL, 0);
+            boost::python::object o_e(handle<>(borrowed(l_e)));
+            d[r->name] = o_e;
         }
     }
 
