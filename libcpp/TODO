@@ -1,0 +1,6 @@
+TODO
+ - rewrite/uniqify ASTs.
+   handle commutativity
+   probably need hashing
+
+ - better visitor
