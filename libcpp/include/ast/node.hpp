@@ -63,6 +63,8 @@ namespace ila
         virtual boost::python::object getValue() const;
         // convert to an SMT expr.
         virtual z3::expr toZ3(Z3AdapterI& c) const;
+        // rewrite synthesis operators using model.
+        virtual z3::expr rewriteToZ3(Z3AdapterI& c, z3::model& m) const;
 
         // -------------------- ACCESSORS ------------------- //
         void setNodeRef(NodeRef* nr);

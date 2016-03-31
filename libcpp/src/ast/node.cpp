@@ -72,6 +72,10 @@ namespace ila
         return C.ctx().bool_val(false);
     }
 
+    z3::expr Node::rewriteToZ3(Z3AdapterI& c, z3::model& m) const
+    {
+    }
+
     // ---------------------------------------------------------------------- //
     void Node::doSomething()
     {

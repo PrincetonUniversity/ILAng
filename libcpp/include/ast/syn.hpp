@@ -14,9 +14,12 @@ namespace ila
         std::vector< boost::shared_ptr<Node> > args;
         // is it valid?
         bool valid;
+        // vector of names for boolean variables.
+        std::vector< std::string > choiceVars;
     public:
         // constructor.
-        Choice(const std::vector< boost::shared_ptr<Node> >& args);
+        Choice(const std::string& name, 
+               const std::vector< boost::shared_ptr<Node> >& args);
         // destructor.
         ~Choice();
         
@@ -36,6 +39,7 @@ namespace ila
         friend class BitvectorChoice;
         friend class BoolChoice;
     };
+
     class BitvectorChoice : public BitvectorExpr
     {
     protected:

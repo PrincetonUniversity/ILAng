@@ -131,12 +131,10 @@ namespace ila
             using namespace boost::python;
 
             // extract int from z3.
-            expr r_e = c.expr(r.get());
-            expr m_e = m.eval(r_e, true);
-            std::string s_e(Z3_get_numeral_string(c.ctx(), m_e));
+            std::string s_e = c.extractNumeralString(m, r);
 
             // dump output.
-            std::cout << r->name << "=" << m_e << "/" << s_e << std::endl;
+            std::cout << r->name << "=" << s_e << std::endl;
 
             // convert to python.
             PyObject* l_e = PyLong_FromString((char*) s_e.c_str(), NULL, 0);

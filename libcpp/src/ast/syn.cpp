@@ -7,9 +7,15 @@ namespace ila
 {
     // ---------------------------------------------------------------------- //
     Choice::Choice(
+        const std::string& name,
         const std::vector< boost::shared_ptr<Node> >& args_)
       : args(args_)
     {
+        for (unsigned i=1; i != args.size(); i++) {
+            std::string var("choice." + name + "." + 
+                            boost::lexical_cast<std::string>(i));
+            choiceVars.push_back(var);
+        }
     }
 
     Choice::~Choice()
@@ -55,9 +61,7 @@ namespace ila
 
         expr vi_ = c.expr(args[0].get());
         for (unsigned i=1; i != args.size(); i++) {
-            std::string var("choice." + name + "." + 
-                            boost::lexical_cast<std::string>(i));
-            expr ci = c.boolVar(var, true);
+            expr ci = c.boolVar(choiceVars[i-1], true);
             expr vi = c.expr(args[i].get());
             expr vi_next = ite(ci, vi, vi_);
             vi_ = vi_next;
@@ -70,7 +74,7 @@ namespace ila
         Abstraction* c, const std::string& n_, 
         const std::vector< boost::shared_ptr<Node> >& args_)
       : BitvectorExpr(c, Choice::getChoiceType(args_).bitWidth)
-      , choice(args_)
+      , choice(n_, args_)
     {
         name = n_;
     }
