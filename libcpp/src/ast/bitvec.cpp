@@ -17,7 +17,6 @@ namespace ila
         // binary
         "+", "-", "and", "or", "xor", "xnor", "nand", "nor",
         "div", "udiv", "rem", "urem", "mod", "<<", ">>>", ">>", 
-        "<", ">", "<=", ">=", "|<|", "|>|", "|<=|", "|>=|", "==", "!="
         "*", "::",
 		// ternary
         "if"
@@ -140,11 +139,9 @@ namespace ila
         Op op, boost::shared_ptr<Node> n1, boost::shared_ptr<Node> n2)
     {
         // FIXME: add more code when operators are added.
-        if (op >= ADD && op <= ASHR) {
+        if (op >= ADD && op <= MUL) {
             return n1->type.bitWidth;
-        } else if (op >= SLT && op <= DISTINCT) {
-            return 0; 
-        } else if (op >= MUL && op <= CONCAT) {
+        } else if (op >= CONCAT && op <= CONCAT) {
             return n1->type.bitWidth + n2->type.bitWidth;
         } else { 
             return n1->type.bitWidth; // INVALID
@@ -395,37 +392,6 @@ namespace ila
                 return expr(c.ctx(), r);
             } else if (op == ASHR) {
                 Z3_ast r = Z3_mk_bvashr( c.ctx(), arg0, arg1);
-                return expr(c.ctx(), r);
-            } else if (op == SLT) {
-                Z3_ast r = Z3_mk_bvslt( c.ctx(), arg0, arg1);
-                return expr(c.ctx(), r);
-            } else if (op == SGT) {
-                Z3_ast r = Z3_mk_bvsgt( c.ctx(), arg0, arg1);
-                return expr(c.ctx(), r);
-            } else if (op == SLE) {
-                Z3_ast r = Z3_mk_bvsle( c.ctx(), arg0, arg1);
-                return expr(c.ctx(), r);
-            } else if (op == SGE) {
-                Z3_ast r = Z3_mk_bvsge( c.ctx(), arg0, arg1);
-                return expr(c.ctx(), r);
-            } else if (op == ULT) {
-                Z3_ast r = Z3_mk_bvult( c.ctx(), arg0, arg1);
-                return expr(c.ctx(), r);
-            } else if (op == UGT) {
-                Z3_ast r = Z3_mk_bvugt( c.ctx(), arg0, arg1);
-                return expr(c.ctx(), r);
-            } else if (op == ULE) {
-                Z3_ast r = Z3_mk_bvule( c.ctx(), arg0, arg1);
-                return expr(c.ctx(), r);
-            } else if (op == UGE) {
-                Z3_ast r = Z3_mk_bvuge( c.ctx(), arg0, arg1);
-                return expr(c.ctx(), r);
-            } else if (op == EQUAL) {
-                Z3_ast r = Z3_mk_eq( c.ctx(), arg0, arg1);
-                return expr(c.ctx(), r);
-            } else if (op == DISTINCT) {
-                Z3_ast eq = Z3_mk_eq( c.ctx(), arg0, arg1);
-                Z3_ast r = Z3_mk_not( c.ctx(), eq);
                 return expr(c.ctx(), r);
             } else if (op == MUL) {
                 Z3_ast r = Z3_mk_bvmul( c.ctx(), arg0, arg1);

@@ -71,6 +71,7 @@ namespace ila
             NOT, 
             // binary.
             AND, OR, XOR, XNOR, NAND, NOR,
+            SLT, SGT, SLE, SGE, ULT, UGT, ULE, UGE, 
             EQUAL, DISTINCT,
             // ternary
             IF

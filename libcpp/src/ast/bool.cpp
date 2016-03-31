@@ -13,6 +13,7 @@ namespace ila
         "invalid",
         "not", 
         "and", "or", "xor", "xnor", "nand", "nor",
+        "lt", "gt", "le", "ge", "ult", "ugt", "uge", "uge", 
         "eq", "neq",
         "if"
     };
@@ -129,7 +130,7 @@ namespace ila
         boost::shared_ptr<Node> n1, 
         boost::shared_ptr<Node> n2)
     {
-        if (op == EQUAL || op == DISTINCT) {
+        if (op >= SLT || op <= DISTINCT) {
             return n1->type == n2->type;
         } else {
             return n1->type.isBool() && n2->type.isBool();
@@ -268,6 +269,30 @@ namespace ila
                 return !(arg0 && arg1);
             } else if (op == NOR) {
                 return !(arg0 || arg1);
+            } else if (op == SLT) {
+                Z3_ast r = Z3_mk_bvslt( c.ctx(), arg0, arg1);
+                return expr(c.ctx(), r);
+            } else if (op == SGT) {
+                Z3_ast r = Z3_mk_bvsgt( c.ctx(), arg0, arg1);
+                return expr(c.ctx(), r);
+            } else if (op == SLE) {
+                Z3_ast r = Z3_mk_bvsle( c.ctx(), arg0, arg1);
+                return expr(c.ctx(), r);
+            } else if (op == SGE) {
+                Z3_ast r = Z3_mk_bvsge( c.ctx(), arg0, arg1);
+                return expr(c.ctx(), r);
+            } else if (op == ULT) {
+                Z3_ast r = Z3_mk_bvult( c.ctx(), arg0, arg1);
+                return expr(c.ctx(), r);
+            } else if (op == UGT) {
+                Z3_ast r = Z3_mk_bvugt( c.ctx(), arg0, arg1);
+                return expr(c.ctx(), r);
+            } else if (op == ULE) {
+                Z3_ast r = Z3_mk_bvule( c.ctx(), arg0, arg1);
+                return expr(c.ctx(), r);
+            } else if (op == UGE) {
+                Z3_ast r = Z3_mk_bvuge( c.ctx(), arg0, arg1);
+                return expr(c.ctx(), r);
             } else if (op == EQUAL) {
                 return (arg0 == arg1);
             } else if (op == DISTINCT) {
