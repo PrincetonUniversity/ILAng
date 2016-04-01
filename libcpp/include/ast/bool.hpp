@@ -93,6 +93,9 @@ namespace ila
             Op op, 
             boost::shared_ptr<Node> n1, 
             boost::shared_ptr<Node> n2);
+        static int checkTernaryOpTypes(
+            Op op,
+            std::vector< boost::shared_ptr<Node> > args_);
 
         // constructors.
         BoolOp(Abstraction* c, Op op, 
@@ -100,6 +103,8 @@ namespace ila
         BoolOp(Abstraction* c, Op op, 
                     boost::shared_ptr<Node> n1, 
                     boost::shared_ptr<Node> n2);
+        BoolOp(Abstraction* c, Op op,
+                    std::vector< boost::shared_ptr<Node> >& args_);
 
         // destructors.
         virtual ~BoolOp();

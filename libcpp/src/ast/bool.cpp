@@ -137,6 +137,16 @@ namespace ila
         }
     }
 
+    int BoolOp::checkTernaryOpTypes(
+       Op op, std::vector< boost::shared_ptr<Node> > args_)
+    {
+        for (size_t i=0; i<args_.size(); i++) {
+            if (!args_[i]->type.isBool()) {
+                return i+1;
+            }
+        }
+    }
+
     // constructor: unary ops.
     BoolOp::BoolOp(Abstraction* c, 
         Op op, 
@@ -187,6 +197,32 @@ namespace ila
         args.push_back( n1 );
         args.push_back( n2 );
     }
+
+    BoolOp::BoolOp(
+        Abstraction* c,
+        Op op,
+        std::vector< boost::shared_ptr<Node> >& args_
+    )
+        : BoolExpr(c)
+        , arity(TERNARY)
+        , op(op)
+        , args(args_)
+    {
+        if (!isTernary(op)) {
+            throw PyILAException(PyExc_ValueError,
+                                    "Invalid n-ary operator.");
+        }
+        int error = checkTernaryOpTypes(op, args);
+        if (error != 0) {
+            throw PyILAException(
+                PyExc_TypeError, 
+                "Invalid operand (" + 
+                boost::lexical_cast<std::string>(error) + 
+                ") for operator: " + 
+                operatorNames[op]);
+        }
+    }
+            
 
     // destructor.
     BoolOp::~BoolOp()

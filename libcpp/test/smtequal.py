@@ -34,6 +34,12 @@ def main():
     assert not c.areEqual(e1, e3)
     assert not c.areEqual(e4, e3)
 
+    bv1 = c.reg('bv1', 8)
+    bv2 = c.reg('bv2', 8)
+    bv_add1 = bv1.add(bv2)
+    bv_add2 = bv2.add(bv1)
+    assert c.areEqual(bv_add1, bv_add2)
+
     #xram = c.mem('xram', 16, 8)
     #rom = c.mem('rom', 16, 8)
     #pc = c.reg('pc', 16)
