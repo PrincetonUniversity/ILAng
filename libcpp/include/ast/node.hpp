@@ -40,6 +40,12 @@ namespace ila
         // type of this node.
         NodeType type;
 
+    protected:
+        // number of operands.
+        virtual unsigned nArgs() const;
+        // operand i.
+        virtual boost::shared_ptr<Node> arg(unsigned i) const;
+
     public:
         // ------------ CONSTRUCTORS/DESTRUCTORS ------------ //
         // default constructor.
@@ -63,13 +69,24 @@ namespace ila
         virtual boost::python::object getValue() const;
         // convert to an SMT expr.
         virtual z3::expr toZ3(Z3AdapterI& c) const;
-        // rewrite synthesis operators using model.
-        virtual z3::expr rewriteToZ3(Z3AdapterI& c, z3::model& m) const;
 
-        // -------------------- ACCESSORS ------------------- //
+        // -------------------- ACCESSORS --------------------//
         void setNodeRef(NodeRef* nr);
 
+        // -------------------- VISITOR ----------------------//
+        // Visit each child node in a depth-first order and
+        // apply the function object F on it.
+        template<class F> void depthFirstVisit() {
+            unsigned n = nArgs();
+            for(unsigned i=0; i != n; i++) {
+                boost::shared_ptr<Node> arg_i = this->arg(i);
+                arg_i->depthFirstVisit<F>();
+            }
+            F(this);
+        }
+
         friend class NodeRef;
+
     };
 }
 

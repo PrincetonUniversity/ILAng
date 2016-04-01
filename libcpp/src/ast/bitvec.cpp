@@ -129,6 +129,16 @@ namespace ila
     }
 
     // ---------------------------------------------------------------------- //
+    unsigned BitvectorOp::nArgs() const
+    {
+        return args.size();
+    }
+
+    boost::shared_ptr<Node> BitvectorOp::arg(unsigned i) const
+    {
+        return i < args.size() ? args[i] : NULL;
+    }
+    // ---------------------------------------------------------------------- //
     int BitvectorOp::getUnaryResultWidth(Op op, boost::shared_ptr<Node> n)
     {
         // FIXME: add more code when operators are added.
@@ -198,6 +208,7 @@ namespace ila
         return 0;
     }
 
+    // ---------------------------------------------------------------------- //
     // constructor: unary ops.
     BitvectorOp::BitvectorOp(Abstraction* c, 
         Op op, 
@@ -280,6 +291,7 @@ namespace ila
     {
     }
 
+    // ---------------------------------------------------------------------- //
     // clone.
     Node* BitvectorOp::clone() const
     {

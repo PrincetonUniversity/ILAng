@@ -119,6 +119,16 @@ namespace ila
     }
 
     // ---------------------------------------------------------------------- //
+    unsigned BoolOp::nArgs() const
+    {
+        return args.size();
+    }
+
+    boost::shared_ptr<Node> BoolOp::arg(unsigned i) const
+    {
+        return i < args.size() ? args[i] : NULL;
+    }
+    // ---------------------------------------------------------------------- //
     bool BoolOp::checkUnaryOpTypes(
         Op op, boost::shared_ptr<Node> arg0)
     {
@@ -148,6 +158,7 @@ namespace ila
         return 0;
     }
 
+    // ---------------------------------------------------------------------- //
     // constructor: unary ops.
     BoolOp::BoolOp(Abstraction* c, 
         Op op, 
@@ -230,6 +241,7 @@ namespace ila
     {
     }
 
+    // ---------------------------------------------------------------------- //
     // clone.
     Node* BoolOp::clone() const
     {

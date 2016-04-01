@@ -82,6 +82,7 @@ namespace ila
         // the operands themselves.
         std::vector< boost::shared_ptr<Node> > args;
 
+    private:
         // Don't forget to update these helper functions below.
         static bool isUnary(Op op) { return op >= NOT && op <= NOT; }
         static bool isBinary(Op op) { return op >= AND && op <= DISTINCT; }
@@ -97,6 +98,13 @@ namespace ila
             Op op,
             std::vector< boost::shared_ptr<Node> > args_);
 
+    protected:
+        // number of operands.
+        virtual unsigned nArgs() const;
+        // operand i.
+        virtual boost::shared_ptr<Node> arg(unsigned i) const;
+
+    public:
         // constructors.
         BoolOp(Abstraction* c, Op op, 
                     boost::shared_ptr<Node> n1);
