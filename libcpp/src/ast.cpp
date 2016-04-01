@@ -80,14 +80,6 @@ namespace ila
             "negate");
     }
 
-    NodeRef* NodeRef::logicalNot() const
-    {
-        return _unOp(
-            BoolOp::NOT,
-            BitvectorOp::INVALID,
-            "not");
-    }
-
     NodeRef* NodeRef::logicalAnd(NodeRef* other) const
     {
         return _binOp(BoolOp::AND, BitvectorOp::AND,
@@ -261,52 +253,32 @@ namespace ila
 
     NodeRef* NodeRef::eq(NodeRef* other) const
     {
-        return _cmpOp(BoolOp::EQUAL, other);
+        return _cmpOp(BoolOp::EQUAL, other, false);
     }
 
     NodeRef* NodeRef::neq(NodeRef* other) const
     {
-        return _cmpOp(BoolOp::DISTINCT, other);
-    }
-
-    NodeRef* NodeRef::slt(NodeRef* other) const
-    {
-        return _cmpOp(BoolOp::SLT, other);
-    }
-
-    NodeRef* NodeRef::sgt(NodeRef* other) const
-    {
-        return _cmpOp(BoolOp::SGT, other);
-    }
-
-    NodeRef* NodeRef::sle(NodeRef* other) const
-    {
-        return _cmpOp(BoolOp::SLE, other);
-    }
-
-    NodeRef* NodeRef::sge(NodeRef* other) const
-    {
-        return _cmpOp(BoolOp::SGE, other);
+        return _cmpOp(BoolOp::DISTINCT, other, false);
     }
 
     NodeRef* NodeRef::ult(NodeRef* other) const
     {
-        return _cmpOp(BoolOp::ULT, other);
+        return _cmpOp(BoolOp::ULT, other, true);
     }
 
     NodeRef* NodeRef::ugt(NodeRef* other) const
     {
-        return _cmpOp(BoolOp::UGT, other);
+        return _cmpOp(BoolOp::UGT, other, true);
     }
 
     NodeRef* NodeRef::ule(NodeRef* other) const
     {
-        return _cmpOp(BoolOp::ULE, other);
+        return _cmpOp(BoolOp::ULE, other, true);
     }
 
     NodeRef* NodeRef::uge(NodeRef* other) const
     {
-        return _cmpOp(BoolOp::UGE, other);
+        return _cmpOp(BoolOp::UGE, other, true);
     }
 
     NodeRef* NodeRef::ite(NodeRef* thenExp, NodeRef* elseExp) const
@@ -317,6 +289,28 @@ namespace ila
     boost::python::object NodeRef::value() const
     {
         return node->getValue();
+    }
+
+    // ---------------------------------------------------------------------- //
+    // static functions.
+    NodeRef* NodeRef::slt(NodeRef* l, NodeRef* r) 
+    {
+        return _cmpOp(BoolOp::SLT, l, r);
+    }
+
+    NodeRef* NodeRef::sgt(NodeRef* l, NodeRef* r)
+    {
+        return _cmpOp(BoolOp::SGT, l, r);
+    }
+
+    NodeRef* NodeRef::sle(NodeRef* l, NodeRef* r)
+    {
+        return _cmpOp(BoolOp::SLE, l, r);
+    }
+
+    NodeRef* NodeRef::sge(NodeRef* l, NodeRef* r)
+    {
+        return _cmpOp(BoolOp::SGE, l, r);
     }
 
     // ---------------------------------------------------------------------- //
@@ -407,14 +401,16 @@ namespace ila
     }
 
     NodeRef* NodeRef::_cmpOp(BoolOp::Op op, 
-                             NodeRef* other) const
+                             NodeRef* other,
+                             bool bvtype) const
     {
         if (node->ctx != other->node->ctx) {
             throw PyILAException(
                 PyExc_RuntimeError,
                 "Operands must belong to the same Abstraction.");
             return NULL;
-        } else if (node->type == other->node->type) {
+        } else if (node->type == other->node->type &&
+                   (!bvtype || node->type.isBitvector())) {
             return new NodeRef(
                         new BoolOp(node->ctx, op, node, other->node));
         } else {
@@ -424,6 +420,28 @@ namespace ila
             return NULL;
         }
     }
+
+    // static version.
+    NodeRef* NodeRef::_cmpOp(BoolOp::Op op, 
+                             NodeRef* l, NodeRef* r)
+    {
+        if (l->node->ctx != l->node->ctx) {
+            throw PyILAException(
+                PyExc_RuntimeError,
+                "Operands must belong to the same Abstraction.");
+            return NULL;
+        } else if (l->node->type == r->node->type &&
+                   l->node->type.isBitvector()) {
+            return new NodeRef(
+                        new BoolOp(l->node->ctx, op, l->node, r->node));
+        } else {
+            throw PyILAException(PyExc_TypeError,
+                                  "Incorrect type for " + 
+                                  BoolOp::operatorNames[op]);
+            return NULL;
+        }
+    }
+
 
     NodeRef* NodeRef::_triOp(
         BoolOp::Op opBool,

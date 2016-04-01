@@ -42,12 +42,16 @@ BOOST_PYTHON_MODULE(ila)
         .def("doSomething", &NodeRef::doSomething)
         .def("equal", &NodeRef::equal)
         .def_readonly("value", &NodeRef::value)
+
+        // unary operators.
         .def("__invert__", 
                 &NodeRef::complement, 
                 return_value_policy<manage_new_object>())
         .def("__neg__", 
                 &NodeRef::negate, 
                 return_value_policy<manage_new_object>())
+
+        // logical operators.
         .def("__and__",
                 &NodeRef::logicalAnd,
                 return_value_policy<manage_new_object>())
@@ -57,6 +61,8 @@ BOOST_PYTHON_MODULE(ila)
         .def("__xor__",
                 &NodeRef::logicalXor,
                 return_value_policy<manage_new_object>())
+
+        // arithmetic.
         .def("__add__",
                 &NodeRef::add,
                 return_value_policy<manage_new_object>())
@@ -75,52 +81,27 @@ BOOST_PYTHON_MODULE(ila)
         .def("__rsub__",
                 &NodeRef::rsubInt,
                 return_value_policy<manage_new_object>())
+
+        // comparison operators.
         .def("__eq__",
                 &NodeRef::eq,
                 return_value_policy<manage_new_object>())
         .def("__ne__",
                 &NodeRef::neq,
                 return_value_policy<manage_new_object>())
-        // For operator function call
-        .def("logicalNot",
-                &NodeRef::logicalNot,
+        .def("__lt__",
+                &NodeRef::ult,
                 return_value_policy<manage_new_object>())
-        .def("logicalAnd",
-                &NodeRef::logicalAnd,
+        .def("__le__",
+                &NodeRef::ule,
                 return_value_policy<manage_new_object>())
-        .def("logicalOr",
-                &NodeRef::logicalOr,
+        .def("__gt__",
+                &NodeRef::ugt,
                 return_value_policy<manage_new_object>())
-        .def("logicalXor",
-                &NodeRef::logicalXor,
+        .def("__ge__",
+                &NodeRef::uge,
                 return_value_policy<manage_new_object>())
-        .def("logicalXnor",
-                &NodeRef::logicalXnor,
-                return_value_policy<manage_new_object>())
-        .def("logicalNand",
-                &NodeRef::logicalNand,
-                return_value_policy<manage_new_object>())
-        .def("logicalNor",
-                &NodeRef::logicalNor,
-                return_value_policy<manage_new_object>())
-        .def("add", 
-                &NodeRef::add,
-                return_value_policy<manage_new_object>())
-        .def("addInt", 
-                &NodeRef::addInt,
-                return_value_policy<manage_new_object>())
-        .def("raddInt", 
-                &NodeRef::raddInt,
-                return_value_policy<manage_new_object>())
-        .def("sub", 
-                &NodeRef::sub,
-                return_value_policy<manage_new_object>())
-        .def("subInt", 
-                &NodeRef::subInt,
-                return_value_policy<manage_new_object>())
-        .def("rsubInt", 
-                &NodeRef::rsubInt,
-                return_value_policy<manage_new_object>())
+        /*
         .def("sdiv", 
                 &NodeRef::sdiv,
                 return_value_policy<manage_new_object>())
@@ -190,32 +171,20 @@ BOOST_PYTHON_MODULE(ila)
         .def("neq",
                 &NodeRef::neq,
                 return_value_policy<manage_new_object>())
-        .def("slt",
-                &NodeRef::slt,
-                return_value_policy<manage_new_object>())
-        .def("sle",
-                &NodeRef::sle,
-                return_value_policy<manage_new_object>())
-        .def("sgt",
-                &NodeRef::sgt,
-                return_value_policy<manage_new_object>())
-        .def("sge",
-                &NodeRef::sge,
-                return_value_policy<manage_new_object>())
-        .def("ult",
-                &NodeRef::ult,
-                return_value_policy<manage_new_object>())
-        .def("ule",
-                &NodeRef::ule,
-                return_value_policy<manage_new_object>())
-        .def("ugt",
-                &NodeRef::ugt,
-                return_value_policy<manage_new_object>())
-        .def("uge",
-                &NodeRef::uge,
-                return_value_policy<manage_new_object>())
+        */
         .def(self_ns::str(self))
     ;
+
+
+    // functions which expose operators on nodes.
+    def("slt", &NodeRef::slt,
+            return_value_policy<manage_new_object>());
+    def("sle", &NodeRef::sle,
+            return_value_policy<manage_new_object>());
+    def("sgt", &NodeRef::sgt,
+            return_value_policy<manage_new_object>());
+    def("sge", &NodeRef::sge,
+            return_value_policy<manage_new_object>());
 
     // This is the top-level class.
     class_<Abstraction>("Abstraction", init<>())

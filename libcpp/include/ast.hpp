@@ -48,7 +48,6 @@ namespace ila
         NodeRef* complement() const; 
         NodeRef* negate() const;
 
-        NodeRef* logicalNot() const;
         NodeRef* logicalAnd(NodeRef* other) const;
         NodeRef* logicalOr(NodeRef* other) const;
         NodeRef* logicalXor(NodeRef* other) const;
@@ -62,6 +61,7 @@ namespace ila
         NodeRef* sub(NodeRef* other) const;
         NodeRef* subInt(int r) const;
         NodeRef* rsubInt(int r) const;
+
         NodeRef* sdiv(NodeRef* other) const;
         NodeRef* udiv(NodeRef* other) const;
         NodeRef* sdivInt(int r) const;
@@ -84,20 +84,27 @@ namespace ila
         NodeRef* mulInt(int r) const;
         NodeRef* concat(NodeRef* other) const;
 
+        // comparison operators.
         NodeRef* eq(NodeRef* other) const;
         NodeRef* neq(NodeRef* other) const;
-        NodeRef* slt(NodeRef* other) const;
-        NodeRef* sgt(NodeRef* other) const;
-        NodeRef* sle(NodeRef* other) const;
-        NodeRef* sge(NodeRef* other) const;
         NodeRef* ult(NodeRef* other) const;
         NodeRef* ugt(NodeRef* other) const;
         NodeRef* ule(NodeRef* other) const;
         NodeRef* uge(NodeRef* other) const;
 
+        // ite.
         NodeRef* ite(NodeRef* thenExp, NodeRef* elseExp) const;
 
+        // does this object have a value?
         boost::python::object value() const;
+
+        // these are static versions because
+        // are created using functions.
+        static NodeRef* slt(NodeRef* l, NodeRef* r);
+        static NodeRef* sgt(NodeRef* l, NodeRef* r);
+        static NodeRef* sle(NodeRef* l, NodeRef* r);
+        static NodeRef* sge(NodeRef* l, NodeRef* r);
+
 
 
     private:
@@ -108,13 +115,15 @@ namespace ila
         NodeRef* _binOp(BitvectorOp::Op op, NodeRef* other) const;
         NodeRef* _binOp(BitvectorOp::Op op, int r) const;
         NodeRef* _binOpR(BitvectorOp::Op op, int r) const;
-        NodeRef* _cmpOp(BoolOp::Op op,
-                        NodeRef* other) const;
+        NodeRef* _cmpOp(BoolOp::Op op, NodeRef* other, 
+                        bool bvtype) const;
         NodeRef* _triOp(BoolOp::Op op,
                         BitvectorOp::Op bvOp,
                         const char* opName,
                         NodeRef* exp1,
                         NodeRef* exp2) const;
+        static NodeRef* _cmpOp(BoolOp::Op op,
+                        NodeRef* l, NodeRef* r);
     };
 
     // stream output.
