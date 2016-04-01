@@ -295,22 +295,22 @@ namespace ila
     // static functions.
     NodeRef* NodeRef::slt(NodeRef* l, NodeRef* r) 
     {
-        return _cmpOp(BoolOp::SLT, l, r);
+        return _cmpOp(BoolOp::SLT, l, r, true);
     }
 
     NodeRef* NodeRef::sgt(NodeRef* l, NodeRef* r)
     {
-        return _cmpOp(BoolOp::SGT, l, r);
+        return _cmpOp(BoolOp::SGT, l, r, true);
     }
 
     NodeRef* NodeRef::sle(NodeRef* l, NodeRef* r)
     {
-        return _cmpOp(BoolOp::SLE, l, r);
+        return _cmpOp(BoolOp::SLE, l, r, true);
     }
 
     NodeRef* NodeRef::sge(NodeRef* l, NodeRef* r)
     {
-        return _cmpOp(BoolOp::SGE, l, r);
+        return _cmpOp(BoolOp::SGE, l, r, true);
     }
 
     // ---------------------------------------------------------------------- //
@@ -400,6 +400,8 @@ namespace ila
         }
     }
 
+    // bvtype = true means this operator can only be applied
+    // on bitvector type objects.
     NodeRef* NodeRef::_cmpOp(BoolOp::Op op, 
                              NodeRef* other,
                              bool bvtype) const
@@ -413,27 +415,6 @@ namespace ila
                    (!bvtype || node->type.isBitvector())) {
             return new NodeRef(
                         new BoolOp(node->ctx, op, node, other->node));
-        } else {
-            throw PyILAException(PyExc_TypeError,
-                                  "Incorrect type for " + 
-                                  BoolOp::operatorNames[op]);
-            return NULL;
-        }
-    }
-
-    // static version.
-    NodeRef* NodeRef::_cmpOp(BoolOp::Op op, 
-                             NodeRef* l, NodeRef* r)
-    {
-        if (l->node->ctx != l->node->ctx) {
-            throw PyILAException(
-                PyExc_RuntimeError,
-                "Operands must belong to the same Abstraction.");
-            return NULL;
-        } else if (l->node->type == r->node->type &&
-                   l->node->type.isBitvector()) {
-            return new NodeRef(
-                        new BoolOp(l->node->ctx, op, l->node, r->node));
         } else {
             throw PyILAException(PyExc_TypeError,
                                   "Incorrect type for " + 
@@ -475,6 +456,32 @@ namespace ila
                     std::string("Incorrect type for ") + opName); 
             return NULL;
         } 
+    }
+
+    // ---------------------------------------------------------------------- //
+    // static methods
+
+    // bvtype = true means this operator can only be applied
+    // on bitvector type objects.
+    NodeRef* NodeRef::_cmpOp(BoolOp::Op op, 
+                             NodeRef* l, NodeRef* r, 
+                             bool bvonly)
+    {
+        if (l->node->ctx != l->node->ctx) {
+            throw PyILAException(
+                PyExc_RuntimeError,
+                "Operands must belong to the same Abstraction.");
+            return NULL;
+        } else if (l->node->type == r->node->type &&
+                   (!bvonly || l->node->type.isBitvector())) {
+            return new NodeRef(
+                        new BoolOp(l->node->ctx, op, l->node, r->node));
+        } else {
+            throw PyILAException(PyExc_TypeError,
+                                  "Incorrect type for " + 
+                                  BoolOp::operatorNames[op]);
+            return NULL;
+        }
     }
 
     // ---------------------------------------------------------------------- //

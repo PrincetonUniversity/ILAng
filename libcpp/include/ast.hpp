@@ -123,7 +123,8 @@ namespace ila
                         NodeRef* exp1,
                         NodeRef* exp2) const;
         static NodeRef* _cmpOp(BoolOp::Op op,
-                        NodeRef* l, NodeRef* r);
+                        NodeRef* l, NodeRef* r, 
+                        bool bvtype);
     };
 
     // stream output.

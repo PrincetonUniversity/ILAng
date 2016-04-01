@@ -145,6 +145,7 @@ namespace ila
                 return i+1;
             }
         }
+        return 0;
     }
 
     // constructor: unary ops.
