@@ -99,6 +99,7 @@ namespace ila
     private:
         // the operands themselves.
         std::vector< boost::shared_ptr<Node> > args;
+        
 
         // Don't forget to update these helper functions below.
         static bool isUnary(Op op) { 

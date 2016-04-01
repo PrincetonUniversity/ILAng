@@ -51,6 +51,23 @@ namespace ila
         virtual bool getBoolValue(
                     z3::model& m, boost::shared_ptr<Node>& r);
     };
+
+    // A function object that converts nodes into Z3 expressions.
+    class Z3ExprAdapter
+    {
+        typedef std::unordered_map<const Node*, z3::expr> expr_map_t;
+        expr_map_t exprmap;
+
+        z3::context& c;
+        std::string suffix;
+
+    public:
+        Z3ExprAdapter(z3::context& c, const std::string& suffix);
+        Z3ExprAdapter(z3::context& c, const char* suffix);
+        ~Z3ExprAdapter();
+
+        void operator() (const Node* n);
+    };
 }
 
 #endif

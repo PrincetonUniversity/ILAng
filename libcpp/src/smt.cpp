@@ -19,6 +19,7 @@ namespace ila
     {
     }
 
+    // ---------------------------------------------------------------------- //
     z3::expr Z3Adapter::expr(Node* obj)
     {
         auto pos = exprmap.find(obj);
@@ -96,4 +97,35 @@ namespace ila
         return b_e == Z3_L_TRUE;
     }
 
+    // ---------------------------------------------------------------------- //
+    Z3ExprAdapter::Z3ExprAdapter(z3::context& ctx, const std::string& s)
+      : c(ctx)
+      , suffix(s)
+    {
+    }
+
+    Z3ExprAdapter::Z3ExprAdapter(z3::context& ctx, const char* s)
+      : c(ctx)
+      , suffix(s)
+    {
+    }
+
+    Z3ExprAdapter::~Z3ExprAdapter()
+    {
+    }
+
+    // ---------------------------------------------------------------------- //
+    void Z3ExprAdapter::operator() (const Node* n)
+    {
+        // memoization.
+        auto pos = exprmap.find(n);
+        if (pos != exprmap.end()) {
+            return;
+        }
+
+        // now handle the various types.
+        const BoolVar* boolvar = dynamic_cast<const BoolVar*>(n);
+        if (boolvar) {
+        }
+    }
 }

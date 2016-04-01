@@ -76,13 +76,13 @@ namespace ila
         // -------------------- VISITOR ----------------------//
         // Visit each child node in a depth-first order and
         // apply the function object F on it.
-        template<class F> void depthFirstVisit() {
+        template<class F> void depthFirstVisit(F& func) {
             unsigned n = nArgs();
             for(unsigned i=0; i != n; i++) {
                 boost::shared_ptr<Node> arg_i = this->arg(i);
                 arg_i->depthFirstVisit<F>();
             }
-            F(this);
+            func(this);
         }
 
         friend class NodeRef;
