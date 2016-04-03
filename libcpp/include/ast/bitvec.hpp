@@ -42,8 +42,6 @@ namespace ila
         virtual bool equal(const Node* that) const;
         // stream output.
         virtual std::ostream& write(std::ostream& out) const;
-        // convert to an SMT expr.
-        virtual z3::expr toZ3(Z3AdapterI& c) const;
     };
 
     // ---------------------------------------------------------------------- //
@@ -68,8 +66,13 @@ namespace ila
         virtual boost::python::object getValue() const;
         // stream output.
         virtual std::ostream& write(std::ostream& out) const;
-        // convert to an SMT expr.
-        virtual z3::expr toZ3(Z3AdapterI& c) const;
+        // get the value as a string.
+        std::string vstr() const {
+            std::string string_value = 
+                boost::python::extract<std::string>(
+                    boost::python::str(value));
+            return string_value;
+        }
     };
 
     // ---------------------------------------------------------------------- //
@@ -138,12 +141,6 @@ namespace ila
             std::vector< boost::shared_ptr<Node> > args,
             int width);
 
-    protected:
-        // number of operands.
-        virtual unsigned nArgs() const;
-        // operand i.
-        virtual boost::shared_ptr<Node> arg(unsigned i) const;
-
     public:
         // constructors.
         BitvectorOp(Abstraction* c, Op op, 
@@ -165,8 +162,14 @@ namespace ila
         // stream output.
         virtual std::ostream& write(std::ostream& out) const;
 
-        // convert to an SMT expr.
-        virtual z3::expr toZ3(Z3AdapterI& c) const;
+        // number of operands.
+        virtual unsigned nArgs() const;
+
+        // operand i.
+        virtual boost::shared_ptr<Node> arg(unsigned i) const;
+
+        Op getOp() const { return op; }
+
     };
 }
 #endif

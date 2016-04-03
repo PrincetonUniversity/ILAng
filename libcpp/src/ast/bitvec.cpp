@@ -64,11 +64,6 @@ namespace ila
         return (out << name);
     }
 
-    z3::expr BitvectorVar::toZ3(Z3AdapterI& c) const
-    {
-        return c.bitvectorVar(name, type.bitWidth, false);
-    }
-
 
     // ---------------------------------------------------------------------- //
     BitvectorConst::BitvectorConst(Abstraction* c, boost::python::long_ v, int w)
@@ -118,14 +113,6 @@ namespace ila
     {
         std::string string_value = boost::python::extract<std::string>(boost::python::str(value));
         return (out << string_value);
-    }
-
-    z3::expr BitvectorConst::toZ3(Z3AdapterI& c) const
-    {
-        std::string string_value = 
-            boost::python::extract<std::string>(
-                boost::python::str(value));
-        return c.ctx().bv_val(string_value.c_str(), type.bitWidth);
     }
 
     // ---------------------------------------------------------------------- //
@@ -342,88 +329,5 @@ namespace ila
         return out;
     }
 
-    z3::expr BitvectorOp::toZ3(Z3AdapterI& c) const
-    {
-        using namespace z3;
-
-        if (isUnary(op)) {
-            expr arg = c.expr(args[0].get());
-            if (op == NEGATE) {
-                return -arg;
-            } else if (op == COMPLEMENT) {
-                return ~arg;
-            } else if (op == LROTATE) {
-                Z3_ast r = Z3_mk_rotate_left(c.ctx(), 1, arg);
-                return expr(c.ctx(), r);
-            } else if (op == RROTATE) {
-                Z3_ast r = Z3_mk_rotate_right(c.ctx(), 1, arg);
-                return expr(c.ctx(), r);
-            }
-        } else if (isBinary(op)) {
-            expr arg0 = c.expr(args[0].get());
-            expr arg1 = c.expr(args[1].get());
-
-            if (op == ADD) {
-                return arg0 + arg1;
-            } else if (op == SUB) {
-                return arg0 - arg1;
-            } else if (op == AND) {
-                return (arg0 & arg1);
-            } else if (op == OR) {
-                return (arg0 | arg1);
-            } else if (op == XOR) {
-                Z3_ast r = Z3_mk_bvxor(c.ctx(), arg0, arg1);
-                return expr(c.ctx(), r);
-            } else if (op == XNOR) {
-                Z3_ast r = Z3_mk_bvxnor(c.ctx(), arg0, arg1);
-                return expr(c.ctx(), r);
-            } else if (op == NAND) {
-                return ~(arg0 & arg1);
-            } else if (op == NOR) {
-                return ~(arg0 | arg1);
-            } else if (op == SDIV) {
-                Z3_ast r = Z3_mk_bvsdiv( c.ctx(), arg0, arg1);
-                return expr(c.ctx(), r);
-            } else if (op == UDIV) {
-                Z3_ast r = Z3_mk_bvudiv( c.ctx(), arg0, arg1);
-                return expr(c.ctx(), r);
-            } else if (op == SREM) {
-                Z3_ast r = Z3_mk_bvsrem( c.ctx(), arg0, arg1);
-                return expr(c.ctx(), r);
-            } else if (op == UREM) {
-                Z3_ast r = Z3_mk_bvurem( c.ctx(), arg0, arg1);
-                return expr(c.ctx(), r);
-            } else if (op == SMOD) {
-                Z3_ast r = Z3_mk_bvsmod( c.ctx(), arg0, arg1);
-                return expr(c.ctx(), r);
-            } else if (op == SHL) {
-                Z3_ast r = Z3_mk_bvshl( c.ctx(), arg0, arg1);
-                return expr(c.ctx(), r);
-            } else if (op == LSHR) {
-                Z3_ast r = Z3_mk_bvlshr( c.ctx(), arg0, arg1);
-                return expr(c.ctx(), r);
-            } else if (op == ASHR) {
-                Z3_ast r = Z3_mk_bvashr( c.ctx(), arg0, arg1);
-                return expr(c.ctx(), r);
-            } else if (op == MUL) {
-                Z3_ast r = Z3_mk_bvmul( c.ctx(), arg0, arg1);
-                return expr(c.ctx(), r);
-            } else if (op == CONCAT) {
-                Z3_ast r = Z3_mk_concat( c.ctx(), arg0, arg1);
-                return expr(c.ctx(), r);
-            }
-        } else if (isTernary(op)) {
-            expr arg0 = c.expr(args[0].get());
-            expr arg1 = c.expr(args[1].get());
-            expr arg2 = c.expr(args[2].get());
-
-            if (op == IF) {
-                return ite(arg0, arg1, arg2);
-            }
-        }
-        throw PyILAException(PyExc_RuntimeError, 
-                "Unable to create Z3 expression for operator: " + operatorNames[op]);
-        return c.ctx().bool_val(false);
-    }
 }
 

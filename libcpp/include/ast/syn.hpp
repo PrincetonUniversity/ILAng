@@ -33,9 +33,7 @@ namespace ila
         // dump to stream.
         std::ostream& write(std::ostream& out) const;
 
-        // convert to SMT.
-        virtual z3::expr toZ3(const std::string& name, Z3AdapterI& c) const;
-
+        // friends and relatives.
         friend class BitvectorChoice;
         friend class BoolChoice;
     };
@@ -61,8 +59,20 @@ namespace ila
         // stream output.
         virtual std::ostream& write(std::ostream& out) const;
 
-        // convert to an SMT expr.
-        virtual z3::expr toZ3(Z3AdapterI& c) const;
+        // number of operands.
+        virtual unsigned nArgs() const;
+
+        // operand i.
+        virtual boost::shared_ptr<Node> arg(unsigned i) const;
+        
+        // choice variable name.
+        const char* getChoiceVarName(unsigned i) const {
+            if ((i+1) < choice.args.size()) {
+                return choice.choiceVars[i].c_str();
+            } else {
+                return NULL;
+            }
+        }
     };
 }
 

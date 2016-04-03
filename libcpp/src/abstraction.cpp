@@ -86,11 +86,14 @@ namespace ila
         using namespace z3;
 
         context c_;
-        Z3Adapter c1(c_, ":1");
-        Z3Adapter c2(c_, ":2");
+        Z3ExprAdapter c1(c_, ":1");
+        Z3ExprAdapter c2(c_, ":2");
 
-        expr e1 = c1.expr(ex->node.get());
-        expr e2 = c2.expr(ex->node.get());
+        ex->node->depthFirstVisit(c1);
+        ex->node->depthFirstVisit(c2);
+
+        expr e1 = c1.getExpr(ex->node.get());
+        expr e2 = c2.getExpr(ex->node.get());
         expr y  = c_.bool_const("_mitre.output");
 
         solver S(c_);
@@ -124,14 +127,14 @@ namespace ila
         }
     }
 
-    void Abstraction::extractModelValues(Z3AdapterI& c, z3::model& m, boost::python::dict& d)
+    void Abstraction::extractModelValues(Z3ExprAdapter& c, z3::model& m, boost::python::dict& d)
     {
         using namespace z3;
         for (auto r : regs) {
             using namespace boost::python;
 
             // extract int from z3.
-            std::string s_e = c.extractNumeralString(m, r);
+            std::string s_e = c.extractNumeralString(m, r.get());
 
             // dump output.
             std::cout << r->name << "=" << s_e << std::endl;
@@ -148,15 +151,16 @@ namespace ila
         using namespace z3;
 
         context c_;
-        Z3Adapter c(c_, "");
+        Z3ExprAdapter c(c_, "");
 
         //left->node->write(std::cout << "left: ") << std::endl;
-        //right->node->write(std::cout << "right: ") << std::endl;
-
-        expr e1 = c.expr(left->node.get());
+        z3::expr e1 = c.getExpr(left->node.get());
         //std::cout << "e1:" << e1 << std::endl;
-        expr e2 = c.expr(right->node.get());
+
+        //right->node->write(std::cout << "right: ") << std::endl;
+        z3::expr e2 = c.getExpr(right->node.get());
         //std::cout << "e2:" << e2 << std::endl;
+
         expr mitre = (e1 != e2);
         //std::cout << "mitre:" << mitre << std::endl;
 

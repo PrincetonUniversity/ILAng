@@ -21,7 +21,7 @@ namespace ila
         std::vector< boost::shared_ptr<Node> > bits;
 
         void extractModelValues(
-            Z3AdapterI& c,
+            Z3ExprAdapter& c,
             z3::model& m, 
             boost::python::dict& result
         );

@@ -2,6 +2,7 @@
 #define __SMT_HPP_DEFINED__
 
 #include <z3++.h>
+#include <util.hpp>
 #include <exception.hpp>
 #include <unordered_map>
 #include <boost/shared_ptr.hpp>
@@ -9,48 +10,9 @@
 namespace ila 
 {
     class Node;
-
-    struct Z3AdapterI
-    {
-        virtual z3::expr expr(Node* obj) = 0;
-        virtual z3::context& ctx() = 0;
-
-        virtual z3::expr boolVar(const std::string& name, bool syn) = 0;
-        virtual z3::expr bitvectorVar(const std::string& name, int bitWidth, bool syn) = 0;
-        virtual std::string extractNumeralString(
-                    z3::model& m, boost::shared_ptr<Node>& r) = 0;
-        virtual int getNumeralInt(
-                    z3::model& m, boost::shared_ptr<Node>& r) = 0;
-        virtual bool getBoolValue(
-                    z3::model& m, boost::shared_ptr<Node>& r) = 0;
-    };
-
-    class Z3Adapter : public Z3AdapterI
-    {
-    public:
-        // first the types.
-        typedef std::unordered_map<Node*, z3::expr> expr_map_t;
-    private:
-        // now member variables.
-        z3::context& c;
-        expr_map_t exprmap;
-        std::string suffix;
-    public:
-        Z3Adapter(z3::context& c, const std::string& suffix);
-        Z3Adapter(z3::context& c, const char* suffix);
-        virtual ~Z3Adapter();
-
-        virtual z3::expr expr(Node* obj);
-        virtual z3::context& ctx();
-        virtual z3::expr boolVar(const std::string& name, bool syn);
-        virtual z3::expr bitvectorVar(const std::string& name, int w, bool syn);
-        virtual std::string extractNumeralString(
-                    z3::model& m, boost::shared_ptr<Node>& r);
-        virtual int getNumeralInt(
-                    z3::model& m, boost::shared_ptr<Node>& r);
-        virtual bool getBoolValue(
-                    z3::model& m, boost::shared_ptr<Node>& r);
-    };
+    class BoolOp;
+    class BitvectorOp;
+    class BitvectorChoice;
 
     // A function object that converts nodes into Z3 expressions.
     class Z3ExprAdapter
@@ -61,13 +23,34 @@ namespace ila
         z3::context& c;
         std::string suffix;
 
+    protected:
+        z3::expr getArgExpr(
+            const Node* n, int i);
+
+        virtual z3::expr getBoolOpExpr(
+            const BoolOp* op);
+        virtual z3::expr getBvOpExpr(
+            const BitvectorOp* op);
+        virtual z3::expr getChoiceExpr(
+            const BitvectorChoice* op);
+
     public:
         Z3ExprAdapter(z3::context& c, const std::string& suffix);
         Z3ExprAdapter(z3::context& c, const char* suffix);
         ~Z3ExprAdapter();
 
-        void operator() (const Node* n);
+        // This is used by depthFirstVisit.
+        virtual void operator() (const Node* n);
+
+        // This will call node->depthFirstVisit.
+        z3::expr getExpr(const Node* n);
+        
+        // helper functions to get stuff out of the model.
+        std::string extractNumeralString(z3::model& m, const Node* r);
+        int getNumeralInt(z3::model& m, const Node* r);
+        bool getBoolValue(z3::model& m, const Node* r);
     };
+
 }
 
 #endif

@@ -55,20 +55,6 @@ namespace ila
         return (out << ")");
     }
 
-    z3::expr Choice::toZ3(const std::string& name, Z3AdapterI& c) const
-    {
-        using namespace z3;
-
-        expr vi_ = c.expr(args[0].get());
-        for (unsigned i=1; i != args.size(); i++) {
-            expr ci = c.boolVar(choiceVars[i-1], true);
-            expr vi = c.expr(args[i].get());
-            expr vi_next = ite(ci, vi, vi_);
-            vi_ = vi_next;
-        }
-        return vi_;
-    }
-
     // ---------------------------------------------------------------------- //
     BitvectorChoice::BitvectorChoice(
         Abstraction* c, const std::string& n_, 
@@ -101,9 +87,18 @@ namespace ila
         return choice.write(out);
     }
 
-    z3::expr BitvectorChoice::toZ3(Z3AdapterI& c) const
+    unsigned BitvectorChoice::nArgs() const
     {
-        return choice.toZ3(name, c);
+        return choice.args.size();
+    }
+
+    boost::shared_ptr<Node> BitvectorChoice::arg(unsigned i) const
+    {
+        if (i < choice.args.size()) {
+            return choice.args[i];
+        } else {
+            return NULL;
+        }
     }
 }
 

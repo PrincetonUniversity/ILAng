@@ -77,14 +77,6 @@ namespace ila
         return boost::python::object();
     }
 
-    z3::expr Node::toZ3(ila::Z3AdapterI& C) const
-    {
-        throw new PyILAException(
-            PyExc_RuntimeError,
-            "Node::toZ3 not implemented.");
-        return C.ctx().bool_val(false);
-    }
-
 
     // ---------------------------------------------------------------------- //
     void Node::doSomething()

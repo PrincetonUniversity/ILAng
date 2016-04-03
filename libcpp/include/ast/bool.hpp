@@ -36,7 +36,6 @@ namespace ila
         virtual Node* clone() const;
         virtual bool equal(const Node* that) const;
         virtual std::ostream& write(std::ostream& out) const;
-        virtual z3::expr toZ3(Z3AdapterI& c) const;
     };
 
     // ---------------------------------------------------------------------- //
@@ -53,7 +52,9 @@ namespace ila
         virtual bool equal(const Node* that) const;
         virtual boost::python::object getValue() const;
         virtual std::ostream& write(std::ostream& out) const;
-        virtual z3::expr toZ3(Z3AdapterI& c) const;
+
+        // helper functions.
+        bool val() const { return value; }
     };
 
     // ---------------------------------------------------------------------- //
@@ -98,12 +99,6 @@ namespace ila
             Op op,
             std::vector< boost::shared_ptr<Node> > args_);
 
-    protected:
-        // number of operands.
-        virtual unsigned nArgs() const;
-        // operand i.
-        virtual boost::shared_ptr<Node> arg(unsigned i) const;
-
     public:
         // constructors.
         BoolOp(Abstraction* c, Op op, 
@@ -126,8 +121,14 @@ namespace ila
         // stream output.
         virtual std::ostream& write(std::ostream& out) const;
 
-        // convert to an SMT expr.
-        virtual z3::expr toZ3(Z3AdapterI& c) const;
+        // number of operands.
+        virtual unsigned nArgs() const;
+
+        // operand i.
+        virtual boost::shared_ptr<Node> arg(unsigned i) const;
+
+        // operation.
+        Op getOp() const { return op; }
     };
 }
 #endif
