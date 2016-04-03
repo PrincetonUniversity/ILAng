@@ -98,24 +98,6 @@ namespace ila
                         "xor", other);
     }
 
-    NodeRef* NodeRef::logicalXnor(NodeRef* other) const
-    {
-        return _binOp(BoolOp::XNOR, BitvectorOp::XNOR,
-                        "xnor", other);
-    }
-
-    NodeRef* NodeRef::logicalNand(NodeRef* other) const
-    {
-        return _binOp(BoolOp::NAND, BitvectorOp::NAND,
-                        "nand", other);
-    }
-
-    NodeRef* NodeRef::logicalNor(NodeRef* other) const
-    {
-        return _binOp(BoolOp::NOR, BitvectorOp::NOR,
-                        "nor", other);
-    }
-
     NodeRef* NodeRef::add(NodeRef* other) const
     {
         return _binOp(BitvectorOp::ADD, other);
@@ -146,19 +128,9 @@ namespace ila
         return _binOpR(BitvectorOp::SUB, r);
     }
 
-    NodeRef* NodeRef::sdiv(NodeRef* other) const
-    {
-        return _binOp(BitvectorOp::SDIV, other);
-    }
-
     NodeRef* NodeRef::udiv(NodeRef* other) const
     {
         return _binOp(BitvectorOp::UDIV, other);
-    }
-
-    NodeRef* NodeRef::sdivInt(int r) const
-    {
-        return _binOp(BitvectorOp::SDIV, r);
     }
 
     NodeRef* NodeRef::udivInt(int r) const
@@ -166,34 +138,9 @@ namespace ila
         return _binOp(BitvectorOp::UDIV, r);
     }
 
-    NodeRef* NodeRef::rsdivInt(int r) const
-    {
-        return _binOpR(BitvectorOp::SDIV, r);
-    }
-
     NodeRef* NodeRef::rudivInt(int r) const
     {
         return _binOpR(BitvectorOp::UDIV, r);
-    }
-
-    NodeRef* NodeRef::srem(NodeRef* other) const
-    {
-        return _binOp(BitvectorOp::SREM, other);
-    }
-
-    NodeRef* NodeRef::urem(NodeRef* other) const
-    {
-        return _binOp(BitvectorOp::UREM, other);
-    }
-
-    NodeRef* NodeRef::sremInt(int r) const
-    {
-        return _binOp(BitvectorOp::SREM, r);
-    }
-
-    NodeRef* NodeRef::uremInt(int r) const
-    {
-        return _binOp(BitvectorOp::UREM, r);
     }
 
     NodeRef* NodeRef::smod(NodeRef* other) const
@@ -206,6 +153,11 @@ namespace ila
         return _binOp(BitvectorOp::SMOD, r);
     }
 
+    NodeRef* NodeRef::rsmodInt(int r) const
+    {
+        return _binOpR(BitvectorOp::SMOD, r);
+    }
+
     NodeRef* NodeRef::shl(NodeRef* other) const
     {
         return _binOp(BitvectorOp::SHL, other);
@@ -214,6 +166,11 @@ namespace ila
     NodeRef* NodeRef::shlInt(int r) const
     {
         return _binOp(BitvectorOp::SHL, r);
+    }
+
+    NodeRef* NodeRef::rshlInt(int r) const
+    {
+        return _binOpR(BitvectorOp::SHL, r);
     }
 
     NodeRef* NodeRef::lshr(NodeRef* other) const
@@ -226,14 +183,9 @@ namespace ila
         return _binOp(BitvectorOp::LSHR, r);
     }
 
-    NodeRef* NodeRef::ashr(NodeRef* other) const
+    NodeRef* NodeRef::rlshrInt(int r) const
     {
-        return _binOp(BitvectorOp::LSHR, other);
-    }
-
-    NodeRef* NodeRef::ashrInt(int r) const
-    {
-        return _binOp(BitvectorOp::LSHR, r);
+        return _binOpR(BitvectorOp::LSHR, r);
     }
 
     NodeRef* NodeRef::mul(NodeRef* other) const
@@ -246,9 +198,9 @@ namespace ila
         return _binOp(BitvectorOp::MUL, r);
     }
 
-    NodeRef* NodeRef::concat(NodeRef* other) const
+    NodeRef* NodeRef::rmulInt(int r) const
     {
-        return _binOp(BitvectorOp::CONCAT, other);
+        return _binOpR(BitvectorOp::MUL, r);
     }
 
     NodeRef* NodeRef::eq(NodeRef* other) const
@@ -293,6 +245,101 @@ namespace ila
 
     // ---------------------------------------------------------------------- //
     // static functions.
+
+    NodeRef* NodeRef::logicalXnor(NodeRef* l, NodeRef* r)
+    {
+        return _binOp(BoolOp::XNOR, BitvectorOp::XNOR,
+                        "xnor", l, r);
+    }
+
+    NodeRef* NodeRef::logicalNand(NodeRef* l, NodeRef* r)
+    {
+        return _binOp(BoolOp::NAND, BitvectorOp::NAND,
+                        "nand", l, r);
+    }
+
+    NodeRef* NodeRef::logicalNor(NodeRef* l, NodeRef* r)
+    {
+        return _binOp(BoolOp::NOR, BitvectorOp::NOR,
+                        "nor", l, r);
+    }
+
+    NodeRef* NodeRef::sdiv(NodeRef* l, NodeRef* r)
+    {
+        return _binOp(BitvectorOp::SDIV, l, r);
+    }
+
+    NodeRef* NodeRef::sdivInt(NodeRef* l, int r)
+    {
+        return _binOp(BitvectorOp::SDIV, l, r);
+    }
+
+    NodeRef* NodeRef::rsdivInt(int l, NodeRef* r)
+    {
+        return _binOpR(BitvectorOp::SDIV, r, l);
+    }
+
+    NodeRef* NodeRef::srem(NodeRef* l, NodeRef* r)
+    {
+        return _binOp(BitvectorOp::SREM, l, r);
+    }
+
+    NodeRef* NodeRef::sremInt(NodeRef* l, int r)
+    {
+        return _binOp(BitvectorOp::SREM, l, r);
+    }
+
+    NodeRef* NodeRef::rsremInt(int l, NodeRef* r)
+    {
+        return _binOpR(BitvectorOp::SREM, r, l);
+    }
+
+    NodeRef* NodeRef::urem(NodeRef* l, NodeRef* r)
+    {
+        return _binOp(BitvectorOp::UREM, l, r);
+    }
+
+    NodeRef* NodeRef::uremInt(NodeRef* l, int r)
+    {
+        return _binOp(BitvectorOp::UREM, l, r);
+    }
+
+    NodeRef* NodeRef::ruremInt(int l, NodeRef* r)
+    {
+        return _binOpR(BitvectorOp::UREM, r, l);
+    }
+
+    NodeRef* NodeRef::ashr(NodeRef* l, NodeRef* r)
+    {
+        return _binOp(BitvectorOp::ASHR, l, r);
+    }
+
+    NodeRef* NodeRef::ashrInt(NodeRef* l, int r)
+    {
+        return _binOp(BitvectorOp::ASHR, l, r);
+    }
+
+    NodeRef* NodeRef::rashrInt(int l, NodeRef* r)
+    {
+        return _binOp(BitvectorOp::ASHR, r, l);
+    }
+
+    NodeRef* NodeRef::concat(NodeRef* l, NodeRef* r)
+    {
+        return _binOp(BitvectorOp::CONCAT, l, r);
+    }
+
+    NodeRef* NodeRef::lrotate(NodeRef* obj, int par)
+    {
+        return _binOp(BitvectorOp::LROTATE, obj, par);
+    }
+
+    NodeRef* NodeRef::rrotate(NodeRef* obj, int par)
+    {
+        return _binOp(BitvectorOp::RROTATE, obj, par);
+    }
+
+//    NodeRef* NodeRef::ite(NodeRef* cond, NodeRef* trueExp, NodeRef* falseExp)
     NodeRef* NodeRef::slt(NodeRef* l, NodeRef* r) 
     {
         return _cmpOp(BoolOp::SLT, l, r, true);
@@ -311,6 +358,11 @@ namespace ila
     NodeRef* NodeRef::sge(NodeRef* l, NodeRef* r)
     {
         return _cmpOp(BoolOp::SGE, l, r, true);
+    }
+
+    NodeRef* NodeRef::extract(NodeRef* obj, int beg, int end)
+    {
+        return _triOp(BitvectorOp::EXTRACT, obj, beg, end);
     }
 
     // ---------------------------------------------------------------------- //
@@ -482,6 +534,113 @@ namespace ila
                                   BoolOp::operatorNames[op]);
             return NULL;
         }
+    }
+
+    NodeRef* NodeRef::_binOp(
+        BoolOp::Op boolOp, 
+        BitvectorOp::Op bvOp, 
+        const char* opName,
+        NodeRef* l,
+        NodeRef* r)
+    {
+        if (l->node->ctx != r->node->ctx) {
+            throw PyILAException(
+                PyExc_RuntimeError,
+                "Both operands of a binary operator must be from the same Abstraction.");
+            return NULL;
+        } else if (boolOp != BoolOp::INVALID && l->node->type.isBool()) {
+            return new NodeRef(new BoolOp(
+                        l->node->ctx, boolOp, l->node, r->node));
+        } else if (bvOp != BitvectorOp::INVALID && l->node->type.isBitvector()) {
+            return new NodeRef(new BitvectorOp(
+                        l->node->ctx, bvOp, l->node, r->node));
+        } else {
+            throw PyILAException(PyExc_TypeError,
+                                 std::string("Incorrect type for ")
+                                 + opName);
+        }
+    }
+
+    NodeRef* NodeRef::_binOp(BitvectorOp::Op op, NodeRef* l, NodeRef* r)
+    {
+        if (l->node->ctx != r->node->ctx) {
+            throw PyILAException(
+                PyExc_RuntimeError,
+                "Both operands of a binary operator must be from the same Abstraction.");
+            return NULL;
+        } else if (l->node->type.isBitvector()) {
+            return new NodeRef(new BitvectorOp(
+                       l->node->ctx, op, l->node, r->node));
+        } else {
+            throw PyILAException(PyExc_TypeError,
+                                 "Incorrect type for " + 
+                                 BitvectorOp::operatorNames[op]);
+        }
+    }
+
+    NodeRef* NodeRef::_binOp(BitvectorOp::Op op, NodeRef* l, int r)
+    {
+        if (l->node->type.isBitvector()) {
+            if (op >= BitvectorOp::Op::LROTATE && 
+                op <= BitvectorOp::Op::RROTATE)
+            {
+                return new NodeRef(new BitvectorOp(
+                            l->node->ctx, op, l->node, r));
+            } else {
+                boost::shared_ptr<Node> node_r(
+                    new BitvectorConst(l->node->ctx, r, l->node->type.bitWidth));
+
+                return new NodeRef(new BitvectorOp(
+                            l->node->ctx, op, l->node, node_r));
+            }
+        } else {
+            throw PyILAException(PyExc_TypeError,
+                                 "Incorrect type for " +
+                                 BitvectorOp::operatorNames[op]);
+        }
+    }
+
+    NodeRef* NodeRef::_binOpR(BitvectorOp::Op op, NodeRef* l, int r)
+    {
+        if (l->node->type.isBitvector()) {
+            boost::shared_ptr<Node> node_r(
+                new BitvectorConst(l->node->ctx, r, l->node->type.bitWidth));
+
+            return new NodeRef(new BitvectorOp(
+                        l->node->ctx, op, node_r, l->node));
+        } else {
+            throw PyILAException(PyExc_TypeError,
+                                 "Incorrect type for " +
+                                 BitvectorOp::operatorNames[op]);
+        }
+    }
+
+    NodeRef* NodeRef::_triOp(BitvectorOp::Op op, NodeRef* obj, int beg, int end)
+    {
+        if (!obj->node->type.isBitvector())
+        {
+            throw PyILAException(PyExc_TypeError,
+                                    "Incorrect type for " + 
+                                    BitvectorOp::operatorNames[op]);
+            return NULL;
+        } else {
+            if (op == BitvectorOp::Op::EXTRACT)
+            {
+                std::vector< int > params;
+                params.push_back(beg);
+                params.push_back(end);
+                // FIXME: if use member function, don't need to pass this.
+                std::vector< boost::shared_ptr<Node> > args;
+                args.push_back(obj->node);
+                return new NodeRef( new BitvectorOp(obj->node->ctx, op, args, params) );
+            } else {
+                throw PyILAException(PyExc_TypeError,
+                                    "Incorrect type for " + 
+                                    BitvectorOp::operatorNames[op]);
+                return NULL;
+            }
+        } 
+        return NULL;
     }
 
     // ---------------------------------------------------------------------- //

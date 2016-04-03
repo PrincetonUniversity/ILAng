@@ -12,14 +12,13 @@ namespace ila
     const std::string BitvectorOp::operatorNames[] = {
         "invalid",
         // unary
-        "-", "~", "not", 
-        "lrot", "rrot",
+        "-", "~",
         // binary
         "+", "-", "and", "or", "xor", "xnor", "nand", "nor",
         "div", "udiv", "rem", "urem", "mod", "<<", ">>>", ">>", 
-        "*", "::",
+        "*", "lrot", "rrot", "::",
 		// ternary
-        "if"
+        "if", "extract",
     };
 
     // ---------------------------------------------------------------------- //
@@ -134,9 +133,19 @@ namespace ila
         return args.size();
     }
 
+    unsigned BitvectorOp::nParams() const
+    {
+        return params.size();
+    }
+
     boost::shared_ptr<Node> BitvectorOp::arg(unsigned i) const
     {
         return i < args.size() ? args[i] : NULL;
+    }
+
+    int BitvectorOp::param(unsigned i) const
+    {
+        return i < params.size() ? params[i] : 0;
     }
     // ---------------------------------------------------------------------- //
     int BitvectorOp::getUnaryResultWidth(Op op, boost::shared_ptr<Node> n)
@@ -158,6 +167,16 @@ namespace ila
         }
     }
 
+    int BitvectorOp::getBinaryResultWidth(
+        Op op, boost::shared_ptr<Node> n1, int param)
+    {
+        if (op >= LROTATE || op <= RROTATE) {
+            return n1->type.bitWidth;
+        } else {
+            return n1->type.bitWidth; // INVALID
+        }
+    }
+
     int BitvectorOp::getNaryResultWidth(
         Op op, std::vector< boost::shared_ptr<Node> >& args)
     {
@@ -166,6 +185,17 @@ namespace ila
             return 1;
         } else {
             return args[0]->type.bitWidth;
+        }
+    }
+
+    int BitvectorOp::getNaryResultWidth(
+        Op op, std::vector< boost::shared_ptr<Node> >& args, std::vector< int >& params)
+    {
+        // FIXME: add more code when operators are added.
+        if (params.size() != 2) {
+            return 1;
+        } else {
+            return (params[1] - params[0] + 1);
         }
     }
 
@@ -195,14 +225,54 @@ namespace ila
         return 0;
     }
 
+    int BitvectorOp::checkBinaryOpWidth(
+        Op op,
+        boost::shared_ptr<Node> n1,
+        int param,
+        int width)
+    {
+        if (op >= LROTATE && op <= RROTATE) {
+            if (param > width) {
+                return 2;
+            } else if (!n1->type.isBitvector(width)) {
+                return 1;
+            } else {
+                return 0;
+            }
+        } else {
+            return 0;
+        }
+    }
     int BitvectorOp::checkNaryOpWidth(
         Op op,
-        std::vector< boost::shared_ptr<Node> > args,
+        std::vector< boost::shared_ptr<Node> >& args,
         int width)
     {
         for (unsigned i=0; i != args.size(); i++) {
             if (!args[i]->type.isBitvector(width)) {
                 return i+1;
+            }
+        }
+        return 0;
+    }
+
+    int BitvectorOp::checkNaryOpWidth(
+        Op op,
+        std::vector< boost::shared_ptr<Node> >& args,
+        std::vector< int >& params,
+        int width)
+    {
+        // FIXME: modify the code if other n-ary op are added
+        if (op >= EXTRACT && op <= EXTRACT) {
+            // (bv, start, end)
+            if (params.size() == 2 && args.size() == 1) {
+                if (params[0] < 0) {
+                    return 2;
+                } else if (params[1] >= args[0]->type.bitWidth) {
+                    return 3;
+                } else if (!args[0]->type.isBitvector(width)) {
+                    return 1;
+                }
             }
         }
         return 0;
@@ -262,7 +332,35 @@ namespace ila
         args.push_back( n1 );
         args.push_back( n2 );
     }
+    
+    // constructor: bin ops with int input (ex. rotate)
+    BitvectorOp::BitvectorOp(Abstraction* c,
+        Op op,
+        boost::shared_ptr<Node> n1,
+        int param
+    )
+      : BitvectorExpr(c, getBinaryResultWidth(op, n1, param))
+      , arity(BINARY)
+      , op(op)
+    {
+        if (!isBinary(op)) {
+            throw PyILAException(PyExc_ValueError,
+                                 "Invalid binary operator: " + 
+                                 operatorNames[op]);
+        }
 
+        int error = checkBinaryOpWidth(op, n1, param, type.bitWidth);
+        if (error != 0) {
+            throw PyILAException(PyExc_TypeError,
+                "Invalid operand (" + 
+                boost::lexical_cast<std::string>(error) +
+                ") for operator: " + operatorNames[op]);
+        }
+        args.push_back( n1 );
+        params.push_back(param);
+    }
+
+    // constructor: ternary ops
     BitvectorOp::BitvectorOp(
         Abstraction* c, Op op,
         std::vector< boost::shared_ptr<Node> >& args_
@@ -283,6 +381,31 @@ namespace ila
                 "Invalid operand (" + 
                 boost::lexical_cast<std::string>(error) +
                 ") for operator: " + operatorNames[op]);
+        }
+    }
+
+    // constructor: ternary ops with int input (ex. extract)
+    BitvectorOp::BitvectorOp(
+        Abstraction* c, Op op, 
+        std::vector< boost::shared_ptr<Node> >& args_,
+        std::vector< int >& params_
+    )
+        : BitvectorExpr(c, getNaryResultWidth(op, args_, params_))
+        , arity(NARY)
+        , op(op)
+        , args(args_)
+        , params(params_)
+    {
+        if(!isNary(op)) {
+            throw PyILAException(PyExc_ValueError,
+                     "Invalid n-ary operator: " + operatorNames[op]);
+        }
+        int error = checkNaryOpWidth(op, args, params, type.bitWidth);
+        if (error != 0) {
+            throw PyILAException(PyExc_TypeError,
+                    "Invalid operand (" + 
+                    boost::lexical_cast<std::string>(error) + 
+                    ") for operator: " + operatorNames[op]);
         }
     }
 
@@ -360,65 +483,83 @@ namespace ila
                 return expr(c.ctx(), r);
             }
         } else if (isBinary(op)) {
-            expr arg0 = c.expr(args[0].get());
-            expr arg1 = c.expr(args[1].get());
+            if (op >= LROTATE && op <= RROTATE)
+            {
+                expr obj = c.expr(args[0].get());
+                int par = params[0];
+                if (op == LROTATE) {
+                    Z3_ast r = Z3_mk_rotate_left(c.ctx(), par, obj);
+                    return expr(c.ctx(), r);
+                } else if (op == RROTATE) {
+                    Z3_ast r = Z3_mk_rotate_right(c.ctx(), par, obj);
+                    return expr(c.ctx(), r);
+                }
+            } else {
+                expr arg0 = c.expr(args[0].get());
+                expr arg1 = c.expr(args[1].get());
 
-            if (op == ADD) {
-                return arg0 + arg1;
-            } else if (op == SUB) {
-                return arg0 - arg1;
-            } else if (op == AND) {
-                return (arg0 & arg1);
-            } else if (op == OR) {
-                return (arg0 | arg1);
-            } else if (op == XOR) {
-                Z3_ast r = Z3_mk_bvxor(c.ctx(), arg0, arg1);
-                return expr(c.ctx(), r);
-            } else if (op == XNOR) {
-                Z3_ast r = Z3_mk_bvxnor(c.ctx(), arg0, arg1);
-                return expr(c.ctx(), r);
-            } else if (op == NAND) {
-                return ~(arg0 & arg1);
-            } else if (op == NOR) {
-                return ~(arg0 | arg1);
-            } else if (op == SDIV) {
-                Z3_ast r = Z3_mk_bvsdiv( c.ctx(), arg0, arg1);
-                return expr(c.ctx(), r);
-            } else if (op == UDIV) {
-                Z3_ast r = Z3_mk_bvudiv( c.ctx(), arg0, arg1);
-                return expr(c.ctx(), r);
-            } else if (op == SREM) {
-                Z3_ast r = Z3_mk_bvsrem( c.ctx(), arg0, arg1);
-                return expr(c.ctx(), r);
-            } else if (op == UREM) {
-                Z3_ast r = Z3_mk_bvurem( c.ctx(), arg0, arg1);
-                return expr(c.ctx(), r);
-            } else if (op == SMOD) {
-                Z3_ast r = Z3_mk_bvsmod( c.ctx(), arg0, arg1);
-                return expr(c.ctx(), r);
-            } else if (op == SHL) {
-                Z3_ast r = Z3_mk_bvshl( c.ctx(), arg0, arg1);
-                return expr(c.ctx(), r);
-            } else if (op == LSHR) {
-                Z3_ast r = Z3_mk_bvlshr( c.ctx(), arg0, arg1);
-                return expr(c.ctx(), r);
-            } else if (op == ASHR) {
-                Z3_ast r = Z3_mk_bvashr( c.ctx(), arg0, arg1);
-                return expr(c.ctx(), r);
-            } else if (op == MUL) {
-                Z3_ast r = Z3_mk_bvmul( c.ctx(), arg0, arg1);
-                return expr(c.ctx(), r);
-            } else if (op == CONCAT) {
-                Z3_ast r = Z3_mk_concat( c.ctx(), arg0, arg1);
-                return expr(c.ctx(), r);
+                if (op == ADD) {
+                    return arg0 + arg1;
+                } else if (op == SUB) {
+                    return arg0 - arg1;
+                } else if (op == AND) {
+                    return (arg0 & arg1);
+                } else if (op == OR) {
+                    return (arg0 | arg1);
+                } else if (op == XOR) {
+                    Z3_ast r = Z3_mk_bvxor(c.ctx(), arg0, arg1);
+                    return expr(c.ctx(), r);
+                } else if (op == XNOR) {
+                    Z3_ast r = Z3_mk_bvxnor(c.ctx(), arg0, arg1);
+                    return expr(c.ctx(), r);
+                } else if (op == NAND) {
+                    return ~(arg0 & arg1);
+                } else if (op == NOR) {
+                    return ~(arg0 | arg1);
+                } else if (op == SDIV) {
+                    Z3_ast r = Z3_mk_bvsdiv( c.ctx(), arg0, arg1);
+                    return expr(c.ctx(), r);
+                } else if (op == UDIV) {
+                    Z3_ast r = Z3_mk_bvudiv( c.ctx(), arg0, arg1);
+                    return expr(c.ctx(), r);
+                } else if (op == SREM) {
+                    Z3_ast r = Z3_mk_bvsrem( c.ctx(), arg0, arg1);
+                    return expr(c.ctx(), r);
+                } else if (op == UREM) {
+                    Z3_ast r = Z3_mk_bvurem( c.ctx(), arg0, arg1);
+                    return expr(c.ctx(), r);
+                } else if (op == SMOD) {
+                    Z3_ast r = Z3_mk_bvsmod( c.ctx(), arg0, arg1);
+                    return expr(c.ctx(), r);
+                } else if (op == SHL) {
+                    Z3_ast r = Z3_mk_bvshl( c.ctx(), arg0, arg1);
+                    return expr(c.ctx(), r);
+                } else if (op == LSHR) {
+                    Z3_ast r = Z3_mk_bvlshr( c.ctx(), arg0, arg1);
+                    return expr(c.ctx(), r);
+                } else if (op == ASHR) {
+                    Z3_ast r = Z3_mk_bvashr( c.ctx(), arg0, arg1);
+                    return expr(c.ctx(), r);
+                } else if (op == MUL) {
+                    Z3_ast r = Z3_mk_bvmul( c.ctx(), arg0, arg1);
+                    return expr(c.ctx(), r);
+                } else if (op == CONCAT) {
+                    Z3_ast r = Z3_mk_concat( c.ctx(), arg0, arg1);
+                    return expr(c.ctx(), r);
+                }
             }
         } else if (isTernary(op)) {
-            expr arg0 = c.expr(args[0].get());
-            expr arg1 = c.expr(args[1].get());
-            expr arg2 = c.expr(args[2].get());
-
             if (op == IF) {
+                expr arg0 = c.expr(args[0].get());
+                expr arg1 = c.expr(args[1].get());
+                expr arg2 = c.expr(args[2].get());
                 return ite(arg0, arg1, arg2);
+            } else if (op == EXTRACT) {
+                expr bv = c.expr(args[0].get());
+                unsigned low = static_cast<unsigned> (params[0]);
+                unsigned high = static_cast<unsigned> (params[1]);
+                Z3_ast r = Z3_mk_extract(c.ctx(), high, low, bv);
+                return expr(c.ctx(), r);
             }
         }
         throw PyILAException(PyExc_RuntimeError, 
