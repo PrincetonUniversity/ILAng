@@ -233,9 +233,10 @@ namespace ila
         return _cmpOp(BoolOp::UGE, other, true);
     }
 
-    NodeRef* NodeRef::ite(NodeRef* thenExp, NodeRef* elseExp) const
+    NodeRef* NodeRef::ite(NodeRef* cond, NodeRef* trueExp, NodeRef* falseExp)
     {
-        return _triOp(BoolOp::IF, BitvectorOp::IF, "if", thenExp, elseExp);
+//        return _triOp(BoolOp::IF, BitvectorOp::IF, "if", thenExp, elseExp);
+        return _triOp(BoolOp::IF, BitvectorOp::IF, cond, trueExp, falseExp);
     }
 
     boost::python::object NodeRef::value() const
@@ -276,7 +277,7 @@ namespace ila
 
     NodeRef* NodeRef::rsdivInt(int l, NodeRef* r)
     {
-        return _binOpR(BitvectorOp::SDIV, r, l);
+        return _binOpR(BitvectorOp::SDIV, l, r);
     }
 
     NodeRef* NodeRef::srem(NodeRef* l, NodeRef* r)
@@ -291,7 +292,7 @@ namespace ila
 
     NodeRef* NodeRef::rsremInt(int l, NodeRef* r)
     {
-        return _binOpR(BitvectorOp::SREM, r, l);
+        return _binOpR(BitvectorOp::SREM, l, r);
     }
 
     NodeRef* NodeRef::urem(NodeRef* l, NodeRef* r)
@@ -306,7 +307,7 @@ namespace ila
 
     NodeRef* NodeRef::ruremInt(int l, NodeRef* r)
     {
-        return _binOpR(BitvectorOp::UREM, r, l);
+        return _binOpR(BitvectorOp::UREM, l, r);
     }
 
     NodeRef* NodeRef::ashr(NodeRef* l, NodeRef* r)
@@ -476,40 +477,6 @@ namespace ila
     }
 
 
-    NodeRef* NodeRef::_triOp(
-        BoolOp::Op opBool,
-        BitvectorOp::Op opBv,
-        const char* opName,
-        NodeRef* exp1,
-        NodeRef* exp2) const
-    {
-        if (exp1->node->ctx != exp2->node->ctx) {
-            throw PyILAException(
-                PyExc_RuntimeError,
-                "2nd and 3rd operands of a ternary operator must be from the same Abstraction.");
-            return NULL;
-        } else if (exp1->node->type == exp2->node->type) {
-            std::vector< boost::shared_ptr<Node> > args_;
-            args_.push_back(node);
-            args_.push_back(exp1->node);
-            args_.push_back(exp2->node);
-            if (opBool != BoolOp::INVALID && exp1->node->type.isBool()) {
-                return new NodeRef( new BoolOp(node->ctx, opBool, args_) );
-            } else if (opBv != BitvectorOp::INVALID && 
-                       exp1->node->type.isBitvector()) {
-                return new NodeRef( new BitvectorOp(node->ctx, opBv, args_) );
-            } else {
-                throw PyILAException(PyExc_TypeError, 
-                        std::string("Incorrect type for") + opName); 
-                return NULL;
-            }
-        } else {
-            throw PyILAException(PyExc_TypeError, 
-                    std::string("Incorrect type for ") + opName); 
-            return NULL;
-        } 
-    }
-
     // ---------------------------------------------------------------------- //
     // static methods
 
@@ -600,19 +567,52 @@ namespace ila
         }
     }
 
-    NodeRef* NodeRef::_binOpR(BitvectorOp::Op op, NodeRef* l, int r)
+    NodeRef* NodeRef::_binOpR(BitvectorOp::Op op, int l, NodeRef* r)
     {
-        if (l->node->type.isBitvector()) {
-            boost::shared_ptr<Node> node_r(
-                new BitvectorConst(l->node->ctx, r, l->node->type.bitWidth));
+        if (r->node->type.isBitvector()) {
+            boost::shared_ptr<Node> node_l(
+                new BitvectorConst(r->node->ctx, l, r->node->type.bitWidth));
 
             return new NodeRef(new BitvectorOp(
-                        l->node->ctx, op, node_r, l->node));
+                        r->node->ctx, op, node_l, r->node));
         } else {
             throw PyILAException(PyExc_TypeError,
                                  "Incorrect type for " +
                                  BitvectorOp::operatorNames[op]);
         }
+    }
+
+    NodeRef* NodeRef::_triOp(BoolOp::Op boolOp, BitvectorOp::Op bvOp,
+                             NodeRef* cond, NodeRef* trueExp, NodeRef* falseExp)
+    {
+        if (trueExp->node->ctx != falseExp->node->ctx ||
+            trueExp->node->ctx != cond->node->ctx ||
+            falseExp->node->ctx != cond->node->ctx)
+        {
+            throw PyILAException(
+                PyExc_RuntimeError,
+                "2nd and 3rd operands of a ternary operator must be from the same Abstraction.");
+            return NULL;
+        } else if (trueExp->node->type != falseExp->node->type ||
+                   !cond->node->type.isBool())
+        {
+            throw PyILAException(PyExc_TypeError, "Incorrect type for ITE");
+            return NULL;
+        } else {
+            std::vector< boost::shared_ptr<Node> > args_;
+            args_.push_back(cond->node);
+            args_.push_back(trueExp->node);
+            args_.push_back(falseExp->node);
+            if (trueExp->node->type.isBool() && boolOp != BoolOp::INVALID) {
+                return new NodeRef( new BoolOp(cond->node->ctx, boolOp, args_) );
+            } else if (trueExp->node->type.isBitvector() && bvOp != BitvectorOp::INVALID) {
+                return new NodeRef( new BitvectorOp(cond->node->ctx, bvOp, args_) );
+            } else {
+                throw PyILAException(PyExc_TypeError, "Incorrect type for ITE");
+                return NULL;
+            }
+        }
+        return NULL;
     }
 
     NodeRef* NodeRef::_triOp(BitvectorOp::Op op, NodeRef* obj, int beg, int end)

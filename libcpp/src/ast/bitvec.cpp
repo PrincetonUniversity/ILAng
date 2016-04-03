@@ -181,10 +181,11 @@ namespace ila
         Op op, std::vector< boost::shared_ptr<Node> >& args)
     {
         // FIXME: add more code when operators are added.
-        if (args.size() == 0) {
-            return 1;
+        if (op == IF && args.size() == 3) {
+            // ITE
+            return args[1]->type.bitWidth;
         } else {
-            return args[0]->type.bitWidth;
+            return 1;
         }
     }
 
@@ -192,10 +193,11 @@ namespace ila
         Op op, std::vector< boost::shared_ptr<Node> >& args, std::vector< int >& params)
     {
         // FIXME: add more code when operators are added.
-        if (params.size() != 2) {
-            return 1;
-        } else {
+        if (op == EXTRACT && params.size() == 2) {
+            // EXTRACT
             return (params[1] - params[0] + 1);
+        } else {
+            return 1;
         }
     }
 
@@ -248,10 +250,17 @@ namespace ila
         std::vector< boost::shared_ptr<Node> >& args,
         int width)
     {
-        for (unsigned i=0; i != args.size(); i++) {
-            if (!args[i]->type.isBitvector(width)) {
-                return i+1;
+        // FIXME: modify the code if other n-ary ops are added.
+        if (op >= IF && op <= IF && args.size() == 3) {
+            // (cond, trueExp, falseExp)
+            for (unsigned i=1; i != args.size(); i++) {
+                if (!args[1]->type.isBitvector(width)) {
+                    return i+1;
+                }
             }
+            if (!args[0]->type.isBool() /* or nonzero (bv) */ ) {
+                return 1;
+            } 
         }
         return 0;
     }
@@ -262,7 +271,7 @@ namespace ila
         std::vector< int >& params,
         int width)
     {
-        // FIXME: modify the code if other n-ary op are added
+        // FIXME: modify the code if other n-ary ops are added
         if (op >= EXTRACT && op <= EXTRACT) {
             // (bv, start, end)
             if (params.size() == 2 && args.size() == 1) {
@@ -270,7 +279,7 @@ namespace ila
                     return 2;
                 } else if (params[1] >= args[0]->type.bitWidth) {
                     return 3;
-                } else if (!args[0]->type.isBitvector(width)) {
+                } else if (!args[0]->type.isBitvector()) {
                     return 1;
                 }
             }
@@ -370,7 +379,7 @@ namespace ila
       , op(op)
       , args(args_)
     {
-        if (!isNary(op)) {
+        if (!isTernary(op)) {
             throw PyILAException(PyExc_ValueError,
                                  "Invalid n-ary operator: " + 
                                  operatorNames[op]);
@@ -396,7 +405,7 @@ namespace ila
         , args(args_)
         , params(params_)
     {
-        if(!isNary(op)) {
+        if(!isTernary(op)) {
             throw PyILAException(PyExc_ValueError,
                      "Invalid n-ary operator: " + operatorNames[op]);
         }
