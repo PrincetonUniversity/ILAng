@@ -225,6 +225,15 @@ namespace ila
         }
     }
             
+    BoolOp::BoolOp(
+        const BoolOp* other, 
+        std::vector< boost::shared_ptr<Node> >& args_)
+      : BoolExpr(other->ctx)
+      , arity(other->arity)
+      , op(other->op)
+      , args(args_)
+    {
+    }
 
     // destructor.
     BoolOp::~BoolOp()

@@ -1,6 +1,7 @@
 #include <abstraction.hpp>
 #include <exception.hpp>
 #include <smt.hpp>
+#include <syn.hpp>
 
 namespace ila
 {
@@ -143,6 +144,11 @@ namespace ila
         expr ny = !y;
         r = S.check(1, &ny);
         ILA_ASSERT(r == sat, "Unable to extract synthesis result.");
+
+        model m = S.get_model();
+        SynRewriter rw(m, c1);
+        boost::shared_ptr<Node> nr = rw.rewrite(ex_n);
+        nr->write(std::cout << "synthesis result: ") << std::endl;
     }
 
     void Abstraction::extractModelValues(Z3ExprAdapter& c, z3::model& m, boost::python::dict& d)

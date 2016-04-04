@@ -150,6 +150,9 @@ namespace ila
                     boost::shared_ptr<Node> n2);
         BitvectorOp(Abstraction* c, Op op,
                     std::vector< boost::shared_ptr<Node> >& args_);
+        // copy-constructor with a fresh set of args.
+        BitvectorOp(const BitvectorOp* other, 
+                std::vector< boost::shared_ptr<Node> >& args_);
         // destructors.
         virtual ~BitvectorOp();
 

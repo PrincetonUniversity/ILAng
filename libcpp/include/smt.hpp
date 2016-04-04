@@ -67,6 +67,8 @@ namespace ila
         int getNumeralInt(z3::model& m, const Node* r);
         // Extract the boolean value of node r in model m.
         bool getBoolValue(z3::model& m, const Node* r);
+        // Return the value of the ith choice boolean
+        bool getChoiceBool(z3::model& m, const BitvectorChoice* op, int i);
     };
 
     // The function object we use during synthesis to rewrite expressions.

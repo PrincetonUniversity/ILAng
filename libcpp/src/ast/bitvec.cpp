@@ -273,6 +273,16 @@ namespace ila
         }
     }
 
+    BitvectorOp::BitvectorOp(
+        const BitvectorOp* other, 
+        std::vector< boost::shared_ptr<Node> >& args_)
+      : BitvectorExpr(other->ctx, other->type.bitWidth)
+      , arity(other->arity)
+      , op(other->op)
+      , args(args_)
+    {
+    }
+
     // destructor.
     BitvectorOp::~BitvectorOp()
     {

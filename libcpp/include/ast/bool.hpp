@@ -108,7 +108,9 @@ namespace ila
                     boost::shared_ptr<Node> n2);
         BoolOp(Abstraction* c, Op op,
                     std::vector< boost::shared_ptr<Node> >& args_);
-
+        // kind of like a copy constructor, but use a fresh set of args.
+        BoolOp(const BoolOp* other, 
+                std::vector< boost::shared_ptr<Node> >& args_);
         // destructors.
         virtual ~BoolOp();
 
