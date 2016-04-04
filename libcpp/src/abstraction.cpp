@@ -139,6 +139,10 @@ namespace ila
         }
 
         std::cout << "finished after " << i << " SMT calls." << std::endl;
+
+        expr ny = !y;
+        r = S.check(1, &ny);
+        ILA_ASSERT(r == sat, "Unable to extract synthesis result.");
     }
 
     void Abstraction::extractModelValues(Z3ExprAdapter& c, z3::model& m, boost::python::dict& d)
