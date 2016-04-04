@@ -130,20 +130,38 @@ BOOST_PYTHON_MODULE(ila)
         .def("__eq__",
                 &NodeRef::eq,
                 return_value_policy<manage_new_object>())
+        .def("__eq__",
+                &NodeRef::eqInt,
+                return_value_policy<manage_new_object>())
         .def("__ne__",
                 &NodeRef::neq,
+                return_value_policy<manage_new_object>())
+        .def("__ne__",
+                &NodeRef::neqInt,
                 return_value_policy<manage_new_object>())
         .def("__lt__",
                 &NodeRef::ult,
                 return_value_policy<manage_new_object>())
+        .def("__lt__",
+                &NodeRef::ultInt,
+                return_value_policy<manage_new_object>())
         .def("__le__",
                 &NodeRef::ule,
+                return_value_policy<manage_new_object>())
+        .def("__le__",
+                &NodeRef::uleInt,
                 return_value_policy<manage_new_object>())
         .def("__gt__",
                 &NodeRef::ugt,
                 return_value_policy<manage_new_object>())
+        .def("__gt__",
+                &NodeRef::ugtInt,
+                return_value_policy<manage_new_object>())
         .def("__ge__",
                 &NodeRef::uge,
+                return_value_policy<manage_new_object>())
+        .def("__ge__",
+                &NodeRef::ugeInt,
                 return_value_policy<manage_new_object>())
 
         .def(self_ns::str(self))
@@ -197,13 +215,27 @@ BOOST_PYTHON_MODULE(ila)
     // comparison operators.
     def("slt", &NodeRef::slt,
             return_value_policy<manage_new_object>());
+    def("slt", &NodeRef::sltInt,
+            return_value_policy<manage_new_object>());
     def("sle", &NodeRef::sle,
+            return_value_policy<manage_new_object>());
+    def("slt", &NodeRef::sleInt,
             return_value_policy<manage_new_object>());
     def("sgt", &NodeRef::sgt,
             return_value_policy<manage_new_object>());
+    def("sgt", &NodeRef::sgtInt,
+            return_value_policy<manage_new_object>());
     def("sge", &NodeRef::sge,
             return_value_policy<manage_new_object>());
+    def("sge", &NodeRef::sgeInt,
+            return_value_policy<manage_new_object>());
 
+    // nonzero.
+    def("nonzero", &NodeRef::nonzero,
+            return_value_policy<manage_new_object>());
+    // imply.
+    def("imply", &NodeRef::imply,
+            return_value_policy<manage_new_object>());
     // ite.
     def("ite", &NodeRef::ite,
                 return_value_policy<manage_new_object>());

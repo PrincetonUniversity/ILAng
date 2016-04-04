@@ -88,6 +88,25 @@ def main():
     s3 = c.const(9, 4)
     v13 = ila.extract(v9, 1, 4)
     assert c.areEqual(s3, v13)
+    v14 = ila.extract(x, 0, 3)
+    v15 = ila.extract(y, 4, 7)
+    v16 = ila.concat(v15, v14)
+    v17 = ((x << 4) >> 4) + ((y >> 4) << 4)
+    assert c.areEqual(v16, v17)
+
+    # imply
+    v18 = ila.slt(x, 5)
+    v19 = ila.sge(x, 5)
+    c.areEqual(ila.imply(v18, ~v19), top)
+
+    #nonzero & bool ite
+    v20 = ila.ite( ila.nonzero(x), (x<7), ~(x>=7) )
+    assert c.areEqual(v20, (x!=7) & ~(x>7))
+    assert c.areEqual(ila.nonzero(c4), top)
+
+    #add nonzero to ite
+    assert c.areEqual( ila.ite(c2, top, bot), top)
+    assert c.areEqual( ila.ite(c0, top, bot), bot)
 
 if __name__ == '__main__':
     main()

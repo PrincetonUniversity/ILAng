@@ -12,7 +12,7 @@ namespace ila
     const std::string BoolOp::operatorNames[] = {
         "invalid",
         "not", 
-        "and", "or", "xor", "xnor", "nand", "nor",
+        "and", "or", "xor", "xnor", "nand", "nor", "imply",
         "lt", "gt", "le", "ge", "ult", "ugt", "uge", "uge", 
         "eq", "neq",
         "if"
@@ -318,6 +318,9 @@ namespace ila
                 return !(arg0 && arg1);
             } else if (op == NOR) {
                 return !(arg0 || arg1);
+            } else if (op == IMPLY) {
+                Z3_ast r = Z3_mk_implies(c.ctx(), arg0, arg1);
+                return expr(c.ctx(), r);
             } else if (op == SLT) {
                 Z3_ast r = Z3_mk_bvslt( c.ctx(), arg0, arg1);
                 return expr(c.ctx(), r);

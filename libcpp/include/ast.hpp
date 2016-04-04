@@ -81,6 +81,12 @@ namespace ila
         NodeRef* ugt(NodeRef* other) const;
         NodeRef* ule(NodeRef* other) const;
         NodeRef* uge(NodeRef* other) const;
+        NodeRef* eqInt(int r) const;
+        NodeRef* neqInt(int r) const;
+        NodeRef* ultInt(int r) const;
+        NodeRef* ugtInt(int r) const;
+        NodeRef* uleInt(int r) const;
+        NodeRef* ugeInt(int r) const;
 
         // does this object have a value?
         boost::python::object value() const;
@@ -110,13 +116,22 @@ namespace ila
         static NodeRef* sgt(NodeRef* l, NodeRef* r);
         static NodeRef* sle(NodeRef* l, NodeRef* r);
         static NodeRef* sge(NodeRef* l, NodeRef* r);
+        static NodeRef* sltInt(NodeRef* l, int r);
+        static NodeRef* sgtInt(NodeRef* l, int r);
+        static NodeRef* sleInt(NodeRef* l, int r);
+        static NodeRef* sgeInt(NodeRef* l, int r);
 
         // bit manipulate functions.
-        static NodeRef* concat(NodeRef* l, NodeRef* r);
+        static NodeRef* concat(NodeRef* lo, NodeRef* hi);
         static NodeRef* lrotate(NodeRef* obj, int par);
         static NodeRef* rrotate(NodeRef* obj, int par);
         static NodeRef* extract(NodeRef* obj, int beg, int end);
-        // TODO: nonzero (bvredand)
+
+        // nnonzero
+        static NodeRef* nonzero(NodeRef* obj);
+
+        // imply
+        static NodeRef* imply(NodeRef* p, NodeRef* q);
 
         // ite.
         static NodeRef* ite(NodeRef* cond,
@@ -132,13 +147,16 @@ namespace ila
         NodeRef* _binOp(BitvectorOp::Op op, int r) const;
         NodeRef* _binOpR(BitvectorOp::Op op, int r) const;
         NodeRef* _cmpOp(BoolOp::Op op, NodeRef* other, bool bvtype) const;
+        NodeRef* _cmpOp(BoolOp::Op op, int r) const;
 
         static NodeRef* _binOp(BoolOp::Op boolOp, BitvectorOp::Op bvOp, 
                                const char* opName, NodeRef* l, NodeRef* r);
+        static NodeRef* _binOp(BoolOp::Op op, NodeRef* l, NodeRef* r);
         static NodeRef* _binOp(BitvectorOp::Op op, NodeRef* l, NodeRef* r);
         static NodeRef* _binOp(BitvectorOp::Op Op, NodeRef* l, int r);
         static NodeRef* _binOpR(BitvectorOp::Op op, int l, NodeRef* r);
         static NodeRef* _cmpOp(BoolOp::Op op, NodeRef* l, NodeRef* r, bool bvtype);
+        static NodeRef* _cmpOp(BoolOp::Op op, NodeRef* l, int r);
         static NodeRef* _triOp(BoolOp::Op boolOp, BitvectorOp::Op bvOp,
                             NodeRef* arg0, NodeRef* arg1, NodeRef* arg2);
         static NodeRef* _triOp(BitvectorOp::Op op, NodeRef* bv, int beg, int end);
