@@ -87,14 +87,14 @@ namespace ila
             // invalid
             INVALID,
             // unary
-            NEGATE, COMPLEMENT, LNOT, 
-			LROTATE, RROTATE,
+            NEGATE, COMPLEMENT, LROTATE, RROTATE, EXTRACT,
+			// LROTATE, RROTATE, EXTRACT
             // binary.
             ADD, SUB, AND, OR, XOR, XNOR, NAND, NOR,
             SDIV, UDIV, SREM, UREM, SMOD, SHL, LSHR, ASHR, 
-            MUL, CONCAT, // REPEAT
+            MUL,  CONCAT, 
             // ternary
-            IF, // EXTRACT,
+            IF, 
         } op;
 
         static const std::string operatorNames[];
@@ -102,11 +102,11 @@ namespace ila
     private:
         // the operands themselves.
         std::vector< boost::shared_ptr<Node> > args;
-        
+        std::vector< int > params;        
 
         // Don't forget to update these helper functions below.
         static bool isUnary(Op op) { 
-            return op >= NEGATE && op <= RROTATE; 
+            return op >= NEGATE && op <= EXTRACT; 
         }
         static bool isBinary(Op op) { 
             return op >= ADD && op <= CONCAT;
@@ -125,8 +125,18 @@ namespace ila
             Op op, 
             boost::shared_ptr<Node> n1, 
             boost::shared_ptr<Node> n2);
+        static int getBinaryResultWidth(
+            Op op,
+            boost::shared_ptr<Node> n1,
+            int param);
         static int getNaryResultWidth(
-            Op op, std::vector< boost::shared_ptr<Node> >& args);
+            Op op, 
+            std::vector< boost::shared_ptr<Node> >& args);
+        static int getNaryResultWidth(
+            Op op, 
+            std::vector< boost::shared_ptr<Node> >& args, 
+            std::vector< int >& params);
+
         static bool checkUnaryOpWidth(
             Op op, 
             boost::shared_ptr<Node> n, 
@@ -136,18 +146,38 @@ namespace ila
             boost::shared_ptr<Node> n1, 
             boost::shared_ptr<Node> n2, 
             int width);
+        static int checkBinaryOpWidth(
+            Op op,
+            boost::shared_ptr<Node> n1,
+            int param,
+            int width);
         static int checkNaryOpWidth(
             Op op,
-            std::vector< boost::shared_ptr<Node> > args,
+            std::vector< boost::shared_ptr<Node> >& args,
             int width);
+        static int checkNaryOpWidth(
+            Op op,
+            std::vector< boost::shared_ptr<Node> >& args,
+            std::vector< int >& params,
+            int width);
+
 
     public:
         // constructors.
+        // Unary op
         BitvectorOp(Abstraction* c, Op op, 
                     boost::shared_ptr<Node> n1);
+        BitvectorOp(Abstraction* c, Op op,
+                    boost::shared_ptr<Node> n1,
+                    int param);
+        BitvectorOp(Abstraction* c, Op op, 
+                    boost::shared_ptr<Node> n1,
+                    int p1, int p2);
+        // Binary op
         BitvectorOp(Abstraction* c, Op op, 
                     boost::shared_ptr<Node> n1, 
                     boost::shared_ptr<Node> n2);
+        // Ternary op
         BitvectorOp(Abstraction* c, Op op,
                     std::vector< boost::shared_ptr<Node> >& args_);
         // copy-constructor with a fresh set of args.
@@ -173,6 +203,11 @@ namespace ila
 
         Op getOp() const { return op; }
 
+        // number of params
+        unsigned nParams() const;
+
+        // the ith param.
+        int param(unsigned i) const;
     };
 }
 #endif

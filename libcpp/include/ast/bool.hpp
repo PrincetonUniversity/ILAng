@@ -71,7 +71,7 @@ namespace ila
             // unary
             NOT, 
             // binary.
-            AND, OR, XOR, XNOR, NAND, NOR,
+            AND, OR, XOR, XNOR, NAND, NOR, IMPLY,
             SLT, SGT, SLE, SGE, ULT, UGT, ULE, UGE, 
             EQUAL, DISTINCT,
             // ternary

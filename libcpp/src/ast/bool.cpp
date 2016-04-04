@@ -12,7 +12,7 @@ namespace ila
     const std::string BoolOp::operatorNames[] = {
         "invalid",
         "not", 
-        "and", "or", "xor", "xnor", "nand", "nor",
+        "and", "or", "xor", "xnor", "nand", "nor", "imply",
         "lt", "gt", "le", "ge", "ult", "ugt", "uge", "uge", 
         "eq", "neq",
         "if"
@@ -289,5 +289,4 @@ namespace ila
         out << ")";
         return out;
     }
-
 }

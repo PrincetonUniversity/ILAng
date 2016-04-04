@@ -164,6 +164,9 @@ namespace ila
                 return !(arg0 && arg1);
             } else if (op == BoolOp::NOR) {
                 return !(arg0 || arg1);
+            } else if (op == BoolOp::IMPLY) {
+                Z3_ast r = Z3_mk_implies(c, arg0, arg1);
+                return expr(c, r);
             } else if (op == BoolOp::SLT) {
                 Z3_ast r = Z3_mk_bvslt( c, arg0, arg1);
                 return expr(c, r);
@@ -220,10 +223,15 @@ namespace ila
             } else if (op == BitvectorOp::COMPLEMENT) {
                 return ~arg;
             } else if (op == BitvectorOp::LROTATE) {
-                Z3_ast r = Z3_mk_rotate_left(c, 1, arg);
+                Z3_ast r = Z3_mk_rotate_left(c, bvop->param(0), arg);
                 return expr(c, r);
             } else if (op == BitvectorOp::RROTATE) {
-                Z3_ast r = Z3_mk_rotate_right(c, 1, arg);
+                Z3_ast r = Z3_mk_rotate_right(c, bvop->param(0), arg);
+                return expr(c, r);
+            } else if (op == BitvectorOp::EXTRACT) {
+                unsigned hi = static_cast<unsigned> (bvop->param(0));
+                unsigned lo = static_cast<unsigned> (bvop->param(1));
+                Z3_ast r = Z3_mk_extract(c, hi, lo, arg);
                 return expr(c, r);
             }
         } else if (arity == 2) {

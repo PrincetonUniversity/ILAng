@@ -12,14 +12,14 @@ namespace ila
     const std::string BitvectorOp::operatorNames[] = {
         "invalid",
         // unary
-        "-", "~", "not", 
-        "lrot", "rrot",
+        "-", "~",
+        "rotate-left", "rotate-right", "extract",
         // binary
         "+", "-", "and", "or", "xor", "xnor", "nand", "nor",
         "div", "udiv", "rem", "urem", "mod", "<<", ">>>", ">>", 
-        "*", "::",
+        "*", "concat",
 		// ternary
-        "if"
+        "if", 
     };
 
     // ---------------------------------------------------------------------- //
@@ -121,9 +121,19 @@ namespace ila
         return args.size();
     }
 
+    unsigned BitvectorOp::nParams() const
+    {
+        return params.size();
+    }
+
     boost::shared_ptr<Node> BitvectorOp::arg(unsigned i) const
     {
         return i < args.size() ? args[i] : NULL;
+    }
+
+    int BitvectorOp::param(unsigned i) const
+    {
+        return i < params.size() ? params[i] : 0;
     }
     // ---------------------------------------------------------------------- //
     int BitvectorOp::getUnaryResultWidth(Op op, boost::shared_ptr<Node> n)
@@ -145,14 +155,33 @@ namespace ila
         }
     }
 
+    int BitvectorOp::getBinaryResultWidth(
+        Op op, boost::shared_ptr<Node> n1, int param)
+    {
+        return n1->type.bitWidth;
+    }
+
     int BitvectorOp::getNaryResultWidth(
         Op op, std::vector< boost::shared_ptr<Node> >& args)
     {
         // FIXME: add more code when operators are added.
-        if (args.size() == 0) {
-            return 1;
+        if (op == IF && args.size() == 3) {
+            // ITE
+            return args[1]->type.bitWidth;
         } else {
-            return args[0]->type.bitWidth;
+            return 1;
+        }
+    }
+
+    int BitvectorOp::getNaryResultWidth(
+        Op op, std::vector< boost::shared_ptr<Node> >& args, std::vector< int >& params)
+    {
+        // FIXME: add more code when operators are added.
+        if (op == EXTRACT && params.size() == 2) {
+            // EXTRACT
+            return (params[1] - params[0] + 1);
+        } else {
+            return 1;
         }
     }
 
@@ -182,14 +211,61 @@ namespace ila
         return 0;
     }
 
-    int BitvectorOp::checkNaryOpWidth(
+    int BitvectorOp::checkBinaryOpWidth(
         Op op,
-        std::vector< boost::shared_ptr<Node> > args,
+        boost::shared_ptr<Node> n1,
+        int param,
         int width)
     {
-        for (unsigned i=0; i != args.size(); i++) {
-            if (!args[i]->type.isBitvector(width)) {
-                return i+1;
+        if (op >= LROTATE && op <= RROTATE) {
+            if (param > width) {
+                return 2;
+            } else if (!n1->type.isBitvector(width)) {
+                return 1;
+            } else {
+                return 0;
+            }
+        } else {
+            return 0;
+        }
+    }
+    int BitvectorOp::checkNaryOpWidth(
+        Op op,
+        std::vector< boost::shared_ptr<Node> >& args,
+        int width)
+    {
+        // FIXME: modify the code if other n-ary ops are added.
+        if (op >= IF && op <= IF && args.size() == 3) {
+            // (cond, trueExp, falseExp)
+            for (unsigned i=1; i != args.size(); i++) {
+                if (!args[1]->type.isBitvector(width)) {
+                    return i+1;
+                }
+            }
+            if (!args[0]->type.isBool() /* or nonzero (bv) */ ) {
+                return 1;
+            } 
+        }
+        return 0;
+    }
+
+    int BitvectorOp::checkNaryOpWidth(
+        Op op,
+        std::vector< boost::shared_ptr<Node> >& args,
+        std::vector< int >& params,
+        int width)
+    {
+        // FIXME: modify the code if other n-ary ops are added
+        if (op >= EXTRACT && op <= EXTRACT) {
+            // (bv, start, end)
+            if (params.size() == 2 && args.size() == 1) {
+                if (params[0] < 0) {
+                    return 2;
+                } else if (params[1] >= args[0]->type.bitWidth) {
+                    return 3;
+                } else if (!args[0]->type.isBitvector()) {
+                    return 1;
+                }
             }
         }
         return 0;
@@ -223,6 +299,58 @@ namespace ila
         args.push_back( n1 );
     }
 
+    // constructor: unary op with int input (ex. rotate)
+    BitvectorOp::BitvectorOp(Abstraction* c,
+        Op op,
+        boost::shared_ptr<Node> n1,
+        int param
+    )
+      : BitvectorExpr(c, getBinaryResultWidth(op, n1, param))
+      , arity(UNARY)
+      , op(op)
+    {
+        if (!isUnary(op)) {
+            throw PyILAException(PyExc_ValueError,
+                                 "Invalid binary operator: " + 
+                                 operatorNames[op]);
+        }
+        if(!checkUnaryOpWidth(op, n1, type.bitWidth)) {
+            throw PyILAException(PyExc_TypeError,
+                "Invalid operand for operator: " + operatorNames[op]);
+        }
+        args.push_back( n1 );
+        params.push_back(param);
+    }
+
+    // constructor: extract
+    BitvectorOp::BitvectorOp(
+        Abstraction* c, Op op, 
+        boost::shared_ptr<Node> n1,
+        int p1, int p2
+    )
+        : BitvectorExpr(c, (p1 - p2)+1)
+        , arity(NARY)
+        , op(op)
+    {
+        if(op != EXTRACT) {
+            throw PyILAException(PyExc_ValueError,
+                     "Invalid operator: " + operatorNames[op]);
+        } else if(p1 < p2) {
+            throw PyILAException(PyExc_ValueError,
+                     "Invalid indices to extract.");
+        }
+        if (!(n1->type.isBitvector()    &&
+              n1->type.bitWidth >= p1   &&
+              n1->type.bitWidth >= p2)) 
+        {
+            throw PyILAException(PyExc_TypeError,
+                    "Invalid type for operator: " + operatorNames[op]);
+        }
+        args.push_back(n1);
+        params.push_back(p1);
+        params.push_back(p2);
+    }
+
     // constructor: binary ops.
     BitvectorOp::BitvectorOp(Abstraction* c, 
         Op op,
@@ -249,7 +377,8 @@ namespace ila
         args.push_back( n1 );
         args.push_back( n2 );
     }
-
+    
+    // constructor: ternary ops
     BitvectorOp::BitvectorOp(
         Abstraction* c, Op op,
         std::vector< boost::shared_ptr<Node> >& args_
@@ -259,7 +388,7 @@ namespace ila
       , op(op)
       , args(args_)
     {
-        if (!isNary(op)) {
+        if (!isTernary(op)) {
             throw PyILAException(PyExc_ValueError,
                                  "Invalid n-ary operator: " + 
                                  operatorNames[op]);
@@ -280,6 +409,7 @@ namespace ila
       , arity(other->arity)
       , op(other->op)
       , args(args_)
+      , params(other->params)
     {
     }
 

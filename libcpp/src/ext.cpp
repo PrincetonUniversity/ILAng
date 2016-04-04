@@ -42,7 +42,6 @@ BOOST_PYTHON_MODULE(ila)
         .def("doSomething", &NodeRef::doSomething)
         .def("equal", &NodeRef::equal)
         .def_readonly("value", &NodeRef::value)
-
         // unary operators.
         .def("__invert__", 
                 &NodeRef::complement, 
@@ -62,7 +61,7 @@ BOOST_PYTHON_MODULE(ila)
                 &NodeRef::logicalXor,
                 return_value_policy<manage_new_object>())
 
-        // arithmetic.
+        // arithmetic operators.
         .def("__add__",
                 &NodeRef::add,
                 return_value_policy<manage_new_object>())
@@ -81,110 +80,165 @@ BOOST_PYTHON_MODULE(ila)
         .def("__rsub__",
                 &NodeRef::rsubInt,
                 return_value_policy<manage_new_object>())
+        .def("__mul__",
+                &NodeRef::mul,
+                return_value_policy<manage_new_object>())
+        .def("__mul__",
+                &NodeRef::mulInt,
+                return_value_policy<manage_new_object>())
+        .def("__rmul__",
+                &NodeRef::rmulInt,
+                return_value_policy<manage_new_object>())
+        .def("__div__",
+                &NodeRef::udiv,
+                return_value_policy<manage_new_object>())
+        .def("__div__",
+                &NodeRef::udivInt,
+                return_value_policy<manage_new_object>())
+        .def("__rdiv__",
+                &NodeRef::rudivInt,
+                return_value_policy<manage_new_object>())
+        .def("__mod__",
+                &NodeRef::smod,
+                return_value_policy<manage_new_object>())
+        .def("__mod__",
+                &NodeRef::smodInt,
+                return_value_policy<manage_new_object>())
+        .def("__rmod__",
+                &NodeRef::rsmodInt,
+                return_value_policy<manage_new_object>())
+        .def("__lshift__",
+                &NodeRef::shl,
+                return_value_policy<manage_new_object>())
+        .def("__lshift__",
+                &NodeRef::shlInt,
+                return_value_policy<manage_new_object>())
+        .def("__rlshift__",
+                &NodeRef::rshlInt,
+                return_value_policy<manage_new_object>())
+        .def("__rshift__",
+                &NodeRef::lshr,
+                return_value_policy<manage_new_object>())
+        .def("__rshift__",
+                &NodeRef::lshrInt,
+                return_value_policy<manage_new_object>())
+        .def("__rrshift__",
+                &NodeRef::rlshrInt,
+                return_value_policy<manage_new_object>())
 
         // comparison operators.
         .def("__eq__",
                 &NodeRef::eq,
                 return_value_policy<manage_new_object>())
+        .def("__eq__",
+                &NodeRef::eqInt,
+                return_value_policy<manage_new_object>())
         .def("__ne__",
                 &NodeRef::neq,
+                return_value_policy<manage_new_object>())
+        .def("__ne__",
+                &NodeRef::neqInt,
                 return_value_policy<manage_new_object>())
         .def("__lt__",
                 &NodeRef::ult,
                 return_value_policy<manage_new_object>())
+        .def("__lt__",
+                &NodeRef::ultInt,
+                return_value_policy<manage_new_object>())
         .def("__le__",
                 &NodeRef::ule,
+                return_value_policy<manage_new_object>())
+        .def("__le__",
+                &NodeRef::uleInt,
                 return_value_policy<manage_new_object>())
         .def("__gt__",
                 &NodeRef::ugt,
                 return_value_policy<manage_new_object>())
+        .def("__gt__",
+                &NodeRef::ugtInt,
+                return_value_policy<manage_new_object>())
         .def("__ge__",
                 &NodeRef::uge,
                 return_value_policy<manage_new_object>())
-        /*
-        .def("sdiv", 
-                &NodeRef::sdiv,
+        .def("__ge__",
+                &NodeRef::ugeInt,
                 return_value_policy<manage_new_object>())
-        .def("sdivInt", 
-                &NodeRef::sdivInt,
-                return_value_policy<manage_new_object>())
-        .def("rsdivInt", 
-                &NodeRef::rsdivInt,
-                return_value_policy<manage_new_object>())
-        .def("udiv", 
-                &NodeRef::udiv,
-                return_value_policy<manage_new_object>())
-        .def("udivInt", 
-                &NodeRef::udivInt,
-                return_value_policy<manage_new_object>())
-        .def("rudivInt", 
-                &NodeRef::rudivInt,
-                return_value_policy<manage_new_object>())
-        .def("srem", 
-                &NodeRef::srem,
-                return_value_policy<manage_new_object>())
-        .def("urem", 
-                &NodeRef::urem,
-                return_value_policy<manage_new_object>())
-        .def("sremInt", 
-                &NodeRef::sremInt,
-                return_value_policy<manage_new_object>())
-        .def("uremInt", 
-                &NodeRef::uremInt,
-                return_value_policy<manage_new_object>())
-        .def("smod", 
-                &NodeRef::smod,
-                return_value_policy<manage_new_object>())
-        .def("smodInt", 
-                &NodeRef::smodInt,
-                return_value_policy<manage_new_object>())
-        .def("shl", 
-                &NodeRef::shl,
-                return_value_policy<manage_new_object>())
-        .def("shlInt", 
-                &NodeRef::shlInt,
-                return_value_policy<manage_new_object>())
-        .def("lshr", 
-                &NodeRef::lshr,
-                return_value_policy<manage_new_object>())
-        .def("lshrInt", 
-                &NodeRef::lshrInt,
-                return_value_policy<manage_new_object>())
-        .def("ashr", 
-                &NodeRef::ashr,
-                return_value_policy<manage_new_object>())
-        .def("ashrInt", 
-                &NodeRef::ashrInt,
-                return_value_policy<manage_new_object>())
-        .def("mul", 
-                &NodeRef::mul,
-                return_value_policy<manage_new_object>())
-        .def("mulInt", 
-                &NodeRef::mulInt,
-                return_value_policy<manage_new_object>())
-        .def("concat",
-                &NodeRef::concat,
-                return_value_policy<manage_new_object>())
-        .def("eq",
-                &NodeRef::eq,
-                return_value_policy<manage_new_object>())
-        .def("neq",
-                &NodeRef::neq,
-                return_value_policy<manage_new_object>())
-        */
+
         .def(self_ns::str(self))
     ;
 
-
     // functions which expose operators on nodes.
+    // logical operators.
+    def("nand", &NodeRef::logicalNand,
+            return_value_policy<manage_new_object>());
+    def("nor", &NodeRef::logicalNor,
+            return_value_policy<manage_new_object>());
+    def("xnor", &NodeRef::logicalXnor,
+            return_value_policy<manage_new_object>());
+
+    // arithmetic operators.
+    def("sdiv", &NodeRef::sdiv,
+            return_value_policy<manage_new_object>());
+    def("sdiv", &NodeRef::sdivInt,
+            return_value_policy<manage_new_object>());
+    def("sdiv", &NodeRef::rsdivInt,
+            return_value_policy<manage_new_object>()); 
+    def("srem", &NodeRef::srem,
+            return_value_policy<manage_new_object>()); 
+    def("srem", &NodeRef::sremInt,
+            return_value_policy<manage_new_object>()); 
+    def("srem", &NodeRef::rsremInt,
+            return_value_policy<manage_new_object>()); 
+    def("urem", &NodeRef::urem,
+            return_value_policy<manage_new_object>()); 
+    def("urem", &NodeRef::uremInt,
+            return_value_policy<manage_new_object>()); 
+    def("urem", &NodeRef::ruremInt,
+            return_value_policy<manage_new_object>()); 
+    def("ashr", &NodeRef::ashr,
+            return_value_policy<manage_new_object>()); 
+    def("ashr", &NodeRef::ashrInt,
+            return_value_policy<manage_new_object>()); 
+    def("ashr", &NodeRef::rashrInt,
+            return_value_policy<manage_new_object>()); 
+    
+    // manipulate operators.
+    def("concat", &NodeRef::concat,
+            return_value_policy<manage_new_object>());
+    def("lrotate", &NodeRef::lrotate,
+            return_value_policy<manage_new_object>());
+    def("rrotate", &NodeRef::rrotate,
+            return_value_policy<manage_new_object>());
+    def("extract", &NodeRef::extract,
+            return_value_policy<manage_new_object>());
+
+    // comparison operators.
     def("slt", &NodeRef::slt,
+            return_value_policy<manage_new_object>());
+    def("slt", &NodeRef::sltInt,
             return_value_policy<manage_new_object>());
     def("sle", &NodeRef::sle,
             return_value_policy<manage_new_object>());
+    def("slt", &NodeRef::sleInt,
+            return_value_policy<manage_new_object>());
     def("sgt", &NodeRef::sgt,
+            return_value_policy<manage_new_object>());
+    def("sgt", &NodeRef::sgtInt,
             return_value_policy<manage_new_object>());
     def("sge", &NodeRef::sge,
             return_value_policy<manage_new_object>());
+    def("sge", &NodeRef::sgeInt,
+            return_value_policy<manage_new_object>());
+
+    // nonzero.
+    def("nonzero", &NodeRef::nonzero,
+            return_value_policy<manage_new_object>());
+    // imply.
+    def("imply", &NodeRef::imply,
+            return_value_policy<manage_new_object>());
+    // ite.
+    def("ite", &NodeRef::ite,
+                return_value_policy<manage_new_object>());
 
     // This is the top-level class.
     class_<Abstraction>("Abstraction", init<>())

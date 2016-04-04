@@ -47,13 +47,10 @@ namespace ila
         // ---------------------- OPERATORS ----------------------------- //
         NodeRef* complement() const; 
         NodeRef* negate() const;
-
+         
         NodeRef* logicalAnd(NodeRef* other) const;
         NodeRef* logicalOr(NodeRef* other) const;
         NodeRef* logicalXor(NodeRef* other) const;
-        NodeRef* logicalXnor(NodeRef* other) const;
-        NodeRef* logicalNand(NodeRef* other) const;
-        NodeRef* logicalNor(NodeRef* other) const;
 
         NodeRef* add(NodeRef* other) const;
         NodeRef* addInt(int r) const;
@@ -61,28 +58,21 @@ namespace ila
         NodeRef* sub(NodeRef* other) const;
         NodeRef* subInt(int r) const;
         NodeRef* rsubInt(int r) const;
-
-        NodeRef* sdiv(NodeRef* other) const;
         NodeRef* udiv(NodeRef* other) const;
-        NodeRef* sdivInt(int r) const;
         NodeRef* udivInt(int r) const;
-        NodeRef* rsdivInt(int r) const;
         NodeRef* rudivInt(int r) const;
-        NodeRef* srem(NodeRef* other) const;
-        NodeRef* urem(NodeRef* other) const;
-        NodeRef* sremInt(int r) const;
-        NodeRef* uremInt(int r) const;
         NodeRef* smod(NodeRef* other) const;
         NodeRef* smodInt(int r) const;
+        NodeRef* rsmodInt(int r) const;
         NodeRef* shl(NodeRef* other) const;
         NodeRef* shlInt(int r) const;
+        NodeRef* rshlInt(int r) const;
         NodeRef* lshr(NodeRef* other) const;
         NodeRef* lshrInt(int r) const;
-        NodeRef* ashr(NodeRef* other) const;
-        NodeRef* ashrInt(int r) const;
+        NodeRef* rlshrInt(int r) const;
         NodeRef* mul(NodeRef* other) const;
         NodeRef* mulInt(int r) const;
-        NodeRef* concat(NodeRef* other) const;
+        NodeRef* rmulInt(int r) const;
 
         // comparison operators.
         NodeRef* eq(NodeRef* other) const;
@@ -91,21 +81,62 @@ namespace ila
         NodeRef* ugt(NodeRef* other) const;
         NodeRef* ule(NodeRef* other) const;
         NodeRef* uge(NodeRef* other) const;
-
-        // ite.
-        NodeRef* ite(NodeRef* thenExp, NodeRef* elseExp) const;
+        NodeRef* eqInt(int r) const;
+        NodeRef* neqInt(int r) const;
+        NodeRef* ultInt(int r) const;
+        NodeRef* ugtInt(int r) const;
+        NodeRef* uleInt(int r) const;
+        NodeRef* ugeInt(int r) const;
 
         // does this object have a value?
         boost::python::object value() const;
 
-        // these are static versions because
-        // are created using functions.
+        // static function for non-python operators.
+        // logical functions.
+        static NodeRef* logicalXnor(NodeRef* l, NodeRef* r);
+        static NodeRef* logicalNand(NodeRef* l, NodeRef* r);
+        static NodeRef* logicalNor(NodeRef* l, NodeRef* r);
+
+        // arithmetic functions.
+        static NodeRef* sdiv(NodeRef* l, NodeRef* r);
+        static NodeRef* sdivInt(NodeRef* l, int r);
+        static NodeRef* rsdivInt(int l, NodeRef* r);
+        static NodeRef* srem(NodeRef* l, NodeRef* r);
+        static NodeRef* sremInt(NodeRef* l, int r);
+        static NodeRef* rsremInt(int l, NodeRef* r);
+        static NodeRef* urem(NodeRef* l, NodeRef* r);
+        static NodeRef* uremInt(NodeRef* l, int r);
+        static NodeRef* ruremInt(int l, NodeRef* r);
+        static NodeRef* ashr(NodeRef* l, NodeRef* r);
+        static NodeRef* ashrInt(NodeRef* l, int r);
+        static NodeRef* rashrInt(int l, NodeRef* r);
+
+        // comparison functions.
         static NodeRef* slt(NodeRef* l, NodeRef* r);
         static NodeRef* sgt(NodeRef* l, NodeRef* r);
         static NodeRef* sle(NodeRef* l, NodeRef* r);
         static NodeRef* sge(NodeRef* l, NodeRef* r);
+        static NodeRef* sltInt(NodeRef* l, int r);
+        static NodeRef* sgtInt(NodeRef* l, int r);
+        static NodeRef* sleInt(NodeRef* l, int r);
+        static NodeRef* sgeInt(NodeRef* l, int r);
 
+        // bit manipulate functions.
+        static NodeRef* concat(NodeRef* lo, NodeRef* hi);
+        static NodeRef* lrotate(NodeRef* obj, int par);
+        static NodeRef* rrotate(NodeRef* obj, int par);
+        static NodeRef* extract(NodeRef* obj, int beg, int end);
 
+        // nnonzero
+        static NodeRef* nonzero(NodeRef* obj);
+
+        // imply
+        static NodeRef* imply(NodeRef* p, NodeRef* q);
+
+        // ite.
+        static NodeRef* ite(NodeRef* cond,
+                            NodeRef* trueExp,
+                            NodeRef* falseExp); 
 
     private:
         // ---------------------- HELPERS ----------------------------- //
@@ -115,16 +146,20 @@ namespace ila
         NodeRef* _binOp(BitvectorOp::Op op, NodeRef* other) const;
         NodeRef* _binOp(BitvectorOp::Op op, int r) const;
         NodeRef* _binOpR(BitvectorOp::Op op, int r) const;
-        NodeRef* _cmpOp(BoolOp::Op op, NodeRef* other, 
-                        bool bvtype) const;
-        NodeRef* _triOp(BoolOp::Op op,
-                        BitvectorOp::Op bvOp,
-                        const char* opName,
-                        NodeRef* exp1,
-                        NodeRef* exp2) const;
-        static NodeRef* _cmpOp(BoolOp::Op op,
-                        NodeRef* l, NodeRef* r, 
-                        bool bvtype);
+        NodeRef* _cmpOp(BoolOp::Op op, NodeRef* other, bool bvtype) const;
+        NodeRef* _cmpOp(BoolOp::Op op, int r) const;
+
+        static NodeRef* _binOp(BoolOp::Op boolOp, BitvectorOp::Op bvOp, 
+                               const char* opName, NodeRef* l, NodeRef* r);
+        static NodeRef* _binOp(BoolOp::Op op, NodeRef* l, NodeRef* r);
+        static NodeRef* _binOp(BitvectorOp::Op op, NodeRef* l, NodeRef* r);
+        static NodeRef* _binOp(BitvectorOp::Op Op, NodeRef* l, int r);
+        static NodeRef* _binOpR(BitvectorOp::Op op, int l, NodeRef* r);
+        static NodeRef* _cmpOp(BoolOp::Op op, NodeRef* l, NodeRef* r, bool bvtype);
+        static NodeRef* _cmpOp(BoolOp::Op op, NodeRef* l, int r);
+        static NodeRef* _triOp(BoolOp::Op boolOp, BitvectorOp::Op bvOp,
+                            NodeRef* arg0, NodeRef* arg1, NodeRef* arg2);
+        static NodeRef* _extractOp(NodeRef* bv, int beg, int end);
     };
 
     // stream output.
