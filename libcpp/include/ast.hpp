@@ -88,6 +88,9 @@ namespace ila
         NodeRef* uleInt(int r) const;
         NodeRef* ugeInt(int r) const;
 
+        // slicing.
+        NodeRef* slice(int hi, int lo) const;
+
         // does this object have a value?
         boost::python::object value() const;
 
@@ -125,7 +128,7 @@ namespace ila
         static NodeRef* concat(NodeRef* lo, NodeRef* hi);
         static NodeRef* lrotate(NodeRef* obj, int par);
         static NodeRef* rrotate(NodeRef* obj, int par);
-        static NodeRef* extract(NodeRef* obj, int beg, int end);
+        static NodeRef* extract(const NodeRef* obj, int beg, int end);
 
         // nnonzero
         static NodeRef* nonzero(NodeRef* obj);
@@ -159,7 +162,7 @@ namespace ila
         static NodeRef* _cmpOp(BoolOp::Op op, NodeRef* l, int r);
         static NodeRef* _triOp(BoolOp::Op boolOp, BitvectorOp::Op bvOp,
                             NodeRef* arg0, NodeRef* arg1, NodeRef* arg2);
-        static NodeRef* _extractOp(NodeRef* bv, int beg, int end);
+        static NodeRef* _extractOp(const NodeRef* bv, int beg, int end);
     };
 
     // stream output.

@@ -233,6 +233,11 @@ namespace ila
         return _cmpOp(BoolOp::UGE, other, true);
     }
 
+    NodeRef* NodeRef::slice(int hi, int lo) const 
+    {
+        return _extractOp(this, hi, lo);
+    }
+
     NodeRef* NodeRef::eqInt(int r) const
     {
         return _cmpOp(BoolOp::EQUAL, r);
@@ -404,7 +409,7 @@ namespace ila
         return _cmpOp(BoolOp::SGE, l, r);
     }
 
-    NodeRef* NodeRef::extract(NodeRef* obj, int beg, int end)
+    NodeRef* NodeRef::extract(const NodeRef* obj, int beg, int end)
     {
         return _extractOp(obj, beg, end);
     }
@@ -726,7 +731,7 @@ namespace ila
         return NULL;
     }
 
-    NodeRef* NodeRef::_extractOp(NodeRef* obj, int beg, int end)
+    NodeRef* NodeRef::_extractOp(const NodeRef* obj, int beg, int end)
     {
         if (!obj->node->type.isBitvector())
         {

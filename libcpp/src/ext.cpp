@@ -164,6 +164,11 @@ BOOST_PYTHON_MODULE(ila)
                 &NodeRef::ugeInt,
                 return_value_policy<manage_new_object>())
 
+        // slice operator
+        .def("__getslice__",
+                &NodeRef::slice,
+                return_value_policy<manage_new_object>())
+
         .def(self_ns::str(self))
     ;
 

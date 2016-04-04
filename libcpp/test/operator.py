@@ -86,10 +86,10 @@ def main():
     v12 = ila.lrotate(v9, 6)
     assert c.areEqual(v11, v12)
     s3 = c.const(9, 4)
-    v13 = ila.extract(v9, 4, 1)
+    v13 = v9[4:1]
     assert c.areEqual(s3, v13)
-    v14 = ila.extract(x, 3, 0)
-    v15 = ila.extract(y, 7, 4)
+    v14 = x[3:0]
+    v15 = y[7:4]
     v16 = ila.concat(v15, v14)
     v17 = ((x << 4) >> 4) + ((y >> 4) << 4)
     assert c.areEqual(v16, v17)
