@@ -30,6 +30,8 @@ namespace ila
             return;
         }
 
+        // n->write(std::cout << "visiting: ") << std::endl;
+
         // now handle the various types.
         const BoolVar* boolvar = NULL; 
         const BoolConst* boolconst = NULL;
@@ -40,13 +42,13 @@ namespace ila
         const BitvectorChoice* bvchoiceop = NULL;
 
         if ((boolvar = dynamic_cast<const BoolVar*>(n))) {
-            z3::expr r = c.bool_const(boolvar->name.c_str());
+            z3::expr r = getBoolVarExpr(boolvar);
             exprmap.insert({n, r});
         } else if ((boolconst = dynamic_cast<const BoolConst*>(n))) {
             z3::expr r = c.bool_val(boolconst->val());
             exprmap.insert({n, r});
         } else if((bvvar = dynamic_cast<const BitvectorVar*>(n))) {
-            z3::expr r= c.bv_const(bvvar->name.c_str(), bvvar->type.bitWidth);
+            z3::expr r = getBitvectorVarExpr(bvvar);
             exprmap.insert({n, r});
         } else if((bvconst = dynamic_cast<const BitvectorConst*>(n))) {
             z3::expr r = c.bv_val(bvconst->vstr().c_str(), bvconst->type.bitWidth);
@@ -111,6 +113,15 @@ namespace ila
     }
 
     // ---------------------------------------------------------------------- //
+    z3::expr Z3ExprAdapter::getBoolVarExpr(const BoolVar* boolvar)
+    {
+        return c.bool_const(boolvar->name.c_str());
+    }
+
+    z3::expr Z3ExprAdapter::getBitvectorVarExpr(const BitvectorVar* bvvar)
+    {
+        return c.bv_const(bvvar->name.c_str(), bvvar->type.bitWidth);
+    }
 
     z3::expr Z3ExprAdapter::getBoolOpExpr(const BoolOp* boolop) 
     {
@@ -299,6 +310,66 @@ namespace ila
             return c.bool_val(false);
         } else {
             return pos->second;
+        }
+    }
+
+    // ---------------------------------------------------------------------- //
+
+    Z3ExprRewritingAdapter::Z3ExprRewritingAdapter(
+        z3::context& ctx, 
+        z3::model& mod, 
+        Z3ExprAdapter& a,
+        const std::string& s)
+
+      : Z3ExprAdapter(ctx, s)
+      , m(mod)
+      , adapter(a)
+    {
+    }
+
+    Z3ExprRewritingAdapter::Z3ExprRewritingAdapter(
+        z3::context& ctx, 
+        z3::model& mod, 
+        Z3ExprAdapter& a,
+        const char* s)
+
+      : Z3ExprAdapter(ctx, s)
+      , m(mod)
+      , adapter(a)
+    {
+    }
+
+    Z3ExprRewritingAdapter::~Z3ExprRewritingAdapter()
+    {
+    }
+
+    // ---------------------------------------------------------------------- //
+    z3::expr Z3ExprRewritingAdapter::getBoolVarExpr(const BoolVar* boolvar)
+    {
+        bool value = adapter.getBoolValue(m, boolvar);
+        return c.bool_val(value);
+    }
+
+    z3::expr Z3ExprRewritingAdapter::getBitvectorVarExpr(const BitvectorVar* bvvar)
+    {
+        std::string value = adapter.extractNumeralString(m, bvvar);
+        return c.bv_val(value.c_str(), bvvar->type.bitWidth);
+    }
+
+    z3::expr Z3ExprRewritingAdapter::getExpr(const Node* n, const boost::python::object& result)
+    {
+        z3::expr r_e = Z3ExprAdapter::getExpr(n);
+
+        if (n->type.isBool()) {
+            bool value = boost::python::extract<int>(result) != 0;
+            return r_e == c.bool_val(value);
+        } else if(n->type.isBitvector()) {
+            std::string string_result = 
+                boost::python::extract<std::string>(boost::python::str(result));
+            return r_e == c.bv_val(string_result.c_str(), n->type.bitWidth);
+        } else {
+            ILA_ASSERT(false, "Unimplemented type.");
+            return c.bool_val(false);
         }
     }
 }

@@ -85,18 +85,23 @@ namespace ila
         using namespace boost::python;
         using namespace z3;
 
+        static const char* suffix1 = ":1";
+        static const char* suffix2 = ":2";
+
+        Node* ex_n = ex->node.get();
+
+        // create the expressions.
         context c_;
-        Z3ExprAdapter c1(c_, ":1");
-        Z3ExprAdapter c2(c_, ":2");
-
-        ex->node->depthFirstVisit(c1);
-        ex->node->depthFirstVisit(c2);
-
-        expr e1 = c1.getExpr(ex->node.get());
-        expr e2 = c2.getExpr(ex->node.get());
+        Z3ExprAdapter c1(c_, suffix1);
+        Z3ExprAdapter c2(c_, suffix2);
+        expr e1 = c1.getExpr(ex_n);
+        expr e2 = c2.getExpr(ex_n);
         expr y  = c_.bool_const("_mitre.output");
 
+        // solver.
         solver S(c_);
+
+        // initial constraint.
         S.add((y == (e1 != e2)));
 
         std::cout << S << std::endl;
@@ -105,26 +110,35 @@ namespace ila
         int i = 1;
         dict args;
 
+        // cegis loop.
         while ((r = S.check(1, &y)) == sat) {
-            std::cout << "iterator #" << i++ << std::endl;
+            std::cout << "iteration #" << i++ << std::endl;
+
+            // extract model.
             model m = S.get_model();
             extractModelValues(c1, m, args);
-            break;
-        }
-        std::cout << "i=" << i << std::endl;
-        
-        args["arg"] = 1;
 
-        boost::python::object result = 
-            call<boost::python::object, dict>(pyfun, args);
-        extract<dict> res(result);
+            std::cout << "model: " << m << std::endl;
 
-        if (res.check()) {
-            int result = extract<int>(res()["arg"]);
-            std::cout << "result=" << result << std::endl;
-        } else {
-            std::cout << "got nonsense." << std::endl;
+            // run the python code.
+            boost::python::object result = 
+                call<boost::python::object, dict>(pyfun, args);
+
+            // now rewrite these expressions.
+            Z3ExprRewritingAdapter cr1(c_, m, c1, suffix1);
+            Z3ExprRewritingAdapter cr2(c_, m, c2, suffix2);
+
+            expr er1 = cr1.getExpr(ex_n, result);
+            expr er2 = cr2.getExpr(ex_n, result);
+
+            std::cout << "er1: " << er1 << std::endl;
+            std::cout << "er2: " << er2 << std::endl;
+
+            S.add(er1);
+            S.add(er2);
         }
+
+        std::cout << "finished after " << i << " SMT calls." << std::endl;
     }
 
     void Abstraction::extractModelValues(Z3ExprAdapter& c, z3::model& m, boost::python::dict& d)

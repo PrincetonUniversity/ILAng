@@ -1,10 +1,8 @@
 import ila
 
 def foo(d):
-    print 'initial value:', d['arg']
-    print d
-    d['arg'] = d['arg'] + 1
-    return d
+    print 'initial value: %s' % str(d)
+    return d['r0'] + d['r1']
 
 def bar(d):
     print 'bar called.'

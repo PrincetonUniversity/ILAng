@@ -70,7 +70,7 @@ testing.make-test run-pyd : ila test/sanity.py : : test_sanity ;
 
 testing.make-test run-pyd : ila test/types.py : : test_types ;
 
-testing.make-test run-pyd : ila test/synthesize.py : : test_synthesize ;
+# testing.make-test run-pyd : ila test/synthesize.py : : test_synthesize ;
 
 testing.make-test run-pyd : ila test/equality.py : : test_equality ;
 
