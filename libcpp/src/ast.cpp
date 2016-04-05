@@ -23,6 +23,11 @@ namespace ila
         node->setNodeRef(this);
     }
 
+    NodeRef::NodeRef(const boost::shared_ptr<Node>& ptr)
+      : node(ptr)
+    {
+    }
+
     NodeRef::NodeRef(const NodeRef& nr)
       : node(nr.node)
     {

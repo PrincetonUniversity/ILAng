@@ -30,6 +30,8 @@ namespace ila
         NodeRef(); 
         // Constructor. DO NOT USE. Call factory methods in Context instead.
         NodeRef(Node* node);
+        // Constructor from an existing shared_ptr.
+        NodeRef(const boost::shared_ptr<Node>& ptr);
         // Copy constructor.
         NodeRef(const NodeRef& nr);
         // Destructor.

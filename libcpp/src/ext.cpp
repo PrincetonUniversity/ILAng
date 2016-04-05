@@ -258,7 +258,7 @@ BOOST_PYTHON_MODULE(ila)
 
         .def("choice", &Abstraction::choice2, return_value_policy<manage_new_object>())
 
-        .def("synthesize", &Abstraction::synthesize)
+        .def("synthesize", &Abstraction::synthesize, return_value_policy<manage_new_object>())
         .def("areEqual", &Abstraction::areEqual)
     ;
 }

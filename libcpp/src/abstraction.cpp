@@ -81,7 +81,7 @@ namespace ila
     }
 
 
-    void Abstraction::synthesize(NodeRef* ex, PyObject* pyfun)
+    NodeRef* Abstraction::synthesize(NodeRef* ex, PyObject* pyfun)
     {
         using namespace boost::python;
         using namespace z3;
@@ -149,6 +149,7 @@ namespace ila
         SynRewriter rw(m, c1);
         boost::shared_ptr<Node> nr = rw.rewrite(ex_n);
         nr->write(std::cout << "synthesis result: ") << std::endl;
+        return new NodeRef(nr);
     }
 
     void Abstraction::extractModelValues(Z3ExprAdapter& c, z3::model& m, boost::python::dict& d)

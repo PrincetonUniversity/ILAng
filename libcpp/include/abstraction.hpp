@@ -52,7 +52,7 @@ namespace ila
                         NodeRef* e2);
 
         // the synthesis function.
-        void synthesize(NodeRef* expr, PyObject* fun);
+        NodeRef* synthesize(NodeRef* expr, PyObject* fun);
 
         // check equality function.
         bool areEqual(NodeRef* left, NodeRef* right) const;
