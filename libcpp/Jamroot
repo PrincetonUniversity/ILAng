@@ -12,7 +12,7 @@ if ! [ python.configured ]
 # Specify the path to the Boost project.  If you move this project,
 # adjust this path to refer to the Boost root directory.
 use-project boost
-  : /usr/local/boost_1_60_0 ;
+  : /usr/share/boost-build/;
 
 lib z3 : : <name>z3 ;
 explicit z3 ;
