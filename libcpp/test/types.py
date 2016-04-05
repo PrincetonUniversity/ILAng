@@ -1,4 +1,4 @@
-import libila
+import ila
 
 # create each type
 t1 = ila.Type()
