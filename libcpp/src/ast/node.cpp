@@ -15,7 +15,6 @@ namespace ila
     // ---------------------------------------------------------------------- //
     Node::Node()
       : ctx(NULL)
-      , nodeRef(NULL)
       , id(-1)
       , type(NodeType())
     {
@@ -23,7 +22,6 @@ namespace ila
 
     Node::Node(Abstraction* c, NodeType t) 
       : ctx(c)
-      , nodeRef(NULL)
       , id(ctx->getObjId())
       , type(t) 
     {
@@ -38,11 +36,6 @@ namespace ila
     void Node::_initName()
     {
         name = "n" + boost::lexical_cast<std::string>(id);
-    }
-
-    void Node::setNodeRef(NodeRef* nr)
-    {
-        nodeRef = nr;
     }
 
     // ---------------------------------------------------------------------- //

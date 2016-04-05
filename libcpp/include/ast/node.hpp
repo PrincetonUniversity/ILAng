@@ -30,8 +30,6 @@ namespace ila
         // -------------------- DATA MEMBERS ----------------- //
         // context pointer.
         Abstraction* ctx;
-        // Pointer back to the shared_ptr which holds this node.
-        NodeRef* nodeRef;
     public:
         // name for this node.
         std::string name;
@@ -61,9 +59,6 @@ namespace ila
         // return the value associated with this object (or None) 
         // if it doesn't exist.
         virtual boost::python::object getValue() const;
-
-        // -------------------- ACCESSORS --------------------//
-        void setNodeRef(NodeRef* nr);
 
         // -------------------- VISITOR ----------------------//
         // Visit each child node in a depth-first order and
