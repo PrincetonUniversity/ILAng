@@ -49,7 +49,7 @@ python-extension ila : src/ext.cpp
                        src/ast/node.cpp 
                        src/ast/bitvec.cpp 
                        src/ast/bool.cpp
-                       src/ast/syn.cpp
+                       src/ast/choice.cpp
                        src/smt.cpp
                        src/syn.cpp
                        src/type.cpp 

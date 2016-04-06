@@ -37,6 +37,21 @@ namespace ila
 
         // do the rewrite.
         boost::shared_ptr<Node> rewrite(const Node* n);
+    private:
+        template<typename T> 
+        void _synChoiceExpr(const ChoiceExpr<T>* op)
+        {
+            int i = (int) op->nArgs() - 2;
+            ILA_ASSERT(i >= 0, "Choice has too few args!");
+            for (; i >= 0; i--) {
+                bool ci = adapter.getChoiceBool<T>(m, op, i);
+                if (ci) { break; }
+            }
+            std::cout << "choice result: " << i << std::endl;
+            boost::shared_ptr<Node> nptr = op->arg(i+1);
+            nptr->write(std::cout << "expr: ") << std::endl;
+            exprmap.insert({(Node*)op, nptr});
+        }
     };
 }
 

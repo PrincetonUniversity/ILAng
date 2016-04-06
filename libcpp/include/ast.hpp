@@ -13,7 +13,7 @@
 #include <ast/node.hpp>
 #include <ast/bitvec.hpp>
 #include <ast/bool.hpp>
-#include <ast/syn.hpp>
+#include <ast/choice.hpp>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/python.hpp>

@@ -1,7 +1,7 @@
 add_library (ila SHARED
 abstraction.cpp ast.cpp exception.cpp ext.cpp smt.cpp syn.cpp type.cpp util.cpp)
 add_library(ast SHARED
-ast/bitvec.cpp  ast/bool.cpp    ast/node.cpp    ast/syn.cpp)
+ast/bitvec.cpp  ast/bool.cpp    ast/node.cpp    ast/choice.cpp)
 
 set (EXT_LIBRARIES ${Z3_LIBRARY})
 

@@ -40,6 +40,7 @@ namespace ila
         const BitvectorConst* bvconst = NULL;
         const BitvectorOp* bvop = NULL;
         const BitvectorChoice* bvchoiceop = NULL;
+        const BoolChoice* bchoiceop = NULL;
 
         if ((boolvar = dynamic_cast<const BoolVar*>(n))) {
             z3::expr r = getBoolVarExpr(boolvar);
@@ -58,6 +59,9 @@ namespace ila
             exprmap.insert({n, r});
         } else if ((bvop = dynamic_cast<const BitvectorOp*>(n))) {
             z3::expr r = getBvOpExpr(bvop);
+            exprmap.insert({n, r});
+        } else if((bchoiceop = dynamic_cast<const BoolChoice*>(n))) {
+            z3::expr r = getChoiceExpr(bchoiceop);
             exprmap.insert({n, r});
         } else if ((bvchoiceop = dynamic_cast<const BitvectorChoice*>(n))) {
             z3::expr r = getChoiceExpr(bvchoiceop);
@@ -110,17 +114,6 @@ namespace ila
         Z3_lbool b_e = Z3_get_bool_value(c, m_e);
         ILA_ASSERT(b_e != Z3_L_UNDEF, "Unable to extract bool from model.");
         return b_e == Z3_L_TRUE;
-    }
-
-    bool Z3ExprAdapter::getChoiceBool(z3::model& m, const BitvectorChoice* op, int i)
-    {
-        using namespace z3;
-        std::string name = op->getChoiceVarName(i) + suffix;
-        expr ci = c.bool_const(name.c_str());
-        z3::expr mi = m.eval(ci, true);
-        Z3_lbool bi = Z3_get_bool_value(c, mi);
-        ILA_ASSERT(bi != Z3_L_UNDEF, "Unable to extract bool from model.");
-        return bi == Z3_L_TRUE;
     }
 
     // ---------------------------------------------------------------------- //
@@ -313,18 +306,12 @@ namespace ila
 
     z3::expr Z3ExprAdapter::getChoiceExpr(const BitvectorChoice* op)
     {
-        using namespace z3;
+        return _getChoiceExpr(op);
+    }
 
-        expr vi_ = getArgExpr(op, 0);
-        unsigned nargs = op->nArgs();
-        for (unsigned i=1; i != nargs; i++) {
-            std::string name = op->getChoiceVarName(i-1) + suffix;
-            expr ci = c.bool_const(name.c_str());
-            expr vi = getArgExpr(op, i);
-            expr vi_next = ite(ci, vi, vi_);
-            vi_ = vi_next;
-        }
-        return vi_;
+    z3::expr Z3ExprAdapter::getChoiceExpr(const BoolChoice* op)
+    {
+        return _getChoiceExpr(op);
     }
 
     // ---------------------------------------------------------------------- //

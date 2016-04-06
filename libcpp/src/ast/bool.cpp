@@ -24,6 +24,12 @@ namespace ila
     {
     }
 
+    BoolExpr::BoolExpr(Abstraction* c, NodeType t)
+      : Node(c, t)
+    {
+        ILA_ASSERT(t.isBool(), "BoolExpr type mismatch.");
+    }
+
     BoolExpr::~BoolExpr()
     {
     }

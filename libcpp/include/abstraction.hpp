@@ -3,6 +3,7 @@
 
 #include <string>
 #include <ast.hpp>
+#include <smt.hpp>
 #include <boost/python.hpp>
 #include <list>
 

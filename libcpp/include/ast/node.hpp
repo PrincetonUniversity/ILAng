@@ -13,8 +13,6 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/python.hpp>
 
-#include <smt.hpp>
-
 namespace ila 
 {
     class Abstraction;

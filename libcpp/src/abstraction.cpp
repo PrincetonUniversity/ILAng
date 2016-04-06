@@ -75,8 +75,18 @@ namespace ila
                 "Type error in choice arguments.");
             return NULL;
         } else {
-            return new NodeRef(
-                        new BitvectorChoice(this, name, args));
+            if (t.isBool()) {
+                return new NodeRef(
+                            new BoolChoice(this, name, args));
+            } else if (t.isBitvector()) {
+                return new NodeRef(
+                            new BitvectorChoice(this, name, args));
+            } else {
+                throw PyILAException(
+                    PyExc_ValueError,
+                    "Unable to create choice of specified type.");
+                return NULL;
+            }
         }
     }
 
@@ -91,12 +101,17 @@ namespace ila
 
         Node* ex_n = ex->node.get();
 
+        ex_n->write(std::cout << "expression: ") << std::endl;
+
         // create the expressions.
         context c_;
         Z3ExprAdapter c1(c_, suffix1);
         Z3ExprAdapter c2(c_, suffix2);
+        std::cout << "dfs done." << std::endl;
         expr e1 = c1.getExpr(ex_n);
+        std::cout << "e1=" << e1 << std::endl;
         expr e2 = c2.getExpr(ex_n);
+        std::cout << "e2=" << e2 << std::endl;
         expr y  = c_.bool_const("_mitre.output");
 
         // solver.
@@ -155,19 +170,23 @@ namespace ila
     void Abstraction::extractModelValues(Z3ExprAdapter& c, z3::model& m, boost::python::dict& d)
     {
         using namespace z3;
-        for (auto r : regs) {
-            using namespace boost::python;
+        using namespace boost::python;
 
+        for (auto r : regs) {
             // extract int from z3.
             std::string s_e = c.extractNumeralString(m, r.get());
-
             // dump output.
             std::cout << r->name << "=" << s_e << std::endl;
-
             // convert to python.
             PyObject* l_e = PyLong_FromString((char*) s_e.c_str(), NULL, 0);
             boost::python::object o_e(handle<>(borrowed(l_e)));
             d[r->name] = o_e;
+        }
+
+        for (auto b : bits) {
+            bool b_e = c.getBoolValue(m, b.get());
+            std::cout << b->name << "=" << b_e << std::endl;
+            d[b->name] = (int) b_e;
         }
     }
 

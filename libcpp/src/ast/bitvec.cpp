@@ -28,6 +28,12 @@ namespace ila
     {
     }
 
+    BitvectorExpr::BitvectorExpr(Abstraction *c, NodeType t)
+        : Node(c, t)
+    {
+        ILA_ASSERT(t.isBitvector(), "BitvectorExpr type mismatch.");
+    }
+
     BitvectorExpr::~BitvectorExpr()
     {
     }
