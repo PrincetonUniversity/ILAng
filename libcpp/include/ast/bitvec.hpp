@@ -7,6 +7,8 @@
 #include <vector>
 #include <boost/shared_ptr.hpp>
 #include <boost/python.hpp>
+#include <boost/multiprecision/cpp_int.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include <z3++.h>
 #include <assert.h>
@@ -47,10 +49,10 @@ namespace ila
     };
 
     // ---------------------------------------------------------------------- //
-    // Bitvector variables.
+    // Bitvector constants.
     class BitvectorConst : public BitvectorExpr {
     protected:
-        boost::python::object value;
+        boost::multiprecision::cpp_int value;
     public:
         // constructor with longs.
         BitvectorConst(Abstraction* c, boost::python::long_ v, int width);
@@ -70,10 +72,7 @@ namespace ila
         virtual std::ostream& write(std::ostream& out) const;
         // get the value as a string.
         std::string vstr() const {
-            std::string string_value = 
-                boost::python::extract<std::string>(
-                    boost::python::str(value));
-            return string_value;
+            return boost::lexical_cast<std::string>(value);
         }
     };
 

@@ -1,5 +1,7 @@
 #include <iostream>
 #include <boost/lexical_cast.hpp>
+#include <cstdint>
+#include <limits>
 
 #include <ast.hpp>
 #include <util.hpp>
@@ -72,10 +74,12 @@ namespace ila
 
 
     // ---------------------------------------------------------------------- //
-    BitvectorConst::BitvectorConst(Abstraction* c, boost::python::long_ v, int w)
+    BitvectorConst::BitvectorConst(
+        Abstraction* c, boost::python::long_ v, int w)
         : BitvectorExpr(c, w)
-        , value(v)
     {
+        std::string vstr = boost::python::extract<std::string>(v);
+        value = boost::lexical_cast<boost::multiprecision::cpp_int>(vstr);
     }
 
     BitvectorConst::BitvectorConst(Abstraction* c, int v, int w)
@@ -112,13 +116,17 @@ namespace ila
 
     boost::python::object BitvectorConst::getValue() const
     {
-        return value;
+        using namespace boost::python;
+
+        std::string vstr = boost::lexical_cast<std::string>(value);
+        PyObject* l_e = PyInt_FromString((char*) vstr.c_str(), NULL, 0);
+        object o_e(handle<>(borrowed(l_e)));
+        return o_e;
     }
 
     std::ostream& BitvectorConst::write(std::ostream& out) const
     {
-        std::string string_value = boost::python::extract<std::string>(boost::python::str(value));
-        return (out << string_value);
+        return (out << value);
     }
 
     // ---------------------------------------------------------------------- //
