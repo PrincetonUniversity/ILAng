@@ -24,6 +24,8 @@ namespace ila
     public:
         // constructor.
         BitvectorExpr(Abstraction* c, int width);
+        // constructor for ChoiceExpr.
+        BitvectorExpr(Abstraction* c, NodeType t);
         // destructor.
         virtual ~BitvectorExpr();
     };

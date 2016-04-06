@@ -37,7 +37,7 @@ namespace ila
             return;
         }
 
-        n->write(std::cout << "visiting: ") << std::endl;
+        // n->write(std::cout << "visiting: ") << std::endl;
 
         // now handle the various types.
         const BoolVar* boolvar = NULL; 
@@ -46,6 +46,7 @@ namespace ila
         const BitvectorVar* bvvar = NULL;
         const BitvectorConst* bvconst = NULL;
         const BitvectorOp* bvop = NULL;
+        const BoolChoice* bchoiceop = NULL;
         const BitvectorChoice* bvchoiceop = NULL;
 
         if ((boolvar = dynamic_cast<const BoolVar*>(n))) {
@@ -70,17 +71,10 @@ namespace ila
             getNewArgs(bvop, args);
             boost::shared_ptr<Node> nptr(new BitvectorOp(bvop, args));
             exprmap.insert({n, nptr});
+        } else if ((bchoiceop = dynamic_cast<const BoolChoice*>(n))) {
+            _synChoiceExpr(bchoiceop);
         } else if ((bvchoiceop = dynamic_cast<const BitvectorChoice*>(n))) {
-            int i = (int) bvchoiceop->nArgs() - 2;
-            ILA_ASSERT(i >= 0, "Choice has too few args!");
-            for (; i >= 0; i--) {
-                bool ci = adapter.getChoiceBool(m, bvchoiceop, i);
-                if (ci) { break; }
-            }
-            std::cout << "choice result: " << i << std::endl;
-            boost::shared_ptr<Node> nptr = bvchoiceop->arg(i+1);
-            nptr->write(std::cout << "expr: ") << std::endl;
-            exprmap.insert({n, nptr});
+            _synChoiceExpr(bvchoiceop);
         }
     }
 

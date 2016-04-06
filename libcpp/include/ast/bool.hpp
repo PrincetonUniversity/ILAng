@@ -23,6 +23,8 @@ namespace ila
     public:
         // constructor.
         BoolExpr(Abstraction* c);
+        // constructor needed for ChoiceExpr
+        BoolExpr(Abstraction* c, NodeType t);
         // destructor.
         virtual ~BoolExpr();
     };

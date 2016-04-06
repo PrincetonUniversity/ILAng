@@ -1,7 +1,6 @@
 #include <ast.hpp>
-#include <smt.hpp>
 #include <type.hpp>
-#include <ast/syn.hpp>
+#include <ast/choice.hpp>
 
 namespace ila
 {
@@ -54,51 +53,6 @@ namespace ila
         }
         return (out << ")");
     }
-
     // ---------------------------------------------------------------------- //
-    BitvectorChoice::BitvectorChoice(
-        Abstraction* c, const std::string& n_, 
-        const std::vector< boost::shared_ptr<Node> >& args_)
-      : BitvectorExpr(c, Choice::getChoiceType(args_).bitWidth)
-      , choice(n_, args_)
-    {
-        name = n_;
-    }
-
-    BitvectorChoice::~BitvectorChoice()
-    {
-    }
-
-    Node* BitvectorChoice::clone() const
-    {
-        return new BitvectorChoice(ctx, name, choice.args);
-    }
-
-    bool BitvectorChoice::equal(const Node* that_) const
-    {
-        const BitvectorChoice* that = 
-            dynamic_cast<const BitvectorChoice*>(that_);
-        if (that == NULL) return false;
-        return choice.equal(that->choice);
-    }
-
-    std::ostream& BitvectorChoice::write(std::ostream& out) const
-    {
-        return choice.write(out);
-    }
-
-    unsigned BitvectorChoice::nArgs() const
-    {
-        return choice.args.size();
-    }
-
-    boost::shared_ptr<Node> BitvectorChoice::arg(unsigned i) const
-    {
-        if (i < choice.args.size()) {
-            return choice.args[i];
-        } else {
-            return NULL;
-        }
-    }
 }
 

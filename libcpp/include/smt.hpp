@@ -2,6 +2,7 @@
 #define __SMT_HPP_DEFINED__
 
 #include <z3++.h>
+#include <ast.hpp>
 #include <util.hpp>
 #include <exception.hpp>
 #include <unordered_map>
@@ -9,13 +10,6 @@
 
 namespace ila 
 {
-    class Node;
-    class BoolVar;
-    class BitvectorVar;
-    class BoolOp;
-    class BitvectorOp;
-    class BitvectorChoice;
-
     // A function object that converts nodes into Z3 expressions.
     class Z3ExprAdapter
     {
@@ -44,8 +38,10 @@ namespace ila
         virtual z3::expr getBoolOpExpr(const BoolOp* op);
         // Convert a bitvector op into a Z3 expression.
         virtual z3::expr getBvOpExpr(const BitvectorOp* op);
-        // Convert a choice op into a Z3 expression.
+        // Convert a choice op into a Z3 expression. (bitvectors)
         virtual z3::expr getChoiceExpr(const BitvectorChoice* op);
+        // for booleans
+        virtual z3::expr getChoiceExpr(const BoolChoice* op);
 
     public:
         // Constructors.
@@ -68,7 +64,36 @@ namespace ila
         // Extract the boolean value of node r in model m.
         bool getBoolValue(z3::model& m, const Node* r);
         // Return the value of the ith choice boolean
-        bool getChoiceBool(z3::model& m, const BitvectorChoice* op, int i);
+        template<typename T>
+        bool getChoiceBool(z3::model& m, const ChoiceExpr<T>* op, int i)
+        {
+            using namespace z3;
+            std::string name = op->getChoiceVarName(i) + suffix;
+            expr ci = c.bool_const(name.c_str());
+            z3::expr mi = m.eval(ci, true);
+            Z3_lbool bi = Z3_get_bool_value(c, mi);
+            ILA_ASSERT(bi != Z3_L_UNDEF, "Unable to extract bool from model.");
+            return bi == Z3_L_TRUE;
+        }
+    private:
+        // Helper to convert choices into z3 expressions.
+        template<typename T>
+        z3::expr _getChoiceExpr(const ChoiceExpr<T>* op)
+        {
+            using namespace z3;
+
+            expr vi_ = getArgExpr(op, 0);
+            unsigned nargs = op->nArgs();
+            for (unsigned i=1; i != nargs; i++) {
+                std::string name = op->getChoiceVarName(i-1) + suffix;
+                expr ci = c.bool_const(name.c_str());
+                expr vi = getArgExpr(op, i);
+                expr vi_next = ite(ci, vi, vi_);
+                vi_ = vi_next;
+            }
+            return vi_;
+        }
+
     };
 
     // The function object we use during synthesis to rewrite expressions.
