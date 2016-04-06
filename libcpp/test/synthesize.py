@@ -19,6 +19,14 @@ def shaz(d):
     a = d['a']
     b = d['b']
     return not(a ^ b)
+
+def fetch(d):
+    print d
+    addr = d['addr']
+    data = d['data']
+    wr = d['wr']
+#    temp1 = ?? How to concat
+#    return
     
 def main():
     sys = ila.Abstraction()

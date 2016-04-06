@@ -234,47 +234,9 @@ namespace ila
         return _cmpOp(BoolOp::UGE, other, true);
     }
 
-    NodeRef* NodeRef::sliceII(int hi, int lo) const 
+    NodeRef* NodeRef::slice(int hi, int lo) const 
     {
         return _extractOp(this, hi, lo);
-    }
-
-    NodeRef* NodeRef::sliceIV(int hi, NodeRef* lo) const
-    {
-        // If lo > hi or lo < 0, return _extractOp(this, hi, 0)
-        int wid = node->type.bitWidth;
-        NodeRef* vi = zero_extend(_extractOp(this, hi, 0), wid);
-        for (int i=0; i <= hi; i++) {
-            NodeRef* num = new NodeRef(new BitvectorConst(
-                    lo->node->ctx, i, lo->node->type.bitWidth));
-            NodeRef* cond = lo->eq(num);
-            NodeRef* vi_ = zero_extend(_extractOp(this, hi, i), wid);
-            NodeRef* vi_next = ite(cond, vi_, vi);
-            vi = vi_next;
-        }
-        return vi;
-    }
-
-    NodeRef* NodeRef::sliceVI(NodeRef* hi, int lo) const
-    {
-        // If hi < lo or hi > bitWidth, return _extractOp(this, width, lo)
-        int wid = node->type.bitWidth;
-        NodeRef* vi = zero_extend(_extractOp(this, wid-1, lo), wid);
-        for (int i=wid-1; i >= lo; i--) {
-            NodeRef* num = new NodeRef(new BitvectorConst(
-                    hi->node->ctx, i, hi->node->type.bitWidth));
-            NodeRef* cond = hi->eq(num);
-            NodeRef* vi_ = zero_extend(_extractOp(this, i, lo), wid);
-            NodeRef* vi_next = ite(cond, vi_, vi);
-            vi = vi_next;
-        }
-        return vi;
-    }
-
-    NodeRef* NodeRef::sliceVV(NodeRef* hi, NodeRef* lo) const
-    {
-        NodeRef* up = this->sliceVI(hi, 0);
-        return up->sliceIV(up->node->type.bitWidth-1, lo);
     }
 
     NodeRef* NodeRef::eqInt(int r) const
@@ -448,6 +410,22 @@ namespace ila
         return _cmpOp(BoolOp::SGE, l, r);
     }
 
+    NodeRef* NodeRef::getBit(NodeRef* obj, NodeRef* idx)
+    {
+        // If idx not in range, return bit 0
+        int wid = obj->node->type.bitWidth;
+        NodeRef* vi = _extractOp(obj, 0, 0);
+        for (int i=0; i != wid; i++) {
+            NodeRef* num = new NodeRef(new BitvectorConst(
+                        idx->node->ctx, i, idx->node->type.bitWidth));
+            NodeRef* cond = idx->eq(num);
+            NodeRef* vi_ = _extractOp(obj, i, i);
+            NodeRef* vi_next = ite(cond, vi_, vi);
+            vi = vi_next;
+        }
+        return vi;
+    }
+
     NodeRef* NodeRef::extract(const NodeRef* obj, int beg, int end)
     {
         return _extractOp(obj, beg, end);
@@ -455,17 +433,40 @@ namespace ila
 
     NodeRef* NodeRef::extractIV(NodeRef* obj, int hi, NodeRef* lo)
     {
-        return obj->sliceIV(hi, lo);
+        // If lo > hi or lo < 0, return _extractOp(obj, hi, 0)
+        int wid = obj->node->type.bitWidth;
+        NodeRef* vi = zero_extend(_extractOp(obj, hi, 0), wid);
+        for (int i=0; i <= hi; i++) {
+            NodeRef* num = new NodeRef(new BitvectorConst(
+                    lo->node->ctx, i, lo->node->type.bitWidth));
+            NodeRef* cond = lo->eq(num);
+            NodeRef* vi_ = zero_extend(_extractOp(obj, hi, i), wid);
+            NodeRef* vi_next = ite(cond, vi_, vi);
+            vi = vi_next;
+        }
+        return vi;
     }
 
     NodeRef* NodeRef::extractVI(NodeRef* obj, NodeRef* hi, int lo)
     {
-        return obj->sliceVI(hi, lo);
+        // If hi < lo or hi > bitWidth, return _extractOp(this, width, lo)
+        int wid = obj->node->type.bitWidth;
+        NodeRef* vi = zero_extend(_extractOp(obj, wid-1, lo), wid);
+        for (int i=wid-1; i >= lo; i--) {
+            NodeRef* num = new NodeRef(new BitvectorConst(
+                    hi->node->ctx, i, hi->node->type.bitWidth));
+            NodeRef* cond = hi->eq(num);
+            NodeRef* vi_ = zero_extend(_extractOp(obj, i, lo), wid);
+            NodeRef* vi_next = ite(cond, vi_, vi);
+            vi = vi_next;
+        }
+        return vi;
     }
 
     NodeRef* NodeRef::extractVV(NodeRef* obj, NodeRef* hi, NodeRef* lo)
     {
-        return obj->sliceVV(hi, lo);
+        NodeRef* up = extractVI(obj, hi, 0);
+        return extractIV(up, up->node->type.bitWidth-1, lo);
     }
 
     NodeRef* NodeRef::zero_extend(NodeRef* obj, int outWidth)

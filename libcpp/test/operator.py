@@ -131,7 +131,7 @@ def main():
     v15ex = ila.zero_extend(v15, 8)
     v15re = (y >> 4)
     assert c.areEqual(v15ex, v15re)
-
+    """
     v21 = ila.extractIV(x, 3, c0)
     v22 = ila.extractVI(y, c4+3, 4)
     assert c.areEqual(v14ex, v21)
@@ -145,6 +145,22 @@ def main():
     v25 = ila.extractVV(x, c8-1, c4)
     v26 = ila.zero_extend(x[7:4], 8)
     assert c.areEqual(v25, v26)
+    """
+    # slice one bit
+    bv1 = c.const(1, 1)
+    s1 = ila.get_bit(c1, c0)
+    assert c.areEqual(bv1, s1)
+    z = x & x
+    bx = ila.get_bit(y, x)
+    bz = ila.get_bit(y, z)
+    assert c.areEqual(bx, bz)
+    bx = ila.get_bit(c8, x)
+    by = ila.get_bit(c8, y)
+    inv = ila.imply(x == y, bx == by)
+    assert c.areEqual(inv, top)
+    dum = ila.ite(b1, bx, by)
+    shd = ila.imply(x == y, dum == bx)
+    assert c.areEqual(shd, top)
 
 
 if __name__ == '__main__':
