@@ -108,5 +108,44 @@ def main():
     assert c.areEqual( ila.ite(c2, top, bot), top)
     assert c.areEqual( ila.ite(c0, top, bot), bot)
 
+    # zero/sign extend
+    short = c4[3:0]
+    recover = ila.zero_extend(short, 8)
+    assert c.areEqual(recover, c4)
+
+    longC4 = c.const(4, 16)
+    nlongC4 = -longC4
+    nshortC4 = -c4
+    extNS4 = ila.sign_extend(nshortC4, 16)
+    assert c.areEqual(nlongC4, extNS4)
+
+    # extract/slice with var
+    v21 = c0[3:0]
+    v21r = ila.zero_extend(v21, 8)
+    assert c.areEqual(c0, v21r)
+    # v14 = x[3:0]
+    v14ex = ila.zero_extend(v14, 8)
+    v14re = (x << 4) >> 4
+    assert c.areEqual(v14ex, v14re)
+    # v15 = y[7:4]
+    v15ex = ila.zero_extend(v15, 8)
+    v15re = (y >> 4)
+    assert c.areEqual(v15ex, v15re)
+
+    v21 = ila.extractIV(x, 3, c0)
+    v22 = ila.extractVI(y, c4+3, 4)
+    assert c.areEqual(v14ex, v21)
+    assert c.areEqual(v15ex << 4, v22 << 4)
+
+    v23 = v21 + (v22 << 4)
+    assert c.areEqual(v23, v16)
+    
+    v24 = ila.extractVV(c8, c8-1, c0)
+    assert c.areEqual(v24, c8)
+    v25 = ila.extractVV(x, c8-1, c4)
+    v26 = ila.zero_extend(x[7:4], 8)
+    assert c.areEqual(v25, v26)
+
+
 if __name__ == '__main__':
     main()

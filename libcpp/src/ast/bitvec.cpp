@@ -13,11 +13,11 @@ namespace ila
         "invalid",
         // unary
         "-", "~",
-        "rotate-left", "rotate-right", "extract",
+        "rotate-left", "rotate-right", "zero_extend", "sign_extend", "extract",
         // binary
         "+", "-", "and", "or", "xor", "xnor", "nand", "nor",
         "div", "udiv", "rem", "urem", "mod", "<<", ">>>", ">>", 
-        "*", "concat",
+        "*", "concat", 
 		// ternary
         "if", 
     };
@@ -139,7 +139,11 @@ namespace ila
     int BitvectorOp::getUnaryResultWidth(Op op, boost::shared_ptr<Node> n)
     {
         // FIXME: add more code when operators are added.
-        return n->type.bitWidth;
+        if (op >= NEGATE && op <= RROTATE) {
+            return n->type.bitWidth;
+        } else { 
+            return n->type.bitWidth;
+        }
     }
 
     int BitvectorOp::getBinaryResultWidth(
@@ -158,7 +162,11 @@ namespace ila
     int BitvectorOp::getBinaryResultWidth(
         Op op, boost::shared_ptr<Node> n1, int param)
     {
-        return n1->type.bitWidth;
+        if (op >= Z_EXT && op <= S_EXT) {
+            return param;
+        } else {
+            return n1->type.bitWidth;
+        }
     }
 
     int BitvectorOp::getNaryResultWidth(
@@ -188,7 +196,11 @@ namespace ila
     bool BitvectorOp::checkUnaryOpWidth(Op op, boost::shared_ptr<Node> arg0, int width)
     {
         // FIXME: add more code when operators are added.
-        return arg0->type.isBitvector(width);
+        if (op >= Z_EXT && op <= S_EXT) {
+            return (arg0->type.isBitvector() && arg0->type.bitWidth <= width);
+        } else {
+            return arg0->type.isBitvector(width);
+        }
     }
 
     int BitvectorOp::checkBinaryOpWidth(
@@ -221,6 +233,12 @@ namespace ila
             if (param > width) {
                 return 2;
             } else if (!n1->type.isBitvector(width)) {
+                return 1;
+            } else {
+                return 0;
+            }
+        } else if (op >= Z_EXT && op <= S_EXT) {
+            if (param < width) {
                 return 1;
             } else {
                 return 0;

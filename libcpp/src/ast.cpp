@@ -234,9 +234,47 @@ namespace ila
         return _cmpOp(BoolOp::UGE, other, true);
     }
 
-    NodeRef* NodeRef::slice(int hi, int lo) const 
+    NodeRef* NodeRef::sliceII(int hi, int lo) const 
     {
         return _extractOp(this, hi, lo);
+    }
+
+    NodeRef* NodeRef::sliceIV(int hi, NodeRef* lo) const
+    {
+        // If lo > hi or lo < 0, return _extractOp(this, hi, 0)
+        int wid = node->type.bitWidth;
+        NodeRef* vi = zero_extend(_extractOp(this, hi, 0), wid);
+        for (int i=0; i <= hi; i++) {
+            NodeRef* num = new NodeRef(new BitvectorConst(
+                    lo->node->ctx, i, lo->node->type.bitWidth));
+            NodeRef* cond = lo->eq(num);
+            NodeRef* vi_ = zero_extend(_extractOp(this, hi, i), wid);
+            NodeRef* vi_next = ite(cond, vi_, vi);
+            vi = vi_next;
+        }
+        return vi;
+    }
+
+    NodeRef* NodeRef::sliceVI(NodeRef* hi, int lo) const
+    {
+        // If hi < lo or hi > bitWidth, return _extractOp(this, width, lo)
+        int wid = node->type.bitWidth;
+        NodeRef* vi = zero_extend(_extractOp(this, wid-1, lo), wid);
+        for (int i=wid-1; i >= lo; i--) {
+            NodeRef* num = new NodeRef(new BitvectorConst(
+                    hi->node->ctx, i, hi->node->type.bitWidth));
+            NodeRef* cond = hi->eq(num);
+            NodeRef* vi_ = zero_extend(_extractOp(this, i, lo), wid);
+            NodeRef* vi_next = ite(cond, vi_, vi);
+            vi = vi_next;
+        }
+        return vi;
+    }
+
+    NodeRef* NodeRef::sliceVV(NodeRef* hi, NodeRef* lo) const
+    {
+        NodeRef* up = this->sliceVI(hi, 0);
+        return up->sliceIV(up->node->type.bitWidth-1, lo);
     }
 
     NodeRef* NodeRef::eqInt(int r) const
@@ -413,6 +451,31 @@ namespace ila
     NodeRef* NodeRef::extract(const NodeRef* obj, int beg, int end)
     {
         return _extractOp(obj, beg, end);
+    }
+
+    NodeRef* NodeRef::extractIV(NodeRef* obj, int hi, NodeRef* lo)
+    {
+        return obj->sliceIV(hi, lo);
+    }
+
+    NodeRef* NodeRef::extractVI(NodeRef* obj, NodeRef* hi, int lo)
+    {
+        return obj->sliceVI(hi, lo);
+    }
+
+    NodeRef* NodeRef::extractVV(NodeRef* obj, NodeRef* hi, NodeRef* lo)
+    {
+        return obj->sliceVV(hi, lo);
+    }
+
+    NodeRef* NodeRef::zero_extend(NodeRef* obj, int outWidth)
+    {
+        return _binOp(BitvectorOp::Z_EXT, obj, outWidth);
+    }
+
+    NodeRef* NodeRef::sign_extend(NodeRef* obj, int outWidth)
+    {
+        return _binOp(BitvectorOp::S_EXT, obj, outWidth);
     }
 
     NodeRef* NodeRef::nonzero(NodeRef* obj)
@@ -663,7 +726,7 @@ namespace ila
     {
         if (l->node->type.isBitvector()) {
             if (op >= BitvectorOp::Op::LROTATE && 
-                op <= BitvectorOp::Op::RROTATE)
+                op <= BitvectorOp::Op::S_EXT)
             {
                 return new NodeRef(new BitvectorOp(
                             l->node->ctx, op, l->node, r));

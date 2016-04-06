@@ -228,6 +228,16 @@ namespace ila
             } else if (op == BitvectorOp::RROTATE) {
                 Z3_ast r = Z3_mk_rotate_right(c, bvop->param(0), arg);
                 return expr(c, r);
+            } else if (op == BitvectorOp::Z_EXT) {
+                unsigned outWidth = static_cast<unsigned> (bvop->param(0));
+                unsigned bvWidth = static_cast<unsigned> (bvop->arg(0)->type.bitWidth);
+                Z3_ast r = Z3_mk_zero_ext(c, outWidth - bvWidth, arg);
+                return expr(c, r);
+            } else if (op == BitvectorOp::S_EXT) {
+                unsigned outWidth = static_cast<unsigned> (bvop->param(0));
+                unsigned bvWidth = static_cast<unsigned> (bvop->arg(0)->type.bitWidth);
+                Z3_ast r = Z3_mk_sign_ext(c, outWidth - bvWidth, arg);
+                return expr(c, r);
             } else if (op == BitvectorOp::EXTRACT) {
                 unsigned hi = static_cast<unsigned> (bvop->param(0));
                 unsigned lo = static_cast<unsigned> (bvop->param(1));

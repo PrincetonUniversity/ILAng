@@ -166,7 +166,16 @@ BOOST_PYTHON_MODULE(ila)
 
         // slice operator
         .def("__getslice__",
-                &NodeRef::slice,
+                &NodeRef::sliceII,
+                return_value_policy<manage_new_object>())
+        .def("__getslice__",
+                &NodeRef::sliceIV,
+                return_value_policy<manage_new_object>())
+        .def("__getslice__",
+                &NodeRef::sliceVI,
+                return_value_policy<manage_new_object>())
+        .def("__getslice__",
+                &NodeRef::sliceVV,
                 return_value_policy<manage_new_object>())
 
         .def(self_ns::str(self))
@@ -215,6 +224,16 @@ BOOST_PYTHON_MODULE(ila)
     def("rrotate", &NodeRef::rrotate,
             return_value_policy<manage_new_object>());
     def("extract", &NodeRef::extract,
+            return_value_policy<manage_new_object>());
+    def("extractIV", &NodeRef::extractIV,
+            return_value_policy<manage_new_object>());
+    def("extractVI", &NodeRef::extractVI,
+            return_value_policy<manage_new_object>());
+    def("extractVV", &NodeRef::extractVV,
+            return_value_policy<manage_new_object>());
+    def("zero_extend", &NodeRef::zero_extend,
+            return_value_policy<manage_new_object>());
+    def("sign_extend", &NodeRef::sign_extend,
             return_value_policy<manage_new_object>());
 
     // comparison operators.

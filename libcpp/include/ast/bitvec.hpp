@@ -87,12 +87,12 @@ namespace ila
             // invalid
             INVALID,
             // unary
-            NEGATE, COMPLEMENT, LROTATE, RROTATE, EXTRACT,
-			// LROTATE, RROTATE, EXTRACT
+            NEGATE, COMPLEMENT, 
+            LROTATE, RROTATE, Z_EXT, S_EXT, EXTRACT,
             // binary.
             ADD, SUB, AND, OR, XOR, XNOR, NAND, NOR,
             SDIV, UDIV, SREM, UREM, SMOD, SHL, LSHR, ASHR, 
-            MUL,  CONCAT, 
+            MUL,  CONCAT,
             // ternary
             IF, 
         } op;

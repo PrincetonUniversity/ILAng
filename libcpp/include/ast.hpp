@@ -91,7 +91,10 @@ namespace ila
         NodeRef* ugeInt(int r) const;
 
         // slicing.
-        NodeRef* slice(int hi, int lo) const;
+        NodeRef* sliceII(int hi, int lo) const;
+        NodeRef* sliceIV(int hi, NodeRef* lo) const;
+        NodeRef* sliceVI(NodeRef* hi, int lo) const;
+        NodeRef* sliceVV(NodeRef* hi, NodeRef* lo) const;
 
         // does this object have a value?
         boost::python::object value() const;
@@ -130,7 +133,12 @@ namespace ila
         static NodeRef* concat(NodeRef* lo, NodeRef* hi);
         static NodeRef* lrotate(NodeRef* obj, int par);
         static NodeRef* rrotate(NodeRef* obj, int par);
-        static NodeRef* extract(const NodeRef* obj, int beg, int end);
+        static NodeRef* extract(const NodeRef* obj, int hi, int lo);
+        static NodeRef* extractIV(NodeRef* obj, int hi, NodeRef* lo);
+        static NodeRef* extractVI(NodeRef* obj, NodeRef* hi, int lo);
+        static NodeRef* extractVV(NodeRef* obj, NodeRef* hi, NodeRef* lo);
+        static NodeRef* zero_extend(NodeRef* obj, int outWidth);
+        static NodeRef* sign_extend(NodeRef* obg, int outWidth);
 
         // nnonzero
         static NodeRef* nonzero(NodeRef* obj);
