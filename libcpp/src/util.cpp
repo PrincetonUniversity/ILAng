@@ -7,6 +7,7 @@
 
 namespace ila {
 
+    // ---------------------------------------------------------------------- //
     void ila_assert(bool b, const char* msg, const char* file, int line)
     {
         if (!b) {
@@ -33,4 +34,11 @@ namespace ila {
         }
     }
 
+    // ---------------------------------------------------------------------- //
+    boost::multiprecision::cpp_int cpp_int_from_pylong(
+        const boost::python::long_& l)
+    {
+        std::string lstr = boost::python::extract<std::string>(l);
+        return boost::lexical_cast<boost::multiprecision::cpp_int>(lstr);
+    }
 }

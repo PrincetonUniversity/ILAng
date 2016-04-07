@@ -44,7 +44,6 @@ namespace ila
         // ---------------------- METHODS ------------------------------- //
         std::string getName() const;
         NodeType getType() const;
-        void doSomething();
         bool equal(NodeRef* other) const;
 
         // ---------------------- OPERATORS ----------------------------- //

@@ -15,12 +15,18 @@ namespace ila
     // base class for all memory expressions.
     class MemExpr : public Node {
     public:
+        // types.
+        typedef boost::multiprecision::cpp_int mp_int_t;
+
         // constructor.
         MemExpr(Abstraction* c, int addrWidth, int dataWidth);
         // constructor for ChoiceExpr.
         MemExpr(Abstraction* c, NodeType t);
         // destructor.
         virtual ~MemExpr();
+
+        // store in memory.
+        // virtual void store(const mp_int_t& addr, const mp_int_t& data) = 0;
     };
 
     // ---------------------------------------------------------------------- //
@@ -43,7 +49,6 @@ namespace ila
     // bitvector constants.
     class MemConst : public MemExpr {
     public:
-        typedef boost::multiprecision::cpp_int mp_int_t;
 
         typedef std::pair<mp_int_t, mp_int_t> pair_t;
         typedef std::vector<pair_t> mem_values_t;
@@ -73,6 +78,29 @@ namespace ila
 
     // ---------------------------------------------------------------------- //
     // write to memory operator.
+    class MemWr : public MemExpr {
+    protected:
+        // data members //
+        mp_int_t addr;
+        mp_int_t data;
+        const MemExpr& mem;
+    public:
+        // constructor
+        MemWr(const MemExpr& mem, int addr, int data);
+        // constructor with long
+        MemWr(const MemExpr& mem, boost::python::long_ addr, boost::python::long_ data);
+        // copy constructor.
+        MemWr(const MemWr& that);
+        // destructor.
+        virtual ~MemWr();
+
+        // clone.
+        virtual Node* clone() const;
+        // equality.
+        virtual bool equal(const Node* that) const;
+        // stream output.
+        virtual std::ostream& write(std::ostream& out) const;
+    };
 
 }
 #endif

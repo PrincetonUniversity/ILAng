@@ -47,7 +47,7 @@ namespace ila
 
         // ---------------------- METHODS ------------------- //
         // fake method we use to test the Z3 integration.
-        void doSomething();
+        Abstraction* context() const { return ctx; };
         // polymorphic clone method: do we need this?
         virtual Node* clone() const;
         // polymorphic equality method.
@@ -78,6 +78,8 @@ namespace ila
 
         friend class NodeRef;
     };
+
+    std::ostream& operator<<(std::ostream& out, const Node& that);
 }
 
 #endif

@@ -6,7 +6,6 @@ def main():
     print n.name
     print n.type
     print n.type.bitwidth
-    n.doSomething()
     print n
     del n
 

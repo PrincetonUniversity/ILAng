@@ -38,6 +38,7 @@ namespace ila
         }
 
         // n->write(std::cout << "visiting: ") << std::endl;
+        // std::cout << "visiting: " << *n << std::endl;
 
         // now handle the various types.
         const BoolVar* boolvar = NULL; 

@@ -78,7 +78,7 @@ namespace ila
     {
     }
 
-    BoolConst::BoolConst(Abstraction* c, boost::python::long_ v)
+    BoolConst::BoolConst(Abstraction* c, const boost::python::long_& v)
       : BoolExpr(c)
       , value(v != 0)
     {
@@ -290,7 +290,7 @@ namespace ila
     {
         out << "(" << operatorNames[(int)op];
         for (auto arg: args) {
-            arg->write(out << " ");
+            out << " " << *arg.get();
         }
         out << ")";
         return out;

@@ -75,11 +75,10 @@ namespace ila
 
     // ---------------------------------------------------------------------- //
     BitvectorConst::BitvectorConst(
-        Abstraction* c, boost::python::long_ v, int w)
+        Abstraction* c, const boost::python::long_& v, int w)
         : BitvectorExpr(c, w)
+        , value(cpp_int_from_pylong(v))
     {
-        std::string vstr = boost::python::extract<std::string>(v);
-        value = boost::lexical_cast<boost::multiprecision::cpp_int>(vstr);
     }
 
     BitvectorConst::BitvectorConst(Abstraction* c, int v, int w)
@@ -505,7 +504,7 @@ namespace ila
     {
         out << "(" << operatorNames[(int)op];
         for (auto arg: args) {
-            arg->write(out << " ");
+            out << " " << *arg.get();
         }
         out << ")";
         return out;

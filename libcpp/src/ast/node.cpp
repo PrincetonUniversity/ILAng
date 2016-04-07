@@ -71,29 +71,13 @@ namespace ila
     }
 
 
-    // ---------------------------------------------------------------------- //
-    void Node::doSomething()
-    {
-        using namespace z3;
-        context c;
-
-        expr x = c.bool_const("x");
-        expr y = c.bool_const("y");
-        expr conjecture = !(x && y) == (!x || !y);
-        
-        solver s(c);
-        // adding the negation of the conjecture as a constraint.
-        s.add(!conjecture);
-        std::cout << s << "\n";
-        switch (s.check()) {
-        case unsat:   std::cout << "de-Morgan is valid\n"; break;
-        case sat:     std::cout << "de-Morgan is not valid\n"; break;
-        case unknown: std::cout << "unknown\n"; break;
-        }
-    }
-
     std::ostream& Node::write(std::ostream& out) const
     {
         return (out << name);
+    }
+
+    std::ostream& operator<<(std::ostream& out, const Node& that)
+    {
+        return that.write(out);
     }
 }

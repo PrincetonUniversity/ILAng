@@ -101,7 +101,7 @@ namespace ila
 
         Node* ex_n = ex->node.get();
 
-        ex_n->write(std::cout << "expression: ") << std::endl;
+        // std::cout << "expression: " << *ex_n << std::endl;
 
         // create the expressions.
         context c_;
@@ -163,7 +163,7 @@ namespace ila
         model m = S.get_model();
         SynRewriter rw(m, c1);
         boost::shared_ptr<Node> nr = rw.rewrite(ex_n);
-        nr->write(std::cout << "synthesis result: ") << std::endl;
+        std::cout << "synthesis result: " << *nr.get() << std::endl;
         return new NodeRef(nr);
     }
 
@@ -197,11 +197,11 @@ namespace ila
         context c_;
         Z3ExprAdapter c(c_, "");
 
-        //left->node->write(std::cout << "left: ") << std::endl;
+        // std::cout << "left: " << *left->node.get() << std::endl;
         z3::expr e1 = c.getExpr(left->node.get());
         //std::cout << "e1:" << e1 << std::endl;
 
-        //right->node->write(std::cout << "right: ") << std::endl;
+        // std::cout << "right: " << *right->node.get() << std::endl;
         z3::expr e2 = c.getExpr(right->node.get());
         //std::cout << "e2:" << e2 << std::endl;
 

@@ -54,11 +54,6 @@ namespace ila
         return node->type;
     }
 
-    void NodeRef::doSomething() 
-    {
-        return node->doSomething();
-    }
-
     bool NodeRef::equal(NodeRef* other) const
     {
         return node->equal(other->node.get());
