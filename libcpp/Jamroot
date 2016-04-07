@@ -11,11 +11,14 @@ if ! [ python.configured ]
 
 # Specify the path to the Boost project.  If you move this project,
 # adjust this path to refer to the Boost root directory.
-use-project boost
-  : /usr/local/boost_1_60_0 ;
+#use-project boost
+#  : /usr/local/boost_1_60_0 ;
 
 lib z3 : : <name>z3 ;
 explicit z3 ;
+
+lib boost_python : : <name>boost_python ;
+explicit boost_python ;
 
 import feature ;
 
@@ -34,11 +37,10 @@ feature.compose <cpp11>on :
 # boost_python library from the project whose global ID is
 # /boost/python.
 project
-  : requirements <library>/boost/python//boost_python 
-                 <implicit-dependency>/boost//headers 
+  : requirements <library>boost_python 
                  <library>z3
                  <cpp11>on
-  : usage-requirements <implicit-dependency>/boost//headers 
+  : 
   ;
 
 # Declare the three extension modules.  You can specify multiple
@@ -47,8 +49,9 @@ python-extension ila : src/ext.cpp
                        src/ast.cpp 
                        src/abstraction.cpp
                        src/ast/node.cpp 
-                       src/ast/bitvec.cpp 
                        src/ast/bool.cpp
+                       src/ast/bitvec.cpp 
+                       src/ast/mem.cpp
                        src/ast/choice.cpp
                        src/smt.cpp
                        src/syn.cpp
