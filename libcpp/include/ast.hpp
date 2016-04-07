@@ -11,8 +11,9 @@
 #include <type.hpp>
 
 #include <ast/node.hpp>
-#include <ast/bitvec.hpp>
 #include <ast/bool.hpp>
+#include <ast/bitvec.hpp>
+#include <ast/mem.hpp>
 #include <ast/choice.hpp>
 
 #include <boost/shared_ptr.hpp>

@@ -31,11 +31,16 @@ namespace ila {
         // Is this a bitvector with the specified width?
         // -1 means any width.
         bool isBitvector(int width = -1) const {
-            return type == BITVECTOR && (bitWidth == width || width == -1);
+            return 
+                type == BITVECTOR && 
+                (bitWidth == width || width == -1);
         }
         // Is this a memory with the correct dimensions?
-        bool isMem(int aw, int dw) const {
-            return type == MEM && addrWidth == aw && dataWidth == dw;
+        bool isMem(int aw = -1, int dw = -1) const {
+            return 
+                (type == MEM)                   && 
+                (aw == -1 || addrWidth == aw)   && 
+                (dw == -1 || dataWidth == dw);
         }
 
         bool operator==(const NodeType& t) const;

@@ -77,7 +77,6 @@ namespace ila
         virtual boost::shared_ptr<Node> arg(unsigned i) const;
 
         friend class NodeRef;
-
     };
 }
 
