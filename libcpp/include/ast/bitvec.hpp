@@ -94,7 +94,7 @@ namespace ila
             // binary.
             ADD, SUB, AND, OR, XOR, XNOR, NAND, NOR,
             SDIV, UDIV, SREM, UREM, SMOD, SHL, LSHR, ASHR, 
-            MUL,  CONCAT,
+            MUL, CONCAT, GET_BIT,
             // ternary
             IF, 
         } op;
@@ -111,7 +111,7 @@ namespace ila
             return op >= NEGATE && op <= EXTRACT; 
         }
         static bool isBinary(Op op) { 
-            return op >= ADD && op <= CONCAT;
+            return op >= ADD && op <= GET_BIT;
         }
         static bool isTernary(Op op) { 
             return op >= IF && op <= IF; 

@@ -92,6 +92,9 @@ namespace ila
 
         // slicing.
         NodeRef* slice(int hi, int lo) const;
+        // get bit.
+        NodeRef* getBit(NodeRef* idx) const;
+        NodeRef* getBitInt(int idx) const;
 
         // does this object have a value?
         boost::python::object value() const;
@@ -130,7 +133,7 @@ namespace ila
         static NodeRef* concat(NodeRef* lo, NodeRef* hi);
         static NodeRef* lrotate(NodeRef* obj, int par);
         static NodeRef* rrotate(NodeRef* obj, int par);
-        static NodeRef* getBit(NodeRef* bv, NodeRef* idx);
+//        static NodeRef* getBit(NodeRef* bv, NodeRef* idx);
         static NodeRef* extract(const NodeRef* obj, int hi, int lo);
         static NodeRef* extractIV(NodeRef* obj, int hi, NodeRef* lo);
         static NodeRef* extractVI(NodeRef* obj, NodeRef* hi, int lo);

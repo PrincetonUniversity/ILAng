@@ -145,23 +145,26 @@ def main():
     v25 = ila.extractVV(x, c8-1, c4)
     v26 = ila.zero_extend(x[7:4], 8)
     assert c.areEqual(v25, v26)
-    """
+
     # slice one bit
     bv1 = c.const(1, 1)
     s1 = ila.get_bit(c1, c0)
     assert c.areEqual(bv1, s1)
+    """
+    
     z = x & x
-    bx = ila.get_bit(y, x)
-    bz = ila.get_bit(y, z)
+    bx = y[x]
+    bz = y[z]
     assert c.areEqual(bx, bz)
-    bx = ila.get_bit(c8, x)
-    by = ila.get_bit(c8, y)
+    bx = c8[x]
+    by = c8[y]
     inv = ila.imply(x == y, bx == by)
     assert c.areEqual(inv, top)
     dum = ila.ite(b1, bx, by)
     shd = ila.imply(x == y, dum == bx)
     assert c.areEqual(shd, top)
-
+    assert c.areEqual(c6[1], c6[2])
+    assert c.areEqual(c6[4], c6[c0])
 
 if __name__ == '__main__':
     main()

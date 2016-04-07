@@ -239,6 +239,16 @@ namespace ila
         return _extractOp(this, hi, lo);
     }
 
+    NodeRef* NodeRef::getBit(NodeRef* idx) const
+    {
+        return _binOp(BitvectorOp::GET_BIT, idx);
+    }
+
+    NodeRef* NodeRef::getBitInt(int idx) const
+    {
+        return _extractOp(this, idx, idx); // TODO
+    }
+
     NodeRef* NodeRef::eqInt(int r) const
     {
         return _cmpOp(BoolOp::EQUAL, r);
@@ -410,22 +420,6 @@ namespace ila
         return _cmpOp(BoolOp::SGE, l, r);
     }
 
-    NodeRef* NodeRef::getBit(NodeRef* obj, NodeRef* idx)
-    {
-        // If idx not in range, return bit 0
-        int wid = obj->node->type.bitWidth;
-        NodeRef* vi = _extractOp(obj, 0, 0);
-        for (int i=0; i != wid; i++) {
-            NodeRef* num = new NodeRef(new BitvectorConst(
-                        idx->node->ctx, i, idx->node->type.bitWidth));
-            NodeRef* cond = idx->eq(num);
-            NodeRef* vi_ = _extractOp(obj, i, i);
-            NodeRef* vi_next = ite(cond, vi_, vi);
-            vi = vi_next;
-        }
-        return vi;
-    }
-
     NodeRef* NodeRef::extract(const NodeRef* obj, int beg, int end)
     {
         return _extractOp(obj, beg, end);
@@ -503,8 +497,7 @@ namespace ila
         } else if (opBool != BoolOp::INVALID && node->type.isBool()) {
             return new NodeRef(new BoolOp(node->ctx, opBool, node));
         } else {
-            throw PyILAException(PyExc_TypeError,
-                                 std::string("Incorrect type for ") + 
+            throw PyILAException(PyExc_TypeError, std::string("Incorrect type for ") + 
                                  opName);
             return NULL;
         }
