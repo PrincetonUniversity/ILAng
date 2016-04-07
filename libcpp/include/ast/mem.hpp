@@ -1,45 +1,36 @@
+#ifndef __AST_MEM_HPP_DEFINED__
+#define __AST_MEM_HPP_DEFINED__
 
-#ifndef __AST_BITVEC_HPP_DEFINED__
-#define __AST_BITVEC_HPP_DEFINED__
-
-#include <iostream>
-#include <string>
 #include <vector>
-#include <boost/shared_ptr.hpp>
-#include <boost/python.hpp>
-#include <boost/multiprecision/cpp_int.hpp>
-#include <boost/lexical_cast.hpp>
-
-#include <z3++.h>
-#include <assert.h>
-#include <type.hpp>
+#include <utility>
 
 #include <ast.hpp>
+#include <boost/multiprecision/cpp_int.hpp>
 
 namespace ila 
 {
     class Abstraction;
 
     // ---------------------------------------------------------------------- //
-    // Bitvector expressions are derived from this class.
-    class BitvectorExpr : public Node {
+    // base class for all memory expressions.
+    class MemExpr : public Node {
     public:
         // constructor.
-        BitvectorExpr(Abstraction* c, int width);
+        MemExpr(Abstraction* c, int addrWidth, int dataWidth);
         // constructor for ChoiceExpr.
-        BitvectorExpr(Abstraction* c, NodeType t);
+        MemExpr(Abstraction* c, NodeType t);
         // destructor.
-        virtual ~BitvectorExpr();
+        virtual ~MemExpr();
     };
 
     // ---------------------------------------------------------------------- //
-    // Bitvector variables.
-    class BitvectorVar : public BitvectorExpr {
+    // memory variables.
+    class MemVar : public MemExpr {
     public:
         // constructor.
-        BitvectorVar(Abstraction* c, const std::string& n, int width) ;
+        MemVar(Abstraction* c, const std::string& n, int addrWidth, int dataWidth);
         // destructor.
-        virtual ~BitvectorVar();
+        virtual ~MemVar();
         // clone.
         virtual Node* clone() const;
         // equality method.
@@ -49,10 +40,17 @@ namespace ila
     };
 
     // ---------------------------------------------------------------------- //
-    // Bitvector constants.
-    class BitvectorConst : public BitvectorExpr {
+    // bitvector constants.
+    class MemConst : public MemExpr {
+    public:
+        typedef boost::multiprecision::cpp_int mp_int_t;
+
+        typedef std::pair<mp_int_t, mp_int_t> pair_t;
+        typedef std::vector<pair_t> mem_values_t;
+
     protected:
-        boost::multiprecision::cpp_int value;
+        mp_int_t def_value;
+        mem_values_t mem_values;
     public:
         // constructor with longs.
         BitvectorConst(Abstraction* c, boost::python::long_ v, int width);
@@ -72,13 +70,16 @@ namespace ila
         virtual std::ostream& write(std::ostream& out) const;
         // get the value as a string.
         std::string vstr() const {
-            return boost::lexical_cast<std::string>(value);
+            std::string string_value = 
+                boost::python::extract<std::string>(
+                    boost::python::str(value));
+            return string_value;
         }
     };
 
     // ---------------------------------------------------------------------- //
     // Bitvector operators.
-    class BitvectorOp : public BitvectorExpr {
+    class BitvectorOp : public MemExpr {
     public:
         // Number of operands.
         enum Arity { UNARY, BINARY, TERNARY, NARY } arity; 
@@ -93,7 +94,7 @@ namespace ila
             // binary.
             ADD, SUB, AND, OR, XOR, XNOR, NAND, NOR,
             SDIV, UDIV, SREM, UREM, SMOD, SHL, LSHR, ASHR, 
-            MUL, CONCAT, GET_BIT,
+            MUL,  CONCAT,
             // ternary
             IF, 
         } op;
@@ -110,7 +111,7 @@ namespace ila
             return op >= NEGATE && op <= EXTRACT; 
         }
         static bool isBinary(Op op) { 
-            return op >= ADD && op <= GET_BIT;
+            return op >= ADD && op <= CONCAT;
         }
         static bool isTernary(Op op) { 
             return op >= IF && op <= IF; 
