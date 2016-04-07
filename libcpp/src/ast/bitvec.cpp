@@ -19,7 +19,7 @@ namespace ila
         // binary
         "+", "-", "and", "or", "xor", "xnor", "nand", "nor",
         "div", "udiv", "rem", "urem", "mod", "<<", ">>>", ">>", 
-        "*", "concat", 
+        "*", "concat", "get_bit",
 		// ternary
         "if", 
     };
@@ -168,6 +168,8 @@ namespace ila
             return n1->type.bitWidth;
         } else if (op >= CONCAT && op <= CONCAT) {
             return n1->type.bitWidth + n2->type.bitWidth;
+        } else if (op >= GET_BIT && op <= GET_BIT) {
+            return 1;
         } else { 
             return n1->type.bitWidth; // INVALID
         }
@@ -227,11 +229,19 @@ namespace ila
         if (op >= ADD && op <= MUL) {
             if (!n1->type.isBitvector(width)) {
                 return 1;
-            }
-	        if (!n2->type.isBitvector(width)) {
+            } else if (!n2->type.isBitvector(width)) {
                 return 2;
+            } else {
+                return 0;
             }
-            return 0;
+        } else if (op >= GET_BIT && op <= GET_BIT) {
+            if (!n1->type.isBitvector()) {
+                return 1;
+            } else if (!n2->type.isBitvector()) {
+                return 2;
+            } else {
+                return 0;
+            }
         }
         // CONCAT can have different operand width
         return 0;

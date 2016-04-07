@@ -168,6 +168,13 @@ BOOST_PYTHON_MODULE(ila)
         .def("__getslice__",
                 &NodeRef::slice,
                 return_value_policy<manage_new_object>())
+        // get bit operator
+        .def("__getitem__",
+                &NodeRef::getBit,
+                return_value_policy<manage_new_object>())
+        .def("__getitem__",
+                &NodeRef::getBitInt,
+                return_value_policy<manage_new_object>())
 
         .def(self_ns::str(self))
     ;

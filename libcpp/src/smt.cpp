@@ -289,6 +289,21 @@ namespace ila
             } else if (op == BitvectorOp::CONCAT) {
                 Z3_ast r = Z3_mk_concat( c, arg0, arg1);
                 return expr(c, r);
+            } else if (op == BitvectorOp::GET_BIT) {
+                // If idx not in range, return bit 0
+                unsigned wid = static_cast<unsigned>
+                    (bvop->arg(0)->type.bitWidth);
+                unsigned cmpWid = static_cast<unsigned> 
+                    (bvop->arg(1)->type.bitWidth);
+                expr vi = expr(c, Z3_mk_extract( c, 0, 0, arg0));
+                for (unsigned i=0; i != wid; i++) {
+                    expr num = c.bv_val(i, cmpWid);
+                    expr cond = (arg1 == num);
+                    expr vi_ = expr(c, Z3_mk_extract(c, i, i, arg0));
+                    expr vi_next = ite(cond, vi_, vi);
+                    vi = vi_next;
+                }
+                return vi;
             }
         } else if (arity == 3) {
             expr arg0 = getArgExpr(bvop, 0);
