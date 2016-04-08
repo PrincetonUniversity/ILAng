@@ -55,7 +55,7 @@ namespace ila
         boost::multiprecision::cpp_int value;
     public:
         // constructor with longs.
-        BitvectorConst(Abstraction* c, const boost::python::long_& v, int width);
+        BitvectorConst(Abstraction* c, const boost::multiprecision::cpp_int& v, int width);
         // constructor with ints.
         BitvectorConst(Abstraction* c, int v, int width);
         // copy constructor.

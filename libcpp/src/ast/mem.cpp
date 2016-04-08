@@ -55,11 +55,12 @@ namespace ila
     }
 
     // ---------------------------------------------------------------------- //
-    MemConst::MemConst(Abstraction* c, int aw, int dw, boost::python::long_ v)
+    MemConst::MemConst(
+        Abstraction* c, int aw, int dw, 
+        const boost::multiprecision::cpp_int& v)
       : MemExpr(c, aw, dw)
+      , def_value(v)
     {
-        std::string dvstr = boost::python::extract<std::string>(v);
-        def_value = boost::lexical_cast<boost::multiprecision::cpp_int>(dvstr);
     }
 
     MemConst::MemConst(Abstraction* c, int aw, int dw, int v)
@@ -124,7 +125,11 @@ namespace ila
     {
     }
 
-    MemWr::MemWr(const MemExpr& m, boost::python::long_ a, boost::python::long_ d)
+    MemWr::MemWr(
+        const MemExpr& m, 
+        const boost::multiprecision::cpp_int& a, 
+        const boost::multiprecision::cpp_int& d)
+
       : MemExpr(mem.context(), mem.type)
       , mem(m)
     {

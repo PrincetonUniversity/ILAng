@@ -6,6 +6,7 @@
 #include <vector>
 #include <boost/shared_ptr.hpp>
 #include <boost/python.hpp>
+#include <boost/multiprecision/cpp_int.hpp>
 
 #include <z3++.h>
 #include <assert.h>
@@ -48,7 +49,7 @@ namespace ila
     public:
         BoolConst(Abstraction* c, bool value);
         BoolConst(Abstraction* c, int value);
-        BoolConst(Abstraction* c, const boost::python::long_& l);
+        BoolConst(Abstraction* c, const boost::multiprecision::cpp_int& l);
         virtual ~BoolConst();
         virtual Node* clone() const;
         virtual bool equal(const Node* that) const;

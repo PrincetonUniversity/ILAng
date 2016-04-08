@@ -75,9 +75,9 @@ namespace ila
 
     // ---------------------------------------------------------------------- //
     BitvectorConst::BitvectorConst(
-        Abstraction* c, const boost::python::long_& v, int w)
+        Abstraction* c, const boost::multiprecision::cpp_int& v, int w)
         : BitvectorExpr(c, w)
-        , value(cpp_int_from_pylong(v))
+        , value(v)
     {
     }
 

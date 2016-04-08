@@ -58,7 +58,9 @@ namespace ila
         mem_values_t mem_values;
     public:
         // constructor with longs.
-        MemConst(Abstraction* c, int addrWidth, int dataWidth, boost::python::long_ v);
+        MemConst(Abstraction* c, 
+                 int addrWidth, int dataWidth, 
+                 const boost::multiprecision::cpp_int& v);
         // constructor with ints.
         MemConst(Abstraction* c, int addrWidth, int dataWidth, int v);
         // copy constructor.
@@ -88,7 +90,9 @@ namespace ila
         // constructor
         MemWr(const MemExpr& mem, int addr, int data);
         // constructor with long
-        MemWr(const MemExpr& mem, boost::python::long_ addr, boost::python::long_ data);
+        MemWr(const MemExpr& mem, 
+              const boost::multiprecision::cpp_int& addr, 
+              const boost::multiprecision::cpp_int& data);
         // copy constructor.
         MemWr(const MemWr& that);
         // destructor.

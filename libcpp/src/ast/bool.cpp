@@ -78,7 +78,7 @@ namespace ila
     {
     }
 
-    BoolConst::BoolConst(Abstraction* c, const boost::python::long_& v)
+    BoolConst::BoolConst(Abstraction* c, const boost::multiprecision::cpp_int& v)
       : BoolExpr(c)
       , value(v != 0)
     {

@@ -3,6 +3,8 @@
 #include <smt.hpp>
 #include <syn.hpp>
 
+#include <boost/multiprecision/cpp_int.hpp>
+
 namespace ila
 {
     // ---------------------------------------------------------------------- //
@@ -35,8 +37,9 @@ namespace ila
         return n;
     }
 
-    NodeRef* Abstraction::bvConstLong(boost::python::long_ l, int w)
+    NodeRef* Abstraction::bvConstLong(boost::python::long_ l_, int w)
     {
+        auto l = cpp_int_from_pylong(l_);
         return new NodeRef(new ila::BitvectorConst(this, l, w));
     }
 
@@ -55,8 +58,9 @@ namespace ila
         return new NodeRef(new ila::BoolConst(this, b));
     }
 
-    NodeRef* Abstraction::boolConstL(boost::python::long_ l)
+    NodeRef* Abstraction::boolConstL(boost::python::long_ l_)
     {
+        auto l = cpp_int_from_pylong(l_);
         return new NodeRef(new ila::BoolConst(this, l));
     }
 
