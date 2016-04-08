@@ -78,7 +78,7 @@ namespace ila
     {
     }
 
-    BoolConst::BoolConst(Abstraction* c, const boost::multiprecision::cpp_int& v)
+    BoolConst::BoolConst(Abstraction* c, const mp_int_t& v)
       : BoolExpr(c)
       , value(v != 0)
     {

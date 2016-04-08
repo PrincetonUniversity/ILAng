@@ -49,7 +49,7 @@ namespace ila
     public:
         BoolConst(Abstraction* c, bool value);
         BoolConst(Abstraction* c, int value);
-        BoolConst(Abstraction* c, const boost::multiprecision::cpp_int& l);
+        BoolConst(Abstraction* c, const mp_int_t& l);
         virtual ~BoolConst();
         virtual Node* clone() const;
         virtual bool equal(const Node* that) const;

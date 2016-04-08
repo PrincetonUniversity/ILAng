@@ -11,12 +11,15 @@
 #include <type.hpp>
 
 #include <boost/shared_ptr.hpp>
+#include <boost/multiprecision/cpp_int.hpp>
 #include <boost/python.hpp>
 
 namespace ila 
 {
     class Abstraction;
     class NodeRef;
+
+    typedef boost::multiprecision::cpp_int mp_int_t;
 
     class Node {
         // ----------------- PRIVATE MEMBERS ----------------- //

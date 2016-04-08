@@ -15,8 +15,6 @@ namespace ila
     // base class for all memory expressions.
     class MemExpr : public Node {
     public:
-        // types.
-        typedef boost::multiprecision::cpp_int mp_int_t;
 
         // constructor.
         MemExpr(Abstraction* c, int addrWidth, int dataWidth);
@@ -26,7 +24,10 @@ namespace ila
         virtual ~MemExpr();
 
         // store in memory.
-        // virtual void store(const mp_int_t& addr, const mp_int_t& data) = 0;
+        virtual MemExpr* store(const mp_int_t& addr, const mp_int_t& data) const;
+        // this just converts to mp_int_t and calls the virtual function.
+        MemExpr* store(int a, int d) const;
+
     };
 
     // ---------------------------------------------------------------------- //
@@ -54,13 +55,13 @@ namespace ila
         typedef std::vector<pair_t> mem_values_t;
 
     protected:
-        mp_int_t def_value;
+        const mp_int_t def_value;
         mem_values_t mem_values;
     public:
         // constructor with longs.
         MemConst(Abstraction* c, 
                  int addrWidth, int dataWidth, 
-                 const boost::multiprecision::cpp_int& v);
+                 const mp_int_t& v);
         // constructor with ints.
         MemConst(Abstraction* c, int addrWidth, int dataWidth, int v);
         // copy constructor.
@@ -77,22 +78,43 @@ namespace ila
 
     // ---------------------------------------------------------------------- //
     // read from memory operator.
+    // note this derives from BitvectorExpr.
+    class MemRd : public BitvectorExpr
+    {
+    protected:
+        const MemExpr& mem;
+        const mp_int_t addr;
+    public:
+        // constructor.
+        MemRd(const MemExpr& m, const mp_int_t& a);
+        // copy constructor.
+        MemRd(const MemRd& that);
+        // destructor.
+        virtual ~MemRd();
+
+        // clone.
+        virtual Node* clone() const;
+        // equality.
+        virtual bool equal(const Node* that) const;
+        // stream output.
+        virtual std::ostream& write(std::ostream& out) const;
+    };
 
     // ---------------------------------------------------------------------- //
     // write to memory operator.
     class MemWr : public MemExpr {
     protected:
         // data members //
-        mp_int_t addr;
-        mp_int_t data;
         const MemExpr& mem;
+        const mp_int_t addr;
+        const mp_int_t data;
     public:
         // constructor
         MemWr(const MemExpr& mem, int addr, int data);
         // constructor with long
         MemWr(const MemExpr& mem, 
-              const boost::multiprecision::cpp_int& addr, 
-              const boost::multiprecision::cpp_int& data);
+              const mp_int_t& addr, 
+              const mp_int_t& data);
         // copy constructor.
         MemWr(const MemWr& that);
         // destructor.

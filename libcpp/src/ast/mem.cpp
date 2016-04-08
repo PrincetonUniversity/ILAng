@@ -19,6 +19,18 @@ namespace ila
     {
     }
 
+    
+    // ---------------------------------------------------------------------- //
+    MemExpr* MemExpr::store(const mp_int_t& a, const mp_int_t& d) const
+    {
+        return new MemWr(*this, a, d);
+    }
+
+    MemExpr* MemExpr::store(int a, int d) const
+    {
+        return store(mp_int_t(a), mp_int_t(d));
+    }
+
     // ---------------------------------------------------------------------- //
     MemVar::MemVar(
         Abstraction* c, 
@@ -57,7 +69,7 @@ namespace ila
     // ---------------------------------------------------------------------- //
     MemConst::MemConst(
         Abstraction* c, int aw, int dw, 
-        const boost::multiprecision::cpp_int& v)
+        const mp_int_t& v)
       : MemExpr(c, aw, dw)
       , def_value(v)
     {
@@ -117,29 +129,71 @@ namespace ila
     }
 
     // ---------------------------------------------------------------------- //
+    MemRd::MemRd(const MemExpr& m, const mp_int_t& a)
+      : BitvectorExpr(m.context(), NodeType::getBitvector(mem.type.dataWidth))
+      , mem(m)
+      , addr(a)
+    {
+    }
+
+    MemRd::MemRd(const MemRd& that)
+      : BitvectorExpr(that.context(), that.type)
+      , mem(that.mem)
+      , addr(that.addr)
+    {
+    }
+
+    MemRd::~MemRd()
+    {
+    }
+
+    // ---------------------------------------------------------------------- //
+    Node* MemRd::clone() const
+    {
+        return new MemRd(*this);
+    }
+
+    bool MemRd::equal(const Node* that_) const
+    {
+        auto that = dynamic_cast<const MemRd*>(that_);
+        if (that) {
+            return that->mem.equal(&mem) && that->addr == addr;
+        } else {
+            return false;
+        }
+    }
+
+    std::ostream& MemRd::write(std::ostream& out) const
+    {
+        return out << "(rd " << mem << " " << addr << ")";
+    }
+
+    // ---------------------------------------------------------------------- //
     MemWr::MemWr(const MemExpr& m, int a, int d)
       : MemExpr(mem.context(), mem.type)
+      , mem(m)
       , addr(a)
       , data(d)
-      , mem(m)
     {
     }
 
     MemWr::MemWr(
         const MemExpr& m, 
-        const boost::multiprecision::cpp_int& a, 
-        const boost::multiprecision::cpp_int& d)
+        const mp_int_t& a, 
+        const mp_int_t& d)
 
       : MemExpr(mem.context(), mem.type)
       , mem(m)
+      , addr(a)
+      , data(d)
     {
     }
 
     MemWr::MemWr(const MemWr& that)
       : MemExpr(that.mem.context(), that.type)
+      , mem(that.mem)
       , addr(that.addr)
       , data(that.data)
-      , mem(that.mem)
     {
     }
 
@@ -172,5 +226,4 @@ namespace ila
             << " " << data << std::dec << ")";
         return out;
     }
-        
 }

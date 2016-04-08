@@ -52,10 +52,10 @@ namespace ila
     // Bitvector constants.
     class BitvectorConst : public BitvectorExpr {
     protected:
-        boost::multiprecision::cpp_int value;
+        mp_int_t value;
     public:
         // constructor with longs.
-        BitvectorConst(Abstraction* c, const boost::multiprecision::cpp_int& v, int width);
+        BitvectorConst(Abstraction* c, const mp_int_t& v, int width);
         // constructor with ints.
         BitvectorConst(Abstraction* c, int v, int width);
         // copy constructor.

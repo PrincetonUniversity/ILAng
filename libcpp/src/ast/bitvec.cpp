@@ -75,7 +75,7 @@ namespace ila
 
     // ---------------------------------------------------------------------- //
     BitvectorConst::BitvectorConst(
-        Abstraction* c, const boost::multiprecision::cpp_int& v, int w)
+        Abstraction* c, const mp_int_t& v, int w)
         : BitvectorExpr(c, w)
         , value(v)
     {
