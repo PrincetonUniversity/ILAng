@@ -38,7 +38,11 @@ def main():
         else:
             assert m[i] == 0xff
 
-
+    print m
+    assert m.default == 0xff
+    m.default = 0x0
+    print m
+    assert m[0] == 0
 
 if __name__ == '__main__':
     main()

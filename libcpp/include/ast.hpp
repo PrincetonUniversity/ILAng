@@ -204,7 +204,13 @@ namespace ila
         MemValues(int addrWidth, int dataWidth, const boost::python::object& def_val);
         ~MemValues();
 
-        boost::python::object getItem (const boost::python::object& index);
+        // return def_value
+        boost::python::object getDefault() const;
+        // set def_value.
+        void setDefault(const boost::python::object& dv);
+        // __getitem__
+        boost::python::object getItem (const boost::python::object& index) const;
+        // __setitem__
         void setItem (const boost::python::object& index, 
                       const boost::python::object& value);
 

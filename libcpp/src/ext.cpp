@@ -277,6 +277,7 @@ BOOST_PYTHON_MODULE(ila)
     ;
 
     class_<MemValues>("MemValues", init<int, int, const object&>())
+        .add_property("default", &MemValues::getDefault, &MemValues::setDefault)
         .def("__getitem__", &MemValues::getItem)
         .def("__setitem__", &MemValues::setItem)
         .def(self_ns::str(self))

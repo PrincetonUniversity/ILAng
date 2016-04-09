@@ -829,7 +829,22 @@ namespace ila
     {
     }
 
-    boost::python::object MemValues::getItem(const boost::python::object& index_)
+    boost::python::object MemValues::getDefault() const
+    {
+        return to_pyint(def_value);
+    }
+
+    void MemValues::setDefault(const boost::python::object& o)
+    {
+        try {
+            mp_int_t dv = to_cpp_int(o);
+            def_value = dv;
+        } catch(const boost::bad_lexical_cast&) {
+            throw PyILAException(PyExc_ValueError, "Invalid default value.");
+        }
+    }
+
+    boost::python::object MemValues::getItem(const boost::python::object& index_) const
     {
         try {
             mp_int_t index = to_cpp_int(index_);
