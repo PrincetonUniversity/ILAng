@@ -3,4 +3,4 @@ TODO
    handle commutativity
    probably need hashing
 
- - better visitor
+ - must clean up shared_ptr arguments: always pass as const ref.
