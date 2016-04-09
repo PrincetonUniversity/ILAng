@@ -814,6 +814,82 @@ namespace ila
     // ---------------------------------------------------------------------- //
     std::ostream& operator<<(std::ostream& out, const NodeRef& n)
     {
-        return (n.node->write(out));
+        return (out << *n.node.get());
+    }
+
+    // ---------------------------------------------------------------------- //
+    MemValues::MemValues(int aw, int dw, const boost::python::object& dv)
+      : type(NodeType::getMem(aw, dw))
+      , MAX_ADDR(mp_int_t(1) << aw)
+      , def_value(to_cpp_int(dv))
+    {
+    }
+
+    MemValues::~MemValues()
+    {
+    }
+
+    boost::python::object MemValues::getItem(const boost::python::object& index_)
+    {
+        try {
+            mp_int_t index = to_cpp_int(index_);
+            if (index < 0 || index >= MAX_ADDR) {
+                throw PyILAException(PyExc_IndexError, "Index out of range.");
+                return boost::python::object();
+            }
+            auto pos = values.find(index);
+            if (pos == values.end()) {
+                return to_pyint(def_value);
+            } else {
+                return to_pyint(pos->second);
+            }
+        } catch(const boost::bad_lexical_cast&) {
+            throw PyILAException(PyExc_ValueError, "Invalid index value.");
+        }
+    }
+
+    void MemValues::setItem(
+        const boost::python::object& index_, 
+        const boost::python::object& value_)
+    {
+        mp_int_t index;
+        mp_int_t value;
+
+        try {
+            index = to_cpp_int(index_);
+        } catch (const boost::bad_lexical_cast&) {
+            throw PyILAException(PyExc_ValueError, "Invalid index value.");
+        }
+
+        try {
+            value = to_cpp_int(value_);
+        } catch (const boost::bad_lexical_cast&) {
+            throw PyILAException(PyExc_ValueError, "Invalid value.");
+        }
+
+        if (value == def_value) {
+            auto pos = values.find(index);
+            if (pos != values.end()) {
+                values.erase(pos);
+            }
+        } else {
+            values[index] = value;
+        }
+    }
+    
+    std::ostream& operator<<(std::ostream& out, const MemValues& mv)
+    {
+        bool first = true;
+        out << "[";
+
+        for (auto p : mv.values) {
+            if (!first) { out << " "; } else { first = false; }
+            out << std::hex << "0x" << p.first << ": " << "0x" << p.second;
+        }
+
+        if (!first) { out << " "; } 
+        out << "default: 0x" << std::hex << mv.def_value << std::dec << "]";
+
+        return out;
     }
 }

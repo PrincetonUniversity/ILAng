@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <map>
+#include <utility>
 
 #include <z3++.h>
 #include <assert.h>
@@ -21,6 +23,7 @@
 
 namespace ila
 {
+    // ---------------------------------------------------------------------- //
     struct NodeRef 
     {
         // ------------------------ MEMBERS ----------------------------- //
@@ -183,6 +186,31 @@ namespace ila
 
     // stream output.
     std::ostream& operator<<(std::ostream& out, const NodeRef& node);
+
+    // ---------------------------------------------------------------------- //
+
+    // This structure represents a memory with known values.
+    // It is passed into python during synthesis.
+    struct MemValues
+    {
+        typedef std::map<mp_int_t, mp_int_t> map_t;
+
+        NodeType type;
+        const mp_int_t MAX_ADDR;
+
+        mp_int_t def_value;
+        map_t values;
+
+        MemValues(int addrWidth, int dataWidth, const boost::python::object& def_val);
+        ~MemValues();
+
+        boost::python::object getItem (const boost::python::object& index);
+        void setItem (const boost::python::object& index, 
+                      const boost::python::object& value);
+
+    };
+
+    std::ostream& operator<<(std::ostream& out, const MemValues& mv);
 }
 
 #endif 

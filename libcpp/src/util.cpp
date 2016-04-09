@@ -35,10 +35,32 @@ namespace ila {
     }
 
     // ---------------------------------------------------------------------- //
-    boost::multiprecision::cpp_int cpp_int_from_pylong(
-        const boost::python::long_& l)
+    boost::multiprecision::cpp_int to_cpp_int(
+        const boost::python::object& l)
     {
-        std::string lstr = boost::python::extract<std::string>(l);
+        PyObject* pyobj = l.ptr();
+        PyObject* pystr = PyObject_Str(pyobj);
+        std::string lstr(PyString_AsString(pystr));
+        Py_DECREF(pystr);
+
         return boost::lexical_cast<boost::multiprecision::cpp_int>(lstr);
     }
+
+    boost::python::object to_pyint(
+        const boost::multiprecision::cpp_int& i)
+    {
+        std::string si = boost::lexical_cast<std::string>(i);
+        return to_pyint(si);
+    }
+
+    boost::python::object to_pyint(
+        const std::string& s)
+    {
+        using namespace boost::python;
+
+        PyObject* oi = PyInt_FromString((char*)s.c_str(), NULL, 0);
+        boost::python::object pi(handle<>(borrowed(oi)));
+        return pi;
+    }
+
 }

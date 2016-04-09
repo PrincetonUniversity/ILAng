@@ -275,4 +275,10 @@ BOOST_PYTHON_MODULE(ila)
         .def("synthesize", &Abstraction::synthesize, return_value_policy<manage_new_object>())
         .def("areEqual", &Abstraction::areEqual)
     ;
+
+    class_<MemValues>("MemValues", init<int, int, const object&>())
+        .def("__getitem__", &MemValues::getItem)
+        .def("__setitem__", &MemValues::setItem)
+        .def(self_ns::str(self))
+    ;
 }

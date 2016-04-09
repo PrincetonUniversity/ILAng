@@ -25,6 +25,20 @@ def main():
     assert sys.areEqual(iramp[addr], data+1)
     assert not sys.areEqual(data, data+1)
 
+    m = ila.MemValues(8, 8, 0xff)
+    print m
+
+    for i in xrange(0x80, 0x90):
+        m[i] = i-0x80
+    print m
+
+    for i in xrange(0x0, 0x100):
+        if i >= 0x80 and i < 0x90:
+            assert m[i] == i-0x80
+        else:
+            assert m[i] == 0xff
+
+
 
 if __name__ == '__main__':
     main()

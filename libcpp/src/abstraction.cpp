@@ -2,6 +2,7 @@
 #include <exception.hpp>
 #include <smt.hpp>
 #include <syn.hpp>
+#include <util.hpp>
 
 #include <boost/multiprecision/cpp_int.hpp>
 
@@ -46,7 +47,7 @@ namespace ila
 
     NodeRef* Abstraction::bvConstLong(boost::python::long_ l_, int w)
     {
-        auto l = cpp_int_from_pylong(l_);
+        auto l = to_cpp_int(l_);
         return new NodeRef(new ila::BitvectorConst(this, l, w));
     }
 
@@ -67,7 +68,7 @@ namespace ila
 
     NodeRef* Abstraction::boolConstL(boost::python::long_ l_)
     {
-        auto l = cpp_int_from_pylong(l_);
+        auto l = to_cpp_int(l_);
         return new NodeRef(new ila::BoolConst(this, l));
     }
 
@@ -189,9 +190,7 @@ namespace ila
             // dump output.
             std::cout << r->name << "=" << s_e << std::endl;
             // convert to python.
-            PyObject* l_e = PyLong_FromString((char*) s_e.c_str(), NULL, 0);
-            boost::python::object o_e(handle<>(borrowed(l_e)));
-            d[r->name] = o_e;
+            d[r->name] = to_pyint(s_e);
         }
 
         for (auto b : bits) {

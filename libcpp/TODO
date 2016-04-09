@@ -4,3 +4,4 @@ TODO
    probably need hashing
 
  - must clean up shared_ptr arguments: always pass as const ref.
+ - write a reorganize function in MemValues which will "compress" the represenation.

@@ -12,8 +12,12 @@ namespace ila {
     void ila_assert(bool b, const std::string& msg, const char* file, int line);
 
     // ---------------------------------------------------------------------- //
-    boost::multiprecision::cpp_int cpp_int_from_pylong(
-        const boost::python::long_& l);
+    boost::multiprecision::cpp_int to_cpp_int(
+        const boost::python::object& l);
+    boost::python::object to_pyint(
+        const boost::multiprecision::cpp_int& i);
+    boost::python::object to_pyint(
+        const std::string& s);
 };
 
 #endif // __UTIL_H_DEFINED__
