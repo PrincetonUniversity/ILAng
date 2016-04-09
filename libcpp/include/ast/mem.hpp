@@ -23,11 +23,6 @@ namespace ila
         // destructor.
         virtual ~MemExpr();
 
-        // store in memory.
-        virtual MemExpr* store(const mp_int_t& addr, const mp_int_t& data) const;
-        // this just converts to mp_int_t and calls the virtual function.
-        MemExpr* store(int a, int d) const;
-
     };
 
     // ---------------------------------------------------------------------- //
@@ -77,44 +72,19 @@ namespace ila
     };
 
     // ---------------------------------------------------------------------- //
-    // read from memory operator.
-    // note this derives from BitvectorExpr.
-    class MemRd : public BitvectorExpr
-    {
-    protected:
-        const MemExpr& mem;
-        const mp_int_t addr;
-    public:
-        // constructor.
-        MemRd(const MemExpr& m, const mp_int_t& a);
-        // copy constructor.
-        MemRd(const MemRd& that);
-        // destructor.
-        virtual ~MemRd();
-
-        // clone.
-        virtual Node* clone() const;
-        // equality.
-        virtual bool equal(const Node* that) const;
-        // stream output.
-        virtual std::ostream& write(std::ostream& out) const;
-    };
-
-    // ---------------------------------------------------------------------- //
     // write to memory operator.
     class MemWr : public MemExpr {
     protected:
         // data members //
-        const MemExpr& mem;
-        const mp_int_t addr;
-        const mp_int_t data;
+        boost::shared_ptr<Node> mem;
+        boost::shared_ptr<Node> addr;
+        boost::shared_ptr<Node> data;
     public:
         // constructor
-        MemWr(const MemExpr& mem, int addr, int data);
-        // constructor with long
-        MemWr(const MemExpr& mem, 
-              const mp_int_t& addr, 
-              const mp_int_t& data);
+        MemWr(
+            boost::shared_ptr<Node> m,
+            boost::shared_ptr<Node> a,
+            boost::shared_ptr<Node> d);
         // copy constructor.
         MemWr(const MemWr& that);
         // destructor.

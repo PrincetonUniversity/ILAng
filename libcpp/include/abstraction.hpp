@@ -20,6 +20,8 @@ namespace ila
         std::vector< boost::shared_ptr<Node> > regs;
         // list of bits.
         std::vector< boost::shared_ptr<Node> > bits;
+        // list of memories.
+        std::vector< boost::shared_ptr<Node> > mems;
 
         void extractModelValues(
             Z3ExprAdapter& c,
@@ -33,20 +35,25 @@ namespace ila
         // Destructor.
         ~Abstraction();
 
-        // Create a bitvector variable.
-        NodeRef* addReg(const std::string& name, int width);
         // Create a boolean variable.
         NodeRef* addBit(const std::string& name);
+        // Create a bitvector variable.
+        NodeRef* addReg(const std::string& name, int width);
+        // Create a memory.
+        NodeRef* addMem(const std::string& name, int addrW, int dataW);
+
         // Create a bitvector constant with a long integer.
         NodeRef* bvConstLong(boost::python::long_ l, int width);
         // Create a bitvector constant with an integer.
         NodeRef* bvConstInt(int l, int width);
+
         // Create a boolean constant (from a bool).
         NodeRef* boolConstB(bool b);
         // Create a boolean constant (from an integer: nonzero = true).
         NodeRef* boolConstI(int b);
         // Create a boolean constant (from an python long).
         NodeRef* boolConstL(boost::python::long_ b);
+
         // Create a choice operator.
         NodeRef* choice2(const std::string& name,
                         NodeRef* e1,

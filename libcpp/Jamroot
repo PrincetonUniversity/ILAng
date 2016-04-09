@@ -82,6 +82,8 @@ testing.make-test run-pyd : ila test/smtequal.py : : test_smtequal ;
 
 testing.make-test run-pyd : ila test/operator.py : : test_operator ;
 
+testing.make-test run-pyd : ila test/mem.py : : test_mem ;
+
 
 # A little "rule" (function) to clean up the syntax of declaring tests
 # of these extension modules.

@@ -169,16 +169,21 @@ BOOST_PYTHON_MODULE(ila)
                 return_value_policy<manage_new_object>())
         // get bit operator
         .def("__getitem__",
-                &NodeRef::getBit,
+                &NodeRef::getItem,
                 return_value_policy<manage_new_object>())
         .def("__getitem__",
-                &NodeRef::getBitInt,
+                &NodeRef::getItemInt,
                 return_value_policy<manage_new_object>())
 
         .def(self_ns::str(self))
     ;
 
     // functions which expose operators on nodes.
+
+    // memory write.
+    def("store", &NodeRef::store,
+            return_value_policy<manage_new_object>());
+
     // logical operators.
     def("nand", &NodeRef::logicalNand,
             return_value_policy<manage_new_object>());
@@ -220,10 +225,6 @@ BOOST_PYTHON_MODULE(ila)
             return_value_policy<manage_new_object>());
     def("rrotate", &NodeRef::rrotate,
             return_value_policy<manage_new_object>());
-    def("get_bit", &NodeRef::getBit,
-            return_value_policy<manage_new_object>());
-    def("extract", &NodeRef::extract,
-            return_value_policy<manage_new_object>());
     def("zero_extend", &NodeRef::zero_extend,
             return_value_policy<manage_new_object>());
     def("sign_extend", &NodeRef::sign_extend,
@@ -259,8 +260,9 @@ BOOST_PYTHON_MODULE(ila)
 
     // This is the top-level class.
     class_<Abstraction>("Abstraction", init<>())
-        .def("reg", &Abstraction::addReg, return_value_policy<manage_new_object>())
         .def("bit", &Abstraction::addBit, return_value_policy<manage_new_object>())
+        .def("reg", &Abstraction::addReg, return_value_policy<manage_new_object>())
+        .def("mem", &Abstraction::addMem, return_value_policy<manage_new_object>())
 
         .def("const", &Abstraction::bvConstLong, return_value_policy<manage_new_object>())
         .def("const", &Abstraction::bvConstInt, return_value_policy<manage_new_object>())

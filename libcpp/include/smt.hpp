@@ -34,6 +34,8 @@ namespace ila
         virtual z3::expr getBoolVarExpr(const BoolVar* bv);
         // Convert a bitvector variable into a Z3 expression.
         virtual z3::expr getBitvectorVarExpr(const BitvectorVar* bvv);
+        // Convert a memory value into a Z3 expression.
+        virtual z3::expr getMemVarExpr(const MemVar* mv);
         // Convert a boolean op into a Z3 expression.
         virtual z3::expr getBoolOpExpr(const BoolOp* op);
         // Convert a bitvector op into a Z3 expression.

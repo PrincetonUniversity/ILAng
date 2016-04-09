@@ -93,13 +93,18 @@ namespace ila
         // slicing.
         NodeRef* slice(int hi, int lo) const;
         // get bit.
-        NodeRef* getBit(NodeRef* idx) const;
-        NodeRef* getBitInt(int idx) const;
+        NodeRef* getItem(NodeRef* idx) const;
+        NodeRef* getItemInt(int idx) const;
+
 
         // does this object have a value?
         boost::python::object value() const;
 
         // static function for non-python operators.
+
+        // write to memory.
+        static NodeRef* store(NodeRef* mem, NodeRef* addr, NodeRef* data);
+
         // logical functions.
         static NodeRef* logicalXnor(NodeRef* l, NodeRef* r);
         static NodeRef* logicalNand(NodeRef* l, NodeRef* r);

@@ -234,12 +234,21 @@ namespace ila
         return _extractOp(this, hi, lo);
     }
 
-    NodeRef* NodeRef::getBit(NodeRef* idx) const
+    NodeRef* NodeRef::getItem(NodeRef* idx) const
     {
-        return _binOp(BitvectorOp::GET_BIT, idx);
+        if (node->type.isBitvector()) {
+            return _binOp(BitvectorOp::GET_BIT, idx);
+        } else if (node->type.isMem()) {
+            return _binOp(BitvectorOp::READMEM, idx);
+        } else {
+            throw PyILAException(
+                PyExc_TypeError,
+                "Incorrect types for indexing operator.");
+            return NULL;
+        }
     }
 
-    NodeRef* NodeRef::getBitInt(int idx) const
+    NodeRef* NodeRef::getItemInt(int idx) const
     {
         return _extractOp(this, idx, idx); // TODO
     }
@@ -281,6 +290,11 @@ namespace ila
 
     // ---------------------------------------------------------------------- //
     // static functions.
+
+    NodeRef* NodeRef::store(NodeRef* mem, NodeRef* addr, NodeRef* data)
+    {
+        return new NodeRef(new MemWr(mem->node, addr->node, data->node));
+    }
 
     NodeRef* NodeRef::logicalXnor(NodeRef* l, NodeRef* r)
     {
@@ -415,11 +429,6 @@ namespace ila
         return _cmpOp(BoolOp::SGE, l, r);
     }
 
-    NodeRef* NodeRef::extract(const NodeRef* obj, int beg, int end)
-    {
-        return _extractOp(obj, beg, end);
-    }
-
     NodeRef* NodeRef::extractIV(NodeRef* obj, int hi, NodeRef* lo)
     {
         // If lo > hi or lo < 0, return _extractOp(obj, hi, 0)
@@ -530,6 +539,9 @@ namespace ila
                 "Both operands of a binary operator must be from the same Abstraction.");
             return NULL;
         } else if (node->type.isBitvector()) {
+            return new NodeRef(new BitvectorOp(
+                        node->ctx, op, node, other->node));
+        } else if (node->type.isMem() && other->node->type.isBitvector()) {
             return new NodeRef(new BitvectorOp(
                         node->ctx, op, node, other->node));
         } else {

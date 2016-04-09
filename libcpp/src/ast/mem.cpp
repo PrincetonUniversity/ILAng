@@ -1,5 +1,6 @@
 #include <ast.hpp>
 #include <util.hpp>
+#include <exception.hpp>
 
 namespace ila
 {
@@ -20,17 +21,6 @@ namespace ila
     }
 
     
-    // ---------------------------------------------------------------------- //
-    MemExpr* MemExpr::store(const mp_int_t& a, const mp_int_t& d) const
-    {
-        return new MemWr(*this, a, d);
-    }
-
-    MemExpr* MemExpr::store(int a, int d) const
-    {
-        return store(mp_int_t(a), mp_int_t(d));
-    }
-
     // ---------------------------------------------------------------------- //
     MemVar::MemVar(
         Abstraction* c, 
@@ -129,68 +119,30 @@ namespace ila
     }
 
     // ---------------------------------------------------------------------- //
-    MemRd::MemRd(const MemExpr& m, const mp_int_t& a)
-      : BitvectorExpr(m.context(), NodeType::getBitvector(mem.type.dataWidth))
+    MemWr::MemWr(
+        boost::shared_ptr<Node> m,
+        boost::shared_ptr<Node> a,
+        boost::shared_ptr<Node> d)
+
+      : MemExpr(m->context(), m->type)
       , mem(m)
       , addr(a)
+      , data(d)
     {
-    }
-
-    MemRd::MemRd(const MemRd& that)
-      : BitvectorExpr(that.context(), that.type)
-      , mem(that.mem)
-      , addr(that.addr)
-    {
-    }
-
-    MemRd::~MemRd()
-    {
-    }
-
-    // ---------------------------------------------------------------------- //
-    Node* MemRd::clone() const
-    {
-        return new MemRd(*this);
-    }
-
-    bool MemRd::equal(const Node* that_) const
-    {
-        auto that = dynamic_cast<const MemRd*>(that_);
-        if (that) {
-            return that->mem.equal(&mem) && that->addr == addr;
-        } else {
-            return false;
+        if (!m->type.isMem()) {
+            throw PyILAException(PyExc_TypeError, 
+                "Memory type error.");
+        } else if(!addr->type.isBitvector(m->type.addrWidth)) {
+            throw PyILAException(PyExc_TypeError, 
+                "Address type error.");
+        } else if(!data->type.isBitvector(m->type.dataWidth)) {
+            throw PyILAException(PyExc_TypeError,
+                "Type error in data being written to memory.");
         }
     }
 
-    std::ostream& MemRd::write(std::ostream& out) const
-    {
-        return out << "(rd " << mem << " " << addr << ")";
-    }
-
-    // ---------------------------------------------------------------------- //
-    MemWr::MemWr(const MemExpr& m, int a, int d)
-      : MemExpr(mem.context(), mem.type)
-      , mem(m)
-      , addr(a)
-      , data(d)
-    {
-    }
-
-    MemWr::MemWr(
-        const MemExpr& m, 
-        const mp_int_t& a, 
-        const mp_int_t& d)
-
-      : MemExpr(mem.context(), mem.type)
-      , mem(m)
-      , addr(a)
-      , data(d)
-    {
-    }
-
     MemWr::MemWr(const MemWr& that)
-      : MemExpr(that.mem.context(), that.type)
+      : MemExpr(that.mem->context(), that.type)
       , mem(that.mem)
       , addr(that.addr)
       , data(that.data)
@@ -211,9 +163,9 @@ namespace ila
     {
         auto that = dynamic_cast<const MemWr*>(that_);
         if (that) {
-            return that->mem.equal(&mem) &&
-                   that->addr == addr    &&
-                   that->data == data;
+            return that->mem->equal(mem.get())      &&
+                   that->addr->equal(addr.get())    &&
+                   that->data->equal(data.get());
 
         } else {
             return false;
@@ -222,8 +174,10 @@ namespace ila
 
     std::ostream& MemWr::write(std::ostream& out) const
     {
-        out << "(wr " << mem << std::hex << " " << addr 
-            << " " << data << std::dec << ")";
+        out << "(wr " << *mem.get() 
+            << std::hex << " " << *addr.get()
+            << " " << *data.get() 
+            << std::dec << ")";
         return out;
     }
 }

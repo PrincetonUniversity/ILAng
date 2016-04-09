@@ -37,35 +37,44 @@ namespace ila
         const BoolVar* boolvar = NULL; 
         const BoolConst* boolconst = NULL;
         const BoolOp* boolop = NULL;
+        const BoolChoice* bchoiceop = NULL;
+
         const BitvectorVar* bvvar = NULL;
         const BitvectorConst* bvconst = NULL;
         const BitvectorOp* bvop = NULL;
         const BitvectorChoice* bvchoiceop = NULL;
-        const BoolChoice* bchoiceop = NULL;
 
+        const MemVar* memvar = NULL;
+
+        //// booleans ////
         if ((boolvar = dynamic_cast<const BoolVar*>(n))) {
             z3::expr r = getBoolVarExpr(boolvar);
             exprmap.insert({n, r});
         } else if ((boolconst = dynamic_cast<const BoolConst*>(n))) {
             z3::expr r = c.bool_val(boolconst->val());
             exprmap.insert({n, r});
+        } else if ((boolop = dynamic_cast<const BoolOp*>(n))) {
+            z3::expr r = getBoolOpExpr(boolop);
+            exprmap.insert({n, r});
+        } else if((bchoiceop = dynamic_cast<const BoolChoice*>(n))) {
+            z3::expr r = getChoiceExpr(bchoiceop);
+            exprmap.insert({n, r});
+        //// bitvectors ////
         } else if((bvvar = dynamic_cast<const BitvectorVar*>(n))) {
             z3::expr r = getBitvectorVarExpr(bvvar);
             exprmap.insert({n, r});
         } else if((bvconst = dynamic_cast<const BitvectorConst*>(n))) {
             z3::expr r = c.bv_val(bvconst->vstr().c_str(), bvconst->type.bitWidth);
             exprmap.insert({n, r});
-        } else if ((boolop = dynamic_cast<const BoolOp*>(n))) {
-            z3::expr r = getBoolOpExpr(boolop);
-            exprmap.insert({n, r});
         } else if ((bvop = dynamic_cast<const BitvectorOp*>(n))) {
             z3::expr r = getBvOpExpr(bvop);
             exprmap.insert({n, r});
-        } else if((bchoiceop = dynamic_cast<const BoolChoice*>(n))) {
-            z3::expr r = getChoiceExpr(bchoiceop);
-            exprmap.insert({n, r});
         } else if ((bvchoiceop = dynamic_cast<const BitvectorChoice*>(n))) {
             z3::expr r = getChoiceExpr(bvchoiceop);
+            exprmap.insert({n, r});
+        //// memories ////
+        } else if ((memvar = dynamic_cast<const MemVar*>(n))) {
+            z3::expr r = getMemVarExpr(memvar);
             exprmap.insert({n, r});
         }
     }
@@ -126,6 +135,14 @@ namespace ila
     z3::expr Z3ExprAdapter::getBitvectorVarExpr(const BitvectorVar* bvvar)
     {
         return c.bv_const(bvvar->name.c_str(), bvvar->type.bitWidth);
+    }
+
+    z3::expr Z3ExprAdapter::getMemVarExpr(const MemVar* memvar)
+    {
+        auto addrsort = c.bv_sort(memvar->type.addrWidth);
+        auto datasort = c.bv_sort(memvar->type.dataWidth);
+        auto memsort = c.array_sort(addrsort, datasort);
+        return c.constant(memvar->name.c_str(), memsort);
     }
 
     z3::expr Z3ExprAdapter::getBoolOpExpr(const BoolOp* boolop) 
@@ -305,6 +322,8 @@ namespace ila
                     vi = vi_next;
                 }
                 return vi;
+            } else if (op == BitvectorOp::READMEM) {
+                return select(arg0,arg1);
             }
         } else if (arity == 3) {
             expr arg0 = getArgExpr(bvop, 0);
@@ -337,6 +356,10 @@ namespace ila
         Node* arg = n->arg(i).get();
         auto pos = exprmap.find(arg);
         ILA_ASSERT(arg != NULL, "Invalid argument index.");
+        if (pos == exprmap.end()) {
+            std::cout << "Unable to find argument: " << *arg
+                      << "; of node: " << *n << std::endl;
+        }
         ILA_ASSERT(pos != exprmap.end(), "Unable to find argexpr in memo.");
         if (pos == exprmap.end()) {
             return c.bool_val(false);

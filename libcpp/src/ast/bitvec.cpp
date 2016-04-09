@@ -15,11 +15,11 @@ namespace ila
         "invalid",
         // unary
         "-", "~",
-        "rotate-left", "rotate-right", "zero_extend", "sign_extend", "extract",
+        "rotate-left", "rotate-right", "zero-extend", "sign-extend", "extract",
         // binary
         "+", "-", "and", "or", "xor", "xnor", "nand", "nor",
-        "div", "udiv", "rem", "urem", "mod", "<<", ">>>", ">>", 
-        "*", "concat", "get_bit",
+        "div", "udiv", "rem", "urem", "mod", "shl", "lshr", "ashr", 
+        "*", "concat", "get-bit", "readmem",
 		// ternary
         "if", 
     };
@@ -165,10 +165,12 @@ namespace ila
         // FIXME: add more code when operators are added.
         if (op >= ADD && op <= MUL) {
             return n1->type.bitWidth;
-        } else if (op >= CONCAT && op <= CONCAT) {
+        } else if (op == CONCAT) {
             return n1->type.bitWidth + n2->type.bitWidth;
-        } else if (op >= GET_BIT && op <= GET_BIT) {
+        } else if (op == GET_BIT) {
             return 1;
+        } else if (op == READMEM) {
+            return n1->type.dataWidth;
         } else { 
             return n1->type.bitWidth; // INVALID
         }
@@ -233,10 +235,18 @@ namespace ila
             } else {
                 return 0;
             }
-        } else if (op >= GET_BIT && op <= GET_BIT) {
+        } else if (op == GET_BIT) {
             if (!n1->type.isBitvector()) {
                 return 1;
             } else if (!n2->type.isBitvector()) {
+                return 2;
+            } else {
+                return 0;
+            }
+        } else if (op == READMEM) {
+            if (!n1->type.isMem()) {
+                return 1;
+            } else if (!n2->type.isBitvector(n1->type.addrWidth)) {
                 return 2;
             } else {
                 return 0;
@@ -505,6 +515,9 @@ namespace ila
         out << "(" << operatorNames[(int)op];
         for (auto arg: args) {
             out << " " << *arg.get();
+        }
+        for (auto p : params) {
+            out << " #" << p;
         }
         out << ")";
         return out;

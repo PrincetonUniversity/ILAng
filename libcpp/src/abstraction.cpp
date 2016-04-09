@@ -23,6 +23,13 @@ namespace ila
     }
 
     // ---------------------------------------------------------------------- //
+    NodeRef* Abstraction::addBit(const std::string& name)
+    {
+        NodeRef* n = new NodeRef(new ila::BoolVar(this, name));
+        bits.push_back(n->node);
+        return n;
+    }
+
     NodeRef* Abstraction::addReg(const std::string& name, int width)
     {
         NodeRef* n = new NodeRef(new ila::BitvectorVar(this, name, width));
@@ -30,10 +37,10 @@ namespace ila
         return n;
     }
 
-    NodeRef* Abstraction::addBit(const std::string& name)
+    NodeRef* Abstraction::addMem(const std::string& name, int aw, int dw)
     {
-        NodeRef* n = new NodeRef(new ila::BoolVar(this, name));
-        bits.push_back(n->node);
+        NodeRef* n = new NodeRef(new ila::MemVar(this, name, aw, dw));
+        mems.push_back(n->node);
         return n;
     }
 
