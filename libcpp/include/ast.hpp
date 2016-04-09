@@ -188,35 +188,6 @@ namespace ila
     std::ostream& operator<<(std::ostream& out, const NodeRef& node);
 
     // ---------------------------------------------------------------------- //
-
-    // This structure represents a memory with known values.
-    // It is passed into python during synthesis.
-    struct MemValues
-    {
-        typedef std::map<mp_int_t, mp_int_t> map_t;
-
-        NodeType type;
-        const mp_int_t MAX_ADDR;
-
-        mp_int_t def_value;
-        map_t values;
-
-        MemValues(int addrWidth, int dataWidth, const boost::python::object& def_val);
-        ~MemValues();
-
-        // return def_value
-        boost::python::object getDefault() const;
-        // set def_value.
-        void setDefault(const boost::python::object& dv);
-        // __getitem__
-        boost::python::object getItem (const boost::python::object& index) const;
-        // __setitem__
-        void setItem (const boost::python::object& index, 
-                      const boost::python::object& value);
-
-    };
-
-    std::ostream& operator<<(std::ostream& out, const MemValues& mv);
 }
 
 #endif 

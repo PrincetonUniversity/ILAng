@@ -6,6 +6,7 @@
 
 #include <ast.hpp>
 #include <boost/multiprecision/cpp_int.hpp>
+#include <memvalues.hpp>
 
 namespace ila 
 {
@@ -43,26 +44,17 @@ namespace ila
 
     // ---------------------------------------------------------------------- //
     // bitvector constants.
-    class MemConst : public MemExpr {
-    public:
+    struct MemConst : public MemExpr {
+        // fields.
+        MemValues memvalues;
 
-        typedef std::pair<mp_int_t, mp_int_t> pair_t;
-        typedef std::vector<pair_t> mem_values_t;
-
-    protected:
-        const mp_int_t def_value;
-        mem_values_t mem_values;
-    public:
         // constructor with longs.
-        MemConst(Abstraction* c, 
-                 int addrWidth, int dataWidth, 
-                 const mp_int_t& v);
-        // constructor with ints.
-        MemConst(Abstraction* c, int addrWidth, int dataWidth, int v);
+        MemConst(Abstraction* c, const MemValues& mv);
         // copy constructor.
         MemConst(const MemConst& that);
         // destructor.
         virtual ~MemConst();
+
         // clone
         virtual Node* clone() const;
         // equality method.

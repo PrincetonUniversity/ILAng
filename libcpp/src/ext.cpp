@@ -252,7 +252,7 @@ BOOST_PYTHON_MODULE(ila)
     def("nonzero", &NodeRef::nonzero,
             return_value_policy<manage_new_object>());
     // imply.
-    def("imply", &NodeRef::imply,
+    def("implies", &NodeRef::imply,
             return_value_policy<manage_new_object>());
     // ite.
     def("ite", &NodeRef::ite,
@@ -266,6 +266,7 @@ BOOST_PYTHON_MODULE(ila)
 
         .def("const", &Abstraction::bvConstLong, return_value_policy<manage_new_object>())
         .def("const", &Abstraction::bvConstInt, return_value_policy<manage_new_object>())
+        .def("const", &Abstraction::memConst, return_value_policy<manage_new_object>())
         .def("bool", &Abstraction::boolConstB, return_value_policy<manage_new_object>())
         .def("bool", &Abstraction::boolConstI, return_value_policy<manage_new_object>())
         .def("bool", &Abstraction::boolConstL, return_value_policy<manage_new_object>())
@@ -278,6 +279,7 @@ BOOST_PYTHON_MODULE(ila)
 
     class_<MemValues>("MemValues", init<int, int, const object&>())
         .add_property("default", &MemValues::getDefault, &MemValues::setDefault)
+        .def_readonly("values", &MemValues::getValues)
         .def("__getitem__", &MemValues::getItem)
         .def("__setitem__", &MemValues::setItem)
         .def(self_ns::str(self))

@@ -39,10 +39,24 @@ def main():
             assert m[i] == 0xff
 
     print m
+    m1 = sys.const(m)
+
     assert m.default == 0xff
     m.default = 0x0
     print m
     assert m[0] == 0
+    print m.values
+
+    m2 = sys.const(m)
+
+    # assert not sys.areEqual(m1[addr], m2[addr])
+    ante = ((addr >= 0x80) & (addr < 0x90))
+    conseq = (m1[addr] == m2[addr])
+
+    assert sys.areEqual(ila.implies(ante, conseq), t)
+    assert not sys.areEqual(conseq, t)
+
+
 
 if __name__ == '__main__':
     main()

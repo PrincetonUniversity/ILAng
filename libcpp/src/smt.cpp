@@ -30,7 +30,6 @@ namespace ila
             return;
         }
 
-        // n->write(std::cout << "visiting: ") << std::endl;
         // std::cout << "visiting: " << *n << std::endl;
 
         // now handle the various types.
@@ -45,6 +44,7 @@ namespace ila
         const BitvectorChoice* bvchoiceop = NULL;
 
         const MemVar* memvar = NULL;
+        const MemConst* memconst = NULL;
         const MemWr*  memwr = NULL;
 
         //// booleans ////
@@ -60,6 +60,7 @@ namespace ila
         } else if((bchoiceop = dynamic_cast<const BoolChoice*>(n))) {
             z3::expr r = getChoiceExpr(bchoiceop);
             exprmap.insert({n, r});
+
         //// bitvectors ////
         } else if((bvvar = dynamic_cast<const BitvectorVar*>(n))) {
             z3::expr r = getBitvectorVarExpr(bvvar);
@@ -73,9 +74,13 @@ namespace ila
         } else if ((bvchoiceop = dynamic_cast<const BitvectorChoice*>(n))) {
             z3::expr r = getChoiceExpr(bvchoiceop);
             exprmap.insert({n, r});
+
         //// memories ////
         } else if ((memvar = dynamic_cast<const MemVar*>(n))) {
             z3::expr r = getMemVarExpr(memvar);
+            exprmap.insert({n, r});
+        } else if ((memconst = dynamic_cast<const MemConst*>(n))) {
+            z3::expr r = memconst->memvalues.toZ3(c);
             exprmap.insert({n, r});
         } else if ((memwr = dynamic_cast<const MemWr*>(n))) {
             z3::expr r = getMemWrExpr(memwr);

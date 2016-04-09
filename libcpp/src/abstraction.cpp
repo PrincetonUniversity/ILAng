@@ -72,6 +72,11 @@ namespace ila
         return new NodeRef(new ila::BoolConst(this, l));
     }
 
+    NodeRef* Abstraction::memConst(const MemValues& mv)
+    {
+        return new NodeRef(new ila::MemConst(this, mv));
+    }
+
     NodeRef* Abstraction::choice2(
         const std::string& name,
         NodeRef* e1, NodeRef* e2)

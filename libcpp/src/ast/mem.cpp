@@ -58,23 +58,15 @@ namespace ila
 
     // ---------------------------------------------------------------------- //
     MemConst::MemConst(
-        Abstraction* c, int aw, int dw, 
-        const mp_int_t& v)
-      : MemExpr(c, aw, dw)
-      , def_value(v)
-    {
-    }
-
-    MemConst::MemConst(Abstraction* c, int aw, int dw, int v)
-      : MemExpr(c, aw, dw)
-      , def_value(v)
+        Abstraction* c, const MemValues& mv)
+      : MemExpr(c, mv.type)
+      , memvalues(mv)
     {
     }
 
     MemConst::MemConst(const MemConst& that)
       : MemExpr(that.ctx, that.type.addrWidth, that.type.dataWidth)
-      , def_value(that.def_value)
-      , mem_values(that.mem_values)
+      , memvalues(that.memvalues)
     {
     }
 
@@ -92,30 +84,14 @@ namespace ila
     {
         auto that = dynamic_cast<const MemConst*>(that_);
         if (that) {
-            if (that->def_value != def_value) return false;
-            if (that->mem_values.size() != mem_values.size()) return false;
-            for (unsigned i=0; i != mem_values.size(); i++) {
-                if (that->mem_values[i] != mem_values[i]) return false;
-            }
-            return true;
-        } else {
-            return false;
+            return this->memvalues == that->memvalues;
         }
+        return false;
     }
 
     std::ostream& MemConst::write(std::ostream& out) const
     {
-        bool first = true;
-        out << "[";
-        for (auto p : mem_values) {
-            if (!first) { out << " "; }
-            else { first = false; }
-
-            out << std::hex << "0x" << p.first << ": "
-                << std::hex << "0x" << p.second;
-        }
-        out << " default: 0x" << std::hex << def_value << std::dec << "]";
-        return out;
+        return out << memvalues;
     }
 
     // ---------------------------------------------------------------------- //

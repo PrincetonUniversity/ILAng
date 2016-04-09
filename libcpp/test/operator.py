@@ -97,7 +97,7 @@ def main():
     # imply
     v18 = ila.slt(x, 5)
     v19 = ila.sge(x, 5)
-    c.areEqual(ila.imply(v18, ~v19), top)
+    c.areEqual(ila.implies(v18, ~v19), top)
 
     #nonzero & bool ite
     v20 = ila.ite( ila.nonzero(x), (x<7), ~(x>=7) )
@@ -158,10 +158,10 @@ def main():
     assert c.areEqual(bx, bz)
     bx = c8[x]
     by = c8[y]
-    inv = ila.imply(x == y, bx == by)
+    inv = ila.implies(x == y, bx == by)
     assert c.areEqual(inv, top)
     dum = ila.ite(b1, bx, by)
-    shd = ila.imply(x == y, dum == bx)
+    shd = ila.implies(x == y, dum == bx)
     assert c.areEqual(shd, top)
     assert c.areEqual(c6[1], c6[2])
     assert c.areEqual(c6[4], c6[c0])

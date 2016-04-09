@@ -54,6 +54,9 @@ namespace ila
         // Create a boolean constant (from an python long).
         NodeRef* boolConstL(boost::python::long_ b);
 
+        // Create a memory constant (from a memvalues object).
+        NodeRef* memConst(const MemValues& mv);
+
         // Create a choice operator.
         NodeRef* choice2(const std::string& name,
                         NodeRef* e1,
