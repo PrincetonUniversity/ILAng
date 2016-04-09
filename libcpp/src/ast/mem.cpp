@@ -180,4 +180,20 @@ namespace ila
             << std::dec << ")";
         return out;
     }
+
+    // ---------------------------------------------------------------------- //
+    unsigned MemWr::nArgs() const
+    {
+        return 3;
+    }
+
+    boost::shared_ptr<Node> MemWr::arg(unsigned i) const
+    {
+        if (i == 0) { return mem; }
+        else if (i == 1) { return addr; }
+        else if (i == 2) { return data; }
+        else { return NULL; }
+    }
+
+    // ---------------------------------------------------------------------- //
 }

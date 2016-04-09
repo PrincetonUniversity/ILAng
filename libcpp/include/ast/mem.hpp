@@ -96,6 +96,11 @@ namespace ila
         virtual bool equal(const Node* that) const;
         // stream output.
         virtual std::ostream& write(std::ostream& out) const;
+
+        // number of operands.
+        virtual unsigned nArgs() const;
+        // operand i.
+        virtual boost::shared_ptr<Node> arg(unsigned i) const;
     };
 
 }

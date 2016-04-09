@@ -45,6 +45,7 @@ namespace ila
         const BitvectorChoice* bvchoiceop = NULL;
 
         const MemVar* memvar = NULL;
+        const MemWr*  memwr = NULL;
 
         //// booleans ////
         if ((boolvar = dynamic_cast<const BoolVar*>(n))) {
@@ -75,6 +76,9 @@ namespace ila
         //// memories ////
         } else if ((memvar = dynamic_cast<const MemVar*>(n))) {
             z3::expr r = getMemVarExpr(memvar);
+            exprmap.insert({n, r});
+        } else if ((memwr = dynamic_cast<const MemWr*>(n))) {
+            z3::expr r = getMemWrExpr(memwr);
             exprmap.insert({n, r});
         }
     }
@@ -145,6 +149,7 @@ namespace ila
         return c.constant(memvar->name.c_str(), memsort);
     }
 
+    // ---------------------------------------------------------------------- //
     z3::expr Z3ExprAdapter::getBoolOpExpr(const BoolOp* boolop) 
     {
         using namespace z3;
@@ -339,6 +344,19 @@ namespace ila
         return c.bool_val(false);
     }
 
+    // ---------------------------------------------------------------------- //
+    z3::expr Z3ExprAdapter::getMemWrExpr(const MemWr* mw)
+    {
+        using namespace z3;
+
+        expr mem = getArgExpr(mw, 0);
+        expr addr = getArgExpr(mw, 1);
+        expr data = getArgExpr(mw, 2);
+
+        return store(mem, addr, data);
+    }
+
+    // ---------------------------------------------------------------------- //
     z3::expr Z3ExprAdapter::getChoiceExpr(const BitvectorChoice* op)
     {
         return _getChoiceExpr(op);

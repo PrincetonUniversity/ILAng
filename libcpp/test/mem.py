@@ -18,8 +18,12 @@ def main():
     print data, data.type
     datap = data+1
     print datap, datap.type
+
     iramp = ila.store(iram, addr, data+1)
     print iramp, iramp.type
+
+    assert sys.areEqual(iramp[addr], data+1)
+    assert not sys.areEqual(data, data+1)
 
 
 if __name__ == '__main__':
