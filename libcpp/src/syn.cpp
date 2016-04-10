@@ -44,14 +44,17 @@ namespace ila
         const BoolVar* boolvar = NULL; 
         const BoolConst* boolconst = NULL;
         const BoolOp* boolop = NULL;
+        const BoolChoice* bchoiceop = NULL;
+
         const BitvectorVar* bvvar = NULL;
         const BitvectorConst* bvconst = NULL;
         const BitvectorOp* bvop = NULL;
-        const BoolChoice* bchoiceop = NULL;
         const BitvectorChoice* bvchoiceop = NULL;
+
         const MemVar* memvar = NULL;
         const MemConst* memconst = NULL;
         const MemWr* memwr = NULL;
+        const MemChoice* mchoiceop = NULL;
 
         //// bools ////
         if ((boolvar = dynamic_cast<const BoolVar*>(n))) {
@@ -93,6 +96,8 @@ namespace ila
             getNewArgs(memwr, args);
             boost::shared_ptr<Node> nptr(new MemWr(args[0], args[1], args[2]));
             exprmap.insert({n, nptr});
+        } else if ((mchoiceop = dynamic_cast<const MemChoice*>(n))) {
+            _synChoiceExpr(mchoiceop);
         }
     }
 

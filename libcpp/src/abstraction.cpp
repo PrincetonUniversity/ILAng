@@ -98,6 +98,9 @@ namespace ila
             } else if (t.isBitvector()) {
                 return new NodeRef(
                             new BitvectorChoice(this, name, args));
+            } else if (t.isMem()) {
+                return new NodeRef(
+                            new MemChoice(this, name, args));
             } else {
                 throw PyILAException(
                     PyExc_ValueError,

@@ -46,6 +46,7 @@ namespace ila
         const MemVar* memvar = NULL;
         const MemConst* memconst = NULL;
         const MemWr*  memwr = NULL;
+        const MemChoice* mchoiceop = NULL;
 
         //// booleans ////
         if ((boolvar = dynamic_cast<const BoolVar*>(n))) {
@@ -84,6 +85,9 @@ namespace ila
             exprmap.insert({n, r});
         } else if ((memwr = dynamic_cast<const MemWr*>(n))) {
             z3::expr r = getMemWrExpr(memwr);
+            exprmap.insert({n, r});
+        } else if ((mchoiceop = dynamic_cast<const MemChoice*>(n))) {
+            z3::expr r = getChoiceExpr(mchoiceop);
             exprmap.insert({n, r});
         }
     }
@@ -372,6 +376,11 @@ namespace ila
         return _getChoiceExpr(op);
     }
 
+    z3::expr Z3ExprAdapter::getChoiceExpr(const MemChoice* op)
+    {
+        return _getChoiceExpr(op);
+    }
+
     // ---------------------------------------------------------------------- //
 
     z3::expr Z3ExprAdapter::getArgExpr(const Node* n, int i)
@@ -451,6 +460,9 @@ namespace ila
             std::string string_result = 
                 boost::python::extract<std::string>(boost::python::str(result));
             return r_e == c.bv_val(string_result.c_str(), n->type.bitWidth);
+        } else if (n->type.isMem()) {
+            MemValues mv = boost::python::extract<MemValues>(result);
+            return r_e == mv.toZ3(c);
         } else {
             ILA_ASSERT(false, "Unimplemented type.");
             return c.bool_val(false);

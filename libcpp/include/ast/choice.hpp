@@ -107,6 +107,7 @@ namespace ila
     // ---------------------------------------------------------------------- //
     typedef ChoiceExpr<BitvectorExpr> BitvectorChoice;
     typedef ChoiceExpr<BoolExpr> BoolChoice;
+    typedef ChoiceExpr<MemExpr> MemChoice;
 }
 
 #endif
