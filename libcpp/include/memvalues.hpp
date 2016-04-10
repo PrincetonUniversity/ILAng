@@ -12,6 +12,8 @@
 
 namespace ila
 {
+    class Z3ExprAdapter;
+    class MemVar;
 
     // This structure represents a memory with known values.
     // It is passed into python during synthesis.
@@ -27,6 +29,8 @@ namespace ila
 
         // constructor.
         MemValues(int addrWidth, int dataWidth, const boost::python::object& def_val);
+        // construct from a model.
+        MemValues(Z3ExprAdapter& c, const z3::model& m, const MemVar* mem);
         // destructor.
         ~MemValues();
 

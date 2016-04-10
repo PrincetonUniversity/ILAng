@@ -434,6 +434,12 @@ namespace ila
         return c.bv_val(value.c_str(), bvvar->type.bitWidth);
     }
 
+    z3::expr Z3ExprRewritingAdapter::getMemVarExpr(const MemVar* mv)
+    {
+        MemValues memvals(adapter, m, mv);
+        return memvals.toZ3(c);
+    }
+
     z3::expr Z3ExprRewritingAdapter::getExpr(const Node* n, const boost::python::object& result)
     {
         z3::expr r_e = Z3ExprAdapter::getExpr(n);

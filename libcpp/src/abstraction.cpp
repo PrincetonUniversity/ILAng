@@ -167,8 +167,15 @@ namespace ila
             std::cout << "er1: " << er1 << std::endl;
             std::cout << "er2: " << er2 << std::endl;
 
-            S.add(er1);
-            S.add(er2);
+            expr es1 = er1.simplify();
+            expr es2 = er2.simplify();
+
+            std::cout << "es1: " << es1 << std::endl;
+            std::cout << "es2: " << es2 << std::endl;
+
+            S.add(es1);
+            S.add(es2);
+
         }
 
         std::cout << "finished after " << i << " SMT calls." << std::endl;
@@ -184,10 +191,16 @@ namespace ila
         return new NodeRef(nr);
     }
 
-    void Abstraction::extractModelValues(Z3ExprAdapter& c, z3::model& m, boost::python::dict& d)
+    void Abstraction::extractModelValues(
+        Z3ExprAdapter& c, z3::model& m, boost::python::dict& d)
     {
         using namespace z3;
         using namespace boost::python;
+
+        for (auto mem: mems) {
+            MemValues mv(c, m, dynamic_cast<MemVar*>(mem.get()));
+            d[mem->name] = mv;
+        }
 
         for (auto r : regs) {
             // extract int from z3.

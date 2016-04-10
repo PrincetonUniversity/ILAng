@@ -61,6 +61,8 @@ namespace ila
 
         // This will call node->depthFirstVisit.
         z3::expr getExpr(const Node* n);
+
+        z3::context& ctx() const { return c; }
         
         // Extract a string representation of the numeric value 
         // of node r in the model m.
@@ -114,6 +116,8 @@ namespace ila
         virtual z3::expr getBoolVarExpr(const BoolVar* bv);
         // Convert a bitvector variable into a Z3 expression.
         virtual z3::expr getBitvectorVarExpr(const BitvectorVar* bvv);
+        // Convert a mem var into Z3.
+        virtual z3::expr getMemVarExpr(const MemVar* mv);
     public:
         // Constructors.
         Z3ExprRewritingAdapter(

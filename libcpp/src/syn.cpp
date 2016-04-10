@@ -49,17 +49,15 @@ namespace ila
         const BitvectorOp* bvop = NULL;
         const BoolChoice* bchoiceop = NULL;
         const BitvectorChoice* bvchoiceop = NULL;
+        const MemVar* memvar = NULL;
+        const MemConst* memconst = NULL;
+        const MemWr* memwr = NULL;
 
+        //// bools ////
         if ((boolvar = dynamic_cast<const BoolVar*>(n))) {
             boost::shared_ptr<Node> nptr(n->clone());
             exprmap.insert({n, nptr});
         } else if ((boolconst = dynamic_cast<const BoolConst*>(n))) {
-            boost::shared_ptr<Node> nptr(n->clone());
-            exprmap.insert({n, nptr});
-        } else if((bvvar = dynamic_cast<const BitvectorVar*>(n))) {
-            boost::shared_ptr<Node> nptr(n->clone());
-            exprmap.insert({n, nptr});
-        } else if((bvconst = dynamic_cast<const BitvectorConst*>(n))) {
             boost::shared_ptr<Node> nptr(n->clone());
             exprmap.insert({n, nptr});
         } else if ((boolop = dynamic_cast<const BoolOp*>(n))) {
@@ -67,15 +65,34 @@ namespace ila
             getNewArgs(boolop, args);
             boost::shared_ptr<Node> nptr(new BoolOp(boolop, args));
             exprmap.insert({n, nptr});
+        } else if ((bchoiceop = dynamic_cast<const BoolChoice*>(n))) {
+            _synChoiceExpr(bchoiceop);
+        //// bitvector ////
+        } else if((bvvar = dynamic_cast<const BitvectorVar*>(n))) {
+            boost::shared_ptr<Node> nptr(n->clone());
+            exprmap.insert({n, nptr});
+        } else if((bvconst = dynamic_cast<const BitvectorConst*>(n))) {
+            boost::shared_ptr<Node> nptr(n->clone());
+            exprmap.insert({n, nptr});
         } else if ((bvop = dynamic_cast<const BitvectorOp*>(n))) {
             std::vector< boost::shared_ptr<Node> > args;
             getNewArgs(bvop, args);
             boost::shared_ptr<Node> nptr(new BitvectorOp(bvop, args));
             exprmap.insert({n, nptr});
-        } else if ((bchoiceop = dynamic_cast<const BoolChoice*>(n))) {
-            _synChoiceExpr(bchoiceop);
         } else if ((bvchoiceop = dynamic_cast<const BitvectorChoice*>(n))) {
             _synChoiceExpr(bvchoiceop);
+        //// memories ////
+        } else if ((memvar = dynamic_cast<const MemVar*>(n))) {
+            boost::shared_ptr<Node> nptr(n->clone());
+            exprmap.insert({n, nptr});
+        } else if ((memconst = dynamic_cast<const MemConst*>(n))) {
+            boost::shared_ptr<Node> nptr(n->clone());
+            exprmap.insert({n, nptr});
+        } else if ((memwr = dynamic_cast<const MemWr*>(n))) {
+            std::vector< boost::shared_ptr<Node> > args;
+            getNewArgs(memwr, args);
+            boost::shared_ptr<Node> nptr(new MemWr(args[0], args[1], args[2]));
+            exprmap.insert({n, nptr});
         }
     }
 

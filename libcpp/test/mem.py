@@ -1,5 +1,12 @@
 import ila
 
+def foo(d):
+    ram = d['iram']
+    addr = d['addr']
+    print ram, addr
+
+    return ram[addr]+1
+
 def main():
     sys = ila.Abstraction()
     iram = sys.mem('iram', 8, 8)
@@ -56,6 +63,10 @@ def main():
     assert sys.areEqual(ila.implies(ante, conseq), t)
     assert not sys.areEqual(conseq, t)
 
+    r1 = iram[addr]+1
+    r2 = iram[addr]+iram[addr+1]
+    r = sys.choice('r', r1, r2)
+    print sys.synthesize(r, foo)
 
 
 if __name__ == '__main__':

@@ -4,6 +4,7 @@
 #include <util.hpp>
 #include <exception.hpp>
 #include <boost/python.hpp>
+#include <smt.hpp>
 
 namespace ila
 {
@@ -13,6 +14,44 @@ namespace ila
       , MAX_ADDR(mp_int_t(1) << aw)
       , def_value(to_cpp_int(dv))
     {
+    }
+
+    MemValues::MemValues(
+        Z3ExprAdapter& c, const z3::model& m, const MemVar* mem)
+      : type(mem->type)
+      , MAX_ADDR(mp_int_t(1) << type.addrWidth)
+    {
+        using namespace z3;
+
+        // extract model.
+        expr mexp = c.getExpr(mem);
+        expr mval = m.eval(mexp);
+        func_decl mfd = mval.decl();
+
+        // a bunch of assertions copied from stackoverflow.
+        ILA_ASSERT(Z3_get_decl_kind(c.ctx(), mfd) == Z3_OP_AS_ARRAY, "Expected array op.");
+        ILA_ASSERT(Z3_is_app(c.ctx(), mval), "Expected application.");
+        ILA_ASSERT(Z3_get_decl_num_parameters(c.ctx(), mfd) == 1, "Expected one parameter.");
+        ILA_ASSERT( Z3_get_decl_parameter_kind(c.ctx(), mfd, 0) == Z3_PARAMETER_FUNC_DECL, "Expected parameter to a function declaration.");
+
+        // get the function interpretation (also SO).
+        func_decl ffd = func_decl(c.ctx(), Z3_get_decl_func_decl_parameter(c.ctx(), mfd, 0));
+        func_interp fip = m.get_func_interp(ffd);
+
+        // now walk through the values.
+        for (unsigned i=0, n=fip.num_entries(); i < n; i++) {
+            func_entry ei = fip.entry(i);
+            expr eki = ei.arg(0);
+            expr evi = ei.value();
+            std::string ski(Z3_get_numeral_string(c.ctx(), eki));
+            std::string svi(Z3_get_numeral_string(c.ctx(), evi));
+
+            auto ki = boost::lexical_cast<mp_int_t>(ski);
+            auto vi = boost::lexical_cast<mp_int_t>(svi);
+            values[ki] = vi;
+        }
+        std::string sdef(Z3_get_numeral_string(c.ctx(), fip.else_value()));
+        def_value = boost::lexical_cast<mp_int_t>(sdef);
     }
 
     MemValues::~MemValues()
