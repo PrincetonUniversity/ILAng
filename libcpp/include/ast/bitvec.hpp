@@ -121,14 +121,14 @@ namespace ila
         // helper functions to determine result and argument types.
         static int getUnaryResultWidth(
             Op op, 
-            nptr_t n);
+            const nptr_t& n);
         static int getBinaryResultWidth(
             Op op, 
-            nptr_t n1, 
-            nptr_t n2);
+            const nptr_t& n1, 
+            const nptr_t& n2);
         static int getBinaryResultWidth(
             Op op,
-            nptr_t n1,
+            const nptr_t& n1,
             int param);
         static int getNaryResultWidth(
             Op op, 
@@ -140,16 +140,16 @@ namespace ila
 
         static bool checkUnaryOpWidth(
             Op op, 
-            nptr_t n, 
+            const nptr_t& n, 
             int width);
         static int checkBinaryOpWidth(
             Op op, 
-            nptr_t n1, 
-            nptr_t n2, 
+            const nptr_t& n1, 
+            const nptr_t& n2, 
             int width);
         static int checkBinaryOpWidth(
             Op op,
-            nptr_t n1,
+            const nptr_t& n1,
             int param,
             int width);
         static int checkNaryOpWidth(
@@ -167,17 +167,17 @@ namespace ila
         // constructors.
         // Unary op
         BitvectorOp(Abstraction* c, Op op, 
-                    nptr_t n1);
+                    const nptr_t& n1);
         BitvectorOp(Abstraction* c, Op op,
-                    nptr_t n1,
+                    const nptr_t& n1,
                     int param);
         BitvectorOp(Abstraction* c, Op op, 
-                    nptr_t n1,
+                    const nptr_t& n1,
                     int p1, int p2);
         // Binary op
         BitvectorOp(Abstraction* c, Op op, 
-                    nptr_t n1, 
-                    nptr_t n2);
+                    const nptr_t& n1, 
+                    const nptr_t& n2);
         // Ternary op
         BitvectorOp(Abstraction* c, Op op,
                     std::vector< nptr_t >& args_);

@@ -149,7 +149,7 @@ namespace ila
         return i < params.size() ? params[i] : 0;
     }
     // ---------------------------------------------------------------------- //
-    int BitvectorOp::getUnaryResultWidth(Op op, nptr_t n)
+    int BitvectorOp::getUnaryResultWidth(Op op, const nptr_t& n)
     {
         // FIXME: add more code when operators are added.
         if (op >= NEGATE && op <= RROTATE) {
@@ -160,7 +160,7 @@ namespace ila
     }
 
     int BitvectorOp::getBinaryResultWidth(
-        Op op, nptr_t n1, nptr_t n2)
+        Op op, const nptr_t& n1, const nptr_t& n2)
     {
         // FIXME: add more code when operators are added.
         if (op >= ADD && op <= MUL) {
@@ -177,7 +177,7 @@ namespace ila
     }
 
     int BitvectorOp::getBinaryResultWidth(
-        Op op, nptr_t n1, int param)
+        Op op, const nptr_t& n1, int param)
     {
         if (op >= Z_EXT && op <= S_EXT) {
             return param;
@@ -210,7 +210,7 @@ namespace ila
         }
     }
 
-    bool BitvectorOp::checkUnaryOpWidth(Op op, nptr_t arg0, int width)
+    bool BitvectorOp::checkUnaryOpWidth(Op op, const nptr_t& arg0, int width)
     {
         // FIXME: add more code when operators are added.
         if (op >= Z_EXT && op <= S_EXT) {
@@ -222,8 +222,8 @@ namespace ila
 
     int BitvectorOp::checkBinaryOpWidth(
         Op op, 
-        nptr_t n1, 
-        nptr_t n2,
+        const nptr_t& n1, 
+        const nptr_t& n2,
         int width)
     {
         // FIXME: add more code when operators are added.
@@ -258,7 +258,7 @@ namespace ila
 
     int BitvectorOp::checkBinaryOpWidth(
         Op op,
-        nptr_t n1,
+        const nptr_t& n1,
         int param,
         int width)
     {
@@ -326,7 +326,7 @@ namespace ila
     // constructor: unary ops.
     BitvectorOp::BitvectorOp(Abstraction* c, 
         Op op, 
-        nptr_t n1
+        const nptr_t& n1
     )
       : BitvectorExpr(c, getUnaryResultWidth(op, n1))
       , arity(UNARY)
@@ -353,7 +353,7 @@ namespace ila
     // constructor: unary op with int input (ex. rotate)
     BitvectorOp::BitvectorOp(Abstraction* c,
         Op op,
-        nptr_t n1,
+        const nptr_t& n1,
         int param
     )
       : BitvectorExpr(c, getBinaryResultWidth(op, n1, param))
@@ -376,7 +376,7 @@ namespace ila
     // constructor: extract
     BitvectorOp::BitvectorOp(
         Abstraction* c, Op op, 
-        nptr_t n1,
+        const nptr_t& n1,
         int p1, int p2
     )
         : BitvectorExpr(c, (p1 - p2)+1)
@@ -405,8 +405,8 @@ namespace ila
     // constructor: binary ops.
     BitvectorOp::BitvectorOp(Abstraction* c, 
         Op op,
-        nptr_t n1,
-        nptr_t n2
+        const nptr_t& n1,
+        const nptr_t& n2
     )
       : BitvectorExpr(c, getBinaryResultWidth(op, n1, n2))
       , arity(BINARY)
