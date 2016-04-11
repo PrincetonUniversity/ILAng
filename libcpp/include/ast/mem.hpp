@@ -73,7 +73,7 @@ namespace ila
         nptr_t data;
     public:
         // constructor
-        MemWr(nptr_t m, nptr_t a, nptr_t d);
+        MemWr(const nptr_t& m, const nptr_t& a, const nptr_t& d);
         // copy constructor.
         MemWr(const MemWr& that);
         // destructor.

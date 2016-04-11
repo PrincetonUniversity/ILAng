@@ -95,7 +95,7 @@ namespace ila
     }
 
     // ---------------------------------------------------------------------- //
-    MemWr::MemWr(nptr_t m, nptr_t a, nptr_t d)
+    MemWr::MemWr(const nptr_t& m, const nptr_t& a, const nptr_t& d)
 
       : MemExpr(m->context(), m->type)
       , mem(m)
