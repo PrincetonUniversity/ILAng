@@ -451,19 +451,40 @@ namespace ila
 
     z3::expr Z3ExprRewritingAdapter::getExpr(const Node* n, const boost::python::object& result)
     {
+        using namespace boost::python;
         z3::expr r_e = Z3ExprAdapter::getExpr(n);
 
         if (n->type.isBool()) {
-            bool value = boost::python::extract<int>(result) != 0;
-            return r_e == c.bool_val(value);
+            // try to extract a bool.
+            if (is_py_int(result)) {
+                int er = extract<int>(result);
+                return r_e == c.bool_val(er != 0);
+            } else {
+                throw PyILAException(PyExc_ValueError,
+                    "Unable to convert result into a boolean.");
+            }
         } else if(n->type.isBitvector()) {
-            std::string string_result = 
-                boost::python::extract<std::string>(boost::python::str(result));
-            return r_e == c.bv_val(string_result.c_str(), n->type.bitWidth);
+            // try to extract a bitvector.
+            if (is_py_int_or_long(result)) {
+                std::string sr = to_string(result);
+                return r_e == c.bv_val(sr.c_str(), n->type.bitWidth);
+            } else {
+                // we reach here only if there's an error.
+                throw PyILAException(
+                    PyExc_ValueError, 
+                    "Unable to convert result into a bitvector.");
+            }
         } else if (n->type.isMem()) {
-            MemValues mv = boost::python::extract<MemValues>(result);
-            return r_e == mv.toZ3(c);
+            // and now try to extract a memtype.
+            extract<MemValues&> mv_r(result);
+            if (mv_r.check()) {
+                return r_e == mv_r().toZ3(c);
+            } else {
+                throw PyILAException(PyExc_ValueError,
+                        "Unable to convert result into a MemValues object.");
+            }
         } else {
+            // should never happen.
             ILA_ASSERT(false, "Unimplemented type.");
             return c.bool_val(false);
         }

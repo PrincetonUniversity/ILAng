@@ -46,6 +46,15 @@ namespace ila {
         return boost::lexical_cast<boost::multiprecision::cpp_int>(lstr);
     }
 
+    std::string to_string(const boost::python::object& l)
+    {
+        PyObject* pyobj = l.ptr();
+        PyObject* pystr = PyObject_Str(pyobj);
+        std::string lstr(PyString_AsString(pystr));
+        Py_DECREF(pystr);
+        return lstr;
+    }
+
     boost::python::object to_pyint(
         const boost::multiprecision::cpp_int& i)
     {
@@ -63,4 +72,15 @@ namespace ila {
         return pi;
     }
 
+    bool is_py_int(const boost::python::object& l)
+    {
+        PyObject* pyobj = l.ptr();
+        return PyInt_Check(pyobj);
+    }
+
+    bool is_py_int_or_long(const boost::python::object& l)
+    {
+        PyObject* pyobj = l.ptr();
+        return PyInt_Check(pyobj) || PyLong_Check(pyobj);
+    }
 }

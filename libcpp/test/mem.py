@@ -3,9 +3,8 @@ import ila
 def foo(d):
     ram = d['iram']
     addr = d['addr']
-    print ram, addr
-
-    return ram[addr]+1
+    r = ram[addr]+1
+    return r
 
 def main():
     sys = ila.Abstraction()
