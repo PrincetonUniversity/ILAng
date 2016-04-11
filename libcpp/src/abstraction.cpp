@@ -45,7 +45,7 @@ namespace ila
         return n;
     }
 
-    NodeRef* Abstraction::bvConstLong(boost::python::long_ l_, int w)
+    NodeRef* Abstraction::bvConstLong(py::long_ l_, int w)
     {
         auto l = to_cpp_int(l_);
         return new NodeRef(new ila::BitvectorConst(this, l, w));
@@ -66,7 +66,7 @@ namespace ila
         return new NodeRef(new ila::BoolConst(this, b));
     }
 
-    NodeRef* Abstraction::boolConstL(boost::python::long_ l_)
+    NodeRef* Abstraction::boolConstL(py::long_ l_)
     {
         auto l = to_cpp_int(l_);
         return new NodeRef(new ila::BoolConst(this, l));
@@ -113,7 +113,7 @@ namespace ila
 
     NodeRef* Abstraction::synthesize(NodeRef* ex, PyObject* pyfun)
     {
-        using namespace boost::python;
+        using namespace py;
         using namespace z3;
 
         static const char* suffix1 = ":1";

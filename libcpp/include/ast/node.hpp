@@ -20,7 +20,6 @@ namespace ila
     class NodeRef;
     class Node;
 
-    typedef boost::multiprecision::cpp_int mp_int_t;
     typedef boost::shared_ptr<Node> nptr_t;
 
     class Node {

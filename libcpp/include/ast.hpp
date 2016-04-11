@@ -12,6 +12,7 @@
 #include <assert.h>
 #include <type.hpp>
 
+#include <common.hpp>
 #include <ast/node.hpp>
 #include <ast/bool.hpp>
 #include <ast/bitvec.hpp>

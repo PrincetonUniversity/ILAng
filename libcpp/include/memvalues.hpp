@@ -4,6 +4,7 @@
 #include <iostream>
 #include <map>
 
+#include <common.hpp>
 #include <ast/node.hpp>
 #include <type.hpp>
 

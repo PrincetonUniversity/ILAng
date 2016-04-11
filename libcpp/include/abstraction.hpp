@@ -1,6 +1,7 @@
 #ifndef __ABSTRACTION_HPP_DEFINED__
 #define __ABSTRACTION_HPP_DEFINED__
 
+#include <common.hpp>
 #include <string>
 #include <ast.hpp>
 #include <smt.hpp>
