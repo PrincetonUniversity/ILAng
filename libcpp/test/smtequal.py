@@ -27,7 +27,7 @@ def main():
     e1 = -a
     e2 = ~a + 1
     e3 = ~a + 2
-    e4 = c.choice("dummy", e2, e1)
+    e4 = ila.choice("dummy", e2, e1)
     assert c.areEqual(e1, e2)
     assert c.areEqual(e1, e4)
     assert c.areEqual(e2, e4)

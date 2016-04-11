@@ -64,7 +64,7 @@ def main():
 
     r1 = iram[addr]+1
     r2 = iram[addr]+iram[addr+1]
-    r = sys.choice('r', r1, r2)
+    r = ila.choice('r', r1, r2)
     print sys.synthesize(r, foo)
 
     def bar(d):
@@ -83,7 +83,7 @@ def main():
 
     r1 = ila.store(iram, addr, iram[addr]+1)
     r2 = ila.store(iram, addr, iram[addr]+2)
-    rp = sys.choice('rp', r1, r2)
+    rp = ila.choice('rp', r1, r2)
     print sys.synthesize(rp, bar)
 
 if __name__ == '__main__':

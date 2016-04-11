@@ -444,6 +444,12 @@ namespace ila
         return _triOp(BoolOp::IF, BitvectorOp::IF, cond, trueExp, falseExp);
     }
 
+    NodeRef* NodeRef::choice2(const std::string& name, NodeRef* e1, NodeRef* e2)
+    {
+        std::vector< nptr_t > args = { e1->node, e2->node };
+        return _choice(name, args);
+    }
+
     // ---------------------------------------------------------------------- //
     NodeRef* NodeRef::_unOp(
         BoolOp::Op opBool, BitvectorOp::Op opBv, const char* opName) const
@@ -736,6 +742,33 @@ namespace ila
         }
     }
 
+    NodeRef* NodeRef::_choice(const std::string& name, 
+                              const std::vector<nptr_t>& args)
+    {
+        if (!checkAbstractions(args)) return NULL;
+
+        NodeType t = Choice::getChoiceType(args);
+        if (!t) {
+            throw PyILAException(PyExc_TypeError, 
+                "Type mismatch in choice arguments.");
+            return NULL;
+        } else {
+            auto ctx = args[0]->context();
+            if (t.isBool()) {
+                return new NodeRef(new BoolChoice(ctx, name, args));
+            } else if (t.isBitvector()) {
+                return new NodeRef(new BitvectorChoice(ctx, name, args));
+            } else if (t.isMem()) {
+                return new NodeRef(new MemChoice(ctx, name, args));
+            } else {
+                throw PyILAException(PyExc_ValueError,
+                    "Unable to create choice of specified type.");
+                return NULL;
+            }
+        }
+    }
+
+
     // ---------------------------------------------------------------------- //
     std::ostream& operator<<(std::ostream& out, const NodeRef& n)
     {
@@ -761,6 +794,24 @@ namespace ila
             throw PyILAException(PyExc_RuntimeError,
                 "Operands must be from the same Abstraction.");
             return false;
+        }
+        return true;
+    }
+
+    bool checkAbstractions(const std::vector<nptr_t>& args)
+    {
+        if (args.size() == 0) {
+            throw PyILAException(PyExc_RuntimeError,
+                                 "At least one operand is required.");
+            return false;
+        }
+        auto ctx = args[0]->context();
+        for (auto a : args) {
+            if (a->context() != ctx) {
+                throw PyILAException(PyExc_RuntimeError,
+                    "Operands must be from the same Abstraction.");
+                return false;
+            }
         }
         return true;
     }

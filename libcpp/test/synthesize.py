@@ -36,15 +36,15 @@ def main():
     a = sys.bit('a')
     b = sys.bit('b')
 
-    ex = sys.choice("function", r0+r1, r0-r1)
+    ex = ila.choice("function", r0+r1, r0-r1)
     print sys.synthesize(ex, foo)
     print sys.synthesize(ex, bar)
 
-    a1 = sys.choice("a1", a, ~a)
-    b1 = sys.choice("b1", b, ~b)
+    a1 = ila.choice("a1", a, ~a)
+    b1 = ila.choice("b1", b, ~b)
 
-    a2 = sys.choice("a2", a, ~a)
-    b2 = sys.choice("b2", b, ~b)
+    a2 = ila.choice("a2", a, ~a)
+    b2 = ila.choice("b2", b, ~b)
 
     r1 = a1 & b1
     r2 = a2 & b2

@@ -77,39 +77,6 @@ namespace ila
         return new NodeRef(new ila::MemConst(this, mv));
     }
 
-    NodeRef* Abstraction::choice2(
-        const std::string& name,
-        NodeRef* e1, NodeRef* e2)
-    {
-        std::vector< nptr_t > args = { 
-            e1->node,
-            e2->node
-        };
-        NodeType t = Choice::getChoiceType(args);
-        if (!t) {
-            throw PyILAException(
-                PyExc_TypeError,
-                "Type error in choice arguments.");
-            return NULL;
-        } else {
-            if (t.isBool()) {
-                return new NodeRef(
-                            new BoolChoice(this, name, args));
-            } else if (t.isBitvector()) {
-                return new NodeRef(
-                            new BitvectorChoice(this, name, args));
-            } else if (t.isMem()) {
-                return new NodeRef(
-                            new MemChoice(this, name, args));
-            } else {
-                throw PyILAException(
-                    PyExc_ValueError,
-                    "Unable to create choice of specified type.");
-                return NULL;
-            }
-        }
-    }
-
 
     NodeRef* Abstraction::synthesize(NodeRef* ex, PyObject* pyfun)
     {

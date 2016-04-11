@@ -157,6 +157,8 @@ namespace ila
                             NodeRef* trueExp,
                             NodeRef* falseExp); 
 
+        // choices
+        static NodeRef* choice2(const std::string& name, NodeRef* e1, NodeRef* e2);
     private:
         // ---------------------- HELPERS ----------------------------- //
         NodeRef* _unOp(BoolOp::Op boolOp, BitvectorOp::Op bvOp, const char* opName) const;
@@ -179,6 +181,8 @@ namespace ila
         static NodeRef* _triOp(BoolOp::Op boolOp, BitvectorOp::Op bvOp,
                             NodeRef* arg0, NodeRef* arg1, NodeRef* arg2);
         static NodeRef* _extractOp(const NodeRef* bv, int beg, int end);
+        static NodeRef* _choice(const std::string& name, 
+                                const std::vector<nptr_t>& args);
     };
 
     // stream output.
@@ -187,6 +191,7 @@ namespace ila
     // utility functions to check whether two nodes have the same abstraction.
     bool checkAbstractions(const NodeRef* l1, const NodeRef* l2);
     bool checkAbstractions(const NodeRef* l1, const NodeRef* l2, const NodeRef* l3);
+    bool checkAbstractions(const std::vector<nptr_t>& args);
 
     // ---------------------------------------------------------------------- //
 }

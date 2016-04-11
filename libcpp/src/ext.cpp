@@ -256,7 +256,11 @@ BOOST_PYTHON_MODULE(ila)
             return_value_policy<manage_new_object>());
     // ite.
     def("ite", &NodeRef::ite,
-                return_value_policy<manage_new_object>());
+            return_value_policy<manage_new_object>());
+
+    // choice
+    def("choice", &NodeRef::choice2, 
+            return_value_policy<manage_new_object>());
 
     // This is the top-level class.
     class_<Abstraction>("Abstraction", init<>())
@@ -270,8 +274,6 @@ BOOST_PYTHON_MODULE(ila)
         .def("bool", &Abstraction::boolConstB, return_value_policy<manage_new_object>())
         .def("bool", &Abstraction::boolConstI, return_value_policy<manage_new_object>())
         .def("bool", &Abstraction::boolConstL, return_value_policy<manage_new_object>())
-
-        .def("choice", &Abstraction::choice2, return_value_policy<manage_new_object>())
 
         .def("synthesize", &Abstraction::synthesize, return_value_policy<manage_new_object>())
         .def("areEqual", &Abstraction::areEqual)
