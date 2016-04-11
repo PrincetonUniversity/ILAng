@@ -125,16 +125,12 @@ namespace ila
         return i < args.size() ? args[i] : NULL;
     }
     // ---------------------------------------------------------------------- //
-    bool BoolOp::checkUnaryOpTypes(
-        Op op, nptr_t arg0)
+    bool BoolOp::checkUnaryOpTypes(Op op, const nptr_t& arg0)
     {
         return arg0->type.isBool();
     }
 
-    bool BoolOp::checkBinaryOpTypes(
-        Op op, 
-        nptr_t n1, 
-        nptr_t n2)
+    bool BoolOp::checkBinaryOpTypes(Op op, const nptr_t& n1, const nptr_t& n2)
     {
         if (op >= SLT || op <= DISTINCT) {
             return n1->type == n2->type;
@@ -156,10 +152,7 @@ namespace ila
 
     // ---------------------------------------------------------------------- //
     // constructor: unary ops.
-    BoolOp::BoolOp(Abstraction* c, 
-        Op op, 
-        nptr_t n1
-    )
+    BoolOp::BoolOp(Abstraction* c, Op op, const nptr_t& n1)
       : BoolExpr(c)
       , arity(UNARY)
       , op(op)
@@ -182,11 +175,7 @@ namespace ila
     }
 
     // constructor: binary ops.
-    BoolOp::BoolOp(Abstraction* c, 
-        Op op,
-        nptr_t n1,
-        nptr_t n2
-    )
+    BoolOp::BoolOp(Abstraction* c, Op op, const nptr_t& n1, const nptr_t& n2)
       : BoolExpr(c)
       , arity(BINARY)
       , op(op)
@@ -206,11 +195,7 @@ namespace ila
         args.push_back( n2 );
     }
 
-    BoolOp::BoolOp(
-        Abstraction* c,
-        Op op,
-        std::vector< nptr_t >& args_
-    )
+    BoolOp::BoolOp(Abstraction* c, Op op, std::vector< nptr_t >& args_)
         : BoolExpr(c)
         , arity(TERNARY)
         , op(op)
@@ -231,9 +216,7 @@ namespace ila
         }
     }
             
-    BoolOp::BoolOp(
-        const BoolOp* other, 
-        std::vector< nptr_t >& args_)
+    BoolOp::BoolOp(const BoolOp* other, std::vector< nptr_t >& args_)
       : BoolExpr(other->ctx)
       , arity(other->arity)
       , op(other->op)
