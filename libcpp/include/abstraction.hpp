@@ -17,11 +17,11 @@ namespace ila
         // Get a new ID.
         int getObjId();
         // list of registers.
-        std::vector< boost::shared_ptr<Node> > regs;
+        std::vector< nptr_t > regs;
         // list of bits.
-        std::vector< boost::shared_ptr<Node> > bits;
+        std::vector< nptr_t > bits;
         // list of memories.
-        std::vector< boost::shared_ptr<Node> > mems;
+        std::vector< nptr_t > mems;
 
         void extractModelValues(
             Z3ExprAdapter& c,

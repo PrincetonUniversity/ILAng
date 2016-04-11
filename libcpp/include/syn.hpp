@@ -13,7 +13,7 @@ namespace ila
     public:
         // Define types.
         typedef std::unordered_map<
-            const Node*, boost::shared_ptr<Node> > expr_map_t;
+            const Node*, nptr_t > expr_map_t;
     protected:
         // the map between old and new nodes.
         expr_map_t exprmap;
@@ -24,7 +24,7 @@ namespace ila
         // find the rewritten args.
         void getNewArgs(
             const Node* n, 
-            std::vector< boost::shared_ptr<Node> >& args);
+            std::vector< nptr_t >& args);
     public:
         // Constructor.
         SynRewriter(z3::model& m, Z3ExprAdapter& a);
@@ -36,7 +36,7 @@ namespace ila
         void operator() (const Node* n);
 
         // do the rewrite.
-        boost::shared_ptr<Node> rewrite(const Node* n);
+        nptr_t rewrite(const Node* n);
     private:
         template<typename T> 
         void _synChoiceExpr(const ChoiceExpr<T>* op)
@@ -48,7 +48,7 @@ namespace ila
                 if (ci) { break; }
             }
             std::cout << "choice result: " << i << std::endl;
-            boost::shared_ptr<Node> nptr = op->arg(i+1);
+            nptr_t nptr = op->arg(i+1);
             nptr->write(std::cout << "expr: ") << std::endl;
             exprmap.insert({(Node*)op, nptr});
         }

@@ -21,7 +21,7 @@ namespace ila
     {
     }
 
-    NodeRef::NodeRef(const boost::shared_ptr<Node>& ptr)
+    NodeRef::NodeRef(const nptr_t& ptr)
       : node(ptr)
     {
     }
@@ -554,7 +554,7 @@ namespace ila
     NodeRef* NodeRef::_binOp(BitvectorOp::Op op, int r) const
     {
         if (node->type.isBitvector()) {
-            boost::shared_ptr<Node> node_r(
+            nptr_t node_r(
                 new BitvectorConst(node->ctx, r, node->type.bitWidth));
 
             return new NodeRef(new BitvectorOp(
@@ -569,7 +569,7 @@ namespace ila
     NodeRef* NodeRef::_binOpR(BitvectorOp::Op op, int r) const
     {
         if (node->type.isBitvector()) {
-            boost::shared_ptr<Node> node_r(
+            nptr_t node_r(
                 new BitvectorConst(node->ctx, r, node->type.bitWidth));
 
             return new NodeRef(new BitvectorOp(
@@ -607,7 +607,7 @@ namespace ila
     NodeRef* NodeRef::_cmpOp(BoolOp::Op op, int r) const
     {
         if (node->type.isBitvector()) {
-            boost::shared_ptr<Node> node_r(
+            nptr_t node_r(
                 new BitvectorConst(node->ctx, r, node->type.bitWidth));
             return new NodeRef(new BoolOp(node->ctx, op, node, node_r));
         } else {
@@ -648,7 +648,7 @@ namespace ila
     NodeRef* NodeRef::_cmpOp(BoolOp::Op op, NodeRef* l, int r)
     {
         if (l->node->type.isBitvector()) {
-            boost::shared_ptr<Node> node_r(
+            nptr_t node_r(
                 new BitvectorConst(l->node->ctx, r, l->node->type.bitWidth));
             return new NodeRef(new BoolOp(l->node->ctx, op, l->node, node_r));
         } else {
@@ -732,7 +732,7 @@ namespace ila
                 return new NodeRef(new BitvectorOp(
                             l->node->ctx, op, l->node, r));
             } else {
-                boost::shared_ptr<Node> node_r(
+                nptr_t node_r(
                     new BitvectorConst(l->node->ctx, r, l->node->type.bitWidth));
 
                 return new NodeRef(new BitvectorOp(
@@ -749,7 +749,7 @@ namespace ila
     NodeRef* NodeRef::_binOpR(BitvectorOp::Op op, int l, NodeRef* r)
     {
         if (r->node->type.isBitvector()) {
-            boost::shared_ptr<Node> node_l(
+            nptr_t node_l(
                 new BitvectorConst(r->node->ctx, l, r->node->type.bitWidth));
 
             return new NodeRef(new BitvectorOp(
@@ -780,7 +780,7 @@ namespace ila
             return NULL;
         } else {
             NodeRef* normCond = (cond->node->type.isBool())? cond : NodeRef::nonzero(cond);
-            std::vector< boost::shared_ptr<Node> > args_;
+            std::vector< nptr_t > args_;
             args_.push_back(normCond->node);
             args_.push_back(trueExp->node);
             args_.push_back(falseExp->node);

@@ -84,7 +84,7 @@ namespace ila
         static const std::string operatorNames[];
 
         // the operands themselves.
-        std::vector< boost::shared_ptr<Node> > args;
+        std::vector< nptr_t > args;
 
     private:
         // Don't forget to update these helper functions below.
@@ -93,27 +93,27 @@ namespace ila
         static bool isTernary(Op op) { return op >= IF && op <= IF; }
         // helper functions to check argument types.
         static bool checkUnaryOpTypes(
-            Op op, boost::shared_ptr<Node> n);
+            Op op, nptr_t n);
         static bool checkBinaryOpTypes(
             Op op, 
-            boost::shared_ptr<Node> n1, 
-            boost::shared_ptr<Node> n2);
+            nptr_t n1, 
+            nptr_t n2);
         static int checkTernaryOpTypes(
             Op op,
-            std::vector< boost::shared_ptr<Node> > args_);
+            std::vector< nptr_t > args_);
 
     public:
         // constructors.
         BoolOp(Abstraction* c, Op op, 
-                    boost::shared_ptr<Node> n1);
+                    nptr_t n1);
         BoolOp(Abstraction* c, Op op, 
-                    boost::shared_ptr<Node> n1, 
-                    boost::shared_ptr<Node> n2);
+                    nptr_t n1, 
+                    nptr_t n2);
         BoolOp(Abstraction* c, Op op,
-                    std::vector< boost::shared_ptr<Node> >& args_);
+                    std::vector< nptr_t >& args_);
         // kind of like a copy constructor, but use a fresh set of args.
         BoolOp(const BoolOp* other, 
-                std::vector< boost::shared_ptr<Node> >& args_);
+                std::vector< nptr_t >& args_);
         // destructors.
         virtual ~BoolOp();
 
@@ -130,7 +130,7 @@ namespace ila
         virtual unsigned nArgs() const;
 
         // operand i.
-        virtual boost::shared_ptr<Node> arg(unsigned i) const;
+        virtual nptr_t arg(unsigned i) const;
 
         // operation.
         Op getOp() const { return op; }

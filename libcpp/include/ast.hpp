@@ -27,7 +27,7 @@ namespace ila
     struct NodeRef 
     {
         // ------------------------ MEMBERS ----------------------------- //
-        boost::shared_ptr<Node> node;
+        nptr_t node;
 
         // --------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
         // Default constructor. DO NOT USE. Will throw an exception.
@@ -35,7 +35,7 @@ namespace ila
         // Constructor. DO NOT USE. Call factory methods in Context instead.
         NodeRef(Node* node);
         // Constructor from an existing shared_ptr.
-        NodeRef(const boost::shared_ptr<Node>& ptr);
+        NodeRef(const nptr_t& ptr);
         // Copy constructor.
         NodeRef(const NodeRef& nr);
         // Destructor.

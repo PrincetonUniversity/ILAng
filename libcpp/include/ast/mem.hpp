@@ -68,15 +68,12 @@ namespace ila
     class MemWr : public MemExpr {
     protected:
         // data members //
-        boost::shared_ptr<Node> mem;
-        boost::shared_ptr<Node> addr;
-        boost::shared_ptr<Node> data;
+        nptr_t mem;
+        nptr_t addr;
+        nptr_t data;
     public:
         // constructor
-        MemWr(
-            boost::shared_ptr<Node> m,
-            boost::shared_ptr<Node> a,
-            boost::shared_ptr<Node> d);
+        MemWr(nptr_t m, nptr_t a, nptr_t d);
         // copy constructor.
         MemWr(const MemWr& that);
         // destructor.

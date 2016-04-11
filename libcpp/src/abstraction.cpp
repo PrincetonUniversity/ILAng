@@ -81,7 +81,7 @@ namespace ila
         const std::string& name,
         NodeRef* e1, NodeRef* e2)
     {
-        std::vector< boost::shared_ptr<Node> > args = { 
+        std::vector< nptr_t > args = { 
             e1->node,
             e2->node
         };
@@ -189,7 +189,7 @@ namespace ila
 
         model m = S.get_model();
         SynRewriter rw(m, c1);
-        boost::shared_ptr<Node> nr = rw.rewrite(ex_n);
+        nptr_t nr = rw.rewrite(ex_n);
         std::cout << "synthesis result: " << *nr.get() << std::endl;
         return new NodeRef(nr);
     }

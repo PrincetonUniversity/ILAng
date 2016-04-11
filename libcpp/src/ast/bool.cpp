@@ -120,21 +120,21 @@ namespace ila
         return args.size();
     }
 
-    boost::shared_ptr<Node> BoolOp::arg(unsigned i) const
+    nptr_t BoolOp::arg(unsigned i) const
     {
         return i < args.size() ? args[i] : NULL;
     }
     // ---------------------------------------------------------------------- //
     bool BoolOp::checkUnaryOpTypes(
-        Op op, boost::shared_ptr<Node> arg0)
+        Op op, nptr_t arg0)
     {
         return arg0->type.isBool();
     }
 
     bool BoolOp::checkBinaryOpTypes(
         Op op, 
-        boost::shared_ptr<Node> n1, 
-        boost::shared_ptr<Node> n2)
+        nptr_t n1, 
+        nptr_t n2)
     {
         if (op >= SLT || op <= DISTINCT) {
             return n1->type == n2->type;
@@ -144,7 +144,7 @@ namespace ila
     }
 
     int BoolOp::checkTernaryOpTypes(
-       Op op, std::vector< boost::shared_ptr<Node> > args_)
+       Op op, std::vector< nptr_t > args_)
     {
         for (size_t i=0; i<args_.size(); i++) {
             if (!args_[i]->type.isBool()) {
@@ -158,7 +158,7 @@ namespace ila
     // constructor: unary ops.
     BoolOp::BoolOp(Abstraction* c, 
         Op op, 
-        boost::shared_ptr<Node> n1
+        nptr_t n1
     )
       : BoolExpr(c)
       , arity(UNARY)
@@ -184,8 +184,8 @@ namespace ila
     // constructor: binary ops.
     BoolOp::BoolOp(Abstraction* c, 
         Op op,
-        boost::shared_ptr<Node> n1,
-        boost::shared_ptr<Node> n2
+        nptr_t n1,
+        nptr_t n2
     )
       : BoolExpr(c)
       , arity(BINARY)
@@ -209,7 +209,7 @@ namespace ila
     BoolOp::BoolOp(
         Abstraction* c,
         Op op,
-        std::vector< boost::shared_ptr<Node> >& args_
+        std::vector< nptr_t >& args_
     )
         : BoolExpr(c)
         , arity(TERNARY)
@@ -233,7 +233,7 @@ namespace ila
             
     BoolOp::BoolOp(
         const BoolOp* other, 
-        std::vector< boost::shared_ptr<Node> >& args_)
+        std::vector< nptr_t >& args_)
       : BoolExpr(other->ctx)
       , arity(other->arity)
       , op(other->op)

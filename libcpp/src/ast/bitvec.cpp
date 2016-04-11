@@ -139,7 +139,7 @@ namespace ila
         return params.size();
     }
 
-    boost::shared_ptr<Node> BitvectorOp::arg(unsigned i) const
+    nptr_t BitvectorOp::arg(unsigned i) const
     {
         return i < args.size() ? args[i] : NULL;
     }
@@ -149,7 +149,7 @@ namespace ila
         return i < params.size() ? params[i] : 0;
     }
     // ---------------------------------------------------------------------- //
-    int BitvectorOp::getUnaryResultWidth(Op op, boost::shared_ptr<Node> n)
+    int BitvectorOp::getUnaryResultWidth(Op op, nptr_t n)
     {
         // FIXME: add more code when operators are added.
         if (op >= NEGATE && op <= RROTATE) {
@@ -160,7 +160,7 @@ namespace ila
     }
 
     int BitvectorOp::getBinaryResultWidth(
-        Op op, boost::shared_ptr<Node> n1, boost::shared_ptr<Node> n2)
+        Op op, nptr_t n1, nptr_t n2)
     {
         // FIXME: add more code when operators are added.
         if (op >= ADD && op <= MUL) {
@@ -177,7 +177,7 @@ namespace ila
     }
 
     int BitvectorOp::getBinaryResultWidth(
-        Op op, boost::shared_ptr<Node> n1, int param)
+        Op op, nptr_t n1, int param)
     {
         if (op >= Z_EXT && op <= S_EXT) {
             return param;
@@ -187,7 +187,7 @@ namespace ila
     }
 
     int BitvectorOp::getNaryResultWidth(
-        Op op, std::vector< boost::shared_ptr<Node> >& args)
+        Op op, std::vector< nptr_t >& args)
     {
         // FIXME: add more code when operators are added.
         if (op == IF && args.size() == 3) {
@@ -199,7 +199,7 @@ namespace ila
     }
 
     int BitvectorOp::getNaryResultWidth(
-        Op op, std::vector< boost::shared_ptr<Node> >& args, std::vector< int >& params)
+        Op op, std::vector< nptr_t >& args, std::vector< int >& params)
     {
         // FIXME: add more code when operators are added.
         if (op == EXTRACT && params.size() == 2) {
@@ -210,7 +210,7 @@ namespace ila
         }
     }
 
-    bool BitvectorOp::checkUnaryOpWidth(Op op, boost::shared_ptr<Node> arg0, int width)
+    bool BitvectorOp::checkUnaryOpWidth(Op op, nptr_t arg0, int width)
     {
         // FIXME: add more code when operators are added.
         if (op >= Z_EXT && op <= S_EXT) {
@@ -222,8 +222,8 @@ namespace ila
 
     int BitvectorOp::checkBinaryOpWidth(
         Op op, 
-        boost::shared_ptr<Node> n1, 
-        boost::shared_ptr<Node> n2,
+        nptr_t n1, 
+        nptr_t n2,
         int width)
     {
         // FIXME: add more code when operators are added.
@@ -258,7 +258,7 @@ namespace ila
 
     int BitvectorOp::checkBinaryOpWidth(
         Op op,
-        boost::shared_ptr<Node> n1,
+        nptr_t n1,
         int param,
         int width)
     {
@@ -282,7 +282,7 @@ namespace ila
     }
     int BitvectorOp::checkNaryOpWidth(
         Op op,
-        std::vector< boost::shared_ptr<Node> >& args,
+        std::vector< nptr_t >& args,
         int width)
     {
         // FIXME: modify the code if other n-ary ops are added.
@@ -302,7 +302,7 @@ namespace ila
 
     int BitvectorOp::checkNaryOpWidth(
         Op op,
-        std::vector< boost::shared_ptr<Node> >& args,
+        std::vector< nptr_t >& args,
         std::vector< int >& params,
         int width)
     {
@@ -326,7 +326,7 @@ namespace ila
     // constructor: unary ops.
     BitvectorOp::BitvectorOp(Abstraction* c, 
         Op op, 
-        boost::shared_ptr<Node> n1
+        nptr_t n1
     )
       : BitvectorExpr(c, getUnaryResultWidth(op, n1))
       , arity(UNARY)
@@ -353,7 +353,7 @@ namespace ila
     // constructor: unary op with int input (ex. rotate)
     BitvectorOp::BitvectorOp(Abstraction* c,
         Op op,
-        boost::shared_ptr<Node> n1,
+        nptr_t n1,
         int param
     )
       : BitvectorExpr(c, getBinaryResultWidth(op, n1, param))
@@ -376,7 +376,7 @@ namespace ila
     // constructor: extract
     BitvectorOp::BitvectorOp(
         Abstraction* c, Op op, 
-        boost::shared_ptr<Node> n1,
+        nptr_t n1,
         int p1, int p2
     )
         : BitvectorExpr(c, (p1 - p2)+1)
@@ -405,8 +405,8 @@ namespace ila
     // constructor: binary ops.
     BitvectorOp::BitvectorOp(Abstraction* c, 
         Op op,
-        boost::shared_ptr<Node> n1,
-        boost::shared_ptr<Node> n2
+        nptr_t n1,
+        nptr_t n2
     )
       : BitvectorExpr(c, getBinaryResultWidth(op, n1, n2))
       , arity(BINARY)
@@ -432,7 +432,7 @@ namespace ila
     // constructor: ternary ops
     BitvectorOp::BitvectorOp(
         Abstraction* c, Op op,
-        std::vector< boost::shared_ptr<Node> >& args_
+        std::vector< nptr_t >& args_
     )
       : BitvectorExpr(c, getNaryResultWidth(op, args_))
       , arity(NARY)
@@ -455,7 +455,7 @@ namespace ila
 
     BitvectorOp::BitvectorOp(
         const BitvectorOp* other, 
-        std::vector< boost::shared_ptr<Node> >& args_)
+        std::vector< nptr_t >& args_)
       : BitvectorExpr(other->ctx, other->type.bitWidth)
       , arity(other->arity)
       , op(other->op)

@@ -95,10 +95,7 @@ namespace ila
     }
 
     // ---------------------------------------------------------------------- //
-    MemWr::MemWr(
-        boost::shared_ptr<Node> m,
-        boost::shared_ptr<Node> a,
-        boost::shared_ptr<Node> d)
+    MemWr::MemWr(nptr_t m, nptr_t a, nptr_t d)
 
       : MemExpr(m->context(), m->type)
       , mem(m)
@@ -163,7 +160,7 @@ namespace ila
         return 3;
     }
 
-    boost::shared_ptr<Node> MemWr::arg(unsigned i) const
+    nptr_t MemWr::arg(unsigned i) const
     {
         if (i == 0) { return mem; }
         else if (i == 1) { return addr; }

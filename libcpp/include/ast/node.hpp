@@ -18,8 +18,10 @@ namespace ila
 {
     class Abstraction;
     class NodeRef;
+    class Node;
 
     typedef boost::multiprecision::cpp_int mp_int_t;
+    typedef boost::shared_ptr<Node> nptr_t;
 
     class Node {
         // ----------------- PRIVATE MEMBERS ----------------- //
@@ -67,7 +69,7 @@ namespace ila
         template<class F> void depthFirstVisit(F& func) const {
             unsigned n = nArgs();
             for(unsigned i=0; i != n; i++) {
-                boost::shared_ptr<Node> arg_i = this->arg(i);
+                nptr_t arg_i = this->arg(i);
                 arg_i->depthFirstVisit<F>(func);
             }
             func(this);
@@ -77,7 +79,7 @@ namespace ila
         virtual unsigned nArgs() const;
 
         // operand i.
-        virtual boost::shared_ptr<Node> arg(unsigned i) const;
+        virtual nptr_t arg(unsigned i) const;
 
         friend class NodeRef;
     };

@@ -44,7 +44,7 @@ namespace ila
         return 0;
     }
 
-    boost::shared_ptr<Node> Node::arg(unsigned i) const 
+    nptr_t Node::arg(unsigned i) const 
     {
         return NULL;
     }
