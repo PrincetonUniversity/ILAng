@@ -142,11 +142,7 @@ namespace ila
         static NodeRef* concat(NodeRef* lo, NodeRef* hi);
         static NodeRef* lrotate(NodeRef* obj, int par);
         static NodeRef* rrotate(NodeRef* obj, int par);
-//        static NodeRef* getBit(NodeRef* bv, NodeRef* idx);
         static NodeRef* extract(const NodeRef* obj, int hi, int lo);
-        static NodeRef* extractIV(NodeRef* obj, int hi, NodeRef* lo);
-        static NodeRef* extractVI(NodeRef* obj, NodeRef* hi, int lo);
-        static NodeRef* extractVV(NodeRef* obj, NodeRef* hi, NodeRef* lo);
         static NodeRef* zero_extend(NodeRef* obj, int outWidth);
         static NodeRef* sign_extend(NodeRef* obg, int outWidth);
 
@@ -187,6 +183,10 @@ namespace ila
 
     // stream output.
     std::ostream& operator<<(std::ostream& out, const NodeRef& node);
+
+    // utility functions to check whether two nodes have the same abstraction.
+    bool checkAbstractions(const NodeRef* l1, const NodeRef* l2);
+    bool checkAbstractions(const NodeRef* l1, const NodeRef* l2, const NodeRef* l3);
 
     // ---------------------------------------------------------------------- //
 }

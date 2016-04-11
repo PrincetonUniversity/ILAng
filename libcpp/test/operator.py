@@ -105,8 +105,8 @@ def main():
     assert c.areEqual(ila.nonzero(c4), top)
 
     #add nonzero to ite
-    assert c.areEqual( ila.ite(c2, top, bot), top)
-    assert c.areEqual( ila.ite(c0, top, bot), bot)
+    assert c.areEqual( ila.ite(ila.nonzero(c2), top, bot), top)
+    assert c.areEqual( ila.ite(ila.nonzero(c0), top, bot), bot)
 
     # zero/sign extend
     short = c4[3:0]

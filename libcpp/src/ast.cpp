@@ -62,36 +62,27 @@ namespace ila
     // ---------------------------------------------------------------------- //
     NodeRef* NodeRef::complement() const
     {
-        return _unOp(
-            BoolOp::NOT,
-            BitvectorOp::COMPLEMENT,
-            "complement");
+        return _unOp(BoolOp::NOT, BitvectorOp::COMPLEMENT, "complement");
     }
 
     NodeRef* NodeRef::negate() const
     {
-        return _unOp(
-            BoolOp::INVALID,
-            BitvectorOp::NEGATE,
-            "negate");
+        return _unOp(BoolOp::INVALID, BitvectorOp::NEGATE, "negate");
     }
 
     NodeRef* NodeRef::logicalAnd(NodeRef* other) const
     {
-        return _binOp(BoolOp::AND, BitvectorOp::AND,
-                        "and", other);
+        return _binOp(BoolOp::AND, BitvectorOp::AND, "and", other);
     }
 
     NodeRef* NodeRef::logicalOr(NodeRef* other) const
     {
-        return _binOp(BoolOp::OR, BitvectorOp::OR,
-                        "or", other);
+        return _binOp(BoolOp::OR, BitvectorOp::OR, "or", other);
     }
 
     NodeRef* NodeRef::logicalXor(NodeRef* other) const
     {
-        return _binOp(BoolOp::XOR, BitvectorOp::XOR,
-                        "xor", other);
+        return _binOp(BoolOp::XOR, BitvectorOp::XOR, "xor", other);
     }
 
     NodeRef* NodeRef::add(NodeRef* other) const
@@ -236,6 +227,7 @@ namespace ila
 
     NodeRef* NodeRef::getItem(NodeRef* idx) const
     {
+        if (!checkAbstractions(this, idx)) return NULL;
         if (node->type.isBitvector()) {
             return _binOp(BitvectorOp::GET_BIT, idx);
         } else if (node->type.isMem()) {
@@ -293,25 +285,23 @@ namespace ila
 
     NodeRef* NodeRef::store(NodeRef* mem, NodeRef* addr, NodeRef* data)
     {
+        if (!checkAbstractions(mem, addr, data)) return NULL;
         return new NodeRef(new MemWr(mem->node, addr->node, data->node));
     }
 
     NodeRef* NodeRef::logicalXnor(NodeRef* l, NodeRef* r)
     {
-        return _binOp(BoolOp::XNOR, BitvectorOp::XNOR,
-                        "xnor", l, r);
+        return _binOp(BoolOp::XNOR, BitvectorOp::XNOR, "xnor", l, r);
     }
 
     NodeRef* NodeRef::logicalNand(NodeRef* l, NodeRef* r)
     {
-        return _binOp(BoolOp::NAND, BitvectorOp::NAND,
-                        "nand", l, r);
+        return _binOp(BoolOp::NAND, BitvectorOp::NAND, "nand", l, r);
     }
 
     NodeRef* NodeRef::logicalNor(NodeRef* l, NodeRef* r)
     {
-        return _binOp(BoolOp::NOR, BitvectorOp::NOR,
-                        "nor", l, r);
+        return _binOp(BoolOp::NOR, BitvectorOp::NOR, "nor", l, r);
     }
 
     NodeRef* NodeRef::sdiv(NodeRef* l, NodeRef* r)
@@ -429,44 +419,6 @@ namespace ila
         return _cmpOp(BoolOp::SGE, l, r);
     }
 
-    NodeRef* NodeRef::extractIV(NodeRef* obj, int hi, NodeRef* lo)
-    {
-        // If lo > hi or lo < 0, return _extractOp(obj, hi, 0)
-        int wid = obj->node->type.bitWidth;
-        NodeRef* vi = zero_extend(_extractOp(obj, hi, 0), wid);
-        for (int i=0; i <= hi; i++) {
-            NodeRef* num = new NodeRef(new BitvectorConst(
-                    lo->node->ctx, i, lo->node->type.bitWidth));
-            NodeRef* cond = lo->eq(num);
-            NodeRef* vi_ = zero_extend(_extractOp(obj, hi, i), wid);
-            NodeRef* vi_next = ite(cond, vi_, vi);
-            vi = vi_next;
-        }
-        return vi;
-    }
-
-    NodeRef* NodeRef::extractVI(NodeRef* obj, NodeRef* hi, int lo)
-    {
-        // If hi < lo or hi > bitWidth, return _extractOp(this, width, lo)
-        int wid = obj->node->type.bitWidth;
-        NodeRef* vi = zero_extend(_extractOp(obj, wid-1, lo), wid);
-        for (int i=wid-1; i >= lo; i--) {
-            NodeRef* num = new NodeRef(new BitvectorConst(
-                    hi->node->ctx, i, hi->node->type.bitWidth));
-            NodeRef* cond = hi->eq(num);
-            NodeRef* vi_ = zero_extend(_extractOp(obj, i, lo), wid);
-            NodeRef* vi_next = ite(cond, vi_, vi);
-            vi = vi_next;
-        }
-        return vi;
-    }
-
-    NodeRef* NodeRef::extractVV(NodeRef* obj, NodeRef* hi, NodeRef* lo)
-    {
-        NodeRef* up = extractVI(obj, hi, 0);
-        return extractIV(up, up->node->type.bitWidth-1, lo);
-    }
-
     NodeRef* NodeRef::zero_extend(NodeRef* obj, int outWidth)
     {
         return _binOp(BitvectorOp::Z_EXT, obj, outWidth);
@@ -513,12 +465,9 @@ namespace ila
         const char* opName,
         NodeRef* other) const
     {
-        if (node->ctx != other->node->ctx) {
-            throw PyILAException(
-                PyExc_RuntimeError,
-                "Both operands of a binary operator must be from the same Abstraction.");
-            return NULL;
-        } else if (boolOp != BoolOp::INVALID && node->type.isBool()) {
+        if (!checkAbstractions(this, other)) return NULL;
+
+        if (boolOp != BoolOp::INVALID && node->type.isBool()) {
             return new NodeRef(new BoolOp(
                         node->ctx, boolOp, node, other->node));
         } else if (bvOp != BitvectorOp::INVALID && node->type.isBitvector()) {
@@ -533,12 +482,9 @@ namespace ila
 
     NodeRef* NodeRef::_binOp(BitvectorOp::Op op, NodeRef* other) const
     {
-        if (node->ctx != other->node->ctx) {
-            throw PyILAException(
-                PyExc_RuntimeError,
-                "Both operands of a binary operator must be from the same Abstraction.");
-            return NULL;
-        } else if (node->type.isBitvector()) {
+        if (!checkAbstractions(this, other)) return NULL;
+
+        if (node->type.isBitvector()) {
             return new NodeRef(new BitvectorOp(
                         node->ctx, op, node, other->node));
         } else if (node->type.isMem() && other->node->type.isBitvector()) {
@@ -587,6 +533,7 @@ namespace ila
                              NodeRef* other,
                              bool bvtype) const
     {
+        if (!checkAbstractions(this, other)) return NULL;
         if (node->ctx != other->node->ctx) {
             throw PyILAException(
                 PyExc_RuntimeError,
@@ -628,12 +575,8 @@ namespace ila
                              NodeRef* l, NodeRef* r, 
                              bool bvonly)
     {
-        if (l->node->ctx != l->node->ctx) {
-            throw PyILAException(
-                PyExc_RuntimeError,
-                "Operands must belong to the same Abstraction.");
-            return NULL;
-        } else if (l->node->type == r->node->type &&
+        if (!checkAbstractions(l, r)) return NULL;
+        if (l->node->type == r->node->type &&
                    (!bvonly || l->node->type.isBitvector())) {
             return new NodeRef(
                         new BoolOp(l->node->ctx, op, l->node, r->node));
@@ -667,12 +610,8 @@ namespace ila
         NodeRef* l,
         NodeRef* r)
     {
-        if (l->node->ctx != r->node->ctx) {
-            throw PyILAException(
-                PyExc_RuntimeError,
-                "Both operands of a binary operator must be from the same Abstraction.");
-            return NULL;
-        } else if (boolOp != BoolOp::INVALID && l->node->type.isBool()) {
+        if (!checkAbstractions(l, r)) return NULL;
+        if (boolOp != BoolOp::INVALID && l->node->type.isBool()) {
             return new NodeRef(new BoolOp(
                         l->node->ctx, boolOp, l->node, r->node));
         } else if (bvOp != BitvectorOp::INVALID && l->node->type.isBitvector()) {
@@ -688,12 +627,8 @@ namespace ila
 
     NodeRef* NodeRef::_binOp(BoolOp::Op op, NodeRef* l, NodeRef* r)
     {
-        if (l->node->ctx != r->node->ctx) {
-            throw PyILAException(
-                PyExc_RuntimeError,
-                "Both operands of a binary operator must be from the same Abstraction.");
-            return NULL;
-        } else if (l->node->type.isBool() && r->node->type.isBool()) {
+        if (!checkAbstractions(l, r)) return NULL;
+        if (l->node->type.isBool() && r->node->type.isBool()) {
             return new NodeRef(new BoolOp(
                         l->node->ctx, op, l->node, r->node));
         } else {
@@ -707,12 +642,8 @@ namespace ila
 
     NodeRef* NodeRef::_binOp(BitvectorOp::Op op, NodeRef* l, NodeRef* r)
     {
-        if (l->node->ctx != r->node->ctx) {
-            throw PyILAException(
-                PyExc_RuntimeError,
-                "Both operands of a binary operator must be from the same Abstraction.");
-            return NULL;
-        } else if (l->node->type.isBitvector()) {
+        if (!checkAbstractions(l, r)) return NULL;
+        if (l->node->type.isBitvector()) {
             return new NodeRef(new BitvectorOp(
                        l->node->ctx, op, l->node, r->node));
         } else {
@@ -765,16 +696,10 @@ namespace ila
     NodeRef* NodeRef::_triOp(BoolOp::Op boolOp, BitvectorOp::Op bvOp,
                              NodeRef* cond, NodeRef* trueExp, NodeRef* falseExp)
     {
-        if (trueExp->node->ctx != falseExp->node->ctx ||
-            trueExp->node->ctx != cond->node->ctx ||
-            falseExp->node->ctx != cond->node->ctx)
-        {
-            throw PyILAException(
-                PyExc_RuntimeError,
-                "2nd and 3rd operands of a ternary operator must be from the same Abstraction.");
-            return NULL;
-        } else if (trueExp->node->type != falseExp->node->type) // ||
-//                   !cond->node->type.isBool())
+        if (!checkAbstractions(cond, trueExp, falseExp)) return NULL;
+
+        if (trueExp->node->type != falseExp->node->type ||
+            !cond->node->type.isBool())
         {
             throw PyILAException(PyExc_TypeError, "Incorrect type for ITE");
             return NULL;
@@ -815,6 +740,29 @@ namespace ila
     std::ostream& operator<<(std::ostream& out, const NodeRef& n)
     {
         return (out << *n.node.get());
+    }
+
+    // ---------------------------------------------------------------------- //
+    bool checkAbstractions(const NodeRef* l1, const NodeRef* l2)
+    {
+        if (l1->node->context() != l2->node->context()) {
+            throw PyILAException(PyExc_RuntimeError,
+                "Operands must be from the same Abstraction.");
+            return false;
+        }
+        return true;
+    }
+
+    bool checkAbstractions(const NodeRef* l1, const NodeRef* l2, const NodeRef* l3)
+    {
+        if (l1->node->context() != l2->node->context() || 
+            l2->node->context() != l3->node->context()) 
+        {
+            throw PyILAException(PyExc_RuntimeError,
+                "Operands must be from the same Abstraction.");
+            return false;
+        }
+        return true;
     }
 
 }
