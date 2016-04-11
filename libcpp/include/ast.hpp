@@ -171,6 +171,8 @@ namespace ila
         static NodeRef* choice6(const std::string& name, 
                                 NodeRef* e1, NodeRef* e2, NodeRef* e3,
                                 NodeRef* e4, NodeRef* e5, NodeRef* e6);
+        static NodeRef* choiceL(const std::string& name, 
+                                const py::list& l);
     private:
         // ---------------------- HELPERS ----------------------------- //
         NodeRef* _unOp(BoolOp::Op boolOp, BitvectorOp::Op bvOp, const char* opName) const;

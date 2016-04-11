@@ -269,6 +269,8 @@ BOOST_PYTHON_MODULE(ila)
             return_value_policy<manage_new_object>());
     def("choice", &NodeRef::choice6, 
             return_value_policy<manage_new_object>());
+    def("choice", &NodeRef::choiceL, 
+            return_value_policy<manage_new_object>());
 
     // This is the top-level class.
     class_<Abstraction>("Abstraction", init<>())

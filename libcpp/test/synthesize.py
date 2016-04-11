@@ -41,7 +41,7 @@ def main():
     print sys.synthesize(ex, bar)
 
     a1 = ila.choice("a1", a, ~a, a&b, a|b)
-    b1 = ila.choice("b1", b, ~b)
+    b1 = ila.choice("b1", [b, ~b, a&b, a|b, a^b])
 
     a2 = ila.choice("a2", a, ~a)
     b2 = ila.choice("b2", b, ~b)

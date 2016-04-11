@@ -482,6 +482,29 @@ namespace ila
         return _choice(name, args);
     }
 
+    NodeRef* NodeRef::choiceL(const std::string& name, const py::list& l)
+    {
+        std::vector<nptr_t> args;
+        if (py::len(l) < 2) {
+            throw PyILAException(
+                PyExc_RuntimeError,
+                "Must have at least two choices.");
+            return NULL;
+        }
+
+        for (unsigned i=0; i != py::len(l); i++) {
+            py::extract<NodeRef&> ni(l[i]);
+            if (ni.check()) {
+                args.push_back(ni().node);
+            } else {
+                throw PyILAException(
+                    PyExc_TypeError,
+                    "Argument to choice must be a node.");
+            }
+        }
+        return _choice(name, args);
+    }
+
     // ---------------------------------------------------------------------- //
     NodeRef* NodeRef::_unOp(
         BoolOp::Op opBool, BitvectorOp::Op opBv, const char* opName) const
