@@ -450,6 +450,38 @@ namespace ila
         return _choice(name, args);
     }
 
+    NodeRef* NodeRef::choice3(
+        const std::string& name, NodeRef* e1, NodeRef* e2, NodeRef* e3)
+    {
+        std::vector< nptr_t > args = { e1->node, e2->node, e3->node };
+        return _choice(name, args);
+    }
+
+    NodeRef* NodeRef::choice4(
+        const std::string& name, NodeRef* e1, NodeRef* e2, NodeRef* e3, NodeRef* e4)
+    {
+        std::vector< nptr_t > args = { e1->node, e2->node, e3->node, e4->node };
+        return _choice(name, args);
+    }
+
+    NodeRef* NodeRef::choice5(const std::string& name, 
+                              NodeRef* e1, NodeRef* e2, 
+                              NodeRef* e3, NodeRef* e4, NodeRef* e5)
+    {
+        std::vector< nptr_t > args = 
+            { e1->node, e2->node, e3->node, e4->node, e5->node };
+        return _choice(name, args);
+    }
+
+    NodeRef* NodeRef::choice6(const std::string& name, 
+                              NodeRef* e1, NodeRef* e2, NodeRef* e3,
+                              NodeRef* e4, NodeRef* e5, NodeRef* e6)
+    {
+        std::vector< nptr_t > args = 
+            { e1->node, e2->node, e3->node, e4->node, e5->node, e6->node };
+        return _choice(name, args);
+    }
+
     // ---------------------------------------------------------------------- //
     NodeRef* NodeRef::_unOp(
         BoolOp::Op opBool, BitvectorOp::Op opBv, const char* opName) const

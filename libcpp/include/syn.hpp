@@ -47,9 +47,8 @@ namespace ila
                 bool ci = adapter.getChoiceBool<T>(m, op, i);
                 if (ci) { break; }
             }
-            std::cout << "choice result: " << i << std::endl;
             nptr_t nptr = op->arg(i+1);
-            nptr->write(std::cout << "expr: ") << std::endl;
+            // nptr->write(std::cout << "expr: ") << std::endl;
             exprmap.insert({(Node*)op, nptr});
         }
     };

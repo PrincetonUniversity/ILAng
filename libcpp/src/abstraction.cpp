@@ -16,6 +16,7 @@ namespace ila
 
     Abstraction::Abstraction()
       : objCnt(0)
+      , MAX_SYN_ITER(200)
     {
     }
 
@@ -94,11 +95,11 @@ namespace ila
         context c_;
         Z3ExprAdapter c1(c_, suffix1);
         Z3ExprAdapter c2(c_, suffix2);
-        std::cout << "dfs done." << std::endl;
+        // std::cout << "dfs done." << std::endl;
         expr e1 = c1.getExpr(ex_n);
-        std::cout << "e1=" << e1 << std::endl;
+        // std::cout << "e1=" << e1 << std::endl;
         expr e2 = c2.getExpr(ex_n);
-        std::cout << "e2=" << e2 << std::endl;
+        // std::cout << "e2=" << e2 << std::endl;
         expr y  = c_.bool_const("_mitre.output");
 
         // solver.
@@ -107,21 +108,21 @@ namespace ila
         // initial constraint.
         S.add((y == (e1 != e2)));
 
-        std::cout << S << std::endl;
+        // std::cout << S << std::endl;
 
         check_result r;
         int i = 1;
         dict args;
 
         // cegis loop.
-        while ((r = S.check(1, &y)) == sat) {
-            std::cout << "iteration #" << i++ << std::endl;
+        while (((r = S.check(1, &y)) == sat) && (i++ < MAX_SYN_ITER)) {
+            // std::cout << "iteration #" << i++ << std::endl;
 
             // extract model.
             model m = S.get_model();
             extractModelValues(c1, m, args);
 
-            std::cout << "model: " << m << std::endl;
+            // std::cout << "model: " << m << std::endl;
 
             // run the python code.
             py::object result = call<py::object, dict>(pyfun, args);
@@ -133,30 +134,36 @@ namespace ila
             expr er1 = cr1.getExpr(ex_n, result);
             expr er2 = cr2.getExpr(ex_n, result);
 
-            std::cout << "er1: " << er1 << std::endl;
-            std::cout << "er2: " << er2 << std::endl;
+            // std::cout << "er1: " << er1 << std::endl;
+            // std::cout << "er2: " << er2 << std::endl;
 
             expr es1 = er1.simplify();
             expr es2 = er2.simplify();
 
-            std::cout << "es1: " << es1 << std::endl;
-            std::cout << "es2: " << es2 << std::endl;
+            // std::cout << "es1: " << es1 << std::endl;
+            // std::cout << "es2: " << es2 << std::endl;
 
             S.add(es1);
             S.add(es2);
 
         }
 
-        std::cout << "finished after " << i << " SMT calls." << std::endl;
+        // std::cout << "finished after " << i << " SMT calls." << std::endl;
 
         expr ny = !y;
         r = S.check(1, &ny);
-        ILA_ASSERT(r == sat, "Unable to extract synthesis result.");
+        if (r != sat) {
+            throw PyILAException(
+                PyExc_RuntimeError, 
+                "Unable to extract synthesis result after " + 
+                boost::lexical_cast<std::string>(i) + " iterations.");
+            return NULL;
+        }
 
         model m = S.get_model();
         SynRewriter rw(m, c1);
         nptr_t nr = rw.rewrite(ex_n);
-        std::cout << "synthesis result: " << *nr.get() << std::endl;
+        // std::cout << "synthesis result: " << *nr.get() << std::endl;
         return new NodeRef(nr);
     }
 
@@ -174,15 +181,12 @@ namespace ila
         for (auto r : regs) {
             // extract int from z3.
             std::string s_e = c.extractNumeralString(m, r.get());
-            // dump output.
-            std::cout << r->name << "=" << s_e << std::endl;
             // convert to python.
             d[r->name] = to_pyint(s_e);
         }
 
         for (auto b : bits) {
             bool b_e = c.getBoolValue(m, b.get());
-            std::cout << b->name << "=" << b_e << std::endl;
             d[b->name] = (int) b_e;
         }
     }

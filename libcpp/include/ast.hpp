@@ -158,7 +158,19 @@ namespace ila
                             NodeRef* falseExp); 
 
         // choices
-        static NodeRef* choice2(const std::string& name, NodeRef* e1, NodeRef* e2);
+        static NodeRef* choice2(const std::string& name, 
+                                NodeRef* e1, NodeRef* e2);
+        static NodeRef* choice3(const std::string& name, 
+                                NodeRef* e1, NodeRef* e2, NodeRef* e3);
+        static NodeRef* choice4(const std::string& name, 
+                                NodeRef* e1, NodeRef* e2, 
+                                NodeRef* e3, NodeRef* e4);
+        static NodeRef* choice5(const std::string& name, 
+                                NodeRef* e1, NodeRef* e2, 
+                                NodeRef* e3, NodeRef* e4, NodeRef* e5);
+        static NodeRef* choice6(const std::string& name, 
+                                NodeRef* e1, NodeRef* e2, NodeRef* e3,
+                                NodeRef* e4, NodeRef* e5, NodeRef* e6);
     private:
         // ---------------------- HELPERS ----------------------------- //
         NodeRef* _unOp(BoolOp::Op boolOp, BitvectorOp::Op bvOp, const char* opName) const;

@@ -1,21 +1,21 @@
 import ila
 
 def foo(d):
-    print 'initial value: %s' % str(d)
+    # print 'initial value: %s' % str(d)
     return d['r0'] + d['r1']
 
 def bar(d):
-    print 'initial value: %s' % str(d)
+    # print 'initial value: %s' % str(d)
     return d['r0'] - d['r1']
 
 def baz(d):
-    print d
+    # print d
     a = d['a']
     b = d['b']
     return a ^ b
     
 def shaz(d):
-    print d
+    # print d
     a = d['a']
     b = d['b']
     return not(a ^ b)
@@ -36,11 +36,11 @@ def main():
     a = sys.bit('a')
     b = sys.bit('b')
 
-    ex = ila.choice("function", r0+r1, r0-r1)
+    ex = ila.choice("function", r0+r1, r0-r1, r0+r1+1)
     print sys.synthesize(ex, foo)
     print sys.synthesize(ex, bar)
 
-    a1 = ila.choice("a1", a, ~a)
+    a1 = ila.choice("a1", a, ~a, a&b, a|b)
     b1 = ila.choice("b1", b, ~b)
 
     a2 = ila.choice("a2", a, ~a)

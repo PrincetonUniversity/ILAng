@@ -14,6 +14,7 @@ namespace ila
     {
     private:
         int objCnt;
+        int MAX_SYN_ITER;
     protected:
         // Get a new ID.
         int getObjId();
