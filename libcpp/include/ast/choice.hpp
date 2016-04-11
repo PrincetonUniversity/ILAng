@@ -13,20 +13,20 @@ namespace ila
     // ---------------------------------------------------------------------- //
     struct Choice {
         // the operands themselves.
-        std::vector< boost::shared_ptr<Node> > args;
+        std::vector< nptr_t > args;
         // is it valid?
         bool valid;
         // vector of names for boolean variables.
         std::vector< std::string > choiceVars;
         // constructor.
         Choice(const std::string& name, 
-               const std::vector< boost::shared_ptr<Node> >& args);
+               const std::vector< nptr_t >& args);
         // destructor.
         ~Choice();
         
         // check types and return the result type.
         static NodeType getChoiceType(
-            const std::vector< boost::shared_ptr<Node> >& args);
+            const std::vector< nptr_t >& args);
 
         // check equality.
         bool equal(const Choice& that) const;
@@ -54,7 +54,7 @@ namespace ila
         // constructor.
         ChoiceExpr(
             Abstraction* c, const std::string& n_,
-            const std::vector< boost::shared_ptr<Node> >& args_)
+            const std::vector< nptr_t >& args_)
           : T(c, Choice::getChoiceType(args_))
           , choice(n_, args_)
         {
@@ -65,7 +65,7 @@ namespace ila
         virtual ~ChoiceExpr() {}
 
         // clone.
-        virtual Node* clone() 
+        virtual Node* clone() const
         {
             return new ChoiceExpr(this->ctx, this->name, choice.args);
         }
@@ -92,7 +92,7 @@ namespace ila
         }
 
         // return arg i.
-        virtual boost::shared_ptr<Node> arg(unsigned i) const
+        virtual nptr_t arg(unsigned i) const
         {
             if (i < choice.args.size()) { return choice.args[i]; } 
             else { return NULL; }

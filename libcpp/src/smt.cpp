@@ -381,6 +381,14 @@ namespace ila
         return _getChoiceExpr(op);
     }
 
+    z3::expr Z3ExprAdapter::getBVInRangeExpr(const BVInRange* op)
+    {
+        using namespace z3;
+
+        auto name = op->name + suffix;
+        return c.bv_const(name.c_str(), op->type.bitWidth);
+    }
+
     // ---------------------------------------------------------------------- //
 
     z3::expr Z3ExprAdapter::getArgExpr(const Node* n, int i)

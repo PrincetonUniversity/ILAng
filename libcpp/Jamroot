@@ -53,6 +53,7 @@ python-extension ila : src/ext.cpp
                        src/ast/bitvec.cpp 
                        src/ast/mem.cpp
                        src/ast/choice.cpp
+                       src/ast/bvinrange.cpp
                        src/memvalues.cpp
                        src/smt.cpp
                        src/syn.cpp

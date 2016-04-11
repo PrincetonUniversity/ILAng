@@ -18,6 +18,7 @@
 #include <ast/bitvec.hpp>
 #include <ast/mem.hpp>
 #include <ast/choice.hpp>
+#include <ast/bvinrange.hpp>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/python.hpp>

@@ -43,6 +43,8 @@ namespace ila
         virtual z3::expr getBvOpExpr(const BitvectorOp* op);
         // Convert a choice op into a Z3 expression. (bitvectors)
         virtual z3::expr getChoiceExpr(const BitvectorChoice* op);
+        // Convert a bv-in-range expression to Z3.
+        virtual z3::expr getBVInRangeExpr(const BVInRange* op);
 
         // Convert a memory var into a Z3 expression.
         virtual z3::expr getMemVarExpr(const MemVar* mv);
