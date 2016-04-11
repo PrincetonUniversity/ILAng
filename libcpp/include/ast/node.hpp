@@ -69,7 +69,7 @@ namespace ila
         template<class F> void depthFirstVisit(F& func) const {
             unsigned n = nArgs();
             for(unsigned i=0; i != n; i++) {
-                nptr_t arg_i = this->arg(i);
+                const nptr_t& arg_i = this->arg(i);
                 arg_i->depthFirstVisit<F>(func);
             }
             func(this);
