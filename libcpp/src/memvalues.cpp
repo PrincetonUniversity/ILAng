@@ -9,7 +9,7 @@
 namespace ila
 {
     // ---------------------------------------------------------------------- //
-    MemValues::MemValues(int aw, int dw, const boost::python::object& dv)
+    MemValues::MemValues(int aw, int dw, const py::object& dv)
       : type(NodeType::getMem(aw, dw))
       , MAX_ADDR(mp_int_t(1) << aw)
       , def_value(to_cpp_int(dv))
@@ -58,12 +58,12 @@ namespace ila
     {
     }
 
-    boost::python::object MemValues::getDefault() const
+    py::object MemValues::getDefault() const
     {
         return to_pyint(def_value);
     }
 
-    void MemValues::setDefault(const boost::python::object& o)
+    void MemValues::setDefault(const py::object& o)
     {
         try {
             mp_int_t dv = to_cpp_int(o);
@@ -73,9 +73,9 @@ namespace ila
         }
     }
 
-    boost::python::object MemValues::getValues() const
+    py::object MemValues::getValues() const
     {
-        boost::python::list l;
+        py::list l;
         for (auto p : values) {
             auto ai = to_pyint(p.first);
             auto di = to_pyint(p.second);
@@ -85,13 +85,13 @@ namespace ila
         return l;
     }
 
-    boost::python::object MemValues::getItem(const boost::python::object& index_) const
+    py::object MemValues::getItem(const py::object& index_) const
     {
         try {
             mp_int_t index = to_cpp_int(index_);
             if (index < 0 || index >= MAX_ADDR) {
                 throw PyILAException(PyExc_IndexError, "Index out of range.");
-                return boost::python::object();
+                return py::object();
             }
             auto pos = values.find(index);
             if (pos == values.end()) {
@@ -104,9 +104,7 @@ namespace ila
         }
     }
 
-    void MemValues::setItem(
-        const boost::python::object& index_, 
-        const boost::python::object& value_)
+    void MemValues::setItem(const py::object& index_, const py::object& value_)
     {
         mp_int_t index;
         mp_int_t value;

@@ -63,11 +63,11 @@ namespace ila
         return false;
     }
 
-    boost::python::object Node::getValue() const
+    py::object Node::getValue() const
     {
         throw PyILAException(PyExc_AttributeError,
             "Object does not have a value attribute.");
-        return boost::python::object();
+        return py::object();
     }
 
 

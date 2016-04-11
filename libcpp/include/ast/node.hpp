@@ -60,7 +60,7 @@ namespace ila
         virtual std::ostream& write(std::ostream& out) const;
         // return the value associated with this object (or None) 
         // if it doesn't exist.
-        virtual boost::python::object getValue() const;
+        virtual py::object getValue() const;
 
         // -------------------- VISITOR ----------------------//
         // Visit each child node in a depth-first order and

@@ -29,23 +29,22 @@ namespace ila
         map_t values;
 
         // constructor.
-        MemValues(int addrWidth, int dataWidth, const boost::python::object& def_val);
+        MemValues(int addrWidth, int dataWidth, const py::object& def_val);
         // construct from a model.
         MemValues(Z3ExprAdapter& c, const z3::model& m, const MemVar* mem);
         // destructor.
         ~MemValues();
 
         // return def_value
-        boost::python::object getDefault() const;
+        py::object getDefault() const;
         // set def_value.
-        void setDefault(const boost::python::object& dv);
+        void setDefault(const py::object& dv);
         // get nondefault values.
-        boost::python::object getValues() const;
+        py::object getValues() const;
         // __getitem__
-        boost::python::object getItem (const boost::python::object& index) const;
+        py::object getItem (const py::object& index) const;
         // __setitem__
-        void setItem (const boost::python::object& index, 
-                      const boost::python::object& value);
+        void setItem (const py::object& index, const py::object& value);
 
         // equality for python.
         bool eq(const MemValues& mv) const { return *this == mv; }

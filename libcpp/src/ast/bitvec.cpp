@@ -113,9 +113,9 @@ namespace ila
         }
     }
 
-    boost::python::object BitvectorConst::getValue() const
+    py::object BitvectorConst::getValue() const
     {
-        using namespace boost::python;
+        using namespace py;
 
         std::string vstr = boost::lexical_cast<std::string>(value);
         PyObject* l_e = PyInt_FromString((char*) vstr.c_str(), NULL, 0);

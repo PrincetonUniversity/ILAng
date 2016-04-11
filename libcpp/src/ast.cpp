@@ -283,7 +283,7 @@ namespace ila
         return _cmpOp(BoolOp::UGE, r);
     }
 
-    boost::python::object NodeRef::value() const
+    py::object NodeRef::value() const
     {
         return node->getValue();
     }

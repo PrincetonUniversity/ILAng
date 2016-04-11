@@ -27,7 +27,7 @@ namespace ila
         void extractModelValues(
             Z3ExprAdapter& c,
             z3::model& m, 
-            boost::python::dict& result
+            py::dict& result
         );
                 
     public:
@@ -44,7 +44,7 @@ namespace ila
         NodeRef* addMem(const std::string& name, int addrW, int dataW);
 
         // Create a bitvector constant with a long integer.
-        NodeRef* bvConstLong(boost::python::long_ l, int width);
+        NodeRef* bvConstLong(py::long_ l, int width);
         // Create a bitvector constant with an integer.
         NodeRef* bvConstInt(int l, int width);
 
@@ -53,7 +53,7 @@ namespace ila
         // Create a boolean constant (from an integer: nonzero = true).
         NodeRef* boolConstI(int b);
         // Create a boolean constant (from an python long).
-        NodeRef* boolConstL(boost::python::long_ b);
+        NodeRef* boolConstL(py::long_ b);
 
         // Create a memory constant (from a memvalues object).
         NodeRef* memConst(const MemValues& mv);

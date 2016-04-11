@@ -135,7 +135,7 @@ namespace ila
         // Destructor.
         ~Z3ExprRewritingAdapter();
         // wrapper over getExpr
-        z3::expr getExpr(const Node* n, const boost::python::object& result);
+        z3::expr getExpr(const Node* n, const py::object& result);
     };
 }
 

@@ -157,8 +157,7 @@ namespace ila
             std::cout << "model: " << m << std::endl;
 
             // run the python code.
-            boost::python::object result = 
-                call<boost::python::object, dict>(pyfun, args);
+            py::object result = call<py::object, dict>(pyfun, args);
 
             // now rewrite these expressions.
             Z3ExprRewritingAdapter cr1(c_, m, c1, suffix1);
@@ -195,10 +194,10 @@ namespace ila
     }
 
     void Abstraction::extractModelValues(
-        Z3ExprAdapter& c, z3::model& m, boost::python::dict& d)
+        Z3ExprAdapter& c, z3::model& m, py::dict& d)
     {
         using namespace z3;
-        using namespace boost::python;
+        using namespace py;
 
         for (auto mem: mems) {
             MemValues mv(c, m, dynamic_cast<MemVar*>(mem.get()));

@@ -67,7 +67,7 @@ namespace ila
         // equality method.
         virtual bool equal(const Node* that) const;
         // return value.
-        virtual boost::python::object getValue() const;
+        virtual py::object getValue() const;
         // stream output.
         virtual std::ostream& write(std::ostream& out) const;
         // get the value as a string.

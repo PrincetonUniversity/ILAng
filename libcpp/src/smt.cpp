@@ -449,9 +449,9 @@ namespace ila
         return memvals.toZ3(c);
     }
 
-    z3::expr Z3ExprRewritingAdapter::getExpr(const Node* n, const boost::python::object& result)
+    z3::expr Z3ExprRewritingAdapter::getExpr(const Node* n, const py::object& result)
     {
-        using namespace boost::python;
+        using namespace py;
         z3::expr r_e = Z3ExprAdapter::getExpr(n);
 
         if (n->type.isBool()) {

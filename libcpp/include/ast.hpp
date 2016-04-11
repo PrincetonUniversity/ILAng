@@ -102,7 +102,7 @@ namespace ila
 
 
         // does this object have a value?
-        boost::python::object value() const;
+        py::object value() const;
 
         // static function for non-python operators.
 
