@@ -135,6 +135,33 @@ namespace ila
         // stream output
         virtual std::ostream& write(std::ostream& out) const;
     };
+
+    // ---------------------------------------------------------------------- //
+    class WriteSlice : public BitvectorChoice
+    {
+    private:
+        // private constructor: called by the static function.
+        WriteSlice(Abstraction *c, const std::string& name, 
+                   const std::vector<nptr_t>& args, 
+                   const nptr_t& bv, const nptr_t& wr);
+    protected:
+        nptr_t bitvec;
+        nptr_t data;
+    public:
+        // destructor.
+        virtual ~WriteSlice();
+
+        // factory method.
+        static WriteSlice* createWriteSlice(
+            Abstraction* c, const std::string& name, 
+            const nptr_t& bv, const nptr_t& wr);
+            
+        // clone.
+        virtual Node* clone() const;
+
+        // stream output
+        virtual std::ostream& write(std::ostream& out) const;
+    };
 }
 
 #endif
