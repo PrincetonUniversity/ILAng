@@ -50,6 +50,7 @@ namespace ila
         const BitvectorConst* bvconst = NULL;
         const BitvectorOp* bvop = NULL;
         const BitvectorChoice* bvchoiceop = NULL;
+        const BVInRange* inrangeop = NULL;
 
         const MemVar* memvar = NULL;
         const MemConst* memconst = NULL;
@@ -84,6 +85,10 @@ namespace ila
             exprmap.insert({n, nptr});
         } else if ((bvchoiceop = dynamic_cast<const BitvectorChoice*>(n))) {
             _synChoiceExpr(bvchoiceop);
+        } else if ((inrangeop = dynamic_cast<const BVInRange*>(n))) {
+            mp_int_t v = adapter.getNumeralCppInt(m, n);
+            nptr_t nptr(new BitvectorConst(n->context(), v, n->type.bitWidth));
+            exprmap.insert({n, nptr});
         //// memories ////
         } else if ((memvar = dynamic_cast<const MemVar*>(n))) {
             nptr_t nptr(n->clone());

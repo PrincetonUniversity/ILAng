@@ -96,17 +96,21 @@ namespace ila
         Z3ExprAdapter c1(c_, suffix1);
         Z3ExprAdapter c2(c_, suffix2);
         // std::cout << "dfs done." << std::endl;
-        expr e1 = c1.getExpr(ex_n);
-        // std::cout << "e1=" << e1 << std::endl;
-        expr e2 = c2.getExpr(ex_n);
-        // std::cout << "e2=" << e2 << std::endl;
+        expr ex1 = c1.getExpr(ex_n);
+        expr cn1 = c1.getCnst(ex_n);
+        // std::cout << "ex1=" << ex1 << std::endl;
+        expr ex2 = c2.getExpr(ex_n);
+        expr cn2 = c2.getCnst(ex_n);
+        // std::cout << "ex2=" << ex2 << std::endl;
         expr y  = c_.bool_const("_mitre.output");
 
         // solver.
         solver S(c_);
 
         // initial constraint.
-        S.add((y == (e1 != e2)));
+        S.add((y == (ex1 != ex2)));
+        S.add(cn1);
+        S.add(cn2);
 
         // std::cout << S << std::endl;
 
@@ -131,8 +135,8 @@ namespace ila
             Z3ExprRewritingAdapter cr1(c_, m, c1, suffix1);
             Z3ExprRewritingAdapter cr2(c_, m, c2, suffix2);
 
-            expr er1 = cr1.getExpr(ex_n, result);
-            expr er2 = cr2.getExpr(ex_n, result);
+            expr er1 = cr1.getIOCnst(ex_n, result);
+            expr er2 = cr2.getIOCnst(ex_n, result);
 
             // std::cout << "er1: " << er1 << std::endl;
             // std::cout << "er2: " << er2 << std::endl;
@@ -199,19 +203,23 @@ namespace ila
         Z3ExprAdapter c(c_, "");
 
         // std::cout << "left: " << *left->node.get() << std::endl;
-        z3::expr e1 = c.getExpr(left->node.get());
-        //std::cout << "e1:" << e1 << std::endl;
+        z3::expr ex1 = c.getExpr(left->node.get());
+        z3::expr cn1 = c.getCnst(left->node.get());
+        //std::cout << "ex1:" << ex1 << std::endl;
 
         // std::cout << "right: " << *right->node.get() << std::endl;
-        z3::expr e2 = c.getExpr(right->node.get());
-        //std::cout << "e2:" << e2 << std::endl;
+        z3::expr ex2 = c.getExpr(right->node.get());
+        z3::expr cn2 = c.getCnst(right->node.get());
+        //std::cout << "ex2:" << ex2 << std::endl;
 
-        expr mitre = (e1 != e2);
+        expr mitre = (ex1 != ex2);
         //std::cout << "mitre:" << mitre << std::endl;
 
 
         solver S(c_);
         S.add(mitre);
+        S.add(cn1);
+        S.add(cn2);
         auto r = S.check();
         if (r == sat) {
             return false;

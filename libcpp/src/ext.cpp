@@ -272,6 +272,10 @@ BOOST_PYTHON_MODULE(ila)
     def("choice", &NodeRef::choiceL, 
             return_value_policy<manage_new_object>());
 
+    // inrange
+    def("inrange", &NodeRef::inRange,
+            return_value_policy<manage_new_object>());
+
     // This is the top-level class.
     class_<Abstraction>("Abstraction", init<>())
         .def("bit", &Abstraction::addBit, return_value_policy<manage_new_object>())

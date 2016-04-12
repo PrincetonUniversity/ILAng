@@ -505,6 +505,13 @@ namespace ila
         return _choice(name, args);
     }
 
+    NodeRef* NodeRef::inRange(const std::string& name, 
+                                  NodeRef* lo, NodeRef* hi)
+    {
+        if(!checkAbstractions(lo, hi)) return NULL;
+        return new NodeRef(new BVInRange(lo->node->ctx, name, lo->node, hi->node));
+    }
+
     // ---------------------------------------------------------------------- //
     NodeRef* NodeRef::_unOp(
         BoolOp::Op opBool, BitvectorOp::Op opBv, const char* opName) const

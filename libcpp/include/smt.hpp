@@ -18,8 +18,9 @@ namespace ila
         typedef std::unordered_map<const Node*, z3::expr> expr_map_t;
 
     protected:
-        // This is the "memo" used during memoization.
+        // These are used during memoization.
         expr_map_t exprmap;
+        expr_map_t cnstmap;
 
         // The underlying Z3 context.
         z3::context& c;
@@ -28,7 +29,19 @@ namespace ila
 
         // Utility function extracts the Z3 expression corresponding
         // to the i-th argument of the Node n.
-        z3::expr getArgExpr(const Node* n, int i);
+        z3::expr _getArg(const expr_map_t& m, const Node* n, int i);
+        // This extracts expressions from exprmap.
+        z3::expr getArgExpr(const Node* n, int i) {
+            return _getArg(exprmap, n, i);
+        }
+        // This extracts expressions from cnstmap.
+        z3::expr getArgCnst(const Node* n, int i) {
+            return _getArg(cnstmap, n, i);
+        }
+
+        // These functions populate exprmap and cnstmap.
+        void _populateExprMap(const Node* n);
+        void _populateCnstMap(const Node* n);
 
         // Convert a boolean variable into a Z3 expression.
         virtual z3::expr getBoolVarExpr(const BoolVar* bv);
@@ -43,8 +56,10 @@ namespace ila
         virtual z3::expr getBvOpExpr(const BitvectorOp* op);
         // Convert a choice op into a Z3 expression. (bitvectors)
         virtual z3::expr getChoiceExpr(const BitvectorChoice* op);
-        // Convert a bv-in-range expression to Z3.
+        // Convert a in-range expression to Z3.
         virtual z3::expr getBVInRangeExpr(const BVInRange* op);
+        // Constraints for the in-range operator.
+        virtual z3::expr getBVInRangeCnst(const BVInRange* op);
 
         // Convert a memory var into a Z3 expression.
         virtual z3::expr getMemVarExpr(const MemVar* mv);
@@ -65,6 +80,8 @@ namespace ila
 
         // This will call node->depthFirstVisit.
         z3::expr getExpr(const Node* n);
+        // As will this.
+        z3::expr getCnst(const Node* n);
 
         z3::context& ctx() const { return c; }
         
@@ -73,6 +90,8 @@ namespace ila
         std::string extractNumeralString(z3::model& m, const Node* r);
         // Extract the integer value of node r in model m.
         int getNumeralInt(z3::model& m, const Node* r);
+        // Extract the arbitrary precision int value of node r in model m.
+        mp_int_t getNumeralCppInt(z3::model& m, const Node* r);
         // Extract the boolean value of node r in model m.
         bool getBoolValue(z3::model& m, const Node* r);
         // Return the value of the ith choice boolean
@@ -136,8 +155,8 @@ namespace ila
             const char* suffix);
         // Destructor.
         ~Z3ExprRewritingAdapter();
-        // wrapper over getExpr
-        z3::expr getExpr(const Node* n, const py::object& result);
+        // wrapper over getExpr and getCnst
+        z3::expr getIOCnst(const Node* n, const py::object& result);
     };
 }
 

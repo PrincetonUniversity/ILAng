@@ -174,6 +174,10 @@ namespace ila
                                 NodeRef* e4, NodeRef* e5, NodeRef* e6);
         static NodeRef* choiceL(const std::string& name, 
                                 const py::list& l);
+        // in-range. 
+        static NodeRef* inRange(const std::string& name, 
+                                NodeRef* lo, NodeRef* hi);
+
     private:
         // ---------------------- HELPERS ----------------------------- //
         NodeRef* _unOp(BoolOp::Op boolOp, BitvectorOp::Op bvOp, const char* opName) const;

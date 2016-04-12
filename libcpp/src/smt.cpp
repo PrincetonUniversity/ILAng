@@ -31,8 +31,14 @@ namespace ila
         }
 
         // std::cout << "visiting: " << *n << std::endl;
+        _populateExprMap(n);
+        _populateCnstMap(n);
 
-        // now handle the various types.
+    }
+
+    void Z3ExprAdapter::_populateExprMap(const Node* n)
+    {
+        // handle the various types.
         const BoolVar* boolvar = NULL; 
         const BoolConst* boolconst = NULL;
         const BoolOp* boolop = NULL;
@@ -42,6 +48,7 @@ namespace ila
         const BitvectorConst* bvconst = NULL;
         const BitvectorOp* bvop = NULL;
         const BitvectorChoice* bvchoiceop = NULL;
+        const BVInRange* inrangeop = NULL;
 
         const MemVar* memvar = NULL;
         const MemConst* memconst = NULL;
@@ -75,6 +82,9 @@ namespace ila
         } else if ((bvchoiceop = dynamic_cast<const BitvectorChoice*>(n))) {
             z3::expr r = getChoiceExpr(bvchoiceop);
             exprmap.insert({n, r});
+        } else if ((inrangeop = dynamic_cast<const BVInRange*>(n))) {
+            z3::expr r = getBVInRangeExpr(inrangeop);
+            exprmap.insert({n, r});
 
         //// memories ////
         } else if ((memvar = dynamic_cast<const MemVar*>(n))) {
@@ -92,12 +102,43 @@ namespace ila
         }
     }
 
+    void Z3ExprAdapter::_populateCnstMap(const Node* n)
+    {
+        using namespace z3;
+
+        expr cnst = c.bool_val(true);
+        for (unsigned i=0, num=n->nArgs(); i != num; i++) {
+            expr cnst_i = getArgCnst(n, i);
+            cnst = cnst && cnst_i;
+        }
+        const BVInRange* inrangeop = NULL;
+        // only op which needs special handling is BVInRange.
+        if ((inrangeop = dynamic_cast<const BVInRange*>(n))) {
+            z3::expr c = getBVInRangeCnst(inrangeop);
+            cnst = cnst && c;
+        }
+        expr cnst_s = cnst.simplify();
+        cnstmap.insert({n, cnst_s});
+    }
+
     z3::expr Z3ExprAdapter::getExpr(const Node* n) 
     {
         n->depthFirstVisit(*this);
         auto pos = exprmap.find(n);
         ILA_ASSERT(pos != exprmap.end(), "expression not found in memo.");
         if (pos != exprmap.end()) {
+            return pos->second;
+        } else {
+            return c.bool_val(false);
+        }
+    }
+
+    z3::expr Z3ExprAdapter::getCnst(const Node* n)
+    {
+        n->depthFirstVisit(*this);
+        auto pos = cnstmap.find(n);
+        ILA_ASSERT(pos != cnstmap.end(), "constraint not found in memo.");
+        if (pos != cnstmap.end()) {
             return pos->second;
         } else {
             return c.bool_val(false);
@@ -120,13 +161,21 @@ namespace ila
     {
         using namespace z3;
 
-        z3::expr r_e = getExpr(r);
-        z3::expr m_e = m.eval(r_e, true);
+        expr r_e = getExpr(r);
+        expr m_e = m.eval(r_e, true);
         int i_e = 0;
 
         Z3_bool success = Z3_get_numeral_int(c, m_e, &i_e);
         ILA_ASSERT(success == Z3_TRUE, "Unable to extract int from model.");
         return i_e;
+    }
+
+    mp_int_t Z3ExprAdapter::getNumeralCppInt(z3::model& m, const Node* r)
+    {
+        using namespace z3;
+        std::string s_r = extractNumeralString(m, r);
+        mp_int_t m_r = boost::lexical_cast<mp_int_t>(s_r);
+        return m_r;
     }
 
     bool Z3ExprAdapter::getBoolValue(z3::model& m, const Node* r)
@@ -389,19 +438,31 @@ namespace ila
         return c.bv_const(name.c_str(), op->type.bitWidth);
     }
 
+    z3::expr Z3ExprAdapter::getBVInRangeCnst(const BVInRange* op)
+    {
+        using namespace z3;
+        auto name = op->name + suffix;
+        expr var = c.bv_const(name.c_str(), op->type.bitWidth);
+        expr lo  = getArgExpr(op, 0);
+        expr hi  = getArgExpr(op, 1);
+        expr lc(c, Z3_mk_bvuge(c, var, lo));
+        expr hc(c, Z3_mk_bvule(c, var, hi));
+        return lc && hc;
+    }
+
     // ---------------------------------------------------------------------- //
 
-    z3::expr Z3ExprAdapter::getArgExpr(const Node* n, int i)
+    z3::expr Z3ExprAdapter::_getArg(const expr_map_t& m, const Node* n, int i)
     {
         Node* arg = n->arg(i).get();
-        auto pos = exprmap.find(arg);
+        auto pos = m.find(arg);
         ILA_ASSERT(arg != NULL, "Invalid argument index.");
-        if (pos == exprmap.end()) {
+        if (pos == m.end()) {
             std::cout << "Unable to find argument: " << *arg
                       << "; of node: " << *n << std::endl;
         }
-        ILA_ASSERT(pos != exprmap.end(), "Unable to find argexpr in memo.");
-        if (pos == exprmap.end()) {
+        ILA_ASSERT(pos != m.end(), "Unable to find expression in memo.");
+        if (pos == m.end()) {
             return c.bool_val(false);
         } else {
             return pos->second;
@@ -457,16 +518,17 @@ namespace ila
         return memvals.toZ3(c);
     }
 
-    z3::expr Z3ExprRewritingAdapter::getExpr(const Node* n, const py::object& result)
+    z3::expr Z3ExprRewritingAdapter::getIOCnst(const Node* n, const py::object& result)
     {
         using namespace py;
         z3::expr r_e = Z3ExprAdapter::getExpr(n);
+        z3::expr c_e = Z3ExprAdapter::getCnst(n);
 
         if (n->type.isBool()) {
             // try to extract a bool.
             if (is_py_int(result)) {
                 int er = extract<int>(result);
-                return r_e == c.bool_val(er != 0);
+                return (r_e == c.bool_val(er != 0)) && c_e;
             } else {
                 throw PyILAException(PyExc_ValueError,
                     "Unable to convert result into a boolean.");
@@ -475,7 +537,7 @@ namespace ila
             // try to extract a bitvector.
             if (is_py_int_or_long(result)) {
                 std::string sr = to_string(result);
-                return r_e == c.bv_val(sr.c_str(), n->type.bitWidth);
+                return (r_e == c.bv_val(sr.c_str(), n->type.bitWidth)) && c_e;
             } else {
                 // we reach here only if there's an error.
                 throw PyILAException(
@@ -486,7 +548,7 @@ namespace ila
             // and now try to extract a memtype.
             extract<MemValues&> mv_r(result);
             if (mv_r.check()) {
-                return r_e == mv_r().toZ3(c);
+                return (r_e == mv_r().toZ3(c)) && c_e;
             } else {
                 throw PyILAException(PyExc_ValueError,
                         "Unable to convert result into a MemValues object.");
