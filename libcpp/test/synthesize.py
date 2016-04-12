@@ -25,6 +25,14 @@ def daz(d):
     r1 = d['r1']
     return r0 + r1 + 0x44
 
+def razmatazz(d):
+    r0 = d['r0']
+    r1 = d['r1']
+    r0lo = r0 & 0xf
+    r1hi = (r1 & 0xf0) >> 4
+    res = r0lo + r1hi
+    return res
+
 def fetch(d):
     print d
     addr = d['addr']
@@ -68,6 +76,13 @@ def main():
     z = ila.choice("func_z", r0+r1+c, r0+r1-c)
     resdaz = sys.synthesize(z, daz)
     print resdaz
+
+    slc0 = ila.readslice("r0slice", r0, 4)
+    slc1 = ila.readslice("r1slice", r1, 4)
+    res = ila.choice('slice', slc0 + slc1, slc0 - slc1)
+    print res
+    resrmz = sys.synthesize(res, razmatazz)
+    print resrmz
 
 if __name__ == '__main__':
     main()

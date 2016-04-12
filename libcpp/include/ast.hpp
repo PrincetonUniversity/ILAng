@@ -177,7 +177,8 @@ namespace ila
         // in-range. 
         static NodeRef* inRange(const std::string& name, 
                                 NodeRef* lo, NodeRef* hi);
-
+        // read-slice
+        static NodeRef* readSlice(const std::string& name, NodeRef* bv, int w);
     private:
         // ---------------------- HELPERS ----------------------------- //
         NodeRef* _unOp(BoolOp::Op boolOp, BitvectorOp::Op bvOp, const char* opName) const;

@@ -108,6 +108,33 @@ namespace ila
     typedef ChoiceExpr<BitvectorExpr> BitvectorChoice;
     typedef ChoiceExpr<BoolExpr> BoolChoice;
     typedef ChoiceExpr<MemExpr> MemChoice;
+
+    // ---------------------------------------------------------------------- //
+    class ReadSlice : public BitvectorChoice
+    {
+    private:
+        // private constructor: called by the static function.
+        ReadSlice(Abstraction *c, const std::string& name, 
+                  const std::vector<nptr_t>& args, 
+                  const nptr_t& bv, int width);
+    protected:
+        nptr_t bitvec;
+        int width;
+    public:
+        // destructor.
+        virtual ~ReadSlice();
+
+        // factory method.
+        static ReadSlice* createReadSlice(
+            Abstraction* c, const std::string& name, 
+            const nptr_t& bv, int width);
+            
+        // clone.
+        virtual Node* clone() const;
+
+        // stream output
+        virtual std::ostream& write(std::ostream& out) const;
+    };
 }
 
 #endif

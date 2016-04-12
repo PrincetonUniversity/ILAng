@@ -506,10 +506,22 @@ namespace ila
     }
 
     NodeRef* NodeRef::inRange(const std::string& name, 
-                                  NodeRef* lo, NodeRef* hi)
+                              NodeRef* lo, NodeRef* hi)
     {
         if(!checkAbstractions(lo, hi)) return NULL;
         return new NodeRef(new BVInRange(lo->node->ctx, name, lo->node, hi->node));
+    }
+
+    NodeRef* NodeRef::readSlice(const std::string& name, NodeRef* bv, int w)
+    {
+        if (!bv->node->type.isBitvector() || bv->node->type.bitWidth <= w || w <= 0) {
+            throw PyILAException(
+                PyExc_TypeError, 
+                "Argument to readslice must be a bitvector of width greater than result width.");
+            return NULL;
+        }
+        return new NodeRef(
+            ReadSlice::createReadSlice(bv->node->ctx, name, bv->node, w));
     }
 
     // ---------------------------------------------------------------------- //

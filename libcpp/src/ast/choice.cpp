@@ -1,6 +1,7 @@
 #include <ast.hpp>
 #include <type.hpp>
 #include <ast/choice.hpp>
+#include <exception.hpp>
 
 namespace ila
 {
@@ -53,6 +54,51 @@ namespace ila
         }
         return (out << ")");
     }
-    // ---------------------------------------------------------------------- //
-}
 
+    // ---------------------------------------------------------------------- //
+    ReadSlice::ReadSlice(Abstraction* c, const std::string& name,
+                         const std::vector<nptr_t>& args, 
+                         const nptr_t& bv, int w)
+      : BitvectorChoice(c, name, args)
+      , bitvec(bv)
+      , width(w)
+    {
+    }
+
+    ReadSlice::~ReadSlice()
+    {
+    }
+
+    // ---------------------------------------------------------------------- //
+    ReadSlice* ReadSlice::createReadSlice(
+        Abstraction* c, const std::string& name,
+        const nptr_t& bv, int width)
+    {
+        if (!bv->type.isBitvector() || bv->type.bitWidth <= width || width <= 0) {
+            throw PyILAException(PyExc_TypeError, 
+                "Argument to readslice must be a bitvector of width greater than result width.");
+            return NULL;
+        }
+        std::vector<nptr_t> args;
+        int msb = width-1, lsb=0;
+        for(; msb < bv->type.bitWidth; msb++, lsb++) {
+            nptr_t ni(new BitvectorOp(c, BitvectorOp::EXTRACT, bv, msb, lsb));
+            args.push_back(ni);
+        }
+        return new ReadSlice(c, name, args, bv, width);
+    }
+
+    // ---------------------------------------------------------------------- //
+    Node* ReadSlice::clone() const
+    {
+        return new ReadSlice(ctx, name, choice.args, bitvec, width);
+    }
+
+    std::ostream& ReadSlice::write(std::ostream& out) const
+    {
+        return out << "(read-slice " << "#" << width << " "
+                   << *bitvec.get() << ")";
+    }
+    // ---------------------------------------------------------------------- //
+
+}

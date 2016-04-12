@@ -276,6 +276,10 @@ BOOST_PYTHON_MODULE(ila)
     def("inrange", &NodeRef::inRange,
             return_value_policy<manage_new_object>());
 
+    // readslice.
+    def("readslice", &NodeRef::readSlice,
+            return_value_policy<manage_new_object>());
+
     // This is the top-level class.
     class_<Abstraction>("Abstraction", init<>())
         .def("bit", &Abstraction::addBit, return_value_policy<manage_new_object>())
