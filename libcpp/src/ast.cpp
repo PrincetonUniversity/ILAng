@@ -524,6 +524,22 @@ namespace ila
             ReadSlice::createReadSlice(bv->node->ctx, name, bv->node, w));
     }
 
+    NodeRef* NodeRef::writeSlice(const std::string& name, NodeRef* bv, NodeRef* wr)
+    {
+        if (!bv->node->type.isBitvector() || !wr->node->type.isBitvector() ||
+            bv->node->type.bitWidth <= wr->node->type.bitWidth) {
+
+            throw PyILAException(
+                PyExc_TypeError, 
+                "Incorrect types to writeslice arguments.");
+            return NULL;
+        }
+        return new NodeRef(
+            WriteSlice::createWriteSlice(
+                bv->node->ctx, name, 
+                bv->node, wr->node));
+    }
+
     // ---------------------------------------------------------------------- //
     NodeRef* NodeRef::_unOp(
         BoolOp::Op opBool, BitvectorOp::Op opBv, const char* opName) const

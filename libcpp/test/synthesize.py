@@ -33,6 +33,12 @@ def razmatazz(d):
     res = r0lo + r1hi
     return res
 
+def jazz(d):
+    r0 = d['r0']
+    r1 = d['r1']
+    r0lo = r0 & 0xf
+    return (r0 & 0xf) | (r0lo << 4)
+
 def fetch(d):
     print d
     addr = d['addr']
@@ -72,17 +78,19 @@ def main():
     assert sys.areEqual(resshaz, ~(a^b))
     
     c = ila.inrange("cnst", sys.const(0x00,8), sys.const(0xff,8))
-    print c, c.type
     z = ila.choice("func_z", r0+r1+c, r0+r1-c)
     resdaz = sys.synthesize(z, daz)
-    print resdaz
+    assert sys.areEqual(resdaz, r0 + r1 + 0x44)
 
     slc0 = ila.readslice("r0slice", r0, 4)
     slc1 = ila.readslice("r1slice", r1, 4)
     res = ila.choice('slice', slc0 + slc1, slc0 - slc1)
-    print res
     resrmz = sys.synthesize(res, razmatazz)
-    print resrmz
+    assert sys.areEqual(resrmz, r0[3:0]+r1[7:4])
+
+    nr0 = ila.writeslice("wr0slice", r0, slc0)
+    resjazz = sys.synthesize(nr0, jazz)
+    assert sys.areEqual(resjazz, ila.concat(r0[3:0], r0[3:0]))
 
 if __name__ == '__main__':
     main()

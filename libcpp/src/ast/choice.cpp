@@ -2,6 +2,7 @@
 #include <type.hpp>
 #include <ast/choice.hpp>
 #include <exception.hpp>
+#include <util.hpp>
 
 namespace ila
 {
@@ -128,10 +129,43 @@ namespace ila
         }
         std::vector<nptr_t> args;
         int msb = wr->type.bitWidth-1, lsb=0;
-        // FIXME: needs more work
         for(; msb < bv->type.bitWidth; msb++, lsb++) {
-            nptr_t ni(new BitvectorOp(c, BitvectorOp::EXTRACT, bv, msb, lsb));
-            args.push_back(ni);
+            int msb1 = bv->type.bitWidth-1;
+            int lsb1 = msb+1;
+
+            std::vector<nptr_t> pieces;
+            // is there a slice to the left of 'wr'?
+            if (msb1 >= lsb1) {
+                nptr_t n1(new BitvectorOp(c,
+                    BitvectorOp::EXTRACT, bv, msb1, lsb1));
+                pieces.push_back(n1);
+            } 
+            pieces.push_back(wr);
+
+            // is there a slice to the right of 'wr'?
+            nptr_t n2;
+            int msb2 = lsb-1;
+            int lsb2 = 0;
+            if (msb2 >= 0) {
+                nptr_t n2(new BitvectorOp(c,
+                    BitvectorOp::EXTRACT, bv, msb2, lsb2));
+                pieces.push_back(n2);
+            }
+
+            // now put the slices together.
+            ILA_ASSERT(pieces.size() == 2 || pieces.size() == 3,
+                       "Must have 2 or 3 pieces for writeslice args.");
+            if (pieces.size() == 2) {
+                nptr_t r(new BitvectorOp(c,
+                    BitvectorOp::CONCAT, pieces[0], pieces[1]));
+                args.push_back(r);
+            } else {
+                nptr_t r1(new BitvectorOp(c,
+                    BitvectorOp::CONCAT, pieces[0], pieces[1]));
+                nptr_t r2(new BitvectorOp(c,
+                    BitvectorOp::CONCAT, r1, pieces[2]));
+                args.push_back(r2);
+            }
         }
         return new WriteSlice(c, name, args, bv, wr);
     }
