@@ -96,11 +96,11 @@ namespace ila
         Z3ExprAdapter c1(c_, suffix1);
         Z3ExprAdapter c2(c_, suffix2);
         // std::cout << "dfs done." << std::endl;
-        expr ex1 = c1.getExpr(ex_n);
-        expr cn1 = c1.getCnst(ex_n);
+        expr ex1 = c1.getExpr(ex_n).simplify();
+        expr cn1 = c1.getCnst(ex_n).simplify();
         // std::cout << "ex1=" << ex1 << std::endl;
-        expr ex2 = c2.getExpr(ex_n);
-        expr cn2 = c2.getCnst(ex_n);
+        expr ex2 = c2.getExpr(ex_n).simplify();
+        expr cn2 = c2.getCnst(ex_n).simplify();
         // std::cout << "ex2=" << ex2 << std::endl;
         expr y  = c_.bool_const("_mitre.output");
 
