@@ -17,6 +17,8 @@ namespace ila
     Abstraction::Abstraction()
       : objCnt(0)
       , MAX_SYN_ITER(200)
+      , fetchExpr(NULL)
+      , fetchValid(new ila::BoolConst(this , true))
     {
     }
 
@@ -79,6 +81,86 @@ namespace ila
     }
 
 
+    NodeRef* Abstraction::getFetchExpr() const
+    {
+        return new NodeRef(fetchExpr);
+    }
+
+    void Abstraction::setFetchExpr(NodeRef* fe)
+    {
+        if (!fe->node->type.isBitvector()) {
+            throw PyILAException(
+                PyExc_TypeError,
+                "Fetch expression must be a bitvector.");
+            return;
+        }
+        fetchExpr = fe->node;
+    }
+
+    NodeRef* Abstraction::getFetchValid() const
+    {
+        return new NodeRef(fetchValid);
+    }
+
+    void Abstraction::setFetchValid(NodeRef* fv)
+    {
+        if (!fv->node->type.isBool()) {
+            throw PyILAException(
+                PyExc_TypeError,
+                "Fetch valid expression must be a boolean.");
+        }
+        fetchValid = fv->node;
+    }
+
+    // ---------------------------------------------------------------------- //
+    void Abstraction::setDecodeExpressions(const py::list& l)
+    {
+        unsigned sz = py::len(l);
+        // check size.
+        if (sz == 0) {
+            throw PyILAException(PyExc_ValueError,
+                "Must have at least one decode expression.");
+            return;
+        }
+        // check the decode expresssions.
+        for (unsigned i=0; i != sz; i++) {
+            py::extract<NodeRef&> ni_(l[i]);
+            if (ni_.check()) {
+                NodeRef& ni(ni_());
+                if (!ni.node->type.isBool()) {
+                    throw PyILAException(PyExc_TypeError,
+                        "Decode expressions must all be boolean.");
+                    return;
+                }
+            }
+        }
+
+        // now stuff them into the vector.
+        decodeExprs.clear();
+        for (unsigned i=0; i != sz; i++) {
+            py::extract<NodeRef&> ni_(l[i]);
+            ILA_ASSERT (ni_.check(), "Must be a boolean.");
+            NodeRef& ni(ni_());
+            decodeExprs.push_back(ni.node);
+        }
+    }
+
+    py::list Abstraction::getDecodeExpressions() const
+    {
+        py::list l;
+        for ( auto de : decodeExprs ) {
+            NodeRef* nr = new NodeRef(de);
+            l.append(nr);
+        }
+        return l;
+    }
+
+    // ---------------------------------------------------------------------- //
+    void Abstraction::synthesizeAll(PyObject* pyfun)
+    {
+    }
+
+    // ---------------------------------------------------------------------- //
     NodeRef* Abstraction::synthesize(NodeRef* ex, PyObject* pyfun)
     {
         using namespace py;

@@ -25,12 +25,19 @@ namespace ila
         // list of memories.
         std::vector< nptr_t > mems;
 
+        // fetch
+        nptr_t fetchExpr;
+        nptr_t fetchValid;
+
+        // decode
+        std::vector< nptr_t > decodeExprs;
+
         void extractModelValues(
             Z3ExprAdapter& c,
             z3::model& m, 
             py::dict& result
         );
-                
+
     public:
         // Constructor.
         Abstraction();
@@ -58,6 +65,22 @@ namespace ila
 
         // Create a memory constant (from a memvalues object).
         NodeRef* memConst(const MemValues& mv);
+
+        // return the current fetch expression.
+        NodeRef* getFetchExpr() const;
+        // set the fetch expression.
+        void setFetchExpr(NodeRef* expr);
+        // return the fetch valid expression.
+        NodeRef* getFetchValid() const;
+        // set the fetch valid expresssion.
+        void setFetchValid(NodeRef* expr);
+        // set decode.
+        void setDecodeExpressions(const py::list& l);
+        // get decode expressions.
+        py::list getDecodeExpressions() const;
+
+        // the real synthesize function.
+        void synthesizeAll(PyObject* fun);
 
         // the synthesis function.
         NodeRef* synthesize(NodeRef* expr, PyObject* fun);

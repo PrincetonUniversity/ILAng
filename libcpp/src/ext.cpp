@@ -299,6 +299,17 @@ BOOST_PYTHON_MODULE(ila)
 
         .def("synthesize", &Abstraction::synthesize, return_value_policy<manage_new_object>())
         .def("areEqual", &Abstraction::areEqual)
+
+        .add_property("fetch_expr", 
+            make_function(&Abstraction::getFetchExpr, return_value_policy<manage_new_object>()), 
+            &Abstraction::setFetchExpr)
+        .add_property("fetch_valid", 
+            make_function(&Abstraction::getFetchValid, return_value_policy<manage_new_object>()), 
+            &Abstraction::setFetchValid)
+
+        .add_property("decode_exprs", 
+            &Abstraction::getDecodeExpressions, 
+            &Abstraction::setDecodeExpressions)
     ;
 
     class_<MemValues>("MemValues", init<int, int, const object&>())

@@ -33,6 +33,8 @@ namespace ila
 
     NodeRef::~NodeRef()
     {
+        // stupid cout to help debug. need a better solution.
+        // std::cout << "destroying: " << *node.get() << std::endl;
     }
 
     NodeRef& NodeRef::operator=(const NodeRef& other)
