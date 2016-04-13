@@ -21,6 +21,7 @@ namespace ila
     class Node;
 
     typedef boost::shared_ptr<Node> nptr_t;
+    typedef std::vector<nptr_t> nptr_vec_t;
 
     class Node {
         // ----------------- PRIVATE MEMBERS ----------------- //

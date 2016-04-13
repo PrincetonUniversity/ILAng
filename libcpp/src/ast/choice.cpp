@@ -58,7 +58,7 @@ namespace ila
 
     // ---------------------------------------------------------------------- //
     ReadSlice::ReadSlice(Abstraction* c, const std::string& name,
-                         const std::vector<nptr_t>& args, 
+                         const nptr_vec_t& args, 
                          const nptr_t& bv, int w)
       : BitvectorChoice(c, name, args)
       , bitvec(bv)
@@ -80,7 +80,7 @@ namespace ila
                 "Argument to readslice must be a bitvector of width greater than result width.");
             return NULL;
         }
-        std::vector<nptr_t> args;
+        nptr_vec_t args;
         int msb = width-1, lsb=0;
         for(; msb < bv->type.bitWidth; msb++, lsb++) {
             nptr_t ni(new BitvectorOp(c, BitvectorOp::EXTRACT, bv, msb, lsb));
@@ -103,7 +103,7 @@ namespace ila
 
     // ---------------------------------------------------------------------- //
     WriteSlice::WriteSlice(Abstraction* c, const std::string& name,
-                           const std::vector<nptr_t>& args, 
+                           const nptr_vec_t& args, 
                            const nptr_t& bv, const nptr_t& wr)
       : BitvectorChoice(c, name, args)
       , bitvec(bv)
@@ -127,13 +127,13 @@ namespace ila
                 "Arguments to writeslice have the wrong type.");
             return NULL;
         }
-        std::vector<nptr_t> args;
+        nptr_vec_t args;
         int msb = wr->type.bitWidth-1, lsb=0;
         for(; msb < bv->type.bitWidth; msb++, lsb++) {
             int msb1 = bv->type.bitWidth-1;
             int lsb1 = msb+1;
 
-            std::vector<nptr_t> pieces;
+            nptr_vec_t pieces;
             // is there a slice to the left of 'wr'?
             if (msb1 >= lsb1) {
                 nptr_t n1(new BitvectorOp(c,

@@ -22,9 +22,7 @@ namespace ila
         // the expression converter we are using to evalute the model.
         Z3ExprAdapter& adapter;
         // find the rewritten args.
-        void getNewArgs(
-            const Node* n, 
-            std::vector< nptr_t >& args);
+        void getNewArgs(const Node* n, nptr_vec_t& args);
     public:
         // Constructor.
         SynRewriter(z3::model& m, Z3ExprAdapter& a);
@@ -47,7 +45,7 @@ namespace ila
                 bool ci = adapter.getChoiceBool<T>(m, op, i);
                 if (ci) { break; }
             }
-            std::vector<nptr_t> args;
+            nptr_vec_t args;
             getNewArgs(op, args);
             nptr_t nptr = args[i+1];
             // nptr->write(std::cout << "expr: ") << std::endl;

@@ -448,21 +448,21 @@ namespace ila
 
     NodeRef* NodeRef::choice2(const std::string& name, NodeRef* e1, NodeRef* e2)
     {
-        std::vector< nptr_t > args = { e1->node, e2->node };
+        nptr_vec_t args = { e1->node, e2->node };
         return _choice(name, args);
     }
 
     NodeRef* NodeRef::choice3(
         const std::string& name, NodeRef* e1, NodeRef* e2, NodeRef* e3)
     {
-        std::vector< nptr_t > args = { e1->node, e2->node, e3->node };
+        nptr_vec_t args = { e1->node, e2->node, e3->node };
         return _choice(name, args);
     }
 
     NodeRef* NodeRef::choice4(
         const std::string& name, NodeRef* e1, NodeRef* e2, NodeRef* e3, NodeRef* e4)
     {
-        std::vector< nptr_t > args = { e1->node, e2->node, e3->node, e4->node };
+        nptr_vec_t args = { e1->node, e2->node, e3->node, e4->node };
         return _choice(name, args);
     }
 
@@ -470,7 +470,7 @@ namespace ila
                               NodeRef* e1, NodeRef* e2, 
                               NodeRef* e3, NodeRef* e4, NodeRef* e5)
     {
-        std::vector< nptr_t > args = 
+        nptr_vec_t args = 
             { e1->node, e2->node, e3->node, e4->node, e5->node };
         return _choice(name, args);
     }
@@ -479,14 +479,14 @@ namespace ila
                               NodeRef* e1, NodeRef* e2, NodeRef* e3,
                               NodeRef* e4, NodeRef* e5, NodeRef* e6)
     {
-        std::vector< nptr_t > args = 
+        nptr_vec_t args = 
             { e1->node, e2->node, e3->node, e4->node, e5->node, e6->node };
         return _choice(name, args);
     }
 
     NodeRef* NodeRef::choiceL(const std::string& name, const py::list& l)
     {
-        std::vector<nptr_t> args;
+        nptr_vec_t args;
         if (py::len(l) < 2) {
             throw PyILAException(
                 PyExc_RuntimeError,
@@ -803,7 +803,7 @@ namespace ila
             return NULL;
         } else {
             NodeRef* normCond = (cond->node->type.isBool())? cond : NodeRef::nonzero(cond);
-            std::vector< nptr_t > args_;
+            nptr_vec_t args_;
             args_.push_back(normCond->node);
             args_.push_back(trueExp->node);
             args_.push_back(falseExp->node);
@@ -835,7 +835,7 @@ namespace ila
     }
 
     NodeRef* NodeRef::_choice(const std::string& name, 
-                              const std::vector<nptr_t>& args)
+                              const nptr_vec_t& args)
     {
         if (!checkAbstractions(args)) return NULL;
 
@@ -890,7 +890,7 @@ namespace ila
         return true;
     }
 
-    bool checkAbstractions(const std::vector<nptr_t>& args)
+    bool checkAbstractions(const nptr_vec_t& args)
     {
         if (args.size() == 0) {
             throw PyILAException(PyExc_RuntimeError,

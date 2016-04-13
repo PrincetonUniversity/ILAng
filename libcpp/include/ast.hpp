@@ -204,7 +204,7 @@ namespace ila
                             NodeRef* arg0, NodeRef* arg1, NodeRef* arg2);
         static NodeRef* _extractOp(const NodeRef* bv, int beg, int end);
         static NodeRef* _choice(const std::string& name, 
-                                const std::vector<nptr_t>& args);
+                                const nptr_vec_t& args);
     };
 
     // stream output.
@@ -213,7 +213,7 @@ namespace ila
     // utility functions to check whether two nodes have the same abstraction.
     bool checkAbstractions(const NodeRef* l1, const NodeRef* l2);
     bool checkAbstractions(const NodeRef* l1, const NodeRef* l2, const NodeRef* l3);
-    bool checkAbstractions(const std::vector<nptr_t>& args);
+    bool checkAbstractions(const nptr_vec_t& args);
 
     // ---------------------------------------------------------------------- //
 }

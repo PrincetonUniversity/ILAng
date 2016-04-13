@@ -19,18 +19,18 @@ namespace ila
         // Get a new ID.
         int getObjId();
         // list of registers.
-        std::vector< nptr_t > regs;
+        nptr_vec_t regs;
         // list of bits.
-        std::vector< nptr_t > bits;
+        nptr_vec_t bits;
         // list of memories.
-        std::vector< nptr_t > mems;
+        nptr_vec_t mems;
 
         // fetch
         nptr_t fetchExpr;
         nptr_t fetchValid;
 
         // decode
-        std::vector< nptr_t > decodeExprs;
+        nptr_vec_t decodeExprs;
 
         void extractModelValues(
             Z3ExprAdapter& c,

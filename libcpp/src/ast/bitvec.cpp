@@ -187,7 +187,7 @@ namespace ila
     }
 
     int BitvectorOp::getNaryResultWidth(
-        Op op, std::vector< nptr_t >& args)
+        Op op, nptr_vec_t& args)
     {
         // FIXME: add more code when operators are added.
         if (op == IF && args.size() == 3) {
@@ -199,7 +199,7 @@ namespace ila
     }
 
     int BitvectorOp::getNaryResultWidth(
-        Op op, std::vector< nptr_t >& args, std::vector< int >& params)
+        Op op, nptr_vec_t& args, std::vector< int >& params)
     {
         // FIXME: add more code when operators are added.
         if (op == EXTRACT && params.size() == 2) {
@@ -282,7 +282,7 @@ namespace ila
     }
     int BitvectorOp::checkNaryOpWidth(
         Op op,
-        std::vector< nptr_t >& args,
+        nptr_vec_t& args,
         int width)
     {
         // FIXME: modify the code if other n-ary ops are added.
@@ -302,7 +302,7 @@ namespace ila
 
     int BitvectorOp::checkNaryOpWidth(
         Op op,
-        std::vector< nptr_t >& args,
+        nptr_vec_t& args,
         std::vector< int >& params,
         int width)
     {
@@ -432,7 +432,7 @@ namespace ila
     // constructor: ternary ops
     BitvectorOp::BitvectorOp(
         Abstraction* c, Op op,
-        std::vector< nptr_t >& args_
+        nptr_vec_t& args_
     )
       : BitvectorExpr(c, getNaryResultWidth(op, args_))
       , arity(NARY)
@@ -455,7 +455,7 @@ namespace ila
 
     BitvectorOp::BitvectorOp(
         const BitvectorOp* other, 
-        std::vector< nptr_t >& args_)
+        nptr_vec_t& args_)
       : BitvectorExpr(other->ctx, other->type.bitWidth)
       , arity(other->arity)
       , op(other->op)

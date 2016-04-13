@@ -140,7 +140,7 @@ namespace ila
     }
 
     int BoolOp::checkTernaryOpTypes(
-       Op op, std::vector< nptr_t > args_)
+       Op op, nptr_vec_t args_)
     {
         for (size_t i=0; i<args_.size(); i++) {
             if (!args_[i]->type.isBool()) {
@@ -195,7 +195,7 @@ namespace ila
         args.push_back( n2 );
     }
 
-    BoolOp::BoolOp(Abstraction* c, Op op, std::vector< nptr_t >& args_)
+    BoolOp::BoolOp(Abstraction* c, Op op, nptr_vec_t& args_)
         : BoolExpr(c)
         , arity(TERNARY)
         , op(op)
@@ -216,7 +216,7 @@ namespace ila
         }
     }
             
-    BoolOp::BoolOp(const BoolOp* other, std::vector< nptr_t >& args_)
+    BoolOp::BoolOp(const BoolOp* other, nptr_vec_t& args_)
       : BoolExpr(other->ctx)
       , arity(other->arity)
       , op(other->op)

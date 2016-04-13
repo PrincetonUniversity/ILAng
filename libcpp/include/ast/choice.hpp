@@ -13,20 +13,20 @@ namespace ila
     // ---------------------------------------------------------------------- //
     struct Choice {
         // the operands themselves.
-        std::vector< nptr_t > args;
+        nptr_vec_t args;
         // is it valid?
         bool valid;
         // vector of names for boolean variables.
         std::vector< std::string > choiceVars;
         // constructor.
         Choice(const std::string& name, 
-               const std::vector< nptr_t >& args);
+               const nptr_vec_t& args);
         // destructor.
         ~Choice();
         
         // check types and return the result type.
         static NodeType getChoiceType(
-            const std::vector< nptr_t >& args);
+            const nptr_vec_t& args);
 
         // check equality.
         bool equal(const Choice& that) const;
@@ -54,7 +54,7 @@ namespace ila
         // constructor.
         ChoiceExpr(
             Abstraction* c, const std::string& n_,
-            const std::vector< nptr_t >& args_)
+            const nptr_vec_t& args_)
           : T(c, Choice::getChoiceType(args_))
           , choice(n_, args_)
         {
@@ -115,7 +115,7 @@ namespace ila
     private:
         // private constructor: called by the static function.
         ReadSlice(Abstraction *c, const std::string& name, 
-                  const std::vector<nptr_t>& args, 
+                  const nptr_vec_t& args, 
                   const nptr_t& bv, int width);
     protected:
         nptr_t bitvec;
@@ -142,7 +142,7 @@ namespace ila
     private:
         // private constructor: called by the static function.
         WriteSlice(Abstraction *c, const std::string& name, 
-                   const std::vector<nptr_t>& args, 
+                   const nptr_vec_t& args, 
                    const nptr_t& bv, const nptr_t& wr);
     protected:
         nptr_t bitvec;

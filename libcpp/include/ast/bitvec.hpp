@@ -102,7 +102,7 @@ namespace ila
 
     private:
         // the operands themselves.
-        std::vector< nptr_t > args;
+        nptr_vec_t args;
         std::vector< int > params;        
 
         // Don't forget to update these helper functions below.
@@ -131,17 +131,13 @@ namespace ila
             const nptr_t& n1,
             int param);
         static int getNaryResultWidth(
-            Op op, 
-            std::vector< nptr_t >& args);
+            Op op, nptr_vec_t& args);
         static int getNaryResultWidth(
-            Op op, 
-            std::vector< nptr_t >& args, 
+            Op op, nptr_vec_t& args, 
             std::vector< int >& params);
 
         static bool checkUnaryOpWidth(
-            Op op, 
-            const nptr_t& n, 
-            int width);
+            Op op, const nptr_t& n, int width);
         static int checkBinaryOpWidth(
             Op op, 
             const nptr_t& n1, 
@@ -153,12 +149,11 @@ namespace ila
             int param,
             int width);
         static int checkNaryOpWidth(
-            Op op,
-            std::vector< nptr_t >& args,
+            Op op, nptr_vec_t& args,
             int width);
         static int checkNaryOpWidth(
             Op op,
-            std::vector< nptr_t >& args,
+            nptr_vec_t& args,
             std::vector< int >& params,
             int width);
 
@@ -180,10 +175,10 @@ namespace ila
                     const nptr_t& n2);
         // Ternary op
         BitvectorOp(Abstraction* c, Op op,
-                    std::vector< nptr_t >& args_);
+                    nptr_vec_t& args_);
         // copy-constructor with a fresh set of args.
         BitvectorOp(const BitvectorOp* other, 
-                std::vector< nptr_t >& args_);
+                nptr_vec_t& args_);
         // destructors.
         virtual ~BitvectorOp();
 

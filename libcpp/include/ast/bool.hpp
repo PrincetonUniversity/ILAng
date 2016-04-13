@@ -84,7 +84,7 @@ namespace ila
         static const std::string operatorNames[];
 
         // the operands themselves.
-        std::vector< nptr_t > args;
+        nptr_vec_t args;
 
     private:
         // Don't forget to update these helper functions below.
@@ -94,15 +94,15 @@ namespace ila
         // helper functions to check argument types.
         static bool checkUnaryOpTypes(Op op, const nptr_t& n);
         static bool checkBinaryOpTypes(Op op, const nptr_t& n1, const nptr_t& n2);
-        static int checkTernaryOpTypes(Op op, std::vector< nptr_t > args_);
+        static int checkTernaryOpTypes(Op op, nptr_vec_t args_);
 
     public:
         // constructors.
         BoolOp(Abstraction* c, Op op, const nptr_t& n1);
         BoolOp(Abstraction* c, Op op, const nptr_t& n1, const nptr_t& n2);
-        BoolOp(Abstraction* c, Op op, std::vector< nptr_t >& args_);
+        BoolOp(Abstraction* c, Op op, nptr_vec_t& args_);
         // kind of like a copy constructor, but use a fresh set of args.
-        BoolOp(const BoolOp* other, std::vector< nptr_t >& args_);
+        BoolOp(const BoolOp* other, nptr_vec_t& args_);
         // destructors.
         virtual ~BoolOp();
 
