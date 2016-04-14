@@ -89,6 +89,12 @@ namespace ila
         bool areEqual(NodeRef* left, NodeRef* right) const;
 
         friend class Node;
+
+    protected:
+        nptr_t _synthesize(
+            const nptr_vec_t& assumps, const nptr_t& expr,
+            const std::string& name, PyObject* pyfun);
+
     };
 }
 #endif

@@ -312,4 +312,100 @@ namespace ila
             return false;
         }
     }
+
+    // ---------------------------------------------------------------------- //
+    nptr_t Abstraction::_synthesize(
+        const nptr_vec_t& assumps,
+        const nptr_t& ex,
+        const std::string& name,
+        PyObject* pyfun)
+    {
+        using namespace py;
+        using namespace z3;
+
+        static const char* suffix1 = ":1";
+        static const char* suffix2 = ":2";
+
+        Node* ex_n = ex.get();
+
+        // std::cout << "expression: " << *ex_n << std::endl;
+
+        // create the expressions.
+        context c_;
+        Z3ExprAdapter c1(c_, suffix1);
+        Z3ExprAdapter c2(c_, suffix2);
+        // std::cout << "dfs done." << std::endl;
+        expr ex1 = c1.getExpr(ex_n).simplify();
+        expr cn1 = c1.getCnst(ex_n).simplify();
+        // std::cout << "ex1=" << ex1 << std::endl;
+        expr ex2 = c2.getExpr(ex_n).simplify();
+        expr cn2 = c2.getCnst(ex_n).simplify();
+        // std::cout << "ex2=" << ex2 << std::endl;
+        expr y  = c_.bool_const("_mitre.output");
+
+        // solver.
+        solver S(c_);
+
+        // initial constraint.
+        S.add((y == (ex1 != ex2)));
+        S.add(cn1);
+        S.add(cn2);
+
+        // std::cout << S << std::endl;
+
+        check_result r;
+        int i = 1;
+        dict args;
+
+        // cegis loop.
+        while (((r = S.check(1, &y)) == sat) && (i++ < MAX_SYN_ITER)) {
+            // std::cout << "iteration #" << i++ << std::endl;
+
+            // extract model.
+            model m = S.get_model();
+            extractModelValues(c1, m, args);
+
+            // std::cout << "model: " << m << std::endl;
+
+            // run the python code.
+            py::object result = call<py::object, dict>(pyfun, args);
+
+            // now rewrite these expressions.
+            Z3ExprRewritingAdapter cr1(c_, m, c1, suffix1);
+            Z3ExprRewritingAdapter cr2(c_, m, c2, suffix2);
+
+            expr er1 = cr1.getIOCnst(ex_n, result);
+            expr er2 = cr2.getIOCnst(ex_n, result);
+
+            // std::cout << "er1: " << er1 << std::endl;
+            // std::cout << "er2: " << er2 << std::endl;
+
+            expr es1 = er1.simplify();
+            expr es2 = er2.simplify();
+
+            // std::cout << "es1: " << es1 << std::endl;
+            // std::cout << "es2: " << es2 << std::endl;
+
+            S.add(es1);
+            S.add(es2);
+
+        }
+
+        // std::cout << "finished after " << i << " SMT calls." << std::endl;
+
+        expr ny = !y;
+        r = S.check(1, &ny);
+        if (r != sat) {
+            throw PyILAException(
+                PyExc_RuntimeError, 
+                "Unable to extract synthesis result after " + 
+                boost::lexical_cast<std::string>(i) + " iterations.");
+            return NULL;
+        }
+
+        model m = S.get_model();
+        SynRewriter rw(m, c1);
+        nptr_t nr = rw.rewrite(ex_n);
+        return nr;
+    }
 }
