@@ -27,27 +27,83 @@ namespace ila
     }
 
     // ---------------------------------------------------------------------- //
+    NodeRef* Abstraction::addInp(const std::string& name, int width)
+    {
+        if(!checkAndInsertName(name)) return NULL;
+        NodeRef* n = new NodeRef(new ila::BitvectorVar(this, name, width));
+        inps.push_back(n->node);
+        return n;
+    }
+
+    // ---------------------------------------------------------------------- //
     NodeRef* Abstraction::addBit(const std::string& name)
     {
+        if(!checkAndInsertName(name)) return NULL;
         NodeRef* n = new NodeRef(new ila::BoolVar(this, name));
-        bits.push_back(n->node);
+        bits.insert({name, npair_t(n->node, NULL)});
         return n;
     }
 
     NodeRef* Abstraction::addReg(const std::string& name, int width)
     {
+        if(!checkAndInsertName(name)) return NULL;
         NodeRef* n = new NodeRef(new ila::BitvectorVar(this, name, width));
-        regs.push_back(n->node);
+        regs.insert({name, npair_t(n->node, NULL)});
         return n;
     }
 
     NodeRef* Abstraction::addMem(const std::string& name, int aw, int dw)
     {
+        if(!checkAndInsertName(name)) return NULL;
         NodeRef* n = new NodeRef(new ila::MemVar(this, name, aw, dw));
-        mems.push_back(n->node);
+        mems.insert({name, npair_t(n->node, NULL)});
         return n;
     }
 
+    // ---------------------------------------------------------------------- //
+    void Abstraction::setNext(const std::string& name, NodeRef* n)
+    {
+        // try to find the map we are adding to.
+        nmap_t* m = NULL;
+        if (n->node->type.isBool()) { m = &bits; }
+        else if (n->node->type.isBitvector()) { m = &regs; }
+        else if (n->node->type.isMem()) { m = &mems; }
+        else {
+            throw PyILAException(PyExc_TypeError, "Unexpected type.");
+            return;
+        }
+
+        // now try to find the variable.
+        auto pos = m->find(name);
+        if (pos == m->end()) {
+            throw PyILAException(PyExc_RuntimeError, "Unable to find var: " + name);
+            return;
+        }
+
+        // check types.
+        if (n->node->type != pos->second.var->type) {
+            throw PyILAException(PyExc_TypeError, 
+                "Next expression not same type as variable");
+        }
+
+        // finally make the assignment.
+        pos->second.next = n->node;
+    }
+
+    NodeRef* Abstraction::getNext(const std::string& name) const
+    {
+        // try to find in each of the maps.
+        auto pos = bits.find(name);
+        if (pos == bits.end()) pos = regs.find(name);
+        if (pos == regs.end()) pos = mems.find(name);
+        if (pos == mems.end()) {
+            throw PyILAException(PyExc_RuntimeError, "Unable to find var: " + name);
+            return NULL;
+        }
+        return new NodeRef(pos->second.next);
+    }
+
+    // ---------------------------------------------------------------------- //
     NodeRef* Abstraction::bvConstLong(py::long_ l_, int w)
     {
         auto l = to_cpp_int(l_);
@@ -156,100 +212,67 @@ namespace ila
     }
 
     // ---------------------------------------------------------------------- //
-    void Abstraction::synthesizeAll(PyObject* pyfun)
+    void Abstraction::addAssumption(NodeRef* expr)
     {
+        if (!expr->node->type.isBool()) {
+            throw PyILAException(PyExc_TypeError,
+                "Assumption must be a boolean.");
+            return;
+        }
+        assumps.push_back(expr->node);
+    }
+
+    py::list Abstraction::getAllAssumptions() const
+    {
+        py::list l;
+        for (auto assump : assumps) {
+            NodeRef* nr = new NodeRef(assump);
+            l.append(nr);
+        }
+        return l;
     }
 
     // ---------------------------------------------------------------------- //
-    NodeRef* Abstraction::synthesize(NodeRef* ex, PyObject* pyfun)
+    void Abstraction::synthesizeAll(PyObject* pyfun)
     {
-        using namespace py;
-        using namespace z3;
+        nptr_vec_t assumptions(assumps);
 
-        static const char* suffix1 = ":1";
-        static const char* suffix2 = ":2";
-
-        Node* ex_n = ex->node.get();
-
-        // std::cout << "expression: " << *ex_n << std::endl;
-
-        // create the expressions.
-        context c_;
-        Z3ExprAdapter c1(c_, suffix1);
-        Z3ExprAdapter c2(c_, suffix2);
-        // std::cout << "dfs done." << std::endl;
-        expr ex1 = c1.getExpr(ex_n).simplify();
-        expr cn1 = c1.getCnst(ex_n).simplify();
-        // std::cout << "ex1=" << ex1 << std::endl;
-        expr ex2 = c2.getExpr(ex_n).simplify();
-        expr cn2 = c2.getCnst(ex_n).simplify();
-        // std::cout << "ex2=" << ex2 << std::endl;
-        expr y  = c_.bool_const("_mitre.output");
-
-        // solver.
-        solver S(c_);
-
-        // initial constraint.
-        S.add((y == (ex1 != ex2)));
-        S.add(cn1);
-        S.add(cn2);
-
-        // std::cout << S << std::endl;
-
-        check_result r;
-        int i = 1;
-        dict args;
-
-        // cegis loop.
-        while (((r = S.check(1, &y)) == sat) && (i++ < MAX_SYN_ITER)) {
-            // std::cout << "iteration #" << i++ << std::endl;
-
-            // extract model.
-            model m = S.get_model();
-            extractModelValues(c1, m, args);
-
-            // std::cout << "model: " << m << std::endl;
-
-            // run the python code.
-            py::object result = call<py::object, dict>(pyfun, args);
-
-            // now rewrite these expressions.
-            Z3ExprRewritingAdapter cr1(c_, m, c1, suffix1);
-            Z3ExprRewritingAdapter cr2(c_, m, c2, suffix2);
-
-            expr er1 = cr1.getIOCnst(ex_n, result);
-            expr er2 = cr2.getIOCnst(ex_n, result);
-
-            // std::cout << "er1: " << er1 << std::endl;
-            // std::cout << "er2: " << er2 << std::endl;
-
-            expr es1 = er1.simplify();
-            expr es2 = er2.simplify();
-
-            // std::cout << "es1: " << es1 << std::endl;
-            // std::cout << "es2: " << es2 << std::endl;
-
-            S.add(es1);
-            S.add(es2);
-
+        for (auto r : regs) {
+            const std::string& name(r.first);
+            const nptr_t& next(r.second.next);
+            if (next == NULL) {
+                throw PyILAException(PyExc_RuntimeError,
+                            "Next expression not set for " + name);
+                return;
+            }
         }
 
-        // std::cout << "finished after " << i << " SMT calls." << std::endl;
+        for (auto r : regs) {
+            const std::string& name(r.first);
+            const nptr_t& next(r.second.next);
+            // std::cout << "trying to synthesize: " << name
+            //           << "; expr: " << *next.get() << std::endl;
 
-        expr ny = !y;
-        r = S.check(1, &ny);
-        if (r != sat) {
-            throw PyILAException(
-                PyExc_RuntimeError, 
-                "Unable to extract synthesis result after " + 
-                boost::lexical_cast<std::string>(i) + " iterations.");
-            return NULL;
+            for (auto de : decodeExprs) {
+                assumptions.push_back(de);
+
+                // std::cout << "decode: " << *de.get() << std::endl;
+
+                auto nr = _synthesize(name, assumptions, next, pyfun);
+                std::cout << name << ": " 
+                          << *de.get() << " -> "
+                          << *nr.get() << std::endl;
+                assumptions.pop_back();
+            }
         }
+    }
 
-        model m = S.get_model();
-        SynRewriter rw(m, c1);
-        nptr_t nr = rw.rewrite(ex_n);
-        // std::cout << "synthesis result: " << *nr.get() << std::endl;
+    // ---------------------------------------------------------------------- //
+    NodeRef* Abstraction::synthesizeElement(
+        const std::string& name, 
+        NodeRef* ex, PyObject* pyfun)
+    {
+        auto nr = _synthesize(name, assumps, ex->node, pyfun);
         return new NodeRef(nr);
     }
 
@@ -260,20 +283,23 @@ namespace ila
         using namespace py;
 
         for (auto mem: mems) {
-            MemValues mv(c, m, dynamic_cast<MemVar*>(mem.get()));
-            d[mem->name] = mv;
+            MemValues mv(c, m, dynamic_cast<MemVar*>(mem.second.var.get()));
+            d[mem.first] = mv;
         }
 
-        for (auto r : regs) {
-            // extract int from z3.
+        for (auto r : inps) {
             std::string s_e = c.extractNumeralString(m, r.get());
-            // convert to python.
             d[r->name] = to_pyint(s_e);
         }
 
+        for (auto r : regs) {
+            std::string s_e = c.extractNumeralString(m, r.second.var.get());
+            d[r.first] = to_pyint(s_e);
+        }
+
         for (auto b : bits) {
-            bool b_e = c.getBoolValue(m, b.get());
-            d[b->name] = (int) b_e;
+            bool b_e = c.getBoolValue(m, b.second.var.get());
+            d[b.first] = (int) b_e;
         }
     }
 
@@ -315,9 +341,9 @@ namespace ila
 
     // ---------------------------------------------------------------------- //
     nptr_t Abstraction::_synthesize(
-        const nptr_vec_t& assumps,
-        const nptr_t& ex,
         const std::string& name,
+        const nptr_vec_t& all_assumps,
+        const nptr_t& ex,
         PyObject* pyfun)
     {
         using namespace py;
@@ -346,6 +372,22 @@ namespace ila
         // solver.
         solver S(c_);
 
+        // add all assumptions.
+        for ( auto ai : all_assumps )  {
+            if (ai->hasSynthesisConstructs()) {
+                expr aie1 = c1.getExpr(ai.get()).simplify();
+                expr aic1 = c1.getCnst(ai.get()).simplify();
+                expr aie2 = c2.getExpr(ai.get()).simplify();
+                expr aic2 = c2.getCnst(ai.get()).simplify();
+                S.add(aie1); S.add(aic1);
+                S.add(aie2); S.add(aic2);
+            } else {
+                expr ei = c1.getExpr(ai.get()).simplify();
+                expr ci = c1.getCnst(ai.get()).simplify();
+                S.add(ei); S.add(ci);
+            }
+        }
+
         // initial constraint.
         S.add((y == (ex1 != ex2)));
         S.add(cn1);
@@ -368,14 +410,15 @@ namespace ila
             // std::cout << "model: " << m << std::endl;
 
             // run the python code.
-            py::object result = call<py::object, dict>(pyfun, args);
+            py::dict d = call<py::dict>(pyfun, args);
+            py::object r = d[name];
 
             // now rewrite these expressions.
             Z3ExprRewritingAdapter cr1(c_, m, c1, suffix1);
             Z3ExprRewritingAdapter cr2(c_, m, c2, suffix2);
 
-            expr er1 = cr1.getIOCnst(ex_n, result);
-            expr er2 = cr2.getIOCnst(ex_n, result);
+            expr er1 = cr1.getIOCnst(ex_n, r);
+            expr er2 = cr2.getIOCnst(ex_n, r);
 
             // std::cout << "er1: " << er1 << std::endl;
             // std::cout << "er2: " << er2 << std::endl;
@@ -407,5 +450,15 @@ namespace ila
         SynRewriter rw(m, c1);
         nptr_t nr = rw.rewrite(ex_n);
         return nr;
+    }
+    // ---------------------------------------------------------------------- //
+    bool Abstraction::checkAndInsertName(const std::string& name)
+    {
+        if (names.find(name) != names.end()) {
+            throw PyILAException(PyExc_RuntimeError,
+                "Variable with this name already exists.");
+            return false;
+        }
+        return true;
     }
 }

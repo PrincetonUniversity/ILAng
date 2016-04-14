@@ -1,20 +1,22 @@
 # This is a test which tries to synthesize a simple ALU.
 import ila
 
-def alu(opcode, regs, immediate):
+NUM_REGS = 8
+
+def alu(opcode, regs):
     ADD = 0
     SUB = 1
     AND = 2
     OR  = 3
-    MASK = 0xffff
+    MASK = 0xff
 
-    assert len(regs) == 8
+    assert len(regs) == NUM_REGS
 
     reg0_index = opcode & 0b111
     reg1_index = (opcode & 0b111000) >> 3
     r0 = regs[reg0_index]
     r1 = regs[reg1_index]
-    opcode = (opcode & 0b11000000)
+    opcode = (opcode & 0b11000000) >> 6
 
     if opcode == ADD:
         res = (r0 + r1) & MASK
@@ -26,29 +28,48 @@ def alu(opcode, regs, immediate):
         res = (r0 | r1)
     elif opcode == AND and reg0_index == reg1_index:
         res = ~r0
-    elif opcode == NEG and reg0_index == reg1_index:
+    elif opcode == OR and reg0_index == reg1_index:
         res = -r0
-    return res
+    else:
+        assert False
+
+    regs[reg0_index] = res
+    return regs
+
+def alusim(state):
+    #print state
+    opcode = state['opcode']
+    regs = [state['r%d' % i] for i in xrange(NUM_REGS)]
+    regs = alu(opcode, regs)
+    for i in xrange(NUM_REGS):
+        state['r%d' % i] = regs[i]
+    #print state
+    return state
 
 def model():
     sys = ila.Abstraction()
+    # state elements.
+    regs = [sys.reg('r%d' % i, 8) for i in xrange(NUM_REGS)]
+    opcode = sys.inp('opcode', 8)
 
-    regs = []
-    for i in xrange(8):
-        reg = 'r%d' % i
-        regs.append(sys.reg(reg, 16))
-
-    opcode = sys.reg('opcode', 8)
+    # get the two sources.
     r0 = ila.choice('r0', regs)
     r1 = ila.choice('r1', regs)
-    res = ila.choice('res', [r0+r1, r0-r1, r0&r1, r0|r1, ~r0, -r0, ~r1, -r1])
+    r0_index = ila.readslice('r0bits', opcode, 3)
+    e = ila.choice('res', [r0+r1, r0-r1, r0&r1, r0|r1, ~r0, -r0, ~r1, -r1])
 
-    print res
+    # set next.
+    regs_next = []
+    for i in xrange(NUM_REGS):
+        ri_next = ila.ite(r0_index == i, e, regs[i])
+        sys.set_next('r%d' % i, ri_next)
 
     # set the fetch expressions.
     sys.fetch_expr = opcode
     # now set the decode expressions.
     sys.decode_exprs = [opcode == i for i in xrange(256)]
+    # now synthesize.
+    sys.synthesize(alusim)
 
 if __name__ == '__main__':
     model()

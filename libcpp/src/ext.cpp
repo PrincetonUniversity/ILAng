@@ -286,9 +286,19 @@ BOOST_PYTHON_MODULE(ila)
 
     // This is the top-level class.
     class_<Abstraction>("Abstraction", init<>())
+        // inputs
+        .def("inp", &Abstraction::addInp, return_value_policy<manage_new_object>())
+
+        // bits.
         .def("bit", &Abstraction::addBit, return_value_policy<manage_new_object>())
+        // registers.
         .def("reg", &Abstraction::addReg, return_value_policy<manage_new_object>())
+        // memories.
         .def("mem", &Abstraction::addMem, return_value_policy<manage_new_object>())
+        // next function
+        .def("set_next", &Abstraction::setNext)
+        // get next.
+        .def("get_next", &Abstraction::getNext, return_value_policy<manage_new_object>())
 
         .def("const", &Abstraction::bvConstLong, return_value_policy<manage_new_object>())
         .def("const", &Abstraction::bvConstInt, return_value_policy<manage_new_object>())
@@ -297,8 +307,12 @@ BOOST_PYTHON_MODULE(ila)
         .def("bool", &Abstraction::boolConstI, return_value_policy<manage_new_object>())
         .def("bool", &Abstraction::boolConstL, return_value_policy<manage_new_object>())
 
-        .def("synthesize", &Abstraction::synthesize, return_value_policy<manage_new_object>())
+        .def("synthesize", &Abstraction::synthesizeAll)
+        .def("syn_elem", &Abstraction::synthesizeElement, return_value_policy<manage_new_object>())
         .def("areEqual", &Abstraction::areEqual)
+
+        .def("add_assumption", &Abstraction::addAssumption)
+        .def("get_all_assumptions", &Abstraction::getAllAssumptions)
 
         .add_property("fetch_expr", 
             make_function(&Abstraction::getFetchExpr, return_value_policy<manage_new_object>()), 

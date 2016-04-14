@@ -81,6 +81,10 @@ namespace ila
         // operand i.
         virtual nptr_t arg(unsigned i) const;
 
+        // helper function which walks through child nodes in AST
+        // and returns true if any "synthesis" construct are present.
+        bool hasSynthesisConstructs() const;
+
         friend class NodeRef;
     };
 

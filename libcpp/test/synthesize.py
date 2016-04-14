@@ -2,28 +2,28 @@ import ila
 
 def foo(d):
     # print 'initial value: %s' % str(d)
-    return d['r0'] + d['r1']
+    return { "sum": d['r0'] + d['r1'] }
 
 def bar(d):
     # print 'initial value: %s' % str(d)
-    return d['r0'] - d['r1']
+    return { "diff": d['r0'] - d['r1'] }
 
 def baz(d):
     # print d
     a = d['a']
     b = d['b']
-    return a ^ b
+    return  { "baz": a ^ b }
     
 def shaz(d):
     # print d
     a = d['a']
     b = d['b']
-    return not(a ^ b)
+    return { "shaz": not(a ^ b) }
 
 def daz(d):
     r0 = d['r0']
     r1 = d['r1']
-    return r0 + r1 + 0x44
+    return { "daz": r0 + r1 + 0x44 }
 
 def razmatazz(d):
     r0 = d['r0']
@@ -31,13 +31,13 @@ def razmatazz(d):
     r0lo = r0 & 0xf
     r1hi = (r1 & 0xf0) >> 4
     res = r0lo + r1hi
-    return res
+    return { "razmatazz": res }
 
 def jazz(d):
     r0 = d['r0']
     r1 = d['r1']
     r0lo = r0 & 0xf
-    return (r0 & 0xf) | (r0lo << 4)
+    return { "jazz": (r0 & 0xf) | (r0lo << 4) }
 
 def fetch(d):
     print d
@@ -56,10 +56,10 @@ def main():
     b = sys.bit('b')
 
     ex = ila.choice("function", r0+r1, r0-r1, r0+r1+1)
-    resfoo = sys.synthesize(ex, foo)
+    resfoo = sys.syn_elem("sum", ex, foo)
     assert sys.areEqual(resfoo, r0+r1)
 
-    resbar = sys.synthesize(ex, bar)
+    resbar = sys.syn_elem("diff", ex, bar)
     assert sys.areEqual(resbar, r0-r1)
 
     a1 = ila.choice("a1", a, ~a, a&b, a|b)
@@ -71,25 +71,25 @@ def main():
     t1 = a1 & b1
     t2 = a2 & b2
     y  = t1 | t2
-    resbaz = sys.synthesize(y, baz)
+    resbaz = sys.syn_elem("baz", y, baz)
     assert sys.areEqual(resbaz, a^b)
 
-    resshaz= sys.synthesize(y, shaz)
+    resshaz= sys.syn_elem("shaz", y, shaz)
     assert sys.areEqual(resshaz, ~(a^b))
     
     c = ila.inrange("cnst", sys.const(0x00,8), sys.const(0xff,8))
     z = ila.choice("func_z", r0+r1+c, r0+r1-c)
-    resdaz = sys.synthesize(z, daz)
+    resdaz = sys.syn_elem("daz", z, daz)
     assert sys.areEqual(resdaz, r0 + r1 + 0x44)
 
     slc0 = ila.readslice("r0slice", r0, 4)
     slc1 = ila.readslice("r1slice", r1, 4)
     res = ila.choice('slice', slc0 + slc1, slc0 - slc1)
-    resrmz = sys.synthesize(res, razmatazz)
+    resrmz = sys.syn_elem("razmatazz", res, razmatazz)
     assert sys.areEqual(resrmz, r0[3:0]+r1[7:4])
 
     nr0 = ila.writeslice("wr0slice", r0, slc0)
-    resjazz = sys.synthesize(nr0, jazz)
+    resjazz = sys.syn_elem("jazz", nr0, jazz)
     assert sys.areEqual(resjazz, ila.concat(r0[3:0], r0[3:0]))
 
 if __name__ == '__main__':

@@ -4,7 +4,7 @@ def foo(d):
     ram = d['iram']
     addr = d['addr']
     r = ram[addr]+1
-    return r
+    return { "foo": r}
 
 def main():
     sys = ila.Abstraction()
@@ -65,7 +65,7 @@ def main():
     r1 = iram[addr]+1
     r2 = iram[addr]+iram[addr+1]
     r = ila.choice('r', r1, r2)
-    print sys.synthesize(r, foo)
+    print sys.syn_elem("foo", r, foo)
 
     def bar(d):
         print d
@@ -79,12 +79,12 @@ def main():
         print ram_, addr, ram[addr]
         ram_[addr] = ram_[addr]+1
         print ram_
-        return ram_
+        return { "bar":  ram_ }
 
     r1 = ila.store(iram, addr, iram[addr]+1)
     r2 = ila.store(iram, addr, iram[addr]+2)
     rp = ila.choice('rp', r1, r2)
-    print sys.synthesize(rp, bar)
+    print sys.syn_elem("bar", rp, bar)
 
 if __name__ == '__main__':
     main()

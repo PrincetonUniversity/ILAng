@@ -1,29 +1,48 @@
 #ifndef __ABSTRACTION_HPP_DEFINED__
 #define __ABSTRACTION_HPP_DEFINED__
 
-#include <common.hpp>
+#include <set>
+#include <map>
 #include <string>
+#include <boost/python.hpp>
+
+#include <common.hpp>
 #include <ast.hpp>
 #include <smt.hpp>
-#include <boost/python.hpp>
 #include <list>
 
 namespace ila
 {
     class Abstraction
     {
+    public:
+        struct npair_t {
+            nptr_t var;
+            nptr_t next;
+
+            npair_t(const nptr_t& v, const nptr_t& n) : var(v) , next(n) { }
+            ~npair_t() { }
+        };
+        typedef std::map<std::string, npair_t> nmap_t;
+
     private:
         int objCnt;
         int MAX_SYN_ITER;
     protected:
         // Get a new ID.
         int getObjId();
+
+        // list of known names.
+        std::set<std::string> names;
+
+        // list of inputs
+        nptr_vec_t inps;
         // list of registers.
-        nptr_vec_t regs;
+        nmap_t regs;
         // list of bits.
-        nptr_vec_t bits;
+        nmap_t bits;
         // list of memories.
-        nptr_vec_t mems;
+        nmap_t mems;
 
         // fetch
         nptr_t fetchExpr;
@@ -31,6 +50,9 @@ namespace ila
 
         // decode
         nptr_vec_t decodeExprs;
+
+        // assumptions.
+        nptr_vec_t assumps;
 
         void extractModelValues(
             Z3ExprAdapter& c,
@@ -44,12 +66,20 @@ namespace ila
         // Destructor.
         ~Abstraction();
 
+        // Create a bitvector input.
+        NodeRef* addInp(const std::string& name, int width);
+
         // Create a boolean variable.
         NodeRef* addBit(const std::string& name);
         // Create a bitvector variable.
         NodeRef* addReg(const std::string& name, int width);
         // Create a memory.
         NodeRef* addMem(const std::string& name, int addrW, int dataW);
+
+        // Set the next template for this memory var.
+        void setNext(const std::string& name, NodeRef* n);
+        // Get the next template.
+        NodeRef* getNext(const std::string& name) const;
 
         // Create a bitvector constant with a long integer.
         NodeRef* bvConstLong(py::long_ l, int width);
@@ -79,11 +109,18 @@ namespace ila
         // get decode expressions.
         py::list getDecodeExpressions() const;
 
+        // add an assumption.
+        void addAssumption(NodeRef* expr);
+        // get all assumptions.
+        py::list getAllAssumptions() const;
+
         // the real synthesize function.
         void synthesizeAll(PyObject* fun);
 
         // the synthesis function.
-        NodeRef* synthesize(NodeRef* expr, PyObject* fun);
+        NodeRef* synthesizeElement(
+            const std::string& name, 
+            NodeRef* expr, PyObject* fun);
 
         // check equality function.
         bool areEqual(NodeRef* left, NodeRef* right) const;
@@ -92,9 +129,11 @@ namespace ila
 
     protected:
         nptr_t _synthesize(
+            const std::string& name, 
             const nptr_vec_t& assumps, const nptr_t& expr,
-            const std::string& name, PyObject* pyfun);
+            PyObject* pyfun);
 
+        bool checkAndInsertName(const std::string& name);
     };
 }
 #endif

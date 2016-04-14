@@ -76,6 +76,36 @@ namespace ila
         return (out << name);
     }
 
+    // ---------------------------------------------------------------------- //
+    // private visitor class //
+    namespace {
+        struct SynCounter {
+            int cnt;
+        public:
+            SynCounter() : cnt(0) {}
+            void operator() (const Node* n) {
+                if (dynamic_cast<const BoolChoice*>(n)      ||
+                    dynamic_cast<const BitvectorChoice*>(n) ||
+                    dynamic_cast<const MemChoice*>(n)       ||
+                    dynamic_cast<const BVInRange*>(n))
+                {
+                    cnt += 1;
+                }
+            }
+            operator int() const {
+                return cnt;
+            }
+        };
+    }
+
+    bool Node::hasSynthesisConstructs() const
+    {
+        SynCounter sc;
+        depthFirstVisit(sc);
+        return (static_cast<int>(sc) != 0);
+    }
+
+    // ---------------------------------------------------------------------- //
     std::ostream& operator<<(std::ostream& out, const Node& that)
     {
         return that.write(out);
