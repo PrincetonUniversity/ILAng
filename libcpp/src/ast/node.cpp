@@ -110,4 +110,26 @@ namespace ila
     {
         return that.write(out);
     }
+
+    // ---------------------------------------------------------------------- //
+    void Node::visit(NodeVisitorI& vi)
+    {
+        unsigned n = nArgs();
+        vi.preVisit(this);
+        for (unsigned i=0; i != n; i++) {
+            const nptr_t& arg_i = this->arg(i);
+            arg_i->visit(vi);
+        }
+        vi.postVisit(this);
+    }
+
+    // ---------------------------------------------------------------------- //
+    void NodeVisitorI::preVisit(const Node* n)
+    {
+    }
+
+    void NodeVisitorI::postVisit(const Node* n)
+    {
+    }
+    // ---------------------------------------------------------------------- //
 }

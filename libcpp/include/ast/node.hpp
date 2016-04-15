@@ -19,6 +19,7 @@ namespace ila
     class Abstraction;
     class NodeRef;
     class Node;
+    class NodeVisitorI;
 
     typedef boost::shared_ptr<Node> nptr_t;
     typedef std::vector<nptr_t> nptr_vec_t;
@@ -63,7 +64,7 @@ namespace ila
         // if it doesn't exist.
         virtual py::object getValue() const;
 
-        // -------------------- VISITOR ----------------------//
+        // ----------------- TEMPLATED VISITOR -----------------//
         // Visit each child node in a depth-first order and
         // apply the function object F on it.
         template<class F> void depthFirstVisit(F& func) const {
@@ -74,6 +75,10 @@ namespace ila
             }
             func(this);
         }
+
+        // -------------------- VISITOR ----------------------//
+        void visit(NodeVisitorI& vi);
+
 
         // number of operands.
         virtual unsigned nArgs() const;
@@ -89,6 +94,13 @@ namespace ila
     };
 
     std::ostream& operator<<(std::ostream& out, const Node& that);
+
+
+    // ---------------------------------------------------------------------- //
+    struct NodeVisitorI {
+        virtual void preVisit(const Node*);
+        virtual void postVisit(const Node*);
+    };
 }
 
 #endif
