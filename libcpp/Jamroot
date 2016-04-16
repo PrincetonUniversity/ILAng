@@ -45,20 +45,21 @@ project
 
 # Declare the three extension modules.  You can specify multiple
 # source files after the colon separated by spaces.
-python-extension ila : src/ext.cpp 
-                       src/ast.cpp 
-                       src/abstraction.cpp
-                       src/ast/node.cpp 
-                       src/ast/bool.cpp
+python-extension ila : src/abstraction.cpp
                        src/ast/bitvec.cpp 
-                       src/ast/mem.cpp
-                       src/ast/choice.cpp
+                       src/ast/bool.cpp
                        src/ast/bvinrange.cpp
+                       src/ast/choice.cpp
+                       src/ast.cpp 
+                       src/ast/mem.cpp
+                       src/ast/node.cpp 
+                       src/exception.cpp 
+                       src/ext.cpp 
                        src/memvalues.cpp
+                       src/simplify.cpp
                        src/smt.cpp
                        src/syn.cpp
                        src/type.cpp 
-                       src/exception.cpp 
                        src/util.cpp 
                      : <include>./include ;
 
