@@ -108,7 +108,10 @@ namespace ila
     // ---------------------------------------------------------------------- //
     std::ostream& operator<<(std::ostream& out, const Node& that)
     {
+        auto f = out.flags();
+        out << std::hex << std::showbase;
         return that.write(out);
+        out.flags(f);
     }
 
     // ---------------------------------------------------------------------- //

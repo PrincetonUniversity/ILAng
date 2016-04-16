@@ -356,8 +356,15 @@ namespace ila
 
         // std::cout << "expression: " << *ex_n << std::endl;
 
-        // create the expressions.
+        // create the context and solver.
         context c_;
+        solver S(c_);
+        // set params.
+        params p(c_);
+        p.set(":unsat-core", true);
+        S.set(p);
+
+        // create the expressions.
         Z3ExprAdapter c1(c_, suffix1);
         Z3ExprAdapter c2(c_, suffix2);
         // std::cout << "dfs done." << std::endl;
@@ -368,9 +375,6 @@ namespace ila
         expr cn2 = c2.getCnst(ex_n).simplify();
         // std::cout << "ex2=" << ex2 << std::endl;
         expr y  = c_.bool_const("_mitre.output");
-
-        // solver.
-        solver S(c_);
 
         // add all assumptions.
         for ( auto ai : all_assumps )  {
@@ -396,7 +400,7 @@ namespace ila
         // std::cout << S << std::endl;
 
         check_result r;
-        int i = 1;
+        int i = 0;
         dict args;
 
         // cegis loop.
@@ -429,9 +433,10 @@ namespace ila
             // std::cout << "es1: " << es1 << std::endl;
             // std::cout << "es2: " << es2 << std::endl;
 
-            S.add(es1);
-            S.add(es2);
-
+            std::string n1 = "i"+boost::lexical_cast<std::string>(i)+"a";
+            std::string n2 = "i"+boost::lexical_cast<std::string>(i)+"b";
+            S.add(es1, n1.c_str());
+            S.add(es2, n2.c_str());
         }
 
         // std::cout << "finished after " << i << " SMT calls." << std::endl;
@@ -439,6 +444,7 @@ namespace ila
         expr ny = !y;
         r = S.check(1, &ny);
         if (r != sat) {
+            std::cout << "unsat core: " << S.unsat_core() << std::endl;
             throw PyILAException(
                 PyExc_RuntimeError, 
                 "Unable to extract synthesis result after " + 
