@@ -58,7 +58,7 @@ python-extension ila : src/abstraction.cpp
                        src/memvalues.cpp
                        src/simplify.cpp
                        src/smt.cpp
-                       src/syn.cpp
+                       src/synrewriter.cpp
                        src/type.cpp 
                        src/util.cpp 
                      : <include>./include ;

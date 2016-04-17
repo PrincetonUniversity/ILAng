@@ -1,4 +1,4 @@
-#include <syn.hpp>
+#include <synrewriter.hpp>
 #include <util.hpp>
 
 namespace ila

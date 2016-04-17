@@ -1,7 +1,7 @@
 #include <abstraction.hpp>
 #include <exception.hpp>
 #include <smt.hpp>
-#include <syn.hpp>
+#include <synrewriter.hpp>
 #include <util.hpp>
 
 #include <boost/multiprecision/cpp_int.hpp>
