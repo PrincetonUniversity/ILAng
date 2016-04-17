@@ -1,6 +1,7 @@
 #include <abstraction.hpp>
 #include <exception.hpp>
 #include <smt.hpp>
+#include <synthesizer.hpp>
 #include <synrewriter.hpp>
 #include <util.hpp>
 
@@ -235,36 +236,8 @@ namespace ila
     // ---------------------------------------------------------------------- //
     void Abstraction::synthesizeAll(PyObject* pyfun)
     {
-        nptr_vec_t assumptions(assumps);
-
-        for (auto r : regs) {
-            const std::string& name(r.first);
-            const nptr_t& next(r.second.next);
-            if (next == NULL) {
-                throw PyILAException(PyExc_RuntimeError,
-                            "Next expression not set for " + name);
-                return;
-            }
-        }
-
-        for (auto r : regs) {
-            const std::string& name(r.first);
-            const nptr_t& next(r.second.next);
-            // std::cout << "trying to synthesize: " << name
-            //           << "; expr: " << *next.get() << std::endl;
-
-            for (auto de : decodeExprs) {
-                assumptions.push_back(de);
-
-                // std::cout << "decode: " << *de.get() << std::endl;
-
-                auto nr = _synthesize(name, assumptions, next, pyfun);
-                std::cout << name << ": " 
-                          << *de.get() << " -> "
-                          << *nr.get() << std::endl;
-                assumptions.pop_back();
-            }
-        }
+        Synthesizer syn(*this);
+        syn.synthesizeAll(pyfun);
     }
 
     // ---------------------------------------------------------------------- //

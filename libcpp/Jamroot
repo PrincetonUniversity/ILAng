@@ -58,6 +58,7 @@ python-extension ila : src/abstraction.cpp
                        src/memvalues.cpp
                        src/simplify.cpp
                        src/smt.cpp
+                       src/synthesizer.cpp
                        src/synrewriter.cpp
                        src/type.cpp 
                        src/util.cpp 
@@ -87,7 +88,7 @@ testing.make-test run-pyd : ila test/operator.py : : test_operator ;
 
 testing.make-test run-pyd : ila test/mem.py : : test_mem ;
 
-# testing.make-test run-pyd : ila test/alu.py : : test_alu ;
+testing.make-test run-pyd : ila test/alu.py : : test_alu ;
 
 
 # A little "rule" (function) to clean up the syntax of declaring tests

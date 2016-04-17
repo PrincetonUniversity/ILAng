@@ -9,7 +9,6 @@
 #include <common.hpp>
 #include <ast.hpp>
 #include <smt.hpp>
-#include <list>
 
 namespace ila
 {
@@ -134,6 +133,8 @@ namespace ila
             PyObject* pyfun);
 
         bool checkAndInsertName(const std::string& name);
+
+        friend class Synthesizer;
     };
 }
 #endif
