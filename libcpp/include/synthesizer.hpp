@@ -1,8 +1,9 @@
 #ifndef __SYNTHESIZER_HPP_DEFINED__
 #define __SYNTHESIZER_HPP_DEFINED__
 
-#include <set>
 #include <map>
+#include <set>
+#include <memory>
 #include <string>
 #include <boost/python.hpp>
 #include <boost/shared_ptr.hpp>
@@ -21,14 +22,14 @@ namespace ila
     // ---------------------------------------------------------------------- //
     struct SupportVars
     {
-        // set of nodes.
-        std::set<const Node*> vars;
+        // set of booleans.
+        std::set<const BoolVar*> bools;
+        // set of bitvectors.
+        std::set<const BitvectorVar*> bitvecs;
         // visitor function.
         void operator() (const Node* n);
-        // check if a node is present in the 
-        bool hasNode(const Node* v) const;
-        // version that uses nptr_t.
-        bool hasNode(const nptr_t& v) const;
+        // reset.
+        void clear();
     };
 
     // ---------------------------------------------------------------------- //
@@ -39,6 +40,7 @@ namespace ila
         std::map<std::string, bool>         bools;
 
         DistInput(Abstraction& a, Z3ExprAdapter& c, z3::model& m);
+        void fixUp(SupportVars& s, Z3ExprAdapter& c, z3::model& m);
         void toPython(py::dict& d);
 
         bool getBoolValue(const std::string& n) const;
@@ -63,19 +65,37 @@ namespace ila
         // initialize with a particular output.
         void initOutput(const NodeType& nt, const py::object& r);
     };
+    typedef boost::shared_ptr<SimOutput> simout_ptr_t;
 
     // ---------------------------------------------------------------------- //
-    struct DistTreeNode;
-    typedef boost::shared_ptr<DistTreeNode> dtree_ptr_t;
-    struct DistTreeNode
+    struct DITreeNode;
+    typedef boost::shared_ptr<DITreeNode> dtree_ptr_t;
+
+    struct DITreeNode
     {
-        typedef std::pair<SimOutput, dtree_ptr_t> outpair_t;
+        typedef std::pair<simout_ptr_t, dtree_ptr_t> outpair_t;
         typedef std::vector<outpair_t> outpair_vec_t;
 
         DistInput inputs;
         outpair_vec_t outputs;
 
-        DistTreeNode(Abstraction& a, Z3ExprAdapter& c, z3::model& m);
+        DITreeNode(Abstraction& a, Z3ExprAdapter& c, z3::model& m);
+    };
+
+    class Synthesizer;
+    struct DITree
+    {
+        Synthesizer& syn;
+        dtree_ptr_t head;
+        dtree_ptr_t curr;
+        int index;
+        bool reset;
+
+        DistInput* getDistInput(z3::expr y);
+        void setOutput(const simout_ptr_t& out);
+        void addNode(const dtree_ptr_t& node);
+
+        DITree(Synthesizer& s);
     };
 
     // ---------------------------------------------------------------------- //
@@ -107,15 +127,10 @@ namespace ila
 
         int MAX_SYN_ITER;
         z3::context c;
-        z3::solver S;
+        z3::solver S, Sp;
         Z3ExprAdapter c1, c2;
-        dtree_ptr_t dtree;
 
-        void _extractModelValues(
-            Z3ExprAdapter& c,
-            z3::model& m, 
-            py::dict& result
-        );
+        DITree ditree;
 
         void _initSolverAssumptions(
             const nptr_vec_t& assumps,
@@ -127,7 +142,7 @@ namespace ila
             Z3ExprAdapter& c1,
             Z3ExprAdapter& c2);
 
-        boost::shared_ptr<DistInput> _getDistInput(z3::expr y);
+        std::unique_ptr<DistInput> _getDistInput(z3::expr y);
 
         nptr_t _synthesize(
             const std::string& name, 
@@ -149,6 +164,9 @@ namespace ila
 
         // synthesize all.
         void synthesizeAll(PyObject* pyfun);
+
+
+        friend class DITree;
     };
     // ---------------------------------------------------------------------- //
 }

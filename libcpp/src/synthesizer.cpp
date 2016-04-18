@@ -12,25 +12,19 @@ namespace ila
     {
         const BoolVar* boolvar = NULL; 
         const BitvectorVar* bvvar = NULL;
-        const MemVar* memvar = NULL;
 
         //// booleans ////
-        if ((boolvar = dynamic_cast<const BoolVar*>(n))     ||
-            (bvvar = dynamic_cast<const BitvectorVar*>(n))  ||
-            (memvar = dynamic_cast<const MemVar*>(n)))
-        {
-            vars.insert(n);
+        if ((boolvar = dynamic_cast<const BoolVar*>(n))) {
+            bools.insert(boolvar);
+        } else if((bvvar = dynamic_cast<const BitvectorVar*>(n))) {
+            bitvecs.insert(bvvar);
         }
     }
 
-    bool SupportVars::hasNode(const Node* v) const
+    void SupportVars::clear()
     {
-        return vars.find(v) != vars.end();
-    }
-
-    bool SupportVars::hasNode(const nptr_t& v) const
-    {
-        return hasNode(v.get());
+        bools.clear();
+        bitvecs.clear();
     }
 
     // ---------------------------------------------------------------------- //
@@ -57,6 +51,25 @@ namespace ila
             bool b_e = c.getBoolValue(m, b.second.var.get());
             bools[b.first] = b_e;
         }
+    }
+
+    void DistInput::fixUp(SupportVars& s, Z3ExprAdapter& c, z3::model& m)
+    {
+        // fixup bitvecors.
+        for (auto bv : s.bitvecs) {
+            const std::string& name = bv->name;
+            std::string value = c.extractNumeralString(m, bv);
+            bitvecs[name] = value;
+        }
+
+        // and booleans.
+        for (auto bv : s.bools) {
+            const std::string& name = bv->name;
+            bool value = c.getBoolValue(m, bv);
+            bools[name] = value;
+        }
+
+        // TODO: fixup memories
     }
 
     void DistInput::toPython(py::dict& d)
@@ -181,7 +194,7 @@ namespace ila
         }
     }
 
-    DistTreeNode::DistTreeNode(Abstraction& a, Z3ExprAdapter& c, z3::model& m)
+    DITreeNode::DITreeNode(Abstraction& a, Z3ExprAdapter& c, z3::model& m)
       : inputs(a, c, m)
     {
     }
@@ -210,14 +223,65 @@ namespace ila
     {
         return (r_expr == mv.toZ3(adapter.ctx())) && r_cnst;
     }
+
+    // ---------------------------------------------------------------------- //
+    DITree::DITree(Synthesizer& s)
+      : syn(s)
+      , head(NULL)
+      , curr(NULL)
+      , index(-1)
+      , reset(true)
+    {
+    }
+
+    DistInput* DITree::getDistInput(z3::expr y)
+    {
+        if (!curr) {
+            // run the SMT solver.
+            z3::expr assumps[1] = { y };
+            z3::check_result r = syn.S.check(1, assumps);
+            if (r == z3::sat) {
+                z3::model m = syn.S.get_model();
+                dtree_ptr_t dnode(new DITreeNode(syn.abs, syn.c1, m));
+                if (reset) {
+                    reset = false;
+                    head = dnode;
+                    curr = dnode;
+                } else {
+                    ILA_ASSERT (index != -1, "Expected index to be initialized.");
+                    ILA_ASSERT (index >= 0 && index < static_cast<int>(curr->outputs.size()),
+                                "index out of range.");
+                    curr->outputs[index].second = dnode;
+                    curr = dnode;
+                }
+            } else {
+                return NULL;
+            }
+        } else {
+            DistInput* di = &curr->inputs;
+
+            z3::check_result r = syn.Sp.check();
+            ILA_ASSERT(r == z3::sat, "Expected this to be SAT.");
+            z3::model m = syn.Sp.get_model();
+            di->fixUp(syn.decodeSupport, syn.c1, m);
+        }
+        ILA_ASSERT((bool) curr, "curr must be valid at this point.");
+        return &curr->inputs;
+    }
+
+    void DITree::setOutput(const simout_ptr_t& out)
+    {
+    }
+
     // ---------------------------------------------------------------------- //
     Synthesizer::Synthesizer(Abstraction& a)
       : abs(a)
       , MAX_SYN_ITER(200)
       , S(c)
+      , Sp(c)
       , c1(c, suffix1)
       , c2(c, suffix2)
-      , dtree(NULL)
+      , ditree(*this)
 
     {
         z3::params p(c);
@@ -243,7 +307,7 @@ namespace ila
         }
 
         // reset the decode support.
-        decodeSupport.vars.clear();
+        decodeSupport.clear();
         // and initialize it again.
         for (auto de : abs.decodeExprs) {
             de->depthFirstVisit(decodeSupport);
@@ -255,7 +319,7 @@ namespace ila
             // std::cout << "trying to synthesize: " << name
             //           << "; expr: " << *next.get() << std::endl;
 
-            S.push();
+            S.push(); Sp.push();
             _initSolverAssumptions(abs.assumps, c1, c2);
 
             for (auto de : abs.decodeExprs) {
@@ -266,12 +330,12 @@ namespace ila
                           << *de.get() << " -> "
                           << *nr.get() << std::endl;
             }
-            S.pop();
+            S.pop(); Sp.pop();
         }
     }
 
     // ---------------------------------------------------------------------- //
-    boost::shared_ptr<DistInput> Synthesizer::_getDistInput(z3::expr y)
+    std::unique_ptr<DistInput> Synthesizer::_getDistInput(z3::expr y)
     {
         using namespace z3;
 
@@ -279,9 +343,9 @@ namespace ila
         check_result r = S.check(1, assumps);
         if (r == sat) {
             model m = S.get_model();
-            return boost::shared_ptr<DistInput>(new DistInput(abs, c1, m));
+            return std::unique_ptr<DistInput>(new DistInput(abs, c1, m));
         } else {
-            return boost::shared_ptr<DistInput>(); // empty //;
+            return std::unique_ptr<DistInput>(); // empty //;
         }
     }
 
@@ -296,7 +360,7 @@ namespace ila
         using namespace z3;
         using namespace boost;
 
-        S.push();
+        S.push(); Sp.push();
         _addExpr(de_expr, c1, c2);
         expr y = _createSynMiter(ex);
         expr syn_assumps[1] = { !y };
@@ -306,7 +370,7 @@ namespace ila
         dict args;
 
         // cegis loop.
-        boost::shared_ptr<DistInput> di;
+        std::unique_ptr<DistInput> di;
         while ((di = _getDistInput(y)) && (i++ < MAX_SYN_ITER)) {
             // std::cout << "iteration #" << i++ << std::endl;
 
@@ -352,7 +416,7 @@ namespace ila
         model m = S.get_model();
         SynRewriter rw(m, c1);
         nptr_t nr = rw.rewrite(ex.get());
-        S.pop();
+        S.pop(); Sp.pop();
 
         return nr;
     }
@@ -367,7 +431,7 @@ namespace ila
         using namespace z3;
         using namespace boost;
 
-        S.push();
+        S.push(); Sp.push();
         _addExpr(de_expr, c1, c2);
         expr y = _createSynMiter(ex);
         expr syn_assumps[1] = { !y };
@@ -377,7 +441,7 @@ namespace ila
         dict args;
 
         // cegis loop.
-        boost::shared_ptr<DistInput> di;
+        std::unique_ptr<DistInput> di;
         while ((di = _getDistInput(y)) && (i++ < MAX_SYN_ITER)) {
             // std::cout << "iteration #" << i++ << std::endl;
 
@@ -387,13 +451,13 @@ namespace ila
             py::dict d = call<py::dict>(pyfun, args);
             py::object r = d[name];
             // extract output.
-            SimOutput simout(ex->type, r);
+            simout_ptr_t simout(new SimOutput(ex->type, r));
 
             // now rewrite these expressions.
             Z3ExprRewritingAdapter cr1(c, di.get(), suffix1);
             Z3ExprRewritingAdapter cr2(c, di.get(), suffix2);
-            z3::expr er1 = apply_visitor(SimoutAdapter(cr1, ex.get()), simout.out);
-            z3::expr er2 = apply_visitor(SimoutAdapter(cr2, ex.get()), simout.out);
+            z3::expr er1 = apply_visitor(SimoutAdapter(cr1, ex.get()), simout->out);
+            z3::expr er2 = apply_visitor(SimoutAdapter(cr2, ex.get()), simout->out);
             expr es1 = er1.simplify();
             expr es2 = er2.simplify();
 
@@ -423,38 +487,10 @@ namespace ila
         model m = S.get_model();
         SynRewriter rw(m, c1);
         nptr_t nr = rw.rewrite(ex.get());
-        S.pop();
+        S.pop(); Sp.pop();
 
         return nr;
     }
-    // ---------------------------------------------------------------------- //
-    void Synthesizer::_extractModelValues(
-        Z3ExprAdapter& c, z3::model& m, py::dict& d)
-    {
-        using namespace z3;
-        using namespace py;
-
-        for (auto mem: abs.mems) {
-            MemValues mv(c, m, dynamic_cast<MemVar*>(mem.second.var.get()));
-            d[mem.first] = mv;
-        }
-
-        for (auto r : abs.inps) {
-            std::string s_e = c.extractNumeralString(m, r.second.var.get());
-            d[r.first] = to_pyint(s_e);
-        }
-
-        for (auto r : abs.regs) {
-            std::string s_e = c.extractNumeralString(m, r.second.var.get());
-            d[r.first] = to_pyint(s_e);
-        }
-
-        for (auto b : abs.bits) {
-            bool b_e = c.getBoolValue(m, b.second.var.get());
-            d[b.first] = (int) b_e;
-        }
-    }
-
     // ---------------------------------------------------------------------- //
     void Synthesizer::_initSolverAssumptions(
         const nptr_vec_t& all_assumps,
@@ -479,12 +515,17 @@ namespace ila
             expr aic1 = c1.getCnst(ex.get()).simplify();
             expr aie2 = c2.getExpr(ex.get()).simplify();
             expr aic2 = c2.getCnst(ex.get()).simplify();
-            S.add(aie1); S.add(aic1);
-            S.add(aie2); S.add(aic2);
+
+            S.add(aie1); Sp.add(aie1);
+            S.add(aic1); Sp.add(aic1);
+            S.add(aie2); Sp.add(aie2);
+            S.add(aic2); Sp.add(aic2);
         } else {
             expr ei = c1.getExpr(ex.get()).simplify();
             expr ci = c1.getCnst(ex.get()).simplify();
-            S.add(ei); S.add(ci);
+
+            S.add(ei); Sp.add(ei);
+            S.add(ci); Sp.add(ci);
         }
     }
 
