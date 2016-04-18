@@ -32,7 +32,7 @@ namespace ila
     {
         if(!checkAndInsertName(name)) return NULL;
         NodeRef* n = new NodeRef(new ila::BitvectorVar(this, name, width));
-        inps.push_back(n->node);
+        inps.insert({name, npair_t(n->node, NULL)});
         return n;
     }
 
@@ -261,8 +261,8 @@ namespace ila
         }
 
         for (auto r : inps) {
-            std::string s_e = c.extractNumeralString(m, r.get());
-            d[r->name] = to_pyint(s_e);
+            std::string s_e = c.extractNumeralString(m, r.second.var.get());
+            d[r.first] = to_pyint(s_e);
         }
 
         for (auto r : regs) {
@@ -382,7 +382,8 @@ namespace ila
 
             // extract model.
             model m = S.get_model();
-            extractModelValues(c1, m, args);
+            DistInput di(*this, c1, m);
+            di.toPython(args);
 
             // std::cout << "model: " << m << std::endl;
 
@@ -391,8 +392,8 @@ namespace ila
             py::object r = d[name];
 
             // now rewrite these expressions.
-            Z3ExprRewritingAdapter cr1(c_, m, c1, suffix1);
-            Z3ExprRewritingAdapter cr2(c_, m, c2, suffix2);
+            Z3ExprRewritingAdapter cr1(c_, &di, suffix1);
+            Z3ExprRewritingAdapter cr2(c_, &di, suffix2);
 
             expr er1 = cr1.getIOCnst(ex_n, r);
             expr er2 = cr2.getIOCnst(ex_n, r);

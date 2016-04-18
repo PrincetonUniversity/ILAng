@@ -127,14 +127,14 @@ namespace ila
 
     };
 
+    class DistInput;
+
     // The function object we use during synthesis to rewrite expressions.
     class Z3ExprRewritingAdapter : public Z3ExprAdapter 
     {
     protected:
-        // model we will extract from.
-        z3::model& m;
-        // related expr adapter.
-        Z3ExprAdapter& adapter;
+        // The distinguishing input this is based on.
+        const DistInput* distInp;
         // Convert a boolean variable into a Z3 expression.
         virtual z3::expr getBoolVarExpr(const BoolVar* bv);
         // Convert a bitvector variable into a Z3 expression.
@@ -145,13 +145,11 @@ namespace ila
         // Constructors.
         Z3ExprRewritingAdapter(
             z3::context& c, 
-            z3::model& m, 
-            Z3ExprAdapter& a,
+            const DistInput* di,
             const std::string& suffix);
         Z3ExprRewritingAdapter(
             z3::context& c, 
-            z3::model& m, 
-            Z3ExprAdapter& a,
+            const DistInput* di,
             const char* suffix);
         // Destructor.
         ~Z3ExprRewritingAdapter();

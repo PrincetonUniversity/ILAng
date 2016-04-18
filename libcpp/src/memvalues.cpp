@@ -9,6 +9,16 @@
 namespace ila
 {
     // ---------------------------------------------------------------------- //
+    z3::context MemValues::c_eq;
+    z3::solver MemValues::S_eq(c_eq);
+
+    // ---------------------------------------------------------------------- //
+    MemValues::MemValues()
+      : MAX_ADDR(0)
+      , def_value(0)
+    {
+    }
+
     MemValues::MemValues(int aw, int dw, const py::object& dv)
       : type(NodeType::getMem(aw, dw))
       , MAX_ADDR(mp_int_t(1) << aw)
@@ -54,10 +64,29 @@ namespace ila
         def_value = boost::lexical_cast<mp_int_t>(sdef);
     }
 
+    MemValues::MemValues(const MemValues& that)
+      : type(that.type)
+      , MAX_ADDR(that.MAX_ADDR)
+      , def_value(that.def_value)
+      , values(that.values)
+    {
+    }
+
     MemValues::~MemValues()
     {
     }
 
+    // ---------------------------------------------------------------------- //
+    MemValues& MemValues::operator=(const MemValues& that)
+    {
+        type = that.type;
+        MAX_ADDR = that.MAX_ADDR;
+        def_value = that.def_value;
+        values = that.values;
+        return *this;
+    }
+
+    // ---------------------------------------------------------------------- //
     py::object MemValues::getDefault() const
     {
         return to_pyint(def_value);
@@ -85,6 +114,13 @@ namespace ila
         return l;
     }
 
+    mp_int_t MemValues::getItemInt(const mp_int_t& index) const
+    {
+        auto pos = values.find(index);
+        if (pos == values.end()) return def_value;
+        else return pos->second;
+    }
+
     py::object MemValues::getItem(const py::object& index_) const
     {
         try {
@@ -93,12 +129,7 @@ namespace ila
                 throw PyILAException(PyExc_IndexError, "Index out of range.");
                 return py::object();
             }
-            auto pos = values.find(index);
-            if (pos == values.end()) {
-                return to_pyint(def_value);
-            } else {
-                return to_pyint(pos->second);
-            }
+            return to_pyint(getItemInt(index));
         } catch(const boost::bad_lexical_cast&) {
             throw PyILAException(PyExc_ValueError, "Invalid index value.");
         }
@@ -133,15 +164,43 @@ namespace ila
     
     bool MemValues::operator==(const MemValues& that) const
     {
+        // different types then definitely not equal.
+        if (type != that.type) return false;
+        // these are syntactic checks.
         if (def_value != that.def_value) return false;
-        if (values.size() != that.values.size()) return false;
-        auto it = values.begin();
-        auto jt = that.values.begin();
-        for (; it != values.end() && jt != values.end(); it++, jt++) {
-            if (it->first != jt->first || it->second != jt->second)
+        for ( auto it : values ) {
+            if (getItemInt(it.first) != that.getItemInt(it.first)) {
                 return false;
+            }
+        }
+        for ( auto it : that.values ) {
+            if (getItemInt(it.first) != getItemInt(it.first)) {
+                return false;
+            }
         }
         return true;
+    }
+
+    bool MemValues::semanticEqual(const MemValues& that) const
+    {
+        using namespace z3;
+        using namespace boost;
+
+        if (type != that.type) return false;
+        if (*this == that) return true;
+        
+        std::string name("addr_" + lexical_cast<std::string>(type.addrWidth));
+        expr addr = c_eq.bv_const(name.c_str(), type.addrWidth);
+        expr mem1 = toZ3(c_eq);
+        expr mem2 = that.toZ3(c_eq);
+        expr rd1 = select(mem1, addr);
+        expr rd2 = select(mem2, addr);
+        S_eq.push();
+        S_eq.add(rd1 != rd2);
+        auto res = S_eq.check();
+        S_eq.pop();
+
+        return (res == unsat);
     }
 
     z3::expr MemValues::toZ3(z3::context& c) const

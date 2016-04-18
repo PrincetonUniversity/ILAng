@@ -22,18 +22,28 @@ namespace ila
     {
         typedef std::map<mp_int_t, mp_int_t> map_t;
 
+        static z3::context c_eq;
+        static z3::solver S_eq;
+
         NodeType type;
-        const mp_int_t MAX_ADDR;
+        mp_int_t MAX_ADDR;
 
         mp_int_t def_value;
         map_t values;
 
+        // default.
+        MemValues();
         // constructor.
         MemValues(int addrWidth, int dataWidth, const py::object& def_val);
         // construct from a model.
         MemValues(Z3ExprAdapter& c, const z3::model& m, const MemVar* mem);
+        // copy constructor.
+        MemValues(const MemValues& that);
         // destructor.
         ~MemValues();
+
+        // assignment operator.
+        MemValues& operator=(const MemValues& that);
 
         // return def_value
         py::object getDefault() const;
@@ -50,8 +60,13 @@ namespace ila
         bool eq(const MemValues& mv) const { return *this == mv; }
         // equality.
         bool operator==(const MemValues& mv) const;
+        // equality using smt.
+        bool semanticEqual(const MemValues& mv) const;
         // convert to z3.
         z3::expr toZ3(z3::context& c) const;
+
+        // support for __getitem__
+        mp_int_t getItemInt(const mp_int_t& index) const;
     };
     std::ostream& operator<<(std::ostream& out, const MemValues& mv);
 }

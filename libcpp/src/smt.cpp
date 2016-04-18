@@ -1,5 +1,6 @@
 #include <smt.hpp>
 #include <ast.hpp>
+#include <synthesizer.hpp>
 
 namespace ila
 {
@@ -473,25 +474,21 @@ namespace ila
 
     Z3ExprRewritingAdapter::Z3ExprRewritingAdapter(
         z3::context& ctx, 
-        z3::model& mod, 
-        Z3ExprAdapter& a,
+        const DistInput* di,
         const std::string& s)
 
       : Z3ExprAdapter(ctx, s)
-      , m(mod)
-      , adapter(a)
+      , distInp(di)
     {
     }
 
     Z3ExprRewritingAdapter::Z3ExprRewritingAdapter(
         z3::context& ctx, 
-        z3::model& mod, 
-        Z3ExprAdapter& a,
+        const DistInput* di,
         const char* s)
 
       : Z3ExprAdapter(ctx, s)
-      , m(mod)
-      , adapter(a)
+      , distInp(di)
     {
     }
 
@@ -502,19 +499,19 @@ namespace ila
     // ---------------------------------------------------------------------- //
     z3::expr Z3ExprRewritingAdapter::getBoolVarExpr(const BoolVar* boolvar)
     {
-        bool value = adapter.getBoolValue(m, boolvar);
+        bool value = distInp->getBoolValue(boolvar->name);
         return c.bool_val(value);
     }
 
     z3::expr Z3ExprRewritingAdapter::getBitvectorVarExpr(const BitvectorVar* bvvar)
     {
-        std::string value = adapter.extractNumeralString(m, bvvar);
+        std::string value = distInp->getBitvecStr(bvvar->name);
         return c.bv_val(value.c_str(), bvvar->type.bitWidth);
     }
 
     z3::expr Z3ExprRewritingAdapter::getMemVarExpr(const MemVar* mv)
     {
-        MemValues memvals(adapter, m, mv);
+        const MemValues& memvals = distInp->getMemValues(mv->name);
         return memvals.toZ3(c);
     }
 

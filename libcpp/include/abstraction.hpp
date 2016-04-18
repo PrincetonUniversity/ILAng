@@ -35,7 +35,7 @@ namespace ila
         std::set<std::string> names;
 
         // list of inputs
-        nptr_vec_t inps;
+        nmap_t inps;
         // list of registers.
         nmap_t regs;
         // list of bits.
@@ -124,7 +124,17 @@ namespace ila
         // check equality function.
         bool areEqual(NodeRef* left, NodeRef* right) const;
 
+        // get memories.
+        const nmap_t& getMems() const { return mems; }
+        // get (bitvector) inputs.
+        const nmap_t& getInps() const { return inps; }
+        // get bitvectors.
+        const nmap_t& getRegs() const { return regs; }
+        // get booleans.
+        const nmap_t& getBits() const { return bits; }
+
         friend class Node;
+        friend class Synthesizer;
 
     protected:
         nptr_t _synthesize(
@@ -134,7 +144,6 @@ namespace ila
 
         bool checkAndInsertName(const std::string& name);
 
-        friend class Synthesizer;
     };
 }
 #endif
