@@ -85,11 +85,12 @@ namespace ila
     class Synthesizer;
     struct DITree
     {
+        enum mode_t { REPLAY, CREATE } mode;
         Synthesizer& syn;
         dtree_ptr_t head;
         dtree_ptr_t curr;
+        bool found;
         int index;
-        bool reset;
 
         DistInput* getDistInput(z3::expr y);
         void setOutput(const simout_ptr_t& out);

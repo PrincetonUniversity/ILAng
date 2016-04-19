@@ -226,38 +226,42 @@ namespace ila
 
     // ---------------------------------------------------------------------- //
     DITree::DITree(Synthesizer& s)
-      : syn(s)
+      : mode(CREATE)
+      , syn(s)
       , head(NULL)
       , curr(NULL)
+      , found(false)
       , index(-1)
-      , reset(true)
     {
     }
 
     DistInput* DITree::getDistInput(z3::expr y)
     {
-        if (!curr) {
+        if (!found) {
             // run the SMT solver.
             z3::expr assumps[1] = { y };
             z3::check_result r = syn.S.check(1, assumps);
             if (r == z3::sat) {
                 z3::model m = syn.S.get_model();
                 dtree_ptr_t dnode(new DITreeNode(syn.abs, syn.c1, m));
-                if (reset) {
-                    reset = false;
+                if (!head) {
                     head = dnode;
-                    curr = dnode;
                 } else {
-                    ILA_ASSERT (index != -1, "Expected index to be initialized.");
-                    ILA_ASSERT (index >= 0 && index < static_cast<int>(curr->outputs.size()),
+                    ILA_ASSERT ((bool)curr, "curr must be initialized.");
+                    ILA_ASSERT (index != -1, 
+                                "Expected index to be initialized.");
+                    ILA_ASSERT (index >= 0 && 
+                                index < int(curr->outputs.size()),
                                 "index out of range.");
                     curr->outputs[index].second = dnode;
-                    curr = dnode;
                 }
+                // now move the pointer.
+                curr = dnode;
             } else {
                 return NULL;
             }
         } else {
+            curr = curr->outputs[index].second;
             DistInput* di = &curr->inputs;
 
             z3::check_result r = syn.Sp.check();
@@ -265,12 +269,27 @@ namespace ila
             z3::model m = syn.Sp.get_model();
             di->fixUp(syn.decodeSupport, syn.c1, m);
         }
-        ILA_ASSERT((bool) curr, "curr must be valid at this point.");
+        ILA_ASSERT((bool)curr, "curr must be valid at this point.");
         return &curr->inputs;
     }
 
     void DITree::setOutput(const simout_ptr_t& out)
     {
+        ILA_ASSERT((bool)curr, "curr must be initialized.");
+        found = false;
+        // try to find an existing output which matches.
+        for (unsigned i=0; i != curr->outputs.size(); i++) {
+            if (*curr->outputs[i].first == *out) {
+                index = i;
+                found = true;
+                break;
+            }
+        }
+        // if not found, we have to create a new node.
+        if (!found) {
+            index = curr->outputs.size();
+            curr->outputs.push_back({out, dtree_ptr_t()});
+        }
     }
 
     // ---------------------------------------------------------------------- //

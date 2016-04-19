@@ -4,6 +4,7 @@
 
 #include <string>
 #include <string.h>
+#include <stdlib.h>
 
 namespace ila {
 
@@ -11,27 +12,14 @@ namespace ila {
     void ila_assert(bool b, const char* msg, const char* file, int line)
     {
         if (!b) {
-            size_t sz = strlen(msg) + strlen(file) + 48;
-            char* buf = new char[sz];
-            snprintf(buf, sz-1, "error %s line %d: %s", file, line, msg);
-            std::string str(buf);
-            delete [] buf;
-
-            throw PyILAException(PyExc_RuntimeError, str);
+            fprintf(stderr, "ASSERTION FAILURE %s at file %d, line %s.", file, line, msg);
+            abort();
         }
     }
 
     void ila_assert(bool b, const std::string& msg, const char* file, int line)
     {
-        if (!b) {
-            size_t sz = msg.size() + strlen(file) + 48;
-            char* buf = new char[sz];
-            snprintf(buf, sz-1, "error %s line %d: %s", file, line, msg.c_str());
-            std::string str(buf);
-            delete [] buf;
-
-            throw PyILAException(PyExc_RuntimeError, str);
-        }
+        ila_assert(b, msg.c_str(), file, line);
     }
 
     // ---------------------------------------------------------------------- //
