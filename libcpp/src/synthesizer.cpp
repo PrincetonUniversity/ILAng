@@ -419,7 +419,7 @@ namespace ila
             de->depthFirstVisit(decodeSupport);
         }
 
-        for (auto r : abs.regs) {
+        for (auto&& r : abs.regs) {
             const std::string& name(r.first);
             const nptr_t& next(r.second.next);
             // std::cout << "trying to synthesize: " << name
@@ -428,19 +428,26 @@ namespace ila
             S.push(); Sp.push();
             _initSolverAssumptions(abs.assumps, c1, c2);
 
-
             ditree.reset();
+            nptr_t ex = r.second.var;
             for (auto de : abs.decodeExprs) {
                 // std::cout << "decode: " << *de.get() << std::endl;
                 ditree.rewind();
-                nptr_t nr = abs.paramSyn ? _synthesizeEx(name, de, next, pyfun)
-                                         : _synthesize(name, de, next, pyfun);
-                // auto nr = _synthesize(name, de, next, pyfun);
-                std::cout << name << ": " 
-                          << *de.get() << " -> "
-                          << *nr.get() << std::endl;
+                nptr_t ex_n = abs.paramSyn ? _synthesizeEx(name, de, next, pyfun)
+                                           : _synthesize(name, de, next, pyfun);
+
+                // create the final expression.
+                nptr_t ex_p = Node::ite(de, ex_n, ex);
+                ex = ex_p;
+
+                //std::cout << name << ": " 
+                //          << *de.get() << " -> "
+                //          << *ex_n.get() << std::endl;
             }
             S.pop(); Sp.pop();
+            r.second.next = ex;
+            //std::cout << name << ": "
+            //          << *ex.get() << std::endl;
         }
     }
 

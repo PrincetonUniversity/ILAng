@@ -68,7 +68,7 @@ def select(regs, regindex):
     return r(n-1)
 
 def aluexpr(opcode, regs):
-    reg_field_width = int(math.log(num_regs, 2))
+    reg_field_width = int(math.log(len(regs), 2))
     rs = opcode[reg_field_width-1:0]
     rt = opcode[2*reg_field_width-1:reg_field_width]
     r0 = select(regs, rs)
@@ -77,12 +77,14 @@ def aluexpr(opcode, regs):
 
     res = ila.ite(op == 0, r0+r1, 
             ila.ite(op == 1, r0-r1,
-                ila.ite(op == 2, ila.ite(rs == rt, ~rs, rs & rt),
-                    ila.ite(op == 3, ila.ite(rs == rt, -rs, rs | rt)))))
+                ila.ite(op == 2, ila.ite(rs == rt, ~r0, r0 & r1),
+                    ila.ite(rs == rt, -r0, r0 | r1))))
 
     regs_next = []
     for i, r in enumerate(regs):
         regs_next.append(ila.ite(rs == i, res, r))
+
+    return regs_next
 
 def model(num_regs, reg_size, paramsyn):
     reg_field_width = int(math.log(num_regs, 2))
@@ -93,7 +95,6 @@ def model(num_regs, reg_size, paramsyn):
 
     sys = ila.Abstraction()
     sys.enable_parameterized_synthesis = paramsyn
-    print sys.enable_parameterized_synthesis;
 
     # state elements.
     regs = [sys.reg('r%d' % i, alu.REG_SIZE) for i in xrange(alu.NUM_REGS)]
@@ -117,6 +118,12 @@ def model(num_regs, reg_size, paramsyn):
     sys.decode_exprs = [opcode == i for i in xrange(alu.NUM_OPCODES)]
     # now synthesize.
     sys.synthesize(lambda s: alu.alusim(s))
+    regs_next = aluexpr(opcode, regs)
+    for i in xrange(alu.NUM_REGS):
+        rn1 = sys.get_next('r%d' % i)
+        rn2 = regs_next[i]
+        assert sys.areEqual(rn1, rn2)
+
     #sys.add_assumption(opcode == 0x80)
     #print sys.syn_elem("r0", sys.get_next('r0'), alusim)
 

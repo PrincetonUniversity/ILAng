@@ -135,4 +135,24 @@ namespace ila
     {
     }
     // ---------------------------------------------------------------------- //
+    nptr_t Node::ite(const nptr_t& cond, const nptr_t& t, const nptr_t& f)
+    {
+        ILA_ASSERT(t->type == f->type, "ite args must be same type.");
+        ILA_ASSERT(cond->type.isBool(), "ite condition must be boolean.");
+
+        nptr_vec_t args;
+        args.push_back(cond);
+        args.push_back(t);
+        args.push_back(f);
+        if (t->type.isBool()) {
+            return nptr_t(
+                new BoolOp(cond->context(), BoolOp::IF, args));
+        } else if (t->type.isBitvector()) {
+            return nptr_t(
+                new BitvectorOp(cond->context(), BitvectorOp::IF, args));
+        } else {
+            ILA_ASSERT(false, "type not implemented.");
+            return NULL;
+        }
+    }
 }

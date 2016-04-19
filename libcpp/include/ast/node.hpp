@@ -90,6 +90,10 @@ namespace ila
         // and returns true if any "synthesis" construct are present.
         bool hasSynthesisConstructs() const;
 
+        // --------------- STATIC HELPERS --------------------//
+        static nptr_t ite(const nptr_t& cond, 
+            const nptr_t& t, const nptr_t& f);
+
         friend class NodeRef;
     };
 
