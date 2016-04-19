@@ -9,6 +9,7 @@
 #include <common.hpp>
 #include <ast.hpp>
 #include <smt.hpp>
+#include <imexport.hpp>
 
 namespace ila
 {
@@ -120,6 +121,12 @@ namespace ila
         NodeRef* synthesizeElement(
             const std::string& name, 
             NodeRef* expr, PyObject* fun);
+
+        // the export function.
+        void exportToFile(const std::string& fileName) const;
+
+        // the import function.
+        void importFromFile(const std::string& fileName);
 
         // check equality function.
         bool areEqual(NodeRef* left, NodeRef* right) const;
