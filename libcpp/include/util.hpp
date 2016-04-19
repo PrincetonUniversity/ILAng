@@ -20,6 +20,9 @@ namespace ila {
     bool is_py_int(const py::object& l);
     bool is_py_int_or_long(
         const py::object& l);
+
+    // ---------------------------------------------------------------------- //
+    void set_logging_level(int level);
 };
 
 #endif // __UTIL_H_DEFINED__

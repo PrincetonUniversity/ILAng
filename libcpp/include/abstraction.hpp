@@ -61,6 +61,8 @@ namespace ila
         );
 
     public:
+        int paramSyn;
+
         // Constructor.
         Abstraction();
         // Destructor.

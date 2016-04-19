@@ -30,8 +30,8 @@ namespace ila
                          const map_t values, const mp_int_t def_value)
       : type(NodeType::getMem(aw, dw))
       , MAX_ADDR(mp_int_t(1) << aw)
-      , values(values)
       , def_value(def_value)
+      , values(values)
     {
     }
 

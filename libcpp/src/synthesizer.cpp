@@ -302,7 +302,7 @@ namespace ila
     DistInput* DITree::getDistInput(z3::expr y)
     {
         if (mode == INSERT) {
-            std::cout << "getDI: INSERT mode." << std::endl;
+            // std::cout << "getDI: INSERT mode." << std::endl;
 
             // run the SMT solver.
             z3::expr assumps[1] = { y };
@@ -313,10 +313,10 @@ namespace ila
                 // insert into the tree.
                 dtree_ptr_t dnode(new DITreeNode(syn.abs, syn.c1, m));
                 *insert_ptr = dnode;
-                std::cout << "getDI: DI: " << dnode->inputs << std::endl;
+                // std::cout << "getDI: DI: " << dnode->inputs << std::endl;
                 return &dnode->inputs;
             } else {
-                std::cout << "getDI: No more DIs." << std::endl;
+                // std::cout << "getDI: No more DIs." << std::endl;
                 // tree is empty.
                 return NULL;
             }
@@ -327,8 +327,8 @@ namespace ila
             z3::model m = syn.Sp.get_model();
             di->fixUp(syn.decodeSupport, syn.c1, m);
 
-            std::cout << "getDI: REPLAY mode." << std::endl;
-            std::cout << "getDI: DI: " << *di << std::endl;
+            // std::cout << "getDI: REPLAY mode." << std::endl;
+            // std::cout << "getDI: DI: " << *di << std::endl;
 
             return di;
         }
@@ -337,15 +337,15 @@ namespace ila
     void DITree::setOutput(const simout_ptr_t& out)
     {
         if (mode == REPLAY) {
-            std::cout << "setOut: REPLAY mode." << std::endl;
-            std::cout << "setOut: out=" << *out << std::endl;
+            // std::cout << "setOut: REPLAY mode." << std::endl;
+            // std::cout << "setOut: out=" << *out << std::endl;
 
             bool found = false;
             // try to find an existing output which matches.
             for (unsigned i=0; i != replay_ptr->outputs.size(); i++) {
                 if (*replay_ptr->outputs[i].first == *out) {
                     found = true;
-                    std::cout << "setOut: found output match." << std::endl;
+                    // std::cout << "setOut: found output match." << std::endl;
                     replay_ptr = replay_ptr->outputs[i].second;
                     break;
                 }
@@ -353,23 +353,23 @@ namespace ila
             if (!found) {
                 // not found, so switch to insert mode.
                 mode = INSERT;
-                std::cout << "setOut: switch to insert mode as output not found." 
-                          << std::endl;
+                // std::cout << "setOut: switch to insert mode as output not found." 
+                //          << std::endl;
                 int index = replay_ptr->outputs.size();
                 replay_ptr->outputs.push_back({out, dtree_ptr_t()});
                 insert_ptr = &replay_ptr->outputs[index].second;
                 replay_ptr.reset();
             } else if (!(bool)replay_ptr) {
-                std::cout << "setOut: switch to insert mode at end of trail." 
-                          << std::endl;
+                // std::cout << "setOut: switch to insert mode at end of trail." 
+                //           << std::endl;
 
                 mode = INSERT;
                 insert_ptr = &replay_ptr;
                 replay_ptr.reset();
             }
         } else {
-            std::cout << "setOut: INSERT mode." << std::endl;
-            std::cout << "setOut: out=" << *out << std::endl;
+            // std::cout << "setOut: INSERT mode." << std::endl;
+            // std::cout << "setOut: out=" << *out << std::endl;
 
             // now we are in INSERT mode.
             ILA_ASSERT ((*insert_ptr)->outputs.size() == 0, 
@@ -433,7 +433,9 @@ namespace ila
             for (auto de : abs.decodeExprs) {
                 // std::cout << "decode: " << *de.get() << std::endl;
                 ditree.rewind();
-                auto nr = _synthesizeEx(name, de, next, pyfun);
+                nptr_t nr = abs.paramSyn ? _synthesizeEx(name, de, next, pyfun)
+                                         : _synthesize(name, de, next, pyfun);
+                // auto nr = _synthesize(name, de, next, pyfun);
                 std::cout << name << ": " 
                           << *de.get() << " -> "
                           << *nr.get() << std::endl;

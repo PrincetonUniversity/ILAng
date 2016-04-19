@@ -21,6 +21,7 @@ namespace ila
       , MAX_SYN_ITER(200)
       , fetchExpr(NULL)
       , fetchValid(new ila::BoolConst(this , true))
+      , paramSyn(1)
     {
     }
 

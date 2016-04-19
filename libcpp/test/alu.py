@@ -60,7 +60,31 @@ class alu_sim(object):
         #print 'OUT:', state
         return state
 
-def model(num_regs, reg_size):
+def select(regs, regindex):
+    def r(i):
+        if i == 0: return regs[0]
+        else: return ila.ite(regindex == i, regs[i], r(i-1))
+    n = len(regs)
+    return r(n-1)
+
+def aluexpr(opcode, regs):
+    reg_field_width = int(math.log(num_regs, 2))
+    rs = opcode[reg_field_width-1:0]
+    rt = opcode[2*reg_field_width-1:reg_field_width]
+    r0 = select(regs, rs)
+    r1 = select(regs, rt)
+    op = opcode[2*reg_field_width+1:2*reg_field_width]
+
+    res = ila.ite(op == 0, r0+r1, 
+            ila.ite(op == 1, r0-r1,
+                ila.ite(op == 2, ila.ite(rs == rt, ~rs, rs & rt),
+                    ila.ite(op == 3, ila.ite(rs == rt, -rs, rs | rt)))))
+
+    regs_next = []
+    for i, r in enumerate(regs):
+        regs_next.append(ila.ite(rs == i, res, r))
+
+def model(num_regs, reg_size, paramsyn):
     reg_field_width = int(math.log(num_regs, 2))
     assert (1 << reg_field_width) == num_regs
 
@@ -68,6 +92,9 @@ def model(num_regs, reg_size):
     alu = alu_sim(reg_field_width, reg_size)
 
     sys = ila.Abstraction()
+    sys.enable_parameterized_synthesis = paramsyn
+    print sys.enable_parameterized_synthesis;
+
     # state elements.
     regs = [sys.reg('r%d' % i, alu.REG_SIZE) for i in xrange(alu.NUM_REGS)]
     opcode = sys.inp('opcode', alu.OPCODE_WIDTH)
@@ -97,6 +124,8 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--numregs", type=int, default=2, help="# of registers")
     parser.add_argument("--regwidth", type=int, default=4, help="register width")
+    parser.add_argument("--enable-param-syn", type=int, 
+                        default=1, help="enable parameterized synthesis")
     args = parser.parse_args()
 
     numregs = args.numregs
@@ -104,7 +133,7 @@ def main():
         print 'Error: number of registers must be power of two.'
         return
 
-    model(numregs, args.regwidth)
+    model(numregs, args.regwidth, args.enable_param_syn)
 
 if __name__ == '__main__':
     main()

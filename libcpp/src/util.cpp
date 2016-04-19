@@ -1,6 +1,9 @@
 #include <util.hpp>
 #include <exception.hpp>
 #include <boost/python.hpp>
+#include <boost/log/core.hpp>
+#include <boost/log/trivial.hpp>
+#include <boost/log/expressions.hpp>
 
 #include <string>
 #include <string.h>
@@ -68,4 +71,22 @@ namespace ila {
         PyObject* pyobj = l.ptr();
         return PyInt_Check(pyobj) || PyLong_Check(pyobj);
     }
+
+    // ---------------------------------------------------------------------- //
+    void set_logging_level(int l)
+    {
+        // FIXME
+#if 0
+        if (l < 0) {
+            throw PyILAException(PyExc_RuntimeError, 
+                                 "Invalid level.");
+        }
+        auto lev = (l == 0) ? boost::log::trivial::fatal :
+                   (l == 1) ? boost::log::trivial::debug :
+                              boost::log::trivial::trace;
+        boost::log::core::get()->set_filter(
+            boost::log::trivial::severity >= lev);
+#endif
+    }
+
 }

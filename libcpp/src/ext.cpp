@@ -327,6 +327,8 @@ BOOST_PYTHON_MODULE(ila)
         .add_property("decode_exprs", 
             &Abstraction::getDecodeExpressions, 
             &Abstraction::setDecodeExpressions)
+
+        .def_readwrite("enable_parameterized_synthesis", &Abstraction::paramSyn)
     ;
 
     class_<MemValues>("MemValues", init<int, int, const object&>())
