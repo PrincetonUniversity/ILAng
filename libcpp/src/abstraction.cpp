@@ -6,6 +6,7 @@
 #include <util.hpp>
 
 #include <boost/multiprecision/cpp_int.hpp>
+#include <fstream>
 
 namespace ila
 {
@@ -310,6 +311,200 @@ namespace ila
             throw PyILAException(PyExc_RuntimeError, "Indeterminate result from Z3.");
             return false;
         }
+    }
+
+    // ---------------------------------------------------------------------- //
+    void Abstraction::exportToFile(const std::string& fileName) const
+    {
+        std::ofstream out(fileName.c_str());
+        ImExport expt;
+
+        // names.
+        out << ".names: ";
+        for (std::set<std::string>::const_iterator it = names.begin();
+             it != names.end(); it++) {
+            out << " " << *it;
+        }
+        out << " .names_end\n";
+
+        // inputs.
+        out << ".inps: ";
+        for (nmap_t::const_iterator it = inps.begin();
+             it != inps.end(); it++) {
+            out << " " << it->first << " ";
+            expt.exportAst(out, it->second.var.get());
+            out << " ";
+            expt.exportAst(out, it->second.next.get());
+        }
+        out << " .inps_end\n";
+
+        // registers.
+        out << ".regs: ";
+        for (nmap_t::const_iterator it = regs.begin();
+             it != regs.end(); it++) {
+            out << " " << it->first << " ";
+            expt.exportAst(out, it->second.var.get());
+            out << " ";
+            expt.exportAst(out, it->second.next.get());
+        }
+        out << " .regs_end\n";
+
+        // bits.
+        out << ".bits: ";
+        for (nmap_t::const_iterator it = bits.begin();
+             it != bits.end(); it++) {
+            out << " " << it->first << " ";
+            expt.exportAst(out, it->second.var.get());
+            out << " ";
+            expt.exportAst(out, it->second.next.get());
+        }
+        out << " .bits_end\n";
+
+        // mems.
+        out << ".mems: ";
+        for (nmap_t::const_iterator it = mems.begin();
+             it != mems.end(); it++) {
+            out << " " << it->first << " ";
+            expt.exportAst(out, it->second.var.get());
+            out << " ";
+            expt.exportAst(out, it->second.next.get());
+        }
+        out << " .mems_end\n";
+
+        // fetchExpr.
+        out << ".fetchExpr: ";
+        expt.exportAst(out, fetchExpr.get());
+        out << "\n";
+
+        // fetchValid.
+        out << ".fetchValid: ";
+        expt.exportAst(out, fetchValid.get());
+        out << "\n";
+
+        // decodeExpr.
+        out << ".decode: ";
+        for (unsigned i = 0; i != decodeExprs.size(); i++) {
+            out << " " << i << " ";
+            expt.exportAst(out, decodeExprs[i].get());
+        }
+        out << " .decode_end\n";
+
+        // assumps.
+        out << ".assumps: ";
+        for (unsigned i = 0; i != assumps.size(); i++) {
+            out << " ";
+            expt.exportAst(out, assumps[i].get());
+        }
+        out << " .assumps_end\n";
+
+        out.close();
+    }
+
+    // ---------------------------------------------------------------------- //
+    void Abstraction::importFromFile(const std::string& fileName) 
+    {
+        std::ifstream in;
+        in.open(fileName.c_str());
+        ILA_ASSERT(in.is_open(), "File " + fileName + " not found.");
+
+        // Clear all variables.
+        names.clear();
+        inps.clear();
+        regs.clear();
+        bits.clear();
+        mems.clear();
+        fetchExpr = NULL;
+        fetchValid = NULL;
+        decodeExprs.clear();
+        assumps.clear();
+
+        ImExport ipt;
+
+        std::string buf;
+        in >> buf;
+
+        // names.
+        ILA_ASSERT(buf == ".names:", "Expect .names section");
+        in >> buf;
+        while (buf != ".names_end") {
+            checkAndInsertName(buf);
+            in >> buf;
+        }
+
+        // inputs.
+        in >> buf;
+        ILA_ASSERT(buf == ".inps:", "Expect .inps section");
+        in >> buf;
+        while (buf != ".inps_end") {
+            nptr_t var = ipt.importAst(this, in);
+            nptr_t next = ipt.importAst(this, in);
+            inps.insert({buf, npair_t(var, next)});
+            in >> buf;
+        }
+
+        // registers.
+        in >> buf;
+        ILA_ASSERT(buf == ".regs:", "Expect .regs section");
+        in >> buf;
+        while (buf != ".regs_end") {
+            nptr_t var = ipt.importAst(this, in);
+            nptr_t next = ipt.importAst(this, in);
+            regs.insert({buf, npair_t(var, next)});
+            in >> buf;
+        }
+
+        // bits.
+        in >> buf;
+        ILA_ASSERT(buf == ".bits:", "Expect .bits section");
+        in >> buf;
+        while (buf != ".bits_end") {
+            nptr_t var = ipt.importAst(this, in);
+            nptr_t next = ipt.importAst(this, in);
+            bits.insert({buf, npair_t(var, next)});
+            in >> buf;
+        }
+
+        // mems.
+        in >> buf;
+        ILA_ASSERT(buf == ".mems:", "Expect .mems section");
+        in >> buf;
+        while (buf != ".mems_end") {
+            nptr_t var = ipt.importAst(this, in);
+            nptr_t next = ipt.importAst(this, in);
+            mems.insert({buf, npair_t(var, next)});
+            in >> buf;
+        }
+
+        // fetchExpr.
+        in >> buf;
+        ILA_ASSERT(buf == ".fetchExpr:", "Expect .fetchExpr section");
+        fetchExpr = ipt.importAst(this, in);
+
+        // fetchValid.
+        in >> buf;
+        ILA_ASSERT(buf == ".fetchValid:", "Expect .fetchValid section");
+        fetchValid = ipt.importAst(this, in);
+        
+        // decode.
+        in >> buf;
+        ILA_ASSERT(buf == ".decode:", "Expect .decode section");
+        in >> buf;
+        while (buf != ".decode_end") {
+            nptr_t dec = ipt.importAst(this, in);
+            decodeExprs.push_back(dec);
+            in >> buf;
+        }
+
+        // assumptions.
+        in >> buf;
+        ILA_ASSERT(buf == ".assumps:", "Expect .assumps section");
+        in >> buf;
+        while (buf != ".assumps_end") {
+            nptr_t ass = ipt.importAst(this, in);
+            assumps.push_back(ass);
+            in >> buf;
+        }
+
     }
 
     // ---------------------------------------------------------------------- //

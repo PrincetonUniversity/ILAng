@@ -35,6 +35,9 @@ namespace ila
         MemValues();
         // constructor.
         MemValues(int addrWidth, int dataWidth, const py::object& def_val);
+        // constructor from imported memvalue.
+        MemValues(int addrWidth, int dataWidth, 
+                  const map_t values, const mp_int_t def_value);
         // construct from a model.
         MemValues(Z3ExprAdapter& c, const z3::model& m, const MemVar* mem);
         // copy constructor.

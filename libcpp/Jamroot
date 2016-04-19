@@ -60,6 +60,7 @@ python-extension ila : src/abstraction.cpp
                        src/smt.cpp
                        src/synthesizer.cpp
                        src/synrewriter.cpp
+                       src/imexport.cpp
                        src/type.cpp 
                        src/util.cpp 
                      : <include>./include ;
@@ -87,6 +88,8 @@ testing.make-test run-pyd : ila test/smtequal.py : : test_smtequal ;
 testing.make-test run-pyd : ila test/operator.py : : test_operator ;
 
 testing.make-test run-pyd : ila test/mem.py : : test_mem ;
+
+testing.make-test run-pyd : ila test/export.py : : test_export ;
 
 testing.make-test run-pyd : ila test/alu.py : : test_alu ;
 
