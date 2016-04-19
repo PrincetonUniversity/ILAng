@@ -47,6 +47,7 @@ namespace ila
         std::string getBitvecStr(const std::string& n) const;
         const MemValues& getMemValues(const std::string& n) const;
     };
+    std::ostream& operator<<(std::ostream& out, const DistInput& di);
 
     // ---------------------------------------------------------------------- //
     struct SimOutput
@@ -65,6 +66,8 @@ namespace ila
         // initialize with a particular output.
         void initOutput(const NodeType& nt, const py::object& r);
     };
+    std::ostream& operator<<(std::ostream& out, const SimOutput& simout);
+
     typedef boost::shared_ptr<SimOutput> simout_ptr_t;
 
     // ---------------------------------------------------------------------- //
@@ -80,23 +83,31 @@ namespace ila
         outpair_vec_t outputs;
 
         DITreeNode(Abstraction& a, Z3ExprAdapter& c, z3::model& m);
+        ~DITreeNode();
     };
 
     class Synthesizer;
     struct DITree
     {
-        enum mode_t { REPLAY, CREATE } mode;
+        enum mode_t { REPLAY, INSERT } mode;
+
+        // pointer to synthesizer.
         Synthesizer& syn;
-        dtree_ptr_t head;
-        dtree_ptr_t curr;
-        bool found;
-        int index;
+        // head of the tree.
+        dtree_ptr_t  head;
+        // in replay mode - this is the pointer to the next dist input node.
+        dtree_ptr_t  replay_ptr;
+        // in insert mode, this is the location where the next node will be
+        // inserted.
+        dtree_ptr_t* insert_ptr;
 
         DistInput* getDistInput(z3::expr y);
         void setOutput(const simout_ptr_t& out);
         void addNode(const dtree_ptr_t& node);
 
         DITree(Synthesizer& s);
+        void reset();
+        void rewind();
     };
 
     // ---------------------------------------------------------------------- //
