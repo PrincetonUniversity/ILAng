@@ -14,13 +14,14 @@ namespace ila
     struct Choice {
         // the operands themselves.
         nptr_vec_t args;
-        // is it valid?
-        bool valid;
         // vector of names for boolean variables.
         std::vector< std::string > choiceVars;
         // constructor.
         Choice(const std::string& name, 
                const nptr_vec_t& args);
+        // kind of a copy constructor.
+        Choice(const Choice* that, 
+               const nptr_vec_t& args_);
         // destructor.
         ~Choice();
         
@@ -67,7 +68,14 @@ namespace ila
         // clone.
         virtual Node* clone() const
         {
-            return new ChoiceExpr(this->ctx, this->name, choice.args);
+            return new ChoiceExpr(
+                this->ctx, this->name, choice.args);
+        }
+
+        // clone with new args.
+        ChoiceExpr* clone(const nptr_vec_t& args) const
+        {
+            return new ChoiceExpr(this->ctx, this->name, args);
         }
 
         // equal.
@@ -117,12 +125,14 @@ namespace ila
         ReadSlice(Abstraction *c, const std::string& name, 
                   const nptr_vec_t& args, 
                   const nptr_t& bv, int width);
-    protected:
-        nptr_t bitvec;
-        int width;
     public:
         // destructor.
         virtual ~ReadSlice();
+
+        // the bitvector.
+        nptr_t bitvec;
+        // slice width.
+        int width;
 
         // factory method.
         static ReadSlice* createReadSlice(
@@ -144,12 +154,13 @@ namespace ila
         WriteSlice(Abstraction *c, const std::string& name, 
                    const nptr_vec_t& args, 
                    const nptr_t& bv, const nptr_t& wr);
-    protected:
-        nptr_t bitvec;
-        nptr_t data;
     public:
         // destructor.
         virtual ~WriteSlice();
+        // the bitvector.
+        nptr_t bitvec;
+        // the thing to replace it with.
+        nptr_t data;
 
         // factory method.
         static WriteSlice* createWriteSlice(

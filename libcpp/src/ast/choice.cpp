@@ -19,6 +19,14 @@ namespace ila
         }
     }
 
+    Choice::Choice(
+        const Choice* that,
+        const nptr_vec_t& args_)
+      : args(args_)
+      , choiceVars(that->choiceVars)
+    {
+    }
+
     Choice::~Choice()
     {
     }

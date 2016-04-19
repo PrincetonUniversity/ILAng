@@ -1,39 +1,41 @@
-#include <synrewriter.hpp>
+#include <rewriter.hpp>
 #include <util.hpp>
 
 namespace ila
 {
-    SynRewriter::SynRewriter(z3::model& mod, Z3ExprAdapter& a)
-      : m(mod)
-      , adapter(a)
+    Rewriter::Rewriter()
     {
     }
 
-    SynRewriter::~SynRewriter()
+    Rewriter::~Rewriter()
     {
     }
 
     // ---------------------------------------------------------------------- //
-    void SynRewriter::getNewArgs(
+    void Rewriter::getNewArgs(
         const Node* op, 
         nptr_vec_t& args)
     {
         unsigned n = op->nArgs();
         for (unsigned i=0; i < n; i++) {
             const Node* n = op->arg(i).get();
-            auto pos = exprmap.find(n);
-            ILA_ASSERT(pos != exprmap.end(), "Unable to find node in memo!");
-            nptr_t arg = pos->second;
-            args.push_back(arg);
+            args.push_back(getRepl(n));
         }
     }
 
+    nptr_t Rewriter::getRepl(const Node* n) const 
+    {
+        auto pos = rwmap.find(n);
+        ILA_ASSERT(pos != rwmap.end(), "Unabel to find node in memo.");
+        return pos->second;
+    }
+
     // ---------------------------------------------------------------------- //
-    void SynRewriter::operator() (const Node* n)
+    void Rewriter::operator() (const Node* n)
     {
         // memoization.
-        auto pos = exprmap.find(n);
-        if (pos != exprmap.end()) {
+        auto pos = rwmap.find(n);
+        if (pos != rwmap.end()) {
             return;
         }
 
@@ -49,6 +51,8 @@ namespace ila
         const BitvectorVar* bvvar = NULL;
         const BitvectorConst* bvconst = NULL;
         const BitvectorOp* bvop = NULL;
+        const ReadSlice* rdslice = NULL;
+        const WriteSlice* wrslice = NULL;
         const BitvectorChoice* bvchoiceop = NULL;
         const BVInRange* inrangeop = NULL;
 
@@ -60,58 +64,84 @@ namespace ila
         //// bools ////
         if ((boolvar = dynamic_cast<const BoolVar*>(n))) {
             nptr_t nptr(n->clone());
-            exprmap.insert({n, nptr});
+            rwmap.insert({n, nptr});
         } else if ((boolconst = dynamic_cast<const BoolConst*>(n))) {
             nptr_t nptr(n->clone());
-            exprmap.insert({n, nptr});
+            rwmap.insert({n, nptr});
         } else if ((boolop = dynamic_cast<const BoolOp*>(n))) {
             nptr_vec_t args;
             getNewArgs(boolop, args);
             nptr_t nptr(new BoolOp(boolop, args));
-            exprmap.insert({n, nptr});
+            rwmap.insert({n, nptr});
         } else if ((bchoiceop = dynamic_cast<const BoolChoice*>(n))) {
-            _synChoiceExpr(bchoiceop);
+            nptr_vec_t args;
+            getNewArgs(bchoiceop, args);
+            nptr_t nptr(bchoiceop->clone(args));
+            rwmap.insert({n, nptr});
         //// bitvector ////
         } else if((bvvar = dynamic_cast<const BitvectorVar*>(n))) {
             nptr_t nptr(n->clone());
-            exprmap.insert({n, nptr});
+            rwmap.insert({n, nptr});
         } else if((bvconst = dynamic_cast<const BitvectorConst*>(n))) {
             nptr_t nptr(n->clone());
-            exprmap.insert({n, nptr});
+            rwmap.insert({n, nptr});
         } else if ((bvop = dynamic_cast<const BitvectorOp*>(n))) {
             nptr_vec_t args;
             getNewArgs(bvop, args);
             nptr_t nptr(new BitvectorOp(bvop, args));
-            exprmap.insert({n, nptr});
+            rwmap.insert({n, nptr});
+        } else if ((rdslice = dynamic_cast<const ReadSlice*>(n))) {
+            nptr_t bvp = getRepl(rdslice->bitvec.get());
+            nptr_t nptr(ReadSlice::createReadSlice(
+                rdslice->context(), rdslice->name, 
+                bvp, rdslice->width));
+            rwmap.insert({n, nptr});
+        } else if ((wrslice = dynamic_cast<const WriteSlice*>(n))) {
+            nptr_t bvp = getRepl(wrslice->bitvec.get());
+            nptr_t wrp = getRepl(wrslice->data.get());
+            nptr_t nptr(WriteSlice::createWriteSlice(
+                wrslice->context(), wrslice->name, bvp, wrp));
+            rwmap.insert({n, nptr});
         } else if ((bvchoiceop = dynamic_cast<const BitvectorChoice*>(n))) {
-            _synChoiceExpr(bvchoiceop);
+            nptr_vec_t args;
+            getNewArgs(bvchoiceop, args);
+            nptr_t nptr(bvchoiceop->clone(args));
+            rwmap.insert({n, nptr});
         } else if ((inrangeop = dynamic_cast<const BVInRange*>(n))) {
-            mp_int_t v = adapter.getNumeralCppInt(m, n);
-            nptr_t nptr(new BitvectorConst(n->context(), v, n->type.bitWidth));
-            exprmap.insert({n, nptr});
+            nptr_t nptr(n->clone());
+            rwmap.insert({n, nptr});
         //// memories ////
         } else if ((memvar = dynamic_cast<const MemVar*>(n))) {
             nptr_t nptr(n->clone());
-            exprmap.insert({n, nptr});
+            rwmap.insert({n, nptr});
         } else if ((memconst = dynamic_cast<const MemConst*>(n))) {
             nptr_t nptr(n->clone());
-            exprmap.insert({n, nptr});
+            rwmap.insert({n, nptr});
         } else if ((memwr = dynamic_cast<const MemWr*>(n))) {
             nptr_vec_t args;
             getNewArgs(memwr, args);
             nptr_t nptr(new MemWr(args[0], args[1], args[2]));
-            exprmap.insert({n, nptr});
+            rwmap.insert({n, nptr});
         } else if ((mchoiceop = dynamic_cast<const MemChoice*>(n))) {
-            _synChoiceExpr(mchoiceop);
+            nptr_vec_t args;
+            getNewArgs(mchoiceop, args);
+            nptr_t nptr(mchoiceop->clone(args));
+            rwmap.insert({n, nptr});
         }
     }
 
     // ---------------------------------------------------------------------- //
-    nptr_t SynRewriter::rewrite(const Node* n)
+    nptr_t Rewriter::rewrite(const Node* n)
     {
         n->depthFirstVisit(*this);
-        auto pos = exprmap.find(n);
-        ILA_ASSERT(pos != exprmap.end(), "Unable to find node in memo.");
+        auto pos = rwmap.find(n);
+        ILA_ASSERT(pos != rwmap.end(), "Unable to find node in memo.");
         return pos->second;
+    }
+
+    // ---------------------------------------------------------------------- //
+    void Rewriter::addRewrite(const Node* n, const nptr_t& nprime)
+    {
+        rwmap[n] = nprime;
     }
 }
