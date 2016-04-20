@@ -21,7 +21,7 @@ namespace ila
       , MAX_SYN_ITER(200)
       , fetchExpr(NULL)
       , fetchValid(new ila::BoolConst(this , true))
-      , paramSyn(1)
+      , paramSyn(0)
     {
     }
 
@@ -72,14 +72,16 @@ namespace ila
         else if (n->node->type.isBitvector()) { m = &regs; }
         else if (n->node->type.isMem()) { m = &mems; }
         else {
-            throw PyILAException(PyExc_TypeError, "Unexpected type.");
+            throw PyILAException(PyExc_TypeError, 
+                "Unexpected type.");
             return;
         }
 
         // now try to find the variable.
         auto pos = m->find(name);
         if (pos == m->end()) {
-            throw PyILAException(PyExc_RuntimeError, "Unable to find var: " + name);
+            throw PyILAException(PyExc_RuntimeError, 
+                "Unable to find var: " + name);
             return;
         }
 

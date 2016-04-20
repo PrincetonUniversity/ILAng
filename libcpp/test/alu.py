@@ -15,8 +15,11 @@ class alu_sim(object):
         self.NUM_OPCODES = 1 << self.OPCODE_WIDTH
         self.OPCODE_MASK = 0b11 << (2*self.REG_FIELD_WIDTH)
         self.MASK = (1 << reg_size) - 1
+        self.ROM_SIZE = 16
+        self.ROM_ADDR_WIDTH = int(math.log(self.ROM_SIZE, 2))
+        self.PC_MASK = (self.ROM_SIZE-1)
 
-    def alu(self, opcode, regs):
+    def alu(self, rom, pc, regs):
         ADD = 0
         SUB = 1
         AND = 2
@@ -24,6 +27,7 @@ class alu_sim(object):
 
         assert len(regs) == self.NUM_REGS
 
+        opcode = rom[pc]
         reg0_index = opcode & self.REG_FIELD_MASK1
         reg1_index = (opcode & self.REG_FIELD_MASK2) >> self.REG_FIELD_WIDTH
         r0 = regs[reg0_index]
@@ -53,11 +57,13 @@ class alu_sim(object):
 
     def alusim(self, state):
         #print 'IN:', state
-        opcode = state['opcode']
+        rom = state['rom']
+        pc = state['pc']
         regs = [state['r%d' % i] for i in xrange(self.NUM_REGS)]
-        regs = self.alu(opcode, regs)
+        regs = self.alu(rom, pc, regs)
         for i in xrange(self.NUM_REGS):
             state['r%d' % i] = regs[i]
+        state['pc'] = (pc + 1) & self.PC_MASK
         #print 'OUT:', state
         return state
 
@@ -68,8 +74,9 @@ def select(regs, regindex):
     n = len(regs)
     return r(n-1)
 
-def aluexpr(opcode, regs):
+def aluexpr(rom, pc, regs):
     reg_field_width = int(math.log(len(regs), 2))
+    opcode = rom[pc]
     rs = opcode[reg_field_width-1:0]
     rt = opcode[2*reg_field_width-1:reg_field_width]
     r0 = select(regs, rs)
@@ -95,16 +102,19 @@ def model(num_regs, reg_size, paramsyn):
     alu = alu_sim(reg_field_width, reg_size)
 
     sys = ila.Abstraction()
-    sys.enable_parameterized_synthesis = paramsyn
+    sys.enable_parameterized_synthesis = 0 # paramsyn
 
     # state elements.
+    rom = sys.mem('rom', alu.ROM_ADDR_WIDTH, alu.OPCODE_WIDTH)
+    pc = sys.reg('pc', alu.ROM_ADDR_WIDTH)
+    opcode = rom[pc]
     regs = [sys.reg('r%d' % i, alu.REG_SIZE) for i in xrange(alu.NUM_REGS)]
-    opcode = sys.inp('opcode', alu.OPCODE_WIDTH)
     # get the two sources.
     rs = ila.choice('rs', regs)
     rt = ila.choice('rt', regs)
     rs = [rs+rt, rs-rt, rs&rt, rs|rt, ~rs, -rs, ~rt, -rt]
     # set next.
+    sys.set_next('pc', pc+1)
     regs_next = []
     for i in xrange(alu.NUM_REGS):
         ri_next = ila.choice('result%d' % i, rs+[regs[i]])
@@ -119,13 +129,15 @@ def model(num_regs, reg_size, paramsyn):
     et = time.clock()
     print 'time for synthesis: %.3f' % (et-st)
 
-    regs_next = aluexpr(opcode, regs)
+    regs_next = aluexpr(rom, pc, regs)
     for i in xrange(alu.NUM_REGS):
         rn1 = sys.get_next('r%d' % i)
         rn2 = regs_next[i]
-        assert sys.areEqual(rn1, rn2)
         print rn1
+        print rn2
+        assert sys.areEqual(rn1, rn2)
 
+    print sys.get_next('pc')
     #sys.add_assumption(opcode == 0x80)
     #print sys.syn_elem("r0", sys.get_next('r0'), alusim)
 
