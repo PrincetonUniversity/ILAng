@@ -1,6 +1,7 @@
 #include <util.hpp>
 #include <exception.hpp>
 #include <boost/python.hpp>
+#include <frameobject.h> // for PyFrameObject
 #include <boost/log/core.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/log/expressions.hpp>
@@ -15,7 +16,9 @@ namespace ila {
     void ila_assert(bool b, const char* msg, const char* file, int line)
     {
         if (!b) {
-            fprintf(stderr, "ASSERTION FAILURE %s at file %d, line %s.", file, line, msg);
+            fprintf(stderr, 
+                "%s:%d ASSERTION FAILURE %s\n", file, line, msg);
+            dump_trace();
             abort();
         }
     }
@@ -23,6 +26,26 @@ namespace ila {
     void ila_assert(bool b, const std::string& msg, const char* file, int line)
     {
         ila_assert(b, msg.c_str(), file, line);
+    }
+
+    void dump_trace()
+    {
+        fprintf(stderr, "Traceback (most recent call first):\n");
+        PyThreadState *tstate = PyThreadState_GET();
+        if (NULL != tstate && NULL != tstate->frame) {
+            PyFrameObject *frame = tstate->frame;
+
+            while (NULL != frame) {
+                int line = PyFrame_GetLineNumber(frame);
+                const char *filename = PyString_AsString(
+                    frame->f_code->co_filename);
+                const char *funcname = PyString_AsString(
+                    frame->f_code->co_name);
+                fprintf(stderr, "    File \"%s\", line %d in %s\n", 
+                    filename, line, funcname);
+                frame = frame->f_back;
+            }
+        }
     }
 
     // ---------------------------------------------------------------------- //

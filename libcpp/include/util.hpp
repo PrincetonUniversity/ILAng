@@ -11,6 +11,7 @@ namespace ila {
     // ---------------------------------------------------------------------- //
     void ila_assert(bool b, const char* msg, const char* file, int line);
     void ila_assert(bool b, const std::string& msg, const char* file, int line);
+    void dump_trace();
 
     // ---------------------------------------------------------------------- //
     std::string to_string(const py::object& l);
