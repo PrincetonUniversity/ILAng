@@ -54,7 +54,7 @@ namespace ila
         z3::check_result r = S.check();
         S.pop();
         bool dep = (r != z3::unsat);
-        std::cout << "dependency exists: " << (int) dep << std::endl;
+        //std::cout << "dependency exists: " << (int) dep << std::endl;
         return dep;
     }
 
@@ -262,7 +262,14 @@ namespace ila
     // ---------------------------------------------------------------------- //
 
     DITreeNode::DITreeNode(Abstraction& a, Z3ExprAdapter& c, z3::model& m)
-      : inputs(a, c, m)
+      : inputs(new DistInput(a, c, m))
+      , result(NULL)
+    {
+    }
+
+    DITreeNode::DITreeNode()
+      : inputs(NULL)
+      , result(NULL)
     {
     }
 
@@ -300,11 +307,12 @@ namespace ila
     DITree::DITree(Synthesizer& s)
       : syn(s)
     {
-        reset();
+        reset(false);
     }
 
-    void DITree::reset()
+    void DITree::reset(bool rm)
     {
+      reuseModels = rm;
       // empty the tree.
       head.reset();
       // we don't have anything to reply.
@@ -319,7 +327,7 @@ namespace ila
     {
         if (!(bool)head) {
             // if the tree is empty then we just reset.
-            reset();
+            reset(reuseModels);
         } else {
             // else start in replay mode.
             mode = REPLAY;
@@ -330,7 +338,7 @@ namespace ila
         }
     }
 
-    DistInput* DITree::getDistInput(z3::expr y)
+    DistInput* DITree::getDistInput(const z3::expr& y)
     {
         if (mode == INSERT) {
             // std::cout << "getDI: INSERT mode." << std::endl;
@@ -344,23 +352,30 @@ namespace ila
                 // insert into the tree.
                 dtree_ptr_t dnode(new DITreeNode(syn.abs, syn.c1, m));
                 *insert_ptr = dnode;
-                // std::cout << "getDI: DI: " << dnode->inputs << std::endl;
-                return &dnode->inputs;
+                // std::cout << "getDI: DI: " << *dnode->inputs << std::endl;
+                return dnode->inputs.get();
             } else {
-                // std::cout << "getDI: No more DIs." << std::endl;
                 // tree is empty.
+                // std::cout << "getDI: No more DIs." << std::endl;
+                if (reuseModels) {
+                    dtree_ptr_t dnode(new DITreeNode());
+                    *insert_ptr = dnode;
+                }
                 return NULL;
             }
         } else {
-            DistInput* di = &replay_ptr->inputs;
-            z3::check_result r = syn.Sp.check();
-            ILA_ASSERT(r == z3::sat, "Expected this to be SAT.");
-            z3::model m = syn.Sp.get_model();
-            di->fixUp(syn.decodeSupport, syn.c1, m);
-
-            // std::cout << "getDI: REPLAY mode." << std::endl;
-            // std::cout << "getDI: DI: " << *di << std::endl;
-
+            DistInput* di = replay_ptr->inputs.get();
+            if (di != NULL) {
+                z3::check_result r = syn.Sp.check();
+                ILA_ASSERT(r == z3::sat, "Expected this to be SAT.");
+                z3::model m = syn.Sp.get_model();
+                di->fixUp(syn.decodeSupport, syn.c1, m);
+                // std::cout << "getDI: REPLAY mode." << std::endl;
+                // std::cout << "getDI: DI: " << *di << std::endl;
+            } else {
+                // std::cout << "getDI: REPLAY mode: end of trail."
+                //           << std::endl;
+            }
             return di;
         }
     }
@@ -385,14 +400,16 @@ namespace ila
                 // not found, so switch to insert mode.
                 mode = INSERT;
                 // std::cout << "setOut: switch to insert mode as output not found." 
-                //          << std::endl;
+                //           << std::endl;
                 int index = replay_ptr->outputs.size();
                 replay_ptr->outputs.push_back({out, dtree_ptr_t()});
                 insert_ptr = &replay_ptr->outputs[index].second;
                 replay_ptr.reset();
             } else if (!(bool)replay_ptr) {
+                ILA_ASSERT(!reuseModels, 
+                    "reuseModels must be false if we got here.");
                 // std::cout << "setOut: switch to insert mode at end of trail." 
-                //           << std::endl;
+                //          << std::endl;
 
                 mode = INSERT;
                 insert_ptr = &replay_ptr;
@@ -407,6 +424,32 @@ namespace ila
                         "insert_ptr can't have child nodes.");
             (*insert_ptr)->outputs.push_back({out, dtree_ptr_t()});
             insert_ptr = &(*insert_ptr)->outputs[0].second;
+        }
+    }
+
+    nptr_t DITree::getExpr(const z3::expr& y, const nptr_t& ex, int i)
+    {
+        using namespace z3;
+        if (mode == INSERT || !reuseModels) {
+            expr assumps[1] = { !y };
+            check_result r = syn.S.check(1, assumps);
+            if (r != sat) {
+                std::ostringstream uout;
+                uout << "Unable to extract synthesis result. Unsat core: "
+                     << syn.S.unsat_core() << "; iterations: " << i;
+                throw PyILAException(PyExc_RuntimeError, uout.str());
+                return nptr_t(NULL);
+            }
+
+            model m = syn.S.get_model();
+            SynRewriter rw(m, syn.c1);
+            nptr_t syn_expr = rw.rewrite(ex.get());
+            if (reuseModels) {
+                (*insert_ptr)->result = syn_expr;
+            }
+            return syn_expr;
+        } else {
+            return replay_ptr->result;
         }
     }
 
@@ -459,9 +502,9 @@ namespace ila
             //           << "; expr: " << *next.get() << std::endl;
 
 
-            ditree.reset();
             nptr_t ex = r.second.var;
-            decodeSupport.depCheck(c, Sp, next);
+            bool nodep = !decodeSupport.depCheck(c, Sp, next);
+            ditree.reset(nodep);
             for (auto de : abs.decodeExprs) {
                 // std::cout << "decode: " << *de.get() << std::endl;
                 ditree.rewind();
@@ -505,6 +548,8 @@ namespace ila
         const nptr_t& ex,
         PyObject* pyfun)
     {
+        // std::cout << "synthesize" << std::endl;
+
         using namespace py;
         using namespace z3;
         using namespace boost;
@@ -512,13 +557,9 @@ namespace ila
         S.push(); Sp.push();
         _addExpr(de_expr, c1, c2);
         expr y = _createSynMiter(ex);
-        expr syn_assumps[1] = { !y };
 
-        check_result r;
         int i = 0;
         dict args;
-
-        // cegis loop.
         std::unique_ptr<DistInput> di;
         while ((di = _getDistInput(y)) && (i++ < MAX_SYN_ITER)) {
             // std::cout << "iteration #" << i++ << std::endl;
@@ -552,7 +593,8 @@ namespace ila
 
         // std::cout << "finished after " << i << " SMT calls." << std::endl;
 
-        r = S.check(1, syn_assumps);
+        expr syn_assumps[1] = { !y };
+        check_result r = S.check(1, syn_assumps);
         if (r != sat) {
             std::cout << "unsat core: " << S.unsat_core() << std::endl;
             throw PyILAException(
@@ -576,6 +618,8 @@ namespace ila
         const nptr_t& ex,
         PyObject* pyfun)
     {
+        // std::cout << "synthesizeEx" << std::endl;
+
         using namespace py;
         using namespace z3;
         using namespace boost;
@@ -583,13 +627,9 @@ namespace ila
         S.push(); Sp.push();
         _addExpr(de_expr, c1, c2);
         expr y = _createSynMiter(ex);
-        expr syn_assumps[1] = { !y };
 
-        check_result r;
         int i = 0;
         dict args;
-
-        // cegis loop.
         DistInput* di;
         while ((di = ditree.getDistInput(y)) && (i++ < MAX_SYN_ITER)) {
             // std::cout << "iteration #" << i++ << std::endl;
@@ -624,20 +664,7 @@ namespace ila
         }
 
         // std::cout << "finished after " << i << " SMT calls." << std::endl;
-
-        r = S.check(1, syn_assumps);
-        if (r != sat) {
-            std::cout << "unsat core: " << S.unsat_core() << std::endl;
-            throw PyILAException(
-                PyExc_RuntimeError, 
-                "Unable to extract synthesis result after " + 
-                lexical_cast<std::string>(i) + " iterations.");
-            return NULL;
-        }
-
-        model m = S.get_model();
-        SynRewriter rw(m, c1);
-        nptr_t nr = rw.rewrite(ex.get());
+        nptr_t nr = ditree.getExpr(y, ex, i);
         S.pop(); Sp.pop();
 
         return nr;

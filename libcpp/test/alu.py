@@ -2,6 +2,7 @@
 import ila
 import argparse
 import math
+import time
 
 class alu_sim(object):
     def __init__(self, reg_field_width, reg_size):
@@ -99,30 +100,31 @@ def model(num_regs, reg_size, paramsyn):
     # state elements.
     regs = [sys.reg('r%d' % i, alu.REG_SIZE) for i in xrange(alu.NUM_REGS)]
     opcode = sys.inp('opcode', alu.OPCODE_WIDTH)
-
     # get the two sources.
     rs = ila.choice('rs', regs)
     rt = ila.choice('rt', regs)
     rs = [rs+rt, rs-rt, rs&rt, rs|rt, ~rs, -rs, ~rt, -rt]
-    # rs = [rs+rt, rs-rt] #
-
     # set next.
     regs_next = []
     for i in xrange(alu.NUM_REGS):
         ri_next = ila.choice('result%d' % i, rs+[regs[i]])
         sys.set_next('r%d' % i, ri_next)
-
     # set the fetch expressions.
     sys.fetch_expr = opcode
     # now set the decode expressions.
     sys.decode_exprs = [opcode == i for i in xrange(alu.NUM_OPCODES)]
     # now synthesize.
+    st = time.clock()
     sys.synthesize(lambda s: alu.alusim(s))
+    et = time.clock()
+    print 'time for synthesis: %.3f' % (et-st)
+
     regs_next = aluexpr(opcode, regs)
     for i in xrange(alu.NUM_REGS):
         rn1 = sys.get_next('r%d' % i)
         rn2 = regs_next[i]
         assert sys.areEqual(rn1, rn2)
+        print rn1
 
     #sys.add_assumption(opcode == 0x80)
     #print sys.syn_elem("r0", sys.get_next('r0'), alusim)

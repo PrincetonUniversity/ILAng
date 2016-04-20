@@ -81,10 +81,12 @@ namespace ila
         typedef std::pair<simout_ptr_t, dtree_ptr_t> outpair_t;
         typedef std::vector<outpair_t> outpair_vec_t;
 
-        DistInput inputs;
+        std::auto_ptr<DistInput> inputs;
         outpair_vec_t outputs;
+        nptr_t result;
 
         DITreeNode(Abstraction& a, Z3ExprAdapter& c, z3::model& m);
+        DITreeNode();
         ~DITreeNode();
     };
 
@@ -92,6 +94,7 @@ namespace ila
     struct DITree
     {
         enum mode_t { REPLAY, INSERT } mode;
+        bool reuseModels;
 
         // pointer to synthesizer.
         Synthesizer& syn;
@@ -103,12 +106,12 @@ namespace ila
         // inserted.
         dtree_ptr_t* insert_ptr;
 
-        DistInput* getDistInput(z3::expr y);
+        DistInput* getDistInput(const z3::expr& y);
         void setOutput(const simout_ptr_t& out);
-        void addNode(const dtree_ptr_t& node);
+        nptr_t getExpr(const z3::expr& y, const nptr_t& ex, int i);
 
         DITree(Synthesizer& s);
-        void reset();
+        void reset(bool reuseModels);
         void rewind();
     };
 
