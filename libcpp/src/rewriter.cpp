@@ -30,8 +30,26 @@ namespace ila
         return pos->second;
     }
 
-    // ---------------------------------------------------------------------- //
-    void Rewriter::operator() (const Node* n)
+    void Rewriter::firstPass(const Node* n)
+    {
+        for (auto it : rwmap) {
+            const Node* np = it.first;
+            if (np->equal(n)) {
+                rweq_map.insert({np, it.second});
+            }
+        }
+    }
+
+    void Rewriter::secondPass(const Node* n)
+    {
+        for (auto it : rweq_map){
+            const Node* n = it.first;
+            const nptr_t& np = it.second;
+            rwmap.insert({n, np});
+        }
+    }
+
+    void Rewriter::thirdPass(const Node* n) 
     {
         // memoization.
         auto pos = rwmap.find(n);
@@ -130,10 +148,31 @@ namespace ila
         }
     }
 
+
+    // ---------------------------------------------------------------------- //
+    void Rewriter::operator() (const Node* n)
+    {
+        if (pass == 0) { 
+            firstPass(n); 
+        } else if (pass == 1) { 
+            secondPass(n); 
+        } else if (pass == 2) { 
+            thirdPass(n); 
+        } else {
+            ILA_ASSERT(false, "pass should 0-2.");
+        }
+    }
+
     // ---------------------------------------------------------------------- //
     nptr_t Rewriter::rewrite(const Node* n)
     {
+        pass = 0;
         n->depthFirstVisit(*this);
+        pass = 1;
+        n->depthFirstVisit(*this);
+        pass = 2;
+        n->depthFirstVisit(*this);
+
         auto pos = rwmap.find(n);
         ILA_ASSERT(pos != rwmap.end(), "Unable to find node in memo.");
         return pos->second;

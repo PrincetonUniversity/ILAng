@@ -30,6 +30,8 @@ namespace ila
         void operator() (const Node* n);
         // reset.
         void clear();
+        // check if this expression depends on the support.
+        bool depCheck(z3::context& c, z3::solver& S, const nptr_t& ex);
     };
 
     // ---------------------------------------------------------------------- //

@@ -1,6 +1,7 @@
 #include <synthesizer.hpp>
 #include <exception.hpp>
 #include <util.hpp>
+#include <rewriter.hpp>
 
 namespace ila
 {
@@ -13,18 +14,48 @@ namespace ila
         const BoolVar* boolvar = NULL; 
         const BitvectorVar* bvvar = NULL;
 
-        //// booleans ////
         if ((boolvar = dynamic_cast<const BoolVar*>(n))) {
             bools.insert(boolvar);
         } else if((bvvar = dynamic_cast<const BitvectorVar*>(n))) {
             bitvecs.insert(bvvar);
         }
+        // FIXME: readmem
     }
 
     void SupportVars::clear()
     {
         bools.clear();
         bitvecs.clear();
+    }
+
+    bool SupportVars::depCheck(z3::context& c, z3::solver& S, const nptr_t& ex)
+    {
+        // first rewrite.
+        Rewriter r1, r2;
+        for (auto b : bools) {
+            r1.addRewrite(b, nptr_t(new BoolVar(b->context(), b->name+"__1")));
+            r2.addRewrite(b, nptr_t(new BoolVar(b->context(), b->name+"__2")));
+        }
+        for (auto bv : bitvecs) {
+            r1.addRewrite(bv, nptr_t(new BitvectorVar(
+                bv->context(), bv->name+"__1", bv->type.bitWidth)));
+            r2.addRewrite(bv, nptr_t(new BitvectorVar(
+                bv->context(), bv->name+"__2", bv->type.bitWidth)));
+        }
+        auto rwex1 = r1.rewrite(ex.get());
+        auto rwex2 = r2.rewrite(ex.get());
+
+        // now check using smt.
+        Z3ExprAdapter adapter(c, "");
+        auto expr1 = adapter.getExpr(rwex1.get());
+        auto expr2 = adapter.getExpr(rwex2.get());
+        S.push();
+        S.add(expr1 != expr2);
+        z3::check_result r = S.check();
+        S.pop();
+        bool dep = (r != z3::unsat);
+        std::cout << "dependency exists: " << (int) dep << std::endl;
+        return dep;
     }
 
     // ---------------------------------------------------------------------- //
@@ -419,17 +450,18 @@ namespace ila
             de->depthFirstVisit(decodeSupport);
         }
 
+        S.push(); Sp.push();
+        _initSolverAssumptions(abs.assumps, c1, c2);
         for (auto&& r : abs.regs) {
             const std::string& name(r.first);
             const nptr_t& next(r.second.next);
             // std::cout << "trying to synthesize: " << name
             //           << "; expr: " << *next.get() << std::endl;
 
-            S.push(); Sp.push();
-            _initSolverAssumptions(abs.assumps, c1, c2);
 
             ditree.reset();
             nptr_t ex = r.second.var;
+            decodeSupport.depCheck(c, Sp, next);
             for (auto de : abs.decodeExprs) {
                 // std::cout << "decode: " << *de.get() << std::endl;
                 ditree.rewind();
@@ -444,11 +476,11 @@ namespace ila
                 //          << *de.get() << " -> "
                 //          << *ex_n.get() << std::endl;
             }
-            S.pop(); Sp.pop();
             r.second.next = ex;
             //std::cout << name << ": "
             //          << *ex.get() << std::endl;
         }
+        S.pop(); Sp.pop();
     }
 
     // ---------------------------------------------------------------------- //
