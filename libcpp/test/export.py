@@ -53,7 +53,7 @@ def shint(d):
 
     
 def main():
-    expFile  = "/tmp/export.txt"
+    expFile  = "tmp/export.txt"
 
     sys = ila.Abstraction()
 
@@ -96,9 +96,9 @@ def main():
     resrmz = sys.syn_elem("razmatazz", res, razmatazz)
     assert sys.areEqual(resrmz, r0[3:0]+r1[7:4])
 
-    sys.exportFile(expFile);
+    #sys.exportFile(expFile);
 
-    sys.importFile(expFile);
+    #sys.importFile(expFile);
 
 if __name__ == '__main__':
     main()

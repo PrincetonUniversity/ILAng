@@ -318,6 +318,7 @@ namespace ila
     void Abstraction::exportToFile(const std::string& fileName) const
     {
         std::ofstream out(fileName.c_str());
+        ILA_ASSERT(out.is_open(), "File " + fileName + " not open.");
         ImExport expt;
 
         // names.
@@ -343,34 +344,34 @@ namespace ila
         out << ".regs: ";
         for (nmap_t::const_iterator it = regs.begin();
              it != regs.end(); it++) {
-            out << " " << it->first << " ";
+            out << "\n" << it->first << " ";
             expt.exportAst(out, it->second.var.get());
             out << " ";
             expt.exportAst(out, it->second.next.get());
         }
-        out << " .regs_end\n";
+        out << "\n.regs_end\n";
 
         // bits.
         out << ".bits: ";
         for (nmap_t::const_iterator it = bits.begin();
              it != bits.end(); it++) {
-            out << " " << it->first << " ";
+            out << "\n" << it->first << " ";
             expt.exportAst(out, it->second.var.get());
             out << " ";
             expt.exportAst(out, it->second.next.get());
         }
-        out << " .bits_end\n";
+        out << "\n.bits_end\n";
 
         // mems.
         out << ".mems: ";
         for (nmap_t::const_iterator it = mems.begin();
              it != mems.end(); it++) {
-            out << " " << it->first << " ";
+            out << "\n" << it->first << " ";
             expt.exportAst(out, it->second.var.get());
             out << " ";
             expt.exportAst(out, it->second.next.get());
         }
-        out << " .mems_end\n";
+        out << "\n.mems_end\n";
 
         // fetchExpr.
         out << ".fetchExpr: ";
@@ -385,18 +386,18 @@ namespace ila
         // decodeExpr.
         out << ".decode: ";
         for (unsigned i = 0; i != decodeExprs.size(); i++) {
-            out << " " << i << " ";
+            out << "\n" << i << " ";
             expt.exportAst(out, decodeExprs[i].get());
         }
-        out << " .decode_end\n";
+        out << "\n.decode_end\n";
 
         // assumps.
         out << ".assumps: ";
         for (unsigned i = 0; i != assumps.size(); i++) {
-            out << " ";
+            out << "\n";
             expt.exportAst(out, assumps[i].get());
         }
-        out << " .assumps_end\n";
+        out << "\n.assumps_end\n";
 
         out.close();
     }

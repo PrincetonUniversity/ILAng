@@ -129,6 +129,15 @@ def model(num_regs, reg_size, paramsyn):
     #sys.add_assumption(opcode == 0x80)
     #print sys.syn_elem("r0", sys.get_next('r0'), alusim)
 
+    expFile  = "tmp/export.txt"
+    sys.exportFile(expFile);
+    sys.importFile(expFile);
+    for i in xrange(alu.NUM_REGS):
+        rn1 = sys.get_next('r%d' % i)
+        rn2 = regs_next[i]
+        assert sys.areEqual(rn1, rn2)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--numregs", type=int, default=2, help="# of registers")

@@ -215,7 +215,6 @@ namespace ila
                 ILA_ASSERT(false, "Unknown bv type " + opname);
                 nptr = NULL;
             }
-
             ILA_ASSERT(nextChar(in) == ')', "Miss )");
             return nptr;
         } else if (nodeType == "memVar") {
@@ -267,7 +266,7 @@ namespace ila
         char buf;
         while (!in.eof()) {
             buf = in.get();
-            if (buf != ' ') return buf;
+            if (buf != ' ' && buf != '\n') return buf;
         }
         return buf;
     }
