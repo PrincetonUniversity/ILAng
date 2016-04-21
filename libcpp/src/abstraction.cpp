@@ -21,7 +21,7 @@ namespace ila
       , MAX_SYN_ITER(200)
       , fetchExpr(NULL)
       , fetchValid(new ila::BoolConst(this , true))
-      , paramSyn(0)
+      , paramSyn(1)
     {
     }
 
@@ -574,13 +574,15 @@ namespace ila
         int i = 0;
         dict args;
 
+        SupportVars sv;
+
         // cegis loop.
         while (((r = S.check(1, &y)) == sat) && (i++ < MAX_SYN_ITER)) {
             // std::cout << "iteration #" << i++ << std::endl;
 
             // extract model.
             model m = S.get_model();
-            DistInput di(*this, c1, m);
+            DistInput di(*this, c1, m, sv);
             di.toPython(args);
 
             // std::cout << "model: " << m << std::endl;

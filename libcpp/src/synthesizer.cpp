@@ -13,19 +13,54 @@ namespace ila
     {
         const BoolVar* boolvar = NULL; 
         const BitvectorVar* bvvar = NULL;
+        const BitvectorOp* bvop = NULL;
 
         if ((boolvar = dynamic_cast<const BoolVar*>(n))) {
             bools.insert(boolvar);
         } else if((bvvar = dynamic_cast<const BitvectorVar*>(n))) {
             bitvecs.insert(bvvar);
+        } else if((bvop = dynamic_cast<const BitvectorOp*>(n))) {
+            if (bvop->getOp() == BitvectorOp::READMEM) {
+                const MemExpr* memexp = (const MemExpr*) bvop->arg(0).get();
+                const BitvectorExpr* addr = (const BitvectorExpr*) bvop->arg(1).get();
+                const MemVar* memvar = dynamic_cast<const MemVar*>(memexp);
+                if (memvar) {
+                    rdexprs.push_back({memvar, addr, bvop});
+                } else {
+                    canFixUp = false;
+                }
+            }
         }
-        // FIXME: readmem
     }
 
     void SupportVars::clear()
     {
         bools.clear();
         bitvecs.clear();
+        rdexprs.clear();
+    }
+
+    void SupportVars::uniquifyRdExprs()
+    {
+        std::vector<mem_info_t> rdexprs2;
+        for (auto&& rd : rdexprs) {
+            if (rdexprs2.size() == 0) {
+                rdexprs2.push_back(rd);
+            } else {
+                bool found = false;
+                for (auto& it : rdexprs2) {
+                    if (it == rd) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    rdexprs2.push_back(rd);
+                }
+            }
+        }
+        rdexprs.clear();
+        std::copy(rdexprs2.begin(), rdexprs2.end(), std::back_inserter(rdexprs));
     }
 
     bool SupportVars::depCheck(z3::context& c, z3::solver& S, const nptr_t& ex)
@@ -38,9 +73,17 @@ namespace ila
         }
         for (auto bv : bitvecs) {
             r1.addRewrite(bv, nptr_t(new BitvectorVar(
-                bv->context(), bv->name+"__1", bv->type.bitWidth)));
+                bv->context(), "$" + bv->name+"__1", bv->type.bitWidth)));
             r2.addRewrite(bv, nptr_t(new BitvectorVar(
-                bv->context(), bv->name+"__2", bv->type.bitWidth)));
+                bv->context(), "$" + bv->name+"__2", bv->type.bitWidth)));
+        }
+        for (auto&& mi : rdexprs) {
+            r1.addRewrite(mi.rddata, nptr_t(new BitvectorVar(
+                mi.rddata->context(), mi.rddata->name+"__1", 
+                mi.rddata->type.bitWidth)));
+            r2.addRewrite(mi.rddata, nptr_t(new BitvectorVar(
+                mi.rddata->context(), mi.rddata->name+"__2", 
+                mi.rddata->type.bitWidth)));
         }
         auto rwex1 = r1.rewrite(ex.get());
         auto rwex2 = r2.rewrite(ex.get());
@@ -59,7 +102,8 @@ namespace ila
     }
 
     // ---------------------------------------------------------------------- //
-    DistInput::DistInput(Abstraction& abs, Z3ExprAdapter& c, z3::model& m)
+    DistInput::DistInput(
+        Abstraction& abs, Z3ExprAdapter& c, z3::model& m, SupportVars& sv)
     {
         using namespace z3;
 
@@ -82,6 +126,10 @@ namespace ila
             bool b_e = c.getBoolValue(m, b.second.var.get());
             bools[b.first] = b_e;
         }
+
+        for (auto&& rd : sv.rdexprs) {
+            rdaddrs.push_back(c.extractNumeralString(m, rd.addr));
+        }
     }
 
     void DistInput::fixUp(SupportVars& s, Z3ExprAdapter& c, z3::model& m)
@@ -100,7 +148,23 @@ namespace ila
             bools[name] = value;
         }
 
-        // TODO: fixup memories
+        // fixup memories
+        int i = 0; 
+        for (auto&& rdex : s.rdexprs) {
+            auto pos = mems.find(rdex.mem->name);
+            ILA_ASSERT(pos != mems.end(), 
+                "Can't find memory: " + rdex.mem->name);
+            MemValues& thismem (pos->second);
+
+            MemValues mv(c, m, rdex.mem);
+            std::string addr_s = c.extractNumeralString(m, rdex.addr);
+            mp_int_t addr_i = boost::lexical_cast<mp_int_t>(addr_s);
+            mp_int_t data_i = mv.getItemInt(addr_i);
+            // get the address from the "saved" model.
+            mp_int_t addr_j = boost::lexical_cast<mp_int_t>(rdaddrs[i]);
+            thismem.values[addr_j] = data_i;
+            i++;
+        }
     }
 
     void DistInput::toPython(py::dict& d)
@@ -152,6 +216,12 @@ namespace ila
         for (auto b : di.bools) {
             out << b.first << ": " << (int) b.second << "; ";
         }
+
+        out << "[ ";
+        for (auto s : di.rdaddrs) {
+            out << s << " ";
+        }
+        out << "]";
         return out;
     }
 
@@ -261,8 +331,9 @@ namespace ila
 
     // ---------------------------------------------------------------------- //
 
-    DITreeNode::DITreeNode(Abstraction& a, Z3ExprAdapter& c, z3::model& m)
-      : inputs(new DistInput(a, c, m))
+    DITreeNode::DITreeNode(
+        Abstraction& a, Z3ExprAdapter& c, z3::model& m, SupportVars& sv)
+      : inputs(new DistInput(a, c, m, sv))
       , result(NULL)
     {
     }
@@ -350,7 +421,8 @@ namespace ila
                 // extract model.
                 z3::model m = syn.S.get_model();
                 // insert into the tree.
-                dtree_ptr_t dnode(new DITreeNode(syn.abs, syn.c1, m));
+                dtree_ptr_t dnode(new DITreeNode(
+                    syn.abs, syn.c1, m, syn.decodeSupport));
                 *insert_ptr = dnode;
                 // std::cout << "getDI: DI: " << *dnode->inputs << std::endl;
                 return dnode->inputs.get();
@@ -364,17 +436,17 @@ namespace ila
                 return NULL;
             }
         } else {
+            // std::cout << "getDI: REPLAY mode." << std::endl;
             DistInput* di = replay_ptr->inputs.get();
             if (di != NULL) {
                 z3::check_result r = syn.Sp.check();
                 ILA_ASSERT(r == z3::sat, "Expected this to be SAT.");
                 z3::model m = syn.Sp.get_model();
+                // std::cout << "getDI: prefixUp DI: " << *di << std::endl;
                 di->fixUp(syn.decodeSupport, syn.c1, m);
-                // std::cout << "getDI: REPLAY mode." << std::endl;
                 // std::cout << "getDI: DI: " << *di << std::endl;
             } else {
-                // std::cout << "getDI: REPLAY mode: end of trail."
-                //           << std::endl;
+                // std::cout << "getDI: end of trail." << std::endl;
             }
             return di;
         }
@@ -492,6 +564,7 @@ namespace ila
         for (auto de : abs.decodeExprs) {
             de->depthFirstVisit(decodeSupport);
         }
+        decodeSupport.uniquifyRdExprs();
 
         S.push(); Sp.push();
         _initSolverAssumptions(abs.assumps, c1, c2);
@@ -535,7 +608,8 @@ namespace ila
         check_result r = S.check(1, assumps);
         if (r == sat) {
             model m = S.get_model();
-            return std::unique_ptr<DistInput>(new DistInput(abs, c1, m));
+            return std::unique_ptr<DistInput>(
+                new DistInput(abs, c1, m, decodeSupport));
         } else {
             return std::unique_ptr<DistInput>(); // empty //;
         }

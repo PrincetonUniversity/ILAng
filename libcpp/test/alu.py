@@ -102,7 +102,7 @@ def model(num_regs, reg_size, paramsyn):
     alu = alu_sim(reg_field_width, reg_size)
 
     sys = ila.Abstraction()
-    sys.enable_parameterized_synthesis = 0 # paramsyn
+    sys.enable_parameterized_synthesis = paramsyn
 
     # state elements.
     rom = sys.mem('rom', alu.ROM_ADDR_WIDTH, alu.OPCODE_WIDTH)

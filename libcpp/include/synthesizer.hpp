@@ -22,16 +22,38 @@ namespace ila
     // ---------------------------------------------------------------------- //
     struct SupportVars
     {
+        bool canFixUp;
+
         // set of booleans.
         std::set<const BoolVar*> bools;
         // set of bitvectors.
         std::set<const BitvectorVar*> bitvecs;
+
+        // set of memories.
+        struct mem_info_t {
+            const MemVar* mem;
+            const BitvectorExpr* addr;
+            const BitvectorExpr* rddata;
+
+            bool operator==(const mem_info_t& that) const {
+                return mem->equal(that.mem) &&
+                       addr->equal(that.addr) &&
+                       rddata->equal(that.rddata);
+            }
+        };
+        std::vector<mem_info_t> rdexprs;
+
         // visitor function.
         void operator() (const Node* n);
         // reset.
         void clear();
+        // make the rdexprs unique.
+        void uniquifyRdExprs();
+
         // check if this expression depends on the support.
         bool depCheck(z3::context& c, z3::solver& S, const nptr_t& ex);
+
+        SupportVars() : canFixUp(true) {}
     };
 
     // ---------------------------------------------------------------------- //
@@ -40,8 +62,10 @@ namespace ila
         std::map<std::string, MemValues>    mems;
         std::map<std::string, std::string>  bitvecs;
         std::map<std::string, bool>         bools;
+        std::vector<std::string>            rdaddrs;
 
-        DistInput(Abstraction& a, Z3ExprAdapter& c, z3::model& m);
+        DistInput(
+            Abstraction& a, Z3ExprAdapter& c, z3::model& m, SupportVars& sv);
         void fixUp(SupportVars& s, Z3ExprAdapter& c, z3::model& m);
         void toPython(py::dict& d);
 
@@ -85,7 +109,8 @@ namespace ila
         outpair_vec_t outputs;
         nptr_t result;
 
-        DITreeNode(Abstraction& a, Z3ExprAdapter& c, z3::model& m);
+        DITreeNode(
+            Abstraction& a, Z3ExprAdapter& c, z3::model& m, SupportVars& sv);
         DITreeNode();
         ~DITreeNode();
     };

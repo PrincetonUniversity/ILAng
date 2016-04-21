@@ -35,7 +35,7 @@ namespace ila
     // ---------------------------------------------------------------------- //
     void Node::_initName()
     {
-        name = "n" + boost::lexical_cast<std::string>(id);
+        name = "$n" + boost::lexical_cast<std::string>(id);
     }
 
     // ---------------------------------------------------------------------- //
