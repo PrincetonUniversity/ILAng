@@ -581,8 +581,9 @@ namespace ila
             for (auto de : abs.decodeExprs) {
                 // std::cout << "decode: " << *de.get() << std::endl;
                 ditree.rewind();
-                nptr_t ex_n = abs.paramSyn ? _synthesizeEx(name, de, next, pyfun)
-                                           : _synthesize(name, de, next, pyfun);
+                nptr_t ex_n = (abs.paramSyn && decodeSupport.canFixUp)
+                            ? _synthesizeEx(name, de, next, pyfun)
+                            : _synthesize(name, de, next, pyfun);
 
                 // create the final expression.
                 nptr_t ex_p = Node::ite(de, ex_n, ex);
