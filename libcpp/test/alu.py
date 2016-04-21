@@ -3,6 +3,7 @@ import ila
 import argparse
 import math
 import time
+import os
 
 class alu_sim(object):
     def __init__(self, reg_field_width, reg_size):
@@ -140,6 +141,23 @@ def model(num_regs, reg_size, paramsyn):
     print sys.get_next('pc')
     #sys.add_assumption(opcode == 0x80)
     #print sys.syn_elem("r0", sys.get_next('r0'), alusim)
+
+    expFile  = "test_ila_export.txt"
+    sys.exportFile(expFile);
+
+    # now import into a new abstraction and check.
+    sysp = ila.Abstraction()
+    sysp.importFile(expFile);
+    romp = sysp.mem('rom', alu.ROM_ADDR_WIDTH, alu.OPCODE_WIDTH)
+    pcp = sysp.reg('pc', alu.ROM_ADDR_WIDTH)
+    regsp = [sysp.reg('r%d' % i, alu.REG_SIZE) for i in xrange(alu.NUM_REGS)]
+    regs_next = aluexpr(romp, pcp, regsp)
+    for i in xrange(alu.NUM_REGS):
+        rn1 = sysp.get_next('r%d' % i)
+        rn2 = regs_next[i]
+        assert sysp.areEqual(rn1, rn2)
+
+    os.unlink(expFile)
 
 def main():
     parser = argparse.ArgumentParser()

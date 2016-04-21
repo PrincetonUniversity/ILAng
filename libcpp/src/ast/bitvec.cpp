@@ -14,7 +14,7 @@ namespace ila
     const std::string BitvectorOp::operatorNames[] = {
         "invalid",
         // unary
-        "-", "~",
+        "neg", "~",
         "rotate-left", "rotate-right", "zero-extend", "sign-extend", "extract",
         // binary
         "+", "-", "and", "or", "xor", "xnor", "nand", "nor",

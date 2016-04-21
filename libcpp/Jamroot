@@ -86,7 +86,7 @@ testing.make-test run-pyd : ila test/equality.py : : test_equality ;
 
 testing.make-test run-pyd : ila test/smtequal.py : : test_smtequal ;
 
-testing.make-test run-pyd : ila test/operator.py : : test_operator ;
+testing.make-test run-pyd : ila test/operatorOP.py : : test_operator ;
 
 testing.make-test run-pyd : ila test/mem.py : : test_mem ;
 
