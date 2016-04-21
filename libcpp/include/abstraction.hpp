@@ -10,6 +10,7 @@
 #include <ast.hpp>
 #include <smt.hpp>
 #include <imexport.hpp>
+#include <cppsimgen.hpp>
 
 namespace ila
 {
@@ -129,6 +130,9 @@ namespace ila
 
         // the import function.
         void importFromFile(const std::string& fileName);
+
+        // the simulator generating function.
+        void generateSim(const std::string& fileName) const;
 
         // check equality function.
         bool areEqual(NodeRef* left, NodeRef* right) const;

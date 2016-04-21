@@ -511,6 +511,12 @@ namespace ila
 
     }
 
+    void Abstraction::generateSim(const std::string& fileName) const
+    {
+        // TODO
+        CppSimGen* gen = new CppSimGen("bal");
+    }
+
     // ---------------------------------------------------------------------- //
     nptr_t Abstraction::_synthesize(
         const std::string& name,

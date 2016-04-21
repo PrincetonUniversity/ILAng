@@ -62,6 +62,7 @@ python-extension ila : src/abstraction.cpp
                        src/synthesizer.cpp
                        src/synrewriter.cpp
                        src/imexport.cpp
+                       src/cppsimgen.cpp
                        src/type.cpp 
                        src/util.cpp 
                      : <include>./include ;
