@@ -412,7 +412,7 @@ namespace ila
     DistInput* DITree::getDistInput(const z3::expr& y)
     {
         if (mode == INSERT) {
-            // std::cout << "getDI: INSERT mode." << std::endl;
+            std::cout << "getDI: INSERT mode." << std::endl;
 
             // run the SMT solver.
             z3::expr assumps[1] = { y };
@@ -424,11 +424,11 @@ namespace ila
                 dtree_ptr_t dnode(new DITreeNode(
                     syn.abs, syn.c1, m, syn.decodeSupport));
                 *insert_ptr = dnode;
-                // std::cout << "getDI: DI: " << *dnode->inputs << std::endl;
+                std::cout << "getDI: DI: " << *dnode->inputs << std::endl;
                 return dnode->inputs.get();
             } else {
                 // tree is empty.
-                // std::cout << "getDI: No more DIs." << std::endl;
+                std::cout << "getDI: No more DIs." << std::endl;
                 if (reuseModels) {
                     dtree_ptr_t dnode(new DITreeNode());
                     *insert_ptr = dnode;
@@ -436,17 +436,17 @@ namespace ila
                 return NULL;
             }
         } else {
-            // std::cout << "getDI: REPLAY mode." << std::endl;
+            std::cout << "getDI: REPLAY mode." << std::endl;
             DistInput* di = replay_ptr->inputs.get();
             if (di != NULL) {
                 z3::check_result r = syn.Sp.check();
                 ILA_ASSERT(r == z3::sat, "Expected this to be SAT.");
                 z3::model m = syn.Sp.get_model();
-                // std::cout << "getDI: prefixUp DI: " << *di << std::endl;
+                std::cout << "getDI: prefixUp DI: " << *di << std::endl;
                 di->fixUp(syn.decodeSupport, syn.c1, m);
-                // std::cout << "getDI: DI: " << *di << std::endl;
+                std::cout << "getDI: DI: " << *di << std::endl;
             } else {
-                // std::cout << "getDI: end of trail." << std::endl;
+                std::cout << "getDI: end of trail." << std::endl;
             }
             return di;
         }
@@ -455,15 +455,15 @@ namespace ila
     void DITree::setOutput(const simout_ptr_t& out)
     {
         if (mode == REPLAY) {
-            // std::cout << "setOut: REPLAY mode." << std::endl;
-            // std::cout << "setOut: out=" << *out << std::endl;
+            std::cout << "setOut: REPLAY mode." << std::endl;
+            std::cout << "setOut: out=" << *out << std::endl;
 
             bool found = false;
             // try to find an existing output which matches.
             for (unsigned i=0; i != replay_ptr->outputs.size(); i++) {
                 if (*replay_ptr->outputs[i].first == *out) {
                     found = true;
-                    // std::cout << "setOut: found output match." << std::endl;
+                    std::cout << "setOut: found output match." << std::endl;
                     replay_ptr = replay_ptr->outputs[i].second;
                     break;
                 }
@@ -471,8 +471,8 @@ namespace ila
             if (!found) {
                 // not found, so switch to insert mode.
                 mode = INSERT;
-                // std::cout << "setOut: switch to insert mode as output not found." 
-                //           << std::endl;
+                std::cout << "setOut: switch to insert mode as output not found." 
+                          << std::endl;
                 int index = replay_ptr->outputs.size();
                 replay_ptr->outputs.push_back({out, dtree_ptr_t()});
                 insert_ptr = &replay_ptr->outputs[index].second;
@@ -480,16 +480,16 @@ namespace ila
             } else if (!(bool)replay_ptr) {
                 ILA_ASSERT(!reuseModels, 
                     "reuseModels must be false if we got here.");
-                // std::cout << "setOut: switch to insert mode at end of trail." 
-                //          << std::endl;
+                std::cout << "setOut: switch to insert mode at end of trail." 
+                         << std::endl;
 
                 mode = INSERT;
                 insert_ptr = &replay_ptr;
                 replay_ptr.reset();
             }
         } else {
-            // std::cout << "setOut: INSERT mode." << std::endl;
-            // std::cout << "setOut: out=" << *out << std::endl;
+            std::cout << "setOut: INSERT mode." << std::endl;
+            std::cout << "setOut: out=" << *out << std::endl;
 
             // now we are in INSERT mode.
             ILA_ASSERT ((*insert_ptr)->outputs.size() == 0, 
@@ -567,7 +567,7 @@ namespace ila
         bool nodep = !decodeSupport.depCheck(c, Sp, next);
         ditree.reset(nodep);
         for (auto de : abs.decodeExprs) {
-            // std::cout << "decode: " << *de.get() << std::endl;
+            std::cout << "decode: " << *de.get() << std::endl;
             ditree.rewind();
             nptr_t ex_n = (abs.paramSyn && decodeSupport.canFixUp)
                 ? _synthesizeEx(name, de, next, pyfun)
@@ -577,12 +577,12 @@ namespace ila
             nptr_t ex_p = Node::ite(de, ex_n, ex);
             ex = ex_p;
 
-            //std::cout << name << ": " 
-            //          << *de.get() << " -> "
-            //          << *ex_n.get() << std::endl;
+            std::cout << name << ": " 
+                      << *de.get() << " -> "
+                      << *ex_n.get() << std::endl;
         }
-        //std::cout << name << ": "
-        //          << *ex.get() << std::endl;
+        std::cout << name << ": "
+                  << *ex.get() << std::endl;
         return ex;
     }
 

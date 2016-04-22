@@ -266,7 +266,7 @@ namespace ila
 
         for (auto p : mv.values) {
             if (!first) { out << " "; } else { first = false; }
-            out << std::hex << "0x" << p.first << ": " << "0x" << p.second;
+            out << std::hex << std::showbase << p.first << ": " << p.second;
         }
 
         if (!first) { out << " "; } 
