@@ -6,22 +6,32 @@ import argparse
 import ila
 from uc8051ast import uc8051
 from sim51 import eval8051
+import time
 
-def synthesize():
+def synthesize(state, enable_ps):
     uc = uc8051()
     # create nicknames
     pc, iram, sp = uc.pc, uc.iram, uc.sp
     op0, op1, op2 = uc.op0, uc.op1, uc.op2
     acc, b, dptr = uc.acc, uc.b, uc.dptr
     rx = uc.rx
+    rom = uc.rom
     model = uc.model
-    model.enable_parameterized_synthesis = 0
+    model.enable_parameterized_synthesis = enable_ps
 
     # fetch and decode.
     model.fetch_expr = uc.op0 # s/hand for uc.rom[uc.pc]
     model.decode_exprs = [uc.op0 == i for i in xrange(0x0, 0x100)]
 
     ########################### PC ##############################################
+    def cjmp(name, cond):
+        pc_taken = ila.choice(name+'_taken', pc_rel1, pc_rel2)
+        pc_seq   = ila.choice(name+'_seq', pc+2, pc+3)
+        return ila.ite(cond, pc_taken, pc_seq)
+
+    def jmppolarity(name):
+        return ila.inrange(name, model.const(0, 1), model.const(1, 1))
+
     # ajmp/acall
     pc_ajmp_pg1 = (pc+2)[15:11]
     pc_ajmp_pg2 = ila.inrange('ajmp_page', model.const(0x0, 3), model.const(0x7, 3))
@@ -44,21 +54,15 @@ def synthesize():
     # jb
     jb_bitaddr  = ila.choice('jb_bitaddr', [op1, op2])
     jb_bit      = uc.readBit(jb_bitaddr)
-    jx_polarity = ila.choice('jx_polarity', [model.const(1, 1), model.const(0, 1)])
-    pc_jb_taken = ila.choice('pc_jb1', pc_rel1, pc_rel2)
-    pc_jb_seq   = ila.choice('pc_jb2', pc+2, pc+3)
-    pc_jb       = ila.ite(jb_bit == jx_polarity, pc_jb_taken, pc_jb_seq)
+    jx_polarity = jmppolarity('jx_polarity')
+    pc_jb       = cjmp('pc_jb', jb_bit == jx_polarity)
     # jc
-    pc_jc_taken = ila.choice('pc_jc1', pc_rel1, pc_rel2)
-    pc_jc_seq   = ila.choice('pc_jc2', pc+2, pc+3)
-    pc_jc       = ila.ite(uc.cy == jx_polarity, pc_jc_taken, pc_jc_seq)
+    pc_jc       = cjmp('pc_jc', uc.cy == jx_polarity)
     # jz
     acc_zero    = acc == 0
     acc_nonzero = acc != 0
     jz_test     = ila.choice('jz_test_polarity', acc_zero, acc_nonzero)
-    pc_jz_taken = ila.choice('pc_jz1', pc_rel1, pc_rel2)
-    pc_jz_seq   = ila.choice('pc_jz2', pc+2, pc+3)
-    pc_jz       = ila.ite(jz_test, pc_jz_taken, pc_jz_seq)
+    pc_jz       = cjmp('pc_jz', jz_test)
     # jmp
     pc_jmp      = dptr+ila.zero_extend(acc, 16)
     # cjne
@@ -66,90 +70,91 @@ def synthesize():
     cjne_src2 = ila.choice('cjne_src2', [
         op1, op2, uc.readDirect(ila.choice('cjne_iram_addr', [op1, op2]))])
     cjne_taken = cjne_src1 != cjne_src2
-    pc_cjne_taken = ila.choice('pc_cjne_taken', [pc_rel1, pc_rel2])
-    pc_cjne_seq = ila.choice('pc_cjne_seq', [pc+2, pc+3])
-    pc_cjne = ila.ite(cjne_taken, pc_cjne_taken, pc_cjne_seq)
+    pc_cjne = cjmp('pc_cjne', cjne_taken)
     # djnz
     djnz_src = ila.choice('djnz_src', 
         [uc.readDirect(ila.choice('djnz_iram_src', [op1, op2]))] + uc.rx)
     djnz_taken = djnz_src != 1
-    pc_djnz_taken = ila.choice('pc_djnz_taken', [pc_rel1, pc_rel2])
-    pc_djnz_seq = ila.choice('pc_djnz_seq', [pc+2, pc+3])
-    pc_djnz = ila.ite(djnz_taken, pc_djnz_taken, pc_djnz_seq)
+    pc_djnz = cjmp('pc_djnz', djnz_taken)
 
     pc_choices = [
         pc+1, pc+2, pc+3, pc_ajmp, pc_ljmp, pc_ret, pc_sjmp, 
         pc_jb, pc_jc, pc_jz, pc_jmp, pc_cjne, pc_djnz
     ]
     model.set_next('PC', ila.choice('pc', pc_choices))
-    model.synthesize('PC', eval8051)
-    print model.get_next('PC')
 
-    ########################### PC ##############################################
+    ########################### SP ##############################################
+    sp_next = ila.choice('sp_next', [sp+2, sp+1, sp-1, sp-2, sp])
+    model.set_next('SP', sp_next)
 
-    #mem_SP = ReadMem(ctx.IRAM, ctx.SP)
-    #mem_SP_plus1 = ReadMem(ctx.IRAM, Add(ctx.SP, BitVecVal(1, 8)))
-    #mem_SP_minus1 = ReadMem(ctx.IRAM, Sub(ctx.SP, BitVecVal(1, 8)))
-    #DPTR = Concat(ctx.DPH, ctx.DPL)
+    ########################### ACC ##############################################
+    # various sources for ALU ops.
+    acc_src2_dir_addr = ila.choice('acc_src2_dir_addr', [op1, op2] + uc.rxaddr)
+    acc_src2_dir = uc.readDirect(acc_src2_dir_addr)
+    acc_src2_indir_addr = ila.choice('acc_src2_indir_addr', [rx[0], rx[1]])
+    acc_src2_indir = iram[acc_src2_indir_addr]
+    src2_imm = ila.choice('src2_imm', [op1, op2])
+    acc_src2 = ila.choice('acc_src2', [acc_src2_dir, acc_src2_indir, src2_imm])
+    acc_rom_offset = ila.choice('acc_rom_offset', [dptr, pc, pc+1, pc+2, pc+3])
+    # the decimal adjust instruction. this is a bit of mess.
+    # first, deal with the lower nibble
+    acc_add_6  = (uc.ac == 1) | (acc[3:0] > 9)
+    acc_ext9 = ila.zero_extend(acc,9)
+    acc_da_stage1 = ila.ite(acc_add_6, acc_ext9 + 6, acc_ext9)
+    acc_da_cy1 = acc_da_stage1[8:8]
+    # and then the upper nibble
+    acc_add_60 = ((acc_da_cy1 | uc.cy) == 1) | (acc_da_stage1[7:4] > 9) 
+    acc_da_stage2 = ila.ite(acc_add_60, acc_da_stage1 + 0x60, acc_da_stage1)
+    acc_da = acc_da_stage2[7:0]
+    # instructions which modify the accumulator.
+    acc_rr  = ila.rrotate(acc, 1)
+    acc_rrc = ila.rrotate(ila.concat(acc, uc.cy), 1)[8:1]
+    acc_rl  = ila.lrotate(acc, 1)
+    acc_rlc = ila.lrotate(ila.concat(uc.cy, acc), 1)[7:0]
+    acc_inc = acc + 1
+    acc_dec = acc - 1
+    acc_add = acc + acc_src2
+    acc_addc = acc + acc_src2 + ila.zero_extend(uc.cy, 8)
+    acc_orl = acc | acc_src2 
+    acc_anl = acc & acc_src2
+    acc_xrl = acc ^ acc_src2
+    acc_subb = acc - acc_src2 + ila.sign_extend(uc.cy, 8)
+    acc_mov = acc_src2
+    acc_cpl = ~acc
+    acc_clr = model.const(0, 8)
+    acc_rom = rom[ila.zero_extend(acc, 16) + acc_rom_offset]
+    acc_swap = ila.concat(acc[3:0], acc[7:4])
+    # mul and div.
+    acc_div = ila.ite(b == 0, model.const(0xff, 8), acc / b)
+    mul_result = ila.zero_extend(acc, 16) * ila.zero_extend(b, 16)
+    acc_mul = mul_result[7:0]
+    # xchg - dir
+    xchg_src2_dir_addr = ila.choice('xchg_src2_dir_addr', [op1, op2] + uc.rxaddr)
+    xchg_src2_dir = uc.readDirect(xchg_src2_dir_addr)
+    acc_xchg_dir = xchg_src2_dir
+    # xchg - indir
+    xchg_src2_indir_addr = ila.choice('xchg_src2_indir_addr', [rx[0], rx[1]])
+    xchg_src2_full_indir = iram[xchg_src2_indir_addr]
+    xchg_src2_half_indir = ila.concat(acc[7:4], xchg_src2_full_indir[3:0])
+    xchg_src2_indir = ila.choice('xchg_src2_indir', [xchg_src2_full_indir, xchg_src2_half_indir])
+    acc_xchg_indir = xchg_src2_indir
 
-    
-###    PC_rel1 = Add(Choice('PC_rel1_base', ctx.op0, [ctx.PC, PC_plus1, PC_plus2, PC_plus3]), SignExt(ctx.op1, 8))
-###    PC_rel2 = Add(Choice('PC_rel2_base', ctx.op0, [ctx.PC, PC_plus1, PC_plus2, PC_plus3]), SignExt(ctx.op2, 8))
-###
-###    PC_ajmp  = Concat(Extract(15, 11, Choice('ajmp', ctx.op0, [ctx.PC, PC_plus2])),
-###                      ChooseConsecBits('ajmp_3bits', 3, ctx.opcode), 
-###                      ChooseConsecBits('ajmp_8bits', 8, ctx.opcode))
-###    PC_ret1 = Concat(mem_SP_minus1, mem_SP)
-###    PC_ret2 = Concat(mem_SP, mem_SP_plus1)
-###    PC_ret3 = Concat(mem_SP, mem_SP_minus1)
-###    PC_ret4 = Concat(mem_SP_plus1, mem_SP)
-###    PC_ret = Choice('ctx.SP_pc', ctx.op0, [PC_ret1, PC_ret2, PC_ret3, PC_ret4])
-###    PC_ljmp = Choice('LJMP_order', ctx.op0, [Concat(ctx.op1, ctx.op2), Concat(ctx.op2, ctx.op1)])
-###    PC_sjmp = Choice('SJMP_relpc', ctx.op0, [PC_rel1, PC_rel2])
-###    
-###    
-###    jb_bitaddr = Choice('jb_bit_addr_choice', ctx.op0, [ctx.op1, ctx.op2])
-###    jb_bit = ctx.readBit(jb_bitaddr)
-###    PC_jb_taken = Choice('PC_jb_rel', ctx.op0, [PC_rel1, PC_rel2])
-###    PC_jb_seq = Choice('PC_jb_seq', ctx.op0, [PC_plus2, PC_plus3])
-###    PC_jb = If(Equal(jb_bit, Choice('jb_polarity', ctx.op0, [BitVecVal(1,1), BitVecVal(0,1)])), 
-###        PC_jb_taken, 
-###        PC_jb_seq)
-###
-###    PC_jc_taken = Choice('PC_jc_rel', ctx.op0, [PC_rel1, PC_rel2])
-###    PC_jc_seq = Choice('PC_jc_seq', ctx.op0, [PC_plus2, PC_plus3])
-###    PC_jc = If(Equal(ctx.CY, Choice('jc_polarity', ctx.op0, [BitVecVal(1,1), BitVecVal(0,1)])), 
-###        PC_jc_taken, 
-###        PC_jc_seq)
-###
-###    PC_jz_taken = Choice('PC_jz_rel', ctx.op0, [PC_rel1, PC_rel2])
-###    PC_jz_seq = Choice('PC_jz_seq', ctx.op0, [PC_plus2, PC_plus3])
-###    ACC_zero = Equal(ctx.ACC, BitVecVal(0, 8))
-###    ACC_not_zero = Not(ACC_zero)
-###    PC_jz = If(Choice('jz_polarity', ctx.op0, [ACC_zero, ACC_not_zero]), PC_jz_taken, PC_jz_seq)
-###    PC_jmp = Add(DPTR, ZeroExt(ctx.ACC, 8))
-###
-###    cjne_src1 = Choice('cjne_src1', ctx.op0, 
-###        [ctx.ACC, ReadMem(ctx.IRAM, ctx.Rx[ 0 ]), ReadMem(ctx.IRAM, ctx.Rx[ 1 ])] + ctx.Rx)
-###    cjne_src2 = Choice('cjne_src2', ctx.op0, 
-###        [ctx.op1, ctx.op2, ctx.readDirect(Choice('cjne_iram_addr', ctx.op0, [ctx.op1, ctx.op2]))])
-###    cjne_taken = Not(Equal(cjne_src1, cjne_src2))
-###    PC_cjne_taken = Choice('PC_cjne_taken', ctx.op0, [PC_rel1, PC_rel2])
-###    PC_cjne_seq = Choice('PC_cjne_seq', ctx.op0, [PC_plus2, PC_plus3])
-###    PC_cjne = If(cjne_taken, PC_cjne_taken, PC_cjne_seq)
-###
-###    djnz_src = Choice('djnz_src', ctx.op0, 
-###        [ctx.readDirect(Choice('djnz_iram_src', ctx.op0, [ctx.op1, ctx.op2]))] + ctx.Rx)
-###    djnz_taken = Not(Equal(djnz_src, BitVecVal(1, 8)))
-###    PC_djnz_taken = Choice('PC_djnz_taken', ctx.op0, [PC_rel1, PC_rel2])
-###    PC_djnz_seq = Choice('PC_djnz_seq', ctx.op0, [PC_plus2, PC_plus3])
-###    PC_djnz = If(djnz_taken, PC_djnz_taken, PC_djnz_seq)
-###
-###    nextPC = Choice('nextPC', ctx.op0, [
-###        PC_plus1, PC_plus2, PC_plus3, PC_ajmp, 
-###        PC_ret, PC_ljmp, PC_sjmp, PC_jb, 
-###        PC_jc, PC_jz, PC_jmp, PC_cjne, PC_djnz])
-###
+    # final acc value.
+    acc_next = ila.choice('acc_r_next', [
+        acc_rr, acc_rl, acc_rrc, acc_rlc, acc_inc, acc_dec, acc_add, 
+        acc_addc, acc_orl, acc_anl, acc_xrl, acc_mov, acc_rom, acc_clr,
+        acc_subb, acc_swap, acc_cpl, acc, acc_div, acc_mul, acc_da,
+        acc_xchg_dir, acc_xchg_indir])
+    model.set_next('ACC', acc_next)
+
+    for s in state:
+        print s
+        st = time.clock()
+        model.synthesize(s, eval8051)
+        t_elapsed = time.clock() - st
+        print model.get_next(s)
+
+
 ###    ctxNOP = ctx.clone()
 ###    ctxNOP.PC = nextPC
 ###    # SP can be incremented, decrement or stay the same
@@ -483,8 +488,17 @@ def synthesize():
 ###        lf.close()
 
 def main():
-    synthesize()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--en", type=int, default=1, 
+                        help="enable parameterized synthesis.")
+    parser.add_argument("state", type=str, nargs='+', 
+                        help='the state to synthesize.')
+    args = parser.parse_args()
+    synthesize(args.state, args.en)
 
 if __name__ == '__main__':
+    st = time.clock()
     main()
+    t_elapsed = time.clock() - st
+    print 'time taken: %.2f' % t_elapsed
 
