@@ -14,16 +14,17 @@ class uc8051(object):
                                 self.op1, 
                                     self.op0))
 
+        self.dptr = ila.concat(self.dph, self.dpl)
         self.cy = self.psw[7:7]
         self.ac = self.psw[6:6]
         self.ov = self.psw[2:2]
         self._Rbank = self.psw[4:3]
-        self.RxAddr = [
+        self.rxaddr = [
             ila.concat(self.model.const(0, 3), 
                 ila.concat(self._Rbank, 
                     self.model.const(i, 3))) 
                         for i in xrange(8)]
-        self.Rx = [self.iram[RxAddr_i] for RxAddr_i in self.RxAddr]
+        self.rx = [self.iram[RxAddr_i] for RxAddr_i in self.rxaddr]
 
     def createInputs(self):
         self.pc = self.model.reg('PC', 16)
@@ -60,28 +61,28 @@ class uc8051(object):
 
     def readDirect(self, addr):
         msb0 = addr[7:7] == 0 
-        expr = ila.ite(msb0, self.IRAM[addr],
-            ila.ite(addr == 0x80, self.P0,
-            ila.ite(addr == 0x81, self.SP,
-            ila.ite(addr == 0x82, self.DPL,
-            ila.ite(addr == 0x83, self.DPH,
-            ila.ite(addr == 0x87, self.PCON,
-            ila.ite(addr == 0x88, self.TCON,
-            ila.ite(addr == 0x89, self.TMOD,
-            ila.ite(addr == 0x8A, self.TL0,
-            ila.ite(addr == 0x8C, self.TH0,
-            ila.ite(addr == 0x8B, self.TL1,
-            ila.ite(addr == 0x8D, self.TH1,
-            ila.ite(addr == 0x90, self.P1,
-            ila.ite(addr == 0x98, self.SCON,
-            ila.ite(addr == 0x99, self.SBUF,
-            ila.ite(addr == 0xA0, self.P2,
-            ila.ite(addr == 0xA8, self.IE,
-            ila.ite(addr == 0xB0, self.P3,
-            ila.ite(addr == 0xB8, self.IP,
-            ila.ite(addr == 0xD0, self.PSW,
-            ila.ite(addr == 0xE0, self.ACC,
-            ila.ite(addr == 0xF0, self.B,
+        expr = ila.ite(msb0, self.iram[addr],
+            ila.ite(addr == 0x80, self.p0,
+            ila.ite(addr == 0x81, self.sp,
+            ila.ite(addr == 0x82, self.dpl,
+            ila.ite(addr == 0x83, self.dph,
+            ila.ite(addr == 0x87, self.pcon,
+            ila.ite(addr == 0x88, self.tcon,
+            ila.ite(addr == 0x89, self.tmod,
+            ila.ite(addr == 0x8a, self.tl0,
+            ila.ite(addr == 0x8c, self.th0,
+            ila.ite(addr == 0x8b, self.tl1,
+            ila.ite(addr == 0x8d, self.th1,
+            ila.ite(addr == 0x90, self.p1,
+            ila.ite(addr == 0x98, self.scon,
+            ila.ite(addr == 0x99, self.sbuf,
+            ila.ite(addr == 0xa0, self.p2,
+            ila.ite(addr == 0xa8, self.ie,
+            ila.ite(addr == 0xb0, self.p3,
+            ila.ite(addr == 0xb8, self.ip,
+            ila.ite(addr == 0xd0, self.psw,
+            ila.ite(addr == 0xe0, self.acc,
+            ila.ite(addr == 0xf0, self.b,
             self.model.const(0, 8)))))))))))))))))))))))
         return expr
 

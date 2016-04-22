@@ -759,6 +759,9 @@ namespace ila
             // record in the tree.
             ditree.setOutput(simout);
 
+            // std::cout << "DI: " << *di << std::endl;
+            // std::cout << "output: " << *simout << std::endl;
+
             // now rewrite these expressions.
             Z3ExprRewritingAdapter cr1(c, di, suffix1);
             Z3ExprRewritingAdapter cr2(c, di, suffix2);
