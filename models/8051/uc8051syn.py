@@ -10,29 +10,82 @@ from sim51 import eval8051
 def synthesize():
     uc = uc8051()
     # create nicknames
-    pc = uc.pc
+    pc, iram, sp = uc.pc, uc.iram, uc.sp
     op0, op1, op2 = uc.op0, uc.op1, uc.op2
+    acc, b, dptr = uc.acc, uc.b, uc.dptr
+    rx = uc.rx
     model = uc.model
+    model.enable_parameterized_synthesis = 0
 
     # fetch and decode.
     model.fetch_expr = uc.op0 # s/hand for uc.rom[uc.pc]
-    model.decode_exprs = [uc.op0 == i for i in xrange(0x10)]
+    model.decode_exprs = [uc.op0 == i for i in xrange(0x0, 0x100)]
 
-    # pc
+    ########################### PC ##############################################
     # ajmp/acall
     pc_ajmp_pg1 = (pc+2)[15:11]
     pc_ajmp_pg2 = ila.inrange('ajmp_page', model.const(0x0, 3), model.const(0x7, 3))
     pc_ajmp_pg = ila.concat(pc_ajmp_pg1, pc_ajmp_pg2)
     pc_ajmp = ila.concat(pc_ajmp_pg, op1)
     # lcall/ljmp
-    pc_ljmp = ila.choice(
-        'ljmp', 
+    pc_ljmp = ila.choice('ljmp', 
         [ila.concat(op2, op1), ila.concat(op1, op2)])
+    # ret.
+    pc_ret = ila.choice('pc_ret', [
+        ila.concat(iram[sp-1], iram[sp]),
+        ila.concat(iram[sp], iram[sp-1]),
+        ila.concat(iram[sp], iram[sp+1]),
+        ila.concat(iram[sp+1], iram[sp])])
+    # relative to pc
+    pc_rel1 = ila.choice('pc_rel1_base', [pc,pc+1,pc+2,pc+3]) + ila.sign_extend(op1, 16)
+    pc_rel2 = ila.choice('pc_rel2_base', [pc,pc+1,pc+2,pc+3]) + ila.sign_extend(op2, 16)
+    # sjmp
+    pc_sjmp = ila.choice('sjmp', pc_rel1, pc_rel2)
+    # jb
+    jb_bitaddr  = ila.choice('jb_bitaddr', [op1, op2])
+    jb_bit      = uc.readBit(jb_bitaddr)
+    jx_polarity = ila.choice('jx_polarity', [model.const(1, 1), model.const(0, 1)])
+    pc_jb_taken = ila.choice('pc_jb1', pc_rel1, pc_rel2)
+    pc_jb_seq   = ila.choice('pc_jb2', pc+2, pc+3)
+    pc_jb       = ila.ite(jb_bit == jx_polarity, pc_jb_taken, pc_jb_seq)
+    # jc
+    pc_jc_taken = ila.choice('pc_jc1', pc_rel1, pc_rel2)
+    pc_jc_seq   = ila.choice('pc_jc2', pc+2, pc+3)
+    pc_jc       = ila.ite(uc.cy == jx_polarity, pc_jc_taken, pc_jc_seq)
+    # jz
+    acc_zero    = acc == 0
+    acc_nonzero = acc != 0
+    jz_test     = ila.choice('jz_test_polarity', acc_zero, acc_nonzero)
+    pc_jz_taken = ila.choice('pc_jz1', pc_rel1, pc_rel2)
+    pc_jz_seq   = ila.choice('pc_jz2', pc+2, pc+3)
+    pc_jz       = ila.ite(jz_test, pc_jz_taken, pc_jz_seq)
+    # jmp
+    pc_jmp      = dptr+ila.zero_extend(acc, 16)
+    # cjne
+    cjne_src1 = ila.choice('cjne_src1', [acc, iram[rx[0]], iram[rx[1]]] + rx)
+    cjne_src2 = ila.choice('cjne_src2', [
+        op1, op2, uc.readDirect(ila.choice('cjne_iram_addr', [op1, op2]))])
+    cjne_taken = cjne_src1 != cjne_src2
+    pc_cjne_taken = ila.choice('pc_cjne_taken', [pc_rel1, pc_rel2])
+    pc_cjne_seq = ila.choice('pc_cjne_seq', [pc+2, pc+3])
+    pc_cjne = ila.ite(cjne_taken, pc_cjne_taken, pc_cjne_seq)
+    # djnz
+    djnz_src = ila.choice('djnz_src', 
+        [uc.readDirect(ila.choice('djnz_iram_src', [op1, op2]))] + uc.rx)
+    djnz_taken = djnz_src != 1
+    pc_djnz_taken = ila.choice('pc_djnz_taken', [pc_rel1, pc_rel2])
+    pc_djnz_seq = ila.choice('pc_djnz_seq', [pc+2, pc+3])
+    pc_djnz = ila.ite(djnz_taken, pc_djnz_taken, pc_djnz_seq)
 
-    pc_choices = [pc+1, pc+2, pc+3, pc_ajmp, pc_ljmp]
+    pc_choices = [
+        pc+1, pc+2, pc+3, pc_ajmp, pc_ljmp, pc_ret, pc_sjmp, 
+        pc_jb, pc_jc, pc_jz, pc_jmp, pc_cjne, pc_djnz
+    ]
     model.set_next('PC', ila.choice('pc', pc_choices))
     model.synthesize('PC', eval8051)
     print model.get_next('PC')
+
+    ########################### PC ##############################################
 
     #mem_SP = ReadMem(ctx.IRAM, ctx.SP)
     #mem_SP_plus1 = ReadMem(ctx.IRAM, Add(ctx.SP, BitVecVal(1, 8)))
