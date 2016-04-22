@@ -23,10 +23,6 @@ namespace ila
         std::string _name;
         int _width;
     public:
-        // Constructor with fully specified variables.
-//        CppVar(const std::string& type, const std::string& name);
-        // Constructor with only type specified.
-//        CppVar(const std::string& type);
         // Constructor with nptr_t
         CppVar(nptr_t nptr);
         // Constructor with Node*

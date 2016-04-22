@@ -330,7 +330,18 @@ namespace ila
     }
 
     // ---------------------------------------------------------------------- //
-    void Abstraction::exportToFile(const std::string& fileName) const
+    void Abstraction::exportOneToFile(NodeRef* node,
+                                      const std::string& fileName) const
+    {
+        std::ofstream out(fileName.c_str());
+        ILA_ASSERT(out.is_open(), "File " + fileName + " not open.");
+        ImExport expt;
+
+        expt.exportAst(out, node->node.get());
+        out.close();
+    }
+
+    void Abstraction::exportAllToFile(const std::string& fileName) const
     {
         std::ofstream out(fileName.c_str());
         ILA_ASSERT(out.is_open(), "File " + fileName + " not open.");
@@ -418,7 +429,20 @@ namespace ila
     }
 
     // ---------------------------------------------------------------------- //
-    void Abstraction::importFromFile(const std::string& fileName) 
+    NodeRef* Abstraction::importOneFromFile(const std::string& fileName)
+    {
+        std::ifstream in;
+        in.open(fileName.c_str());
+        ILA_ASSERT(in.is_open(), "File " + fileName + " not found.");
+
+        ImExport ipt;
+        nptr_t res = ipt.importAst(this, in);
+        NodeRef* wrap = new NodeRef(res);
+        in.close();
+        return wrap;
+    }
+
+    void Abstraction::importAllFromFile(const std::string& fileName) 
     {
         std::ifstream in;
         in.open(fileName.c_str());

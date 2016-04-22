@@ -151,11 +151,11 @@ def model(num_regs, reg_size, paramsyn):
     #print sys.syn_elem("r0", sys.get_next('r0'), alusim)
 
     expFile  = "test_ila_export.txt"
-    sys.exportFile(expFile);
+    sys.exportAll(expFile);
 
     # now import into a new abstraction and check.
     sysp = ila.Abstraction()
-    sysp.importFile(expFile);
+    sysp.importAll(expFile);
     romp = sysp.mem('rom', alu.ROM_ADDR_WIDTH, alu.OPCODE_WIDTH)
     pcp = sysp.reg('pc', alu.ROM_ADDR_WIDTH)
     regsp = [sysp.reg('r%d' % i, alu.REG_SIZE) for i in xrange(alu.NUM_REGS)]

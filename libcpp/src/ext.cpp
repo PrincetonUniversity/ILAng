@@ -315,8 +315,10 @@ BOOST_PYTHON_MODULE(ila)
         .def("add_assumption", &Abstraction::addAssumption)
         .def("get_all_assumptions", &Abstraction::getAllAssumptions)
 
-        .def("exportFile", &Abstraction::exportToFile)
-        .def("importFile", &Abstraction::importFromFile)
+        .def("exportOne", &Abstraction::exportOneToFile)
+        .def("exportAll", &Abstraction::exportAllToFile)
+        .def("importOne", &Abstraction::importOneFromFile, return_value_policy<manage_new_object>())
+        .def("importAll", &Abstraction::importAllFromFile)
 
         .add_property("fetch_expr", 
             make_function(&Abstraction::getFetchExpr, return_value_policy<manage_new_object>()), 

@@ -128,11 +128,16 @@ namespace ila
             const std::string& name, 
             NodeRef* expr, PyObject* fun);
 
-        // the export function.
-        void exportToFile(const std::string& fileName) const;
+        // the export function that export only one expression.
+        void exportOneToFile(NodeRef* node,
+                             const std::string& fileName) const;
+        // the export function that export the overall model.
+        void exportAllToFile(const std::string& fileName) const;
 
-        // the import function.
-        void importFromFile(const std::string& fileName);
+        // the import function that import only one expression.
+        NodeRef* importOneFromFile(const std::string& fileName);
+        // the import function that import the overall model.
+        void importAllFromFile(const std::string& fileName);
 
         // the simulator generating function.
         void generateSim(const std::string& fileName) const;
