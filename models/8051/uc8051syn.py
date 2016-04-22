@@ -9,11 +9,30 @@ from sim51 import eval8051
 
 def synthesize():
     uc = uc8051()
-    uc.model.fetch_expr = uc.op0 # s/hand for uc.rom[uc.pc]
-    uc.model.decode_exprs = [uc.op0 == 0]
-    uc.model.set_next('PC', ila.choice('pc', [uc.pc+1, uc.pc+2, uc.pc+3]))
-    uc.model.synthesize('PC', eval8051)
-    print uc.model.get_next('PC')
+    # create nicknames
+    pc = uc.pc
+    op0, op1, op2 = uc.op0, uc.op1, uc.op2
+    model = uc.model
+
+    # fetch and decode.
+    model.fetch_expr = uc.op0 # s/hand for uc.rom[uc.pc]
+    model.decode_exprs = [uc.op0 == i for i in xrange(3)]
+
+    # pc
+    # ajmp/acall
+    pc_ajmp_pg1 = (pc+2)[15:11]
+    pc_ajmp_pg2 = ila.inrange('ajmp_page', model.const(0x0, 3), model.const(0x7, 3))
+    pc_ajmp_pg = ila.concat(pc_ajmp_pg1, pc_ajmp_pg2)
+    pc_ajmp = ila.concat(pc_ajmp_pg, op1)
+    # lcall/ljmp
+    pc_ljmp = ila.choice(
+        'ljmp', 
+        [ila.concat(op2, op1), ila.concat(op1, op2)])
+
+    pc_choices = [pc+1, pc+2, pc+3, pc_ajmp, pc_ljmp]
+    model.set_next('PC', ila.choice('pc', pc_choices))
+    model.synthesize('PC', eval8051)
+    print model.get_next('PC')
 
     #mem_SP = ReadMem(ctx.IRAM, ctx.SP)
     #mem_SP_plus1 = ReadMem(ctx.IRAM, Add(ctx.SP, BitVecVal(1, 8)))
