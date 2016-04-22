@@ -120,6 +120,9 @@ namespace ila
         // the real synthesize function.
         void synthesizeAll(PyObject* fun);
 
+        // synthesize only one register.
+        void synthesizeReg(const std::string& name, PyObject* fun);
+
         // the synthesis function.
         NodeRef* synthesizeElement(
             const std::string& name, 

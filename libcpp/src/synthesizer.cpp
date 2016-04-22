@@ -158,11 +158,17 @@ namespace ila
 
             MemValues mv(c, m, rdex.mem);
             std::string addr_s = c.extractNumeralString(m, rdex.addr);
-            mp_int_t addr_i = boost::lexical_cast<mp_int_t>(addr_s);
-            mp_int_t data_i = mv.getItemInt(addr_i);
+            mp_int_t addr_that = boost::lexical_cast<mp_int_t>(rdaddrs[i]);
+            mp_int_t addr_this = boost::lexical_cast<mp_int_t>(addr_s);
+            mp_int_t data = mv.getItemInt(addr_that);
             // get the address from the "saved" model.
-            mp_int_t addr_j = boost::lexical_cast<mp_int_t>(rdaddrs[i]);
-            thismem.values[addr_j] = data_i;
+#ifdef DEBUG
+            std::cout << "addr_that: " << addr_that 
+                      << "; addr_this: " << addr_this
+                      << "; data: " << data
+                      << std::endl;
+#endif
+            thismem.values[addr_this] = data;
             i++;
         }
     }
@@ -545,6 +551,47 @@ namespace ila
     {
     }
 
+    void Synthesizer::_initSynthesis()
+    {
+        // reset the decode support.
+        decodeSupport.clear();
+        // and initialize it again.
+        for (auto de : abs.decodeExprs) {
+            de->depthFirstVisit(decodeSupport);
+        }
+        decodeSupport.uniquifyRdExprs();
+
+    }
+
+    nptr_t Synthesizer::_synthesizeOp(
+        const std::string& name,
+        const nptr_t& var, 
+        const nptr_t& next,
+        PyObject* pyfun)
+    {
+        nptr_t ex = var;
+        bool nodep = !decodeSupport.depCheck(c, Sp, next);
+        ditree.reset(nodep);
+        for (auto de : abs.decodeExprs) {
+            std::cout << "decode: " << *de.get() << std::endl;
+            ditree.rewind();
+            nptr_t ex_n = (abs.paramSyn && decodeSupport.canFixUp)
+                ? _synthesizeEx(name, de, next, pyfun)
+                : _synthesize(name, de, next, pyfun);
+
+            // create the final expression.
+            nptr_t ex_p = Node::ite(de, ex_n, ex);
+            ex = ex_p;
+
+            std::cout << name << ": " 
+                      << *de.get() << " -> "
+                      << *ex_n.get() << std::endl;
+        }
+        std::cout << name << ": "
+                  << *ex.get() << std::endl;
+        return ex;
+    }
+
     // ---------------------------------------------------------------------- //
     void Synthesizer::synthesizeAll(PyObject* pyfun)
     {
@@ -558,45 +605,38 @@ namespace ila
             }
         }
 
-        // reset the decode support.
-        decodeSupport.clear();
-        // and initialize it again.
-        for (auto de : abs.decodeExprs) {
-            de->depthFirstVisit(decodeSupport);
-        }
-        decodeSupport.uniquifyRdExprs();
-
+        _initSynthesis();
         S.push(); Sp.push();
         _initSolverAssumptions(abs.assumps, c1, c2);
         for (auto&& r : abs.regs) {
-            const std::string& name(r.first);
-            const nptr_t& next(r.second.next);
-            // std::cout << "trying to synthesize: " << name
-            //           << "; expr: " << *next.get() << std::endl;
-
-
-            nptr_t ex = r.second.var;
-            bool nodep = !decodeSupport.depCheck(c, Sp, next);
-            ditree.reset(nodep);
-            for (auto de : abs.decodeExprs) {
-                // std::cout << "decode: " << *de.get() << std::endl;
-                ditree.rewind();
-                nptr_t ex_n = (abs.paramSyn && decodeSupport.canFixUp)
-                            ? _synthesizeEx(name, de, next, pyfun)
-                            : _synthesize(name, de, next, pyfun);
-
-                // create the final expression.
-                nptr_t ex_p = Node::ite(de, ex_n, ex);
-                ex = ex_p;
-
-                //std::cout << name << ": " 
-                //          << *de.get() << " -> "
-                //          << *ex_n.get() << std::endl;
-            }
-            r.second.next = ex;
-            //std::cout << name << ": "
-            //          << *ex.get() << std::endl;
+            r.second.next = _synthesizeOp(
+                r.first, r.second.var, r.second.next, pyfun);
         }
+        S.pop(); Sp.pop();
+    }
+
+    void Synthesizer::synthesizeReg(const std::string& name, PyObject* pyfun)
+    {
+        auto pos = abs.regs.find(name);
+        if (pos == abs.regs.end()) {
+            pos = abs.mems.find(name);
+        }
+        if (pos == abs.mems.end()) {
+            pos = abs.bits.find(name);
+        }
+        if (pos == abs.bits.end()) {
+            throw PyILAException(PyExc_RuntimeError,
+                "Unable to find name: " + name);
+            return;
+        }
+        _initSynthesis();
+        S.push(); Sp.push();
+        _initSolverAssumptions(abs.assumps, c1, c2);
+        pos->second.next = _synthesizeOp(
+                pos->first, 
+                pos->second.var, 
+                pos->second.next, 
+                pyfun);
         S.pop(); Sp.pop();
     }
 

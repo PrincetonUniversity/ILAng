@@ -308,6 +308,7 @@ BOOST_PYTHON_MODULE(ila)
         .def("bool", &Abstraction::boolConstL, return_value_policy<manage_new_object>())
 
         .def("synthesize", &Abstraction::synthesizeAll)
+        .def("synthesize", &Abstraction::synthesizeReg)
         .def("syn_elem", &Abstraction::synthesizeElement, return_value_policy<manage_new_object>())
         .def("areEqual", &Abstraction::areEqual)
 
@@ -336,6 +337,7 @@ BOOST_PYTHON_MODULE(ila)
         .def_readonly("values", &MemValues::getValues)
         .def("__getitem__", &MemValues::getItem)
         .def("__setitem__", &MemValues::setItem)
+        .def("__repr__", &MemValues::str)
         .def(self_ns::str(self))
     ;
 }

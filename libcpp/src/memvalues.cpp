@@ -252,6 +252,13 @@ namespace ila
         return e1;
     }
 
+    std::string MemValues::str() const
+    {
+        std::ostringstream ostr;
+        ostr << *this;
+        return ostr.str();
+    }
+
     std::ostream& operator<<(std::ostream& out, const MemValues& mv)
     {
         bool first = true;
@@ -259,11 +266,11 @@ namespace ila
 
         for (auto p : mv.values) {
             if (!first) { out << " "; } else { first = false; }
-            out << std::hex << "0x" << p.first << ": " << "0x" << p.second;
+            out << std::hex << std::showbase << p.first << ": " << p.second;
         }
 
         if (!first) { out << " "; } 
-        out << "default: 0x" << std::hex << mv.def_value << std::dec << "]";
+        out << "default: " << std::hex << std::showbase << mv.def_value << std::dec << "]";
 
         return out;
     }
