@@ -320,6 +320,8 @@ BOOST_PYTHON_MODULE(ila)
         .def("importOne", &Abstraction::importOneFromFile, return_value_policy<manage_new_object>())
         .def("importAll", &Abstraction::importAllFromFile)
 
+        .def("generateSim", &Abstraction::generateSim)
+
         .add_property("fetch_expr", 
             make_function(&Abstraction::getFetchExpr, return_value_policy<manage_new_object>()), 
             &Abstraction::setFetchExpr)

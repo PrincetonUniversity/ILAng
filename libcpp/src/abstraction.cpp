@@ -568,15 +568,79 @@ namespace ila
     {
         // TODO
         CppSimGen* gen = new CppSimGen("bal");
+        // Set inputs.
         for (auto it = inps.begin(); it != inps.end(); it++) {
             gen->addInput(it->first, it->second.var);
         }
+        // Set regs.
         for (auto it = regs.begin(); it != regs.end(); it++) {
             gen->addState(it->first, it->second.var);
         }
+        // Set bits.
         for (auto it = bits.begin(); it != bits.end(); it++) {
             gen->addState(it->first, it->second.var);
         }
+        // Set mems.
+        for (auto it = mems.begin(); it != mems.end(); it++) {
+            gen->addState(it->first, it->second.var);
+        }
+
+        // Create update function.
+        CppFun* updateFun = gen->addFun("void", "bal_update");
+        // Calculate the next value.
+        for (auto it = regs.begin(); it != regs.end(); it++) {
+            gen->buildFun(updateFun, it->second.next);
+            gen->addFunUpdate(updateFun, it->second.var, it->second.next);
+        }
+        for (auto it = bits.begin(); it != bits.end(); it++) {
+            gen->buildFun(updateFun, it->second.next);
+            gen->addFunUpdate(updateFun, it->second.var, it->second.next);
+        }
+        for (auto it = mems.begin(); it != mems.end(); it++) {
+            gen->buildFun(updateFun, it->second.next);
+            gen->addFunUpdate(updateFun, it->second.var, it->second.next);
+        }
+        gen->endFun(updateFun);
+
+        // FetchExpr
+        CppFun* fetchExprFun = gen->addFun("void", "bal_fetchExpr");
+        gen->buildFun(fetchExprFun, fetchExpr);
+        gen->setFunReturn(fetchExprFun, fetchExpr);
+        gen->endFun(fetchExprFun);
+
+        // FetchValid
+        CppFun* fetchValidFun = gen->addFun("bool", "bal_fetchValid");
+        gen->buildFun(fetchValidFun, fetchValid);
+        gen->setFunReturn(fetchValidFun, fetchValid);
+        gen->endFun(fetchValidFun);
+
+        // DecodeExprs
+        std::vector<CppFun*> decodeVec;
+        for (unsigned i = 0; i < decodeExprs.size(); i++) {
+            CppFun* decFun = gen->addFun("void", 
+                    "bal_decode_" + boost::lexical_cast<std::string>(i));
+            gen->buildFun(decFun, decodeExprs[i]);
+            gen->setFunReturn(decFun, decodeExprs[i]);
+            gen->endFun(decFun);
+            decodeVec.push_back(decFun);
+        }
+
+        // Assumps
+        std::vector<CppFun*> assVec;
+        for (unsigned i = 0; i < assumps.size(); i++) {
+            CppFun* assFun = gen->addFun("void",
+                    "bal_decode_" + boost::lexical_cast<std::string>(i));
+            gen->buildFun(assFun, assumps[i]);
+            gen->setFunReturn(assFun, assumps[i]);
+            gen->endFun(assFun);
+            assVec.push_back(assFun);
+        }
+
+        // Generate overall simulator to file
+        std::ofstream out(fileName.c_str());
+        ILA_ASSERT(out.is_open(), "File " + fileName + " not open.");
+        gen->exportAll(out);
+        out.close();
     }
 
     // ---------------------------------------------------------------------- //

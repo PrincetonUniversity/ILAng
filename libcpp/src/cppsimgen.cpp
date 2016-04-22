@@ -5,57 +5,24 @@ namespace ila
 {
     // ---------------------------------------------------------------------- //
     int CppVar::varCnt = 0;
+
     std::string CppVar::boolStr = "bool";
     std::string CppVar::bvStr   = "int32_t";
     std::string CppVar::ubvStr  = "uint32_t";
     std::string CppVar::memStr  = "type_mem";
+    std::string CppVar::voidStr = "void";
 
     // ---------------------------------------------------------------------- //
-    /*
-    CppVar::CppVar(const std::string& type, const std::string& name)
-        : _type(type)
-        , _name(name)
+    CppVar::CppVar(nptr_t nptr, const std::string& name)
     {
+        init(nptr);
+        if (name != "") _name = name;
     }
 
-    CppVar::CppVar(const std::string& type)
-        : _type(type)
+    CppVar::CppVar(const Node* node, const std::string& name)
     {
-        _name = "cppVar_" + boost::lexical_cast<std::string>(varCnt++);
-    }
-    */
-    CppVar::CppVar(nptr_t nptr)
-        : _name(nptr->name)
-    {
-        _name = nptr->name;
-        if (nptr->type.isBool()) {
-            _type = boolStr;
-            _width = 0;
-        } else if (nptr->type.isBitvector()) {
-            // FIXME cases for different width
-            _type = bvStr;
-            _width = nptr->type.bitWidth;
-        } else if (nptr->type.isMem()) {
-            _type = memStr;
-            _width = nptr->type.dataWidth;
-        }
-    }
-
-    CppVar::CppVar(const Node* node)
-        : _name(node->name)
-    {
-        _name = node->name;
-        if (node->type.isBool()) {
-            _type = boolStr;
-            _width = 0;
-        } else if (node->type.isBitvector()) {
-            // FIXME cases for different width
-            _type = bvStr;
-            _width = node->type.bitWidth;
-        } else if (node->type.isMem()) {
-            _type = memStr;
-            _width = node->type.dataWidth;
-        }
+        init(node);
+        if (name != "") _name = name;
     }
 
     CppVar::~CppVar()
@@ -70,23 +37,55 @@ namespace ila
 
     std::string CppVar::use() const
     {
-        return (_name);
+        if (_isConst) {
+            return _val;
+        } else {
+            return (_name);
+        }
     }
 
     // ---------------------------------------------------------------------- //
-    int CppFun::funCnt = 0;
-
-    // ---------------------------------------------------------------------- //
-    CppFun::CppFun(const std::string& type, const std::string& name) 
-        : _type(type)
-        , _name(name)
+    void CppVar::init(nptr_t n)
     {
+        init(n.get());
     }
 
-    CppFun::CppFun(const std::string& type)
-        : _type(type)
+    void CppVar::init(const Node* n)
     {
-        _name = "cppFun_" + boost::lexical_cast<std::string>(funCnt++);
+        _name = "cppVar_" + boost::lexical_cast<std::string>(varCnt++);
+        if (n->type.isBool()) {
+            _type = boolStr;
+            _width = 0;
+        } else if (n->type.isBitvector()) {
+            // FIXME cases for different width
+            _type = bvStr;
+            _width = n->type.bitWidth;
+        } else if (n->type.isMem()) {
+            _type = memStr;
+            _width = n->type.dataWidth;
+        }
+
+        const BoolConst* boolconst = NULL;
+        const BitvectorConst* bvconst = NULL;
+
+        if ((boolconst = dynamic_cast<const BoolConst*>(n))) {
+            _isConst = true;
+            _val = (boolconst->val()) ? "true" : "false";
+        } else if ((bvconst = dynamic_cast<const BitvectorConst*>(n))) {
+            _isConst = true;
+            _val = bvconst->vstr();
+        } else {
+            _isConst = false;
+            _val = "";
+        } 
+        // mem?
+    }
+
+    // ---------------------------------------------------------------------- //
+    CppFun::CppFun(const std::string& name)
+        : _name(name)
+    {
+        _ret = NULL;
     }
 
     CppFun::~CppFun()
@@ -107,7 +106,18 @@ namespace ila
     // ---------------------------------------------------------------------- //
     void CppFun::dumpDef(std::ostream& out) const
     {
-        // TODO
+        out << "\n\t";
+        if (_ret != NULL) {
+            out << _ret->_type << " " << _name << "(";
+        } else {
+            out << "void " << _name << "(";
+        }
+
+        for (auto i = 0; i<_args.size(); i++) {
+            if (i != 0) { out <<", "; }
+            out << _args[i]->def();
+        }
+        out << ")\n\t{\n";
     }
 
     void CppFun::dumpCode(std::ostream& out) const
@@ -119,7 +129,7 @@ namespace ila
 
     // ---------------------------------------------------------------------- //
     CppSimGen::CppSimGen(const std::string& prefix)
-        : _prefix(prefix)
+        : _modelName("model_" + prefix)
     {
     }
 
@@ -128,29 +138,29 @@ namespace ila
     }
 
     // ---------------------------------------------------------------------- //
-    const CppVar* CppSimGen::addInput(const std::string& name,
-                                      nptr_t nptr)
+    CppVar* CppSimGen::addInput(const std::string& name, nptr_t nptr)
     {
-        CppVar* ip = new CppVar(nptr);
+        // FIXME Need to make sure name valid.
+        CppVar* ip = new CppVar(nptr, name);    
         checkAndInsert(_inputs, name, ip);
         checkAndInsert(_varMap, name, ip);
         return ip;
     }
 
-    const CppVar* CppSimGen::addState(const std::string& name,
-                                      nptr_t nptr)
+    CppVar* CppSimGen::addState(const std::string& name, nptr_t nptr)
     {
-        CppVar* var = new CppVar(nptr);
+        // FIXME Need to make sure name valid.
+        CppVar* var = new CppVar(nptr, name);   
         checkAndInsert(_states, name, var);
         checkAndInsert(_varMap, name, var);
         return var;
     }
 
-    const CppFun* CppSimGen::addFun(const std::string& type,
-                                    const std::string& name)
+    CppFun* CppSimGen::addFun(const std::string& type,
+                              const std::string& name)
     {
         // Create new fun and put it in funMap.
-        CppFun* fun = new CppFun(type, name);
+        CppFun* fun = new CppFun(name);
         checkAndInsert(_funMap, name, fun);
         // Insert inputs and global state into the function's varmap
         // Also set the input as fun's arguments.
@@ -159,20 +169,20 @@ namespace ila
             checkAndInsert(*varMap, it->first, it->second);
             fun->addArg(it->second);
         }
-        for (auto it = _states.begin(); it != _inputs.end(); it++) {
+        for (auto it = _states.begin(); it != _states.end(); it++) {
             checkAndInsert(*varMap, it->first, it->second);
         }
         _varInFun[fun] = varMap;
         return fun;
     }
 
+    // ---------------------------------------------------------------------- //
     void CppSimGen::operator() (const Node* n)
     {
         CppVarMap::iterator it = _curVarMap->find(n->name);
         if (it != _curVarMap->end()) {
             return;
         }
-
         const BoolVar* boolvar = NULL; 
         const BoolConst* boolconst = NULL;
         const BoolOp* boolop = NULL;
@@ -213,47 +223,139 @@ namespace ila
         }
 
         checkAndInsert(*_curVarMap, n->name, res);
+        _curVar = res;
     }
 
+    // ---------------------------------------------------------------------- //
     // Build function body with ast node.
     void CppSimGen::buildFun(CppFun* f, nptr_t nptr)
     {
+        if (nptr == NULL) { return; }
         auto it = _varInFun.find(f);
         if (it == _varInFun.end()) {
             ILA_ASSERT(false, "Function not defined yet.");
         }
         _curVarMap = it->second;
         _curFun = f;
+        
         nptr->depthFirstVisit(*this);
+        checkAndInsert(_varMap, nptr->name, _curVar);
+        
+        _curVarMap = NULL;
+        _curFun = NULL;
+        return;
     }
 
+    // Set the return variable for the function.
+    void CppSimGen::setFunReturn(CppFun* f, nptr_t nptr)
+    {
+        if (nptr == NULL) { return; }
+        auto it = _varInFun.find(f);
+        if (it == _varInFun.end()) {
+            ILA_ASSERT(false, "Function not defined yet.");
+        }
+        
+        f->_ret = findVar(*(it->second), nptr->name);
+    }
+
+    // Add a variable that should be update at the end of the function.
+    void CppSimGen::addFunUpdate(CppFun* f, nptr_t lhs, nptr_t rhs)
+    {
+        if (lhs == NULL || rhs == NULL) { return; }
+        auto it = _varInFun.find(f);
+        if (it == _varInFun.end()) {
+            ILA_ASSERT(false, "Function not defined yet.");
+        }
+        
+        CppVar* argL = findVar(*(it->second), lhs->name);
+        CppVar* argR = findVar(*(it->second), rhs->name);
+
+        f->_updates.push_back(std::make_pair(argL, argR));
+    }
+
+    // Terminate the function building.
+    void CppSimGen::endFun(CppFun* f)
+    {
+        std::string code = "NOT SPECIFIED";
+        // Update the states.
+        for (auto i = 0; i < f->_updates.size(); i++) {
+            code = f->_updates[i].first->use() + " = " + 
+                   f->_updates[i].second->use() + ";";
+            f->addBody(code);
+        }
+        // Return the value.
+        if (f->_ret != NULL) {
+            code = "return " + f->_ret->use();
+            f->addBody(code);
+        } else {
+            code = "return;";
+            f->addBody(code);
+        }
+    }
+
+    // ---------------------------------------------------------------------- //
     // Export all code to the output stream.
     void CppSimGen::exportAll(std::ostream& out) const
     {
         // TODO Better option: declare const outside update functions.
 
         // Include headers
+        out << "#include <map.h>;\n";
 
         // Mem type class
+        defMemClass(out);
 
         // Model class prolog
+        out << "\nclass " <<  _modelName << " {\n" 
+            << "{\n\n";
+        
+        // Comments: Node name and cpp var name mapping.
+        out << "/*****************************************************\n";
+        out << "Inputs:\n";
+        for (auto it = _inputs.begin(); it != _inputs.end(); it++) {
+            out << it->first << " => " << it->second->def() << "\n";
+        }
+        out << "States:\n";
+        for (auto it = _states.begin(); it != _states.end(); it++) {
+            out << it->first << " => " << it->second->def() << "\n";
+        }
+        out << "*****************************************************/\n";
 
         // Constructor/destructor
+        out << "\npublic:\n"
+            << "\t"  << _modelName << "() {};\n"
+            << "\t~" << _modelName << "() {};\n";
 
         // Public: states variables
+        out << "\n\t// State variables.\n";
+        for (auto it = _states.begin(); it != _states.end(); it++) {
+            out << "\t" + it->second->def() << ";\n";
+        }
 
         // Public: set states function?
 
         // Public: functions (fetch, decode, update ... etc.)
+        for (auto it = _funMap.begin(); it != _funMap.end(); it++) {
+            it->second->dumpDef(out);
+            it->second->dumpCode(out);
+            out << "\t}\n";
+        }
 
         // Model class epilog
+        out << "\n};\n\n";
+
+        // main function
+        out << "int main(int argc, char* argv[])\n"
+            << "{\n"
+            << "\t// TODO\n"
+            << "\treturn 0;\n"
+            << "}\n";
 
     }
 
     // ---------------------------------------------------------------------- //
     CppVar* CppSimGen::getBoolVarCpp(const BoolVar* n)
     {
-        // FIXME This should not happen?
         CppVar* var = new CppVar(n);
         std::string code = var->def();
         _curFun->addBody(code);
@@ -263,20 +365,13 @@ namespace ila
     CppVar* CppSimGen::getBoolConstCpp(const BoolConst* n)
     {
         CppVar* var = new CppVar(n);
-        std::string code;
-        if (n->val()) {
-            code = var->def() + " = true;";
-        } else {
-            code = var->def() + " = false;";
-        }
-        _curFun->addBody(code);
         return var;
     }
 
     CppVar* CppSimGen::getBoolOpCpp(const BoolOp* n)
     {
         CppVar* var = new CppVar(n);
-        std::string code;
+        std::string code = "boolOp NOT IMPLEMENTED";
         //// Unary ////
         if (n->op == BoolOp::Op::NOT) {
             CppVar* arg0 = findVar(*_curVarMap, n->arg(0)->name);
@@ -321,6 +416,7 @@ namespace ila
                 code = var->def() + " = " + 
                        arg0->use() + " >= " + arg1->use() + ";";
             } else if (n->op == BoolOp::Op::ULT) {
+                // TODO Change to type str
                 code = var->def() + " = (unsigned)" + 
                        arg0->use() + " < (unsigned)" + arg1->use() + ";";
             } else if (n->op == BoolOp::Op::UGT) {
@@ -356,7 +452,6 @@ namespace ila
 
     CppVar* CppSimGen::getBvVarCpp(const BitvectorVar* n)
     {
-        // FIXME This should not happen?
         CppVar* var = new CppVar(n);
         std::string code = var->def() + ";";
         _curFun->addBody(code);
@@ -366,15 +461,13 @@ namespace ila
     CppVar* CppSimGen::getBvConstCpp(const BitvectorConst* n)
     {
         CppVar* var = new CppVar(n);
-        std::string code = var->def() + " = " + n->vstr() + ";";
-        _curFun->addBody(code);
         return var;
     }
 
     CppVar* CppSimGen::getBvOpCpp(const BitvectorOp* n)
     {
         CppVar* var = new CppVar(n);
-        std::string code;
+        std::string code = "bvOp NOT IMPLEMENTED.";
         //// Unary ////
         if (n->op >= BitvectorOp::Op::NEGATE && 
             n->op <= BitvectorOp::Op::EXTRACT) {
@@ -447,7 +540,8 @@ namespace ila
     CppVar* CppSimGen::getMemWrCpp(const MemWr* n)
     {
         // TODO
-        return NULL;
+        CppVar* var = new CppVar(n);
+        return var;
     }
         
     // ---------------------------------------------------------------------- //
@@ -494,7 +588,7 @@ namespace ila
                                    T* var)
     {
         auto it = mp.find(name);
-        if (it == mp.end()) {
+        if (it != mp.end()) {
             ILA_ASSERT(false, "Variable " + name + " has been defined.");
         }
         mp[name] = var;
