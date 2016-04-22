@@ -270,7 +270,7 @@ namespace ila
         }
 
         if (!first) { out << " "; } 
-        out << "default: 0x" << std::hex << mv.def_value << std::dec << "]";
+        out << "default: " << std::hex << std::showbase << mv.def_value << std::dec << "]";
 
         return out;
     }

@@ -16,7 +16,7 @@ def synthesize():
 
     # fetch and decode.
     model.fetch_expr = uc.op0 # s/hand for uc.rom[uc.pc]
-    model.decode_exprs = [uc.op0 == i for i in xrange(3)]
+    model.decode_exprs = [uc.op0 == i for i in xrange(0x10)]
 
     # pc
     # ajmp/acall
