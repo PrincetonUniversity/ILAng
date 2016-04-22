@@ -78,7 +78,7 @@ namespace ila
             _isConst = false;
             _val = "";
         } 
-        // mem?
+        // FIXME mem?
     }
 
     // ---------------------------------------------------------------------- //
@@ -140,7 +140,7 @@ namespace ila
     // ---------------------------------------------------------------------- //
     CppVar* CppSimGen::addInput(const std::string& name, nptr_t nptr)
     {
-        // FIXME Need to make sure name valid.
+        // FIXME Need to make sure name is valid.
         CppVar* ip = new CppVar(nptr, name);    
         checkAndInsert(_inputs, name, ip);
         checkAndInsert(_varMap, name, ip);
@@ -149,7 +149,7 @@ namespace ila
 
     CppVar* CppSimGen::addState(const std::string& name, nptr_t nptr)
     {
-        // FIXME Need to make sure name valid.
+        // FIXME Need to make sure name is valid.
         CppVar* var = new CppVar(nptr, name);   
         checkAndInsert(_states, name, var);
         checkAndInsert(_varMap, name, var);
@@ -417,7 +417,7 @@ namespace ila
                        arg0->use() + " >= " + arg1->use() + ";";
             } else if (n->op == BoolOp::Op::ULT) {
                 // TODO Change to type str
-                code = var->def() + " = (unsigned)" + 
+                code = var->def() + " = (" + CppVar::ubvStr + ")" + 
                        arg0->use() + " < (unsigned)" + arg1->use() + ";";
             } else if (n->op == BoolOp::Op::UGT) {
                 code = var->def() + " = (unsigned)" + 
