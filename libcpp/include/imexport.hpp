@@ -27,6 +27,10 @@ namespace ila
         // Import one ast from input stream.
         nptr_t importAst(Abstraction* c, std::istream& in);
 
+        // helper function for the _nodeMap.
+        nptr_t mapFind(const std::string& name) const;
+        void mapInsert(const std::string& name, nptr_t nptr);
+
     protected:
 
     private:
@@ -34,10 +38,6 @@ namespace ila
         char nextChar(std::istream& in) const;
         std::string next(std::istream& in) const;
         int eatIdx(std::istream& in) const;
-
-        // helper function for the _nodeMap.
-        nptr_t mapFind(const std::string& name) const;
-        void mapInsert(const std::string& name, nptr_t nptr);
 
         // figure out which bitvectorOp/boolOp is the opName specified.
         BitvectorOp::Op getBvOpType(const std::string& opName) const;

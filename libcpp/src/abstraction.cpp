@@ -436,6 +436,22 @@ namespace ila
         ILA_ASSERT(in.is_open(), "File " + fileName + " not found.");
 
         ImExport ipt;
+        for (auto it = inps.begin(); it != inps.end(); it++)
+        {
+            ipt.mapInsert(it->first, it->second.var);
+        }
+        for (auto it = regs.begin(); it != regs.end(); it++)
+        {
+            ipt.mapInsert(it->first, it->second.var);
+        }
+        for (auto it = bits.begin(); it != bits.end(); it++)
+        {
+            ipt.mapInsert(it->first, it->second.var);
+        }
+        for (auto it = mems.begin(); it != mems.end(); it++)
+        {
+            ipt.mapInsert(it->first, it->second.var);
+        }
         nptr_t res = ipt.importAst(this, in);
         NodeRef* wrap = new NodeRef(res);
         in.close();
