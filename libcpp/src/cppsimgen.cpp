@@ -5,8 +5,13 @@ namespace ila
 {
     // ---------------------------------------------------------------------- //
     int CppVar::varCnt = 0;
+    std::string CppVar::boolStr = "bool";
+    std::string CppVar::bvStr   = "int32_t";
+    std::string CppVar::ubvStr  = "uint32_t";
+    std::string CppVar::memStr  = "type_mem";
 
     // ---------------------------------------------------------------------- //
+    /*
     CppVar::CppVar(const std::string& type, const std::string& name)
         : _type(type)
         , _name(name)
@@ -17,6 +22,40 @@ namespace ila
         : _type(type)
     {
         _name = "cppVar_" + boost::lexical_cast<std::string>(varCnt++);
+    }
+    */
+    CppVar::CppVar(nptr_t nptr)
+        : _name(nptr->name)
+    {
+        _name = nptr->name;
+        if (nptr->type.isBool()) {
+            _type = boolStr;
+            _width = 0;
+        } else if (nptr->type.isBitvector()) {
+            // FIXME cases for different width
+            _type = bvStr;
+            _width = nptr->type.bitWidth;
+        } else if (nptr->type.isMem()) {
+            _type = memStr;
+            _width = nptr->type.dataWidth;
+        }
+    }
+
+    CppVar::CppVar(const Node* node)
+        : _name(node->name)
+    {
+        _name = node->name;
+        if (node->type.isBool()) {
+            _type = boolStr;
+            _width = 0;
+        } else if (node->type.isBitvector()) {
+            // FIXME cases for different width
+            _type = bvStr;
+            _width = node->type.bitWidth;
+        } else if (node->type.isMem()) {
+            _type = memStr;
+            _width = node->type.dataWidth;
+        }
     }
 
     CppVar::~CppVar()
@@ -89,19 +128,19 @@ namespace ila
     }
 
     // ---------------------------------------------------------------------- //
-    const CppVar* CppSimGen::addInput(const std::string& type,
-                                      const std::string& name)
+    const CppVar* CppSimGen::addInput(const std::string& name,
+                                      nptr_t nptr)
     {
-        CppVar* ip = new CppVar(type, name);
+        CppVar* ip = new CppVar(nptr);
         checkAndInsert(_inputs, name, ip);
         checkAndInsert(_varMap, name, ip);
         return ip;
     }
 
-    const CppVar* CppSimGen::addState(const std::string& type,
-                                      const std::string& name)
+    const CppVar* CppSimGen::addState(const std::string& name,
+                                      nptr_t nptr)
     {
-        CppVar* var = new CppVar(type, name);
+        CppVar* var = new CppVar(nptr);
         checkAndInsert(_states, name, var);
         checkAndInsert(_varMap, name, var);
         return var;
@@ -191,15 +230,31 @@ namespace ila
     // Export all code to the output stream.
     void CppSimGen::exportAll(std::ostream& out) const
     {
-        // TODO
-        // Better option: declare const outside update functions.
+        // TODO Better option: declare const outside update functions.
+
+        // Include headers
+
+        // Mem type class
+
+        // Model class prolog
+
+        // Constructor/destructor
+
+        // Public: states variables
+
+        // Public: set states function?
+
+        // Public: functions (fetch, decode, update ... etc.)
+
+        // Model class epilog
+
     }
 
     // ---------------------------------------------------------------------- //
     CppVar* CppSimGen::getBoolVarCpp(const BoolVar* n)
     {
         // FIXME This should not happen?
-        CppVar* var = new CppVar("bool", n->name);
+        CppVar* var = new CppVar(n);
         std::string code = var->def();
         _curFun->addBody(code);
         return var;
@@ -207,7 +262,7 @@ namespace ila
 
     CppVar* CppSimGen::getBoolConstCpp(const BoolConst* n)
     {
-        CppVar* var = new CppVar("bool", n->name);
+        CppVar* var = new CppVar(n);
         std::string code;
         if (n->val()) {
             code = var->def() + " = true;";
@@ -220,7 +275,7 @@ namespace ila
 
     CppVar* CppSimGen::getBoolOpCpp(const BoolOp* n)
     {
-        CppVar* var = new CppVar("bool", n->name);
+        CppVar* var = new CppVar(n);
         std::string code;
         //// Unary ////
         if (n->op == BoolOp::Op::NOT) {
@@ -302,13 +357,7 @@ namespace ila
     CppVar* CppSimGen::getBvVarCpp(const BitvectorVar* n)
     {
         // FIXME This should not happen?
-        // More types for longer bitwidth.
-        CppVar* var = NULL;
-        if (n->type.bitWidth <= (int)sizeof(int)) {
-            var = new CppVar("int", n->name);
-        } else {
-            var = new CppVar("long", n->name);
-        }
+        CppVar* var = new CppVar(n);
         std::string code = var->def() + ";";
         _curFun->addBody(code);
         return var;
@@ -316,12 +365,7 @@ namespace ila
 
     CppVar* CppSimGen::getBvConstCpp(const BitvectorConst* n)
     {
-        CppVar* var = NULL;
-        if (n->type.bitWidth <= (int)sizeof(int)) {
-            var = new CppVar("int", n->name);
-        } else {
-            var = new CppVar("long", n->name);
-        }
+        CppVar* var = new CppVar(n);
         std::string code = var->def() + " = " + n->vstr() + ";";
         _curFun->addBody(code);
         return var;
@@ -329,12 +373,7 @@ namespace ila
 
     CppVar* CppSimGen::getBvOpCpp(const BitvectorOp* n)
     {
-        CppVar* var = NULL;
-        if (n->type.bitWidth <= (int)sizeof(int)) {
-            var = new CppVar("int", n->name);
-        } else {
-            var = new CppVar("long", n->name);
-        }
+        CppVar* var = new CppVar(n);
         std::string code;
         //// Unary ////
         if (n->op >= BitvectorOp::Op::NEGATE && 
@@ -390,7 +429,7 @@ namespace ila
 
     CppVar* CppSimGen::getMemVarCpp(const MemVar* n)
     {
-        CppVar* var = new CppVar("type_mem", n->name);
+        CppVar* var = new CppVar(n);
         std::string code = var->def() + ";";
         _curFun->addBody(code);
         return var;
@@ -398,7 +437,7 @@ namespace ila
 
     CppVar* CppSimGen::getMemConstCpp(const MemConst* n)
     {
-        CppVar* var = new CppVar("type_mem", n->name);
+        CppVar* var = new CppVar(n);
         std::string code = var->def() + ";";
         _curFun->addBody(code);
         setMemValue(var, n->memvalues);

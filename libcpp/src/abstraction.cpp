@@ -528,6 +528,15 @@ namespace ila
     {
         // TODO
         CppSimGen* gen = new CppSimGen("bal");
+        for (auto it = inps.begin(); it != inps.end(); it++) {
+            gen->addInput(it->first, it->second.var);
+        }
+        for (auto it = regs.begin(); it != regs.end(); it++) {
+            gen->addState(it->first, it->second.var);
+        }
+        for (auto it = bits.begin(); it != bits.end(); it++) {
+            gen->addState(it->first, it->second.var);
+        }
     }
 
     // ---------------------------------------------------------------------- //

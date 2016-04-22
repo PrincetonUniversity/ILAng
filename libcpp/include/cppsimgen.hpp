@@ -13,14 +13,24 @@ namespace ila
     {
         // Variable count.
         static int varCnt;
+        static std::string boolStr;
+        static std::string bvStr;
+        static std::string ubvStr;
+        static std::string memStr;
+
     private:
         std::string _type;
         std::string _name;
+        int _width;
     public:
         // Constructor with fully specified variables.
-        CppVar(const std::string& type, const std::string& name);
+//        CppVar(const std::string& type, const std::string& name);
         // Constructor with only type specified.
-        CppVar(const std::string& type);
+//        CppVar(const std::string& type);
+        // Constructor with nptr_t
+        CppVar(nptr_t nptr);
+        // Constructor with Node*
+        CppVar(const Node* node);
         // Destructor.
         ~CppVar();
 
@@ -103,10 +113,10 @@ namespace ila
         ~CppSimGen();
 
         // Create input variable and put it in the _varMap.
-        const CppVar* addInput(const std::string& type, const std::string& name);
+        const CppVar* addInput(const std::string& name, nptr_t node);
 
         // Create state variable and put it in the _varMap.
-        const CppVar* addState(const std::string& type, const std::string& name);
+        const CppVar* addState(const std::string& name, nptr_t node);
 
         // Create new function and put it in the _funMap.
         const CppFun* addFun(const std::string& type, const std::string& name);
