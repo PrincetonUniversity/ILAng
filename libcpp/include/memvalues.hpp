@@ -67,6 +67,8 @@ namespace ila
         bool semanticEqual(const MemValues& mv) const;
         // convert to z3.
         z3::expr toZ3(z3::context& c) const;
+        // write to a string.
+        std::string str() const;
 
         // support for __getitem__
         mp_int_t getItemInt(const mp_int_t& index) const;

@@ -198,6 +198,13 @@ namespace ila
 
         z3::expr _createSynMiter(const nptr_t& ex);
 
+        void _initSynthesis();
+        nptr_t _synthesizeOp(
+            const std::string& name,
+            const nptr_t& var, 
+            const nptr_t& next,
+            PyObject* pyfun);
+
     public:
         // constructor.
         Synthesizer(Abstraction& abs);
@@ -206,6 +213,8 @@ namespace ila
 
         // synthesize all.
         void synthesizeAll(PyObject* pyfun);
+
+        void synthesizeReg(const std::string& n, PyObject* pyfun);
 
 
         friend class DITree;

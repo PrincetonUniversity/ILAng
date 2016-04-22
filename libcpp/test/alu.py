@@ -115,7 +115,9 @@ def model(num_regs, reg_size, paramsyn):
     rt = ila.choice('rt', regs)
     rs = [rs+rt, rs-rt, rs&rt, rs|rt, ~rs, -rs, ~rt, -rt]
     # set next.
-    sys.set_next('pc', pc+1)
+    sys.set_next('pc', ila.choice('pc', pc+1, pc+2))
+
+
     regs_next = []
     for i in xrange(alu.NUM_REGS):
         ri_next = ila.choice('result%d' % i, rs+[regs[i]])
@@ -124,6 +126,12 @@ def model(num_regs, reg_size, paramsyn):
     sys.fetch_expr = opcode
     # now set the decode expressions.
     sys.decode_exprs = [opcode == i for i in xrange(alu.NUM_OPCODES)]
+
+    # synthesize pc first.
+    sys.synthesize('pc', lambda s: alu.alusim(s))
+    pc_next = sys.get_next('pc')
+    assert sys.areEqual(pc_next, pc+1)
+
     # now synthesize.
     st = time.clock()
     sys.synthesize(lambda s: alu.alusim(s))

@@ -244,6 +244,13 @@ namespace ila
         syn.synthesizeAll(pyfun);
     }
 
+    void Abstraction::synthesizeReg(
+        const std::string& name, PyObject* pyfun)
+    {
+        Synthesizer syn(*this);
+        syn.synthesizeReg(name, pyfun);
+    }
+
     // ---------------------------------------------------------------------- //
     NodeRef* Abstraction::synthesizeElement(
         const std::string& name, 
@@ -283,6 +290,12 @@ namespace ila
     bool Abstraction::areEqual(NodeRef* left, NodeRef* right) const
     {
         using namespace z3;
+
+        if (left->node->type != right->node->type) {
+            throw PyILAException(PyExc_TypeError,
+                "Types do not match.");
+            return false;
+        }
 
         context c_;
         Z3ExprAdapter c(c_, "");

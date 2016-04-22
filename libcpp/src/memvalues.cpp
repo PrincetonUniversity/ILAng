@@ -252,6 +252,13 @@ namespace ila
         return e1;
     }
 
+    std::string MemValues::str() const
+    {
+        std::ostringstream ostr;
+        ostr << *this;
+        return ostr.str();
+    }
+
     std::ostream& operator<<(std::ostream& out, const MemValues& mv)
     {
         bool first = true;
