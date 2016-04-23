@@ -65,6 +65,7 @@ namespace ila
     class CppFun
     {
         friend class CppSimGen;
+
     protected:
         std::string _name;
         std::vector<const CppVar*> _args;
@@ -77,17 +78,20 @@ namespace ila
         CppFun(const std::string& name);
         // Destructor.
         ~CppFun();
-
+    
+    protected:
         // Add argument.
         void addArg(const CppVar* arg);
-
         // Add body.
         void addBody(const std::string& code);
 
         // Print the function declaration to the output stream.
-        void dumpDef(std::ostream& out) const;
-        // Print the code (with body) to output stream.
-        void dumpCode(std::ostream& out) const;
+        // If the modelname is not specified, assume declare within the class.
+        void dumpDec(std::ostream& out, 
+                     const std::string& modelName,
+                     const int& indent) const;
+        // Print the code (with tail) to output stream.
+        void dumpCode(std::ostream& out, const int& indent) const;
     };
 
 
@@ -100,30 +104,28 @@ namespace ila
         typedef std::map<std::string, CppFun*> CppFunMap;
 
     private:
-        // State variables.
+        // Model name.
+        std::string _modelName;
+
+        // State variables and other global variables(const mem).
         CppVarMap _states;
         // Input variables.
         CppVarMap _inputs;
-        // All variables map. 
-        CppVarMap _varMap;
-        // Functions map. 
+        // Functions. 
         CppFunMap _funMap;
 
-        // Next state variables. Create when building functions.
-        CppVarMap _nextStates;
+        // Constant memory to be init.
+        std::map<CppVar*,const MemConst*> _memConst;
 
         // Function seeable variables. Update during function construction.
         std::map<CppFun*, CppVarMap*> _varInFun;
-
         // Current working function.
         CppFun* _curFun;
-        // Var map for the current working function.
-        CppVarMap* _curVarMap;
         // Variable currently added.
         CppVar* _curVar;
+        // Var map for the current working function.
+        CppVarMap* _curVarMap;
 
-        // Model prefix.
-        std::string _modelName;
     public:
         // Constructor.
         CppSimGen(const std::string& prefix);
@@ -131,6 +133,7 @@ namespace ila
         // Destructor.
         ~CppSimGen();
 
+        // ------------------------------------------------------------------- //
         // Create input variable and put it in the _varMap.
         CppVar* addInput(const std::string& name, nptr_t node);
 
@@ -140,9 +143,11 @@ namespace ila
         // Create new function and put it in the _funMap.
         CppFun* addFun(const std::string& type, const std::string& name);
         
+        // ------------------------------------------------------------------- //
         // This will be used by depthFirstVisit.
         void operator() (const Node* n);
 
+        // ------------------------------------------------------------------- //
         // Build function body with ast node.
         void buildFun(CppFun* f, nptr_t nptr);
 
@@ -158,7 +163,21 @@ namespace ila
         // Export all code into the output stream.
         void exportAll(std::ostream& out) const;
 
-    protected:
+    private:
+        // ------------------------------------------------------------------- //
+        // Create a class for memory representation.
+        void defMemClass(std::ostream& out) const;
+
+        // Initial constant memory.
+        void setMemConst(std::ostream& out) const;
+        
+        // Create the main function.
+        void genMain(std::ostream& out) const;
+
+        // Create a class for the model.
+        void genModel(std::ostream& out) const;
+
+        // ------------------------------------------------------------------- //
         // Convert a bool variable into cpp code.
         CppVar* getBoolVarCpp(const BoolVar* n);
         // Convert a bool constant into cpp code.
@@ -178,18 +197,13 @@ namespace ila
         // Convert a memory op into cpp code.
         CppVar* getMemOpCpp(const MemOp* n);
 
-    private:
-        // Create a class to represent memory.
-        void defMemClass(std::ostream& out) const;
-
-        // Set the memvalues to the memory variable.
-        void setMemValue(CppVar* var, MemValues values);
-
+        // ------------------------------------------------------------------- //
+        // Helper function for inserting element in map, with assertion on 1st.
         template <class T>
         void checkAndInsert(std::map<std::string, T*>& mp, 
                             const std::string& name,
                             T* var);
-
+        // Helper function for finding element in map, with assertion on find.
         CppVar* findVar(CppVarMap& mp, const std::string& name);
 
     };

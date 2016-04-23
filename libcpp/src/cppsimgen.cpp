@@ -83,7 +83,6 @@ namespace ila
             _type = boolStr;
             _width = 0;
         } else if (n->type.isBitvector()) {
-            // FIXME cases for different width
             _type = bvStr;
             _width = n->type.bitWidth;
         } else if (n->type.isMem()) {
@@ -129,27 +128,39 @@ namespace ila
     }
         
     // ---------------------------------------------------------------------- //
-    void CppFun::dumpDef(std::ostream& out) const
+    // Print the function header outside the class to the output stream.
+    void CppFun::dumpDec(std::ostream& out,
+                          const std::string& modelName,
+                          const int& indent) const
     {
-        out << "\n\t";
-        if (_ret != NULL) {
-            out << _ret->_type << " " << _name << "(";
-        } else {
-            out << CppVar::voidStr << " "  << _name << "(";
+        std::string ind = "";
+        for (int i = 0; i < indent; i++) {
+            ind = ind + "\t";
         }
 
+        std::string type = (_ret != NULL) ? _ret->_type : CppVar::voidStr;
+        std::string name = (modelName == "") ? 
+                           _name : (modelName + "::" + _name);
+        std::string tail = (modelName == "") ? ");" : (")\n" + ind + "{\n");
+                           
+        out << "\n" << ind << type << " " << name << "(";
         for (unsigned i = 0; i<_args.size(); i++) {
             if (i != 0) { out <<", "; }
             out << _args[i]->def();
         }
-        out << ")\n\t{\n";
+        out << tail;
     }
 
-    void CppFun::dumpCode(std::ostream& out) const
+    void CppFun::dumpCode(std::ostream& out, const int& indent) const
     {
-        for (unsigned i = 0; i != _codeList.size(); i++) {
-            out << "\t\t" << _codeList[i] << "\n";
+        std::string ind = "";
+        for (int i = 0; i < indent; i++) {
+            ind = ind + "\t";
         }
+        for (unsigned i = 0; i != _codeList.size(); i++) {
+            out << ind << "\t" << _codeList[i] << "\n";
+        }
+        out << ind << "}\n";
     }
 
     // ---------------------------------------------------------------------- //
@@ -168,7 +179,6 @@ namespace ila
         // FIXME Need to make sure name is valid.
         CppVar* ip = new CppVar(nptr, name);    
         checkAndInsert(_inputs, name, ip);
-        checkAndInsert(_varMap, name, ip);
         return ip;
     }
 
@@ -177,7 +187,6 @@ namespace ila
         // FIXME Need to make sure name is valid.
         CppVar* var = new CppVar(nptr, name);   
         checkAndInsert(_states, name, var);
-        checkAndInsert(_varMap, name, var);
         return var;
     }
 
@@ -264,7 +273,6 @@ namespace ila
         _curFun = f;
         
         nptr->depthFirstVisit(*this);
-        checkAndInsert(_varMap, nptr->name, _curVar);
         
         _curVarMap = NULL;
         _curFun = NULL;
@@ -322,8 +330,6 @@ namespace ila
     // Export all code to the output stream.
     void CppSimGen::exportAll(std::ostream& out) const
     {
-        // TODO Declare const mem outside update functions.
-
         // Include headers
         out << "#include <map>\n";
         out << "#include <stdint.h>\n";
@@ -331,52 +337,14 @@ namespace ila
         // Mem type class
         defMemClass(out);
 
-        // Model class prolog
-        out << "\nclass " <<  _modelName << "\n" 
-            << "{\n\n";
-        
-        // Comments: Node name and cpp var name mapping.
-        out << "/*****************************************************\n";
-        out << "Inputs:\n";
-        for (auto it = _inputs.begin(); it != _inputs.end(); it++) {
-            out << it->first << " => " << it->second->def() << "\n";
-        }
-        out << "States:\n";
-        for (auto it = _states.begin(); it != _states.end(); it++) {
-            out << it->first << " => " << it->second->def() << "\n";
-        }
-        out << "*****************************************************/\n";
+        // Model class
+        genModel(out);
 
-        // Constructor/destructor
-        out << "\npublic:\n"
-            << "\t"  << _modelName << "() {};\n"
-            << "\t~" << _modelName << "() {};\n";
-
-        // Public: states variables
-        out << "\n\t// State variables.\n";
-        for (auto it = _states.begin(); it != _states.end(); it++) {
-            out << "\t" + it->second->def() << ";\n";
-        }
-
-        // Public: set states function?
-
-        // Public: functions (fetch, decode, update ... etc.)
-        for (auto it = _funMap.begin(); it != _funMap.end(); it++) {
-            it->second->dumpDef(out);
-            it->second->dumpCode(out);
-            out << "\t};\n";
-        }
-
-        // Model class epilog
-        out << "\n};\n\n";
+        // Constant memory initialization.
+        setMemConst(out);
 
         // main function
-        out << "int main(int argc, char* argv[])\n"
-            << "{\n"
-            << "\t// TODO\n"
-            << "\t" << _modelName << " mod;\n" 
-            << "\treturn 0;\n"
-            << "}\n";
+        genMain(out);
 
     }
 
@@ -622,11 +590,17 @@ namespace ila
 
     CppVar* CppSimGen::getMemConstCpp(const MemConst* n)
     {
-        // TODO
-        CppVar* var = new CppVar(n);
-        std::string code = var->def() + " NOT DONE;";
-        _curFun->addBody(code);
-        setMemValue(var, n->memvalues);
+        // Should update to _states and _curVarMap.
+        CppVar* var = NULL;
+        auto it = _states.find(n->name);
+        if (it != _states.end()) {
+            var = it->second;
+        } else {
+            var = new CppVar(n);
+            checkAndInsert(_states, n->name, var);
+        }
+
+        _memConst[var] = n;
         return var;
     }
 
@@ -655,51 +629,17 @@ namespace ila
             ILA_ASSERT(false, "Invalid MemOp.");
         }
 
+        if (code != "") {
+            _curFun->addBody(code);
+        }
+
         return var;
     }
         
     // ---------------------------------------------------------------------- //
     void CppSimGen::defMemClass(std::ostream& out) const
     {
-        /*
-            class type_mem
-            {
-            private:
-                std::map<uintmax_t, uintmax_t> _map;
-                uintmax_t _def_val;
-            public:
-                type_mem(uintmax_t def = 0)
-                    : _def_val(def)
-                {
-                }
-                ~type_mem() {}
-                             
-                void setDef(uintmax_t def)
-                {
-                    _def_val = def;
-                }
-
-                void wr(uintmax_t addr, uintmax_t data)
-                {
-                    if (data == _def_val) {
-                        _map.erase(addr);
-                    } else {
-                        _map[addr] = data;
-                    }
-                }
-
-                uintmax_t rd(uintmax_t addr)
-                {
-                    std::map<uintmax_t, uintmax_t>::iterator it = _map.find(addr);
-                    if (it == _map.end()) {
-                        return _def_val;
-                    } else {
-                        return _map[addr];
-                    }
-                }
-            };
-        */
-        out << "\n";
+        out << "\n/****************************************************/\n";
         out << "class type_mem\n";
         out << "{\n";
         out << "private:\n";
@@ -736,20 +676,84 @@ namespace ila
         out << "\t\t}\n";
         out << "\t}\n";
         out << "};\n";
+        out << "/****************************************************/\n";
     }
 
     // ---------------------------------------------------------------------- //
-    void CppSimGen::setMemValue(CppVar* var, MemValues val)
+    void CppSimGen::setMemConst(std::ostream& out) const
+    {
+        out << "\n/****************************************************/\n";
+        for (auto it = _memConst.begin(); it != _memConst.end(); it++) {
+            out << "\n";
+            out << _modelName << "::" <<  it->first->use() << ".setDef(" 
+                << it->second->memvalues.def_value << ");\n";
+            for (auto p : it->second->memvalues.values) {
+                out << it->first->use() 
+                    << ".wr(" << p.first << ", " << p.second << ");\n";
+            }
+        }
+        out << "/****************************************************/\n";
+    }
+
+    // ---------------------------------------------------------------------- //
+    void CppSimGen::genMain(std::ostream& out) const
     {
         // TODO
+        out << "int main(int argc, char* argv[])\n"
+            << "{\n"
+            << "\t// TODO\n"
+            << "\t" << _modelName << " mod;\n" 
+            << "\treturn 0;\n"
+            << "}\n";
+    }
+
+    // ---------------------------------------------------------------------- //
+    void CppSimGen::genModel(std::ostream& out) const
+    {
+        out << "\n/****************************************************/\n";
+        // Model class prolog
+        out << "class " <<  _modelName << "\n" 
+            << "{\n";
+        
         /*
-        out << "[ ";
-        for (auto p : val.values) {
-            out << " " << std::hex << "0x" << p.first
-                << " : " << "0x" << p.second;
+        // Comments: Node name and cpp var name mapping.
+        out << "Inputs:\n";
+        for (auto it = _inputs.begin(); it != _inputs.end(); it++) {
+            out << it->first << " => " << it->second->def() << "\n";
         }
-        out << " default : 0x" << std::hex << val.def_value << std::dec << " ]";
+        out << "States:\n";
+        for (auto it = _states.begin(); it != _states.end(); it++) {
+            out << it->first << " => " << it->second->def() << "\n";
+        }
         */
+
+        // Constructor/destructor
+        out << "public:\n"
+            << "\t"  << _modelName << "() {};\n"
+            << "\t~" << _modelName << "() {};\n";
+
+        // Public: states variables
+        out << "\n\t// State variables.\n";
+        for (auto it = _states.begin(); it != _states.end(); it++) {
+            out << "\t" + it->second->def() << ";\n";
+        }
+
+        // Public: set states function?
+
+        // Public: functions (fetch, decode, update ... etc.)
+        for (auto it = _funMap.begin(); it != _funMap.end(); it++) {
+            it->second->dumpDec(out, "", 1); 
+        }
+
+        // Model class epilog
+        out << "\n};\n";
+
+        for (auto it = _funMap.begin(); it != _funMap.end(); it++) {
+            it->second->dumpDec(out, _modelName, 0);
+            it->second->dumpCode(out, 0);
+        }
+
+        out << "/****************************************************/\n";
     }
 
     // ---------------------------------------------------------------------- //
@@ -779,7 +783,6 @@ namespace ila
         uintmax_t mask = UINTMAX_MAX;
         mask = mask << width;
         mask = ~mask;
-        // TODO in hex
         std::string str = boost::lexical_cast<std::string>(mask);
         return str;
     }
