@@ -1,14 +1,17 @@
 #include <cppsimgen.hpp>
 #include <boost/lexical_cast.hpp>
+#include <bitset>
 
 namespace ila
 {
+    static std::string getMask(const int& width);
     // ---------------------------------------------------------------------- //
     int CppVar::varCnt = 0;
 
     std::string CppVar::boolStr = "bool";
-    std::string CppVar::bvStr   = "int32_t";
-    std::string CppVar::ubvStr  = "uint32_t";
+    std::string CppVar::bvStr   = "intmax_t";
+    std::string CppVar::ubvStr  = "uintmax_t";
+    std::string CppVar::sbvStr  = "intmax_t";
     std::string CppVar::memStr  = "type_mem";
     std::string CppVar::voidStr = "void";
 
@@ -40,7 +43,25 @@ namespace ila
         if (_isConst) {
             return _val;
         } else {
-            return (_name);
+            return _name;
+        }
+    }
+
+    std::string CppVar::exactUse() const
+    {
+        if (_isConst) {
+            return _val;
+        } else {
+            return ("(" + _name + " & " + getMask(_width) + ")");
+        }
+    }
+
+    std::string CppVar::unsignedUse() const
+    {
+        if (_isConst) {
+            return _val;
+        } else {
+            return ("((" + ubvStr + ")" + _name + " & " + getMask(_width) + ")");
         }
     }
 
@@ -78,7 +99,6 @@ namespace ila
             _isConst = false;
             _val = "";
         } 
-        // FIXME mem?
     }
 
     // ---------------------------------------------------------------------- //
@@ -110,10 +130,10 @@ namespace ila
         if (_ret != NULL) {
             out << _ret->_type << " " << _name << "(";
         } else {
-            out << "void " << _name << "(";
+            out << CppVar::voidStr << " "  << _name << "(";
         }
 
-        for (auto i = 0; i<_args.size(); i++) {
+        for (unsigned i = 0; i<_args.size(); i++) {
             if (i != 0) { out <<", "; }
             out << _args[i]->def();
         }
@@ -278,14 +298,14 @@ namespace ila
     {
         std::string code = "NOT SPECIFIED";
         // Update the states.
-        for (auto i = 0; i < f->_updates.size(); i++) {
+        for (unsigned i = 0; i < f->_updates.size(); i++) {
             code = f->_updates[i].first->use() + " = " + 
                    f->_updates[i].second->use() + ";";
             f->addBody(code);
         }
         // Return the value.
         if (f->_ret != NULL) {
-            code = "return " + f->_ret->use();
+            code = "return " + f->_ret->use() + ";";
             f->addBody(code);
         } else {
             code = "return;";
@@ -297,16 +317,17 @@ namespace ila
     // Export all code to the output stream.
     void CppSimGen::exportAll(std::ostream& out) const
     {
-        // TODO Better option: declare const outside update functions.
+        // TODO Declare const mem outside update functions.
 
         // Include headers
-        out << "#include <map.h>;\n";
+        out << "#include <map>\n";
+        out << "#include <stdint.h>\n";
 
         // Mem type class
         defMemClass(out);
 
         // Model class prolog
-        out << "\nclass " <<  _modelName << " {\n" 
+        out << "\nclass " <<  _modelName << "\n" 
             << "{\n\n";
         
         // Comments: Node name and cpp var name mapping.
@@ -338,7 +359,7 @@ namespace ila
         for (auto it = _funMap.begin(); it != _funMap.end(); it++) {
             it->second->dumpDef(out);
             it->second->dumpCode(out);
-            out << "\t}\n";
+            out << "\t};\n";
         }
 
         // Model class epilog
@@ -348,6 +369,7 @@ namespace ila
         out << "int main(int argc, char* argv[])\n"
             << "{\n"
             << "\t// TODO\n"
+            << "\t" << _modelName << " mod;\n" 
             << "\treturn 0;\n"
             << "}\n";
 
@@ -404,36 +426,31 @@ namespace ila
                 code = var->def() + " = !" + 
                        arg0->use() + " || " + arg1->use() + ";";
             } else if (n->op == BoolOp::Op::SLT) {
-                code = var->def() + " = " + 
-                       arg0->use() + " < " + arg1->use() + ";";
+                // TODO
             } else if (n->op == BoolOp::Op::SGT) {
-                code = var->def() + " = " + 
-                       arg0->use() + " > " + arg1->use() + ";";
+                // TODO
             } else if (n->op == BoolOp::Op::SLE) {
-                code = var->def() + " = " + 
-                       arg0->use() + " <= " + arg1->use() + ";";
+                // TODO
             } else if (n->op == BoolOp::Op::SGE) {
-                code = var->def() + " = " + 
-                       arg0->use() + " >= " + arg1->use() + ";";
+                // TODO
             } else if (n->op == BoolOp::Op::ULT) {
-                // TODO Change to type str
-                code = var->def() + " = (" + CppVar::ubvStr + ")" + 
-                       arg0->use() + " < (unsigned)" + arg1->use() + ";";
+                code = var->def() + " = " + 
+                       arg0->unsignedUse() + " < " + arg1->unsignedUse() + ";";
             } else if (n->op == BoolOp::Op::UGT) {
-                code = var->def() + " = (unsigned)" + 
-                       arg0->use() + " > (unsigned)" + arg1->use() + ";";
+                code = var->def() + " = " + 
+                       arg0->unsignedUse() + " > " + arg1->unsignedUse() + ";";
             } else if (n->op == BoolOp::Op::ULE) {
-                code = var->def() + " = (unsigned)" + 
-                       arg0->use() + " <= (unsigned)" + arg1->use() + ";";
+                code = var->def() + " = " + 
+                       arg0->unsignedUse() + " <= " + arg1->unsignedUse() + ";";
             } else if (n->op == BoolOp::Op::UGE) {
-                code = var->def() + " = (unsigned)" + 
-                       arg0->use() + " >= (unsigned)" + arg1->use() + ";";
+                code = var->def() + " = " + 
+                       arg0->unsignedUse() + " >= " + arg1->unsignedUse() + ";";
             } else if (n->op == BoolOp::Op::EQUAL) {
                 code = var->def() + " = (" + 
-                       arg0->use() + " == " + arg1->use() + ");";
+                       arg0->unsignedUse() + " == " + arg1->unsignedUse() + ");";
             } else if (n->op == BoolOp::Op::DISTINCT) {
                 code = var->def() + " = (" + 
-                       arg0->use() + " != " + arg1->use() + ");";
+                       arg0->unsignedUse() + " != " + arg1->unsignedUse() + ");";
             }
             _curFun->addBody(code);
         //// Ternary ////
@@ -479,43 +496,102 @@ namespace ila
             } else if (n->op == BitvectorOp::Op::LROTATE) {
                 // TODO
             } else if (n->op == BitvectorOp::Op::RROTATE) {
+                // TODO
             } else if (n->op == BitvectorOp::Op::Z_EXT) {
+                // FIXME
+                //var->_type = CppVar::bvStr;
+                //code = var->def() + " = " + arg0->unsignedUse() + ";";
             } else if (n->op == BitvectorOp::Op::S_EXT) {
+                // FIXME
+                //var->_type = CppVar::sbvStr;
+                //code = var->def() + " = " + arg0->signedUse() + ";";
             } else if (n->op == BitvectorOp::Op::EXTRACT) {
+                int par0 = n->param(0);
+                int par1 = n->param(1);
+                std::string r = boost::lexical_cast<std::string>(par0);
+                // (x >> r) & 0xfff..(-r)
+                code = var->def() + " = (" + arg0->use() + " >> " + r +
+                       ") & " + getMask(par1-par0) + ";";
             }
-            _curFun->addBody(code);
         //// Binary ////
         } else if (n->op >= BitvectorOp::Op::ADD &&
                    n->op <= BitvectorOp::Op::READMEM) {
             CppVar* arg0 = findVar(*_curVarMap, n->arg(0)->name);
             CppVar* arg1 = findVar(*_curVarMap, n->arg(1)->name);
             if (n->op == BitvectorOp::Op::ADD) {
-                code = "";
+                code = var->def() + " = " + 
+                       arg0->use() + " + " + arg1->use() + ";";
             } else if (n->op == BitvectorOp::Op::SUB) {
+                code = var->def() + " = " + 
+                       arg0->use() + " - " + arg1->use() + ";";
             } else if (n->op == BitvectorOp::Op::AND) {
+                code = var->def() + " = " + 
+                       arg0->use() + " & " + arg1->use() + ";";
             } else if (n->op == BitvectorOp::Op::OR) {
+                code = var->def() + " = " + 
+                       arg0->use() + " | " + arg1->use() + ";";
             } else if (n->op == BitvectorOp::Op::XOR) {
+                code = var->def() + " = " + 
+                       arg0->use() + " ^ " + arg1->use() + ";";
             } else if (n->op == BitvectorOp::Op::XNOR) {
+                code = var->def() + " = ~(" + 
+                       arg0->use() + " ^ " + arg1->use() + ");";
             } else if (n->op == BitvectorOp::Op::NAND) {
+                code = var->def() + " = ~(" + 
+                       arg0->use() + " & " + arg1->use() + ");";
             } else if (n->op == BitvectorOp::Op::NOR) {
+                code = var->def() + " = ~(" + 
+                       arg0->use() + " | " + arg1->use() + ");";
             } else if (n->op == BitvectorOp::Op::SDIV) {
+                // TODO
             } else if (n->op == BitvectorOp::Op::UDIV) {
+                code = var->def() + " = " + 
+                       arg0->unsignedUse() + " / " + arg1->unsignedUse() + ";";
             } else if (n->op == BitvectorOp::Op::SREM) {
+                // TODO
             } else if (n->op == BitvectorOp::Op::UREM) {
+                // TODO
             } else if (n->op == BitvectorOp::Op::SMOD) {
+                code = var->def() + " = " + 
+                       arg0->use() + " % " + arg1->use() + ";";
             } else if (n->op == BitvectorOp::Op::SHL) {
+                code = var->def() + " = " + 
+                       arg0->use() + " << " + arg1->unsignedUse() + ";";
             } else if (n->op == BitvectorOp::Op::LSHR) {
+                code = var->def() + " = " + 
+                       arg0->unsignedUse() + " >> " + arg1->unsignedUse() + ";";
             } else if (n->op == BitvectorOp::Op::ASHR) {
+                code = var->def() + " = " + 
+                       arg0->use() + " >> " + arg1->use() + ";";
             } else if (n->op == BitvectorOp::Op::MUL) {
+                code = var->def() + " = " + 
+                       arg0->use() + " * " + arg1->use() + ";";
             } else if (n->op == BitvectorOp::Op::CONCAT) {
+                std::string w = boost::lexical_cast<std::string>(arg1->_width);
+                // |arg0| << arg1.width + |arg1|
+                code = var->def() + " = " + 
+                       arg0->unsignedUse() + " << " + w + 
+                       " + " + arg1->unsignedUse();
             } else if (n->op == BitvectorOp::Op::GET_BIT) {
+                code = var->def() + " = (" + 
+                       arg0->use() + " >> " + arg1->use() + ") & 0x1;";
             } else if (n->op == BitvectorOp::Op::READMEM) {
+                code = var->def() + " = " + 
+                       arg0->use() + ".rd(" + arg1->use() + ");";
             }
-            _curFun->addBody(code);
         //// Ternary ////
         } else if (n->op >= BitvectorOp::Op::IF) {
+            CppVar* arg0 = findVar(*_curVarMap, n->arg(0)->name);
+            CppVar* arg1 = findVar(*_curVarMap, n->arg(1)->name);
+            CppVar* arg2 = findVar(*_curVarMap, n->arg(2)->name);
+            code = var->def() + " = (" + arg0->use() + ") ? " +
+                   arg1->use() + " : " + arg2->use() + ";";
         } else {
             ILA_ASSERT(false, "Unknown bool op.");
+        }
+
+        if (code != "") {
+            _curFun->addBody(code);
         }
         return var;
     }
@@ -530,8 +606,9 @@ namespace ila
 
     CppVar* CppSimGen::getMemConstCpp(const MemConst* n)
     {
+        // TODO
         CppVar* var = new CppVar(n);
-        std::string code = var->def() + ";";
+        std::string code = var->def() + " NOT DONE;";
         _curFun->addBody(code);
         setMemValue(var, n->memvalues);
         return var;
@@ -547,24 +624,81 @@ namespace ila
     // ---------------------------------------------------------------------- //
     void CppSimGen::defMemClass(std::ostream& out) const
     {
-        // TODO
         /*
-        template <class T>
-        class type_mem
-        {
-        private:
-            std::map<int, T> _map;
-            T _def_val;
-        public: 
-            type_mem(T def = 0)
-                : _def_val(def)
+            class type_mem
             {
-            }
-            ~type_mem() {}
+            private:
+                std::map<uintmax_t, uintmax_t> _map;
+                uintmax_t _def_val;
+            public:
+                type_mem(uintmax_t def = 0)
+                    : _def_val(def)
+                {
+                }
+                ~type_mem() {}
+                             
+                void setDef(uintmax_t def)
+                {
+                    _def_val = def;
+                }
 
-            ...
-        };
+                void wr(uintmax_t addr, uintmax_t data)
+                {
+                    if (data == _def_val) {
+                        _map.erase(addr);
+                    } else {
+                        _map[addr] = data;
+                    }
+                }
+
+                uintmax_t rd(uintmax_t addr)
+                {
+                    std::map<uintmax_t, uintmax_t>::iterator it = _map.find(addr);
+                    if (it == _map.end()) {
+                        return _def_val;
+                    } else {
+                        return _map[addr];
+                    }
+                }
+            };
         */
+        out << "\n";
+        out << "class type_mem\n";
+        out << "{\n";
+        out << "private:\n";
+        out << "\tstd::map<uintmax_t, uintmax_t> _map;\n";
+        out << "\tuintmax_t _def_val;\n";
+        out << "public:\n";
+        out << "\ttype_mem(uintmax_t def = 0)\n";
+        out << "\t\t: _def_val(def)\n";
+        out << "\t{\n";
+        out << "\t}\n";
+        out << "\t~type_mem() {}\n";
+        out << "\n";
+        out << "\tvoid setDef(uintmax_t def)\n";
+        out << "\t{\n";
+        out << "\t\t_def_val = def;\n";
+        out << "\t}\n";
+        out << "\n";
+        out << "\tvoid wr(uintmax_t addr, uintmax_t data)\n";
+        out << "\t{\n";
+        out << "\t\tif (data == _def_val) {\n";
+        out << "\t\t\t_map.erase(addr);\n";
+        out << "\t\t} else {\n";
+        out << "\t\t\t_map[addr] = data;\n";
+        out << "\t\t}\n";
+        out << "\t}\n";
+        out << "\n";
+        out << "\tuintmax_t rd(uintmax_t addr)\n";
+        out << "\t{\n";
+        out << "\t\tstd::map<uintmax_t, uintmax_t>::iterator it = _map.find(addr);\n";
+        out << "\t\tif (it == _map.end()) {\n";
+        out << "\t\t\treturn _def_val;\n";
+        out << "\t\t} else {\n";
+        out << "\t\t\treturn _map[addr];\n";
+        out << "\t\t}\n";
+        out << "\t}\n";
+        out << "};\n";
     }
 
     // ---------------------------------------------------------------------- //
@@ -599,6 +733,17 @@ namespace ila
         auto it = mp.find(name);
         ILA_ASSERT(it != mp.end(), "Variable " + name + " not defined yet.");
         return it->second;
+    }
+
+    static std::string getMask(const int& width)
+    {
+        ILA_ASSERT(width <= (int)sizeof(intmax_t), "Width exceed max length.");
+        uintmax_t mask = UINTMAX_MAX;
+        mask = mask << width;
+        mask = ~mask;
+        // TODO in hex?
+        std::string str = boost::lexical_cast<std::string>(mask);
+        return str;
     }
 
 }

@@ -21,6 +21,7 @@ namespace ila
         static std::string boolStr;
         static std::string bvStr;
         static std::string ubvStr;
+        static std::string sbvStr;
         static std::string memStr;
         static std::string voidStr;
 
@@ -46,6 +47,12 @@ namespace ila
 
         // Use variable, ex. " r0"
         std::string use() const;
+        
+        // Use variable as unsigned.
+        std::string unsignedUse() const;
+
+        // Use the exact length variable.
+        std::string exactUse() const;
 
     private:
         void init(nptr_t n);
@@ -165,7 +172,7 @@ namespace ila
         CppVar* getMemVarCpp(const MemVar* n);
         // Convert a memory const into cpp code.
         CppVar* getMemConstCpp(const MemConst* n);
-        // Convert a memory write into cpp code.
+        // Convert a memory op into cpp code.
         CppVar* getMemOpCpp(const MemOp* n);
 
     private:
