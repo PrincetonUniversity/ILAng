@@ -193,7 +193,7 @@ namespace ila
 
         const MemVar* memvar = NULL;
         const MemConst* memconst = NULL;
-        const MemWr*  memwr = NULL;
+        const MemOp*  memop = NULL;
 
         CppVar* res = NULL;
 
@@ -216,8 +216,8 @@ namespace ila
             res = getMemVarCpp(memvar);
         } else if ((memconst = dynamic_cast<const MemConst*>(n))) {
             res = getMemConstCpp(memconst);
-        } else if ((memwr = dynamic_cast<const MemWr*>(n))) {
-            res = getMemWrCpp(memwr);
+        } else if ((memop = dynamic_cast<const MemOp*>(n))) {
+            res = getMemOpCpp(memop);
         } else {
             ILA_ASSERT(false, "Unknown node type.");
         }
@@ -537,7 +537,7 @@ namespace ila
         return var;
     }
 
-    CppVar* CppSimGen::getMemWrCpp(const MemWr* n)
+    CppVar* CppSimGen::getMemOpCpp(const MemOp* n)
     {
         // TODO
         CppVar* var = new CppVar(n);

@@ -76,7 +76,7 @@ namespace ila
 
         const MemVar* memvar = NULL;
         const MemConst* memconst = NULL;
-        const MemWr* memwr = NULL;
+        const MemOp* memop = NULL;
         const MemChoice* mchoiceop = NULL;
 
         //// bools ////
@@ -135,10 +135,10 @@ namespace ila
         } else if ((memconst = dynamic_cast<const MemConst*>(n))) {
             nptr_t nptr(n->clone());
             rwmap.insert({n, nptr});
-        } else if ((memwr = dynamic_cast<const MemWr*>(n))) {
+        } else if ((memop = dynamic_cast<const MemOp*>(n))) {
             nptr_vec_t args;
-            getNewArgs(memwr, args);
-            nptr_t nptr(new MemWr(args[0], args[1], args[2]));
+            getNewArgs(memop, args);
+            nptr_t nptr(new MemOp(memop->op, args[0], args[1], args[2]));
             rwmap.insert({n, nptr});
         } else if ((mchoiceop = dynamic_cast<const MemChoice*>(n))) {
             nptr_vec_t args;

@@ -24,7 +24,7 @@ namespace ila
 
         const MemVar* memvar = NULL;
         const MemConst* memconst = NULL;
-        const MemWr* memwr = NULL;
+        const MemOp* memop = NULL;
 
         //// bools ////
         if ((boolvar = dynamic_cast<const BoolVar*>(n))) {
@@ -69,12 +69,13 @@ namespace ila
                 << " " << memconst->type.dataWidth << " ";
             exportMemValues(out, memconst->memvalues);
             out << " )";
-        } else if ((memwr = dynamic_cast<const MemWr*>(n))) {
-            out << "( memWr " << memwr->name;
+        } else if ((memop = dynamic_cast<const MemOp*>(n))) {
+            out << "( memOp " << memop->name;
+            out << memop->operatorNames[memop->op] << " ";
             //<< type.addrWidth << " " << type.dataWidth << " ";
-            for (unsigned i = 0; i != memwr->nArgs(); i++) {
+            for (unsigned i = 0; i != memop->nArgs(); i++) {
                 out << " ";
-                exportAst(out, memwr->arg(i).get());
+                exportAst(out, memop->arg(i).get());
             }
             out << ")";
         } else {
@@ -242,14 +243,16 @@ namespace ila
                 mapInsert(name, nptr);
             }
             return nptr;
-        } else if (nodeType == "memWr") {
-            nptr_t mem  = importAst(c, in);
-            nptr_t addr = importAst(c, in);
-            nptr_t data = importAst(c, in);
+        } else if (nodeType == "memOp") {
+            std::string opname = next(in);
+            MemOp::Op op = getMemOpType(opname);
+            nptr_t a0  = importAst(c, in);
+            nptr_t a1 = importAst(c, in);
+            nptr_t a2 = importAst(c, in);
             ILA_ASSERT(nextChar(in) == ')', "Miss )");
             nptr_t nptr = mapFind(name);
             if (nptr == NULL) {
-                nptr = nptr_t(new MemWr(mem, addr, data));
+                nptr = nptr_t(new MemOp(op, a0, a1, a2));
                 mapInsert(name, nptr);
             }
             return nptr;
@@ -298,6 +301,19 @@ namespace ila
     void ImExport::mapInsert(const std::string& name, nptr_t nptr)
     {
         _nodeMap.insert(std::pair<std::string, nptr_t>(name, nptr));
+    }
+
+    MemOp::Op ImExport::getMemOpType(const std::string& opName) const
+    {
+        for (int op =  (int) MemOp::INVALID; 
+                 op <= (int) MemOp::ITE;
+                 op++)
+        {
+            if (opName == MemOp::operatorNames[op]) {
+                return static_cast<MemOp::Op>(op);
+            }
+        }
+        return MemOp::INVALID;
     }
 
     BitvectorOp::Op ImExport::getBvOpType(const std::string& opName) const

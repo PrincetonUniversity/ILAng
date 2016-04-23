@@ -288,7 +288,8 @@ namespace ila
     NodeRef* NodeRef::store(NodeRef* mem, NodeRef* addr, NodeRef* data)
     {
         if (!checkAbstractions(mem, addr, data)) return NULL;
-        return new NodeRef(new MemWr(mem->node, addr->node, data->node));
+        return new NodeRef(new MemOp(
+            MemOp::STORE, mem->node, addr->node, data->node));
     }
 
     NodeRef* NodeRef::logicalXnor(NodeRef* l, NodeRef* r)
@@ -443,7 +444,7 @@ namespace ila
 
     NodeRef* NodeRef::ite(NodeRef* cond, NodeRef* trueExp, NodeRef* falseExp)
     {
-        return _triOp(BoolOp::IF, BitvectorOp::IF, cond, trueExp, falseExp);
+        return _triOp(BoolOp::IF, BitvectorOp::IF, MemOp::ITE, cond, trueExp, falseExp);
     }
 
     NodeRef* NodeRef::choice2(const std::string& name, NodeRef* e1, NodeRef* e2)
@@ -791,7 +792,7 @@ namespace ila
         }
     }
 
-    NodeRef* NodeRef::_triOp(BoolOp::Op boolOp, BitvectorOp::Op bvOp,
+    NodeRef* NodeRef::_triOp(BoolOp::Op boolOp, BitvectorOp::Op bvOp, MemOp::Op memOp,
                              NodeRef* cond, NodeRef* trueExp, NodeRef* falseExp)
     {
         if (!checkAbstractions(cond, trueExp, falseExp)) return NULL;
@@ -808,9 +809,14 @@ namespace ila
             args_.push_back(trueExp->node);
             args_.push_back(falseExp->node);
             if (trueExp->node->type.isBool() && boolOp != BoolOp::INVALID) {
-                return new NodeRef( new BoolOp(normCond->node->ctx, boolOp, args_) );
+                return new NodeRef( 
+                    new BoolOp(normCond->node->ctx, boolOp, args_));
             } else if (trueExp->node->type.isBitvector() && bvOp != BitvectorOp::INVALID) {
-                return new NodeRef( new BitvectorOp(normCond->node->ctx, bvOp, args_) );
+                return new NodeRef( 
+                    new BitvectorOp(normCond->node->ctx, bvOp, args_));
+            } else if (trueExp->node->type.isMem() && memOp == MemOp::ITE) {
+                return new NodeRef( 
+                    new MemOp(memOp, cond->node, trueExp->node, falseExp->node));
             } else {
                 throw PyILAException(PyExc_TypeError, "Incorrect type for ITE");
                 return NULL;

@@ -200,7 +200,7 @@ namespace ila
         static NodeRef* _binOpR(BitvectorOp::Op op, int l, NodeRef* r);
         static NodeRef* _cmpOp(BoolOp::Op op, NodeRef* l, NodeRef* r, bool bvtype);
         static NodeRef* _cmpOp(BoolOp::Op op, NodeRef* l, int r);
-        static NodeRef* _triOp(BoolOp::Op boolOp, BitvectorOp::Op bvOp,
+        static NodeRef* _triOp(BoolOp::Op boolOp, BitvectorOp::Op bvOp, MemOp::Op memOp,
                             NodeRef* arg0, NodeRef* arg1, NodeRef* arg2);
         static NodeRef* _extractOp(const NodeRef* bv, int beg, int end);
         static NodeRef* _choice(const std::string& name, 
