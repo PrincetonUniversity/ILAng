@@ -305,7 +305,7 @@ namespace ila
         }
         // Return the value.
         if (f->_ret != NULL) {
-            code = "return " + f->_ret->use();
+            code = "return " + f->_ret->use() + ";";
             f->addBody(code);
         } else {
             code = "return;";
@@ -320,7 +320,8 @@ namespace ila
         // TODO Declare const mem outside update functions.
 
         // Include headers
-        out << "#include <map.h>;\n";
+        out << "#include <map>\n";
+        out << "#include <stdint.h>\n";
 
         // Mem type class
         defMemClass(out);
@@ -358,7 +359,7 @@ namespace ila
         for (auto it = _funMap.begin(); it != _funMap.end(); it++) {
             it->second->dumpDef(out);
             it->second->dumpCode(out);
-            out << "\t}\n";
+            out << "\t};\n";
         }
 
         // Model class epilog
@@ -368,6 +369,7 @@ namespace ila
         out << "int main(int argc, char* argv[])\n"
             << "{\n"
             << "\t// TODO\n"
+            << "\t" << _modelName << " mod;\n" 
             << "\treturn 0;\n"
             << "}\n";
 

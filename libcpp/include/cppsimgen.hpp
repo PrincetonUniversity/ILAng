@@ -172,7 +172,7 @@ namespace ila
         CppVar* getMemVarCpp(const MemVar* n);
         // Convert a memory const into cpp code.
         CppVar* getMemConstCpp(const MemConst* n);
-        // Convert a memory write into cpp code.
+        // Convert a memory op into cpp code.
         CppVar* getMemOpCpp(const MemOp* n);
 
     private:
