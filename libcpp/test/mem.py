@@ -86,7 +86,8 @@ def main():
     r2 = ila.store(iram, addr, iram[addr]+2)
     r3 = ila.ite(addr != 0, r1, iram)
     rp = ila.choice('rp', r1, r2, r3)
-    print sys.syn_elem("bar", rp, bar)
+    expr =  sys.syn_elem("bar", rp, bar)
+    assert sys.areEqual(expr, r3)
 
 if __name__ == '__main__':
     main()
