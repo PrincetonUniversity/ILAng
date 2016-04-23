@@ -9,8 +9,12 @@ namespace ila
     const char* Synthesizer::suffix2 = ":2";
 
     // ---------------------------------------------------------------------- //
-    void SupportVars::operator() (const Node* n)
+    void SupportVars::dfs(const Node* n)
     {
+        if (visited.find(n) != visited.end())  {
+            return;
+        }
+
         const BoolVar* boolvar = NULL; 
         const BitvectorVar* bvvar = NULL;
         const BitvectorOp* bvop = NULL;
@@ -30,6 +34,13 @@ namespace ila
                     canFixUp = false;
                 }
             }
+            // don't recurse further.
+            return;
+        }
+
+
+        for (unsigned i = 0, cnt = n->nArgs(); i != cnt; i++) {
+            dfs(n->arg(i).get());
         }
     }
 
@@ -77,16 +88,24 @@ namespace ila
             r2.addRewrite(bv, nptr_t(new BitvectorVar(
                 bv->context(), "$" + bv->name+"__2", bv->type.bitWidth)));
         }
+        int i=0;
         for (auto&& mi : rdexprs) {
-            r1.addRewrite(mi.rddata, nptr_t(new BitvectorVar(
-                mi.rddata->context(), mi.rddata->name+"__1", 
-                mi.rddata->type.bitWidth)));
-            r2.addRewrite(mi.rddata, nptr_t(new BitvectorVar(
-                mi.rddata->context(), mi.rddata->name+"__2", 
-                mi.rddata->type.bitWidth)));
+            nptr_t fresh_var(new BitvectorVar(
+                mi.mem->context(),
+                ("$fresh"+boost::lexical_cast<std::string>(i)).c_str(), 
+                mi.mem->type.dataWidth));
+            nptr_t mem(mi.mem->clone());
+            nptr_t addr(mi.addr->clone());
+            nptr_t mem_p(new MemOp(MemOp::STORE, mem, addr, fresh_var));
+            r1.addRewrite(mi.mem, mem_p);
+            i++;
         }
         auto rwex1 = r1.rewrite(ex.get());
         auto rwex2 = r2.rewrite(ex.get());
+
+        // std::cout << "ex: " << *ex.get() << std::endl;
+        // std::cout << "r1: " << *rwex1.get() << std::endl;
+        // std::cout << "r2: " << *rwex2.get() << std::endl;
 
         // now check using smt.
         Z3ExprAdapter adapter(c, "");
@@ -418,7 +437,7 @@ namespace ila
     DistInput* DITree::getDistInput(const z3::expr& y)
     {
         if (mode == INSERT) {
-            // std::cout << "getDI: INSERT mode." << std::endl;
+            std::cout << "getDI: INSERT mode." << std::endl;
 
             // run the SMT solver.
             z3::expr assumps[1] = { y };
@@ -430,11 +449,11 @@ namespace ila
                 dtree_ptr_t dnode(new DITreeNode(
                     syn.abs, syn.c1, m, syn.decodeSupport));
                 *insert_ptr = dnode;
-                // std::cout << "getDI: DI: " << *dnode->inputs << std::endl;
+                std::cout << "getDI: DI: " << *dnode->inputs << std::endl;
                 return dnode->inputs.get();
             } else {
                 // tree is empty.
-                // std::cout << "getDI: No more DIs." << std::endl;
+                std::cout << "getDI: No more DIs." << std::endl;
                 if (reuseModels) {
                     dtree_ptr_t dnode(new DITreeNode());
                     *insert_ptr = dnode;
@@ -442,7 +461,7 @@ namespace ila
                 return NULL;
             }
         } else {
-            // std::cout << "getDI: REPLAY mode." << std::endl;
+            std::cout << "getDI: REPLAY mode." << std::endl;
             DistInput* di = replay_ptr->inputs.get();
             if (di != NULL) {
                 z3::check_result r = syn.Sp.check();
@@ -450,9 +469,9 @@ namespace ila
                 z3::model m = syn.Sp.get_model();
                 // std::cout << "getDI: prefixUp DI: " << *di << std::endl;
                 di->fixUp(syn.decodeSupport, syn.c1, m);
-                // std::cout << "getDI: DI: " << *di << std::endl;
+                std::cout << "getDI: DI: " << *di << std::endl;
             } else {
-                // std::cout << "getDI: end of trail." << std::endl;
+                std::cout << "getDI: end of trail." << std::endl;
             }
             return di;
         }
@@ -461,8 +480,8 @@ namespace ila
     void DITree::setOutput(const simout_ptr_t& out)
     {
         if (mode == REPLAY) {
-            // std::cout << "setOut: REPLAY mode." << std::endl;
-            // std::cout << "setOut: out=" << *out << std::endl;
+            std::cout << "setOut: REPLAY mode." << std::endl;
+            std::cout << "setOut: out=" << *out << std::endl;
 
             bool found = false;
             // try to find an existing output which matches.
@@ -477,8 +496,8 @@ namespace ila
             if (!found) {
                 // not found, so switch to insert mode.
                 mode = INSERT;
-                // std::cout << "setOut: switch to insert mode as output not found." 
-                //           << std::endl;
+                std::cout << "setOut: switch to insert mode as output not found." 
+                          << std::endl;
                 int index = replay_ptr->outputs.size();
                 replay_ptr->outputs.push_back({out, dtree_ptr_t()});
                 insert_ptr = &replay_ptr->outputs[index].second;
@@ -494,8 +513,8 @@ namespace ila
                 replay_ptr.reset();
             }
         } else {
-            // std::cout << "setOut: INSERT mode." << std::endl;
-            // std::cout << "setOut: out=" << *out << std::endl;
+            std::cout << "setOut: INSERT mode." << std::endl;
+            std::cout << "setOut: out=" << *out << std::endl;
 
             // now we are in INSERT mode.
             ILA_ASSERT ((*insert_ptr)->outputs.size() == 0, 
@@ -557,7 +576,7 @@ namespace ila
         decodeSupport.clear();
         // and initialize it again.
         for (auto de : abs.decodeExprs) {
-            de->depthFirstVisit(decodeSupport);
+            decodeSupport.dfs(de.get());
         }
         decodeSupport.uniquifyRdExprs();
 
@@ -572,6 +591,7 @@ namespace ila
         nptr_t ex = var;
         bool nodep = !decodeSupport.depCheck(c, Sp, next);
         ditree.reset(nodep);
+        std::cout << "reuseModels: " << (int) nodep << std::endl;
         for (auto de : abs.decodeExprs) {
             std::cout << "decode: " << *de.get() << std::endl;
             ditree.rewind();

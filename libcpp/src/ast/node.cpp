@@ -145,11 +145,11 @@ namespace ila
         args.push_back(t);
         args.push_back(f);
         if (t->type.isBool()) {
-            return nptr_t(
-                new BoolOp(cond->context(), BoolOp::IF, args));
+            return nptr_t(new BoolOp(cond->context(), BoolOp::IF, args));
         } else if (t->type.isBitvector()) {
-            return nptr_t(
-                new BitvectorOp(cond->context(), BitvectorOp::IF, args));
+            return nptr_t(new BitvectorOp(cond->context(), BitvectorOp::IF, args));
+        } else if (t->type.isMem()) {
+            return nptr_t(new MemOp(MemOp::ITE, cond, t, f));
         } else {
             ILA_ASSERT(false, "type not implemented.");
             return NULL;

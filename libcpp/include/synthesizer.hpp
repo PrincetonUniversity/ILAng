@@ -23,6 +23,10 @@ namespace ila
     struct SupportVars
     {
         bool canFixUp;
+        bool enumRdExprVars;
+
+        // set of visited nodes.
+        std::set<const Node*> visited;
 
         // set of booleans.
         std::set<const BoolVar*> bools;
@@ -44,7 +48,7 @@ namespace ila
         std::vector<mem_info_t> rdexprs;
 
         // visitor function.
-        void operator() (const Node* n);
+        void dfs(const Node* n);
         // reset.
         void clear();
         // make the rdexprs unique.
@@ -53,7 +57,7 @@ namespace ila
         // check if this expression depends on the support.
         bool depCheck(z3::context& c, z3::solver& S, const nptr_t& ex);
 
-        SupportVars() : canFixUp(true) {}
+        SupportVars() : canFixUp(true), enumRdExprVars(false) {}
     };
 
     // ---------------------------------------------------------------------- //
