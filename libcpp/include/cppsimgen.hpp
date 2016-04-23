@@ -48,10 +48,11 @@ namespace ila
         // Use variable, ex. " r0"
         std::string use() const;
         
-        // Use variable as signed.
-        std::string signedUse() const;
         // Use variable as unsigned.
         std::string unsignedUse() const;
+
+        // Use the exact length variable.
+        std::string exactUse() const;
 
     private:
         void init(nptr_t n);
