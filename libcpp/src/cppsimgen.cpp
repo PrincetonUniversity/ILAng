@@ -7,8 +7,9 @@ namespace ila
     int CppVar::varCnt = 0;
 
     std::string CppVar::boolStr = "bool";
-    std::string CppVar::bvStr   = "int32_t";
-    std::string CppVar::ubvStr  = "uint32_t";
+    std::string CppVar::bvStr   = "intmax_t";
+    std::string CppVar::ubvStr  = "uintmax_t";
+    std::string CppVar::sbvStr  = "intmax_t";
     std::string CppVar::memStr  = "type_mem";
     std::string CppVar::voidStr = "void";
 
@@ -40,7 +41,25 @@ namespace ila
         if (_isConst) {
             return _val;
         } else {
-            return (_name);
+            return _name;
+        }
+    }
+
+    std::string CppVar::signedUse() const
+    {
+        if (_isConst) {
+            return _val;
+        } else {
+            return ("(" + sbvStr + ")" + _name);
+        }
+    }
+
+    std::string CppVar::unsignedUse() const
+    {
+        if (_isConst) {
+            return _val;
+        } else {
+            return ("(" + ubvStr + ")" + _name);
         }
     }
 
@@ -110,10 +129,10 @@ namespace ila
         if (_ret != NULL) {
             out << _ret->_type << " " << _name << "(";
         } else {
-            out << "void " << _name << "(";
+            out << CppVar::voidStr << " "  << _name << "(";
         }
 
-        for (auto i = 0; i<_args.size(); i++) {
+        for (unsigned i = 0; i<_args.size(); i++) {
             if (i != 0) { out <<", "; }
             out << _args[i]->def();
         }
@@ -278,7 +297,7 @@ namespace ila
     {
         std::string code = "NOT SPECIFIED";
         // Update the states.
-        for (auto i = 0; i < f->_updates.size(); i++) {
+        for (unsigned i = 0; i < f->_updates.size(); i++) {
             code = f->_updates[i].first->use() + " = " + 
                    f->_updates[i].second->use() + ";";
             f->addBody(code);
@@ -405,29 +424,28 @@ namespace ila
                        arg0->use() + " || " + arg1->use() + ";";
             } else if (n->op == BoolOp::Op::SLT) {
                 code = var->def() + " = " + 
-                       arg0->use() + " < " + arg1->use() + ";";
+                       arg0->signedUse() + " < " + arg1->signedUse() + ";";
             } else if (n->op == BoolOp::Op::SGT) {
                 code = var->def() + " = " + 
-                       arg0->use() + " > " + arg1->use() + ";";
+                       arg0->signedUse() + " > " + arg1->signedUse() + ";";
             } else if (n->op == BoolOp::Op::SLE) {
                 code = var->def() + " = " + 
-                       arg0->use() + " <= " + arg1->use() + ";";
+                       arg0->signedUse() + " <= " + arg1->signedUse() + ";";
             } else if (n->op == BoolOp::Op::SGE) {
                 code = var->def() + " = " + 
-                       arg0->use() + " >= " + arg1->use() + ";";
+                       arg0->signedUse() + " >= " + arg1->signedUse() + ";";
             } else if (n->op == BoolOp::Op::ULT) {
-                // TODO Change to type str
-                code = var->def() + " = (" + CppVar::ubvStr + ")" + 
-                       arg0->use() + " < (unsigned)" + arg1->use() + ";";
+                code = var->def() + " = " + 
+                       arg0->unsignedUse() + " < " + arg1->unsignedUse() + ";";
             } else if (n->op == BoolOp::Op::UGT) {
-                code = var->def() + " = (unsigned)" + 
-                       arg0->use() + " > (unsigned)" + arg1->use() + ";";
+                code = var->def() + " = " + 
+                       arg0->unsignedUse() + " > " + arg1->unsignedUse() + ";";
             } else if (n->op == BoolOp::Op::ULE) {
-                code = var->def() + " = (unsigned)" + 
-                       arg0->use() + " <= (unsigned)" + arg1->use() + ";";
+                code = var->def() + " = " + 
+                       arg0->unsignedUse() + " <= " + arg1->unsignedUse() + ";";
             } else if (n->op == BoolOp::Op::UGE) {
-                code = var->def() + " = (unsigned)" + 
-                       arg0->use() + " >= (unsigned)" + arg1->use() + ";";
+                code = var->def() + " = " + 
+                       arg0->unsignedUse() + " >= " + arg1->unsignedUse() + ";";
             } else if (n->op == BoolOp::Op::EQUAL) {
                 code = var->def() + " = (" + 
                        arg0->use() + " == " + arg1->use() + ");";
@@ -467,6 +485,7 @@ namespace ila
     CppVar* CppSimGen::getBvOpCpp(const BitvectorOp* n)
     {
         CppVar* var = new CppVar(n);
+        uintmax_t mask = UINTMAX_MAX >> (sizeof(uintmax_t) - var->_width);
         std::string code = "bvOp NOT IMPLEMENTED.";
         //// Unary ////
         if (n->op >= BitvectorOp::Op::NEGATE && 
@@ -479,43 +498,92 @@ namespace ila
             } else if (n->op == BitvectorOp::Op::LROTATE) {
                 // TODO
             } else if (n->op == BitvectorOp::Op::RROTATE) {
+                // TODO
             } else if (n->op == BitvectorOp::Op::Z_EXT) {
+                // FIXME
+                //var->_type = CppVar::bvStr;
+                //code = var->def() + " = " + arg0->unsignedUse() + ";";
             } else if (n->op == BitvectorOp::Op::S_EXT) {
+                // FIXME
+                //var->_type = CppVar::sbvStr;
+                //code = var->def() + " = " + arg0->signedUse() + ";";
             } else if (n->op == BitvectorOp::Op::EXTRACT) {
+                int par0 = n->param(0);
+                int par1 = n->param(1);
+                int leftNum = (int)sizeof(uintmax_t) -1 - par1;
+                int rightNum = par0;
+                std::string l = boost::lexical_cast<std::string>(leftNum);
+                std::string r = boost::lexical_cast<std::string>(rightNum);
+                // (((x << l) >> l) >> r) << r)
+                code = var->def() + " = (((" + arg0->use() + 
+                       " << " + l + ") >> " + l + 
+                       ") >> " + r + ") << " + r + ");";
             }
-            _curFun->addBody(code);
         //// Binary ////
         } else if (n->op >= BitvectorOp::Op::ADD &&
                    n->op <= BitvectorOp::Op::READMEM) {
             CppVar* arg0 = findVar(*_curVarMap, n->arg(0)->name);
             CppVar* arg1 = findVar(*_curVarMap, n->arg(1)->name);
             if (n->op == BitvectorOp::Op::ADD) {
-                code = "";
+                code = var->def() + " = " + 
+                       arg0->use() + " + " + arg1->use() + ";";
             } else if (n->op == BitvectorOp::Op::SUB) {
+                code = var->def() + " = " + 
+                       arg0->use() + " - " + arg1->use() + ";";
             } else if (n->op == BitvectorOp::Op::AND) {
+                code = var->def() + " = " + 
+                       arg0->use() + " & " + arg1->use() + ";";
             } else if (n->op == BitvectorOp::Op::OR) {
+                code = var->def() + " = " + 
+                       arg0->use() + " | " + arg1->use() + ";";
             } else if (n->op == BitvectorOp::Op::XOR) {
+                code = var->def() + " = " + 
+                       arg0->use() + " ^ " + arg1->use() + ";";
             } else if (n->op == BitvectorOp::Op::XNOR) {
+                code = var->def() + " = ~(" + 
+                       arg0->use() + " ^ " + arg1->use() + ");";
             } else if (n->op == BitvectorOp::Op::NAND) {
+                code = var->def() + " = ~(" + 
+                       arg0->use() + " & " + arg1->use() + ");";
             } else if (n->op == BitvectorOp::Op::NOR) {
+                code = var->def() + " = ~(" + 
+                       arg0->use() + " | " + arg1->use() + ");";
             } else if (n->op == BitvectorOp::Op::SDIV) {
+                code = var->def() + " = " + 
+                       arg0->signedUse() + " / " + arg1->signedUse() + ";";
             } else if (n->op == BitvectorOp::Op::UDIV) {
+                code = var->def() + " = " + 
+                       arg0->use() + " / " + arg1->use() + ";";
             } else if (n->op == BitvectorOp::Op::SREM) {
+                // TODO
             } else if (n->op == BitvectorOp::Op::UREM) {
+                // TODO
             } else if (n->op == BitvectorOp::Op::SMOD) {
+                code = var->def() + " = " + 
+                       arg0->signedUse() + " % " + arg1->signedUse() + ";";
             } else if (n->op == BitvectorOp::Op::SHL) {
+                code = var->def() + " = " + 
+                       arg0->use() + " << " + arg1->unsignedUse() + ";";
             } else if (n->op == BitvectorOp::Op::LSHR) {
+                code = var->def() + " = " + 
+                       arg0->unsignedUse() + " >> " + arg1->unsignedUse() + ";";
             } else if (n->op == BitvectorOp::Op::ASHR) {
+                code = var->def() + " = " + 
+                       arg0->signedUse() + " >> " + arg1->unsignedUse() + ";";
             } else if (n->op == BitvectorOp::Op::MUL) {
             } else if (n->op == BitvectorOp::Op::CONCAT) {
             } else if (n->op == BitvectorOp::Op::GET_BIT) {
             } else if (n->op == BitvectorOp::Op::READMEM) {
             }
-            _curFun->addBody(code);
+
         //// Ternary ////
         } else if (n->op >= BitvectorOp::Op::IF) {
         } else {
             ILA_ASSERT(false, "Unknown bool op.");
+        }
+
+        if (code != "") {
+            _curFun->addBody(code);
         }
         return var;
     }

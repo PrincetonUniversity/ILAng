@@ -21,6 +21,7 @@ namespace ila
         static std::string boolStr;
         static std::string bvStr;
         static std::string ubvStr;
+        static std::string sbvStr;
         static std::string memStr;
         static std::string voidStr;
 
@@ -46,6 +47,11 @@ namespace ila
 
         // Use variable, ex. " r0"
         std::string use() const;
+        
+        // Use variable as signed.
+        std::string signedUse() const;
+        // Use variable as unsigned.
+        std::string unsignedUse() const;
 
     private:
         void init(nptr_t n);
