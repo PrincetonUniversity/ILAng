@@ -1,4 +1,5 @@
 import ila
+from collections import namedtuple
 
 class uc8051(object):
     def __init__(self):
@@ -98,45 +99,48 @@ class uc8051(object):
 
     def writeBit(self, bitaddr, bitval):
         # FIXME
-        msb1 = Equal(Extract(7, 7, bitaddr), BitVecVal(1, 1))
-        byteaddr = If(msb1, 
-            Concat(Extract(7, 3, bitaddr), BitVecVal(0, 3)), 
-            Add(ZeroExt(Extract(7, 3, bitaddr), 3), BitVecVal(32, 8)))
+        msb1 = bitaddr[7:7] == 1
+        byteaddr = ila.ite(msb1, 
+            ila.concat(bitaddr[7:3], self.model.const(0, 3)), 
+            ila.zero_extend(bitaddr, 8) + 32)
         byte = self.readDirect(byteaddr)
-        bitindex = ZeroExt(Extract(2, 0, bitaddr), 5)
-        # put a 0 in the right position with 1s elsewhere.
-        mask1 = Complement(LShift(BitVecVal(1, 8), bitindex))
-        # put the bit value in the correct position with 0s elsewhere
-        mask2 = LShift(ZeroExt(bitval, 7), bitindex)
-        byte_p = BVOr(BVAnd(mask1, byte), mask2)
+        bitindex = ila.zero_extend(bitaddr[2:0], 8)
+        mask1 = ~(self.model.const(1, 8) << bitindex)
+        mask2 = ila.zero_extend(bitval, 8) << bitindex
+        byte_p = (mask1 & byte) | mask2
         return self.writeDirect(byteaddr, byte_p)
 
     def writeDirect(self, addr, data):
         # FIXME
-        ctxp = self.clone()
-        ctxp.IRAM = If(Equal(Extract(7, 7, addr), BitVecVal(0, 1)), 
-            WriteMem(self.IRAM, addr, data), self.IRAM)
-        ctxp.P0   = If(Equal(addr, BitVecVal(0x80, 8)), data, self.P0)
-        ctxp.SP   = If(Equal(addr, BitVecVal(0x81, 8)), data, self.SP)
-        ctxp.DPL  = If(Equal(addr, BitVecVal(0x82, 8)), data, self.DPL)
-        ctxp.DPH  = If(Equal(addr, BitVecVal(0x83, 8)), data, self.DPH)
-        ctxp.PCON = If(Equal(addr, BitVecVal(0x87, 8)), data, self.PCON)
-        ctxp.TCON = If(Equal(addr, BitVecVal(0x88, 8)), data, self.TCON)
-        ctxp.TMOD = If(Equal(addr, BitVecVal(0x89, 8)), data, self.TMOD)
-        ctxp.TL0  = If(Equal(addr, BitVecVal(0x8A, 8)), data, self.TL0)
-        ctxp.TH0  = If(Equal(addr, BitVecVal(0x8C, 8)), data, self.TH0)
-        ctxp.TL1  = If(Equal(addr, BitVecVal(0x8B, 8)), data, self.TL1)
-        ctxp.TH1  = If(Equal(addr, BitVecVal(0x8D, 8)), data, self.TH1)
-        ctxp.P1   = If(Equal(addr, BitVecVal(0x90, 8)), data, self.P1)
-        ctxp.SCON = If(Equal(addr, BitVecVal(0x98, 8)), data, self.SCON)
-        ctxp.SBUF = If(Equal(addr, BitVecVal(0x99, 8)), data, self.SBUF)
-        ctxp.P2   = If(Equal(addr, BitVecVal(0xA0, 8)), data, self.P2)
-        ctxp.IE   = If(Equal(addr, BitVecVal(0xA8, 8)), data, self.IE)
-        ctxp.P3   = If(Equal(addr, BitVecVal(0xB0, 8)), data, self.P3)
-        ctxp.IP   = If(Equal(addr, BitVecVal(0xB8, 8)), data, self.IP)
-        ctxp.PSW  = If(Equal(addr, BitVecVal(0xD0, 8)), data, self.PSW)
-        ctxp.ACC  = If(Equal(addr, BitVecVal(0xE0, 8)), data, self.ACC)
-        ctxp.B    = If(Equal(addr, BitVecVal(0xF0, 8)), data, self.B)
-        return ctxp
+        fields = [ 
+            'iram', 'p0', 'sp', 'dpl', 'dph', 'pcon'
+            'tcon', 'tmod', 'tl0', 'th0', 'tl1', 'th1', 
+            'p1', 'scon', 'sbuf', 'p2', 'ie', 
+            'p3', 'ip', 'psw', 'acc', 'b'
+        ]
+        r = namedtuple('MemMapState', fields)
+        r.iram = ila.ite(addr[7:7] == 0, ila.store(self.iram, addr, data), self.iram)
+        r.p0   = ila.ite(addr == 0x80, data, self.p0)
+        r.sp   = ila.ite(addr == 0x81, data, self.sp)
+        r.dpl  = ila.ite(addr == 0x82, data, self.dpl)
+        r.dph  = ila.ite(addr == 0x83, data, self.dph)
+        r.pcon = ila.ite(addr == 0x87, data, self.pcon)
+        r.tcon = ila.ite(addr == 0x88, data, self.tcon)
+        r.tmod = ila.ite(addr == 0x89, data, self.tmod)
+        r.tl0  = ila.ite(addr == 0x8a, data, self.tl0)
+        r.th0  = ila.ite(addr == 0x8c, data, self.th0)
+        r.tl1  = ila.ite(addr == 0x8b, data, self.tl1)
+        r.th1  = ila.ite(addr == 0x8d, data, self.th1)
+        r.p1   = ila.ite(addr == 0x90, data, self.p1)
+        r.scon = ila.ite(addr == 0x98, data, self.scon)
+        r.sbuf = ila.ite(addr == 0x99, data, self.sbuf)
+        r.p2   = ila.ite(addr == 0xa0, data, self.p2)
+        r.ie   = ila.ite(addr == 0xa8, data, self.ie)
+        r.p3   = ila.ite(addr == 0xb0, data, self.p3)
+        r.ip   = ila.ite(addr == 0xb8, data, self.ip)
+        r.psw  = ila.ite(addr == 0xd0, data, self.psw)
+        r.acc  = ila.ite(addr == 0xe0, data, self.acc)
+        r.b    = ila.ite(addr == 0xf0, data, self.b)
+        return r
 
     

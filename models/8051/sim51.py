@@ -146,8 +146,8 @@ def extractIRAM(regs):
 
 def main():
     rom = ila.MemValues(16, 8, 0)
-    rom[0x800] = 0x01
-    rom[0x801] = 0x4d
+    rom[0x800] = 0x05
+    rom[0x801] = 0x00
     inputs = {
         'ACC':0x13,
         'B':0x0,
