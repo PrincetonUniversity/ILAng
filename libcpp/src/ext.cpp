@@ -5,12 +5,15 @@
 #include <util.hpp>
 #include <exception.hpp>
 #include <abstraction.hpp>
+#include <logging.hpp>
 
 using namespace boost::python;
 using namespace ila;
 
 BOOST_PYTHON_MODULE(ila)
 {
+    initLogging();
+
     // setup the exception translator.
     register_exception_translator
         <PyILAException>(translateILAException);
@@ -283,6 +286,9 @@ BOOST_PYTHON_MODULE(ila)
     // writeslice
     def("writeslice", &NodeRef::writeSlice,
             return_value_policy<manage_new_object>());
+
+    // logging.
+    def("setloglevel", &ila::setLogLevel);
 
     // This is the top-level class.
     class_<Abstraction>("Abstraction", init<>())

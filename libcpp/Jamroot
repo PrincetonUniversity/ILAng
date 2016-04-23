@@ -55,6 +55,7 @@ python-extension ila : src/abstraction.cpp
                        src/ast/node.cpp 
                        src/exception.cpp 
                        src/ext.cpp 
+                       src/logging.cpp
                        src/memvalues.cpp
                        src/rewriter.cpp
                        src/simplify.cpp
