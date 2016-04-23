@@ -53,7 +53,7 @@ namespace ila
 
         const MemVar* memvar = NULL;
         const MemConst* memconst = NULL;
-        const MemWr*  memwr = NULL;
+        const MemOp*  memop = NULL;
         const MemChoice* mchoiceop = NULL;
 
         //// booleans ////
@@ -94,8 +94,8 @@ namespace ila
         } else if ((memconst = dynamic_cast<const MemConst*>(n))) {
             z3::expr r = memconst->memvalues.toZ3(c);
             exprmap.insert({n, r});
-        } else if ((memwr = dynamic_cast<const MemWr*>(n))) {
-            z3::expr r = getMemWrExpr(memwr);
+        } else if ((memop = dynamic_cast<const MemOp*>(n))) {
+            z3::expr r = getMemOpExpr(memop);
             exprmap.insert({n, r});
         } else if ((mchoiceop = dynamic_cast<const MemChoice*>(n))) {
             z3::expr r = getChoiceExpr(mchoiceop);
@@ -404,15 +404,26 @@ namespace ila
     }
 
     // ---------------------------------------------------------------------- //
-    z3::expr Z3ExprAdapter::getMemWrExpr(const MemWr* mw)
+    z3::expr Z3ExprAdapter::getMemOpExpr(const MemOp* mw)
     {
         using namespace z3;
 
-        expr mem = getArgExpr(mw, 0);
-        expr addr = getArgExpr(mw, 1);
-        expr data = getArgExpr(mw, 2);
+        if (mw->op == MemOp::STORE) {
+            expr mem = getArgExpr(mw, 0);
+            expr addr = getArgExpr(mw, 1);
+            expr data = getArgExpr(mw, 2);
 
-        return store(mem, addr, data);
+            return store(mem, addr, data);
+        } else if (mw->op == MemOp::ITE) {
+            expr cond = getArgExpr(mw, 0);
+            expr m1 = getArgExpr(mw, 1);
+            expr m2 = getArgExpr(mw, 2);
+
+            return ite(cond, m1, m2);
+        } else {
+            ILA_ASSERT(false, "Unknown operator.");
+            return c.bool_val(false);
+        }
     }
 
     // ---------------------------------------------------------------------- //

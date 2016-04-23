@@ -77,14 +77,17 @@ def main():
             ram_[ad] = da
         addr = d['addr']
         print ram_, addr, ram[addr]
-        ram_[addr] = ram_[addr]+1
+        if addr != 0:
+            ram_[addr] = ram_[addr]+1
         print ram_
         return { "bar":  ram_ }
 
     r1 = ila.store(iram, addr, iram[addr]+1)
     r2 = ila.store(iram, addr, iram[addr]+2)
-    rp = ila.choice('rp', r1, r2)
-    print sys.syn_elem("bar", rp, bar)
+    r3 = ila.ite(addr != 0, r1, iram)
+    rp = ila.choice('rp', r1, r2, r3)
+    expr =  sys.syn_elem("bar", rp, bar)
+    assert sys.areEqual(expr, r3)
 
 if __name__ == '__main__':
     main()

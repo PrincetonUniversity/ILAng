@@ -64,7 +64,7 @@ namespace ila
         // Convert a memory var into a Z3 expression.
         virtual z3::expr getMemVarExpr(const MemVar* mv);
         // Convert a mem write expression into Z3.
-        virtual z3::expr getMemWrExpr(const MemWr* mw);
+        virtual z3::expr getMemOpExpr(const MemOp* mw);
         // for memories.
         virtual z3::expr getChoiceExpr(const MemChoice* op);
 

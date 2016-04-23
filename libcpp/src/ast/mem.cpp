@@ -5,6 +5,10 @@
 namespace ila
 {
     // ---------------------------------------------------------------------- //
+    const std::string MemOp::operatorNames[] = {
+        "invalid", "store", "ite"
+    };
+    // ---------------------------------------------------------------------- //
     MemExpr::MemExpr(Abstraction *c, int aw, int dw) 
       : Node(c, NodeType::getMem(aw, dw))
     {
@@ -95,77 +99,98 @@ namespace ila
     }
 
     // ---------------------------------------------------------------------- //
-    MemWr::MemWr(const nptr_t& m, const nptr_t& a, const nptr_t& d)
-
-      : MemExpr(m->context(), m->type)
-      , mem(m)
-      , addr(a)
-      , data(d)
+    MemOp::MemOp(Op o, const nptr_t& a0, const nptr_t& a1, const nptr_t& a2)
+      : MemExpr(a0->context(), (o == MemOp::STORE ? a0->type : a1->type))
+      , op(o)
     {
-        if (!m->type.isMem()) {
-            throw PyILAException(PyExc_TypeError, 
-                "Memory type error.");
-        } else if(!addr->type.isBitvector(m->type.addrWidth)) {
-            throw PyILAException(PyExc_TypeError, 
-                "Address type error.");
-        } else if(!data->type.isBitvector(m->type.dataWidth)) {
-            throw PyILAException(PyExc_TypeError,
-                "Type error in data being written to memory.");
+        ILA_ASSERT(op == MemOp::STORE || op == MemOp::ITE, "Invalid op value.");
+
+        if (op == MemOp::STORE) {
+            if (!a0->type.isMem()) {
+                throw PyILAException(PyExc_TypeError, 
+                    "Memory type error.");
+            } else if(!a1->type.isBitvector(a0->type.addrWidth)) {
+                throw PyILAException(PyExc_TypeError, 
+                    "Address type error.");
+            } else if(!a2->type.isBitvector(a0->type.dataWidth)) {
+                throw PyILAException(PyExc_TypeError,
+                    "Type error in data being written to memory.");
+            }
+        } else if (op == MemOp::ITE) {
+            if (!a0->type.isBool()) {
+                throw PyILAException(PyExc_TypeError,
+                    "Condition must be a boolean.");
+            } else if (!a1->type.isMem() || !a2->type.isMem()) {
+                throw PyILAException(PyExc_TypeError,
+                    "Two arguments to ite must be memories.");
+            } else if (a1->type != a2->type) {
+                throw PyILAException(PyExc_TypeError,
+                    "ite arguments must have same memory types.");
+            }
         }
+
+        args.push_back(a0);
+        args.push_back(a1);
+        args.push_back(a2);
+        ILA_ASSERT(args.size() == 3, "Mem op size mismatch.");
     }
 
-    MemWr::MemWr(const MemWr& that)
+    MemOp::MemOp(const MemOp& that)
       : MemExpr(that.mem->context(), that.type)
-      , mem(that.mem)
-      , addr(that.addr)
-      , data(that.data)
+      , op(that.op)
+      , args(that.args)
     {
+        ILA_ASSERT(args.size() == 3, "Mem op size mismatch.");
     }
 
-    MemWr::~MemWr()
+    MemOp::~MemOp()
     {
     }
 
     // ---------------------------------------------------------------------- //
-    Node* MemWr::clone() const
+    Node* MemOp::clone() const
     {
-        return new MemWr(*this);
+        return new MemOp(*this);
     }
 
-    bool MemWr::equal(const Node* that_) const
+    bool MemOp::equal(const Node* that_) const
     {
-        auto that = dynamic_cast<const MemWr*>(that_);
+        auto that = dynamic_cast<const MemOp*>(that_);
         if (that) {
-            return that->mem->equal(mem.get())      &&
-                   that->addr->equal(addr.get())    &&
-                   that->data->equal(data.get());
-
+            if (that->op != op) return false;
+            if (that->args.size() != args.size()) return false;
+            for (unsigned i=0; i != args.size(); i++) {
+                if (!args[i]->equal(that->args[i].get())) return false;
+            }
+            return true;
         } else {
             return false;
         }
     }
 
-    std::ostream& MemWr::write(std::ostream& out) const
+    std::ostream& MemOp::write(std::ostream& out) const
     {
-        out << "(wr " << *mem.get() 
-            << std::hex << " " << *addr.get()
-            << " " << *data.get() 
-            << std::dec << ")";
+        out << "(" << operatorNames[op] 
+            << " " << *args[0].get()
+            << " " << *args[1].get()
+            << " " << *args[2].get()
+            << ")";
         return out;
     }
 
     // ---------------------------------------------------------------------- //
-    unsigned MemWr::nArgs() const
+    unsigned MemOp::nArgs() const
     {
-        return 3;
+        return args.size();
     }
 
-    nptr_t MemWr::arg(unsigned i) const
+    nptr_t MemOp::arg(unsigned i) const
     {
-        if (i == 0) { return mem; }
-        else if (i == 1) { return addr; }
-        else if (i == 2) { return data; }
-        else { return NULL; }
+        if (i < args.size()) {
+            return args[i];
+        } else {
+            return NULL;
+        }
     }
 
     // ---------------------------------------------------------------------- //

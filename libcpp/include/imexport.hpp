@@ -42,6 +42,7 @@ namespace ila
         // figure out which bitvectorOp/boolOp is the opName specified.
         BitvectorOp::Op getBvOpType(const std::string& opName) const;
         BoolOp::Op getBoolOpType(const std::string& opName) const;
+        MemOp::Op getMemOpType(const std::string& opName) const;
 
         // export memValue.
         void exportMemValues(std::ostream& out, const MemValues& val);

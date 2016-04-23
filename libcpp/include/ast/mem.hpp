@@ -65,19 +65,23 @@ namespace ila
 
     // ---------------------------------------------------------------------- //
     // write to memory operator.
-    class MemWr : public MemExpr {
+    class MemOp : public MemExpr {
+    public:
+        enum Op { INVALID, STORE, ITE } op;
+        static const std::string operatorNames[];
     protected:
         // data members //
+        nptr_vec_t args;
         nptr_t mem;
         nptr_t addr;
         nptr_t data;
     public:
         // constructor
-        MemWr(const nptr_t& m, const nptr_t& a, const nptr_t& d);
+        MemOp(Op op, const nptr_t& a0, const nptr_t& a1, const nptr_t& a2);
         // copy constructor.
-        MemWr(const MemWr& that);
+        MemOp(const MemOp& that);
         // destructor.
-        virtual ~MemWr();
+        virtual ~MemOp();
 
         // clone.
         virtual Node* clone() const;
