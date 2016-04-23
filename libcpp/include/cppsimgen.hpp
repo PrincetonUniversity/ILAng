@@ -45,6 +45,9 @@ namespace ila
         // Define variable, ex."  int r0"
         std::string def() const;
 
+        // Define reference, ex. " int& r0"
+        std::string refDef() const;
+
         // Use variable, ex. " r0"
         std::string use() const;
         

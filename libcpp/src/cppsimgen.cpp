@@ -38,6 +38,11 @@ namespace ila
         return (_type + " " + _name);
     }
 
+    std::string CppVar::refDef() const
+    {
+        return (_type + "& " + _name);
+    }
+
     std::string CppVar::use() const
     {
         if (_isConst) {
@@ -426,13 +431,21 @@ namespace ila
                 code = var->def() + " = !" + 
                        arg0->use() + " || " + arg1->use() + ";";
             } else if (n->op == BoolOp::Op::SLT) {
-                // TODO
+                // FIXME limited width
+                code = var->def() + " = " + 
+                       arg0->use() + " < " + arg1->use() + ";";
             } else if (n->op == BoolOp::Op::SGT) {
-                // TODO
+                // FIXME limited width
+                code = var->def() + " = " + 
+                       arg0->use() + " > " + arg1->use() + ";";
             } else if (n->op == BoolOp::Op::SLE) {
-                // TODO
+                // FIXME limited width
+                code = var->def() + " = " + 
+                       arg0->use() + " <= " + arg1->use() + ";";
             } else if (n->op == BoolOp::Op::SGE) {
-                // TODO
+                // FIXME limited width
+                code = var->def() + " = " + 
+                       arg0->use() + " >= " + arg1->use() + ";";
             } else if (n->op == BoolOp::Op::ULT) {
                 code = var->def() + " = " + 
                        arg0->unsignedUse() + " < " + arg1->unsignedUse() + ";";
@@ -447,10 +460,10 @@ namespace ila
                        arg0->unsignedUse() + " >= " + arg1->unsignedUse() + ";";
             } else if (n->op == BoolOp::Op::EQUAL) {
                 code = var->def() + " = (" + 
-                       arg0->unsignedUse() + " == " + arg1->unsignedUse() + ");";
+                       arg0->exactUse() + " == " + arg1->exactUse() + ");";
             } else if (n->op == BoolOp::Op::DISTINCT) {
                 code = var->def() + " = (" + 
-                       arg0->unsignedUse() + " != " + arg1->unsignedUse() + ");";
+                       arg0->exactUse() + " != " + arg1->exactUse() + ");";
             }
             _curFun->addBody(code);
         //// Ternary ////
@@ -498,13 +511,9 @@ namespace ila
             } else if (n->op == BitvectorOp::Op::RROTATE) {
                 // TODO
             } else if (n->op == BitvectorOp::Op::Z_EXT) {
-                // FIXME
-                //var->_type = CppVar::bvStr;
-                //code = var->def() + " = " + arg0->unsignedUse() + ";";
+                code = var->def() + " = " + arg0->unsignedUse() + ";";
             } else if (n->op == BitvectorOp::Op::S_EXT) {
-                // FIXME
-                //var->_type = CppVar::sbvStr;
-                //code = var->def() + " = " + arg0->signedUse() + ";";
+                code = var->def() + " = " + arg0->use() + ";";
             } else if (n->op == BitvectorOp::Op::EXTRACT) {
                 int par0 = n->param(0);
                 int par1 = n->param(1);
@@ -543,26 +552,33 @@ namespace ila
                 code = var->def() + " = ~(" + 
                        arg0->use() + " | " + arg1->use() + ");";
             } else if (n->op == BitvectorOp::Op::SDIV) {
-                // TODO
+                // FIXME limited width.
+                code = var->def() + " = " + 
+                       arg0->use() + " / " + arg1->use() + ";";
             } else if (n->op == BitvectorOp::Op::UDIV) {
                 code = var->def() + " = " + 
                        arg0->unsignedUse() + " / " + arg1->unsignedUse() + ";";
             } else if (n->op == BitvectorOp::Op::SREM) {
-                // TODO
+                // FIXME limited width.
+                code = var->def() + " = " + 
+                       arg0->use() + " % " + arg1->use() + ";";
             } else if (n->op == BitvectorOp::Op::UREM) {
-                // TODO
+                code = var->def() + " = " + 
+                       arg0->unsignedUse() + " % " + arg1->unsignedUse() + ";";
             } else if (n->op == BitvectorOp::Op::SMOD) {
+                // FIXME C++ has no modulo operator, equal to % when positive
                 code = var->def() + " = " + 
                        arg0->use() + " % " + arg1->use() + ";";
             } else if (n->op == BitvectorOp::Op::SHL) {
-                code = var->def() + " = " + 
-                       arg0->use() + " << " + arg1->unsignedUse() + ";";
+                code = var->def() + " = (" + 
+                       arg0->use() + " << " + arg1->unsignedUse() + ") & " +
+                       getMask(var->_width) + ";";
             } else if (n->op == BitvectorOp::Op::LSHR) {
                 code = var->def() + " = " + 
                        arg0->unsignedUse() + " >> " + arg1->unsignedUse() + ";";
             } else if (n->op == BitvectorOp::Op::ASHR) {
                 code = var->def() + " = " + 
-                       arg0->use() + " >> " + arg1->use() + ";";
+                       arg0->use() + " >> " + arg1->unsignedUse() + ";";
             } else if (n->op == BitvectorOp::Op::MUL) {
                 code = var->def() + " = " + 
                        arg0->use() + " * " + arg1->use() + ";";
@@ -616,8 +632,29 @@ namespace ila
 
     CppVar* CppSimGen::getMemOpCpp(const MemOp* n)
     {
-        // TODO
-        CppVar* var = new CppVar(n);
+        CppVar* var = NULL; 
+        CppVar* arg0 = findVar(*_curVarMap, n->arg(0)->name);
+        CppVar* arg1 = findVar(*_curVarMap, n->arg(1)->name);
+        CppVar* arg2 = findVar(*_curVarMap, n->arg(2)->name);
+
+        std::string code = "MEM NOT IMPLEMENTED";
+        if (n->op == MemOp::Op::STORE) {
+            ILA_ASSERT(arg0->_type == CppVar::memStr, 
+                       "Write to non-mem variable.");
+            var = arg0;
+            code = arg0->use() + ".wr(" + arg1->use() + 
+                   ", " + arg2->use() + ");";
+        } else if (n->op == MemOp::Op::ITE) {
+            ILA_ASSERT(arg0->_type == CppVar::boolStr,
+                       "Condition not bool.");
+            var = new CppVar(n);
+            code = var->refDef() + " = (" + 
+                   arg0->use() + ") ? " + arg1->use() + 
+                   " : " + arg2->use() + ";";
+        } else {
+            ILA_ASSERT(false, "Invalid MemOp.");
+        }
+
         return var;
     }
         
@@ -738,10 +775,11 @@ namespace ila
     static std::string getMask(const int& width)
     {
         ILA_ASSERT(width <= (int)sizeof(intmax_t), "Width exceed max length.");
+        ILA_ASSERT(width >= 0, "Negative width.");
         uintmax_t mask = UINTMAX_MAX;
         mask = mask << width;
         mask = ~mask;
-        // TODO in hex?
+        // TODO in hex
         std::string str = boost::lexical_cast<std::string>(mask);
         return str;
     }
