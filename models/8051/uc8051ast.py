@@ -91,7 +91,7 @@ class uc8051(object):
         msb1 = bitaddr[7:7] == 1
         byteaddr = ila.ite(msb1, 
             ila.concat(bitaddr[7:3], self.model.const(0, 3)), 
-            ila.zero_extend(bitaddr, 8) + 32)
+            ila.zero_extend(bitaddr[7:3], 8) + 32)
         bitindex = bitaddr[2:0]
         byte = self.readDirect(byteaddr)
         bit = byte[bitindex]
@@ -102,7 +102,7 @@ class uc8051(object):
         msb1 = bitaddr[7:7] == 1
         byteaddr = ila.ite(msb1, 
             ila.concat(bitaddr[7:3], self.model.const(0, 3)), 
-            ila.zero_extend(bitaddr, 8) + 32)
+            ila.zero_extend(bitaddr[7:3], 8) + 32)
         byte = self.readDirect(byteaddr)
         bitindex = ila.zero_extend(bitaddr[2:0], 8)
         mask1 = ~(self.model.const(1, 8) << bitindex)
