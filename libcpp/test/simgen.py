@@ -163,10 +163,11 @@ def model(num_regs, reg_size, paramsyn):
         rn2 = regs_next[i]
         assert sysp.areEqual(rn1, rn2)
 
-    os.unlink(expFile)
+    #os.unlink(expFile)
 
     simFile = "tmp/test_ila_sim.cpp"
-    sys.generateSim(simFile)
+    sys.generateSim(simFile, "alu")
+    os.system('g++ ' + simFile + 'tmp/test_ila_sim')
     #os.unlink(simFile)
 
 def main():

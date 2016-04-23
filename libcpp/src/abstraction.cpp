@@ -564,10 +564,10 @@ namespace ila
 
     }
 
-    void Abstraction::generateSim(const std::string& fileName) const
+    void Abstraction::generateSim(const std::string& fileName,
+                                  const std::string& modelName) const
     {
-        // TODO
-        CppSimGen* gen = new CppSimGen("bal");
+        CppSimGen* gen = new CppSimGen(modelName);
         // Set inputs.
         for (auto it = inps.begin(); it != inps.end(); it++) {
             gen->addInput(it->first, it->second.var);
@@ -586,7 +586,7 @@ namespace ila
         }
 
         // Create update function.
-        CppFun* updateFun = gen->addFun("void", "bal_update");
+        CppFun* updateFun = gen->addFun("update");
         // Calculate the next value.
         for (auto it = regs.begin(); it != regs.end(); it++) {
             gen->buildFun(updateFun, it->second.next);
@@ -603,13 +603,13 @@ namespace ila
         gen->endFun(updateFun);
 
         // FetchExpr
-        CppFun* fetchExprFun = gen->addFun("void", "bal_fetchExpr");
+        CppFun* fetchExprFun = gen->addFun("fetch");
         gen->buildFun(fetchExprFun, fetchExpr);
         gen->setFunReturn(fetchExprFun, fetchExpr);
         gen->endFun(fetchExprFun);
 
         // FetchValid
-        CppFun* fetchValidFun = gen->addFun("bool", "bal_fetchValid");
+        CppFun* fetchValidFun = gen->addFun("fetchValid");
         gen->buildFun(fetchValidFun, fetchValid);
         gen->setFunReturn(fetchValidFun, fetchValid);
         gen->endFun(fetchValidFun);
@@ -617,8 +617,8 @@ namespace ila
         // DecodeExprs
         std::vector<CppFun*> decodeVec;
         for (unsigned i = 0; i < decodeExprs.size(); i++) {
-            CppFun* decFun = gen->addFun("void", 
-                    "bal_decode_" + boost::lexical_cast<std::string>(i));
+            CppFun* decFun = gen->addFun(
+                    "decode_" + boost::lexical_cast<std::string>(i));
             gen->buildFun(decFun, decodeExprs[i]);
             gen->setFunReturn(decFun, decodeExprs[i]);
             gen->endFun(decFun);
@@ -628,8 +628,8 @@ namespace ila
         // Assumps
         std::vector<CppFun*> assVec;
         for (unsigned i = 0; i < assumps.size(); i++) {
-            CppFun* assFun = gen->addFun("void",
-                    "bal_decode_" + boost::lexical_cast<std::string>(i));
+            CppFun* assFun = gen->addFun(
+                    "assumps_" + boost::lexical_cast<std::string>(i));
             gen->buildFun(assFun, assumps[i]);
             gen->setFunReturn(assFun, assumps[i]);
             gen->endFun(assFun);

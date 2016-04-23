@@ -140,7 +140,8 @@ namespace ila
         void importAllFromFile(const std::string& fileName);
 
         // the simulator generating function.
-        void generateSim(const std::string& fileName) const;
+        void generateSim(const std::string& fileName,
+                         const std::string& modelName) const;
 
         // check equality function.
         bool areEqual(NodeRef* left, NodeRef* right) const;

@@ -27,6 +27,9 @@ namespace ila
 
         friend class CppFun;
         friend class CppSimGen;
+    public:
+        // FIXME Change bvStr, ubvStr, sbvStr as this is changed.
+        typedef uint64_t cppBvType;
     protected:
         std::string _type;
         std::string _name;
@@ -42,18 +45,15 @@ namespace ila
         // Destructor.
         ~CppVar();
 
+    protected:
         // Define variable, ex."  int r0"
         std::string def() const;
-
         // Define reference, ex. " int& r0"
         std::string refDef() const;
-
         // Use variable, ex. " r0"
         std::string use() const;
-        
         // Use variable as unsigned.
         std::string unsignedUse() const;
-
         // Use the exact length variable.
         std::string exactUse() const;
 
@@ -141,7 +141,7 @@ namespace ila
         CppVar* addState(const std::string& name, nptr_t node);
 
         // Create new function and put it in the _funMap.
-        CppFun* addFun(const std::string& type, const std::string& name);
+        CppFun* addFun(const std::string& name);
         
         // ------------------------------------------------------------------- //
         // This will be used by depthFirstVisit.

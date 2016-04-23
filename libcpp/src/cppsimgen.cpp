@@ -9,9 +9,9 @@ namespace ila
     int CppVar::varCnt = 0;
 
     std::string CppVar::boolStr = "bool";
-    std::string CppVar::bvStr   = "intmax_t";
-    std::string CppVar::ubvStr  = "uintmax_t";
-    std::string CppVar::sbvStr  = "intmax_t";
+    std::string CppVar::bvStr   = "int64_t";
+    std::string CppVar::ubvStr  = "uint64_t";
+    std::string CppVar::sbvStr  = "int64_t";
     std::string CppVar::memStr  = "type_mem";
     std::string CppVar::voidStr = "void";
 
@@ -190,8 +190,7 @@ namespace ila
         return var;
     }
 
-    CppFun* CppSimGen::addFun(const std::string& type,
-                              const std::string& name)
+    CppFun* CppSimGen::addFun(const std::string& name)
     {
         // Create new fun and put it in funMap.
         CppFun* fun = new CppFun(name);
@@ -475,9 +474,23 @@ namespace ila
             } else if (n->op == BitvectorOp::Op::COMPLEMENT) {
                 code = var->def() + " = ~" + arg0->use() + ";";
             } else if (n->op == BitvectorOp::Op::LROTATE) {
-                // TODO
+                int par0 = n->param(0);
+                int total = (int)sizeof(CppVar::cppBvType);
+                std::string l = boost::lexical_cast<std::string>(par0);
+                std::string r = boost::lexical_cast<std::string>(total-par0);
+                // ((x << l) | (x >> r)) & 0xff
+                code = var->def() + " = ((" + 
+                       arg0->use() + " << " + l + ") | ( " + 
+                       arg0->use() + " >> " + r + ")) & " + getMask(var->_width);
             } else if (n->op == BitvectorOp::Op::RROTATE) {
-                // TODO
+                int par0 = n->param(0);
+                int total = (int)sizeof(CppVar::cppBvType);
+                std::string r = boost::lexical_cast<std::string>(par0);
+                std::string l = boost::lexical_cast<std::string>(total-par0);
+                // ((x << l) | (x >> r)) & 0xff
+                code = var->def() + " = ((" + 
+                       arg0->use() + " << " + l + ") | ( " + 
+                       arg0->use() + " >> " + r + ")) & " + getMask(var->_width);
             } else if (n->op == BitvectorOp::Op::Z_EXT) {
                 code = var->def() + " = " + arg0->unsignedUse() + ";";
             } else if (n->op == BitvectorOp::Op::S_EXT) {
@@ -639,25 +652,26 @@ namespace ila
     // ---------------------------------------------------------------------- //
     void CppSimGen::defMemClass(std::ostream& out) const
     {
+        std::string bvStr = CppVar::bvStr;
         out << "\n/****************************************************/\n";
         out << "class type_mem\n";
         out << "{\n";
         out << "private:\n";
-        out << "\tstd::map<uintmax_t, uintmax_t> _map;\n";
-        out << "\tuintmax_t _def_val;\n";
+        out << "\tstd::map<" << bvStr << ", " << bvStr << "> _map;\n";
+        out << "\t" << bvStr << " _def_val;\n";
         out << "public:\n";
-        out << "\ttype_mem(uintmax_t def = 0)\n";
+        out << "\ttype_mem(" << bvStr << " def = 0)\n";
         out << "\t\t: _def_val(def)\n";
         out << "\t{\n";
         out << "\t}\n";
         out << "\t~type_mem() {}\n";
         out << "\n";
-        out << "\tvoid setDef(uintmax_t def)\n";
+        out << "\tvoid setDef(" << bvStr << " def)\n";
         out << "\t{\n";
         out << "\t\t_def_val = def;\n";
         out << "\t}\n";
         out << "\n";
-        out << "\tvoid wr(uintmax_t addr, uintmax_t data)\n";
+        out << "\tvoid wr(" << bvStr << " addr, " << bvStr << " data)\n";
         out << "\t{\n";
         out << "\t\tif (data == _def_val) {\n";
         out << "\t\t\t_map.erase(addr);\n";
@@ -666,9 +680,9 @@ namespace ila
         out << "\t\t}\n";
         out << "\t}\n";
         out << "\n";
-        out << "\tuintmax_t rd(uintmax_t addr)\n";
+        out << "\t" << bvStr << " rd(" << bvStr << " addr)\n";
         out << "\t{\n";
-        out << "\t\tstd::map<uintmax_t, uintmax_t>::iterator it = _map.find(addr);\n";
+        out << "\t\tstd::map<" << bvStr << ", " << bvStr << ">::iterator it = _map.find(addr);\n";
         out << "\t\tif (it == _map.end()) {\n";
         out << "\t\t\treturn _def_val;\n";
         out << "\t\t} else {\n";
@@ -701,8 +715,16 @@ namespace ila
         // TODO
         out << "int main(int argc, char* argv[])\n"
             << "{\n"
-            << "\t// TODO\n"
             << "\t" << _modelName << " mod;\n" 
+            << "\t// State initialization:\n"
+            << "\n"
+            << "\t// Feed in inputs:\n"
+            << "\t/* Ex:\n"
+            << "\tfor (int i = 0; i < 10; i++) {\n"
+            << "\t\tmod.update();\n"
+            << "\t}\n"
+            << "\t*/\n"
+            << "\n"
             << "\treturn 0;\n"
             << "}\n";
     }
@@ -778,9 +800,10 @@ namespace ila
 
     static std::string getMask(const int& width)
     {
-        ILA_ASSERT(width <= (int)sizeof(intmax_t), "Width exceed max length.");
+        ILA_ASSERT(width <= (int)sizeof(CppVar::cppBvType), 
+                "Width exceed max length.");
         ILA_ASSERT(width >= 0, "Negative width.");
-        uintmax_t mask = UINTMAX_MAX;
+        CppVar::cppBvType mask = UINTMAX_MAX;
         mask = mask << width;
         mask = ~mask;
         std::string str = boost::lexical_cast<std::string>(mask);
