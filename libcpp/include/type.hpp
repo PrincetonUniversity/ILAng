@@ -12,6 +12,7 @@ namespace ila {
         int bitWidth;
         int addrWidth;
         int dataWidth;
+        int argNum;
 
         // default constructor.
         NodeType() : type(INVALID), bitWidth(0) { }

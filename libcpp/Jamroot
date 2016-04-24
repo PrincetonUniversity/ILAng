@@ -51,6 +51,7 @@ python-extension ila : src/abstraction.cpp
                        src/ast/bvinrange.cpp
                        src/ast/choice.cpp
                        src/ast.cpp 
+                       src/ast/func.cpp
                        src/ast/mem.cpp
                        src/ast/node.cpp 
                        src/exception.cpp 
