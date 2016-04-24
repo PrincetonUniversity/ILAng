@@ -16,6 +16,7 @@
 #include <ast/node.hpp>
 #include <ast/bool.hpp>
 #include <ast/bitvec.hpp>
+#include <ast/func.hpp>
 #include <ast/mem.hpp>
 #include <ast/choice.hpp>
 #include <ast/bvinrange.hpp>

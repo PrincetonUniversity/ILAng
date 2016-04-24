@@ -95,7 +95,7 @@ namespace ila
             SDIV, UDIV, SREM, UREM, SMOD, SHL, LSHR, ASHR, 
             MUL, CONCAT, GET_BIT, READMEM,
             // ternary
-            IF, 
+            IF, APPLY_FUN 
         } op;
 
         static const std::string operatorNames[];
@@ -116,7 +116,7 @@ namespace ila
             return op >= IF && op <= IF; 
         }
         static bool isNary(Op op) {
-            return false;
+            return op >= APPLY_FUN && op <= APPLY_FUN;
         }
         // helper functions to determine result and argument types.
         static int getUnaryResultWidth(
