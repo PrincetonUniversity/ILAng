@@ -137,7 +137,8 @@ namespace ila
 
         DistInput* getDistInput(const z3::expr& y);
         void setOutput(const simout_ptr_t& out);
-        nptr_t getExpr(const z3::expr& y, const nptr_t& ex, int i);
+        nptr_t getExpr(
+            const z3::expr& y, const nptr_t& ex, int i, const nptr_t& de_expr);
 
         DITree(Synthesizer& s);
         void reset(bool reuseModels);

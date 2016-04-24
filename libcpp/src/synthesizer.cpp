@@ -534,7 +534,11 @@ namespace ila
         }
     }
 
-    nptr_t DITree::getExpr(const z3::expr& y, const nptr_t& ex, int i)
+    nptr_t DITree::getExpr(
+        const z3::expr& y, 
+        const nptr_t& ex, 
+        int i, 
+        const nptr_t& de_expr)
     {
         using namespace z3;
         if (mode == INSERT || !reuseModels) {
@@ -543,7 +547,8 @@ namespace ila
             if (r != sat) {
                 std::ostringstream uout;
                 uout << "Unable to extract synthesis result. Unsat core: "
-                     << syn.S.unsat_core() << "; iterations: " << i;
+                     << syn.S.unsat_core() << "; iterations: " << i
+                     << "; decode: " << *de_expr.get();
                 throw PyILAException(PyExc_RuntimeError, uout.str());
                 return nptr_t(NULL);
             }
@@ -751,11 +756,11 @@ namespace ila
         expr syn_assumps[1] = { !y };
         check_result r = S.check(1, syn_assumps);
         if (r != sat) {
-            std::cout << "unsat core: " << S.unsat_core() << std::endl;
-            throw PyILAException(
-                PyExc_RuntimeError, 
-                "Unable to extract synthesis result after " + 
-                lexical_cast<std::string>(i) + " iterations.");
+            std::ostringstream uout;
+            uout << "Unable to extract synthesis result. Unsat core: "
+                 << S.unsat_core() << "; iterations: " << i
+                 << "; decode: " << *de_expr.get();
+            throw PyILAException(PyExc_RuntimeError, uout.str());
             return NULL;
         }
 
@@ -822,7 +827,7 @@ namespace ila
         }
 
         // std::cout << "finished after " << i << " SMT calls." << std::endl;
-        nptr_t nr = ditree.getExpr(y, ex, i);
+        nptr_t nr = ditree.getExpr(y, ex, i, de_expr);
         S.pop(); Sp.pop();
 
         return nr;
