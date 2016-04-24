@@ -17,6 +17,13 @@ namespace ila
             out << "(type mem " << ntype.addrWidth << " "
                 << ntype.dataWidth << ")";
             break;
+        case NodeType::FUNC:
+            out << "(type func (" << ntype.bitWidth << ")<-(";
+            for (unsigned i = 0; i != ntype.argsWidth.size(); i++) {
+                out << ((i == 0) ? "" : ", ") << ntype.argsWidth[i];
+            }
+            out << ")";
+            break;
         default:
             out << "(type invalid)";
             break;
@@ -102,6 +109,18 @@ namespace ila
         } else if (type == MEM && t.type == MEM) {
             return addrWidth == t.addrWidth &&
                    dataWidth == t.dataWidth;
+        } else if (type == FUNC && t.type == FUNC) {
+            if ((bitWidth != t.bitWidth) || 
+                (argsWidth.size() != t.argsWidth.size())) {
+                return false;
+            } else {
+                for (unsigned i = 0; i != argsWidth.size(); i++ ) {
+                    if (argsWidth[i] != t.argsWidth[i]) {
+                        return false;
+                    }
+                }
+                return true;
+            }
         } else {
             return false;
         }
@@ -111,4 +130,7 @@ namespace ila
     NodeType NodeType::getBool() { return NodeType(BOOL); }
     NodeType NodeType::getBitvector(int w) { return NodeType(BITVECTOR, w); }
     NodeType NodeType::getMem(int aw, int dw) { return NodeType(MEM, aw, dw); }
+    NodeType NodeType::getFunc(int rw, std::vector<int>& aw) { 
+        return NodeType(FUNC, rw, aw);
+    }
 }

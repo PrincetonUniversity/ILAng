@@ -48,8 +48,18 @@ namespace ila {
         }
 
         // Is this a func with the correct dimensions?
-        bool isFunc(int rw = -1, std::vector<int> aw = std::vector<int>()) const {
-            // TODO
+        bool isFunc(int rw = -1, std::vector<int> aw = {}) const {
+            if (type != FUNC) { 
+                return false; 
+            } else if (rw == -1) {
+                return true;
+            } else if (aw.size() != argsWidth.size()){
+                return false;
+            } else if (rw == bitWidth) {
+                for (unsigned i = 0; i != aw.size(); i++) {
+                    if (aw[i] != argsWidth[i]) { return false; }
+                }
+            }
             return true;
         }
 
@@ -62,6 +72,7 @@ namespace ila {
         static NodeType getBool();
         static NodeType getBitvector(int w);
         static NodeType getMem(int aw, int dw);
+        static NodeType getFunc(int rw, std::vector<int>& aw);
     };
 
     // stream output operator, required for boost::lexical_cast<>
