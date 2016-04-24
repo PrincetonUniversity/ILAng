@@ -21,7 +21,7 @@ namespace ila
         "div", "udiv", "rem", "urem", "mod", "shl", "lshr", "ashr", 
         "*", "concat", "get-bit", "readmem",
 		// ternary
-        "if", "apply_fun", 
+        "if", "apply_fun" "apply_fun", 
     };
 
     // ---------------------------------------------------------------------- //
@@ -193,6 +193,9 @@ namespace ila
         if (op == IF && args.size() == 3) {
             // ITE
             return args[1]->type.bitWidth;
+        } else if (op == APPLY_FUN && args.size() >= 1) {
+            // Apply function
+            return args[0]->type.bitWidth;
         } else {
             return 1;
         }
@@ -296,6 +299,21 @@ namespace ila
             if (!args[0]->type.isBool() /* or nonzero (bv) */ ) {
                 return 1;
             } 
+        } else if (op == APPLY_FUN && args.size() >= 1) {
+            // (f, ip0, ip1, ...)
+            std::vector<int> argWidth;
+            for (unsigned i = 1; i != args.size(); i++) {
+                argWidth.push_back(args[i]->type.bitWidth);
+            }
+            if (!args[0]->type.isFunc(width, argWidth)) {
+                return 1;
+            }
+            for (unsigned i = 1; i != args.size(); i++) {
+                if (!args[i]->type.isBitvector(args[0]->type.argsWidth[i-1])) {
+                    return i + 1;
+                }
+            }
+            return 0;
         }
         return 0;
     }
@@ -481,6 +499,13 @@ namespace ila
             ILA_ASSERT(args.size() == 2,
                 "Binary op must have exactly two arguments.");
             return new BitvectorOp(ctx, op, args[0], args[1]);
+        } else if (arity == NARY) {
+            ILA_ASSERT(args.size() >= 1,
+                "Nary op must have more than one arguments.");
+            nptr_vec_t newargs;
+            for (unsigned i = 0; i != args.size(); i++)
+                newargs.push_back(args[i]);
+            return new BitvectorOp(ctx, op, newargs);
         } else {
             ILA_ASSERT(false, "Unsupported arity in BitvectorOp");
             return NULL;
