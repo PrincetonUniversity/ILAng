@@ -21,7 +21,7 @@ namespace ila
         "div", "udiv", "rem", "urem", "mod", "shl", "lshr", "ashr", 
         "*", "concat", "get-bit", "readmem",
 		// ternary
-        "if", 
+        "if", "apply_fun", 
     };
 
     // ---------------------------------------------------------------------- //
