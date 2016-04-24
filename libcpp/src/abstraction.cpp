@@ -549,6 +549,15 @@ namespace ila
         }
         out << "\n.mems_end\n";
 
+        // funs.
+        out << ".funs: ";
+        for (nmap_t::const_iterator it = funs.begin();
+             it != funs.end(); it++) {
+            out << "\n" << it->first << " ";
+            expt.exportAst(out, it->second.var.get());
+        }
+        out << "\n.funs_end\n";
+
         // fetchExpr.
         out << ".fetchExpr: ";
         expt.exportAst(out, fetchExpr.get());
@@ -680,6 +689,16 @@ namespace ila
             nptr_t var = ipt.importAst(this, in);
             nptr_t next = ipt.importAst(this, in);
             mems.insert({buf, npair_t(var, next)});
+            in >> buf;
+        }
+
+        // funs.
+        in >> buf;
+        ILA_ASSERT(buf == ".funs:", "Expect .funs section");
+        in >> buf;
+        while (buf != ".funs_end") {
+            nptr_t var = ipt.importAst(this, in);
+            funs.insert({buf, npair_t(var, NULL)});
             in >> buf;
         }
 

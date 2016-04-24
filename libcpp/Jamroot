@@ -97,9 +97,9 @@ testing.make-test run-pyd : ila test/export.py : : test_export ;
 
 testing.make-test run-pyd : ila test/alu.py : : test_alu ;
 
-testing.make-test run-pyd : ila test/func.py : : test_func ;
-
 testing.make-test run-pyd : ila test/simgen.py : : test_simgen ;
+
+testing.make-test run-pyd : ila test/func.py : : test_func ;
 
 
 # A little "rule" (function) to clean up the syntax of declaring tests

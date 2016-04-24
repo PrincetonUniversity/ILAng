@@ -29,6 +29,15 @@ def main():
     test = ila.implies(con & (x == 125) & (z == 125), ila.appfun(f, x, z) > up)
     assert c.areEqual(test, top)
 
+    x_next = ila.appfun(f, y, z)
+    c.set_next('x', x_next)
+
+    exportFile = 'tmp/test_ila_export.txt'
+    c.exportAll(exportFile)
+    c.importAll(exportFile)
+
+    simFile = 'tmp/test_ila_sim.hpp'
+    #c.generateSim(simFile, "foo")
 
 if __name__ == '__main__':
     main()
