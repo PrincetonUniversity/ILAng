@@ -68,6 +68,9 @@ namespace ila
         // for memories.
         virtual z3::expr getChoiceExpr(const MemChoice* op);
 
+        // Convert a function variable into a Z3 expression.
+        virtual z3::expr getFuncVarExpr(const FuncVar* fv);
+
     public:
         // Constructors.
         Z3ExprAdapter(z3::context& c, const std::string& suffix);
@@ -141,6 +144,8 @@ namespace ila
         virtual z3::expr getBitvectorVarExpr(const BitvectorVar* bvv);
         // Convert a mem var into Z3.
         virtual z3::expr getMemVarExpr(const MemVar* mv);
+        // Convert a func var into Z3.
+        virtual z3::expr getFuncVarExpr(const FuncVar* fv);
     public:
         // Constructors.
         Z3ExprRewritingAdapter(

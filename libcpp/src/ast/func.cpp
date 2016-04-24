@@ -25,6 +25,7 @@ namespace ila
                      int argNum, std::vector<int> argsWidth)
         : FuncExpr(c, argNum, argsWidth)
     {
+        this->name = name;
     }
 
     FuncVar::~FuncVar()
