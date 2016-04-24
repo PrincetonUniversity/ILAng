@@ -59,6 +59,8 @@ class uc8051(object):
         self.ip = self.model.reg('IP', 8)
         # XRAM
         self.xram_data_in = self.model.reg('XRAM_DATA_IN', 8)
+        self.xram_data_out = self.model.reg('XRAM_DATA_OUT', 8)
+        self.xram_addr = self.model.reg('XRAM_ADDR', 16)
 
     def readDirect(self, addr):
         msb0 = addr[7:7] == 0 

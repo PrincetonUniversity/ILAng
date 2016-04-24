@@ -146,7 +146,7 @@ def synthesize(state, enable_ps):
         acc_rr, acc_rl, acc_rrc, acc_rlc, acc_inc, acc_dec, acc_add, 
         acc_addc, acc_orl, acc_anl, acc_xrl, acc_mov, acc_rom, acc_clr,
         acc_subb, acc_swap, acc_cpl, acc, acc_div, acc_mul, acc_da,
-        acc_xchg_dir, acc_xchg_indir])
+        acc_xchg_dir, acc_xchg_indir, uc.xram_data_in])
     model.set_next('ACC', acc_next)
 
     ########################### IRAM ##############################################
@@ -174,7 +174,7 @@ def synthesize(state, enable_ps):
     bit_src1_addr = ila.choice('bit_src1_addr', [op1, op2])
     bit_src1 = uc.readBit(bit_src1_addr)
     wrbit_data = ila.choice('wrbit_data', 
-                    [uc.cy, ~uc.cy, bv(0,1), bv(1,1)])
+                    [uc.cy, ~uc.cy, bit_src1, ~bit_src1, bv(0,1), bv(1,1)])
     r_bit = uc.writeBit(bit_src1_addr, wrbit_data)
     # some instructions write their result to the carry flag; which is also the first operand.
     cy_orl = uc.cy | bit_src1
@@ -189,7 +189,6 @@ def synthesize(state, enable_ps):
     bit_cy = ila.choice('bit_cy', 
                         [cy_orl, cy_anl, cy_orlc, cy_anlc, cy_cpl_c,
                          cy_mov, cy_cpl_bit, bit_cnst1, bit_cnst0])
-    psw_bit = ila.concat(bit_cy, psw[6:0])
 
     # instructions where the result is an indirect iram address.
     src1_indir_addr = ila.choice('src1_indir_addr', [rx[0], rx[1]])
@@ -254,27 +253,95 @@ def synthesize(state, enable_ps):
                     [iram, iram_indir, iram_call, r_dir.iram, r_bit.iram])
     model.set_next('IRAM', iram_next)
 
-    ########################### DPTR ##############################################
-    mov_dptr = ila.choice('mov_dptr', [ila.concat(op1, op2), ila.concat(op2, op1)])
-    inc_dptr = dptr + 1
-    dptr = ila.choice('next_dptr', [mov_dptr, inc_dptr, dptr])
-    dpl = dptr[7:0]
-    dph = dptr[15:8]
-
     ########################### PSW ##############################################
-###    ctxCJNE = ctxNOP.clone()
-###    CJNE_CY = If(ULT(cjne_src1, cjne_src2), BitVecVal(1, 1), BitVecVal(0, 1))
-###    ctxCJNE.PSW = Concat(CJNE_CY, Extract(6, 0, ctx.PSW))
+    cjne_cy = ila.ite(cjne_src1 < cjne_src2, bv(1, 1), bv(0, 1))
+    # muldiv
     div_ov = ila.ite(b == 0, bv(1, 1), bv(0, 1))
-    div_psw = ila.concat(bv(0, 1), ila.concat(psw[6:3], ila.concat(div_ov, psw[1:0])))
     mul_ov = ila.ite(b_mul != 0, bv(1, 1), bv(0, 1))
-    mul_psw = ila.concat(bv(0, 1), ila.concat(psw[6:3], ila.concat(mul_ov, psw[1:0])))
+    # da
+    acc_da_cy2 = acc_da_stage2[8:8]
+    acc_da_cy = acc_da_cy2 | acc_da_cy1 | uc.cy
+    # alu
+    alu_cy_in = ila.choice('alu_cy_in', [uc.cy, bv(0, 1)])
+    alu_cy_5b = ila.choice('alu_cy_5b', 
+                           [ila.zero_extend(alu_cy_in, 5), 
+                            ila.sign_extend(alu_cy_in, 5)])
+    alu_src1_lo_5b = ila.zero_extend(acc[3:0], 5)
+    alu_src2_lo_5b = ila.zero_extend(acc_src2[3:0], 5)
+    alu_ac_add = (alu_src1_lo_5b + alu_src2_lo_5b + alu_cy_5b)[4:4]
+    alu_ac_sub = ila.ite(alu_src1_lo_5b < (alu_src2_lo_5b + alu_cy_5b), 
+                         bv(1, 1), bv(0, 1))
+    alu_ac = ila.choice('alu_ac', [alu_ac_add, alu_ac_sub])
+    alu_src1_sext = ila.sign_extend(acc, 9)
+    alu_src2_sext = ila.sign_extend(acc_src2, 9)
+    alu_src1_zext = ila.zero_extend(acc, 9)
+    alu_src2_zext = ila.zero_extend(acc_src2, 9)
+    alu_cy_9b_sext = ila.sign_extend(alu_cy_in, 9)
+    alu_cy_9b_zext = ila.zero_extend(alu_cy_in, 9)
+    alu_cy_9b = ila.choice('alu_cy_9b', [alu_cy_9b_zext, alu_cy_9b_sext])
+    alu_zext_9b_sum = alu_src1_zext + alu_src2_zext + alu_cy_9b
+    alu_cy_add = alu_zext_9b_sum[8:8]
+    alu_cy_sub = ila.ite(alu_src1_zext < (alu_src2_zext + alu_cy_9b), 
+                         bv(1, 1), bv(0, 1))
+    alu_cy = ila.choice('alu_cy', [alu_cy_add, alu_cy_sub])
+    alu_ov_9b_src1 = ila.choice('alu_ov_9b_src1', [alu_src1_sext, alu_src1_zext])
+    alu_ov_9b_src2 = ila.choice('alu_ov_9b_src2', [alu_src2_sext, alu_src2_zext])
+    alu_9b_add = alu_ov_9b_src1 + alu_ov_9b_src2 + alu_cy_9b
+    alu_9b_sub = alu_ov_9b_src1 - alu_ov_9b_src2 + alu_cy_9b
+    alu_9b_res = ila.choice('alu_9b_res', [alu_9b_add, alu_9b_sub])
+    alu_ov = ila.ite(alu_9b_res[8:8] != alu_9b_res[7:7], bv(1, 1), bv(0, 1))
+    acc_cy = ila.choice('acc_cy', [uc.cy, acc[0:0], acc[7:7], alu_cy])
+    acc_ac = ila.choice('acc_ac', [uc.ac, alu_ac])
+    acc_ov = ila.choice('acc_ov', [uc.ov, alu_ov])
+
+    psw_bit = ila.concat(bit_cy, psw[6:0])
+    psw_cjne = ila.concat(cjne_cy, psw[6:0])
+    psw_div = ila.concat(bv(0, 1), ila.concat(psw[6:3], ila.concat(div_ov, psw[1:0])))
+    psw_mul = ila.concat(bv(0, 1), ila.concat(psw[6:3], ila.concat(mul_ov, psw[1:0])))
+    psw_da = ila.concat(acc_da_cy, psw[6:0])
+    psw_acc = ila.concat(acc_cy, 
+                ila.concat(acc_ac, 
+                    ila.concat(psw[5:3], 
+                        ila.concat(acc_ov, psw[1:0]))))
+    psw_next = ila.choice('psw_next', [r_dir.psw, r_bit.psw, psw_cjne, psw_bit,
+                                       psw_div, psw_mul, psw_da, psw_acc])
+    model.set_next('PSW', psw_next)
 
     ########################### SP ##############################################
     sp_next = ila.choice('sp_next', 
-                    [sp+2, sp+1, sp-1, sp-2, sp, 
-                     sp_pop, r_pop.sp, r_dir.sp])
+                         [sp+2, sp+1, sp-1, sp-2, sp, sp_pop, 
+                          r_pop.sp, r_dir.sp, r_bit.sp])
     model.set_next('SP', sp_next)
+
+    ########################### DPTR ##############################################
+    mov_dptr = ila.choice('mov_dptr', [ila.concat(op1, op2), ila.concat(op2, op1)])
+    inc_dptr = dptr + 1
+    dptr_n1 = ila.choice('next_dptr', [mov_dptr, inc_dptr, dptr])
+    dpl_n1 = dptr[7:0]
+    dph_n1 = dptr[15:8]
+    dpl_next = ila.choice('dpl_next', [dpl_n1, r_dir.dpl, r_bit.dpl, uc.dpl])
+    dph_next = ila.choice('dph_next', [dph_n1, r_dir.dph, r_bit.dph, uc.dph])
+    model.set_next('DPL', dpl_next)
+    model.set_next('DPH', dph_next)
+
+    ########################### B #################################################
+    b_next = ila.choice('b_next', [b_mul, b_div, r_bit.b, r_dir.b, uc.b])
+    model.set_next('B', b_next)
+
+    ########################## XRAM ###############################################
+    xram_addr_rx = ila.concat(bv(0, 8),ila.choice('lsb_xram_addr', [rx[0], rx[1]]))
+    xram_addr_next = ila.choice('xram_addr', [xram_addr_rx, dptr, uc.xram_addr, bv(0, 16)])
+    model.set_next('XRAM_ADDR', xram_addr_next)
+    xram_data_out_next = ila.choice('xram_data_out', [bv(0, 8), acc])
+    model.set_next('XRAM_DATA_OUT', xram_data_out_next)
+    
+    ########################## SFRS ###############################################
+    sfrs = ['p0', 'p1', 'p2', 'p3', 'pcon', 'tcon', 'tmod', 'tl0',
+            'th0', 'tl1', 'th1', 'scon', 'sbuf', 'ie', 'ip' ]
+    for s in sfrs:
+        sfr_next = ila.choice(s+'_next', [
+                    getattr(r_bit, s), getattr(r_dir, s), getattr(uc, s)])
+        model.set_next(s.upper(), sfr_next)
 
     for s in state:
         print s
@@ -283,241 +350,8 @@ def synthesize(state, enable_ps):
         t_elapsed = time.clock() - st
         print model.get_next(s)
 
-
-###
-###
-###    # and then the upper nibble
-###    ACC_DA_CY2 = Extract(8, 8, ACC_DA_stage2)
-###    ACC_DA_CY = BVOr(ACC_DA_CY2, BVOr(ACC_DA_CY1, ctx.CY))
-###    ctxDA = ctxNOP.clone()
-###    ctxDA.ACC = ACC_DA
-###    ctxDA.PSW = Concat(ACC_DA_CY, Extract(6, 0, ctx.PSW))
-###
-###    # compute the CY/AC/OV flags
-###    ALU_CY_IN = Choice('ALU_CY_IN', [ctx.CY, BitVecVal(0, 1)])
-###
-###    ALU_SRC1 = ctx.ACC
-###    ALU_SRC1_LO = Extract(3, 0, ALU_SRC1)
-###    ALU_SRC1_HI = Extract(7, 4, ALU_SRC1)
-###
-###    ALU_SRC2 = ACC_SRC2
-###    ALU_SRC2_LO = Extract(3, 0, ALU_SRC2)
-###    ALU_SRC2_HI = Extract(7, 4, ALU_SRC2)
-###    ALU_CY_5B = Choice('ALU_CY_5B', [ZeroExt(ALU_CY_IN, 4), SignExt(ALU_CY_IN, 4)])
-###
-###    ALU_SRC1_LO_5B = ZeroExt(ALU_SRC1_LO, 1)
-###    ALU_SRC2_LO_5B = ZeroExt(ALU_SRC2_LO, 1)
-###    ALU_AC_ADD = Extract(4, 4, Add(ALU_SRC1_LO_5B, Add(ALU_SRC2_LO_5B, ALU_CY_5B)))
-###    ALU_AC_SUB = If(ULT(ALU_SRC1_LO_5B, Add(ALU_SRC2_LO_5B, ALU_CY_5B)), BitVecVal(1, 1), BitVecVal(0, 1))
-###    ALU_AC = Choice('ALU_AC', [ALU_AC_ADD, ALU_AC_SUB])
-###
-###    ALU_SRC1_SEXT = SignExt(ALU_SRC1, 1)
-###    ALU_SRC2_SEXT = SignExt(ALU_SRC2, 1)
-###    ALU_SRC1_ZEXT = ZeroExt(ALU_SRC1, 1)
-###    ALU_SRC2_ZEXT = ZeroExt(ALU_SRC2, 1)
-###    ALU_CY_9B_SEXT = SignExt(ALU_CY_IN, 8)
-###    ALU_CY_9B_ZEXT = ZeroExt(ALU_CY_IN, 8)
-###    ALU_CY_9B = Choice('ALU_CY_9B', [ALU_CY_9B_ZEXT, ALU_CY_9B_SEXT])
-###
-###    ALU_ZEXT_9B_SUM = Add(ALU_SRC1_ZEXT, Add(ALU_SRC2_ZEXT, ALU_CY_9B))
-###    ALU_CY_ADD = Extract(8, 8, ALU_ZEXT_9B_SUM)
-###    ALU_CY_SUB = If(ULT(ALU_SRC1_ZEXT, Add(ALU_SRC2_ZEXT, ALU_CY_9B)), BitVecVal(1, 1), BitVecVal(0, 1))
-###    ALU_CY = Choice('ALU_CY', [ALU_CY_ADD, ALU_CY_SUB])
-###
-###    ALU_OV_9B_SRC1 = Choice('ALU_OV_9B_SRC1', [ALU_SRC1_SEXT, ALU_SRC1_ZEXT])
-###    ALU_OV_9B_SRC2 = Choice('ALU_OV_9B_SRC2', [ALU_SRC2_SEXT, ALU_SRC2_ZEXT])
-###
-###    ALU_9B_ADD = Add(ALU_OV_9B_SRC1, Add(ALU_OV_9B_SRC2, ALU_CY_9B))
-###    ALU_9B_SUB = Sub(ALU_OV_9B_SRC1, Add(ALU_OV_9B_SRC2, ALU_CY_9B))
-###    ALU_9B_RES = Choice('ALU_9B_RES', [ALU_9B_ADD, ALU_9B_SUB])
-###    ALU_OV = If(Not(Equal(Extract(8, 8, ALU_9B_RES), Extract(7, 7, ALU_9B_RES))),
-###                BitVecVal(1, 1),
-###                BitVecVal(0, 1))
-###
-###    ACC_CY = Choice('ACC_CY', [ctx.CY, Extract(0, 0, ctx.ACC), Extract(7, 7, ctx.ACC), ALU_CY])
-###    ACC_AC = Choice('ACC_AC', [ctx.AC, ALU_AC])
-###    ACC_OV = Choice('ACC_OV', [ctx.OV, ALU_OV])
-###
-###    ctxACC.PSW = Concat(ACC_CY, ACC_AC, Extract(5, 3, ctx.PSW), ACC_OV, Extract(1, 0, ctx.PSW))
-###
-###    # multiply and divide.
-###
-###    # instructions where the result is a direct iram address
-###    DIR_SRC1_ADDR = Choice('DIR_SRC1_ADDR', [op1, op2] + rxaddr)
-###    DIR_SRC1 = ctx.readDirect(DIR_SRC1_ADDR)
-###    DIR_SRC2_IRAM_ADDR = Choice('DIR_SRC2_IRAM_ADDR', [op1, op2] + rxaddr)
-###    DIR_SRC2_IRAM = ctx.readDirect(DIR_SRC2_IRAM_ADDR)
-###    DIR_SRC2_INDIR_ADDR = Choice('DIR_SRC2_INDIR_ADDR', [ctx.Rx[ 0 ], ctx.Rx[ 1 ]])
-###    DIR_SRC2_INDIR = ReadMem(ctx.IRAM, DIR_SRC2_INDIR_ADDR)
-###
-###    DIR_SRC2 = Choice('DIR_SRC2', 
-###            [op1, op2, ctx.ACC, DIR_SRC2_IRAM, DIR_SRC2_INDIR])
-###    DIR_INC = Add(DIR_SRC1, BitVecVal(1, 8))
-###    DIR_DEC = Sub(DIR_SRC1, BitVecVal(1, 8))
-###    DIR_ORL = BVOr(DIR_SRC1, DIR_SRC2)
-###    DIR_ANL = BVAnd(DIR_SRC1, DIR_SRC2)
-###    DIR_XRL = BVXor(DIR_SRC1, DIR_SRC2)
-###    DIR_MOV = DIR_SRC2
-###
-###    DIR_RESULT = Choice('DIR_RESULT', [DIR_INC, DIR_DEC, DIR_ORL, DIR_ANL, DIR_XRL, DIR_MOV])
-###    ctxDIR = ctxNOP.writeDirect(DIR_SRC1_ADDR, DIR_RESULT)
-###
-###    # instructions where the result is an indirect iram address
-###    SRC1_INDIR_ADDR = Choice('SRC1_INDIR_ADDR', [ctx.Rx[ 0 ], ctx.Rx[ 1 ]])
-###    SRC1_INDIR = ReadMem(ctx.IRAM, SRC1_INDIR_ADDR)
-###    SRC2_INDIR_DIR_ADDR = Choice('SRC2_INDIR_DIR_ADDR', [op1, op2])
-###    SRC2_INDIR_DIR = ctx.readDirect(SRC2_INDIR_DIR_ADDR)
-###    SRC2_INDIR = Choice('SRC2_INDIR', [op1, op2, ctx.ACC, SRC2_INDIR_DIR])
-###    SRC1_INDIR_INC = Add(SRC1_INDIR, BitVecVal(1, 8))
-###    SRC1_INDIR_DEC = Sub(SRC1_INDIR, BitVecVal(1, 8))
-###    SRC1_INDIR_MOV = SRC2_INDIR
-###    SRC1_INDIR_RESULT = Choice('SRC1_INDIR_RESULT', [SRC1_INDIR_INC, SRC1_INDIR_DEC, SRC1_INDIR_MOV])
-###    ctxINDIR = ctxNOP.clone()
-###    ctxINDIR.IRAM = WriteMem(ctx.IRAM, SRC1_INDIR_ADDR, SRC1_INDIR_RESULT)
-###
-###    STK_DATA = Choice('STK_DATA', [mem_SP, mem_SP_plus1, mem_SP_minus1])
-###    ctxPOP = ctxNOP.writeDirect(STK_SRC_DIR_ADDR, STK_DATA)
-###    ctxPOP.SP = If(Equal(STK_SRC_DIR_ADDR, BitVecVal(0x81, 8)), ctxPOP.SP, STK_SP)
-###
-###    # instructions which write to specific bit addressable registers.
-###    ctxBIT = ctxNOP.clone()
-###    BIT_SRC1_ADDR = Choice('BIT_SRC1_ADDR', [op1, op2])
-###    BIT_SRC1 = ctx.readBit(BIT_SRC1_ADDR)
-###
-###    # some instructions write their result to the carry flag; which is also the first operand.
-###    CY_ORL = BVOr(ctx.CY, BIT_SRC1)
-###    CY_ORLC = BVOr(ctx.CY, Complement(BIT_SRC1))
-###    CY_ANL = BVAnd(ctx.CY, BIT_SRC1)
-###    CY_ANLC = BVAnd(ctx.CY, Complement(BIT_SRC1))
-###    CY_MOV = BIT_SRC1
-###    CY_CPL_BIT = Complement(BIT_SRC1)
-###    CY_CPL_C = Complement(ctx.CY)
-###    BIT_CNST1 = BitVecVal(1,1)
-###    BIT_CNST0 = BitVecVal(0,1)
-###    BIT_CY = Choice('BIT_CY', 
-###            [CY_ORL, CY_ANL, CY_ORLC, CY_ANLC, CY_CPL_C,
-###            CY_MOV, CY_CPL_BIT, BIT_CNST1, BIT_CNST0])
-###
-###    ctxBIT.PSW = Concat(BIT_CY, Extract(6, 0, ctx.PSW))
-###
-###    WRBIT_CY = ctx.CY
-###    WRBIT_CPL = Complement(BIT_SRC1)
-###    WRBIT_DATA = Choice('WRBIT_DATA', [WRBIT_CY, WRBIT_CPL, BIT_CNST0, BIT_CNST1])
-###    ctxWRBIT = ctxNOP.writeBit(BIT_SRC1_ADDR, WRBIT_DATA)
-###
-###    # DPTR
-###    ctxDPTR = ctxNOP.clone()
-###    MOV_DPTR = Choice('MOV_DPTR', [Concat(op1, op2), Concat(op2, op1)])
-###    INC_DPTR = Add(DPTR, BitVecVal(1, 16))
-###    ctxDPTR.DPTR = Choice('NEXT_DPTR', [MOV_DPTR, INC_DPTR])
-###    ctxDPTR.DPL = Extract(7, 0, ctxDPTR.DPTR)
-###    ctxDPTR.DPH = Extract(15, 8, ctxDPTR.DPTR)
-###
-###    # exchange instructions.
-###    # first we deal with the direct addressed exchanges.
-###    XCHG_SRC2_DIR_ADDR = Choice('XCHG_SRC2_DIR_ADDR', 
-###        [op1, op2] + rxaddr)
-###    XCHG_SRC2_DIR = ctx.readDirect(XCHG_SRC2_DIR_ADDR)
-###    ctxXCHG_DIR = ctx.writeDirect(XCHG_SRC2_DIR_ADDR, ctx.ACC)
-###    ctxXCHG_DIR.ACC = XCHG_SRC2_DIR
-###
-###    # and now with the indirect addressed exchanges.
-###    # note we can have both a 'full' write and a 'half' write which only
-###    # modifes the lower nibble
-###    XCHG_SRC2_INDIR_ADDR = Choice('XCHG_SRC2_INDIR_ADDR', [ctx.Rx[ 0 ], ctx.Rx[ 1 ]])
-###    XCHG_SRC2_FULL_INDIR = ReadMem(ctx.IRAM, XCHG_SRC2_INDIR_ADDR)
-###    XCHG_SRC2_HALF_INDIR = Concat(Extract(7, 4, ctx.ACC), Extract(3, 0, XCHG_SRC2_FULL_INDIR))
-###    XCHG_SRC2_INDIR = Choice('XCHG_SRC2_INDIR', [XCHG_SRC2_FULL_INDIR, XCHG_SRC2_HALF_INDIR])
-###    XCHG_SRC1_HALF_INDIR = Concat(Extract(7, 4, XCHG_SRC2_FULL_INDIR), Extract(3, 0, ctx.ACC))
-###    XCHG_SRC1_INDIR = Choice('XCHG_SRC1', [XCHG_SRC1_HALF_INDIR, ctx.ACC])
-###    ctxXCHG_INDIR = ctxNOP.clone()
-###    ctxXCHG_INDIR.IRAM = WriteMem(ctx.IRAM, XCHG_SRC2_INDIR_ADDR, XCHG_SRC1_INDIR)
-###    ctxXCHG_INDIR.ACC = XCHG_SRC2_INDIR
-###
-###    # XRAM reads and writes
-###    XRAM_ADDR_Rx = Concat(BitVecVal(0, 8),
-###                          Choice('LSB_XRAM_ADDR', [ctx.Rx[ 0 ], ctx.Rx[ 1 ]]))
-###    XRAM_ADDR = Choice('XRAM_ADDR', [XRAM_ADDR_Rx, DPTR])
-###    XRAM_DATA_OUT = Choice('XRAM_DATA_OUT', [BitVecVal(0, 8), ctx.ACC])
-###    ctxWRX = ctxNOP.clone()
-###    ctxWRX.XRAM_DATA_OUT = XRAM_DATA_OUT
-###    ctxWRX.XRAM_ADDR = XRAM_ADDR
-###
-###    ctxRDX = ctxNOP.clone()
-###    ctxRDX.XRAM_ADDR = XRAM_ADDR
-###    ctxRDX.ACC = ctx.XRAM_DATA_IN
-###    
-###    # final result.
-###    ctxFINAL = CtxChoice('CTX3', [ctxNOP, ctxACC, ctxDIR, ctxDPTR, 
-###                ctxPOP, ctxINDIR, ctxCALL, ctxBIT, ctxMUL, ctxDIV, ctxWRBIT, 
-###                ctxPUSH, ctxDA, ctxXCHG_DIR, ctxXCHG_INDIR, ctxWRX, ctxRDX,
-###                ctxCJNE])
-###
-###    syn.addOutput('PC', ctxFINAL.PC, Synthesizer.BITVEC)
-###    syn.addOutput('ACC', ctxFINAL.ACC, Synthesizer.BITVEC)
-###    syn.addOutput('IRAM', ctxFINAL.IRAM, Synthesizer.MEM)
-###    syn.addOutput('XRAM', ctxFINAL.XRAM, Synthesizer.MEM)
-###    syn.addOutput('PSW', ctxFINAL.PSW, Synthesizer.BITVEC)
-###    syn.addOutput('SP', ctxFINAL.SP, Synthesizer.BITVEC)
-###    syn.addOutput('B', ctxFINAL.B, Synthesizer.BITVEC)
-###    syn.addOutput('DPL', ctxFINAL.DPL, Synthesizer.BITVEC)
-###    syn.addOutput('DPH', ctxFINAL.DPH, Synthesizer.BITVEC)
-###    # ports
-###    syn.addOutput('P0', ctxFINAL.P0, Synthesizer.BITVEC)
-###    syn.addOutput('P1', ctxFINAL.P1, Synthesizer.BITVEC)
-###    syn.addOutput('P2', ctxFINAL.P2, Synthesizer.BITVEC)
-###    syn.addOutput('P3', ctxFINAL.P3, Synthesizer.BITVEC)
-###    # misc SFRs.
-###    syn.addOutput('PCON', ctxFINAL.PCON, Synthesizer.BITVEC)
-###    syn.addOutput('TCON', ctxFINAL.TCON, Synthesizer.BITVEC)
-###    syn.addOutput('TMOD', ctxFINAL.TMOD, Synthesizer.BITVEC)
-###    syn.addOutput('TL0', ctxFINAL.TL0, Synthesizer.BITVEC)
-###    syn.addOutput('TH0', ctxFINAL.TH0, Synthesizer.BITVEC)
-###    syn.addOutput('TL1', ctxFINAL.TL1, Synthesizer.BITVEC)
-###    syn.addOutput('TH1', ctxFINAL.TH1, Synthesizer.BITVEC)
-###    syn.addOutput('SCON', ctxFINAL.SCON, Synthesizer.BITVEC)
-###    syn.addOutput('SBUF', ctxFINAL.SBUF, Synthesizer.BITVEC)
-###    syn.addOutput('IE', ctxFINAL.IE, Synthesizer.BITVEC)
-###    syn.addOutput('IP', ctxFINAL.IP, Synthesizer.BITVEC)
-###    syn.addOutput('XRAM_ADDR', ctxFINAL.XRAM_ADDR, Synthesizer.BITVEC)
-###    syn.addOutput('XRAM_DATA_OUT', ctxFINAL.XRAM_DATA_OUT, Synthesizer.BITVEC)
-###
-###    if logfilename:
-###        if logfilename == 'STDOUT':
-###            lf = sys.stdout
-###        else:
-###            lf = open(logfilename, 'wt')
-###        syn.debug(vb=verbosity, lf=lf, uc=unsat_core)
-###    else:
-###        lf = None
-###
-###    cnst = Equal(ctx.op0, BitVecVal(opc, 8))
-###    # log
-###    if lf: 
-###        print >> lf, 'opcode: %02x' % opc
-###
-###    # synthesize
-###    r = syn.synthesize(regs, [cnst], eval8051)
-###    if len(outputfilename):
-###        with open(outputfilename, 'wb') as f:
-###            pk = Pickler(f, -1)
-###            pk.dump(opc)
-###            for name, ast in itertools.izip(regs, r):
-###                pk.dump(name)
-###                pk.dump(ast)
-###    else:
-###        # print
-###        fmt = '%02x\n' + ('\n'.join(['%s'] * len(r))) + '\n'
-###        print fmt % tuple([opc] + r)
-###        # log again
-###        if lf: 
-###            print >> lf, fmt % tuple([opc] + r)
-###
-###    if lf:
-###        lf.close()
-
 def main():
-    ila.setloglevel(2, "")
+    ila.setloglevel(1, "")
     parser = argparse.ArgumentParser()
     parser.add_argument("--en", type=int, default=1, 
                         help="enable parameterized synthesis.")

@@ -663,6 +663,11 @@ namespace ila
                 "Unable to find name: " + name);
             return;
         }
+        if (pos->second.next.get() == NULL) {
+            throw PyILAException(PyExc_RuntimeError,
+                "Next expression is not set for: " + name);
+            return;
+        }
         _initSynthesis();
         S.push(); Sp.push();
         _initSolverAssumptions(abs.assumps, c1, c2);

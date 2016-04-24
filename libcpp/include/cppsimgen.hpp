@@ -15,6 +15,12 @@ namespace ila
     // Cpp variable
     class CppVar
     {
+        friend class CppFun;
+        friend class CppSimGen;
+    public:
+        // FIXME Change bvStr, ubvStr, sbvStr, maxBvVal if this is changed.
+        typedef uint64_t cppBvType;
+
         // Variable count.
         static int varCnt;
         // Variable type.
@@ -24,12 +30,7 @@ namespace ila
         static std::string sbvStr;
         static std::string memStr;
         static std::string voidStr;
-
-        friend class CppFun;
-        friend class CppSimGen;
-    public:
-        // FIXME Change bvStr, ubvStr, sbvStr as this is changed.
-        typedef uint64_t cppBvType;
+        static std::string maxBvVal;
     protected:
         std::string _type;
         std::string _name;
@@ -52,6 +53,8 @@ namespace ila
         std::string refDef() const;
         // Use variable, ex. " r0"
         std::string use() const;
+        // Use variable as signed.
+        std::string signedUse() const;
         // Use variable as unsigned.
         std::string unsignedUse() const;
         // Use the exact length variable.
