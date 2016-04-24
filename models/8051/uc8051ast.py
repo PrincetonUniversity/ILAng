@@ -59,6 +59,8 @@ class uc8051(object):
         self.ip = self.model.reg('IP', 8)
         # XRAM
         self.xram_data_in = self.model.reg('XRAM_DATA_IN', 8)
+        self.xram_data_out = self.model.reg('XRAM_DATA_OUT', 8)
+        self.xram_addr = self.model.reg('XRAM_ADDR', 16)
 
     def readDirect(self, addr):
         msb0 = addr[7:7] == 0 
@@ -91,7 +93,7 @@ class uc8051(object):
         msb1 = bitaddr[7:7] == 1
         byteaddr = ila.ite(msb1, 
             ila.concat(bitaddr[7:3], self.model.const(0, 3)), 
-            ila.zero_extend(bitaddr, 8) + 32)
+            ila.zero_extend(bitaddr[7:3], 8) + 32)
         bitindex = bitaddr[2:0]
         byte = self.readDirect(byteaddr)
         bit = byte[bitindex]
@@ -102,7 +104,7 @@ class uc8051(object):
         msb1 = bitaddr[7:7] == 1
         byteaddr = ila.ite(msb1, 
             ila.concat(bitaddr[7:3], self.model.const(0, 3)), 
-            ila.zero_extend(bitaddr, 8) + 32)
+            ila.zero_extend(bitaddr[7:3], 8) + 32)
         byte = self.readDirect(byteaddr)
         bitindex = ila.zero_extend(bitaddr[2:0], 8)
         mask1 = ~(self.model.const(1, 8) << bitindex)

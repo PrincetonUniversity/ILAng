@@ -1,10 +1,12 @@
 #include <memvalues.hpp>
+#include <set>
 
 #include <ast.hpp>
 #include <util.hpp>
 #include <exception.hpp>
 #include <boost/python.hpp>
 #include <smt.hpp>
+#include <logging.hpp>
 
 namespace ila
 {
@@ -91,6 +93,7 @@ namespace ila
             std::string sdef(Z3_get_numeral_string(c.ctx(), fip.else_value()));
             def_value = boost::lexical_cast<mp_int_t>(sdef);
         }
+        gc();
     }
 
     MemValues::MemValues(const MemValues& that)
@@ -203,7 +206,7 @@ namespace ila
             }
         }
         for ( auto it : that.values ) {
-            if (getItemInt(it.first) != getItemInt(it.first)) {
+            if (that.getItemInt(it.first) != getItemInt(it.first)) {
                 return false;
             }
         }
@@ -214,6 +217,9 @@ namespace ila
     {
         using namespace z3;
         using namespace boost;
+
+        log2() << "semanticEqual: this=" << *this
+               << "; that=" << that << std::endl;
 
         if (type != that.type) return false;
         if (*this == that) return true;
@@ -252,6 +258,20 @@ namespace ila
         return e1;
     }
 
+    void MemValues::gc()
+    {
+        std::set<mp_int_t> indices_to_del;
+        for (auto&& r : values) {
+            if (r.second == def_value) {
+                indices_to_del.insert(r.first);
+            }
+        }
+
+        for (auto i : indices_to_del) {
+            values.erase(i);
+        }
+    }
+
     std::string MemValues::str() const
     {
         std::ostringstream ostr;
@@ -262,16 +282,19 @@ namespace ila
     std::ostream& operator<<(std::ostream& out, const MemValues& mv)
     {
         bool first = true;
-        out << "[";
+        // save flags.
+        auto f = out.flags();
 
+        // output.
+        out << "[";
         for (auto p : mv.values) {
             if (!first) { out << " "; } else { first = false; }
             out << std::hex << std::showbase << p.first << ":" << p.second;
         }
-
         if (!first) { out << " "; } 
         out << "default: " << std::hex << std::showbase << mv.def_value << std::dec << "]";
-
+        // restore flags.
+        out.flags(f);
         return out;
     }
 

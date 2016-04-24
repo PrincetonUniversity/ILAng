@@ -193,11 +193,13 @@ namespace ila
         nptr_t _synthesize(
             const std::string& name, 
             const nptr_t& de_expr, const nptr_t& expr,
+            const z3::expr& y,
             PyObject* pyfun);
 
         nptr_t _synthesizeEx(
             const std::string& name, 
             const nptr_t& de_expr, const nptr_t& expr,
+            const z3::expr& y,
             PyObject* pyfun);
 
         z3::expr _createSynMiter(const nptr_t& ex);
@@ -207,6 +209,7 @@ namespace ila
             const std::string& name,
             const nptr_t& var, 
             const nptr_t& next,
+            const z3::expr& y,
             PyObject* pyfun);
 
     public:

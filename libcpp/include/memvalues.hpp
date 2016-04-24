@@ -69,6 +69,8 @@ namespace ila
         z3::expr toZ3(z3::context& c) const;
         // write to a string.
         std::string str() const;
+        // gc: remove entries which are equal to the default.
+        void gc();
 
         // support for __getitem__
         mp_int_t getItemInt(const mp_int_t& index) const;
