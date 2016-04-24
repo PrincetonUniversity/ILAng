@@ -21,7 +21,7 @@ namespace ila
     class FuncExpr : public Node {
     public:
         // constructor.
-        FuncExpr(Abstraction* c, int argNum, std::vector<int> argsWidth);
+        FuncExpr(Abstraction* c, int retWidth, std::vector<int> argsWidth);
         // constructor for ChoiceExpr. 
         FuncExpr(Abstraction* c, NodeType t);
         // destructor.
@@ -34,7 +34,7 @@ namespace ila
     public:
         // constructor.
         FuncVar(Abstraction* c, const std::string& name, 
-                int argNum, std::vector<int> argrsWidth) ;
+                int retWidth, std::vector<int> argrsWidth) ;
         // destructor.
         virtual ~FuncVar();
         // clone.

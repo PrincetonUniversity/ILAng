@@ -91,6 +91,24 @@ namespace ila
         return n;
     }
 
+    NodeRef* Abstraction::addFun(const std::string& name, 
+                                 int retW, const py::list& l)
+    {
+        if (!checkAndInsertName(name)) return NULL;
+        std::vector<int> argW;
+        unsigned sz = py::len(l);
+        for (unsigned i=0; i != sz; i++) {
+            py::extract<int> ni_(l[i]);
+            if (ni_.check()) {
+                argW.push_back(ni_);
+            }
+        }
+
+        NodeRef* n = new NodeRef(new ila::FuncVar(this, name, retW, argW));
+        funs.insert({name, npair_t(n->node, NULL)});
+        return n;
+    }
+
     // ---------------------------------------------------------------------- //
     NodeRef* Abstraction::getBit(const std::string& name)
     {
@@ -107,6 +125,11 @@ namespace ila
         return getVar(mems, name);
     }
 
+    NodeRef* Abstraction::getFun(const std::string& name)
+    {
+        return getVar(funs, name);
+    }
+
     void Abstraction::addVar(nptr_t& n)
     {
         const BoolVar* boolvar = NULL;
@@ -121,7 +144,7 @@ namespace ila
         } else if ((memvar = dynamic_cast<const MemVar*>(n.get()))) {
             addVar(mems, n);
         } else if ((funcvar = dynamic_cast<const FuncVar*>(n.get()))) {
-            // FIXME
+            addVar(funs, n);
         }
     }
 

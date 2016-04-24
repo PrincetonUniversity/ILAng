@@ -3,6 +3,7 @@
 
 #include <set>
 #include <map>
+#include <vector>
 #include <string>
 #include <boost/python.hpp>
 
@@ -44,6 +45,8 @@ namespace ila
         nmap_t bits;
         // list of memories.
         nmap_t mems;
+        // list of functions.
+        nmap_t funs;
 
         // fetch
         nptr_t fetchExpr;
@@ -81,6 +84,8 @@ namespace ila
         NodeRef* addReg(const std::string& name, int width);
         // Create a memory.
         NodeRef* addMem(const std::string& name, int addrW, int dataW);
+        // Create a function.
+        NodeRef* addFun(const std::string& name, int retW, const py::list& l);
 
         // Get an existing boolean.
         NodeRef* getBit(const std::string& name);
@@ -88,6 +93,8 @@ namespace ila
         NodeRef* getReg(const std::string& name);
         // Get an existing memory.
         NodeRef* getMem(const std::string& name);
+        // Get an existing function.
+        NodeRef* getFun(const std::string& name);
 
         // add a var if it does not exist.
         void addVar(nptr_t& nref);
@@ -169,6 +176,8 @@ namespace ila
         const nmap_t& getRegs() const { return regs; }
         // get booleans.
         const nmap_t& getBits() const { return bits; }
+        // get functions.
+        const nmap_t& getFuns() const { return funs; }
 
         friend class Node;
         friend class Synthesizer;

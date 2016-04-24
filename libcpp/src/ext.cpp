@@ -312,6 +312,9 @@ BOOST_PYTHON_MODULE(ila)
         // memories.
         .def("mem", &Abstraction::addMem, return_value_policy<manage_new_object>())
         .def("getmem", &Abstraction::getMem, return_value_policy<manage_new_object>())
+        // functions.
+        .def("fun", &Abstraction::addFun, return_value_policy<manage_new_object>())
+        .def("getfun", &Abstraction::getFun, return_value_policy<manage_new_object>())
         // next function
         .def("set_next", &Abstraction::setNext)
         // get next.
