@@ -21,7 +21,7 @@ namespace ila
         "div", "udiv", "rem", "urem", "mod", "shl", "lshr", "ashr", 
         "*", "concat", "get-bit", "readmem",
 		// ternary
-        "if", "apply_fun" "apply_fun", 
+        "if", "apply_fun" "apply_func", 
     };
 
     // ---------------------------------------------------------------------- //
@@ -193,7 +193,7 @@ namespace ila
         if (op == IF && args.size() == 3) {
             // ITE
             return args[1]->type.bitWidth;
-        } else if (op == APPLY_FUN && args.size() >= 1) {
+        } else if (op == APPLY_FUNC && args.size() >= 1) {
             // Apply function
             return args[0]->type.bitWidth;
         } else {
@@ -299,7 +299,7 @@ namespace ila
             if (!args[0]->type.isBool() /* or nonzero (bv) */ ) {
                 return 1;
             } 
-        } else if (op == APPLY_FUN && args.size() >= 1) {
+        } else if (op == APPLY_FUNC && args.size() >= 1) {
             // (f, ip0, ip1, ...)
             std::vector<int> argWidth;
             for (unsigned i = 1; i != args.size(); i++) {
@@ -457,7 +457,7 @@ namespace ila
       , op(op)
       , args(args_)
     {
-        if (!isTernary(op)) {
+        if (!isTernary(op) && !isNary(op)) {
             throw PyILAException(PyExc_ValueError,
                                  "Invalid n-ary operator: " + 
                                  operatorNames[op]);

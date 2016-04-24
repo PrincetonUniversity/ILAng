@@ -261,6 +261,14 @@ BOOST_PYTHON_MODULE(ila)
     def("ite", &NodeRef::ite,
             return_value_policy<manage_new_object>());
 
+    // apply function.
+    def("appfun", &NodeRef::appfunc1,
+            return_value_policy<manage_new_object>());
+    def("appfun", &NodeRef::appfunc2,
+            return_value_policy<manage_new_object>());
+    def("appfun", &NodeRef::appfuncL,
+            return_value_policy<manage_new_object>());
+
     // choice
     def("choice", &NodeRef::choice2, 
             return_value_policy<manage_new_object>());

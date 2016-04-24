@@ -17,6 +17,7 @@ namespace ila
     class Abstraction;
 
     // ---------------------------------------------------------------------- //
+    // Function expression.
     class FuncExpr : public Node {
     public:
         // constructor.
@@ -30,12 +31,6 @@ namespace ila
     // ---------------------------------------------------------------------- //
     // Func variables.
     class FuncVar : public FuncExpr {
-    //private:
-        // arguments. 
-        // nptr_vec_t args;
-        // result.
-        // nptr_t ret;
-
     public:
         // constructor.
         FuncVar(Abstraction* c, const std::string& name, 

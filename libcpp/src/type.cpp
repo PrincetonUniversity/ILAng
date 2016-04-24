@@ -78,14 +78,17 @@ namespace ila
         , argsWidth(aw)
     {
         if (t != FUNC) {
-            throw PyILAException(PyExc_TypeError, "Invalid type argument in constructor for Type.");
+            throw PyILAException(PyExc_TypeError, 
+                    "Invalid type argument in constructor for Type.");
         }
         if (rw <= 0) {
-            throw PyILAException(PyExc_TypeError, "Invalid bitvector width argument.");
+            throw PyILAException(PyExc_TypeError, 
+                    "Invalid bitvector width argument.");
         }
         for (unsigned i = 0; i != aw.size(); i++) {
             if (aw[i] <= 0) {
-                throw PyILAException(PyExc_TypeError, "Invalid bitvector width argument.");
+                throw PyILAException(PyExc_TypeError, 
+                        "Invalid bitvector width argument.");
             }
         }
     }
