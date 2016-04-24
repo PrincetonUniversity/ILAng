@@ -1,5 +1,6 @@
 #include <cppsimgen.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string.hpp>
 #include <bitset>
 
 namespace ila
@@ -357,16 +358,27 @@ namespace ila
         out << "#include <stdint.h>\n";
 
         // Mem type class
+        out << "\n/****************************************************/\n";
+        out << "#ifndef TYPE_MEM_CLASS\n";
+        out << "#define TYPE_MEM_CLASS\n";
         defMemClass(out);
+        out << "#endif\n";
+        out << "/****************************************************/\n";
 
+        out << "\n/****************************************************/\n";
+        out << "#ifndef " << boost::to_upper_copy<std::string>(_modelName) 
+            << "_CLASS\n";
+        out << "#define " << boost::to_upper_copy<std::string>(_modelName) 
+            << "_CLASS\n";
         // Model class
         genModel(out);
-
         // Constant memory initialization.
         setMemConst(out);
+        out << "#endif\n";
+        out << "/****************************************************/\n";
 
         // main function
-        genMain(out);
+        //genMain(out);
 
     }
 
@@ -673,7 +685,6 @@ namespace ila
     void CppSimGen::defMemClass(std::ostream& out) const
     {
         std::string bvStr = CppVar::bvStr;
-        out << "\n/****************************************************/\n";
         out << "class type_mem\n";
         out << "{\n";
         out << "private:\n";
@@ -710,7 +721,6 @@ namespace ila
         out << "\t\t}\n";
         out << "\t}\n";
         out << "};\n";
-        out << "/****************************************************/\n";
     }
 
     // ---------------------------------------------------------------------- //
@@ -752,7 +762,6 @@ namespace ila
     // ---------------------------------------------------------------------- //
     void CppSimGen::genModel(std::ostream& out) const
     {
-        out << "\n/****************************************************/\n";
         // Model class prolog
         out << "class " <<  _modelName << "\n" 
             << "{\n";
@@ -795,7 +804,6 @@ namespace ila
             it->second->dumpCode(out, 0);
         }
 
-        out << "/****************************************************/\n";
     }
 
     // ---------------------------------------------------------------------- //
