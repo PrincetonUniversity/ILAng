@@ -61,6 +61,9 @@ namespace ila
             py::dict& result
         );
 
+        NodeRef* getVar(const nmap_t& m, const std::string& name);
+        void addVar(nmap_t& m, nptr_t& n);
+
     public:
         int paramSyn;
 
@@ -78,6 +81,16 @@ namespace ila
         NodeRef* addReg(const std::string& name, int width);
         // Create a memory.
         NodeRef* addMem(const std::string& name, int addrW, int dataW);
+
+        // Get an existing boolean.
+        NodeRef* getBit(const std::string& name);
+        // Get an existing bitvector.
+        NodeRef* getReg(const std::string& name);
+        // Get an existing memory.
+        NodeRef* getMem(const std::string& name);
+
+        // add a var if it does not exist.
+        void addVar(nptr_t& nref);
 
         // Set the next template for this memory var.
         void setNext(const std::string& name, NodeRef* n);
@@ -145,6 +158,8 @@ namespace ila
 
         // check equality function.
         bool areEqual(NodeRef* left, NodeRef* right) const;
+        // check quality under assumption
+        bool areEqualAssump(NodeRef* assump, NodeRef* left, NodeRef* right);
 
         // get memories.
         const nmap_t& getMems() const { return mems; }

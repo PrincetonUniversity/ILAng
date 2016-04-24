@@ -39,6 +39,34 @@ namespace ila
     }
 
     // ---------------------------------------------------------------------- //
+    NodeRef* Abstraction::getVar(const nmap_t& m, const std::string& n)
+    {
+        auto pos = m.find(n);
+        if (pos == m.end()) {
+            throw PyILAException(PyExc_IndexError, "Unable to find: " + n);
+            return NULL;
+        } else {
+            return new NodeRef(pos->second.var);
+        }
+    }
+
+    void Abstraction::addVar(nmap_t& m, nptr_t& n)
+    {
+        auto pos = m.find(n->name);
+        if (pos == m.end() && names.find(n->name) == names.end()) {
+            npair_t np(n, NULL);
+            m.insert({n->name, np});
+            names.insert(n->name);
+        } else {
+            if (pos == m.end() || pos->second.var->type != n->type) {
+                throw PyILAException(PyExc_TypeError,
+                    "Type mismatch of new node: " + n->name +
+                    " with existing node of the same name.");
+            }
+        }
+    }
+
+    // ---------------------------------------------------------------------- //
     NodeRef* Abstraction::addBit(const std::string& name)
     {
         if(!checkAndInsertName(name)) return NULL;
@@ -61,6 +89,40 @@ namespace ila
         NodeRef* n = new NodeRef(new ila::MemVar(this, name, aw, dw));
         mems.insert({name, npair_t(n->node, NULL)});
         return n;
+    }
+
+    // ---------------------------------------------------------------------- //
+    NodeRef* Abstraction::getBit(const std::string& name)
+    {
+        return getVar(bits, name);
+    }
+
+    NodeRef* Abstraction::getReg(const std::string& name)
+    {
+        return getVar(regs, name);
+    }
+
+    NodeRef* Abstraction::getMem(const std::string& name)
+    {
+        return getVar(mems, name);
+    }
+
+    void Abstraction::addVar(nptr_t& n)
+    {
+        const BoolVar* boolvar = NULL;
+        const BitvectorVar* bvvar = NULL;
+        const MemVar* memvar = NULL;
+        const FuncVar* funcvar = NULL;
+
+        if ((boolvar = dynamic_cast<const BoolVar*>(n.get()))) {
+            addVar(bits, n);
+        } else if ((bvvar = dynamic_cast<const BitvectorVar*>(n.get()))) {
+            addVar(regs, n);
+        } else if ((memvar = dynamic_cast<const MemVar*>(n.get()))) {
+            addVar(mems, n);
+        } else if ((funcvar = dynamic_cast<const FuncVar*>(n.get()))) {
+            // FIXME
+        }
     }
 
     // ---------------------------------------------------------------------- //
@@ -287,6 +349,60 @@ namespace ila
         }
     }
 
+    bool Abstraction::areEqualAssump(NodeRef* assump, NodeRef* left, NodeRef* right)
+    {
+        using namespace z3;
+
+        if (left->node->type != right->node->type) {
+            throw PyILAException(PyExc_TypeError,
+                "Types do not match.");
+            return false;
+        }
+
+        context c_;
+        Z3ExprAdapter c(c_, "");
+
+        // std::cout << "left: " << *left->node.get() << std::endl;
+        z3::expr ex1 = c.getExpr(left->node.get());
+        z3::expr cn1 = c.getCnst(left->node.get());
+        //std::cout << "ex1:" << ex1 << std::endl;
+
+        // std::cout << "right: " << *right->node.get() << std::endl;
+        z3::expr ex2 = c.getExpr(right->node.get());
+        z3::expr cn2 = c.getCnst(right->node.get());
+        //std::cout << "ex2:" << ex2 << std::endl;
+
+        expr mitre = (ex1 != ex2);
+        //std::cout << "mitre:" << mitre << std::endl;
+
+
+        solver S(c_);
+
+        for (auto&& a : assumps) {
+            S.add(c.getExpr(a.get()));
+        }
+        S.add(c.getExpr(assump->node.get()));
+
+        S.add(mitre);
+        S.add(cn1);
+        S.add(cn2);
+        auto r = S.check();
+        if (r == sat) {
+            z3::model m = S.get_model();
+            z3::expr m1 = m.eval(ex1);
+            z3::expr m2 = m.eval(ex2);
+            std::cout << m << std::endl;
+            std::cout << m1 << std::endl;
+            std::cout << m2 << std::endl;
+            return false;
+        } else if (r == unsat) {
+            return true;
+        } else {
+            throw PyILAException(PyExc_RuntimeError, "Indeterminate result from Z3.");
+            return false;
+        }
+    }
+
     bool Abstraction::areEqual(NodeRef* left, NodeRef* right) const
     {
         using namespace z3;
@@ -315,11 +431,22 @@ namespace ila
 
 
         solver S(c_);
+
+        for (auto&& a : assumps) {
+            S.add(c.getExpr(a.get()));
+        }
+
         S.add(mitre);
         S.add(cn1);
         S.add(cn2);
         auto r = S.check();
         if (r == sat) {
+            z3::model m = S.get_model();
+            z3::expr m1 = m.eval(ex1);
+            z3::expr m2 = m.eval(ex2);
+            std::cout << m << std::endl;
+            std::cout << m1 << std::endl;
+            std::cout << m2 << std::endl;
             return false;
         } else if (r == unsat) {
             return true;
@@ -454,6 +581,7 @@ namespace ila
         }
         nptr_t res = ipt.importAst(this, in);
         NodeRef* wrap = new NodeRef(res);
+        ipt.addMapVars(this);
         in.close();
         return wrap;
     }
