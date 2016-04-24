@@ -30,6 +30,8 @@ namespace ila
         // helper function for the _nodeMap.
         nptr_t mapFind(const std::string& name) const;
         void mapInsert(const std::string& name, nptr_t nptr);
+        // add elements from the map to the abstraction.
+        void addMapVars(Abstraction* c);
 
     protected:
 

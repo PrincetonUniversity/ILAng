@@ -1,3 +1,4 @@
+#include <abstraction.hpp>
 #include <imexport.hpp>
 #include <util.hpp>
 
@@ -301,6 +302,13 @@ namespace ila
     void ImExport::mapInsert(const std::string& name, nptr_t nptr)
     {
         _nodeMap.insert(std::pair<std::string, nptr_t>(name, nptr));
+    }
+
+    void ImExport::addMapVars(Abstraction* c)
+    {
+        for (auto&& it : _nodeMap) {
+            c->addVar(it.second);
+        }
     }
 
     MemOp::Op ImExport::getMemOpType(const std::string& opName) const
