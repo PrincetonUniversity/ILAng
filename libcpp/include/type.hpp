@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 #include <assert.h>
 
 namespace ila {
@@ -23,7 +24,7 @@ namespace ila {
         // construct a memory.
         NodeType(Type t, int aw, int dw);
         // construct a func.
-        NodeType(Type t, int rw, std::vector<int>& aw)
+        NodeType(Type t, int rw, std::vector<int>& aw);
 
         bool operator! (void) const;
 
@@ -44,6 +45,12 @@ namespace ila {
                 (type == MEM)                   && 
                 (aw == -1 || addrWidth == aw)   && 
                 (dw == -1 || dataWidth == dw);
+        }
+
+        // Is this a func with the correct dimensions?
+        bool isFunc(int rw = -1, std::vector<int> aw = std::vector<int>()) const {
+            // TODO
+            return true;
         }
 
         bool operator==(const NodeType& t) const;

@@ -80,6 +80,7 @@ namespace ila
             if (aw[i] <= 0) {
                 throw PyILAException(PyExc_TypeError, "Invalid bitvector width argument.");
             }
+        }
     }
 
     // operator!
