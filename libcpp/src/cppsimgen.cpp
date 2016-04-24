@@ -336,7 +336,11 @@ namespace ila
         }
         // Return the value.
         if (f->_ret != NULL) {
-            code = "return " + f->_ret->exactUse() + ";";
+            if (f->_ret->_type != CppVar::bvStr) {
+                code = "return " + f->_ret->use() + ";";
+            } else {
+                code = "return " + f->_ret->signedUse() + ";";
+            }
             f->addBody(code);
         } else {
             code = "return;";
