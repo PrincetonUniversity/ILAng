@@ -62,6 +62,26 @@ namespace ila
         }
     }
 
+    // constructor (func)
+    NodeType::NodeType(Type t, int rw, std::vector<int>& aw)
+        : type(FUNC)
+        , bitWidth(rw)
+        , addrWidth(0)
+        , dataWidth(0)
+        , argsWidth(aw)
+    {
+        if (t != FUNC) {
+            throw PyILAException(PyExc_TypeError, "Invalid type argument in constructor for Type.");
+        }
+        if (rw <= 0) {
+            throw PyILAException(PyExc_TypeError, "Invalid bitvector width argument.");
+        }
+        for (unsigned i = 0; i != aw.size(); i++) {
+            if (aw[i] <= 0) {
+                throw PyILAException(PyExc_TypeError, "Invalid bitvector width argument.");
+            }
+    }
+
     // operator!
     bool NodeType::operator! (void) const
     {

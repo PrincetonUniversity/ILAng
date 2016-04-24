@@ -8,11 +8,11 @@
 namespace ila {
     // Class for types of nodes.
     struct NodeType { 
-        enum Type { INVALID, BOOL, BITVECTOR, MEM } type;
+        enum Type { INVALID, BOOL, BITVECTOR, MEM, FUNC } type;
         int bitWidth;
         int addrWidth;
         int dataWidth;
-        int argNum;
+        std::vector<int> argsWidth;
 
         // default constructor.
         NodeType() : type(INVALID), bitWidth(0) { }
@@ -22,6 +22,8 @@ namespace ila {
         NodeType(Type t, int w);
         // construct a memory.
         NodeType(Type t, int aw, int dw);
+        // construct a func.
+        NodeType(Type t, int rw, std::vector<int>& aw)
 
         bool operator! (void) const;
 
