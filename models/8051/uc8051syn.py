@@ -348,10 +348,12 @@ def synthesize(state, enable_ps):
         st = time.clock()
         model.synthesize(s, eval8051)
         t_elapsed = time.clock() - st
-        print model.get_next(s)
+        ast = model.get_next(s)
+        print 'time: %.2f' % t_elapsed
+        model.exportOne(ast, 'asts/%s_%s' % (s, 'en' if enable_ps else 'dis'))
 
 def main():
-    ila.setloglevel(1, "")
+    ila.setloglevel(0, "")
     parser = argparse.ArgumentParser()
     parser.add_argument("--en", type=int, default=1, 
                         help="enable parameterized synthesis.")
@@ -361,8 +363,5 @@ def main():
     synthesize(args.state, args.en)
 
 if __name__ == '__main__':
-    st = time.clock()
     main()
-    t_elapsed = time.clock() - st
-    print 'time taken: %.2f' % t_elapsed
 
