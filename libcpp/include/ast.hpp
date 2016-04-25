@@ -159,6 +159,15 @@ namespace ila
                             NodeRef* trueExp,
                             NodeRef* falseExp); 
 
+        // apply function.
+        static NodeRef* appfunc1(NodeRef* fun,
+                                NodeRef* arg);
+        static NodeRef* appfunc2(NodeRef* fun,
+                                NodeRef* arg0,
+                                NodeRef* arg1);
+        static NodeRef* appfuncL(NodeRef* fun,
+                                const py::list& l);
+
         // choices
         static NodeRef* choice2(const std::string& name, 
                                 NodeRef* e1, NodeRef* e2);
@@ -203,6 +212,7 @@ namespace ila
         static NodeRef* _cmpOp(BoolOp::Op op, NodeRef* l, int r);
         static NodeRef* _triOp(BoolOp::Op boolOp, BitvectorOp::Op bvOp, MemOp::Op memOp,
                             NodeRef* arg0, NodeRef* arg1, NodeRef* arg2);
+        static NodeRef* _naryOp(BitvectorOp::Op bvOp, nptr_vec_t& args);
         static NodeRef* _extractOp(const NodeRef* bv, int beg, int end);
         static NodeRef* _choice(const std::string& name, 
                                 const nptr_vec_t& args);

@@ -91,6 +91,24 @@ namespace ila
         return n;
     }
 
+    NodeRef* Abstraction::addFun(const std::string& name, 
+                                 int retW, const py::list& l)
+    {
+        if (!checkAndInsertName(name)) return NULL;
+        std::vector<int> argW;
+        unsigned sz = py::len(l);
+        for (unsigned i=0; i != sz; i++) {
+            py::extract<int> ni_(l[i]);
+            if (ni_.check()) {
+                argW.push_back(ni_);
+            }
+        }
+
+        NodeRef* n = new NodeRef(new ila::FuncVar(this, name, retW, argW));
+        funs.insert({name, npair_t(n->node, NULL)});
+        return n;
+    }
+
     // ---------------------------------------------------------------------- //
     NodeRef* Abstraction::getBit(const std::string& name)
     {
@@ -107,6 +125,11 @@ namespace ila
         return getVar(mems, name);
     }
 
+    NodeRef* Abstraction::getFun(const std::string& name)
+    {
+        return getVar(funs, name);
+    }
+
     void Abstraction::addVar(nptr_t& n)
     {
         const BoolVar* boolvar = NULL;
@@ -121,7 +144,7 @@ namespace ila
         } else if ((memvar = dynamic_cast<const MemVar*>(n.get()))) {
             addVar(mems, n);
         } else if ((funcvar = dynamic_cast<const FuncVar*>(n.get()))) {
-            // FIXME
+            addVar(funs, n);
         }
     }
 
@@ -526,6 +549,15 @@ namespace ila
         }
         out << "\n.mems_end\n";
 
+        // funs.
+        out << ".funs: ";
+        for (nmap_t::const_iterator it = funs.begin();
+             it != funs.end(); it++) {
+            out << "\n" << it->first << " ";
+            expt.exportAst(out, it->second.var.get());
+        }
+        out << "\n.funs_end\n";
+
         // fetchExpr.
         out << ".fetchExpr: ";
         expt.exportAst(out, fetchExpr.get());
@@ -660,6 +692,16 @@ namespace ila
             in >> buf;
         }
 
+        // funs.
+        in >> buf;
+        ILA_ASSERT(buf == ".funs:", "Expect .funs section");
+        in >> buf;
+        while (buf != ".funs_end") {
+            nptr_t var = ipt.importAst(this, in);
+            funs.insert({buf, npair_t(var, NULL)});
+            in >> buf;
+        }
+
         // fetchExpr.
         in >> buf;
         ILA_ASSERT(buf == ".fetchExpr:", "Expect .fetchExpr section");
@@ -711,6 +753,10 @@ namespace ila
         // Set mems.
         for (auto it = mems.begin(); it != mems.end(); it++) {
             gen->addState(it->first, it->second.var);
+        }
+        // Set funs.
+        for (auto it = funs.begin(); it != funs.end(); it++) {
+            gen->addFuncVar(it->first, it->second.var);
         }
 
         // Create update function.

@@ -43,6 +43,8 @@ namespace ila
         CppVar(nptr_t nptr, const std::string& name = "");
         // Constructor with Node*
         CppVar(const Node* node, const std::string& name = "");
+        // Constructor for bv prototype.
+        CppVar(int width);
         // Destructor.
         ~CppVar();
 
@@ -97,7 +99,6 @@ namespace ila
         void dumpCode(std::ostream& out, const int& indent) const;
     };
 
-
     // Cpp simulator generator.
     class CppSimGen
     {
@@ -116,6 +117,11 @@ namespace ila
         CppVarMap _inputs;
         // Functions. 
         CppFunMap _funMap;
+
+        // Uninterpreted function variables.
+        CppVarMap _unitpFuncVarMap;
+        // Uninterpreted functions.
+        CppFunMap _unitpFuncMap;
 
         // Constant memory to be init.
         std::map<CppVar*,const MemConst*> _memConst;
@@ -145,6 +151,8 @@ namespace ila
 
         // Create new function and put it in the _funMap.
         CppFun* addFun(const std::string& name);
+        // Create new uninterpreted function and put it in the _unitpFunMap.
+        CppVar* addFuncVar(const std::string& name, nptr_t node);
         
         // ------------------------------------------------------------------- //
         // This will be used by depthFirstVisit.
@@ -180,6 +188,9 @@ namespace ila
         // Create a class for the model.
         void genModel(std::ostream& out) const;
 
+        // Declare uninterpreted function (extern).
+        void defUnitpFunc(std::ostream& out) const;
+
         // ------------------------------------------------------------------- //
         // Convert a bool variable into cpp code.
         CppVar* getBoolVarCpp(const BoolVar* n);
@@ -199,6 +210,8 @@ namespace ila
         CppVar* getMemConstCpp(const MemConst* n);
         // Convert a memory op into cpp code.
         CppVar* getMemOpCpp(const MemOp* n);
+        // Convert a function into cpp code.
+        CppVar* getFuncVarCpp(const FuncVar* n);
 
         // ------------------------------------------------------------------- //
         // Helper function for inserting element in map, with assertion on 1st.

@@ -56,6 +56,8 @@ namespace ila
         const MemOp*  memop = NULL;
         const MemChoice* mchoiceop = NULL;
 
+        const FuncVar* funcvar = NULL;
+
         //// booleans ////
         if ((boolvar = dynamic_cast<const BoolVar*>(n))) {
             z3::expr r = getBoolVarExpr(boolvar);
@@ -99,6 +101,11 @@ namespace ila
             exprmap.insert({n, r});
         } else if ((mchoiceop = dynamic_cast<const MemChoice*>(n))) {
             z3::expr r = getChoiceExpr(mchoiceop);
+            exprmap.insert({n, r});
+
+        //// Functions ////
+        } else if ((funcvar = dynamic_cast<const FuncVar*>(n))) {
+            z3::expr r = getFuncVarExpr(funcvar);
             exprmap.insert({n, r});
         }
     }
@@ -206,6 +213,25 @@ namespace ila
         auto datasort = c.bv_sort(memvar->type.dataWidth);
         auto memsort = c.array_sort(addrsort, datasort);
         return c.constant(memvar->name.c_str(), memsort);
+    }
+
+    z3::expr Z3ExprAdapter::getFuncVarExpr(const FuncVar* funcvar)
+    {
+        using namespace z3;
+        Z3_symbol name  = Z3_mk_string_symbol(c, funcvar->name.c_str());
+        Z3_sort ressort = c.bv_sort(funcvar->type.bitWidth);
+        Z3_sort* domain = new Z3_sort[funcvar->type.argsWidth.size()];
+        for (unsigned i=0; i != funcvar->type.argsWidth.size(); i++) {
+            domain[i] = c.bv_sort(funcvar->type.argsWidth[i]);
+        }
+
+        Z3_func_decl fun = Z3_mk_func_decl(c, 
+                                name,
+                                funcvar->type.argsWidth.size(),
+                                domain, 
+                                ressort);
+        Z3_ast funAst = Z3_func_decl_to_ast(c, fun);
+        return expr(c, funAst);
     }
 
     // ---------------------------------------------------------------------- //
@@ -398,6 +424,18 @@ namespace ila
                 return ite(arg0, arg1, arg2);
             }
         }
+        if (op == BitvectorOp::APPLY_FUNC) {
+            expr fun = getArgExpr(bvop, 0);
+            Z3_ast* funArgs = (arity >= 1) ? new Z3_ast[arity-1] : 0;
+            for (int i = 1; i != arity; i++) {
+                funArgs[i-1] = Z3_ast(getArgExpr(bvop, i));
+            }
+            Z3_ast app = Z3_mk_app(c, 
+                            Z3_func_decl(Z3_ast(fun)), 
+                            arity-1,
+                            funArgs);
+            return expr(c, app);
+        }
         ILA_ASSERT(false, "Unable to create Z3 expression for operator: " + 
                             BitvectorOp::operatorNames[op]);
         return c.bool_val(false);
@@ -524,6 +562,12 @@ namespace ila
     {
         const MemValues& memvals = distInp->getMemValues(mv->name);
         return memvals.toZ3(c);
+    }
+
+    z3::expr Z3ExprRewritingAdapter::getFuncVarExpr(const FuncVar* fv)
+    {
+        // TODO
+        return c.bool_val(true);
     }
 
     z3::expr Z3ExprRewritingAdapter::getIOCnst(const Node* n, const py::object& result)

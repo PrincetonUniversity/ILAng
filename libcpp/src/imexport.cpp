@@ -27,6 +27,8 @@ namespace ila
         const MemConst* memconst = NULL;
         const MemOp* memop = NULL;
 
+        const FuncVar* funcvar = NULL;
+
         //// bools ////
         if ((boolvar = dynamic_cast<const BoolVar*>(n))) {
             out << "( boolVar " << boolvar->name << " )";
@@ -79,6 +81,14 @@ namespace ila
                 exportAst(out, memop->arg(i).get());
             }
             out << ")";
+        //// functions ////
+        } else if ((funcvar = dynamic_cast<const FuncVar*>(n))) {
+            out << "( funcVar " << funcvar->name << " " 
+                << funcvar->type.bitWidth << " <- (";
+            for (unsigned i = 0; i != funcvar->type.argsWidth.size(); i++) {
+                out << ((i == 0) ? " " : ", ") << funcvar->type.argsWidth[i];
+            }
+            out << " ) )";
         } else {
             out << "( )";
         }
@@ -202,7 +212,7 @@ namespace ila
                 if (nptr == NULL) {
                     nptr = nptr_t(new BitvectorOp(c, op, arg0, arg1));
                 }
-            } else if (op >= BitvectorOp::Op::IF) {
+            } else if (op == BitvectorOp::Op::IF) {
                 nptr_t arg0 = importAst(c, in);
                 nptr_t arg1 = importAst(c, in);
                 nptr_t arg2 = importAst(c, in);
@@ -211,6 +221,17 @@ namespace ila
                     args_.push_back(arg0);
                     args_.push_back(arg1);
                     args_.push_back(arg2);
+                    nptr = nptr_t(new BitvectorOp(c, op, args_));
+                }
+            } else if (op == BitvectorOp::Op::APPLY_FUNC) {
+                nptr_t fun = importAst(c, in);
+                nptr_vec_t args_;
+                args_.push_back(fun);
+                for (unsigned i = 0; i != fun->type.argsWidth.size(); i++) {
+                    nptr_t arg = importAst(c, in);
+                    args_.push_back(arg);
+                }
+                if (nptr == NULL) {
                     nptr = nptr_t(new BitvectorOp(c, op, args_));
                 }
             } else {
@@ -254,6 +275,25 @@ namespace ila
             nptr_t nptr = mapFind(name);
             if (nptr == NULL) {
                 nptr = nptr_t(new MemOp(op, a0, a1, a2));
+                mapInsert(name, nptr);
+            }
+            return nptr;
+        } else if (nodeType == "funcVar") {
+            std::string resWidthStr = next(in);
+            int resW = atoi(resWidthStr.c_str());
+            std::vector<int> argsW;
+            ILA_ASSERT(next(in) == "<-", "Miss <-");
+            ILA_ASSERT(nextChar(in) == '(', "Miss (");
+            std::string buf = next(in);
+            while (buf != ")") {
+                int w = atoi(buf.c_str());
+                argsW.push_back(w);
+                buf = next(in);
+            }
+            ILA_ASSERT(nextChar(in) == ')', "Miss )");
+            nptr_t nptr = mapFind(name);
+            if (nptr == NULL) {
+                nptr = nptr_t(new FuncVar(c, name, resW, argsW));
                 mapInsert(name, nptr);
             }
             return nptr;
@@ -328,7 +368,7 @@ namespace ila
     {
         // FIXME any better way?
         for (int op = BitvectorOp::Op::INVALID; 
-                op <= BitvectorOp::Op::IF; op++) {
+                op <= BitvectorOp::Op::APPLY_FUNC; op++) {
             if (opName == BitvectorOp::operatorNames[op]) {
                 return static_cast<BitvectorOp::Op>(op);
             }

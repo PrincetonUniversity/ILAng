@@ -447,6 +447,41 @@ namespace ila
         return _triOp(BoolOp::IF, BitvectorOp::IF, MemOp::ITE, cond, trueExp, falseExp);
     }
 
+    NodeRef* NodeRef::appfunc1(NodeRef* fun, NodeRef* arg)
+    {
+        nptr_vec_t args = {fun->node, arg->node};
+        return _naryOp(BitvectorOp::APPLY_FUNC, args);
+    }
+
+    NodeRef* NodeRef::appfunc2(NodeRef* fun, NodeRef* arg0, NodeRef* arg1)
+    {
+        nptr_vec_t args = {fun->node, arg0->node, arg1->node};
+        return _naryOp(BitvectorOp::APPLY_FUNC, args);
+    }
+
+    NodeRef* NodeRef::appfuncL(NodeRef* fun, const py::list& l)
+    {
+        nptr_vec_t args;
+        if (py::len(l) < 1) {
+            throw PyILAException(
+                PyExc_RuntimeError,
+                "Must have at least a function.");
+            return NULL;
+        }
+
+        for (unsigned i=0; i != py::len(l); i++) {
+            py::extract<NodeRef&> ni(l[i]);
+            if (ni.check()) {
+                args.push_back(ni().node);
+            } else {
+                throw PyILAException(
+                    PyExc_TypeError,
+                    "Argument to choice must be a node.");
+            }
+        }
+        return _naryOp(BitvectorOp::APPLY_FUNC, args);
+    }
+
     NodeRef* NodeRef::choice2(const std::string& name, NodeRef* e1, NodeRef* e2)
     {
         nptr_vec_t args = { e1->node, e2->node };
@@ -821,6 +856,27 @@ namespace ila
                 throw PyILAException(PyExc_TypeError, "Incorrect type for ITE");
                 return NULL;
             }
+        }
+        return NULL;
+    }
+
+    NodeRef* NodeRef::_naryOp(BitvectorOp::Op bvOp, nptr_vec_t& args)
+    {
+        if (!checkAbstractions(args)) return NULL;
+        if (args.size() < 1) {
+            throw PyILAException(PyExc_TypeError, "No function specified.");
+            return NULL;
+        }
+        if (!args[0]->type.isFunc()) {
+            throw PyILAException(PyExc_TypeError, 
+                    "Incorrect type for apply function.");
+            return NULL;
+        } else {
+            return new NodeRef(
+                    new BitvectorOp(
+                        args[0]->ctx,
+                        BitvectorOp::APPLY_FUNC,
+                        args));
         }
         return NULL;
     }
