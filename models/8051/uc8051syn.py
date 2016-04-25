@@ -23,7 +23,7 @@ def synthesize(state, enable_ps):
 
     # fetch and decode.
     model.fetch_expr = uc.op0 # s/hand for uc.rom[uc.pc]
-    model.decode_exprs = [uc.op0 == i for i in xrange(0, 0x100)]
+    model.decode_exprs = [uc.op0 == i for i in xrange(0x98, 0x100)]
 
     ########################### PC ##############################################
     def cjmp(name, cond):
@@ -281,9 +281,10 @@ def synthesize(state, enable_ps):
     alu_cy_9b = ila.choice('alu_cy_9b', [alu_cy_9b_zext, alu_cy_9b_sext])
     alu_zext_9b_sum = alu_src1_zext + alu_src2_zext + alu_cy_9b
     alu_cy_add = alu_zext_9b_sum[8:8]
-    alu_cy_sub = ila.ite(alu_src1_zext < (alu_src2_zext + alu_cy_9b), 
+    alu_cy_sub1 = ila.ite(alu_src1_zext < (alu_src2_zext + alu_cy_9b), 
                          bv(1, 1), bv(0, 1))
-    alu_cy = ila.choice('alu_cy', [alu_cy_add, alu_cy_sub])
+    alu_cy_sub2 = ila.ite(acc < (acc_src2 + ila.zero_extend(uc.cy, 8)), bv(1, 1), bv(0, 1))
+    alu_cy = ila.choice('alu_cy', [alu_cy_add, alu_cy_sub1, alu_cy_sub2])
     alu_ov_9b_src1 = ila.choice('alu_ov_9b_src1', [alu_src1_sext, alu_src1_zext])
     alu_ov_9b_src2 = ila.choice('alu_ov_9b_src2', [alu_src2_sext, alu_src2_zext])
     alu_9b_add = alu_ov_9b_src1 + alu_ov_9b_src2 + alu_cy_9b
@@ -304,7 +305,7 @@ def synthesize(state, enable_ps):
                     ila.concat(psw[5:3], 
                         ila.concat(acc_ov, psw[1:0]))))
     psw_next = ila.choice('psw_next', [r_dir.psw, r_bit.psw, psw_cjne, psw_bit,
-                                       psw_div, psw_mul, psw_da, psw_acc])
+                                       psw_div, psw_mul, psw_da, psw_acc, psw])
     model.set_next('PSW', psw_next)
 
     ########################### SP ##############################################
@@ -353,7 +354,7 @@ def synthesize(state, enable_ps):
         model.exportOne(ast, 'asts/%s_%s' % (s, 'en' if enable_ps else 'dis'))
 
 def main():
-    ila.setloglevel(0, "")
+    ila.setloglevel(2, "")
     parser = argparse.ArgumentParser()
     parser.add_argument("--en", type=int, default=1, 
                         help="enable parameterized synthesis.")
