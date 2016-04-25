@@ -23,7 +23,7 @@ def synthesize(state, enable_ps):
 
     # fetch and decode.
     model.fetch_expr = uc.op0 # s/hand for uc.rom[uc.pc]
-    model.decode_exprs = [uc.op0 == i for i in xrange(0x98, 0x100)]
+    model.decode_exprs = [uc.op0 == i for i in xrange(0, 0x100)]
 
     ########################### PC ##############################################
     def cjmp(name, cond):
