@@ -5,3 +5,8 @@ for r in $regs;
 do
     python uc8051syn.py $r
 done
+
+for r in $regs;
+do
+    python uc8051syn.py --en 0 $r
+done
