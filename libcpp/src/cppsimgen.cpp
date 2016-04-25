@@ -32,6 +32,12 @@ namespace ila
         if (name != "") _name = name;
     }
 
+    CppVar::CppVar(int width)
+    {
+        _type = bvStr;
+        _width = width;
+    }
+
     CppVar::~CppVar()
     {
     }
@@ -39,7 +45,11 @@ namespace ila
     // ---------------------------------------------------------------------- //
     std::string CppVar::def() const
     {
-        return (_type + " " + _name);
+        if (_name != "") {
+            return (_type + " " + _name);
+        } else {
+            return (_type);
+        }
     }
 
     std::string CppVar::refDef() const
@@ -108,6 +118,13 @@ namespace ila
         } else if (n->type.isMem()) {
             _type = memStr;
             _width = n->type.dataWidth;
+        } else if (n->type.isFunc()) {
+            // Not neccessary.
+            _name = n->name;
+            _type = bvStr;
+            _width = n->type.bitWidth;
+        } else {
+            ILA_ASSERT(false, "Unknonw type.");
         }
 
         const BoolConst* boolconst = NULL;
@@ -123,6 +140,7 @@ namespace ila
             _isConst = false;
             _val = "";
         } 
+
     }
 
     // ---------------------------------------------------------------------- //
@@ -161,12 +179,11 @@ namespace ila
         std::string type = (_ret != NULL) ? _ret->_type : CppVar::voidStr;
         std::string name = (modelName == "") ? 
                            _name : (modelName + "::" + _name);
-        std::string tail = (modelName == "") ? ");" : (")\n" + ind + "{\n");
+        std::string tail = (modelName == "") ? ");\n" : (")\n" + ind + "{\n");
                            
-        out << "\n" << ind << type << " " << name << "(";
+        out << ind << type << " " << name << "(";
         for (unsigned i = 0; i<_args.size(); i++) {
-            if (i != 0) { out <<", "; }
-            out << _args[i]->def();
+            out << ((i == 0)? "" : ", ") << _args[i]->def();
         }
         out << tail;
     }
@@ -225,8 +242,27 @@ namespace ila
         for (auto it = _states.begin(); it != _states.end(); it++) {
             checkAndInsert(*varMap, it->first, it->second);
         }
+        for (auto it = _unitpFuncVarMap.begin(); 
+             it != _unitpFuncVarMap.end(); it++) {
+            checkAndInsert(*varMap, it->first, it->second);
+        }
         _varInFun[fun] = varMap;
         return fun;
+    }
+
+    CppVar* CppSimGen::addFuncVar(const std::string& name, nptr_t node)
+    {
+        CppVar* var = new CppVar(node, name);   
+        checkAndInsert(_unitpFuncVarMap, name, var);
+
+        CppFun* fun = new CppFun(name);
+        fun->_ret = new CppVar(node->type.bitWidth);
+        for (unsigned i = 0; i != node->type.argsWidth.size(); i++) {
+            CppVar* arg = new CppVar(node->type.argsWidth[i]);
+            fun->_args.push_back(arg);
+        }
+        checkAndInsert(_unitpFuncMap, name, fun);
+        return var;
     }
 
     // ---------------------------------------------------------------------- //
@@ -247,6 +283,8 @@ namespace ila
         const MemVar* memvar = NULL;
         const MemConst* memconst = NULL;
         const MemOp*  memop = NULL;
+
+        const FuncVar* funcvar = NULL;
 
         CppVar* res = NULL;
 
@@ -271,6 +309,8 @@ namespace ila
             res = getMemConstCpp(memconst);
         } else if ((memop = dynamic_cast<const MemOp*>(n))) {
             res = getMemOpCpp(memop);
+        } else if ((funcvar = dynamic_cast<const FuncVar*>(n))) {
+            res = getFuncVarCpp(funcvar);
         } else {
             ILA_ASSERT(false, "Unknown node type.");
         }
@@ -365,6 +405,9 @@ namespace ila
         out << "#endif\n";
         out << "/****************************************************/\n";
 
+        out << "\n";
+        defUnitpFunc(out);
+
         out << "\n/****************************************************/\n";
         out << "#ifndef " << boost::to_upper_copy<std::string>(_modelName) 
             << "_CLASS\n";
@@ -434,16 +477,16 @@ namespace ila
                        arg0->use() + " || " + arg1->use() + ";";
             } else if (n->op == BoolOp::Op::SLT) {
                 code = var->def() + " = " + 
-                       arg0->signedUse() + " < " + arg1->signedUse() + ";";
+                       arg0->use() + " < " + arg1->use() + ";";
             } else if (n->op == BoolOp::Op::SGT) {
                 code = var->def() + " = " + 
-                       arg0->signedUse() + " > " + arg1->signedUse() + ";";
+                       arg0->use() + " > " + arg1->use() + ";";
             } else if (n->op == BoolOp::Op::SLE) {
                 code = var->def() + " = " + 
-                       arg0->signedUse() + " <= " + arg1->signedUse() + ";";
+                       arg0->use() + " <= " + arg1->use() + ";";
             } else if (n->op == BoolOp::Op::SGE) {
                 code = var->def() + " = " + 
-                       arg0->signedUse() + " >= " + arg1->signedUse() + ";";
+                       arg0->use() + " >= " + arg1->use() + ";";
             } else if (n->op == BoolOp::Op::ULT) {
                 code = var->def() + " = " + 
                        arg0->unsignedUse() + " < " + arg1->unsignedUse() + ";";
@@ -501,7 +544,9 @@ namespace ila
             n->op <= BitvectorOp::Op::EXTRACT) {
             CppVar* arg0 = findVar(*_curVarMap, n->arg(0)->name);
             if (n->op == BitvectorOp::Op::NEGATE) {
-                code = var->def() + " = -" + arg0->signedUse() + ";";
+                code = var->def() + " = -" + arg0->use() + ";";
+                _curFun->addBody(code);
+                code = var->use() + " = " + var->signedUse() + ";";
             } else if (n->op == BitvectorOp::Op::COMPLEMENT) {
                 code = var->def() + " = ~" + arg0->use() + ";";
             } else if (n->op == BitvectorOp::Op::LROTATE) {
@@ -543,10 +588,14 @@ namespace ila
             CppVar* arg1 = findVar(*_curVarMap, n->arg(1)->name);
             if (n->op == BitvectorOp::Op::ADD) {
                 code = var->def() + " = " + 
-                       arg0->signedUse() + " + " + arg1->signedUse() + ";";
+                       arg0->use() + " + " + arg1->use() + ";";
+                _curFun->addBody(code);
+                code = var->use() + " = " + var->signedUse() + ";";
             } else if (n->op == BitvectorOp::Op::SUB) {
                 code = var->def() + " = " + 
-                       arg0->signedUse() + " - " + arg1->signedUse() + ";";
+                       arg0->use() + " - " + arg1->use() + ";";
+                _curFun->addBody(code);
+                code = var->use() + " = " + var->signedUse() + ";";
             } else if (n->op == BitvectorOp::Op::AND) {
                 code = var->def() + " = " + 
                        arg0->use() + " & " + arg1->use() + ";";
@@ -567,20 +616,30 @@ namespace ila
                        arg0->use() + " | " + arg1->use() + ");";
             } else if (n->op == BitvectorOp::Op::SDIV) {
                 code = var->def() + " = " + 
-                       arg0->signedUse() + " / " + arg1->signedUse() + ";";
+                       arg0->use() + " / " + arg1->use() + ";";
+                _curFun->addBody(code);
+                code = var->use() + " = " + var->signedUse() + ";";
             } else if (n->op == BitvectorOp::Op::UDIV) {
                 code = var->def() + " = " + 
-                       arg0->unsignedUse() + " / " + arg1->unsignedUse() + ";";
+                       arg0->use() + " / " + arg1->use() + ";";
+                _curFun->addBody(code);
+                code = var->use() + " = " + var->signedUse() + ";";
             } else if (n->op == BitvectorOp::Op::SREM) {
                 code = var->def() + " = " + 
-                       arg0->signedUse() + " % " + arg1->signedUse() + ";";
+                       arg0->use() + " % " + arg1->use() + ";";
+                _curFun->addBody(code);
+                code = var->use() + " = " + var->signedUse() + ";";
             } else if (n->op == BitvectorOp::Op::UREM) {
                 code = var->def() + " = " + 
-                       arg0->unsignedUse() + " % " + arg1->unsignedUse() + ";";
+                       arg0->use() + " % " + arg1->use() + ";";
+                _curFun->addBody(code);
+                code = var->use() + " = " + var->signedUse() + ";";
             } else if (n->op == BitvectorOp::Op::SMOD) {
                 // FIXME C++ has no modulo operator, equal to % when positive
                 code = var->def() + " = " + 
                        arg0->use() + " % " + arg1->use() + ";";
+                _curFun->addBody(code);
+                code = var->use() + " = " + var->signedUse() + ";";
             } else if (n->op == BitvectorOp::Op::SHL) {
                 code = var->def() + " = (" + 
                        arg0->use() + " << " + arg1->unsignedUse() + ") & " +
@@ -593,7 +652,9 @@ namespace ila
                        arg0->signedUse() + " >> " + arg1->unsignedUse() + ";";
             } else if (n->op == BitvectorOp::Op::MUL) {
                 code = var->def() + " = " + 
-                       arg0->signedUse() + " * " + arg1->signedUse() + ";";
+                       arg0->use() + " * " + arg1->use() + ";";
+                _curFun->addBody(code);
+                code = var->use() + " = " + var->signedUse() + ";";
             } else if (n->op == BitvectorOp::Op::CONCAT) {
                 std::string w = boost::lexical_cast<std::string>(arg1->_width);
                 // |arg0| << arg1.width + |arg1|
@@ -606,15 +667,27 @@ namespace ila
                        arg0->use() + " >> " + arg1->use() + ") & 0x1;";
             } else if (n->op == BitvectorOp::Op::READMEM) {
                 code = var->def() + " = " + 
-                       arg0->use() + ".rd(" + arg1->unsignedUse() + ");";
+                       arg0->use() + ".rd(" + arg1->use() + ");";
             }
         //// Ternary ////
-        } else if (n->op >= BitvectorOp::Op::IF) {
+        } else if (n->op == BitvectorOp::Op::IF) {
             CppVar* arg0 = findVar(*_curVarMap, n->arg(0)->name);
             CppVar* arg1 = findVar(*_curVarMap, n->arg(1)->name);
             CppVar* arg2 = findVar(*_curVarMap, n->arg(2)->name);
             code = var->def() + " = (" + arg0->use() + ") ? " +
-                   arg1->exactUse() + " : " + arg2->exactUse() + ";";
+                   arg1->use() + " : " + arg2->use() + ";";
+        } else if (n->op == BitvectorOp::Op::APPLY_FUNC) {
+            CppVar* fun = findVar(*_curVarMap, n->arg(0)->name);
+            std::vector<CppVar*> argVec;
+            for (unsigned i = 1; i != n->nArgs(); i++) {
+                CppVar* arg = findVar(*_curVarMap, n->arg(i)->name);
+                argVec.push_back(arg);
+            }
+            code = var->def() + " = " + fun->use() + "(";
+            for (unsigned i = 0; i != argVec.size(); i++) {
+                code = code + ((i == 0)? "" : ", ") + argVec[i]->use();
+            }
+            code = code + ");";
         } else {
             ILA_ASSERT(false, "Unknown bool op.");
         }
@@ -661,8 +734,8 @@ namespace ila
             ILA_ASSERT(arg0->_type == CppVar::memStr, 
                        "Write to non-mem variable.");
             var = arg0;
-            code = arg0->use() + ".wr(" + arg1->exactUse() + 
-                   ", " + arg2->exactUse() + ");";
+            code = arg0->use() + ".wr(" + arg1->use() + 
+                   ", " + arg2->use() + ");";
         } else if (n->op == MemOp::Op::ITE) {
             ILA_ASSERT(arg0->_type == CppVar::boolStr,
                        "Condition not bool.");
@@ -678,6 +751,12 @@ namespace ila
             _curFun->addBody(code);
         }
 
+        return var;
+    }
+
+    CppVar* CppSimGen::getFuncVarCpp(const FuncVar* n)
+    {
+        CppVar* var = new CppVar(n);
         return var;
     }
         
@@ -777,7 +856,6 @@ namespace ila
             out << it->first << " => " << it->second->def() << "\n";
         }
         */
-
         // Constructor/destructor
         out << "public:\n"
             << "\t"  << _modelName << "() {};\n"
@@ -804,6 +882,14 @@ namespace ila
             it->second->dumpCode(out, 0);
         }
 
+    }
+
+    void CppSimGen::defUnitpFunc(std::ostream& out) const
+    {
+        for (auto it = _unitpFuncMap.begin(); it != _unitpFuncMap.end(); it++) {
+            out << "extern ";
+            it->second->dumpDec(out, "", 0);
+        }
     }
 
     // ---------------------------------------------------------------------- //

@@ -37,7 +37,7 @@ def main():
     c.importAll(exportFile)
 
     simFile = 'tmp/test_ila_sim.hpp'
-    #c.generateSim(simFile, "foo")
+    c.generateSim(simFile, "foo_")
 
 if __name__ == '__main__':
     main()

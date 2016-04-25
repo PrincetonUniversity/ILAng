@@ -148,7 +148,7 @@ def model(num_regs, reg_size, paramsyn):
     #sys.add_assumption(opcode == 0x80)
     #print sys.syn_elem("r0", sys.get_next('r0'), alusim)
 
-    expFile  = "test_ila_export.txt"
+    expFile  = "tmp/test_ila_export.txt"
     sys.exportAll(expFile);
 
     # now import into a new abstraction and check.

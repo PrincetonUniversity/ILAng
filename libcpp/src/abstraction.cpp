@@ -754,6 +754,10 @@ namespace ila
         for (auto it = mems.begin(); it != mems.end(); it++) {
             gen->addState(it->first, it->second.var);
         }
+        // Set funs.
+        for (auto it = funs.begin(); it != funs.end(); it++) {
+            gen->addFuncVar(it->first, it->second.var);
+        }
 
         // Create update function.
         CppFun* updateFun = gen->addFun("update");
