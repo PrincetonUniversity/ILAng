@@ -109,7 +109,7 @@ namespace ila
         typedef std::pair<simout_ptr_t, dtree_ptr_t> outpair_t;
         typedef std::vector<outpair_t> outpair_vec_t;
 
-        std::auto_ptr<DistInput> inputs;
+        std::unique_ptr<DistInput> inputs;
         outpair_vec_t outputs;
         nptr_t result;
 

@@ -374,7 +374,7 @@ namespace ila
     }
 
     DITreeNode::DITreeNode()
-      : inputs(NULL)
+      : inputs()
       , result(NULL)
     {
     }
