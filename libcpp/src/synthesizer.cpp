@@ -719,7 +719,7 @@ namespace ila
         dict args;
         std::unique_ptr<DistInput> di;
         while ((di = _getDistInput(y)) && (i++ < MAX_SYN_ITER)) {
-            log1() << "iteration #" << i++ << std::endl;
+            log1() << "iteration #" << i << std::endl;
 
             // convert to python.
             di->toPython(args);
@@ -792,7 +792,7 @@ namespace ila
         dict args;
         DistInput* di;
         while ((di = ditree.getDistInput(y)) && (i++ < MAX_SYN_ITER)) {
-            // std::cout << "iteration #" << i++ << std::endl;
+            log1() << "iteration #" << i << std::endl;
 
             // convert to python.
             di->toPython(args);
