@@ -87,6 +87,7 @@ namespace ila
         return _binOp(BoolOp::XOR, BitvectorOp::XOR, "xor", other);
     }
 
+    // add //
     NodeRef* NodeRef::add(NodeRef* other) const
     {
         return _binOp(BitvectorOp::ADD, other);
@@ -102,6 +103,7 @@ namespace ila
         return _binOpR(BitvectorOp::ADD, r);
     }
 
+    // sub //
     NodeRef* NodeRef::sub(NodeRef* other) const
     {
         return _binOp(BitvectorOp::SUB, other);
@@ -117,6 +119,7 @@ namespace ila
         return _binOpR(BitvectorOp::SUB, r);
     }
 
+    // udiv //
     NodeRef* NodeRef::udiv(NodeRef* other) const
     {
         return _binOp(BitvectorOp::UDIV, other);
@@ -132,21 +135,23 @@ namespace ila
         return _binOpR(BitvectorOp::UDIV, r);
     }
 
-    NodeRef* NodeRef::smod(NodeRef* other) const
+    // urem //
+    NodeRef* NodeRef::urem(NodeRef* r)
     {
-        return _binOp(BitvectorOp::SMOD, other);
+        return _binOp(BitvectorOp::UREM, r);
     }
 
-    NodeRef* NodeRef::smodInt(int r) const
+    NodeRef* NodeRef::uremInt(int r)
     {
-        return _binOp(BitvectorOp::SMOD, r);
+        return _binOp(BitvectorOp::UREM, r);
     }
 
-    NodeRef* NodeRef::rsmodInt(int r) const
+    NodeRef* NodeRef::ruremInt(int l)
     {
-        return _binOpR(BitvectorOp::SMOD, r);
+        return _binOpR(BitvectorOp::UREM, l);
     }
 
+    // shl
     NodeRef* NodeRef::shl(NodeRef* other) const
     {
         return _binOp(BitvectorOp::SHL, other);
@@ -162,6 +167,7 @@ namespace ila
         return _binOpR(BitvectorOp::SHL, r);
     }
 
+    // shr //
     NodeRef* NodeRef::lshr(NodeRef* other) const
     {
         return _binOp(BitvectorOp::LSHR, other);
@@ -177,6 +183,7 @@ namespace ila
         return _binOpR(BitvectorOp::LSHR, r);
     }
 
+    // mul //
     NodeRef* NodeRef::mul(NodeRef* other) const
     {
         return _binOp(BitvectorOp::MUL, other);
@@ -192,6 +199,7 @@ namespace ila
         return _binOpR(BitvectorOp::MUL, r);
     }
 
+    // eq/neq //
     NodeRef* NodeRef::eq(NodeRef* other) const
     {
         return _cmpOp(BoolOp::EQUAL, other, false);
@@ -202,6 +210,7 @@ namespace ila
         return _cmpOp(BoolOp::DISTINCT, other, false);
     }
 
+    // lt/gt //
     NodeRef* NodeRef::ult(NodeRef* other) const
     {
         return _cmpOp(BoolOp::ULT, other, true);
@@ -212,6 +221,7 @@ namespace ila
         return _cmpOp(BoolOp::UGT, other, true);
     }
 
+    // le/ge //
     NodeRef* NodeRef::ule(NodeRef* other) const
     {
         return _cmpOp(BoolOp::ULE, other, true);
@@ -222,6 +232,7 @@ namespace ila
         return _cmpOp(BoolOp::UGE, other, true);
     }
 
+    // slice //
     NodeRef* NodeRef::slice(int hi, int lo) const 
     {
         return _extractOp(this, hi, lo);
@@ -307,6 +318,7 @@ namespace ila
         return _binOp(BoolOp::NOR, BitvectorOp::NOR, "nor", l, r);
     }
 
+    // sdiv //
     NodeRef* NodeRef::sdiv(NodeRef* l, NodeRef* r)
     {
         return _binOp(BitvectorOp::SDIV, l, r);
@@ -322,6 +334,23 @@ namespace ila
         return _binOpR(BitvectorOp::SDIV, l, r);
     }
 
+    // smod //
+    NodeRef* NodeRef::smod(NodeRef* l, NodeRef* r)
+    {
+        return _binOp(BitvectorOp::SMOD, l, r);
+    }
+
+    NodeRef* NodeRef::smodInt(NodeRef* l, int r)
+    {
+        return _binOp(BitvectorOp::SMOD, l, r);
+    }
+
+    NodeRef* NodeRef::rsmodInt(int l, NodeRef* r)
+    {
+        return _binOpR(BitvectorOp::SMOD, l, r);
+    }
+
+    // srem //
     NodeRef* NodeRef::srem(NodeRef* l, NodeRef* r)
     {
         return _binOp(BitvectorOp::SREM, l, r);
@@ -335,21 +364,6 @@ namespace ila
     NodeRef* NodeRef::rsremInt(int l, NodeRef* r)
     {
         return _binOpR(BitvectorOp::SREM, l, r);
-    }
-
-    NodeRef* NodeRef::urem(NodeRef* l, NodeRef* r)
-    {
-        return _binOp(BitvectorOp::UREM, l, r);
-    }
-
-    NodeRef* NodeRef::uremInt(NodeRef* l, int r)
-    {
-        return _binOp(BitvectorOp::UREM, l, r);
-    }
-
-    NodeRef* NodeRef::ruremInt(int l, NodeRef* r)
-    {
-        return _binOpR(BitvectorOp::UREM, l, r);
     }
 
     NodeRef* NodeRef::ashr(NodeRef* l, NodeRef* r)
@@ -649,11 +663,11 @@ namespace ila
     NodeRef* NodeRef::_binOpR(BitvectorOp::Op op, int r) const
     {
         if (node->type.isBitvector()) {
-            nptr_t node_r(
+            nptr_t node_l(
                 new BitvectorConst(node->ctx, r, node->type.bitWidth));
 
             return new NodeRef(new BitvectorOp(
-                        node->ctx, op, node_r, node));
+                        node->ctx, op, node_l, node));
         } else {
             throw PyILAException(PyExc_TypeError,
                                  "Incorrect type for " +

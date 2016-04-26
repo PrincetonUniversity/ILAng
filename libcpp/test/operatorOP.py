@@ -73,7 +73,7 @@ def main():
     assert c.areEqual( ila.sdiv(-6, -c4), c1)
     assert c.areEqual( ila.srem(-v5, -c4), -c2)
     assert c.areEqual( x - ila.srem(x, y), ila.sdiv(x, y) * y )
-    assert c.areEqual( x - ila.urem(x, y), (x / y) * y )
+    assert c.areEqual( x - x % y, (x / y) * y )
     assert c.areEqual( ila.ashr(v6, 1), v8)
     assert c.areEqual( ila.slt(v7, v6), top)
 

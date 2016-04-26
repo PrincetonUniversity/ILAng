@@ -101,13 +101,13 @@ BOOST_PYTHON_MODULE(ila)
                 &NodeRef::rudivInt,
                 return_value_policy<manage_new_object>())
         .def("__mod__",
-                &NodeRef::smod,
+                &NodeRef::urem,
                 return_value_policy<manage_new_object>())
         .def("__mod__",
-                &NodeRef::smodInt,
+                &NodeRef::uremInt,
                 return_value_policy<manage_new_object>())
         .def("__rmod__",
-                &NodeRef::rsmodInt,
+                &NodeRef::ruremInt,
                 return_value_policy<manage_new_object>())
         .def("__lshift__",
                 &NodeRef::shl,
@@ -202,17 +202,17 @@ BOOST_PYTHON_MODULE(ila)
             return_value_policy<manage_new_object>());
     def("sdiv", &NodeRef::rsdivInt,
             return_value_policy<manage_new_object>()); 
+    def("smod", &NodeRef::smod,
+            return_value_policy<manage_new_object>()); 
+    def("smod", &NodeRef::smodInt,
+            return_value_policy<manage_new_object>()); 
+    def("smod", &NodeRef::rsmodInt,
+            return_value_policy<manage_new_object>()); 
     def("srem", &NodeRef::srem,
             return_value_policy<manage_new_object>()); 
     def("srem", &NodeRef::sremInt,
             return_value_policy<manage_new_object>()); 
     def("srem", &NodeRef::rsremInt,
-            return_value_policy<manage_new_object>()); 
-    def("urem", &NodeRef::urem,
-            return_value_policy<manage_new_object>()); 
-    def("urem", &NodeRef::uremInt,
-            return_value_policy<manage_new_object>()); 
-    def("urem", &NodeRef::ruremInt,
             return_value_policy<manage_new_object>()); 
     def("ashr", &NodeRef::ashr,
             return_value_policy<manage_new_object>()); 

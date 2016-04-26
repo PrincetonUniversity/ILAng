@@ -1243,8 +1243,8 @@ I8051::SynSim(const char* filename)
                 os << "\t" << "B <- (A * B).(15-8)" << std::endl;
             #endif
             #endif
-            tempProduct = (unsigned char)RAM[ACC] * 
-                (unsigned char)RAM[B];
+            tempProduct = (unsigned short)RAM[ACC] * 
+                (unsigned short)RAM[B];
             if( tempProduct > 255 ) {
                 SetBit(RAM[PSW], OV);
             }

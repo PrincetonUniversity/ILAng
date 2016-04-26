@@ -60,24 +60,31 @@ namespace ila
         NodeRef* logicalOr(NodeRef* other) const;
         NodeRef* logicalXor(NodeRef* other) const;
 
+        // add
         NodeRef* add(NodeRef* other) const;
         NodeRef* addInt(int r) const;
         NodeRef* raddInt(int r) const;
+        // sub
         NodeRef* sub(NodeRef* other) const;
         NodeRef* subInt(int r) const;
         NodeRef* rsubInt(int r) const;
+        // udiv
         NodeRef* udiv(NodeRef* other) const;
         NodeRef* udivInt(int r) const;
         NodeRef* rudivInt(int r) const;
-        NodeRef* smod(NodeRef* other) const;
-        NodeRef* smodInt(int r) const;
-        NodeRef* rsmodInt(int r) const;
+        // urem
+        NodeRef* urem(NodeRef* r);
+        NodeRef* uremInt(int r);
+        NodeRef* ruremInt(int l);
+        // shl
         NodeRef* shl(NodeRef* other) const;
         NodeRef* shlInt(int r) const;
         NodeRef* rshlInt(int r) const;
+        // shr
         NodeRef* lshr(NodeRef* other) const;
         NodeRef* lshrInt(int r) const;
         NodeRef* rlshrInt(int r) const;
+        // mul
         NodeRef* mul(NodeRef* other) const;
         NodeRef* mulInt(int r) const;
         NodeRef* rmulInt(int r) const;
@@ -117,15 +124,19 @@ namespace ila
         static NodeRef* logicalNor(NodeRef* l, NodeRef* r);
 
         // arithmetic functions.
+        // div.
         static NodeRef* sdiv(NodeRef* l, NodeRef* r);
         static NodeRef* sdivInt(NodeRef* l, int r);
         static NodeRef* rsdivInt(int l, NodeRef* r);
+        // smod
+        static NodeRef* smod(NodeRef* l, NodeRef* r);
+        static NodeRef* smodInt(NodeRef* l, int r);
+        static NodeRef* rsmodInt(int l, NodeRef* r);
+        // srem
         static NodeRef* srem(NodeRef* l, NodeRef* r);
         static NodeRef* sremInt(NodeRef* l, int r);
         static NodeRef* rsremInt(int l, NodeRef* r);
-        static NodeRef* urem(NodeRef* l, NodeRef* r);
-        static NodeRef* uremInt(NodeRef* l, int r);
-        static NodeRef* ruremInt(int l, NodeRef* r);
+        // shr
         static NodeRef* ashr(NodeRef* l, NodeRef* r);
         static NodeRef* ashrInt(NodeRef* l, int r);
         static NodeRef* rashrInt(int l, NodeRef* r);
