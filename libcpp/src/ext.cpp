@@ -291,10 +291,17 @@ BOOST_PYTHON_MODULE(ila)
     def("readslice", &NodeRef::readSlice,
             return_value_policy<manage_new_object>());
 
+    // readchunk.
+    def("readchunk", &NodeRef::readChunk,
+            return_value_policy<manage_new_object>());
+
     // writeslice
     def("writeslice", &NodeRef::writeSlice,
             return_value_policy<manage_new_object>());
 
+    // writechunk
+    def("writechunk", &NodeRef::writeChunk,
+            return_value_policy<manage_new_object>());
     // logging.
     def("setloglevel", &ila::setLogLevel);
 

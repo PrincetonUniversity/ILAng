@@ -307,7 +307,7 @@ namespace ila
     // -----------------------------------------------------------------------//
     char ImExport::nextChar(std::istream& in) const
     {
-        char buf;
+        char buf = '\0'; // init.
         while (!in.eof()) {
             buf = in.get();
             if (buf != ' ' && buf != '\n') return buf;

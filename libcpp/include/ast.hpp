@@ -200,8 +200,12 @@ namespace ila
                                 NodeRef* lo, NodeRef* hi);
         // read-slice.
         static NodeRef* readSlice(const std::string& name, NodeRef* bv, int w);
+        // read-chunk.
+        static NodeRef* readChunk(const std::string& name, NodeRef* bv, int w);
         // write-slice.
         static NodeRef* writeSlice(const std::string& name, NodeRef* bv, NodeRef* wr);
+        // write-chunk
+        static NodeRef* writeChunk(const std::string& name, NodeRef* bv, NodeRef* wr);
     private:
         // ---------------------- HELPERS ----------------------------- //
         NodeRef* _unOp(BoolOp::Op boolOp, BitvectorOp::Op bvOp, const char* opName) const;

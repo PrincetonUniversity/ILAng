@@ -573,7 +573,26 @@ namespace ila
             return NULL;
         }
         return new NodeRef(
-            ReadSlice::createReadSlice(bv->node->ctx, name, bv->node, w));
+            ReadSlice::createReadSlice(bv->node->ctx, name, bv->node, w, 1));
+    }
+
+    NodeRef* NodeRef::readChunk(const std::string& name, NodeRef* bv, int w)
+    {
+        if (!bv->node->type.isBitvector() || bv->node->type.bitWidth <= w || w <= 0) {
+            throw PyILAException(
+                PyExc_TypeError, 
+                "Argument to readchunk must be a bitvector of width greater than result width.");
+            return NULL;
+        }
+        if (!bv->node->type.bitWidth % w != 0) {
+            throw PyILAException(
+                PyExc_TypeError, 
+                "Width of argument to readchunk must multiple of chunk size");
+            return NULL;
+        }
+
+        return new NodeRef(
+            ReadSlice::createReadSlice(bv->node->ctx, name, bv->node, w, w));
     }
 
     NodeRef* NodeRef::writeSlice(const std::string& name, NodeRef* bv, NodeRef* wr)
@@ -589,7 +608,29 @@ namespace ila
         return new NodeRef(
             WriteSlice::createWriteSlice(
                 bv->node->ctx, name, 
-                bv->node, wr->node));
+                bv->node, wr->node, 1));
+    }
+
+    NodeRef* NodeRef::writeChunk(const std::string& name, NodeRef* bv, NodeRef* wr)
+    {
+        if (!bv->node->type.isBitvector() || !wr->node->type.isBitvector() ||
+            bv->node->type.bitWidth <= wr->node->type.bitWidth) {
+
+            throw PyILAException(
+                PyExc_TypeError, 
+                "Incorrect types to writeslice arguments.");
+            return NULL;
+        }
+
+        if (!bv->node->type.bitWidth % wr->node->type.bitWidth != 0) {
+            throw PyILAException(
+                PyExc_TypeError,
+                "Bitwidth of bitvector not a multiple of data bitwidth."); 
+        }
+        return new NodeRef(
+            WriteSlice::createWriteSlice(
+                bv->node->ctx, name, 
+                bv->node, wr->node, wr->node->type.bitWidth));
     }
 
     // ---------------------------------------------------------------------- //

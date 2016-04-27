@@ -83,7 +83,7 @@ def main():
     assert sys.areEqual(resdaz, r0 + r1 + 0x44)
 
     slc0 = ila.readslice("r0slice", r0, 4)
-    slc1 = ila.readslice("r1slice", r1, 4)
+    slc1 = ila.readchunk("r1chunk", r1, 4)
     res = ila.choice('slice', slc0 + slc1, slc0 - slc1)
     resrmz = sys.syn_elem("razmatazz", res, razmatazz)
     assert sys.areEqual(resrmz, r0[3:0]+r1[7:4])
@@ -91,6 +91,10 @@ def main():
     nr0 = ila.writeslice("wr0slice", r0, slc0)
     resjazz = sys.syn_elem("jazz", nr0, jazz)
     assert sys.areEqual(resjazz, ila.concat(r0[3:0], r0[3:0]))
+
+    nr1 = ila.writechunk("wr0chunk", r0, slc0)
+    resjazy = sys.syn_elem("jazz", nr1, jazz)
+    assert sys.areEqual(resjazy, ila.concat(r0[3:0], r0[3:0]))
 
 if __name__ == '__main__':
     main()

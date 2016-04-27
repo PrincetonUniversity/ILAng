@@ -124,7 +124,8 @@ namespace ila
         // private constructor: called by the static function.
         ReadSlice(Abstraction *c, const std::string& name, 
                   const nptr_vec_t& args, 
-                  const nptr_t& bv, int width);
+                  const nptr_t& bv, 
+                  int width, int incr);
     public:
         // destructor.
         virtual ~ReadSlice();
@@ -133,11 +134,13 @@ namespace ila
         nptr_t bitvec;
         // slice width.
         int width;
+        // the increment between slices.
+        int increment;
 
         // factory method.
         static ReadSlice* createReadSlice(
             Abstraction* c, const std::string& name, 
-            const nptr_t& bv, int width);
+            const nptr_t& bv, int width, int incr);
             
         // clone.
         virtual Node* clone() const;
@@ -153,7 +156,8 @@ namespace ila
         // private constructor: called by the static function.
         WriteSlice(Abstraction *c, const std::string& name, 
                    const nptr_vec_t& args, 
-                   const nptr_t& bv, const nptr_t& wr);
+                   const nptr_t& bv, 
+                   const nptr_t& wr, int incr);
     public:
         // destructor.
         virtual ~WriteSlice();
@@ -161,11 +165,13 @@ namespace ila
         nptr_t bitvec;
         // the thing to replace it with.
         nptr_t data;
+        // the increment for the choices of slice to write.
+        int increment;
 
         // factory method.
         static WriteSlice* createWriteSlice(
             Abstraction* c, const std::string& name, 
-            const nptr_t& bv, const nptr_t& wr);
+            const nptr_t& bv, const nptr_t& wr, int incr);
             
         // clone.
         virtual Node* clone() const;
