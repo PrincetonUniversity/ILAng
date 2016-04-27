@@ -67,7 +67,9 @@ namespace ila
     // write to memory operator.
     class MemOp : public MemExpr {
     public:
-        enum Op { INVALID, STORE, ITE } op;
+        enum Op { INVALID, STORE, STOREBLOCK, ITE } op;
+        enum endianness_t { ENDIAN, LITTLE, BIG } 
+             endian;
         static const std::string operatorNames[];
     protected:
         // data members //
@@ -75,6 +77,11 @@ namespace ila
     public:
         // constructor
         MemOp(Op op, const nptr_t& a0, const nptr_t& a1, const nptr_t& a2);
+        // constructor for store block.
+        MemOp(Op op, const nptr_t& mem, 
+                     const nptr_t& addr, 
+                     const nptr_t& data,
+                     endianness_t e);
         // copy constructor.
         MemOp(const MemOp& that);
         // destructor.
