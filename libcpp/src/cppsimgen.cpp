@@ -744,6 +744,7 @@ namespace ila
                    arg0->use() + ") ? " + arg1->use() + 
                    " : " + arg2->use() + ";";
         } else {
+            // FIXME: implement STOREBLOCK
             ILA_ASSERT(false, "Invalid MemOp.");
         }
 

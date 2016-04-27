@@ -299,8 +299,40 @@ namespace ila
     NodeRef* NodeRef::store(NodeRef* mem, NodeRef* addr, NodeRef* data)
     {
         if (!checkAbstractions(mem, addr, data)) return NULL;
+        const NodeType& mt = mem->node->type;
+        const NodeType& at = addr->node->type;
+        const NodeType& dt = addr->node->type;
+        if (!mt.isMem()                     ||
+            !at.isBitvector(mt.addrWidth)   ||
+            !dt.isBitvector(mt.dataWidth))
+        {
+            throw PyILAException(PyExc_TypeError,
+                "Type error in arguments.");
+            return NULL;
+        }
         return new NodeRef(new MemOp(
             MemOp::STORE, mem->node, addr->node, data->node));
+    }
+
+    NodeRef* NodeRef::storeblock(NodeRef* mem, NodeRef* addr, NodeRef* data)
+    {
+        if (!checkAbstractions(mem, addr, data)) return NULL;
+        const NodeType& mt = mem->node->type;
+        const NodeType& at = addr->node->type;
+        const NodeType& dt = addr->node->type;
+        if (!mt.isMem()                     ||
+            !at.isBitvector(mt.addrWidth)   ||
+            !dt.isBitvector()               ||
+            dt.bitWidth % mt.dataWidth != 0)
+        {
+            throw PyILAException(PyExc_TypeError,
+                "Type error in arguments.");
+            return NULL;
+        }
+        return new NodeRef(new MemOp(
+            MemOp::STOREBLOCK, 
+            mem->node, addr->node, data->node,
+            MemOp::LITTLE));
     }
 
     NodeRef* NodeRef::logicalXnor(NodeRef* l, NodeRef* r)

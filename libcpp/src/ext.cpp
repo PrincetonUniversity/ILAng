@@ -186,6 +186,9 @@ BOOST_PYTHON_MODULE(ila)
     // memory write.
     def("store", &NodeRef::store,
             return_value_policy<manage_new_object>());
+    def("storeblock", &NodeRef::storeblock,
+            return_value_policy<manage_new_object>());
+
 
     // logical operators.
     def("nand", &NodeRef::logicalNand,

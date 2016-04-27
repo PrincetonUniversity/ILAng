@@ -117,6 +117,7 @@ namespace ila
 
         // write to memory.
         static NodeRef* store(NodeRef* mem, NodeRef* addr, NodeRef* data);
+        static NodeRef* storeblock(NodeRef* mem, NodeRef* addr, NodeRef* data);
 
         // logical functions.
         static NodeRef* logicalXnor(NodeRef* l, NodeRef* r);

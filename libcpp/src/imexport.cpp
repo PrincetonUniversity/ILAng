@@ -75,6 +75,7 @@ namespace ila
         } else if ((memop = dynamic_cast<const MemOp*>(n))) {
             out << "( memOp " << memop->name;
             out << memop->operatorNames[memop->op] << " ";
+            out << "#" << (int) memop->endian << " ";
             //<< type.addrWidth << " " << type.dataWidth << " ";
             for (unsigned i = 0; i != memop->nArgs(); i++) {
                 out << " ";
@@ -268,13 +269,18 @@ namespace ila
         } else if (nodeType == "memOp") {
             std::string opname = next(in);
             MemOp::Op op = getMemOpType(opname);
+            MemOp::endianness_t e = (MemOp::endianness_t)(eatIdx(in));
             nptr_t a0  = importAst(c, in);
             nptr_t a1 = importAst(c, in);
             nptr_t a2 = importAst(c, in);
             ILA_ASSERT(nextChar(in) == ')', "Miss )");
             nptr_t nptr = mapFind(name);
             if (nptr == NULL) {
-                nptr = nptr_t(new MemOp(op, a0, a1, a2));
+                if (e == MemOp::UNDEF) {
+                    nptr = nptr_t(new MemOp(op, a0, a1, a2));
+                } else {
+                    nptr = nptr_t(new MemOp(op, a0, a1, a2, e));
+                }
                 mapInsert(name, nptr);
             }
             return nptr;

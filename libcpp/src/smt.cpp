@@ -452,6 +452,30 @@ namespace ila
             expr data = getArgExpr(mw, 2);
 
             return store(mem, addr, data);
+        } else if (mw->op == MemOp::STOREBLOCK) {
+            // size of each chunk.
+            int chunkSize = mw->arg(0)->type.dataWidth;
+            // number of chunks.
+            int chunks = mw->arg(2)->type.bitWidth / chunkSize;
+            // this in the index added to the memory address
+            int chunkIndex = 0;
+            // this is index used to extract the data.
+            int dataIndex = mw->endian == MemOp::LITTLE ? 0 : chunks - 1;
+            // fwd/backwd?
+            int dataIncr  = mw->endian == MemOp::LITTLE ? chunkSize : -chunkSize;
+            // mem.
+            expr mem = getArgExpr(mw, 0);
+            expr addr = getArgExpr(mw, 1);
+            // full chunk.
+            expr data = getArgExpr(mw, 2);
+            for (; chunkIndex < chunks; chunkIndex++, dataIndex += dataIncr)
+            {
+                expr addr_i = addr + chunkIndex;
+                expr chunk_i = expr(c, Z3_mk_extract(
+                    c, dataIndex+chunkSize-1, dataIndex, data));
+                mem = store(mem, addr_i, chunk_i);
+            }
+            return mem;
         } else if (mw->op == MemOp::ITE) {
             expr cond = getArgExpr(mw, 0);
             expr m1 = getArgExpr(mw, 1);

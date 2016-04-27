@@ -170,6 +170,7 @@ namespace ila
         args.push_back(addr);
         args.push_back(data);
         ILA_ASSERT(args.size() == 3, "Mem op size mismatch.");
+        ILA_ASSERT(op != STOREBLOCK || endian != UNDEF, "endian undefined!");
     }
 
     MemOp::MemOp(const MemOp& that)
@@ -179,6 +180,17 @@ namespace ila
       , args(that.args)
     {
         ILA_ASSERT(args.size() == 3, "Mem op size mismatch.");
+        ILA_ASSERT(op != STOREBLOCK || endian != UNDEF, "endian undefined!");
+    }
+
+    MemOp::MemOp(const MemOp* that, const nptr_vec_t& args)
+      : MemExpr(args[0]->context(), that->type)
+      , op(that->op)
+      , endian(that->endian)
+      , args(args)
+    {
+        ILA_ASSERT(args.size() == 3, "Mem op size mismatch.");
+        ILA_ASSERT(op != STOREBLOCK || endian != UNDEF, "endian undefined!");
     }
 
     MemOp::~MemOp()

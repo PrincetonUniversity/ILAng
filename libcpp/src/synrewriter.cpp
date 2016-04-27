@@ -99,7 +99,7 @@ namespace ila
         } else if ((memop = dynamic_cast<const MemOp*>(n))) {
             nptr_vec_t args;
             getNewArgs(memop, args);
-            nptr_t nptr(new MemOp(memop->op, args[0], args[1], args[2]));
+            nptr_t nptr(new MemOp(memop, args));
             exprmap.insert({n, nptr});
         } else if ((mchoiceop = dynamic_cast<const MemChoice*>(n))) {
             _synChoiceExpr(mchoiceop);

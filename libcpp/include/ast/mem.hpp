@@ -68,7 +68,7 @@ namespace ila
     class MemOp : public MemExpr {
     public:
         enum Op { INVALID, STORE, STOREBLOCK, ITE } op;
-        enum endianness_t { ENDIAN, LITTLE, BIG } 
+        enum endianness_t { UNDEF, LITTLE, BIG } 
              endian;
         static const std::string operatorNames[];
     protected:
@@ -84,6 +84,8 @@ namespace ila
                      endianness_t e);
         // copy constructor.
         MemOp(const MemOp& that);
+        // almost a copy constructor.
+        MemOp(const MemOp* that, const nptr_vec_t& args);
         // destructor.
         virtual ~MemOp();
 
