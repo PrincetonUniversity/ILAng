@@ -136,7 +136,7 @@ namespace ila
     }
 
     MemOp::MemOp(const MemOp& that)
-      : MemExpr(that.mem->context(), that.type)
+      : MemExpr(that.args[0]->context(), that.type)
       , op(that.op)
       , args(that.args)
     {

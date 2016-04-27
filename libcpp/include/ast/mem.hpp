@@ -72,9 +72,6 @@ namespace ila
     protected:
         // data members //
         nptr_vec_t args;
-        nptr_t mem;
-        nptr_t addr;
-        nptr_t data;
     public:
         // constructor
         MemOp(Op op, const nptr_t& a0, const nptr_t& a1, const nptr_t& a2);
