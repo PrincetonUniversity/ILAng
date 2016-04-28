@@ -1,4 +1,5 @@
 # A simple simulator for the external memory, AES and SHA modules.
+import ila
 import sys
 from Crypto.Cipher import AES
 from Crypto.Hash import SHA
