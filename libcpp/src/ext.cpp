@@ -183,10 +183,15 @@ BOOST_PYTHON_MODULE(ila)
 
     // functions which expose operators on nodes.
 
+    // memory load.
+    def("load", &NodeRef::load,
+            return_value_policy<manage_new_object>());
+    def("loadblk", &NodeRef::loadblock,
+            return_value_policy<manage_new_object>());
     // memory write.
     def("store", &NodeRef::store,
             return_value_policy<manage_new_object>());
-    def("storeblock", &NodeRef::storeblock,
+    def("storeblk", &NodeRef::storeblock,
             return_value_policy<manage_new_object>());
 
 
@@ -226,6 +231,8 @@ BOOST_PYTHON_MODULE(ila)
     
     // manipulate operators.
     def("concat", &NodeRef::concat,
+            return_value_policy<manage_new_object>());
+    def("concat", &NodeRef::concatList,
             return_value_policy<manage_new_object>());
     def("lrotate", &NodeRef::lrotate,
             return_value_policy<manage_new_object>());

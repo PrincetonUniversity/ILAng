@@ -68,8 +68,7 @@ namespace ila
     class MemOp : public MemExpr {
     public:
         enum Op { INVALID, STORE, STOREBLOCK, ITE } op;
-        enum endianness_t { UNDEF, LITTLE, BIG } 
-             endian;
+        endianness_t endian;
         static const std::string operatorNames[];
     protected:
         // data members //

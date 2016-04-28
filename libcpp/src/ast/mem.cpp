@@ -102,7 +102,7 @@ namespace ila
     MemOp::MemOp(Op o, const nptr_t& a0, const nptr_t& a1, const nptr_t& a2)
       : MemExpr(a0->context(), (o == MemOp::STORE ? a0->type : a1->type))
       , op(o)
-      , endian(UNDEF)
+      , endian(UNKNOWN_E)
     {
         ILA_ASSERT(op == MemOp::STORE || op == MemOp::ITE, "Invalid op value.");
 
@@ -170,7 +170,7 @@ namespace ila
         args.push_back(addr);
         args.push_back(data);
         ILA_ASSERT(args.size() == 3, "Mem op size mismatch.");
-        ILA_ASSERT(op != STOREBLOCK || endian != UNDEF, "endian undefined!");
+        ILA_ASSERT(op != STOREBLOCK || endian != UNKNOWN_E, "endian undefined!");
     }
 
     MemOp::MemOp(const MemOp& that)
@@ -180,7 +180,7 @@ namespace ila
       , args(that.args)
     {
         ILA_ASSERT(args.size() == 3, "Mem op size mismatch.");
-        ILA_ASSERT(op != STOREBLOCK || endian != UNDEF, "endian undefined!");
+        ILA_ASSERT(op != STOREBLOCK || endian != UNKNOWN_E, "endian undefined!");
     }
 
     MemOp::MemOp(const MemOp* that, const nptr_vec_t& args)
@@ -190,7 +190,7 @@ namespace ila
       , args(args)
     {
         ILA_ASSERT(args.size() == 3, "Mem op size mismatch.");
-        ILA_ASSERT(op != STOREBLOCK || endian != UNDEF, "endian undefined!");
+        ILA_ASSERT(op != STOREBLOCK || endian != UNKNOWN_E, "endian undefined!");
     }
 
     MemOp::~MemOp()
@@ -225,9 +225,9 @@ namespace ila
             << " " << *args[1].get()
             << " " << *args[2].get();
 
-        if (endian != UNDEF) {
-            out << " #" << (endian == LITTLE ? "little-endian"
-                                             : "big-endian");
+        if (endian != UNKNOWN_E) {
+            out << " #" << (endian == LITTLE_E ? "little-endian"
+                                               : "big-endian");
         }
         
         out << ")";

@@ -93,7 +93,7 @@ namespace ila
             // binary.
             ADD, SUB, AND, OR, XOR, XNOR, NAND, NOR,
             SDIV, UDIV, SREM, UREM, SMOD, SHL, LSHR, ASHR, 
-            MUL, CONCAT, GET_BIT, READMEM,
+            MUL, CONCAT, GET_BIT, READMEM, READMEMBLOCK,
             // ternary
             IF, APPLY_FUNC 
         } op;
@@ -110,7 +110,7 @@ namespace ila
             return op >= NEGATE && op <= EXTRACT; 
         }
         static bool isBinary(Op op) { 
-            return op >= ADD && op <= READMEM;
+            return op >= ADD && op <= READMEMBLOCK;
         }
         static bool isTernary(Op op) { 
             return op >= IF && op <= IF; 
@@ -127,6 +127,11 @@ namespace ila
             const nptr_t& n1, 
             const nptr_t& n2);
         static int getBinaryResultWidth(
+            Op op, 
+            const nptr_t& n1, 
+            const nptr_t& n2,
+            int param);
+        static int getBinaryResultWidth(
             Op op,
             const nptr_t& n1,
             int param);
@@ -142,6 +147,12 @@ namespace ila
             Op op, 
             const nptr_t& n1, 
             const nptr_t& n2, 
+            int width);
+        static int checkBinaryOpWidth(
+            Op op, 
+            const nptr_t& n1, 
+            const nptr_t& n2, 
+            int param,
             int width);
         static int checkBinaryOpWidth(
             Op op,
@@ -173,6 +184,11 @@ namespace ila
         BitvectorOp(Abstraction* c, Op op, 
                     const nptr_t& n1, 
                     const nptr_t& n2);
+        // Binary op with params (read-block)
+        BitvectorOp(Abstraction* c, Op op, 
+                    const nptr_t& n1,
+                    const nptr_t& n2,
+                    int blocks, endianness_t e);
         // Ternary op
         BitvectorOp(Abstraction* c, Op op,
                     nptr_vec_t& args_);

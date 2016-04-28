@@ -115,6 +115,9 @@ namespace ila
 
         // static function for non-python operators.
 
+        // read from memory.
+        static NodeRef* load(NodeRef* mem, NodeRef* addr);
+        static NodeRef* loadblock(NodeRef* mem, NodeRef* addr, int chunks);
         // write to memory.
         static NodeRef* store(NodeRef* mem, NodeRef* addr, NodeRef* data);
         static NodeRef* storeblock(NodeRef* mem, NodeRef* addr, NodeRef* data);
@@ -154,6 +157,7 @@ namespace ila
 
         // bit manipulate functions.
         static NodeRef* concat(NodeRef* lo, NodeRef* hi);
+        static NodeRef* concatList(const py::list& l);
         static NodeRef* lrotate(NodeRef* obj, int par);
         static NodeRef* rrotate(NodeRef* obj, int par);
         static NodeRef* extract(const NodeRef* obj, int hi, int lo);
