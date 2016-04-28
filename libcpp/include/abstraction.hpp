@@ -107,7 +107,7 @@ namespace ila
         // Create a bitvector constant with a long integer.
         NodeRef* bvConstLong(py::long_ l, int width);
         // Create a bitvector constant with an integer.
-        NodeRef* bvConstInt(int l, int width);
+        NodeRef* bvConstInt(unsigned int l, int width);
 
         // Create a boolean constant (from a bool).
         NodeRef* boolConstB(bool b);

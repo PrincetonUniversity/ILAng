@@ -414,6 +414,25 @@ namespace ila
                 return vi;
             } else if (op == BitvectorOp::READMEM) {
                 return select(arg0,arg1);
+            } else if (op == BitvectorOp::READMEMBLOCK) {
+                ILA_ASSERT(bvop->nParams() == 2, "Two parameters expected.");
+                int chunks = bvop->param(0);
+                endianness_t e = (endianness_t) bvop->param(1);
+                ILA_ASSERT(chunks >= 1, "One or more chunks expected.");
+                expr result(c);
+                for (int i=0; i < chunks; i++) {
+                    expr data_i = select(arg0, arg1+i);
+                    if (i == 0) {
+                        result = data_i;
+                    } else {
+                        if (e == LITTLE_E) {
+                            result = expr(c, Z3_mk_concat(c, data_i, result));
+                        } else {
+                            result = expr(c, Z3_mk_concat(c, result, data_i));
+                        }
+                    }
+                }
+                return result;
             }
         } else if (arity == 3) {
             expr arg0 = getArgExpr(bvop, 0);
@@ -452,6 +471,30 @@ namespace ila
             expr data = getArgExpr(mw, 2);
 
             return store(mem, addr, data);
+        } else if (mw->op == MemOp::STOREBLOCK) {
+            // size of each chunk.
+            int chunkSize = mw->arg(0)->type.dataWidth;
+            // number of chunks.
+            int chunks = mw->arg(2)->type.bitWidth / chunkSize;
+            // this in the index added to the memory address
+            int chunkIndex = 0;
+            // this is index used to extract the data.
+            int dataIndex = mw->endian == LITTLE_E ? 0 : chunks - 1;
+            // fwd/backwd?
+            int dataIncr  = mw->endian == LITTLE_E ? chunkSize : -chunkSize;
+            // mem.
+            expr mem = getArgExpr(mw, 0);
+            expr addr = getArgExpr(mw, 1);
+            // full chunk.
+            expr data = getArgExpr(mw, 2);
+            for (; chunkIndex < chunks; chunkIndex++, dataIndex += dataIncr)
+            {
+                expr addr_i = addr + chunkIndex;
+                expr chunk_i = expr(c, Z3_mk_extract(
+                    c, dataIndex+chunkSize-1, dataIndex, data));
+                mem = store(mem, addr_i, chunk_i);
+            }
+            return mem;
         } else if (mw->op == MemOp::ITE) {
             expr cond = getArgExpr(mw, 0);
             expr m1 = getArgExpr(mw, 1);

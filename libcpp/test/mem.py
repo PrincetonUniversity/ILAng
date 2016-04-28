@@ -89,5 +89,18 @@ def main():
     expr =  sys.syn_elem("bar", rp, bar)
     assert sys.areEqual(expr, r3)
 
+    data = sys.const(0xdeadbeef, 32)
+    iramp = ila.storeblk(iram, addrp, data)
+    d0 = iramp[addrp]
+    d1 = iramp[addrp+1]
+    d2 = iramp[addrp+2]
+    d3 = iramp[addrp+3]
+    datablk = ila.loadblk(iramp, addrp, 4)
+    assert sys.areEqual(datablk, data)
+    assert sys.areEqual(datablk, ila.concat([d3, d2, d1, d0]))
+    assert sys.areEqual(ila.concat(d0, d1), sys.const(0xefbe, 16))
+    assert sys.areEqual(ila.concat(d2, d3), sys.const(0xadde, 16))
+
+
 if __name__ == '__main__':
     main()

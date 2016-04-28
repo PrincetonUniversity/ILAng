@@ -112,13 +112,14 @@ namespace ila
             nptr_t bvp = getRepl(rdslice->bitvec.get());
             nptr_t nptr(ReadSlice::createReadSlice(
                 rdslice->context(), rdslice->name, 
-                bvp, rdslice->width));
+                bvp, rdslice->width, rdslice->increment));
             rwmap.insert({n, nptr});
         } else if ((wrslice = dynamic_cast<const WriteSlice*>(n))) {
             nptr_t bvp = getRepl(wrslice->bitvec.get());
             nptr_t wrp = getRepl(wrslice->data.get());
             nptr_t nptr(WriteSlice::createWriteSlice(
-                wrslice->context(), wrslice->name, bvp, wrp));
+                wrslice->context(), wrslice->name, 
+                bvp, wrp, wrslice->increment));
             rwmap.insert({n, nptr});
         } else if ((bvchoiceop = dynamic_cast<const BitvectorChoice*>(n))) {
             nptr_vec_t args;
@@ -138,7 +139,7 @@ namespace ila
         } else if ((memop = dynamic_cast<const MemOp*>(n))) {
             nptr_vec_t args;
             getNewArgs(memop, args);
-            nptr_t nptr(new MemOp(memop->op, args[0], args[1], args[2]));
+            nptr_t nptr(new MemOp(memop, args));
             rwmap.insert({n, nptr});
         } else if ((mchoiceop = dynamic_cast<const MemChoice*>(n))) {
             nptr_vec_t args;

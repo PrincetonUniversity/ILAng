@@ -67,10 +67,12 @@ namespace ila
     // ---------------------------------------------------------------------- //
     ReadSlice::ReadSlice(Abstraction* c, const std::string& name,
                          const nptr_vec_t& args, 
-                         const nptr_t& bv, int w)
+                         const nptr_t& bv, 
+                         int w, int incr)
       : BitvectorChoice(c, name, args)
       , bitvec(bv)
       , width(w)
+      , increment(incr)
     {
     }
 
@@ -81,7 +83,7 @@ namespace ila
     // ---------------------------------------------------------------------- //
     ReadSlice* ReadSlice::createReadSlice(
         Abstraction* c, const std::string& name,
-        const nptr_t& bv, int width)
+        const nptr_t& bv, int width, int incr)
     {
         if (!bv->type.isBitvector() || bv->type.bitWidth <= width || width <= 0) {
             throw PyILAException(PyExc_TypeError, 
@@ -90,32 +92,34 @@ namespace ila
         }
         nptr_vec_t args;
         int msb = width-1, lsb=0;
-        for(; msb < bv->type.bitWidth; msb++, lsb++) {
+        for(; msb < bv->type.bitWidth; msb+=incr, lsb+=incr) {
             nptr_t ni(new BitvectorOp(c, BitvectorOp::EXTRACT, bv, msb, lsb));
             args.push_back(ni);
         }
-        return new ReadSlice(c, name, args, bv, width);
+        return new ReadSlice(c, name, args, bv, width, incr);
     }
 
     // ---------------------------------------------------------------------- //
     Node* ReadSlice::clone() const
     {
-        return new ReadSlice(ctx, name, choice.args, bitvec, width);
+        return new ReadSlice(ctx, name, choice.args, bitvec, width, increment);
     }
 
     std::ostream& ReadSlice::write(std::ostream& out) const
     {
         return out << "(read-slice " << "#" << width << " "
+                   << "#" << increment << " "
                    << *bitvec.get() << ")";
     }
 
     // ---------------------------------------------------------------------- //
     WriteSlice::WriteSlice(Abstraction* c, const std::string& name,
                            const nptr_vec_t& args, 
-                           const nptr_t& bv, const nptr_t& wr)
+                           const nptr_t& bv, const nptr_t& wr, int incr)
       : BitvectorChoice(c, name, args)
       , bitvec(bv)
       , data(wr)
+      , increment(incr)
     {
     }
 
@@ -126,7 +130,7 @@ namespace ila
     // ---------------------------------------------------------------------- //
     WriteSlice* WriteSlice::createWriteSlice(
         Abstraction* c, const std::string& name,
-        const nptr_t& bv, const nptr_t& wr)
+        const nptr_t& bv, const nptr_t& wr, int incr)
     {
         if (!bv->type.isBitvector() || !wr->type.isBitvector() ||
              bv->type.bitWidth <= wr->type.bitWidth) {
@@ -137,7 +141,7 @@ namespace ila
         }
         nptr_vec_t args;
         int msb = wr->type.bitWidth-1, lsb=0;
-        for(; msb < bv->type.bitWidth; msb++, lsb++) {
+        for(; msb < bv->type.bitWidth; msb+=incr, lsb+=incr) {
             int msb1 = bv->type.bitWidth-1;
             int lsb1 = msb+1;
 
@@ -175,18 +179,19 @@ namespace ila
                 args.push_back(r2);
             }
         }
-        return new WriteSlice(c, name, args, bv, wr);
+        return new WriteSlice(c, name, args, bv, wr, incr);
     }
 
     // ---------------------------------------------------------------------- //
     Node* WriteSlice::clone() const
     {
-        return new WriteSlice(ctx, name, choice.args, bitvec, data);
+        return new WriteSlice(ctx, name, choice.args, bitvec, data, increment);
     }
 
     std::ostream& WriteSlice::write(std::ostream& out) const
     {
         return out << "(write-slice " << *bitvec.get() << " "
+                   << "#" << increment << " "
                    << *data.get() << ")";
     }
 

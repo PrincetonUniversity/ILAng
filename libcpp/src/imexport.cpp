@@ -75,6 +75,7 @@ namespace ila
         } else if ((memop = dynamic_cast<const MemOp*>(n))) {
             out << "( memOp " << memop->name;
             out << memop->operatorNames[memop->op] << " ";
+            out << "#" << (int) memop->endian << " ";
             //<< type.addrWidth << " " << type.dataWidth << " ";
             for (unsigned i = 0; i != memop->nArgs(); i++) {
                 out << " ";
@@ -212,6 +213,14 @@ namespace ila
                 if (nptr == NULL) {
                     nptr = nptr_t(new BitvectorOp(c, op, arg0, arg1));
                 }
+            } else if (op == BitvectorOp::Op::READMEMBLOCK) {
+                nptr_t arg0 = importAst(c, in);
+                nptr_t arg1 = importAst(c, in);
+                int chunks = eatIdx(in);
+                endianness_t e = (endianness_t) eatIdx(in);
+                if (nptr == NULL) {
+                    nptr = nptr_t(new BitvectorOp(c, op, arg0, arg1, chunks, e));
+                }
             } else if (op == BitvectorOp::Op::IF) {
                 nptr_t arg0 = importAst(c, in);
                 nptr_t arg1 = importAst(c, in);
@@ -268,13 +277,18 @@ namespace ila
         } else if (nodeType == "memOp") {
             std::string opname = next(in);
             MemOp::Op op = getMemOpType(opname);
+            endianness_t e = (endianness_t)(eatIdx(in));
             nptr_t a0  = importAst(c, in);
             nptr_t a1 = importAst(c, in);
             nptr_t a2 = importAst(c, in);
             ILA_ASSERT(nextChar(in) == ')', "Miss )");
             nptr_t nptr = mapFind(name);
             if (nptr == NULL) {
-                nptr = nptr_t(new MemOp(op, a0, a1, a2));
+                if (e == UNKNOWN_E) {
+                    nptr = nptr_t(new MemOp(op, a0, a1, a2));
+                } else {
+                    nptr = nptr_t(new MemOp(op, a0, a1, a2, e));
+                }
                 mapInsert(name, nptr);
             }
             return nptr;
@@ -307,7 +321,7 @@ namespace ila
     // -----------------------------------------------------------------------//
     char ImExport::nextChar(std::istream& in) const
     {
-        char buf;
+        char buf = '\0'; // init.
         while (!in.eof()) {
             buf = in.get();
             if (buf != ' ' && buf != '\n') return buf;

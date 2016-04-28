@@ -670,6 +670,8 @@ namespace ila
                        arg0->use() + ".rd(" + arg1->use() + ");";
             }
         //// Ternary ////
+        } else if (n->op == BitvectorOp::READMEMBLOCK) {
+            // FIXME //
         } else if (n->op == BitvectorOp::Op::IF) {
             CppVar* arg0 = findVar(*_curVarMap, n->arg(0)->name);
             CppVar* arg1 = findVar(*_curVarMap, n->arg(1)->name);
@@ -744,6 +746,7 @@ namespace ila
                    arg0->use() + ") ? " + arg1->use() + 
                    " : " + arg2->use() + ";";
         } else {
+            // FIXME: implement STOREBLOCK
             ILA_ASSERT(false, "Invalid MemOp.");
         }
 

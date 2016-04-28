@@ -296,11 +296,85 @@ namespace ila
     // ---------------------------------------------------------------------- //
     // static functions.
 
+    NodeRef* NodeRef::load(NodeRef* mem, NodeRef* addr)
+    {
+        if (!checkAbstractions(mem, addr)) return NULL;
+        const NodeType& mt = mem->node->type;
+        const NodeType& at = addr->node->type;
+        if (!mt.isMem()                     ||
+            !at.isBitvector(mt.addrWidth))
+        {
+            throw PyILAException(PyExc_TypeError,
+                "Type error in arguments.");
+            return NULL;
+        }
+        return new NodeRef(new BitvectorOp(
+            mem->node->ctx, BitvectorOp::READMEM, 
+            mem->node, addr->node));
+    }
+
+    NodeRef* NodeRef::loadblock(NodeRef* mem, NodeRef* addr, int chunks)
+    {
+        if (!checkAbstractions(mem, addr)) return NULL;
+        const NodeType& mt = mem->node->type;
+        const NodeType& at = addr->node->type;
+        if (!mt.isMem()                     ||
+            !at.isBitvector(mt.addrWidth))
+        {
+            throw PyILAException(PyExc_TypeError,
+                "Type error in arguments.");
+            return NULL;
+        }
+        if (chunks <= 0) {
+            throw PyILAException(PyExc_ValueError,
+                "Invalid number of blocks.");
+            return NULL;
+        }
+
+        return new NodeRef(new BitvectorOp(
+            mem->node->ctx, 
+            BitvectorOp::READMEMBLOCK, 
+            mem->node, addr->node, chunks, 
+            LITTLE_E));
+    }
+
     NodeRef* NodeRef::store(NodeRef* mem, NodeRef* addr, NodeRef* data)
     {
         if (!checkAbstractions(mem, addr, data)) return NULL;
+        const NodeType& mt = mem->node->type;
+        const NodeType& at = addr->node->type;
+        const NodeType& dt = addr->node->type;
+        if (!mt.isMem()                     ||
+            !at.isBitvector(mt.addrWidth)   ||
+            !dt.isBitvector(mt.dataWidth))
+        {
+            throw PyILAException(PyExc_TypeError,
+                "Type error in arguments.");
+            return NULL;
+        }
         return new NodeRef(new MemOp(
             MemOp::STORE, mem->node, addr->node, data->node));
+    }
+
+    NodeRef* NodeRef::storeblock(NodeRef* mem, NodeRef* addr, NodeRef* data)
+    {
+        if (!checkAbstractions(mem, addr, data)) return NULL;
+        const NodeType& mt = mem->node->type;
+        const NodeType& at = addr->node->type;
+        const NodeType& dt = addr->node->type;
+        if (!mt.isMem()                     ||
+            !at.isBitvector(mt.addrWidth)   ||
+            !dt.isBitvector()               ||
+            dt.bitWidth % mt.dataWidth != 0)
+        {
+            throw PyILAException(PyExc_TypeError,
+                "Type error in arguments.");
+            return NULL;
+        }
+        return new NodeRef(new MemOp(
+            MemOp::STOREBLOCK, 
+            mem->node, addr->node, data->node,
+            LITTLE_E));
     }
 
     NodeRef* NodeRef::logicalXnor(NodeRef* l, NodeRef* r)
@@ -384,6 +458,58 @@ namespace ila
     NodeRef* NodeRef::concat(NodeRef* hi, NodeRef* lo)
     {
         return _binOp(BitvectorOp::CONCAT, hi, lo);
+    }
+
+    NodeRef* NodeRef::concatList(const py::list& l)
+    {
+        nptr_vec_t args;
+        // number of arguments.
+        if (py::len(l) < 2) {
+            throw PyILAException(
+                PyExc_RuntimeError, "Must have two arguments.");
+            return NULL;
+        }
+        // must all be nodes.
+        for (unsigned i=0; i != py::len(l); i++) {
+            py::extract<NodeRef&> ni(l[i]);
+            if (ni.check()) {
+                args.push_back(ni().node);
+            } else {
+                throw PyILAException(
+                    PyExc_TypeError, "Argument to concat must be a node.");
+                return NULL;
+            }
+        }
+        // must all be bitvectors.
+        for (unsigned i=0; i !=args.size(); i++) {
+            if (!args[i]->type.isBitvector()) {
+                throw PyILAException(
+                    PyExc_TypeError, "Argument to concat must be a bitvector.");
+                return NULL;
+            }
+        }
+        // check the abstractions.
+        if (!checkAbstractions(args)) return NULL;
+
+        // now finally create the expression.
+        ILA_ASSERT(args.size() >= 2, "Must have two arguments.");
+        nptr_t expr;
+        for (int i=args.size()-2; i >= 0; i--) {
+            const nptr_t& b1 = args[i];
+            const nptr_t& b2 = args[i+1];
+            if (i == args.size()-2) {
+                nptr_t arg(new BitvectorOp(b1->ctx, 
+                    BitvectorOp::CONCAT,
+                    b1, b2));
+                expr = arg;
+            } else {
+                nptr_t arg(new BitvectorOp(b1->ctx, 
+                    BitvectorOp::CONCAT,
+                    b1, expr));
+                expr = arg;
+            }
+        }
+        return new NodeRef(expr);
     }
 
     NodeRef* NodeRef::lrotate(NodeRef* obj, int par)
@@ -490,7 +616,7 @@ namespace ila
             } else {
                 throw PyILAException(
                     PyExc_TypeError,
-                    "Argument to choice must be a node.");
+                    "Argument to apply must be a node.");
             }
         }
         return _naryOp(BitvectorOp::APPLY_FUNC, args);
@@ -573,7 +699,26 @@ namespace ila
             return NULL;
         }
         return new NodeRef(
-            ReadSlice::createReadSlice(bv->node->ctx, name, bv->node, w));
+            ReadSlice::createReadSlice(bv->node->ctx, name, bv->node, w, 1));
+    }
+
+    NodeRef* NodeRef::readChunk(const std::string& name, NodeRef* bv, int w)
+    {
+        if (!bv->node->type.isBitvector() || bv->node->type.bitWidth <= w || w <= 0) {
+            throw PyILAException(
+                PyExc_TypeError, 
+                "Argument to readchunk must be a bitvector of width greater than result width.");
+            return NULL;
+        }
+        if (!bv->node->type.bitWidth % w != 0) {
+            throw PyILAException(
+                PyExc_TypeError, 
+                "Width of argument to readchunk must multiple of chunk size");
+            return NULL;
+        }
+
+        return new NodeRef(
+            ReadSlice::createReadSlice(bv->node->ctx, name, bv->node, w, w));
     }
 
     NodeRef* NodeRef::writeSlice(const std::string& name, NodeRef* bv, NodeRef* wr)
@@ -589,7 +734,29 @@ namespace ila
         return new NodeRef(
             WriteSlice::createWriteSlice(
                 bv->node->ctx, name, 
-                bv->node, wr->node));
+                bv->node, wr->node, 1));
+    }
+
+    NodeRef* NodeRef::writeChunk(const std::string& name, NodeRef* bv, NodeRef* wr)
+    {
+        if (!bv->node->type.isBitvector() || !wr->node->type.isBitvector() ||
+            bv->node->type.bitWidth <= wr->node->type.bitWidth) {
+
+            throw PyILAException(
+                PyExc_TypeError, 
+                "Incorrect types to writeslice arguments.");
+            return NULL;
+        }
+
+        if (!bv->node->type.bitWidth % wr->node->type.bitWidth != 0) {
+            throw PyILAException(
+                PyExc_TypeError,
+                "Bitwidth of bitvector not a multiple of data bitwidth."); 
+        }
+        return new NodeRef(
+            WriteSlice::createWriteSlice(
+                bv->node->ctx, name, 
+                bv->node, wr->node, wr->node->type.bitWidth));
     }
 
     // ---------------------------------------------------------------------- //

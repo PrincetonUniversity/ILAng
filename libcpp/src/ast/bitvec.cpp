@@ -19,7 +19,7 @@ namespace ila
         // binary
         "+", "-", "and", "or", "xor", "xnor", "nand", "nor",
         "div", "udiv", "rem", "urem", "mod", "shl", "lshr", "ashr", 
-        "*", "concat", "get-bit", "readmem",
+        "*", "concat", "get-bit", "readmem", "read-block",
 		// ternary
         "if", "apply_fun", 
     };
@@ -177,6 +177,17 @@ namespace ila
     }
 
     int BitvectorOp::getBinaryResultWidth(
+        Op op, const nptr_t& n1, const nptr_t& n2, int param)
+    {
+        if (op == READMEMBLOCK) {
+            return n1->type.dataWidth*param;
+        } else {
+            // INVALID
+            return 0;
+        }
+    }
+
+    int BitvectorOp::getBinaryResultWidth(
         Op op, const nptr_t& n1, int param)
     {
         if (op >= Z_EXT && op <= S_EXT) {
@@ -256,6 +267,27 @@ namespace ila
             }
         }
         // CONCAT can have different operand width
+        return 0;
+    }
+
+    int BitvectorOp::checkBinaryOpWidth(
+        Op op, 
+        const nptr_t& n1, 
+        const nptr_t& n2,
+        int param,
+        int width)
+    {
+        // FIXME: add more code when operators are added.
+        if (op == READMEMBLOCK) {
+            if (!n1->type.isMem()) {
+                return 1;
+            } else if (!n2->type.isBitvector(n1->type.addrWidth)) {
+                return 2;
+            } else {
+                return 0;
+            }
+        }
+        ILA_ASSERT(false, "Unknown binary operator with param.");
         return 0;
     }
 
@@ -446,6 +478,42 @@ namespace ila
         args.push_back( n1 );
         args.push_back( n2 );
     }
+
+    BitvectorOp::BitvectorOp(Abstraction* c, Op op,
+        const nptr_t& n1,
+        const nptr_t& n2,
+        int blocks,
+        endianness_t e)
+      : BitvectorExpr(c, getBinaryResultWidth(op, n1, n2, blocks))
+      , arity(BINARY)
+      , op(op)
+    {
+        if (op != READMEMBLOCK) {
+            throw PyILAException(PyExc_ValueError,
+                                 "Invalid binary operator; expected read-block.");
+        }
+        if (blocks < 1) {
+            throw PyILAException(PyExc_ValueError,
+                                 "Invalid number of chunks.");
+        }
+        if (e != LITTLE_E && e != BIG_E) {
+            throw PyILAException(PyExc_ValueError,
+                                "Invalid endianness value.");
+        }
+
+        int error = checkBinaryOpWidth(op, n1, n2, blocks, type.bitWidth);
+        if (error != 0) {
+            throw PyILAException(PyExc_TypeError,
+                "Invalid operand (" + 
+                boost::lexical_cast<std::string>(error) +
+                ") for operator: " + operatorNames[op]);
+        }
+        args.push_back( n1 );
+        args.push_back( n2 );
+        params.push_back( blocks );
+        params.push_back( (int) e);
+    }
+
     
     // constructor: ternary ops
     BitvectorOp::BitvectorOp(

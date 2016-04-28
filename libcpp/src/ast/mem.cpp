@@ -6,7 +6,7 @@ namespace ila
 {
     // ---------------------------------------------------------------------- //
     const std::string MemOp::operatorNames[] = {
-        "invalid", "store", "ite"
+        "invalid", "store", "storeblock", "ite"
     };
     // ---------------------------------------------------------------------- //
     MemExpr::MemExpr(Abstraction *c, int aw, int dw) 
@@ -102,6 +102,7 @@ namespace ila
     MemOp::MemOp(Op o, const nptr_t& a0, const nptr_t& a1, const nptr_t& a2)
       : MemExpr(a0->context(), (o == MemOp::STORE ? a0->type : a1->type))
       , op(o)
+      , endian(UNKNOWN_E)
     {
         ILA_ASSERT(op == MemOp::STORE || op == MemOp::ITE, "Invalid op value.");
 
@@ -135,12 +136,61 @@ namespace ila
         ILA_ASSERT(args.size() == 3, "Mem op size mismatch.");
     }
 
+    MemOp::MemOp(Op op, const nptr_t& mem, 
+                        const nptr_t& addr, 
+                        const nptr_t& data,
+                        endianness_t e)
+      : MemExpr(mem->context(), mem->type)
+      , op(STOREBLOCK)
+      , endian(e)
+    {
+        ILA_ASSERT(op == STOREBLOCK, "Invalid op.");
+        // check memory type //
+        if (!mem->type.isMem()) {
+            throw PyILAException(PyExc_TypeError, 
+                    "First argument must be a memory.");
+            return;
+        }
+        // check address type and width //
+        if (!addr->type.isBitvector(mem->type.addrWidth)) {
+            throw PyILAException(PyExc_TypeError, 
+                    "Invalid address type.");
+            return;
+        }
+        // check data type and width //
+        if (!data->type.isBitvector() ||
+             data->type.bitWidth % mem->type.dataWidth != 0)
+        {
+            throw PyILAException(PyExc_TypeError, 
+                    "Invalid data type.");
+            return;
+        }
+
+        args.push_back(mem);
+        args.push_back(addr);
+        args.push_back(data);
+        ILA_ASSERT(args.size() == 3, "Mem op size mismatch.");
+        ILA_ASSERT(op != STOREBLOCK || endian != UNKNOWN_E, "endian undefined!");
+    }
+
     MemOp::MemOp(const MemOp& that)
-      : MemExpr(that.mem->context(), that.type)
+      : MemExpr(that.args[0]->context(), that.type)
       , op(that.op)
+      , endian(that.endian)
       , args(that.args)
     {
         ILA_ASSERT(args.size() == 3, "Mem op size mismatch.");
+        ILA_ASSERT(op != STOREBLOCK || endian != UNKNOWN_E, "endian undefined!");
+    }
+
+    MemOp::MemOp(const MemOp* that, const nptr_vec_t& args)
+      : MemExpr(args[0]->context(), that->type)
+      , op(that->op)
+      , endian(that->endian)
+      , args(args)
+    {
+        ILA_ASSERT(args.size() == 3, "Mem op size mismatch.");
+        ILA_ASSERT(op != STOREBLOCK || endian != UNKNOWN_E, "endian undefined!");
     }
 
     MemOp::~MemOp()
@@ -173,8 +223,14 @@ namespace ila
         out << "(" << operatorNames[op] 
             << " " << *args[0].get()
             << " " << *args[1].get()
-            << " " << *args[2].get()
-            << ")";
+            << " " << *args[2].get();
+
+        if (endian != UNKNOWN_E) {
+            out << " #" << (endian == LITTLE_E ? "little-endian"
+                                               : "big-endian");
+        }
+        
+        out << ")";
         return out;
     }
 

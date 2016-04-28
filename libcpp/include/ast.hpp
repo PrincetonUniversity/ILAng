@@ -115,8 +115,12 @@ namespace ila
 
         // static function for non-python operators.
 
+        // read from memory.
+        static NodeRef* load(NodeRef* mem, NodeRef* addr);
+        static NodeRef* loadblock(NodeRef* mem, NodeRef* addr, int chunks);
         // write to memory.
         static NodeRef* store(NodeRef* mem, NodeRef* addr, NodeRef* data);
+        static NodeRef* storeblock(NodeRef* mem, NodeRef* addr, NodeRef* data);
 
         // logical functions.
         static NodeRef* logicalXnor(NodeRef* l, NodeRef* r);
@@ -153,6 +157,7 @@ namespace ila
 
         // bit manipulate functions.
         static NodeRef* concat(NodeRef* lo, NodeRef* hi);
+        static NodeRef* concatList(const py::list& l);
         static NodeRef* lrotate(NodeRef* obj, int par);
         static NodeRef* rrotate(NodeRef* obj, int par);
         static NodeRef* extract(const NodeRef* obj, int hi, int lo);
@@ -200,8 +205,12 @@ namespace ila
                                 NodeRef* lo, NodeRef* hi);
         // read-slice.
         static NodeRef* readSlice(const std::string& name, NodeRef* bv, int w);
+        // read-chunk.
+        static NodeRef* readChunk(const std::string& name, NodeRef* bv, int w);
         // write-slice.
         static NodeRef* writeSlice(const std::string& name, NodeRef* bv, NodeRef* wr);
+        // write-chunk
+        static NodeRef* writeChunk(const std::string& name, NodeRef* bv, NodeRef* wr);
     private:
         // ---------------------- HELPERS ----------------------------- //
         NodeRef* _unOp(BoolOp::Op boolOp, BitvectorOp::Op bvOp, const char* opName) const;
