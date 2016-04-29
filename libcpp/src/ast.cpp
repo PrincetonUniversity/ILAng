@@ -497,7 +497,7 @@ namespace ila
         for (int i=args.size()-2; i >= 0; i--) {
             const nptr_t& b1 = args[i];
             const nptr_t& b2 = args[i+1];
-            if (i == args.size()-2) {
+            if (i == (int)args.size()-2) {
                 nptr_t arg(new BitvectorOp(b1->ctx, 
                     BitvectorOp::CONCAT,
                     b1, b2));
