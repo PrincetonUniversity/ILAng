@@ -23,8 +23,17 @@ class mmiodev(object):
             if addr >= a0 and addr < a1:
                 (name, length, readonly, data) = self.regmap[(a0, a1)]
                 offset = addr-a0
-                return data[offset]
-        
+                return True, data[offset]
+        return False, 0
+
+    def write(self, addr, byte):
+        assert addr >= 0 and addr <= 65536
+        for (a0, a1) in self.regmap:
+            if addr >= a0 and addr < a1:
+                (name, length, readonly, data) = self.regmap[(a0, a1)]
+                offset = addr-a0
+                data[offset] = byte
+
     def getRegB(self, name):
         (a0, a1) = self.regidx[name]
         (name, length, readonly, data) = self.regmap[(a0, a1)]
