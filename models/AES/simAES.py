@@ -19,9 +19,9 @@ class AES(mmiodev):
         self.addReg('aes_key0', 0xff20, 0x10)
         self.addReg('aes_key1', 0xff30, 0x10)
 
-        self.aes_bytes_processed = 0
-        self.aes_read_data = [0] * 16
-        self.aes_enc_data  = [0] * 16
+        self.byte_cnt = 0
+        self.rd_data = [0] * 16
+        self.enc_data  = [0] * 16
 
     # create easy access properties.
     aes_state   = property(lambda s: s.getRegI('aes_state'), lambda s, v: s.setRegI('aes_state', v))
@@ -44,6 +44,7 @@ class AES(mmiodev):
         self.aes_ctr    = s_in['aes_ctr']
         self.aes_key0   = s_in['aes_key0']
         self.aes_key1   = s_in['aes_key1']
+        self.byte_cnt   = s_in['byte_cnt']
 
         # default dataout.
         dataout = 0
@@ -53,7 +54,12 @@ class AES(mmiodev):
             if found: 
                 dataout = data
         elif cmd == WR and self.aes_state == 0:
-            self.write(cmdaddr, cmddata)
+            if cmdaddr == 0xff00:
+                if cmddata == 1:
+                    self.aes_state = 1
+                    self.byte_cnt  = 0
+            else:
+                self.write(cmdaddr, cmddata)
 
         s_out = self.s_dict()
         s_out['dataout'] = dataout
@@ -67,7 +73,8 @@ class AES(mmiodev):
             'aes_keysel'    : self.aes_keysel,
             'aes_ctr'       : self.aes_ctr,
             'aes_key0'      : self.aes_key0,
-            'aes_key1'      : self.aes_key1
+            'aes_key1'      : self.aes_key1,
+            'byte_cnt'      : self.byte_cnt
         }
 
 def testAES():

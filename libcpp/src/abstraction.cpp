@@ -302,6 +302,50 @@ namespace ila
     }
 
     // ---------------------------------------------------------------------- //
+    UInstWrapper* Abstraction::addUinst(const std::string& name,
+                                        NodeRef* validN, NodeRef* fetchN,
+                                        const py::list& decodes)
+    {
+        if (uinsts.find(name) != uinsts.end()) {
+            throw PyILAException(PyExc_KeyError, 
+                                 "Microinst with that name already exists.");
+            return NULL;
+        }
+        // extract valid.
+        const nptr_t& valid(validN->node);
+        if (!valid->type.isBool()) {
+            throw PyILAException(PyExc_TypeError, "Valid must be boolean.");
+            return NULL;
+        }
+        // extract fetch.
+        const nptr_t& fetch(fetchN->node);
+        if (!fetch->type.isBitvector()) {
+            throw PyILAException(PyExc_TypeError, "Opcode must be a bitvector.");
+            return NULL;
+        }
+
+        // check type and insert into decvec.
+        nptr_vec_t decvec;
+        unsigned sz = py::len(decodes);
+        for (unsigned i=0; i != sz; i++) {
+            py::extract<NodeRef&> ni_(decodes[i]);
+            if (ni_.check()) {
+                NodeRef& ni(ni_());
+                if (!ni.node->type.isBool()) {
+                    throw PyILAException(PyExc_TypeError,
+                        "Decode expressions must all be boolean.");
+                    return NULL;
+                }
+                decvec.push_back(ni.node);
+            }
+        }
+
+        microinst_ptr_t uinst(new MicroInst(*this, name, valid, fetch, decvec));
+        uinsts[name] = uinst;
+        return new UInstWrapper(uinst);
+    }
+
+    // ---------------------------------------------------------------------- //
     void Abstraction::addAssumption(NodeRef* expr)
     {
         if (!expr->node->type.isBool()) {

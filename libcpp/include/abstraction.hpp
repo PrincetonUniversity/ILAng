@@ -10,6 +10,7 @@
 #include <common.hpp>
 #include <ast.hpp>
 #include <smt.hpp>
+#include <uinst.hpp>
 #include <imexport.hpp>
 #include <cppsimgen.hpp>
 
@@ -57,6 +58,9 @@ namespace ila
 
         // assumptions.
         nptr_vec_t assumps;
+
+        // list of microinstructions.
+        std::map<std::string, microinst_ptr_t> uinsts;
 
         void extractModelValues(
             Z3ExprAdapter& c,
@@ -131,6 +135,11 @@ namespace ila
         void setDecodeExpressions(const py::list& l);
         // get decode expressions.
         py::list getDecodeExpressions() const;
+
+        // add a microinstruction.
+        UInstWrapper* addUinst(const std::string& name,
+                               NodeRef* valid, NodeRef* fetch,
+                               const py::list& decodes);
 
         // add an assumption.
         void addAssumption(NodeRef* expr);

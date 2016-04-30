@@ -4,6 +4,7 @@
 #include <type.hpp>
 #include <util.hpp>
 #include <exception.hpp>
+#include <uinst.hpp>
 #include <abstraction.hpp>
 #include <logging.hpp>
 
@@ -315,6 +316,18 @@ BOOST_PYTHON_MODULE(ila)
     // logging.
     def("setloglevel", &ila::setLogLevel);
 
+    // UInstructions
+    class_<UInstWrapper>("UInst", init<>())
+        .add_property("name", &UInstWrapper::getName)
+        .add_property("valid", 
+            make_function(&UInstWrapper::getValid, return_value_policy<manage_new_object>()),
+            &UInstWrapper::setValid)
+        .add_property("fetch_expr", 
+            make_function(&UInstWrapper::getFetch, return_value_policy<manage_new_object>()),
+            &UInstWrapper::setFetch)
+        .add_property("decode_exprs", &UInstWrapper::getDecode, &UInstWrapper::setDecode)
+    ;
+
     // This is the top-level class.
     class_<Abstraction>("Abstraction", init<>())
         // inputs
@@ -337,6 +350,7 @@ BOOST_PYTHON_MODULE(ila)
         // get next.
         .def("get_next", &Abstraction::getNext, return_value_policy<manage_new_object>())
 
+        // constants.
         .def("const", &Abstraction::bvConstLong, return_value_policy<manage_new_object>())
         .def("const", &Abstraction::bvConstInt, return_value_policy<manage_new_object>())
         .def("const", &Abstraction::memConst, return_value_policy<manage_new_object>())
@@ -344,20 +358,29 @@ BOOST_PYTHON_MODULE(ila)
         .def("bool", &Abstraction::boolConstI, return_value_policy<manage_new_object>())
         .def("bool", &Abstraction::boolConstL, return_value_policy<manage_new_object>())
 
+        // synthesis.
         .def("synthesize", &Abstraction::synthesizeAll)
         .def("synthesize", &Abstraction::synthesizeReg)
         .def("syn_elem", &Abstraction::synthesizeElement, return_value_policy<manage_new_object>())
+
+        // smt solver.
         .def("areEqual", &Abstraction::areEqual)
         .def("areEqual", &Abstraction::areEqualAssump)
 
+        // uinsts
+        .def("add_uinst", &Abstraction::addUinst, return_value_policy<manage_new_object>())
+
+        // assumptions.
         .def("add_assumption", &Abstraction::addAssumption)
         .def("get_all_assumptions", &Abstraction::getAllAssumptions)
 
+        // import/export.
         .def("exportOne", &Abstraction::exportOneToFile)
         .def("exportAll", &Abstraction::exportAllToFile)
         .def("importOne", &Abstraction::importOneFromFile, return_value_policy<manage_new_object>())
         .def("importAll", &Abstraction::importAllFromFile)
 
+        // simulator.
         .def("generateSim", &Abstraction::generateSim)
 
         .add_property("fetch_expr", 
@@ -373,6 +396,7 @@ BOOST_PYTHON_MODULE(ila)
 
         .def_readwrite("enable_parameterized_synthesis", &Abstraction::paramSyn)
     ;
+
 
     class_<MemValues>("MemValues", init<int, int, const object&>())
         .add_property("default", &MemValues::getDefault, &MemValues::setDefault)
