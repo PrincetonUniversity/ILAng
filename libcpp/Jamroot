@@ -54,18 +54,19 @@ python-extension ila : src/abstraction.cpp
                        src/ast/func.cpp
                        src/ast/mem.cpp
                        src/ast/node.cpp 
+                       src/cppsimgen.cpp
                        src/exception.cpp 
                        src/ext.cpp 
+                       src/imexport.cpp
                        src/logging.cpp
                        src/memvalues.cpp
                        src/rewriter.cpp
                        src/simplify.cpp
                        src/smt.cpp
-                       src/synthesizer.cpp
                        src/synrewriter.cpp
-                       src/imexport.cpp
-                       src/cppsimgen.cpp
+                       src/synthesizer.cpp
                        src/type.cpp 
+                       src/uinst.cpp
                        src/util.cpp 
                      : <include>./include ;
 
