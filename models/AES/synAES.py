@@ -28,12 +28,12 @@ def createAESILA():
     m.decode_exprs = rdcmds + wrcmds
 
     statebyte   = ila.zero_extend(state, 8)
-    opaddrbyte  = ila.readchunk('rd-addr', opaddr, 8)
-    oplenbyte   = ila.readchunk('rd-len', oplen, 8)
+    opaddrbyte  = ila.readchunk('rd_addr', opaddr, 8)
+    oplenbyte   = ila.readchunk('rd_len', oplen, 8)
     keyselbyte  = ila.zero_extend(keysel, 8)
-    ctrbyte     = ila.readchunk('rd-ctr', ctr, 8)
-    key0byte    = ila.readchunk('rd-key0', key0, 8)
-    key1byte    = ila.readchunk('rd-key1', key1, 8)
+    ctrbyte     = ila.readchunk('rd_ctr', ctr, 8)
+    key0byte    = ila.readchunk('rd_key0', key0, 8)
+    key1byte    = ila.readchunk('rd_key1', key1, 8)
     dataoutnext = ila.choice('dataout', [
                         statebyte, opaddrbyte, oplenbyte, 
                         keyselbyte, ctrbyte, key0byte, 
@@ -41,12 +41,35 @@ def createAESILA():
     m.set_next('dataout', dataoutnext)
 
 
-    opaddr_wr = ila.ite(state == 0, ila.writechunk('wr-addr', opaddr, cmddata), opaddr)
-    opaddr_next = ila.choice('addr-next', [opaddr_wr, opaddr])
-    m.set_next('aes_addr', opaddr_next)
-    
-    print m.synthesize('dataout', lambda s: AES().simulate(s))
-    print m.synthesize('aes_addr', lambda s: AES().simulate(s))
+    def mb_reg_wr(name, reg):
+        "multibyte register write."
+        reg_wr = ila.ite(state == 0, ila.writechunk('wr_' + name, reg, cmddata), reg)
+        reg_nxt = ila.choice('nxt_'+name, [reg_wr, reg])
+        m.set_next(name, reg_nxt)
+
+    def bit_reg_wr(name, reg, sz):
+        "multibyte register write."
+        assert reg.type.bitwidth == sz
+        reg_wr = ila.ite(state == 0, cmddata[sz-1:0], reg)
+        reg_nxt = ila.choice('nxt_'+name, [reg_wr, reg])
+        m.set_next(name, reg_nxt)
+
+    mb_reg_wr('aes_addr', opaddr)
+    mb_reg_wr('aes_len', oplen)
+    mb_reg_wr('aes_ctr', ctr)
+    mb_reg_wr('aes_key0', key0)
+    mb_reg_wr('aes_key1', key1)
+    bit_reg_wr('aes_keysel', keysel, 1)
+
+    # synthesize.
+    sim = lambda s: AES().simulate(s)
+    m.synthesize('dataout', sim)
+    m.synthesize('aes_addr', sim)
+    m.synthesize('aes_len', sim)
+    m.synthesize('aes_ctr', sim)
+    m.synthesize('aes_key0', sim)
+    m.synthesize('aes_key1', sim)
+    m.synthesize('aes_keysel', sim)
 
 if __name__ == '__main__':
     createAESILA()
