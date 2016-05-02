@@ -70,7 +70,7 @@ namespace ila
     }
 
     // constructor (func)
-    NodeType::NodeType(Type t, int rw, std::vector<int>& aw)
+    NodeType::NodeType(Type t, int rw, const std::vector<int>& aw)
         : type(FUNC)
         , bitWidth(rw)
         , addrWidth(0)
@@ -133,7 +133,7 @@ namespace ila
     NodeType NodeType::getBool() { return NodeType(BOOL); }
     NodeType NodeType::getBitvector(int w) { return NodeType(BITVECTOR, w); }
     NodeType NodeType::getMem(int aw, int dw) { return NodeType(MEM, aw, dw); }
-    NodeType NodeType::getFunc(int rw, std::vector<int>& aw) { 
+    NodeType NodeType::getFunc(int rw, const std::vector<int>& aw) { 
         return NodeType(FUNC, rw, aw);
     }
 }

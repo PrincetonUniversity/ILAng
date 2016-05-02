@@ -4,6 +4,7 @@
 #include <synthesizer.hpp>
 #include <synrewriter.hpp>
 #include <util.hpp>
+#include <logging.hpp>
 
 #include <boost/multiprecision/cpp_int.hpp>
 #include <fstream>
@@ -483,18 +484,18 @@ namespace ila
         context c_;
         Z3ExprAdapter c(c_, "");
 
-        // std::cout << "left: " << *left->node.get() << std::endl;
+        log2() << "left: " << *left->node.get() << std::endl;
         z3::expr ex1 = c.getExpr(left->node.get());
         z3::expr cn1 = c.getCnst(left->node.get());
-        //std::cout << "ex1:" << ex1 << std::endl;
+        log2() << "ex1:" << ex1 << std::endl;
 
-        // std::cout << "right: " << *right->node.get() << std::endl;
+        log2() << "right: " << *right->node.get() << std::endl;
         z3::expr ex2 = c.getExpr(right->node.get());
         z3::expr cn2 = c.getCnst(right->node.get());
-        //std::cout << "ex2:" << ex2 << std::endl;
+        log2() << "ex2:" << ex2 << std::endl;
 
         expr mitre = (ex1 != ex2);
-        //std::cout << "mitre:" << mitre << std::endl;
+        log2() << "mitre:" << mitre << std::endl;
 
 
         solver S(c_);

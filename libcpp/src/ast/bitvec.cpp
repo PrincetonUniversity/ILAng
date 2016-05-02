@@ -81,7 +81,7 @@ namespace ila
     {
     }
 
-    BitvectorConst::BitvectorConst(Abstraction* c, int v, int w)
+    BitvectorConst::BitvectorConst(Abstraction* c, unsigned int v, int w)
         : BitvectorExpr(c, w)
         , value(v)
     {

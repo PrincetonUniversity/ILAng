@@ -609,6 +609,7 @@ namespace ila
             return NULL;
         }
 
+        args.push_back(fun->node);
         for (unsigned i=0; i != py::len(l); i++) {
             py::extract<NodeRef&> ni(l[i]);
             if (ni.check()) {

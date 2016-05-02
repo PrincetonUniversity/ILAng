@@ -89,7 +89,10 @@ def main():
     expr =  sys.syn_elem("bar", rp, bar)
     assert sys.areEqual(expr, r3)
 
+    ila.setloglevel(3, "")
+
     data = sys.const(0xdeadbeef, 32)
+    print data
     iramp = ila.storeblk(iram, addrp, data)
     d0 = iramp[addrp]
     d1 = iramp[addrp+1]

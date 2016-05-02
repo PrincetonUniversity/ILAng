@@ -79,6 +79,8 @@ namespace ila
         const MemOp* memop = NULL;
         const MemChoice* mchoiceop = NULL;
 
+        const FuncVar* funcvar = NULL;
+
         //// bools ////
         if ((boolvar = dynamic_cast<const BoolVar*>(n))) {
             nptr_t nptr(n->clone());
@@ -145,6 +147,9 @@ namespace ila
             nptr_vec_t args;
             getNewArgs(mchoiceop, args);
             nptr_t nptr(mchoiceop->clone(args));
+            rwmap.insert({n, nptr});
+        } else if ((funcvar = dynamic_cast<const FuncVar*>(n))) {
+            nptr_t nptr(n->clone());
             rwmap.insert({n, nptr});
         }
     }

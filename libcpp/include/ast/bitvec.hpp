@@ -57,7 +57,7 @@ namespace ila
         // constructor with longs.
         BitvectorConst(Abstraction* c, const mp_int_t& v, int width);
         // constructor with ints.
-        BitvectorConst(Abstraction* c, int v, int width);
+        BitvectorConst(Abstraction* c, unsigned int v, int width);
         // copy constructor.
         BitvectorConst(const BitvectorConst& other);
         // destructor.

@@ -1,6 +1,8 @@
 #include <smt.hpp>
 #include <ast.hpp>
 #include <synthesizer.hpp>
+#include <logging.hpp>
+#include <memory>
 
 namespace ila
 {
@@ -31,7 +33,7 @@ namespace ila
             return;
         }
 
-        // std::cout << "visiting: " << *n << std::endl;
+        log2() << "visiting: " << *n << std::endl;
         _populateExprMap(n);
         _populateCnstMap(n);
 
@@ -444,16 +446,14 @@ namespace ila
             }
         }
         if (op == BitvectorOp::APPLY_FUNC) {
-            expr fun = getArgExpr(bvop, 0);
-            Z3_ast* funArgs = (arity >= 1) ? new Z3_ast[arity-1] : 0;
+            expr func_ast = getArgExpr(bvop, 0);
+            cast_ast<func_decl> cast;
+            func_decl func(c, cast(c, func_ast));
+            expr_vector fun_args(c);
             for (int i = 1; i != arity; i++) {
-                funArgs[i-1] = Z3_ast(getArgExpr(bvop, i));
+                fun_args.push_back(getArgExpr(bvop, i));
             }
-            Z3_ast app = Z3_mk_app(c, 
-                            Z3_func_decl(Z3_ast(fun)), 
-                            arity-1,
-                            funArgs);
-            return expr(c, app);
+            return func(fun_args);
         }
         ILA_ASSERT(false, "Unable to create Z3 expression for operator: " + 
                             BitvectorOp::operatorNames[op]);
@@ -605,12 +605,6 @@ namespace ila
     {
         const MemValues& memvals = distInp->getMemValues(mv->name);
         return memvals.toZ3(c);
-    }
-
-    z3::expr Z3ExprRewritingAdapter::getFuncVarExpr(const FuncVar* fv)
-    {
-        // TODO
-        return c.bool_val(true);
     }
 
     z3::expr Z3ExprRewritingAdapter::getIOCnst(const Node* n, const py::object& result)

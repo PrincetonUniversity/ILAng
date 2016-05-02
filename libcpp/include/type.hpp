@@ -24,7 +24,7 @@ namespace ila {
         // construct a memory.
         NodeType(Type t, int aw, int dw);
         // construct a func.
-        NodeType(Type t, int rw, std::vector<int>& aw);
+        NodeType(Type t, int rw, const std::vector<int>& aw);
 
         bool operator! (void) const;
 
@@ -72,7 +72,7 @@ namespace ila {
         static NodeType getBool();
         static NodeType getBitvector(int w);
         static NodeType getMem(int aw, int dw);
-        static NodeType getFunc(int rw, std::vector<int>& aw);
+        static NodeType getFunc(int rw, const std::vector<int>& aw);
     };
 
     // stream output operator, required for boost::lexical_cast<>

@@ -1,6 +1,20 @@
 # A simple simulator for AES+XRAM
 
 from mmio import mmiodev, NOP, RD, WR
+from Crypto.Cipher import AES as AESFactory
+
+def as_chars(s, n):
+    b = []
+    for i in xrange(n):
+        byte = s & 0xff
+        s >>= 8
+        b.append(byte)
+    return [chr(i) for i in b]
+def to_num(s, n):
+    num = 0
+    for i in xrange(n):
+        num |= (ord(s[i]) << (i * 8))
+    return num
 
 class AES(mmiodev):
     AES_IDLE = 0
@@ -45,10 +59,14 @@ class AES(mmiodev):
         self.aes_key0   = s_in['aes_key0']
         self.aes_key1   = s_in['aes_key1']
         self.byte_cnt   = s_in['byte_cnt']
+        self.rd_data    = s_in['rd_data']
+        self.enc_data   = s_in['enc_data']
+        self.xram       = s_in['XRAM']
 
         # default dataout.
         dataout = 0
         # execute command.
+        started = False
         if cmd == RD:
             found, data = self.read(cmdaddr)
             if found: 
@@ -58,9 +76,38 @@ class AES(mmiodev):
                 if cmddata == 1:
                     self.aes_state = 1
                     self.byte_cnt  = 0
+                    started = True
             else:
                 self.write(cmdaddr, cmddata)
 
+        # do the operations.
+        if not started and self.aes_state == 1:
+            self.rd_data = 0
+            for i in xrange(16):
+                addr = (self.aes_addr + i + self.byte_cnt) & 0xffff
+                byte = self.xram[addr]
+                self.rd_data |= byte << (i*8)
+            self.aes_state = 2
+        elif not started and self.aes_state == 2:
+            aes_key = self.aes_key0 if self.aes_keysel == 0 else self.aes_key1
+            aes_bytes_in = bytes(''.join(as_chars(self.rd_data, 16)))
+            aes_ctr = lambda: bytes(''.join(as_chars(self.aes_ctr, 16)))
+            aes_key = bytes(''.join(as_chars(aes_key, 16)))
+            aes = AESFactory.new(key=aes_key, mode=AESFactory.MODE_CTR, counter=aes_ctr)
+            self.enc_data = to_num(aes.encrypt(aes_bytes_in), 16)
+            self.aes_state = 3
+            pass
+        elif not started and self.aes_state == 3:
+            for i in xrange(16):
+                addr = (self.aes_addr + i + self.byte_cnt) & 0xffff
+                byte = (self.enc_data >> (i*8)) & 0xff
+                self.xram[addr] = byte
+
+            self.byte_cnt = (self.byte_cnt + 16) & 0xffff
+            if self.byte_cnt < self.aes_len:
+                self.aes_state = 1
+            else:
+                self.aes_state = 0
         s_out = self.s_dict()
         s_out['dataout'] = dataout
         return s_out
@@ -74,7 +121,10 @@ class AES(mmiodev):
             'aes_ctr'       : self.aes_ctr,
             'aes_key0'      : self.aes_key0,
             'aes_key1'      : self.aes_key1,
-            'byte_cnt'      : self.byte_cnt
+            'byte_cnt'      : self.byte_cnt,
+            'rd_data'       : self.rd_data,
+            'enc_data'      : self.enc_data,
+            'XRAM'          : self.xram
         }
 
 def testAES():

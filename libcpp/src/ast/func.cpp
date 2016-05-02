@@ -4,7 +4,7 @@
 namespace ila
 {
     // ---------------------------------------------------------------------- //
-    FuncExpr::FuncExpr(Abstraction* c, int retWidth, std::vector<int> argsWidth)
+    FuncExpr::FuncExpr(Abstraction* c, int retWidth, const std::vector<int>& argsWidth)
         : Node(c, NodeType::getFunc(retWidth, argsWidth))
     {
     }
@@ -22,7 +22,7 @@ namespace ila
     // ---------------------------------------------------------------------- //
     
     FuncVar::FuncVar(Abstraction* c, const std::string& name, 
-                     int retWidth, std::vector<int> argsWidth)
+                     int retWidth, const std::vector<int>& argsWidth)
         : FuncExpr(c, retWidth, argsWidth)
     {
         this->name = name;

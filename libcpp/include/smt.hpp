@@ -144,8 +144,6 @@ namespace ila
         virtual z3::expr getBitvectorVarExpr(const BitvectorVar* bvv);
         // Convert a mem var into Z3.
         virtual z3::expr getMemVarExpr(const MemVar* mv);
-        // Convert a func var into Z3.
-        virtual z3::expr getFuncVarExpr(const FuncVar* fv);
     public:
         // Constructors.
         Z3ExprRewritingAdapter(
