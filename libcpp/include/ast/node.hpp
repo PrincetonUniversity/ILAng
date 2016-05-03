@@ -24,6 +24,15 @@ namespace ila
     typedef boost::shared_ptr<Node> nptr_t;
     typedef std::vector<nptr_t> nptr_vec_t;
 
+    struct npair_t {
+        nptr_t var;
+        nptr_t next;
+
+        npair_t(const nptr_t& v, const nptr_t& n) : var(v) , next(n) { }
+        ~npair_t() { }
+    };
+    typedef std::map<std::string, npair_t> nmap_t;
+
     class Node {
         // ----------------- PRIVATE MEMBERS ----------------- //
         static int totalObjCnt;

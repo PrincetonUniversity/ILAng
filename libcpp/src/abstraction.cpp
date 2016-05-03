@@ -991,6 +991,7 @@ namespace ila
                 "Variable with this name already exists.");
             return false;
         }
+        names.insert(name);
         return true;
     }
 }
