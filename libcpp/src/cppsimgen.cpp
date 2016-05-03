@@ -686,7 +686,63 @@ namespace ila
             }
         //// Ternary ////
         } else if (n->op == BitvectorOp::READMEMBLOCK) {
-            // FIXME //
+            ILA_ASSERT(n->nArgs() == 2, "Two parameters expected.");
+            CppVar* mem = findVar(*_curVarMap, n->arg(0)->name);
+            CppVar* addr = findVar(*_curVarMap, n->arg(1)->name);
+            ILA_ASSERT(n->nParams() == 2, "Two parameters expected.");
+            int blxSize = mem->_width;
+            int blxNum = n->param(0);
+            endianness_t e = (endianness_t) n->param(1);
+            // int64_t var = (mem.rd(addr) & 0xff);
+            // for (int i = 0; i < blxNum; i++) {
+            //     little:
+            //     var = var | ((mem.rd(addr+i) & 0xff) << (width * i));
+            //     big:
+            //     var = (var << (width * i)) | (mem.rd(addr+i) & 0xff);
+            // }
+            // var = (var & 0x8) ? (var | 0xfff000) : var;
+            static boost::format defFmt(
+                "%1% = (%2%.rd(%3%) & %4%);");
+            static boost::format loopProlog(
+                "for (int %1% = 1; %2% < %3%; %4%++) {");
+            static boost::format litFmt(
+                "\t%1% = %2% | ((%3%.rd(%4% + %5%) & %6%) << (%7% * %8%));");
+            static boost::format bigFmt(
+                "\t%1% = (%2% << (%3% * %4%)) | (%5%.rd(%6% + %7%) & %8%);");
+
+            defFmt %var->def() %mem->use() %addr->use() %getMask(blxSize);
+            _curFun->addBody(defFmt.str());
+
+            CppVar* idx = new CppVar(32);
+            loopProlog %idx->use() %idx->use() %blxNum %idx->use();
+            _curFun->addBody(loopProlog.str());
+
+            if (e == LITTLE_E) {
+                litFmt % var->use()         // %1% 
+                       % var->use()         // %2%
+                       % mem->use()         // %3%
+                       % addr->use()        // %4%
+                       % idx->use()         // %5%
+                       % getMask(blxSize)   // %6%
+                       % blxSize            // %7%
+                       % idx->use();        // %8%
+                code = litFmt.str();
+                _curFun->addBody(code);
+            } else {
+                bigFmt % var->use()         // %1%
+                       % var->use()         // %2%
+                       % blxSize            // %3%
+                       % idx->use()         // %4%
+                       % mem->use()         // %5%
+                       % addr->use()        // %6%
+                       % idx->use()         // %7%
+                       % getMask(blxSize);  // %8%
+                code = bigFmt.str();
+                _curFun->addBody(code);
+            }
+            _curFun->addBody("}");
+
+            code = var->use() + " = " + var->signedUse();
         } else if (n->op == BitvectorOp::Op::IF) {
             CppVar* arg0 = findVar(*_curVarMap, n->arg(0)->name);
             CppVar* arg1 = findVar(*_curVarMap, n->arg(1)->name);
@@ -769,7 +825,7 @@ namespace ila
             ILA_ASSERT(arg2->_width % chunkSize == 0, 
                         "Block store size mismatch.");
             int chunkIndex = 0;
-            int dataIndex = n->endian == LITTLE_E ? 0 : arg2->_width - chunkSize;
+            int dataIndex = n->endian == LITTLE_E ? 0 : arg2->_width-chunkSize;
             int dataIncr = n->endian == LITTLE_E ? chunkSize : -chunkSize;
             for (; chunkIndex < chunkNum; chunkIndex++, dataIndex += dataIncr) {
                 std::string addr = "(" + arg1->use() + " + " + 
