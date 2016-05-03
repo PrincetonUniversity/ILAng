@@ -472,14 +472,16 @@ namespace ila
 
             return store(mem, addr, data);
         } else if (mw->op == MemOp::STOREBLOCK) {
+            // full size.
+            int fullDataSize = mw->arg(2)->type.bitWidth;
             // size of each chunk.
             int chunkSize = mw->arg(0)->type.dataWidth;
             // number of chunks.
-            int chunks = mw->arg(2)->type.bitWidth / chunkSize;
+            int chunks = fullDataSize / chunkSize;
             // this in the index added to the memory address
             int chunkIndex = 0;
             // this is index used to extract the data.
-            int dataIndex = mw->endian == LITTLE_E ? 0 : chunks - 1;
+            int dataIndex = mw->endian == LITTLE_E ? 0 : fullDataSize - chunkSize;
             // fwd/backwd?
             int dataIncr  = mw->endian == LITTLE_E ? chunkSize : -chunkSize;
             // mem.
