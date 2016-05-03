@@ -56,9 +56,18 @@ namespace ila
         NodeRef* complement() const; 
         NodeRef* negate() const;
          
+        // and
         NodeRef* logicalAnd(NodeRef* other) const;
+        NodeRef* logicalAndInt(int r) const;
+        NodeRef* logicalAndRInt(int r) const;
+        // or
         NodeRef* logicalOr(NodeRef* other) const;
+        NodeRef* logicalOrInt(int r) const;
+        NodeRef* logicalOrRInt(int l) const;
+        // xor
         NodeRef* logicalXor(NodeRef* other) const;
+        NodeRef* logicalXorInt(int r) const;
+        NodeRef* logicalXorRInt(int l) const;
 
         // add
         NodeRef* add(NodeRef* other) const;

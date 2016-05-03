@@ -57,12 +57,33 @@ BOOST_PYTHON_MODULE(ila)
         .def("__and__",
                 &NodeRef::logicalAnd,
                 return_value_policy<manage_new_object>())
+        .def("__and__",
+                &NodeRef::logicalAndInt,
+                return_value_policy<manage_new_object>())
+        .def("__rand__",
+                &NodeRef::logicalAndRInt,
+                return_value_policy<manage_new_object>())
+
         .def("__or__",
                 &NodeRef::logicalOr,
                 return_value_policy<manage_new_object>())
+        .def("__or__",
+                &NodeRef::logicalOrInt,
+                return_value_policy<manage_new_object>())
+        .def("__ror__",
+                &NodeRef::logicalOrRInt,
+                return_value_policy<manage_new_object>())
+
         .def("__xor__",
                 &NodeRef::logicalXor,
                 return_value_policy<manage_new_object>())
+        .def("__xor__",
+                &NodeRef::logicalXorInt,
+                return_value_policy<manage_new_object>())
+        .def("__rxor__",
+                &NodeRef::logicalXorRInt,
+                return_value_policy<manage_new_object>())
+
 
         // arithmetic operators.
         .def("__add__",

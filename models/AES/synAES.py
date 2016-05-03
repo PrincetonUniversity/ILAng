@@ -35,15 +35,13 @@ def createAESILA(synstates, enable_ps):
     m.fetch_valid  = (cmd == 1) | (cmd == 2)
 
     # decode 
-    rdcmds = [(state == 0) & (cmd == 1) & (cmdaddr == addr) 
-              for addr in xrange(0xff00, 0xff40)]
+    rdcmds = [(state == i) & (cmd == 1) & (cmdaddr == addr)
+              for addr in xrange(0xff00, 0xff40) for i in [0,1,2,3]]
     wrcmds = [(state == 0) & (cmd == 2) & (cmdaddr == addr) 
               for addr in xrange(0xff00, 0xff40)]
-    rd2cmds = [(state == i) & (cmd == 1) & (cmdaddr == addr)
-               for addr in xrange(0xff00, 0xff40) for i in [1,2,3]]
     nopcmds = [(state == i) & (cmd != 1) & (cmdaddr == addr)
                for addr in xrange(0xff00, 0xff40) for i in [1,2,3]]
-    m.decode_exprs = rdcmds + wrcmds + rd2cmds + nopcmds
+    m.decode_exprs = rdcmds + wrcmds + nopcmds
 
     # read commands
     statebyte   = ila.zero_extend(state, 8)
@@ -65,38 +63,38 @@ def createAESILA(synstates, enable_ps):
         reg_wr = ila.writechunk('wr_' + name, reg, cmddata)
         reg_nxt = ila.choice('nxt_'+name, [reg_wr, reg])
         m.set_next(name, reg_nxt)
+    mb_reg_wr('aes_addr', opaddr)
+    mb_reg_wr('aes_len', oplen)
+    mb_reg_wr('aes_ctr', ctr)
+    mb_reg_wr('aes_key0', key0)
+    mb_reg_wr('aes_key1', key1)
+    # bit-level registers
     def bit_reg_wr(name, reg, sz):
         # bitwise register write
         assert reg.type.bitwidth == sz
         reg_wr = cmddata[sz-1:0]
         reg_nxt = ila.choice('nxt_'+name, [reg_wr, reg])
         m.set_next(name, reg_nxt)
-    # setup the update functions.
-    mb_reg_wr('aes_addr', opaddr)
-    mb_reg_wr('aes_len', oplen)
-    mb_reg_wr('aes_ctr', ctr)
-    mb_reg_wr('aes_key0', key0)
-    mb_reg_wr('aes_key1', key1)
     bit_reg_wr('aes_keysel', keysel, 1)
 
-    # these functions are for the uinst
-    # byte_cnt
-    byte_cnt_inc = byte_cnt + 16
-    byte_cnt_rst = ila.ite(cmddata == 1, m.const(0, 16), byte_cnt)
-    byte_cnt_nxt = ila.choice('byte_cnt_nxt', [
-        m.const(0, 16), byte_cnt_inc, byte_cnt_rst, byte_cnt])
-    m.set_next('byte_cnt', byte_cnt_nxt)
     # state
     state_next = ila.choice('state_next', [
                         m.const(0, 2), m.const(1, 2), m.const(2, 2), m.const(3, 2),
                         ila.ite(cmddata == 1, m.const(1, 2), state),
                         ila.ite(byte_cnt+16 < oplen, m.const(1, 2), m.const(0, 2))])
     m.set_next('aes_state', state_next)
+
+    # these are for the uinst
+    # byte_cnt
+    byte_cnt_inc = byte_cnt + 16
+    byte_cnt_rst = ila.ite(cmddata == 1, m.const(0, 16), byte_cnt)
+    byte_cnt_nxt = ila.choice('byte_cnt_nxt', [
+        m.const(0, 16), byte_cnt_inc, byte_cnt_rst, byte_cnt])
+    m.set_next('byte_cnt', byte_cnt_nxt)
     # rd_data
     rdblock = ila.loadblk(xram, opaddr + byte_cnt, 16)
     rd_data_nxt = ila.choice('rd_data_nxt', rdblock, rd_data)
     m.set_next('rd_data', rd_data_nxt)
-
     # enc_data
     aes_key = ila.ite(keysel == 0, key0, key1)
     aes_enc_data = ila.appfun(aes, [ctr, aes_key, rd_data])
@@ -118,6 +116,32 @@ def createAESILA(synstates, enable_ps):
         ast = m.get_next(s)
         m.exportOne(ast, 'asts/%s_%s' % (s, 'en' if enable_ps else 'dis'))
 
+if __name__ == '__main__':
+    ila.setloglevel(1, "")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--en", type=int, default=1, 
+                        help="enable parameterized synthesis.")
+    parser.add_argument("state", type=str, nargs='+',
+                        help="the state to synthesize.")
+    args = parser.parse_args()
+    createAESILA(args.state, args.en)
+
+# done #
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     #for r in ['dataout', 'aes_addr', 'aes_len', 'aes_ctr',
     #          'aes_key0', 'aes_key1', 'aes_keysel', 'aes_state']:
@@ -127,14 +151,4 @@ def createAESILA(synstates, enable_ps):
     #m.synthesize('enc_data', sim)
     #m.synthesize('XRAM', sim)
 
-
-if __name__ == '__main__':
-    ila.setloglevel(1, "aes.log")
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--en", type=int, default=1, 
-                        help="enable parameterized synthesis.")
-    parser.add_argument("state", type=str, nargs='+',
-                        help="the state to synthesize.")
-    args = parser.parse_args()
-    createAESILA(args.state, args.en)
 

@@ -77,14 +77,44 @@ namespace ila
         return _binOp(BoolOp::AND, BitvectorOp::AND, "and", other);
     }
 
+    NodeRef* NodeRef::logicalAndInt(int r) const 
+    {
+        return _binOp(BitvectorOp::AND, r);
+    }
+
+    NodeRef* NodeRef::logicalAndRInt(int l) const
+    {
+        return _binOpR(BitvectorOp::AND, l);
+    }
+
     NodeRef* NodeRef::logicalOr(NodeRef* other) const
     {
         return _binOp(BoolOp::OR, BitvectorOp::OR, "or", other);
     }
 
+    NodeRef* NodeRef::logicalOrInt(int r) const
+    {
+        return _binOp(BitvectorOp::OR, r);
+    }
+
+    NodeRef* NodeRef::logicalOrRInt(int l) const
+    {
+        return _binOpR(BitvectorOp::OR, l);
+    }
+
     NodeRef* NodeRef::logicalXor(NodeRef* other) const
     {
         return _binOp(BoolOp::XOR, BitvectorOp::XOR, "xor", other);
+    }
+
+    NodeRef* NodeRef::logicalXorInt(int r) const
+    {
+        return _binOp(BitvectorOp::XOR, r);
+    }
+
+    NodeRef* NodeRef::logicalXorRInt(int l) const
+    {
+        return _binOpR(BitvectorOp::XOR, l);
     }
 
     // add //
