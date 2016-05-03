@@ -3,7 +3,7 @@ import ila
 import time
 from simAES import AES
 
-def createAESILA(enable_ps):
+def createAESILA(synstates, enable_ps):
     m = ila.Abstraction()
     m.enable_parameterized_synthesis = enable_ps
 
@@ -78,6 +78,8 @@ def createAESILA(enable_ps):
     mb_reg_wr('aes_key0', key0)
     mb_reg_wr('aes_key1', key1)
     bit_reg_wr('aes_keysel', keysel, 1)
+
+    # these functions are for the uinst
     # byte_cnt
     byte_cnt_inc = byte_cnt + 16
     byte_cnt_rst = ila.ite(cmddata == 1, m.const(0, 16), byte_cnt)
@@ -107,25 +109,32 @@ def createAESILA(enable_ps):
 
     # synthesize.
     sim = lambda s: AES().simulate(s)
-    st = time.clock()
+    for s in synstates:
+        st = time.clock()
+        m.synthesize(s, sim)
+        t_elapsed = time.clock() - st
+        print 'time: %.2f' % (t_elapsed)
+
+        ast = m.get_next(s)
+        m.exportOne(ast, 'asts/%s_%s' % (s, 'en' if enable_ps else 'dis'))
+
+
     #for r in ['dataout', 'aes_addr', 'aes_len', 'aes_ctr',
     #          'aes_key0', 'aes_key1', 'aes_keysel', 'aes_state']:
-    #    m.synthesize(r, sim)
-
     #m.synthesize('byte_cnt', sim)
     #m.synthesize('aes_state', sim)
     #m.synthesize('rd_data', sim)
     #m.synthesize('enc_data', sim)
-    m.synthesize('XRAM', sim)
+    #m.synthesize('XRAM', sim)
 
-    t_elapsed = time.clock() - st
-    print '%.2f' % (t_elapsed)
 
 if __name__ == '__main__':
     ila.setloglevel(1, "aes.log")
     parser = argparse.ArgumentParser()
     parser.add_argument("--en", type=int, default=1, 
                         help="enable parameterized synthesis.")
+    parser.add_argument("state", type=str, nargs='+',
+                        help="the state to synthesize.")
     args = parser.parse_args()
-    createAESILA(args.en)
+    createAESILA(args.state, args.en)
 
