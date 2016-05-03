@@ -100,6 +100,21 @@ namespace ila
         }
     }
 
+    std::string CppVar::sliceUse(const int& msb, const int& lsb) const
+    {
+        ILA_ASSERT(_type == bvStr, "Slice on non-bitvector variables.");
+        ILA_ASSERT(_width >= msb && lsb >= 0, "Bad slice index.");
+        std::string lstr = boost::lexical_cast<std::string>(lsb);
+        int len = msb - lsb + 1;
+        std::string str = 
+            "((" + _name + "&" + getSignBit(msb) + ") ? " +  
+            "(((" + ubvStr + ")" + _name + ") >> " + lstr + ") & " + 
+            getSignExtMask(len) + " : " + 
+            "(((" + ubvStr + ")" + _name + ") >> " + lstr + ") & " + 
+            getMask(len) + ")"; 
+        return str;
+    }
+
     // ---------------------------------------------------------------------- //
     void CppVar::init(nptr_t n)
     {
@@ -745,8 +760,25 @@ namespace ila
             code = var->refDef() + " = (" + 
                    arg0->use() + ") ? " + arg1->use() + 
                    " : " + arg2->use() + ";";
+        } else if (n->op == MemOp::Op::STOREBLOCK) {
+            ILA_ASSERT(arg0->_type == CppVar::memStr,
+                        "Write to non-mem variable.");
+            var = arg0;
+            int chunkSize = arg0->_width;
+            int chunkNum = arg2->_width / chunkSize;
+            ILA_ASSERT(arg2->_width % chunkSize == 0, 
+                        "Block store size mismatch.");
+            int chunkIndex = 0;
+            int dataIndex = n->endian == LITTLE_E ? 0 : arg2->_width - chunkSize;
+            int dataIncr = n->endian == LITTLE_E ? chunkSize : -chunkSize;
+            for (; chunkIndex < chunkNum; chunkIndex++, dataIndex += dataIncr) {
+                std::string addr = "(" + arg1->use() + " + " + 
+                    boost::lexical_cast<std::string>(chunkIndex) + ")";
+                std::string chunk_i = arg2->sliceUse(dataIndex + chunkSize - 1,
+                                                     dataIndex);
+                code = arg0->use() + ".wr(" + addr + ", " + chunk_i + ");";
+            }
         } else {
-            // FIXME: implement STOREBLOCK
             ILA_ASSERT(false, "Invalid MemOp.");
         }
 

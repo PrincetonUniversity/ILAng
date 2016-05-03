@@ -61,6 +61,8 @@ namespace ila
         std::string unsignedUse() const;
         // Use the exact length variable.
         std::string exactUse() const;
+        // Use a segment of the bits.
+        std::string sliceUse(const int& msb, const int& lsb) const;
 
     private:
         void init(nptr_t n);
