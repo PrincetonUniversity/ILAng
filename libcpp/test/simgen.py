@@ -167,7 +167,7 @@ def model(num_regs, reg_size, paramsyn):
 
     simFile = "tmp/test_ila_sim.hpp"
     sys.generateSim(simFile, "alu")
-    os.system('g++ ' + simFile + 'tmp/test_ila_sim')
+    #os.system('g++ ' + simFile + 'tmp/test_ila_sim')
     #os.unlink(simFile)
 
 def main():
