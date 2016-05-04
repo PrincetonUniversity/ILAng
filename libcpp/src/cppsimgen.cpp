@@ -8,6 +8,7 @@ namespace ila
     static std::string getMask(const int& width);
     static std::string getSignBit(const int& width);
     static std::string getSignExtMask(const int& width);
+    static CppSimGen::CppVarMap* maskPtr = NULL;
     // ---------------------------------------------------------------------- //
     int CppVar::varCnt = 0;
 
@@ -36,6 +37,17 @@ namespace ila
     {
         _type = bvStr;
         _width = width;
+        _name = "cppVar_" + boost::lexical_cast<std::string>(varCnt++);
+        _isConst = false;
+    }
+
+    CppVar::CppVar(const std::string& name, const std::string& val)
+        : _val(val)
+    {
+        _name = "cppMask_" + name + "_";
+        _type = bvStr;
+        _width = 8 * static_cast<int>(sizeof(cppBvType));
+        _isConst = false;
     }
 
     CppVar::~CppVar()
@@ -107,10 +119,10 @@ namespace ila
         std::string lstr = boost::lexical_cast<std::string>(lsb);
         int len = msb - lsb + 1;
         std::string str = 
-            "((" + _name + "&" + getSignBit(msb) + ") ? " +  
-            "(((" + ubvStr + ")" + _name + ") >> " + lstr + ") & " + 
+            "((" + use() + " & " + getSignBit(msb) + ") ? " +  
+            "(((" + ubvStr + ")" + use() + ") >> " + lstr + ") | " + 
             getSignExtMask(len) + " : " + 
-            "(((" + ubvStr + ")" + _name + ") >> " + lstr + ") & " + 
+            "(((" + ubvStr + ")" + use() + ") >> " + lstr + ") & " + 
             getMask(len) + ")"; 
         return str;
     }
@@ -345,6 +357,7 @@ namespace ila
         }
         _curVarMap = it->second;
         _curFun = f;
+        maskPtr = &_masks;
         
         nptr->depthFirstVisit(*this);
         
@@ -686,7 +699,63 @@ namespace ila
             }
         //// Ternary ////
         } else if (n->op == BitvectorOp::READMEMBLOCK) {
-            // FIXME //
+            ILA_ASSERT(n->nArgs() == 2, "Two parameters expected.");
+            CppVar* mem = findVar(*_curVarMap, n->arg(0)->name);
+            CppVar* addr = findVar(*_curVarMap, n->arg(1)->name);
+            ILA_ASSERT(n->nParams() == 2, "Two parameters expected.");
+            int blxSize = mem->_width;
+            int blxNum = n->param(0);
+            endianness_t e = (endianness_t) n->param(1);
+            // int64_t var = (mem.rd(addr) & 0xff);
+            // for (int i = 0; i < blxNum; i++) {
+            //     little:
+            //     var = var | ((mem.rd(addr+i) & 0xff) << (width * i));
+            //     big:
+            //     var = (var << (width * i)) | (mem.rd(addr+i) & 0xff);
+            // }
+            // var = (var & 0x8) ? (var | 0xfff000) : var;
+            static boost::format defFmt(
+                "%1% = (%2%.rd(%3%) & %4%);");
+            static boost::format loopProlog(
+                "for (int %1% = 1; %2% < %3%; %4%++) {");
+            static boost::format litFmt(
+                "\t%1% = %2% | ((%3%.rd(%4% + %5%) & %6%) << (%7% * %8%));");
+            static boost::format bigFmt(
+                "\t%1% = (%2% << (%3% * %4%)) | (%5%.rd(%6% + %7%) & %8%);");
+
+            defFmt %var->def() %mem->use() %addr->use() %getMask(blxSize);
+            _curFun->addBody(defFmt.str());
+
+            CppVar* idx = new CppVar(32);
+            loopProlog %idx->use() %idx->use() %blxNum %idx->use();
+            _curFun->addBody(loopProlog.str());
+
+            if (e == LITTLE_E) {
+                litFmt % var->use()         // %1% 
+                       % var->use()         // %2%
+                       % mem->use()         // %3%
+                       % addr->use()        // %4%
+                       % idx->use()         // %5%
+                       % getMask(blxSize)   // %6%
+                       % blxSize            // %7%
+                       % idx->use();        // %8%
+                code = litFmt.str();
+                _curFun->addBody(code);
+            } else {
+                bigFmt % var->use()         // %1%
+                       % var->use()         // %2%
+                       % blxSize            // %3%
+                       % idx->use()         // %4%
+                       % mem->use()         // %5%
+                       % addr->use()        // %6%
+                       % idx->use()         // %7%
+                       % getMask(blxSize);  // %8%
+                code = bigFmt.str();
+                _curFun->addBody(code);
+            }
+            _curFun->addBody("}");
+
+            code = var->use() + " = " + var->signedUse();
         } else if (n->op == BitvectorOp::Op::IF) {
             CppVar* arg0 = findVar(*_curVarMap, n->arg(0)->name);
             CppVar* arg1 = findVar(*_curVarMap, n->arg(1)->name);
@@ -768,16 +837,71 @@ namespace ila
             int chunkNum = arg2->_width / chunkSize;
             ILA_ASSERT(arg2->_width % chunkSize == 0, 
                         "Block store size mismatch.");
-            int chunkIndex = 0;
-            int dataIndex = n->endian == LITTLE_E ? 0 : arg2->_width - chunkSize;
-            int dataIncr = n->endian == LITTLE_E ? chunkSize : -chunkSize;
-            for (; chunkIndex < chunkNum; chunkIndex++, dataIndex += dataIncr) {
-                std::string addr = "(" + arg1->use() + " + " + 
-                    boost::lexical_cast<std::string>(chunkIndex) + ")";
-                std::string chunk_i = arg2->sliceUse(dataIndex + chunkSize - 1,
-                                                     dataIndex);
-                code = arg0->use() + ".wr(" + addr + ", " + chunk_i + ");";
-            }
+            bool isLittle = n->endian == LITTLE_E;
+
+            // var chunk_i;
+            // for (int i=0; i<chunkNum; i++) {
+            //     endian dependent code 
+            //     mem.wr(addr+i, chunk_i);
+            // }
+            //     little:
+            //     chunk_i = data >> (i * chunkSize);
+            //     chunk_i = (chunk_i & getSignBit) ? (chunk_i | getSignExt) : 
+            //                                        (chunk_i & getMask);
+            //     big:
+            //     chunk_i = data >> ((chunkNum - 1 - i) * chunkSize);
+            //     chunk_i = (chunk_i & getSignBit) ? (chunk_i | getSignExt) : 
+            //                                        (chunk_i & getMask);
+
+            CppVar* idx = new CppVar(32);
+            CppVar* chunk_i = new CppVar(chunkSize);
+            _curFun->addBody(chunk_i->def() + ";");
+
+            static boost::format loopProlog(
+                "for (int %1% = 0; %2% < %3%; %4%++) {");
+            static boost::format litFmt(
+                "\t%1% = %2% >> (%3% * %4%);");
+            static boost::format bigFmt(
+                "\t%1% = %2% >> ((%3% - 1 - %4%) * %5%);");
+            static boost::format signFmt(
+                "\t%1% = (%2% & %3%) ? (%4% | %5%) : (%6% & %7%);");
+            static boost::format writeFmt(
+                "\t%1%.wr(%2% + %3%, %4%);");
+
+            loopProlog % idx->use()             // 1
+                       % idx->use()             // 2
+                       % chunkNum               // 3
+                       % idx->use();            // 4
+
+            litFmt     % chunk_i->use()         // 1
+                       % arg2->use()            // 2
+                       % idx->use()             // 3
+                       % chunkSize;             // 4
+
+            bigFmt     % chunk_i->use()         // 1
+                       % arg2->use()            // 2
+                       % chunkNum               // 3
+                       % idx->use()             // 4
+                       % chunkSize;             // 5
+
+            signFmt    % chunk_i->use()         // 1
+                       % arg2->use()            // 2
+                       % getSignBit(chunkSize)  // 3
+                       % chunk_i->use()         // 4
+                       % getSignExtMask(chunkSize) // 5
+                       % chunk_i->use()         // 6
+                       % getMask(chunkSize);    // 7
+
+            writeFmt   % arg0->use()            // 1
+                       % arg1->use()            // 2
+                       % idx->use()             // 3
+                       % chunk_i->use();        // 4
+
+            _curFun->addBody(loopProlog.str());
+            _curFun->addBody(isLittle ? litFmt.str() : bigFmt.str());
+            _curFun->addBody(signFmt.str());
+            _curFun->addBody(writeFmt.str());
+            code = "}";
         } else {
             ILA_ASSERT(false, "Invalid MemOp.");
         }
@@ -880,35 +1004,31 @@ namespace ila
         out << "class " <<  _modelName << "\n" 
             << "{\n";
         
-        /*
-        // Comments: Node name and cpp var name mapping.
-        out << "Inputs:\n";
-        for (auto it = _inputs.begin(); it != _inputs.end(); it++) {
-            out << it->first << " => " << it->second->def() << "\n";
-        }
-        out << "States:\n";
-        for (auto it = _states.begin(); it != _states.end(); it++) {
-            out << it->first << " => " << it->second->def() << "\n";
-        }
-        */
         // Constructor/destructor
         out << "public:\n"
             << "\t"  << _modelName << "() {};\n"
             << "\t~" << _modelName << "() {};\n";
 
         // Public: states variables
-        out << "\n\t// State variables.\n";
+        out << "public:\n";
+        out << "\t// State variables.\n";
         for (auto it = _states.begin(); it != _states.end(); it++) {
-            out << "\t" + it->second->def() << ";\n";
+            out << "\t" << it->second->def() << ";\n";
         }
 
-        // Public: set states function?
-
         // Public: functions (fetch, decode, update ... etc.)
+        out << "public:\n";
+        out << "\t// Public functions: fetch, decode, update, ...\n";
         for (auto it = _funMap.begin(); it != _funMap.end(); it++) {
             it->second->dumpDec(out, "", 1); 
         }
 
+        out << "private:\n";
+        out << "\t// Bitvector masks.\n";
+        for (auto it = _masks.begin(); it != _masks.end(); it++) {
+            out << "\t" << it->second->def() << " = " 
+                << it->second->_val << ";\n";
+        }
         // Model class epilog
         out << "\n};\n";
 
@@ -949,33 +1069,61 @@ namespace ila
 
     static std::string getMask(const int& width)
     {
-        ILA_ASSERT(width <= (int)sizeof(CppVar::cppBvType), 
+        ILA_ASSERT(width <= 8 * (int)sizeof(CppVar::cppBvType), 
                 "Width exceed max length.");
         ILA_ASSERT(width > 0, "Negative width.");
         CppVar::cppBvType mask = (CppVar::cppBvType)UINTMAX_MAX;
         mask = mask << width;
         mask = ~mask;
         std::string str = boost::lexical_cast<std::string>(mask);
+        auto it = maskPtr->find(str);
+        if (it == maskPtr->end()) {
+            std::string name = "un_" + boost::lexical_cast<std::string>(width);
+            CppVar* var = new CppVar(name, str);
+            (*maskPtr)[str] = var;
+            return var->use();
+        } else {
+            return it->second->use();
+        }
         return str;
     }
 
     static std::string getSignBit(const int& width)
     {
-        ILA_ASSERT(width <= (int)sizeof(CppVar::cppBvType),
+        ILA_ASSERT(width <= 8 * (int)sizeof(CppVar::cppBvType),
                 "Width exceed max length.");
         ILA_ASSERT(width > 0, "Negative width.");
         CppVar::cppBvType bit = 1 << (width-1);
         std::string str = boost::lexical_cast<std::string>(bit);
+        auto it = maskPtr->find(str);
+        if (it == maskPtr->end()) {
+            std::string name = "sbit_" + boost::lexical_cast<std::string>(width);
+            CppVar* var = new CppVar(name, str);
+            (*maskPtr)[str] = var;
+            return var->use();
+        } else {
+            return it->second->use();
+        }
         return str;
     }
 
     static std::string getSignExtMask(const int& width)
     {
-        ILA_ASSERT(width <= (int)sizeof(CppVar::cppBvType),
+        ILA_ASSERT(width <= 8 * (int)sizeof(CppVar::cppBvType),
                 "Width exceed max length.");
         ILA_ASSERT(width > 0, "Negative width.");
         std::string w = boost::lexical_cast<std::string>(width);
-        return ("(" + CppVar::maxBvVal + " << " + w + ")");
+        std::string str = "(" + CppVar::maxBvVal + " << " + w + ")";
+        auto it = maskPtr->find(str);
+        if (it == maskPtr->end()) {
+            std::string name = "sign_" + boost::lexical_cast<std::string>(width);
+            CppVar* var = new CppVar(name, str);
+            (*maskPtr)[str] = var;
+            return var->use();
+        } else {
+            return it->second->use();
+        }
+        return str;
     }
 
 }
