@@ -144,7 +144,24 @@ def model(num_regs, reg_size, paramsyn):
         rn1 = sys.get_next('r%d' % i)
         rn2 = regs_next[i]
         assert sys.areEqual(rn1, rn2)
+    # addr 16 bit, data 8 bit
+    xram = sys.mem('xram', 8, 8)
+    wrrd = sys.reg('wrrd', 8)
+    #data = sys.const(0xfe, 8)
+    #addr = sys.const(0x04, 16)
+    data = sys.reg('data', 8)
+    addr = sys.reg('addr', 8)
+    xram = ila.store(xram, addr, data)
+    wrrd_next = xram[addr]
+    #wrrd_next = wr
+    sys.set_next('wrrd', wrrd_next)
 
+    wrrdblx = sys.reg('wrrdblx', 24)
+    datablx = sys.const(0x0f00fe, 24)
+    wrblx = ila.storeblk(xram, addr, datablx)
+    wrrdblx_next = ila.loadblk(xram, addr, 3)
+    sys.set_next('wrrdblx', wrrdblx_next)
+    
     #sys.add_assumption(opcode == 0x80)
     #print sys.syn_elem("r0", sys.get_next('r0'), alusim)
 

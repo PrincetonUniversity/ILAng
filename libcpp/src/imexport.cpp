@@ -74,14 +74,14 @@ namespace ila
             out << " )";
         } else if ((memop = dynamic_cast<const MemOp*>(n))) {
             out << "( memOp " << memop->name;
-            out << memop->operatorNames[memop->op] << " ";
+            out << " " << memop->operatorNames[memop->op] << " ";
             out << "#" << (int) memop->endian << " ";
             //<< type.addrWidth << " " << type.dataWidth << " ";
             for (unsigned i = 0; i != memop->nArgs(); i++) {
                 out << " ";
                 exportAst(out, memop->arg(i).get());
             }
-            out << ")";
+            out << " )";
         //// functions ////
         } else if ((funcvar = dynamic_cast<const FuncVar*>(n))) {
             out << "( funcVar " << funcvar->name << " " 
