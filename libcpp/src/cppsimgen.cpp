@@ -8,6 +8,7 @@ namespace ila
     static std::string getMask(const int& width);
     static std::string getSignBit(const int& width);
     static std::string getSignExtMask(const int& width);
+    static CppSimGen::CppVarMap* maskPtr = NULL;
     // ---------------------------------------------------------------------- //
     int CppVar::varCnt = 0;
 
@@ -37,6 +38,15 @@ namespace ila
         _type = bvStr;
         _width = width;
         _name = "cppVar_" + boost::lexical_cast<std::string>(varCnt++);
+        _isConst = false;
+    }
+
+    CppVar::CppVar(const std::string& name, const std::string& val)
+        : _val(val)
+    {
+        _name = "cppMask_" + name + "_";
+        _type = bvStr;
+        _width = 8 * static_cast<int>(sizeof(cppBvType));
         _isConst = false;
     }
 
@@ -347,6 +357,7 @@ namespace ila
         }
         _curVarMap = it->second;
         _curFun = f;
+        maskPtr = &_masks;
         
         nptr->depthFirstVisit(*this);
         
@@ -993,35 +1004,31 @@ namespace ila
         out << "class " <<  _modelName << "\n" 
             << "{\n";
         
-        /*
-        // Comments: Node name and cpp var name mapping.
-        out << "Inputs:\n";
-        for (auto it = _inputs.begin(); it != _inputs.end(); it++) {
-            out << it->first << " => " << it->second->def() << "\n";
-        }
-        out << "States:\n";
-        for (auto it = _states.begin(); it != _states.end(); it++) {
-            out << it->first << " => " << it->second->def() << "\n";
-        }
-        */
         // Constructor/destructor
         out << "public:\n"
             << "\t"  << _modelName << "() {};\n"
             << "\t~" << _modelName << "() {};\n";
 
         // Public: states variables
-        out << "\n\t// State variables.\n";
+        out << "public:\n";
+        out << "\t// State variables.\n";
         for (auto it = _states.begin(); it != _states.end(); it++) {
-            out << "\t" + it->second->def() << ";\n";
+            out << "\t" << it->second->def() << ";\n";
         }
 
-        // Public: set states function?
-
         // Public: functions (fetch, decode, update ... etc.)
+        out << "public:\n";
+        out << "\t// Public functions: fetch, decode, update, ...\n";
         for (auto it = _funMap.begin(); it != _funMap.end(); it++) {
             it->second->dumpDec(out, "", 1); 
         }
 
+        out << "private:\n";
+        out << "\t// Bitvector masks.\n";
+        for (auto it = _masks.begin(); it != _masks.end(); it++) {
+            out << "\t" << it->second->def() << " = " 
+                << it->second->_val << ";\n";
+        }
         // Model class epilog
         out << "\n};\n";
 
@@ -1069,6 +1076,15 @@ namespace ila
         mask = mask << width;
         mask = ~mask;
         std::string str = boost::lexical_cast<std::string>(mask);
+        auto it = maskPtr->find(str);
+        if (it == maskPtr->end()) {
+            std::string name = "un_" + boost::lexical_cast<std::string>(width);
+            CppVar* var = new CppVar(name, str);
+            (*maskPtr)[str] = var;
+            return var->use();
+        } else {
+            return it->second->use();
+        }
         return str;
     }
 
@@ -1079,6 +1095,15 @@ namespace ila
         ILA_ASSERT(width > 0, "Negative width.");
         CppVar::cppBvType bit = 1 << (width-1);
         std::string str = boost::lexical_cast<std::string>(bit);
+        auto it = maskPtr->find(str);
+        if (it == maskPtr->end()) {
+            std::string name = "sbit_" + boost::lexical_cast<std::string>(width);
+            CppVar* var = new CppVar(name, str);
+            (*maskPtr)[str] = var;
+            return var->use();
+        } else {
+            return it->second->use();
+        }
         return str;
     }
 
@@ -1088,7 +1113,17 @@ namespace ila
                 "Width exceed max length.");
         ILA_ASSERT(width > 0, "Negative width.");
         std::string w = boost::lexical_cast<std::string>(width);
-        return ("(" + CppVar::maxBvVal + " << " + w + ")");
+        std::string str = "(" + CppVar::maxBvVal + " << " + w + ")";
+        auto it = maskPtr->find(str);
+        if (it == maskPtr->end()) {
+            std::string name = "sign_" + boost::lexical_cast<std::string>(width);
+            CppVar* var = new CppVar(name, str);
+            (*maskPtr)[str] = var;
+            return var->use();
+        } else {
+            return it->second->use();
+        }
+        return str;
     }
 
 }

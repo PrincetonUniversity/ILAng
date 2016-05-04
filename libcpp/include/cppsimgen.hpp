@@ -39,16 +39,18 @@ namespace ila
         bool _isConst;
         
     public:
-        // Constructor with nptr_t
+        // Constructor with nptr_t, used for ast nodes.
         CppVar(nptr_t nptr, const std::string& name = "");
-        // Constructor with Node*
+        // Constructor with Node*, used for ast nodes.
         CppVar(const Node* node, const std::string& name = "");
-        // Constructor for bv prototype.
+        // Constructor for bv prototype, used for temp var and func return.
         CppVar(int width);
+        // Constructor for bv mask, used for bitvector mask.
+        CppVar(const std::string& name, const std::string& val);
         // Destructor.
         ~CppVar();
 
-    protected:
+    public:
         // Define variable, ex."  int r0"
         std::string def() const;
         // Define reference, ex. " int& r0"
@@ -127,6 +129,9 @@ namespace ila
 
         // Constant memory to be init.
         std::map<CppVar*,const MemConst*> _memConst;
+
+        // Constant bitvector mask.
+        CppVarMap _masks;
 
         // Function seeable variables. Update during function construction.
         std::map<CppFun*, CppVarMap*> _varInFun;
