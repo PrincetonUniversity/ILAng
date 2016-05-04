@@ -118,6 +118,8 @@ def model(num_regs, reg_size, paramsyn):
     # set next.
     sys.set_next('pc', ila.choice('pc', pc+1, pc+2))
 
+    # set rom next.
+    sys.set_next('rom', rom)
 
     regs_next = []
     for i in xrange(alu.NUM_REGS):

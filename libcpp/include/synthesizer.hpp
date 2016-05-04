@@ -219,9 +219,10 @@ namespace ila
         ~Synthesizer();
 
         // synthesize all.
-        void synthesizeAll(PyObject* pyfun);
+        void synthesizeAll(const std::vector<nmap_t*>& maps, PyObject* pyfun);
 
-        void synthesizeReg(const std::string& n, PyObject* pyfun);
+        // synthesize this reg.
+        void synthesizeReg(nmap_t::iterator pos, PyObject* pyfun);
 
 
         friend class DITree;

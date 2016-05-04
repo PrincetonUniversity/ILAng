@@ -390,15 +390,38 @@ namespace ila
     // ---------------------------------------------------------------------- //
     void Abstraction::synthesizeAll(PyObject* pyfun)
     {
+        if (!doesNextExist(regs)) return;
+        if (!doesNextExist(bits)) return;
+        if (!doesNextExist(mems)) return;
+
         Synthesizer syn(*this);
-        syn.synthesizeAll(pyfun);
+        std::vector<nmap_t*> maps = { &bits, &regs, &mems };
+        syn.synthesizeAll(maps, pyfun);
     }
 
     void Abstraction::synthesizeReg(
         const std::string& name, PyObject* pyfun)
     {
+        auto pos = regs.find(name);
+        if (pos == regs.end()) {
+            pos = mems.find(name);
+        }
+        if (pos == mems.end()) {
+            pos = bits.find(name);
+        }
+        if (pos == bits.end()) {
+            throw PyILAException(PyExc_RuntimeError,
+                "Unable to find name: " + name);
+            return;
+        }
+        if (pos->second.next.get() == NULL) {
+            throw PyILAException(PyExc_RuntimeError,
+                "Next expression is not set for: " + name);
+            return;
+        }
+
         Synthesizer syn(*this);
-        syn.synthesizeReg(name, pyfun);
+        syn.synthesizeReg(pos, pyfun);
     }
 
     // ---------------------------------------------------------------------- //
@@ -1012,6 +1035,20 @@ namespace ila
             return false;
         }
         names.insert(name);
+        return true;
+    }
+
+    // ---------------------------------------------------------------------- //
+    bool Abstraction::doesNextExist(const nmap_t& m) const
+    {
+        for (auto&& r : m) {
+            const nptr_t& next(r.second.next);
+            if (next == NULL) {
+                throw PyILAException(PyExc_RuntimeError,
+                            "Next expression not set for " + r.first);
+                return false;
+            }
+        }
         return true;
     }
 }

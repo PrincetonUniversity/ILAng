@@ -630,49 +630,24 @@ namespace ila
     }
 
     // ---------------------------------------------------------------------- //
-    void Synthesizer::synthesizeAll(PyObject* pyfun)
+    void Synthesizer::synthesizeAll(const std::vector<nmap_t*>& maps, PyObject* pyfun)
     {
-        for (auto r : abs.regs) {
-            const std::string& name(r.first);
-            const nptr_t& next(r.second.next);
-            if (next == NULL) {
-                throw PyILAException(PyExc_RuntimeError,
-                            "Next expression not set for " + name);
-                return;
-            }
-        }
-
         _initSynthesis();
         S.push(); Sp.push();
         _initSolverAssumptions(abs.assumps, c1, c2);
-        for (auto&& r : abs.regs) {
-            S.push(); 
-            r.second.next = _synthesizeOp(
-                r.first, r.second.var, r.second.next, pyfun);
-            S.pop(); 
+        for (auto&& m : maps) {
+            for (auto&& r : *m) {
+                S.push(); 
+                r.second.next = _synthesizeOp(
+                    r.first, r.second.var, r.second.next, pyfun);
+                S.pop(); 
+            }
         }
         S.pop(); Sp.pop();
     }
 
-    void Synthesizer::synthesizeReg(const std::string& name, PyObject* pyfun)
+    void Synthesizer::synthesizeReg(nmap_t::iterator pos, PyObject* pyfun)
     {
-        auto pos = abs.regs.find(name);
-        if (pos == abs.regs.end()) {
-            pos = abs.mems.find(name);
-        }
-        if (pos == abs.mems.end()) {
-            pos = abs.bits.find(name);
-        }
-        if (pos == abs.bits.end()) {
-            throw PyILAException(PyExc_RuntimeError,
-                "Unable to find name: " + name);
-            return;
-        }
-        if (pos->second.next.get() == NULL) {
-            throw PyILAException(PyExc_RuntimeError,
-                "Next expression is not set for: " + name);
-            return;
-        }
         _initSynthesis();
         S.push(); Sp.push();
         _initSolverAssumptions(abs.assumps, c1, c2);

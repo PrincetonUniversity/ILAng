@@ -197,6 +197,8 @@ namespace ila
 
         bool checkAndInsertName(const std::string& name);
 
+        bool doesNextExist(const nmap_t& m) const;
+
     };
 }
 #endif
