@@ -74,12 +74,20 @@ namespace ila
 
         // Create a boolean variable.
         NodeRef* addBit(const std::string& name);
+        NodeRef* addBitU(UInstWrapper* uinst, const std::string& name);
+
         // Create a bitvector variable.
         NodeRef* addReg(const std::string& name, int width);
+        NodeRef* addRegU(UInstWrapper* uinst, const std::string& name, int w);
+
         // Create a memory.
         NodeRef* addMem(const std::string& name, int addrW, int dataW);
+        NodeRef* addMemU(UInstWrapper* uinst, const std::string& name, int aw, int dw);
+
         // Create a function.
         NodeRef* addFun(const std::string& name, int retW, const py::list& l);
+        NodeRef* addFunU(UInstWrapper* uinst, const std::string& name, int rw, 
+                        const py::list& l);
 
         // Get an existing boolean.
         NodeRef* getBit(const std::string& name);

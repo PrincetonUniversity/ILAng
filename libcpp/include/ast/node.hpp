@@ -24,12 +24,35 @@ namespace ila
     typedef boost::shared_ptr<Node> nptr_t;
     typedef std::vector<nptr_t> nptr_vec_t;
 
+    class MicroInst;
+    typedef boost::shared_ptr<MicroInst> microinst_ptr_t;
+
     struct npair_t {
+        microinst_ptr_t uinst;
         nptr_t var;
         nptr_t next;
 
-        npair_t(const nptr_t& v, const nptr_t& n) : var(v) , next(n) { }
-        ~npair_t() { }
+        // construct arch state.
+        npair_t(const nptr_t& v, const nptr_t& n) 
+          : uinst(nullptr)
+          , var(v) 
+          , next(n) 
+        {
+        }
+
+        // construct uarch state.
+        npair_t(const microinst_ptr_t& u,
+                const nptr_t& v, const nptr_t& n)
+          : uinst(u)
+          , var(v)
+          , next(n)
+        {
+        }
+
+        // destructor.
+        ~npair_t() 
+        {
+        }
     };
     typedef std::map<std::string, npair_t> nmap_t;
 

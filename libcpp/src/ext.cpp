@@ -356,15 +356,19 @@ BOOST_PYTHON_MODULE(ila)
 
         // bits.
         .def("bit", &Abstraction::addBit, return_value_policy<manage_new_object>())
+        .def("bit", &Abstraction::addBitU, return_value_policy<manage_new_object>())
         .def("getbit", &Abstraction::getBit, return_value_policy<manage_new_object>())
         // registers.
         .def("reg", &Abstraction::addReg, return_value_policy<manage_new_object>())
+        .def("reg", &Abstraction::addBitU, return_value_policy<manage_new_object>())
         .def("getreg", &Abstraction::getReg, return_value_policy<manage_new_object>())
         // memories.
         .def("mem", &Abstraction::addMem, return_value_policy<manage_new_object>())
+        .def("mem", &Abstraction::addMemU, return_value_policy<manage_new_object>())
         .def("getmem", &Abstraction::getMem, return_value_policy<manage_new_object>())
         // functions.
         .def("fun", &Abstraction::addFun, return_value_policy<manage_new_object>())
+        .def("fun", &Abstraction::addFunU, return_value_policy<manage_new_object>())
         .def("getfun", &Abstraction::getFun, return_value_policy<manage_new_object>())
         // next function
         .def("set_next", &Abstraction::setNext)

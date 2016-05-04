@@ -601,9 +601,10 @@ namespace ila
         const std::string& name,
         const nptr_t& var, 
         const nptr_t& next,
-        const z3::expr& y,
         PyObject* pyfun)
     {
+        z3::expr y = _createSynMiter(next);
+
         nptr_t ex = var;
         bool nodep = !decodeSupport.depCheck(c, Sp, next);
         ditree.reset(nodep);
@@ -646,9 +647,8 @@ namespace ila
         _initSolverAssumptions(abs.assumps, c1, c2);
         for (auto&& r : abs.regs) {
             S.push(); 
-            z3::expr y = _createSynMiter(r.second.next);
             r.second.next = _synthesizeOp(
-                r.first, r.second.var, r.second.next, y, pyfun);
+                r.first, r.second.var, r.second.next, pyfun);
             S.pop(); 
         }
         S.pop(); Sp.pop();
@@ -676,9 +676,8 @@ namespace ila
         _initSynthesis();
         S.push(); Sp.push();
         _initSolverAssumptions(abs.assumps, c1, c2);
-        z3::expr y = _createSynMiter(pos->second.next);
         pos->second.next = _synthesizeOp(
-                pos->first, pos->second.var, pos->second.next, y,  pyfun);
+                pos->first, pos->second.var, pos->second.next, pyfun);
         S.pop(); Sp.pop();
     }
 

@@ -210,7 +210,6 @@ namespace ila
             const std::string& name,
             const nptr_t& var, 
             const nptr_t& next,
-            const z3::expr& y,
             PyObject* pyfun);
 
     public:

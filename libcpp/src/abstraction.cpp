@@ -70,29 +70,49 @@ namespace ila
     // ---------------------------------------------------------------------- //
     NodeRef* Abstraction::addBit(const std::string& name)
     {
+        return addBitU(NULL, name);
+    }
+
+    NodeRef* Abstraction::addBitU(UInstWrapper* uinst, const std::string& name)
+    {
         if(!checkAndInsertName(name)) return NULL;
         NodeRef* n = new NodeRef(new ila::BoolVar(this, name));
-        bits.insert({name, npair_t(n->node, NULL)});
+        bits.insert({name, npair_t((uinst ? uinst->uinst : NULL), n->node, NULL)});
         return n;
     }
 
-    NodeRef* Abstraction::addReg(const std::string& name, int width)
+    NodeRef* Abstraction::addReg(const std::string& name, int w)
+    {
+        return addRegU(NULL, name, w);
+    }
+
+    NodeRef* Abstraction::addRegU(UInstWrapper* uinst, const std::string& name, int width)
     {
         if(!checkAndInsertName(name)) return NULL;
         NodeRef* n = new NodeRef(new ila::BitvectorVar(this, name, width));
-        regs.insert({name, npair_t(n->node, NULL)});
+        regs.insert({name, npair_t((uinst ? uinst->uinst : NULL), n->node, NULL)});
         return n;
     }
 
     NodeRef* Abstraction::addMem(const std::string& name, int aw, int dw)
     {
+        return addMemU(NULL, name, aw, dw);
+    }
+
+    NodeRef* Abstraction::addMemU(UInstWrapper* uinst, const std::string& name, int aw, int dw)
+    {
         if(!checkAndInsertName(name)) return NULL;
         NodeRef* n = new NodeRef(new ila::MemVar(this, name, aw, dw));
-        mems.insert({name, npair_t(n->node, NULL)});
+        mems.insert({name, npair_t((uinst ? uinst->uinst : NULL), n->node, NULL)});
         return n;
     }
 
-    NodeRef* Abstraction::addFun(const std::string& name, 
+    NodeRef* Abstraction::addFun(const std::string& name, int rw, const py::list& l)
+    {
+        return addFunU(NULL, name, rw, l);
+    }
+
+    NodeRef* Abstraction::addFunU(UInstWrapper* uinst, const std::string& name, 
                                  int retW, const py::list& l)
     {
         if (!checkAndInsertName(name)) return NULL;
@@ -106,7 +126,7 @@ namespace ila
         }
 
         NodeRef* n = new NodeRef(new ila::FuncVar(this, name, retW, argW));
-        funs.insert({name, npair_t(n->node, NULL)});
+        funs.insert({name, npair_t((uinst ? uinst->uinst : NULL), n->node, NULL)});
         return n;
     }
 
