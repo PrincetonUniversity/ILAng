@@ -337,71 +337,73 @@ BOOST_PYTHON_MODULE(ila)
     def("setloglevel", &ila::setLogLevel);
 
     // This is the top-level class.
-    class_<Abstraction>("Abstraction", init<>())
+    class_<AbstractionWrapper>("Abstraction", init<>())
         // inputs
-        .def("inp", &Abstraction::addInp, return_value_policy<manage_new_object>())
+        .def("inp", &AbstractionWrapper::addInp, return_value_policy<manage_new_object>())
 
         // bits.
-        .def("bit", &Abstraction::addBit, return_value_policy<manage_new_object>())
-        .def("getbit", &Abstraction::getBit, return_value_policy<manage_new_object>())
+        .def("bit", &AbstractionWrapper::addBit, return_value_policy<manage_new_object>())
+        .def("getbit", &AbstractionWrapper::getBit, return_value_policy<manage_new_object>())
         // registers.
-        .def("reg", &Abstraction::addReg, return_value_policy<manage_new_object>())
-        .def("getreg", &Abstraction::getReg, return_value_policy<manage_new_object>())
+        .def("reg", &AbstractionWrapper::addReg, return_value_policy<manage_new_object>())
+        .def("getreg", &AbstractionWrapper::getReg, return_value_policy<manage_new_object>())
         // memories.
-        .def("mem", &Abstraction::addMem, return_value_policy<manage_new_object>())
-        .def("getmem", &Abstraction::getMem, return_value_policy<manage_new_object>())
+        .def("mem", &AbstractionWrapper::addMem, return_value_policy<manage_new_object>())
+        .def("getmem", &AbstractionWrapper::getMem, return_value_policy<manage_new_object>())
         // functions.
-        .def("fun", &Abstraction::addFun, return_value_policy<manage_new_object>())
-        .def("getfun", &Abstraction::getFun, return_value_policy<manage_new_object>())
+        .def("fun", &AbstractionWrapper::addFun, return_value_policy<manage_new_object>())
+        .def("getfun", &AbstractionWrapper::getFun, return_value_policy<manage_new_object>())
         // init function
-        .def("set_init", &Abstraction::setInit)
-        .def("get_init", &Abstraction::getInit, return_value_policy<manage_new_object>())
+        .def("set_init", &AbstractionWrapper::setInit)
+        .def("get_init", &AbstractionWrapper::getInit, return_value_policy<manage_new_object>())
         // next function
-        .def("set_next", &Abstraction::setNext)
-        .def("get_next", &Abstraction::getNext, return_value_policy<manage_new_object>())
+        .def("set_next", &AbstractionWrapper::setNext)
+        .def("get_next", &AbstractionWrapper::getNext, return_value_policy<manage_new_object>())
 
         // constants.
-        .def("const", &Abstraction::bvConstLong, return_value_policy<manage_new_object>())
-        .def("const", &Abstraction::bvConstInt, return_value_policy<manage_new_object>())
-        .def("const", &Abstraction::memConst, return_value_policy<manage_new_object>())
-        .def("bool", &Abstraction::boolConstB, return_value_policy<manage_new_object>())
-        .def("bool", &Abstraction::boolConstI, return_value_policy<manage_new_object>())
-        .def("bool", &Abstraction::boolConstL, return_value_policy<manage_new_object>())
+        .def("const", &AbstractionWrapper::bvConstLong, return_value_policy<manage_new_object>())
+        .def("const", &AbstractionWrapper::bvConstInt, return_value_policy<manage_new_object>())
+        .def("const", &AbstractionWrapper::memConst, return_value_policy<manage_new_object>())
+        .def("bool", &AbstractionWrapper::boolConstB, return_value_policy<manage_new_object>())
+        .def("bool", &AbstractionWrapper::boolConstI, return_value_policy<manage_new_object>())
+        .def("bool", &AbstractionWrapper::boolConstL, return_value_policy<manage_new_object>())
 
         // synthesis.
-        .def("synthesize", &Abstraction::synthesizeAll)
-        .def("synthesize", &Abstraction::synthesizeReg)
-        .def("syn_elem", &Abstraction::synthesizeElement, return_value_policy<manage_new_object>())
+        .def("synthesize", &AbstractionWrapper::synthesizeAll)
+        .def("synthesize", &AbstractionWrapper::synthesizeReg)
+        .def("syn_elem", &AbstractionWrapper::synthesizeElement, return_value_policy<manage_new_object>())
 
         // smt solver.
-        .def("areEqual", &Abstraction::areEqual)
-        .def("areEqual", &Abstraction::areEqualAssump)
+        .def("areEqual", &AbstractionWrapper::areEqual)
+        .def("areEqual", &AbstractionWrapper::areEqualAssump)
 
         // assumptions.
-        .def("add_assumption", &Abstraction::addAssumption)
-        .def("get_all_assumptions", &Abstraction::getAllAssumptions)
+        .def("add_assumption", &AbstractionWrapper::addAssumption)
+        .def("get_all_assumptions", &AbstractionWrapper::getAllAssumptions)
 
         // import/export.
-        .def("exportOne", &Abstraction::exportOneToFile)
-        .def("exportAll", &Abstraction::exportAllToFile)
-        .def("importOne", &Abstraction::importOneFromFile, return_value_policy<manage_new_object>())
-        .def("importAll", &Abstraction::importAllFromFile)
+        .def("exportOne", &AbstractionWrapper::exportOneToFile)
+        .def("exportAll", &AbstractionWrapper::exportAllToFile)
+        .def("importOne", &AbstractionWrapper::importOneFromFile, return_value_policy<manage_new_object>())
+        .def("importAll", &AbstractionWrapper::importAllFromFile)
 
         // simulator.
-        .def("generateSim", &Abstraction::generateSim)
+        .def("generateSim", &AbstractionWrapper::generateSim)
 
         .add_property("fetch_expr", 
-            make_function(&Abstraction::getFetchExpr, return_value_policy<manage_new_object>()), 
-            &Abstraction::setFetchExpr)
+            make_function(&AbstractionWrapper::getFetchExpr, return_value_policy<manage_new_object>()), 
+            &AbstractionWrapper::setFetchExpr)
         .add_property("fetch_valid", 
-            make_function(&Abstraction::getFetchValid, return_value_policy<manage_new_object>()), 
-            &Abstraction::setFetchValid)
+            make_function(&AbstractionWrapper::getFetchValid, return_value_policy<manage_new_object>()), 
+            &AbstractionWrapper::setFetchValid)
 
         .add_property("decode_exprs", 
-            &Abstraction::getDecodeExpressions, 
-            &Abstraction::setDecodeExpressions)
+            &AbstractionWrapper::getDecodeExpressions, 
+            &AbstractionWrapper::setDecodeExpressions)
 
-        .def_readwrite("enable_parameterized_synthesis", &Abstraction::paramSyn)
+        .add_property("enable_parameterized_synthesis", 
+            &AbstractionWrapper::getEnParamSyn,
+            &AbstractionWrapper::setEnParamSyn)
     ;
 
 
