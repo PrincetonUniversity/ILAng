@@ -12,16 +12,17 @@
 namespace ila
 {
     // ---------------------------------------------------------------------- //
+    int Abstraction::objCnt = 0;
+
     int Abstraction::getObjId()
     {
         return objCnt++;
     }
 
     Abstraction::Abstraction()
-      : objCnt(0)
-      , MAX_SYN_ITER(200)
+      : MAX_SYN_ITER(200)
       , fetchExpr(NULL)
-      , fetchValid(new ila::BoolConst(this , true))
+      , fetchValid(new BoolConst(true))
       , paramSyn(1)
     {
     }
@@ -34,7 +35,7 @@ namespace ila
     NodeRef* Abstraction::addInp(const std::string& name, int width)
     {
         if(!checkAndInsertName(INP, name)) return NULL;
-        NodeRef* n = new NodeRef(new ila::BitvectorVar(this, name, width));
+        NodeRef* n = new NodeRef(new BitvectorVar(name, width));
         inps.insert({name, npair_t(n->node, NULL)});
         return n;
     }
@@ -71,7 +72,7 @@ namespace ila
     NodeRef* Abstraction::addBit(const std::string& name)
     {
         if(!checkAndInsertName(BIT, name)) return NULL;
-        NodeRef* n = new NodeRef(new ila::BoolVar(this, name));
+        NodeRef* n = new NodeRef(new BoolVar(name));
         bits.insert({name, npair_t(n->node, NULL)});
         return n;
     }
@@ -79,7 +80,7 @@ namespace ila
     NodeRef* Abstraction::addReg(const std::string& name, int w)
     {
         if(!checkAndInsertName(REG, name)) return NULL;
-        NodeRef* n = new NodeRef(new ila::BitvectorVar(this, name, w));
+        NodeRef* n = new NodeRef(new BitvectorVar(name, w));
         regs.insert({name, npair_t(n->node, NULL)});
         return n;
     }
@@ -87,7 +88,7 @@ namespace ila
     NodeRef* Abstraction::addMem(const std::string& name, int aw, int dw)
     {
         if(!checkAndInsertName(MEM, name)) return NULL;
-        NodeRef* n = new NodeRef(new ila::MemVar(this, name, aw, dw));
+        NodeRef* n = new NodeRef(new MemVar(name, aw, dw));
         mems.insert({name, npair_t(n->node, NULL)});
         return n;
     }
@@ -104,7 +105,7 @@ namespace ila
             }
         }
 
-        NodeRef* n = new NodeRef(new ila::FuncVar(this, name, rw, argW));
+        NodeRef* n = new NodeRef(new FuncVar(name, rw, argW));
         funs.insert({name, npair_t(n->node, NULL)});
         return n;
     }
@@ -197,33 +198,33 @@ namespace ila
     NodeRef* Abstraction::bvConstLong(py::long_ l_, int w)
     {
         auto l = to_cpp_int(l_);
-        return new NodeRef(new ila::BitvectorConst(this, l, w));
+        return new NodeRef(new BitvectorConst(l, w));
     }
 
     NodeRef* Abstraction::bvConstInt(unsigned int l, int w)
     {
-        return new NodeRef(new ila::BitvectorConst(this, l, w));
+        return new NodeRef(new BitvectorConst(l, w));
     }
 
     NodeRef* Abstraction::boolConstB(bool b)
     {
-        return new NodeRef(new ila::BoolConst(this, b));
+        return new NodeRef(new BoolConst(b));
     }
 
     NodeRef* Abstraction::boolConstI(int b)
     {
-        return new NodeRef(new ila::BoolConst(this, b));
+        return new NodeRef(new BoolConst(b));
     }
 
     NodeRef* Abstraction::boolConstL(py::long_ l_)
     {
         auto l = to_cpp_int(l_);
-        return new NodeRef(new ila::BoolConst(this, l));
+        return new NodeRef(new BoolConst(l));
     }
 
     NodeRef* Abstraction::memConst(const MemValues& mv)
     {
-        return new NodeRef(new ila::MemConst(this, mv));
+        return new NodeRef(new MemConst(mv));
     }
 
 

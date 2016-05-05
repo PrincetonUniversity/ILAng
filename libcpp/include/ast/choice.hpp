@@ -54,9 +54,9 @@ namespace ila
     public:
         // constructor.
         ChoiceExpr(
-            Abstraction* c, const std::string& n_,
+            const std::string& n_,
             const nptr_vec_t& args_)
-          : T(c, Choice::getChoiceType(args_))
+          : T(Choice::getChoiceType(args_))
           , choice(n_, args_)
         {
             this->name = n_;
@@ -69,13 +69,13 @@ namespace ila
         virtual Node* clone() const
         {
             return new ChoiceExpr(
-                this->ctx, this->name, choice.args);
+                this->name, choice.args);
         }
 
         // clone with new args.
         ChoiceExpr* clone(const nptr_vec_t& args) const
         {
-            return new ChoiceExpr(this->ctx, this->name, args);
+            return new ChoiceExpr(this->name, args);
         }
 
         // equal.
@@ -122,7 +122,7 @@ namespace ila
     {
     private:
         // private constructor: called by the static function.
-        ReadSlice(Abstraction *c, const std::string& name, 
+        ReadSlice(const std::string& name, 
                   const nptr_vec_t& args, 
                   const nptr_t& bv, 
                   int width, int incr);
@@ -139,7 +139,7 @@ namespace ila
 
         // factory method.
         static ReadSlice* createReadSlice(
-            Abstraction* c, const std::string& name, 
+            const std::string& name, 
             const nptr_t& bv, int width, int incr);
             
         // clone.
@@ -154,7 +154,7 @@ namespace ila
     {
     private:
         // private constructor: called by the static function.
-        WriteSlice(Abstraction *c, const std::string& name, 
+        WriteSlice(const std::string& name, 
                    const nptr_vec_t& args, 
                    const nptr_t& bv, 
                    const nptr_t& wr, int incr);
@@ -170,7 +170,7 @@ namespace ila
 
         // factory method.
         static WriteSlice* createWriteSlice(
-            Abstraction* c, const std::string& name, 
+            const std::string& name, 
             const nptr_t& bv, const nptr_t& wr, int incr);
             
         // clone.

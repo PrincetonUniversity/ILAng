@@ -18,9 +18,9 @@ namespace ila
     public:
 
         // constructor.
-        MemExpr(Abstraction* c, int addrWidth, int dataWidth);
+        MemExpr(int addrWidth, int dataWidth);
         // constructor for ChoiceExpr.
-        MemExpr(Abstraction* c, NodeType t);
+        MemExpr(NodeType t);
         // destructor.
         virtual ~MemExpr();
 
@@ -31,7 +31,7 @@ namespace ila
     class MemVar : public MemExpr {
     public:
         // constructor.
-        MemVar(Abstraction* c, const std::string& n, int addrWidth, int dataWidth);
+        MemVar(const std::string& n, int addrWidth, int dataWidth);
         // destructor.
         virtual ~MemVar();
         // clone.
@@ -49,7 +49,7 @@ namespace ila
         MemValues memvalues;
 
         // constructor with longs.
-        MemConst(Abstraction* c, const MemValues& mv);
+        MemConst(const MemValues& mv);
         // copy constructor.
         MemConst(const MemConst& that);
         // destructor.

@@ -80,19 +80,18 @@ namespace ila
         // first rewrite.
         Rewriter r1, r2;
         for (auto b : bools) {
-            r1.addRewrite(b, nptr_t(new BoolVar(b->context(), b->name+"__1")));
-            r2.addRewrite(b, nptr_t(new BoolVar(b->context(), b->name+"__2")));
+            r1.addRewrite(b, nptr_t(new BoolVar(b->name+"__1")));
+            r2.addRewrite(b, nptr_t(new BoolVar(b->name+"__2")));
         }
         for (auto bv : bitvecs) {
             r1.addRewrite(bv, nptr_t(new BitvectorVar(
-                bv->context(), "$" + bv->name+"__1", bv->type.bitWidth)));
+                "$" + bv->name+"__1", bv->type.bitWidth)));
             r2.addRewrite(bv, nptr_t(new BitvectorVar(
-                bv->context(), "$" + bv->name+"__2", bv->type.bitWidth)));
+                "$" + bv->name+"__2", bv->type.bitWidth)));
         }
         int i=0;
         for (auto&& mi : rdexprs) {
             nptr_t fresh_var(new BitvectorVar(
-                mi.mem->context(),
                 ("$fresh"+boost::lexical_cast<std::string>(i)).c_str(), 
                 mi.mem->type.dataWidth));
             nptr_t mem(mi.mem->clone());

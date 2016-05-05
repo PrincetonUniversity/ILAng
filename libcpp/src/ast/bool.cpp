@@ -19,13 +19,13 @@ namespace ila
     };
 
     // ---------------------------------------------------------------------- //
-    BoolExpr::BoolExpr(Abstraction* c)
-      : Node(c, NodeType::getBool())
+    BoolExpr::BoolExpr()
+      : Node(NodeType::getBool())
     {
     }
 
-    BoolExpr::BoolExpr(Abstraction* c, NodeType t)
-      : Node(c, t)
+    BoolExpr::BoolExpr(NodeType t)
+      : Node(t)
     {
         ILA_ASSERT(t.isBool(), "BoolExpr type mismatch.");
     }
@@ -35,8 +35,8 @@ namespace ila
     }
 
     // ---------------------------------------------------------------------- //
-    BoolVar::BoolVar(Abstraction* c, const std::string& name)
-      : BoolExpr(c)
+    BoolVar::BoolVar(const std::string& name)
+      : BoolExpr()
     {
         this->name = name;
     }
@@ -47,7 +47,7 @@ namespace ila
 
     Node* BoolVar::clone() const
     {
-        return new BoolVar(ctx, name);
+        return new BoolVar(name);
     }
 
     bool BoolVar::equal(const Node* that_) const
@@ -66,20 +66,20 @@ namespace ila
     }
 
     // ---------------------------------------------------------------------- //
-    BoolConst::BoolConst(Abstraction* c, bool v)
-      : BoolExpr(c)
+    BoolConst::BoolConst(bool v)
+      : BoolExpr()
       , value(v)
     {
     }
 
-    BoolConst::BoolConst(Abstraction* c, int v)
-      : BoolExpr(c)
+    BoolConst::BoolConst(int v)
+      : BoolExpr()
       , value(v != 0)
     {
     }
 
-    BoolConst::BoolConst(Abstraction* c, const mp_int_t& v)
-      : BoolExpr(c)
+    BoolConst::BoolConst(const mp_int_t& v)
+      : BoolExpr()
       , value(v != 0)
     {
     }
@@ -90,7 +90,7 @@ namespace ila
 
     Node* BoolConst::clone() const
     {
-        return new BoolConst(ctx, value);
+        return new BoolConst(value);
     }
 
     bool BoolConst::equal(const Node* that_) const
@@ -152,8 +152,8 @@ namespace ila
 
     // ---------------------------------------------------------------------- //
     // constructor: unary ops.
-    BoolOp::BoolOp(Abstraction* c, Op op, const nptr_t& n1)
-      : BoolExpr(c)
+    BoolOp::BoolOp(Op op, const nptr_t& n1)
+      : BoolExpr()
       , arity(UNARY)
       , op(op)
     {
@@ -175,8 +175,8 @@ namespace ila
     }
 
     // constructor: binary ops.
-    BoolOp::BoolOp(Abstraction* c, Op op, const nptr_t& n1, const nptr_t& n2)
-      : BoolExpr(c)
+    BoolOp::BoolOp(Op op, const nptr_t& n1, const nptr_t& n2)
+      : BoolExpr()
       , arity(BINARY)
       , op(op)
     {
@@ -195,8 +195,8 @@ namespace ila
         args.push_back( n2 );
     }
 
-    BoolOp::BoolOp(Abstraction* c, Op op, nptr_vec_t& args_)
-        : BoolExpr(c)
+    BoolOp::BoolOp(Op op, nptr_vec_t& args_)
+        : BoolExpr()
         , arity(TERNARY)
         , op(op)
         , args(args_)
@@ -217,8 +217,7 @@ namespace ila
     }
             
     BoolOp::BoolOp(const BoolOp* other, nptr_vec_t& args_)
-      : BoolExpr(other->ctx)
-      , arity(other->arity)
+      : arity(other->arity)
       , op(other->op)
       , args(args_)
     {
@@ -236,11 +235,11 @@ namespace ila
         if (arity == UNARY) {
             ILA_ASSERT(args.size() == 1, 
                 "Unary op must have exactly one argument.");
-            return new BoolOp(ctx, op, args[0]);
+            return new BoolOp(op, args[0]);
         } else if(arity == BINARY) {
             ILA_ASSERT(args.size() == 2,
                 "Binary op must have exactly two arguments.");
-            return new BoolOp(ctx, op, args[0], args[1]);
+            return new BoolOp(op, args[0], args[1]);
         } else {
             ILA_ASSERT(false, "Unsupported arity in BoolOp");
             return NULL;

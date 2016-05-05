@@ -270,7 +270,6 @@ namespace ila
 
     NodeRef* NodeRef::getItem(NodeRef* idx) const
     {
-        if (!checkAbstractions(this, idx)) return NULL;
         if (node->type.isBitvector()) {
             return _binOp(BitvectorOp::GET_BIT, idx);
         } else if (node->type.isMem()) {
@@ -328,7 +327,6 @@ namespace ila
 
     NodeRef* NodeRef::load(NodeRef* mem, NodeRef* addr)
     {
-        if (!checkAbstractions(mem, addr)) return NULL;
         const NodeType& mt = mem->node->type;
         const NodeType& at = addr->node->type;
         if (!mt.isMem()                     ||
@@ -339,13 +337,12 @@ namespace ila
             return NULL;
         }
         return new NodeRef(new BitvectorOp(
-            mem->node->ctx, BitvectorOp::READMEM, 
+            BitvectorOp::READMEM, 
             mem->node, addr->node));
     }
 
     NodeRef* NodeRef::loadblock(NodeRef* mem, NodeRef* addr, int chunks)
     {
-        if (!checkAbstractions(mem, addr)) return NULL;
         const NodeType& mt = mem->node->type;
         const NodeType& at = addr->node->type;
         if (!mt.isMem()                     ||
@@ -362,7 +359,6 @@ namespace ila
         }
 
         return new NodeRef(new BitvectorOp(
-            mem->node->ctx, 
             BitvectorOp::READMEMBLOCK, 
             mem->node, addr->node, chunks, 
             LITTLE_E));
@@ -370,7 +366,6 @@ namespace ila
 
     NodeRef* NodeRef::store(NodeRef* mem, NodeRef* addr, NodeRef* data)
     {
-        if (!checkAbstractions(mem, addr, data)) return NULL;
         const NodeType& mt = mem->node->type;
         const NodeType& at = addr->node->type;
         const NodeType& dt = addr->node->type;
@@ -388,7 +383,6 @@ namespace ila
 
     NodeRef* NodeRef::storeblock(NodeRef* mem, NodeRef* addr, NodeRef* data)
     {
-        if (!checkAbstractions(mem, addr, data)) return NULL;
         const NodeType& mt = mem->node->type;
         const NodeType& at = addr->node->type;
         const NodeType& dt = addr->node->type;
@@ -518,8 +512,6 @@ namespace ila
                 return NULL;
             }
         }
-        // check the abstractions.
-        if (!checkAbstractions(args)) return NULL;
 
         // now finally create the expression.
         ILA_ASSERT(args.size() >= 2, "Must have two arguments.");
@@ -528,12 +520,12 @@ namespace ila
             const nptr_t& b1 = args[i];
             const nptr_t& b2 = args[i+1];
             if (i == (int)args.size()-2) {
-                nptr_t arg(new BitvectorOp(b1->ctx, 
+                nptr_t arg(new BitvectorOp(
                     BitvectorOp::CONCAT,
                     b1, b2));
                 expr = arg;
             } else {
-                nptr_t arg(new BitvectorOp(b1->ctx, 
+                nptr_t arg(new BitvectorOp(
                     BitvectorOp::CONCAT,
                     b1, expr));
                 expr = arg;
@@ -717,8 +709,7 @@ namespace ila
     NodeRef* NodeRef::inRange(const std::string& name, 
                               NodeRef* lo, NodeRef* hi)
     {
-        if(!checkAbstractions(lo, hi)) return NULL;
-        return new NodeRef(new BVInRange(lo->node->ctx, name, lo->node, hi->node));
+        return new NodeRef(new BVInRange(name, lo->node, hi->node));
     }
 
     NodeRef* NodeRef::readSlice(const std::string& name, NodeRef* bv, int w)
@@ -730,7 +721,7 @@ namespace ila
             return NULL;
         }
         return new NodeRef(
-            ReadSlice::createReadSlice(bv->node->ctx, name, bv->node, w, 1));
+            ReadSlice::createReadSlice(name, bv->node, w, 1));
     }
 
     NodeRef* NodeRef::readChunk(const std::string& name, NodeRef* bv, int w)
@@ -749,7 +740,7 @@ namespace ila
         }
 
         return new NodeRef(
-            ReadSlice::createReadSlice(bv->node->ctx, name, bv->node, w, w));
+            ReadSlice::createReadSlice(name, bv->node, w, w));
     }
 
     NodeRef* NodeRef::writeSlice(const std::string& name, NodeRef* bv, NodeRef* wr)
@@ -763,9 +754,7 @@ namespace ila
             return NULL;
         }
         return new NodeRef(
-            WriteSlice::createWriteSlice(
-                bv->node->ctx, name, 
-                bv->node, wr->node, 1));
+            WriteSlice::createWriteSlice(name, bv->node, wr->node, 1));
     }
 
     NodeRef* NodeRef::writeChunk(const std::string& name, NodeRef* bv, NodeRef* wr)
@@ -785,8 +774,7 @@ namespace ila
                 "Bitwidth of bitvector not a multiple of data bitwidth."); 
         }
         return new NodeRef(
-            WriteSlice::createWriteSlice(
-                bv->node->ctx, name, 
+            WriteSlice::createWriteSlice(name, 
                 bv->node, wr->node, wr->node->type.bitWidth));
     }
 
@@ -795,9 +783,9 @@ namespace ila
         BoolOp::Op opBool, BitvectorOp::Op opBv, const char* opName) const
     {
         if (opBv != BitvectorOp::INVALID && node->type.isBitvector()) {
-            return new NodeRef(new BitvectorOp(node->ctx, opBv, node));
+            return new NodeRef(new BitvectorOp(opBv, node));
         } else if (opBool != BoolOp::INVALID && node->type.isBool()) {
-            return new NodeRef(new BoolOp(node->ctx, opBool, node));
+            return new NodeRef(new BoolOp(opBool, node));
         } else {
             throw PyILAException(PyExc_TypeError, std::string("Incorrect type for ") + 
                                  opName);
@@ -811,14 +799,12 @@ namespace ila
         const char* opName,
         NodeRef* other) const
     {
-        if (!checkAbstractions(this, other)) return NULL;
-
         if (boolOp != BoolOp::INVALID && node->type.isBool()) {
             return new NodeRef(new BoolOp(
-                        node->ctx, boolOp, node, other->node));
+                        boolOp, node, other->node));
         } else if (bvOp != BitvectorOp::INVALID && node->type.isBitvector()) {
             return new NodeRef(new BitvectorOp(
-                        node->ctx, bvOp, node, other->node));
+                        bvOp, node, other->node));
         } else {
             throw PyILAException(PyExc_TypeError,
                                  std::string("Incorrect type for ")
@@ -828,14 +814,12 @@ namespace ila
 
     NodeRef* NodeRef::_binOp(BitvectorOp::Op op, NodeRef* other) const
     {
-        if (!checkAbstractions(this, other)) return NULL;
-
         if (node->type.isBitvector()) {
             return new NodeRef(new BitvectorOp(
-                        node->ctx, op, node, other->node));
+                        op, node, other->node));
         } else if (node->type.isMem() && other->node->type.isBitvector()) {
             return new NodeRef(new BitvectorOp(
-                        node->ctx, op, node, other->node));
+                        op, node, other->node));
         } else {
             throw PyILAException(PyExc_TypeError,
                                  "Incorrect type for " + 
@@ -847,10 +831,10 @@ namespace ila
     {
         if (node->type.isBitvector()) {
             nptr_t node_r(
-                new BitvectorConst(node->ctx, r, node->type.bitWidth));
+                new BitvectorConst(r, node->type.bitWidth));
 
             return new NodeRef(new BitvectorOp(
-                        node->ctx, op, node, node_r));
+                        op, node, node_r));
         } else {
             throw PyILAException(PyExc_TypeError,
                                  "Incorrect type for " +
@@ -862,10 +846,10 @@ namespace ila
     {
         if (node->type.isBitvector()) {
             nptr_t node_l(
-                new BitvectorConst(node->ctx, r, node->type.bitWidth));
+                new BitvectorConst(r, node->type.bitWidth));
 
             return new NodeRef(new BitvectorOp(
-                        node->ctx, op, node_l, node));
+                        op, node_l, node));
         } else {
             throw PyILAException(PyExc_TypeError,
                                  "Incorrect type for " +
@@ -879,16 +863,10 @@ namespace ila
                              NodeRef* other,
                              bool bvtype) const
     {
-        if (!checkAbstractions(this, other)) return NULL;
-        if (node->ctx != other->node->ctx) {
-            throw PyILAException(
-                PyExc_RuntimeError,
-                "Operands must belong to the same Abstraction.");
-            return NULL;
-        } else if (node->type == other->node->type &&
+        if (node->type == other->node->type &&
                    (!bvtype || node->type.isBitvector())) {
             return new NodeRef(
-                        new BoolOp(node->ctx, op, node, other->node));
+                        new BoolOp(op, node, other->node));
         } else {
             throw PyILAException(PyExc_TypeError,
                                   "Incorrect type for " + 
@@ -901,8 +879,8 @@ namespace ila
     {
         if (node->type.isBitvector()) {
             nptr_t node_r(
-                new BitvectorConst(node->ctx, r, node->type.bitWidth));
-            return new NodeRef(new BoolOp(node->ctx, op, node, node_r));
+                new BitvectorConst(r, node->type.bitWidth));
+            return new NodeRef(new BoolOp(op, node, node_r));
         } else {
             throw PyILAException(PyExc_TypeError,
                                   "Incorrect type for " + 
@@ -921,11 +899,10 @@ namespace ila
                              NodeRef* l, NodeRef* r, 
                              bool bvonly)
     {
-        if (!checkAbstractions(l, r)) return NULL;
         if (l->node->type == r->node->type &&
                    (!bvonly || l->node->type.isBitvector())) {
             return new NodeRef(
-                        new BoolOp(l->node->ctx, op, l->node, r->node));
+                        new BoolOp(op, l->node, r->node));
         } else {
             throw PyILAException(PyExc_TypeError,
                                   "Incorrect type for " + 
@@ -938,8 +915,8 @@ namespace ila
     {
         if (l->node->type.isBitvector()) {
             nptr_t node_r(
-                new BitvectorConst(l->node->ctx, r, l->node->type.bitWidth));
-            return new NodeRef(new BoolOp(l->node->ctx, op, l->node, node_r));
+                new BitvectorConst(r, l->node->type.bitWidth));
+            return new NodeRef(new BoolOp(op, l->node, node_r));
         } else {
             throw PyILAException(PyExc_TypeError,
                                   "Incorrect type for " + 
@@ -956,13 +933,12 @@ namespace ila
         NodeRef* l,
         NodeRef* r)
     {
-        if (!checkAbstractions(l, r)) return NULL;
         if (boolOp != BoolOp::INVALID && l->node->type.isBool()) {
             return new NodeRef(new BoolOp(
-                        l->node->ctx, boolOp, l->node, r->node));
+                        boolOp, l->node, r->node));
         } else if (bvOp != BitvectorOp::INVALID && l->node->type.isBitvector()) {
             return new NodeRef(new BitvectorOp(
-                        l->node->ctx, bvOp, l->node, r->node));
+                        bvOp, l->node, r->node));
         } else {
             throw PyILAException(PyExc_TypeError,
                                  std::string("Incorrect type for ")
@@ -973,10 +949,9 @@ namespace ila
 
     NodeRef* NodeRef::_binOp(BoolOp::Op op, NodeRef* l, NodeRef* r)
     {
-        if (!checkAbstractions(l, r)) return NULL;
         if (l->node->type.isBool() && r->node->type.isBool()) {
             return new NodeRef(new BoolOp(
-                        l->node->ctx, op, l->node, r->node));
+                        op, l->node, r->node));
         } else {
             throw PyILAException(PyExc_TypeError,
                                  "Incorrect type for " + 
@@ -988,10 +963,8 @@ namespace ila
 
     NodeRef* NodeRef::_binOp(BitvectorOp::Op op, NodeRef* l, NodeRef* r)
     {
-        if (!checkAbstractions(l, r)) return NULL;
         if (l->node->type.isBitvector()) {
-            return new NodeRef(new BitvectorOp(
-                       l->node->ctx, op, l->node, r->node));
+            return new NodeRef(new BitvectorOp(op, l->node, r->node));
         } else {
             throw PyILAException(PyExc_TypeError,
                                  "Incorrect type for " + 
@@ -1006,14 +979,10 @@ namespace ila
             if (op >= BitvectorOp::Op::LROTATE && 
                 op <= BitvectorOp::Op::S_EXT)
             {
-                return new NodeRef(new BitvectorOp(
-                            l->node->ctx, op, l->node, r));
+                return new NodeRef(new BitvectorOp(op, l->node, r));
             } else {
-                nptr_t node_r(
-                    new BitvectorConst(l->node->ctx, r, l->node->type.bitWidth));
-
-                return new NodeRef(new BitvectorOp(
-                            l->node->ctx, op, l->node, node_r));
+                nptr_t node_r(new BitvectorConst(r, l->node->type.bitWidth));
+                return new NodeRef(new BitvectorOp(op, l->node, node_r));
             }
         } else {
             throw PyILAException(PyExc_TypeError,
@@ -1026,11 +995,9 @@ namespace ila
     NodeRef* NodeRef::_binOpR(BitvectorOp::Op op, int l, NodeRef* r)
     {
         if (r->node->type.isBitvector()) {
-            nptr_t node_l(
-                new BitvectorConst(r->node->ctx, l, r->node->type.bitWidth));
+            nptr_t node_l(new BitvectorConst(l, r->node->type.bitWidth));
 
-            return new NodeRef(new BitvectorOp(
-                        r->node->ctx, op, node_l, r->node));
+            return new NodeRef(new BitvectorOp(op, node_l, r->node));
         } else {
             throw PyILAException(PyExc_TypeError,
                                  "Incorrect type for " +
@@ -1042,8 +1009,6 @@ namespace ila
     NodeRef* NodeRef::_triOp(BoolOp::Op boolOp, BitvectorOp::Op bvOp, MemOp::Op memOp,
                              NodeRef* cond, NodeRef* trueExp, NodeRef* falseExp)
     {
-        if (!checkAbstractions(cond, trueExp, falseExp)) return NULL;
-
         if (trueExp->node->type != falseExp->node->type ||
             !cond->node->type.isBool())
         {
@@ -1057,10 +1022,10 @@ namespace ila
             args_.push_back(falseExp->node);
             if (trueExp->node->type.isBool() && boolOp != BoolOp::INVALID) {
                 return new NodeRef( 
-                    new BoolOp(normCond->node->ctx, boolOp, args_));
+                    new BoolOp(boolOp, args_));
             } else if (trueExp->node->type.isBitvector() && bvOp != BitvectorOp::INVALID) {
                 return new NodeRef( 
-                    new BitvectorOp(normCond->node->ctx, bvOp, args_));
+                    new BitvectorOp(bvOp, args_));
             } else if (trueExp->node->type.isMem() && memOp == MemOp::ITE) {
                 return new NodeRef( 
                     new MemOp(memOp, cond->node, trueExp->node, falseExp->node));
@@ -1074,7 +1039,6 @@ namespace ila
 
     NodeRef* NodeRef::_naryOp(BitvectorOp::Op bvOp, nptr_vec_t& args)
     {
-        if (!checkAbstractions(args)) return NULL;
         if (args.size() < 1) {
             throw PyILAException(PyExc_TypeError, "No function specified.");
             return NULL;
@@ -1084,11 +1048,7 @@ namespace ila
                     "Incorrect type for apply function.");
             return NULL;
         } else {
-            return new NodeRef(
-                    new BitvectorOp(
-                        args[0]->ctx,
-                        BitvectorOp::APPLY_FUNC,
-                        args));
+            return new NodeRef(new BitvectorOp(BitvectorOp::APPLY_FUNC, args));
         }
         return NULL;
     }
@@ -1101,17 +1061,13 @@ namespace ila
             return NULL;
         } else {
             return new NodeRef( 
-                new BitvectorOp(
-                    obj->node->ctx, 
-                    BitvectorOp::EXTRACT, 
-                    obj->node, beg, end));
+                new BitvectorOp(BitvectorOp::EXTRACT, obj->node, beg, end));
         }
     }
 
     NodeRef* NodeRef::_choice(const std::string& name, 
                               const nptr_vec_t& args)
     {
-        if (!checkAbstractions(args)) return NULL;
 
         NodeType t = Choice::getChoiceType(args);
         if (!t) {
@@ -1119,13 +1075,12 @@ namespace ila
                 "Type mismatch in choice arguments.");
             return NULL;
         } else {
-            auto ctx = args[0]->context();
             if (t.isBool()) {
-                return new NodeRef(new BoolChoice(ctx, name, args));
+                return new NodeRef(new BoolChoice(name, args));
             } else if (t.isBitvector()) {
-                return new NodeRef(new BitvectorChoice(ctx, name, args));
+                return new NodeRef(new BitvectorChoice(name, args));
             } else if (t.isMem()) {
-                return new NodeRef(new MemChoice(ctx, name, args));
+                return new NodeRef(new MemChoice(name, args));
             } else {
                 throw PyILAException(PyExc_ValueError,
                     "Unable to create choice of specified type.");
@@ -1142,44 +1097,4 @@ namespace ila
     }
 
     // ---------------------------------------------------------------------- //
-    bool checkAbstractions(const NodeRef* l1, const NodeRef* l2)
-    {
-        if (l1->node->context() != l2->node->context()) {
-            throw PyILAException(PyExc_RuntimeError,
-                "Operands must be from the same Abstraction.");
-            return false;
-        }
-        return true;
-    }
-
-    bool checkAbstractions(const NodeRef* l1, const NodeRef* l2, const NodeRef* l3)
-    {
-        if (l1->node->context() != l2->node->context() || 
-            l2->node->context() != l3->node->context()) 
-        {
-            throw PyILAException(PyExc_RuntimeError,
-                "Operands must be from the same Abstraction.");
-            return false;
-        }
-        return true;
-    }
-
-    bool checkAbstractions(const nptr_vec_t& args)
-    {
-        if (args.size() == 0) {
-            throw PyILAException(PyExc_RuntimeError,
-                                 "At least one operand is required.");
-            return false;
-        }
-        auto ctx = args[0]->context();
-        for (auto a : args) {
-            if (a->context() != ctx) {
-                throw PyILAException(PyExc_RuntimeError,
-                    "Operands must be from the same Abstraction.");
-                return false;
-            }
-        }
-        return true;
-    }
-
 }

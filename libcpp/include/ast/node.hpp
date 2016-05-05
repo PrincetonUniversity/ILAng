@@ -50,8 +50,6 @@ namespace ila
         void _initName();
     protected:
         // -------------------- DATA MEMBERS ----------------- //
-        // context pointer.
-        Abstraction* ctx;
     public:
         // name for this node.
         std::string name;
@@ -65,13 +63,11 @@ namespace ila
         // default constructor.
         Node();
         // constructor.
-        Node(Abstraction* c, NodeType t);
+        Node(NodeType t);
         // destructor.
         virtual ~Node();
 
         // ---------------------- METHODS ------------------- //
-        // fake method we use to test the Z3 integration.
-        Abstraction* context() const { return ctx; };
         // polymorphic clone method: do we need this?
         virtual Node* clone() const;
         // polymorphic equality method.

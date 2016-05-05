@@ -4,9 +4,9 @@
 
 namespace ila
 {
-    BVInRange::BVInRange(Abstraction* c, const std::string& n_, 
+    BVInRange::BVInRange(const std::string& n_, 
                          const nptr_t& l, const nptr_t& h)
-      : BitvectorExpr(c, l->type.bitWidth)
+      : BitvectorExpr(l->type.bitWidth)
       , lo(l)
       , hi(h)
     {
@@ -17,7 +17,7 @@ namespace ila
     }
 
     BVInRange::BVInRange(const BVInRange& that)
-      : BitvectorExpr(that.ctx, that.type)
+      : BitvectorExpr(that.type.bitWidth)
       , lo(that.lo)
       , hi(that.hi)
     {

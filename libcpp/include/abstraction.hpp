@@ -22,11 +22,11 @@ namespace ila
         enum state_t { INP, REG, BIT, MEM, FUN };
 
     private:
-        int objCnt;
+        static int objCnt;
         int MAX_SYN_ITER;
     protected:
         // Get a new ID.
-        int getObjId();
+        static int getObjId();
 
         // list of known names.
         std::map<std::string, state_t> names;
