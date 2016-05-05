@@ -27,6 +27,12 @@ namespace ila
         const MemConst* memconst = NULL;
         const MemOp* memop = NULL;
 
+        const BitvectorChoice* bvchoice = NULL;
+        const BoolChoice* boolchoice = NULL;
+        const MemChoice* memchoice = NULL;
+        const WriteSlice* writeslice = NULL;
+        const ReadSlice* readslice = NULL;
+
         const FuncVar* funcvar = NULL;
 
         //// bools ////
@@ -90,6 +96,17 @@ namespace ila
                 out << ((i == 0) ? " " : ", ") << funcvar->type.argsWidth[i];
             }
             out << " ) )";
+        //// Choice ////
+        } else if ((boolchoice = dynamic_cast<const BoolChoice*>(n))) {
+            ILA_ASSERT(false, "BoolChoice not implemented.");
+        } else if ((bvchoice = dynamic_cast<const BitvectorChoice*>(n))) {
+            ILA_ASSERT(false, "BitvectorChoice not implemented.");
+        } else if ((memchoice = dynamic_cast<const MemChoice*>(n))) {
+            ILA_ASSERT(false, "MemChoice not implemented.");
+        } else if ((writeslice = dynamic_cast<const WriteSlice*>(n))) {
+            ILA_ASSERT(false, "WriteSlice not implemented.");
+        } else if ((readslice = dynamic_cast<const ReadSlice*>(n))) {
+            ILA_ASSERT(false, "ReadSlice not implemented.");
         } else {
             out << "( )";
         }

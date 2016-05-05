@@ -72,7 +72,7 @@ def createSHAILA(synstates, enable_ps):
     # bytes_read
     bytes_read_inc = ila.ite(bytes_read+64 <= oplen, bytes_read+64, oplen)
     bytes_read_rst = ila.ite(cmddata == 1, m.const(0, 16), bytes_read)
-    bytes_read_nxt = ila.choice('byte_cnt_nxt', [
+    bytes_read_nxt = ila.choice('bytes_read_nxt', [
             m.const(0, 16), bytes_read_inc, bytes_read_rst, bytes_read])
     m.set_next('sha_bytes_read', bytes_read_nxt)
     # rd_data
