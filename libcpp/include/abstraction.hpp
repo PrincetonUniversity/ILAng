@@ -96,7 +96,12 @@ namespace ila
         // add a var if it does not exist.
         void addVar(nptr_t& nref);
 
-        // Set the next template for this memory var.
+        // Set the init value for this var.
+        void setInit(const std::string& name, NodeRef* n);
+        // Get the initial value for this var.
+        NodeRef* getInit(const std::string& name) const;
+
+        // Set the next template for this var.
         void setNext(const std::string& name, NodeRef* n);
         // Get the next template.
         NodeRef* getNext(const std::string& name) const;
@@ -187,8 +192,12 @@ namespace ila
 
         bool checkAndInsertName(state_t st, const std::string& name);
 
+        // does the next expr exist?
         bool doesNextExist(const nmap_t& m) const;
-
+        // which is the map containing this node?
+        nmap_t* getMap(const std::string& name, NodeRef* n);
+        // what is the map containing this name?
+        nmap_t::const_iterator findInMap(const std::string& name) const;
     };
 }
 #endif

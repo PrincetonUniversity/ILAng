@@ -150,7 +150,7 @@ namespace ila
     }
 
     // ---------------------------------------------------------------------- //
-    void Abstraction::setNext(const std::string& name, NodeRef* n)
+    nmap_t* Abstraction::getMap(const std::string& name, NodeRef* n)
     {
         // try to find the map we are adding to.
         nmap_t* m = NULL;
@@ -160,7 +160,7 @@ namespace ila
         else {
             throw PyILAException(PyExc_TypeError, 
                 "Unexpected type.");
-            return;
+            return NULL;
         }
 
         // now try to find the variable.
@@ -168,8 +168,55 @@ namespace ila
         if (pos == m->end()) {
             throw PyILAException(PyExc_RuntimeError, 
                 "Unable to find var: " + name);
-            return;
+            return NULL;
         }
+        return m;
+    }
+
+    nmap_t::const_iterator Abstraction::findInMap(const std::string& name) const
+    {
+        // try to find in each of the maps.
+        auto pos = bits.find(name);
+        if (pos == bits.end()) pos = regs.find(name);
+        if (pos == regs.end()) pos = mems.find(name);
+        if (pos == mems.end()) {
+            throw PyILAException(PyExc_RuntimeError, "Unable to find var: " + name);
+        }
+        return pos;
+    }
+
+    // ---------------------------------------------------------------------- //
+    void Abstraction::setInit(const std::string& name, NodeRef* n)
+    {
+        // try to find the map we are adding to.
+        nmap_t* m = getMap(name, n);
+        if (m == NULL) return;
+        auto pos = m->find(name);
+        ILA_ASSERT(pos != m->end(), "Invalid iterator.");
+
+        // check types.
+        if (n->node->type != pos->second.var->type) {
+            throw PyILAException(PyExc_TypeError, 
+                "Next expression not same type as variable");
+        }
+
+        pos->second.init = n->node;
+    }
+
+    NodeRef* Abstraction::getInit(const std::string& name) const
+    {
+        auto pos = findInMap(name);
+        return new NodeRef(pos->second.init);
+    }
+
+    // ---------------------------------------------------------------------- //
+    void Abstraction::setNext(const std::string& name, NodeRef* n)
+    {
+        // try to find the map we are adding to.
+        nmap_t* m = getMap(name, n);
+        if (m == NULL) return;
+        auto pos = m->find(name);
+        ILA_ASSERT(pos != m->end(), "Invalid iterator.");
 
         // check types.
         if (n->node->type != pos->second.var->type) {
@@ -183,14 +230,7 @@ namespace ila
 
     NodeRef* Abstraction::getNext(const std::string& name) const
     {
-        // try to find in each of the maps.
-        auto pos = bits.find(name);
-        if (pos == bits.end()) pos = regs.find(name);
-        if (pos == regs.end()) pos = mems.find(name);
-        if (pos == mems.end()) {
-            throw PyILAException(PyExc_RuntimeError, "Unable to find var: " + name);
-            return NULL;
-        }
+        auto pos = findInMap(name);
         return new NodeRef(pos->second.next);
     }
 

@@ -599,6 +599,7 @@ namespace ila
     nptr_t Synthesizer::_synthesizeOp(
         const std::string& name,
         const nptr_t& var, 
+        nptr_vec_t& next_vec,
         const nptr_t& next,
         PyObject* pyfun)
     {
@@ -614,6 +615,9 @@ namespace ila
             nptr_t ex_n = (abs.paramSyn && decodeSupport.canFixUp)
                 ? _synthesizeEx(name, de, next, y, pyfun)
                 : _synthesize(name, de, next, y, pyfun);
+
+            // add to the vector.
+            next_vec.push_back(ex_n);
 
             // create the final expression.
             nptr_t ex_p = Node::ite(de, ex_n, ex);
@@ -637,21 +641,23 @@ namespace ila
         for (auto&& m : maps) {
             for (auto&& r : *m) {
                 S.push(); 
+                r.second.next_vec.clear();
                 r.second.next = _synthesizeOp(
-                    r.first, r.second.var, r.second.next, pyfun);
+                    r.first, r.second.var, r.second.next_vec, r.second.next, pyfun);
                 S.pop(); 
             }
         }
         S.pop(); Sp.pop();
     }
 
-    void Synthesizer::synthesizeReg(nmap_t::iterator pos, PyObject* pyfun)
+    void Synthesizer::synthesizeReg(nmap_t::iterator p, PyObject* pyfun)
     {
         _initSynthesis();
         S.push(); Sp.push();
         _initSolverAssumptions(abs.assumps, c1, c2);
-        pos->second.next = _synthesizeOp(
-                pos->first, pos->second.var, pos->second.next, pyfun);
+        p->second.next_vec.clear();
+        p->second.next = _synthesizeOp(
+                p->first, p->second.var, p->second.next_vec, p->second.next, pyfun);
         S.pop(); Sp.pop();
     }
 

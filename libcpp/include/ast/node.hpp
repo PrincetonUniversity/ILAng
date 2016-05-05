@@ -26,11 +26,14 @@ namespace ila
 
     struct npair_t {
         nptr_t var;
+        nptr_t init;
+        nptr_vec_t next_vec;
         nptr_t next;
 
         // construct arch state.
         npair_t(const nptr_t& v, const nptr_t& n) 
           : var(v) 
+          , init(v)
           , next(n) 
         {
         }

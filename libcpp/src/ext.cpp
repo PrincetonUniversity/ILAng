@@ -353,6 +353,10 @@ BOOST_PYTHON_MODULE(ila)
         // functions.
         .def("fun", &Abstraction::addFun, return_value_policy<manage_new_object>())
         .def("getfun", &Abstraction::getFun, return_value_policy<manage_new_object>())
+        // init function
+        .def("set_init", &Abstraction::setInit)
+        // get init.
+        .def("get_init", &Abstraction::getInit, return_value_policy<manage_new_object>())
         // next function
         .def("set_next", &Abstraction::setNext)
         // get next.
