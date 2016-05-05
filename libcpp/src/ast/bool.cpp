@@ -18,6 +18,9 @@ namespace ila
         "if"
     };
 
+    nptr_t BoolConst::true_node(new BoolConst(true));
+    nptr_t BoolConst::false_node(new BoolConst(false));
+
     // ---------------------------------------------------------------------- //
     BoolExpr::BoolExpr()
       : Node(NodeType::getBool())

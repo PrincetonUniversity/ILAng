@@ -21,11 +21,22 @@ namespace ila
 
     Abstraction::Abstraction()
       : MAX_SYN_ITER(200)
+      , parent(NULL)
       , fetchExpr(NULL)
-      , fetchValid(new BoolConst(true))
+      , fetchValid(BoolConst::get(true))
       , paramSyn(1)
     {
     }
+
+    Abstraction::Abstraction(Abstraction* p)
+      : MAX_SYN_ITER(200)
+      , parent(p)
+      , fetchExpr(NULL)
+      , fetchValid(BoolConst::get(true))
+      , paramSyn(1)
+    {
+    }
+        
 
     Abstraction::~Abstraction()
     {
@@ -248,18 +259,18 @@ namespace ila
 
     NodeRef* Abstraction::boolConstB(bool b)
     {
-        return new NodeRef(new BoolConst(b));
+        return new NodeRef(BoolConst::get(b));
     }
 
     NodeRef* Abstraction::boolConstI(int b)
     {
-        return new NodeRef(new BoolConst(b));
+        return new NodeRef(BoolConst::get(b != 0));
     }
 
     NodeRef* Abstraction::boolConstL(py::long_ l_)
     {
         auto l = to_cpp_int(l_);
-        return new NodeRef(new BoolConst(l));
+        return new NodeRef(BoolConst::get(l != 0));
     }
 
     NodeRef* Abstraction::memConst(const MemValues& mv)

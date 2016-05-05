@@ -45,16 +45,25 @@ namespace ila
     // Boolean constants.
     class BoolConst : public BoolExpr {
     protected:
+        static nptr_t true_node;
+        static nptr_t false_node;
+
         bool value;
-    public:
+    private:
         BoolConst(bool value);
         BoolConst(int value);
         BoolConst(const mp_int_t& l);
+    public:
         virtual ~BoolConst();
         virtual Node* clone() const;
         virtual bool equal(const Node* that) const;
         virtual boost::python::object getValue() const;
         virtual std::ostream& write(std::ostream& out) const;
+
+        static nptr_t get(bool v) {
+            if (v) return true_node;
+            else return false_node;
+        }
 
         // helper functions.
         bool val() const { return value; }

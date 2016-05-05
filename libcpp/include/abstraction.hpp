@@ -28,6 +28,9 @@ namespace ila
         // Get a new ID.
         static int getObjId();
 
+        // parent abstraction.
+        Abstraction* parent;
+
         // list of known names.
         std::map<std::string, state_t> names;
 
@@ -66,6 +69,10 @@ namespace ila
 
         // Constructor.
         Abstraction();
+
+        // Constructor for a micro-abstraction
+        Abstraction(Abstraction* parent);
+
         // Destructor.
         ~Abstraction();
 

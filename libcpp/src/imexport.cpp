@@ -118,7 +118,7 @@ namespace ila
             ILA_ASSERT(nextChar(in) == ')', "Miss )");
             nptr_t nptr = mapFind(name);
             if (nptr == NULL) {
-                nptr = nptr_t(new BoolConst(value == "true"));
+                nptr = nptr_t(BoolConst::get(value == "true"));
                 mapInsert(name, nptr);
             }
             return nptr;
