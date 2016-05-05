@@ -35,6 +35,8 @@ class SHA(mmiodev):
         self.rd_data  = [0] * 64
         self.hs_data  = [0] * 20
 
+        self.sha = SHAFunc.new()
+
         # Create easy access properties.
     sha_state  = property(lambda s: s.getRegI('sha_state'), lambda s, v: s.setRegI('sha_state', v))
     sha_rdaddr = property(lambda s: s.getRegI('sha_rdaddr'), lambda s, v: s.setRegI('sha_rdaddr', v))
@@ -84,19 +86,22 @@ class SHA(mmiodev):
                 byte = self.xram[addr]
                 self.rd_data |= byte << (i*8)
                 self.bytes_read += 1
-            assert self.bytes_read <= self.sha_len
-            self.sha_state = self.OP1
+            self.sha_state = self.SHA_OP1
         elif not started and self.sha_state == self.SHA_OP1:
-            self.sha_state = self.OP2
+            self.sha_state = self.SHA_OP2
         elif not started and self.sha_state == self.SHA_OP2:
             if self.bytes_read < self.sha_len: # Need more blk
                 self.sha_state = self.SHA_RD
             else:
                 self.sha_state = self.SHA_WR
             bytes_in = bytes(''.join(as_chars(self.rd_data, 64)))
-            SHAFunc.update(bytes_in)
+            # TODO
+            self.sha.update(bytes_in)
+            #SHAFunc.update(bytes_in)
         elif not started and self.sha_state == self.SHA_WR:
-            res = SHAFunc.digest()
+            # TODO
+            #res = SHAFunc.digest()
+            res = self.sha.digest()
             self.hs_data = to_num(res, 20)
             for i in xrange(20):
                 addr = (self.sha_wraddr + i) & 0xffff
