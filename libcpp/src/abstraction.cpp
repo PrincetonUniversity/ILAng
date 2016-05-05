@@ -33,7 +33,7 @@ namespace ila
     // ---------------------------------------------------------------------- //
     NodeRef* Abstraction::addInp(const std::string& name, int width)
     {
-        if(!checkAndInsertName(name)) return NULL;
+        if(!checkAndInsertName(INP, name)) return NULL;
         NodeRef* n = new NodeRef(new ila::BitvectorVar(this, name, width));
         inps.insert({name, npair_t(n->node, NULL)});
         return n;
@@ -51,13 +51,13 @@ namespace ila
         }
     }
 
-    void Abstraction::addVar(nmap_t& m, nptr_t& n)
+    void Abstraction::addVar(state_t st, nmap_t& m, nptr_t& n)
     {
         auto pos = m.find(n->name);
         if (pos == m.end() && names.find(n->name) == names.end()) {
             npair_t np(n, NULL);
             m.insert({n->name, np});
-            names.insert(n->name);
+            names.insert({n->name, st});
         } else {
             if (pos == m.end() || pos->second.var->type != n->type) {
                 throw PyILAException(PyExc_TypeError,
@@ -75,7 +75,7 @@ namespace ila
 
     NodeRef* Abstraction::addBitU(UInstWrapper* uinst, const std::string& name)
     {
-        if(!checkAndInsertName(name)) return NULL;
+        if(!checkAndInsertName(BIT, name)) return NULL;
         NodeRef* n = new NodeRef(new ila::BoolVar(this, name));
         bits.insert({name, npair_t((uinst ? uinst->uinst : NULL), n->node, NULL)});
         return n;
@@ -88,7 +88,7 @@ namespace ila
 
     NodeRef* Abstraction::addRegU(UInstWrapper* uinst, const std::string& name, int width)
     {
-        if(!checkAndInsertName(name)) return NULL;
+        if(!checkAndInsertName(REG, name)) return NULL;
         NodeRef* n = new NodeRef(new ila::BitvectorVar(this, name, width));
         regs.insert({name, npair_t((uinst ? uinst->uinst : NULL), n->node, NULL)});
         return n;
@@ -101,7 +101,7 @@ namespace ila
 
     NodeRef* Abstraction::addMemU(UInstWrapper* uinst, const std::string& name, int aw, int dw)
     {
-        if(!checkAndInsertName(name)) return NULL;
+        if(!checkAndInsertName(MEM, name)) return NULL;
         NodeRef* n = new NodeRef(new ila::MemVar(this, name, aw, dw));
         mems.insert({name, npair_t((uinst ? uinst->uinst : NULL), n->node, NULL)});
         return n;
@@ -115,7 +115,7 @@ namespace ila
     NodeRef* Abstraction::addFunU(UInstWrapper* uinst, const std::string& name, 
                                  int retW, const py::list& l)
     {
-        if (!checkAndInsertName(name)) return NULL;
+        if (!checkAndInsertName(FUN, name)) return NULL;
         std::vector<int> argW;
         unsigned sz = py::len(l);
         for (unsigned i=0; i != sz; i++) {
@@ -159,13 +159,13 @@ namespace ila
         const FuncVar* funcvar = NULL;
 
         if ((boolvar = dynamic_cast<const BoolVar*>(n.get()))) {
-            addVar(bits, n);
+            addVar(BIT, bits, n);
         } else if ((bvvar = dynamic_cast<const BitvectorVar*>(n.get()))) {
-            addVar(regs, n);
+            addVar(REG, regs, n);
         } else if ((memvar = dynamic_cast<const MemVar*>(n.get()))) {
-            addVar(mems, n);
+            addVar(MEM, mems, n);
         } else if ((funcvar = dynamic_cast<const FuncVar*>(n.get()))) {
-            addVar(funs, n);
+            addVar(FUN, funs, n);
         }
     }
 
@@ -587,9 +587,8 @@ namespace ila
 
         // names.
         out << ".names: ";
-        for (std::set<std::string>::const_iterator it = names.begin();
-             it != names.end(); it++) {
-            out << " " << *it;
+        for (auto && it : names) {
+            out << " " << it.first << " " << (int) it.second;
         }
         out << " .names_end\n";
 
@@ -732,7 +731,9 @@ namespace ila
         ILA_ASSERT(buf == ".names:", "Expect .names section");
         in >> buf;
         while (buf != ".names_end") {
-            checkAndInsertName(buf);
+            int i;
+            in >> i;
+            checkAndInsertName((state_t) i, buf);
             in >> buf;
         }
 
@@ -1027,14 +1028,14 @@ namespace ila
         return nr;
     }
     // ---------------------------------------------------------------------- //
-    bool Abstraction::checkAndInsertName(const std::string& name)
+    bool Abstraction::checkAndInsertName(state_t st, const std::string& name)
     {
         if (names.find(name) != names.end()) {
             throw PyILAException(PyExc_RuntimeError,
                 "Variable with this name already exists.");
             return false;
         }
-        names.insert(name);
+        names.insert({name, st});
         return true;
     }
 
