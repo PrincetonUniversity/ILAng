@@ -32,6 +32,9 @@ namespace ila
         // parent abstraction.
         Abstraction* parent;
 
+        // name of this abstraction.
+        const std::string name;
+
         // list of known names.
         std::map<std::string, state_t> names;
 
@@ -69,10 +72,10 @@ namespace ila
         int paramSyn;
 
         // Constructor.
-        Abstraction();
+        Abstraction(const std::string& name);
 
         // Constructor for a micro-abstraction
-        Abstraction(Abstraction* parent);
+        Abstraction(Abstraction* parent, const std::string& name);
 
         // Destructor.
         ~Abstraction();
@@ -173,8 +176,7 @@ namespace ila
         void importAllFromFile(const std::string& fileName);
 
         // the simulator generating function.
-        void generateSim(const std::string& fileName,
-                         const std::string& modelName) const;
+        void generateSim(const std::string& fileName) const;
 
         // check equality function.
         bool areEqual(NodeRef* left, NodeRef* right) const;
@@ -218,7 +220,11 @@ namespace ila
         abstraction_ptr_t abs;
 
         // constructor.
-        AbstractionWrapper() : abs(new Abstraction()) { }
+        AbstractionWrapper(const std::string& name) 
+          : abs(new Abstraction(name)) 
+        {
+        }
+
         // destructor.
         ~AbstractionWrapper() {}; 
 
@@ -398,10 +404,9 @@ namespace ila
         }
 
         // the simulator generating function.
-        void generateSim(const std::string& fileName,
-                         const std::string& modelName) const
+        void generateSim(const std::string& fileName) const
         {
-            abs->generateSim(fileName, modelName);
+            abs->generateSim(fileName);
         }
 
         // check equality function.

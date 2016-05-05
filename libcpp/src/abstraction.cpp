@@ -19,18 +19,20 @@ namespace ila
         return objCnt++;
     }
 
-    Abstraction::Abstraction()
+    Abstraction::Abstraction(const std::string& n)
       : MAX_SYN_ITER(200)
       , parent(NULL)
+      , name(n)
       , fetchExpr(NULL)
       , fetchValid(BoolConst::get(true))
       , paramSyn(1)
     {
     }
 
-    Abstraction::Abstraction(Abstraction* p)
+    Abstraction::Abstraction(Abstraction* p, const std::string& n)
       : MAX_SYN_ITER(200)
       , parent(p)
+      , name(n)
       , fetchExpr(NULL)
       , fetchValid(BoolConst::get(true))
       , paramSyn(1)
@@ -810,10 +812,9 @@ namespace ila
 
     }
 
-    void Abstraction::generateSim(const std::string& fileName,
-                                  const std::string& modelName) const
+    void Abstraction::generateSim(const std::string& fileName) const
     {
-        CppSimGen* gen = new CppSimGen(modelName);
+        CppSimGen* gen = new CppSimGen(name);
         // Set inputs.
         for (auto it = inps.begin(); it != inps.end(); it++) {
             gen->addInput(it->first, it->second.var);

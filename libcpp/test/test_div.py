@@ -2,7 +2,7 @@ import ila
 import random
 
 def main():
-    c = ila.Abstraction()
+    c = ila.Abstraction("test")
     a = c.reg('a', 8)
     b = c.reg('b', 8)
 

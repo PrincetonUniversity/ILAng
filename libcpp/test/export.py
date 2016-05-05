@@ -55,7 +55,7 @@ def shint(d):
 def main():
     expFile  = "tmp/test_ila_export.txt"
 
-    sys = ila.Abstraction()
+    sys = ila.Abstraction("test")
 
     r0 = sys.reg('r0', 8)
     r1 = sys.reg('r1', 8)

@@ -2,7 +2,7 @@ import ila
 import os
 
 def main():
-    c = ila.Abstraction()
+    c = ila.Abstraction("test")
 
     top = c.bool(True)
     bot = c.bool(False)
@@ -37,7 +37,7 @@ def main():
     c.importAll(exportFile)
 
     simFile = 'tmp/test_ila_sim.hpp'
-    c.generateSim(simFile, "foo_")
+    c.generateSim(simFile)
 
 if __name__ == '__main__':
     main()

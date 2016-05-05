@@ -337,7 +337,7 @@ BOOST_PYTHON_MODULE(ila)
     def("setloglevel", &ila::setLogLevel);
 
     // This is the top-level class.
-    class_<AbstractionWrapper>("Abstraction", init<>())
+    class_<AbstractionWrapper>("Abstraction", init<const std::string&>())
         // inputs
         .def("inp", &AbstractionWrapper::addInp, return_value_policy<manage_new_object>())
 

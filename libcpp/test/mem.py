@@ -7,7 +7,7 @@ def foo(d):
     return { "foo": r}
 
 def main():
-    sys = ila.Abstraction()
+    sys = ila.Abstraction("test")
     iram = sys.mem('iram', 8, 8)
     addr = sys.reg('addr', 8)
     print iram, iram.type

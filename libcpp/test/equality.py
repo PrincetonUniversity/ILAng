@@ -20,7 +20,7 @@ def assert_notequal(*arr):
                     for y in ys:
                         assert not x.equal(y)
 def main():
-    c = ila.Abstraction()
+    c = ila.Abstraction("test")
 
     # create a bunch of boolean variables.
     boolvars = []
