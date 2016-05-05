@@ -18,6 +18,10 @@ namespace ila
 {
     class Abstraction
     {
+    public:
+        // type of the state element/input.
+        enum state_t { INP, REG, BIT, MEM, FUN };
+
     private:
         int objCnt;
         int MAX_SYN_ITER;
@@ -26,7 +30,7 @@ namespace ila
         int getObjId();
 
         // list of known names.
-        std::set<std::string> names;
+        std::map<std::string, state_t> names;
 
         // list of inputs
         nmap_t inps;
@@ -59,7 +63,7 @@ namespace ila
         );
 
         NodeRef* getVar(const nmap_t& m, const std::string& name);
-        void addVar(nmap_t& m, nptr_t& n);
+        void addVar(state_t st, nmap_t& m, nptr_t& n);
 
     public:
         int paramSyn;
@@ -195,7 +199,7 @@ namespace ila
             const nptr_vec_t& assumps, const nptr_t& expr,
             PyObject* pyfun);
 
-        bool checkAndInsertName(const std::string& name);
+        bool checkAndInsertName(state_t st, const std::string& name);
 
         bool doesNextExist(const nmap_t& m) const;
 
