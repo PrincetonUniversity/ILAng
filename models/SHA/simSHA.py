@@ -95,12 +95,8 @@ class SHA(mmiodev):
             else:
                 self.sha_state = self.SHA_WR
             bytes_in = bytes(''.join(as_chars(self.rd_data, 64)))
-            # TODO
             self.sha.update(bytes_in)
-            #SHAFunc.update(bytes_in)
         elif not started and self.sha_state == self.SHA_WR:
-            # TODO
-            #res = SHAFunc.digest()
             res = self.sha.digest()
             self.hs_data = to_num(res, 20)
             for i in xrange(20):

@@ -102,6 +102,7 @@ def createSHAILA(synstates, enable_ps):
 
         ast = m.get_next(s)
         m.exportOne(ast, 'asts/%s_%s' % (s, 'en' if enable_ps else 'dis'))
+    m.generateSim('asts/shasim.hpp', 'SHA')
 
 if __name__ == '__main__':
     ila.setloglevel(1, "")

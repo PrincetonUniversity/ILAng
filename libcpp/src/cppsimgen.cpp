@@ -118,6 +118,7 @@ namespace ila
         ILA_ASSERT(_width >= msb && lsb >= 0, "Bad slice index.");
         std::string lstr = boost::lexical_cast<std::string>(lsb);
         int len = msb - lsb + 1;
+        ILA_ASSERT(len > 0, "Bad slice index.");
         std::string str = 
             "((" + use() + " & " + getSignBit(msb) + ") ? " +  
             "(((" + ubvStr + ")" + use() + ") >> " + lstr + ") | " + 
@@ -336,8 +337,10 @@ namespace ila
             res = getMemConstCpp(memconst);
         } else if ((memop = dynamic_cast<const MemOp*>(n))) {
             res = getMemOpCpp(memop);
+        //// Func ////
         } else if ((funcvar = dynamic_cast<const FuncVar*>(n))) {
             res = getFuncVarCpp(funcvar);
+        //// Choice ////
         } else {
             ILA_ASSERT(false, "Unknown node type.");
         }
@@ -602,12 +605,12 @@ namespace ila
             } else if (n->op == BitvectorOp::Op::S_EXT) {
                 code = var->def() + " = " + arg0->signedUse() + ";";
             } else if (n->op == BitvectorOp::Op::EXTRACT) {
-                int par0 = n->param(0);
-                int par1 = n->param(1);
-                std::string r = boost::lexical_cast<std::string>(par0);
+                int msb = n->param(0);
+                int lsb = n->param(1);
+                std::string r = boost::lexical_cast<std::string>(lsb);
                 // (x >> r) & 0xfff..(-r)
                 code = var->def() + " = (" + arg0->use() + " >> " + r +
-                       ") & " + getMask(par1-par0) + ";";
+                       ") & " + getMask(msb-lsb) + ";";
             }
         //// Binary ////
         } else if (n->op >= BitvectorOp::Op::ADD &&
@@ -1078,7 +1081,7 @@ namespace ila
         std::string str = boost::lexical_cast<std::string>(mask);
         auto it = maskPtr->find(str);
         if (it == maskPtr->end()) {
-            std::string name = "un_" + boost::lexical_cast<std::string>(width);
+            std::string name = "un_"+boost::lexical_cast<std::string>(width);
             CppVar* var = new CppVar(name, str);
             (*maskPtr)[str] = var;
             return var->use();
@@ -1097,7 +1100,7 @@ namespace ila
         std::string str = boost::lexical_cast<std::string>(bit);
         auto it = maskPtr->find(str);
         if (it == maskPtr->end()) {
-            std::string name = "sbit_" + boost::lexical_cast<std::string>(width);
+            std::string name = "sbit_"+boost::lexical_cast<std::string>(width);
             CppVar* var = new CppVar(name, str);
             (*maskPtr)[str] = var;
             return var->use();
@@ -1116,7 +1119,7 @@ namespace ila
         std::string str = "(" + CppVar::maxBvVal + " << " + w + ")";
         auto it = maskPtr->find(str);
         if (it == maskPtr->end()) {
-            std::string name = "sign_" + boost::lexical_cast<std::string>(width);
+            std::string name = "sign_"+boost::lexical_cast<std::string>(width);
             CppVar* var = new CppVar(name, str);
             (*maskPtr)[str] = var;
             return var->use();
