@@ -10,7 +10,6 @@
 #include <common.hpp>
 #include <ast.hpp>
 #include <smt.hpp>
-#include <uinst.hpp>
 #include <imexport.hpp>
 #include <cppsimgen.hpp>
 
@@ -53,9 +52,6 @@ namespace ila
         // assumptions.
         nptr_vec_t assumps;
 
-        // list of microinstructions.
-        std::map<std::string, microinst_ptr_t> uinsts;
-
         void extractModelValues(
             Z3ExprAdapter& c,
             z3::model& m, 
@@ -78,20 +74,15 @@ namespace ila
 
         // Create a boolean variable.
         NodeRef* addBit(const std::string& name);
-        NodeRef* addBitU(UInstWrapper* uinst, const std::string& name);
 
         // Create a bitvector variable.
         NodeRef* addReg(const std::string& name, int width);
-        NodeRef* addRegU(UInstWrapper* uinst, const std::string& name, int w);
 
         // Create a memory.
         NodeRef* addMem(const std::string& name, int addrW, int dataW);
-        NodeRef* addMemU(UInstWrapper* uinst, const std::string& name, int aw, int dw);
 
         // Create a function.
         NodeRef* addFun(const std::string& name, int retW, const py::list& l);
-        NodeRef* addFunU(UInstWrapper* uinst, const std::string& name, int rw, 
-                        const py::list& l);
 
         // Get an existing boolean.
         NodeRef* getBit(const std::string& name);
@@ -137,11 +128,6 @@ namespace ila
         void setDecodeExpressions(const py::list& l);
         // get decode expressions.
         py::list getDecodeExpressions() const;
-
-        // add a microinstruction.
-        UInstWrapper* addUinst(const std::string& name,
-                               NodeRef* valid, NodeRef* fetch,
-                               const py::list& decodes);
 
         // add an assumption.
         void addAssumption(NodeRef* expr);

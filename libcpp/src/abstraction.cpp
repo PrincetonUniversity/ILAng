@@ -70,50 +70,29 @@ namespace ila
     // ---------------------------------------------------------------------- //
     NodeRef* Abstraction::addBit(const std::string& name)
     {
-        return addBitU(NULL, name);
-    }
-
-    NodeRef* Abstraction::addBitU(UInstWrapper* uinst, const std::string& name)
-    {
         if(!checkAndInsertName(BIT, name)) return NULL;
         NodeRef* n = new NodeRef(new ila::BoolVar(this, name));
-        bits.insert({name, npair_t((uinst ? uinst->uinst : NULL), n->node, NULL)});
+        bits.insert({name, npair_t(n->node, NULL)});
         return n;
     }
 
     NodeRef* Abstraction::addReg(const std::string& name, int w)
     {
-        return addRegU(NULL, name, w);
-    }
-
-    NodeRef* Abstraction::addRegU(UInstWrapper* uinst, const std::string& name, int width)
-    {
         if(!checkAndInsertName(REG, name)) return NULL;
-        NodeRef* n = new NodeRef(new ila::BitvectorVar(this, name, width));
-        regs.insert({name, npair_t((uinst ? uinst->uinst : NULL), n->node, NULL)});
+        NodeRef* n = new NodeRef(new ila::BitvectorVar(this, name, w));
+        regs.insert({name, npair_t(n->node, NULL)});
         return n;
     }
 
     NodeRef* Abstraction::addMem(const std::string& name, int aw, int dw)
     {
-        return addMemU(NULL, name, aw, dw);
-    }
-
-    NodeRef* Abstraction::addMemU(UInstWrapper* uinst, const std::string& name, int aw, int dw)
-    {
         if(!checkAndInsertName(MEM, name)) return NULL;
         NodeRef* n = new NodeRef(new ila::MemVar(this, name, aw, dw));
-        mems.insert({name, npair_t((uinst ? uinst->uinst : NULL), n->node, NULL)});
+        mems.insert({name, npair_t(n->node, NULL)});
         return n;
     }
 
     NodeRef* Abstraction::addFun(const std::string& name, int rw, const py::list& l)
-    {
-        return addFunU(NULL, name, rw, l);
-    }
-
-    NodeRef* Abstraction::addFunU(UInstWrapper* uinst, const std::string& name, 
-                                 int retW, const py::list& l)
     {
         if (!checkAndInsertName(FUN, name)) return NULL;
         std::vector<int> argW;
@@ -125,8 +104,8 @@ namespace ila
             }
         }
 
-        NodeRef* n = new NodeRef(new ila::FuncVar(this, name, retW, argW));
-        funs.insert({name, npair_t((uinst ? uinst->uinst : NULL), n->node, NULL)});
+        NodeRef* n = new NodeRef(new ila::FuncVar(this, name, rw, argW));
+        funs.insert({name, npair_t(n->node, NULL)});
         return n;
     }
 
@@ -320,50 +299,6 @@ namespace ila
             l.append(nr);
         }
         return l;
-    }
-
-    // ---------------------------------------------------------------------- //
-    UInstWrapper* Abstraction::addUinst(const std::string& name,
-                                        NodeRef* validN, NodeRef* fetchN,
-                                        const py::list& decodes)
-    {
-        if (uinsts.find(name) != uinsts.end()) {
-            throw PyILAException(PyExc_KeyError, 
-                                 "Microinst with that name already exists.");
-            return NULL;
-        }
-        // extract valid.
-        const nptr_t& valid(validN->node);
-        if (!valid->type.isBool()) {
-            throw PyILAException(PyExc_TypeError, "Valid must be boolean.");
-            return NULL;
-        }
-        // extract fetch.
-        const nptr_t& fetch(fetchN->node);
-        if (!fetch->type.isBitvector()) {
-            throw PyILAException(PyExc_TypeError, "Opcode must be a bitvector.");
-            return NULL;
-        }
-
-        // check type and insert into decvec.
-        nptr_vec_t decvec;
-        unsigned sz = py::len(decodes);
-        for (unsigned i=0; i != sz; i++) {
-            py::extract<NodeRef&> ni_(decodes[i]);
-            if (ni_.check()) {
-                NodeRef& ni(ni_());
-                if (!ni.node->type.isBool()) {
-                    throw PyILAException(PyExc_TypeError,
-                        "Decode expressions must all be boolean.");
-                    return NULL;
-                }
-                decvec.push_back(ni.node);
-            }
-        }
-
-        microinst_ptr_t uinst(new MicroInst(*this, name, valid, fetch, decvec));
-        uinsts[name] = uinst;
-        return new UInstWrapper(uinst);
     }
 
     // ---------------------------------------------------------------------- //
