@@ -76,10 +76,7 @@ def createSHAILA(synstates, enable_ps):
             m.const(0, 16), bytes_read_inc, bytes_read_rst, bytes_read])
     m.set_next('sha_bytes_read', bytes_read_nxt)
     # rd_data
-    rdblockInit = ila.loadblk(xram, rdaddr + bytes_read, 64)
-    # TODO last block may not be 64, loadblk need to be fix that get NodeRef num
-    rdblockLast = ila.loadblk(xram, rdaddr + bytes_read, 64)
-    rdblock = ila.ite(bytes_read+64 <= oplen, rdblockInit, rdblockLast)
+    rdblock = ila.loadblk(xram, rdaddr + bytes_read, 64)
     rdblock = ila.zero_extend(rdblock, 512)
     rd_data_nxt = ila.choice('rd_data_nxt', rdblock, rd_data)
     m.set_next('sha_rd_data', rd_data_nxt)
@@ -102,7 +99,7 @@ def createSHAILA(synstates, enable_ps):
 
         ast = m.get_next(s)
         m.exportOne(ast, 'asts/%s_%s' % (s, 'en' if enable_ps else 'dis'))
-    m.generateSim('asts/shasim.hpp', 'SHA')
+    m.generateSim('asts/shasim.hpp')
 
 if __name__ == '__main__':
     ila.setloglevel(1, "")
