@@ -24,6 +24,17 @@ namespace ila
         // type of the state element/input.
         enum state_t { INP, REG, BIT, MEM, FUN };
 
+        struct uabstraction_t {
+            // when is the abstraction valid.
+            nptr_t valid;
+            // the abstraction.
+            abstraction_ptr_t abs; 
+        };
+
+        // list of microabstractions.
+        typedef std::vector<uabstraction_t> uabstraction_vec_t;
+            
+
     private:
         static int objCnt;
         int MAX_SYN_ITER;
@@ -58,6 +69,10 @@ namespace ila
 
         // assumptions.
         nptr_vec_t assumps;
+
+        // list of sub-abstractions.
+        uabstraction_vec_t uabs;
+
 
         void extractModelValues(
             Z3ExprAdapter& c,
