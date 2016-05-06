@@ -13,7 +13,6 @@ namespace ila
 
     std::string CppVar::boolStr  = "bool";
     std::string CppVar::bvStr    = "BIT_VEC";
-//   std::string CppVar::bvStr    = "boost::multiprecision::cpp_int";
     std::string CppVar::memStr   = "type_mem";
     std::string CppVar::voidStr  = "void";
 
@@ -83,23 +82,7 @@ namespace ila
             return ("(" + _name + " & " + getMask(_width) + ")");
         }
     }
-/*
-    std::string CppVar::signedUse() const
-    {
-        ILA_ASSERT(_type == bvStr, "Wrong type");
-        if (_isConst) {
-            return _val;
-        } else {
-            // (bit_test(x, width) ? (x | signExt) : (x & mask))
-            static boost::format signUseFmt(
-                "(bit_test(%1%, %2%) ? (%3% | %4%) : (%5% & %6%))");
-            signUseFmt % _name % (_width-1) 
-                       % _name % getSignExtMask(_width)
-                       % _name % getMask(_width);
-            return signUseFmt.str();
-        }
-    }
-*/
+
     std::string CppVar::unsignedUse() const
     {
         if (_isConst) {
@@ -548,8 +531,8 @@ namespace ila
             CppVar* arg0 = findVar(*_curVarMap, n->arg(0)->name);
             CppVar* arg1 = findVar(*_curVarMap, n->arg(1)->name);
             CppVar* arg2 = findVar(*_curVarMap, n->arg(2)->name);
-            code = var->def() + " = (" + arg0->use() + ") ? (" + 
-                   arg1->use() + ") : (" + arg2->use() + ");";
+            code = var->def() + " = " + arg0->use() + " ? " + 
+                   arg1->use() + " : " + arg2->use() + ";";
             _curFun->addBody(code);
         } else {
             ILA_ASSERT(false, "Unknown bool op.");
@@ -709,9 +692,9 @@ namespace ila
             } else if (n->op == BitvectorOp::Op::CONCAT) {
                 std::string w = boost::lexical_cast<std::string>(arg1->_width);
                 // |arg0| << arg1.width + |arg1|
-                code = var->def() + " = " + 
+                code = var->def() + " = (" + 
                        arg0->unsignedUse() + " << " + w + 
-                       " + " + arg1->unsignedUse() + ";";
+                       ") + " + arg1->unsignedUse() + ";";
                 _curFun->addBody(code);
                 code = getSignedCppCode(var);
             } else if (n->op == BitvectorOp::Op::GET_BIT) {
@@ -1080,7 +1063,6 @@ namespace ila
         _curFun->addBody(unsignStr);
         static boost::format signUseFmt(
             "%1% = ((%2% >> %3%) & 0x1) ? %4% : %5%;");
-//            "%1% = (bit_test(%2%, %3%) ? %4% : %5%);");
         signUseFmt % var->use()
                    % var->use() 
                    % (var->_width-1) 
