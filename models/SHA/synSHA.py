@@ -87,7 +87,8 @@ def createSHAILA(synstates, enable_ps):
     # xram write
     xram_w_sha = ila.storeblk(xram, wraddr, hs_data)
     xram_nxt = ila.choice('xram_nxt', xram, xram_w_sha)
-    m.set_next('XRAM', xram_nxt)
+    #m.set_next('XRAM', xram_nxt)
+    m.set_next('XRAM', xram)
 
     # synthesis.
     sim = lambda s: SHA().simulate(s)

@@ -13,6 +13,7 @@ namespace ila
 
     std::string CppVar::boolStr  = "bool";
     std::string CppVar::bvStr    = "BIT_VEC";
+//   std::string CppVar::bvStr    = "boost::multiprecision::cpp_int";
     std::string CppVar::memStr   = "type_mem";
     std::string CppVar::voidStr  = "void";
 
@@ -82,7 +83,7 @@ namespace ila
             return ("(" + _name + " & " + getMask(_width) + ")");
         }
     }
-
+/*
     std::string CppVar::signedUse() const
     {
         ILA_ASSERT(_type == bvStr, "Wrong type");
@@ -98,7 +99,7 @@ namespace ila
             return signUseFmt.str();
         }
     }
-
+*/
     std::string CppVar::unsignedUse() const
     {
         if (_isConst) {
@@ -426,9 +427,10 @@ namespace ila
 
         // type define
         out << "\n";
-        out << "#ifndef CPP_BV_TYPE\n";
-        out << "#define CPP_BV_TYPE\n";
-        out << "typedef boost::multiprecision::cpp_int BIT_VEC;\n";
+        out << "#ifndef CPP_BITVEC_TYPE\n";
+        out << "#define CPP_BITVEC_TYPE\n";
+        out << "typedef boost::multiprecision::cpp_int " 
+            << CppVar::bvStr << ";\n";
         out << "#endif\n";
 
         // Mem type class
@@ -580,11 +582,11 @@ namespace ila
             if (n->op == BitvectorOp::Op::NEGATE) {
                 code = var->def() + " = -" + arg0->use() + ";";
                 _curFun->addBody(code);
-                code = var->use() + " = " + var->signedUse() + ";";
+                code = getSignedCppCode(var);
             } else if (n->op == BitvectorOp::Op::COMPLEMENT) {
                 code = var->def() + " = ~" + arg0->use() + ";";
                 _curFun->addBody(code);
-                code = var->use() + " = " + var->signedUse() + ";";
+                code = getSignedCppCode(var);
             } else if (n->op == BitvectorOp::Op::LROTATE) {
                 int par0 = n->param(0);
                 int total = var->_width;
@@ -599,7 +601,7 @@ namespace ila
                        var->use() + " >> " + r + ")) & " + 
                        getMask(var->_width);
                 _curFun->addBody(code);
-                code = var->use() + " = " + var->signedUse() + ";";
+                code = getSignedCppCode(var);
             } else if (n->op == BitvectorOp::Op::RROTATE) {
                 int par0 = n->param(0);
                 int total = var->_width;
@@ -614,11 +616,11 @@ namespace ila
                        var->use() + " >> " + r + ")) & " + 
                        getMask(var->_width);
                 _curFun->addBody(code);
-                code = var->use() + " = " + var->signedUse() + ";";
+                code = getSignedCppCode(var);
             } else if (n->op == BitvectorOp::Op::Z_EXT) {
                 code = var->def() + " = " + arg0->unsignedUse() + ";";
             } else if (n->op == BitvectorOp::Op::S_EXT) {
-                code = var->def() + " = " + arg0->signedUse() + ";";
+                code = getSignedCppCode(var);
             } else if (n->op == BitvectorOp::Op::EXTRACT) {
                 int msb = n->param(0);
                 int lsb = n->param(1);
@@ -627,7 +629,7 @@ namespace ila
                 code = var->def() + " = (" + arg0->use() + " >> " + r +
                        ") & " + getMask(msb-lsb) + ";";
                 _curFun->addBody(code);
-                code = var->use() + " = " + var->signedUse() + ";";
+                code = getSignedCppCode(var);
             }
         //// Binary ////
         } else if (n->op >= BitvectorOp::Op::ADD &&
@@ -638,12 +640,12 @@ namespace ila
                 code = var->def() + " = " + 
                        arg0->use() + " + " + arg1->use() + ";";
                 _curFun->addBody(code);
-                code = var->use() + " = " + var->signedUse() + ";";
+                code = getSignedCppCode(var);
             } else if (n->op == BitvectorOp::Op::SUB) {
                 code = var->def() + " = " + 
                        arg0->use() + " - " + arg1->use() + ";";
                 _curFun->addBody(code);
-                code = var->use() + " = " + var->signedUse() + ";";
+                code = getSignedCppCode(var);
             } else if (n->op == BitvectorOp::Op::AND) {
                 code = var->def() + " = " + 
                        arg0->use() + " & " + arg1->use() + ";";
@@ -666,33 +668,33 @@ namespace ila
                 code = var->def() + " = " + 
                        arg0->use() + " / " + arg1->use() + ";";
                 _curFun->addBody(code);
-                code = var->use() + " = " + var->signedUse() + ";";
+                code = getSignedCppCode(var);
             } else if (n->op == BitvectorOp::Op::UDIV) {
                 code = var->def() + " = " + 
                        arg0->unsignedUse() + " / " + arg1->unsignedUse() + ";";
                 _curFun->addBody(code);
-                code = var->use() + " = " + var->signedUse() + ";";
+                //code = getSignedCppCode(var);
             } else if (n->op == BitvectorOp::Op::SREM) {
                 code = var->def() + " = " + 
                        arg0->use() + " % " + arg1->use() + ";";
                 _curFun->addBody(code);
-                code = var->use() + " = " + var->signedUse() + ";";
+                code = getSignedCppCode(var);
             } else if (n->op == BitvectorOp::Op::UREM) {
                 code = var->def() + " = " + 
                        arg0->unsignedUse() + " % " + arg1->unsignedUse() + ";";
                 _curFun->addBody(code);
-                code = var->use() + " = " + var->signedUse() + ";";
+                code = getSignedCppCode(var);
             } else if (n->op == BitvectorOp::Op::SMOD) {
                 // FIXME C++ has no modulo operator, equal to % when positive
                 code = var->def() + " = " + 
                        arg0->use() + " % " + arg1->use() + ";";
                 _curFun->addBody(code);
-                code = var->use() + " = " + var->signedUse() + ";";
+                code = getSignedCppCode(var);
             } else if (n->op == BitvectorOp::Op::SHL) {
                 code = var->def() + " = " + 
                        arg0->use() + " << " + arg1->unsignedUse() + ";";
                 _curFun->addBody(code);
-                code = var->use() + " = " + var->signedUse() + ";";
+                code = getSignedCppCode(var);
             } else if (n->op == BitvectorOp::Op::LSHR) {
                 code = var->def() + " = " + 
                        arg0->unsignedUse() + " >> " + arg1->unsignedUse() + ";";
@@ -703,7 +705,7 @@ namespace ila
                 code = var->def() + " = " + 
                        arg0->use() + " * " + arg1->use() + ";";
                 _curFun->addBody(code);
-                code = var->use() + " = " + var->signedUse() + ";";
+                code = getSignedCppCode(var);
             } else if (n->op == BitvectorOp::Op::CONCAT) {
                 std::string w = boost::lexical_cast<std::string>(arg1->_width);
                 // |arg0| << arg1.width + |arg1|
@@ -711,7 +713,7 @@ namespace ila
                        arg0->unsignedUse() + " << " + w + 
                        " + " + arg1->unsignedUse() + ";";
                 _curFun->addBody(code);
-                code = var->use() + " = " + var->signedUse() + ";";
+                code = getSignedCppCode(var);
             } else if (n->op == BitvectorOp::Op::GET_BIT) {
                 code = var->def() + " = (" + 
                        arg0->use() + " >> " + arg1->use() + ") & 0x1;";
@@ -777,7 +779,7 @@ namespace ila
             }
             _curFun->addBody("}");
 
-            code = var->use() + " = " + var->signedUse();
+            code = getSignedCppCode(var);
         } else if (n->op == BitvectorOp::Op::IF) {
             CppVar* arg0 = findVar(*_curVarMap, n->arg(0)->name);
             CppVar* arg1 = findVar(*_curVarMap, n->arg(1)->name);
@@ -883,8 +885,6 @@ namespace ila
                 "\t%1% = %2% >> (%3% * %4%);");
             static boost::format bigFmt(
                 "\t%1% = %2% >> ((%3% - 1 - %4%) * %5%);");
-            static boost::format signFmt(
-                "\t%1% = %2%;"); 
             static boost::format writeFmt(
                 "\t%1%.wr(%2% + %3%, %4%);");
 
@@ -904,9 +904,6 @@ namespace ila
                        % idx->use()             // 4
                        % chunkSize;             // 5
 
-            signFmt    % chunk_i->use()         // 1
-                       % chunk_i->signedUse();  // 2
-
             writeFmt   % arg0->use()            // 1
                        % arg1->use()            // 2
                        % idx->use()             // 3
@@ -914,7 +911,7 @@ namespace ila
 
             _curFun->addBody(loopProlog.str());
             _curFun->addBody(isLittle ? litFmt.str() : bigFmt.str());
-            _curFun->addBody(signFmt.str());
+            _curFun->addBody(getSignedCppCode(chunk_i));
             _curFun->addBody(writeFmt.str());
             code = "}";
         } else {
@@ -1007,7 +1004,12 @@ namespace ila
         
         // Constructor/destructor
         out << "public:\n"
-            << "\t"  << _modelName << "() {};\n"
+            << "\t" << _modelName << "() {\n";
+        for (auto it = _masks.begin(); it != _masks.end(); it++) {
+            out << "\t\t" << it->second->use() << " = " 
+                << it->second->_val << ";\n";
+        }
+        out << "\t};\n"
             << "\t~" << _modelName << "() {};\n";
 
         // Public: states variables
@@ -1027,8 +1029,8 @@ namespace ila
         out << "private:\n";
         out << "\t// Bitvector masks.\n";
         for (auto it = _masks.begin(); it != _masks.end(); it++) {
-            out << "\t" << it->second->def() << " = " 
-                << it->second->_val << ";\n";
+            out << "\t" << it->second->def() << ";\n";
+                //<< it->second->_val << ";\n";
         }
         // Model class epilog
         out << "\n};\n";
@@ -1046,6 +1048,45 @@ namespace ila
             out << "extern ";
             it->second->dumpDec(out, "", 0);
         }
+    }
+    // ---------------------------------------------------------------------- //
+    std::string CppSimGen::getSignedCppCode(CppVar* var)
+    {
+        static std::string signTempVarName = "cpp_signTempVar";
+        static std::string unsignTempVarName = "cpp_unsignTempVar";
+        CppVar* signTempVar = NULL;
+        CppVar* unsignTempVar = NULL;
+        std::string signStr;
+        std::string unsignStr;
+
+        auto signIt = _curVarMap->find(signTempVarName);
+        if (signIt == _curVarMap->end()) {
+            signTempVar = new CppVar(32);
+            unsignTempVar = new CppVar(32);
+            checkAndInsert(*_curVarMap, signTempVarName, signTempVar);
+            checkAndInsert(*_curVarMap, unsignTempVarName, unsignTempVar);
+            signStr = signTempVar->def() + " = ";
+            unsignStr = unsignTempVar->def() + " = ";
+        } else {
+            signTempVar = (*_curVarMap)[signTempVarName];
+            unsignTempVar = (*_curVarMap)[unsignTempVarName];
+            signStr = signTempVar->use() + " = ";
+            unsignStr = unsignTempVar->use() + " = ";
+        }
+
+        signStr += var->use() + " | " + getSignExtMask(var->_width) + ";";
+        unsignStr += var->use() + " & " + getMask(var->_width) + ";";
+        _curFun->addBody(signStr);
+        _curFun->addBody(unsignStr);
+        static boost::format signUseFmt(
+            "%1% = ((%2% >> %3%) & 0x1) ? %4% : %5%;");
+//            "%1% = (bit_test(%2%, %3%) ? %4% : %5%);");
+        signUseFmt % var->use()
+                   % var->use() 
+                   % (var->_width-1) 
+                   % signTempVar->use()
+                   % unsignTempVar->use();
+        return signUseFmt.str();
     }
 
     // ---------------------------------------------------------------------- //

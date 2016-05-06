@@ -54,7 +54,7 @@ namespace ila
         // Use variable, ex. " r0"
         std::string use() const;
         // Use variable as signed.
-        std::string signedUse() const;
+//        std::string signedUse() const;
         // Use variable as unsigned.
         std::string unsignedUse() const;
         // Use the exact length variable.
@@ -213,6 +213,10 @@ namespace ila
         CppVar* getMemOpCpp(const MemOp* n);
         // Convert a function into cpp code.
         CppVar* getFuncVarCpp(const FuncVar* n);
+
+        // ------------------------------------------------------------------- //
+        // Helper function for getting exact signed code for multiprecision int
+        std::string getSignedCppCode(CppVar* var);
 
         // ------------------------------------------------------------------- //
         // Helper function for inserting element in map, with assertion on 1st.
