@@ -3,7 +3,7 @@ from collections import namedtuple
 
 class uc8051(object):
     def __init__(self):
-        self.model = ila.Abstraction()
+        self.model = ila.Abstraction("oc8051")
         self.createInputs()
         
         self.op0 = self.rom[self.pc]

@@ -23,9 +23,9 @@ namespace ila
     class BoolExpr : public Node {
     public:
         // constructor.
-        BoolExpr(Abstraction* c);
+        BoolExpr();
         // constructor needed for ChoiceExpr
-        BoolExpr(Abstraction* c, NodeType t);
+        BoolExpr(NodeType t);
         // destructor.
         virtual ~BoolExpr();
     };
@@ -34,7 +34,7 @@ namespace ila
     // Boolean variables.
     class BoolVar : public BoolExpr {
     public:
-        BoolVar(Abstraction* c, const std::string& name);
+        BoolVar(const std::string& name);
         virtual ~BoolVar();
         virtual Node* clone() const;
         virtual bool equal(const Node* that) const;
@@ -45,16 +45,25 @@ namespace ila
     // Boolean constants.
     class BoolConst : public BoolExpr {
     protected:
+        static nptr_t true_node;
+        static nptr_t false_node;
+
         bool value;
+    private:
+        BoolConst(bool value);
+        BoolConst(int value);
+        BoolConst(const mp_int_t& l);
     public:
-        BoolConst(Abstraction* c, bool value);
-        BoolConst(Abstraction* c, int value);
-        BoolConst(Abstraction* c, const mp_int_t& l);
         virtual ~BoolConst();
         virtual Node* clone() const;
         virtual bool equal(const Node* that) const;
         virtual boost::python::object getValue() const;
         virtual std::ostream& write(std::ostream& out) const;
+
+        static nptr_t get(bool v) {
+            if (v) return true_node;
+            else return false_node;
+        }
 
         // helper functions.
         bool val() const { return value; }
@@ -98,9 +107,9 @@ namespace ila
 
     public:
         // constructors.
-        BoolOp(Abstraction* c, Op op, const nptr_t& n1);
-        BoolOp(Abstraction* c, Op op, const nptr_t& n1, const nptr_t& n2);
-        BoolOp(Abstraction* c, Op op, nptr_vec_t& args_);
+        BoolOp(Op op, const nptr_t& n1);
+        BoolOp(Op op, const nptr_t& n1, const nptr_t& n2);
+        BoolOp(Op op, nptr_vec_t& args_);
         // kind of like a copy constructor, but use a fresh set of args.
         BoolOp(const BoolOp* other, nptr_vec_t& args_);
         // destructors.

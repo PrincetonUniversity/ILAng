@@ -4,7 +4,7 @@ import time
 from simSHA import SHA
 
 def createSHAILA(synstates, enable_ps):
-    m = ila.Abstraction()
+    m = ila.Abstraction("sha")
     m.enable_parameterized_synthesis = enable_ps
 
     # I/O interface: this is where commands come from.

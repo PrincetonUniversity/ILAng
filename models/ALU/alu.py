@@ -102,7 +102,7 @@ def model(num_regs, reg_size, paramsyn):
     # create the alu.
     alu = alu_sim(reg_field_width, reg_size)
 
-    sys = ila.Abstraction()
+    sys = ila.Abstraction("alu")
     sys.enable_parameterized_synthesis = paramsyn
 
     # state elements.
@@ -154,7 +154,7 @@ def model(num_regs, reg_size, paramsyn):
     sys.exportAll(expFile);
 
     # now import into a new abstraction and check.
-    sysp = ila.Abstraction()
+    sysp = ila.Abstraction("alu")
     sysp.importAll(expFile);
     romp = sysp.mem('rom', alu.ROM_ADDR_WIDTH, alu.OPCODE_WIDTH)
     pcp = sysp.reg('pc', alu.ROM_ADDR_WIDTH)

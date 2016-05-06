@@ -1,7 +1,7 @@
 import ila
 
 def main():
-    c = ila.Abstraction()
+    c = ila.Abstraction("test")
 
     x = c.bit('x')
     y = c.bit('y')

@@ -25,13 +25,13 @@ namespace ila
     };
 
     // ---------------------------------------------------------------------- //
-    BitvectorExpr::BitvectorExpr(Abstraction *c, int width) 
-        : Node(c, NodeType::getBitvector(width))
+    BitvectorExpr::BitvectorExpr(int width) 
+        : Node(NodeType::getBitvector(width))
     {
     }
 
-    BitvectorExpr::BitvectorExpr(Abstraction *c, NodeType t)
-        : Node(c, t)
+    BitvectorExpr::BitvectorExpr(NodeType t)
+        : Node(t)
     {
         ILA_ASSERT(t.isBitvector(), "BitvectorExpr type mismatch.");
     }
@@ -41,8 +41,8 @@ namespace ila
     }
 
     // ---------------------------------------------------------------------- //
-    BitvectorVar::BitvectorVar(Abstraction* c, const std::string& n, int width) 
-        : BitvectorExpr(c, width)
+    BitvectorVar::BitvectorVar(const std::string& n, int width) 
+        : BitvectorExpr(width)
     {
         this->name = n;
     }
@@ -53,7 +53,7 @@ namespace ila
 
     Node* BitvectorVar::clone() const
     {
-        return new BitvectorVar(ctx, name, type.bitWidth);
+        return new BitvectorVar(name, type.bitWidth);
     }
 
     bool BitvectorVar::equal(const Node* that_) const
@@ -75,20 +75,20 @@ namespace ila
 
     // ---------------------------------------------------------------------- //
     BitvectorConst::BitvectorConst(
-        Abstraction* c, const mp_int_t& v, int w)
-        : BitvectorExpr(c, w)
+        const mp_int_t& v, int w)
+        : BitvectorExpr(w)
         , value(v)
     {
     }
 
-    BitvectorConst::BitvectorConst(Abstraction* c, unsigned int v, int w)
-        : BitvectorExpr(c, w)
+    BitvectorConst::BitvectorConst(unsigned int v, int w)
+        : BitvectorExpr(w)
         , value(v)
     {
     }
 
     BitvectorConst::BitvectorConst(const BitvectorConst& that)
-        : BitvectorExpr(that.ctx, that.type.bitWidth)
+        : BitvectorExpr(that.type.bitWidth)
         , value(that.value)
     {
     }
@@ -374,11 +374,11 @@ namespace ila
 
     // ---------------------------------------------------------------------- //
     // constructor: unary ops.
-    BitvectorOp::BitvectorOp(Abstraction* c, 
+    BitvectorOp::BitvectorOp(
         Op op, 
         const nptr_t& n1
     )
-      : BitvectorExpr(c, getUnaryResultWidth(op, n1))
+      : BitvectorExpr(getUnaryResultWidth(op, n1))
       , arity(UNARY)
       , op(op)
     {
@@ -401,12 +401,12 @@ namespace ila
     }
 
     // constructor: unary op with int input (ex. rotate)
-    BitvectorOp::BitvectorOp(Abstraction* c,
+    BitvectorOp::BitvectorOp(
         Op op,
         const nptr_t& n1,
         int param
     )
-      : BitvectorExpr(c, getBinaryResultWidth(op, n1, param))
+      : BitvectorExpr(getBinaryResultWidth(op, n1, param))
       , arity(UNARY)
       , op(op)
     {
@@ -425,11 +425,11 @@ namespace ila
 
     // constructor: extract
     BitvectorOp::BitvectorOp(
-        Abstraction* c, Op op, 
+        Op op, 
         const nptr_t& n1,
         int p1, int p2
     )
-        : BitvectorExpr(c, (p1 - p2)+1)
+        : BitvectorExpr((p1 - p2)+1)
         , arity(NARY)
         , op(op)
     {
@@ -453,12 +453,12 @@ namespace ila
     }
 
     // constructor: binary ops.
-    BitvectorOp::BitvectorOp(Abstraction* c, 
+    BitvectorOp::BitvectorOp(
         Op op,
         const nptr_t& n1,
         const nptr_t& n2
     )
-      : BitvectorExpr(c, getBinaryResultWidth(op, n1, n2))
+      : BitvectorExpr(getBinaryResultWidth(op, n1, n2))
       , arity(BINARY)
       , op(op)
     {
@@ -479,12 +479,12 @@ namespace ila
         args.push_back( n2 );
     }
 
-    BitvectorOp::BitvectorOp(Abstraction* c, Op op,
+    BitvectorOp::BitvectorOp(Op op,
         const nptr_t& n1,
         const nptr_t& n2,
         int blocks,
         endianness_t e)
-      : BitvectorExpr(c, getBinaryResultWidth(op, n1, n2, blocks))
+      : BitvectorExpr(getBinaryResultWidth(op, n1, n2, blocks))
       , arity(BINARY)
       , op(op)
     {
@@ -517,10 +517,9 @@ namespace ila
     
     // constructor: ternary ops
     BitvectorOp::BitvectorOp(
-        Abstraction* c, Op op,
-        nptr_vec_t& args_
+        Op op, nptr_vec_t& args_
     )
-      : BitvectorExpr(c, getNaryResultWidth(op, args_))
+      : BitvectorExpr(getNaryResultWidth(op, args_))
       , arity(NARY)
       , op(op)
       , args(args_)
@@ -539,10 +538,8 @@ namespace ila
         }
     }
 
-    BitvectorOp::BitvectorOp(
-        const BitvectorOp* other, 
-        nptr_vec_t& args_)
-      : BitvectorExpr(other->ctx, other->type.bitWidth)
+    BitvectorOp::BitvectorOp(const BitvectorOp* other, nptr_vec_t& args_)
+      : BitvectorExpr(other->type.bitWidth)
       , arity(other->arity)
       , op(other->op)
       , args(args_)
@@ -562,18 +559,18 @@ namespace ila
         if (arity == UNARY) {
             ILA_ASSERT(args.size() == 1, 
                 "Unary op must have exactly one argument.");
-            return new BitvectorOp(ctx, op, args[0]);
+            return new BitvectorOp(op, args[0]);
         } else if(arity == BINARY) {
             ILA_ASSERT(args.size() == 2,
                 "Binary op must have exactly two arguments.");
-            return new BitvectorOp(ctx, op, args[0], args[1]);
+            return new BitvectorOp(op, args[0], args[1]);
         } else if (arity == NARY) {
             ILA_ASSERT(args.size() >= 1,
                 "Nary op must have more than one arguments.");
             nptr_vec_t newargs;
             for (unsigned i = 0; i != args.size(); i++)
                 newargs.push_back(args[i]);
-            return new BitvectorOp(ctx, op, newargs);
+            return new BitvectorOp(op, newargs);
         } else {
             ILA_ASSERT(false, "Unsupported arity in BitvectorOp");
             return NULL;

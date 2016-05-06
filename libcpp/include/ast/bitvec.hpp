@@ -25,9 +25,9 @@ namespace ila
     class BitvectorExpr : public Node {
     public:
         // constructor.
-        BitvectorExpr(Abstraction* c, int width);
+        BitvectorExpr(int width);
         // constructor for ChoiceExpr.
-        BitvectorExpr(Abstraction* c, NodeType t);
+        BitvectorExpr(NodeType t);
         // destructor.
         virtual ~BitvectorExpr();
     };
@@ -37,7 +37,7 @@ namespace ila
     class BitvectorVar : public BitvectorExpr {
     public:
         // constructor.
-        BitvectorVar(Abstraction* c, const std::string& n, int width) ;
+        BitvectorVar(const std::string& n, int width) ;
         // destructor.
         virtual ~BitvectorVar();
         // clone.
@@ -55,9 +55,9 @@ namespace ila
         mp_int_t value;
     public:
         // constructor with longs.
-        BitvectorConst(Abstraction* c, const mp_int_t& v, int width);
+        BitvectorConst(const mp_int_t& v, int width);
         // constructor with ints.
-        BitvectorConst(Abstraction* c, unsigned int v, int width);
+        BitvectorConst(unsigned int v, int width);
         // copy constructor.
         BitvectorConst(const BitvectorConst& other);
         // destructor.
@@ -172,25 +172,25 @@ namespace ila
     public:
         // constructors.
         // Unary op
-        BitvectorOp(Abstraction* c, Op op, 
+        BitvectorOp(Op op, 
                     const nptr_t& n1);
-        BitvectorOp(Abstraction* c, Op op,
+        BitvectorOp(Op op,
                     const nptr_t& n1,
                     int param);
-        BitvectorOp(Abstraction* c, Op op, 
+        BitvectorOp(Op op, 
                     const nptr_t& n1,
                     int p1, int p2);
         // Binary op
-        BitvectorOp(Abstraction* c, Op op, 
+        BitvectorOp(Op op, 
                     const nptr_t& n1, 
                     const nptr_t& n2);
         // Binary op with params (read-block)
-        BitvectorOp(Abstraction* c, Op op, 
+        BitvectorOp(Op op, 
                     const nptr_t& n1,
                     const nptr_t& n2,
                     int blocks, endianness_t e);
         // Ternary op
-        BitvectorOp(Abstraction* c, Op op,
+        BitvectorOp(Op op,
                     nptr_vec_t& args_);
         // copy-constructor with a fresh set of args.
         BitvectorOp(const BitvectorOp* other, 

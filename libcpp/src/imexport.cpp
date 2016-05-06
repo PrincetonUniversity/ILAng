@@ -126,7 +126,7 @@ namespace ila
             ILA_ASSERT(nextChar(in) == ')', "Miss )");
             nptr_t nptr = mapFind(name);
             if (nptr == NULL) {
-                nptr = nptr_t(new BoolVar(c, name));
+                nptr = nptr_t(new BoolVar(name));
                 mapInsert(name, nptr);
             }
             return nptr;
@@ -135,7 +135,7 @@ namespace ila
             ILA_ASSERT(nextChar(in) == ')', "Miss )");
             nptr_t nptr = mapFind(name);
             if (nptr == NULL) {
-                nptr = nptr_t(new BoolConst(c, value == "true"));
+                nptr = nptr_t(BoolConst::get(value == "true"));
                 mapInsert(name, nptr);
             }
             return nptr;
@@ -147,14 +147,14 @@ namespace ila
             if (op == BoolOp::Op::NOT) {
                 nptr_t arg0 = importAst(c, in);
                 if (nptr == NULL) {
-                    nptr = nptr_t(new BoolOp(c, op, arg0));
+                    nptr = nptr_t(new BoolOp(op, arg0));
                 }
             } else if (op >= BoolOp::Op::AND && 
                        op <= BoolOp::Op::DISTINCT) {
                 nptr_t arg0 = importAst(c, in);
                 nptr_t arg1 = importAst(c, in);
                 if (nptr == NULL) {
-                    nptr = nptr_t(new BoolOp(c, op, arg0, arg1));
+                    nptr = nptr_t(new BoolOp(op, arg0, arg1));
                 }
             } else if (op == BoolOp::Op::IF) {
                 nptr_t arg0 = importAst(c, in);
@@ -165,7 +165,7 @@ namespace ila
                     args_.push_back(arg0);
                     args_.push_back(arg1);
                     args_.push_back(arg2);
-                    nptr = nptr_t(new BoolOp(c, op, args_));
+                    nptr = nptr_t(new BoolOp(op, args_));
                 }
             } else {
                 ILA_ASSERT(false, "Unknown bool op type " + opname);
@@ -180,7 +180,7 @@ namespace ila
             ILA_ASSERT(nextChar(in) == ')', "Miss )");
             nptr_t nptr = mapFind(name);
             if (nptr == NULL) {
-                nptr = nptr_t(new BitvectorVar(c, name, width));
+                nptr = nptr_t(new BitvectorVar(name, width));
                 mapInsert(name, nptr);
             }
             return nptr;
@@ -192,7 +192,7 @@ namespace ila
             ILA_ASSERT(nextChar(in) == ')', "Miss )");
             nptr_t nptr = mapFind(name);
             if (nptr == NULL) {
-                nptr = nptr_t(new BitvectorConst(c, value, width));
+                nptr = nptr_t(new BitvectorConst(value, width));
                 mapInsert(name, nptr);
             }
             return nptr;
@@ -207,28 +207,28 @@ namespace ila
                 op <= BitvectorOp::Op::COMPLEMENT) {
                 nptr_t arg0 = importAst(c, in);
                 if (nptr == NULL) {
-                    nptr = nptr_t(new BitvectorOp(c, op, arg0));
+                    nptr = nptr_t(new BitvectorOp(op, arg0));
                 }
             } else if (op >= BitvectorOp::Op::LROTATE &&
                        op <= BitvectorOp::Op::S_EXT) {
                 nptr_t arg0 = importAst(c, in);
                 int par0 = eatIdx(in);
                 if (nptr == NULL) {
-                    nptr = nptr_t(new BitvectorOp(c, op, arg0, par0));
+                    nptr = nptr_t(new BitvectorOp(op, arg0, par0));
                 }
             } else if (op == BitvectorOp::Op::EXTRACT) {
                 nptr_t arg0 = importAst(c, in);
                 int par0 = eatIdx(in);
                 int par1 = eatIdx(in);
                 if (nptr == NULL) {
-                    nptr = nptr_t(new BitvectorOp(c, op, arg0, par0, par1));
+                    nptr = nptr_t(new BitvectorOp(op, arg0, par0, par1));
                 }
             } else if (op >= BitvectorOp::Op::ADD &&
                        op <= BitvectorOp::Op::READMEM) { 
                 nptr_t arg0 = importAst(c, in);
                 nptr_t arg1 = importAst(c, in);
                 if (nptr == NULL) {
-                    nptr = nptr_t(new BitvectorOp(c, op, arg0, arg1));
+                    nptr = nptr_t(new BitvectorOp(op, arg0, arg1));
                 }
             } else if (op == BitvectorOp::Op::READMEMBLOCK) {
                 nptr_t arg0 = importAst(c, in);
@@ -236,7 +236,7 @@ namespace ila
                 int chunks = eatIdx(in);
                 endianness_t e = (endianness_t) eatIdx(in);
                 if (nptr == NULL) {
-                    nptr = nptr_t(new BitvectorOp(c, op, arg0, arg1, chunks, e));
+                    nptr = nptr_t(new BitvectorOp(op, arg0, arg1, chunks, e));
                 }
             } else if (op == BitvectorOp::Op::IF) {
                 nptr_t arg0 = importAst(c, in);
@@ -247,7 +247,7 @@ namespace ila
                     args_.push_back(arg0);
                     args_.push_back(arg1);
                     args_.push_back(arg2);
-                    nptr = nptr_t(new BitvectorOp(c, op, args_));
+                    nptr = nptr_t(new BitvectorOp(op, args_));
                 }
             } else if (op == BitvectorOp::Op::APPLY_FUNC) {
                 nptr_t fun = importAst(c, in);
@@ -258,7 +258,7 @@ namespace ila
                     args_.push_back(arg);
                 }
                 if (nptr == NULL) {
-                    nptr = nptr_t(new BitvectorOp(c, op, args_));
+                    nptr = nptr_t(new BitvectorOp(op, args_));
                 }
             } else {
                 ILA_ASSERT(false, "Unknown bv type " + opname);
@@ -274,7 +274,7 @@ namespace ila
             ILA_ASSERT(nextChar(in) == ')', "Miss )");
             nptr_t nptr = mapFind(name);
             if (nptr == NULL) {
-                nptr = nptr_t(new MemVar(c, name, addrW, dataW));
+                nptr = nptr_t(new MemVar(name, addrW, dataW));
                 mapInsert(name, nptr);
             }
             return nptr;
@@ -287,7 +287,7 @@ namespace ila
             ILA_ASSERT(nextChar(in) == ')', "Miss )");
             nptr_t nptr = mapFind(name);
             if (nptr == NULL) {
-                nptr = nptr_t(new MemConst(c, mem));
+                nptr = nptr_t(new MemConst(mem));
                 mapInsert(name, nptr);
             }
             return nptr;
@@ -324,7 +324,7 @@ namespace ila
             ILA_ASSERT(nextChar(in) == ')', "Miss )");
             nptr_t nptr = mapFind(name);
             if (nptr == NULL) {
-                nptr = nptr_t(new FuncVar(c, name, resW, argsW));
+                nptr = nptr_t(new FuncVar(name, resW, argsW));
                 mapInsert(name, nptr);
             }
             return nptr;

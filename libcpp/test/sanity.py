@@ -1,7 +1,7 @@
 import ila
 
 def main():
-    c = ila.Abstraction()
+    c = ila.Abstraction("test")
     n = c.reg("test", 16)
     print n.name
     print n.type

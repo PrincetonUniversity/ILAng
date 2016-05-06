@@ -89,7 +89,7 @@ namespace ila
             _synChoiceExpr(bvchoiceop);
         } else if ((inrangeop = dynamic_cast<const BVInRange*>(n))) {
             mp_int_t v = adapter.getNumeralCppInt(m, n);
-            nptr_t nptr(new BitvectorConst(n->context(), v, n->type.bitWidth));
+            nptr_t nptr(new BitvectorConst(v, n->type.bitWidth));
             exprmap.insert({n, nptr});
         //// memories ////
         } else if ((memvar = dynamic_cast<const MemVar*>(n))) {

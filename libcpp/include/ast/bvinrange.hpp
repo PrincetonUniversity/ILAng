@@ -17,7 +17,7 @@ namespace ila {
         nptr_t hi;
     public:
         // constructor.
-        BVInRange(Abstraction* c, const std::string& name,
+        BVInRange(const std::string& name,
                   const nptr_t& lo, const nptr_t& hi);
         // copy constructor.
         BVInRange(const BVInRange& that);

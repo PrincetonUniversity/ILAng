@@ -26,11 +26,14 @@ namespace ila
 
     struct npair_t {
         nptr_t var;
+        nptr_t init;
+        nptr_vec_t next_vec;
         nptr_t next;
 
         // construct arch state.
         npair_t(const nptr_t& v, const nptr_t& n) 
           : var(v) 
+          , init(v)
           , next(n) 
         {
         }
@@ -50,8 +53,6 @@ namespace ila
         void _initName();
     protected:
         // -------------------- DATA MEMBERS ----------------- //
-        // context pointer.
-        Abstraction* ctx;
     public:
         // name for this node.
         std::string name;
@@ -65,13 +66,11 @@ namespace ila
         // default constructor.
         Node();
         // constructor.
-        Node(Abstraction* c, NodeType t);
+        Node(NodeType t);
         // destructor.
         virtual ~Node();
 
         // ---------------------- METHODS ------------------- //
-        // fake method we use to test the Z3 integration.
-        Abstraction* context() const { return ctx; };
         // polymorphic clone method: do we need this?
         virtual Node* clone() const;
         // polymorphic equality method.

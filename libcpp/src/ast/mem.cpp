@@ -9,13 +9,13 @@ namespace ila
         "invalid", "store", "storeblock", "ite"
     };
     // ---------------------------------------------------------------------- //
-    MemExpr::MemExpr(Abstraction *c, int aw, int dw) 
-      : Node(c, NodeType::getMem(aw, dw))
+    MemExpr::MemExpr(int aw, int dw) 
+      : Node(NodeType::getMem(aw, dw))
     {
     }
 
-    MemExpr::MemExpr(Abstraction *c, NodeType t)
-      : Node(c, t)
+    MemExpr::MemExpr(NodeType t)
+      : Node(t)
     {
         ILA_ASSERT(t.isMem(), "BitvectorExpr type mismatch.");
     }
@@ -27,9 +27,8 @@ namespace ila
     
     // ---------------------------------------------------------------------- //
     MemVar::MemVar(
-        Abstraction* c, 
         const std::string& n, int aw, int dw)
-      : MemExpr(c, aw, dw)
+      : MemExpr(aw, dw)
     {
         this->name = n;
     }
@@ -41,7 +40,7 @@ namespace ila
     // ---------------------------------------------------------------------- //
     Node* MemVar::clone() const
     {
-        return new MemVar(ctx, this->name, type.addrWidth, type.dataWidth);
+        return new MemVar(this->name, type.addrWidth, type.dataWidth);
     }
 
     bool MemVar::equal(const Node* that_) const
@@ -62,14 +61,14 @@ namespace ila
 
     // ---------------------------------------------------------------------- //
     MemConst::MemConst(
-        Abstraction* c, const MemValues& mv)
-      : MemExpr(c, mv.type)
+        const MemValues& mv)
+      : MemExpr(mv.type.addrWidth, mv.type.dataWidth)
       , memvalues(mv)
     {
     }
 
     MemConst::MemConst(const MemConst& that)
-      : MemExpr(that.ctx, that.type.addrWidth, that.type.dataWidth)
+      : MemExpr(that.type.addrWidth, that.type.dataWidth)
       , memvalues(that.memvalues)
     {
     }
@@ -100,7 +99,7 @@ namespace ila
 
     // ---------------------------------------------------------------------- //
     MemOp::MemOp(Op o, const nptr_t& a0, const nptr_t& a1, const nptr_t& a2)
-      : MemExpr(a0->context(), (o == MemOp::STORE ? a0->type : a1->type))
+      : MemExpr(o == MemOp::STORE ? a0->type : a1->type)
       , op(o)
       , endian(UNKNOWN_E)
     {
@@ -140,7 +139,7 @@ namespace ila
                         const nptr_t& addr, 
                         const nptr_t& data,
                         endianness_t e)
-      : MemExpr(mem->context(), mem->type)
+      : MemExpr(mem->type.addrWidth, mem->type.dataWidth)
       , op(STOREBLOCK)
       , endian(e)
     {
@@ -174,7 +173,7 @@ namespace ila
     }
 
     MemOp::MemOp(const MemOp& that)
-      : MemExpr(that.args[0]->context(), that.type)
+      : MemExpr(that.type.addrWidth, that.type.dataWidth)
       , op(that.op)
       , endian(that.endian)
       , args(that.args)
@@ -184,7 +183,7 @@ namespace ila
     }
 
     MemOp::MemOp(const MemOp* that, const nptr_vec_t& args)
-      : MemExpr(args[0]->context(), that->type)
+      : MemExpr(that->type.addrWidth, that->type.dataWidth)
       , op(that->op)
       , endian(that->endian)
       , args(args)

@@ -12,19 +12,33 @@
 namespace ila
 {
     // ---------------------------------------------------------------------- //
+    int Abstraction::objCnt = 0;
+
     int Abstraction::getObjId()
     {
         return objCnt++;
     }
 
-    Abstraction::Abstraction()
-      : objCnt(0)
-      , MAX_SYN_ITER(200)
+    Abstraction::Abstraction(const std::string& n)
+      : MAX_SYN_ITER(200)
+      , parent(NULL)
+      , name(n)
       , fetchExpr(NULL)
-      , fetchValid(new ila::BoolConst(this , true))
+      , fetchValid(BoolConst::get(true))
       , paramSyn(1)
     {
     }
+
+    Abstraction::Abstraction(Abstraction* p, const std::string& n)
+      : MAX_SYN_ITER(200)
+      , parent(p)
+      , name(n)
+      , fetchExpr(NULL)
+      , fetchValid(BoolConst::get(true))
+      , paramSyn(1)
+    {
+    }
+        
 
     Abstraction::~Abstraction()
     {
@@ -34,7 +48,7 @@ namespace ila
     NodeRef* Abstraction::addInp(const std::string& name, int width)
     {
         if(!checkAndInsertName(INP, name)) return NULL;
-        NodeRef* n = new NodeRef(new ila::BitvectorVar(this, name, width));
+        NodeRef* n = new NodeRef(new BitvectorVar(name, width));
         inps.insert({name, npair_t(n->node, NULL)});
         return n;
     }
@@ -71,7 +85,7 @@ namespace ila
     NodeRef* Abstraction::addBit(const std::string& name)
     {
         if(!checkAndInsertName(BIT, name)) return NULL;
-        NodeRef* n = new NodeRef(new ila::BoolVar(this, name));
+        NodeRef* n = new NodeRef(new BoolVar(name));
         bits.insert({name, npair_t(n->node, NULL)});
         return n;
     }
@@ -79,7 +93,7 @@ namespace ila
     NodeRef* Abstraction::addReg(const std::string& name, int w)
     {
         if(!checkAndInsertName(REG, name)) return NULL;
-        NodeRef* n = new NodeRef(new ila::BitvectorVar(this, name, w));
+        NodeRef* n = new NodeRef(new BitvectorVar(name, w));
         regs.insert({name, npair_t(n->node, NULL)});
         return n;
     }
@@ -87,7 +101,7 @@ namespace ila
     NodeRef* Abstraction::addMem(const std::string& name, int aw, int dw)
     {
         if(!checkAndInsertName(MEM, name)) return NULL;
-        NodeRef* n = new NodeRef(new ila::MemVar(this, name, aw, dw));
+        NodeRef* n = new NodeRef(new MemVar(name, aw, dw));
         mems.insert({name, npair_t(n->node, NULL)});
         return n;
     }
@@ -104,7 +118,7 @@ namespace ila
             }
         }
 
-        NodeRef* n = new NodeRef(new ila::FuncVar(this, name, rw, argW));
+        NodeRef* n = new NodeRef(new FuncVar(name, rw, argW));
         funs.insert({name, npair_t(n->node, NULL)});
         return n;
     }
@@ -149,7 +163,7 @@ namespace ila
     }
 
     // ---------------------------------------------------------------------- //
-    void Abstraction::setNext(const std::string& name, NodeRef* n)
+    nmap_t* Abstraction::getMap(const std::string& name, NodeRef* n)
     {
         // try to find the map we are adding to.
         nmap_t* m = NULL;
@@ -159,7 +173,7 @@ namespace ila
         else {
             throw PyILAException(PyExc_TypeError, 
                 "Unexpected type.");
-            return;
+            return NULL;
         }
 
         // now try to find the variable.
@@ -167,8 +181,55 @@ namespace ila
         if (pos == m->end()) {
             throw PyILAException(PyExc_RuntimeError, 
                 "Unable to find var: " + name);
-            return;
+            return NULL;
         }
+        return m;
+    }
+
+    nmap_t::const_iterator Abstraction::findInMap(const std::string& name) const
+    {
+        // try to find in each of the maps.
+        auto pos = bits.find(name);
+        if (pos == bits.end()) pos = regs.find(name);
+        if (pos == regs.end()) pos = mems.find(name);
+        if (pos == mems.end()) {
+            throw PyILAException(PyExc_RuntimeError, "Unable to find var: " + name);
+        }
+        return pos;
+    }
+
+    // ---------------------------------------------------------------------- //
+    void Abstraction::setInit(const std::string& name, NodeRef* n)
+    {
+        // try to find the map we are adding to.
+        nmap_t* m = getMap(name, n);
+        if (m == NULL) return;
+        auto pos = m->find(name);
+        ILA_ASSERT(pos != m->end(), "Invalid iterator.");
+
+        // check types.
+        if (n->node->type != pos->second.var->type) {
+            throw PyILAException(PyExc_TypeError, 
+                "Next expression not same type as variable");
+        }
+
+        pos->second.init = n->node;
+    }
+
+    NodeRef* Abstraction::getInit(const std::string& name) const
+    {
+        auto pos = findInMap(name);
+        return new NodeRef(pos->second.init);
+    }
+
+    // ---------------------------------------------------------------------- //
+    void Abstraction::setNext(const std::string& name, NodeRef* n)
+    {
+        // try to find the map we are adding to.
+        nmap_t* m = getMap(name, n);
+        if (m == NULL) return;
+        auto pos = m->find(name);
+        ILA_ASSERT(pos != m->end(), "Invalid iterator.");
 
         // check types.
         if (n->node->type != pos->second.var->type) {
@@ -182,14 +243,7 @@ namespace ila
 
     NodeRef* Abstraction::getNext(const std::string& name) const
     {
-        // try to find in each of the maps.
-        auto pos = bits.find(name);
-        if (pos == bits.end()) pos = regs.find(name);
-        if (pos == regs.end()) pos = mems.find(name);
-        if (pos == mems.end()) {
-            throw PyILAException(PyExc_RuntimeError, "Unable to find var: " + name);
-            return NULL;
-        }
+        auto pos = findInMap(name);
         return new NodeRef(pos->second.next);
     }
 
@@ -197,33 +251,33 @@ namespace ila
     NodeRef* Abstraction::bvConstLong(py::long_ l_, int w)
     {
         auto l = to_cpp_int(l_);
-        return new NodeRef(new ila::BitvectorConst(this, l, w));
+        return new NodeRef(new BitvectorConst(l, w));
     }
 
     NodeRef* Abstraction::bvConstInt(unsigned int l, int w)
     {
-        return new NodeRef(new ila::BitvectorConst(this, l, w));
+        return new NodeRef(new BitvectorConst(l, w));
     }
 
     NodeRef* Abstraction::boolConstB(bool b)
     {
-        return new NodeRef(new ila::BoolConst(this, b));
+        return new NodeRef(BoolConst::get(b));
     }
 
     NodeRef* Abstraction::boolConstI(int b)
     {
-        return new NodeRef(new ila::BoolConst(this, b));
+        return new NodeRef(BoolConst::get(b != 0));
     }
 
     NodeRef* Abstraction::boolConstL(py::long_ l_)
     {
         auto l = to_cpp_int(l_);
-        return new NodeRef(new ila::BoolConst(this, l));
+        return new NodeRef(BoolConst::get(l != 0));
     }
 
     NodeRef* Abstraction::memConst(const MemValues& mv)
     {
-        return new NodeRef(new ila::MemConst(this, mv));
+        return new NodeRef(new MemConst(mv));
     }
 
 
@@ -758,10 +812,9 @@ namespace ila
 
     }
 
-    void Abstraction::generateSim(const std::string& fileName,
-                                  const std::string& modelName) const
+    void Abstraction::generateSim(const std::string& fileName) const
     {
-        CppSimGen* gen = new CppSimGen(modelName);
+        CppSimGen* gen = new CppSimGen(name);
         // Set inputs.
         for (auto it = inps.begin(); it != inps.end(); it++) {
             gen->addInput(it->first, it->second.var);

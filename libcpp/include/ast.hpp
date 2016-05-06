@@ -250,11 +250,6 @@ namespace ila
     // stream output.
     std::ostream& operator<<(std::ostream& out, const NodeRef& node);
 
-    // utility functions to check whether two nodes have the same abstraction.
-    bool checkAbstractions(const NodeRef* l1, const NodeRef* l2);
-    bool checkAbstractions(const NodeRef* l1, const NodeRef* l2, const NodeRef* l3);
-    bool checkAbstractions(const nptr_vec_t& args);
-
     // ---------------------------------------------------------------------- //
 }
 

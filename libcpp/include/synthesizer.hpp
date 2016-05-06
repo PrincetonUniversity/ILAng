@@ -209,6 +209,7 @@ namespace ila
         nptr_t _synthesizeOp(
             const std::string& name,
             const nptr_t& var, 
+            nptr_vec_t& next_vec,
             const nptr_t& next,
             PyObject* pyfun);
 

@@ -4,13 +4,13 @@
 namespace ila
 {
     // ---------------------------------------------------------------------- //
-    FuncExpr::FuncExpr(Abstraction* c, int retWidth, const std::vector<int>& argsWidth)
-        : Node(c, NodeType::getFunc(retWidth, argsWidth))
+    FuncExpr::FuncExpr(int retWidth, const std::vector<int>& argsWidth)
+        : Node(NodeType::getFunc(retWidth, argsWidth))
     {
     }
 
-    FuncExpr::FuncExpr(Abstraction* c, NodeType t)
-        : Node(c, t)
+    FuncExpr::FuncExpr(NodeType t)
+        : Node(t)
     {
         ILA_ASSERT(t.isFunc(), "FuncExpr type mismatch.");
     }
@@ -21,9 +21,9 @@ namespace ila
 
     // ---------------------------------------------------------------------- //
     
-    FuncVar::FuncVar(Abstraction* c, const std::string& name, 
+    FuncVar::FuncVar(const std::string& name, 
                      int retWidth, const std::vector<int>& argsWidth)
-        : FuncExpr(c, retWidth, argsWidth)
+        : FuncExpr(retWidth, argsWidth)
     {
         this->name = name;
     }
@@ -35,7 +35,7 @@ namespace ila
     // ---------------------------------------------------------------------- //
     Node* FuncVar::clone() const
     {
-        return new FuncVar(ctx, name, type.bitWidth, type.argsWidth);
+        return new FuncVar(name, type.bitWidth, type.argsWidth);
     }
 
     bool FuncVar::equal(const Node* that_) const

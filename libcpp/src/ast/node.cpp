@@ -14,15 +14,13 @@ namespace ila
 
     // ---------------------------------------------------------------------- //
     Node::Node()
-      : ctx(NULL)
-      , id(-1)
+      : id(-1)
       , type(NodeType())
     {
     }
 
-    Node::Node(Abstraction* c, NodeType t) 
-      : ctx(c)
-      , id(ctx->getObjId())
+    Node::Node(NodeType t) 
+      : id(Abstraction::getObjId())
       , type(t) 
     {
         _initName();
@@ -145,9 +143,9 @@ namespace ila
         args.push_back(t);
         args.push_back(f);
         if (t->type.isBool()) {
-            return nptr_t(new BoolOp(cond->context(), BoolOp::IF, args));
+            return nptr_t(new BoolOp(BoolOp::IF, args));
         } else if (t->type.isBitvector()) {
-            return nptr_t(new BitvectorOp(cond->context(), BitvectorOp::IF, args));
+            return nptr_t(new BitvectorOp(BitvectorOp::IF, args));
         } else if (t->type.isMem()) {
             return nptr_t(new MemOp(MemOp::ITE, cond, t, f));
         } else {

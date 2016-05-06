@@ -1,7 +1,7 @@
 import ila
 
 def main():
-    c = ila.Abstraction()
+    c = ila.Abstraction("test")
 #    n = ila.Node()
 
     # test on boolOp
