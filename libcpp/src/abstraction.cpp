@@ -248,6 +248,23 @@ namespace ila
     }
 
     // ---------------------------------------------------------------------- //
+    AbstractionWrapper* Abstraction::addUAbs(
+        const std::string& name,
+        NodeRef* validN)
+    {
+        const nptr_t& valid = validN->node;
+        if (!valid->type.isBool()) {
+            throw PyILAException(PyExc_TypeError, "Expected a boolean.");
+            return NULL;
+        }
+        AbstractionWrapper *aw = new AbstractionWrapper(parent, name);
+        uabstraction_t uab = { valid, aw->abs };
+        uabs[name] = uab;
+        aw->abs->addAssumption(validN);
+        return aw;
+    }
+
+    // ---------------------------------------------------------------------- //
     NodeRef* Abstraction::bvConstLong(py::long_ l_, int w)
     {
         auto l = to_cpp_int(l_);

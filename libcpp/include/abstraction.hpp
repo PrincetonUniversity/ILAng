@@ -16,6 +16,7 @@
 namespace ila
 {
     class Abstraction;
+    class AbstractionWrapper;
     typedef boost::shared_ptr<Abstraction> abstraction_ptr_t;
 
     class Abstraction
@@ -32,8 +33,7 @@ namespace ila
         };
 
         // list of microabstractions.
-        typedef std::vector<uabstraction_t> uabstraction_vec_t;
-            
+        typedef std::map<std::string, uabstraction_t> uabs_map_t;
 
     private:
         static int objCnt;
@@ -71,7 +71,7 @@ namespace ila
         nptr_vec_t assumps;
 
         // list of sub-abstractions.
-        uabstraction_vec_t uabs;
+        uabs_map_t uabs;
 
 
         void extractModelValues(
@@ -134,6 +134,11 @@ namespace ila
         void setNext(const std::string& name, NodeRef* n);
         // Get the next template.
         NodeRef* getNext(const std::string& name) const;
+
+        // Create a uabstraction.
+        AbstractionWrapper* addUAbs(
+            const std::string& name,
+            NodeRef* valid);
 
         // Create a bitvector constant with a long integer.
         NodeRef* bvConstLong(py::long_ l, int width);
@@ -237,6 +242,13 @@ namespace ila
         // constructor.
         AbstractionWrapper(const std::string& name) 
           : abs(new Abstraction(name)) 
+        {
+        }
+
+        // constructor for microabstraction.
+        AbstractionWrapper(Abstraction* parent, 
+                           const std::string& name)
+          : abs(new Abstraction(parent, name))
         {
         }
 
