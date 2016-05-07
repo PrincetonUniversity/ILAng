@@ -610,7 +610,7 @@ namespace ila
                 std::string r = boost::lexical_cast<std::string>(lsb);
                 // (x >> r) & 0xfff..(-r)
                 code = var->def() + " = (" + arg0->use() + " >> " + r +
-                       ") & " + getMask(msb-lsb) + ";";
+                       ") & " + getMask(msb-lsb+1) + ";";
                 _curFun->addBody(code);
                 code = getSignedCppCode(var);
             }
@@ -894,7 +894,7 @@ namespace ila
 
             _curFun->addBody(loopProlog.str());
             _curFun->addBody(isLittle ? litFmt.str() : bigFmt.str());
-            _curFun->addBody(getSignedCppCode(chunk_i));
+            _curFun->addBody("\n" + getSignedCppCode(chunk_i));
             _curFun->addBody(writeFmt.str());
             code = "}";
         } else {

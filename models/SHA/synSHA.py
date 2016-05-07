@@ -70,14 +70,15 @@ def createSHAILA(synstates, enable_ps):
 
     # these are for the uinst
     # bytes_read
-    bytes_read_inc = ila.ite(bytes_read+64 <= oplen, bytes_read+64, oplen)
+    #bytes_read_inc = ila.ite(bytes_read+64 <= oplen, bytes_read+64, oplen)
+    bytes_read_inc = bytes_read + 64
     bytes_read_rst = ila.ite(cmddata == 1, m.const(0, 16), bytes_read)
     bytes_read_nxt = ila.choice('bytes_read_nxt', [
             m.const(0, 16), bytes_read_inc, bytes_read_rst, bytes_read])
     m.set_next('sha_bytes_read', bytes_read_nxt)
     # rd_data
     rdblock = ila.loadblk(xram, rdaddr + bytes_read, 64)
-    rdblock = ila.zero_extend(rdblock, 512)
+    #rdblock = ila.zero_extend(rdblock, 512)
     rd_data_nxt = ila.choice('rd_data_nxt', rdblock, rd_data)
     m.set_next('sha_rd_data', rd_data_nxt)
     # hs_data
@@ -87,8 +88,7 @@ def createSHAILA(synstates, enable_ps):
     # xram write
     xram_w_sha = ila.storeblk(xram, wraddr, hs_data)
     xram_nxt = ila.choice('xram_nxt', xram, xram_w_sha)
-    #m.set_next('XRAM', xram_nxt)
-    m.set_next('XRAM', xram)
+    m.set_next('XRAM', xram_nxt)
 
     # synthesis.
     sim = lambda s: SHA().simulate(s)
@@ -100,7 +100,8 @@ def createSHAILA(synstates, enable_ps):
 
         ast = m.get_next(s)
         m.exportOne(ast, 'asts/%s_%s' % (s, 'en' if enable_ps else 'dis'))
-    m.generateSim('asts/shasim.hpp')
+
+    m.generateSim('tmp/shasim.hpp')
 
 if __name__ == '__main__':
     ila.setloglevel(1, "")
