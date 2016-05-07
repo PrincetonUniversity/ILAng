@@ -826,8 +826,10 @@ namespace ila
         if (n->op == MemOp::Op::STORE) {
             ILA_ASSERT(arg0->_type == CppVar::memStr, 
                        "Write to non-mem variable.");
-            var = arg0;
-            code = arg0->use() + ".wr(" + arg1->use() + 
+            var = new CppVar(n);
+            code = var->def() + " = " + arg0->use() + ";";
+            _curFun->addBody(code);
+            code = var->use() + ".wr(" + arg1->use() + 
                    ", " + arg2->use() + ");";
         } else if (n->op == MemOp::Op::ITE) {
             ILA_ASSERT(arg0->_type == CppVar::boolStr,
@@ -839,7 +841,7 @@ namespace ila
         } else if (n->op == MemOp::Op::STOREBLOCK) {
             ILA_ASSERT(arg0->_type == CppVar::memStr,
                         "Write to non-mem variable.");
-            var = arg0;
+            var = new CppVar(n);
             int chunkSize = arg0->_width;
             int chunkNum = arg2->_width / chunkSize;
             ILA_ASSERT(arg2->_width % chunkSize == 0, 
@@ -847,9 +849,10 @@ namespace ila
             bool isLittle = n->endian == LITTLE_E;
 
             // var chunk_i;
+            // Mem var = mem;
             // for (int i=0; i<chunkNum; i++) {
             //     endian dependent code 
-            //     mem.wr(addr+i, chunk_i);
+            //     var.wr(addr+i, chunk_i);
             // }
             //     little:
             //     chunk_i = data >> (i * chunkSize);
@@ -861,6 +864,7 @@ namespace ila
             CppVar* idx = new CppVar(32);
             CppVar* chunk_i = new CppVar(chunkSize);
             _curFun->addBody(chunk_i->def() + ";");
+            _curFun->addBody(var->def() + " = " + arg0->use() + ";");
 
             static boost::format loopProlog(
                 "for (int %1% = 0; %2% < %3%; %4%++) {");
@@ -887,7 +891,7 @@ namespace ila
                        % idx->use()             // 4
                        % chunkSize;             // 5
 
-            writeFmt   % arg0->use()            // 1
+            writeFmt   % var->use()             // 1
                        % arg1->use()            // 2
                        % idx->use()             // 3
                        % chunk_i->use();        // 4
