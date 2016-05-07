@@ -127,9 +127,11 @@ namespace ila
         // read from memory.
         static NodeRef* load(NodeRef* mem, NodeRef* addr);
         static NodeRef* loadblock(NodeRef* mem, NodeRef* addr, int chunks);
+        static NodeRef* loadblockB(NodeRef* mem, NodeRef* addr, int chunks);
         // write to memory.
         static NodeRef* store(NodeRef* mem, NodeRef* addr, NodeRef* data);
         static NodeRef* storeblock(NodeRef* mem, NodeRef* addr, NodeRef* data);
+        static NodeRef* storeblockB(NodeRef* mem, NodeRef* addr, NodeRef* data);
 
         // logical functions.
         static NodeRef* logicalXnor(NodeRef* l, NodeRef* r);

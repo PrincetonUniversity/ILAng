@@ -18,7 +18,7 @@ namespace ila
         friend class CppFun;
         friend class CppSimGen;
     public:
-        typedef boost::multiprecision::cpp_int cppBvType;
+        typedef mp_int_t cppBvType;
 
         // Variable count.
         static int varCnt;

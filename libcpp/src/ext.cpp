@@ -209,10 +209,14 @@ BOOST_PYTHON_MODULE(ila)
             return_value_policy<manage_new_object>());
     def("loadblk", &NodeRef::loadblock,
             return_value_policy<manage_new_object>());
+    def("loadblk_big", &NodeRef::loadblockB,
+            return_value_policy<manage_new_object>());
     // memory write.
     def("store", &NodeRef::store,
             return_value_policy<manage_new_object>());
     def("storeblk", &NodeRef::storeblock,
+            return_value_policy<manage_new_object>());
+    def("storeblk_big", &NodeRef::storeblockB,
             return_value_policy<manage_new_object>());
 
 

@@ -718,7 +718,7 @@ namespace ila
             //     little:
             //     var = var | ((mem.rd(addr+i) & 0xff) << (width * i));
             //     big:
-            //     var = (var << (width * i)) | (mem.rd(addr+i) & 0xff);
+            //     var = (var << width) | (mem.rd(addr+i) & 0xff);
             // }
             // var = (var & 0x8) ? (var | 0xfff000) : var;
             static boost::format defFmt(
@@ -728,7 +728,7 @@ namespace ila
             static boost::format litFmt(
                 "\t%1% = %2% | ((%3%.rd(%4% + %5%) & %6%) << (%7% * %8%));");
             static boost::format bigFmt(
-                "\t%1% = (%2% << (%3% * %4%)) | (%5%.rd(%6% + %7%) & %8%);");
+                "\t%1% = (%2% << %3%) | (%4%.rd(%5% + %6%) & %7%);");
 
             defFmt %var->def() %mem->use() %addr->use() %getMask(blxSize);
             _curFun->addBody(defFmt.str());
@@ -752,11 +752,10 @@ namespace ila
                 bigFmt % var->use()         // %1%
                        % var->use()         // %2%
                        % blxSize            // %3%
-                       % idx->use()         // %4%
-                       % mem->use()         // %5%
-                       % addr->use()        // %6%
-                       % idx->use()         // %7%
-                       % getMask(blxSize);  // %8%
+                       % mem->use()         // %4%
+                       % addr->use()        // %5%
+                       % idx->use()         // %6%
+                       % getMask(blxSize);  // %7%
                 code = bigFmt.str();
                 _curFun->addBody(code);
             }

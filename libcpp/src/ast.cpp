@@ -364,6 +364,29 @@ namespace ila
             LITTLE_E));
     }
 
+    NodeRef* NodeRef::loadblockB(NodeRef* mem, NodeRef* addr, int chunks)
+    {
+        const NodeType& mt = mem->node->type;
+        const NodeType& at = addr->node->type;
+        if (!mt.isMem()                     ||
+            !at.isBitvector(mt.addrWidth))
+        {
+            throw PyILAException(PyExc_TypeError,
+                "Type error in arguments.");
+            return NULL;
+        }
+        if (chunks <= 0) {
+            throw PyILAException(PyExc_ValueError,
+                "Invalid number of blocks.");
+            return NULL;
+        }
+
+        return new NodeRef(new BitvectorOp(
+            BitvectorOp::READMEMBLOCK, 
+            mem->node, addr->node, chunks, 
+            BIG_E));
+    }
+
     NodeRef* NodeRef::store(NodeRef* mem, NodeRef* addr, NodeRef* data)
     {
         const NodeType& mt = mem->node->type;
@@ -399,6 +422,26 @@ namespace ila
             MemOp::STOREBLOCK, 
             mem->node, addr->node, data->node,
             LITTLE_E));
+    }
+
+    NodeRef* NodeRef::storeblockB(NodeRef* mem, NodeRef* addr, NodeRef* data)
+    {
+        const NodeType& mt = mem->node->type;
+        const NodeType& at = addr->node->type;
+        const NodeType& dt = addr->node->type;
+        if (!mt.isMem()                     ||
+            !at.isBitvector(mt.addrWidth)   ||
+            !dt.isBitvector()               ||
+            dt.bitWidth % mt.dataWidth != 0)
+        {
+            throw PyILAException(PyExc_TypeError,
+                "Type error in arguments.");
+            return NULL;
+        }
+        return new NodeRef(new MemOp(
+            MemOp::STOREBLOCK, 
+            mem->node, addr->node, data->node,
+            BIG_E));
     }
 
     NodeRef* NodeRef::logicalXnor(NodeRef* l, NodeRef* r)

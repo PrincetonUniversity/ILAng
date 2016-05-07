@@ -77,17 +77,19 @@ def createSHAILA(synstates, enable_ps):
             m.const(0, 16), bytes_read_inc, bytes_read_rst, bytes_read])
     m.set_next('sha_bytes_read', bytes_read_nxt)
     # rd_data
-    rdblock = ila.loadblk(xram, rdaddr + bytes_read, 64)
+    rdblock_little = ila.loadblk(xram, rdaddr + bytes_read, 64)
+    rdblock_big = ila.loadblk_big(xram, rdaddr + bytes_read, 64)
     #rdblock = ila.zero_extend(rdblock, 512)
-    rd_data_nxt = ila.choice('rd_data_nxt', rdblock, rd_data)
+    rd_data_nxt = ila.choice('rd_data_nxt', rdblock_big, rdblock_little, rd_data)
     m.set_next('sha_rd_data', rd_data_nxt)
     # hs_data
     sha_hs_data = ila.appfun(sha, [rd_data])
     hs_data_nxt = ila.choice('hs_data_nxt', sha_hs_data, hs_data)
     m.set_next('sha_hs_data', hs_data_nxt)
     # xram write
-    xram_w_sha = ila.storeblk(xram, wraddr, hs_data)
-    xram_nxt = ila.choice('xram_nxt', xram, xram_w_sha)
+    xram_w_sha_little = ila.storeblk(xram, wraddr, hs_data)
+    xram_w_sha_big = ila.storeblk_big(xram, wraddr, hs_data)
+    xram_nxt = ila.choice('xram_nxt', xram, xram_w_sha_little, xram_w_sha_big)
     m.set_next('XRAM', xram_nxt)
 
     # synthesis.
