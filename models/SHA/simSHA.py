@@ -66,9 +66,9 @@ class SHA(mmiodev):
             if found:
                 dataout = data
         elif cmd == WR and self.sha_state == self.SHA_IDLE:
-            if cmdaddr == 0xff00:
+            if cmdaddr == 0xfe00:
                 if cmddata == 1:
-                    self.sha_state = self.RD
+                    self.sha_state = self.SHA_RD
                     self.bytes_read = 0
                     started = True
             else:
@@ -77,15 +77,11 @@ class SHA(mmiodev):
         # do the operations.
         if not started and self.sha_state == self.SHA_RD:
             self.rd_data = 0
-            if self.bytes_read + 64 <= self.sha_len:
-                rest = 64
-            else:
-                rest = self.sha_len - self.bytes_read
-            for i in xrange(rest):
-                addr = (self.sha_rdaddr + self.bytes_read) & 0xffff
+            for i in xrange(64):
+                addr = (self.sha_rdaddr + self.bytes_read + 63 - i) & 0xffff
                 byte = self.xram[addr]
                 self.rd_data |= byte << (i*8)
-                self.bytes_read += 1
+            self.bytes_read = self.bytes_read + 64
             self.sha_state = self.SHA_OP1
         elif not started and self.sha_state == self.SHA_OP1:
             self.sha_state = self.SHA_OP2
@@ -96,11 +92,11 @@ class SHA(mmiodev):
                 self.sha_state = self.SHA_WR
             bytes_in = bytes(''.join(as_chars(self.rd_data, 64)))
             self.sha.update(bytes_in)
-        elif not started and self.sha_state == self.SHA_WR:
             res = self.sha.digest()
             self.hs_data = to_num(res, 20)
+        elif not started and self.sha_state == self.SHA_WR:
             for i in xrange(20):
-                addr = (self.sha_wraddr + i) & 0xffff
+                addr = (self.sha_wraddr + 19 - i) & 0xffff
                 byte = (self.hs_data >> (i*8)) & 0xff
                 self.xram[addr] = byte
             self.sha_state = self.SHA_IDLE
@@ -132,6 +128,14 @@ def testSHA():
     s_in['cmddata'] = 128
     s_out = sha.simulate(s_in)
     assert s_out['sha_len'] == 128
+
+    s_in = sha.s_dict()
+    s_in['cmd'] = RD
+    s_in['cmdaddr'] = 0xfe06
+    s_in['cmddata'] = 3
+    s_out = sha.simulate(s_in)
+    assert s_out['dataout'] == 128
+
 
 if __name__ == '__main__':
     testSHA()
