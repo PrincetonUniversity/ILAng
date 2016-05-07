@@ -2,6 +2,7 @@
 
 from mmio import mmiodev, NOP, RD, WR
 from Crypto.Cipher import AES as AESFactory
+import ila
 
 def as_chars(s, n):
     b = []
@@ -46,6 +47,12 @@ class AES(mmiodev):
     aes_key0    = property(lambda s: s.getRegI('aes_key0'), lambda s, v: s.setRegI('aes_key0', v))
     aes_key1    = property(lambda s: s.getRegI('aes_key1'), lambda s, v: s.setRegI('aes_key1', v))
 
+    def get(self, s, name, default):
+        if name in s:
+            return s[name]
+        else:
+            return default
+
     def simulate(self, s_in):
         cmd     = s_in['cmd']
         cmdaddr = s_in['cmdaddr']
@@ -59,9 +66,9 @@ class AES(mmiodev):
         self.aes_key0   = s_in['aes_key0']
         self.aes_key1   = s_in['aes_key1']
         self.byte_cnt   = s_in['byte_cnt']
-        self.rd_data    = s_in['rd_data']
-        self.enc_data   = s_in['enc_data']
-        self.xram       = s_in['XRAM']
+        self.rd_data    = self.get(s_in,'rd_data', 0)
+        self.enc_data   = self.get(s_in,'enc_data', 0)
+        self.xram       = self.get(s_in,'XRAM', ila.MemValues(16, 8, 0x0))
 
         # default dataout.
         dataout = 0

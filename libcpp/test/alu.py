@@ -132,6 +132,7 @@ def model(num_regs, reg_size, paramsyn):
     # synthesize pc first.
     sys.synthesize('pc', lambda s: alu.alusim(s))
     pc_next = sys.get_next('pc')
+    print pc_next
     assert sys.areEqual(pc_next, pc+1)
 
     # now synthesize.
@@ -144,8 +145,8 @@ def model(num_regs, reg_size, paramsyn):
     for i in xrange(alu.NUM_REGS):
         rn1 = sys.get_next('r%d' % i)
         rn2 = regs_next[i]
-        print rn1
-        print rn2
+        print '(a) r%d: %s' % (i, str(rn1))
+        print '(b) r%d: %s' % (i, str(rn2))
         assert sys.areEqual(rn1, rn2)
 
     print sys.get_next('pc')
@@ -170,6 +171,7 @@ def model(num_regs, reg_size, paramsyn):
     os.unlink(expFile)
 
 def main():
+    ila.setloglevel(0, "")
     parser = argparse.ArgumentParser()
     parser.add_argument("--numregs", type=int, default=2, help="# of registers")
     parser.add_argument("--regwidth", type=int, default=4, help="register width")

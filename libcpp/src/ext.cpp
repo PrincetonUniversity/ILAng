@@ -342,9 +342,11 @@ BOOST_PYTHON_MODULE(ila)
 
     // This is the top-level class.
     class_<AbstractionWrapper>("Abstraction", init<const std::string&>())
+        // the name of this abstraction
+        .def_readonly("name", &AbstractionWrapper::getName)
+
         // inputs
         .def("inp", &AbstractionWrapper::addInp, return_value_policy<manage_new_object>())
-
         // bits.
         .def("bit", &AbstractionWrapper::addBit, return_value_policy<manage_new_object>())
         .def("getbit", &AbstractionWrapper::getBit, return_value_policy<manage_new_object>())
@@ -357,13 +359,18 @@ BOOST_PYTHON_MODULE(ila)
         // functions.
         .def("fun", &AbstractionWrapper::addFun, return_value_policy<manage_new_object>())
         .def("getfun", &AbstractionWrapper::getFun, return_value_policy<manage_new_object>())
+
         // init function
         .def("set_init", &AbstractionWrapper::setInit)
         .def("get_init", &AbstractionWrapper::getInit, return_value_policy<manage_new_object>())
         // next function
         .def("set_next", &AbstractionWrapper::setNext)
         .def("get_next", &AbstractionWrapper::getNext, return_value_policy<manage_new_object>())
-
+        // uabs
+        .def("add_microabstraction", &AbstractionWrapper::addUAbs, 
+                                     return_value_policy<manage_new_object>())
+        .def("get_microabstraction", &AbstractionWrapper::getUAbs, 
+                                     return_value_policy<manage_new_object>())
         // constants.
         .def("const", &AbstractionWrapper::bvConstLong, return_value_policy<manage_new_object>())
         .def("const", &AbstractionWrapper::bvConstInt, return_value_policy<manage_new_object>())

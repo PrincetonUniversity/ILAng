@@ -16,7 +16,12 @@
 namespace ila
 {
     class Abstraction;
+    class AbstractionWrapper;
     typedef boost::shared_ptr<Abstraction> abstraction_ptr_t;
+
+    struct assump_visitor_i {
+        virtual void useAssump(const nptr_t& a) = 0;
+    };
 
     class Abstraction
     {
@@ -32,8 +37,7 @@ namespace ila
         };
 
         // list of microabstractions.
-        typedef std::vector<uabstraction_t> uabstraction_vec_t;
-            
+        typedef std::map<std::string, uabstraction_t> uabs_map_t;
 
     private:
         static int objCnt;
@@ -71,8 +75,10 @@ namespace ila
         nptr_vec_t assumps;
 
         // list of sub-abstractions.
-        uabstraction_vec_t uabs;
+        uabs_map_t uabs;
 
+
+        void initMap(nmap_t& from_m, nmap_t& to_m);
 
         void extractModelValues(
             Z3ExprAdapter& c,
@@ -134,6 +140,13 @@ namespace ila
         void setNext(const std::string& name, NodeRef* n);
         // Get the next template.
         NodeRef* getNext(const std::string& name) const;
+
+        // Create a uabstraction.
+        AbstractionWrapper* addUAbs(
+            const std::string& name,
+            NodeRef* valid);
+        // Get an existing uabstraction.
+        AbstractionWrapper* getUAbs(const std::string& name);
 
         // Create a bitvector constant with a long integer.
         NodeRef* bvConstLong(py::long_ l, int width);
@@ -209,6 +222,19 @@ namespace ila
         // get functions.
         const nmap_t& getFuns() const { return funs; }
 
+        // visit each assumption.
+        void forEachAssump(assump_visitor_i& i) const;
+        // get all assumptions in a vector.
+        void getAllAssumptions(nptr_vec_t& assump_vec) const;
+
+        // collect all assumptions in a vector.
+        struct assump_collector_t : public assump_visitor_i {
+            nptr_vec_t& vec;
+            assump_collector_t(nptr_vec_t& v) : vec(v) {}
+            void useAssump(const nptr_t& a);
+        };
+            
+
         friend class Synthesizer;
 
     protected:
@@ -225,6 +251,8 @@ namespace ila
         nmap_t* getMap(const std::string& name, NodeRef* n);
         // what is the map containing this name?
         nmap_t::const_iterator findInMap(const std::string& name) const;
+
+        friend class AbstractionWrapper;
     };
 
     // This class contains a shared pointer to an underlying
@@ -237,6 +265,19 @@ namespace ila
         // constructor.
         AbstractionWrapper(const std::string& name) 
           : abs(new Abstraction(name)) 
+        {
+        }
+
+        // constructor for microabstraction.
+        AbstractionWrapper(Abstraction* parent, 
+                           const std::string& name)
+          : abs(new Abstraction(parent, name))
+        {
+        }
+
+        // constructor with existing pointer.
+        AbstractionWrapper(const abstraction_ptr_t& a)
+          : abs(a)
         {
         }
 
@@ -304,6 +345,17 @@ namespace ila
         // Get the next template.
         NodeRef* getNext(const std::string& name) const {
             return abs->getNext(name);
+        }
+
+        // Create a microabstraction.
+        AbstractionWrapper* addUAbs(const std::string& name, NodeRef* valid)
+        {
+            return abs->addUAbs(name, valid);
+        }
+        // Get an existing microabstraction
+        AbstractionWrapper* getUAbs(const std::string& name)
+        {
+            return abs->getUAbs(name);
         }
 
         // Create a bitvector constant with a long integer.
@@ -442,6 +494,10 @@ namespace ila
 
         void setEnParamSyn(int en) {
             abs->paramSyn = en;
+        }
+
+        std::string getName() const {
+            return abs->name;
         }
 
         // get memories.

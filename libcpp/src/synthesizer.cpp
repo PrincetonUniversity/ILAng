@@ -596,6 +596,7 @@ namespace ila
 
     }
 
+    // ---------------------------------------------------------------------- //
     nptr_t Synthesizer::_synthesizeOp(
         const std::string& name,
         const nptr_t& var, 
@@ -603,11 +604,13 @@ namespace ila
         const nptr_t& next,
         PyObject* pyfun)
     {
-        z3::expr y = _createSynMiter(next);
-
-        nptr_t ex = var;
+        // check if we can do the new algorithm.
         bool nodep = !decodeSupport.depCheck(c, Sp, next);
+        // create the miter.
+        z3::expr y = _createSynMiter(next);
+        // reset the distinguishing input tree.
         ditree.reset(nodep);
+
         info() << "reuseModels: " << (int) nodep << std::endl;
         for (auto de : abs.decodeExprs) {
             info() << "decode: " << *de.get() << std::endl;
@@ -619,17 +622,88 @@ namespace ila
             // add to the vector.
             next_vec.push_back(ex_n);
 
-            // create the final expression.
-            nptr_t ex_p = Node::ite(de, ex_n, ex);
-            ex = ex_p;
-
             info() << name << ": " 
                    << *de.get() << " -> "
                    << *ex_n.get() << std::endl;
         }
-        log1() << name << ": "
-               << *ex.get() << std::endl;
+        return _getCombinedExpr(var, next_vec);
+    }
+
+    // ---------------------------------------------------------------------- //
+    nptr_t Synthesizer::_getCombinedExpr(
+        const nptr_t& var,
+        const nptr_vec_t& next_vec
+    )
+    {
+        nptr_vec_t uniques;
+        uniques.push_back(var);
+
+        std::vector<int> indices;
+        // find the representative index for each expr in next_vec.
+        for (unsigned i=0; i != next_vec.size(); i++) {
+            const nptr_t& next_i = next_vec[i];
+            bool found = false;
+            for (unsigned j=0; j != uniques.size(); j++) {
+                if (_eq(uniques[j], next_i)) {
+                    found = true;
+                    indices.push_back(j);
+                    break;
+                }
+            }
+            // not found?
+            if (!found) {
+                indices.push_back(uniques.size());
+                uniques.push_back(next_i);
+            }
+        }
+        ILA_ASSERT(indices.size() == next_vec.size(),
+                   "Invalid size for indices");
+        // the initial decode expressions.
+        nptr_vec_t de_exprs(uniques.size());
+        // now combine them.
+        for (unsigned i=0; i != indices.size(); i++) {
+            int index_i = indices[i];
+            ILA_ASSERT(index_i >= 0 && index_i < (int) uniques.size(),
+                       "Invalid index."); 
+            if (de_exprs[index_i]) {
+                de_exprs[index_i] = nptr_t(new BoolOp(
+                    BoolOp::OR, 
+                    abs.decodeExprs[i], de_exprs[index_i]));
+            } else {
+                de_exprs[index_i] = abs.decodeExprs[i];
+            }
+        }
+        // start with the default value.
+        nptr_t ex = var;
+        for (unsigned i=1; i != uniques.size(); i++) {
+            ex = Node::ite(de_exprs[i], uniques[i], ex);
+        }
         return ex;
+    }
+
+    bool Synthesizer::_eq(const nptr_t& n1, const nptr_t& n2)
+    {
+        if (n1->equal(n2.get())) return true;
+        else {
+            using namespace z3;
+            // n1
+            expr ne1 = c1.getExpr(n1.get()).simplify();
+            expr nc1 = c1.getCnst(n1.get()).simplify();
+            // n2
+            expr ne2 = c1.getExpr(n2.get()).simplify();
+            expr nc2 = c1.getCnst(n2.get()).simplify();
+
+            // add to solver.
+            S.push();
+            S.add(ne1 != ne2);
+            S.add(nc1);
+            S.add(nc2);
+            S.pop();
+
+            check_result r = S.check();
+
+            return r == unsat;
+        }
     }
 
     // ---------------------------------------------------------------------- //
@@ -637,7 +711,9 @@ namespace ila
     {
         _initSynthesis();
         S.push(); Sp.push();
-        _initSolverAssumptions(abs.assumps, c1, c2);
+        init_assump_t assump_initer(*this, c1, c2);
+        abs.forEachAssump(assump_initer);
+
         for (auto&& m : maps) {
             for (auto&& r : *m) {
                 S.push(); 
@@ -654,7 +730,9 @@ namespace ila
     {
         _initSynthesis();
         S.push(); Sp.push();
-        _initSolverAssumptions(abs.assumps, c1, c2);
+        init_assump_t assump_initer(*this, c1, c2);
+        abs.forEachAssump(assump_initer);
+
         p->second.next_vec.clear();
         p->second.next = _synthesizeOp(
                 p->first, p->second.var, p->second.next_vec, p->second.next, pyfun);
@@ -812,15 +890,9 @@ namespace ila
         return nr;
     }
     // ---------------------------------------------------------------------- //
-    void Synthesizer::_initSolverAssumptions(
-        const nptr_vec_t& all_assumps,
-        Z3ExprAdapter& c1,
-        Z3ExprAdapter& c2)
+    void Synthesizer::init_assump_t::useAssump(const nptr_t& a)
     {
-        // add all assumptions.
-        for ( auto ai : all_assumps )  {
-            _addExpr(ai, c1, c2);
-        }
+        syn._addExpr(a, c1, c2);
     }
 
     void Synthesizer::_addExpr(

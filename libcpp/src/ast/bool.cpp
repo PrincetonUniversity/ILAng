@@ -255,16 +255,14 @@ namespace ila
         if (that != NULL) {
             bool t1 = that->type == this->type && this->op == that->op &&
                       that->args.size() == this->args.size();
-            if (t1) {
-                for (unsigned i=0; i < args.size(); i++) {
-                    if (!this->args[i]->equal(that->args[i].get())) {
-                        return false;
-                    }
+            if (!t1) return false;
+            // compare args.
+            for (unsigned i=0; i < args.size(); i++) {
+                if (!this->args[i]->equal(that->args[i].get())) {
+                    return false;
                 }
-                return true;
-            } else {
-                return false;
             }
+            return true;
         } else {
             return false;
         }
