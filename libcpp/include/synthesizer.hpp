@@ -213,6 +213,12 @@ namespace ila
             const nptr_t& next,
             PyObject* pyfun);
 
+        nptr_t _getCombinedExpr(
+            const nptr_t& var,
+            const nptr_vec_t& next_vec);
+
+        bool _eq(const nptr_t& n1, const nptr_t& n2);
+
     public:
         // constructor.
         Synthesizer(Abstraction& abs);
