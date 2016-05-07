@@ -1098,26 +1098,28 @@ namespace ila
     static std::string getMask(const int& width)
     {
         ILA_ASSERT(width > 0, "Negative width.");
-        CppVar::cppBvType mask = (1 << width) - 1;
-        std::string str = boost::lexical_cast<std::string>(mask);
-        auto it = maskPtr->find(str);
+
+        static boost::format unMaskStr("((%1%)1 << %2%) - 1");
+        unMaskStr % CppVar::bvStr
+                  % width;
+        std::string val = unMaskStr.str();
+
+        auto it = maskPtr->find(val);
         if (it == maskPtr->end()) {
             std::string name = "un_"+boost::lexical_cast<std::string>(width);
-            CppVar* var = new CppVar(name, str);
-            (*maskPtr)[str] = var;
+            CppVar* var = new CppVar(name, val);
+            (*maskPtr)[val] = var;
             return var->use();
         } else {
             return it->second->use();
         }
-        return str;
+        return val;
     }
 
     static std::string getSignExtMask(const int& width)
     {
         ILA_ASSERT(width > 0, "Negative width.");
-        std::string w = boost::lexical_cast<std::string>(width);
-        CppVar::cppBvType mask = ~((1 << width) - 1);
-        std::string str = boost::lexical_cast<std::string>(mask);
+        std::string str = "~" + getMask(width);
         auto it = maskPtr->find(str);
         if (it == maskPtr->end()) {
             std::string name = "sign_"+boost::lexical_cast<std::string>(width);
