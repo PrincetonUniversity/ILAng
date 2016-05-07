@@ -582,18 +582,26 @@ namespace ila
     {
         const BitvectorOp* that = dynamic_cast<const BitvectorOp*>(that_);
         if (that != NULL) {
+            // compare op and type..
             bool t1 = that->type == this->type && this->op == that->op &&
-                      that->args.size() == this->args.size();
-            if (t1) {
-                for (unsigned i=0; i < args.size(); i++) {
-                    if (!this->args[i]->equal(that->args[i].get())) {
-                        return false;
-                    }
+                      that->args.size() == this->args.size()           &&
+                      that->params.size() == this->params.size();
+            if (!t1) return false;
+
+            // compare params.
+            for (unsigned i=0; i != params.size(); i++) {
+                if (this->params[i] != that->params[i]) {
+                    return false;
                 }
-                return true;
-            } else {
-                return false;
             }
+
+            // compare args.
+            for (unsigned i=0; i < args.size(); i++) {
+                if (!this->args[i]->equal(that->args[i].get())) {
+                    return false;
+                }
+            }
+            return true;
         } else {
             return false;
         }

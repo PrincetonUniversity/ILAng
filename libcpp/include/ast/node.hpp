@@ -29,12 +29,22 @@ namespace ila
         nptr_t init;
         nptr_vec_t next_vec;
         nptr_t next;
+        const npair_t* parent;
 
         // construct arch state.
-        npair_t(const nptr_t& v, const nptr_t& n) 
+        npair_t(const nptr_t& v, const nptr_t& n)
           : var(v) 
           , init(v)
           , next(n) 
+          , parent(NULL)
+        {
+        }
+
+        npair_t(const npair_t* p)
+          : var(p->var)
+          , init(p->init)
+          , next(NULL)
+          , parent(p->parent ? p->parent : p)
         {
         }
 

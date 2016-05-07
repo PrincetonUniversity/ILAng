@@ -37,11 +37,26 @@ namespace ila
       , fetchValid(BoolConst::get(true))
       , paramSyn(1)
     {
+        ILA_ASSERT(parent != NULL, "parent must be non-NULL.");
+        initMap(parent->inps, inps);
+        initMap(parent->regs, regs);
+        initMap(parent->bits, bits);
+        initMap(parent->mems, mems);
+        initMap(parent->funs, funs);
     }
         
 
     Abstraction::~Abstraction()
     {
+    }
+
+    // ---------------------------------------------------------------------- //
+    void Abstraction::initMap(nmap_t& from_m, nmap_t& to_m)
+    {
+        ILA_ASSERT(to_m.size() == 0, "to_m should be empty.");
+        for(auto&& fn : from_m) {
+            to_m.insert({fn.first, npair_t(fn.second)});
+        }
     }
 
     // ---------------------------------------------------------------------- //
@@ -257,11 +272,24 @@ namespace ila
             throw PyILAException(PyExc_TypeError, "Expected a boolean.");
             return NULL;
         }
-        AbstractionWrapper *aw = new AbstractionWrapper(parent, name);
+        if (uabs.find(name) != uabs.end()) {
+            throw PyILAException(
+                PyExc_RuntimeError, "Abstraction already exists.");
+            return NULL;
+        }
+
+        AbstractionWrapper *aw = new AbstractionWrapper(this, name);
         uabstraction_t uab = { valid, aw->abs };
         uabs[name] = uab;
         aw->abs->addAssumption(validN);
+        aw->abs->fetchValid = valid;
         return aw;
+    }
+
+    AbstractionWrapper* Abstraction::getUAbs(const std::string& name)
+    {
+        auto pos = uabs.find(name);
+        return new AbstractionWrapper(pos->second.abs);
     }
 
     // ---------------------------------------------------------------------- //
@@ -435,7 +463,9 @@ namespace ila
         const std::string& name, 
         NodeRef* ex, PyObject* pyfun)
     {
-        auto nr = _synthesize(name, assumps, ex->node, pyfun);
+        nptr_vec_t all_assumps;
+        getAllAssumptions(all_assumps);
+        auto nr = _synthesize(name, all_assumps, ex->node, pyfun);
         return new NodeRef(nr);
     }
 
@@ -495,7 +525,9 @@ namespace ila
 
         solver S(c_);
 
-        for (auto&& a : assumps) {
+        nptr_vec_t all_assumps;
+        getAllAssumptions(all_assumps);
+        for (auto&& a : all_assumps) {
             S.add(c.getExpr(a.get()));
         }
         S.add(c.getExpr(assump->node.get()));
@@ -549,7 +581,9 @@ namespace ila
 
         solver S(c_);
 
-        for (auto&& a : assumps) {
+        nptr_vec_t all_assumps;
+        getAllAssumptions(all_assumps);
+        for (auto&& a : all_assumps) {
             S.add(c.getExpr(a.get()));
         }
 
@@ -571,6 +605,30 @@ namespace ila
             throw PyILAException(PyExc_RuntimeError, "Indeterminate result from Z3.");
             return false;
         }
+    }
+
+    // ---------------------------------------------------------------------- //
+    void Abstraction::forEachAssump(assump_visitor_i& vis) const
+    {
+        // do all of our assumptions.
+        for (auto && a: assumps) {
+            vis.useAssump(a);
+        }
+        // and then the parent's.
+        if (parent) {
+            parent->forEachAssump(vis);
+        }
+    }
+
+    void Abstraction::getAllAssumptions(nptr_vec_t& assump_vec) const
+    {
+        assump_collector_t assump_collector(assump_vec);
+        forEachAssump(assump_collector);
+    }
+
+    void Abstraction::assump_collector_t::useAssump(const nptr_t& a)
+    {
+        vec.push_back(a);
     }
 
     // ---------------------------------------------------------------------- //

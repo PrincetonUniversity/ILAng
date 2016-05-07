@@ -711,7 +711,9 @@ namespace ila
     {
         _initSynthesis();
         S.push(); Sp.push();
-        _initSolverAssumptions(abs.assumps, c1, c2);
+        init_assump_t assump_initer(*this, c1, c2);
+        abs.forEachAssump(assump_initer);
+
         for (auto&& m : maps) {
             for (auto&& r : *m) {
                 S.push(); 
@@ -728,7 +730,9 @@ namespace ila
     {
         _initSynthesis();
         S.push(); Sp.push();
-        _initSolverAssumptions(abs.assumps, c1, c2);
+        init_assump_t assump_initer(*this, c1, c2);
+        abs.forEachAssump(assump_initer);
+
         p->second.next_vec.clear();
         p->second.next = _synthesizeOp(
                 p->first, p->second.var, p->second.next_vec, p->second.next, pyfun);
@@ -886,15 +890,9 @@ namespace ila
         return nr;
     }
     // ---------------------------------------------------------------------- //
-    void Synthesizer::_initSolverAssumptions(
-        const nptr_vec_t& all_assumps,
-        Z3ExprAdapter& c1,
-        Z3ExprAdapter& c2)
+    void Synthesizer::init_assump_t::useAssump(const nptr_t& a)
     {
-        // add all assumptions.
-        for ( auto ai : all_assumps )  {
-            _addExpr(ai, c1, c2);
-        }
+        syn._addExpr(a, c1, c2);
     }
 
     void Synthesizer::_addExpr(

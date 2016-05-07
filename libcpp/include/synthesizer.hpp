@@ -163,7 +163,7 @@ namespace ila
     };
 
     // ---------------------------------------------------------------------- //
-    class Synthesizer
+    class Synthesizer 
     {
     protected:
         static const char* suffix1;
@@ -178,11 +178,6 @@ namespace ila
         Z3ExprAdapter c1, c2;
 
         DITree ditree;
-
-        void _initSolverAssumptions(
-            const nptr_vec_t& assumps,
-            Z3ExprAdapter& c1,
-            Z3ExprAdapter& c2);
 
         void _addExpr(
             const nptr_t& expr,
@@ -219,6 +214,23 @@ namespace ila
 
         bool _eq(const nptr_t& n1, const nptr_t& n2);
 
+        // visitor for the assumptions.
+        struct init_assump_t : public assump_visitor_i {
+            Synthesizer& syn;
+            Z3ExprAdapter& c1;
+            Z3ExprAdapter& c2;
+
+            init_assump_t(
+                Synthesizer& syn_,
+                Z3ExprAdapter& c1_, 
+                Z3ExprAdapter& c2_)
+              : syn(syn_), c1(c1_), c2(c2_)
+            {}
+
+            virtual void useAssump(const nptr_t& a);
+        };
+        friend struct init_assump_t;
+
     public:
         // constructor.
         Synthesizer(Abstraction& abs);
@@ -230,7 +242,6 @@ namespace ila
 
         // synthesize this reg.
         void synthesizeReg(nmap_t::iterator pos, PyObject* pyfun);
-
 
         friend class DITree;
     };
