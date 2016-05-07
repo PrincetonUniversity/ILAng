@@ -147,6 +147,10 @@ namespace ila
             NodeRef* valid);
         // Get an existing uabstraction.
         AbstractionWrapper* getUAbs(const std::string& name);
+        // Connect a microinstruction.
+        void connectUInst(
+            const std::string& name, 
+            const abstraction_ptr_t& uabs);
 
         // Create a bitvector constant with a long integer.
         NodeRef* bvConstLong(py::long_ l, int width);
@@ -251,6 +255,7 @@ namespace ila
         nmap_t* getMap(const std::string& name, NodeRef* n);
         // what is the map containing this name?
         nmap_t::const_iterator findInMap(const std::string& name) const;
+        nmap_t::iterator findInMap(const std::string& name);
 
         friend class AbstractionWrapper;
     };
@@ -357,6 +362,12 @@ namespace ila
         {
             return abs->getUAbs(name);
         }
+        // Connect a variable to its corresponding value in the ubs
+        void connectUInst(const std::string& name, const AbstractionWrapper* uabs)
+        {
+            abs->connectUInst(name, uabs->abs);
+        }
+
 
         // Create a bitvector constant with a long integer.
         NodeRef* bvConstLong(py::long_ l, int width) {

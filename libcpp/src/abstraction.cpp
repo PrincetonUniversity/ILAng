@@ -201,10 +201,23 @@ namespace ila
         return m;
     }
 
+    // ---------------------------------------------------------------------- //
     nmap_t::const_iterator Abstraction::findInMap(const std::string& name) const
     {
         // try to find in each of the maps.
-        auto pos = bits.find(name);
+        nmap_t::const_iterator pos = bits.find(name);
+        if (pos == bits.end()) pos = regs.find(name);
+        if (pos == regs.end()) pos = mems.find(name);
+        if (pos == mems.end()) {
+            throw PyILAException(PyExc_RuntimeError, "Unable to find var: " + name);
+        }
+        return pos;
+    }
+
+    nmap_t::iterator Abstraction::findInMap(const std::string& name)
+    {
+        // try to find in each of the maps.
+        nmap_t::iterator pos = bits.find(name);
         if (pos == bits.end()) pos = regs.find(name);
         if (pos == regs.end()) pos = mems.find(name);
         if (pos == mems.end()) {
@@ -290,6 +303,31 @@ namespace ila
     {
         auto pos = uabs.find(name);
         return new AbstractionWrapper(pos->second.abs);
+    }
+
+    void Abstraction::connectUInst(
+        const std::string& name, const abstraction_ptr_t& uab)
+    {
+        const std::string& uab_name = uab->name;
+        auto upos = uabs.find(uab_name);
+        if (upos == uabs.end() || upos->second.abs.get() != uab.get()) {
+            throw PyILAException(PyExc_KeyError, 
+                    "Unable to find microabstraction: " + uab_name);
+            return;
+        }
+        // get the next objects.
+        auto epos = findInMap(name);
+        auto epos_u = uab->findInMap(name);
+        const nptr_t& nxt = epos->second.next;
+        const nptr_t& nxt_u = epos_u->second.next;
+
+        if (nxt->type != nxt_u->type) {
+            throw PyILAException(PyExc_TypeError,
+                "Types don't match for: " + name);
+            return;
+        }
+        nptr_t nc(Node::ite(upos->second.valid, nxt_u, nxt));
+        epos->second.next = nc;
     }
 
     // ---------------------------------------------------------------------- //

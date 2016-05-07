@@ -367,6 +367,7 @@ BOOST_PYTHON_MODULE(ila)
                                      return_value_policy<manage_new_object>())
         .def("get_microabstraction", &AbstractionWrapper::getUAbs, 
                                      return_value_policy<manage_new_object>())
+        .def("connect_microabstraction", &AbstractionWrapper::connectUInst)
         // constants.
         .def("const", &AbstractionWrapper::bvConstLong, return_value_policy<manage_new_object>())
         .def("const", &AbstractionWrapper::bvConstInt, return_value_policy<manage_new_object>())
