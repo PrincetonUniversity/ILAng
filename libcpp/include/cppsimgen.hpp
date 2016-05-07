@@ -18,19 +18,15 @@ namespace ila
         friend class CppFun;
         friend class CppSimGen;
     public:
-        // FIXME Change bvStr, ubvStr, sbvStr, maxBvVal if this is changed.
-        typedef uint64_t cppBvType;
+        typedef boost::multiprecision::cpp_int cppBvType;
 
         // Variable count.
         static int varCnt;
         // Variable type.
         static std::string boolStr;
         static std::string bvStr;
-        static std::string ubvStr;
-        static std::string sbvStr;
         static std::string memStr;
         static std::string voidStr;
-        static std::string maxBvVal;
     protected:
         std::string _type;
         std::string _name;
@@ -57,14 +53,10 @@ namespace ila
         std::string refDef() const;
         // Use variable, ex. " r0"
         std::string use() const;
-        // Use variable as signed.
-        std::string signedUse() const;
         // Use variable as unsigned.
         std::string unsignedUse() const;
         // Use the exact length variable.
         std::string exactUse() const;
-        // Use a segment of the bits.
-        std::string sliceUse(const int& msb, const int& lsb) const;
 
     private:
         void init(nptr_t n);
@@ -219,6 +211,10 @@ namespace ila
         CppVar* getMemOpCpp(const MemOp* n);
         // Convert a function into cpp code.
         CppVar* getFuncVarCpp(const FuncVar* n);
+
+        // ------------------------------------------------------------------- //
+        // Helper function for getting exact signed code for multiprecision int
+        std::string getSignedCppCode(CppVar* var);
 
         // ------------------------------------------------------------------- //
         // Helper function for inserting element in map, with assertion on 1st.

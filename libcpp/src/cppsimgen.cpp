@@ -6,19 +6,15 @@
 namespace ila
 {
     static std::string getMask(const int& width);
-    static std::string getSignBit(const int& width);
     static std::string getSignExtMask(const int& width);
     static CppSimGen::CppVarMap* maskPtr = NULL;
     // ---------------------------------------------------------------------- //
     int CppVar::varCnt = 0;
 
     std::string CppVar::boolStr  = "bool";
-    std::string CppVar::bvStr    = "int64_t";
-    std::string CppVar::ubvStr   = "uint64_t";
-    std::string CppVar::sbvStr   = "int64_t";
+    std::string CppVar::bvStr    = "BIT_VEC";
     std::string CppVar::memStr   = "type_mem";
     std::string CppVar::voidStr  = "void";
-    std::string CppVar::maxBvVal = "UINT64_MAX";
 
     // ---------------------------------------------------------------------- //
     CppVar::CppVar(nptr_t nptr, const std::string& name)
@@ -46,7 +42,6 @@ namespace ila
     {
         _name = "cppMask_" + name + "_";
         _type = bvStr;
-        _width = 8 * static_cast<int>(sizeof(cppBvType));
         _isConst = false;
     }
 
@@ -80,26 +75,11 @@ namespace ila
 
     std::string CppVar::exactUse() const
     {
+        ILA_ASSERT(_type == bvStr, "Wrong type");
         if (_isConst) {
             return _val;
-        } else if (_type == boolStr) {
-            return _name;
         } else {
             return ("(" + _name + " & " + getMask(_width) + ")");
-        }
-    }
-
-    std::string CppVar::signedUse() const
-    {
-        if (_isConst) {
-            return _val;
-        } else {
-            // ((x & signbit) ? (x | signExt) : (x & mask))
-            std::string str = 
-                "((" + _name + " & " + getSignBit(_width) + ") ? " + 
-                "(" + _name + " | " + getSignExtMask(_width) + ") : " +
-                "(" + _name + " & " + getMask(_width) + "))";
-            return str;
         }
     }
 
@@ -108,26 +88,9 @@ namespace ila
         if (_isConst) {
             return _val;
         } else {
-            return ("((" + ubvStr + ")" + _name + " & " + getMask(_width) + ")");
+            return ("(" + _name + " & " + getMask(_width) + ")");
         }
     }
-
-    std::string CppVar::sliceUse(const int& msb, const int& lsb) const
-    {
-        ILA_ASSERT(_type == bvStr, "Slice on non-bitvector variables.");
-        ILA_ASSERT(_width >= msb && lsb >= 0, "Bad slice index.");
-        std::string lstr = boost::lexical_cast<std::string>(lsb);
-        int len = msb - lsb + 1;
-        ILA_ASSERT(len > 0, "Bad slice index.");
-        std::string str = 
-            "((" + use() + " & " + getSignBit(msb) + ") ? " +  
-            "(((" + ubvStr + ")" + use() + ") >> " + lstr + ") | " + 
-            getSignExtMask(len) + " : " + 
-            "(((" + ubvStr + ")" + use() + ") >> " + lstr + ") & " + 
-            getMask(len) + ")"; 
-        return str;
-    }
-
     // ---------------------------------------------------------------------- //
     void CppVar::init(nptr_t n)
     {
@@ -314,6 +277,12 @@ namespace ila
 
         const FuncVar* funcvar = NULL;
 
+        const BitvectorChoice* bvchoice = NULL;
+        const BoolChoice* boolchoice = NULL;
+        const MemChoice* memchoice = NULL;
+        const WriteSlice* writeslice = NULL;
+        const ReadSlice* readslice = NULL;
+
         CppVar* res = NULL;
 
         //// Bool ////
@@ -341,6 +310,16 @@ namespace ila
         } else if ((funcvar = dynamic_cast<const FuncVar*>(n))) {
             res = getFuncVarCpp(funcvar);
         //// Choice ////
+        } else if ((boolchoice = dynamic_cast<const BoolChoice*>(n))) {
+            ILA_ASSERT(false, "BoolChoice not implemented.");
+        } else if ((bvchoice = dynamic_cast<const BitvectorChoice*>(n))) {
+            ILA_ASSERT(false, "BitvectorChoice not implemented.");
+        } else if ((memchoice = dynamic_cast<const MemChoice*>(n))) {
+            ILA_ASSERT(false, "MemChoice not implemented.");
+        } else if ((writeslice = dynamic_cast<const WriteSlice*>(n))) {
+            ILA_ASSERT(false, "WriteSlice not implemented.");
+        } else if ((readslice = dynamic_cast<const ReadSlice*>(n))) {
+            ILA_ASSERT(false, "ReadSlice not implemented.");
         } else {
             ILA_ASSERT(false, "Unknown node type.");
         }
@@ -403,7 +382,7 @@ namespace ila
         // Update the states.
         for (unsigned i = 0; i < f->_updates.size(); i++) {
             code = f->_updates[i].first->use() + " = " + 
-                   f->_updates[i].second->signedUse() + ";";
+                   f->_updates[i].second->use() + ";";
             f->addBody(code);
         }
         // Return the value.
@@ -411,7 +390,7 @@ namespace ila
             if (f->_ret->_type != CppVar::bvStr) {
                 code = "return " + f->_ret->use() + ";";
             } else {
-                code = "return " + f->_ret->signedUse() + ";";
+                code = "return " + f->_ret->use() + ";";
             }
             f->addBody(code);
         } else {
@@ -427,6 +406,15 @@ namespace ila
         // Include headers
         out << "#include <map>\n";
         out << "#include <stdint.h>\n";
+        out << "#include <boost/multiprecision/cpp_int.hpp>\n";
+
+        // type define
+        out << "\n";
+        out << "#ifndef CPP_BITVEC_TYPE\n";
+        out << "#define CPP_BITVEC_TYPE\n";
+        out << "typedef boost::multiprecision::cpp_int " 
+            << CppVar::bvStr << ";\n";
+        out << "#endif\n";
 
         // Mem type class
         out << "\n/****************************************************/\n";
@@ -543,8 +531,8 @@ namespace ila
             CppVar* arg0 = findVar(*_curVarMap, n->arg(0)->name);
             CppVar* arg1 = findVar(*_curVarMap, n->arg(1)->name);
             CppVar* arg2 = findVar(*_curVarMap, n->arg(2)->name);
-            code = var->def() + " = (" + arg0->use() + ") ? (" + 
-                   arg1->use() + ") : (" + arg2->use() + ");";
+            code = var->def() + " = " + arg0->use() + " ? " + 
+                   arg1->use() + " : " + arg2->use() + ";";
             _curFun->addBody(code);
         } else {
             ILA_ASSERT(false, "Unknown bool op.");
@@ -577,33 +565,45 @@ namespace ila
             if (n->op == BitvectorOp::Op::NEGATE) {
                 code = var->def() + " = -" + arg0->use() + ";";
                 _curFun->addBody(code);
-                code = var->use() + " = " + var->signedUse() + ";";
+                code = getSignedCppCode(var);
             } else if (n->op == BitvectorOp::Op::COMPLEMENT) {
                 code = var->def() + " = ~" + arg0->use() + ";";
+                _curFun->addBody(code);
+                code = getSignedCppCode(var);
             } else if (n->op == BitvectorOp::Op::LROTATE) {
                 int par0 = n->param(0);
                 int total = var->_width;
                 std::string l = boost::lexical_cast<std::string>(par0);
                 std::string r = boost::lexical_cast<std::string>(total-par0);
-                // ((x << l) | (x >> r)) & 0xff
-                code = var->def() + " = ((" + 
-                       arg0->unsignedUse() + " << " + l + ") | ( " + 
-                       arg0->unsignedUse() + " >> " + r + ")) & " + 
+                // int var = x & 0xff
+                // var = ((var << l) | (var >> r)) & 0xff
+                code = var->def() + " = " + arg0->exactUse();
+                _curFun->addBody(code);
+                code = var->use() + " = ((" + 
+                       var->use() + " << " + l + ") | ( " + 
+                       var->use() + " >> " + r + ")) & " + 
                        getMask(var->_width);
+                _curFun->addBody(code);
+                code = getSignedCppCode(var);
             } else if (n->op == BitvectorOp::Op::RROTATE) {
                 int par0 = n->param(0);
                 int total = var->_width;
                 std::string r = boost::lexical_cast<std::string>(par0);
                 std::string l = boost::lexical_cast<std::string>(total-par0);
-                // ((x << l) | (x >> r)) & 0xff
-                code = var->def() + " = ((" + 
-                       arg0->unsignedUse() + " << " + l + ") | ( " + 
-                       arg0->unsignedUse() + " >> " + r + ")) & " + 
+                // int var = x & 0xff
+                // var = ((var << l) | (var >> r)) & 0xff
+                code = var->def() + " = " + arg0->exactUse();
+                _curFun->addBody(code);
+                code = var->use() + " = ((" + 
+                       var->use() + " << " + l + ") | ( " + 
+                       var->use() + " >> " + r + ")) & " + 
                        getMask(var->_width);
+                _curFun->addBody(code);
+                code = getSignedCppCode(var);
             } else if (n->op == BitvectorOp::Op::Z_EXT) {
                 code = var->def() + " = " + arg0->unsignedUse() + ";";
             } else if (n->op == BitvectorOp::Op::S_EXT) {
-                code = var->def() + " = " + arg0->signedUse() + ";";
+                code = getSignedCppCode(var);
             } else if (n->op == BitvectorOp::Op::EXTRACT) {
                 int msb = n->param(0);
                 int lsb = n->param(1);
@@ -611,6 +611,8 @@ namespace ila
                 // (x >> r) & 0xfff..(-r)
                 code = var->def() + " = (" + arg0->use() + " >> " + r +
                        ") & " + getMask(msb-lsb) + ";";
+                _curFun->addBody(code);
+                code = getSignedCppCode(var);
             }
         //// Binary ////
         } else if (n->op >= BitvectorOp::Op::ADD &&
@@ -621,12 +623,12 @@ namespace ila
                 code = var->def() + " = " + 
                        arg0->use() + " + " + arg1->use() + ";";
                 _curFun->addBody(code);
-                code = var->use() + " = " + var->signedUse() + ";";
+                code = getSignedCppCode(var);
             } else if (n->op == BitvectorOp::Op::SUB) {
                 code = var->def() + " = " + 
                        arg0->use() + " - " + arg1->use() + ";";
                 _curFun->addBody(code);
-                code = var->use() + " = " + var->signedUse() + ";";
+                code = getSignedCppCode(var);
             } else if (n->op == BitvectorOp::Op::AND) {
                 code = var->def() + " = " + 
                        arg0->use() + " & " + arg1->use() + ";";
@@ -649,50 +651,52 @@ namespace ila
                 code = var->def() + " = " + 
                        arg0->use() + " / " + arg1->use() + ";";
                 _curFun->addBody(code);
-                code = var->use() + " = " + var->signedUse() + ";";
+                code = getSignedCppCode(var);
             } else if (n->op == BitvectorOp::Op::UDIV) {
                 code = var->def() + " = " + 
-                       arg0->use() + " / " + arg1->use() + ";";
+                       arg0->unsignedUse() + " / " + arg1->unsignedUse() + ";";
                 _curFun->addBody(code);
-                code = var->use() + " = " + var->signedUse() + ";";
+                //code = getSignedCppCode(var);
             } else if (n->op == BitvectorOp::Op::SREM) {
                 code = var->def() + " = " + 
                        arg0->use() + " % " + arg1->use() + ";";
                 _curFun->addBody(code);
-                code = var->use() + " = " + var->signedUse() + ";";
+                code = getSignedCppCode(var);
             } else if (n->op == BitvectorOp::Op::UREM) {
                 code = var->def() + " = " + 
-                       arg0->use() + " % " + arg1->use() + ";";
+                       arg0->unsignedUse() + " % " + arg1->unsignedUse() + ";";
                 _curFun->addBody(code);
-                code = var->use() + " = " + var->signedUse() + ";";
+                code = getSignedCppCode(var);
             } else if (n->op == BitvectorOp::Op::SMOD) {
                 // FIXME C++ has no modulo operator, equal to % when positive
                 code = var->def() + " = " + 
                        arg0->use() + " % " + arg1->use() + ";";
                 _curFun->addBody(code);
-                code = var->use() + " = " + var->signedUse() + ";";
+                code = getSignedCppCode(var);
             } else if (n->op == BitvectorOp::Op::SHL) {
-                code = var->def() + " = (" + 
-                       arg0->use() + " << " + arg1->unsignedUse() + ") & " +
-                       getMask(var->_width) + ";";
+                code = var->def() + " = " + 
+                       arg0->use() + " << " + arg1->unsignedUse() + ";";
+                _curFun->addBody(code);
+                code = getSignedCppCode(var);
             } else if (n->op == BitvectorOp::Op::LSHR) {
                 code = var->def() + " = " + 
                        arg0->unsignedUse() + " >> " + arg1->unsignedUse() + ";";
             } else if (n->op == BitvectorOp::Op::ASHR) {
                 code = var->def() + " = " + 
-                       arg0->signedUse() + " >> " + arg1->unsignedUse() + ";";
+                       arg0->use() + " >> " + arg1->unsignedUse() + ";";
             } else if (n->op == BitvectorOp::Op::MUL) {
                 code = var->def() + " = " + 
                        arg0->use() + " * " + arg1->use() + ";";
                 _curFun->addBody(code);
-                code = var->use() + " = " + var->signedUse() + ";";
+                code = getSignedCppCode(var);
             } else if (n->op == BitvectorOp::Op::CONCAT) {
                 std::string w = boost::lexical_cast<std::string>(arg1->_width);
                 // |arg0| << arg1.width + |arg1|
                 code = var->def() + " = (" + 
                        arg0->unsignedUse() + " << " + w + 
-                       " + " + arg1->unsignedUse() + 
-                       ") & " + getMask(var->_width) + ";";
+                       ") + " + arg1->unsignedUse() + ";";
+                _curFun->addBody(code);
+                code = getSignedCppCode(var);
             } else if (n->op == BitvectorOp::Op::GET_BIT) {
                 code = var->def() + " = (" + 
                        arg0->use() + " >> " + arg1->use() + ") & 0x1;";
@@ -758,7 +762,7 @@ namespace ila
             }
             _curFun->addBody("}");
 
-            code = var->use() + " = " + var->signedUse();
+            code = getSignedCppCode(var);
         } else if (n->op == BitvectorOp::Op::IF) {
             CppVar* arg0 = findVar(*_curVarMap, n->arg(0)->name);
             CppVar* arg1 = findVar(*_curVarMap, n->arg(1)->name);
@@ -849,12 +853,10 @@ namespace ila
             // }
             //     little:
             //     chunk_i = data >> (i * chunkSize);
-            //     chunk_i = (chunk_i & getSignBit) ? (chunk_i | getSignExt) : 
-            //                                        (chunk_i & getMask);
+            //     chunk_i = chunk_i.signedUse();
             //     big:
             //     chunk_i = data >> ((chunkNum - 1 - i) * chunkSize);
-            //     chunk_i = (chunk_i & getSignBit) ? (chunk_i | getSignExt) : 
-            //                                        (chunk_i & getMask);
+            //     chunk_i = chunk_i.signedUse();
 
             CppVar* idx = new CppVar(32);
             CppVar* chunk_i = new CppVar(chunkSize);
@@ -866,8 +868,6 @@ namespace ila
                 "\t%1% = %2% >> (%3% * %4%);");
             static boost::format bigFmt(
                 "\t%1% = %2% >> ((%3% - 1 - %4%) * %5%);");
-            static boost::format signFmt(
-                "\t%1% = (%2% & %3%) ? (%4% | %5%) : (%6% & %7%);");
             static boost::format writeFmt(
                 "\t%1%.wr(%2% + %3%, %4%);");
 
@@ -887,14 +887,6 @@ namespace ila
                        % idx->use()             // 4
                        % chunkSize;             // 5
 
-            signFmt    % chunk_i->use()         // 1
-                       % arg2->use()            // 2
-                       % getSignBit(chunkSize)  // 3
-                       % chunk_i->use()         // 4
-                       % getSignExtMask(chunkSize) // 5
-                       % chunk_i->use()         // 6
-                       % getMask(chunkSize);    // 7
-
             writeFmt   % arg0->use()            // 1
                        % arg1->use()            // 2
                        % idx->use()             // 3
@@ -902,7 +894,7 @@ namespace ila
 
             _curFun->addBody(loopProlog.str());
             _curFun->addBody(isLittle ? litFmt.str() : bigFmt.str());
-            _curFun->addBody(signFmt.str());
+            _curFun->addBody(getSignedCppCode(chunk_i));
             _curFun->addBody(writeFmt.str());
             code = "}";
         } else {
@@ -984,20 +976,6 @@ namespace ila
     void CppSimGen::genMain(std::ostream& out) const
     {
         // TODO
-        out << "int main(int argc, char* argv[])\n"
-            << "{\n"
-            << "\t" << _modelName << " mod;\n" 
-            << "\t// State initialization:\n"
-            << "\n"
-            << "\t// Feed in inputs:\n"
-            << "\t/* Ex:\n"
-            << "\tfor (int i = 0; i < 10; i++) {\n"
-            << "\t\tmod.update();\n"
-            << "\t}\n"
-            << "\t*/\n"
-            << "\n"
-            << "\treturn 0;\n"
-            << "}\n";
     }
 
     // ---------------------------------------------------------------------- //
@@ -1009,7 +987,12 @@ namespace ila
         
         // Constructor/destructor
         out << "public:\n"
-            << "\t"  << _modelName << "() {};\n"
+            << "\t" << _modelName << "() {\n";
+        for (auto it = _masks.begin(); it != _masks.end(); it++) {
+            out << "\t\t" << it->second->use() << " = " 
+                << it->second->_val << ";\n";
+        }
+        out << "\t};\n"
             << "\t~" << _modelName << "() {};\n";
 
         // Public: states variables
@@ -1029,8 +1012,8 @@ namespace ila
         out << "private:\n";
         out << "\t// Bitvector masks.\n";
         for (auto it = _masks.begin(); it != _masks.end(); it++) {
-            out << "\t" << it->second->def() << " = " 
-                << it->second->_val << ";\n";
+            out << "\t" << it->second->def() << ";\n";
+                //<< it->second->_val << ";\n";
         }
         // Model class epilog
         out << "\n};\n";
@@ -1048,6 +1031,44 @@ namespace ila
             out << "extern ";
             it->second->dumpDec(out, "", 0);
         }
+    }
+    // ---------------------------------------------------------------------- //
+    std::string CppSimGen::getSignedCppCode(CppVar* var)
+    {
+        static std::string signTempVarName = "cpp_signTempVar";
+        static std::string unsignTempVarName = "cpp_unsignTempVar";
+        CppVar* signTempVar = NULL;
+        CppVar* unsignTempVar = NULL;
+        std::string signStr;
+        std::string unsignStr;
+
+        auto signIt = _curVarMap->find(signTempVarName);
+        if (signIt == _curVarMap->end()) {
+            signTempVar = new CppVar(32);
+            unsignTempVar = new CppVar(32);
+            checkAndInsert(*_curVarMap, signTempVarName, signTempVar);
+            checkAndInsert(*_curVarMap, unsignTempVarName, unsignTempVar);
+            signStr = signTempVar->def() + " = ";
+            unsignStr = unsignTempVar->def() + " = ";
+        } else {
+            signTempVar = (*_curVarMap)[signTempVarName];
+            unsignTempVar = (*_curVarMap)[unsignTempVarName];
+            signStr = signTempVar->use() + " = ";
+            unsignStr = unsignTempVar->use() + " = ";
+        }
+
+        signStr += var->use() + " | " + getSignExtMask(var->_width) + ";";
+        unsignStr += var->use() + " & " + getMask(var->_width) + ";";
+        _curFun->addBody(signStr);
+        _curFun->addBody(unsignStr);
+        static boost::format signUseFmt(
+            "%1% = ((%2% >> %3%) & 0x1) ? %4% : %5%;");
+        signUseFmt % var->use()
+                   % var->use() 
+                   % (var->_width-1) 
+                   % signTempVar->use()
+                   % unsignTempVar->use();
+        return signUseFmt.str();
     }
 
     // ---------------------------------------------------------------------- //
@@ -1072,12 +1093,8 @@ namespace ila
 
     static std::string getMask(const int& width)
     {
-        ILA_ASSERT(width <= 8 * (int)sizeof(CppVar::cppBvType), 
-                "Width exceed max length.");
         ILA_ASSERT(width > 0, "Negative width.");
-        CppVar::cppBvType mask = (CppVar::cppBvType)UINTMAX_MAX;
-        mask = mask << width;
-        mask = ~mask;
+        CppVar::cppBvType mask = (1 << width) - 1;
         std::string str = boost::lexical_cast<std::string>(mask);
         auto it = maskPtr->find(str);
         if (it == maskPtr->end()) {
@@ -1091,32 +1108,12 @@ namespace ila
         return str;
     }
 
-    static std::string getSignBit(const int& width)
-    {
-        ILA_ASSERT(width <= 8 * (int)sizeof(CppVar::cppBvType),
-                "Width exceed max length.");
-        ILA_ASSERT(width > 0, "Negative width.");
-        CppVar::cppBvType bit = 1 << (width-1);
-        std::string str = boost::lexical_cast<std::string>(bit);
-        auto it = maskPtr->find(str);
-        if (it == maskPtr->end()) {
-            std::string name = "sbit_"+boost::lexical_cast<std::string>(width);
-            CppVar* var = new CppVar(name, str);
-            (*maskPtr)[str] = var;
-            return var->use();
-        } else {
-            return it->second->use();
-        }
-        return str;
-    }
-
     static std::string getSignExtMask(const int& width)
     {
-        ILA_ASSERT(width <= 8 * (int)sizeof(CppVar::cppBvType),
-                "Width exceed max length.");
         ILA_ASSERT(width > 0, "Negative width.");
         std::string w = boost::lexical_cast<std::string>(width);
-        std::string str = "(" + CppVar::maxBvVal + " << " + w + ")";
+        CppVar::cppBvType mask = ~((1 << width) - 1);
+        std::string str = boost::lexical_cast<std::string>(mask);
         auto it = maskPtr->find(str);
         if (it == maskPtr->end()) {
             std::string name = "sign_"+boost::lexical_cast<std::string>(width);
