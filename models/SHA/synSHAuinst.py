@@ -81,7 +81,8 @@ def createSHAILA(enable_ps):
 
     # bytes_read 
     bytes_read_inc = bytes_read + 64
-    bytes_read_nxt = ila.choice('bytes_read_nxt', [bytes_read_inc, bytes_read])
+    bytes_read_nxt = ila.choice('bytes_read_nxt', [bytes_read_inc, 
+                        bytes_read, m.const(0, 16)])
     um.set_next('sha_bytes_read', bytes_read_nxt)
 
     # rd_data
@@ -104,8 +105,7 @@ def createSHAILA(enable_ps):
     # micro-synthesis
     st = time.clock()
     t_elapsed = 0
-    for s in ['sha_state', 'sha_bytes_read', 'sha_rd_data', 'XRAM']:
-        print 'micro synthesis %s' % s
+    for s in ['sha_state', 'sha_bytes_read', 'sha_rd_data', 'sha_hs_data', 'XRAM']:
         um.synthesize(s, usim)
         t_elapsed += time.clock() - st
         print '%s: %s' % (s, str(um.get_next(s)))
@@ -120,23 +120,21 @@ def createSHAILA(enable_ps):
     m.set_next('XRAM', xram)
 
     # synthesize.
-    for s in ['sha_state', 'sha_rdaddr', 'sha_wraddr', 'sha_len']:
+    for s in ['sha_state', 'sha_rdaddr', 'sha_wraddr', 'sha_len', 'dataout']:
         st = time.clock()
         m.synthesize(s, sim)
         t_elapsed += time.clock() - st
 
         ast = m.get_next(s)
         print '%s: %s' % (s, str(ast))
-        m.exportOne(ast, 'asts/%s_%s' % (s, 'en' if enable_ps else 'dis'))
+        m.exportOne(ast, 'uasts/%s_%s' % (s, 'en' if enable_ps else 'dis'))
 
     # connect to the uinst
     m.connect_microabstraction('sha_state', um)
     m.connect_microabstraction('XRAM', um)
 
-    print 'sha_state: %s' % str(m.get_next('sha_state'))
-    print 'XRAM: %s' % str(m.get_next('XRAM'))
-
     print 'time: %.2f' % (t_elapsed)
+    m.generateSim('utmp/shasim.hpp')
 
 if __name__ == '__main__':
     ila.setloglevel(1, "")

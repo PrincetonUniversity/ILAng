@@ -897,7 +897,7 @@ namespace ila
 
             _curFun->addBody(loopProlog.str());
             _curFun->addBody(isLittle ? litFmt.str() : bigFmt.str());
-            _curFun->addBody("\n" + getSignedCppCode(chunk_i));
+            _curFun->addBody("\t" + getSignedCppCode(chunk_i));
             _curFun->addBody(writeFmt.str());
             code = "}";
         } else {
