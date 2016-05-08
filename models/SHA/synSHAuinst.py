@@ -80,7 +80,7 @@ def createSHAILA(enable_ps):
     um.set_next('sha_state', ustate_nxt)
 
     # bytes_read 
-    bytes_read_inc = bytes_read + 16
+    bytes_read_inc = bytes_read + 64
     bytes_read_nxt = ila.choice('bytes_read_nxt', [bytes_read_inc, bytes_read])
     um.set_next('sha_bytes_read', bytes_read_nxt)
 
