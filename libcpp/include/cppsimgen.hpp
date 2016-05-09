@@ -143,15 +143,15 @@ namespace ila
 
         // ------------------------------------------------------------------- //
         // Create input variable and put it in the _varMap.
-        CppVar* addInput(const std::string& name, nptr_t node);
+        CppVar* addInput(const std::string& name, nptr_t node, bool ms = false);
 
         // Create state variable and put it in the _varMap.
-        CppVar* addState(const std::string& name, nptr_t node);
+        CppVar* addState(const std::string& name, nptr_t node, bool ms = false);
 
         // Create new function and put it in the _funMap.
-        CppFun* addFun(const std::string& name);
+        CppFun* addFun(const std::string& name, bool ms = false);
         // Create new uninterpreted function and put it in the _unitpFunMap.
-        CppVar* addFuncVar(const std::string& name, nptr_t node);
+        CppVar* addFuncVar(const std::string& name, nptr_t node, bool ms = false);
         
         // ------------------------------------------------------------------- //
         // This will be used by depthFirstVisit.
@@ -221,7 +221,8 @@ namespace ila
         template <class T>
         void checkAndInsert(std::map<std::string, T*>& mp, 
                             const std::string& name,
-                            T* var);
+                            T* var,
+                            bool force = false);
         // Helper function for finding element in map, with assertion on find.
         CppVar* findVar(CppVarMap& mp, const std::string& name);
 

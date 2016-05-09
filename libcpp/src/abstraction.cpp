@@ -683,6 +683,7 @@ namespace ila
 
     void Abstraction::exportAllToFile(const std::string& fileName) const
     {
+        // FIXME Need to be fixed for uabstractions.
         std::ofstream out(fileName.c_str());
         ILA_ASSERT(out.is_open(), "File " + fileName + " not open.");
         ImExport expt;
@@ -809,6 +810,7 @@ namespace ila
 
     void Abstraction::importAllFromFile(const std::string& fileName) 
     {
+        // FIXME Need to be fixed for uabstractions.
         std::ifstream in;
         in.open(fileName.c_str());
         ILA_ASSERT(in.is_open(), "File " + fileName + " not found.");
@@ -928,42 +930,13 @@ namespace ila
     void Abstraction::generateSim(const std::string& fileName) const
     {
         CppSimGen* gen = new CppSimGen(name);
-        // Set inputs.
-        for (auto it = inps.begin(); it != inps.end(); it++) {
-            gen->addInput(it->first, it->second.var);
-        }
-        // Set regs.
-        for (auto it = regs.begin(); it != regs.end(); it++) {
-            gen->addState(it->first, it->second.var);
-        }
-        // Set bits.
-        for (auto it = bits.begin(); it != bits.end(); it++) {
-            gen->addState(it->first, it->second.var);
-        }
-        // Set mems.
-        for (auto it = mems.begin(); it != mems.end(); it++) {
-            gen->addState(it->first, it->second.var);
-        }
-        // Set funs.
-        for (auto it = funs.begin(); it != funs.end(); it++) {
-            gen->addFuncVar(it->first, it->second.var);
-        }
+
+        // Set variables to simulator generator.
+        addVarToSimulator(gen, false);
 
         // Create update function.
         CppFun* updateFun = gen->addFun("update");
-        // Calculate the next value.
-        for (auto it = regs.begin(); it != regs.end(); it++) {
-            gen->buildFun(updateFun, it->second.next);
-            gen->addFunUpdate(updateFun, it->second.var, it->second.next);
-        }
-        for (auto it = bits.begin(); it != bits.end(); it++) {
-            gen->buildFun(updateFun, it->second.next);
-            gen->addFunUpdate(updateFun, it->second.var, it->second.next);
-        }
-        for (auto it = mems.begin(); it != mems.end(); it++) {
-            gen->buildFun(updateFun, it->second.next);
-            gen->addFunUpdate(updateFun, it->second.var, it->second.next);
-        }
+        setUpdateToFunction(gen, updateFun, NULL);
         gen->endFun(updateFun);
 
         // FetchExpr
@@ -1153,4 +1126,78 @@ namespace ila
         }
         return true;
     }
+
+    // ---------------------------------------------------------------------- //
+    // Iteratively set inputs, states, and functions to the simulator generator.
+    void Abstraction::addVarToSimulator(CppSimGen* gen, bool force) const
+    {
+        // First add current level states.
+        // Set inputs.
+        for (auto it = inps.begin(); it != inps.end(); it++) {
+            gen->addInput(it->first, it->second.var, force);
+        }
+        // Set regs.
+        for (auto it = regs.begin(); it != regs.end(); it++) {
+            gen->addState(it->first, it->second.var, force);
+        }
+        // Set bits.
+        for (auto it = bits.begin(); it != bits.end(); it++) {
+            gen->addState(it->first, it->second.var, force);
+        }
+        // Set mems.
+        for (auto it = mems.begin(); it != mems.end(); it++) {
+            gen->addState(it->first, it->second.var, force);
+        }
+        // Set funs.
+        for (auto it = funs.begin(); it != funs.end(); it++) {
+            gen->addFuncVar(it->first, it->second.var, force);
+        }
+
+        // Then next level micro abstraction.
+        for (auto it = uabs.begin(); it != uabs.end(); it++) {
+            it->second.abs->addVarToSimulator(gen, true);
+        }
+    }
+
+    void Abstraction::setUpdateToFunction(
+            CppSimGen* gen, 
+            CppFun* fun,
+            nptr_t valid) const
+    {
+        static std::set<std::string> used;
+        static std::pair<std::set<std::string>::iterator, bool> check;
+        if (valid == NULL) used.clear();
+        // First add current level variables.
+        // Calculate the next value.
+        for (auto it = regs.begin(); it != regs.end(); it++) {
+            check = used.insert(it->first);
+            if (check.second == false) continue;
+            nptr_t nc = (valid == NULL) ? it->second.next : 
+                    nptr_t(Node::ite(valid, it->second.next, it->second.var));
+            gen->buildFun(fun, nc);
+            gen->addFunUpdate(fun, it->second.var, nc);
+        }
+        for (auto it = bits.begin(); it != bits.end(); it++) {
+            check = used.insert(it->first);
+            if (check.second == false) continue;
+            nptr_t nc = (valid == NULL) ? it->second.next : 
+                    nptr_t(Node::ite(valid, it->second.next, it->second.var));
+            gen->buildFun(fun, nc);
+            gen->addFunUpdate(fun, it->second.var, nc);
+        }
+        for (auto it = mems.begin(); it != mems.end(); it++) {
+            check = used.insert(it->first);
+            if (check.second == false) continue;
+            nptr_t nc = (valid == NULL) ? it->second.next : 
+                    nptr_t(Node::ite(valid, it->second.next, it->second.var));
+            gen->buildFun(fun, nc);
+            gen->addFunUpdate(fun, it->second.var, nc);
+        }
+
+        // Then next level micro abstraction.
+        for (auto it = uabs.begin(); it != uabs.end(); it++) {
+            it->second.abs->setUpdateToFunction(gen, fun, it->second.valid);
+        }
+    }
+
 }

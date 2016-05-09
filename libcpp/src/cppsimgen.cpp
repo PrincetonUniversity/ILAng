@@ -202,49 +202,49 @@ namespace ila
     }
 
     // ---------------------------------------------------------------------- //
-    CppVar* CppSimGen::addInput(const std::string& name, nptr_t nptr)
+    CppVar* CppSimGen::addInput(const std::string& name, nptr_t nptr, bool ms)
     {
         // FIXME Need to make sure name is valid.
-        CppVar* ip = new CppVar(nptr, name);    
-        checkAndInsert(_inputs, name, ip);
+        CppVar* ip = new CppVar(nptr, name);
+        checkAndInsert(_inputs, name, ip, ms);
         return ip;
     }
 
-    CppVar* CppSimGen::addState(const std::string& name, nptr_t nptr)
+    CppVar* CppSimGen::addState(const std::string& name, nptr_t nptr, bool ms)
     {
         // FIXME Need to make sure name is valid.
         CppVar* var = new CppVar(nptr, name);   
-        checkAndInsert(_states, name, var);
+        checkAndInsert(_states, name, var, ms);
         return var;
     }
 
-    CppFun* CppSimGen::addFun(const std::string& name)
+    CppFun* CppSimGen::addFun(const std::string& name, bool ms)
     {
         // Create new fun and put it in funMap.
         CppFun* fun = new CppFun(name);
-        checkAndInsert(_funMap, name, fun);
+        checkAndInsert(_funMap, name, fun, ms);
         // Insert inputs and global state into the function's varmap
         // Also set the input as fun's arguments.
         CppVarMap* varMap = new CppVarMap;
         for (auto it = _inputs.begin(); it != _inputs.end(); it++) {
-            checkAndInsert(*varMap, it->first, it->second);
+            checkAndInsert(*varMap, it->first, it->second, ms);
             fun->addArg(it->second);
         }
         for (auto it = _states.begin(); it != _states.end(); it++) {
-            checkAndInsert(*varMap, it->first, it->second);
+            checkAndInsert(*varMap, it->first, it->second, ms);
         }
         for (auto it = _unitpFuncVarMap.begin(); 
              it != _unitpFuncVarMap.end(); it++) {
-            checkAndInsert(*varMap, it->first, it->second);
+            checkAndInsert(*varMap, it->first, it->second, ms);
         }
         _varInFun[fun] = varMap;
         return fun;
     }
 
-    CppVar* CppSimGen::addFuncVar(const std::string& name, nptr_t node)
+    CppVar* CppSimGen::addFuncVar(const std::string& name, nptr_t node, bool ms)
     {
         CppVar* var = new CppVar(node, name);   
-        checkAndInsert(_unitpFuncVarMap, name, var);
+        checkAndInsert(_unitpFuncVarMap, name, var, ms);
 
         CppFun* fun = new CppFun(name);
         fun->_ret = new CppVar(node->type.bitWidth);
@@ -252,7 +252,7 @@ namespace ila
             CppVar* arg = new CppVar(node->type.argsWidth[i]);
             fun->_args.push_back(arg);
         }
-        checkAndInsert(_unitpFuncMap, name, fun);
+        checkAndInsert(_unitpFuncMap, name, fun, ms);
         return var;
     }
 
@@ -1078,11 +1078,15 @@ namespace ila
     template <class T>
     void CppSimGen::checkAndInsert(std::map<std::string, T*>& mp,
                                    const std::string& name,
-                                   T* var)
+                                   T* var,
+                                   bool force)
     {
         auto it = mp.find(name);
         if (it != mp.end()) {
-            ILA_ASSERT(false, "Variable " + name + " has been defined.");
+            if (!force)
+                ILA_ASSERT(false, "Variable " + name + " has been defined.");
+            else 
+                return;
         }
         mp[name] = var;
     }
