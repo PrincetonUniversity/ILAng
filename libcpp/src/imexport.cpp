@@ -37,12 +37,12 @@ namespace ila
 
         //// bools ////
         if ((boolvar = dynamic_cast<const BoolVar*>(n))) {
-            out << "( boolVar " << boolvar->name << " )";
+            out << "( boolVar " << boolvar->getName() << " )";
         } else if ((boolconst = dynamic_cast<const BoolConst*>(n))) {
-            out << "( boolConst " << boolconst->name << " " 
+            out << "( boolConst " << boolconst->getName() << " "
                 << (boolconst->val() ? "true )" : "flase )");
         } else if ((boolop = dynamic_cast<const BoolOp*>(n))) {
-            out << "( boolOp " << boolop->name << " " 
+            out << "( boolOp " << boolop->getName() << " "
                 << BoolOp::operatorNames[(int)boolop->getOp()];
             for (unsigned i = 0; i != boolop->nArgs(); i++) {
                 out << " ";
@@ -51,14 +51,14 @@ namespace ila
             out << " )";
         //// bitvector ////
         } else if((bvvar = dynamic_cast<const BitvectorVar*>(n))) {
-            out << "( bvVar " << bvvar->name 
+            out << "( bvVar " << bvvar->getName()
                 << " " << bvvar->type.bitWidth << " )";
         } else if((bvconst = dynamic_cast<const BitvectorConst*>(n))) {
-            out << "( bvConst " << bvconst->name 
+            out << "( bvConst " << bvconst->getName()
                 << " " << bvconst->type.bitWidth 
                 << " " << bvconst->vstr() << " )";
         } else if ((bvop = dynamic_cast<const BitvectorOp*>(n))) {
-            out << "( bvOp " << bvop->name //<< " " << type.bitWidth 
+            out << "( bvOp " << bvop->getName() //<< " " << type.bitWidth
                 << " " << BitvectorOp::operatorNames[(int)bvop->getOp()];
             for (unsigned i = 0; i != bvop->nArgs(); i++) {
                 out << " ";
@@ -70,16 +70,16 @@ namespace ila
             out << " )";
         //// memories ////
         } else if ((memvar = dynamic_cast<const MemVar*>(n))) {
-            out << "( memVar " << memvar->name << " " << memvar->type.addrWidth
+            out << "( memVar " << memvar->getName() << " " << memvar->type.addrWidth
                 << " " << memvar->type.dataWidth << " )";
         } else if ((memconst = dynamic_cast<const MemConst*>(n))) {
-            out << "( memConst " << memconst->name 
+            out << "( memConst " << memconst->getName()
                 << " " << memconst->type.addrWidth 
                 << " " << memconst->type.dataWidth << " ";
             exportMemValues(out, memconst->memvalues);
             out << " )";
         } else if ((memop = dynamic_cast<const MemOp*>(n))) {
-            out << "( memOp " << memop->name;
+            out << "( memOp " << memop->getName();
             out << " " << memop->operatorNames[memop->op] << " ";
             out << "#" << (int) memop->endian << " ";
             //<< type.addrWidth << " " << type.dataWidth << " ";
@@ -90,7 +90,7 @@ namespace ila
             out << " )";
         //// functions ////
         } else if ((funcvar = dynamic_cast<const FuncVar*>(n))) {
-            out << "( funcVar " << funcvar->name << " " 
+            out << "( funcVar " << funcvar->getName() << " "
                 << funcvar->type.bitWidth << " <- (";
             for (unsigned i = 0; i != funcvar->type.argsWidth.size(); i++) {
                 out << ((i == 0) ? " " : ", ") << funcvar->type.argsWidth[i];

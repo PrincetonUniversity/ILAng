@@ -63,11 +63,12 @@ namespace ila
         void _initName();
     protected:
         // -------------------- DATA MEMBERS ----------------- //
-    public:
+    protected:
         // name for this node.
         std::string name;
         // unique id.
         const int id;
+    public: //TODO : for now leave it as public
         // type of this node.
         NodeType type;
 
@@ -80,6 +81,18 @@ namespace ila
         // destructor.
         virtual ~Node();
 
+        // ---------------------- UTILITIES ------------------ //
+        std::string& getName() {
+            return name;
+        }
+
+        const std::string& getName() const {
+            return name;
+        }
+
+        int getId() { return id; }
+        NodeType getType() { return type; }
+
         // ---------------------- METHODS ------------------- //
         // polymorphic clone method: do we need this?
         virtual Node* clone() const;
@@ -90,6 +103,8 @@ namespace ila
         // return the value associated with this object (or None) 
         // if it doesn't exist.
         virtual py::object getValue() const;
+
+
 
         // ----------------- TEMPLATED VISITOR -----------------//
         // Visit each child node in a depth-first order and
