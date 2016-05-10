@@ -104,8 +104,10 @@ class SHA(mmiodev):
                 self.rd_data |= byte << (i*8)
             self.bytes_read = self.bytes_read + 64
             self.sha_state = self.SHA_OP1
+            pass
         elif self.sha_state == self.SHA_OP1:
             self.sha_state = self.SHA_OP2
+            pass
         elif self.sha_state == self.SHA_OP2:
             if self.bytes_read < self.sha_len: # Need more blk
                 self.sha_state = self.SHA_RD
@@ -115,12 +117,14 @@ class SHA(mmiodev):
             self.sha.update(bytes_in)
             res = self.sha.digest()
             self.hs_data = to_num(res, 20)
+            pass
         elif self.sha_state == self.SHA_WR:
             for i in xrange(20):
                 addr = (self.sha_wraddr + 19 - i) & 0xffff
                 byte = (self.hs_data >> (i*8)) & 0xff
                 self.xram[addr] = byte
             self.sha_state = self.SHA_IDLE
+            pass
         s_out = self.s_dict()
         return s_out
 
