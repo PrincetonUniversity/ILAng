@@ -128,10 +128,11 @@ def model(paramsyn):
     # set the fetch expressions.
     sys.fetch_expr = opcode
     # now set the decode expressions.
-    sys.decode_exprs = [opcode == i for i in xrange(alu.NUM_OPCODES)]
+    sys.decode_exprs = [opcode[5:0] == i for i in xrange(alu.NUM_CARE_OPCODES)]
 
     # now synthesize.
     st = time.clock()
+    #sys.synthesize(lambda s: alu.alusim(s))
     sys.synthesize(lambda s: alu.alusim(s))
     et = time.clock()
     print '%.3f' % (et-st)
