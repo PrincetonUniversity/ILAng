@@ -233,12 +233,13 @@ namespace ila
     {
         // save flags.
         auto f = out.flags();
+        out << std::hex << std::showbase;
         for (auto mem : di.mems) {
             out << mem.first << ": " << mem.second << "; ";
         }
 
         for (auto bv : di.bitvecs) {
-            out << bv.first << ": " << bv.second << "; ";
+            out << bv.first << ": " << boost::lexical_cast<mp_int_t>(bv.second) << "; ";
         }
 
         for (auto b : di.bools) {
@@ -351,7 +352,7 @@ namespace ila
             out << mv;
         } else if (which == 1) {
             const std::string& s = boost::get<const std::string&>(simout.out);
-            out << s;
+            out << std::hex << std::showbase << boost::lexical_cast<mp_int_t>(s);
         } else if (which == 2) {
             bool b = boost::get<bool>(simout.out);
             out << (int)b;
