@@ -111,7 +111,7 @@ namespace ila
             _width = n->type.dataWidth;
         } else if (n->type.isFunc()) {
             // Not neccessary.
-            _name = n->name;
+            _name = n->getName();
             _type = bvStr;
             _width = n->type.bitWidth;
         } else {
@@ -259,7 +259,7 @@ namespace ila
     // ---------------------------------------------------------------------- //
     void CppSimGen::operator() (const Node* n)
     {
-        CppVarMap::iterator it = _curVarMap->find(n->name);
+        CppVarMap::iterator it = _curVarMap->find(n->getName());
         if (it != _curVarMap->end()) {
             return;
         }
@@ -324,7 +324,7 @@ namespace ila
             ILA_ASSERT(false, "Unknown node type.");
         }
 
-        checkAndInsert(*_curVarMap, n->name, res);
+        checkAndInsert(*_curVarMap, n->getName(), res);
         _curVar = res;
     }
 
@@ -357,7 +357,7 @@ namespace ila
             ILA_ASSERT(false, "Function not defined yet.");
         }
         
-        f->_ret = findVar(*(it->second), nptr->name);
+        f->_ret = findVar(*(it->second), nptr->getName());
     }
 
     // Add a variable that should be update at the end of the function.
@@ -369,8 +369,8 @@ namespace ila
             ILA_ASSERT(false, "Function not defined yet.");
         }
         
-        CppVar* argL = findVar(*(it->second), lhs->name);
-        CppVar* argR = findVar(*(it->second), rhs->name);
+        CppVar* argL = findVar(*(it->second), lhs->getName());
+        CppVar* argR = findVar(*(it->second), rhs->getName());
 
         f->_updates.push_back(std::make_pair(argL, argR));
     }
@@ -465,14 +465,14 @@ namespace ila
         std::string code = "boolOp NOT IMPLEMENTED";
         //// Unary ////
         if (n->op == BoolOp::Op::NOT) {
-            CppVar* arg0 = findVar(*_curVarMap, n->arg(0)->name);
+            CppVar* arg0 = findVar(*_curVarMap, n->arg(0)->getName());
             code = var->def() + " = !" + arg0->use() + ";";
             _curFun->addBody(code);
         //// Binary ////
         } else if (n->op >= BoolOp::Op::AND &&
                    n->op <= BoolOp::Op::DISTINCT) {
-            CppVar* arg0 = findVar(*_curVarMap, n->arg(0)->name);
-            CppVar* arg1 = findVar(*_curVarMap, n->arg(1)->name);
+            CppVar* arg0 = findVar(*_curVarMap, n->arg(0)->getName());
+            CppVar* arg1 = findVar(*_curVarMap, n->arg(1)->getName());
             if (n->op == BoolOp::Op::AND) {
                 code = var->def() + " = " + 
                        arg0->use() + " && " + arg1->use() + ";";
@@ -528,9 +528,9 @@ namespace ila
             _curFun->addBody(code);
         //// Ternary ////
         } else if (n->op == BoolOp::Op::IF) {
-            CppVar* arg0 = findVar(*_curVarMap, n->arg(0)->name);
-            CppVar* arg1 = findVar(*_curVarMap, n->arg(1)->name);
-            CppVar* arg2 = findVar(*_curVarMap, n->arg(2)->name);
+            CppVar* arg0 = findVar(*_curVarMap, n->arg(0)->getName());
+            CppVar* arg1 = findVar(*_curVarMap, n->arg(1)->getName());
+            CppVar* arg2 = findVar(*_curVarMap, n->arg(2)->getName());
             code = var->def() + " = " + arg0->use() + " ? " + 
                    arg1->use() + " : " + arg2->use() + ";";
             _curFun->addBody(code);
@@ -561,7 +561,7 @@ namespace ila
         //// Unary ////
         if (n->op >= BitvectorOp::Op::NEGATE && 
             n->op <= BitvectorOp::Op::EXTRACT) {
-            CppVar* arg0 = findVar(*_curVarMap, n->arg(0)->name);
+            CppVar* arg0 = findVar(*_curVarMap, n->arg(0)->getName());
             if (n->op == BitvectorOp::Op::NEGATE) {
                 code = var->def() + " = -" + arg0->use() + ";";
                 _curFun->addBody(code);
@@ -617,8 +617,8 @@ namespace ila
         //// Binary ////
         } else if (n->op >= BitvectorOp::Op::ADD &&
                    n->op <= BitvectorOp::Op::READMEM) {
-            CppVar* arg0 = findVar(*_curVarMap, n->arg(0)->name);
-            CppVar* arg1 = findVar(*_curVarMap, n->arg(1)->name);
+            CppVar* arg0 = findVar(*_curVarMap, n->arg(0)->getName());
+            CppVar* arg1 = findVar(*_curVarMap, n->arg(1)->getName());
             if (n->op == BitvectorOp::Op::ADD) {
                 code = var->def() + " = " + 
                        arg0->use() + " + " + arg1->use() + ";";
@@ -707,8 +707,8 @@ namespace ila
         //// Ternary ////
         } else if (n->op == BitvectorOp::READMEMBLOCK) {
             ILA_ASSERT(n->nArgs() == 2, "Two parameters expected.");
-            CppVar* mem = findVar(*_curVarMap, n->arg(0)->name);
-            CppVar* addr = findVar(*_curVarMap, n->arg(1)->name);
+            CppVar* mem = findVar(*_curVarMap, n->arg(0)->getName());
+            CppVar* addr = findVar(*_curVarMap, n->arg(1)->getName());
             ILA_ASSERT(n->nParams() == 2, "Two parameters expected.");
             int blxSize = mem->_width;
             int blxNum = n->param(0);
@@ -763,16 +763,16 @@ namespace ila
 
             code = getSignedCppCode(var);
         } else if (n->op == BitvectorOp::Op::IF) {
-            CppVar* arg0 = findVar(*_curVarMap, n->arg(0)->name);
-            CppVar* arg1 = findVar(*_curVarMap, n->arg(1)->name);
-            CppVar* arg2 = findVar(*_curVarMap, n->arg(2)->name);
+            CppVar* arg0 = findVar(*_curVarMap, n->arg(0)->getName());
+            CppVar* arg1 = findVar(*_curVarMap, n->arg(1)->getName());
+            CppVar* arg2 = findVar(*_curVarMap, n->arg(2)->getName());
             code = var->def() + " = (" + arg0->use() + ") ? " +
                    arg1->use() + " : " + arg2->use() + ";";
         } else if (n->op == BitvectorOp::Op::APPLY_FUNC) {
-            CppVar* fun = findVar(*_curVarMap, n->arg(0)->name);
+            CppVar* fun = findVar(*_curVarMap, n->arg(0)->getName());
             std::vector<CppVar*> argVec;
             for (unsigned i = 1; i != n->nArgs(); i++) {
-                CppVar* arg = findVar(*_curVarMap, n->arg(i)->name);
+                CppVar* arg = findVar(*_curVarMap, n->arg(i)->getName());
                 argVec.push_back(arg);
             }
             code = var->def() + " = " + fun->use() + "(";
@@ -802,12 +802,12 @@ namespace ila
     {
         // Should update to _states and _curVarMap.
         CppVar* var = NULL;
-        auto it = _states.find(n->name);
+        auto it = _states.find(n->getName());
         if (it != _states.end()) {
             var = it->second;
         } else {
             var = new CppVar(n);
-            checkAndInsert(_states, n->name, var);
+            checkAndInsert(_states, n->getName(), var);
         }
 
         _memConst[var] = n;
@@ -817,9 +817,9 @@ namespace ila
     CppVar* CppSimGen::getMemOpCpp(const MemOp* n)
     {
         CppVar* var = NULL; 
-        CppVar* arg0 = findVar(*_curVarMap, n->arg(0)->name);
-        CppVar* arg1 = findVar(*_curVarMap, n->arg(1)->name);
-        CppVar* arg2 = findVar(*_curVarMap, n->arg(2)->name);
+        CppVar* arg0 = findVar(*_curVarMap, n->arg(0)->getName());
+        CppVar* arg1 = findVar(*_curVarMap, n->arg(1)->getName());
+        CppVar* arg2 = findVar(*_curVarMap, n->arg(2)->getName());
 
         std::string code = "MEM NOT IMPLEMENTED";
         if (n->op == MemOp::Op::STORE) {

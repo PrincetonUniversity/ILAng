@@ -201,12 +201,12 @@ namespace ila
     // ---------------------------------------------------------------------- //
     z3::expr Z3ExprAdapter::getBoolVarExpr(const BoolVar* boolvar)
     {
-        return c.bool_const(boolvar->name.c_str());
+        return c.bool_const(boolvar->getName().c_str());
     }
 
     z3::expr Z3ExprAdapter::getBitvectorVarExpr(const BitvectorVar* bvvar)
     {
-        return c.bv_const(bvvar->name.c_str(), bvvar->type.bitWidth);
+        return c.bv_const(bvvar->getName().c_str(), bvvar->type.bitWidth);
     }
 
     z3::expr Z3ExprAdapter::getMemVarExpr(const MemVar* memvar)
@@ -214,13 +214,13 @@ namespace ila
         auto addrsort = c.bv_sort(memvar->type.addrWidth);
         auto datasort = c.bv_sort(memvar->type.dataWidth);
         auto memsort = c.array_sort(addrsort, datasort);
-        return c.constant(memvar->name.c_str(), memsort);
+        return c.constant(memvar->getName().c_str(), memsort);
     }
 
     z3::expr Z3ExprAdapter::getFuncVarExpr(const FuncVar* funcvar)
     {
         using namespace z3;
-        Z3_symbol name  = Z3_mk_string_symbol(c, funcvar->name.c_str());
+        Z3_symbol name  = Z3_mk_string_symbol(c, funcvar->getName().c_str());
         Z3_sort ressort = c.bv_sort(funcvar->type.bitWidth);
         Z3_sort* domain = new Z3_sort[funcvar->type.argsWidth.size()];
         for (unsigned i=0; i != funcvar->type.argsWidth.size(); i++) {
@@ -529,14 +529,14 @@ namespace ila
     {
         using namespace z3;
 
-        auto name = op->name + suffix;
+        auto name = op->getName() + suffix;
         return c.bv_const(name.c_str(), op->type.bitWidth);
     }
 
     z3::expr Z3ExprAdapter::getBVInRangeCnst(const BVInRange* op)
     {
         using namespace z3;
-        auto name = op->name + suffix;
+        auto name = op->getName() + suffix;
         expr var = c.bv_const(name.c_str(), op->type.bitWidth);
         expr lo  = getArgExpr(op, 0);
         expr hi  = getArgExpr(op, 1);
@@ -593,19 +593,19 @@ namespace ila
     // ---------------------------------------------------------------------- //
     z3::expr Z3ExprRewritingAdapter::getBoolVarExpr(const BoolVar* boolvar)
     {
-        bool value = distInp->getBoolValue(boolvar->name);
+        bool value = distInp->getBoolValue(boolvar->getName());
         return c.bool_val(value);
     }
 
     z3::expr Z3ExprRewritingAdapter::getBitvectorVarExpr(const BitvectorVar* bvvar)
     {
-        std::string value = distInp->getBitvecStr(bvvar->name);
+        std::string value = distInp->getBitvecStr(bvvar->getName());
         return c.bv_val(value.c_str(), bvvar->type.bitWidth);
     }
 
     z3::expr Z3ExprRewritingAdapter::getMemVarExpr(const MemVar* mv)
     {
-        const MemValues& memvals = distInp->getMemValues(mv->name);
+        const MemValues& memvals = distInp->getMemValues(mv->getName());
         return memvals.toZ3(c);
     }
 

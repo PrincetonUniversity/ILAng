@@ -113,13 +113,13 @@ namespace ila
         } else if ((rdslice = dynamic_cast<const ReadSlice*>(n))) {
             nptr_t bvp = getRepl(rdslice->bitvec.get());
             nptr_t nptr(ReadSlice::createReadSlice(
-                rdslice->name, bvp, rdslice->width, rdslice->increment));
+                rdslice->getName(), bvp, rdslice->width, rdslice->increment));
             rwmap.insert({n, nptr});
         } else if ((wrslice = dynamic_cast<const WriteSlice*>(n))) {
             nptr_t bvp = getRepl(wrslice->bitvec.get());
             nptr_t wrp = getRepl(wrslice->data.get());
             nptr_t nptr(WriteSlice::createWriteSlice(
-                wrslice->name, bvp, wrp, wrslice->increment));
+                wrslice->getName(), bvp, wrp, wrslice->increment));
             rwmap.insert({n, nptr});
         } else if ((bvchoiceop = dynamic_cast<const BitvectorChoice*>(n))) {
             nptr_vec_t args;

@@ -80,14 +80,14 @@ namespace ila
         // first rewrite.
         Rewriter r1, r2;
         for (auto b : bools) {
-            r1.addRewrite(b, nptr_t(new BoolVar(b->name+"__1")));
-            r2.addRewrite(b, nptr_t(new BoolVar(b->name+"__2")));
+            r1.addRewrite(b, nptr_t(new BoolVar(b->getName()+"__1")));
+            r2.addRewrite(b, nptr_t(new BoolVar(b->getName()+"__2")));
         }
         for (auto bv : bitvecs) {
             r1.addRewrite(bv, nptr_t(new BitvectorVar(
-                "$" + bv->name+"__1", bv->type.bitWidth)));
+                "$" + bv->getName()+"__1", bv->type.bitWidth)));
             r2.addRewrite(bv, nptr_t(new BitvectorVar(
-                "$" + bv->name+"__2", bv->type.bitWidth)));
+                "$" + bv->getName()+"__2", bv->type.bitWidth)));
         }
         int i=0;
         for (auto&& mi : rdexprs) {
@@ -155,14 +155,14 @@ namespace ila
     {
         // fixup bitvecors.
         for (auto bv : s.bitvecs) {
-            const std::string& name = bv->name;
+            const std::string& name = bv->getName();
             std::string value = c.extractNumeralString(m, bv);
             bitvecs[name] = value;
         }
 
         // and booleans.
         for (auto bv : s.bools) {
-            const std::string& name = bv->name;
+            const std::string& name = bv->getName();
             bool value = c.getBoolValue(m, bv);
             bools[name] = value;
         }
@@ -170,9 +170,9 @@ namespace ila
         // fixup memories
         int i = 0; 
         for (auto&& rdex : s.rdexprs) {
-            auto pos = mems.find(rdex.mem->name);
+            auto pos = mems.find(rdex.mem->getName());
             ILA_ASSERT(pos != mems.end(), 
-                "Can't find memory: " + rdex.mem->name);
+                "Can't find memory: " + rdex.mem->getName());
             MemValues& thismem (pos->second);
 
             MemValues mv_model(c, m, rdex.mem);
@@ -233,12 +233,13 @@ namespace ila
     {
         // save flags.
         auto f = out.flags();
+        out << std::hex << std::showbase;
         for (auto mem : di.mems) {
             out << mem.first << ": " << mem.second << "; ";
         }
 
         for (auto bv : di.bitvecs) {
-            out << bv.first << ": " << bv.second << "; ";
+            out << bv.first << ": " << boost::lexical_cast<mp_int_t>(bv.second) << "; ";
         }
 
         for (auto b : di.bools) {
@@ -351,7 +352,7 @@ namespace ila
             out << mv;
         } else if (which == 1) {
             const std::string& s = boost::get<const std::string&>(simout.out);
-            out << s;
+            out << std::hex << std::showbase << boost::lexical_cast<mp_int_t>(s);
         } else if (which == 2) {
             bool b = boost::get<bool>(simout.out);
             out << (int)b;
@@ -936,7 +937,7 @@ namespace ila
         expr ex2 = c2.getExpr(exn).simplify();
         expr cn2 = c2.getCnst(exn).simplify();
         // std::cout << "ex2=" << ex2 << std::endl;
-        std::string miter_name(exn->name + "_miter_output");
+        std::string miter_name(exn->getName() + "_miter_output");
         expr y  = c.bool_const(miter_name.c_str());
 
         // initial constraint.

@@ -82,15 +82,15 @@ namespace ila
 
     void Abstraction::addVar(state_t st, nmap_t& m, nptr_t& n)
     {
-        auto pos = m.find(n->name);
-        if (pos == m.end() && names.find(n->name) == names.end()) {
+        auto pos = m.find(n->getName());
+        if (pos == m.end() && names.find(n->getName()) == names.end()) {
             npair_t np(n, NULL);
-            m.insert({n->name, np});
-            names.insert({n->name, st});
+            m.insert({n->getName(), np});
+            names.insert({n->getName(), st});
         } else {
             if (pos == m.end() || pos->second.var->type != n->type) {
                 throw PyILAException(PyExc_TypeError,
-                    "Type mismatch of new node: " + n->name +
+                    "Type mismatch of new node: " + n->getName() +
                     " with existing node of the same name.");
             }
         }
