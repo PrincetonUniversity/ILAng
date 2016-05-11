@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
 
     init();
     assignFromFile(inFile);
-    assert(!hasChangedMicro());
+    assert(!hasChangedMicro() || stb == 0);
    
     do {
         execute();
@@ -416,7 +416,8 @@ void assignFromFile(const std::string& fileName)
 
 bool hasChangedMicro()
 {
-    if (aes_state[0]  != top->v__DOT__aes_top1__DOT__aes_reg_state ||
+    if (stb == 0 ||
+        aes_state[0]  != top->v__DOT__aes_top1__DOT__aes_reg_state ||
         hasChangedAddr() ||
         hasChangedLen()  ||
         aes_keysel[0] != top->v__DOT__aes_top1__DOT__aes_reg_keysel_next || 
@@ -484,6 +485,10 @@ void writeToFile(const std::string& fileName)
         << (INT)top->data_out << "\n";
     out << byte_cntStr << " " 
         << (INT)top->v__DOT__aes_top1__DOT__byte_counter << "\n";
+    out << blk_cntStr << " "
+        << (INT)top->v__DOT__aes_top1__DOT__block_counter << "\n";
+    out << oped_byte_cntStr << " "
+        << (INT)top->v__DOT__aes_top1__DOT__operated_bytes_count << "\n";
     out << rd_dataStr << " " 
         << top->v__DOT__aes_top1__DOT__mem_data_buf[3]
         << top->v__DOT__aes_top1__DOT__mem_data_buf[2]
@@ -518,6 +523,7 @@ INT hex2int(const std::string& str)
 
 void hex2array(const std::string& str, INT* res, int bn)
 {
+    assert(str.size() % 2 == 0);
     unsigned num = str.size() / bn;
 
     for (unsigned i = 0; i < num; i++) {
