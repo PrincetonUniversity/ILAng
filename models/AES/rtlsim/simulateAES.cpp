@@ -16,27 +16,31 @@ std::string aes_key0Str = "aes_key0";
 std::string aes_key1Str = "aes_key1";
 std::string data_outStr = "data_out";
 std::string byte_cntStr = "byte_cnt";
+std::string oped_byte_cntStr = "oped_byte_cnt";
+std::string blk_cntStr = "blk_cnt";
 std::string rd_dataStr = "rd_data";
 std::string enc_dataStr = "enc_data";
 std::string xramStr = "xram";
 
 // Global inputs, for execution.
-INT stb = 0;
-INT cmd = 0;
-INT cmdaddr = 0;
-INT cmddata = 0;
+INT stb = 0;                // 1    1 * 8
+INT cmd = 0;                // 1    1 * 8
+INT cmdaddr = 0;            // 16   1 * 16
+INT cmddata = 0;            // 8    1 * 8
 // Global states, for comparison.
-INT aes_state;
-INT aes_addr;
-INT aes_len;
-INT aes_keysel;
-INT aes_ctr[16];
-INT aes_key0[16];
-INT aes_key1[16];
-INT data_out;
-INT byte_cnt;
-INT rd_data[4];
-INT enc_data[4];
+INT aes_state[1];           // 3    1 * 8
+INT aes_addr[2];            // 16   2 * 8
+INT aes_len[2];             // 16   2 * 8
+INT aes_keysel[1];          // 1    1 * 8
+INT aes_ctr[16];            // 128  16 * 8
+INT aes_key0[16];           // 128  16 * 8
+INT aes_key1[16];           // 128  16 * 8
+INT data_out[1];            // 8    1 * 8
+INT oped_byte_cnt[1];       // 16   1 * 16
+INT byte_cnt[1];            // 16   1 * 16
+INT blk_cnt[1];             // 16   1 * 16
+INT rd_data[4];             // 128  4 * 32
+INT enc_data[4];            // 128  4 * 32
 // xram
 INT defVal;
 
@@ -60,6 +64,28 @@ int main(int argc, char* argv[])
     writeToFile(outFile);
 
     return 0;
+}
+
+void assignState()
+{
+    top->v__DOT__aes_top1__DOT__aes_reg_state = aes_state[0];
+}
+
+void assignAddr()
+{
+    top->v__DOT__aes_top1__DOT__aes_reg_opaddr_i__DOT__reg0_next = aes_addr[0];
+    top->v__DOT__aes_top1__DOT__aes_reg_opaddr_i__DOT__reg1_next = aes_addr[1];
+}
+
+void assignLen()
+{
+    top->v__DOT__aes_top1__DOT__aes_reg_oplen_i__DOT__reg0_next = aes_len[0];
+    top->v__DOT__aes_top1__DOT__aes_reg_oplen_i__DOT__reg1_next = aes_len[1];
+}
+
+void assignKeySel()
+{
+    top->v__DOT__aes_top1__DOT__aes_reg_keysel_next = aes_keysel[0];
 }
 
 void assignCTR()
@@ -120,6 +146,46 @@ void assignKEY1()
     top->v__DOT__aes_top1__DOT__aes_reg_key1_i__DOT__reg13_next = aes_key1[13];
     top->v__DOT__aes_top1__DOT__aes_reg_key1_i__DOT__reg14_next = aes_key1[14];
     top->v__DOT__aes_top1__DOT__aes_reg_key1_i__DOT__reg15_next = aes_key1[15];
+}
+
+void assignDataOut()
+{
+    top->data_out = data_out[0];
+}
+
+void assignByteCnt()
+{
+    top->v__DOT__aes_top1__DOT__byte_counter_next = byte_cnt[0];
+}
+
+void assignOpedByteCnt()
+{
+    top->v__DOT__aes_top1__DOT__operated_bytes_count_next = oped_byte_cnt[0];
+}
+
+void assignBlkCnt()
+{
+    top->v__DOT__aes_top1__DOT__block_counter_next = blk_cnt[0];
+}
+
+bool hasChangedAddr()
+{
+    if (
+    top->v__DOT__aes_top1__DOT__aes_reg_opaddr_i__DOT__reg0_next != aes_addr[0]||
+    top->v__DOT__aes_top1__DOT__aes_reg_opaddr_i__DOT__reg1_next != aes_addr[1])
+        return true;
+    else 
+        return false;
+}
+
+bool hasChangedLen()
+{
+    if (
+    top->v__DOT__aes_top1__DOT__aes_reg_oplen_i__DOT__reg0_next != aes_len[0] ||
+    top->v__DOT__aes_top1__DOT__aes_reg_oplen_i__DOT__reg1_next != aes_len[1])
+        return true;
+    else 
+        return false;
 }
 
 bool hasChangedCTR()
@@ -269,17 +335,20 @@ void assignFromFile(const std::string& fileName)
             cmddata = hex2int(buff);
         } else if (buff == aes_stateStr) {
             in >> buff;
-            aes_state = top->aes_state = hex2int(buff);
+            hex2array(buff, aes_state, 2);
+            assignState();
         } else if (buff == aes_addrStr) {
             in >> buff;
-            aes_addr = top->aes_addr = hex2int(buff);
+            hex2array(buff, aes_addr, 2);
+            assignAddr();
         } else if (buff == aes_lenStr) {
             in >> buff;
-            aes_len = top->aes_len = hex2int(buff);
+            hex2array(buff, aes_len, 2);
+            assignLen();
         } else if (buff == aes_keyselStr) {
             in >> buff;
-            aes_keysel = 
-                top->v__DOT__aes_top1__DOT__aes_reg_keysel = hex2int(buff);
+            hex2array(buff, aes_keysel, 2);
+            assignKeySel();
         } else if (buff == aes_ctrStr) {
             in >> buff;
             hex2array(buff, aes_ctr, 2);
@@ -294,19 +363,28 @@ void assignFromFile(const std::string& fileName)
             assignKEY1();
         } else if (buff == data_outStr) {
             in >> buff;
-            data_out = top->data_out << hex2int(buff);
+            hex2array(buff, data_out, 2);
+            assignDataOut();
         } else if (buff == byte_cntStr) {
             in >> buff;
-            byte_cnt = 
-                top->v__DOT__aes_top1__DOT__byte_counter = hex2int(buff);
+            hex2array(buff, byte_cnt, 4);
+            assignByteCnt();
+        } else if (buff == oped_byte_cntStr) {
+            in >> buff;
+            hex2array(buff, oped_byte_cnt, 4);
+            assignOpedByteCnt();
+        } else if (buff == blk_cntStr) {
+            in >> buff;
+            hex2array(buff, blk_cnt, 4);
+            assignBlkCnt();
         } else if (buff == rd_dataStr) {
             in >> buff;
-            hex2array(buff, rd_data, 4);
-            hex2array(buff, top->v__DOT__aes_top1__DOT__mem_data_buf_next, 4);
+            hex2array(buff, rd_data, 8);
+            hex2array(buff, top->v__DOT__aes_top1__DOT__mem_data_buf_next, 8);
         } else if (buff == enc_dataStr) {
             in >> buff;
-            hex2array(buff, enc_data, 4);
-            hex2array(buff, top->v__DOT__aes_top1__DOT__encrypted_data_buf_next, 4);
+            hex2array(buff, enc_data, 8);
+            hex2array(buff, top->v__DOT__aes_top1__DOT__encrypted_data_buf_next, 8);
         } else if (buff == xramStr) {
             std::map<INT, INT> mem;
             char head = nextChar(in);
@@ -338,11 +416,14 @@ void assignFromFile(const std::string& fileName)
 
 bool hasChangedMicro()
 {
-    if (aes_state  != top->aes_state || 
-        aes_addr   != top->aes_addr  ||
-        aes_len    != top->aes_len   ||
-        aes_keysel != top->v__DOT__aes_top1__DOT__aes_reg_keysel ||
-        byte_cnt   != top->v__DOT__aes_top1__DOT__byte_counter   || 
+    if (aes_state[0]  != top->v__DOT__aes_top1__DOT__aes_reg_state ||
+        hasChangedAddr() ||
+        hasChangedLen()  ||
+        aes_keysel[0] != top->v__DOT__aes_top1__DOT__aes_reg_keysel_next || 
+        byte_cnt[0]   != top->v__DOT__aes_top1__DOT__byte_counter_next ||
+        oped_byte_cnt[0] != 
+            top->v__DOT__aes_top1__DOT__operated_bytes_count_next ||
+        blk_cnt[0] != top->v__DOT__aes_top1__DOT__block_counter_next ||
         hasChangedCTR()  || 
         hasChangedKEY0() || 
         hasChangedKEY1() ||
@@ -356,16 +437,7 @@ bool hasChangedMicro()
 
 bool hasChangedMacro()
 {
-    if (aes_state  != top->aes_state  || 
-        aes_addr   != top->aes_addr   ||
-        aes_len    != top->aes_len    ||
-        aes_keysel != top->v__DOT__aes_top1__DOT__aes_reg_keysel ||
-        hasChangedCTR()  || 
-        hasChangedKEY0() || 
-        hasChangedKEY1()) {
-        return true;
-    }
-    return false;
+    return true;
 }
 
 void execute()
@@ -446,7 +518,6 @@ INT hex2int(const std::string& str)
 
 void hex2array(const std::string& str, INT* res, int bn)
 {
-    assert(str.size() == 16);
     unsigned num = str.size() / bn;
 
     for (unsigned i = 0; i < num; i++) {
