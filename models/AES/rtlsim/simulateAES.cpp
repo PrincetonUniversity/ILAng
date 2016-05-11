@@ -38,6 +38,7 @@ INT byte_cnt;
 INT rd_data[4];
 INT enc_data[4];
 // xram
+INT defVal;
 
 int main(int argc, char* argv[]) 
 {
@@ -59,26 +60,6 @@ int main(int argc, char* argv[])
     writeToFile(outFile);
 
     return 0;
-}
-
-INT hex2int(const std::string& str)
-{
-    stringstream ss;
-    INT res;
-    ss << std::hex <<str;
-    ss >> res;
-    return res;
-}
-
-void hex2array(const std::string& str, INT* res, int bn)
-{
-    assert(str.size() == 16);
-    unsigned num = str.size() / bn;
-
-    for (unsigned i = 0; i < num; i++) {
-        std::string sub = str.substr(str.size()-bn-(i*bn), bn);
-        res[i] = hex2int(sub);
-    }
 }
 
 void assignCTR()
@@ -327,8 +308,25 @@ void assignFromFile(const std::string& fileName)
             hex2array(buff, enc_data, 4);
             hex2array(buff, top->v__DOT__aes_top1__DOT__encrypted_data_buf_next, 4);
         } else if (buff == xramStr) {
+            std::map<INT, INT> mem;
+            char head = nextChar(in);
+            assert(head == '[');
             in >> buff;
-            // TODO
+            while (buff != "default:") {
+                INT addr = memSplitA(buff);
+                INT data = memSplitD(buff);
+                mem[addr] = data;
+                in >> buff;
+            }
+            in >> buff;
+            defVal = memSplitD(buff);
+            for (unsigned i = 0; i < 65536; i++) {
+                top->v__DOT__oc8051_xram1__DOT__buff[i] = defVal;
+            }
+            for (std::map<INT, INT>::iterator it = mem.begin(); 
+                 it != mem.end(); it++) {
+                top->v__DOT__oc8051_xram1__DOT__buff[it->first] = it->second;
+            }
         } else {
             std::cerr << "Unknown state \"" << buff << "\"\n";
         }
@@ -424,10 +422,59 @@ void writeToFile(const std::string& fileName)
         << top->v__DOT__aes_top1__DOT__encrypted_data_buf[2]
         << top->v__DOT__aes_top1__DOT__encrypted_data_buf[1]
         << top->v__DOT__aes_top1__DOT__encrypted_data_buf[0] << "\n";
-    // TODO
-    out << xramStr << " " << "0x0" << "\n";
+    out << xramStr << "\n"; 
+    for (unsigned i = 0; i < 65536; i++) {
+        if (top->v__DOT__oc8051_xram1__DOT__buff[i] != defVal) {
+            out << i << " " 
+                << (INT)top->v__DOT__oc8051_xram1__DOT__buff[i] << "\n";
+        }
+    }
+    out << "default: " << (INT)defVal << "\n";
 
     out << ".AES_OP_END\n";
     out.close();
 }
 
+INT hex2int(const std::string& str)
+{
+    stringstream ss;
+    INT res;
+    ss << std::hex << str;
+    ss >> res;
+    return res;
+}
+
+void hex2array(const std::string& str, INT* res, int bn)
+{
+    assert(str.size() == 16);
+    unsigned num = str.size() / bn;
+
+    for (unsigned i = 0; i < num; i++) {
+        std::string sub = str.substr(str.size()-bn-(i*bn), bn);
+        res[i] = hex2int(sub);
+    }
+}
+
+char nextChar(std::istream& in) 
+{
+    char buf = '\0'; // init.
+    while (!in.eof()) {
+        buf = in.get();
+        if (buf != ' ' && buf != '\n') return buf;
+    }
+    return buf;
+}
+
+INT memSplitA(const std::string& buff)
+{
+    unsigned pos = buff.find_first_of(':');
+    return hex2int(buff.substr(0, pos+1));
+}
+
+INT memSplitD(const std::string& buff)
+{
+    unsigned semiPos = buff.find_first_of(':', 0);
+    unsigned start = (semiPos == std::string::npos) ? 0 : semiPos+1;
+    unsigned len = buff.size() - start;
+    return hex2int(buff.substr(start, len));
+}

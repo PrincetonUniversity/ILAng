@@ -8,7 +8,9 @@ def hex2arr(n, l):
     return Hex(n).zfill(l)
 
 def Hex(n):
-    return hex(n)[2:]
+    tmp = hex(n)[2:]
+    return tmp
+    #return hex(n)[2:]
 
 class AES():
     def __init__(self):
@@ -73,8 +75,9 @@ class AES():
         f.write("byte_cnt "     + Hex(self.byte_cnt) + "\n")
         f.write("rd_data "      + hex2arr(self.rd_data, 16) + "\n")
         f.write("enc_data "     + hex2arr(self.enc_data, 16) + "\n")
-        # TODO
-        f.write("xram "         + "0x0" + "\n") 
+        f.write("xram ")
+        print >> f, self.xram
+        f.write("\n")
 
         f.write(".AES_IP_END\n")
         f.close()
@@ -110,8 +113,17 @@ class AES():
             elif (wordList[0] == "enc_data"):
                 self.enc_data = int(wordList[1], 16)
             elif (wordList[0] == "xram"):
-                # TODO
-                self.xram = self.xram
+                self.xram = ila.MemValues(16, 8, 0x0)
+                line = f.readline()
+                wordList = line.split()
+                while (wordList[0] != "default:"):
+                    addr = int(wordList[0], 16)
+                    data = int(wordList[1], 16)
+                    self.xram[addr] = data
+                    line = f.readline()
+                    wordList = line.split()
+                defVal = int(wordList[1], 16)
+                self.xram.default = defVal
             else: 
                 assert(False)
             line = f.readline()
