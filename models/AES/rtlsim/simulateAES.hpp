@@ -59,7 +59,8 @@ void init();
 
 void assignFromFile(const std::string& fileName);
 
-bool hasChanged();
+bool hasChangedMicro();
+bool hasChangedMacro();
 
 void execute();
 

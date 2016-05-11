@@ -21,6 +21,7 @@ std::string enc_dataStr = "enc_data";
 std::string xramStr = "xram";
 
 // Global inputs, for execution.
+INT stb = 0;
 INT cmd = 0;
 INT cmdaddr = 0;
 INT cmddata = 0;
@@ -40,17 +41,22 @@ INT enc_data[4];
 
 int main(int argc, char* argv[]) 
 {
+    std::string mode = argv[1];
+    std::string inFile = argv[2];
+    std::string outFile = argv[3];
+    bool isMicro = (mode == "micro");
     top = new VsimXramAes_top();
 
     init();
-    assignFromFile("assign.ip");
-    assert(!hasChanged());
+    assignFromFile(inFile);
+    assert(!hasChangedMicro());
    
     do {
         execute();
-    } while (!hasChanged());
+    } while (isMicro ? !hasChangedMicro() : 
+                       !hasChangedMacro());
 
-    writeToFile("res.op");
+    writeToFile(outFile);
 
     return 0;
 }
@@ -234,11 +240,11 @@ void init()
         if (i % 10 == 0) {
             top->clk = 1;
             top->rst = 1;
-            top->stb = 1;
+            top->stb = stb;
         } else if (i % 10 == 5) {
             top->clk = 0;
             top->rst = 1;
-            top->stb = 1;
+            top->stb = stb;
         }
         top->eval();
     }
@@ -262,7 +268,18 @@ void assignFromFile(const std::string& fileName)
     while (buff != ".AES_IP_END") {
         if (buff == cmdStr) {
             in >> buff;
-            cmd = hex2int(buff);
+            INT tmp = hex2int(buff);
+            if (tmp == 0) {
+                stb = 0;
+            } else if (tmp == 1) {
+                stb = 1;
+                cmd = 0;
+            } else if (tmp == 2) {
+                stb = 1;
+                cmd = 1;
+            } else {
+                stb = 0;
+            }
         } else if (buff == cmdaddrStr) {
             in >> buff;
             cmdaddr = hex2int(buff);
@@ -321,25 +338,36 @@ void assignFromFile(const std::string& fileName)
     in.close();
 }
 
-bool hasChanged()
+bool hasChangedMicro()
+{
+    if (aes_state  != top->aes_state || 
+        aes_addr   != top->aes_addr  ||
+        aes_len    != top->aes_len   ||
+        aes_keysel != top->v__DOT__aes_top1__DOT__aes_reg_keysel ||
+        byte_cnt   != top->v__DOT__aes_top1__DOT__byte_counter   || 
+        hasChangedCTR()  || 
+        hasChangedKEY0() || 
+        hasChangedKEY1() ||
+        hasChangedRD()   ||
+        hasChangedENC()) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool hasChangedMacro()
 {
     if (aes_state  != top->aes_state  || 
         aes_addr   != top->aes_addr   ||
         aes_len    != top->aes_len    ||
         aes_keysel != top->v__DOT__aes_top1__DOT__aes_reg_keysel ||
-        byte_cnt   != top->v__DOT__aes_top1__DOT__byte_counter) { 
+        hasChangedCTR()  || 
+        hasChangedKEY0() || 
+        hasChangedKEY1()) {
         return true;
-    } else {
-        if (hasChangedCTR()  || 
-            hasChangedKEY0() || 
-            hasChangedKEY1() ||
-            hasChangedRD()   ||
-            hasChangedENC()) {
-            return true;
-        } else {
-            return false;
-        }
     }
+    return false;
 }
 
 void execute()
