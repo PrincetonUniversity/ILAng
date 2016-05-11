@@ -32,6 +32,8 @@ def evalState(pc, xram_data_in, rom, regs):
     with tempfile.NamedTemporaryFile() as fileobject:
         dumpState(fileobject, pc, xram_data_in, rom, regs)
 
+        # with open('data.out', 'wt') as fileobj:
+        #     print >> fileobj, subprocess.check_output(['cat', fileobject.name])
         # print subprocess.check_output(['cat', fileobject.name])
         # print subprocess.check_output(['wc', fileobject.name])
         # print subprocess.check_output(['./8051syn', fileobject.name])
@@ -146,11 +148,11 @@ def extractIRAM(regs):
 
 def main():
     rom = ila.MemValues(16, 8, 0)
-    rom[0x800] = 0x05
+    rom[0x800] = 0xA4
     rom[0x801] = 0x00
     inputs = {
-        'ACC':0x13,
-        'B':0x0,
+        'ACC':0xC8,
+        'B':0x97,
         'DPH':0x0,
         'DPL':0x0,
         'IE':0x0,

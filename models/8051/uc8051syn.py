@@ -354,7 +354,7 @@ def synthesize(state, enable_ps):
         model.exportOne(ast, 'asts/%s_%s' % (s, 'en' if enable_ps else 'dis'))
 
 def main():
-    ila.setloglevel(0, "")
+    ila.setloglevel(1, "")
     parser = argparse.ArgumentParser()
     parser.add_argument("--en", type=int, default=1, 
                         help="enable parameterized synthesis.")
