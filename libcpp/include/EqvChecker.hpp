@@ -3,7 +3,7 @@
 
 
 #include "Unroller.hpp"
-#include "Abstraction.hpp"
+#include "abstraction.hpp"
 #include "boost/foreach.hpp"
 
 #include <vector>
@@ -35,8 +35,8 @@ namespace ila
         , m_pUnroller2(&u2)
     { init (); }
     
-    Abstraction* getUnroller1 () { return m_pUnroller1; }
-    Abstraction* getUnroller2 () { return m_pUnroller2; }
+    Unroller* getUnroller1 () { return m_pUnroller1; }
+    Unroller* getUnroller2 () { return m_pUnroller2; }
     
     
   public:
