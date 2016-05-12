@@ -430,10 +430,11 @@ VL_MODULE(VsimXramAes_top) {
     VL_OUT8(data_out,7,0);
     VL_OUT8(aes_state,1,0);
     VL_OUT8(aes_step,0,0);
+    VL_OUT8(aes_ack,0,0);
+    //char	__VpadToAlign9[1];
     VL_IN16(cmdaddr,15,0);
     VL_OUT16(aes_addr,15,0);
     VL_OUT16(aes_len,15,0);
-    //char	__VpadToAlign14[2];
     VL_OUTW(aes_ctr,127,0,4);
     VL_OUTW(aes_key0,127,0,4);
     VL_OUTW(aes_key1,127,0,4);
@@ -1422,18 +1423,19 @@ VL_MODULE(VsimXramAes_top) {
   private:
     static QData	_change_request(VsimXramAes_top__Syms* __restrict vlSymsp);
   public:
-    static void	_combo__TOP__4(VsimXramAes_top__Syms* __restrict vlSymsp);
-    static void	_combo__TOP__7(VsimXramAes_top__Syms* __restrict vlSymsp);
+    static void	_combo__TOP__1(VsimXramAes_top__Syms* __restrict vlSymsp);
+    static void	_combo__TOP__11(VsimXramAes_top__Syms* __restrict vlSymsp);
+    static void	_combo__TOP__6(VsimXramAes_top__Syms* __restrict vlSymsp);
     static void	_combo__TOP__9(VsimXramAes_top__Syms* __restrict vlSymsp);
     static void	_eval(VsimXramAes_top__Syms* __restrict vlSymsp);
     static void	_eval_initial(VsimXramAes_top__Syms* __restrict vlSymsp);
     static void	_eval_settle(VsimXramAes_top__Syms* __restrict vlSymsp);
-    static void	_sequent__TOP__1(VsimXramAes_top__Syms* __restrict vlSymsp);
-    static void	_sequent__TOP__2(VsimXramAes_top__Syms* __restrict vlSymsp);
-    static void	_sequent__TOP__5(VsimXramAes_top__Syms* __restrict vlSymsp);
+    static void	_sequent__TOP__3(VsimXramAes_top__Syms* __restrict vlSymsp);
+    static void	_sequent__TOP__4(VsimXramAes_top__Syms* __restrict vlSymsp);
+    static void	_sequent__TOP__7(VsimXramAes_top__Syms* __restrict vlSymsp);
     static void	_settle__TOP__10(VsimXramAes_top__Syms* __restrict vlSymsp);
-    static void	_settle__TOP__3(VsimXramAes_top__Syms* __restrict vlSymsp);
-    static void	_settle__TOP__6(VsimXramAes_top__Syms* __restrict vlSymsp);
+    static void	_settle__TOP__12(VsimXramAes_top__Syms* __restrict vlSymsp);
+    static void	_settle__TOP__5(VsimXramAes_top__Syms* __restrict vlSymsp);
     static void	_settle__TOP__8(VsimXramAes_top__Syms* __restrict vlSymsp);
 } VL_ATTR_ALIGNED(128);
 

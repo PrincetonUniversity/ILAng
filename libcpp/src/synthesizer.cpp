@@ -16,6 +16,8 @@ namespace ila
             return;
         }
 
+        log2() << "SupportVars::dfs: " << *n << std::endl;
+
         const BoolVar* boolvar = NULL; 
         const BitvectorVar* bvvar = NULL;
         const BitvectorOp* bvop = NULL;
@@ -34,13 +36,14 @@ namespace ila
                 } else {
                     canFixUp = false;
                 }
+                // don't recurse further.
+                return;
             }
-            // don't recurse further.
-            return;
         }
 
-
-        for (unsigned i = 0, cnt = n->nArgs(); i != cnt; i++) {
+        log2() << "SupportVars::dfs: n=" << n->nArgs() << std::endl;
+        unsigned cnt = n->nArgs();
+        for (unsigned i = 0; i != cnt; i++) {
             dfs(n->arg(i).get());
         }
     }
@@ -182,12 +185,10 @@ namespace ila
 
             mp_int_t addr_di = boost::lexical_cast<mp_int_t>(rdaddrs[i]);
             // get the address from the "saved" model.
-#ifdef DEBUG
-            std::cout << "addr_that: " << addr_that 
-                      << "; addr_this: " << addr_this
-                      << "; data: " << data
+            log2()    << "addr_that: " << addr_model_s 
+                      << "; addr_this: " << addr_model
+                      << "; data: " << data_model
                       << std::endl;
-#endif
             thismem.values[addr_di] = data_model;
             i++;
         }

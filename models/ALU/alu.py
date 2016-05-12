@@ -132,6 +132,9 @@ def model(num_regs, reg_size, paramsyn):
     pc_next = sys.get_next('pc')
     assert sys.areEqual(pc_next, pc+1)
 
+    # rom never changes.
+    sys.set_next('rom', rom)
+
     # now synthesize.
     st = time.clock()
     sys.synthesize(lambda s: alu.alusim(s))
@@ -156,9 +159,9 @@ def model(num_regs, reg_size, paramsyn):
     # now import into a new abstraction and check.
     sysp = ila.Abstraction("alu")
     sysp.importAll(expFile);
-    romp = sysp.mem('rom', alu.ROM_ADDR_WIDTH, alu.OPCODE_WIDTH)
-    pcp = sysp.reg('pc', alu.ROM_ADDR_WIDTH)
-    regsp = [sysp.reg('r%d' % i, alu.REG_SIZE) for i in xrange(alu.NUM_REGS)]
+    romp = sysp.getmem('rom')
+    pcp = sysp.getreg('pc')
+    regsp = [sysp.getreg('r%d' % i) for i in xrange(alu.NUM_REGS)]
     regs_next = aluexpr(romp, pcp, regsp)
     for i in xrange(alu.NUM_REGS):
         rn1 = sysp.get_next('r%d' % i)

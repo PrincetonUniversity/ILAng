@@ -5,12 +5,16 @@ import subprocess
 import ila
 
 def hex2arr(n, l):
-    return Hex(n).zfill(l)
+    return Hex(n).zfill(l/4)
 
 def Hex(n):
-    tmp = hex(n)[2:]
-    return tmp
-    #return hex(n)[2:]
+    return hex(n)[2:]
+
+def arr2string(arr):
+    res = ""
+    for i in xrange(16):
+        res += hex2arr(arr[15-i], 8)
+    return res
 
 class AES():
     def __init__(self):
@@ -18,14 +22,16 @@ class AES():
         self.aes_addr   = 0
         self.aes_len    = 0
         self.aes_keysel = 0
-        self.aes_ctr    = [0] * 16
-        self.aes_key0   = [0] * 16
-        self.aes_key1   = [0] * 16
+        self.aes_ctr    = 0 
+        self.aes_key0   = 0
+        self.aes_key1   = 0
         self.data_out   = 0
 
         self.byte_cnt   = 0
-        self.rd_data    = [0] * 16
-        self.enc_data   = [0] * 16
+        self.blk_cnt    = 0
+        self.oped_byte_cnt = 0
+        self.rd_data    = 0
+        self.enc_data   = 0
         self.xram       = ila.MemValues(16, 8, 0x0)
 
         self.inFile     = 'assign.in'
@@ -50,6 +56,8 @@ class AES():
         self.aes_key0   = s_in['aes_key0']
         self.aes_key1   = s_in['aes_key1']
         self.byte_cnt   = self.get(s_in,'byte_cnt', 0)
+        self.blk_cnt    = self.get(s_in,'blk_cnt', 0)
+        self.oped_byte_cnt = self.get(s_in, 'oped_byte_cnt', 0)
         self.rd_data    = self.get(s_in,'rd_data', 0)
         self.enc_data   = self.get(s_in,'enc_data', 0)
         self.xram       = self.get(s_in,'XRAM', ila.MemValues(16, 8, 0x0))
@@ -61,20 +69,22 @@ class AES():
         f = open(self.inFile, 'w')
         f.write(".AES_IP_START\n")
         
-        f.write("cmd "          + Hex(cmd) + "\n")
-        f.write("cmdaddr "      + Hex(cmdaddr) + "\n")
-        f.write("cmddata "      + Hex(cmddata) + "\n")
-        f.write("aes_state "    + Hex(self.aes_state) + "\n")
-        f.write("aes_addr "     + Hex(self.aes_addr) + "\n")
-        f.write("aes_len "      + Hex(self.aes_len) + "\n")
-        f.write("aes_keysel "   + Hex(self.aes_keysel) + "\n")
-        f.write("aes_ctr "      + hex2arr(self.aes_ctr, 16) + "\n")
-        f.write("aes_key0 "     + hex2arr(self.aes_key0, 16) + "\n")
-        f.write("aes_key1 "     + hex2arr(self.aes_key1, 16) + "\n")
-        f.write("data_out "     + Hex(self.data_out) + "\n")
-        f.write("byte_cnt "     + Hex(self.byte_cnt) + "\n")
-        f.write("rd_data "      + hex2arr(self.rd_data, 16) + "\n")
-        f.write("enc_data "     + hex2arr(self.enc_data, 16) + "\n")
+        f.write("cmd "          + hex2arr(cmd, 8) + "\n")
+        f.write("cmdaddr "      + hex2arr(cmdaddr, 16) + "\n")
+        f.write("cmddata "      + hex2arr(cmddata, 8) + "\n")
+        f.write("aes_state "    + hex2arr(self.aes_state, 8) + "\n")
+        f.write("aes_addr "     + hex2arr(self.aes_addr, 16) + "\n")
+        f.write("aes_len "      + hex2arr(self.aes_len, 16) + "\n")
+        f.write("aes_keysel "   + hex2arr(self.aes_keysel, 8) + "\n")
+        f.write("aes_ctr "      + hex2arr(self.aes_ctr, 128) + "\n")
+        f.write("aes_key0 "     + hex2arr(self.aes_key0, 128) + "\n")
+        f.write("aes_key1 "     + hex2arr(self.aes_key1, 128) + "\n")
+        f.write("data_out "     + hex2arr(self.data_out, 8) + "\n")
+        f.write("byte_cnt "     + hex2arr(self.byte_cnt, 16) + "\n")
+        f.write("oped_byte_cnt "+ hex2arr(self.oped_byte_cnt, 16) + "\n")
+        f.write("blk_cnt "      + hex2arr(self.blk_cnt, 16) + "\n")
+        f.write("rd_data "      + hex2arr(self.rd_data, 128) + "\n")
+        f.write("enc_data "     + hex2arr(self.enc_data, 128) + "\n")
         f.write("xram ")
         print >> f, self.xram
         f.write("\n")
@@ -108,6 +118,10 @@ class AES():
                 self.data_out = int(wordList[1], 16)
             elif (wordList[0] == "byte_cnt"):
                 self.byte_cnt = int(wordList[1], 16)
+            elif (wordList[0] == "oped_byte_cnt"):
+                self.oped_byte_cnt = int(wordList[1], 16)
+            elif (wordList[0] == "blk_cnt"):
+                self.blk_cnt = int(wordList[1], 16)
             elif (wordList[0] == "rd_data"):
                 self.rd_data = int(wordList[1], 16)
             elif (wordList[0] == "enc_data"):
@@ -130,18 +144,6 @@ class AES():
 
         f.close()
         
-    def simMacro(self, s_in):
-        # TODO
-        s_out = self.s_dict()
-        return s_out
-        """
-        self.assign(s_in)
-        subprocess.call(['./AESsim', 'macro'])
-        self.getStates()
-        s_out = self.s_dict()
-        return s_out
-        """
-
     def simMicro(self, s_in):
         self.assign(s_in)
         subprocess.call(['./AESsim', 'micro', self.inFile, self.outFile])
@@ -160,6 +162,8 @@ class AES():
             'aes_key1'      : self.aes_key1,
             'data_out'      : self.data_out,
             'byte_cnt'      : self.byte_cnt,
+            'blk_cnt'       : self.blk_cnt,
+            'oped_byte_cnt' : self.oped_byte_cnt,
             'rd_data'       : self.rd_data,
             'enc_data'      : self.enc_data,
             'XRAM'          : self.xram
@@ -172,17 +176,23 @@ def testAES():
     s_in['cmd'] =  1
     s_in['cmdaddr'] = 0xff04
     s_in['cmddata'] = 0x12
-    s_in['aes_state'] = 0x00
-    ctr = [0] * 16
-    s_in['aes_ctr'] = [0, 0, 0, 0, 0, 0, 1, 2, 3, 15, 0, 0, 0, 0, 0, 0]
+    s_in['aes_state'] = 0x01
+    s_in['aes_ctr'] = 0x123f000000
 
-    aes.assign(s_in)
+    s_out = aes.simMicro(s_in)
 
-    subprocess.call(['./AESsim'])
+    s_in = aes.s_dict()
+    s_in['cmd'] = 1
+    s_in['cmdaddr'] = 0xff01
+    s_in['cmddata'] = 2
+    s_in['aes_state'] = 0x1
+    s_in['aes_len'] = 0x10
+    s_in['byte_cnt'] = 0xf
 
-    aes.getStates()
+    s_out = aes.simMicro(s_in)
+    print s_out['byte_cnt']
+    print s_out['aes_state']
 
-    s_out = aes.s_dict()
 
 if __name__ == '__main__':
     testAES()
