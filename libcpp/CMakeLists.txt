@@ -12,7 +12,7 @@ set(CMAKE_MODULE_PATH
   "${CMAKE_CURRENT_SOURCE_DIR}/cmake"
   )
 
-add_definitions ("-std=c++11 -fPIC")
+add_definitions ("-std=c++11 -fPIC -DBOOST_VARIANT_USE_RELAXED_GET_BY_DEFAULT")
 add_definitions ("-D BOOST_NO_CXX11_NUMERIC_LIMITS=1 -D DISABLE_ICE_DEPRECATION_WARNINGS")
 
 set (CUSTOM_BOOST_ROOT "" CACHE PATH "Path to custom boost installation.")

@@ -1,7 +1,7 @@
 add_library (ila SHARED
-abstraction.cpp ast.cpp exception.cpp ext.cpp memvalues.cpp smt.cpp syn.cpp type.cpp util.cpp)
+abstraction.cpp ast.cpp cppsimgen.cpp ext.cpp logging.cpp rewriter.cpp smt.cpp synthesizer.cpp util.cpp exception.cpp imexport.cpp memvalues.cpp simplify.cpp synrewriter.cpp type.cpp Unroller.cpp EqvChecker.cpp)
 add_library(ast SHARED
-ast/bitvec.cpp  ast/bool.cpp    ast/node.cpp    ast/choice.cpp)
+ast/bitvec.cpp ast/bool.cpp ast/node.cpp ast/choice.cpp ast/bvinrange.cpp ast/mem.cpp ast/node.cpp)
 
 set (EXT_LIBRARIES ${Z3_LIBRARY})
 

@@ -11,12 +11,14 @@ namespace ila
     Z3ExprAdapter::Z3ExprAdapter(z3::context& ctx, const std::string& s)
       : c(ctx)
       , suffix(s)
+      , name_suffix("")
     {
     }
 
     Z3ExprAdapter::Z3ExprAdapter(z3::context& ctx, const char* s)
       : c(ctx)
       , suffix(s)
+      , name_suffix("")
     {
     }
 
@@ -201,12 +203,12 @@ namespace ila
     // ---------------------------------------------------------------------- //
     z3::expr Z3ExprAdapter::getBoolVarExpr(const BoolVar* boolvar)
     {
-        return c.bool_const(boolvar->getName().c_str());
+        return c.bool_const((boolvar->getName() + name_suffix).c_str());
     }
 
     z3::expr Z3ExprAdapter::getBitvectorVarExpr(const BitvectorVar* bvvar)
     {
-        return c.bv_const(bvvar->getName().c_str(), bvvar->type.bitWidth);
+        return c.bv_const((bvvar->getName() + name_suffix).c_str(), bvvar->type.bitWidth);
     }
 
     z3::expr Z3ExprAdapter::getMemVarExpr(const MemVar* memvar)
@@ -214,13 +216,13 @@ namespace ila
         auto addrsort = c.bv_sort(memvar->type.addrWidth);
         auto datasort = c.bv_sort(memvar->type.dataWidth);
         auto memsort = c.array_sort(addrsort, datasort);
-        return c.constant(memvar->getName().c_str(), memsort);
+        return c.constant((memvar->getName() + name_suffix).c_str(), memsort);
     }
 
     z3::expr Z3ExprAdapter::getFuncVarExpr(const FuncVar* funcvar)
     {
         using namespace z3;
-        Z3_symbol name  = Z3_mk_string_symbol(c, funcvar->getName().c_str());
+        Z3_symbol name  = Z3_mk_string_symbol(c, (funcvar->getName() + name_suffix).c_str());
         Z3_sort ressort = c.bv_sort(funcvar->type.bitWidth);
         Z3_sort* domain = new Z3_sort[funcvar->type.argsWidth.size()];
         for (unsigned i=0; i != funcvar->type.argsWidth.size(); i++) {
@@ -600,7 +602,7 @@ namespace ila
     z3::expr Z3ExprRewritingAdapter::getBitvectorVarExpr(const BitvectorVar* bvvar)
     {
         std::string value = distInp->getBitvecStr(bvvar->getName());
-        return c.bv_val(value.c_str(), bvvar->type.bitWidth);
+        return c.bv_val((value + name_suffix).c_str(), bvvar->type.bitWidth);
     }
 
     z3::expr Z3ExprRewritingAdapter::getMemVarExpr(const MemVar* mv)
