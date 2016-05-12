@@ -417,14 +417,14 @@ void assignFromFile(const std::string& fileName)
 bool hasChangedMicro()
 {
     if (stb == 0 ||
-        aes_state[0]  != top->v__DOT__aes_top1__DOT__aes_reg_state ||
-        hasChangedAddr() ||
-        hasChangedLen()  ||
+        aes_state[0]  != top->v__DOT__aes_top1__DOT__aes_reg_state_next ||
         aes_keysel[0] != top->v__DOT__aes_top1__DOT__aes_reg_keysel_next || 
         byte_cnt[0]   != top->v__DOT__aes_top1__DOT__byte_counter_next ||
+        blk_cnt[0]    != top->v__DOT__aes_top1__DOT__block_counter_next ||
         oped_byte_cnt[0] != 
             top->v__DOT__aes_top1__DOT__operated_bytes_count_next ||
-        blk_cnt[0] != top->v__DOT__aes_top1__DOT__block_counter_next ||
+        hasChangedAddr() ||
+        hasChangedLen()  ||
         hasChangedCTR()  || 
         hasChangedKEY0() || 
         hasChangedKEY1() ||
@@ -470,16 +470,22 @@ void writeToFile(const std::string& fileName)
     out << ".AES_OP_START\n" << hex;
     
     out << aes_stateStr << " " 
-        << (INT)top->v__DOT__aes_top1__DOT__aes_reg_state << "\n";
+        << (INT)top->v__DOT__aes_top1__DOT__aes_reg_state_next << "\n";
 
     temp = top->v__DOT__aes_top1__DOT__aes_reg_oplen_i__DOT__reg1_next;
     temp = temp << 8;
     temp = temp + top->v__DOT__aes_top1__DOT__aes_reg_oplen_i__DOT__reg0_next;
     out << aes_lenStr << " " << temp << "\n";
 
-    out << aes_keyselStr << " " 
-        << (INT)top->v__DOT__aes_top1__DOT__aes_reg_keysel << "\n";
+    temp = top->v__DOT__aes_top1__DOT__aes_reg_opaddr_i__DOT__reg1_next;
+    temp = temp << 8;
+    temp = temp + top->v__DOT__aes_top1__DOT__aes_reg_opaddr_i__DOT__reg0_next;
+    out << aes_addrStr << " " << temp << "\n";
 
+    out << aes_keyselStr << " " 
+        << (INT)top->v__DOT__aes_top1__DOT__aes_reg_keysel_next << "\n";
+
+    //FIXME 
     out << aes_ctrStr << " "
         << top->aes_ctr[3] << top->aes_ctr[2]
         << top->aes_ctr[1] << top->aes_ctr[0] << "\n";
@@ -492,11 +498,11 @@ void writeToFile(const std::string& fileName)
     out << data_outStr << " " 
         << (INT)top->data_out << "\n";
     out << byte_cntStr << " " 
-        << (INT)top->v__DOT__aes_top1__DOT__byte_counter << "\n";
+        << (INT)top->v__DOT__aes_top1__DOT__byte_counter_next << "\n";
     out << blk_cntStr << " "
-        << (INT)top->v__DOT__aes_top1__DOT__block_counter << "\n";
+        << (INT)top->v__DOT__aes_top1__DOT__block_counter_next << "\n";
     out << oped_byte_cntStr << " "
-        << (INT)top->v__DOT__aes_top1__DOT__operated_bytes_count << "\n";
+        << (INT)top->v__DOT__aes_top1__DOT__operated_bytes_count_next << "\n";
     out << rd_dataStr << " " 
         << top->v__DOT__aes_top1__DOT__mem_data_buf[3]
         << top->v__DOT__aes_top1__DOT__mem_data_buf[2]
