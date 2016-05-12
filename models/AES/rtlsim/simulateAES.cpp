@@ -68,7 +68,7 @@ int main(int argc, char* argv[])
 
 void assignState()
 {
-    top->v__DOT__aes_top1__DOT__aes_reg_state = aes_state[0];
+    top->v__DOT__aes_top1__DOT__aes_reg_state_next = aes_state[0];
 }
 
 void assignAddr()
@@ -465,14 +465,22 @@ void writeToFile(const std::string& fileName)
         std::cerr << "File " << fileName << " not open.\n";
         return;
     }
+    INT temp = 0;
 
     out << ".AES_OP_START\n" << hex;
     
-    out << aes_stateStr << " " << (INT)top->aes_state << "\n";
-    out << aes_lenStr << " " << (INT)top->aes_len << "\n";
+    out << aes_stateStr << " " 
+        << (INT)top->v__DOT__aes_top1__DOT__aes_reg_state << "\n";
+
+    temp = top->v__DOT__aes_top1__DOT__aes_reg_oplen_i__DOT__reg1_next;
+    temp = temp << 8;
+    temp = temp + top->v__DOT__aes_top1__DOT__aes_reg_oplen_i__DOT__reg0_next;
+    out << aes_lenStr << " " << temp << "\n";
+
     out << aes_keyselStr << " " 
         << (INT)top->v__DOT__aes_top1__DOT__aes_reg_keysel << "\n";
-    out << aes_ctrStr << " " << hex 
+
+    out << aes_ctrStr << " "
         << top->aes_ctr[3] << top->aes_ctr[2]
         << top->aes_ctr[1] << top->aes_ctr[0] << "\n";
     out << aes_key0Str << " " 
