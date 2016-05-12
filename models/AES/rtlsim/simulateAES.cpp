@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
 
     init();
     assignFromFile(inFile);
-    assert(!hasChangedMicro() || stb == 0);
+    assert(!hasChangedMicro() || stb == 0 || isRead());
    
     do {
         execute();
@@ -281,6 +281,14 @@ bool hasChangedENC()
     return false;
 }
 
+bool isRead()
+{
+    if (cmd == 0 && top->v__DOT__aes_top1__DOT__aes_reg_state_next == 0)
+        return true;
+    else 
+        return false;
+}
+
 void init()
 {
     for (int i=0; i<20; i++) {
@@ -417,6 +425,7 @@ void assignFromFile(const std::string& fileName)
 bool hasChangedMicro()
 {
     if (stb == 0 ||
+        isRead() ||
         aes_state[0]  != top->v__DOT__aes_top1__DOT__aes_reg_state_next ||
         aes_keysel[0] != top->v__DOT__aes_top1__DOT__aes_reg_keysel_next || 
         byte_cnt[0]   != top->v__DOT__aes_top1__DOT__byte_counter_next ||

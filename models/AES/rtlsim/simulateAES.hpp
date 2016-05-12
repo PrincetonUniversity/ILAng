@@ -81,6 +81,8 @@ bool hasChangedKEY1();
 bool hasChangedRD();
 // Check that enc_data has been updated.
 bool hasChangedENC();
+// Check if it is a read
+bool isRead();
 
 // Initialize states.
 void init();
