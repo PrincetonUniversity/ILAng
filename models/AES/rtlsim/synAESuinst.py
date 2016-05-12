@@ -184,7 +184,7 @@ def createAESILA(enable_ps):
     m.generateSim('gen/aes_sim.hpp')
 
 if __name__ == '__main__':
-    ila.setloglevel(1, "")
+    ila.setloglevel(2, "")
     parser = argparse.ArgumentParser()
     parser.add_argument("--en", type=int, default=1, 
                         help="enable parameterized synthesis.")
