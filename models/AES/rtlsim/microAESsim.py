@@ -5,16 +5,8 @@ import subprocess
 import ila
 
 def hex2arr(n, l):
-    return Hex(n).zfill(l/4)
-
-def Hex(n):
-    return hex(n)[2:]
-
-def arr2string(arr):
-    res = ""
-    for i in xrange(16):
-        res += hex2arr(arr[15-i], 8)
-    return res
+    l = '%0' + str(l//4) + 'x'
+    return l % n
 
 class AES():
     def __init__(self):

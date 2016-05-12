@@ -81,16 +81,18 @@ def createAESILA(enable_ps):
     # read data
     rd_data       = um.reg('rd_data', 128)
     enc_data      = um.reg('enc_data', 128)
-    byte_cnt      = um.reg('byte_cnt', 16)
+    byte_cnt      = um.reg('byte_cnt', 4)
     oped_byte_cnt = um.reg('oped_byte_cnt', 16)
     blk_cnt       = um.reg('blk_cnt', 16)
-    um.set_init('byte_cnt', um.const(0, 16))
+    um.set_init('byte_cnt', um.const(0, 4))
     um.set_init('blk_cnt', um.const(0, 16))
     um.set_init('oped_byte_cnt', um.const(0, 16))
     uxram = m.getmem('XRAM')
 
+    byte_cnt_16b = ila.zero_extend(byte_cnt, 16)
+
     um.fetch_expr = state 
-    um.decode_exprs = [(state == i) & (byte_cnt == j)
+    um.decode_exprs = [(state == i) & (byte_cnt == j) 
                        for j in xrange(16) for i in [1, 2, 3]]
 
     usim = lambda s: AESmicro().simMicro(s)
@@ -99,17 +101,17 @@ def createAESILA(enable_ps):
     ustate       = um.getreg('aes_state')
     ustate_nxt   = ila.choice('ustate_next', 
         [m.const(0, 2), m.const(1, 2), m.const(2, 2), m.const(3, 2), ustate,
-         ila.ite(byte_cnt+blk_cnt+16 < oplen, m.const(1, 2), m.const(0, 2)),
-         ila.ite(byte_cnt == m.const(15, 16), m.const(2, 2), ustate)])
+         ila.ite(byte_cnt_16b+blk_cnt+16 < oplen, m.const(1, 2), m.const(0, 2)),
+         ila.ite(byte_cnt == 15, m.const(2, 2), ustate)])
     um.set_next('aes_state', ustate_nxt)
 
     # byte_cnt
     byte_cnt_inc = byte_cnt + 1
     byte_cnt_buf = ila.choice('byte_cnt_buf', [byte_cnt_inc, byte_cnt])
-    last_byte_ack = (byte_cnt == m.const(15, 16))
-    byte_cnt_rst = ila.ite(last_byte_ack, m.const(0, 16), byte_cnt_buf)
+    last_byte_ack = (byte_cnt == 15)
+    byte_cnt_rst = ila.ite(last_byte_ack, m.const(0, 4), byte_cnt_buf)
     byte_cnt_nxt = ila.choice('byte_cnt_nxt', 
-            [byte_cnt_inc, m.const(0, 16), byte_cnt, byte_cnt_rst])
+            [byte_cnt_inc, m.const(0, 4), byte_cnt, byte_cnt_rst])
     um.set_next('byte_cnt', byte_cnt_nxt)
 
     # oped_byte_cnt
@@ -129,7 +131,7 @@ def createAESILA(enable_ps):
     um.set_next('blk_cnt', blk_cnt_nxt)
 
     # rd_data
-    rdblock = ila.loadblk(uxram, opaddr + blk_cnt + byte_cnt, 16)
+    rdblock = ila.writechunk("rd_data_chunk", rd_data, ila.load(uxram, opaddr + blk_cnt + byte_cnt_16b))
     rd_data_nxt = ila.choice('rd_data_nxt', rdblock, rd_data)
     um.set_next('rd_data', rd_data_nxt)
 
@@ -141,21 +143,27 @@ def createAESILA(enable_ps):
     #print um.get_next('enc_data')
 
     # xram write
-    xram_w_aes = ila.storeblk(uxram, opaddr + blk_cnt + byte_cnt, enc_data)
+    xram_w_data = ila.readchunk('enc_data_chunk', enc_data, 8)
+    xram_w_addr = opaddr + blk_cnt + byte_cnt_16b
+    print uxram.type, xram_w_addr.type, xram_w_data.type
+    xram_w_aes = ila.store(uxram, xram_w_addr, xram_w_data)
     xram_nxt = ila.choice('xram_nxt', uxram, xram_w_aes)
     um.set_next('XRAM', xram_nxt)
 
     # micro-synthesis
     st = time.clock()
     t_elapsed = 0
-    for s in ['aes_state', 'byte_cnt', 'blk_cnt', 'oped_byte_cnt', 'rd_data', 'XRAM']:
+    #for s in ['aes_state', 'byte_cnt', 'blk_cnt', 'oped_byte_cnt', 'rd_data', 'XRAM']:
     #for s in ['aes_state', 'byte_cnt']:
+    for s in ['XRAM']:
         um.synthesize(s, usim)
         t_elapsed += time.clock() - st
         print '%s: %s' % (s, str(um.get_next(s)))
         ast = um.get_next(s)
         m.exportOne(ast, 'asts/%s_%s' % (s, 'en' if enable_ps else 'dis'))
     sim = lambda s: AESmacro().simMacro(s)
+
+    return
 
     # state
     state_next = ila.choice('state_next', [

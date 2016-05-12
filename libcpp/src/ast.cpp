@@ -391,7 +391,7 @@ namespace ila
     {
         const NodeType& mt = mem->node->type;
         const NodeType& at = addr->node->type;
-        const NodeType& dt = addr->node->type;
+        const NodeType& dt = data->node->type;
         if (!mt.isMem()                     ||
             !at.isBitvector(mt.addrWidth)   ||
             !dt.isBitvector(mt.dataWidth))

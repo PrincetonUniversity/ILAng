@@ -1,6 +1,7 @@
 #include "simulateAES.hpp"
 #include <sstream>
 #include <cassert>
+#include <iomanip>
 
 VsimXramAes_top* top = NULL;
 
@@ -44,6 +45,12 @@ INT enc_data[4];            // 128  4 * 32
 // xram
 INT defVal;
 
+void assignXramInt();
+std::ostream& dumpMemDataBuf(std::ostream& out);
+std::ostream& dumpMemDataBufNext(std::ostream& out);
+std::ostream& dumpEncDataNext(std::ostream& out);
+std::ostream& dumpXram(std::ostream& out);
+
 int main(int argc, char* argv[]) 
 {
     std::string mode = argv[1];
@@ -56,11 +63,25 @@ int main(int argc, char* argv[])
     assignFromFile(inFile);
     assert(!hasChangedMicro() || stb == 0 || isRead());
    
+    assignXramInt();
     do {
         execute();
+
+        //std::cout << "xram_addr=" << std::hex << top->v__DOT__xram_addr << std::endl;
+        //std::cout << "xram_stb=" << (int) top->v__DOT__xram_stb << std::endl;
+        //std::cout << "xram_data_in=" << std::hex << (int) top->v__DOT__xram_data_in << std::endl;
+        //std::cout << "xram_ack=" << (int) top->v__DOT__xram_ack << std::endl;
+        //std::cout << "mem_data_buf="; dumpMemDataBuf(std::cout) << std::endl;
+        //std::cout << "mem_data_buf_next="; dumpMemDataBufNext(std::cout) << std::endl;
+        std::cout << "enc_data_buf_next="; dumpEncDataNext(std::cout) << std::endl;
+        //std::cout << std::dec;
+        std::cout << "xram: " << std::endl; dumpXram(std::cout);
+
     } while (isMicro ? !hasChangedMicro() : 
                        !hasChangedMacro());
 
+    //std::cout << "mem_data_buf="; dumpMemDataBuf(std::cout) << std::endl;
+    //std::cout << "mem_data_buf_next="; dumpMemDataBufNext(std::cout) << std::endl;
     writeToFile(outFile);
 
     return 0;
@@ -168,6 +189,12 @@ void assignBlkCnt()
     top->v__DOT__aes_top1__DOT__block_counter_next = blk_cnt[0];
 }
 
+void assignXramInt()
+{
+    top->v__DOT__xram_addr = (blk_cnt[0] + byte_cnt[0] + aes_addr[0] + aes_addr[1]*256);
+    top->v__DOT__xram_stb = (aes_state[0] == 1 || aes_state[0] == 2);
+}
+
 bool hasChangedAddr()
 {
     if (
@@ -272,6 +299,40 @@ bool hasChangedRD()
     return false;
 }
 
+std::ostream& dumpMemDataBuf(std::ostream& out)
+{
+    for (int i=3; i>=0; i--) {
+        out << std::hex << std::setw(8) << std::setfill('0') << top->v__DOT__aes_top1__DOT__mem_data_buf[i];
+    }
+    return out;
+}
+
+std::ostream& dumpMemDataBufNext(std::ostream& out)
+{
+    for (int i=3; i>=0; i--) {
+        out << std::hex << std::setw(8) << std::setfill('0') << top->v__DOT__aes_top1__DOT__mem_data_buf_next[i];
+    }
+    return out;
+}
+
+std::ostream& dumpEncDataNext(std::ostream& out)
+{
+    for (int i=3; i>=0; i--) {
+        out << std::hex << std::setw(8) << std::setfill('0') << top->v__DOT__aes_top1__DOT__encrypted_data_buf_next[i];
+    }
+    return out;
+}
+
+std::ostream& dumpXram(std::ostream& out) {
+    for (unsigned i = 0; i < 65536; i++) {
+        if (top->v__DOT__oc8051_xram1__DOT__buff[i] != defVal) {
+            out << std::hex << i << " " 
+                << std::hex << (INT)top->v__DOT__oc8051_xram1__DOT__buff[i] << "\n";
+        }
+    }
+    out << "default: " << (INT)defVal << "\n";
+    return out;
+}
 bool hasChangedENC()
 {
     for (int i=0; i<4; i++) {
@@ -383,8 +444,8 @@ void assignFromFile(const std::string& fileName)
             assignBlkCnt();
         } else if (buff == rd_dataStr) {
             in >> buff;
-            hex2array(buff, rd_data, 8);
             hex2array(buff, top->v__DOT__aes_top1__DOT__mem_data_buf_next, 8);
+            hex2array(buff, rd_data, 8);
         } else if (buff == enc_dataStr) {
             in >> buff;
             hex2array(buff, enc_data, 8);
@@ -415,6 +476,9 @@ void assignFromFile(const std::string& fileName)
         in >> buff;
     }
 
+    assignXramInt();
+
+
     in.close();
 }
 
@@ -422,6 +486,9 @@ bool hasChangedMicro()
 {
     if ( //stb == 0 ||
         //isRead() ||
+        top->v__DOT__xram_ack ||
+        aes_state[0] == 2)
+        /*
         aes_state[0]  != top->v__DOT__aes_top1__DOT__aes_reg_state_next ||
         aes_keysel[0] != top->v__DOT__aes_top1__DOT__aes_reg_keysel_next || 
         byte_cnt[0]   != top->v__DOT__aes_top1__DOT__byte_counter_next ||
@@ -434,7 +501,8 @@ bool hasChangedMicro()
         hasChangedKEY0() || 
         hasChangedKEY1() ||
         hasChangedRD()   ||
-        hasChangedENC()) {
+        hasChangedENC()) {*/
+    {
         return true;
     } else {
         return false;
@@ -509,15 +577,19 @@ void writeToFile(const std::string& fileName)
     out << oped_byte_cntStr << " "
         << (INT)top->v__DOT__aes_top1__DOT__operated_bytes_count_next << "\n";
     out << rd_dataStr << " " 
-        << top->v__DOT__aes_top1__DOT__mem_data_buf[3]
-        << top->v__DOT__aes_top1__DOT__mem_data_buf[2]
-        << top->v__DOT__aes_top1__DOT__mem_data_buf[1]
-        << top->v__DOT__aes_top1__DOT__mem_data_buf[0] << "\n";
+        << std::setw(8) << std::setfill('0')
+        << top->v__DOT__aes_top1__DOT__mem_data_buf_next[3]
+        << std::setw(8) << std::setfill('0')
+        << top->v__DOT__aes_top1__DOT__mem_data_buf_next[2]
+        << std::setw(8) << std::setfill('0')
+        << top->v__DOT__aes_top1__DOT__mem_data_buf_next[1]
+        << std::setw(8) << std::setfill('0')
+        << top->v__DOT__aes_top1__DOT__mem_data_buf_next[0] << "\n";
     out << enc_dataStr << " "
-        << top->v__DOT__aes_top1__DOT__encrypted_data_buf[3]
-        << top->v__DOT__aes_top1__DOT__encrypted_data_buf[2]
-        << top->v__DOT__aes_top1__DOT__encrypted_data_buf[1]
-        << top->v__DOT__aes_top1__DOT__encrypted_data_buf[0] << "\n";
+        << top->v__DOT__aes_top1__DOT__encrypted_data_buf_next[3]
+        << top->v__DOT__aes_top1__DOT__encrypted_data_buf_next[2]
+        << top->v__DOT__aes_top1__DOT__encrypted_data_buf_next[1]
+        << top->v__DOT__aes_top1__DOT__encrypted_data_buf_next[0] << "\n";
     out << xramStr << "\n"; 
     for (unsigned i = 0; i < 65536; i++) {
         if (top->v__DOT__oc8051_xram1__DOT__buff[i] != defVal) {
@@ -534,10 +606,10 @@ void writeToFile(const std::string& fileName)
 INT hex2int(const std::string& str)
 {
     stringstream ss;
-    INT res;
+    int64_t res;
     ss << std::hex << str;
     ss >> res;
-    return res;
+    return (INT) res;
 }
 
 void hex2array(const std::string& str, INT* res, int bn)
