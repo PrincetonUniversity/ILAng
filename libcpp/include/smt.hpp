@@ -27,6 +27,9 @@ namespace ila
         // The "suffix" (used only for synthesis operators).
         std::string suffix;
 
+        /// Added to every name
+        std::string name_suffix;
+
         // Utility function extracts the Z3 expression corresponding
         // to the i-th argument of the Node n.
         z3::expr _getArg(const expr_map_t& m, const Node* n, int i);
@@ -109,6 +112,8 @@ namespace ila
             ILA_ASSERT(bi != Z3_L_UNDEF, "Unable to extract bool from model.");
             return bi == Z3_L_TRUE;
         }
+
+        void setNameSuffix(const std::string& ns) {name_suffix = ns;}
     private:
         // Helper to convert choices into z3 expressions.
         template<typename T>
@@ -158,6 +163,18 @@ namespace ila
         ~Z3ExprRewritingAdapter();
         // wrapper over getExpr and getCnst
         z3::expr getIOCnst(const Node* n, const py::object& result);
+    };
+
+    class Z3FixedpointAdapter : public Z3ExprAdapter
+    {
+    public:
+        Z3FixedpointAdapter(z3::context& c, const std::string& suffix) :
+            Z3ExprAdapter(c, suffix)
+        {
+
+        }
+
+        ~Z3FixedpointAdapter() { }
     };
 }
 
