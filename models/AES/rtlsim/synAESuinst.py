@@ -96,15 +96,17 @@ def createAESILA(enable_ps):
     # ustate
     ustate       = um.getreg('aes_state')
     ustate_nxt   = ila.choice('ustate_next', 
-                        [m.const(0, 2), m.const(1, 2), m.const(2, 2), m.const(3, 2),
-                        ila.ite(byte_cnt+16 < oplen, m.const(1, 2), m.const(0, 2))])
+        [m.const(0, 2), m.const(1, 2), m.const(2, 2), m.const(3, 2), ustate,
+         ila.ite(byte_cnt+blk_cnt+16 < oplen, m.const(1, 2), m.const(0, 2)),
+         ila.ite(byte_cnt == m.const(15, 16), m.const(2, 2), ustate)])
     um.set_next('aes_state', ustate_nxt)
 
     # byte_cnt
     byte_cnt_inc = byte_cnt + 1
+    byte_cnt_buf = ila.choice('byte_cnt_buf', [byte_cnt_inc, byte_cnt])
+    byte_cnt_rst = ila.ite(byte_cnt == m.const(15, 16), m.const(0, 16), byte_cnt_buf)
     byte_cnt_nxt = ila.choice('byte_cnt_nxt', 
-            [byte_cnt_inc, byte_cnt, m.const(0, 16),
-             ila.ite(ustate == 0, m.const(0, 16), byte_cnt_inc)])
+            [byte_cnt_inc, m.const(0, 16), byte_cnt, byte_cnt_rst])
     um.set_next('byte_cnt', byte_cnt_nxt)
 
     # oped_byte_cnt
@@ -142,7 +144,9 @@ def createAESILA(enable_ps):
     # micro-synthesis
     st = time.clock()
     t_elapsed = 0
-    for s in ['aes_state', 'byte_cnt', 'blk_cnt', 'oped_byte_cnt', 'rd_data', 'XRAM']:
+    # FIXME
+    #for s in ['aes_state', 'byte_cnt', 'blk_cnt', 'oped_byte_cnt', 'rd_data', 'XRAM']:
+    for s in ['aes_state', 'byte_cnt']:
         um.synthesize(s, usim)
         t_elapsed += time.clock() - st
         print '%s: %s' % (s, str(um.get_next(s)))
@@ -157,7 +161,8 @@ def createAESILA(enable_ps):
 
     # xram
     m.set_next('XRAM', xram)
-
+    # FIXME
+    """
     # synthesize.
     for s in [ 'aes_state','aes_addr','aes_len','aes_keysel','aes_ctr','aes_key0','aes_key1', 'dataout']:
         st = time.clock()
@@ -167,7 +172,7 @@ def createAESILA(enable_ps):
         ast = m.get_next(s)
         print '%s: %s' % (s, str(ast))
         m.exportOne(ast, 'asts/%s_%s' % (s, 'en' if enable_ps else 'dis'))
-
+    """
     # connect to the uinst
     m.connect_microabstraction('aes_state', um)
     m.connect_microabstraction('XRAM', um)
@@ -176,7 +181,7 @@ def createAESILA(enable_ps):
     #print 'XRAM: %s' % str(m.get_next('XRAM'))
 
     print 'time: %.2f' % (t_elapsed)
-    m.generateSim('gen/aes_sim.hpp')
+    #m.generateSim('gen/aes_sim.hpp')
 
 if __name__ == '__main__':
     ila.setloglevel(1, "")

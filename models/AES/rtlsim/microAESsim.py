@@ -177,30 +177,21 @@ def testAES():
     s_in['cmdaddr'] = 0xff04
     s_in['cmddata'] = 0x12
     s_in['aes_state'] = 0x00
-    #ctr = [0] * 16
-    #s_in['aes_ctr'] = [0, 0, 0, 0, 0, 0, 1, 2, 3, 15, 0, 0, 0, 0, 0, 0]
     s_in['aes_ctr'] = 0x123f000000
 
-    aes.assign(s_in)
-
-    subprocess.call(['./AESsim', 'micro', aes.inFile, aes.outFile])
-
-    aes.getStates()
-
-    s_out = aes.s_dict()
+    s_out = aes.simMicro(s_in)
 
     s_in = aes.s_dict()
     s_in['cmd'] = 1
     s_in['cmdaddr'] = 0xff01
-    s_in['cmddata'] = 0
+    s_in['cmddata'] = 2
     s_in['aes_state'] = 0x1
     s_in['aes_len'] = 0x12
+    s_in['byte_cnt'] = 0xf
 
-    aes.assign(s_in)
-    subprocess.call(['./AESsim', 'micro', aes.inFile, aes.outFile])
-    aes.getStates()
-    s_out = aes.s_dict()
-
+    s_out = aes.simMicro(s_in)
+    print s_out['byte_cnt']
+    print s_out['aes_state']
 
 
 if __name__ == '__main__':
