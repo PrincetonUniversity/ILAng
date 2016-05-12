@@ -176,7 +176,7 @@ def testAES():
     s_in['cmd'] =  1
     s_in['cmdaddr'] = 0xff04
     s_in['cmddata'] = 0x12
-    s_in['aes_state'] = 0x00
+    s_in['aes_state'] = 0x01
     s_in['aes_ctr'] = 0x123f000000
 
     s_out = aes.simMicro(s_in)
@@ -186,7 +186,7 @@ def testAES():
     s_in['cmdaddr'] = 0xff01
     s_in['cmddata'] = 2
     s_in['aes_state'] = 0x1
-    s_in['aes_len'] = 0x12
+    s_in['aes_len'] = 0x10
     s_in['byte_cnt'] = 0xf
 
     s_out = aes.simMicro(s_in)

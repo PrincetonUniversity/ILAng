@@ -283,7 +283,7 @@ bool hasChangedENC()
 
 bool isRead()
 {
-    if (cmd == 0 && top->v__DOT__aes_top1__DOT__aes_reg_state_next == 0)
+    if (cmd == 0) //&& top->v__DOT__aes_top1__DOT__aes_reg_state_next == 0)
         return true;
     else 
         return false;
@@ -324,17 +324,13 @@ void assignFromFile(const std::string& fileName)
         if (buff == cmdStr) {
             in >> buff;
             INT tmp = hex2int(buff);
-            if (tmp == 0) {
-                stb = 0;
-            } else if (tmp == 1) {
-                stb = 1;
-                cmd = 0;
-            } else if (tmp == 2) {
+            if (tmp == 2) {
                 stb = 1;
                 cmd = 1;
-            } else {
-                stb = 0;
-            }
+            } else { 
+                stb = 1;
+                cmd = 0;
+            } 
         } else if (buff == cmdaddrStr) {
             in >> buff;
             cmdaddr = hex2int(buff);
@@ -424,8 +420,8 @@ void assignFromFile(const std::string& fileName)
 
 bool hasChangedMicro()
 {
-    if (stb == 0 ||
-        isRead() ||
+    if ( //stb == 0 ||
+        //isRead() ||
         aes_state[0]  != top->v__DOT__aes_top1__DOT__aes_reg_state_next ||
         aes_keysel[0] != top->v__DOT__aes_top1__DOT__aes_reg_keysel_next || 
         byte_cnt[0]   != top->v__DOT__aes_top1__DOT__byte_counter_next ||
