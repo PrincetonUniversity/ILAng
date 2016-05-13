@@ -145,7 +145,6 @@ def createAESILA(enable_ps):
     # xram write
     xram_w_data = ila.readchunk('enc_data_chunk', enc_data, 8)
     xram_w_addr = opaddr + blk_cnt + byte_cnt_16b
-    print uxram.type, xram_w_addr.type, xram_w_data.type
     xram_w_aes = ila.store(uxram, xram_w_addr, xram_w_data)
     xram_nxt = ila.choice('xram_nxt', uxram, xram_w_aes)
     um.set_next('XRAM', xram_nxt)
@@ -160,7 +159,7 @@ def createAESILA(enable_ps):
         t_elapsed += time.clock() - st
         print '%s: %s' % (s, str(um.get_next(s)))
         ast = um.get_next(s)
-        m.exportOne(ast, 'asts/%s_%s' % (s, 'en' if enable_ps else 'dis'))
+        m.exportOne(ast, 'asts/u_%s_%s' % (s, 'en' if enable_ps else 'dis'))
     sim = lambda s: AESmacro().simMacro(s)
 
     return
@@ -192,7 +191,7 @@ def createAESILA(enable_ps):
     m.generateSim('gen/aes_sim.hpp')
 
 if __name__ == '__main__':
-    ila.setloglevel(2, "")
+    ila.setloglevel(1, "")
     parser = argparse.ArgumentParser()
     parser.add_argument("--en", type=int, default=1, 
                         help="enable parameterized synthesis.")

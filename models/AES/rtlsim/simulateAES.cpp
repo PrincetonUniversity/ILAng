@@ -73,9 +73,9 @@ int main(int argc, char* argv[])
         //std::cout << "xram_ack=" << (int) top->v__DOT__xram_ack << std::endl;
         //std::cout << "mem_data_buf="; dumpMemDataBuf(std::cout) << std::endl;
         //std::cout << "mem_data_buf_next="; dumpMemDataBufNext(std::cout) << std::endl;
-        std::cout << "enc_data_buf_next="; dumpEncDataNext(std::cout) << std::endl;
+        //std::cout << "enc_data_buf_next="; dumpEncDataNext(std::cout) << std::endl;
         //std::cout << std::dec;
-        std::cout << "xram: " << std::endl; dumpXram(std::cout);
+        //std::cout << "xram: " << std::endl; dumpXram(std::cout);
 
     } while (isMicro ? !hasChangedMicro() : 
                        !hasChangedMacro());
@@ -297,6 +297,13 @@ bool hasChangedRD()
             return true;
     }
     return false;
+}
+
+std::ostream& dumpState(std::ostream& out)
+{
+    out << "aes_state=" << std::hex << (int) top->v__DOT__aes_top1__DOT__aes_reg_state<< std::endl;
+    out << "aes_state_next=" << std::hex << (int) top->v__DOT__aes_top1__DOT__aes_reg_state_next<< std::endl;
+    return out;
 }
 
 std::ostream& dumpMemDataBuf(std::ostream& out)

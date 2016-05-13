@@ -136,11 +136,23 @@ class AES():
 
         f.close()
         
+    def dump(self, prefix, s):
+        byte_cnt = s['byte_cnt']
+        blk_cnt = s['blk_cnt']
+        aes_addr = s['aes_addr']
+        print '%s: st:%d byte_cnt:%d blk_cnt:%x addr:%x wr_addr:%x enc_data:%x %s' % (
+                    prefix, s['aes_state'], 
+                    byte_cnt, blk_cnt, aes_addr, 
+                    (byte_cnt + blk_cnt + aes_addr) & 0xffff,
+                    s['enc_data'], str(s['XRAM']))
+
     def simMicro(self, s_in):
         self.assign(s_in)
+        self.dump('IN', s_in)
         subprocess.call(['./AESsim', 'micro', self.inFile, self.outFile])
         self.getStates()
         s_out = self.s_dict()
+        self.dump('OUT', s_in)
         return s_out
 
     def s_dict(self):
