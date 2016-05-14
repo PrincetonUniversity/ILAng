@@ -149,11 +149,12 @@ def createAESILA(enable_ps):
     xram_nxt = ila.choice('xram_nxt', uxram, xram_w_aes)
     um.set_next('XRAM', xram_nxt)
 
-    timefile = open('aes-times.txt', 'wt')
+    suffix = 'en' if enable_ps else 'dis'
+    timefile = open('aes-times-%s.txt' % suffix, 'wt')
 
     t_elapsed = 0
     # micro-synthesis
-    for s in ['aes_state', 'byte_cnt', 'blk_cnt', 'oped_byte_cnt', 'rd_data', 'XRAM']:
+    for s in ['XRAM', 'aes_state', 'byte_cnt', 'blk_cnt', 'oped_byte_cnt', 'rd_data']:
         t_elapsed = 0
         st = time.clock()
         um.synthesize(s, usim)
@@ -162,7 +163,7 @@ def createAESILA(enable_ps):
         print >> timefile, '%s %.2f' % ('u_' + s, dt)
         print '%s: %s' % (s, str(um.get_next(s)))
         ast = um.get_next(s)
-        m.exportOne(ast, 'asts/u_%s_%s' % (s, 'en' if enable_ps else 'dis'))
+        m.exportOne(ast, 'asts/u_%s_%s' % (s, suffix))
 
     sim = lambda s: AESmacro().simMacro(s)
     # state
@@ -182,10 +183,12 @@ def createAESILA(enable_ps):
 
         ast = m.get_next(s)
         print '%s: %s' % (s, str(ast))
-        m.exportOne(ast, 'asts/%s_%s' % (s, 'en' if enable_ps else 'dis'))
+        m.exportOne(ast, 'asts/%s_%s' % (s, suffix))
     # connect to the uinst
     m.connect_microabstraction('aes_state', um)
     m.connect_microabstraction('XRAM', um)
+
+    print 'total time: %.2f' % t_elapsed
 
     #print 'aes_state: %s' % str(m.get_next('aes_state'))
     #print 'XRAM: %s' % str(m.get_next('XRAM'))
@@ -193,7 +196,7 @@ def createAESILA(enable_ps):
     m.generateSim('gen/aes_sim.hpp')
 
 if __name__ == '__main__':
-    ila.setloglevel(1, "")
+    ila.setloglevel(2, "")
     parser = argparse.ArgumentParser()
     parser.add_argument("--en", type=int, default=1, 
                         help="enable parameterized synthesis.")
