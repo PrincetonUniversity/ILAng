@@ -149,21 +149,22 @@ def createAESILA(enable_ps):
     xram_nxt = ila.choice('xram_nxt', uxram, xram_w_aes)
     um.set_next('XRAM', xram_nxt)
 
-    # micro-synthesis
-    st = time.clock()
+    timefile = open('aes-times.txt', 'wt')
+
     t_elapsed = 0
-    #for s in ['aes_state', 'byte_cnt', 'blk_cnt', 'oped_byte_cnt', 'rd_data', 'XRAM']:
-    #for s in ['aes_state', 'byte_cnt']:
-    for s in ['XRAM']:
+    # micro-synthesis
+    for s in ['aes_state', 'byte_cnt', 'blk_cnt', 'oped_byte_cnt', 'rd_data', 'XRAM']:
+        t_elapsed = 0
+        st = time.clock()
         um.synthesize(s, usim)
-        t_elapsed += time.clock() - st
+        dt = time.clock() - st
+        t_elapsed += dt
+        print >> timefile, '%s %.2f' % ('u_' + s, dt)
         print '%s: %s' % (s, str(um.get_next(s)))
         ast = um.get_next(s)
         m.exportOne(ast, 'asts/u_%s_%s' % (s, 'en' if enable_ps else 'dis'))
+
     sim = lambda s: AESmacro().simMacro(s)
-
-    return
-
     # state
     state_next = ila.choice('state_next', [
                         state, ila.ite(cmddata == 1, m.const(1, 2), state)])
@@ -175,7 +176,9 @@ def createAESILA(enable_ps):
     for s in [ 'aes_state','aes_addr','aes_len','aes_keysel','aes_ctr','aes_key0','aes_key1', 'dataout']:
         st = time.clock()
         m.synthesize(s, sim)
-        t_elapsed += time.clock() - st
+        dt = time.clock() - st
+        t_elapsed += dt
+        print >> timefile, '%s %.2f' % (s, dt)
 
         ast = m.get_next(s)
         print '%s: %s' % (s, str(ast))
@@ -187,7 +190,6 @@ def createAESILA(enable_ps):
     #print 'aes_state: %s' % str(m.get_next('aes_state'))
     #print 'XRAM: %s' % str(m.get_next('XRAM'))
 
-    print 'time: %.2f' % (t_elapsed)
     m.generateSim('gen/aes_sim.hpp')
 
 if __name__ == '__main__':

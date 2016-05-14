@@ -148,11 +148,11 @@ class AES():
 
     def simMicro(self, s_in):
         self.assign(s_in)
-        self.dump('IN', s_in)
+        # self.dump('IN', s_in)
         subprocess.call(['./AESsim', 'micro', self.inFile, self.outFile])
         self.getStates()
         s_out = self.s_dict()
-        self.dump('OUT', s_in)
+        # self.dump('OUT', s_in)
         return s_out
 
     def s_dict(self):
@@ -194,8 +194,6 @@ def testAES():
     s_in['byte_cnt'] = 0xf
 
     s_out = aes.simMicro(s_in)
-    print s_out['byte_cnt']
-    print s_out['aes_state']
 
 
 if __name__ == '__main__':
