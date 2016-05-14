@@ -109,10 +109,10 @@ def model(paramsyn):
     opcode = rom[pc]
     regs = [sys.reg('r%d' % i, alu.REG_SIZE) for i in xrange(alu.NUM_REGS)]
     # get the two sources.
-    rs = ila.choice('rs', regs)
-    rt = ila.choice('rt', regs)
     imm = rom[pc+1]
-    results = [rs+rt, rs-rt, rs+imm, rs-imm]
+    rs = ila.choice('rs', regs)
+    rt = ila.choice('rt', regs+[imm])
+    results = [rs+rt, rs-rt]
 
     # golden model
     gm_regs_next, pc_next = aluexpr(rom, pc, regs)
