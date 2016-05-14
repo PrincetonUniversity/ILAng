@@ -91,19 +91,25 @@ def createSHAILA(synstates, enable_ps):
     xram_nxt = ila.choice('xram_nxt', xram, xram_w_sha_little, xram_w_sha_big)
     m.set_next('XRAM', xram_nxt)
 
+    suffix = 'en' if enable_ps else 'dis'
+    timefile = open('sha-times-%s.txt' % suffix, 'wt')
+    t_elapsed = 0
     # synthesis.
     sim = lambda s: SHA().simulate(s)
     for s in synstates:
         st = time.clock()
         m.synthesize(s, sim)
-        t_elapsed = time.clock() - st
-        print 'time: %.2f' % (t_elapsed)
+        dt = time.clock() - st
+        print >> timefile, '%s %.2f' % (s, dt)
+        t_elapsed += dt
 
         ast = m.get_next(s)
-        m.exportOne(ast, 'asts/%s_%s' % (s, 'en' if enable_ps else 'dis'))
+        m.exportOne(ast, 'asts/%s_%s' % (s, suffix))
 
+    print 'time: %.2f' % t_elapsed
     m.generateSim('tmp/shasim.hpp')
 
+all_state = ['sha_bytes_read', 'dataout', 'sha_state', 'sha_rdaddr', 'sha_wraddr', 'sha_len', 'XRAM', 'sha_rd_data', 'sha_hs_data', 'XRAM']
 if __name__ == '__main__':
     ila.setloglevel(1, "")
     parser = argparse.ArgumentParser()
@@ -112,4 +118,8 @@ if __name__ == '__main__':
     parser.add_argument("state", type=str, nargs='+',
                         help="the state to synthesize.")
     args = parser.parse_args()
-    createSHAILA(args.state, args.en)
+    if args.state == ['ALL']:
+        state = all_state
+    else:
+        state = args.state
+    createSHAILA(state, args.en)

@@ -103,12 +103,18 @@ def createSHAILA(enable_ps):
     um.set_next('XRAM', xram_nxt)
 
     # micro-synthesis
-    st = time.clock()
+    suffix = 'en' if enable_ps else 'dis'
+    timefile = open('sha-times-uinst-%s.txt' % suffix, 'wt')
     t_elapsed = 0
     for s in ['sha_state', 'sha_bytes_read', 'sha_rd_data', 'sha_hs_data', 'XRAM']:
+        st = time.clock()
         um.synthesize(s, usim)
-        t_elapsed += time.clock() - st
-        print '%s: %s' % (s, str(um.get_next(s)))
+        dt = time.clock() - st
+        t_elapsed += dt
+        print >> timefile, 'u%s %.2f' % (s, dt)
+        ast = um.get_next(s)
+        print '%s: %s' % (s, str(ast))
+        m.exportOne(ast, 'uasts/u%s_%s' % (s, suffix))
 
     sim = lambda s: SHA().simMacro(s)
     
@@ -123,11 +129,13 @@ def createSHAILA(enable_ps):
     for s in ['sha_state', 'sha_rdaddr', 'sha_wraddr', 'sha_len', 'dataout']:
         st = time.clock()
         m.synthesize(s, sim)
-        t_elapsed += time.clock() - st
+        dt = time.clock() - st
+        t_elapsed += dt
+        print >> timefile, '%s %.2f' % (s, dt)
 
         ast = m.get_next(s)
         print '%s: %s' % (s, str(ast))
-        m.exportOne(ast, 'uasts/%s_%s' % (s, 'en' if enable_ps else 'dis'))
+        m.exportOne(ast, 'uasts/%s_%s' % (s, suffix))
 
     # connect to the uinst
     m.connect_microabstraction('sha_state', um)

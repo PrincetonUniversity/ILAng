@@ -25,8 +25,8 @@ class SHA(mmiodev):
 
     def __init__(self):
         mmiodev.__init__(self)
-        self.addReg('sha_start', 0xfe00, 1)
-        self.addReg('sha_state', 0xfe01, 1)
+        self.addReg('sha_start', 0xfe00, 1, readonly=True)
+        self.addReg('sha_state', 0xfe01, 1, readonly=True)
         self.addReg('sha_rdaddr', 0xfe02, 2)
         self.addReg('sha_wraddr', 0xfe04, 2)
         self.addReg('sha_len', 0xfe06, 2)
