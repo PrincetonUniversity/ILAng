@@ -106,15 +106,19 @@ def createAESILA(synstates, enable_ps):
     m.set_next('XRAM', xram_nxt)
 
     # synthesize.
+    timefile = open('aes-times-%s.txt' % ('en' if enable_ps else 'dis'), 'wt')
     sim = lambda s: AES().simulate(s)
     for s in synstates:
         st = time.clock()
         m.synthesize(s, sim)
         t_elapsed = time.clock() - st
-        print 'time: %.2f' % (t_elapsed)
+        print >> timefile, s
+        print >> timefile, '%.2f' % (t_elapsed)
 
         ast = m.get_next(s)
         m.exportOne(ast, 'asts/%s_%s' % (s, 'en' if enable_ps else 'dis'))
+
+all_state = ['aes_state', 'aes_addr', 'aes_len', 'aes_keysel', 'aes_ctr', 'aes_key0', 'aes_key1', 'byte_cnt', 'rd_data', 'enc_data', 'XRAM']
 
 if __name__ == '__main__':
     ila.setloglevel(1, "")
@@ -124,10 +128,13 @@ if __name__ == '__main__':
     parser.add_argument("state", type=str, nargs='+',
                         help="the state to synthesize.")
     args = parser.parse_args()
-    createAESILA(args.state, args.en)
+    if args.state == ['ALL']:
+        state = all_state
+    else:
+        state = args.state
+    createAESILA(state, args.en)
 
 # done #
-
 
 
 

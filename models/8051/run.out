@@ -1,100 +1,100 @@
 PC
-time: 62.05
-ACC
-time: 38.64
-IRAM
-time: 535.52
-PSW
-time: 158.77
-SP
-time: 40.72
-DPL
-time: 36.12
-DPH
-time: 47.84
-B
-time: 43.98
-XRAM_ADDR
-time: 3.49
-XRAM_DATA_OUT
-time: 0.98
-P0
-time: 74.34
-P1
-time: 59.42
-P2
-time: 49.36
-P3
-time: 42.87
-PCON
-time: 48.01
-TCON
-time: 55.19
-TMOD
-time: 41.98
-TL0
-time: 36.13
-TH0
-time: 46.87
-TL1
-time: 47.28
-TH1
-time: 52.65
-SCON
-time: 58.46
-SBUF
-time: 48.55
-IE
-time: 47.86
-IP
-time: 43.16
+time: 92.59
 PC
-time: 50.99
+time: 72.01
 ACC
-time: 44.72
+time: 66.69
+ACC
+time: 71.68
 IRAM
-time: 11683.35
+time: 623.76
+IRAM
+time: 11296.83
 PSW
-time: 825.00
+time: 456.20
+PSW
+time: 1163.72
 SP
-time: 91.45
+time: 125.88
+SP
+time: 199.10
 DPL
-time: 75.38
+time: 127.20
+DPL
+time: 161.00
 DPH
-time: 79.71
+time: 127.67
+DPH
+time: 170.17
 B
-time: 368.11
+time: 129.58
+B
+time: 523.16
 XRAM_ADDR
-time: 4.39
+time: 3.86
+XRAM_ADDR
+time: 4.69
 XRAM_DATA_OUT
-time: 1.21
+time: 1.04
+XRAM_DATA_OUT
+time: 1.26
 P0
-time: 254.87
+time: 161.58
+P0
+time: 389.67
 P1
-time: 287.07
+time: 134.00
+P1
+time: 401.97
 P2
-time: 305.39
+time: 169.09
+P2
+time: 409.22
 P3
-time: 303.48
+time: 130.80
+P3
+time: 442.89
 PCON
-time: 82.57
+time: 162.48
+PCON
+time: 172.60
 TCON
-time: 256.18
+time: 128.55
+TCON
+time: 392.21
 TMOD
-time: 88.10
+time: 147.26
+TMOD
+time: 176.81
 TL0
-time: 86.75
+time: 145.57
+TL0
+time: 173.88
 TH0
-time: 89.60
+time: 128.47
+TH0
+time: 176.65
 TL1
-time: 92.69
+time: 147.20
+TL1
+time: 189.28
 TH1
-time: 94.00
+time: 112.50
+TH1
+time: 184.15
 SCON
-time: 290.25
+time: 145.93
+SCON
+time: 423.39
 SBUF
-time: 97.67
+time: 129.90
+SBUF
+time: 188.82
 IE
-time: 305.58
+time: 161.83
+IE
+time: 450.20
 IP
-time: 326.75
+time: 148.07
+IP
+time: 460.53

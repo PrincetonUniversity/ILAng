@@ -4,9 +4,5 @@ regs="PC ACC IRAM PSW SP DPL DPH B XRAM_ADDR XRAM_DATA_OUT P0 P1 P2 P3 PCON TCON
 for r in $regs;
 do
     python uc8051syn.py $r
-done
-
-for r in $regs;
-do
     python uc8051syn.py --en 0 $r
 done
