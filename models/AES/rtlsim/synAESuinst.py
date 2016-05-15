@@ -97,38 +97,33 @@ def createAESILA(enable_ps):
 
     usim = lambda s: AESmicro().simMicro(s)
 
-    # ustate
-    ustate       = um.getreg('aes_state')
-    ustate_nxt   = ila.choice('ustate_next', 
-        [m.const(0, 2), m.const(1, 2), m.const(2, 2), m.const(3, 2), ustate,
-         ila.ite(byte_cnt_16b+blk_cnt+16 < oplen, m.const(1, 2), m.const(0, 2)),
-         ila.ite(byte_cnt == 15, m.const(2, 2), ustate)])
-    um.set_next('aes_state', ustate_nxt)
-
     # byte_cnt
     byte_cnt_inc = byte_cnt + 1
     byte_cnt_buf = ila.choice('byte_cnt_buf', [byte_cnt_inc, byte_cnt])
-    last_byte_ack = (byte_cnt == 15)
-    byte_cnt_rst = ila.ite(last_byte_ack, m.const(0, 4), byte_cnt_buf)
     byte_cnt_nxt = ila.choice('byte_cnt_nxt', 
-            [byte_cnt_inc, m.const(0, 4), byte_cnt, byte_cnt_rst])
+            [byte_cnt_inc, m.const(0, 4), byte_cnt])
     um.set_next('byte_cnt', byte_cnt_nxt)
 
     # oped_byte_cnt
     oped_byte_cnt_inc = oped_byte_cnt + 16
-    writeState = ustate == m.const(3, 2)
     oped_byte_cnt_nxt = ila.choice('oped_byte_cnt_nxt', 
-        [m.const(0, 16), oped_byte_cnt, oped_byte_cnt_inc,
-         ila.ite(last_byte_ack & writeState, oped_byte_cnt_inc, oped_byte_cnt)])
+        [m.const(0, 16), oped_byte_cnt, oped_byte_cnt_inc])
     um.set_next('oped_byte_cnt', oped_byte_cnt_nxt)
 
     # blk_cnt
     blk_cnt_inc = blk_cnt + 16
-    more_blocks = last_byte_ack & (oped_byte_cnt_nxt <= oplen) & (ustate == m.const(3, 2))
+    more_blocks = (oped_byte_cnt_inc < oplen)
     blk_cnt_nxt = ila.choice('blk_cnt_nxt', 
         [m.const(0, 16), blk_cnt, blk_cnt_inc,
          ila.ite(more_blocks, blk_cnt_inc, blk_cnt)])
     um.set_next('blk_cnt', blk_cnt_nxt)
+
+    # ustate
+    ustate       = um.getreg('aes_state')
+    ustate_nxt   = ila.choice('ustate_next', 
+        [m.const(0, 2), m.const(1, 2), m.const(2, 2), m.const(3, 2), ustate,
+         ila.ite(more_blocks, m.const(1, 2), m.const(0, 2))])
+    um.set_next('aes_state', ustate_nxt)
 
     # rd_data
     rdblock = ila.writechunk("rd_data_chunk", rd_data, ila.load(uxram, opaddr + blk_cnt + byte_cnt_16b))
@@ -196,7 +191,7 @@ def createAESILA(enable_ps):
     m.generateSim('gen/aes_sim.hpp')
 
 if __name__ == '__main__':
-    ila.setloglevel(2, "")
+    ila.setloglevel(1, "")
     parser = argparse.ArgumentParser()
     parser.add_argument("--en", type=int, default=1, 
                         help="enable parameterized synthesis.")

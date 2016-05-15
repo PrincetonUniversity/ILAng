@@ -192,7 +192,7 @@ void assignBlkCnt()
 void assignXramInt()
 {
     top->v__DOT__xram_addr = (blk_cnt[0] + byte_cnt[0] + aes_addr[0] + aes_addr[1]*256);
-    top->v__DOT__xram_stb = (aes_state[0] == 1 || aes_state[0] == 2);
+    top->v__DOT__xram_stb = (aes_state[0] == 1 || aes_state[0] == 3);
 }
 
 bool hasChangedAddr()
