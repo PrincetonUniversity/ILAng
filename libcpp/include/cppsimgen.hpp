@@ -57,6 +57,8 @@ namespace ila
         std::string signedUse() const;
         // Use the exact length variable.
         std::string exactUse() const;
+        // Use the casted variable.
+        std::string castUse() const;
 
     private:
         void init(nptr_t n);
