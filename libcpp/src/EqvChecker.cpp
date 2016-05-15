@@ -15,7 +15,7 @@ namespace ila
       if (r == sat) {
           z3::model m = S.get_model();
           z3::expr m1 = m.eval(e1);
-          z3::expr m2 = m.eval(e1);
+          z3::expr m2 = m.eval(e2);
           std::cout << m << std::endl;
           std::cout << m1 << std::endl;
           std::cout << m2 << std::endl;

@@ -16,6 +16,8 @@ namespace ila
     public:
         // Define types.
         typedef std::unordered_map<const Node*, z3::expr> expr_map_t;
+        // simplify flag.
+        bool simplify;
 
     protected:
         // These are used during memoization.

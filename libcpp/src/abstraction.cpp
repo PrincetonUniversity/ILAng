@@ -202,6 +202,17 @@ namespace ila
         }
         return m;
     }
+    // ---------------------------------------------------------------------- //
+    nmap_t* Abstraction::getMap(const std::string& name)
+    {
+        // try to find the map we are adding to.
+        if (bits.find(name) != bits.end()) return &bits;
+        if (regs.find(name) != regs.end()) return &regs;
+        if (mems.find(name) != mems.end()) return &mems;
+        throw PyILAException(PyExc_RuntimeError, 
+            "Unable to find var: " + name);
+        return NULL;
+    }
 
     // ---------------------------------------------------------------------- //
     nmap_t::const_iterator Abstraction::findInMap(const std::string& name) const
@@ -251,6 +262,31 @@ namespace ila
         auto pos = findInMap(name);
         return new NodeRef(pos->second.init);
     }
+
+    // ---------------------------------------------------------------------- //
+    void Abstraction::setIpred(const std::string& name, NodeRef* n)
+    {
+        // try to find the map we are adding to.
+        nmap_t* m = getMap(name);
+        if (m == NULL) return;
+        auto pos = m->find(name);
+        ILA_ASSERT(pos != m->end(), "Invalid iterator.");
+
+        // check types.
+        if (!n->node->type.isBool()) {
+            throw PyILAException(PyExc_TypeError, 
+                "Ipred expression must be boolean.");
+        }
+
+        pos->second.ipred = n->node;
+    }
+
+    NodeRef* Abstraction::getIpred(const std::string& name) const
+    {
+        auto pos = findInMap(name);
+        return new NodeRef(pos->second.ipred);
+    }
+
 
     // ---------------------------------------------------------------------- //
     void Abstraction::setNext(const std::string& name, NodeRef* n)
@@ -645,6 +681,7 @@ namespace ila
         S.add(mitre);
         S.add(c_exp);
 
+        //std::cout << S << std::endl;
         return checkMiter(S, e_exp, e_reg);
     }
 
@@ -676,6 +713,7 @@ namespace ila
         expr mitre = e_r1 != e_r2;
 
         S.add(mitre);
+        //std::cout << S << std::endl;
         return checkMiter(S, e_r1, e_r2);
     }
 

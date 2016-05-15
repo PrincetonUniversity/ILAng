@@ -27,6 +27,7 @@ namespace ila
     struct npair_t {
         nptr_t var;
         nptr_t init;
+        nptr_t ipred;
         nptr_vec_t next_vec;
         nptr_t next;
         const npair_t* parent;
@@ -35,6 +36,7 @@ namespace ila
         npair_t(const nptr_t& v, const nptr_t& n)
           : var(v) 
           , init(v)
+          , ipred(NULL)
           , next(n) 
           , parent(NULL)
         {
@@ -43,6 +45,7 @@ namespace ila
         npair_t(const npair_t* p)
           : var(p->var)
           , init(p->init)
+          , ipred(p->ipred)
           , next(NULL)
           , parent(p->parent ? p->parent : p)
         {

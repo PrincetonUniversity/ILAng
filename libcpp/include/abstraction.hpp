@@ -135,6 +135,10 @@ namespace ila
         void setInit(const std::string& name, NodeRef* n);
         // Get the initial value for this var.
         NodeRef* getInit(const std::string& name) const;
+        // Set a predicate on the initial value.
+        void setIpred(const std::string& name, NodeRef* n);
+        // Get the predicate on the initial value.
+        NodeRef* getIpred(const std::string& name) const;
 
         // Set the next template for this var.
         void setNext(const std::string& name, NodeRef* n);
@@ -259,6 +263,8 @@ namespace ila
         bool doesNextExist(const nmap_t& m) const;
         // which is the map containing this node?
         nmap_t* getMap(const std::string& name, NodeRef* n);
+        // same as above, but use only name.
+        nmap_t* getMap(const std::string& name);
         // what is the map containing this name?
         nmap_t::const_iterator findInMap(const std::string& name) const;
         nmap_t::iterator findInMap(const std::string& name);
@@ -355,6 +361,15 @@ namespace ila
         // Get the initial value for this var.
         NodeRef* getInit(const std::string& name) const {
             return abs->getInit(name);
+        }
+
+        // Set a predicate associated with the initial value.
+        void setIpred(const std::string& name, NodeRef* n) {
+            abs->setIpred(name, n);
+        }
+        // Get the predicate associated with the initial vlaue.
+        NodeRef*getIpred(const std::string& name) const {
+            return abs->getIpred(name);
         }
 
         // Set the next template for this var.

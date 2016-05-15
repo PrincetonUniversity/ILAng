@@ -10,6 +10,8 @@ using namespace std;
 namespace ila
 {
 
+  // FIXME: this whole file needs to also call getCnst.
+
   void Unroller::_initVar(Z3ExprAdapter& z3expr, const npair_t& p, int& cnt)
   {
       unsigned nFrame = frame ();
@@ -23,6 +25,10 @@ namespace ila
       } else {
           z3::expr c = z3expr.getExpr(var);
           m_vOutputs [nFrame].push_back(c);
+      }
+      if ((bool) p.ipred) {
+          z3::expr p1 = z3expr.getExpr(p.ipred.get());
+          m_pSolver->add(p1);
       }
       m_mStateIndices[p.var.get()] = cnt++;
   }
@@ -40,6 +46,7 @@ namespace ila
 
       Z3ExprAdapter z3expr(*m_pContext, "");
       z3expr.setNameSuffix(string("_0_"));
+      z3expr.simplify = true;
       // add Init
 
 

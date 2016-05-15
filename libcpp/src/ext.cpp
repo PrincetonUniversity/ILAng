@@ -367,6 +367,9 @@ BOOST_PYTHON_MODULE(ila)
         // init function
         .def("set_init", &AbstractionWrapper::setInit)
         .def("get_init", &AbstractionWrapper::getInit, return_value_policy<manage_new_object>())
+        // ipred
+        .def("set_ipred", &AbstractionWrapper::setIpred)
+        .def("get_ipred", &AbstractionWrapper::getIpred, return_value_policy<manage_new_object>())
         // next function
         .def("set_next", &AbstractionWrapper::setNext)
         .def("get_next", &AbstractionWrapper::getNext, return_value_policy<manage_new_object>())
