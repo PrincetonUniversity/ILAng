@@ -1,0 +1,1 @@
+( bvOp $n3011 if ( boolOp $n2861 eq ( bvVar aes_state 2 ) ( bvConst $n2860 2 1 ) ) ( bvOp $n3002 read-block ( memVar XRAM 16 8 ) ( bvOp $n3001 + ( bvVar aes_addr 16 ) ( bvVar byte_cnt 16 ) ) #16 #1 ) ( bvVar rd_data 128 ) )

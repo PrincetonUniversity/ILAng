@@ -128,7 +128,7 @@ def createAESILA(enable_ps):
         t_elapsed += dt
         ast = um.get_next(s)
         print '%s: %s' % (s, str(ast))
-        m.exportOne(ast, 'asts/u%s_%s' % (s, suffix))
+        m.exportOne(ast, 'uasts/u%s_%s' % (s, suffix))
         print >> timefile, 'u_%s' % s
         print >> timefile, '%.2f' % dt
     sim = lambda s: AES().simMacro(s)
@@ -150,7 +150,7 @@ def createAESILA(enable_ps):
 
         ast = m.get_next(s)
         print '%s: %s' % (s, str(ast))
-        m.exportOne(ast, 'asts/%s_%s' % (s, suffix))
+        m.exportOne(ast, 'uasts/%s_%s' % (s, suffix))
         print >> timefile, '%s' % s
         print >> timefile, '%.2f' % dt
 

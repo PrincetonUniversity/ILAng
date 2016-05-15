@@ -98,7 +98,7 @@ def createAESILA(synstates, enable_ps):
     # enc_data
     aes_key = ila.ite(keysel == 0, key0, key1)
     aes_enc_data = ila.appfun(aes, [ctr, aes_key, rd_data])
-    enc_data_nxt = ila.choice('enc_data_nxt', aes_enc_data, enc_data)
+    enc_data_nxt = ila.ite(state == 2, aes_enc_data, enc_data)
     m.set_next('enc_data', enc_data_nxt)
     # xram write
     xram_w_aes = ila.storeblk(xram, opaddr + byte_cnt, enc_data)
