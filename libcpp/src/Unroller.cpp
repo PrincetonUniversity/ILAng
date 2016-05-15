@@ -12,11 +12,12 @@ namespace ila
   {
       unsigned nFrame = frame ();
 
-      assert (getInputs (nFrame).size() == 0 &&
+      ILA_ASSERT (getInputs (nFrame).size() == 0, 
                   "Unexpected inputs");
-      assert (getOutputs (nFrame).size() == 0 &&
+      ILA_ASSERT (getOutputs (nFrame).size() == 0,
                   "Unexpected outputs");
-      assert (nFrame == 0);
+      ILA_ASSERT (nFrame == 0, 
+                  "Unexpected frame number.");
 
       Z3ExprAdapter z3expr(*m_pContext, "");
       z3expr.setNameSuffix(string("_0_"));
@@ -24,25 +25,31 @@ namespace ila
 
 
       // -- register frame PIs
+      int cnt=0;
       for (auto i : m_pAbstraction->getInps()) {
           z3::expr pi = z3expr.getExpr(i.second.var.get());
           m_vPrimaryInputs[nFrame].push_back(pi);
+          m_mInputIndices[i.second.var.get()] = cnt++;
       }
 
       // -- register current state as the output
+      cnt=0;
       for (auto b : m_pAbstraction->getBits()) {
           z3::expr c = z3expr.getExpr(b.second.var.get());
-          m_vInputs [nFrame].push_back(c);
+          m_vOutputs [nFrame].push_back(c);
+          m_mStateIndices[b.second.var.get()] = cnt++;
       }
 
       for (auto r : m_pAbstraction->getRegs()) {
           z3::expr c = z3expr.getExpr(r.second.var.get());
-          m_vInputs [nFrame].push_back(c);
+          m_vOutputs [nFrame].push_back(c);
+          m_mStateIndices[r.second.var.get()] = cnt++;
       }
 
       for (auto m : m_pAbstraction->getMems()) {
           z3::expr c = z3expr.getExpr(m.second.var.get());
-          m_vInputs [nFrame].push_back(c);
+          m_vOutputs [nFrame].push_back(c);
+          m_mStateIndices[m.second.var.get()] = cnt++;
       }
   }
 
@@ -50,11 +57,11 @@ namespace ila
   {
       unsigned nFrame = frame ();
 
-      assert (getInputs (nFrame).size() == 0 &&
-              "Unexpected inputs");
-      assert (getOutputs (nFrame).size() == 0 &&
-              "Unexpected outputs");
-      assert (nFrame > 0);
+      ILA_ASSERT (getInputs (nFrame).size() == 0,
+                  "Unexpected inputs");
+      ILA_ASSERT (getOutputs (nFrame).size() == 0,
+                  "Unexpected outputs");
+      ILA_ASSERT (nFrame > 0, "Invalid frame number");
 
       Z3ExprAdapter z3expr(*m_pContext, "");
       ostringstream s;

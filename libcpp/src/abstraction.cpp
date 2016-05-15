@@ -5,6 +5,7 @@
 #include <synrewriter.hpp>
 #include <util.hpp>
 #include <logging.hpp>
+#include <Unroller.hpp>
 
 #include <boost/multiprecision/cpp_int.hpp>
 #include <fstream>
@@ -578,6 +579,48 @@ namespace ila
             z3::model m = S.get_model();
             z3::expr m1 = m.eval(ex1);
             z3::expr m2 = m.eval(ex2);
+            std::cout << m << std::endl;
+            std::cout << m1 << std::endl;
+            std::cout << m2 << std::endl;
+            return false;
+        } else if (r == unsat) {
+            return true;
+        } else {
+            throw PyILAException(PyExc_RuntimeError, "Indeterminate result from Z3.");
+            return false;
+        }
+    }
+
+    bool Abstraction::areEqualUnrolled(unsigned n, NodeRef* reg, NodeRef* exp)
+    {
+        using namespace z3;
+
+        context c;
+        solver S(c);
+        Z3ExprAdapter adp(c, "");
+        adp.setNameSuffix("_0_");
+
+        Unroller u(*this, c, S);
+        for (unsigned i=0; i <= n; i++) {
+            u.addTr();
+            u.newFrame();
+        }
+
+        expr e_exp = adp.getExpr(exp->node.get());
+        expr c_exp = adp.getCnst(exp->node.get());
+        expr e_reg = u.getOutput(n, reg->node.get());
+        expr mitre = e_exp != e_reg;
+
+        S.add(mitre);
+        S.add(c_exp);
+
+        std::cout << S << std::endl;
+
+        auto r = S.check();
+        if (r == sat) {
+            z3::model m = S.get_model();
+            z3::expr m1 = m.eval(e_exp);
+            z3::expr m2 = m.eval(e_reg);
             std::cout << m << std::endl;
             std::cout << m1 << std::endl;
             std::cout << m2 << std::endl;

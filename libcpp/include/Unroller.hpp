@@ -3,16 +3,19 @@
 
 #include <cassert>
 
+#include <unordered_map>
 #include <vector>
 
 #include "boost/foreach.hpp"
 #include "boost/dynamic_bitset.hpp"
 #include "boost/logic/tribool.hpp"
 #include <z3++.h>
+#include <util.hpp>
 
 namespace ila
 {
   class Abstraction;
+  class Node;
 
   class Unroller
   {
@@ -22,8 +25,13 @@ namespace ila
     z3::solver* m_pSolver;
     unsigned m_nFrames;
 
+    /// Map between primary input pointers and indices into m_vPrimaryInputs
+    std::unordered_map<Node*, int> m_mInputIndices;
     /// Primary Inputs, by frame
     std::vector<std::vector<z3::expr> > m_vPrimaryInputs;
+
+    /// Map between state pointers and indices into m_vInputs and m_vOutputs
+    std::unordered_map<Node*, int> m_mStateIndices;
     /// Inputs, by frame
     std::vector<std::vector<z3::expr> > m_vInputs;
     /// Outputs, by frame
@@ -117,6 +125,12 @@ namespace ila
 
     void addOutput (z3::expr out)
     { m_vOutputs.at (frame ()).push_back(out); }
+
+    z3::expr& getOutput (unsigned nFrame, Node* var) {
+        auto pos = m_mStateIndices.find(var);
+        ILA_ASSERT (pos != m_mStateIndices.end(), "Unable to find var in map.");
+        return getOutput(nFrame, pos->second);
+    }
 
     z3::expr& getOutput (unsigned nFrame, int nNum)
     { return m_vOutputs.at (nFrame)[nNum]; }

@@ -388,6 +388,7 @@ BOOST_PYTHON_MODULE(ila)
         // smt solver.
         .def("areEqual", &AbstractionWrapper::areEqual)
         .def("areEqual", &AbstractionWrapper::areEqualAssump)
+        .def("areEqualUnrolled", &AbstractionWrapper::areEqualUnrolled)
 
         // assumptions.
         .def("add_assumption", &AbstractionWrapper::addAssumption)

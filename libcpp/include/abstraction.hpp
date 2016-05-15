@@ -214,6 +214,8 @@ namespace ila
         bool areEqual(NodeRef* left, NodeRef* right) const;
         // check quality under assumption
         bool areEqualAssump(NodeRef* assump, NodeRef* left, NodeRef* right);
+        // check after unrolling.
+        bool areEqualUnrolled(unsigned n, NodeRef* reg, NodeRef* exp);
 
         // get memories.
         const nmap_t& getMems() const { return mems; }
@@ -504,6 +506,12 @@ namespace ila
         bool areEqualAssump(NodeRef* assump, NodeRef* left, NodeRef* right)
         {
             return abs->areEqualAssump(assump, left, right);
+        }
+
+        // check equality after unrolling.
+        bool areEqualUnrolled(unsigned n, NodeRef* reg, NodeRef* exp)
+        {
+            return abs->areEqualUnrolled(n, reg, exp);
         }
 
         int getEnParamSyn() const {
