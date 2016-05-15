@@ -69,6 +69,7 @@ python-extension ila : src/abstraction.cpp
                        src/type.cpp 
                        src/util.cpp
                        src/Unroller.cpp 
+                       src/EqvChecker.cpp 
                      : <include>./include ;
 
 # Put the extension and Boost.Python DLL in the current directory, so
@@ -104,6 +105,8 @@ testing.make-test run-pyd : ila test/test_div.py : : test_div ;
 testing.make-test run-pyd : ila test/simgen.py : : test_simgen ;
 
 testing.make-test run-pyd : ila test/func.py : : test_func ;
+
+testing.make-test run-pyd : ila test/eqchecker.py : : test_eqchecker ;
 
 
 # A little "rule" (function) to clean up the syntax of declaring tests

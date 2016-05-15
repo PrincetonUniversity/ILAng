@@ -135,6 +135,10 @@ namespace ila
         void setInit(const std::string& name, NodeRef* n);
         // Get the initial value for this var.
         NodeRef* getInit(const std::string& name) const;
+        // Set a predicate on the initial value.
+        void setIpred(const std::string& name, NodeRef* n);
+        // Get the predicate on the initial value.
+        NodeRef* getIpred(const std::string& name) const;
 
         // Set the next template for this var.
         void setNext(const std::string& name, NodeRef* n);
@@ -214,6 +218,12 @@ namespace ila
         bool areEqual(NodeRef* left, NodeRef* right) const;
         // check quality under assumption
         bool areEqualAssump(NodeRef* assump, NodeRef* left, NodeRef* right);
+        // check after unrolling.
+        bool areEqualUnrolled(unsigned n, NodeRef* reg, NodeRef* exp);
+        // unroll two abstractions and check
+        static bool bmc(
+            unsigned n1, Abstraction* a1, NodeRef* r1, 
+            unsigned n2, Abstraction* a2, NodeRef* r2);
 
         // get memories.
         const nmap_t& getMems() const { return mems; }
@@ -253,6 +263,8 @@ namespace ila
         bool doesNextExist(const nmap_t& m) const;
         // which is the map containing this node?
         nmap_t* getMap(const std::string& name, NodeRef* n);
+        // same as above, but use only name.
+        nmap_t* getMap(const std::string& name);
         // what is the map containing this name?
         nmap_t::const_iterator findInMap(const std::string& name) const;
         nmap_t::iterator findInMap(const std::string& name);
@@ -265,6 +277,7 @@ namespace ila
         // Set next value to the function.
         void setUpdateToFunction(CppSimGen* gen, CppFun* fun, 
                                  nptr_t valid) const;
+
     };
 
     // This class contains a shared pointer to an underlying
@@ -348,6 +361,15 @@ namespace ila
         // Get the initial value for this var.
         NodeRef* getInit(const std::string& name) const {
             return abs->getInit(name);
+        }
+
+        // Set a predicate associated with the initial value.
+        void setIpred(const std::string& name, NodeRef* n) {
+            abs->setIpred(name, n);
+        }
+        // Get the predicate associated with the initial vlaue.
+        NodeRef*getIpred(const std::string& name) const {
+            return abs->getIpred(name);
         }
 
         // Set the next template for this var.
@@ -504,6 +526,22 @@ namespace ila
         bool areEqualAssump(NodeRef* assump, NodeRef* left, NodeRef* right)
         {
             return abs->areEqualAssump(assump, left, right);
+        }
+
+        // check equality after unrolling.
+        bool areEqualUnrolled(unsigned n, NodeRef* reg, NodeRef* exp)
+        {
+            return abs->areEqualUnrolled(n, reg, exp);
+        }
+
+        static bool bmc(
+            unsigned n1, AbstractionWrapper* a1, NodeRef* r1, 
+            unsigned n2, AbstractionWrapper* a2, NodeRef* r2)
+        {
+            Abstraction* a1ptr = a1->abs.get();
+            Abstraction* a2ptr = a2->abs.get();
+
+            return Abstraction::bmc(n1, a1ptr, r1, n2, a2ptr, r2);
         }
 
         int getEnParamSyn() const {

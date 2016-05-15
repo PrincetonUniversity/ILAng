@@ -9,46 +9,15 @@
 #include <vector>
 namespace ila
 {
-  using namespace z3;
-  
-  /**
-   * (Bounded) Equivalence checker
-   */
-  class EqvChecker
-  {
-    /// The Z3 context
-    z3::context* m_pContext;
-    z3::solver m_Solver;
+  class Abstraction;
+  class NodeRef;
 
-    Unroller* m_pUnroller1;
-    Unroller* m_pUnroller2;
+  // check after unrolling both
+  bool bmc(
+      unsigned n1, Abstraction* a1, NodeRef* r1, 
+      unsigned n2, Abstraction* a2, NodeRef* r2);
 
-    /// initialize given a circuit
-    void init ();
-
-  public:
-    /// create a VC given from a circuit. Init is implicit.
-    EqvChecker(z3::context& c, Unroller& u1, Unroller& u2) :
-          m_pContext(&c)
-        , m_Solver(c)
-        , m_pUnroller1(&u1)
-        , m_pUnroller2(&u2)
-    { init (); }
-    
-    Unroller* getUnroller1 () { return m_pUnroller1; }
-    Unroller* getUnroller2 () { return m_pUnroller2; }
-    
-    
-  public:
-    
-    // Match the outputs
-    void addBad (unsigned nFrame1, unsigned nFrame2)
-    {
-      std::vector<z3::expr>& outputs1 = m_pUnroller1->getOutputs(nFrame1);
-      std::vector<z3::expr>& outputs2 = m_pUnroller2->getOutputs(nFrame2);
-    }
-    
-  };
+  bool checkMiter(z3::solver& S, z3::expr& e1, z3::expr& e2);
 }
 
 

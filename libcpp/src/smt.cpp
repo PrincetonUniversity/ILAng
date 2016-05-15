@@ -13,6 +13,7 @@ namespace ila
       , suffix(s)
       , name_suffix("")
     {
+        simplify = false;
     }
 
     Z3ExprAdapter::Z3ExprAdapter(z3::context& ctx, const char* s)
@@ -20,6 +21,7 @@ namespace ila
       , suffix(s)
       , name_suffix("")
     {
+        simplify = false;
     }
 
     Z3ExprAdapter::~Z3ExprAdapter()
@@ -65,51 +67,65 @@ namespace ila
         //// booleans ////
         if ((boolvar = dynamic_cast<const BoolVar*>(n))) {
             z3::expr r = getBoolVarExpr(boolvar);
+            if (simplify) r = r.simplify();
             exprmap.insert({n, r});
         } else if ((boolconst = dynamic_cast<const BoolConst*>(n))) {
             z3::expr r = c.bool_val(boolconst->val());
+            if (simplify) r = r.simplify();
             exprmap.insert({n, r});
         } else if ((boolop = dynamic_cast<const BoolOp*>(n))) {
             z3::expr r = getBoolOpExpr(boolop);
+            if (simplify) r = r.simplify();
             exprmap.insert({n, r});
         } else if((bchoiceop = dynamic_cast<const BoolChoice*>(n))) {
             z3::expr r = getChoiceExpr(bchoiceop);
+            if (simplify) r = r.simplify();
             exprmap.insert({n, r});
 
         //// bitvectors ////
         } else if((bvvar = dynamic_cast<const BitvectorVar*>(n))) {
             z3::expr r = getBitvectorVarExpr(bvvar);
+            if (simplify) r = r.simplify();
             exprmap.insert({n, r});
         } else if((bvconst = dynamic_cast<const BitvectorConst*>(n))) {
             z3::expr r = c.bv_val(bvconst->vstr().c_str(), bvconst->type.bitWidth);
+            if (simplify) r = r.simplify();
             exprmap.insert({n, r});
         } else if ((bvop = dynamic_cast<const BitvectorOp*>(n))) {
             z3::expr r = getBvOpExpr(bvop);
+            if (simplify) r = r.simplify();
             exprmap.insert({n, r});
         } else if ((bvchoiceop = dynamic_cast<const BitvectorChoice*>(n))) {
             z3::expr r = getChoiceExpr(bvchoiceop);
+            if (simplify) r = r.simplify();
             exprmap.insert({n, r});
         } else if ((inrangeop = dynamic_cast<const BVInRange*>(n))) {
             z3::expr r = getBVInRangeExpr(inrangeop);
+            if (simplify) r = r.simplify();
             exprmap.insert({n, r});
 
         //// memories ////
         } else if ((memvar = dynamic_cast<const MemVar*>(n))) {
             z3::expr r = getMemVarExpr(memvar);
+            if (simplify) r = r.simplify();
             exprmap.insert({n, r});
         } else if ((memconst = dynamic_cast<const MemConst*>(n))) {
             z3::expr r = memconst->memvalues.toZ3(c);
+            if (simplify) r = r.simplify();
             exprmap.insert({n, r});
         } else if ((memop = dynamic_cast<const MemOp*>(n))) {
             z3::expr r = getMemOpExpr(memop);
+            if (simplify) r = r.simplify();
             exprmap.insert({n, r});
         } else if ((mchoiceop = dynamic_cast<const MemChoice*>(n))) {
             z3::expr r = getChoiceExpr(mchoiceop);
+            if (simplify) r = r.simplify();
             exprmap.insert({n, r});
 
         //// Functions ////
         } else if ((funcvar = dynamic_cast<const FuncVar*>(n))) {
             z3::expr r = getFuncVarExpr(funcvar);
+            if (simplify) r = r.simplify();
             exprmap.insert({n, r});
         }
     }
@@ -222,7 +238,7 @@ namespace ila
     z3::expr Z3ExprAdapter::getFuncVarExpr(const FuncVar* funcvar)
     {
         using namespace z3;
-        Z3_symbol name  = Z3_mk_string_symbol(c, (funcvar->getName() + name_suffix).c_str());
+        Z3_symbol name  = Z3_mk_string_symbol(c, funcvar->getName().c_str());
         Z3_sort ressort = c.bv_sort(funcvar->type.bitWidth);
         Z3_sort* domain = new Z3_sort[funcvar->type.argsWidth.size()];
         for (unsigned i=0; i != funcvar->type.argsWidth.size(); i++) {

@@ -6,6 +6,7 @@
 #include <exception.hpp>
 #include <abstraction.hpp>
 #include <logging.hpp>
+#include <EqvChecker.hpp>
 
 using namespace boost::python;
 using namespace ila;
@@ -340,6 +341,9 @@ BOOST_PYTHON_MODULE(ila)
     // logging.
     def("setloglevel", &ila::setLogLevel);
 
+    // bmc
+    def("bmc", &AbstractionWrapper::bmc);
+
     // This is the top-level class.
     class_<AbstractionWrapper>("Abstraction", init<const std::string&>())
         // the name of this abstraction
@@ -363,6 +367,9 @@ BOOST_PYTHON_MODULE(ila)
         // init function
         .def("set_init", &AbstractionWrapper::setInit)
         .def("get_init", &AbstractionWrapper::getInit, return_value_policy<manage_new_object>())
+        // ipred
+        .def("set_ipred", &AbstractionWrapper::setIpred)
+        .def("get_ipred", &AbstractionWrapper::getIpred, return_value_policy<manage_new_object>())
         // next function
         .def("set_next", &AbstractionWrapper::setNext)
         .def("get_next", &AbstractionWrapper::getNext, return_value_policy<manage_new_object>())
@@ -388,6 +395,7 @@ BOOST_PYTHON_MODULE(ila)
         // smt solver.
         .def("areEqual", &AbstractionWrapper::areEqual)
         .def("areEqual", &AbstractionWrapper::areEqualAssump)
+        .def("areEqualUnrolled", &AbstractionWrapper::areEqualUnrolled)
 
         // assumptions.
         .def("add_assumption", &AbstractionWrapper::addAssumption)
