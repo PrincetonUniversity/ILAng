@@ -238,7 +238,7 @@ namespace ila
     z3::expr Z3ExprAdapter::getFuncVarExpr(const FuncVar* funcvar)
     {
         using namespace z3;
-        Z3_symbol name  = Z3_mk_string_symbol(c, (funcvar->getName() + name_suffix).c_str());
+        Z3_symbol name  = Z3_mk_string_symbol(c, funcvar->getName().c_str());
         Z3_sort ressort = c.bv_sort(funcvar->type.bitWidth);
         Z3_sort* domain = new Z3_sort[funcvar->type.argsWidth.size()];
         for (unsigned i=0; i != funcvar->type.argsWidth.size(); i++) {
