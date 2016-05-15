@@ -12,10 +12,11 @@
 #include <z3++.h>
 #include <util.hpp>
 
+#include <ast.hpp>
+
 namespace ila
 {
   class Abstraction;
-  class Node;
 
   class Unroller
   {
@@ -93,6 +94,7 @@ namespace ila
     /// return all assumptions
     std::vector<z3::expr> &getAssumps () { return m_Assumps; }
   
+    void _initVar(Z3ExprAdapter& z3expr, const npair_t& p, int& cnt);
   
     unsigned frame () { return m_nFrames - 1; }
     

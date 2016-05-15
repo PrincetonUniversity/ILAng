@@ -6,8 +6,9 @@ def test():
     y = m.reg('y', 8)
 
     m.set_next('x', x)
+    m.set_init('x', m.const(1, 8))
     m.set_next('y', y+x)
-    print m.areEqualUnrolled(3, y, y+x+x+x)
+    assert m.areEqualUnrolled(3, y, y+3)
 
 
 if __name__ == '__main__':

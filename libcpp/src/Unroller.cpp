@@ -1,6 +1,7 @@
 #include "Unroller.hpp"
 #include "smt.hpp"
 #include "abstraction.hpp"
+#include "ast.hpp"
 
 #include <sstream>
 
@@ -8,6 +9,24 @@ using namespace std;
 
 namespace ila
 {
+
+  void Unroller::_initVar(Z3ExprAdapter& z3expr, const npair_t& p, int& cnt)
+  {
+      unsigned nFrame = frame ();
+
+      Node* var = p.var.get();
+      Node* init = p.init.get();
+
+      if (!var->equal(init)) {
+          z3::expr c = z3expr.getExpr(init);
+          m_vOutputs [nFrame].push_back(c);
+      } else {
+          z3::expr c = z3expr.getExpr(var);
+          m_vOutputs [nFrame].push_back(c);
+      }
+      m_mStateIndices[p.var.get()] = cnt++;
+  }
+
   void Unroller::addTr0 ()
   {
       unsigned nFrame = frame ();
@@ -35,21 +54,15 @@ namespace ila
       // -- register current state as the output
       cnt=0;
       for (auto b : m_pAbstraction->getBits()) {
-          z3::expr c = z3expr.getExpr(b.second.var.get());
-          m_vOutputs [nFrame].push_back(c);
-          m_mStateIndices[b.second.var.get()] = cnt++;
+          _initVar(z3expr, b.second, cnt);
       }
 
       for (auto r : m_pAbstraction->getRegs()) {
-          z3::expr c = z3expr.getExpr(r.second.var.get());
-          m_vOutputs [nFrame].push_back(c);
-          m_mStateIndices[r.second.var.get()] = cnt++;
+          _initVar(z3expr, r.second, cnt);
       }
 
       for (auto m : m_pAbstraction->getMems()) {
-          z3::expr c = z3expr.getExpr(m.second.var.get());
-          m_vOutputs [nFrame].push_back(c);
-          m_mStateIndices[m.second.var.get()] = cnt++;
+          _initVar(z3expr, m.second, cnt);
       }
   }
 
