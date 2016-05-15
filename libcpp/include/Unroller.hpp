@@ -20,8 +20,9 @@ namespace ila
 
   class Unroller
   {
-    Abstraction* m_pAbstraction;
+    const char* m_sName;
 
+    Abstraction* m_pAbstraction;
     z3::context* m_pContext;
     z3::solver* m_pSolver;
     unsigned m_nFrames;
@@ -46,8 +47,9 @@ namespace ila
   
   
   public:
-    Unroller(Abstraction& abs, z3::context &c, z3::solver &s) :
-      m_pAbstraction(&abs)
+    Unroller(const char* suffix, Abstraction& abs, z3::context &c, z3::solver &s)
+      : m_sName(suffix)
+      , m_pAbstraction(&abs)
       , m_pContext(&c)
       , m_pSolver (&s)
       , m_nFrames(0)

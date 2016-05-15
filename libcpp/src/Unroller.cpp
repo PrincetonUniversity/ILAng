@@ -78,7 +78,7 @@ namespace ila
 
       Z3ExprAdapter z3expr(*m_pContext, "");
       ostringstream s;
-      s << "_" << nFrame << "_";
+      s << "_" << nFrame << "_" << m_sName;
       z3expr.setNameSuffix(s.str());
 
       for (auto i : m_pAbstraction->getInps()) {

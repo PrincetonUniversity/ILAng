@@ -69,6 +69,7 @@ python-extension ila : src/abstraction.cpp
                        src/type.cpp 
                        src/util.cpp
                        src/Unroller.cpp 
+                       src/EqvChecker.cpp 
                      : <include>./include ;
 
 # Put the extension and Boost.Python DLL in the current directory, so

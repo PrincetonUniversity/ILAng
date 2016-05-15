@@ -6,6 +6,7 @@
 #include <util.hpp>
 #include <logging.hpp>
 #include <Unroller.hpp>
+#include <EqvChecker.hpp>
 
 #include <boost/multiprecision/cpp_int.hpp>
 #include <fstream>
@@ -535,103 +536,7 @@ namespace ila
         }
     }
 
-    bool Abstraction::areEqualAssump(NodeRef* assump, NodeRef* left, NodeRef* right)
-    {
-        using namespace z3;
-
-        if (left->node->type != right->node->type) {
-            throw PyILAException(PyExc_TypeError,
-                "Types do not match.");
-            return false;
-        }
-
-        context c_;
-        Z3ExprAdapter c(c_, "");
-
-        // std::cout << "left: " << *left->node.get() << std::endl;
-        z3::expr ex1 = c.getExpr(left->node.get());
-        z3::expr cn1 = c.getCnst(left->node.get());
-        //std::cout << "ex1:" << ex1 << std::endl;
-
-        // std::cout << "right: " << *right->node.get() << std::endl;
-        z3::expr ex2 = c.getExpr(right->node.get());
-        z3::expr cn2 = c.getCnst(right->node.get());
-        //std::cout << "ex2:" << ex2 << std::endl;
-
-        expr mitre = (ex1 != ex2);
-        //std::cout << "mitre:" << mitre << std::endl;
-
-
-        solver S(c_);
-
-        nptr_vec_t all_assumps;
-        getAllAssumptions(all_assumps);
-        for (auto&& a : all_assumps) {
-            S.add(c.getExpr(a.get()));
-        }
-        S.add(c.getExpr(assump->node.get()));
-
-        S.add(mitre);
-        S.add(cn1);
-        S.add(cn2);
-        auto r = S.check();
-        if (r == sat) {
-            z3::model m = S.get_model();
-            z3::expr m1 = m.eval(ex1);
-            z3::expr m2 = m.eval(ex2);
-            std::cout << m << std::endl;
-            std::cout << m1 << std::endl;
-            std::cout << m2 << std::endl;
-            return false;
-        } else if (r == unsat) {
-            return true;
-        } else {
-            throw PyILAException(PyExc_RuntimeError, "Indeterminate result from Z3.");
-            return false;
-        }
-    }
-
-    bool Abstraction::areEqualUnrolled(unsigned n, NodeRef* reg, NodeRef* exp)
-    {
-        using namespace z3;
-
-        context c;
-        solver S(c);
-        Z3ExprAdapter adp(c, "");
-        adp.setNameSuffix("_0_");
-
-        Unroller u(*this, c, S);
-        for (unsigned i=0; i <= n; i++) {
-            u.addTr();
-            u.newFrame();
-        }
-
-        expr e_exp = adp.getExpr(exp->node.get());
-        expr c_exp = adp.getCnst(exp->node.get());
-        expr e_reg = u.getOutput(n, reg->node.get());
-        expr mitre = e_exp != e_reg;
-
-        S.add(mitre);
-        S.add(c_exp);
-
-        std::cout << S << std::endl;
-
-        auto r = S.check();
-        if (r == sat) {
-            z3::model m = S.get_model();
-            z3::expr m1 = m.eval(e_exp);
-            z3::expr m2 = m.eval(e_reg);
-            std::cout << m << std::endl;
-            std::cout << m1 << std::endl;
-            std::cout << m2 << std::endl;
-            return false;
-        } else if (r == unsat) {
-            return true;
-        } else {
-            throw PyILAException(PyExc_RuntimeError, "Indeterminate result from Z3.");
-            return false;
-        }
-    }
+    // ---------------------------------------------------------------------- //
 
     bool Abstraction::areEqual(NodeRef* left, NodeRef* right) const
     {
@@ -671,21 +576,107 @@ namespace ila
         S.add(mitre);
         S.add(cn1);
         S.add(cn2);
-        auto r = S.check();
-        if (r == sat) {
-            z3::model m = S.get_model();
-            z3::expr m1 = m.eval(ex1);
-            z3::expr m2 = m.eval(ex2);
-            std::cout << m << std::endl;
-            std::cout << m1 << std::endl;
-            std::cout << m2 << std::endl;
-            return false;
-        } else if (r == unsat) {
-            return true;
-        } else {
-            throw PyILAException(PyExc_RuntimeError, "Indeterminate result from Z3.");
+        return checkMiter(S, ex1, ex2);
+    }
+
+    bool Abstraction::areEqualAssump(NodeRef* assump, NodeRef* left, NodeRef* right)
+    {
+        using namespace z3;
+
+        if (left->node->type != right->node->type) {
+            throw PyILAException(PyExc_TypeError,
+                "Types do not match.");
             return false;
         }
+
+        context c_;
+        Z3ExprAdapter c(c_, "");
+
+        // std::cout << "left: " << *left->node.get() << std::endl;
+        z3::expr ex1 = c.getExpr(left->node.get());
+        z3::expr cn1 = c.getCnst(left->node.get());
+        //std::cout << "ex1:" << ex1 << std::endl;
+
+        // std::cout << "right: " << *right->node.get() << std::endl;
+        z3::expr ex2 = c.getExpr(right->node.get());
+        z3::expr cn2 = c.getCnst(right->node.get());
+        //std::cout << "ex2:" << ex2 << std::endl;
+
+        expr mitre = (ex1 != ex2);
+        //std::cout << "mitre:" << mitre << std::endl;
+
+
+        solver S(c_);
+
+        nptr_vec_t all_assumps;
+        getAllAssumptions(all_assumps);
+        for (auto&& a : all_assumps) {
+            S.add(c.getExpr(a.get()));
+        }
+        S.add(c.getExpr(assump->node.get()));
+
+        S.add(mitre);
+        S.add(cn1);
+        S.add(cn2);
+        return checkMiter(S, ex1, ex2);
+    }
+
+    // ---------------------------------------------------------------------- //
+    bool Abstraction::areEqualUnrolled(unsigned n, NodeRef* reg, NodeRef* exp)
+    {
+        using namespace z3;
+
+        context c;
+        solver S(c);
+        Z3ExprAdapter adp(c, "");
+        adp.setNameSuffix("_0_");
+
+        Unroller u("u", *this, c, S);
+        for (unsigned i=0; i <= n; i++) {
+            u.addTr();
+            u.newFrame();
+        }
+
+        expr e_exp = adp.getExpr(exp->node.get());
+        expr c_exp = adp.getCnst(exp->node.get());
+        expr e_reg = u.getOutput(n, reg->node.get());
+        expr mitre = e_exp != e_reg;
+
+        S.add(mitre);
+        S.add(c_exp);
+
+        return checkMiter(S, e_exp, e_reg);
+    }
+
+    bool Abstraction::bmc(
+        unsigned n1, Abstraction* a1, NodeRef* r1, 
+        unsigned n2, Abstraction* a2, NodeRef* r2)
+    {
+        using namespace z3;
+
+        context c;
+        solver S(c);
+
+        // unroll 1
+        Unroller u1("u1", *a1, c, S);
+        for (unsigned i=0; i <= n1; i++) {
+            u1.addTr();
+            u1.newFrame();
+        }
+
+        // unroll 2
+        Unroller u2("u2", *a2, c, S);
+        for (unsigned i=0; i <= n2; i++) {
+            u2.addTr();
+            u2.newFrame();
+        }
+
+        expr e_r1 = u1.getOutput(n1, r1->node.get());
+        expr e_r2 = u2.getOutput(n2, r2->node.get());
+        expr mitre = e_r1 != e_r2;
+
+        S.add(mitre);
+        return checkMiter(S, e_r1, e_r2);
     }
 
     // ---------------------------------------------------------------------- //

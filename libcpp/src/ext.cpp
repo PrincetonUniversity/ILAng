@@ -6,6 +6,7 @@
 #include <exception.hpp>
 #include <abstraction.hpp>
 #include <logging.hpp>
+#include <EqvChecker.hpp>
 
 using namespace boost::python;
 using namespace ila;
@@ -339,6 +340,9 @@ BOOST_PYTHON_MODULE(ila)
             return_value_policy<manage_new_object>());
     // logging.
     def("setloglevel", &ila::setLogLevel);
+
+    // bmc
+    def("bmc", &AbstractionWrapper::bmc);
 
     // This is the top-level class.
     class_<AbstractionWrapper>("Abstraction", init<const std::string&>())

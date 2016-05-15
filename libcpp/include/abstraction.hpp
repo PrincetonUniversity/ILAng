@@ -216,6 +216,10 @@ namespace ila
         bool areEqualAssump(NodeRef* assump, NodeRef* left, NodeRef* right);
         // check after unrolling.
         bool areEqualUnrolled(unsigned n, NodeRef* reg, NodeRef* exp);
+        // unroll two abstractions and check
+        static bool bmc(
+            unsigned n1, Abstraction* a1, NodeRef* r1, 
+            unsigned n2, Abstraction* a2, NodeRef* r2);
 
         // get memories.
         const nmap_t& getMems() const { return mems; }
@@ -267,6 +271,7 @@ namespace ila
         // Set next value to the function.
         void setUpdateToFunction(CppSimGen* gen, CppFun* fun, 
                                  nptr_t valid) const;
+
     };
 
     // This class contains a shared pointer to an underlying
@@ -512,6 +517,16 @@ namespace ila
         bool areEqualUnrolled(unsigned n, NodeRef* reg, NodeRef* exp)
         {
             return abs->areEqualUnrolled(n, reg, exp);
+        }
+
+        static bool bmc(
+            unsigned n1, AbstractionWrapper* a1, NodeRef* r1, 
+            unsigned n2, AbstractionWrapper* a2, NodeRef* r2)
+        {
+            Abstraction* a1ptr = a1->abs.get();
+            Abstraction* a2ptr = a2->abs.get();
+
+            return Abstraction::bmc(n1, a1ptr, r1, n2, a2ptr, r2);
         }
 
         int getEnParamSyn() const {
