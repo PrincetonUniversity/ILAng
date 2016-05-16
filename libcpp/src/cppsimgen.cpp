@@ -46,6 +46,15 @@ namespace ila
         _isConst = false;
     }
 
+    CppVar::CppVar(const CppVar* var)
+        : _type(var->_type)
+        , _width(var->_width)
+    {
+        _name = "cppVar_" + boost::lexical_cast<std::string>(varCnt++);
+        _isConst = var->_isConst;
+        _val = var->_val;
+    }
+
     CppVar::~CppVar()
     {
     }
@@ -374,6 +383,7 @@ namespace ila
         }
         
         f->_ret = findVar(*(it->second), nptr->getName());
+        ILA_ASSERT(f->retSet(), "Return not set.");
     }
 
     // Add a variable that should be update at the end of the function.
@@ -417,11 +427,7 @@ namespace ila
         }
         // Return the value.
         if (f->_ret != NULL) {
-            if (f->_ret->_type != CppVar::bvStr) {
-                code = "return " + f->_ret->use() + ";";
-            } else {
-                code = "return " + f->_ret->use() + ";";
-            }
+            code = "return " + f->_ret->use() + ";";
             f->addBody(code);
         } else {
             code = "return;";
@@ -437,7 +443,9 @@ namespace ila
         }
         _curVarMap = it->second;
 
-        CppVar* retVar = new CppVar(32);
+        ILA_ASSERT(appFun->_ret != NULL, 
+                appFun->_name + " return value not specified");
+        CppVar* retVar = new CppVar(appFun->_ret);
         (*_curVarMap)[retVar->_name] = retVar;
         
         std::string code = retVar->def() + " = " + appFun->_name + "(";
@@ -453,7 +461,73 @@ namespace ila
 
     // ---------------------------------------------------------------------- //
     // Export all code to the output stream.
-    void CppSimGen::exportAll(std::ostream& out) const
+    void CppSimGen::exportAllToFile(const std::string& fileName) const
+    {
+        std::ofstream out(fileName.c_str());
+        ILA_ASSERT(out.is_open(), "File " + fileName + " not open.");
+
+        // Put common headers, type def, ...
+        createCommon(out);
+
+        // Put model headers, constant memory, uninterpreted function.
+        genModel(out);
+
+        // Model member functions.
+        for (auto it = _funMap.begin(); it != _funMap.end(); it++) {
+            it->second->dumpDec(out, _modelName, 0);
+            it->second->dumpCode(out, 0);
+        }
+
+        out.close();
+    }
+
+    void CppSimGen::exportAllToDir(const std::string& dirName) const
+    {
+        std::vector<std::string> fileNames;
+
+        std::string commonFile = "common.hpp";
+        std::string modelHeader = _modelName + "_class.hpp";
+
+        std::ofstream out;
+        // Common headers
+        out.open(dirName + "/" + commonFile.c_str()); 
+        ILA_ASSERT(out.is_open(), "File " + commonFile + " not open.");
+        createCommon(out);
+        out.close();
+
+        // Model headers
+        out.open(dirName + "/" + modelHeader.c_str());
+        ILA_ASSERT(out.is_open(), "File " + modelHeader + " not open.");
+        out << "#include \"" << commonFile << "\"\n";
+        genModel(out);
+        out.close();
+
+        // Update functions
+        for (auto it = _funMap.begin(); it != _funMap.end(); it++) {
+            std::string fileName = dirName + "/subfun_" + it->first + ".cpp";
+            out.open(fileName.c_str());
+            ILA_ASSERT(out.is_open(), "File " + fileName + " not open.");
+            fileNames.push_back("subfun_" + it->first + ".cpp");
+
+            out << "#include \"" << commonFile << "\"\n";
+            out << "#include \"" << modelHeader << "\"\n\n";
+            it->second->dumpDec(out, _modelName, 0);
+            it->second->dumpCode(out, 0);
+
+            out.close();
+        }
+
+        out.open(dirName + "/funlist.txt");
+        out << "SRCS =";
+        for (unsigned i  = 0; i < fileNames.size(); i++) {
+            out << " " << fileNames[i];
+        }
+        out << "\n";
+        out.close();
+    }
+
+    // ---------------------------------------------------------------------- //
+    void CppSimGen::createCommon(std::ostream& out) const
     {
         // Include headers
         out << "#include <map>\n";
@@ -475,24 +549,6 @@ namespace ila
         defMemClass(out);
         out << "#endif\n";
         out << "/****************************************************/\n";
-
-        out << "\n";
-        defUnitpFunc(out);
-
-        out << "\n/****************************************************/\n";
-        out << "#ifndef " << boost::to_upper_copy<std::string>(_modelName) 
-            << "_CLASS\n";
-        out << "#define " << boost::to_upper_copy<std::string>(_modelName) 
-            << "_CLASS\n";
-        // Model class
-        genModel(out);
-        // Constant memory initialization.
-        setMemConst(out);
-        out << "#endif\n";
-        out << "/****************************************************/\n";
-
-        // main function
-        //genMain(out);
 
     }
 
@@ -1026,6 +1082,14 @@ namespace ila
     // ---------------------------------------------------------------------- //
     void CppSimGen::genModel(std::ostream& out) const
     {
+        out << "\n/****************************************************/\n";
+        out << "#ifndef " << boost::to_upper_copy<std::string>(_modelName) 
+            << "_CLASS\n";
+        out << "#define " << boost::to_upper_copy<std::string>(_modelName) 
+            << "_CLASS\n";
+
+        defUnitpFunc(out);
+
         // Model class prolog
         out << "class " <<  _modelName << "\n" 
             << "{\n";
@@ -1058,16 +1122,13 @@ namespace ila
         out << "\t// Bitvector masks.\n";
         for (auto it = _masks.begin(); it != _masks.end(); it++) {
             out << "\t" << it->second->def() << ";\n";
-                //<< it->second->_val << ";\n";
         }
         // Model class epilog
         out << "\n};\n";
 
-        for (auto it = _funMap.begin(); it != _funMap.end(); it++) {
-            it->second->dumpDec(out, _modelName, 0);
-            it->second->dumpCode(out, 0);
-        }
-
+        setMemConst(out);
+        out << "#endif\n";
+        out << "/****************************************************/\n";
     }
 
     void CppSimGen::defUnitpFunc(std::ostream& out) const

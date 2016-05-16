@@ -875,6 +875,7 @@ namespace ila
         }
         nptr_t res = ipt.importAst(this, in);
         NodeRef* wrap = new NodeRef(res);
+        // FIXME 
         ipt.addMapVars(this);
         in.close();
         return wrap;
@@ -999,57 +1000,16 @@ namespace ila
 
     }
 
-    void Abstraction::generateSim(const std::string& fileName) const
+    void Abstraction::generateSimToFile(const std::string& fileName) const
     {
-        CppSimGen* gen = new CppSimGen(name);
+        CppSimGen* gen = generateSim(false);
+        gen->exportAllToFile(fileName);
+    }
 
-        // Set variables to simulator generator.
-        addVarToSimulator(gen, false);
-
-        // Create update function.
-        CppFun* updateFun = gen->addFun("update");
-        setUpdateToFunction(gen, updateFun, NULL, true);
-        gen->endFun(updateFun);
-
-        // FetchExpr
-        CppFun* fetchExprFun = gen->addFun("fetch");
-        gen->buildFun(fetchExprFun, fetchExpr);
-        gen->setFunReturn(fetchExprFun, fetchExpr);
-        gen->endFun(fetchExprFun);
-
-        // FetchValid
-        CppFun* fetchValidFun = gen->addFun("fetchValid");
-        gen->buildFun(fetchValidFun, fetchValid);
-        gen->setFunReturn(fetchValidFun, fetchValid);
-        gen->endFun(fetchValidFun);
-
-        // DecodeExprs
-        std::vector<CppFun*> decodeVec;
-        for (unsigned i = 0; i < decodeExprs.size(); i++) {
-            CppFun* decFun = gen->addFun(
-                    "decode_" + boost::lexical_cast<std::string>(i));
-            gen->buildFun(decFun, decodeExprs[i]);
-            gen->setFunReturn(decFun, decodeExprs[i]);
-            gen->endFun(decFun);
-            decodeVec.push_back(decFun);
-        }
-
-        // Assumps
-        std::vector<CppFun*> assVec;
-        for (unsigned i = 0; i < assumps.size(); i++) {
-            CppFun* assFun = gen->addFun(
-                    "assumps_" + boost::lexical_cast<std::string>(i));
-            gen->buildFun(assFun, assumps[i]);
-            gen->setFunReturn(assFun, assumps[i]);
-            gen->endFun(assFun);
-            assVec.push_back(assFun);
-        }
-
-        // Generate overall simulator to file
-        std::ofstream out(fileName.c_str());
-        ILA_ASSERT(out.is_open(), "File " + fileName + " not open.");
-        gen->exportAll(out);
-        out.close();
+    void Abstraction::generateSimToDir(const std::string& dirName) const
+    {
+        CppSimGen* gen = generateSim(true);
+        gen->exportAllToDir(dirName);
     }
 
     // ---------------------------------------------------------------------- //
@@ -1200,6 +1160,58 @@ namespace ila
     }
 
     // ---------------------------------------------------------------------- //
+    // Set all information into simulator generator.
+    CppSimGen* Abstraction::generateSim(bool hier) const
+    {
+        CppSimGen* gen = new CppSimGen(name);
+
+        // Set variables to simulator generator.
+        addVarToSimulator(gen, false);
+
+        // Create update function.
+        CppFun* updateFun = gen->addFun("update");
+        setUpdateToFunction(gen, updateFun, NULL, hier);
+        gen->endFun(updateFun);
+
+        /*
+        // FetchExpr
+        CppFun* fetchExprFun = gen->addFun("fetch");
+        gen->buildFun(fetchExprFun, fetchExpr);
+        gen->setFunReturn(fetchExprFun, fetchExpr);
+        gen->endFun(fetchExprFun);
+
+        // FetchValid
+        CppFun* fetchValidFun = gen->addFun("fetchValid");
+        gen->buildFun(fetchValidFun, fetchValid);
+        gen->setFunReturn(fetchValidFun, fetchValid);
+        gen->endFun(fetchValidFun);
+
+        // DecodeExprs
+        std::vector<CppFun*> decodeVec;
+        for (unsigned i = 0; i < decodeExprs.size(); i++) {
+            CppFun* decFun = gen->addFun(
+                    "decode_" + boost::lexical_cast<std::string>(i));
+            gen->buildFun(decFun, decodeExprs[i]);
+            gen->setFunReturn(decFun, decodeExprs[i]);
+            gen->endFun(decFun);
+            decodeVec.push_back(decFun);
+        }
+        */
+
+        // Assumps
+        std::vector<CppFun*> assVec;
+        for (unsigned i = 0; i < assumps.size(); i++) {
+            CppFun* assFun = gen->addFun(
+                    "assumps_" + boost::lexical_cast<std::string>(i));
+            gen->buildFun(assFun, assumps[i]);
+            gen->setFunReturn(assFun, assumps[i]);
+            gen->endFun(assFun);
+            assVec.push_back(assFun);
+        }
+
+        return gen;
+    }
+
     // Iteratively set inputs, states, and functions to the simulator generator.
     void Abstraction::addVarToSimulator(CppSimGen* gen, bool force) const
     {
@@ -1248,12 +1260,15 @@ namespace ila
             if (check.second == false) continue;
             nptr_t nc = (valid == NULL) ? it->second.next : 
                     nptr_t(Node::ite(valid, it->second.next, it->second.var));
+            if (nc == NULL) continue;
             if (doHier) {
                 // Create new function for the state update.
                 CppFun* singleUpdateFunc = gen->addFun("cppUpdateFun_" + it->first);
                 gen->buildFun(singleUpdateFunc, nc);
                 gen->setFunReturn(singleUpdateFunc, nc);
                 gen->endFun(singleUpdateFunc);
+
+                ILA_ASSERT(singleUpdateFunc->retSet(), "return not set succeefully");
                 
                 // Calculate next value in top function, and update at the end
                 CppVar* nxtVal = gen->appFun(singleUpdateFunc, fun);
@@ -1268,12 +1283,15 @@ namespace ila
             if (check.second == false) continue;
             nptr_t nc = (valid == NULL) ? it->second.next : 
                     nptr_t(Node::ite(valid, it->second.next, it->second.var));
+            if (nc == NULL) continue;
             if (doHier) {
                 // Create new function for the state update.
                 CppFun* singleUpdateFunc = gen->addFun("cppUpdateFun_" + it->first);
                 gen->buildFun(singleUpdateFunc, nc);
                 gen->setFunReturn(singleUpdateFunc, nc);
                 gen->endFun(singleUpdateFunc);
+                
+                ILA_ASSERT(singleUpdateFunc->retSet(), "return not set succeefully");
                 
                 // Calculate next value in top function, and update at the end
                 CppVar* nxtVal = gen->appFun(singleUpdateFunc, fun);
@@ -1288,12 +1306,15 @@ namespace ila
             if (check.second == false) continue;
             nptr_t nc = (valid == NULL) ? it->second.next : 
                     nptr_t(Node::ite(valid, it->second.next, it->second.var));
+            if (nc == NULL) continue;
             if (doHier) {
                 // Create new function for the state update.
                 CppFun* singleUpdateFunc = gen->addFun("cppUpdateFun_" + it->first);
                 gen->buildFun(singleUpdateFunc, nc);
                 gen->setFunReturn(singleUpdateFunc, nc);
                 gen->endFun(singleUpdateFunc);
+                
+                ILA_ASSERT(singleUpdateFunc->retSet(), "return not set successfully");
                 
                 // Calculate next value in top function, and update at the end
                 CppVar* nxtVal = gen->appFun(singleUpdateFunc, fun);

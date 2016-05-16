@@ -211,8 +211,10 @@ namespace ila
         // the import function that import the overall model.
         void importAllFromFile(const std::string& fileName);
 
-        // the simulator generating function.
-        void generateSim(const std::string& fileName) const;
+        // the simulator generating function, output to one file.
+        void generateSimToFile(const std::string& fileName) const;
+        // the simulator generating function, output to seperated files in dir.
+        void generateSimToDir(const std::string& dirName) const;
 
         // check equality function.
         bool areEqual(NodeRef* left, NodeRef* right) const;
@@ -272,6 +274,8 @@ namespace ila
         friend class AbstractionWrapper;
 
     private:
+        // The simulator generating function.
+        CppSimGen* generateSim(bool hier) const;
         // Set inputs, states, and functions to the simulator generator.
         void addVarToSimulator(CppSimGen* gen, bool force) const;
         // Set next value to the function.
@@ -511,9 +515,14 @@ namespace ila
         }
 
         // the simulator generating function.
-        void generateSim(const std::string& fileName) const
+        void generateSimToFile(const std::string& fileName) const
         {
-            abs->generateSim(fileName);
+            abs->generateSimToFile(fileName);
+        }
+
+        void generateSimToDir(const std::string& dirName) const
+        {
+            abs->generateSimToDir(dirName);
         }
 
         // check equality function.

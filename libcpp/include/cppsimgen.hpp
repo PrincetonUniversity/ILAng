@@ -6,6 +6,8 @@
 #include <exception.hpp>
 #include <boost/shared_ptr.hpp>
 
+#include <fstream>
+
 namespace ila
 {
     class CppVar;
@@ -43,6 +45,8 @@ namespace ila
         CppVar(int width);
         // Constructor for bv mask, used for bitvector mask.
         CppVar(const std::string& name, const std::string& val);
+        // Something like copy construction, except name.
+        CppVar(const CppVar* var);
         // Destructor.
         ~CppVar();
 
@@ -81,6 +85,10 @@ namespace ila
         CppFun(const std::string& name);
         // Destructor.
         ~CppFun();
+
+        bool retSet() {
+            return (_ret != NULL);
+        }
     
     protected:
         // Add argument.
@@ -178,7 +186,10 @@ namespace ila
         CppVar* appFun(CppFun* appFun, CppFun* envFun);
 
         // Export all code into the output stream.
-        void exportAll(std::ostream& out) const;
+        void exportAllToFile(const std::string& fileName) const;
+
+        // Export all code into the directory.
+        void exportAllToDir(const std::string& dirName) const;
 
     private:
         // ------------------------------------------------------------------- //
@@ -196,6 +207,9 @@ namespace ila
 
         // Declare uninterpreted function (extern).
         void defUnitpFunc(std::ostream& out) const;
+
+        // Create common headers, class definitions, type definitions, ...
+        void createCommon(std::ostream& out) const;
 
         // ------------------------------------------------------------------- //
         // Convert a bool variable into cpp code.

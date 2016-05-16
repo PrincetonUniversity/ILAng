@@ -46,7 +46,7 @@ def genSimulator(state, enable_ps):
 
     # XRAM
     #xram_data_in = model.reg('XRAM_DATA_IN', 8)  FIXME
-    xram_data_in = model.inp('XRAM_DATA_IN', 8)
+    #xram_data_in = model.inp('XRAM_DATA_IN', 8)
     xram_data_out = model.reg('XRAM_DATA_OUT', 8)
     xram_addr = model.reg('XRAM_ADDR', 16)
 
@@ -56,7 +56,8 @@ def genSimulator(state, enable_ps):
         ast = model.importOne('asts/%s_%s' % (s, 'en' if enable_ps else 'dis'))
         model.set_next(s, ast)
 
-    model.generateSim('genSim/sim_8051.hpp')
+    model.generateSimToDir('sim_oc8051')
+    #model.generateSim('sim_8051.hpp')
 
 def main():
     states = ['PC', 'IRAM', 'ACC', 'B', 'PSW', 'SP', 'DPL', 'DPH', 'P0', 'P1', 'P2', 'P3', 'PCON', 'TCON', 'TMOD', 'TL0', 'TH0', 'TL1', 'TH1', 'SCON', 'SBUF', 'IE', 'IP', 'XRAM_DATA_OUT', 'XRAM_ADDR']

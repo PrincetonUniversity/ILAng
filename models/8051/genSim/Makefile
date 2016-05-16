@@ -3,9 +3,10 @@ CFLAGS = -std=c++11 -O3 -g -Wall
 CFLAGS = -std=c++11 -O0 -g -Wall
 
 SRCS = sim_8051.cpp main.cpp
+SRCS = sim_8051_decode.cpp sim_8051_ACC.cpp sim_8051_B.cpp sim_8051_update.cpp main.cpp
 
 OBJS = $(SRCS:.cpp=.o)
-EXE = 0c8051_sim
+EXE = oc8051_sim
 
 all: $(SRCS) $(EXE)
 

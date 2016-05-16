@@ -100,7 +100,6 @@ public:
 	BIT_VEC TL1;
 	BIT_VEC TMOD;
 	BIT_VEC XRAM_ADDR;
-	BIT_VEC XRAM_DATA_IN;
 	BIT_VEC XRAM_DATA_OUT;
 public:
 	// Public functions: fetch, decode, update, ...
@@ -110,6 +109,7 @@ public:
 	BIT_VEC cppUpdateFun_DPL();
 	BIT_VEC cppUpdateFun_IE();
 	BIT_VEC cppUpdateFun_IP();
+	type_mem cppUpdateFun_IRAM();
 	BIT_VEC cppUpdateFun_P0();
 	BIT_VEC cppUpdateFun_P1();
 	BIT_VEC cppUpdateFun_P2();
@@ -127,7 +127,6 @@ public:
 	BIT_VEC cppUpdateFun_TL1();
 	BIT_VEC cppUpdateFun_TMOD();
 	BIT_VEC cppUpdateFun_XRAM_ADDR();
-	void cppUpdateFun_XRAM_DATA_IN();
 	BIT_VEC cppUpdateFun_XRAM_DATA_OUT();
 	bool decode_0();
 	bool decode_1();

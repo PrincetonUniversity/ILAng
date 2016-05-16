@@ -408,7 +408,8 @@ BOOST_PYTHON_MODULE(ila)
         .def("importAll", &AbstractionWrapper::importAllFromFile)
 
         // simulator.
-        .def("generateSim", &AbstractionWrapper::generateSim)
+        .def("generateSim", &AbstractionWrapper::generateSimToFile)
+        .def("generateSimToDir", &AbstractionWrapper::generateSimToDir)
 
         .add_property("fetch_expr", 
             make_function(&AbstractionWrapper::getFetchExpr, return_value_policy<manage_new_object>()), 
