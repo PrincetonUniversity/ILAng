@@ -104,6 +104,31 @@ public:
 	BIT_VEC XRAM_DATA_OUT;
 public:
 	// Public functions: fetch, decode, update, ...
+	BIT_VEC cppUpdateFun_ACC();
+	BIT_VEC cppUpdateFun_B();
+	BIT_VEC cppUpdateFun_DPH();
+	BIT_VEC cppUpdateFun_DPL();
+	BIT_VEC cppUpdateFun_IE();
+	BIT_VEC cppUpdateFun_IP();
+	BIT_VEC cppUpdateFun_P0();
+	BIT_VEC cppUpdateFun_P1();
+	BIT_VEC cppUpdateFun_P2();
+	BIT_VEC cppUpdateFun_P3();
+	BIT_VEC cppUpdateFun_PC();
+	BIT_VEC cppUpdateFun_PCON();
+	BIT_VEC cppUpdateFun_PSW();
+	BIT_VEC cppUpdateFun_SBUF();
+	BIT_VEC cppUpdateFun_SCON();
+	BIT_VEC cppUpdateFun_SP();
+	BIT_VEC cppUpdateFun_TCON();
+	BIT_VEC cppUpdateFun_TH0();
+	BIT_VEC cppUpdateFun_TH1();
+	BIT_VEC cppUpdateFun_TL0();
+	BIT_VEC cppUpdateFun_TL1();
+	BIT_VEC cppUpdateFun_TMOD();
+	BIT_VEC cppUpdateFun_XRAM_ADDR();
+	void cppUpdateFun_XRAM_DATA_IN();
+	BIT_VEC cppUpdateFun_XRAM_DATA_OUT();
 	bool decode_0();
 	bool decode_1();
 	bool decode_10();

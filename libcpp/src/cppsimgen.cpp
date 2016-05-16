@@ -391,6 +391,20 @@ namespace ila
         f->_updates.push_back(std::make_pair(argL, argR));
     }
 
+    // Add a variable that should be update at the end of the function.
+    void CppSimGen::addFunUpdate(CppFun* f, nptr_t lhs, CppVar* rhs)
+    {
+        if (lhs == NULL || rhs == NULL) { return ; }
+        auto it = _varInFun.find(f);
+        if (it == _varInFun.end()) {
+            ILA_ASSERT(false, "Function not defined yet.");
+        }
+
+        CppVar* argL = findVar(*(it->second), lhs->getName());
+
+        f->_updates.push_back(std::make_pair(argL, rhs));
+    }
+
     // Terminate the function building.
     void CppSimGen::endFun(CppFun* f)
     {
@@ -413,6 +427,28 @@ namespace ila
             code = "return;";
             f->addBody(code);
         }
+    }
+
+    CppVar* CppSimGen::appFun(CppFun* appFun, CppFun* envFun)
+    {
+        auto it = _varInFun.find(envFun);
+        if (it == _varInFun.end()) {
+            ILA_ASSERT(false, "Function not defined yet.");
+        }
+        _curVarMap = it->second;
+
+        CppVar* retVar = new CppVar(32);
+        (*_curVarMap)[retVar->_name] = retVar;
+        
+        std::string code = retVar->def() + " = " + appFun->_name + "(";
+        for (unsigned i = 0; i < appFun->_args.size(); i++) {
+            code = code + ((i == 0) ? "" : ", ") + appFun->_args[i]->use();
+        }
+        code = code + ");";
+        envFun->addBody(code);
+
+        _curVarMap = NULL;
+        return retVar;
     }
 
     // ---------------------------------------------------------------------- //

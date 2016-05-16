@@ -45,7 +45,8 @@ def genSimulator(state, enable_ps):
     ip = model.reg('IP', 8)
 
     # XRAM
-    xram_data_in = model.reg('XRAM_DATA_IN', 8)
+    #xram_data_in = model.reg('XRAM_DATA_IN', 8)  FIXME
+    xram_data_in = model.inp('XRAM_DATA_IN', 8)
     xram_data_out = model.reg('XRAM_DATA_OUT', 8)
     xram_addr = model.reg('XRAM_ADDR', 16)
 

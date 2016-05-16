@@ -276,7 +276,7 @@ namespace ila
         void addVarToSimulator(CppSimGen* gen, bool force) const;
         // Set next value to the function.
         void setUpdateToFunction(CppSimGen* gen, CppFun* fun, 
-                                 nptr_t valid) const;
+                                 nptr_t valid, bool doHier = false) const;
 
     };
 

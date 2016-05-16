@@ -1008,7 +1008,7 @@ namespace ila
 
         // Create update function.
         CppFun* updateFun = gen->addFun("update");
-        setUpdateToFunction(gen, updateFun, NULL);
+        setUpdateToFunction(gen, updateFun, NULL, true);
         gen->endFun(updateFun);
 
         // FetchExpr
@@ -1203,6 +1203,7 @@ namespace ila
     // Iteratively set inputs, states, and functions to the simulator generator.
     void Abstraction::addVarToSimulator(CppSimGen* gen, bool force) const
     {
+        // FIXME eliminate force by using (next == NULL) to identify force in add
         // First add current level states.
         // Set inputs.
         for (auto it = inps.begin(); it != inps.end(); it++) {
@@ -1234,7 +1235,8 @@ namespace ila
     void Abstraction::setUpdateToFunction(
             CppSimGen* gen, 
             CppFun* fun,
-            nptr_t valid) const
+            nptr_t valid,
+            bool doHier) const
     {
         static std::set<std::string> used;
         static std::pair<std::set<std::string>::iterator, bool> check;
@@ -1246,29 +1248,65 @@ namespace ila
             if (check.second == false) continue;
             nptr_t nc = (valid == NULL) ? it->second.next : 
                     nptr_t(Node::ite(valid, it->second.next, it->second.var));
-            gen->buildFun(fun, nc);
-            gen->addFunUpdate(fun, it->second.var, nc);
+            if (doHier) {
+                // Create new function for the state update.
+                CppFun* singleUpdateFunc = gen->addFun("cppUpdateFun_" + it->first);
+                gen->buildFun(singleUpdateFunc, nc);
+                gen->setFunReturn(singleUpdateFunc, nc);
+                gen->endFun(singleUpdateFunc);
+                
+                // Calculate next value in top function, and update at the end
+                CppVar* nxtVal = gen->appFun(singleUpdateFunc, fun);
+                gen->addFunUpdate(fun, it->second.var, nxtVal);
+            } else {
+                gen->buildFun(fun, nc);
+                gen->addFunUpdate(fun, it->second.var, nc);
+            }
         }
         for (auto it = bits.begin(); it != bits.end(); it++) {
             check = used.insert(it->first);
             if (check.second == false) continue;
             nptr_t nc = (valid == NULL) ? it->second.next : 
                     nptr_t(Node::ite(valid, it->second.next, it->second.var));
-            gen->buildFun(fun, nc);
-            gen->addFunUpdate(fun, it->second.var, nc);
+            if (doHier) {
+                // Create new function for the state update.
+                CppFun* singleUpdateFunc = gen->addFun("cppUpdateFun_" + it->first);
+                gen->buildFun(singleUpdateFunc, nc);
+                gen->setFunReturn(singleUpdateFunc, nc);
+                gen->endFun(singleUpdateFunc);
+                
+                // Calculate next value in top function, and update at the end
+                CppVar* nxtVal = gen->appFun(singleUpdateFunc, fun);
+                gen->addFunUpdate(fun, it->second.var, nxtVal);
+            } else {
+                gen->buildFun(fun, nc);
+                gen->addFunUpdate(fun, it->second.var, nc);
+            }
         }
         for (auto it = mems.begin(); it != mems.end(); it++) {
             check = used.insert(it->first);
             if (check.second == false) continue;
             nptr_t nc = (valid == NULL) ? it->second.next : 
                     nptr_t(Node::ite(valid, it->second.next, it->second.var));
-            gen->buildFun(fun, nc);
-            gen->addFunUpdate(fun, it->second.var, nc);
+            if (doHier) {
+                // Create new function for the state update.
+                CppFun* singleUpdateFunc = gen->addFun("cppUpdateFun_" + it->first);
+                gen->buildFun(singleUpdateFunc, nc);
+                gen->setFunReturn(singleUpdateFunc, nc);
+                gen->endFun(singleUpdateFunc);
+                
+                // Calculate next value in top function, and update at the end
+                CppVar* nxtVal = gen->appFun(singleUpdateFunc, fun);
+                gen->addFunUpdate(fun, it->second.var, nxtVal);
+            } else {
+                gen->buildFun(fun, nc);
+                gen->addFunUpdate(fun, it->second.var, nc);
+            }
         }
 
         // Then next level micro abstraction.
         for (auto it = uabs.begin(); it != uabs.end(); it++) {
-            it->second.abs->setUpdateToFunction(gen, fun, it->second.valid);
+            it->second.abs->setUpdateToFunction(gen, fun, it->second.valid, doHier);
         }
     }
 

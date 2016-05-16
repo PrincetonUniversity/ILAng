@@ -168,9 +168,14 @@ namespace ila
 
         // Add a variable to be updated at the end of the function.
         void addFunUpdate(CppFun* f, nptr_t lhs, nptr_t rhs);
+        // Add a variable to be updated at the end of the function.
+        void addFunUpdate(CppFun* f, nptr_t lhs, CppVar* rhs);
 
         // Terminate function building.
         void endFun(CppFun* f);
+
+        // Apply the function and return to some variable.
+        CppVar* appFun(CppFun* appFun, CppFun* envFun);
 
         // Export all code into the output stream.
         void exportAll(std::ostream& out) const;
