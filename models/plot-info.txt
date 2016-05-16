@@ -1,0 +1,97 @@
+8051_ACC              66.69  71.68
+8051_B               129.58 523.16
+8051_DPH             127.67 170.17
+8051_DPL             127.20 161.00
+8051_IE              161.83 450.20
+8051_IP              148.07 460.53
+8051_IRAM            623.76 11296.83
+8051_P0              161.58 389.67
+8051_P1              134.00 401.97
+8051_P2              169.09 409.22
+8051_P3              130.80 442.89
+8051_PC               85.30  71.59
+8051_PCON            162.48 172.60
+8051_PSW             456.20 1163.72
+8051_SBUF            129.90 188.82
+8051_SCON            145.93 423.39
+8051_SP              125.88 199.10
+8051_TCON            128.55 392.21
+8051_TH0             128.47 176.65
+8051_TH1             112.50 184.15
+8051_TL0             145.57 173.88
+8051_TL1             147.20 189.28
+8051_TMOD            147.26 176.81
+8051_XRAM_ADDR         3.86   4.69
+8051_XRAM_DATA_OUT     1.04   1.26
+aes-py_XRAM            0.80  31.55
+aes-py_aes_addr        0.71   0.74
+aes-py_aes_ctr         9.49  38.62
+aes-py_aes_key0        9.49  19.28
+aes-py_aes_key1        9.53  20.19
+aes-py_aes_keysel      0.39   0.57
+aes-py_aes_len         0.71   0.74
+aes-py_aes_state       1.42   1.57
+aes-py_byte_cnt        0.48   1.17
+aes-py_dataout        52.29  38.61
+aes-py_enc_data        0.35   0.35
+aes-py_rd_data         0.60   1.57
+aes-py-uinst_aes_addr   0.41   0.44
+aes-py-uinst_aes_ctr   5.79  10.48
+aes-py-uinst_aes_key0   5.78  10.90
+aes-py-uinst_aes_key1   5.79  13.99
+aes-py-uinst_aes_keysel   0.22   0.31
+aes-py-uinst_aes_len   0.39   0.42
+aes-py-uinst_aes_state   0.32   0.30
+aes-py-uinst_dataout  27.99  19.99
+aes-py-uinst_u_XRAM    0.03   0.04
+aes-py-uinst_u_aes_state   0.01   0.01
+aes-py-uinst_u_byte_cnt   0.01   0.01
+aes-py-uinst_u_rd_data   0.02   0.01
+aes-verilog-uinst_aes_addr   0.37   0.40
+aes-verilog-uinst_aes_ctr   5.29   9.58
+aes-verilog-uinst_aes_key0   5.28  10.14
+aes-verilog-uinst_aes_key1   5.30  12.77
+aes-verilog-uinst_aes_keysel   0.19   0.28
+aes-verilog-uinst_aes_len   0.36   0.40
+aes-verilog-uinst_aes_state   0.29   0.27
+aes-verilog-uinst_dataout  25.51  17.62
+aes-verilog-uinst_u_XRAM   1.42   1.40
+aes-verilog-uinst_u_aes_state   0.24   0.25
+aes-verilog-uinst_u_blk_cnt   0.30   0.30
+aes-verilog-uinst_u_byte_cnt   0.19   0.20
+aes-verilog-uinst_u_oped_byte_cnt   0.14   0.14
+aes-verilog-uinst_u_rd_data   5.68   5.64
+sha1-py_XRAM           1.01   1.01
+sha1-py_dataout        0.90   0.71
+sha1-py_sha_bytes_read   0.21   0.33
+sha1-py_sha_hs_data    0.42   0.98
+sha1-py_sha_len        0.14   0.23
+sha1-py_sha_rd_data    0.45   1.71
+sha1-py_sha_rdaddr     0.14   0.23
+sha1-py_sha_state      0.36   0.43
+sha1-py_sha_wraddr     0.14   0.22
+sha1-py-uinst_dataout   0.49   0.37
+sha1-py-uinst_sha_len   0.08   0.12
+sha1-py-uinst_sha_rdaddr   0.07   0.12
+sha1-py-uinst_sha_state   0.10   0.09
+sha1-py-uinst_sha_wraddr   0.08   0.13
+sha1-py-uinst_uXRAM    0.94   0.93
+sha1-py-uinst_usha_bytes_read   0.00   0.01
+sha1-py-uinst_usha_hs_data   0.03   0.03
+sha1-py-uinst_usha_rd_data   0.05   0.05
+sha1-py-uinst_usha_state   0.02   0.02
+8051
+1.04 623.76 1.04 11296.83
+aes-py
+0.35 52.29 0.35 38.62
+aes-py-uinst
+0.01 27.99 0.01 19.99
+aes-verilog-uinst
+0.14 25.51 0.14 17.62
+sha1-py
+0.14 1.01 0.14 1.71
+sha1-py-uinst
+0.0 0.94 0.0 0.93
+('8051_IRAM', 623.76, 11296.83) 18.110857203
+('aes-py_XRAM', 0.8, 31.55) 39.432695913
+1.93921679033 3.12184410805 39.4375
