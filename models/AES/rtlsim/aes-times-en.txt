@@ -1,0 +1,14 @@
+u_XRAM 1.74
+u_aes_state 0.26
+u_byte_cnt 0.20
+u_blk_cnt 0.30
+u_oped_byte_cnt 0.14
+u_rd_data 5.74
+aes_state 0.29
+aes_addr 0.37
+aes_len 0.38
+aes_keysel 0.20
+aes_ctr 5.34
+aes_key0 5.36
+aes_key1 5.33
+dataout 25.77

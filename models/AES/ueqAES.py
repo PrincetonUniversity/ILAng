@@ -67,7 +67,7 @@ def readPy():
 
     assert um.areEqualUnrolled(3, byte_cnt, um.const(0x10, 16))
 
-    return um, xram, state
+    return um
 
 def readV():
     um = ila.Abstraction("aes2")
@@ -131,11 +131,23 @@ def readV():
     um.set_next('aes_key0', key0)
     um.set_next('aes_key1', key1)
 
-    return um, xram, state
+    assert um.areEqualUnrolled(16, byte_cnt, um.const(0x0, 4))
+    assert um.areEqualUnrolled(17, byte_cnt, um.const(0x0, 4))
+
+    return um
 
 if __name__ == '__main__':
-    um1, xram1, st1 = readPy()
-    um2, xram2, st2 = readV()
+    um1 = readPy()
+    um2 = readV()
+
+    xram1 = um1.getmem('XRAM')
+    xram2 = um2.getmem('XRAM')
+
+    st1 = um1.getreg('aes_state')
+    st2 = um2.getreg('aes_state')
+
+    rd_data1 = um1.getreg('rd_data')
+    rd_data2 = um2.getreg('rd_data')
 
     st = time.clock()
     print ila.bmc(3, um1, st1, 33, um2, st2)
@@ -143,7 +155,12 @@ if __name__ == '__main__':
     print 'time: %.2f' % dt
 
     st = time.clock()
-    print ila.bmc(3, um1, xram1, 33, um2, xram2)
+    print ila.bmc(1, um1, rd_data1, 16, um2, rd_data2)
     dt = time.clock() - st
     print 'time: %.2f' % dt
+
+    #st = time.clock()
+    #print ila.bmc(3, um1, xram1, 33, um2, xram2)
+    #dt = time.clock() - st
+    #print 'time: %.2f' % dt
 
