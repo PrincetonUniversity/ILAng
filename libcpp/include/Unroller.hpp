@@ -44,6 +44,9 @@ namespace ila
     
     /// Expr for assertion to be checked
     z3::expr *m_pAssertion;
+
+    /// Outputs, by frame
+    std::vector<std::vector<Node*> > m_vExprOutputs;
   
   
   public:
@@ -78,6 +81,7 @@ namespace ila
       m_vPrimaryInputs.clear ();
       m_vInputs.clear ();
       m_vOutputs.clear ();
+      m_vExprOutputs.clear(); //TODO: Memory leak
 
       m_Assumps.clear ();
 
@@ -106,6 +110,7 @@ namespace ila
       m_vPrimaryInputs.resize(m_nFrames);
       m_vInputs.resize(m_nFrames);
       m_vOutputs.resize(m_nFrames);
+      m_vExprOutputs.resize(m_nFrames);
     }
     
     unsigned frames () { return m_nFrames; }
@@ -169,8 +174,9 @@ namespace ila
     }
 
       private:
-        void addTr0 ();
-        void addTrN ();
+        void addTr0  ();
+        void addTrN  ();
+        void addTrN2 ();
   };
 }
 
