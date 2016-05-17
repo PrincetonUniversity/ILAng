@@ -1,7 +1,8 @@
 #include "model_sha_class.hpp"
 
 #include <iostream>
-#include <time.h>
+#include <sys/time.h>
+#include <sys/resource.h>
 
 #define SHA_IDLE  0
 #define SHA_READ  1
@@ -33,26 +34,39 @@ int main()
 
     mod.sha_state = SHA_IDLE;
 
-    int cnt = 0;
+    struct rusage ru;
+    getrusage(RUSAGE_SELF, &ru);
 
-    clock_t t;
-    t = clock();
+    double cpu_time = (double) (ru.ru_utime.tv_sec + ru.ru_stime.tv_sec) +
+                      (double) (ru.ru_utime.tv_usec + ru.ru_stime.tv_usec) * 1e-6;
 
-    for (int i = 0; i < 1000000; i++) {
+    unsigned long long cnt = 0;
+
+    while (cpu_time < 600) {
         mod.update(WR, addr_rd, rdaddr);
         mod.update(WR, addr_wr, wraddr);
         mod.update(WR, addr_len, len);
         mod.update(WR, addr_start, 1);
         cnt += 4;
+        if (cnt % 10000 >= 0 && cnt % 10000 <= 3) {
+            getrusage(RUSAGE_SELF, &ru);
+            cpu_time = (double) (ru.ru_utime.tv_sec + ru.ru_stime.tv_sec) +
+                       (double) (ru.ru_utime.tv_usec + ru.ru_stime.tv_usec) * 1e-6;
+        }
+
         do {
             mod.update(RD, addr_state, 0);
             cnt++;
+            if (cnt % 10000 >= 0 && cnt % 10000 <= 3) {
+                getrusage(RUSAGE_SELF, &ru);
+                cpu_time = (double) (ru.ru_utime.tv_sec + ru.ru_stime.tv_sec) +
+                           (double) (ru.ru_utime.tv_usec + ru.ru_stime.tv_usec) * 1e-6;
+            }
         } while (mod.dataout != SHA_IDLE);
     }
 
-    t = clock() - t;
-    std::cout << "time: " << (double)t/CLOCKS_PER_SEC << std::endl;
-    std::cout << "cycle: " << cnt << std::endl;
+    std::cout << "Time: " << cpu_time << std::endl;
+    std::cout << "#Inctr: " << cnt << std::endl;
 
     return 0;
 }

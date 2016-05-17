@@ -3,7 +3,8 @@
 
 #include <boost/algorithm/string.hpp>
 #include <iostream>
-#include <time.h>
+#include <sys/time.h>
+#include <sys/resource.h>
 
 void dump(model_oc8051& mod, std::ostream& out) {
     boost::format fmt1("PC/ACC/P0/P1/P2/P3:         %1% %2% %3% %4% %5% %6%\n");
@@ -33,8 +34,6 @@ int main(int argc, char* argv[])
     // Initialize rom
     type_mem& mem = model.ROM;
     #include "fib.cpp"
-//    #include "aes_test.cpp"
-//    #include "instr.cpp"
 
     // Initialize states
     model.ACC = 0;
@@ -64,30 +63,26 @@ int main(int argc, char* argv[])
 
     BIT_VEC prevP0 = model.P0;
 
-    clock_t t;
-    t = clock();
+    struct rusage ru;
+    getrusage(RUSAGE_SELF, &ru);
 
-    for (int i = 0; i < 10; i++) {
+    double cpu_time = (double) (ru.ru_utime.tv_sec + ru.ru_stime.tv_sec) +
+                      (double) (ru.ru_utime.tv_usec + ru.ru_stime.tv_usec) * 1e-6;
+
+    unsigned long long cnt = 0;
+
+    while (cpu_time < 600) {
         model.update();
+        cnt++;
+        if (cnt % 10000 == 0) {
+            getrusage(RUSAGE_SELF, &ru);
+            cpu_time = (double) (ru.ru_utime.tv_sec + ru.ru_stime.tv_sec) +
+                       (double) (ru.ru_utime.tv_usec + ru.ru_stime.tv_usec) * 1e-6;
+        }
     }
 
-    t = clock() - t;
+    std::cout << "Time: " << cpu_time << std::endl;
+    std::cout << "#Instr: " << cnt << std::endl;
 
-    std::cout << "Time: " << t/CLOCKS_PER_SEC << std::endl;
-    // Start runing
-    /*
-    bool startPrint = false;
-    for (int i=0; i<2000; i++) {
-        if (model.P0 != 0) {
-            if (model.P0 != prevP0) {
-                dump(model, std::cout);
-                std::cout << "Step: " << i << std::endl;
-                prevP0 = model.P0;
-            }
-            if (startPrint == false) startPrint = true;
-        } 
-        model.update();
-    }
-    */
     return 0;
 }
