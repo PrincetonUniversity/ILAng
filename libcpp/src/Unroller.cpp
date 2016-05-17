@@ -2,7 +2,7 @@
 #include "smt.hpp"
 #include "abstraction.hpp"
 #include "ast.hpp"
-
+#include "rewriter.hpp"
 #include <sstream>
 
 using namespace std;
@@ -119,5 +119,64 @@ namespace ila
 
       /// glue new In to old Out
       glueOutIn ();
+  }
+
+  void Unroller::addTrN2()
+  {
+      unsigned nFrame = frame ();
+
+      ILA_ASSERT (getInputs (nFrame).size() == 0,
+                    "Unexpected inputs");
+      ILA_ASSERT (getOutputs (nFrame).size() == 0,
+                    "Unexpected outputs");
+      ILA_ASSERT (nFrame > 0, "Invalid frame number");
+
+      Z3ExprAdapter z3expr(*m_pContext, "");
+      ostringstream s;
+      s << "_" << nFrame << "_" << m_sName;
+      z3expr.setNameSuffix(s.str());
+
+      for (auto i : m_pAbstraction->getInps()) {
+          z3::expr pi = z3expr.getExpr(i.second.var.get());
+          m_vPrimaryInputs[nFrame].push_back(pi);
+      }
+
+      Rewriter rewriter;
+      int i=0;
+      for (auto b : m_pAbstraction->getBits()) {
+          rewriter.addRewrite(
+                  b.second.var.get(),
+                  nptr_t(m_vExprOutputs[nFrame-1][i++]));
+      }
+
+      for (auto r : m_pAbstraction->getRegs()) {
+          rewriter.addRewrite(
+                  r.second.var.get(),
+                  nptr_t(m_vExprOutputs[nFrame-1][i++]));
+      }
+
+      for (auto m : m_pAbstraction->getMems()) {
+          //TODO: How to treat mem?
+      }
+
+      for (auto b : m_pAbstraction->getBits()) {
+          nptr_t n = rewriter.rewrite(b.second.next.get());
+          z3expr.getExpr(n.get());
+
+          // Register the output
+          m_vExprOutputs[nFrame].push_back(n.get());
+      }
+
+      for (auto r : m_pAbstraction->getRegs()) {
+          nptr_t n = rewriter.rewrite(r.second.next.get());
+          z3expr.getExpr(n.get());
+
+          // Register the output
+          m_vExprOutputs[nFrame].push_back(n.get());
+      }
+
+      for (auto m : m_pAbstraction->getMems()) {
+
+      }
   }
 }
