@@ -4,7 +4,7 @@ import time
 import os
 
 def readpyast(m, name):
-    filename = os.path.join('asts', 'u'+name+'_en')
+    filename = os.path.join('uasts', 'u'+name+'_en')
     if os.path.exists(filename):
         return m.importOne(filename)
     else:
@@ -65,7 +65,6 @@ def readPy():
     um.set_next('aes_key0', key0)
     um.set_next('aes_key1', key1)
 
-    assert um.areEqualUnrolled(3, byte_cnt, um.const(0x10, 16))
 
     return um
 
@@ -131,13 +130,14 @@ def readV():
     um.set_next('aes_key0', key0)
     um.set_next('aes_key1', key1)
 
-    assert um.areEqualUnrolled(16, byte_cnt, um.const(0x0, 4))
-    assert um.areEqualUnrolled(17, byte_cnt, um.const(0x0, 4))
+    assert um.areEqualUnrolled(33, byte_cnt, um.const(0x0, 4))
 
     return um
 
 if __name__ == '__main__':
+
     um1 = readPy()
+    print 'finished readPy'
     um2 = readV()
 
     xram1 = um1.getmem('XRAM')
@@ -149,18 +149,31 @@ if __name__ == '__main__':
     rd_data1 = um1.getreg('rd_data')
     rd_data2 = um2.getreg('rd_data')
 
+    byte_cnt1 = um1.getreg('byte_cnt')
+    blk_cnt2 = um2.getreg('blk_cnt')
+    print um1.get_next('byte_cnt')
+    print um2.get_next('blk_cnt')
+
+    print 'checking aes_state'
     st = time.clock()
     print ila.bmc(3, um1, st1, 33, um2, st2)
     dt = time.clock() - st
     print 'time: %.2f' % dt
 
+    print 'checking rd_data'
     st = time.clock()
     print ila.bmc(1, um1, rd_data1, 16, um2, rd_data2)
     dt = time.clock() - st
     print 'time: %.2f' % dt
 
-    #st = time.clock()
-    #print ila.bmc(3, um1, xram1, 33, um2, xram2)
-    #dt = time.clock() - st
-    #print 'time: %.2f' % dt
+    print 'checking XRAM'
+    st = time.clock()
+    print ila.bmc(3, um1, xram1, 33, um2, xram2)
+    dt = time.clock() - st
+    print 'time: %.2f' % dt
 
+    print 'checking byte_cnt'
+    st = time.clock()
+    print ila.bmc(3, um1, byte_cnt1, 33, um2, blk_cnt2)
+    dt = time.clock() - st
+    print 'time: %.2f' % dt

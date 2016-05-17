@@ -119,8 +119,8 @@ class AES(mmiodev):
                 byte = (self.enc_data >> (i*8)) & 0xff
                 self.xram[addr] = byte
 
-            self.byte_cnt = (self.byte_cnt + 16) & 0xffff
             if self.byte_cnt < self.aes_len:
+                self.byte_cnt = (self.byte_cnt + 16) & 0xffff
                 self.aes_state = 1
             else:
                 self.aes_state = 0

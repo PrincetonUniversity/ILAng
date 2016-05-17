@@ -96,7 +96,7 @@ def createAESILA(enable_ps):
     um.set_next('aes_state', ustate_nxt)
 
     # byte_cnt
-    byte_cnt_inc = byte_cnt + 16
+    byte_cnt_inc = ila.ite(byte_cnt + 16 < oplen, byte_cnt + 16, byte_cnt)
     byte_cnt_nxt = ila.choice('byte_cnt_nxt', [byte_cnt_inc, byte_cnt])
     um.set_next('byte_cnt', byte_cnt_nxt)
 

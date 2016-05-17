@@ -20,7 +20,7 @@ namespace ila
 
   class Unroller
   {
-    const char* m_sName;
+    std::string m_sName;
 
     Abstraction* m_pAbstraction;
     z3::context* m_pContext;
@@ -32,10 +32,8 @@ namespace ila
     /// Primary Inputs, by frame
     std::vector<std::vector<z3::expr> > m_vPrimaryInputs;
 
-    /// Map between state pointers and indices into m_vInputs and m_vOutputs
+    /// Map between state pointers and indices into m_vOutputs
     std::unordered_map<Node*, int> m_mStateIndices;
-    /// Inputs, by frame
-    std::vector<std::vector<z3::expr> > m_vInputs;
     /// Outputs, by frame
     std::vector<std::vector<z3::expr> > m_vOutputs;
 
@@ -45,9 +43,6 @@ namespace ila
     /// Expr for assertion to be checked
     z3::expr *m_pAssertion;
 
-    /// Outputs, by frame
-    std::vector<std::vector<Node*> > m_vExprOutputs;
-  
   
   public:
     Unroller(const char* suffix, Abstraction& abs, z3::context &c, z3::solver &s)
@@ -79,9 +74,7 @@ namespace ila
     void reset (z3::solver *solver)
     {
       m_vPrimaryInputs.clear ();
-      m_vInputs.clear ();
       m_vOutputs.clear ();
-      m_vExprOutputs.clear(); //TODO: Memory leak
 
       m_Assumps.clear ();
 
@@ -108,9 +101,7 @@ namespace ila
     {
       m_nFrames++;
       m_vPrimaryInputs.resize(m_nFrames);
-      m_vInputs.resize(m_nFrames);
       m_vOutputs.resize(m_nFrames);
-      m_vExprOutputs.resize(m_nFrames);
     }
     
     unsigned frames () { return m_nFrames; }
@@ -123,14 +114,6 @@ namespace ila
     { return m_vPrimaryInputs.at (nFrame)[nNum]; }
 
     std::vector<z3::expr>& getPrimaryInputs (unsigned nFrame) { return m_vPrimaryInputs.at (nFrame); }
-
-    void addInput (z3::expr in)
-    { m_vInputs.at (frame ()).push_back(in); }
-
-    z3::expr& getInput (unsigned nFrame, int nNum)
-    { return m_vInputs.at (nFrame)[nNum]; }
-  
-    std::vector<z3::expr>& getInputs (unsigned nFrame) { return m_vInputs.at (nFrame); }
 
     void addOutput (z3::expr out)
     { m_vOutputs.at (frame ()).push_back(out); }
@@ -148,24 +131,6 @@ namespace ila
     std::vector<std::vector<z3::expr> > &getAllOutputs () { return m_vOutputs; }
     
 
-    /** Add glue clauses between current Inputs and previous frame outputs */
-    void glueOutIn ()
-    {
-      assert (m_nFrames > 1);
-      assert (m_vOutputs.at (frame () - 1).size() ==
-              m_vInputs.at (frame ()).size());
-    
-      std::vector<z3::expr>& ins = m_vInputs.at (frame ());
-      std::vector<z3::expr>& outs = m_vOutputs.at (frame () - 1);
-
-      for (unsigned i=0; i < ins.size(); i++)
-        {
-          z3::expr& inVar = ins[i];
-          z3::expr& outVar = outs[i];
-          m_pSolver->add(inVar == outVar);
-        }
-    }
-
     void addTr ()
     {
       unsigned nFrame = frame ();
@@ -175,8 +140,7 @@ namespace ila
 
       private:
         void addTr0  ();
-        void addTrN  ();
-        void addTrN2 ();
+        void addTrN ();
   };
 }
 
