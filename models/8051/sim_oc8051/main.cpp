@@ -3,6 +3,7 @@
 
 #include <boost/algorithm/string.hpp>
 #include <iostream>
+#include <time.h>
 
 void dump(model_oc8051& mod, std::ostream& out) {
     boost::format fmt1("PC/ACC/P0/P1/P2/P3:         %1% %2% %3% %4% %5% %6%\n");
@@ -62,7 +63,19 @@ int main(int argc, char* argv[])
     model.XRAM_DATA_OUT = 0;
 
     BIT_VEC prevP0 = model.P0;
+
+    clock_t t;
+    t = clock();
+
+    for (int i = 0; i < 10; i++) {
+        model.update();
+    }
+
+    t = clock() - t;
+
+    std::cout << "Time: " << t/CLOCKS_PER_SEC << std::endl;
     // Start runing
+    /*
     bool startPrint = false;
     for (int i=0; i<2000; i++) {
         if (model.P0 != 0) {
@@ -75,6 +88,6 @@ int main(int argc, char* argv[])
         } 
         model.update();
     }
-
+    */
     return 0;
 }
