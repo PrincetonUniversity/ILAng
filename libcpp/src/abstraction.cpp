@@ -665,23 +665,25 @@ namespace ila
         context c;
         solver S(c);
         Z3ExprAdapter adp(c, "");
-        adp.setNameSuffix("_0_");
+        adp.setNameSuffix("_");
 
-        Unroller u("u", *this, c, S);
+        Unroller u("", *this, c, S);
         for (unsigned i=0; i <= n; i++) {
             u.addTr();
             u.newFrame();
         }
 
-        expr e_exp = adp.getExpr(exp->node.get());
-        expr c_exp = adp.getCnst(exp->node.get());
-        expr e_reg = u.getOutput(n, reg->node.get());
+        expr e_exp = adp.getExpr(exp->node.get()).simplify();
+        expr c_exp = adp.getCnst(exp->node.get()).simplify();
+        expr e_reg = u.getOutput(n, reg->node.get()).simplify();
         expr mitre = e_exp != e_reg;
 
-        S.add(mitre);
+
+        S.add(mitre.simplify());
         S.add(c_exp);
 
-        //std::cout << S << std::endl;
+        //std::cout << "z3-expr  : " << e_reg << std::endl;
+        //std::cout << "solver: " << S << std::endl;
         return checkMiter(S, e_exp, e_reg);
     }
 
@@ -695,24 +697,26 @@ namespace ila
         solver S(c);
 
         // unroll 1
-        Unroller u1("u1", *a1, c, S);
+        Unroller u1("", *a1, c, S);
         for (unsigned i=0; i <= n1; i++) {
             u1.addTr();
             u1.newFrame();
         }
 
         // unroll 2
-        Unroller u2("u2", *a2, c, S);
+        Unroller u2("", *a2, c, S);
         for (unsigned i=0; i <= n2; i++) {
             u2.addTr();
             u2.newFrame();
         }
 
-        expr e_r1 = u1.getOutput(n1, r1->node.get());
-        expr e_r2 = u2.getOutput(n2, r2->node.get());
-        expr mitre = e_r1 != e_r2;
+        expr e_r1 = u1.getOutput(n1, r1->node.get()).simplify();
+        expr e_r2 = u2.getOutput(n2, r2->node.get()).simplify();
+        expr mitre = (e_r1 != e_r2).simplify();
 
         S.add(mitre);
+        //std::cout << "e_r1=" << e_r1 << std::endl;
+        //std::cout << "e_r2=" << e_r2 << std::endl;
         //std::cout << S << std::endl;
         return checkMiter(S, e_r1, e_r2);
     }
