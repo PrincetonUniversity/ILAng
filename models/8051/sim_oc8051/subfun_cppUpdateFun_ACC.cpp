@@ -1,1537 +1,2517 @@
 #include "common.hpp"
+#include <iostream>
 #include "model_oc8051_class.hpp"
 
 BIT_VEC model_oc8051::cppUpdateFun_ACC()
 {
-	BIT_VEC cppVar_27 = ROM.rd(PC);
-	bool cppVar_29 = (cppVar_27 == 244);
-	BIT_VEC cppVar_30 = ~ACC;
-	BIT_VEC cppVar_31 = ROM.rd(PC);
-	bool cppVar_33 = (cppVar_31 == 238);
-	BIT_VEC cppVar_35 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_37 = (cppVar_35 << 3) | 6;
-	cppVar_37 = (cppVar_37 & cppMask_un_5_);
-	BIT_VEC cppVar_38 = (0 << 5) | cppVar_37;
-	cppVar_38 = (cppVar_38 & cppMask_un_8_);
-	BIT_VEC cppVar_39 = (cppVar_38 >> 7) & cppMask_un_1_;
-	bool cppVar_41 = (cppVar_39 == 0);
-	BIT_VEC cppVar_42 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_43 = (cppVar_42 << 3) | 6;
-	cppVar_43 = (cppVar_43 & cppMask_un_5_);
-	BIT_VEC cppVar_44 = (0 << 5) | cppVar_43;
-	cppVar_44 = (cppVar_44 & cppMask_un_8_);
-	BIT_VEC cppVar_45 = IRAM.rd(cppVar_44);
-	BIT_VEC cppVar_46 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_47 = (cppVar_46 << 3) | 6;
-	cppVar_47 = (cppVar_47 & cppMask_un_5_);
-	BIT_VEC cppVar_48 = (0 << 5) | cppVar_47;
-	cppVar_48 = (cppVar_48 & cppMask_un_8_);
-	bool cppVar_50 = (cppVar_48 == 128);
-	BIT_VEC cppVar_51 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_52 = (cppVar_51 << 3) | 6;
-	cppVar_52 = (cppVar_52 & cppMask_un_5_);
-	BIT_VEC cppVar_53 = (0 << 5) | cppVar_52;
-	cppVar_53 = (cppVar_53 & cppMask_un_8_);
-	bool cppVar_55 = (cppVar_53 == 129);
+	BIT_VEC cppVar_27;
+	BIT_VEC cppVar_28 = ROM.rd(PC);
+	bool cppVar_30 = (cppVar_28 == 244);
+	if (cppVar_30) {
+	BIT_VEC cppVar_31 = ~ACC;
+	cppVar_27 = cppVar_31;
+	} else {
+	BIT_VEC cppVar_32;
+	BIT_VEC cppVar_33 = ROM.rd(PC);
+	bool cppVar_35 = (cppVar_33 == 238);
+	if (cppVar_35) {
+	BIT_VEC cppVar_36;
+	BIT_VEC cppVar_38 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_40 = (cppVar_38 << 3) | 6;
+	cppVar_40 = (cppVar_40 & cppMask_un_5_);
+	BIT_VEC cppVar_41 = (0 << 5) | cppVar_40;
+	cppVar_41 = (cppVar_41 & cppMask_un_8_);
+	BIT_VEC cppVar_42 = (cppVar_41 >> 7) & cppMask_un_1_;
+	bool cppVar_44 = (cppVar_42 == 0);
+	if (cppVar_44) {
+	BIT_VEC cppVar_45 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_46 = (cppVar_45 << 3) | 6;
+	cppVar_46 = (cppVar_46 & cppMask_un_5_);
+	BIT_VEC cppVar_47 = (0 << 5) | cppVar_46;
+	cppVar_47 = (cppVar_47 & cppMask_un_8_);
+	BIT_VEC cppVar_48 = IRAM.rd(cppVar_47);
+	cppVar_36 = cppVar_48;
+	} else {
+	BIT_VEC cppVar_49;
+	BIT_VEC cppVar_50 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_51 = (cppVar_50 << 3) | 6;
+	cppVar_51 = (cppVar_51 & cppMask_un_5_);
+	BIT_VEC cppVar_52 = (0 << 5) | cppVar_51;
+	cppVar_52 = (cppVar_52 & cppMask_un_8_);
+	bool cppVar_54 = (cppVar_52 == 128);
+	if (cppVar_54) {
+	cppVar_49 = P0;
+	} else {
+	BIT_VEC cppVar_55;
 	BIT_VEC cppVar_56 = (PSW >> 3) & cppMask_un_2_;
 	BIT_VEC cppVar_57 = (cppVar_56 << 3) | 6;
 	cppVar_57 = (cppVar_57 & cppMask_un_5_);
 	BIT_VEC cppVar_58 = (0 << 5) | cppVar_57;
 	cppVar_58 = (cppVar_58 & cppMask_un_8_);
-	bool cppVar_60 = (cppVar_58 == 130);
-	BIT_VEC cppVar_61 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_62 = (cppVar_61 << 3) | 6;
-	cppVar_62 = (cppVar_62 & cppMask_un_5_);
-	BIT_VEC cppVar_63 = (0 << 5) | cppVar_62;
-	cppVar_63 = (cppVar_63 & cppMask_un_8_);
-	bool cppVar_65 = (cppVar_63 == 131);
-	BIT_VEC cppVar_66 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_67 = (cppVar_66 << 3) | 6;
-	cppVar_67 = (cppVar_67 & cppMask_un_5_);
-	BIT_VEC cppVar_68 = (0 << 5) | cppVar_67;
-	cppVar_68 = (cppVar_68 & cppMask_un_8_);
-	bool cppVar_70 = (cppVar_68 == 135);
-	BIT_VEC cppVar_71 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_72 = (cppVar_71 << 3) | 6;
-	cppVar_72 = (cppVar_72 & cppMask_un_5_);
-	BIT_VEC cppVar_73 = (0 << 5) | cppVar_72;
-	cppVar_73 = (cppVar_73 & cppMask_un_8_);
-	bool cppVar_75 = (cppVar_73 == 136);
-	BIT_VEC cppVar_76 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_77 = (cppVar_76 << 3) | 6;
-	cppVar_77 = (cppVar_77 & cppMask_un_5_);
-	BIT_VEC cppVar_78 = (0 << 5) | cppVar_77;
-	cppVar_78 = (cppVar_78 & cppMask_un_8_);
-	bool cppVar_80 = (cppVar_78 == 137);
-	BIT_VEC cppVar_81 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_82 = (cppVar_81 << 3) | 6;
-	cppVar_82 = (cppVar_82 & cppMask_un_5_);
-	BIT_VEC cppVar_83 = (0 << 5) | cppVar_82;
-	cppVar_83 = (cppVar_83 & cppMask_un_8_);
-	bool cppVar_85 = (cppVar_83 == 138);
+	bool cppVar_60 = (cppVar_58 == 129);
+	if (cppVar_60) {
+	cppVar_55 = SP;
+	} else {
+	BIT_VEC cppVar_61;
+	BIT_VEC cppVar_62 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_63 = (cppVar_62 << 3) | 6;
+	cppVar_63 = (cppVar_63 & cppMask_un_5_);
+	BIT_VEC cppVar_64 = (0 << 5) | cppVar_63;
+	cppVar_64 = (cppVar_64 & cppMask_un_8_);
+	bool cppVar_66 = (cppVar_64 == 130);
+	if (cppVar_66) {
+	cppVar_61 = DPL;
+	} else {
+	BIT_VEC cppVar_67;
+	BIT_VEC cppVar_68 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_69 = (cppVar_68 << 3) | 6;
+	cppVar_69 = (cppVar_69 & cppMask_un_5_);
+	BIT_VEC cppVar_70 = (0 << 5) | cppVar_69;
+	cppVar_70 = (cppVar_70 & cppMask_un_8_);
+	bool cppVar_72 = (cppVar_70 == 131);
+	if (cppVar_72) {
+	cppVar_67 = DPH;
+	} else {
+	BIT_VEC cppVar_73;
+	BIT_VEC cppVar_74 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_75 = (cppVar_74 << 3) | 6;
+	cppVar_75 = (cppVar_75 & cppMask_un_5_);
+	BIT_VEC cppVar_76 = (0 << 5) | cppVar_75;
+	cppVar_76 = (cppVar_76 & cppMask_un_8_);
+	bool cppVar_78 = (cppVar_76 == 135);
+	if (cppVar_78) {
+	cppVar_73 = PCON;
+	} else {
+	BIT_VEC cppVar_79;
+	BIT_VEC cppVar_80 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_81 = (cppVar_80 << 3) | 6;
+	cppVar_81 = (cppVar_81 & cppMask_un_5_);
+	BIT_VEC cppVar_82 = (0 << 5) | cppVar_81;
+	cppVar_82 = (cppVar_82 & cppMask_un_8_);
+	bool cppVar_84 = (cppVar_82 == 136);
+	if (cppVar_84) {
+	cppVar_79 = TCON;
+	} else {
+	BIT_VEC cppVar_85;
 	BIT_VEC cppVar_86 = (PSW >> 3) & cppMask_un_2_;
 	BIT_VEC cppVar_87 = (cppVar_86 << 3) | 6;
 	cppVar_87 = (cppVar_87 & cppMask_un_5_);
 	BIT_VEC cppVar_88 = (0 << 5) | cppVar_87;
 	cppVar_88 = (cppVar_88 & cppMask_un_8_);
-	bool cppVar_90 = (cppVar_88 == 140);
-	BIT_VEC cppVar_91 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_92 = (cppVar_91 << 3) | 6;
-	cppVar_92 = (cppVar_92 & cppMask_un_5_);
-	BIT_VEC cppVar_93 = (0 << 5) | cppVar_92;
-	cppVar_93 = (cppVar_93 & cppMask_un_8_);
-	bool cppVar_95 = (cppVar_93 == 139);
-	BIT_VEC cppVar_96 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_97 = (cppVar_96 << 3) | 6;
-	cppVar_97 = (cppVar_97 & cppMask_un_5_);
-	BIT_VEC cppVar_98 = (0 << 5) | cppVar_97;
-	cppVar_98 = (cppVar_98 & cppMask_un_8_);
-	bool cppVar_100 = (cppVar_98 == 141);
-	BIT_VEC cppVar_101 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_102 = (cppVar_101 << 3) | 6;
-	cppVar_102 = (cppVar_102 & cppMask_un_5_);
-	BIT_VEC cppVar_103 = (0 << 5) | cppVar_102;
-	cppVar_103 = (cppVar_103 & cppMask_un_8_);
-	bool cppVar_105 = (cppVar_103 == 144);
-	BIT_VEC cppVar_106 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_107 = (cppVar_106 << 3) | 6;
-	cppVar_107 = (cppVar_107 & cppMask_un_5_);
-	BIT_VEC cppVar_108 = (0 << 5) | cppVar_107;
-	cppVar_108 = (cppVar_108 & cppMask_un_8_);
-	bool cppVar_110 = (cppVar_108 == 152);
-	BIT_VEC cppVar_111 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_112 = (cppVar_111 << 3) | 6;
-	cppVar_112 = (cppVar_112 & cppMask_un_5_);
-	BIT_VEC cppVar_113 = (0 << 5) | cppVar_112;
-	cppVar_113 = (cppVar_113 & cppMask_un_8_);
-	bool cppVar_115 = (cppVar_113 == 153);
+	bool cppVar_90 = (cppVar_88 == 137);
+	if (cppVar_90) {
+	cppVar_85 = TMOD;
+	} else {
+	BIT_VEC cppVar_91;
+	BIT_VEC cppVar_92 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_93 = (cppVar_92 << 3) | 6;
+	cppVar_93 = (cppVar_93 & cppMask_un_5_);
+	BIT_VEC cppVar_94 = (0 << 5) | cppVar_93;
+	cppVar_94 = (cppVar_94 & cppMask_un_8_);
+	bool cppVar_96 = (cppVar_94 == 138);
+	if (cppVar_96) {
+	cppVar_91 = TL0;
+	} else {
+	BIT_VEC cppVar_97;
+	BIT_VEC cppVar_98 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_99 = (cppVar_98 << 3) | 6;
+	cppVar_99 = (cppVar_99 & cppMask_un_5_);
+	BIT_VEC cppVar_100 = (0 << 5) | cppVar_99;
+	cppVar_100 = (cppVar_100 & cppMask_un_8_);
+	bool cppVar_102 = (cppVar_100 == 140);
+	if (cppVar_102) {
+	cppVar_97 = TH0;
+	} else {
+	BIT_VEC cppVar_103;
+	BIT_VEC cppVar_104 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_105 = (cppVar_104 << 3) | 6;
+	cppVar_105 = (cppVar_105 & cppMask_un_5_);
+	BIT_VEC cppVar_106 = (0 << 5) | cppVar_105;
+	cppVar_106 = (cppVar_106 & cppMask_un_8_);
+	bool cppVar_108 = (cppVar_106 == 139);
+	if (cppVar_108) {
+	cppVar_103 = TL1;
+	} else {
+	BIT_VEC cppVar_109;
+	BIT_VEC cppVar_110 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_111 = (cppVar_110 << 3) | 6;
+	cppVar_111 = (cppVar_111 & cppMask_un_5_);
+	BIT_VEC cppVar_112 = (0 << 5) | cppVar_111;
+	cppVar_112 = (cppVar_112 & cppMask_un_8_);
+	bool cppVar_114 = (cppVar_112 == 141);
+	if (cppVar_114) {
+	cppVar_109 = TH1;
+	} else {
+	BIT_VEC cppVar_115;
 	BIT_VEC cppVar_116 = (PSW >> 3) & cppMask_un_2_;
 	BIT_VEC cppVar_117 = (cppVar_116 << 3) | 6;
 	cppVar_117 = (cppVar_117 & cppMask_un_5_);
 	BIT_VEC cppVar_118 = (0 << 5) | cppVar_117;
 	cppVar_118 = (cppVar_118 & cppMask_un_8_);
-	bool cppVar_120 = (cppVar_118 == 160);
-	BIT_VEC cppVar_121 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_122 = (cppVar_121 << 3) | 6;
-	cppVar_122 = (cppVar_122 & cppMask_un_5_);
-	BIT_VEC cppVar_123 = (0 << 5) | cppVar_122;
-	cppVar_123 = (cppVar_123 & cppMask_un_8_);
-	bool cppVar_125 = (cppVar_123 == 168);
-	BIT_VEC cppVar_126 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_127 = (cppVar_126 << 3) | 6;
-	cppVar_127 = (cppVar_127 & cppMask_un_5_);
-	BIT_VEC cppVar_128 = (0 << 5) | cppVar_127;
-	cppVar_128 = (cppVar_128 & cppMask_un_8_);
-	bool cppVar_130 = (cppVar_128 == 176);
-	BIT_VEC cppVar_131 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_132 = (cppVar_131 << 3) | 6;
-	cppVar_132 = (cppVar_132 & cppMask_un_5_);
-	BIT_VEC cppVar_133 = (0 << 5) | cppVar_132;
-	cppVar_133 = (cppVar_133 & cppMask_un_8_);
-	bool cppVar_135 = (cppVar_133 == 184);
-	BIT_VEC cppVar_136 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_137 = (cppVar_136 << 3) | 6;
-	cppVar_137 = (cppVar_137 & cppMask_un_5_);
-	BIT_VEC cppVar_138 = (0 << 5) | cppVar_137;
-	cppVar_138 = (cppVar_138 & cppMask_un_8_);
-	bool cppVar_140 = (cppVar_138 == 208);
-	BIT_VEC cppVar_141 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_142 = (cppVar_141 << 3) | 6;
-	cppVar_142 = (cppVar_142 & cppMask_un_5_);
-	BIT_VEC cppVar_143 = (0 << 5) | cppVar_142;
-	cppVar_143 = (cppVar_143 & cppMask_un_8_);
-	bool cppVar_145 = (cppVar_143 == 224);
+	bool cppVar_120 = (cppVar_118 == 144);
+	if (cppVar_120) {
+	cppVar_115 = P1;
+	} else {
+	BIT_VEC cppVar_121;
+	BIT_VEC cppVar_122 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_123 = (cppVar_122 << 3) | 6;
+	cppVar_123 = (cppVar_123 & cppMask_un_5_);
+	BIT_VEC cppVar_124 = (0 << 5) | cppVar_123;
+	cppVar_124 = (cppVar_124 & cppMask_un_8_);
+	bool cppVar_126 = (cppVar_124 == 152);
+	if (cppVar_126) {
+	cppVar_121 = SCON;
+	} else {
+	BIT_VEC cppVar_127;
+	BIT_VEC cppVar_128 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_129 = (cppVar_128 << 3) | 6;
+	cppVar_129 = (cppVar_129 & cppMask_un_5_);
+	BIT_VEC cppVar_130 = (0 << 5) | cppVar_129;
+	cppVar_130 = (cppVar_130 & cppMask_un_8_);
+	bool cppVar_132 = (cppVar_130 == 153);
+	if (cppVar_132) {
+	cppVar_127 = SBUF;
+	} else {
+	BIT_VEC cppVar_133;
+	BIT_VEC cppVar_134 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_135 = (cppVar_134 << 3) | 6;
+	cppVar_135 = (cppVar_135 & cppMask_un_5_);
+	BIT_VEC cppVar_136 = (0 << 5) | cppVar_135;
+	cppVar_136 = (cppVar_136 & cppMask_un_8_);
+	bool cppVar_138 = (cppVar_136 == 160);
+	if (cppVar_138) {
+	cppVar_133 = P2;
+	} else {
+	BIT_VEC cppVar_139;
+	BIT_VEC cppVar_140 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_141 = (cppVar_140 << 3) | 6;
+	cppVar_141 = (cppVar_141 & cppMask_un_5_);
+	BIT_VEC cppVar_142 = (0 << 5) | cppVar_141;
+	cppVar_142 = (cppVar_142 & cppMask_un_8_);
+	bool cppVar_144 = (cppVar_142 == 168);
+	if (cppVar_144) {
+	cppVar_139 = IE;
+	} else {
+	BIT_VEC cppVar_145;
 	BIT_VEC cppVar_146 = (PSW >> 3) & cppMask_un_2_;
 	BIT_VEC cppVar_147 = (cppVar_146 << 3) | 6;
 	cppVar_147 = (cppVar_147 & cppMask_un_5_);
 	BIT_VEC cppVar_148 = (0 << 5) | cppVar_147;
 	cppVar_148 = (cppVar_148 & cppMask_un_8_);
-	bool cppVar_150 = (cppVar_148 == 240);
-	BIT_VEC cppVar_152 = (cppVar_150) ? B : 0;
-	BIT_VEC cppVar_153 = (cppVar_145) ? ACC : cppVar_152;
-	BIT_VEC cppVar_154 = (cppVar_140) ? PSW : cppVar_153;
-	BIT_VEC cppVar_155 = (cppVar_135) ? IP : cppVar_154;
-	BIT_VEC cppVar_156 = (cppVar_130) ? P3 : cppVar_155;
-	BIT_VEC cppVar_157 = (cppVar_125) ? IE : cppVar_156;
-	BIT_VEC cppVar_158 = (cppVar_120) ? P2 : cppVar_157;
-	BIT_VEC cppVar_159 = (cppVar_115) ? SBUF : cppVar_158;
-	BIT_VEC cppVar_160 = (cppVar_110) ? SCON : cppVar_159;
-	BIT_VEC cppVar_161 = (cppVar_105) ? P1 : cppVar_160;
-	BIT_VEC cppVar_162 = (cppVar_100) ? TH1 : cppVar_161;
-	BIT_VEC cppVar_163 = (cppVar_95) ? TL1 : cppVar_162;
-	BIT_VEC cppVar_164 = (cppVar_90) ? TH0 : cppVar_163;
-	BIT_VEC cppVar_165 = (cppVar_85) ? TL0 : cppVar_164;
-	BIT_VEC cppVar_166 = (cppVar_80) ? TMOD : cppVar_165;
-	BIT_VEC cppVar_167 = (cppVar_75) ? TCON : cppVar_166;
-	BIT_VEC cppVar_168 = (cppVar_70) ? PCON : cppVar_167;
-	BIT_VEC cppVar_169 = (cppVar_65) ? DPH : cppVar_168;
-	BIT_VEC cppVar_170 = (cppVar_60) ? DPL : cppVar_169;
-	BIT_VEC cppVar_171 = (cppVar_55) ? SP : cppVar_170;
-	BIT_VEC cppVar_172 = (cppVar_50) ? P0 : cppVar_171;
-	BIT_VEC cppVar_173 = (cppVar_41) ? cppVar_45 : cppVar_172;
-	BIT_VEC cppVar_174 = ROM.rd(PC);
-	bool cppVar_176 = (cppVar_174 == 228);
-	BIT_VEC cppVar_178 = ROM.rd(PC);
-	bool cppVar_180 = (cppVar_178 == 227);
-	BIT_VEC cppVar_181 = ROM.rd(PC);
-	bool cppVar_183 = (cppVar_181 == 226);
-	BIT_VEC cppVar_184 = ROM.rd(PC);
-	bool cppVar_186 = (cppVar_184 == 224);
-	bool cppVar_187 = cppVar_183 || cppVar_186;
-	bool cppVar_188 = cppVar_180 || cppVar_187;
-	BIT_VEC cppVar_189 = ROM.rd(PC);
-	bool cppVar_191 = (cppVar_189 == 215);
-	BIT_VEC cppVar_192 = (ACC >> 4) & cppMask_un_4_;
-	BIT_VEC cppVar_194 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_196 = (cppVar_194 << 3) | 1;
-	cppVar_196 = (cppVar_196 & cppMask_un_5_);
-	BIT_VEC cppVar_197 = (0 << 5) | cppVar_196;
-	cppVar_197 = (cppVar_197 & cppMask_un_8_);
-	BIT_VEC cppVar_198 = IRAM.rd(cppVar_197);
-	BIT_VEC cppVar_199 = IRAM.rd(cppVar_198);
-	BIT_VEC cppVar_200 = (cppVar_199 >> 0) & cppMask_un_4_;
-	BIT_VEC cppVar_201 = (cppVar_192 << 4) | cppVar_200;
-	cppVar_201 = (cppVar_201 & cppMask_un_8_);
-	BIT_VEC cppVar_202 = ROM.rd(PC);
-	bool cppVar_204 = (cppVar_202 == 214);
-	BIT_VEC cppVar_205 = (ACC >> 4) & cppMask_un_4_;
-	BIT_VEC cppVar_207 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_209 = (cppVar_207 << 3) | 0;
-	cppVar_209 = (cppVar_209 & cppMask_un_5_);
-	BIT_VEC cppVar_210 = (0 << 5) | cppVar_209;
-	cppVar_210 = (cppVar_210 & cppMask_un_8_);
-	BIT_VEC cppVar_211 = IRAM.rd(cppVar_210);
-	BIT_VEC cppVar_212 = IRAM.rd(cppVar_211);
-	BIT_VEC cppVar_213 = (cppVar_212 >> 0) & cppMask_un_4_;
-	BIT_VEC cppVar_214 = (cppVar_205 << 4) | cppVar_213;
-	cppVar_214 = (cppVar_214 & cppMask_un_8_);
-	BIT_VEC cppVar_215 = ROM.rd(PC);
-	bool cppVar_217 = (cppVar_215 == 212);
-	BIT_VEC cppVar_218 = (PSW >> 6) & cppMask_un_1_;
-	bool cppVar_220 = (cppVar_218 == 1);
-	BIT_VEC cppVar_221 = (ACC >> 0) & cppMask_un_4_;
-	bool cppVar_223 = cppVar_221 > 9;
-	bool cppVar_224 = cppVar_220 || cppVar_223;
-	BIT_VEC cppVar_225 = (ACC & cppMask_un_8_);
-	BIT_VEC cppVar_227 = cppVar_225 + 6;
-	cppVar_227 = (cppVar_227 & cppMask_un_9_);
-	BIT_VEC cppVar_228 = (ACC & cppMask_un_8_);
-	BIT_VEC cppVar_229 = (cppVar_224) ? cppVar_227 : cppVar_228;
-	BIT_VEC cppVar_230 = (cppVar_229 >> 8) & cppMask_un_1_;
-	BIT_VEC cppVar_231 = (PSW >> 7) & cppMask_un_1_;
-	BIT_VEC cppVar_232 = cppVar_230 | cppVar_231;
-	bool cppVar_234 = (cppVar_232 == 1);
-	BIT_VEC cppVar_235 = (PSW >> 6) & cppMask_un_1_;
-	bool cppVar_236 = (cppVar_235 == 1);
-	BIT_VEC cppVar_237 = (ACC >> 0) & cppMask_un_4_;
-	bool cppVar_238 = cppVar_237 > 9;
-	bool cppVar_239 = cppVar_236 || cppVar_238;
-	BIT_VEC cppVar_240 = (ACC & cppMask_un_8_);
-	BIT_VEC cppVar_241 = cppVar_240 + 6;
-	cppVar_241 = (cppVar_241 & cppMask_un_9_);
-	BIT_VEC cppVar_242 = (ACC & cppMask_un_8_);
-	BIT_VEC cppVar_243 = (cppVar_239) ? cppVar_241 : cppVar_242;
-	BIT_VEC cppVar_244 = (cppVar_243 >> 4) & cppMask_un_4_;
-	bool cppVar_246 = cppVar_244 > 9;
-	bool cppVar_247 = cppVar_234 || cppVar_246;
-	BIT_VEC cppVar_248 = (PSW >> 6) & cppMask_un_1_;
-	bool cppVar_249 = (cppVar_248 == 1);
-	BIT_VEC cppVar_250 = (ACC >> 0) & cppMask_un_4_;
-	bool cppVar_251 = cppVar_250 > 9;
-	bool cppVar_252 = cppVar_249 || cppVar_251;
-	BIT_VEC cppVar_253 = (ACC & cppMask_un_8_);
-	BIT_VEC cppVar_254 = cppVar_253 + 6;
-	cppVar_254 = (cppVar_254 & cppMask_un_9_);
-	BIT_VEC cppVar_255 = (ACC & cppMask_un_8_);
-	BIT_VEC cppVar_256 = (cppVar_252) ? cppVar_254 : cppVar_255;
-	BIT_VEC cppVar_258 = cppVar_256 + 96;
-	cppVar_258 = (cppVar_258 & cppMask_un_9_);
-	BIT_VEC cppVar_259 = (PSW >> 6) & cppMask_un_1_;
-	bool cppVar_260 = (cppVar_259 == 1);
-	BIT_VEC cppVar_261 = (ACC >> 0) & cppMask_un_4_;
-	bool cppVar_262 = cppVar_261 > 9;
-	bool cppVar_263 = cppVar_260 || cppVar_262;
+	bool cppVar_150 = (cppVar_148 == 176);
+	if (cppVar_150) {
+	cppVar_145 = P3;
+	} else {
+	BIT_VEC cppVar_151;
+	BIT_VEC cppVar_152 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_153 = (cppVar_152 << 3) | 6;
+	cppVar_153 = (cppVar_153 & cppMask_un_5_);
+	BIT_VEC cppVar_154 = (0 << 5) | cppVar_153;
+	cppVar_154 = (cppVar_154 & cppMask_un_8_);
+	bool cppVar_156 = (cppVar_154 == 184);
+	if (cppVar_156) {
+	cppVar_151 = IP;
+	} else {
+	BIT_VEC cppVar_157;
+	BIT_VEC cppVar_158 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_159 = (cppVar_158 << 3) | 6;
+	cppVar_159 = (cppVar_159 & cppMask_un_5_);
+	BIT_VEC cppVar_160 = (0 << 5) | cppVar_159;
+	cppVar_160 = (cppVar_160 & cppMask_un_8_);
+	bool cppVar_162 = (cppVar_160 == 208);
+	if (cppVar_162) {
+	cppVar_157 = PSW;
+	} else {
+	BIT_VEC cppVar_163;
+	BIT_VEC cppVar_164 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_165 = (cppVar_164 << 3) | 6;
+	cppVar_165 = (cppVar_165 & cppMask_un_5_);
+	BIT_VEC cppVar_166 = (0 << 5) | cppVar_165;
+	cppVar_166 = (cppVar_166 & cppMask_un_8_);
+	bool cppVar_168 = (cppVar_166 == 224);
+	if (cppVar_168) {
+	cppVar_163 = ACC;
+	} else {
+	BIT_VEC cppVar_169;
+	BIT_VEC cppVar_170 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_171 = (cppVar_170 << 3) | 6;
+	cppVar_171 = (cppVar_171 & cppMask_un_5_);
+	BIT_VEC cppVar_172 = (0 << 5) | cppVar_171;
+	cppVar_172 = (cppVar_172 & cppMask_un_8_);
+	bool cppVar_174 = (cppVar_172 == 240);
+	if (cppVar_174) {
+	cppVar_169 = B;
+	} else {
+	cppVar_169 = 0;
+	}
+	cppVar_163 = cppVar_169;
+	}
+	cppVar_157 = cppVar_163;
+	}
+	cppVar_151 = cppVar_157;
+	}
+	cppVar_145 = cppVar_151;
+	}
+	cppVar_139 = cppVar_145;
+	}
+	cppVar_133 = cppVar_139;
+	}
+	cppVar_127 = cppVar_133;
+	}
+	cppVar_121 = cppVar_127;
+	}
+	cppVar_115 = cppVar_121;
+	}
+	cppVar_109 = cppVar_115;
+	}
+	cppVar_103 = cppVar_109;
+	}
+	cppVar_97 = cppVar_103;
+	}
+	cppVar_91 = cppVar_97;
+	}
+	cppVar_85 = cppVar_91;
+	}
+	cppVar_79 = cppVar_85;
+	}
+	cppVar_73 = cppVar_79;
+	}
+	cppVar_67 = cppVar_73;
+	}
+	cppVar_61 = cppVar_67;
+	}
+	cppVar_55 = cppVar_61;
+	}
+	cppVar_49 = cppVar_55;
+	}
+	cppVar_36 = cppVar_49;
+	}
+	cppVar_32 = cppVar_36;
+	} else {
+	BIT_VEC cppVar_176;
+	BIT_VEC cppVar_177 = ROM.rd(PC);
+	bool cppVar_179 = (cppVar_177 == 228);
+	if (cppVar_179) {
+	cppVar_176 = 0;
+	} else {
+	BIT_VEC cppVar_181;
+	BIT_VEC cppVar_182 = ROM.rd(PC);
+	bool cppVar_184 = (cppVar_182 == 227);
+	BIT_VEC cppVar_185 = ROM.rd(PC);
+	bool cppVar_187 = (cppVar_185 == 226);
+	BIT_VEC cppVar_188 = ROM.rd(PC);
+	bool cppVar_190 = (cppVar_188 == 224);
+	bool cppVar_191 = cppVar_187 || cppVar_190;
+	bool cppVar_192 = cppVar_184 || cppVar_191;
+	if (cppVar_192) {
+	cppVar_181 = XRAM_DATA_IN;
+	} else {
+	BIT_VEC cppVar_193;
+	BIT_VEC cppVar_194 = ROM.rd(PC);
+	bool cppVar_196 = (cppVar_194 == 215);
+	if (cppVar_196) {
+	BIT_VEC cppVar_197 = (ACC >> 4) & cppMask_un_4_;
+	BIT_VEC cppVar_199 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_201 = (cppVar_199 << 3) | 1;
+	cppVar_201 = (cppVar_201 & cppMask_un_5_);
+	BIT_VEC cppVar_202 = (0 << 5) | cppVar_201;
+	cppVar_202 = (cppVar_202 & cppMask_un_8_);
+	BIT_VEC cppVar_203 = IRAM.rd(cppVar_202);
+	BIT_VEC cppVar_204 = IRAM.rd(cppVar_203);
+	BIT_VEC cppVar_205 = (cppVar_204 >> 0) & cppMask_un_4_;
+	BIT_VEC cppVar_206 = (cppVar_197 << 4) | cppVar_205;
+	cppVar_206 = (cppVar_206 & cppMask_un_8_);
+	cppVar_193 = cppVar_206;
+	} else {
+	BIT_VEC cppVar_207;
+	BIT_VEC cppVar_208 = ROM.rd(PC);
+	bool cppVar_210 = (cppVar_208 == 214);
+	if (cppVar_210) {
+	BIT_VEC cppVar_211 = (ACC >> 4) & cppMask_un_4_;
+	BIT_VEC cppVar_213 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_215 = (cppVar_213 << 3) | 0;
+	cppVar_215 = (cppVar_215 & cppMask_un_5_);
+	BIT_VEC cppVar_216 = (0 << 5) | cppVar_215;
+	cppVar_216 = (cppVar_216 & cppMask_un_8_);
+	BIT_VEC cppVar_217 = IRAM.rd(cppVar_216);
+	BIT_VEC cppVar_218 = IRAM.rd(cppVar_217);
+	BIT_VEC cppVar_219 = (cppVar_218 >> 0) & cppMask_un_4_;
+	BIT_VEC cppVar_220 = (cppVar_211 << 4) | cppVar_219;
+	cppVar_220 = (cppVar_220 & cppMask_un_8_);
+	cppVar_207 = cppVar_220;
+	} else {
+	BIT_VEC cppVar_221;
+	BIT_VEC cppVar_222 = ROM.rd(PC);
+	bool cppVar_224 = (cppVar_222 == 212);
+	if (cppVar_224) {
+	BIT_VEC cppVar_225;
+	BIT_VEC cppVar_226;
+	BIT_VEC cppVar_227 = (PSW >> 6) & cppMask_un_1_;
+	bool cppVar_229 = (cppVar_227 == 1);
+	BIT_VEC cppVar_230 = (ACC >> 0) & cppMask_un_4_;
+	bool cppVar_232 = cppVar_230 > 9;
+	bool cppVar_233 = cppVar_229 || cppVar_232;
+	if (cppVar_233) {
+	BIT_VEC cppVar_234 = (ACC & cppMask_un_8_);
+	BIT_VEC cppVar_236 = cppVar_234 + 6;
+	cppVar_236 = (cppVar_236 & cppMask_un_9_);
+	cppVar_226 = cppVar_236;
+	} else {
+	BIT_VEC cppVar_237 = (ACC & cppMask_un_8_);
+	cppVar_226 = cppVar_237;
+	}
+	BIT_VEC cppVar_238 = (cppVar_226 >> 8) & cppMask_un_1_;
+	BIT_VEC cppVar_239 = (PSW >> 7) & cppMask_un_1_;
+	BIT_VEC cppVar_240 = cppVar_238 | cppVar_239;
+	bool cppVar_242 = (cppVar_240 == 1);
+	BIT_VEC cppVar_243;
+	BIT_VEC cppVar_244 = (PSW >> 6) & cppMask_un_1_;
+	bool cppVar_245 = (cppVar_244 == 1);
+	BIT_VEC cppVar_246 = (ACC >> 0) & cppMask_un_4_;
+	bool cppVar_247 = cppVar_246 > 9;
+	bool cppVar_248 = cppVar_245 || cppVar_247;
+	if (cppVar_248) {
+	BIT_VEC cppVar_249 = (ACC & cppMask_un_8_);
+	BIT_VEC cppVar_250 = cppVar_249 + 6;
+	cppVar_250 = (cppVar_250 & cppMask_un_9_);
+	cppVar_243 = cppVar_250;
+	} else {
+	BIT_VEC cppVar_251 = (ACC & cppMask_un_8_);
+	cppVar_243 = cppVar_251;
+	}
+	BIT_VEC cppVar_252 = (cppVar_243 >> 4) & cppMask_un_4_;
+	bool cppVar_254 = cppVar_252 > 9;
+	bool cppVar_255 = cppVar_242 || cppVar_254;
+	if (cppVar_255) {
+	BIT_VEC cppVar_256;
+	BIT_VEC cppVar_257 = (PSW >> 6) & cppMask_un_1_;
+	bool cppVar_258 = (cppVar_257 == 1);
+	BIT_VEC cppVar_259 = (ACC >> 0) & cppMask_un_4_;
+	bool cppVar_260 = cppVar_259 > 9;
+	bool cppVar_261 = cppVar_258 || cppVar_260;
+	if (cppVar_261) {
+	BIT_VEC cppVar_262 = (ACC & cppMask_un_8_);
+	BIT_VEC cppVar_263 = cppVar_262 + 6;
+	cppVar_263 = (cppVar_263 & cppMask_un_9_);
+	cppVar_256 = cppVar_263;
+	} else {
 	BIT_VEC cppVar_264 = (ACC & cppMask_un_8_);
-	BIT_VEC cppVar_265 = cppVar_264 + 6;
-	cppVar_265 = (cppVar_265 & cppMask_un_9_);
-	BIT_VEC cppVar_266 = (ACC & cppMask_un_8_);
-	BIT_VEC cppVar_267 = (cppVar_263) ? cppVar_265 : cppVar_266;
-	BIT_VEC cppVar_268 = (cppVar_247) ? cppVar_258 : cppVar_267;
-	BIT_VEC cppVar_269 = (cppVar_268 >> 0) & cppMask_un_8_;
-	BIT_VEC cppVar_270 = ROM.rd(PC);
-	bool cppVar_272 = (cppVar_270 == 239);
-	BIT_VEC cppVar_273 = ROM.rd(PC);
-	bool cppVar_275 = (cppVar_273 == 207);
-	bool cppVar_276 = cppVar_272 || cppVar_275;
-	BIT_VEC cppVar_278 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_280 = (cppVar_278 << 3) | 7;
-	cppVar_280 = (cppVar_280 & cppMask_un_5_);
-	BIT_VEC cppVar_281 = (0 << 5) | cppVar_280;
-	cppVar_281 = (cppVar_281 & cppMask_un_8_);
-	BIT_VEC cppVar_282 = (cppVar_281 >> 7) & cppMask_un_1_;
-	bool cppVar_284 = (cppVar_282 == 0);
-	BIT_VEC cppVar_285 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_286 = (cppVar_285 << 3) | 7;
-	cppVar_286 = (cppVar_286 & cppMask_un_5_);
-	BIT_VEC cppVar_287 = (0 << 5) | cppVar_286;
-	cppVar_287 = (cppVar_287 & cppMask_un_8_);
-	BIT_VEC cppVar_288 = IRAM.rd(cppVar_287);
-	BIT_VEC cppVar_289 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_290 = (cppVar_289 << 3) | 7;
-	cppVar_290 = (cppVar_290 & cppMask_un_5_);
-	BIT_VEC cppVar_291 = (0 << 5) | cppVar_290;
-	cppVar_291 = (cppVar_291 & cppMask_un_8_);
-	bool cppVar_293 = (cppVar_291 == 128);
+	cppVar_256 = cppVar_264;
+	}
+	BIT_VEC cppVar_266 = cppVar_256 + 96;
+	cppVar_266 = (cppVar_266 & cppMask_un_9_);
+	cppVar_225 = cppVar_266;
+	} else {
+	BIT_VEC cppVar_267;
+	BIT_VEC cppVar_268 = (PSW >> 6) & cppMask_un_1_;
+	bool cppVar_269 = (cppVar_268 == 1);
+	BIT_VEC cppVar_270 = (ACC >> 0) & cppMask_un_4_;
+	bool cppVar_271 = cppVar_270 > 9;
+	bool cppVar_272 = cppVar_269 || cppVar_271;
+	if (cppVar_272) {
+	BIT_VEC cppVar_273 = (ACC & cppMask_un_8_);
+	BIT_VEC cppVar_274 = cppVar_273 + 6;
+	cppVar_274 = (cppVar_274 & cppMask_un_9_);
+	cppVar_267 = cppVar_274;
+	} else {
+	BIT_VEC cppVar_275 = (ACC & cppMask_un_8_);
+	cppVar_267 = cppVar_275;
+	}
+	cppVar_225 = cppVar_267;
+	}
+	BIT_VEC cppVar_276 = (cppVar_225 >> 0) & cppMask_un_8_;
+	cppVar_221 = cppVar_276;
+	} else {
+	BIT_VEC cppVar_277;
+	BIT_VEC cppVar_278 = ROM.rd(PC);
+	bool cppVar_280 = (cppVar_278 == 239);
+	BIT_VEC cppVar_281 = ROM.rd(PC);
+	bool cppVar_283 = (cppVar_281 == 207);
+	bool cppVar_284 = cppVar_280 || cppVar_283;
+	if (cppVar_284) {
+	BIT_VEC cppVar_285;
+	BIT_VEC cppVar_287 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_289 = (cppVar_287 << 3) | 7;
+	cppVar_289 = (cppVar_289 & cppMask_un_5_);
+	BIT_VEC cppVar_290 = (0 << 5) | cppVar_289;
+	cppVar_290 = (cppVar_290 & cppMask_un_8_);
+	BIT_VEC cppVar_291 = (cppVar_290 >> 7) & cppMask_un_1_;
+	bool cppVar_293 = (cppVar_291 == 0);
+	if (cppVar_293) {
 	BIT_VEC cppVar_294 = (PSW >> 3) & cppMask_un_2_;
 	BIT_VEC cppVar_295 = (cppVar_294 << 3) | 7;
 	cppVar_295 = (cppVar_295 & cppMask_un_5_);
 	BIT_VEC cppVar_296 = (0 << 5) | cppVar_295;
 	cppVar_296 = (cppVar_296 & cppMask_un_8_);
-	bool cppVar_298 = (cppVar_296 == 129);
+	BIT_VEC cppVar_297 = IRAM.rd(cppVar_296);
+	cppVar_285 = cppVar_297;
+	} else {
+	BIT_VEC cppVar_298;
 	BIT_VEC cppVar_299 = (PSW >> 3) & cppMask_un_2_;
 	BIT_VEC cppVar_300 = (cppVar_299 << 3) | 7;
 	cppVar_300 = (cppVar_300 & cppMask_un_5_);
 	BIT_VEC cppVar_301 = (0 << 5) | cppVar_300;
 	cppVar_301 = (cppVar_301 & cppMask_un_8_);
-	bool cppVar_303 = (cppVar_301 == 130);
-	BIT_VEC cppVar_304 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_305 = (cppVar_304 << 3) | 7;
-	cppVar_305 = (cppVar_305 & cppMask_un_5_);
-	BIT_VEC cppVar_306 = (0 << 5) | cppVar_305;
-	cppVar_306 = (cppVar_306 & cppMask_un_8_);
-	bool cppVar_308 = (cppVar_306 == 131);
-	BIT_VEC cppVar_309 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_310 = (cppVar_309 << 3) | 7;
-	cppVar_310 = (cppVar_310 & cppMask_un_5_);
-	BIT_VEC cppVar_311 = (0 << 5) | cppVar_310;
-	cppVar_311 = (cppVar_311 & cppMask_un_8_);
-	bool cppVar_313 = (cppVar_311 == 135);
-	BIT_VEC cppVar_314 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_315 = (cppVar_314 << 3) | 7;
-	cppVar_315 = (cppVar_315 & cppMask_un_5_);
-	BIT_VEC cppVar_316 = (0 << 5) | cppVar_315;
-	cppVar_316 = (cppVar_316 & cppMask_un_8_);
-	bool cppVar_318 = (cppVar_316 == 136);
-	BIT_VEC cppVar_319 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_320 = (cppVar_319 << 3) | 7;
-	cppVar_320 = (cppVar_320 & cppMask_un_5_);
-	BIT_VEC cppVar_321 = (0 << 5) | cppVar_320;
-	cppVar_321 = (cppVar_321 & cppMask_un_8_);
-	bool cppVar_323 = (cppVar_321 == 137);
-	BIT_VEC cppVar_324 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_325 = (cppVar_324 << 3) | 7;
-	cppVar_325 = (cppVar_325 & cppMask_un_5_);
-	BIT_VEC cppVar_326 = (0 << 5) | cppVar_325;
-	cppVar_326 = (cppVar_326 & cppMask_un_8_);
-	bool cppVar_328 = (cppVar_326 == 138);
+	bool cppVar_303 = (cppVar_301 == 128);
+	if (cppVar_303) {
+	cppVar_298 = P0;
+	} else {
+	BIT_VEC cppVar_304;
+	BIT_VEC cppVar_305 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_306 = (cppVar_305 << 3) | 7;
+	cppVar_306 = (cppVar_306 & cppMask_un_5_);
+	BIT_VEC cppVar_307 = (0 << 5) | cppVar_306;
+	cppVar_307 = (cppVar_307 & cppMask_un_8_);
+	bool cppVar_309 = (cppVar_307 == 129);
+	if (cppVar_309) {
+	cppVar_304 = SP;
+	} else {
+	BIT_VEC cppVar_310;
+	BIT_VEC cppVar_311 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_312 = (cppVar_311 << 3) | 7;
+	cppVar_312 = (cppVar_312 & cppMask_un_5_);
+	BIT_VEC cppVar_313 = (0 << 5) | cppVar_312;
+	cppVar_313 = (cppVar_313 & cppMask_un_8_);
+	bool cppVar_315 = (cppVar_313 == 130);
+	if (cppVar_315) {
+	cppVar_310 = DPL;
+	} else {
+	BIT_VEC cppVar_316;
+	BIT_VEC cppVar_317 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_318 = (cppVar_317 << 3) | 7;
+	cppVar_318 = (cppVar_318 & cppMask_un_5_);
+	BIT_VEC cppVar_319 = (0 << 5) | cppVar_318;
+	cppVar_319 = (cppVar_319 & cppMask_un_8_);
+	bool cppVar_321 = (cppVar_319 == 131);
+	if (cppVar_321) {
+	cppVar_316 = DPH;
+	} else {
+	BIT_VEC cppVar_322;
+	BIT_VEC cppVar_323 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_324 = (cppVar_323 << 3) | 7;
+	cppVar_324 = (cppVar_324 & cppMask_un_5_);
+	BIT_VEC cppVar_325 = (0 << 5) | cppVar_324;
+	cppVar_325 = (cppVar_325 & cppMask_un_8_);
+	bool cppVar_327 = (cppVar_325 == 135);
+	if (cppVar_327) {
+	cppVar_322 = PCON;
+	} else {
+	BIT_VEC cppVar_328;
 	BIT_VEC cppVar_329 = (PSW >> 3) & cppMask_un_2_;
 	BIT_VEC cppVar_330 = (cppVar_329 << 3) | 7;
 	cppVar_330 = (cppVar_330 & cppMask_un_5_);
 	BIT_VEC cppVar_331 = (0 << 5) | cppVar_330;
 	cppVar_331 = (cppVar_331 & cppMask_un_8_);
-	bool cppVar_333 = (cppVar_331 == 140);
-	BIT_VEC cppVar_334 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_335 = (cppVar_334 << 3) | 7;
-	cppVar_335 = (cppVar_335 & cppMask_un_5_);
-	BIT_VEC cppVar_336 = (0 << 5) | cppVar_335;
-	cppVar_336 = (cppVar_336 & cppMask_un_8_);
-	bool cppVar_338 = (cppVar_336 == 139);
-	BIT_VEC cppVar_339 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_340 = (cppVar_339 << 3) | 7;
-	cppVar_340 = (cppVar_340 & cppMask_un_5_);
-	BIT_VEC cppVar_341 = (0 << 5) | cppVar_340;
-	cppVar_341 = (cppVar_341 & cppMask_un_8_);
-	bool cppVar_343 = (cppVar_341 == 141);
-	BIT_VEC cppVar_344 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_345 = (cppVar_344 << 3) | 7;
-	cppVar_345 = (cppVar_345 & cppMask_un_5_);
-	BIT_VEC cppVar_346 = (0 << 5) | cppVar_345;
-	cppVar_346 = (cppVar_346 & cppMask_un_8_);
-	bool cppVar_348 = (cppVar_346 == 144);
-	BIT_VEC cppVar_349 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_350 = (cppVar_349 << 3) | 7;
-	cppVar_350 = (cppVar_350 & cppMask_un_5_);
-	BIT_VEC cppVar_351 = (0 << 5) | cppVar_350;
-	cppVar_351 = (cppVar_351 & cppMask_un_8_);
-	bool cppVar_353 = (cppVar_351 == 152);
-	BIT_VEC cppVar_354 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_355 = (cppVar_354 << 3) | 7;
-	cppVar_355 = (cppVar_355 & cppMask_un_5_);
-	BIT_VEC cppVar_356 = (0 << 5) | cppVar_355;
-	cppVar_356 = (cppVar_356 & cppMask_un_8_);
-	bool cppVar_358 = (cppVar_356 == 153);
+	bool cppVar_333 = (cppVar_331 == 136);
+	if (cppVar_333) {
+	cppVar_328 = TCON;
+	} else {
+	BIT_VEC cppVar_334;
+	BIT_VEC cppVar_335 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_336 = (cppVar_335 << 3) | 7;
+	cppVar_336 = (cppVar_336 & cppMask_un_5_);
+	BIT_VEC cppVar_337 = (0 << 5) | cppVar_336;
+	cppVar_337 = (cppVar_337 & cppMask_un_8_);
+	bool cppVar_339 = (cppVar_337 == 137);
+	if (cppVar_339) {
+	cppVar_334 = TMOD;
+	} else {
+	BIT_VEC cppVar_340;
+	BIT_VEC cppVar_341 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_342 = (cppVar_341 << 3) | 7;
+	cppVar_342 = (cppVar_342 & cppMask_un_5_);
+	BIT_VEC cppVar_343 = (0 << 5) | cppVar_342;
+	cppVar_343 = (cppVar_343 & cppMask_un_8_);
+	bool cppVar_345 = (cppVar_343 == 138);
+	if (cppVar_345) {
+	cppVar_340 = TL0;
+	} else {
+	BIT_VEC cppVar_346;
+	BIT_VEC cppVar_347 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_348 = (cppVar_347 << 3) | 7;
+	cppVar_348 = (cppVar_348 & cppMask_un_5_);
+	BIT_VEC cppVar_349 = (0 << 5) | cppVar_348;
+	cppVar_349 = (cppVar_349 & cppMask_un_8_);
+	bool cppVar_351 = (cppVar_349 == 140);
+	if (cppVar_351) {
+	cppVar_346 = TH0;
+	} else {
+	BIT_VEC cppVar_352;
+	BIT_VEC cppVar_353 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_354 = (cppVar_353 << 3) | 7;
+	cppVar_354 = (cppVar_354 & cppMask_un_5_);
+	BIT_VEC cppVar_355 = (0 << 5) | cppVar_354;
+	cppVar_355 = (cppVar_355 & cppMask_un_8_);
+	bool cppVar_357 = (cppVar_355 == 139);
+	if (cppVar_357) {
+	cppVar_352 = TL1;
+	} else {
+	BIT_VEC cppVar_358;
 	BIT_VEC cppVar_359 = (PSW >> 3) & cppMask_un_2_;
 	BIT_VEC cppVar_360 = (cppVar_359 << 3) | 7;
 	cppVar_360 = (cppVar_360 & cppMask_un_5_);
 	BIT_VEC cppVar_361 = (0 << 5) | cppVar_360;
 	cppVar_361 = (cppVar_361 & cppMask_un_8_);
-	bool cppVar_363 = (cppVar_361 == 160);
-	BIT_VEC cppVar_364 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_365 = (cppVar_364 << 3) | 7;
-	cppVar_365 = (cppVar_365 & cppMask_un_5_);
-	BIT_VEC cppVar_366 = (0 << 5) | cppVar_365;
-	cppVar_366 = (cppVar_366 & cppMask_un_8_);
-	bool cppVar_368 = (cppVar_366 == 168);
-	BIT_VEC cppVar_369 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_370 = (cppVar_369 << 3) | 7;
-	cppVar_370 = (cppVar_370 & cppMask_un_5_);
-	BIT_VEC cppVar_371 = (0 << 5) | cppVar_370;
-	cppVar_371 = (cppVar_371 & cppMask_un_8_);
-	bool cppVar_373 = (cppVar_371 == 176);
-	BIT_VEC cppVar_374 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_375 = (cppVar_374 << 3) | 7;
-	cppVar_375 = (cppVar_375 & cppMask_un_5_);
-	BIT_VEC cppVar_376 = (0 << 5) | cppVar_375;
-	cppVar_376 = (cppVar_376 & cppMask_un_8_);
-	bool cppVar_378 = (cppVar_376 == 184);
-	BIT_VEC cppVar_379 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_380 = (cppVar_379 << 3) | 7;
-	cppVar_380 = (cppVar_380 & cppMask_un_5_);
-	BIT_VEC cppVar_381 = (0 << 5) | cppVar_380;
-	cppVar_381 = (cppVar_381 & cppMask_un_8_);
-	bool cppVar_383 = (cppVar_381 == 208);
-	BIT_VEC cppVar_384 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_385 = (cppVar_384 << 3) | 7;
-	cppVar_385 = (cppVar_385 & cppMask_un_5_);
-	BIT_VEC cppVar_386 = (0 << 5) | cppVar_385;
-	cppVar_386 = (cppVar_386 & cppMask_un_8_);
-	bool cppVar_388 = (cppVar_386 == 224);
+	bool cppVar_363 = (cppVar_361 == 141);
+	if (cppVar_363) {
+	cppVar_358 = TH1;
+	} else {
+	BIT_VEC cppVar_364;
+	BIT_VEC cppVar_365 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_366 = (cppVar_365 << 3) | 7;
+	cppVar_366 = (cppVar_366 & cppMask_un_5_);
+	BIT_VEC cppVar_367 = (0 << 5) | cppVar_366;
+	cppVar_367 = (cppVar_367 & cppMask_un_8_);
+	bool cppVar_369 = (cppVar_367 == 144);
+	if (cppVar_369) {
+	cppVar_364 = P1;
+	} else {
+	BIT_VEC cppVar_370;
+	BIT_VEC cppVar_371 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_372 = (cppVar_371 << 3) | 7;
+	cppVar_372 = (cppVar_372 & cppMask_un_5_);
+	BIT_VEC cppVar_373 = (0 << 5) | cppVar_372;
+	cppVar_373 = (cppVar_373 & cppMask_un_8_);
+	bool cppVar_375 = (cppVar_373 == 152);
+	if (cppVar_375) {
+	cppVar_370 = SCON;
+	} else {
+	BIT_VEC cppVar_376;
+	BIT_VEC cppVar_377 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_378 = (cppVar_377 << 3) | 7;
+	cppVar_378 = (cppVar_378 & cppMask_un_5_);
+	BIT_VEC cppVar_379 = (0 << 5) | cppVar_378;
+	cppVar_379 = (cppVar_379 & cppMask_un_8_);
+	bool cppVar_381 = (cppVar_379 == 153);
+	if (cppVar_381) {
+	cppVar_376 = SBUF;
+	} else {
+	BIT_VEC cppVar_382;
+	BIT_VEC cppVar_383 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_384 = (cppVar_383 << 3) | 7;
+	cppVar_384 = (cppVar_384 & cppMask_un_5_);
+	BIT_VEC cppVar_385 = (0 << 5) | cppVar_384;
+	cppVar_385 = (cppVar_385 & cppMask_un_8_);
+	bool cppVar_387 = (cppVar_385 == 160);
+	if (cppVar_387) {
+	cppVar_382 = P2;
+	} else {
+	BIT_VEC cppVar_388;
 	BIT_VEC cppVar_389 = (PSW >> 3) & cppMask_un_2_;
 	BIT_VEC cppVar_390 = (cppVar_389 << 3) | 7;
 	cppVar_390 = (cppVar_390 & cppMask_un_5_);
 	BIT_VEC cppVar_391 = (0 << 5) | cppVar_390;
 	cppVar_391 = (cppVar_391 & cppMask_un_8_);
-	bool cppVar_393 = (cppVar_391 == 240);
-	BIT_VEC cppVar_395 = (cppVar_393) ? B : 0;
-	BIT_VEC cppVar_396 = (cppVar_388) ? ACC : cppVar_395;
-	BIT_VEC cppVar_397 = (cppVar_383) ? PSW : cppVar_396;
-	BIT_VEC cppVar_398 = (cppVar_378) ? IP : cppVar_397;
-	BIT_VEC cppVar_399 = (cppVar_373) ? P3 : cppVar_398;
-	BIT_VEC cppVar_400 = (cppVar_368) ? IE : cppVar_399;
-	BIT_VEC cppVar_401 = (cppVar_363) ? P2 : cppVar_400;
-	BIT_VEC cppVar_402 = (cppVar_358) ? SBUF : cppVar_401;
-	BIT_VEC cppVar_403 = (cppVar_353) ? SCON : cppVar_402;
-	BIT_VEC cppVar_404 = (cppVar_348) ? P1 : cppVar_403;
-	BIT_VEC cppVar_405 = (cppVar_343) ? TH1 : cppVar_404;
-	BIT_VEC cppVar_406 = (cppVar_338) ? TL1 : cppVar_405;
-	BIT_VEC cppVar_407 = (cppVar_333) ? TH0 : cppVar_406;
-	BIT_VEC cppVar_408 = (cppVar_328) ? TL0 : cppVar_407;
-	BIT_VEC cppVar_409 = (cppVar_323) ? TMOD : cppVar_408;
-	BIT_VEC cppVar_410 = (cppVar_318) ? TCON : cppVar_409;
-	BIT_VEC cppVar_411 = (cppVar_313) ? PCON : cppVar_410;
-	BIT_VEC cppVar_412 = (cppVar_308) ? DPH : cppVar_411;
-	BIT_VEC cppVar_413 = (cppVar_303) ? DPL : cppVar_412;
-	BIT_VEC cppVar_414 = (cppVar_298) ? SP : cppVar_413;
-	BIT_VEC cppVar_415 = (cppVar_293) ? P0 : cppVar_414;
-	BIT_VEC cppVar_416 = (cppVar_284) ? cppVar_288 : cppVar_415;
-	BIT_VEC cppVar_417 = ROM.rd(PC);
-	bool cppVar_419 = (cppVar_417 == 206);
-	BIT_VEC cppVar_421 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_423 = (cppVar_421 << 3) | 6;
-	cppVar_423 = (cppVar_423 & cppMask_un_5_);
-	BIT_VEC cppVar_424 = (0 << 5) | cppVar_423;
-	cppVar_424 = (cppVar_424 & cppMask_un_8_);
-	BIT_VEC cppVar_425 = IRAM.rd(cppVar_424);
+	bool cppVar_393 = (cppVar_391 == 168);
+	if (cppVar_393) {
+	cppVar_388 = IE;
+	} else {
+	BIT_VEC cppVar_394;
+	BIT_VEC cppVar_395 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_396 = (cppVar_395 << 3) | 7;
+	cppVar_396 = (cppVar_396 & cppMask_un_5_);
+	BIT_VEC cppVar_397 = (0 << 5) | cppVar_396;
+	cppVar_397 = (cppVar_397 & cppMask_un_8_);
+	bool cppVar_399 = (cppVar_397 == 176);
+	if (cppVar_399) {
+	cppVar_394 = P3;
+	} else {
+	BIT_VEC cppVar_400;
+	BIT_VEC cppVar_401 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_402 = (cppVar_401 << 3) | 7;
+	cppVar_402 = (cppVar_402 & cppMask_un_5_);
+	BIT_VEC cppVar_403 = (0 << 5) | cppVar_402;
+	cppVar_403 = (cppVar_403 & cppMask_un_8_);
+	bool cppVar_405 = (cppVar_403 == 184);
+	if (cppVar_405) {
+	cppVar_400 = IP;
+	} else {
+	BIT_VEC cppVar_406;
+	BIT_VEC cppVar_407 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_408 = (cppVar_407 << 3) | 7;
+	cppVar_408 = (cppVar_408 & cppMask_un_5_);
+	BIT_VEC cppVar_409 = (0 << 5) | cppVar_408;
+	cppVar_409 = (cppVar_409 & cppMask_un_8_);
+	bool cppVar_411 = (cppVar_409 == 208);
+	if (cppVar_411) {
+	cppVar_406 = PSW;
+	} else {
+	BIT_VEC cppVar_412;
+	BIT_VEC cppVar_413 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_414 = (cppVar_413 << 3) | 7;
+	cppVar_414 = (cppVar_414 & cppMask_un_5_);
+	BIT_VEC cppVar_415 = (0 << 5) | cppVar_414;
+	cppVar_415 = (cppVar_415 & cppMask_un_8_);
+	bool cppVar_417 = (cppVar_415 == 224);
+	if (cppVar_417) {
+	cppVar_412 = ACC;
+	} else {
+	BIT_VEC cppVar_418;
+	BIT_VEC cppVar_419 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_420 = (cppVar_419 << 3) | 7;
+	cppVar_420 = (cppVar_420 & cppMask_un_5_);
+	BIT_VEC cppVar_421 = (0 << 5) | cppVar_420;
+	cppVar_421 = (cppVar_421 & cppMask_un_8_);
+	bool cppVar_423 = (cppVar_421 == 240);
+	if (cppVar_423) {
+	cppVar_418 = B;
+	} else {
+	cppVar_418 = 0;
+	}
+	cppVar_412 = cppVar_418;
+	}
+	cppVar_406 = cppVar_412;
+	}
+	cppVar_400 = cppVar_406;
+	}
+	cppVar_394 = cppVar_400;
+	}
+	cppVar_388 = cppVar_394;
+	}
+	cppVar_382 = cppVar_388;
+	}
+	cppVar_376 = cppVar_382;
+	}
+	cppVar_370 = cppVar_376;
+	}
+	cppVar_364 = cppVar_370;
+	}
+	cppVar_358 = cppVar_364;
+	}
+	cppVar_352 = cppVar_358;
+	}
+	cppVar_346 = cppVar_352;
+	}
+	cppVar_340 = cppVar_346;
+	}
+	cppVar_334 = cppVar_340;
+	}
+	cppVar_328 = cppVar_334;
+	}
+	cppVar_322 = cppVar_328;
+	}
+	cppVar_316 = cppVar_322;
+	}
+	cppVar_310 = cppVar_316;
+	}
+	cppVar_304 = cppVar_310;
+	}
+	cppVar_298 = cppVar_304;
+	}
+	cppVar_285 = cppVar_298;
+	}
+	cppVar_277 = cppVar_285;
+	} else {
+	BIT_VEC cppVar_425;
 	BIT_VEC cppVar_426 = ROM.rd(PC);
-	bool cppVar_428 = (cppVar_426 == 237);
-	BIT_VEC cppVar_429 = ROM.rd(PC);
-	bool cppVar_431 = (cppVar_429 == 205);
-	bool cppVar_432 = cppVar_428 || cppVar_431;
-	BIT_VEC cppVar_434 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_436 = (cppVar_434 << 3) | 5;
-	cppVar_436 = (cppVar_436 & cppMask_un_5_);
-	BIT_VEC cppVar_437 = (0 << 5) | cppVar_436;
-	cppVar_437 = (cppVar_437 & cppMask_un_8_);
-	BIT_VEC cppVar_438 = IRAM.rd(cppVar_437);
+	bool cppVar_428 = (cppVar_426 == 206);
+	if (cppVar_428) {
+	BIT_VEC cppVar_430 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_432 = (cppVar_430 << 3) | 6;
+	cppVar_432 = (cppVar_432 & cppMask_un_5_);
+	BIT_VEC cppVar_433 = (0 << 5) | cppVar_432;
+	cppVar_433 = (cppVar_433 & cppMask_un_8_);
+	BIT_VEC cppVar_434 = IRAM.rd(cppVar_433);
+	cppVar_425 = cppVar_434;
+	} else {
+	BIT_VEC cppVar_435;
+	BIT_VEC cppVar_436 = ROM.rd(PC);
+	bool cppVar_438 = (cppVar_436 == 237);
 	BIT_VEC cppVar_439 = ROM.rd(PC);
-	bool cppVar_441 = (cppVar_439 == 236);
-	BIT_VEC cppVar_442 = ROM.rd(PC);
-	bool cppVar_444 = (cppVar_442 == 204);
-	bool cppVar_445 = cppVar_441 || cppVar_444;
-	BIT_VEC cppVar_447 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_449 = (cppVar_447 << 3) | 4;
-	cppVar_449 = (cppVar_449 & cppMask_un_5_);
-	BIT_VEC cppVar_450 = (0 << 5) | cppVar_449;
-	cppVar_450 = (cppVar_450 & cppMask_un_8_);
-	BIT_VEC cppVar_451 = (cppVar_450 >> 7) & cppMask_un_1_;
-	bool cppVar_453 = (cppVar_451 == 0);
-	BIT_VEC cppVar_454 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_455 = (cppVar_454 << 3) | 4;
-	cppVar_455 = (cppVar_455 & cppMask_un_5_);
-	BIT_VEC cppVar_456 = (0 << 5) | cppVar_455;
-	cppVar_456 = (cppVar_456 & cppMask_un_8_);
-	BIT_VEC cppVar_457 = IRAM.rd(cppVar_456);
-	BIT_VEC cppVar_458 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_459 = (cppVar_458 << 3) | 4;
-	cppVar_459 = (cppVar_459 & cppMask_un_5_);
-	BIT_VEC cppVar_460 = (0 << 5) | cppVar_459;
-	cppVar_460 = (cppVar_460 & cppMask_un_8_);
-	bool cppVar_462 = (cppVar_460 == 128);
-	BIT_VEC cppVar_463 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_464 = (cppVar_463 << 3) | 4;
-	cppVar_464 = (cppVar_464 & cppMask_un_5_);
-	BIT_VEC cppVar_465 = (0 << 5) | cppVar_464;
-	cppVar_465 = (cppVar_465 & cppMask_un_8_);
-	bool cppVar_467 = (cppVar_465 == 129);
-	BIT_VEC cppVar_468 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_469 = (cppVar_468 << 3) | 4;
-	cppVar_469 = (cppVar_469 & cppMask_un_5_);
-	BIT_VEC cppVar_470 = (0 << 5) | cppVar_469;
-	cppVar_470 = (cppVar_470 & cppMask_un_8_);
-	bool cppVar_472 = (cppVar_470 == 130);
-	BIT_VEC cppVar_473 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_474 = (cppVar_473 << 3) | 4;
-	cppVar_474 = (cppVar_474 & cppMask_un_5_);
-	BIT_VEC cppVar_475 = (0 << 5) | cppVar_474;
-	cppVar_475 = (cppVar_475 & cppMask_un_8_);
-	bool cppVar_477 = (cppVar_475 == 131);
-	BIT_VEC cppVar_478 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_479 = (cppVar_478 << 3) | 4;
-	cppVar_479 = (cppVar_479 & cppMask_un_5_);
-	BIT_VEC cppVar_480 = (0 << 5) | cppVar_479;
-	cppVar_480 = (cppVar_480 & cppMask_un_8_);
-	bool cppVar_482 = (cppVar_480 == 135);
+	bool cppVar_441 = (cppVar_439 == 205);
+	bool cppVar_442 = cppVar_438 || cppVar_441;
+	if (cppVar_442) {
+	BIT_VEC cppVar_444 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_446 = (cppVar_444 << 3) | 5;
+	cppVar_446 = (cppVar_446 & cppMask_un_5_);
+	BIT_VEC cppVar_447 = (0 << 5) | cppVar_446;
+	cppVar_447 = (cppVar_447 & cppMask_un_8_);
+	BIT_VEC cppVar_448 = IRAM.rd(cppVar_447);
+	cppVar_435 = cppVar_448;
+	} else {
+	BIT_VEC cppVar_449;
+	BIT_VEC cppVar_450 = ROM.rd(PC);
+	bool cppVar_452 = (cppVar_450 == 236);
+	BIT_VEC cppVar_453 = ROM.rd(PC);
+	bool cppVar_455 = (cppVar_453 == 204);
+	bool cppVar_456 = cppVar_452 || cppVar_455;
+	if (cppVar_456) {
+	BIT_VEC cppVar_457;
+	BIT_VEC cppVar_459 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_461 = (cppVar_459 << 3) | 4;
+	cppVar_461 = (cppVar_461 & cppMask_un_5_);
+	BIT_VEC cppVar_462 = (0 << 5) | cppVar_461;
+	cppVar_462 = (cppVar_462 & cppMask_un_8_);
+	BIT_VEC cppVar_463 = (cppVar_462 >> 7) & cppMask_un_1_;
+	bool cppVar_465 = (cppVar_463 == 0);
+	if (cppVar_465) {
+	BIT_VEC cppVar_466 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_467 = (cppVar_466 << 3) | 4;
+	cppVar_467 = (cppVar_467 & cppMask_un_5_);
+	BIT_VEC cppVar_468 = (0 << 5) | cppVar_467;
+	cppVar_468 = (cppVar_468 & cppMask_un_8_);
+	BIT_VEC cppVar_469 = IRAM.rd(cppVar_468);
+	cppVar_457 = cppVar_469;
+	} else {
+	BIT_VEC cppVar_470;
+	BIT_VEC cppVar_471 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_472 = (cppVar_471 << 3) | 4;
+	cppVar_472 = (cppVar_472 & cppMask_un_5_);
+	BIT_VEC cppVar_473 = (0 << 5) | cppVar_472;
+	cppVar_473 = (cppVar_473 & cppMask_un_8_);
+	bool cppVar_475 = (cppVar_473 == 128);
+	if (cppVar_475) {
+	cppVar_470 = P0;
+	} else {
+	BIT_VEC cppVar_476;
+	BIT_VEC cppVar_477 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_478 = (cppVar_477 << 3) | 4;
+	cppVar_478 = (cppVar_478 & cppMask_un_5_);
+	BIT_VEC cppVar_479 = (0 << 5) | cppVar_478;
+	cppVar_479 = (cppVar_479 & cppMask_un_8_);
+	bool cppVar_481 = (cppVar_479 == 129);
+	if (cppVar_481) {
+	cppVar_476 = SP;
+	} else {
+	BIT_VEC cppVar_482;
 	BIT_VEC cppVar_483 = (PSW >> 3) & cppMask_un_2_;
 	BIT_VEC cppVar_484 = (cppVar_483 << 3) | 4;
 	cppVar_484 = (cppVar_484 & cppMask_un_5_);
 	BIT_VEC cppVar_485 = (0 << 5) | cppVar_484;
 	cppVar_485 = (cppVar_485 & cppMask_un_8_);
-	bool cppVar_487 = (cppVar_485 == 136);
-	BIT_VEC cppVar_488 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_489 = (cppVar_488 << 3) | 4;
-	cppVar_489 = (cppVar_489 & cppMask_un_5_);
-	BIT_VEC cppVar_490 = (0 << 5) | cppVar_489;
-	cppVar_490 = (cppVar_490 & cppMask_un_8_);
-	bool cppVar_492 = (cppVar_490 == 137);
-	BIT_VEC cppVar_493 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_494 = (cppVar_493 << 3) | 4;
-	cppVar_494 = (cppVar_494 & cppMask_un_5_);
-	BIT_VEC cppVar_495 = (0 << 5) | cppVar_494;
-	cppVar_495 = (cppVar_495 & cppMask_un_8_);
-	bool cppVar_497 = (cppVar_495 == 138);
-	BIT_VEC cppVar_498 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_499 = (cppVar_498 << 3) | 4;
-	cppVar_499 = (cppVar_499 & cppMask_un_5_);
-	BIT_VEC cppVar_500 = (0 << 5) | cppVar_499;
-	cppVar_500 = (cppVar_500 & cppMask_un_8_);
-	bool cppVar_502 = (cppVar_500 == 140);
-	BIT_VEC cppVar_503 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_504 = (cppVar_503 << 3) | 4;
-	cppVar_504 = (cppVar_504 & cppMask_un_5_);
-	BIT_VEC cppVar_505 = (0 << 5) | cppVar_504;
-	cppVar_505 = (cppVar_505 & cppMask_un_8_);
-	bool cppVar_507 = (cppVar_505 == 139);
-	BIT_VEC cppVar_508 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_509 = (cppVar_508 << 3) | 4;
-	cppVar_509 = (cppVar_509 & cppMask_un_5_);
-	BIT_VEC cppVar_510 = (0 << 5) | cppVar_509;
-	cppVar_510 = (cppVar_510 & cppMask_un_8_);
-	bool cppVar_512 = (cppVar_510 == 141);
+	bool cppVar_487 = (cppVar_485 == 130);
+	if (cppVar_487) {
+	cppVar_482 = DPL;
+	} else {
+	BIT_VEC cppVar_488;
+	BIT_VEC cppVar_489 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_490 = (cppVar_489 << 3) | 4;
+	cppVar_490 = (cppVar_490 & cppMask_un_5_);
+	BIT_VEC cppVar_491 = (0 << 5) | cppVar_490;
+	cppVar_491 = (cppVar_491 & cppMask_un_8_);
+	bool cppVar_493 = (cppVar_491 == 131);
+	if (cppVar_493) {
+	cppVar_488 = DPH;
+	} else {
+	BIT_VEC cppVar_494;
+	BIT_VEC cppVar_495 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_496 = (cppVar_495 << 3) | 4;
+	cppVar_496 = (cppVar_496 & cppMask_un_5_);
+	BIT_VEC cppVar_497 = (0 << 5) | cppVar_496;
+	cppVar_497 = (cppVar_497 & cppMask_un_8_);
+	bool cppVar_499 = (cppVar_497 == 135);
+	if (cppVar_499) {
+	cppVar_494 = PCON;
+	} else {
+	BIT_VEC cppVar_500;
+	BIT_VEC cppVar_501 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_502 = (cppVar_501 << 3) | 4;
+	cppVar_502 = (cppVar_502 & cppMask_un_5_);
+	BIT_VEC cppVar_503 = (0 << 5) | cppVar_502;
+	cppVar_503 = (cppVar_503 & cppMask_un_8_);
+	bool cppVar_505 = (cppVar_503 == 136);
+	if (cppVar_505) {
+	cppVar_500 = TCON;
+	} else {
+	BIT_VEC cppVar_506;
+	BIT_VEC cppVar_507 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_508 = (cppVar_507 << 3) | 4;
+	cppVar_508 = (cppVar_508 & cppMask_un_5_);
+	BIT_VEC cppVar_509 = (0 << 5) | cppVar_508;
+	cppVar_509 = (cppVar_509 & cppMask_un_8_);
+	bool cppVar_511 = (cppVar_509 == 137);
+	if (cppVar_511) {
+	cppVar_506 = TMOD;
+	} else {
+	BIT_VEC cppVar_512;
 	BIT_VEC cppVar_513 = (PSW >> 3) & cppMask_un_2_;
 	BIT_VEC cppVar_514 = (cppVar_513 << 3) | 4;
 	cppVar_514 = (cppVar_514 & cppMask_un_5_);
 	BIT_VEC cppVar_515 = (0 << 5) | cppVar_514;
 	cppVar_515 = (cppVar_515 & cppMask_un_8_);
-	bool cppVar_517 = (cppVar_515 == 144);
-	BIT_VEC cppVar_518 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_519 = (cppVar_518 << 3) | 4;
-	cppVar_519 = (cppVar_519 & cppMask_un_5_);
-	BIT_VEC cppVar_520 = (0 << 5) | cppVar_519;
-	cppVar_520 = (cppVar_520 & cppMask_un_8_);
-	bool cppVar_522 = (cppVar_520 == 152);
-	BIT_VEC cppVar_523 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_524 = (cppVar_523 << 3) | 4;
-	cppVar_524 = (cppVar_524 & cppMask_un_5_);
-	BIT_VEC cppVar_525 = (0 << 5) | cppVar_524;
-	cppVar_525 = (cppVar_525 & cppMask_un_8_);
-	bool cppVar_527 = (cppVar_525 == 153);
-	BIT_VEC cppVar_528 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_529 = (cppVar_528 << 3) | 4;
-	cppVar_529 = (cppVar_529 & cppMask_un_5_);
-	BIT_VEC cppVar_530 = (0 << 5) | cppVar_529;
-	cppVar_530 = (cppVar_530 & cppMask_un_8_);
-	bool cppVar_532 = (cppVar_530 == 160);
-	BIT_VEC cppVar_533 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_534 = (cppVar_533 << 3) | 4;
-	cppVar_534 = (cppVar_534 & cppMask_un_5_);
-	BIT_VEC cppVar_535 = (0 << 5) | cppVar_534;
-	cppVar_535 = (cppVar_535 & cppMask_un_8_);
-	bool cppVar_537 = (cppVar_535 == 168);
-	BIT_VEC cppVar_538 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_539 = (cppVar_538 << 3) | 4;
-	cppVar_539 = (cppVar_539 & cppMask_un_5_);
-	BIT_VEC cppVar_540 = (0 << 5) | cppVar_539;
-	cppVar_540 = (cppVar_540 & cppMask_un_8_);
-	bool cppVar_542 = (cppVar_540 == 176);
+	bool cppVar_517 = (cppVar_515 == 138);
+	if (cppVar_517) {
+	cppVar_512 = TL0;
+	} else {
+	BIT_VEC cppVar_518;
+	BIT_VEC cppVar_519 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_520 = (cppVar_519 << 3) | 4;
+	cppVar_520 = (cppVar_520 & cppMask_un_5_);
+	BIT_VEC cppVar_521 = (0 << 5) | cppVar_520;
+	cppVar_521 = (cppVar_521 & cppMask_un_8_);
+	bool cppVar_523 = (cppVar_521 == 140);
+	if (cppVar_523) {
+	cppVar_518 = TH0;
+	} else {
+	BIT_VEC cppVar_524;
+	BIT_VEC cppVar_525 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_526 = (cppVar_525 << 3) | 4;
+	cppVar_526 = (cppVar_526 & cppMask_un_5_);
+	BIT_VEC cppVar_527 = (0 << 5) | cppVar_526;
+	cppVar_527 = (cppVar_527 & cppMask_un_8_);
+	bool cppVar_529 = (cppVar_527 == 139);
+	if (cppVar_529) {
+	cppVar_524 = TL1;
+	} else {
+	BIT_VEC cppVar_530;
+	BIT_VEC cppVar_531 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_532 = (cppVar_531 << 3) | 4;
+	cppVar_532 = (cppVar_532 & cppMask_un_5_);
+	BIT_VEC cppVar_533 = (0 << 5) | cppVar_532;
+	cppVar_533 = (cppVar_533 & cppMask_un_8_);
+	bool cppVar_535 = (cppVar_533 == 141);
+	if (cppVar_535) {
+	cppVar_530 = TH1;
+	} else {
+	BIT_VEC cppVar_536;
+	BIT_VEC cppVar_537 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_538 = (cppVar_537 << 3) | 4;
+	cppVar_538 = (cppVar_538 & cppMask_un_5_);
+	BIT_VEC cppVar_539 = (0 << 5) | cppVar_538;
+	cppVar_539 = (cppVar_539 & cppMask_un_8_);
+	bool cppVar_541 = (cppVar_539 == 144);
+	if (cppVar_541) {
+	cppVar_536 = P1;
+	} else {
+	BIT_VEC cppVar_542;
 	BIT_VEC cppVar_543 = (PSW >> 3) & cppMask_un_2_;
 	BIT_VEC cppVar_544 = (cppVar_543 << 3) | 4;
 	cppVar_544 = (cppVar_544 & cppMask_un_5_);
 	BIT_VEC cppVar_545 = (0 << 5) | cppVar_544;
 	cppVar_545 = (cppVar_545 & cppMask_un_8_);
-	bool cppVar_547 = (cppVar_545 == 184);
-	BIT_VEC cppVar_548 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_549 = (cppVar_548 << 3) | 4;
-	cppVar_549 = (cppVar_549 & cppMask_un_5_);
-	BIT_VEC cppVar_550 = (0 << 5) | cppVar_549;
-	cppVar_550 = (cppVar_550 & cppMask_un_8_);
-	bool cppVar_552 = (cppVar_550 == 208);
-	BIT_VEC cppVar_553 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_554 = (cppVar_553 << 3) | 4;
-	cppVar_554 = (cppVar_554 & cppMask_un_5_);
-	BIT_VEC cppVar_555 = (0 << 5) | cppVar_554;
-	cppVar_555 = (cppVar_555 & cppMask_un_8_);
-	bool cppVar_557 = (cppVar_555 == 224);
-	BIT_VEC cppVar_558 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_559 = (cppVar_558 << 3) | 4;
-	cppVar_559 = (cppVar_559 & cppMask_un_5_);
-	BIT_VEC cppVar_560 = (0 << 5) | cppVar_559;
-	cppVar_560 = (cppVar_560 & cppMask_un_8_);
-	bool cppVar_562 = (cppVar_560 == 240);
-	BIT_VEC cppVar_564 = (cppVar_562) ? B : 0;
-	BIT_VEC cppVar_565 = (cppVar_557) ? ACC : cppVar_564;
-	BIT_VEC cppVar_566 = (cppVar_552) ? PSW : cppVar_565;
-	BIT_VEC cppVar_567 = (cppVar_547) ? IP : cppVar_566;
-	BIT_VEC cppVar_568 = (cppVar_542) ? P3 : cppVar_567;
-	BIT_VEC cppVar_569 = (cppVar_537) ? IE : cppVar_568;
-	BIT_VEC cppVar_570 = (cppVar_532) ? P2 : cppVar_569;
-	BIT_VEC cppVar_571 = (cppVar_527) ? SBUF : cppVar_570;
-	BIT_VEC cppVar_572 = (cppVar_522) ? SCON : cppVar_571;
-	BIT_VEC cppVar_573 = (cppVar_517) ? P1 : cppVar_572;
-	BIT_VEC cppVar_574 = (cppVar_512) ? TH1 : cppVar_573;
-	BIT_VEC cppVar_575 = (cppVar_507) ? TL1 : cppVar_574;
-	BIT_VEC cppVar_576 = (cppVar_502) ? TH0 : cppVar_575;
-	BIT_VEC cppVar_577 = (cppVar_497) ? TL0 : cppVar_576;
-	BIT_VEC cppVar_578 = (cppVar_492) ? TMOD : cppVar_577;
-	BIT_VEC cppVar_579 = (cppVar_487) ? TCON : cppVar_578;
-	BIT_VEC cppVar_580 = (cppVar_482) ? PCON : cppVar_579;
-	BIT_VEC cppVar_581 = (cppVar_477) ? DPH : cppVar_580;
-	BIT_VEC cppVar_582 = (cppVar_472) ? DPL : cppVar_581;
-	BIT_VEC cppVar_583 = (cppVar_467) ? SP : cppVar_582;
-	BIT_VEC cppVar_584 = (cppVar_462) ? P0 : cppVar_583;
-	BIT_VEC cppVar_585 = (cppVar_453) ? cppVar_457 : cppVar_584;
-	BIT_VEC cppVar_586 = ROM.rd(PC);
-	bool cppVar_588 = (cppVar_586 == 235);
-	BIT_VEC cppVar_589 = ROM.rd(PC);
-	bool cppVar_591 = (cppVar_589 == 203);
-	bool cppVar_592 = cppVar_588 || cppVar_591;
-	BIT_VEC cppVar_594 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_596 = (cppVar_594 << 3) | 3;
-	cppVar_596 = (cppVar_596 & cppMask_un_5_);
-	BIT_VEC cppVar_597 = (0 << 5) | cppVar_596;
-	cppVar_597 = (cppVar_597 & cppMask_un_8_);
-	BIT_VEC cppVar_598 = (cppVar_597 >> 7) & cppMask_un_1_;
-	bool cppVar_600 = (cppVar_598 == 0);
-	BIT_VEC cppVar_601 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_602 = (cppVar_601 << 3) | 3;
-	cppVar_602 = (cppVar_602 & cppMask_un_5_);
-	BIT_VEC cppVar_603 = (0 << 5) | cppVar_602;
-	cppVar_603 = (cppVar_603 & cppMask_un_8_);
-	BIT_VEC cppVar_604 = IRAM.rd(cppVar_603);
-	BIT_VEC cppVar_605 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_606 = (cppVar_605 << 3) | 3;
-	cppVar_606 = (cppVar_606 & cppMask_un_5_);
-	BIT_VEC cppVar_607 = (0 << 5) | cppVar_606;
-	cppVar_607 = (cppVar_607 & cppMask_un_8_);
-	bool cppVar_609 = (cppVar_607 == 128);
-	BIT_VEC cppVar_610 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_611 = (cppVar_610 << 3) | 3;
-	cppVar_611 = (cppVar_611 & cppMask_un_5_);
-	BIT_VEC cppVar_612 = (0 << 5) | cppVar_611;
-	cppVar_612 = (cppVar_612 & cppMask_un_8_);
-	bool cppVar_614 = (cppVar_612 == 129);
-	BIT_VEC cppVar_615 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_616 = (cppVar_615 << 3) | 3;
-	cppVar_616 = (cppVar_616 & cppMask_un_5_);
-	BIT_VEC cppVar_617 = (0 << 5) | cppVar_616;
-	cppVar_617 = (cppVar_617 & cppMask_un_8_);
-	bool cppVar_619 = (cppVar_617 == 130);
-	BIT_VEC cppVar_620 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_621 = (cppVar_620 << 3) | 3;
-	cppVar_621 = (cppVar_621 & cppMask_un_5_);
-	BIT_VEC cppVar_622 = (0 << 5) | cppVar_621;
-	cppVar_622 = (cppVar_622 & cppMask_un_8_);
-	bool cppVar_624 = (cppVar_622 == 131);
+	bool cppVar_547 = (cppVar_545 == 152);
+	if (cppVar_547) {
+	cppVar_542 = SCON;
+	} else {
+	BIT_VEC cppVar_548;
+	BIT_VEC cppVar_549 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_550 = (cppVar_549 << 3) | 4;
+	cppVar_550 = (cppVar_550 & cppMask_un_5_);
+	BIT_VEC cppVar_551 = (0 << 5) | cppVar_550;
+	cppVar_551 = (cppVar_551 & cppMask_un_8_);
+	bool cppVar_553 = (cppVar_551 == 153);
+	if (cppVar_553) {
+	cppVar_548 = SBUF;
+	} else {
+	BIT_VEC cppVar_554;
+	BIT_VEC cppVar_555 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_556 = (cppVar_555 << 3) | 4;
+	cppVar_556 = (cppVar_556 & cppMask_un_5_);
+	BIT_VEC cppVar_557 = (0 << 5) | cppVar_556;
+	cppVar_557 = (cppVar_557 & cppMask_un_8_);
+	bool cppVar_559 = (cppVar_557 == 160);
+	if (cppVar_559) {
+	cppVar_554 = P2;
+	} else {
+	BIT_VEC cppVar_560;
+	BIT_VEC cppVar_561 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_562 = (cppVar_561 << 3) | 4;
+	cppVar_562 = (cppVar_562 & cppMask_un_5_);
+	BIT_VEC cppVar_563 = (0 << 5) | cppVar_562;
+	cppVar_563 = (cppVar_563 & cppMask_un_8_);
+	bool cppVar_565 = (cppVar_563 == 168);
+	if (cppVar_565) {
+	cppVar_560 = IE;
+	} else {
+	BIT_VEC cppVar_566;
+	BIT_VEC cppVar_567 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_568 = (cppVar_567 << 3) | 4;
+	cppVar_568 = (cppVar_568 & cppMask_un_5_);
+	BIT_VEC cppVar_569 = (0 << 5) | cppVar_568;
+	cppVar_569 = (cppVar_569 & cppMask_un_8_);
+	bool cppVar_571 = (cppVar_569 == 176);
+	if (cppVar_571) {
+	cppVar_566 = P3;
+	} else {
+	BIT_VEC cppVar_572;
+	BIT_VEC cppVar_573 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_574 = (cppVar_573 << 3) | 4;
+	cppVar_574 = (cppVar_574 & cppMask_un_5_);
+	BIT_VEC cppVar_575 = (0 << 5) | cppVar_574;
+	cppVar_575 = (cppVar_575 & cppMask_un_8_);
+	bool cppVar_577 = (cppVar_575 == 184);
+	if (cppVar_577) {
+	cppVar_572 = IP;
+	} else {
+	BIT_VEC cppVar_578;
+	BIT_VEC cppVar_579 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_580 = (cppVar_579 << 3) | 4;
+	cppVar_580 = (cppVar_580 & cppMask_un_5_);
+	BIT_VEC cppVar_581 = (0 << 5) | cppVar_580;
+	cppVar_581 = (cppVar_581 & cppMask_un_8_);
+	bool cppVar_583 = (cppVar_581 == 208);
+	if (cppVar_583) {
+	cppVar_578 = PSW;
+	} else {
+	BIT_VEC cppVar_584;
+	BIT_VEC cppVar_585 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_586 = (cppVar_585 << 3) | 4;
+	cppVar_586 = (cppVar_586 & cppMask_un_5_);
+	BIT_VEC cppVar_587 = (0 << 5) | cppVar_586;
+	cppVar_587 = (cppVar_587 & cppMask_un_8_);
+	bool cppVar_589 = (cppVar_587 == 224);
+	if (cppVar_589) {
+	cppVar_584 = ACC;
+	} else {
+	BIT_VEC cppVar_590;
+	BIT_VEC cppVar_591 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_592 = (cppVar_591 << 3) | 4;
+	cppVar_592 = (cppVar_592 & cppMask_un_5_);
+	BIT_VEC cppVar_593 = (0 << 5) | cppVar_592;
+	cppVar_593 = (cppVar_593 & cppMask_un_8_);
+	bool cppVar_595 = (cppVar_593 == 240);
+	if (cppVar_595) {
+	cppVar_590 = B;
+	} else {
+	cppVar_590 = 0;
+	}
+	cppVar_584 = cppVar_590;
+	}
+	cppVar_578 = cppVar_584;
+	}
+	cppVar_572 = cppVar_578;
+	}
+	cppVar_566 = cppVar_572;
+	}
+	cppVar_560 = cppVar_566;
+	}
+	cppVar_554 = cppVar_560;
+	}
+	cppVar_548 = cppVar_554;
+	}
+	cppVar_542 = cppVar_548;
+	}
+	cppVar_536 = cppVar_542;
+	}
+	cppVar_530 = cppVar_536;
+	}
+	cppVar_524 = cppVar_530;
+	}
+	cppVar_518 = cppVar_524;
+	}
+	cppVar_512 = cppVar_518;
+	}
+	cppVar_506 = cppVar_512;
+	}
+	cppVar_500 = cppVar_506;
+	}
+	cppVar_494 = cppVar_500;
+	}
+	cppVar_488 = cppVar_494;
+	}
+	cppVar_482 = cppVar_488;
+	}
+	cppVar_476 = cppVar_482;
+	}
+	cppVar_470 = cppVar_476;
+	}
+	cppVar_457 = cppVar_470;
+	}
+	cppVar_449 = cppVar_457;
+	} else {
+	BIT_VEC cppVar_597;
+	BIT_VEC cppVar_598 = ROM.rd(PC);
+	bool cppVar_600 = (cppVar_598 == 235);
+	BIT_VEC cppVar_601 = ROM.rd(PC);
+	bool cppVar_603 = (cppVar_601 == 203);
+	bool cppVar_604 = cppVar_600 || cppVar_603;
+	if (cppVar_604) {
+	BIT_VEC cppVar_605;
+	BIT_VEC cppVar_607 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_609 = (cppVar_607 << 3) | 3;
+	cppVar_609 = (cppVar_609 & cppMask_un_5_);
+	BIT_VEC cppVar_610 = (0 << 5) | cppVar_609;
+	cppVar_610 = (cppVar_610 & cppMask_un_8_);
+	BIT_VEC cppVar_611 = (cppVar_610 >> 7) & cppMask_un_1_;
+	bool cppVar_613 = (cppVar_611 == 0);
+	if (cppVar_613) {
+	BIT_VEC cppVar_614 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_615 = (cppVar_614 << 3) | 3;
+	cppVar_615 = (cppVar_615 & cppMask_un_5_);
+	BIT_VEC cppVar_616 = (0 << 5) | cppVar_615;
+	cppVar_616 = (cppVar_616 & cppMask_un_8_);
+	BIT_VEC cppVar_617 = IRAM.rd(cppVar_616);
+	cppVar_605 = cppVar_617;
+	} else {
+	BIT_VEC cppVar_618;
+	BIT_VEC cppVar_619 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_620 = (cppVar_619 << 3) | 3;
+	cppVar_620 = (cppVar_620 & cppMask_un_5_);
+	BIT_VEC cppVar_621 = (0 << 5) | cppVar_620;
+	cppVar_621 = (cppVar_621 & cppMask_un_8_);
+	bool cppVar_623 = (cppVar_621 == 128);
+	if (cppVar_623) {
+	cppVar_618 = P0;
+	} else {
+	BIT_VEC cppVar_624;
 	BIT_VEC cppVar_625 = (PSW >> 3) & cppMask_un_2_;
 	BIT_VEC cppVar_626 = (cppVar_625 << 3) | 3;
 	cppVar_626 = (cppVar_626 & cppMask_un_5_);
 	BIT_VEC cppVar_627 = (0 << 5) | cppVar_626;
 	cppVar_627 = (cppVar_627 & cppMask_un_8_);
-	bool cppVar_629 = (cppVar_627 == 135);
-	BIT_VEC cppVar_630 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_631 = (cppVar_630 << 3) | 3;
-	cppVar_631 = (cppVar_631 & cppMask_un_5_);
-	BIT_VEC cppVar_632 = (0 << 5) | cppVar_631;
-	cppVar_632 = (cppVar_632 & cppMask_un_8_);
-	bool cppVar_634 = (cppVar_632 == 136);
-	BIT_VEC cppVar_635 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_636 = (cppVar_635 << 3) | 3;
-	cppVar_636 = (cppVar_636 & cppMask_un_5_);
-	BIT_VEC cppVar_637 = (0 << 5) | cppVar_636;
-	cppVar_637 = (cppVar_637 & cppMask_un_8_);
-	bool cppVar_639 = (cppVar_637 == 137);
-	BIT_VEC cppVar_640 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_641 = (cppVar_640 << 3) | 3;
-	cppVar_641 = (cppVar_641 & cppMask_un_5_);
-	BIT_VEC cppVar_642 = (0 << 5) | cppVar_641;
-	cppVar_642 = (cppVar_642 & cppMask_un_8_);
-	bool cppVar_644 = (cppVar_642 == 138);
-	BIT_VEC cppVar_645 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_646 = (cppVar_645 << 3) | 3;
-	cppVar_646 = (cppVar_646 & cppMask_un_5_);
-	BIT_VEC cppVar_647 = (0 << 5) | cppVar_646;
-	cppVar_647 = (cppVar_647 & cppMask_un_8_);
-	bool cppVar_649 = (cppVar_647 == 140);
-	BIT_VEC cppVar_650 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_651 = (cppVar_650 << 3) | 3;
-	cppVar_651 = (cppVar_651 & cppMask_un_5_);
-	BIT_VEC cppVar_652 = (0 << 5) | cppVar_651;
-	cppVar_652 = (cppVar_652 & cppMask_un_8_);
-	bool cppVar_654 = (cppVar_652 == 139);
+	bool cppVar_629 = (cppVar_627 == 129);
+	if (cppVar_629) {
+	cppVar_624 = SP;
+	} else {
+	BIT_VEC cppVar_630;
+	BIT_VEC cppVar_631 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_632 = (cppVar_631 << 3) | 3;
+	cppVar_632 = (cppVar_632 & cppMask_un_5_);
+	BIT_VEC cppVar_633 = (0 << 5) | cppVar_632;
+	cppVar_633 = (cppVar_633 & cppMask_un_8_);
+	bool cppVar_635 = (cppVar_633 == 130);
+	if (cppVar_635) {
+	cppVar_630 = DPL;
+	} else {
+	BIT_VEC cppVar_636;
+	BIT_VEC cppVar_637 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_638 = (cppVar_637 << 3) | 3;
+	cppVar_638 = (cppVar_638 & cppMask_un_5_);
+	BIT_VEC cppVar_639 = (0 << 5) | cppVar_638;
+	cppVar_639 = (cppVar_639 & cppMask_un_8_);
+	bool cppVar_641 = (cppVar_639 == 131);
+	if (cppVar_641) {
+	cppVar_636 = DPH;
+	} else {
+	BIT_VEC cppVar_642;
+	BIT_VEC cppVar_643 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_644 = (cppVar_643 << 3) | 3;
+	cppVar_644 = (cppVar_644 & cppMask_un_5_);
+	BIT_VEC cppVar_645 = (0 << 5) | cppVar_644;
+	cppVar_645 = (cppVar_645 & cppMask_un_8_);
+	bool cppVar_647 = (cppVar_645 == 135);
+	if (cppVar_647) {
+	cppVar_642 = PCON;
+	} else {
+	BIT_VEC cppVar_648;
+	BIT_VEC cppVar_649 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_650 = (cppVar_649 << 3) | 3;
+	cppVar_650 = (cppVar_650 & cppMask_un_5_);
+	BIT_VEC cppVar_651 = (0 << 5) | cppVar_650;
+	cppVar_651 = (cppVar_651 & cppMask_un_8_);
+	bool cppVar_653 = (cppVar_651 == 136);
+	if (cppVar_653) {
+	cppVar_648 = TCON;
+	} else {
+	BIT_VEC cppVar_654;
 	BIT_VEC cppVar_655 = (PSW >> 3) & cppMask_un_2_;
 	BIT_VEC cppVar_656 = (cppVar_655 << 3) | 3;
 	cppVar_656 = (cppVar_656 & cppMask_un_5_);
 	BIT_VEC cppVar_657 = (0 << 5) | cppVar_656;
 	cppVar_657 = (cppVar_657 & cppMask_un_8_);
-	bool cppVar_659 = (cppVar_657 == 141);
-	BIT_VEC cppVar_660 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_661 = (cppVar_660 << 3) | 3;
-	cppVar_661 = (cppVar_661 & cppMask_un_5_);
-	BIT_VEC cppVar_662 = (0 << 5) | cppVar_661;
-	cppVar_662 = (cppVar_662 & cppMask_un_8_);
-	bool cppVar_664 = (cppVar_662 == 144);
-	BIT_VEC cppVar_665 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_666 = (cppVar_665 << 3) | 3;
-	cppVar_666 = (cppVar_666 & cppMask_un_5_);
-	BIT_VEC cppVar_667 = (0 << 5) | cppVar_666;
-	cppVar_667 = (cppVar_667 & cppMask_un_8_);
-	bool cppVar_669 = (cppVar_667 == 152);
-	BIT_VEC cppVar_670 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_671 = (cppVar_670 << 3) | 3;
-	cppVar_671 = (cppVar_671 & cppMask_un_5_);
-	BIT_VEC cppVar_672 = (0 << 5) | cppVar_671;
-	cppVar_672 = (cppVar_672 & cppMask_un_8_);
-	bool cppVar_674 = (cppVar_672 == 153);
-	BIT_VEC cppVar_675 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_676 = (cppVar_675 << 3) | 3;
-	cppVar_676 = (cppVar_676 & cppMask_un_5_);
-	BIT_VEC cppVar_677 = (0 << 5) | cppVar_676;
-	cppVar_677 = (cppVar_677 & cppMask_un_8_);
-	bool cppVar_679 = (cppVar_677 == 160);
-	BIT_VEC cppVar_680 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_681 = (cppVar_680 << 3) | 3;
-	cppVar_681 = (cppVar_681 & cppMask_un_5_);
-	BIT_VEC cppVar_682 = (0 << 5) | cppVar_681;
-	cppVar_682 = (cppVar_682 & cppMask_un_8_);
-	bool cppVar_684 = (cppVar_682 == 168);
+	bool cppVar_659 = (cppVar_657 == 137);
+	if (cppVar_659) {
+	cppVar_654 = TMOD;
+	} else {
+	BIT_VEC cppVar_660;
+	BIT_VEC cppVar_661 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_662 = (cppVar_661 << 3) | 3;
+	cppVar_662 = (cppVar_662 & cppMask_un_5_);
+	BIT_VEC cppVar_663 = (0 << 5) | cppVar_662;
+	cppVar_663 = (cppVar_663 & cppMask_un_8_);
+	bool cppVar_665 = (cppVar_663 == 138);
+	if (cppVar_665) {
+	cppVar_660 = TL0;
+	} else {
+	BIT_VEC cppVar_666;
+	BIT_VEC cppVar_667 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_668 = (cppVar_667 << 3) | 3;
+	cppVar_668 = (cppVar_668 & cppMask_un_5_);
+	BIT_VEC cppVar_669 = (0 << 5) | cppVar_668;
+	cppVar_669 = (cppVar_669 & cppMask_un_8_);
+	bool cppVar_671 = (cppVar_669 == 140);
+	if (cppVar_671) {
+	cppVar_666 = TH0;
+	} else {
+	BIT_VEC cppVar_672;
+	BIT_VEC cppVar_673 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_674 = (cppVar_673 << 3) | 3;
+	cppVar_674 = (cppVar_674 & cppMask_un_5_);
+	BIT_VEC cppVar_675 = (0 << 5) | cppVar_674;
+	cppVar_675 = (cppVar_675 & cppMask_un_8_);
+	bool cppVar_677 = (cppVar_675 == 139);
+	if (cppVar_677) {
+	cppVar_672 = TL1;
+	} else {
+	BIT_VEC cppVar_678;
+	BIT_VEC cppVar_679 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_680 = (cppVar_679 << 3) | 3;
+	cppVar_680 = (cppVar_680 & cppMask_un_5_);
+	BIT_VEC cppVar_681 = (0 << 5) | cppVar_680;
+	cppVar_681 = (cppVar_681 & cppMask_un_8_);
+	bool cppVar_683 = (cppVar_681 == 141);
+	if (cppVar_683) {
+	cppVar_678 = TH1;
+	} else {
+	BIT_VEC cppVar_684;
 	BIT_VEC cppVar_685 = (PSW >> 3) & cppMask_un_2_;
 	BIT_VEC cppVar_686 = (cppVar_685 << 3) | 3;
 	cppVar_686 = (cppVar_686 & cppMask_un_5_);
 	BIT_VEC cppVar_687 = (0 << 5) | cppVar_686;
 	cppVar_687 = (cppVar_687 & cppMask_un_8_);
-	bool cppVar_689 = (cppVar_687 == 176);
-	BIT_VEC cppVar_690 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_691 = (cppVar_690 << 3) | 3;
-	cppVar_691 = (cppVar_691 & cppMask_un_5_);
-	BIT_VEC cppVar_692 = (0 << 5) | cppVar_691;
-	cppVar_692 = (cppVar_692 & cppMask_un_8_);
-	bool cppVar_694 = (cppVar_692 == 184);
-	BIT_VEC cppVar_695 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_696 = (cppVar_695 << 3) | 3;
-	cppVar_696 = (cppVar_696 & cppMask_un_5_);
-	BIT_VEC cppVar_697 = (0 << 5) | cppVar_696;
-	cppVar_697 = (cppVar_697 & cppMask_un_8_);
-	bool cppVar_699 = (cppVar_697 == 208);
-	BIT_VEC cppVar_700 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_701 = (cppVar_700 << 3) | 3;
-	cppVar_701 = (cppVar_701 & cppMask_un_5_);
-	BIT_VEC cppVar_702 = (0 << 5) | cppVar_701;
-	cppVar_702 = (cppVar_702 & cppMask_un_8_);
-	bool cppVar_704 = (cppVar_702 == 224);
-	BIT_VEC cppVar_705 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_706 = (cppVar_705 << 3) | 3;
-	cppVar_706 = (cppVar_706 & cppMask_un_5_);
-	BIT_VEC cppVar_707 = (0 << 5) | cppVar_706;
-	cppVar_707 = (cppVar_707 & cppMask_un_8_);
-	bool cppVar_709 = (cppVar_707 == 240);
-	BIT_VEC cppVar_711 = (cppVar_709) ? B : 0;
-	BIT_VEC cppVar_712 = (cppVar_704) ? ACC : cppVar_711;
-	BIT_VEC cppVar_713 = (cppVar_699) ? PSW : cppVar_712;
-	BIT_VEC cppVar_714 = (cppVar_694) ? IP : cppVar_713;
-	BIT_VEC cppVar_715 = (cppVar_689) ? P3 : cppVar_714;
-	BIT_VEC cppVar_716 = (cppVar_684) ? IE : cppVar_715;
-	BIT_VEC cppVar_717 = (cppVar_679) ? P2 : cppVar_716;
-	BIT_VEC cppVar_718 = (cppVar_674) ? SBUF : cppVar_717;
-	BIT_VEC cppVar_719 = (cppVar_669) ? SCON : cppVar_718;
-	BIT_VEC cppVar_720 = (cppVar_664) ? P1 : cppVar_719;
-	BIT_VEC cppVar_721 = (cppVar_659) ? TH1 : cppVar_720;
-	BIT_VEC cppVar_722 = (cppVar_654) ? TL1 : cppVar_721;
-	BIT_VEC cppVar_723 = (cppVar_649) ? TH0 : cppVar_722;
-	BIT_VEC cppVar_724 = (cppVar_644) ? TL0 : cppVar_723;
-	BIT_VEC cppVar_725 = (cppVar_639) ? TMOD : cppVar_724;
-	BIT_VEC cppVar_726 = (cppVar_634) ? TCON : cppVar_725;
-	BIT_VEC cppVar_727 = (cppVar_629) ? PCON : cppVar_726;
-	BIT_VEC cppVar_728 = (cppVar_624) ? DPH : cppVar_727;
-	BIT_VEC cppVar_729 = (cppVar_619) ? DPL : cppVar_728;
-	BIT_VEC cppVar_730 = (cppVar_614) ? SP : cppVar_729;
-	BIT_VEC cppVar_731 = (cppVar_609) ? P0 : cppVar_730;
-	BIT_VEC cppVar_732 = (cppVar_600) ? cppVar_604 : cppVar_731;
-	BIT_VEC cppVar_733 = ROM.rd(PC);
-	bool cppVar_735 = (cppVar_733 == 234);
-	BIT_VEC cppVar_736 = ROM.rd(PC);
-	bool cppVar_738 = (cppVar_736 == 202);
-	bool cppVar_739 = cppVar_735 || cppVar_738;
-	BIT_VEC cppVar_741 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_743 = (cppVar_741 << 3) | 2;
-	cppVar_743 = (cppVar_743 & cppMask_un_5_);
-	BIT_VEC cppVar_744 = (0 << 5) | cppVar_743;
-	cppVar_744 = (cppVar_744 & cppMask_un_8_);
-	BIT_VEC cppVar_745 = (cppVar_744 >> 7) & cppMask_un_1_;
-	bool cppVar_747 = (cppVar_745 == 0);
-	BIT_VEC cppVar_748 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_749 = (cppVar_748 << 3) | 2;
-	cppVar_749 = (cppVar_749 & cppMask_un_5_);
-	BIT_VEC cppVar_750 = (0 << 5) | cppVar_749;
-	cppVar_750 = (cppVar_750 & cppMask_un_8_);
-	BIT_VEC cppVar_751 = IRAM.rd(cppVar_750);
-	BIT_VEC cppVar_752 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_753 = (cppVar_752 << 3) | 2;
-	cppVar_753 = (cppVar_753 & cppMask_un_5_);
-	BIT_VEC cppVar_754 = (0 << 5) | cppVar_753;
-	cppVar_754 = (cppVar_754 & cppMask_un_8_);
-	bool cppVar_756 = (cppVar_754 == 128);
-	BIT_VEC cppVar_757 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_758 = (cppVar_757 << 3) | 2;
-	cppVar_758 = (cppVar_758 & cppMask_un_5_);
-	BIT_VEC cppVar_759 = (0 << 5) | cppVar_758;
-	cppVar_759 = (cppVar_759 & cppMask_un_8_);
-	bool cppVar_761 = (cppVar_759 == 129);
+	bool cppVar_689 = (cppVar_687 == 144);
+	if (cppVar_689) {
+	cppVar_684 = P1;
+	} else {
+	BIT_VEC cppVar_690;
+	BIT_VEC cppVar_691 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_692 = (cppVar_691 << 3) | 3;
+	cppVar_692 = (cppVar_692 & cppMask_un_5_);
+	BIT_VEC cppVar_693 = (0 << 5) | cppVar_692;
+	cppVar_693 = (cppVar_693 & cppMask_un_8_);
+	bool cppVar_695 = (cppVar_693 == 152);
+	if (cppVar_695) {
+	cppVar_690 = SCON;
+	} else {
+	BIT_VEC cppVar_696;
+	BIT_VEC cppVar_697 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_698 = (cppVar_697 << 3) | 3;
+	cppVar_698 = (cppVar_698 & cppMask_un_5_);
+	BIT_VEC cppVar_699 = (0 << 5) | cppVar_698;
+	cppVar_699 = (cppVar_699 & cppMask_un_8_);
+	bool cppVar_701 = (cppVar_699 == 153);
+	if (cppVar_701) {
+	cppVar_696 = SBUF;
+	} else {
+	BIT_VEC cppVar_702;
+	BIT_VEC cppVar_703 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_704 = (cppVar_703 << 3) | 3;
+	cppVar_704 = (cppVar_704 & cppMask_un_5_);
+	BIT_VEC cppVar_705 = (0 << 5) | cppVar_704;
+	cppVar_705 = (cppVar_705 & cppMask_un_8_);
+	bool cppVar_707 = (cppVar_705 == 160);
+	if (cppVar_707) {
+	cppVar_702 = P2;
+	} else {
+	BIT_VEC cppVar_708;
+	BIT_VEC cppVar_709 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_710 = (cppVar_709 << 3) | 3;
+	cppVar_710 = (cppVar_710 & cppMask_un_5_);
+	BIT_VEC cppVar_711 = (0 << 5) | cppVar_710;
+	cppVar_711 = (cppVar_711 & cppMask_un_8_);
+	bool cppVar_713 = (cppVar_711 == 168);
+	if (cppVar_713) {
+	cppVar_708 = IE;
+	} else {
+	BIT_VEC cppVar_714;
+	BIT_VEC cppVar_715 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_716 = (cppVar_715 << 3) | 3;
+	cppVar_716 = (cppVar_716 & cppMask_un_5_);
+	BIT_VEC cppVar_717 = (0 << 5) | cppVar_716;
+	cppVar_717 = (cppVar_717 & cppMask_un_8_);
+	bool cppVar_719 = (cppVar_717 == 176);
+	if (cppVar_719) {
+	cppVar_714 = P3;
+	} else {
+	BIT_VEC cppVar_720;
+	BIT_VEC cppVar_721 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_722 = (cppVar_721 << 3) | 3;
+	cppVar_722 = (cppVar_722 & cppMask_un_5_);
+	BIT_VEC cppVar_723 = (0 << 5) | cppVar_722;
+	cppVar_723 = (cppVar_723 & cppMask_un_8_);
+	bool cppVar_725 = (cppVar_723 == 184);
+	if (cppVar_725) {
+	cppVar_720 = IP;
+	} else {
+	BIT_VEC cppVar_726;
+	BIT_VEC cppVar_727 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_728 = (cppVar_727 << 3) | 3;
+	cppVar_728 = (cppVar_728 & cppMask_un_5_);
+	BIT_VEC cppVar_729 = (0 << 5) | cppVar_728;
+	cppVar_729 = (cppVar_729 & cppMask_un_8_);
+	bool cppVar_731 = (cppVar_729 == 208);
+	if (cppVar_731) {
+	cppVar_726 = PSW;
+	} else {
+	BIT_VEC cppVar_732;
+	BIT_VEC cppVar_733 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_734 = (cppVar_733 << 3) | 3;
+	cppVar_734 = (cppVar_734 & cppMask_un_5_);
+	BIT_VEC cppVar_735 = (0 << 5) | cppVar_734;
+	cppVar_735 = (cppVar_735 & cppMask_un_8_);
+	bool cppVar_737 = (cppVar_735 == 224);
+	if (cppVar_737) {
+	cppVar_732 = ACC;
+	} else {
+	BIT_VEC cppVar_738;
+	BIT_VEC cppVar_739 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_740 = (cppVar_739 << 3) | 3;
+	cppVar_740 = (cppVar_740 & cppMask_un_5_);
+	BIT_VEC cppVar_741 = (0 << 5) | cppVar_740;
+	cppVar_741 = (cppVar_741 & cppMask_un_8_);
+	bool cppVar_743 = (cppVar_741 == 240);
+	if (cppVar_743) {
+	cppVar_738 = B;
+	} else {
+	cppVar_738 = 0;
+	}
+	cppVar_732 = cppVar_738;
+	}
+	cppVar_726 = cppVar_732;
+	}
+	cppVar_720 = cppVar_726;
+	}
+	cppVar_714 = cppVar_720;
+	}
+	cppVar_708 = cppVar_714;
+	}
+	cppVar_702 = cppVar_708;
+	}
+	cppVar_696 = cppVar_702;
+	}
+	cppVar_690 = cppVar_696;
+	}
+	cppVar_684 = cppVar_690;
+	}
+	cppVar_678 = cppVar_684;
+	}
+	cppVar_672 = cppVar_678;
+	}
+	cppVar_666 = cppVar_672;
+	}
+	cppVar_660 = cppVar_666;
+	}
+	cppVar_654 = cppVar_660;
+	}
+	cppVar_648 = cppVar_654;
+	}
+	cppVar_642 = cppVar_648;
+	}
+	cppVar_636 = cppVar_642;
+	}
+	cppVar_630 = cppVar_636;
+	}
+	cppVar_624 = cppVar_630;
+	}
+	cppVar_618 = cppVar_624;
+	}
+	cppVar_605 = cppVar_618;
+	}
+	cppVar_597 = cppVar_605;
+	} else {
+	BIT_VEC cppVar_745;
+	BIT_VEC cppVar_746 = ROM.rd(PC);
+	bool cppVar_748 = (cppVar_746 == 234);
+	BIT_VEC cppVar_749 = ROM.rd(PC);
+	bool cppVar_751 = (cppVar_749 == 202);
+	bool cppVar_752 = cppVar_748 || cppVar_751;
+	if (cppVar_752) {
+	BIT_VEC cppVar_753;
+	BIT_VEC cppVar_755 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_757 = (cppVar_755 << 3) | 2;
+	cppVar_757 = (cppVar_757 & cppMask_un_5_);
+	BIT_VEC cppVar_758 = (0 << 5) | cppVar_757;
+	cppVar_758 = (cppVar_758 & cppMask_un_8_);
+	BIT_VEC cppVar_759 = (cppVar_758 >> 7) & cppMask_un_1_;
+	bool cppVar_761 = (cppVar_759 == 0);
+	if (cppVar_761) {
 	BIT_VEC cppVar_762 = (PSW >> 3) & cppMask_un_2_;
 	BIT_VEC cppVar_763 = (cppVar_762 << 3) | 2;
 	cppVar_763 = (cppVar_763 & cppMask_un_5_);
 	BIT_VEC cppVar_764 = (0 << 5) | cppVar_763;
 	cppVar_764 = (cppVar_764 & cppMask_un_8_);
-	bool cppVar_766 = (cppVar_764 == 130);
+	BIT_VEC cppVar_765 = IRAM.rd(cppVar_764);
+	cppVar_753 = cppVar_765;
+	} else {
+	BIT_VEC cppVar_766;
 	BIT_VEC cppVar_767 = (PSW >> 3) & cppMask_un_2_;
 	BIT_VEC cppVar_768 = (cppVar_767 << 3) | 2;
 	cppVar_768 = (cppVar_768 & cppMask_un_5_);
 	BIT_VEC cppVar_769 = (0 << 5) | cppVar_768;
 	cppVar_769 = (cppVar_769 & cppMask_un_8_);
-	bool cppVar_771 = (cppVar_769 == 131);
-	BIT_VEC cppVar_772 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_773 = (cppVar_772 << 3) | 2;
-	cppVar_773 = (cppVar_773 & cppMask_un_5_);
-	BIT_VEC cppVar_774 = (0 << 5) | cppVar_773;
-	cppVar_774 = (cppVar_774 & cppMask_un_8_);
-	bool cppVar_776 = (cppVar_774 == 135);
-	BIT_VEC cppVar_777 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_778 = (cppVar_777 << 3) | 2;
-	cppVar_778 = (cppVar_778 & cppMask_un_5_);
-	BIT_VEC cppVar_779 = (0 << 5) | cppVar_778;
-	cppVar_779 = (cppVar_779 & cppMask_un_8_);
-	bool cppVar_781 = (cppVar_779 == 136);
-	BIT_VEC cppVar_782 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_783 = (cppVar_782 << 3) | 2;
-	cppVar_783 = (cppVar_783 & cppMask_un_5_);
-	BIT_VEC cppVar_784 = (0 << 5) | cppVar_783;
-	cppVar_784 = (cppVar_784 & cppMask_un_8_);
-	bool cppVar_786 = (cppVar_784 == 137);
-	BIT_VEC cppVar_787 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_788 = (cppVar_787 << 3) | 2;
-	cppVar_788 = (cppVar_788 & cppMask_un_5_);
-	BIT_VEC cppVar_789 = (0 << 5) | cppVar_788;
-	cppVar_789 = (cppVar_789 & cppMask_un_8_);
-	bool cppVar_791 = (cppVar_789 == 138);
-	BIT_VEC cppVar_792 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_793 = (cppVar_792 << 3) | 2;
-	cppVar_793 = (cppVar_793 & cppMask_un_5_);
-	BIT_VEC cppVar_794 = (0 << 5) | cppVar_793;
-	cppVar_794 = (cppVar_794 & cppMask_un_8_);
-	bool cppVar_796 = (cppVar_794 == 140);
+	bool cppVar_771 = (cppVar_769 == 128);
+	if (cppVar_771) {
+	cppVar_766 = P0;
+	} else {
+	BIT_VEC cppVar_772;
+	BIT_VEC cppVar_773 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_774 = (cppVar_773 << 3) | 2;
+	cppVar_774 = (cppVar_774 & cppMask_un_5_);
+	BIT_VEC cppVar_775 = (0 << 5) | cppVar_774;
+	cppVar_775 = (cppVar_775 & cppMask_un_8_);
+	bool cppVar_777 = (cppVar_775 == 129);
+	if (cppVar_777) {
+	cppVar_772 = SP;
+	} else {
+	BIT_VEC cppVar_778;
+	BIT_VEC cppVar_779 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_780 = (cppVar_779 << 3) | 2;
+	cppVar_780 = (cppVar_780 & cppMask_un_5_);
+	BIT_VEC cppVar_781 = (0 << 5) | cppVar_780;
+	cppVar_781 = (cppVar_781 & cppMask_un_8_);
+	bool cppVar_783 = (cppVar_781 == 130);
+	if (cppVar_783) {
+	cppVar_778 = DPL;
+	} else {
+	BIT_VEC cppVar_784;
+	BIT_VEC cppVar_785 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_786 = (cppVar_785 << 3) | 2;
+	cppVar_786 = (cppVar_786 & cppMask_un_5_);
+	BIT_VEC cppVar_787 = (0 << 5) | cppVar_786;
+	cppVar_787 = (cppVar_787 & cppMask_un_8_);
+	bool cppVar_789 = (cppVar_787 == 131);
+	if (cppVar_789) {
+	cppVar_784 = DPH;
+	} else {
+	BIT_VEC cppVar_790;
+	BIT_VEC cppVar_791 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_792 = (cppVar_791 << 3) | 2;
+	cppVar_792 = (cppVar_792 & cppMask_un_5_);
+	BIT_VEC cppVar_793 = (0 << 5) | cppVar_792;
+	cppVar_793 = (cppVar_793 & cppMask_un_8_);
+	bool cppVar_795 = (cppVar_793 == 135);
+	if (cppVar_795) {
+	cppVar_790 = PCON;
+	} else {
+	BIT_VEC cppVar_796;
 	BIT_VEC cppVar_797 = (PSW >> 3) & cppMask_un_2_;
 	BIT_VEC cppVar_798 = (cppVar_797 << 3) | 2;
 	cppVar_798 = (cppVar_798 & cppMask_un_5_);
 	BIT_VEC cppVar_799 = (0 << 5) | cppVar_798;
 	cppVar_799 = (cppVar_799 & cppMask_un_8_);
-	bool cppVar_801 = (cppVar_799 == 139);
-	BIT_VEC cppVar_802 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_803 = (cppVar_802 << 3) | 2;
-	cppVar_803 = (cppVar_803 & cppMask_un_5_);
-	BIT_VEC cppVar_804 = (0 << 5) | cppVar_803;
-	cppVar_804 = (cppVar_804 & cppMask_un_8_);
-	bool cppVar_806 = (cppVar_804 == 141);
-	BIT_VEC cppVar_807 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_808 = (cppVar_807 << 3) | 2;
-	cppVar_808 = (cppVar_808 & cppMask_un_5_);
-	BIT_VEC cppVar_809 = (0 << 5) | cppVar_808;
-	cppVar_809 = (cppVar_809 & cppMask_un_8_);
-	bool cppVar_811 = (cppVar_809 == 144);
-	BIT_VEC cppVar_812 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_813 = (cppVar_812 << 3) | 2;
-	cppVar_813 = (cppVar_813 & cppMask_un_5_);
-	BIT_VEC cppVar_814 = (0 << 5) | cppVar_813;
-	cppVar_814 = (cppVar_814 & cppMask_un_8_);
-	bool cppVar_816 = (cppVar_814 == 152);
-	BIT_VEC cppVar_817 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_818 = (cppVar_817 << 3) | 2;
-	cppVar_818 = (cppVar_818 & cppMask_un_5_);
-	BIT_VEC cppVar_819 = (0 << 5) | cppVar_818;
-	cppVar_819 = (cppVar_819 & cppMask_un_8_);
-	bool cppVar_821 = (cppVar_819 == 153);
-	BIT_VEC cppVar_822 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_823 = (cppVar_822 << 3) | 2;
-	cppVar_823 = (cppVar_823 & cppMask_un_5_);
-	BIT_VEC cppVar_824 = (0 << 5) | cppVar_823;
-	cppVar_824 = (cppVar_824 & cppMask_un_8_);
-	bool cppVar_826 = (cppVar_824 == 160);
+	bool cppVar_801 = (cppVar_799 == 136);
+	if (cppVar_801) {
+	cppVar_796 = TCON;
+	} else {
+	BIT_VEC cppVar_802;
+	BIT_VEC cppVar_803 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_804 = (cppVar_803 << 3) | 2;
+	cppVar_804 = (cppVar_804 & cppMask_un_5_);
+	BIT_VEC cppVar_805 = (0 << 5) | cppVar_804;
+	cppVar_805 = (cppVar_805 & cppMask_un_8_);
+	bool cppVar_807 = (cppVar_805 == 137);
+	if (cppVar_807) {
+	cppVar_802 = TMOD;
+	} else {
+	BIT_VEC cppVar_808;
+	BIT_VEC cppVar_809 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_810 = (cppVar_809 << 3) | 2;
+	cppVar_810 = (cppVar_810 & cppMask_un_5_);
+	BIT_VEC cppVar_811 = (0 << 5) | cppVar_810;
+	cppVar_811 = (cppVar_811 & cppMask_un_8_);
+	bool cppVar_813 = (cppVar_811 == 138);
+	if (cppVar_813) {
+	cppVar_808 = TL0;
+	} else {
+	BIT_VEC cppVar_814;
+	BIT_VEC cppVar_815 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_816 = (cppVar_815 << 3) | 2;
+	cppVar_816 = (cppVar_816 & cppMask_un_5_);
+	BIT_VEC cppVar_817 = (0 << 5) | cppVar_816;
+	cppVar_817 = (cppVar_817 & cppMask_un_8_);
+	bool cppVar_819 = (cppVar_817 == 140);
+	if (cppVar_819) {
+	cppVar_814 = TH0;
+	} else {
+	BIT_VEC cppVar_820;
+	BIT_VEC cppVar_821 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_822 = (cppVar_821 << 3) | 2;
+	cppVar_822 = (cppVar_822 & cppMask_un_5_);
+	BIT_VEC cppVar_823 = (0 << 5) | cppVar_822;
+	cppVar_823 = (cppVar_823 & cppMask_un_8_);
+	bool cppVar_825 = (cppVar_823 == 139);
+	if (cppVar_825) {
+	cppVar_820 = TL1;
+	} else {
+	BIT_VEC cppVar_826;
 	BIT_VEC cppVar_827 = (PSW >> 3) & cppMask_un_2_;
 	BIT_VEC cppVar_828 = (cppVar_827 << 3) | 2;
 	cppVar_828 = (cppVar_828 & cppMask_un_5_);
 	BIT_VEC cppVar_829 = (0 << 5) | cppVar_828;
 	cppVar_829 = (cppVar_829 & cppMask_un_8_);
-	bool cppVar_831 = (cppVar_829 == 168);
-	BIT_VEC cppVar_832 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_833 = (cppVar_832 << 3) | 2;
-	cppVar_833 = (cppVar_833 & cppMask_un_5_);
-	BIT_VEC cppVar_834 = (0 << 5) | cppVar_833;
-	cppVar_834 = (cppVar_834 & cppMask_un_8_);
-	bool cppVar_836 = (cppVar_834 == 176);
-	BIT_VEC cppVar_837 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_838 = (cppVar_837 << 3) | 2;
-	cppVar_838 = (cppVar_838 & cppMask_un_5_);
-	BIT_VEC cppVar_839 = (0 << 5) | cppVar_838;
-	cppVar_839 = (cppVar_839 & cppMask_un_8_);
-	bool cppVar_841 = (cppVar_839 == 184);
-	BIT_VEC cppVar_842 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_843 = (cppVar_842 << 3) | 2;
-	cppVar_843 = (cppVar_843 & cppMask_un_5_);
-	BIT_VEC cppVar_844 = (0 << 5) | cppVar_843;
-	cppVar_844 = (cppVar_844 & cppMask_un_8_);
-	bool cppVar_846 = (cppVar_844 == 208);
-	BIT_VEC cppVar_847 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_848 = (cppVar_847 << 3) | 2;
-	cppVar_848 = (cppVar_848 & cppMask_un_5_);
-	BIT_VEC cppVar_849 = (0 << 5) | cppVar_848;
-	cppVar_849 = (cppVar_849 & cppMask_un_8_);
-	bool cppVar_851 = (cppVar_849 == 224);
-	BIT_VEC cppVar_852 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_853 = (cppVar_852 << 3) | 2;
-	cppVar_853 = (cppVar_853 & cppMask_un_5_);
-	BIT_VEC cppVar_854 = (0 << 5) | cppVar_853;
-	cppVar_854 = (cppVar_854 & cppMask_un_8_);
-	bool cppVar_856 = (cppVar_854 == 240);
-	BIT_VEC cppVar_858 = (cppVar_856) ? B : 0;
-	BIT_VEC cppVar_859 = (cppVar_851) ? ACC : cppVar_858;
-	BIT_VEC cppVar_860 = (cppVar_846) ? PSW : cppVar_859;
-	BIT_VEC cppVar_861 = (cppVar_841) ? IP : cppVar_860;
-	BIT_VEC cppVar_862 = (cppVar_836) ? P3 : cppVar_861;
-	BIT_VEC cppVar_863 = (cppVar_831) ? IE : cppVar_862;
-	BIT_VEC cppVar_864 = (cppVar_826) ? P2 : cppVar_863;
-	BIT_VEC cppVar_865 = (cppVar_821) ? SBUF : cppVar_864;
-	BIT_VEC cppVar_866 = (cppVar_816) ? SCON : cppVar_865;
-	BIT_VEC cppVar_867 = (cppVar_811) ? P1 : cppVar_866;
-	BIT_VEC cppVar_868 = (cppVar_806) ? TH1 : cppVar_867;
-	BIT_VEC cppVar_869 = (cppVar_801) ? TL1 : cppVar_868;
-	BIT_VEC cppVar_870 = (cppVar_796) ? TH0 : cppVar_869;
-	BIT_VEC cppVar_871 = (cppVar_791) ? TL0 : cppVar_870;
-	BIT_VEC cppVar_872 = (cppVar_786) ? TMOD : cppVar_871;
-	BIT_VEC cppVar_873 = (cppVar_781) ? TCON : cppVar_872;
-	BIT_VEC cppVar_874 = (cppVar_776) ? PCON : cppVar_873;
-	BIT_VEC cppVar_875 = (cppVar_771) ? DPH : cppVar_874;
-	BIT_VEC cppVar_876 = (cppVar_766) ? DPL : cppVar_875;
-	BIT_VEC cppVar_877 = (cppVar_761) ? SP : cppVar_876;
-	BIT_VEC cppVar_878 = (cppVar_756) ? P0 : cppVar_877;
-	BIT_VEC cppVar_879 = (cppVar_747) ? cppVar_751 : cppVar_878;
-	BIT_VEC cppVar_880 = ROM.rd(PC);
-	bool cppVar_882 = (cppVar_880 == 233);
-	BIT_VEC cppVar_883 = ROM.rd(PC);
-	bool cppVar_885 = (cppVar_883 == 201);
-	bool cppVar_886 = cppVar_882 || cppVar_885;
-	BIT_VEC cppVar_888 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_890 = (cppVar_888 << 3) | 1;
-	cppVar_890 = (cppVar_890 & cppMask_un_5_);
-	BIT_VEC cppVar_891 = (0 << 5) | cppVar_890;
-	cppVar_891 = (cppVar_891 & cppMask_un_8_);
-	BIT_VEC cppVar_892 = (cppVar_891 >> 7) & cppMask_un_1_;
-	bool cppVar_894 = (cppVar_892 == 0);
-	BIT_VEC cppVar_895 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_896 = (cppVar_895 << 3) | 1;
-	cppVar_896 = (cppVar_896 & cppMask_un_5_);
-	BIT_VEC cppVar_897 = (0 << 5) | cppVar_896;
-	cppVar_897 = (cppVar_897 & cppMask_un_8_);
-	BIT_VEC cppVar_898 = IRAM.rd(cppVar_897);
-	BIT_VEC cppVar_899 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_900 = (cppVar_899 << 3) | 1;
-	cppVar_900 = (cppVar_900 & cppMask_un_5_);
-	BIT_VEC cppVar_901 = (0 << 5) | cppVar_900;
-	cppVar_901 = (cppVar_901 & cppMask_un_8_);
-	bool cppVar_903 = (cppVar_901 == 128);
-	BIT_VEC cppVar_904 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_905 = (cppVar_904 << 3) | 1;
+	bool cppVar_831 = (cppVar_829 == 141);
+	if (cppVar_831) {
+	cppVar_826 = TH1;
+	} else {
+	BIT_VEC cppVar_832;
+	BIT_VEC cppVar_833 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_834 = (cppVar_833 << 3) | 2;
+	cppVar_834 = (cppVar_834 & cppMask_un_5_);
+	BIT_VEC cppVar_835 = (0 << 5) | cppVar_834;
+	cppVar_835 = (cppVar_835 & cppMask_un_8_);
+	bool cppVar_837 = (cppVar_835 == 144);
+	if (cppVar_837) {
+	cppVar_832 = P1;
+	} else {
+	BIT_VEC cppVar_838;
+	BIT_VEC cppVar_839 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_840 = (cppVar_839 << 3) | 2;
+	cppVar_840 = (cppVar_840 & cppMask_un_5_);
+	BIT_VEC cppVar_841 = (0 << 5) | cppVar_840;
+	cppVar_841 = (cppVar_841 & cppMask_un_8_);
+	bool cppVar_843 = (cppVar_841 == 152);
+	if (cppVar_843) {
+	cppVar_838 = SCON;
+	} else {
+	BIT_VEC cppVar_844;
+	BIT_VEC cppVar_845 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_846 = (cppVar_845 << 3) | 2;
+	cppVar_846 = (cppVar_846 & cppMask_un_5_);
+	BIT_VEC cppVar_847 = (0 << 5) | cppVar_846;
+	cppVar_847 = (cppVar_847 & cppMask_un_8_);
+	bool cppVar_849 = (cppVar_847 == 153);
+	if (cppVar_849) {
+	cppVar_844 = SBUF;
+	} else {
+	BIT_VEC cppVar_850;
+	BIT_VEC cppVar_851 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_852 = (cppVar_851 << 3) | 2;
+	cppVar_852 = (cppVar_852 & cppMask_un_5_);
+	BIT_VEC cppVar_853 = (0 << 5) | cppVar_852;
+	cppVar_853 = (cppVar_853 & cppMask_un_8_);
+	bool cppVar_855 = (cppVar_853 == 160);
+	if (cppVar_855) {
+	cppVar_850 = P2;
+	} else {
+	BIT_VEC cppVar_856;
+	BIT_VEC cppVar_857 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_858 = (cppVar_857 << 3) | 2;
+	cppVar_858 = (cppVar_858 & cppMask_un_5_);
+	BIT_VEC cppVar_859 = (0 << 5) | cppVar_858;
+	cppVar_859 = (cppVar_859 & cppMask_un_8_);
+	bool cppVar_861 = (cppVar_859 == 168);
+	if (cppVar_861) {
+	cppVar_856 = IE;
+	} else {
+	BIT_VEC cppVar_862;
+	BIT_VEC cppVar_863 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_864 = (cppVar_863 << 3) | 2;
+	cppVar_864 = (cppVar_864 & cppMask_un_5_);
+	BIT_VEC cppVar_865 = (0 << 5) | cppVar_864;
+	cppVar_865 = (cppVar_865 & cppMask_un_8_);
+	bool cppVar_867 = (cppVar_865 == 176);
+	if (cppVar_867) {
+	cppVar_862 = P3;
+	} else {
+	BIT_VEC cppVar_868;
+	BIT_VEC cppVar_869 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_870 = (cppVar_869 << 3) | 2;
+	cppVar_870 = (cppVar_870 & cppMask_un_5_);
+	BIT_VEC cppVar_871 = (0 << 5) | cppVar_870;
+	cppVar_871 = (cppVar_871 & cppMask_un_8_);
+	bool cppVar_873 = (cppVar_871 == 184);
+	if (cppVar_873) {
+	cppVar_868 = IP;
+	} else {
+	BIT_VEC cppVar_874;
+	BIT_VEC cppVar_875 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_876 = (cppVar_875 << 3) | 2;
+	cppVar_876 = (cppVar_876 & cppMask_un_5_);
+	BIT_VEC cppVar_877 = (0 << 5) | cppVar_876;
+	cppVar_877 = (cppVar_877 & cppMask_un_8_);
+	bool cppVar_879 = (cppVar_877 == 208);
+	if (cppVar_879) {
+	cppVar_874 = PSW;
+	} else {
+	BIT_VEC cppVar_880;
+	BIT_VEC cppVar_881 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_882 = (cppVar_881 << 3) | 2;
+	cppVar_882 = (cppVar_882 & cppMask_un_5_);
+	BIT_VEC cppVar_883 = (0 << 5) | cppVar_882;
+	cppVar_883 = (cppVar_883 & cppMask_un_8_);
+	bool cppVar_885 = (cppVar_883 == 224);
+	if (cppVar_885) {
+	cppVar_880 = ACC;
+	} else {
+	BIT_VEC cppVar_886;
+	BIT_VEC cppVar_887 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_888 = (cppVar_887 << 3) | 2;
+	cppVar_888 = (cppVar_888 & cppMask_un_5_);
+	BIT_VEC cppVar_889 = (0 << 5) | cppVar_888;
+	cppVar_889 = (cppVar_889 & cppMask_un_8_);
+	bool cppVar_891 = (cppVar_889 == 240);
+	if (cppVar_891) {
+	cppVar_886 = B;
+	} else {
+	cppVar_886 = 0;
+	}
+	cppVar_880 = cppVar_886;
+	}
+	cppVar_874 = cppVar_880;
+	}
+	cppVar_868 = cppVar_874;
+	}
+	cppVar_862 = cppVar_868;
+	}
+	cppVar_856 = cppVar_862;
+	}
+	cppVar_850 = cppVar_856;
+	}
+	cppVar_844 = cppVar_850;
+	}
+	cppVar_838 = cppVar_844;
+	}
+	cppVar_832 = cppVar_838;
+	}
+	cppVar_826 = cppVar_832;
+	}
+	cppVar_820 = cppVar_826;
+	}
+	cppVar_814 = cppVar_820;
+	}
+	cppVar_808 = cppVar_814;
+	}
+	cppVar_802 = cppVar_808;
+	}
+	cppVar_796 = cppVar_802;
+	}
+	cppVar_790 = cppVar_796;
+	}
+	cppVar_784 = cppVar_790;
+	}
+	cppVar_778 = cppVar_784;
+	}
+	cppVar_772 = cppVar_778;
+	}
+	cppVar_766 = cppVar_772;
+	}
+	cppVar_753 = cppVar_766;
+	}
+	cppVar_745 = cppVar_753;
+	} else {
+	BIT_VEC cppVar_893;
+	BIT_VEC cppVar_894 = ROM.rd(PC);
+	bool cppVar_896 = (cppVar_894 == 233);
+	BIT_VEC cppVar_897 = ROM.rd(PC);
+	bool cppVar_899 = (cppVar_897 == 201);
+	bool cppVar_900 = cppVar_896 || cppVar_899;
+	if (cppVar_900) {
+	BIT_VEC cppVar_901;
+	BIT_VEC cppVar_903 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_905 = (cppVar_903 << 3) | 1;
 	cppVar_905 = (cppVar_905 & cppMask_un_5_);
 	BIT_VEC cppVar_906 = (0 << 5) | cppVar_905;
 	cppVar_906 = (cppVar_906 & cppMask_un_8_);
-	bool cppVar_908 = (cppVar_906 == 129);
-	BIT_VEC cppVar_909 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_910 = (cppVar_909 << 3) | 1;
-	cppVar_910 = (cppVar_910 & cppMask_un_5_);
-	BIT_VEC cppVar_911 = (0 << 5) | cppVar_910;
-	cppVar_911 = (cppVar_911 & cppMask_un_8_);
-	bool cppVar_913 = (cppVar_911 == 130);
-	BIT_VEC cppVar_914 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_915 = (cppVar_914 << 3) | 1;
-	cppVar_915 = (cppVar_915 & cppMask_un_5_);
-	BIT_VEC cppVar_916 = (0 << 5) | cppVar_915;
-	cppVar_916 = (cppVar_916 & cppMask_un_8_);
-	bool cppVar_918 = (cppVar_916 == 131);
-	BIT_VEC cppVar_919 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_920 = (cppVar_919 << 3) | 1;
-	cppVar_920 = (cppVar_920 & cppMask_un_5_);
-	BIT_VEC cppVar_921 = (0 << 5) | cppVar_920;
-	cppVar_921 = (cppVar_921 & cppMask_un_8_);
-	bool cppVar_923 = (cppVar_921 == 135);
-	BIT_VEC cppVar_924 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_925 = (cppVar_924 << 3) | 1;
-	cppVar_925 = (cppVar_925 & cppMask_un_5_);
-	BIT_VEC cppVar_926 = (0 << 5) | cppVar_925;
-	cppVar_926 = (cppVar_926 & cppMask_un_8_);
-	bool cppVar_928 = (cppVar_926 == 136);
-	BIT_VEC cppVar_929 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_930 = (cppVar_929 << 3) | 1;
-	cppVar_930 = (cppVar_930 & cppMask_un_5_);
-	BIT_VEC cppVar_931 = (0 << 5) | cppVar_930;
-	cppVar_931 = (cppVar_931 & cppMask_un_8_);
-	bool cppVar_933 = (cppVar_931 == 137);
-	BIT_VEC cppVar_934 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_935 = (cppVar_934 << 3) | 1;
-	cppVar_935 = (cppVar_935 & cppMask_un_5_);
-	BIT_VEC cppVar_936 = (0 << 5) | cppVar_935;
-	cppVar_936 = (cppVar_936 & cppMask_un_8_);
-	bool cppVar_938 = (cppVar_936 == 138);
+	BIT_VEC cppVar_907 = (cppVar_906 >> 7) & cppMask_un_1_;
+	bool cppVar_909 = (cppVar_907 == 0);
+	if (cppVar_909) {
+	BIT_VEC cppVar_910 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_911 = (cppVar_910 << 3) | 1;
+	cppVar_911 = (cppVar_911 & cppMask_un_5_);
+	BIT_VEC cppVar_912 = (0 << 5) | cppVar_911;
+	cppVar_912 = (cppVar_912 & cppMask_un_8_);
+	BIT_VEC cppVar_913 = IRAM.rd(cppVar_912);
+	cppVar_901 = cppVar_913;
+	} else {
+	BIT_VEC cppVar_914;
+	BIT_VEC cppVar_915 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_916 = (cppVar_915 << 3) | 1;
+	cppVar_916 = (cppVar_916 & cppMask_un_5_);
+	BIT_VEC cppVar_917 = (0 << 5) | cppVar_916;
+	cppVar_917 = (cppVar_917 & cppMask_un_8_);
+	bool cppVar_919 = (cppVar_917 == 128);
+	if (cppVar_919) {
+	cppVar_914 = P0;
+	} else {
+	BIT_VEC cppVar_920;
+	BIT_VEC cppVar_921 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_922 = (cppVar_921 << 3) | 1;
+	cppVar_922 = (cppVar_922 & cppMask_un_5_);
+	BIT_VEC cppVar_923 = (0 << 5) | cppVar_922;
+	cppVar_923 = (cppVar_923 & cppMask_un_8_);
+	bool cppVar_925 = (cppVar_923 == 129);
+	if (cppVar_925) {
+	cppVar_920 = SP;
+	} else {
+	BIT_VEC cppVar_926;
+	BIT_VEC cppVar_927 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_928 = (cppVar_927 << 3) | 1;
+	cppVar_928 = (cppVar_928 & cppMask_un_5_);
+	BIT_VEC cppVar_929 = (0 << 5) | cppVar_928;
+	cppVar_929 = (cppVar_929 & cppMask_un_8_);
+	bool cppVar_931 = (cppVar_929 == 130);
+	if (cppVar_931) {
+	cppVar_926 = DPL;
+	} else {
+	BIT_VEC cppVar_932;
+	BIT_VEC cppVar_933 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_934 = (cppVar_933 << 3) | 1;
+	cppVar_934 = (cppVar_934 & cppMask_un_5_);
+	BIT_VEC cppVar_935 = (0 << 5) | cppVar_934;
+	cppVar_935 = (cppVar_935 & cppMask_un_8_);
+	bool cppVar_937 = (cppVar_935 == 131);
+	if (cppVar_937) {
+	cppVar_932 = DPH;
+	} else {
+	BIT_VEC cppVar_938;
 	BIT_VEC cppVar_939 = (PSW >> 3) & cppMask_un_2_;
 	BIT_VEC cppVar_940 = (cppVar_939 << 3) | 1;
 	cppVar_940 = (cppVar_940 & cppMask_un_5_);
 	BIT_VEC cppVar_941 = (0 << 5) | cppVar_940;
 	cppVar_941 = (cppVar_941 & cppMask_un_8_);
-	bool cppVar_943 = (cppVar_941 == 140);
-	BIT_VEC cppVar_944 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_945 = (cppVar_944 << 3) | 1;
-	cppVar_945 = (cppVar_945 & cppMask_un_5_);
-	BIT_VEC cppVar_946 = (0 << 5) | cppVar_945;
-	cppVar_946 = (cppVar_946 & cppMask_un_8_);
-	bool cppVar_948 = (cppVar_946 == 139);
-	BIT_VEC cppVar_949 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_950 = (cppVar_949 << 3) | 1;
-	cppVar_950 = (cppVar_950 & cppMask_un_5_);
-	BIT_VEC cppVar_951 = (0 << 5) | cppVar_950;
-	cppVar_951 = (cppVar_951 & cppMask_un_8_);
-	bool cppVar_953 = (cppVar_951 == 141);
-	BIT_VEC cppVar_954 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_955 = (cppVar_954 << 3) | 1;
-	cppVar_955 = (cppVar_955 & cppMask_un_5_);
-	BIT_VEC cppVar_956 = (0 << 5) | cppVar_955;
-	cppVar_956 = (cppVar_956 & cppMask_un_8_);
-	bool cppVar_958 = (cppVar_956 == 144);
-	BIT_VEC cppVar_959 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_960 = (cppVar_959 << 3) | 1;
-	cppVar_960 = (cppVar_960 & cppMask_un_5_);
-	BIT_VEC cppVar_961 = (0 << 5) | cppVar_960;
-	cppVar_961 = (cppVar_961 & cppMask_un_8_);
-	bool cppVar_963 = (cppVar_961 == 152);
-	BIT_VEC cppVar_964 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_965 = (cppVar_964 << 3) | 1;
-	cppVar_965 = (cppVar_965 & cppMask_un_5_);
-	BIT_VEC cppVar_966 = (0 << 5) | cppVar_965;
-	cppVar_966 = (cppVar_966 & cppMask_un_8_);
-	bool cppVar_968 = (cppVar_966 == 153);
+	bool cppVar_943 = (cppVar_941 == 135);
+	if (cppVar_943) {
+	cppVar_938 = PCON;
+	} else {
+	BIT_VEC cppVar_944;
+	BIT_VEC cppVar_945 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_946 = (cppVar_945 << 3) | 1;
+	cppVar_946 = (cppVar_946 & cppMask_un_5_);
+	BIT_VEC cppVar_947 = (0 << 5) | cppVar_946;
+	cppVar_947 = (cppVar_947 & cppMask_un_8_);
+	bool cppVar_949 = (cppVar_947 == 136);
+	if (cppVar_949) {
+	cppVar_944 = TCON;
+	} else {
+	BIT_VEC cppVar_950;
+	BIT_VEC cppVar_951 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_952 = (cppVar_951 << 3) | 1;
+	cppVar_952 = (cppVar_952 & cppMask_un_5_);
+	BIT_VEC cppVar_953 = (0 << 5) | cppVar_952;
+	cppVar_953 = (cppVar_953 & cppMask_un_8_);
+	bool cppVar_955 = (cppVar_953 == 137);
+	if (cppVar_955) {
+	cppVar_950 = TMOD;
+	} else {
+	BIT_VEC cppVar_956;
+	BIT_VEC cppVar_957 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_958 = (cppVar_957 << 3) | 1;
+	cppVar_958 = (cppVar_958 & cppMask_un_5_);
+	BIT_VEC cppVar_959 = (0 << 5) | cppVar_958;
+	cppVar_959 = (cppVar_959 & cppMask_un_8_);
+	bool cppVar_961 = (cppVar_959 == 138);
+	if (cppVar_961) {
+	cppVar_956 = TL0;
+	} else {
+	BIT_VEC cppVar_962;
+	BIT_VEC cppVar_963 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_964 = (cppVar_963 << 3) | 1;
+	cppVar_964 = (cppVar_964 & cppMask_un_5_);
+	BIT_VEC cppVar_965 = (0 << 5) | cppVar_964;
+	cppVar_965 = (cppVar_965 & cppMask_un_8_);
+	bool cppVar_967 = (cppVar_965 == 140);
+	if (cppVar_967) {
+	cppVar_962 = TH0;
+	} else {
+	BIT_VEC cppVar_968;
 	BIT_VEC cppVar_969 = (PSW >> 3) & cppMask_un_2_;
 	BIT_VEC cppVar_970 = (cppVar_969 << 3) | 1;
 	cppVar_970 = (cppVar_970 & cppMask_un_5_);
 	BIT_VEC cppVar_971 = (0 << 5) | cppVar_970;
 	cppVar_971 = (cppVar_971 & cppMask_un_8_);
-	bool cppVar_973 = (cppVar_971 == 160);
-	BIT_VEC cppVar_974 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_975 = (cppVar_974 << 3) | 1;
-	cppVar_975 = (cppVar_975 & cppMask_un_5_);
-	BIT_VEC cppVar_976 = (0 << 5) | cppVar_975;
-	cppVar_976 = (cppVar_976 & cppMask_un_8_);
-	bool cppVar_978 = (cppVar_976 == 168);
-	BIT_VEC cppVar_979 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_980 = (cppVar_979 << 3) | 1;
-	cppVar_980 = (cppVar_980 & cppMask_un_5_);
-	BIT_VEC cppVar_981 = (0 << 5) | cppVar_980;
-	cppVar_981 = (cppVar_981 & cppMask_un_8_);
-	bool cppVar_983 = (cppVar_981 == 176);
-	BIT_VEC cppVar_984 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_985 = (cppVar_984 << 3) | 1;
-	cppVar_985 = (cppVar_985 & cppMask_un_5_);
-	BIT_VEC cppVar_986 = (0 << 5) | cppVar_985;
-	cppVar_986 = (cppVar_986 & cppMask_un_8_);
-	bool cppVar_988 = (cppVar_986 == 184);
-	BIT_VEC cppVar_989 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_990 = (cppVar_989 << 3) | 1;
-	cppVar_990 = (cppVar_990 & cppMask_un_5_);
-	BIT_VEC cppVar_991 = (0 << 5) | cppVar_990;
-	cppVar_991 = (cppVar_991 & cppMask_un_8_);
-	bool cppVar_993 = (cppVar_991 == 208);
-	BIT_VEC cppVar_994 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_995 = (cppVar_994 << 3) | 1;
-	cppVar_995 = (cppVar_995 & cppMask_un_5_);
-	BIT_VEC cppVar_996 = (0 << 5) | cppVar_995;
-	cppVar_996 = (cppVar_996 & cppMask_un_8_);
-	bool cppVar_998 = (cppVar_996 == 224);
+	bool cppVar_973 = (cppVar_971 == 139);
+	if (cppVar_973) {
+	cppVar_968 = TL1;
+	} else {
+	BIT_VEC cppVar_974;
+	BIT_VEC cppVar_975 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_976 = (cppVar_975 << 3) | 1;
+	cppVar_976 = (cppVar_976 & cppMask_un_5_);
+	BIT_VEC cppVar_977 = (0 << 5) | cppVar_976;
+	cppVar_977 = (cppVar_977 & cppMask_un_8_);
+	bool cppVar_979 = (cppVar_977 == 141);
+	if (cppVar_979) {
+	cppVar_974 = TH1;
+	} else {
+	BIT_VEC cppVar_980;
+	BIT_VEC cppVar_981 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_982 = (cppVar_981 << 3) | 1;
+	cppVar_982 = (cppVar_982 & cppMask_un_5_);
+	BIT_VEC cppVar_983 = (0 << 5) | cppVar_982;
+	cppVar_983 = (cppVar_983 & cppMask_un_8_);
+	bool cppVar_985 = (cppVar_983 == 144);
+	if (cppVar_985) {
+	cppVar_980 = P1;
+	} else {
+	BIT_VEC cppVar_986;
+	BIT_VEC cppVar_987 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_988 = (cppVar_987 << 3) | 1;
+	cppVar_988 = (cppVar_988 & cppMask_un_5_);
+	BIT_VEC cppVar_989 = (0 << 5) | cppVar_988;
+	cppVar_989 = (cppVar_989 & cppMask_un_8_);
+	bool cppVar_991 = (cppVar_989 == 152);
+	if (cppVar_991) {
+	cppVar_986 = SCON;
+	} else {
+	BIT_VEC cppVar_992;
+	BIT_VEC cppVar_993 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_994 = (cppVar_993 << 3) | 1;
+	cppVar_994 = (cppVar_994 & cppMask_un_5_);
+	BIT_VEC cppVar_995 = (0 << 5) | cppVar_994;
+	cppVar_995 = (cppVar_995 & cppMask_un_8_);
+	bool cppVar_997 = (cppVar_995 == 153);
+	if (cppVar_997) {
+	cppVar_992 = SBUF;
+	} else {
+	BIT_VEC cppVar_998;
 	BIT_VEC cppVar_999 = (PSW >> 3) & cppMask_un_2_;
 	BIT_VEC cppVar_1000 = (cppVar_999 << 3) | 1;
 	cppVar_1000 = (cppVar_1000 & cppMask_un_5_);
 	BIT_VEC cppVar_1001 = (0 << 5) | cppVar_1000;
 	cppVar_1001 = (cppVar_1001 & cppMask_un_8_);
-	bool cppVar_1003 = (cppVar_1001 == 240);
-	BIT_VEC cppVar_1005 = (cppVar_1003) ? B : 0;
-	BIT_VEC cppVar_1006 = (cppVar_998) ? ACC : cppVar_1005;
-	BIT_VEC cppVar_1007 = (cppVar_993) ? PSW : cppVar_1006;
-	BIT_VEC cppVar_1008 = (cppVar_988) ? IP : cppVar_1007;
-	BIT_VEC cppVar_1009 = (cppVar_983) ? P3 : cppVar_1008;
-	BIT_VEC cppVar_1010 = (cppVar_978) ? IE : cppVar_1009;
-	BIT_VEC cppVar_1011 = (cppVar_973) ? P2 : cppVar_1010;
-	BIT_VEC cppVar_1012 = (cppVar_968) ? SBUF : cppVar_1011;
-	BIT_VEC cppVar_1013 = (cppVar_963) ? SCON : cppVar_1012;
-	BIT_VEC cppVar_1014 = (cppVar_958) ? P1 : cppVar_1013;
-	BIT_VEC cppVar_1015 = (cppVar_953) ? TH1 : cppVar_1014;
-	BIT_VEC cppVar_1016 = (cppVar_948) ? TL1 : cppVar_1015;
-	BIT_VEC cppVar_1017 = (cppVar_943) ? TH0 : cppVar_1016;
-	BIT_VEC cppVar_1018 = (cppVar_938) ? TL0 : cppVar_1017;
-	BIT_VEC cppVar_1019 = (cppVar_933) ? TMOD : cppVar_1018;
-	BIT_VEC cppVar_1020 = (cppVar_928) ? TCON : cppVar_1019;
-	BIT_VEC cppVar_1021 = (cppVar_923) ? PCON : cppVar_1020;
-	BIT_VEC cppVar_1022 = (cppVar_918) ? DPH : cppVar_1021;
-	BIT_VEC cppVar_1023 = (cppVar_913) ? DPL : cppVar_1022;
-	BIT_VEC cppVar_1024 = (cppVar_908) ? SP : cppVar_1023;
-	BIT_VEC cppVar_1025 = (cppVar_903) ? P0 : cppVar_1024;
-	BIT_VEC cppVar_1026 = (cppVar_894) ? cppVar_898 : cppVar_1025;
-	BIT_VEC cppVar_1027 = ROM.rd(PC);
-	bool cppVar_1029 = (cppVar_1027 == 232);
-	BIT_VEC cppVar_1030 = ROM.rd(PC);
-	bool cppVar_1032 = (cppVar_1030 == 200);
-	bool cppVar_1033 = cppVar_1029 || cppVar_1032;
+	bool cppVar_1003 = (cppVar_1001 == 160);
+	if (cppVar_1003) {
+	cppVar_998 = P2;
+	} else {
+	BIT_VEC cppVar_1004;
+	BIT_VEC cppVar_1005 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_1006 = (cppVar_1005 << 3) | 1;
+	cppVar_1006 = (cppVar_1006 & cppMask_un_5_);
+	BIT_VEC cppVar_1007 = (0 << 5) | cppVar_1006;
+	cppVar_1007 = (cppVar_1007 & cppMask_un_8_);
+	bool cppVar_1009 = (cppVar_1007 == 168);
+	if (cppVar_1009) {
+	cppVar_1004 = IE;
+	} else {
+	BIT_VEC cppVar_1010;
+	BIT_VEC cppVar_1011 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_1012 = (cppVar_1011 << 3) | 1;
+	cppVar_1012 = (cppVar_1012 & cppMask_un_5_);
+	BIT_VEC cppVar_1013 = (0 << 5) | cppVar_1012;
+	cppVar_1013 = (cppVar_1013 & cppMask_un_8_);
+	bool cppVar_1015 = (cppVar_1013 == 176);
+	if (cppVar_1015) {
+	cppVar_1010 = P3;
+	} else {
+	BIT_VEC cppVar_1016;
+	BIT_VEC cppVar_1017 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_1018 = (cppVar_1017 << 3) | 1;
+	cppVar_1018 = (cppVar_1018 & cppMask_un_5_);
+	BIT_VEC cppVar_1019 = (0 << 5) | cppVar_1018;
+	cppVar_1019 = (cppVar_1019 & cppMask_un_8_);
+	bool cppVar_1021 = (cppVar_1019 == 184);
+	if (cppVar_1021) {
+	cppVar_1016 = IP;
+	} else {
+	BIT_VEC cppVar_1022;
+	BIT_VEC cppVar_1023 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_1024 = (cppVar_1023 << 3) | 1;
+	cppVar_1024 = (cppVar_1024 & cppMask_un_5_);
+	BIT_VEC cppVar_1025 = (0 << 5) | cppVar_1024;
+	cppVar_1025 = (cppVar_1025 & cppMask_un_8_);
+	bool cppVar_1027 = (cppVar_1025 == 208);
+	if (cppVar_1027) {
+	cppVar_1022 = PSW;
+	} else {
+	BIT_VEC cppVar_1028;
+	BIT_VEC cppVar_1029 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_1030 = (cppVar_1029 << 3) | 1;
+	cppVar_1030 = (cppVar_1030 & cppMask_un_5_);
+	BIT_VEC cppVar_1031 = (0 << 5) | cppVar_1030;
+	cppVar_1031 = (cppVar_1031 & cppMask_un_8_);
+	bool cppVar_1033 = (cppVar_1031 == 224);
+	if (cppVar_1033) {
+	cppVar_1028 = ACC;
+	} else {
+	BIT_VEC cppVar_1034;
 	BIT_VEC cppVar_1035 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_1037 = (cppVar_1035 << 3) | 0;
-	cppVar_1037 = (cppVar_1037 & cppMask_un_5_);
-	BIT_VEC cppVar_1038 = (0 << 5) | cppVar_1037;
-	cppVar_1038 = (cppVar_1038 & cppMask_un_8_);
-	BIT_VEC cppVar_1039 = (cppVar_1038 >> 7) & cppMask_un_1_;
-	bool cppVar_1041 = (cppVar_1039 == 0);
-	BIT_VEC cppVar_1042 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_1043 = (cppVar_1042 << 3) | 0;
-	cppVar_1043 = (cppVar_1043 & cppMask_un_5_);
-	BIT_VEC cppVar_1044 = (0 << 5) | cppVar_1043;
-	cppVar_1044 = (cppVar_1044 & cppMask_un_8_);
-	BIT_VEC cppVar_1045 = IRAM.rd(cppVar_1044);
-	BIT_VEC cppVar_1046 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_1047 = (cppVar_1046 << 3) | 0;
-	cppVar_1047 = (cppVar_1047 & cppMask_un_5_);
-	BIT_VEC cppVar_1048 = (0 << 5) | cppVar_1047;
-	cppVar_1048 = (cppVar_1048 & cppMask_un_8_);
-	bool cppVar_1050 = (cppVar_1048 == 128);
+	BIT_VEC cppVar_1036 = (cppVar_1035 << 3) | 1;
+	cppVar_1036 = (cppVar_1036 & cppMask_un_5_);
+	BIT_VEC cppVar_1037 = (0 << 5) | cppVar_1036;
+	cppVar_1037 = (cppVar_1037 & cppMask_un_8_);
+	bool cppVar_1039 = (cppVar_1037 == 240);
+	if (cppVar_1039) {
+	cppVar_1034 = B;
+	} else {
+	cppVar_1034 = 0;
+	}
+	cppVar_1028 = cppVar_1034;
+	}
+	cppVar_1022 = cppVar_1028;
+	}
+	cppVar_1016 = cppVar_1022;
+	}
+	cppVar_1010 = cppVar_1016;
+	}
+	cppVar_1004 = cppVar_1010;
+	}
+	cppVar_998 = cppVar_1004;
+	}
+	cppVar_992 = cppVar_998;
+	}
+	cppVar_986 = cppVar_992;
+	}
+	cppVar_980 = cppVar_986;
+	}
+	cppVar_974 = cppVar_980;
+	}
+	cppVar_968 = cppVar_974;
+	}
+	cppVar_962 = cppVar_968;
+	}
+	cppVar_956 = cppVar_962;
+	}
+	cppVar_950 = cppVar_956;
+	}
+	cppVar_944 = cppVar_950;
+	}
+	cppVar_938 = cppVar_944;
+	}
+	cppVar_932 = cppVar_938;
+	}
+	cppVar_926 = cppVar_932;
+	}
+	cppVar_920 = cppVar_926;
+	}
+	cppVar_914 = cppVar_920;
+	}
+	cppVar_901 = cppVar_914;
+	}
+	cppVar_893 = cppVar_901;
+	} else {
+	BIT_VEC cppVar_1041;
+	BIT_VEC cppVar_1042 = ROM.rd(PC);
+	bool cppVar_1044 = (cppVar_1042 == 232);
+	BIT_VEC cppVar_1045 = ROM.rd(PC);
+	bool cppVar_1047 = (cppVar_1045 == 200);
+	bool cppVar_1048 = cppVar_1044 || cppVar_1047;
+	if (cppVar_1048) {
+	BIT_VEC cppVar_1049;
 	BIT_VEC cppVar_1051 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_1052 = (cppVar_1051 << 3) | 0;
-	cppVar_1052 = (cppVar_1052 & cppMask_un_5_);
-	BIT_VEC cppVar_1053 = (0 << 5) | cppVar_1052;
-	cppVar_1053 = (cppVar_1053 & cppMask_un_8_);
-	bool cppVar_1055 = (cppVar_1053 == 129);
-	BIT_VEC cppVar_1056 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_1057 = (cppVar_1056 << 3) | 0;
-	cppVar_1057 = (cppVar_1057 & cppMask_un_5_);
-	BIT_VEC cppVar_1058 = (0 << 5) | cppVar_1057;
-	cppVar_1058 = (cppVar_1058 & cppMask_un_8_);
-	bool cppVar_1060 = (cppVar_1058 == 130);
-	BIT_VEC cppVar_1061 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_1062 = (cppVar_1061 << 3) | 0;
-	cppVar_1062 = (cppVar_1062 & cppMask_un_5_);
-	BIT_VEC cppVar_1063 = (0 << 5) | cppVar_1062;
-	cppVar_1063 = (cppVar_1063 & cppMask_un_8_);
-	bool cppVar_1065 = (cppVar_1063 == 131);
-	BIT_VEC cppVar_1066 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_1067 = (cppVar_1066 << 3) | 0;
-	cppVar_1067 = (cppVar_1067 & cppMask_un_5_);
-	BIT_VEC cppVar_1068 = (0 << 5) | cppVar_1067;
-	cppVar_1068 = (cppVar_1068 & cppMask_un_8_);
-	bool cppVar_1070 = (cppVar_1068 == 135);
-	BIT_VEC cppVar_1071 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_1072 = (cppVar_1071 << 3) | 0;
-	cppVar_1072 = (cppVar_1072 & cppMask_un_5_);
-	BIT_VEC cppVar_1073 = (0 << 5) | cppVar_1072;
-	cppVar_1073 = (cppVar_1073 & cppMask_un_8_);
-	bool cppVar_1075 = (cppVar_1073 == 136);
-	BIT_VEC cppVar_1076 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_1077 = (cppVar_1076 << 3) | 0;
-	cppVar_1077 = (cppVar_1077 & cppMask_un_5_);
-	BIT_VEC cppVar_1078 = (0 << 5) | cppVar_1077;
-	cppVar_1078 = (cppVar_1078 & cppMask_un_8_);
-	bool cppVar_1080 = (cppVar_1078 == 137);
+	BIT_VEC cppVar_1053 = (cppVar_1051 << 3) | 0;
+	cppVar_1053 = (cppVar_1053 & cppMask_un_5_);
+	BIT_VEC cppVar_1054 = (0 << 5) | cppVar_1053;
+	cppVar_1054 = (cppVar_1054 & cppMask_un_8_);
+	BIT_VEC cppVar_1055 = (cppVar_1054 >> 7) & cppMask_un_1_;
+	bool cppVar_1057 = (cppVar_1055 == 0);
+	if (cppVar_1057) {
+	BIT_VEC cppVar_1058 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_1059 = (cppVar_1058 << 3) | 0;
+	cppVar_1059 = (cppVar_1059 & cppMask_un_5_);
+	BIT_VEC cppVar_1060 = (0 << 5) | cppVar_1059;
+	cppVar_1060 = (cppVar_1060 & cppMask_un_8_);
+	BIT_VEC cppVar_1061 = IRAM.rd(cppVar_1060);
+	cppVar_1049 = cppVar_1061;
+	} else {
+	BIT_VEC cppVar_1062;
+	BIT_VEC cppVar_1063 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_1064 = (cppVar_1063 << 3) | 0;
+	cppVar_1064 = (cppVar_1064 & cppMask_un_5_);
+	BIT_VEC cppVar_1065 = (0 << 5) | cppVar_1064;
+	cppVar_1065 = (cppVar_1065 & cppMask_un_8_);
+	bool cppVar_1067 = (cppVar_1065 == 128);
+	if (cppVar_1067) {
+	cppVar_1062 = P0;
+	} else {
+	BIT_VEC cppVar_1068;
+	BIT_VEC cppVar_1069 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_1070 = (cppVar_1069 << 3) | 0;
+	cppVar_1070 = (cppVar_1070 & cppMask_un_5_);
+	BIT_VEC cppVar_1071 = (0 << 5) | cppVar_1070;
+	cppVar_1071 = (cppVar_1071 & cppMask_un_8_);
+	bool cppVar_1073 = (cppVar_1071 == 129);
+	if (cppVar_1073) {
+	cppVar_1068 = SP;
+	} else {
+	BIT_VEC cppVar_1074;
+	BIT_VEC cppVar_1075 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_1076 = (cppVar_1075 << 3) | 0;
+	cppVar_1076 = (cppVar_1076 & cppMask_un_5_);
+	BIT_VEC cppVar_1077 = (0 << 5) | cppVar_1076;
+	cppVar_1077 = (cppVar_1077 & cppMask_un_8_);
+	bool cppVar_1079 = (cppVar_1077 == 130);
+	if (cppVar_1079) {
+	cppVar_1074 = DPL;
+	} else {
+	BIT_VEC cppVar_1080;
 	BIT_VEC cppVar_1081 = (PSW >> 3) & cppMask_un_2_;
 	BIT_VEC cppVar_1082 = (cppVar_1081 << 3) | 0;
 	cppVar_1082 = (cppVar_1082 & cppMask_un_5_);
 	BIT_VEC cppVar_1083 = (0 << 5) | cppVar_1082;
 	cppVar_1083 = (cppVar_1083 & cppMask_un_8_);
-	bool cppVar_1085 = (cppVar_1083 == 138);
-	BIT_VEC cppVar_1086 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_1087 = (cppVar_1086 << 3) | 0;
-	cppVar_1087 = (cppVar_1087 & cppMask_un_5_);
-	BIT_VEC cppVar_1088 = (0 << 5) | cppVar_1087;
-	cppVar_1088 = (cppVar_1088 & cppMask_un_8_);
-	bool cppVar_1090 = (cppVar_1088 == 140);
-	BIT_VEC cppVar_1091 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_1092 = (cppVar_1091 << 3) | 0;
-	cppVar_1092 = (cppVar_1092 & cppMask_un_5_);
-	BIT_VEC cppVar_1093 = (0 << 5) | cppVar_1092;
-	cppVar_1093 = (cppVar_1093 & cppMask_un_8_);
-	bool cppVar_1095 = (cppVar_1093 == 139);
-	BIT_VEC cppVar_1096 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_1097 = (cppVar_1096 << 3) | 0;
-	cppVar_1097 = (cppVar_1097 & cppMask_un_5_);
-	BIT_VEC cppVar_1098 = (0 << 5) | cppVar_1097;
-	cppVar_1098 = (cppVar_1098 & cppMask_un_8_);
-	bool cppVar_1100 = (cppVar_1098 == 141);
-	BIT_VEC cppVar_1101 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_1102 = (cppVar_1101 << 3) | 0;
-	cppVar_1102 = (cppVar_1102 & cppMask_un_5_);
-	BIT_VEC cppVar_1103 = (0 << 5) | cppVar_1102;
-	cppVar_1103 = (cppVar_1103 & cppMask_un_8_);
-	bool cppVar_1105 = (cppVar_1103 == 144);
-	BIT_VEC cppVar_1106 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_1107 = (cppVar_1106 << 3) | 0;
-	cppVar_1107 = (cppVar_1107 & cppMask_un_5_);
-	BIT_VEC cppVar_1108 = (0 << 5) | cppVar_1107;
-	cppVar_1108 = (cppVar_1108 & cppMask_un_8_);
-	bool cppVar_1110 = (cppVar_1108 == 152);
+	bool cppVar_1085 = (cppVar_1083 == 131);
+	if (cppVar_1085) {
+	cppVar_1080 = DPH;
+	} else {
+	BIT_VEC cppVar_1086;
+	BIT_VEC cppVar_1087 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_1088 = (cppVar_1087 << 3) | 0;
+	cppVar_1088 = (cppVar_1088 & cppMask_un_5_);
+	BIT_VEC cppVar_1089 = (0 << 5) | cppVar_1088;
+	cppVar_1089 = (cppVar_1089 & cppMask_un_8_);
+	bool cppVar_1091 = (cppVar_1089 == 135);
+	if (cppVar_1091) {
+	cppVar_1086 = PCON;
+	} else {
+	BIT_VEC cppVar_1092;
+	BIT_VEC cppVar_1093 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_1094 = (cppVar_1093 << 3) | 0;
+	cppVar_1094 = (cppVar_1094 & cppMask_un_5_);
+	BIT_VEC cppVar_1095 = (0 << 5) | cppVar_1094;
+	cppVar_1095 = (cppVar_1095 & cppMask_un_8_);
+	bool cppVar_1097 = (cppVar_1095 == 136);
+	if (cppVar_1097) {
+	cppVar_1092 = TCON;
+	} else {
+	BIT_VEC cppVar_1098;
+	BIT_VEC cppVar_1099 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_1100 = (cppVar_1099 << 3) | 0;
+	cppVar_1100 = (cppVar_1100 & cppMask_un_5_);
+	BIT_VEC cppVar_1101 = (0 << 5) | cppVar_1100;
+	cppVar_1101 = (cppVar_1101 & cppMask_un_8_);
+	bool cppVar_1103 = (cppVar_1101 == 137);
+	if (cppVar_1103) {
+	cppVar_1098 = TMOD;
+	} else {
+	BIT_VEC cppVar_1104;
+	BIT_VEC cppVar_1105 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_1106 = (cppVar_1105 << 3) | 0;
+	cppVar_1106 = (cppVar_1106 & cppMask_un_5_);
+	BIT_VEC cppVar_1107 = (0 << 5) | cppVar_1106;
+	cppVar_1107 = (cppVar_1107 & cppMask_un_8_);
+	bool cppVar_1109 = (cppVar_1107 == 138);
+	if (cppVar_1109) {
+	cppVar_1104 = TL0;
+	} else {
+	BIT_VEC cppVar_1110;
 	BIT_VEC cppVar_1111 = (PSW >> 3) & cppMask_un_2_;
 	BIT_VEC cppVar_1112 = (cppVar_1111 << 3) | 0;
 	cppVar_1112 = (cppVar_1112 & cppMask_un_5_);
 	BIT_VEC cppVar_1113 = (0 << 5) | cppVar_1112;
 	cppVar_1113 = (cppVar_1113 & cppMask_un_8_);
-	bool cppVar_1115 = (cppVar_1113 == 153);
-	BIT_VEC cppVar_1116 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_1117 = (cppVar_1116 << 3) | 0;
-	cppVar_1117 = (cppVar_1117 & cppMask_un_5_);
-	BIT_VEC cppVar_1118 = (0 << 5) | cppVar_1117;
-	cppVar_1118 = (cppVar_1118 & cppMask_un_8_);
-	bool cppVar_1120 = (cppVar_1118 == 160);
-	BIT_VEC cppVar_1121 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_1122 = (cppVar_1121 << 3) | 0;
-	cppVar_1122 = (cppVar_1122 & cppMask_un_5_);
-	BIT_VEC cppVar_1123 = (0 << 5) | cppVar_1122;
-	cppVar_1123 = (cppVar_1123 & cppMask_un_8_);
-	bool cppVar_1125 = (cppVar_1123 == 168);
-	BIT_VEC cppVar_1126 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_1127 = (cppVar_1126 << 3) | 0;
-	cppVar_1127 = (cppVar_1127 & cppMask_un_5_);
-	BIT_VEC cppVar_1128 = (0 << 5) | cppVar_1127;
-	cppVar_1128 = (cppVar_1128 & cppMask_un_8_);
-	bool cppVar_1130 = (cppVar_1128 == 176);
-	BIT_VEC cppVar_1131 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_1132 = (cppVar_1131 << 3) | 0;
-	cppVar_1132 = (cppVar_1132 & cppMask_un_5_);
-	BIT_VEC cppVar_1133 = (0 << 5) | cppVar_1132;
-	cppVar_1133 = (cppVar_1133 & cppMask_un_8_);
-	bool cppVar_1135 = (cppVar_1133 == 184);
-	BIT_VEC cppVar_1136 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_1137 = (cppVar_1136 << 3) | 0;
-	cppVar_1137 = (cppVar_1137 & cppMask_un_5_);
-	BIT_VEC cppVar_1138 = (0 << 5) | cppVar_1137;
-	cppVar_1138 = (cppVar_1138 & cppMask_un_8_);
-	bool cppVar_1140 = (cppVar_1138 == 208);
+	bool cppVar_1115 = (cppVar_1113 == 140);
+	if (cppVar_1115) {
+	cppVar_1110 = TH0;
+	} else {
+	BIT_VEC cppVar_1116;
+	BIT_VEC cppVar_1117 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_1118 = (cppVar_1117 << 3) | 0;
+	cppVar_1118 = (cppVar_1118 & cppMask_un_5_);
+	BIT_VEC cppVar_1119 = (0 << 5) | cppVar_1118;
+	cppVar_1119 = (cppVar_1119 & cppMask_un_8_);
+	bool cppVar_1121 = (cppVar_1119 == 139);
+	if (cppVar_1121) {
+	cppVar_1116 = TL1;
+	} else {
+	BIT_VEC cppVar_1122;
+	BIT_VEC cppVar_1123 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_1124 = (cppVar_1123 << 3) | 0;
+	cppVar_1124 = (cppVar_1124 & cppMask_un_5_);
+	BIT_VEC cppVar_1125 = (0 << 5) | cppVar_1124;
+	cppVar_1125 = (cppVar_1125 & cppMask_un_8_);
+	bool cppVar_1127 = (cppVar_1125 == 141);
+	if (cppVar_1127) {
+	cppVar_1122 = TH1;
+	} else {
+	BIT_VEC cppVar_1128;
+	BIT_VEC cppVar_1129 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_1130 = (cppVar_1129 << 3) | 0;
+	cppVar_1130 = (cppVar_1130 & cppMask_un_5_);
+	BIT_VEC cppVar_1131 = (0 << 5) | cppVar_1130;
+	cppVar_1131 = (cppVar_1131 & cppMask_un_8_);
+	bool cppVar_1133 = (cppVar_1131 == 144);
+	if (cppVar_1133) {
+	cppVar_1128 = P1;
+	} else {
+	BIT_VEC cppVar_1134;
+	BIT_VEC cppVar_1135 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_1136 = (cppVar_1135 << 3) | 0;
+	cppVar_1136 = (cppVar_1136 & cppMask_un_5_);
+	BIT_VEC cppVar_1137 = (0 << 5) | cppVar_1136;
+	cppVar_1137 = (cppVar_1137 & cppMask_un_8_);
+	bool cppVar_1139 = (cppVar_1137 == 152);
+	if (cppVar_1139) {
+	cppVar_1134 = SCON;
+	} else {
+	BIT_VEC cppVar_1140;
 	BIT_VEC cppVar_1141 = (PSW >> 3) & cppMask_un_2_;
 	BIT_VEC cppVar_1142 = (cppVar_1141 << 3) | 0;
 	cppVar_1142 = (cppVar_1142 & cppMask_un_5_);
 	BIT_VEC cppVar_1143 = (0 << 5) | cppVar_1142;
 	cppVar_1143 = (cppVar_1143 & cppMask_un_8_);
-	bool cppVar_1145 = (cppVar_1143 == 224);
-	BIT_VEC cppVar_1146 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_1147 = (cppVar_1146 << 3) | 0;
-	cppVar_1147 = (cppVar_1147 & cppMask_un_5_);
-	BIT_VEC cppVar_1148 = (0 << 5) | cppVar_1147;
-	cppVar_1148 = (cppVar_1148 & cppMask_un_8_);
-	bool cppVar_1150 = (cppVar_1148 == 240);
-	BIT_VEC cppVar_1152 = (cppVar_1150) ? B : 0;
-	BIT_VEC cppVar_1153 = (cppVar_1145) ? ACC : cppVar_1152;
-	BIT_VEC cppVar_1154 = (cppVar_1140) ? PSW : cppVar_1153;
-	BIT_VEC cppVar_1155 = (cppVar_1135) ? IP : cppVar_1154;
-	BIT_VEC cppVar_1156 = (cppVar_1130) ? P3 : cppVar_1155;
-	BIT_VEC cppVar_1157 = (cppVar_1125) ? IE : cppVar_1156;
-	BIT_VEC cppVar_1158 = (cppVar_1120) ? P2 : cppVar_1157;
-	BIT_VEC cppVar_1159 = (cppVar_1115) ? SBUF : cppVar_1158;
-	BIT_VEC cppVar_1160 = (cppVar_1110) ? SCON : cppVar_1159;
-	BIT_VEC cppVar_1161 = (cppVar_1105) ? P1 : cppVar_1160;
-	BIT_VEC cppVar_1162 = (cppVar_1100) ? TH1 : cppVar_1161;
-	BIT_VEC cppVar_1163 = (cppVar_1095) ? TL1 : cppVar_1162;
-	BIT_VEC cppVar_1164 = (cppVar_1090) ? TH0 : cppVar_1163;
-	BIT_VEC cppVar_1165 = (cppVar_1085) ? TL0 : cppVar_1164;
-	BIT_VEC cppVar_1166 = (cppVar_1080) ? TMOD : cppVar_1165;
-	BIT_VEC cppVar_1167 = (cppVar_1075) ? TCON : cppVar_1166;
-	BIT_VEC cppVar_1168 = (cppVar_1070) ? PCON : cppVar_1167;
-	BIT_VEC cppVar_1169 = (cppVar_1065) ? DPH : cppVar_1168;
-	BIT_VEC cppVar_1170 = (cppVar_1060) ? DPL : cppVar_1169;
-	BIT_VEC cppVar_1171 = (cppVar_1055) ? SP : cppVar_1170;
-	BIT_VEC cppVar_1172 = (cppVar_1050) ? P0 : cppVar_1171;
-	BIT_VEC cppVar_1173 = (cppVar_1041) ? cppVar_1045 : cppVar_1172;
-	BIT_VEC cppVar_1174 = ROM.rd(PC);
-	bool cppVar_1176 = (cppVar_1174 == 231);
-	BIT_VEC cppVar_1177 = ROM.rd(PC);
-	bool cppVar_1179 = (cppVar_1177 == 199);
-	bool cppVar_1180 = cppVar_1176 || cppVar_1179;
-	BIT_VEC cppVar_1182 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_1184 = (cppVar_1182 << 3) | 1;
+	bool cppVar_1145 = (cppVar_1143 == 153);
+	if (cppVar_1145) {
+	cppVar_1140 = SBUF;
+	} else {
+	BIT_VEC cppVar_1146;
+	BIT_VEC cppVar_1147 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_1148 = (cppVar_1147 << 3) | 0;
+	cppVar_1148 = (cppVar_1148 & cppMask_un_5_);
+	BIT_VEC cppVar_1149 = (0 << 5) | cppVar_1148;
+	cppVar_1149 = (cppVar_1149 & cppMask_un_8_);
+	bool cppVar_1151 = (cppVar_1149 == 160);
+	if (cppVar_1151) {
+	cppVar_1146 = P2;
+	} else {
+	BIT_VEC cppVar_1152;
+	BIT_VEC cppVar_1153 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_1154 = (cppVar_1153 << 3) | 0;
+	cppVar_1154 = (cppVar_1154 & cppMask_un_5_);
+	BIT_VEC cppVar_1155 = (0 << 5) | cppVar_1154;
+	cppVar_1155 = (cppVar_1155 & cppMask_un_8_);
+	bool cppVar_1157 = (cppVar_1155 == 168);
+	if (cppVar_1157) {
+	cppVar_1152 = IE;
+	} else {
+	BIT_VEC cppVar_1158;
+	BIT_VEC cppVar_1159 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_1160 = (cppVar_1159 << 3) | 0;
+	cppVar_1160 = (cppVar_1160 & cppMask_un_5_);
+	BIT_VEC cppVar_1161 = (0 << 5) | cppVar_1160;
+	cppVar_1161 = (cppVar_1161 & cppMask_un_8_);
+	bool cppVar_1163 = (cppVar_1161 == 176);
+	if (cppVar_1163) {
+	cppVar_1158 = P3;
+	} else {
+	BIT_VEC cppVar_1164;
+	BIT_VEC cppVar_1165 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_1166 = (cppVar_1165 << 3) | 0;
+	cppVar_1166 = (cppVar_1166 & cppMask_un_5_);
+	BIT_VEC cppVar_1167 = (0 << 5) | cppVar_1166;
+	cppVar_1167 = (cppVar_1167 & cppMask_un_8_);
+	bool cppVar_1169 = (cppVar_1167 == 184);
+	if (cppVar_1169) {
+	cppVar_1164 = IP;
+	} else {
+	BIT_VEC cppVar_1170;
+	BIT_VEC cppVar_1171 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_1172 = (cppVar_1171 << 3) | 0;
+	cppVar_1172 = (cppVar_1172 & cppMask_un_5_);
+	BIT_VEC cppVar_1173 = (0 << 5) | cppVar_1172;
+	cppVar_1173 = (cppVar_1173 & cppMask_un_8_);
+	bool cppVar_1175 = (cppVar_1173 == 208);
+	if (cppVar_1175) {
+	cppVar_1170 = PSW;
+	} else {
+	BIT_VEC cppVar_1176;
+	BIT_VEC cppVar_1177 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_1178 = (cppVar_1177 << 3) | 0;
+	cppVar_1178 = (cppVar_1178 & cppMask_un_5_);
+	BIT_VEC cppVar_1179 = (0 << 5) | cppVar_1178;
+	cppVar_1179 = (cppVar_1179 & cppMask_un_8_);
+	bool cppVar_1181 = (cppVar_1179 == 224);
+	if (cppVar_1181) {
+	cppVar_1176 = ACC;
+	} else {
+	BIT_VEC cppVar_1182;
+	BIT_VEC cppVar_1183 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_1184 = (cppVar_1183 << 3) | 0;
 	cppVar_1184 = (cppVar_1184 & cppMask_un_5_);
 	BIT_VEC cppVar_1185 = (0 << 5) | cppVar_1184;
 	cppVar_1185 = (cppVar_1185 & cppMask_un_8_);
-	BIT_VEC cppVar_1186 = IRAM.rd(cppVar_1185);
-	BIT_VEC cppVar_1187 = IRAM.rd(cppVar_1186);
-	BIT_VEC cppVar_1188 = ROM.rd(PC);
-	bool cppVar_1190 = (cppVar_1188 == 230);
-	BIT_VEC cppVar_1191 = ROM.rd(PC);
-	bool cppVar_1193 = (cppVar_1191 == 198);
-	bool cppVar_1194 = cppVar_1190 || cppVar_1193;
-	BIT_VEC cppVar_1196 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_1198 = (cppVar_1196 << 3) | 0;
-	cppVar_1198 = (cppVar_1198 & cppMask_un_5_);
-	BIT_VEC cppVar_1199 = (0 << 5) | cppVar_1198;
-	cppVar_1199 = (cppVar_1199 & cppMask_un_8_);
-	BIT_VEC cppVar_1200 = IRAM.rd(cppVar_1199);
-	BIT_VEC cppVar_1201 = IRAM.rd(cppVar_1200);
-	BIT_VEC cppVar_1202 = ROM.rd(PC);
-	bool cppVar_1204 = (cppVar_1202 == 229);
+	bool cppVar_1187 = (cppVar_1185 == 240);
+	if (cppVar_1187) {
+	cppVar_1182 = B;
+	} else {
+	cppVar_1182 = 0;
+	}
+	cppVar_1176 = cppVar_1182;
+	}
+	cppVar_1170 = cppVar_1176;
+	}
+	cppVar_1164 = cppVar_1170;
+	}
+	cppVar_1158 = cppVar_1164;
+	}
+	cppVar_1152 = cppVar_1158;
+	}
+	cppVar_1146 = cppVar_1152;
+	}
+	cppVar_1140 = cppVar_1146;
+	}
+	cppVar_1134 = cppVar_1140;
+	}
+	cppVar_1128 = cppVar_1134;
+	}
+	cppVar_1122 = cppVar_1128;
+	}
+	cppVar_1116 = cppVar_1122;
+	}
+	cppVar_1110 = cppVar_1116;
+	}
+	cppVar_1104 = cppVar_1110;
+	}
+	cppVar_1098 = cppVar_1104;
+	}
+	cppVar_1092 = cppVar_1098;
+	}
+	cppVar_1086 = cppVar_1092;
+	}
+	cppVar_1080 = cppVar_1086;
+	}
+	cppVar_1074 = cppVar_1080;
+	}
+	cppVar_1068 = cppVar_1074;
+	}
+	cppVar_1062 = cppVar_1068;
+	}
+	cppVar_1049 = cppVar_1062;
+	}
+	cppVar_1041 = cppVar_1049;
+	} else {
+	BIT_VEC cppVar_1189;
+	BIT_VEC cppVar_1190 = ROM.rd(PC);
+	bool cppVar_1192 = (cppVar_1190 == 231);
+	BIT_VEC cppVar_1193 = ROM.rd(PC);
+	bool cppVar_1195 = (cppVar_1193 == 199);
+	bool cppVar_1196 = cppVar_1192 || cppVar_1195;
+	if (cppVar_1196) {
+	BIT_VEC cppVar_1198 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_1200 = (cppVar_1198 << 3) | 1;
+	cppVar_1200 = (cppVar_1200 & cppMask_un_5_);
+	BIT_VEC cppVar_1201 = (0 << 5) | cppVar_1200;
+	cppVar_1201 = (cppVar_1201 & cppMask_un_8_);
+	BIT_VEC cppVar_1202 = IRAM.rd(cppVar_1201);
+	BIT_VEC cppVar_1203 = IRAM.rd(cppVar_1202);
+	cppVar_1189 = cppVar_1203;
+	} else {
+	BIT_VEC cppVar_1204;
 	BIT_VEC cppVar_1205 = ROM.rd(PC);
-	bool cppVar_1207 = (cppVar_1205 == 197);
-	bool cppVar_1208 = cppVar_1204 || cppVar_1207;
-	BIT_VEC cppVar_1210 = PC + 1;
-	cppVar_1210 = (cppVar_1210 & cppMask_un_16_);
-	BIT_VEC cppVar_1211 = ROM.rd(cppVar_1210);
-	BIT_VEC cppVar_1212 = (cppVar_1211 >> 7) & cppMask_un_1_;
-	bool cppVar_1214 = (cppVar_1212 == 0);
-	BIT_VEC cppVar_1215 = PC + 1;
-	cppVar_1215 = (cppVar_1215 & cppMask_un_16_);
-	BIT_VEC cppVar_1216 = ROM.rd(cppVar_1215);
+	bool cppVar_1207 = (cppVar_1205 == 230);
+	BIT_VEC cppVar_1208 = ROM.rd(PC);
+	bool cppVar_1210 = (cppVar_1208 == 198);
+	bool cppVar_1211 = cppVar_1207 || cppVar_1210;
+	if (cppVar_1211) {
+	BIT_VEC cppVar_1213 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_1215 = (cppVar_1213 << 3) | 0;
+	cppVar_1215 = (cppVar_1215 & cppMask_un_5_);
+	BIT_VEC cppVar_1216 = (0 << 5) | cppVar_1215;
+	cppVar_1216 = (cppVar_1216 & cppMask_un_8_);
 	BIT_VEC cppVar_1217 = IRAM.rd(cppVar_1216);
-	BIT_VEC cppVar_1218 = PC + 1;
-	cppVar_1218 = (cppVar_1218 & cppMask_un_16_);
-	BIT_VEC cppVar_1219 = ROM.rd(cppVar_1218);
-	bool cppVar_1221 = (cppVar_1219 == 128);
-	BIT_VEC cppVar_1222 = PC + 1;
-	cppVar_1222 = (cppVar_1222 & cppMask_un_16_);
-	BIT_VEC cppVar_1223 = ROM.rd(cppVar_1222);
-	bool cppVar_1225 = (cppVar_1223 == 129);
-	BIT_VEC cppVar_1226 = PC + 1;
-	cppVar_1226 = (cppVar_1226 & cppMask_un_16_);
-	BIT_VEC cppVar_1227 = ROM.rd(cppVar_1226);
-	bool cppVar_1229 = (cppVar_1227 == 130);
-	BIT_VEC cppVar_1230 = PC + 1;
-	cppVar_1230 = (cppVar_1230 & cppMask_un_16_);
-	BIT_VEC cppVar_1231 = ROM.rd(cppVar_1230);
-	bool cppVar_1233 = (cppVar_1231 == 131);
+	BIT_VEC cppVar_1218 = IRAM.rd(cppVar_1217);
+	cppVar_1204 = cppVar_1218;
+	} else {
+	BIT_VEC cppVar_1219;
+	BIT_VEC cppVar_1220 = ROM.rd(PC);
+	bool cppVar_1222 = (cppVar_1220 == 229);
+	BIT_VEC cppVar_1223 = ROM.rd(PC);
+	bool cppVar_1225 = (cppVar_1223 == 197);
+	bool cppVar_1226 = cppVar_1222 || cppVar_1225;
+	if (cppVar_1226) {
+	BIT_VEC cppVar_1227;
+	BIT_VEC cppVar_1229 = PC + 1;
+	cppVar_1229 = (cppVar_1229 & cppMask_un_16_);
+	BIT_VEC cppVar_1230 = ROM.rd(cppVar_1229);
+	BIT_VEC cppVar_1231 = (cppVar_1230 >> 7) & cppMask_un_1_;
+	bool cppVar_1233 = (cppVar_1231 == 0);
+	if (cppVar_1233) {
 	BIT_VEC cppVar_1234 = PC + 1;
 	cppVar_1234 = (cppVar_1234 & cppMask_un_16_);
 	BIT_VEC cppVar_1235 = ROM.rd(cppVar_1234);
-	bool cppVar_1237 = (cppVar_1235 == 135);
+	BIT_VEC cppVar_1236 = IRAM.rd(cppVar_1235);
+	cppVar_1227 = cppVar_1236;
+	} else {
+	BIT_VEC cppVar_1237;
 	BIT_VEC cppVar_1238 = PC + 1;
 	cppVar_1238 = (cppVar_1238 & cppMask_un_16_);
 	BIT_VEC cppVar_1239 = ROM.rd(cppVar_1238);
-	bool cppVar_1241 = (cppVar_1239 == 136);
-	BIT_VEC cppVar_1242 = PC + 1;
-	cppVar_1242 = (cppVar_1242 & cppMask_un_16_);
-	BIT_VEC cppVar_1243 = ROM.rd(cppVar_1242);
-	bool cppVar_1245 = (cppVar_1243 == 137);
-	BIT_VEC cppVar_1246 = PC + 1;
-	cppVar_1246 = (cppVar_1246 & cppMask_un_16_);
-	BIT_VEC cppVar_1247 = ROM.rd(cppVar_1246);
-	bool cppVar_1249 = (cppVar_1247 == 138);
-	BIT_VEC cppVar_1250 = PC + 1;
-	cppVar_1250 = (cppVar_1250 & cppMask_un_16_);
-	BIT_VEC cppVar_1251 = ROM.rd(cppVar_1250);
-	bool cppVar_1253 = (cppVar_1251 == 140);
-	BIT_VEC cppVar_1254 = PC + 1;
-	cppVar_1254 = (cppVar_1254 & cppMask_un_16_);
-	BIT_VEC cppVar_1255 = ROM.rd(cppVar_1254);
-	bool cppVar_1257 = (cppVar_1255 == 139);
+	bool cppVar_1241 = (cppVar_1239 == 128);
+	if (cppVar_1241) {
+	cppVar_1237 = P0;
+	} else {
+	BIT_VEC cppVar_1242;
+	BIT_VEC cppVar_1243 = PC + 1;
+	cppVar_1243 = (cppVar_1243 & cppMask_un_16_);
+	BIT_VEC cppVar_1244 = ROM.rd(cppVar_1243);
+	bool cppVar_1246 = (cppVar_1244 == 129);
+	if (cppVar_1246) {
+	cppVar_1242 = SP;
+	} else {
+	BIT_VEC cppVar_1247;
+	BIT_VEC cppVar_1248 = PC + 1;
+	cppVar_1248 = (cppVar_1248 & cppMask_un_16_);
+	BIT_VEC cppVar_1249 = ROM.rd(cppVar_1248);
+	bool cppVar_1251 = (cppVar_1249 == 130);
+	if (cppVar_1251) {
+	cppVar_1247 = DPL;
+	} else {
+	BIT_VEC cppVar_1252;
+	BIT_VEC cppVar_1253 = PC + 1;
+	cppVar_1253 = (cppVar_1253 & cppMask_un_16_);
+	BIT_VEC cppVar_1254 = ROM.rd(cppVar_1253);
+	bool cppVar_1256 = (cppVar_1254 == 131);
+	if (cppVar_1256) {
+	cppVar_1252 = DPH;
+	} else {
+	BIT_VEC cppVar_1257;
 	BIT_VEC cppVar_1258 = PC + 1;
 	cppVar_1258 = (cppVar_1258 & cppMask_un_16_);
 	BIT_VEC cppVar_1259 = ROM.rd(cppVar_1258);
-	bool cppVar_1261 = (cppVar_1259 == 141);
-	BIT_VEC cppVar_1262 = PC + 1;
-	cppVar_1262 = (cppVar_1262 & cppMask_un_16_);
-	BIT_VEC cppVar_1263 = ROM.rd(cppVar_1262);
-	bool cppVar_1265 = (cppVar_1263 == 144);
-	BIT_VEC cppVar_1266 = PC + 1;
-	cppVar_1266 = (cppVar_1266 & cppMask_un_16_);
-	BIT_VEC cppVar_1267 = ROM.rd(cppVar_1266);
-	bool cppVar_1269 = (cppVar_1267 == 152);
-	BIT_VEC cppVar_1270 = PC + 1;
-	cppVar_1270 = (cppVar_1270 & cppMask_un_16_);
-	BIT_VEC cppVar_1271 = ROM.rd(cppVar_1270);
-	bool cppVar_1273 = (cppVar_1271 == 153);
-	BIT_VEC cppVar_1274 = PC + 1;
-	cppVar_1274 = (cppVar_1274 & cppMask_un_16_);
-	BIT_VEC cppVar_1275 = ROM.rd(cppVar_1274);
-	bool cppVar_1277 = (cppVar_1275 == 160);
+	bool cppVar_1261 = (cppVar_1259 == 135);
+	if (cppVar_1261) {
+	cppVar_1257 = PCON;
+	} else {
+	BIT_VEC cppVar_1262;
+	BIT_VEC cppVar_1263 = PC + 1;
+	cppVar_1263 = (cppVar_1263 & cppMask_un_16_);
+	BIT_VEC cppVar_1264 = ROM.rd(cppVar_1263);
+	bool cppVar_1266 = (cppVar_1264 == 136);
+	if (cppVar_1266) {
+	cppVar_1262 = TCON;
+	} else {
+	BIT_VEC cppVar_1267;
+	BIT_VEC cppVar_1268 = PC + 1;
+	cppVar_1268 = (cppVar_1268 & cppMask_un_16_);
+	BIT_VEC cppVar_1269 = ROM.rd(cppVar_1268);
+	bool cppVar_1271 = (cppVar_1269 == 137);
+	if (cppVar_1271) {
+	cppVar_1267 = TMOD;
+	} else {
+	BIT_VEC cppVar_1272;
+	BIT_VEC cppVar_1273 = PC + 1;
+	cppVar_1273 = (cppVar_1273 & cppMask_un_16_);
+	BIT_VEC cppVar_1274 = ROM.rd(cppVar_1273);
+	bool cppVar_1276 = (cppVar_1274 == 138);
+	if (cppVar_1276) {
+	cppVar_1272 = TL0;
+	} else {
+	BIT_VEC cppVar_1277;
 	BIT_VEC cppVar_1278 = PC + 1;
 	cppVar_1278 = (cppVar_1278 & cppMask_un_16_);
 	BIT_VEC cppVar_1279 = ROM.rd(cppVar_1278);
-	bool cppVar_1281 = (cppVar_1279 == 168);
-	BIT_VEC cppVar_1282 = PC + 1;
-	cppVar_1282 = (cppVar_1282 & cppMask_un_16_);
-	BIT_VEC cppVar_1283 = ROM.rd(cppVar_1282);
-	bool cppVar_1285 = (cppVar_1283 == 176);
-	BIT_VEC cppVar_1286 = PC + 1;
-	cppVar_1286 = (cppVar_1286 & cppMask_un_16_);
-	BIT_VEC cppVar_1287 = ROM.rd(cppVar_1286);
-	bool cppVar_1289 = (cppVar_1287 == 184);
-	BIT_VEC cppVar_1290 = PC + 1;
-	cppVar_1290 = (cppVar_1290 & cppMask_un_16_);
-	BIT_VEC cppVar_1291 = ROM.rd(cppVar_1290);
-	bool cppVar_1293 = (cppVar_1291 == 208);
-	BIT_VEC cppVar_1294 = PC + 1;
-	cppVar_1294 = (cppVar_1294 & cppMask_un_16_);
-	BIT_VEC cppVar_1295 = ROM.rd(cppVar_1294);
-	bool cppVar_1297 = (cppVar_1295 == 224);
+	bool cppVar_1281 = (cppVar_1279 == 140);
+	if (cppVar_1281) {
+	cppVar_1277 = TH0;
+	} else {
+	BIT_VEC cppVar_1282;
+	BIT_VEC cppVar_1283 = PC + 1;
+	cppVar_1283 = (cppVar_1283 & cppMask_un_16_);
+	BIT_VEC cppVar_1284 = ROM.rd(cppVar_1283);
+	bool cppVar_1286 = (cppVar_1284 == 139);
+	if (cppVar_1286) {
+	cppVar_1282 = TL1;
+	} else {
+	BIT_VEC cppVar_1287;
+	BIT_VEC cppVar_1288 = PC + 1;
+	cppVar_1288 = (cppVar_1288 & cppMask_un_16_);
+	BIT_VEC cppVar_1289 = ROM.rd(cppVar_1288);
+	bool cppVar_1291 = (cppVar_1289 == 141);
+	if (cppVar_1291) {
+	cppVar_1287 = TH1;
+	} else {
+	BIT_VEC cppVar_1292;
+	BIT_VEC cppVar_1293 = PC + 1;
+	cppVar_1293 = (cppVar_1293 & cppMask_un_16_);
+	BIT_VEC cppVar_1294 = ROM.rd(cppVar_1293);
+	bool cppVar_1296 = (cppVar_1294 == 144);
+	if (cppVar_1296) {
+	cppVar_1292 = P1;
+	} else {
+	BIT_VEC cppVar_1297;
 	BIT_VEC cppVar_1298 = PC + 1;
 	cppVar_1298 = (cppVar_1298 & cppMask_un_16_);
 	BIT_VEC cppVar_1299 = ROM.rd(cppVar_1298);
-	bool cppVar_1301 = (cppVar_1299 == 240);
-	BIT_VEC cppVar_1303 = (cppVar_1301) ? B : 0;
-	BIT_VEC cppVar_1304 = (cppVar_1297) ? ACC : cppVar_1303;
-	BIT_VEC cppVar_1305 = (cppVar_1293) ? PSW : cppVar_1304;
-	BIT_VEC cppVar_1306 = (cppVar_1289) ? IP : cppVar_1305;
-	BIT_VEC cppVar_1307 = (cppVar_1285) ? P3 : cppVar_1306;
-	BIT_VEC cppVar_1308 = (cppVar_1281) ? IE : cppVar_1307;
-	BIT_VEC cppVar_1309 = (cppVar_1277) ? P2 : cppVar_1308;
-	BIT_VEC cppVar_1310 = (cppVar_1273) ? SBUF : cppVar_1309;
-	BIT_VEC cppVar_1311 = (cppVar_1269) ? SCON : cppVar_1310;
-	BIT_VEC cppVar_1312 = (cppVar_1265) ? P1 : cppVar_1311;
-	BIT_VEC cppVar_1313 = (cppVar_1261) ? TH1 : cppVar_1312;
-	BIT_VEC cppVar_1314 = (cppVar_1257) ? TL1 : cppVar_1313;
-	BIT_VEC cppVar_1315 = (cppVar_1253) ? TH0 : cppVar_1314;
-	BIT_VEC cppVar_1316 = (cppVar_1249) ? TL0 : cppVar_1315;
-	BIT_VEC cppVar_1317 = (cppVar_1245) ? TMOD : cppVar_1316;
-	BIT_VEC cppVar_1318 = (cppVar_1241) ? TCON : cppVar_1317;
-	BIT_VEC cppVar_1319 = (cppVar_1237) ? PCON : cppVar_1318;
-	BIT_VEC cppVar_1320 = (cppVar_1233) ? DPH : cppVar_1319;
-	BIT_VEC cppVar_1321 = (cppVar_1229) ? DPL : cppVar_1320;
-	BIT_VEC cppVar_1322 = (cppVar_1225) ? SP : cppVar_1321;
-	BIT_VEC cppVar_1323 = (cppVar_1221) ? P0 : cppVar_1322;
-	BIT_VEC cppVar_1324 = (cppVar_1214) ? cppVar_1217 : cppVar_1323;
-	BIT_VEC cppVar_1325 = ROM.rd(PC);
-	bool cppVar_1327 = (cppVar_1325 == 196);
-	BIT_VEC cppVar_1328 = (ACC >> 0) & cppMask_un_4_;
-	BIT_VEC cppVar_1329 = (ACC >> 4) & cppMask_un_4_;
-	BIT_VEC cppVar_1330 = (cppVar_1328 << 4) | cppVar_1329;
-	cppVar_1330 = (cppVar_1330 & cppMask_un_8_);
-	BIT_VEC cppVar_1331 = ROM.rd(PC);
-	bool cppVar_1333 = (cppVar_1331 == 164);
-	BIT_VEC cppVar_1334 = (ACC & cppMask_un_8_);
-	BIT_VEC cppVar_1335 = (B & cppMask_un_8_);
-	BIT_VEC cppVar_1336 = cppVar_1334 * cppVar_1335;
-	cppVar_1336 = (cppVar_1336 & cppMask_un_16_);
-	BIT_VEC cppVar_1337 = (cppVar_1336 >> 0) & cppMask_un_8_;
-	BIT_VEC cppVar_1338 = ROM.rd(PC);
-	bool cppVar_1340 = (cppVar_1338 == 159);
-	BIT_VEC cppVar_1342 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_1344 = (cppVar_1342 << 3) | 7;
-	cppVar_1344 = (cppVar_1344 & cppMask_un_5_);
-	BIT_VEC cppVar_1345 = (0 << 5) | cppVar_1344;
-	cppVar_1345 = (cppVar_1345 & cppMask_un_8_);
-	BIT_VEC cppVar_1346 = IRAM.rd(cppVar_1345);
-	BIT_VEC cppVar_1347 = ACC - cppVar_1346;
-	cppVar_1347 = (cppVar_1347 & cppMask_un_8_);
-	BIT_VEC cppVar_1348 = (PSW >> 7) & cppMask_un_1_;
-	BIT_VEC cppVar_1349 = ((cppVar_1348 & cppMask_bit_1_) ? (cppVar_1348 | cppMask_sign_1_) : cppVar_1348);
-	BIT_VEC cppVar_1350 = cppVar_1347 + cppVar_1349;
-	cppVar_1350 = (cppVar_1350 & cppMask_un_8_);
+	bool cppVar_1301 = (cppVar_1299 == 152);
+	if (cppVar_1301) {
+	cppVar_1297 = SCON;
+	} else {
+	BIT_VEC cppVar_1302;
+	BIT_VEC cppVar_1303 = PC + 1;
+	cppVar_1303 = (cppVar_1303 & cppMask_un_16_);
+	BIT_VEC cppVar_1304 = ROM.rd(cppVar_1303);
+	bool cppVar_1306 = (cppVar_1304 == 153);
+	if (cppVar_1306) {
+	cppVar_1302 = SBUF;
+	} else {
+	BIT_VEC cppVar_1307;
+	BIT_VEC cppVar_1308 = PC + 1;
+	cppVar_1308 = (cppVar_1308 & cppMask_un_16_);
+	BIT_VEC cppVar_1309 = ROM.rd(cppVar_1308);
+	bool cppVar_1311 = (cppVar_1309 == 160);
+	if (cppVar_1311) {
+	cppVar_1307 = P2;
+	} else {
+	BIT_VEC cppVar_1312;
+	BIT_VEC cppVar_1313 = PC + 1;
+	cppVar_1313 = (cppVar_1313 & cppMask_un_16_);
+	BIT_VEC cppVar_1314 = ROM.rd(cppVar_1313);
+	bool cppVar_1316 = (cppVar_1314 == 168);
+	if (cppVar_1316) {
+	cppVar_1312 = IE;
+	} else {
+	BIT_VEC cppVar_1317;
+	BIT_VEC cppVar_1318 = PC + 1;
+	cppVar_1318 = (cppVar_1318 & cppMask_un_16_);
+	BIT_VEC cppVar_1319 = ROM.rd(cppVar_1318);
+	bool cppVar_1321 = (cppVar_1319 == 176);
+	if (cppVar_1321) {
+	cppVar_1317 = P3;
+	} else {
+	BIT_VEC cppVar_1322;
+	BIT_VEC cppVar_1323 = PC + 1;
+	cppVar_1323 = (cppVar_1323 & cppMask_un_16_);
+	BIT_VEC cppVar_1324 = ROM.rd(cppVar_1323);
+	bool cppVar_1326 = (cppVar_1324 == 184);
+	if (cppVar_1326) {
+	cppVar_1322 = IP;
+	} else {
+	BIT_VEC cppVar_1327;
+	BIT_VEC cppVar_1328 = PC + 1;
+	cppVar_1328 = (cppVar_1328 & cppMask_un_16_);
+	BIT_VEC cppVar_1329 = ROM.rd(cppVar_1328);
+	bool cppVar_1331 = (cppVar_1329 == 208);
+	if (cppVar_1331) {
+	cppVar_1327 = PSW;
+	} else {
+	BIT_VEC cppVar_1332;
+	BIT_VEC cppVar_1333 = PC + 1;
+	cppVar_1333 = (cppVar_1333 & cppMask_un_16_);
+	BIT_VEC cppVar_1334 = ROM.rd(cppVar_1333);
+	bool cppVar_1336 = (cppVar_1334 == 224);
+	if (cppVar_1336) {
+	cppVar_1332 = ACC;
+	} else {
+	BIT_VEC cppVar_1337;
+	BIT_VEC cppVar_1338 = PC + 1;
+	cppVar_1338 = (cppVar_1338 & cppMask_un_16_);
+	BIT_VEC cppVar_1339 = ROM.rd(cppVar_1338);
+	bool cppVar_1341 = (cppVar_1339 == 240);
+	if (cppVar_1341) {
+	cppVar_1337 = B;
+	} else {
+	cppVar_1337 = 0;
+	}
+	cppVar_1332 = cppVar_1337;
+	}
+	cppVar_1327 = cppVar_1332;
+	}
+	cppVar_1322 = cppVar_1327;
+	}
+	cppVar_1317 = cppVar_1322;
+	}
+	cppVar_1312 = cppVar_1317;
+	}
+	cppVar_1307 = cppVar_1312;
+	}
+	cppVar_1302 = cppVar_1307;
+	}
+	cppVar_1297 = cppVar_1302;
+	}
+	cppVar_1292 = cppVar_1297;
+	}
+	cppVar_1287 = cppVar_1292;
+	}
+	cppVar_1282 = cppVar_1287;
+	}
+	cppVar_1277 = cppVar_1282;
+	}
+	cppVar_1272 = cppVar_1277;
+	}
+	cppVar_1267 = cppVar_1272;
+	}
+	cppVar_1262 = cppVar_1267;
+	}
+	cppVar_1257 = cppVar_1262;
+	}
+	cppVar_1252 = cppVar_1257;
+	}
+	cppVar_1247 = cppVar_1252;
+	}
+	cppVar_1242 = cppVar_1247;
+	}
+	cppVar_1237 = cppVar_1242;
+	}
+	cppVar_1227 = cppVar_1237;
+	}
+	cppVar_1219 = cppVar_1227;
+	} else {
+	BIT_VEC cppVar_1343;
+	BIT_VEC cppVar_1344 = ROM.rd(PC);
+	bool cppVar_1346 = (cppVar_1344 == 196);
+	if (cppVar_1346) {
+	BIT_VEC cppVar_1347 = (ACC >> 0) & cppMask_un_4_;
+	BIT_VEC cppVar_1348 = (ACC >> 4) & cppMask_un_4_;
+	BIT_VEC cppVar_1349 = (cppVar_1347 << 4) | cppVar_1348;
+	cppVar_1349 = (cppVar_1349 & cppMask_un_8_);
+	cppVar_1343 = cppVar_1349;
+	} else {
+	BIT_VEC cppVar_1350;
 	BIT_VEC cppVar_1351 = ROM.rd(PC);
-	bool cppVar_1353 = (cppVar_1351 == 158);
-	BIT_VEC cppVar_1355 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_1357 = (cppVar_1355 << 3) | 6;
-	cppVar_1357 = (cppVar_1357 & cppMask_un_5_);
-	BIT_VEC cppVar_1358 = (0 << 5) | cppVar_1357;
-	cppVar_1358 = (cppVar_1358 & cppMask_un_8_);
-	BIT_VEC cppVar_1359 = IRAM.rd(cppVar_1358);
-	BIT_VEC cppVar_1360 = ACC - cppVar_1359;
-	cppVar_1360 = (cppVar_1360 & cppMask_un_8_);
-	BIT_VEC cppVar_1361 = (PSW >> 7) & cppMask_un_1_;
-	BIT_VEC cppVar_1362 = ((cppVar_1361 & cppMask_bit_1_) ? (cppVar_1361 | cppMask_sign_1_) : cppVar_1361);
-	BIT_VEC cppVar_1363 = cppVar_1360 + cppVar_1362;
-	cppVar_1363 = (cppVar_1363 & cppMask_un_8_);
-	BIT_VEC cppVar_1364 = ROM.rd(PC);
-	bool cppVar_1366 = (cppVar_1364 == 157);
-	BIT_VEC cppVar_1368 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_1370 = (cppVar_1368 << 3) | 5;
-	cppVar_1370 = (cppVar_1370 & cppMask_un_5_);
-	BIT_VEC cppVar_1371 = (0 << 5) | cppVar_1370;
+	bool cppVar_1353 = (cppVar_1351 == 164);
+	if (cppVar_1353) {
+	BIT_VEC cppVar_1354 = (ACC & cppMask_un_8_);
+	BIT_VEC cppVar_1355 = (B & cppMask_un_8_);
+	BIT_VEC cppVar_1356 = cppVar_1354 * cppVar_1355;
+	cppVar_1356 = (cppVar_1356 & cppMask_un_16_);
+	BIT_VEC cppVar_1357 = (cppVar_1356 >> 0) & cppMask_un_8_;
+	cppVar_1350 = cppVar_1357;
+	} else {
+	BIT_VEC cppVar_1358;
+	BIT_VEC cppVar_1359 = ROM.rd(PC);
+	bool cppVar_1361 = (cppVar_1359 == 159);
+	if (cppVar_1361) {
+	BIT_VEC cppVar_1363 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_1365 = (cppVar_1363 << 3) | 7;
+	cppVar_1365 = (cppVar_1365 & cppMask_un_5_);
+	BIT_VEC cppVar_1366 = (0 << 5) | cppVar_1365;
+	cppVar_1366 = (cppVar_1366 & cppMask_un_8_);
+	BIT_VEC cppVar_1367 = IRAM.rd(cppVar_1366);
+	BIT_VEC cppVar_1368 = ACC - cppVar_1367;
+	cppVar_1368 = (cppVar_1368 & cppMask_un_8_);
+	BIT_VEC cppVar_1369 = (PSW >> 7) & cppMask_un_1_;
+	BIT_VEC cppVar_1370 = ((cppVar_1369 & cppMask_bit_1_) ? (cppVar_1369 | cppMask_sign_1_) : cppVar_1369);
+	BIT_VEC cppVar_1371 = cppVar_1368 + cppVar_1370;
 	cppVar_1371 = (cppVar_1371 & cppMask_un_8_);
-	BIT_VEC cppVar_1372 = IRAM.rd(cppVar_1371);
-	BIT_VEC cppVar_1373 = ACC - cppVar_1372;
-	cppVar_1373 = (cppVar_1373 & cppMask_un_8_);
-	BIT_VEC cppVar_1374 = (PSW >> 7) & cppMask_un_1_;
-	BIT_VEC cppVar_1375 = ((cppVar_1374 & cppMask_bit_1_) ? (cppVar_1374 | cppMask_sign_1_) : cppVar_1374);
-	BIT_VEC cppVar_1376 = cppVar_1373 + cppVar_1375;
-	cppVar_1376 = (cppVar_1376 & cppMask_un_8_);
-	BIT_VEC cppVar_1377 = ROM.rd(PC);
-	bool cppVar_1379 = (cppVar_1377 == 156);
-	BIT_VEC cppVar_1381 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_1383 = (cppVar_1381 << 3) | 4;
-	cppVar_1383 = (cppVar_1383 & cppMask_un_5_);
-	BIT_VEC cppVar_1384 = (0 << 5) | cppVar_1383;
-	cppVar_1384 = (cppVar_1384 & cppMask_un_8_);
-	BIT_VEC cppVar_1385 = IRAM.rd(cppVar_1384);
-	BIT_VEC cppVar_1386 = ACC - cppVar_1385;
-	cppVar_1386 = (cppVar_1386 & cppMask_un_8_);
-	BIT_VEC cppVar_1387 = (PSW >> 7) & cppMask_un_1_;
-	BIT_VEC cppVar_1388 = ((cppVar_1387 & cppMask_bit_1_) ? (cppVar_1387 | cppMask_sign_1_) : cppVar_1387);
-	BIT_VEC cppVar_1389 = cppVar_1386 + cppVar_1388;
-	cppVar_1389 = (cppVar_1389 & cppMask_un_8_);
-	BIT_VEC cppVar_1390 = ROM.rd(PC);
-	bool cppVar_1392 = (cppVar_1390 == 155);
-	BIT_VEC cppVar_1394 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_1396 = (cppVar_1394 << 3) | 3;
-	cppVar_1396 = (cppVar_1396 & cppMask_un_5_);
-	BIT_VEC cppVar_1397 = (0 << 5) | cppVar_1396;
-	cppVar_1397 = (cppVar_1397 & cppMask_un_8_);
-	BIT_VEC cppVar_1398 = IRAM.rd(cppVar_1397);
-	BIT_VEC cppVar_1399 = ACC - cppVar_1398;
+	cppVar_1358 = cppVar_1371;
+	} else {
+	BIT_VEC cppVar_1372;
+	BIT_VEC cppVar_1373 = ROM.rd(PC);
+	bool cppVar_1375 = (cppVar_1373 == 158);
+	if (cppVar_1375) {
+	BIT_VEC cppVar_1377 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_1379 = (cppVar_1377 << 3) | 6;
+	cppVar_1379 = (cppVar_1379 & cppMask_un_5_);
+	BIT_VEC cppVar_1380 = (0 << 5) | cppVar_1379;
+	cppVar_1380 = (cppVar_1380 & cppMask_un_8_);
+	BIT_VEC cppVar_1381 = IRAM.rd(cppVar_1380);
+	BIT_VEC cppVar_1382 = ACC - cppVar_1381;
+	cppVar_1382 = (cppVar_1382 & cppMask_un_8_);
+	BIT_VEC cppVar_1383 = (PSW >> 7) & cppMask_un_1_;
+	BIT_VEC cppVar_1384 = ((cppVar_1383 & cppMask_bit_1_) ? (cppVar_1383 | cppMask_sign_1_) : cppVar_1383);
+	BIT_VEC cppVar_1385 = cppVar_1382 + cppVar_1384;
+	cppVar_1385 = (cppVar_1385 & cppMask_un_8_);
+	cppVar_1372 = cppVar_1385;
+	} else {
+	BIT_VEC cppVar_1386;
+	BIT_VEC cppVar_1387 = ROM.rd(PC);
+	bool cppVar_1389 = (cppVar_1387 == 157);
+	if (cppVar_1389) {
+	BIT_VEC cppVar_1391 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_1393 = (cppVar_1391 << 3) | 5;
+	cppVar_1393 = (cppVar_1393 & cppMask_un_5_);
+	BIT_VEC cppVar_1394 = (0 << 5) | cppVar_1393;
+	cppVar_1394 = (cppVar_1394 & cppMask_un_8_);
+	BIT_VEC cppVar_1395 = IRAM.rd(cppVar_1394);
+	BIT_VEC cppVar_1396 = ACC - cppVar_1395;
+	cppVar_1396 = (cppVar_1396 & cppMask_un_8_);
+	BIT_VEC cppVar_1397 = (PSW >> 7) & cppMask_un_1_;
+	BIT_VEC cppVar_1398 = ((cppVar_1397 & cppMask_bit_1_) ? (cppVar_1397 | cppMask_sign_1_) : cppVar_1397);
+	BIT_VEC cppVar_1399 = cppVar_1396 + cppVar_1398;
 	cppVar_1399 = (cppVar_1399 & cppMask_un_8_);
-	BIT_VEC cppVar_1400 = (PSW >> 7) & cppMask_un_1_;
-	BIT_VEC cppVar_1401 = ((cppVar_1400 & cppMask_bit_1_) ? (cppVar_1400 | cppMask_sign_1_) : cppVar_1400);
-	BIT_VEC cppVar_1402 = cppVar_1399 + cppVar_1401;
-	cppVar_1402 = (cppVar_1402 & cppMask_un_8_);
-	BIT_VEC cppVar_1403 = ROM.rd(PC);
-	bool cppVar_1405 = (cppVar_1403 == 154);
-	BIT_VEC cppVar_1407 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_1409 = (cppVar_1407 << 3) | 2;
-	cppVar_1409 = (cppVar_1409 & cppMask_un_5_);
-	BIT_VEC cppVar_1410 = (0 << 5) | cppVar_1409;
+	cppVar_1386 = cppVar_1399;
+	} else {
+	BIT_VEC cppVar_1400;
+	BIT_VEC cppVar_1401 = ROM.rd(PC);
+	bool cppVar_1403 = (cppVar_1401 == 156);
+	if (cppVar_1403) {
+	BIT_VEC cppVar_1405 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_1407 = (cppVar_1405 << 3) | 4;
+	cppVar_1407 = (cppVar_1407 & cppMask_un_5_);
+	BIT_VEC cppVar_1408 = (0 << 5) | cppVar_1407;
+	cppVar_1408 = (cppVar_1408 & cppMask_un_8_);
+	BIT_VEC cppVar_1409 = IRAM.rd(cppVar_1408);
+	BIT_VEC cppVar_1410 = ACC - cppVar_1409;
 	cppVar_1410 = (cppVar_1410 & cppMask_un_8_);
-	BIT_VEC cppVar_1411 = IRAM.rd(cppVar_1410);
-	BIT_VEC cppVar_1412 = ACC - cppVar_1411;
-	cppVar_1412 = (cppVar_1412 & cppMask_un_8_);
-	BIT_VEC cppVar_1413 = (PSW >> 7) & cppMask_un_1_;
-	BIT_VEC cppVar_1414 = ((cppVar_1413 & cppMask_bit_1_) ? (cppVar_1413 | cppMask_sign_1_) : cppVar_1413);
-	BIT_VEC cppVar_1415 = cppVar_1412 + cppVar_1414;
-	cppVar_1415 = (cppVar_1415 & cppMask_un_8_);
-	BIT_VEC cppVar_1416 = ROM.rd(PC);
-	bool cppVar_1418 = (cppVar_1416 == 153);
-	BIT_VEC cppVar_1420 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_1422 = (cppVar_1420 << 3) | 1;
-	cppVar_1422 = (cppVar_1422 & cppMask_un_5_);
-	BIT_VEC cppVar_1423 = (0 << 5) | cppVar_1422;
-	cppVar_1423 = (cppVar_1423 & cppMask_un_8_);
-	BIT_VEC cppVar_1424 = IRAM.rd(cppVar_1423);
-	BIT_VEC cppVar_1425 = ACC - cppVar_1424;
-	cppVar_1425 = (cppVar_1425 & cppMask_un_8_);
-	BIT_VEC cppVar_1426 = (PSW >> 7) & cppMask_un_1_;
-	BIT_VEC cppVar_1427 = ((cppVar_1426 & cppMask_bit_1_) ? (cppVar_1426 | cppMask_sign_1_) : cppVar_1426);
-	BIT_VEC cppVar_1428 = cppVar_1425 + cppVar_1427;
-	cppVar_1428 = (cppVar_1428 & cppMask_un_8_);
+	BIT_VEC cppVar_1411 = (PSW >> 7) & cppMask_un_1_;
+	BIT_VEC cppVar_1412 = ((cppVar_1411 & cppMask_bit_1_) ? (cppVar_1411 | cppMask_sign_1_) : cppVar_1411);
+	BIT_VEC cppVar_1413 = cppVar_1410 + cppVar_1412;
+	cppVar_1413 = (cppVar_1413 & cppMask_un_8_);
+	cppVar_1400 = cppVar_1413;
+	} else {
+	BIT_VEC cppVar_1414;
+	BIT_VEC cppVar_1415 = ROM.rd(PC);
+	bool cppVar_1417 = (cppVar_1415 == 155);
+	if (cppVar_1417) {
+	BIT_VEC cppVar_1419 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_1421 = (cppVar_1419 << 3) | 3;
+	cppVar_1421 = (cppVar_1421 & cppMask_un_5_);
+	BIT_VEC cppVar_1422 = (0 << 5) | cppVar_1421;
+	cppVar_1422 = (cppVar_1422 & cppMask_un_8_);
+	BIT_VEC cppVar_1423 = IRAM.rd(cppVar_1422);
+	BIT_VEC cppVar_1424 = ACC - cppVar_1423;
+	cppVar_1424 = (cppVar_1424 & cppMask_un_8_);
+	BIT_VEC cppVar_1425 = (PSW >> 7) & cppMask_un_1_;
+	BIT_VEC cppVar_1426 = ((cppVar_1425 & cppMask_bit_1_) ? (cppVar_1425 | cppMask_sign_1_) : cppVar_1425);
+	BIT_VEC cppVar_1427 = cppVar_1424 + cppVar_1426;
+	cppVar_1427 = (cppVar_1427 & cppMask_un_8_);
+	cppVar_1414 = cppVar_1427;
+	} else {
+	BIT_VEC cppVar_1428;
 	BIT_VEC cppVar_1429 = ROM.rd(PC);
-	bool cppVar_1431 = (cppVar_1429 == 152);
+	bool cppVar_1431 = (cppVar_1429 == 154);
+	if (cppVar_1431) {
 	BIT_VEC cppVar_1433 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_1435 = (cppVar_1433 << 3) | 0;
+	BIT_VEC cppVar_1435 = (cppVar_1433 << 3) | 2;
 	cppVar_1435 = (cppVar_1435 & cppMask_un_5_);
 	BIT_VEC cppVar_1436 = (0 << 5) | cppVar_1435;
 	cppVar_1436 = (cppVar_1436 & cppMask_un_8_);
@@ -1542,14 +2522,17 @@ BIT_VEC model_oc8051::cppUpdateFun_ACC()
 	BIT_VEC cppVar_1440 = ((cppVar_1439 & cppMask_bit_1_) ? (cppVar_1439 | cppMask_sign_1_) : cppVar_1439);
 	BIT_VEC cppVar_1441 = cppVar_1438 + cppVar_1440;
 	cppVar_1441 = (cppVar_1441 & cppMask_un_8_);
-	BIT_VEC cppVar_1442 = ROM.rd(PC);
-	bool cppVar_1444 = (cppVar_1442 == 151);
-	BIT_VEC cppVar_1446 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_1448 = (cppVar_1446 << 3) | 1;
-	cppVar_1448 = (cppVar_1448 & cppMask_un_5_);
-	BIT_VEC cppVar_1449 = (0 << 5) | cppVar_1448;
-	cppVar_1449 = (cppVar_1449 & cppMask_un_8_);
-	BIT_VEC cppVar_1450 = IRAM.rd(cppVar_1449);
+	cppVar_1428 = cppVar_1441;
+	} else {
+	BIT_VEC cppVar_1442;
+	BIT_VEC cppVar_1443 = ROM.rd(PC);
+	bool cppVar_1445 = (cppVar_1443 == 153);
+	if (cppVar_1445) {
+	BIT_VEC cppVar_1447 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_1449 = (cppVar_1447 << 3) | 1;
+	cppVar_1449 = (cppVar_1449 & cppMask_un_5_);
+	BIT_VEC cppVar_1450 = (0 << 5) | cppVar_1449;
+	cppVar_1450 = (cppVar_1450 & cppMask_un_8_);
 	BIT_VEC cppVar_1451 = IRAM.rd(cppVar_1450);
 	BIT_VEC cppVar_1452 = ACC - cppVar_1451;
 	cppVar_1452 = (cppVar_1452 & cppMask_un_8_);
@@ -1557,14 +2540,17 @@ BIT_VEC model_oc8051::cppUpdateFun_ACC()
 	BIT_VEC cppVar_1454 = ((cppVar_1453 & cppMask_bit_1_) ? (cppVar_1453 | cppMask_sign_1_) : cppVar_1453);
 	BIT_VEC cppVar_1455 = cppVar_1452 + cppVar_1454;
 	cppVar_1455 = (cppVar_1455 & cppMask_un_8_);
-	BIT_VEC cppVar_1456 = ROM.rd(PC);
-	bool cppVar_1458 = (cppVar_1456 == 150);
-	BIT_VEC cppVar_1460 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_1462 = (cppVar_1460 << 3) | 0;
-	cppVar_1462 = (cppVar_1462 & cppMask_un_5_);
-	BIT_VEC cppVar_1463 = (0 << 5) | cppVar_1462;
-	cppVar_1463 = (cppVar_1463 & cppMask_un_8_);
-	BIT_VEC cppVar_1464 = IRAM.rd(cppVar_1463);
+	cppVar_1442 = cppVar_1455;
+	} else {
+	BIT_VEC cppVar_1456;
+	BIT_VEC cppVar_1457 = ROM.rd(PC);
+	bool cppVar_1459 = (cppVar_1457 == 152);
+	if (cppVar_1459) {
+	BIT_VEC cppVar_1461 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_1463 = (cppVar_1461 << 3) | 0;
+	cppVar_1463 = (cppVar_1463 & cppMask_un_5_);
+	BIT_VEC cppVar_1464 = (0 << 5) | cppVar_1463;
+	cppVar_1464 = (cppVar_1464 & cppMask_un_8_);
 	BIT_VEC cppVar_1465 = IRAM.rd(cppVar_1464);
 	BIT_VEC cppVar_1466 = ACC - cppVar_1465;
 	cppVar_1466 = (cppVar_1466 & cppMask_un_8_);
@@ -1572,1452 +2558,2547 @@ BIT_VEC model_oc8051::cppUpdateFun_ACC()
 	BIT_VEC cppVar_1468 = ((cppVar_1467 & cppMask_bit_1_) ? (cppVar_1467 | cppMask_sign_1_) : cppVar_1467);
 	BIT_VEC cppVar_1469 = cppVar_1466 + cppVar_1468;
 	cppVar_1469 = (cppVar_1469 & cppMask_un_8_);
-	BIT_VEC cppVar_1470 = ROM.rd(PC);
-	bool cppVar_1472 = (cppVar_1470 == 149);
-	BIT_VEC cppVar_1474 = PC + 1;
-	cppVar_1474 = (cppVar_1474 & cppMask_un_16_);
-	BIT_VEC cppVar_1475 = ROM.rd(cppVar_1474);
-	BIT_VEC cppVar_1476 = (cppVar_1475 >> 7) & cppMask_un_1_;
-	bool cppVar_1478 = (cppVar_1476 == 0);
-	BIT_VEC cppVar_1479 = PC + 1;
-	cppVar_1479 = (cppVar_1479 & cppMask_un_16_);
-	BIT_VEC cppVar_1480 = ROM.rd(cppVar_1479);
-	BIT_VEC cppVar_1481 = IRAM.rd(cppVar_1480);
-	BIT_VEC cppVar_1482 = PC + 1;
-	cppVar_1482 = (cppVar_1482 & cppMask_un_16_);
-	BIT_VEC cppVar_1483 = ROM.rd(cppVar_1482);
-	bool cppVar_1485 = (cppVar_1483 == 128);
-	BIT_VEC cppVar_1486 = PC + 1;
-	cppVar_1486 = (cppVar_1486 & cppMask_un_16_);
-	BIT_VEC cppVar_1487 = ROM.rd(cppVar_1486);
-	bool cppVar_1489 = (cppVar_1487 == 129);
-	BIT_VEC cppVar_1490 = PC + 1;
-	cppVar_1490 = (cppVar_1490 & cppMask_un_16_);
-	BIT_VEC cppVar_1491 = ROM.rd(cppVar_1490);
-	bool cppVar_1493 = (cppVar_1491 == 130);
-	BIT_VEC cppVar_1494 = PC + 1;
-	cppVar_1494 = (cppVar_1494 & cppMask_un_16_);
-	BIT_VEC cppVar_1495 = ROM.rd(cppVar_1494);
-	bool cppVar_1497 = (cppVar_1495 == 131);
-	BIT_VEC cppVar_1498 = PC + 1;
-	cppVar_1498 = (cppVar_1498 & cppMask_un_16_);
-	BIT_VEC cppVar_1499 = ROM.rd(cppVar_1498);
-	bool cppVar_1501 = (cppVar_1499 == 135);
-	BIT_VEC cppVar_1502 = PC + 1;
-	cppVar_1502 = (cppVar_1502 & cppMask_un_16_);
-	BIT_VEC cppVar_1503 = ROM.rd(cppVar_1502);
-	bool cppVar_1505 = (cppVar_1503 == 136);
+	cppVar_1456 = cppVar_1469;
+	} else {
+	BIT_VEC cppVar_1470;
+	BIT_VEC cppVar_1471 = ROM.rd(PC);
+	bool cppVar_1473 = (cppVar_1471 == 151);
+	if (cppVar_1473) {
+	BIT_VEC cppVar_1475 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_1477 = (cppVar_1475 << 3) | 1;
+	cppVar_1477 = (cppVar_1477 & cppMask_un_5_);
+	BIT_VEC cppVar_1478 = (0 << 5) | cppVar_1477;
+	cppVar_1478 = (cppVar_1478 & cppMask_un_8_);
+	BIT_VEC cppVar_1479 = IRAM.rd(cppVar_1478);
+	BIT_VEC cppVar_1480 = IRAM.rd(cppVar_1479);
+	BIT_VEC cppVar_1481 = ACC - cppVar_1480;
+	cppVar_1481 = (cppVar_1481 & cppMask_un_8_);
+	BIT_VEC cppVar_1482 = (PSW >> 7) & cppMask_un_1_;
+	BIT_VEC cppVar_1483 = ((cppVar_1482 & cppMask_bit_1_) ? (cppVar_1482 | cppMask_sign_1_) : cppVar_1482);
+	BIT_VEC cppVar_1484 = cppVar_1481 + cppVar_1483;
+	cppVar_1484 = (cppVar_1484 & cppMask_un_8_);
+	cppVar_1470 = cppVar_1484;
+	} else {
+	BIT_VEC cppVar_1485;
+	BIT_VEC cppVar_1486 = ROM.rd(PC);
+	bool cppVar_1488 = (cppVar_1486 == 150);
+	if (cppVar_1488) {
+	BIT_VEC cppVar_1490 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_1492 = (cppVar_1490 << 3) | 0;
+	cppVar_1492 = (cppVar_1492 & cppMask_un_5_);
+	BIT_VEC cppVar_1493 = (0 << 5) | cppVar_1492;
+	cppVar_1493 = (cppVar_1493 & cppMask_un_8_);
+	BIT_VEC cppVar_1494 = IRAM.rd(cppVar_1493);
+	BIT_VEC cppVar_1495 = IRAM.rd(cppVar_1494);
+	BIT_VEC cppVar_1496 = ACC - cppVar_1495;
+	cppVar_1496 = (cppVar_1496 & cppMask_un_8_);
+	BIT_VEC cppVar_1497 = (PSW >> 7) & cppMask_un_1_;
+	BIT_VEC cppVar_1498 = ((cppVar_1497 & cppMask_bit_1_) ? (cppVar_1497 | cppMask_sign_1_) : cppVar_1497);
+	BIT_VEC cppVar_1499 = cppVar_1496 + cppVar_1498;
+	cppVar_1499 = (cppVar_1499 & cppMask_un_8_);
+	cppVar_1485 = cppVar_1499;
+	} else {
+	BIT_VEC cppVar_1500;
+	BIT_VEC cppVar_1501 = ROM.rd(PC);
+	bool cppVar_1503 = (cppVar_1501 == 149);
+	if (cppVar_1503) {
+	BIT_VEC cppVar_1504;
 	BIT_VEC cppVar_1506 = PC + 1;
 	cppVar_1506 = (cppVar_1506 & cppMask_un_16_);
 	BIT_VEC cppVar_1507 = ROM.rd(cppVar_1506);
-	bool cppVar_1509 = (cppVar_1507 == 137);
-	BIT_VEC cppVar_1510 = PC + 1;
-	cppVar_1510 = (cppVar_1510 & cppMask_un_16_);
-	BIT_VEC cppVar_1511 = ROM.rd(cppVar_1510);
-	bool cppVar_1513 = (cppVar_1511 == 138);
-	BIT_VEC cppVar_1514 = PC + 1;
-	cppVar_1514 = (cppVar_1514 & cppMask_un_16_);
-	BIT_VEC cppVar_1515 = ROM.rd(cppVar_1514);
-	bool cppVar_1517 = (cppVar_1515 == 140);
-	BIT_VEC cppVar_1518 = PC + 1;
-	cppVar_1518 = (cppVar_1518 & cppMask_un_16_);
-	BIT_VEC cppVar_1519 = ROM.rd(cppVar_1518);
-	bool cppVar_1521 = (cppVar_1519 == 139);
-	BIT_VEC cppVar_1522 = PC + 1;
-	cppVar_1522 = (cppVar_1522 & cppMask_un_16_);
-	BIT_VEC cppVar_1523 = ROM.rd(cppVar_1522);
-	bool cppVar_1525 = (cppVar_1523 == 141);
-	BIT_VEC cppVar_1526 = PC + 1;
-	cppVar_1526 = (cppVar_1526 & cppMask_un_16_);
-	BIT_VEC cppVar_1527 = ROM.rd(cppVar_1526);
-	bool cppVar_1529 = (cppVar_1527 == 144);
+	BIT_VEC cppVar_1508 = (cppVar_1507 >> 7) & cppMask_un_1_;
+	bool cppVar_1510 = (cppVar_1508 == 0);
+	if (cppVar_1510) {
+	BIT_VEC cppVar_1511 = PC + 1;
+	cppVar_1511 = (cppVar_1511 & cppMask_un_16_);
+	BIT_VEC cppVar_1512 = ROM.rd(cppVar_1511);
+	BIT_VEC cppVar_1513 = IRAM.rd(cppVar_1512);
+	cppVar_1504 = cppVar_1513;
+	} else {
+	BIT_VEC cppVar_1514;
+	BIT_VEC cppVar_1515 = PC + 1;
+	cppVar_1515 = (cppVar_1515 & cppMask_un_16_);
+	BIT_VEC cppVar_1516 = ROM.rd(cppVar_1515);
+	bool cppVar_1518 = (cppVar_1516 == 128);
+	if (cppVar_1518) {
+	cppVar_1514 = P0;
+	} else {
+	BIT_VEC cppVar_1519;
+	BIT_VEC cppVar_1520 = PC + 1;
+	cppVar_1520 = (cppVar_1520 & cppMask_un_16_);
+	BIT_VEC cppVar_1521 = ROM.rd(cppVar_1520);
+	bool cppVar_1523 = (cppVar_1521 == 129);
+	if (cppVar_1523) {
+	cppVar_1519 = SP;
+	} else {
+	BIT_VEC cppVar_1524;
+	BIT_VEC cppVar_1525 = PC + 1;
+	cppVar_1525 = (cppVar_1525 & cppMask_un_16_);
+	BIT_VEC cppVar_1526 = ROM.rd(cppVar_1525);
+	bool cppVar_1528 = (cppVar_1526 == 130);
+	if (cppVar_1528) {
+	cppVar_1524 = DPL;
+	} else {
+	BIT_VEC cppVar_1529;
 	BIT_VEC cppVar_1530 = PC + 1;
 	cppVar_1530 = (cppVar_1530 & cppMask_un_16_);
 	BIT_VEC cppVar_1531 = ROM.rd(cppVar_1530);
-	bool cppVar_1533 = (cppVar_1531 == 152);
-	BIT_VEC cppVar_1534 = PC + 1;
-	cppVar_1534 = (cppVar_1534 & cppMask_un_16_);
-	BIT_VEC cppVar_1535 = ROM.rd(cppVar_1534);
-	bool cppVar_1537 = (cppVar_1535 == 153);
-	BIT_VEC cppVar_1538 = PC + 1;
-	cppVar_1538 = (cppVar_1538 & cppMask_un_16_);
-	BIT_VEC cppVar_1539 = ROM.rd(cppVar_1538);
-	bool cppVar_1541 = (cppVar_1539 == 160);
-	BIT_VEC cppVar_1542 = PC + 1;
-	cppVar_1542 = (cppVar_1542 & cppMask_un_16_);
-	BIT_VEC cppVar_1543 = ROM.rd(cppVar_1542);
-	bool cppVar_1545 = (cppVar_1543 == 168);
-	BIT_VEC cppVar_1546 = PC + 1;
-	cppVar_1546 = (cppVar_1546 & cppMask_un_16_);
-	BIT_VEC cppVar_1547 = ROM.rd(cppVar_1546);
-	bool cppVar_1549 = (cppVar_1547 == 176);
+	bool cppVar_1533 = (cppVar_1531 == 131);
+	if (cppVar_1533) {
+	cppVar_1529 = DPH;
+	} else {
+	BIT_VEC cppVar_1534;
+	BIT_VEC cppVar_1535 = PC + 1;
+	cppVar_1535 = (cppVar_1535 & cppMask_un_16_);
+	BIT_VEC cppVar_1536 = ROM.rd(cppVar_1535);
+	bool cppVar_1538 = (cppVar_1536 == 135);
+	if (cppVar_1538) {
+	cppVar_1534 = PCON;
+	} else {
+	BIT_VEC cppVar_1539;
+	BIT_VEC cppVar_1540 = PC + 1;
+	cppVar_1540 = (cppVar_1540 & cppMask_un_16_);
+	BIT_VEC cppVar_1541 = ROM.rd(cppVar_1540);
+	bool cppVar_1543 = (cppVar_1541 == 136);
+	if (cppVar_1543) {
+	cppVar_1539 = TCON;
+	} else {
+	BIT_VEC cppVar_1544;
+	BIT_VEC cppVar_1545 = PC + 1;
+	cppVar_1545 = (cppVar_1545 & cppMask_un_16_);
+	BIT_VEC cppVar_1546 = ROM.rd(cppVar_1545);
+	bool cppVar_1548 = (cppVar_1546 == 137);
+	if (cppVar_1548) {
+	cppVar_1544 = TMOD;
+	} else {
+	BIT_VEC cppVar_1549;
 	BIT_VEC cppVar_1550 = PC + 1;
 	cppVar_1550 = (cppVar_1550 & cppMask_un_16_);
 	BIT_VEC cppVar_1551 = ROM.rd(cppVar_1550);
-	bool cppVar_1553 = (cppVar_1551 == 184);
-	BIT_VEC cppVar_1554 = PC + 1;
-	cppVar_1554 = (cppVar_1554 & cppMask_un_16_);
-	BIT_VEC cppVar_1555 = ROM.rd(cppVar_1554);
-	bool cppVar_1557 = (cppVar_1555 == 208);
-	BIT_VEC cppVar_1558 = PC + 1;
-	cppVar_1558 = (cppVar_1558 & cppMask_un_16_);
-	BIT_VEC cppVar_1559 = ROM.rd(cppVar_1558);
-	bool cppVar_1561 = (cppVar_1559 == 224);
-	BIT_VEC cppVar_1562 = PC + 1;
-	cppVar_1562 = (cppVar_1562 & cppMask_un_16_);
-	BIT_VEC cppVar_1563 = ROM.rd(cppVar_1562);
-	bool cppVar_1565 = (cppVar_1563 == 240);
-	BIT_VEC cppVar_1567 = (cppVar_1565) ? B : 0;
-	BIT_VEC cppVar_1568 = (cppVar_1561) ? ACC : cppVar_1567;
-	BIT_VEC cppVar_1569 = (cppVar_1557) ? PSW : cppVar_1568;
-	BIT_VEC cppVar_1570 = (cppVar_1553) ? IP : cppVar_1569;
-	BIT_VEC cppVar_1571 = (cppVar_1549) ? P3 : cppVar_1570;
-	BIT_VEC cppVar_1572 = (cppVar_1545) ? IE : cppVar_1571;
-	BIT_VEC cppVar_1573 = (cppVar_1541) ? P2 : cppVar_1572;
-	BIT_VEC cppVar_1574 = (cppVar_1537) ? SBUF : cppVar_1573;
-	BIT_VEC cppVar_1575 = (cppVar_1533) ? SCON : cppVar_1574;
-	BIT_VEC cppVar_1576 = (cppVar_1529) ? P1 : cppVar_1575;
-	BIT_VEC cppVar_1577 = (cppVar_1525) ? TH1 : cppVar_1576;
-	BIT_VEC cppVar_1578 = (cppVar_1521) ? TL1 : cppVar_1577;
-	BIT_VEC cppVar_1579 = (cppVar_1517) ? TH0 : cppVar_1578;
-	BIT_VEC cppVar_1580 = (cppVar_1513) ? TL0 : cppVar_1579;
-	BIT_VEC cppVar_1581 = (cppVar_1509) ? TMOD : cppVar_1580;
-	BIT_VEC cppVar_1582 = (cppVar_1505) ? TCON : cppVar_1581;
-	BIT_VEC cppVar_1583 = (cppVar_1501) ? PCON : cppVar_1582;
-	BIT_VEC cppVar_1584 = (cppVar_1497) ? DPH : cppVar_1583;
-	BIT_VEC cppVar_1585 = (cppVar_1493) ? DPL : cppVar_1584;
-	BIT_VEC cppVar_1586 = (cppVar_1489) ? SP : cppVar_1585;
-	BIT_VEC cppVar_1587 = (cppVar_1485) ? P0 : cppVar_1586;
-	BIT_VEC cppVar_1588 = (cppVar_1478) ? cppVar_1481 : cppVar_1587;
-	BIT_VEC cppVar_1589 = ACC - cppVar_1588;
-	cppVar_1589 = (cppVar_1589 & cppMask_un_8_);
-	BIT_VEC cppVar_1590 = (PSW >> 7) & cppMask_un_1_;
-	BIT_VEC cppVar_1591 = ((cppVar_1590 & cppMask_bit_1_) ? (cppVar_1590 | cppMask_sign_1_) : cppVar_1590);
-	BIT_VEC cppVar_1592 = cppVar_1589 + cppVar_1591;
-	cppVar_1592 = (cppVar_1592 & cppMask_un_8_);
-	BIT_VEC cppVar_1593 = ROM.rd(PC);
-	bool cppVar_1595 = (cppVar_1593 == 148);
-	BIT_VEC cppVar_1597 = PC + 1;
-	cppVar_1597 = (cppVar_1597 & cppMask_un_16_);
-	BIT_VEC cppVar_1598 = ROM.rd(cppVar_1597);
-	BIT_VEC cppVar_1599 = ACC - cppVar_1598;
-	cppVar_1599 = (cppVar_1599 & cppMask_un_8_);
-	BIT_VEC cppVar_1600 = (PSW >> 7) & cppMask_un_1_;
-	BIT_VEC cppVar_1601 = ((cppVar_1600 & cppMask_bit_1_) ? (cppVar_1600 | cppMask_sign_1_) : cppVar_1600);
-	BIT_VEC cppVar_1602 = cppVar_1599 + cppVar_1601;
-	cppVar_1602 = (cppVar_1602 & cppMask_un_8_);
-	BIT_VEC cppVar_1603 = ROM.rd(PC);
-	bool cppVar_1605 = (cppVar_1603 == 147);
-	BIT_VEC cppVar_1606 = (ACC & cppMask_un_8_);
-	BIT_VEC cppVar_1607 = (DPH << 8) | DPL;
-	cppVar_1607 = (cppVar_1607 & cppMask_un_16_);
-	BIT_VEC cppVar_1608 = cppVar_1606 + cppVar_1607;
-	cppVar_1608 = (cppVar_1608 & cppMask_un_16_);
-	BIT_VEC cppVar_1609 = ROM.rd(cppVar_1608);
-	BIT_VEC cppVar_1610 = ROM.rd(PC);
-	bool cppVar_1612 = (cppVar_1610 == 132);
-	bool cppVar_1614 = (B == 0);
-	BIT_VEC cppVar_1616 = ACC / B;
-	cppVar_1616 = (cppVar_1616 & cppMask_un_8_);
-	BIT_VEC cppVar_1617 = (cppVar_1614) ? 255 : cppVar_1616;
-	BIT_VEC cppVar_1618 = ROM.rd(PC);
-	bool cppVar_1620 = (cppVar_1618 == 131);
-	BIT_VEC cppVar_1621 = (ACC & cppMask_un_8_);
-	BIT_VEC cppVar_1623 = PC + 1;
-	cppVar_1623 = (cppVar_1623 & cppMask_un_16_);
-	BIT_VEC cppVar_1624 = cppVar_1621 + cppVar_1623;
-	cppVar_1624 = (cppVar_1624 & cppMask_un_16_);
-	BIT_VEC cppVar_1625 = ROM.rd(cppVar_1624);
-	BIT_VEC cppVar_1626 = ROM.rd(PC);
-	bool cppVar_1628 = (cppVar_1626 == 116);
-	BIT_VEC cppVar_1630 = PC + 1;
-	cppVar_1630 = (cppVar_1630 & cppMask_un_16_);
-	BIT_VEC cppVar_1631 = ROM.rd(cppVar_1630);
-	BIT_VEC cppVar_1632 = ROM.rd(PC);
-	bool cppVar_1634 = (cppVar_1632 == 111);
-	BIT_VEC cppVar_1636 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_1638 = (cppVar_1636 << 3) | 7;
-	cppVar_1638 = (cppVar_1638 & cppMask_un_5_);
-	BIT_VEC cppVar_1639 = (0 << 5) | cppVar_1638;
-	cppVar_1639 = (cppVar_1639 & cppMask_un_8_);
-	BIT_VEC cppVar_1640 = IRAM.rd(cppVar_1639);
-	BIT_VEC cppVar_1641 = ACC ^ cppVar_1640;
-	BIT_VEC cppVar_1642 = ROM.rd(PC);
-	bool cppVar_1644 = (cppVar_1642 == 110);
-	BIT_VEC cppVar_1646 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_1648 = (cppVar_1646 << 3) | 6;
-	cppVar_1648 = (cppVar_1648 & cppMask_un_5_);
-	BIT_VEC cppVar_1649 = (0 << 5) | cppVar_1648;
-	cppVar_1649 = (cppVar_1649 & cppMask_un_8_);
-	BIT_VEC cppVar_1650 = IRAM.rd(cppVar_1649);
-	BIT_VEC cppVar_1651 = ACC ^ cppVar_1650;
-	BIT_VEC cppVar_1652 = ROM.rd(PC);
-	bool cppVar_1654 = (cppVar_1652 == 109);
-	BIT_VEC cppVar_1656 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_1658 = (cppVar_1656 << 3) | 5;
-	cppVar_1658 = (cppVar_1658 & cppMask_un_5_);
-	BIT_VEC cppVar_1659 = (0 << 5) | cppVar_1658;
-	cppVar_1659 = (cppVar_1659 & cppMask_un_8_);
-	BIT_VEC cppVar_1660 = IRAM.rd(cppVar_1659);
-	BIT_VEC cppVar_1661 = ACC ^ cppVar_1660;
+	bool cppVar_1553 = (cppVar_1551 == 138);
+	if (cppVar_1553) {
+	cppVar_1549 = TL0;
+	} else {
+	BIT_VEC cppVar_1554;
+	BIT_VEC cppVar_1555 = PC + 1;
+	cppVar_1555 = (cppVar_1555 & cppMask_un_16_);
+	BIT_VEC cppVar_1556 = ROM.rd(cppVar_1555);
+	bool cppVar_1558 = (cppVar_1556 == 140);
+	if (cppVar_1558) {
+	cppVar_1554 = TH0;
+	} else {
+	BIT_VEC cppVar_1559;
+	BIT_VEC cppVar_1560 = PC + 1;
+	cppVar_1560 = (cppVar_1560 & cppMask_un_16_);
+	BIT_VEC cppVar_1561 = ROM.rd(cppVar_1560);
+	bool cppVar_1563 = (cppVar_1561 == 139);
+	if (cppVar_1563) {
+	cppVar_1559 = TL1;
+	} else {
+	BIT_VEC cppVar_1564;
+	BIT_VEC cppVar_1565 = PC + 1;
+	cppVar_1565 = (cppVar_1565 & cppMask_un_16_);
+	BIT_VEC cppVar_1566 = ROM.rd(cppVar_1565);
+	bool cppVar_1568 = (cppVar_1566 == 141);
+	if (cppVar_1568) {
+	cppVar_1564 = TH1;
+	} else {
+	BIT_VEC cppVar_1569;
+	BIT_VEC cppVar_1570 = PC + 1;
+	cppVar_1570 = (cppVar_1570 & cppMask_un_16_);
+	BIT_VEC cppVar_1571 = ROM.rd(cppVar_1570);
+	bool cppVar_1573 = (cppVar_1571 == 144);
+	if (cppVar_1573) {
+	cppVar_1569 = P1;
+	} else {
+	BIT_VEC cppVar_1574;
+	BIT_VEC cppVar_1575 = PC + 1;
+	cppVar_1575 = (cppVar_1575 & cppMask_un_16_);
+	BIT_VEC cppVar_1576 = ROM.rd(cppVar_1575);
+	bool cppVar_1578 = (cppVar_1576 == 152);
+	if (cppVar_1578) {
+	cppVar_1574 = SCON;
+	} else {
+	BIT_VEC cppVar_1579;
+	BIT_VEC cppVar_1580 = PC + 1;
+	cppVar_1580 = (cppVar_1580 & cppMask_un_16_);
+	BIT_VEC cppVar_1581 = ROM.rd(cppVar_1580);
+	bool cppVar_1583 = (cppVar_1581 == 153);
+	if (cppVar_1583) {
+	cppVar_1579 = SBUF;
+	} else {
+	BIT_VEC cppVar_1584;
+	BIT_VEC cppVar_1585 = PC + 1;
+	cppVar_1585 = (cppVar_1585 & cppMask_un_16_);
+	BIT_VEC cppVar_1586 = ROM.rd(cppVar_1585);
+	bool cppVar_1588 = (cppVar_1586 == 160);
+	if (cppVar_1588) {
+	cppVar_1584 = P2;
+	} else {
+	BIT_VEC cppVar_1589;
+	BIT_VEC cppVar_1590 = PC + 1;
+	cppVar_1590 = (cppVar_1590 & cppMask_un_16_);
+	BIT_VEC cppVar_1591 = ROM.rd(cppVar_1590);
+	bool cppVar_1593 = (cppVar_1591 == 168);
+	if (cppVar_1593) {
+	cppVar_1589 = IE;
+	} else {
+	BIT_VEC cppVar_1594;
+	BIT_VEC cppVar_1595 = PC + 1;
+	cppVar_1595 = (cppVar_1595 & cppMask_un_16_);
+	BIT_VEC cppVar_1596 = ROM.rd(cppVar_1595);
+	bool cppVar_1598 = (cppVar_1596 == 176);
+	if (cppVar_1598) {
+	cppVar_1594 = P3;
+	} else {
+	BIT_VEC cppVar_1599;
+	BIT_VEC cppVar_1600 = PC + 1;
+	cppVar_1600 = (cppVar_1600 & cppMask_un_16_);
+	BIT_VEC cppVar_1601 = ROM.rd(cppVar_1600);
+	bool cppVar_1603 = (cppVar_1601 == 184);
+	if (cppVar_1603) {
+	cppVar_1599 = IP;
+	} else {
+	BIT_VEC cppVar_1604;
+	BIT_VEC cppVar_1605 = PC + 1;
+	cppVar_1605 = (cppVar_1605 & cppMask_un_16_);
+	BIT_VEC cppVar_1606 = ROM.rd(cppVar_1605);
+	bool cppVar_1608 = (cppVar_1606 == 208);
+	if (cppVar_1608) {
+	cppVar_1604 = PSW;
+	} else {
+	BIT_VEC cppVar_1609;
+	BIT_VEC cppVar_1610 = PC + 1;
+	cppVar_1610 = (cppVar_1610 & cppMask_un_16_);
+	BIT_VEC cppVar_1611 = ROM.rd(cppVar_1610);
+	bool cppVar_1613 = (cppVar_1611 == 224);
+	if (cppVar_1613) {
+	cppVar_1609 = ACC;
+	} else {
+	BIT_VEC cppVar_1614;
+	BIT_VEC cppVar_1615 = PC + 1;
+	cppVar_1615 = (cppVar_1615 & cppMask_un_16_);
+	BIT_VEC cppVar_1616 = ROM.rd(cppVar_1615);
+	bool cppVar_1618 = (cppVar_1616 == 240);
+	if (cppVar_1618) {
+	cppVar_1614 = B;
+	} else {
+	cppVar_1614 = 0;
+	}
+	cppVar_1609 = cppVar_1614;
+	}
+	cppVar_1604 = cppVar_1609;
+	}
+	cppVar_1599 = cppVar_1604;
+	}
+	cppVar_1594 = cppVar_1599;
+	}
+	cppVar_1589 = cppVar_1594;
+	}
+	cppVar_1584 = cppVar_1589;
+	}
+	cppVar_1579 = cppVar_1584;
+	}
+	cppVar_1574 = cppVar_1579;
+	}
+	cppVar_1569 = cppVar_1574;
+	}
+	cppVar_1564 = cppVar_1569;
+	}
+	cppVar_1559 = cppVar_1564;
+	}
+	cppVar_1554 = cppVar_1559;
+	}
+	cppVar_1549 = cppVar_1554;
+	}
+	cppVar_1544 = cppVar_1549;
+	}
+	cppVar_1539 = cppVar_1544;
+	}
+	cppVar_1534 = cppVar_1539;
+	}
+	cppVar_1529 = cppVar_1534;
+	}
+	cppVar_1524 = cppVar_1529;
+	}
+	cppVar_1519 = cppVar_1524;
+	}
+	cppVar_1514 = cppVar_1519;
+	}
+	cppVar_1504 = cppVar_1514;
+	}
+	BIT_VEC cppVar_1620 = ACC - cppVar_1504;
+	cppVar_1620 = (cppVar_1620 & cppMask_un_8_);
+	BIT_VEC cppVar_1621 = (PSW >> 7) & cppMask_un_1_;
+	BIT_VEC cppVar_1622 = ((cppVar_1621 & cppMask_bit_1_) ? (cppVar_1621 | cppMask_sign_1_) : cppVar_1621);
+	BIT_VEC cppVar_1623 = cppVar_1620 + cppVar_1622;
+	cppVar_1623 = (cppVar_1623 & cppMask_un_8_);
+	cppVar_1500 = cppVar_1623;
+	} else {
+	BIT_VEC cppVar_1624;
+	BIT_VEC cppVar_1625 = ROM.rd(PC);
+	bool cppVar_1627 = (cppVar_1625 == 148);
+	if (cppVar_1627) {
+	BIT_VEC cppVar_1629 = PC + 1;
+	cppVar_1629 = (cppVar_1629 & cppMask_un_16_);
+	BIT_VEC cppVar_1630 = ROM.rd(cppVar_1629);
+	BIT_VEC cppVar_1631 = ACC - cppVar_1630;
+	cppVar_1631 = (cppVar_1631 & cppMask_un_8_);
+	BIT_VEC cppVar_1632 = (PSW >> 7) & cppMask_un_1_;
+	BIT_VEC cppVar_1633 = ((cppVar_1632 & cppMask_bit_1_) ? (cppVar_1632 | cppMask_sign_1_) : cppVar_1632);
+	BIT_VEC cppVar_1634 = cppVar_1631 + cppVar_1633;
+	cppVar_1634 = (cppVar_1634 & cppMask_un_8_);
+	cppVar_1624 = cppVar_1634;
+	} else {
+	BIT_VEC cppVar_1635;
+	BIT_VEC cppVar_1636 = ROM.rd(PC);
+	bool cppVar_1638 = (cppVar_1636 == 147);
+	if (cppVar_1638) {
+	BIT_VEC cppVar_1639 = (ACC & cppMask_un_8_);
+	BIT_VEC cppVar_1640 = (DPH << 8) | DPL;
+	cppVar_1640 = (cppVar_1640 & cppMask_un_16_);
+	BIT_VEC cppVar_1641 = cppVar_1639 + cppVar_1640;
+	cppVar_1641 = (cppVar_1641 & cppMask_un_16_);
+	BIT_VEC cppVar_1642 = ROM.rd(cppVar_1641);
+	cppVar_1635 = cppVar_1642;
+	} else {
+	BIT_VEC cppVar_1643;
+	BIT_VEC cppVar_1644 = ROM.rd(PC);
+	bool cppVar_1646 = (cppVar_1644 == 132);
+	if (cppVar_1646) {
+	BIT_VEC cppVar_1647;
+	bool cppVar_1649 = (B == 0);
+	if (cppVar_1649) {
+	cppVar_1647 = 255;
+	} else {
+	BIT_VEC cppVar_1651 = ACC / B;
+	cppVar_1651 = (cppVar_1651 & cppMask_un_8_);
+	cppVar_1647 = cppVar_1651;
+	}
+	cppVar_1643 = cppVar_1647;
+	} else {
+	BIT_VEC cppVar_1652;
+	BIT_VEC cppVar_1653 = ROM.rd(PC);
+	bool cppVar_1655 = (cppVar_1653 == 131);
+	if (cppVar_1655) {
+	BIT_VEC cppVar_1656 = (ACC & cppMask_un_8_);
+	BIT_VEC cppVar_1658 = PC + 1;
+	cppVar_1658 = (cppVar_1658 & cppMask_un_16_);
+	BIT_VEC cppVar_1659 = cppVar_1656 + cppVar_1658;
+	cppVar_1659 = (cppVar_1659 & cppMask_un_16_);
+	BIT_VEC cppVar_1660 = ROM.rd(cppVar_1659);
+	cppVar_1652 = cppVar_1660;
+	} else {
+	BIT_VEC cppVar_1661;
 	BIT_VEC cppVar_1662 = ROM.rd(PC);
-	bool cppVar_1664 = (cppVar_1662 == 108);
-	BIT_VEC cppVar_1666 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_1668 = (cppVar_1666 << 3) | 4;
-	cppVar_1668 = (cppVar_1668 & cppMask_un_5_);
-	BIT_VEC cppVar_1669 = (0 << 5) | cppVar_1668;
-	cppVar_1669 = (cppVar_1669 & cppMask_un_8_);
-	BIT_VEC cppVar_1670 = IRAM.rd(cppVar_1669);
-	BIT_VEC cppVar_1671 = ACC ^ cppVar_1670;
-	BIT_VEC cppVar_1672 = ROM.rd(PC);
-	bool cppVar_1674 = (cppVar_1672 == 107);
-	BIT_VEC cppVar_1676 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_1678 = (cppVar_1676 << 3) | 3;
-	cppVar_1678 = (cppVar_1678 & cppMask_un_5_);
-	BIT_VEC cppVar_1679 = (0 << 5) | cppVar_1678;
-	cppVar_1679 = (cppVar_1679 & cppMask_un_8_);
-	BIT_VEC cppVar_1680 = IRAM.rd(cppVar_1679);
-	BIT_VEC cppVar_1681 = ACC ^ cppVar_1680;
-	BIT_VEC cppVar_1682 = ROM.rd(PC);
-	bool cppVar_1684 = (cppVar_1682 == 106);
-	BIT_VEC cppVar_1686 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_1688 = (cppVar_1686 << 3) | 2;
-	cppVar_1688 = (cppVar_1688 & cppMask_un_5_);
-	BIT_VEC cppVar_1689 = (0 << 5) | cppVar_1688;
-	cppVar_1689 = (cppVar_1689 & cppMask_un_8_);
-	BIT_VEC cppVar_1690 = IRAM.rd(cppVar_1689);
-	BIT_VEC cppVar_1691 = ACC ^ cppVar_1690;
-	BIT_VEC cppVar_1692 = ROM.rd(PC);
-	bool cppVar_1694 = (cppVar_1692 == 105);
-	BIT_VEC cppVar_1696 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_1698 = (cppVar_1696 << 3) | 1;
-	cppVar_1698 = (cppVar_1698 & cppMask_un_5_);
-	BIT_VEC cppVar_1699 = (0 << 5) | cppVar_1698;
-	cppVar_1699 = (cppVar_1699 & cppMask_un_8_);
-	BIT_VEC cppVar_1700 = IRAM.rd(cppVar_1699);
-	BIT_VEC cppVar_1701 = ACC ^ cppVar_1700;
+	bool cppVar_1664 = (cppVar_1662 == 116);
+	if (cppVar_1664) {
+	BIT_VEC cppVar_1666 = PC + 1;
+	cppVar_1666 = (cppVar_1666 & cppMask_un_16_);
+	BIT_VEC cppVar_1667 = ROM.rd(cppVar_1666);
+	cppVar_1661 = cppVar_1667;
+	} else {
+	BIT_VEC cppVar_1668;
+	BIT_VEC cppVar_1669 = ROM.rd(PC);
+	bool cppVar_1671 = (cppVar_1669 == 111);
+	if (cppVar_1671) {
+	BIT_VEC cppVar_1673 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_1675 = (cppVar_1673 << 3) | 7;
+	cppVar_1675 = (cppVar_1675 & cppMask_un_5_);
+	BIT_VEC cppVar_1676 = (0 << 5) | cppVar_1675;
+	cppVar_1676 = (cppVar_1676 & cppMask_un_8_);
+	BIT_VEC cppVar_1677 = IRAM.rd(cppVar_1676);
+	BIT_VEC cppVar_1678 = ACC ^ cppVar_1677;
+	cppVar_1668 = cppVar_1678;
+	} else {
+	BIT_VEC cppVar_1679;
+	BIT_VEC cppVar_1680 = ROM.rd(PC);
+	bool cppVar_1682 = (cppVar_1680 == 110);
+	if (cppVar_1682) {
+	BIT_VEC cppVar_1684 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_1686 = (cppVar_1684 << 3) | 6;
+	cppVar_1686 = (cppVar_1686 & cppMask_un_5_);
+	BIT_VEC cppVar_1687 = (0 << 5) | cppVar_1686;
+	cppVar_1687 = (cppVar_1687 & cppMask_un_8_);
+	BIT_VEC cppVar_1688 = IRAM.rd(cppVar_1687);
+	BIT_VEC cppVar_1689 = ACC ^ cppVar_1688;
+	cppVar_1679 = cppVar_1689;
+	} else {
+	BIT_VEC cppVar_1690;
+	BIT_VEC cppVar_1691 = ROM.rd(PC);
+	bool cppVar_1693 = (cppVar_1691 == 109);
+	if (cppVar_1693) {
+	BIT_VEC cppVar_1695 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_1697 = (cppVar_1695 << 3) | 5;
+	cppVar_1697 = (cppVar_1697 & cppMask_un_5_);
+	BIT_VEC cppVar_1698 = (0 << 5) | cppVar_1697;
+	cppVar_1698 = (cppVar_1698 & cppMask_un_8_);
+	BIT_VEC cppVar_1699 = IRAM.rd(cppVar_1698);
+	BIT_VEC cppVar_1700 = ACC ^ cppVar_1699;
+	cppVar_1690 = cppVar_1700;
+	} else {
+	BIT_VEC cppVar_1701;
 	BIT_VEC cppVar_1702 = ROM.rd(PC);
-	bool cppVar_1704 = (cppVar_1702 == 104);
+	bool cppVar_1704 = (cppVar_1702 == 108);
+	if (cppVar_1704) {
 	BIT_VEC cppVar_1706 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_1708 = (cppVar_1706 << 3) | 0;
+	BIT_VEC cppVar_1708 = (cppVar_1706 << 3) | 4;
 	cppVar_1708 = (cppVar_1708 & cppMask_un_5_);
 	BIT_VEC cppVar_1709 = (0 << 5) | cppVar_1708;
 	cppVar_1709 = (cppVar_1709 & cppMask_un_8_);
 	BIT_VEC cppVar_1710 = IRAM.rd(cppVar_1709);
 	BIT_VEC cppVar_1711 = ACC ^ cppVar_1710;
-	BIT_VEC cppVar_1712 = ROM.rd(PC);
-	bool cppVar_1714 = (cppVar_1712 == 103);
-	BIT_VEC cppVar_1716 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_1718 = (cppVar_1716 << 3) | 1;
-	cppVar_1718 = (cppVar_1718 & cppMask_un_5_);
-	BIT_VEC cppVar_1719 = (0 << 5) | cppVar_1718;
-	cppVar_1719 = (cppVar_1719 & cppMask_un_8_);
-	BIT_VEC cppVar_1720 = IRAM.rd(cppVar_1719);
+	cppVar_1701 = cppVar_1711;
+	} else {
+	BIT_VEC cppVar_1712;
+	BIT_VEC cppVar_1713 = ROM.rd(PC);
+	bool cppVar_1715 = (cppVar_1713 == 107);
+	if (cppVar_1715) {
+	BIT_VEC cppVar_1717 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_1719 = (cppVar_1717 << 3) | 3;
+	cppVar_1719 = (cppVar_1719 & cppMask_un_5_);
+	BIT_VEC cppVar_1720 = (0 << 5) | cppVar_1719;
+	cppVar_1720 = (cppVar_1720 & cppMask_un_8_);
 	BIT_VEC cppVar_1721 = IRAM.rd(cppVar_1720);
 	BIT_VEC cppVar_1722 = ACC ^ cppVar_1721;
-	BIT_VEC cppVar_1723 = ROM.rd(PC);
-	bool cppVar_1725 = (cppVar_1723 == 102);
-	BIT_VEC cppVar_1727 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_1729 = (cppVar_1727 << 3) | 0;
-	cppVar_1729 = (cppVar_1729 & cppMask_un_5_);
-	BIT_VEC cppVar_1730 = (0 << 5) | cppVar_1729;
-	cppVar_1730 = (cppVar_1730 & cppMask_un_8_);
-	BIT_VEC cppVar_1731 = IRAM.rd(cppVar_1730);
+	cppVar_1712 = cppVar_1722;
+	} else {
+	BIT_VEC cppVar_1723;
+	BIT_VEC cppVar_1724 = ROM.rd(PC);
+	bool cppVar_1726 = (cppVar_1724 == 106);
+	if (cppVar_1726) {
+	BIT_VEC cppVar_1728 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_1730 = (cppVar_1728 << 3) | 2;
+	cppVar_1730 = (cppVar_1730 & cppMask_un_5_);
+	BIT_VEC cppVar_1731 = (0 << 5) | cppVar_1730;
+	cppVar_1731 = (cppVar_1731 & cppMask_un_8_);
 	BIT_VEC cppVar_1732 = IRAM.rd(cppVar_1731);
 	BIT_VEC cppVar_1733 = ACC ^ cppVar_1732;
-	BIT_VEC cppVar_1734 = ROM.rd(PC);
-	bool cppVar_1736 = (cppVar_1734 == 101);
-	BIT_VEC cppVar_1738 = PC + 1;
-	cppVar_1738 = (cppVar_1738 & cppMask_un_16_);
-	BIT_VEC cppVar_1739 = ROM.rd(cppVar_1738);
-	BIT_VEC cppVar_1740 = (cppVar_1739 >> 7) & cppMask_un_1_;
-	bool cppVar_1742 = (cppVar_1740 == 0);
-	BIT_VEC cppVar_1743 = PC + 1;
-	cppVar_1743 = (cppVar_1743 & cppMask_un_16_);
-	BIT_VEC cppVar_1744 = ROM.rd(cppVar_1743);
-	BIT_VEC cppVar_1745 = IRAM.rd(cppVar_1744);
-	BIT_VEC cppVar_1746 = PC + 1;
-	cppVar_1746 = (cppVar_1746 & cppMask_un_16_);
-	BIT_VEC cppVar_1747 = ROM.rd(cppVar_1746);
-	bool cppVar_1749 = (cppVar_1747 == 128);
-	BIT_VEC cppVar_1750 = PC + 1;
-	cppVar_1750 = (cppVar_1750 & cppMask_un_16_);
-	BIT_VEC cppVar_1751 = ROM.rd(cppVar_1750);
-	bool cppVar_1753 = (cppVar_1751 == 129);
-	BIT_VEC cppVar_1754 = PC + 1;
-	cppVar_1754 = (cppVar_1754 & cppMask_un_16_);
-	BIT_VEC cppVar_1755 = ROM.rd(cppVar_1754);
-	bool cppVar_1757 = (cppVar_1755 == 130);
-	BIT_VEC cppVar_1758 = PC + 1;
-	cppVar_1758 = (cppVar_1758 & cppMask_un_16_);
-	BIT_VEC cppVar_1759 = ROM.rd(cppVar_1758);
-	bool cppVar_1761 = (cppVar_1759 == 131);
-	BIT_VEC cppVar_1762 = PC + 1;
-	cppVar_1762 = (cppVar_1762 & cppMask_un_16_);
-	BIT_VEC cppVar_1763 = ROM.rd(cppVar_1762);
-	bool cppVar_1765 = (cppVar_1763 == 135);
-	BIT_VEC cppVar_1766 = PC + 1;
-	cppVar_1766 = (cppVar_1766 & cppMask_un_16_);
-	BIT_VEC cppVar_1767 = ROM.rd(cppVar_1766);
-	bool cppVar_1769 = (cppVar_1767 == 136);
-	BIT_VEC cppVar_1770 = PC + 1;
-	cppVar_1770 = (cppVar_1770 & cppMask_un_16_);
-	BIT_VEC cppVar_1771 = ROM.rd(cppVar_1770);
-	bool cppVar_1773 = (cppVar_1771 == 137);
-	BIT_VEC cppVar_1774 = PC + 1;
-	cppVar_1774 = (cppVar_1774 & cppMask_un_16_);
-	BIT_VEC cppVar_1775 = ROM.rd(cppVar_1774);
-	bool cppVar_1777 = (cppVar_1775 == 138);
-	BIT_VEC cppVar_1778 = PC + 1;
-	cppVar_1778 = (cppVar_1778 & cppMask_un_16_);
-	BIT_VEC cppVar_1779 = ROM.rd(cppVar_1778);
-	bool cppVar_1781 = (cppVar_1779 == 140);
-	BIT_VEC cppVar_1782 = PC + 1;
-	cppVar_1782 = (cppVar_1782 & cppMask_un_16_);
-	BIT_VEC cppVar_1783 = ROM.rd(cppVar_1782);
-	bool cppVar_1785 = (cppVar_1783 == 139);
+	cppVar_1723 = cppVar_1733;
+	} else {
+	BIT_VEC cppVar_1734;
+	BIT_VEC cppVar_1735 = ROM.rd(PC);
+	bool cppVar_1737 = (cppVar_1735 == 105);
+	if (cppVar_1737) {
+	BIT_VEC cppVar_1739 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_1741 = (cppVar_1739 << 3) | 1;
+	cppVar_1741 = (cppVar_1741 & cppMask_un_5_);
+	BIT_VEC cppVar_1742 = (0 << 5) | cppVar_1741;
+	cppVar_1742 = (cppVar_1742 & cppMask_un_8_);
+	BIT_VEC cppVar_1743 = IRAM.rd(cppVar_1742);
+	BIT_VEC cppVar_1744 = ACC ^ cppVar_1743;
+	cppVar_1734 = cppVar_1744;
+	} else {
+	BIT_VEC cppVar_1745;
+	BIT_VEC cppVar_1746 = ROM.rd(PC);
+	bool cppVar_1748 = (cppVar_1746 == 104);
+	if (cppVar_1748) {
+	BIT_VEC cppVar_1750 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_1752 = (cppVar_1750 << 3) | 0;
+	cppVar_1752 = (cppVar_1752 & cppMask_un_5_);
+	BIT_VEC cppVar_1753 = (0 << 5) | cppVar_1752;
+	cppVar_1753 = (cppVar_1753 & cppMask_un_8_);
+	BIT_VEC cppVar_1754 = IRAM.rd(cppVar_1753);
+	BIT_VEC cppVar_1755 = ACC ^ cppVar_1754;
+	cppVar_1745 = cppVar_1755;
+	} else {
+	BIT_VEC cppVar_1756;
+	BIT_VEC cppVar_1757 = ROM.rd(PC);
+	bool cppVar_1759 = (cppVar_1757 == 103);
+	if (cppVar_1759) {
+	BIT_VEC cppVar_1761 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_1763 = (cppVar_1761 << 3) | 1;
+	cppVar_1763 = (cppVar_1763 & cppMask_un_5_);
+	BIT_VEC cppVar_1764 = (0 << 5) | cppVar_1763;
+	cppVar_1764 = (cppVar_1764 & cppMask_un_8_);
+	BIT_VEC cppVar_1765 = IRAM.rd(cppVar_1764);
+	BIT_VEC cppVar_1766 = IRAM.rd(cppVar_1765);
+	BIT_VEC cppVar_1767 = ACC ^ cppVar_1766;
+	cppVar_1756 = cppVar_1767;
+	} else {
+	BIT_VEC cppVar_1768;
+	BIT_VEC cppVar_1769 = ROM.rd(PC);
+	bool cppVar_1771 = (cppVar_1769 == 102);
+	if (cppVar_1771) {
+	BIT_VEC cppVar_1773 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_1775 = (cppVar_1773 << 3) | 0;
+	cppVar_1775 = (cppVar_1775 & cppMask_un_5_);
+	BIT_VEC cppVar_1776 = (0 << 5) | cppVar_1775;
+	cppVar_1776 = (cppVar_1776 & cppMask_un_8_);
+	BIT_VEC cppVar_1777 = IRAM.rd(cppVar_1776);
+	BIT_VEC cppVar_1778 = IRAM.rd(cppVar_1777);
+	BIT_VEC cppVar_1779 = ACC ^ cppVar_1778;
+	cppVar_1768 = cppVar_1779;
+	} else {
+	BIT_VEC cppVar_1780;
+	BIT_VEC cppVar_1781 = ROM.rd(PC);
+	bool cppVar_1783 = (cppVar_1781 == 101);
+	if (cppVar_1783) {
+	BIT_VEC cppVar_1784;
 	BIT_VEC cppVar_1786 = PC + 1;
 	cppVar_1786 = (cppVar_1786 & cppMask_un_16_);
 	BIT_VEC cppVar_1787 = ROM.rd(cppVar_1786);
-	bool cppVar_1789 = (cppVar_1787 == 141);
-	BIT_VEC cppVar_1790 = PC + 1;
-	cppVar_1790 = (cppVar_1790 & cppMask_un_16_);
-	BIT_VEC cppVar_1791 = ROM.rd(cppVar_1790);
-	bool cppVar_1793 = (cppVar_1791 == 144);
-	BIT_VEC cppVar_1794 = PC + 1;
-	cppVar_1794 = (cppVar_1794 & cppMask_un_16_);
-	BIT_VEC cppVar_1795 = ROM.rd(cppVar_1794);
-	bool cppVar_1797 = (cppVar_1795 == 152);
-	BIT_VEC cppVar_1798 = PC + 1;
-	cppVar_1798 = (cppVar_1798 & cppMask_un_16_);
-	BIT_VEC cppVar_1799 = ROM.rd(cppVar_1798);
-	bool cppVar_1801 = (cppVar_1799 == 153);
-	BIT_VEC cppVar_1802 = PC + 1;
-	cppVar_1802 = (cppVar_1802 & cppMask_un_16_);
-	BIT_VEC cppVar_1803 = ROM.rd(cppVar_1802);
-	bool cppVar_1805 = (cppVar_1803 == 160);
-	BIT_VEC cppVar_1806 = PC + 1;
-	cppVar_1806 = (cppVar_1806 & cppMask_un_16_);
-	BIT_VEC cppVar_1807 = ROM.rd(cppVar_1806);
-	bool cppVar_1809 = (cppVar_1807 == 168);
+	BIT_VEC cppVar_1788 = (cppVar_1787 >> 7) & cppMask_un_1_;
+	bool cppVar_1790 = (cppVar_1788 == 0);
+	if (cppVar_1790) {
+	BIT_VEC cppVar_1791 = PC + 1;
+	cppVar_1791 = (cppVar_1791 & cppMask_un_16_);
+	BIT_VEC cppVar_1792 = ROM.rd(cppVar_1791);
+	BIT_VEC cppVar_1793 = IRAM.rd(cppVar_1792);
+	cppVar_1784 = cppVar_1793;
+	} else {
+	BIT_VEC cppVar_1794;
+	BIT_VEC cppVar_1795 = PC + 1;
+	cppVar_1795 = (cppVar_1795 & cppMask_un_16_);
+	BIT_VEC cppVar_1796 = ROM.rd(cppVar_1795);
+	bool cppVar_1798 = (cppVar_1796 == 128);
+	if (cppVar_1798) {
+	cppVar_1794 = P0;
+	} else {
+	BIT_VEC cppVar_1799;
+	BIT_VEC cppVar_1800 = PC + 1;
+	cppVar_1800 = (cppVar_1800 & cppMask_un_16_);
+	BIT_VEC cppVar_1801 = ROM.rd(cppVar_1800);
+	bool cppVar_1803 = (cppVar_1801 == 129);
+	if (cppVar_1803) {
+	cppVar_1799 = SP;
+	} else {
+	BIT_VEC cppVar_1804;
+	BIT_VEC cppVar_1805 = PC + 1;
+	cppVar_1805 = (cppVar_1805 & cppMask_un_16_);
+	BIT_VEC cppVar_1806 = ROM.rd(cppVar_1805);
+	bool cppVar_1808 = (cppVar_1806 == 130);
+	if (cppVar_1808) {
+	cppVar_1804 = DPL;
+	} else {
+	BIT_VEC cppVar_1809;
 	BIT_VEC cppVar_1810 = PC + 1;
 	cppVar_1810 = (cppVar_1810 & cppMask_un_16_);
 	BIT_VEC cppVar_1811 = ROM.rd(cppVar_1810);
-	bool cppVar_1813 = (cppVar_1811 == 176);
-	BIT_VEC cppVar_1814 = PC + 1;
-	cppVar_1814 = (cppVar_1814 & cppMask_un_16_);
-	BIT_VEC cppVar_1815 = ROM.rd(cppVar_1814);
-	bool cppVar_1817 = (cppVar_1815 == 184);
-	BIT_VEC cppVar_1818 = PC + 1;
-	cppVar_1818 = (cppVar_1818 & cppMask_un_16_);
-	BIT_VEC cppVar_1819 = ROM.rd(cppVar_1818);
-	bool cppVar_1821 = (cppVar_1819 == 208);
-	BIT_VEC cppVar_1822 = PC + 1;
-	cppVar_1822 = (cppVar_1822 & cppMask_un_16_);
-	BIT_VEC cppVar_1823 = ROM.rd(cppVar_1822);
-	bool cppVar_1825 = (cppVar_1823 == 224);
-	BIT_VEC cppVar_1826 = PC + 1;
-	cppVar_1826 = (cppVar_1826 & cppMask_un_16_);
-	BIT_VEC cppVar_1827 = ROM.rd(cppVar_1826);
-	bool cppVar_1829 = (cppVar_1827 == 240);
-	BIT_VEC cppVar_1831 = (cppVar_1829) ? B : 0;
-	BIT_VEC cppVar_1832 = (cppVar_1825) ? ACC : cppVar_1831;
-	BIT_VEC cppVar_1833 = (cppVar_1821) ? PSW : cppVar_1832;
-	BIT_VEC cppVar_1834 = (cppVar_1817) ? IP : cppVar_1833;
-	BIT_VEC cppVar_1835 = (cppVar_1813) ? P3 : cppVar_1834;
-	BIT_VEC cppVar_1836 = (cppVar_1809) ? IE : cppVar_1835;
-	BIT_VEC cppVar_1837 = (cppVar_1805) ? P2 : cppVar_1836;
-	BIT_VEC cppVar_1838 = (cppVar_1801) ? SBUF : cppVar_1837;
-	BIT_VEC cppVar_1839 = (cppVar_1797) ? SCON : cppVar_1838;
-	BIT_VEC cppVar_1840 = (cppVar_1793) ? P1 : cppVar_1839;
-	BIT_VEC cppVar_1841 = (cppVar_1789) ? TH1 : cppVar_1840;
-	BIT_VEC cppVar_1842 = (cppVar_1785) ? TL1 : cppVar_1841;
-	BIT_VEC cppVar_1843 = (cppVar_1781) ? TH0 : cppVar_1842;
-	BIT_VEC cppVar_1844 = (cppVar_1777) ? TL0 : cppVar_1843;
-	BIT_VEC cppVar_1845 = (cppVar_1773) ? TMOD : cppVar_1844;
-	BIT_VEC cppVar_1846 = (cppVar_1769) ? TCON : cppVar_1845;
-	BIT_VEC cppVar_1847 = (cppVar_1765) ? PCON : cppVar_1846;
-	BIT_VEC cppVar_1848 = (cppVar_1761) ? DPH : cppVar_1847;
-	BIT_VEC cppVar_1849 = (cppVar_1757) ? DPL : cppVar_1848;
-	BIT_VEC cppVar_1850 = (cppVar_1753) ? SP : cppVar_1849;
-	BIT_VEC cppVar_1851 = (cppVar_1749) ? P0 : cppVar_1850;
-	BIT_VEC cppVar_1852 = (cppVar_1742) ? cppVar_1745 : cppVar_1851;
-	BIT_VEC cppVar_1853 = ACC ^ cppVar_1852;
-	BIT_VEC cppVar_1854 = ROM.rd(PC);
-	bool cppVar_1856 = (cppVar_1854 == 100);
-	BIT_VEC cppVar_1858 = PC + 1;
-	cppVar_1858 = (cppVar_1858 & cppMask_un_16_);
-	BIT_VEC cppVar_1859 = ROM.rd(cppVar_1858);
-	BIT_VEC cppVar_1860 = ACC ^ cppVar_1859;
-	BIT_VEC cppVar_1861 = ROM.rd(PC);
-	bool cppVar_1863 = (cppVar_1861 == 95);
-	BIT_VEC cppVar_1865 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_1867 = (cppVar_1865 << 3) | 7;
-	cppVar_1867 = (cppVar_1867 & cppMask_un_5_);
-	BIT_VEC cppVar_1868 = (0 << 5) | cppVar_1867;
-	cppVar_1868 = (cppVar_1868 & cppMask_un_8_);
-	BIT_VEC cppVar_1869 = IRAM.rd(cppVar_1868);
-	BIT_VEC cppVar_1870 = ACC & cppVar_1869;
-	BIT_VEC cppVar_1871 = ROM.rd(PC);
-	bool cppVar_1873 = (cppVar_1871 == 94);
-	BIT_VEC cppVar_1875 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_1877 = (cppVar_1875 << 3) | 6;
-	cppVar_1877 = (cppVar_1877 & cppMask_un_5_);
-	BIT_VEC cppVar_1878 = (0 << 5) | cppVar_1877;
-	cppVar_1878 = (cppVar_1878 & cppMask_un_8_);
-	BIT_VEC cppVar_1879 = IRAM.rd(cppVar_1878);
-	BIT_VEC cppVar_1880 = ACC & cppVar_1879;
-	BIT_VEC cppVar_1881 = ROM.rd(PC);
-	bool cppVar_1883 = (cppVar_1881 == 93);
-	BIT_VEC cppVar_1885 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_1887 = (cppVar_1885 << 3) | 5;
-	cppVar_1887 = (cppVar_1887 & cppMask_un_5_);
-	BIT_VEC cppVar_1888 = (0 << 5) | cppVar_1887;
-	cppVar_1888 = (cppVar_1888 & cppMask_un_8_);
-	BIT_VEC cppVar_1889 = IRAM.rd(cppVar_1888);
-	BIT_VEC cppVar_1890 = ACC & cppVar_1889;
-	BIT_VEC cppVar_1891 = ROM.rd(PC);
-	bool cppVar_1893 = (cppVar_1891 == 92);
-	BIT_VEC cppVar_1895 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_1897 = (cppVar_1895 << 3) | 4;
-	cppVar_1897 = (cppVar_1897 & cppMask_un_5_);
-	BIT_VEC cppVar_1898 = (0 << 5) | cppVar_1897;
-	cppVar_1898 = (cppVar_1898 & cppMask_un_8_);
-	BIT_VEC cppVar_1899 = IRAM.rd(cppVar_1898);
-	BIT_VEC cppVar_1900 = ACC & cppVar_1899;
-	BIT_VEC cppVar_1901 = ROM.rd(PC);
-	bool cppVar_1903 = (cppVar_1901 == 91);
-	BIT_VEC cppVar_1905 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_1907 = (cppVar_1905 << 3) | 3;
-	cppVar_1907 = (cppVar_1907 & cppMask_un_5_);
-	BIT_VEC cppVar_1908 = (0 << 5) | cppVar_1907;
-	cppVar_1908 = (cppVar_1908 & cppMask_un_8_);
-	BIT_VEC cppVar_1909 = IRAM.rd(cppVar_1908);
-	BIT_VEC cppVar_1910 = ACC & cppVar_1909;
-	BIT_VEC cppVar_1911 = ROM.rd(PC);
-	bool cppVar_1913 = (cppVar_1911 == 90);
-	BIT_VEC cppVar_1915 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_1917 = (cppVar_1915 << 3) | 2;
-	cppVar_1917 = (cppVar_1917 & cppMask_un_5_);
-	BIT_VEC cppVar_1918 = (0 << 5) | cppVar_1917;
-	cppVar_1918 = (cppVar_1918 & cppMask_un_8_);
-	BIT_VEC cppVar_1919 = IRAM.rd(cppVar_1918);
-	BIT_VEC cppVar_1920 = ACC & cppVar_1919;
+	bool cppVar_1813 = (cppVar_1811 == 131);
+	if (cppVar_1813) {
+	cppVar_1809 = DPH;
+	} else {
+	BIT_VEC cppVar_1814;
+	BIT_VEC cppVar_1815 = PC + 1;
+	cppVar_1815 = (cppVar_1815 & cppMask_un_16_);
+	BIT_VEC cppVar_1816 = ROM.rd(cppVar_1815);
+	bool cppVar_1818 = (cppVar_1816 == 135);
+	if (cppVar_1818) {
+	cppVar_1814 = PCON;
+	} else {
+	BIT_VEC cppVar_1819;
+	BIT_VEC cppVar_1820 = PC + 1;
+	cppVar_1820 = (cppVar_1820 & cppMask_un_16_);
+	BIT_VEC cppVar_1821 = ROM.rd(cppVar_1820);
+	bool cppVar_1823 = (cppVar_1821 == 136);
+	if (cppVar_1823) {
+	cppVar_1819 = TCON;
+	} else {
+	BIT_VEC cppVar_1824;
+	BIT_VEC cppVar_1825 = PC + 1;
+	cppVar_1825 = (cppVar_1825 & cppMask_un_16_);
+	BIT_VEC cppVar_1826 = ROM.rd(cppVar_1825);
+	bool cppVar_1828 = (cppVar_1826 == 137);
+	if (cppVar_1828) {
+	cppVar_1824 = TMOD;
+	} else {
+	BIT_VEC cppVar_1829;
+	BIT_VEC cppVar_1830 = PC + 1;
+	cppVar_1830 = (cppVar_1830 & cppMask_un_16_);
+	BIT_VEC cppVar_1831 = ROM.rd(cppVar_1830);
+	bool cppVar_1833 = (cppVar_1831 == 138);
+	if (cppVar_1833) {
+	cppVar_1829 = TL0;
+	} else {
+	BIT_VEC cppVar_1834;
+	BIT_VEC cppVar_1835 = PC + 1;
+	cppVar_1835 = (cppVar_1835 & cppMask_un_16_);
+	BIT_VEC cppVar_1836 = ROM.rd(cppVar_1835);
+	bool cppVar_1838 = (cppVar_1836 == 140);
+	if (cppVar_1838) {
+	cppVar_1834 = TH0;
+	} else {
+	BIT_VEC cppVar_1839;
+	BIT_VEC cppVar_1840 = PC + 1;
+	cppVar_1840 = (cppVar_1840 & cppMask_un_16_);
+	BIT_VEC cppVar_1841 = ROM.rd(cppVar_1840);
+	bool cppVar_1843 = (cppVar_1841 == 139);
+	if (cppVar_1843) {
+	cppVar_1839 = TL1;
+	} else {
+	BIT_VEC cppVar_1844;
+	BIT_VEC cppVar_1845 = PC + 1;
+	cppVar_1845 = (cppVar_1845 & cppMask_un_16_);
+	BIT_VEC cppVar_1846 = ROM.rd(cppVar_1845);
+	bool cppVar_1848 = (cppVar_1846 == 141);
+	if (cppVar_1848) {
+	cppVar_1844 = TH1;
+	} else {
+	BIT_VEC cppVar_1849;
+	BIT_VEC cppVar_1850 = PC + 1;
+	cppVar_1850 = (cppVar_1850 & cppMask_un_16_);
+	BIT_VEC cppVar_1851 = ROM.rd(cppVar_1850);
+	bool cppVar_1853 = (cppVar_1851 == 144);
+	if (cppVar_1853) {
+	cppVar_1849 = P1;
+	} else {
+	BIT_VEC cppVar_1854;
+	BIT_VEC cppVar_1855 = PC + 1;
+	cppVar_1855 = (cppVar_1855 & cppMask_un_16_);
+	BIT_VEC cppVar_1856 = ROM.rd(cppVar_1855);
+	bool cppVar_1858 = (cppVar_1856 == 152);
+	if (cppVar_1858) {
+	cppVar_1854 = SCON;
+	} else {
+	BIT_VEC cppVar_1859;
+	BIT_VEC cppVar_1860 = PC + 1;
+	cppVar_1860 = (cppVar_1860 & cppMask_un_16_);
+	BIT_VEC cppVar_1861 = ROM.rd(cppVar_1860);
+	bool cppVar_1863 = (cppVar_1861 == 153);
+	if (cppVar_1863) {
+	cppVar_1859 = SBUF;
+	} else {
+	BIT_VEC cppVar_1864;
+	BIT_VEC cppVar_1865 = PC + 1;
+	cppVar_1865 = (cppVar_1865 & cppMask_un_16_);
+	BIT_VEC cppVar_1866 = ROM.rd(cppVar_1865);
+	bool cppVar_1868 = (cppVar_1866 == 160);
+	if (cppVar_1868) {
+	cppVar_1864 = P2;
+	} else {
+	BIT_VEC cppVar_1869;
+	BIT_VEC cppVar_1870 = PC + 1;
+	cppVar_1870 = (cppVar_1870 & cppMask_un_16_);
+	BIT_VEC cppVar_1871 = ROM.rd(cppVar_1870);
+	bool cppVar_1873 = (cppVar_1871 == 168);
+	if (cppVar_1873) {
+	cppVar_1869 = IE;
+	} else {
+	BIT_VEC cppVar_1874;
+	BIT_VEC cppVar_1875 = PC + 1;
+	cppVar_1875 = (cppVar_1875 & cppMask_un_16_);
+	BIT_VEC cppVar_1876 = ROM.rd(cppVar_1875);
+	bool cppVar_1878 = (cppVar_1876 == 176);
+	if (cppVar_1878) {
+	cppVar_1874 = P3;
+	} else {
+	BIT_VEC cppVar_1879;
+	BIT_VEC cppVar_1880 = PC + 1;
+	cppVar_1880 = (cppVar_1880 & cppMask_un_16_);
+	BIT_VEC cppVar_1881 = ROM.rd(cppVar_1880);
+	bool cppVar_1883 = (cppVar_1881 == 184);
+	if (cppVar_1883) {
+	cppVar_1879 = IP;
+	} else {
+	BIT_VEC cppVar_1884;
+	BIT_VEC cppVar_1885 = PC + 1;
+	cppVar_1885 = (cppVar_1885 & cppMask_un_16_);
+	BIT_VEC cppVar_1886 = ROM.rd(cppVar_1885);
+	bool cppVar_1888 = (cppVar_1886 == 208);
+	if (cppVar_1888) {
+	cppVar_1884 = PSW;
+	} else {
+	BIT_VEC cppVar_1889;
+	BIT_VEC cppVar_1890 = PC + 1;
+	cppVar_1890 = (cppVar_1890 & cppMask_un_16_);
+	BIT_VEC cppVar_1891 = ROM.rd(cppVar_1890);
+	bool cppVar_1893 = (cppVar_1891 == 224);
+	if (cppVar_1893) {
+	cppVar_1889 = ACC;
+	} else {
+	BIT_VEC cppVar_1894;
+	BIT_VEC cppVar_1895 = PC + 1;
+	cppVar_1895 = (cppVar_1895 & cppMask_un_16_);
+	BIT_VEC cppVar_1896 = ROM.rd(cppVar_1895);
+	bool cppVar_1898 = (cppVar_1896 == 240);
+	if (cppVar_1898) {
+	cppVar_1894 = B;
+	} else {
+	cppVar_1894 = 0;
+	}
+	cppVar_1889 = cppVar_1894;
+	}
+	cppVar_1884 = cppVar_1889;
+	}
+	cppVar_1879 = cppVar_1884;
+	}
+	cppVar_1874 = cppVar_1879;
+	}
+	cppVar_1869 = cppVar_1874;
+	}
+	cppVar_1864 = cppVar_1869;
+	}
+	cppVar_1859 = cppVar_1864;
+	}
+	cppVar_1854 = cppVar_1859;
+	}
+	cppVar_1849 = cppVar_1854;
+	}
+	cppVar_1844 = cppVar_1849;
+	}
+	cppVar_1839 = cppVar_1844;
+	}
+	cppVar_1834 = cppVar_1839;
+	}
+	cppVar_1829 = cppVar_1834;
+	}
+	cppVar_1824 = cppVar_1829;
+	}
+	cppVar_1819 = cppVar_1824;
+	}
+	cppVar_1814 = cppVar_1819;
+	}
+	cppVar_1809 = cppVar_1814;
+	}
+	cppVar_1804 = cppVar_1809;
+	}
+	cppVar_1799 = cppVar_1804;
+	}
+	cppVar_1794 = cppVar_1799;
+	}
+	cppVar_1784 = cppVar_1794;
+	}
+	BIT_VEC cppVar_1900 = ACC ^ cppVar_1784;
+	cppVar_1780 = cppVar_1900;
+	} else {
+	BIT_VEC cppVar_1901;
+	BIT_VEC cppVar_1902 = ROM.rd(PC);
+	bool cppVar_1904 = (cppVar_1902 == 100);
+	if (cppVar_1904) {
+	BIT_VEC cppVar_1906 = PC + 1;
+	cppVar_1906 = (cppVar_1906 & cppMask_un_16_);
+	BIT_VEC cppVar_1907 = ROM.rd(cppVar_1906);
+	BIT_VEC cppVar_1908 = ACC ^ cppVar_1907;
+	cppVar_1901 = cppVar_1908;
+	} else {
+	BIT_VEC cppVar_1909;
+	BIT_VEC cppVar_1910 = ROM.rd(PC);
+	bool cppVar_1912 = (cppVar_1910 == 95);
+	if (cppVar_1912) {
+	BIT_VEC cppVar_1914 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_1916 = (cppVar_1914 << 3) | 7;
+	cppVar_1916 = (cppVar_1916 & cppMask_un_5_);
+	BIT_VEC cppVar_1917 = (0 << 5) | cppVar_1916;
+	cppVar_1917 = (cppVar_1917 & cppMask_un_8_);
+	BIT_VEC cppVar_1918 = IRAM.rd(cppVar_1917);
+	BIT_VEC cppVar_1919 = ACC & cppVar_1918;
+	cppVar_1909 = cppVar_1919;
+	} else {
+	BIT_VEC cppVar_1920;
 	BIT_VEC cppVar_1921 = ROM.rd(PC);
-	bool cppVar_1923 = (cppVar_1921 == 89);
+	bool cppVar_1923 = (cppVar_1921 == 94);
+	if (cppVar_1923) {
 	BIT_VEC cppVar_1925 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_1927 = (cppVar_1925 << 3) | 1;
+	BIT_VEC cppVar_1927 = (cppVar_1925 << 3) | 6;
 	cppVar_1927 = (cppVar_1927 & cppMask_un_5_);
 	BIT_VEC cppVar_1928 = (0 << 5) | cppVar_1927;
 	cppVar_1928 = (cppVar_1928 & cppMask_un_8_);
 	BIT_VEC cppVar_1929 = IRAM.rd(cppVar_1928);
 	BIT_VEC cppVar_1930 = ACC & cppVar_1929;
-	BIT_VEC cppVar_1931 = ROM.rd(PC);
-	bool cppVar_1933 = (cppVar_1931 == 88);
-	BIT_VEC cppVar_1935 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_1937 = (cppVar_1935 << 3) | 0;
-	cppVar_1937 = (cppVar_1937 & cppMask_un_5_);
-	BIT_VEC cppVar_1938 = (0 << 5) | cppVar_1937;
-	cppVar_1938 = (cppVar_1938 & cppMask_un_8_);
-	BIT_VEC cppVar_1939 = IRAM.rd(cppVar_1938);
-	BIT_VEC cppVar_1940 = ACC & cppVar_1939;
-	BIT_VEC cppVar_1941 = ROM.rd(PC);
-	bool cppVar_1943 = (cppVar_1941 == 87);
-	BIT_VEC cppVar_1945 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_1947 = (cppVar_1945 << 3) | 1;
-	cppVar_1947 = (cppVar_1947 & cppMask_un_5_);
-	BIT_VEC cppVar_1948 = (0 << 5) | cppVar_1947;
-	cppVar_1948 = (cppVar_1948 & cppMask_un_8_);
-	BIT_VEC cppVar_1949 = IRAM.rd(cppVar_1948);
-	BIT_VEC cppVar_1950 = IRAM.rd(cppVar_1949);
-	BIT_VEC cppVar_1951 = ACC & cppVar_1950;
-	BIT_VEC cppVar_1952 = ROM.rd(PC);
-	bool cppVar_1954 = (cppVar_1952 == 86);
-	BIT_VEC cppVar_1956 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_1958 = (cppVar_1956 << 3) | 0;
-	cppVar_1958 = (cppVar_1958 & cppMask_un_5_);
-	BIT_VEC cppVar_1959 = (0 << 5) | cppVar_1958;
-	cppVar_1959 = (cppVar_1959 & cppMask_un_8_);
-	BIT_VEC cppVar_1960 = IRAM.rd(cppVar_1959);
-	BIT_VEC cppVar_1961 = IRAM.rd(cppVar_1960);
-	BIT_VEC cppVar_1962 = ACC & cppVar_1961;
-	BIT_VEC cppVar_1963 = ROM.rd(PC);
-	bool cppVar_1965 = (cppVar_1963 == 85);
-	BIT_VEC cppVar_1967 = PC + 1;
-	cppVar_1967 = (cppVar_1967 & cppMask_un_16_);
-	BIT_VEC cppVar_1968 = ROM.rd(cppVar_1967);
-	BIT_VEC cppVar_1969 = (cppVar_1968 >> 7) & cppMask_un_1_;
-	bool cppVar_1971 = (cppVar_1969 == 0);
-	BIT_VEC cppVar_1972 = PC + 1;
-	cppVar_1972 = (cppVar_1972 & cppMask_un_16_);
-	BIT_VEC cppVar_1973 = ROM.rd(cppVar_1972);
-	BIT_VEC cppVar_1974 = IRAM.rd(cppVar_1973);
-	BIT_VEC cppVar_1975 = PC + 1;
-	cppVar_1975 = (cppVar_1975 & cppMask_un_16_);
-	BIT_VEC cppVar_1976 = ROM.rd(cppVar_1975);
-	bool cppVar_1978 = (cppVar_1976 == 128);
-	BIT_VEC cppVar_1979 = PC + 1;
-	cppVar_1979 = (cppVar_1979 & cppMask_un_16_);
-	BIT_VEC cppVar_1980 = ROM.rd(cppVar_1979);
-	bool cppVar_1982 = (cppVar_1980 == 129);
-	BIT_VEC cppVar_1983 = PC + 1;
-	cppVar_1983 = (cppVar_1983 & cppMask_un_16_);
-	BIT_VEC cppVar_1984 = ROM.rd(cppVar_1983);
-	bool cppVar_1986 = (cppVar_1984 == 130);
-	BIT_VEC cppVar_1987 = PC + 1;
-	cppVar_1987 = (cppVar_1987 & cppMask_un_16_);
-	BIT_VEC cppVar_1988 = ROM.rd(cppVar_1987);
-	bool cppVar_1990 = (cppVar_1988 == 131);
-	BIT_VEC cppVar_1991 = PC + 1;
-	cppVar_1991 = (cppVar_1991 & cppMask_un_16_);
-	BIT_VEC cppVar_1992 = ROM.rd(cppVar_1991);
-	bool cppVar_1994 = (cppVar_1992 == 135);
-	BIT_VEC cppVar_1995 = PC + 1;
-	cppVar_1995 = (cppVar_1995 & cppMask_un_16_);
-	BIT_VEC cppVar_1996 = ROM.rd(cppVar_1995);
-	bool cppVar_1998 = (cppVar_1996 == 136);
-	BIT_VEC cppVar_1999 = PC + 1;
-	cppVar_1999 = (cppVar_1999 & cppMask_un_16_);
-	BIT_VEC cppVar_2000 = ROM.rd(cppVar_1999);
-	bool cppVar_2002 = (cppVar_2000 == 137);
-	BIT_VEC cppVar_2003 = PC + 1;
-	cppVar_2003 = (cppVar_2003 & cppMask_un_16_);
-	BIT_VEC cppVar_2004 = ROM.rd(cppVar_2003);
-	bool cppVar_2006 = (cppVar_2004 == 138);
-	BIT_VEC cppVar_2007 = PC + 1;
-	cppVar_2007 = (cppVar_2007 & cppMask_un_16_);
-	BIT_VEC cppVar_2008 = ROM.rd(cppVar_2007);
-	bool cppVar_2010 = (cppVar_2008 == 140);
-	BIT_VEC cppVar_2011 = PC + 1;
-	cppVar_2011 = (cppVar_2011 & cppMask_un_16_);
-	BIT_VEC cppVar_2012 = ROM.rd(cppVar_2011);
-	bool cppVar_2014 = (cppVar_2012 == 139);
-	BIT_VEC cppVar_2015 = PC + 1;
-	cppVar_2015 = (cppVar_2015 & cppMask_un_16_);
-	BIT_VEC cppVar_2016 = ROM.rd(cppVar_2015);
-	bool cppVar_2018 = (cppVar_2016 == 141);
-	BIT_VEC cppVar_2019 = PC + 1;
-	cppVar_2019 = (cppVar_2019 & cppMask_un_16_);
-	BIT_VEC cppVar_2020 = ROM.rd(cppVar_2019);
-	bool cppVar_2022 = (cppVar_2020 == 144);
-	BIT_VEC cppVar_2023 = PC + 1;
-	cppVar_2023 = (cppVar_2023 & cppMask_un_16_);
-	BIT_VEC cppVar_2024 = ROM.rd(cppVar_2023);
-	bool cppVar_2026 = (cppVar_2024 == 152);
+	cppVar_1920 = cppVar_1930;
+	} else {
+	BIT_VEC cppVar_1931;
+	BIT_VEC cppVar_1932 = ROM.rd(PC);
+	bool cppVar_1934 = (cppVar_1932 == 93);
+	if (cppVar_1934) {
+	BIT_VEC cppVar_1936 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_1938 = (cppVar_1936 << 3) | 5;
+	cppVar_1938 = (cppVar_1938 & cppMask_un_5_);
+	BIT_VEC cppVar_1939 = (0 << 5) | cppVar_1938;
+	cppVar_1939 = (cppVar_1939 & cppMask_un_8_);
+	BIT_VEC cppVar_1940 = IRAM.rd(cppVar_1939);
+	BIT_VEC cppVar_1941 = ACC & cppVar_1940;
+	cppVar_1931 = cppVar_1941;
+	} else {
+	BIT_VEC cppVar_1942;
+	BIT_VEC cppVar_1943 = ROM.rd(PC);
+	bool cppVar_1945 = (cppVar_1943 == 92);
+	if (cppVar_1945) {
+	BIT_VEC cppVar_1947 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_1949 = (cppVar_1947 << 3) | 4;
+	cppVar_1949 = (cppVar_1949 & cppMask_un_5_);
+	BIT_VEC cppVar_1950 = (0 << 5) | cppVar_1949;
+	cppVar_1950 = (cppVar_1950 & cppMask_un_8_);
+	BIT_VEC cppVar_1951 = IRAM.rd(cppVar_1950);
+	BIT_VEC cppVar_1952 = ACC & cppVar_1951;
+	cppVar_1942 = cppVar_1952;
+	} else {
+	BIT_VEC cppVar_1953;
+	BIT_VEC cppVar_1954 = ROM.rd(PC);
+	bool cppVar_1956 = (cppVar_1954 == 91);
+	if (cppVar_1956) {
+	BIT_VEC cppVar_1958 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_1960 = (cppVar_1958 << 3) | 3;
+	cppVar_1960 = (cppVar_1960 & cppMask_un_5_);
+	BIT_VEC cppVar_1961 = (0 << 5) | cppVar_1960;
+	cppVar_1961 = (cppVar_1961 & cppMask_un_8_);
+	BIT_VEC cppVar_1962 = IRAM.rd(cppVar_1961);
+	BIT_VEC cppVar_1963 = ACC & cppVar_1962;
+	cppVar_1953 = cppVar_1963;
+	} else {
+	BIT_VEC cppVar_1964;
+	BIT_VEC cppVar_1965 = ROM.rd(PC);
+	bool cppVar_1967 = (cppVar_1965 == 90);
+	if (cppVar_1967) {
+	BIT_VEC cppVar_1969 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_1971 = (cppVar_1969 << 3) | 2;
+	cppVar_1971 = (cppVar_1971 & cppMask_un_5_);
+	BIT_VEC cppVar_1972 = (0 << 5) | cppVar_1971;
+	cppVar_1972 = (cppVar_1972 & cppMask_un_8_);
+	BIT_VEC cppVar_1973 = IRAM.rd(cppVar_1972);
+	BIT_VEC cppVar_1974 = ACC & cppVar_1973;
+	cppVar_1964 = cppVar_1974;
+	} else {
+	BIT_VEC cppVar_1975;
+	BIT_VEC cppVar_1976 = ROM.rd(PC);
+	bool cppVar_1978 = (cppVar_1976 == 89);
+	if (cppVar_1978) {
+	BIT_VEC cppVar_1980 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_1982 = (cppVar_1980 << 3) | 1;
+	cppVar_1982 = (cppVar_1982 & cppMask_un_5_);
+	BIT_VEC cppVar_1983 = (0 << 5) | cppVar_1982;
+	cppVar_1983 = (cppVar_1983 & cppMask_un_8_);
+	BIT_VEC cppVar_1984 = IRAM.rd(cppVar_1983);
+	BIT_VEC cppVar_1985 = ACC & cppVar_1984;
+	cppVar_1975 = cppVar_1985;
+	} else {
+	BIT_VEC cppVar_1986;
+	BIT_VEC cppVar_1987 = ROM.rd(PC);
+	bool cppVar_1989 = (cppVar_1987 == 88);
+	if (cppVar_1989) {
+	BIT_VEC cppVar_1991 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_1993 = (cppVar_1991 << 3) | 0;
+	cppVar_1993 = (cppVar_1993 & cppMask_un_5_);
+	BIT_VEC cppVar_1994 = (0 << 5) | cppVar_1993;
+	cppVar_1994 = (cppVar_1994 & cppMask_un_8_);
+	BIT_VEC cppVar_1995 = IRAM.rd(cppVar_1994);
+	BIT_VEC cppVar_1996 = ACC & cppVar_1995;
+	cppVar_1986 = cppVar_1996;
+	} else {
+	BIT_VEC cppVar_1997;
+	BIT_VEC cppVar_1998 = ROM.rd(PC);
+	bool cppVar_2000 = (cppVar_1998 == 87);
+	if (cppVar_2000) {
+	BIT_VEC cppVar_2002 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_2004 = (cppVar_2002 << 3) | 1;
+	cppVar_2004 = (cppVar_2004 & cppMask_un_5_);
+	BIT_VEC cppVar_2005 = (0 << 5) | cppVar_2004;
+	cppVar_2005 = (cppVar_2005 & cppMask_un_8_);
+	BIT_VEC cppVar_2006 = IRAM.rd(cppVar_2005);
+	BIT_VEC cppVar_2007 = IRAM.rd(cppVar_2006);
+	BIT_VEC cppVar_2008 = ACC & cppVar_2007;
+	cppVar_1997 = cppVar_2008;
+	} else {
+	BIT_VEC cppVar_2009;
+	BIT_VEC cppVar_2010 = ROM.rd(PC);
+	bool cppVar_2012 = (cppVar_2010 == 86);
+	if (cppVar_2012) {
+	BIT_VEC cppVar_2014 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_2016 = (cppVar_2014 << 3) | 0;
+	cppVar_2016 = (cppVar_2016 & cppMask_un_5_);
+	BIT_VEC cppVar_2017 = (0 << 5) | cppVar_2016;
+	cppVar_2017 = (cppVar_2017 & cppMask_un_8_);
+	BIT_VEC cppVar_2018 = IRAM.rd(cppVar_2017);
+	BIT_VEC cppVar_2019 = IRAM.rd(cppVar_2018);
+	BIT_VEC cppVar_2020 = ACC & cppVar_2019;
+	cppVar_2009 = cppVar_2020;
+	} else {
+	BIT_VEC cppVar_2021;
+	BIT_VEC cppVar_2022 = ROM.rd(PC);
+	bool cppVar_2024 = (cppVar_2022 == 85);
+	if (cppVar_2024) {
+	BIT_VEC cppVar_2025;
 	BIT_VEC cppVar_2027 = PC + 1;
 	cppVar_2027 = (cppVar_2027 & cppMask_un_16_);
 	BIT_VEC cppVar_2028 = ROM.rd(cppVar_2027);
-	bool cppVar_2030 = (cppVar_2028 == 153);
-	BIT_VEC cppVar_2031 = PC + 1;
-	cppVar_2031 = (cppVar_2031 & cppMask_un_16_);
-	BIT_VEC cppVar_2032 = ROM.rd(cppVar_2031);
-	bool cppVar_2034 = (cppVar_2032 == 160);
-	BIT_VEC cppVar_2035 = PC + 1;
-	cppVar_2035 = (cppVar_2035 & cppMask_un_16_);
-	BIT_VEC cppVar_2036 = ROM.rd(cppVar_2035);
-	bool cppVar_2038 = (cppVar_2036 == 168);
-	BIT_VEC cppVar_2039 = PC + 1;
-	cppVar_2039 = (cppVar_2039 & cppMask_un_16_);
-	BIT_VEC cppVar_2040 = ROM.rd(cppVar_2039);
-	bool cppVar_2042 = (cppVar_2040 == 176);
-	BIT_VEC cppVar_2043 = PC + 1;
-	cppVar_2043 = (cppVar_2043 & cppMask_un_16_);
-	BIT_VEC cppVar_2044 = ROM.rd(cppVar_2043);
-	bool cppVar_2046 = (cppVar_2044 == 184);
-	BIT_VEC cppVar_2047 = PC + 1;
-	cppVar_2047 = (cppVar_2047 & cppMask_un_16_);
-	BIT_VEC cppVar_2048 = ROM.rd(cppVar_2047);
-	bool cppVar_2050 = (cppVar_2048 == 208);
+	BIT_VEC cppVar_2029 = (cppVar_2028 >> 7) & cppMask_un_1_;
+	bool cppVar_2031 = (cppVar_2029 == 0);
+	if (cppVar_2031) {
+	BIT_VEC cppVar_2032 = PC + 1;
+	cppVar_2032 = (cppVar_2032 & cppMask_un_16_);
+	BIT_VEC cppVar_2033 = ROM.rd(cppVar_2032);
+	BIT_VEC cppVar_2034 = IRAM.rd(cppVar_2033);
+	cppVar_2025 = cppVar_2034;
+	} else {
+	BIT_VEC cppVar_2035;
+	BIT_VEC cppVar_2036 = PC + 1;
+	cppVar_2036 = (cppVar_2036 & cppMask_un_16_);
+	BIT_VEC cppVar_2037 = ROM.rd(cppVar_2036);
+	bool cppVar_2039 = (cppVar_2037 == 128);
+	if (cppVar_2039) {
+	cppVar_2035 = P0;
+	} else {
+	BIT_VEC cppVar_2040;
+	BIT_VEC cppVar_2041 = PC + 1;
+	cppVar_2041 = (cppVar_2041 & cppMask_un_16_);
+	BIT_VEC cppVar_2042 = ROM.rd(cppVar_2041);
+	bool cppVar_2044 = (cppVar_2042 == 129);
+	if (cppVar_2044) {
+	cppVar_2040 = SP;
+	} else {
+	BIT_VEC cppVar_2045;
+	BIT_VEC cppVar_2046 = PC + 1;
+	cppVar_2046 = (cppVar_2046 & cppMask_un_16_);
+	BIT_VEC cppVar_2047 = ROM.rd(cppVar_2046);
+	bool cppVar_2049 = (cppVar_2047 == 130);
+	if (cppVar_2049) {
+	cppVar_2045 = DPL;
+	} else {
+	BIT_VEC cppVar_2050;
 	BIT_VEC cppVar_2051 = PC + 1;
 	cppVar_2051 = (cppVar_2051 & cppMask_un_16_);
 	BIT_VEC cppVar_2052 = ROM.rd(cppVar_2051);
-	bool cppVar_2054 = (cppVar_2052 == 224);
-	BIT_VEC cppVar_2055 = PC + 1;
-	cppVar_2055 = (cppVar_2055 & cppMask_un_16_);
-	BIT_VEC cppVar_2056 = ROM.rd(cppVar_2055);
-	bool cppVar_2058 = (cppVar_2056 == 240);
-	BIT_VEC cppVar_2060 = (cppVar_2058) ? B : 0;
-	BIT_VEC cppVar_2061 = (cppVar_2054) ? ACC : cppVar_2060;
-	BIT_VEC cppVar_2062 = (cppVar_2050) ? PSW : cppVar_2061;
-	BIT_VEC cppVar_2063 = (cppVar_2046) ? IP : cppVar_2062;
-	BIT_VEC cppVar_2064 = (cppVar_2042) ? P3 : cppVar_2063;
-	BIT_VEC cppVar_2065 = (cppVar_2038) ? IE : cppVar_2064;
-	BIT_VEC cppVar_2066 = (cppVar_2034) ? P2 : cppVar_2065;
-	BIT_VEC cppVar_2067 = (cppVar_2030) ? SBUF : cppVar_2066;
-	BIT_VEC cppVar_2068 = (cppVar_2026) ? SCON : cppVar_2067;
-	BIT_VEC cppVar_2069 = (cppVar_2022) ? P1 : cppVar_2068;
-	BIT_VEC cppVar_2070 = (cppVar_2018) ? TH1 : cppVar_2069;
-	BIT_VEC cppVar_2071 = (cppVar_2014) ? TL1 : cppVar_2070;
-	BIT_VEC cppVar_2072 = (cppVar_2010) ? TH0 : cppVar_2071;
-	BIT_VEC cppVar_2073 = (cppVar_2006) ? TL0 : cppVar_2072;
-	BIT_VEC cppVar_2074 = (cppVar_2002) ? TMOD : cppVar_2073;
-	BIT_VEC cppVar_2075 = (cppVar_1998) ? TCON : cppVar_2074;
-	BIT_VEC cppVar_2076 = (cppVar_1994) ? PCON : cppVar_2075;
-	BIT_VEC cppVar_2077 = (cppVar_1990) ? DPH : cppVar_2076;
-	BIT_VEC cppVar_2078 = (cppVar_1986) ? DPL : cppVar_2077;
-	BIT_VEC cppVar_2079 = (cppVar_1982) ? SP : cppVar_2078;
-	BIT_VEC cppVar_2080 = (cppVar_1978) ? P0 : cppVar_2079;
-	BIT_VEC cppVar_2081 = (cppVar_1971) ? cppVar_1974 : cppVar_2080;
-	BIT_VEC cppVar_2082 = ACC & cppVar_2081;
-	BIT_VEC cppVar_2083 = ROM.rd(PC);
-	bool cppVar_2085 = (cppVar_2083 == 84);
-	BIT_VEC cppVar_2087 = PC + 1;
-	cppVar_2087 = (cppVar_2087 & cppMask_un_16_);
-	BIT_VEC cppVar_2088 = ROM.rd(cppVar_2087);
-	BIT_VEC cppVar_2089 = ACC & cppVar_2088;
-	BIT_VEC cppVar_2090 = ROM.rd(PC);
-	bool cppVar_2092 = (cppVar_2090 == 79);
-	BIT_VEC cppVar_2094 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_2096 = (cppVar_2094 << 3) | 7;
-	cppVar_2096 = (cppVar_2096 & cppMask_un_5_);
-	BIT_VEC cppVar_2097 = (0 << 5) | cppVar_2096;
-	cppVar_2097 = (cppVar_2097 & cppMask_un_8_);
-	BIT_VEC cppVar_2098 = IRAM.rd(cppVar_2097);
-	BIT_VEC cppVar_2099 = ACC | cppVar_2098;
-	BIT_VEC cppVar_2100 = ROM.rd(PC);
-	bool cppVar_2102 = (cppVar_2100 == 78);
-	BIT_VEC cppVar_2104 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_2106 = (cppVar_2104 << 3) | 6;
-	cppVar_2106 = (cppVar_2106 & cppMask_un_5_);
-	BIT_VEC cppVar_2107 = (0 << 5) | cppVar_2106;
-	cppVar_2107 = (cppVar_2107 & cppMask_un_8_);
-	BIT_VEC cppVar_2108 = IRAM.rd(cppVar_2107);
-	BIT_VEC cppVar_2109 = ACC | cppVar_2108;
-	BIT_VEC cppVar_2110 = ROM.rd(PC);
-	bool cppVar_2112 = (cppVar_2110 == 77);
-	BIT_VEC cppVar_2114 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_2116 = (cppVar_2114 << 3) | 5;
-	cppVar_2116 = (cppVar_2116 & cppMask_un_5_);
-	BIT_VEC cppVar_2117 = (0 << 5) | cppVar_2116;
-	cppVar_2117 = (cppVar_2117 & cppMask_un_8_);
-	BIT_VEC cppVar_2118 = IRAM.rd(cppVar_2117);
-	BIT_VEC cppVar_2119 = ACC | cppVar_2118;
-	BIT_VEC cppVar_2120 = ROM.rd(PC);
-	bool cppVar_2122 = (cppVar_2120 == 76);
-	BIT_VEC cppVar_2124 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_2126 = (cppVar_2124 << 3) | 4;
-	cppVar_2126 = (cppVar_2126 & cppMask_un_5_);
-	BIT_VEC cppVar_2127 = (0 << 5) | cppVar_2126;
-	cppVar_2127 = (cppVar_2127 & cppMask_un_8_);
-	BIT_VEC cppVar_2128 = IRAM.rd(cppVar_2127);
-	BIT_VEC cppVar_2129 = ACC | cppVar_2128;
-	BIT_VEC cppVar_2130 = ROM.rd(PC);
-	bool cppVar_2132 = (cppVar_2130 == 75);
-	BIT_VEC cppVar_2134 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_2136 = (cppVar_2134 << 3) | 3;
-	cppVar_2136 = (cppVar_2136 & cppMask_un_5_);
-	BIT_VEC cppVar_2137 = (0 << 5) | cppVar_2136;
-	cppVar_2137 = (cppVar_2137 & cppMask_un_8_);
-	BIT_VEC cppVar_2138 = IRAM.rd(cppVar_2137);
-	BIT_VEC cppVar_2139 = ACC | cppVar_2138;
-	BIT_VEC cppVar_2140 = ROM.rd(PC);
-	bool cppVar_2142 = (cppVar_2140 == 74);
-	BIT_VEC cppVar_2144 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_2146 = (cppVar_2144 << 3) | 2;
-	cppVar_2146 = (cppVar_2146 & cppMask_un_5_);
-	BIT_VEC cppVar_2147 = (0 << 5) | cppVar_2146;
-	cppVar_2147 = (cppVar_2147 & cppMask_un_8_);
-	BIT_VEC cppVar_2148 = IRAM.rd(cppVar_2147);
-	BIT_VEC cppVar_2149 = ACC | cppVar_2148;
-	BIT_VEC cppVar_2150 = ROM.rd(PC);
-	bool cppVar_2152 = (cppVar_2150 == 73);
-	BIT_VEC cppVar_2154 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_2156 = (cppVar_2154 << 3) | 1;
-	cppVar_2156 = (cppVar_2156 & cppMask_un_5_);
-	BIT_VEC cppVar_2157 = (0 << 5) | cppVar_2156;
-	cppVar_2157 = (cppVar_2157 & cppMask_un_8_);
-	BIT_VEC cppVar_2158 = IRAM.rd(cppVar_2157);
-	BIT_VEC cppVar_2159 = ACC | cppVar_2158;
-	BIT_VEC cppVar_2160 = ROM.rd(PC);
-	bool cppVar_2162 = (cppVar_2160 == 72);
-	BIT_VEC cppVar_2164 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_2166 = (cppVar_2164 << 3) | 0;
-	cppVar_2166 = (cppVar_2166 & cppMask_un_5_);
-	BIT_VEC cppVar_2167 = (0 << 5) | cppVar_2166;
-	cppVar_2167 = (cppVar_2167 & cppMask_un_8_);
-	BIT_VEC cppVar_2168 = IRAM.rd(cppVar_2167);
-	BIT_VEC cppVar_2169 = ACC | cppVar_2168;
-	BIT_VEC cppVar_2170 = ROM.rd(PC);
-	bool cppVar_2172 = (cppVar_2170 == 71);
-	BIT_VEC cppVar_2174 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_2176 = (cppVar_2174 << 3) | 1;
-	cppVar_2176 = (cppVar_2176 & cppMask_un_5_);
-	BIT_VEC cppVar_2177 = (0 << 5) | cppVar_2176;
-	cppVar_2177 = (cppVar_2177 & cppMask_un_8_);
-	BIT_VEC cppVar_2178 = IRAM.rd(cppVar_2177);
-	BIT_VEC cppVar_2179 = IRAM.rd(cppVar_2178);
-	BIT_VEC cppVar_2180 = ACC | cppVar_2179;
-	BIT_VEC cppVar_2181 = ROM.rd(PC);
-	bool cppVar_2183 = (cppVar_2181 == 70);
-	BIT_VEC cppVar_2185 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_2187 = (cppVar_2185 << 3) | 0;
-	cppVar_2187 = (cppVar_2187 & cppMask_un_5_);
-	BIT_VEC cppVar_2188 = (0 << 5) | cppVar_2187;
-	cppVar_2188 = (cppVar_2188 & cppMask_un_8_);
-	BIT_VEC cppVar_2189 = IRAM.rd(cppVar_2188);
-	BIT_VEC cppVar_2190 = IRAM.rd(cppVar_2189);
-	BIT_VEC cppVar_2191 = ACC | cppVar_2190;
-	BIT_VEC cppVar_2192 = ROM.rd(PC);
-	bool cppVar_2194 = (cppVar_2192 == 69);
-	BIT_VEC cppVar_2196 = PC + 1;
-	cppVar_2196 = (cppVar_2196 & cppMask_un_16_);
-	BIT_VEC cppVar_2197 = ROM.rd(cppVar_2196);
-	BIT_VEC cppVar_2198 = (cppVar_2197 >> 7) & cppMask_un_1_;
-	bool cppVar_2200 = (cppVar_2198 == 0);
-	BIT_VEC cppVar_2201 = PC + 1;
-	cppVar_2201 = (cppVar_2201 & cppMask_un_16_);
-	BIT_VEC cppVar_2202 = ROM.rd(cppVar_2201);
+	bool cppVar_2054 = (cppVar_2052 == 131);
+	if (cppVar_2054) {
+	cppVar_2050 = DPH;
+	} else {
+	BIT_VEC cppVar_2055;
+	BIT_VEC cppVar_2056 = PC + 1;
+	cppVar_2056 = (cppVar_2056 & cppMask_un_16_);
+	BIT_VEC cppVar_2057 = ROM.rd(cppVar_2056);
+	bool cppVar_2059 = (cppVar_2057 == 135);
+	if (cppVar_2059) {
+	cppVar_2055 = PCON;
+	} else {
+	BIT_VEC cppVar_2060;
+	BIT_VEC cppVar_2061 = PC + 1;
+	cppVar_2061 = (cppVar_2061 & cppMask_un_16_);
+	BIT_VEC cppVar_2062 = ROM.rd(cppVar_2061);
+	bool cppVar_2064 = (cppVar_2062 == 136);
+	if (cppVar_2064) {
+	cppVar_2060 = TCON;
+	} else {
+	BIT_VEC cppVar_2065;
+	BIT_VEC cppVar_2066 = PC + 1;
+	cppVar_2066 = (cppVar_2066 & cppMask_un_16_);
+	BIT_VEC cppVar_2067 = ROM.rd(cppVar_2066);
+	bool cppVar_2069 = (cppVar_2067 == 137);
+	if (cppVar_2069) {
+	cppVar_2065 = TMOD;
+	} else {
+	BIT_VEC cppVar_2070;
+	BIT_VEC cppVar_2071 = PC + 1;
+	cppVar_2071 = (cppVar_2071 & cppMask_un_16_);
+	BIT_VEC cppVar_2072 = ROM.rd(cppVar_2071);
+	bool cppVar_2074 = (cppVar_2072 == 138);
+	if (cppVar_2074) {
+	cppVar_2070 = TL0;
+	} else {
+	BIT_VEC cppVar_2075;
+	BIT_VEC cppVar_2076 = PC + 1;
+	cppVar_2076 = (cppVar_2076 & cppMask_un_16_);
+	BIT_VEC cppVar_2077 = ROM.rd(cppVar_2076);
+	bool cppVar_2079 = (cppVar_2077 == 140);
+	if (cppVar_2079) {
+	cppVar_2075 = TH0;
+	} else {
+	BIT_VEC cppVar_2080;
+	BIT_VEC cppVar_2081 = PC + 1;
+	cppVar_2081 = (cppVar_2081 & cppMask_un_16_);
+	BIT_VEC cppVar_2082 = ROM.rd(cppVar_2081);
+	bool cppVar_2084 = (cppVar_2082 == 139);
+	if (cppVar_2084) {
+	cppVar_2080 = TL1;
+	} else {
+	BIT_VEC cppVar_2085;
+	BIT_VEC cppVar_2086 = PC + 1;
+	cppVar_2086 = (cppVar_2086 & cppMask_un_16_);
+	BIT_VEC cppVar_2087 = ROM.rd(cppVar_2086);
+	bool cppVar_2089 = (cppVar_2087 == 141);
+	if (cppVar_2089) {
+	cppVar_2085 = TH1;
+	} else {
+	BIT_VEC cppVar_2090;
+	BIT_VEC cppVar_2091 = PC + 1;
+	cppVar_2091 = (cppVar_2091 & cppMask_un_16_);
+	BIT_VEC cppVar_2092 = ROM.rd(cppVar_2091);
+	bool cppVar_2094 = (cppVar_2092 == 144);
+	if (cppVar_2094) {
+	cppVar_2090 = P1;
+	} else {
+	BIT_VEC cppVar_2095;
+	BIT_VEC cppVar_2096 = PC + 1;
+	cppVar_2096 = (cppVar_2096 & cppMask_un_16_);
+	BIT_VEC cppVar_2097 = ROM.rd(cppVar_2096);
+	bool cppVar_2099 = (cppVar_2097 == 152);
+	if (cppVar_2099) {
+	cppVar_2095 = SCON;
+	} else {
+	BIT_VEC cppVar_2100;
+	BIT_VEC cppVar_2101 = PC + 1;
+	cppVar_2101 = (cppVar_2101 & cppMask_un_16_);
+	BIT_VEC cppVar_2102 = ROM.rd(cppVar_2101);
+	bool cppVar_2104 = (cppVar_2102 == 153);
+	if (cppVar_2104) {
+	cppVar_2100 = SBUF;
+	} else {
+	BIT_VEC cppVar_2105;
+	BIT_VEC cppVar_2106 = PC + 1;
+	cppVar_2106 = (cppVar_2106 & cppMask_un_16_);
+	BIT_VEC cppVar_2107 = ROM.rd(cppVar_2106);
+	bool cppVar_2109 = (cppVar_2107 == 160);
+	if (cppVar_2109) {
+	cppVar_2105 = P2;
+	} else {
+	BIT_VEC cppVar_2110;
+	BIT_VEC cppVar_2111 = PC + 1;
+	cppVar_2111 = (cppVar_2111 & cppMask_un_16_);
+	BIT_VEC cppVar_2112 = ROM.rd(cppVar_2111);
+	bool cppVar_2114 = (cppVar_2112 == 168);
+	if (cppVar_2114) {
+	cppVar_2110 = IE;
+	} else {
+	BIT_VEC cppVar_2115;
+	BIT_VEC cppVar_2116 = PC + 1;
+	cppVar_2116 = (cppVar_2116 & cppMask_un_16_);
+	BIT_VEC cppVar_2117 = ROM.rd(cppVar_2116);
+	bool cppVar_2119 = (cppVar_2117 == 176);
+	if (cppVar_2119) {
+	cppVar_2115 = P3;
+	} else {
+	BIT_VEC cppVar_2120;
+	BIT_VEC cppVar_2121 = PC + 1;
+	cppVar_2121 = (cppVar_2121 & cppMask_un_16_);
+	BIT_VEC cppVar_2122 = ROM.rd(cppVar_2121);
+	bool cppVar_2124 = (cppVar_2122 == 184);
+	if (cppVar_2124) {
+	cppVar_2120 = IP;
+	} else {
+	BIT_VEC cppVar_2125;
+	BIT_VEC cppVar_2126 = PC + 1;
+	cppVar_2126 = (cppVar_2126 & cppMask_un_16_);
+	BIT_VEC cppVar_2127 = ROM.rd(cppVar_2126);
+	bool cppVar_2129 = (cppVar_2127 == 208);
+	if (cppVar_2129) {
+	cppVar_2125 = PSW;
+	} else {
+	BIT_VEC cppVar_2130;
+	BIT_VEC cppVar_2131 = PC + 1;
+	cppVar_2131 = (cppVar_2131 & cppMask_un_16_);
+	BIT_VEC cppVar_2132 = ROM.rd(cppVar_2131);
+	bool cppVar_2134 = (cppVar_2132 == 224);
+	if (cppVar_2134) {
+	cppVar_2130 = ACC;
+	} else {
+	BIT_VEC cppVar_2135;
+	BIT_VEC cppVar_2136 = PC + 1;
+	cppVar_2136 = (cppVar_2136 & cppMask_un_16_);
+	BIT_VEC cppVar_2137 = ROM.rd(cppVar_2136);
+	bool cppVar_2139 = (cppVar_2137 == 240);
+	if (cppVar_2139) {
+	cppVar_2135 = B;
+	} else {
+	cppVar_2135 = 0;
+	}
+	cppVar_2130 = cppVar_2135;
+	}
+	cppVar_2125 = cppVar_2130;
+	}
+	cppVar_2120 = cppVar_2125;
+	}
+	cppVar_2115 = cppVar_2120;
+	}
+	cppVar_2110 = cppVar_2115;
+	}
+	cppVar_2105 = cppVar_2110;
+	}
+	cppVar_2100 = cppVar_2105;
+	}
+	cppVar_2095 = cppVar_2100;
+	}
+	cppVar_2090 = cppVar_2095;
+	}
+	cppVar_2085 = cppVar_2090;
+	}
+	cppVar_2080 = cppVar_2085;
+	}
+	cppVar_2075 = cppVar_2080;
+	}
+	cppVar_2070 = cppVar_2075;
+	}
+	cppVar_2065 = cppVar_2070;
+	}
+	cppVar_2060 = cppVar_2065;
+	}
+	cppVar_2055 = cppVar_2060;
+	}
+	cppVar_2050 = cppVar_2055;
+	}
+	cppVar_2045 = cppVar_2050;
+	}
+	cppVar_2040 = cppVar_2045;
+	}
+	cppVar_2035 = cppVar_2040;
+	}
+	cppVar_2025 = cppVar_2035;
+	}
+	BIT_VEC cppVar_2141 = ACC & cppVar_2025;
+	cppVar_2021 = cppVar_2141;
+	} else {
+	BIT_VEC cppVar_2142;
+	BIT_VEC cppVar_2143 = ROM.rd(PC);
+	bool cppVar_2145 = (cppVar_2143 == 84);
+	if (cppVar_2145) {
+	BIT_VEC cppVar_2147 = PC + 1;
+	cppVar_2147 = (cppVar_2147 & cppMask_un_16_);
+	BIT_VEC cppVar_2148 = ROM.rd(cppVar_2147);
+	BIT_VEC cppVar_2149 = ACC & cppVar_2148;
+	cppVar_2142 = cppVar_2149;
+	} else {
+	BIT_VEC cppVar_2150;
+	BIT_VEC cppVar_2151 = ROM.rd(PC);
+	bool cppVar_2153 = (cppVar_2151 == 79);
+	if (cppVar_2153) {
+	BIT_VEC cppVar_2155 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_2157 = (cppVar_2155 << 3) | 7;
+	cppVar_2157 = (cppVar_2157 & cppMask_un_5_);
+	BIT_VEC cppVar_2158 = (0 << 5) | cppVar_2157;
+	cppVar_2158 = (cppVar_2158 & cppMask_un_8_);
+	BIT_VEC cppVar_2159 = IRAM.rd(cppVar_2158);
+	BIT_VEC cppVar_2160 = ACC | cppVar_2159;
+	cppVar_2150 = cppVar_2160;
+	} else {
+	BIT_VEC cppVar_2161;
+	BIT_VEC cppVar_2162 = ROM.rd(PC);
+	bool cppVar_2164 = (cppVar_2162 == 78);
+	if (cppVar_2164) {
+	BIT_VEC cppVar_2166 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_2168 = (cppVar_2166 << 3) | 6;
+	cppVar_2168 = (cppVar_2168 & cppMask_un_5_);
+	BIT_VEC cppVar_2169 = (0 << 5) | cppVar_2168;
+	cppVar_2169 = (cppVar_2169 & cppMask_un_8_);
+	BIT_VEC cppVar_2170 = IRAM.rd(cppVar_2169);
+	BIT_VEC cppVar_2171 = ACC | cppVar_2170;
+	cppVar_2161 = cppVar_2171;
+	} else {
+	BIT_VEC cppVar_2172;
+	BIT_VEC cppVar_2173 = ROM.rd(PC);
+	bool cppVar_2175 = (cppVar_2173 == 77);
+	if (cppVar_2175) {
+	BIT_VEC cppVar_2177 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_2179 = (cppVar_2177 << 3) | 5;
+	cppVar_2179 = (cppVar_2179 & cppMask_un_5_);
+	BIT_VEC cppVar_2180 = (0 << 5) | cppVar_2179;
+	cppVar_2180 = (cppVar_2180 & cppMask_un_8_);
+	BIT_VEC cppVar_2181 = IRAM.rd(cppVar_2180);
+	BIT_VEC cppVar_2182 = ACC | cppVar_2181;
+	cppVar_2172 = cppVar_2182;
+	} else {
+	BIT_VEC cppVar_2183;
+	BIT_VEC cppVar_2184 = ROM.rd(PC);
+	bool cppVar_2186 = (cppVar_2184 == 76);
+	if (cppVar_2186) {
+	BIT_VEC cppVar_2188 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_2190 = (cppVar_2188 << 3) | 4;
+	cppVar_2190 = (cppVar_2190 & cppMask_un_5_);
+	BIT_VEC cppVar_2191 = (0 << 5) | cppVar_2190;
+	cppVar_2191 = (cppVar_2191 & cppMask_un_8_);
+	BIT_VEC cppVar_2192 = IRAM.rd(cppVar_2191);
+	BIT_VEC cppVar_2193 = ACC | cppVar_2192;
+	cppVar_2183 = cppVar_2193;
+	} else {
+	BIT_VEC cppVar_2194;
+	BIT_VEC cppVar_2195 = ROM.rd(PC);
+	bool cppVar_2197 = (cppVar_2195 == 75);
+	if (cppVar_2197) {
+	BIT_VEC cppVar_2199 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_2201 = (cppVar_2199 << 3) | 3;
+	cppVar_2201 = (cppVar_2201 & cppMask_un_5_);
+	BIT_VEC cppVar_2202 = (0 << 5) | cppVar_2201;
+	cppVar_2202 = (cppVar_2202 & cppMask_un_8_);
 	BIT_VEC cppVar_2203 = IRAM.rd(cppVar_2202);
-	BIT_VEC cppVar_2204 = PC + 1;
-	cppVar_2204 = (cppVar_2204 & cppMask_un_16_);
-	BIT_VEC cppVar_2205 = ROM.rd(cppVar_2204);
-	bool cppVar_2207 = (cppVar_2205 == 128);
-	BIT_VEC cppVar_2208 = PC + 1;
-	cppVar_2208 = (cppVar_2208 & cppMask_un_16_);
-	BIT_VEC cppVar_2209 = ROM.rd(cppVar_2208);
-	bool cppVar_2211 = (cppVar_2209 == 129);
-	BIT_VEC cppVar_2212 = PC + 1;
-	cppVar_2212 = (cppVar_2212 & cppMask_un_16_);
-	BIT_VEC cppVar_2213 = ROM.rd(cppVar_2212);
-	bool cppVar_2215 = (cppVar_2213 == 130);
-	BIT_VEC cppVar_2216 = PC + 1;
-	cppVar_2216 = (cppVar_2216 & cppMask_un_16_);
-	BIT_VEC cppVar_2217 = ROM.rd(cppVar_2216);
-	bool cppVar_2219 = (cppVar_2217 == 131);
-	BIT_VEC cppVar_2220 = PC + 1;
-	cppVar_2220 = (cppVar_2220 & cppMask_un_16_);
-	BIT_VEC cppVar_2221 = ROM.rd(cppVar_2220);
-	bool cppVar_2223 = (cppVar_2221 == 135);
-	BIT_VEC cppVar_2224 = PC + 1;
-	cppVar_2224 = (cppVar_2224 & cppMask_un_16_);
-	BIT_VEC cppVar_2225 = ROM.rd(cppVar_2224);
-	bool cppVar_2227 = (cppVar_2225 == 136);
-	BIT_VEC cppVar_2228 = PC + 1;
-	cppVar_2228 = (cppVar_2228 & cppMask_un_16_);
-	BIT_VEC cppVar_2229 = ROM.rd(cppVar_2228);
-	bool cppVar_2231 = (cppVar_2229 == 137);
-	BIT_VEC cppVar_2232 = PC + 1;
-	cppVar_2232 = (cppVar_2232 & cppMask_un_16_);
-	BIT_VEC cppVar_2233 = ROM.rd(cppVar_2232);
-	bool cppVar_2235 = (cppVar_2233 == 138);
-	BIT_VEC cppVar_2236 = PC + 1;
-	cppVar_2236 = (cppVar_2236 & cppMask_un_16_);
-	BIT_VEC cppVar_2237 = ROM.rd(cppVar_2236);
-	bool cppVar_2239 = (cppVar_2237 == 140);
-	BIT_VEC cppVar_2240 = PC + 1;
-	cppVar_2240 = (cppVar_2240 & cppMask_un_16_);
-	BIT_VEC cppVar_2241 = ROM.rd(cppVar_2240);
-	bool cppVar_2243 = (cppVar_2241 == 139);
-	BIT_VEC cppVar_2244 = PC + 1;
-	cppVar_2244 = (cppVar_2244 & cppMask_un_16_);
-	BIT_VEC cppVar_2245 = ROM.rd(cppVar_2244);
-	bool cppVar_2247 = (cppVar_2245 == 141);
-	BIT_VEC cppVar_2248 = PC + 1;
-	cppVar_2248 = (cppVar_2248 & cppMask_un_16_);
-	BIT_VEC cppVar_2249 = ROM.rd(cppVar_2248);
-	bool cppVar_2251 = (cppVar_2249 == 144);
-	BIT_VEC cppVar_2252 = PC + 1;
-	cppVar_2252 = (cppVar_2252 & cppMask_un_16_);
-	BIT_VEC cppVar_2253 = ROM.rd(cppVar_2252);
-	bool cppVar_2255 = (cppVar_2253 == 152);
-	BIT_VEC cppVar_2256 = PC + 1;
-	cppVar_2256 = (cppVar_2256 & cppMask_un_16_);
-	BIT_VEC cppVar_2257 = ROM.rd(cppVar_2256);
-	bool cppVar_2259 = (cppVar_2257 == 153);
-	BIT_VEC cppVar_2260 = PC + 1;
-	cppVar_2260 = (cppVar_2260 & cppMask_un_16_);
-	BIT_VEC cppVar_2261 = ROM.rd(cppVar_2260);
-	bool cppVar_2263 = (cppVar_2261 == 160);
-	BIT_VEC cppVar_2264 = PC + 1;
-	cppVar_2264 = (cppVar_2264 & cppMask_un_16_);
-	BIT_VEC cppVar_2265 = ROM.rd(cppVar_2264);
-	bool cppVar_2267 = (cppVar_2265 == 168);
+	BIT_VEC cppVar_2204 = ACC | cppVar_2203;
+	cppVar_2194 = cppVar_2204;
+	} else {
+	BIT_VEC cppVar_2205;
+	BIT_VEC cppVar_2206 = ROM.rd(PC);
+	bool cppVar_2208 = (cppVar_2206 == 74);
+	if (cppVar_2208) {
+	BIT_VEC cppVar_2210 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_2212 = (cppVar_2210 << 3) | 2;
+	cppVar_2212 = (cppVar_2212 & cppMask_un_5_);
+	BIT_VEC cppVar_2213 = (0 << 5) | cppVar_2212;
+	cppVar_2213 = (cppVar_2213 & cppMask_un_8_);
+	BIT_VEC cppVar_2214 = IRAM.rd(cppVar_2213);
+	BIT_VEC cppVar_2215 = ACC | cppVar_2214;
+	cppVar_2205 = cppVar_2215;
+	} else {
+	BIT_VEC cppVar_2216;
+	BIT_VEC cppVar_2217 = ROM.rd(PC);
+	bool cppVar_2219 = (cppVar_2217 == 73);
+	if (cppVar_2219) {
+	BIT_VEC cppVar_2221 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_2223 = (cppVar_2221 << 3) | 1;
+	cppVar_2223 = (cppVar_2223 & cppMask_un_5_);
+	BIT_VEC cppVar_2224 = (0 << 5) | cppVar_2223;
+	cppVar_2224 = (cppVar_2224 & cppMask_un_8_);
+	BIT_VEC cppVar_2225 = IRAM.rd(cppVar_2224);
+	BIT_VEC cppVar_2226 = ACC | cppVar_2225;
+	cppVar_2216 = cppVar_2226;
+	} else {
+	BIT_VEC cppVar_2227;
+	BIT_VEC cppVar_2228 = ROM.rd(PC);
+	bool cppVar_2230 = (cppVar_2228 == 72);
+	if (cppVar_2230) {
+	BIT_VEC cppVar_2232 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_2234 = (cppVar_2232 << 3) | 0;
+	cppVar_2234 = (cppVar_2234 & cppMask_un_5_);
+	BIT_VEC cppVar_2235 = (0 << 5) | cppVar_2234;
+	cppVar_2235 = (cppVar_2235 & cppMask_un_8_);
+	BIT_VEC cppVar_2236 = IRAM.rd(cppVar_2235);
+	BIT_VEC cppVar_2237 = ACC | cppVar_2236;
+	cppVar_2227 = cppVar_2237;
+	} else {
+	BIT_VEC cppVar_2238;
+	BIT_VEC cppVar_2239 = ROM.rd(PC);
+	bool cppVar_2241 = (cppVar_2239 == 71);
+	if (cppVar_2241) {
+	BIT_VEC cppVar_2243 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_2245 = (cppVar_2243 << 3) | 1;
+	cppVar_2245 = (cppVar_2245 & cppMask_un_5_);
+	BIT_VEC cppVar_2246 = (0 << 5) | cppVar_2245;
+	cppVar_2246 = (cppVar_2246 & cppMask_un_8_);
+	BIT_VEC cppVar_2247 = IRAM.rd(cppVar_2246);
+	BIT_VEC cppVar_2248 = IRAM.rd(cppVar_2247);
+	BIT_VEC cppVar_2249 = ACC | cppVar_2248;
+	cppVar_2238 = cppVar_2249;
+	} else {
+	BIT_VEC cppVar_2250;
+	BIT_VEC cppVar_2251 = ROM.rd(PC);
+	bool cppVar_2253 = (cppVar_2251 == 70);
+	if (cppVar_2253) {
+	BIT_VEC cppVar_2255 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_2257 = (cppVar_2255 << 3) | 0;
+	cppVar_2257 = (cppVar_2257 & cppMask_un_5_);
+	BIT_VEC cppVar_2258 = (0 << 5) | cppVar_2257;
+	cppVar_2258 = (cppVar_2258 & cppMask_un_8_);
+	BIT_VEC cppVar_2259 = IRAM.rd(cppVar_2258);
+	BIT_VEC cppVar_2260 = IRAM.rd(cppVar_2259);
+	BIT_VEC cppVar_2261 = ACC | cppVar_2260;
+	cppVar_2250 = cppVar_2261;
+	} else {
+	BIT_VEC cppVar_2262;
+	BIT_VEC cppVar_2263 = ROM.rd(PC);
+	bool cppVar_2265 = (cppVar_2263 == 69);
+	if (cppVar_2265) {
+	BIT_VEC cppVar_2266;
 	BIT_VEC cppVar_2268 = PC + 1;
 	cppVar_2268 = (cppVar_2268 & cppMask_un_16_);
 	BIT_VEC cppVar_2269 = ROM.rd(cppVar_2268);
-	bool cppVar_2271 = (cppVar_2269 == 176);
-	BIT_VEC cppVar_2272 = PC + 1;
-	cppVar_2272 = (cppVar_2272 & cppMask_un_16_);
-	BIT_VEC cppVar_2273 = ROM.rd(cppVar_2272);
-	bool cppVar_2275 = (cppVar_2273 == 184);
-	BIT_VEC cppVar_2276 = PC + 1;
-	cppVar_2276 = (cppVar_2276 & cppMask_un_16_);
-	BIT_VEC cppVar_2277 = ROM.rd(cppVar_2276);
-	bool cppVar_2279 = (cppVar_2277 == 208);
-	BIT_VEC cppVar_2280 = PC + 1;
-	cppVar_2280 = (cppVar_2280 & cppMask_un_16_);
-	BIT_VEC cppVar_2281 = ROM.rd(cppVar_2280);
-	bool cppVar_2283 = (cppVar_2281 == 224);
-	BIT_VEC cppVar_2284 = PC + 1;
-	cppVar_2284 = (cppVar_2284 & cppMask_un_16_);
-	BIT_VEC cppVar_2285 = ROM.rd(cppVar_2284);
-	bool cppVar_2287 = (cppVar_2285 == 240);
-	BIT_VEC cppVar_2289 = (cppVar_2287) ? B : 0;
-	BIT_VEC cppVar_2290 = (cppVar_2283) ? ACC : cppVar_2289;
-	BIT_VEC cppVar_2291 = (cppVar_2279) ? PSW : cppVar_2290;
-	BIT_VEC cppVar_2292 = (cppVar_2275) ? IP : cppVar_2291;
-	BIT_VEC cppVar_2293 = (cppVar_2271) ? P3 : cppVar_2292;
-	BIT_VEC cppVar_2294 = (cppVar_2267) ? IE : cppVar_2293;
-	BIT_VEC cppVar_2295 = (cppVar_2263) ? P2 : cppVar_2294;
-	BIT_VEC cppVar_2296 = (cppVar_2259) ? SBUF : cppVar_2295;
-	BIT_VEC cppVar_2297 = (cppVar_2255) ? SCON : cppVar_2296;
-	BIT_VEC cppVar_2298 = (cppVar_2251) ? P1 : cppVar_2297;
-	BIT_VEC cppVar_2299 = (cppVar_2247) ? TH1 : cppVar_2298;
-	BIT_VEC cppVar_2300 = (cppVar_2243) ? TL1 : cppVar_2299;
-	BIT_VEC cppVar_2301 = (cppVar_2239) ? TH0 : cppVar_2300;
-	BIT_VEC cppVar_2302 = (cppVar_2235) ? TL0 : cppVar_2301;
-	BIT_VEC cppVar_2303 = (cppVar_2231) ? TMOD : cppVar_2302;
-	BIT_VEC cppVar_2304 = (cppVar_2227) ? TCON : cppVar_2303;
-	BIT_VEC cppVar_2305 = (cppVar_2223) ? PCON : cppVar_2304;
-	BIT_VEC cppVar_2306 = (cppVar_2219) ? DPH : cppVar_2305;
-	BIT_VEC cppVar_2307 = (cppVar_2215) ? DPL : cppVar_2306;
-	BIT_VEC cppVar_2308 = (cppVar_2211) ? SP : cppVar_2307;
-	BIT_VEC cppVar_2309 = (cppVar_2207) ? P0 : cppVar_2308;
-	BIT_VEC cppVar_2310 = (cppVar_2200) ? cppVar_2203 : cppVar_2309;
-	BIT_VEC cppVar_2311 = ACC | cppVar_2310;
-	BIT_VEC cppVar_2312 = ROM.rd(PC);
-	bool cppVar_2314 = (cppVar_2312 == 68);
-	BIT_VEC cppVar_2316 = PC + 1;
-	cppVar_2316 = (cppVar_2316 & cppMask_un_16_);
-	BIT_VEC cppVar_2317 = ROM.rd(cppVar_2316);
-	BIT_VEC cppVar_2318 = ACC | cppVar_2317;
-	BIT_VEC cppVar_2319 = ROM.rd(PC);
-	bool cppVar_2321 = (cppVar_2319 == 63);
-	BIT_VEC cppVar_2323 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_2325 = (cppVar_2323 << 3) | 7;
-	cppVar_2325 = (cppVar_2325 & cppMask_un_5_);
-	BIT_VEC cppVar_2326 = (0 << 5) | cppVar_2325;
-	cppVar_2326 = (cppVar_2326 & cppMask_un_8_);
-	BIT_VEC cppVar_2327 = IRAM.rd(cppVar_2326);
-	BIT_VEC cppVar_2328 = ACC + cppVar_2327;
-	cppVar_2328 = (cppVar_2328 & cppMask_un_8_);
-	BIT_VEC cppVar_2329 = (PSW >> 7) & cppMask_un_1_;
-	BIT_VEC cppVar_2330 = (cppVar_2329 & cppMask_un_1_);
-	BIT_VEC cppVar_2331 = cppVar_2328 + cppVar_2330;
-	cppVar_2331 = (cppVar_2331 & cppMask_un_8_);
-	BIT_VEC cppVar_2332 = ROM.rd(PC);
-	bool cppVar_2334 = (cppVar_2332 == 62);
-	BIT_VEC cppVar_2336 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_2338 = (cppVar_2336 << 3) | 6;
-	cppVar_2338 = (cppVar_2338 & cppMask_un_5_);
-	BIT_VEC cppVar_2339 = (0 << 5) | cppVar_2338;
-	cppVar_2339 = (cppVar_2339 & cppMask_un_8_);
-	BIT_VEC cppVar_2340 = IRAM.rd(cppVar_2339);
-	BIT_VEC cppVar_2341 = ACC + cppVar_2340;
-	cppVar_2341 = (cppVar_2341 & cppMask_un_8_);
-	BIT_VEC cppVar_2342 = (PSW >> 7) & cppMask_un_1_;
-	BIT_VEC cppVar_2343 = (cppVar_2342 & cppMask_un_1_);
-	BIT_VEC cppVar_2344 = cppVar_2341 + cppVar_2343;
-	cppVar_2344 = (cppVar_2344 & cppMask_un_8_);
-	BIT_VEC cppVar_2345 = ROM.rd(PC);
-	bool cppVar_2347 = (cppVar_2345 == 61);
-	BIT_VEC cppVar_2349 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_2351 = (cppVar_2349 << 3) | 5;
-	cppVar_2351 = (cppVar_2351 & cppMask_un_5_);
-	BIT_VEC cppVar_2352 = (0 << 5) | cppVar_2351;
-	cppVar_2352 = (cppVar_2352 & cppMask_un_8_);
-	BIT_VEC cppVar_2353 = IRAM.rd(cppVar_2352);
-	BIT_VEC cppVar_2354 = ACC + cppVar_2353;
-	cppVar_2354 = (cppVar_2354 & cppMask_un_8_);
-	BIT_VEC cppVar_2355 = (PSW >> 7) & cppMask_un_1_;
-	BIT_VEC cppVar_2356 = (cppVar_2355 & cppMask_un_1_);
-	BIT_VEC cppVar_2357 = cppVar_2354 + cppVar_2356;
-	cppVar_2357 = (cppVar_2357 & cppMask_un_8_);
-	BIT_VEC cppVar_2358 = ROM.rd(PC);
-	bool cppVar_2360 = (cppVar_2358 == 60);
-	BIT_VEC cppVar_2362 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_2364 = (cppVar_2362 << 3) | 4;
-	cppVar_2364 = (cppVar_2364 & cppMask_un_5_);
-	BIT_VEC cppVar_2365 = (0 << 5) | cppVar_2364;
-	cppVar_2365 = (cppVar_2365 & cppMask_un_8_);
-	BIT_VEC cppVar_2366 = IRAM.rd(cppVar_2365);
-	BIT_VEC cppVar_2367 = ACC + cppVar_2366;
-	cppVar_2367 = (cppVar_2367 & cppMask_un_8_);
-	BIT_VEC cppVar_2368 = (PSW >> 7) & cppMask_un_1_;
-	BIT_VEC cppVar_2369 = (cppVar_2368 & cppMask_un_1_);
-	BIT_VEC cppVar_2370 = cppVar_2367 + cppVar_2369;
-	cppVar_2370 = (cppVar_2370 & cppMask_un_8_);
-	BIT_VEC cppVar_2371 = ROM.rd(PC);
-	bool cppVar_2373 = (cppVar_2371 == 59);
-	BIT_VEC cppVar_2375 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_2377 = (cppVar_2375 << 3) | 3;
-	cppVar_2377 = (cppVar_2377 & cppMask_un_5_);
-	BIT_VEC cppVar_2378 = (0 << 5) | cppVar_2377;
-	cppVar_2378 = (cppVar_2378 & cppMask_un_8_);
-	BIT_VEC cppVar_2379 = IRAM.rd(cppVar_2378);
-	BIT_VEC cppVar_2380 = ACC + cppVar_2379;
-	cppVar_2380 = (cppVar_2380 & cppMask_un_8_);
-	BIT_VEC cppVar_2381 = (PSW >> 7) & cppMask_un_1_;
-	BIT_VEC cppVar_2382 = (cppVar_2381 & cppMask_un_1_);
-	BIT_VEC cppVar_2383 = cppVar_2380 + cppVar_2382;
-	cppVar_2383 = (cppVar_2383 & cppMask_un_8_);
+	BIT_VEC cppVar_2270 = (cppVar_2269 >> 7) & cppMask_un_1_;
+	bool cppVar_2272 = (cppVar_2270 == 0);
+	if (cppVar_2272) {
+	BIT_VEC cppVar_2273 = PC + 1;
+	cppVar_2273 = (cppVar_2273 & cppMask_un_16_);
+	BIT_VEC cppVar_2274 = ROM.rd(cppVar_2273);
+	BIT_VEC cppVar_2275 = IRAM.rd(cppVar_2274);
+	cppVar_2266 = cppVar_2275;
+	} else {
+	BIT_VEC cppVar_2276;
+	BIT_VEC cppVar_2277 = PC + 1;
+	cppVar_2277 = (cppVar_2277 & cppMask_un_16_);
+	BIT_VEC cppVar_2278 = ROM.rd(cppVar_2277);
+	bool cppVar_2280 = (cppVar_2278 == 128);
+	if (cppVar_2280) {
+	cppVar_2276 = P0;
+	} else {
+	BIT_VEC cppVar_2281;
+	BIT_VEC cppVar_2282 = PC + 1;
+	cppVar_2282 = (cppVar_2282 & cppMask_un_16_);
+	BIT_VEC cppVar_2283 = ROM.rd(cppVar_2282);
+	bool cppVar_2285 = (cppVar_2283 == 129);
+	if (cppVar_2285) {
+	cppVar_2281 = SP;
+	} else {
+	BIT_VEC cppVar_2286;
+	BIT_VEC cppVar_2287 = PC + 1;
+	cppVar_2287 = (cppVar_2287 & cppMask_un_16_);
+	BIT_VEC cppVar_2288 = ROM.rd(cppVar_2287);
+	bool cppVar_2290 = (cppVar_2288 == 130);
+	if (cppVar_2290) {
+	cppVar_2286 = DPL;
+	} else {
+	BIT_VEC cppVar_2291;
+	BIT_VEC cppVar_2292 = PC + 1;
+	cppVar_2292 = (cppVar_2292 & cppMask_un_16_);
+	BIT_VEC cppVar_2293 = ROM.rd(cppVar_2292);
+	bool cppVar_2295 = (cppVar_2293 == 131);
+	if (cppVar_2295) {
+	cppVar_2291 = DPH;
+	} else {
+	BIT_VEC cppVar_2296;
+	BIT_VEC cppVar_2297 = PC + 1;
+	cppVar_2297 = (cppVar_2297 & cppMask_un_16_);
+	BIT_VEC cppVar_2298 = ROM.rd(cppVar_2297);
+	bool cppVar_2300 = (cppVar_2298 == 135);
+	if (cppVar_2300) {
+	cppVar_2296 = PCON;
+	} else {
+	BIT_VEC cppVar_2301;
+	BIT_VEC cppVar_2302 = PC + 1;
+	cppVar_2302 = (cppVar_2302 & cppMask_un_16_);
+	BIT_VEC cppVar_2303 = ROM.rd(cppVar_2302);
+	bool cppVar_2305 = (cppVar_2303 == 136);
+	if (cppVar_2305) {
+	cppVar_2301 = TCON;
+	} else {
+	BIT_VEC cppVar_2306;
+	BIT_VEC cppVar_2307 = PC + 1;
+	cppVar_2307 = (cppVar_2307 & cppMask_un_16_);
+	BIT_VEC cppVar_2308 = ROM.rd(cppVar_2307);
+	bool cppVar_2310 = (cppVar_2308 == 137);
+	if (cppVar_2310) {
+	cppVar_2306 = TMOD;
+	} else {
+	BIT_VEC cppVar_2311;
+	BIT_VEC cppVar_2312 = PC + 1;
+	cppVar_2312 = (cppVar_2312 & cppMask_un_16_);
+	BIT_VEC cppVar_2313 = ROM.rd(cppVar_2312);
+	bool cppVar_2315 = (cppVar_2313 == 138);
+	if (cppVar_2315) {
+	cppVar_2311 = TL0;
+	} else {
+	BIT_VEC cppVar_2316;
+	BIT_VEC cppVar_2317 = PC + 1;
+	cppVar_2317 = (cppVar_2317 & cppMask_un_16_);
+	BIT_VEC cppVar_2318 = ROM.rd(cppVar_2317);
+	bool cppVar_2320 = (cppVar_2318 == 140);
+	if (cppVar_2320) {
+	cppVar_2316 = TH0;
+	} else {
+	BIT_VEC cppVar_2321;
+	BIT_VEC cppVar_2322 = PC + 1;
+	cppVar_2322 = (cppVar_2322 & cppMask_un_16_);
+	BIT_VEC cppVar_2323 = ROM.rd(cppVar_2322);
+	bool cppVar_2325 = (cppVar_2323 == 139);
+	if (cppVar_2325) {
+	cppVar_2321 = TL1;
+	} else {
+	BIT_VEC cppVar_2326;
+	BIT_VEC cppVar_2327 = PC + 1;
+	cppVar_2327 = (cppVar_2327 & cppMask_un_16_);
+	BIT_VEC cppVar_2328 = ROM.rd(cppVar_2327);
+	bool cppVar_2330 = (cppVar_2328 == 141);
+	if (cppVar_2330) {
+	cppVar_2326 = TH1;
+	} else {
+	BIT_VEC cppVar_2331;
+	BIT_VEC cppVar_2332 = PC + 1;
+	cppVar_2332 = (cppVar_2332 & cppMask_un_16_);
+	BIT_VEC cppVar_2333 = ROM.rd(cppVar_2332);
+	bool cppVar_2335 = (cppVar_2333 == 144);
+	if (cppVar_2335) {
+	cppVar_2331 = P1;
+	} else {
+	BIT_VEC cppVar_2336;
+	BIT_VEC cppVar_2337 = PC + 1;
+	cppVar_2337 = (cppVar_2337 & cppMask_un_16_);
+	BIT_VEC cppVar_2338 = ROM.rd(cppVar_2337);
+	bool cppVar_2340 = (cppVar_2338 == 152);
+	if (cppVar_2340) {
+	cppVar_2336 = SCON;
+	} else {
+	BIT_VEC cppVar_2341;
+	BIT_VEC cppVar_2342 = PC + 1;
+	cppVar_2342 = (cppVar_2342 & cppMask_un_16_);
+	BIT_VEC cppVar_2343 = ROM.rd(cppVar_2342);
+	bool cppVar_2345 = (cppVar_2343 == 153);
+	if (cppVar_2345) {
+	cppVar_2341 = SBUF;
+	} else {
+	BIT_VEC cppVar_2346;
+	BIT_VEC cppVar_2347 = PC + 1;
+	cppVar_2347 = (cppVar_2347 & cppMask_un_16_);
+	BIT_VEC cppVar_2348 = ROM.rd(cppVar_2347);
+	bool cppVar_2350 = (cppVar_2348 == 160);
+	if (cppVar_2350) {
+	cppVar_2346 = P2;
+	} else {
+	BIT_VEC cppVar_2351;
+	BIT_VEC cppVar_2352 = PC + 1;
+	cppVar_2352 = (cppVar_2352 & cppMask_un_16_);
+	BIT_VEC cppVar_2353 = ROM.rd(cppVar_2352);
+	bool cppVar_2355 = (cppVar_2353 == 168);
+	if (cppVar_2355) {
+	cppVar_2351 = IE;
+	} else {
+	BIT_VEC cppVar_2356;
+	BIT_VEC cppVar_2357 = PC + 1;
+	cppVar_2357 = (cppVar_2357 & cppMask_un_16_);
+	BIT_VEC cppVar_2358 = ROM.rd(cppVar_2357);
+	bool cppVar_2360 = (cppVar_2358 == 176);
+	if (cppVar_2360) {
+	cppVar_2356 = P3;
+	} else {
+	BIT_VEC cppVar_2361;
+	BIT_VEC cppVar_2362 = PC + 1;
+	cppVar_2362 = (cppVar_2362 & cppMask_un_16_);
+	BIT_VEC cppVar_2363 = ROM.rd(cppVar_2362);
+	bool cppVar_2365 = (cppVar_2363 == 184);
+	if (cppVar_2365) {
+	cppVar_2361 = IP;
+	} else {
+	BIT_VEC cppVar_2366;
+	BIT_VEC cppVar_2367 = PC + 1;
+	cppVar_2367 = (cppVar_2367 & cppMask_un_16_);
+	BIT_VEC cppVar_2368 = ROM.rd(cppVar_2367);
+	bool cppVar_2370 = (cppVar_2368 == 208);
+	if (cppVar_2370) {
+	cppVar_2366 = PSW;
+	} else {
+	BIT_VEC cppVar_2371;
+	BIT_VEC cppVar_2372 = PC + 1;
+	cppVar_2372 = (cppVar_2372 & cppMask_un_16_);
+	BIT_VEC cppVar_2373 = ROM.rd(cppVar_2372);
+	bool cppVar_2375 = (cppVar_2373 == 224);
+	if (cppVar_2375) {
+	cppVar_2371 = ACC;
+	} else {
+	BIT_VEC cppVar_2376;
+	BIT_VEC cppVar_2377 = PC + 1;
+	cppVar_2377 = (cppVar_2377 & cppMask_un_16_);
+	BIT_VEC cppVar_2378 = ROM.rd(cppVar_2377);
+	bool cppVar_2380 = (cppVar_2378 == 240);
+	if (cppVar_2380) {
+	cppVar_2376 = B;
+	} else {
+	cppVar_2376 = 0;
+	}
+	cppVar_2371 = cppVar_2376;
+	}
+	cppVar_2366 = cppVar_2371;
+	}
+	cppVar_2361 = cppVar_2366;
+	}
+	cppVar_2356 = cppVar_2361;
+	}
+	cppVar_2351 = cppVar_2356;
+	}
+	cppVar_2346 = cppVar_2351;
+	}
+	cppVar_2341 = cppVar_2346;
+	}
+	cppVar_2336 = cppVar_2341;
+	}
+	cppVar_2331 = cppVar_2336;
+	}
+	cppVar_2326 = cppVar_2331;
+	}
+	cppVar_2321 = cppVar_2326;
+	}
+	cppVar_2316 = cppVar_2321;
+	}
+	cppVar_2311 = cppVar_2316;
+	}
+	cppVar_2306 = cppVar_2311;
+	}
+	cppVar_2301 = cppVar_2306;
+	}
+	cppVar_2296 = cppVar_2301;
+	}
+	cppVar_2291 = cppVar_2296;
+	}
+	cppVar_2286 = cppVar_2291;
+	}
+	cppVar_2281 = cppVar_2286;
+	}
+	cppVar_2276 = cppVar_2281;
+	}
+	cppVar_2266 = cppVar_2276;
+	}
+	BIT_VEC cppVar_2382 = ACC | cppVar_2266;
+	cppVar_2262 = cppVar_2382;
+	} else {
+	BIT_VEC cppVar_2383;
 	BIT_VEC cppVar_2384 = ROM.rd(PC);
-	bool cppVar_2386 = (cppVar_2384 == 58);
-	BIT_VEC cppVar_2388 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_2390 = (cppVar_2388 << 3) | 2;
-	cppVar_2390 = (cppVar_2390 & cppMask_un_5_);
-	BIT_VEC cppVar_2391 = (0 << 5) | cppVar_2390;
-	cppVar_2391 = (cppVar_2391 & cppMask_un_8_);
-	BIT_VEC cppVar_2392 = IRAM.rd(cppVar_2391);
-	BIT_VEC cppVar_2393 = ACC + cppVar_2392;
-	cppVar_2393 = (cppVar_2393 & cppMask_un_8_);
-	BIT_VEC cppVar_2394 = (PSW >> 7) & cppMask_un_1_;
-	BIT_VEC cppVar_2395 = (cppVar_2394 & cppMask_un_1_);
-	BIT_VEC cppVar_2396 = cppVar_2393 + cppVar_2395;
-	cppVar_2396 = (cppVar_2396 & cppMask_un_8_);
-	BIT_VEC cppVar_2397 = ROM.rd(PC);
-	bool cppVar_2399 = (cppVar_2397 == 57);
-	BIT_VEC cppVar_2401 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_2403 = (cppVar_2401 << 3) | 1;
-	cppVar_2403 = (cppVar_2403 & cppMask_un_5_);
-	BIT_VEC cppVar_2404 = (0 << 5) | cppVar_2403;
+	bool cppVar_2386 = (cppVar_2384 == 68);
+	if (cppVar_2386) {
+	BIT_VEC cppVar_2388 = PC + 1;
+	cppVar_2388 = (cppVar_2388 & cppMask_un_16_);
+	BIT_VEC cppVar_2389 = ROM.rd(cppVar_2388);
+	BIT_VEC cppVar_2390 = ACC | cppVar_2389;
+	cppVar_2383 = cppVar_2390;
+	} else {
+	BIT_VEC cppVar_2391;
+	BIT_VEC cppVar_2392 = ROM.rd(PC);
+	bool cppVar_2394 = (cppVar_2392 == 63);
+	if (cppVar_2394) {
+	BIT_VEC cppVar_2396 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_2398 = (cppVar_2396 << 3) | 7;
+	cppVar_2398 = (cppVar_2398 & cppMask_un_5_);
+	BIT_VEC cppVar_2399 = (0 << 5) | cppVar_2398;
+	cppVar_2399 = (cppVar_2399 & cppMask_un_8_);
+	BIT_VEC cppVar_2400 = IRAM.rd(cppVar_2399);
+	BIT_VEC cppVar_2401 = ACC + cppVar_2400;
+	cppVar_2401 = (cppVar_2401 & cppMask_un_8_);
+	BIT_VEC cppVar_2402 = (PSW >> 7) & cppMask_un_1_;
+	BIT_VEC cppVar_2403 = (cppVar_2402 & cppMask_un_1_);
+	BIT_VEC cppVar_2404 = cppVar_2401 + cppVar_2403;
 	cppVar_2404 = (cppVar_2404 & cppMask_un_8_);
-	BIT_VEC cppVar_2405 = IRAM.rd(cppVar_2404);
-	BIT_VEC cppVar_2406 = ACC + cppVar_2405;
-	cppVar_2406 = (cppVar_2406 & cppMask_un_8_);
-	BIT_VEC cppVar_2407 = (PSW >> 7) & cppMask_un_1_;
-	BIT_VEC cppVar_2408 = (cppVar_2407 & cppMask_un_1_);
-	BIT_VEC cppVar_2409 = cppVar_2406 + cppVar_2408;
-	cppVar_2409 = (cppVar_2409 & cppMask_un_8_);
-	BIT_VEC cppVar_2410 = ROM.rd(PC);
-	bool cppVar_2412 = (cppVar_2410 == 56);
-	BIT_VEC cppVar_2414 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_2416 = (cppVar_2414 << 3) | 0;
-	cppVar_2416 = (cppVar_2416 & cppMask_un_5_);
-	BIT_VEC cppVar_2417 = (0 << 5) | cppVar_2416;
-	cppVar_2417 = (cppVar_2417 & cppMask_un_8_);
-	BIT_VEC cppVar_2418 = IRAM.rd(cppVar_2417);
-	BIT_VEC cppVar_2419 = ACC + cppVar_2418;
-	cppVar_2419 = (cppVar_2419 & cppMask_un_8_);
-	BIT_VEC cppVar_2420 = (PSW >> 7) & cppMask_un_1_;
-	BIT_VEC cppVar_2421 = (cppVar_2420 & cppMask_un_1_);
-	BIT_VEC cppVar_2422 = cppVar_2419 + cppVar_2421;
-	cppVar_2422 = (cppVar_2422 & cppMask_un_8_);
-	BIT_VEC cppVar_2423 = ROM.rd(PC);
-	bool cppVar_2425 = (cppVar_2423 == 55);
-	BIT_VEC cppVar_2427 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_2429 = (cppVar_2427 << 3) | 1;
-	cppVar_2429 = (cppVar_2429 & cppMask_un_5_);
-	BIT_VEC cppVar_2430 = (0 << 5) | cppVar_2429;
-	cppVar_2430 = (cppVar_2430 & cppMask_un_8_);
-	BIT_VEC cppVar_2431 = IRAM.rd(cppVar_2430);
-	BIT_VEC cppVar_2432 = IRAM.rd(cppVar_2431);
-	BIT_VEC cppVar_2433 = ACC + cppVar_2432;
-	cppVar_2433 = (cppVar_2433 & cppMask_un_8_);
-	BIT_VEC cppVar_2434 = (PSW >> 7) & cppMask_un_1_;
-	BIT_VEC cppVar_2435 = (cppVar_2434 & cppMask_un_1_);
-	BIT_VEC cppVar_2436 = cppVar_2433 + cppVar_2435;
-	cppVar_2436 = (cppVar_2436 & cppMask_un_8_);
-	BIT_VEC cppVar_2437 = ROM.rd(PC);
-	bool cppVar_2439 = (cppVar_2437 == 54);
-	BIT_VEC cppVar_2441 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_2443 = (cppVar_2441 << 3) | 0;
-	cppVar_2443 = (cppVar_2443 & cppMask_un_5_);
-	BIT_VEC cppVar_2444 = (0 << 5) | cppVar_2443;
-	cppVar_2444 = (cppVar_2444 & cppMask_un_8_);
-	BIT_VEC cppVar_2445 = IRAM.rd(cppVar_2444);
-	BIT_VEC cppVar_2446 = IRAM.rd(cppVar_2445);
-	BIT_VEC cppVar_2447 = ACC + cppVar_2446;
-	cppVar_2447 = (cppVar_2447 & cppMask_un_8_);
-	BIT_VEC cppVar_2448 = (PSW >> 7) & cppMask_un_1_;
-	BIT_VEC cppVar_2449 = (cppVar_2448 & cppMask_un_1_);
-	BIT_VEC cppVar_2450 = cppVar_2447 + cppVar_2449;
-	cppVar_2450 = (cppVar_2450 & cppMask_un_8_);
-	BIT_VEC cppVar_2451 = ROM.rd(PC);
-	bool cppVar_2453 = (cppVar_2451 == 53);
-	BIT_VEC cppVar_2455 = PC + 1;
-	cppVar_2455 = (cppVar_2455 & cppMask_un_16_);
-	BIT_VEC cppVar_2456 = ROM.rd(cppVar_2455);
-	BIT_VEC cppVar_2457 = (cppVar_2456 >> 7) & cppMask_un_1_;
-	bool cppVar_2459 = (cppVar_2457 == 0);
-	BIT_VEC cppVar_2460 = PC + 1;
-	cppVar_2460 = (cppVar_2460 & cppMask_un_16_);
-	BIT_VEC cppVar_2461 = ROM.rd(cppVar_2460);
-	BIT_VEC cppVar_2462 = IRAM.rd(cppVar_2461);
-	BIT_VEC cppVar_2463 = PC + 1;
-	cppVar_2463 = (cppVar_2463 & cppMask_un_16_);
-	BIT_VEC cppVar_2464 = ROM.rd(cppVar_2463);
-	bool cppVar_2466 = (cppVar_2464 == 128);
-	BIT_VEC cppVar_2467 = PC + 1;
-	cppVar_2467 = (cppVar_2467 & cppMask_un_16_);
-	BIT_VEC cppVar_2468 = ROM.rd(cppVar_2467);
-	bool cppVar_2470 = (cppVar_2468 == 129);
-	BIT_VEC cppVar_2471 = PC + 1;
-	cppVar_2471 = (cppVar_2471 & cppMask_un_16_);
-	BIT_VEC cppVar_2472 = ROM.rd(cppVar_2471);
-	bool cppVar_2474 = (cppVar_2472 == 130);
-	BIT_VEC cppVar_2475 = PC + 1;
-	cppVar_2475 = (cppVar_2475 & cppMask_un_16_);
-	BIT_VEC cppVar_2476 = ROM.rd(cppVar_2475);
-	bool cppVar_2478 = (cppVar_2476 == 131);
-	BIT_VEC cppVar_2479 = PC + 1;
-	cppVar_2479 = (cppVar_2479 & cppMask_un_16_);
-	BIT_VEC cppVar_2480 = ROM.rd(cppVar_2479);
-	bool cppVar_2482 = (cppVar_2480 == 135);
-	BIT_VEC cppVar_2483 = PC + 1;
-	cppVar_2483 = (cppVar_2483 & cppMask_un_16_);
-	BIT_VEC cppVar_2484 = ROM.rd(cppVar_2483);
-	bool cppVar_2486 = (cppVar_2484 == 136);
-	BIT_VEC cppVar_2487 = PC + 1;
-	cppVar_2487 = (cppVar_2487 & cppMask_un_16_);
-	BIT_VEC cppVar_2488 = ROM.rd(cppVar_2487);
-	bool cppVar_2490 = (cppVar_2488 == 137);
-	BIT_VEC cppVar_2491 = PC + 1;
-	cppVar_2491 = (cppVar_2491 & cppMask_un_16_);
-	BIT_VEC cppVar_2492 = ROM.rd(cppVar_2491);
-	bool cppVar_2494 = (cppVar_2492 == 138);
-	BIT_VEC cppVar_2495 = PC + 1;
-	cppVar_2495 = (cppVar_2495 & cppMask_un_16_);
-	BIT_VEC cppVar_2496 = ROM.rd(cppVar_2495);
-	bool cppVar_2498 = (cppVar_2496 == 140);
-	BIT_VEC cppVar_2499 = PC + 1;
-	cppVar_2499 = (cppVar_2499 & cppMask_un_16_);
-	BIT_VEC cppVar_2500 = ROM.rd(cppVar_2499);
-	bool cppVar_2502 = (cppVar_2500 == 139);
-	BIT_VEC cppVar_2503 = PC + 1;
-	cppVar_2503 = (cppVar_2503 & cppMask_un_16_);
-	BIT_VEC cppVar_2504 = ROM.rd(cppVar_2503);
-	bool cppVar_2506 = (cppVar_2504 == 141);
-	BIT_VEC cppVar_2507 = PC + 1;
-	cppVar_2507 = (cppVar_2507 & cppMask_un_16_);
-	BIT_VEC cppVar_2508 = ROM.rd(cppVar_2507);
-	bool cppVar_2510 = (cppVar_2508 == 144);
-	BIT_VEC cppVar_2511 = PC + 1;
-	cppVar_2511 = (cppVar_2511 & cppMask_un_16_);
-	BIT_VEC cppVar_2512 = ROM.rd(cppVar_2511);
-	bool cppVar_2514 = (cppVar_2512 == 152);
-	BIT_VEC cppVar_2515 = PC + 1;
-	cppVar_2515 = (cppVar_2515 & cppMask_un_16_);
-	BIT_VEC cppVar_2516 = ROM.rd(cppVar_2515);
-	bool cppVar_2518 = (cppVar_2516 == 153);
-	BIT_VEC cppVar_2519 = PC + 1;
-	cppVar_2519 = (cppVar_2519 & cppMask_un_16_);
-	BIT_VEC cppVar_2520 = ROM.rd(cppVar_2519);
-	bool cppVar_2522 = (cppVar_2520 == 160);
-	BIT_VEC cppVar_2523 = PC + 1;
-	cppVar_2523 = (cppVar_2523 & cppMask_un_16_);
-	BIT_VEC cppVar_2524 = ROM.rd(cppVar_2523);
-	bool cppVar_2526 = (cppVar_2524 == 168);
-	BIT_VEC cppVar_2527 = PC + 1;
-	cppVar_2527 = (cppVar_2527 & cppMask_un_16_);
-	BIT_VEC cppVar_2528 = ROM.rd(cppVar_2527);
-	bool cppVar_2530 = (cppVar_2528 == 176);
-	BIT_VEC cppVar_2531 = PC + 1;
-	cppVar_2531 = (cppVar_2531 & cppMask_un_16_);
-	BIT_VEC cppVar_2532 = ROM.rd(cppVar_2531);
-	bool cppVar_2534 = (cppVar_2532 == 184);
-	BIT_VEC cppVar_2535 = PC + 1;
-	cppVar_2535 = (cppVar_2535 & cppMask_un_16_);
-	BIT_VEC cppVar_2536 = ROM.rd(cppVar_2535);
-	bool cppVar_2538 = (cppVar_2536 == 208);
+	cppVar_2391 = cppVar_2404;
+	} else {
+	BIT_VEC cppVar_2405;
+	BIT_VEC cppVar_2406 = ROM.rd(PC);
+	bool cppVar_2408 = (cppVar_2406 == 62);
+	if (cppVar_2408) {
+	BIT_VEC cppVar_2410 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_2412 = (cppVar_2410 << 3) | 6;
+	cppVar_2412 = (cppVar_2412 & cppMask_un_5_);
+	BIT_VEC cppVar_2413 = (0 << 5) | cppVar_2412;
+	cppVar_2413 = (cppVar_2413 & cppMask_un_8_);
+	BIT_VEC cppVar_2414 = IRAM.rd(cppVar_2413);
+	BIT_VEC cppVar_2415 = ACC + cppVar_2414;
+	cppVar_2415 = (cppVar_2415 & cppMask_un_8_);
+	BIT_VEC cppVar_2416 = (PSW >> 7) & cppMask_un_1_;
+	BIT_VEC cppVar_2417 = (cppVar_2416 & cppMask_un_1_);
+	BIT_VEC cppVar_2418 = cppVar_2415 + cppVar_2417;
+	cppVar_2418 = (cppVar_2418 & cppMask_un_8_);
+	cppVar_2405 = cppVar_2418;
+	} else {
+	BIT_VEC cppVar_2419;
+	BIT_VEC cppVar_2420 = ROM.rd(PC);
+	bool cppVar_2422 = (cppVar_2420 == 61);
+	if (cppVar_2422) {
+	BIT_VEC cppVar_2424 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_2426 = (cppVar_2424 << 3) | 5;
+	cppVar_2426 = (cppVar_2426 & cppMask_un_5_);
+	BIT_VEC cppVar_2427 = (0 << 5) | cppVar_2426;
+	cppVar_2427 = (cppVar_2427 & cppMask_un_8_);
+	BIT_VEC cppVar_2428 = IRAM.rd(cppVar_2427);
+	BIT_VEC cppVar_2429 = ACC + cppVar_2428;
+	cppVar_2429 = (cppVar_2429 & cppMask_un_8_);
+	BIT_VEC cppVar_2430 = (PSW >> 7) & cppMask_un_1_;
+	BIT_VEC cppVar_2431 = (cppVar_2430 & cppMask_un_1_);
+	BIT_VEC cppVar_2432 = cppVar_2429 + cppVar_2431;
+	cppVar_2432 = (cppVar_2432 & cppMask_un_8_);
+	cppVar_2419 = cppVar_2432;
+	} else {
+	BIT_VEC cppVar_2433;
+	BIT_VEC cppVar_2434 = ROM.rd(PC);
+	bool cppVar_2436 = (cppVar_2434 == 60);
+	if (cppVar_2436) {
+	BIT_VEC cppVar_2438 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_2440 = (cppVar_2438 << 3) | 4;
+	cppVar_2440 = (cppVar_2440 & cppMask_un_5_);
+	BIT_VEC cppVar_2441 = (0 << 5) | cppVar_2440;
+	cppVar_2441 = (cppVar_2441 & cppMask_un_8_);
+	BIT_VEC cppVar_2442 = IRAM.rd(cppVar_2441);
+	BIT_VEC cppVar_2443 = ACC + cppVar_2442;
+	cppVar_2443 = (cppVar_2443 & cppMask_un_8_);
+	BIT_VEC cppVar_2444 = (PSW >> 7) & cppMask_un_1_;
+	BIT_VEC cppVar_2445 = (cppVar_2444 & cppMask_un_1_);
+	BIT_VEC cppVar_2446 = cppVar_2443 + cppVar_2445;
+	cppVar_2446 = (cppVar_2446 & cppMask_un_8_);
+	cppVar_2433 = cppVar_2446;
+	} else {
+	BIT_VEC cppVar_2447;
+	BIT_VEC cppVar_2448 = ROM.rd(PC);
+	bool cppVar_2450 = (cppVar_2448 == 59);
+	if (cppVar_2450) {
+	BIT_VEC cppVar_2452 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_2454 = (cppVar_2452 << 3) | 3;
+	cppVar_2454 = (cppVar_2454 & cppMask_un_5_);
+	BIT_VEC cppVar_2455 = (0 << 5) | cppVar_2454;
+	cppVar_2455 = (cppVar_2455 & cppMask_un_8_);
+	BIT_VEC cppVar_2456 = IRAM.rd(cppVar_2455);
+	BIT_VEC cppVar_2457 = ACC + cppVar_2456;
+	cppVar_2457 = (cppVar_2457 & cppMask_un_8_);
+	BIT_VEC cppVar_2458 = (PSW >> 7) & cppMask_un_1_;
+	BIT_VEC cppVar_2459 = (cppVar_2458 & cppMask_un_1_);
+	BIT_VEC cppVar_2460 = cppVar_2457 + cppVar_2459;
+	cppVar_2460 = (cppVar_2460 & cppMask_un_8_);
+	cppVar_2447 = cppVar_2460;
+	} else {
+	BIT_VEC cppVar_2461;
+	BIT_VEC cppVar_2462 = ROM.rd(PC);
+	bool cppVar_2464 = (cppVar_2462 == 58);
+	if (cppVar_2464) {
+	BIT_VEC cppVar_2466 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_2468 = (cppVar_2466 << 3) | 2;
+	cppVar_2468 = (cppVar_2468 & cppMask_un_5_);
+	BIT_VEC cppVar_2469 = (0 << 5) | cppVar_2468;
+	cppVar_2469 = (cppVar_2469 & cppMask_un_8_);
+	BIT_VEC cppVar_2470 = IRAM.rd(cppVar_2469);
+	BIT_VEC cppVar_2471 = ACC + cppVar_2470;
+	cppVar_2471 = (cppVar_2471 & cppMask_un_8_);
+	BIT_VEC cppVar_2472 = (PSW >> 7) & cppMask_un_1_;
+	BIT_VEC cppVar_2473 = (cppVar_2472 & cppMask_un_1_);
+	BIT_VEC cppVar_2474 = cppVar_2471 + cppVar_2473;
+	cppVar_2474 = (cppVar_2474 & cppMask_un_8_);
+	cppVar_2461 = cppVar_2474;
+	} else {
+	BIT_VEC cppVar_2475;
+	BIT_VEC cppVar_2476 = ROM.rd(PC);
+	bool cppVar_2478 = (cppVar_2476 == 57);
+	if (cppVar_2478) {
+	BIT_VEC cppVar_2480 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_2482 = (cppVar_2480 << 3) | 1;
+	cppVar_2482 = (cppVar_2482 & cppMask_un_5_);
+	BIT_VEC cppVar_2483 = (0 << 5) | cppVar_2482;
+	cppVar_2483 = (cppVar_2483 & cppMask_un_8_);
+	BIT_VEC cppVar_2484 = IRAM.rd(cppVar_2483);
+	BIT_VEC cppVar_2485 = ACC + cppVar_2484;
+	cppVar_2485 = (cppVar_2485 & cppMask_un_8_);
+	BIT_VEC cppVar_2486 = (PSW >> 7) & cppMask_un_1_;
+	BIT_VEC cppVar_2487 = (cppVar_2486 & cppMask_un_1_);
+	BIT_VEC cppVar_2488 = cppVar_2485 + cppVar_2487;
+	cppVar_2488 = (cppVar_2488 & cppMask_un_8_);
+	cppVar_2475 = cppVar_2488;
+	} else {
+	BIT_VEC cppVar_2489;
+	BIT_VEC cppVar_2490 = ROM.rd(PC);
+	bool cppVar_2492 = (cppVar_2490 == 56);
+	if (cppVar_2492) {
+	BIT_VEC cppVar_2494 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_2496 = (cppVar_2494 << 3) | 0;
+	cppVar_2496 = (cppVar_2496 & cppMask_un_5_);
+	BIT_VEC cppVar_2497 = (0 << 5) | cppVar_2496;
+	cppVar_2497 = (cppVar_2497 & cppMask_un_8_);
+	BIT_VEC cppVar_2498 = IRAM.rd(cppVar_2497);
+	BIT_VEC cppVar_2499 = ACC + cppVar_2498;
+	cppVar_2499 = (cppVar_2499 & cppMask_un_8_);
+	BIT_VEC cppVar_2500 = (PSW >> 7) & cppMask_un_1_;
+	BIT_VEC cppVar_2501 = (cppVar_2500 & cppMask_un_1_);
+	BIT_VEC cppVar_2502 = cppVar_2499 + cppVar_2501;
+	cppVar_2502 = (cppVar_2502 & cppMask_un_8_);
+	cppVar_2489 = cppVar_2502;
+	} else {
+	BIT_VEC cppVar_2503;
+	BIT_VEC cppVar_2504 = ROM.rd(PC);
+	bool cppVar_2506 = (cppVar_2504 == 55);
+	if (cppVar_2506) {
+	BIT_VEC cppVar_2508 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_2510 = (cppVar_2508 << 3) | 1;
+	cppVar_2510 = (cppVar_2510 & cppMask_un_5_);
+	BIT_VEC cppVar_2511 = (0 << 5) | cppVar_2510;
+	cppVar_2511 = (cppVar_2511 & cppMask_un_8_);
+	BIT_VEC cppVar_2512 = IRAM.rd(cppVar_2511);
+	BIT_VEC cppVar_2513 = IRAM.rd(cppVar_2512);
+	BIT_VEC cppVar_2514 = ACC + cppVar_2513;
+	cppVar_2514 = (cppVar_2514 & cppMask_un_8_);
+	BIT_VEC cppVar_2515 = (PSW >> 7) & cppMask_un_1_;
+	BIT_VEC cppVar_2516 = (cppVar_2515 & cppMask_un_1_);
+	BIT_VEC cppVar_2517 = cppVar_2514 + cppVar_2516;
+	cppVar_2517 = (cppVar_2517 & cppMask_un_8_);
+	cppVar_2503 = cppVar_2517;
+	} else {
+	BIT_VEC cppVar_2518;
+	BIT_VEC cppVar_2519 = ROM.rd(PC);
+	bool cppVar_2521 = (cppVar_2519 == 54);
+	if (cppVar_2521) {
+	BIT_VEC cppVar_2523 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_2525 = (cppVar_2523 << 3) | 0;
+	cppVar_2525 = (cppVar_2525 & cppMask_un_5_);
+	BIT_VEC cppVar_2526 = (0 << 5) | cppVar_2525;
+	cppVar_2526 = (cppVar_2526 & cppMask_un_8_);
+	BIT_VEC cppVar_2527 = IRAM.rd(cppVar_2526);
+	BIT_VEC cppVar_2528 = IRAM.rd(cppVar_2527);
+	BIT_VEC cppVar_2529 = ACC + cppVar_2528;
+	cppVar_2529 = (cppVar_2529 & cppMask_un_8_);
+	BIT_VEC cppVar_2530 = (PSW >> 7) & cppMask_un_1_;
+	BIT_VEC cppVar_2531 = (cppVar_2530 & cppMask_un_1_);
+	BIT_VEC cppVar_2532 = cppVar_2529 + cppVar_2531;
+	cppVar_2532 = (cppVar_2532 & cppMask_un_8_);
+	cppVar_2518 = cppVar_2532;
+	} else {
+	BIT_VEC cppVar_2533;
+	BIT_VEC cppVar_2534 = ROM.rd(PC);
+	bool cppVar_2536 = (cppVar_2534 == 53);
+	if (cppVar_2536) {
+	BIT_VEC cppVar_2537;
 	BIT_VEC cppVar_2539 = PC + 1;
 	cppVar_2539 = (cppVar_2539 & cppMask_un_16_);
 	BIT_VEC cppVar_2540 = ROM.rd(cppVar_2539);
-	bool cppVar_2542 = (cppVar_2540 == 224);
-	BIT_VEC cppVar_2543 = PC + 1;
-	cppVar_2543 = (cppVar_2543 & cppMask_un_16_);
-	BIT_VEC cppVar_2544 = ROM.rd(cppVar_2543);
-	bool cppVar_2546 = (cppVar_2544 == 240);
-	BIT_VEC cppVar_2548 = (cppVar_2546) ? B : 0;
-	BIT_VEC cppVar_2549 = (cppVar_2542) ? ACC : cppVar_2548;
-	BIT_VEC cppVar_2550 = (cppVar_2538) ? PSW : cppVar_2549;
-	BIT_VEC cppVar_2551 = (cppVar_2534) ? IP : cppVar_2550;
-	BIT_VEC cppVar_2552 = (cppVar_2530) ? P3 : cppVar_2551;
-	BIT_VEC cppVar_2553 = (cppVar_2526) ? IE : cppVar_2552;
-	BIT_VEC cppVar_2554 = (cppVar_2522) ? P2 : cppVar_2553;
-	BIT_VEC cppVar_2555 = (cppVar_2518) ? SBUF : cppVar_2554;
-	BIT_VEC cppVar_2556 = (cppVar_2514) ? SCON : cppVar_2555;
-	BIT_VEC cppVar_2557 = (cppVar_2510) ? P1 : cppVar_2556;
-	BIT_VEC cppVar_2558 = (cppVar_2506) ? TH1 : cppVar_2557;
-	BIT_VEC cppVar_2559 = (cppVar_2502) ? TL1 : cppVar_2558;
-	BIT_VEC cppVar_2560 = (cppVar_2498) ? TH0 : cppVar_2559;
-	BIT_VEC cppVar_2561 = (cppVar_2494) ? TL0 : cppVar_2560;
-	BIT_VEC cppVar_2562 = (cppVar_2490) ? TMOD : cppVar_2561;
-	BIT_VEC cppVar_2563 = (cppVar_2486) ? TCON : cppVar_2562;
-	BIT_VEC cppVar_2564 = (cppVar_2482) ? PCON : cppVar_2563;
-	BIT_VEC cppVar_2565 = (cppVar_2478) ? DPH : cppVar_2564;
-	BIT_VEC cppVar_2566 = (cppVar_2474) ? DPL : cppVar_2565;
-	BIT_VEC cppVar_2567 = (cppVar_2470) ? SP : cppVar_2566;
-	BIT_VEC cppVar_2568 = (cppVar_2466) ? P0 : cppVar_2567;
-	BIT_VEC cppVar_2569 = (cppVar_2459) ? cppVar_2462 : cppVar_2568;
-	BIT_VEC cppVar_2570 = ACC + cppVar_2569;
-	cppVar_2570 = (cppVar_2570 & cppMask_un_8_);
-	BIT_VEC cppVar_2571 = (PSW >> 7) & cppMask_un_1_;
-	BIT_VEC cppVar_2572 = (cppVar_2571 & cppMask_un_1_);
-	BIT_VEC cppVar_2573 = cppVar_2570 + cppVar_2572;
-	cppVar_2573 = (cppVar_2573 & cppMask_un_8_);
-	BIT_VEC cppVar_2574 = ROM.rd(PC);
-	bool cppVar_2576 = (cppVar_2574 == 52);
+	BIT_VEC cppVar_2541 = (cppVar_2540 >> 7) & cppMask_un_1_;
+	bool cppVar_2543 = (cppVar_2541 == 0);
+	if (cppVar_2543) {
+	BIT_VEC cppVar_2544 = PC + 1;
+	cppVar_2544 = (cppVar_2544 & cppMask_un_16_);
+	BIT_VEC cppVar_2545 = ROM.rd(cppVar_2544);
+	BIT_VEC cppVar_2546 = IRAM.rd(cppVar_2545);
+	cppVar_2537 = cppVar_2546;
+	} else {
+	BIT_VEC cppVar_2547;
+	BIT_VEC cppVar_2548 = PC + 1;
+	cppVar_2548 = (cppVar_2548 & cppMask_un_16_);
+	BIT_VEC cppVar_2549 = ROM.rd(cppVar_2548);
+	bool cppVar_2551 = (cppVar_2549 == 128);
+	if (cppVar_2551) {
+	cppVar_2547 = P0;
+	} else {
+	BIT_VEC cppVar_2552;
+	BIT_VEC cppVar_2553 = PC + 1;
+	cppVar_2553 = (cppVar_2553 & cppMask_un_16_);
+	BIT_VEC cppVar_2554 = ROM.rd(cppVar_2553);
+	bool cppVar_2556 = (cppVar_2554 == 129);
+	if (cppVar_2556) {
+	cppVar_2552 = SP;
+	} else {
+	BIT_VEC cppVar_2557;
+	BIT_VEC cppVar_2558 = PC + 1;
+	cppVar_2558 = (cppVar_2558 & cppMask_un_16_);
+	BIT_VEC cppVar_2559 = ROM.rd(cppVar_2558);
+	bool cppVar_2561 = (cppVar_2559 == 130);
+	if (cppVar_2561) {
+	cppVar_2557 = DPL;
+	} else {
+	BIT_VEC cppVar_2562;
+	BIT_VEC cppVar_2563 = PC + 1;
+	cppVar_2563 = (cppVar_2563 & cppMask_un_16_);
+	BIT_VEC cppVar_2564 = ROM.rd(cppVar_2563);
+	bool cppVar_2566 = (cppVar_2564 == 131);
+	if (cppVar_2566) {
+	cppVar_2562 = DPH;
+	} else {
+	BIT_VEC cppVar_2567;
+	BIT_VEC cppVar_2568 = PC + 1;
+	cppVar_2568 = (cppVar_2568 & cppMask_un_16_);
+	BIT_VEC cppVar_2569 = ROM.rd(cppVar_2568);
+	bool cppVar_2571 = (cppVar_2569 == 135);
+	if (cppVar_2571) {
+	cppVar_2567 = PCON;
+	} else {
+	BIT_VEC cppVar_2572;
+	BIT_VEC cppVar_2573 = PC + 1;
+	cppVar_2573 = (cppVar_2573 & cppMask_un_16_);
+	BIT_VEC cppVar_2574 = ROM.rd(cppVar_2573);
+	bool cppVar_2576 = (cppVar_2574 == 136);
+	if (cppVar_2576) {
+	cppVar_2572 = TCON;
+	} else {
+	BIT_VEC cppVar_2577;
 	BIT_VEC cppVar_2578 = PC + 1;
 	cppVar_2578 = (cppVar_2578 & cppMask_un_16_);
 	BIT_VEC cppVar_2579 = ROM.rd(cppVar_2578);
-	BIT_VEC cppVar_2580 = ACC + cppVar_2579;
-	cppVar_2580 = (cppVar_2580 & cppMask_un_8_);
-	BIT_VEC cppVar_2581 = (PSW >> 7) & cppMask_un_1_;
-	BIT_VEC cppVar_2582 = (cppVar_2581 & cppMask_un_1_);
-	BIT_VEC cppVar_2583 = cppVar_2580 + cppVar_2582;
-	cppVar_2583 = (cppVar_2583 & cppMask_un_8_);
-	BIT_VEC cppVar_2584 = ROM.rd(PC);
-	bool cppVar_2586 = (cppVar_2584 == 51);
-	BIT_VEC cppVar_2587 = (PSW >> 7) & cppMask_un_1_;
-	BIT_VEC cppVar_2588 = (cppVar_2587 << 8) | ACC;
-	cppVar_2588 = (cppVar_2588 & cppMask_un_9_);
-	BIT_VEC cppVar_2589 = (cppVar_2588 & cppMask_un_9_);
-	cppVar_2589 = ((cppVar_2589 << 1) | ( cppVar_2589 >> 8)) & cppMask_un_9_;
-	BIT_VEC cppVar_2590 = (cppVar_2589 >> 0) & cppMask_un_8_;
-	BIT_VEC cppVar_2591 = ROM.rd(PC);
-	bool cppVar_2593 = (cppVar_2591 == 47);
-	BIT_VEC cppVar_2595 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_2597 = (cppVar_2595 << 3) | 7;
-	cppVar_2597 = (cppVar_2597 & cppMask_un_5_);
-	BIT_VEC cppVar_2598 = (0 << 5) | cppVar_2597;
-	cppVar_2598 = (cppVar_2598 & cppMask_un_8_);
-	BIT_VEC cppVar_2599 = IRAM.rd(cppVar_2598);
-	BIT_VEC cppVar_2600 = ACC + cppVar_2599;
-	cppVar_2600 = (cppVar_2600 & cppMask_un_8_);
-	BIT_VEC cppVar_2601 = ROM.rd(PC);
-	bool cppVar_2603 = (cppVar_2601 == 46);
-	BIT_VEC cppVar_2605 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_2607 = (cppVar_2605 << 3) | 6;
-	cppVar_2607 = (cppVar_2607 & cppMask_un_5_);
-	BIT_VEC cppVar_2608 = (0 << 5) | cppVar_2607;
-	cppVar_2608 = (cppVar_2608 & cppMask_un_8_);
-	BIT_VEC cppVar_2609 = IRAM.rd(cppVar_2608);
-	BIT_VEC cppVar_2610 = ACC + cppVar_2609;
-	cppVar_2610 = (cppVar_2610 & cppMask_un_8_);
-	BIT_VEC cppVar_2611 = ROM.rd(PC);
-	bool cppVar_2613 = (cppVar_2611 == 45);
-	BIT_VEC cppVar_2615 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_2617 = (cppVar_2615 << 3) | 5;
-	cppVar_2617 = (cppVar_2617 & cppMask_un_5_);
-	BIT_VEC cppVar_2618 = (0 << 5) | cppVar_2617;
-	cppVar_2618 = (cppVar_2618 & cppMask_un_8_);
-	BIT_VEC cppVar_2619 = IRAM.rd(cppVar_2618);
-	BIT_VEC cppVar_2620 = ACC + cppVar_2619;
-	cppVar_2620 = (cppVar_2620 & cppMask_un_8_);
-	BIT_VEC cppVar_2621 = ROM.rd(PC);
-	bool cppVar_2623 = (cppVar_2621 == 44);
-	BIT_VEC cppVar_2625 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_2627 = (cppVar_2625 << 3) | 4;
-	cppVar_2627 = (cppVar_2627 & cppMask_un_5_);
-	BIT_VEC cppVar_2628 = (0 << 5) | cppVar_2627;
-	cppVar_2628 = (cppVar_2628 & cppMask_un_8_);
-	BIT_VEC cppVar_2629 = IRAM.rd(cppVar_2628);
-	BIT_VEC cppVar_2630 = ACC + cppVar_2629;
-	cppVar_2630 = (cppVar_2630 & cppMask_un_8_);
-	BIT_VEC cppVar_2631 = ROM.rd(PC);
-	bool cppVar_2633 = (cppVar_2631 == 43);
-	BIT_VEC cppVar_2635 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_2637 = (cppVar_2635 << 3) | 3;
-	cppVar_2637 = (cppVar_2637 & cppMask_un_5_);
-	BIT_VEC cppVar_2638 = (0 << 5) | cppVar_2637;
-	cppVar_2638 = (cppVar_2638 & cppMask_un_8_);
-	BIT_VEC cppVar_2639 = IRAM.rd(cppVar_2638);
-	BIT_VEC cppVar_2640 = ACC + cppVar_2639;
-	cppVar_2640 = (cppVar_2640 & cppMask_un_8_);
-	BIT_VEC cppVar_2641 = ROM.rd(PC);
-	bool cppVar_2643 = (cppVar_2641 == 42);
-	BIT_VEC cppVar_2645 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_2647 = (cppVar_2645 << 3) | 2;
-	cppVar_2647 = (cppVar_2647 & cppMask_un_5_);
-	BIT_VEC cppVar_2648 = (0 << 5) | cppVar_2647;
-	cppVar_2648 = (cppVar_2648 & cppMask_un_8_);
-	BIT_VEC cppVar_2649 = IRAM.rd(cppVar_2648);
-	BIT_VEC cppVar_2650 = ACC + cppVar_2649;
-	cppVar_2650 = (cppVar_2650 & cppMask_un_8_);
-	BIT_VEC cppVar_2651 = ROM.rd(PC);
-	bool cppVar_2653 = (cppVar_2651 == 41);
-	BIT_VEC cppVar_2655 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_2657 = (cppVar_2655 << 3) | 1;
-	cppVar_2657 = (cppVar_2657 & cppMask_un_5_);
-	BIT_VEC cppVar_2658 = (0 << 5) | cppVar_2657;
-	cppVar_2658 = (cppVar_2658 & cppMask_un_8_);
-	BIT_VEC cppVar_2659 = IRAM.rd(cppVar_2658);
-	BIT_VEC cppVar_2660 = ACC + cppVar_2659;
-	cppVar_2660 = (cppVar_2660 & cppMask_un_8_);
-	BIT_VEC cppVar_2661 = ROM.rd(PC);
-	bool cppVar_2663 = (cppVar_2661 == 40);
-	BIT_VEC cppVar_2665 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_2667 = (cppVar_2665 << 3) | 0;
-	cppVar_2667 = (cppVar_2667 & cppMask_un_5_);
-	BIT_VEC cppVar_2668 = (0 << 5) | cppVar_2667;
-	cppVar_2668 = (cppVar_2668 & cppMask_un_8_);
-	BIT_VEC cppVar_2669 = IRAM.rd(cppVar_2668);
-	BIT_VEC cppVar_2670 = ACC + cppVar_2669;
-	cppVar_2670 = (cppVar_2670 & cppMask_un_8_);
-	BIT_VEC cppVar_2671 = ROM.rd(PC);
-	bool cppVar_2673 = (cppVar_2671 == 39);
-	BIT_VEC cppVar_2675 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_2677 = (cppVar_2675 << 3) | 1;
-	cppVar_2677 = (cppVar_2677 & cppMask_un_5_);
-	BIT_VEC cppVar_2678 = (0 << 5) | cppVar_2677;
-	cppVar_2678 = (cppVar_2678 & cppMask_un_8_);
-	BIT_VEC cppVar_2679 = IRAM.rd(cppVar_2678);
-	BIT_VEC cppVar_2680 = IRAM.rd(cppVar_2679);
-	BIT_VEC cppVar_2681 = ACC + cppVar_2680;
-	cppVar_2681 = (cppVar_2681 & cppMask_un_8_);
-	BIT_VEC cppVar_2682 = ROM.rd(PC);
-	bool cppVar_2684 = (cppVar_2682 == 38);
-	BIT_VEC cppVar_2686 = (PSW >> 3) & cppMask_un_2_;
-	BIT_VEC cppVar_2688 = (cppVar_2686 << 3) | 0;
-	cppVar_2688 = (cppVar_2688 & cppMask_un_5_);
-	BIT_VEC cppVar_2689 = (0 << 5) | cppVar_2688;
-	cppVar_2689 = (cppVar_2689 & cppMask_un_8_);
-	BIT_VEC cppVar_2690 = IRAM.rd(cppVar_2689);
-	BIT_VEC cppVar_2691 = IRAM.rd(cppVar_2690);
-	BIT_VEC cppVar_2692 = ACC + cppVar_2691;
-	cppVar_2692 = (cppVar_2692 & cppMask_un_8_);
-	BIT_VEC cppVar_2693 = ROM.rd(PC);
-	bool cppVar_2695 = (cppVar_2693 == 37);
-	BIT_VEC cppVar_2697 = PC + 1;
-	cppVar_2697 = (cppVar_2697 & cppMask_un_16_);
-	BIT_VEC cppVar_2698 = ROM.rd(cppVar_2697);
-	BIT_VEC cppVar_2699 = (cppVar_2698 >> 7) & cppMask_un_1_;
-	bool cppVar_2701 = (cppVar_2699 == 0);
-	BIT_VEC cppVar_2702 = PC + 1;
-	cppVar_2702 = (cppVar_2702 & cppMask_un_16_);
-	BIT_VEC cppVar_2703 = ROM.rd(cppVar_2702);
-	BIT_VEC cppVar_2704 = IRAM.rd(cppVar_2703);
-	BIT_VEC cppVar_2705 = PC + 1;
-	cppVar_2705 = (cppVar_2705 & cppMask_un_16_);
-	BIT_VEC cppVar_2706 = ROM.rd(cppVar_2705);
-	bool cppVar_2708 = (cppVar_2706 == 128);
-	BIT_VEC cppVar_2709 = PC + 1;
-	cppVar_2709 = (cppVar_2709 & cppMask_un_16_);
-	BIT_VEC cppVar_2710 = ROM.rd(cppVar_2709);
-	bool cppVar_2712 = (cppVar_2710 == 129);
-	BIT_VEC cppVar_2713 = PC + 1;
-	cppVar_2713 = (cppVar_2713 & cppMask_un_16_);
-	BIT_VEC cppVar_2714 = ROM.rd(cppVar_2713);
-	bool cppVar_2716 = (cppVar_2714 == 130);
-	BIT_VEC cppVar_2717 = PC + 1;
-	cppVar_2717 = (cppVar_2717 & cppMask_un_16_);
-	BIT_VEC cppVar_2718 = ROM.rd(cppVar_2717);
-	bool cppVar_2720 = (cppVar_2718 == 131);
-	BIT_VEC cppVar_2721 = PC + 1;
-	cppVar_2721 = (cppVar_2721 & cppMask_un_16_);
-	BIT_VEC cppVar_2722 = ROM.rd(cppVar_2721);
-	bool cppVar_2724 = (cppVar_2722 == 135);
-	BIT_VEC cppVar_2725 = PC + 1;
-	cppVar_2725 = (cppVar_2725 & cppMask_un_16_);
-	BIT_VEC cppVar_2726 = ROM.rd(cppVar_2725);
-	bool cppVar_2728 = (cppVar_2726 == 136);
-	BIT_VEC cppVar_2729 = PC + 1;
-	cppVar_2729 = (cppVar_2729 & cppMask_un_16_);
-	BIT_VEC cppVar_2730 = ROM.rd(cppVar_2729);
-	bool cppVar_2732 = (cppVar_2730 == 137);
-	BIT_VEC cppVar_2733 = PC + 1;
-	cppVar_2733 = (cppVar_2733 & cppMask_un_16_);
-	BIT_VEC cppVar_2734 = ROM.rd(cppVar_2733);
-	bool cppVar_2736 = (cppVar_2734 == 138);
-	BIT_VEC cppVar_2737 = PC + 1;
-	cppVar_2737 = (cppVar_2737 & cppMask_un_16_);
-	BIT_VEC cppVar_2738 = ROM.rd(cppVar_2737);
-	bool cppVar_2740 = (cppVar_2738 == 140);
-	BIT_VEC cppVar_2741 = PC + 1;
-	cppVar_2741 = (cppVar_2741 & cppMask_un_16_);
-	BIT_VEC cppVar_2742 = ROM.rd(cppVar_2741);
-	bool cppVar_2744 = (cppVar_2742 == 139);
-	BIT_VEC cppVar_2745 = PC + 1;
-	cppVar_2745 = (cppVar_2745 & cppMask_un_16_);
-	BIT_VEC cppVar_2746 = ROM.rd(cppVar_2745);
-	bool cppVar_2748 = (cppVar_2746 == 141);
-	BIT_VEC cppVar_2749 = PC + 1;
-	cppVar_2749 = (cppVar_2749 & cppMask_un_16_);
-	BIT_VEC cppVar_2750 = ROM.rd(cppVar_2749);
-	bool cppVar_2752 = (cppVar_2750 == 144);
-	BIT_VEC cppVar_2753 = PC + 1;
-	cppVar_2753 = (cppVar_2753 & cppMask_un_16_);
-	BIT_VEC cppVar_2754 = ROM.rd(cppVar_2753);
-	bool cppVar_2756 = (cppVar_2754 == 152);
-	BIT_VEC cppVar_2757 = PC + 1;
-	cppVar_2757 = (cppVar_2757 & cppMask_un_16_);
-	BIT_VEC cppVar_2758 = ROM.rd(cppVar_2757);
-	bool cppVar_2760 = (cppVar_2758 == 153);
-	BIT_VEC cppVar_2761 = PC + 1;
-	cppVar_2761 = (cppVar_2761 & cppMask_un_16_);
-	BIT_VEC cppVar_2762 = ROM.rd(cppVar_2761);
-	bool cppVar_2764 = (cppVar_2762 == 160);
-	BIT_VEC cppVar_2765 = PC + 1;
-	cppVar_2765 = (cppVar_2765 & cppMask_un_16_);
-	BIT_VEC cppVar_2766 = ROM.rd(cppVar_2765);
-	bool cppVar_2768 = (cppVar_2766 == 168);
-	BIT_VEC cppVar_2769 = PC + 1;
-	cppVar_2769 = (cppVar_2769 & cppMask_un_16_);
-	BIT_VEC cppVar_2770 = ROM.rd(cppVar_2769);
-	bool cppVar_2772 = (cppVar_2770 == 176);
-	BIT_VEC cppVar_2773 = PC + 1;
-	cppVar_2773 = (cppVar_2773 & cppMask_un_16_);
-	BIT_VEC cppVar_2774 = ROM.rd(cppVar_2773);
-	bool cppVar_2776 = (cppVar_2774 == 184);
-	BIT_VEC cppVar_2777 = PC + 1;
-	cppVar_2777 = (cppVar_2777 & cppMask_un_16_);
-	BIT_VEC cppVar_2778 = ROM.rd(cppVar_2777);
-	bool cppVar_2780 = (cppVar_2778 == 208);
-	BIT_VEC cppVar_2781 = PC + 1;
-	cppVar_2781 = (cppVar_2781 & cppMask_un_16_);
-	BIT_VEC cppVar_2782 = ROM.rd(cppVar_2781);
-	bool cppVar_2784 = (cppVar_2782 == 224);
-	BIT_VEC cppVar_2785 = PC + 1;
-	cppVar_2785 = (cppVar_2785 & cppMask_un_16_);
-	BIT_VEC cppVar_2786 = ROM.rd(cppVar_2785);
-	bool cppVar_2788 = (cppVar_2786 == 240);
-	BIT_VEC cppVar_2790 = (cppVar_2788) ? B : 0;
-	BIT_VEC cppVar_2791 = (cppVar_2784) ? ACC : cppVar_2790;
-	BIT_VEC cppVar_2792 = (cppVar_2780) ? PSW : cppVar_2791;
-	BIT_VEC cppVar_2793 = (cppVar_2776) ? IP : cppVar_2792;
-	BIT_VEC cppVar_2794 = (cppVar_2772) ? P3 : cppVar_2793;
-	BIT_VEC cppVar_2795 = (cppVar_2768) ? IE : cppVar_2794;
-	BIT_VEC cppVar_2796 = (cppVar_2764) ? P2 : cppVar_2795;
-	BIT_VEC cppVar_2797 = (cppVar_2760) ? SBUF : cppVar_2796;
-	BIT_VEC cppVar_2798 = (cppVar_2756) ? SCON : cppVar_2797;
-	BIT_VEC cppVar_2799 = (cppVar_2752) ? P1 : cppVar_2798;
-	BIT_VEC cppVar_2800 = (cppVar_2748) ? TH1 : cppVar_2799;
-	BIT_VEC cppVar_2801 = (cppVar_2744) ? TL1 : cppVar_2800;
-	BIT_VEC cppVar_2802 = (cppVar_2740) ? TH0 : cppVar_2801;
-	BIT_VEC cppVar_2803 = (cppVar_2736) ? TL0 : cppVar_2802;
-	BIT_VEC cppVar_2804 = (cppVar_2732) ? TMOD : cppVar_2803;
-	BIT_VEC cppVar_2805 = (cppVar_2728) ? TCON : cppVar_2804;
-	BIT_VEC cppVar_2806 = (cppVar_2724) ? PCON : cppVar_2805;
-	BIT_VEC cppVar_2807 = (cppVar_2720) ? DPH : cppVar_2806;
-	BIT_VEC cppVar_2808 = (cppVar_2716) ? DPL : cppVar_2807;
-	BIT_VEC cppVar_2809 = (cppVar_2712) ? SP : cppVar_2808;
-	BIT_VEC cppVar_2810 = (cppVar_2708) ? P0 : cppVar_2809;
-	BIT_VEC cppVar_2811 = (cppVar_2701) ? cppVar_2704 : cppVar_2810;
-	BIT_VEC cppVar_2812 = ACC + cppVar_2811;
-	cppVar_2812 = (cppVar_2812 & cppMask_un_8_);
-	BIT_VEC cppVar_2813 = ROM.rd(PC);
-	bool cppVar_2815 = (cppVar_2813 == 36);
-	BIT_VEC cppVar_2817 = PC + 1;
-	cppVar_2817 = (cppVar_2817 & cppMask_un_16_);
-	BIT_VEC cppVar_2818 = ROM.rd(cppVar_2817);
-	BIT_VEC cppVar_2819 = ACC + cppVar_2818;
-	cppVar_2819 = (cppVar_2819 & cppMask_un_8_);
-	BIT_VEC cppVar_2820 = ROM.rd(PC);
-	bool cppVar_2822 = (cppVar_2820 == 35);
-	BIT_VEC cppVar_2823 = (ACC & cppMask_un_8_);
-	cppVar_2823 = ((cppVar_2823 << 1) | ( cppVar_2823 >> 7)) & cppMask_un_8_;
-	BIT_VEC cppVar_2824 = ROM.rd(PC);
-	bool cppVar_2826 = (cppVar_2824 == 20);
-	BIT_VEC cppVar_2828 = ACC - 1;
-	cppVar_2828 = (cppVar_2828 & cppMask_un_8_);
-	BIT_VEC cppVar_2829 = ROM.rd(PC);
-	bool cppVar_2831 = (cppVar_2829 == 19);
-	BIT_VEC cppVar_2832 = (PSW >> 7) & cppMask_un_1_;
-	BIT_VEC cppVar_2833 = (ACC << 1) | cppVar_2832;
-	cppVar_2833 = (cppVar_2833 & cppMask_un_9_);
-	BIT_VEC cppVar_2834 = (cppVar_2833 & cppMask_un_9_);
-	cppVar_2834 = ((cppVar_2834 << 8) | ( cppVar_2834 >> 1)) & cppMask_un_9_;
-	BIT_VEC cppVar_2835 = (cppVar_2834 >> 1) & cppMask_un_8_;
-	BIT_VEC cppVar_2836 = ROM.rd(PC);
-	bool cppVar_2838 = (cppVar_2836 == 4);
-	BIT_VEC cppVar_2840 = ACC + 1;
-	cppVar_2840 = (cppVar_2840 & cppMask_un_8_);
-	BIT_VEC cppVar_2841 = ROM.rd(PC);
-	bool cppVar_2843 = (cppVar_2841 == 3);
-	BIT_VEC cppVar_2844 = (ACC & cppMask_un_8_);
-	cppVar_2844 = ((cppVar_2844 << 7) | ( cppVar_2844 >> 1)) & cppMask_un_8_;
-	BIT_VEC cppVar_2845 = (cppVar_2843) ? cppVar_2844 : ACC;
-	BIT_VEC cppVar_2846 = (cppVar_2838) ? cppVar_2840 : cppVar_2845;
-	BIT_VEC cppVar_2847 = (cppVar_2831) ? cppVar_2835 : cppVar_2846;
-	BIT_VEC cppVar_2848 = (cppVar_2826) ? cppVar_2828 : cppVar_2847;
-	BIT_VEC cppVar_2849 = (cppVar_2822) ? cppVar_2823 : cppVar_2848;
-	BIT_VEC cppVar_2850 = (cppVar_2815) ? cppVar_2819 : cppVar_2849;
-	BIT_VEC cppVar_2851 = (cppVar_2695) ? cppVar_2812 : cppVar_2850;
-	BIT_VEC cppVar_2852 = (cppVar_2684) ? cppVar_2692 : cppVar_2851;
-	BIT_VEC cppVar_2853 = (cppVar_2673) ? cppVar_2681 : cppVar_2852;
-	BIT_VEC cppVar_2854 = (cppVar_2663) ? cppVar_2670 : cppVar_2853;
-	BIT_VEC cppVar_2855 = (cppVar_2653) ? cppVar_2660 : cppVar_2854;
-	BIT_VEC cppVar_2856 = (cppVar_2643) ? cppVar_2650 : cppVar_2855;
-	BIT_VEC cppVar_2857 = (cppVar_2633) ? cppVar_2640 : cppVar_2856;
-	BIT_VEC cppVar_2858 = (cppVar_2623) ? cppVar_2630 : cppVar_2857;
-	BIT_VEC cppVar_2859 = (cppVar_2613) ? cppVar_2620 : cppVar_2858;
-	BIT_VEC cppVar_2860 = (cppVar_2603) ? cppVar_2610 : cppVar_2859;
-	BIT_VEC cppVar_2861 = (cppVar_2593) ? cppVar_2600 : cppVar_2860;
-	BIT_VEC cppVar_2862 = (cppVar_2586) ? cppVar_2590 : cppVar_2861;
-	BIT_VEC cppVar_2863 = (cppVar_2576) ? cppVar_2583 : cppVar_2862;
-	BIT_VEC cppVar_2864 = (cppVar_2453) ? cppVar_2573 : cppVar_2863;
-	BIT_VEC cppVar_2865 = (cppVar_2439) ? cppVar_2450 : cppVar_2864;
-	BIT_VEC cppVar_2866 = (cppVar_2425) ? cppVar_2436 : cppVar_2865;
-	BIT_VEC cppVar_2867 = (cppVar_2412) ? cppVar_2422 : cppVar_2866;
-	BIT_VEC cppVar_2868 = (cppVar_2399) ? cppVar_2409 : cppVar_2867;
-	BIT_VEC cppVar_2869 = (cppVar_2386) ? cppVar_2396 : cppVar_2868;
-	BIT_VEC cppVar_2870 = (cppVar_2373) ? cppVar_2383 : cppVar_2869;
-	BIT_VEC cppVar_2871 = (cppVar_2360) ? cppVar_2370 : cppVar_2870;
-	BIT_VEC cppVar_2872 = (cppVar_2347) ? cppVar_2357 : cppVar_2871;
-	BIT_VEC cppVar_2873 = (cppVar_2334) ? cppVar_2344 : cppVar_2872;
-	BIT_VEC cppVar_2874 = (cppVar_2321) ? cppVar_2331 : cppVar_2873;
-	BIT_VEC cppVar_2875 = (cppVar_2314) ? cppVar_2318 : cppVar_2874;
-	BIT_VEC cppVar_2876 = (cppVar_2194) ? cppVar_2311 : cppVar_2875;
-	BIT_VEC cppVar_2877 = (cppVar_2183) ? cppVar_2191 : cppVar_2876;
-	BIT_VEC cppVar_2878 = (cppVar_2172) ? cppVar_2180 : cppVar_2877;
-	BIT_VEC cppVar_2879 = (cppVar_2162) ? cppVar_2169 : cppVar_2878;
-	BIT_VEC cppVar_2880 = (cppVar_2152) ? cppVar_2159 : cppVar_2879;
-	BIT_VEC cppVar_2881 = (cppVar_2142) ? cppVar_2149 : cppVar_2880;
-	BIT_VEC cppVar_2882 = (cppVar_2132) ? cppVar_2139 : cppVar_2881;
-	BIT_VEC cppVar_2883 = (cppVar_2122) ? cppVar_2129 : cppVar_2882;
-	BIT_VEC cppVar_2884 = (cppVar_2112) ? cppVar_2119 : cppVar_2883;
-	BIT_VEC cppVar_2885 = (cppVar_2102) ? cppVar_2109 : cppVar_2884;
-	BIT_VEC cppVar_2886 = (cppVar_2092) ? cppVar_2099 : cppVar_2885;
-	BIT_VEC cppVar_2887 = (cppVar_2085) ? cppVar_2089 : cppVar_2886;
-	BIT_VEC cppVar_2888 = (cppVar_1965) ? cppVar_2082 : cppVar_2887;
-	BIT_VEC cppVar_2889 = (cppVar_1954) ? cppVar_1962 : cppVar_2888;
-	BIT_VEC cppVar_2890 = (cppVar_1943) ? cppVar_1951 : cppVar_2889;
-	BIT_VEC cppVar_2891 = (cppVar_1933) ? cppVar_1940 : cppVar_2890;
-	BIT_VEC cppVar_2892 = (cppVar_1923) ? cppVar_1930 : cppVar_2891;
-	BIT_VEC cppVar_2893 = (cppVar_1913) ? cppVar_1920 : cppVar_2892;
-	BIT_VEC cppVar_2894 = (cppVar_1903) ? cppVar_1910 : cppVar_2893;
-	BIT_VEC cppVar_2895 = (cppVar_1893) ? cppVar_1900 : cppVar_2894;
-	BIT_VEC cppVar_2896 = (cppVar_1883) ? cppVar_1890 : cppVar_2895;
-	BIT_VEC cppVar_2897 = (cppVar_1873) ? cppVar_1880 : cppVar_2896;
-	BIT_VEC cppVar_2898 = (cppVar_1863) ? cppVar_1870 : cppVar_2897;
-	BIT_VEC cppVar_2899 = (cppVar_1856) ? cppVar_1860 : cppVar_2898;
-	BIT_VEC cppVar_2900 = (cppVar_1736) ? cppVar_1853 : cppVar_2899;
-	BIT_VEC cppVar_2901 = (cppVar_1725) ? cppVar_1733 : cppVar_2900;
-	BIT_VEC cppVar_2902 = (cppVar_1714) ? cppVar_1722 : cppVar_2901;
-	BIT_VEC cppVar_2903 = (cppVar_1704) ? cppVar_1711 : cppVar_2902;
-	BIT_VEC cppVar_2904 = (cppVar_1694) ? cppVar_1701 : cppVar_2903;
-	BIT_VEC cppVar_2905 = (cppVar_1684) ? cppVar_1691 : cppVar_2904;
-	BIT_VEC cppVar_2906 = (cppVar_1674) ? cppVar_1681 : cppVar_2905;
-	BIT_VEC cppVar_2907 = (cppVar_1664) ? cppVar_1671 : cppVar_2906;
-	BIT_VEC cppVar_2908 = (cppVar_1654) ? cppVar_1661 : cppVar_2907;
-	BIT_VEC cppVar_2909 = (cppVar_1644) ? cppVar_1651 : cppVar_2908;
-	BIT_VEC cppVar_2910 = (cppVar_1634) ? cppVar_1641 : cppVar_2909;
-	BIT_VEC cppVar_2911 = (cppVar_1628) ? cppVar_1631 : cppVar_2910;
-	BIT_VEC cppVar_2912 = (cppVar_1620) ? cppVar_1625 : cppVar_2911;
-	BIT_VEC cppVar_2913 = (cppVar_1612) ? cppVar_1617 : cppVar_2912;
-	BIT_VEC cppVar_2914 = (cppVar_1605) ? cppVar_1609 : cppVar_2913;
-	BIT_VEC cppVar_2915 = (cppVar_1595) ? cppVar_1602 : cppVar_2914;
-	BIT_VEC cppVar_2916 = (cppVar_1472) ? cppVar_1592 : cppVar_2915;
-	BIT_VEC cppVar_2917 = (cppVar_1458) ? cppVar_1469 : cppVar_2916;
-	BIT_VEC cppVar_2918 = (cppVar_1444) ? cppVar_1455 : cppVar_2917;
-	BIT_VEC cppVar_2919 = (cppVar_1431) ? cppVar_1441 : cppVar_2918;
-	BIT_VEC cppVar_2920 = (cppVar_1418) ? cppVar_1428 : cppVar_2919;
-	BIT_VEC cppVar_2921 = (cppVar_1405) ? cppVar_1415 : cppVar_2920;
-	BIT_VEC cppVar_2922 = (cppVar_1392) ? cppVar_1402 : cppVar_2921;
-	BIT_VEC cppVar_2923 = (cppVar_1379) ? cppVar_1389 : cppVar_2922;
-	BIT_VEC cppVar_2924 = (cppVar_1366) ? cppVar_1376 : cppVar_2923;
-	BIT_VEC cppVar_2925 = (cppVar_1353) ? cppVar_1363 : cppVar_2924;
-	BIT_VEC cppVar_2926 = (cppVar_1340) ? cppVar_1350 : cppVar_2925;
-	BIT_VEC cppVar_2927 = (cppVar_1333) ? cppVar_1337 : cppVar_2926;
-	BIT_VEC cppVar_2928 = (cppVar_1327) ? cppVar_1330 : cppVar_2927;
-	BIT_VEC cppVar_2929 = (cppVar_1208) ? cppVar_1324 : cppVar_2928;
-	BIT_VEC cppVar_2930 = (cppVar_1194) ? cppVar_1201 : cppVar_2929;
-	BIT_VEC cppVar_2931 = (cppVar_1180) ? cppVar_1187 : cppVar_2930;
-	BIT_VEC cppVar_2932 = (cppVar_1033) ? cppVar_1173 : cppVar_2931;
-	BIT_VEC cppVar_2933 = (cppVar_886) ? cppVar_1026 : cppVar_2932;
-	BIT_VEC cppVar_2934 = (cppVar_739) ? cppVar_879 : cppVar_2933;
-	BIT_VEC cppVar_2935 = (cppVar_592) ? cppVar_732 : cppVar_2934;
-	BIT_VEC cppVar_2936 = (cppVar_445) ? cppVar_585 : cppVar_2935;
-	BIT_VEC cppVar_2937 = (cppVar_432) ? cppVar_438 : cppVar_2936;
-	BIT_VEC cppVar_2938 = (cppVar_419) ? cppVar_425 : cppVar_2937;
-	BIT_VEC cppVar_2939 = (cppVar_276) ? cppVar_416 : cppVar_2938;
-	BIT_VEC cppVar_2940 = (cppVar_217) ? cppVar_269 : cppVar_2939;
-	BIT_VEC cppVar_2941 = (cppVar_204) ? cppVar_214 : cppVar_2940;
-	BIT_VEC cppVar_2942 = (cppVar_191) ? cppVar_201 : cppVar_2941;
-	BIT_VEC cppVar_2943 = (cppVar_188) ? XRAM_DATA_IN : cppVar_2942;
-	BIT_VEC cppVar_2944 = (cppVar_176) ? 0 : cppVar_2943;
-	BIT_VEC cppVar_2945 = (cppVar_33) ? cppVar_173 : cppVar_2944;
-	BIT_VEC cppVar_2946 = (cppVar_29) ? cppVar_30 : cppVar_2945;
-	return cppVar_2946;
+	bool cppVar_2581 = (cppVar_2579 == 137);
+	if (cppVar_2581) {
+	cppVar_2577 = TMOD;
+	} else {
+	BIT_VEC cppVar_2582;
+	BIT_VEC cppVar_2583 = PC + 1;
+	cppVar_2583 = (cppVar_2583 & cppMask_un_16_);
+	BIT_VEC cppVar_2584 = ROM.rd(cppVar_2583);
+	bool cppVar_2586 = (cppVar_2584 == 138);
+	if (cppVar_2586) {
+	cppVar_2582 = TL0;
+	} else {
+	BIT_VEC cppVar_2587;
+	BIT_VEC cppVar_2588 = PC + 1;
+	cppVar_2588 = (cppVar_2588 & cppMask_un_16_);
+	BIT_VEC cppVar_2589 = ROM.rd(cppVar_2588);
+	bool cppVar_2591 = (cppVar_2589 == 140);
+	if (cppVar_2591) {
+	cppVar_2587 = TH0;
+	} else {
+	BIT_VEC cppVar_2592;
+	BIT_VEC cppVar_2593 = PC + 1;
+	cppVar_2593 = (cppVar_2593 & cppMask_un_16_);
+	BIT_VEC cppVar_2594 = ROM.rd(cppVar_2593);
+	bool cppVar_2596 = (cppVar_2594 == 139);
+	if (cppVar_2596) {
+	cppVar_2592 = TL1;
+	} else {
+	BIT_VEC cppVar_2597;
+	BIT_VEC cppVar_2598 = PC + 1;
+	cppVar_2598 = (cppVar_2598 & cppMask_un_16_);
+	BIT_VEC cppVar_2599 = ROM.rd(cppVar_2598);
+	bool cppVar_2601 = (cppVar_2599 == 141);
+	if (cppVar_2601) {
+	cppVar_2597 = TH1;
+	} else {
+	BIT_VEC cppVar_2602;
+	BIT_VEC cppVar_2603 = PC + 1;
+	cppVar_2603 = (cppVar_2603 & cppMask_un_16_);
+	BIT_VEC cppVar_2604 = ROM.rd(cppVar_2603);
+	bool cppVar_2606 = (cppVar_2604 == 144);
+	if (cppVar_2606) {
+	cppVar_2602 = P1;
+	} else {
+	BIT_VEC cppVar_2607;
+	BIT_VEC cppVar_2608 = PC + 1;
+	cppVar_2608 = (cppVar_2608 & cppMask_un_16_);
+	BIT_VEC cppVar_2609 = ROM.rd(cppVar_2608);
+	bool cppVar_2611 = (cppVar_2609 == 152);
+	if (cppVar_2611) {
+	cppVar_2607 = SCON;
+	} else {
+	BIT_VEC cppVar_2612;
+	BIT_VEC cppVar_2613 = PC + 1;
+	cppVar_2613 = (cppVar_2613 & cppMask_un_16_);
+	BIT_VEC cppVar_2614 = ROM.rd(cppVar_2613);
+	bool cppVar_2616 = (cppVar_2614 == 153);
+	if (cppVar_2616) {
+	cppVar_2612 = SBUF;
+	} else {
+	BIT_VEC cppVar_2617;
+	BIT_VEC cppVar_2618 = PC + 1;
+	cppVar_2618 = (cppVar_2618 & cppMask_un_16_);
+	BIT_VEC cppVar_2619 = ROM.rd(cppVar_2618);
+	bool cppVar_2621 = (cppVar_2619 == 160);
+	if (cppVar_2621) {
+	cppVar_2617 = P2;
+	} else {
+	BIT_VEC cppVar_2622;
+	BIT_VEC cppVar_2623 = PC + 1;
+	cppVar_2623 = (cppVar_2623 & cppMask_un_16_);
+	BIT_VEC cppVar_2624 = ROM.rd(cppVar_2623);
+	bool cppVar_2626 = (cppVar_2624 == 168);
+	if (cppVar_2626) {
+	cppVar_2622 = IE;
+	} else {
+	BIT_VEC cppVar_2627;
+	BIT_VEC cppVar_2628 = PC + 1;
+	cppVar_2628 = (cppVar_2628 & cppMask_un_16_);
+	BIT_VEC cppVar_2629 = ROM.rd(cppVar_2628);
+	bool cppVar_2631 = (cppVar_2629 == 176);
+	if (cppVar_2631) {
+	cppVar_2627 = P3;
+	} else {
+	BIT_VEC cppVar_2632;
+	BIT_VEC cppVar_2633 = PC + 1;
+	cppVar_2633 = (cppVar_2633 & cppMask_un_16_);
+	BIT_VEC cppVar_2634 = ROM.rd(cppVar_2633);
+	bool cppVar_2636 = (cppVar_2634 == 184);
+	if (cppVar_2636) {
+	cppVar_2632 = IP;
+	} else {
+	BIT_VEC cppVar_2637;
+	BIT_VEC cppVar_2638 = PC + 1;
+	cppVar_2638 = (cppVar_2638 & cppMask_un_16_);
+	BIT_VEC cppVar_2639 = ROM.rd(cppVar_2638);
+	bool cppVar_2641 = (cppVar_2639 == 208);
+	if (cppVar_2641) {
+	cppVar_2637 = PSW;
+	} else {
+	BIT_VEC cppVar_2642;
+	BIT_VEC cppVar_2643 = PC + 1;
+	cppVar_2643 = (cppVar_2643 & cppMask_un_16_);
+	BIT_VEC cppVar_2644 = ROM.rd(cppVar_2643);
+	bool cppVar_2646 = (cppVar_2644 == 224);
+	if (cppVar_2646) {
+	cppVar_2642 = ACC;
+	} else {
+	BIT_VEC cppVar_2647;
+	BIT_VEC cppVar_2648 = PC + 1;
+	cppVar_2648 = (cppVar_2648 & cppMask_un_16_);
+	BIT_VEC cppVar_2649 = ROM.rd(cppVar_2648);
+	bool cppVar_2651 = (cppVar_2649 == 240);
+	if (cppVar_2651) {
+	cppVar_2647 = B;
+	} else {
+	cppVar_2647 = 0;
+	}
+	cppVar_2642 = cppVar_2647;
+	}
+	cppVar_2637 = cppVar_2642;
+	}
+	cppVar_2632 = cppVar_2637;
+	}
+	cppVar_2627 = cppVar_2632;
+	}
+	cppVar_2622 = cppVar_2627;
+	}
+	cppVar_2617 = cppVar_2622;
+	}
+	cppVar_2612 = cppVar_2617;
+	}
+	cppVar_2607 = cppVar_2612;
+	}
+	cppVar_2602 = cppVar_2607;
+	}
+	cppVar_2597 = cppVar_2602;
+	}
+	cppVar_2592 = cppVar_2597;
+	}
+	cppVar_2587 = cppVar_2592;
+	}
+	cppVar_2582 = cppVar_2587;
+	}
+	cppVar_2577 = cppVar_2582;
+	}
+	cppVar_2572 = cppVar_2577;
+	}
+	cppVar_2567 = cppVar_2572;
+	}
+	cppVar_2562 = cppVar_2567;
+	}
+	cppVar_2557 = cppVar_2562;
+	}
+	cppVar_2552 = cppVar_2557;
+	}
+	cppVar_2547 = cppVar_2552;
+	}
+	cppVar_2537 = cppVar_2547;
+	}
+	BIT_VEC cppVar_2653 = ACC + cppVar_2537;
+	cppVar_2653 = (cppVar_2653 & cppMask_un_8_);
+	BIT_VEC cppVar_2654 = (PSW >> 7) & cppMask_un_1_;
+	BIT_VEC cppVar_2655 = (cppVar_2654 & cppMask_un_1_);
+	BIT_VEC cppVar_2656 = cppVar_2653 + cppVar_2655;
+	cppVar_2656 = (cppVar_2656 & cppMask_un_8_);
+	cppVar_2533 = cppVar_2656;
+	} else {
+	BIT_VEC cppVar_2657;
+	BIT_VEC cppVar_2658 = ROM.rd(PC);
+	bool cppVar_2660 = (cppVar_2658 == 52);
+	if (cppVar_2660) {
+	BIT_VEC cppVar_2662 = PC + 1;
+	cppVar_2662 = (cppVar_2662 & cppMask_un_16_);
+	BIT_VEC cppVar_2663 = ROM.rd(cppVar_2662);
+	BIT_VEC cppVar_2664 = ACC + cppVar_2663;
+	cppVar_2664 = (cppVar_2664 & cppMask_un_8_);
+	BIT_VEC cppVar_2665 = (PSW >> 7) & cppMask_un_1_;
+	BIT_VEC cppVar_2666 = (cppVar_2665 & cppMask_un_1_);
+	BIT_VEC cppVar_2667 = cppVar_2664 + cppVar_2666;
+	cppVar_2667 = (cppVar_2667 & cppMask_un_8_);
+	cppVar_2657 = cppVar_2667;
+	} else {
+	BIT_VEC cppVar_2668;
+	BIT_VEC cppVar_2669 = ROM.rd(PC);
+	bool cppVar_2671 = (cppVar_2669 == 51);
+	if (cppVar_2671) {
+	BIT_VEC cppVar_2672 = (PSW >> 7) & cppMask_un_1_;
+	BIT_VEC cppVar_2673 = (cppVar_2672 << 8) | ACC;
+	cppVar_2673 = (cppVar_2673 & cppMask_un_9_);
+	BIT_VEC cppVar_2674 = (cppVar_2673 & cppMask_un_9_);
+	cppVar_2674 = ((cppVar_2674 << 1) | ( cppVar_2674 >> 8)) & cppMask_un_9_;
+	BIT_VEC cppVar_2675 = (cppVar_2674 >> 0) & cppMask_un_8_;
+	cppVar_2668 = cppVar_2675;
+	} else {
+	BIT_VEC cppVar_2676;
+	BIT_VEC cppVar_2677 = ROM.rd(PC);
+	bool cppVar_2679 = (cppVar_2677 == 47);
+	if (cppVar_2679) {
+	BIT_VEC cppVar_2681 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_2683 = (cppVar_2681 << 3) | 7;
+	cppVar_2683 = (cppVar_2683 & cppMask_un_5_);
+	BIT_VEC cppVar_2684 = (0 << 5) | cppVar_2683;
+	cppVar_2684 = (cppVar_2684 & cppMask_un_8_);
+	BIT_VEC cppVar_2685 = IRAM.rd(cppVar_2684);
+	BIT_VEC cppVar_2686 = ACC + cppVar_2685;
+	cppVar_2686 = (cppVar_2686 & cppMask_un_8_);
+	cppVar_2676 = cppVar_2686;
+	} else {
+	BIT_VEC cppVar_2687;
+	BIT_VEC cppVar_2688 = ROM.rd(PC);
+	bool cppVar_2690 = (cppVar_2688 == 46);
+	if (cppVar_2690) {
+	BIT_VEC cppVar_2692 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_2694 = (cppVar_2692 << 3) | 6;
+	cppVar_2694 = (cppVar_2694 & cppMask_un_5_);
+	BIT_VEC cppVar_2695 = (0 << 5) | cppVar_2694;
+	cppVar_2695 = (cppVar_2695 & cppMask_un_8_);
+	BIT_VEC cppVar_2696 = IRAM.rd(cppVar_2695);
+	BIT_VEC cppVar_2697 = ACC + cppVar_2696;
+	cppVar_2697 = (cppVar_2697 & cppMask_un_8_);
+	cppVar_2687 = cppVar_2697;
+	} else {
+	BIT_VEC cppVar_2698;
+	BIT_VEC cppVar_2699 = ROM.rd(PC);
+	bool cppVar_2701 = (cppVar_2699 == 45);
+	if (cppVar_2701) {
+	BIT_VEC cppVar_2703 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_2705 = (cppVar_2703 << 3) | 5;
+	cppVar_2705 = (cppVar_2705 & cppMask_un_5_);
+	BIT_VEC cppVar_2706 = (0 << 5) | cppVar_2705;
+	cppVar_2706 = (cppVar_2706 & cppMask_un_8_);
+	BIT_VEC cppVar_2707 = IRAM.rd(cppVar_2706);
+	BIT_VEC cppVar_2708 = ACC + cppVar_2707;
+	cppVar_2708 = (cppVar_2708 & cppMask_un_8_);
+	cppVar_2698 = cppVar_2708;
+	} else {
+	BIT_VEC cppVar_2709;
+	BIT_VEC cppVar_2710 = ROM.rd(PC);
+	bool cppVar_2712 = (cppVar_2710 == 44);
+	if (cppVar_2712) {
+	BIT_VEC cppVar_2714 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_2716 = (cppVar_2714 << 3) | 4;
+	cppVar_2716 = (cppVar_2716 & cppMask_un_5_);
+	BIT_VEC cppVar_2717 = (0 << 5) | cppVar_2716;
+	cppVar_2717 = (cppVar_2717 & cppMask_un_8_);
+	BIT_VEC cppVar_2718 = IRAM.rd(cppVar_2717);
+	BIT_VEC cppVar_2719 = ACC + cppVar_2718;
+	cppVar_2719 = (cppVar_2719 & cppMask_un_8_);
+	cppVar_2709 = cppVar_2719;
+	} else {
+	BIT_VEC cppVar_2720;
+	BIT_VEC cppVar_2721 = ROM.rd(PC);
+	bool cppVar_2723 = (cppVar_2721 == 43);
+	if (cppVar_2723) {
+	BIT_VEC cppVar_2725 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_2727 = (cppVar_2725 << 3) | 3;
+	cppVar_2727 = (cppVar_2727 & cppMask_un_5_);
+	BIT_VEC cppVar_2728 = (0 << 5) | cppVar_2727;
+	cppVar_2728 = (cppVar_2728 & cppMask_un_8_);
+	BIT_VEC cppVar_2729 = IRAM.rd(cppVar_2728);
+	BIT_VEC cppVar_2730 = ACC + cppVar_2729;
+	cppVar_2730 = (cppVar_2730 & cppMask_un_8_);
+	cppVar_2720 = cppVar_2730;
+	} else {
+	BIT_VEC cppVar_2731;
+	BIT_VEC cppVar_2732 = ROM.rd(PC);
+	bool cppVar_2734 = (cppVar_2732 == 42);
+	if (cppVar_2734) {
+	BIT_VEC cppVar_2736 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_2738 = (cppVar_2736 << 3) | 2;
+	cppVar_2738 = (cppVar_2738 & cppMask_un_5_);
+	BIT_VEC cppVar_2739 = (0 << 5) | cppVar_2738;
+	cppVar_2739 = (cppVar_2739 & cppMask_un_8_);
+	BIT_VEC cppVar_2740 = IRAM.rd(cppVar_2739);
+	BIT_VEC cppVar_2741 = ACC + cppVar_2740;
+	cppVar_2741 = (cppVar_2741 & cppMask_un_8_);
+	cppVar_2731 = cppVar_2741;
+	} else {
+	BIT_VEC cppVar_2742;
+	BIT_VEC cppVar_2743 = ROM.rd(PC);
+	bool cppVar_2745 = (cppVar_2743 == 41);
+	if (cppVar_2745) {
+	BIT_VEC cppVar_2747 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_2749 = (cppVar_2747 << 3) | 1;
+	cppVar_2749 = (cppVar_2749 & cppMask_un_5_);
+	BIT_VEC cppVar_2750 = (0 << 5) | cppVar_2749;
+	cppVar_2750 = (cppVar_2750 & cppMask_un_8_);
+	BIT_VEC cppVar_2751 = IRAM.rd(cppVar_2750);
+	BIT_VEC cppVar_2752 = ACC + cppVar_2751;
+	cppVar_2752 = (cppVar_2752 & cppMask_un_8_);
+	cppVar_2742 = cppVar_2752;
+	} else {
+	BIT_VEC cppVar_2753;
+	BIT_VEC cppVar_2754 = ROM.rd(PC);
+	bool cppVar_2756 = (cppVar_2754 == 40);
+	if (cppVar_2756) {
+	BIT_VEC cppVar_2758 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_2760 = (cppVar_2758 << 3) | 0;
+	cppVar_2760 = (cppVar_2760 & cppMask_un_5_);
+	BIT_VEC cppVar_2761 = (0 << 5) | cppVar_2760;
+	cppVar_2761 = (cppVar_2761 & cppMask_un_8_);
+	BIT_VEC cppVar_2762 = IRAM.rd(cppVar_2761);
+	BIT_VEC cppVar_2763 = ACC + cppVar_2762;
+	cppVar_2763 = (cppVar_2763 & cppMask_un_8_);
+	cppVar_2753 = cppVar_2763;
+	} else {
+	BIT_VEC cppVar_2764;
+	BIT_VEC cppVar_2765 = ROM.rd(PC);
+	bool cppVar_2767 = (cppVar_2765 == 39);
+	if (cppVar_2767) {
+	BIT_VEC cppVar_2769 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_2771 = (cppVar_2769 << 3) | 1;
+	cppVar_2771 = (cppVar_2771 & cppMask_un_5_);
+	BIT_VEC cppVar_2772 = (0 << 5) | cppVar_2771;
+	cppVar_2772 = (cppVar_2772 & cppMask_un_8_);
+	BIT_VEC cppVar_2773 = IRAM.rd(cppVar_2772);
+	BIT_VEC cppVar_2774 = IRAM.rd(cppVar_2773);
+	BIT_VEC cppVar_2775 = ACC + cppVar_2774;
+	cppVar_2775 = (cppVar_2775 & cppMask_un_8_);
+	cppVar_2764 = cppVar_2775;
+	} else {
+	BIT_VEC cppVar_2776;
+	BIT_VEC cppVar_2777 = ROM.rd(PC);
+	bool cppVar_2779 = (cppVar_2777 == 38);
+	if (cppVar_2779) {
+	BIT_VEC cppVar_2781 = (PSW >> 3) & cppMask_un_2_;
+	BIT_VEC cppVar_2783 = (cppVar_2781 << 3) | 0;
+	cppVar_2783 = (cppVar_2783 & cppMask_un_5_);
+	BIT_VEC cppVar_2784 = (0 << 5) | cppVar_2783;
+	cppVar_2784 = (cppVar_2784 & cppMask_un_8_);
+	BIT_VEC cppVar_2785 = IRAM.rd(cppVar_2784);
+	BIT_VEC cppVar_2786 = IRAM.rd(cppVar_2785);
+	BIT_VEC cppVar_2787 = ACC + cppVar_2786;
+	cppVar_2787 = (cppVar_2787 & cppMask_un_8_);
+	cppVar_2776 = cppVar_2787;
+	} else {
+	BIT_VEC cppVar_2788;
+	BIT_VEC cppVar_2789 = ROM.rd(PC);
+	bool cppVar_2791 = (cppVar_2789 == 37);
+	if (cppVar_2791) {
+	BIT_VEC cppVar_2792;
+	BIT_VEC cppVar_2794 = PC + 1;
+	cppVar_2794 = (cppVar_2794 & cppMask_un_16_);
+	BIT_VEC cppVar_2795 = ROM.rd(cppVar_2794);
+	BIT_VEC cppVar_2796 = (cppVar_2795 >> 7) & cppMask_un_1_;
+	bool cppVar_2798 = (cppVar_2796 == 0);
+	if (cppVar_2798) {
+	BIT_VEC cppVar_2799 = PC + 1;
+	cppVar_2799 = (cppVar_2799 & cppMask_un_16_);
+	BIT_VEC cppVar_2800 = ROM.rd(cppVar_2799);
+	BIT_VEC cppVar_2801 = IRAM.rd(cppVar_2800);
+	cppVar_2792 = cppVar_2801;
+	} else {
+	BIT_VEC cppVar_2802;
+	BIT_VEC cppVar_2803 = PC + 1;
+	cppVar_2803 = (cppVar_2803 & cppMask_un_16_);
+	BIT_VEC cppVar_2804 = ROM.rd(cppVar_2803);
+	bool cppVar_2806 = (cppVar_2804 == 128);
+	if (cppVar_2806) {
+	cppVar_2802 = P0;
+	} else {
+	BIT_VEC cppVar_2807;
+	BIT_VEC cppVar_2808 = PC + 1;
+	cppVar_2808 = (cppVar_2808 & cppMask_un_16_);
+	BIT_VEC cppVar_2809 = ROM.rd(cppVar_2808);
+	bool cppVar_2811 = (cppVar_2809 == 129);
+	if (cppVar_2811) {
+	cppVar_2807 = SP;
+	} else {
+	BIT_VEC cppVar_2812;
+	BIT_VEC cppVar_2813 = PC + 1;
+	cppVar_2813 = (cppVar_2813 & cppMask_un_16_);
+	BIT_VEC cppVar_2814 = ROM.rd(cppVar_2813);
+	bool cppVar_2816 = (cppVar_2814 == 130);
+	if (cppVar_2816) {
+	cppVar_2812 = DPL;
+	} else {
+	BIT_VEC cppVar_2817;
+	BIT_VEC cppVar_2818 = PC + 1;
+	cppVar_2818 = (cppVar_2818 & cppMask_un_16_);
+	BIT_VEC cppVar_2819 = ROM.rd(cppVar_2818);
+	bool cppVar_2821 = (cppVar_2819 == 131);
+	if (cppVar_2821) {
+	cppVar_2817 = DPH;
+	} else {
+	BIT_VEC cppVar_2822;
+	BIT_VEC cppVar_2823 = PC + 1;
+	cppVar_2823 = (cppVar_2823 & cppMask_un_16_);
+	BIT_VEC cppVar_2824 = ROM.rd(cppVar_2823);
+	bool cppVar_2826 = (cppVar_2824 == 135);
+	if (cppVar_2826) {
+	cppVar_2822 = PCON;
+	} else {
+	BIT_VEC cppVar_2827;
+	BIT_VEC cppVar_2828 = PC + 1;
+	cppVar_2828 = (cppVar_2828 & cppMask_un_16_);
+	BIT_VEC cppVar_2829 = ROM.rd(cppVar_2828);
+	bool cppVar_2831 = (cppVar_2829 == 136);
+	if (cppVar_2831) {
+	cppVar_2827 = TCON;
+	} else {
+	BIT_VEC cppVar_2832;
+	BIT_VEC cppVar_2833 = PC + 1;
+	cppVar_2833 = (cppVar_2833 & cppMask_un_16_);
+	BIT_VEC cppVar_2834 = ROM.rd(cppVar_2833);
+	bool cppVar_2836 = (cppVar_2834 == 137);
+	if (cppVar_2836) {
+	cppVar_2832 = TMOD;
+	} else {
+	BIT_VEC cppVar_2837;
+	BIT_VEC cppVar_2838 = PC + 1;
+	cppVar_2838 = (cppVar_2838 & cppMask_un_16_);
+	BIT_VEC cppVar_2839 = ROM.rd(cppVar_2838);
+	bool cppVar_2841 = (cppVar_2839 == 138);
+	if (cppVar_2841) {
+	cppVar_2837 = TL0;
+	} else {
+	BIT_VEC cppVar_2842;
+	BIT_VEC cppVar_2843 = PC + 1;
+	cppVar_2843 = (cppVar_2843 & cppMask_un_16_);
+	BIT_VEC cppVar_2844 = ROM.rd(cppVar_2843);
+	bool cppVar_2846 = (cppVar_2844 == 140);
+	if (cppVar_2846) {
+	cppVar_2842 = TH0;
+	} else {
+	BIT_VEC cppVar_2847;
+	BIT_VEC cppVar_2848 = PC + 1;
+	cppVar_2848 = (cppVar_2848 & cppMask_un_16_);
+	BIT_VEC cppVar_2849 = ROM.rd(cppVar_2848);
+	bool cppVar_2851 = (cppVar_2849 == 139);
+	if (cppVar_2851) {
+	cppVar_2847 = TL1;
+	} else {
+	BIT_VEC cppVar_2852;
+	BIT_VEC cppVar_2853 = PC + 1;
+	cppVar_2853 = (cppVar_2853 & cppMask_un_16_);
+	BIT_VEC cppVar_2854 = ROM.rd(cppVar_2853);
+	bool cppVar_2856 = (cppVar_2854 == 141);
+	if (cppVar_2856) {
+	cppVar_2852 = TH1;
+	} else {
+	BIT_VEC cppVar_2857;
+	BIT_VEC cppVar_2858 = PC + 1;
+	cppVar_2858 = (cppVar_2858 & cppMask_un_16_);
+	BIT_VEC cppVar_2859 = ROM.rd(cppVar_2858);
+	bool cppVar_2861 = (cppVar_2859 == 144);
+	if (cppVar_2861) {
+	cppVar_2857 = P1;
+	} else {
+	BIT_VEC cppVar_2862;
+	BIT_VEC cppVar_2863 = PC + 1;
+	cppVar_2863 = (cppVar_2863 & cppMask_un_16_);
+	BIT_VEC cppVar_2864 = ROM.rd(cppVar_2863);
+	bool cppVar_2866 = (cppVar_2864 == 152);
+	if (cppVar_2866) {
+	cppVar_2862 = SCON;
+	} else {
+	BIT_VEC cppVar_2867;
+	BIT_VEC cppVar_2868 = PC + 1;
+	cppVar_2868 = (cppVar_2868 & cppMask_un_16_);
+	BIT_VEC cppVar_2869 = ROM.rd(cppVar_2868);
+	bool cppVar_2871 = (cppVar_2869 == 153);
+	if (cppVar_2871) {
+	cppVar_2867 = SBUF;
+	} else {
+	BIT_VEC cppVar_2872;
+	BIT_VEC cppVar_2873 = PC + 1;
+	cppVar_2873 = (cppVar_2873 & cppMask_un_16_);
+	BIT_VEC cppVar_2874 = ROM.rd(cppVar_2873);
+	bool cppVar_2876 = (cppVar_2874 == 160);
+	if (cppVar_2876) {
+	cppVar_2872 = P2;
+	} else {
+	BIT_VEC cppVar_2877;
+	BIT_VEC cppVar_2878 = PC + 1;
+	cppVar_2878 = (cppVar_2878 & cppMask_un_16_);
+	BIT_VEC cppVar_2879 = ROM.rd(cppVar_2878);
+	bool cppVar_2881 = (cppVar_2879 == 168);
+	if (cppVar_2881) {
+	cppVar_2877 = IE;
+	} else {
+	BIT_VEC cppVar_2882;
+	BIT_VEC cppVar_2883 = PC + 1;
+	cppVar_2883 = (cppVar_2883 & cppMask_un_16_);
+	BIT_VEC cppVar_2884 = ROM.rd(cppVar_2883);
+	bool cppVar_2886 = (cppVar_2884 == 176);
+	if (cppVar_2886) {
+	cppVar_2882 = P3;
+	} else {
+	BIT_VEC cppVar_2887;
+	BIT_VEC cppVar_2888 = PC + 1;
+	cppVar_2888 = (cppVar_2888 & cppMask_un_16_);
+	BIT_VEC cppVar_2889 = ROM.rd(cppVar_2888);
+	bool cppVar_2891 = (cppVar_2889 == 184);
+	if (cppVar_2891) {
+	cppVar_2887 = IP;
+	} else {
+	BIT_VEC cppVar_2892;
+	BIT_VEC cppVar_2893 = PC + 1;
+	cppVar_2893 = (cppVar_2893 & cppMask_un_16_);
+	BIT_VEC cppVar_2894 = ROM.rd(cppVar_2893);
+	bool cppVar_2896 = (cppVar_2894 == 208);
+	if (cppVar_2896) {
+	cppVar_2892 = PSW;
+	} else {
+	BIT_VEC cppVar_2897;
+	BIT_VEC cppVar_2898 = PC + 1;
+	cppVar_2898 = (cppVar_2898 & cppMask_un_16_);
+	BIT_VEC cppVar_2899 = ROM.rd(cppVar_2898);
+	bool cppVar_2901 = (cppVar_2899 == 224);
+	if (cppVar_2901) {
+	cppVar_2897 = ACC;
+	} else {
+	BIT_VEC cppVar_2902;
+	BIT_VEC cppVar_2903 = PC + 1;
+	cppVar_2903 = (cppVar_2903 & cppMask_un_16_);
+	BIT_VEC cppVar_2904 = ROM.rd(cppVar_2903);
+	bool cppVar_2906 = (cppVar_2904 == 240);
+	if (cppVar_2906) {
+	cppVar_2902 = B;
+	} else {
+	cppVar_2902 = 0;
+	}
+	cppVar_2897 = cppVar_2902;
+	}
+	cppVar_2892 = cppVar_2897;
+	}
+	cppVar_2887 = cppVar_2892;
+	}
+	cppVar_2882 = cppVar_2887;
+	}
+	cppVar_2877 = cppVar_2882;
+	}
+	cppVar_2872 = cppVar_2877;
+	}
+	cppVar_2867 = cppVar_2872;
+	}
+	cppVar_2862 = cppVar_2867;
+	}
+	cppVar_2857 = cppVar_2862;
+	}
+	cppVar_2852 = cppVar_2857;
+	}
+	cppVar_2847 = cppVar_2852;
+	}
+	cppVar_2842 = cppVar_2847;
+	}
+	cppVar_2837 = cppVar_2842;
+	}
+	cppVar_2832 = cppVar_2837;
+	}
+	cppVar_2827 = cppVar_2832;
+	}
+	cppVar_2822 = cppVar_2827;
+	}
+	cppVar_2817 = cppVar_2822;
+	}
+	cppVar_2812 = cppVar_2817;
+	}
+	cppVar_2807 = cppVar_2812;
+	}
+	cppVar_2802 = cppVar_2807;
+	}
+	cppVar_2792 = cppVar_2802;
+	}
+	BIT_VEC cppVar_2908 = ACC + cppVar_2792;
+	cppVar_2908 = (cppVar_2908 & cppMask_un_8_);
+	cppVar_2788 = cppVar_2908;
+	} else {
+	BIT_VEC cppVar_2909;
+	BIT_VEC cppVar_2910 = ROM.rd(PC);
+	bool cppVar_2912 = (cppVar_2910 == 36);
+	if (cppVar_2912) {
+	BIT_VEC cppVar_2914 = PC + 1;
+	cppVar_2914 = (cppVar_2914 & cppMask_un_16_);
+	BIT_VEC cppVar_2915 = ROM.rd(cppVar_2914);
+	BIT_VEC cppVar_2916 = ACC + cppVar_2915;
+	cppVar_2916 = (cppVar_2916 & cppMask_un_8_);
+	cppVar_2909 = cppVar_2916;
+	} else {
+	BIT_VEC cppVar_2917;
+	BIT_VEC cppVar_2918 = ROM.rd(PC);
+	bool cppVar_2920 = (cppVar_2918 == 35);
+	if (cppVar_2920) {
+	BIT_VEC cppVar_2921 = (ACC & cppMask_un_8_);
+	cppVar_2921 = ((cppVar_2921 << 1) | ( cppVar_2921 >> 7)) & cppMask_un_8_;
+	cppVar_2917 = cppVar_2921;
+	} else {
+	BIT_VEC cppVar_2922;
+	BIT_VEC cppVar_2923 = ROM.rd(PC);
+	bool cppVar_2925 = (cppVar_2923 == 20);
+	if (cppVar_2925) {
+	BIT_VEC cppVar_2927 = ACC - 1;
+	cppVar_2927 = (cppVar_2927 & cppMask_un_8_);
+	cppVar_2922 = cppVar_2927;
+	} else {
+	BIT_VEC cppVar_2928;
+	BIT_VEC cppVar_2929 = ROM.rd(PC);
+	bool cppVar_2931 = (cppVar_2929 == 19);
+	if (cppVar_2931) {
+	BIT_VEC cppVar_2932 = (PSW >> 7) & cppMask_un_1_;
+	BIT_VEC cppVar_2933 = (ACC << 1) | cppVar_2932;
+	cppVar_2933 = (cppVar_2933 & cppMask_un_9_);
+	BIT_VEC cppVar_2934 = (cppVar_2933 & cppMask_un_9_);
+	cppVar_2934 = ((cppVar_2934 << 8) | ( cppVar_2934 >> 1)) & cppMask_un_9_;
+	BIT_VEC cppVar_2935 = (cppVar_2934 >> 1) & cppMask_un_8_;
+	cppVar_2928 = cppVar_2935;
+	} else {
+	BIT_VEC cppVar_2936;
+	BIT_VEC cppVar_2937 = ROM.rd(PC);
+	bool cppVar_2939 = (cppVar_2937 == 4);
+	if (cppVar_2939) {
+	BIT_VEC cppVar_2941 = ACC + 1;
+	cppVar_2941 = (cppVar_2941 & cppMask_un_8_);
+	cppVar_2936 = cppVar_2941;
+	} else {
+	BIT_VEC cppVar_2942;
+	BIT_VEC cppVar_2943 = ROM.rd(PC);
+	bool cppVar_2945 = (cppVar_2943 == 3);
+	if (cppVar_2945) {
+	BIT_VEC cppVar_2946 = (ACC & cppMask_un_8_);
+	cppVar_2946 = ((cppVar_2946 << 7) | ( cppVar_2946 >> 1)) & cppMask_un_8_;
+	cppVar_2942 = cppVar_2946;
+	} else {
+	cppVar_2942 = ACC;
+	}
+	cppVar_2936 = cppVar_2942;
+	}
+	cppVar_2928 = cppVar_2936;
+	}
+	cppVar_2922 = cppVar_2928;
+	}
+	cppVar_2917 = cppVar_2922;
+	}
+	cppVar_2909 = cppVar_2917;
+	}
+	cppVar_2788 = cppVar_2909;
+	}
+	cppVar_2776 = cppVar_2788;
+	}
+	cppVar_2764 = cppVar_2776;
+	}
+	cppVar_2753 = cppVar_2764;
+	}
+	cppVar_2742 = cppVar_2753;
+	}
+	cppVar_2731 = cppVar_2742;
+	}
+	cppVar_2720 = cppVar_2731;
+	}
+	cppVar_2709 = cppVar_2720;
+	}
+	cppVar_2698 = cppVar_2709;
+	}
+	cppVar_2687 = cppVar_2698;
+	}
+	cppVar_2676 = cppVar_2687;
+	}
+	cppVar_2668 = cppVar_2676;
+	}
+	cppVar_2657 = cppVar_2668;
+	}
+	cppVar_2533 = cppVar_2657;
+	}
+	cppVar_2518 = cppVar_2533;
+	}
+	cppVar_2503 = cppVar_2518;
+	}
+	cppVar_2489 = cppVar_2503;
+	}
+	cppVar_2475 = cppVar_2489;
+	}
+	cppVar_2461 = cppVar_2475;
+	}
+	cppVar_2447 = cppVar_2461;
+	}
+	cppVar_2433 = cppVar_2447;
+	}
+	cppVar_2419 = cppVar_2433;
+	}
+	cppVar_2405 = cppVar_2419;
+	}
+	cppVar_2391 = cppVar_2405;
+	}
+	cppVar_2383 = cppVar_2391;
+	}
+	cppVar_2262 = cppVar_2383;
+	}
+	cppVar_2250 = cppVar_2262;
+	}
+	cppVar_2238 = cppVar_2250;
+	}
+	cppVar_2227 = cppVar_2238;
+	}
+	cppVar_2216 = cppVar_2227;
+	}
+	cppVar_2205 = cppVar_2216;
+	}
+	cppVar_2194 = cppVar_2205;
+	}
+	cppVar_2183 = cppVar_2194;
+	}
+	cppVar_2172 = cppVar_2183;
+	}
+	cppVar_2161 = cppVar_2172;
+	}
+	cppVar_2150 = cppVar_2161;
+	}
+	cppVar_2142 = cppVar_2150;
+	}
+	cppVar_2021 = cppVar_2142;
+	}
+	cppVar_2009 = cppVar_2021;
+	}
+	cppVar_1997 = cppVar_2009;
+	}
+	cppVar_1986 = cppVar_1997;
+	}
+	cppVar_1975 = cppVar_1986;
+	}
+	cppVar_1964 = cppVar_1975;
+	}
+	cppVar_1953 = cppVar_1964;
+	}
+	cppVar_1942 = cppVar_1953;
+	}
+	cppVar_1931 = cppVar_1942;
+	}
+	cppVar_1920 = cppVar_1931;
+	}
+	cppVar_1909 = cppVar_1920;
+	}
+	cppVar_1901 = cppVar_1909;
+	}
+	cppVar_1780 = cppVar_1901;
+	}
+	cppVar_1768 = cppVar_1780;
+	}
+	cppVar_1756 = cppVar_1768;
+	}
+	cppVar_1745 = cppVar_1756;
+	}
+	cppVar_1734 = cppVar_1745;
+	}
+	cppVar_1723 = cppVar_1734;
+	}
+	cppVar_1712 = cppVar_1723;
+	}
+	cppVar_1701 = cppVar_1712;
+	}
+	cppVar_1690 = cppVar_1701;
+	}
+	cppVar_1679 = cppVar_1690;
+	}
+	cppVar_1668 = cppVar_1679;
+	}
+	cppVar_1661 = cppVar_1668;
+	}
+	cppVar_1652 = cppVar_1661;
+	}
+	cppVar_1643 = cppVar_1652;
+	}
+	cppVar_1635 = cppVar_1643;
+	}
+	cppVar_1624 = cppVar_1635;
+	}
+	cppVar_1500 = cppVar_1624;
+	}
+	cppVar_1485 = cppVar_1500;
+	}
+	cppVar_1470 = cppVar_1485;
+	}
+	cppVar_1456 = cppVar_1470;
+	}
+	cppVar_1442 = cppVar_1456;
+	}
+	cppVar_1428 = cppVar_1442;
+	}
+	cppVar_1414 = cppVar_1428;
+	}
+	cppVar_1400 = cppVar_1414;
+	}
+	cppVar_1386 = cppVar_1400;
+	}
+	cppVar_1372 = cppVar_1386;
+	}
+	cppVar_1358 = cppVar_1372;
+	}
+	cppVar_1350 = cppVar_1358;
+	}
+	cppVar_1343 = cppVar_1350;
+	}
+	cppVar_1219 = cppVar_1343;
+	}
+	cppVar_1204 = cppVar_1219;
+	}
+	cppVar_1189 = cppVar_1204;
+	}
+	cppVar_1041 = cppVar_1189;
+	}
+	cppVar_893 = cppVar_1041;
+	}
+	cppVar_745 = cppVar_893;
+	}
+	cppVar_597 = cppVar_745;
+	}
+	cppVar_449 = cppVar_597;
+	}
+	cppVar_435 = cppVar_449;
+	}
+	cppVar_425 = cppVar_435;
+	}
+	cppVar_277 = cppVar_425;
+	}
+	cppVar_221 = cppVar_277;
+	}
+	cppVar_207 = cppVar_221;
+	}
+	cppVar_193 = cppVar_207;
+	}
+	cppVar_181 = cppVar_193;
+	}
+	cppVar_176 = cppVar_181;
+	}
+	cppVar_32 = cppVar_176;
+	}
+	cppVar_27 = cppVar_32;
+	}
+	return cppVar_27;
 }

@@ -142,7 +142,8 @@ def createSHAILA(enable_ps):
     m.connect_microabstraction('XRAM', um)
 
     print 'time: %.2f' % (t_elapsed)
-    m.generateSim('utmp/shasim.hpp')
+    #m.generateSim('utmp/shasim.hpp')
+    m.generateSimToDir('udir')
 
 if __name__ == '__main__':
     ila.setloglevel(1, "")

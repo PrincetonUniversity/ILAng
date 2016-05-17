@@ -1,10 +1,10 @@
-usha_state 0.03
+usha_state 0.05
 usha_bytes_read 0.02
-usha_rd_data 0.19
-usha_hs_data 2.99
-uXRAM 18.14
-sha_state 0.17
-sha_rdaddr 0.20
+usha_rd_data 0.18
+usha_hs_data 3.22
+uXRAM 17.06
+sha_state 0.16
+sha_rdaddr 0.19
 sha_wraddr 0.20
 sha_len 0.20
-dataout 0.86
+dataout 0.81

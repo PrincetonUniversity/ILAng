@@ -1,8 +1,6 @@
 #include "common.hpp"
 #include "model_oc8051_class.hpp"
 
-#include <iostream>
-
 void model_oc8051::update()
 {
 	BIT_VEC cppVar_2947 = cppUpdateFun_ACC();
