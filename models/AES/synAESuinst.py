@@ -162,6 +162,7 @@ def createAESILA(enable_ps):
     print 'XRAM: %s' % str(m.get_next('XRAM'))
 
     print 'time: %.2f' % (t_elapsed)
+    m.generateSimToDir('sim_aes_u')
 
 if __name__ == '__main__':
     ila.setloglevel(1, "")
