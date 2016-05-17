@@ -107,7 +107,8 @@ def createSHAILA(synstates, enable_ps):
         m.exportOne(ast, 'asts/%s_%s' % (s, suffix))
 
     print 'time: %.2f' % t_elapsed
-    m.generateSim('tmp/shasim.hpp')
+    #m.generateSim('tmp/shasim.hpp')
+    m.generateSimToDir('sim_sha_m')
 
 all_state = ['sha_bytes_read', 'dataout', 'sha_state', 'sha_rdaddr', 'sha_wraddr', 'sha_len', 'XRAM', 'sha_rd_data', 'sha_hs_data', 'XRAM']
 if __name__ == '__main__':

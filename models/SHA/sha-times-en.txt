@@ -1,9 +1,9 @@
 sha_state 0.71
 sha_rdaddr 0.38
-sha_wraddr 0.36
+sha_wraddr 0.37
 sha_len 0.38
 sha_bytes_read 0.27
-dataout 1.53
-sha_rd_data 1.07
-sha_hs_data 15.36
-XRAM 1.19
+dataout 1.50
+sha_rd_data 1.04
+sha_hs_data 15.20
+XRAM 1.21

@@ -143,7 +143,7 @@ def createSHAILA(enable_ps):
 
     print 'time: %.2f' % (t_elapsed)
     #m.generateSim('utmp/shasim.hpp')
-    m.generateSimToDir('udir')
+    m.generateSimToDir('sim_sha_u')
 
 if __name__ == '__main__':
     ila.setloglevel(1, "")
