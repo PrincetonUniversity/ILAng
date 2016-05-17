@@ -1166,7 +1166,7 @@ namespace ila
         CppSimGen* gen = new CppSimGen(name);
 
         // Set variables to simulator generator.
-        addVarToSimulator(gen, false);
+        addVarToSimulator(gen);
 
         // Create update function.
         CppFun* updateFun = gen->addFun("update");
@@ -1213,34 +1213,33 @@ namespace ila
     }
 
     // Iteratively set inputs, states, and functions to the simulator generator.
-    void Abstraction::addVarToSimulator(CppSimGen* gen, bool force) const
+    void Abstraction::addVarToSimulator(CppSimGen* gen) const
     {
-        // FIXME eliminate force by using (next == NULL) to identify force in add
         // First add current level states.
         // Set inputs.
         for (auto it = inps.begin(); it != inps.end(); it++) {
-            gen->addInput(it->first, it->second.var, force);
+            gen->addInput(it->first, it->second.var, parent != NULL);
         }
         // Set regs.
         for (auto it = regs.begin(); it != regs.end(); it++) {
-            gen->addState(it->first, it->second.var, force);
+            gen->addState(it->first, it->second.var, parent != NULL);
         }
         // Set bits.
         for (auto it = bits.begin(); it != bits.end(); it++) {
-            gen->addState(it->first, it->second.var, force);
+            gen->addState(it->first, it->second.var, parent != NULL);
         }
         // Set mems.
         for (auto it = mems.begin(); it != mems.end(); it++) {
-            gen->addState(it->first, it->second.var, force);
+            gen->addState(it->first, it->second.var, parent != NULL);
         }
         // Set funs.
         for (auto it = funs.begin(); it != funs.end(); it++) {
-            gen->addFuncVar(it->first, it->second.var, force);
+            gen->addFuncVar(it->first, it->second.var, parent != NULL);
         }
 
         // Then next level micro abstraction.
         for (auto it = uabs.begin(); it != uabs.end(); it++) {
-            it->second.abs->addVarToSimulator(gen, true);
+            it->second.abs->addVarToSimulator(gen);
         }
     }
 

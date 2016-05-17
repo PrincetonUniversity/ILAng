@@ -4,7 +4,8 @@
 
 #ifndef CPP_BITVEC_TYPE
 #define CPP_BITVEC_TYPE
-typedef boost::multiprecision::cpp_int BIT_VEC;
+//typedef boost::multiprecision::cpp_int BIT_VEC;
+typedef int BIT_VEC;
 #endif
 
 /****************************************************/

@@ -277,7 +277,7 @@ namespace ila
         // The simulator generating function.
         CppSimGen* generateSim(bool hier) const;
         // Set inputs, states, and functions to the simulator generator.
-        void addVarToSimulator(CppSimGen* gen, bool force) const;
+        void addVarToSimulator(CppSimGen* gen) const;
         // Set next value to the function.
         void setUpdateToFunction(CppSimGen* gen, CppFun* fun, 
                                  nptr_t valid, bool doHier = false) const;

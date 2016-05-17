@@ -181,8 +181,9 @@ def model(num_regs, reg_size, paramsyn):
 
     #os.unlink(expFile)
 
-    simFile = "tmp/test_ila_sim.hpp"
-    sys.generateSim(simFile)
+    #simFile = "tmp/test_ila_sim.hpp"
+    #sys.generateSim(simFile)
+    sys.generateSimToDir('tmp/dir')
     #os.system('g++ ' + simFile + 'tmp/test_ila_sim')
     #os.unlink(simFile)
 
