@@ -366,7 +366,8 @@ namespace ila
         _curFun = f;
         maskPtr = &_masks;
         
-        nptr->depthFirstVisit(*this);
+//        nptr->depthFirstVisit(*this);
+        depthFirstTraverse(nptr);
         
         _curVarMap = NULL;
         _curFun = NULL;
@@ -1015,6 +1016,23 @@ namespace ila
         return var;
     }
         
+    bool CppSimGen::isITE(nptr_t n)
+    {
+        const BoolOp* boolop = NULL;
+        const BitvectorOp* bvop = NULL;
+        const MemOp* memop = NULL;
+
+        if ((boolop = dynamic_cast<const BoolOp*>(n.get()))) {
+            return (boolop->op == BoolOp::Op::IF);
+        } else if ((bvop = dynamic_cast<const BitvectorOp*>(n.get()))) {
+            return (bvop->op == BitvectorOp::Op::IF);
+        } else if ((memop = dynamic_cast<const MemOp*>(n.get()))) {
+            return (memop->op == MemOp::Op::ITE);
+        } else {
+            return false;
+        }
+    }
+
     // ---------------------------------------------------------------------- //
     void CppSimGen::defMemClass(std::ostream& out) const
     {
@@ -1138,6 +1156,57 @@ namespace ila
             it->second->dumpDec(out, "", 0);
         }
     }
+
+    // ---------------------------------------------------------------------- //
+    void CppSimGen::depthFirstTraverse(nptr_t node)
+    {
+        CppVarMap::iterator it = _curVarMap->find(node->getName());
+        if (it != _curVarMap->end()) {
+            return;
+        }
+
+        if (!isITE(node)) {
+            unsigned n = node->nArgs();
+            for (unsigned i = 0; i != n; i++) {
+                const nptr_t arg_i = node->arg(i);
+                depthFirstTraverse(arg_i);
+            }
+            (*this)(node.get());
+        } else {
+            ILA_ASSERT(node->nArgs() == 3, "ITE should have 3 args");
+
+            CppVar* var = new CppVar(node);
+            std::string defCode = var->def() + ";";
+            _curFun->addBody(defCode);
+
+            // condition
+//            (*this)(node->arg(0));
+            depthFirstTraverse(node->arg(0));
+            CppVar* cond = findVar(*_curVarMap, node->arg(0)->getName());
+            std::string condCode = "if (" + cond->use() + ") {";
+            _curFun->addBody(condCode);
+
+            // then
+//            (*this)(node->arg(1));
+            depthFirstTraverse(node->arg(1));
+            CppVar* tExp = findVar(*_curVarMap, node->arg(1)->getName());
+            std::string thenCode = var->use() + " = " + tExp->use() + ";";
+            _curFun->addBody(thenCode);
+
+            // else
+            _curFun->addBody("} else {");
+//            (*this)(node->arg(2));
+            depthFirstTraverse(node->arg(2));
+            CppVar* fExp = findVar(*_curVarMap, node->arg(2)->getName());
+            std::string elseCode = var->use() + " = " + fExp->use() + ";";
+            _curFun->addBody(elseCode);
+            _curFun->addBody("}");
+
+            checkAndInsert(*_curVarMap, node->getName(), var);
+            _curVar = var;
+        }
+    }
+
     // ---------------------------------------------------------------------- //
     std::string CppSimGen::getSignedCppCode(CppVar* var)
     {

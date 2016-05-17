@@ -232,6 +232,12 @@ namespace ila
         CppVar* getMemOpCpp(const MemOp* n);
         // Convert a function into cpp code.
         CppVar* getFuncVarCpp(const FuncVar* n);
+        // Check if the node ITE.
+        bool isITE(nptr_t n);
+
+        // ------------------------------------------------------------------- //
+        // Traverse and generate code in depth-first order.
+        void depthFirstTraverse(nptr_t n);
 
         // ------------------------------------------------------------------- //
         // Helper function for getting exact signed code for multiprecision int
