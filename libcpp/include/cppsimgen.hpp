@@ -199,9 +199,6 @@ namespace ila
         // Initial constant memory.
         void setMemConst(std::ostream& out) const;
         
-        // Create the main function.
-        void genMain(std::ostream& out) const;
-
         // Create a class for the model.
         void genModel(std::ostream& out) const;
 

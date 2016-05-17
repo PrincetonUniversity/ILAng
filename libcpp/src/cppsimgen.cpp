@@ -366,7 +366,6 @@ namespace ila
         _curFun = f;
         maskPtr = &_masks;
         
-//        nptr->depthFirstVisit(*this);
         depthFirstTraverse(nptr);
         
         _curVarMap = NULL;
@@ -1092,12 +1091,6 @@ namespace ila
     }
 
     // ---------------------------------------------------------------------- //
-    void CppSimGen::genMain(std::ostream& out) const
-    {
-        // TODO
-    }
-
-    // ---------------------------------------------------------------------- //
     void CppSimGen::genModel(std::ostream& out) const
     {
         out << "\n/****************************************************/\n";
@@ -1180,14 +1173,12 @@ namespace ila
             _curFun->addBody(defCode);
 
             // condition
-//            (*this)(node->arg(0));
             depthFirstTraverse(node->arg(0));
             CppVar* cond = findVar(*_curVarMap, node->arg(0)->getName());
             std::string condCode = "if (" + cond->use() + ") {";
             _curFun->addBody(condCode);
 
             // then
-//            (*this)(node->arg(1));
             depthFirstTraverse(node->arg(1));
             CppVar* tExp = findVar(*_curVarMap, node->arg(1)->getName());
             std::string thenCode = var->use() + " = " + tExp->use() + ";";
@@ -1195,7 +1186,6 @@ namespace ila
 
             // else
             _curFun->addBody("} else {");
-//            (*this)(node->arg(2));
             depthFirstTraverse(node->arg(2));
             CppVar* fExp = findVar(*_curVarMap, node->arg(2)->getName());
             std::string elseCode = var->use() + " = " + fExp->use() + ";";
