@@ -1,3 +1,4 @@
+import itertools
 import sys
 import matplotlib.pyplot as plt
 import numpy as np
@@ -88,7 +89,10 @@ def plot(data):
     
     speedups = []
     fdata = []
-    for d in data:
+
+    markers = ['s', '^', 'v', '>', 'x', 'o']
+    colors = ['b', 'g', 'c', 'y', 'm', 'r']
+    for c, m, d in itertools.izip(colors, markers, data):
         ens, dis = [x[1] for x in d], [y[2] for y in d]
         fdata += [(name, ten, tdis) for (name, ten, tdis) in d if ten >= 1 or tdis >= 1]
         # add .0001 to avoid division by zero
@@ -96,10 +100,10 @@ def plot(data):
         name = name[:name.find('_')]
         print name
         print min(ens), max(ens), min(ens), max(dis)
-        ax.plot(ens, dis, 'D', label=name)
+        ax.scatter(ens, dis, marker=m, color=c, label=name)
 
     ax.grid(True, which='major')
-    ax.legend(loc='lower right')
+    ax.legend(loc='lower right', scatterpoints=1)
 
     speedups += [ts[2] / ts[1] for ts in fdata] 
     for d in fdata:
