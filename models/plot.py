@@ -84,8 +84,8 @@ def plot(data):
     diagx = [minxy, maxxy]
     diagy = [minxy, maxxy]
     ax.plot(diagx, diagy, 'b-')
-    ax.set_xlabel('Execution time of parameterized synthesis algorithm (seconds)')
-    ax.set_ylabel('Execution time of baseline algorithm (seconds)')
+    ax.set_xlabel('Execution time of parameterized synthesis algorithm (seconds)', fontsize=14)
+    ax.set_ylabel('Execution time of baseline algorithm (seconds)', fontsize=14)
     
     speedups = []
     fdata = []

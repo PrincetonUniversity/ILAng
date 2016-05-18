@@ -1,6 +1,6 @@
 IDIR = verilatorInclude
 CC = g++
-CFLAGS = -I $(IDIR) -g -Wall
+CFLAGS = -I $(IDIR) -g -Wall -O3
 
 SRCS = simulateAES.cpp VsimXramAes_top.cpp VsimXramAes_top_S.cpp VsimXramAes_top__Syms.cpp $(IDIR)/verilated.cpp
 

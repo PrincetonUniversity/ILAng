@@ -1,7 +1,8 @@
 #include "model_sha_class.hpp"
 
 #include <iostream>
-#include <time.h>
+#include <sys/time.h>
+#include <sys/resource.h>
 
 #define SHA_IDLE  0
 #define SHA_READ  1
@@ -33,109 +34,39 @@ int main()
 
     mod.sha_state = SHA_IDLE;
 
-    int cnt = 0;
+    struct rusage ru;
+    getrusage(RUSAGE_SELF, &ru);
 
-    clock_t t;
-    t = clock();
+    double cpu_time = (double) (ru.ru_utime.tv_sec + ru.ru_stime.tv_sec) +
+                      (double) (ru.ru_utime.tv_usec + ru.ru_stime.tv_usec) * 1e-6;
 
-    for (int i = 0; i < 1000000; i++) {
+    unsigned long long cnt = 0;
+
+    while (cpu_time < 600) {
         mod.update(WR, addr_rd, rdaddr);
         mod.update(WR, addr_wr, wraddr);
         mod.update(WR, addr_len, len);
         mod.update(WR, addr_start, 1);
-        cnt += 3;
+        cnt += 4;
+        if (cnt % 10000 >= 0 && cnt % 10000 <= 3) {
+            getrusage(RUSAGE_SELF, &ru);
+            cpu_time = (double) (ru.ru_utime.tv_sec + ru.ru_stime.tv_sec) +
+                       (double) (ru.ru_utime.tv_usec + ru.ru_stime.tv_usec) * 1e-6;
+        }
+
         do {
             mod.update(RD, addr_state, 0);
             cnt++;
+            if (cnt % 10000 >= 0 && cnt % 10000 <= 3) {
+                getrusage(RUSAGE_SELF, &ru);
+                cpu_time = (double) (ru.ru_utime.tv_sec + ru.ru_stime.tv_sec) +
+                           (double) (ru.ru_utime.tv_usec + ru.ru_stime.tv_usec) * 1e-6;
+            }
         } while (mod.dataout != SHA_IDLE);
     }
 
-    t = clock() - t;
-    std::cout << "time: " << (double)t/CLOCKS_PER_SEC << std::endl;
-    std::cout << "cycle: " << cnt << std::endl;
-
-    /*
-    // set read addr 
-    mod.update(WR, addr_rd, rdaddr);
-    assert(mod.sha_state == SHA_IDLE);
-    assert(mod.sha_rdaddr == rdaddr);
-
-    // set write addr 
-    mod.update(WR, addr_wr, wraddr);
-    assert(mod.sha_state == SHA_IDLE);
-    assert(mod.sha_wraddr == wraddr);
-
-    // set message len 
-    mod.update(WR, addr_len, len);
-    assert(mod.sha_state == SHA_IDLE);
-    assert((mod.sha_len & 0xff) == len);
-
-    // read wraddr
-    mod.update(RD, addr_wr, 5);
-    assert(mod.dataout == wraddr);
-
-    // read rdaddr
-    mod.update(RD, addr_rd, 9);
-    assert(mod.dataout == rdaddr);
-
-    // read len
-    mod.update(RD, addr_len, 7);
-    assert(mod.sha_state == SHA_IDLE);
-    assert(mod.sha_len == len);
-    assert((mod.sha_len & 0xff) == len);
-
-    // read state, should be IDLE
-    mod.update(RD, addr_state, 0);
-    assert(mod.dataout == SHA_IDLE);
-
-    // start operation
-    mod.update(WR, addr_start, 1);
-    assert(mod.sha_state == SHA_READ);
-    
-    // read state
-    mod.update(RD, addr_state, 3);
-    assert(mod.sha_state == SHA_OP1);
-    assert(mod.dataout == SHA_READ);
-
-    // try to start
-    mod.update(WR, addr_start, 1);
-    assert(mod.sha_state == SHA_OP2);
-    assert(mod.dataout == 0);
-
-    // read state again
-    mod.update(RD, addr_state, 1);
-    assert(mod.sha_state == SHA_READ);
-    assert(mod.dataout == SHA_OP2);
-
-    // read wraddr
-    mod.update(RD, addr_wr, 42);
-    assert(mod.sha_state == SHA_OP1);
-    assert(mod.dataout == wraddr);
-
-    // try to write read address
-    mod.update(WR, addr_rd, 7);
-    assert(mod.sha_state == SHA_OP2);
-    assert(mod.dataout == 0);
-
-    // read len
-    mod.update(RD, addr_len, 1);
-    assert(mod.sha_state == SHA_WRITE);
-    assert(mod.sha_len == len);
-    assert((mod.sha_len & 0xff) == len);
-
-    // read  write adderss
-    mod.update(RD, addr_wr, 1);
-    assert(mod.sha_state == SHA_IDLE);
-    assert(mod.dataout == wraddr);
-
-    // read state
-    mod.update(RD, addr_state, 1);
-    assert(mod.sha_state == SHA_IDLE);
-    assert(mod.dataout == SHA_IDLE);
-
-    mod.update(RD, addr_start, 1);
-    assert(mod.dataout == SHA_IDLE);
-    */
+    std::cout << "Time: " << cpu_time << std::endl;
+    std::cout << "#Inctr: " << cnt << std::endl;
 
     return 0;
 }
