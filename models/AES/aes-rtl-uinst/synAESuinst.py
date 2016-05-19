@@ -189,7 +189,7 @@ def createAESILA(enable_ps):
     #print 'XRAM: %s' % str(m.get_next('XRAM'))
 
     #m.generateSim('gen/aes_sim.hpp')
-    m.generateSimToDir('sim_aes_r')
+    m.generateSimToDir('sim')
 
 if __name__ == '__main__':
     ila.setloglevel(1, "")

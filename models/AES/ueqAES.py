@@ -4,13 +4,13 @@ import time
 import os
 
 def readpyast(m, name):
-    filename = os.path.join('uasts', 'u'+name+'_en')
+    filename = os.path.join('aes-py-uinst/uasts', 'u'+name+'_en')
     if os.path.exists(filename):
         return m.importOne(filename)
     else:
         raise IOError, "File doesn't exist: " + filename
 def readvast(m, name):
-    filename = os.path.join('rtlsim/asts', 'u_'+name+'_en')
+    filename = os.path.join('aes-rtl-uinst/asts', 'u_'+name+'_en')
     if os.path.exists(filename):
         return m.importOne(filename)
     else:
@@ -39,12 +39,10 @@ def readPy():
     state_next = readpyast(um, 'aes_state')
     um.set_init('aes_state', um.const(1, 2))
     um.set_next('aes_state', state_next)
-    print state_next
     # byte_cnt
     byte_cnt_next = readpyast(um, 'byte_cnt')
     um.set_next('byte_cnt', byte_cnt_next)
     um.set_init('byte_cnt', um.const(0, 16))
-    print byte_cnt_next
     # rd_data
     rd_data_nxt = readpyast(um, 'rd_data')
     um.set_next('rd_data', rd_data_nxt)
@@ -137,7 +135,6 @@ def readV():
 if __name__ == '__main__':
 
     um1 = readPy()
-    print 'finished readPy'
     um2 = readV()
 
     xram1 = um1.getmem('XRAM')
@@ -151,8 +148,6 @@ if __name__ == '__main__':
 
     byte_cnt1 = um1.getreg('byte_cnt')
     blk_cnt2 = um2.getreg('blk_cnt')
-    print um1.get_next('byte_cnt')
-    print um2.get_next('blk_cnt')
 
     print 'checking aes_state'
     st = time.clock()

@@ -118,7 +118,7 @@ def createAESILA(synstates, enable_ps):
         ast = m.get_next(s)
         m.exportOne(ast, 'asts/%s_%s' % (s, 'en' if enable_ps else 'dis'))
 
-    m.generateSimToDir('sim_aes_m')
+    m.generateSimToDir('sim')
 
 all_state = ['aes_state', 'aes_addr', 'aes_len', 'aes_keysel', 'aes_ctr', 'aes_key0', 'aes_key1', 'byte_cnt', 'rd_data', 'enc_data', 'XRAM', 'dataout']
 
