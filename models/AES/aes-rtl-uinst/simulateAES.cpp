@@ -50,6 +50,7 @@ std::ostream& dumpMemDataBuf(std::ostream& out);
 std::ostream& dumpMemDataBufNext(std::ostream& out);
 std::ostream& dumpEncDataNext(std::ostream& out);
 std::ostream& dumpXram(std::ostream& out);
+std::ostream& dumpState(std::ostream& out);
 
 int main(int argc, char* argv[]) 
 {
@@ -67,15 +68,16 @@ int main(int argc, char* argv[])
     do {
         execute();
 
-        //std::cout << "xram_addr=" << std::hex << top->v__DOT__xram_addr << std::endl;
-        //std::cout << "xram_stb=" << (int) top->v__DOT__xram_stb << std::endl;
-        //std::cout << "xram_data_in=" << std::hex << (int) top->v__DOT__xram_data_in << std::endl;
-        //std::cout << "xram_ack=" << (int) top->v__DOT__xram_ack << std::endl;
-        //std::cout << "mem_data_buf="; dumpMemDataBuf(std::cout) << std::endl;
-        //std::cout << "mem_data_buf_next="; dumpMemDataBufNext(std::cout) << std::endl;
-        //std::cout << "enc_data_buf_next="; dumpEncDataNext(std::cout) << std::endl;
-        //std::cout << std::dec;
-        //std::cout << "xram: " << std::endl; dumpXram(std::cout);
+        dumpState(std::cout);
+        std::cout << "xram_addr=" << std::hex << top->v__DOT__xram_addr << std::endl;
+        std::cout << "xram_stb=" << (int) top->v__DOT__xram_stb << std::endl;
+        std::cout << "xram_data_in=" << std::hex << (int) top->v__DOT__xram_data_in << std::endl;
+        std::cout << "xram_ack=" << (int) top->v__DOT__xram_ack << std::endl;
+        std::cout << "mem_data_buf="; dumpMemDataBuf(std::cout) << std::endl;
+        std::cout << "mem_data_buf_next="; dumpMemDataBufNext(std::cout) << std::endl;
+        std::cout << "enc_data_buf_next="; dumpEncDataNext(std::cout) << std::endl;
+        std::cout << std::dec;
+        std::cout << "xram: " << std::endl; dumpXram(std::cout);
 
     } while (isMicro ? !hasChangedMicro() : 
                        !hasChangedMacro());
@@ -177,15 +179,18 @@ void assignDataOut()
 void assignByteCnt()
 {
     top->v__DOT__aes_top1__DOT__byte_counter_next = byte_cnt[0];
+    top->v__DOT__aes_top1__DOT__byte_counter_next = byte_cnt[0];
 }
 
 void assignOpedByteCnt()
 {
+    top->v__DOT__aes_top1__DOT__operated_bytes_count = oped_byte_cnt[0];
     top->v__DOT__aes_top1__DOT__operated_bytes_count_next = oped_byte_cnt[0];
 }
 
 void assignBlkCnt()
 {
+    top->v__DOT__aes_top1__DOT__block_counter = blk_cnt[0];
     top->v__DOT__aes_top1__DOT__block_counter_next = blk_cnt[0];
 }
 
@@ -371,6 +376,7 @@ void init()
         }
         top->eval();
     }
+    top->v__DOT__xram_ack = 0;
 }
 
 void assignFromFile(const std::string& fileName)
