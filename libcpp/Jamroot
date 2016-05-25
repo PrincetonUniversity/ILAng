@@ -108,6 +108,8 @@ testing.make-test run-pyd : ila test/func.py : : test_func ;
 
 testing.make-test run-pyd : ila test/eqchecker.py : : test_eqchecker ;
 
+testing.make-test run-pyd : ila test/simplify.py : : test_simplify ;
+
 
 # A little "rule" (function) to clean up the syntax of declaring tests
 # of these extension modules.

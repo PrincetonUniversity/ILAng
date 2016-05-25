@@ -111,6 +111,7 @@ def plot(data):
             print d, (d[2]+1e-4) / (d[1]+1e-4)
     print gmean(speedups), np.average(speedups), max(speedups)
 
+    plt.savefig('times.png')
     plt.savefig('times.pdf')
     plt.show()
 

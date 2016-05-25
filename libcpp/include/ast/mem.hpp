@@ -88,6 +88,8 @@ namespace ila
         // destructor.
         virtual ~MemOp();
 
+        Op getOp() const { return op; }
+
         // clone.
         virtual Node* clone() const;
         // equality.

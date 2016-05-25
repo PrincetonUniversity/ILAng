@@ -3,30 +3,47 @@
 namespace ila
 {
     // ---------------------------------------------------------------------- //
-    SimplifyVisitor::SimplifyVisitor(const nptr_vec_t& a)
-      : assumps(a)
+    ITESimplifier::ITESimplifier(const nptr_t& a)
     {
+        assumps.push(a);
     }
 
-    SimplifyVisitor::~SimplifyVisitor()
+    ITESimplifier::~ITESimplifier()
     {
     }
 
     // ---------------------------------------------------------------------- //
-    void SimplifyVisitor::preVisit(const Node* n)
+    void ITESimplifier::addAssumptions(const nptr_vec_t& avec)
     {
-        auto bvop = dynamic_cast<const BitvectorOp*>(n);
-        auto boolop = dynamic_cast<const BoolOp*>(n);
-
-        // TODO
-        if (bvop && bvop->getOp() == BitvectorOp::IF) {
-            // TODO: push condition onto the stack.
-        } else if(boolop && boolop->getOp() == BoolOp::IF) {
-            // TODO: push condition onto the stack.
+        for (auto&& a : avec) {
+            assumps.push(a);
         }
     }
 
-    void SimplifyVisitor::postVisit(const Node* n)
+    void ITESimplifier::addAssumption(const nptr_t& a)
+    {
+        assumps.push(a);
+    }
+
+    // ---------------------------------------------------------------------- //
+    void ITESimplifier::preVisit(const Node* n)
+    {
+        auto bvop = dynamic_cast<const BitvectorOp*>(n);
+        auto boolop = dynamic_cast<const BoolOp*>(n);
+        auto memop = dynamic_cast<const MemOp*>(n);
+
+        // TODO
+        if ((bvop && bvop->getOp() == BitvectorOp::IF) ||
+            (boolop && boolop->getOp() == BoolOp::IF)  ||
+            (memop && memop->getOp() == MemOp::ITE))
+        {
+            const nptr_t& cond = n->arg(0);
+            assumps.push(cond);
+        }
+    }
+
+    void ITESimplifier::postVisit(const Node* n)
     {
     }
+    // ---------------------------------------------------------------------- //
 }

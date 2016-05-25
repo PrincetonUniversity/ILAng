@@ -3,18 +3,23 @@
 
 #include <ast.hpp>
 #include <smt.hpp>
-#include <vector>
+#include <stack>
 
 namespace ila
 {
-    class SimplifyVisitor : public NodeVisitorI
+    class ITESimplifier : public NodeVisitorI
     {
-        nptr_vec_t assumps;
+        typedef std::stack<nptr_t> nptr_stack_t;
+        nptr_stack_t assumps;
     public:
         // constructor.
-        SimplifyVisitor(const nptr_vec_t& assumps);
+        ITESimplifier(const nptr_t& assump);
         // destructor.
-        virtual ~SimplifyVisitor();
+        virtual ~ITESimplifier();
+        // add a vector of assumption.
+        void addAssumptions(const nptr_vec_t& assumps);
+        // add exactly one assumption.
+        void addAssumption(const nptr_t& a);
         
         virtual void preVisit(const Node* n);
         virtual void postVisit(const Node* n);
