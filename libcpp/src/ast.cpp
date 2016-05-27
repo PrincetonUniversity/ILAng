@@ -642,12 +642,12 @@ namespace ila
         return obj->neqInt(0);
     }
 
-    NodeRef* NodeRef::imply(NodeRef* p, NodeRef* q)
+    NodeRef* NodeRef::imply(NodeRef& p, NodeRef& q)
     {
         return _binOp(BoolOp::IMPLY, p, q);
     }
 
-    NodeRef* NodeRef::ite(NodeRef* cond, NodeRef* trueExp, NodeRef* falseExp)
+    NodeRef* NodeRef::ite(NodeRef& cond, NodeRef& trueExp, NodeRef& falseExp)
     {
         return _triOp(BoolOp::IF, BitvectorOp::IF, MemOp::ITE, cond, trueExp, falseExp);
     }
@@ -998,11 +998,11 @@ namespace ila
         }
     }
 
-    NodeRef* NodeRef::_binOp(BoolOp::Op op, NodeRef* l, NodeRef* r)
+    NodeRef* NodeRef::_binOp(BoolOp::Op op, NodeRef& l, NodeRef& r)
     {
-        if (l->node->type.isBool() && r->node->type.isBool()) {
+        if (l.node->type.isBool() && r.node->type.isBool()) {
             return new NodeRef(new BoolOp(
-                        op, l->node, r->node));
+                        op, l.node, r.node));
         } else {
             throw PyILAException(PyExc_TypeError,
                                  "Incorrect type for " + 
@@ -1058,28 +1058,27 @@ namespace ila
     }
 
     NodeRef* NodeRef::_triOp(BoolOp::Op boolOp, BitvectorOp::Op bvOp, MemOp::Op memOp,
-                             NodeRef* cond, NodeRef* trueExp, NodeRef* falseExp)
+                             NodeRef& cond, NodeRef& trueExp, NodeRef& falseExp)
     {
-        if (trueExp->node->type != falseExp->node->type ||
-            !cond->node->type.isBool())
+        if (trueExp.node->type != falseExp.node->type ||
+            !cond.node->type.isBool())
         {
             throw PyILAException(PyExc_TypeError, "Incorrect type for ITE");
             return NULL;
         } else {
-            NodeRef* normCond = (cond->node->type.isBool())? cond : NodeRef::nonzero(cond);
             nptr_vec_t args_;
-            args_.push_back(normCond->node);
-            args_.push_back(trueExp->node);
-            args_.push_back(falseExp->node);
-            if (trueExp->node->type.isBool() && boolOp != BoolOp::INVALID) {
+            args_.push_back(cond.node);
+            args_.push_back(trueExp.node);
+            args_.push_back(falseExp.node);
+            if (trueExp.node->type.isBool() && boolOp != BoolOp::INVALID) {
                 return new NodeRef( 
                     new BoolOp(boolOp, args_));
-            } else if (trueExp->node->type.isBitvector() && bvOp != BitvectorOp::INVALID) {
+            } else if (trueExp.node->type.isBitvector() && bvOp != BitvectorOp::INVALID) {
                 return new NodeRef( 
                     new BitvectorOp(bvOp, args_));
-            } else if (trueExp->node->type.isMem() && memOp == MemOp::ITE) {
+            } else if (trueExp.node->type.isMem() && memOp == MemOp::ITE) {
                 return new NodeRef( 
-                    new MemOp(memOp, cond->node, trueExp->node, falseExp->node));
+                    new MemOp(memOp, cond.node, trueExp.node, falseExp.node));
             } else {
                 throw PyILAException(PyExc_TypeError, "Incorrect type for ITE");
                 return NULL;
