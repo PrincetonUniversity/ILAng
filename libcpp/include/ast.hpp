@@ -99,12 +99,12 @@ namespace ila
         NodeRef* rmulInt(int r) const;
 
         // comparison operators.
-        NodeRef* eq(NodeRef* other) const;
-        NodeRef* neq(NodeRef* other) const;
-        NodeRef* ult(NodeRef* other) const;
-        NodeRef* ugt(NodeRef* other) const;
-        NodeRef* ule(NodeRef* other) const;
-        NodeRef* uge(NodeRef* other) const;
+        NodeRef* eq(NodeRef& other) const;
+        NodeRef* neq(NodeRef& other) const;
+        NodeRef* ult(NodeRef& other) const;
+        NodeRef* ugt(NodeRef& other) const;
+        NodeRef* ule(NodeRef& other) const;
+        NodeRef* uge(NodeRef& other) const;
         NodeRef* eqInt(int r) const;
         NodeRef* neqInt(int r) const;
         NodeRef* ultInt(int r) const;
@@ -157,14 +157,14 @@ namespace ila
         static NodeRef* rashrInt(int l, NodeRef* r);
 
         // comparison functions.
-        static NodeRef* slt(NodeRef* l, NodeRef* r);
-        static NodeRef* sgt(NodeRef* l, NodeRef* r);
-        static NodeRef* sle(NodeRef* l, NodeRef* r);
-        static NodeRef* sge(NodeRef* l, NodeRef* r);
-        static NodeRef* sltInt(NodeRef* l, int r);
-        static NodeRef* sgtInt(NodeRef* l, int r);
-        static NodeRef* sleInt(NodeRef* l, int r);
-        static NodeRef* sgeInt(NodeRef* l, int r);
+        static NodeRef* slt(NodeRef& l, NodeRef& r);
+        static NodeRef* sgt(NodeRef& l, NodeRef& r);
+        static NodeRef* sle(NodeRef& l, NodeRef& r);
+        static NodeRef* sge(NodeRef& l, NodeRef& r);
+        static NodeRef* sltInt(NodeRef& l, int r);
+        static NodeRef* sgtInt(NodeRef& l, int r);
+        static NodeRef* sleInt(NodeRef& l, int r);
+        static NodeRef* sgeInt(NodeRef& l, int r);
 
         // bit manipulate functions.
         static NodeRef* concat(NodeRef* lo, NodeRef* hi);
@@ -222,6 +222,9 @@ namespace ila
         static NodeRef* writeSlice(const std::string& name, NodeRef* bv, NodeRef* wr);
         // write-chunk
         static NodeRef* writeChunk(const std::string& name, NodeRef* bv, NodeRef* wr);
+
+        // simplify.
+        static NodeRef* simplify(NodeRef& assump, NodeRef& exp);
     private:
         // ---------------------- HELPERS ----------------------------- //
         NodeRef* _unOp(BoolOp::Op boolOp, BitvectorOp::Op bvOp, const char* opName) const;
@@ -230,7 +233,7 @@ namespace ila
         NodeRef* _binOp(BitvectorOp::Op op, NodeRef* other) const;
         NodeRef* _binOp(BitvectorOp::Op op, int r) const;
         NodeRef* _binOpR(BitvectorOp::Op op, int r) const;
-        NodeRef* _cmpOp(BoolOp::Op op, NodeRef* other, bool bvtype) const;
+        NodeRef* _cmpOp(BoolOp::Op op, NodeRef& other, bool bvtype) const;
         NodeRef* _cmpOp(BoolOp::Op op, int r) const;
 
         static NodeRef* _binOp(BoolOp::Op boolOp, BitvectorOp::Op bvOp, 
@@ -239,8 +242,8 @@ namespace ila
         static NodeRef* _binOp(BitvectorOp::Op op, NodeRef* l, NodeRef* r);
         static NodeRef* _binOp(BitvectorOp::Op Op, NodeRef* l, int r);
         static NodeRef* _binOpR(BitvectorOp::Op op, int l, NodeRef* r);
-        static NodeRef* _cmpOp(BoolOp::Op op, NodeRef* l, NodeRef* r, bool bvtype);
-        static NodeRef* _cmpOp(BoolOp::Op op, NodeRef* l, int r);
+        static NodeRef* _cmpOp(BoolOp::Op op, NodeRef& l, NodeRef& r, bool bvtype);
+        static NodeRef* _cmpOp(BoolOp::Op op, NodeRef& l, int r);
         static NodeRef* _triOp(BoolOp::Op boolOp, BitvectorOp::Op bvOp, MemOp::Op memOp,
                             NodeRef* arg0, NodeRef* arg1, NodeRef* arg2);
         static NodeRef* _naryOp(BitvectorOp::Op bvOp, nptr_vec_t& args);

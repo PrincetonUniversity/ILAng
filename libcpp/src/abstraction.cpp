@@ -313,6 +313,17 @@ namespace ila
         return new NodeRef(pos->second.next);
     }
 
+    NodeRef* Abstraction::getNextI(const std::string& name, int i) const
+    {
+        auto pos = findInMap(name);
+        const npair_t& nstruct = pos->second;
+        if (i < 0 || i >= static_cast<int>(nstruct.next_vec.size())) {
+            return NULL;
+        } else {
+            return new NodeRef(nstruct.next_vec[i]);
+        }
+    }
+
     // ---------------------------------------------------------------------- //
     AbstractionWrapper* Abstraction::addUAbs(
         const std::string& name,

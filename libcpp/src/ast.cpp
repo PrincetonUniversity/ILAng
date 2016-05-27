@@ -230,34 +230,34 @@ namespace ila
     }
 
     // eq/neq //
-    NodeRef* NodeRef::eq(NodeRef* other) const
+    NodeRef* NodeRef::eq(NodeRef& other) const
     {
         return _cmpOp(BoolOp::EQUAL, other, false);
     }
 
-    NodeRef* NodeRef::neq(NodeRef* other) const
+    NodeRef* NodeRef::neq(NodeRef& other) const
     {
         return _cmpOp(BoolOp::DISTINCT, other, false);
     }
 
     // lt/gt //
-    NodeRef* NodeRef::ult(NodeRef* other) const
+    NodeRef* NodeRef::ult(NodeRef& other) const
     {
         return _cmpOp(BoolOp::ULT, other, true);
     }
 
-    NodeRef* NodeRef::ugt(NodeRef* other) const
+    NodeRef* NodeRef::ugt(NodeRef& other) const
     {
         return _cmpOp(BoolOp::UGT, other, true);
     }
 
     // le/ge //
-    NodeRef* NodeRef::ule(NodeRef* other) const
+    NodeRef* NodeRef::ule(NodeRef& other) const
     {
         return _cmpOp(BoolOp::ULE, other, true);
     }
 
-    NodeRef* NodeRef::uge(NodeRef* other) const
+    NodeRef* NodeRef::uge(NodeRef& other) const
     {
         return _cmpOp(BoolOp::UGE, other, true);
     }
@@ -587,42 +587,42 @@ namespace ila
         return _binOp(BitvectorOp::RROTATE, obj, par);
     }
 
-    NodeRef* NodeRef::slt(NodeRef* l, NodeRef* r) 
+    NodeRef* NodeRef::slt(NodeRef& l, NodeRef& r) 
     {
         return _cmpOp(BoolOp::SLT, l, r, true);
     }
 
-    NodeRef* NodeRef::sgt(NodeRef* l, NodeRef* r)
+    NodeRef* NodeRef::sgt(NodeRef& l, NodeRef& r)
     {
         return _cmpOp(BoolOp::SGT, l, r, true);
     }
 
-    NodeRef* NodeRef::sle(NodeRef* l, NodeRef* r)
+    NodeRef* NodeRef::sle(NodeRef& l, NodeRef& r)
     {
         return _cmpOp(BoolOp::SLE, l, r, true);
     }
 
-    NodeRef* NodeRef::sge(NodeRef* l, NodeRef* r)
+    NodeRef* NodeRef::sge(NodeRef& l, NodeRef& r)
     {
         return _cmpOp(BoolOp::SGE, l, r, true);
     }
 
-    NodeRef* NodeRef::sltInt(NodeRef* l, int r) 
+    NodeRef* NodeRef::sltInt(NodeRef& l, int r) 
     {
         return _cmpOp(BoolOp::SLT, l, r);
     }
 
-    NodeRef* NodeRef::sgtInt(NodeRef* l, int r) 
+    NodeRef* NodeRef::sgtInt(NodeRef& l, int r) 
     {
         return _cmpOp(BoolOp::SGT, l, r);
     }
 
-    NodeRef* NodeRef::sleInt(NodeRef* l, int r) 
+    NodeRef* NodeRef::sleInt(NodeRef& l, int r) 
     {
         return _cmpOp(BoolOp::SLE, l, r);
     }
 
-    NodeRef* NodeRef::sgeInt(NodeRef* l, int r) 
+    NodeRef* NodeRef::sgeInt(NodeRef& l, int r) 
     {
         return _cmpOp(BoolOp::SGE, l, r);
     }
@@ -821,6 +821,14 @@ namespace ila
                 bv->node, wr->node, wr->node->type.bitWidth));
     }
 
+    NodeRef* NodeRef::simplify(NodeRef& n_assump, NodeRef& n_exp)
+    {
+        const nptr_t& assump = n_assump.node;
+        const nptr_t& exp = n_exp.node;
+
+        return NULL;
+    }
+
     // ---------------------------------------------------------------------- //
     NodeRef* NodeRef::_unOp(
         BoolOp::Op opBool, BitvectorOp::Op opBv, const char* opName) const
@@ -903,13 +911,13 @@ namespace ila
     // bvtype = true means this operator can only be applied
     // on bitvector type objects.
     NodeRef* NodeRef::_cmpOp(BoolOp::Op op, 
-                             NodeRef* other,
+                             NodeRef& other,
                              bool bvtype) const
     {
-        if (node->type == other->node->type &&
+        if (node->type == other.node->type &&
                    (!bvtype || node->type.isBitvector())) {
             return new NodeRef(
-                        new BoolOp(op, node, other->node));
+                        new BoolOp(op, node, other.node));
         } else {
             throw PyILAException(PyExc_TypeError,
                                   "Incorrect type for " + 
@@ -939,13 +947,13 @@ namespace ila
     // bvtype = true means this operator can only be applied
     // on bitvector type objects.
     NodeRef* NodeRef::_cmpOp(BoolOp::Op op, 
-                             NodeRef* l, NodeRef* r, 
+                             NodeRef& l, NodeRef& r, 
                              bool bvonly)
     {
-        if (l->node->type == r->node->type &&
-                   (!bvonly || l->node->type.isBitvector())) {
+        if (l.node->type == r.node->type &&
+                   (!bvonly || l.node->type.isBitvector())) {
             return new NodeRef(
-                        new BoolOp(op, l->node, r->node));
+                        new BoolOp(op, l.node, r.node));
         } else {
             throw PyILAException(PyExc_TypeError,
                                   "Incorrect type for " + 
@@ -954,12 +962,12 @@ namespace ila
         }
     }
     // Only bitvector can compare with int
-    NodeRef* NodeRef::_cmpOp(BoolOp::Op op, NodeRef* l, int r)
+    NodeRef* NodeRef::_cmpOp(BoolOp::Op op, NodeRef& l, int r)
     {
-        if (l->node->type.isBitvector()) {
+        if (l.node->type.isBitvector()) {
             nptr_t node_r(
-                new BitvectorConst(r, l->node->type.bitWidth));
-            return new NodeRef(new BoolOp(op, l->node, node_r));
+                new BitvectorConst(r, l.node->type.bitWidth));
+            return new NodeRef(new BoolOp(op, l.node, node_r));
         } else {
             throw PyILAException(PyExc_TypeError,
                                   "Incorrect type for " + 

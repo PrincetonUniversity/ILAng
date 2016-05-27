@@ -338,6 +338,10 @@ BOOST_PYTHON_MODULE(ila)
     // writechunk
     def("writechunk", &NodeRef::writeChunk,
             return_value_policy<manage_new_object>());
+
+    // simplify.
+    def("simplify", &NodeRef::simplify,
+            return_value_policy<manage_new_object>());
     // logging.
     def("setloglevel", &ila::setLogLevel);
 
@@ -373,6 +377,7 @@ BOOST_PYTHON_MODULE(ila)
         // next function
         .def("set_next", &AbstractionWrapper::setNext)
         .def("get_next", &AbstractionWrapper::getNext, return_value_policy<manage_new_object>())
+        .def("get_next", &AbstractionWrapper::getNextI, return_value_policy<manage_new_object>())
         // uabs
         .def("add_microabstraction", &AbstractionWrapper::addUAbs, 
                                      return_value_policy<manage_new_object>())

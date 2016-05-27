@@ -144,6 +144,8 @@ namespace ila
         void setNext(const std::string& name, NodeRef* n);
         // Get the next template.
         NodeRef* getNext(const std::string& name) const;
+        // Get the next template for the i-th instruction.
+        NodeRef* getNextI(const std::string& name, int i) const;
 
         // Create a uabstraction.
         AbstractionWrapper* addUAbs(
@@ -383,6 +385,11 @@ namespace ila
         // Get the next template.
         NodeRef* getNext(const std::string& name) const {
             return abs->getNext(name);
+        }
+
+        // Get the next state fn for the ith instruction.
+        NodeRef* getNextI(const std::string& name, int i) const {
+            return abs->getNextI(name, i);
         }
 
         // Create a microabstraction.
