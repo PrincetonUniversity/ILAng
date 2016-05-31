@@ -56,11 +56,11 @@ def createmodel():
     m.decode_exprs = [op == i for i in xrange(128)]
     m.synthesize('r0', alusim)
     for i in xrange(128):
-        si =  ila.simplify(m.decode_exprs[i], m.get_next('r0', i))
-        print si
+        exp_i = m.get_next('r0', i)
+        si =  ila.simplify(m.decode_exprs[i], exp_i)
+        print exp_i, si
 
 def main():
-    ila.setloglevel(0, "")
     createmodel()
 
 if __name__ == '__main__':

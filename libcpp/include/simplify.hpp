@@ -20,6 +20,10 @@ namespace ila
 
         void _add(const nptr_t& a);
         boost::logic::tribool _isConstant(const nptr_t& c);
+
+        void getNewArgs(const Node* op, nptr_vec_t& args);
+        nptr_t getRepl(const Node* n) const;
+        nptr_t rewriteITE(const Node* n);
     public:
         // constructor.
         ITESimplifier(const nptr_t& assump);
@@ -35,6 +39,7 @@ namespace ila
 
         void reset() { rwmap.clear(); }
         nptr_t simplify(Node* n);
+
     };
 }
 #endif
