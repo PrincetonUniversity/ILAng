@@ -5,6 +5,7 @@
 #include <util.hpp>
 #include <exception.hpp>
 #include <abstraction.hpp>
+#include <simplify.hpp>
 
 namespace ila
 {
@@ -826,7 +827,10 @@ namespace ila
         const nptr_t& assump = n_assump.node;
         const nptr_t& exp = n_exp.node;
 
-        return NULL;
+        ITESimplifier ite_simp(assump);
+        nptr_t simp_exp = ite_simp.simplify(exp.get());
+
+        return new NodeRef(simp_exp);
     }
 
     // ---------------------------------------------------------------------- //

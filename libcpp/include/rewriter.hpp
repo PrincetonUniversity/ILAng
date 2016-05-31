@@ -7,14 +7,14 @@
 
 namespace ila
 {
+    typedef std::unordered_map<
+        const Node*, nptr_t > rwmap_t;
     // A function object that rewrites the AST according to the result
     // of the synthesis.
     class Rewriter
     {
     public:
         // Define types.
-        typedef std::unordered_map<
-            const Node*, nptr_t > rwmap_t;
     protected:
         // the map between old and new nodes.
         rwmap_t rwmap;

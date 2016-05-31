@@ -4,13 +4,22 @@
 #include <ast.hpp>
 #include <smt.hpp>
 #include <stack>
+#include <smt.hpp>
+#include <rewriter.hpp>
+#include <boost/logic/tribool.hpp>
 
 namespace ila
 {
     class ITESimplifier : public NodeVisitorI
     {
-        typedef std::stack<nptr_t> nptr_stack_t;
-        nptr_stack_t assumps;
+        z3::context ctx;
+        z3::solver S;
+        Z3ExprAdapter adapter;
+
+        rwmap_t rwmap;
+
+        void _add(const nptr_t& a);
+        boost::logic::tribool _isConstant(const nptr_t& c);
     public:
         // constructor.
         ITESimplifier(const nptr_t& assump);
@@ -23,6 +32,9 @@ namespace ila
         
         virtual void preVisit(const Node* n);
         virtual void postVisit(const Node* n);
+
+        void reset() { rwmap.clear(); }
+        nptr_t simplify(Node* n);
     };
 }
 #endif
