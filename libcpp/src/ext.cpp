@@ -344,6 +344,9 @@ BOOST_PYTHON_MODULE(ila)
             return_value_policy<manage_new_object>());
     // logging.
     def("setloglevel", &ila::setLogLevel);
+    def("enablelog", &ila::enableLog);
+    def("disablelog", &ila::disableLog);
+    def("clearlogs", &ila::clearLogs);
 
     // bmc
     def("bmc", &AbstractionWrapper::bmc);

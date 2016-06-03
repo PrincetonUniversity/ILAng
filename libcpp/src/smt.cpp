@@ -37,7 +37,7 @@ namespace ila
             return;
         }
 
-        log2() << "visiting: " << *n << std::endl;
+        log2("Z3ExprAdapter.operator()") << *n << std::endl;
         _populateExprMap(n);
         _populateCnstMap(n);
 

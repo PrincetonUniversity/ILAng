@@ -218,7 +218,8 @@ namespace ila
         using namespace z3;
         using namespace boost;
 
-        log2() << "semanticEqual: this=" << *this
+        log2("MemValues::semanticEqual") 
+               << "this=" << *this
                << "; that=" << that << std::endl;
 
         if (type != that.type) return false;

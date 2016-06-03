@@ -598,18 +598,18 @@ namespace ila
         context c_;
         Z3ExprAdapter c(c_, "");
 
-        log2() << "left: " << *left->node.get() << std::endl;
+        log2("Abstraction.areEqual") << "left: " << *left->node.get() << std::endl;
         z3::expr ex1 = c.getExpr(left->node.get());
         z3::expr cn1 = c.getCnst(left->node.get());
-        log2() << "ex1:" << ex1 << std::endl;
+        log2("Abstraction.areEqual") << "ex1:" << ex1 << std::endl;
 
-        log2() << "right: " << *right->node.get() << std::endl;
+        log2("Abstraction.areEqual") << "right: " << *right->node.get() << std::endl;
         z3::expr ex2 = c.getExpr(right->node.get());
         z3::expr cn2 = c.getCnst(right->node.get());
-        log2() << "ex2:" << ex2 << std::endl;
+        log2("Abstraction.areEqual") << "ex2:" << ex2 << std::endl;
 
         expr mitre = (ex1 != ex2);
-        log2() << "mitre:" << mitre << std::endl;
+        log2("Abstraction.areEqual") << "mitre:" << mitre << std::endl;
 
 
         solver S(c_);

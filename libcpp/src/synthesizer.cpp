@@ -16,7 +16,7 @@ namespace ila
             return;
         }
 
-        log2() << "SupportVars::dfs: " << *n << std::endl;
+        log2("SupportVars.dfs") << *n << std::endl;
 
         const BoolVar* boolvar = NULL; 
         const BitvectorVar* bvvar = NULL;
@@ -41,7 +41,7 @@ namespace ila
             }
         }
 
-        log2() << "SupportVars::dfs: n=" << n->nArgs() << std::endl;
+        log2("SupportVars.dfs") << "n=" << n->nArgs() << std::endl;
         unsigned cnt = n->nArgs();
         for (unsigned i = 0; i != cnt; i++) {
             dfs(n->arg(i).get());
@@ -185,7 +185,8 @@ namespace ila
 
             mp_int_t addr_di = boost::lexical_cast<mp_int_t>(rdaddrs[i]);
             // get the address from the "saved" model.
-            log2()    << "addr_that: " << addr_model_s 
+            log2("DistInput.fixUp")    
+                      << "addr_that: " << addr_model_s 
                       << "; addr_this: " << addr_model
                       << "; data: " << data_model
                       << std::endl;
@@ -448,7 +449,7 @@ namespace ila
     DistInput* DITree::getDistInput(const z3::expr& y)
     {
         if (mode == INSERT) {
-            log2() << "getDI: INSERT mode." << std::endl;
+            log2("DITree.getDistInput") << "INSERT mode." << std::endl;
 
             // run the SMT solver.
             z3::expr assumps[1] = { y };
@@ -460,11 +461,11 @@ namespace ila
                 dtree_ptr_t dnode(new DITreeNode(
                     syn.abs, syn.c1, m, syn.decodeSupport));
                 *insert_ptr = dnode;
-                log2() << "getDI: DI: " << *dnode->inputs << std::endl;
+                log2("DITree.getDistInput") << "DI: " << *dnode->inputs << std::endl;
                 return dnode->inputs.get();
             } else {
                 // tree is empty.
-                log2() << "getDI: No more DIs." << std::endl;
+                log2("DITree.getDistInput") << "No more DIs." << std::endl;
                 if (reuseModels) {
                     dtree_ptr_t dnode(new DITreeNode());
                     *insert_ptr = dnode;
@@ -472,17 +473,17 @@ namespace ila
                 return NULL;
             }
         } else {
-            log2() << "getDI: REPLAY mode." << std::endl;
+            log2("DITree.getDistInput") << "REPLAY mode." << std::endl;
             DistInput* di = replay_ptr->inputs.get();
             if (di != NULL) {
                 z3::check_result r = syn.Sp.check();
                 ILA_ASSERT(r == z3::sat, "Expected this to be SAT.");
                 z3::model m = syn.Sp.get_model();
-                log2() << "getDI: prefixUp DI: " << *di << std::endl;
+                log2("DITree.getDistInput") << "prefixUp DI: " << *di << std::endl;
                 di->fixUp(syn.decodeSupport, syn.c1, m);
-                log2() << "getDI: DI: " << *di << std::endl;
+                log2("DITree.getDistInput") << "DI: " << *di << std::endl;
             } else {
-                log2() << "getDI: end of trail." << std::endl;
+                log2("DITree.getDistInput") << "end of trail." << std::endl;
             }
             return di;
         }
@@ -491,15 +492,15 @@ namespace ila
     void DITree::setOutput(const simout_ptr_t& out)
     {
         if (mode == REPLAY) {
-            log2() << "setOut: REPLAY mode." << std::endl;
-            log2() << "setOut: out=" << *out << std::endl;
+            log2("DITree.setOutput") << "REPLAY mode." << std::endl;
+            log2("DITree.setOutput") << "out=" << *out << std::endl;
 
             bool found = false;
             // try to find an existing output which matches.
             for (unsigned i=0; i != replay_ptr->outputs.size(); i++) {
                 if (*replay_ptr->outputs[i].first == *out) {
                     found = true;
-                    log2() << "setOut: found output match." << std::endl;
+                    log2("DITree.setOutput") << "found output match." << std::endl;
                     replay_ptr = replay_ptr->outputs[i].second;
                     break;
                 }
@@ -507,7 +508,7 @@ namespace ila
             if (!found) {
                 // not found, so switch to insert mode.
                 mode = INSERT;
-                log2() << "setOut: switch to insert mode as output not found." 
+                log2("DITree.setOutput") << "switch to insert mode as output not found." 
                        << std::endl;
                 int index = replay_ptr->outputs.size();
                 replay_ptr->outputs.push_back({out, dtree_ptr_t()});
@@ -516,7 +517,7 @@ namespace ila
             } else if (!(bool)replay_ptr) {
                 ILA_ASSERT(!reuseModels, 
                     "reuseModels must be false if we got here.");
-                 log2() << "setOut: switch to insert mode at end of trail." 
+                 log2("DITree.setOutput") << "switch to insert mode at end of trail." 
                         << std::endl;
 
                 mode = INSERT;
@@ -524,8 +525,8 @@ namespace ila
                 replay_ptr.reset();
             }
         } else {
-            log2() << "setOut: INSERT mode." << std::endl;
-            log2() << "setOut: out=" << *out << std::endl;
+            log2("DITree.setOutput") << "INSERT mode." << std::endl;
+            log2("DITree.setOutput") << "out=" << *out << std::endl;
 
             // now we are in INSERT mode.
             ILA_ASSERT ((*insert_ptr)->outputs.size() == 0, 
@@ -613,9 +614,10 @@ namespace ila
         // reset the distinguishing input tree.
         ditree.reset(nodep);
 
-        info() << "reuseModels: " << (int) nodep << std::endl;
+        log1("Synthesizer._synthesizeOp") << "reuseModels: " << (int) nodep << std::endl;
         for (auto de : abs.decodeExprs) {
-            info() << "decode: " << *de.get() << std::endl;
+            log1("Synthesizer._synthesizeOp") 
+                << "decode: " << *de.get() << std::endl;
             ditree.rewind();
             nptr_t ex_n = (abs.paramSyn && decodeSupport.canFixUp)
                 ? _synthesizeEx(name, de, next, y, pyfun)
@@ -624,7 +626,8 @@ namespace ila
             // add to the vector.
             next_vec.push_back(ex_n);
 
-            info() << name << ": " 
+            log1("Synthesizer._synthesizeOp") 
+                   << name << ": " 
                    << *de.get() << " -> "
                    << *ex_n.get() << std::endl;
         }
@@ -778,7 +781,7 @@ namespace ila
         dict args;
         std::unique_ptr<DistInput> di;
         while ((di = _getDistInput(y)) && (i++ < MAX_SYN_ITER)) {
-            log1() << "iteration #" << i << std::endl;
+            log1("Synthesizer._synthesize") << "iteration #" << i << std::endl;
 
             // convert to python.
             di->toPython(args);
@@ -788,8 +791,8 @@ namespace ila
             // extract output.
             SimOutput simout(ex->type, r);
 
-            log1() << "DI: " << std::hex << std::showbase << *di << std::endl;
-            log1() << "out: " << std::hex << std::showbase << simout<< std::endl;
+            log1("Synthesizer._synthesize") << "DI: " << std::hex << std::showbase << *di << std::endl;
+            log1("Synthesizer._synthesize") << "out: " << std::hex << std::showbase << simout<< std::endl;
 
             // now rewrite these expressions.
             Z3ExprRewritingAdapter cr1(c, di.get(), suffix1);
@@ -851,7 +854,7 @@ namespace ila
         dict args;
         DistInput* di;
         while ((di = ditree.getDistInput(y)) && (i++ < MAX_SYN_ITER)) {
-            log1() << "iteration #" << i << std::endl;
+            log1("Synthesizer._synthesizeEx") << "iteration #" << i << std::endl;
 
             // convert to python.
             di->toPython(args);
@@ -863,8 +866,8 @@ namespace ila
             // record in the tree.
             ditree.setOutput(simout);
 
-            log1() << "DI: " << std::hex << std::showbase << *di << std::endl;
-            log1() << "out: " << std::hex << std::showbase << *simout << std::endl;
+            log1("Synthesizer._synthesizeEx") << "DI: " << std::hex << std::showbase << *di << std::endl;
+            log1("Synthesizer._synthesizeEx") << "out: " << std::hex << std::showbase << *simout << std::endl;
 
             // now rewrite these expressions.
             Z3ExprRewritingAdapter cr1(c, di, suffix1);

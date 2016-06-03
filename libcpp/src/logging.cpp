@@ -1,23 +1,48 @@
+#include <boost/algorithm/string.hpp>
 #include <logging.hpp>
 #include <fstream>
 #include <exception.hpp>
+#include <set>
+#include <util.hpp>
 
 namespace ila
 {
     std::ostream* infostream;
     std::ostream* log1stream;
     std::ostream* log2stream;
+    std::ostream* nullstream;
+    std::set<std::string> enabledLogs;
 
     void initLogging()
     {
         infostream = &std::cout;
         log1stream = new std::ofstream("/dev/null");
         log2stream = new std::ofstream("/dev/null");
+        nullstream = new std::ofstream("/dev/null");
     }
 
-    std::ostream& info() { return *infostream; }
-    std::ostream& log1() { return *log1stream; }
-    std::ostream& log2() { return *log2stream; }
+    std::ostream& _log(std::ostream& l, const char* s)
+    {
+        std::vector<std::string> parts;
+        boost::split(parts, s, boost::is_any_of("."));
+
+        ILA_ASSERT(parts.size() > 0, "Cannot be empty.");
+        std::string prefix = parts[0];
+        if (enabledLogs.find(prefix) != enabledLogs.end()) { 
+            return l << "[" << s << "] "; 
+        }
+        for (unsigned i=1; i != parts.size(); i++) {
+            prefix += "." + parts[i];
+            if (enabledLogs.find(prefix) != enabledLogs.end()) { 
+                return l << "[" << s << "] "; 
+            }
+        }
+        return *nullstream;
+    }
+
+    std::ostream& info(const char* l) { return _log(*infostream, l); }
+    std::ostream& log1(const char* l) { return _log(*log1stream, l); }
+    std::ostream& log2(const char* l) { return _log(*log2stream, l); }
 
     void clearStream(std::ostream*& ptr)
     {
@@ -59,5 +84,21 @@ namespace ila
             log2stream = infostream;
         }
     }
+
+    void enableLog(const std::string& name)
+    {
+        enabledLogs.insert(name);
+    }
+
+    void disableLog(const std::string& name)
+    {
+        enabledLogs.erase(name);
+    }
+
+    void clearLogs()
+    {
+        enabledLogs.clear();
+    }
+
 }
 
