@@ -91,7 +91,11 @@ namespace ila
         // As will this.
         z3::expr getCnst(const Node* n);
 
+        // return the context.
         z3::context& ctx() const { return c; }
+
+        // clear the memo.
+        void clear() { exprmap.clear(); cnstmap.clear(); }
         
         // Extract a string representation of the numeric value 
         // of node r in the model m.

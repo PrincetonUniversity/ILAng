@@ -631,6 +631,8 @@ namespace ila
                    << *de.get() << " -> "
                    << *ex_n.get() << std::endl;
         }
+        // MAJOR HACK: need to implement a hash function in the nodes instead!
+        c1.clear(); c2.clear();
         return _getCombinedExpr(var, next_vec);
     }
 
@@ -688,6 +690,9 @@ namespace ila
 
     bool Synthesizer::_eq(const nptr_t& n1, const nptr_t& n2)
     {
+        log2("Synthesizer._eq")
+            << *n1.get() << "/" << *n2.get() << std::endl;
+                     
         if (n1->equal(n2.get())) return true;
         else {
             using namespace z3;

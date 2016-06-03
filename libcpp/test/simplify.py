@@ -30,7 +30,7 @@ def alusim(s_in):
 
 def createmodel():
     m = ila.Abstraction('alu')
-    m.enable_parameterized_synthesis = 0
+    m.enable_parameterized_synthesis = 1
 
     regs = [m.reg('r%d' % i, 8) for i in xrange(4)]
     opcode = m.inp('opcode', 7)
@@ -54,15 +54,14 @@ def createmodel():
 
     m.fetch_expr = opcode
     m.decode_exprs = [opcode == i for i in xrange(0, 128)]
-    m.synthesize('r0', alusim)
+    m.synthesize(alusim)
     for i, di in enumerate(m.decode_exprs):
-        exp_i = m.get_next('r0', i)
-        si =  ila.simplify(di, exp_i)
-        print 'di:', di, 'simp:', si
-        #print exp_i
-        if not m.areEqual(di, exp_i, si):
-            print 'decode:', di
-            print 'exp:', exp_i
+        for reg in xrange(4):
+            exp_i = m.get_next('r%d' % reg, i)
+            si =  ila.simplify(di, exp_i)
+            if not m.areEqual(di, exp_i, si):
+                print 'decode:', di
+                print 'exp:', exp_i
 
 def main():
     createmodel()
