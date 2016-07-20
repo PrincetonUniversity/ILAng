@@ -24,119 +24,131 @@ namespace ila
 {
 
 
-	int VerilogExport::get_width(const Node *n)
-	{
-		const BoolExpr * boolexp = NULL;
-		const BitvectorExpr * bitvectorexpr = NULL;
-		const FuncExpr * funcexpr = NULL;
-		const MemExpr * memexpr = NULL;
+    int VerilogExport::get_width(const Node *n)
+    {
+        const BoolExpr * boolexp = NULL;
+        const BitvectorExpr * bitvectorexpr = NULL;
+        const FuncExpr * funcexpr = NULL;
+        const MemExpr * memexpr = NULL;
 
         if (  (boolexp = dynamic_cast<const BoolExpr*>(n)) )  {
-        	return 1;
+            return 1;
         }
         else if( (bitvectorexpr = dynamic_cast<const BitvectorVar*>(n)) ) {
-        	return bitvectorexpr->type.bitWidth;
+            return bitvectorexpr->type.bitWidth;
         }
         else if( (funcexpr = dynamic_cast<const FuncExpr*>(n)) ) {
-        	return funcexpr->type.bitWidth;
+            return funcexpr->type.bitWidth;
         }
         else if( (memexpr = dynamic_cast<const MemExpr*>(n))  ) {
-        	return memexpr->type.dataWidth;
+            return memexpr->type.dataWidth;
         }
         else
-        	ILA_ASSERT(false, "Node type not supported.");
+            ILA_ASSERT(false, "Node type not supported.");
 
         return 0;
 
-	}	
-	void VerilogExport::exportInp( const std::string &name, const npair_t &np)
-	{
-		// I just ignore all the other fields and assert np.var can be cast to bitVar
-		int w = get_width(np.var.get());
-		add_input(name,w);
-		add_wire(name,w);
+    }    
+    void VerilogExport::exportInp( const std::string &name, const npair_t &np)
+    {
+        // I just ignore all the other fields and assert np.var can be cast to bitVar
+        int w = get_width(np.var.get());
+        add_input(name,w);
+        add_wire(name,w);
 
-	}
-	void VerilogExport::exportReg( const std::string &name, const npair_t &np)
-	{
-		// 1. get width
-		int w = get_width(np.var.get());
-		add_reg(name,w);
-		add_output(name,w);
+    }
+    void VerilogExport::exportReg( const std::string &name, const npair_t &np)
+    {
+        // 1. get width
+        int w = get_width(np.var.get());
+        add_reg(name,w);
+        add_output(name,w);
 
-		// 2. get init statements
-        start_iterate(np.init.get());
-        add_init_stmt( name + " <= " + getOperand() );
+        // 2. get init statements
+        if(np.init.get())
+        {
+            start_iterate(np.init.get());
+            add_init_stmt( name + " <= " + getOperand() );
+        }
 
-        start_iterate(np.next.get());
-        add_always_stmt( name + " <= " + getOperand()  );     
+        if(np.next.get())
+        {
+            start_iterate(np.next.get());
+            add_always_stmt( name + " <= " + getOperand()  );     
+        }
 
-	}
+    }
 
-	void VerilogExport::exportBit( const std::string &name, const npair_t &np)
-	{
-		// for bit ? stmts + outputs
+    void VerilogExport::exportBit( const std::string &name, const npair_t &np)
+    {
+        // for bit ? stmts + outputs
 
         int w = 1;
         add_reg(name,w);
         add_output(name,w);
 
         // 2. get init statements
-        start_iterate(np.init.get());
-        add_init_stmt( name + " <= " + getOperand() );
+        if(np.init.get())
+        {
+            start_iterate(np.init.get());
+            add_init_stmt( name + " <= " + getOperand() );
+        }
 
-        start_iterate(np.next.get());
-        add_always_stmt( name + " <= " + getOperand()  );   
-	}
+        if(np.next.get())
+        {
+            start_iterate(np.next.get());
+            add_always_stmt( name + " <= " + getOperand()  );  
+        }
+    }
 
-	// ---------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------
 
-	void VerilogExport::add_input(const vlg_name_t & n,int w)
-	{
-		inputs.push_back(vlg_sig_t(n,w));
-	}
-	void VerilogExport::add_output(const vlg_name_t & n,int w)
-	{
-		outputs.push_back(vlg_sig_t(n,w));
-	}
-	void VerilogExport::add_wire(const vlg_name_t & n,int w)
-	{
-		wires.push_back(vlg_sig_t(n,w));
-	}
-	void VerilogExport::add_reg(const vlg_name_t & n,int w)
-	{
-		regs.push_back(vlg_sig_t(n,w));
-	}
-	void VerilogExport::add_stmt(const vlg_stmt_t & s)
-	{
-		statements.push_back(s);
-	}
-	void VerilogExport::add_always_stmt(const vlg_stmt_t & s)
-	{
-		always_stmts.push_back(s);
-	}
+    void VerilogExport::add_input(const vlg_name_t & n,int w)
+    {
+        inputs.push_back(vlg_sig_t(n,w));
+    }
+    void VerilogExport::add_output(const vlg_name_t & n,int w)
+    {
+        outputs.push_back(vlg_sig_t(n,w));
+    }
+    void VerilogExport::add_wire(const vlg_name_t & n,int w)
+    {
+        wires.push_back(vlg_sig_t(n,w));
+    }
+    void VerilogExport::add_reg(const vlg_name_t & n,int w)
+    {
+        regs.push_back(vlg_sig_t(n,w));
+    }
+    void VerilogExport::add_stmt(const vlg_stmt_t & s)
+    {
+        statements.push_back(s);
+    }
+    void VerilogExport::add_always_stmt(const vlg_stmt_t & s)
+    {
+        always_stmts.push_back(s);
+    }
     void VerilogExport::add_init_stmt(const vlg_stmt_t & s)
     {
         init_stmts.push_back(s);
     }
 
 
-	// ---------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------
 
-	void VerilogExport::start_iterate(const Node *n)
-	{
-		iterStack.clear();
+    void VerilogExport::start_iterate(const Node *n)
+    {
+        iterStack.clear();
         memopStack.clear();
 
         auto visitorFun =  [this] (const Node *nptr) { this->nodeVistorFunc(nptr); };
-		n->depthFirstVisit( visitorFun );
+        n->depthFirstVisit( visitorFun );
 
         ILA_ASSERT(iterStack.size() == 1, "Iteration for verilog generation failed. Not one result is generated.");
         ILA_ASSERT(memopStack.size() <= 1, "Iteration for verilog generation failed. More than one result is generated.");
-	}
+    }
 
-	void VerilogExport::nodeVistorFunc(const Node *n)
-	{
+    void VerilogExport::nodeVistorFunc(const Node *n)
+    {
 
         const BoolVar* boolvar = NULL; 
         const BoolConst* boolconst = NULL;
@@ -159,160 +171,160 @@ namespace ila
 
         //// booleans ////
         if ((boolvar = dynamic_cast<const BoolVar*>(n))) {
-        	iterStack.push_back(boolvar->getName());
+            iterStack.push_back(boolvar->getName());
 
         } else if ((boolconst = dynamic_cast<const BoolConst*>(n))) {
 
-        	iterStack.push_back(vlg_stmt_t("1'b") + (boolconst->val()? "1":"0") );
+            iterStack.push_back(vlg_stmt_t("1'b") + (boolconst->val()? "1":"0") );
 
         } else if ((boolop = dynamic_cast<const BoolOp*>(n))) {
 
-        	ILA_ASSERT(EnoughArgsOnStack(n),"Not enough operands.");
-        	// translate op
+            ILA_ASSERT(EnoughArgsOnStack(n),"Not enough operands.");
+            // translate op
 
-        	vlg_stmt_t result_stmt;
+            vlg_stmt_t result_stmt;
 
-        	const BoolOp::Op op = boolop->getOp();
-        	int arity = boolop->nArgs();
+            const BoolOp::Op op = boolop->getOp();
+            int arity = boolop->nArgs();
 
-        	ILA_ASSERT(op != BoolOp::INVALID,"Cannot translate invalid operator to Verilog.");
+            ILA_ASSERT(op != BoolOp::INVALID,"Cannot translate invalid operator to Verilog.");
 
-        	if(op == BoolOp::NOT)
-        		result_stmt = vlg_stmt_t("~ ( ") + getOperand() + " )";
-        	else if( arity == 2 ) 
-        	{
-        		vlg_name_t arg2 = getOperand();
-        		vlg_name_t arg1 = getOperand();
+            if(op == BoolOp::NOT)
+                result_stmt = vlg_stmt_t("~ ( ") + getOperand() + " )";
+            else if( arity == 2 ) 
+            {
+                vlg_name_t arg2 = getOperand();
+                vlg_name_t arg1 = getOperand();
 
-	        	if( op == BoolOp::AND )
-	        		result_stmt = vlg_stmt_t(" ( ") + arg1 + " ) & ( " +  arg2 + " ) ";
-	        	else if( op == BoolOp::OR )
-	        		result_stmt = vlg_stmt_t(" ( ") + arg1 + " ) | ( " +  arg2 + " ) ";
-	        	else if( op == BoolOp::XOR )
-	        		result_stmt = vlg_stmt_t(" ( ") + arg1 + " ) ^ ( " +  arg2 + " ) ";
-	        	else if( op == BoolOp::XNOR )
-	        		result_stmt = vlg_stmt_t(" ( ") + arg1 + " ) ^~ ( " +  arg2 + " ) ";
-	        	else if( op == BoolOp::NAND )
-	        		result_stmt = vlg_stmt_t(" ~( ( ") + arg1 + " ) & ( " +  arg2 + " ) ) ";
-	        	else if( op == BoolOp::NOR )
-	        		result_stmt = vlg_stmt_t(" ~( ( ") + arg1 + " ) | ( " +  arg2 + " ) ) ";
-	        	else if( op == BoolOp::IMPLY )
-	        		result_stmt = vlg_stmt_t(" ( ~( ") + arg1 + " ) | ( " +  arg2 + " ) ) ";
-	        		//ILA_ASSERT(false,"operator imply can not be translated to Verilog.")
-	        	else if(  op == BoolOp::ULT )
-	        		result_stmt = vlg_stmt_t(" ( ") + arg1 + " ) < ( " +  arg2 + " ) ";
-	        	else if(  op == BoolOp::UGT )
-	        		result_stmt = vlg_stmt_t(" ( ") + arg1 + " ) > ( " +  arg2 + " ) ";
-	        	else if(  op == BoolOp::ULE )
-	        		result_stmt = vlg_stmt_t(" ( ") + arg1 + " ) <= ( " +  arg2 + " ) ";
-	        	else if(  op == BoolOp::UGE )
-	        		result_stmt = vlg_stmt_t(" ( ") + arg1 + " ) >= ( " +  arg2 + " ) ";
-	        	else if( op == BoolOp::SLT)
-	        		result_stmt = vlg_stmt_t(" $signed( ") + arg1 + " ) < $signed( " +  arg2 + " ) ";
-	        	else if( op == BoolOp::SGT  )
-	        		result_stmt = vlg_stmt_t(" $signed( ") + arg1 + " ) > $signed( " +  arg2 + " ) ";
-	        	else if( op == BoolOp::SLE )
-	        		result_stmt = vlg_stmt_t(" $signed( ") + arg1 + " ) <= $signed( " +  arg2 + " ) ";
-	        	else if( op == BoolOp::SGE )
-	        		result_stmt = vlg_stmt_t(" $signed( ") + arg1 + " ) >= $signed( " +  arg2 + " ) ";
-	        	else if( op == BoolOp::EQUAL )
-	        		result_stmt = vlg_stmt_t(" ( ") + arg1 + " ) == ( " +  arg2 + " ) ";
-	        	else if( op == BoolOp::DISTINCT )
-	        		result_stmt = vlg_stmt_t(" ( ") + arg1 + " ) != ( " +  arg2 + " ) ";
-	        	else
-        			ILA_ASSERT(false,"operator not supported.");
-	        }
-        	else if( op == BoolOp::IF ) {
-        		vlg_name_t arg3 = getOperand();
-        		vlg_name_t arg2 = getOperand();
-        		vlg_name_t arg1 = getOperand();
-        		result_stmt = vlg_stmt_t(" ( ") + arg1 + " ) ? ( " +  arg2 + " ) : ( " + arg3 + " )";
-        	}
-        	else
-        		ILA_ASSERT(false,"operator not supported.");
+                if( op == BoolOp::AND )
+                    result_stmt = vlg_stmt_t(" ( ") + arg1 + " ) & ( " +  arg2 + " ) ";
+                else if( op == BoolOp::OR )
+                    result_stmt = vlg_stmt_t(" ( ") + arg1 + " ) | ( " +  arg2 + " ) ";
+                else if( op == BoolOp::XOR )
+                    result_stmt = vlg_stmt_t(" ( ") + arg1 + " ) ^ ( " +  arg2 + " ) ";
+                else if( op == BoolOp::XNOR )
+                    result_stmt = vlg_stmt_t(" ( ") + arg1 + " ) ^~ ( " +  arg2 + " ) ";
+                else if( op == BoolOp::NAND )
+                    result_stmt = vlg_stmt_t(" ~( ( ") + arg1 + " ) & ( " +  arg2 + " ) ) ";
+                else if( op == BoolOp::NOR )
+                    result_stmt = vlg_stmt_t(" ~( ( ") + arg1 + " ) | ( " +  arg2 + " ) ) ";
+                else if( op == BoolOp::IMPLY )
+                    result_stmt = vlg_stmt_t(" ( ~( ") + arg1 + " ) | ( " +  arg2 + " ) ) ";
+                    //ILA_ASSERT(false,"operator imply can not be translated to Verilog.")
+                else if(  op == BoolOp::ULT )
+                    result_stmt = vlg_stmt_t(" ( ") + arg1 + " ) < ( " +  arg2 + " ) ";
+                else if(  op == BoolOp::UGT )
+                    result_stmt = vlg_stmt_t(" ( ") + arg1 + " ) > ( " +  arg2 + " ) ";
+                else if(  op == BoolOp::ULE )
+                    result_stmt = vlg_stmt_t(" ( ") + arg1 + " ) <= ( " +  arg2 + " ) ";
+                else if(  op == BoolOp::UGE )
+                    result_stmt = vlg_stmt_t(" ( ") + arg1 + " ) >= ( " +  arg2 + " ) ";
+                else if( op == BoolOp::SLT)
+                    result_stmt = vlg_stmt_t(" $signed( ") + arg1 + " ) < $signed( " +  arg2 + " ) ";
+                else if( op == BoolOp::SGT  )
+                    result_stmt = vlg_stmt_t(" $signed( ") + arg1 + " ) > $signed( " +  arg2 + " ) ";
+                else if( op == BoolOp::SLE )
+                    result_stmt = vlg_stmt_t(" $signed( ") + arg1 + " ) <= $signed( " +  arg2 + " ) ";
+                else if( op == BoolOp::SGE )
+                    result_stmt = vlg_stmt_t(" $signed( ") + arg1 + " ) >= $signed( " +  arg2 + " ) ";
+                else if( op == BoolOp::EQUAL )
+                    result_stmt = vlg_stmt_t(" ( ") + arg1 + " ) == ( " +  arg2 + " ) ";
+                else if( op == BoolOp::DISTINCT )
+                    result_stmt = vlg_stmt_t(" ( ") + arg1 + " ) != ( " +  arg2 + " ) ";
+                else
+                    ILA_ASSERT(false,"operator not supported.");
+            }
+            else if( op == BoolOp::IF ) {
+                vlg_name_t arg3 = getOperand();
+                vlg_name_t arg2 = getOperand();
+                vlg_name_t arg1 = getOperand();
+                result_stmt = vlg_stmt_t(" ( ") + arg1 + " ) ? ( " +  arg2 + " ) : ( " + arg3 + " )";
+            }
+            else
+                ILA_ASSERT(false,"operator not supported.");
 
-        	vlg_name_t tmp_result 	= NewId();
-        	vlg_stmt_t tmp_stmt		= vlg_stmt_t("assign ") + tmp_result + " = " + result_stmt +" ;";
+            vlg_name_t tmp_result     = NewId();
+            vlg_stmt_t tmp_stmt        = vlg_stmt_t("assign ") + tmp_result + " = " + result_stmt +" ;";
 
-        	add_wire(tmp_result,1);
-        	add_stmt( tmp_stmt );
-        	iterStack.push_back(tmp_result);
+            add_wire(tmp_result,1);
+            add_stmt( tmp_stmt );
+            iterStack.push_back(tmp_result);
 
 
-        	// pop ? from stacks
+            // pop ? from stacks
         } else if((bchoiceop = dynamic_cast<const BoolChoice*>(n))) {
-        	// this should not happen ?
-        	ILA_ASSERT(false, "Not synthesized yet because bool choice type encountered.");
+            // this should not happen ?
+            ILA_ASSERT(false, "Not synthesized yet because bool choice type encountered.");
 
         //// bitvectors ////
         } else if((bvvar = dynamic_cast<const BitvectorVar*>(n))) {
-        	iterStack.push_back(bvvar->getName());        	
+            iterStack.push_back(bvvar->getName());            
 
         } else if((bvconst = dynamic_cast<const BitvectorConst*>(n))) {
-        	int width = bvconst->type.bitWidth;
+            int width = bvconst->type.bitWidth;
 
-        	vlg_stmt_t constStmt = toStr(width) + "'d" + bvconst->vstr();
-        	iterStack.push_back(constStmt);
+            vlg_stmt_t constStmt = toStr(width) + "'d" + bvconst->vstr();
+            iterStack.push_back(constStmt);
 
         } else if ((bvop = dynamic_cast<const BitvectorOp*>(n))) {
 
-        	ILA_ASSERT(EnoughArgsOnStack(n),"Not enough operands.");
+            ILA_ASSERT(EnoughArgsOnStack(n),"Not enough operands.");
 
-        	int width = bvop->type.bitWidth;
+            int width = bvop->type.bitWidth;
 
 
-	        int arity = bvop->nArgs();
-	        const BitvectorOp::Op op = bvop->getOp();
+            int arity = bvop->nArgs();
+            const BitvectorOp::Op op = bvop->getOp();
 
-        	ILA_ASSERT(op != BitvectorOp::INVALID, "Cannot translate invalid operator to Verilog.");
+            ILA_ASSERT(op != BitvectorOp::INVALID, "Cannot translate invalid operator to Verilog.");
 
-        	vlg_stmt_t result_stmt;
+            vlg_stmt_t result_stmt;
 
-        	if(op == BitvectorOp::NEGATE) // negate : 2's complement
-        		result_stmt = vlg_stmt_t("( ~ ( ") + getOperand() + " ) + 1'b1 )";
-        	else if(op == BitvectorOp::COMPLEMENT)	// 1's complement
-        		result_stmt = vlg_stmt_t("~ ( ") + getOperand() + " )";
-        	else if(op == BitvectorOp::LROTATE) {
-        		int rotN = bvop->param(0);
-        		// since the widths of two are the same, I didn't bother to call arg->width
-        		rotN = rotN % width;
-        		if (rotN == 0)
-        			result_stmt = getOperand();
-        		else
-        		{
-        			auto operand = getOperand();
-        			result_stmt = vlg_stmt_t("  { ") + operand + " [" + toStr(width - rotN) +":0] ," 
-        							+  operand  + "[" + toStr(width)+":" +  toStr(width-rotN +1)+"] }";
-        		}
-        	}
-        	else if(op == BitvectorOp::RROTATE) {
-        		int rotN = bvop->param(0);
-        		// since the widths of two are the same, I didn't bother to call arg->width
-        		rotN = rotN % width;
-        		if (rotN == 0)
-        			result_stmt = getOperand();
-        		else
-        		{
-        			auto operand = getOperand();
-        			result_stmt = vlg_stmt_t(" { ") + operand  + "[" + toStr(rotN-1)+":0] ," 
-        							+  operand  + "[" + toStr(width)+":" +  toStr(rotN)+"] }";
-        		}
-        	}
-        	else if(op == BitvectorOp::Z_EXT )
-        	{
+            if(op == BitvectorOp::NEGATE) // negate : 2's complement
+                result_stmt = vlg_stmt_t("( ~ ( ") + getOperand() + " ) + 1'b1 )";
+            else if(op == BitvectorOp::COMPLEMENT)    // 1's complement
+                result_stmt = vlg_stmt_t("~ ( ") + getOperand() + " )";
+            else if(op == BitvectorOp::LROTATE) {
+                int rotN = bvop->param(0);
+                // since the widths of two are the same, I didn't bother to call arg->width
+                rotN = rotN % width;
+                if (rotN == 0)
+                    result_stmt = getOperand();
+                else
+                {
+                    auto operand = getOperand();
+                    result_stmt = vlg_stmt_t("  { ") + operand + " [" + toStr(width - rotN) +":0] ," 
+                                    +  operand  + "[" + toStr(width)+":" +  toStr(width-rotN +1)+"] }";
+                }
+            }
+            else if(op == BitvectorOp::RROTATE) {
+                int rotN = bvop->param(0);
+                // since the widths of two are the same, I didn't bother to call arg->width
+                rotN = rotN % width;
+                if (rotN == 0)
+                    result_stmt = getOperand();
+                else
+                {
+                    auto operand = getOperand();
+                    result_stmt = vlg_stmt_t(" { ") + operand  + "[" + toStr(rotN-1)+":0] ," 
+                                    +  operand  + "[" + toStr(width)+":" +  toStr(rotN)+"] }";
+                }
+            }
+            else if(op == BitvectorOp::Z_EXT )
+            {
                 unsigned outWidth = static_cast<unsigned> (bvop->param(0));
                 unsigned bvWidth = static_cast<unsigned> (bvop->arg(0)->type.bitWidth);
 
                 ILA_ASSERT(outWidth >= bvWidth,"cannot use extend to shrink the width");
 
                 if (outWidth == bvWidth)
-                	result_stmt = getOperand();
+                    result_stmt = getOperand();
                 else 
-                	result_stmt = vlg_stmt_t(" {") + toStr(outWidth - bvWidth) +"'d0 , " + getOperand() + "} ";
+                    result_stmt = vlg_stmt_t(" {") + toStr(outWidth - bvWidth) +"'d0 , " + getOperand() + "} ";
 
-        	} 	
-        	else if( op == BitvectorOp::S_EXT )
-        	{
+            }     
+            else if( op == BitvectorOp::S_EXT )
+            {
                 unsigned outWidth = static_cast<unsigned> (bvop->param(0));
                 unsigned bvWidth = static_cast<unsigned> (bvop->arg(0)->type.bitWidth);
 
@@ -321,136 +333,136 @@ namespace ila
                 auto operand = getOperand();
 
                 if (outWidth == bvWidth)
-                	result_stmt = getOperand();
+                    result_stmt = getOperand();
                 else {
-                	result_stmt = vlg_stmt_t(" { {") + toStr(outWidth - bvWidth) +"{"+ operand +"["+ toStr(bvWidth)  + "] }  }, " + operand + "} ";
+                    result_stmt = vlg_stmt_t(" { {") + toStr(outWidth - bvWidth) +"{"+ operand +"["+ toStr(bvWidth)  + "] }  }, " + operand + "} ";
                 }
-        	
-        	}
-        	else if  (op == BitvectorOp::EXTRACT) {
+            
+            }
+            else if  (op == BitvectorOp::EXTRACT) {
                 unsigned hi = static_cast<unsigned> (bvop->param(0));
                 unsigned lo = static_cast<unsigned> (bvop->param(1));
 
-        		result_stmt =  getOperand() + "[" + toStr(hi) +":"+toStr(lo) +"]";
-        	}
+                result_stmt =  getOperand() + "[" + toStr(hi) +":"+toStr(lo) +"]";
+            }
 
-        	else if (arity == 2)
-        	{
-        		vlg_name_t arg2 = getOperand();
-        		vlg_name_t arg1 = getOperand();
+            else if (arity == 2)
+            {
+                vlg_name_t arg2 = getOperand();
+                vlg_name_t arg1 = getOperand();
 
-        		if (op == BitvectorOp::ADD) {
-        			result_stmt = vlg_stmt_t(" ( ") + arg1 + " ) + ( " +  arg2 + " ) ";
-        		} else if (op == BitvectorOp::SUB ) {
-        			result_stmt = vlg_stmt_t(" ( ") + arg1 + " ) - ( " +  arg2 + " ) ";
-        		} else if (op == BitvectorOp::AND) { 
-        			result_stmt = vlg_stmt_t(" ( ") + arg1 + " ) & ( " +  arg2 + " ) ";
-        		} else if (op == BitvectorOp::OR) { 
-        			result_stmt = vlg_stmt_t(" ( ") + arg1 + " ) | ( " +  arg2 + " ) ";
-        		} else if (op == BitvectorOp::XOR) { 
-        			result_stmt = vlg_stmt_t(" ( ") + arg1 + " ) ^ ( " +  arg2 + " ) ";
-        		} else if (op == BitvectorOp::XNOR) { 
-        			result_stmt = vlg_stmt_t(" ( ") + arg1 + " ) ^~ ( " +  arg2 + " ) ";
-        		} else if (op == BitvectorOp::NAND) { 
-        			result_stmt = vlg_stmt_t(" ~(( ") + arg1 + " ) & ( " +  arg2 + " )) ";
-        		} else if (op == BitvectorOp::NOR) { 
-        			result_stmt = vlg_stmt_t(" ~(( ") + arg1 + " ) | ( " +  arg2 + " )) ";
-        		} else if (op == BitvectorOp::SDIV) { 
-        			result_stmt = vlg_stmt_t(" ( $signed( ") + arg1 + " ) / $signed( " +  arg2 + " )) ";
-        		} else if (op == BitvectorOp::UDIV) { 
-        			result_stmt = vlg_stmt_t(" ( ( ") + arg1 + " ) / ( " +  arg2 + " )) ";
-        		} else if (op == BitvectorOp::SREM) {  // Verilog  default follows srem
-        			result_stmt = vlg_stmt_t(" ( $signed( ") + arg1 + " ) % $signed( " +  arg2 + " )) ";
-        		} else if (op == BitvectorOp::UREM) { 
-        			result_stmt = vlg_stmt_t(" ( ( ") + arg1 + " ) % ( " +  arg2 + " )) ";
-        		} else if (op == BitvectorOp::SMOD) { 
-        			// FIXME: this should be changed 
-        			// t = a % b
-        			// if a[hi]^b[hi] res = divisor signed (divisor - t) ; else t
-        			result_stmt = vlg_stmt_t(" ( ( ") + arg1 + " ) % ( " +  arg2 + " )) ";
-        		} else if (op == BitvectorOp::SHL) {  // only shift, use 0 on the right
-        			result_stmt = vlg_stmt_t(" ( ") + arg1 + " ) << ( " +  arg2 + " ) ";
-        		} else if (op == BitvectorOp::LSHR) { 
-        			result_stmt = vlg_stmt_t(" ( ( ") + arg1 + " ) >> ( " +  arg2 + " )) ";
-        		} else if (op == BitvectorOp::ASHR) { 
-        			result_stmt = vlg_stmt_t(" ( ( ") + arg1 + " ) >>> ( " +  arg2 + " )) ";
-        		} else if (op == BitvectorOp::MUL) { 
-        			result_stmt = vlg_stmt_t(" ( ( ") + arg1 + " ) * ( " +  arg2 + " )) ";
-        		} else if (op == BitvectorOp::CONCAT) { 
-        			result_stmt = vlg_stmt_t(" { ( ") + arg1 + " ) / ( " +  arg2 + " ) } ";
-        		} else if (op == BitvectorOp::GET_BIT) { 
-        			result_stmt = vlg_stmt_t(" (  ") + arg1 + " [ " +  arg2 + " ] ) ";
-        		} else if (op == BitvectorOp::READMEM) { 
-        			// FIXME: Now we have multiple read ports
-        			result_stmt = vlg_stmt_t(" (  ") + arg1 + " [ " +  arg2 + " ] ) ";
-        		} else if (op == BitvectorOp::READMEMBLOCK) { 
-        			//result_stmt = vlg_stmt_t(" ( ( ") + arg1 + " ) / ( " +  arg2 + " )) ";
-					ILA_ASSERT(bvop->nParams() == 2, "Two parameters expected.");
-                	int chunks = bvop->param(0);
-                	endianness_t e = (endianness_t) bvop->param(1);
-                	ILA_ASSERT(chunks >= 1, "One or more chunks expected.");
+                if (op == BitvectorOp::ADD) {
+                    result_stmt = vlg_stmt_t(" ( ") + arg1 + " ) + ( " +  arg2 + " ) ";
+                } else if (op == BitvectorOp::SUB ) {
+                    result_stmt = vlg_stmt_t(" ( ") + arg1 + " ) - ( " +  arg2 + " ) ";
+                } else if (op == BitvectorOp::AND) { 
+                    result_stmt = vlg_stmt_t(" ( ") + arg1 + " ) & ( " +  arg2 + " ) ";
+                } else if (op == BitvectorOp::OR) { 
+                    result_stmt = vlg_stmt_t(" ( ") + arg1 + " ) | ( " +  arg2 + " ) ";
+                } else if (op == BitvectorOp::XOR) { 
+                    result_stmt = vlg_stmt_t(" ( ") + arg1 + " ) ^ ( " +  arg2 + " ) ";
+                } else if (op == BitvectorOp::XNOR) { 
+                    result_stmt = vlg_stmt_t(" ( ") + arg1 + " ) ^~ ( " +  arg2 + " ) ";
+                } else if (op == BitvectorOp::NAND) { 
+                    result_stmt = vlg_stmt_t(" ~(( ") + arg1 + " ) & ( " +  arg2 + " )) ";
+                } else if (op == BitvectorOp::NOR) { 
+                    result_stmt = vlg_stmt_t(" ~(( ") + arg1 + " ) | ( " +  arg2 + " )) ";
+                } else if (op == BitvectorOp::SDIV) { 
+                    result_stmt = vlg_stmt_t(" ( $signed( ") + arg1 + " ) / $signed( " +  arg2 + " )) ";
+                } else if (op == BitvectorOp::UDIV) { 
+                    result_stmt = vlg_stmt_t(" ( ( ") + arg1 + " ) / ( " +  arg2 + " )) ";
+                } else if (op == BitvectorOp::SREM) {  // Verilog  default follows srem
+                    result_stmt = vlg_stmt_t(" ( $signed( ") + arg1 + " ) % $signed( " +  arg2 + " )) ";
+                } else if (op == BitvectorOp::UREM) { 
+                    result_stmt = vlg_stmt_t(" ( ( ") + arg1 + " ) % ( " +  arg2 + " )) ";
+                } else if (op == BitvectorOp::SMOD) { 
+                    // FIXME: this should be changed 
+                    // t = a % b
+                    // if a[hi]^b[hi] res = divisor signed (divisor - t) ; else t
+                    result_stmt = vlg_stmt_t(" ( ( ") + arg1 + " ) % ( " +  arg2 + " )) ";
+                } else if (op == BitvectorOp::SHL) {  // only shift, use 0 on the right
+                    result_stmt = vlg_stmt_t(" ( ") + arg1 + " ) << ( " +  arg2 + " ) ";
+                } else if (op == BitvectorOp::LSHR) { 
+                    result_stmt = vlg_stmt_t(" ( ( ") + arg1 + " ) >> ( " +  arg2 + " )) ";
+                } else if (op == BitvectorOp::ASHR) { 
+                    result_stmt = vlg_stmt_t(" ( ( ") + arg1 + " ) >>> ( " +  arg2 + " )) ";
+                } else if (op == BitvectorOp::MUL) { 
+                    result_stmt = vlg_stmt_t(" ( ( ") + arg1 + " ) * ( " +  arg2 + " )) ";
+                } else if (op == BitvectorOp::CONCAT) { 
+                    result_stmt = vlg_stmt_t(" { ( ") + arg1 + " ) / ( " +  arg2 + " ) } ";
+                } else if (op == BitvectorOp::GET_BIT) { 
+                    result_stmt = vlg_stmt_t(" (  ") + arg1 + " [ " +  arg2 + " ] ) ";
+                } else if (op == BitvectorOp::READMEM) { 
+                    // FIXME: Now we have multiple read ports
+                    result_stmt = vlg_stmt_t(" (  ") + arg1 + " [ " +  arg2 + " ] ) ";
+                } else if (op == BitvectorOp::READMEMBLOCK) { 
+                    //result_stmt = vlg_stmt_t(" ( ( ") + arg1 + " ) / ( " +  arg2 + " )) ";
+                    ILA_ASSERT(bvop->nParams() == 2, "Two parameters expected.");
+                    int chunks = bvop->param(0);
+                    endianness_t e = (endianness_t) bvop->param(1);
+                    ILA_ASSERT(chunks >= 1, "One or more chunks expected.");
 
-        			// read from arg1 , start addr = arg1 , repeat chunks' time 
-        			for (int i=0; i < chunks; i++) {
-	                    vlg_stmt_t data_i = vlg_stmt_t(" (  ") + arg1 + " [ " +  arg2 +"+"+ toStr(i) + " ] ) "; 
-	                    if (i == 0) {
-	                        result_stmt = data_i;
-	                    } else {
-	                        if (e == LITTLE_E) {
-	                            result_stmt =  vlg_stmt_t("{") + data_i +","+ result_stmt + "}" ;
-	                        } else {
-	                            result_stmt = vlg_stmt_t("{") + result_stmt +","+ data_i + "}" ;
-	                        }
-	                    }
-                	}
-        		} else 	
-        			ILA_ASSERT(false,"Operator not supported.");
-        	} else if (op == BitvectorOp::IF) {
-        		vlg_name_t arg3 = getOperand();
-        		vlg_name_t arg2 = getOperand();
-        		vlg_name_t arg1 = getOperand();
+                    // read from arg1 , start addr = arg1 , repeat chunks' time 
+                    for (int i=0; i < chunks; i++) {
+                        vlg_stmt_t data_i = vlg_stmt_t(" (  ") + arg1 + " [ " +  arg2 +"+"+ toStr(i) + " ] ) "; 
+                        if (i == 0) {
+                            result_stmt = data_i;
+                        } else {
+                            if (e == LITTLE_E) {
+                                result_stmt =  vlg_stmt_t("{") + data_i +","+ result_stmt + "}" ;
+                            } else {
+                                result_stmt = vlg_stmt_t("{") + result_stmt +","+ data_i + "}" ;
+                            }
+                        }
+                    }
+                } else     
+                    ILA_ASSERT(false,"Operator not supported.");
+            } else if (op == BitvectorOp::IF) {
+                vlg_name_t arg3 = getOperand();
+                vlg_name_t arg2 = getOperand();
+                vlg_name_t arg1 = getOperand();
 
-        		result_stmt = vlg_stmt_t(" ( ") + arg1 + " ) ? ( " +  arg2 + " ) : ( " + arg3 + " )";
-        	} else if ( op == BitvectorOp::APPLY_FUNC) {
-        		const Node * funcPtr = bvop->arg(0).get();
-        		const FuncVar * funcvar = NULL;
-        		ILA_ASSERT( (funcvar = dynamic_cast<const  FuncVar *>(funcPtr)), "Cannot apply a non-funcVar." );
+                result_stmt = vlg_stmt_t(" ( ") + arg1 + " ) ? ( " +  arg2 + " ) : ( " + arg3 + " )";
+            } else if ( op == BitvectorOp::APPLY_FUNC) {
+                const Node * funcPtr = bvop->arg(0).get();
+                const FuncVar * funcvar = NULL;
+                ILA_ASSERT( (funcvar = dynamic_cast<const  FuncVar *>(funcPtr)), "Cannot apply a non-funcVar." );
 
-        		result_stmt = funcvar->getName() + "(";
+                result_stmt = funcvar->getName() + "(";
 
-        		unsigned nargs = funcvar->type.argsWidth.size();
-        		ILA_ASSERT ( nargs <= iterStack.size() ,"not enough operands to apply func"  );
+                unsigned nargs = funcvar->type.argsWidth.size();
+                ILA_ASSERT ( nargs <= iterStack.size() ,"not enough operands to apply func"  );
 
-        		// first we put the 1st variable
-        		vlg_stmt_t arg_stmt = getOperand();
+                // first we put the 1st variable
+                vlg_stmt_t arg_stmt = getOperand();
 
-            	for (int i = 2; i != arity; i++) {
-            		arg_stmt = getOperand() + " , " + arg_stmt;
+                for (int i = 2; i != arity; i++) {
+                    arg_stmt = getOperand() + " , " + arg_stmt;
                 }
                 result_stmt = result_stmt + arg_stmt + ")";
-        	} else
-        		ILA_ASSERT(false,"Operator not supported.");
+            } else
+                ILA_ASSERT(false,"Operator not supported.");
 
 
-        	vlg_name_t tmp_result 	= NewId();
-        	vlg_stmt_t tmp_stmt		= vlg_stmt_t("assign ") + tmp_result + " = " + result_stmt +" ;";
+            vlg_name_t tmp_result     = NewId();
+            vlg_stmt_t tmp_stmt        = vlg_stmt_t("assign ") + tmp_result + " = " + result_stmt +" ;";
 
-        	add_wire(tmp_result,width);
-        	add_stmt( tmp_stmt );
-        	iterStack.push_back(tmp_result);
+            add_wire(tmp_result,width);
+            add_stmt( tmp_stmt );
+            iterStack.push_back(tmp_result);
 
-        	
+            
 
         } else if ((bvchoiceop = dynamic_cast<const BitvectorChoice*>(n))) {
 
-        	ILA_ASSERT(false, "Not synthesized yet because bitvector choice type encountered.");
+            ILA_ASSERT(false, "Not synthesized yet because bitvector choice type encountered.");
 
         } else if ((inrangeop = dynamic_cast<const BVInRange*>(n))) {
 
             ILA_ASSERT(false, "Not synthesized yet because bitvector in range type encountered.");
         //// memories ////
         } else if ((memvar = dynamic_cast<const MemVar*>(n))) {
-        	// return the name , not enough but also need to push mem op to mem stack
+            // return the name , not enough but also need to push mem op to mem stack
             iterStack.push_back(memvar->getName());  
             memopStack.push_back(memStackItem());
 
@@ -461,7 +473,7 @@ namespace ila
 
         } else if ((memop = dynamic_cast<const MemOp*>(n))) {
 
-        	ILA_ASSERT(EnoughArgsOnStack(n),"Not enough operands.");
+            ILA_ASSERT(EnoughArgsOnStack(n),"Not enough operands.");
             
             const MemOp::Op op = memop->getOp();
 
@@ -551,69 +563,69 @@ namespace ila
         } else if ((funcvar = dynamic_cast<const FuncVar*>(n))) {
 
 
-        	// ILA_ASSERT(EnoughArgsOnStack(n),"Not enough operands.");
+            // ILA_ASSERT(EnoughArgsOnStack(n),"Not enough operands.");
             // return name
             iterStack.push_back(funcvar->getName());     
         }
         else
-        	ILA_ASSERT(false, "Node type not supported for Verilog node visitor.");
+            ILA_ASSERT(false, "Node type not supported for Verilog node visitor.");
 
-	}
+    }
 
-	vlg_name_t VerilogExport::NewId()
-	{
-		return "n" + toStr(idCounter++);
-	}
+    vlg_name_t VerilogExport::NewId()
+    {
+        return "n" + toStr(idCounter++);
+    }
 
-	bool VerilogExport::EnoughArgsOnStack(const Node *n)
-	{
+    bool VerilogExport::EnoughArgsOnStack(const Node *n)
+    {
         const BoolOp* boolop = NULL;
         const BitvectorOp* bvop = NULL;
         const MemOp*  memop = NULL;
         const FuncVar* funcvar = NULL;
-		
-		if ((boolop = dynamic_cast<const BoolOp*>(n))) {
+        
+        if ((boolop = dynamic_cast<const BoolOp*>(n))) {
 
-			if( boolop->nArgs() > iterStack.size() )
-				return false;
-			return true;
-		} else if ((bvop = dynamic_cast<const BitvectorOp*>(n))) {
+            if( boolop->nArgs() > iterStack.size() )
+                return false;
+            return true;
+        } else if ((bvop = dynamic_cast<const BitvectorOp*>(n))) {
 
-			if( bvop->nArgs() > iterStack.size() )
-				return false;
-			return true;
+            if( bvop->nArgs() > iterStack.size() )
+                return false;
+            return true;
 
         } else if ((memop = dynamic_cast<const MemOp*>(n))) {
 
-			if( memop->nArgs() > iterStack.size() )
-				return false;
+            if( memop->nArgs() > iterStack.size() )
+                return false;
             if( memop->nArgs() > memopStack.size() )
                 return false;
-			return true;
+            return true;
 
         } else if ((funcvar = dynamic_cast<const FuncVar*>(n))) {
-        	// we shouldn't check it here, but at apply func
-        	//nargs = funcvar->type.argsWidth.size();
-        	//if (nargs > iterStack.size() )
-        	//	return false;
-        	return true;
+            // we shouldn't check it here, but at apply func
+            //nargs = funcvar->type.argsWidth.size();
+            //if (nargs > iterStack.size() )
+            //    return false;
+            return true;
         }
         else
-        	ILA_ASSERT(false, "Node type not supported for stack n-ary check.");
+            ILA_ASSERT(false, "Node type not supported for stack n-ary check.");
 
         return true;
 
-	}
+    }
 
-	vlg_stmt_t VerilogExport::getOperand()
-	{
-		vlg_stmt_t tmp = iterStack.back();
-		iterStack.pop_back();
-		return tmp;
-	}
+    vlg_stmt_t VerilogExport::getOperand()
+    {
+        vlg_stmt_t tmp = iterStack.back();
+        iterStack.pop_back();
+        return tmp;
+    }
 
     VerilogExport::VerilogExport (const std::string &modName,const std::string &clk,const std::string &rst)
-        : moduleName(modName), clkName(clk), rstName(rst)
+        : moduleName(modName), clkName(clk), rstName(rst),idCounter(0)
     {
 
     }
@@ -660,8 +672,8 @@ namespace ila
         for(auto const &stmt : always_stmts) 
             fout << "       "<<stmt<<";\n";
 
-        fout << "   end";
-        fout << "end";
+        fout << "   end\n";
+        fout << "end\n";
 
         fout << "endmodule\n";
     }
@@ -669,7 +681,7 @@ namespace ila
     std::string VerilogExport::WidthToRange(int w)
     {
         if(w>1)
-            return std::string("[") + toStr(w) + ":0]";
+            return std::string("[") + toStr(w-1) + ":0]";
         return "";
     }
 
