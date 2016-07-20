@@ -11,6 +11,7 @@
 #include <ast.hpp>
 #include <smt.hpp>
 #include <imexport.hpp>
+#include <VerilogExport.hpp>
 #include <cppsimgen.hpp>
 
 namespace ila
@@ -208,6 +209,9 @@ namespace ila
         // the export function that export the overall model.
         void exportAllToFile(const std::string& fileName) const;
 
+		// generate verilog file that is equivelant to the ILA
+		void generateVerilogToFile(const std::string &fileName) const;
+		
         // the import function that import only one expression.
         NodeRef* importOneFromFile(const std::string& fileName);
         // the import function that import the overall model.
@@ -508,6 +512,11 @@ namespace ila
         {
             abs->exportAllToFile(fileName);
         }
+
+		void generateVerilogToFile( const std::string & fileName) const
+		{
+			abs->generateVerilogToFile(fileName);
+		}
 
         // the import function that import only one expression.
         NodeRef* importOneFromFile(const std::string& fileName)
