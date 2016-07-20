@@ -1129,14 +1129,14 @@ namespace ila
 
         // cegis loop.
         while (((r = S.check(1, &y)) == sat) && (i++ < MAX_SYN_ITER)) {
-            // std::cout << "iteration #" << i++ << std::endl;
+            log2("Abstraction._synthesize") << "iteration #" << i++ << std::endl;
 
             // extract model.
             model m = S.get_model();
             DistInput di(*this, c1, m, sv);
             di.toPython(args);
 
-            // std::cout << "model: " << m << std::endl;
+            log2("Abstraction._synthesize") << "model: " << m << std::endl;
 
             // run the python code.
             py::dict d = call<py::dict>(pyfun, args);
@@ -1164,7 +1164,7 @@ namespace ila
             S.add(es2, n2.c_str());
         }
 
-        // std::cout << "finished after " << i << " SMT calls." << std::endl;
+        log2("Abstraction._synthesize") << "finished after " << i << " SMT calls." << std::endl;
 
         expr ny = !y;
         r = S.check(1, &ny);
