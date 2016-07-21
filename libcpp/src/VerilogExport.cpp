@@ -101,6 +101,122 @@ namespace ila
         }
     }
 
+
+    void VerilogExport::exportMem(const std::string &name, const npair_t &np)
+    {
+        // FIXME: not implemented
+        const MemVar * memvar = NULL;
+        ILA_ASSERT( (memvar = dynamic_cast<const MemVar*>(np.var.get())) , "memory variable type mismatched" );
+        int addr_width = memvar->type.addrWidth;
+        int data_width = memvar->type.dataWidth;
+
+        if(np.init.get())
+        {
+            start_iterate(np.init.get());
+            translate_memory_item(true,addr_width,data_width);
+        }
+
+        if(np.next.get())
+        {
+            start_iterate(np.next.get());
+            translate_memory_item(false,addr_width,data_width);
+        }
+
+    }
+
+    void VerilogExport::translate_memory_item(bool is_init_stmt, int addr_width,int data_width)
+    {
+        ILA_ASSERT(memopStack.size() == 1, "Cannot translate 0 or > 1 mem op");
+        ILA_ASSERT(iterStack.size() == 1,  "No memory var name is specified");
+
+        vlg_name_t mem_name = getOperand();
+        
+        memStackItem mem_value = memopStack.back();
+        memopStack.pop_back();
+
+        if ( is_init_stmt )
+        {
+            for (auto const & cond_addr_data_pair : mem_value.values )
+            {
+                // ignore the conditions
+                for (auto const & addr_data_pair : cond_addr_data_pair.second )
+                {
+                    add_init_stmt(mem_name + "[" + addr_data_pair.first + "] <= " + addr_data_pair.second  );
+                }
+            }
+        }
+        else
+        {
+            // sometimes we do need multiple ports
+            // so, let's count the port number
+            unsigned maxPort = 1;
+            for (auto const & cond_addr_data_pair : mem_value.values)
+                if ( cond_addr_data_pair.second.size() > maxPort )
+                    maxPort = cond_addr_data_pair.second.size();
+
+            //vector<vlg_name_t> addr_sigs;
+            //vector<vlg_name_t> data_sigs;
+            std::vector<vlg_stmt_t> addr_muxs;
+            std::vector<vlg_stmt_t> data_muxs;
+
+            std::vector<vlg_stmt_t> addr_muxs_rparenthesis;
+            std::vector<vlg_stmt_t> data_muxs_rparenthesis;
+
+            for (unsigned pNo = 0; pNo < maxPort ; pNo ++)
+            {
+                vlg_name_t addr_sig = mem_name + "_addr_" + toStr(pNo) ;
+                vlg_name_t data_sig = mem_name + "_data_" + toStr(pNo) ;
+
+                add_wire(addr_sig,addr_width);
+                add_wire(data_sig,data_width);
+
+                //addr_sigs.push_back(addr_sig);
+                //data_sigs.push_back(data_sig);
+
+                add_always_stmt(mem_name + "[" + addr_sig + "] <= " + data_sig );
+
+                vlg_stmt_t addr_mux = "assign " + addr_sig + " = ";
+                vlg_stmt_t data_mux = "assign " + data_sig + " = ";
+
+                addr_muxs.push_back(addr_mux);
+                data_muxs.push_back(data_mux);
+                addr_muxs_rparenthesis.push_back("");
+                data_muxs_rparenthesis.push_back("");
+            }
+            
+            for (auto const & cond_addr_data_pair : mem_value.values)
+            {
+                unsigned portN = 0;
+                const vlg_stmt_t & cond = cond_addr_data_pair.first;
+
+                for(auto const & addr_data_pair : cond_addr_data_pair.second)
+                {
+                    vlg_stmt_t &addr_mux = addr_muxs[portN];
+                    vlg_stmt_t &data_mux = data_muxs[portN];
+
+                    const vlg_stmt_t & addr = addr_data_pair.first;
+                    const vlg_stmt_t & data = addr_data_pair.second;
+
+                    addr_mux += vlg_stmt_t("( ") + cond + " ) ? (" + addr + " ) : (\n";
+                    data_mux += vlg_stmt_t("( ") + cond + " ) ? (" + data + " ) : (\n";
+
+                    addr_muxs_rparenthesis[portN] += ")";
+                    data_muxs_rparenthesis[portN] += ")";
+
+                    portN ++;
+                }
+            }
+            // once we finish iterate on that
+            //
+            for (unsigned portN = 0; portN < maxPort ; portN++ )
+            {
+                add_stmt( addr_muxs[portN] + "0" +  addr_muxs_rparenthesis[portN] );
+                add_stmt( data_muxs[portN] + mem_name + "[0]" + data_muxs_rparenthesis[portN] );
+            }
+        }
+
+    }
+
     // ---------------------------------------------------------------------------------------------
 
     void VerilogExport::add_input(const vlg_name_t & n,int w)
@@ -132,6 +248,10 @@ namespace ila
         init_stmts.push_back(s);
     }
 
+    void VerilogExport::add_mem(const vlg_name_t &n, int addr_width,int data_width)
+    {
+        mems.push_back(vlg_mem_t(n,addr_width,data_width));
+    }
 
     // ---------------------------------------------------------------------------------------------
 
@@ -599,8 +719,8 @@ namespace ila
 
             if( memop->nArgs() > iterStack.size() )
                 return false;
-            if( memop->nArgs() > memopStack.size() )
-                return false;
+            //if( memop->nArgs() > memopStack.size() )
+            //    return false;
             return true;
 
         } else if ((funcvar = dynamic_cast<const FuncVar*>(n))) {
@@ -654,6 +774,9 @@ namespace ila
 
         for(auto const &sig_pair : wires)
             fout << "wire " <<std::setw(10)<<WidthToRange(sig_pair.second)<<" "<<(sig_pair.first) << ";\n";
+
+        for(auto const &mem : mems)
+            fout << "reg "<<std::setw(10)<<WidthToRange( std::get<2>(mem) )<<" "<<( std::get<0>(mem) )<< WidthToRange(std::pow(2, std::get<1>(mem)))<<";\n";
 
         fout << "wire "<<clkName<<";\nwire "<<rstName<<";\n"<<"wire step;\n";
 

@@ -71,6 +71,7 @@ namespace ila
         void add_output(const vlg_name_t & n,int w);
         void add_wire(const vlg_name_t & n,int w);
         void add_reg(const vlg_name_t & n,int w);
+        void add_mem(const vlg_name_t &n, int addr_width,int data_width);
         void add_stmt(const vlg_stmt_t & s);
         void add_always_stmt(const vlg_stmt_t & s);
         void add_init_stmt(const vlg_stmt_t & s);
@@ -84,7 +85,8 @@ namespace ila
         bool EnoughArgsOnStack(const Node *n);
         void nodeVistorFunc(const Node *n);
 
-
+        void translate_memory_item(bool is_init_stmt, int addr_width,int data_width);
+        
         unsigned idCounter;
         vlg_name_t NewId();
 
@@ -96,10 +98,7 @@ namespace ila
 
         void finalExport(std::ostream & );
 
-        void exportMem(const std::string &name, const npair_t &np)
-        {
-            // FIXME: not implemented
-        }
+        void exportMem(const std::string &name, const npair_t &np);
         void exportFunc( const std::string &name, const npair_t &np)
         {
             // FIXME: not implemented
