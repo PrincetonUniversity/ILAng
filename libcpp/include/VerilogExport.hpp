@@ -99,10 +99,7 @@ namespace ila
         void finalExport(std::ostream & );
 
         void exportMem(const std::string &name, const npair_t &np);
-        void exportFunc( const std::string &name, const npair_t &np)
-        {
-            // FIXME: not implemented
-        }
+        void exportFunc( const std::string &name, const npair_t &np);
 
         void exportUabs( const Abstraction & uabs)
         {

@@ -110,6 +110,7 @@ namespace ila
         int addr_width = memvar->type.addrWidth;
         int data_width = memvar->type.dataWidth;
 
+        add_mem(name,addr_width,data_width);
         if(np.init.get())
         {
             start_iterate(np.init.get());
@@ -121,6 +122,28 @@ namespace ila
             start_iterate(np.next.get());
             translate_memory_item(false,addr_width,data_width);
         }
+
+    }
+
+    void VerilogExport::exportFunc( const std::string &name, const npair_t &np)
+    {
+        const FuncVar * funcvar = NULL;
+
+        ILA_ASSERT( (funcvar = dynamic_cast<const FuncVar *>(np.var.get()) ), "function variable type mismatched.");
+
+        vlg_stmt_t funcDecal = "function " + WidthToRange(funcvar->type.bitWidth) + " ";
+        funcDecal += name + " ;\n";
+
+        int argNo = 0;
+
+        for (const auto &argWidth : funcvar->type.argsWidth)
+            funcDecal += vlg_stmt_t("input ") + WidthToRange(argWidth) + " arg" + toStr(argNo++) + ";\n";
+        funcDecal += "    begin\n//TODO: Add the specific function HERE.";
+        funcDecal += "    end\n";
+
+        funcDecal += "endfunction\n";
+
+        add_stmt(funcDecal);
 
     }
 
@@ -175,8 +198,8 @@ namespace ila
 
                 add_always_stmt(mem_name + "[" + addr_sig + "] <= " + data_sig );
 
-                vlg_stmt_t addr_mux = "assign " + addr_sig + " = ";
-                vlg_stmt_t data_mux = "assign " + data_sig + " = ";
+                vlg_stmt_t addr_mux = "assign " + addr_sig + " = \n";
+                vlg_stmt_t data_mux = "assign " + data_sig + " = \n";
 
                 addr_muxs.push_back(addr_mux);
                 data_muxs.push_back(data_mux);
@@ -210,8 +233,8 @@ namespace ila
             //
             for (unsigned portN = 0; portN < maxPort ; portN++ )
             {
-                add_stmt( addr_muxs[portN] + "0" +  addr_muxs_rparenthesis[portN] );
-                add_stmt( data_muxs[portN] + mem_name + "[0]" + data_muxs_rparenthesis[portN] );
+                add_stmt( addr_muxs[portN] + "0" +  addr_muxs_rparenthesis[portN] + ";" );
+                add_stmt( data_muxs[portN] + mem_name + "[0]" + data_muxs_rparenthesis[portN]+ ";" );
             }
         }
 
@@ -509,7 +532,7 @@ namespace ila
                 } else if (op == BitvectorOp::MUL) { 
                     result_stmt = vlg_stmt_t(" ( ( ") + arg1 + " ) * ( " +  arg2 + " )) ";
                 } else if (op == BitvectorOp::CONCAT) { 
-                    result_stmt = vlg_stmt_t(" { ( ") + arg1 + " ) / ( " +  arg2 + " ) } ";
+                    result_stmt = vlg_stmt_t(" { ( ") + arg1 + " ) , ( " +  arg2 + " ) } ";
                 } else if (op == BitvectorOp::GET_BIT) { 
                     result_stmt = vlg_stmt_t(" (  ") + arg1 + " [ " +  arg2 + " ] ) ";
                 } else if (op == BitvectorOp::READMEM) { 
