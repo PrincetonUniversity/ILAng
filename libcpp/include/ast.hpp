@@ -225,6 +225,9 @@ namespace ila
 
         // simplify.
         static NodeRef* simplify(NodeRef& assump, NodeRef& exp);
+
+        // hashing.
+        size_t   hash() const;
     private:
         // ---------------------- HELPERS ----------------------------- //
         NodeRef* _unOp(BoolOp::Op boolOp, BitvectorOp::Op bvOp, const char* opName) const;

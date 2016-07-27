@@ -201,6 +201,8 @@ BOOST_PYTHON_MODULE(ila)
                 return_value_policy<manage_new_object>())
 
         .def(self_ns::str(self))
+
+        .def("__hash__", &NodeRef::hash)
     ;
 
     // functions which expose operators on nodes.

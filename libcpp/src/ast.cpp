@@ -6,6 +6,7 @@
 #include <exception.hpp>
 #include <abstraction.hpp>
 #include <simplify.hpp>
+#include <ast/hash.hpp>
 
 namespace ila
 {
@@ -831,6 +832,11 @@ namespace ila
         nptr_t simp_exp = ite_simp.simplify(exp.get());
 
         return new NodeRef(simp_exp);
+    }
+
+    size_t NodeRef::hash() const
+    {
+        return hash_value(*this->node.get());
     }
 
     // ---------------------------------------------------------------------- //

@@ -2,11 +2,14 @@
 #include <ast.hpp>
 #include <ast/hash.hpp>
 #include <boost/functional/hash.hpp>
+#include <logging.hpp>
 
 namespace ila
 {
-    std::size_t hash_value(const Node* n)
+    std::size_t hash_value(const Node& nref)
     {
+        const Node* n = &nref;
+
         const BoolVar* boolvar = NULL; 
         const BoolConst* boolconst = NULL;
         const BoolOp* boolop = NULL;
@@ -29,6 +32,9 @@ namespace ila
         std::size_t seed = 0;
         boost::hash_combine(seed, n->type);
 
+        log2("Hash") << "Node: " << *n << std::endl;
+        log2("Hash") << "Initial seed: " << seed << std::endl;
+
         //// booleans ////
         if ((boolvar = dynamic_cast<const BoolVar*>(n))) {
             // rememeber type is accounted for.
@@ -49,7 +55,6 @@ namespace ila
             // have to use string rep unfortunately //
             boost::hash_combine(seed, bvconst->vstr());
         } else if ((bvop = dynamic_cast<const BitvectorOp*>(n))) {
-            boost::hash_combine(seed, bvop->arity);
             boost::hash_combine(seed, bvop->op);
             for (unsigned i=0; i != bvop->nParams(); i++) {
                 boost::hash_combine(seed, bvop->param(i));
@@ -78,14 +83,15 @@ namespace ila
         }
 
         // hash any arguments.
-        for (unsigned i=0; i != boolop->nArgs(); i++) {
-            const Node* arg_i = boolop->arg(i).get();
+        for (unsigned i=0; i != n->nArgs(); i++) {
+            const Node& arg_i = *(n->arg(i).get());
             boost::hash_combine(seed, arg_i);
         }
+        log2("Hash") << "Final seed: " << seed << std::endl;
         return seed;
     }
 
-    std::size_t hash_value(const NodeType & ntype)
+    std::size_t hash_value(const NodeType& ntype)
     {
         std::size_t seed = 0;
         boost::hash_combine(seed, static_cast<int>(ntype.type));

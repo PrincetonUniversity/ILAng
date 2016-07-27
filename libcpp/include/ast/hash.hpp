@@ -25,7 +25,7 @@
 
 namespace ila
 {
-    std::size_t hash_value(const Node* n);
+    std::size_t hash_value(const Node& n);
     std::size_t hash_value(const NodeType & ntype);
 
     template<typename T>

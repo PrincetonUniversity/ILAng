@@ -114,6 +114,8 @@ testing.make-test run-pyd : ila test/eqchecker.py : : test_eqchecker ;
 
 testing.make-test run-pyd : ila test/export_verilog.py : : test_export_verilog ;
 
+testing.make-test run-pyd : ila test/hash.py : : test_hash ;
+
 # A little "rule" (function) to clean up the syntax of declaring tests
 # of these extension modules.
 # local rule run-test ( test-name : sources + )
