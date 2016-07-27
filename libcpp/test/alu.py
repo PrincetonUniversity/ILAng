@@ -155,6 +155,10 @@ def model(num_regs, reg_size, paramsyn):
 
     expFile  = "test_ila_export.txt"
     sys.exportAll(expFile);
+    verilogFile = "tmp/alu.v"
+    ila.setloglevel(3, "")
+    ila.enablelog("VerilogExport")
+    sys.generateVerilog(verilogFile)
 
     # now import into a new abstraction and check.
     sysp = ila.Abstraction("alu")
