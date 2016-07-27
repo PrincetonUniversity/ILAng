@@ -57,6 +57,7 @@ def model(paramsyn):
             print rn2
             assert False
         print rn1
+    sys.generateVerilog("syn.v")
 
 def main():
     ila.setloglevel(2, "")

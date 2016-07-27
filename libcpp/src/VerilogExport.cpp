@@ -113,14 +113,18 @@ namespace ila
         add_mem(name,addr_width,data_width);
         if(np.init.get())
         {
+            //std::cout<<"iterate on init"<<std::endl;
             start_iterate(np.init.get());
             translate_memory_item(true,addr_width,data_width);
+            //std::cout<<"iterate on init finish"<<std::endl;
         }
 
         if(np.next.get())
         {
+            //std::cout<<"iterate on next"<<std::endl;
             start_iterate(np.next.get());
             translate_memory_item(false,addr_width,data_width);
+            //std::cout<<"iterate on next finish"<<std::endl;
         }
 
     }
@@ -287,7 +291,7 @@ namespace ila
         n->depthFirstVisit( visitorFun );
 
         ILA_ASSERT(iterStack.size() == 1, "Iteration for verilog generation failed. Not one result is generated.");
-        ILA_ASSERT(memopStack.size() <= 1, "Iteration for verilog generation failed. More than one result is generated.");
+        ILA_ASSERT(memopStack.size() <= 1, "Iteration for verilog generation failed. More than one memory result is generated.");
     }
 
     void VerilogExport::nodeVistorFunc(const Node *n)
@@ -538,6 +542,7 @@ namespace ila
                 } else if (op == BitvectorOp::READMEM) { 
                     // FIXME: Now we have multiple read ports
                     result_stmt = vlg_stmt_t(" (  ") + arg1 + " [ " +  arg2 + " ] ) ";
+                    memopStack.pop_back();
                 } else if (op == BitvectorOp::READMEMBLOCK) { 
                     //result_stmt = vlg_stmt_t(" ( ( ") + arg1 + " ) / ( " +  arg2 + " )) ";
                     ILA_ASSERT(bvop->nParams() == 2, "Two parameters expected.");
@@ -608,11 +613,14 @@ namespace ila
             // return the name , not enough but also need to push mem op to mem stack
             iterStack.push_back(memvar->getName());  
             memopStack.push_back(memStackItem());
+            //std::cout<<"memvar:"<<( memvar->getName() )<<" size:"<<toStr(memopStack.size())<<std::endl;
 
         } else if ((memconst = dynamic_cast<const MemConst*>(n))) {
 
             iterStack.push_back( memconst->getName() );  
             memopStack.push_back(memStackItem(memconst->memvalues));
+            
+            //std::cout<<"memconst:"<<( memconst->getName() )<<" size:"<<toStr(memopStack.size())<<std::endl;
 
         } else if ((memop = dynamic_cast<const MemOp*>(n))) {
 
@@ -693,6 +701,8 @@ namespace ila
                 result = m1;
             }
             // push to 
+        
+        //std::cout<<"memop:"<<( memop->getName() )<<" size:"<<toStr(memopStack.size())<<std::endl;
         iterStack.push_back(result);
 
 
@@ -772,7 +782,10 @@ namespace ila
     {
 
     }
-
+    void VerilogExport::setModuleName(const std::string &modName)
+    {
+        moduleName = modName;
+    }
     void VerilogExport::finalExport(std::ostream & fout)
     {
         // module XXX ( A,B,C,clk,rst );

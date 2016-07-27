@@ -802,6 +802,38 @@ namespace ila
 
     }
 
+	void Abstraction::generateVerilogToFile(const std::string &fileName, const std::string &topModName) const
+	{
+		// FIXME: 
+		//		  1. take memory into consideration
+		//		  2. take u-inst into consideration
+		
+		std::ofstream out(fileName.c_str());
+		ILA_ASSERT(out.is_open(), "File " + fileName + " not open.");
+
+		VerilogExport expt(topModName,"clk","rst");
+		for (auto const & inp : inps) 
+			expt.exportInp(inp.first,inp.second);
+		
+		for (auto const & reg : regs)
+			expt.exportReg(reg.first,reg.second);
+		
+		for (auto const & bit : bits)
+			expt.exportBit(bit.first,bit.second);
+		
+		for (auto const & mem : mems)
+			expt.exportMem(mem.first,mem.second);
+
+		for (auto const & func : funs)
+			expt.exportFunc(func.first,func.second);
+
+		// FIXME: uabs not considered
+
+		expt.finalExport(out);
+		out.close();
+	}
+		
+
     void Abstraction::exportAllToFile(const std::string& fileName) const
     {
         // FIXME Need to be fixed for uabstractions.
