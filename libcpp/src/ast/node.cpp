@@ -15,12 +15,14 @@ namespace ila
     // ---------------------------------------------------------------------- //
     Node::Node()
       : id(-1)
+      , hash_inited(false)
       , type(NodeType())
     {
     }
 
     Node::Node(NodeType t) 
       : id(Abstraction::getObjId())
+      , hash_inited(false)
       , type(t) 
     {
         _initName();

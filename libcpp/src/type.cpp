@@ -1,5 +1,6 @@
 #include <type.hpp>
 #include <exception.hpp>
+#include <ast/hash.hpp>
 
 namespace ila
 {
@@ -37,6 +38,7 @@ namespace ila
         if (t != BOOL) {
             throw PyILAException(PyExc_TypeError, "Invalid type argument in constructor for Type.");
         }
+        hash_val = compute_hash_value(*this);
     }
 
     // constructor (bitvector).
@@ -52,6 +54,7 @@ namespace ila
         if (w <= 0) {
             throw PyILAException(PyExc_TypeError, "Invalid bitvector width argument.");
         }
+        hash_val = compute_hash_value(*this);
     }
 
     // constructor (mem).
@@ -67,6 +70,7 @@ namespace ila
         if (aw <= 0 || dw <= 0) {
             throw PyILAException(PyExc_TypeError, "Invalid bitvector width argument.");
         }
+        hash_val = compute_hash_value(*this);
     }
 
     // constructor (func)
@@ -91,6 +95,7 @@ namespace ila
                         "Invalid bitvector width argument.");
             }
         }
+        hash_val = compute_hash_value(*this);
     }
 
     // operator!

@@ -71,6 +71,10 @@ namespace ila
         std::string name;
         // unique id.
         const int id;
+        // hash value flag.
+        mutable bool hash_inited;
+        // hash value.
+        mutable size_t hash_value; 
     public: //TODO : for now leave it as public
         // type of this node.
         NodeType type;
@@ -140,6 +144,7 @@ namespace ila
             const nptr_t& t, const nptr_t& f);
 
         friend class NodeRef;
+        friend std::size_t hash_value(const Node& nref);
     };
 
     std::ostream& operator<<(std::ostream& out, const Node& that);

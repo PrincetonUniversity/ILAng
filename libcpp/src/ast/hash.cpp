@@ -8,6 +8,10 @@ namespace ila
 {
     std::size_t hash_value(const Node& nref)
     {
+        if (nref.hash_inited) {
+            return nref.hash_value;
+        }
+
         const Node* n = &nref;
 
         const BoolVar* boolvar = NULL; 
@@ -88,10 +92,18 @@ namespace ila
             boost::hash_combine(seed, arg_i);
         }
         log2("Hash") << "Final seed: " << seed << std::endl;
-        return seed;
+
+        nref.hash_inited = true;
+        nref.hash_value = seed;
+        return (nref.hash_value);
     }
 
     std::size_t hash_value(const NodeType& ntype)
+    {
+        return ntype.hash_val;
+    }
+
+    std::size_t compute_hash_value(const NodeType& ntype)
     {
         std::size_t seed = 0;
         boost::hash_combine(seed, static_cast<int>(ntype.type));

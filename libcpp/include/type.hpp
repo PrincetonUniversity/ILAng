@@ -14,6 +14,7 @@ namespace ila {
         int addrWidth;
         int dataWidth;
         std::vector<int> argsWidth;
+        size_t hash_val;
 
         // default constructor.
         NodeType() : type(INVALID), bitWidth(0) { }

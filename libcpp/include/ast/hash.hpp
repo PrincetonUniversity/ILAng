@@ -27,6 +27,7 @@ namespace ila
 {
     std::size_t hash_value(const Node& n);
     std::size_t hash_value(const NodeType & ntype);
+    std::size_t compute_hash_value(const NodeType & ntype);
 
     template<typename T>
     void choice_hash_combine(std::size_t& seed, const ChoiceExpr<T>* c)
