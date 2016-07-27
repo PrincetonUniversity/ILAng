@@ -211,6 +211,7 @@ namespace ila
 
 		// generate verilog file that is equivelant to the ILA
 		void generateVerilogToFile(const std::string &fileName) const;
+		void generateVerilogToFile(const std::string &fileName, const std::string &topModName) const;
 		
         // the import function that import only one expression.
         NodeRef* importOneFromFile(const std::string& fileName);
@@ -516,6 +517,10 @@ namespace ila
 		void generateVerilogToFile( const std::string & fileName) const
 		{
 			abs->generateVerilogToFile(fileName);
+		}
+		void generateVerilogModule( const std::string & fileName, const std::string &modName) const
+		{
+			abs->generateVerilogToFile(fileName,modName);
 		}
 
         // the import function that import only one expression.

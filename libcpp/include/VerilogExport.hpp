@@ -100,6 +100,7 @@ namespace ila
 
         void exportMem(const std::string &name, const npair_t &np);
         void exportFunc( const std::string &name, const npair_t &np);
+        void setModuleName(const std::string &modName);
 
         void exportUabs( const Abstraction & uabs)
         {

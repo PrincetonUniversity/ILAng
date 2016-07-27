@@ -415,6 +415,7 @@ BOOST_PYTHON_MODULE(ila)
         .def("importOne", &AbstractionWrapper::importOneFromFile, return_value_policy<manage_new_object>())
         .def("importAll", &AbstractionWrapper::importAllFromFile)
         .def("generateVerilog", &AbstractionWrapper::generateVerilogToFile)
+        .def("generateVerilog", &AbstractionWrapper::generateVerilogModule)
 
         // simulator.
         .def("generateSim", &AbstractionWrapper::generateSimToFile)
