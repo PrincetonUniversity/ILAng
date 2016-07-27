@@ -66,6 +66,8 @@ namespace ila
         virtual Node* clone() const;
         // equality method.
         virtual bool equal(const Node* that) const;
+        // get value.
+        const mp_int_t& val() const { return value; }
         // return value.
         virtual py::object getValue() const;
         // stream output.

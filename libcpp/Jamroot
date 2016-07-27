@@ -53,6 +53,7 @@ python-extension ila : src/abstraction.cpp
                        src/ast/choice.cpp
                        src/ast.cpp 
                        src/ast/func.cpp
+                       src/ast/hash.cpp
                        src/ast/mem.cpp
                        src/ast/node.cpp 
                        src/cppsimgen.cpp
