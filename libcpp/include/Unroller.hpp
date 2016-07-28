@@ -47,12 +47,16 @@ namespace ila
 
   
   public:
-    Unroller(const char* suffix, Abstraction& abs, z3::context &c, z3::solver &s)
+    Unroller(
+        const char* suffix, Abstraction& abs, 
+        z3::context &c, z3::solver &s)
       : m_sName(suffix)
       , m_pAbstraction(&abs)
       , m_pContext(&c)
       , m_pSolver (&s)
       , m_nFrames(0)
+      , m_mInputIndices(NUM_HASHTABLE_BUCKETS, nodeHash, nodeEqual)
+      , m_mStateIndices(NUM_HASHTABLE_BUCKETS, nodeHash, nodeEqual)
       , m_pAssertion(NULL)
     { newFrame (); }
 

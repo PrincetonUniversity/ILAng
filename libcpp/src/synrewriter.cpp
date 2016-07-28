@@ -4,7 +4,7 @@
 namespace ila
 {
     SynRewriter::SynRewriter(z3::model& mod, Z3ExprAdapter& a)
-      : exprmap(1024, nodeHash, nodeEqual)
+      : exprmap(NUM_HASHTABLE_BUCKETS, nodeHash, nodeEqual)
       , m(mod)
       , adapter(a)
     {
