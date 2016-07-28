@@ -1,6 +1,8 @@
 import ila
 
 def main():
+    ila.setloglevel(3, "")
+    ila.enablelog("Z3ExprAdapter")
     c = ila.Abstraction("test")
 
     x = c.bit('x')

@@ -48,6 +48,24 @@ namespace ila
         }
         boost::hash_combine(seed, c->getName());
     }
+
+    template<class T> struct NodeHash;
+    template<> struct NodeHash<const Node*>
+    {
+        size_t operator()(const Node* n) const
+        {
+            return hash_value(*n);
+        }
+    };
+
+    template<class T> struct NodeEqual;
+    template<> struct NodeEqual<const Node*>
+    {
+        bool operator()(const Node* l, const Node* r) const
+        {
+            return l->equal(r);
+        }
+    };
 }
 
 #endif

@@ -5,6 +5,7 @@
 #include <util.hpp>
 #include <exception.hpp>
 #include <abstraction.hpp>
+#include <ast/hash.hpp>
 
 
 namespace ila
@@ -127,14 +128,6 @@ namespace ila
     }
 
     // ---------------------------------------------------------------------- //
-    void NodeVisitorI::preVisit(const Node* n)
-    {
-    }
-
-    void NodeVisitorI::postVisit(const Node* n)
-    {
-    }
-    // ---------------------------------------------------------------------- //
     nptr_t Node::ite(const nptr_t& cond, const nptr_t& t, const nptr_t& f)
     {
         ILA_ASSERT(t->type == f->type, "ite args must be same type.");
@@ -155,4 +148,26 @@ namespace ila
             return NULL;
         }
     }
+
+    // ---------------------------------------------------------------------- //
+    bool nodeEqual(const Node* left, const Node* right)
+    {
+        return left->equal(right);
+    }
+
+    size_t nodeHash(const Node* n)
+    {
+        return hash_value(*n);
+    }
+
+    // ---------------------------------------------------------------------- //
+    void NodeVisitorI::preVisit(const Node* n)
+    {
+    }
+
+    void NodeVisitorI::postVisit(const Node* n)
+    {
+    }
+
+
 }

@@ -7,6 +7,7 @@
 #include <exception.hpp>
 #include <unordered_map>
 #include <boost/shared_ptr.hpp>
+#include <ast/hash.hpp>
 
 namespace ila 
 {
@@ -15,7 +16,9 @@ namespace ila
     {
     public:
         // Define types.
-        typedef std::unordered_map<const Node*, z3::expr> expr_map_t;
+        typedef std::unordered_map<
+            const Node*, z3::expr,
+            decltype(&nodeHash), decltype(&nodeEqual)> expr_map_t;
         // simplify flag.
         bool simplify;
 

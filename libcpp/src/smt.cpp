@@ -9,7 +9,9 @@ namespace ila
 
     // ---------------------------------------------------------------------- //
     Z3ExprAdapter::Z3ExprAdapter(z3::context& ctx, const std::string& s)
-      : c(ctx)
+      : exprmap(1024, nodeHash, nodeEqual)
+      , cnstmap(1024, nodeHash, nodeEqual)
+      , c(ctx)
       , suffix(s)
       , name_suffix("")
     {
@@ -17,7 +19,9 @@ namespace ila
     }
 
     Z3ExprAdapter::Z3ExprAdapter(z3::context& ctx, const char* s)
-      : c(ctx)
+      : exprmap(1024, nodeHash, nodeEqual)
+      , cnstmap(1024, nodeHash, nodeEqual)
+      , c(ctx)
       , suffix(s)
       , name_suffix("")
     {

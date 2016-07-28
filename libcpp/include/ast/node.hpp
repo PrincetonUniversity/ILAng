@@ -149,6 +149,10 @@ namespace ila
 
     std::ostream& operator<<(std::ostream& out, const Node& that);
 
+    // are two nodes equal?
+    bool nodeEqual(const Node* left, const Node* right);
+    // returns the hash value of this node.
+    size_t nodeHash(const Node* n);
 
     // ---------------------------------------------------------------------- //
     struct NodeVisitorI {
