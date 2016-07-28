@@ -4,6 +4,8 @@
 namespace ila
 {
     Rewriter::Rewriter()
+      : rwmap(1023, nodeHash, nodeEqual)
+      , rweq_map(1023, nodeHash, nodeEqual)
     {
     }
 

@@ -13,7 +13,9 @@ namespace ila
     public:
         // Define types.
         typedef std::unordered_map<
-            const Node*, nptr_t > expr_map_t;
+            const Node*, nptr_t,
+            decltype(&nodeHash),
+            decltype(&nodeEqual)> expr_map_t;
     protected:
         // the map between old and new nodes.
         expr_map_t exprmap;

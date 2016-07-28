@@ -8,7 +8,8 @@
 namespace ila
 {
     typedef std::unordered_map<
-        const Node*, nptr_t > rwmap_t;
+        const Node*, nptr_t, 
+        decltype(&nodeHash), decltype(&nodeEqual)> rwmap_t;
     // A function object that rewrites the AST according to the result
     // of the synthesis.
     class Rewriter

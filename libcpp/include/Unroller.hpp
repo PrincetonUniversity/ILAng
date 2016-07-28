@@ -28,12 +28,14 @@ namespace ila
     unsigned m_nFrames;
 
     /// Map between primary input pointers and indices into m_vPrimaryInputs
-    std::unordered_map<Node*, int> m_mInputIndices;
+    std::unordered_map<Node*, int,
+        decltype(&nodeHash), decltype(&nodeEqual)> m_mInputIndices;
     /// Primary Inputs, by frame
     std::vector<std::vector<z3::expr> > m_vPrimaryInputs;
 
     /// Map between state pointers and indices into m_vOutputs
-    std::unordered_map<Node*, int> m_mStateIndices;
+    std::unordered_map<Node*, int,
+        decltype(&nodeHash), decltype(&nodeEqual)> m_mStateIndices;
     /// Outputs, by frame
     std::vector<std::vector<z3::expr> > m_vOutputs;
 
