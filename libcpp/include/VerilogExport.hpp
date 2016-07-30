@@ -23,7 +23,6 @@ namespace ila
     typedef std::tuple<vlg_name_t,int,int> vlg_mem_t; // name addr_width data_width
     typedef std::vector<vlg_mem_t>      vlg_mems_t;
 
-
     struct memStackItem
     {
         typedef std::map<vlg_addr_t,vlg_data_t>     mem_item_t;
@@ -48,6 +47,12 @@ namespace ila
 
     class VerilogExport
     {
+    public:
+        typedef std::unordered_map<
+            const Node*, vlg_name_t,
+            decltype(&nodeHash), decltype(&nodeEqual)> vexpr_map_t;
+
+    private:
         vlg_name_t moduleName;
         vlg_name_t clkName;
         vlg_name_t rstName;
@@ -62,6 +67,8 @@ namespace ila
         vlg_stmts_t init_stmts;
         vlg_stmts_t statements;
         vlg_stmts_t always_stmts;
+
+        vexpr_map_t nmap;
 
     protected:
 
@@ -81,6 +88,9 @@ namespace ila
         std::vector<vlg_stmt_t>     iterStack;
         std::vector<memStackItem>   memopStack;
         vlg_stmt_t getOperand(); 
+        vlg_name_t getArg(const Node* n, int i);
+        vlg_name_t translateBoolOp(const BoolOp* boolop);
+        vlg_name_t translateBitvectorOp(const BitvectorOp* bvop);
 
         bool EnoughArgsOnStack(const Node *n);
         void nodeVistorFunc(const Node *n);
