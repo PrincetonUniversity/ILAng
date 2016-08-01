@@ -88,6 +88,7 @@ namespace ila
         std::vector<vlg_stmt_t>     iterStack;
         std::vector<memStackItem>   memopStack;
         vlg_stmt_t getOperand(); 
+        vlg_name_t getName(const Node* n);
         vlg_name_t getArg(const Node* n, int i);
         vlg_name_t translateBoolOp(const BoolOp* boolop);
         vlg_name_t translateBitvectorOp(const BitvectorOp* bvop);

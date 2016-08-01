@@ -54,13 +54,15 @@ namespace ila
         if(np.init.get())
         {
             start_iterate(np.init.get());
-            add_init_stmt( name + " <= " + getOperand() );
+            vlg_name_t result = getName(np.init.get());
+            add_init_stmt( name + " <= " + result );
         }
 
         if(np.next.get())
         {
             start_iterate(np.next.get());
-            add_always_stmt( name + " <= " + getOperand()  );     
+            vlg_name_t result = getName(np.next.get());
+            add_always_stmt( name + " <= " + result  );     
         }
 
     }
@@ -77,13 +79,15 @@ namespace ila
         if(np.init.get())
         {
             start_iterate(np.init.get());
-            add_init_stmt( name + " <= " + getOperand() );
+            vlg_name_t result = getName(np.init.get());
+            add_init_stmt( name + " <= " + result );
         }
 
         if(np.next.get())
         {
             start_iterate(np.next.get());
-            add_always_stmt( name + " <= " + getOperand()  );  
+            vlg_name_t result = getName(np.next.get());
+            add_always_stmt( name + " <= " + result  );     
         }
     }
 
@@ -100,19 +104,18 @@ namespace ila
         if(np.init.get())
         {
             //std::cout<<"iterate on init"<<std::endl;
-            start_iterate(np.init.get());
-            translate_memory_item(true,addr_width,data_width);
+            //start_iterate(np.init.get());
+            //translate_memory_item(true,addr_width,data_width);
             //std::cout<<"iterate on init finish"<<std::endl;
         }
 
         if(np.next.get())
         {
             //std::cout<<"iterate on next"<<std::endl;
-            start_iterate(np.next.get());
-            translate_memory_item(false,addr_width,data_width);
+            //start_iterate(np.next.get());
+            //translate_memory_item(false,addr_width,data_width);
             //std::cout<<"iterate on next finish"<<std::endl;
         }
-
     }
 
     void VerilogExport::exportFunc( const std::string &name, const npair_t &np)
@@ -270,14 +273,15 @@ namespace ila
 
     void VerilogExport::start_iterate(const Node *n)
     {
-        iterStack.clear();
-        memopStack.clear();
-
         auto visitorFun =  [this] (const Node *nptr) { this->nodeVistorFunc(nptr); };
         n->depthFirstVisit( visitorFun );
+    }
 
-        ILA_ASSERT(iterStack.size() == 1, "Iteration for verilog generation failed. Not one result is generated.");
-        ILA_ASSERT(memopStack.size() <= 1, "Iteration for verilog generation failed. More than one memory result is generated.");
+    vlg_name_t VerilogExport::getName(const Node* n)
+    {
+        auto pos = nmap.find(n);
+        ILA_ASSERT(pos != nmap.end(), "Arg not in map.");
+        return pos->second;
     }
 
     vlg_name_t VerilogExport::getArg(const Node* n, int i)
@@ -456,7 +460,6 @@ namespace ila
             } else if (op == BitvectorOp::READMEM) { 
                 // FIXME: Now we have multiple read ports
                 result_stmt = vlg_stmt_t(" (  ") + arg1 + " [ " +  arg2 + " ] ) ";
-                memopStack.pop_back();
             } else if (op == BitvectorOp::READMEMBLOCK) { 
                 //result_stmt = vlg_stmt_t(" ( ( ") + arg1 + " ) / ( " +  arg2 + " )) ";
                 ILA_ASSERT(bvop->nParams() == 2, "Two parameters expected.");
@@ -509,6 +512,9 @@ namespace ila
     void VerilogExport::nodeVistorFunc(const Node *n)
     {
 
+        // memoize
+        if (nmap.find(n) != nmap.end()) return;
+
         // booleans
         const BoolVar* boolvar = NULL; 
         const BoolConst* boolconst = NULL;
@@ -523,7 +529,6 @@ namespace ila
         const MemOp*  memop = NULL;
         // functions
         const FuncVar* funcvar = NULL;
-
 
         //// booleans ////
         if ((boolvar = dynamic_cast<const BoolVar*>(n))) {

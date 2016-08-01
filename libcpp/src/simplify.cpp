@@ -1,5 +1,6 @@
 #include <simplify.hpp>
 #include <logging.hpp>
+#include <util.hpp>
 
 namespace ila
 {
@@ -8,6 +9,7 @@ namespace ila
       : ctx()
       , S(ctx)
       , adapter(ctx, "")
+      , rwmap(NUM_HASHTABLE_BUCKETS, nodeHash, nodeEqual)
     {
         adapter.simplify = true;
         _add(a);

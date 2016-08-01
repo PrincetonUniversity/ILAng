@@ -132,8 +132,11 @@ def model(num_regs, reg_size, paramsyn):
     # synthesize pc first.
     sys.synthesize('pc', lambda s: alu.alusim(s))
     pc_next = sys.get_next('pc')
-    print pc_next
-    assert sys.areEqual(pc_next, pc+1)
+    pc_next_p = ila.simplify(sys.bool(True), pc_next)
+    print 'PC_NEXT:', pc_next
+    print 'PC_NEXT\':', pc_next_p
+    sys.set_next('pc', pc_next_p)
+    assert sys.areEqual(pc_next_p, pc+1)
 
     # now synthesize.
     st = time.clock()
