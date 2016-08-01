@@ -132,11 +132,7 @@ def model(num_regs, reg_size, paramsyn):
     # synthesize pc first.
     sys.synthesize('pc', lambda s: alu.alusim(s))
     pc_next = sys.get_next('pc')
-    pc_next_p = ila.simplify(sys.bool(True), pc_next)
-    print 'PC_NEXT:', pc_next
-    print 'PC_NEXT\':', pc_next_p
-    sys.set_next('pc', pc_next_p)
-    assert sys.areEqual(pc_next_p, pc+1)
+    assert sys.areEqual(pc_next, pc+1)
 
     # now synthesize.
     st = time.clock()
@@ -152,9 +148,14 @@ def model(num_regs, reg_size, paramsyn):
         print '(b) r%d: %s' % (i, str(rn2))
         assert sys.areEqual(rn1, rn2)
 
-    print sys.get_next('pc')
+    print '--> PC_NEXT:', sys.get_next('pc')
     #sys.add_assumption(opcode == 0x80)
     #print sys.syn_elem("r0", sys.get_next('r0'), alusim)
+
+    # simplify PC.
+    pc_next_p = ila.simplify(sys.bool(True), sys.get_next('pc'))
+    sys.set_next('pc', pc_next_p)
+    print '--> PC_NEXT:', sys.get_next('pc')
 
     expFile  = "test_ila_export.txt"
     sys.exportAll(expFile);
