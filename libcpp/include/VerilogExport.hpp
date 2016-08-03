@@ -23,27 +23,22 @@ namespace ila
     typedef std::tuple<vlg_name_t,int,int> vlg_mem_t; // name addr_width data_width
     typedef std::vector<vlg_mem_t>      vlg_mems_t;
 
-    struct memStackItem
+    // This is an individual write.
+    struct mem_write_entry_t
     {
-        typedef std::map<vlg_addr_t,vlg_data_t>     mem_item_t;
-        //              addr            data        condition
-        typedef std::map<vlg_stmt_t, mem_item_t>    mem_map_t;
-
-        mem_map_t values;
-
-
-        memStackItem();
-        memStackItem(int index, int value);
-        memStackItem(const vlg_addr_t &,const vlg_addr_t & );
-        memStackItem(const MemValues& mv);
-
-        memStackItem(const vlg_stmt_t &cond, const memStackItem &l, const memStackItem &r);
-
-        void setItem(int index, int value);
-        void setItem(const vlg_addr_t &,const vlg_addr_t & );
-
+        Node* addr;
+        Node* data;
     };
-
+    // This is a list of writes.
+    typedef std::list<mem_write_entry_t> mem_write_entry_list_t;
+    // This is the write and its associated condition.
+    struct mem_write_t 
+    {
+        Node* cond;
+        mem_write_entry_list_t writes;
+    };
+    // List of writes and associated conditions.
+    typedef std::list<mem_write_t> mem_write_list_t;
 
     class VerilogExport
     {
@@ -85,19 +80,13 @@ namespace ila
 
         void start_iterate(const Node *n);
 
-        std::vector<vlg_stmt_t>     iterStack;
-        std::vector<memStackItem>   memopStack;
-        vlg_stmt_t getOperand(); 
         vlg_name_t getName(const Node* n);
         vlg_name_t getArg(const Node* n, int i);
         vlg_name_t translateBoolOp(const BoolOp* boolop);
         vlg_name_t translateBitvectorOp(const BitvectorOp* bvop);
 
-        bool EnoughArgsOnStack(const Node *n);
         void nodeVistorFunc(const Node *n);
 
-        void translate_memory_item(bool is_init_stmt, int addr_width,int data_width);
-        
         unsigned idCounter;
         vlg_name_t NewId();
 
@@ -115,13 +104,11 @@ namespace ila
 
         void exportUabs( const Abstraction & uabs)
         {
-            // FIXME: not implemented
+            ILA_ASSERT(false, "Not implemented.");
         }
-
     private:
 
         std::string WidthToRange(int w);
-
     };
 }
 

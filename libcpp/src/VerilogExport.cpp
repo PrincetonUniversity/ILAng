@@ -140,99 +140,6 @@ namespace ila
 
     }
 
-    void VerilogExport::translate_memory_item(bool is_init_stmt, int addr_width,int data_width)
-    {
-        ILA_ASSERT(memopStack.size() == 1, "Cannot translate 0 or > 1 mem op");
-        ILA_ASSERT(iterStack.size() == 1,  "No memory var name is specified");
-
-        vlg_name_t mem_name = getOperand();
-        
-        memStackItem mem_value = memopStack.back();
-        memopStack.pop_back();
-
-        if ( is_init_stmt )
-        {
-            for (auto const & cond_addr_data_pair : mem_value.values )
-            {
-                // ignore the conditions
-                for (auto const & addr_data_pair : cond_addr_data_pair.second )
-                {
-                    add_init_stmt(mem_name + "[" + addr_data_pair.first + "] <= " + addr_data_pair.second  );
-                }
-            }
-        }
-        else
-        {
-            // sometimes we do need multiple ports
-            // so, let's count the port number
-            unsigned maxPort = 1;
-            for (auto const & cond_addr_data_pair : mem_value.values)
-                if ( cond_addr_data_pair.second.size() > maxPort )
-                    maxPort = cond_addr_data_pair.second.size();
-
-            //vector<vlg_name_t> addr_sigs;
-            //vector<vlg_name_t> data_sigs;
-            std::vector<vlg_stmt_t> addr_muxs;
-            std::vector<vlg_stmt_t> data_muxs;
-
-            std::vector<vlg_stmt_t> addr_muxs_rparenthesis;
-            std::vector<vlg_stmt_t> data_muxs_rparenthesis;
-
-            for (unsigned pNo = 0; pNo < maxPort ; pNo ++)
-            {
-                vlg_name_t addr_sig = mem_name + "_addr_" + toStr(pNo) ;
-                vlg_name_t data_sig = mem_name + "_data_" + toStr(pNo) ;
-
-                add_wire(addr_sig,addr_width);
-                add_wire(data_sig,data_width);
-
-                //addr_sigs.push_back(addr_sig);
-                //data_sigs.push_back(data_sig);
-
-                add_always_stmt(mem_name + "[" + addr_sig + "] <= " + data_sig );
-
-                vlg_stmt_t addr_mux = "assign " + addr_sig + " = \n";
-                vlg_stmt_t data_mux = "assign " + data_sig + " = \n";
-
-                addr_muxs.push_back(addr_mux);
-                data_muxs.push_back(data_mux);
-                addr_muxs_rparenthesis.push_back("");
-                data_muxs_rparenthesis.push_back("");
-            }
-            
-            for (auto const & cond_addr_data_pair : mem_value.values)
-            {
-                unsigned portN = 0;
-                const vlg_stmt_t & cond = cond_addr_data_pair.first;
-
-                for(auto const & addr_data_pair : cond_addr_data_pair.second)
-                {
-                    vlg_stmt_t &addr_mux = addr_muxs[portN];
-                    vlg_stmt_t &data_mux = data_muxs[portN];
-
-                    const vlg_stmt_t & addr = addr_data_pair.first;
-                    const vlg_stmt_t & data = addr_data_pair.second;
-
-                    addr_mux += vlg_stmt_t("( ") + cond + " ) ? (" + addr + " ) : (\n";
-                    data_mux += vlg_stmt_t("( ") + cond + " ) ? (" + data + " ) : (\n";
-
-                    addr_muxs_rparenthesis[portN] += ")";
-                    data_muxs_rparenthesis[portN] += ")";
-
-                    portN ++;
-                }
-            }
-            // once we finish iterate on that
-            //
-            for (unsigned portN = 0; portN < maxPort ; portN++ )
-            {
-                add_stmt( addr_muxs[portN] + "0" +  addr_muxs_rparenthesis[portN] + ";" );
-                add_stmt( data_muxs[portN] + mem_name + "[0]" + data_muxs_rparenthesis[portN]+ ";" );
-            }
-        }
-
-    }
-
     // ---------------------------------------------------------------------------------------------
 
     void VerilogExport::add_input(const vlg_name_t & n,int w)
@@ -642,13 +549,6 @@ namespace ila
         return "n" + toStr(idCounter++);
     }
 
-    vlg_stmt_t VerilogExport::getOperand()
-    {
-        vlg_stmt_t tmp = iterStack.back();
-        iterStack.pop_back();
-        return tmp;
-    }
-
     VerilogExport::VerilogExport (const std::string &modName,const std::string &clk,const std::string &rst)
         : moduleName(modName)
         , clkName(clk)
@@ -720,46 +620,4 @@ namespace ila
         return "";
     }
 
-    // ---------------------------------------------------------------------------------
-
-    memStackItem::memStackItem()
-    {
-
-    }
-    memStackItem::memStackItem(int index, int value)
-    {
-        values["1"][toStr(index)] = toStr(value);
-    }
-    memStackItem::memStackItem(const vlg_addr_t &addr,const vlg_addr_t &data )
-    {
-        values["1"][addr] = data;
-    }
-
-    memStackItem::memStackItem(const MemValues& mv)
-    {
-        for (auto const & addr_data_pair : mv.values)
-            values["1"][toStr(addr_data_pair.first)] = toStr(addr_data_pair.second);
-    }
-
-    memStackItem::memStackItem(const vlg_stmt_t &cond, const memStackItem &l, const memStackItem &r)
-    {
-        for (auto const & cond_addr_data_pair : l.values)
-        {
-            vlg_stmt_t cond_l = " (" + cond + " ) && (" + cond_addr_data_pair.first + ")";
-            values[cond_l] = cond_addr_data_pair.second;
-        }
-        for (auto const & cond_addr_data_pair : r.values)
-        {
-            vlg_stmt_t cond_r =  "!(" + cond + " ) && (" + cond_addr_data_pair.first + ")";
-            values[cond_r] = cond_addr_data_pair.second;
-        }
-    }
-    void memStackItem::setItem(int index, int value)
-    {
-        values["1"][toStr(index)] = toStr(value);
-    }
-    void memStackItem::setItem(const vlg_addr_t &addr,const vlg_addr_t &data )
-    {
-        values["1"][addr] = data;
-    }
 }
