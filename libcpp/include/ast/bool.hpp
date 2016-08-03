@@ -132,6 +132,9 @@ namespace ila
 
         // operation.
         Op getOp() const { return op; }
+
+        // negate this boolean expression.
+        static nptr_t& negate(const nptr_t& n, rwmap_t& cache);
     };
 }
 #endif

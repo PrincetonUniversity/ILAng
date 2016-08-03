@@ -56,9 +56,8 @@ def genVerilog(state, enable_ps):
         ast = model.importOne('asts/%s_%s' % (s, 'en' if enable_ps else 'dis'))
         model.set_next(s, ast)
 
-    iram_next = model.get_next('IRAM')
-    print iram_next
-
+    ila.setloglevel(3, "")
+    ila.enablelog("VerilogExport")
     model.generateVerilog('oc8051_golden_model.v')
 
 def main():

@@ -26,15 +26,15 @@ namespace ila
     // This is an individual write.
     struct mem_write_entry_t
     {
-        Node* addr;
-        Node* data;
+        nmap_t addr;
+        nmap_t data;
     };
     // This is a list of writes.
     typedef std::list<mem_write_entry_t> mem_write_entry_list_t;
     // This is the write and its associated condition.
     struct mem_write_t 
     {
-        Node* cond;
+        nmap_t cond;
         mem_write_entry_list_t writes;
     };
     // List of writes and associated conditions.
@@ -64,6 +64,7 @@ namespace ila
         vlg_stmts_t always_stmts;
 
         vexpr_map_t nmap;
+        rwmap_t notCache;
 
     protected:
 
@@ -86,6 +87,10 @@ namespace ila
         vlg_name_t translateBitvectorOp(const BitvectorOp* bvop);
 
         void nodeVistorFunc(const Node *n);
+
+        void checkMemVar(const Node *n, const MemVar*& mem, int& fail);
+        void visitMemNodes(const Node* n, const nptr_t& cond);
+        static nptr_t logicalAnd(const nptr_t& c1, const nptr_t& c2);
 
         unsigned idCounter;
         vlg_name_t NewId();

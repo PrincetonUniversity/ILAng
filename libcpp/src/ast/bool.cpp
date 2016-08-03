@@ -278,4 +278,24 @@ namespace ila
         out << ")";
         return out;
     }
+
+    nptr_t& BoolOp::negate(const nptr_t& n, rwmap_t& cache)
+    {
+        auto pos = cache.find(n.get());
+        if (pos != cache.end()) {
+            return pos->second;
+        }
+
+        ILA_ASSERT(
+            n->type.isBool(), 
+            "Argument to negate must be a boolean.");
+        const BoolOp* boolop = dynamic_cast<const BoolOp*>(n.get());
+        if (boolop == NULL || boolop->op != BoolOp::NOT) {
+            nptr_t nptr(new BoolOp(BoolOp::NOT, n));
+            cache[n.get()] = nptr;
+        } else {
+            cache[n.get()] = boolop->arg(0);
+        }
+        return cache[n.get()];
+    }
 }

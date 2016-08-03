@@ -26,6 +26,7 @@ namespace ila {
     void set_logging_level(int level);
 
     const int NUM_HASHTABLE_BUCKETS = 1023;
+    const int NUM_HASHTABLE_BUCKETS_SMALL = 63;
 };
 
 #endif // __UTIL_H_DEFINED__

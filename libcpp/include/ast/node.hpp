@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <unordered_map>
 
 #include <z3++.h>
 #include <assert.h>
@@ -153,6 +154,10 @@ namespace ila
     bool nodeEqual(const Node* left, const Node* right);
     // returns the hash value of this node.
     size_t nodeHash(const Node* n);
+
+    typedef std::unordered_map<
+        const Node*, nptr_t, 
+        decltype(&nodeHash), decltype(&nodeEqual)> rwmap_t;
 
     // ---------------------------------------------------------------------- //
     struct NodeVisitorI {

@@ -3,6 +3,7 @@
 #include <abstraction.hpp>
 #include <VerilogExport.hpp>
 #include <util.hpp>
+#include <logging.hpp>
 
 #define toStr(x) (boost::lexical_cast<std::string>(x))
 
@@ -111,10 +112,20 @@ namespace ila
 
         if(np.next.get())
         {
-            //std::cout<<"iterate on next"<<std::endl;
-            //start_iterate(np.next.get());
-            //translate_memory_item(false,addr_width,data_width);
-            //std::cout<<"iterate on next finish"<<std::endl;
+            log2("VerilogExport") << "memory : " << *np.var.get() << std::endl;
+            log2("VerilogExport") << "next   : " << *np.next.get() << std::endl;
+            const MemVar* memvar = NULL;
+            int fail = 0;
+            auto checkMem =  [this, &memvar, &fail](const Node *node) { 
+                this->checkMemVar(node, memvar, fail); 
+            };
+            np.next.get()->depthFirstVisit( checkMem );
+            if (memvar) {
+                log2("VerilogExport") << "memvar : " << *memvar << std::endl;
+            } else {
+                log2("VerilogExport") << "memvar : NULL" << std::endl;
+            }
+            log2("VerilogExport") << "fail   : " << fail << std::endl;
         }
     }
 
@@ -458,89 +469,90 @@ namespace ila
         } else if ((memvar = dynamic_cast<const MemVar*>(n))) {
             nmap[n] = memvar->getName();
         } else if ((memconst = dynamic_cast<const MemConst*>(n))) {
-            // TODO: implement this.
             ILA_ASSERT(false, "MemConst not yet implemented.");
         } else if ((memop = dynamic_cast<const MemOp*>(n))) {
-            ILA_ASSERT(false, "MemOp not yet implemented.");
-#if 0
-            const MemOp::Op op = memop->getOp();
-            vlg_stmt_t result;
-
-            ILA_ASSERT(op!=MemOp::INVALID,"Cannot translate invalid operator to Verilog.");
-
-            if( op == MemOp::STORE) {
-
-                vlg_stmt_t data = getOperand();
-                vlg_stmt_t addr = getOperand();
-                vlg_stmt_t mem = getOperand();
-
-                memStackItem prevValue = memopStack.back();
-
-                memopStack.pop_back();
-
-                prevValue.setItem(addr,data);
-
-                memopStack.push_back(prevValue);
-
-                result = mem;
-
-            } else if ( op == MemOp::STOREBLOCK) {
-
-                // full size.
-                int fullDataSize = memop->arg(2)->type.bitWidth;
-                // size of each chunk.
-                int chunkSize = memop->arg(0)->type.dataWidth;
-                // number of chunks.
-                int chunks = fullDataSize / chunkSize;
-                // this in the index added to the memory address
-                int chunkIndex = 0;
-                // this is index used to extract the data.
-                int dataIndex = memop->endian == LITTLE_E ? 0 : fullDataSize - chunkSize;
-                // fwd/backwd?
-                int dataIncr  = memop->endian == LITTLE_E ? chunkSize : -chunkSize;
-                // mem.
-                vlg_stmt_t data = getOperand();
-                vlg_stmt_t addr = getOperand();
-                vlg_stmt_t mem = getOperand();
-
-                memStackItem mem_op_tmp = memopStack.back();
-                memopStack.pop_back();
-
-                for (; chunkIndex < chunks; chunkIndex++, dataIndex += dataIncr)
-                {
-                    vlg_stmt_t addr_i = addr + " + " + toStr(chunkIndex);
-                    vlg_stmt_t extract_data_stmt = data + "[" + toStr(dataIndex + chunkSize - 1) + ":" + toStr(dataIndex) + "]";
-
-                    mem_op_tmp.setItem(addr_i,extract_data_stmt);
-                }
-                
-                memopStack.push_back(mem_op_tmp);
-
-                result = mem;
-
-            } else if ( op == MemOp::ITE ) {
-
-                vlg_stmt_t m2   = getOperand();
-                vlg_stmt_t m1   = getOperand();
-                vlg_stmt_t cond = getOperand();
-
-                ILA_ASSERT( memopStack.size() >=2 , "Not enough operands for memory ite" );
-                //ILA_ASSERT( m1 == m2, std::string( m1 + " is not the same as " + m2 ));
-
-                memStackItem mem_operand2 = memopStack.back();
-                memopStack.pop_back();
-                memStackItem mem_operand1 = memopStack.back();
-                memopStack.pop_back();
-
-                memopStack.push_back(memStackItem(cond,mem_operand1,mem_operand2));
-
-                result = m1;
-            }
-#endif
+            ILA_ASSERT(false, "Complex memory expressions not implemented yet.");
         } else if ((funcvar = dynamic_cast<const FuncVar*>(n))) {
             nmap[n] = funcvar->getName();
         } else {
             ILA_ASSERT(false, "Node type not supported in VerilogExport.");
+        }
+    }
+
+    void VerilogExport::checkMemVar(const Node *n, const MemVar*& mem, int& fail)
+    {
+        const BitvectorOp* bvop = NULL;
+        const MemOp*  memop = NULL;
+        const MemVar* memvar = NULL;
+
+        if (fail) return;
+        if ((bvop = dynamic_cast<const BitvectorOp*>(n))) { 
+            if ((bvop->getOp() == BitvectorOp::READMEM) || 
+                (bvop->getOp() == BitvectorOp::READMEMBLOCK)) {
+
+                const Node* arg0 = bvop->arg(0).get();
+                memvar = dynamic_cast<const MemVar*>(arg0);
+                if (memvar == NULL) {
+                    fail = 1;
+                    return;
+                }
+            }
+        } else if ((memop = dynamic_cast<const MemOp*>(n))) {
+            MemOp::Op op = memop->getOp();
+            if (op == MemOp::STORE || op == MemOp::STOREBLOCK) {
+                const Node* arg0 = memop->arg(0).get();
+                memvar = dynamic_cast<const MemVar*>(arg0);
+                if (memvar != NULL) {
+                    if (mem == NULL) {
+                        mem = memvar;
+                    } else if (mem != memvar) {
+                        fail = 2;
+                        return;
+                    }
+                }
+            }
+        } else if ((memvar = dynamic_cast<const MemVar*>(n))) {
+            if (mem == NULL) {
+                mem = memvar;
+            } else if (mem != memvar) {
+                fail = 3;
+                return;
+            }
+        }
+    }
+
+    void VerilogExport::visitMemNodes(const Node* n, const nptr_t& cond)
+    {
+        const MemVar* memvar = dynamic_cast<const MemVar*>(n);
+        const MemOp* memop = dynamic_cast<const MemOp*>(n);
+        ILA_ASSERT(memvar != NULL || memop != NULL, 
+            "expected a memvar or memop.");
+
+        // we are done if this is just a memvar.
+        if (memvar != NULL) return;
+
+        // we have a memop.
+        MemOp::Op op = memop->getOp();
+        if (op == MemOp::ITE) {
+            // compute conditions for each branch.
+            nptr_t cite_t(memop->arg(0));
+            nptr_t cite_f(BoolOp::negate(cite_t, notCache));
+            nptr_t ctrue  = logicalAnd(cond, cite_t);
+            nptr_t cfalse = logicalAnd(cond, cite_f);
+            // recurse.
+            visitMemNodes(memop->arg(1).get(), ctrue);
+            visitMemNodes(memop->arg(2).get(), cfalse);
+        } 
+    }
+
+    nptr_t VerilogExport::logicalAnd(const nptr_t& c1, const nptr_t& c2)
+    {
+        if (!c1) {
+            return c2;
+        } else if (!c2) {
+            return c1;
+        } else {
+            return nptr_t(new BoolOp(BoolOp::AND, c1, c2));
         }
     }
 
@@ -554,6 +566,7 @@ namespace ila
         , clkName(clk)
         , rstName(rst)
         , nmap(NUM_HASHTABLE_BUCKETS, nodeHash, nodeEqual)
+        , notCache(NUM_HASHTABLE_BUCKETS_SMALL, nodeHash, nodeEqual)
         , idCounter(0)
     {
 

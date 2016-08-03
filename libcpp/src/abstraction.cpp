@@ -789,8 +789,8 @@ namespace ila
         for (auto const & bit : bits)
             expt.exportBit(bit.first,bit.second);
         
-        //for (auto const & mem : mems)
-        //    expt.exportMem(mem.first,mem.second);
+        for (auto const & mem : mems)
+            expt.exportMem(mem.first,mem.second);
 
         for (auto const & func : funs)
             expt.exportFunc(func.first,func.second);
