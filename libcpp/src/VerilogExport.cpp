@@ -114,6 +114,12 @@ namespace ila
         {
             log2("VerilogExport") << "memory : " << *np.var.get() << std::endl;
             log2("VerilogExport") << "next   : " << *np.next.get() << std::endl;
+
+            const Node* next = np.next.get();
+            const Node* var = np.var.get();
+
+            if (var->equal(next)) return;
+
             const MemVar* memvar = NULL;
             int fail = 0;
             auto checkMem =  [this, &memvar, &fail](const Node *node) { 
@@ -126,6 +132,15 @@ namespace ila
                 log2("VerilogExport") << "memvar : NULL" << std::endl;
             }
             log2("VerilogExport") << "fail   : " << fail << std::endl;
+            if (!fail) {
+                nptr_t cond;
+                mem_write_entry_list_t writes;
+
+                current_writes.clear();
+                const Node* next = np.next.get();
+                visitMemNodes(next, cond, writes);
+                std::cout << current_writes << std::endl;
+            }
         }
     }
 
@@ -521,28 +536,71 @@ namespace ila
         }
     }
 
-    void VerilogExport::visitMemNodes(const Node* n, const nptr_t& cond)
+    std::ostream& operator<<(
+        std::ostream& out, const mem_write_entry_t& mwe)
+    {
+        return out << *mwe.addr.get() << ":" << *mwe.data.get() << "; ";
+    }
+
+    std::ostream& operator<<(
+        std::ostream& out, const mem_write_entry_list_t& mwel)
+    {
+        out << "[";
+        for (auto&& mwe : mwel) {
+            out << mwe;
+        }
+        return out << "]";
+    }
+
+    std::ostream& operator<<(
+        std::ostream& out, const mem_write_t& mw)
+    {
+        return out << "cond: " << *mw.cond.get() << "; write: " << mw.writes;
+    }
+
+    std::ostream& operator<<(
+        std::ostream& out, const mem_write_list_t& mwl)
+    {
+        for (auto&& mw : mwl) {
+            out << mw << "; ";
+        }
+        return out;
+    }
+
+    void VerilogExport::visitMemNodes(
+        const Node* n, const nptr_t& cond,
+        mem_write_entry_list_t& writes)
     {
         const MemVar* memvar = dynamic_cast<const MemVar*>(n);
         const MemOp* memop = dynamic_cast<const MemOp*>(n);
         ILA_ASSERT(memvar != NULL || memop != NULL, 
             "expected a memvar or memop.");
 
-        // we are done if this is just a memvar.
-        if (memvar != NULL) return;
-
-        // we have a memop.
-        MemOp::Op op = memop->getOp();
-        if (op == MemOp::ITE) {
-            // compute conditions for each branch.
-            nptr_t cite_t(memop->arg(0));
-            nptr_t cite_f(BoolOp::negate(cite_t, notCache));
-            nptr_t ctrue  = logicalAnd(cond, cite_t);
-            nptr_t cfalse = logicalAnd(cond, cite_f);
-            // recurse.
-            visitMemNodes(memop->arg(1).get(), ctrue);
-            visitMemNodes(memop->arg(2).get(), cfalse);
-        } 
+        if (memvar != NULL) {
+            // here is where the recursion terminates.
+            mem_write_t mw = { cond, writes };
+            current_writes.push_back(mw);
+            writes.clear();
+        } else  {
+            // we have a memop.
+            MemOp::Op op = memop->getOp();
+            if (op == MemOp::ITE) {
+                ILA_ASSERT(writes.size() == 0, "unexpected writes.");
+                // compute conditions for each branch.
+                nptr_t cite_t(memop->arg(0));
+                nptr_t cite_f(BoolOp::negate(cite_t, notCache));
+                nptr_t ctrue  = logicalAnd(cond, cite_t);
+                nptr_t cfalse = logicalAnd(cond, cite_f);
+                // recurse.
+                visitMemNodes(memop->arg(1).get(), ctrue, writes);
+                visitMemNodes(memop->arg(2).get(), cfalse, writes);
+            } else if (op == MemOp::STORE) {
+                mem_write_entry_t mw = { memop->arg(1), memop->arg(2) };
+                writes.push_back(mw);
+                const nptr_t& mem(memop->arg(0));
+                visitMemNodes(mem.get(), cond, writes);
+            }
+        }
     }
 
     nptr_t VerilogExport::logicalAnd(const nptr_t& c1, const nptr_t& c2)

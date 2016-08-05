@@ -26,19 +26,28 @@ namespace ila
     // This is an individual write.
     struct mem_write_entry_t
     {
-        nmap_t addr;
-        nmap_t data;
+        nptr_t addr;
+        nptr_t data;
     };
     // This is a list of writes.
     typedef std::list<mem_write_entry_t> mem_write_entry_list_t;
     // This is the write and its associated condition.
     struct mem_write_t 
     {
-        nmap_t cond;
+        nptr_t cond;
         mem_write_entry_list_t writes;
     };
     // List of writes and associated conditions.
     typedef std::list<mem_write_t> mem_write_list_t;
+
+    std::ostream& operator<<(
+        std::ostream& out, const mem_write_entry_t& mwe);
+    std::ostream& operator<<(
+        std::ostream& out, const mem_write_entry_list_t& mwel);
+    std::ostream& operator<<(
+        std::ostream& out, const mem_write_t& mw);
+    std::ostream& operator<<(
+        std::ostream& out, const mem_write_list_t& mwl);
 
     class VerilogExport
     {
@@ -66,6 +75,8 @@ namespace ila
         vexpr_map_t nmap;
         rwmap_t notCache;
 
+        mem_write_list_t current_writes;
+
     protected:
 
         int get_width(const Node *n);
@@ -89,7 +100,9 @@ namespace ila
         void nodeVistorFunc(const Node *n);
 
         void checkMemVar(const Node *n, const MemVar*& mem, int& fail);
-        void visitMemNodes(const Node* n, const nptr_t& cond);
+        void visitMemNodes(
+            const Node* n, const nptr_t& cond,
+            mem_write_entry_list_t& writes);
         static nptr_t logicalAnd(const nptr_t& c1, const nptr_t& c2);
 
         unsigned idCounter;

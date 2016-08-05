@@ -59,8 +59,9 @@ def jazz(d):
 def main():
     
     
-    ila.enablelog("Synthesizer")
-    ila.setloglevel(2,"")
+    # ila.enablelog("Synthesizer")
+    ila.enablelog("VerilogExport")
+    ila.setloglevel(3,"")
     
     
     sys = ila.Abstraction("test")
