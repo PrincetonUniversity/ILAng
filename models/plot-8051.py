@@ -23,7 +23,9 @@ def main():
         print k, t_en, t_dis, s
 
     gmspeedup = gmean(speedup)
+    avgspeedup = np.average(speedup)
     print gmspeedup
+    print avgspeedup
 
     order = [
         '8051_XRAM_DATA_OUT', '8051_XRAM_ADDR',
