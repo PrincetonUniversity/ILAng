@@ -51,8 +51,7 @@ def main():
     fig = plt.figure(figsize=(8,4))
     ax = fig.add_subplot(111)
     ax.set_yscale('log')
-    ax.grid(True, which='major', color='black', linestyle='dashed')
-    ax.grid(True, which='minor', color='gray', linestyle='dotted')
+    ax.grid(True, which='major')
 
     x1s = np.arange(float(len(order))) + 0.1
     x2s = np.arange(float(len(order))) + 0.5
