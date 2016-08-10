@@ -117,11 +117,11 @@ def plot(data):
 
 if __name__ == '__main__':
     oc8051 = read8051()
-    aes1 = readBoth('aes-py', 'AES/aes-times-en.txt', 'AES/aes-times-dis.txt')
-    aes2 = readBoth('aes-py-uinst', 'AES/aes-times-uinst-en.txt', 'AES/aes-times-uinst-dis.txt')
-    aes3 = readBoth('aes-verilog-uinst', 'AES/rtlsim/aes-times-en.txt', 'AES/rtlsim/aes-times-dis.txt', True)
-    sha1 = readBoth('sha1-py', 'SHA/sha-times-en.txt', 'SHA/sha-times-dis.txt', True)
-    sha2 = readBoth('sha1-py-uinst', 'SHA/sha-times-uinst-en.txt', 'SHA/sha-times-uinst-dis.txt', True)
+    aes1 = readBoth('aes-py', 'times/aes-times-py-en.txt', 'times/aes-times-py-dis.txt')
+    aes2 = readBoth('aes-py-uinst', 'times/aes-times-py-uinst-en.txt', 'times/aes-times-py-uinst-dis.txt')
+    aes3 = readBoth('aes-verilog-uinst', 'times/aes-times-rtl-uinst-en.txt', 'times/aes-times-rtl-uinst-dis.txt', True)
+    sha1 = readBoth('sha1-py', 'times/sha-py-times-en.txt', 'times/sha-py-times-dis.txt', True)
+    sha2 = readBoth('sha1-py-uinst', 'times/sha-py-uinst-times-en.txt', 'times/sha-py-uinst-times-dis.txt', True)
 
     dumpList(oc8051)
     dumpList(aes1)
