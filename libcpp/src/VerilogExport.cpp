@@ -118,29 +118,17 @@ namespace ila
             const Node* next = np.next.get();
             const Node* var = np.var.get();
 
-            if (var->equal(next)) return;
-
-            const MemVar* memvar = NULL;
-            int fail = 0;
-            auto checkMem =  [this, &memvar, &fail](const Node *node) { 
-                this->checkMemVar(node, memvar, fail); 
-            };
-            np.next.get()->depthFirstVisit( checkMem );
-            if (memvar) {
-                log2("VerilogExport") << "memvar : " << *memvar << std::endl;
-            } else {
-                log2("VerilogExport") << "memvar : NULL" << std::endl;
+            if (var->equal(next)) {
+                log2("VerilogExport") << "equal" << std::endl;
+                return;
             }
-            log2("VerilogExport") << "fail   : " << fail << std::endl;
-            if (!fail) {
-                nptr_t cond;
-                mem_write_entry_list_t writes;
 
-                current_writes.clear();
-                const Node* next = np.next.get();
-                visitMemNodes(next, cond, writes);
-                std::cout << current_writes << std::endl;
-            }
+            nptr_t cond;
+            mem_write_entry_list_t writes;
+
+            current_writes.clear();
+            visitMemNodes(next, cond, writes);
+            std::cout << current_writes << std::endl;
         }
     }
 
