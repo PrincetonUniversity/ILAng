@@ -9,7 +9,7 @@ def dumpList(data):
         print '%-20s %6.2f %6.2f' % (d, t1, t2)
 
 def read8051():
-    filename = '8051/run.out'
+    filename = 'times/8051.txt'
     flag = 0
     data = []
     for line in open(filename, 'rt'):
