@@ -95,7 +95,7 @@ namespace ila
 
     std::string CppVar::signedUse() const
     {
-        static boost::format signUseFmt(
+        boost::format signUseFmt(
             "((%1% & %2%) ? (%3% | %4%) : %5%)");
         if (_isConst) {
             return _val;
@@ -822,13 +822,13 @@ namespace ila
             //     var = (var << width) | (mem.rd(addr+i) & 0xff);
             // }
             // var = (var & 0x8) ? (var | 0xfff000) : var;
-            static boost::format defFmt(
+            boost::format defFmt(
                 "%1% = (%2%.rd(%3%) & %4%);");
-            static boost::format loopProlog(
+            boost::format loopProlog(
                 "for (int %1% = 1; %2% < %3%; %4%++) {");
-            static boost::format litFmt(
+            boost::format litFmt(
                 "\t%1% = %2% | ((%3%.rd(%4% + %5%) & %6%) << (%7% * %8%));");
-            static boost::format bigFmt(
+            boost::format bigFmt(
                 "\t%1% = (%2% << %3%) | (%4%.rd(%5% + %6%) & %7%);");
 
             defFmt %var->def() %mem->use() %addr->use() %getMask(blxSize);
@@ -952,6 +952,7 @@ namespace ila
             // Mem var = mem;
             // for (int i=0; i<chunkNum; i++) {
             //     endian dependent code 
+            //     chunk_i = chunk_i & 0xff
             //     var.wr(addr+i, chunk_i);
             // }
             //     little:
@@ -964,13 +965,15 @@ namespace ila
             _curFun->addBody(chunk_i->def() + ";");
             _curFun->addBody(var->def() + " = " + arg0->use() + ";");
 
-            static boost::format loopProlog(
+            boost::format loopProlog(
                 "for (int %1% = 0; %2% < %3%; %4%++) {");
-            static boost::format litFmt(
+            boost::format litFmt(
                 "\t%1% = %2% >> (%3% * %4%);");
-            static boost::format bigFmt(
+            boost::format bigFmt(
                 "\t%1% = %2% >> ((%3% - 1 - %4%) * %5%);");
-            static boost::format writeFmt(
+            boost::format uniFmt(
+                "\t%1% = %2%;");
+            boost::format writeFmt(
                 "\t%1%.wr(%2% + %3%, %4%);");
 
             loopProlog % idx->use()             // 1
@@ -989,6 +992,9 @@ namespace ila
                        % idx->use()             // 4
                        % chunkSize;             // 5
 
+            uniFmt     % chunk_i->use()         // 1
+                       % chunk_i->exactUse();   // 2
+
             writeFmt   % var->use()             // 1
                        % arg1->use()            // 2
                        % idx->use()             // 3
@@ -996,6 +1002,7 @@ namespace ila
 
             _curFun->addBody(loopProlog.str());
             _curFun->addBody(isLittle ? litFmt.str() : bigFmt.str());
+            _curFun->addBody(uniFmt.str());
             _curFun->addBody(writeFmt.str());
             code = "}";
         } else {
@@ -1226,7 +1233,7 @@ namespace ila
         unsignStr += var->use() + " & " + getMask(var->_width) + ";";
         _curFun->addBody(signStr);
         _curFun->addBody(unsignStr);
-        static boost::format signUseFmt(
+        boost::format signUseFmt(
             "%1% = ((%2% >> %3%) & 0x1) ? %4% : %5%;");
         signUseFmt % var->use()
                    % var->use() 
@@ -1264,7 +1271,7 @@ namespace ila
     {
         ILA_ASSERT(width > 0, "Negative width.");
 
-        static boost::format unMaskStr("((%1%)1 << %2%) - 1");
+        boost::format unMaskStr("((%1%)1 << %2%) - 1");
         unMaskStr % CppVar::bvStr
                   % width;
         std::string val = unMaskStr.str();
