@@ -1078,6 +1078,11 @@ namespace ila
         out << "\t\t\treturn _map[addr];\n";
         out << "\t\t}\n";
         out << "\t}\n";
+        out << "\n";
+        out << "\tbool operator == (type_mem targ)\n";
+        out << "\t{\n";
+        out << "\t\treturn (_map == targ._map) & (_def_val == targ._def_val);\n";
+        out << "\t}\n";
         out << "};\n";
     }
 

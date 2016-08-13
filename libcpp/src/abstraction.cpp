@@ -922,7 +922,7 @@ namespace ila
         // assumps.
         out << ".assumps: ";
         for (unsigned i = 0; i != assumps.size(); i++) {
-            out << "\n";
+            out << "\n" << i << " ";
             expt.exportAst(out, assumps[i].get());
         }
         out << "\n.assumps_end\n";
