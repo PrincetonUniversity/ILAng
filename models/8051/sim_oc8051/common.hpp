@@ -1,12 +1,10 @@
 #include <map>
 #include <stdint.h>
-#include <iostream>
 #include <boost/multiprecision/cpp_int.hpp>
 
 #ifndef CPP_BITVEC_TYPE
 #define CPP_BITVEC_TYPE
-//typedef boost::multiprecision::cpp_int BIT_VEC;
-typedef int BIT_VEC;
+typedef boost::multiprecision::cpp_int BIT_VEC;
 #endif
 
 /****************************************************/
@@ -46,6 +44,11 @@ public:
 		} else {
 			return _map[addr];
 		}
+	}
+
+	bool operator == (type_mem targ)
+	{
+		return (_map == targ._map) & (_def_val == targ._def_val);
 	}
 };
 #endif

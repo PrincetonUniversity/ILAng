@@ -77,6 +77,7 @@ namespace ila
         std::string _name;
         std::vector<const CppVar*> _args;
         std::vector<std::string> _codeList;
+        std::vector<std::string> _varList;
         CppVar* _ret;
         std::vector<std::pair<CppVar*, CppVar*>> _updates;
 
@@ -101,6 +102,8 @@ namespace ila
         void dumpDec(std::ostream& out, 
                      const std::string& modelName,
                      const int& indent) const;
+        // Print the variable declaration to output stream.
+        void dumpVarDec(std::ostream& out, const int& indent) const;
         // Print the code (with tail) to output stream.
         void dumpCode(std::ostream& out, const int& indent) const;
     };
