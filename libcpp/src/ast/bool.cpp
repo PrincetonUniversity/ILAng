@@ -13,7 +13,7 @@ namespace ila
         "invalid",
         "not", 
         "and", "or", "xor", "xnor", "nand", "nor", "imply",
-        "lt", "gt", "le", "ge", "ult", "ugt", "uge", "uge", 
+        "lt", "gt", "le", "ge", "ult", "ugt", "ule", "uge", 
         "eq", "neq",
         "if"
     };
