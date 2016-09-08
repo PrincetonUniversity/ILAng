@@ -278,7 +278,7 @@ BOOST_PYTHON_MODULE(ila)
             return_value_policy<manage_new_object>());
     def("sle", &NodeRef::sle,
             return_value_policy<manage_new_object>());
-    def("slt", &NodeRef::sleInt,
+    def("sle", &NodeRef::sleInt,
             return_value_policy<manage_new_object>());
     def("sgt", &NodeRef::sgt,
             return_value_policy<manage_new_object>());
