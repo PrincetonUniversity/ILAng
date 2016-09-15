@@ -39,6 +39,8 @@ namespace ila
 
         // list of microabstractions.
         typedef std::map<std::string, uabstraction_t> uabs_map_t;
+	    typedef std::pair<std::string,int> nstage_t;
+	    typedef std::vector<nstage_t> nstage_vec_t;
 
     private:
         static int objCnt;
@@ -77,8 +79,10 @@ namespace ila
 
         // list of sub-abstractions.
         uabs_map_t uabs;
-
-
+		
+        // list of stage variables
+        nstage_vec_t stageVars;
+		
         void initMap(nmap_t& from_m, nmap_t& to_m);
 
         void extractModelValues(
@@ -120,6 +124,9 @@ namespace ila
         // Create a function.
         NodeRef* addFun(const std::string& name, int retW, const py::list& l);
 
+        // Create a stage variable
+        NodeRef* addStage(const std::string& name, int stageNo);
+
         // Get an existing boolean.
         NodeRef* getBit(const std::string& name);
         // Get an existing bitvector.
@@ -128,6 +135,8 @@ namespace ila
         NodeRef* getMem(const std::string& name);
         // Get an existing function.
         NodeRef* getFun(const std::string& name);
+		// Get and existing stage variable.
+		NodeRef* getStage(const std::string& name);
 
         // add a var if it does not exist.
         void addVar(nptr_t& nref);
@@ -211,7 +220,12 @@ namespace ila
 
 		// generate verilog file that is equivelant to the ILA
 		void generateVerilogToFile(const std::string &fileName) const;
+
+        // generate verilog file that is equivelant to the ILA with a different top-level module name
 		void generateVerilogToFile(const std::string &fileName, const std::string &topModName) const;
+
+        // export module for co-verification with C
+        void exportCVerifyFile(const std::string &fileName) const;
 		
         // the import function that import only one expression.
         NodeRef* importOneFromFile(const std::string& fileName);
@@ -344,6 +358,9 @@ namespace ila
         NodeRef* addFun(const std::string& name, int retW, const py::list& l) {
             return abs->addFun(name, retW, l);
         }
+        NodeRef* addStage(const std::string& name, int stageNo) {
+            return abs->addStage(name, stageNo);
+        }
 
         // Get an existing boolean.
         NodeRef* getBit(const std::string& name) {
@@ -363,6 +380,10 @@ namespace ila
         // Get an existing function.
         NodeRef* getFun(const std::string& name) {
             return abs->getFun(name);
+        }
+		// Get an existing stage variable.
+        NodeRef* getStage(const std::string& name) {
+        	return abs->getStage(name);
         }
 
         // Set the init value for this var.
@@ -514,14 +535,18 @@ namespace ila
             abs->exportAllToFile(fileName);
         }
 
-		void generateVerilogToFile( const std::string & fileName) const
+        void generateVerilogToFile( const std::string & fileName) const
 		{
-			abs->generateVerilogToFile(fileName);
-		}
-		void generateVerilogModule( const std::string & fileName, const std::string &modName) const
-		{
-			abs->generateVerilogToFile(fileName,modName);
-		}
+            abs->generateVerilogToFile(fileName);
+        }
+        void generateVerilogModule( const std::string & fileName, const std::string &modName) const
+        {
+		    abs->generateVerilogToFile(fileName,modName);
+        }
+		void exportCVerifyFile(const std::string &fileName) const
+        {
+            abs->exportCVerifyFile(fileName);
+        }
 
         // the import function that import only one expression.
         NodeRef* importOneFromFile(const std::string& fileName)

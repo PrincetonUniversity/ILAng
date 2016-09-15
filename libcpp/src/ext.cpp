@@ -372,6 +372,10 @@ BOOST_PYTHON_MODULE(ila)
         // functions.
         .def("fun", &AbstractionWrapper::addFun, return_value_policy<manage_new_object>())
         .def("getfun", &AbstractionWrapper::getFun, return_value_policy<manage_new_object>())
+        // stages
+        .def("stage", &AbstractionWrapper::addStage, return_value_policy<manage_new_object>())
+        .def("getstage", &AbstractionWrapper::getStage, return_value_policy<manage_new_object>())
+        
 
         // init function
         .def("set_init", &AbstractionWrapper::setInit)
@@ -418,6 +422,7 @@ BOOST_PYTHON_MODULE(ila)
         .def("importAll", &AbstractionWrapper::importAllFromFile)
         .def("generateVerilog", &AbstractionWrapper::generateVerilogToFile)
         .def("generateVerilog", &AbstractionWrapper::generateVerilogModule)
+        .def("exportCVerifyFile", &AbstractionWrapper::exportCVerifyFile)
 
         // simulator.
         .def("generateSim", &AbstractionWrapper::generateSimToFile)

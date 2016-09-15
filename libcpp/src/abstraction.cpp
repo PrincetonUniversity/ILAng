@@ -8,6 +8,7 @@
 #include <Unroller.hpp>
 #include <EqvChecker.hpp>
 #include <VerilogExport.hpp>
+#include <exportSMT.hpp>
 
 #include <boost/multiprecision/cpp_int.hpp>
 #include <fstream>
@@ -140,6 +141,11 @@ namespace ila
         funs.insert({name, npair_t(n->node, NULL)});
         return n;
     }
+	NodeRef* Abstraction::addStage(const std::string& name, int stageNo)
+    {
+        stageVars.push_back(nstage_t(name,stageNo));
+    	return addInp(name,1);
+    }
 
     // ---------------------------------------------------------------------- //
     NodeRef* Abstraction::getBit(const std::string& name)
@@ -160,6 +166,11 @@ namespace ila
     NodeRef* Abstraction::getFun(const std::string& name)
     {
         return getVar(funs, name);
+    }
+	
+    NodeRef* Abstraction::getStage(const std::string& name)
+    {
+        return getVar(inps, name);
     }
 
     void Abstraction::addVar(nptr_t& n)
@@ -832,6 +843,76 @@ namespace ila
 		expt.finalExport(out);
 		out.close();
 	}
+
+    void Abstraction::exportCVerifyFile(const std::string &fileName) const
+    {
+        // FIXME: 
+        //        1. take memory into consideration
+        //        2. take u-inst into consideration
+
+        std::ofstream out(fileName.c_str());
+        ILA_ASSERT(out.is_open(), "File " + fileName + " not open.");
+
+        SMTExport smtExport;
+
+        // inp bit reg stage fun (mem)
+        out << inps.size() - stageVars.size() << ' ' 
+            << bits.size() << ' ' 
+            << regs.size() << ' ' 
+            << stageVars.size() << ' '
+            << funs.size() << ' '
+            << mems.size() << std::endl;
+
+
+        for (nmap_t::const_iterator it = inps.begin();
+             it != inps.end(); it++) {
+            
+            // avoid exporting stage variables here
+            if(smtExport.isStageVar(it->first,stageVars))
+                continue;
+
+            const Node * n = it->second.var.get();
+            int width = smtExport.get_width(n);
+            // export name and width
+            out << it->first <<" "<< width <<std::endl;
+            // nothing else
+        }
+        for (nmap_t::const_iterator it = bits.begin();
+             it != bits.end(); it++) {
+
+            int width = 1;
+            // export name and width
+            out << it->first <<" "<< width <<std::endl;   
+            // export init expr
+            smtExport.exportSMT( out, it->second.init.get(), it->first, width );
+            out << std::endl;
+            // export next expr
+            smtExport.exportSMT( out, it->second.next.get(), it->first, width );
+            out << std::endl;      
+
+        }
+        for (nmap_t::const_iterator it = regs.begin();
+             it != regs.end(); it++) {
+
+            const Node * n = it->second.var.get();
+            int width = smtExport.get_width(n);
+            // export name and width
+            out << it->first <<" "<< width <<std::endl;   
+            // export init expr
+            smtExport.exportSMT( out, it->second.init.get(), it->first, width );
+            out << std::endl;
+            // export next expr
+            smtExport.exportSMT( out, it->second.next.get(), it->first, width );
+            out << std::endl;      
+        }
+        for(const auto & item: stageVars  )   {
+            out<<item.first<<' '<<item.second<<std::endl;
+        }
+        // FIXME: fun and mem not implemented!
+
+        out.close();
+
+    }
 		
 
     void Abstraction::exportAllToFile(const std::string& fileName) const
