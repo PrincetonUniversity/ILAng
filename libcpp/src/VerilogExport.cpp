@@ -4,6 +4,7 @@
 #include <VerilogExport.hpp>
 #include <util.hpp>
 #include <logging.hpp>
+#include <boost/range/adaptor/reversed.hpp>
 
 #define toStr(x) (boost::lexical_cast<std::string>(x))
 
@@ -93,6 +94,21 @@ namespace ila
     }
 
 
+    std::ostream& operator<<(
+        std::ostream& out, const mem_write_t& mw)
+    {
+        return out << "cond: " << *mw.cond.get() << "; write: " << mw.writes;
+    }
+
+    std::ostream& operator<<(
+        std::ostream& out, const mem_write_list_t& mwl)
+    {
+        for (auto&& mw : mwl) {
+            out << mw << "; ";
+        }
+        return out;
+    }
+
     void VerilogExport::exportMem(const std::string &name, const npair_t &np)
     {
         // FIXME: not implemented
@@ -129,6 +145,55 @@ namespace ila
             current_writes.clear();
             visitMemNodes(next, cond, writes);
             std::cout << current_writes << std::endl;
+
+            exportCondWrites(name,addr_width,data_width,current_writes);
+
+            
+        }
+    }
+    void VerilogExport::exportCondWrites(const std::string &name, int addrWidth, int dataWidth, 
+        const mem_write_list_t & writeList) 
+    {
+        // count the maximum ports needed, that is for a single condition what's max size of mem_write_entry_list_t
+        unsigned max_port_no = 0;
+        for (const auto & mw : writeList)
+            if(max_port_no < mw.writes.size())
+                max_port_no = mw.writes.size();
+        for (unsigned portIdx = 0; portIdx < max_port_no; ++portIdx)
+        {
+            add_wire(name + "_addr" + toStr(portIdx),addrWidth);
+            add_wire(name + "_data" + toStr(portIdx),dataWidth);
+        }
+        std::vector<vlg_stmt_t> addrStmt(max_port_no,"0");
+        std::vector<vlg_stmt_t> dataStmt(max_port_no,"'dx");
+
+        for (const auto & mw : boost::adaptors::reverse(writeList) ) {
+            start_iterate(mw.cond.get());
+            vlg_name_t cond = getName(mw.cond.get());
+            int portIdx = 0;
+            for (const auto &wr : mw.writes)
+            {
+                start_iterate(wr.addr.get());
+                vlg_name_t addr = getName(wr.addr.get());
+                start_iterate(wr.data.get());
+                vlg_name_t data = getName(wr.data.get());
+
+                addrStmt[portIdx] = cond + " ? (" + addr + ") : (" + addrStmt[portIdx] + ")";
+                dataStmt[portIdx] = cond + " ? (" + data + ") : (" + dataStmt[portIdx] + ")";
+
+                portIdx ++;
+            }
+
+        }
+        for (unsigned portIdx = 0; portIdx < max_port_no; ++portIdx)
+        {
+            // add statements
+            vlg_name_t addrWireName = name + "_addr" + toStr(portIdx);
+            vlg_name_t dataWireName = name + "_data" + toStr(portIdx);
+            add_stmt(vlg_stmt_t("assign ") + addrWireName + " = " + addrStmt[portIdx] + ";" );
+            add_stmt(vlg_stmt_t("assign ") + dataWireName + " = " + dataStmt[portIdx] + ";" );
+            // add memory updates in the always block
+            add_always_stmt(name + " [ " + addrWireName + " ] " + "<= "  + dataWireName);
         }
     }
 
@@ -433,7 +498,7 @@ namespace ila
     void VerilogExport::nodeVistorFunc(const Node *n)
     {
 
-        // memoize
+        // memorize
         if (nmap.find(n) != nmap.end()) return;
 
         // booleans
@@ -540,20 +605,6 @@ namespace ila
         return out << "]";
     }
 
-    std::ostream& operator<<(
-        std::ostream& out, const mem_write_t& mw)
-    {
-        return out << "cond: " << *mw.cond.get() << "; write: " << mw.writes;
-    }
-
-    std::ostream& operator<<(
-        std::ostream& out, const mem_write_list_t& mwl)
-    {
-        for (auto&& mw : mwl) {
-            out << mw << "; ";
-        }
-        return out;
-    }
 
     void VerilogExport::visitMemNodes(
         const Node* n, const nptr_t& cond,

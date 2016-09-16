@@ -89,7 +89,6 @@ namespace ila
         void add_stmt(const vlg_stmt_t & s);
         void add_always_stmt(const vlg_stmt_t & s);
         void add_init_stmt(const vlg_stmt_t & s);
-
         void start_iterate(const Node *n);
 
         vlg_name_t getName(const Node* n);
@@ -98,7 +97,9 @@ namespace ila
         vlg_name_t translateBitvectorOp(const BitvectorOp* bvop);
 
         void nodeVistorFunc(const Node *n);
-
+        void exportCondWrites(
+            const std::string &n, int addr_width, 
+            int data_width, const mem_write_list_t & writeList);
         void checkMemVar(const Node *n, const MemVar*& mem, int& fail);
         void visitMemNodes(
             const Node* n, const nptr_t& cond,

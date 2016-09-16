@@ -141,10 +141,10 @@ namespace ila
         funs.insert({name, npair_t(n->node, NULL)});
         return n;
     }
-	NodeRef* Abstraction::addStage(const std::string& name, int stageNo)
+    NodeRef* Abstraction::addStage(const std::string& name, int stageNo)
     {
         stageVars.push_back(nstage_t(name,stageNo));
-    	return addInp(name,1);
+        return addInp(name,1);
     }
 
     // ---------------------------------------------------------------------- //
@@ -167,7 +167,7 @@ namespace ila
     {
         return getVar(funs, name);
     }
-	
+    
     NodeRef* Abstraction::getStage(const std::string& name)
     {
         return getVar(inps, name);
@@ -813,36 +813,36 @@ namespace ila
 
     }
 
-	void Abstraction::generateVerilogToFile(const std::string &fileName, const std::string &topModName) const
-	{
-		// FIXME: 
-		//		  1. take memory into consideration
-		//		  2. take u-inst into consideration
-		
-		std::ofstream out(fileName.c_str());
-		ILA_ASSERT(out.is_open(), "File " + fileName + " not open.");
+    void Abstraction::generateVerilogToFile(const std::string &fileName, const std::string &topModName) const
+    {
+        // FIXME: 
+        //        1. take memory into consideration
+        //        2. take u-inst into consideration
+        
+        std::ofstream out(fileName.c_str());
+        ILA_ASSERT(out.is_open(), "File " + fileName + " not open.");
 
-		VerilogExport expt(topModName,"clk","rst");
-		for (auto const & inp : inps) 
-			expt.exportInp(inp.first,inp.second);
-		
-		for (auto const & reg : regs)
-			expt.exportReg(reg.first,reg.second);
-		
-		for (auto const & bit : bits)
-			expt.exportBit(bit.first,bit.second);
-		
-		for (auto const & mem : mems)
-			expt.exportMem(mem.first,mem.second);
+        VerilogExport expt(topModName,"clk","rst");
+        for (auto const & inp : inps) 
+            expt.exportInp(inp.first,inp.second);
+        
+        for (auto const & reg : regs)
+            expt.exportReg(reg.first,reg.second);
+        
+        for (auto const & bit : bits)
+            expt.exportBit(bit.first,bit.second);
+        
+        for (auto const & mem : mems)
+            expt.exportMem(mem.first,mem.second);
 
-		for (auto const & func : funs)
-			expt.exportFunc(func.first,func.second);
+        for (auto const & func : funs)
+            expt.exportFunc(func.first,func.second);
 
-		// FIXME: uabs not considered
+        // FIXME: uabs not considered
 
-		expt.finalExport(out);
-		out.close();
-	}
+        expt.finalExport(out);
+        out.close();
+    }
 
     void Abstraction::exportCVerifyFile(const std::string &fileName) const
     {
@@ -913,7 +913,7 @@ namespace ila
         out.close();
 
     }
-		
+        
 
     void Abstraction::exportAllToFile(const std::string& fileName) const
     {
