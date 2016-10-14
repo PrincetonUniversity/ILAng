@@ -381,6 +381,9 @@ namespace ila
         auto epos_u = uab->findInMap(name);
         const nptr_t& nxt = epos->second.next;
         const nptr_t& nxt_u = epos_u->second.next;
+        if(!nxt.get() ) // this can happen when someone forgets to set "next" first
+            throw PyILAException(PyExc_RuntimeError, 
+                "Please specify next expr for:" +name +" before connecting.");
 
         if (nxt->type != nxt_u->type) {
             throw PyILAException(PyExc_TypeError,
