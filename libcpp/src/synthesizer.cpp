@@ -785,6 +785,8 @@ namespace ila
         int i = 0;
         dict args;
         std::unique_ptr<DistInput> di;
+        log2("Synthesizer._synthesize") << S << std::endl;
+
         while ((di = _getDistInput(y)) && (i++ < MAX_SYN_ITER)) {
             log1("Synthesizer._synthesize") << "iteration #" << i << std::endl;
 
