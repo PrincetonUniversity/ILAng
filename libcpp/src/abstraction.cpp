@@ -9,6 +9,7 @@
 #include <EqvChecker.hpp>
 #include <VerilogExport.hpp>
 #include <exportSMT.hpp>
+#include <boogie.hpp>
 
 #include <boost/multiprecision/cpp_int.hpp>
 #include <fstream>
@@ -745,6 +746,13 @@ namespace ila
         //std::cout << "e_r2=" << e_r2 << std::endl;
         //std::cout << S << std::endl;
         return checkMiter(S, e_r1, e_r2);
+    }
+
+    // ---------------------------------------------------------------------- //
+    void Abstraction::toBoogie(const std::string& name)
+    {
+        BoogieTranslator bt(this);
+        std::cout << "toBoogie ..." << std::endl;
     }
 
     // ---------------------------------------------------------------------- //

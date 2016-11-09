@@ -13,6 +13,7 @@
 #include <imexport.hpp>
 #include <VerilogExport.hpp>
 #include <cppsimgen.hpp>
+#include <boogie.hpp>
 
 namespace ila
 {
@@ -248,6 +249,9 @@ namespace ila
         static bool bmc(
             unsigned n1, Abstraction* a1, NodeRef* r1, 
             unsigned n2, Abstraction* a2, NodeRef* r2);
+
+        // convert this abstraction to boogie.
+        void toBoogie(const std::string& filename);
 
         // get memories.
         const nmap_t& getMems() const { return mems; }
@@ -598,6 +602,11 @@ namespace ila
             Abstraction* a2ptr = a2->abs.get();
 
             return Abstraction::bmc(n1, a1ptr, r1, n2, a2ptr, r2);
+        }
+
+        void toBoogie(const std::string& name)
+        {
+            abs->toBoogie(name);
         }
 
         int getEnParamSyn() const {

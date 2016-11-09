@@ -116,6 +116,7 @@ def genboogie(hexfile, enable_ps):
     romconst = model.const(romvalue)
     model.set_init('ROM', romconst)
     print 'Set ROM initial value.'
+    model.toBoogie("test")
 
 def main():
     parser = argparse.ArgumentParser()

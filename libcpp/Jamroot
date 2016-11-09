@@ -56,6 +56,7 @@ python-extension ila : src/abstraction.cpp
                        src/ast/hash.cpp
                        src/ast/mem.cpp
                        src/ast/node.cpp 
+                       src/boogie.cpp
                        src/cppsimgen.cpp
                        src/exception.cpp 
                        src/ext.cpp 
