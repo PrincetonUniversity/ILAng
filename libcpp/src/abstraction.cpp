@@ -752,7 +752,7 @@ namespace ila
     void Abstraction::toBoogie(const std::string& name)
     {
         BoogieTranslator bt(this);
-        std::cout << "toBoogie ..." << std::endl;
+        bt.translate();
     }
 
     // ---------------------------------------------------------------------- //
@@ -1306,6 +1306,34 @@ namespace ila
         nptr_t nr = rw.rewrite(ex_n);
         return nr;
     }
+    // ---------------------------------------------------------------------- //
+    const npair_t* Abstraction::getMapEntry(const std::string& name) const
+    {
+        auto pos = names.find(name);
+        if (pos == names.end()) {
+            return NULL;
+        }
+        const nmap_t* map = NULL;
+        if (pos->second == INP) {
+            map = &inps;
+        } else if (pos->second == REG) {
+            map = &regs;
+        } else if (pos->second == BIT) {
+            map = &bits;
+        } else if (pos->second == MEM) {
+            map = &mems; 
+        } else if (pos->second == FUN) {
+            map = &funs;
+        } else {
+            ILA_ASSERT(false, "Invalid value for entry in names.");
+            return NULL;
+        }
+
+        auto pos2 = map->find(name);
+        ILA_ASSERT(pos2 != map->end(), "Not found in the appropriate map!");
+        return &(pos2->second);
+    }
+
     // ---------------------------------------------------------------------- //
     bool Abstraction::checkAndInsertName(state_t st, const std::string& name)
     {

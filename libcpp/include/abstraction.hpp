@@ -276,8 +276,19 @@ namespace ila
             void useAssump(const nptr_t& a);
         };
             
+        // accessors.
+        nptr_t getFetchExprRef() const { return fetchExpr; }
+        nptr_t getFetchValidRef() const { return fetchValid; }
+        nptr_vec_t getDecodeExprs() const { return decodeExprs; }
+        const npair_t* getMapEntry(const std::string& name) const;
+        bool isInput(const std::string& name) const {
+            auto pos = names.find(name);
+            if (pos == names.end()) return false;
+            else return pos->second == INP;
+        }
 
         friend class Synthesizer;
+        friend class BoogieTranslator;
 
     protected:
         nptr_t _synthesize(

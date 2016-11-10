@@ -94,18 +94,27 @@ def genboogie(hexfile, enable_ps):
     xram_addr = model.reg('XRAM_ADDR', 16)
 
     # get synthesized states
-    states = [
-        'PC', 'IRAM', 'ACC', 'B', 
-        'PSW', 'SP', 'DPL', 'DPH', 
+    regs = [
+        'PC', 'ACC', 'B', 'PSW', 'SP', 
+        'DPL', 'DPH', 
         'P0', 'P1', 'P2', 'P3', 
         'PCON', 'TCON', 'TMOD', 'TL0', 
         'TH0', 'TL1', 'TH1', 'SCON', 
         'SBUF', 'IE', 'IP', 'XRAM_DATA_OUT', 
         'XRAM_ADDR'
     ]
+    states = regs + ['IRAM']
+
+
     for s in states:
         ast = model.importOne('asts/%s_%s' % (s, 'en' if enable_ps else 'dis'))
         model.set_next(s, ast)
+
+    for r in regs:
+        reg = model.getreg(r)
+        zero = model.const(0, reg.type.bitwidth)
+        model.set_init(r, zero)
+
     print 'Finished importing 8051 ASTs.'
 
     data = readhex(hexfile)
@@ -115,6 +124,7 @@ def genboogie(hexfile, enable_ps):
         romvalue[a] = d
     romconst = model.const(romvalue)
     model.set_init('ROM', romconst)
+    model.set_next('ROM', rom)
     print 'Set ROM initial value.'
     model.toBoogie("test")
 
