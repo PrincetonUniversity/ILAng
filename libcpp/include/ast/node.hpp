@@ -25,6 +25,7 @@ namespace ila
 
     typedef boost::shared_ptr<Node> nptr_t;
     typedef std::vector<nptr_t> nptr_vec_t;
+    typedef std::vector<const Node*> nodevec_t;
     typedef std::set<const Node*> nodeset_t;
 
     struct npair_t {

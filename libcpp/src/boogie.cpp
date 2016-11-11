@@ -5,25 +5,26 @@ namespace ila
 {
     BoogieTranslator::BoogieTranslator(Abstraction* a)
       : abs(a)
+      , c(c_, "")
     {
         abs->fetchExpr->getSupportVars(fetchVars);
-        nptr_vec_t init_state;
+        std::unique_ptr<nodevec_t> init_state(new nodevec_t());
         for (auto n : fetchVars) {
             const npair_t* pair = abs->getMapEntry(n->getName());
             ILA_ASSERT(pair != NULL, "Variable not in map.");
             if (abs->isInput(n->getName())) {
-                inpFV.insert(n);
+                inpFV.push_back(n);
                 std::cout << "inp  : " << n->getName() << std::endl;
             } else if (isConstant(pair)) {
-                constFV.insert(n);
                 std::cout << "cnst : " << n->getName() << std::endl;
+                constFV.push_back(n);
+                constEx.push_back(c.getExpr(n));
             } else {
-                varFV.insert(n);
+                varFV.push_back(n);
                 std::cout << "var  : " << n->getName() << std::endl;
-                init_state.push_back(pair->init);
+                init_state->push_back(pair->init.get());
             }
         }
-        states.push(init_state);
     }
 
 
@@ -38,5 +39,9 @@ namespace ila
 
     void BoogieTranslator::translate()
     {
+        z3::solver S(c_);
+
+        while(states.size() > 0) {
+        }
     }
 }
