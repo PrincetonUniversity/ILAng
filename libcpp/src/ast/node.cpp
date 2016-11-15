@@ -80,7 +80,7 @@ namespace ila
     // ---------------------------------------------------------------------- //
     void Node::getSupportVars(nodeset_t& supp)
     {
-        auto visitorFun =  [&supp] (const Node *nptr) { 
+        auto visitorFun =  [&supp, this] (const Node *nptr) { 
             _getSupportVarsHelper(supp, nptr); 
         };
         this->depthFirstVisit(visitorFun);
