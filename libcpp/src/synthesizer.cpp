@@ -325,6 +325,11 @@ namespace ila
             // try to extract a bitvector.
             if (is_py_int_or_long(r)) {
                 out = to_string(r);
+                mp_int_t v = boost::lexical_cast<mp_int_t>(out);
+                if (v < 0) {
+                    throw PyILAException(PyExc_ValueError, 
+                        "Expected a unsigned bitvector as the simulation result, not a negative number.");
+                }
             } else {
                 throw PyILAException(PyExc_ValueError, 
                     "Unable to convert result into a bitvector.");
