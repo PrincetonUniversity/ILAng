@@ -325,6 +325,11 @@ namespace ila
             // try to extract a bitvector.
             if (is_py_int_or_long(r)) {
                 out = to_string(r);
+                mp_int_t v = boost::lexical_cast<mp_int_t>(out);
+                if (v < 0) {
+                    throw PyILAException(PyExc_ValueError, 
+                        "Expected an unsigned bitvector as the simulation result, not a negative number.");
+                }
             } else {
                 throw PyILAException(PyExc_ValueError, 
                     "Unable to convert result into a bitvector.");
@@ -785,6 +790,8 @@ namespace ila
         int i = 0;
         dict args;
         std::unique_ptr<DistInput> di;
+        log2("Synthesizer._synthesize") << S << std::endl;
+
         while ((di = _getDistInput(y)) && (i++ < MAX_SYN_ITER)) {
             log1("Synthesizer._synthesize") << "iteration #" << i << std::endl;
 

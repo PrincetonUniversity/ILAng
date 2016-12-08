@@ -78,6 +78,32 @@ namespace ila
     }
 
     // ---------------------------------------------------------------------- //
+    void Node::getSupportVars(nodeset_t& supp)
+    {
+        auto visitorFun =  [&supp, this] (const Node *nptr) { 
+            _getSupportVarsHelper(supp, nptr); 
+        };
+        this->depthFirstVisit(visitorFun);
+    }
+
+    void Node::_getSupportVarsHelper(nodeset_t& supp, const Node* n)
+    {
+        // handle the various types.
+        const BoolVar* boolvar = NULL; 
+        const BitvectorVar* bvvar = NULL;
+        const MemVar* memvar = NULL;
+        const FuncVar* funcvar = NULL;
+
+        if ((boolvar = dynamic_cast<const BoolVar*>(n))             ||
+            (bvvar = dynamic_cast<const BitvectorVar*>(n))          ||
+            (memvar = dynamic_cast<const MemVar*>(n))               ||
+            (funcvar = dynamic_cast<const FuncVar*>(n))) 
+        {
+            supp.insert(n);
+        }
+    }
+
+    // ---------------------------------------------------------------------- //
     // private visitor class //
     namespace {
         struct SynCounter {

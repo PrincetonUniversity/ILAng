@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <string>
+#include <set>
 #include <vector>
 #include <memory>
 #include <unordered_map>
@@ -24,6 +25,8 @@ namespace ila
 
     typedef boost::shared_ptr<Node> nptr_t;
     typedef std::vector<nptr_t> nptr_vec_t;
+    typedef std::vector<const Node*> nodevec_t;
+    typedef std::set<const Node*> nodeset_t;
 
     struct npair_t {
         nptr_t var;
@@ -85,6 +88,9 @@ namespace ila
         mutable bool hash_inited;
         // hash value.
         mutable size_t hash_value; 
+
+        // helper function for getSupport
+        static void _getSupportVarsHelper(nodeset_t& supp, const Node* n);
     public: //TODO : for now leave it as public
         // type of this node.
         NodeType type;
@@ -134,6 +140,9 @@ namespace ila
             }
             func(this);
         }
+
+        // Get the variables in this node's support.
+        void getSupportVars(nodeset_t& sup);
 
         // -------------------- VISITOR ----------------------//
         void visit(NodeVisitorI& vi);

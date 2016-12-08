@@ -14,6 +14,7 @@
 #include <VerilogExport.hpp>
 #include <cppsimgen.hpp>
 #include <MicroUnroller.hpp>
+#include <boogie.hpp>
 
 namespace ila
 {
@@ -79,7 +80,7 @@ namespace ila
 
         // list of sub-abstractions.
         uabs_map_t uabs;
-                
+        
         void initMap(nmap_t& from_m, nmap_t& to_m);
 
         void extractModelValues(
@@ -133,6 +134,8 @@ namespace ila
         NodeRef* getMem(const std::string& name);
         // Get an existing function.
         NodeRef* getFun(const std::string& name);
+        // Get and existing stage variable.
+        NodeRef* getStage(const std::string& name);
 
         // add a var if it does not exist.
         void addVar(nptr_t& nref);
@@ -226,6 +229,7 @@ namespace ila
 
         // generate verilog file that is equivelant to the ILA with a different top-level module name
         void generateVerilogToFile(const std::string &fileName, const std::string &topModName) const;
+
         
         // the import function that import only one expression.
         NodeRef* importOneFromFile(const std::string& fileName);
@@ -253,6 +257,9 @@ namespace ila
         // unroll two abstraction including microabstraction and check
         static bool EQcheckSimple(Abstraction* a1, Abstraction *a2);
 
+        // convert this abstraction to boogie.
+        void toBoogie(const std::string& filename);
+
         // get memories.
         const nmap_t& getMems() const { return mems; }
         // get (bitvector) inputs.
@@ -276,8 +283,19 @@ namespace ila
             void useAssump(const nptr_t& a);
         };
             
+        // accessors.
+        nptr_t getFetchExprRef() const { return fetchExpr; }
+        nptr_t getFetchValidRef() const { return fetchValid; }
+        nptr_vec_t getDecodeExprs() const { return decodeExprs; }
+        const npair_t* getMapEntry(const std::string& name) const;
+        bool isInput(const std::string& name) const {
+            auto pos = names.find(name);
+            if (pos == names.end()) return false;
+            else return pos->second == INP;
+        }
 
         friend class Synthesizer;
+        friend class BoogieTranslator;
         friend unsigned DetermineUnrollBound( Abstraction * pAbs, const std::string & nodeName);
         friend class MicroUnroller;
 
@@ -639,6 +657,11 @@ namespace ila
         MicroUnroller * newUnroller(AbstractionWrapper *uILA, bool initCondition)
         {
             return MicroUnroller::NewUnroller(this,uILA,initCondition);
+        }
+
+        void toBoogie(const std::string& name)
+        {
+            abs->toBoogie(name);
         }
 
         int getEnParamSyn() const {
