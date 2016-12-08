@@ -123,6 +123,7 @@ namespace ila
         }
 
         void setNameSuffix(const std::string& ns) {name_suffix = ns;}
+        const std::string & getNameSuffix() const {return name_suffix;}
     private:
         // Helper to convert choices into z3 expressions.
         template<typename T>

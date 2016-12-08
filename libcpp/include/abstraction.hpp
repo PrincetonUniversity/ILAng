@@ -13,11 +13,13 @@
 #include <imexport.hpp>
 #include <VerilogExport.hpp>
 #include <cppsimgen.hpp>
+#include <MicroUnroller.hpp>
 
 namespace ila
 {
     class Abstraction;
     class AbstractionWrapper;
+    class MicroEQCheck;
     typedef boost::shared_ptr<Abstraction> abstraction_ptr_t;
 
     struct assump_visitor_i {
@@ -39,9 +41,6 @@ namespace ila
 
         // list of microabstractions.
         typedef std::map<std::string, uabstraction_t> uabs_map_t;
-        // list of stage markers
-        typedef std::pair<std::string,int> nstage_t;
-        typedef std::vector<nstage_t> nstage_vec_t;
 
     private:
         static int objCnt;
@@ -80,10 +79,7 @@ namespace ila
 
         // list of sub-abstractions.
         uabs_map_t uabs;
-        
-        // list of stage markers
-        nstage_vec_t stageVars;
-        
+                
         void initMap(nmap_t& from_m, nmap_t& to_m);
 
         void extractModelValues(
@@ -107,6 +103,8 @@ namespace ila
         // Destructor.
         ~Abstraction();
 
+        // Get abstraction name
+        const std::string & getName() const {return name;}
         // Get a new ID.
         static int getObjId();
 
@@ -125,9 +123,8 @@ namespace ila
         // Create a function.
         NodeRef* addFun(const std::string& name, int retW, const py::list& l);
 
-        // Create a stage variable
-        NodeRef* addStage(const std::string& name, int stageNo);
-
+        // Get an existing input port
+        NodeRef* getInp(const std::string& name);
         // Get an existing boolean.
         NodeRef* getBit(const std::string& name);
         // Get an existing bitvector.
@@ -136,8 +133,6 @@ namespace ila
         NodeRef* getMem(const std::string& name);
         // Get an existing function.
         NodeRef* getFun(const std::string& name);
-        // Get and existing stage variable.
-        NodeRef* getStage(const std::string& name);
 
         // add a var if it does not exist.
         void addVar(nptr_t& nref);
@@ -190,12 +185,16 @@ namespace ila
         void setFetchExpr(NodeRef* expr);
         // return the fetch valid expression.
         NodeRef* getFetchValid() const;
+        
+        nptr_t getFetchValidNode() const;
+            
         // set the fetch valid expresssion.
         void setFetchValid(NodeRef* expr);
         // set decode.
         void setDecodeExpressions(const py::list& l);
         // get decode expressions.
         py::list getDecodeExpressions() const;
+        const nptr_vec_t& getDecodeNodes() const;
 
         // add an assumption.
         void addAssumption(NodeRef* expr);
@@ -219,19 +218,21 @@ namespace ila
         // the export function that export the overall model.
         void exportAllToFile(const std::string& fileName) const;
 
+        // the export function that export to a outstream
+        void exportAllToStream(std::ofstream &out) const;
+
         // generate verilog file that is equivelant to the ILA
         void generateVerilogToFile(const std::string &fileName) const;
 
         // generate verilog file that is equivelant to the ILA with a different top-level module name
         void generateVerilogToFile(const std::string &fileName, const std::string &topModName) const;
-
-        // export module for co-verification with C
-        void exportCVerifyFile(const std::string &fileName) const;
         
         // the import function that import only one expression.
         NodeRef* importOneFromFile(const std::string& fileName);
         // the import function that import the overall model.
         void importAllFromFile(const std::string& fileName);
+        // the import function that import the overall ILA abstraction from Stream
+        void importAllFromStream(std::ifstream &in, bool Clear);        
 
         // the simulator generating function, output to one file.
         void generateSimToFile(const std::string& fileName) const;
@@ -248,6 +249,9 @@ namespace ila
         static bool bmc(
             unsigned n1, Abstraction* a1, NodeRef* r1, 
             unsigned n2, Abstraction* a2, NodeRef* r2);
+
+        // unroll two abstraction including microabstraction and check
+        static bool EQcheckSimple(Abstraction* a1, Abstraction *a2);
 
         // get memories.
         const nmap_t& getMems() const { return mems; }
@@ -274,6 +278,8 @@ namespace ila
             
 
         friend class Synthesizer;
+        friend unsigned DetermineUnrollBound( Abstraction * pAbs, const std::string & nodeName);
+        friend class MicroUnroller;
 
     protected:
         nptr_t _synthesize(
@@ -292,7 +298,12 @@ namespace ila
         // what is the map containing this name?
         nmap_t::const_iterator findInMap(const std::string& name) const;
         nmap_t::iterator findInMap(const std::string& name);
-
+        
+        nmap_t::const_iterator findInMapNoExcept(const std::string& name) const;
+        nmap_t::iterator findInMapNoExcept(const std::string& name);
+        nmap_t::const_iterator MapEnd() const;
+        nmap_t::iterator MapEnd();
+        
         friend class AbstractionWrapper;
 
     private:
@@ -359,10 +370,12 @@ namespace ila
         NodeRef* addFun(const std::string& name, int retW, const py::list& l) {
             return abs->addFun(name, retW, l);
         }
-        NodeRef* addStage(const std::string& name, int stageNo) {
-            return abs->addStage(name, stageNo);
+        
+        // Get an existing input port
+        NodeRef* getInp(const std::string& name) {
+            return abs->getInp(name);
         }
-
+        
         // Get an existing boolean.
         NodeRef* getBit(const std::string& name) {
             return abs->getBit(name);
@@ -381,10 +394,6 @@ namespace ila
         // Get an existing function.
         NodeRef* getFun(const std::string& name) {
             return abs->getFun(name);
-        }
-        // Get an existing stage variable.
-        NodeRef* getStage(const std::string& name) {
-            return abs->getStage(name);
         }
 
         // Set the init value for this var.
@@ -544,10 +553,6 @@ namespace ila
         {
             abs->generateVerilogToFile(fileName,modName);
         }
-        void exportCVerifyFile(const std::string &fileName) const
-        {
-            abs->exportCVerifyFile(fileName);
-        }
 
         // the import function that import only one expression.
         NodeRef* importOneFromFile(const std::string& fileName)
@@ -598,6 +603,42 @@ namespace ila
             Abstraction* a2ptr = a2->abs.get();
 
             return Abstraction::bmc(n1, a1ptr, r1, n2, a2ptr, r2);
+        }
+
+        static bool EQcheckSimple(
+            AbstractionWrapper* a1, AbstractionWrapper* a2)
+        {
+            Abstraction* a1ptr = a1->abs.get();
+            Abstraction* a2ptr = a2->abs.get();
+            
+            return Abstraction::EQcheckSimple(a1ptr,a2ptr);
+        }
+        
+        static bool EQcheck(
+                    MicroUnroller *m1, MicroUnroller *m2, const std::string &n1, const std::string &n2)
+        {
+            return MicroUnroller::EqCheck(m1,m2,n1,n2);
+        }
+        static void EQcheckExport(const std::string & fn,
+                    MicroUnroller *m1, MicroUnroller *m2, const std::string &n1, const std::string &n2)
+        {
+            MicroUnroller::EqOffline(fn,m1,m2,n1,n2);
+        }
+
+        static bool EQcheckWithAssump(
+            MicroUnroller *m1, MicroUnroller *m2, const std::string &n1, const std::string &n2, py::list & assumps)
+        {
+            return MicroUnroller::EqCheck(m1,m2,n1,n2,assumps);
+        }
+        static void EQcheckWithAssumpExport(const std::string & fn,
+            MicroUnroller *m1, MicroUnroller *m2, const std::string &n1, const std::string &n2, py::list & assumps)
+        {
+            MicroUnroller::EqOffline(fn,m1,m2,n1,n2,assumps);
+        }
+
+        MicroUnroller * newUnroller(AbstractionWrapper *uILA, bool initCondition)
+        {
+            return MicroUnroller::NewUnroller(this,uILA,initCondition);
         }
 
         int getEnParamSyn() const {

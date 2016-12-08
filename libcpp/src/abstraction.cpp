@@ -59,7 +59,7 @@ namespace ila
     {
         ILA_ASSERT(to_m.size() == 0, "to_m should be empty.");
         for(auto&& fn : from_m) {
-            to_m.insert({fn.first, npair_t(fn.second)});
+            to_m.insert({fn.first, npair_t(&(fn.second))});  // without & it uses the default copy constructor
         }
     }
 
@@ -141,11 +141,6 @@ namespace ila
         funs.insert({name, npair_t(n->node, NULL)});
         return n;
     }
-    NodeRef* Abstraction::addStage(const std::string& name, int stageNo)
-    {
-        stageVars.push_back(nstage_t(name,stageNo));
-        return addInp(name,1);
-    }
 
     // ---------------------------------------------------------------------- //
     NodeRef* Abstraction::getBit(const std::string& name)
@@ -168,7 +163,7 @@ namespace ila
         return getVar(funs, name);
     }
     
-    NodeRef* Abstraction::getStage(const std::string& name)
+    NodeRef* Abstraction::getInp(const std::string& name)
     {
         return getVar(inps, name);
     }
@@ -250,7 +245,37 @@ namespace ila
         }
         return pos;
     }
+    nmap_t::const_iterator Abstraction::findInMapNoExcept(const std::string& name) const
+    {
+        // try to find in each of the maps.
+        nmap_t::const_iterator pos = inps.find(name);
+        if (pos == inps.end()) pos = bits.find(name);
+        if (pos == bits.end()) pos = regs.find(name);
+        if (pos == regs.end()) pos = mems.find(name);
+        
+        return pos;
+    }
 
+    nmap_t::iterator Abstraction::findInMapNoExcept(const std::string& name)
+    {
+        // try to find in each of the maps.
+        nmap_t::iterator pos = inps.find(name);
+        if (pos == inps.end()) pos = bits.find(name);
+        if (pos == bits.end()) pos = regs.find(name);
+        if (pos == regs.end()) pos = mems.find(name);
+        
+        return pos;
+    }
+    nmap_t::const_iterator Abstraction::MapEnd() const
+    {
+        nmap_t::const_iterator pos = mems.end();
+        return pos;
+    }
+    nmap_t::iterator Abstraction::MapEnd()
+    {
+        nmap_t::iterator pos = mems.end();
+        return pos;
+    }
     // ---------------------------------------------------------------------- //
     void Abstraction::setInit(const std::string& name, NodeRef* n)
     {
@@ -271,7 +296,8 @@ namespace ila
 
     NodeRef* Abstraction::getInit(const std::string& name) const
     {
-        auto pos = findInMap(name);
+        auto pos = findInMap(name); // init can never be NULL based on the constructors
+        ILA_ASSERT(pos->second.init.get() != NULL , "init function of " + name + " is not set.");
         return new NodeRef(pos->second.init);
     }
 
@@ -322,6 +348,9 @@ namespace ila
     NodeRef* Abstraction::getNext(const std::string& name) const
     {
         auto pos = findInMap(name);
+        if(!pos->second.next.get())
+            throw PyILAException(PyExc_RuntimeError, 
+                "Next expression has not been set for variable:"+name);
         return new NodeRef(pos->second.next);
     }
 
@@ -363,6 +392,9 @@ namespace ila
     AbstractionWrapper* Abstraction::getUAbs(const std::string& name)
     {
         auto pos = uabs.find(name);
+        if(pos == uabs.end())
+            throw PyILAException(PyExc_KeyError, 
+                    "Unable to find microabstraction: " + name);
         return new AbstractionWrapper(pos->second.abs);
     }
 
@@ -448,7 +480,10 @@ namespace ila
     {
         return new NodeRef(fetchValid);
     }
-
+    nptr_t Abstraction::getFetchValidNode() const
+    {
+        return fetchValid;
+    }
     void Abstraction::setFetchValid(NodeRef* fv)
     {
         if (!fv->node->type.isBool()) {
@@ -500,6 +535,10 @@ namespace ila
             l.append(nr);
         }
         return l;
+    }
+    const nptr_vec_t& Abstraction::getDecodeNodes() const
+    {
+        return decodeExprs;
     }
 
     // ---------------------------------------------------------------------- //
@@ -713,6 +752,85 @@ namespace ila
         return checkMiter(S, e_exp, e_reg);
     }
 
+#define CHECK_VARTYPE_CONTAINS(vartype,a1,a2) \
+        for (auto && v : a1->vartype ) \
+        {                             \
+            auto pos = a2->vartype.find(v.first); \
+            if(pos == a2->vartype.end())   \
+                return NEQVarNotExist(a1->name,a2->name,v.first);    \
+            if( (pos->second.var )->type != (v.second.var)->type )      \
+                return NEQVarTypeMismatch(a1->name,a2->name,v.first); \
+        }
+        
+    bool Abstraction::EQcheckSimple(Abstraction* a1, Abstraction *a2)
+    {
+        //check 1 -> 2
+
+        // checking whether there are same variables
+        // and also the types are correct
+        CHECK_VARTYPE_CONTAINS(mems,a1,a2);
+        CHECK_VARTYPE_CONTAINS(mems,a2,a1);
+        CHECK_VARTYPE_CONTAINS(regs,a1,a2);
+        CHECK_VARTYPE_CONTAINS(regs,a2,a1);
+        CHECK_VARTYPE_CONTAINS(bits,a1,a2);
+        CHECK_VARTYPE_CONTAINS(funs,a2,a1);
+        //check all regs/bits/mems
+        //if it is simple, in other words
+        //no subILA's next has a valid expression
+        //then they should be the same under bmc(1)
+
+        for ( auto && reg : a1->regs ) // just iterate on one side
+        {   
+            std::string name(reg.first);
+            if( DetermineUnrollBound(a1,name) == 1 && DetermineUnrollBound(a2,name) == 1 )
+            {
+                nptr_t n1 = (a1->findInMap(name))->second.var;
+                nptr_t n2 = (a2->findInMap(name))->second.var;
+                NodeRef var1(n1);
+                NodeRef var2(n2);
+                if( !bmc(1,a1,&var1,1,a2,&var2) ) {
+                    return NEQArchVarUpdateMismatch(a1->name,a2->name,name);
+                    return false;
+                }
+                std::cout<<"state:"<<name<<" is checked to be EQ."<<std::endl;  
+            }
+        }
+        for ( auto && mem : a1->mems ) // just iterate on one side
+        {   
+            std::string name(mem.first);
+            if( DetermineUnrollBound(a1,name) == 1 && DetermineUnrollBound(a2,name) == 1 )
+            {
+                nptr_t n1 = (a1->findInMap(name))->second.var;
+                nptr_t n2 = (a2->findInMap(name))->second.var;
+                NodeRef var1(n1);
+                NodeRef var2(n2);
+                if( !bmc(1,a1,&var1,1,a2,&var2) ) {
+                    return NEQArchVarUpdateMismatch(a1->name,a2->name,name);
+                    return false;
+                }
+                std::cout<<"state:"<<name<<" is checked to be EQ."<<std::endl;  
+            }
+        }
+        for ( auto && bit : a1->bits ) // just iterate on one side
+        {   
+            std::string name(bit.first);
+            if( DetermineUnrollBound(a1,name) == 1 && DetermineUnrollBound(a2,name) == 1 )
+            {
+                nptr_t n1 = (a1->findInMap(name))->second.var;
+                nptr_t n2 = (a2->findInMap(name))->second.var;
+                NodeRef var1(n1);
+                NodeRef var2(n2);
+                if( !bmc(1,a1,&var1,1,a2,&var2) ) {
+                    return NEQArchVarUpdateMismatch(a1->name,a2->name,name);
+                    return false;
+                }
+                std::cout<<"state:"<<name<<" is checked to be EQ."<<std::endl;  
+            }
+        }
+        return true;
+
+    }
+
     bool Abstraction::bmc(
         unsigned n1, Abstraction* a1, NodeRef* r1, 
         unsigned n2, Abstraction* a2, NodeRef* r2)
@@ -846,83 +964,9 @@ namespace ila
         expt.finalExport(out);
         out.close();
     }
-
-    void Abstraction::exportCVerifyFile(const std::string &fileName) const
+    
+    void Abstraction::exportAllToStream(std::ofstream &out) const
     {
-        // FIXME: 
-        //        1. take memory into consideration
-        //        2. take u-inst into consideration
-
-        std::ofstream out(fileName.c_str());
-        ILA_ASSERT(out.is_open(), "File " + fileName + " not open.");
-
-        SMTExport smtExport;
-
-        // inp bit reg stage fun (mem)
-        out << inps.size() - stageVars.size() << ' ' 
-            << bits.size() << ' ' 
-            << regs.size() << ' ' 
-            << stageVars.size() << ' '
-            << funs.size() << ' '
-            << mems.size() << std::endl;
-
-
-        for (nmap_t::const_iterator it = inps.begin();
-             it != inps.end(); it++) {
-            
-            // avoid exporting stage variables here
-            if(smtExport.isStageVar(it->first,stageVars))
-                continue;
-
-            const Node * n = it->second.var.get();
-            int width = smtExport.get_width(n);
-            // export name and width
-            out << it->first <<" "<< width <<std::endl;
-            // nothing else
-        }
-        for (nmap_t::const_iterator it = bits.begin();
-             it != bits.end(); it++) {
-
-            int width = 1;
-            // export name and width
-            out << it->first <<" "<< width <<std::endl;   
-            // export init expr
-            smtExport.exportSMT( out, it->second.init.get(), it->first, width );
-            out << std::endl;
-            // export next expr
-            smtExport.exportSMT( out, it->second.next.get(), it->first, width );
-            out << std::endl;      
-
-        }
-        for (nmap_t::const_iterator it = regs.begin();
-             it != regs.end(); it++) {
-
-            const Node * n = it->second.var.get();
-            int width = smtExport.get_width(n);
-            // export name and width
-            out << it->first <<" "<< width <<std::endl;   
-            // export init expr
-            smtExport.exportSMT( out, it->second.init.get(), it->first, width );
-            out << std::endl;
-            // export next expr
-            smtExport.exportSMT( out, it->second.next.get(), it->first, width );
-            out << std::endl;      
-        }
-        for(const auto & item: stageVars  )   {
-            out<<item.first<<' '<<item.second<<std::endl;
-        }
-        // FIXME: fun and mem not implemented!
-
-        out.close();
-
-    }
-        
-
-    void Abstraction::exportAllToFile(const std::string& fileName) const
-    {
-        // FIXME Need to be fixed for uabstractions.
-        std::ofstream out(fileName.c_str());
-        ILA_ASSERT(out.is_open(), "File " + fileName + " not open.");
         ImExport expt;
 
         // names.
@@ -950,6 +994,8 @@ namespace ila
             out << "\n" << it->first << " ";
             expt.exportAst(out, it->second.var.get());
             out << " ";
+            expt.exportAst(out, it->second.init.get());
+            out << " ";
             expt.exportAst(out, it->second.next.get());
         }
         out << "\n.regs_end\n";
@@ -961,6 +1007,8 @@ namespace ila
             out << "\n" << it->first << " ";
             expt.exportAst(out, it->second.var.get());
             out << " ";
+            expt.exportAst(out, it->second.init.get());
+            out << " ";
             expt.exportAst(out, it->second.next.get());
         }
         out << "\n.bits_end\n";
@@ -971,6 +1019,8 @@ namespace ila
              it != mems.end(); it++) {
             out << "\n" << it->first << " ";
             expt.exportAst(out, it->second.var.get());
+            out << " ";
+            expt.exportAst(out, it->second.init.get());
             out << " ";
             expt.exportAst(out, it->second.next.get());
         }
@@ -1011,6 +1061,22 @@ namespace ila
         }
         out << "\n.assumps_end\n";
 
+        // uabs name & valid
+        out << ".uabs:";
+        for (uabs_map_t::const_iterator it = uabs.begin();
+             it != uabs.end(); it++) {
+            out << "\n" << it->first << " ";
+            expt.exportAst(out, it->second.valid.get());
+        }
+        out << "\n.uabs_end\n";
+    }
+
+    void Abstraction::exportAllToFile(const std::string& fileName) const
+    {
+        // FIXME Need to be fixed for uabstractions.
+        std::ofstream out(fileName.c_str());
+        ILA_ASSERT(out.is_open(), "File " + fileName + " not open.");
+        exportAllToStream(out);
         out.close();
     }
 
@@ -1045,14 +1111,9 @@ namespace ila
         in.close();
         return wrap;
     }
-
-    void Abstraction::importAllFromFile(const std::string& fileName) 
+    
+    void Abstraction::importAllFromStream(std::ifstream &in, bool Clear = true) // Clear is unset when called by parent ILA
     {
-        // FIXME Need to be fixed for uabstractions.
-        std::ifstream in;
-        in.open(fileName.c_str());
-        ILA_ASSERT(in.is_open(), "File " + fileName + " not found.");
-
         // Clear all variables.
         names.clear();
         inps.clear();
@@ -1086,7 +1147,14 @@ namespace ila
         while (buf != ".inps_end") {
             nptr_t var = ipt.importAst(this, in);
             nptr_t next = ipt.importAst(this, in);
-            inps.insert({buf, npair_t(var, next)});
+            npair_t  * p = NULL;
+            if (parent)
+            {
+                auto pos = parent->findInMapNoExcept(buf);
+                if(pos != parent->MapEnd())
+                    p = &(pos->second);
+            }
+            inps.insert({buf, npair_t(var, next, var, p)});
             in >> buf;
         }
 
@@ -1096,8 +1164,16 @@ namespace ila
         in >> buf;
         while (buf != ".regs_end") {
             nptr_t var = ipt.importAst(this, in);
+            nptr_t init = ipt.importAst(this, in);
             nptr_t next = ipt.importAst(this, in);
-            regs.insert({buf, npair_t(var, next)});
+            npair_t  * p = NULL;
+            if (parent)
+            {
+                auto pos = parent->findInMapNoExcept(buf);
+                if(pos != parent->MapEnd())
+                    p = &(pos->second);
+            }
+            regs.insert({buf, npair_t(var, next, init, p)});
             in >> buf;
         }
 
@@ -1107,8 +1183,16 @@ namespace ila
         in >> buf;
         while (buf != ".bits_end") {
             nptr_t var = ipt.importAst(this, in);
+            nptr_t init = ipt.importAst(this, in);
             nptr_t next = ipt.importAst(this, in);
-            bits.insert({buf, npair_t(var, next)});
+            npair_t  * p = NULL;
+            if (parent)
+            {
+                auto pos = parent->findInMapNoExcept(buf);
+                if(pos != parent->MapEnd())
+                    p = &(pos->second);
+            }
+            bits.insert({buf, npair_t(var, next, init, p)});
             in >> buf;
         }
 
@@ -1118,8 +1202,16 @@ namespace ila
         in >> buf;
         while (buf != ".mems_end") {
             nptr_t var = ipt.importAst(this, in);
+            nptr_t init = ipt.importAst(this, in);
             nptr_t next = ipt.importAst(this, in);
-            mems.insert({buf, npair_t(var, next)});
+            npair_t  * p = NULL;
+            if (parent)
+            {
+                auto pos = parent->findInMapNoExcept(buf);
+                if(pos != parent->MapEnd())
+                    p = &(pos->second);
+            }
+            mems.insert({buf, npair_t(var, next, init, p)});
             in >> buf;
         }
 
@@ -1163,6 +1255,26 @@ namespace ila
             in >> buf;
         }
 
+        // uabs name & valid
+        in >> buf;
+        ILA_ASSERT(buf == ".uabs:", "Expect .uabs section, but get:" + buf);
+        in >> buf;
+        while (buf != ".uabs_end") {
+            // we already have the name here
+            nptr_t valid = ipt.importAst(this,in);
+            NodeRef n(valid);
+            addUAbs(buf,&n); // buf is the name
+            in >> buf;
+        }
+    }
+
+    void Abstraction::importAllFromFile(const std::string& fileName) 
+    {
+        // FIXME Need to be fixed for uabstractions.
+        std::ifstream in;
+        in.open(fileName.c_str());
+        ILA_ASSERT(in.is_open(), "File " + fileName + " not found.");
+        importAllFromStream(in);
     }
 
     void Abstraction::generateSimToFile(const std::string& fileName) const

@@ -352,6 +352,16 @@ BOOST_PYTHON_MODULE(ila)
 
     // bmc
     def("bmc", &AbstractionWrapper::bmc);
+    // EQcheckSimple
+    def("eqcheckSimple",&AbstractionWrapper::EQcheckSimple);
+    def("eqcheck",&AbstractionWrapper::EQcheck);
+    def("eqcheck",&AbstractionWrapper::EQcheckWithAssump, 
+        (arg("u1"),arg("u2"),
+         arg("s1"),arg("s2"),arg("assumption")) );
+    def("eqcheckExport",&AbstractionWrapper::EQcheckExport);
+    def("eqcheckExport",&AbstractionWrapper::EQcheckWithAssumpExport,
+        (arg("filename"), arg("u1"),arg("u2"),
+         arg("s1"),arg("s2"),arg("assumption")) );
 
     // This is the top-level class.
     class_<AbstractionWrapper>("Abstraction", init<const std::string&>())
@@ -360,6 +370,7 @@ BOOST_PYTHON_MODULE(ila)
 
         // inputs
         .def("inp", &AbstractionWrapper::addInp, return_value_policy<manage_new_object>())
+        .def("getinp", &AbstractionWrapper::getInp, return_value_policy<manage_new_object>())
         // bits.
         .def("bit", &AbstractionWrapper::addBit, return_value_policy<manage_new_object>())
         .def("getbit", &AbstractionWrapper::getBit, return_value_policy<manage_new_object>())
@@ -372,11 +383,7 @@ BOOST_PYTHON_MODULE(ila)
         // functions.
         .def("fun", &AbstractionWrapper::addFun, return_value_policy<manage_new_object>())
         .def("getfun", &AbstractionWrapper::getFun, return_value_policy<manage_new_object>())
-        // stages
-        .def("stage", &AbstractionWrapper::addStage, return_value_policy<manage_new_object>())
-        .def("getstage", &AbstractionWrapper::getStage, return_value_policy<manage_new_object>())
         
-
         // init function
         .def("set_init", &AbstractionWrapper::setInit)
         .def("get_init", &AbstractionWrapper::getInit, return_value_policy<manage_new_object>())
@@ -422,11 +429,14 @@ BOOST_PYTHON_MODULE(ila)
         .def("importAll", &AbstractionWrapper::importAllFromFile)
         .def("generateVerilog", &AbstractionWrapper::generateVerilogToFile)
         .def("generateVerilog", &AbstractionWrapper::generateVerilogModule)
-        .def("exportCVerifyFile", &AbstractionWrapper::exportCVerifyFile)
 
         // simulator.
         .def("generateSim", &AbstractionWrapper::generateSimToFile)
         .def("generateSimToDir", &AbstractionWrapper::generateSimToDir)
+
+        // generate unroller
+        .def("newUnroller", &AbstractionWrapper::newUnroller, 
+        (arg("uILA"), arg("setInitCondition")) ,return_value_policy<manage_new_object>())
 
         .add_property("fetch_expr", 
             make_function(&AbstractionWrapper::getFetchExpr, return_value_policy<manage_new_object>()), 
@@ -444,7 +454,13 @@ BOOST_PYTHON_MODULE(ila)
             &AbstractionWrapper::setEnParamSyn)
     ;
 
-
+    class_<MicroUnroller>("MicroUnroller", no_init)
+        .def("addAssumption", &MicroUnroller::addAssumption)
+        .def("checkAssertion", &MicroUnroller::checkAssertion)
+        .def("dumpAssertion", &MicroUnroller::dumpAssertion)
+        .def("unrollTo", &MicroUnroller::unrollToStep)
+    ;
+        
     class_<MemValues>("MemValues", init<int, int, const object&>())
         .add_property("default", &MemValues::getDefault, &MemValues::setDefault)
         .def_readonly("values", &MemValues::getValues)

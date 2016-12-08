@@ -53,9 +53,50 @@ namespace ila
         //std::cout << "mfd: " << mfd << std::endl;
 
         // a bunch of assertions copied from stackoverflow.
-        if (Z3_get_decl_kind(c.ctx(), mfd) == Z3_OP_UNINTERPRETED) {
+
+        typedef std::pair<mp_int_t,mp_int_t> addr_data_pair;
+        std::vector<addr_data_pair>   ADStack;
+        // peel the structural
+        while(Z3_get_decl_kind(c.ctx(), mfd) == Z3_OP_STORE) {
+            expr addr = mval.arg(1);
+            expr data = mval.arg(2);
+            std::string saddr ( Z3_get_numeral_string( c.ctx(), addr ) );
+            std::string sdata ( Z3_get_numeral_string( c.ctx(), data) );
+            auto ki = boost::lexical_cast<mp_int_t> (saddr);
+            auto kv = boost::lexical_cast<mp_int_t> (sdata);
+
+            ADStack.push_back( addr_data_pair(ki,kv) );
+            
+            mval = mval.arg(0);
+            mfd  = mval.decl();
+        }
+
+        // handle the rest of the cases
+        if(Z3_get_decl_kind(c.ctx(), mfd) == Z3_OP_CONST_ARRAY)
+        {
+            ILA_ASSERT(Z3_is_app(c.ctx(), mval), 
+                "Expected application.");
+            // let's try interpret it directly
+            ILA_ASSERT(Z3_get_decl_num_parameters(c.ctx(), mfd) == 1, "BUG unable to handle") ;
+            Z3_sort memsort = Z3_get_decl_sort_parameter(c.ctx(), mfd, 0);
+            ILA_ASSERT(Z3_get_sort_kind(c.ctx(), memsort) == Z3_ARRAY_SORT, "expect ARRAY sort.");
+            
+            //std::cerr<<"mval: " << mval << std::endl;
+            //std::cerr<<"mfd: " << mfd << std::endl;
+
+            //std::cout<<"narg:"<<mval.num_args()<<std::endl;
+            expr arg0 = mval.arg(0);
+            //std::cout<<"arg0:"<<arg0<<std::endl;
+            func_decl arg0decl = arg0.decl();
+            //std::cout<<"arg0 decl:"<<arg0decl<<std::endl;
+            
+            std::string sdef(Z3_get_numeral_string(c.ctx(), arg0));
+            def_value = boost::lexical_cast<mp_int_t>(sdef);
+        }
+        else if (Z3_get_decl_kind(c.ctx(), mfd) == Z3_OP_UNINTERPRETED) {
             def_value = 0;
-        } else {
+        } 
+        else {
             ILA_ASSERT(
                 Z3_get_decl_kind(c.ctx(), mfd) == Z3_OP_AS_ARRAY, 
                 "Expected array op.");
@@ -93,6 +134,11 @@ namespace ila
             std::string sdef(Z3_get_numeral_string(c.ctx(), fip.else_value()));
             def_value = boost::lexical_cast<mp_int_t>(sdef);
         }
+        // let's pop back the things into the values
+        for ( auto && pair : ADStack ) {
+            values[pair.first] = pair.second;        
+        }
+        
         gc();
     }
 

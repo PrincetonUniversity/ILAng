@@ -42,6 +42,15 @@ namespace ila
           , parent(NULL)
         {
         }
+        
+        npair_t(const nptr_t& v, const nptr_t& n, const nptr_t& i, const npair_t *p)
+                  : var(v) 
+                  , init(i)
+                  , ipred(NULL)
+                  , next(n) 
+                  , parent(p)
+                {
+                }
 
         npair_t(const npair_t* p)
           : var(p->var)

@@ -100,7 +100,7 @@ namespace ila
         } else if ((boolchoice = dynamic_cast<const BoolChoice*>(n))) {
             ILA_ASSERT(false, "BoolChoice not implemented.");
         } else if ((bvchoice = dynamic_cast<const BitvectorChoice*>(n))) {
-            ILA_ASSERT(false, "BitvectorChoice not implemented.");
+            ILA_ASSERT(false, "BitvectorChoice not implemented." + bvchoice->getName());
         } else if ((memchoice = dynamic_cast<const MemChoice*>(n))) {
             ILA_ASSERT(false, "MemChoice not implemented.");
         } else if ((writeslice = dynamic_cast<const WriteSlice*>(n))) {
