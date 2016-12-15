@@ -1,14 +1,12 @@
-\newcommand{\bd}[0]{\mathbb{B}}
-\newcommand{\st}[1]{\mathrm{#1}}
-\newcommand{\ft}[1]{\mathtt{#1}}
+\providecommand{\bd}[0]{\mathbb{B}}
+\providecommand{\st}[1]{\mathrm{#1}}
+\providecommand{\ft}[1]{\mathtt{#1}}
 
 \section*{Formal Definition for Instruction-Level Abstraction}
 
 % Some preliminary background for ILA
-%Instruction-level abstraction (ILA) models firmware visible behaviors of hardware
-%modules. 
-Instruction-level abstraction (ILA) provides an interface between hardware and 
-software in heterogeneous systems.
+Instruction-level abstraction (ILA) provides an interface between different 
+components in heterogeneous systems.
 It is an abstraction that formally models firmware-visible behaviors of a hardware
 module, such as a programmable processor or application specific accelerator.
 Similar to the instruction-set architecture (ISA) that defines the operation of
@@ -21,10 +19,10 @@ states.
 % Remember, the definition needs to be backward compatable with processor ISA.
 \subsection*{Instruction-Level Abstraction}
 % State variable and input variables
-ILA is an abstraction of the hardware and serves as the interface between the 
-software and the hardware. 
-Therefore, only states that are visible and persistent to the firmware need to 
-be modeled.
+ILA is an abstraction of the hardware and serves as the interface between 
+the hardware and other components.
+Therefore, only states that are visible and persistent across instructions need
+to be modeled.
 % State variables
 We let $S$ be the vector of those state variables, where each element can be 
 either a Boolean variable, a bitvector variable, or a memory variable.
@@ -89,7 +87,7 @@ executed only if it has been issued.
 The set of all next state functions in the ILA is denoted as 
 $N = \{ N_i ~|~ 0 \leq i \leq C \}$, where $C$ is the number of instructions.
 
-To summarize, ILA provides a uniform interface between software and hardware 
+To summarize, ILA provides a uniform interface between hardware components 
 in heterogeneous systems by formally abstracting firmware-visible behaviors of 
 hardware into sets of instructions under the fetch/decode/execute model. 
 An ILA is defined as follow:
@@ -109,12 +107,14 @@ An ILA is defined as follow:
 % Talk about child-ILAs. What is child-ILA and why do we need them.
 \subsection*{Hierarchical ILA}
 % Why hierarchical ILA and example
-While ILA serves as the interface between the software and the hardware by 
+While ILA serves as the interface between different components by 
 abstracting hardware behaviors into sets of instructions, there are cases where
-we would like to model the hardware in different level of abstraction.
+we would like to model the hardware in different levels of abstraction.
 % Example of string copy
 For example, in the specification of Intel x86 architecture, the string copy 
-instruction \texttt{REP STOSB} involves a sequence of byte moves.
+instruction \texttt{REP STOS} involves a sequence of bytes moves.
+The instruction causes the associated \texttt{STOS} be repeated until the count
+in register \texttt{ECX} is decremented to $0$ \cite{intel-manual}.
 Such operation should not be represented as one single state update if we want to
 model the behavior more precisely.
 % Example of AES encryption
@@ -180,24 +180,38 @@ Summarizing the above definition, a child-ILA is defined as follow:
 \fi
 
 % Summarize ILA
-With the extension of hierarchical ILA, ILA can now serve as the interface 
-between software and hardware by modeling the hardware at different levels of
-abstraction.
-%With the extension of hierarchical ILA, an ILA is now defined as 
+With the extension of hierarchical ILA, ILA can now model the hardware at 
+different levels of abstraction.
+%
 A hierarchical ILA is defined as
 $A = \langle S, W, V, F, D, N, L \rangle$, where 
 $L = \{ (u^{\mu_p}, A^{\mu_p}), \dots \}$ is the set of child-ILAs.
 $u^{\mu_p}$ is the auxiliary variable showing if $A^{\mu_p}$ is composed of 
 sub-instructions or micro-instructions.
-Child-ILAs can also contain other child-ILAs and are defined exactly the same.
+%
+Similarly, child-ILAs can also contain other child-ILAs and are defined exactly 
+the same, except that micro-ILAs can only contain micro-ILAs.
 
 % Talk about the instruction sequencing, implicitly determined in state updates.
 % Also the program structure such as the loop and entry/exit.
 \subsubsection*{Micro-program and sub-program}
-% Some textual execution semantics for the ILA/child-ILA interaction.
+% The sequencing of the micro-program and example such as micro code and loops
+Once a child-ILA starts executing, it then steps through a sequence of 
+child-instructions where the sequencing is implicitly determined by the state
+update itself.
+This can be understood as a \textit{child-program} even though the control 
+location is not defined on a specific variable as usual.
+%
+Take the string copy instruction for example, the child-program representing 
+the instruction contains a loop whose loop body is the child-instruction that 
+moves a byte at a time.
+% 
+We call a child-program \textit{sub-program} if it is composed of 
+sub-instructions, and call it \textit{micro-program} if it is composed of 
+micro-instructions. 
+
 %The ILA and its child-ILAs execute asynchronously and communicate through 
 %shared state variables. 
-%
 A child-ILA $A^\mu$ starts executing when the valid function $V^\mu$ changes 
 from $0$ to $1$, indicating that there is one child-instruction being issued.
 %
@@ -213,21 +227,6 @@ instruction is issued.
 Take string copy for example, the child-instruction for the first
 byte move is issued at the same time as the string copy instruction is issued.
 In such cases, the execution of the parent instruction is trivial.
-
-% The sequencing of the micro-program and example such as micro code and loops
-Once a child-ILA starts executing, it then steps through a sequence of 
-child-instructions where the sequencing is implicitly determined by the state
-update itself.
-This can be understood as a \textit{child-program} even though the control 
-location is not defined on a specific variable as usual.
-%
-Take the string copy instruction for example, the child-program representing 
-the instruction contains a loop whose loop body is the child-instruction that 
-moves a byte at a time.
-% 
-We call a child-program \textit{sub-program} if it is composed of 
-sub-instructions, and call it \textit{micro-program} if it is composed of 
-micro-instructions. 
 
 % Describe how is the state update defined and the relation between ILAs.
 \subsection*{Execution Semantics}
@@ -311,7 +310,7 @@ similar way.
 %ILA serves as the interface between the software and the hardware by abstracting
 %firmware-visible behavior into sets of instructions. 
 
-ILA not only serves as the interface between the software and the hardware but 
+ILA not only serves as the interface between hardware modules but 
 also allows us to model the concurrency behavior across instructions. 
 Modeling such concurrency is important and necessary in verifying heterogeneous 
 systems due to the parallel interaction between hardware components.
@@ -348,3 +347,23 @@ defined by the next state functions, and can be interleaved with others.
 Therefore we can then utilize the works on instruction interleaving to model
 and verify the concurrency interaction.
 
+% We can also model the case where commit follows program order.
+\iffalse
+Note that not only complex instructions with non-blocking operation, ILA can 
+also model the cases where the next instruction cannot be issued until the 
+previous one is complete. 
+For example, ILA can model a simple programmable processor without pipeline by
+ensuring the program counter be updated by the very last child-instruction.
+
+Note that ILA is not restricted to the above scenario. 
+Other cases such as a simple processor without pipeline where the new instruction
+cannot be issued until the previous one is complete can also be modeled.
+\fi
+
+Note that ILA is not restricted to representing non-blocking operations of 
+complex instructions. 
+Other cases can have corresponding abstractions with different decode 
+functions and next state functions depending on the underlying hardware behavior.
+For example, a simple processor, where new instructions cannot be issued until
+previous instructions are complete, can be modeled by ensuring the program
+counter be updated at the last child-instruction.

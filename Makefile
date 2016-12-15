@@ -2,7 +2,7 @@ all: ILA.pdf
 
 ILA.pdf: *.tex #*.bib #images/*
 	pdflatex -halt-on-error -pdf -bib ILA.tex
-#bibtex ILA
+	bibtex ILA
 	pdflatex -halt-on-error -pdf -bib ILA.tex
 	pdflatex -halt-on-error -pdf -bib ILA.tex
 
