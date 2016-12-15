@@ -419,6 +419,8 @@ BOOST_PYTHON_MODULE(ila)
         .def("areEqualUnrolled", &AbstractionWrapper::areEqualUnrolled)
         // boogie
         .def("toBoogie", &AbstractionWrapper::toBoogie)
+        // horn
+        .def("toHorn", &AbstractionWrapper::toHorn)
 
         // assumptions.
         .def("add_assumption", &AbstractionWrapper::addAssumption)

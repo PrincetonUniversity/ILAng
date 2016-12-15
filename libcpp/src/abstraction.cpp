@@ -874,6 +874,13 @@ namespace ila
     }
 
     // ---------------------------------------------------------------------- //
+    void Abstraction::toHorn(const std::string& fileName)
+    {
+        HornTranslator ht(this);
+        ht.translate();
+    }
+
+    // ---------------------------------------------------------------------- //
     void Abstraction::forEachAssump(assump_visitor_i& vis) const
     {
         // do all of our assumptions.

@@ -60,6 +60,7 @@ python-extension ila : src/abstraction.cpp
                        src/cppsimgen.cpp
                        src/exception.cpp 
                        src/ext.cpp 
+                       src/hornTranslator.cpp
                        src/imexport.cpp
                        src/logging.cpp
                        src/memvalues.cpp
@@ -118,6 +119,8 @@ testing.make-test run-pyd : ila test/eqchecker.py : : test_eqchecker ;
 #testing.make-test run-pyd : ila test/export_verilog.py : : test_export_verilog ;
 
 testing.make-test run-pyd : ila test/hash.py : : test_hash ;
+
+testing.make-test run-pyd : ila test/horn.py : : test_horn ;
 
 # A little "rule" (function) to clean up the syntax of declaring tests
 # of these extension modules.

@@ -15,6 +15,7 @@
 #include <cppsimgen.hpp>
 #include <MicroUnroller.hpp>
 #include <boogie.hpp>
+#include <hornTranslator.hpp>
 
 namespace ila
 {
@@ -259,6 +260,9 @@ namespace ila
 
         // convert this abstraction to boogie.
         void toBoogie(const std::string& filename);
+
+        // convert this abstraction to horn clauses.
+        void toHorn(const std::string& filename);
 
         // get memories.
         const nmap_t& getMems() const { return mems; }
@@ -662,6 +666,11 @@ namespace ila
         void toBoogie(const std::string& name)
         {
             abs->toBoogie(name);
+        }
+
+        void toHorn(const std::string& name)
+        {
+            abs->toHorn(name);
         }
 
         int getEnParamSyn() const {
