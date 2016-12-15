@@ -348,18 +348,6 @@ Therefore we can then utilize the works on instruction interleaving to model
 and verify the concurrency interaction.
 
 % We can also model the case where commit follows program order.
-\iffalse
-Note that not only complex instructions with non-blocking operation, ILA can 
-also model the cases where the next instruction cannot be issued until the 
-previous one is complete. 
-For example, ILA can model a simple programmable processor without pipeline by
-ensuring the program counter be updated by the very last child-instruction.
-
-Note that ILA is not restricted to the above scenario. 
-Other cases such as a simple processor without pipeline where the new instruction
-cannot be issued until the previous one is complete can also be modeled.
-\fi
-
 Note that ILA is not restricted to representing non-blocking operations of 
 complex instructions. 
 Other cases can have corresponding abstractions with different decode 
