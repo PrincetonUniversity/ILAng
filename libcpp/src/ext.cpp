@@ -421,6 +421,8 @@ BOOST_PYTHON_MODULE(ila)
         .def("toBoogie", &AbstractionWrapper::toBoogie)
         // horn
         .def("toHorn", &AbstractionWrapper::toHorn)
+        // one node to horn
+        .def("nodeToHorn", &AbstractionWrapper::nodeToHorn)
 
         // assumptions.
         .def("add_assumption", &AbstractionWrapper::addAssumption)

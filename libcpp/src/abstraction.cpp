@@ -877,7 +877,14 @@ namespace ila
     void Abstraction::toHorn(const std::string& fileName)
     {
         HornTranslator ht(this);
-        ht.translate();
+        ht.transAll(fileName);
+    }
+
+    // ---------------------------------------------------------------------- //
+    void Abstraction::nodeToHorn(NodeRef* node, const std::string& fileName)
+    {
+        HornTranslator ht(this);
+        ht.transOne(node, fileName);
     }
 
     // ---------------------------------------------------------------------- //

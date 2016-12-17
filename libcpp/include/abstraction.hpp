@@ -263,6 +263,8 @@ namespace ila
 
         // convert this abstraction to horn clauses.
         void toHorn(const std::string& filename);
+        // convert one node to horn clause,
+        void nodeToHorn(NodeRef* node, const std::string& filename);
 
         // get memories.
         const nmap_t& getMems() const { return mems; }
@@ -671,6 +673,11 @@ namespace ila
         void toHorn(const std::string& name)
         {
             abs->toHorn(name);
+        }
+
+        void nodeToHorn(NodeRef* node, const std::string& name)
+        {
+            abs->nodeToHorn(node, name);
         }
 
         int getEnParamSyn() const {
