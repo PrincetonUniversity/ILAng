@@ -22,7 +22,10 @@ namespace ila
 
     typedef HornNode hn_t;
     typedef hn_t* hnptr_t;
-    typedef std::vector <hnptr_t> hnptr_vec_t;
+    typedef std::pair <hnptr_t, bool> hnptr_b_t;
+    typedef std::set <hnptr_b_t> hnptr_set_t;
+    //typedef std::vector <hnptr_t> hnptr_vec_t;
+    //typedef std::set <hnptr_t> hnptr_set_t;
 
     typedef HornClause hc_t;
     typedef HornClause* hcptr_t;
@@ -35,35 +38,49 @@ namespace ila
         std::string _name;
         // node type.
         std::string _type;
+        // execution - constraint in horn clause.
+        std::string _exec;
+        // predicate - predicate in horn clause.
+        std::string _pred;
         // node id.
         unsigned _id;
+        // initialized.
+        bool _init;
 
     public:
         // ctor.
         HornNode();
         // ctor.
-        HornNode(nptr_t n);
-        // ctor.
-        HornNode(Node* n);
+        HornNode(const unsigned& id);
         // dtor.
         virtual ~HornNode();
 
         // get node name.
         const std::string& getName() const;
-        // set node name.
-        void setName(const std::string& s);
         // get node type.
         const std::string& getType() const;
-        // set node type.
-        void setType(const std::string& s);
+        // get execution.
+        const std::string& getExec() const;
+        // get predicate.
+        const std::string& getPred() const;
         // get node id.
         const unsigned& getId() const;
+        // check if initialized.
+        bool isInit() const;
+
+        // set node name.
+        void setName(const std::string& s);
+        // set node type.
+        void setType(const std::string& s);
+        // set execution.
+        void setExec(const std::string& s);
+        // set predicate.
+        void setPred(const std::string& s);
         // set node id.
         void setId(const unsigned& i);
-        
+        // set initialized.
+        void setInit();
 
-    private:
-        void extractType(Node* n);
     };
 
     // ---------------------------------------------------------------------- //
@@ -71,13 +88,13 @@ namespace ila
     {
     private:
         // input vars.
-        hnptr_vec_t _inputs;
+        hnptr_set_t _inputs;
         // output vars.
-        hnptr_vec_t _outputs;
+        hnptr_set_t _outputs;
         // clause body.
-        hnptr_vec_t _body;
+        hnptr_set_t _body;
         // clause head.
-        hnptr_t _head;
+        hnptr_b_t _head;
         
     public:
         // ctor.
@@ -86,17 +103,17 @@ namespace ila
         virtual ~HornClause();
 
         // add one node to body.
-        void addBody(hnptr_t n);
+        void addBody(hnptr_t n, bool l = true);
         // add one node to head.
-        void setHead(hnptr_t n);
+        void setHead(hnptr_t n, bool l = true);
         // add one input var (horn node).
-        void addInput(hnptr_t n);
+        void addInput(hnptr_t n, bool l = true);
         // add one output var (horn node).
-        void addOutput(hnptr_t n);
+        void addOutput(hnptr_t n, bool l = true);
         // set input vars.
-        void setInput(hnptr_vec_t nVec);
+        void setInput(hnptr_set_t nVec);
         // set output vars.
-        void setOutput(hnptr_vec_t nVec);
+        void setOutput(hnptr_set_t nVec);
 
         // output the clause to stream.
         void print(std::ostream& out);
@@ -121,20 +138,18 @@ namespace ila
         // dtor.
         virtual ~HornCtx();
 
-        // get horn node from ast node, create a new node if not find.
-        hnptr_t getHornForNode(nptr_t n);
+        // get horn node from ast node, create a new node if not found.
+        hnptr_t getHornNode (nptr_t n);
+        // create new horn clause and add to the set of clauses.
+        hcptr_t addHornClause ();
         // get id for horn node.
-        unsigned getHornId(hnptr_t n);
-        // add new horn clause to the set.
-        void addHornClause(hcptr_t hc);
-        // create new horn clause to the set, and set to current clause.
-        void newHornClause();
+        unsigned getHornId (hnptr_t n);
         // output all to stream.
-        void print(std::ostream& out);
+        void print (std::ostream& out);
 
     private:
         // release created objects.
-        void clear();
+        void clear ();
     };
 }
 

@@ -14,9 +14,12 @@ def getDummyILA():
 
 def main():
     A = getDummyILA()
+    ila.setloglevel(3, "")
+    ila.enablelog("Horn")
     A.toHorn("tmp/horn_test_ILA.smt2")
     r2_nxt = A.get_next('r2')
     A.nodeToHorn(r2_nxt, "tmp/horn_test_node.smt2")
+
 
 if __name__ == '__main__':
     main()
