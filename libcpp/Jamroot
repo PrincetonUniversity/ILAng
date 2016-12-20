@@ -60,8 +60,9 @@ python-extension ila : src/abstraction.cpp
                        src/cppsimgen.cpp
                        src/exception.cpp 
                        src/ext.cpp 
-                       src/hornTranslator.cpp
-                       src/hornDB.cpp
+#src/hornTranslator.cpp
+#src/hornDB.cpp
+                       src/horn.cpp
                        src/imexport.cpp
                        src/logging.cpp
                        src/memvalues.cpp

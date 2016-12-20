@@ -10,6 +10,7 @@
 #include <VerilogExport.hpp>
 #include <exportSMT.hpp>
 #include <boogie.hpp>
+#include <horn.hpp>
 
 #include <boost/multiprecision/cpp_int.hpp>
 #include <fstream>
