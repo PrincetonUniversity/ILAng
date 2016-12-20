@@ -170,7 +170,9 @@ namespace ila
         // convert whole abs to horn clauses.
         void transAll (const std::string& fileName);
         // convert one ast node to horn clauses.
-        void transOne (NodeRef* node, const std::string& fileName);
+        void transOne (NodeRef* node, 
+                       const std::string& ruleName,
+                       const std::string& fileName);
 
         // ------------------------------------------------------------------ //
         // Traverse and generate horn clauses in depth-first order.
@@ -181,13 +183,76 @@ namespace ila
         void operator() (nptr_t n);
 
     private:
+        // var id count.
+        unsigned _varCnt;
+        // mapping from node to var (for internal var with ast node)
+        std::map <nptr_t, hvptr_t> _nVarMap;
+        // mapping from string to var (for top level var without ast node)
+        std::map <std::string, hvptr_t> _sVarMap;
+        // current working clause.
+        hcptr_t _curHc;
+
+        // ------------------------------------------------------------------ //
+        // get horn var for the node; create if not exist.
+        hvptr_t getVar (nptr_t n);
+        // get horn var for the name; create if not exist.
+        hvptr_t getVar (const std::string& s);
+        // create a clause with the specified head.
+        hcptr_t addClause (hvptr_t v);
+        // initialize horn var from a node; Ex. _name, _exec, _outs.
+        void initVar (hvptr_t v, nptr_t n);
+        // initialize horn var from a name; _name.
+        void initVar (hvptr_t v, const std::string& s);
+
         // ------------------------------------------------------------------ //
         // eval if node n is an ITE node.
         bool isITE (nptr_t n);
 
         // ------------------------------------------------------------------ //
-        // set horn var for bool var.
-        void setBoolVarHorn (const BoolVar* n, hvptr_t hv);
+        // init horn var context: _name, _type, _exec, _ins, and _outs.
+        // init horn var for BoolOp.
+        void initBoolOp (const BoolOp* n, hvptr_t v);
+        // init horn var for BoolVar.
+        void initBoolVar (const BoolVar* n, hvptr_t v);
+        // init horn var for BoolConst.
+        void initBoolConst (const BoolConst* n, hvptr_t v);
+        // init horn var for BitvectorOp.
+        void initBvOp (const BitvectorOp* n, hvptr_t v);
+        // init horn var for BitvectorVar.
+        void initBvVar (const BitvectorVar* n, hvptr_t v);
+        // init horn var for BitvectorConst.
+        void initBvConst (const BitvectorConst* n, hvptr_t v);
+        // init horn var for MemOp.
+        void initMemOp (const MemOp* n, hvptr_t v);
+        // init horn var for MemVar.
+        void initMemVar (const MemVar* n, hvptr_t v);
+        // init horn var for MemConst.
+        void initMemConst (const MemConst* n, hvptr_t v);
+        // init horn var for FuncVar.
+        void initFuncVar (const FuncVar* n, hvptr_t v);
+
+        // ------------------------------------------------------------------ //
+        // add constraints or relations to working horn clause.
+        // add BoolOp to horn clause.
+        void addBoolOp (const BoolOp* n, hvptr_t v);
+        // add BoolVar to horn clause.
+        void addBoolVar (const BoolVar* n, hvptr_t v);
+        // add BoolConst to horn clause.
+        void addBoolConst (const BoolConst* n, hvptr_t v);
+        // add BitvectorOp to horn clause.
+        void addBvOp (const BitvectorOp* n, hvptr_t v);
+        // add BitvectorVar to horn clause.
+        void addBvVar (const BitvectorVar* n, hvptr_t v);
+        // add BitvectorConst to horn clause.
+        void addBvConst (const BitvectorConst* n, hvptr_t v);
+        // add MemOp to horn clause.
+        void addMemOp (const MemOp* n, hvptr_t v);
+        // add MemVar to horn clause.
+        void addMemVar (const MemVar* n, hvptr_t v);
+        // add MemConst to horn clause.
+        void addMemConst (const MemConst* n, hvptr_t v);
+        // add FuncVar to horn clause.
+        void addFuncVar (const FuncVar* n, hvptr_t v);
     };
 }
 

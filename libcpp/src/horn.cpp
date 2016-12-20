@@ -145,6 +145,7 @@ namespace ila
     // ---------------------------------------------------------------------- //
     HornClause::HornClause ()
     {
+        _head = NULL;
     }
 
     HornClause::~HornClause ()
@@ -154,10 +155,14 @@ namespace ila
     void HornClause::addBody (hlptr_t l) 
     {
         _body.insert (l);
+        // propogate input args to _head
+        ILA_ASSERT (_head != NULL, "head not set yet.");
+        _head->getVar()->mergeInVars (l->getVar());
     }
 
     void HornClause::setHead (hlptr_t l)
     {
+        ILA_ASSERT (_body.empty(), "body not empty, may fail.");
         _head = l;
     }
 
@@ -195,12 +200,15 @@ namespace ila
       : _abs (abs)
     {
         _db = new HornDB();
+        _varCnt = 0;
+        _curHc = NULL;
     }
 
     HornTranslator::~HornTranslator ()
     {
         if (_db) delete _db;
         _db = NULL;
+        // TODO clear maps.
     }
 
     void HornTranslator::transAll (const std::string& fileName)
@@ -208,21 +216,246 @@ namespace ila
         // TODO
     }
 
-    void HornTranslator::transOne (NodeRef* node, const std::string& fileName)
+    void HornTranslator::transOne (NodeRef* node, 
+                                   const std::string& ruleName,
+                                   const std::string& fileName)
     {
-        // TODO
-        log1 ("Horn") << "Trans on node " << node->getName() << std::endl;
+        log1 ("Horn") << "Trans node " << node->getName() 
+            << " as " << ruleName <<  std::endl;
+
+        hvptr_t topV = getVar (ruleName);
+        hcptr_t topC = addClause (topV);
+        topV->addOutVar (getVar (node->node));
+
+        _curHc = topC;
         depthFirstTraverse (node->node);
+
+        // TODO dump to file
     }
 
     void HornTranslator::depthFirstTraverse (nptr_t n)
     {
-        // TODO
+        ILA_ASSERT (_curHc != NULL, "working clause not defined.");
+
+        if (!isITE (n)) {
+            // normal non-ITE nodes
+            unsigned argNum = n->nArgs();
+            for (unsigned i = 0; i != argNum; i++) {
+                const nptr_t arg_i = n->arg(i);
+                depthFirstTraverse (arg_i);
+            }
+            (*this) (n);
+        } else {
+            // ITE nodes
+            ILA_ASSERT (n->nArgs() == 3, "ITE should have 3 args.");
+            
+            hvptr_t hvIte  = getVar (n);
+            hvptr_t hvCond = getVar (n->arg(0));
+            hvptr_t hvThen = getVar (n->arg(1));
+            hvptr_t hvElse = getVar (n->arg(2));
+
+            hcptr_t hcPrev  = _curHc;
+            hcptr_t hcCond  = addClause (hvCond);
+            hcptr_t hcThen  = addClause (hvThen);
+            hcptr_t hcElse  = addClause (hvElse);
+            hcptr_t hcTrue  = addClause (hvIte);
+            hcptr_t hcFalse = addClause (hvIte);
+
+            // condition
+            _curHc = hcCond;
+            depthFirstTraverse (n->arg(0));
+            // then
+            _curHc = hcThen;
+            depthFirstTraverse (n->arg(1));
+            // else
+            _curHc = hcElse;
+            depthFirstTraverse (n->arg(2));
+
+            // condition hold true. Ex. (cond a b c) (then c d) -> (ite a b d)
+            hcTrue->addBody (new HornLiteral (hvCond, true, true));
+            hcTrue->addBody (new HornLiteral (hvThen, true, true));
+            // condition not hold. Ex. !(cond a b c) (else c d) -> (ite a b d)
+            hcFalse->addBody (new HornLiteral (hvCond, true, false));
+            hcFalse->addBody (new HornLiteral (hvElse, true, true));
+
+            // add relation and reset to previous clause
+            _curHc = hcPrev;
+            (*this) (n);
+        }
     }
 
-    void HornTranslator::operator() (nptr_t n)
+    void HornTranslator::operator() (nptr_t node)
     {
-        // TODO
+        Node* n = node.get();
+        hvptr_t v = getVar (node);
+
+        const BoolOp* boolop = NULL;
+        const BoolVar* boolvar = NULL;
+        const BoolConst* boolconst = NULL;
+
+        const BitvectorOp* bvop = NULL;
+        const BitvectorVar* bvvar = NULL;
+        const BitvectorConst* bvconst = NULL;
+
+        const MemOp* memop = NULL;
+        const MemVar* memvar = NULL;
+        const MemConst* memconst = NULL;
+
+        const FuncVar* funcvar = NULL;
+
+        const BoolChoice* boolchoice = NULL;
+        const BitvectorChoice* bvchoice = NULL;
+        const MemChoice* memchoice = NULL;
+        const ReadSlice* readslice = NULL;
+        const WriteSlice* writeslice = NULL;
+
+        //// Bool ////
+        if ((boolop = dynamic_cast <BoolOp*> (n))) {
+            addBoolOp (boolop, v);
+        } else if ((boolvar = dynamic_cast <BoolVar*> (n))) {
+            addBoolVar (boolvar, v);
+        } else if ((boolconst = dynamic_cast <BoolConst*> (n))) {
+            addBoolConst (boolconst, v);
+        //// Bitvector ////
+        } else if ((bvop = dynamic_cast <BitvectorOp*> (n))) {
+            addBvOp (bvop, v);
+        } else if ((bvvar = dynamic_cast <BitvectorVar*> (n))) {
+            addBvVar (bvvar, v);
+        } else if ((bvconst = dynamic_cast <BitvectorConst*> (n))) {
+            addBvConst (bvconst, v);
+        //// Memory ////
+        } else if ((memop = dynamic_cast <MemOp*> (n))) {
+            addMemOp (memop, v);
+        } else if ((memvar = dynamic_cast <MemVar*> (n))) {
+            addMemVar (memvar, v);
+        } else if ((memconst = dynamic_cast <MemConst*> (n))) {
+            addMemConst (memconst, v);
+        //// Func ////
+        } else if ((funcvar = dynamic_cast <FuncVar*> (n))) {
+            addFuncVar (funcvar, v);
+        //// Choice ////
+        } else if ((boolchoice = dynamic_cast <BoolChoice*> (n))) {
+            ILA_ASSERT (false, "BoolChoice not implemented.");
+        } else if ((bvchoice = dynamic_cast <BitvectorChoice*> (n))) {
+            ILA_ASSERT (false, "BitvectorChoice not implemented.");
+        } else if ((memchoice = dynamic_cast <MemChoice*> (n))) {
+            ILA_ASSERT (false, "MemChoice not imeplemented.");
+        } else if ((readslice = dynamic_cast <ReadSlice*> (n))) {
+            ILA_ASSERT (false, "ReadSlice not imeplemented.");
+        } else if ((writeslice = dynamic_cast <WriteSlice*> (n))) {
+            ILA_ASSERT (false, "WriteSlice not imeplemented.");
+        } else {
+            ILA_ASSERT (false, "Unknown node type.");
+        }
+    }
+
+    hvptr_t HornTranslator::getVar (nptr_t n)
+    {
+        auto it = _nVarMap.find (n);
+        if (it != _nVarMap.end()) {
+            return it->second;
+        } else {
+            hvptr_t v = new HornVar (_varCnt++);
+            initVar (v, n);
+            _nVarMap[n] = v;
+            _db->addVar (v);
+            return v;
+        }
+    }
+
+    hvptr_t HornTranslator::getVar (const std::string& s)
+    {
+        auto it = _sVarMap.find (s);
+        if (it != _sVarMap.end()) {
+            return it->second;
+        } else {
+            hvptr_t v = new HornVar (_varCnt++);
+            initVar (v, s);
+            _sVarMap[s] = v;
+            _db->addVar (v);
+            return v;
+        }
+    }
+
+    hcptr_t HornTranslator::addClause (hvptr_t v)
+    {
+        hcptr_t c = new HornClause ();
+        if (v != NULL) {
+            c->setHead (new HornLiteral (v, true, true));
+            _db->addRule (v);
+        }
+        _db->addClause (c);
+        return c;
+    }
+
+    void HornTranslator::initVar (hvptr_t v, nptr_t node)
+    {
+        Node* n = node.get();
+
+        const BoolOp* boolop = NULL;
+        const BoolVar* boolvar = NULL;
+        const BoolConst* boolconst = NULL;
+
+        const BitvectorOp* bvop = NULL;
+        const BitvectorVar* bvvar = NULL;
+        const BitvectorConst* bvconst = NULL;
+
+        const MemOp* memop = NULL;
+        const MemVar* memvar = NULL;
+        const MemConst* memconst = NULL;
+
+        const FuncVar* funcvar = NULL;
+
+        const BoolChoice* boolchoice = NULL;
+        const BitvectorChoice* bvchoice = NULL;
+        const MemChoice* memchoice = NULL;
+        const ReadSlice* readslice = NULL;
+        const WriteSlice* writeslice = NULL;
+
+        //// Bool ////
+        if ((boolop = dynamic_cast <BoolOp*> (n))) {
+            initBoolOp (boolop, v);
+        } else if ((boolvar = dynamic_cast <BoolVar*> (n))) {
+            initBoolVar (boolvar, v);
+        } else if ((boolconst = dynamic_cast <BoolConst*> (n))) {
+            initBoolConst (boolconst, v);
+        //// Bitvector ////
+        } else if ((bvop = dynamic_cast <BitvectorOp*> (n))) {
+            initBvOp (bvop, v);
+        } else if ((bvvar = dynamic_cast <BitvectorVar*> (n))) {
+            initBvVar (bvvar, v);
+        } else if ((bvconst = dynamic_cast <BitvectorConst*> (n))) {
+            initBvConst (bvconst, v);
+        //// Memory ////
+        } else if ((memop = dynamic_cast <MemOp*> (n))) {
+            initMemOp (memop, v);
+        } else if ((memvar = dynamic_cast <MemVar*> (n))) {
+            initMemVar (memvar, v);
+        } else if ((memconst = dynamic_cast <MemConst*> (n))) {
+            initMemConst (memconst, v);
+        //// Func ////
+        } else if ((funcvar = dynamic_cast <FuncVar*> (n))) {
+            initFuncVar (funcvar, v);
+        //// Choice ////
+        } else if ((boolchoice = dynamic_cast <BoolChoice*> (n))) {
+            ILA_ASSERT (false, "BoolChoice not implemented.");
+        } else if ((bvchoice = dynamic_cast <BitvectorChoice*> (n))) {
+            ILA_ASSERT (false, "BitvectorChoice not implemented.");
+        } else if ((memchoice = dynamic_cast <MemChoice*> (n))) {
+            ILA_ASSERT (false, "MemChoice not imeplemented.");
+        } else if ((readslice = dynamic_cast <ReadSlice*> (n))) {
+            ILA_ASSERT (false, "ReadSlice not imeplemented.");
+        } else if ((writeslice = dynamic_cast <WriteSlice*> (n))) {
+            ILA_ASSERT (false, "WriteSlice not imeplemented.");
+        } else {
+            ILA_ASSERT (false, "Unknown node type.");
+        }
+    }
+
+    void HornTranslator::initVar (hvptr_t v, const std::string& s)
+    {
+        v->setName (s);
+        // TODO 
     }
 
     bool HornTranslator::isITE (nptr_t n)
@@ -240,12 +473,124 @@ namespace ila
         } else {
             return false;
         }
-
     }
 
-    void HornTranslator::setBoolVarHorn (const BoolVar* n, hvptr_t hv)
+    void HornTranslator::initBoolOp (const BoolOp* n, hvptr_t v)
+    {
+        // TODO
+    }
+
+    void HornTranslator::initBoolVar (const BoolVar* n, hvptr_t v)
+    {
+        // name should be exactly the same as the design.
+        v->setName (n->getName());
+        // type
+        v->setType ("Bool");
+        // exec
+        v->setExec ("");
+        // ins
+        v->addInVar (v);
+        // outs
+        v->addOutVar (v);
+    }
+
+    void HornTranslator::initBoolConst (const BoolConst* n, hvptr_t v)
+    {
+        // name is the value.
+        v->setName ("True"); // FIXME
+        // type doesn't matter.
+        v->setType ("Bool");
+        // exec 
+        v->setExec ("");
+        // ins
+        // outs
+    }
+
+    void HornTranslator::initBvOp (const BitvectorOp* n, hvptr_t v)
+    {
+        // TODO
+    }
+
+    void HornTranslator::initBvVar (const BitvectorVar* n, hvptr_t v)
+    {
+        // TODO
+    }
+
+    void HornTranslator::initBvConst (const BitvectorConst* n, hvptr_t v)
+    {
+        // TODO
+    }
+      
+    void HornTranslator::initMemOp (const MemOp* n, hvptr_t v)
+    {
+        // TODO
+    }
+
+    void HornTranslator::initMemVar (const MemVar* n, hvptr_t v)
+    {
+        // TODO
+    }
+
+    void HornTranslator::initMemConst (const MemConst* n, hvptr_t v)
+    {
+        // TODO
+    }
+
+    void HornTranslator::initFuncVar (const FuncVar* n, hvptr_t v)
+    {
+        // TODO
+    }
+
+    void HornTranslator::addBoolOp (const BoolOp* n, hvptr_t v)
+    {
+        // TODO
+    }
+
+    void HornTranslator::addBoolVar (const BoolVar* n, hvptr_t v)
+    {
+        ILA_ASSERT (_curHc != NULL, "working clause not exist.");
+        _curHc->addBody (new HornLiteral (v)); // _exec is ""
+    }
+
+    void HornTranslator::addBoolConst (const BoolConst* n, hvptr_t v)
+    {
+        ILA_ASSERT (_curHc != NULL, "working clause not exist.");
+    }
+
+    void HornTranslator::addBvOp (const BitvectorOp* n, hvptr_t v)
+    {
+        // TODO
+    }
+
+    void HornTranslator::addBvVar (const BitvectorVar* n, hvptr_t v)
+    {
+        // TODO
+    }
+
+    void HornTranslator::addBvConst (const BitvectorConst* n, hvptr_t v)
+    {
+        // TODO
+    }
+
+    void HornTranslator::addMemOp (const MemOp* n, hvptr_t v)
+    {
+        // TODO
+    }
+
+    void HornTranslator::addMemVar (const MemVar* n, hvptr_t v)
+    {
+        // TODO
+    }
+
+    void HornTranslator::addMemConst (const MemConst* n, hvptr_t v)
+    {
+        // TODO
+    }
+
+    void HornTranslator::addFuncVar (const FuncVar* n, hvptr_t v)
     {
         // TODO
     }
 }
+
 
