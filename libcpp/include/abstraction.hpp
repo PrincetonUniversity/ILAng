@@ -15,7 +15,6 @@
 #include <cppsimgen.hpp>
 #include <MicroUnroller.hpp>
 #include <boogie.hpp>
-//#include <hornTranslator.hpp>
 #include <horn.hpp>
 
 namespace ila
