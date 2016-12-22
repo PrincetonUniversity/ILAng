@@ -255,17 +255,34 @@ namespace ila
         void addFuncVar (const FuncVar* n, hvptr_t v);
 
         // ------------------------------------------------------------------ //
-        // generate BvOpReadMemBlock execution - little endiant
+        // generate BvOpReadMemBlock execution - little endian
         std::string genReadMemBlkExecLit (const std::string& mem,
                                           const std::string& addr,
                                           int addrWidth, int idx);
-        // generate BvOpReadMemBlock execution - big endiant
+        // generate BvOpReadMemBlock execution - big endian
         std::string genReadMemBlkExecBig (const std::string& mem,
                                           const std::string& addr,
                                           int addrWidth, int idx, int num);
+        // generate MemOpStoreMemBlock execution - little endian
+        std::string genStoreMemBlkExecLit (const std::string& mem,
+                                           const std::string& addr,
+                                           const std::string& data,
+                                           int chunkSize, int chunkNum,
+                                           int addrWidth, int idx);
+        // generate MemOpStoreMemBlock execution - big endian
+        std::string genStoreMemBlkExecBig (const std::string& mem,
+                                           const std::string& addr,
+                                           const std::string& data,
+                                           int chunkSize, int chunkNum,
+                                           int addrWidth, int idx);
+        // convert value to smt2.0 bitvector format. ex. #b0000
+        std::string bvToString (mp_int_t val, int width);
+        // convert value to smt2.0 bitvector format. ex. #b0000
+        std::string bvToString (int val, int width);
+        // generate rules for MemConst.
+        void genMemConstRules (const MemConst* n, hvptr_t v);
 
         // ------------------------------------------------------------------ //
-        std::string bvToString (mp_int_t val, int width);
     };
 }
 

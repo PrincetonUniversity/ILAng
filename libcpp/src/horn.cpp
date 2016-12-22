@@ -202,6 +202,7 @@ namespace ila
     {
         _db = new HornDB();
         // TODO create rules for xor and xnor.
+        // TODO create rules for memconst.
         _varCnt = 0;
         _curHc = NULL;
     }
@@ -779,19 +780,19 @@ namespace ila
             ILA_ASSERT (n->nParams() == 2, "Two parameters expected.");
             int blkSize = n->arg(0)->type.dataWidth;
             int blkNum  = n->param(0);
-            endianness_t e = (endianness_t) n->param(1);
+            bool isLittle = (n->param(1) == LITTLE_E);
             // big:
-            // z = readblk (A, x, n) --> (= z (((concat (select A x) 
-            //                                  (concat (select A (+ x w))
-            //                                  (concat (select A (+ x 2w))))))))
+            // (= z (((concat (select A x) 
+            //        (concat (select A (+ x w))
+            //                (select A (+ x 2w)))))))
             // little:
-            // z = readblk (A, x, n) --> (= z (((concat (select A (+ x 2w) 
-            //                                  (concat (select A (+ x w))
-            //                                  (concat (select A x))))))))
+            // (= z (((concat (select A (+ x 2w) 
+            //        (concat (select A (+ x w))
+            //                (select A x)))))))
             std::string exec = "";
             boost::format readBlkFmt ("(= %1% %2%)");
 
-            if (e == LITTLE_E) {
+            if (isLittle) {
                 exec = genReadMemBlkExecLit (mem->getName(),
                                              addr->getName(),
                                              blkSize,
@@ -813,7 +814,12 @@ namespace ila
             v->setExec ("true");
         } else if (n->op == BitvectorOp::Op::APPLY_FUNC) {
             // z = foo (x, y) --> (foo x y z)
-            v->setExec (v->getPred());
+            std::string exec = "(";
+            for (unsigned i = 0; i != n->nArgs(); i++) {
+                exec += (getVar (n->arg(i))->getName() + " ");
+            }
+            exec += (v->getName() + ")");
+            v->setExec (exec);
         } else {
             ILA_ASSERT (false, "Unknown BitvectorOp.");
         }
@@ -852,22 +858,128 @@ namespace ila
       
     void HornTranslator::initMemOp (const MemOp* n, hvptr_t v)
     {
-        // TODO
+        // name
+        v->setName ("mem" + v->getId());
+        // type
+        boost::format memVarTypeFmt ("(Array (_ BitVec %1%) (_ BitVec %2%))");
+        memVarTypeFmt % n->type.addrWidth
+                      % n->type.dataWidth;
+        v->setType (memVarTypeFmt.str());
+        // in
+        for (unsigned i = 0; i != n->nArgs(); i++) {
+            hvptr_t arg_i = getVar (n->arg(i));
+            v->mergeInVars (arg_i);
+        }
+        // out
+        v->addOutVar (v);
+        // exec
+        ILA_ASSERT (n->nArgs() == 3, "MemOp should have 3 args.");
+        hvptr_t arg0 = getVar (n->arg(0));
+        hvptr_t arg1 = getVar (n->arg(1));
+        hvptr_t arg2 = getVar (n->arg(2));
+
+        if (n->op == MemOp::Op::STORE) {
+            // z = store (A, addr, data) --> (= z (store A addr data))
+            boost::format memStoreFmt ("(= %1% (store %2% %3% %4%))");
+            memStoreFmt % v->getName()
+                        % arg0->getName()
+                        % arg1->getName()
+                        % arg2->getName();
+            v->setExec (memStoreFmt.str());
+        } else if (n->op == MemOp::Op::ITE) {
+            // z = ite (A, B, C) --> true. Will not be "executed".
+            v->setExec ("true");
+        } else if (n->op == MemOp::Op::STOREBLOCK) {
+            // little:
+            // (= z (store (store (store A addr ((_ extract 7 0) val))
+            //                          (+ addr 1) ((_ extract 15 8) val))
+            //                          (+ addr 2) ((_ extract 23 16) val)))
+            // big:
+            // (= z (store (store (store A (+ addr 2) ((_ extract 7 0) val)
+            //                             (+ addr 1) ((_ extract 15 8) val))
+            //                             addr ((_extract 23 16) val))))
+            bool isLittle = (n->endian == LITTLE_E);
+            int addrSize  = n->arg(0)->type.addrWidth;
+            int chunkSize = n->arg(0)->type.dataWidth;
+            int chunkNum  = n->arg(2)->type.dataWidth / chunkSize;
+            std::string exec = "(= ";
+            exec += v->getName() + " ";
+
+            if (isLittle) {
+                exec += genStoreMemBlkExecLit (arg0->getName(),     // mem
+                                               arg1->getName(),     // addr
+                                               arg2->getName(),     // data
+                                               chunkSize, chunkNum,
+                                               addrSize, chunkNum);
+            } else {
+                exec += genStoreMemBlkExecBig (arg0->getName(),     // mem
+                                               arg1->getName(),     // addr
+                                               arg2->getName(),     // data
+                                               chunkSize, chunkNum,
+                                               addrSize, chunkNum);
+            }
+
+            exec += ")";
+            v->setExec (exec);
+        } else {
+            ILA_ASSERT (false, "Unknown MemOp.");
+        }
     }
 
     void HornTranslator::initMemVar (const MemVar* n, hvptr_t v)
     {
-        // TODO
+        // name should be the same in the design.
+        v->setName (n->getName());
+        // type
+        boost::format memVarTypeFmt ("(Array (_ BitVec %1%) (_ BitVec %2%))");
+        memVarTypeFmt % n->type.addrWidth
+                      % n->type.dataWidth;
+        v->setType (memVarTypeFmt.str());
+        // exec
+        v->setExec ("true");
+        // in
+        v->addInVar (v);
+        // out
+        v->addOutVar (v);
     }
 
     void HornTranslator::initMemConst (const MemConst* n, hvptr_t v)
     {
-        // TODO
+        // name is the value??
+        v->setName ("mem" + v->getId());
+        // type
+        boost::format memVarTypeFmt ("(Array (_ BitVec %1%) (_ BitVec %2%))");
+        memVarTypeFmt % n->type.addrWidth
+                      % n->type.dataWidth;
+        v->setType (memVarTypeFmt.str());
+        // exec
+        v->setExec (v->getPred()); 
+        genMemConstRules (n, v);
+        // in
+        // out
+        v->addOutVar (v);
     }
 
     void HornTranslator::initFuncVar (const FuncVar* n, hvptr_t v)
     {
-        // TODO
+        // FuncVar is actually a relation.
+        // name should be the same as in the design
+        v->setName (n->getName());
+        // type (arg_i_type ret_type)
+        std::string type = "(";
+        for (unsigned i = 0; i != n->type.argsWidth.size(); i++) {
+            type += "(_ BitVec " + 
+                    boost::lexical_cast <std::string> (n->type.argsWidth[i]) +
+                    ") ";
+        }
+        type += "(_ BitVec " + 
+                boost::lexical_cast <std::string> (n->type.dataWidth) + 
+                "))";
+        v->setType (type);
+        // exec
+        v->setExec ("true");
+        // in
+        // out
     }
 
     void HornTranslator::addBoolOp (const BoolOp* n, hvptr_t v)
@@ -896,7 +1008,6 @@ namespace ila
     {
         ILA_ASSERT (_curHc != NULL, "working clause not exist.");
 
-        // FIXME check it
         if (n->op == BitvectorOp::Op::IF) {
             _curHc->addBody (new HornLiteral (v, true, true));
         } else {
@@ -907,7 +1018,7 @@ namespace ila
     void HornTranslator::addBvVar (const BitvectorVar* n, hvptr_t v)
     {
         ILA_ASSERT (_curHc != NULL, "working clause not exist.");
-        _curHc->addBody (new HornLiteral (v)); // _exec is "true"
+        _curHc->addBody (new HornLiteral (v)); // _exec is "true"; prop in
     }
 
     void HornTranslator::addBvConst (const BitvectorConst* n, hvptr_t v)
@@ -917,22 +1028,31 @@ namespace ila
 
     void HornTranslator::addMemOp (const MemOp* n, hvptr_t v)
     {
-        // TODO
+        ILA_ASSERT (_curHc != NULL, "working clause not exist.");
+
+        if (n->op == MemOp::Op::ITE) {
+            _curHc->addBody (new HornLiteral (v, true, true));
+        } else {
+            _curHc->addBody (new HornLiteral (v, false, true));
+        }
     }
 
     void HornTranslator::addMemVar (const MemVar* n, hvptr_t v)
     {
-        // TODO
+        ILA_ASSERT (_curHc != NULL, "working clause not exist.");
+        _curHc->addBody (new HornLiteral (v)); // _exec is "true", prop in
     }
 
     void HornTranslator::addMemConst (const MemConst* n, hvptr_t v)
     {
-        // TODO
+        ILA_ASSERT (_curHc != NULL, "working clause not exist.");
+        _curHc->addBody (new HornLiteral (v)); // need to create rules.
     }
 
     void HornTranslator::addFuncVar (const FuncVar* n, hvptr_t v)
     {
-        // TODO
+        ILA_ASSERT (_curHc != NULL, "workinf clause not exist.");
+        _curHc->addBody (new HornLiteral (v)); // _exec is "true".
     }
 
     std::string HornTranslator::genReadMemBlkExecLit (
@@ -980,15 +1100,93 @@ namespace ila
             boost::format readBlkFmt ("(concat (select %1% %2%) %3%)");
             readBlkFmt % mem
                        % addr
-                       % genReadMemBlkExecBig (mem, addr, addrWidth, idx-1, num);
+                       % genReadMemBlkExecBig (mem, addr, 
+                                               addrWidth, idx-1, num);
             return readBlkFmt.str();
         } else {
             boost::format readBlkFmt ("(concat (select %1% (+ %2% %3%)) %4%)");
             readBlkFmt % mem
                        % addr
                        % bvToString (idx, addrWidth)
-                       % genReadMemBlkExecBig (mem, addr, addrWidth, idx-1, num);
+                       % genReadMemBlkExecBig (mem, addr, 
+                                               addrWidth, idx-1, num);
             return readBlkFmt.str();
+        }
+    }
+
+    std::string HornTranslator::genStoreMemBlkExecLit (
+            const std::string& mem,
+            const std::string& addr,
+            const std::string& data,
+            int chunkSize, int chunkNum,
+            int addrWidth, int idx)
+    {
+        // little:
+        // (store (store (store A addr ((_ extract 7 0) val))
+        //                        (+ addr 1) ((_ extract 15 8) val))
+        //                        (+ addr 2) ((_ extract 23 16) val))
+        ILA_ASSERT (idx > 0, "MemStoreBlk idx < 0.");
+
+        if (idx == 1) {
+            boost::format storeBlkFmt (
+                    "(store %1% %2% ((_ extract %3% %4%) %5%))");
+            storeBlkFmt % mem 
+                        % addr
+                        % (chunkSize - 1)
+                        % 0
+                        % data;
+            return storeBlkFmt.str();
+        } else {
+            boost::format storeBlkFmt (
+                    "(store %1% (+ %2% %3%) ((_extract %4% %5%) %6%))");
+            std::string newMem = genStoreMemBlkExecLit (mem, addr, data,
+                                                        chunkSize, chunkNum,
+                                                        addrWidth, idx-1);
+            storeBlkFmt % newMem
+                        % addr
+                        % bvToString (idx-1, addrWidth)
+                        % (idx*chunkSize - 1)
+                        % ((idx-1)*chunkSize - 1)
+                        % data;
+            return storeBlkFmt.str();
+        }
+    }
+
+    std::string HornTranslator::genStoreMemBlkExecBig (
+            const std::string& mem,
+            const std::string& addr,
+            const std::string& data,
+            int chunkSize, int chunkNum,
+            int addrWidth, int idx)
+    {
+        // big:
+        // (store (store (store A addr ((_ extract 23 16) val))
+        //                        (+ addr 1) ((_ extract 15 8) val))
+        //                        (+ addr 2) ((_ extract 7 0) val)))
+        ILA_ASSERT (idx > 0, "MemStoreBlk idx < 0.");
+
+        if (idx == 1) {
+            boost::format storeBlkFmt (
+                    "(store %1% %2% ((_ extract %3% %4%) %5%))");
+            storeBlkFmt % mem
+                        % addr
+                        % (chunkNum * chunkSize - 1)
+                        % ((chunkNum-1) * chunkSize)
+                        % data;
+            return storeBlkFmt.str();
+        } else {
+            boost::format storeBlkFmt (
+                    "(store %1% (+ %2% %3%) ((_ extract %4% %5%) %6%))");
+            std::string newMem = genStoreMemBlkExecBig (mem, addr, data,
+                                                        chunkSize, chunkNum,
+                                                        addrWidth, idx-1);
+            storeBlkFmt % newMem
+                        % addr
+                        % bvToString (idx-1, addrWidth)
+                        % (chunkSize * (chunkNum-idx+1))
+                        % (chunkSize * (chunkNum-idx))
+                        % data;
+            return storeBlkFmt.str();
         }
     }
 
@@ -1004,6 +1202,32 @@ namespace ila
             val = val >> 1;
         }
         return ("#b" + str);
+    }
+
+    std::string HornTranslator::bvToString (int val, int addrWidth)
+    {
+        return bvToString ((mp_int_t) val, addrWidth);
+    }
+
+    void HornTranslator::genMemConstRules (const MemConst* n, hvptr_t v)
+    {
+        // (= val1 (select A addr1))
+        // (= val2 (select A addr2))
+        // (= val3 (select A addr3))
+        hcptr_t hc = addClause (v);
+        hvptr_t hv = getVar ("memConstIt");
+        int dataWidth = n->type.dataWidth;
+        int addrWidth = n->type.addrWidth;
+       
+        for (auto p : n->memvalues.values) {
+            boost::format memConstFmt ("(= %1% (select %2% %3%))");
+            memConstFmt % bvToString (p.second, dataWidth)
+                        % v->getName()
+                        % bvToString (p.first, addrWidth);
+            hv->setExec (memConstFmt.str());
+        }
+
+        hc->addBody (new HornLiteral (hv));
     }
 }
 
