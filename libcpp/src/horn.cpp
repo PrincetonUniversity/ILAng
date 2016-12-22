@@ -201,8 +201,6 @@ namespace ila
       : _abs (abs)
     {
         _db = new HornDB();
-        // TODO create rules for xor and xnor.
-        // TODO create rules for memconst.
         _varCnt = 0;
         _curHc = NULL;
     }
@@ -458,7 +456,6 @@ namespace ila
     void HornTranslator::initVar (hvptr_t v, const std::string& s)
     {
         v->setName (s);
-        // FIXME
     }
 
     bool HornTranslator::isITE (nptr_t n)
@@ -481,7 +478,6 @@ namespace ila
 
     void HornTranslator::initBoolOp (const BoolOp* n, hvptr_t v)
     {
-        // _name, _type, _exec, _ins, _outs
         // name
         v->setName ("b" + boost::lexical_cast <std::string> (v->getId()));
         // type
@@ -500,10 +496,9 @@ namespace ila
             "not",                  // not
             "and", "or", "xor",     // and, or, xor
             "xor", "and", "or",     // xnor, nand, nor
-            "=>", "bvult",          // imply, ult
-            ">", "<=", ">=", "<",   // sgt, sle, sge, slt
-            "bvult", "bvult",       // ugt, ule
-            "bvult",                // uge
+            "=>",                   // imply,
+            "bvslt", "bvsgt", "bvsle", "bvsge",
+            "bvult", "bvugt", "bvule", "bvuge",
             "=", "distinct",        // equal, distinct
             "if"                    // ite
         };
@@ -524,53 +519,30 @@ namespace ila
             boost::format priFmt ("(= %1% (%2% %3% %4%))");
             boost::format negFmt ("(= %1% (not (%2% %3% %4%)))");
 
-            if (n->op == BoolOp::Op::AND   || 
-                n->op == BoolOp::Op::OR    ||
-                n->op == BoolOp::Op::XOR   || 
-                n->op == BoolOp::Op::IMPLY ||
-                n->op == BoolOp::Op::ULT   ||
-                n->op == BoolOp::Op::EQUAL ||
-                n->op == BoolOp::Op::DISTINCT) {
+            if ((n->op >= BoolOp::Op::AND   &&
+                 n->op <= BoolOp::Op::XOR)  ||
+                (n->op >= BoolOp::Op::IMPLY &&
+                 n->op <= BoolOp::Op::DISTINCT)) {
                 // use primitive format (= z (op x y))
                 priFmt % v->getName()    
                        % boolOpNames[n->op]
                        % arg0->getName() 
                        % arg1->getName();
                 v->setExec (priFmt.str());
-            } else if (n->op == BoolOp::Op::XNOR || 
-                       n->op == BoolOp::Op::NAND ||
-                       n->op == BoolOp::Op::NOR  ||
-                       n->op == BoolOp::Op::UGE) {
+            } else if (n->op >= BoolOp::Op::XNOR && 
+                       n->op == BoolOp::Op::NOR) {
                 // use negated format (= z (not (op x y)))
                 negFmt % v->getName()
                        % boolOpNames[n->op]
                        % arg0->getName()
                        % arg1->getName();
                 v->setExec (negFmt.str());
-            } else if (n->op == BoolOp::Op::UGT) {
-                // z = x > y  --> (= z (ult y x))
-                priFmt % v->getName() 
-                       % boolOpNames[n->op]
-                       % arg1->getName()
-                       % arg0->getName();
-                v->setExec (priFmt.str());
-            } else if (n->op == BoolOp::Op::ULE) {
-                // z = x <= y --> (= z (not (ult y x)))
-                negFmt % v->getName()
-                       % boolOpNames[n->op]
-                       % arg1->getName()
-                       % arg0->getName();
-                v->setExec (negFmt.str());
             } else {
-                std::string errMsg = "BoolOp" + 
-                                     boost::lexical_cast <std::string> (n->op) +
-                                     " not supported.";
-                ILA_ASSERT (false, errMsg);
+                ILA_ASSERT (false, "Unknonw BoolOp.");
             }
         //// Ternary ////
         } else if (n->op == BoolOp::Op::IF) {
             // ITE (x, y, z) --> (rel.x y z)
-            // FIXME ITE should never be "executed".
             // FIXME SMT 2.0 has ite for core theory.
             v->setExec ("true");
         } else {
@@ -624,7 +596,7 @@ namespace ila
 
         // exec
         // TODO Not supported operators: 
-        // LROTATE, RROTATE, S_EXT, SDIV, SMOD, SREM, ASHR
+        // LROTATE, RROTATE, S_EXT 
         std::string bvOpNames[] = {
             "invalid",                      // not used 
             // unary
@@ -634,18 +606,10 @@ namespace ila
             "sign-extend",                  // not used
             "extract",
             // binary
-            "bvadd", "bvadd", "bvand", "bvor", 
-            "xor", "xnor",                  // not used
-            "bvand", "bvor",
-            "div",                          // not used
-            "udiv", 
-            "rem",                          // not used
-            "urem", 
-            "mod",                          // not used
-            "bvshl", 
-            "bvlshr", 
-            "ashr",                         // not used
-            "bvmul", "concat", 
+            "bvadd", "bvsub", 
+            "bvand", "bvor", "bvxor", "bvxnor", "bvnand", "bvnor",
+            "bvsdiv", "bvudiv", "bvsrem", "bvurem", "bvsmod", 
+            "bvshl", "bvlshr", "bvashr", "bvmul", "concat", 
             "get-bit",                      // not used
             "select", "read-block",
             // ternary
@@ -654,7 +618,6 @@ namespace ila
 
         boost::format bvUnaryFmt ("(= %1% (%2% %3%))");
         boost::format bvBinaryFmt ("(= %1% (%2% %3% %4%))");
-        boost::format bvBinaryNegFmt ("(= %1% (not (%2% %3% %4%)))");
         //// Unary ////
         if (n->op >= BitvectorOp::Op::NEGATE && 
             n->op <= BitvectorOp::Op::EXTRACT) {
@@ -711,15 +674,8 @@ namespace ila
             hvptr_t arg0 = getVar (n->arg(0));
             hvptr_t arg1 = getVar (n->arg(1));
 
-            if (n->op == BitvectorOp::Op::ADD  || 
-                n->op == BitvectorOp::Op::AND  ||
-                n->op == BitvectorOp::Op::OR   ||
-                n->op == BitvectorOp::Op::MUL  ||
-                n->op == BitvectorOp::Op::UDIV ||
-                n->op == BitvectorOp::Op::UREM ||
-                n->op == BitvectorOp::Op::SHL  ||
-                n->op == BitvectorOp::Op::LSHR ||
-                n->op == BitvectorOp::Op::CONCAT ||
+            if (n->op >= BitvectorOp::Op::ADD &&
+                n->op <= BitvectorOp::Op::CONCAT || 
                 n->op == BitvectorOp::Op::READMEM) {
                 // z = x op y --> (= z (op x y))
                 bvBinaryFmt % v->getName()
@@ -727,41 +683,6 @@ namespace ila
                             % arg0->getName()
                             % arg1->getName();
                 v->setExec (bvBinaryFmt.str());
-            } else if (n->op == BitvectorOp::Op::SUB) {
-                // z = x - y --> (= z (bvadd x (bvneg y)))
-                bvBinaryFmt % v->getName()
-                            % bvOpNames[n->op]
-                            % arg0->getName()
-                            % ("(bvneg " + arg1->getName() + ")");
-                v->setExec (bvBinaryFmt.str());
-            } else if (n->op == BitvectorOp::Op::NAND ||
-                       n->op == BitvectorOp::Op::NOR) {
-                // z = x op y --> (= z (not (op x y)))
-                bvBinaryNegFmt % v->getName()
-                               % bvOpNames[n->op]
-                               % arg0->getName()
-                               % arg1->getName();
-                v->setExec (bvBinaryNegFmt.str());
-            } else if (n->op == BitvectorOp::Op::XOR) {
-                // z = x ^ y --> (xor x y z)
-                boost::format bvXorFmt ("(xor %1% %2% %3%)");
-                bvXorFmt % arg0->getName()
-                         % arg1->getName()
-                         % v->getName();
-                v->setExec (bvXorFmt.str());
-            } else if (n->op == BitvectorOp::Op::XNOR) {
-                // z = x ^ y --> (xnor x y z)
-                boost::format bvXnorFmt ("(xnor %1% %2% %3%)");
-                bvXnorFmt % arg0->getName()
-                          % arg1->getName()
-                          % v->getName();
-                v->setExec (bvXnorFmt.str());
-            } else if (n->op == BitvectorOp::Op::SDIV ||
-                       n->op == BitvectorOp::Op::SREM ||
-                       n->op == BitvectorOp::Op::SMOD ||
-                       n->op == BitvectorOp::Op::ASHR) {
-                // not supported yet.
-                ILA_ASSERT (false, "signed/arithmetic bvOp not supported yet.");
             } else if (n->op == BitvectorOp::Op::GET_BIT) {
                 // z = x[y] --> (= z ((_ extract 0 0) (bvlshr x y)))
                 boost::format bvGetbitFmt (
