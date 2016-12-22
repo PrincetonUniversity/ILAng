@@ -900,7 +900,7 @@ namespace ila
             }
             code = code + ");";
         } else {
-            ILA_ASSERT(false, "Unknown bool op.");
+            ILA_ASSERT(false, "Unknown BitvectorOp.");
         }
 
         if (code != "") {

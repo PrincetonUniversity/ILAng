@@ -31,7 +31,7 @@ namespace ila
         // var type.
         std::string _type;
         // constraint for var.
-        std::string _exec;
+        std::set <std::string> _exec;
         // set of input (dependent) vars.
         std::set <hvptr_t> _ins;
         // set of output vars.
@@ -51,7 +51,7 @@ namespace ila
         // get var type.
         const std::string& getType () const;
         // get var execution constraints.
-        const std::string& getExec () const;
+        const std::set <std::string>& getExec () const;
         // get var predicate.
         std::string getPred () const;
         // get var relation.
@@ -253,6 +253,19 @@ namespace ila
         void addMemConst (const MemConst* n, hvptr_t v);
         // add FuncVar to horn clause.
         void addFuncVar (const FuncVar* n, hvptr_t v);
+
+        // ------------------------------------------------------------------ //
+        // generate BvOpReadMemBlock execution - little endiant
+        std::string genReadMemBlkExecLit (const std::string& mem,
+                                          const std::string& addr,
+                                          int addrWidth, int idx);
+        // generate BvOpReadMemBlock execution - big endiant
+        std::string genReadMemBlkExecBig (const std::string& mem,
+                                          const std::string& addr,
+                                          int addrWidth, int idx, int num);
+
+        // ------------------------------------------------------------------ //
+        std::string bvToString (mp_int_t val, int width);
     };
 }
 

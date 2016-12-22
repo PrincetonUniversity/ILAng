@@ -15,6 +15,7 @@ namespace ila {
 
     // ---------------------------------------------------------------------- //
     std::string to_string(const py::object& l);
+    std::string to_string(const mp_int_t& i);
     mp_int_t to_cpp_int(const py::object& l);
     py::object to_pyint(const mp_int_t& i);
     py::object to_pyint(const std::string& s);
