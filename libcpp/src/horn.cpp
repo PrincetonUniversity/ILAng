@@ -16,6 +16,7 @@ namespace ila
     HornVar::HornVar (const unsigned& id)
       : _id (id)
     {
+        _const = false;
     }
 
     HornVar::~HornVar ()
@@ -80,6 +81,11 @@ namespace ila
         return relFmt.str();
     }
 
+    bool HornVar::isConst () const
+    {
+        return _const;
+    }
+
     void HornVar::setName (const std::string& s)
     {
         _name = s;
@@ -119,6 +125,11 @@ namespace ila
         }
     }
 
+    void HornVar::setConst ()
+    {
+        _const = true;
+    }
+
     // ---------------------------------------------------------------------- //
     HornLiteral::HornLiteral (hvptr_t v, bool r, bool s)
       : _var (v)
@@ -129,6 +140,28 @@ namespace ila
 
     HornLiteral::~HornLiteral ()
     {
+    }
+
+    std::string HornLiteral::getPred () const
+    {
+        if (_sign) {
+            return _var->getPred();
+        } else {
+            return ("(not " + _var->getPred() + ")");
+        }
+    }
+
+    std::set <std::string> HornLiteral::getExec () const
+    {
+        std::set <std::string> res;
+        for (auto e : _var->getExec()) {
+            if (_sign) {
+                res.insert (e);
+            } else {
+                res.insert ("(not " + e + ")");
+            }
+        }
+        return res;
     }
 
     hvptr_t HornLiteral::getVar () const
@@ -177,28 +210,25 @@ namespace ila
         //                (body-3))
         //           head))
         out << "(rule (=> (and true\n";
+        std::set <std::string> allTerms;
         for (auto b : _body) {
-            out << std::setw(15) << "";
-
             if (b->isRel()) {
-                if (b->getSign() == true) {
-                    out << b->getVar()->getPred() << "\n";
-                } else {
-                    out << "(not " << b->getVar()->getPred() << ")\n";
-                }
+                allTerms.insert (b->getPred());
             } else {
-                auto set = b->getVar()->getExec();
-                if (b->getSign() == true) {
-                    for (auto it = set.begin(); it != set.end(); it++)
-                        out << (*it) << "\n";
-                } else {
-                    for (auto it = set.begin(); it != set.end(); it++)
-                        out << "(not " << (*it) << ")\n";
-                }
+                auto set = b->getExec();
+                for (auto it = set.begin(); it != set.end(); it++)
+                    allTerms.insert (*it);
             }
         }
+        for (auto b = allTerms.begin(); b != allTerms.end(); ) {
+            out << std::setw(15) << "";
+            out << (*b);
+            if (++b != allTerms.end()) 
+                out << "\n";
+        }
+        out << ")\n";
         out << std::setw(10) << "";
-        out << _head->getVar()->getPred() << ")))\n";
+        out << _head->getVar()->getPred() << "))\n";
     }
 
     // ---------------------------------------------------------------------- //
@@ -242,6 +272,7 @@ namespace ila
         out << "; variables\n";
         boost::format varFmt ("(declare-var %1% %2%)\n");
         for (auto v : _vars) {
+            if (v->isConst()) continue;
             varFmt % v->getName() % v->getType();
             out << varFmt.str();
         }
@@ -619,6 +650,7 @@ namespace ila
             // ITE (x, y, z) --> (rel.x y z)
             // FIXME SMT 2.0 has ite for core theory.
             v->setExec ("true");
+            log1 ("Horn") << "ITE " << v->getName() << "\n";
         } else {
             ILA_ASSERT (false, "Unknown BoolOp.");
         }
@@ -650,6 +682,7 @@ namespace ila
         v->setExec ("true");
         // ins
         // outs
+        v->setConst ();
     }
 
     void HornTranslator::initBvOp (const BitvectorOp* n, hvptr_t v)
@@ -807,6 +840,7 @@ namespace ila
         } else if (n->op == BitvectorOp::Op::IF) {
             // ITE will not be "executed"
             v->setExec ("true");
+            log1 ("Horn") << "ITE " << v->getName() << "\n";
         } else if (n->op == BitvectorOp::Op::APPLY_FUNC) {
             // z = foo (x, y) --> (foo x y z)
             std::string exec = "(";
@@ -849,6 +883,7 @@ namespace ila
         v->setExec ("true");
         // ins
         // outs
+        v->setConst ();
     }
       
     void HornTranslator::initMemOp (const MemOp* n, hvptr_t v)
@@ -884,6 +919,7 @@ namespace ila
         } else if (n->op == MemOp::Op::ITE) {
             // z = ite (A, B, C) --> true. Will not be "executed".
             v->setExec ("true");
+            log1 ("Horn") << "ITE " << v->getName() << "\n";
         } else if (n->op == MemOp::Op::STOREBLOCK) {
             // little:
             // (= z (store (store (store A addr ((_ extract 7 0) val))
@@ -954,6 +990,7 @@ namespace ila
         // in
         // out
         v->addOutVar (v);
+        v->setConst ();
     }
 
     void HornTranslator::initFuncVar (const FuncVar* n, hvptr_t v)

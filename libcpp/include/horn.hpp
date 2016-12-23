@@ -36,6 +36,8 @@ namespace ila
         std::set <hvptr_t> _ins;
         // set of output vars.
         std::set <hvptr_t> _outs;
+        // var is const.
+        bool _const;
 
     public:
         // ctor.
@@ -56,6 +58,8 @@ namespace ila
         std::string getPred () const;
         // get var relation.
         std::string getRel () const;
+        // check if is constant.
+        bool isConst () const;
 
         // ------------------------------------------------------------------ //
         // set var name.
@@ -72,6 +76,8 @@ namespace ila
         void mergeInVars (hvptr_t v);
         // merge output vars.
         void mergeOutVars (hvptr_t v);
+        // set to be constant.
+        void setConst ();
     };
 
     // ---------------------------------------------------------------------- //
@@ -92,6 +98,10 @@ namespace ila
         virtual ~HornLiteral ();
 
         // ------------------------------------------------------------------ //
+        // get the predicate, with sign considered.
+        std::string getPred () const;
+        // get the set of execution, with sign considered.
+        std::set <std::string> getExec () const;
         // get the var.
         hvptr_t getVar () const;
         // get the sign.

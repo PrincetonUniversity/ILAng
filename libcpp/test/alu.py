@@ -157,7 +157,7 @@ def model(num_regs, reg_size, paramsyn):
     sys.set_next('pc', pc_next_p)
     print '--> PC_NEXT:', sys.get_next('pc')
 
-    expFile  = "test_ila_export.txt"
+    expFile  = "tmp/alu.txt"
     sys.exportAll(expFile);
     verilogFile = "tmp/alu.v"
     ila.setloglevel(3, "")
@@ -176,7 +176,7 @@ def model(num_regs, reg_size, paramsyn):
         rn2 = regs_next[i]
         assert sysp.areEqual(rn1, rn2)
 
-    os.unlink(expFile)
+#os.unlink(expFile)
 
 def main():
     ila.setloglevel(0, "")
