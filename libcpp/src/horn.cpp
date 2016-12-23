@@ -322,27 +322,17 @@ namespace ila
         _db = NULL;
     }
 
-    void HornTranslator::transAllToFile (const std::string& fileName)
+    void HornTranslator::hornifyAll (const std::string& fileName)
     {
         // TODO
     }
 
-    void HornTranslator::transOneToFile (NodeRef* node,
-                                         const std::string& ruleName,
-                                         const std::string& fileName)
+    void HornTranslator::hornifyNode (NodeRef* node, 
+                                      const std::string& ruleName)
     {
-        transOne (node->node, ruleName);
-
-        std::ofstream out (fileName.c_str());
-        ILA_ASSERT (out.is_open(), "File " + fileName + " not open.");
-        _db->print (out);
-        out.close();
-    }
-
-    void HornTranslator::transOne (nptr_t n, const std::string& ruleName)
-    {
+        nptr_t n = node->node;
         log1 ("Horn") << "Trans node " << n->getName()
-            << " as " << ruleName <<  std::endl;
+            << " as " << ruleName << std::endl;
 
         hvptr_t varNxt = getVar (n);
         hvptr_t topV = getVar (ruleName);
@@ -352,6 +342,14 @@ namespace ila
         
         _curHc = topC;
         depthFirstTraverse (n);
+    }
+
+    void HornTranslator::exportHorn (const std::string& fileName)
+    {
+        std::ofstream out (fileName.c_str());
+        ILA_ASSERT (out.is_open(), "File " + fileName + " not open.");
+        _db->print (out);
+        out.close();
     }
 
     void HornTranslator::depthFirstTraverse (nptr_t n)

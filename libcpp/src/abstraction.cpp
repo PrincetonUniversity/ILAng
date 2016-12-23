@@ -32,6 +32,7 @@ namespace ila
       , fetchExpr(NULL)
       , fetchValid(BoolConst::get(true))
       , paramSyn(1)
+      , _ht(NULL)
     {
     }
 
@@ -42,6 +43,7 @@ namespace ila
       , fetchExpr(NULL)
       , fetchValid(BoolConst::get(true))
       , paramSyn(1)
+      , _ht(NULL)
     {
         ILA_ASSERT(parent != NULL, "parent must be non-NULL.");
         initMap(parent->inps, inps);
@@ -54,6 +56,8 @@ namespace ila
 
     Abstraction::~Abstraction()
     {
+        delete _ht;
+        _ht = NULL;
     }
 
     // ---------------------------------------------------------------------- //
@@ -875,20 +879,30 @@ namespace ila
     }
 
     // ---------------------------------------------------------------------- //
-    void Abstraction::toHorn(const std::string& fileName, bool iteAsNode)
+    void Abstraction::hornifyAll(const std::string& fileName, bool iteAsNode)
     {
-        HornTranslator ht(this, iteAsNode);
-        ht.transAllToFile(fileName);
+        if (_ht == NULL)
+            _ht = new HornTranslator (this, iteAsNode);
+        _ht->hornifyAll(fileName);
     }
 
     // ---------------------------------------------------------------------- //
-    void Abstraction::nodeToHorn(NodeRef* node, 
-                                 const std::string& ruleName,
-                                 const std::string& fileName,
-                                 bool iteAsNode)
+    void Abstraction::hornifyNode(NodeRef* node, 
+                                  const std::string& ruleName,
+                                  bool iteAsNode)
     {
-        HornTranslator ht(this, iteAsNode);
-        ht.transOneToFile(node, ruleName, fileName);
+        if (_ht == NULL)
+            _ht = new HornTranslator (this, iteAsNode);
+        _ht->hornifyNode(node, ruleName);
+    }
+
+    void Abstraction::exportHornToFile(const std::string& fileName)
+    {
+        if (_ht == NULL) {
+            log1 ("Horn") << "Nothing has been hornified.";
+            return;
+        }
+        _ht->exportHorn(fileName);
     }
 
     // ---------------------------------------------------------------------- //

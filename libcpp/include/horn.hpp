@@ -193,15 +193,13 @@ namespace ila
 
         // ------------------------------------------------------------------ //
         // convert whole abs to horn clauses and output to file.
-        void transAllToFile (const std::string& fileName);
+        void hornifyAll (const std::string& fileName);
         // convert one ast node to horn clauses and output to file.
-        void transOneToFile (NodeRef* node, 
-                             const std::string& ruleName,
-                             const std::string& fileName);
+        void hornifyNode (NodeRef* node, const std::string& ruleName);
+        // export horn clause to file.
+        void exportHorn (const std::string& fileName);
 
         // ------------------------------------------------------------------ //
-        // convert one ast node to horn clauses.
-        void transOne (nptr_t n, const std::string& ruleName);
         // Traverse and generate horn clauses in depth-first order.
         void depthFirstTraverse (nptr_t n);
         // This will be used by depthFirstVisit.

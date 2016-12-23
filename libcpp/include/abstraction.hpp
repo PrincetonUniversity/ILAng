@@ -262,12 +262,13 @@ namespace ila
         void toBoogie(const std::string& filename);
 
         // convert this abstraction to horn clauses.
-        void toHorn(const std::string& fileName, bool iteAsNode);
+        void hornifyAll(const std::string& fileName, bool iteAsNode);
         // convert one node to horn clause,
-        void nodeToHorn(NodeRef* node, 
-                        const std::string& ruleName,
-                        const std::string& fileName,
-                        bool iteAsNode);
+        void hornifyNode(NodeRef* node, 
+                         const std::string& ruleName,
+                         bool iteAsNode);
+        // dump horn clauses to file.
+        void exportHornToFile(const std::string& fileName);
 
         // get memories.
         const nmap_t& getMems() const { return mems; }
@@ -334,6 +335,8 @@ namespace ila
         friend class AbstractionWrapper;
 
     private:
+        // horn clause translator.
+        HornTranslator* _ht;
         // The simulator generating function.
         CppSimGen* generateSim(bool hier) const;
         // Set inputs, states, and functions to the simulator generator.
@@ -673,17 +676,21 @@ namespace ila
             abs->toBoogie(name);
         }
 
-        void toHorn(const std::string& name, bool iteAsNode)
+        void hornifyAll(const std::string& name, bool iteAsNode)
         {
-            abs->toHorn(name, iteAsNode);
+            abs->hornifyAll(name, iteAsNode);
         }
 
-        void nodeToHorn(NodeRef* node, 
-                        const std::string& rule, 
-                        const std::string& name, 
-                        bool iteAsNode)
+        void hornifyNode(NodeRef* node, 
+                         const std::string& rule, 
+                         bool iteAsNode)
         {
-            abs->nodeToHorn(node, rule, name, iteAsNode);
+            abs->hornifyNode(node, rule, iteAsNode);
+        }
+
+        void exportHornToFile(const std::string& fileName)
+        {
+            abs->exportHornToFile(fileName);
         }
 
         int getEnParamSyn() const {
