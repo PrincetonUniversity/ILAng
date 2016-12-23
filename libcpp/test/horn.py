@@ -13,20 +13,22 @@ def getDummyILA():
     return A
 
 def main():
+    iteAsNode = False
+    iteAsNode = True
     hornFile = "tmp/horn_test_node.smt2"
     A = getDummyILA()
     ila.setloglevel(3, "")
     ila.enablelog("Horn")
-    A.toHorn("tmp/horn_test_ILA.smt2")
+    A.toHorn("tmp/horn_test_ILA.smt2", iteAsNode)
     r2_nxt = A.get_next('r2')
-    A.nodeToHorn(r2_nxt, "r2_nxt", hornFile)
+    A.nodeToHorn(r2_nxt, "r2_nxt", hornFile, iteAsNode)
 
     alu = ila.Abstraction("alu")
     alu.importAll("tmp/alu.txt")
     r0_nxt = alu.get_next('r0')
     pc_nxt = alu.get_next('pc')
-    alu.nodeToHorn(r0_nxt, "r0_nxt", hornFile)
-    alu.nodeToHorn(pc_nxt, "pc_nxt", hornFile)
+    alu.nodeToHorn(pc_nxt, "pc_nxt", hornFile, iteAsNode)
+    alu.nodeToHorn(r0_nxt, "r0_nxt", hornFile, iteAsNode)
 
 
 if __name__ == '__main__':

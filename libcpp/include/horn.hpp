@@ -63,11 +63,11 @@ namespace ila
 
         // ------------------------------------------------------------------ //
         // set var name.
-        void setName (const std::string& s);
+        void setName (std::string s);
         // set var type.
-        void setType (const std::string& s);
+        void setType (std::string s);
         // set constraints for var execution.
-        void setExec (const std::string& s);
+        void setExec (std::string s);
         // add dependent input var.
         void addInVar (hvptr_t v);
         // add output var.
@@ -178,29 +178,32 @@ namespace ila
     class HornTranslator
     {
     private:
+        // pointer to the abstraction.
         Abstraction* _abs;
         // horn clause data base.
         HornDB* _db;
+        // translate ITE as new clause or a node.
+        bool _iteAsNode;
 
     public:
         // ctor;
-        HornTranslator (Abstraction* abs);
+        HornTranslator (Abstraction* abs, bool iteAsNode);
         // dtor.
         virtual ~HornTranslator ();
 
         // ------------------------------------------------------------------ //
-        // convert whole abs to horn clauses.
-        void transAll (const std::string& fileName);
-        // convert one ast node to horn clauses.
-        void transOne (NodeRef* node, 
-                       const std::string& ruleName,
-                       const std::string& fileName);
+        // convert whole abs to horn clauses and output to file.
+        void transAllToFile (const std::string& fileName);
+        // convert one ast node to horn clauses and output to file.
+        void transOneToFile (NodeRef* node, 
+                             const std::string& ruleName,
+                             const std::string& fileName);
 
         // ------------------------------------------------------------------ //
+        // convert one ast node to horn clauses.
+        void transOne (nptr_t n, const std::string& ruleName);
         // Traverse and generate horn clauses in depth-first order.
         void depthFirstTraverse (nptr_t n);
-
-        // ------------------------------------------------------------------ //
         // This will be used by depthFirstVisit.
         void operator() (nptr_t n);
 
@@ -225,6 +228,10 @@ namespace ila
         void initVar (hvptr_t v, nptr_t n);
         // initialize horn var from a name; _name.
         void initVar (hvptr_t v, const std::string& s);
+        // get equal node.
+        hvptr_t getEqVar (hvptr_t a, hvptr_t b);
+        // get condition node.
+        hvptr_t getConVar (hvptr_t c);
 
         // ------------------------------------------------------------------ //
         // eval if node n is an ITE node.

@@ -86,17 +86,17 @@ namespace ila
         return _const;
     }
 
-    void HornVar::setName (const std::string& s)
+    void HornVar::setName (std::string s)
     {
         _name = s;
     }
 
-    void HornVar::setType (const std::string& s)
+    void HornVar::setType (std::string s)
     {
         _type = s;
     }
 
-    void HornVar::setExec (const std::string& s)
+    void HornVar::setExec (std::string s)
     {
         _exec.insert (s);
     }
@@ -209,19 +209,28 @@ namespace ila
         //                (body-2)
         //                (body-3))
         //           head))
-        out << "(rule (=> (and true\n";
         std::set <std::string> allTerms;
         for (auto b : _body) {
             if (b->isRel()) {
                 allTerms.insert (b->getPred());
             } else {
                 auto set = b->getExec();
-                for (auto it = set.begin(); it != set.end(); it++)
-                    allTerms.insert (*it);
+                for (auto it = set.begin(); it != set.end(); it++) {
+                    if (*it != "true")
+                        allTerms.insert (*it);
+                }
             }
         }
+
+        // FIXME ignore (A -> A)
+        if ((allTerms.size() == 1) && 
+            (*allTerms.begin() == _head->getVar()->getPred()))
+            return;
+
+        out << "(rule (=> (and ";
         for (auto b = allTerms.begin(); b != allTerms.end(); ) {
-            out << std::setw(15) << "";
+            if (b != allTerms.begin())
+                out << std::setw(15) << "";
             out << (*b);
             if (++b != allTerms.end()) 
                 out << "\n";
@@ -269,7 +278,7 @@ namespace ila
     void HornDB::declareVar (std::ostream& out)
     {
         // (declare-var NAME TYPE)
-        out << "; variables\n";
+        out << ";; variables\n";
         boost::format varFmt ("(declare-var %1% %2%)\n");
         for (auto v : _vars) {
             if (v->isConst()) continue;
@@ -281,7 +290,7 @@ namespace ila
     void HornDB::declareRel (std::ostream& out)
     {
         // (declare-rel NAME (ARG_i))
-        out << "; relations\n";
+        out << ";; relations\n";
         boost::format relFmt ("(declare-rel %1%)\n");
         for (auto r : _rels) {
             relFmt % r->getRel();
@@ -291,15 +300,16 @@ namespace ila
 
     void HornDB::declareClause (std::ostream& out)
     {
-        out << "; clauses\n";
+        out << ";; clauses\n";
         for (auto c : _clauses) {
             c->print (out);
         }
     }
 
     // ---------------------------------------------------------------------- //
-    HornTranslator::HornTranslator (Abstraction* abs)
-      : _abs (abs)
+    HornTranslator::HornTranslator (Abstraction* abs, bool iteAsNode)
+      : _abs (abs),
+        _iteAsNode (iteAsNode)
     {
         _db = new HornDB();
         _varCnt = 0;
@@ -312,26 +322,16 @@ namespace ila
         _db = NULL;
     }
 
-    void HornTranslator::transAll (const std::string& fileName)
+    void HornTranslator::transAllToFile (const std::string& fileName)
     {
         // TODO
     }
 
-    void HornTranslator::transOne (NodeRef* node, 
-                                   const std::string& ruleName,
-                                   const std::string& fileName)
+    void HornTranslator::transOneToFile (NodeRef* node,
+                                         const std::string& ruleName,
+                                         const std::string& fileName)
     {
-        log1 ("Horn") << "Trans node " << node->getName() 
-            << " as " << ruleName <<  std::endl;
-
-        hvptr_t varNxt = getVar (node->node);
-        hvptr_t topV = getVar (ruleName);
-        hcptr_t topC = addClause (topV);
-        topV->addOutVar (varNxt);
-        topV->setType (varNxt->getType());
-        
-        _curHc = topC;
-        depthFirstTraverse (node->node);
+        transOne (node->node, ruleName);
 
         std::ofstream out (fileName.c_str());
         ILA_ASSERT (out.is_open(), "File " + fileName + " not open.");
@@ -339,11 +339,26 @@ namespace ila
         out.close();
     }
 
+    void HornTranslator::transOne (nptr_t n, const std::string& ruleName)
+    {
+        log1 ("Horn") << "Trans node " << n->getName()
+            << " as " << ruleName <<  std::endl;
+
+        hvptr_t varNxt = getVar (n);
+        hvptr_t topV = getVar (ruleName);
+        hcptr_t topC = addClause (topV);
+        topV->addOutVar (varNxt);
+        topV->setType (varNxt->getType());
+        
+        _curHc = topC;
+        depthFirstTraverse (n);
+    }
+
     void HornTranslator::depthFirstTraverse (nptr_t n)
     {
         ILA_ASSERT (_curHc != NULL, "working clause not defined.");
 
-        if (!isITE (n)) {
+        if (!isITE (n) || _iteAsNode) {
             // normal non-ITE nodes
             unsigned argNum = n->nArgs();
             for (unsigned i = 0; i != argNum; i++) {
@@ -377,12 +392,23 @@ namespace ila
             _curHc = hcElse;
             depthFirstTraverse (n->arg(2));
 
-            // condition hold true. Ex. (cond a b c) (then c d) -> (ite a b d)
+            // condition hold true. 
+            // (cond a b c) (then d e) c (= e f) -> (ite a b d f)
+            hvptr_t hvEqT = getEqVar (hvIte, hvThen);
+            hvptr_t hvCT = getConVar (hvCond);
             hcTrue->addBody (new HornLiteral (hvCond, true, true));
             hcTrue->addBody (new HornLiteral (hvThen, true, true));
-            // condition not hold. Ex. !(cond a b c) (else c d) -> (ite a b d)
-            hcFalse->addBody (new HornLiteral (hvCond, true, false));
+            hcTrue->addBody (new HornLiteral (hvCT, false, true));
+            hcTrue->addBody (new HornLiteral (hvEqT, false, true));
+
+            // condition not hold. 
+            // (cond a b c) (else d e) (not c) (= e f) -> (ite a b d f)
+            hvptr_t hvEqF = getEqVar (hvIte, hvElse);
+            hvptr_t hvCF = getConVar (hvCond);
+            hcFalse->addBody (new HornLiteral (hvCond, true, true));
             hcFalse->addBody (new HornLiteral (hvElse, true, true));
+            hcFalse->addBody (new HornLiteral (hvCF, false, false));
+            hcFalse->addBody (new HornLiteral (hvEqF, false, true));
 
             // add relation and reset to previous clause
             _curHc = hcPrev;
@@ -563,9 +589,24 @@ namespace ila
         v->setName (s);
     }
 
+    hvptr_t HornTranslator::getEqVar (hvptr_t a, hvptr_t b)
+    {
+        boost::format equFmt ("(= %1% %2%)");
+        hvptr_t res = getVar ("eq" + a->getName() + b->getName());
+        equFmt % a->getName() % b->getName();
+        res->setExec (equFmt.str());
+        return res;
+    }
+
+    hvptr_t HornTranslator::getConVar (hvptr_t c)
+    {
+        hvptr_t res = getVar ("cond_" + c->getName());
+        res->setExec (c->getName());
+        return res;
+    }
+
     bool HornTranslator::isITE (nptr_t n)
     {
-        // FIXME SMT 2.0 has ite for core theory.
         const BoolOp* boolop = NULL;
         const BitvectorOp* bvop = NULL;
         const MemOp* memop = NULL;
@@ -605,7 +646,7 @@ namespace ila
             "bvslt", "bvsgt", "bvsle", "bvsge",
             "bvult", "bvugt", "bvule", "bvuge",
             "=", "distinct",        // equal, distinct
-            "if"                    // ite
+            "ite"                   // ite
         };
 
         //// Unary ////
@@ -647,10 +688,23 @@ namespace ila
             }
         //// Ternary ////
         } else if (n->op == BoolOp::Op::IF) {
-            // ITE (x, y, z) --> (rel.x y z)
-            // FIXME SMT 2.0 has ite for core theory.
-            v->setExec ("true");
-            log1 ("Horn") << "ITE " << v->getName() << "\n";
+            // ITE (c, t, e, z) --> (rel.z c t e z)
+            // ITE (c, t, e, z) --> (= z (ite c t e))
+
+            if (_iteAsNode) {
+                hvptr_t vCond = getVar (n->arg(0));
+                hvptr_t vThen = getVar (n->arg(1));
+                hvptr_t vElse = getVar (n->arg(2));
+                boost::format iteFmt ("(= %1% (%2% %3% %4% %5%))");
+                iteFmt % v->getName()
+                       % boolOpNames[n->op]
+                       % vCond->getName()
+                       % vThen->getName()
+                       % vElse->getName();
+                v->setExec (iteFmt.str());
+            } else {
+                v->setExec ("true"); // FIXME
+            }
         } else {
             ILA_ASSERT (false, "Unknown BoolOp.");
         }
@@ -720,7 +774,7 @@ namespace ila
             "get-bit",                      // not used
             "select", "read-block",
             // ternary
-            "if", "apply_fun", 
+            "ite", "apply_fun", 
         };
 
         boost::format bvUnaryFmt ("(= %1% (%2% %3%))");
@@ -838,9 +892,23 @@ namespace ila
             
         //// Ternary ////
         } else if (n->op == BitvectorOp::Op::IF) {
-            // ITE will not be "executed"
-            v->setExec ("true");
-            log1 ("Horn") << "ITE " << v->getName() << "\n";
+            // z = ite (c, t, e) --> (=z (ite c, t, e))
+            // z = ite (c, t, e) --> (rel.z c, t, e, z)
+            
+            if (_iteAsNode) {
+                hvptr_t vCond = getVar (n->arg(0));
+                hvptr_t vThen = getVar (n->arg(1));
+                hvptr_t vElse = getVar (n->arg(2));
+                boost::format iteFmt ("(= %1% (%2% %3% %4% %5%))");
+                iteFmt % v->getName()
+                       % bvOpNames[n->op]
+                       % vCond->getName()
+                       % vThen->getName()
+                       % vElse->getName();
+                v->setExec (iteFmt.str());
+            } else {
+                v->setExec ("true"); // FIXME
+            }
         } else if (n->op == BitvectorOp::Op::APPLY_FUNC) {
             // z = foo (x, y) --> (foo x y z)
             std::string exec = "(";
@@ -917,9 +985,22 @@ namespace ila
                         % arg2->getName();
             v->setExec (memStoreFmt.str());
         } else if (n->op == MemOp::Op::ITE) {
-            // z = ite (A, B, C) --> true. Will not be "executed".
-            v->setExec ("true");
-            log1 ("Horn") << "ITE " << v->getName() << "\n";
+            // z = ite (A, B, C) --> (= z (ite cond then else))
+            // z = ite (A, B, C) --> (rel.z A B C Z)
+
+            if (_iteAsNode) {
+                hvptr_t vCond = getVar (n->arg(0));
+                hvptr_t vThen = getVar (n->arg(1));
+                hvptr_t vElse = getVar (n->arg(2));
+                boost::format iteFmt ("(= %1% (ite %2% %3% %4%))");
+                iteFmt % v->getName()
+                       % vCond->getName()
+                       % vThen->getName()
+                       % vElse->getName();
+                v->setExec (iteFmt.str());
+            } else {
+                v->setExec ("true"); // FIXME
+            }
         } else if (n->op == MemOp::Op::STOREBLOCK) {
             // little:
             // (= z (store (store (store A addr ((_ extract 7 0) val))
@@ -1020,7 +1101,7 @@ namespace ila
     {
         ILA_ASSERT (_curHc != NULL, "working clause not exist.");
 
-        if (n->op == BoolOp::Op::IF) {
+        if (n->op == BoolOp::Op::IF && !_iteAsNode) {
             _curHc->addBody (new HornLiteral (v, true, true));
         } else {
             _curHc->addBody (new HornLiteral (v, false, true));
@@ -1042,7 +1123,7 @@ namespace ila
     {
         ILA_ASSERT (_curHc != NULL, "working clause not exist.");
 
-        if (n->op == BitvectorOp::Op::IF) {
+        if (n->op == BitvectorOp::Op::IF && !_iteAsNode) {
             _curHc->addBody (new HornLiteral (v, true, true));
         } else {
             _curHc->addBody (new HornLiteral (v, false, true));
@@ -1064,7 +1145,7 @@ namespace ila
     {
         ILA_ASSERT (_curHc != NULL, "working clause not exist.");
 
-        if (n->op == MemOp::Op::ITE) {
+        if (n->op == MemOp::Op::ITE && !_iteAsNode) {
             _curHc->addBody (new HornLiteral (v, true, true));
         } else {
             _curHc->addBody (new HornLiteral (v, false, true));

@@ -875,19 +875,20 @@ namespace ila
     }
 
     // ---------------------------------------------------------------------- //
-    void Abstraction::toHorn(const std::string& fileName)
+    void Abstraction::toHorn(const std::string& fileName, bool iteAsNode)
     {
-        HornTranslator ht(this);
-        ht.transAll(fileName);
+        HornTranslator ht(this, iteAsNode);
+        ht.transAllToFile(fileName);
     }
 
     // ---------------------------------------------------------------------- //
     void Abstraction::nodeToHorn(NodeRef* node, 
                                  const std::string& ruleName,
-                                 const std::string& fileName)
+                                 const std::string& fileName,
+                                 bool iteAsNode)
     {
-        HornTranslator ht(this);
-        ht.transOne(node, ruleName, fileName);
+        HornTranslator ht(this, iteAsNode);
+        ht.transOneToFile(node, ruleName, fileName);
     }
 
     // ---------------------------------------------------------------------- //

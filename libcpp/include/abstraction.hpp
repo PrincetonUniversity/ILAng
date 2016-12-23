@@ -262,11 +262,12 @@ namespace ila
         void toBoogie(const std::string& filename);
 
         // convert this abstraction to horn clauses.
-        void toHorn(const std::string& fileName);
+        void toHorn(const std::string& fileName, bool iteAsNode);
         // convert one node to horn clause,
         void nodeToHorn(NodeRef* node, 
                         const std::string& ruleName,
-                        const std::string& fileName);
+                        const std::string& fileName,
+                        bool iteAsNode);
 
         // get memories.
         const nmap_t& getMems() const { return mems; }
@@ -672,14 +673,17 @@ namespace ila
             abs->toBoogie(name);
         }
 
-        void toHorn(const std::string& name)
+        void toHorn(const std::string& name, bool iteAsNode)
         {
-            abs->toHorn(name);
+            abs->toHorn(name, iteAsNode);
         }
 
-        void nodeToHorn(NodeRef* node, const std::string& rule, const std::string& name)
+        void nodeToHorn(NodeRef* node, 
+                        const std::string& rule, 
+                        const std::string& name, 
+                        bool iteAsNode)
         {
-            abs->nodeToHorn(node, rule, name);
+            abs->nodeToHorn(node, rule, name, iteAsNode);
         }
 
         int getEnParamSyn() const {
