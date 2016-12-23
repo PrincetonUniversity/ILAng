@@ -1,4 +1,5 @@
 #include <fstream>
+#include <iomanip>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 
@@ -67,9 +68,11 @@ namespace ila
             argStr += (*it)->getType();
             argStr += " ";
         }
-        for (auto it = _outs.begin(); it != _outs.end(); it++) {
+        for (auto it = _outs.begin(); it != _outs.end(); ) {
             argStr += (*it)->getType();
-            argStr += " ";
+            if (++it != _outs.end()) {
+                argStr += " ";
+            }
         }
         relFmt % "rel"
                % _name
@@ -167,6 +170,37 @@ namespace ila
         _head = l;
     }
 
+    void HornClause::print (std::ostream& out)
+    {
+        // (rule (=> (and (body-1)
+        //                (body-2)
+        //                (body-3))
+        //           head))
+        out << "(rule (=> (and true\n";
+        for (auto b : _body) {
+            out << std::setw(15) << "";
+
+            if (b->isRel()) {
+                if (b->getSign() == true) {
+                    out << b->getVar()->getPred() << "\n";
+                } else {
+                    out << "(not " << b->getVar()->getPred() << ")\n";
+                }
+            } else {
+                auto set = b->getVar()->getExec();
+                if (b->getSign() == true) {
+                    for (auto it = set.begin(); it != set.end(); it++)
+                        out << (*it) << "\n";
+                } else {
+                    for (auto it = set.begin(); it != set.end(); it++)
+                        out << "(not " << (*it) << ")\n";
+                }
+            }
+        }
+        out << std::setw(10) << "";
+        out << _head->getVar()->getPred() << ")))\n";
+    }
+
     // ---------------------------------------------------------------------- //
     HornDB::HornDB ()
     {
@@ -174,6 +208,10 @@ namespace ila
 
     HornDB::~HornDB ()
     {
+        for (auto v : _vars)
+            delete v;
+        for (auto c : _clauses)
+            delete c;
     }
 
     void HornDB::addVar (hvptr_t v)
@@ -181,9 +219,9 @@ namespace ila
         _vars.insert (v);
     }
 
-    void HornDB::addRule (hvptr_t v)
+    void HornDB::addRel (hvptr_t v)
     {
-        _rules.insert (v);
+        _rels.insert (v);
     }
 
     void HornDB::addClause (hcptr_t c)
@@ -193,7 +231,39 @@ namespace ila
 
     void HornDB::print (std::ostream& out)
     {
-        // TODO
+        declareVar (out);
+        declareRel (out);
+        declareClause (out);
+    }
+
+    void HornDB::declareVar (std::ostream& out)
+    {
+        // (declare-var NAME TYPE)
+        out << "; variables\n";
+        boost::format varFmt ("(declare-var %1% %2%)\n");
+        for (auto v : _vars) {
+            varFmt % v->getName() % v->getType();
+            out << varFmt.str();
+        }
+    }
+
+    void HornDB::declareRel (std::ostream& out)
+    {
+        // (declare-rel NAME (ARG_i))
+        out << "; relations\n";
+        boost::format relFmt ("(declare-rel %1%)\n");
+        for (auto r : _rels) {
+            relFmt % r->getRel();
+            out << relFmt.str();
+        }
+    }
+
+    void HornDB::declareClause (std::ostream& out)
+    {
+        out << "; clauses\n";
+        for (auto c : _clauses) {
+            c->print (out);
+        }
     }
 
     // ---------------------------------------------------------------------- //
@@ -209,7 +279,6 @@ namespace ila
     {
         if (_db) delete _db;
         _db = NULL;
-        // TODO clear maps.
     }
 
     void HornTranslator::transAll (const std::string& fileName)
@@ -224,14 +293,19 @@ namespace ila
         log1 ("Horn") << "Trans node " << node->getName() 
             << " as " << ruleName <<  std::endl;
 
+        hvptr_t varNxt = getVar (node->node);
         hvptr_t topV = getVar (ruleName);
         hcptr_t topC = addClause (topV);
-        topV->addOutVar (getVar (node->node));
-
+        topV->addOutVar (varNxt);
+        topV->setType (varNxt->getType());
+        
         _curHc = topC;
         depthFirstTraverse (node->node);
 
-        // TODO dump to file
+        std::ofstream out (fileName.c_str());
+        ILA_ASSERT (out.is_open(), "File " + fileName + " not open.");
+        _db->print (out);
+        out.close();
     }
 
     void HornTranslator::depthFirstTraverse (nptr_t n)
@@ -383,7 +457,7 @@ namespace ila
         hcptr_t c = new HornClause ();
         if (v != NULL) {
             c->setHead (new HornLiteral (v, true, true));
-            _db->addRule (v);
+            _db->addRel (v);
         }
         _db->addClause (c);
         return c;
@@ -584,7 +658,7 @@ namespace ila
         v->setName ("bv" + boost::lexical_cast <std::string> (v->getId()));
         // type
         v->setType ("(_ BitVec " + 
-                    boost::lexical_cast <std::string> (n->type.dataWidth) + 
+                    boost::lexical_cast <std::string> (n->type.bitWidth) + 
                     ")");
         // in
         for (unsigned i = 0; i != n->nArgs(); i++) {
@@ -642,8 +716,8 @@ namespace ila
                 ILA_ASSERT (false, "rotate op not supported yet.");
             } else if (n->op == BitvectorOp::Op::Z_EXT) {
                 // z = zext(x) --> (=z (concat #b000 x))
-                unsigned w = n->type.dataWidth;
-                unsigned d = n->arg(0)->type.dataWidth;
+                unsigned w = n->type.bitWidth;
+                unsigned d = n->arg(0)->type.bitWidth;
                 std::string zero = "#b";
                 for (unsigned i = 0; i < w-d; i++) {
                     zero += "0";
@@ -674,8 +748,8 @@ namespace ila
             hvptr_t arg0 = getVar (n->arg(0));
             hvptr_t arg1 = getVar (n->arg(1));
 
-            if (n->op >= BitvectorOp::Op::ADD &&
-                n->op <= BitvectorOp::Op::CONCAT || 
+            if ((n->op >= BitvectorOp::Op::ADD &&
+                n->op <= BitvectorOp::Op::CONCAT) || 
                 n->op == BitvectorOp::Op::READMEM) {
                 // z = x op y --> (= z (op x y))
                 bvBinaryFmt % v->getName()
@@ -752,7 +826,7 @@ namespace ila
         v->setName (n->getName());
         // type
         v->setType ("(_ BitVec " + 
-                    boost::lexical_cast <std::string> (n->type.dataWidth) + 
+                    boost::lexical_cast <std::string> (n->type.bitWidth) + 
                     ")");
         // exec
         v->setExec ("true");
@@ -766,10 +840,10 @@ namespace ila
     void HornTranslator::initBvConst (const BitvectorConst* n, hvptr_t v)
     {
         // name is the value.
-        v->setName (bvToString (n->val(), n->type.dataWidth));
+        v->setName (bvToString (n->val(), n->type.bitWidth));
         // type
         v->setType ("(_ BitVec " + 
-                    boost::lexical_cast <std::string> (n->type.dataWidth) +
+                    boost::lexical_cast <std::string> (n->type.bitWidth) +
                     ")");
         // exec
         v->setExec ("true");
@@ -876,6 +950,7 @@ namespace ila
         // exec
         v->setExec (v->getPred()); 
         genMemConstRules (n, v);
+        _db->addRel (v);
         // in
         // out
         v->addOutVar (v);
@@ -894,11 +969,12 @@ namespace ila
                     ") ";
         }
         type += "(_ BitVec " + 
-                boost::lexical_cast <std::string> (n->type.dataWidth) + 
+                boost::lexical_cast <std::string> (n->type.bitWidth) + 
                 "))";
         v->setType (type);
         // exec
         v->setExec ("true");
+        _db->addRel (v);
         // in
         // out
     }

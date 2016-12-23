@@ -120,6 +120,10 @@ namespace ila
         void addBody (hlptr_t l);
         // set the literal to the head.
         void setHead (hlptr_t l);
+
+        // ------------------------------------------------------------------ //
+        // output the clause to stream.
+        void print (std::ostream& out);
     };
 
     // ---------------------------------------------------------------------- //
@@ -128,8 +132,8 @@ namespace ila
     private:
         // set of variables.
         std::set <hvptr_t> _vars;
-        // set of rules (predicates).
-        std::set <hvptr_t> _rules;
+        // set of relations (predicates).
+        std::set <hvptr_t> _rels;
         // set of horn clauses.
         std::set <hcptr_t> _clauses;
 
@@ -142,14 +146,22 @@ namespace ila
         // ------------------------------------------------------------------ //
         // add one variable to the set.
         void addVar (hvptr_t v);
-        // denote a rule to the set.
-        void addRule (hvptr_t v);
+        // denote a rel to the set.
+        void addRel (hvptr_t v);
         // add a clause to the set.
         void addClause (hcptr_t c);
 
         // ------------------------------------------------------------------ //
-        // output to stream.
+        // output whole to stream.
         void print (std::ostream& out);
+
+    private:
+        // output var declaration to stream.
+        void declareVar (std::ostream& out);
+        // output rel declaration to stream.
+        void declareRel (std::ostream& out);
+        // output clauses to stream.
+        void declareClause (std::ostream& out);
     };
 
     // ---------------------------------------------------------------------- //
