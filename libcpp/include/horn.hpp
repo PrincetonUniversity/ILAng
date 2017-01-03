@@ -33,7 +33,8 @@ namespace ila
         // constraint for var.
         std::set <std::string> _exec;
         // set of input (dependent) vars.
-        std::set <hvptr_t> _ins;
+        //std::set <hvptr_t> _ins;
+        std::map <std::string, hvptr_t> _ins;
         // set of output vars.
         std::set <hvptr_t> _outs;
         // var is const.
@@ -141,7 +142,6 @@ namespace ila
     {
     private:
         // set of variables.
-        //std::set <hvptr_t> _vars;
         std::map <std::string, hvptr_t> _vars;
         // set of relations (predicates).
         std::set <hvptr_t> _rels;
@@ -174,7 +174,7 @@ namespace ila
         // output clauses to stream.
         void declareClause (std::ostream& out);
 
-        // garbage collector for duplicated ast nodes.
+        // collector for duplicated ast nodes.
         std::set <hvptr_t> _dupls;
     };
 
