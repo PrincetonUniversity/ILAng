@@ -228,6 +228,9 @@ namespace ila
             return;
 
         out << "(rule (=> (and ";
+        if (allTerms.empty()) {
+            allTerms.insert("true");
+        }
         for (auto b = allTerms.begin(); b != allTerms.end(); ) {
             if (b != allTerms.begin())
                 out << std::setw(15) << "";
@@ -248,14 +251,20 @@ namespace ila
     HornDB::~HornDB ()
     {
         for (auto v : _vars)
-            delete v;
+            delete v.second;
+        for (auto d : _dupls)
+            delete d;
         for (auto c : _clauses)
             delete c;
     }
 
     void HornDB::addVar (hvptr_t v)
     {
-        _vars.insert (v);
+        auto it = _vars.find(v->getName());
+        if (it == _vars.end())
+            _vars[v->getName()] = v;
+        else
+            _dupls.insert (v);
     }
 
     void HornDB::addRel (hvptr_t v)
@@ -280,7 +289,9 @@ namespace ila
         // (declare-var NAME TYPE)
         out << ";; variables\n";
         boost::format varFmt ("(declare-var %1% %2%)\n");
-        for (auto v : _vars) {
+        //for (auto v : _vars) {
+        for (auto i : _vars) {
+            hvptr_t v = i.second;
             if (v->isConst()) continue;
             varFmt % v->getName() % v->getType();
             out << varFmt.str();
@@ -955,7 +966,7 @@ namespace ila
     void HornTranslator::initMemOp (const MemOp* n, hvptr_t v)
     {
         // name
-        v->setName ("mem" + v->getId());
+        v->setName ("mem" + boost::lexical_cast <std::string> (v->getId()));
         // type
         boost::format memVarTypeFmt ("(Array (_ BitVec %1%) (_ BitVec %2%))");
         memVarTypeFmt % n->type.addrWidth
@@ -1056,7 +1067,7 @@ namespace ila
     void HornTranslator::initMemConst (const MemConst* n, hvptr_t v)
     {
         // name is the value??
-        v->setName ("mem" + v->getId());
+        v->setName ("mem" + boost::lexical_cast <std::string> (v->getId()));
         // type
         boost::format memVarTypeFmt ("(Array (_ BitVec %1%) (_ BitVec %2%))");
         memVarTypeFmt % n->type.addrWidth
