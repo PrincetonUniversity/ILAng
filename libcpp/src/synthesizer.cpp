@@ -573,8 +573,9 @@ namespace ila
     }
 
     // ---------------------------------------------------------------------- //
-    Synthesizer::Synthesizer(Abstraction& a)
+    Synthesizer::Synthesizer(Abstraction& a, const std::vector<nmap_t*>& maps_)
       : abs(a)
+      , maps(maps_)
       , MAX_SYN_ITER(200)
       , S(c)
       , Sp(c)
@@ -586,6 +587,7 @@ namespace ila
         z3::params p(c);
         p.set(":unsat-core", true);
         S.set(p);
+
     }
 
     Synthesizer::~Synthesizer()
@@ -722,10 +724,33 @@ namespace ila
     }
 
     // ---------------------------------------------------------------------- //
-    void Synthesizer::synthesizeAll(const std::vector<nmap_t*>& maps, PyObject* pyfun)
+    void Synthesizer::_addConstRegAssumps()
+    {
+        for (auto&& m : maps) {
+            for (auto&& r : *m) {
+                if (r.second.init->isConstant() && 
+                    r.second.next->isConstant() &&
+                    r.second.init->equal(r.second.next.get())) {
+
+                    log2("Synthesizer._addConstRegAssumps") 
+                        << "constant identified: " << r.first << std::endl;
+
+                    z3::expr e_left = c1.getExpr(r.second.var.get());
+                    z3::expr e_right = c1.getExpr(r.second.init.get());
+                    S.add(e_left == e_right);
+                    Sp.add(e_left == e_right);
+
+                }
+            }
+        }
+    }
+
+    // ---------------------------------------------------------------------- //
+    void Synthesizer::synthesizeAll(PyObject* pyfun)
     {
         _initSynthesis();
         S.push(); Sp.push();
+        _addConstRegAssumps();
         init_assump_t assump_initer(*this, c1, c2);
         abs.forEachAssump(assump_initer);
 
@@ -745,6 +770,7 @@ namespace ila
     {
         _initSynthesis();
         S.push(); Sp.push();
+        _addConstRegAssumps();
         init_assump_t assump_initer(*this, c1, c2);
         abs.forEachAssump(assump_initer);
 

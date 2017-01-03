@@ -575,9 +575,9 @@ namespace ila
         if (!doesNextExist(bits)) return;
         if (!doesNextExist(mems)) return;
 
-        Synthesizer syn(*this);
         std::vector<nmap_t*> maps = { &bits, &regs, &mems };
-        syn.synthesizeAll(maps, pyfun);
+        Synthesizer syn(*this, maps);
+        syn.synthesizeAll(pyfun);
     }
 
     void Abstraction::synthesizeReg(
@@ -601,7 +601,8 @@ namespace ila
             return;
         }
 
-        Synthesizer syn(*this);
+        std::vector<nmap_t*> maps = { &bits, &regs, &mems };
+        Synthesizer syn(*this, maps);
         syn.synthesizeReg(pos, pyfun);
     }
 
