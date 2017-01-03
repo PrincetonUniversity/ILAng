@@ -49,7 +49,7 @@ namespace ila
         std::string argStr = "";
         for (auto it = _ins.begin(); it != _ins.end(); it++) {
             argStr += " ";
-            argStr += (*it)->getName();
+            argStr += it->second->getName();
         }
         for (auto it = _outs.begin(); it != _outs.end(); it++) {
             argStr += " ";
@@ -66,7 +66,7 @@ namespace ila
         boost::format relFmt ("%1%.%2% (%3%)");
         std::string argStr = "";
         for (auto it = _ins.begin(); it != _ins.end(); it++) {
-            argStr += (*it)->getType();
+            argStr += it->second->getType();
             argStr += " ";
         }
         for (auto it = _outs.begin(); it != _outs.end(); ) {
@@ -103,7 +103,9 @@ namespace ila
 
     void HornVar::addInVar (hvptr_t v)
     {
-        _ins.insert (v);
+        auto it = _ins.find (v->getName());
+        if (it == _ins.end())
+            _ins[v->getName()] = v;
     }
 
     void HornVar::addOutVar (hvptr_t v)
@@ -114,7 +116,7 @@ namespace ila
     void HornVar::mergeInVars (hvptr_t v)
     {
         for (auto it = v->_ins.begin(); it != v->_ins.end(); it++) {
-            _ins.insert (*it);
+            _ins[it->first] = it->second;
         }
     }
 
@@ -1022,7 +1024,7 @@ namespace ila
             bool isLittle = (n->endian == LITTLE_E);
             int addrSize  = n->arg(0)->type.addrWidth;
             int chunkSize = n->arg(0)->type.dataWidth;
-            int chunkNum  = n->arg(2)->type.dataWidth / chunkSize;
+            int chunkNum  = n->arg(2)->type.bitWidth / chunkSize;
             std::string exec = "(= ";
             exec += v->getName() + " ";
 
