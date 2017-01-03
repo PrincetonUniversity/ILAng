@@ -23,12 +23,12 @@ def synthesize():
 
   rv.model.set_init('X2', bv(0x0, 64))
   rv.model.set_next('X2', bv(0x0, 64))
-  rv.model.add_assumption(xregs[0] == 2)
-  rv.model.add_assumption(xregs[2] == 0)
-
 
   rv.model.synthesize('X1', sim)
-  print rv.model.get_next('X1')
+  synthesized = rv.model.get_next('X1')
+  # expected: (if (or (eq (readmem RAM PC) 0x1) (eq (readmem RAM PC) 0x0)) X2 X1)
+  expected = ila.ite((ram[pc] == 1) | (ram[pc] == 0), xregs[2], xregs[1])
+  assert rv.model.areEqual(synthesized, expected)
 
 #############################################################
 if __name__ == '__main__':

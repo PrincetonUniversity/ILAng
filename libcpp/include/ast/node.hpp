@@ -126,6 +126,22 @@ namespace ila
         // return the value associated with this object (or None) 
         // if it doesn't exist.
         virtual py::object getValue() const;
+        // Is this node a constant? This function
+        // should return true only if the node is a constant,
+        // but may return false if the node is a constant.
+        // 
+        // The follow truth table should make it clearer.
+        //
+        // we're allowed to lie about a constant being a variable
+        // but we can't even claim that a variable is a constant
+        // or say something is a constant when it isn't.
+        //
+        // Node   Return Value
+        // CONST    true            allowed
+        // VAR      false           REQUIRED
+        // CONST    false           allowed
+        // VAR      true            NOT allowed
+        virtual bool isConstant() const;
 
 
 
