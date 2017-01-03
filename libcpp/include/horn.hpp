@@ -141,7 +141,8 @@ namespace ila
     {
     private:
         // set of variables.
-        std::set <hvptr_t> _vars;
+        //std::set <hvptr_t> _vars;
+        std::map <std::string, hvptr_t> _vars;
         // set of relations (predicates).
         std::set <hvptr_t> _rels;
         // set of horn clauses.
@@ -172,6 +173,9 @@ namespace ila
         void declareRel (std::ostream& out);
         // output clauses to stream.
         void declareClause (std::ostream& out);
+
+        // garbage collector for duplicated ast nodes.
+        std::set <hvptr_t> _dupls;
     };
 
     // ---------------------------------------------------------------------- //
