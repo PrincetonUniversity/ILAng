@@ -1013,18 +1013,85 @@ namespace ila
                 v->setExec ("true"); // FIXME
             }
         } else if (n->op == MemOp::Op::STOREBLOCK) {
-            // little:
-            // (= z (store (store (store A addr ((_ extract 7 0) val))
-            //                          (+ addr 1) ((_ extract 15 8) val))
-            //                          (+ addr 2) ((_ extract 23 16) val)))
-            // big:
-            // (= z (store (store (store A (+ addr 2) ((_ extract 7 0) val)
-            //                             (+ addr 1) ((_ extract 15 8) val))
-            //                             addr ((_extract 23 16) val))))
             bool isLittle = (n->endian == LITTLE_E);
             int addrSize  = n->arg(0)->type.addrWidth;
             int chunkSize = n->arg(0)->type.dataWidth;
             int chunkNum  = n->arg(2)->type.bitWidth / chunkSize;
+
+            for (int i = 1; i < chunkNum; i++) {
+                copyVar (v, i);
+            }
+
+            boost::format memBlkBvaddFmt (
+              "(= %1% (store %2% (bvadd %3% %4%) ((_ extract %5% %6%) %7%)))");
+            boost::format memBlkEmptyFmt (
+              "(= %1% (store %2% %3% ((_ extract %4% %5%) %6%)))");
+
+            if (isLittle) {
+                // (= z_2 (store A          addr     ((_ extract 7 0) val)))
+                // (= z_1 (store z_2 (bvadd addr #1) ((_ extract 15 8) val)))
+                // (= z   (store z_1 (bvadd addr #2) ((_ extract 23 16) val)))
+                memBlkEmptyFmt % addSuffix (v->getName(), chunkNum-1)
+                               % arg0->getName()
+                               % arg1->getName()
+                               % (chunkSize - 1)
+                               % 0
+                               % arg2->getName();
+                v->setExec (memBlkEmptyFmt.str());
+
+                for (int i = 1; i < chunkNum-1; i++) {
+                    memBlkBvaddFmt % addSuffix (v->getName(), i)
+                                   % addSuffix (v->getName(), i+1)
+                                   % arg1->getName()
+                                   % bvToString (chunkNum-1-i, addrSize)
+                                   % (chunkSize * (chunkNum-i) - 1)
+                                   % (chunkSize * (chunkNum-i-1))
+                                   % arg2->getName();
+                    v->setExec (memBlkBvaddFmt.str());
+                }
+
+                memBlkBvaddFmt % v->getName()
+                               % addSuffix (v->getName(), 1)
+                               % arg1->getName()
+                               % bvToString (chunkNum-1, addrSize)
+                               % (chunkSize * chunkNum - 1)
+                               % (chunkSize * (chunkNum-1))
+                               % arg2->getName();
+                v->setExec (memBlkBvaddFmt.str());
+            } else {
+                // (= z_2 (store A   (bvadd addr #2) ((_ extract 7 0) val)))
+                // (= z_1 (store z_2 (bvadd addr #1) ((_ extract 15 8) val)))
+                // (= z   (store z_1        addr    ((_ extract 23 16) val)))
+                memBlkBvaddFmt % addSuffix (v->getName(), chunkNum-1)
+                               % arg0->getName()
+                               % arg1->getName()
+                               % bvToString (chunkNum - 1, addrSize)
+                               % (chunkSize - 1)
+                               % 0
+                               % arg2->getName();
+                v->setExec (memBlkBvaddFmt.str());
+
+                for (int i = 1; i < chunkNum-1; i++) {
+                    memBlkBvaddFmt % addSuffix (v->getName(), i)
+                                   % addSuffix (v->getName(), i+1)
+                                   % arg1->getName()
+                                   % bvToString (i, addrSize)
+                                   % (chunkSize * (chunkNum-i) - 1)
+                                   % (chunkSize * (chunkNum-i-1))
+                                   % arg2->getName();
+                    v->setExec (memBlkBvaddFmt.str());
+                }
+
+                memBlkEmptyFmt % v->getName()
+                               % addSuffix (v->getName(), 1)
+                               % arg1->getName()
+                               % (chunkSize * chunkNum - 1)
+                               % (chunkSize * (chunkNum-1))
+                               % arg2->getName();
+                v->setExec (memBlkEmptyFmt.str());
+            }
+
+            /*
             std::string exec = "(= ";
             exec += v->getName() + " ";
 
@@ -1043,7 +1110,8 @@ namespace ila
             }
 
             exec += ")";
-            v->setExec (exec);
+            //v->setExec (exec);
+            */
         } else {
             ILA_ASSERT (false, "Unknown MemOp.");
         }
@@ -1188,15 +1256,16 @@ namespace ila
     {
         ILA_ASSERT (idx >= 0, "ReadMemBlock index < 0.");
         // little:
-        // (((concat (select A (+ x 2w) 
-        //   (concat (select A (+ x w))
+        // (((concat (select A (bvadd x 2w) 
+        //   (concat (select A (bvadd x w))
         //           (select A x))))))
         if (idx == 0) {
             boost::format readBlkFmt ("(select %1% %2%)");
             readBlkFmt % mem % addr;
             return readBlkFmt.str();
         } else {
-            boost::format readBlkFmt ("(concat (select %1% (+ %2% %3%)) %4%)");
+            boost::format readBlkFmt (
+                    "(concat (select %1% (bvadd %2% %3%)) %4%)");
             readBlkFmt % mem
                        % addr 
                        % bvToString (idx, addrWidth)
@@ -1214,10 +1283,10 @@ namespace ila
         ILA_ASSERT (num >= 0, "ReadMemBlock num < 0.");
         // big:
         // (((concat (select A x) 
-        //   (concat (select A (+ x w))
-        //           (select A (+ x 2w))))))
+        //   (concat (select A (bvadd x w))
+        //           (select A (bvadd x 2w))))))
         if (idx == num - 1) {
-            boost::format readBlkFmt ("(select %1% (+ %2% %3%)");
+            boost::format readBlkFmt ("(select %1% (bvadd %2% %3%)");
             readBlkFmt % mem 
                        % addr
                        % bvToString (idx, addrWidth);
@@ -1230,7 +1299,8 @@ namespace ila
                                                addrWidth, idx-1, num);
             return readBlkFmt.str();
         } else {
-            boost::format readBlkFmt ("(concat (select %1% (+ %2% %3%)) %4%)");
+            boost::format readBlkFmt (
+                    "(concat (select %1% (bvadd %2% %3%)) %4%)");
             readBlkFmt % mem
                        % addr
                        % bvToString (idx, addrWidth)
@@ -1309,7 +1379,7 @@ namespace ila
             storeBlkFmt % newMem
                         % addr
                         % bvToString (idx-1, addrWidth)
-                        % (chunkSize * (chunkNum-idx+1))
+                        % (chunkSize * (chunkNum-idx+1) - 1)
                         % (chunkSize * (chunkNum-idx))
                         % data;
             return storeBlkFmt.str();
@@ -1355,5 +1425,19 @@ namespace ila
 
         hc->addBody (new HornLiteral (hv));
     }
+
+    std::string HornTranslator::addSuffix (const std::string& name, 
+                                           const int& idx)
+    {
+        return (name + "_" + boost::lexical_cast <std::string> (idx));
+    }
+
+    hvptr_t HornTranslator::copyVar (hvptr_t v, const int& suffix)
+    {
+        hvptr_t c = getVar (addSuffix (v->getName(), suffix));
+        c->setType (v->getType());
+        return c;
+    }
+
 }
 

@@ -314,6 +314,10 @@ namespace ila
         void genMemConstRules (const MemConst* n, hvptr_t v);
 
         // ------------------------------------------------------------------ //
+        // create name with suffix index: name_idx
+        std::string addSuffix (const std::string& name, const int& idx);
+        // duplicate variable with suffix index
+        hvptr_t copyVar (hvptr_t v, const int& idx);
     };
 }
 
