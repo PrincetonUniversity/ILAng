@@ -250,6 +250,7 @@ namespace ila
         // check after unrolling.
         bool areEqualUnrolled(unsigned n, NodeRef* reg, NodeRef* exp);
         // unroll two abstractions and check
+        static bool bmc(unsigned n, Abstraction *a, NodeRef *r, bool init, NodeRef * initAssump);
         static bool bmc(
             unsigned n1, Abstraction* a1, NodeRef* r1, 
             unsigned n2, Abstraction* a2, NodeRef* r2);
@@ -612,7 +613,17 @@ namespace ila
         {
             return abs->areEqualUnrolled(n, reg, exp);
         }
-
+        bool bmcInit(NodeRef * assertion, unsigned n, bool init)
+        {
+            Abstraction *aptr = abs.get();
+            return Abstraction::bmc(n, aptr, assertion, init, NULL);
+        }
+        bool bmcCond(NodeRef * assertion, unsigned n, NodeRef *assumpt)
+        {
+            Abstraction *aptr = abs.get();
+            return Abstraction::bmc(n, aptr, assertion, false, assumpt);
+        }
+        
         static bool bmc(
             unsigned n1, AbstractionWrapper* a1, NodeRef* r1, 
             unsigned n2, AbstractionWrapper* a2, NodeRef* r2)

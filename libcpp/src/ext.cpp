@@ -440,6 +440,10 @@ BOOST_PYTHON_MODULE(ila)
         .def("newUnroller", &AbstractionWrapper::newUnroller, 
         (arg("uILA"), arg("setInitCondition")) ,return_value_policy<manage_new_object>())
 
+        // individual Abstraction bmc
+        .def("bmcInit", &AbstractionWrapper::bmcInit, (arg("assertion"),arg("bound"),arg("init")))
+        .def("bmcCond", &AbstractionWrapper::bmcCond, (arg("assertion"), arg("bound"), arg("assumpt")))
+
         .add_property("fetch_expr", 
             make_function(&AbstractionWrapper::getFetchExpr, return_value_policy<manage_new_object>()), 
             &AbstractionWrapper::setFetchExpr)
