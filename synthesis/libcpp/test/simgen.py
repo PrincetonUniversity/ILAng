@@ -184,9 +184,9 @@ def model(num_regs, reg_size, paramsyn):
     #simFile = "tmp/test_ila_sim.hpp"
     #sys.generateSim(simFile)
     path = 'tmp/dir'
-    if not os.path.exists(path):
-        os.makedirs(path)
-    sys.generateSimToDir('tmp/dir')
+    if not os.path.exists (path):
+        os.makedirs (path)
+    sys.generateSimToDir(path)
     #os.system('g++ ' + simFile + 'tmp/test_ila_sim')
     #os.unlink(simFile)
 
