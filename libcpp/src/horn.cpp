@@ -973,7 +973,8 @@ namespace ila
         boost::format memVarTypeFmt ("(Array (_ BitVec %1%) (_ BitVec %2%))");
         memVarTypeFmt % n->type.addrWidth
                       % n->type.dataWidth;
-        v->setType (memVarTypeFmt.str());
+        //v->setType (memVarTypeFmt.str());
+        v->setType ("(Array Int Int)");
         // in
         for (unsigned i = 0; i != n->nArgs(); i++) {
             hvptr_t arg_i = getVar (n->arg(i));
@@ -989,6 +990,7 @@ namespace ila
 
         if (n->op == MemOp::Op::STORE) {
             // z = store (A, addr, data) --> (= z (store A addr data))
+            // FIXME may need to convert to int
             boost::format memStoreFmt ("(= %1% (store %2% %3% %4%))");
             memStoreFmt % v->getName()
                         % arg0->getName()
@@ -1023,9 +1025,11 @@ namespace ila
             }
 
             boost::format memBlkBvaddFmt (
-              "(= %1% (store %2% (bvadd %3% %4%) ((_ extract %5% %6%) %7%)))");
+              "(= %1% (store %2% (+ (bv2int %3%) %4%) (bv2int ((_ extract %5% %6%) %7%))))");
+              //"(= %1% (store %2% (bvadd %3% %4%) ((_ extract %5% %6%) %7%)))");
             boost::format memBlkEmptyFmt (
-              "(= %1% (store %2% %3% ((_ extract %4% %5%) %6%)))");
+              "(= %1% (store %2% (bv2int %3%) (bv2int ((_ extract %4% %5%) %6%))))");
+              //"(= %1% (store %2% %3% ((_ extract %4% %5%) %6%)))");
 
             if (isLittle) {
                 // (= z_2 (store A          addr     ((_ extract 7 0) val)))
@@ -1043,7 +1047,8 @@ namespace ila
                     memBlkBvaddFmt % addSuffix (v->getName(), i)
                                    % addSuffix (v->getName(), i+1)
                                    % arg1->getName()
-                                   % bvToString (chunkNum-1-i, addrSize)
+                                   //% bvToString (chunkNum-1-i, addrSize)
+                                   % (chunkNum-1-i)
                                    % (chunkSize * (chunkNum-i) - 1)
                                    % (chunkSize * (chunkNum-i-1))
                                    % arg2->getName();
@@ -1065,7 +1070,7 @@ namespace ila
                 memBlkBvaddFmt % addSuffix (v->getName(), chunkNum-1)
                                % arg0->getName()
                                % arg1->getName()
-                               % bvToString (chunkNum - 1, addrSize)
+                               % (chunkNum - 1)
                                % (chunkSize - 1)
                                % 0
                                % arg2->getName();
@@ -1075,7 +1080,7 @@ namespace ila
                     memBlkBvaddFmt % addSuffix (v->getName(), i)
                                    % addSuffix (v->getName(), i+1)
                                    % arg1->getName()
-                                   % bvToString (i, addrSize)
+                                   % i
                                    % (chunkSize * (chunkNum-i) - 1)
                                    % (chunkSize * (chunkNum-i-1))
                                    % arg2->getName();
@@ -1125,7 +1130,8 @@ namespace ila
         boost::format memVarTypeFmt ("(Array (_ BitVec %1%) (_ BitVec %2%))");
         memVarTypeFmt % n->type.addrWidth
                       % n->type.dataWidth;
-        v->setType (memVarTypeFmt.str());
+        //v->setType (memVarTypeFmt.str());
+        v->setType ("(Array Int Int)");
         // exec
         v->setExec ("true");
         // in
@@ -1142,7 +1148,8 @@ namespace ila
         boost::format memVarTypeFmt ("(Array (_ BitVec %1%) (_ BitVec %2%))");
         memVarTypeFmt % n->type.addrWidth
                       % n->type.dataWidth;
-        v->setType (memVarTypeFmt.str());
+        //v->setType (memVarTypeFmt.str());
+        v->setType ("(Array Int Int)");
         // exec
         v->setExec (v->getPred()); 
         genMemConstRules (n, v);
