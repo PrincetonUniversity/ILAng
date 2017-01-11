@@ -19,7 +19,7 @@ namespace ila
       Node* var = p.var.get();
       Node* init = p.init.get();
 
-      if (!var->equal(init)) {
+      if (!var->equal(init) && setInit) {
           z3::expr c = z3expr.getExpr(init).simplify();
           m_vOutputs [nFrame].push_back(c);
       } else {
@@ -121,4 +121,44 @@ namespace ila
           m_vOutputs[nFrame].push_back(e.substitute(sub_src, sub_dst));
       }
   }
+
+  
+    z3::expr Unroller::subsFormula(Node * n)
+    {
+        Z3ExprAdapter z3expr(*m_pContext, "");
+        unsigned nFrame = frame();
+        z3expr.setNameSuffix("_" + boost::lexical_cast<string>(nFrame) +
+                               + "_" + m_sName);
+
+        z3::expr_vector sub_src(*m_pContext);
+        z3::expr_vector sub_dst(*m_pContext);
+
+        unsigned i=0;
+        for (auto b : m_pAbstraction->getBits() )  {
+            sub_src.push_back(z3expr.getExpr(b.second.var.get()));
+            sub_dst.push_back(m_vOutputs[nFrame][i++]);
+        }
+        for (auto r : m_pAbstraction->getRegs() )  {
+            sub_src.push_back(z3expr.getExpr(r.second.var.get()));
+            sub_dst.push_back(m_vOutputs[nFrame][i++]);
+        }
+        for (auto m : m_pAbstraction->getMems() )  {
+            sub_src.push_back(z3expr.getExpr(m.second.var.get()));
+            sub_dst.push_back(m_vOutputs[nFrame][i++]);
+        }
+        // now we have all of that
+        // let's dump it
+        //if(debug)  {
+        //    ILA_ASSERT(sub_src.size()==sub_dst.size(),"unbalanced size");
+        //    log2("Unroller")<<"(DEBUG) will replace:"<<std::endl;
+        //    for (unsigned i=0;i<sub_src.size();i++)
+        //            log2("Unroller")<<sub_src[i] <<" -> " <<sub_dst[i] <<std::endl;
+        //}
+
+        z3::expr assumptExpr = z3expr.getExpr( n );
+        log2("Unroller")<<"Assumption before sub: "<<assumptExpr<<std::endl;
+        z3::expr assumptExprSub = assumptExpr.substitute(sub_src,sub_dst);
+        log2("Unroller")<<"Assumption after sub: "<<assumptExprSub<<std::endl;
+        return assumptExprSub;
+    }
 }

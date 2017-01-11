@@ -184,7 +184,13 @@ namespace ila
         if ((boolvar = dynamic_cast<const BoolVar*>(n.get()))) {
             addVar(BIT, bits, n);
         } else if ((bvvar = dynamic_cast<const BitvectorVar*>(n.get()))) {
-            addVar(REG, regs, n);
+            // BitvectorVar can also refer to Inport
+            // Let's do the test here
+            auto pos = inps.find(n->getName());
+            if (pos == inps.end())
+                addVar(REG, regs, n);
+            else
+                addVar(INP, inps, n);
         } else if ((memvar = dynamic_cast<const MemVar*>(n.get()))) {
             addVar(MEM, mems, n);
         } else if ((funcvar = dynamic_cast<const FuncVar*>(n.get()))) {
@@ -836,6 +842,43 @@ namespace ila
         }
         return true;
 
+    }
+
+    bool Abstraction::bmc(unsigned n, Abstraction *abs, NodeRef *r, bool init, NodeRef * initAssump)
+    {
+        using namespace z3;
+
+        context c;
+        solver S(c);
+        // unroll 1
+        Unroller u("", *abs, c, S);
+        u.Fr0Init(init);
+        //add assumptions on frame 0
+        u.addTr();
+        for (auto && a: abs->assumps) {
+            S.add(u.subsFormula(a.get()));
+        }        
+        if (initAssump) {
+            S.add(u.subsFormula(initAssump->node.get()));
+        }
+        
+        for (unsigned i=1;i <= n; i++) {
+            u.newFrame();
+            u.addTr();
+        }
+        expr assertion = u.subsFormula(r->node.get());
+        u.newFrame();
+        auto assumptCheck = S.check();
+        if(assumptCheck == unsat) {
+            std::cout<<"<W>: assumption does not hold!"<<std::endl;
+            return true;
+        }
+        S.add(!assertion);
+        auto assertCheck = S.check();
+        if ( assertCheck == unsat ) 
+            return true;
+        return false;        
+            
     }
 
     bool Abstraction::bmc(

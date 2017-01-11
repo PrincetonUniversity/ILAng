@@ -9,6 +9,7 @@
 #include "boost/foreach.hpp"
 #include "boost/dynamic_bitset.hpp"
 #include "boost/logic/tribool.hpp"
+#include "logging.hpp"
 #include <z3++.h>
 #include <util.hpp>
 
@@ -58,10 +59,11 @@ namespace ila
       , m_mInputIndices(NUM_HASHTABLE_BUCKETS, nodeHash, nodeEqual)
       , m_mStateIndices(NUM_HASHTABLE_BUCKETS, nodeHash, nodeEqual)
       , m_pAssertion(NULL)
-    { newFrame (); }
+    { newFrame (); setInit = true; }
 
     ~Unroller () { reset (NULL); }
 
+    void Fr0Init(bool init) {setInit = init;}
 
     void setAssertion (z3::expr& a) { m_pAssertion = &a; }
     z3::expr& getAssertion ()
@@ -144,7 +146,11 @@ namespace ila
       else addTrN ();
     }
 
+    // use the current frame to replace the variable in a node
+    z3::expr subsFormula(Node * n);
+
       private:
+        bool setInit;
         void addTr0  ();
         void addTrN ();
   };

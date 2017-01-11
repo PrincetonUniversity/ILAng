@@ -1,5 +1,6 @@
 # This is a test playing with the horn clause transformation utilities.
 import ila
+import os
 
 def getDummyILA():
     A = ila.Abstraction("dummy")
@@ -24,7 +25,11 @@ def main():
     A.hornifyNode(r2_nxt, "r2_nxt", iteAsNode)
     A.exportHornToFile(hornFile)
     alu = ila.Abstraction("alu")
-    alu.importAll("tmp/alu.txt")
+    aluFile = 'tmp/alu.txt'
+    if not os.path.exists (aluFile):
+        print 'alu file not exist'
+        return
+    alu.importAll(aluFile)
     r0_nxt = alu.get_next('r0')
     pc_nxt = alu.get_next('pc')
     alu.hornifyNode(pc_nxt, "pc_nxt", iteAsNode)
