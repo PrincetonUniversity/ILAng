@@ -170,6 +170,7 @@ namespace ila
         static const char* suffix2;
 
         Abstraction& abs;
+        const std::vector<nmap_t*> maps;
         SupportVars decodeSupport;
 
         int MAX_SYN_ITER;
@@ -231,14 +232,16 @@ namespace ila
         };
         friend struct init_assump_t;
 
+        void _addConstRegAssumps();
+
     public:
         // constructor.
-        Synthesizer(Abstraction& abs);
+        Synthesizer(Abstraction& abs, const std::vector<nmap_t*>& maps);
         // destructor.
         ~Synthesizer();
 
         // synthesize all.
-        void synthesizeAll(const std::vector<nmap_t*>& maps, PyObject* pyfun);
+        void synthesizeAll(PyObject* pyfun);
 
         // synthesize this reg.
         void synthesizeReg(nmap_t::iterator pos, PyObject* pyfun);

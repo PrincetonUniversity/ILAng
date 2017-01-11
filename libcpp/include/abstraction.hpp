@@ -15,6 +15,7 @@
 #include <cppsimgen.hpp>
 #include <MicroUnroller.hpp>
 #include <boogie.hpp>
+#include <horn.hpp>
 
 namespace ila
 {
@@ -261,6 +262,15 @@ namespace ila
         // convert this abstraction to boogie.
         void toBoogie(const std::string& filename);
 
+        // convert this abstraction to horn clauses.
+        void hornifyAll(const std::string& fileName, bool iteAsNode);
+        // convert one node to horn clause,
+        void hornifyNode(NodeRef* node, 
+                         const std::string& ruleName,
+                         bool iteAsNode);
+        // dump horn clauses to file.
+        void exportHornToFile(const std::string& fileName);
+
         // get memories.
         const nmap_t& getMems() const { return mems; }
         // get (bitvector) inputs.
@@ -326,6 +336,8 @@ namespace ila
         friend class AbstractionWrapper;
 
     private:
+        // horn clause translator.
+        HornTranslator* _ht;
         // The simulator generating function.
         CppSimGen* generateSim(bool hier) const;
         // Set inputs, states, and functions to the simulator generator.
@@ -673,6 +685,23 @@ namespace ila
         void toBoogie(const std::string& name)
         {
             abs->toBoogie(name);
+        }
+
+        void hornifyAll(const std::string& name, bool iteAsNode)
+        {
+            abs->hornifyAll(name, iteAsNode);
+        }
+
+        void hornifyNode(NodeRef* node, 
+                         const std::string& rule, 
+                         bool iteAsNode)
+        {
+            abs->hornifyNode(node, rule, iteAsNode);
+        }
+
+        void exportHornToFile(const std::string& fileName)
+        {
+            abs->exportHornToFile(fileName);
         }
 
         int getEnParamSyn() const {

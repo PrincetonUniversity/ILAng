@@ -419,6 +419,12 @@ BOOST_PYTHON_MODULE(ila)
         .def("areEqualUnrolled", &AbstractionWrapper::areEqualUnrolled)
         // boogie
         .def("toBoogie", &AbstractionWrapper::toBoogie)
+        // hornify all abstraction
+        .def("hornifyAll", &AbstractionWrapper::hornifyAll)
+        // hornify one ast node
+        .def("hornifyNode", &AbstractionWrapper::hornifyNode)
+        // export horn to file
+        .def("exportHornToFile", &AbstractionWrapper::exportHornToFile)
 
         // assumptions.
         .def("add_assumption", &AbstractionWrapper::addAssumption)

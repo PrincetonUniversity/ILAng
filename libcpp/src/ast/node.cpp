@@ -132,6 +132,23 @@ namespace ila
         return (static_cast<int>(sc) != 0);
     }
 
+    bool Node::isConstant() const
+    {
+        const BoolConst* boolconst = NULL;
+        const BitvectorConst* bvconst = NULL;
+        const MemConst* memconst = NULL;
+
+        if ((boolconst = dynamic_cast<const BoolConst*>(this)) != NULL    ||
+            (bvconst = dynamic_cast<const BitvectorConst*>(this)) != NULL ||
+            (memconst = dynamic_cast<const MemConst*>(this)) != NULL)
+        {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+
     // ---------------------------------------------------------------------- //
     std::ostream& operator<<(std::ostream& out, const Node& that)
     {

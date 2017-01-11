@@ -10,6 +10,7 @@
 #include <VerilogExport.hpp>
 #include <exportSMT.hpp>
 #include <boogie.hpp>
+#include <horn.hpp>
 
 #include <boost/multiprecision/cpp_int.hpp>
 #include <fstream>
@@ -31,6 +32,7 @@ namespace ila
       , fetchExpr(NULL)
       , fetchValid(BoolConst::get(true))
       , paramSyn(1)
+      , _ht(NULL)
     {
     }
 
@@ -41,6 +43,7 @@ namespace ila
       , fetchExpr(NULL)
       , fetchValid(BoolConst::get(true))
       , paramSyn(1)
+      , _ht(NULL)
     {
         ILA_ASSERT(parent != NULL, "parent must be non-NULL.");
         initMap(parent->inps, inps);
@@ -53,6 +56,8 @@ namespace ila
 
     Abstraction::~Abstraction()
     {
+        delete _ht;
+        _ht = NULL;
     }
 
     // ---------------------------------------------------------------------- //
@@ -576,9 +581,9 @@ namespace ila
         if (!doesNextExist(bits)) return;
         if (!doesNextExist(mems)) return;
 
-        Synthesizer syn(*this);
         std::vector<nmap_t*> maps = { &bits, &regs, &mems };
-        syn.synthesizeAll(maps, pyfun);
+        Synthesizer syn(*this, maps);
+        syn.synthesizeAll(pyfun);
     }
 
     void Abstraction::synthesizeReg(
@@ -602,7 +607,8 @@ namespace ila
             return;
         }
 
-        Synthesizer syn(*this);
+        std::vector<nmap_t*> maps = { &bits, &regs, &mems };
+        Synthesizer syn(*this, maps);
         syn.synthesizeReg(pos, pyfun);
     }
 
@@ -914,6 +920,33 @@ namespace ila
     {
         BoogieTranslator bt(this);
         bt.translate();
+    }
+
+    // ---------------------------------------------------------------------- //
+    void Abstraction::hornifyAll(const std::string& fileName, bool iteAsNode)
+    {
+        if (_ht == NULL)
+            _ht = new HornTranslator (this, iteAsNode);
+        _ht->hornifyAll(fileName);
+    }
+
+    // ---------------------------------------------------------------------- //
+    void Abstraction::hornifyNode(NodeRef* node, 
+                                  const std::string& ruleName,
+                                  bool iteAsNode)
+    {
+        if (_ht == NULL)
+            _ht = new HornTranslator (this, iteAsNode);
+        _ht->hornifyNode(node, ruleName);
+    }
+
+    void Abstraction::exportHornToFile(const std::string& fileName)
+    {
+        if (_ht == NULL) {
+            log1 ("Horn") << "Nothing has been hornified.";
+            return;
+        }
+        _ht->exportHorn(fileName);
     }
 
     // ---------------------------------------------------------------------- //
