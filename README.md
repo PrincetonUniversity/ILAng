@@ -1,6 +1,6 @@
 # Instruction-Level Abstraction (ILA)
 
-Formal definition for ILA: [https://github.com/Bo-Yuan-Huang/ILA/wiki/ILA-Definition] (https://github.com/Bo-Yuan-Huang/ILA/wiki/ILA-Definition).
+Formal definition for ILA: [ILA_def] (https://github.com/Bo-Yuan-Huang/ILA/wiki/ILA-Definition).
 
 To build ILA synthesis tool, look in the [synthesis/libcpp] (https://github.com/Bo-Yuan-Huang/ILA/tree/master/synthesis/libcpp) directory. 
 
