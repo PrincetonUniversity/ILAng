@@ -877,6 +877,9 @@ namespace ila
         auto assertCheck = S.check();
         if ( assertCheck == unsat ) 
             return true;
+        
+        model m = S.get_model();
+        Unroller::EvalEachFrame(m,&u,log2("BMCResult"));
         return false;        
             
     }

@@ -148,6 +148,7 @@ namespace ila
 
     // use the current frame to replace the variable in a node
     z3::expr subsFormula(Node * n);
+    void static EvalEachFrame(z3::model &m, Unroller *u , std::ostream & cexf);
 
       private:
         bool setInit;
