@@ -1,7 +1,9 @@
 # Instruction-Level Abstraction (ILA)
 
-For building ILA synthesis tool, look in the __synthesis/libcpp__ directory. 
+Formal definition for ILA: [ILA_def] (https://github.com/Bo-Yuan-Huang/ILA/wiki/ILA-Definition).
 
-For API documents and tutorials, see __docs__ directory.
+To build ILA synthesis tool, look in the [synthesis/libcpp] (https://github.com/Bo-Yuan-Huang/ILA/tree/master/synthesis/libcpp) directory. 
 
-To see some examples, look in the __examples_ directory.
+For some examples, see the [examples] (https://github.com/Bo-Yuan-Huang/ILA/tree/master/models) directory.
+
+For API documents and tutorials, see the [docs] (https://github.com/Bo-Yuan-Huang/ILA/tree/master/docs) directory.

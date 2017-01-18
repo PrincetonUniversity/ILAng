@@ -127,7 +127,7 @@ namespace ila
     {
         Z3ExprAdapter z3expr(*m_pContext, "");
         unsigned nFrame = frame();
-        z3expr.setNameSuffix("_" + boost::lexical_cast<string>(nFrame) +
+        z3expr.setNameSuffix("_" + boost::lexical_cast<string>(nFrame+1) +
                                + "_" + m_sName);
 
         z3::expr_vector sub_src(*m_pContext);
@@ -160,5 +160,28 @@ namespace ila
         z3::expr assumptExprSub = assumptExpr.substitute(sub_src,sub_dst);
         log2("Unroller")<<"Assumption after sub: "<<assumptExprSub<<std::endl;
         return assumptExprSub;
+    }
+    
+    void Unroller::EvalEachFrame(z3::model &m, Unroller *u , std::ostream & cexf)
+    {
+
+        cexf << "Abstraction:"<<u->m_pAbstraction->getName()<<std::endl;
+        cexf << "Model:"<<std::endl;
+        cexf << m;
+        cexf << "\nFrames Eval:" << std::endl;
+        unsigned nFrame = u->frame();
+        for(unsigned idx = 1; idx < nFrame; idx ++ ) {
+            cexf << "<Frame "<<idx<< ">"<<std::endl;
+            for(auto &ni: u->m_mStateIndices) {
+                cexf << ni.first->getName() << ": ";
+                z3::expr eval_result = m.eval( u->m_vOutputs[idx][ ni.second ] ).simplify();
+                const MemVar* memvar;
+                Z3ExprAdapter z3expr(*(u->m_pContext), "");
+                if ((memvar = dynamic_cast<const MemVar*>(ni.first)))
+                    cexf<<MemValues(z3expr,m,memvar)<<std::endl;
+                else
+                    cexf << eval_result <<std::endl;
+            }
+        }
     }
 }
