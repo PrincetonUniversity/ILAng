@@ -1,0 +1,9 @@
+CFILE="toy.c"
+BCFILE="toy.bc"
+SMTFILE="fw.smt"
+
+#sea fe $CFILE -o $BCFILE
+#seahorn -keep-shadows=true -horn-inter-proc -horn-step=small -horn-sem-lvl=mem $BCFILE -o $SMTFILE 
+
+/Users/BoYaunHuang/workSpace/myBuildDir/clang/clang+llvm-3.6.0-x86_64-apple-darwin/bin/clang -c -O0 -emit-llvm -D__SEAHORN__ -S -m32 -I/Users/BoYaunHuang/workspace/seaHornILA/seahorn/seahorn_debug/build/run/include -o $BCFILE $CFILE
+seahorn -keep-shadows=true -horn-inter-proc -horn-step=small -horn-sem-lvl=mem $BCFILE -o $SMTFILE
