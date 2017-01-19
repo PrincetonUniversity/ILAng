@@ -9,6 +9,8 @@ struct acc_regs {
     unsigned char state;
     unsigned char* rd_addr;
     unsigned char* wr_addr;
+    int len;
+    int bytes_read;
 };
 
 struct acc_regs acc_ptr;
@@ -46,6 +48,8 @@ int main () {
     // start the firmware.
     int pass = 0;
     sassert (pass == 0);
+
+    acc_ptr.len = 3;
 
     startAcc();
     sassert (acc_ptr.state == 0);

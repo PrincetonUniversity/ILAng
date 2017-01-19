@@ -1,11 +1,12 @@
-# python scripts for defining acc_regs ILA -- atomic
+# template for synthesizing instructions for acc_regs
 
 import ila
 import os
 from sim import ACC
 
 def createILA():
-    m = ila.Abstraction('acc_regs')
+    m = ila.Abstraction ('acc_regs')
+    m.enable_parameterized_synthesis = 0
 
     # input ports
     cmd     = m.inp ('cmd', 2)
@@ -19,20 +20,25 @@ def createILA():
     oplen   = m.reg ('acc_len', 16)
     xram    = m.mem ('XRAM', 16, 8)
 
-    # micro-arch states
     bytes_read = m.reg ('bytes_read', 16)
 
-    # fetch function and fetch valid function
-    m.fetch_expr = ila.concat ([state, cmd, cmdaddr, cmddata])
+    # fetch function and fetch valid fuction
+    m.fetch_expr = ila.concat ([state, cmd, cmdaddr,cmddata])
     m.fetch_valid = (cmd == 1) | (cmd == 2)
 
-    # state_nxt
-    state_nxt = ila.choice ('state_nxt', [
-                    m.const (0, 3), m.const (1, 3), m.const (2, 3),
-                    m.const (3, 3), m.const (4, 3), state])
+    m.add_assumption (oplen > 0)
+
+    # acc_state
+    id_nxt = ila.ite (cmddata == 1, m.const (1, 3), m.const (0, 3))
+    state_nxt = ila.choice ('state_nxt', id_nxt, state)
     m.set_next ('acc_state', state_nxt)
 
-    # NOTE next state functions for rd_addr, wr_addr, oplen and xram is ignore.
+    # bytes_read
+    bytes_read_inc = bytes_read + 1
+    bytes_read_rst = ila.ite (cmddata == 1, m.const (0, 16), bytes_read)
+    bytes_read_nxt = ila.choice ('bytes_read_nxt', [
+            m.const (0, 16), bytes_read_inc, bytes_read_rst, bytes_read])
+    m.set_next ('bytes_read', bytes_read_nxt)
 
     return m
 
@@ -41,6 +47,8 @@ def checkOutPath (path):
         os.makedirs (path)
 
 def synthesize():
+    all_states = ['acc_state', 'bytes_read']
+
     astPath = 'asts'
     checkOutPath (astPath)
 
@@ -52,17 +60,17 @@ def synthesize():
 
         # decode functions
         decode = ((m.getinp ('cmd') == 2) & (m.getinp ('cmdaddr') == addr))
-        m.decode_exprs = [decode]
+        m.decode_exprs = [decode & (m.getreg ('acc_state') == 0)]
         decodeFile = '%s/%s' % (instrPath, 'decode')
         m.exportOne (decode, decodeFile)
 
-        all_states = ['acc_state']
         sim = lambda s: ACC().simulate (s)
-        for state in all_states:
-            m.synthesize (state, sim)
-            nxt = m.get_next (state)
-            nxtFile = '%s/%s' % (instrPath, state)
-            m.exportOne (nxt, nxtFile)
+        for s in all_states:
+            m.synthesize (s, sim)
+            fileName = instrPath + '/' + s
+            nxt = m.get_next (s)
+            m.exportOne (nxt, fileName)
 
 if __name__ == '__main__':
     synthesize()
+
