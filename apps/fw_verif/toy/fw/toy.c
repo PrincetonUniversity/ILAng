@@ -50,7 +50,7 @@ int main () {
     startAcc();
     sassert (acc_ptr.state == 0);
 
-    if (nd()) sassert (0);
+    //if (nd()) sassert (0);
 
     return 0;
 }
