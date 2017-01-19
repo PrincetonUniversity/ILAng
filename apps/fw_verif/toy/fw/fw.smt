@@ -93,18 +93,18 @@
               HW_REG_WRITE@%addr_0
               HW_REG_WRITE@%data_0))
 (rule (HW_REG_WRITE@_1 HW_REG_WRITE@%_2_0 HW_REG_WRITE@%data_0 HW_REG_WRITE@%addr_0))
-(rule (=> (and (HW_REG_WRITE@_1 HW_REG_WRITE@%_2_0
-                          HW_REG_WRITE@%data_0
-                          HW_REG_WRITE@%addr_0)
-         true
-         (= HW_REG_WRITE@%_3_0 HW_REG_WRITE@%data_0)
-         (= HW_REG_WRITE@%_store_0
-            (store HW_REG_WRITE@%_2_0 HW_REG_WRITE@%addr_0 HW_REG_WRITE@%_3_0)))
-    (HW_REG_WRITE@.split
-      HW_REG_WRITE@%_2_0
-      HW_REG_WRITE@%_store_0
-      HW_REG_WRITE@%data_0
-      HW_REG_WRITE@%addr_0)))
+;(rule (=> (and (HW_REG_WRITE@_1 HW_REG_WRITE@%_2_0
+;                          HW_REG_WRITE@%data_0
+;                          HW_REG_WRITE@%addr_0)
+;         true
+;         (= HW_REG_WRITE@%_3_0 HW_REG_WRITE@%data_0)
+;         (= HW_REG_WRITE@%_store_0
+;            (store HW_REG_WRITE@%_2_0 HW_REG_WRITE@%addr_0 HW_REG_WRITE@%_3_0)))
+;    (HW_REG_WRITE@.split
+;      HW_REG_WRITE@%_2_0
+;      HW_REG_WRITE@%_store_0
+;      HW_REG_WRITE@%data_0
+;      HW_REG_WRITE@%addr_0)))
 (rule (=> (HW_REG_WRITE@.split
       HW_REG_WRITE@%_2_0
       HW_REG_WRITE@%_store_0

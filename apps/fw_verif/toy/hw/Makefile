@@ -1,13 +1,21 @@
-ILATYPE=concurrent
-ILATYPE=atomic
-CHCPATH=$(ILATYPE)/horn
+ILATYPE = concurrent
+ILATYPE = atomic
+ILAPATH = $(ILATYPE)
+CHCPATH = $(ILATYPE)/horn
+
+CHCS = $(addprefix $(CHCPATH)/, ila.smt map_chr.smt)
 
 all: hw.smt
 
-hw.smt: $(CHCPATH)/ila.smt $(CHCPATH)/map_chr.smt
+.PHONY: ILA
+
+hw.smt: $(CHCS) ILA
 	@echo "Generating HW CHC"
 	@cat $(CHCPATH)/ila.smt > hw.smt
 	@cat $(CHCPATH)/map_chr.smt >> hw.smt
+
+ILA:
+	@$(MAKE) -C $(ILAPATH)
 
 clean: 
 	@rm hw.smt
