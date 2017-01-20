@@ -3,7 +3,6 @@
 (declare-var acc_state_nxt (_ BitVec 3))
 ;; relations
 (declare-rel mmio_acc ((_ BitVec 3) (_ BitVec 2) (_ BitVec 16) (_ BitVec 3)))
-(declare-rel mmio_acc_1 ((_ BitVec 3) (_ BitVec 2) (_ BitVec 16)))
 ;; clauses for each ILA instruction
 (rule (=> (and b0
            (rel.decode_fe00 cmd cmdaddr b0)

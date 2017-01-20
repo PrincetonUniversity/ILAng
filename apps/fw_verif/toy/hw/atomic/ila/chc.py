@@ -6,7 +6,7 @@ def createHorn ():
     all_addrs  = [addr for addr in xrange (0xfe00, 0xfe04)]
     all_states = ['acc_state']
 
-    m = ila.Abstraction ('sha')
+    m = ila.Abstraction ('acc')
 
     chcPath = '../horn'
     if not os.path.exists (chcPath):

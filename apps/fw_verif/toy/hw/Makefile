@@ -1,5 +1,5 @@
-ILATYPE = concurrent
 ILATYPE = atomic
+ILATYPE = concurrent
 ILAPATH = $(ILATYPE)
 CHCPATH = $(ILATYPE)/horn
 

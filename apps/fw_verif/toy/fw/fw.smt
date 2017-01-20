@@ -15,11 +15,13 @@
 (declare-rel startAcc@_br3 (Bool Int (Array Int Int) (Array Int Int) ))
 (declare-rel startAcc@_call4 (Bool Int (Array Int Int) (Array Int Int) ))
 (declare-rel startAcc (Bool Bool Bool (Array Int Int) (Array Int Int) Int ))
-(declare-rel main@_1 (Bool (Array Int Int) ))
+(declare-rel main@_1 (Bool Int (Array Int Int) ))
 (declare-rel main@_call3 (Bool ))
-(declare-rel main@_11 (Bool Int (Array Int Int) ))
+(declare-rel main@_11 (Bool Int Int (Array Int Int) ))
 (declare-rel main@_call7 (Bool ))
-(declare-rel main@_call8 (Bool ))
+(declare-rel main@_20 (Bool Int ))
+(declare-rel main@_call9 (Bool ))
+(declare-rel main@_call10 (Bool ))
 (declare-rel main@UnifiedUnreachableBlock (Bool ))
 (declare-var HW_REG_WRITE@%_3_0 Int )
 (declare-var HW_REG_WRITE@%data_0 Int )
@@ -48,6 +50,10 @@
 (declare-var startAcc@%_2_0 (Array Int Int) )
 (declare-var startAcc@%_call1_0 (Array Int Int) )
 (declare-var error.flag_2 Bool )
+(declare-var main@%_21_0 Int )
+(declare-var @nd_0 Int )
+(declare-var main@%_22_0 Int )
+(declare-var main@%_br8_0 Bool )
 (declare-var main@%_12_0 Int )
 (declare-var main@%_store_0 (Array Int Int) )
 (declare-var main@%_call4_0 (Array Int Int) )
@@ -89,18 +95,18 @@
               HW_REG_WRITE@%addr_0
               HW_REG_WRITE@%data_0))
 (rule (HW_REG_WRITE@_1 HW_REG_WRITE@%_2_0 HW_REG_WRITE@%data_0 HW_REG_WRITE@%addr_0))
-(rule (=> (and (HW_REG_WRITE@_1 HW_REG_WRITE@%_2_0
-                          HW_REG_WRITE@%data_0
-                          HW_REG_WRITE@%addr_0)
-         true
-         (= HW_REG_WRITE@%_3_0 HW_REG_WRITE@%data_0)
-         (= HW_REG_WRITE@%_store_0
-            (store HW_REG_WRITE@%_2_0 HW_REG_WRITE@%addr_0 HW_REG_WRITE@%_3_0)))
-    (HW_REG_WRITE@.split
-      HW_REG_WRITE@%_2_0
-      HW_REG_WRITE@%_store_0
-      HW_REG_WRITE@%data_0
-      HW_REG_WRITE@%addr_0)))
+;(rule (=> (and (HW_REG_WRITE@_1 HW_REG_WRITE@%_2_0
+;                          HW_REG_WRITE@%data_0
+;                          HW_REG_WRITE@%addr_0)
+;         true
+;         (= HW_REG_WRITE@%_3_0 HW_REG_WRITE@%data_0)
+;         (= HW_REG_WRITE@%_store_0
+;            (store HW_REG_WRITE@%_2_0 HW_REG_WRITE@%addr_0 HW_REG_WRITE@%_3_0)))
+;    (HW_REG_WRITE@.split
+;      HW_REG_WRITE@%_2_0
+;      HW_REG_WRITE@%_store_0
+;      HW_REG_WRITE@%data_0
+;      HW_REG_WRITE@%addr_0)))
 (rule (=> (HW_REG_WRITE@.split
       HW_REG_WRITE@%_2_0
       HW_REG_WRITE@%_store_0
@@ -404,8 +410,8 @@
                           startAcc@%_call1_0)
          error.flag_0)
     (startAcc true false true startAcc@%_2_0 startAcc@%_call1_0 @acc_ptr_0)))
-(rule (=> (not error.flag_0) (main@_1 error.flag_0 main@%_2_0)))
-(rule (let ((a!1 (and (main@_1 error.flag_0 main@%_2_0)
+(rule (=> (not error.flag_0) (main@_1 error.flag_0 @nd_0 main@%_2_0)))
+(rule (let ((a!1 (and (main@_1 error.flag_0 @nd_0 main@%_2_0)
                 (not error.flag_0)
                 (= main@%_3_0 65024)
                 (= main@%_call_0 (= main@%_3_0 @acc_ptr_0))
@@ -419,8 +425,8 @@
                 (or error.flag_0 main@%_call2_0)
                 (= main@%_br_0 (= 0 0))
                 (or error.flag_0 main@%_br_0))))
-  (=> a!1 (main@_11 error.flag_0 @acc_ptr_0 main@%_2_0))))
-(rule (let ((a!1 (and (main@_1 error.flag_0 main@%_2_0)
+  (=> a!1 (main@_11 error.flag_0 @acc_ptr_0 @nd_0 main@%_2_0))))
+(rule (let ((a!1 (and (main@_1 error.flag_0 @nd_0 main@%_2_0)
                 (not error.flag_0)
                 (= main@%_3_0 65024)
                 (= main@%_call_0 (= main@%_3_0 @acc_ptr_0))
@@ -441,7 +447,7 @@
     (main@UnifiedUnreachableBlock error.flag_1)))
 (rule (let ((a!1 (= main@%_12_0 (+ (+ @acc_ptr_0 (* 0 20)) 12)))
       (a!2 (= main@%_call5_0 (+ (+ @acc_ptr_0 (* 0 20)) 1))))
-  (=> (and (main@_11 error.flag_0 @acc_ptr_0 main@%_2_0)
+  (=> (and (main@_11 error.flag_0 @acc_ptr_0 @nd_0 main@%_2_0)
            (not error.flag_0)
            a!1
            (or (<= @acc_ptr_0 0) (> main@%_12_0 0))
@@ -460,10 +466,10 @@
            (= main@%_17_0 main@%_16_0)
            (= main@%_br6_0 (= main@%_17_0 0))
            (or error.flag_1 main@%_br6_0))
-      (main@_call8 error.flag_1))))
+      (main@_20 error.flag_1 @nd_0))))
 (rule (let ((a!1 (= main@%_12_0 (+ (+ @acc_ptr_0 (* 0 20)) 12)))
       (a!2 (= main@%_call5_0 (+ (+ @acc_ptr_0 (* 0 20)) 1))))
-  (=> (and (main@_11 error.flag_0 @acc_ptr_0 main@%_2_0)
+  (=> (and (main@_11 error.flag_0 @acc_ptr_0 @nd_0 main@%_2_0)
            (not error.flag_0)
            a!1
            (or (<= @acc_ptr_0 0) (> main@%_12_0 0))
@@ -487,13 +493,32 @@
          (not error.flag_0)
          (verifier.error true error.flag_0 error.flag_1))
     (main@UnifiedUnreachableBlock error.flag_1)))
-(rule (=> (and (main@_1 error.flag_0 main@%_2_0) error.flag_0)
-    (main@_call8 error.flag_0)))
-(rule (=> (and (main@_call3 error.flag_0) error.flag_0) (main@_call8 error.flag_0)))
-(rule (=> (and (main@_11 error.flag_0 @acc_ptr_0 main@%_2_0) error.flag_0)
-    (main@_call8 error.flag_0)))
-(rule (=> (and (main@_call7 error.flag_0) error.flag_0) (main@_call8 error.flag_0)))
+(rule (let ((a!1 (and (main@_20 error.flag_0 @nd_0)
+                (not error.flag_0)
+                (= main@%_21_0 @nd_0)
+                (= main@%_br8_0 (not (= main@%_22_0 0)))
+                (or error.flag_0 main@%_br8_0))))
+  (=> a!1 (main@_call9 error.flag_0))))
+(rule (let ((a!1 (and (main@_20 error.flag_0 @nd_0)
+                (not error.flag_0)
+                (= main@%_21_0 @nd_0)
+                (= main@%_br8_0 (not (= main@%_22_0 0)))
+                (or error.flag_0 (not main@%_br8_0)))))
+  (=> a!1 (main@_call10 error.flag_0))))
+(rule (=> (and (main@_call9 error.flag_0)
+         (not error.flag_0)
+         (verifier.error true error.flag_0 error.flag_1))
+    (main@UnifiedUnreachableBlock error.flag_1)))
+(rule (=> (and (main@_1 error.flag_0 @nd_0 main@%_2_0) error.flag_0)
+    (main@_call10 error.flag_0)))
+(rule (=> (and (main@_call3 error.flag_0) error.flag_0) (main@_call10 error.flag_0)))
+(rule (=> (and (main@_11 error.flag_0 @acc_ptr_0 @nd_0 main@%_2_0) error.flag_0)
+    (main@_call10 error.flag_0)))
+(rule (=> (and (main@_call7 error.flag_0) error.flag_0) (main@_call10 error.flag_0)))
+(rule (=> (and (main@_20 error.flag_0 @nd_0) error.flag_0)
+    (main@_call10 error.flag_0)))
+(rule (=> (and (main@_call9 error.flag_0) error.flag_0) (main@_call10 error.flag_0)))
 (rule (=> (and (main@UnifiedUnreachableBlock error.flag_0) error.flag_0)
-    (main@_call8 error.flag_0)))
-(query (main@_call8 true))
+    (main@_call10 error.flag_0)))
+(query (main@_call10 true))
 
