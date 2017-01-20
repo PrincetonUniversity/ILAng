@@ -173,7 +173,7 @@
           (rel.instr_fe00_bytes_read_nxt acc_state bytes_read cmd cmdaddr cmddata bv25)))
 (rule (=> (and (= b40 (and b41 b43))
                (= b41 (= cmd 2))
-               (= b43 (= cmdaddr 65026)))
+               (= b43 (= cmdaddr 65025)))
           (rel.decode_fe01 cmd cmdaddr b40)))
 (rule (=> (and true)
           (rel.instr_fe01_acc_state_nxt acc_state acc_state)))

@@ -46,7 +46,6 @@
             (loop_acc acc_len acc_state_nxt bytes_read_nxt acc_state_nxt_1 bytes_read_nxt_1))
           (mmio_acc acc_len acc_state bytes_read cmd cmdaddr cmddata acc_state_nxt_1 bytes_read_nxt_1)))
 ;
-;
 (rule (=> (and b40
             (rel.decode_fe01 cmd cmdaddr b40)
             (rel.instr_fe01_acc_state_nxt acc_state acc_state_nxt)
@@ -73,22 +72,60 @@
 (declare-var addr_state Int)
 (declare-var addr_len Int)
 (declare-var addr_bytes Int)
+(declare-var l1 Bool)
+(declare-var l2 Bool)
+(declare-var l3 Bool)
 (rule (=> (and (HW_REG_WRITE@_1 HW_REG_WRITE@%_call_0
                           HW_REG_WRITE@%addr_0
                           HW_REG_WRITE@%data_0
                           @acc_ptr_0)
          true
          ;; 
-         (= addr_start (+ @acc_ptr_0 0))
-         (= addr_state (+ @acc_ptr_0 1))
-         (= addr_len (+ @acc_ptr_0 12))
-         (= addr_bytes (+ @acc_ptr_0 16))
+         ;(= addr_start (+ @acc_ptr_0 0))
+         ;(= addr_state (+ @acc_ptr_0 1))
+         ;(= addr_len (+ @acc_ptr_0 12))
+         ;(= addr_bytes (+ @acc_ptr_0 16))
+         (= addr_start 65024)
+         (= addr_state 65025)
+         (= addr_len 65036)
+         (= addr_bytes 65040)
          ;
+         (= HW_REG_WRITE@%addr_0 @acc_ptr_0)
          (= cmd 2)
          (= cmdaddr 65024)
-         ;(= cmdaddr (ite (= HW_REG_WRITE@%addr_0 addr_start) 65024 
-         ;           (ite (= HW_REG_WRITE@%addr_0 addr_state) 65025
-         ;           (ite (= HW_REG_WRITE@%addr_0 addr_len)   65036 65040))))
+         (= cmddata HW_REG_WRITE@%data_0)
+         (= acc_state (select HW_REG_WRITE@%_call_0 addr_state))
+         (= acc_len (select HW_REG_WRITE@%_call_0 addr_len))
+         (= bytes_read (select HW_REG_WRITE@%_call_0 addr_bytes))
+         ;
+         (mmio_acc acc_len acc_state bytes_read cmd cmdaddr cmddata acc_state_nxt bytes_read_nxt)
+         ;
+         (= XRAM_nxt (store HW_REG_WRITE@%_call_0 addr_state acc_state_nxt))
+         (= HW_REG_WRITE@%_store_0 (store XRAM_nxt addr_bytes bytes_read_nxt)))
+         ;;
+    (HW_REG_WRITE@.split
+      HW_REG_WRITE@%_call_0
+      HW_REG_WRITE@%_store_0
+      HW_REG_WRITE@%addr_0
+      HW_REG_WRITE@%data_0
+      @acc_ptr_0)))
+(rule (=> (and (HW_REG_WRITE@_1 HW_REG_WRITE@%_call_0
+                          HW_REG_WRITE@%addr_0
+                          HW_REG_WRITE@%data_0
+                          @acc_ptr_0)
+         true
+         ;(= addr_start (+ @acc_ptr_0 0))
+         ;(= addr_state (+ @acc_ptr_0 1))
+         ;(= addr_len (+ @acc_ptr_0 12))
+         ;(= addr_bytes (+ @acc_ptr_0 16))
+         (= addr_start 65024)
+         (= addr_state 65025)
+         (= addr_len 65036)
+         (= addr_bytes 65040)
+         ;
+         (= HW_REG_WRITE@%addr_0 (+ @acc_ptr_0 1))
+         (= cmd 2)
+         (= cmdaddr 65025)
          (= cmddata HW_REG_WRITE@%data_0)
          (= acc_state (select HW_REG_WRITE@%_call_0 addr_state))
          (= acc_len (select HW_REG_WRITE@%_call_0 addr_len))

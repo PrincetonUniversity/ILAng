@@ -32,6 +32,7 @@ void writecWrap (unsigned char* addr, unsigned char data) {
 void startAcc () {
     writecWrap (&acc_ptr.start, 1);
 
+    sassert (acc_ptr.state == 0);
     // encode a legal fake bug.
     writecWrap (&acc_ptr.state, 1);
 
@@ -55,7 +56,7 @@ int main () {
     startAcc();
     sassert (acc_ptr.state == 0);
 
-    if (nd()) sassert (0);
+    //if (nd()) sassert (0);
 
     return 0;
 }
