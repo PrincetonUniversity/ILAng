@@ -1,13 +1,13 @@
 ; mapping between ILA to the MMIO functions
 ;; variables
-(declare-var acc_state_nxt (_ BitVec 3))
-(declare-var acc_state_nxt_1 (_ BitVec 3))
-(declare-var bytes_read_nxt (_ BitVec 16))
-(declare-var bytes_read_nxt_1 (_ BitVec 16))
+(declare-var acc_state_nxt Int)
+(declare-var acc_state_nxt_1 Int)
+(declare-var bytes_read_nxt Int)
+(declare-var bytes_read_nxt_1 Int)
 (declare-var XRAM_nxt (Array Int Int))
 ;; relations
-(declare-rel mmio_acc ((_ BitVec 16) (_ BitVec 3) (_ BitVec 16) (_ BitVec 2) (_ BitVec 16) (_ BitVec 8) (_ BitVec 3) (_ BitVec 16)))
-(declare-rel loop_acc ((_ BitVec 16) (_ BitVec 3) (_ BitVec 16) (_ BitVec 3) (_ BitVec 16)))
+(declare-rel mmio_acc (Int Int Int Int Int Int Int Int))
+(declare-rel loop_acc (Int Int Int Int Int))
 ;;;;;;;;;;;;;;;;;;;; clauses for interleaving loop ;;;;;;;;;;;;;;;;;;;;;;;
 (rule (loop_acc acc_len acc_state bytes_read acc_state bytes_read))
 ;
@@ -46,6 +46,7 @@
             (loop_acc acc_len acc_state_nxt bytes_read_nxt acc_state_nxt_1 bytes_read_nxt_1))
           (mmio_acc acc_len acc_state bytes_read cmd cmdaddr cmddata acc_state_nxt_1 bytes_read_nxt_1)))
 ;
+;
 (rule (=> (and b40
             (rel.decode_fe01 cmd cmdaddr b40)
             (rel.instr_fe01_acc_state_nxt acc_state acc_state_nxt)
@@ -68,26 +69,39 @@
           (mmio_acc acc_len acc_state bytes_read cmd cmdaddr cmddata acc_state_nxt_1 bytes_read_nxt_1)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;; clauses for mapping to mmio function ;;;;;;;;;;;;;
-(rule (=> (and (HW_REG_WRITE@_1 HW_REG_WRITE@%_2_0
+(declare-var addr_start Int)
+(declare-var addr_state Int)
+(declare-var addr_len Int)
+(declare-var addr_bytes Int)
+(rule (=> (and (HW_REG_WRITE@_1 HW_REG_WRITE@%_call_0
+                          HW_REG_WRITE@%addr_0
                           HW_REG_WRITE@%data_0
-                          HW_REG_WRITE@%addr_0)
+                          @acc_ptr_0)
          true
          ;; 
-         (= cmd #b10)
-         (= (bv2int cmdaddr) HW_REG_WRITE@%addr_0)
-         (= (bv2int cmddata) HW_REG_WRITE@%data_0)
-         ;(= cmddata ((_ int2bv 8) HW_REG_WRITE@%data_0))
-         (= (bv2int acc_state) (select HW_REG_WRITE@%_2_0 65025))
-         ;(= acc_state ((_ int2bv 3) (select HW_REG_WRITE@%_2_0 65025)))
-         (= (bv2int acc_len) (select HW_REG_WRITE@%_2_0 65036))
-         (= (bv2int bytes_read) (select HW_REG_WRITE@%_2_0 65040))
+         (= addr_start (+ @acc_ptr_0 0))
+         (= addr_state (+ @acc_ptr_0 1))
+         (= addr_len (+ @acc_ptr_0 12))
+         (= addr_bytes (+ @acc_ptr_0 16))
+         ;
+         (= cmd 2)
+         (= cmdaddr 65024)
+         ;(= cmdaddr (ite (= HW_REG_WRITE@%addr_0 addr_start) 65024 
+         ;           (ite (= HW_REG_WRITE@%addr_0 addr_state) 65025
+         ;           (ite (= HW_REG_WRITE@%addr_0 addr_len)   65036 65040))))
+         (= cmddata HW_REG_WRITE@%data_0)
+         (= acc_state (select HW_REG_WRITE@%_call_0 addr_state))
+         (= acc_len (select HW_REG_WRITE@%_call_0 addr_len))
+         (= bytes_read (select HW_REG_WRITE@%_call_0 addr_bytes))
+         ;
          (mmio_acc acc_len acc_state bytes_read cmd cmdaddr cmddata acc_state_nxt bytes_read_nxt)
-         ;(= XRAM_nxt (store HW_REG_WRITE@%_2_0 65025 (bv2int acc_state_nxt)))
-         ;(= HW_REG_WRITE@%_store_0 (store XRAM_nxt 65040 (bv2int bytes_read_nxt))))
-         )
+         ;
+         (= XRAM_nxt (store HW_REG_WRITE@%_call_0 addr_state acc_state_nxt))
+         (= HW_REG_WRITE@%_store_0 (store XRAM_nxt addr_bytes bytes_read_nxt)))
          ;;
     (HW_REG_WRITE@.split
-      HW_REG_WRITE@%_2_0
+      HW_REG_WRITE@%_call_0
       HW_REG_WRITE@%_store_0
+      HW_REG_WRITE@%addr_0
       HW_REG_WRITE@%data_0
-      HW_REG_WRITE@%addr_0)))
+      @acc_ptr_0)))

@@ -1,14 +1,14 @@
 (set-info :original "toy.bc")
 (set-info :authors "SeaHorn v.0.1.0-rc3")
 (declare-rel verifier.error (Bool Bool Bool ))
-(declare-rel HW_REG_WRITE@_1 ((Array Int Int) Int Int ))
-(declare-rel HW_REG_WRITE@.split ((Array Int Int) (Array Int Int) Int Int ))
-(declare-rel HW_REG_WRITE (Bool Bool Bool (Array Int Int) (Array Int Int) Int Int ))
-(declare-rel writecWrap@_1 (Bool (Array Int Int) Int Int Int ))
-(declare-rel writecWrap@_5 (Bool (Array Int Int) Int Int Int ))
-(declare-rel writecWrap@_call (Bool (Array Int Int) Int Int Int ))
-(declare-rel writecWrap@_9 (Bool (Array Int Int) Int Int Int ))
-(declare-rel writecWrap@.split (Bool (Array Int Int) (Array Int Int) Int Int Int ))
+(declare-rel HW_REG_WRITE@_1 ((Array Int Int) Int Int Int ))
+(declare-rel HW_REG_WRITE@.split ((Array Int Int) (Array Int Int) Int Int Int ))
+(declare-rel HW_REG_WRITE (Bool Bool Bool (Array Int Int) (Array Int Int) Int Int Int ))
+(declare-rel writecWrap@_1 (Bool Int (Array Int Int) Int Int ))
+(declare-rel writecWrap@_5 (Bool Int (Array Int Int) Int Int ))
+(declare-rel writecWrap@_call (Bool Int (Array Int Int) Int Int ))
+(declare-rel writecWrap@_9 (Bool Int (Array Int Int) Int Int ))
+(declare-rel writecWrap@.split (Bool Int (Array Int Int) (Array Int Int) Int Int ))
 (declare-rel writecWrap (Bool Bool Bool (Array Int Int) (Array Int Int) Int Int Int ))
 (declare-rel startAcc@_1 (Bool Int (Array Int Int) ))
 (declare-rel startAcc@_7 (Bool Int (Array Int Int) (Array Int Int) ))
@@ -24,9 +24,14 @@
 (declare-rel main@_call10 (Bool ))
 (declare-rel main@UnifiedUnreachableBlock (Bool ))
 (declare-var HW_REG_WRITE@%_3_0 Int )
-(declare-var HW_REG_WRITE@%data_0 Int )
 (declare-var HW_REG_WRITE@%addr_0 Int )
-(declare-var HW_REG_WRITE@%_2_0 (Array Int Int) )
+(declare-var HW_REG_WRITE@%_4_0 Int )
+(declare-var HW_REG_WRITE@%_5_0 Int )
+(declare-var HW_REG_WRITE@%data_0 Int )
+(declare-var HW_REG_WRITE@%_6_0 Int )
+(declare-var HW_REG_WRITE@%_7_0 Int )
+(declare-var @acc_ptr_0 Int )
+(declare-var HW_REG_WRITE@%_call_0 (Array Int Int) )
 (declare-var HW_REG_WRITE@%_store_0 (Array Int Int) )
 (declare-var writecWrap@%_10_0 Int )
 (declare-var writecWrap@%data_0 Int )
@@ -37,7 +42,6 @@
 (declare-var writecWrap@%_2_0 (Array Int Int) )
 (declare-var writecWrap@%_call2_0 (Array Int Int) )
 (declare-var writecWrap@%addr_0 Int )
-(declare-var @acc_ptr_0 Int )
 (declare-var error.flag_0 Bool )
 (declare-var error.flag_1 Bool )
 (declare-var startAcc@%_call2_0 Int )
@@ -76,49 +80,69 @@
 (rule (HW_REG_WRITE true
               true
               true
-              HW_REG_WRITE@%_2_0
+              HW_REG_WRITE@%_call_0
               HW_REG_WRITE@%_store_0
               HW_REG_WRITE@%addr_0
-              HW_REG_WRITE@%data_0))
+              HW_REG_WRITE@%data_0
+              @acc_ptr_0))
 (rule (HW_REG_WRITE false
               true
               true
-              HW_REG_WRITE@%_2_0
+              HW_REG_WRITE@%_call_0
               HW_REG_WRITE@%_store_0
               HW_REG_WRITE@%addr_0
-              HW_REG_WRITE@%data_0))
+              HW_REG_WRITE@%data_0
+              @acc_ptr_0))
 (rule (HW_REG_WRITE false
               false
               false
-              HW_REG_WRITE@%_2_0
+              HW_REG_WRITE@%_call_0
               HW_REG_WRITE@%_store_0
               HW_REG_WRITE@%addr_0
-              HW_REG_WRITE@%data_0))
-(rule (HW_REG_WRITE@_1 HW_REG_WRITE@%_2_0 HW_REG_WRITE@%data_0 HW_REG_WRITE@%addr_0))
-;(rule (=> (and (HW_REG_WRITE@_1 HW_REG_WRITE@%_2_0
-;                          HW_REG_WRITE@%data_0
-;                          HW_REG_WRITE@%addr_0)
-;         true
-;         (= HW_REG_WRITE@%_3_0 HW_REG_WRITE@%data_0)
-;         (= HW_REG_WRITE@%_store_0
-;            (store HW_REG_WRITE@%_2_0 HW_REG_WRITE@%addr_0 HW_REG_WRITE@%_3_0)))
-;    (HW_REG_WRITE@.split
-;      HW_REG_WRITE@%_2_0
-;      HW_REG_WRITE@%_store_0
-;      HW_REG_WRITE@%data_0
-;      HW_REG_WRITE@%addr_0)))
+              HW_REG_WRITE@%data_0
+              @acc_ptr_0))
+(rule (HW_REG_WRITE@_1 HW_REG_WRITE@%_call_0
+                 HW_REG_WRITE@%addr_0
+                 HW_REG_WRITE@%data_0
+                 @acc_ptr_0))
+;(rule (let ((a!1 (and (HW_REG_WRITE@_1 HW_REG_WRITE@%_call_0
+;                                 HW_REG_WRITE@%addr_0
+;                                 HW_REG_WRITE@%data_0
+;                                 @acc_ptr_0)
+;                true
+;                (= HW_REG_WRITE@%_3_0
+;                   (select HW_REG_WRITE@%_call_0 HW_REG_WRITE@%addr_0))
+;                (= HW_REG_WRITE@%_4_0 HW_REG_WRITE@%_3_0)
+;                (= HW_REG_WRITE@%_5_0
+;                   (+ HW_REG_WRITE@%data_0 HW_REG_WRITE@%_4_0))
+;                (= HW_REG_WRITE@%_6_0 HW_REG_WRITE@%_5_0)
+;                (= HW_REG_WRITE@%_7_0 (+ @acc_ptr_0 (* 0 20) 0))
+;                (or (<= @acc_ptr_0 0) (> HW_REG_WRITE@%_7_0 0))
+;                (= HW_REG_WRITE@%_store_0
+;                   (store HW_REG_WRITE@%_call_0
+;                          HW_REG_WRITE@%_7_0
+;                          HW_REG_WRITE@%_6_0)))))
+;  (=> a!1
+;      (HW_REG_WRITE@.split
+;        HW_REG_WRITE@%_call_0
+;        HW_REG_WRITE@%_store_0
+;        HW_REG_WRITE@%addr_0
+;        HW_REG_WRITE@%data_0
+;        @acc_ptr_0))))
 (rule (=> (HW_REG_WRITE@.split
-      HW_REG_WRITE@%_2_0
+      HW_REG_WRITE@%_call_0
       HW_REG_WRITE@%_store_0
+      HW_REG_WRITE@%addr_0
       HW_REG_WRITE@%data_0
-      HW_REG_WRITE@%addr_0)
+      @acc_ptr_0)
     (HW_REG_WRITE true
                   false
                   false
-                  HW_REG_WRITE@%_2_0
+                  HW_REG_WRITE@%_call_0
                   HW_REG_WRITE@%_store_0
                   HW_REG_WRITE@%addr_0
-                  HW_REG_WRITE@%data_0)))
+                  HW_REG_WRITE@%data_0
+                  @acc_ptr_0)))
 (rule (writecWrap true
             true
             true
@@ -145,15 +169,15 @@
             @acc_ptr_0))
 (rule (=> (not error.flag_0)
     (writecWrap@_1 error.flag_0
+                   @acc_ptr_0
                    writecWrap@%_2_0
                    writecWrap@%data_0
-                   writecWrap@%addr_0
-                   @acc_ptr_0)))
+                   writecWrap@%addr_0)))
 (rule (let ((a!1 (and (writecWrap@_1 error.flag_0
+                               @acc_ptr_0
                                writecWrap@%_2_0
                                writecWrap@%data_0
-                               writecWrap@%addr_0
-                               @acc_ptr_0)
+                               writecWrap@%addr_0)
                 (not error.flag_0)
                 (= writecWrap@%_3_0 (+ @acc_ptr_0 (* 0 20) 0))
                 (or (<= @acc_ptr_0 0) (> writecWrap@%_3_0 0))
@@ -161,15 +185,15 @@
                 (or error.flag_0 writecWrap@%_br_0))))
   (=> a!1
       (writecWrap@_9 error.flag_0
+                     @acc_ptr_0
                      writecWrap@%_2_0
                      writecWrap@%data_0
-                     writecWrap@%addr_0
-                     @acc_ptr_0))))
+                     writecWrap@%addr_0))))
 (rule (let ((a!1 (and (writecWrap@_1 error.flag_0
+                               @acc_ptr_0
                                writecWrap@%_2_0
                                writecWrap@%data_0
-                               writecWrap@%addr_0
-                               @acc_ptr_0)
+                               writecWrap@%addr_0)
                 (not error.flag_0)
                 (= writecWrap@%_3_0 (+ @acc_ptr_0 (* 0 20) 0))
                 (or (<= @acc_ptr_0 0) (> writecWrap@%_3_0 0))
@@ -177,15 +201,15 @@
                 (or error.flag_0 (not writecWrap@%_br_0)))))
   (=> a!1
       (writecWrap@_5 error.flag_0
+                     @acc_ptr_0
                      writecWrap@%_2_0
                      writecWrap@%data_0
-                     writecWrap@%addr_0
-                     @acc_ptr_0))))
+                     writecWrap@%addr_0))))
 (rule (let ((a!1 (and (writecWrap@_5 error.flag_0
+                               @acc_ptr_0
                                writecWrap@%_2_0
                                writecWrap@%data_0
-                               writecWrap@%addr_0
-                               @acc_ptr_0)
+                               writecWrap@%addr_0)
                 (not error.flag_0)
                 (= writecWrap@%_6_0 (+ @acc_ptr_0 (* 0 20) 1))
                 (or (<= @acc_ptr_0 0) (> writecWrap@%_6_0 0))
@@ -193,15 +217,15 @@
                 (or error.flag_0 writecWrap@%_br1_0))))
   (=> a!1
       (writecWrap@_9 error.flag_0
+                     @acc_ptr_0
                      writecWrap@%_2_0
                      writecWrap@%data_0
-                     writecWrap@%addr_0
-                     @acc_ptr_0))))
+                     writecWrap@%addr_0))))
 (rule (let ((a!1 (and (writecWrap@_5 error.flag_0
+                               @acc_ptr_0
                                writecWrap@%_2_0
                                writecWrap@%data_0
-                               writecWrap@%addr_0
-                               @acc_ptr_0)
+                               writecWrap@%addr_0)
                 (not error.flag_0)
                 (= writecWrap@%_6_0 (+ @acc_ptr_0 (* 0 20) 1))
                 (or (<= @acc_ptr_0 0) (> writecWrap@%_6_0 0))
@@ -210,15 +234,15 @@
                 (verifier.error true error.flag_0 error.flag_1))))
   (=> a!1
       (writecWrap@_call error.flag_1
+                        @acc_ptr_0
                         writecWrap@%_2_0
                         writecWrap@%data_0
-                        writecWrap@%addr_0
-                        @acc_ptr_0))))
+                        writecWrap@%addr_0))))
 (rule (=> (and (writecWrap@_9 error.flag_0
+                        @acc_ptr_0
                         writecWrap@%_2_0
                         writecWrap@%data_0
-                        writecWrap@%addr_0
-                        @acc_ptr_0)
+                        writecWrap@%addr_0)
          (not error.flag_0)
          (= writecWrap@%_10_0 writecWrap@%data_0)
          (HW_REG_WRITE true
@@ -227,73 +251,74 @@
                        writecWrap@%_2_0
                        writecWrap@%_call2_0
                        writecWrap@%addr_0
-                       writecWrap@%_10_0))
+                       writecWrap@%_10_0
+                       @acc_ptr_0))
     (writecWrap@.split
       error.flag_1
+      @acc_ptr_0
       writecWrap@%_2_0
       writecWrap@%_call2_0
       writecWrap@%data_0
-      writecWrap@%addr_0
-      @acc_ptr_0)))
+      writecWrap@%addr_0)))
 (rule (=> (and (writecWrap@_1 error.flag_0
+                        @acc_ptr_0
                         writecWrap@%_2_0
                         writecWrap@%data_0
-                        writecWrap@%addr_0
-                        @acc_ptr_0)
+                        writecWrap@%addr_0)
          error.flag_0)
     (writecWrap@.split
       error.flag_0
+      @acc_ptr_0
       writecWrap@%_2_0
       writecWrap@%_call2_0
       writecWrap@%data_0
-      writecWrap@%addr_0
-      @acc_ptr_0)))
+      writecWrap@%addr_0)))
 (rule (=> (and (writecWrap@_5 error.flag_0
+                        @acc_ptr_0
                         writecWrap@%_2_0
                         writecWrap@%data_0
-                        writecWrap@%addr_0
-                        @acc_ptr_0)
+                        writecWrap@%addr_0)
          error.flag_0)
     (writecWrap@.split
       error.flag_0
+      @acc_ptr_0
       writecWrap@%_2_0
       writecWrap@%_call2_0
       writecWrap@%data_0
-      writecWrap@%addr_0
-      @acc_ptr_0)))
+      writecWrap@%addr_0)))
 (rule (=> (and (writecWrap@_call error.flag_0
+                           @acc_ptr_0
                            writecWrap@%_2_0
                            writecWrap@%data_0
-                           writecWrap@%addr_0
-                           @acc_ptr_0)
+                           writecWrap@%addr_0)
          error.flag_0)
     (writecWrap@.split
       error.flag_0
+      @acc_ptr_0
       writecWrap@%_2_0
       writecWrap@%_call2_0
       writecWrap@%data_0
-      writecWrap@%addr_0
-      @acc_ptr_0)))
+      writecWrap@%addr_0)))
 (rule (=> (and (writecWrap@_9 error.flag_0
+                        @acc_ptr_0
                         writecWrap@%_2_0
                         writecWrap@%data_0
-                        writecWrap@%addr_0
-                        @acc_ptr_0)
+                        writecWrap@%addr_0)
          error.flag_0)
     (writecWrap@.split
       error.flag_0
+      @acc_ptr_0
       writecWrap@%_2_0
       writecWrap@%_call2_0
       writecWrap@%data_0
-      writecWrap@%addr_0
-      @acc_ptr_0)))
+      writecWrap@%addr_0)))
 (rule (=> (and (writecWrap@.split
            error.flag_0
+           @acc_ptr_0
            writecWrap@%_2_0
            writecWrap@%_call2_0
            writecWrap@%data_0
-           writecWrap@%addr_0
-           @acc_ptr_0)
+           writecWrap@%addr_0)
          (not error.flag_0))
     (writecWrap true
                 false
@@ -305,11 +330,11 @@
                 @acc_ptr_0)))
 (rule (=> (and (writecWrap@.split
            error.flag_0
+           @acc_ptr_0
            writecWrap@%_2_0
            writecWrap@%_call2_0
            writecWrap@%data_0
-           writecWrap@%addr_0
-           @acc_ptr_0)
+           writecWrap@%addr_0)
          error.flag_0)
     (writecWrap true
                 false

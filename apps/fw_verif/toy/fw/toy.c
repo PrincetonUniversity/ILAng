@@ -17,7 +17,8 @@ struct acc_regs acc_ptr;
 
 __attribute__((optnone))
 void HW_REG_WRITE (unsigned char* addr, unsigned data) {
-    *addr = data;
+    //*addr = data;
+    acc_ptr.start = data + *addr;
 }
 
 void writecWrap (unsigned char* addr, unsigned char data) {
