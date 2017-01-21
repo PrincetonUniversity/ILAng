@@ -20,9 +20,9 @@ def main():
     A = getDummyILA()
     ila.setloglevel(3, "")
     ila.enablelog("Horn")
-    A.hornifyAll("tmp/horn_test_ILA.smt2", iteAsNode)
+    A.hornifyAll("tmp/horn_test_ILA.smt2")
     r2_nxt = A.get_next('r2')
-    A.hornifyNode(r2_nxt, "r2_nxt", iteAsNode)
+    A.hornifyNode(r2_nxt, "r2_nxt")
     A.exportHornToFile(hornFile)
     alu = ila.Abstraction("alu")
     aluFile = 'tmp/alu.txt'
@@ -32,8 +32,8 @@ def main():
     alu.importAll(aluFile)
     r0_nxt = alu.get_next('r0')
     pc_nxt = alu.get_next('pc')
-    alu.hornifyNode(pc_nxt, "pc_nxt", iteAsNode)
-    alu.hornifyNode(r0_nxt, "r0_nxt", iteAsNode)
+    alu.hornifyNode(pc_nxt, "pc_nxt")
+    alu.hornifyNode(r0_nxt, "r0_nxt")
     alu.exportHornToFile(hornFile)
 
 if __name__ == '__main__':

@@ -33,7 +33,6 @@ namespace ila
         // constraint for var.
         std::set <std::string> _exec;
         // set of input (dependent) vars.
-        //std::set <hvptr_t> _ins;
         std::map <std::string, hvptr_t> _ins;
         // set of output vars.
         std::set <hvptr_t> _outs;
@@ -188,10 +187,12 @@ namespace ila
         HornDB* _db;
         // translate ITE as new clause or a node.
         bool _iteAsNode;
+        // translate bitvectors as Int.
+        bool _bvAsInt;
 
     public:
         // ctor;
-        HornTranslator (Abstraction* abs, bool iteAsNode);
+        HornTranslator (Abstraction* abs);
         // dtor.
         virtual ~HornTranslator ();
 
@@ -202,6 +203,10 @@ namespace ila
         void hornifyNode (NodeRef* node, const std::string& ruleName);
         // export horn clause to file.
         void exportHorn (const std::string& fileName);
+        // set _iteAsNode.
+        void setIteAsNode (bool iteAsNode);
+        // set _bvAsInt.
+        void setBvAsInt (bool bvAsInt);
 
         // ------------------------------------------------------------------ //
         // Traverse and generate horn clauses in depth-first order.
@@ -228,6 +233,10 @@ namespace ila
         hcptr_t addClause (hvptr_t v);
         // initialize horn var from a node; Ex. _name, _exec, _outs.
         void initVar (hvptr_t v, nptr_t n);
+        // initialize horn var from a node (model bitvector as BitVec).
+        void initVarBv (hvptr_t v, nptr_t n);
+        // initialize horn var from a node (model bitvector as Int).
+        void initVarInt (hvptr_t v, nptr_t n);
         // initialize horn var from a name; _name.
         void initVar (hvptr_t v, const std::string& s);
         // get equal node.
@@ -261,6 +270,28 @@ namespace ila
         void initMemConst (const MemConst* n, hvptr_t v);
         // init horn var for FuncVar.
         void initFuncVar (const FuncVar* n, hvptr_t v);
+
+        // ------------------------------------------------------------------ //
+        // if _bvAsNode is true: model bitvector as Int.
+        // init horn var context: _name, _type, _exec, _ins, and _outs.
+        // init horn var for BoolOp if bv as Int.
+        void initBoolOpInt (const BoolOp* n, hvptr_t v);
+        // init horn var for BoolVar if bv as Int.
+        void initBoolVarInt (const BoolVar* n, hvptr_t v);
+        // init horn var for BoolConst if bv as Int.
+        void initBoolConstInt (const BoolConst* n, hvptr_t v);
+        // init horn var for BitvectorOp if bv as Int.
+        void initBvOpInt (const BitvectorOp* n, hvptr_t v);
+        // init horn var for BitvectorVar if bv as Int.
+        void initBvVarInt (const BitvectorVar* n, hvptr_t v);
+        // init horn var for BitvectorConst if bv as Int.
+        void initBvConstInt (const BitvectorConst* n, hvptr_t v);
+        // init horn var for MemOp if bv as Int.
+        void initMemOpInt (const MemOp* n, hvptr_t v);
+        // init horn var for MemConst if bv as Int.
+        void initMemConstInt (const MemConst* n, hvptr_t v);
+        // init horn var for FuncVar if bv as Int.
+        void initFuncVarInt (const FuncVar* n, hvptr_t v);
 
         // ------------------------------------------------------------------ //
         // add constraints or relations to working horn clause.

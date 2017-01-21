@@ -224,13 +224,13 @@ namespace ila
             }
         }
 
-        // FIXME ignore (A -> A)
+        // ignore (A -> A)
         if ((allTerms.size() == 1) && 
             (*allTerms.begin() == _head->getVar()->getPred()))
             return;
 
         out << "(rule (=> (and ";
-        if (allTerms.empty()) {
+        if (allTerms.empty() || allTerms.size() == 1) {
             allTerms.insert("true");
         }
         for (auto b = allTerms.begin(); b != allTerms.end(); ) {
@@ -320,13 +320,14 @@ namespace ila
     }
 
     // ---------------------------------------------------------------------- //
-    HornTranslator::HornTranslator (Abstraction* abs, bool iteAsNode)
-      : _abs (abs),
-        _iteAsNode (iteAsNode)
+    HornTranslator::HornTranslator (Abstraction* abs)
+      : _abs (abs)
     {
         _db = new HornDB();
         _varCnt = 0;
         _curHc = NULL;
+        _iteAsNode = true;
+        _bvAsInt = false;
     }
 
     HornTranslator::~HornTranslator ()
@@ -363,6 +364,16 @@ namespace ila
         ILA_ASSERT (out.is_open(), "File " + fileName + " not open.");
         _db->print (out);
         out.close();
+    }
+
+    void HornTranslator::setIteAsNode (bool iteAsNode)
+    {
+        _iteAsNode = iteAsNode;
+    }
+
+    void HornTranslator::setBvAsInt (bool bvAsInt)
+    {
+        _bvAsInt = bvAsInt;
     }
 
     void HornTranslator::depthFirstTraverse (nptr_t n)
@@ -533,6 +544,15 @@ namespace ila
 
     void HornTranslator::initVar (hvptr_t v, nptr_t node)
     {
+        if (_bvAsInt) {
+            initVarInt (v, node);
+        } else {
+            initVarBv (v, node);
+        }
+    }
+
+    void HornTranslator::initVarBv (hvptr_t v, nptr_t node)
+    {
         Node* n = node.get();
 
         const BoolOp* boolop = NULL;
@@ -654,6 +674,11 @@ namespace ila
             "and", "or", "xor",     // and, or, xor
             "xor", "and", "or",     // xnor, nand, nor
             "=>",                   // imply,
+            /*
+            "<", ">", "<=", ">=",   // signed
+            "<", ">", "<=", ">=",   // unsinged
+            "=", "=",               // equal, distinct
+            */
             "bvslt", "bvsgt", "bvsle", "bvsge",
             "bvult", "bvugt", "bvule", "bvuge",
             "=", "distinct",        // equal, distinct
@@ -687,7 +712,7 @@ namespace ila
                        % arg1->getName();
                 v->setExec (priFmt.str());
             } else if (n->op >= BoolOp::Op::XNOR && 
-                       n->op == BoolOp::Op::NOR) {
+                       n->op <= BoolOp::Op::NOR) {
                 // use negated format (= z (not (op x y)))
                 negFmt % v->getName()
                        % boolOpNames[n->op]
@@ -695,7 +720,7 @@ namespace ila
                        % arg1->getName();
                 v->setExec (negFmt.str());
             } else {
-                ILA_ASSERT (false, "Unknonw BoolOp.");
+                ILA_ASSERT (false, "Unknonw Binary BoolOp.");
             }
         //// Ternary ////
         } else if (n->op == BoolOp::Op::IF) {
@@ -714,7 +739,7 @@ namespace ila
                        % vElse->getName();
                 v->setExec (iteFmt.str());
             } else {
-                v->setExec ("true"); // FIXME
+                v->setExec ("true"); 
             }
         } else {
             ILA_ASSERT (false, "Unknown BoolOp.");
@@ -1252,7 +1277,7 @@ namespace ila
 
     void HornTranslator::addFuncVar (const FuncVar* n, hvptr_t v)
     {
-        ILA_ASSERT (_curHc != NULL, "workinf clause not exist.");
+        ILA_ASSERT (_curHc != NULL, "working clause not exist.");
         _curHc->addBody (new HornLiteral (v)); // _exec is "true".
     }
 
