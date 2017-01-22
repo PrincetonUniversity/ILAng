@@ -674,11 +674,6 @@ namespace ila
             "and", "or", "xor",     // and, or, xor
             "xor", "and", "or",     // xnor, nand, nor
             "=>",                   // imply,
-            /*
-            "<", ">", "<=", ">=",   // signed
-            "<", ">", "<=", ">=",   // unsinged
-            "=", "=",               // equal, distinct
-            */
             "bvslt", "bvsgt", "bvsle", "bvsge",
             "bvult", "bvugt", "bvule", "bvuge",
             "=", "distinct",        // equal, distinct

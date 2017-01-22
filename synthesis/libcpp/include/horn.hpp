@@ -288,6 +288,8 @@ namespace ila
         void initBvConstInt (const BitvectorConst* n, hvptr_t v);
         // init horn var for MemOp if bv as Int.
         void initMemOpInt (const MemOp* n, hvptr_t v);
+        // init horn var for MemVar if bv as Int.
+        void initMemVarInt (const MemVar* n, hvptr_t v);
         // init horn var for MemConst if bv as Int.
         void initMemConstInt (const MemConst* n, hvptr_t v);
         // init horn var for FuncVar if bv as Int.
