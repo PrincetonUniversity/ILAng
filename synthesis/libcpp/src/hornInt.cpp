@@ -308,6 +308,7 @@ namespace ila
             int chunkNum  = n->param(0);
             bool isLittle = (n->param(1) == LITTLE_E);
 
+            ILA_ASSERT (chunkNum > 1, "Expect more than 1 block in readmemblk");
             bool detail = true;
             if (!detail) {
                 boost::format singleReadFmt ("(= %1% (select %2% %3%))");
@@ -324,17 +325,77 @@ namespace ila
                 //            (concat ((_ int2bv w) (select A (+ x 2)))
                 //                    ((_ int2bv w) (select A (+ x 3)))))))
                 //    z)
+                boost::format headFmt (
+                "(= (bv2int (concat ((_ int2bv %1%) (select %2% %3%))");
+                boost::format bodyFmt (
+                "           (concat ((_ int2bv %1%) (select %2% (+ %3% %4%)))");
+                boost::format tailFmt (
+                "                   ((_ int2bv %1%) (select %2% (+ %3% %4%)))");
+                boost::format eqFmt (
+                "   %1%)");
+
+                headFmt % chunkSize % mem->getName() % addr->getName();
+                v->setExec (headFmt.str());
+
+                for (int i = 1; i < chunkNum-1; i++) {
+                    bodyFmt % chunkSize 
+                            % mem->getName() 
+                            % addr->getName()
+                            % i;
+                    v->setExec (bodyFmt.str());
+                }
+
+                if (chunkNum > 1) {
+                    tailFmt % chunkSize
+                            % mem->getName()
+                            % addr->getName()
+                            % (chunkNum-1);
+                    std::string tail = tailFmt.str();
+                    size_t tailSize = tail.size();
+                    tail.resize (tailSize + chunkNum, ')');
+                    v->setExec (tail);
+                }
+
+                eqFmt % v->getName();
+                v->setExec (eqFmt.str());
+            } else {
+                // (= (bv2int (concat ((_ int2bv w) (select A (+ x 3)))
+                //            (concat ((_ int2bv w) (select A (+ x 2)))
+                //            (concat ((_ int2bv w) (select A (+ x 1)))
+                //                    ((_ int2bv w) (select A x))))))
+                //    z)
+                boost::format headFmt (
+                "(= (bv2int (concat ((_ int2bv %1%) (select %2% (+ %3% $4$)))");
+                boost::format bodyFmt (
+                "           (concat ((_ int2bv %1%) (select %2% (+ %3% %4%)))");
+                boost::format tailFmt (
+                "                   ((_ int2bv %1%) (select %2% %3%))");
+                boost::format eqFmt (
+                "   %1%)");
+
+                headFmt % chunkSize 
+                        % mem->getName() 
+                        % addr->getName()
+                        % (chunkNum-1);
+                v->setExec (headFmt.str());
+
+                for (int i = chunkNum-2; i >= 1; i--) {
+                    bodyFmt % chunkSize
+                            % mem->getName()
+                            % addr->getName()
+                            % i;
+                    v->setExec (bodyFmt.str());
+                }
+
+                tailFmt % chunkSize % mem->getName() % addr->getName();
+                std::string tail = tailFmt.str();
+                size_t tailSize = tail.size();
+                tail.resize (tailSize + chunkNum, ')');
+                v->setExec (tail);
+
+                eqFmt % v->getName();
+                v->setExec (eqFmt.str());
             }
-
-            // big:
-            // (= z (((concat (select A x) 
-            //        (concat (select A (+ x w))
-            //                (select A (+ x 2w)))))))
-            // little:
-            // (= z (((concat (select A (+ x 2w) 
-            //        (concat (select A (+ x w))
-            //                (select A x)))))))
-
                         
         //// Ternary ////
         } else if (n->op == BitvectorOp::Op::IF) {
@@ -371,12 +432,31 @@ namespace ila
 
     void HornTranslator::initBvVarInt (const BitvectorVar* n, hvptr_t v)
     {
-        // TODO
+        // name should be exactly the same as the design.
+        v->setName (n->getName());
+        // type
+        v->setType ("Int");
+        // exec
+        v->setExec ("true");
+        // ins
+        v->addInVar (v);
+        // outs
+        v->addOutVar (v);
     }
 
     void HornTranslator::initBvConstInt (const BitvectorConst* n, hvptr_t v)
     {
-        // TODO
+        // name is the value.
+        boost::format nameFmt ("%1%");
+        nameFmt % n->val();
+        v->setName (nameFmt.str());
+        // type
+        v->setType ("Int");
+        // exec
+        v->setExec ("true");
+        // ins
+        // outs
+        v->setConst ();
     }
 
     void HornTranslator::initMemOpInt (const MemOp* n, hvptr_t v)
