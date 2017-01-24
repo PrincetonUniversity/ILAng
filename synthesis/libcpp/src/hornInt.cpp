@@ -207,10 +207,6 @@ namespace ila
             "ite", "apply_fun", 
         };
 
-        //boost::format bvUnaryIntFmt ("(= %1% (%2% %3%))");
-        //boost::format bvBinaryIntFmt ("(= %1% (%2% %3% %4%))");
-        //boost::format bvUnaryFmt (
-                //"(= %1% (bv2int (%2% ((_ int2bv %3%) %4%))))");
         //// Unary ////
         if (n->op >= BitvectorOp::Op::NEGATE && 
             n->op <= BitvectorOp::Op::EXTRACT) {
@@ -280,7 +276,7 @@ namespace ila
                         n->op == BitvectorOp::Op::CONCAT) {
                 // (= z (bv2int (op ((_ int2bv w) x) ((_ int2bv w) y))))
                 boost::format binFmt (
-                    "(= %1% (bv2int (%2% ((_ int2bv %3%) %4%) ((_ int2bv %5%) %y%))))");
+                    "(= %1% (bv2int (%2% ((_ int2bv %3%) %4%) ((_ int2bv %5%) %6%))))");
                 binFmt % v->getName()
                        % bvOpNames[n->op]
                        % n->arg(0)->type.bitWidth
@@ -603,7 +599,7 @@ namespace ila
         // name should be the same as the design.
         v->setName (n->getName());
         // type
-        v->setType ("(Arrat Int Int)");
+        v->setType ("(Array Int Int)");
         // exec 
         v->setExec ("true");
         // in

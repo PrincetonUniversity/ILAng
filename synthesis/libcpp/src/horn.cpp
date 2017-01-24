@@ -353,6 +353,7 @@ namespace ila
         hcptr_t topC = addClause (topV);
         topV->addOutVar (varNxt);
         topV->setType (varNxt->getType());
+
         
         _curHc = topC;
         depthFirstTraverse (n);

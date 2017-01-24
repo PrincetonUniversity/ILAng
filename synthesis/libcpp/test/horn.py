@@ -25,6 +25,7 @@ def main():
     A.hornifyNode(r2_nxt, "r2_nxt")
     A.exportHornToFile(hornFile)
     alu = ila.Abstraction("alu")
+    alu.hornifyBvAsInt(True)
     aluFile = 'tmp/alu.txt'
     if not os.path.exists (aluFile):
         print 'alu file not exist'
