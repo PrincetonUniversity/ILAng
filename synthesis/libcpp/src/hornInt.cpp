@@ -308,9 +308,8 @@ namespace ila
             int chunkNum  = n->param(0);
             bool isLittle = (n->param(1) == LITTLE_E);
 
-            ILA_ASSERT (chunkNum > 1, "Expect more than 1 block in readmemblk");
             bool detail = true;
-            if (!detail) {
+            if (!detail || (chunkNum == 1)) {
                 boost::format singleReadFmt ("(= %1% (select %2% %3%))");
                 singleReadFmt % v->getName()
                               % mem->getName()
@@ -461,21 +460,190 @@ namespace ila
 
     void HornTranslator::initMemOpInt (const MemOp* n, hvptr_t v)
     {
-        // TODO
+        // name
+        v->setName ("mem" + boost::lexical_cast <std::string> (v->getId()));
+        // type
+        v->setType ("(Array Int Int)");
+        // in
+        for (unsigned i = 0; i != n->nArgs(); i++) {
+            hvptr_t arg_i = getVar (n->arg(i));
+            v->mergeInVars (arg_i);
+        }
+        // out
+        v->addOutVar (v);
+        // exec
+        ILA_ASSERT (n->nArgs() == 3, "MemOp should have 3 args.");
+        hvptr_t arg0 = getVar (n->arg(0));
+        hvptr_t arg1 = getVar (n->arg(1));
+        hvptr_t arg2 = getVar (n->arg(2));
+
+        if (n->op == MemOp::Op::STORE) {
+            // (= z (store mem addr data))
+            boost::format storeFmt ("(= %1% (store %2% %3% %4%))");
+            storeFmt % v->getName()
+                     % arg0->getName()
+                     % arg1->getName()
+                     % arg2->getName();
+            v->setExec (storeFmt.str());
+        } else if (n->op == MemOp::Op::ITE) {
+            // (= z (ite cond then else))       if ite as node
+            // (rel.z A B C Z)                  if ite as clause
+
+            if (_iteAsNode) {
+                boost::format iteFmt ("(= %1% (ite %2% %3% %4%))");
+                iteFmt % v->getName()
+                       % arg0->getName()
+                       % arg1->getName()
+                       % arg2->getName();
+                v->setExec (iteFmt.str());
+            } else {
+                v->setExec ("true");
+            }
+        } else if (n->op == MemOp::Op::STOREBLOCK) {
+            bool isLittle = (n->endian == LITTLE_E);
+            int chunkSize = n->arg(0)->type.dataWidth;
+            int dataSize  = n->arg(2)->type.bitWidth;
+            int chunkNum  = dataSize / chunkSize;
+
+            bool detail = true;
+            if (!detail || (chunkNum == 1)) {
+                boost::format singleWriteFmt ("(= %1% (store %2% %3%))");
+                singleWriteFmt % v->getName()
+                               % arg0->getName()
+                               % arg1->getName();
+                v->setExec (singleWriteFmt.str());
+                return;
+            }
+
+            for (int i = 1; i < chunkNum; i++) {
+                copyVar (v, i);
+            }
+
+            boost::format memBlkAddFmt (
+                "(= %1% (store %2% (+ %3% %4%) (bv2int ((_ extract %5% %6%) ((_ int2bv %7%) %8%)))))");
+            boost::format memBlkOrgFmt (
+                "(= %1% (store %2% %3% (bv2int ((_ extract %4% %5%) ((_ int2bv %6%) %7%)))))");
+
+            if (isLittle) {
+// (= z_2 (store A      addr    (bv2int ((_ extract 7 0)   ((_ int2bv w) val)))))
+// (= z_1 (store z_2 (+ addr 1) (bv2int ((_ extract 15 8)  ((_ int2bv w) val)))))
+// (= z   (store z_1 (+ addr 2) (bv2int ((_ extract 23 16) ((_ int2bv w) val)))))
+                memBlkOrgFmt % addSuffix (v->getName(), chunkNum-1)
+                             % arg0->getName()
+                             % arg1->getName()
+                             % (chunkSize - 1)
+                             % 0
+                             % dataSize
+                             % arg2->getName();
+                v->setExec (memBlkOrgFmt.str());
+
+                for (int i = 1; i < chunkNum-1; i++) {
+                    memBlkAddFmt % addSuffix (v->getName(), i)
+                                 % addSuffix (v->getName(), i+1)
+                                 % arg1->getName()
+                                 % (chunkNum-1-i)
+                                 % (chunkSize * (chunkNum-i) - 1)
+                                 % (chunkSize * (chunkNum-i-1))
+                                 % dataSize
+                                 % arg2->getName();
+                    v->setExec (memBlkAddFmt.str());
+                }
+
+                memBlkAddFmt % v->getName()
+                             % addSuffix (v->getName(), 1)
+                             % arg1->getName()
+                             % (chunkNum-1)
+                             % (chunkSize * chunkNum - 1)
+                             % (chunkSize * (chunkNum-1))
+                             % dataSize
+                             % arg2->getName();
+                v->setExec (memBlkAddFmt.str());
+            } else {
+// (= z_2 (store A   (+ addr 2) (bv2int ((_ extract 7 0)   ((_ int2bv w) val)))))
+// (= z_1 (store z_2 (+ addr 1) (bv2int ((_ extract 15 8)  ((_ int2bv w) val)))))
+// (= z   (store z_1    addr    (bv2int ((_ extract 23 16) ((_ int2bv w) val)))))
+                memBlkAddFmt % addSuffix (v->getName(), chunkNum-1)
+                             % arg0->getName()
+                             % arg1->getName()
+                             % (chunkNum - 1)
+                             % (chunkSize - 1)
+                             % 0
+                             % dataSize
+                             % arg2->getName();
+                v->setExec (memBlkAddFmt.str());
+
+                for (int i = 1; i < chunkNum-1; i++) {
+                    memBlkAddFmt % addSuffix (v->getName(), i)
+                                 % addSuffix (v->getName(), i+1)
+                                 % arg1->getName()
+                                 % i
+                                 % (chunkSize * (chunkNum-i) - 1)
+                                 % (chunkSize * (chunkNum-i-1))
+                                 % dataSize
+                                 % arg2->getName();
+                    v->setExec (memBlkAddFmt.str());
+                }
+
+                memBlkOrgFmt % v->getName()
+                             % addSuffix (v->getName(), 1)
+                             % arg1->getName()
+                             % (chunkSize * chunkNum - 1)
+                             % (chunkSize * (chunkNum-1))
+                             % dataSize
+                             % arg2->getName();
+                v->setExec (memBlkOrgFmt.str());
+            }
+        } else {
+            ILA_ASSERT (false, "Unknown MemOp.");
+        }
     }
 
     void HornTranslator::initMemVarInt (const MemVar* n, hvptr_t v)
     {
-        // TODO
+        // name should be the same as the design.
+        v->setName (n->getName());
+        // type
+        v->setType ("(Arrat Int Int)");
+        // exec 
+        v->setExec ("true");
+        // in
+        v->addInVar (v);
+        // out
+        v->addOutVar (v);
     }
 
     void HornTranslator::initMemConstInt (const MemConst* n, hvptr_t v)
     {
-        // TODO
+        // name is the value?
+        v->setName ("mem" + boost::lexical_cast <std::string> (v->getId()));
+        // type
+        v->setType ("(Array Int Int)");
+        // exec
+        v->setExec (v->getPred());
+        genMemConstRules (n, v);
+        _db->addRel (v);
+        // in
+        // out
+        v->addOutVar (v);
+        v->setConst();
     }
 
     void HornTranslator::initFuncVarInt (const FuncVar* n, hvptr_t v)
     {
-        // TODO
+        // FuncVar is actaully a relation.
+        // name should be the same as the design.
+        v->setName (n->getName());
+        // type (arg_i_type ret_type)
+        std::string type = "(";
+        for (unsigned i = 0; i != n->type.argsWidth.size(); i++) {
+            type += "Int ";
+        }
+        type += "Int))";
+        v->setType (type);
+        // exec 
+        v->setExec ("true");
+        _db->addRel (v);
+        // in
+        // out
     }
 }

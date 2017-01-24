@@ -1010,7 +1010,6 @@ namespace ila
 
         if (n->op == MemOp::Op::STORE) {
             // z = store (A, addr, data) --> (= z (store A addr data))
-            // FIXME may need to convert to int
             boost::format memStoreFmt ("(= %1% (store %2% %3% %4%))");
             memStoreFmt % v->getName()
                         % arg0->getName()
@@ -1086,7 +1085,7 @@ namespace ila
             } else {
                 // (= z_2 (store A   (bvadd addr #2) ((_ extract 7 0) val)))
                 // (= z_1 (store z_2 (bvadd addr #1) ((_ extract 15 8) val)))
-                // (= z   (store z_1        addr    ((_ extract 23 16) val)))
+                // (= z   (store z_1        addr     ((_ extract 23 16) val)))
                 memBlkBvaddFmt % addSuffix (v->getName(), chunkNum-1)
                                % arg0->getName()
                                % arg1->getName()
@@ -1444,9 +1443,15 @@ namespace ila
        
         for (auto p : n->memvalues.values) {
             boost::format memConstFmt ("(= %1% (select %2% %3%))");
-            memConstFmt % bvToString (p.second, dataWidth)
-                        % v->getName()
-                        % bvToString (p.first, addrWidth);
+            if (_bvAsInt) {
+                memConstFmt % p.second
+                            % v->getName()
+                            % p.first;
+            } else {
+                memConstFmt % bvToString (p.second, dataWidth)
+                            % v->getName()
+                            % bvToString (p.first, addrWidth);
+            }
             hv->setExec (memConstFmt.str());
         }
 
