@@ -19,10 +19,10 @@
 //#include <reg51.h> FIXME
 #endif
 
-unsigned char* program;
-unsigned char* boot;
-//XDATA_ARR(0x0000, MAX_PRG_SIZE, unsigned char, program);
-//XDATA_ARR(0x5000, MAX_IM_SIZE, unsigned char, boot);
+//unsigned char* program;
+//unsigned char* boot;
+XDATA_ARR(0x0000, MAX_PRG_SIZE, unsigned char, program);
+XDATA_ARR(0x5000, MAX_IM_SIZE, unsigned char, boot);
 
 XDATA_ARR(0xC000, MAX_IM_SIZE+0x40, unsigned char, sha_in);
 XDATA_ARR(0xE100, H, unsigned char, sha_out);
