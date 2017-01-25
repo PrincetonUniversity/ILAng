@@ -239,7 +239,7 @@ namespace ila
             } else if (n->op == BitvectorOp::Op::EXTRACT) {
                 // (= z (bv2int ((_ extract m l) ((_ int2bv w)x))))
                 boost::format extractOp (
-                   "(= %1% (bv2int ((_ extract %2% %3%) ((_ int2bv %4%) %5))))");
+                "(= %1% (bv2int ((_ extract %2% %3%) ((_ int2bv %4%) %5%))))");
                 extractOp % v->getName()
                           % n->param(0)
                           % n->param(1)
