@@ -7,11 +7,11 @@ CHCPATH = $(ILATYPE)/horn
 CHCS = $(addprefix $(CHCPATH)/, ila.smt map_chr.smt map_int.smt map_ptr.smt common.smt)
 
 all: hw.smt
+	@echo "HW CHC Generated."
 
 .PHONY: ILA
 
 hw.smt: $(CHCS) ILA
-	@echo "Generating HW CHC"
 	@cat $(CHCPATH)/ila.smt > hw.smt
 	@cat $(CHCPATH)/common.smt >> hw.smt
 	@cat $(CHCPATH)/map_chr.smt >> hw.smt

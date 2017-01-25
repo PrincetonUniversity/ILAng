@@ -243,7 +243,7 @@ namespace ila
                 extractOp % v->getName()
                           % n->param(0)
                           % n->param(1)
-                          % n->type.bitWidth
+                          % n->arg(0)->type.bitWidth
                           % arg0->getName();
                 v->setExec (extractOp.str());
             } else {

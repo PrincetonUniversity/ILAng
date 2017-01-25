@@ -1,9 +1,10 @@
 .PHONY: hwCHC
+.PHONY: fwCHC
 
 hwDir=hw/
 fwDir=fw/
 
-all: hwCHC 
+all: hwCHC fwCHC
 	@echo "Combining FW and HW CHC"
 	@cat $(fwDir)/fw.smt > soc.smt
 	@cat $(hwDir)/hw.smt >> soc.smt
@@ -11,6 +12,9 @@ all: hwCHC
 
 hwCHC: 
 	@$(MAKE) -C $(hwDir)
+
+fwCHC:
+	@$(MAKE) -C $(fwDir)
 
 clean:
 	@rm soc.smt
