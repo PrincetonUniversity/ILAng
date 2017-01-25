@@ -21,112 +21,60 @@ unsigned char *sha_m;
 unsigned char *hash;
 
 __attribute__((optnone))
-void HW_REG_WRITE(unsigned char* addr, unsigned char data) {
-    // acc_regs: sha_ptr & memwr_ptr
-    //*addr = data;
-    //return;
-    sha_ptr.start = data;
-    sha_ptr.state = data;
-    memwr_ptr.start = data;
-    memwr_ptr.state = data;
-    sha_ptr.hs_data[0] = data;
-    sha_ptr.rd_data[1] = data;
-
-    // RSA_regs: rsa_ptr
-    rsa_ptr.start = data;
-    rsa_ptr.state = (*addr);
+void HW_REG_WRITE_chr(unsigned char* addr, unsigned char data) {
+    sha_ptr.state = data + *addr;
 }
 
 __attribute__((optnone))
 void HW_REG_WRITE_int (unsigned int* addr, int data) {
-    //*addr = data;
-    //return;
-    // acc_regs: sha_ptr & memwr_ptr
-    sha_ptr.len = (*addr);
-    memwr_ptr.len = data;
-
-    // RSA_regs: rsa_ptr (just for input args)
-    rsa_ptr.start = 0;
+    sha_ptr.len = data + *addr;
 }
 
 __attribute__((optnone))
 void HW_REG_WRITE_ptr (unsigned char** addr, unsigned char* data) {
-    //*addr = data;
-    //return;
-    // acc_regs: sha_ptr & memwr_ptr
     sha_ptr.rd_addr = data;
-    sha_ptr.wr_addr = data;
-    memwr_ptr.rd_addr = data;
-    memwr_ptr.wr_addr = data;
-
-    // RSA_regs: rsa_ptr
-    rsa_ptr.opaddr = (*addr);
+    sha_ptr.rd_addr = *addr;
 }
 
 void writecWrap (unsigned char* addr, unsigned char data)
 {
     // assertion on memory address check
-    /*
-    int inRange = 0;
-    if (addr >= (unsigned char*)0xFE00 && 
-        addr <  (unsigned char*)(0xFE00 + sizeof(struct sha_reg_struct)))
-        inRange = 1;
-    if (addr >= (unsigned char*)0xF9F0 && 
-        addr <  (unsigned char*)(0xF9F0 + sizeof(struct acc_regs)))
-        inRange = 1;
-    if (addr >= (unsigned char*)0xFA00 && 
-        addr <  (unsigned char*)(0xFA00 + sizeof(struct RSA_regs)))
-        inRange = 1;
-    sassert (inRange);
-    */
     //sassert (addr == &sha_ptr.start || addr == &sha_ptr.state || 
     //         addr == &memwr_ptr.start || addr == &memwr_ptr.state);
     // MMIO
-    HW_REG_WRITE (addr, data);
+    if (addr == &sha_ptr.start || addr == &sha_ptr.state) {
+        HW_REG_WRITE_chr (addr, data);
+    } else {
+        *addr = data;
+    }
     return;
 }
 
 void writeiWrap (unsigned int* addr, int data)
 {
     // assertion on memory address check
-    /*
-    int inRange = 0;
-    if (addr >= (unsigned int*)0xFE00 && 
-        addr <  (unsigned int*)(0xFE00 + sizeof(struct sha_reg_struct)))
-        inRange = 1;
-    if (addr >= (unsigned int*)0xF9F0 && 
-        addr <  (unsigned int*)(0xF9F0 + sizeof(struct acc_regs)))
-        inRange = 1;
-    sassert (inRange);
-    */
     //sassert (addr == &sha_ptr.len || addr == &memwr_ptr.len);
 
     // MMIO
-    *addr = data;
-    //HW_REG_WRITE_int (addr, data);
+    if (addr == &sha_ptr.len) {
+        HW_REG_WRITE_int (addr, data);
+    } else {
+        *addr = data;
+    }
     return;
 }
 
 void writepWrap (unsigned char** addr, unsigned char* data)
 {
     // assertion on memory address check
-    /*
-    int inRange = 0;
-    if (addr >= (unsigned char**)0xFE00 && 
-        addr <  (unsigned char**)(0xFE00 + sizeof(struct sha_reg_struct)))
-        inRange = 1;
-    if (addr >= (unsigned char**)0xF9F0 && 
-        addr <  (unsigned char**)(0xF9F0 + sizeof(struct acc_regs)))
-        inRange = 1;
-    if (addr >= (unsigned char**)0xFA00 && 
-        addr <  (unsigned char**)(0xFA00 + sizeof(struct RSA_regs)))
-        inRange = 1;
-    sassert (inRange);
-    */
     //sassert (addr == &sha_ptr.rd_addr || addr == &sha_ptr.wr_addr || 
     //         addr == &memwr_ptr.rd_addr || addr == &memwr_ptr.wr_addr);
     // MMIO
-    HW_REG_WRITE_ptr (addr, data);
+    if (addr == &sha_ptr.rd_addr || addr == &sha_ptr.wr_addr) {
+        HW_REG_WRITE_ptr (addr, data);
+    } else {
+        *addr = data;
+    }
     return;
 }
 
@@ -150,7 +98,6 @@ XDATA_ARR(0xF8E0, H, unsigned char, gprg);
 // initialize pt with registers and state arrays
 void pt_init()
 {
-    // assumptions on memory-mapped address. FIXME
     //assume (pt_rden == (unsigned char*)0xFFA0);
     pt_rden = (unsigned char*)0xFFA0;
     unsigned int i;
@@ -252,7 +199,7 @@ unsigned char sha1(unsigned char *m, unsigned int len)
     writec(SHA, &sha_regs.start, 1, 1);  // start HW
 
     // XXX
-    //writec(SHA, &sha_regs.state, 1, 1);  // encoded bug
+    writec(SHA, &sha_regs.state, 1, 1);  // encoded bug
 
     // FIXME
     //c_sha(len);         // do SW

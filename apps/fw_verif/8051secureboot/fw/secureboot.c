@@ -19,8 +19,6 @@
 //#include <reg51.h> FIXME
 #endif
 
-//unsigned char* program;
-//unsigned char* boot;
 XDATA_ARR(0x0000, MAX_PRG_SIZE, unsigned char, program);
 XDATA_ARR(0x5000, MAX_IM_SIZE, unsigned char, boot);
 
@@ -102,25 +100,24 @@ void meminit(struct image* image)
 #endif
 
 int main() {
-    // assumptions on memory mapped address. FIXME
-    //assume (&sha_ptr == (struct acc_regs*)0xFE00);
+    // assumptions on memory mapped address. 
     assume (&sha_ptr == (struct sha_reg_struct*)0xFE00);
     assume (&memwr_ptr == (struct acc_regs*)0xF9F0);
     assume (&rsa_ptr == (struct RSA_regs*)0xFA00);
     assume (sha_ptr.state == 0);
 
+    /*
     program = (unsigned char*)0x0000;
     boot = (unsigned char*)0x5000;
     sha_in = (unsigned char*)0xC000;
     sha_out = (unsigned char*)0xE100;
     rsa_out = (unsigned char*)0xE200;
-    /*
+    */
     assume (program == (unsigned char*)0x0000);
     assume (boot == (unsigned char*)0x5000);
     assume (sha_in == (unsigned char*)0xC000);
     assume (sha_out == (unsigned char*)0xE100);
     assume (rsa_out == (unsigned char*)0xE200);
-    */
 
     unsigned int i, j;
     unsigned int num;   // total number of blocks
@@ -182,7 +179,6 @@ int main() {
         return 0;
     }
 
-
     sassert (stage == 0);
     stage = 1;
     // STAGE 1: read image into RAM  
@@ -203,12 +199,7 @@ int main() {
     // now we need to lock boot to boot + MAX_IM_SIZE
     lock(pages[BOOT], boot, boot+MAX_IM_SIZE);
     sassert (pass != FAIL);
-/*
-#ifdef CBMC
-    if(nondet_uint())
-        writec(nondet_int(), nondet_ptr(), nondet_uint(), 0);
-#endif
-*/
+
     sassert (stage == 1);
     stage = 2;
     // STAGE 2: check that key matches hash

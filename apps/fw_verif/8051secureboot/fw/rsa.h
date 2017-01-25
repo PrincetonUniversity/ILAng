@@ -77,11 +77,8 @@ int unlock(int page, unsigned char* startaddr, unsigned char* endaddr);
 #define lock(page, start, end) lock_wr(start, end)
 #define unlock(page, start, end) unlock_wr(start, end)
 */ 
-extern void MMIO_WRptr(unsigned char** addr, unsigned char* data);
-extern void MMIO_WR(unsigned char* addr, unsigned char data);
-extern void MMIO_WRi(unsigned int* addr, int data);
 
-extern void HW_REG_WRITE(unsigned char* addr, unsigned char data);
+extern void HW_REG_WRITE_chr(unsigned char* addr, unsigned char data);
 extern void HW_REG_WRITE_int(unsigned int* addr, int data);
 extern void HW_REG_WRITE_ptr(unsigned char** addr, unsigned char* data);
 
