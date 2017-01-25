@@ -76,6 +76,7 @@ python-extension ila : src/abstraction.cpp
                        src/VerilogExport.cpp 
                        src/exportSMT.cpp
                        src/MicroUnroller.cpp
+                       src/funcReduct.cpp
                      : <include>./include ;
 
 # Put the extension and Boost.Python DLL in the current directory, so

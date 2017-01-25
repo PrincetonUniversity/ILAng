@@ -464,6 +464,11 @@ BOOST_PYTHON_MODULE(ila)
         .add_property("enable_parameterized_synthesis", 
             &AbstractionWrapper::getEnParamSyn,
             &AbstractionWrapper::setEnParamSyn)
+            
+        .add_property("enable_reduce_when_import",
+            &AbstractionWrapper::getReduceWhenImport,
+            &AbstractionWrapper::setReduceWhenImport)
+            
     ;
 
     class_<MicroUnroller>("MicroUnroller", no_init)

@@ -32,6 +32,7 @@ namespace ila
       , fetchExpr(NULL)
       , fetchValid(BoolConst::get(true))
       , paramSyn(1)
+      , reduceWhenImport(0)
       , _ht(NULL)
     {
     }
@@ -43,6 +44,7 @@ namespace ila
       , fetchExpr(NULL)
       , fetchValid(BoolConst::get(true))
       , paramSyn(1)
+      , reduceWhenImport(p->reduceWhenImport)
       , _ht(NULL)
     {
         ILA_ASSERT(parent != NULL, "parent must be non-NULL.");
@@ -982,7 +984,7 @@ namespace ila
     {
         std::ofstream out(fileName.c_str());
         ILA_ASSERT(out.is_open(), "File " + fileName + " not open.");
-        ImExport expt;
+        ImExport expt(&funcReducer);
 
         expt.exportAst(out, node->node.get());
         out.close();
@@ -1054,7 +1056,7 @@ namespace ila
     
     void Abstraction::exportAllToStream(std::ofstream &out) const
     {
-        ImExport expt;
+        ImExport expt(&funcReducer);
 
         // names.
         out << ".names: ";
@@ -1174,7 +1176,7 @@ namespace ila
         in.open(fileName.c_str());
         ILA_ASSERT(in.is_open(), "File " + fileName + " not found.");
 
-        ImExport ipt;
+        ImExport ipt(&funcReducer, reduceWhenImport);
         for (auto it = inps.begin(); it != inps.end(); it++)
         {
             ipt.mapInsert(it->first, it->second.var);
@@ -1192,6 +1194,7 @@ namespace ila
             ipt.mapInsert(it->first, it->second.var);
         }
         nptr_t res = ipt.importAst(this, in);
+        if(reduceWhenImport==2) funcReducer.InsertOrDupNode(res);
         NodeRef* wrap = new NodeRef(res);
         // FIXME 
         ipt.addMapVars(this);
@@ -1212,7 +1215,7 @@ namespace ila
         decodeExprs.clear();
         assumps.clear();
 
-        ImExport ipt;
+        ImExport ipt(&funcReducer, reduceWhenImport);
 
         std::string buf;
         in >> buf;

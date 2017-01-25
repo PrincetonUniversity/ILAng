@@ -11,6 +11,7 @@
 namespace ila 
 {
     class Abstraction;
+    class FuncReduction;
 
     // ---------------------------------------------------------------------- //
     // base class for all memory expressions.
@@ -101,6 +102,8 @@ namespace ila
         virtual unsigned nArgs() const;
         // operand i.
         virtual boost::shared_ptr<Node> arg(unsigned i) const;
+        
+        friend class FuncReduction;
     };
 
 }

@@ -95,6 +95,7 @@ namespace ila
 
     public:
         int paramSyn;
+        int reduceWhenImport;
 
         // Constructor.
         Abstraction(const std::string& name);
@@ -336,6 +337,8 @@ namespace ila
         friend class AbstractionWrapper;
 
     private:
+        // function reduce helper
+        mutable FuncReduction funcReducer;
         // horn clause translator.
         HornTranslator* _ht;
         // The simulator generating function.
@@ -710,6 +713,14 @@ namespace ila
 
         void setEnParamSyn(int en) {
             abs->paramSyn = en;
+        }
+
+        int getReduceWhenImport() const {
+            return abs->reduceWhenImport;
+        }
+
+        void setReduceWhenImport(int en) {
+            abs->reduceWhenImport = en;
         }
 
         std::string getName() const {
