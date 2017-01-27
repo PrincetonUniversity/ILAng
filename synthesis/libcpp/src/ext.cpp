@@ -300,6 +300,8 @@ BOOST_PYTHON_MODULE(ila)
             return_value_policy<manage_new_object>());
 
     // apply function.
+    def("appfun", &NodeRef::appfunc0,
+            return_value_policy<manage_new_object>());
     def("appfun", &NodeRef::appfunc1,
             return_value_policy<manage_new_object>());
     def("appfun", &NodeRef::appfunc2,

@@ -654,6 +654,12 @@ namespace ila
         return _triOp(BoolOp::IF, BitvectorOp::IF, MemOp::ITE, cond, trueExp, falseExp);
     }
 
+    NodeRef* NodeRef::appfunc0(NodeRef* fun)
+    {
+        nptr_vec_t args = {fun->node};
+        return _naryOp(BitvectorOp::APPLY_FUNC, args);
+    }
+
     NodeRef* NodeRef::appfunc1(NodeRef* fun, NodeRef* arg)
     {
         nptr_vec_t args = {fun->node, arg->node};
@@ -669,13 +675,6 @@ namespace ila
     NodeRef* NodeRef::appfuncL(NodeRef* fun, const py::list& l)
     {
         nptr_vec_t args;
-        if (py::len(l) < 1) {
-            throw PyILAException(
-                PyExc_RuntimeError,
-                "Must have at least a function.");
-            return NULL;
-        }
-
         args.push_back(fun->node);
         for (unsigned i=0; i != py::len(l); i++) {
             py::extract<NodeRef&> ni(l[i]);

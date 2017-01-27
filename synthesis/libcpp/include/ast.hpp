@@ -187,13 +187,10 @@ namespace ila
                             NodeRef& falseExp); 
 
         // apply function.
-        static NodeRef* appfunc1(NodeRef* fun,
-                                NodeRef* arg);
-        static NodeRef* appfunc2(NodeRef* fun,
-                                NodeRef* arg0,
-                                NodeRef* arg1);
-        static NodeRef* appfuncL(NodeRef* fun,
-                                const py::list& l);
+        static NodeRef* appfunc0(NodeRef* fun);
+        static NodeRef* appfunc1(NodeRef* fun, NodeRef* arg);
+        static NodeRef* appfunc2(NodeRef* fun, NodeRef* arg0, NodeRef* arg1);
+        static NodeRef* appfuncL(NodeRef* fun, const py::list& l);
 
         // choices
         static NodeRef* choice2(const std::string& name, 
