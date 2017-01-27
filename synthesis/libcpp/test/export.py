@@ -54,7 +54,6 @@ def shint(d):
     
 def main():
     expFile  = "tmp/test_ila_export.txt"
-    expFile  = "tmp/test_ila_export2.txt"
 
     sys = ila.Abstraction("test")
 

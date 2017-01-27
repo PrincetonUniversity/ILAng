@@ -1272,7 +1272,7 @@ namespace ila
 
             log1 ("Export") << "Import ast " << i << ".\n";
 
-            if(reduceWhenImport==2) funcReducer.InsertOrDupNode(res);
+            funcReducer.InsertOrDupNode (res);
             NodeRef* wrap = new NodeRef(res);
 
             l.append (wrap);
