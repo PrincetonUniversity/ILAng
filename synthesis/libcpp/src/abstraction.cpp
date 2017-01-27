@@ -990,6 +990,37 @@ namespace ila
         out.close();
     }
 
+    void Abstraction::exportListToFile(const py::list& l,
+                                      const std::string& fileName) const
+    {
+        if (py::len(l) < 2) {
+            throw PyILAException(
+                PyExc_RuntimeError,
+                "Must have at least two asts.");
+            return;
+        }
+
+        std::ofstream out(fileName.c_str());
+        ILA_ASSERT (out.is_open(), "File " + fileName + " not open.");
+        ImExport expt (&funcReducer);
+
+        out << py::len(l) << "\n";
+
+        for (unsigned i=0; i != py::len(l); i++) {
+            py::extract<NodeRef&> ni(l[i]);
+            if (ni.check()) {
+                expt.exportAst (out, ni().node.get()); 
+            out << "\n";
+            } else {
+                out.close();
+                throw PyILAException(
+                    PyExc_TypeError,
+                    "Argument to choice must be a node.");
+            }
+        }
+        out.close();
+    }
+
     // ---------------------------------------------------------------------- //
     void Abstraction::generateVerilogToFile(const std::string &fileName) const
     {
@@ -1200,6 +1231,57 @@ namespace ila
         ipt.addMapVars(this);
         in.close();
         return wrap;
+    }
+
+    py::list Abstraction::importListFromFile(const std::string& fileName)
+    { 
+        py::list l;
+        //for ( auto de : decodeExprs ) {
+        //    NodeRef* nr = new NodeRef(de);
+        //   l.append(nr);
+        //}
+
+        std::ifstream in;
+        in.open(fileName.c_str());
+        ILA_ASSERT(in.is_open(), "File " + fileName + " not found.");
+
+        ImExport ipt(&funcReducer, reduceWhenImport);
+        for (auto it = inps.begin(); it != inps.end(); it++)
+        {
+            ipt.mapInsert(it->first, it->second.var);
+        }
+        for (auto it = regs.begin(); it != regs.end(); it++)
+        {
+            ipt.mapInsert(it->first, it->second.var);
+        }
+        for (auto it = bits.begin(); it != bits.end(); it++)
+        {
+            ipt.mapInsert(it->first, it->second.var);
+        }
+        for (auto it = mems.begin(); it != mems.end(); it++)
+        {
+            ipt.mapInsert(it->first, it->second.var);
+        }
+
+        std::string buff;
+        in >> buff;
+        int listSize = atoi (buff.c_str());
+
+        for (int i = 0; i < listSize; i++) {
+            nptr_t res = ipt.importAst(this, in);
+
+            log1 ("Export") << "Import ast " << i << ".\n";
+
+            if(reduceWhenImport==2) funcReducer.InsertOrDupNode(res);
+            NodeRef* wrap = new NodeRef(res);
+
+            l.append (wrap);
+        }
+        
+        ipt.addMapVars(this);
+        in.close();
+
+        return l;
     }
     
     void Abstraction::importAllFromStream(std::ifstream &in, bool Clear = true) // Clear is unset when called by parent ILA

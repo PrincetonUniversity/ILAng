@@ -54,6 +54,7 @@ def shint(d):
     
 def main():
     expFile  = "tmp/test_ila_export.txt"
+    expFile  = "tmp/test_ila_export2.txt"
 
     sys = ila.Abstraction("test")
 
@@ -103,6 +104,13 @@ def main():
     #sys.exportFile(expFile);
 
     #sys.importFile(expFile);
+
+    ila.setloglevel (3, "")
+    ila.enablelog ("Export")
+    sys.exportList([resrmz, resdaz], expFile)
+    l = sys.importList (expFile)
+    for ast in l:
+        print ast
 
 if __name__ == '__main__':
     main()

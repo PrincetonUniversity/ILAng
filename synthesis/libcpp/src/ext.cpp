@@ -434,8 +434,10 @@ BOOST_PYTHON_MODULE(ila)
 
         // import/export.
         .def("exportOne", &AbstractionWrapper::exportOneToFile)
+        .def("exportList", &AbstractionWrapper::exportListToFile)
         .def("exportAll", &AbstractionWrapper::exportAllToFile)
         .def("importOne", &AbstractionWrapper::importOneFromFile, return_value_policy<manage_new_object>())
+        .def("importList", &AbstractionWrapper::importListFromFile)
         .def("importAll", &AbstractionWrapper::importAllFromFile)
         .def("generateVerilog", &AbstractionWrapper::generateVerilogToFile)
         .def("generateVerilog", &AbstractionWrapper::generateVerilogModule)
