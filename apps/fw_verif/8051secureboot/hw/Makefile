@@ -1,25 +1,14 @@
-ILATYPE = interleave
-ILATYPE = blocking
-ILATYPE = atomic
-ILAPATH = $(ILATYPE)
-CHCPATH = $(ILATYPE)/horn
+ILAPATH = interleave
+ILAPATH = blocking
+ILAPATH = atomic
 
-CHCS = $(addprefix $(CHCPATH)/, ila.smt map_chr.smt map_int.smt map_ptr.smt common.smt)
+SRC_CHC = $(ILAPATH)/tmp.smt
+DST_CHC = hw.smt
 
-all: hw.smt
+all: 
+	@$(MAKE) -C $(ILAPATH)
+	@cp $(SRC_CHC) $(DST_CHC)
 	@echo "HW CHC Generated."
 
-.PHONY: ILA
-
-hw.smt: $(CHCS) ILA
-	@cat $(CHCPATH)/ila.smt > hw.smt
-	@cat $(CHCPATH)/common.smt >> hw.smt
-	@cat $(CHCPATH)/map_chr.smt >> hw.smt
-	@cat $(CHCPATH)/map_int.smt >> hw.smt
-	@cat $(CHCPATH)/map_ptr.smt >> hw.smt
-
-ILA:
-	@$(MAKE) -C $(ILAPATH)
-
 clean: 
-	@rm hw.smt
+	@rm $(DST_CHC)

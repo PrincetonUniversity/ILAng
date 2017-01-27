@@ -1,3 +1,4 @@
 .z3-trace 
 *.bc
 tmp.smt
+tags

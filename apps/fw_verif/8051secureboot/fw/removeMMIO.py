@@ -16,8 +16,6 @@ def getLineFromFile (inFile):
     return res
 
 def removeMMIO(inFile, outFile, funcs):
-    print inFile, outFile
-    print funcs
     metMMIO = 0
     res = []
     with open (inFile, 'r') as rFile:

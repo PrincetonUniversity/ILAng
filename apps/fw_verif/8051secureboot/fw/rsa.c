@@ -22,18 +22,21 @@ unsigned char *hash;
 
 __attribute__((optnone))
 void HW_REG_WRITE_chr(unsigned char* addr, unsigned char data) {
-    sha_ptr.state = data + *addr;
+    //sha_ptr.state = data + *addr;
+    *addr = data;
 }
 
 __attribute__((optnone))
 void HW_REG_WRITE_int (unsigned int* addr, int data) {
-    sha_ptr.len = data + *addr;
+    //sha_ptr.len = data + *addr;
+    *addr = data;
 }
 
 __attribute__((optnone))
 void HW_REG_WRITE_ptr (unsigned char** addr, unsigned char* data) {
-    sha_ptr.rd_addr = data;
-    sha_ptr.rd_addr = *addr;
+    //sha_ptr.rd_addr = data;
+    //sha_ptr.rd_addr = *addr;
+    *addr = data;
 }
 
 void writecWrap (unsigned char* addr, unsigned char data)
@@ -42,6 +45,8 @@ void writecWrap (unsigned char* addr, unsigned char data)
     //sassert (addr == &sha_ptr.start || addr == &sha_ptr.state || 
     //         addr == &memwr_ptr.start || addr == &memwr_ptr.state);
     // MMIO
+    *addr = data;
+    return;
     if (addr == &sha_ptr.start || addr == &sha_ptr.state) {
         HW_REG_WRITE_chr (addr, data);
     } else {
@@ -56,6 +61,8 @@ void writeiWrap (unsigned int* addr, int data)
     //sassert (addr == &sha_ptr.len || addr == &memwr_ptr.len);
 
     // MMIO
+    *addr = data;
+    return;
     if (addr == &sha_ptr.len) {
         HW_REG_WRITE_int (addr, data);
     } else {
@@ -70,6 +77,8 @@ void writepWrap (unsigned char** addr, unsigned char* data)
     //sassert (addr == &sha_ptr.rd_addr || addr == &sha_ptr.wr_addr || 
     //         addr == &memwr_ptr.rd_addr || addr == &memwr_ptr.wr_addr);
     // MMIO
+    *addr = data;
+    return;
     if (addr == &sha_ptr.rd_addr || addr == &sha_ptr.wr_addr) {
         HW_REG_WRITE_ptr (addr, data);
     } else {
@@ -177,6 +186,7 @@ unsigned char sha1(unsigned char *m, unsigned int len)
         load(m, len, sha_regs.rd_addr, 0); // copy m
 
     // add 100.. padding
+    sassert (0);
     writec(pshai, sha_regs.rd_addr+len, 0x80, 1);
 
     for(i=len+1; i<mlen; i++)
@@ -199,7 +209,7 @@ unsigned char sha1(unsigned char *m, unsigned int len)
     writec(SHA, &sha_regs.start, 1, 1);  // start HW
 
     // XXX
-    writec(SHA, &sha_regs.state, 1, 1);  // encoded bug
+    //writec(SHA, &sha_regs.state, 1, 1);  // encoded bug
 
     // FIXME
     //c_sha(len);         // do SW

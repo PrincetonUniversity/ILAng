@@ -1,5 +1,22 @@
 SYN_PATH = ila
-SYNS = $(addprefix $(SYN_PATH)/, syn.py sim.py chc.py)
 
-all: $(SYNS)
+HORN_PATH = horn
+ALL_CHC = $(addprefix $(HORN_PATH)/, $(shell ls $(HORN_PATH)))
+MAP_CHC = $(addprefix $(HORN_PATH)/, $(shell ls $(HORN_PATH) | grep "map"))
+COM_CHC = $(addprefix $(HORN_PATH)/, $(shell ls $(HORN_PATH) | grep "common"))
+ILA_CHC = $(addprefix $(HORN_PATH)/, $(shell ls $(HORN_PATH) | grep "ila"))
+TAR_CHC = tmp.smt
+
+.PHONY: SYN
+
+all: SYN
+	@echo "Integrating HW CHC"
+	@cat $(ILA_CHC) > $(TAR_CHC)
+	@cat $(COM_CHC) >> $(TAR_CHC)
+	@for chc in $(MAP_CHC); do \
+		cat $$chc >> $(TAR_CHC); \
+	done
+
+SYN:
 	@$(MAKE) -C $(SYN_PATH)
+

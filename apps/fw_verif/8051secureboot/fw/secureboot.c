@@ -112,12 +112,12 @@ int main() {
     sha_in = (unsigned char*)0xC000;
     sha_out = (unsigned char*)0xE100;
     rsa_out = (unsigned char*)0xE200;
-    */
     assume (program == (unsigned char*)0x0000);
     assume (boot == (unsigned char*)0x5000);
     assume (sha_in == (unsigned char*)0xC000);
     assume (sha_out == (unsigned char*)0xE100);
     assume (rsa_out == (unsigned char*)0xE200);
+    */
 
     unsigned int i, j;
     unsigned int num;   // total number of blocks
