@@ -2,8 +2,8 @@ ILAPATH = interleave
 ILAPATH = blocking
 ILAPATH = atomic
 
-SRC_CHC = $(ILAPATH)/tmp.smt
-DST_CHC = hw.smt
+SRC_CHC = $(ILAPATH)/tmp.smt2
+DST_CHC = hw.smt2
 
 all: 
 	@$(MAKE) -C $(ILAPATH)

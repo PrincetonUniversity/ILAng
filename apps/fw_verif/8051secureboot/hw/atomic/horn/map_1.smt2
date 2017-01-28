@@ -1,12 +1,15 @@
 ; mapping from ILA to HW_REG_WRITE_char for (sha_reg + 1)
 (rule (let ((a!1 (and (HW_REG_WRITE_chr@_1
-                  @sha_regs_0
-                  HW_REG_WRITE_chr@%_call_0
-                  HW_REG_WRITE_chr@%_3_0
+                  HW_REG_WRITE_chr@%_7_0
                   HW_REG_WRITE_chr@%_4_0
+                  HW_REG_WRITE_chr@%_call_0
+                  HW_REG_WRITE_chr@%_5_0
+                  HW_REG_WRITE_chr@%_3_0
+                  HW_REG_WRITE_chr@%_6_0
                   HW_REG_WRITE_chr@%_2_0
                   HW_REG_WRITE_chr@%data_0
-                  HW_REG_WRITE_chr@%addr_0)
+                  HW_REG_WRITE_chr@%addr_0
+                  @sha_regs_0)
                 true
     ;; 
     (= addr_state 65025)
@@ -39,12 +42,14 @@
     ;; store
   (=> a!1
       (HW_REG_WRITE_chr@.split
-        @sha_regs_0
-        HW_REG_WRITE_chr@%_call_0
-        HW_REG_WRITE_chr@%_store_0
-        HW_REG_WRITE_chr@%_3_0
+        HW_REG_WRITE_chr@%_7_0
+        HW_REG_WRITE_chr@%_store8_0
         HW_REG_WRITE_chr@%_4_0
+        HW_REG_WRITE_chr@%_call_0
+        HW_REG_WRITE_chr@%_5_0
+        HW_REG_WRITE_chr@%_3_0
+        HW_REG_WRITE_chr@%_6_0
         HW_REG_WRITE_chr@%_2_0
         HW_REG_WRITE_chr@%data_0
-        HW_REG_WRITE_chr@%addr_0))))
-
+        HW_REG_WRITE_chr@%addr_0
+        @sha_regs_0))))

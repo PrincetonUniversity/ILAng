@@ -84,10 +84,15 @@ extern void HW_REG_WRITE_ptr(unsigned char** addr, unsigned char* data);
 
 void writecWrap (unsigned char* addr, unsigned char data);
 #define writec(page, addr, data, trusted) writecWrap(addr, data)
+//#define writec(page, addr, data, trusted) HW_REG_WRITE_chr(addr, data)
 void writeiWrap (unsigned int* addr, int data);
-#define writei(page, addr, data) writeiWrap(addr, data)
+#define writei(page, addr, data) *(addr) = data
+//#define writei(page, addr, data) writeiWrap(addr, data)
+//#define writei(page, addr, data) HW_REG_WRITE_int(addr, data)
 void writepWrap (unsigned char** addr, unsigned char* data);
-#define writeptr(page, addr, data) writepWrap(addr, data)
+#define writeptr(page, addr, data) *(addr) = data
+//#define writeptr(page, addr, data) writepWrap(addr, data)
+//#define writeptr(page, addr, data) HW_REG_WRITE_ptr(addr, data)
 void writeaWrap (unsigned char* addr, unsigned char* data, int len);
 #define writecarr(page, addr, data, len) writeaWrap(addr, data, len)
 

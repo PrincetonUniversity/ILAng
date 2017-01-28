@@ -16,19 +16,22 @@ def getLineFromFile (inFile):
     return res
 
 def removeMMIO(inFile, outFile, funcs):
+    print 'remove ', funcs, ' from ', inFile, ' to ', outFile
     metMMIO = 0
     res = []
     with open (inFile, 'r') as rFile:
         for line in rFile:
             if metMMIO == 0:
                 for fun in funcs:
-                    sub = '(rule (let ((a!1 (and (' + fun + '@_1'
-                    if sub in line:
+                    sub1 = '(rule (let ((a!1 (and (' + fun + '@_1'
+                    sub2 = '(rule (=> (and (' + fun + '@_1'
+                    if (sub1 in line) or (sub2 in line):
                         metMMIO = 1
             elif metMMIO == 1:
                 for fun in funcs:
-                    sub = '(rule (=> (' + fun + '@.split'
-                    if sub in line:
+                    sub1 = '(rule (=> (' + fun + '@.split'
+                    sub2 = '(rule (=> (' + fun + '@.split'
+                    if (sub1 in line) or (sub2 in line):
                         metMMIO = 0
             else:
                 print 'unknown case'
@@ -38,8 +41,6 @@ def removeMMIO(inFile, outFile, funcs):
             else:
                 newLine = ';' + line
                 res.append (newLine)
-
-    print 'process complete'
 
     wFile = open (outFile, 'w')
     for line in res:

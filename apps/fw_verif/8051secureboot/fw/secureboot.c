@@ -106,12 +106,12 @@ int main() {
     assume (&rsa_ptr == (struct RSA_regs*)0xFA00);
     assume (sha_ptr.state == 0);
 
-    /*
     program = (unsigned char*)0x0000;
     boot = (unsigned char*)0x5000;
     sha_in = (unsigned char*)0xC000;
     sha_out = (unsigned char*)0xE100;
     rsa_out = (unsigned char*)0xE200;
+    /*
     assume (program == (unsigned char*)0x0000);
     assume (boot == (unsigned char*)0x5000);
     assume (sha_in == (unsigned char*)0xC000);

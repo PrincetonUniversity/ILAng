@@ -23,7 +23,7 @@ def createHorn ():
             nxt = m.importOne (nxtPath)
             m.hornifyNode (nxt, 'instr_%x_%s_nxt' % (addr, s))
 
-    m.exportHornToFile ('%s/ila.smt' % chcPath)
+    m.exportHornToFile ('%s/ila.smt2' % chcPath)
 
 if __name__ == '__main__':
     ila.setloglevel (3, "")

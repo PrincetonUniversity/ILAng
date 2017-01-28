@@ -1,6 +1,6 @@
 dir = ./
 source = $(addprefix $(dir)/, secureboot.c rsa.c rsa.h)
-target = $(dir)/fw.smt
+target = $(dir)/fw.smt2
 
 all: $(target)
 	@echo "FW CHC Generated."
