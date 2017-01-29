@@ -3,11 +3,13 @@ llvmBc=${dir}/fw.bc
 tarChc=${dir}/fw.smt2
 tmpChc=${dir}/tmp.smt2
 
+if false; then
 /Users/BoYaunHuang/workSpace/myBuildDir/clang/clang+llvm-3.6.0-x86_64-apple-darwin/bin/clang -c -O0 -emit-llvm -D__SEAHORN__ -S -m32 -I/Users/BoYaunHuang/workspace/seaHornILA/seahorn/seahorn_debug/build/run/include -o secureboot.bc secureboot.c
 /Users/BoYaunHuang/workSpace/myBuildDir/clang/clang+llvm-3.6.0-x86_64-apple-darwin/bin/clang -c -O0 -emit-llvm -D__SEAHORN__ -S -m32 -I/Users/BoYaunHuang/workspace/seaHornILA/seahorn/seahorn_debug/build/run/include -o secureboot.bc -o rsa.bc rsa.c
 /Users/BoYaunHuang/workspace/seaHornILA/seahorn/seahorn_debug/build/run/bin/llvm-link -o ${llvmBc} secureboot.bc rsa.bc
 rm rsa.bc
 rm secureboot.bc
+fi
 
 sea fe secureboot.c rsa.c -o ${llvmBc}
 
