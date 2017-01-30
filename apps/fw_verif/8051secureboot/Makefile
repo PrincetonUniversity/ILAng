@@ -13,7 +13,7 @@ all: hwCHC fwCHC
 	@echo "Combining FW and HW CHC"
 	@cat $(fwSmt2) >  $(tmpSmt2)
 	@cat $(hwSmt2) >> $(tmpSmt2)
-	@cat $(tmpSmt2) > $(tarSmt2)
+	@grep "query" -v $(tmpSmt2) > $(tarSmt2)
 	@grep "query" $(tmpSmt2) >> $(tarSmt2)
 	@rm $(tmpSmt2)
 
