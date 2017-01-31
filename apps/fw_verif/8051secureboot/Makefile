@@ -1,7 +1,7 @@
 .PHONY: hwCHC
 .PHONY: fwCHC
 
-MAKEFLAGS += --no-print-directory
+#MAKEFLAGS += --no-print-directory
 
 hwDir=hw/
 fwDir=sfw/

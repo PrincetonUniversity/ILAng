@@ -1,20 +1,18 @@
 ; mapping from ILA to HW_REG_WRITE_char for (sha_reg + 0)
 (rule (let ((a!1 (and (HW_REG_WRITE_chr@entry
-                  HW_REG_WRITE_chr@%_6_0
                   HW_REG_WRITE_chr@%_1_0
-                  HW_REG_WRITE_chr@%_7_0
-                  HW_REG_WRITE_chr@%_8_0
+                  HW_REG_WRITE_chr@%_6_0
                   HW_REG_WRITE_chr@%_0_0
                   HW_REG_WRITE_chr@%_2_0
                   HW_REG_WRITE_chr@%_3_0
-                  HW_REG_WRITE_chr@%_4_0
                   HW_REG_WRITE_chr@%_5_0
+                  HW_REG_WRITE_chr@%_4_0
                   HW_REG_WRITE_chr@%data_0
                   HW_REG_WRITE_chr@%addr_0
                   @sha_regs_0)
                 true
     ;; 
-    (= XRAM HW_REG_WRITE_chr@%_7_0)
+    (= XRAM HW_REG_WRITE_chr@%_4_0)
     (= addr_state 65025)
     (= addr_rdaddr 65028)
     (= addr_wraddr 65032)
@@ -41,21 +39,19 @@
     (= XRAM_len (store XRAM_state addr_len sha_len_nxt))
     (= XRAM_rdaddr (store XRAM_len addr_rdaddr sha_rdaddr_nxt))
     (= XRAM_wraddr (store XRAM_rdaddr addr_wraddr sha_wraddr_nxt))
-    (= XRAM_wraddr HW_REG_WRITE_chr@%_12_0)
+    (= XRAM_wraddr HW_REG_WRITE_chr@%_10_0)
     ;; 
     )))
   (=> a!1
       (HW_REG_WRITE_chr@entry.split
-        HW_REG_WRITE_chr@%_6_0
         HW_REG_WRITE_chr@%_1_0
-        HW_REG_WRITE_chr@%_7_0
-        HW_REG_WRITE_chr@%_12_0
-        HW_REG_WRITE_chr@%_8_0
+        HW_REG_WRITE_chr@%_6_0
         HW_REG_WRITE_chr@%_0_0
         HW_REG_WRITE_chr@%_2_0
         HW_REG_WRITE_chr@%_3_0
-        HW_REG_WRITE_chr@%_4_0
         HW_REG_WRITE_chr@%_5_0
+        HW_REG_WRITE_chr@%_4_0
+        HW_REG_WRITE_chr@%_10_0
         HW_REG_WRITE_chr@%data_0
         HW_REG_WRITE_chr@%addr_0
         @sha_regs_0))))
