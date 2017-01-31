@@ -212,8 +212,8 @@ unsigned char sha1(unsigned char *m, unsigned int len)
     writec(SHA, &sha_regs.start, 1, 1);  // start HW
 
     // XXX
-    //sassert (sha_regs.state == 0);
     writec(SHA, &sha_regs.state, 1, 1);  // encoded bug
+    sassert (sha_regs.state == 0);
     // FIXME
     //c_sha(len);         // do SW
 

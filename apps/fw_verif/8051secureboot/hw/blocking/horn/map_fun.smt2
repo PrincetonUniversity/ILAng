@@ -87,12 +87,12 @@
 ;
 (rule (=> (and b54
     (rel.delta_fe01 cmd cmdaddr sha_state b54)
-    (rel.N_fe01_XRAM_nxt XRAM XRAM_1)
-    (rel.N_fe01_sha_state_nxt sha_state sha_state_1)
-    (rel.N_fe01_sha_rdaddr_nxt sha_rdaddr sha_rdaddr_1)
-    (rel.N_fe01_sha_wraddr_nxt sha_wraddr sha_wraddr_1)
-    (rel.N_fe01_sha_len_nxt sha_len sha_len_1)
-    (rel.N_fe01_sha_bytes_read_nxt sha_bytes_read sha_bytes_read_1)
+    (rel.N_fe01_XRAM_nxt XRAM XRAM_nxt)
+    (rel.N_fe01_sha_state_nxt sha_state sha_state_nxt)
+    (rel.N_fe01_sha_rdaddr_nxt sha_rdaddr sha_rdaddr_nxt)
+    (rel.N_fe01_sha_wraddr_nxt sha_wraddr sha_wraddr_nxt)
+    (rel.N_fe01_sha_len_nxt sha_len sha_len_nxt)
+    (rel.N_fe01_sha_bytes_read_nxt sha_bytes_read sha_bytes_read_nxt)
     )
     (mmio_sha_fe01
      cmd cmdaddr cmddata XRAM sha_state sha_rdaddr sha_wraddr sha_len sha_bytes_read sha_hs_data

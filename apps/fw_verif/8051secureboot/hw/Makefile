@@ -1,5 +1,5 @@
-ILAPATH = blocking
 ILAPATH = interleave
+ILAPATH = blocking
 ILAPATH = atomic
 
 SRC_CHC = $(ILAPATH)/tmp.smt2
