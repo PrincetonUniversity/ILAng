@@ -1,4 +1,4 @@
-; mapping from ILA to HW_REG_WRITE_chr for (sha_reg + 0)
+; mapping from ILA to HW_REG_WRITE_chr for (sha_reg + 0) for interleave ILA
 (rule (let ((a!1 (and (HW_REG_WRITE_chr@entry
                   HW_REG_WRITE_chr@%_3_0
                   HW_REG_WRITE_chr@%_5_0

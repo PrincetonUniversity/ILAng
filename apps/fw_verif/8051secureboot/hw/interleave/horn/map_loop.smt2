@@ -1,4 +1,4 @@
-; chc for the nondeterministic loop
+; chc for the nondeterministic loop for interleave ILA
 (rule (loop_sha 
        XRAM sha_hs_data sha_state sha_rdaddr sha_wraddr sha_len sha_bytes_read
        XRAM sha_hs_data sha_state sha_rdaddr sha_wraddr sha_len sha_bytes_read))
