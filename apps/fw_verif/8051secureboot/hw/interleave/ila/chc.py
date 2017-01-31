@@ -20,10 +20,9 @@ def createHorn():
     root = 'asts/'
 
     for addr in all_instr:
-        if addr == 0xfe00:
-            Dpath = root + '/instr_%x/decode' % addr
-            Dast = m.importOne (Dpath)
-            m.hornifyNode (Dast, 'delta_%x' % addr)
+        Dpath = root + '/instr_%x/decode' % addr
+        Dast = m.importOne (Dpath)
+        m.hornifyNode (Dast, 'delta_%x' % addr)
 
         for s in all_states:
             Npath = root + '/instr_%x/%s' % (addr, s)

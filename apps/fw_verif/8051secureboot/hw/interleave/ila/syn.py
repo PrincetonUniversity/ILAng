@@ -80,8 +80,9 @@ def createShaIla():
     return m
 
 def synthesize ():
-    all_states = ['sha_state', 'sha_rdaddr', 'sha_wraddr', 'sha_len', 'XRAM', 'sha_bytes_read']
     all_states = ['sha_state', 'sha_rdaddr', 'sha_wraddr', 'sha_len', 'XRAM', 'sha_bytes_read', 'sha_rd_data', 'sha_hs_data']
+    all_states = ['sha_state', 'sha_rdaddr', 'sha_wraddr', 'sha_len', 'XRAM', 'sha_bytes_read']
+    all_instrs = [0xfe00, 0xfe01]
 
     directory = 'asts'
     if not os.path.exists (directory):
@@ -100,38 +101,23 @@ def synthesize ():
 
     # instruction (start & others)
     ######################### start ############################
-    m       = createShaIla()
-    cmd     = m.getinp ('cmd')
-    cmdaddr = m.getinp ('cmdaddr')
-    cmddata = m.getinp ('cmddata')
-    state   = m.getreg ('sha_state')
+    for addr in all_instrs:
+        m       = createShaIla()
+        cmd     = m.getinp ('cmd')
+        cmdaddr = m.getinp ('cmdaddr')
+        cmddata = m.getinp ('cmddata')
+        state   = m.getreg ('sha_state')
 
-    name = 'instr_fe00'
-    print 'synthesize ' + name
-    m.decode_exprs = [(cmd == 2) & (cmdaddr == 0xfe00) & (state == 0)]
-    decode = m.decode_exprs[0]
+        name = 'instr_%x' % addr
+        print 'synthesize ' + name
+        m.decode_exprs = [(cmd == 2) & (cmdaddr == addr) & (state == 0)]
+        decode = m.decode_exprs[0]
 
-    subDir = directory + '/' + name
-    synToFile (m, subDir)
+        subDir = directory + '/' + name
+        synToFile (m, subDir)
 
-    decodeFile = subDir + '/decode'
-    m.exportOne (decode, decodeFile)
-
-    ######################### other instrs #######################
-    m       = createShaIla()
-    cmd     = m.getinp ('cmd')
-    cmdaddr = m.getinp ('cmdaddr')
-    cmddata = m.getinp ('cmddata')
-    state   = m.getreg ('sha_state')
-
-    name = 'instr_fe01'
-    print 'synthesize ' + name
-    #m.decode_exprs = [(cmd == 2) & (cmdaddr == addr) & (state == 0) 
-    #    for addr in xrange (0xfe01, 0xfe10)]
-    m.decode_exprs = [(cmd == 2) & (cmdaddr == 0xfe01) & (state == 0)]
-
-    subDir = directory + '/' + name
-    synToFile (m, subDir)
+        decodeFile = subDir + '/decode'
+        m.exportOne (decode, decodeFile)
 
     ######################### child instrs #######################
     child_decode = [state == s for s in [1, 2, 3, 4]]

@@ -129,6 +129,7 @@ struct sha_reg_struct {
     unsigned char *rd_addr;
     unsigned char *wr_addr;
     unsigned int len;
+    unsigned int bytes_read;
     unsigned char hs_data[160];
     unsigned char rd_data[520];
 };
