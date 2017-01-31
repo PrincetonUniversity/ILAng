@@ -124,8 +124,8 @@ unsigned char RSAinit(unsigned char* rsa_out, unsigned char* sha_in, unsigned ch
     decrypted = (struct RSAmsg*)rsa_out;
     sha_m = sha_in;
     hash = sha_out;
-    sassert (sha_m == sha_in);
-    sassert (hash == sha_out);
+    //sassert (sha_m == sha_in);
+    //sassert (hash == sha_out);
     return 1;
 }
 // set up data transfer
@@ -173,8 +173,8 @@ unsigned char sha1(unsigned char *m, unsigned int len)
     //sassert (sha_regs.rd_addr == sha_m);
     
     // addresses have changed
-    sassert (sha_regs.rd_addr == sha_m);
-    sassert (sha_regs.wr_addr == hash);
+    //sassert (sha_regs.rd_addr == sha_m);
+    //sassert (sha_regs.wr_addr == hash);
     if(sha_regs.rd_addr != sha_m || sha_regs.wr_addr != hash)
         return 0;
 

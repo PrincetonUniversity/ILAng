@@ -1,7 +1,7 @@
 ; chc for the nondeterministic loop
 (rule (loop_sha 
        XRAM sha_hs_data sha_state sha_rdaddr sha_wraddr sha_len sha_bytes_read
-       XRAM_nxt sha_hs_data_nxt sha_state_nxt sha_rdaddr_nxt sha_wraddr_nxt sha_len_nxt sha_bytes_read_nxt))
+       XRAM sha_hs_data sha_state sha_rdaddr sha_wraddr sha_len sha_bytes_read))
 ;
 (rule (=> (and b71
     (loop_sha 
@@ -15,7 +15,6 @@
     (rel.N_1_sha_len_nxt sha_len_1 sha_len_nxt)
     (rel.N_1_sha_bytes_read_nxt sha_bytes_read_1 sha_state_1 sha_bytes_read_nxt)
     )
-    ;
     (loop_sha 
      XRAM sha_hs_data sha_state sha_rdaddr sha_wraddr sha_len sha_bytes_read
      XRAM_nxt sha_hs_data_nxt sha_state_nxt sha_rdaddr_nxt sha_wraddr_nxt sha_len_nxt sha_bytes_read_nxt)))
@@ -32,7 +31,6 @@
     (rel.N_2_sha_len_nxt sha_len_1 sha_len_nxt)
     (rel.N_2_sha_bytes_read_nxt sha_bytes_read_1 sha_bytes_read_nxt)
     )
-    ;
     (loop_sha 
      XRAM sha_hs_data sha_state sha_rdaddr sha_wraddr sha_len sha_bytes_read
      XRAM_nxt sha_hs_data_nxt sha_state_nxt sha_rdaddr_nxt sha_wraddr_nxt sha_len_nxt sha_bytes_read_nxt)))
@@ -49,7 +47,6 @@
     (rel.N_3_sha_len_nxt sha_len_1 sha_len_nxt)
     (rel.N_3_sha_bytes_read_nxt sha_bytes_read_1 sha_bytes_read_nxt)
     )
-    ;
     (loop_sha 
      XRAM sha_hs_data sha_state sha_rdaddr sha_wraddr sha_len sha_bytes_read
      XRAM_nxt sha_hs_data_nxt sha_state_nxt sha_rdaddr_nxt sha_wraddr_nxt sha_len_nxt sha_bytes_read_nxt)))
@@ -66,7 +63,6 @@
     (rel.N_4_sha_len_nxt sha_len_1 sha_len_nxt)
     (rel.N_4_sha_bytes_read_nxt sha_bytes_read_1 sha_bytes_read_nxt)
     )
-    ;
     (loop_sha 
      XRAM sha_hs_data sha_state sha_rdaddr sha_wraddr sha_len sha_bytes_read
      XRAM_nxt sha_hs_data_nxt sha_state_nxt sha_rdaddr_nxt sha_wraddr_nxt sha_len_nxt sha_bytes_read_nxt)))
