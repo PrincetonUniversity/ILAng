@@ -29,17 +29,9 @@
     (= sha_len (select XRAM addr_len))
     (= sha_bytes_read (select XRAM addr_bytes))
     ;
-    (rel.delta_fe01 cmd cmdaddr sha_state b54)
-    b54
-    (rel.N_fe01_XRAM_nxt XRAM XRAM_1)
-    (rel.N_fe01_sha_state_nxt sha_state sha_state_1)
-    (rel.N_fe01_sha_rdaddr_nxt sha_rdaddr sha_rdaddr_1)
-    (rel.N_fe01_sha_wraddr_nxt sha_wraddr sha_wraddr_1)
-    (rel.N_fe01_sha_len_nxt sha_len sha_len_1)
-    (rel.N_fe01_sha_bytes_read_nxt sha_bytes_read sha_bytes_read_1)
-    ;(loop_sha 
-    ; XRAM_1 sha_hs_data_1 sha_state_1 sha_rdaddr_1 sha_wraddr_1 sha_len_1 sha_bytes_read_1
-    ; XRAM_nxt sha_hs_data_nxt sha_state_nxt sha_rdaddr_nxt sha_wraddr_nxt sha_len_nxt sha_bytes_read_nxt)
+    (mmio_sha_fe01
+     cmd cmdaddr cmddata XRAM sha_state sha_rdaddr sha_wraddr sha_len sha_bytes_read sha_hs_data
+     XRAM_nxt sha_state_nxt sha_rdaddr_nxt sha_wraddr_nxt sha_len_nxt sha_bytes_read_nxt sha_hs_data_nxt)
     ;
     (= XRAM_state (store XRAM_nxt addr_state sha_state_nxt))
     (= XRAM_len (store XRAM_state addr_len sha_len_nxt))
