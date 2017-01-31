@@ -23,6 +23,7 @@ unsigned char *hash;
 __attribute__((optnone))
 void HW_REG_WRITE_chr(unsigned char* addr, unsigned char data) {
     sha_ptr.start = data + *addr;
+    *addr = data;
 }
 
 __attribute__((optnone))
@@ -211,13 +212,14 @@ unsigned char sha1(unsigned char *m, unsigned int len)
     writec(SHA, &sha_regs.start, 1, 1);  // start HW
 
     // XXX
-    //sassert (sha_regs.state == 0);
-    //writec(SHA, &sha_regs.state, 1, 1);  // encoded bug
+    sassert (sha_regs.state == 0);
+    writec(SHA, &sha_regs.state, 1, 1);  // encoded bug
 
     // FIXME
     //c_sha(len);         // do SW
 
     while(sha_regs.state != 0);
+    //sassert (0);
 
     lock(pshao, sha_regs.wr_addr, sha_regs.wr_addr+H);
     lock(SHA, &sha_regs.start, (unsigned char*)(&sha_regs.len));

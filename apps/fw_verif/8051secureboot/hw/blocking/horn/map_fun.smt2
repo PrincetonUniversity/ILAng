@@ -63,8 +63,8 @@
      XRAM_1 sha_state_1 sha_rdaddr_1 sha_wraddr_1 sha_len_1 sha_bytes_read_1 sha_hs_data_1)
     b127
     (rel.delta_4 sha_state_1 b127)
-    (rel.N_4_XRAM_nxt XRAM_1 sha_hs_data_1 sha_state_1 sha_wraddr_1 XRAM_nxt)
-    ;(= XRAM_1 XRAM_nxt)
+    ;(rel.N_4_XRAM_nxt XRAM_1 sha_hs_data_1 sha_state_1 sha_wraddr_1 XRAM_nxt)
+    (= XRAM_1 XRAM_nxt)
     (rel.N_4_sha_state_nxt sha_bytes_read_1 sha_len_1 sha_state_1 sha_state_nxt)
     (rel.N_4_sha_rdaddr_nxt sha_rdaddr_1 sha_rdaddr_nxt)
     (rel.N_4_sha_wraddr_nxt sha_wraddr_1 sha_wraddr_nxt)

@@ -216,7 +216,7 @@ int main() {
     //sassert (sha_regs.state == 0);
     sha1(rsa_regs.exp, 2*N);
     //sassert (sha_regs.state == 0);
-    sassert (0);
+    //sassert (0);
 #ifndef CBMC
     for(i=0; i<H; i++){
         if(sha_out[i] != pkhash[i]){
