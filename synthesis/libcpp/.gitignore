@@ -1,2 +1,5 @@
 .z3-trace
 tags
+bin/*
+cbuild/*
+build/*

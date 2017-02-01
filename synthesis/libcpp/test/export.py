@@ -104,5 +104,12 @@ def main():
 
     #sys.importFile(expFile);
 
+    ila.setloglevel (3, "")
+    ila.enablelog ("Export")
+    sys.exportList([resrmz, resdaz], expFile)
+    l = sys.importList (expFile)
+    for ast in l:
+        print ast
+
 if __name__ == '__main__':
     main()

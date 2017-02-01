@@ -3,6 +3,8 @@
 
 #include <ast.hpp>
 
+#include <funcReduct.hpp>
+
 namespace ila 
 {
     // A function object that export / import the synthesized AST.
@@ -16,7 +18,7 @@ namespace ila
     
     public:
         // Constructor.
-        ImExport();
+        ImExport(FuncReduction *funcRedPtr, int reduce = 0);
 
         // Destructor.
         ~ImExport();
@@ -34,8 +36,12 @@ namespace ila
         void addMapVars(Abstraction* c);
 
     protected:
-
+        
     private:
+        // Function Reduction Module
+        FuncReduction *FuncReductor;
+        
+        int reduceWhenImport;
         // parsing helper function.
         char nextChar(std::istream& in) const;
         std::string next(std::istream& in) const;

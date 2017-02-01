@@ -36,8 +36,9 @@ namespace ila
         std::size_t seed = 0;
         boost::hash_combine(seed, n->type);
 
-        log2("Hash") << "Node: " << *n << std::endl;
-        log2("Hash") << "Initial seed: " << seed << std::endl;
+        // logging here takes a lot of time, so I tend to remove it
+        //log2("Hash") << "Node: " << *n << std::endl;
+        //log2("Hash") << "Initial seed: " << seed << std::endl;
 
         //// booleans ////
         if ((boolvar = dynamic_cast<const BoolVar*>(n))) {
@@ -91,7 +92,7 @@ namespace ila
             const Node& arg_i = *(n->arg(i).get());
             boost::hash_combine(seed, arg_i);
         }
-        log2("Hash") << "Final seed: " << seed << std::endl;
+        //log2("Hash") << "Final seed: " << seed << std::endl;
 
         nref.hash_inited = true;
         nref.hash_value = seed;

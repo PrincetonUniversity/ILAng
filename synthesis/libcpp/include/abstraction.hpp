@@ -95,6 +95,7 @@ namespace ila
 
     public:
         int paramSyn;
+        int reduceWhenImport;
 
         // Constructor.
         Abstraction(const std::string& name);
@@ -219,6 +220,9 @@ namespace ila
         // the export function that export only one expression.
         void exportOneToFile(NodeRef* node,
                              const std::string& fileName) const;
+        // the export function that export a list of expressions.
+        void exportListToFile(const py::list& l,
+                              const std::string& fileName) const;
         // the export function that export the overall model.
         void exportAllToFile(const std::string& fileName) const;
 
@@ -234,6 +238,8 @@ namespace ila
         
         // the import function that import only one expression.
         NodeRef* importOneFromFile(const std::string& fileName);
+        // the import function that import a list of expression.
+        py::list importListFromFile(const std::string& fileName);
         // the import function that import the overall model.
         void importAllFromFile(const std::string& fileName);
         // the import function that import the overall ILA abstraction from Stream
@@ -338,6 +344,8 @@ namespace ila
         friend class AbstractionWrapper;
 
     private:
+        // function reduce helper
+        mutable FuncReduction funcReducer;
         // horn clause translator.
         HornTranslator* _ht;
         // The simulator generating function.
@@ -572,6 +580,13 @@ namespace ila
              abs->exportOneToFile(node, fileName);
         }
 
+        // the export function that export a list of expressions.
+        void exportListToFile(const py::list& l,
+                              const std::string& fileName) const
+        {
+            abs->exportListToFile(l, fileName);
+        }
+
         // the export function that export the overall model.
         void exportAllToFile(const std::string& fileName) const
         {
@@ -591,6 +606,12 @@ namespace ila
         NodeRef* importOneFromFile(const std::string& fileName)
         {
             return abs->importOneFromFile(fileName);
+        }
+
+        // the improt function that import a list of expressions.
+        py::list importListFromFile(const std::string& fileName)
+        {
+            return abs->importListFromFile(fileName);
         }
 
         // the import function that import the overall model.
@@ -720,6 +741,14 @@ namespace ila
 
         void setEnParamSyn(int en) {
             abs->paramSyn = en;
+        }
+
+        int getReduceWhenImport() const {
+            return abs->reduceWhenImport;
+        }
+
+        void setReduceWhenImport(int en) {
+            abs->reduceWhenImport = en;
         }
 
         std::string getName() const {

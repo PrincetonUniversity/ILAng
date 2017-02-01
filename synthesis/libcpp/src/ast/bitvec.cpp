@@ -204,7 +204,7 @@ namespace ila
         if (op == IF && args.size() == 3) {
             // ITE
             return args[1]->type.bitWidth;
-        } else if (op == APPLY_FUNC && args.size() >= 1) {
+        } else if (op == APPLY_FUNC) {
             // Apply function
             return args[0]->type.bitWidth;
         } else {
@@ -331,7 +331,7 @@ namespace ila
             if (!args[0]->type.isBool() /* or nonzero (bv) */ ) {
                 return 1;
             } 
-        } else if (op == APPLY_FUNC && args.size() >= 1) {
+        } else if (op == APPLY_FUNC) {
             // (f, ip0, ip1, ...)
             std::vector<int> argWidth;
             for (unsigned i = 1; i != args.size(); i++) {

@@ -300,6 +300,8 @@ BOOST_PYTHON_MODULE(ila)
             return_value_policy<manage_new_object>());
 
     // apply function.
+    def("appfun", &NodeRef::appfunc0,
+            return_value_policy<manage_new_object>());
     def("appfun", &NodeRef::appfunc1,
             return_value_policy<manage_new_object>());
     def("appfun", &NodeRef::appfunc2,
@@ -436,8 +438,10 @@ BOOST_PYTHON_MODULE(ila)
 
         // import/export.
         .def("exportOne", &AbstractionWrapper::exportOneToFile)
+        .def("exportList", &AbstractionWrapper::exportListToFile)
         .def("exportAll", &AbstractionWrapper::exportAllToFile)
         .def("importOne", &AbstractionWrapper::importOneFromFile, return_value_policy<manage_new_object>())
+        .def("importList", &AbstractionWrapper::importListFromFile)
         .def("importAll", &AbstractionWrapper::importAllFromFile)
         .def("generateVerilog", &AbstractionWrapper::generateVerilogToFile)
         .def("generateVerilog", &AbstractionWrapper::generateVerilogModule)
@@ -468,6 +472,11 @@ BOOST_PYTHON_MODULE(ila)
         .add_property("enable_parameterized_synthesis", 
             &AbstractionWrapper::getEnParamSyn,
             &AbstractionWrapper::setEnParamSyn)
+            
+        .add_property("enable_reduce_when_import",
+            &AbstractionWrapper::getReduceWhenImport,
+            &AbstractionWrapper::setReduceWhenImport)
+            
     ;
 
     class_<MicroUnroller>("MicroUnroller", no_init)

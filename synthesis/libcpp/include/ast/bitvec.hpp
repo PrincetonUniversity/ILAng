@@ -19,6 +19,7 @@
 namespace ila 
 {
     class Abstraction;
+    class FuncReduction;
 
     // ---------------------------------------------------------------------- //
     // Bitvector expressions are derived from this class.
@@ -222,6 +223,8 @@ namespace ila
 
         // the ith param.
         int param(unsigned i) const;
+
+        friend class FuncReduction;
     };
 }
 #endif

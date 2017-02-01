@@ -22,6 +22,7 @@ namespace ila
     class NodeRef;
     class Node;
     class NodeVisitorI;
+    class FuncReduction;
 
     typedef boost::shared_ptr<Node> nptr_t;
     typedef std::vector<nptr_t> nptr_vec_t;
@@ -180,6 +181,7 @@ namespace ila
 
         friend class NodeRef;
         friend std::size_t hash_value(const Node& nref);
+        friend class FuncReduction;
     };
 
     std::ostream& operator<<(std::ostream& out, const Node& that);

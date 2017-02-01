@@ -4,7 +4,7 @@
 
 namespace ila
 {
-    ImExport::ImExport()
+    ImExport::ImExport(FuncReduction *funcRedPtr, int reduce):FuncReductor(funcRedPtr),reduceWhenImport(reduce)
     {
     }
 
@@ -173,6 +173,7 @@ namespace ila
             }
 
             ILA_ASSERT(nextChar(in) == ')', "Miss )");
+            if(reduceWhenImport==1) FuncReductor->InsertOrDupNoRecursive(nptr);
             return nptr;
         } else if (nodeType == "bvVar") {
             std::string wstr = next(in);
@@ -265,6 +266,7 @@ namespace ila
                 nptr = NULL;
             }
             ILA_ASSERT(nextChar(in) == ')', "Miss )");
+            if(reduceWhenImport==1) FuncReductor->InsertOrDupNoRecursive(nptr);
             return nptr;
         } else if (nodeType == "memVar") {
             std::string awstr = next(in);
@@ -308,6 +310,8 @@ namespace ila
                 }
                 mapInsert(name, nptr);
             }
+            
+            if(reduceWhenImport==1) FuncReductor->InsertOrDupNoRecursive(nptr);
             return nptr;
         } else if (nodeType == "funcVar") {
             std::string resWidthStr = next(in);
