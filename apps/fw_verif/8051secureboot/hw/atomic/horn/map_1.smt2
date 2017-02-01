@@ -29,7 +29,7 @@
     (= sha_wraddr (select XRAM addr_wraddr))
     (= sha_len (select XRAM addr_len))
     ;
-    (rel.decode_fe00 cmd cmdaddr b59)
+    (rel.decode_fe01 cmd cmdaddr b59)
     b59
     (rel.instr_fe01_sha_state_nxt cmd cmdaddr sha_state sha_state_nxt)
     (rel.instr_fe01_sha_len_nxt sha_len sha_len_nxt)
