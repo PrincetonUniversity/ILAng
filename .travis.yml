@@ -38,13 +38,14 @@ before_script:
     - tar -zxf boost-trunk.tar.gz -C $BOOST_ROOT
     - cd $BOOST_ROOT
     - echo $BOOST_ROOT
+    - ls
     - ./bootstrap.sh --prefix=$BOOST_ROOT
     - sudo ./b2 install
     - export PATH=$BOOST_ROOT/:$PATH
     - export C_INCLUDE_PATH=$BOOST_ROOT/:$C_INCLUDE_PATH
     - export CPLUS_INCLUDE_PATH=$BOOST_ROOT/:$CPLUS_INCLUDE_PATH
     - export BOOST_BUILD_PATH=$BOOST_ROOT
-    - cd ..
+    - cd $TRAVIS_BUILD_DIR
     # z3
     - git clone https://github.com/Z3Prover/z3.git
     - cd z3
@@ -52,7 +53,7 @@ before_script:
     - cd build
     - make
     - sudo make install
-    - cd ..
+    - cd $TRAVIS_BUILD_DIR
 
 script:
     - bjam --version
