@@ -15,6 +15,9 @@ git:
     depth: 3
 
 before_install:
+    - sudo more /etc/dpkg/dpkg.cfg.d/multiarch
+    - grep -v "foreign-architecture" /etc/dpkg/dpkg.cfg.d/multiarch > tmp
+    - sudo mv tmp /etc/dpkg/dpkg.cfg.d/multiarch
     - sudo add-apt-repository "deb http://us.archive.ubuntu.com/ubuntu wily main universe"
 #- sudo apt-get upgrade
     - sudo apt-get update -qq
