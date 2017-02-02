@@ -20,5 +20,5 @@ all: SYN
 	done
 
 SYN:
-	@$(MAKE) -C $(SYN_PATH)
+	#@$(MAKE) -C $(SYN_PATH)
 
