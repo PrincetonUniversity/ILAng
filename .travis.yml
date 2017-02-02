@@ -19,6 +19,7 @@ before_install:
     - sudo apt-get install -qq libboost-all-dev
     - sudo add-apt-repository "deb http://us.archive.ubuntu.com/ubuntu wily main universe"
     - sudo apt-get update -qq
+    - sudo rm /etc/dpkg/dpkg.cfg.d/multiarch
     - sudo apt-get install z3
     
 install: 
