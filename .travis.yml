@@ -2,7 +2,7 @@ language: cpp
 compiler: gcc
 
 before_install:
-    - sudo add-apt-repository universe
+    - sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu $(lsb_release -sc) main universe restricted multiverse"
     - sudo apt-get update
     - sudo apt-get install libboost1.60-all-dev
     - git clone --depth 10 https://github.com/Z3Prover/z3.git
