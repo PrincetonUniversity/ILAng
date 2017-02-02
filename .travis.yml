@@ -22,7 +22,7 @@ before_install:
     - sudo dpkg --configure -a
     - sudo apt-get update -q -y
     - sudo rm /etc/dpkg/dpkg.cfg.d/multiarch
-    - sudo apt-get install -q z3 -y
+    - sudo apt-get install -f -q z3 -y
     
 install: 
     - cd synthesis/libcpp
