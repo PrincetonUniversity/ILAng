@@ -15,17 +15,25 @@ git:
     depth: 3
 
 before_install:
-    - sudo apt autoremove -f
-    - sudo apt install -f
-    - sudo apt-get update -q -y
+    # boost
+    - sudo apt-get autoremove -f
+    - sudo apt-get install -f
+    - sudo apt-get update -q
     - sudo apt-get install -q libboost-all-dev -y
+    # z3
     - sudo add-apt-repository "deb http://us.archive.ubuntu.com/ubuntu wily main universe" -y
-    - sudo apt-get update -q -y
-    - sudo dpkg --configure -a
-    - sudo apt-get update -q -y
-    - sudo rm /etc/dpkg/dpkg.cfg.d/multiarch
+    - sudo apt-get autoremove -f
+    - sudo apt-get install -f
+    - sudo apt-get update -q
+    #- sudo rm /etc/dpkg/dpkg.cfg.d/multiarch
     - sudo apt-get install -f -q z3 -y
     
 install: 
     - cd synthesis/libcpp
     - bjam
+
+notifications:
+    email: false
+#slack:
+#on_success: never
+#on_failure: never
