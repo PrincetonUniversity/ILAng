@@ -2,15 +2,10 @@ language: cpp
 compiler: gcc
 
 before_install:
+    - sudo add-apt-repository "deb http://us.archive.ubuntu.com/ubuntu wily main universe"
     - sudo apt-get update
+    - sudo apt-get install z3
     - sudo apt-get install libboost-all-dev
-    - git clone --depth 10 https://github.com/Z3Prover/z3.git
-    - cd z3
-    - python scripts/mk_make.py
-    - cd build
-    - make -j
-    - sudo make install
-    - cd ../../
     
 install: 
     - cd synthesis/libcpp
