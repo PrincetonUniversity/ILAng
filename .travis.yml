@@ -6,6 +6,7 @@ before_install:
     - sudo apt-get install libboost-all-dev
     
 install: 
+    - cd synthesis/libcpp
     - mkdir cbuild
     - cd cbuild
     - cmake ../ -L -DZ3_INCLUDE_DIR=/usr/include
