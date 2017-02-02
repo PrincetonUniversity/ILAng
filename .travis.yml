@@ -35,7 +35,7 @@ before_script:
     - cd z3
     - python scripts/mk_make.py
     - cd build
-    - make -j
+    - make
     - sudo make install
     - cd ../
 
