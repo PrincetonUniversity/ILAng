@@ -33,9 +33,9 @@ install:
 before_script:
     # boost
     - wget https://sourceforge.net/projects/boost/files/boost/1.63.0/boost_1_63_0.tar.gz/download
-    - tar -zxvf download
+    - tar -zxf download
     - cd boost_1_63_0
-    - ./bootstrap.sh --predix=/usr/
+    - ./bootstrap.sh --prefix=/usr/
     - ./b2
     - sudo ./b2 install
     # z3
