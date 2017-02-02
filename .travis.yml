@@ -3,6 +3,9 @@ compiler: gcc
 install: bjam
 
 before_install:
+    - echo "deb http://us.archive.ubuntu.com/ubuntu wily main universe" > tmp
+    - sudo cat tmp >> /etc/apt/sources.list
+    - rm tmp
     - sudo apt-get update
     - sudo apt-get install z3
     - sudo apt-get install libboost-all-dev
