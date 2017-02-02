@@ -15,6 +15,8 @@ git:
     depth: 3
 
 before_install:
+    - sudo apt autoremove -f
+    - sudo apt install -f
     - sudo apt-get update -q -y
     - sudo apt-get install -q libboost-all-dev -y
     - sudo add-apt-repository "deb http://us.archive.ubuntu.com/ubuntu wily main universe" -y
