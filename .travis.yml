@@ -36,8 +36,10 @@ before_script:
     - export BOOST_ROOT="$TRAVIS_BUILD_DIR/../boost-trunk"
     - mkdir -p $BOOST_ROOT
     - tar -zxf boost-trunk.tar.gz -C $BOOST_ROOT
-    - (cd $BOOST_ROOT; ./bootstrap.sh)
-    - (cd $BOOST_ROOT; ./b2 --prefix=$BOOST_ROOT install)
+    - cd $BOOST_ROOT
+    - echo $BOOST_ROOT
+    - ./bootstrap.sh --prefix=$BOOST_ROOT
+    - sudo ./b2 install
     - export PATH=$BOOST_ROOT/:$PATH
     - export C_INCLUDE_PATH=$BOOST_ROOT/:$C_INCLUDE_PATH
     - export CPLUS_INCLUDE_PATH=$BOOST_ROOT/:$CPLUS_INCLUDE_PATH
