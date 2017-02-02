@@ -2,8 +2,13 @@ language: cpp
 compiler: gcc
 
 before_install:
-    - sudo apt-get update
-    - sudo apt-get install libboost1.60-all-dev
+    - wget https://sourceforge.net/projects/boost/files/boost/1.63.0/boost_1_63_0.tar.gz/download
+    - tar -zxvf download
+    - cd boost_1_63_0
+    - ./bootstrap.sh
+    - ./b2
+    - sudo ./b2 install
+    - cd ../
     - git clone --depth 10 https://github.com/Z3Prover/z3.git
     - cd z3
     - python scripts/mk_make.py
