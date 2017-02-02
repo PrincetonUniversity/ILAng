@@ -31,17 +31,27 @@ install:
     - until sudo apt-get -qq install libboost-all-dev libboost-test-dev libboost-program-options-dev; do echo retry; done
 
 before_script:
-    - git clone https://github.com/Z3Prover/z3.git
-    - cd z3
-    - python scripts/mk_make.py
-    - cd build
-    - make
-    - sudo make install
-    - cd ../
+    # boost
+    - wget https://sourceforge.net/projects/boost/files/boost/1.63.0/boost_1_63_0.tar.gz/download
+    - tar -zxvf download
+    - cd boost_1_63_0
+    - ./bootstrap.sh --predix=/usr/
+    - ./b2
+    - sudo ./b2 install
+    # z3
+#- git clone https://github.com/Z3Prover/z3.git
+#- cd z3
+#- python scripts/mk_make.py
+#- cd build
+#- make
+#- sudo make install
+#- cd ../
 
 script:
-    - ls /usr/bin/z3
-    - /usr/bin/z3 --version
+    - bjam --version
+    - which bjam
+    #- ls /usr/bin/z3
+    #- /usr/bin/z3 --version
     #- cd synthesis/libcpp
     #- bjam
 
