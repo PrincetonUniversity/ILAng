@@ -5,12 +5,21 @@ branches:
     only:
     - travisBranch
 
+os:
+    - linux
+
+env:
+    - SH=bash
+
+git:
+    depth: 3
+
 before_install:
     - sudo add-apt-repository "deb http://us.archive.ubuntu.com/ubuntu wily main universe"
 #- sudo apt-get upgrade
-    - sudo apt-get update qq
+    - sudo apt-get update -qq
+    - sudo apt-get install -qq libboost-all-dev
     - sudo apt-get install z3
-    - sudo apt-get install libboost-all-dev
     
 install: 
     - cd synthesis/libcpp
