@@ -16,9 +16,9 @@ git:
 
 before_install:
     # boost
-    - until sudo apt-get -qq update; do echo retry; done
-    - sudo apt-get --yes update
-    - sudo apt-get install --yes libboost-all-dev
+#- until sudo apt-get -qq update; do echo retry; done
+#- sudo apt-get --yes update
+#- sudo apt-get install --yes libboost-all-dev
     # z3
 #- sudo add-apt-repository "deb http://us.archive.ubuntu.com/ubuntu wily main universe" -y
 #- sudo apt-get autoremove -f
@@ -28,16 +28,21 @@ before_install:
 #- sudo apt-get install -f -q z3 -y
     
 install: 
-    - until sudo apt-get -qq install libboost-all-dev libboost-test-dev libboost-program-options-dev; do echo retry; done
+#- until sudo apt-get -qq install libboost-all-dev libboost-test-dev libboost-program-options-dev; do echo retry; done
 
 before_script:
     # boost
-#- wget https://sourceforge.net/projects/boost/files/boost/1.63.0/boost_1_63_0.tar.gz/download
-#- tar -zxf download
-#- cd boost_1_63_0
-#- ./bootstrap.sh --prefix=/usr/
-#- ./b2
-#- sudo ./b2 install
+    - wget --no-verbose --output-document=boost-trunk.tar.gz https://sourceforge.net/projects/boost/files/boost/1.63.0/boost_1_63_0.tar.gz/download
+    - export BOOST_ROOT="$TRAVIS_BUILD_DIR/../boost-trunk"
+    - mkdir -p $BOOST_ROOT
+    - tar -zxf boost-trunk.tar.gz -C $BOOST_ROOT
+    - (cd $BOOST_ROOT; ./bootstrap.sh)
+    - (cd $BOOST_ROOT; ./b2 --prefix=$BOOST_ROOT install)
+    - export PATH=$BOOST_ROOT/:$PATH
+    - export C_INCLUDE_PATH=$BOOST_ROOT/:$C_INCLUDE_PATH
+    - export CPLUS_INCLUDE_PATH=$BOOST_ROOT/:$CPLUS_INCLUDE_PATH
+    - export BOOST_BUILD_PATH=$BOOST_ROOT
+    - cd ..
     # z3
     - git clone https://github.com/Z3Prover/z3.git
     - cd z3
@@ -45,7 +50,7 @@ before_script:
     - cd build
     - make
     - sudo make install
-    - cd ../
+    - cd ..
 
 script:
     - bjam --version
