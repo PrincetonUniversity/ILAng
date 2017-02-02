@@ -35,7 +35,7 @@ before_script:
     - wget --no-verbose --output-document=boost-trunk.tar.gz https://sourceforge.net/projects/boost/files/boost/1.63.0/boost_1_63_0.tar.gz/download
     - export BOOST_ROOT="$TRAVIS_BUILD_DIR/../boost-trunk"
     - mkdir -p $BOOST_ROOT
-    - tar -zxf boost-trunk.tar.gz -C $BOOST_ROOT
+    - tar -zxf boost-trunk.tar.gz --strip-components=1 -C $BOOST_ROOT
     - cd $BOOST_ROOT
     - echo $BOOST_ROOT
     - ls
