@@ -15,10 +15,11 @@ git:
     depth: 3
 
 before_install:
-    - sudo apt-get remove --purge getdeb-repository
     - sudo apt-get update -q -y
     - sudo apt-get install -q libboost-all-dev -y
     - sudo add-apt-repository "deb http://us.archive.ubuntu.com/ubuntu wily main universe" -y
+    - sudo apt-get update -q -y
+    - sudo dpkg --configure -a
     - sudo apt-get update -q -y
     - sudo rm /etc/dpkg/dpkg.cfg.d/multiarch
     - sudo apt-get install -q z3 -y
