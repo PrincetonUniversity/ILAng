@@ -16,7 +16,6 @@ git:
     depth: 3
 
 before_install:
-    - bjam --version
     - sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
     - sudo apt-get -qq --yes update
     - sudo apt-add-repository --yes ppa:smspillaz/cmake-2.8.12
@@ -38,11 +37,11 @@ before_script:
     - mkdir -p $BOOST_ROOT
     - tar -zxf boost-trunk.tar.gz --strip-components=1 -C $BOOST_ROOT > /dev/null
     - cd $BOOST_ROOT
-    #- ./bootstrap.sh --prefix=$BOOST_ROOT > /dev/null
-    - ./bootstrap.sh 
+    - ./bootstrap.sh --prefix=$BOOST_ROOT > /dev/null
+    #- ./bootstrap.sh 
     - ./b2 
-    - sudo ./b2 install 
-    #- export PATH=$BOOST_ROOT/:$PATH
+    - ./b2 install 
+    - export PATH=$BOOST_ROOT/:$PATH
     - $BOOST_ROOT/bjam --version
     - which bjam
     - bjam --version
@@ -51,8 +50,8 @@ before_script:
     - export C_INCLUDE_PATH=$BOOST_ROOT/:$C_INCLUDE_PATH
     - export CPLUS_INCLUDE_PATH=$BOOST_ROOT/:$CPLUS_INCLUDE_PATH
     - export BOOST_BUILD_PATH=$BOOST_ROOT
-    - export LIBRARY_PATH=$BOOST_ROOT/stage/lib/:$LIBRARY_PATH
-    - export LD_LIBRARY_PATH=$BOOST_ROOT/stage/lib/:$LD_LIBRARY_PATH
+    #- export LIBRARY_PATH=$BOOST_ROOT/stage/lib/:$LIBRARY_PATH
+    #- export LD_LIBRARY_PATH=$BOOST_ROOT/stage/lib/:$LD_LIBRARY_PATH
     - cd $TRAVIS_BUILD_DIR
     # z3
     - git clone https://github.com/Z3Prover/z3.git
