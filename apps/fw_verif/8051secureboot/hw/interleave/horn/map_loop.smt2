@@ -19,11 +19,11 @@
      XRAM sha_hs_data sha_state sha_rdaddr sha_wraddr sha_len sha_bytes_read
      XRAM_nxt sha_hs_data_nxt sha_state_nxt sha_rdaddr_nxt sha_wraddr_nxt sha_len_nxt sha_bytes_read_nxt)))
 ;
-(rule (=> (and b93
+(rule (=> (and b98
     (loop_sha 
      XRAM sha_hs_data sha_state sha_rdaddr sha_wraddr sha_len sha_bytes_read
      XRAM_1 sha_hs_data_1 sha_state_1 sha_rdaddr_1 sha_wraddr_1 sha_len_1 sha_bytes_read_1)
-    (rel.delta_2 sha_state_1 b93)
+    (rel.delta_2 sha_state_1 b98)
     (rel.N_2_XRAM_nxt XRAM_1 XRAM_nxt)
     (rel.N_2_sha_state_nxt sha_bytes_read_1 sha_len_1 sha_state_1 sha_state_nxt)
     (rel.N_2_sha_rdaddr_nxt sha_rdaddr_1 sha_rdaddr_nxt)
@@ -35,11 +35,11 @@
      XRAM sha_hs_data sha_state sha_rdaddr sha_wraddr sha_len sha_bytes_read
      XRAM_nxt sha_hs_data_nxt sha_state_nxt sha_rdaddr_nxt sha_wraddr_nxt sha_len_nxt sha_bytes_read_nxt)))
 ;
-(rule (=> (and b110
+(rule (=> (and b115
     (loop_sha 
      XRAM sha_hs_data sha_state sha_rdaddr sha_wraddr sha_len sha_bytes_read
      XRAM_1 sha_hs_data_1 sha_state_1 sha_rdaddr_1 sha_wraddr_1 sha_len_1 sha_bytes_read_1)
-    (rel.delta_3 sha_state_1 b110)
+    (rel.delta_3 sha_state_1 b115)
     (rel.N_3_XRAM_nxt XRAM_1 XRAM_nxt)
     (rel.N_3_sha_state_nxt sha_bytes_read_1 sha_len_1 sha_state_1 sha_state_nxt)
     (rel.N_3_sha_rdaddr_nxt sha_rdaddr_1 sha_rdaddr_nxt)
@@ -51,11 +51,11 @@
      XRAM sha_hs_data sha_state sha_rdaddr sha_wraddr sha_len sha_bytes_read
      XRAM_nxt sha_hs_data_nxt sha_state_nxt sha_rdaddr_nxt sha_wraddr_nxt sha_len_nxt sha_bytes_read_nxt)))
 ;
-(rule (=> (and b127
+(rule (=> (and b137
     (loop_sha 
      XRAM sha_hs_data sha_state sha_rdaddr sha_wraddr sha_len sha_bytes_read
      XRAM_1 sha_hs_data_1 sha_state_1 sha_rdaddr_1 sha_wraddr_1 sha_len_1 sha_bytes_read_1)
-    (rel.delta_4 sha_state_1 b127)
+    (rel.delta_4 sha_state_1 b137)
     (rel.N_4_XRAM_nxt XRAM_1 sha_hs_data_1 sha_state_1 sha_wraddr_1 XRAM_nxt)
     ;(= XRAM_1 XRAM_nxt)
     (rel.N_4_sha_state_nxt sha_bytes_read_1 sha_len_1 sha_state_1 sha_state_nxt)

@@ -74,16 +74,24 @@ class SHA (mmiodev):
             state_nxt = self.SHA_OP1
             self.bytes_read = self.bytes_read + 64
             # FIXME 
-            # self.rd_data = 
+            print self.rd_data
+            self.rd_data = 0
+            for i in xrange(64):
+                addr = (self.sha_rdaddr + self.bytes_read + 63 - i) & 0xffff
+                byte = self.xram[addr]
+                self.rd_data |= byte << (i*8)
+            print self.rd_data
         elif self.sha_state == self.SHA_OP1:
             state_nxt = self.SHA_OP2
         elif self.sha_state == self.SHA_OP2:
             if self.bytes_read < self.sha_len:
                 state_nxt = self.SHA_RD
-                # FIXME
-                # self.hs_data = 
             else:
                 state_nxt = self.SHA_WR
+            bytes_in = bytes(''.join(as_chars(self.rd_data, 64)))
+            self.sha.update(bytes_in)
+            res = self.sha.digest()
+            self.hs_data = to_num(res, 20)
         elif self.sha_state == self.SHA_WR:
             for i in xrange (20):
                 addr = (self.sha_wraddr + 19 - i) & 0xffff

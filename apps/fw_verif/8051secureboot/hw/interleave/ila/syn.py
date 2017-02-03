@@ -1,7 +1,7 @@
 # ILA for SHA with child-instructions
 import ila
 import os
-from sim import SHA
+from simulate import SHA
 
 def createShaIla():
     m = ila.Abstraction("sha")
@@ -80,8 +80,8 @@ def createShaIla():
     return m
 
 def synthesize ():
-    all_states = ['sha_state', 'sha_rdaddr', 'sha_wraddr', 'sha_len', 'XRAM', 'sha_bytes_read', 'sha_rd_data', 'sha_hs_data']
     all_states = ['sha_state', 'sha_rdaddr', 'sha_wraddr', 'sha_len', 'XRAM', 'sha_bytes_read']
+    all_states = ['sha_state', 'sha_rdaddr', 'sha_wraddr', 'sha_len', 'XRAM', 'sha_bytes_read', 'sha_rd_data', 'sha_hs_data']
     all_instrs = [0xfe00, 0xfe01]
 
     directory = 'asts'

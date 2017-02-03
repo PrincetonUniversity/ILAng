@@ -1,7 +1,7 @@
 # ILA for SHA with child-instructions
 import ila
 import os
-from sim import SHA
+from simulate import SHA
 
 def createShaIla():
     m = ila.Abstraction("sha")

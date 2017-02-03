@@ -178,7 +178,11 @@ namespace ila
         // name
         v->setName ("bv" + boost::lexical_cast <std::string> (v->getId()));
         // type
-        v->setType ("Int");
+        if (isLongBv (n->type.bitWidth)) {
+            v->setType ("(Array Int Int)");
+        } else {
+            v->setType ("Int");
+        }
         // in
         for (unsigned i = 0; i != n->nArgs(); i++) {
             hvptr_t arg_i = getVar (n->arg(i));
@@ -750,9 +754,9 @@ namespace ila
             }
         }
         if (isLongBv (n->type.bitWidth)) {
-            type += "(Array Int Int)))";
+            type += "(Array Int Int))";
         } else {
-            type += "Int))";
+            type += "Int)";
         }
         v->setType (type);
         // exec 

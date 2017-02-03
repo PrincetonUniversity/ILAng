@@ -44,5 +44,5 @@ def createHorn():
 
 if __name__ == '__main__':
     ila.setloglevel(3, "")
-    #ila.enablelog("Horn")
+    ila.enablelog("Horn")
     createHorn()

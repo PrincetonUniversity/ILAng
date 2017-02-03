@@ -83,6 +83,12 @@ class SHA (mmiodev):
             while (self.sha_state != self.SHA_IDLE):
                 if self.sha_state == self.SHA_RD:
                     self.rd_data = 0
+                    """
+                    for i in xrange(64):
+                        addr = (self.sha_rdaddr + self.bytes_read + 63 - i) & 0xffff
+                        byte = self.xram[addr]
+                        self.rd_data |= byte << (i*8)
+                    """
                     self.bytes_read = self.bytes_read + 64
                     self.sha_state = self.SHA_OP1
                 elif self.sha_state == self.SHA_OP1:

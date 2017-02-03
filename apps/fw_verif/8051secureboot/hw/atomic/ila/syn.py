@@ -49,8 +49,6 @@ def createIla():
     xram_nxt = ila.ite ((state == 0) & (cmddata == 1), xram_cho, xram)
     m.set_next ('XRAM', xram_nxt)
 
-    # TODO rd_data hs_data
-
     return m
 
 def checkOutPath (path):
