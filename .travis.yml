@@ -45,6 +45,8 @@ before_script:
     - export C_INCLUDE_PATH=$BOOST_ROOT/:$C_INCLUDE_PATH
     - export CPLUS_INCLUDE_PATH=$BOOST_ROOT/:$CPLUS_INCLUDE_PATH
     - export BOOST_BUILD_PATH=$BOOST_ROOT
+    - export LIBRARY_PATH=$BOOST_ROOT/stage/lib/:$LIBRARY_PATH
+    - export LD_LIBRARY_PATH=$BOOST_ROOT/stage/lib/:$LD_LIBRARY_PATH
     - cd $TRAVIS_BUILD_DIR
     # z3
     - git clone https://github.com/Z3Prover/z3.git
