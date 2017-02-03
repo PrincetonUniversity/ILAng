@@ -37,10 +37,12 @@ before_script:
     - mkdir -p $BOOST_ROOT
     - tar -zxf boost-trunk.tar.gz --strip-components=1 -C $BOOST_ROOT > /dev/null
     - cd $BOOST_ROOT
-    - ./bootstrap.sh --prefix=$BOOST_ROOT > /dev/null
+    #- ./bootstrap.sh --prefix=$BOOST_ROOT > /dev/null
+    - ./bootstrap.sh 
     - ./b2 
     - ./b2 install 
     - export PATH=$BOOST_ROOT/:$PATH
+    - bjam --version
     - ls $BOOST_ROOT
     #- alias bjam=$BOOST_ROOT/bjam
     - export C_INCLUDE_PATH=$BOOST_ROOT/:$C_INCLUDE_PATH
@@ -59,7 +61,7 @@ before_script:
     - cd $TRAVIS_BUILD_DIR
 
 script:
-    - cd synthesis/libcpp
+    - cd $TRAVIS_BUILD_DIR/synthesis/libcpp
 #- mkdir -p cbuild
 #- cd cbuild
 #- cmake ../ -L -DZ3_INCLUDE_DIR=/usr/include
