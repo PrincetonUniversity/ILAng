@@ -8,7 +8,6 @@ os:
     - linux
 
 env:
-    - SH=bash
     matrix:
         - CMAKE_CXX_COMPILER=g++-4.8
 
