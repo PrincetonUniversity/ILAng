@@ -1,5 +1,5 @@
 language: cpp
-compiler: gcc
+compiler: g++4.8
 
 branches:
     only:
@@ -15,32 +15,21 @@ git:
     depth: 3
 
 before_install:
-    # boost
-#- until sudo apt-get -qq update; do echo retry; done
-#- sudo apt-get --yes update
-#- sudo apt-get install --yes libboost-all-dev
-    # z3
-#- sudo add-apt-repository "deb http://us.archive.ubuntu.com/ubuntu wily main universe" -y
-#- sudo apt-get autoremove -f
-#- sudo apt-get install -f
-#- sudo apt-get update -q
-#- sudo rm /etc/dpkg/dpkg.cfg.d/multiarch
-#- sudo apt-get install -f -q z3 -y
+    - until sudo apt-get -qq install g++-4.8; do echo retry; done
     
 install: 
-#- until sudo apt-get -qq install libboost-all-dev libboost-test-dev libboost-program-options-dev; do echo retry; done
+    - g++4.8 --version
 
 before_script:
     # boost
     - wget --no-verbose --output-document=boost-trunk.tar.gz https://sourceforge.net/projects/boost/files/boost/1.63.0/boost_1_63_0.tar.gz/download
     - export BOOST_ROOT="$TRAVIS_BUILD_DIR/../boost-trunk"
     - mkdir -p $BOOST_ROOT
-    - tar -zxf boost-trunk.tar.gz --strip-components=1 -C $BOOST_ROOT
+    - tar -zxf boost-trunk.tar.gz --strip-components=1 -C $BOOST_ROOT > /dev/null
     - cd $BOOST_ROOT
-    - echo $BOOST_ROOT
-    - ls
-    - ./bootstrap.sh --prefix=$BOOST_ROOT
-    - sudo ./b2 install
+    - ./bootstrap.sh --prefix=$BOOST_ROOT > /dev/null
+    - ./b2 > /dev/null
+    - ./b2 install 
     - export PATH=$BOOST_ROOT/:$PATH
     - export C_INCLUDE_PATH=$BOOST_ROOT/:$C_INCLUDE_PATH
     - export CPLUS_INCLUDE_PATH=$BOOST_ROOT/:$CPLUS_INCLUDE_PATH
@@ -51,15 +40,11 @@ before_script:
     - cd z3
     - python scripts/mk_make.py
     - cd build
-    - make
+    - make > /dev/null
     - sudo make install
     - cd $TRAVIS_BUILD_DIR
 
 script:
-    - bjam --version
-    - which bjam
-    - ls /usr/bin/z3
-    - /usr/bin/z3 --version
     - cd synthesis/libcpp
     - bjam
 
