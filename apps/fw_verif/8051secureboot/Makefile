@@ -4,7 +4,6 @@
 #MAKEFLAGS += --no-print-directory
 
 hwDir=hw/
-fwDir=sfw/
 fwDir=fw/
 
 tmpSmt2=tmp.smt2

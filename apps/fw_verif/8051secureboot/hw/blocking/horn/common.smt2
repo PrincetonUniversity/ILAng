@@ -20,10 +20,10 @@
 (declare-var sha_len_1 Int)
 (declare-var sha_len_2 Int)
 (declare-var sha_len_3 Int)
-(declare-var sha_hs_data_nxt Int)
-(declare-var sha_hs_data_1 Int)
-(declare-var sha_hs_data_2 Int)
-(declare-var sha_hs_data_3 Int)
+(declare-var sha_hs_data_nxt (Array Int Int))
+(declare-var sha_hs_data_1 (Array Int Int))
+(declare-var sha_hs_data_2 (Array Int Int))
+(declare-var sha_hs_data_3 (Array Int Int))
 (declare-var sha_bytes_read_nxt Int)
 (declare-var sha_bytes_read_1 Int)
 (declare-var sha_bytes_read_2 Int)
@@ -42,13 +42,13 @@
 (declare-var addr_bytes Int)
 
 ;; relations
-(declare-rel mmio_sha_fe00_A (Int Int Int (Array Int Int) Int Int Int Int Int Int
-                                          (Array Int Int) Int Int Int Int Int Int))
-(declare-rel mmio_sha_fe00_B (Int Int Int (Array Int Int) Int Int Int Int Int Int
-                                          (Array Int Int) Int Int Int Int Int Int))
-(declare-rel mmio_sha_fe00_C (Int Int Int (Array Int Int) Int Int Int Int Int Int
-                                          (Array Int Int) Int Int Int Int Int Int))
-(declare-rel mmio_sha_fe00 (Int Int Int (Array Int Int) Int Int Int Int Int Int
-                                        (Array Int Int) Int Int Int Int Int Int))
-(declare-rel mmio_sha_fe01 (Int Int Int (Array Int Int) Int Int Int Int Int Int 
-                                        (Array Int Int) Int Int Int Int Int Int))
+(declare-rel mmio_sha_fe00_A (Int Int Int (Array Int Int) Int Int Int Int Int (Array Int Int)
+                                          (Array Int Int) Int Int Int Int Int (Array Int Int)))
+(declare-rel mmio_sha_fe00_B (Int Int Int (Array Int Int) Int Int Int Int Int (Array Int Int)
+                                          (Array Int Int) Int Int Int Int Int (Array Int Int)))
+(declare-rel mmio_sha_fe00_C (Int Int Int (Array Int Int) Int Int Int Int Int (Array Int Int)
+                                          (Array Int Int) Int Int Int Int Int (Array Int Int)))
+(declare-rel mmio_sha_fe00 (Int Int Int (Array Int Int) Int Int Int Int Int (Array Int Int)
+                                        (Array Int Int) Int Int Int Int Int (Array Int Int)))
+(declare-rel mmio_sha_fe01 (Int Int Int (Array Int Int) Int Int Int Int Int (Array Int Int)
+                                        (Array Int Int) Int Int Int Int Int (Array Int Int)))

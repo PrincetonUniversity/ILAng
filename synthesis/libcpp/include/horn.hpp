@@ -38,6 +38,8 @@ namespace ila
         std::set <hvptr_t> _outs;
         // var is const.
         bool _const;
+        // non-deterministic value.
+        std::string _nd;
 
     public:
         // ctor.
@@ -78,6 +80,14 @@ namespace ila
         void mergeOutVars (hvptr_t v);
         // set to be constant.
         void setConst ();
+
+        // ------------------------------------------------------------------ //
+        // set non-deterministic value.
+        void setNd (const std::string& nd);
+        // get non-deterministic value.
+        const std::string& getNd () const;
+        // check if is nd.
+        bool isNd () const;
     };
 
     // ---------------------------------------------------------------------- //
@@ -189,6 +199,8 @@ namespace ila
         bool _iteAsNode;
         // translate bitvectors as Int.
         bool _bvAsInt;
+        // max bitvector length.
+        int _bvMaxSize;
 
     public:
         // ctor;
@@ -351,6 +363,10 @@ namespace ila
         std::string addSuffix (const std::string& name, const int& idx);
         // duplicate variable with suffix index
         hvptr_t copyVar (hvptr_t v, const int& idx);
+
+        // ------------------------------------------------------------------ //
+        // check if the length exceed maximum bitvector width.
+        bool isLongBv (const int& w) const;
     };
 }
 

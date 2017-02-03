@@ -302,6 +302,7 @@ namespace ila
             hvptr_t addr = getVar (n->arg(1));
             int chunkSize = n->arg(0)->type.dataWidth;
             int chunkNum  = n->param(0);
+            int dataSize  = n->type.bitWidth;
             bool isLittle = (n->param(1) == LITTLE_E);
 
             bool detail = true;
@@ -314,7 +315,41 @@ namespace ila
                 return;
             }
 
-            if (isLittle) {
+            ILA_ASSERT (dataSize == (chunkNum * chunkSize), 
+                        "Size mismatch in ReadMemBlock.");
+
+            // If dataSize > _bvMaxSize, use Array to represent the variable.
+            bool useArr = isLongBv (dataSize);
+            if (useArr && isLittle) {
+                // (= (select z 0) (select A (+ x 0)))
+                // (= (select z 1) (select A (+ x 1)))
+                // (= (select z 2) (select A (+ x 2)))
+                boost::format partEqFmt (
+                "(= (select %1% %2%) (select %3% (+ %4% %5%)))");
+                for (int i = 0; i < chunkNum; i++) {
+                    partEqFmt % v->getName()
+                              % i
+                              % mem->getName()
+                              % addr->getName()
+                              % i;
+                    v->setExec (partEqFmt.str());
+                }
+            } else if (useArr && !isLittle) {
+                // (= (select z 0) (select A (+ x 2)))
+                // (= (select z 1) (select A (+ x 1)))
+                // (= (select z 2) (select A (+ x 0)))
+                boost::format partEqFmt (
+                "(= (select %1% %2%) (select %3% (+ %4% %5%)))");
+                for (int i = 0; i < chunkNum; i++) {
+                    partEqFmt % v->getName()
+                              % i
+                              % mem->getName()
+                              % addr->getName()
+                              % (chunkNum-1-i);
+                    v->setExec (partEqFmt.str());
+                }
+            } else if (!useArr && isLittle) {
+                // FIXME
                 // (= (bv2int (concat ((_ int2bv w) (select A x))
                 //            (concat ((_ int2bv w) (select A (+ x 1)))
                 //            (concat ((_ int2bv w) (select A (+ x 2)))
@@ -354,6 +389,7 @@ namespace ila
                 eqFmt % v->getName();
                 v->setExec (eqFmt.str());
             } else {
+                // FIXME
                 // (= (bv2int (concat ((_ int2bv w) (select A (+ x 3)))
                 //            (concat ((_ int2bv w) (select A (+ x 2)))
                 //            (concat ((_ int2bv w) (select A (+ x 1)))
@@ -419,6 +455,9 @@ namespace ila
             }
             exec += (v->getName() + ")");
             v->setExec (exec);
+            hvptr_t fun = getVar (n->arg(0));
+            log1 ("Horn") << "set nd " << fun->getName() << " " << exec << "\n";
+            fun->setNd (exec);
         } else {
             ILA_ASSERT (false, "Unknown BitvectorOp.");
         }
@@ -430,7 +469,11 @@ namespace ila
         // name should be exactly the same as the design.
         v->setName (n->getName());
         // type
-        v->setType ("Int");
+        if (isLongBv (n->type.bitWidth)) {
+            v->setType ("(Array Int Int)");
+        } else {
+            v->setType ("Int");
+        }
         // exec
         v->setExec ("true");
         // ins
@@ -446,7 +489,11 @@ namespace ila
         nameFmt % n->val();
         v->setName (nameFmt.str());
         // type
-        v->setType ("Int");
+        if (isLongBv (n->type.bitWidth)) {
+            v->setType ("(Array Int Int)");
+        } else {
+            v->setType ("Int");
+        }
         // exec
         v->setExec ("true");
         // ins
@@ -511,8 +558,70 @@ namespace ila
                 return;
             }
 
-            for (int i = 1; i < chunkNum; i++) {
+            for (int i = 0; i < chunkNum; i++) {
                 copyVar (v, i);
+            }
+
+            // If dataSize > _bvMaxSize, use Array to represent long bitvector.
+            bool useArr = isLongBv (dataSize);
+            boost::format arrStoreFmt (
+                "(= %1% (store %2% (+ %3% %4%) (select %5% %6%)))");
+            boost::format arrEqFmt (
+                "(= %1% %2%)");
+            if (useArr && isLittle) {
+                // (= z_2 (store A   (+ addr 2) (select val 2)))
+                // (= z_1 (store z_2 (+ addr 1) (select val 1)))
+                // (= z_0 (store z_1 (+ addr 0) (select val 0)))
+                // (= z z_0)
+                arrStoreFmt % addSuffix (v->getName(), chunkNum-1)
+                            % arg0->getName()
+                            % arg1->getName()
+                            % (chunkNum-1)
+                            % arg2->getName()
+                            % (chunkNum-1);
+                v->setExec (arrStoreFmt.str());
+                
+                for (int i = chunkNum-2; i >= 0; i--) {
+                    arrStoreFmt % addSuffix (v->getName(), i)
+                                % addSuffix (v->getName(), i+1)
+                                % arg1->getName()
+                                % i
+                                % arg2->getName()
+                                % i;
+                    v->setExec (arrStoreFmt.str());
+                }
+
+                arrEqFmt % v->getName() % addSuffix (v->getName(), 0);
+                v->setExec (arrEqFmt.str());
+                return;
+            } 
+
+            if (useArr && !isLittle) {
+                // (= z_2 (store A   (+ addr 0) (select val 2)))
+                // (= z_1 (store z_2 (+ addr 1) (select val 1)))
+                // (= z_0 (store z_1 (+ addr 2) (select val 0)))
+                // (= z z_0)
+                arrStoreFmt % addSuffix (v->getName(), chunkNum-1)
+                            % arg0->getName()
+                            % arg1->getName()
+                            % 0
+                            % arg2->getName()
+                            % (chunkNum-1);
+                v->setExec (arrStoreFmt.str());
+
+                for (int i = chunkNum-2; i >= 0; i--) {
+                    arrStoreFmt % addSuffix (v->getName(), i)
+                                % addSuffix (v->getName(), i+1)
+                                % arg1->getName()
+                                % (chunkNum-1-i)
+                                % arg2->getName()
+                                % i;
+                    v->setExec (arrStoreFmt.str());
+                }
+
+                arrEqFmt % v->getName() % addSuffix (v->getName(), 0);
+                v->setExec (arrEqFmt.str());
+                return;
             }
 
             boost::format memBlkAddFmt (
@@ -521,6 +630,7 @@ namespace ila
                 "(= %1% (store %2% %3% (bv2int ((_ extract %4% %5%) ((_ int2bv %6%) %7%)))))");
 
             if (isLittle) {
+                // FIXME
 // (= z_2 (store A      addr    (bv2int ((_ extract 7 0)   ((_ int2bv w) val)))))
 // (= z_1 (store z_2 (+ addr 1) (bv2int ((_ extract 15 8)  ((_ int2bv w) val)))))
 // (= z   (store z_1 (+ addr 2) (bv2int ((_ extract 23 16) ((_ int2bv w) val)))))
@@ -555,6 +665,7 @@ namespace ila
                              % arg2->getName();
                 v->setExec (memBlkAddFmt.str());
             } else {
+                // FIXME
 // (= z_2 (store A   (+ addr 2) (bv2int ((_ extract 7 0)   ((_ int2bv w) val)))))
 // (= z_1 (store z_2 (+ addr 1) (bv2int ((_ extract 15 8)  ((_ int2bv w) val)))))
 // (= z   (store z_1    addr    (bv2int ((_ extract 23 16) ((_ int2bv w) val)))))
@@ -632,14 +743,29 @@ namespace ila
         // type (arg_i_type ret_type)
         std::string type = "(";
         for (unsigned i = 0; i != n->type.argsWidth.size(); i++) {
-            type += "Int ";
+            if (isLongBv (n->type.argsWidth[i])) {
+                type += "(Array Int Int) ";
+            } else {
+                type += "Int ";
+            }
         }
-        type += "Int))";
+        if (isLongBv (n->type.bitWidth)) {
+            type += "(Array Int Int)))";
+        } else {
+            type += "Int))";
+        }
         v->setType (type);
         // exec 
         v->setExec ("true");
         _db->addRel (v);
+        addClause (v);
+        
         // in
         // out
+    }
+
+    bool HornTranslator::isLongBv (const int& w) const
+    {
+        return w > _bvMaxSize;
     }
 }

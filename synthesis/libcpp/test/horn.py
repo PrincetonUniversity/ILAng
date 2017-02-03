@@ -37,5 +37,14 @@ def main():
     alu.hornifyNode(r0_nxt, "r0_nxt")
     alu.exportHornToFile(hornFile)
 
+    m = ila.Abstraction("fun")
+    x = m.reg ('x', 8)
+    y = m.reg ('y', 16)
+    f = m.fun ('foo', 8, [8, 16])
+    r = ila.appfun (f, x, y)
+    m.hornifyBvAsInt (True)
+    m.hornifyNode (r, "foo")
+    m.exportHornToFile (hornFile)
+
 if __name__ == '__main__':
     main()

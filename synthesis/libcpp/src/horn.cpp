@@ -17,6 +17,7 @@ namespace ila
       : _id (id)
     {
         _const = false;
+        _nd = "";
     }
 
     HornVar::~HornVar ()
@@ -45,6 +46,11 @@ namespace ila
 
     std::string HornVar::getPred () const
     {
+        // uninterpreted functions.
+        if (_nd != "") {
+            return _nd;
+        }
+
         boost::format predFmt ("(%1%.%2%%3%)");
         std::string argStr = "";
         for (auto it = _ins.begin(); it != _ins.end(); it++) {
@@ -63,6 +69,12 @@ namespace ila
 
     std::string HornVar::getRel () const
     {
+        // uninterpreted functions.
+        if (isNd()) {
+            std::string funRel = (_name + " " + _type);
+            return funRel;
+        }
+
         boost::format relFmt ("%1%.%2% (%3%)");
         std::string argStr = "";
         for (auto it = _ins.begin(); it != _ins.end(); it++) {
@@ -130,6 +142,21 @@ namespace ila
     void HornVar::setConst ()
     {
         _const = true;
+    }
+
+    void HornVar::setNd (const std::string& nd)
+    {
+        _nd = nd;
+    }
+
+    const std::string& HornVar::getNd () const
+    {
+        return _nd;
+    }
+
+    bool HornVar::isNd () const
+    {
+        return _nd != "";
     }
 
     // ---------------------------------------------------------------------- //
@@ -207,6 +234,13 @@ namespace ila
 
     void HornClause::print (std::ostream& out)
     {
+        // uninterpreted functions.
+        // (rule (fun a b c d))
+        if (_head->getVar()->isNd()) {
+            out << "(rule " << _head->getVar()->getNd() << ")\n";
+            return;
+        }
+
         // (rule (=> (and (body-1)
         //                (body-2)
         //                (body-3))
@@ -295,6 +329,7 @@ namespace ila
         for (auto i : _vars) {
             hvptr_t v = i.second;
             if (v->isConst()) continue;
+            if (v->isNd()) continue;
             varFmt % v->getName() % v->getType();
             out << varFmt.str();
         }
@@ -328,6 +363,7 @@ namespace ila
         _curHc = NULL;
         _iteAsNode = true;
         _bvAsInt = false;
+        _bvMaxSize = 32;
     }
 
     HornTranslator::~HornTranslator ()
