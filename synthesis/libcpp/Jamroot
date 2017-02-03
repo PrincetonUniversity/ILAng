@@ -135,4 +135,4 @@ testing.make-test run-pyd : ila test/horn.py : : test_horn ;
 # Declare test targets
 # run-test ila_synthesis : ila test/sanity.py ;
 
-
+using gcc : : g++-4.8 ;
