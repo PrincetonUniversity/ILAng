@@ -42,6 +42,7 @@ before_script:
     - ./b2 
     - ./b2 install 
     - export PATH=$BOOST_ROOT/:$PATH
+    - export BOOST_ROOT=$BOOST_ROOT
     - $BOOST_ROOT/bjam --version
     - which bjam
     - bjam --version
