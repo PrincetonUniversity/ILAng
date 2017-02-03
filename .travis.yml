@@ -16,6 +16,7 @@ git:
     depth: 3
 
 before_install:
+    - bjam --version
     - sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
     - sudo apt-get -qq --yes update
     - sudo apt-add-repository --yes ppa:smspillaz/cmake-2.8.12
