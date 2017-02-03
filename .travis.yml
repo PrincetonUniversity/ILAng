@@ -56,10 +56,10 @@ before_script:
 
 script:
     - cd synthesis/libcpp
-    - mkdir -p cbuild
-    - cd cbuild
-    - cmake ../ -L -DZ3_INCLUDE_DIR=/usr/include
-#- bjam
+#- mkdir -p cbuild
+#- cd cbuild
+#- cmake ../ -L -DZ3_INCLUDE_DIR=/usr/include
+    - bjam
 
 notifications:
     email: false
