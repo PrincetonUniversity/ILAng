@@ -1,5 +1,4 @@
 language: cpp
-compiler: g++-4.8
 
 branches:
     only:
@@ -29,7 +28,7 @@ before_script:
     - tar -zxf boost-trunk.tar.gz --strip-components=1 -C $BOOST_ROOT > /dev/null
     - cd $BOOST_ROOT
     - ./bootstrap.sh --prefix=$BOOST_ROOT > /dev/null
-    - ./b2 > /dev/null
+    - ./b2 
     - ./b2 install 
     - export PATH=$BOOST_ROOT/:$PATH
     - export C_INCLUDE_PATH=$BOOST_ROOT/:$C_INCLUDE_PATH
@@ -41,7 +40,7 @@ before_script:
     - cd z3
     - python scripts/mk_make.py
     - cd build
-    - make > /dev/null
+    - make 
     - sudo make install
     - cd $TRAVIS_BUILD_DIR
 
