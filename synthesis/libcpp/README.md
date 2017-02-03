@@ -7,7 +7,7 @@ Build Status
 |------------------------------|
 | [![linux build status][1]][2]|
 
-[1]: https://travis-ci.org/Bo-Yuan-Huang/ILA.svg?branch=travisBranch
+[1]: https://travis-ci.org/Bo-Yuan-Huang/ILA.svg?branch=master
 [2]: https://travis-ci.org/Bo-Yuan-Huang/ILA
 
 #### z3 
