@@ -15,7 +15,8 @@ git:
     depth: 3
 
 before_install:
-    - until sudo apt-get -qq install g++-4.8; do echo retry; done
+    - sudo apt-get --yes -qq install gcc-4.8
+    - sudo apt-get --yes -qq install g++-4.8
     
 install: 
     - g++4.8 --version
