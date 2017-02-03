@@ -38,12 +38,13 @@ before_script:
     - tar -zxf boost-trunk.tar.gz --strip-components=1 -C $BOOST_ROOT > /dev/null
     - cd $BOOST_ROOT
     #- ./bootstrap.sh --prefix=$BOOST_ROOT > /dev/null
-    - ./bootstrap.sh --prefix=/usr/
+    #- ./bootstrap.sh --prefix=/usr/
+    - ./bootstrap.sh 
     - ./b2 
     - sudo ./b2 install 
-    - export PATH=$BOOST_ROOT/:$PATH
+    #- export PATH=$BOOST_ROOT/:$PATH
     - export BOOST_ROOT=$BOOST_ROOT
-    #- alias bjam=$BOOST_ROOT/bjam
+    - alias bjam=$BOOST_ROOT/bjam
     - export C_INCLUDE_PATH=$BOOST_ROOT/:$C_INCLUDE_PATH
     - export CPLUS_INCLUDE_PATH=$BOOST_ROOT/:$CPLUS_INCLUDE_PATH
     - export BOOST_BUILD_PATH=$BOOST_ROOT
