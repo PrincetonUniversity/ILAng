@@ -40,7 +40,7 @@ before_script:
     #- ./bootstrap.sh --prefix=$BOOST_ROOT > /dev/null
     - ./bootstrap.sh 
     - ./b2 
-    - ./b2 install 
+    #- sudo /b2 install 
     - export PATH=$BOOST_ROOT/:$PATH
     - bjam --version
     - ls $BOOST_ROOT
