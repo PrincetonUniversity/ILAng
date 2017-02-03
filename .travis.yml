@@ -1,5 +1,5 @@
 language: cpp
-compiler: g++4.8
+compiler: g++-4.8
 
 branches:
     only:
