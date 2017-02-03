@@ -37,10 +37,10 @@ before_script:
     - mkdir -p $BOOST_ROOT
     - tar -zxf boost-trunk.tar.gz --strip-components=1 -C $BOOST_ROOT > /dev/null
     - cd $BOOST_ROOT
-    - ./bootstrap.sh --prefix=$BOOST_ROOT > /dev/null
-    #- ./bootstrap.sh 
+    #- ./bootstrap.sh --prefix=$BOOST_ROOT > /dev/null
+    - ./bootstrap.sh --prefix=/usr/
     - ./b2 
-    - ./b2 install 
+    - sudo ./b2 install 
     - export PATH=$BOOST_ROOT/:$PATH
     - export BOOST_ROOT=$BOOST_ROOT
     - strace $BOOST_ROOT/bjam --version
