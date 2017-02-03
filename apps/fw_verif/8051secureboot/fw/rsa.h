@@ -77,20 +77,22 @@ int unlock(int page, unsigned char* startaddr, unsigned char* endaddr);
 #define lock(page, start, end) lock_wr(start, end)
 #define unlock(page, start, end) unlock_wr(start, end)
 */ 
-extern void MMIO_WRptr(unsigned char** addr, unsigned char* data);
-extern void MMIO_WR(unsigned char* addr, unsigned char data);
-extern void MMIO_WRi(unsigned int* addr, int data);
 
-extern void HW_REG_WRITE(unsigned char* addr, unsigned char data);
+extern void HW_REG_WRITE_chr(unsigned char* addr, unsigned char data);
 extern void HW_REG_WRITE_int(unsigned int* addr, int data);
 extern void HW_REG_WRITE_ptr(unsigned char** addr, unsigned char* data);
 
 void writecWrap (unsigned char* addr, unsigned char data);
 #define writec(page, addr, data, trusted) writecWrap(addr, data)
+//#define writec(page, addr, data, trusted) HW_REG_WRITE_chr(addr, data)
 void writeiWrap (unsigned int* addr, int data);
-#define writei(page, addr, data) writeiWrap(addr, data)
+#define writei(page, addr, data) *(addr) = data
+//#define writei(page, addr, data) writeiWrap(addr, data)
+//#define writei(page, addr, data) HW_REG_WRITE_int(addr, data)
 void writepWrap (unsigned char** addr, unsigned char* data);
-#define writeptr(page, addr, data) writepWrap(addr, data)
+#define writeptr(page, addr, data) *(addr) = data
+//#define writeptr(page, addr, data) writepWrap(addr, data)
+//#define writeptr(page, addr, data) HW_REG_WRITE_ptr(addr, data)
 void writeaWrap (unsigned char* addr, unsigned char* data, int len);
 #define writecarr(page, addr, data, len) writeaWrap(addr, data, len)
 
@@ -127,6 +129,7 @@ struct sha_reg_struct {
     unsigned char *rd_addr;
     unsigned char *wr_addr;
     unsigned int len;
+    unsigned int bytes_read;
     unsigned char hs_data[160];
     unsigned char rd_data[520];
 };

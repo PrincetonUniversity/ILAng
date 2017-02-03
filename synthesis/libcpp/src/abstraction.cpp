@@ -928,23 +928,22 @@ namespace ila
     }
 
     // ---------------------------------------------------------------------- //
-    void Abstraction::hornifyAll(const std::string& fileName, bool iteAsNode)
+    void Abstraction::hornifyAll(const std::string& fileName)
     {
         if (_ht == NULL)
-            _ht = new HornTranslator (this, iteAsNode);
+            _ht = new HornTranslator (this);
         _ht->hornifyAll(fileName);
     }
 
     // ---------------------------------------------------------------------- //
-    void Abstraction::hornifyNode(NodeRef* node, 
-                                  const std::string& ruleName,
-                                  bool iteAsNode)
+    void Abstraction::hornifyNode(NodeRef* node, const std::string& ruleName)
     {
         if (_ht == NULL)
-            _ht = new HornTranslator (this, iteAsNode);
+            _ht = new HornTranslator (this);
         _ht->hornifyNode(node, ruleName);
     }
 
+    // ---------------------------------------------------------------------- //
     void Abstraction::exportHornToFile(const std::string& fileName)
     {
         if (_ht == NULL) {
@@ -952,6 +951,22 @@ namespace ila
             return;
         }
         _ht->exportHorn(fileName);
+    }
+
+    // ---------------------------------------------------------------------- //
+    void Abstraction::hornifyIteAsNode(bool iteAsNode)
+    {
+        if (_ht == NULL)
+            _ht = new HornTranslator (this);
+        _ht->setIteAsNode(iteAsNode);
+    }
+
+    // ---------------------------------------------------------------------- //
+    void Abstraction::hornifyBvAsInt(bool bvAsInt)
+    {
+        if (_ht == NULL)
+            _ht = new HornTranslator (this);
+        _ht->setBvAsInt(bvAsInt);
     }
 
     // ---------------------------------------------------------------------- //

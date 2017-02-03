@@ -425,6 +425,10 @@ BOOST_PYTHON_MODULE(ila)
         .def("hornifyAll", &AbstractionWrapper::hornifyAll)
         // hornify one ast node
         .def("hornifyNode", &AbstractionWrapper::hornifyNode)
+        // set flag to hornify ite as node (default true)
+        .def("hornifyIteAsNode", &AbstractionWrapper::hornifyIteAsNode)
+        // set flag to hornify bitvector as Int (default true)
+        .def("hornifyBvAsInt", &AbstractionWrapper::hornifyBvAsInt)
         // export horn to file
         .def("exportHornToFile", &AbstractionWrapper::exportHornToFile)
 

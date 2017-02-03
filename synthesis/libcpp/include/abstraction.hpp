@@ -269,13 +269,15 @@ namespace ila
         void toBoogie(const std::string& filename);
 
         // convert this abstraction to horn clauses.
-        void hornifyAll(const std::string& fileName, bool iteAsNode);
+        void hornifyAll(const std::string& fileName);
         // convert one node to horn clause,
-        void hornifyNode(NodeRef* node, 
-                         const std::string& ruleName,
-                         bool iteAsNode);
+        void hornifyNode(NodeRef* node, const std::string& ruleName);
         // dump horn clauses to file.
         void exportHornToFile(const std::string& fileName);
+        // set flag to hornify ITE as node.
+        void hornifyIteAsNode(bool iteAsNode);
+        // set flag to hornify bitvector as Int.
+        void hornifyBvAsInt(bool bvAsInt);
 
         // get memories.
         const nmap_t& getMems() const { return mems; }
@@ -708,21 +710,29 @@ namespace ila
             abs->toBoogie(name);
         }
 
-        void hornifyAll(const std::string& name, bool iteAsNode)
+        void hornifyAll(const std::string& name)
         {
-            abs->hornifyAll(name, iteAsNode);
+            abs->hornifyAll(name);
         }
 
-        void hornifyNode(NodeRef* node, 
-                         const std::string& rule, 
-                         bool iteAsNode)
+        void hornifyNode(NodeRef* node, const std::string& rule)
         {
-            abs->hornifyNode(node, rule, iteAsNode);
+            abs->hornifyNode(node, rule);
         }
 
         void exportHornToFile(const std::string& fileName)
         {
             abs->exportHornToFile(fileName);
+        }
+
+        void hornifyIteAsNode(bool iteAsNode)
+        {
+            abs->hornifyIteAsNode(iteAsNode);
+        }
+
+        void hornifyBvAsInt(bool bvAsInt)
+        {
+            abs->hornifyBvAsInt(bvAsInt);
         }
 
         int getEnParamSyn() const {

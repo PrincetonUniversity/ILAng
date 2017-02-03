@@ -17,6 +17,7 @@ namespace ila
       : _id (id)
     {
         _const = false;
+        _nd = "";
     }
 
     HornVar::~HornVar ()
@@ -45,6 +46,11 @@ namespace ila
 
     std::string HornVar::getPred () const
     {
+        // uninterpreted functions.
+        if (_nd != "") {
+            return _nd;
+        }
+
         boost::format predFmt ("(%1%.%2%%3%)");
         std::string argStr = "";
         for (auto it = _ins.begin(); it != _ins.end(); it++) {
@@ -63,6 +69,12 @@ namespace ila
 
     std::string HornVar::getRel () const
     {
+        // uninterpreted functions.
+        if (isNd()) {
+            std::string funRel = (_name + " " + _type);
+            return funRel;
+        }
+
         boost::format relFmt ("%1%.%2% (%3%)");
         std::string argStr = "";
         for (auto it = _ins.begin(); it != _ins.end(); it++) {
@@ -130,6 +142,21 @@ namespace ila
     void HornVar::setConst ()
     {
         _const = true;
+    }
+
+    void HornVar::setNd (const std::string& nd)
+    {
+        _nd = nd;
+    }
+
+    const std::string& HornVar::getNd () const
+    {
+        return _nd;
+    }
+
+    bool HornVar::isNd () const
+    {
+        return _nd != "";
     }
 
     // ---------------------------------------------------------------------- //
@@ -207,6 +234,13 @@ namespace ila
 
     void HornClause::print (std::ostream& out)
     {
+        // uninterpreted functions.
+        // (rule (fun a b c d))
+        if (_head->getVar()->isNd()) {
+            out << "(rule " << _head->getVar()->getNd() << ")\n";
+            return;
+        }
+
         // (rule (=> (and (body-1)
         //                (body-2)
         //                (body-3))
@@ -224,13 +258,13 @@ namespace ila
             }
         }
 
-        // FIXME ignore (A -> A)
+        // ignore (A -> A)
         if ((allTerms.size() == 1) && 
             (*allTerms.begin() == _head->getVar()->getPred()))
             return;
 
         out << "(rule (=> (and ";
-        if (allTerms.empty()) {
+        if (allTerms.empty() || allTerms.size() == 1) {
             allTerms.insert("true");
         }
         for (auto b = allTerms.begin(); b != allTerms.end(); ) {
@@ -295,6 +329,7 @@ namespace ila
         for (auto i : _vars) {
             hvptr_t v = i.second;
             if (v->isConst()) continue;
+            if (v->isNd()) continue;
             varFmt % v->getName() % v->getType();
             out << varFmt.str();
         }
@@ -320,13 +355,15 @@ namespace ila
     }
 
     // ---------------------------------------------------------------------- //
-    HornTranslator::HornTranslator (Abstraction* abs, bool iteAsNode)
-      : _abs (abs),
-        _iteAsNode (iteAsNode)
+    HornTranslator::HornTranslator (Abstraction* abs)
+      : _abs (abs)
     {
         _db = new HornDB();
         _varCnt = 0;
         _curHc = NULL;
+        _iteAsNode = true;
+        _bvAsInt = false;
+        _bvMaxSize = 32;
     }
 
     HornTranslator::~HornTranslator ()
@@ -352,6 +389,7 @@ namespace ila
         hcptr_t topC = addClause (topV);
         topV->addOutVar (varNxt);
         topV->setType (varNxt->getType());
+
         
         _curHc = topC;
         depthFirstTraverse (n);
@@ -363,6 +401,16 @@ namespace ila
         ILA_ASSERT (out.is_open(), "File " + fileName + " not open.");
         _db->print (out);
         out.close();
+    }
+
+    void HornTranslator::setIteAsNode (bool iteAsNode)
+    {
+        _iteAsNode = iteAsNode;
+    }
+
+    void HornTranslator::setBvAsInt (bool bvAsInt)
+    {
+        _bvAsInt = bvAsInt;
     }
 
     void HornTranslator::depthFirstTraverse (nptr_t n)
@@ -533,6 +581,15 @@ namespace ila
 
     void HornTranslator::initVar (hvptr_t v, nptr_t node)
     {
+        if (_bvAsInt) {
+            initVarInt (v, node);
+        } else {
+            initVarBv (v, node);
+        }
+    }
+
+    void HornTranslator::initVarBv (hvptr_t v, nptr_t node)
+    {
         Node* n = node.get();
 
         const BoolOp* boolop = NULL;
@@ -687,7 +744,7 @@ namespace ila
                        % arg1->getName();
                 v->setExec (priFmt.str());
             } else if (n->op >= BoolOp::Op::XNOR && 
-                       n->op == BoolOp::Op::NOR) {
+                       n->op <= BoolOp::Op::NOR) {
                 // use negated format (= z (not (op x y)))
                 negFmt % v->getName()
                        % boolOpNames[n->op]
@@ -695,7 +752,7 @@ namespace ila
                        % arg1->getName();
                 v->setExec (negFmt.str());
             } else {
-                ILA_ASSERT (false, "Unknonw BoolOp.");
+                ILA_ASSERT (false, "Unknonw Binary BoolOp.");
             }
         //// Ternary ////
         } else if (n->op == BoolOp::Op::IF) {
@@ -714,7 +771,7 @@ namespace ila
                        % vElse->getName();
                 v->setExec (iteFmt.str());
             } else {
-                v->setExec ("true"); // FIXME
+                v->setExec ("true"); 
             }
         } else {
             ILA_ASSERT (false, "Unknown BoolOp.");
@@ -990,7 +1047,6 @@ namespace ila
 
         if (n->op == MemOp::Op::STORE) {
             // z = store (A, addr, data) --> (= z (store A addr data))
-            // FIXME may need to convert to int
             boost::format memStoreFmt ("(= %1% (store %2% %3% %4%))");
             memStoreFmt % v->getName()
                         % arg0->getName()
@@ -1066,7 +1122,7 @@ namespace ila
             } else {
                 // (= z_2 (store A   (bvadd addr #2) ((_ extract 7 0) val)))
                 // (= z_1 (store z_2 (bvadd addr #1) ((_ extract 15 8) val)))
-                // (= z   (store z_1        addr    ((_ extract 23 16) val)))
+                // (= z   (store z_1        addr     ((_ extract 23 16) val)))
                 memBlkBvaddFmt % addSuffix (v->getName(), chunkNum-1)
                                % arg0->getName()
                                % arg1->getName()
@@ -1252,7 +1308,7 @@ namespace ila
 
     void HornTranslator::addFuncVar (const FuncVar* n, hvptr_t v)
     {
-        ILA_ASSERT (_curHc != NULL, "workinf clause not exist.");
+        ILA_ASSERT (_curHc != NULL, "working clause not exist.");
         _curHc->addBody (new HornLiteral (v)); // _exec is "true".
     }
 
@@ -1424,9 +1480,15 @@ namespace ila
        
         for (auto p : n->memvalues.values) {
             boost::format memConstFmt ("(= %1% (select %2% %3%))");
-            memConstFmt % bvToString (p.second, dataWidth)
-                        % v->getName()
-                        % bvToString (p.first, addrWidth);
+            if (_bvAsInt) {
+                memConstFmt % p.second
+                            % v->getName()
+                            % p.first;
+            } else {
+                memConstFmt % bvToString (p.second, dataWidth)
+                            % v->getName()
+                            % bvToString (p.first, addrWidth);
+            }
             hv->setExec (memConstFmt.str());
         }
 

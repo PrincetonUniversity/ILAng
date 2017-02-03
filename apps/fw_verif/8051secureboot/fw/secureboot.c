@@ -19,10 +19,8 @@
 //#include <reg51.h> FIXME
 #endif
 
-unsigned char* program;
-unsigned char* boot;
-//XDATA_ARR(0x0000, MAX_PRG_SIZE, unsigned char, program);
-//XDATA_ARR(0x5000, MAX_IM_SIZE, unsigned char, boot);
+XDATA_ARR(0x0000, MAX_PRG_SIZE, unsigned char, program);
+XDATA_ARR(0x5000, MAX_IM_SIZE, unsigned char, boot);
 
 XDATA_ARR(0xC000, MAX_IM_SIZE+0x40, unsigned char, sha_in);
 XDATA_ARR(0xE100, H, unsigned char, sha_out);
@@ -102,8 +100,7 @@ void meminit(struct image* image)
 #endif
 
 int main() {
-    // assumptions on memory mapped address. FIXME
-    //assume (&sha_ptr == (struct acc_regs*)0xFE00);
+    // assumptions on memory mapped address. 
     assume (&sha_ptr == (struct sha_reg_struct*)0xFE00);
     assume (&memwr_ptr == (struct acc_regs*)0xF9F0);
     assume (&rsa_ptr == (struct RSA_regs*)0xFA00);
@@ -142,7 +139,7 @@ int main() {
     unsigned char addr_val = 1;
 #endif
 
-    sassert (pass != FAIL);
+    //sassert (pass != FAIL);
     int stage = 0;
 
     // STAGE 0: set up
@@ -167,8 +164,8 @@ int main() {
     writeptr(SHA, &sha_regs.rd_addr, sha_in);
     writeptr(SHA, &sha_regs.wr_addr, sha_out);
     lock(SHA, (unsigned char*)&sha_regs.rd_addr, (unsigned char*)(&sha_regs.wr_addr+1));
-    sassert (sha_regs.rd_addr == sha_in);
-    sassert (sha_regs.wr_addr == sha_out);
+    //sassert (sha_regs.rd_addr == sha_in);
+    //sassert (sha_regs.wr_addr == sha_out);
     // unlock memwr registers
     unlock(MEMWR, (unsigned char*)&memwr_regs.start, (unsigned char*)(&memwr_regs+1));
     // set up RSA
@@ -182,8 +179,7 @@ int main() {
         return 0;
     }
 
-
-    sassert (stage == 0);
+    //sassert (stage == 0);
     stage = 1;
     // STAGE 1: read image into RAM  
     unlock(pages[BOOT], boot, boot+MAX_IM_SIZE);
@@ -202,14 +198,9 @@ int main() {
     // image is loaded.
     // now we need to lock boot to boot + MAX_IM_SIZE
     lock(pages[BOOT], boot, boot+MAX_IM_SIZE);
-    sassert (pass != FAIL);
-/*
-#ifdef CBMC
-    if(nondet_uint())
-        writec(nondet_int(), nondet_ptr(), nondet_uint(), 0);
-#endif
-*/
-    sassert (stage == 1);
+    //sassert (pass != FAIL);
+
+    //sassert (stage == 1);
     stage = 2;
     // STAGE 2: check that key matches hash
     im  = (struct image*) boot;
@@ -222,9 +213,9 @@ int main() {
     writecarr(RSA_KEYS, rsa_regs.n, im->mod, N);
     lock(RSA_KEYS, rsa_regs.n, rsa_regs.n+N);
     // check the hashes
-    sassert (sha_regs.state == 0);
+    //sassert (sha_regs.state == 0);
     sha1(rsa_regs.exp, 2*N);
-    sassert (sha_regs.state == 0);
+    //sassert (sha_regs.state == 0);
     sassert (0);
 #ifndef CBMC
     for(i=0; i<H; i++){
@@ -244,14 +235,14 @@ int main() {
     }
 #endif
     //sassert (0);
-    sassert (pass != FAIL);
+    //sassert (pass != FAIL);
 
 //#ifdef CBMC
 //    assert(size <= MAX_IM_SIZE);
 //    __CPROVER_assume(size <= MAX_IM_SIZE);
 //#endif
 
-    sassert (stage == 2);
+    //sassert (stage == 2);
     stage = 3;
     // STAGE 3: verify signature in boot
     num = im->num & 0xFFFF;  // number of modules
@@ -278,9 +269,9 @@ int main() {
         return 0;
     }
 
-    sassert (pass != FAIL);
+    //sassert (pass != FAIL);
 
-    sassert (stage == 3);
+    //sassert (stage == 3);
     stage = 4;
     // STAGE 4: load blocks
     if(num == 0){  // no blocks to load, done
@@ -374,7 +365,7 @@ int main() {
         moddata += size;
         block++;
     }
-    sassert (checkHash);
+    //sassert (checkHash);
 #ifdef CBMC
     // fail if modules overlap, or image or program was corrupted
     if(!addr_val || !pt_valid(pages[BOOT]) || !pt_valid(pages[PRG]))
@@ -395,7 +386,7 @@ int main() {
         }
     }
 #endif
-    sassert (pass != FAIL);
+    //sassert (pass != FAIL);
     // PASS or FAIL
     if(pass != FAIL)
         pass = PASS;
@@ -407,7 +398,7 @@ int main() {
     // FIXME
     // P0 = pass;
 
-    sassert (pass == PASS);
+    //sassert (pass == PASS);
 #ifdef CBMC
 //    after = boot[compind];  // checking image locking
 //    assert(after==before || !pt_valid(pages[BOOT]));

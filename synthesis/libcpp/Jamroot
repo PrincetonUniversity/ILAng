@@ -61,6 +61,7 @@ python-extension ila : src/abstraction.cpp
                        src/exception.cpp 
                        src/ext.cpp 
                        src/horn.cpp
+                       src/hornInt.cpp
                        src/imexport.cpp
                        src/logging.cpp
                        src/memvalues.cpp
