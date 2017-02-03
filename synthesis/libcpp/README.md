@@ -1,5 +1,15 @@
 # Building ILA synthesis tool
 
+Build Status
+------------
+
+| Linux                        |
+|------------------------------|
+| [![linux build status][1]][2]|
+
+[1]: https://travis-ci.org/Bo-Yuan-Huang/ILA.svg?branch=travisBranch
+[2]: https://travis-ci.org/Bo-Yuan-Huang/ILA
+
 #### z3 
 Building ILA synthesis tool requires [z3] (https://github.com/Z3Prover/z3) 4.4.0 or above.
 
