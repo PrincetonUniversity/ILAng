@@ -65,6 +65,8 @@ script:
 #- mkdir -p cbuild
 #- cd cbuild
 #- cmake ../ -L -DZ3_INCLUDE_DIR=/usr/include
+    - printenv
+    - which bjam
     - bjam
 
 notifications:
