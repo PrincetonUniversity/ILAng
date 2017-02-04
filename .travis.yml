@@ -47,9 +47,14 @@ before_script:
     - alias bjam=$BOOST_ROOT/bjam
     - export C_INCLUDE_PATH=$BOOST_ROOT/:$C_INCLUDE_PATH
     - export CPLUS_INCLUDE_PATH=$BOOST_ROOT/:$CPLUS_INCLUDE_PATH
+    - export C_INCLUDE_PATH=/usr/include/:$C_INCLUDE_PATH
+    - export CPLUS_INCLUDE_PATH=/usr/include/:$CPLUS_INCLUDE_PATH
+    - export C_INCLUDE_PATH=/usr/local/include/:$C_INCLUDE_PATH
+    - export CPLUS_INCLUDE_PATH=/usr/local/include/:$CPLUS_INCLUDE_PATH
     - export BOOST_BUILD_PATH=$BOOST_ROOT
-    #- export LIBRARY_PATH=$BOOST_ROOT/stage/lib/:$LIBRARY_PATH
-    #- export LD_LIBRARY_PATH=$BOOST_ROOT/stage/lib/:$LD_LIBRARY_PATH
+    - export LIBRARY_PATH=$BOOST_ROOT/stage/lib/:$LIBRARY_PATH
+    - export LD_LIBRARY_PATH=$BOOST_ROOT/stage/lib/:$LD_LIBRARY_PATH
+    - ls
     - cd $TRAVIS_BUILD_DIR
     # z3
     - git clone https://github.com/Z3Prover/z3.git
@@ -67,7 +72,7 @@ script:
 #- cmake ../ -L -DZ3_INCLUDE_DIR=/usr/include
     - printenv
     - which bjam
-    - bjam
+    - $BOOST_ROOT/bjam
 
 notifications:
     email: false
