@@ -37,12 +37,9 @@ before_script:
     - mkdir -p $BOOST_ROOT
     - tar -zxf boost-trunk.tar.gz --strip-components=1 -C $BOOST_ROOT > /dev/null
     - cd $BOOST_ROOT
-    #- ./bootstrap.sh --prefix=$BOOST_ROOT > /dev/null
-    #- ./bootstrap.sh --prefix=/usr/
     - ./bootstrap.sh 
     - ./b2 
     - sudo ./b2 install 
-    #- export PATH=$BOOST_ROOT/:$PATH
     - export BOOST_ROOT=$BOOST_ROOT
     - alias bjam=$BOOST_ROOT/bjam
     - export C_INCLUDE_PATH=$BOOST_ROOT/:$C_INCLUDE_PATH
@@ -54,7 +51,6 @@ before_script:
     - export BOOST_BUILD_PATH=$BOOST_ROOT
     - export LIBRARY_PATH=$BOOST_ROOT/stage/lib/:$LIBRARY_PATH
     - export LD_LIBRARY_PATH=$BOOST_ROOT/stage/lib/:$LD_LIBRARY_PATH
-    - ls
     - cd $TRAVIS_BUILD_DIR
     # z3
     - git clone https://github.com/Z3Prover/z3.git
@@ -70,8 +66,6 @@ script:
 #- mkdir -p cbuild
 #- cd cbuild
 #- cmake ../ -L -DZ3_INCLUDE_DIR=/usr/include
-    - printenv
-    - which bjam
     - $BOOST_ROOT/bjam
 
 notifications:
