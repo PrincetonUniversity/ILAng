@@ -70,7 +70,7 @@ script:
     # CMake
     - mkdir -p cbuild
     - cd cbuild
-    - cmake ../ -L -DZ3_INCLUDE_DIR=/usr/include
+    - cmake ../ -L -DZ3_INCLUDE_DIR=/usr/include -DCMAKE_CXX_COMPILER=g++-4.8
     - make
 
 notifications:
