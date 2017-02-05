@@ -12,8 +12,8 @@ env:
     matrix:
         - CMAKE_CXX_COMPILER=g++-4.8
 
-git:
-    depth: 3
+#git:
+#    depth: 3
 
 before_install:
     - sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
@@ -55,6 +55,7 @@ before_script:
     # z3
     - git clone https://github.com/Z3Prover/z3.git
     - cd z3
+    - git checkout bd0bd6052a9e52712326f680f2b7415a93c4d1e0
     - python scripts/mk_make.py
     - cd build
     - make 
