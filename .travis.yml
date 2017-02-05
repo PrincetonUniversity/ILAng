@@ -65,7 +65,8 @@ before_script:
 script:
     - cd $TRAVIS_BUILD_DIR/synthesis/libcpp
     # Boost bjam
-    - $BOOST_ROOT/bjam toolset=g++-4.8
+    - echo "using gcc : 4.8 : g++-4.8 ; " >> Jamroot
+    - $BOOST_ROOT/bjam toolset=gcc-4.8
     - rm -r bin/*
     # CMake
     - mkdir -p cbuild
