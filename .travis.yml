@@ -64,6 +64,9 @@ before_script:
 script:
     - cd $TRAVIS_BUILD_DIR/synthesis/libcpp
     - $BOOST_ROOT/bjam
+    - mkdir -p cbuild
+    - cd cbuild
+    - cmake ../ -L -DZ3_INCLUDE_DIR=/usr/include
 
 notifications:
     email: false
