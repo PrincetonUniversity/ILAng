@@ -29,6 +29,7 @@ install:
     - sudo apt-get install --yes -qq g++-4.8
     - sudo apt-get -qq --yes update
     - sudo apt-get install --yes -qq libstdc++-4.8-dev
+    - sudo apt-get --purge remove g++-4.6
 
 before_script:
     # boost
@@ -65,8 +66,9 @@ before_script:
 script:
     - cd $TRAVIS_BUILD_DIR/synthesis/libcpp
     # Boost bjam
-    - echo "using gcc : 4.8 : g++-4.8 ; " >> Jamroot
-    - $BOOST_ROOT/bjam toolset=gcc-4.8
+    #- echo "using gcc : 4.8 : g++-4.8 ; " >> Jamroot
+    #- $BOOST_ROOT/bjam toolset=gcc-4.8
+    - $BOOST_ROOT/bjam
     - rm -r bin/*
     # CMake
     - mkdir -p cbuild
