@@ -64,7 +64,10 @@ before_script:
 
 script:
     - cd $TRAVIS_BUILD_DIR/synthesis/libcpp
+    # Boost bjam
     - $BOOST_ROOT/bjam
+    - rm -r bin/*
+    # CMake
     - mkdir -p cbuild
     - cd cbuild
     - cmake ../ -L -DZ3_INCLUDE_DIR=/usr/include
