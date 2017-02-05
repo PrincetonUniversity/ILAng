@@ -12,7 +12,6 @@ TAR_CHC = tmp.smt2
 .PHONY: SYN
 
 all: SYN
-	@echo "Integrating HW CHC"
 	@cat $(ILA_CHC) > $(TAR_CHC)
 	@cat $(COM_CHC) >> $(TAR_CHC)
 	@for chc in $(MAP_CHC); do \

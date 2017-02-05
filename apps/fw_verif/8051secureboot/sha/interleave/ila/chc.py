@@ -3,7 +3,6 @@ import ila
 import os
 
 def createHorn():
-    print 'Generate Horn Clauses'
     all_instr  = [addr for addr in xrange(0xfe00, 0xfe10)]
     all_instr  = [0xfe00, 0xfe01]
     all_child  = [1, 2, 3, 4]
