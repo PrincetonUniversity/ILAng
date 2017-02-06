@@ -395,6 +395,11 @@ namespace ila
         depthFirstTraverse (n);
     }
 
+    void HornTranslator::generateMapping (const std::string& type)
+    {
+        // TODO
+    }
+
     void HornTranslator::exportHorn (const std::string& fileName)
     {
         std::ofstream out (fileName.c_str());
@@ -411,6 +416,24 @@ namespace ila
     void HornTranslator::setBvAsInt (bool bvAsInt)
     {
         _bvAsInt = bvAsInt;
+    }
+
+    void HornTranslator::addInstr (const std::string& i, NodeRef* d)
+    {
+        // TODO
+    }
+
+    void HornTranslator::addNext (const std::string& i, const std::string& s,
+                                  NodeRef* n)
+    {
+        // TODO
+    }
+
+    void HornTranslator::addChildInstr (const std::string& c, 
+                                        const std::string& i,
+                                        NodeRef* d)
+    {
+        // TODO
     }
 
     void HornTranslator::depthFirstTraverse (nptr_t n)

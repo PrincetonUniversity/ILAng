@@ -272,12 +272,22 @@ namespace ila
         void hornifyAll(const std::string& fileName);
         // convert one node to horn clause,
         void hornifyNode(NodeRef* node, const std::string& ruleName);
+        // generate mapping for instructions. (Interleave/Blocking)
+        void generateHornMapping (const std::string& type);
         // dump horn clauses to file.
         void exportHornToFile(const std::string& fileName);
         // set flag to hornify ITE as node.
         void hornifyIteAsNode(bool iteAsNode);
         // set flag to hornify bitvector as Int.
         void hornifyBvAsInt(bool bvAsInt);
+        // create an instruction with name i and decode d.
+        void addHornInstr (const std::string& i, NodeRef* d);
+        // add next state function n for state s to (child-)instruction i.
+        void addHornNext (const std::string& i, const std::string& s, 
+                          NodeRef* n);
+        // create a child-instruction with name c and decode d to instr i.
+        void addHornChild (const std::string& c, const std::string& i, 
+                           NodeRef* d);
 
         // get memories.
         const nmap_t& getMems() const { return mems; }
@@ -720,6 +730,11 @@ namespace ila
             abs->hornifyNode(node, rule);
         }
 
+        void generateHornMapping(const std::string& type)
+        {
+            abs->generateHornMapping(type);
+        }
+
         void exportHornToFile(const std::string& fileName)
         {
             abs->exportHornToFile(fileName);
@@ -733,6 +748,21 @@ namespace ila
         void hornifyBvAsInt(bool bvAsInt)
         {
             abs->hornifyBvAsInt(bvAsInt);
+        }
+
+        void addHornInstr(const std::string& i, NodeRef* d) 
+        {
+            abs->addHornInstr(i, d);
+        }
+
+        void addHornNext(const std::string& i, const std::string& s, NodeRef* n)
+        {
+            abs->addHornNext(i, s, n);
+        }
+
+        void addHornChild(const std::string& c, const std::string& i, NodeRef* d)
+        {
+            abs->addHornChild(c, i, d);
         }
 
         int getEnParamSyn() const {

@@ -421,10 +421,19 @@ BOOST_PYTHON_MODULE(ila)
         .def("areEqualUnrolled", &AbstractionWrapper::areEqualUnrolled)
         // boogie
         .def("toBoogie", &AbstractionWrapper::toBoogie)
+
         // hornify all abstraction
         .def("hornifyAll", &AbstractionWrapper::hornifyAll)
         // hornify one ast node
         .def("hornifyNode", &AbstractionWrapper::hornifyNode)
+        // generate horn clause mapping
+        .def("generateHornMapping", &AbstractionWrapper::generateHornMapping)
+        // create an instruction for horn clause generation
+        .def("addHornInstr", &AbstractionWrapper::addHornInstr)
+        // create a child-instruction for horn clause generation
+        .def("addHornChild", &AbstractionWrapper::addHornChild)
+        // add next state function for an instruction
+        .def("addHornNext", &AbstractionWrapper::addHornNext)
         // set flag to hornify ite as node (default true)
         .def("hornifyIteAsNode", &AbstractionWrapper::hornifyIteAsNode)
         // set flag to hornify bitvector as Int (default true)

@@ -944,6 +944,14 @@ namespace ila
     }
 
     // ---------------------------------------------------------------------- //
+    void Abstraction::generateHornMapping(const std::string& type)
+    {
+        if (_ht == NULL)
+            _ht = new HornTranslator (this);
+        _ht->generateMapping (type);
+    }
+
+    // ---------------------------------------------------------------------- //
     void Abstraction::exportHornToFile(const std::string& fileName)
     {
         if (_ht == NULL) {
@@ -967,6 +975,32 @@ namespace ila
         if (_ht == NULL)
             _ht = new HornTranslator (this);
         _ht->setBvAsInt(bvAsInt);
+    }
+
+    // ---------------------------------------------------------------------- //
+    void Abstraction::addHornInstr(const std::string& i, NodeRef* d)
+    {
+        if (_ht == NULL)
+            _ht = new HornTranslator (this);
+        _ht->addInstr (i, d);
+    }
+
+    // ---------------------------------------------------------------------- //
+    void Abstraction::addHornNext (const std::string& i, const std::string& s,
+                                   NodeRef* n)
+    {
+        if (_ht == NULL)
+            _ht = new HornTranslator (this);
+        _ht->addNext (i, s, n);
+    }
+
+    // ---------------------------------------------------------------------- //
+    void Abstraction::addHornChild (const std::string& c, const std::string& i,
+                                    NodeRef* d)
+    {
+        if (_ht == NULL)
+            _ht = new HornTranslator (this);
+        _ht->addChildInstr (c, i, d);
     }
 
     // ---------------------------------------------------------------------- //

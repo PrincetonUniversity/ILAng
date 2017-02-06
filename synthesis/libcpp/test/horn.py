@@ -37,6 +37,13 @@ def main():
     alu.hornifyNode(r0_nxt, "r0_nxt")
     alu.exportHornToFile(hornFile)
 
+    alu.addHornInstr ('alu_instr', alu.bool(True))
+    alu.addHornNext ('alu_instr', 'pc', pc_nxt)
+    alu.addHornNext ('alu_instr', 'r0', r0_nxt)
+    alu.addHornChild ('alu_child', 'alu_instr', alu.bool(True))
+    alu.generateHornMapping ('Interleave')
+    alu.exportHornToFile (hornFile)
+
     m = ila.Abstraction("fun")
     x = m.reg ('x', 8)
     y = m.reg ('y', 16)

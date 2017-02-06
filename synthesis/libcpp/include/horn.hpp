@@ -211,14 +211,25 @@ namespace ila
         // ------------------------------------------------------------------ //
         // convert whole abs to horn clauses and output to file.
         void hornifyAll (const std::string& fileName);
-        // convert one ast node to horn clauses and output to file.
+        // convert one ast node to horn clauses.
         void hornifyNode (NodeRef* node, const std::string& ruleName);
+        // convert abstraction to horn clauses. (Interleave/Blocking)
+        void generateMapping (const std::string& type);
         // export horn clause to file.
         void exportHorn (const std::string& fileName);
         // set _iteAsNode.
         void setIteAsNode (bool iteAsNode);
         // set _bvAsInt.
         void setBvAsInt (bool bvAsInt);
+
+        // ------------------------------------------------------------------ //
+        // create an instruction with name i, and decode d.
+        void addInstr (const std::string& i, NodeRef* d);
+        // add next state function n for state s to (child-)instruction i.
+        void addNext (const std::string& i, const std::string& s, NodeRef* n);
+        // create a child-instruction with name c, and decode d to instr i.
+        void addChildInstr (const std::string& c, const std::string& i, 
+                            NodeRef* d);
 
         // ------------------------------------------------------------------ //
         // Traverse and generate horn clauses in depth-first order.
