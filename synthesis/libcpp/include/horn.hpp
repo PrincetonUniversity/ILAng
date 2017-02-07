@@ -16,6 +16,7 @@ namespace ila
     class HornClause;
     class FixClause;
     class HornDB;
+    class HornTranslator;
 
     typedef HornVar*     hvptr_t;
     typedef HornLiteral* hlptr_t;
@@ -76,14 +77,22 @@ namespace ila
         void addInVar (hvptr_t v);
         // add output var.
         void addOutVar (hvptr_t v);
-        // get the first output var.
-        hvptr_t getOutVar () const;
         // merge dependent input vars.
         void mergeInVars (hvptr_t v);
         // merge output vars.
         void mergeOutVars (hvptr_t v);
         // set to be constant.
         void setConst ();
+        // get the number of input vars.
+        size_t getInNum () const;
+        // get the number of output vars.
+        size_t getOutNum () const;
+        // get the input var set.
+        const std::map <std::string, hvptr_t>& getInSet () const;
+        // get the output var set.
+        const std::set <hvptr_t>& getOutSet () const;
+        // get the first output var.
+        hvptr_t getOutVar () const;
 
         // ------------------------------------------------------------------ //
         // set non-deterministic value.
@@ -174,6 +183,34 @@ namespace ila
         // ------------------------------------------------------------------ //
         // output the clause to stream.
         void print (std::ostream& out);
+    };
+
+    // ---------------------------------------------------------------------- //
+    class HornRewriter
+    {
+    private:
+        // translator
+        HornTranslator* _tr;
+        // var mapping from state to output.
+        std::map <std::string, std::string> _mapSO;
+        // var mapping from output to sate.
+        std::map <std::string, std::string> _mapOS;
+
+    public:
+        // ctor.
+        HornRewriter (HornTranslator* tr);
+        // dtor.
+        virtual ~HornRewriter ();
+
+        // add mapping from state to output.
+        void connect (const std::string& s, const std::string& o);
+        // rewrite predicate with specified rules.
+        std::string rewritePred (hvptr_t p, char entry, int entryId,
+                                            char exit, int exitId);
+
+    private:
+        // add suffix to the name.
+        std::string addSuffix (const std::string& name, const int& id) const;
     };
 
     // ---------------------------------------------------------------------- //
@@ -318,7 +355,7 @@ namespace ila
 
         // ------------------------------------------------------------------ //
         // eval if node n is an ITE node.
-        bool isITE (nptr_t n);
+        bool isITE (nptr_t n) const;
 
         // ------------------------------------------------------------------ //
         // init horn var context: _name, _type, _exec, _ins, and _outs.
@@ -394,36 +431,38 @@ namespace ila
         // generate BvOpReadMemBlock execution - little endian
         std::string genReadMemBlkExecLit (const std::string& mem,
                                           const std::string& addr,
-                                          int addrWidth, int idx);
+                                          int addrWidth, int idx) const;
         // generate BvOpReadMemBlock execution - big endian
         std::string genReadMemBlkExecBig (const std::string& mem,
                                           const std::string& addr,
-                                          int addrWidth, int idx, int num);
+                                          int addrWidth, int idx, int num) const;
         // generate MemOpStoreMemBlock execution - little endian
         std::string genStoreMemBlkExecLit (const std::string& mem,
                                            const std::string& addr,
                                            const std::string& data,
                                            int chunkSize, int chunkNum,
-                                           int addrWidth, int idx);
+                                           int addrWidth, int idx) const;
         // generate MemOpStoreMemBlock execution - big endian
         std::string genStoreMemBlkExecBig (const std::string& mem,
                                            const std::string& addr,
                                            const std::string& data,
                                            int chunkSize, int chunkNum,
-                                           int addrWidth, int idx);
+                                           int addrWidth, int idx) const;
         // convert value to smt2.0 bitvector format. ex. #b0000
-        std::string bvToString (mp_int_t val, int width);
+        std::string bvToString (mp_int_t val, int width) const;
         // convert value to smt2.0 bitvector format. ex. #b0000
-        std::string bvToString (int val, int width);
+        std::string bvToString (int val, int width) const;
         // generate rules for MemConst.
         void genMemConstRules (const MemConst* n, hvptr_t v);
 
+    public:
         // ------------------------------------------------------------------ //
         // create name with suffix index: name_idx
-        std::string addSuffix (const std::string& name, const int& idx);
+        std::string addSuffix (const std::string& name, const int& idx) const;
         // duplicate variable with suffix index
         hvptr_t copyVar (hvptr_t v, const int& idx);
 
+    private:
         // ------------------------------------------------------------------ //
         // check if the length exceed maximum bitvector width.
         bool isLongBv (const int& w) const;
@@ -433,6 +472,8 @@ namespace ila
         void generateInterleaveMapping ();
         // generate mappings for blocking modeling.
         void generateBlockingMapping ();
+        // rewrite variable names in predicate.
+        std::string rewritePred (hvptr_t v, const int& i, const int& o) const;
     };
 }
 

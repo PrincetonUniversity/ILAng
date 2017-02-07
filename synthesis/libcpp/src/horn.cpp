@@ -125,14 +125,6 @@ namespace ila
         _outs.insert (v);
     }
 
-    hvptr_t HornVar::getOutVar () const
-    {
-        for (auto it : _outs) {
-            return it;
-        }
-        return NULL;
-    }
-
     void HornVar::mergeInVars (hvptr_t v)
     {
         for (auto it = v->_ins.begin(); it != v->_ins.end(); it++) {
@@ -150,6 +142,34 @@ namespace ila
     void HornVar::setConst ()
     {
         _const = true;
+    }
+
+    size_t HornVar::getInNum () const
+    {
+        return _ins.size();
+    }
+
+    size_t HornVar::getOutNum () const
+    {
+        return _outs.size();
+    }
+
+    const std::map <std::string, hvptr_t>& HornVar::getInSet () const
+    {
+        return _ins;
+    }
+
+    const std::set <hvptr_t>& HornVar::getOutSet () const
+    {
+        return _outs;
+    }
+
+    hvptr_t HornVar::getOutVar () const
+    {
+        for (auto it : _outs) {
+            return it;
+        }
+        return NULL;
     }
 
     void HornVar::setNd (const std::string& nd)
@@ -288,34 +308,6 @@ namespace ila
     }
 
     // ---------------------------------------------------------------------- //
-    FixClause::FixClause ()
-    {
-    }
-
-    FixClause::~FixClause ()
-    {
-    }
-
-    void FixClause::addBody (const std::string& s)
-    {
-        _body.insert (s);
-    }
-
-    void FixClause::setHead (const std::string& s)
-    {
-        _head = s;
-    }
-
-    void FixClause::print (std::ostream& out)
-    {
-        // TODO
-        for (auto it : _body) {
-            out << it << "\n";
-        }
-        out << _head << "\n";
-    }
-
-    // ---------------------------------------------------------------------- //
     HornDB::HornDB ()
     {
     }
@@ -372,6 +364,7 @@ namespace ila
             hvptr_t v = i.second;
             if (v->isConst()) continue;
             if (v->isNd()) continue;
+            if (v->getType() == "") continue;
             varFmt % v->getName() % v->getType();
             out << varFmt.str();
         }
@@ -770,7 +763,7 @@ namespace ila
         return res;
     }
 
-    bool HornTranslator::isITE (nptr_t n)
+    bool HornTranslator::isITE (nptr_t n) const
     {
         const BoolOp* boolop = NULL;
         const BitvectorOp* bvop = NULL;
@@ -1412,7 +1405,7 @@ namespace ila
     std::string HornTranslator::genReadMemBlkExecLit (
             const std::string& mem,
             const std::string& addr,
-            int addrWidth, int idx)
+            int addrWidth, int idx) const
     {
         ILA_ASSERT (idx >= 0, "ReadMemBlock index < 0.");
         // little:
@@ -1438,7 +1431,7 @@ namespace ila
     std::string HornTranslator::genReadMemBlkExecBig (
             const std::string& mem,
             const std::string& addr,
-            int addrWidth, int idx, int num)
+            int addrWidth, int idx, int num) const
     {
         ILA_ASSERT (num >= 0, "ReadMemBlock num < 0.");
         // big:
@@ -1475,7 +1468,7 @@ namespace ila
             const std::string& addr,
             const std::string& data,
             int chunkSize, int chunkNum,
-            int addrWidth, int idx)
+            int addrWidth, int idx) const
     {
         // little:
         // (store (store (store A addr ((_ extract 7 0) val))
@@ -1513,7 +1506,7 @@ namespace ila
             const std::string& addr,
             const std::string& data,
             int chunkSize, int chunkNum,
-            int addrWidth, int idx)
+            int addrWidth, int idx) const
     {
         // big:
         // (store (store (store A addr ((_ extract 23 16) val))
@@ -1546,7 +1539,7 @@ namespace ila
         }
     }
 
-    std::string HornTranslator::bvToString (mp_int_t val, int addrWidth)
+    std::string HornTranslator::bvToString (mp_int_t val, int addrWidth) const
     {
         std::string str = "";
         for (int i = 0; i < addrWidth; i++) {
@@ -1560,7 +1553,7 @@ namespace ila
         return ("#b" + str);
     }
 
-    std::string HornTranslator::bvToString (int val, int addrWidth)
+    std::string HornTranslator::bvToString (int val, int addrWidth) const
     {
         return bvToString ((mp_int_t) val, addrWidth);
     }
@@ -1593,7 +1586,7 @@ namespace ila
     }
 
     std::string HornTranslator::addSuffix (const std::string& name, 
-                                           const int& idx)
+                                           const int& idx) const
     {
         return (name + "_" + boost::lexical_cast <std::string> (idx));
     }
@@ -1605,65 +1598,4 @@ namespace ila
         return c;
     }
 
-    void HornTranslator::generateInterleaveMapping () 
-    { 
-        // L & Du & Nu --> L'
-        // L & D & N & L --> M
-        for (auto itI = _instrs.begin(); itI != _instrs.end(); itI++) {
-            auto instr = itI->second;
-
-            // No child-instructions
-            if (instr->_childInstrs.empty()) {
-                // D & N --> M
-                FixClause* M = new FixClause ();
-                hvptr_t m = getVar (instr->_name);
-
-                // decode: merge input/output & add constraint
-                m->mergeInVars (instr->_decodeFunc);
-                m->mergeOutVars (instr->_decodeFunc);
-
-                if (instr->_decodeFunc->isConst()) {
-                    M->addBody (instr->_decodeFunc->getName());
-                } else {
-                    M->addBody (instr->_decodeFunc->getPred());
-                    M->addBody (instr->_decodeFunc->getOutVar()->getName());
-                }
-
-                // next state: merge input/output & constraint
-                for (auto itN  = instr->_nxtFuncs.begin(); 
-                          itN != instr->_nxtFuncs.end(); itN++) {
-                    auto nxt = itN->second;
-                    M->addBody (nxt->getPred());
-                    m->mergeInVars (nxt);
-                    m->mergeOutVars (nxt);
-                }
-
-                // set predicate for head
-                M->setHead (m->getPred());
-
-                _db->addFixClause (M);
-                continue;
-            }
-
-            // With cihld-instructions, create loop predicate.
-            // L & Du & Nu --> L'
-            // L & D & N & L --> M
-
-            // TODO
-            /*
-            for (auto uName : instr->_childInstrs) {
-                auto uInstr = _childs.find (uName);
-                ILA_ASSERT (uInstr != _childs.end(), "uInstr not found.");
-
-            }
-            */
-        }
-    }
-
-    void HornTranslator::generateBlockingMapping ()
-    { 
-        // TODO
-    }
-
 }
-
