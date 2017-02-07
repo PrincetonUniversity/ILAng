@@ -24,6 +24,16 @@ def main():
     r2_nxt = A.get_next('r2')
     A.hornifyNode(r2_nxt, "r2_nxt")
     A.exportHornToFile(hornFile)
+
+    m = ila.Abstraction("fun")
+    x = m.reg ('x', 8)
+    y = m.reg ('y', 16)
+    f = m.fun ('foo', 8, [8, 16])
+    r = ila.appfun (f, x, y)
+    m.hornifyBvAsInt (True)
+    m.hornifyNode (r, "foo")
+    m.exportHornToFile (hornFile)
+
     alu = ila.Abstraction("alu")
     alu.hornifyBvAsInt(True)
     aluFile = 'tmp/alu.txt'
@@ -40,18 +50,10 @@ def main():
     alu.addHornInstr ('alu_instr', alu.bool(True))
     alu.addHornNext ('alu_instr', 'pc', pc_nxt)
     alu.addHornNext ('alu_instr', 'r0', r0_nxt)
-    alu.addHornChild ('alu_child', 'alu_instr', alu.bool(True))
+    #alu.addHornChild ('alu_child', 'alu_instr', alu.bool(True))
     alu.generateHornMapping ('Interleave')
     alu.exportHornToFile (hornFile)
 
-    m = ila.Abstraction("fun")
-    x = m.reg ('x', 8)
-    y = m.reg ('y', 16)
-    f = m.fun ('foo', 8, [8, 16])
-    r = ila.appfun (f, x, y)
-    m.hornifyBvAsInt (True)
-    m.hornifyNode (r, "foo")
-    m.exportHornToFile (hornFile)
-
+    
 if __name__ == '__main__':
     main()

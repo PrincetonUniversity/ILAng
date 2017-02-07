@@ -125,6 +125,14 @@ namespace ila
         _outs.insert (v);
     }
 
+    hvptr_t HornVar::getOutVar () const
+    {
+        for (auto it : _outs) {
+            return it;
+        }
+        return NULL;
+    }
+
     void HornVar::mergeInVars (hvptr_t v)
     {
         for (auto it = v->_ins.begin(); it != v->_ins.end(); it++) {
@@ -280,6 +288,34 @@ namespace ila
     }
 
     // ---------------------------------------------------------------------- //
+    FixClause::FixClause ()
+    {
+    }
+
+    FixClause::~FixClause ()
+    {
+    }
+
+    void FixClause::addBody (const std::string& s)
+    {
+        _body.insert (s);
+    }
+
+    void FixClause::setHead (const std::string& s)
+    {
+        _head = s;
+    }
+
+    void FixClause::print (std::ostream& out)
+    {
+        // TODO
+        for (auto it : _body) {
+            out << it << "\n";
+        }
+        out << _head << "\n";
+    }
+
+    // ---------------------------------------------------------------------- //
     HornDB::HornDB ()
     {
     }
@@ -313,11 +349,17 @@ namespace ila
         _clauses.insert (c);
     }
 
+    void HornDB::addFixClause (fcptr_t f)
+    {
+        _fixClauses.insert (f);
+    }
+
     void HornDB::print (std::ostream& out)
     {
         declareVar (out);
         declareRel (out);
         declareClause (out);
+        // TODO fixclause
     }
 
     void HornDB::declareVar (std::ostream& out)
@@ -397,7 +439,14 @@ namespace ila
 
     void HornTranslator::generateMapping (const std::string& type)
     {
-        // TODO
+        // Type Options: Interleave / Blocking
+        if (type == "Interleave") {
+            generateInterleaveMapping ();
+        } else if (type == "Blocking") {
+            generateBlockingMapping ();
+        } else {
+            ILA_ASSERT (false, "Unknown Modeling " + type + ".");
+        }
     }
 
     void HornTranslator::exportHorn (const std::string& fileName)
@@ -420,20 +469,45 @@ namespace ila
 
     void HornTranslator::addInstr (const std::string& i, NodeRef* d)
     {
-        // TODO
+        auto it = _instrs.find (i);
+        ILA_ASSERT (it == _instrs.end(), "Instruction "+i+" already created.");
+
+        struct Instr_t* instr = new struct Instr_t;
+        _instrs[i] = instr;
+        instr->_name = i;
+        instr->_decodeFunc = getVar (d->node);
     }
 
     void HornTranslator::addNext (const std::string& i, const std::string& s,
                                   NodeRef* n)
     {
-        // TODO
+        auto it = _instrs.find (i);
+        if (it == _instrs.end()) {
+            it = _childs.find (i);
+            if (it == _childs.end()) {
+                ILA_ASSERT (false, "Instruction "+i+" not exist.");
+            }
+        }
+
+        struct Instr_t* instr = it->second;
+        instr->_nxtFuncs[s] = getVar (n->node);
     }
 
     void HornTranslator::addChildInstr (const std::string& c, 
                                         const std::string& i,
                                         NodeRef* d)
     {
-        // TODO
+        auto itP = _instrs.find (i);
+        ILA_ASSERT (itP != _instrs.end(), "Instruction "+i+" not exists.");
+        auto itC = _childs.find (c);
+        ILA_ASSERT (itC == _childs.end(), "Child-instr "+c+" already exists.");
+
+        itP->second->_childInstrs.insert (c);
+
+        struct Instr_t* instr = new struct Instr_t;
+        _childs[c] = instr;
+        instr->_name = c;
+        instr->_decodeFunc = getVar (d->node);
     }
 
     void HornTranslator::depthFirstTraverse (nptr_t n)
@@ -1529,6 +1603,66 @@ namespace ila
         hvptr_t c = getVar (addSuffix (v->getName(), suffix));
         c->setType (v->getType());
         return c;
+    }
+
+    void HornTranslator::generateInterleaveMapping () 
+    { 
+        // L & Du & Nu --> L'
+        // L & D & N & L --> M
+        for (auto itI = _instrs.begin(); itI != _instrs.end(); itI++) {
+            auto instr = itI->second;
+
+            // No child-instructions
+            if (instr->_childInstrs.empty()) {
+                // D & N --> M
+                FixClause* M = new FixClause ();
+                hvptr_t m = getVar (instr->_name);
+
+                // decode: merge input/output & add constraint
+                m->mergeInVars (instr->_decodeFunc);
+                m->mergeOutVars (instr->_decodeFunc);
+
+                if (instr->_decodeFunc->isConst()) {
+                    M->addBody (instr->_decodeFunc->getName());
+                } else {
+                    M->addBody (instr->_decodeFunc->getPred());
+                    M->addBody (instr->_decodeFunc->getOutVar()->getName());
+                }
+
+                // next state: merge input/output & constraint
+                for (auto itN  = instr->_nxtFuncs.begin(); 
+                          itN != instr->_nxtFuncs.end(); itN++) {
+                    auto nxt = itN->second;
+                    M->addBody (nxt->getPred());
+                    m->mergeInVars (nxt);
+                    m->mergeOutVars (nxt);
+                }
+
+                // set predicate for head
+                M->setHead (m->getPred());
+
+                _db->addFixClause (M);
+                continue;
+            }
+
+            // With cihld-instructions, create loop predicate.
+            // L & Du & Nu --> L'
+            // L & D & N & L --> M
+
+            // TODO
+            /*
+            for (auto uName : instr->_childInstrs) {
+                auto uInstr = _childs.find (uName);
+                ILA_ASSERT (uInstr != _childs.end(), "uInstr not found.");
+
+            }
+            */
+        }
+    }
+
+    void HornTranslator::generateBlockingMapping ()
+    { 
+        // TODO
     }
 
 }

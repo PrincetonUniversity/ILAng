@@ -14,11 +14,13 @@ namespace ila
     class HornVar;
     class HornLiteral;
     class HornClause;
+    class FixClause;
     class HornDB;
 
     typedef HornVar*     hvptr_t;
     typedef HornLiteral* hlptr_t;
     typedef HornClause*  hcptr_t;
+    typedef FixClause*   fcptr_t;
 
     // ---------------------------------------------------------------------- //
     class HornVar
@@ -74,6 +76,8 @@ namespace ila
         void addInVar (hvptr_t v);
         // add output var.
         void addOutVar (hvptr_t v);
+        // get the first output var.
+        hvptr_t getOutVar () const;
         // merge dependent input vars.
         void mergeInVars (hvptr_t v);
         // merge output vars.
@@ -147,6 +151,32 @@ namespace ila
     };
 
     // ---------------------------------------------------------------------- //
+    class FixClause
+    {
+    private:
+        // horn clause body.
+        std::set <std::string> _body;
+        // horn clause head.
+        std::string _head;
+
+    public:
+        // ctor.
+        FixClause ();
+        // dtor.
+        virtual ~FixClause ();
+
+        // ------------------------------------------------------------------ //
+        // add one constraint to the body.
+        void addBody (const std::string& s);
+        // set the constraint to the head.
+        void setHead (const std::string& s);
+
+        // ------------------------------------------------------------------ //
+        // output the clause to stream.
+        void print (std::ostream& out);
+    };
+
+    // ---------------------------------------------------------------------- //
     class HornDB
     {
     private:
@@ -156,6 +186,8 @@ namespace ila
         std::set <hvptr_t> _rels;
         // set of horn clauses.
         std::set <hcptr_t> _clauses;
+        // set of fix clauses.
+        std::set <fcptr_t> _fixClauses;
 
     public:
         // ctor.
@@ -170,6 +202,8 @@ namespace ila
         void addRel (hvptr_t v);
         // add a clause to the set.
         void addClause (hcptr_t c);
+        // add a fix clause to the set.
+        void addFixClause (fcptr_t f);
 
         // ------------------------------------------------------------------ //
         // output whole to stream.
@@ -246,6 +280,21 @@ namespace ila
         std::map <std::string, hvptr_t> _sVarMap;
         // current working clause.
         hcptr_t _curHc;
+
+        // structure for an instruction.
+        struct Instr_t {
+            std::string                     _name;
+            hvptr_t                         _decodeFunc;
+            std::map <std::string, hvptr_t> _nxtFuncs;
+            std::set <std::string>          _childInstrs;
+        };
+
+        // sets of states.
+        std::set <std::string> _states;
+        // sets of instructions.
+        std::map <std::string, struct Instr_t*> _instrs;
+        // sets of child-instructions.
+        std::map <std::string, struct Instr_t*> _childs;
 
         // ------------------------------------------------------------------ //
         // get horn var for the node; create if not exist.
@@ -378,6 +427,12 @@ namespace ila
         // ------------------------------------------------------------------ //
         // check if the length exceed maximum bitvector width.
         bool isLongBv (const int& w) const;
+
+        // ------------------------------------------------------------------ //
+        // generate mappings for interleave modeling.
+        void generateInterleaveMapping ();
+        // generate mappings for blocking modeling.
+        void generateBlockingMapping ();
     };
 }
 
