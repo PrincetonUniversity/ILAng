@@ -34,11 +34,14 @@ namespace ila
 
     void FixClause::print (std::ostream& out)
     {
-        // TODO
-        for (auto it : _body) {
-            out << it << "\n";
+        out << "(rule (=> (and true\n";
+        for (auto b : _body) {
+            out << std::setw(15) << "";
+            out << b << "\n";
         }
-        out << _head << "\n";
+        out << std::setw(12) << ")\n";
+        out << std::setw(10) << "";
+        out << _head << "))\n";
     }
 
     // ---------------------------------------------------------------------- //
@@ -155,6 +158,65 @@ namespace ila
     }
 
     // ---------------------------------------------------------------------- //
+    void HornTranslator::generateMapping (const std::string& type)
+    {
+        // Type Options: Interleave / Blocking
+        if (type == "Interleave") {
+            generateInterleaveMapping ();
+        } else if (type == "Blocking") {
+            generateBlockingMapping ();
+        } else {
+            ILA_ASSERT (false, "Unknown Modeling " + type + ".");
+        }
+    }
+
+    void HornTranslator::addInstr (const std::string& i, NodeRef* d)
+    {
+        auto it = _instrs.find (i);
+        ILA_ASSERT (it == _instrs.end(), "Instruction "+i+" already created.");
+
+        struct Instr_t* instr = new struct Instr_t;
+        _instrs[i] = instr;
+        instr->_name = i;
+        instr->_decodeFunc = hornifyNode (d, i + ".decode");
+        //instr->_decodeFunc = getVar (d->node);
+    }
+
+    void HornTranslator::addNext (const std::string& i, const std::string& s,
+                                  NodeRef* n)
+    {
+        auto it = _instrs.find (i);
+        if (it == _instrs.end()) {
+            it = _childs.find (i);
+            if (it == _childs.end()) {
+                ILA_ASSERT (false, "Instruction "+i+" not exist.");
+            }
+        }
+
+        struct Instr_t* instr = it->second;
+        instr->_nxtFuncs[s] = hornifyNode (n, i + "." + s);
+        //instr->_nxtFuncs[s] = getVar (n->node);
+    }
+
+    void HornTranslator::addChildInstr (const std::string& c, 
+                                        const std::string& i,
+                                        NodeRef* d)
+    {
+        auto itP = _instrs.find (i);
+        ILA_ASSERT (itP != _instrs.end(), "Instruction "+i+" not exists.");
+        auto itC = _childs.find (c);
+        ILA_ASSERT (itC == _childs.end(), "Child-instr "+c+" already exists.");
+
+        itP->second->_childInstrs.insert (c);
+
+        struct Instr_t* instr = new struct Instr_t;
+        _childs[c] = instr;
+        instr->_name = c;
+        instr->_decodeFunc = hornifyNode (d, c + ".decode");
+        //instr->_decodeFunc = getVar (d->node);
+    }
+
+
     void HornTranslator::generateInterleaveMapping () 
     { 
         for (auto itI = _instrs.begin(); itI != _instrs.end(); itI++) {
@@ -197,6 +259,7 @@ namespace ila
 
                 // collect related states
                 hvptr_t lVar = getVar ("L_" + instr->_name);
+                lVar->setLevel (1);
                 HornRewriter* loopRW = new HornRewriter (this);
                 for (auto uName : instr->_childInstrs) {
                     ILA_ASSERT (_childs.find (uName) != _childs.end(), 
@@ -207,7 +270,6 @@ namespace ila
                     for (auto itUN  = uInstr->_nxtFuncs.begin();
                               itUN != uInstr->_nxtFuncs.end(); itUN++) {
                         auto uNxt = itUN->second;
-                        log1 ("Horn") << "merge in " << uNxt->getName() << "\n";
                         lVar->mergeInVars (uNxt);
                         lVar->mergeOutVars (uNxt);
                         // update rewriter.
@@ -243,12 +305,7 @@ namespace ila
 
                     L->setHead (loopRW->rewritePred (lVar, 'I', 0, 'O', -1));
                     _db->addFixClause (L);
-                    log1 ("Horn") << "print Loop\n";
-                    L->print (std::cout);
                 }
-
-                delete loopRW;
-                loopRW = NULL;
 
                 // L & D & N & L --> M
                 // entry loop predicate         -- L(s_0, s)
@@ -259,11 +316,41 @@ namespace ila
                 // head: exit instr predicate   -- M(s_0, s_1)
                 hvptr_t mVar = getVar (instr->_name);
                 fcptr_t M = new FixClause ();
+                mVar->setLevel (1);
+                HornRewriter* mRW = new HornRewriter (this);
+
+                M->addBody (loopRW->rewritePred (lVar, 'I', 0, 'I', -1));
+
+                if (instr->_decodeFunc->isConst()) {
+                    M->addBody (instr->_decodeFunc->getName());
+                } else {
+                    M->addBody (instr->_decodeFunc->getPred());
+                    M->addBody (instr->_decodeFunc->getOutVar()->getName());
+
+                    mVar->mergeInVars (instr->_decodeFunc);
+                }
+
+                for (auto itN  = instr->_nxtFuncs.begin(); 
+                          itN != instr->_nxtFuncs.end(); itN++) {
+                    auto nxt = itN->second;
+                    M->addBody (nxt->getPred());
+
+                    mVar->mergeInVars (nxt);
+                    mVar->mergeOutVars (nxt);
+                    mRW->connect (itN->first, 
+                                  nxt->getOutVar()->getName());
+                }
+
+                M->addBody (loopRW->rewritePred (lVar, 'O', -1, 'I', 1));
+
+                M->setHead (mRW->rewritePred (mVar, 'I', 0, 'I', 1));
 
                 _db->addRel (mVar);
                 _db->addFixClause (M);
-                log1 ("Horn") << "print M\n";
-                M->print (std::cout);
+
+                delete loopRW;
+                delete mRW;
+                loopRW = mRW = NULL;
             }
         }
     }
@@ -271,13 +358,6 @@ namespace ila
     void HornTranslator::generateBlockingMapping ()
     { 
         // TODO
-    }
-
-    std::string HornTranslator::rewritePred (hvptr_t v, const int& i, 
-                                             const int& o) const
-    {
-        // TODO
-        return "";
     }
 
 }

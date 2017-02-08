@@ -45,11 +45,13 @@ def main():
     r1_nxt = alu.get_next('r1')
     pc_nxt = alu.get_next('pc')
     rom_nxt = alu.get_next('rom')
+    """
     alu.hornifyNode(pc_nxt, "pc_nxt")
     alu.hornifyNode(r0_nxt, "r0_nxt")
     alu.hornifyNode(r1_nxt, "r1_nxt")
     alu.hornifyNode(rom_nxt, "rom_nxt")
     alu.exportHornToFile(hornFile)
+    """
 
     alu.addHornInstr ('alu_instr', alu.bool(True))
     alu.addHornNext ('alu_instr', 'pc', pc_nxt)

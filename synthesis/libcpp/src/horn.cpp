@@ -17,7 +17,8 @@ namespace ila
       : _id (id)
     {
         _const = false;
-        _nd = "";
+        _lvl   = 0;
+        _nd    = "";
     }
 
     HornVar::~HornVar ()
@@ -47,11 +48,11 @@ namespace ila
     std::string HornVar::getPred () const
     {
         // uninterpreted functions.
-        if (_nd != "") {
+        if (isNd()) {
             return _nd;
         }
 
-        boost::format predFmt ("(%1%.%2%%3%)");
+        boost::format predFmt ("(%1%%2%%3%)");
         std::string argStr = "";
         for (auto it = _ins.begin(); it != _ins.end(); it++) {
             argStr += " ";
@@ -61,9 +62,16 @@ namespace ila
             argStr += " ";
             argStr += (*it)->getName();
         }
-        predFmt % "rel"
-                % _name
-                % argStr;
+
+        if (_lvl == 0) {
+            predFmt % "rel."
+                    % _name
+                    % argStr;
+        } else {
+            predFmt % ""
+                    % _name
+                    % argStr;
+        }
         return predFmt.str();
     }
 
@@ -75,7 +83,7 @@ namespace ila
             return funRel;
         }
 
-        boost::format relFmt ("%1%.%2% (%3%)");
+        boost::format relFmt ("%1%%2% (%3%)");
         std::string argStr = "";
         for (auto it = _ins.begin(); it != _ins.end(); it++) {
             argStr += it->second->getType();
@@ -87,9 +95,16 @@ namespace ila
                 argStr += " ";
             }
         }
-        relFmt % "rel"
-               % _name
-               % argStr;
+
+        if (_lvl == 0) {
+            relFmt % "rel."
+                   % _name
+                   % argStr;
+        } else {
+            relFmt % ""
+                   % _name
+                   % argStr;
+        }
         return relFmt.str();
     }
 
@@ -142,6 +157,16 @@ namespace ila
     void HornVar::setConst ()
     {
         _const = true;
+    }
+
+    const int& HornVar::getLevel () const
+    {
+        return _lvl;
+    }
+
+    void HornVar::setLevel (const int& lvl)
+    {
+        _lvl = lvl;
     }
 
     size_t HornVar::getInNum () const
@@ -351,7 +376,7 @@ namespace ila
         declareVar (out);
         declareRel (out);
         declareClause (out);
-        // TODO fixclause
+        declareFixClause (out);
     }
 
     void HornDB::declareVar (std::ostream& out)
@@ -365,6 +390,7 @@ namespace ila
             if (v->isConst()) continue;
             if (v->isNd()) continue;
             if (v->getType() == "") continue;
+            if (v->getLevel() > 0) continue;
             varFmt % v->getName() % v->getType();
             out << varFmt.str();
         }
@@ -385,6 +411,14 @@ namespace ila
     {
         out << ";; clauses\n";
         for (auto c : _clauses) {
+            c->print (out);
+        }
+    }
+
+    void HornDB::declareFixClause (std::ostream& out)
+    {
+        out << ";; mapping clauses\n";
+        for (auto c : _fixClauses) {
             c->print (out);
         }
     }
@@ -412,7 +446,7 @@ namespace ila
         // TODO
     }
 
-    void HornTranslator::hornifyNode (NodeRef* node, 
+    hvptr_t HornTranslator::hornifyNode (NodeRef* node, 
                                       const std::string& ruleName)
     {
         nptr_t n = node->node;
@@ -425,21 +459,11 @@ namespace ila
         topV->addOutVar (varNxt);
         topV->setType (varNxt->getType());
 
-        
         _curHc = topC;
         depthFirstTraverse (n);
-    }
 
-    void HornTranslator::generateMapping (const std::string& type)
-    {
-        // Type Options: Interleave / Blocking
-        if (type == "Interleave") {
-            generateInterleaveMapping ();
-        } else if (type == "Blocking") {
-            generateBlockingMapping ();
-        } else {
-            ILA_ASSERT (false, "Unknown Modeling " + type + ".");
-        }
+        topV->setLevel (1);
+        return topV;
     }
 
     void HornTranslator::exportHorn (const std::string& fileName)
@@ -458,49 +482,6 @@ namespace ila
     void HornTranslator::setBvAsInt (bool bvAsInt)
     {
         _bvAsInt = bvAsInt;
-    }
-
-    void HornTranslator::addInstr (const std::string& i, NodeRef* d)
-    {
-        auto it = _instrs.find (i);
-        ILA_ASSERT (it == _instrs.end(), "Instruction "+i+" already created.");
-
-        struct Instr_t* instr = new struct Instr_t;
-        _instrs[i] = instr;
-        instr->_name = i;
-        instr->_decodeFunc = getVar (d->node);
-    }
-
-    void HornTranslator::addNext (const std::string& i, const std::string& s,
-                                  NodeRef* n)
-    {
-        auto it = _instrs.find (i);
-        if (it == _instrs.end()) {
-            it = _childs.find (i);
-            if (it == _childs.end()) {
-                ILA_ASSERT (false, "Instruction "+i+" not exist.");
-            }
-        }
-
-        struct Instr_t* instr = it->second;
-        instr->_nxtFuncs[s] = getVar (n->node);
-    }
-
-    void HornTranslator::addChildInstr (const std::string& c, 
-                                        const std::string& i,
-                                        NodeRef* d)
-    {
-        auto itP = _instrs.find (i);
-        ILA_ASSERT (itP != _instrs.end(), "Instruction "+i+" not exists.");
-        auto itC = _childs.find (c);
-        ILA_ASSERT (itC == _childs.end(), "Child-instr "+c+" already exists.");
-
-        itP->second->_childInstrs.insert (c);
-
-        struct Instr_t* instr = new struct Instr_t;
-        _childs[c] = instr;
-        instr->_name = c;
-        instr->_decodeFunc = getVar (d->node);
     }
 
     void HornTranslator::depthFirstTraverse (nptr_t n)

@@ -41,6 +41,8 @@ namespace ila
         std::set <hvptr_t> _outs;
         // var is const.
         bool _const;
+        // var level.
+        int _lvl;
         // non-deterministic value.
         std::string _nd;
 
@@ -83,6 +85,10 @@ namespace ila
         void mergeOutVars (hvptr_t v);
         // set to be constant.
         void setConst ();
+        // get var level.
+        const int& getLevel () const;
+        // set var level.
+        void setLevel (const int& lvl);
         // get the number of input vars.
         size_t getInNum () const;
         // get the number of output vars.
@@ -253,6 +259,8 @@ namespace ila
         void declareRel (std::ostream& out);
         // output clauses to stream.
         void declareClause (std::ostream& out);
+        // output fix clauses to stream.
+        void declareFixClause (std::ostream& out);
 
         // collector for duplicated ast nodes.
         std::set <hvptr_t> _dupls;
@@ -283,7 +291,7 @@ namespace ila
         // convert whole abs to horn clauses and output to file.
         void hornifyAll (const std::string& fileName);
         // convert one ast node to horn clauses.
-        void hornifyNode (NodeRef* node, const std::string& ruleName);
+        hvptr_t hornifyNode (NodeRef* node, const std::string& ruleName);
         // convert abstraction to horn clauses. (Interleave/Blocking)
         void generateMapping (const std::string& type);
         // export horn clause to file.
@@ -472,8 +480,6 @@ namespace ila
         void generateInterleaveMapping ();
         // generate mappings for blocking modeling.
         void generateBlockingMapping ();
-        // rewrite variable names in predicate.
-        std::string rewritePred (hvptr_t v, const int& i, const int& o) const;
     };
 }
 
