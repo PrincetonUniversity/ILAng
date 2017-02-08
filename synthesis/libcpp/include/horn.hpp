@@ -208,35 +208,21 @@ namespace ila
         // var mapping from state to output.
         std::map <std::string, hvptr_t> _mapSO;
 
-        /*
-        // var mapping from state to output.
-        std::map <std::string, std::string> _mapSO;
-        // var mapping from output to sate.
-        std::map <std::string, std::string> _mapOS;
-        */
-
     public:
         // ctor.
         HornRewriter (HornTranslator* tr, hvptr_t p);
         // dtor.
         virtual ~HornRewriter ();
 
-        // configure predicate arguments to state. Set up _mapVS.
-        void config (const std::string& state, hvptr_t arg);
+        // configure predicate output arguments to state. Set up _mapVS.
+        void configOutput (const std::string& state, hvptr_t arg);
         // configure predicate input argument as the original predicate.
         void configInput ();
         // update rewrite mapping for states.
         void update (const std::string& state, hvptr_t inArg, hvptr_t outArg);
-        // add mapping.
-        void connect (const std::string& s, const std::string& o);
         // rewrite predicate with specified rules.
         std::string rewrite (char inType, int inSuff, char outType, int outSuff);
-        // rewrite predicate with specified rules.
-        //std::string rewritePred (char entry, int entryId, char exit, int exitId);
 
-    private:
-        // add suffix to the name.
-        std::string addSuffix (const std::string& name, const int& id) const;
     };
 
     // ---------------------------------------------------------------------- //

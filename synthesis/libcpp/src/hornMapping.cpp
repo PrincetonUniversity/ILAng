@@ -55,24 +55,9 @@ namespace ila
     {
     }
 
-    void HornRewriter::config (const std::string& state, hvptr_t arg)
+    void HornRewriter::configOutput (const std::string& state, hvptr_t arg)
     {
-        //auto inSet = _pred->getInSet ();
         auto outSet = _pred->getOutSet ();
-
-        /*
-        // find input state.
-        for (auto itIn = inSet.begin(); itIn != inSet.end(); itIn++) {
-            auto inVar = itIn->second;
-            if (inVar == arg) {
-                ILA_ASSERT (_mapVS.find (arg) == _mapVS.end(),
-                            arg->getName() + " has been configured.");
-                _mapVS[arg] = state;
-                found = true;
-                break;
-            }
-        }
-        */
 
         // find output state.
         bool found = false;
@@ -141,113 +126,6 @@ namespace ila
         return rewriteFmt.str();
     }
 
-    void HornRewriter::connect (const std::string& s, const std::string& o)
-    {
-        /*
-        if (_mapSO.find (s) == _mapSO.end()) {
-            _mapSO[s] = o;
-        } else {
-            ILA_ASSERT (_mapSO[s] == o, 
-                "Output for state " + s + " has been connected.");
-        }
-
-        if (_mapOS.find (o) == _mapOS.end()) {
-            _mapOS[o] = s;
-        } else {
-            ILA_ASSERT (_mapOS[o] == s,
-                "Output for state " + s + " has been connected.");
-        }
-        */
-    }
-
-    /*
-    std::string HornRewriter::rewritePred (char entry, int entryId,
-                                           char exit, int exitId)
-    {
-        if (p->getInNum() == 0) {
-            ILA_ASSERT (p->isConst(), 
-                    "Non-const empty predicate " + p->getName() + ".");
-            return p->getNd();
-        }
-
-        ILA_ASSERT (p->getInNum() == _mapSO.size(), 
-                "Arg num mismatch. Connect all dependent states.");
-
-        auto inSet = p->getInSet (); 
-        auto outSet = p->getOutSet ();
-
-        std::string inArgs = "";
-        for (auto it = inSet.begin(); it != inSet.end(); it++) {
-            ILA_ASSERT (_mapSO.find (it->first) != _mapSO.end(),
-                    "State " + it->first + " not found.");
-            inArgs += " ";
-            hvptr_t var = NULL;
-            if (entry == 'I') {
-                var = it->second;
-            } else if (entry == 'O') {
-                std::string outName = _mapSO [it->first];
-                for (auto outVar : outSet) {
-                    if (outVar->getName() == outName) {
-                        var = outVar;
-                        break;
-                    }
-                }
-            } else {
-                ILA_ASSERT (false, "Unknown rewrite option.");
-            }
-
-            ILA_ASSERT (var != NULL, 
-                    "var " + it->first + " to rewrite not found.");
-
-            if (entryId == -1) {
-                inArgs += var->getName();
-            } else {
-                inArgs += _tr->copyVar (var, entryId)->getName();
-            }
-        }
-
-        std::string outArgs = "";
-        for (auto out : outSet) {
-            ILA_ASSERT (_mapOS.find (out->getName()) != _mapOS.end(),
-                    "State " + out->getName() + " not found.");
-            outArgs += " ";
-            hvptr_t var = NULL;
-            if (exit == 'O') {
-                var = out;
-            } else if (exit == 'I') {
-                std::string inName = _mapOS [out->getName()];
-                for (auto it = inSet.begin(); it != inSet.end(); it++) {
-                    if (it->first == inName) {
-                        var = it->second;
-                        break;
-                    }
-                }
-            } else {
-                ILA_ASSERT (false, "Unknown rewrite option.");
-            }
-
-            ILA_ASSERT (var != NULL,
-                    "var " + out->getName() + " to rewrite not found.");
-
-            if (exitId == -1) {
-                outArgs += var->getName();
-            } else {
-                outArgs += _tr->copyVar (var, exitId)->getName();
-            }
-        }
-
-        boost::format rewriteFmt ("(%1%%2%%3%)");
-        rewriteFmt % p->getName() % inArgs % outArgs;
-        return rewriteFmt.str();
-    }
-    */
-
-    std::string HornRewriter::addSuffix (const std::string& name, 
-                                         const int& idx) const
-    {
-        return (name + "_" + boost::lexical_cast <std::string> (idx));
-    }
-
     // ---------------------------------------------------------------------- //
     void HornTranslator::generateMapping (const std::string& type)
     {
@@ -270,7 +148,6 @@ namespace ila
         _instrs[i] = instr;
         instr->_name = i;
         instr->_decodeFunc = hornifyNode (d, i + ".decode");
-        //instr->_decodeFunc = getVar (d->node);
     }
 
     void HornTranslator::addNext (const std::string& i, const std::string& s,
@@ -280,13 +157,12 @@ namespace ila
         if (it == _instrs.end()) {
             it = _childs.find (i);
             if (it == _childs.end()) {
-                ILA_ASSERT (false, "Instruction "+i+" not exist.");
+                ILA_ASSERT (false, "Instruction " + i + " not exist.");
             }
         }
 
         struct Instr_t* instr = it->second;
         instr->_nxtFuncs[s] = hornifyNode (n, i + "." + s);
-        //instr->_nxtFuncs[s] = getVar (n->node);
     }
 
     void HornTranslator::addChildInstr (const std::string& c, 
@@ -304,7 +180,6 @@ namespace ila
         _childs[c] = instr;
         instr->_name = c;
         instr->_decodeFunc = hornifyNode (d, c + ".decode");
-        //instr->_decodeFunc = getVar (d->node);
     }
 
 
@@ -315,7 +190,7 @@ namespace ila
             auto instr = itI->second;
             // TODO Clean up, all use with child
             // TODO Replace all fix clause to original clause.
-            if (instr->_childInstrs.empty()) {
+            if (false && instr->_childInstrs.empty()) {
                 // No child-instructions
                 // D & N --> M
                 fcptr_t M = new FixClause ();
@@ -357,9 +232,7 @@ namespace ila
                 _db->addRel (lVar);
 
                 HornRewriter* loopRW = new HornRewriter (this, lVar);
-                // Collect dependent/updated states.
-                // Run through all child-instructions to make sure lVar 
-                // captures all input states and output states.
+                // Collect dependent/updated states. Run on first child-instr.
                 for (auto uName : instr->_childInstrs) {
                     ILA_ASSERT (_childs.find (uName) != _childs.end(), 
                                 "uInstr " + uName + " not found.");
@@ -369,11 +242,11 @@ namespace ila
                     for (auto itUN  = uInstr->_nxtFuncs.begin();
                               itUN != uInstr->_nxtFuncs.end(); itUN++) {
                         auto uNxt = itUN->second;
+
                         lVar->mergeInVars (uNxt);
                         lVar->mergeOutVars (uNxt);
-                        //loopRW->connect (itUN->first, 
-                                         //itUN->second->getOutVar()->getName());
-                        loopRW->config (itUN->first, uNxt->getOutVar());
+
+                        loopRW->configOutput (itUN->first, uNxt->getOutVar());
                     }
 
                     loopRW->configInput();
@@ -388,8 +261,6 @@ namespace ila
                 // Next state functions                     -- N(s, n)
                 // Head ************************************************
                 // Exit loop predicate                      -- L(s_0, n)
-
-                // Rewrite rules for loop predicate.
 
                 for (auto uName : instr->_childInstrs) {
                     auto uInstr = _childs.find (uName)->second;
@@ -406,16 +277,6 @@ namespace ila
                         L->addBody (uInstr->_decodeFunc->getOutVar()->getName());
                     }
 
-                    // Create the loop rewriter for this child-instr.
-                    /*
-                    if (loopRW == NULL) {
-                        loopRW = new HornReWriter (this);
-                    } else {
-                        delete loopRW;
-                        loopRW = new HornReWriter (this);
-                    }
-                    */
-                    //HornRewriter* loopRW = new HornRewriter (this, lVar);
                     // Update the loop rewriter and add next state functions.
                     for (auto itUN  = uInstr->_nxtFuncs.begin();
                               itUN != uInstr->_nxtFuncs.end(); itUN++) {
@@ -423,18 +284,12 @@ namespace ila
                         loopRW->update (itUN->first, 
                                         NULL,
                                         itUN->second->getOutVar());
-                        //loopRW->connect (itUN->first, 
-                                         //itUN->second->getOutVar()->getName());
                     }
 
                     // Add entry loop predicate to the body.
-                    //L->addBody (loopRW->rewritePred ('I', 0, 'I', -1));
                     L->addBody (loopRW->rewrite ('I', 0, 'I', -1));
                     // Add exit loop predicate to the head.
                     L->setHead (loopRW->rewrite ('I', 0, 'O', -1));
-                    //L->setHead (loopRW->rewritePred ('I', 0, 'O', -1));
-
-                    //delete loopRW;
                 }
 
                 // Create a clause for the instruction (w/ loop).
@@ -472,12 +327,12 @@ namespace ila
 
                     mVar->mergeInVars (nxt);
                     mVar->mergeOutVars (nxt);
-                    //mRW->connect (itN->first, 
-                                  //nxt->getOutVar()->getName());
-                    mRW->config (itN->first, nxt->getOutVar());
+
+                    mRW->configOutput (itN->first, nxt->getOutVar());
                     mRW->update (itN->first,
                                  NULL,
                                  itN->second->getOutVar());
+
                     loopRW->update (itN->first,
                                     NULL, 
                                     itN->second->getOutVar());
@@ -485,13 +340,14 @@ namespace ila
 
                 mRW->configInput();
 
-                //M->addBody (loopRW->rewritePred (lVar, 'I', 0, 'I', -1));
-                M->addBody (loopRW->rewrite ('I', 0, 'I', -1));
-                //M->addBody (loopRW->rewritePred (lVar, 'O', -1, 'I', 1));
-                M->addBody (loopRW->rewrite ('O', -1, 'I', 1));
+                if (instr->_childInstrs.empty()) {
+                    M->setHead (mRW->rewrite ('I', -1, 'O', -1));
+                } else {
+                    M->addBody (loopRW->rewrite ('I', 0, 'I', -1));
+                    M->addBody (loopRW->rewrite ('O', -1, 'I', 1));
 
-                //M->setHead (mRW->rewritePred (mVar, 'I', 0, 'I', 1));
-                M->setHead (mRW->rewrite ('I', 0, 'I', 1));
+                    M->setHead (mRW->rewrite ('I', 0, 'I', 1));
+                }
 
                 if (loopRW != NULL) delete loopRW;
                 if (mRW != NULL) delete mRW;
