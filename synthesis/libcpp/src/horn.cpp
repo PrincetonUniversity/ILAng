@@ -424,8 +424,9 @@ namespace ila
     }
 
     // ---------------------------------------------------------------------- //
-    HornTranslator::HornTranslator (Abstraction* abs)
-      : _abs (abs)
+    HornTranslator::HornTranslator (Abstraction* abs, const std::string& name)
+      : //_abs (abs),
+        _name (name)
     {
         _db = new HornDB();
         _varCnt = 0;
@@ -441,6 +442,11 @@ namespace ila
         _db = NULL;
     }
 
+    void HornTranslator::setName (const std::string& name)
+    {
+        _name = name;
+    }
+
     void HornTranslator::hornifyAll (const std::string& fileName)
     {
         // TODO
@@ -450,8 +456,6 @@ namespace ila
                                       const std::string& ruleName)
     {
         nptr_t n = node->node;
-        log1 ("Horn") << "Trans node " << n->getName()
-            << " as " << ruleName << std::endl;
 
         hvptr_t varNxt = getVar (n);
         hvptr_t topV = getVar (ruleName);
@@ -764,7 +768,7 @@ namespace ila
     void HornTranslator::initBoolOp (const BoolOp* n, hvptr_t v)
     {
         // name
-        v->setName ("b" + boost::lexical_cast <std::string> (v->getId()));
+        v->setName (_name + "_b" + boost::lexical_cast <std::string> (v->getId()));
         // type
         v->setType ("Bool");
         // in
@@ -881,7 +885,7 @@ namespace ila
     void HornTranslator::initBvOp (const BitvectorOp* n, hvptr_t v)
     {
         // name 
-        v->setName ("bv" + boost::lexical_cast <std::string> (v->getId()));
+        v->setName (_name + "_bv" + boost::lexical_cast <std::string> (v->getId()));
         // type
         v->setType ("(_ BitVec " + 
                     boost::lexical_cast <std::string> (n->type.bitWidth) + 
@@ -1096,7 +1100,7 @@ namespace ila
     void HornTranslator::initMemOp (const MemOp* n, hvptr_t v)
     {
         // name
-        v->setName ("mem" + boost::lexical_cast <std::string> (v->getId()));
+        v->setName (_name + "_mem" + boost::lexical_cast <std::string> (v->getId()));
         // type
         boost::format memVarTypeFmt ("(Array (_ BitVec %1%) (_ BitVec %2%))");
         memVarTypeFmt % n->type.addrWidth
@@ -1270,7 +1274,7 @@ namespace ila
     void HornTranslator::initMemConst (const MemConst* n, hvptr_t v)
     {
         // name is the value??
-        v->setName ("mem" + boost::lexical_cast <std::string> (v->getId()));
+        v->setName (_name + "_mem" + boost::lexical_cast <std::string> (v->getId()));
         // type
         boost::format memVarTypeFmt ("(Array (_ BitVec %1%) (_ BitVec %2%))");
         memVarTypeFmt % n->type.addrWidth

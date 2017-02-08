@@ -77,7 +77,7 @@ namespace ila
     void HornTranslator::initBoolOpInt (const BoolOp* n, hvptr_t v)
     {
         // name
-        v->setName ("b" + boost::lexical_cast <std::string> (v->getId()));
+        v->setName (_name + "_b" + boost::lexical_cast <std::string> (v->getId()));
         // type
         v->setType ("Bool");
         // in
@@ -176,7 +176,7 @@ namespace ila
     void HornTranslator::initBvOpInt (const BitvectorOp* n, hvptr_t v)
     {
         // name
-        v->setName ("bv" + boost::lexical_cast <std::string> (v->getId()));
+        v->setName (_name + "_bv" + boost::lexical_cast <std::string> (v->getId()));
         // type
         if (isLongBv (n->type.bitWidth)) {
             v->setType ("(Array Int Int)");
@@ -222,17 +222,32 @@ namespace ila
                 boost::format negateFmt ("(= %1% (- 0 %2%))");
                 negateFmt % v->getName() % arg0->getName();
                 v->setExec (negateFmt.str());
+                // not implement
+                ILA_ASSERT (!isLongBv (n->arg(0)->type.bitWidth), 
+                            "Long bitvector negate not implemented.");
             } else if (n->op == BitvectorOp::Op::COMPLEMENT) {
                 // (= z (bv2int (bvnot ((_ int2bv w) x))))
                 boost::format cplFmt (
                         "(= %1% (bv2int (bvnot ((_ int2bv %2%) %3%))))");
                 cplFmt % v->getName() % n->type.bitWidth % arg0->getName();
                 v->setExec (cplFmt.str());
+                // not implement
+                ILA_ASSERT (!isLongBv (n->arg(0)->type.bitWidth), 
+                            "Long bitvector negate not implemented.");
             } else if (n->op == BitvectorOp::Op::LROTATE || 
                        n->op == BitvectorOp::Op::RROTATE) {
                 // not supported yet
                 ILA_ASSERT (false, "rotate op not supported yet.");
             } else if (n->op == BitvectorOp::Op::Z_EXT) {
+                if (isLongBv (n->type.bitWidth)) {
+                    // XXX Wrong implementation.
+                    // (= (select z 0) x)
+                    info ("Horn") << "Long bitvector zero extend used.\n";
+                    boost::format extLongBvFmt ("(= (select %1% 0) %2%)");
+                    extLongBvFmt % v->getName() % arg0->getName();
+                    v->setExec (extLongBvFmt.str());
+                    return;
+                }
                 // (= z x)
                 boost::format zextFmt ("(= %1% %2%)");
                 zextFmt % v->getName() % arg0->getName();
@@ -241,6 +256,20 @@ namespace ila
                 // not supported yet
                 ILA_ASSERT (false, "signed extend not supported yet.");
             } else if (n->op == BitvectorOp::Op::EXTRACT) {
+                if (isLongBv (n->arg(0)->type.bitWidth)) {
+                    // XXX Wrong implementation.
+                    info ("Horn") << "Long bitvector extract used.\n";
+
+                    ILA_ASSERT (n->type.bitWidth == 8, "Only support byte");
+                    ILA_ASSERT (n->param(1) % 8 == 0, "Need to be aligned.");
+                    // (= z (select x l/8))
+                    boost::format extractLongBv ("(= %1% (select %2% %3%))");
+                    extractLongBv % v->getName()
+                                  % arg0->getName()
+                                  % (n->param(1) / 8);
+                    v->setExec (extractLongBv.str());
+                    return;
+                }
                 // (= z (bv2int ((_ extract m l) ((_ int2bv w)x))))
                 boost::format extractOp (
                 "(= %1% (bv2int ((_ extract %2% %3%) ((_ int2bv %4%) %5%))))");
@@ -260,6 +289,16 @@ namespace ila
             hvptr_t arg0 = getVar (n->arg(0));
             hvptr_t arg1 = getVar (n->arg(1));
 
+            if (isLongBv (n->type.bitWidth)) {
+                // XXX Wrong implementation.
+                // (= z x)
+                info ("Horn") << "Long bitvector binary operation used.\n";
+                boost::format binLongBvFmt ("(= %1% %2%)");
+                binLongBvFmt % v->getName() % arg1->getName();
+                v->setExec (binLongBvFmt.str());
+                return;
+            }
+                
             if (n->op == BitvectorOp::Op::ADD ||
                 n->op == BitvectorOp::Op::SUB ||
                (n->op >= BitvectorOp::Op::SDIV && 
@@ -508,7 +547,7 @@ namespace ila
     void HornTranslator::initMemOpInt (const MemOp* n, hvptr_t v)
     {
         // name
-        v->setName ("mem" + boost::lexical_cast <std::string> (v->getId()));
+        v->setName (_name + "_mem" + boost::lexical_cast <std::string> (v->getId()));
         // type
         v->setType ("(Array Int Int)");
         // in
@@ -726,7 +765,7 @@ namespace ila
     void HornTranslator::initMemConstInt (const MemConst* n, hvptr_t v)
     {
         // name is the value?
-        v->setName ("mem" + boost::lexical_cast <std::string> (v->getId()));
+        v->setName (_name + "_mem" + boost::lexical_cast <std::string> (v->getId()));
         // type
         v->setType ("(Array Int Int)");
         // exec

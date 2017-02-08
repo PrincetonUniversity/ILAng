@@ -45,8 +45,9 @@ namespace ila
     }
 
     // ---------------------------------------------------------------------- //
-    HornRewriter::HornRewriter (HornTranslator* tr) 
-        : _tr (tr)
+    HornRewriter::HornRewriter (HornTranslator* tr, hvptr_t p) 
+        : _tr (tr),
+          _pred (p)
     {
     }
 
@@ -54,25 +55,114 @@ namespace ila
     {
     }
 
+    void HornRewriter::config (const std::string& state, hvptr_t arg)
+    {
+        //auto inSet = _pred->getInSet ();
+        auto outSet = _pred->getOutSet ();
+
+        /*
+        // find input state.
+        for (auto itIn = inSet.begin(); itIn != inSet.end(); itIn++) {
+            auto inVar = itIn->second;
+            if (inVar == arg) {
+                ILA_ASSERT (_mapVS.find (arg) == _mapVS.end(),
+                            arg->getName() + " has been configured.");
+                _mapVS[arg] = state;
+                found = true;
+                break;
+            }
+        }
+        */
+
+        // find output state.
+        bool found = false;
+        for (auto outVar : outSet) {
+            if (outVar == arg) {
+                ILA_ASSERT (_mapOS.find (arg) == _mapOS.end(),
+                            arg->getName() + " has been configured.");
+                _mapOS[arg] = state;
+                found = true;
+                break;
+            }
+        }
+
+        ILA_ASSERT (found, "Arguement " + arg->getName() + " not found.");
+    }
+
+    void HornRewriter::configInput ()
+    {
+        auto inSet = _pred->getInSet ();
+
+        for (auto itIn = inSet.begin(); itIn != inSet.end(); itIn++) {
+            _mapIS[itIn->second] = itIn->first;
+            _mapSI[itIn->first] = itIn->second;
+        }
+    }
+
+    void HornRewriter::update (const std::string& state,
+                               hvptr_t inArg, hvptr_t outArg)
+    {
+        if (inArg != NULL) _mapSI[state] = inArg;
+        if (outArg != NULL) _mapSO[state] = outArg;
+    }
+
+    std::string HornRewriter::rewrite (char inType, int inSuff, 
+                                       char outType, int outSuff) 
+    {
+        if (_pred->getInNum() == 0) {
+            ILA_ASSERT (_pred->isConst(),
+                    "Non-const empty predicate " + _pred->getName() + ".");
+            return _pred->getNd();
+        }
+
+        auto inSet = _pred->getInSet();
+        auto outSet = _pred->getOutSet();
+
+        std::string inArgs = "";
+        for (auto itIn = inSet.begin(); itIn != inSet.end(); itIn++) {
+            hvptr_t var = (inType == 'I') ? _mapSI[ _mapIS[ itIn->second ]]
+                                          : _mapSO[ _mapIS[ itIn->second ]];
+            inArgs += " ";
+            inArgs += (inSuff == -1) ? var->getName()
+                                     : _tr->copyVar (var, inSuff)->getName();
+        }
+
+        std::string outArgs = "";
+        for (auto outVar : outSet) {
+            hvptr_t var = (outType == 'I') ? _mapSI[ _mapOS[ outVar ]]
+                                           : _mapSO[ _mapOS[ outVar ]];
+            outArgs += " ";
+            outArgs += (outSuff == -1) ? var->getName()
+                                       : _tr->copyVar (var, outSuff)->getName();
+        }
+        
+        boost::format rewriteFmt ("(%1%%2%%3%)");
+        rewriteFmt % _pred->getName() % inArgs % outArgs;
+        return rewriteFmt.str();
+    }
+
     void HornRewriter::connect (const std::string& s, const std::string& o)
     {
+        /*
         if (_mapSO.find (s) == _mapSO.end()) {
             _mapSO[s] = o;
         } else {
             ILA_ASSERT (_mapSO[s] == o, 
-                "Output for state " + s + "has been connected.");
+                "Output for state " + s + " has been connected.");
         }
 
         if (_mapOS.find (o) == _mapOS.end()) {
             _mapOS[o] = s;
         } else {
             ILA_ASSERT (_mapOS[o] == s,
-                "Output for state " + s + "has been connected.");
+                "Output for state " + s + " has been connected.");
         }
+        */
     }
 
-    std::string HornRewriter::rewritePred (hvptr_t p, char entry, int entryId,
-                                                      char exit, int exitId)
+    /*
+    std::string HornRewriter::rewritePred (char entry, int entryId,
+                                           char exit, int exitId)
     {
         if (p->getInNum() == 0) {
             ILA_ASSERT (p->isConst(), 
@@ -150,6 +240,7 @@ namespace ila
         rewriteFmt % p->getName() % inArgs % outArgs;
         return rewriteFmt.str();
     }
+    */
 
     std::string HornRewriter::addSuffix (const std::string& name, 
                                          const int& idx) const
@@ -219,8 +310,11 @@ namespace ila
 
     void HornTranslator::generateInterleaveMapping () 
     { 
+        log1 ("Horn") << "Start generate\n";
         for (auto itI = _instrs.begin(); itI != _instrs.end(); itI++) {
             auto instr = itI->second;
+            // TODO Clean up, all use with child
+            // TODO Replace all fix clause to original clause.
             if (instr->_childInstrs.empty()) {
                 // No child-instructions
                 // D & N --> M
@@ -257,13 +351,18 @@ namespace ila
                 // L & Du & Nu --> L'
                 // L & D & N & L --> M
 
-                // collect related states
+                // Create and register loop predicate.
                 hvptr_t lVar = getVar ("L_" + instr->_name);
                 lVar->setLevel (1);
-                HornRewriter* loopRW = new HornRewriter (this);
+                _db->addRel (lVar);
+
+                HornRewriter* loopRW = new HornRewriter (this, lVar);
+                // Collect dependent/updated states.
+                // Run through all child-instructions to make sure lVar 
+                // captures all input states and output states.
                 for (auto uName : instr->_childInstrs) {
                     ILA_ASSERT (_childs.find (uName) != _childs.end(), 
-                                "uInstr not found.");
+                                "uInstr " + uName + " not found.");
                     auto uInstr = _childs.find (uName)->second;
 
                     lVar->mergeInVars (uInstr->_decodeFunc);
@@ -272,54 +371,90 @@ namespace ila
                         auto uNxt = itUN->second;
                         lVar->mergeInVars (uNxt);
                         lVar->mergeOutVars (uNxt);
-                        // update rewriter.
-                        loopRW->connect (itUN->first, 
-                                         uNxt->getOutVar()->getName());
+                        //loopRW->connect (itUN->first, 
+                                         //itUN->second->getOutVar()->getName());
+                        loopRW->config (itUN->first, uNxt->getOutVar());
                     }
+
+                    loopRW->configInput();
+                    break;
                 }
-                _db->addRel (lVar);
                 
-                // rewrite rules for loop predicate
+                // Create a clause for each loop step (each child-instr).
+                // Body ************************************************
+                // Entry loop predicate                     -- L(s_0, s)
+                // Decode of uInstr                         -- D(s, b)
+                // Decode true                              -- b
+                // Next state functions                     -- N(s, n)
+                // Head ************************************************
+                // Exit loop predicate                      -- L(s_0, n)
+
+                // Rewrite rules for loop predicate.
+
                 for (auto uName : instr->_childInstrs) {
-                    auto uI = _childs.find (uName)->second;
+                    auto uInstr = _childs.find (uName)->second;
 
+                    // Create and register the clause.
                     fcptr_t L = new FixClause ();
-                    // entry loop predicate         -- L(s_0, s)
-                    // decode of uInstr             -- D(s, b)
-                    //                              -- b
-                    // nxt of uInstr                -- N(s, n)
-                    // head: exit loop predicate    -- L(s_0, n)
-                    L->addBody (loopRW->rewritePred (lVar, 'I', 0, 'I', -1));
-
-                    if (uI->_decodeFunc->isConst()) {
-                        L->addBody (uI->_decodeFunc->getName());
-                    } else {
-                        L->addBody (uI->_decodeFunc->getPred());
-                        L->addBody (uI->_decodeFunc->getOutVar()->getName());
-                    }
-
-                    for (auto itUN  = uI->_nxtFuncs.begin();
-                              itUN != uI->_nxtFuncs.end(); itUN++) {
-                        L->addBody (itUN->second->getPred());
-                    }
-
-                    L->setHead (loopRW->rewritePred (lVar, 'I', 0, 'O', -1));
                     _db->addFixClause (L);
+
+                    // Add decode function to the body.
+                    if (uInstr->_decodeFunc->isConst()) {
+                        L->addBody (uInstr->_decodeFunc->getName());
+                    } else {
+                        L->addBody (uInstr->_decodeFunc->getPred());
+                        L->addBody (uInstr->_decodeFunc->getOutVar()->getName());
+                    }
+
+                    // Create the loop rewriter for this child-instr.
+                    /*
+                    if (loopRW == NULL) {
+                        loopRW = new HornReWriter (this);
+                    } else {
+                        delete loopRW;
+                        loopRW = new HornReWriter (this);
+                    }
+                    */
+                    //HornRewriter* loopRW = new HornRewriter (this, lVar);
+                    // Update the loop rewriter and add next state functions.
+                    for (auto itUN  = uInstr->_nxtFuncs.begin();
+                              itUN != uInstr->_nxtFuncs.end(); itUN++) {
+                        L->addBody (itUN->second->getPred());
+                        loopRW->update (itUN->first, 
+                                        NULL,
+                                        itUN->second->getOutVar());
+                        //loopRW->connect (itUN->first, 
+                                         //itUN->second->getOutVar()->getName());
+                    }
+
+                    // Add entry loop predicate to the body.
+                    //L->addBody (loopRW->rewritePred ('I', 0, 'I', -1));
+                    L->addBody (loopRW->rewrite ('I', 0, 'I', -1));
+                    // Add exit loop predicate to the head.
+                    L->setHead (loopRW->rewrite ('I', 0, 'O', -1));
+                    //L->setHead (loopRW->rewritePred ('I', 0, 'O', -1));
+
+                    //delete loopRW;
                 }
 
-                // L & D & N & L --> M
-                // entry loop predicate         -- L(s_0, s)
-                // decode for instr             -- D(s, b)
-                //                              -- b
-                // nxt of instr                 -- N(s, n)
-                // exit loop predicate          -- L(n, s_1)
-                // head: exit instr predicate   -- M(s_0, s_1)
-                hvptr_t mVar = getVar (instr->_name);
-                fcptr_t M = new FixClause ();
-                mVar->setLevel (1);
-                HornRewriter* mRW = new HornRewriter (this);
+                // Create a clause for the instruction (w/ loop).
+                // Body ************************************************
+                // Entry loop predicate                     -- L(s_0, s)
+                // Decode for instr                         -- D(s, b)
+                // Decode true                              -- b
+                // Next state functions                     -- N(s, n)
+                // Exit loop predicate                      -- L(n, s_1)
+                // Head ************************************************
+                // Instr predicate                          -- M(s_0, s_1)
 
-                M->addBody (loopRW->rewritePred (lVar, 'I', 0, 'I', -1));
+                // Create and register the predicate/clause.
+                hvptr_t mVar = getVar (instr->_name);
+                mVar->setLevel (1);
+                fcptr_t M = new FixClause ();
+                _db->addRel (mVar);
+                _db->addFixClause (M);
+
+                HornRewriter* mRW = new HornRewriter (this, mVar);
 
                 if (instr->_decodeFunc->isConst()) {
                     M->addBody (instr->_decodeFunc->getName());
@@ -337,20 +472,29 @@ namespace ila
 
                     mVar->mergeInVars (nxt);
                     mVar->mergeOutVars (nxt);
-                    mRW->connect (itN->first, 
-                                  nxt->getOutVar()->getName());
+                    //mRW->connect (itN->first, 
+                                  //nxt->getOutVar()->getName());
+                    mRW->config (itN->first, nxt->getOutVar());
+                    mRW->update (itN->first,
+                                 NULL,
+                                 itN->second->getOutVar());
+                    loopRW->update (itN->first,
+                                    NULL, 
+                                    itN->second->getOutVar());
                 }
 
-                M->addBody (loopRW->rewritePred (lVar, 'O', -1, 'I', 1));
+                mRW->configInput();
 
-                M->setHead (mRW->rewritePred (mVar, 'I', 0, 'I', 1));
+                //M->addBody (loopRW->rewritePred (lVar, 'I', 0, 'I', -1));
+                M->addBody (loopRW->rewrite ('I', 0, 'I', -1));
+                //M->addBody (loopRW->rewritePred (lVar, 'O', -1, 'I', 1));
+                M->addBody (loopRW->rewrite ('O', -1, 'I', 1));
 
-                _db->addRel (mVar);
-                _db->addFixClause (M);
+                //M->setHead (mRW->rewritePred (mVar, 'I', 0, 'I', 1));
+                M->setHead (mRW->rewrite ('I', 0, 'I', 1));
 
-                delete loopRW;
-                delete mRW;
-                loopRW = mRW = NULL;
+                if (loopRW != NULL) delete loopRW;
+                if (mRW != NULL) delete mRW;
             }
         }
     }

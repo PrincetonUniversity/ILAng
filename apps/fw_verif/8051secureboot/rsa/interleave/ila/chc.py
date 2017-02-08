@@ -21,27 +21,35 @@ def translate ():
     for addr in all_instrs:
         Dpath = root + '/instr_%x/decode' % addr
         Dast  = m.importOne (Dpath)
-        m.hornifyNode (Dast, 'D_%x' % addr)
+        instrName = 'rsa_%x' % addr
+        #m.hornifyNode (Dast, 'D_%x' % addr)
+        m.addHornInstr (instrName, Dast)
 
         for s in all_states:
             Npath = root + '/instr_%x/%s' % (addr, s)
             Nast  = m.importOne (Npath)
-            m.hornifyNode (Nast, 'N_%x_%s' % (addr, s))
+            #m.hornifyNode (Nast, 'N_%x_%s' % (addr, s))
+            m.addHornNext (instrName, s, Nast)
 
     for st in all_childs:
         Dpath = root + '/child_%d/decode' % st
         Dast  = m.importOne (Dpath)
-        m.hornifyNode (Dast, 'D_%x' % st)
+        childName = 'rsa_u_%x' % st
+        print 'buid ', childName
+        #m.hornifyNode (Dast, 'D_%x' % st)
+        m.addHornChild (childName, 'rsa_fd00', Dast)
 
         for s in all_states:
             Npath = root + '/child_%d/%s' % (st, s)
             Nast = m.importOne (Npath)
-            m.hornifyNode (Nast, 'N_%d_%s' % (st, s))
+            #m.hornifyNode (Nast, 'N_%d_%s' % (st, s))
+            m.addHornNext (childName, s, Nast)
 
+    m.generateHornMapping ('Interleave')
     ilaFile = dstDir + '/ila.smt2'
     m.exportHornToFile (ilaFile)
 
 if __name__ == '__main__':
     ila.setloglevel (3, "")
-    #ila.enablelog ("Horn")
+    ila.enablelog ("Horn")
     translate ()

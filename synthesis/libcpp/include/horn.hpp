@@ -197,22 +197,42 @@ namespace ila
     private:
         // translator
         HornTranslator* _tr;
+        // predicate
+        hvptr_t _pred;
+        // var mapping from predicate input var to state.
+        std::map <hvptr_t, std::string> _mapIS;
+        // var mapping from predicate output var to state.
+        std::map <hvptr_t, std::string> _mapOS;
+        // var mapping from state to input.
+        std::map <std::string, hvptr_t> _mapSI;
+        // var mapping from state to output.
+        std::map <std::string, hvptr_t> _mapSO;
+
+        /*
         // var mapping from state to output.
         std::map <std::string, std::string> _mapSO;
         // var mapping from output to sate.
         std::map <std::string, std::string> _mapOS;
+        */
 
     public:
         // ctor.
-        HornRewriter (HornTranslator* tr);
+        HornRewriter (HornTranslator* tr, hvptr_t p);
         // dtor.
         virtual ~HornRewriter ();
 
-        // add mapping from state to output.
+        // configure predicate arguments to state. Set up _mapVS.
+        void config (const std::string& state, hvptr_t arg);
+        // configure predicate input argument as the original predicate.
+        void configInput ();
+        // update rewrite mapping for states.
+        void update (const std::string& state, hvptr_t inArg, hvptr_t outArg);
+        // add mapping.
         void connect (const std::string& s, const std::string& o);
         // rewrite predicate with specified rules.
-        std::string rewritePred (hvptr_t p, char entry, int entryId,
-                                            char exit, int exitId);
+        std::string rewrite (char inType, int inSuff, char outType, int outSuff);
+        // rewrite predicate with specified rules.
+        //std::string rewritePred (char entry, int entryId, char exit, int exitId);
 
     private:
         // add suffix to the name.
@@ -270,6 +290,8 @@ namespace ila
     class HornTranslator
     {
     private:
+        // name for the translator. (prefix for variables)
+        std::string _name;
         // pointer to the abstraction.
         Abstraction* _abs;
         // horn clause data base.
@@ -283,10 +305,14 @@ namespace ila
 
     public:
         // ctor;
-        HornTranslator (Abstraction* abs);
+        HornTranslator (Abstraction* abs, const std::string& name);
         // dtor.
         virtual ~HornTranslator ();
 
+        // ------------------------------------------------------------------ //
+        // set translator name.
+        void setName (const std::string& name);
+        
         // ------------------------------------------------------------------ //
         // convert whole abs to horn clauses and output to file.
         void hornifyAll (const std::string& fileName);

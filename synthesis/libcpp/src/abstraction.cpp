@@ -930,24 +930,24 @@ namespace ila
     // ---------------------------------------------------------------------- //
     void Abstraction::hornifyAll(const std::string& fileName)
     {
-        if (_ht == NULL)
-            _ht = new HornTranslator (this);
+        if (_ht == NULL) 
+            _ht = new HornTranslator (this, name);
         _ht->hornifyAll(fileName);
     }
 
     // ---------------------------------------------------------------------- //
     void Abstraction::hornifyNode(NodeRef* node, const std::string& ruleName)
     {
-        if (_ht == NULL)
-            _ht = new HornTranslator (this);
+        if (_ht == NULL) 
+            _ht = new HornTranslator (this, name);
         _ht->hornifyNode(node, ruleName);
     }
 
     // ---------------------------------------------------------------------- //
     void Abstraction::generateHornMapping(const std::string& type)
     {
-        if (_ht == NULL)
-            _ht = new HornTranslator (this);
+        if (_ht == NULL) 
+            _ht = new HornTranslator (this, name);
         _ht->generateMapping (type);
     }
 
@@ -964,24 +964,24 @@ namespace ila
     // ---------------------------------------------------------------------- //
     void Abstraction::hornifyIteAsNode(bool iteAsNode)
     {
-        if (_ht == NULL)
-            _ht = new HornTranslator (this);
+        if (_ht == NULL) 
+            _ht = new HornTranslator (this, name);
         _ht->setIteAsNode(iteAsNode);
     }
 
     // ---------------------------------------------------------------------- //
     void Abstraction::hornifyBvAsInt(bool bvAsInt)
     {
-        if (_ht == NULL)
-            _ht = new HornTranslator (this);
+        if (_ht == NULL) 
+            _ht = new HornTranslator (this, name);
         _ht->setBvAsInt(bvAsInt);
     }
 
     // ---------------------------------------------------------------------- //
     void Abstraction::addHornInstr(const std::string& i, NodeRef* d)
     {
-        if (_ht == NULL)
-            _ht = new HornTranslator (this);
+        if (_ht == NULL) 
+            _ht = new HornTranslator (this, name);
         _ht->addInstr (i, d);
     }
 
@@ -990,7 +990,7 @@ namespace ila
                                    NodeRef* n)
     {
         if (_ht == NULL)
-            _ht = new HornTranslator (this);
+            _ht = new HornTranslator (this, name);
         _ht->addNext (i, s, n);
     }
 
@@ -999,7 +999,7 @@ namespace ila
                                     NodeRef* d)
     {
         if (_ht == NULL)
-            _ht = new HornTranslator (this);
+            _ht = new HornTranslator (this, name);
         _ht->addChildInstr (c, i, d);
     }
 
