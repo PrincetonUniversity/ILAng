@@ -14,7 +14,7 @@ sea     = /home/byhuang/workspace/packages/seahorn/build/run/bin/sea
 seahorn = /home/byhuang/workspace/packages/seahorn/build/run/bin/seahorn
 
 all: $(target)
-	@python blockMMIO.py $(tmpChc) $(target) $(mmioFuncs) --suffix=$(fileSuff) --path=$(infoPath)
+	@python extractFun.py $(tmpChc) $(target) $(mmioFuncs) --suffix=$(fileSuff) --path=$(infoPath)
 	@for mmio in $(mmioFuncs); do \
 		python reasonFun.py $$mmio --path=$(infoPath) --suffix=$(fileSuff); \
 	done

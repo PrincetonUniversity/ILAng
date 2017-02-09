@@ -1,6 +1,7 @@
-.PHONY: shaCHC
-.PHONY: rsaCHC
-.PHONY: fwCHC
+.PHONY: SHA
+.PHONY: RSA
+.PHONY: FW
+.PHONY: MAP
 
 MAKEFLAGS += --no-print-directory
 
@@ -13,34 +14,41 @@ wrap = manual
 wrap = auto
 export ILA_WRAP = $(wrap)
 
-fwDir  = fw
-shaDir = sha
-rsaDir = rsa
+export ROOT_PATH = $(shell pwd)
+export FW_DIR  = fw
+export SHA_DIR = sha
+export RSA_DIR = rsa
+export MAP_DIR = map
 
-tmpSmt2 = tmp.smt2
-tarSmt2 = soc.smt2
+tmpCHC = tmp.smt2
+tarCHC = soc.smt2
 
-fwSmt2  = $(fwDir)/fw.smt2
-shaSmt2 = $(shaDir)/hw.smt2
-rsaSmt2 = $(rsaDir)/hw.smt2
+fwCHC  = $(FW_DIR)/fw.smt2
+shaCHC = $(SHA_DIR)/sha.smt2
+rsaCHC = $(RSA_DIR)/rsa.smt2
+mapCHC = $(MAP_DIR)/map.smt2
 
-all: fwCHC shaCHC rsaCHC 
-	@echo Concat $(fwSmt2), $(shaSmt2), and $(rsaSmt2) to $(tarSmt2)
-	@cat $(fwSmt2) >  $(tmpSmt2)
-	@cat $(shaSmt2) >> $(tmpSmt2)
-	@cat $(rsaSmt2) >> $(tmpSmt2)
-	@grep "query" -v $(tmpSmt2) > $(tarSmt2)
-	@grep "query" $(tmpSmt2) >> $(tarSmt2)
-	@rm $(tmpSmt2)
+all: FW SHA RSA MAP
+	@echo "Integrate $(fwCHC) + $(shaCHC) + $(rsaCHC) --> $(tarCHC)"
+	@cat $(fwCHC) >  $(tmpCHC)
+	@cat $(shaCHC) >> $(tmpCHC)
+	@cat $(rsaCHC) >> $(tmpCHC)
+	@cat $(mapCHC) >> $(tmpCHC)
+	@grep "query" -v $(tmpCHC) > $(tarCHC)
+	@grep "query" $(tmpCHC) >> $(tarCHC)
+	@rm $(tmpCHC)
 
-shaCHC: 
-	@$(MAKE) -C $(shaDir)
+MAP:
+	@$(MAKE) -C $(MAP_DIR)
 
-rsaCHC:
-	@$(MAKE) -C $(rsaDir)
+SHA: 
+	@$(MAKE) -C $(SHA_DIR)
 
-fwCHC:
-	@$(MAKE) -C $(fwDir)
+RSA:
+	@$(MAKE) -C $(RSA_DIR)
+
+FW:
+	@$(MAKE) -C $(FW_DIR)
 
 clean:
 	@rm soc.smt2

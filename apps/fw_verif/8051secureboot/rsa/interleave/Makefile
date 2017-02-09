@@ -11,7 +11,7 @@ TAR_CHC = tmp.smt2
 
 all: SYN
 	@cat $(ILA_CHC) > $(TAR_CHC)
-	@cat $(COM_CHC) >> $(TAR_CHC)
+	@#cat $(COM_CHC) >> $(TAR_CHC)
 	@for chc in $(MAP_CHC); do \
 		cat $$chc >> $(TAR_CHC); \
 	done

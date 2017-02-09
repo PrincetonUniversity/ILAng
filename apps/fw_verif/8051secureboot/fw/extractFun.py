@@ -18,7 +18,7 @@ def removeMMIO(inFile, outFile, funcs, filePath, suffix):
                     sub4 = '(rule (=> (and (' + fun + '@entry'
                     if (sub1 in line) or (sub2 in line) or (sub3 in line) or (sub4 in line):
                         metMMIO = 1
-                        print fun, 'removed'
+                        #print fun, 'removed'
                         newFileName = '%s/%s.%s' % (filePath, fun, suffix)
                         if not os.path.exists (filePath):
                             os.makedirs (filePath)
