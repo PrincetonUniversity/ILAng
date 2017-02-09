@@ -274,14 +274,18 @@ namespace ila
 
     HornClause::~HornClause ()
     {
+        for (auto b : _body) {
+            delete b;
+        }
+        delete _head;
     }
 
     void HornClause::addBody (hlptr_t l) 
     {
         _body.insert (l);
         // propogate input args to _head
-        ILA_ASSERT (_head != NULL, "head not set yet.");
-        _head->getVar()->mergeInVars (l->getVar());
+        if (_head != NULL)
+            _head->getVar()->mergeInVars (l->getVar());
     }
 
     void HornClause::setHead (hlptr_t l)
@@ -321,28 +325,35 @@ namespace ila
             (*allTerms.begin() == _head->getVar()->getPred()))
             return;
 
-        out << "(rule (=> (and ";
-        if (allTerms.empty() || allTerms.size() == 1) {
-            allTerms.insert("true");
+        std::string endPar = "))\n";
+        if (allTerms.empty()) {
+            out << "(rule ";
+            endPar = ")\n";
+        } else if (allTerms.size() == 1) {
+            out << "(rule (=> ";
+            out << *allTerms.begin() << "\n";
+            out << std::setw(10) << "";
+        } else {
+            out << "(rule (=> (and ";
+            for (auto b = allTerms.begin(); b != allTerms.end(); ) {
+                if (b != allTerms.begin())
+                    out << std::setw(15) << "";
+                out << (*b);
+                if (++b != allTerms.end()) 
+                    out << "\n";
+            }
+            out << ")\n";
+            out << std::setw(10) << "";
         }
-        for (auto b = allTerms.begin(); b != allTerms.end(); ) {
-            if (b != allTerms.begin())
-                out << std::setw(15) << "";
-            out << (*b);
-            if (++b != allTerms.end()) 
-                out << "\n";
-        }
-        out << ")\n";
-        out << std::setw(10) << "";
+
         if (_head->isRel()) {
-            out << _head->getVar()->getPred() << "))\n";
+            out << _head->getVar()->getPred() << endPar;
         } else {
             auto set = _head->getVar()->getExec();
             ILA_ASSERT (set.size() == 1, "Head should have only 1 term.");
-            for (auto e : set) {
-                out << e << "))\n";
-            }
+            out << *set.begin() << endPar;
         }
+
     }
 
     // ---------------------------------------------------------------------- //
@@ -379,12 +390,10 @@ namespace ila
         _clauses.insert (c);
     }
 
-    /*
-    void HornDB::addFixClause (fcptr_t f)
+    void HornDB::addWrapClause (hcptr_t c)
     {
-        _fixClauses.insert (f);
+        _wrapClauses.insert (c);
     }
-    */
 
     void HornDB::removeRel (hvptr_t v)
     {
@@ -396,7 +405,7 @@ namespace ila
         declareVar (out);
         declareRel (out);
         declareClause (out);
-        //declareFixClause (out);
+        declareWrapClause (out);
     }
 
     void HornDB::declareVar (std::ostream& out)
@@ -404,7 +413,6 @@ namespace ila
         // (declare-var NAME TYPE)
         out << ";; variables\n";
         boost::format varFmt ("(declare-var %1% %2%)\n");
-        //for (auto v : _vars) {
         for (auto i : _vars) {
             hvptr_t v = i.second;
             if (v->isConst()) continue;
@@ -435,15 +443,13 @@ namespace ila
         }
     }
 
-        /*
-    void HornDB::declareFixClause (std::ostream& out)
+    void HornDB::declareWrapClause (std::ostream& out)
     {
-        out << ";; mapping clauses\n";
-        for (auto c : _fixClauses) {
-            c->print (out);
+        out << ";; wrapping clauses\n";
+        for (auto w : _wrapClauses) {
+            w->print (out);
         }
     }
-        */
 
     // ---------------------------------------------------------------------- //
     HornTranslator::HornTranslator (Abstraction* abs, const std::string& name)
@@ -666,8 +672,11 @@ namespace ila
         if (v != NULL) {
             c->setHead (new HornLiteral (v, true, true));
             _db->addRel (v);
+            _db->addClause (c);
+        } else {
+            c->setHead (NULL);
+            _db->addWrapClause (c);
         }
-        _db->addClause (c);
         return c;
     }
 

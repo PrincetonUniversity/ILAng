@@ -74,6 +74,12 @@ namespace ila
 
         std::string inArgs = "";
         for (auto itIn = inSet.begin(); itIn != inSet.end(); itIn++) {
+            // input (not state)
+            if (_mapSO.find (_mapIS[ itIn->second ]) == _mapSO.end()) {
+                inArgs += " " + itIn->first;
+                continue;
+            }
+            // state
             hvptr_t var = (inType == 'I') ? _mapSI[ _mapIS[ itIn->second ]]
                                           : _mapSO[ _mapIS[ itIn->second ]];
             inArgs += " ";
@@ -198,8 +204,7 @@ namespace ila
 
                 // Create and register the clause.
                 hvptr_t lVarCopy = copyVar (lVar, -1);
-                hcptr_t L = addClause (lVarCopy);
-                _db->removeRel (lVarCopy);
+                hcptr_t L = addClause ();
 
                 // Add decode function to the body.
                 hvptr_t dOut = copyVar (uInstr->_decodeFunc->getOutVar(), -1);
@@ -239,7 +244,9 @@ namespace ila
             // Create and register the predicate/clause.
             hvptr_t mVar = getVar (instr->_name);
             mVar->setLevel (1);
-            hcptr_t M = addClause (mVar);
+            _db->addRel (mVar);
+            //hcptr_t M = addClause (mVar);
+            hcptr_t M = addClause ();
 
             HornRewriter* mRW = new HornRewriter (this, mVar);
 

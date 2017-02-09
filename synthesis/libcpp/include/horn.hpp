@@ -209,6 +209,8 @@ namespace ila
         std::set <hvptr_t> _rels;
         // set of horn clauses.
         std::set <hcptr_t> _clauses;
+        // set of horn clauses for instruction wrapping.
+        std::set <hcptr_t> _wrapClauses;
 
     public:
         // ctor.
@@ -223,6 +225,8 @@ namespace ila
         void addRel (hvptr_t v);
         // add a clause to the set.
         void addClause (hcptr_t c);
+        // add a clause to the instruction wrapping set.
+        void addWrapClause (hcptr_t c);
         // remove a rel from the set.
         void removeRel (hvptr_t v);
 
@@ -237,8 +241,8 @@ namespace ila
         void declareRel (std::ostream& out);
         // output clauses to stream.
         void declareClause (std::ostream& out);
-        // output fix clauses to stream.
-        //void declareFixClause (std::ostream& out);
+        // output wrap clauses to stream.
+        void declareWrapClause (std::ostream& out);
 
         // collector for duplicated ast nodes.
         std::set <hvptr_t> _dupls;
