@@ -280,6 +280,7 @@ namespace ila
             mRW->configInput();
 
             if (instr->_childInstrs.empty()) {
+                _db->removeRel (lVar);
                 hvptr_t mOut = copyVar (mVar, -1);
                 mOut->setExec (mRW->rewrite ('I', -1, 'O', -1));
                 M->setHead (new HornLiteral (mOut));

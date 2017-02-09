@@ -227,6 +227,8 @@ namespace ila
         void addClause (hcptr_t c);
         // add a clause to the instruction wrapping set.
         void addWrapClause (hcptr_t c);
+        // remove a var from the set.
+        void removeVar (const std::string& n);
         // remove a rel from the set.
         void removeRel (hvptr_t v);
 

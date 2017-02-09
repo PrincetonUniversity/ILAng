@@ -395,6 +395,11 @@ namespace ila
         _wrapClauses.insert (c);
     }
 
+    void HornDB::removeVar (const std::string& n)
+    {
+        _vars.erase (n);
+    }
+
     void HornDB::removeRel (hvptr_t v)
     {
         _rels.erase (v);
