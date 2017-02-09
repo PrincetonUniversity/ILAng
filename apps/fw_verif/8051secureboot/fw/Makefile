@@ -1,17 +1,24 @@
-dir	   = .
+dir	   = $(shell pwd)
 fwSrc  = $(addprefix $(dir)/, secureboot.c rsa.c rsa.h)
 source = $(addprefix $(dir)/, secureboot.c rsa.c)
-target = fw.smt2
+target = $(dir)/fw.smt2
 
-llvmBc = fw.bc
-tmpChc = tmp.smt2
+llvmBc = $(dir)/fw.bc
+tmpChc = $(dir)/tmp.smt2
+
+mmioFuncs = HW_REG_WRITE_chr
+infoPath  = info
+fileSuff  = smt2
 
 sea     = /home/byhuang/workspace/packages/seahorn/build/run/bin/sea
 seahorn = /home/byhuang/workspace/packages/seahorn/build/run/bin/seahorn
 
 all: $(target)
-	@python blockMMIO.py $(tmpChc) $(target) HW_REG_WRITE_chr
-	@echo FW clauses generated at $(shell pwd)/$(target)
+	@python blockMMIO.py $(tmpChc) $(target) $(mmioFuncs) --suffix=$(fileSuff) --path=$(infoPath)
+	@for mmio in $(mmioFuncs); do \
+		python reasonFun.py $$mmio --path=$(infoPath) --suffix=$(fileSuff); \
+	done
+	@echo FW clauses generated at $(target)
 
 $(target): $(fwSrc)
 	@$(sea) fe $(source) -o $(llvmBc)

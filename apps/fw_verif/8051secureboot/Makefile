@@ -9,6 +9,10 @@ encode = blocking
 encode = interleave
 export ILA_ENCODE = $(encode)
 
+wrap = manual
+wrap = auto
+export ILA_WRAP = $(wrap)
+
 fwDir  = fw
 shaDir = sha
 rsaDir = rsa

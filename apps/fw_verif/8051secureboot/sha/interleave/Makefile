@@ -13,11 +13,13 @@ TAR_CHC = tmp.smt2
 
 all: SYN
 	@cat $(ILA_CHC) > $(TAR_CHC)
+ifeq ($(ILA_WRAP), manual)
 	@cat $(COM_CHC) >> $(TAR_CHC)
 	@for chc in $(MAP_CHC); do \
 		cat $$chc >> $(TAR_CHC); \
 	done
+endif
 
 SYN:
-	@$(MAKE) -C $(SYN_PATH)
+	@$(MAKE) $(ILA_WRAP) -C $(SYN_PATH)
 

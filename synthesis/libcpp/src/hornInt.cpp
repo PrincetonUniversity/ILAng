@@ -242,7 +242,8 @@ namespace ila
                 if (isLongBv (n->type.bitWidth)) {
                     // XXX Wrong implementation.
                     // (= (select z 0) x)
-                    info ("Horn") << "Long bitvector zero extend used.\n";
+                    info ("Horn-Warning") << "Long bitvector zero extend "
+                        << v->getName() << ".\n";
                     boost::format extLongBvFmt ("(= (select %1% 0) %2%)");
                     extLongBvFmt % v->getName() % arg0->getName();
                     v->setExec (extLongBvFmt.str());
@@ -258,7 +259,8 @@ namespace ila
             } else if (n->op == BitvectorOp::Op::EXTRACT) {
                 if (isLongBv (n->arg(0)->type.bitWidth)) {
                     // XXX Wrong implementation.
-                    info ("Horn") << "Long bitvector extract used.\n";
+                    info ("Horn-Warning") << "Long bitvector extract "
+                        << v->getName() << ".\n";
 
                     ILA_ASSERT (n->type.bitWidth == 8, "Only support byte");
                     ILA_ASSERT (n->param(1) % 8 == 0, "Need to be aligned.");
@@ -292,7 +294,8 @@ namespace ila
             if (isLongBv (n->type.bitWidth)) {
                 // XXX Wrong implementation.
                 // (= z x)
-                info ("Horn") << "Long bitvector binary operation used.\n";
+                info ("Horn-Warning") << "Long bitvector binary operation "
+                    << v->getName() << ".\n";
                 boost::format binLongBvFmt ("(= %1% %2%)");
                 binLongBvFmt % v->getName() % arg1->getName();
                 v->setExec (binLongBvFmt.str());

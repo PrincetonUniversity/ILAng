@@ -56,6 +56,9 @@ def createRsaIla ():
     rsa_buff_nxt = ila.choice ('rsa_buff_nxt', rsa_buff_op, rsa_buff)
     m.set_next ('rsa_buff', rsa_buff_nxt)
 
+    # rsa_M
+    m.set_next ('rsa_M', rsa_M)
+
     # xram
     #xram_w_rsa_lit = ila.storeblk (xram, addr, rsa_buff)
     #xram_w_rsa_big = ila.storeblk_big (xram, addr, rsa_buff)
@@ -76,7 +79,7 @@ def createRsaIla ():
 
 def synthesize ():
     all_states = ['rsa_state', 'rsa_addr']
-    all_states = ['rsa_state', 'rsa_addr', 'XRAM', 'rsa_buff', 'rsa_byte_counter']
+    all_states = ['rsa_state', 'rsa_addr', 'XRAM', 'rsa_buff', 'rsa_byte_counter', 'rsa_M']
     all_instrs = [0xfd00, 0xfd01]
     all_childs = [1, 2, 3]
 
@@ -108,7 +111,6 @@ def synthesize ():
         state   = m.getreg ('rsa_state')
 
         name = 'instr_%x' % addr
-        print 'synthesize ' + name
         m.decode_exprs = [(cmd == 2) & (cmdaddr == addr) & (state == 0)]
         decode = m.decode_exprs[0]
 
@@ -128,7 +130,6 @@ def synthesize ():
         decode = m.decode_exprs[0]
         
         subDir = directory + '/' + name
-        print 'synthesize ' + name
         if not os.path.exists (subDir):
             os.makedirs (subDir)
 

@@ -35,7 +35,6 @@ def translate ():
         Dpath = root + '/child_%d/decode' % st
         Dast  = m.importOne (Dpath)
         childName = 'rsa_u_%x' % st
-        print 'buid ', childName
         #m.hornifyNode (Dast, 'D_%x' % st)
         m.addHornChild (childName, 'rsa_fd00', Dast)
 
@@ -51,5 +50,7 @@ def translate ():
 
 if __name__ == '__main__':
     ila.setloglevel (3, "")
-    ila.enablelog ("Horn")
+    #ila.enablelog ("Horn")
+    ila.enablelog ("Horn-Warning")
+    ila.enablelog ("Horn-Error")
     translate ()
