@@ -128,6 +128,11 @@ namespace ila
         _exec.insert (s);
     }
 
+    void HornVar::eraseExec ()
+    {
+        _exec.clear ();
+    }
+
     void HornVar::addInVar (hvptr_t v)
     {
         auto it = _ins.find (v->getName());
@@ -281,7 +286,7 @@ namespace ila
 
     void HornClause::setHead (hlptr_t l)
     {
-        ILA_ASSERT (_body.empty(), "body not empty, may fail.");
+        //ILA_ASSERT (_body.empty(), "body not empty, may fail.");
         _head = l;
     }
 
@@ -329,7 +334,15 @@ namespace ila
         }
         out << ")\n";
         out << std::setw(10) << "";
-        out << _head->getVar()->getPred() << "))\n";
+        if (_head->isRel()) {
+            out << _head->getVar()->getPred() << "))\n";
+        } else {
+            auto set = _head->getVar()->getExec();
+            ILA_ASSERT (set.size() == 1, "Head should have only 1 term.");
+            for (auto e : set) {
+                out << e << "))\n";
+            }
+        }
     }
 
     // ---------------------------------------------------------------------- //
@@ -366,9 +379,16 @@ namespace ila
         _clauses.insert (c);
     }
 
+    /*
     void HornDB::addFixClause (fcptr_t f)
     {
         _fixClauses.insert (f);
+    }
+    */
+
+    void HornDB::removeRel (hvptr_t v)
+    {
+        _rels.erase (v);
     }
 
     void HornDB::print (std::ostream& out)
@@ -376,7 +396,7 @@ namespace ila
         declareVar (out);
         declareRel (out);
         declareClause (out);
-        declareFixClause (out);
+        //declareFixClause (out);
     }
 
     void HornDB::declareVar (std::ostream& out)
@@ -415,6 +435,7 @@ namespace ila
         }
     }
 
+        /*
     void HornDB::declareFixClause (std::ostream& out)
     {
         out << ";; mapping clauses\n";
@@ -422,6 +443,7 @@ namespace ila
             c->print (out);
         }
     }
+        */
 
     // ---------------------------------------------------------------------- //
     HornTranslator::HornTranslator (Abstraction* abs, const std::string& name)
@@ -440,11 +462,6 @@ namespace ila
     {
         if (_db) delete _db;
         _db = NULL;
-    }
-
-    void HornTranslator::setName (const std::string& name)
-    {
-        _name = name;
     }
 
     void HornTranslator::hornifyAll (const std::string& fileName)
@@ -1578,6 +1595,15 @@ namespace ila
 
     hvptr_t HornTranslator::copyVar (hvptr_t v, const int& suffix)
     {
+        if (suffix == -1) {
+            hvptr_t c = new HornVar (0);
+            *c = *v;
+            ILA_ASSERT (c != v, "Wrong");
+            c->eraseExec ();
+            _db->addVar (c);
+            return c;
+        }
+
         hvptr_t c = getVar (addSuffix (v->getName(), suffix));
         c->setType (v->getType());
         return c;

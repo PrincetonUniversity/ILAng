@@ -14,37 +14,6 @@
 namespace ila
 {
     // ---------------------------------------------------------------------- //
-    FixClause::FixClause ()
-    {
-    }
-
-    FixClause::~FixClause ()
-    {
-    }
-
-    void FixClause::addBody (const std::string& s)
-    {
-        _body.insert (s);
-    }
-
-    void FixClause::setHead (const std::string& s)
-    {
-        _head = s;
-    }
-
-    void FixClause::print (std::ostream& out)
-    {
-        out << "(rule (=> (and true\n";
-        for (auto b : _body) {
-            out << std::setw(15) << "";
-            out << b << "\n";
-        }
-        out << std::setw(12) << ")\n";
-        out << std::setw(10) << "";
-        out << _head << "))\n";
-    }
-
-    // ---------------------------------------------------------------------- //
     HornRewriter::HornRewriter (HornTranslator* tr, hvptr_t p) 
         : _tr (tr),
           _pred (p)
@@ -185,173 +154,143 @@ namespace ila
 
     void HornTranslator::generateInterleaveMapping () 
     { 
-        log1 ("Horn") << "Start generate\n";
         for (auto itI = _instrs.begin(); itI != _instrs.end(); itI++) {
             auto instr = itI->second;
-            // TODO Clean up, all use with child
-            // TODO Replace all fix clause to original clause.
-            if (false && instr->_childInstrs.empty()) {
-                // No child-instructions
-                // D & N --> M
-                fcptr_t M = new FixClause ();
-                hvptr_t m = getVar (instr->_name);
 
-                // decode: merge input/output & add constraint
-                m->mergeInVars (instr->_decodeFunc);
-                m->mergeOutVars (instr->_decodeFunc);
+            // Create and register loop predicate.
+            hvptr_t lVar = getVar ("L_" + instr->_name);
+            lVar->setLevel (1);
+            _db->addRel (lVar);
 
-                if (instr->_decodeFunc->isConst()) {
-                    M->addBody (instr->_decodeFunc->getName());
-                } else {
-                    M->addBody (instr->_decodeFunc->getPred());
-                    M->addBody (instr->_decodeFunc->getOutVar()->getName());
+            HornRewriter* loopRW = new HornRewriter (this, lVar);
+            // Collect dependent/updated states. Run on first child-instr.
+            for (auto uName : instr->_childInstrs) {
+                ILA_ASSERT (_childs.find (uName) != _childs.end(), 
+                            "uInstr " + uName + " not found.");
+                auto uInstr = _childs.find (uName)->second;
+
+                lVar->mergeInVars (uInstr->_decodeFunc);
+                for (auto itUN  = uInstr->_nxtFuncs.begin();
+                          itUN != uInstr->_nxtFuncs.end(); itUN++) {
+                    auto uNxt = itUN->second;
+
+                    lVar->mergeInVars (uNxt);
+                    lVar->mergeOutVars (uNxt);
+
+                    loopRW->configOutput (itUN->first, uNxt->getOutVar());
                 }
 
-                // next state: merge input/output & constraint
-                for (auto itN  = instr->_nxtFuncs.begin(); 
-                          itN != instr->_nxtFuncs.end(); itN++) {
-                    auto nxt = itN->second;
-                    M->addBody (nxt->getPred());
-                    m->mergeInVars (nxt);
-                    m->mergeOutVars (nxt);
-                }
-
-                // set predicate for head
-                M->setHead (m->getPred());
-
-                _db->addRel (m);
-                _db->addFixClause (M);
-            } else {
-                // With child-instructions.
-                // L & Du & Nu --> L'
-                // L & D & N & L --> M
-
-                // Create and register loop predicate.
-                hvptr_t lVar = getVar ("L_" + instr->_name);
-                lVar->setLevel (1);
-                _db->addRel (lVar);
-
-                HornRewriter* loopRW = new HornRewriter (this, lVar);
-                // Collect dependent/updated states. Run on first child-instr.
-                for (auto uName : instr->_childInstrs) {
-                    ILA_ASSERT (_childs.find (uName) != _childs.end(), 
-                                "uInstr " + uName + " not found.");
-                    auto uInstr = _childs.find (uName)->second;
-
-                    lVar->mergeInVars (uInstr->_decodeFunc);
-                    for (auto itUN  = uInstr->_nxtFuncs.begin();
-                              itUN != uInstr->_nxtFuncs.end(); itUN++) {
-                        auto uNxt = itUN->second;
-
-                        lVar->mergeInVars (uNxt);
-                        lVar->mergeOutVars (uNxt);
-
-                        loopRW->configOutput (itUN->first, uNxt->getOutVar());
-                    }
-
-                    loopRW->configInput();
-                    break;
-                }
-                
-                // Create a clause for each loop step (each child-instr).
-                // Body ************************************************
-                // Entry loop predicate                     -- L(s_0, s)
-                // Decode of uInstr                         -- D(s, b)
-                // Decode true                              -- b
-                // Next state functions                     -- N(s, n)
-                // Head ************************************************
-                // Exit loop predicate                      -- L(s_0, n)
-
-                for (auto uName : instr->_childInstrs) {
-                    auto uInstr = _childs.find (uName)->second;
-
-                    // Create and register the clause.
-                    fcptr_t L = new FixClause ();
-                    _db->addFixClause (L);
-
-                    // Add decode function to the body.
-                    if (uInstr->_decodeFunc->isConst()) {
-                        L->addBody (uInstr->_decodeFunc->getName());
-                    } else {
-                        L->addBody (uInstr->_decodeFunc->getPred());
-                        L->addBody (uInstr->_decodeFunc->getOutVar()->getName());
-                    }
-
-                    // Update the loop rewriter and add next state functions.
-                    for (auto itUN  = uInstr->_nxtFuncs.begin();
-                              itUN != uInstr->_nxtFuncs.end(); itUN++) {
-                        L->addBody (itUN->second->getPred());
-                        loopRW->update (itUN->first, 
-                                        NULL,
-                                        itUN->second->getOutVar());
-                    }
-
-                    // Add entry loop predicate to the body.
-                    L->addBody (loopRW->rewrite ('I', 0, 'I', -1));
-                    // Add exit loop predicate to the head.
-                    L->setHead (loopRW->rewrite ('I', 0, 'O', -1));
-                }
-
-                // Create a clause for the instruction (w/ loop).
-                // Body ************************************************
-                // Entry loop predicate                     -- L(s_0, s)
-                // Decode for instr                         -- D(s, b)
-                // Decode true                              -- b
-                // Next state functions                     -- N(s, n)
-                // Exit loop predicate                      -- L(n, s_1)
-                // Head ************************************************
-                // Instr predicate                          -- M(s_0, s_1)
-
-                // Create and register the predicate/clause.
-                hvptr_t mVar = getVar (instr->_name);
-                mVar->setLevel (1);
-                fcptr_t M = new FixClause ();
-                _db->addRel (mVar);
-                _db->addFixClause (M);
-
-                HornRewriter* mRW = new HornRewriter (this, mVar);
-
-                if (instr->_decodeFunc->isConst()) {
-                    M->addBody (instr->_decodeFunc->getName());
-                } else {
-                    M->addBody (instr->_decodeFunc->getPred());
-                    M->addBody (instr->_decodeFunc->getOutVar()->getName());
-
-                    mVar->mergeInVars (instr->_decodeFunc);
-                }
-
-                for (auto itN  = instr->_nxtFuncs.begin(); 
-                          itN != instr->_nxtFuncs.end(); itN++) {
-                    auto nxt = itN->second;
-                    M->addBody (nxt->getPred());
-
-                    mVar->mergeInVars (nxt);
-                    mVar->mergeOutVars (nxt);
-
-                    mRW->configOutput (itN->first, nxt->getOutVar());
-                    mRW->update (itN->first,
-                                 NULL,
-                                 itN->second->getOutVar());
-
-                    loopRW->update (itN->first,
-                                    NULL, 
-                                    itN->second->getOutVar());
-                }
-
-                mRW->configInput();
-
-                if (instr->_childInstrs.empty()) {
-                    M->setHead (mRW->rewrite ('I', -1, 'O', -1));
-                } else {
-                    M->addBody (loopRW->rewrite ('I', 0, 'I', -1));
-                    M->addBody (loopRW->rewrite ('O', -1, 'I', 1));
-
-                    M->setHead (mRW->rewrite ('I', 0, 'I', 1));
-                }
-
-                if (loopRW != NULL) delete loopRW;
-                if (mRW != NULL) delete mRW;
+                loopRW->configInput();
+                break;
             }
+            
+            // Create a clause for each loop step (each child-instr).
+            // Body ************************************************
+            // Entry loop predicate                     -- L(s_0, s)
+            // Decode of uInstr                         -- D(s, b)
+            // Decode true                              -- b
+            // Next state functions                     -- N(s, n)
+            // Head ************************************************
+            // Exit loop predicate                      -- L(s_0, n)
+
+            for (auto uName : instr->_childInstrs) {
+                auto uInstr = _childs.find (uName)->second;
+
+                // Create and register the clause.
+                hvptr_t lVarCopy = copyVar (lVar, -1);
+                hcptr_t L = addClause (lVarCopy);
+                _db->removeRel (lVarCopy);
+
+                // Add decode function to the body.
+                hvptr_t dOut = copyVar (uInstr->_decodeFunc->getOutVar(), -1);
+                dOut->setExec (dOut->getName());
+                L->addBody (new HornLiteral (uInstr->_decodeFunc, true, true));
+                L->addBody (new HornLiteral (dOut));
+
+                // Update the loop rewriter and add next state functions.
+                for (auto itUN  = uInstr->_nxtFuncs.begin();
+                          itUN != uInstr->_nxtFuncs.end(); itUN++) {
+                    L->addBody (new HornLiteral (itUN->second, true, true));
+
+                    loopRW->update (itUN->first, 
+                                    NULL,
+                                    itUN->second->getOutVar());
+                }
+
+                // Add entry loop predicate to the body.
+                hvptr_t lEntry = copyVar (lVar, -1);
+                lEntry->setExec (loopRW->rewrite ('I', 0, 'I', -1));
+                L->addBody (new HornLiteral (lEntry));
+                // Add exit loop predicate to the head.
+                lVarCopy->setExec (loopRW->rewrite ('I', 0, 'O', -1));
+                L->setHead (new HornLiteral (lVarCopy));
+            }
+
+            // Create a clause for the instruction (w/ loop).
+            // Body ************************************************
+            // Entry loop predicate                     -- L(s_0, s)
+            // Decode for instr                         -- D(s, b)
+            // Decode true                              -- b
+            // Next state functions                     -- N(s, n)
+            // Exit loop predicate                      -- L(n, s_1)
+            // Head ************************************************
+            // Instr predicate                          -- M(s_0, s_1)
+
+            // Create and register the predicate/clause.
+            hvptr_t mVar = getVar (instr->_name);
+            mVar->setLevel (1);
+            hcptr_t M = addClause (mVar);
+
+            HornRewriter* mRW = new HornRewriter (this, mVar);
+
+            // Add decode to the body.
+            hvptr_t dOut = copyVar (instr->_decodeFunc->getOutVar(), -1);
+            dOut->setExec (dOut->getName());
+            M->addBody (new HornLiteral (dOut));
+            M->addBody (new HornLiteral (instr->_decodeFunc, true, true));
+
+            mVar->mergeInVars (instr->_decodeFunc);
+
+            // Update loop rewriter, instr rewriter, and add next functions.
+            for (auto itN  = instr->_nxtFuncs.begin(); 
+                      itN != instr->_nxtFuncs.end(); itN++) {
+                auto nxt = itN->second;
+                M->addBody (new HornLiteral (nxt, true, true));
+
+                mVar->mergeInVars (nxt);
+                mVar->mergeOutVars (nxt);
+                mRW->configOutput (itN->first, nxt->getOutVar());
+
+                mRW->update (itN->first,
+                             NULL,
+                             itN->second->getOutVar());
+
+                loopRW->update (itN->first,
+                                NULL, 
+                                itN->second->getOutVar());
+            }
+
+            mRW->configInput();
+
+            if (instr->_childInstrs.empty()) {
+                hvptr_t mOut = copyVar (mVar, -1);
+                mOut->setExec (mRW->rewrite ('I', -1, 'O', -1));
+                M->setHead (new HornLiteral (mOut));
+            } else {
+                hvptr_t lEntry = copyVar (lVar, -1);
+                hvptr_t lExit = copyVar (lVar, -1);
+                lEntry->setExec (loopRW->rewrite ('I', 0, 'I', -1));
+                lExit->setExec (loopRW->rewrite ('O', -1, 'I', 1));
+                M->addBody (new HornLiteral (lEntry));
+                M->addBody (new HornLiteral (lExit));
+
+                hvptr_t mOut = copyVar (mVar, -1);
+                mOut->setExec (mRW->rewrite ('I', 0, 'I', 1));
+                M->setHead (new HornLiteral (mOut));
+            }
+
+            if (loopRW != NULL) delete loopRW;
+            if (mRW != NULL) delete mRW;
         }
     }
 

@@ -14,14 +14,12 @@ namespace ila
     class HornVar;
     class HornLiteral;
     class HornClause;
-    class FixClause;
     class HornDB;
     class HornTranslator;
 
     typedef HornVar*     hvptr_t;
     typedef HornLiteral* hlptr_t;
     typedef HornClause*  hcptr_t;
-    typedef FixClause*   fcptr_t;
 
     // ---------------------------------------------------------------------- //
     class HornVar
@@ -75,6 +73,8 @@ namespace ila
         void setType (std::string s);
         // set constraints for var execution.
         void setExec (std::string s);
+        // erase execution.
+        void eraseExec ();
         // add dependent input var.
         void addInVar (hvptr_t v);
         // add output var.
@@ -166,32 +166,6 @@ namespace ila
     };
 
     // ---------------------------------------------------------------------- //
-    class FixClause
-    {
-    private:
-        // horn clause body.
-        std::set <std::string> _body;
-        // horn clause head.
-        std::string _head;
-
-    public:
-        // ctor.
-        FixClause ();
-        // dtor.
-        virtual ~FixClause ();
-
-        // ------------------------------------------------------------------ //
-        // add one constraint to the body.
-        void addBody (const std::string& s);
-        // set the constraint to the head.
-        void setHead (const std::string& s);
-
-        // ------------------------------------------------------------------ //
-        // output the clause to stream.
-        void print (std::ostream& out);
-    };
-
-    // ---------------------------------------------------------------------- //
     class HornRewriter
     {
     private:
@@ -235,8 +209,6 @@ namespace ila
         std::set <hvptr_t> _rels;
         // set of horn clauses.
         std::set <hcptr_t> _clauses;
-        // set of fix clauses.
-        std::set <fcptr_t> _fixClauses;
 
     public:
         // ctor.
@@ -251,8 +223,8 @@ namespace ila
         void addRel (hvptr_t v);
         // add a clause to the set.
         void addClause (hcptr_t c);
-        // add a fix clause to the set.
-        void addFixClause (fcptr_t f);
+        // remove a rel from the set.
+        void removeRel (hvptr_t v);
 
         // ------------------------------------------------------------------ //
         // output whole to stream.
@@ -266,7 +238,7 @@ namespace ila
         // output clauses to stream.
         void declareClause (std::ostream& out);
         // output fix clauses to stream.
-        void declareFixClause (std::ostream& out);
+        //void declareFixClause (std::ostream& out);
 
         // collector for duplicated ast nodes.
         std::set <hvptr_t> _dupls;
@@ -295,10 +267,6 @@ namespace ila
         // dtor.
         virtual ~HornTranslator ();
 
-        // ------------------------------------------------------------------ //
-        // set translator name.
-        void setName (const std::string& name);
-        
         // ------------------------------------------------------------------ //
         // convert whole abs to horn clauses and output to file.
         void hornifyAll (const std::string& fileName);
@@ -359,7 +327,7 @@ namespace ila
         // get horn var for the name; create if not exist.
         hvptr_t getVar (const std::string& s);
         // create a clause with the specified head.
-        hcptr_t addClause (hvptr_t v);
+        hcptr_t addClause (hvptr_t v = NULL);
         // initialize horn var from a node; Ex. _name, _exec, _outs.
         void initVar (hvptr_t v, nptr_t n);
         // initialize horn var from a node (model bitvector as BitVec).
