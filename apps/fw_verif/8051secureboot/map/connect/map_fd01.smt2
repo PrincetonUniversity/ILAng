@@ -4,7 +4,7 @@
         ; 
         (= mmio_input_addr (+ @rsa_regs_0 768))
         (= cmd 2)
-        (= cmdaddr 64768)
+        (= cmdaddr 64769)
         (= cmddata mmio_input_data)
         (= rsa_state (select entryMem addr_rsa_state))
         (= rsa_addr (select entryMem addr_rsa_addr))

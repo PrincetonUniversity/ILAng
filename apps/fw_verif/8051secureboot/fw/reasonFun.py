@@ -54,7 +54,7 @@ def reasonFun (funName, filePath, fileSuff):
     
     # copy the exit part into the new file
     exitFile.write ('\t\t(= %s exitMem)\n' % exitMem)
-    exitFile.write ('\t\t)\n')
+    exitFile.write ('\t\t)))\n')
     cnt = 0
     for line in lines:
         if cnt > 0 or lastStore in line:

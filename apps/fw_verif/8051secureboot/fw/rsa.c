@@ -23,6 +23,7 @@ unsigned char *hash;
 __attribute__((optnone))
 void HW_REG_WRITE_chr(unsigned char* addr, unsigned char data) {
     sha_ptr.start = data + *addr;
+    rsa_ptr.start = data + *addr;
     *addr = data;
 }
 
@@ -47,7 +48,8 @@ void writecWrap (unsigned char* addr, unsigned char data)
     // MMIO
     //*addr = data;
     //return;
-    if (addr == &sha_ptr.start || addr == &sha_ptr.state) {
+    if (addr == &sha_ptr.start || addr == &sha_ptr.state || 
+        addr == &rsa_ptr.start || addr == &rsa_ptr.state) {
         HW_REG_WRITE_chr (addr, data);
     } else {
         *addr = data;

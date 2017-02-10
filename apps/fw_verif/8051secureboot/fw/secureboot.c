@@ -105,6 +105,7 @@ int main() {
     assume (&memwr_ptr == (struct acc_regs*)0xF9F0);
     assume (&rsa_ptr == (struct RSA_regs*)0xFA00);
     assume (sha_ptr.state == 0);
+    assume (rsa_ptr.state == 0);
 
     program = (unsigned char*)0x0000;
     boot = (unsigned char*)0x5000;
