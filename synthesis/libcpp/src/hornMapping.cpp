@@ -304,7 +304,102 @@ namespace ila
 
     void HornTranslator::generateBlockingMapping ()
     { 
-        // TODO
+        for (auto itI = _instrs.begin(); itI != _instrs.end(); itI++) {
+            auto instr = itI->second;
+
+            // Create and register child-entry predicate.
+            hvptr_t cVar = getVar ("C_" + instr->_name);
+            cVar->setLevel (1);
+            _db->addRel (cVar);
+
+            HornRewriter* cRW = new HornRewriter (this, cVar);
+            // Collect dependent arguments. Configure cVar and cRW.
+            cVar->mergeInVars (instr->_decodeFunc);
+            for (auto itN  = instr->_nxtFuncs.begin(); 
+                      itN != instr->_nxtFuncs.end(); itN++) {
+                auto nxt = itN->second;
+                cVar->mergeInVars (nxt);
+                cVar->mergeOutVars (nxt);
+
+                cRW->configOutput (itN->first, nxt->getOutVar());
+            }
+            cRW->configInput();
+
+            // Create a clause for the child-entry point (instr exe).
+            // Body ************************************************
+            // Decode for instr                         -- D(s, b)
+            // Decode true                              -- b
+            // Next state functions                     -- N(s, n)
+            // Head ************************************************
+            // Child-entry predicate                    -- C(s, n)
+
+            hcptr_t C = addClause ();
+
+            // Add decode function to the body.
+            hvptr_t d = copyVar (instr->_decodeFunc->getOutVar(), -1);
+            d->setExec (d->getName());
+            C->addBody (new HornLiteral (d));
+            C->addBody (new HornLiteral (instr->_decodeFunc, true, true));
+
+            // Add next state function to the body.
+            for (auto itN  = instr->_nxtFuncs.begin();
+                      itN != instr->_nxtFuncs.end(); itN++) {
+                C->addBody (new HornLiteral (itN->second, true, true));
+            }
+
+            // Set the head.
+            C->setHead (new HornLiteral (cVar, true, true));
+
+            // Create a clause for each child-instr.
+            // Body ************************************************
+            // Child-entry predicate                    -- C(s_0, s)
+            // Decode of uInstr                         -- D(s, b)
+            // Decode true                              -- b
+            // Next state functions                     -- N(s, n)
+            // Head ************************************************
+            // Exit of child-entry predicate            -- C(s_0, n)
+
+            for (auto uName : instr->_childInstrs) {
+                auto uInstr = _childs.find (uName)->second;
+
+                // Create and register the clause.
+                hvptr_t cVarCopy = copyVar (cVar, -1);
+                hcptr_t uC = addClause ();
+
+                // Add decode function to the body.
+                hvptr_t ud = copyVar (uInstr->_decodeFunc->getOutVar(), -1);
+                ud->setExec (ud->getName());
+                uC->addBody (new HornLiteral (ud));
+                uC->addBody (new HornLiteral (uInstr->_decodeFunc, true, true));
+
+                // Update the rewriter and add next state functions.
+                for (auto itUN  = uInstr->_nxtFuncs.begin();
+                          itUN != uInstr->_nxtFuncs.end(); itUN++) {
+                    uC->addBody (new HornLiteral (itUN->second, true, true));
+
+                    cRW->update (itUN->first, 
+                                 NULL,
+                                 itUN->second->getOutVar());
+                }
+
+                // Add entry predicate to the body.
+                hvptr_t cEntry = copyVar (cVar, -1);
+                cEntry->setExec (cRW->rewrite ('I', 0, 'I', -1));
+                uC->addBody (new HornLiteral (cEntry));
+
+                // Add exit predicate to the head.
+                cVarCopy->setExec (cRW->rewrite ('I', 0, 'O', -1));
+                uC->setHead (new HornLiteral (cVarCopy));
+            }
+
+            // Create a clause for instruction.
+            // Body ************************************************
+            // Child-entry predicate                    -- C(s_0, s)
+            // Decode of uInstr                         -- D(s, b)
+            // Decode false                             -- (not b)
+            // Head ************************************************
+            // Exit of child-entry predicate            -- C(s_0, s)
+        }
     }
 
 }
