@@ -217,14 +217,20 @@ int main() {
     //sassert (sha_regs.state == 0);
     sha1(rsa_regs.exp, 2*N);
     //sassert (sha_regs.state == 0);
-    sassert (0);
+    //sassert (0);
 #ifndef CBMC
+    /*
     for(i=0; i<H; i++){
         if(sha_out[i] != pkhash[i]){
             pass = FAIL;  // FAIL: key hash mismatch
             //fail("key hash mismatch");
             return 0;
         }
+    }
+    */
+    if (nd()) {
+        pass = FAIL;
+        return 0;
     }
 #else
     // key in image was incorrect, or image has been compromised

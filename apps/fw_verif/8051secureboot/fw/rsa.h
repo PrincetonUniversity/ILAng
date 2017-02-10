@@ -78,6 +78,8 @@ int unlock(int page, unsigned char* startaddr, unsigned char* endaddr);
 #define unlock(page, start, end) unlock_wr(start, end)
 */ 
 
+extern int nd();
+
 extern void HW_REG_WRITE_chr(unsigned char* addr, unsigned char data);
 extern void HW_REG_WRITE_int(unsigned int* addr, int data);
 extern void HW_REG_WRITE_ptr(unsigned char** addr, unsigned char* data);

@@ -374,7 +374,15 @@ int decrypt(unsigned char* msg){
     // FIXME
     //c_exp();  // c abstraction
 
+    //sassert (rsa_regs.state == 0);
+
+    writec(RSA, &rsa_regs.state, 1, 1);
+
+    if (nd()) sassert (0);
+
     while(rsa_regs.state != 0);
+
+    //if (nd()) sassert (0);
 
     lock(prsao, rsa_regs.opaddr, rsa_regs.opaddr+N);
     lock(RSA, &rsa_regs.start, (unsigned char*)(&rsa_regs.state+1));    
