@@ -7,7 +7,7 @@ llvmBc = $(dir)/fw.bc
 tmpChc = $(dir)/tmp.smt2
 
 mmioFuncs = HW_REG_WRITE_chr
-infoPath  = info
+infoPath  = $(FW_FUN_PATH)
 fileSuff  = smt2
 
 sea     = /home/byhuang/workspace/packages/seahorn/build/run/bin/sea

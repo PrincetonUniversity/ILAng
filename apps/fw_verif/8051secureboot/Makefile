@@ -2,6 +2,7 @@
 .PHONY: RSA
 .PHONY: FW
 .PHONY: MAP
+.PHONY: PRE
 
 MAKEFLAGS += --no-print-directory
 
@@ -14,11 +15,14 @@ wrap = manual
 wrap = auto
 export ILA_WRAP = $(wrap)
 
-export ROOT_PATH = $(shell pwd)
-export FW_DIR  = fw
-export SHA_DIR = sha
-export RSA_DIR = rsa
-export MAP_DIR = map
+FW_DIR  = fw
+SHA_DIR = sha
+RSA_DIR = rsa
+MAP_DIR = map
+export ROOT_PATH 		= $(shell pwd)
+export FW_FUN_PATH      = $(ROOT_PATH)/$(MAP_DIR)/fw_fun
+export HW_INSTR_PATH    = $(ROOT_PATH)/$(MAP_DIR)/hw_instr
+export MAP_CONNECT_PATH = $(ROOT_PATH)/$(MAP_DIR)/connect
 
 tmpCHC = tmp.smt2
 tarCHC = soc.smt2
@@ -28,7 +32,7 @@ shaCHC = $(SHA_DIR)/sha.smt2
 rsaCHC = $(RSA_DIR)/rsa.smt2
 mapCHC = $(MAP_DIR)/map.smt2
 
-all: FW SHA RSA MAP
+all: PRE FW SHA RSA MAP
 	@echo "Integrate $(fwCHC) + $(shaCHC) + $(rsaCHC) --> $(tarCHC)"
 	@cat $(fwCHC) >  $(tmpCHC)
 	@cat $(shaCHC) >> $(tmpCHC)
@@ -49,6 +53,11 @@ RSA:
 
 FW:
 	@$(MAKE) -C $(FW_DIR)
+
+PRE:
+	@bash -c "mkdir -p $(FW_FUN_PATH)"
+	@bash -c "mkdir -p $(HW_INSTR_PATH)"
+	@bash -c "mkdir -p $(MAP_CONNECT_PATH)"
 
 clean:
 	@rm soc.smt2
