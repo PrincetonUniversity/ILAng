@@ -66,8 +66,12 @@ def createMap (mapConnectPath, fwFunPath, hwInstrPath, outFileName):
     mmioFun = 'HW_REG_WRITE_chr'
     # fe00
     mapOne (mmioFun, 'sha_fe00', 'map_fe00', outWrite)
+    # fe01
+    mapOne (mmioFun, 'sha_fe01', 'map_fe01', outWrite)
     # fd00
     mapOne (mmioFun, 'rsa_fd00', 'map_fd00', outWrite)
+    # fd01
+    mapOne (mmioFun, 'rsa_fd01', 'map_fd01', outWrite)
 
     outWrite.close()
 

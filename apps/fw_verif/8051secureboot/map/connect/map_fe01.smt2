@@ -20,4 +20,4 @@
         (= sha_mem_rdaddr (store sha_mem_len addr_sha_rdaddr sha_rdaddr_1))
         (= sha_mem_wraddr (store sha_mem_rdaddr addr_sha_wraddr sha_wraddr_1))
         (= sha_mem_bytes (store sha_mem_wraddr addr_sha_bytes sha_bytes_read_1))
-        (= sha_mem_bytes memExit)
+        (= sha_mem_bytes exitMem)

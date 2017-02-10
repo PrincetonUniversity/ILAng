@@ -19,3 +19,6 @@ all: SYN
 SYN:
 	@$(MAKE) -C $(SYN_PATH)
 
+clean: 
+	@$(MAKE) clean -C $(SYN_PATH)
+	rm $(TAR_CHC)

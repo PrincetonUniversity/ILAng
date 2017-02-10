@@ -6,7 +6,7 @@ def translate ():
     all_instrs = [addr for addr in xrange (0xfd00, 0xfe10)]
     all_instrs = [0xfd00, 0xfd01]
     all_childs = [1, 2, 3]
-    all_states = ['rsa_state', 'rsa_addr', 'XRAM', 'rsa_byte_counter', 'rsa_buff']
+    all_states = ['rsa_state', 'rsa_addr', 'XRAM', 'rsa_byte_counter', 'rsa_buff', 'rsa_M']
 
     m = ila.Abstraction ('rsa')
     m.hornifyIteAsNode (True)

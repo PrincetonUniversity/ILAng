@@ -23,3 +23,5 @@ endif
 SYN:
 	@$(MAKE) $(ILA_WRAP) -C $(SYN_PATH)
 
+clean:
+	@$(MAKE) clean -C $(SYN_PATH)

@@ -24,3 +24,9 @@ $(target): $(fwSrc)
 	@$(sea) fe $(source) -o $(llvmBc)
 	@$(seahorn) -keep-shadows=true -horn-inter-proc -horn-step=small -horn-sem-lvl=mem $(llvmBc) -o $(tmpChc)
 	@rm $(llvmBc)
+
+clean:
+	@for file in $(fwSrc); do ]
+		touch $$file; ]
+	done
+	rm $(target)

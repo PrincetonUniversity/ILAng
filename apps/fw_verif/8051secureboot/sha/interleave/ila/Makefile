@@ -14,3 +14,6 @@ manual: $(CHC_FILE)
 
 $(CHC_FILE): $(SYNS)
 	@python $(SYN_PATH)/syn.py
+
+clean:
+	rm $(CHC_FILE)

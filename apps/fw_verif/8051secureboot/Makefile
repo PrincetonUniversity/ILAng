@@ -7,11 +7,6 @@
 
 MAKEFLAGS += --no-print-directory
 
-encode = atomic
-encode = blocking
-encode = interleave
-export ILA_ENCODE = $(encode)
-
 wrap = manual
 wrap = auto
 export ILA_WRAP = $(wrap)
@@ -34,8 +29,22 @@ rsaCHC = $(RSA_DIR)/rsa.smt2
 mapCHC = $(MAP_DIR)/map.smt2
 comCHC = $(MAP_CONNECT_PATH)/map_var.smt2
 
-all: PRE FW SHA RSA MAP POST
-	@echo "Integrate $(fwCHC) + $(shaCHC) + $(rsaCHC) --> $(tarCHC)"
+all: inter 
+
+inter: export ILA_ENCODE = interleave
+inter:
+	@$(MAKE) SOC
+
+block: export ILA_ENCODE = blocking
+block:
+	@$(MAKE) SOC
+
+atomic: export ILA_ENCODE = atomic
+atomic:
+	@$(MAKE) SOC
+
+SOC: PRE FW SHA RSA MAP POST
+	@echo "Integrate $(fwCHC) + $(shaCHC) + $(rsaCHC) + $(mapCHC) --> $(tarCHC)"
 	@cat $(fwCHC)  >  $(tmpCHC)
 	@cat $(comCHC) >> $(tmpCHC)
 	@cat $(shaCHC) >> $(tmpCHC)
@@ -77,4 +86,8 @@ POST:
 	done
 
 clean:
+	@$(MAKE) clean -C $(FW_DIR)
+	@$(MAKE) clean -C $(SHA_DIR)
+	@$(MAKE) clean -C $(RSA_DIR)
+	@$(MAKE) clean -C $(MAP_DIR)
 	@rm soc.smt2

@@ -13,4 +13,5 @@ all:
 	@echo "sha clauses ($(ILA_ENCODE)) are generated in $(shell pwd)/$(DST_CHC)"
 
 clean: 
+	@$(MAKE) clean -C $(ILA_PATH)
 	@rm $(DST_CHC)

@@ -1,4 +1,4 @@
-SYN_PATH = .
+SYN_PATH = $(shell pwd)
 SYNS = $(addprefix $(SYN_PATH)/, syn.py sim.py)
 
 CHC_PATH = ../horn
@@ -9,3 +9,6 @@ all: $(CHC_FILE)
 
 $(CHC_FILE): $(SYNS)
 	@python $(SYN_PATH)/syn.py
+
+clean:
+	rm $(CHC_FILE)
