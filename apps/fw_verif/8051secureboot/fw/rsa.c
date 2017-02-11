@@ -368,10 +368,12 @@ int decrypt(unsigned char* msg){
 
     // decrypt
     unlock(prsao, rsa_regs.opaddr, rsa_regs.opaddr+N);
+    assume (rsa_regs.state == 0);
     unlock(RSA, &rsa_regs.start, (unsigned char*)(&rsa_regs.state+1));    
 
-    //sassert (rsa_regs.state == 0);
     //assume (rsa_regs.state == 0);
+    sassert (rsa_regs.state == 0);
+
     writec(RSA, &rsa_regs.start, 1, 1);
 
     // FIXME
