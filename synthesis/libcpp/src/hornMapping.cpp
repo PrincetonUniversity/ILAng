@@ -308,22 +308,38 @@ namespace ila
             auto instr = itI->second;
 
             // Create and register child-entry predicate.
-            hvptr_t cVar = getVar ("C_" + instr->_name);
+            hvptr_t cVar = instr->_childInstrs.empty() ?
+                           getVar (instr->_name) :
+                           getVar ("C_" + instr->_name);
             cVar->setLevel (1);
-            _db->addRel (cVar);
+            _db->addRel (cVar); 
+
+            // Create and register omstrictopm predicate/
+            hvptr_t mVar = getVar (instr->_name);
+            mVar->setLevel (1);
+            if (!instr->_childInstrs.empty())
+                _db->addRel (mVar);
 
             HornRewriter* cRW = new HornRewriter (this, cVar);
+            HornRewriter* mRW = new HornRewriter (this, mVar);
             // Collect dependent arguments. Configure cVar and cRW.
             cVar->mergeInVars (instr->_decodeFunc);
+            mVar->mergeInVars (instr->_decodeFunc);
             for (auto itN  = instr->_nxtFuncs.begin(); 
                       itN != instr->_nxtFuncs.end(); itN++) {
                 auto nxt = itN->second;
                 cVar->mergeInVars (nxt);
                 cVar->mergeOutVars (nxt);
 
+                mVar->mergeInVars (nxt);
+                mVar->mergeOutVars (nxt);
+
                 cRW->configOutput (itN->first, nxt->getOutVar());
+                mRW->configOutput (itN->first, nxt->getOutVar());
+                mRW->update (itN->first, NULL, nxt->getOutVar());
             }
             cRW->configInput();
+            mRW->configInput();
 
             // Create a clause for the child-entry point (instr exe).
             // Body ************************************************
@@ -392,13 +408,38 @@ namespace ila
                 uC->setHead (new HornLiteral (cVarCopy));
             }
 
-            // Create a clause for instruction.
+            // Create a clause for instruction. If there is child.
             // Body ************************************************
             // Child-entry predicate                    -- C(s_0, s)
             // Decode of uInstr                         -- D(s, b)
             // Decode false                             -- (not b)
             // Head ************************************************
-            // Exit of child-entry predicate            -- C(s_0, s)
+            // Instruction predicate                    -- M(s_0, s)
+
+            if (!instr->_childInstrs.empty()) {
+                hcptr_t M = addClause ();
+
+                // Add predicate for child-entry
+                hvptr_t cEntry = copyVar (cVar, -1);
+                cEntry->setExec (cRW->rewrite ('I', 0, 'I', -1));
+                M->addBody (new HornLiteral (cEntry));
+
+                // All decode for u-Instr is false
+                for (auto uName : instr->_childInstrs) {
+                    auto uInstr = _childs.find (uName)->second;
+                    hvptr_t ud = copyVar (uInstr->_decodeFunc->getOutVar(), -1);
+                    ud->setExec (ud->getName());
+                    M->addBody (new HornLiteral (uInstr->_decodeFunc,true,true));
+                    M->addBody (new HornLiteral (ud, false, false));
+                }
+
+                hvptr_t mCopy = copyVar (mVar, -1);
+                mCopy->setExec (mRW->rewrite ('I', 0, 'I', -1));
+                M->setHead (new HornLiteral (mCopy));
+            }
+
+            if (mRW != NULL) delete mRW;
+            if (cRW != NULL) delete cRW;
         }
     }
 

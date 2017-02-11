@@ -55,12 +55,23 @@ def reasonFun (funName, filePath, fileSuff):
     # copy the exit part into the new file
     exitFile.write ('\t\t(= %s exitMem)\n' % exitMem)
     exitFile.write ('\t\t)))\n')
+    reach = 0
+    for line in lines:
+        if lastStore in line:
+            reach = 1
+        if reach == 1 and 'a!1' in line:
+            reach = 2
+        if reach == 2:
+            exitFile.write (line)
+
+    """
     cnt = 0
     for line in lines:
         if cnt > 0 or lastStore in line:
             cnt += 1
         if cnt >= 4:
             exitFile.write (line)
+    """
     exitFile.close()
 
 if __name__ == '__main__':

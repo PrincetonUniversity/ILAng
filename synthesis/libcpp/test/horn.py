@@ -64,7 +64,8 @@ def main():
     alu.addHornNext ('alu_child', 'r0', r0_nxt)
     alu.addHornNext ('alu_child', 'r1', r1_nxt)
     alu.addHornNext ('alu_child', 'rom', rom_nxt)
-    alu.generateHornMapping ('Interleave')
+    #alu.generateHornMapping ('Interleave')
+    alu.generateHornMapping ('Blocking')
     alu.exportHornToFile (hornFile)
 
     
