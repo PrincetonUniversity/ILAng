@@ -231,6 +231,8 @@ unsigned char sha1(unsigned char *m, unsigned int len)
 
     while(sha_regs.state != 0);
 
+    //sassert (sha_ptr.state == 0);
+
     lock(pshao, sha_regs.wr_addr, sha_regs.wr_addr+H);
     lock(SHA, &sha_regs.start, (unsigned char*)(&sha_regs.len));
     return 1;
@@ -366,7 +368,7 @@ int decrypt(unsigned char* msg){
     unsigned int i;
 
     //assume (rsa_ptr.state == 0);
-    //sassert (rsa_ptr.state != 0);
+    //sassert (rsa_ptr.state == 0);
 
     // copy msg into RSA m register
     if(msg != (unsigned char*)&rsa_regs.m)
@@ -390,18 +392,18 @@ int decrypt(unsigned char* msg){
 
     //c_exp();  // c abstraction
 
-    //char tmpState = rsa_regs.state;
-
     //sassert (rsa_ptr.state != 1);
     writec(RSA, &rsa_regs.state, 1, 1);
     //sassert (rsa_regs.state == 0);
+
+    //char tmpState = rsa_regs.state;
 
     //if (nd()) sassert (0);
 
     while(rsa_regs.state != 0);
 
     //sassert (rsa_ptr.state == 0);
-    //sassert (tmpState != 0);
+    //sassert (tmpState == 0);
     //if (nd()) sassert (0);
 
     lock(prsao, rsa_regs.opaddr, rsa_regs.opaddr+N);
@@ -420,6 +422,7 @@ unsigned char verifySignature(unsigned char* msg, unsigned int len, unsigned cha
     int slen;
 
     // decrypt the signature
+    sassert (rsa_ptr.state == 0);
     slen = decrypt(signature);
 
     // compare with hash of msg

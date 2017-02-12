@@ -231,6 +231,16 @@ namespace ila
                 L->setHead (new HornLiteral (lVarCopy));
             }
 
+            // Create a clause for the loop init point.
+            // Head ************************************************
+            // Instr predicate                          -- L(s, s)
+            if (!instr->_childInstrs.empty()) {
+                hcptr_t L = addClause();
+                hvptr_t lVarCopy = copyVar (lVar, -1);
+                lVarCopy->setExec (loopRW->rewrite ('I', -1, 'I', -1));
+                L->setHead (new HornLiteral (lVarCopy));
+            }
+
             // Create a clause for the instruction (w/ loop).
             // Body ************************************************
             // Entry loop predicate                     -- L(s_0, s)

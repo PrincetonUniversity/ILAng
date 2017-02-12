@@ -71,7 +71,7 @@ PRE:
 	@bash -c "mkdir -p $(HW_INSTR_PATH)"
 	@bash -c "mkdir -p $(MAP_CONNECT_PATH)"
 
-shareVars  = "XRAM" "XRAM_0" "XRAM_1" "cmd" cmdaddr "cmddata"
+shareVars  = XRAM XRAM_0 XRAM_1 cmd cmdaddr cmddata
 declareStr = "(declare-var "
 shareLines = $(addprefix $(declareStr), $(shareVars))
 
