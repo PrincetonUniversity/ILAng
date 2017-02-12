@@ -173,6 +173,8 @@ unsigned char sha1(unsigned char *m, unsigned int len)
     unsigned int i;
     unsigned int mlen;
 
+    //sassert (sha_ptr.state == 0);
+    assume (sha_ptr.state == 0);
     //sassert (sha_regs.rd_addr == sha_m);
     
     // addresses have changed
@@ -194,8 +196,10 @@ unsigned char sha1(unsigned char *m, unsigned int len)
     // add 100.. padding
     writec(pshai, sha_regs.rd_addr+len, 0x80, 1);
 
+    //assume (rsa_ptr.state == 0);
     for(i=len+1; i<mlen; i++)
         writec(pshai, sha_regs.rd_addr+i, 0, 1);
+    //sassert (rsa_ptr.state == 0);
 
     // insert length in bits
     writec(pshai, sha_regs.rd_addr+mlen-1, (len << 3) & 0xFF, 1);
@@ -204,19 +208,18 @@ unsigned char sha1(unsigned char *m, unsigned int len)
 
     // encrypt with sha1
     lock(pshai, sha_regs.rd_addr, sha_regs.rd_addr+mlen);
-    // FIXME
     //pt.valid[pshao]=1; // reset validity of sha output
     unlock(pshao, sha_regs.wr_addr, sha_regs.wr_addr+H);
-    // FIXME
     //pt.valid[SHA]=1;
+
     unlock(SHA, &sha_regs.start, (unsigned char*)(&sha_regs.len));
     writei(SHA, &sha_regs.len, mlen);
     writec(SHA, &sha_regs.start, 1, 1);  // start HW
 
-    // XXX
-    writec(SHA, &sha_regs.state, 1, 1);  // encoded bug
-    //sassert (sha_regs.state == 0);
-    // FIXME
+    sassert (sha_ptr.state != 1);
+
+    writec(SHA, &sha_regs.state, 1, 1);  // XXX encoded bug
+
     //c_sha(len);         // do SW
 
     while(sha_regs.state != 0);
@@ -368,11 +371,10 @@ int decrypt(unsigned char* msg){
 
     // decrypt
     unlock(prsao, rsa_regs.opaddr, rsa_regs.opaddr+N);
-    assume (rsa_regs.state == 0);
+    //assume (rsa_regs.state == 0);
     unlock(RSA, &rsa_regs.start, (unsigned char*)(&rsa_regs.state+1));    
 
-    //assume (rsa_regs.state == 0);
-    sassert (rsa_regs.state == 0);
+    //sassert (rsa_regs.state == 0);
 
     writec(RSA, &rsa_regs.start, 1, 1);
 
@@ -380,7 +382,7 @@ int decrypt(unsigned char* msg){
     //c_exp();  // c abstraction
 
     //sassert (rsa_regs.state == 0);
-    char tmpState = rsa_regs.state;
+    //char tmpState = rsa_regs.state;
 
     //writec(RSA, &rsa_regs.state, 1, 1);
 
@@ -388,7 +390,7 @@ int decrypt(unsigned char* msg){
 
     while(rsa_regs.state != 0);
 
-    sassert (tmpState != 0);
+    //sassert (tmpState != 0);
     //if (nd()) sassert (0);
 
     lock(prsao, rsa_regs.opaddr, rsa_regs.opaddr+N);
