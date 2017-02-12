@@ -213,13 +213,19 @@ unsigned char sha1(unsigned char *m, unsigned int len)
     unlock(pshao, sha_regs.wr_addr, sha_regs.wr_addr+H);
     //pt.valid[SHA]=1;
 
+    //sassert (sha_ptr.state == 0);
+
     unlock(SHA, &sha_regs.start, (unsigned char*)(&sha_regs.len));
     writei(SHA, &sha_regs.len, mlen);
     writec(SHA, &sha_regs.start, 1, 1);  // start HW
 
+    //sassert (sha_ptr.state == 0);
+
     //sassert (sha_ptr.state != 1);
 
     writec(SHA, &sha_regs.state, 1, 1);  // XXX encoded bug
+
+    //sassert (sha_ptr.state == 0);
 
     //c_sha(len);         // do SW
 
@@ -389,7 +395,6 @@ int decrypt(unsigned char* msg){
     //sassert (rsa_ptr.state != 1);
     writec(RSA, &rsa_regs.state, 1, 1);
     //sassert (rsa_regs.state == 0);
-    
 
     //if (nd()) sassert (0);
 

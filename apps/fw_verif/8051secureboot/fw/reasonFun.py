@@ -18,7 +18,7 @@ def reasonFun (funName, filePath, fileSuff):
     exitFileName  = '%s/%s_exit.%s' % (filePath, funName, fileSuff)
     exitFile  = open (exitFileName, 'w')
 
-    # find out entry memory
+    # find out entry memory,
     firstSelect = ''
     selectPattern = '(select '
     for line in lines:
@@ -29,12 +29,20 @@ def reasonFun (funName, filePath, fileSuff):
     elements = firstSelect.split()
     entryMem = elements[1]
 
-    # copy the entry part into the new file
+    # copy the entry part into the new file, also find addr and data
+    cmd_addr = ''
+    cmd_data = ''
     for line in lines:
         entryFile.write (line)
+        if '@%addr' in line:
+            cmd_addr = line
+        if '@%data' in line:
+            cmd_data = line
         if 'true' in line:
             break
     entryFile.write ('\t\t(= %s entryMem)\n' % entryMem)
+    entryFile.write ('\t\t(= %s mmio_input_addr)\n' % cmd_addr.strip())
+    entryFile.write ('\t\t(= %s mmio_input_data)\n' % cmd_data.strip())
     entryFile.close()
             
     # find out exit memory

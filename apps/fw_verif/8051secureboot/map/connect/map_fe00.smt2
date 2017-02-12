@@ -4,6 +4,11 @@
         (= addr_sha_wraddr 65032)
         (= addr_sha_len 65036)
         (= addr_sha_bytes 65040)
+        ;(= addr_sha_state (+ @sha_regs_0 1))
+        ;(= addr_sha_rdaddr (+ @sha_regs_0 4))
+        ;(= addr_sha_wraddr (+ @sha_regs_0 8))
+        ;(= addr_sha_len (+ @sha_regs_0 12))
+        ;(= addr_sha_bytes (+ @sha_regs_0 16))
         ;
         (= mmio_input_addr (+ @sha_regs_0 0))
         (= cmd 2)

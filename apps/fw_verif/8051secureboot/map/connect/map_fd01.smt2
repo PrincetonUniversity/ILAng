@@ -1,8 +1,10 @@
         ; mapping for write 0xfd00
-        (= addr_rsa_state 64768)
+        (= addr_rsa_state 64769)
         (= addr_rsa_addr 64772)
+        ;(= addr_rsa_state (+ @rsa_regs_0 769))
+        ;(= addr_rsa_addr (+ @rsa_regs_0 772))
         ; 
-        (= mmio_input_addr (+ @rsa_regs_0 768))
+        (= mmio_input_addr (+ @rsa_regs_0 769))
         (= cmd 2)
         (= cmdaddr 64769)
         (= cmddata mmio_input_data)
