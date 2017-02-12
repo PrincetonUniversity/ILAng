@@ -173,8 +173,9 @@ unsigned char sha1(unsigned char *m, unsigned int len)
     unsigned int i;
     unsigned int mlen;
 
+    //assume (rsa_ptr.state == 0);
     //sassert (sha_ptr.state == 0);
-    assume (sha_ptr.state == 0);
+    //assume (sha_ptr.state == 0);
     //sassert (sha_regs.rd_addr == sha_m);
     
     // addresses have changed
@@ -216,7 +217,7 @@ unsigned char sha1(unsigned char *m, unsigned int len)
     writei(SHA, &sha_regs.len, mlen);
     writec(SHA, &sha_regs.start, 1, 1);  // start HW
 
-    sassert (sha_ptr.state != 1);
+    //sassert (sha_ptr.state != 1);
 
     writec(SHA, &sha_regs.state, 1, 1);  // XXX encoded bug
 
@@ -358,6 +359,9 @@ void removeOAEP()
 int decrypt(unsigned char* msg){
     unsigned int i;
 
+    //assume (rsa_ptr.state == 0);
+    //sassert (rsa_ptr.state != 0);
+
     // copy msg into RSA m register
     if(msg != (unsigned char*)&rsa_regs.m)
     {
@@ -374,22 +378,24 @@ int decrypt(unsigned char* msg){
     //assume (rsa_regs.state == 0);
     unlock(RSA, &rsa_regs.start, (unsigned char*)(&rsa_regs.state+1));    
 
-    //sassert (rsa_regs.state == 0);
-
     writec(RSA, &rsa_regs.start, 1, 1);
 
-    // FIXME
+    //sassert (rsa_regs.state == 0);
+
     //c_exp();  // c abstraction
 
-    //sassert (rsa_regs.state == 0);
     //char tmpState = rsa_regs.state;
 
-    //writec(RSA, &rsa_regs.state, 1, 1);
+    //sassert (rsa_ptr.state != 1);
+    writec(RSA, &rsa_regs.state, 1, 1);
+    //sassert (rsa_regs.state == 0);
+    
 
     //if (nd()) sassert (0);
 
     while(rsa_regs.state != 0);
 
+    //sassert (rsa_ptr.state == 0);
     //sassert (tmpState != 0);
     //if (nd()) sassert (0);
 
