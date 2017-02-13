@@ -21,7 +21,8 @@ all: $(target)
 	@echo FW clauses generated at $(target)
 
 $(target): $(fwSrc)
-	@$(sea) fe $(source) -o $(llvmBc)
+	@#$(sea) fe $(source) -o $(llvmBc)
+	@$(sea) clang $(source) -o $(llvmBc)
 	@$(seahorn) -keep-shadows=true -horn-inter-proc -horn-step=small -horn-sem-lvl=mem $(llvmBc) -o $(tmpChc)
 	@rm $(llvmBc)
 
