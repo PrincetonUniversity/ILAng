@@ -341,17 +341,15 @@ namespace ila
             auto instr = itI->second;
 
             // Create and register child-entry predicate.
-            hvptr_t cVar = instr->_childInstrs.empty() ?
-                           getVar (instr->_name) :
-                           getVar ("C_" + instr->_name);
+            hvptr_t cVar = getVar ("C_" + instr->_name);
             cVar->setLevel (1);
             _db->addRel (cVar); 
 
             // Create and register omstrictopm predicate/
             hvptr_t mVar = getVar (instr->_name);
             mVar->setLevel (1);
-            if (!instr->_childInstrs.empty())
-                _db->addRel (mVar);
+            //if (!instr->_childInstrs.empty())
+            _db->addRel (mVar);
 
             HornRewriter* cRW = new HornRewriter (this, cVar);
             HornRewriter* mRW = new HornRewriter (this, mVar);
@@ -449,27 +447,29 @@ namespace ila
             // Head ************************************************
             // Instruction predicate                    -- M(s_0, s)
 
-            if (!instr->_childInstrs.empty()) {
-                hcptr_t M = addClause ();
+            //if (!instr->_childInstrs.empty()) {
+            hcptr_t M = addClause ();
 
-                // Add predicate for child-entry
-                hvptr_t cEntry = copyVar (cVar, -1);
-                cEntry->setExec (cRW->rewrite ('I', 0, 'I', -1));
-                M->addBody (new HornLiteral (cEntry));
+            // Add predicate for child-entry
+            hvptr_t cEntry = copyVar (cVar, -1);
+            cEntry->setExec (cRW->rewrite ('I', 0, 'I', -1));
+            M->addBody (new HornLiteral (cEntry));
 
-                // All decode for u-Instr is false
-                for (auto uName : instr->_childInstrs) {
-                    auto uInstr = _childs.find (uName)->second;
-                    hvptr_t ud = copyVar (uInstr->_decodeFunc->getOutVar(), -1);
-                    ud->setExec (ud->getName());
-                    M->addBody (new HornLiteral (uInstr->_decodeFunc,true,true));
-                    M->addBody (new HornLiteral (ud, false, false));
-                }
-
-                hvptr_t mCopy = copyVar (mVar, -1);
-                mCopy->setExec (mRW->rewrite ('I', 0, 'I', -1));
-                M->setHead (new HornLiteral (mCopy));
+            // All decode for u-Instr is false
+            for (auto uName : instr->_childInstrs) {
+                auto uInstr = _childs.find (uName)->second;
+                hvptr_t ud = copyVar (uInstr->_decodeFunc->getOutVar(), -1);
+                ud->setExec (ud->getName());
+                M->addBody (new HornLiteral (uInstr->_decodeFunc, true, true));
+                M->addBody (new HornLiteral (ud, false, false));
             }
+
+            hvptr_t mCopy = copyVar (mVar, -1);
+            //mCopy->setExec (mRW->rewrite ('I', 0, 'I', -1));
+            mCopy->setExec (mRW->rewrite ('I', 0, 'I', 1));
+            M->setHead (new HornLiteral (mCopy));
+            mRW->addRewriteRule (M, 'I', -1, 'I', 1);
+            //}
 
             if (mRW != NULL) delete mRW;
             if (cRW != NULL) delete cRW;
