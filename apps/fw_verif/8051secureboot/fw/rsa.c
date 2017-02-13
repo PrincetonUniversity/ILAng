@@ -173,9 +173,9 @@ unsigned char sha1(unsigned char *m, unsigned int len)
     unsigned int i;
     unsigned int mlen;
 
-    //assume (rsa_ptr.state == 0);
-    //sassert (sha_ptr.state == 0);
     //assume (sha_ptr.state == 0);
+    //sassert (sha_ptr.state == 0);
+    //assume (rsa_ptr.state == 0);
     //sassert (sha_regs.rd_addr == sha_m);
     
     // addresses have changed
@@ -232,6 +232,7 @@ unsigned char sha1(unsigned char *m, unsigned int len)
     while(sha_regs.state != 0);
 
     //sassert (sha_ptr.state == 0);
+    //if (nd()) sassert (0);
 
     lock(pshao, sha_regs.wr_addr, sha_regs.wr_addr+H);
     lock(SHA, &sha_regs.start, (unsigned char*)(&sha_regs.len));
@@ -422,7 +423,7 @@ unsigned char verifySignature(unsigned char* msg, unsigned int len, unsigned cha
     int slen;
 
     // decrypt the signature
-    sassert (rsa_ptr.state == 0);
+    //sassert (rsa_ptr.state == 0);
     slen = decrypt(signature);
 
     // compare with hash of msg

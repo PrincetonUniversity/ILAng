@@ -101,6 +101,26 @@ namespace ila
         return rewriteFmt.str();
     }
 
+    void HornRewriter::addRewriteRule (hcptr_t C, char aType, int aSuff,
+                                                  char bType, int bSuff)
+    {
+        boost::format eqFmt ("(= %1% %2%)");
+        auto outSet = _pred->getOutSet();
+        for (auto outVar : outSet) {
+            hvptr_t varA = (aType == 'I') ? _mapSI[ _mapOS[ outVar ]]
+                                          : _mapSO[ _mapOS[ outVar ]];
+            hvptr_t varB = (bType == 'I') ? _mapSI[ _mapOS[ outVar ]]
+                                          : _mapSO[ _mapOS[ outVar ]];
+            varA = (aSuff == -1) ? varA : _tr->copyVar (varA, aSuff);
+            varB = (bSuff == -1) ? varB : _tr->copyVar (varB, bSuff);
+
+            eqFmt % varA->getName() % varB->getName();
+            hvptr_t ruleVar = _tr->copyVar (_pred, -1);
+            ruleVar->setExec (eqFmt.str());
+            C->addBody (new HornLiteral (ruleVar));
+        }
+    }
+
     // ---------------------------------------------------------------------- //
     void HornTranslator::generateMapping (const std::string& type)
     {
@@ -292,8 +312,11 @@ namespace ila
             if (instr->_childInstrs.empty()) {
                 _db->removeRel (lVar);
                 hvptr_t mOut = copyVar (mVar, -1);
-                mOut->setExec (mRW->rewrite ('I', -1, 'O', -1));
+                //mOut->setExec (mRW->rewrite ('I', -1, 'O', -1));
+                mOut->setExec (mRW->rewrite ('I', 0, 'I', 1));
                 M->setHead (new HornLiteral (mOut));
+                mRW->addRewriteRule (M, 'I', -1, 'I', 0);
+                mRW->addRewriteRule (M, 'O', -1, 'I', 1);
             } else {
                 hvptr_t lEntry = copyVar (lVar, -1);
                 hvptr_t lExit = copyVar (lVar, -1);

@@ -196,6 +196,9 @@ namespace ila
         void update (const std::string& state, hvptr_t inArg, hvptr_t outArg);
         // rewrite predicate with specified rules.
         std::string rewrite (char inType, int inSuff, char outType, int outSuff);
+        // add the rule of rewriting to the clause.
+        void addRewriteRule (hcptr_t C, char aType, int aSuff, 
+                                        char bType, int bSuff);
 
     };
 
