@@ -111,8 +111,10 @@ def synthesize ():
         state   = m.getreg ('rsa_state')
 
         name = 'instr_%x' % addr
-        m.decode_exprs = [(cmd == 2) & (cmdaddr == addr) & (state == 0)]
+        #m.decode_exprs = [(cmd == 2) & (cmdaddr == addr) & (state == 0)]
+        m.decode_exprs = [(cmd == 2) & (cmdaddr == addr)]
         decode = m.decode_exprs[0]
+        m.add_assumption (state == 0)
 
         subDir = directory + '/' + name
         synToFile (m, subDir)
