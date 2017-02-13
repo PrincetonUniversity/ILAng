@@ -199,6 +199,8 @@ namespace ila
         // add the rule of rewriting to the clause.
         void addRewriteRule (hcptr_t C, char aType, int aSuff, 
                                         char bType, int bSuff);
+        // get rewrited horn var.
+        hvptr_t getRewriteVar (char inTy, int inSu, char outTy, int outSu);
 
     };
 
@@ -469,6 +471,10 @@ namespace ila
         void generateInterleaveMapping ();
         // generate mappings for blocking modeling.
         void generateBlockingMapping ();
+        // generate loop predicate.
+        HornRewriter* generateLoopPredicate ();
+        // generate mappings for interleave modeling for all instructions.
+        void allInterleaveMapping ();
     };
 }
 
