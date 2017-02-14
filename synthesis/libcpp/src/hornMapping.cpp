@@ -374,6 +374,7 @@ namespace ila
 
                 cRW->configOutput (itN->first, nxt->getOutVar());
                 mRW->configOutput (itN->first, nxt->getOutVar());
+                cRW->update (itN->first, NULL, nxt->getOutVar());
                 mRW->update (itN->first, NULL, nxt->getOutVar());
             }
             cRW->configInput();

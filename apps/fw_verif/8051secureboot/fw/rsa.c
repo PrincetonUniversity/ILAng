@@ -368,7 +368,7 @@ void removeOAEP()
 int decrypt(unsigned char* msg){
     unsigned int i;
 
-    //assume (rsa_ptr.state == 0);
+    assume (rsa_ptr.state == 0);
     //sassert (rsa_ptr.state != 0);
 
     // copy msg into RSA m register
@@ -397,7 +397,7 @@ int decrypt(unsigned char* msg){
 
     writec(RSA, &rsa_regs.state, 1, 1);
 
-    //sassert (rsa_ptr.state == 0);
+    sassert (rsa_ptr.state == 0);
 
     //char tmpState = rsa_regs.state;
 

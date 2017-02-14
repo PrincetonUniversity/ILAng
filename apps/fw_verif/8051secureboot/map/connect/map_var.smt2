@@ -27,5 +27,7 @@
 ; variables for rsa interface
 (declare-var addr_rsa_state Int)
 (declare-var addr_rsa_addr Int)
+(declare-var addr_rsa_byte Int)
 (declare-var rsa_mem_state (Array Int Int))
 (declare-var rsa_mem_addr (Array Int Int))
+(declare-var rsa_mem_byte (Array Int Int))

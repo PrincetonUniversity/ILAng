@@ -143,6 +143,7 @@ struct RSA_regs{
     unsigned char start;
     unsigned char state;
     unsigned char *opaddr;
+    int byte_counter;
 };
 #ifdef C
 extern unsigned char mem[];
