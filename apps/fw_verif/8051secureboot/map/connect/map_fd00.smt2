@@ -12,7 +12,6 @@
         (= rsa_byte_counter_0 (select entryMem addr_rsa_byte))
         ;
         (= rsa_mem_state (store XRAM_1 addr_rsa_state rsa_state_1))
-        ;(= rsa_mem_state (store entryMem addr_rsa_state rsa_state_1))
         (= rsa_mem_addr (store rsa_mem_state addr_rsa_addr rsa_addr_1))
         (= rsa_mem_byte (store rsa_mem_addr addr_rsa_byte rsa_byte_counter_1))
         (= rsa_mem_byte exitMem)
