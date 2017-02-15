@@ -6,7 +6,7 @@ target = $(dir)/fw.smt2
 llvmBc = $(dir)/fw.bc
 tmpChc = $(dir)/tmp.smt2
 
-mmioFuncs = HW_REG_WRITE_chr
+mmioFuncs = HW_REG_WRITE_chr HW_REG_READ_chr
 infoPath  = $(FW_FUN_PATH)
 fileSuff  = smt2
 

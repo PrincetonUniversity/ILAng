@@ -189,7 +189,7 @@ unsigned char sha1(unsigned char *m, unsigned int len)
     unsigned int i;
     unsigned int mlen;
 
-    //assume (sha_ptr.state == 0);
+    assume (sha_ptr.state == 0);
     //sassert (sha_ptr.state == 0);
     //assume (rsa_ptr.state == 0);
     //sassert (sha_regs.rd_addr == sha_m);
@@ -250,6 +250,7 @@ unsigned char sha1(unsigned char *m, unsigned int len)
 
     //sassert (sha_ptr.state == 0);
     //if (nd()) sassert (0);
+    sassert (0);
 
     lock(pshao, sha_regs.wr_addr, sha_regs.wr_addr+H);
     lock(SHA, &sha_regs.start, (unsigned char*)(&sha_regs.len));
@@ -385,8 +386,8 @@ void removeOAEP()
 int decrypt(unsigned char* msg){
     unsigned int i;
 
-    assume (rsa_ptr.state == 0);
-    //sassert (rsa_ptr.state != 0);
+    //assume (rsa_ptr.state == 0);
+    //if (nd()) sassert (rsa_ptr.state = 0);
 
     // copy msg into RSA m register
     if(msg != (unsigned char*)&rsa_regs.m)
@@ -414,7 +415,7 @@ int decrypt(unsigned char* msg){
 
     writec(RSA, &rsa_regs.state, 1, 1);
 
-    sassert (rsa_ptr.state == 0);
+    //sassert (rsa_ptr.state == 0);
 
     //char tmpState = rsa_regs.state;
 
