@@ -45,12 +45,12 @@ def reasonFun (funName, filePath, fileSuff):
     entryFile.write ('\t\t(= %s entryMem)\n' % entryMem)
 
     if not (cmd_addr == ''):
-        entryFile.write ('\t\t(= %s mmio_input_addr)\n' % cmd_addr.strip())
+        entryFile.write ('\t\t(= %s mmio_input_addr)\n' % cmd_addr.strip().strip(')'))
     else: 
         print '[Horn-Warning]', funName, 'does not have mmio_input_addr'
 
     if not (cmd_data == ''):
-        entryFile.write ('\t\t(= %s mmio_input_data)\n' % cmd_data.strip())
+        entryFile.write ('\t\t(= %s mmio_input_data)\n' % cmd_data.strip().strip(')'))
     else: 
         isRead = True
 

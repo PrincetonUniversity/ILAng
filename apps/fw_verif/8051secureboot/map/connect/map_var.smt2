@@ -3,6 +3,7 @@
 (declare-var exitMem (Array Int Int))
 (declare-var mmio_input_addr Int)
 (declare-var mmio_input_data Int)
+(declare-var returnVal Int)
 
 ; variables for shared variables
 (declare-var XRAM (Array Int Int))

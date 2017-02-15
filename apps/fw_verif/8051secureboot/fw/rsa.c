@@ -111,7 +111,8 @@ unsigned char HW_REG_READ_chr (unsigned char* addr)
 
 unsigned char readcWrap (unsigned char* addr)
 {
-    if (addr == &sha_ptr.state) {
+    if (addr == &sha_ptr.state || addr == &sha_ptr.start ||
+        addr == &rsa_ptr.start) {
         return HW_REG_READ_chr (addr);
     } else {
         return *addr;
@@ -189,7 +190,7 @@ unsigned char sha1(unsigned char *m, unsigned int len)
     unsigned int i;
     unsigned int mlen;
 
-    assume (sha_ptr.state == 0);
+    //assume (sha_ptr.state == 0);
     //sassert (sha_ptr.state == 0);
     //assume (rsa_ptr.state == 0);
     //sassert (sha_regs.rd_addr == sha_m);
@@ -236,7 +237,8 @@ unsigned char sha1(unsigned char *m, unsigned int len)
     writec(SHA, &sha_regs.start, 1, 1);  // start HW
 
     //sassert (sha_ptr.state == 0);
-
+    //sassert (sha_ptr.state == 1);
+    //sassert (readc(&sha_regs.state) == 1);
     //sassert (sha_ptr.state != 1);
 
     writec(SHA, &sha_regs.state, 1, 1);  // XXX encoded bug
@@ -247,10 +249,18 @@ unsigned char sha1(unsigned char *m, unsigned int len)
 
     //while(sha_regs.state != 0);
     while (readc(&sha_regs.state) != 0);
+    /*
+    int cnt = 0;
+    while (readc(&sha_regs.state) != 0) {
+        cnt += 1;
+    }
+    assume (cnt <= 2);
+    */
 
+    //sassert (readc(&sha_regs.state) == 0);
     //sassert (sha_ptr.state == 0);
     //if (nd()) sassert (0);
-    sassert (0);
+    //sassert (0);
 
     lock(pshao, sha_regs.wr_addr, sha_regs.wr_addr+H);
     lock(SHA, &sha_regs.start, (unsigned char*)(&sha_regs.len));
@@ -421,7 +431,8 @@ int decrypt(unsigned char* msg){
 
     //if (nd()) sassert (0);
 
-    while(rsa_regs.state != 0);
+    //while(rsa_regs.state != 0);
+    while (readc(&rsa_regs.state) != 0);
 
     //sassert (rsa_ptr.state == 0);
     //sassert (tmpState == 0);
