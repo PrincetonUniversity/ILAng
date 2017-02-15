@@ -102,6 +102,22 @@ void writeaWrap (unsigned char* addr, unsigned char* data, int len)
         addr[i] = data[i];
 }
 
+__attribute__((optnone))
+unsigned char HW_REG_READ_chr (unsigned char* addr) 
+{
+    rsa_ptr.state = *addr;
+    return sha_ptr.state + *addr;
+}
+
+unsigned char readcWrap (unsigned char* addr)
+{
+    if (addr == &sha_ptr.state) {
+        return HW_REG_READ_chr (addr);
+    } else {
+        return *addr;
+    }
+}
+
 #ifndef C
 XDATA_ARR(0xFF80, 32, unsigned char, pt_wren);
 XDATA_ARR(0xFFA0, 32, unsigned char, pt_rden);
@@ -229,7 +245,8 @@ unsigned char sha1(unsigned char *m, unsigned int len)
 
     //c_sha(len);         // do SW
 
-    while(sha_regs.state != 0);
+    //while(sha_regs.state != 0);
+    while (readc(&sha_regs.state) != 0);
 
     //sassert (sha_ptr.state == 0);
     //if (nd()) sassert (0);

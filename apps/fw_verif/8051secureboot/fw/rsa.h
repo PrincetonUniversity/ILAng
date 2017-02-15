@@ -98,6 +98,10 @@ void writepWrap (unsigned char** addr, unsigned char* data);
 void writeaWrap (unsigned char* addr, unsigned char* data, int len);
 #define writecarr(page, addr, data, len) writeaWrap(addr, data, len)
 
+extern unsigned char HW_REG_READ_chr (unsigned char* addr);
+unsigned char readcWrap (unsigned char* addr);
+#define readc(addr) readcWrap(addr)
+
 #define pt_reset(page)
 #define lock(page, start, end) lock_wr(start, end)
 #define unlock(page, start, end) unlock_wr(start, end)
