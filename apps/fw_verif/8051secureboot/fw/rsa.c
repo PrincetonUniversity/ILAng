@@ -417,8 +417,10 @@ int decrypt(unsigned char* msg){
     //assume (rsa_regs.state == 0);
     unlock(RSA, &rsa_regs.start, (unsigned char*)(&rsa_regs.state+1));    
 
+    //if (nd()) sassert (0);
     writec(RSA, &rsa_regs.start, 1, 1);
 
+    //if (nd()) sassert (0);
     //sassert (rsa_ptr.state == 1);
     //sassert (readc(&rsa_ptr.state) == 0);
 

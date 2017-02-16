@@ -39,15 +39,14 @@
 #define BUFF_SIZE 100
 #else
 // XXX
-/*
 #define MAX_PRG_SIZE 0x3000
 #define MAX_IM_SIZE  0x2000
 #define N 256
 #define H 20
 #define K1 16
 #define K2 16
-*/
 // XXX
+/*
 #define MAX_PRG_SIZE 50
 #define MAX_IM_SIZE  100
 #define N 16
@@ -55,6 +54,7 @@
 #define K1 4
 #define K2 4
 #define BUFF_SIZE 100
+*/
 // XXX
 #ifdef C
 #define BUFF_SIZE 0x2000

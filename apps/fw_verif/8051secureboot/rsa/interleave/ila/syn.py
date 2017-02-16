@@ -46,7 +46,7 @@ def createRsaIla ():
                                                 m.const (1, 2),
                                                 m.const (2, 2),
                                                 m.const (3, 2)])
-    wr_nxt = ila.ite (byte_counter == 255, m.const (0, 2), m.const (3, 2))
+    wr_nxt = ila.ite (byte_counter == 16, m.const (0, 2), m.const (3, 2))
     state_nxt = ila.choice ('rsa_state_nxt', [wr_nxt, state_choice, 
             ila.ite (cmddata == 1, m.const (1, 2), state), state])
     m.set_next ('rsa_state', state_nxt)
