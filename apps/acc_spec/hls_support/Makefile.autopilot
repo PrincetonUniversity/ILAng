@@ -1,0 +1,261 @@
+#===- Makefile.sysc.rules ----------------------------------*- Makefile -*--===#
+#
+# Makefile rules for autopilot SystemC simulation flow
+#
+# __VIVADO_HLS_COPYRIGHT-INFO__
+#
+#===------------------------------------------------------------------------===#
+
+
+# Required user variables:
+#TARGET
+
+# Optional variables:
+#ExtraCFlags
+#ExtraCXXFlags
+#ExtraLDFlags
+
+# Users may have their own SystemC enviornments, by defineing the
+# following variables
+#HLS_SYSTEMC_HOME
+#HLS_SYSTEMC_LIB_PATH
+
+### Common shell commands.
+Echo = @echo
+MKDIR = mkdir -p
+Make = make
+MV = mv
+RM = rm
+
+### Directory for object files.
+ifndef ObjDir
+  ObjDir := obj
+endif
+
+### Switch for displaying detailed information.
+#VERBOSE = 1
+
+
+ifdef VERBOSE
+  Verb :=
+else
+  Verb := @
+endif
+
+ifndef AUTOPILOT_TOOL
+  AUTOPILOT_TOOL = "$(shell vivado_hls -proot)/tools"
+endif
+
+ifndef AUTOPILOT_TECH
+  AUTOPILOT_TECH = "$(AUTOPILOT_ROOT)/common/technology"
+endif
+
+ifndef HLS_SYSTEMC_HOME
+  HLS_SYSTEMC_HOME = $(AUTOPILOT_TOOL)/systemc
+endif
+
+ifndef HLS_SYSTEMC_LIB_PATH
+  HLS_SYSTEMC_LIB_PATH = $(AUTOPILOT_TOOL)/systemc/lib
+endif
+
+ifndef HLS_FPO_LIB_PATH
+  ifdef __HLS_FPO_v6_1__
+    HLS_FPO_LIB_PATH = $(AUTOPILOT_TOOL)/fpo_v6_1
+  else
+    ifdef __HLS_FPO_v6_2__
+      HLS_FPO_LIB_PATH = $(AUTOPILOT_TOOL)/fpo_v6_2
+    else
+      HLS_FPO_LIB_PATH = $(AUTOPILOT_TOOL)/fpo_v7_0
+    endif
+  endif
+endif
+
+ifndef HLS_OPENCV_LIB_PATH
+  HLS_OPENCV_LIB_PATH = $(AUTOPILOT_TOOL)/opencv
+endif
+
+ifndef HLS_FFT_LIB_PATH
+  HLS_FFT_LIB_PATH = $(AUTOPILOT_TOOL)/fft_v9_0
+endif
+
+ifndef HLS_FIR_LIB_PATH
+  HLS_FIR_LIB_PATH = $(AUTOPILOT_TOOL)/fir_v7_0
+endif
+
+ifdef __USE_CLANG__
+ifdef AP_CLANG_PATH
+CC      = $(AP_CLANG_PATH)/clang
+CXX     = $(AP_CLANG_PATH)/clang++
+else
+CC      = clang
+CXX     = clang++
+endif
+else
+ifdef AP_GCC_PATH
+CC      = $(AP_GCC_PATH)/gcc
+CXX     = $(AP_GCC_PATH)/g++
+else
+CC	= gcc
+CXX	= g++
+endif
+endif
+
+ifdef __USE_CLANG_M32__
+CC      += -m32
+CXX     += -m32
+endif
+
+LINUX	=
+INCPATH	= .
+SRCPATH = .
+BINPATH = .
+SYSC = $(HLS_SYSTEMC_HOME)
+SYSCINC = $(SYSC)/include
+SYSCLIB = $(HLS_SYSTEMC_LIB_PATH)
+FPOLIB = $(HLS_FPO_LIB_PATH)
+OPENCVLIB = $(HLS_OPENCV_LIB_PATH)
+FFTLIB = $(HLS_FFT_LIB_PATH)
+FIRLIB = $(HLS_FIR_LIB_PATH)
+DEFINE =
+ATBG_CFLAG = -DSST_SIM_ENABLE -DSST_ATBG_ENABLE
+IFLAG += -I $(INCPATH) -I "$(SYSCINC)"
+IFLAG += -I "$(AUTOPILOT_ROOT)/include"
+#IFLAG += -I "$(AUTOPILOT_TECH)/autopilot/sim"
+#IFLAG += -I "$(AUTOPILOT_TECH)/autopilot/etc"
+IFLAG += -I "$(AUTOPILOT_TECH)/generic/SystemC/AESL_comp"
+LFLAG += -Wl,--as-needed
+LFLAG += -L "$(SYSCLIB)" -lsystemc -lpthread
+
+ifdef __SIM_FPO__
+#LFLAG += -L "$(FPOLIB)" -lgmp -lmpfr -lIp_floating_point_v6_1_bitacc_cmodel -z muldefs
+  ifdef __HLS_FPO_v6_1__
+    LFLAG += -L "$(FPOLIB)" -lgmp -lmpfr -lIp_floating_point_v6_1_bitacc_cmodel
+  else
+    ifdef __HLS_FPO_v6_2__
+      LFLAG += -L "$(FPOLIB)" -lgmp -lmpfr -lIp_floating_point_v6_2_bitacc_cmodel
+    else
+      LFLAG += -L "$(FPOLIB)" -lgmp -lmpfr -lIp_floating_point_v7_0_bitacc_cmodel
+    endif
+  endif
+endif
+
+ifdef __SIM_OPENCV__
+  ifeq ($(shell uname -s), Linux)
+    LFLAG += -L "$(OPENCVLIB)" -lopencv_calib3d -lopencv_contrib -lopencv_core -lopencv_features2d -lopencv_flann -lopencv_gpu -lopencv_highgui -lopencv_imgproc -lopencv_legacy -lopencv_ml -lopencv_objdetect -lopencv_photo -lopencv_stitching -lopencv_superres -lopencv_ts -lopencv_video -lopencv_videostab
+  else
+    CV_VER = 245
+    LFLAG += -L "$(OPENCVLIB)" -lopencv_calib3d$(CV_VER) -lopencv_contrib$(CV_VER) -lopencv_core$(CV_VER) -lopencv_features2d$(CV_VER) -lopencv_flann$(CV_VER) -lopencv_gpu$(CV_VER) -lopencv_highgui$(CV_VER) -lopencv_imgproc$(CV_VER) -lopencv_legacy$(CV_VER) -lopencv_ml$(CV_VER) -lopencv_objdetect$(CV_VER) -lopencv_photo$(CV_VER) -lopencv_stitching$(CV_VER) -lopencv_superres$(CV_VER) -lopencv_video$(CV_VER) -lopencv_videostab$(CV_VER)
+  endif
+endif
+
+ifdef __SIM_FFT__
+  LFLAG += -L "$(FFTLIB)" -lIp_xfft_v9_0_bitacc_cmodel
+  export LD_LIBRARY_PATH := ${LD_LIBRARY_PATH}:$(FFTLIB)
+endif
+
+ifdef __SIM_FIR__
+  LFLAG += -L "$(FIRLIB)" -lgmp -lIp_fir_compiler_v7_2_bitacc_cmodel
+  export LD_LIBRARY_PATH := ${LD_LIBRARY_PATH}:$(FIRLIB)
+endif
+
+CFLAG += $(DEBUG) $(DEFINE) -DC_TEST
+CFLAG += $(ATBG_CFLAG)
+
+# Only for glibc2.12 bug, define __USE_XOPEN2K8, CR694034.
+RUNNING_LINUX := "$(shell uname | grep -i Linux)"
+ifeq ($(RUNNING_LINUX),"Linux")
+LDD_VERSION = "$(shell ldd --version | grep 2.12)"
+  ifneq ($(LDD_VERSION), "")
+    CFLAG += -D__USE_XOPEN2K8
+    DFLAG += -D__USE_XOPEN2K8
+  endif
+else
+CFLAG += -D__USE_XOPEN2K8
+DFLAG += -D__USE_XOPEN2K8
+endif
+
+ifndef HLS_SOURCES
+  # Find all .cpp, .cp, .cxx, .cc, .c++, .c, .C in current directory and in $(HLS_RtlSCDir).
+  SUFFIX_CPP  = cpp
+  SUFFIX_CP   = cp
+  SUFFIX_CXX  = cxx
+  SUFFIX_CC   = cc
+  SUFFIX_C++  = c++
+  SUFFIX_c    = c
+  SUFFIX_C    = C
+  SOURCES_CPP = $(wildcard *.$(SUFFIX_CPP))
+  SOURCES_CP = $(wildcard *.$(SUFFIX_CP))
+  SOURCES_CXX = $(wildcard *.$(SUFFIX_CXX))
+  SOURCES_CC = $(wildcard *.$(SUFFIX_CC))
+  SOURCES_C++ = $(wildcard *.$(SUFFIX_C++))
+  SOURCES_c = $(wildcard *.$(SUFFIX_c))
+  SOURCES_C = $(wildcard *.$(SUFFIX_C))
+
+ifdef HLS_RtlSCDir
+  SOURCES_CPP += $(wildcard $(HLS_RtlSCDir)/*.cpp)
+  SOURCES_CC += $(wildcard $(HLS_RtlSCDir)/*.cc)
+  SOURCES_C += $(wildcard $(HLS_RtlSCDir)/*.c)
+endif
+
+  FILE_SOURCES_CPP = $(notdir $(SOURCES_CPP))
+  FILE_SOURCES_CC = $(notdir $(SOURCES_CC))
+  FILE_SOURCES_C = $(notdir $(SOURCES_C))
+
+  override HLS_SOURCES = $(SOURCES_CPP) $(SOURCES_CP) $(SOURCES_CXX) $(SOURCES_CC) $(SOURCES_C++) $(SOURCES_c) $(SOURCES_C)
+endif
+
+OBJECTS := $(basename $(notdir $(HLS_SOURCES)))
+OBJECTS := $(OBJECTS:%=$(ObjDir)/%.o)
+
+
+ERR_FILE = err.log
+
+ERRNO=`wc -l $(ERR_FILE) | sed "s/ $(ERR_FILE)//"`
+
+.debug1::
+	$(Echo) "2 src: $(HLS_SOURCES)"
+	$(Echo) "2 obj: $(OBJECTS)"
+#--------------------------------------------------------------------
+# Set the VPATH so that we can find source files.
+#--------------------------------------------------------------------
+VPATH=$(HLS_RtlSCDir)
+
+#ENABLE_PROFILING :=
+#ENABLE_OPTIMIZED := 1
+
+ifdef ENABLE_PROFILING
+  BuildMode := profile
+  CXX.Flags := -O3 -DNDEBUG -felide-constructors -finline-functions -pg
+  C.Flags   := -O3 -DNDEBUG -pg
+  LD.Flags  := -O3 -DNDEBUG -pg 
+else
+  ifdef AP_ENABLE_OPTIMIZED
+    BuildMode := release
+    #CXX.Flags  := -O3 -DNDEBUG -finline-functions \
+    #              -felide-constructors -fomit-frame-pointer
+    CXX.Flags  := -O1 -DNDEBUG
+    C.Flags    := -O1 -DNDEBUG -fomit-frame-pointer
+    LD.Flags   := -O1 -DNDEBUG 
+  else
+    BuildMode := debug
+    CXX.Flags := -D_DEBUG
+    C.Flags   := -D_DEBUG
+ifdef __USE_CLANG__
+    LD.Flags  := -D_DEBUG -g -O1
+else
+    LD.Flags  := -D_DEBUG
+endif
+    KEEP_SYMBOLS := 1
+  endif
+endif
+
+
+CXXFLAGS += $(IFLAG) $(CFLAG)
+CFLAGS += $(IFLAG) $(CFLAG)
+LDFLAGS += $(LFLAG)
+
+ifdef AP_GCC_M32
+CFLAGS += -m32
+CXXFLAGS += -m32
+LDFLAGS += -m32
+endif
