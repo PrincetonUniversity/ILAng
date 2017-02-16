@@ -56,7 +56,7 @@ def createShaIla():
                                                 m.const (2, 3),
                                                 m.const (3, 3),
                                                 m.const (4, 3)])
-    rd_nxt = ila.ite (bytes_read < oplen, state_choice, state_choice)
+    rd_nxt = ila.ite (bytes_read < oplen, m.const (1, 3), m.const (4, 3))
     state_nxt = ila.choice ('state_nxt', [rd_nxt, state_choice,
             ila.ite (cmddata == 1, m.const (1, 3), state), state])
     m.set_next ('sha_state', state_nxt)
