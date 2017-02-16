@@ -112,7 +112,7 @@ unsigned char HW_REG_READ_chr (unsigned char* addr)
 unsigned char readcWrap (unsigned char* addr)
 {
     if ((addr == &sha_ptr.state) || (addr == &sha_ptr.start) ||
-        (addr == &rsa_ptr.start)) {
+        (addr == &rsa_ptr.start) || (addr == &rsa_ptr.state)) {
         return HW_REG_READ_chr (addr);
     } else {
         return *addr;
@@ -398,7 +398,7 @@ void removeOAEP()
 int decrypt(unsigned char* msg){
     unsigned int i;
 
-    //assume (rsa_ptr.state == 0);
+    assume (rsa_ptr.state == 0);
     //if (nd()) sassert (rsa_ptr.state = 0);
 
     // copy msg into RSA m register
@@ -419,7 +419,8 @@ int decrypt(unsigned char* msg){
 
     writec(RSA, &rsa_regs.start, 1, 1);
 
-    //sassert (rsa_regs.state == 0);
+    //sassert (rsa_ptr.state == 1);
+    //sassert (readc(&rsa_ptr.state) == 0);
 
     //c_exp();  // c abstraction
 
@@ -428,15 +429,18 @@ int decrypt(unsigned char* msg){
     writec(RSA, &rsa_regs.state, 1, 1);
 
     //sassert (rsa_ptr.state == 0);
+    //sassert (readc(&rsa_ptr.state) == 0);
 
     //char tmpState = rsa_regs.state;
 
     //if (nd()) sassert (0);
 
-    while(rsa_regs.state != 0);
-    //while (readc(&rsa_regs.state) != 0);
+    //while(rsa_regs.state != 0);
+    while (readc(&rsa_regs.state) != 0);
 
     //sassert (rsa_ptr.state == 0);
+    //sassert (readc(&rsa_ptr.state) == 0);
+
     //sassert (tmpState == 0);
     //if (nd()) sassert (0);
 

@@ -12,6 +12,9 @@
 (declare-var cmd Int)
 (declare-var cmddata Int)
 (declare-var cmdaddr Int)
+(declare-var dataout Int)
+(declare-var dataout_0 Int)
+(declare-var dataout_1 Int)
 
 ; variables for sha interface 
 (declare-var addr_sha_state Int)

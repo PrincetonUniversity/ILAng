@@ -13,6 +13,8 @@ def createRsaIla ():
     cmd         = m.inp ('cmd', 2)
     cmdaddr     = m.inp ('cmdaddr', 16)
     cmddata     = m.inp ('cmddata', 8)
+    # response
+    dataout     = m.reg ('dataout', 8)
 
     # states
     state           = m.reg ('rsa_state', 2)
@@ -27,7 +29,12 @@ def createRsaIla ():
 
     # fetch
     m.fetch_expr    = ila.concat ([state, cmd, cmdaddr, cmddata])
-    m.fetch_valid   = (cmd == 2)
+    m.fetch_valid   = (cmd == 1) | (cmd == 2)
+
+    statebyte   = ila.zero_extend (state, 8)
+    wraddrbyte  = ila.readchunk ('rsa_addr', addr, 8)
+    dataout_nxt = ila.choice ('dataout', [statebyte, wraddrbyte, m.const(0, 8)])
+    m.set_next ('dataout', dataout_nxt)
 
     # rsa_addr
     addr_wr  = ila.writechunk ('wr_addr', addr, cmddata)
@@ -79,7 +86,7 @@ def createRsaIla ():
 
 def synthesize ():
     all_states = ['rsa_state', 'rsa_addr']
-    all_states = ['rsa_state', 'rsa_addr', 'XRAM', 'rsa_buff', 'rsa_byte_counter', 'rsa_M']
+    all_states = ['rsa_state', 'rsa_addr', 'XRAM', 'rsa_buff', 'rsa_byte_counter', 'rsa_M', 'dataout']
     all_instrs = [0xfd00, 0xfd01]
     all_childs = [1, 2, 3]
 
@@ -102,7 +109,7 @@ def synthesize ():
             si = ila.simplify (m.bool(True), nxt)
             m.exportOne (si, fileName)
 
-    ######################### instruction #######################
+    ######################### write instruction #######################
     def synInstr (addr):
         m       = createRsaIla ()
         cmd     = m.getinp ('cmd')
@@ -110,11 +117,30 @@ def synthesize ():
         cmddata = m.getinp ('cmddata')
         state   = m.getreg ('rsa_state')
 
-        name = 'instr_%x' % addr
+        name = 'instr_W_%x' % addr
         #m.decode_exprs = [(cmd == 2) & (cmdaddr == addr) & (state == 0)]
         m.decode_exprs = [(cmd == 2) & (cmdaddr == addr)]
         decode = m.decode_exprs[0]
         m.add_assumption (state == 0)
+
+        subDir = directory + '/' + name
+        synToFile (m, subDir)
+
+        decodeFile = subDir + '/decode'
+        m.exportOne (decode, decodeFile)
+
+    ######################### read instruction #######################
+    def synReadInstr (addr):
+        m       = createRsaIla ()
+        cmd     = m.getinp ('cmd')
+        cmdaddr = m.getinp ('cmdaddr')
+        cmddata = m.getinp ('cmddata')
+        state   = m.getreg ('rsa_state')
+
+        name = 'instr_R_%x' % addr
+        m.decode_exprs = [(cmd == 1) & (cmdaddr == addr)]
+        decode = m.decode_exprs[0]
+        #m.add_assumption (state == 0)
 
         subDir = directory + '/' + name
         synToFile (m, subDir)
@@ -130,6 +156,7 @@ def synthesize ():
         name = 'child_%d' % st
         m.decode_exprs = [state == st]
         decode = m.decode_exprs[0]
+        m.add_assumption (m.getinp ('cmd') == 2)
         
         subDir = directory + '/' + name
         if not os.path.exists (subDir):
@@ -141,6 +168,8 @@ def synthesize ():
         synToFile (m, subDir)
 
     processes =  [mp.Process (target=synInstr, args=(addr,)) 
+        for addr in all_instrs]
+    processes += [mp.Process (target=synReadInstr, args=(addr,))
         for addr in all_instrs]
     processes += [mp.Process (target=synChild, args=(st,)) 
         for st in all_childs]

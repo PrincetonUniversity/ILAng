@@ -42,7 +42,15 @@ class RSA (mmiodev):
         self.byte_counter   = s_in ['rsa_byte_counter']
         self.xram           = s_in ['XRAM']
 
+        dataout = 0
         # execute command.
+        if cmd == RD:
+            found, data = self.read (cmdaddr)
+            if found:
+                dataout = data
+            s_out = self.s_dict()
+            s_out['dataout'] = dataout
+            return s_out
         """
         if not cmd == WR:
             s_out = self.s_dict()
@@ -77,6 +85,7 @@ class RSA (mmiodev):
         self.rsa_state = state_nxt
 
         s_out = self.s_dict()
+        s_out ['dataout'] = dataout
         return s_out
 
     def s_dict (self):
