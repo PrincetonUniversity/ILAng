@@ -70,7 +70,7 @@ class RSA (mmiodev):
             state_nxt = self.WRITE  # assuming valid is immediately true.
             self.rsa_buff |= 1 << 8 # XXX representing RSA operation.
         elif self.rsa_state == self.WRITE:
-            if self.byte_counter == 16:
+            if self.byte_counter == 255:
                 state_nxt = self.IDLE
             else:
                 state_nxt = self.WRITE

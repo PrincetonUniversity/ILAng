@@ -46,7 +46,7 @@ def createRsaIla ():
                                                 m.const (1, 2),
                                                 m.const (2, 2),
                                                 m.const (3, 2)])
-    wr_nxt = ila.ite (byte_counter == 16, m.const (0, 2), m.const (3, 2))
+    wr_nxt = ila.ite (byte_counter == 255, m.const (0, 2), m.const (3, 2))
     state_nxt = ila.choice ('rsa_state_nxt', [wr_nxt, state_choice, 
             ila.ite (cmddata == 1, m.const (1, 2), state), state])
     m.set_next ('rsa_state', state_nxt)
@@ -74,18 +74,13 @@ def createRsaIla ():
     xram_w_rsa_data_1 = (rsa_buff >> sh) [7:0]
     #xram_w_rsa_data_2 = rsa_buff [255 - byte_cnt_16]
     xram_w_rsa_lit = ila.store (xram, addr + byte_cnt_16, xram_w_rsa_data_1)
-    """
-    xram_w_rsa_big = ila.store (xram, 
-                                addr + byte_cnt_16,
-                                rsa_buff [255 - byte_cnt_16])
-    """
     xram_nxt = ila.choice ('xram_nxt', [xram_w_rsa_lit, xram])
     m.set_next ('XRAM', xram_nxt)
 
     return m
 
 def synthesize ():
-    all_states = ['rsa_state', 'rsa_addr']
+    all_states = ['rsa_state']
     all_states = ['rsa_state', 'rsa_addr', 'XRAM', 'rsa_buff', 'rsa_byte_counter', 'rsa_M', 'dataout']
     all_instrs = [0xfd00, 0xfd01]
     all_childs = [1, 2, 3]
