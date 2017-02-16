@@ -103,7 +103,8 @@ int main() {
     // assumptions on memory mapped address. 
     assume (&sha_ptr == (struct sha_reg_struct*)0xFE00);
     assume (&memwr_ptr == (struct acc_regs*)0xF9F0);
-    assume (&rsa_ptr == (struct RSA_regs*)0xFA00);
+    //assume (&rsa_ptr == (struct RSA_regs*)0xFA00);
+    assume (&rsa_ptr == (struct RSA_regs*)(0xFD00-48));
     assume (sha_ptr.state == 0);
     assume (rsa_ptr.state == 0);
 

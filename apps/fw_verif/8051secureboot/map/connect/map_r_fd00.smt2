@@ -3,7 +3,8 @@
         (= addr_rsa_addr 64772)
         (= addr_rsa_byte 64776)
         ; 
-        (= mmio_input_addr (+ @rsa_regs_0 768))
+        ;(= mmio_input_addr (+ @rsa_regs_0 768))
+        (= mmio_input_addr (+ @rsa_regs_0 48))
         (= cmd 1)
         (= cmdaddr 64768)
         (= rsa_state_0 (select entryMem addr_rsa_state))
