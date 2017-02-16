@@ -237,7 +237,7 @@ unsigned char sha1(unsigned char *m, unsigned int len)
     writec(SHA, &sha_regs.start, 1, 1);  // start HW
 
     //sassert (sha_ptr.state == 0);
-    //sassert (readc(&sha_regs.state) == 1);
+    //sassert (readc(&sha_regs.state) == 0);
     //sassert (sha_ptr.state == 1);
     //sassert (readc(&sha_regs.state) == 1);
     //sassert (sha_ptr.state != 1);
