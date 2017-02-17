@@ -31,6 +31,16 @@ def createShaIla():
     m.fetch_expr    = ila.concat ([state, cmd, cmdaddr, cmddata])
     m.fetch_valid   = (cmd == 1) | (cmd == 2)
 
+    # read commands.
+    statebyte   = ila.zero_extend (state, 8)
+    rdaddrbyte  = ila.readchunk ('rd_addr', rdaddr, 8)
+    wraddrbyte  = ila.readchunk('wr_addr', wraddr, 8)
+    oplenbyte   = ila.readchunk('op_len', oplen, 8)
+    dataoutnext = ila.choice('dataout', [
+                        statebyte, rdaddrbyte, wraddrbyte, 
+                        oplenbyte, m.const(0, 8)])
+    m.set_next('dataout', dataoutnext)
+
     # write commands.
     def mb_reg_wr (name, reg):
         reg_wr  = ila.writechunk ('wr_' + name, reg, cmddata)
@@ -46,7 +56,7 @@ def createShaIla():
                                                 m.const (2, 3),
                                                 m.const (3, 3),
                                                 m.const (4, 3)])
-    rd_nxt = ila.ite (bytes_read < oplen, state_choice, state_choice)
+    rd_nxt = ila.ite (bytes_read < oplen, m.const (1, 3), m.const (4, 3))
     state_nxt = ila.choice ('state_nxt', [rd_nxt, state_choice,
             ila.ite (cmddata == 1, m.const (1, 3), state), state])
     m.set_next ('sha_state', state_nxt)
@@ -81,7 +91,7 @@ def createShaIla():
 
 def synthesize ():
     all_states = ['sha_state', 'sha_rdaddr', 'sha_wraddr', 'sha_len', 'XRAM', 'sha_bytes_read']
-    all_states = ['sha_state', 'sha_rdaddr', 'sha_wraddr', 'sha_len', 'XRAM', 'sha_bytes_read', 'sha_rd_data', 'sha_hs_data']
+    all_states = ['sha_state', 'sha_rdaddr', 'sha_wraddr', 'sha_len', 'XRAM', 'sha_bytes_read', 'sha_rd_data', 'sha_hs_data', 'dataout']
     all_instrs = [0xfe00, 0xfe01]
 
     directory = 'asts'
@@ -99,8 +109,7 @@ def synthesize ():
             nxt = m.get_next (s)
             m.exportOne (nxt, fileName)
 
-    # instruction (start & others)
-    ######################### start ############################
+    ######################### write instr ############################
     for addr in all_instrs:
         m       = createShaIla()
         cmd     = m.getinp ('cmd')
@@ -108,12 +117,32 @@ def synthesize ():
         cmddata = m.getinp ('cmddata')
         state   = m.getreg ('sha_state')
 
-        name = 'instr_%x' % addr
+        name = 'instr_W_%x' % addr
         print 'synthesize ' + name
         #m.decode_exprs = [(cmd == 2) & (cmdaddr == addr) & (state == 0)]
         m.decode_exprs = [(cmd == 2) & (cmdaddr == addr)]
         decode = m.decode_exprs[0]
         m.add_assumption (state == 0)
+
+        subDir = directory + '/' + name
+        synToFile (m, subDir)
+
+        decodeFile = subDir + '/decode'
+        m.exportOne (decode, decodeFile)
+
+    ######################### read instr ############################
+    for addr in all_instrs:
+        m       = createShaIla()
+        cmd     = m.getinp ('cmd')
+        cmdaddr = m.getinp ('cmdaddr')
+        cmddata = m.getinp ('cmddata')
+        state   = m.getreg ('sha_state')
+
+        name = 'instr_R_%x' % addr
+        print 'synthesize ' + name
+        m.decode_exprs = [(cmd == 1) & (cmdaddr == addr)]
+        decode = m.decode_exprs[0]
+        #m.add_assumption (state == 0)
 
         subDir = directory + '/' + name
         synToFile (m, subDir)
@@ -133,6 +162,7 @@ def synthesize ():
         name = 'child_%d' % st
         m.decode_exprs = [state == st]
         decode = m.decode_exprs[0]
+        m.add_assumption (m.getinp ('cmd') == 2)
 
         subDir = directory + '/' + name
         print 'synthesize ' + name

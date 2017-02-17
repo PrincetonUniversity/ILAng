@@ -6,10 +6,12 @@ target = $(dir)/fw.smt2
 llvmBc = $(dir)/fw.bc
 tmpChc = $(dir)/tmp.smt2
 
-mmioFuncs = HW_REG_WRITE_chr
+mmioFuncs = HW_REG_WRITE_chr HW_REG_READ_chr
 infoPath  = $(FW_FUN_PATH)
 fileSuff  = smt2
 
+sea		= /u/byhuang/workspace/seaHornILA/seahorn/build/run/bin/sea
+seahorn = /u/byhuang/workspace/seaHornILA/seahorn/build/run/bin/seahorn
 sea     = /home/byhuang/workspace/packages/seahorn/build/run/bin/sea
 seahorn = /home/byhuang/workspace/packages/seahorn/build/run/bin/seahorn
 

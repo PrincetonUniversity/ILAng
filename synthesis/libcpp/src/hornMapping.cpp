@@ -374,6 +374,7 @@ namespace ila
 
                 cRW->configOutput (itN->first, nxt->getOutVar());
                 mRW->configOutput (itN->first, nxt->getOutVar());
+                cRW->update (itN->first, NULL, nxt->getOutVar());
                 mRW->update (itN->first, NULL, nxt->getOutVar());
             }
             cRW->configInput();
@@ -628,10 +629,16 @@ namespace ila
                 mRW->addRewriteRule (M, 'I', -1, 'I', 0);
                 mRW->addRewriteRule (M, 'O', -1, 'I', 1);
             } else {
+                /*
                 hvptr_t lEntry = loopRW->getRewriteVar ('I', 0, 'I', -1);
                 hvptr_t lExit = loopRW->getRewriteVar ('O', -1, 'I', 1);
                 M->addBody (new HornLiteral (lEntry));
                 M->addBody (new HornLiteral (lExit));
+                */
+                // A temporary fix for mmio read.
+                hvptr_t lEntry = loopRW->getRewriteVar ('I', 0, 'I', -1);
+                M->addBody (new HornLiteral (lEntry));
+                mRW->addRewriteRule (M, 'O', -1, 'I', 1);
 
                 hvptr_t mOut = mRW->getRewriteVar ('I', 0, 'I', 1);
                 M->setHead (new HornLiteral (mOut));

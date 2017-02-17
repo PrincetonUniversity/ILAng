@@ -38,12 +38,24 @@
 #define K2 4
 #define BUFF_SIZE 100
 #else
+// XXX
+/*
 #define MAX_PRG_SIZE 0x3000
 #define MAX_IM_SIZE  0x2000
 #define N 256
 #define H 20
 #define K1 16
 #define K2 16
+*/
+// XXX
+#define MAX_PRG_SIZE 50
+#define MAX_IM_SIZE  100
+#define N 16
+#define H 4
+#define K1 4
+#define K2 4
+#define BUFF_SIZE 100
+// XXX
 #ifdef C
 #define BUFF_SIZE 0x2000
 #endif
@@ -98,6 +110,10 @@ void writepWrap (unsigned char** addr, unsigned char* data);
 void writeaWrap (unsigned char* addr, unsigned char* data, int len);
 #define writecarr(page, addr, data, len) writeaWrap(addr, data, len)
 
+extern unsigned char HW_REG_READ_chr (unsigned char* addr);
+unsigned char readcWrap (unsigned char* addr);
+#define readc(addr) readcWrap(addr)
+
 #define pt_reset(page)
 #define lock(page, start, end) lock_wr(start, end)
 #define unlock(page, start, end) unlock_wr(start, end)
@@ -143,6 +159,7 @@ struct RSA_regs{
     unsigned char start;
     unsigned char state;
     unsigned char *opaddr;
+    int byte_counter;
 };
 #ifdef C
 extern unsigned char mem[];

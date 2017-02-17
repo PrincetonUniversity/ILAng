@@ -7,7 +7,8 @@ CHC_FILE = $(CHC_PATH)/ila.smt2
 
 all: 
 	@$(MAKE) -C $(ILA_PATH)
-	cp -r $(ROOT_PATH)/rsa/interleave/ila/asts asts
+	@rm -rf asts
+	@cp -r $(ILA_PATH)/asts asts
 	@python $(SYN_PATH)/chc.py
 
 $(CHC_FILE): 

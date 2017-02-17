@@ -70,8 +70,10 @@ PRE:
 	@bash -c "mkdir -p $(FW_FUN_PATH)"
 	@bash -c "mkdir -p $(HW_INSTR_PATH)"
 	@bash -c "mkdir -p $(MAP_CONNECT_PATH)"
+	@bash -c "rm -f $(FW_FUN_PATH)/*"
+	@bash -c "rm -f $(HW_INSTR_PATH)/*"
 
-shareVars  = XRAM XRAM_0 XRAM_1 cmd cmdaddr cmddata
+shareVars  = XRAM XRAM_0 XRAM_1 cmd cmdaddr cmddata dataout dataout_1 dataout_0
 declareStr = "(declare-var "
 shareLines = $(addprefix $(declareStr), $(shareVars))
 

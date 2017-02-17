@@ -102,6 +102,23 @@ void writeaWrap (unsigned char* addr, unsigned char* data, int len)
         addr[i] = data[i];
 }
 
+__attribute__((optnone))
+unsigned char HW_REG_READ_chr (unsigned char* addr) 
+{
+    rsa_ptr.state = *addr;
+    return sha_ptr.state + *addr;
+}
+
+unsigned char readcWrap (unsigned char* addr)
+{
+    if ((addr == &sha_ptr.state) || (addr == &sha_ptr.start) ||
+        (addr == &rsa_ptr.start) || (addr == &rsa_ptr.state)) {
+        return HW_REG_READ_chr (addr);
+    } else {
+        return *addr;
+    }
+}
+
 #ifndef C
 XDATA_ARR(0xFF80, 32, unsigned char, pt_wren);
 XDATA_ARR(0xFFA0, 32, unsigned char, pt_rden);
@@ -220,19 +237,32 @@ unsigned char sha1(unsigned char *m, unsigned int len)
     writec(SHA, &sha_regs.start, 1, 1);  // start HW
 
     //sassert (sha_ptr.state == 0);
-
+    //sassert (readc(&sha_regs.state) == 0);
+    //sassert (sha_ptr.state == 1);
+    //sassert (readc(&sha_regs.state) == 1);
     //sassert (sha_ptr.state != 1);
 
     writec(SHA, &sha_regs.state, 1, 1);  // XXX encoded bug
 
     //sassert (sha_ptr.state == 0);
+    //sassert (readc(&sha_regs.state) == 0);
 
     //c_sha(len);         // do SW
 
-    while(sha_regs.state != 0);
+    //while(sha_regs.state != 0);
+    while (readc(&sha_regs.state) != 0);
+    /*
+    int cnt = 0;
+    while (readc(&sha_regs.state) != 0) {
+        cnt += 1;
+    }
+    assume (cnt <= 2);
+    */
 
     //sassert (sha_ptr.state == 0);
+    //sassert (readc(&sha_regs.state) == 0);
     //if (nd()) sassert (0);
+    //sassert (0);
 
     lock(pshao, sha_regs.wr_addr, sha_regs.wr_addr+H);
     lock(SHA, &sha_regs.start, (unsigned char*)(&sha_regs.len));
@@ -369,7 +399,7 @@ int decrypt(unsigned char* msg){
     unsigned int i;
 
     //assume (rsa_ptr.state == 0);
-    //sassert (rsa_ptr.state != 0);
+    //if (nd()) sassert (rsa_ptr.state = 0);
 
     // copy msg into RSA m register
     if(msg != (unsigned char*)&rsa_regs.m)
@@ -387,9 +417,12 @@ int decrypt(unsigned char* msg){
     //assume (rsa_regs.state == 0);
     unlock(RSA, &rsa_regs.start, (unsigned char*)(&rsa_regs.state+1));    
 
+    //if (nd()) sassert (0);
     writec(RSA, &rsa_regs.start, 1, 1);
 
-    //sassert (rsa_regs.state == 0);
+    //if (nd()) sassert (0);
+    //sassert (rsa_ptr.state == 1);
+    //sassert (readc(&rsa_ptr.state) == 0);
 
     //c_exp();  // c abstraction
 
@@ -398,16 +431,20 @@ int decrypt(unsigned char* msg){
     writec(RSA, &rsa_regs.state, 1, 1);
 
     //sassert (rsa_ptr.state == 0);
+    //sassert (readc(&rsa_ptr.state) == 0);
 
     //char tmpState = rsa_regs.state;
 
     //if (nd()) sassert (0);
 
-    while(rsa_regs.state != 0);
+    //while(rsa_regs.state != 0);
+    while (readc(&rsa_regs.state) != 0);
 
     //sassert (rsa_ptr.state == 0);
-    //sassert (tmpState == 0);
+    //sassert (readc(&rsa_ptr.state) == 0);
     //if (nd()) sassert (0);
+
+    //sassert (tmpState == 0);
 
     lock(prsao, rsa_regs.opaddr, rsa_regs.opaddr+N);
     lock(RSA, &rsa_regs.start, (unsigned char*)(&rsa_regs.state+1));    

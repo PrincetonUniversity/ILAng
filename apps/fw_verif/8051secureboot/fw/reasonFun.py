@@ -18,6 +18,7 @@ def reasonFun (funName, filePath, fileSuff):
     exitFileName  = '%s/%s_exit.%s' % (filePath, funName, fileSuff)
     exitFile  = open (exitFileName, 'w')
 
+    isRead = False
     # find out entry memory,
     firstSelect = ''
     selectPattern = '(select '
@@ -40,9 +41,19 @@ def reasonFun (funName, filePath, fileSuff):
             cmd_data = line
         if 'true' in line:
             break
+
     entryFile.write ('\t\t(= %s entryMem)\n' % entryMem)
-    entryFile.write ('\t\t(= %s mmio_input_addr)\n' % cmd_addr.strip())
-    entryFile.write ('\t\t(= %s mmio_input_data)\n' % cmd_data.strip())
+
+    if not (cmd_addr == ''):
+        entryFile.write ('\t\t(= %s mmio_input_addr)\n' % cmd_addr.strip().strip(')'))
+    else: 
+        print '[Horn-Warning]', funName, 'does not have mmio_input_addr'
+
+    if not (cmd_data == ''):
+        entryFile.write ('\t\t(= %s mmio_input_data)\n' % cmd_data.strip().strip(')'))
+    else: 
+        isRead = True
+
     entryFile.close()
             
     # find out exit memory
@@ -60,7 +71,25 @@ def reasonFun (funName, filePath, fileSuff):
     elements = prevStore.split()
     exitMem = elements[1]
     
-    # copy the exit part into the new file
+    # copy the exit part (and return value) into the new file
+    prevLine = ''
+    returnLine = ''
+    reach = 0
+    for line in lines:
+        if lastStore in line:
+            reach = 1
+        if (reach == 1) and ('a!1' in line):
+            reach = 2
+        if reach == 2:
+            returnLine = prevLine
+            reach = 3
+        prevLine = line
+
+    if isRead:
+        returnValElem = returnLine.split()
+        returnVal = returnValElem[1]
+        exitFile.write ('\t\t(= %s returnVal)\n' % returnVal)
+
     exitFile.write ('\t\t(= %s exitMem)\n' % exitMem)
     exitFile.write ('\t\t)))\n')
     reach = 0
@@ -72,14 +101,6 @@ def reasonFun (funName, filePath, fileSuff):
         if reach == 2:
             exitFile.write (line)
 
-    """
-    cnt = 0
-    for line in lines:
-        if cnt > 0 or lastStore in line:
-            cnt += 1
-        if cnt >= 4:
-            exitFile.write (line)
-    """
     exitFile.close()
 
 if __name__ == '__main__':
