@@ -299,6 +299,16 @@ BOOST_PYTHON_MODULE(ila)
     def("ite", &NodeRef::ite,
             return_value_policy<manage_new_object>());
 
+    // constant may not rely on instances
+    def("const", &AbstractionWrapper::bvConstLongStatic, return_value_policy<manage_new_object>());
+    def("const", &AbstractionWrapper::bvConstIntStatic, return_value_policy<manage_new_object>());
+    def("const", &AbstractionWrapper::memConstStatic, return_value_policy<manage_new_object>());
+    def("bool", &AbstractionWrapper::boolConstBStatic, return_value_policy<manage_new_object>());
+    def("bool", &AbstractionWrapper::boolConstIStatic, return_value_policy<manage_new_object>());
+    def("bool", &AbstractionWrapper::boolConstLStatic, return_value_policy<manage_new_object>());
+
+    
+
     // apply function.
     def("appfun", &NodeRef::appfunc0,
             return_value_policy<manage_new_object>());

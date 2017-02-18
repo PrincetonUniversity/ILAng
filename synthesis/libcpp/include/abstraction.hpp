@@ -170,19 +170,19 @@ namespace ila
             const abstraction_ptr_t& uabs);
 
         // Create a bitvector constant with a long integer.
-        NodeRef* bvConstLong(py::long_ l, int width);
+        static NodeRef* bvConstLong(py::long_ l, int width);
         // Create a bitvector constant with an integer.
-        NodeRef* bvConstInt(unsigned int l, int width);
+        static NodeRef* bvConstInt(unsigned int l, int width);
 
         // Create a boolean constant (from a bool).
-        NodeRef* boolConstB(bool b);
+        static NodeRef* boolConstB(bool b);
         // Create a boolean constant (from an integer: nonzero = true).
-        NodeRef* boolConstI(int b);
+        static NodeRef* boolConstI(int b);
         // Create a boolean constant (from an python long).
-        NodeRef* boolConstL(py::long_ b);
+        static NodeRef* boolConstL(py::long_ b);
 
         // Create a memory constant (from a memvalues object).
-        NodeRef* memConst(const MemValues& mv);
+        static NodeRef* memConst(const MemValues& mv);
 
         // return the current fetch expression.
         NodeRef* getFetchExpr() const;
@@ -500,30 +500,48 @@ namespace ila
         NodeRef* bvConstLong(py::long_ l, int width) {
             return abs->bvConstLong(l, width);
         }
+        static NodeRef* bvConstLongStatic(py::long_ l, int width) {
+            return Abstraction::bvConstLong(l, width);
+        }
 
         // Create a bitvector constant with an integer.
         NodeRef* bvConstInt(unsigned int l, int width) {
             return abs->bvConstInt(l, width);
+        }
+        static NodeRef* bvConstIntStatic(unsigned int l, int width) {
+            return Abstraction::bvConstInt(l, width);
         }
 
         // Create a boolean constant (from a bool).
         NodeRef* boolConstB(bool b) {
             return abs->boolConstB(b);
         }
+        static NodeRef* boolConstBStatic(bool b) {
+            return Abstraction::boolConstB(b);
+        }
 
         // Create a boolean constant (from an integer: nonzero = true).
         NodeRef* boolConstI(int b) {
             return abs->boolConstI(b);
+        }
+        static NodeRef* boolConstIStatic(int b) {
+            return Abstraction::boolConstI(b);
         }
 
         // Create a boolean constant (from an python long).
         NodeRef* boolConstL(py::long_ b) {
             return abs->boolConstL(b);
         }
+        static NodeRef* boolConstLStatic(py::long_ b) {
+            return Abstraction::boolConstL(b);
+        }
 
         // Create a memory constant (from a memvalues object).
         NodeRef* memConst(const MemValues& mv) {
             return abs->memConst(mv);
+        }
+        static NodeRef* memConstStatic(const MemValues& mv) {
+            return Abstraction::memConst(mv);
         }
 
         // return the current fetch expression.
