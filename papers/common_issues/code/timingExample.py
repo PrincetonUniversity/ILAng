@@ -10,11 +10,12 @@ Accerlator.decode_exprs += [ write_grant == 1 ]
 # The grant operation is considered as an instruction to the accelerator
 
 writing_nxt = ila.ite( write_grant == 1,  # The effect of the instruction above
-                b0,                       # This is the complete function 
+                b1,                       # This is the complete function 
                 writing )                 # without holes. However, you can 
                                           # use synthesis to create this
                                           # function
 #Note: b0 = ila.const(0,1) (1-bit-wide constant 0)
+#and   b1 = ila.const(1,1) (1-bit-wide constant 1)
 
 Accelerator.set_next('writing', writing_nxt )
 
