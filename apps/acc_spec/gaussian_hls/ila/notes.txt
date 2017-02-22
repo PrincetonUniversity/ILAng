@@ -1,8 +1,39 @@
+fetch valid: (arg1_valid == 1) || (arg0_ready == 1)
+
 write instruction: 
     store the 1x1 byte into 2-D line buffer
     export 1x9 slice into 1-D line buffer
-    export 9x9 stencil to stencil buffer
+    export 9x9 stencil to stencil buffer 0, full
+    load 9x9 stencil from stencil buffer 0 to stencil buffer 1, empty
+
+    assumption: (arg1_ready == 1)
+    (arg1_valid == 1) 
+    (*) buffer index should help partition the instruction space, but different 
+        implementations have different buffer index.
 
 read instruction:
-    load 9x9 stencil to Loop
-    apply gaussain operation on the stencil and output to the port.
+    apply gaussain operation on the stencil and output to the port
+
+    (arg_0_ready == 1)
+
+inputs:
+    arg0_ready
+    arg1_data
+    arg1_valid
+
+arch states:
+    arg0_data
+    arg0_valid
+    arg1_ready
+
+    eight 488x1 bytes buffer in 2-D line buffer
+    x counter in 2-D line buffer
+    y counter in 2-D line buffer
+    (*) buffer index in 2-D line buffer
+    one 1x9 bytes slice in 1-D line buffer
+    two 9x9 bytes stencil in stream buffer
+    (*) stream buffer status
+
+possible child states:
+    SW: internal states in line buffer, buffer index
+    HW: internal states in line buffer, fsm state
