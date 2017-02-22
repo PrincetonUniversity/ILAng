@@ -26,7 +26,8 @@ arch states:
     arg0_valid
     arg1_ready
 
-    eight 488x1 bytes buffer in 2-D line buffer
+    eight 488x1 bytes buffer in 2-D line buffer: 
+        modeled by memory
     x counter in 2-D line buffer
     y counter in 2-D line buffer
     (*) buffer index in 2-D line buffer
