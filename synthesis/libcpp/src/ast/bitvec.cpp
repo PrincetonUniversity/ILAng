@@ -430,7 +430,7 @@ namespace ila
         int p1, int p2
     )
         : BitvectorExpr((p1 - p2)+1)
-        , arity(NARY)
+        , arity(UNARY)
         , op(op)
     {
         if(op != EXTRACT) {
@@ -559,7 +559,13 @@ namespace ila
         if (arity == UNARY) {
             ILA_ASSERT(args.size() == 1, 
                 "Unary op must have exactly one argument.");
-            return new BitvectorOp(op, args[0]);
+            // check type if it is zero/sign_extend
+            if(op == Z_EXT || op == S_EXT)
+                return new BitvectorOp(op, args[0], params[0]);
+            else if (op == EXTRACT)
+                return new BitvectorOp(op, args[0], params[0], params[1]);
+            else
+                return new BitvectorOp(op, args[0]);
         } else if(arity == BINARY) {
             ILA_ASSERT(args.size() == 2,
                 "Binary op must have exactly two arguments.");
