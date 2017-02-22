@@ -1,0 +1,8 @@
+write instruction: 
+    store the 1x1 byte into 2-D line buffer
+    export 1x9 slice into 1-D line buffer
+    export 9x9 stencil to stencil buffer
+
+read instruction:
+    load 9x9 stencil to Loop
+    apply gaussain operation on the stencil and output to the port.
