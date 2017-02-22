@@ -2,9 +2,8 @@ fetch valid: (arg1_valid == 1) || (arg0_ready == 1)
 
 write instruction: 
     store the 1x1 byte into 2-D line buffer
-    export 1x9 slice into 1-D line buffer
-    export 9x9 stencil to stencil buffer 0, full
-    load 9x9 stencil from stencil buffer 0 to stencil buffer 1, empty
+    export 1x9 slice into 1-D line buffer (abstract slice stream)
+    export 9x9 stencil to stencil buffer (abstract stencil stream)
 
     assumption: (arg1_ready == 1)
     (arg1_valid == 1) 
@@ -30,9 +29,10 @@ arch states:
         modeled by memory
     x counter in 2-D line buffer
     y counter in 2-D line buffer
+    one 1x9 bytes slice in slice streamer
+    eight 1x9 bytes slice in 1-D line buffer
+    one 9x9 bytes stencil in stencil streamer 
     (*) buffer index in 2-D line buffer
-    one 1x9 bytes slice in 1-D line buffer
-    two 9x9 bytes stencil in stream buffer
     (*) stream buffer status
 
 possible child states:
