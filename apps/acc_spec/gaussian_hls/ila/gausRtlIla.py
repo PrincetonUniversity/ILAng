@@ -14,6 +14,11 @@ ROW_ADDR_SIZE   = 10
 def gaussian ():
     m = ila.Abstraction ('gaussian')
 
+    BOOL_TRUE  = m.bool (True)
+    BOOL_FALSE = m.bool (False)
+    BV_TRUE    = m.const (0x1, 1)
+    BV_FALSE   = m.const (0x0, 1)
+
     ######################## input ports #####################################
     arg_1_TDATA  = m.inp ('arg_1_TDATA', DATA_SIZE)
     arg_1_TVALID = m.inp ('arg_1_TVALID', 1)
@@ -27,7 +32,7 @@ def gaussian ():
     ######################## internal architectural states ###################
     # eight 488x1 bytes buffer in 2-D line buffer
     LB2D_buff = []
-    for i in xrange (0, 8):
+    for i in xrange (0, Y_EXTEND-1):
         # each memory size is 488 bytes, address 9 bits, data DATA_SIZE bits
         buffName = 'buffer_%d_value_V_U' % i
         LB2D_buff.append (m.mem (buffName, COL_ADDR_SIZE, DATA_SIZE)) 
@@ -50,7 +55,7 @@ def gaussian ():
 
     # eight 1x9 bytes slice in 1-D line buffer
     LB2D_shift = []
-    for i in xrange (0, 8):
+    for i in xrange (0, X_EXTEND-1):
         # buffer_[i]_value_V_fu_[r]: r = 100, 104, 108, 112, 116, 120, 124, 96
         buffName = 'buffer_%d_value_V_fu_' % i
         LB2D_shift.append (m.reg (buffName, slice_size))
@@ -58,17 +63,45 @@ def gaussian ():
     # one 9x9 bytes stencil in stencil streamer
     stencil_size = X_EXTEND * Y_EXTEND * DATA_SIZE
     stencil_buff = m.reg ('p_p2_in_bounded_stencil_stream_s_U', stencil_size)
+    stencil_full = m.bit ('p_p2_in_bounded_stencil_stream_full')
+
+    # uninterpreted function for gaussian blur on a stencil
+    gaussianFun  = m.fun ('gaussianBlurStencil', DATA_SIZE, [stencil_size])
 
     ######################## fetch function ##################################
-    m.fetch_valid = (arg_0_TREADY == True) & (arg_1_TVALID == True)
+    m.fetch_valid = (arg_0_TREADY == BV_TRUE) & (arg_1_TVALID == BV_TRUE)
     m.fetch_expr  = ila.concat (arg_0_TREADY, arg_1_TVALID)
 
     ######################## instructions ####################################
 
-    #### READ Instruction 
-    READ_INSTR_decode = (arg_0_TREADY == True)
+    # XXX READ Instruction XXX
+    READ_INSTR_decode = (arg_0_TREADY == BV_TRUE)
 
-    # updating states: arg_0_TVALID, arg_0_TDATA, arg_1_TREADY
+    # updating states: arg_0_TVALID, arg_0_TDATA, arg_1_TREADY, stencil_full
+    READ_INSTR_stencil_full_nxt = BOOL_FALSE
+    READ_INSTR_arg_1_TREADY_nxt = BOOL_TRUE
+    READ_INSTR_arg_0_TVALID_nxt = (stencil_full == BOOL_TRUE)
+    READ_INSTR_arg_0_TDATA_nxt  = ila.appfun (gaussianFun, stencil_buff)
+
+    # unchanged states (or zero):
+    READ_INSTR_LB2D_buff_nxt = []
+    for i in xrange (0, Y_EXTEND-1):
+        READ_INSTR_LB2D_buff_nxt.append (LB2D_buff[i])
+
+    READ_INSTR_LB2D_x_idx_nxt = LB2D_x_idx
+    READ_INSTR_LB2D_y_idx_nxt = LB2D_y_idx
+    READ_INSTR_slice_buff_nxt = slice_buff
+
+    READ_INSTR_LB2D_shift_nxt = []
+    for i in xrange (0, X_EXTEND-1):
+        READ_INSTR_LB2D_shift_nxt.append (LB2D_shift[i])
+
+    READ_INSTR_stencil_buff_nxt = stencil_buff
+
+    # XXX WRITE Instruction XXX
+    WRITE_INSTR_decode = (arg_1_TVALID == BV_TRUE)
+
+    # updating states: arg_0_TVALID, arg_1_TREADY, stencil_full, 
 
 
 if __name__ == '__main__':

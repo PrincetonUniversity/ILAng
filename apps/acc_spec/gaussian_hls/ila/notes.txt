@@ -16,24 +16,22 @@ read instruction:
     (arg_0_ready == 1)
 
 inputs:
-    arg0_ready
-    arg1_data
-    arg1_valid
+    arg_0_TREADY    -- output stream ready
+    arg_1_TVALID    -- input stream valid
+    arg_1_TDATA     -- input stream data
 
 arch states:
-    arg0_data
-    arg0_valid
-    arg1_ready
+    arg_0_TVALID    -- output stream valid
+    arg_0_TDATA     -- output stream data
+    arg_1_TREADY    -- input stream ready
 
-    eight 488x1 bytes buffer in 2-D line buffer: 
-        modeled by memory
-    x counter in 2-D line buffer
-    y counter in 2-D line buffer
-    one 1x9 bytes slice in slice streamer
-    eight 1x9 bytes slice in 1-D line buffer
-    one 9x9 bytes stencil in stencil streamer 
-    (*) buffer index in 2-D line buffer
-    (*) stream buffer status
+    LB2D_buff[0~7]  -- eight 488x1 bytes buffer in 2-D line buffer
+    LB2D_x_idx      -- x counter in 2-D line buffer
+    LB2D_y_idx      -- y counter in 2-D line buffer
+    slice_buff      -- one 1x9 bytes slice in slice stream
+    LB2D_sift[0~7]  -- eight 1x9 bytes slice in 1-D line buffer
+    stencil_buff    -- one 9x9 stencil in stencil stream
+    stencil_full    -- stencil stream status
 
 possible child states:
     SW: internal states in line buffer, buffer index
