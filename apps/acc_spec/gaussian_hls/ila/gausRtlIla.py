@@ -55,6 +55,9 @@ def gaussian ():
     # one 1x9 bytes slice in slice streamer
     slice_size = 1 * Y_EXTEND * DATA_SIZE
     slice_buff = m.reg ('slice_stream_V_value_V_U', slice_size)
+    slice_full = m.reg ('slice_stream_V_value_V_U_internal_full_n', 1)
+    slice_full_FULL  = m.const (0x1, 1)
+    slice_full_EMPTY = m.const (0x0, 1)
 
     # eight 1x9 bytes slice in 1-D line buffer
     LB2D_shift = []
@@ -76,7 +79,7 @@ def gaussian ():
 
     ######################## fetch function ##################################
     m.fetch_valid = (arg_0_TREADY == BV_TRUE) & (arg_1_TVALID == BV_TRUE)
-    m.fetch_expr  = ila.concat (arg_0_TREADY, arg_1_TVALID)
+    m.fetch_expr  = ila.concat ([arg_0_TREADY, arg_1_TVALID, slice_full])
 
     ######################## instructions ####################################
 
@@ -99,6 +102,7 @@ def gaussian ():
     READ_I_LB2D_x_idx_nxt = LB2D_x_idx
     READ_I_LB2D_y_idx_nxt = LB2D_y_idx
     READ_I_slice_buff_nxt = slice_buff
+    READ_I_slice_full_nxt = slice_full
 
     READ_I_LB2D_shift_nxt = []
     for i in xrange (0, LB2D_shift_size):
@@ -110,7 +114,8 @@ def gaussian ():
 
     # XXX WRITE Instruction XXX
     # store the streamed-in pixel into the 2-D buffer and output slice, if so
-    WRITE_I_decode = (arg_1_TVALID == VALID_TRUE)
+    WRITE_I_decode = (arg_1_TVALID == VALID_TRUE) & \
+                     (slice_full == slice_full_EMPTY)
 
     # updating states: 
     WRITE_I_arg_0_TVALID_nxt = VALID_FALSE # abstracted version
@@ -126,9 +131,10 @@ def gaussian ():
                               LB2D_buff[i])
         WRITE_I_LB2D_buff_nxt.append (buff_i_nxt)
 
-    WRITE_I_LB2D_x_idx_nxt = ila.ite (LB2D_x_idx == x_idx_M - 1, # abstracted 
+    WRITE_I_LB2D_x_idx_nxt = ila.ite (LB2D_x_idx != x_idx_M - 1, # abstracted 
                                       LB2D_x_idx + 1, x_idx_0)
-    WRITE_I_LB2D_y_idx_nxt = LB2D_y_idx + 1 # abstract reset signal
+    WRITE_I_LB2D_y_idx_nxt = ila.ite (LB2D_x_idx == x_idx_M - 1, # abstracted
+                                      LB2D_y_idx + 1, LB2D_y_idx)
 
     def sliceSelect (start, seqs):
         assert (len (seqs) == LB2D_buff_size)
@@ -144,9 +150,19 @@ def gaussian ():
         
         return sliceSelectOne (0)
 
+    def WRITE_I_gen_seqs (start):
+        assert (start <= LB2D_buff_size)
+        res = []
+        for i in xrange (0, LB2D_buff_size):
+            res.append ((start + i) % LB2D_buff_size)
+        return res
 
     WRITE_I_LB2D_buff_valid = (LB2D_y_idx >= LB2D_buff_size)
     WRITE_I_LB2D_buff_start = (LB2D_y_idx % LB2D_buff_size)
+    WRITE_I_seqs = []
+    for i in xrange (0, LB2D_buff_size):
+        WRITE_I_seqs.append (WRITE_I_gen_seqs (i))
+    """
     WRITE_I_seqs_7 = [7, 0, 1, 2, 3, 4, 5, 6]
     WRITE_I_seqs_6 = [6, 7, 0, 1, 2, 3, 4, 5]
     WRITE_I_seqs_5 = [5, 6, 7, 0, 1, 2, 3, 4]
@@ -155,27 +171,43 @@ def gaussian ():
     WRITE_I_seqs_2 = [2, 3, 4, 5, 6, 7, 0, 1]
     WRITE_I_seqs_1 = [1, 2, 3, 4, 5, 6, 7, 0]
     WRITE_I_seqs_0 = [0, 1, 2, 3, 4, 5, 6, 7]
+    """
     WRITE_I_slice_8 = arg_1_TDATA
-    WRITE_I_slice_7 = sliceSelect (WRITE_I_LB2D_buff_start, WRITE_I_seqs_7)
-    WRITE_I_slice_6 = sliceSelect (WRITE_I_LB2D_buff_start, WRITE_I_seqs_6)
-    WRITE_I_slice_5 = sliceSelect (WRITE_I_LB2D_buff_start, WRITE_I_seqs_5)
-    WRITE_I_slice_4 = sliceSelect (WRITE_I_LB2D_buff_start, WRITE_I_seqs_4)
-    WRITE_I_slice_3 = sliceSelect (WRITE_I_LB2D_buff_start, WRITE_I_seqs_3)
-    WRITE_I_slice_2 = sliceSelect (WRITE_I_LB2D_buff_start, WRITE_I_seqs_2)
-    WRITE_I_slice_1 = sliceSelect (WRITE_I_LB2D_buff_start, WRITE_I_seqs_1)
-    WRITE_I_slice_0 = sliceSelect (WRITE_I_LB2D_buff_start, WRITE_I_seqs_0)
-    WRITE_I_slice_list = [WRITE_I_slice_8,
-                                         WRITE_I_slice_7,
-                                         WRITE_I_slice_6,
-                                         WRITE_I_slice_5,
-                                         WRITE_I_slice_4,
-                                         WRITE_I_slice_3,
-                                         WRITE_I_slice_2,
-                                         WRITE_I_slice_1,
-                                         WRITE_I_slice_0]
+    WRITE_I_slice_7 = sliceSelect (WRITE_I_LB2D_buff_start, WRITE_I_seqs[7])
+    WRITE_I_slice_6 = sliceSelect (WRITE_I_LB2D_buff_start, WRITE_I_seqs[6])
+    WRITE_I_slice_5 = sliceSelect (WRITE_I_LB2D_buff_start, WRITE_I_seqs[5])
+    WRITE_I_slice_4 = sliceSelect (WRITE_I_LB2D_buff_start, WRITE_I_seqs[4])
+    WRITE_I_slice_3 = sliceSelect (WRITE_I_LB2D_buff_start, WRITE_I_seqs[3])
+    WRITE_I_slice_2 = sliceSelect (WRITE_I_LB2D_buff_start, WRITE_I_seqs[2])
+    WRITE_I_slice_1 = sliceSelect (WRITE_I_LB2D_buff_start, WRITE_I_seqs[1])
+    WRITE_I_slice_0 = sliceSelect (WRITE_I_LB2D_buff_start, WRITE_I_seqs[0])
+    WRITE_I_slice_buff_val = ila.concat ([WRITE_I_slice_8,
+                                          WRITE_I_slice_7,
+                                          WRITE_I_slice_6,
+                                          WRITE_I_slice_5,
+                                          WRITE_I_slice_4,
+                                          WRITE_I_slice_3,
+                                          WRITE_I_slice_2,
+                                          WRITE_I_slice_1,
+                                          WRITE_I_slice_0])
+    WRTIE_I_slice_buff_nxt = ila.ite (WRITE_I_LB2D_buff_valid, 
+                                      WRITE_I_slice_buff_val,
+                                      slice_buff)
 
-    WRITE_I_slice_buff_nxt = ila.concat (WRITE_I_slice_list)
+    WRITE_I_slice_full_nxt = slice_full_FULL
 
+    WRITE_I_LB2D_shift_nxt = []
+    for i in xrange (0, LB2D_shift_size):
+        WRITE_I_LB2D_shift_nxt_i =  LB2D_shift [i]
+        WRITE_I_LB2D_shift_nxt.append (WRITE_I_LB2D_shift_nxt_i)
+
+    WRITE_I_stencil_buff_nxt = stencil_buff
+    WRITE_I_stencil_full_nxt = stencil_full
+
+    # XXX Write micro-instruction 1 XXX
+    WRITE_U1_decode = (slice_full == slice_full_FULL)
+
+    # updating states:
 
 if __name__ == '__main__':
     gaussian ()

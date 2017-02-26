@@ -29,7 +29,8 @@ arch states:
     LB2D_x_idx      -- x counter in 2-D line buffer
     LB2D_y_idx      -- y counter in 2-D line buffer
     slice_buff      -- one 1x9 bytes slice in slice stream
-    LB2D_sift[0~7]  -- eight 1x9 bytes slice in 1-D line buffer
+    slice_full      -- slice stream status (internal_full_n in slice)
+    LB2D_shift[0~7] -- eight 1x9 bytes slice in 1-D line buffer
     stencil_buff    -- one 9x9 stencil in stencil stream
     stencil_full    -- stencil stream status
 
