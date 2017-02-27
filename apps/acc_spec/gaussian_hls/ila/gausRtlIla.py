@@ -79,13 +79,15 @@ def gaussian ():
 
     ######################## fetch function ##################################
     m.fetch_valid = (arg_0_TREADY == BV_TRUE) & (arg_1_TVALID == BV_TRUE)
-    m.fetch_expr  = ila.concat ([arg_0_TREADY, arg_1_TVALID, slice_full])
+    m.fetch_expr  = ila.concat ([arg_0_TREADY, arg_1_TVALID, 
+                                 slice_full, stencil_full])
 
     ######################## instructions ####################################
 
     # XXX READ Instruction XXX
     # perform gaussian operation on the stencil, if any, and output to the port
-    READ_I_decode = (arg_0_TREADY == READY_TRUE)
+    READ_I_decode = (arg_0_TREADY == READY_TRUE) & \
+                    (stencil_full == stencil_full_FULL)
 
     # updating states: 
     READ_I_stencil_has_data = (stencil_full == stencil_full_FULL)
@@ -172,24 +174,11 @@ def gaussian ():
     WRITE_I_seqs_1 = [1, 2, 3, 4, 5, 6, 7, 0]
     WRITE_I_seqs_0 = [0, 1, 2, 3, 4, 5, 6, 7]
     """
-    WRITE_I_slice_8 = arg_1_TDATA
-    WRITE_I_slice_7 = sliceSelect (WRITE_I_LB2D_buff_start, WRITE_I_seqs[7])
-    WRITE_I_slice_6 = sliceSelect (WRITE_I_LB2D_buff_start, WRITE_I_seqs[6])
-    WRITE_I_slice_5 = sliceSelect (WRITE_I_LB2D_buff_start, WRITE_I_seqs[5])
-    WRITE_I_slice_4 = sliceSelect (WRITE_I_LB2D_buff_start, WRITE_I_seqs[4])
-    WRITE_I_slice_3 = sliceSelect (WRITE_I_LB2D_buff_start, WRITE_I_seqs[3])
-    WRITE_I_slice_2 = sliceSelect (WRITE_I_LB2D_buff_start, WRITE_I_seqs[2])
-    WRITE_I_slice_1 = sliceSelect (WRITE_I_LB2D_buff_start, WRITE_I_seqs[1])
-    WRITE_I_slice_0 = sliceSelect (WRITE_I_LB2D_buff_start, WRITE_I_seqs[0])
-    WRITE_I_slice_buff_val = ila.concat ([WRITE_I_slice_8,
-                                          WRITE_I_slice_7,
-                                          WRITE_I_slice_6,
-                                          WRITE_I_slice_5,
-                                          WRITE_I_slice_4,
-                                          WRITE_I_slice_3,
-                                          WRITE_I_slice_2,
-                                          WRITE_I_slice_1,
-                                          WRITE_I_slice_0])
+    WRITE_I_slice_chunks = [arg_1_TDATA]
+    for i in xrange (7, -1, -1):
+        WRITE_I_slice_chunks.append (
+                sliceSelect (WRITE_I_LB2D_buff_start, WRITE_I_seqs[i]))
+    WRITE_I_slice_buff_val = ila.concat (WRITE_I_slice_chunks)
     WRTIE_I_slice_buff_nxt = ila.ite (WRITE_I_LB2D_buff_valid, 
                                       WRITE_I_slice_buff_val,
                                       slice_buff)
@@ -205,9 +194,63 @@ def gaussian ():
     WRITE_I_stencil_full_nxt = stencil_full
 
     # XXX Write micro-instruction 1 XXX
-    WRITE_U1_decode = (slice_full == slice_full_FULL)
+    WRITE_U1_decode = (slice_full == slice_full_FULL) & \
+                      (stencil_full == stencil_full_EMPTY)
 
     # updating states:
+    WRITE_U1_arg_0_TVALID_nxt = VALID_FALSE # abstracted version
+    WRITE_U1_arg_0_TDATA_nxt  = arg_0_TDATA # abstracted version
+    WRITE_U1_arg_1_TREADY_nxt = READY_TRUE  # if slice is full and stencil is
+                                            # empty, then create new stencil and
+                                            # output ready signal.
+    WRITE_U1_LB2D_buff_nxt = []
+    for i in xrange (0, LB2D_buff_size):
+        WRITE_U1_LB2D_buff_nxt.append (LB2D_buff[i])
+        
+    WRITE_U1_LB2D_x_idx_nxt = LB2D_x_idx
+    WRITE_U1_LB2D_y_idx_nxt = LB2D_y_idx
+    WRITE_U1_slice_buff_nxt = slice_buff
+    WRITE_U1_slice_full_nxt = slice_full_EMPTY # abstracted version
+
+    WRITE_U1_LB2D_shift_nxt = []
+    WRITE_U1_LB2D_shift_nxt.append (slice_buff)
+    for i in xrange (1, LB2D_shift_size):
+        WRITE_U1_LB2D_shift_nxt.append (LB2D_shift[i-1])
+
+    def WRITE_U1_gen_row (idx):
+        l = DATA_SIZE * idx
+        h = l + DATA_SIZE - 1
+        res = ila.concat ([slice_buff     [h:l],
+                           LB2D_shift [0] [h:l],
+                           LB2D_shift [1] [h:l],
+                           LB2D_shift [2] [h:l],
+                           LB2D_shift [3] [h:l],
+                           LB2D_shift [4] [h:l],
+                           LB2D_shift [5] [h:l],
+                           LB2D_shift [6] [h:l],
+                           LB2D_shift [7] [h:l]])
+        return res
+    WRITE_U1_stencil_row_8 = WRITE_U1_gen_row (0)
+    WRITE_U1_stencil_row_7 = WRITE_U1_gen_row (1)
+    WRITE_U1_stencil_row_6 = WRITE_U1_gen_row (2)
+    WRITE_U1_stencil_row_5 = WRITE_U1_gen_row (3)
+    WRITE_U1_stencil_row_4 = WRITE_U1_gen_row (4)
+    WRITE_U1_stencil_row_3 = WRITE_U1_gen_row (5)
+    WRITE_U1_stencil_row_2 = WRITE_U1_gen_row (6)
+    WRITE_U1_stencil_row_1 = WRITE_U1_gen_row (7)
+    WRITE_U1_stencil_row_0 = WRITE_U1_gen_row (8)
+    WRITE_U1_stencil_buff_nxt = ila.concat ([WRITE_U1_stencil_row_0,
+                                             WRITE_U1_stencil_row_1,
+                                             WRITE_U1_stencil_row_2,
+                                             WRITE_U1_stencil_row_3,
+                                             WRITE_U1_stencil_row_4,
+                                             WRITE_U1_stencil_row_5,
+                                             WRITE_U1_stencil_row_6,
+                                             WRITE_U1_stencil_row_7,
+                                             WRITE_U1_stencil_row_8])
+
+    WRITE_U1_stencil_full_nxt = stencil_full_EMPTY
+
 
 if __name__ == '__main__':
     gaussian ()
