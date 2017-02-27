@@ -44,13 +44,20 @@ def gaussian ():
     LB2D_x_idx = m.reg ('col_reg_349', COL_ADDR_SIZE)
     x_idx_0    = m.const (0x0, COL_ADDR_SIZE)
     x_idx_1    = m.const (0x1, COL_ADDR_SIZE)
-    x_idx_M    = m.const (IMG_X_SIZE, COL_ADDR_SIZE) # ap_const_lv9_1E8
+    x_idx_M    = m.const (IMG_X_SIZE-1, COL_ADDR_SIZE) # ap_const_lv9_1E8 (abs)
     
     # y-axis (row) index in 2-D line buffer (row_reg_327)
     LB2D_y_idx = m.reg ('row_reg_327', ROW_ADDR_SIZE)
     y_idx_0    = m.const (0x0, ROW_ADDR_SIZE)
     y_idx_1    = m.const (0x1, ROW_ADDR_SIZE)
-    y_idx_M    = m.const (IMG_Y_SIZE, ROW_ADDR_SIZE) # ap_const_lv10_288
+    y_idx_M    = m.const (IMG_Y_SIZE-1, ROW_ADDR_SIZE) # ap_const_lv10_288 (abs)
+
+    # write index in 2-D line buffer (p_write_idx_1_1_reg_723)
+    LB2D_w_idx = m.reg ('p_write_idx_1_1_reg_723', 64)
+    w_idx_0    = m.const (0x0, 64)
+    w_idx_1    = m.const (0x1, 64)
+    w_idx_M    = m.const (LB2D_buff_size-1, 64) # abstracted
+                                                # ap_const_lv64_FFFFFFFFFFFFFFF8
 
     # one 1x9 bytes slice in slice streamer
     slice_size = 1 * Y_EXTEND * DATA_SIZE
@@ -105,6 +112,7 @@ def gaussian ():
 
     READ_I_LB2D_x_idx_nxt = LB2D_x_idx
     READ_I_LB2D_y_idx_nxt = LB2D_y_idx
+    READ_I_LB2D_w_idx_nxt = LB2D_w_idx
     READ_I_slice_buff_nxt = slice_buff
     READ_I_slice_full_nxt = slice_full
 
@@ -135,10 +143,18 @@ def gaussian ():
                               LB2D_buff[i])
         WRITE_I_LB2D_buff_nxt.append (buff_i_nxt)
 
-    WRITE_I_LB2D_x_idx_nxt = ila.ite (LB2D_x_idx != x_idx_M - 1, # abstracted 
+    WRITE_I_LB2D_x_idx_nxt = ila.ite (LB2D_x_idx != x_idx_M, # abstracted 
                                       LB2D_x_idx + 1, x_idx_0)
-    WRITE_I_LB2D_y_idx_nxt = ila.ite (LB2D_x_idx == x_idx_M - 1, # abstracted
-                                      LB2D_y_idx + 1, LB2D_y_idx)
+    WRITE_I_LB2D_y_idx_nxt = ila.ite (LB2D_x_idx == x_idx_M, # abstracted
+                             ila.ite (LB2D_y_idx != y_idx_M,
+                                      LB2D_y_idx + 1, LB2D_y_idx),
+                                      LB2D_y_idx)
+    WRITE_I_LB2D_w_idx_nxt = ila.ite (LB2D_x_idx == x_idx_M, # abstracted
+                             ila.ite (LB2D_w_idx != w_idx_M, 
+                                      LB2D_w_idx + 1, w_idx_0),
+                                      LB2D_w_idx)
+                                      #LB2D_w_idx + 1, w_idx_0),
+                                      #LB2D_w_idx)
 
     def sliceSelect (start, seqs):
         assert (len (seqs) == LB2D_buff_size)
@@ -211,6 +227,7 @@ def gaussian ():
         
     WRITE_U1_LB2D_x_idx_nxt = LB2D_x_idx
     WRITE_U1_LB2D_y_idx_nxt = LB2D_y_idx
+    WRITE_U1_LB2D_w_idx_nxt = LB2D_w_idx
     WRITE_U1_slice_buff_nxt = slice_buff
     WRITE_U1_slice_full_nxt = slice_full_EMPTY # abstracted version
 
@@ -291,6 +308,12 @@ def gaussian ():
                                  WRITE_I_LB2D_y_idx_nxt,
                                  WRITE_U1_LB2D_y_idx_nxt)
     m.set_next ('row_reg_327', LB2D_y_idx_nxt)
+
+    LB2D_w_idx_nxt = decodeWrap (LB2D_w_idx,
+                                 LB2D_w_idx, #READ_I_LB2D_w_idx_nxt,
+                                 WRITE_I_LB2D_w_idx_nxt,
+                                 LB2D_w_idx) #WRITE_U1_LB2D_w_idx_nxt)
+    m.set_next ('p_write_idx_1_1_reg_723', LB2D_w_idx_nxt)
 
     slice_buff_nxt = decodeWrap (slice_buff,
                                  READ_I_slice_buff_nxt,
