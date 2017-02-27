@@ -91,7 +91,9 @@ def gaussian ():
 
     # updating states: 
     READ_I_stencil_has_data = (stencil_full == stencil_full_FULL)
-    READ_I_arg_0_TVALID_nxt = READ_I_stencil_has_data
+    READ_I_arg_0_TVALID_nxt = ila.ite (READ_I_stencil_has_data, 
+                                       VALID_TRUE,
+                                       VALID_FALSE)
     READ_I_arg_0_TDATA_nxt  = ila.ite (READ_I_stencil_has_data,
                                        ila.appfun (gaussianFun, stencil_buff),
                                        arg_0_TDATA)
@@ -179,7 +181,7 @@ def gaussian ():
         WRITE_I_slice_chunks.append (
                 sliceSelect (WRITE_I_LB2D_buff_start, WRITE_I_seqs[i]))
     WRITE_I_slice_buff_val = ila.concat (WRITE_I_slice_chunks)
-    WRTIE_I_slice_buff_nxt = ila.ite (WRITE_I_LB2D_buff_valid, 
+    WRITE_I_slice_buff_nxt = ila.ite (WRITE_I_LB2D_buff_valid, 
                                       WRITE_I_slice_buff_val,
                                       slice_buff)
 
@@ -230,26 +232,106 @@ def gaussian ():
                            LB2D_shift [6] [h:l],
                            LB2D_shift [7] [h:l]])
         return res
-    WRITE_U1_stencil_row_8 = WRITE_U1_gen_row (0)
-    WRITE_U1_stencil_row_7 = WRITE_U1_gen_row (1)
-    WRITE_U1_stencil_row_6 = WRITE_U1_gen_row (2)
-    WRITE_U1_stencil_row_5 = WRITE_U1_gen_row (3)
-    WRITE_U1_stencil_row_4 = WRITE_U1_gen_row (4)
-    WRITE_U1_stencil_row_3 = WRITE_U1_gen_row (5)
-    WRITE_U1_stencil_row_2 = WRITE_U1_gen_row (6)
-    WRITE_U1_stencil_row_1 = WRITE_U1_gen_row (7)
-    WRITE_U1_stencil_row_0 = WRITE_U1_gen_row (8)
-    WRITE_U1_stencil_buff_nxt = ila.concat ([WRITE_U1_stencil_row_0,
-                                             WRITE_U1_stencil_row_1,
-                                             WRITE_U1_stencil_row_2,
-                                             WRITE_U1_stencil_row_3,
-                                             WRITE_U1_stencil_row_4,
-                                             WRITE_U1_stencil_row_5,
-                                             WRITE_U1_stencil_row_6,
-                                             WRITE_U1_stencil_row_7,
-                                             WRITE_U1_stencil_row_8])
 
+    WRITE_U1_stencil_rows = []
+    WRITE_U1_stencil_rows.append (WRITE_U1_gen_row (LB2D_shift_size))
+    for i in xrange (LB2D_shift_size-1, -1, -1):
+        WRITE_U1_stencil_rows.append (WRITE_U1_gen_row (i))
+    WRITE_U1_stencil_buff_nxt = ila.concat (WRITE_U1_stencil_rows)
     WRITE_U1_stencil_full_nxt = stencil_full_EMPTY
+
+    """
+    Modified decode for read instruction (arg_1_TVALID == 0) for getting 
+    one-hot encoding and reuse the verilog export function.
+    """
+    read_i_decode  = READ_I_decode & (arg_1_TVALID == VALID_FALSE)
+    write_i_decode = WRITE_I_decode
+    write_u_decode = WRITE_U1_decode
+    m.decode_exprs = [read_i_decode, write_i_decode, write_u_decode]
+
+    def decodeWrap (st, ri, wi, wu):
+        return ila.ite (write_i_decode, wi,
+               ila.ite (write_u_decode, wu,
+               ila.ite (read_i_decode, ri, st)))
+
+    arg_0_TVALID_nxt = decodeWrap (arg_0_TVALID,
+                                   READ_I_arg_0_TVALID_nxt,
+                                   WRITE_I_arg_0_TVALID_nxt,
+                                   WRITE_U1_arg_0_TVALID_nxt)
+    m.set_next ('arg_0_TVALID', arg_0_TVALID_nxt)
+
+    arg_0_TDATA_nxt  = decodeWrap (arg_0_TDATA,
+                                   READ_I_arg_0_TDATA_nxt,
+                                   WRITE_I_arg_0_TDATA_nxt,
+                                   WRITE_U1_arg_0_TDATA_nxt)
+    m.set_next ('arg_0_TDATA', arg_0_TDATA_nxt)
+
+    arg_1_TREADY_nxt = decodeWrap (arg_1_TREADY,
+                                   READ_I_arg_1_TREADY_nxt,
+                                   WRITE_I_arg_1_TREADY_nxt,
+                                   WRITE_U1_arg_1_TREADY_nxt)
+    m.set_next ('arg_1_TREADY', arg_1_TREADY)
+
+    for i in xrange (0, LB2D_buff_size):
+        buffName = 'buffer_%d_value_V_U' % i
+        LB2D_buff_nxt_i = (decodeWrap (LB2D_buff[i],
+                                       READ_I_LB2D_buff_nxt[i],
+                                       WRITE_I_LB2D_buff_nxt[i],
+                                       WRITE_U1_LB2D_buff_nxt[i]))
+        m.set_next (buffName, LB2D_buff_nxt_i)
+
+    LB2D_x_idx_nxt = decodeWrap (LB2D_x_idx,
+                                 READ_I_LB2D_x_idx_nxt,
+                                 WRITE_I_LB2D_x_idx_nxt,
+                                 WRITE_U1_LB2D_x_idx_nxt)
+    m.set_next ('col_reg_349', LB2D_x_idx_nxt)
+
+    LB2D_y_idx_nxt = decodeWrap (LB2D_y_idx,
+                                 READ_I_LB2D_y_idx_nxt,
+                                 WRITE_I_LB2D_y_idx_nxt,
+                                 WRITE_U1_LB2D_y_idx_nxt)
+    m.set_next ('row_reg_327', LB2D_y_idx_nxt)
+
+    slice_buff_nxt = decodeWrap (slice_buff,
+                                 READ_I_slice_buff_nxt,
+                                 WRITE_I_slice_buff_nxt,
+                                 WRITE_U1_slice_buff_nxt)
+    m.set_next ('slice_stream_V_value_V_U', slice_buff_nxt)
+
+    slice_full_nxt = decodeWrap (slice_full,
+                                 READ_I_slice_full_nxt,
+                                 WRITE_I_slice_full_nxt,
+                                 WRITE_U1_slice_full_nxt)
+    m.set_next ('slice_stream_V_value_V_U_internal_full_n', slice_full_nxt)
+
+    LB2D_shift_nxt = []
+    for i in xrange (0, LB2D_shift_size):
+        buffName = 'buffer_%d_value_V_fu_' % i
+        LB2D_shift_nxt_i = decodeWrap (LB2D_shift[i],
+                                       READ_I_LB2D_shift_nxt[i],
+                                       WRITE_I_LB2D_shift_nxt[i],
+                                       WRITE_U1_LB2D_shift_nxt[i])
+        m.set_next (buffName, LB2D_shift_nxt_i)
+
+    stencil_buff_nxt = decodeWrap (stencil_buff,
+                                   READ_I_stencil_buff_nxt,
+                                   WRITE_I_stencil_buff_nxt,
+                                   WRITE_U1_stencil_buff_nxt)
+    m.set_next ('p_p2_in_bounded_stencil_stream_s_U', stencil_buff_nxt)
+
+    stencil_full_nxt = decodeWrap (stencil_full,
+                                   READ_I_stencil_full_nxt,
+                                   WRITE_I_stencil_full_nxt,
+                                   WRITE_U1_stencil_full_nxt)
+    m.set_next ('p_p2_in_bounded_stencil_stream_full', stencil_full_nxt)
+
+    # export ILA
+    ilaFileName = 'rtl.ila'
+    m.exportAll (ilaFileName)
+
+    # export verilog 
+    verilogFileName = 'rtl.v'
+    #m.generateVerilog (verilogFileName)
 
 
 if __name__ == '__main__':
