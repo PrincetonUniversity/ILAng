@@ -331,8 +331,10 @@ def gaussian ():
 
     # export verilog 
     verilogFileName = 'rtl.v'
-    #m.generateVerilog (verilogFileName)
+    m.generateVerilog (verilogFileName)
 
 
 if __name__ == '__main__':
+    #ila.setloglevel (3, "")
+    #ila.enablelog ("ExportVerilog")
     gaussian ()
