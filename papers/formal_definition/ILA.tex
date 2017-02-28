@@ -1,0 +1,395 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%2345678901234567890123456789012345678901234567890123456789012345678901234567890
+%        1         2         3         4         5         6         7         8
+
+\documentclass[letterpaper, 11 pt]{article}  % Comment this line out
+                                                          % if you need a4paper
+%\documentclass[a4paper, 10pt, conference]{ieeeconf}      % Use this line for a4
+                                                          % paper
+\usepackage{url}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{proof}
+\usepackage{tikz}
+\usepackage[margin=1.2in]{geometry}
+
+\title{Formal Definition for Instruction-Level Abstraction}
+\author{
+    \begin{tabular}{ccccc}
+    Bo-Yuan~Huang & Pramod~Subramanyan & Hongce~Zhang & Aarti~Gupta$^\dagger$ & Sharad~Malik \\
+    \multicolumn{5}{c} {Departments of Computer Science$^\dagger$ and Electrical Engineering, Princeton University} \\
+    \end{tabular}
+}
+
+\date{Draft Working Document: \today}
+
+\begin{document}
+\maketitle
+
+%\include{ila_def}
+
+\providecommand{\bd}[0]{\mathbb{B}}
+\providecommand{\st}[1]{\mathrm{#1}}
+\providecommand{\ft}[1]{\mathtt{#1}}
+
+%\section*{Formal Definition for Instruction-Level Abstraction}
+
+% Some preliminary background for ILA
+Instruction-level abstraction (ILA) provides an interface between different 
+components in heterogeneous systems.
+It is an abstraction that formally models firmware-visible behaviors of a hardware
+module, such as a programmable processor or application specific accelerator.
+Similar to the instruction-set architecture (ISA) that defines the operation of
+a processor, an ILA models the operation of a hardware module as a set of 
+instructions, where each instruction represents a certain operation over the 
+states.
+
+% Start describing what is an ILA and the formal definition, with examples.
+% Probably with some words about "what is an instruction".
+% Remember, the definition needs to be backward compatable with processor ISA.
+\subsection*{Instruction-Level Abstraction}
+% State variable and input variables
+ILA is an abstraction of the hardware and serves as the interface between 
+the hardware and other components.
+Therefore, only states that are visible and persistent across instructions need
+to be modeled.
+% State variables
+We let $S$ be the vector of those state variables, where each element can be 
+either a Boolean variable, a bitvector variable, or a memory variable.
+In the ILA of a processor, $S$ would contain the architectural registers, flag
+bits, data memory, and the instruction memory.
+As for accelerators, $S$ could contain memory-mapped registers, internal buffers, 
+output ports to on-chip interconnect, and so on.
+% Input ports
+In addition to state variables, an ILA also contains a vector of input variables
+$W$ that models the input ports of the hardware module, such as the interrupt 
+signals for processors and command inputs for accelerators.
+
+% Execution model: Fetch/Decode/Execute
+% Fetch and Valid
+In an ILA, hardware operations are abstracted into a set of instructions 
+following the fetch/decode/execute model as processors.
+%
+An ILA fetches the \textit{opcode} from its states $S$ and inputs $W$.
+The opcode is a bitvector that will later be decoded to determine which 
+instruction should be issued.
+The fetch function indicating how is the opcode fetched is represented by 
+$F : (S \times W) \mapsto bvec_w$ where $w$ is the width of the opcode.
+Take programmable cores without interrupts for example, the opcode is fetched 
+from the instruction memory pointed by the program counter, i.e. 
+$F(S, W) \triangleq read( \st{IMEM}, \st{PC} )$.
+In cases where interrupt matters, the fetch function could possibly be 
+concatenating the interrupt signals with the value read from instruction memory.
+
+% Valid function
+Unlike programmable cores that always have an instruction to fetch, decode, and
+execute, accelerators may be event-driven and only start executing instructions 
+when a certain trigger occurs. 
+We let $V : (S \times W) \mapsto \bd$ be the valid function that indicates when 
+an ILA can execute.
+%
+For example, if an accelerator executes instructions only when the signals 
+$\st{AddrInRange}$ and $\st{StateIdle}$ are asserted, then 
+$V(S, W) \triangleq \st{AddrInRange} \wedge \st{StateIdle}$.
+For programmable cores, there is always an instruction and the valid function 
+is always true.
+
+% Decode
+Each instruction is associated with a decode function 
+$\delta_i : bvec_w \mapsto \bd$ that takes the fetched opcode as input and 
+tells whether the instruction is \textit{issued}.
+Take 8051 microcontroller as an example, the opcode of the \textit{JZ} 
+instruction is $\texttt{0x60}$, therefore 
+$\delta_{JZ} (\st{opcode}) \triangleq \st{opcode} = \texttt{0x60}$.
+The set of all decode functions in the ILA is denoted as 
+$D = \{ \delta_i ~|~ 0 \leq i \leq C \}$, where $C$ is the number of 
+instructions.
+
+% Execution
+Besides the decode function, every instruction is also associated with a 
+next state function $N_i : (S \times W) \mapsto S$ to represent the state updates 
+when an instruction is executed.
+For example, the \textit{INC} instruction (opcode $\texttt{0x4}$) in the 8051 
+microcontroller increments the accumulator, therefore the next state function 
+of the accumulator is $N_4[\st{ACC}] = ACC + 1$. 
+Note that the operation defined in $N_i$ is atomic and an instruction can be 
+executed only if it has been issued.
+The set of all next state functions in the ILA is denoted as 
+$N = \{ N_i ~|~ 0 \leq i \leq C \}$, where $C$ is the number of instructions.
+
+To summarize, ILA provides a uniform interface between hardware components 
+in heterogeneous systems by formally abstracting firmware-visible behaviors of 
+hardware into sets of instructions under the fetch/decode/execute model. 
+An ILA is defined as follow:
+
+\begin{eqnarray}
+  \mathrm{A} &=& \langle S, W, F, V, D, N \rangle \text{, where} \nonumber \\
+      &S& \text{ is the vector of state variables, } \nonumber \\
+      &W& \text{ is the vector of input variables, } \nonumber \\
+      &V& :(S\times W) \mapsto \bd \text{ is the valid function, } \nonumber \\
+      &F& :(S\times W) \mapsto bvec_w \text{ is the fetch function,} \nonumber \\
+      &D& = \{ \delta_i : bvec_w \mapsto \bd \} 
+            \text{ is the set of decode functions, and} \nonumber \\
+      &N& = \{ N_i : (S \times W) \mapsto S \} 
+            \text{ is the set of next state functions.} \nonumber
+\end{eqnarray}
+
+% Talk about child-ILAs. What is child-ILA and why do we need them.
+\subsection*{Hierarchical ILA}
+% Why hierarchical ILA and example
+While ILA serves as the interface between different components by 
+abstracting hardware behaviors into sets of instructions, there are cases where
+we would like to model the hardware in different levels of abstraction.
+% Example of string copy
+For example, in the specification of Intel x86 architecture, the string copy 
+instruction \texttt{REP STOS} involves a sequence of bytes moves.
+The instruction causes the associated \texttt{STOS} be repeated until the count
+in register \texttt{ECX} is decremented to $0$ \cite{intel-manual}.
+Such operation should not be represented as one single state update if we want to
+model the behavior more precisely.
+% Example of AES encryption
+Another example is the \texttt{START\_ENCRYPT} instruction that starts the 
+encryption operation of an AES accelerator, of which the implementation contains 
+message loading, encryption computing, and output storing.
+
+In hierarchical ILA, we allow an ILA to contain \textit{child-ILAs} for complex
+instructions to help a manage different level of abstraction.
+Similar to an ILA, a child-ILA follows the fetch/decode/execute model and 
+contains a set of \textit{child-instructions} to help represent complex 
+instructions.
+Take \texttt{START\_ENCRYPT} for example, the operation can now be represented by 
+a child-ILA containing one child-instruction for message loading, one for doing 
+encryption, and another for storing the results.
+The ILA containing the child-ILA is called the \textit{parent-ILA}.
+
+% sub-instruction and micro-instruction
+To distinguish between specified behavior and possible implementation, every 
+child-ILA is associated with an auxiliary variable $u \in \bd$. 
+$u = 1$ means that the behavior modeled by the child-instructions are required
+in the specification.
+We call such child-instructions \textit{sub-instructions}.
+On the other hand, $u = 0$ means that the child-instructions are representing 
+one possible implementation of the complex instruction, and we call them
+\textit{micro-instructions}.
+
+% formalism of child-ILA
+A child-ILA is defined similarly as an ILA.
+It has its own state variables, valid function, fetch function, decode functions, 
+and next state functions denoted as $S^\mu$, $V^\mu$, $F^\mu$, $D^\mu$, and 
+$N^\mu$ respectively.
+% States
+$S^\mu$ can contain shared states in $S$ of its parent ILA, and every update to
+the shared states are synchronized.
+% Valid
+The valid function $V^\mu : S^\mu \mapsto \bd$ indicates when the child-ILA
+can execute.
+% Fetch
+The fetch function $F^\mu : S^\mu \mapsto bvec_l$, where $l$ is the width of the
+opcode, models how the opcode is fetched from the states.
+% Decode
+The decode function $D^\mu$ is defined exactly the same as an ILA to tell if 
+any child-instruction is issued.
+% Next
+State update of each child-instruction is modeled by next state functions
+$N^\mu_j : S^\mu \mapsto S^\mu$, and $N^\mu$ is the set of next state functions 
+for all child-instructions.
+
+\iffalse
+Summarizing the above definition, a child-ILA is defined as follow:
+\begin{eqnarray}
+  A^\mu &=& \langle S^\mu, V^\mu, F^\mu, D^\mu, N^\mu \rangle 
+        \text{, where} \nonumber \\
+    &S^\mu& \text{ is the vector of state variables, } \nonumber \\
+    &V^\mu& : S^\mu \mapsto \bd \text{ is the valid function, } \nonumber \\
+    &F^\mu& : S^\mu \mapsto bvec_l \text{ is the fetch function, } \nonumber \\
+    &D^\mu& = \{ \delta_j^\mu : bvec_l \mapsto \bd \}
+            \text{ is the decode function, and} \nonumber \\
+    &N^\mu& = \{ N_j^\mu : S^\mu \mapsto S^\mu \}
+            \text{ is the next state function.} \nonumber
+\end{eqnarray}
+\fi
+
+% Summarize ILA
+With the extension of hierarchical ILA, ILA can now model the hardware at 
+different levels of abstraction.
+%
+A hierarchical ILA is defined as
+$A = \langle S, W, V, F, D, N, L \rangle$, where 
+$L = \{ (u^{\mu_p}, A^{\mu_p}), \dots \}$ is the set of child-ILAs.
+$u^{\mu_p}$ is the auxiliary variable showing if $A^{\mu_p}$ is composed of 
+sub-instructions or micro-instructions.
+%
+Similarly, child-ILAs can also contain other child-ILAs and are defined exactly 
+the same, except that micro-ILAs can only contain micro-ILAs.
+
+% Talk about the instruction sequencing, implicitly determined in state updates.
+% Also the program structure such as the loop and entry/exit.
+\subsubsection*{Micro-program and sub-program}
+% The sequencing of the micro-program and example such as micro code and loops
+Once a child-ILA starts executing, it then steps through a sequence of 
+child-instructions where the sequencing is implicitly determined by the state
+update itself.
+This can be understood as a \textit{child-program} even though the control 
+location is not defined on a specific variable as usual.
+%
+Take the string copy instruction for example, the child-program representing 
+the instruction contains a loop whose loop body is the child-instruction that 
+moves a byte at a time.
+% 
+We call a child-program \textit{sub-program} if it is composed of 
+sub-instructions, and call it \textit{micro-program} if it is composed of 
+micro-instructions. 
+
+%The ILA and its child-ILAs execute asynchronously and communicate through 
+%shared state variables. 
+A child-ILA $A^\mu$ starts executing when the valid function $V^\mu$ changes 
+from $0$ to $1$, indicating that there is one child-instruction being issued.
+%
+This could happen when a certain instruction in its parent-ILA, the parent 
+instruction, is executed and modifies the shared states so that $V^\mu$ becomes 
+true.
+For example, the \texttt{START\_ENCRYPT} instruction of the AES accelerator 
+updates the shared state \textit{aes\_state}, which then starts the child-ILA
+with the child-instruction for message loading being issued.
+%
+It is also possible that $V^\mu$ becomes true at the same time as the parent
+instruction is issued.
+Take string copy for example, the child-instruction for the first
+byte move is issued at the same time as the string copy instruction is issued.
+In such cases, the execution of the parent instruction is trivial.
+
+% Describe how is the state update defined and the relation between ILAs.
+\subsection*{Execution Semantics}
+The ILA and its child-ILAs execute asynchronously and communicate through shared
+state variables. 
+Updates of the shared states are synchronized.
+When an instruction is executed, the shared states in child-ILAs will also be 
+updated; when a child-instructions is executed, the shared states in the parent
+ILA will also be updated.
+
+The execution of an instruction in the ILA is defined by 
+rule~(\ref{rule:ILA_exec}).
+%
+\begin{equation}
+  \infer{S \rightsquigarrow S'}
+        {V(S, W) & \delta_i(F(S, W)) & S' = N_i(S, W)}
+  \label{rule:ILA_exec}
+\end{equation}
+%
+The rule says that an ILA can transition from state $S$ to $S'$ if the following 
+conditions are satisfied:
+\begin{enumerate}
+  \item An instruction is being triggered: $V(S, W) = 1$.
+  \item The $i$-th instruction type is issued: $\delta_i(F(S, W)) = 1$.
+  \item State update of each variable in the vector $S'$ is as defined by 
+        $N_i (S, W)$.
+\end{enumerate}
+
+The execution of a child-instruction in child-ILA is defined by 
+rule~(\ref{rule:cILA_exec}).
+\begin{equation}
+  \infer{S^\mu \rightsquigarrow S'^\mu}
+        {V^\mu(S^\mu) & \delta_i^\mu(F^\mu(S^\mu)) & S'^\mu = N_i^\mu(S^\mu)}
+  \label{rule:cILA_exec}
+\end{equation}
+The rule says that a child-ILA can transition from state $S^\mu$ to $S'^\mu$ if 
+the following conditions are satisfied:
+\begin{enumerate}
+  \item The child-ILA is activate: $V(S^\mu) = 1$.
+  \item The $j$-th child-instruction is issued: $\delta_j^\mu(S^\mu) = 1$.
+  \item State update of each variable in the vector $S'^\mu$ is as defined by 
+        $N_j^\mu (S^\mu)$.
+\end{enumerate}
+
+There are two implications of these two rules.
+First, each state update defined in $N_i$ or $N_j^\mu$ is atomic.
+Second, the decode function only indicates whether an instruction is issued, it 
+does not say anything about execution.
+
+The synchronization of the shared states is defined by 
+rules~(\ref{rule:ILA_sync}) and ~(\ref{rule:cILA_sync}).
+
+\begin{equation}
+  \infer{S^\mu \overset{S'}{\rightsquigarrow} S'^\mu}
+        {S \rightsquigarrow S'}
+  \label{rule:ILA_sync}
+\end{equation}
+
+\begin{equation}
+  \infer{S \overset{S'^\mu}{\rightsquigarrow} S'}
+        {S^\mu \rightsquigarrow S'^\mu}
+  \label{rule:cILA_sync}
+\end{equation}
+
+The notation $S \overset{S'^\mu}{\rightsquigarrow} S'$ means that states in the 
+ILA change from $S$ to $S'$ with all the shared states between $S$ and $S^\mu$
+updates to the corresponding value in $S'^\mu$ while other states in $S$ remain 
+unchanged.
+The notation $S^\mu \overset{S'}{\rightsquigarrow} S'^\mu$ is defined in a 
+similar way.
+
+% Use the above to talk about the importance and advantage of modeling 
+% concurrency between instructions and interleavings.
+% Illustrate with various kinds of cases.
+\subsection*{Instruction Concurrency}
+% Why this is important and needed
+% Discuss with the above semantics
+% Illustrate various cases of concurrency
+
+% Concurrency between instructions/accelerators with examples
+%ILA serves as the interface between the software and the hardware by abstracting
+%firmware-visible behavior into sets of instructions. 
+
+ILA not only serves as the interface between hardware modules but 
+also allows us to model the concurrency behavior across instructions. 
+Modeling such concurrency is important and necessary in verifying heterogeneous 
+systems due to the parallel interaction between hardware components.
+%
+For example, consider a scenario where a firmware utilizes the AES accelerator
+to encrypt a block of message. 
+It first uses the string copy instruction to move the message into a certain
+range of memory; then uses memory-mapped I/O (MMIO) to trigger the encryption
+operation, which depends on the message; finally, it reads back the result after
+checking the status of the accelerator.
+%
+Here both the string copy and the encryption are non-blocking instructions. 
+They allow other instructions to be issued and executed even if they are not
+finished yet.
+Precisely modeling the concurrent interaction between non-blocking instructions 
+is necessary for correct verification.
+
+% Our ability to model the concurrency with the ILA, explain with the execution
+% semantics.
+With the help of hierarchical ILA, non-blocking operations of complex 
+instructions can be represented by child-instructions.
+The execution semantics of the ILA can model the scenario which issues a new
+instruction even when other child-ILAs are still executing.
+%
+Note that the signals on input ports, which are usually used to trigger 
+instructions, are not required to remain unchanged during the execution of 
+child-ILAs.
+%The execution semantics of the ILA let us model the concurrent behavior that 
+%issues a new instruction while the child-ILAs of previous instructions are
+%still executing.
+The state updates of these instructions and child-instructions are atomic, as 
+defined by the next state functions, and can be interleaved with others.
+%
+Therefore we can then utilize the works on instruction interleaving to model
+and verify the concurrency interaction.
+
+% We can also model the case where commit follows program order.
+Note that ILA is not restricted to representing non-blocking operations of 
+complex instructions. 
+Other cases can have corresponding abstractions with different decode 
+functions and next state functions depending on the underlying hardware behavior.
+For example, a simple processor, where new instructions cannot be issued until
+previous instructions are complete, can be modeled by ensuring the program
+counter be updated at the last child-instruction.
+
+\bibliography{refs}
+\bibliographystyle{unsrt}
+
+\end{document}
+

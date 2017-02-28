@@ -233,6 +233,7 @@ namespace ila
         friend struct init_assump_t;
 
         void _addConstRegAssumps();
+        void _npair_check();
 
     public:
         // constructor.

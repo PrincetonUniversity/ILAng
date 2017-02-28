@@ -7,10 +7,10 @@ CHC_FILE = $(CHC_PATH)/ila.smt2
 
 all: auto
 
-auto: #$(CHC_FILE)
-	@$(MAKE) -C $(ILA_PATH)
-	@rm -rf asts
-	@cp -r $(ILA_PATH)/asts asts
+auto: $(CHC_FILE)
+	@#$(MAKE) -C $(ILA_PATH)
+	@#rm -rf asts
+	@#cp -r $(ILA_PATH)/asts asts
 	@python $(SYN_PATH)/chcAuto.py
 
 manual: $(CHC_FILE)
