@@ -287,7 +287,7 @@ def gaussian ():
                                    READ_I_arg_1_TREADY_nxt,
                                    WRITE_I_arg_1_TREADY_nxt,
                                    WRITE_U1_arg_1_TREADY_nxt)
-    m.set_next ('arg_1_TREADY', arg_1_TREADY)
+    m.set_next ('arg_1_TREADY', arg_1_TREADY_nxt)
 
     for i in xrange (0, LB2D_buff_size):
         buffName = 'buffer_%d_value_V_U' % i

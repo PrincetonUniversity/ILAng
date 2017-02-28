@@ -76,6 +76,7 @@ namespace ila
         rwmap_t notCache;
 
         mem_write_list_t current_writes;
+        mem_write_list_t past_writes;
 
     protected:
 

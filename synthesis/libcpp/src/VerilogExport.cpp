@@ -142,9 +142,12 @@ namespace ila
             nptr_t cond;
             mem_write_entry_list_t writes;
 
+            for (const auto &w: current_writes)
+                past_writes.push_back(w);
+                
             current_writes.clear();
             visitMemNodes(next, cond, writes);
-            std::cout << current_writes << std::endl;
+            //std::cout << current_writes << std::endl;
 
             exportCondWrites(name,addr_width,data_width,current_writes);
 
@@ -165,7 +168,7 @@ namespace ila
             add_wire(name + "_data" + toStr(portIdx),dataWidth);
         }
         std::vector<vlg_stmt_t> addrStmt(max_port_no,"0");
-        std::vector<vlg_stmt_t> dataStmt(max_port_no,"'dx");
+        std::vector<vlg_stmt_t> dataStmt(max_port_no,name + "[0]"); // 'dx is not desired, since it will change the value
 
         for (const auto & mw : boost::adaptors::reverse(writeList) ) {
             start_iterate(mw.cond.get());
