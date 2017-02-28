@@ -80,7 +80,8 @@ reg ap_ready;
 reg slice_stream_V_value_V_read;
 reg out_stream_V_value_V_write;
 reg    ap_done_reg = 1'b0;
-(* fsm_encoding = "none" *) reg   [3:0] ap_CS_fsm = 4'b1;
+//(* fsm_encoding = "none" *) 
+reg   [3:0] ap_CS_fsm = 4'b1; // XXX
 reg    ap_sig_cseq_ST_st1_fsm_0;
 reg    ap_sig_bdd_23;
 reg   [8:0] i_0_i_i_reg_152;

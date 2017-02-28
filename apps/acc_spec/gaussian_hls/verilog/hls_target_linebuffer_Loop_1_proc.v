@@ -59,7 +59,8 @@ reg ap_idle;
 reg ap_ready;
 reg in_stream_V_value_V_write;
 reg    ap_done_reg = 1'b0;
-(* fsm_encoding = "none" *) reg   [2:0] ap_CS_fsm = 3'b1;
+//(* fsm_encoding = "none" *) 
+reg   [2:0] ap_CS_fsm = 3'b1; // XXX
 reg    ap_sig_cseq_ST_st1_fsm_0;
 reg    ap_sig_bdd_22;
 reg   [7:0] in_axi_stream_V_value_V_0_data_out;

@@ -21,7 +21,8 @@ input[DWIDTH-1:0] d1;
 input we1;
 input clk;
 
-(* ram_style = "block" *)reg [DWIDTH-1:0] ram[MEM_SIZE-1:0];
+//(* ram_style = "block" *)
+reg [DWIDTH-1:0] ram[MEM_SIZE-1:0]; // XXX
 
 
 

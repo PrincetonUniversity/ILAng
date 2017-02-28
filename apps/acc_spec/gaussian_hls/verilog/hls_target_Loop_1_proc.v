@@ -242,7 +242,8 @@ reg ap_idle;
 reg ap_ready;
 reg p_p2_in_bounded_stencil_stream_V_value_V_read;
 reg    ap_done_reg = 1'b0;
-(* fsm_encoding = "none" *) reg   [2:0] ap_CS_fsm = 3'b1;
+//(* fsm_encoding = "none" *) 
+reg   [2:0] ap_CS_fsm = 3'b1; // XXX
 reg    ap_sig_cseq_ST_st1_fsm_0;
 reg    ap_sig_bdd_22;
 reg    arg_0_V_value_V_1_vld_in;
@@ -526,7 +527,8 @@ wire   [19:0] p_337_fu_2697_p2;
 reg   [19:0] p_337_reg_3399;
 wire   [21:0] grp_fu_2653_p3;
 reg   [21:0] tmp17_reg_3404;
-(* use_dsp48 = "no" *) wire   [19:0] tmp18_fu_2499_p2;
+//(* use_dsp48 = "no" *) 
+wire   [19:0] tmp18_fu_2499_p2; // XXX
 reg   [19:0] tmp18_reg_3409;
 wire   [22:0] grp_fu_2689_p3;
 reg   [22:0] tmp23_reg_3414;
@@ -701,7 +703,8 @@ wire   [18:0] p_421_fu_2232_p2;
 wire   [19:0] p_421_cast_cast_fu_2238_p1;
 wire   [17:0] tmp29_cast_fu_2247_p1;
 wire   [17:0] tmp28_fu_2250_p2;
-(* use_dsp48 = "no" *) wire   [19:0] tmp27_fu_2242_p2;
+//(* use_dsp48 = "no" *) 
+wire   [19:0] tmp27_fu_2242_p2; // XXX
 wire   [19:0] tmp28_cast_fu_2255_p1;
 wire   [20:0] grp_fu_2773_p3;
 wire   [20:0] grp_fu_2757_p3;
@@ -749,21 +752,25 @@ wire   [19:0] tmp11_cast_fu_2450_p1;
 wire   [19:0] grp_fu_2598_p3;
 wire   [20:0] grp_fu_2614_p3;
 wire   [20:0] tmp15_cast_fu_2477_p1;
-(* use_dsp48 = "no" *) wire   [20:0] p_338_fu_2480_p2;
+//(* use_dsp48 = "no" *) 
+wire   [20:0] p_338_fu_2480_p2; // XXX
 wire   [7:0] p_343_fu_2489_p1;
 wire   [18:0] p_343_fu_2489_p2;
 wire   [19:0] p_343_cast_cast_fu_2495_p1;
 wire   [19:0] p_373_fu_2661_p2;
 wire   [21:0] tmp18_cast_fu_2507_p1;
-(* use_dsp48 = "no" *) wire   [21:0] tmp16_fu_2510_p2;
+//(* use_dsp48 = "no" *) 
+wire   [21:0] tmp16_fu_2510_p2; // XXX
 wire   [21:0] tmp19_cast_fu_2515_p1;
 wire   [21:0] p_380_fu_2518_p2;
 wire   [22:0] tmp24_cast_fu_2531_p1;
-(* use_dsp48 = "no" *) wire   [22:0] tmp22_fu_2534_p2;
+//(* use_dsp48 = "no" *) 
+wire   [22:0] tmp22_fu_2534_p2; // XXX
 wire   [22:0] tmp26_cast_fu_2539_p1;
 wire   [22:0] p_434_fu_2542_p2;
 wire   [23:0] tmp34_cast_fu_2552_p1;
-(* use_dsp48 = "no" *) wire   [23:0] tmp32_fu_2555_p2;
+//(* use_dsp48 = "no" *) 
+wire   [23:0] tmp32_fu_2555_p2; // XXX
 wire   [23:0] tmp36_cast_fu_2560_p1;
 wire   [23:0] tmp31_fu_2563_p2;
 wire   [23:0] tmp40_cast_fu_2569_p1;
