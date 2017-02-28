@@ -137,7 +137,7 @@ def gaussian ():
                                            # FIXME check RTL implementation
     WRITE_I_LB2D_buff_nxt = []
     for i in xrange (0, LB2D_buff_size):
-        buff_idx = (LB2D_y_idx % LB2D_buff_size)
+        buff_idx = LB2D_w_idx # (LB2D_y_idx % LB2D_buff_size)
         buff_i_nxt = ila.ite (buff_idx == i,
                               ila.store (LB2D_buff[i], LB2D_x_idx, arg_1_TDATA), 
                               LB2D_buff[i])
@@ -153,8 +153,6 @@ def gaussian ():
                              ila.ite (LB2D_w_idx != w_idx_M, 
                                       LB2D_w_idx + 1, w_idx_0),
                                       LB2D_w_idx)
-                                      #LB2D_w_idx + 1, w_idx_0),
-                                      #LB2D_w_idx)
 
     def sliceSelect (start, seqs):
         assert (len (seqs) == LB2D_buff_size)
@@ -178,7 +176,7 @@ def gaussian ():
         return res
 
     WRITE_I_LB2D_buff_valid = (LB2D_y_idx >= LB2D_buff_size)
-    WRITE_I_LB2D_buff_start = (LB2D_y_idx % LB2D_buff_size)
+    WRITE_I_LB2D_buff_start = LB2D_w_idx # (LB2D_y_idx % LB2D_buff_size)
     WRITE_I_seqs = []
     for i in xrange (0, LB2D_buff_size):
         WRITE_I_seqs.append (WRITE_I_gen_seqs (i))
@@ -310,9 +308,9 @@ def gaussian ():
     m.set_next ('row_reg_327', LB2D_y_idx_nxt)
 
     LB2D_w_idx_nxt = decodeWrap (LB2D_w_idx,
-                                 LB2D_w_idx, #READ_I_LB2D_w_idx_nxt,
+                                 READ_I_LB2D_w_idx_nxt,
                                  WRITE_I_LB2D_w_idx_nxt,
-                                 LB2D_w_idx) #WRITE_U1_LB2D_w_idx_nxt)
+                                 WRITE_U1_LB2D_w_idx_nxt)
     m.set_next ('p_write_idx_1_1_reg_723', LB2D_w_idx_nxt)
 
     slice_buff_nxt = decodeWrap (slice_buff,

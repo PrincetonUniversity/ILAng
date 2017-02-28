@@ -31,6 +31,7 @@ arch states:
     LB2D_buff[0~7]  -- eight 488x1 bytes buffer in 2-D line buffer
     LB2D_x_idx      -- x counter in 2-D line buffer
     LB2D_y_idx      -- y counter in 2-D line buffer
+    LB2D_w_idx      -- buffer write index in 2-D line buffer (y % 8)
     slice_buff      -- one 1x9 bytes slice in slice stream
     slice_full      -- slice stream status (internal_full_n in slice)
     LB2D_shift[0~7] -- eight 1x9 bytes slice in 1-D line buffer
