@@ -65,6 +65,9 @@ class SHA(mmiodev):
             found, data = self.read(cmdaddr)
             if found:
                 dataout = data
+            s_out = self.s_dict()
+            s_out['dataout'] = dataout
+            return s_out
         elif cmd == WR and self.sha_state == self.SHA_IDLE:
             if cmdaddr == 0xfe00:
                 if cmddata == 1:

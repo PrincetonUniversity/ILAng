@@ -142,9 +142,12 @@ namespace ila
             nptr_t cond;
             mem_write_entry_list_t writes;
 
+            for (const auto &w: current_writes)
+                past_writes.push_back(w);
+                
             current_writes.clear();
             visitMemNodes(next, cond, writes);
-            std::cout << current_writes << std::endl;
+            //std::cout << current_writes << std::endl;
 
             exportCondWrites(name,addr_width,data_width,current_writes);
 
@@ -165,7 +168,7 @@ namespace ila
             add_wire(name + "_data" + toStr(portIdx),dataWidth);
         }
         std::vector<vlg_stmt_t> addrStmt(max_port_no,"0");
-        std::vector<vlg_stmt_t> dataStmt(max_port_no,"'dx");
+        std::vector<vlg_stmt_t> dataStmt(max_port_no,name + "[0]"); // 'dx is not desired, since it will change the value
 
         for (const auto & mw : boost::adaptors::reverse(writeList) ) {
             start_iterate(mw.cond.get());
@@ -349,7 +352,6 @@ namespace ila
     vlg_name_t VerilogExport::translateBitvectorOp(const BitvectorOp* bvop)
     {
         int width = bvop->type.bitWidth;
-        int arity = bvop->nArgs();
         const BitvectorOp::Op op = bvop->getOp();
 
         vlg_name_t arg0 = getArg(bvop, 0);
@@ -398,7 +400,7 @@ namespace ila
             unsigned lo = static_cast<unsigned> (bvop->param(1));
 
             result_stmt =  arg0 + "[" + toStr(hi) +":"+toStr(lo) +"]";
-        } else if (arity == 2) {
+        } else if (op >= BitvectorOp::ADD && op <= BitvectorOp::READMEMBLOCK) {
             vlg_name_t arg2 = getArg(bvop, 1);
             vlg_name_t arg1 = getArg(bvop, 0);
 
@@ -467,6 +469,7 @@ namespace ila
                     }
                 }
             } else {
+                log1 ("VerilogExport") << BitvectorOp::operatorNames[op] << " not supported.\n";
                 ILA_ASSERT(false,"Operator not supported.");
             }
         } else if (op == BitvectorOp::IF) {
@@ -479,11 +482,13 @@ namespace ila
             const Node * funcVar = bvop->arg(0).get();
             result_stmt = funcVar->getName() + "(";
             vlg_stmt_t arg_stmt = getArg(bvop, 1);
+            int arity = bvop->nArgs();
             for (int i = 2; i != arity; i++) {
                 arg_stmt = getArg(bvop, i) + " , " + arg_stmt;
             }
             result_stmt = result_stmt + arg_stmt + ")";
         } else {
+            log1 ("VerilogExport") << BitvectorOp::operatorNames[op] << " not supported.\n";
             ILA_ASSERT(false,"Operator not supported.");
         }
 

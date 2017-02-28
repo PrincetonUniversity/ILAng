@@ -765,9 +765,24 @@ namespace ila
         }
         S.pop(); Sp.pop();
     }
-
+    void Synthesizer::_npair_check()
+    {
+        for (auto&& m : maps) {
+            for (auto&& r : *m) {
+                if( !r.second.init.get() ) {
+                    log2("Synthesizer._npair_check")<< "Setting "<< r.first<< ".init to default."<<std::endl;
+                    r.second.init = r.second.var;
+                }
+                if( !r.second.next.get() ) {
+                    log2("Synthesizer._npair_check")<< "Setting "<< r.first<< ".next to default."<<std::endl;
+                    r.second.next = r.second.var;
+                }
+            }
+        }
+    }
     void Synthesizer::synthesizeReg(nmap_t::iterator p, PyObject* pyfun)
     {
+        _npair_check();
         _initSynthesis();
         S.push(); Sp.push();
         _addConstRegAssumps();

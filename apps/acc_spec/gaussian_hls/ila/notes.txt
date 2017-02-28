@@ -1,0 +1,43 @@
+fetch valid: (arg1_valid == 1) || (arg0_ready == 1)
+
+read instruction:
+    DECODE: (arg_0_TREADY == 1) && (stencil_full == 1)
+    Assumption: (arg_1_TVALID == 0) for one-hot encoding 
+
+    apply gaussain operation on the stencil and output to the port
+
+write instruction: 
+    DECODE: (arg_1_TVALID == 1) && (slice_full == 0)
+    Assumption: (arg_1_TREADY == 1)
+
+    store the 1x1 byte into 2-D line buffer
+    export 1x9 slice into 1-D line buffer (abstract slice stream)
+    export 9x9 stencil to stencil buffer (abstract stencil stream)
+
+write child instruction 1:
+    DECODE: (slice_full == 1) && (stencil_full == 0)
+
+
+inputs:
+    arg_0_TREADY    -- output stream ready
+    arg_1_TVALID    -- input stream valid
+    arg_1_TDATA     -- input stream data
+
+arch states:
+    arg_0_TVALID    -- output stream valid
+    arg_0_TDATA     -- output stream data
+    arg_1_TREADY    -- input stream ready
+
+    LB2D_buff[0~7]  -- eight 488x1 bytes buffer in 2-D line buffer
+    LB2D_x_idx      -- x counter in 2-D line buffer
+    LB2D_y_idx      -- y counter in 2-D line buffer
+    LB2D_w_idx      -- buffer write index in 2-D line buffer (y % 8)
+    slice_buff      -- one 1x9 bytes slice in slice stream
+    slice_full      -- slice stream status (internal_full_n in slice)
+    LB2D_shift[0~7] -- eight 1x9 bytes slice in 1-D line buffer
+    stencil_buff    -- one 9x9 stencil in stencil stream
+    stencil_full    -- stencil stream status
+
+possible child states:
+    SW: internal states in line buffer, buffer index
+    HW: internal states in line buffer, fsm state

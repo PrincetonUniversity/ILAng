@@ -180,6 +180,7 @@ def model(num_regs, reg_size, paramsyn):
 
 def main():
     ila.setloglevel(0, "")
+    ila.enablelog ("ExportVerilog")
     parser = argparse.ArgumentParser()
     parser.add_argument("--numregs", type=int, default=2, help="# of registers")
     parser.add_argument("--regwidth", type=int, default=4, help="register width")
