@@ -447,9 +447,25 @@ namespace ila
                 result_stmt = vlg_stmt_t(" (  ") + arg1 + " [ " +  arg2 + " ] ) ";
             } else if (op == BitvectorOp::READMEM) { 
                 // FIXME: Now we have multiple read ports
-                result_stmt = vlg_stmt_t(" (  ") + arg1 + " [ " +  arg2 + " ] ) ";
+                if (ExternalMem) {
+                    int addrWidth = bvop->arg(0)->type.addrWidth;
+                    int dataWidth = bvop->arg(0)->type.dataWidth;
+                    vlg_name_t addrName = arg1 + "_addr_" + NewId();
+                    vlg_name_t dataName = arg1 + "_data_" + NewId();
+
+                    mem_o.push_back( vlg_sig_t(addrName, addrWidth) );
+                    mem_i.push_back( vlg_sig_t(dataName, dataWidth) );
+                    
+                    vlg_stmt_t tmp_stmt = vlg_stmt_t("assign ") + addrName + " = " + arg2 +" ;";
+                    add_stmt(tmp_stmt);
+                    
+                    result_stmt = vlg_stmt_t(dataName);
+                }
+                else
+                    result_stmt = vlg_stmt_t(" (  ") + arg1 + " [ " +  arg2 + " ] ) ";
             } else if (op == BitvectorOp::READMEMBLOCK) { 
-                //result_stmt = vlg_stmt_t(" ( ( ") + arg1 + " ) / ( " +  arg2 + " )) ";
+                int addrWidth = bvop->arg(0)->type.addrWidth;
+                int dataWidth = bvop->arg(0)->type.dataWidth;
                 ILA_ASSERT(bvop->nParams() == 2, "Two parameters expected.");
                 int chunks = bvop->param(0);
                 endianness_t e = (endianness_t) bvop->param(1);
@@ -457,7 +473,21 @@ namespace ila
 
                 // read from arg1 , start addr = arg1 , repeat chunks' time 
                 for (int i=0; i < chunks; i++) {
-                    vlg_stmt_t data_i = vlg_stmt_t(" (  ") + arg1 + " [ " +  arg2 + "+" + toStr(i) + " ] ) "; 
+                    vlg_stmt_t data_i;
+                    if (ExternalMem) {
+                        vlg_name_t addrName = arg1 + "_addr_" + NewId();
+                        vlg_name_t dataName = arg1 + "_data_" + NewId();
+                        
+                        mem_o.push_back( vlg_sig_t(addrName, addrWidth) );
+                        mem_i.push_back( vlg_sig_t(dataName, dataWidth) );
+                        
+                        vlg_stmt_t tmp_stmt = vlg_stmt_t("assign ") + addrName + " = " + arg2 + "+" + toStr(i) +" ;";
+                        add_stmt(tmp_stmt);
+                    
+                        data_i = dataName;
+                    }
+                    else
+                        data_i = vlg_stmt_t(" (  ") + arg1 + " [ " +  arg2 + "+" + toStr(i) + " ] ) "; 
                     if (i == 0) {
                         result_stmt = data_i;
                     } else {
@@ -663,13 +693,14 @@ namespace ila
         return "n" + toStr(idCounter++);
     }
 
-    VerilogExport::VerilogExport (const std::string &modName,const std::string &clk,const std::string &rst)
+    VerilogExport::VerilogExport (const std::string &modName,const std::string &clk,const std::string &rst, bool _ExternalMem)
         : moduleName(modName)
         , clkName(clk)
         , rstName(rst)
         , nmap(NUM_HASHTABLE_BUCKETS, nodeHash, nodeEqual)
         , notCache(NUM_HASHTABLE_BUCKETS_SMALL, nodeHash, nodeEqual)
         , idCounter(0)
+        , ExternalMem(_ExternalMem)
     {
 
     }
@@ -688,6 +719,12 @@ namespace ila
             fout << sig_pair.first <<",\n";
         fout << clkName <<","<<rstName<<",\nstep\n);\n";
 
+        if(ExternalMem) {
+            for(const auto &io: mem_i)
+                inputs.push_back(io);
+            for(const auto &io: mem_o)
+                outputs.push_back(io);
+        }
 
         for(auto const &sig_pair  : inputs)
             fout << "input "<<std::setw(10)<<WidthToRange(sig_pair.second)<<" "<<(sig_pair.first) << ";\n";

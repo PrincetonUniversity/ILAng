@@ -63,6 +63,8 @@ namespace ila
 
         vlg_sigs_t inputs; // cinputs ? why?
         vlg_sigs_t outputs;
+        vlg_sigs_t mem_i;
+        vlg_sigs_t mem_o;
         
         vlg_sigs_t wires;
         vlg_sigs_t regs;
@@ -110,8 +112,10 @@ namespace ila
         unsigned idCounter;
         vlg_name_t NewId();
 
+        bool ExternalMem;
+
     public:
-        VerilogExport (const std::string &modName,const std::string &clk,const std::string &rst);
+        VerilogExport (const std::string &modName,const std::string &clk,const std::string &rst, bool _ExternalMem = false);
         void exportInp(const std::string &name, const npair_t &np);
         void exportReg(const std::string &name, const npair_t &np);
         void exportBit(const std::string &name, const npair_t &np);
