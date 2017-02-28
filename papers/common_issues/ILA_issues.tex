@@ -15,10 +15,34 @@
 \usepackage{tikz}
 \usepackage[margin=1.2in]{geometry}
 
+
+\usepackage{color}
+\definecolor{light-gray}{gray}{0.95}
+\usepackage{listings}
+\lstset{ %
+language=Python,                % choose the language of the code
+basicstyle=\footnotesize,       % the size of the fonts that are used for the code
+numbers=left,                   % where to put the line-numbers
+numberstyle=\footnotesize,      % the size of the fonts that are used for the line-numbers
+stepnumber=1,                   % the step between two line-numbers. If it is 1 each line will be numbered
+numbersep=5pt,                  % how far the line-numbers are from the code
+backgroundcolor=\color{light-gray},  % choose the background color. You must add \usepackage{color}
+showspaces=false,               % show spaces adding particular underscores
+showstringspaces=false,         % underline spaces within strings
+showtabs=false,                 % show tabs within strings adding particular underscores
+frame=single,           % adds a frame around the code
+tabsize=2,          % sets default tabsize to 2 spaces
+captionpos=b,           % sets the caption-position to bottom
+breaklines=true,        % sets automatic line breaking
+breakatwhitespace=false,    % sets if automatic breaks should only happen at whitespace
+escapeinside={\%*}{*)}          % if you want to add a comment within your code
+}
+
+
+
 \title{Common Instruction-Level Abstraction Issues}
 \author{}
 
-%\date{Draft Working Document: January 10, 2017}
 \date{Draft Working Document: \today}
 
 \begin{document}
@@ -28,13 +52,15 @@
 \providecommand{\st}[1]{\mathrm{#1}}
 \providecommand{\ft}[1]{\mathtt{#1}}
 
-\section*{Timing}
+%In this document, we will show readers how ILA can be used to model different designs. Because we will show some example templates, we assume the readers are already familiar with the ILA definition and the syntax of writing a template. 
 
-\section*{Instruction Ordering}
+\include{timing}
 
-\section*{Interrupt}
+\include{ordering}
 
-\section*{Micro-architecture and Specification}
+\include{interrupt}
+
+\include{child}
 
 \section*{Concurrency}
 

@@ -1,0 +1,34 @@
+% Section on how to use ILA to model interrupts.
+
+\section*{Interrupt}
+For general purpose processors, the instruction-level abstraction (ILA) can not 
+only capture the operations defined by its instruction-set architecture, but also
+the behavior of interrupts.
+As defined in the ILA definition, an instruction can be fetched from both the 
+input port and the architectural states.
+
+%
+Take a processor with interrupt service routine (ISR) stored in a certain range 
+of instruction memory, such as 8051 micro-controller, as an example.
+When the interrupt signal is raised, the processor stores the current program 
+counter into the stack and updates the program counter to the entry point of
+the ISR.
+This can be modeled with the following strategies:
+%
+\begin{enumerate}
+\item Include the interrupt signal as part of the instruction.
+\item Evaluate the decode functions of normal instructions to \textit{false} if 
+    any interrupt signal is raised.
+\item Model the interrupt handling with a new instruction whose decode 
+    function is evaluated to \textit{true} when the interrupt signal is raised.
+\item The next state function of the new interrupt instruction updates the 
+    program counter to the ISR entry point.
+\end{enumerate}
+
+%
+Note that, in this example, instructions in the ISR are also normal 
+instructions. 
+%
+The below shows part of an ILA template of the above example in modeling 
+interrupts.
+\lstinputlisting{code/interruptExample.py}
