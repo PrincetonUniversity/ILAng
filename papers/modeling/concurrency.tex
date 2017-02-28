@@ -40,7 +40,7 @@ escapeinside={\%*}{*)}          % if you want to add a comment within your code
 
 
 
-\title{Common Instruction-Level Abstraction Issues}
+\title{ILA Modeling of Concurrency}
 \author{}
 
 \date{Draft Working Document: \today}
@@ -52,19 +52,11 @@ escapeinside={\%*}{*)}          % if you want to add a comment within your code
 \providecommand{\st}[1]{\mathrm{#1}}
 \providecommand{\ft}[1]{\mathtt{#1}}
 
-%In this document, we will show readers how ILA can be used to model different designs. Because we will show some example templates, we assume the readers are already familiar with the ILA definition and the syntax of writing a template. 
-
-\include{timing}
-
-\include{ordering}
-
-\include{interrupt}
-
-\include{child}
-
 \section*{Concurrency}
 
-In this scenario we consider two different design options: physical and logical multi-core (logical is simultaneous multithreading). 
+In this scenario we consider two different design options: physical and logical 
+multi-core (logical is simultaneous multithreading). 
+
 \subsection*{Physical multi-core} 
 In a physical multi-core design computational resources are duplicated. 
 Modern CPUs contain 2-24 physical cores, while GPUs contain thousands 

@@ -1,4 +1,11 @@
-all: ILA_issues.pdf
+pdfs: concurrency.pdf interrupt.pdf timing.pdf
+
+all: $(pdfs)
+
+%.pdf: *.tex code/*
+	pdflatex -halt-on-error -pdf -bib $*.tex
+	pdflatex -halt-on-error -pdf -bib $*.tex
+	pdflatex -halt-on-error -pdf -bib $*.tex
 
 ILA_issues.pdf: *.tex code/* #*.bib #images/*
 	pdflatex -halt-on-error -pdf -bib ILA_issues.tex
