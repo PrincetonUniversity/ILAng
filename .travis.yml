@@ -24,8 +24,8 @@ before_install:
 install: 
     - sudo apt-get install --yes cmake cmake-data
     - sudo apt-get -qq --yes update
-    - sudo apt-get install --yes libgmp-dev
-    - sudo apt-get -qq --yes update
+    #- sudo apt-get install --yes libgmp-dev
+    #- sudo apt-get -qq --yes update
     - sudo apt-get install --yes -qq gcc-4.8
     - sudo apt-get install --yes -qq g++-4.8
     - sudo apt-get -qq --yes update
