@@ -1,14 +1,3 @@
-set ROOT /home/byhuang/ILA/apps/acc_spec/gaussian_hls
-
-analyze -clear
-elaborate -clear
-
-#analyze -verilog $ROOT/ila/rtl.v
-analyze -verilog $ROOT/ila/jgRtl.v
-elaborate -bbox {1} -bbox_a {4096}
-
-clock -clear; clock clk
-reset -expression {:global_formal_reset} {rst};
 
 assume -name {::Initial Condition} -env \
 {rst |-> ( \
@@ -25,4 +14,3 @@ assert -name {<embedded>::Test Property 1} \
 -annotation {Check if output valid then stencil is empty} \
 -update_db;
 
-#prove -bg -all
