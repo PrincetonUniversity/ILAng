@@ -1,3 +1,5 @@
+// wrapper for JasperGold
+//
 module gaussianRTL(
 arg_0_TREADY,
 arg_1_TDATA,
@@ -22,7 +24,54 @@ slice_stream_V_value_V_U,
 slice_stream_V_value_V_U_internal_full_n,
 clk,rst,
 step
+// below are initial values
+    ,
+    init_arg_0_TREADY,
+    init_arg_1_TDATA,
+    init_arg_1_TVALID,
+    init_arg_0_TDATA,
+    init_arg_0_TVALID,
+    init_arg_1_TREADY,
+    init_buffer_0_value_V_fu,
+    init_buffer_1_value_V_fu,
+    init_buffer_2_value_V_fu,
+    init_buffer_3_value_V_fu,
+    init_buffer_4_value_V_fu,
+    init_buffer_5_value_V_fu,
+    init_buffer_6_value_V_fu,
+    init_buffer_7_value_V_fu,
+    init_x_idx,
+    init_y_idx,
+    init_w_idx,
+    init_stencil_buff,
+    init_stencil_full,
+    init_slice_buff,
+    init_slice_full
+// above are initial values
 );
+// below are initial values
+input         init_arg_0_TREADY;
+input [7:0]   init_arg_1_TDATA;
+input         init_arg_1_TVALID;
+input [7:0]   init_arg_0_TDATA;
+input         init_arg_0_TVALID;
+input         init_arg_1_TREADY;
+input [71:0]  init_buffer_0_value_V_fu;
+input [71:0]  init_buffer_1_value_V_fu;
+input [71:0]  init_buffer_2_value_V_fu;
+input [71:0]  init_buffer_3_value_V_fu;
+input [71:0]  init_buffer_4_value_V_fu;
+input [71:0]  init_buffer_5_value_V_fu;
+input [71:0]  init_buffer_6_value_V_fu;
+input [71:0]  init_buffer_7_value_V_fu;
+input [8:0]   init_x_idx;
+input [9:0]   init_y_idx;
+input [63:0]  init_w_idx;
+input [647:0] init_stencil_buff;
+input         init_stencil_full;
+input [71:0]  init_slice_buff;
+input         init_slice_full;
+// above are initial values
 input            arg_0_TREADY;
 input      [7:0] arg_1_TDATA;
 input            arg_1_TVALID;
@@ -829,24 +878,24 @@ endfunction
 
 always @(posedge clk) begin
    if(rst) begin
-       arg_0_TDATA <= arg_0_TDATA;
-       arg_0_TVALID <= arg_0_TVALID;
-       arg_1_TREADY <= arg_1_TREADY;
-       buffer_0_value_V_fu_ <= buffer_0_value_V_fu_;
-       buffer_1_value_V_fu_ <= buffer_1_value_V_fu_;
-       buffer_2_value_V_fu_ <= buffer_2_value_V_fu_;
-       buffer_3_value_V_fu_ <= buffer_3_value_V_fu_;
-       buffer_4_value_V_fu_ <= buffer_4_value_V_fu_;
-       buffer_5_value_V_fu_ <= buffer_5_value_V_fu_;
-       buffer_6_value_V_fu_ <= buffer_6_value_V_fu_;
-       buffer_7_value_V_fu_ <= buffer_7_value_V_fu_;
-       col_reg_349 <= col_reg_349;
-       p_p2_in_bounded_stencil_stream_full <= p_p2_in_bounded_stencil_stream_full;
-       p_p2_in_bounded_stencil_stream_s_U <= p_p2_in_bounded_stencil_stream_s_U;
-       p_write_idx_1_1_reg_723 <= p_write_idx_1_1_reg_723;
-       row_reg_327 <= row_reg_327;
-       slice_stream_V_value_V_U <= slice_stream_V_value_V_U;
-       slice_stream_V_value_V_U_internal_full_n <= slice_stream_V_value_V_U_internal_full_n;
+       arg_0_TDATA <= init_arg_0_TDATA;
+       arg_0_TVALID <= init_arg_0_TVALID;
+       arg_1_TREADY <= init_arg_1_TREADY;
+       buffer_0_value_V_fu_ <= init_buffer_0_value_V_fu;
+       buffer_1_value_V_fu_ <= init_buffer_1_value_V_fu;
+       buffer_2_value_V_fu_ <= init_buffer_2_value_V_fu;
+       buffer_3_value_V_fu_ <= init_buffer_3_value_V_fu;
+       buffer_4_value_V_fu_ <= init_buffer_4_value_V_fu;
+       buffer_5_value_V_fu_ <= init_buffer_5_value_V_fu;
+       buffer_6_value_V_fu_ <= init_buffer_6_value_V_fu;
+       buffer_7_value_V_fu_ <= init_buffer_7_value_V_fu;
+       col_reg_349 <= init_x_idx;
+       p_p2_in_bounded_stencil_stream_full <= init_stencil_full;
+       p_p2_in_bounded_stencil_stream_s_U <= init_stencil_buff;
+       p_write_idx_1_1_reg_723 <= init_w_idx;
+       row_reg_327 <= init_y_idx;
+       slice_stream_V_value_V_U <= init_slice_buff;
+       slice_stream_V_value_V_U_internal_full_n <= init_slice_full;
    end
    else if(step) begin
        arg_0_TDATA <= n15;
