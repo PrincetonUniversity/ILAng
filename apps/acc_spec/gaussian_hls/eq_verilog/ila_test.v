@@ -52,6 +52,7 @@ step
 );
 // below are initial values
 input eqcheck_init;
+reg [1:0] init_counter;
 input         init_arg_0_TREADY;
 input [7:0]   init_arg_1_TDATA;
 input         init_arg_1_TVALID;
@@ -877,6 +878,18 @@ input [647:0] arg0;
         gaussianBlurStencil = arg0[7:0];
     end
 endfunction
+
+always @(posedge clk) begin
+    if (eqcheck_init) begin
+        init_counter <= 2'b00;
+    end
+    else if ((~eqcheck_init) & (init_counter == 2'b00)) begin
+        init_counter <= 2'b01;
+    end
+    else begin
+        init_counter <= 2'b10;
+    end
+end
 
 always @(posedge clk) begin
    if(rst) begin
