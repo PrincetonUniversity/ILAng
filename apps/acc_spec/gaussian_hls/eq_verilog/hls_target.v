@@ -11,7 +11,7 @@
 
 module hls_target (
         // below is auxiliary init
-        eqcheck_init,
+        //eqcheck_init,
         // above is auxiliary init
         s_axi_config_AWVALID,
         s_axi_config_AWREADY,
@@ -57,7 +57,7 @@ parameter    C_S_AXI_CONFIG_WSTRB_WIDTH = (C_S_AXI_CONFIG_DATA_WIDTH / ap_const_
 parameter    C_S_AXI_WSTRB_WIDTH = (C_S_AXI_DATA_WIDTH / ap_const_int64_8);
 
 // below is auxiliary init
-input eqcheck_init;
+//input eqcheck_init;
 // above is auxiliary init
 input   s_axi_config_AWVALID;
 output   s_axi_config_AWREADY;
