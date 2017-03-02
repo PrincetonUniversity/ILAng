@@ -37,10 +37,10 @@ install:
 
 before_script:
     # boost
-    - wget --output-document=boost-trunk.tar.gz https://www.dropbox.com/s/mub9p5wl1td6r8y/boost_1_61_0.tar?dl=0
+    - wget --output-document=boost-trunk.tar https://www.dropbox.com/s/mub9p5wl1td6r8y/boost_1_61_0.tar?dl=0
     - export BOOST_ROOT="$TRAVIS_BUILD_DIR/../boost-trunk"
     - mkdir -p $BOOST_ROOT
-    - tar -zxf boost-trunk.tar.gz --strip-components=1 -C $BOOST_ROOT > /dev/null
+    - tar -xvf boost-trunk.tar --strip-components=1 -C $BOOST_ROOT > /dev/null
     - cd $BOOST_ROOT
     - ./bootstrap.sh 
     - ./b2 
