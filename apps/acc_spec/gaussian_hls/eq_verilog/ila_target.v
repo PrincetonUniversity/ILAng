@@ -460,7 +460,13 @@ assign n7 =  ( p_p2_in_bounded_stencil_stream_full ) == ( 1'd1 )  ;
 assign n8 =  ( n6 ) & ( n7 )  ;
 assign n9 =  ( arg_1_TVALID ) == ( 1'd0 )  ;
 assign n10 =  ( n8 ) & ( n9 )  ;
-assign n11 = gaussianBlurStencil(p_p2_in_bounded_stencil_stream_s_U) ;
+//assign n11 = gaussianBlurStencil(p_p2_in_bounded_stencil_stream_s_U) ;
+
+gaussianBlurStencil gbFun (
+    p_p2_in_bounded_stencil_stream_s_U,
+    n11
+);
+
 assign n12 =  ( n7 ) ? ( n11 ) : ( arg_0_TDATA ) ;
 assign n13 =  ( n10 ) ? ( n12 ) : ( arg_0_TDATA ) ;
 assign n14 =  ( n5 ) ? ( arg_0_TDATA ) : ( n13 ) ;
@@ -819,6 +825,7 @@ assign n352 =  ( n2 ) & ( n351 )  ;
 assign n353 =  ( n2 ) & ( n350 )  ;
 assign buffer_7_value_V_U_addr0 = n353 ? (col_reg_349) : (0);
 assign buffer_7_value_V_U_data0 = n353 ? (arg_1_TDATA) : (buffer_7_value_V_U[0]);
+/*
 function [7:0] gaussianBlurStencil ;
 input [647:0] arg0;
     begin
@@ -826,6 +833,7 @@ input [647:0] arg0;
         gaussianBlurStencil = arg0[7:0];
     end
 endfunction
+*/
 
 always @(posedge clk) begin
    if(rst) begin
