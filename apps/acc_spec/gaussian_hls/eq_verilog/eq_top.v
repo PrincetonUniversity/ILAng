@@ -62,6 +62,19 @@ input   hls_s_axi_config_RREADY;
 input   hls_s_axi_config_BREADY;
 input  [0:0] hls_arg_1_TLAST;
 
+reg [1:0] cnt_init;
+always @ (posedge clk) begin
+    if (rst_init) begin 
+        cnt_init <= 2'b00;
+    end
+    else if (~rst_init & (cnt_init == 2'b00)) begin
+        cnt_init <= 2'b01;
+    end
+    else begin
+        cnt_init <= 2'b10;
+    end
+end
+
 wire ila_clk = clk & ila_step;
 wire hls_clk = clk & hls_step;
 wire rst = 1'b0;
