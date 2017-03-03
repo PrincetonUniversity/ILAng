@@ -1,8 +1,9 @@
 # analyze and elaborate two implementations (integrated)
 
-set ROOT /home/byhuang/ILA/apps/acc_spec/gaussian_hls
-set SRC $ROOT/eq_verilog
-set TCL $ROOT/eq_scripts
+#set ROOT /home/byhuang/ILA/apps/acc_spec/gaussian_hls
+set ROOT [pwd]
+set SRC $ROOT/verilog
+set TCL $ROOT/scripts
 
 analyze -clear
 elaborate -clear

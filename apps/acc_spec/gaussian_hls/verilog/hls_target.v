@@ -10,6 +10,9 @@
 //(* CORE_GENERATION_INFO="hls_target,hls_ip_2015_3,{HLS_INPUT_TYPE=cxx,HLS_INPUT_FLOAT=0,HLS_INPUT_FIXED=0,HLS_INPUT_PART=xc7z045ffg900-2,HLS_INPUT_CLOCK=10.000000,HLS_INPUT_ARCH=dataflow,HLS_SYN_CLOCK=10.080000,HLS_SYN_LAT=318169,HLS_SYN_TPT=318170,HLS_SYN_MEM=8,HLS_SYN_DSP=63,HLS_SYN_FF=2626,HLS_SYN_LUT=2849}" *)
 
 module hls_target (
+        // below is auxiliary init
+        //eqcheck_init,
+        // above is auxiliary init
         s_axi_config_AWVALID,
         s_axi_config_AWREADY,
         s_axi_config_AWADDR,
@@ -53,6 +56,9 @@ parameter    ap_true = 1'b1;
 parameter    C_S_AXI_CONFIG_WSTRB_WIDTH = (C_S_AXI_CONFIG_DATA_WIDTH / ap_const_int64_8);
 parameter    C_S_AXI_WSTRB_WIDTH = (C_S_AXI_DATA_WIDTH / ap_const_int64_8);
 
+// below is auxiliary init
+//input eqcheck_init;
+// above is auxiliary init
 input   s_axi_config_AWVALID;
 output   s_axi_config_AWREADY;
 input  [C_S_AXI_CONFIG_ADDR_WIDTH - 1 : 0] s_axi_config_AWADDR;
