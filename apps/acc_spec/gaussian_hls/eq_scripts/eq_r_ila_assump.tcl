@@ -12,14 +12,8 @@ assume -name {:read instr ILA init} -env \
     ila_arg_0_TDATA == 0    & \
     ila_arg_0_TVALID == 0   & \
     ila_arg_1_TREADY == 1   & \
-    # LB2D buff 
-    # x index 
-    # y index 
-    # w index 
     ila_stencil_full == 1   \
-    # stencil buff 
-    # slice buff
-    # slice full 
+    # LB2D buff, x/y/w index, stencil buff, slice buff, slice full
 )} -type {temporary} -update_db;
 
 # invariant state for read instruction -- ILA.
@@ -33,5 +27,5 @@ assume -name {:read instr ILA invariant} -env \
 # terminating condition -- ILA
 assume -name {:read instr ILA terminate} -env \
 { \
-    (cnt_init == 2) |-> (ila_step == 0) \
+    (cnt_init == 2) |-> (ila_step == 1) \
 } -type {temporary} -update_db;
