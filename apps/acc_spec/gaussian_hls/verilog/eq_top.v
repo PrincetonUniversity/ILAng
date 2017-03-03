@@ -4,8 +4,8 @@ module eq_top (
     // input ports
     clk,
     rst_init,
-    ila_step,           // terminate when instruction completes
-    hls_step,           // terminate when instruction completes
+    ila_complete,           // terminate when instruction completes
+    hls_complete,           // terminate when instruction completes
     arg_0_TREADY,
     arg_1_TDATA,
     arg_1_TVALID,
@@ -39,8 +39,8 @@ parameter    C_S_AXI_WSTRB_WIDTH = (C_S_AXI_DATA_WIDTH / ap_const_int64_8);
 
 input           clk;
 input           rst_init;
-input           ila_step;
-input           hls_step;
+input           ila_complete;
+input           hls_complete;
 input           arg_0_TREADY;
 input   [7:0]   arg_1_TDATA;
 input           arg_1_TVALID;
@@ -62,17 +62,22 @@ input   hls_s_axi_config_RREADY;
 input   hls_s_axi_config_BREADY;
 input  [0:0] hls_arg_1_TLAST;
 
-reg [1:0] cnt_init;
+reg cnt_init;
 always @ (posedge clk) begin
-    if (rst_init) begin 
-        cnt_init <= 2'b00;
+    if (rst_init) begin
+        cnt_init <= 1'b0;
     end
-    else if (~rst_init & (cnt_init == 2'b00)) begin
-        cnt_init <= 2'b01;
+    else if (~rst_init & (cnt_init == 1'b0)) begin
+        cnt_init <= 1'b1;
     end
-    else begin
-        cnt_init <= 2'b10;
-    end
+end
+
+reg ila_step;
+reg hls_step;
+
+always @ (posedge clk) begin
+    ila_step <= ~ila_complete;
+    hls_step <= ~hls_complete;
 end
 
 wire ila_clk = clk & ila_step;
