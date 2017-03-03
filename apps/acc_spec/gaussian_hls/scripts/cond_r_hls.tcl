@@ -29,5 +29,5 @@ assume -name {:read instr HLS invariant} -env \
 # terminating condition -- HLS
 assume -name {:read instr HLS terminate} -env \
 { \
-    (hls_target_U.hls_target_Loop_1_proc_U0.ap_ready == 1) |-> (hls_step == 0) \
+    hls_target_U.hls_target_Loop_1_proc_U0.ap_ready == ~hls_step \
 } -type {temporary} -update_db;
