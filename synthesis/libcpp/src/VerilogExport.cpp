@@ -393,7 +393,7 @@ namespace ila
 
             if (outWidth == bvWidth) result_stmt = arg0;
             else {
-                result_stmt = vlg_stmt_t(" { {") + toStr(outWidth - bvWidth) +"{"+ arg0 +"["+ toStr(bvWidth)  + "] }  }, " + arg0 + "} ";
+                result_stmt = vlg_stmt_t(" { {") + toStr(outWidth - bvWidth) +"{"+ arg0 +"["+ toStr(bvWidth-1)  + "] }  }, " + arg0 + "} ";
             }
         } else if  (op == BitvectorOp::EXTRACT) {
             unsigned hi = static_cast<unsigned> (bvop->param(0));
@@ -438,7 +438,7 @@ namespace ila
             } else if (op == BitvectorOp::LSHR) { 
                 result_stmt = vlg_stmt_t(" ( ( ") + arg1 + " ) >> ( " +  arg2 + " )) ";
             } else if (op == BitvectorOp::ASHR) { 
-                result_stmt = vlg_stmt_t(" ( ( ") + arg1 + " ) >>> ( " +  arg2 + " )) ";
+                result_stmt = vlg_stmt_t(" ( $signed( ") + arg1 + " ) >>> ( " +  arg2 + " )) ";
             } else if (op == BitvectorOp::MUL) { 
                 result_stmt = vlg_stmt_t(" ( ( ") + arg1 + " ) * ( " +  arg2 + " )) ";
             } else if (op == BitvectorOp::CONCAT) { 
