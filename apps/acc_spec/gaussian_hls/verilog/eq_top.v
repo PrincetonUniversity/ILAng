@@ -76,8 +76,14 @@ reg ila_step;
 reg hls_step;
 
 always @ (posedge clk) begin
-    ila_step <= ~ila_complete;
-    hls_step <= ~hls_complete;
+    if (rst_init) begin
+        ila_step <= 1'b0;
+        hls_step <= 1'b0;
+    end
+    else begin
+        ila_step <= ~ila_complete;
+        hls_step <= ~hls_complete;
+    end
 end
 
 wire ila_clk = clk & ila_step;
