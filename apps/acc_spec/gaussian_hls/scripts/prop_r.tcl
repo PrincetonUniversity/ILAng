@@ -26,3 +26,7 @@ assert -name {arg_0_TDATA} \
     ila_arg_0_TDATA == hls_arg_0_TDATA \
 )} -update_db;
 
+assert -name {test} \
+{ \
+    cnt_init == 1 |-> ila_complete == 0 \
+} -update_db;
