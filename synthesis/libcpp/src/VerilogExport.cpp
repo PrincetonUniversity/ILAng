@@ -139,7 +139,7 @@ namespace ila
                 return;
             }
 
-            nptr_t cond;
+            nptr_t cond = BoolConst::get(true);
             mem_write_entry_list_t writes;
 
             for (const auto &w: current_writes)
@@ -166,9 +166,11 @@ namespace ila
         {
             add_wire(name + "_addr" + toStr(portIdx),addrWidth);
             add_wire(name + "_data" + toStr(portIdx),dataWidth);
+            add_wire(name + "_wen"  + toStr(portIdx),1);
         }
+        std::vector<vlg_stmt_t> enabStmt(max_port_no,"1'b0");
         std::vector<vlg_stmt_t> addrStmt(max_port_no,"0");
-        std::vector<vlg_stmt_t> dataStmt(max_port_no,name + "[0]"); // 'dx is not desired, since it will change the value
+        std::vector<vlg_stmt_t> dataStmt(max_port_no,"'dx"); 
 
         for (const auto & mw : boost::adaptors::reverse(writeList) ) {
             start_iterate(mw.cond.get());
@@ -183,6 +185,7 @@ namespace ila
 
                 addrStmt[portIdx] = cond + " ? (" + addr + ") : (" + addrStmt[portIdx] + ")";
                 dataStmt[portIdx] = cond + " ? (" + data + ") : (" + dataStmt[portIdx] + ")";
+                enabStmt[portIdx] = cond + " ? ( 1'b1 ) : ("       + enabStmt[portIdx] + ")";
 
                 portIdx ++;
             }
@@ -193,10 +196,19 @@ namespace ila
             // add statements
             vlg_name_t addrWireName = name + "_addr" + toStr(portIdx);
             vlg_name_t dataWireName = name + "_data" + toStr(portIdx);
+            vlg_name_t enabWireName = name + "_wen"  + toStr(portIdx);
             add_stmt(vlg_stmt_t("assign ") + addrWireName + " = " + addrStmt[portIdx] + ";" );
             add_stmt(vlg_stmt_t("assign ") + dataWireName + " = " + dataStmt[portIdx] + ";" );
+            add_stmt(vlg_stmt_t("assign ") + enabWireName + " = " + enabStmt[portIdx] + ";" );
             // add memory updates in the always block
-            add_always_stmt(name + " [ " + addrWireName + " ] " + "<= "  + dataWireName);
+            if(ExternalMem) {
+
+            }
+            else {
+                vlg_stmt_t assignment = name + " [ " + addrWireName + " ] " + "<= "  + dataWireName;
+                vlg_stmt_t condition  = enabWireName;
+                add_ite_stmt(condition, assignment, ""); // no else statement
+            }
         }
     }
 
@@ -206,20 +218,32 @@ namespace ila
 
         ILA_ASSERT( (funcvar = dynamic_cast<const FuncVar *>(np.var.get()) ), "function variable type mismatched.");
 
-        vlg_stmt_t funcDecal = "function " + WidthToRange(funcvar->type.bitWidth) + " ";
-        funcDecal += name + " ;\n";
+        if(FunctionAsModule) {
+            vlg_stmt_t funcModDef = "module fun_" + funcvar->getName() + " (\n";
+            int argNo = 1;
+            for (const auto &argWidth : funcvar->type.argsWidth)
+                funcModDef += "    input " + WidthToRange(argWidth) + " arg" + toStr(argNo++) + ",\n";
+            funcModDef += "    output " + WidthToRange(funcvar->type.bitWidth) + " result\n";
+            funcModDef += ");\n";
+            funcModDef += "//TODO: Add the specific function HERE.\n";
+            funcModDef += "endmodule\n";
+            preheader += funcModDef;
+        }
+        else {
+            vlg_stmt_t funcDecal = "function " + WidthToRange(funcvar->type.bitWidth) + " ";
+            funcDecal += name + " ;\n";
 
-        int argNo = 0;
+            int argNo = 0;
 
-        for (const auto &argWidth : funcvar->type.argsWidth)
-            funcDecal += vlg_stmt_t("input ") + WidthToRange(argWidth) + " arg" + toStr(argNo++) + ";\n";
-        funcDecal += "    begin\n//TODO: Add the specific function HERE.";
-        funcDecal += "    end\n";
+            for (const auto &argWidth : funcvar->type.argsWidth)
+                funcDecal += vlg_stmt_t("input ") + WidthToRange(argWidth) + " arg" + toStr(argNo++) + ";\n";
+            funcDecal += "    begin\n//TODO: Add the specific function HERE.\n";
+            funcDecal += "    end\n";
 
-        funcDecal += "endfunction\n";
+            funcDecal += "endfunction\n";
 
-        add_stmt(funcDecal);
-
+            add_stmt(funcDecal);
+        }
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -251,6 +275,10 @@ namespace ila
     void VerilogExport::add_init_stmt(const vlg_stmt_t & s)
     {
         init_stmts.push_back(s);
+    }
+    void VerilogExport::add_ite_stmt(const vlg_stmt_t & cond, const vlg_stmt_t & tstmt, const vlg_stmt_t & fstmt)
+    {
+        ite_stmts.push_back(std::make_tuple(cond,tstmt,fstmt));
     }
 
     void VerilogExport::add_mem(const vlg_name_t &n, int addr_width,int data_width)
@@ -510,13 +538,26 @@ namespace ila
             result_stmt = vlg_stmt_t(" ( ") + arg1 + " ) ? ( " +  arg2 + " ) : ( " + arg3 + " )";
         } else if (op == BitvectorOp::APPLY_FUNC) {
             const Node * funcVar = bvop->arg(0).get();
-            result_stmt = funcVar->getName() + "(";
-            vlg_stmt_t arg_stmt = getArg(bvop, 1);
-            int arity = bvop->nArgs();
-            for (int i = 2; i != arity; i++) {
-                arg_stmt = getArg(bvop, i) + " , " + arg_stmt;
+            if(FunctionAsModule) {
+                result_stmt = NewId();
+                add_wire(result_stmt, get_width(funcVar) );
+                vlg_stmt_t funcInstantiation = "fun_"+ funcVar->getName() + "  "+"applyFunc_"+NewId() + "(\n";
+                int arity = bvop->nArgs();
+                for (int i = 1; i != arity; i++) {
+                    funcInstantiation +=  "    .arg"+toStr(i)+"( " + getArg(bvop, i) + " ),\n";
+                }
+                funcInstantiation += "    .result( " + result_stmt + " )\n" ;
+                funcInstantiation += ");";
+                add_stmt(funcInstantiation);
             }
-            result_stmt = result_stmt + arg_stmt + ")";
+            else {
+                result_stmt = funcVar->getName() + "(";
+                vlg_stmt_t arg_stmt = getArg(bvop, 1);
+                int arity = bvop->nArgs();
+                for (int i = 2; i != arity; i++) 
+                    arg_stmt = arg_stmt +  " , " + getArg(bvop, i) ;
+                result_stmt = result_stmt + arg_stmt + ")";
+            }
         } else {
             log1 ("VerilogExport") << BitvectorOp::operatorNames[op] << " not supported.\n";
             ILA_ASSERT(false,"Operator not supported.");
@@ -693,14 +734,15 @@ namespace ila
         return "n" + toStr(idCounter++);
     }
 
-    VerilogExport::VerilogExport (const std::string &modName,const std::string &clk,const std::string &rst, bool _ExternalMem)
+    VerilogExport::VerilogExport (const std::string &modName,const std::string &clk,const std::string &rst, const VlgExportConfig & config)
         : moduleName(modName)
         , clkName(clk)
         , rstName(rst)
         , nmap(NUM_HASHTABLE_BUCKETS, nodeHash, nodeEqual)
         , notCache(NUM_HASHTABLE_BUCKETS_SMALL, nodeHash, nodeEqual)
         , idCounter(0)
-        , ExternalMem(_ExternalMem)
+        , ExternalMem(config._extMem)
+        , FunctionAsModule(config._fmodule)
     {
 
     }
@@ -712,12 +754,11 @@ namespace ila
     {
         // module XXX ( A,B,C,clk,rst );
 
-        fout << "module "<< moduleName<< "(\n";
-        for(auto const &sig_pair : inputs)
-            fout << sig_pair.first <<",\n";
-        for(auto const &sig_pair : outputs)
-            fout << sig_pair.first <<",\n";
-        fout << clkName <<","<<rstName<<",\nstep\n);\n";
+        if(preheader != "") {
+            fout << "/* PREHEADER */\n";
+            fout << preheader<<"\n";
+            fout << "/* END OF PREHEADER */\n";
+        }
 
         if(ExternalMem) {
             for(const auto &io: mem_i)
@@ -725,6 +766,14 @@ namespace ila
             for(const auto &io: mem_o)
                 outputs.push_back(io);
         }
+        
+        fout << "module "<< moduleName<< "(\n";
+        for(auto const &sig_pair : inputs)
+            fout << sig_pair.first <<",\n";
+        for(auto const &sig_pair : outputs)
+            fout << sig_pair.first <<",\n";
+        fout << clkName <<","<<rstName<<",\nstep\n);\n";
+
 
         for(auto const &sig_pair  : inputs)
             fout << "input "<<std::setw(10)<<WidthToRange(sig_pair.second)<<" "<<(sig_pair.first) << ";\n";
@@ -738,9 +787,13 @@ namespace ila
 
         for(auto const &sig_pair : wires)
             fout << "wire " <<std::setw(10)<<WidthToRange(sig_pair.second)<<" "<<(sig_pair.first) << ";\n";
+        if(ExternalMem) {
 
-        for(auto const &mem : mems)
-            fout << "reg "<<std::setw(10)<<WidthToRange( std::get<2>(mem) )<<" "<<( std::get<0>(mem) )<< WidthToRange(std::pow(2, std::get<1>(mem)))<<";\n";
+        }
+        else {
+            for(auto const &mem : mems)
+                fout << "reg "<<std::setw(10)<<WidthToRange( std::get<2>(mem) )<<" "<<( std::get<0>(mem) )<< WidthToRange(std::pow(2, std::get<1>(mem)))<<";\n";
+        }
 
         fout << "wire "<<clkName<<";\nwire "<<rstName<<";\n"<<"wire step;\n";
 
@@ -758,6 +811,15 @@ namespace ila
 
         for(auto const &stmt : always_stmts) 
             fout << "       "<<stmt<<";\n";
+
+        for (auto const &stmt : ite_stmts) {
+            fout << "       "<<"if (" << std::get<0>(stmt) <<") begin\n";
+            fout << "       "<<"    "<< std::get<1>(stmt)<<" ;\n";
+            fout << "       "<<"end\n";
+            if(std::get<2>(stmt) != "") {
+                fout << "       "<<"else begin\n            "<<std::get<2>(stmt)<<" ;\n        end\n";
+            }
+        }
 
         fout << "   end\n";
         fout << "end\n";

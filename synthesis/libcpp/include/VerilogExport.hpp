@@ -12,6 +12,13 @@
 
 namespace ila
 {
+    struct VlgExportConfig{
+        bool _extMem;
+        bool _fmodule;
+        VlgExportConfig(bool ExternalMem = false, bool FunctionAsModule = true) : _extMem(ExternalMem), _fmodule(FunctionAsModule)
+        {}
+    };
+
     typedef std::string                 vlg_name_t;
     typedef std::string                 vlg_stmt_t;
     typedef std::string                 vlg_addr_t;
@@ -20,8 +27,12 @@ namespace ila
     typedef std::pair<vlg_name_t,int>   vlg_sig_t;
     typedef std::vector<vlg_sig_t>      vlg_sigs_t;
 
-    typedef std::tuple<vlg_name_t,int,int> vlg_mem_t; // name addr_width data_width
-    typedef std::vector<vlg_mem_t>      vlg_mems_t;
+    typedef std::tuple<vlg_stmt_t,vlg_stmt_t,vlg_stmt_t>  vlg_ite_stmt_t;
+    typedef std::vector<vlg_ite_stmt_t>             vlg_ite_stmts_t;
+    typedef std::pair<vlg_name_t, vlg_sigs_t>       vlg_per_mem_access_t; // intended for embedded memory (not external memory)
+
+    typedef std::tuple<vlg_name_t,int,int>          vlg_mem_t; // name addr_width data_width
+    typedef std::vector<vlg_mem_t>                  vlg_mems_t;
 
     // This is an individual write.
     struct mem_write_entry_t
@@ -73,6 +84,8 @@ namespace ila
         vlg_stmts_t init_stmts;
         vlg_stmts_t statements;
         vlg_stmts_t always_stmts;
+        vlg_ite_stmts_t ite_stmts; // this stmt is only used in sequential always block
+        vlg_stmt_t  preheader; // For auxiliary definitions
 
         vexpr_map_t nmap;
         rwmap_t notCache;
@@ -92,6 +105,7 @@ namespace ila
         void add_stmt(const vlg_stmt_t & s);
         void add_always_stmt(const vlg_stmt_t & s);
         void add_init_stmt(const vlg_stmt_t & s);
+        void add_ite_stmt(const vlg_stmt_t & cond, const vlg_stmt_t & tstmt, const vlg_stmt_t & fstmt);
         void start_iterate(const Node *n);
 
         vlg_name_t getName(const Node* n);
@@ -113,9 +127,10 @@ namespace ila
         vlg_name_t NewId();
 
         bool ExternalMem;
+        bool FunctionAsModule;
 
     public:
-        VerilogExport (const std::string &modName,const std::string &clk,const std::string &rst, bool _ExternalMem = false);
+        VerilogExport (const std::string &modName,const std::string &clk,const std::string &rst, const VlgExportConfig & config);
         void exportInp(const std::string &name, const npair_t &np);
         void exportReg(const std::string &name, const npair_t &np);
         void exportBit(const std::string &name, const npair_t &np);

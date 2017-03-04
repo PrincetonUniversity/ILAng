@@ -1080,7 +1080,7 @@ namespace ila
         std::ofstream out(fileName.c_str());
         ILA_ASSERT(out.is_open(), "File " + fileName + " not open.");
 
-        VerilogExport expt(name,"clk","rst");
+        VerilogExport expt(name,"clk","rst", vlgExpConfig);
         for (auto const & inp : inps) 
             expt.exportInp(inp.first,inp.second);
         
@@ -1112,7 +1112,7 @@ namespace ila
         std::ofstream out(fileName.c_str());
         ILA_ASSERT(out.is_open(), "File " + fileName + " not open.");
 
-        VerilogExport expt(topModName,"clk","rst");
+        VerilogExport expt(topModName,"clk","rst", vlgExpConfig);
         for (auto const & inp : inps) 
             expt.exportInp(inp.first,inp.second);
         
