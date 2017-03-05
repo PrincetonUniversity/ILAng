@@ -90,8 +90,8 @@ always @ (posedge clk) begin
     end
 end
 
-wire ila_clk = ~rst_init & clk & ~ila_complete;
-wire hls_clk = ~rst_init & clk & ~hls_complete;
+wire ila_clk = ~rst_init & cnt_init & clk & ~ila_complete;
+wire hls_clk = ~rst_init & cnt_init & clk & ~hls_complete;
 wire rst = 1'b0;
 
 // ila 
