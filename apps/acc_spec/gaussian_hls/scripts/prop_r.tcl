@@ -20,7 +20,7 @@ assert -name {arg_0_TVALID} \
 assert -name {stencil_full - All} \
 { (cnt_init & ila_complete & hls_complete) |-> ( \
     ila_stencil_full == 0 & \
-    (hls_target_U.p_p2_in_bounded_stencil_stream_s_U.internal_empty_n == 0) & \
+    #(hls_target_U.p_p2_in_bounded_stencil_stream_s_U.internal_empty_n == 0) & \ 
     (hls_target_U.p_p2_in_bounded_stencil_stream_s_U.internal_full_n == 1) \
 )} -update_db;
 
@@ -30,7 +30,7 @@ assert -name {stencil_full - HLS} \
     hls_target_U.p_p2_in_bounded_stencil_stream_s_U.internal_full_n == 1 \
 )} -update_db;
 
-assert -name {stencil_empty - HLS} \
+#assert -name {stencil_empty - HLS} \
 { (cnt_init & hls_complete) |-> ( \
     hls_target_U.p_p2_in_bounded_stencil_stream_s_U.internal_empty_n == 0 \
 )} -update_db;
@@ -42,14 +42,22 @@ assert -name {arg_0_TDATA} \
     ila_arg_0_TDATA == hls_arg_0_TDATA \
 )} -update_db;
 
+# stencil_buff
+assert -name {stencil_buff} \
+{ (cnt_init & ila_complete & hls_complete) |-> ( \
+    ila_target_U.p_p2_in_bounded_stencil_stream_s_U == 1 & \
+    hls_target_U.p_p2_in_bounded_stencil_stream_s_U.U_FIFO_hls_target_p_p2_in_bounded_stencil_stream_s_ram.SRL_SIG[0] == 1 & \
+    hls_target_U.p_p2_in_bounded_stencil_stream_s_U.U_FIFO_hls_target_p_p2_in_bounded_stencil_stream_s_ram.SRL_SIG[1] == 0 \
+)} -update_db;
+
 # check fsm
-assert -name {sanity - fsm_st_1} \
+#assert -name {sanity - fsm_st_1} \
 { (cnt_init & ila_complete & hls_complete) |-> ( \
     (hls_target_U.hls_target_Loop_1_proc_U0.ap_CS_fsm == 2) \
 )} -update_db;
 
 # check micro states
-assert -name {sanity - u states} \
+#assert -name {sanity - u states} \
 { (cnt_init & ila_complete & hls_complete) |-> ( \
     hls_target_U.hls_target_Loop_1_proc_U0.ap_reg_ppiten_pp0_it0 == 1 & \
     hls_target_U.hls_target_Loop_1_proc_U0.ap_reg_ppiten_pp0_it1 == 1 & \

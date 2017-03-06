@@ -109,6 +109,7 @@ end
 
 assign shiftReg_addr = mOutPtr[ADDR_WIDTH] == 1'b0 ? mOutPtr[ADDR_WIDTH-1:0]:{ADDR_WIDTH{1'b0}};
 assign shiftReg_ce = (if_write & if_write_ce) & internal_full_n;
+//assign shiftReg_ce = 1'b0;
 
 FIFO_hls_target_p_p2_in_bounded_stencil_stream_s_shiftReg 
 #(
