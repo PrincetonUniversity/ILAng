@@ -3,15 +3,14 @@
 # decode -- arg_1_TVALID & arg_0_TREADY
 assume -name {decode init all} -env \
 { (cnt_init == 0) |=> ( \
-    arg_0_TREADY == 1 & \
+    arg_0_TREADY == 0 & \
     arg_1_TVALID == 0 \
 ) } -type {temporary} -update_db;
 #
 assume -name {decode invariant all} -env \
 { ( \
-    arg_0_TREADY == 1 & \
+    arg_0_TREADY == 0 & \
     arg_1_TVALID == 0 \
-    # arg_1_TREADY
 ) } -type {temporary} -update_db;
 
 # arg_0_TVALID
