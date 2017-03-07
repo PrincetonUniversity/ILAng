@@ -6,6 +6,8 @@ module eq_top (
     rst_init,
     ila_complete,           // terminate when instruction completes
     hls_complete,           // terminate when instruction completes
+    ila_exec,               // virtual input for initialization
+    hls_exec,               // virtual input for initialization 
     arg_0_TREADY,
     arg_1_TDATA,
     arg_1_TVALID,
@@ -41,6 +43,8 @@ input           clk;
 input           rst_init;
 input           ila_complete;
 input           hls_complete;
+input           ila_exec;
+input           hls_exec;
 input           arg_0_TREADY;
 input   [7:0]   arg_1_TDATA;
 input           arg_1_TVALID;
@@ -62,36 +66,18 @@ input   hls_s_axi_config_RREADY;
 input   hls_s_axi_config_BREADY;
 input  [0:0] hls_arg_1_TLAST;
 
-reg cnt_init;
+reg [7:0] counter;
 always @ (posedge clk) begin
     if (rst_init) begin
-        cnt_init <= 1'b0;
-    end
-    else if (~rst_init & (cnt_init == 1'b0)) begin
-        cnt_init <= 1'b1;
-    end
-end
-
-reg ila_step;
-reg hls_step;
-
-always @ (posedge clk) begin
-    if (rst_init) begin
-        ila_step <= 1'b0;
-        hls_step <= 1'b0;
-    end
-    else if (~rst_init & (cnt_init == 1'b0)) begin
-        ila_step <= 1'b1;
-        hls_step <= 1'b1;
+        counter <= 8'b0;
     end
     else begin
-        ila_step <= ~ila_complete;
-        hls_step <= ~hls_complete;
+        counter <= counter + 8'b1;
     end
 end
 
-wire ila_clk = ~rst_init & cnt_init & clk & ~ila_complete;
-wire hls_clk = ~rst_init & cnt_init & clk & ~hls_complete;
+wire ila_clk = ~rst_init & clk & ~ila_complete;
+wire hls_clk = ~rst_init & clk & ~hls_complete;
 wire rst = 1'b0;
 
 // ila 
@@ -121,21 +107,21 @@ gaussianRTL ila_target_U (
     .arg_0_TDATA (ila_arg_0_TDATA),
     .arg_0_TVALID (ila_arg_0_TVALID),
     .arg_1_TREADY (ila_arg_1_TREADY),
-    .buffer_0_value_V_fu_ (ila_buff_0),
-    .buffer_1_value_V_fu_ (ila_buff_1),
-    .buffer_2_value_V_fu_ (ila_buff_2),
-    .buffer_3_value_V_fu_ (ila_buff_3),
-    .buffer_4_value_V_fu_ (ila_buff_4),
-    .buffer_5_value_V_fu_ (ila_buff_5),
-    .buffer_6_value_V_fu_ (ila_buff_6),
-    .buffer_7_value_V_fu_ (ila_buff_7),
-    .col_reg_349 (ila_x_idx),
-    .p_p2_in_bounded_stencil_stream_full (ila_stencil_full),
-    .p_p2_in_bounded_stencil_stream_s_U (ila_stencil_buff),
-    .p_write_idx_1_1_reg_723 (ila_w_idx),
-    .row_reg_327 (ila_y_idx),
-    .slice_stream_V_value_V_U (ila_slice_buff),
-    .slice_stream_V_value_V_U_internal_full_n (ila_slice_full),
+    .LB2D_shift_0 (ila_buff_0),
+    .LB2D_shift_1 (ila_buff_1),
+    .LB2D_shift_2 (ila_buff_2),
+    .LB2D_shift_3 (ila_buff_3),
+    .LB2D_shift_4 (ila_buff_4),
+    .LB2D_shift_5 (ila_buff_5),
+    .LB2D_shift_6 (ila_buff_6),
+    .LB2D_shift_7 (ila_buff_7),
+    .LB2D_x_idx (ila_x_idx),
+    .stencil_full (ila_stencil_full),
+    .stencil_buff (ila_stencil_buff),
+    .LB2D_w_idx (ila_w_idx),
+    .LB2D_y_idx (ila_y_idx),
+    .slice_buff (ila_slice_buff),
+    .slice_full (ila_slice_full),
     .clk (ila_clk),
     .rst (rst),
     .step (ila_step)

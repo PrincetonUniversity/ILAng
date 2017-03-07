@@ -125,6 +125,7 @@ def gaussian ():
     # store the streamed-in pixel into the 2-D buffer, slice, stencil, 
     # and output the output port, if allowed for all above
     WRITE_I_decode = (arg_1_TVALID == VALID_TRUE) & \
+                     (arg_0_TVALID == VALID_FALSE) & \
                      (slice_full == slice_full_EMPTY)
 
     # updating states: 
@@ -209,6 +210,7 @@ def gaussian ():
 
     # XXX Write micro-instruction 1 XXX
     WRITE_U1_decode = (slice_full == slice_full_FULL) & \
+                      (arg_0_TVALID == VALID_FALSE) & \
                       (stencil_full == stencil_full_EMPTY)
 
     # updating states:
