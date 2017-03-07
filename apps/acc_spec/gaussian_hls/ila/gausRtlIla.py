@@ -37,23 +37,23 @@ def gaussian ():
     LB2D_buff_size = Y_EXTEND - 1
     for i in xrange (0, LB2D_buff_size):
         # each memory size is 488 bytes, address 9 bits, data DATA_SIZE bits
-        buffName = 'buffer_%d_value_V_U' % i
+        buffName = 'LB2D_buff_%d' % i
         LB2D_buff.append (m.mem (buffName, COL_ADDR_SIZE, DATA_SIZE)) 
 
     # x-axis (column) indec in 2-D line buffer (col_reg_349)
-    LB2D_x_idx = m.reg ('col_reg_349', COL_ADDR_SIZE)
+    LB2D_x_idx = m.reg ('LB2D_x_idx', COL_ADDR_SIZE)
     x_idx_0    = m.const (0x0, COL_ADDR_SIZE)
     x_idx_1    = m.const (0x1, COL_ADDR_SIZE)
     x_idx_M    = m.const (IMG_X_SIZE-1, COL_ADDR_SIZE) # ap_const_lv9_1E8 (abs)
     
     # y-axis (row) index in 2-D line buffer (row_reg_327)
-    LB2D_y_idx = m.reg ('row_reg_327', ROW_ADDR_SIZE)
+    LB2D_y_idx = m.reg ('LB2D_y_idx', ROW_ADDR_SIZE)
     y_idx_0    = m.const (0x0, ROW_ADDR_SIZE)
     y_idx_1    = m.const (0x1, ROW_ADDR_SIZE)
     y_idx_M    = m.const (IMG_Y_SIZE-1, ROW_ADDR_SIZE) # ap_const_lv10_288 (abs)
 
     # write index in 2-D line buffer (p_write_idx_1_1_reg_723)
-    LB2D_w_idx = m.reg ('p_write_idx_1_1_reg_723', 64)
+    LB2D_w_idx = m.reg ('LB2D_w_idx', 64)
     w_idx_0    = m.const (0x0, 64)
     w_idx_1    = m.const (0x1, 64)
     w_idx_M    = m.const (LB2D_buff_size-1, 64) # abstracted
@@ -61,8 +61,8 @@ def gaussian ():
 
     # one 1x9 bytes slice in slice streamer
     slice_size = 1 * Y_EXTEND * DATA_SIZE
-    slice_buff = m.reg ('slice_stream_V_value_V_U', slice_size)
-    slice_full = m.reg ('slice_stream_V_value_V_U_internal_full_n', 1)
+    slice_buff = m.reg ('slice_buff', slice_size)
+    slice_full = m.reg ('slice_full', 1)
     slice_full_FULL  = m.const (0x1, 1)
     slice_full_EMPTY = m.const (0x0, 1)
 
@@ -71,13 +71,13 @@ def gaussian ():
     LB2D_shift_size = X_EXTEND - 1
     for i in xrange (0, LB2D_shift_size):
         # buffer_[i]_value_V_fu_[r]: r = 100, 104, 108, 112, 116, 120, 124, 96
-        buffName = 'buffer_%d_value_V_fu_' % i
+        buffName = 'LB2D_shift_%d' % i
         LB2D_shift.append (m.reg (buffName, slice_size))
 
     # one 9x9 bytes stencil in stencil streamer
     stencil_size = X_EXTEND * Y_EXTEND * DATA_SIZE
-    stencil_buff = m.reg ('p_p2_in_bounded_stencil_stream_s_U', stencil_size)
-    stencil_full = m.reg ('p_p2_in_bounded_stencil_stream_full', 1)
+    stencil_buff = m.reg ('stencil_buff', stencil_size)
+    stencil_full = m.reg ('stencil_full', 1)
     stencil_full_FULL  = m.const (0x1, 1)
     stencil_full_EMPTY = m.const (0x0, 1)
 
@@ -92,19 +92,14 @@ def gaussian ():
     ######################## instructions ####################################
 
     # XXX READ Instruction XXX
-    # perform gaussian operation on the stencil, if any, and output to the port
+    # when output is valid, ackowledge the result
     READ_I_decode = (arg_0_TREADY == READY_TRUE) & \
-                    (stencil_full == stencil_full_FULL)
+                    (arg_0_TVALID == VALID_TRUE)
 
-    # updating states: 
-    READ_I_stencil_has_data = (stencil_full == stencil_full_FULL)
-    READ_I_arg_0_TVALID_nxt = ila.ite (READ_I_stencil_has_data, 
-                                       VALID_TRUE,
-                                       VALID_FALSE)
-    READ_I_arg_0_TDATA_nxt  = ila.ite (READ_I_stencil_has_data,
-                                       ila.appfun (gaussianFun, stencil_buff),
-                                       arg_0_TDATA)
-    READ_I_arg_1_TREADY_nxt = READY_TRUE
+    # updating arch states: 
+    READ_I_arg_0_TVALID_nxt = VALID_FALSE
+    READ_I_arg_0_TDATA_nxt  = arg_0_TDATA
+    READ_I_arg_1_TREADY_nxt = READY_TRUE # FIXME abstracted 
 
     READ_I_LB2D_buff_nxt = []
     for i in xrange (0, LB2D_buff_size):
@@ -113,6 +108,8 @@ def gaussian ():
     READ_I_LB2D_x_idx_nxt = LB2D_x_idx
     READ_I_LB2D_y_idx_nxt = LB2D_y_idx
     READ_I_LB2D_w_idx_nxt = LB2D_w_idx
+
+    # child states
     READ_I_slice_buff_nxt = slice_buff
     READ_I_slice_full_nxt = slice_full
 
@@ -125,7 +122,8 @@ def gaussian ():
 
 
     # XXX WRITE Instruction XXX
-    # store the streamed-in pixel into the 2-D buffer and output slice, if so
+    # store the streamed-in pixel into the 2-D buffer, slice, stencil, 
+    # and output the output port, if allowed for all above
     WRITE_I_decode = (arg_1_TVALID == VALID_TRUE) & \
                      (slice_full == slice_full_EMPTY)
 
@@ -288,7 +286,7 @@ def gaussian ():
     m.set_next ('arg_1_TREADY', arg_1_TREADY_nxt)
 
     for i in xrange (0, LB2D_buff_size):
-        buffName = 'buffer_%d_value_V_U' % i
+        buffName = 'LB2D_buff_%d' % i
         LB2D_buff_nxt_i = (decodeWrap (LB2D_buff[i],
                                        READ_I_LB2D_buff_nxt[i],
                                        WRITE_I_LB2D_buff_nxt[i],
@@ -299,35 +297,35 @@ def gaussian ():
                                  READ_I_LB2D_x_idx_nxt,
                                  WRITE_I_LB2D_x_idx_nxt,
                                  WRITE_U1_LB2D_x_idx_nxt)
-    m.set_next ('col_reg_349', LB2D_x_idx_nxt)
+    m.set_next ('LB2D_x_idx', LB2D_x_idx_nxt)
 
     LB2D_y_idx_nxt = decodeWrap (LB2D_y_idx,
                                  READ_I_LB2D_y_idx_nxt,
                                  WRITE_I_LB2D_y_idx_nxt,
                                  WRITE_U1_LB2D_y_idx_nxt)
-    m.set_next ('row_reg_327', LB2D_y_idx_nxt)
+    m.set_next ('LB2D_y_idx', LB2D_y_idx_nxt)
 
     LB2D_w_idx_nxt = decodeWrap (LB2D_w_idx,
                                  READ_I_LB2D_w_idx_nxt,
                                  WRITE_I_LB2D_w_idx_nxt,
                                  WRITE_U1_LB2D_w_idx_nxt)
-    m.set_next ('p_write_idx_1_1_reg_723', LB2D_w_idx_nxt)
+    m.set_next ('LB2D_w_idx', LB2D_w_idx_nxt)
 
     slice_buff_nxt = decodeWrap (slice_buff,
                                  READ_I_slice_buff_nxt,
                                  WRITE_I_slice_buff_nxt,
                                  WRITE_U1_slice_buff_nxt)
-    m.set_next ('slice_stream_V_value_V_U', slice_buff_nxt)
+    m.set_next ('slice_buff', slice_buff_nxt)
 
     slice_full_nxt = decodeWrap (slice_full,
                                  READ_I_slice_full_nxt,
                                  WRITE_I_slice_full_nxt,
                                  WRITE_U1_slice_full_nxt)
-    m.set_next ('slice_stream_V_value_V_U_internal_full_n', slice_full_nxt)
+    m.set_next ('slice_full', slice_full_nxt)
 
     LB2D_shift_nxt = []
     for i in xrange (0, LB2D_shift_size):
-        buffName = 'buffer_%d_value_V_fu_' % i
+        buffName = 'LB2D_shift_%d' % i
         LB2D_shift_nxt_i = decodeWrap (LB2D_shift[i],
                                        READ_I_LB2D_shift_nxt[i],
                                        WRITE_I_LB2D_shift_nxt[i],
@@ -338,13 +336,13 @@ def gaussian ():
                                    READ_I_stencil_buff_nxt,
                                    WRITE_I_stencil_buff_nxt,
                                    WRITE_U1_stencil_buff_nxt)
-    m.set_next ('p_p2_in_bounded_stencil_stream_s_U', stencil_buff_nxt)
+    m.set_next ('stencil_buff', stencil_buff_nxt)
 
     stencil_full_nxt = decodeWrap (stencil_full,
                                    READ_I_stencil_full_nxt,
                                    WRITE_I_stencil_full_nxt,
                                    WRITE_U1_stencil_full_nxt)
-    m.set_next ('p_p2_in_bounded_stencil_stream_full', stencil_full_nxt)
+    m.set_next ('stencil_full', stencil_full_nxt)
 
     # export ILA
     ilaFileName = 'rtl.ila'
