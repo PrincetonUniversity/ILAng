@@ -3,30 +3,28 @@
 
 # both instructions terminate
 assert -name {ILA terminate} \
-{ (cnt_init == 1) |-> (ila_complete == 0) \
+{ (ila_exec == 1) |-> (ila_complete == 0) \
 } -update_db;
 
 assert -name {HLS terminate} \
-{ (cnt_init == 1) |-> (hls_complete == 0) \
+{ (hls_exec == 1) |-> (hls_complete == 0) \
 } -update_db;
 
 # arg_0_TVALID
 assert -name {arg_0_TVALID} \
-{ (cnt_init & ila_complete & hls_complete) |-> ( \
+{ (ila_exec & hls_exec & ila_complete & hls_complete) |-> ( \
     ila_arg_0_TVALID == hls_arg_0_TVALID \
 )} -update_db;
 
 # stencil_full
-assert -name {stencil_full - All} \
+#assert -name {stencil_full - All} \
 { (cnt_init & ila_complete & hls_complete) |-> ( \
     ila_stencil_full == 0 & \
-    #(hls_target_U.p_p2_in_bounded_stencil_stream_s_U.internal_empty_n == 0) & \ 
     (hls_target_U.p_p2_in_bounded_stencil_stream_s_U.internal_full_n == 1) \
 )} -update_db;
 
-assert -name {stencil_full - HLS} \
+#assert -name {stencil_full - HLS} \
 { (cnt_init & hls_complete) |-> ( \
-    #hls_target_U.p_p2_in_bounded_stencil_stream_s_U.internal_empty_n == 1 & \ 
     hls_target_U.p_p2_in_bounded_stencil_stream_s_U.internal_full_n == 1 \
 )} -update_db;
 
@@ -38,12 +36,12 @@ assert -name {stencil_full - HLS} \
 
 # arg_0_TDATA
 assert -name {arg_0_TDATA} \
-{ (cnt_init & ila_complete & hls_complete) |-> ( \
+{ (ila_exec & hls_exec & ila_complete & hls_complete) |-> ( \
     ila_arg_0_TDATA == hls_arg_0_TDATA \
 )} -update_db;
 
 # stencil_buff
-assert -name {stencil_buff} \
+#assert -name {stencil_buff} \
 { (cnt_init & ila_complete & hls_complete) |-> ( \
     ila_target_U.p_p2_in_bounded_stencil_stream_s_U == 1 & \
     hls_target_U.p_p2_in_bounded_stencil_stream_s_U.U_FIFO_hls_target_p_p2_in_bounded_stencil_stream_s_ram.SRL_SIG[0] == 1 & \

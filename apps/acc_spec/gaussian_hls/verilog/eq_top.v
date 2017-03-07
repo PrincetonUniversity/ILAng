@@ -99,6 +99,7 @@ wire    [63:0]  ila_w_idx;
 wire    [9:0]   ila_y_idx;
 wire    [71:0]  ila_slice_buff;
 wire            ila_slice_full;
+wire            ila_step = ila_exec;
 
 gaussianRTL ila_target_U (
     .arg_0_TREADY (arg_0_TREADY),
