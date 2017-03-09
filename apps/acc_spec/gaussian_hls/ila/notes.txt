@@ -1,43 +1,62 @@
-fetch valid: (arg1_valid == 1) || (arg0_ready == 1)
+This note describes the ILA of the gaussian blur (GB) accelerator synthesized 
+through Vivaldo high level synthesis from Halide compiled C++ code.
 
-read instruction:
-    DECODE: (arg_0_TREADY == 1) && (stencil_full == 1)
-    Assumption: (arg_1_TVALID == 0) for one-hot encoding 
+Note that in this experiment, we only check the equivalence when an instruction
+starts after previous instructions complete.
 
-    apply gaussain operation on the stencil and output to the port
+Fetch function: concat (arg_1_TVALID, arg_0_TREADY, 
+                        arg_1_TREADY, arg_0_VALID,
+                        in_stream_full, in_stream_empty,
+                        slice_stream_full, slice_stream_empty,
+                        stencil_stream_full, stencil_stream_empty)
 
-write instruction: 
-    DECODE: (arg_1_TVALID == 1) && (slice_full == 0)
-    Assumption: (arg_1_TREADY == 1)
+Fetch valid: (arg_1_TREADY & arg_1_TVALID) | 
+             (arg_0_TREADY & arg_0_TVALID) | 
+             (~arg_1_TREADY & ~in_stream_full) | 
+             (~in_stream_empty & ~slice_stream_full) |
+             (~slice_stream_empty & ~stencil_stream_full) | 
+             (~stencil_stream_empty & ~arg_0_TVALID)
 
-    store the 1x1 byte into 2-D line buffer
-    export 1x9 slice into 1-D line buffer (abstract slice stream)
-    export 9x9 stencil to stencil buffer (abstract stencil stream)
+Inputs:
+ - arg_1_TVALID
+ - arg_1_TDATA
+ - arg_0_TREADY
 
-write child instruction 1:
-    DECODE: (slice_full == 1) && (stencil_full == 0)
+States:
+ - arg_1_TREADY
+ - arg_0_TVALID
+ - arg_0_TDATA
+
+ - LB1D
+ - LB2D_buff_[0:7]
+ - LB2D_buff_x
+ - LB2D_buff_y
+ - LB2D_buff_w
+ - LB2D_shift_[0:7]
+ - LB2D_shift_x
+ - LB2D_shift_y
+ - in_stream_buff_[0:1]
+ - in_stream_full
+ - in_stream_empty
+ - slice_stream_buff_[0:1]
+ - slice_stream_full
+ - slice_stream_empty
+ - stencil_stream_buff_[0:1]
+ - stencil_stream_full
+ - stencil_stream_empty
+
+Write instruction (WRI):
+    Decode: arg_1_TREADY & arg_1_TVALID ( & ~arg_0_TREADY )
+    Next:
+        arg_1_TREADY <= 0
+        LB1D         <= if (cond) arg_1_TDATA ...
+
+    Child-ILA:
+        Vu = (~arg_1_TREADY & ~in_stream_full) | 
+             (~in_stream_empty & ~slice_stream_full) |
+             (~slice_stream_empty & ~stencil_stream_full) | 
+             (~stencil_stream_empty & ~arg_0_TVALID)
+
+        4 child-instructions: wu1, wu2, wu3, wu4
 
 
-inputs:
-    arg_0_TREADY    -- output stream ready
-    arg_1_TVALID    -- input stream valid
-    arg_1_TDATA     -- input stream data
-
-arch states:
-    arg_0_TVALID    -- output stream valid
-    arg_0_TDATA     -- output stream data
-    arg_1_TREADY    -- input stream ready
-
-    LB2D_buff[0~7]  -- eight 488x1 bytes buffer in 2-D line buffer
-    LB2D_x_idx      -- x counter in 2-D line buffer
-    LB2D_y_idx      -- y counter in 2-D line buffer
-    LB2D_w_idx      -- buffer write index in 2-D line buffer (y % 8)
-    slice_buff      -- one 1x9 bytes slice in slice stream
-    slice_full      -- slice stream status (internal_full_n in slice)
-    LB2D_shift[0~7] -- eight 1x9 bytes slice in 1-D line buffer
-    stencil_buff    -- one 9x9 stencil in stencil stream
-    stencil_full    -- stencil stream status
-
-possible child states:
-    SW: internal states in line buffer, buffer index
-    HW: internal states in line buffer, fsm state
