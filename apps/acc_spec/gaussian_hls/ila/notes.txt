@@ -57,6 +57,42 @@ Write instruction (WRI):
              (~slice_stream_empty & ~stencil_stream_full) | 
              (~stencil_stream_empty & ~arg_0_TVALID)
 
-        4 child-instructions: wu1, wu2, wu3, wu4
+        4 child-instructions: WU1, WU2, WU3, WU4
+
+Read instruction (RDI):
+    Decode: arg_0_TREADY & arg_0_TVALID ( & ~arg_1_TVALID )
+    Next:
+        arg_0_TVALID <= 0
+        arg_0_TDATA  <= GB (stencil) ...
+
+    Child-ILA:
+        Vu = (~arg_1_TREADY & ~in_stream_full) | 
+             (~in_stream_empty & ~slice_stream_full) |
+             (~slice_stream_empty & ~stencil_stream_full) | 
+             (~stencil_stream_empty & ~arg_0_TVALID)
+
+        4 child-instructions: RU1, RU2, RU3, RU4
+        
+
+The four child-instructions are exactly the same for read and write instructions.
+
+WU1/RU1: 
+    Decode: ~arg_1_TREADY & ~in_stream_full ( & ~arg_1_TVALID & ~arg_0_TREADY )
+    Next:
+        arg_1_TREADY        <= 1
+        LB1D                <= LB1D (*)
+        in_stream_buff_0    <= LB1D (ite empty x x)
+        in_stream_buff_1    <= in_stream_buff_0 (*)
+        ...
+
+WU2/RU2:
+    Decode: ~in_stream_empty & ~slice_stream_full
+    
+WU3/RU3:
+    Decode: ~slice_stream_empty & ~stencil_stream_full
+
+WU4/RU4:
+    Decode: ~stencil_stream_empty & ~arg_0_TVALID
 
 
+Instruction completes when the child-program terminates, i.e. ~Vu.
