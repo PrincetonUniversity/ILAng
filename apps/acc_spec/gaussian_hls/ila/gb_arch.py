@@ -117,6 +117,9 @@ class GBArch ():
         for i in xrange (0, self.stencil_stream_size):
             buffName = 'stencil_stream_buff_%d' % i
             self.stencil_stream_buff.append (m.reg (buffName, self.stencil_size))
+
+        # uninterpreted function for GB
+        self.fun = m.fun ('gb_fun', DATA_SIZE, [self.stencil_size])
         
 
         ######################## next states functions #########################
