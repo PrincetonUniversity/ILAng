@@ -27,7 +27,7 @@ States:
  - arg_0_TVALID
  - arg_0_TDATA
 
- - LB1D
+ - LB1D_buff
  - LB2D_buff_[0:7]
  - LB2D_buff_x
  - LB2D_buff_y
