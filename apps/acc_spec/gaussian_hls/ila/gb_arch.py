@@ -156,6 +156,49 @@ class GBArch ():
             self.stencil_stream_buff_nxt.append (self.stencil_stream_buff[i])
 
 
+    def setNext (self):
+        m = self.abst
+
+        m.set_next ('arg_1_TREADY', self.arg_1_TREADY_nxt)
+        m.set_next ('arg_0_TVALID', self.arg_0_TVALID_nxt)
+        m.set_next ('arg_0_TDATA', self.arg_0_TDATA_nxt)
+        m.set_next ('LB1D_buff', self.LB1D_buff_nxt)
+        m.set_next ('in_stream_full', self.in_stream_full_nxt)
+        m.set_next ('in_stream_empty', self.in_stream_empty_nxt)
+        for i in xrange (0, self.in_stream_size):
+            buffName = 'in_stream_buff_%d' % i
+            m.set_next (buffName, self.in_stream_buff_nxt[i])
+
+        m.set_next ('LB2D_proc_x', self.LB2D_proc_x_nxt)
+        m.set_next ('LB2D_proc_y', self.LB2D_proc_y_nxt)
+        m.set_next ('LB2D_proc_w', self.LB2D_proc_w_nxt)
+        for i in xrange (0, self.LB2D_proc_size):
+            buffName = 'LB2D_proc_%d' % i
+            m.set_next (buffName, self.LB2D_proc_nxt[i])
+
+        m.set_next ('slice_stream_full', self.slice_stream_full_nxt)
+        m.set_next ('slice_stream_empty', self.slice_stream_empty_nxt)
+        for i in xrange (0, self.slice_stream_size):
+            buffName = 'slice_stream_buff_%d' % i
+            m.set_next (buffName, self.slice_stream_buff_nxt[i])
+
+        m.set_next ('LB2D_shift_x', self.LB2D_shift_x_nxt)
+        m.set_next ('LB2D_shift_y', self.LB2D_shift_y_nxt)
+        for i in xrange (0, self.LB2D_shift_size):
+            buffName = 'LB2D_shift_%d' % i
+            m.set_next (buffName, self.LB2D_shift_nxt[i])
+
+        m.set_next ('stencil_stream_full', self.stencil_stream_full_nxt)
+        m.set_next ('stencil_stream_empty', self.stencil_stream_empty_nxt)
+        for i in xrange (0, self.stencil_stream_size):
+            buffName = 'stencil_stream_buff_%d' % i
+            m.set_next (buffName, self.stencil_stream_buff_nxt[i])
+
+
+    def exportVerilog (self, fileName):
+        self.abst.generateVerilog (fileName)
+
+
 if __name__ == '__main__':
     gb = GBArch ()
     print 'create GB arch states'
