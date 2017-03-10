@@ -1,5 +1,6 @@
 # ILA for Halide Gaussian blur accelerator, with both the read and write 
 # instructions have child-instructions for data movement.
+# Architecture states
 
 import ila
 
@@ -12,20 +13,21 @@ COL_ADDR_SIZE   = 9
 ROW_ADDR_SIZE   = 10
 WR_ADDR_SIZE    = 64
 
-class GB ():
+class GBArch ():
     def __init__ (self):
-        m = ila.Abstraction ('GB')
+        self.abst = ila.Abstraction ('GB')
+        m = self.abst
 
         BV_TRUE     = m.const (0x1, 1)
         BV_FALSE    = m.const (0x0, 1)
-        READY_TRUE  = BV_TRUE
-        READY_FALSE = BV_FALSE
-        VALID_TRUE  = BV_TRUE
-        VALID_FALSE = BV_FALSE
-        FULL_TRUE   = BV_TRUE
-        FULL_FALSE  = BV_FALSE
-        EMPTY_TRUE  = BV_TRUE
-        EMPTY_FALSE = BV_FALSE
+        self.READY_TRUE  = READY_TRUE  = BV_TRUE
+        self.READY_FALSE = READY_FALSE = BV_FALSE
+        self.VALID_TRUE  = VALID_TRUE  = BV_TRUE
+        self.VALID_FALSE = VALID_FALSE = BV_FALSE
+        self.FULL_TRUE   = FULL_TRUE   = BV_TRUE
+        self.FULL_FALSE  = FULL_FALSE  = BV_FALSE
+        self.EMPTY_TRUE  = EMPTY_TRUE  = BV_TRUE
+        self.EMPTY_FALSE = EMPTY_FALSE = BV_FALSE
 
         ######################## input ports ###################################
         self.arg_0_TREADY = m.inp ('arg_0_TREADY', 1)
@@ -115,6 +117,45 @@ class GB ():
             self.stencil_stream_buff.append (m.reg (buffName, self.stencil_size))
         
 
+        ######################## next states functions #########################
+        self.arg_1_TREADY_nxt = self.arg_1_TREADY
+        self.arg_0_TVALID_nxt = self.arg_0_TVALID
+        self.arg_0_TDATA_nxt  = self.arg_0_TDATA
+
+        self.LB1D_buff_nxt = self.LB1D_buff
+
+        self.in_stream_full_nxt  = self.in_stream_full
+        self.in_stream_empty_nxt = self.in_stream_empty
+        self.in_stream_buff_nxt = []
+        for i in xrange (0, self.in_stream_size):
+            self.in_stream_buff_nxt.append (self.in_stream_buff[i])
+
+        self.LB2D_proc_x_nxt = self.LB2D_proc_x
+        self.LB2D_proc_y_nxt = self.LB2D_proc_y
+        self.LB2D_proc_w_nxt = self.LB2D_proc_w
+        self.LB2D_proc_nxt = []
+        for i in xrange (0, self.LB2D_proc_size):
+            self.LB2D_proc_nxt.append (self.LB2D_proc[i])
+
+        self.slice_stream_full_nxt  = self.slice_stream_full
+        self.slice_stream_empty_nxt = self.slice_stream_empty
+        self.slice_stream_buff_nxt = []
+        for i in xrange (0, self.slice_stream_size):
+            self.slice_stream_buff_nxt.append (self.slice_stream_buff[i])
+
+        self.LB2D_shift_x_nxt = self.LB2D_shift_x
+        self.LB2D_shift_y_nxt = self.LB2D_shift_y
+        self.LB2D_shift_nxt = []
+        for i in xrange (0, self.LB2D_shift_size):
+            self.LB2D_shift_nxt.append (self.LB2D_shift[i])
+
+        self.stencil_stream_full_nxt  = self.stencil_stream_full
+        self.stencil_stream_empty_nxt = self.stencil_stream_empty
+        self.stencil_stream_buff_nxt = []
+        for i in xrange (0, self.stencil_stream_size):
+            self.stencil_stream_buff_nxt.append (self.stencil_stream_buff[i])
+
+
 if __name__ == '__main__':
-    gb = GB ()
-    print 'test'
+    gb = GBArch ()
+    print 'create GB arch states'

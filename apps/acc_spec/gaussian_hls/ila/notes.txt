@@ -28,10 +28,10 @@ States:
  - arg_0_TDATA
 
  - LB1D_buff
- - LB2D_buff_[0:7]
- - LB2D_buff_x
- - LB2D_buff_y
- - LB2D_buff_w
+ - LB2D_proc_[0:7]
+ - LB2D_proc_x
+ - LB2D_proc_y
+ - LB2D_proc_w
  - LB2D_shift_[0:7]
  - LB2D_shift_x
  - LB2D_shift_y
