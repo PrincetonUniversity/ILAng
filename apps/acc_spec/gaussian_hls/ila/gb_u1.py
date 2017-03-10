@@ -38,8 +38,7 @@ def U1 (gb):
 
     # 1-D buffer for input data
     LB1D_buff_nxt = gb.LB1D_buff
-    gb.LB1D_buff_nxt = ila.ite (decode, LB1D_buff_nxt, 
-                                gb.LB1D_buff_nxt)
+    gb.LB1D_buff_nxt = ila.ite (decode, LB1D_buff_nxt, gb.LB1D_buff_nxt)
 
     # in stream full
     in_stream_full_nxt = ila.ite (gb.in_stream_empty == EMPTY_T, FULL_F, FULL_T)
