@@ -6,13 +6,15 @@ import ila
 
 from gb_arch import GBArch
 from gb_wri import WRI
+from gb_rdi import RDI
 
 def createILA ():
     gb = GBArch ()
     WRI (gb)
+    RDI (gb)
 
     gb.setNext ()
-    verilogFile = 'gb_rtl.v'
+    verilogFile = 'gb_verilog.v'
     gb.exportVerilog (verilogFile)
 
 if __name__ == '__main__':
