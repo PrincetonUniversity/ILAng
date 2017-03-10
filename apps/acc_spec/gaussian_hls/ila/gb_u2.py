@@ -19,7 +19,7 @@ def U2 (gb):
 
     ############################ decode ###################################
     decode = (gb.in_stream_empty == EMPTY_F) & (gb.slice_stream_full == FULL_F)
-    # FIXME may be if slice is full, but y <= 8, it can still push forward
+    # FIXME may be even if slice is full, but y <= 8, it can still push forward
 
     ############################ next state functions #####################
     # arg_1_TREADY

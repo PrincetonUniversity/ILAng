@@ -29,6 +29,8 @@ class GBArch ():
         self.EMPTY_TRUE  = EMPTY_TRUE  = BV_TRUE
         self.EMPTY_FALSE = EMPTY_FALSE = BV_FALSE
 
+        self.DATA_SIZE   = DATA_SIZE
+
         ######################## input ports ###################################
         self.arg_0_TREADY = m.inp ('arg_0_TREADY', 1)
         self.arg_1_TVALID = m.inp ('arg_1_TVALID', 1)
