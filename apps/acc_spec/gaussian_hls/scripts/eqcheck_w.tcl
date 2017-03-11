@@ -4,9 +4,6 @@ assume -clear -env
 assert -clear
 
 include $TCL/exec_w.tcl
+include $TCL/comp_w.tcl
+include $TCL/prop_w.tcl
 
-#include $TCL/cond_r.tcl
-#include $TCL/cond_r_ila.tcl
-#include $TCL/cond_r_hls.tcl
-
-#include $TCL/prop_r.tcl

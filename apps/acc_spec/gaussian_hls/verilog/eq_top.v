@@ -113,7 +113,7 @@ wire            ila_stencil_stream_full;
 
 wire            ila_step = 1'b1;
 
-GB ila_target_U (
+GB ila_U (
     .arg_0_TREADY (arg_0_TREADY),
     .arg_1_TDATA (arg_1_TDATA),
     .arg_1_TVALID (arg_1_TVALID),
@@ -176,7 +176,7 @@ wire [0:0] hls_arg_1_TLAST;
 wire hls_arg_1_TREADY;
 wire hls_arg_0_TVALID;
 
-hls_target hls_target_U (
+hls_target hls_U (
     .s_axi_config_AWVALID (hls_s_axi_config_AWVALID),
     .s_axi_config_AWREADY (hls_s_axi_config_AWREADY),
     .s_axi_config_AWADDR (hls_s_axi_config_AWADDR),

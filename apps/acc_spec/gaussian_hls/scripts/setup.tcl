@@ -1,6 +1,5 @@
 # analyze and elaborate two implementations (integrated)
 
-#set ROOT /home/byhuang/ILA/apps/acc_spec/gaussian_hls
 set ROOT [pwd]
 set SRC $ROOT/verilog
 set TCL $ROOT/scripts
