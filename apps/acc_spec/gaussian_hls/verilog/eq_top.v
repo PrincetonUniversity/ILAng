@@ -81,48 +81,71 @@ wire hls_clk = ~rst_init & clk & ~hls_complete;
 wire rst = 1'b0;
 
 // ila 
+wire    [7:0]   ila_LB1D_buff;
+wire    [8:0]   ila_LB2D_proc_x;
+wire    [9:0]   ila_LB2D_proc_y;
+wire    [63:0]  ila_LB2D_proc_w;
+wire    [71:0]  ila_LB2D_shift_0;
+wire    [71:0]  ila_LB2D_shift_1;
+wire    [71:0]  ila_LB2D_shift_2;
+wire    [71:0]  ila_LB2D_shift_3;
+wire    [71:0]  ila_LB2D_shift_4;
+wire    [71:0]  ila_LB2D_shift_5;
+wire    [71:0]  ila_LB2D_shift_6;
+wire    [71:0]  ila_LB2D_shift_7;
+wire    [8:0]   ila_LB2D_shift_x;
+wire    [9:0]   ila_LB2D_shift_y;
 wire    [7:0]   ila_arg_0_TDATA;
 wire            ila_arg_0_TVALID;
 wire            ila_arg_1_TREADY;
-wire    [71:0]  ila_buff_0;
-wire    [71:0]  ila_buff_1;
-wire    [71:0]  ila_buff_2;
-wire    [71:0]  ila_buff_3;
-wire    [71:0]  ila_buff_4;
-wire    [71:0]  ila_buff_5;
-wire    [71:0]  ila_buff_6;
-wire    [71:0]  ila_buff_7;
-wire    [8:0]   ila_x_idx;
-wire            ila_stencil_full;
-wire    [647:0] ila_stencil_buff;
-wire    [63:0]  ila_w_idx;
-wire    [9:0]   ila_y_idx;
-wire    [71:0]  ila_slice_buff;
-wire            ila_slice_full;
-wire            ila_step = ila_exec;
+wire    [7:0]   ila_in_stream_buff_0;
+wire    [7:0]   ila_in_stream_buff_1;
+wire            ila_in_stream_empty;
+wire            ila_in_stream_full;
+wire    [71:0]  ila_slice_stream_buff_0;
+wire    [71:0]  ila_slice_stream_buff_1;
+wire            ila_slice_stream_empty;
+wire            ila_slice_stream_full;
+wire    [647:0] ila_stencil_stream_buff_0;
+wire    [647:0] ila_stencil_stream_buff_1;
+wire            ila_stencil_stream_empty;
+wire            ila_stencil_stream_full;
 
-gaussianRTL ila_target_U (
+wire            ila_step = 1'b1;
+
+GB ila_target_U (
     .arg_0_TREADY (arg_0_TREADY),
     .arg_1_TDATA (arg_1_TDATA),
     .arg_1_TVALID (arg_1_TVALID),
+    .LB1D_buff (ila_LB1D_buff),
+    .LB2D_proc_w (ila_LB2D_proc_w),
+    .LB2D_proc_x (ila_LB2D_proc_x),
+    .LB2D_proc_y (ila_LB2D_proc_y),
+    .LB2D_shift_0 (ila_LB2D_shift_0),
+    .LB2D_shift_1 (ila_LB2D_shift_1),
+    .LB2D_shift_2 (ila_LB2D_shift_2),
+    .LB2D_shift_3 (ila_LB2D_shift_3),
+    .LB2D_shift_4 (ila_LB2D_shift_4),
+    .LB2D_shift_5 (ila_LB2D_shift_5),
+    .LB2D_shift_6 (ila_LB2D_shift_6),
+    .LB2D_shift_7 (ila_LB2D_shift_7),
+    .LB2D_shift_x (ila_LB2D_shift_x),
+    .LB2D_shift_y (ila_LB2D_shift_y),
     .arg_0_TDATA (ila_arg_0_TDATA),
     .arg_0_TVALID (ila_arg_0_TVALID),
     .arg_1_TREADY (ila_arg_1_TREADY),
-    .LB2D_shift_0 (ila_buff_0),
-    .LB2D_shift_1 (ila_buff_1),
-    .LB2D_shift_2 (ila_buff_2),
-    .LB2D_shift_3 (ila_buff_3),
-    .LB2D_shift_4 (ila_buff_4),
-    .LB2D_shift_5 (ila_buff_5),
-    .LB2D_shift_6 (ila_buff_6),
-    .LB2D_shift_7 (ila_buff_7),
-    .LB2D_x_idx (ila_x_idx),
-    .stencil_full (ila_stencil_full),
-    .stencil_buff (ila_stencil_buff),
-    .LB2D_w_idx (ila_w_idx),
-    .LB2D_y_idx (ila_y_idx),
-    .slice_buff (ila_slice_buff),
-    .slice_full (ila_slice_full),
+    .in_stream_buff_0 (ila_in_stream_buff_0),
+    .in_stream_buff_1 (ila_in_stream_buff_1),
+    .in_stream_empty (ila_in_stream_empty),
+    .in_stream_full (ila_in_stream_full),
+    .slice_stream_buff_0 (ila_slice_stream_buff_0),
+    .slice_stream_buff_1 (ila_slice_stream_buff_1),
+    .slice_stream_empty (ila_slice_stream_empty),
+    .slice_stream_full (ila_slice_stream_full),
+    .stencil_stream_buff_0 (ila_stencil_stream_buff_0),
+    .stencil_stream_buff_1 (ila_stencil_stream_buff_1),
+    .stencil_stream_empty (ila_stencil_stream_empty),
+    .stencil_stream_full (ila_stencil_stream_full),
     .clk (ila_clk),
     .rst (rst),
     .step (ila_step)

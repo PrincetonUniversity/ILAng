@@ -21,6 +21,7 @@ analyze -verilog $SRC/hls_target_call_Loop_LB2D_shift_proc.v
 analyze -verilog $SRC/hls_target_linebuffer.v
 analyze -verilog $SRC/hls_target_linebuffer_1.v
 analyze -verilog $SRC/hls_target_linebuffer_Loop_1_proc.v
+analyze -verilog $SRC/hls_target_mux_8to1_sel3_8_1.v
 analyze -verilog $SRC/ila_target.v
 
 elaborate -bbox {1} -bbox_a {4096}
