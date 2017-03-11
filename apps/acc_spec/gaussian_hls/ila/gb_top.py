@@ -14,12 +14,12 @@ from gb_u4 import U4
 
 def createILA ():
     gb = GBArch ()
-    WRI (gb)
-    RDI (gb)
     U1 (gb)
     U2 (gb)
     U3 (gb)
     U4 (gb)
+    WRI (gb)
+    RDI (gb)
 
     gb.setNext ()
     verilogFile = 'gb_verilog.v'
