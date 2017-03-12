@@ -76,8 +76,24 @@ always @ (posedge clk) begin
     end
 end
 
+reg [7:0] hls_wait;
+always @ (posedge clk) begin
+    if (rst_init) begin
+        hls_wait <= 8'b0;
+    end
+    else if (hls_complete) begin
+        hls_wait <= hls_wait + 1;
+    end
+    else begin
+        hls_wait <= 8'b0;
+    end
+end
+
+wire hls_step = (hls_wait <= 5);
+
 wire ila_clk = ~rst_init & clk & ~ila_complete;
-wire hls_clk = ~rst_init & clk & ~hls_complete;
+//wire hls_clk = ~rst_init & clk & ~hls_complete;
+wire hls_clk = ~rst_init & clk & hls_step;
 wire rst = 1'b0;
 
 // ila 
