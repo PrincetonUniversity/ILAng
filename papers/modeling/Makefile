@@ -1,4 +1,4 @@
-pdfs: concurrency.pdf interrupt.pdf timing.pdf
+pdfs: concurrency.pdf interrupt.pdf timing.pdf ordering.pdf
 
 all: $(pdfs)
 
