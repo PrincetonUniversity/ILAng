@@ -89,7 +89,7 @@ always @ (posedge clk) begin
     end
 end
 
-wire hls_step = (hls_wait <= 5);
+wire hls_step = (hls_wait <= 10);
 
 wire ila_clk = ~rst_init & clk & ~ila_complete;
 //wire hls_clk = ~rst_init & clk & ~hls_complete;
