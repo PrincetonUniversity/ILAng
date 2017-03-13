@@ -10,6 +10,12 @@ assume -name {decode} -env \
     hls_U.arg_1_TREADY == 1 \
 )} -type {temporary} -update_db;
 
+assume -name {decode - protocol} -env \
+{ counter == 0 |-> ( \
+    ila_U.arg_1_TREADY == 1 & \
+    hls_U.arg_1_TREADY == 1 \
+)} -type {temporary} -update_db;
+
 # turn off all other instruction (read and write) throughout verification
 assume -name {composition} -env \
 { counter != 1 |-> ( \
