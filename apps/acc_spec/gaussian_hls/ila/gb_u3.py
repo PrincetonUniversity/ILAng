@@ -19,8 +19,8 @@ def U3 (gb):
 
     ############################ decode ###################################
     decode = (gb.slice_stream_empty == EMPTY_F) & \
-             (gb.stencil_stream_full == FULL_F)
-    # FIXME may be even if stencil if full, but x <= 8, it can still push
+             ((gb.stencil_stream_full == FULL_F) | \
+              (gb.LB2D_shift_x < gb.LB2D_shift_size))
 
     ############################ next state functions #####################
     # arg_1_TREADY
@@ -119,17 +119,20 @@ def U3 (gb):
                                         gb.LB2D_shift_nxt[i])
 
     # stencil_stream_full
-    stencil_stream_full_nxt = ila.ite (gb.LB2D_shift_x >= gb.LB2D_shift_size,
+    stencil_stream_full_nxt = ila.ite (gb.LB2D_shift_x < gb.LB2D_shift_size,
+                                       gb.stencil_stream_full,
                               ila.ite (gb.stencil_stream_empty == EMPTY_T,
                                        FULL_F,
-                                       FULL_T),
-                                       FULL_F) # XXX force init
+                                       FULL_T))
     gb.stencil_stream_full_nxt = ila.ite (decode, stencil_stream_full_nxt,
                                           gb.stencil_stream_full_nxt)
 
     # stencil_stream_empty
-    stencil_stream_empty_nxt = ila.ite (gb.LB2D_shift_x >= gb.LB2D_shift_size,
-                                        EMPTY_F, EMPTY_T) # XXX force init
+    stencil_stream_empty_nxt = ila.ite (gb.LB2D_shift_x < gb.LB2D_shift_size,
+                                        gb.stencil_stream_empty,
+                                        EMPTY_F) 
+    gb.stencil_stream_empty_nxt = ila.ite (decode, stencil_stream_empty_nxt,
+                                           gb.stencil_stream_empty_nxt)
 
     # stencil_stream_buff
     def genRows (idx):

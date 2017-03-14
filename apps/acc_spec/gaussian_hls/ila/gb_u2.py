@@ -18,8 +18,9 @@ def U2 (gb):
     EMPTY_F = gb.EMPTY_FALSE
 
     ############################ decode ###################################
-    decode = (gb.in_stream_empty == EMPTY_F) & (gb.slice_stream_full == FULL_F)
-    # FIXME may be even if slice is full, but y <= 8, it can still push forward
+    decode = (gb.in_stream_empty == EMPTY_F) & \
+             ((gb.slice_stream_full == FULL_F) | \
+              (gb.LB2D_proc_y < gb.LB2D_proc_size))
 
     ############################ next state functions #####################
     # arg_1_TREADY
@@ -89,17 +90,17 @@ def U2 (gb):
         gb.LB2D_proc_nxt[i] = ila.ite (decode, LB2D_proc_nxt, gb.LB2D_proc_nxt[i])
 
     # slice stream full
-    slice_stream_full_nxt = ila.ite (gb.LB2D_proc_y >= gb.LB2D_proc_size,
+    slice_stream_full_nxt = ila.ite (gb.LB2D_proc_y < gb.LB2D_proc_size,
+                                     FULL_F, # force init
                             ila.ite (gb.slice_stream_empty == EMPTY_T,
                                      FULL_F, 
-                                     FULL_T),
-                                     FULL_F) # XXX force init
+                                     FULL_T))
     gb.slice_stream_full_nxt = ila.ite (decode, slice_stream_full_nxt,
                                         gb.slice_stream_full_nxt)
 
     # slice stream empty
-    slice_stream_empty_nxt = ila.ite (gb.LB2D_proc_y >= gb.LB2D_proc_size,
-                                      EMPTY_F, EMPTY_T) # XXX force init
+    slice_stream_empty_nxt = ila.ite (gb.LB2D_proc_y < gb.LB2D_proc_size,
+                                      EMPTY_T, EMPTY_F) # force init
     gb.slice_stream_empty_nxt = ila.ite (decode, slice_stream_empty_nxt,
                                          gb.slice_stream_empty_nxt)
 
@@ -144,13 +145,15 @@ def U2 (gb):
         slice_chunks.append (
                 sliceSelect (gb.LB2D_proc_w, slice_seqs[i]))
     # slice_stream_buff
-    slice_stream_buff_0_nxt = ila.ite (gb.LB2D_proc_y >= gb.LB2D_proc_size,
-                                       ila.concat (slice_chunks),
-                                       gb.slice_stream_buff[0])
+    slice_stream_buff_0_nxt = ila.ite (gb.LB2D_proc_y < gb.LB2D_proc_size,
+                                       gb.slice_stream_buff[0],
+                                       ila.concat (slice_chunks))
     gb.slice_stream_buff_nxt[0] = ila.ite (decode, slice_stream_buff_0_nxt,
                                            gb.slice_stream_buff_nxt[0])
     for i in xrange (1, gb.slice_stream_size):
-        slice_stream_buff_i_nxt = gb.slice_stream_buff[i-1]
+        slice_stream_buff_i_nxt = ila.ite (gb.LB2D_proc_y < gb.LB2D_proc_size,
+                                           gb.slice_stream_buff[i],
+                                           gb.slice_stream_buff[i-1])
         gb.slice_stream_buff_nxt[i] = ila.ite (decode, slice_stream_buff_i_nxt,
                                                gb.slice_stream_buff_nxt[i])
 
