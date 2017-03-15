@@ -273,6 +273,19 @@ wire    [647:0] hls_stencil_stream_buff_1;
 wire            hls_stencil_stream_empty;
 wire            hls_stencil_stream_full;
 
+wire    [2:0]   hls_LB1D_fsm;
+wire    [2:0]   hls_LB1D_fsm_nxt;
+wire    [3:0]   hls_LB2D_proc_fsm;
+wire    [3:0]   hls_LB2D_proc_fsm_nxt;
+wire    [3:0]   hls_LB2D_shift_fsm;
+wire    [3:0]   hls_LB2D_shift_fsm_nxt;
+wire    [2:0]   hls_GB_fsm;
+wire    [2:0]   hls_GB_fsm_nxt;
+wire    [1:0]   hls_in_stream_mOutPtr;
+wire    [1:0]   hls_slice_stream_mOutPtr;
+wire    [1:0]   hls_stencil_stream_mOutPtr;
+wire            hls_timeout_LB1D;
+
 hls_target hls_U (
     .s_axi_config_AWVALID (hls_s_axi_config_AWVALID),
     .s_axi_config_AWREADY (hls_s_axi_config_AWREADY),

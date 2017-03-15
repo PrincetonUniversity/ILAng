@@ -35,7 +35,19 @@ assume -name {inv - alias} -env \
     hls_gb_exit_it_5 == hls_U.hls_target_Loop_1_proc_U0.ap_reg_ppstg_exitcond_flatten_reg_2790_pp0_it5 & \
     hls_gb_exit_it_6 == hls_U.hls_target_Loop_1_proc_U0.ap_reg_ppstg_exitcond_flatten_reg_2790_pp0_it6 & \
     hls_gb_exit_it_7 == hls_U.hls_target_Loop_1_proc_U0.ap_reg_ppstg_exitcond_flatten_reg_2790_pp0_it7 & \
-    hls_gb_exit_it_8 == hls_U.hls_target_Loop_1_proc_U0.ap_reg_ppstg_exitcond_flatten_reg_2790_pp0_it8 \
+    hls_gb_exit_it_8 == hls_U.hls_target_Loop_1_proc_U0.ap_reg_ppstg_exitcond_flatten_reg_2790_pp0_it8 & \
+    hls_LB1D_fsm == hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.ap_CS_fsm & \
+    hls_LB1D_fsm_nxt == hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.ap_NS_fsm & \
+    hls_LB2D_proc_fsm == hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.ap_CS_fsm & \
+    hls_LB2D_proc_fsm_nxt == hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.ap_NS_fsm & \
+    hls_LB2D_shift_fsm == hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_shift_proc_U0.ap_CS_fsm & \
+    hls_LB2D_shift_fsm_nxt == hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_shift_proc_U0.ap_NS_fsm & \
+    hls_GB_fsm == hls_U.hls_target_Loop_1_proc_U0.ap_CS_fsm & \
+    hls_GB_fsm_nxt == hls_U.hls_target_Loop_1_proc_U0.ap_NS_fsm & \
+    hls_in_stream_mOutPtr == hls_U.hls_target_linebuffer_1_U0.in_stream_V_value_V_U.mOutPtr & \
+    hls_slice_stream_mOutPtr == hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.slice_stream_V_value_V_U.mOutPtr & \
+    hls_stencil_stream_mOutPtr == hls_U.p_p2_in_bounded_stencil_stream_s_U.mOutPtr & \
+    hls_timeout_LB1D == hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.exitcond_flatten_reg_88 \
 )} -type {temporary} -update_db;
 
 # arch states
@@ -116,54 +128,47 @@ assume -name {inv - proc vs shift - hls} -env \
 
 # micro-arch states
 # internal fsm state encoding
-assume -name {inv - cs/ns fsm} -env \
+assume -name {inv - valid fsm} -env \
 { ( \
-    ((hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.ap_CS_fsm == 1) | \
-     (hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.ap_CS_fsm == 2) | \
-     (hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.ap_CS_fsm == 4)) & \
-    ((hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.ap_NS_fsm == 1) | \
-     (hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.ap_NS_fsm == 2) | \
-     (hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.ap_NS_fsm == 4)) & \
-    ((hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.ap_CS_fsm == 1) | \
-     (hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.ap_CS_fsm == 2) | \
-     (hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.ap_CS_fsm == 4) | \
-     (hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.ap_CS_fsm == 8)) & \
-    ((hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.ap_NS_fsm == 1) | \
-     (hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.ap_NS_fsm == 2) | \
-     (hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.ap_NS_fsm == 4) | \
-     (hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.ap_NS_fsm == 8)) & \
-    ((hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_shift_proc_U0.ap_CS_fsm == 1) | \
-     (hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_shift_proc_U0.ap_CS_fsm == 2) | \
-     (hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_shift_proc_U0.ap_CS_fsm == 4) | \
-     (hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_shift_proc_U0.ap_CS_fsm == 8)) & \
-    ((hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_shift_proc_U0.ap_NS_fsm == 1) | \
-     (hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_shift_proc_U0.ap_NS_fsm == 2) | \
-     (hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_shift_proc_U0.ap_NS_fsm == 4) | \
-     (hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_shift_proc_U0.ap_NS_fsm == 8)) & \
-    ((hls_U.hls_target_Loop_1_proc_U0.ap_CS_fsm == 1) | \
-     (hls_U.hls_target_Loop_1_proc_U0.ap_CS_fsm == 2) | \
-     (hls_U.hls_target_Loop_1_proc_U0.ap_CS_fsm == 4)) & \
-    ((hls_U.hls_target_Loop_1_proc_U0.ap_NS_fsm == 1) | \
-     (hls_U.hls_target_Loop_1_proc_U0.ap_NS_fsm == 2) | \
-     (hls_U.hls_target_Loop_1_proc_U0.ap_NS_fsm == 4)) \
+    ((hls_LB1D_fsm == 1) | (hls_LB1D_fsm == 2) | (hls_LB1D_fsm == 4)) & \
+    ((hls_LB2D_proc_fsm == 1) | (hls_LB2D_proc_fsm == 2) | (hls_LB2D_proc_fsm == 4) | (hls_LB2D_proc_fsm == 8)) & \
+    ((hls_LB2D_shift_fsm == 1) | (hls_LB2D_shift_fsm == 2) | (hls_LB2D_shift_fsm == 4) | (hls_LB2D_shift_fsm == 8)) & \
+    ((hls_GB_fsm == 1) | (hls_GB_fsm == 2) | (hls_GB_fsm == 4)) & \
+    ((hls_LB1D_fsm_nxt == 1) | (hls_LB1D_fsm_nxt == 2) | (hls_LB1D_fsm_nxt == 4)) & \
+    ((hls_LB2D_proc_fsm_nxt == 1) | (hls_LB2D_proc_fsm_nxt == 2) | (hls_LB2D_proc_fsm_nxt == 4) | (hls_LB2D_proc_fsm_nxt == 8)) & \
+    ((hls_LB2D_shift_fsm_nxt == 1) | (hls_LB2D_shift_fsm_nxt == 2) | (hls_LB2D_shift_fsm_nxt == 4) | (hls_LB2D_shift_fsm_nxt == 8)) & \
+    ((hls_GB_fsm_nxt == 1) | (hls_GB_fsm_nxt == 2) | (hls_GB_fsm_nxt == 4)) \
 )} -type {temporary} -update_db;
  
 # stream buffer pointer
-assume -name {inv - in stream pointer} -env \
+assume -name {inv - valid in stream pointer} -env \
 { ( \
-    (hls_U.hls_target_linebuffer_1_U0.in_stream_V_value_V_U.internal_full_n  == 1 & \
-     hls_U.hls_target_linebuffer_1_U0.in_stream_V_value_V_U.internal_empty_n == 0 & \
-     hls_U.hls_target_linebuffer_1_U0.in_stream_V_value_V_U.mOutPtr == 3) | \
-    (hls_U.hls_target_linebuffer_1_U0.in_stream_V_value_V_U.internal_full_n  == 1 & \
-     hls_U.hls_target_linebuffer_1_U0.in_stream_V_value_V_U.internal_empty_n == 1 & \
-     hls_U.hls_target_linebuffer_1_U0.in_stream_V_value_V_U.mOutPtr == 0) | \
-    (hls_U.hls_target_linebuffer_1_U0.in_stream_V_value_V_U.internal_full_n  == 0 & \
-     hls_U.hls_target_linebuffer_1_U0.in_stream_V_value_V_U.internal_empty_n == 1 & \
-     hls_U.hls_target_linebuffer_1_U0.in_stream_V_value_V_U.mOutPtr == 1) \
+    (hls_in_stream_full == 0 & hls_in_stream_empty == 1 & hls_in_stream_mOutPtr == 3) | \
+    (hls_in_stream_full == 0 & hls_in_stream_empty == 0 & hls_in_stream_mOutPtr == 0) | \
+    (hls_in_stream_full == 1 & hls_in_stream_empty == 0 & hls_in_stream_mOutPtr == 1) \
+)} -type {temporary} -update_db;
+#
+assume -name {inv - valid slice stream pointer} -env \
+{ ( \
+    (hls_slice_stream_full == 0 & hls_slice_stream_empty == 1 & hls_slice_stream_mOutPtr == 3) | \
+    (hls_slice_stream_full == 0 & hls_slice_stream_empty == 0 & hls_slice_stream_mOutPtr == 0) | \
+    (hls_slice_stream_full == 1 & hls_slice_stream_empty == 0 & hls_slice_stream_mOutPtr == 1) \
+)} -type {temporary} -update_db;
+#
+assume -name {inv - valid stencil stream pointer} -env \
+{ ( \
+    (hls_stencil_stream_full == 0 & hls_stencil_stream_empty == 1 & hls_stencil_stream_mOutPtr == 3) | \
+    (hls_stencil_stream_full == 0 & hls_stencil_stream_empty == 0 & hls_stencil_stream_mOutPtr == 0) | \
+    (hls_stencil_stream_full == 1 & hls_stencil_stream_empty == 0 & hls_stencil_stream_mOutPtr == 1) \
+)} -type {temporary} -update_db;
+
+assume -name {inv - no timeout} -env \
+{ ( \
+    hls_timeout_LB1D == 0 \
 )} -type {temporary} -update_db;
 
 # iteration interal states 
-assume -name {inv = ppiten buf} -env \
+assume -name {inv - ppiten buf} -env \
 { ( \
     hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.ap_reg_ppiten_pp0_it0 == 1 & \
     hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.ap_reg_ppiten_pp0_it1 == 1 & \
@@ -205,8 +210,7 @@ assume -name {inv -axi config init} -env \
 )} -type {temporary} -update_db;
 
 # time-out counter
-# TODO
-assume -name {inv - time out} -env \
+#assume -name {inv - time out} -env \
 { ( \
     (hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.indvar_flatten_reg_61 < 100) & \
     (hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.indvar_flatten_next_fu_78_p2 < 100) & \
