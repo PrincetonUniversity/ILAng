@@ -2,14 +2,14 @@
 # Execute: start and stop models
 #
 # start
-assume -name {start model} -env \
+assume -name {exec - start model} -env \
 { counter <= 2 |-> ( \
     hls_complete == 0 & \
     ila_complete == 0 \
 )} -type {temporary} -update_db;
 
 # stop
-assume -name {exec ila - continue} -env \
+assume -name {exec - ila continue} -env \
 { (counter > 1) |-> ( \
     ( \
     ((ila_U.arg_1_TREADY == 0) & (ila_U.in_stream_full == 0)) | \
@@ -25,7 +25,7 @@ assume -name {exec ila - continue} -env \
     (ila_complete == 0) \
 )} -type {temporary} -update_db;
 # 
-assume -name {exec ila - break} -env \
+assume -name {exec - ila break} -env \
 { (counter > 1) |-> ( \
    ~( \
     ((ila_U.arg_1_TREADY == 0) & (ila_U.in_stream_full == 0)) | \
@@ -41,7 +41,7 @@ assume -name {exec ila - break} -env \
     (ila_complete == 1) \
 )} -type {temporary} -update_db;
 #
-assume -name {exec hls - continue} -env \
+assume -name {exec - hls continue} -env \
 { (counter > 1) |-> ( \
     ( \
     ((hls_arg_1_TREADY == 0) & (hls_in_stream_full == 0)) | \
@@ -57,7 +57,7 @@ assume -name {exec hls - continue} -env \
     (hls_complete == 0) \
 )} -type {temporary} -update_db;
 #
-assume -name {exec hls - break} -env \
+assume -name {exec - hls break} -env \
 { (counter > 1) |-> ( \
    ~( \
     ((hls_arg_1_TREADY == 0) & (hls_in_stream_full == 0)) | \

@@ -42,44 +42,76 @@ assume -name {inv - alias} -env \
 # buffer status: should not be full and empty at the same time
 assume -name {inv - stream buffer status} -env \
 { ( \
-    ~(ila_U.in_stream_full == 1 & ila_U.in_stream_empty == 1) & \
-    ~(ila_U.slice_stream_full == 1 & ila_U.slice_stream_empty == 1) & \
-    ~(ila_U.stencil_stream_full == 1 & ila_U.stencil_stream_empty == 1) & \
-    ~(hls_U.hls_target_linebuffer_1_U0.in_stream_V_value_V_U.internal_full_n  == 0 & \
-      hls_U.hls_target_linebuffer_1_U0.in_stream_V_value_V_U.internal_empty_n == 0) & \
-    ~(hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.slice_stream_V_value_V_U.internal_full_n  == 0 & \
-      hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.slice_stream_V_value_V_U.internal_empty_n == 0) & \
-    ~(hls_U.p_p2_in_bounded_stencil_stream_s_U.internal_full_n  == 0 & \
-      hls_U.p_p2_in_bounded_stencil_stream_s_U.internal_empty_n == 0) \
+    ~(ila_in_stream_full == 1 & ila_in_stream_empty == 1) & \
+    ~(ila_slice_stream_full == 1 & ila_slice_stream_empty == 1) & \
+    ~(ila_stencil_stream_full == 1 & ila_stencil_stream_empty == 1) & \
+    ~(hls_in_stream_full == 1 & hls_in_stream_empty == 1) & \
+    ~(hls_slice_stream_full == 1 & hls_slice_stream_empty == 1) & \
+    ~(hls_stencil_stream_full == 1 & hls_stencil_stream_empty == 1) \
 )} -type {temporary} -update_db;
 
 # x/y/w index: should fall in valid range
-assume -name {inv - x/y/w index} -env \
+assume -name {inv - index bound} -env \
 { ( \
-    ila_U.LB2D_proc_x >= 0 & ila_U.LB2D_proc_x < 488 & \
-    ila_U.LB2D_proc_y >= 0 & ila_U.LB2D_proc_y < 648 & \
-    ila_U.LB2D_proc_w >= 0 & ila_U.LB2D_proc_w < 8 & \
-    hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.col_reg_349 >= 0 & \
-    hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.col_reg_349 <= 488 & \
-    hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.row_reg_327 >= 0 & \
-    hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.row_reg_327 <= 648 & \
-    hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.write_idx_1_reg_315 >= 0 & \
-    hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.write_idx_1_reg_315 < 8 & \
-    ila_U.LB2D_shift_x >= 0 & ila_U.LB2D_shift_x <= 488 & \
-    hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_shift_proc_U0.i_0_i_i_reg_152 >= 0 & \
-    hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_shift_proc_U0.i_0_i_i_reg_152 <= 488 \
+    ila_LB2D_proc_x >= 0 & ila_LB2D_proc_x < 488 & \
+    ila_LB2D_proc_y >= 0 & ila_LB2D_proc_y < 648 & \
+    ila_LB2D_proc_w >= 0 & ila_LB2D_proc_w < 8 & \
+    ila_LB2D_shift_x >= 0 & ila_LB2D_shift_x < 488 & \
+    ila_LB2D_shift_y >= 0 & ila_LB2D_shift_y < 648 & \
+    ila_p_cnt >= 0 & ila_p_cnt <= 307200 & \
+    hls_LB2D_proc_x >= 0 & hls_LB2D_proc_x < 488 & \
+    hls_LB2D_proc_y >= 0 & hls_LB2D_proc_y < 648 & \
+    hls_LB2D_proc_w >= 0 & hls_LB2D_proc_w < 8 & \
+    hls_LB2D_shift_x >= 0 & hls_LB2D_shift_x < 488 & \
+    hls_LB2D_shift_y >= 0 & hls_LB2D_shift_y < 648 & \
+    hls_p_cnt >= 0 & hls_p_cnt <= 307200 \
 )} -type {temporary} -update_db;
 
-# y idx smaller then 8 --> slice empty
-assume -name {inv - y/slice - ila} -env \
+# buffer status should match pixel position (idx)
+assume -name {inv - proc vs slice - ila} -env \
 { ( \
-    (ila_U.LB2D_proc_y <= 7 |-> ila_U.slice_stream_empty == 1) \
+    ila_LB2D_proc_y < 8 |-> ila_slice_stream_empty == 1 \
 )} -type {temporary} -update_db;
-
-assume -name {inv - y/slice - hls} -env \
+#
+assume -name {inv - proc vs slice - hls} -env \
 { ( \
-    (hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.col_reg_349 <= 7 |-> \
-     hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.slice_stream_V_value_V_U.internal_empty_n == 0) \
+    hls_LB2D_proc_y < 8 |-> hls_slice_stream_empty == 1 \
+)} -type {temporary} -update_db;
+#
+assume -name {inv - shift vs stencil - ila} -env \
+{ ( \
+    (ila_LB2D_shift_x < 8 & ila_LB2D_shift_y == 0) |-> ila_stencil_stream_empty == 1 \
+)} -type {temporary} -update_db;
+#
+assume -name {inv - shift vs stencil - hls} -env \
+{ ( \
+    (hls_LB2D_shift_x < 8 & hls_LB2D_shift_y == 0) |-> hls_stencil_stream_empty == 1 \
+)} -type {temporary} -update_db;
+#
+assume -name {inv - proc vs shift} -env \
+{ ( \
+    ila_LB2D_proc_y >= ila_LB2D_shift_y & \
+    hls_LB2D_proc_y >= hls_LB2D_shift_y \
+)} -type {temporary} -update_db;
+#
+assume -name {inv - proc vs shift - ila} -env \
+{ ( \
+    ila_LB2D_proc_y == ila_LB2D_shift_y |-> ila_LB2D_proc_x >= ila_LB2D_shift_x \
+)} -type {temporary} -update_db;
+#
+assume -name {inv - proc vs shift - hls} -env \
+{ ( \
+    hls_LB2D_proc_y == hls_LB2D_shift_y |-> hls_LB2D_proc_x >= hls_LB2D_shift_x \
+)} -type {temporary} -update_db;
+# 
+#assume -name {inv - cnt vs it - ila} -env \
+{ ( \
+    ila_p_cnt <= 307200 |-> ila_gb_exit_it_1 == 0 \
+)} -type {temporary} -update_db;
+# 
+#assume -name {inv - cnt vs it - hls} -env \
+{ ( \
+    hls_p_cnt <= 307200 |-> hls_gb_exit_it_1 == 0 \
 )} -type {temporary} -update_db;
 
 # micro-arch states
