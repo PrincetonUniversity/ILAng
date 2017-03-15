@@ -101,7 +101,11 @@ def U3 (gb):
                                    gb.LB2D_shift_x_nxt)
 
     # LB2D shift y idx
-    LB2D_shift_y_nxt = gb.LB2D_shift_y # XXX is y index necessary?
+    LB2D_shift_y_nxt = ila.ite (gb.LB2D_shift_y < gb.LB2D_shift_y_M,
+                                ila.ite (gb.LB2D_shift_x < gb.LB2D_shift_x_M,
+                                         gb.LB2D_shift_y,
+                                         gb.LB2D_shift_y + gb.LB2D_shift_y_1),
+                                gb.LB2D_shift_y_M)
     gb.LB2D_shift_y_nxt = ila.ite (decode, LB2D_shift_y_nxt,
                                    gb.LB2D_shift_y_nxt)
 
