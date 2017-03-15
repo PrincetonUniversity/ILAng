@@ -16,10 +16,17 @@ def U4 (gb):
     FULL_F  = gb.FULL_FALSE
     EMPTY_T = gb.EMPTY_TRUE
     EMPTY_F = gb.EMPTY_FALSE
+    IT_T    = gb.gb_exit_it_T
+    IT_F    = gb.gb_exit_it_F
 
     ############################ decode ###################################
-    decode = (gb.stencil_stream_empty == EMPTY_F) & \
-             (gb.arg_0_TVALID == VALID_F)
+    #decode = (gb.stencil_stream_empty == EMPTY_F) & \
+             #(gb.arg_0_TVALID == VALID_F)
+    decode = (gb.arg_0_TVALID == VALID_F) & \
+             (((gb.gb_exit_it[0] == IT_F) & \
+               (gb.stencil_stream_empty == EMPTY_F)) | \
+              ((gb.gb_exit_it[0] == IT_T) & \
+               (gb.gb_exit_it[7] == IT_F)))
 
     ############################ next state functions #####################
     # arg_1_TREADY
@@ -27,10 +34,12 @@ def U4 (gb):
     gb.arg_1_TREADY_nxt = ila.ite (decode, arg_1_TREADY_nxt, gb.arg_1_TREADY_nxt)
 
     # arg_0_TVALID
-    arg_0_TVALID_nxt = VALID_T
+    arg_0_TVALID_nxt = ila.ite (gb.gb_pp_it[6] == IT_T, # 7 -> 8
+                                VALID_T, VALID_F)
     gb.arg_0_TVALID_nxt = ila.ite (decode, arg_0_TVALID_nxt, gb.arg_0_TVALID_nxt)
 
     # arg_0_TDATA
+    # FIXME
     in_stencil = ila.ite (gb.stencil_stream_full == FULL_T,
                           gb.stencil_stream_buff[gb.stencil_stream_size-1],
                           gb.stencil_stream_buff[0])
@@ -111,7 +120,8 @@ def U4 (gb):
                                         gb.LB2D_shift_nxt[i])
 
     # stencil_stream_full
-    stencil_stream_full_nxt = FULL_F
+    stencil_stream_full_nxt = ila.ite (gb.gb_exit_it[0] == IT_T,
+                                       FULL_F, FULL_F)
     gb.stencil_stream_full_nxt = ila.ite (decode, stencil_stream_full_nxt,
                                           gb.stencil_stream_full_nxt)
 
@@ -126,6 +136,31 @@ def U4 (gb):
         stencil_stream_buff_nxt = gb.stencil_stream_buff[i]
         gb.stencil_stream_buff_nxt[i] = ila.ite (decode, stencil_stream_buff_nxt,
                                                  gb.stencil_stream_buff_nxt[i])
+
+    # p_cnt
+    p_cnt_nxt = ila.ite (gb.p_cnt < gb.p_cnt_M,
+                         gb.p_cnt + gb.p_cnt_1,
+                         gb.p_cnt_M)
+    gb.p_cnt_nxt = ila.ite (decode, p_cnt_nxt, gb.p_cnt_nxt)
+
+    # gb_pp_it
+    gb_pp_it_0_nxt = gb.gb_pp_it_T
+    gb.gb_pp_it_nxt[0] = ila.ite (decode, gb_pp_it_0_nxt, gb.gb_pp_it_nxt[0])
+    for i in xrange (1, gb.gb_pp_size):
+        gb_pp_it_i_nxt = gb.gb_pp_it[i-1]
+        gb.gb_pp_it_nxt[i] = ila.ite (decode, gb_pp_it_i_nxt,
+                                      gb.gb_pp_it_nxt[i])
+
+    # gb_exit_it
+    gb_exit_it_0_nxt = ila.ite (gb.p_cnt + gb.p_cnt_1 == gb.p_cnt_M,
+                                gb.gb_exit_it_T, gb.gb_exit_it_F)
+    gb.gb_exit_it_nxt[0] = ila.ite (decode, gb_exit_it_0_nxt, 
+                                    gb.gb_exit_it_nxt[0])
+    for i in xrange (1, gb.gb_exit_size):
+        gb_exit_it_i_nxt = gb.gb_exit_it[i-1]
+        gb.gb_exit_it_nxt[i] = ila.ite (decode, gb_exit_it_i_nxt,
+                                        gb.gb_exit_it_nxt[i])
+
 
 if __name__ == '__main__':
     m = GBArch ()

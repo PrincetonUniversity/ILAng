@@ -118,6 +118,30 @@ class GBArch ():
             buffName = 'stencil_stream_buff_%d' % i
             self.stencil_stream_buff.append (m.reg (buffName, self.stencil_size))
 
+        # holding buffer for GB calculation
+        self.gb_pp_size = 9
+        self.gb_pp_it_T = BV_TRUE
+        self.gb_pp_it_F = BV_FALSE
+        self.gb_pp_it   = []
+        for i in xrange (0, self.gb_pp_size):
+            buffName = 'gb_pp_it_%d' % (i+1)
+            self.gb_pp_it.append (m.reg (buffName, 1))
+
+        # releasing buffer for GB calculation
+        self.gb_exit_size = 8
+        self.gb_exit_it_T = BV_TRUE
+        self.gb_exit_it_F = BV_FALSE
+        self.gb_exit_it   = []
+        for i in xrange (0, self.gb_exit_size):
+            buffName = 'gb_exit_it_%d' % (i+1)
+            self.gb_exit_it.append (m.reg (buffName, 1))
+
+        # pixel counter in GB calculation
+        self.p_cnt   = m.reg ('p_cnt', 19)
+        self.p_cnt_0 = m.const (0x0, 19)
+        self.p_cnt_1 = m.const (0x1, 19)
+        self.p_cnt_M = m.const (0x4B000, 19)
+
         # uninterpreted function for GB
         self.fun = m.fun ('gb_fun', DATA_SIZE, [self.stencil_size])
         
@@ -160,6 +184,14 @@ class GBArch ():
         for i in xrange (0, self.stencil_stream_size):
             self.stencil_stream_buff_nxt.append (self.stencil_stream_buff[i])
 
+        self.p_cnt_nxt = self.p_cnt
+        self.gb_pp_it_nxt = []
+        for i in xrange (0, self.gb_pp_size):
+            self.gb_pp_it_nxt.append (self.gb_pp_it[i])
+        self.gb_exit_it_nxt = []
+        for i in xrange (0, self.gb_exit_size):
+            self.gb_exit_it_nxt.append (self.gb_exit_it[i])
+
 
     def setNext (self):
         m = self.abst
@@ -198,6 +230,16 @@ class GBArch ():
         for i in xrange (0, self.stencil_stream_size):
             buffName = 'stencil_stream_buff_%d' % i
             m.set_next (buffName, self.stencil_stream_buff_nxt[i])
+
+        m.set_next ('p_cnt', self.p_cnt_nxt)
+        
+        for i in xrange (0, self.gb_pp_size):
+            buffName = 'gb_pp_it_%d' % (i+1)
+            m.set_next (buffName, self.gb_pp_it_nxt[i])
+
+        for i in xrange (0, self.gb_exit_size):
+            buffName = 'gb_exit_it_%d' % (i+1)
+            m.set_next (buffName, self.gb_exit_it_nxt[i])
 
 
     def exportVerilog (self, fileName):
