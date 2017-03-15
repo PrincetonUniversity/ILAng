@@ -26,9 +26,9 @@ assert -name {eq wait - arg_0_TVALID} \
     ila_U.arg_0_TVALID == hls_U.arg_0_TVALID \
 ) } -update_db;
 
-assert { \
+#assert { \
     counter > 1 |-> ( \
         hls_arg_0_TVALID == 0) \
 }
 
-assert { counter > 1 & hls_step == 0 |-> hls_U.hls_target_Loop_1_proc_U0.ap_CS_fsm == 2 }
+#assert { counter > 1 & hls_step == 0 |-> hls_U.hls_target_Loop_1_proc_U0.ap_CS_fsm == 2 }
