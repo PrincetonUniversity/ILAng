@@ -35,7 +35,7 @@ assume -name {exec ila - break} -env \
         ((ila_U.stencil_stream_full == 0) | (ila_U.LB2D_shift_x < 8))) | \
     ((ila_U.arg_0_TVALID == 0) & \
         (((ila_U.gb_exit_it_1 == 0) & (ila_U.stencil_stream_empty == 0)) | \
-        ((ila_U.gb_exit_it_1 == 1) & (ila_U.gb_exit_it_8 == 0)))) \
+         ((ila_U.gb_exit_it_1 == 1) & (ila_U.gb_exit_it_8 == 0)))) \
     ) \
     |=> \
     (ila_complete == 1) \
@@ -44,14 +44,14 @@ assume -name {exec ila - break} -env \
 assume -name {exec hls - continue} -env \
 { (counter > 1) |-> ( \
     ( \
-    ((hls_U.hls_target_linebuffer_1_U0.in_stream_V_value_V_U.internal_full_n == 1) & \
-     (hls_U.arg_1_TREADY == 0)) | \
-    ((hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.slice_stream_V_value_V_U.internal_full_n == 1) & \
-     (hls_U.hls_target_linebuffer_1_U0.in_stream_V_value_V_U.internal_empty_n == 1)) | \
-    ((hls_U.p_p2_in_bounded_stencil_stream_s_U.internal_full_n == 1) & \
-     (hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.slice_stream_V_value_V_U.internal_empty_n == 1)) | \
-    ((hls_U.arg_0_TVALID == 0) & \
-     (hls_U.p_p2_in_bounded_stencil_stream_s_U.internal_empty_n == 1)) \
+    ((hls_arg_1_TREADY == 0) & (hls_in_stream_full == 0)) | \
+    ((hls_in_stream_empty == 0) & \
+        ((hls_slice_stream_full == 0) | (hls_LB2D_proc_y < 8))) | \
+    ((hls_slice_stream_empty == 0) & \
+        ((hls_stencil_stream_full == 0) | (hls_LB2D_shift_x < 8))) | \
+    ((hls_arg_0_TVALID == 0) & \
+        (((hls_gb_exit_it_1 == 0) & (hls_stencil_stream_empty == 0)) | \
+         ((hls_gb_exit_it_1 == 1) & (hls_gb_exit_it_8 == 0)))) \
     ) \
     |=> \
     (hls_complete == 0) \
@@ -59,15 +59,15 @@ assume -name {exec hls - continue} -env \
 #
 assume -name {exec hls - break} -env \
 { (counter > 1) |-> ( \
-    ~( \
-    ((hls_U.hls_target_linebuffer_1_U0.in_stream_V_value_V_U.internal_full_n == 1) & \
-     (hls_U.arg_1_TREADY == 0)) | \
-    ((hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.slice_stream_V_value_V_U.internal_full_n == 1) & \
-     (hls_U.hls_target_linebuffer_1_U0.in_stream_V_value_V_U.internal_empty_n == 1)) | \
-    ((hls_U.p_p2_in_bounded_stencil_stream_s_U.internal_full_n == 1) & \
-     (hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.slice_stream_V_value_V_U.internal_empty_n == 1)) | \
-    ((hls_U.arg_0_TVALID == 0) & \
-     (hls_U.p_p2_in_bounded_stencil_stream_s_U.internal_empty_n == 1)) \
+   ~( \
+    ((hls_arg_1_TREADY == 0) & (hls_in_stream_full == 0)) | \
+    ((hls_in_stream_empty == 0) & \
+        ((hls_slice_stream_full == 0) | (hls_LB2D_proc_y < 8))) | \
+    ((hls_slice_stream_empty == 0) & \
+        ((hls_stencil_stream_full == 0) | (hls_LB2D_shift_x < 8))) | \
+    ((hls_arg_0_TVALID == 0) & \
+        (((hls_gb_exit_it_1 == 0) & (hls_stencil_stream_empty == 0)) | \
+         ((hls_gb_exit_it_1 == 1) & (hls_gb_exit_it_8 == 0)))) \
     ) \
     |=> \
     (hls_complete == 1) \
