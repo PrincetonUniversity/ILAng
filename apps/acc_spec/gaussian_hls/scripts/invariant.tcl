@@ -178,7 +178,7 @@ assume -name {inv - valid stencil stream pointer} -env \
 )} -type {temporary} -update_db;
 
 # assume time out will not happen
-assume -name {inv - no timeout} -env \
+#assume -name {inv - no timeout} -env \
 { ( \
     hls_timeout_LB1D == 0 \
 )} -type {temporary} -update_db;
@@ -188,25 +188,6 @@ assume -name {inv - axi config} -env \
 { ( \
     hls_U.ap_start == 1 & \
     hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.in_axi_stream_V_value_V_0_areset_d == 0 \
-)} -type {temporary} -update_db;
-
-# time-out counter
-#assume -name {inv - time out} -env \
-{ ( \
-    (hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.indvar_flatten_reg_61 < 100) & \
-    (hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.indvar_flatten_next_fu_78_p2 < 100) & \
-    (hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.exitcond_flatten_reg_88 == 0) & \
-    (hls_U.hls_target_Loop_1_proc_U0.indvar_flatten_reg_434 < 100) & \
-    (hls_U.hls_target_Loop_1_proc_U0.indvar_flatten_next_fu_473_p2 < 100 ) & \
-    (hls_U.hls_target_Loop_1_proc_U0.exitcond_flatten_reg_2790 == 0) & \
-    (hls_U.hls_target_Loop_1_proc_U0.ap_reg_ppstg_exitcond_flatten_reg_2790_pp0_it1 == 0) & \
-    (hls_U.hls_target_Loop_1_proc_U0.ap_reg_ppstg_exitcond_flatten_reg_2790_pp0_it2 == 0) & \
-    (hls_U.hls_target_Loop_1_proc_U0.ap_reg_ppstg_exitcond_flatten_reg_2790_pp0_it3 == 0) & \
-    (hls_U.hls_target_Loop_1_proc_U0.ap_reg_ppstg_exitcond_flatten_reg_2790_pp0_it4 == 0) & \
-    (hls_U.hls_target_Loop_1_proc_U0.ap_reg_ppstg_exitcond_flatten_reg_2790_pp0_it5 == 0) & \
-    (hls_U.hls_target_Loop_1_proc_U0.ap_reg_ppstg_exitcond_flatten_reg_2790_pp0_it6 == 0) & \
-    (hls_U.hls_target_Loop_1_proc_U0.ap_reg_ppstg_exitcond_flatten_reg_2790_pp0_it7 == 0) & \
-    (hls_U.hls_target_Loop_1_proc_U0.ap_reg_ppstg_exitcond_flatten_reg_2790_pp0_it8 == 0) \
 )} -type {temporary} -update_db;
 
 #assume -env \
@@ -225,7 +206,6 @@ assume -name {inv - axi config} -env \
 
 assume -env \
 { counter == 0 |=> ( \
-    #hls_arg_0_TVALID == 0 & \ 
     (hls_U.hls_target_Loop_1_proc_U0.ap_reg_ppiten_pp0_it1 == 1) & \
     (hls_U.hls_target_Loop_1_proc_U0.ap_reg_ppiten_pp0_it2 == 1) & \
     (hls_U.hls_target_Loop_1_proc_U0.ap_reg_ppiten_pp0_it3 == 1) & \
