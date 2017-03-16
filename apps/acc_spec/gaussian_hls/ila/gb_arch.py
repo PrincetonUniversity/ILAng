@@ -5,6 +5,7 @@
 import ila
 
 DATA_SIZE       = 8
+COUNT_SIZE      = 19
 X_EXTEND        = 9
 Y_EXTEND        = 9
 IMG_X_SIZE      = 488
@@ -44,6 +45,12 @@ class GBArch ():
         ######################## states  #######################################
         # 1-D buffer for input data
         self.LB1D_buff = m.reg ('LB1D_buff', DATA_SIZE)
+
+        # pixel counter for input data
+        self.LB1D_p_cnt     = m.reg ('LB1D_p_cnt', COUNT_SIZE)
+        self.LB1D_p_cnt_0   = m.const (0x0, COUNT_SIZE)
+        self.LB1D_p_cnt_1   = m.const (0x1, COUNT_SIZE)
+        self.LB1D_p_cnt_M   = m.const (0x4D340, COUNT_SIZE)
 
         # stream buffer for input data
         self.in_stream_full  = m.reg ('in_stream_full', 1)
@@ -137,10 +144,10 @@ class GBArch ():
             self.gb_exit_it.append (m.reg (buffName, 1))
 
         # pixel counter in GB calculation
-        self.p_cnt   = m.reg ('p_cnt', 19)
-        self.p_cnt_0 = m.const (0x0, 19)
-        self.p_cnt_1 = m.const (0x1, 19)
-        self.p_cnt_M = m.const (0x4B000, 19)
+        self.gb_p_cnt   = m.reg ('gb_p_cnt', COUNT_SIZE)
+        self.gb_p_cnt_0 = m.const (0x0, COUNT_SIZE)
+        self.gb_p_cnt_1 = m.const (0x1, COUNT_SIZE)
+        self.gb_p_cnt_M = m.const (0x4B000, COUNT_SIZE)
 
         # uninterpreted function for GB
         self.fun = m.fun ('gb_fun', DATA_SIZE, [self.stencil_size])
@@ -152,6 +159,7 @@ class GBArch ():
         self.arg_0_TDATA_nxt  = self.arg_0_TDATA
 
         self.LB1D_buff_nxt = self.LB1D_buff
+        self.LB1D_p_cnt_nxt = self.LB1D_p_cnt
 
         self.in_stream_full_nxt  = self.in_stream_full
         self.in_stream_empty_nxt = self.in_stream_empty
@@ -184,7 +192,7 @@ class GBArch ():
         for i in xrange (0, self.stencil_stream_size):
             self.stencil_stream_buff_nxt.append (self.stencil_stream_buff[i])
 
-        self.p_cnt_nxt = self.p_cnt
+        self.gb_p_cnt_nxt = self.gb_p_cnt
         self.gb_pp_it_nxt = []
         for i in xrange (0, self.gb_pp_size):
             self.gb_pp_it_nxt.append (self.gb_pp_it[i])
@@ -200,6 +208,7 @@ class GBArch ():
         m.set_next ('arg_0_TVALID', self.arg_0_TVALID_nxt)
         m.set_next ('arg_0_TDATA', self.arg_0_TDATA_nxt)
         m.set_next ('LB1D_buff', self.LB1D_buff_nxt)
+        m.set_next ('LB1D_p_cnt', self.LB1D_p_cnt_nxt)
         m.set_next ('in_stream_full', self.in_stream_full_nxt)
         m.set_next ('in_stream_empty', self.in_stream_empty_nxt)
         for i in xrange (0, self.in_stream_size):
@@ -231,7 +240,7 @@ class GBArch ():
             buffName = 'stencil_stream_buff_%d' % i
             m.set_next (buffName, self.stencil_stream_buff_nxt[i])
 
-        m.set_next ('p_cnt', self.p_cnt_nxt)
+        m.set_next ('gb_p_cnt', self.gb_p_cnt_nxt)
         
         for i in xrange (0, self.gb_pp_size):
             buffName = 'gb_pp_it_%d' % (i+1)

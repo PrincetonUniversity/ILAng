@@ -137,11 +137,11 @@ def U4 (gb):
         gb.stencil_stream_buff_nxt[i] = ila.ite (decode, stencil_stream_buff_nxt,
                                                  gb.stencil_stream_buff_nxt[i])
 
-    # p_cnt
-    p_cnt_nxt = ila.ite (gb.p_cnt < gb.p_cnt_M,
-                         gb.p_cnt + gb.p_cnt_1,
-                         gb.p_cnt_M)
-    gb.p_cnt_nxt = ila.ite (decode, p_cnt_nxt, gb.p_cnt_nxt)
+    # gb_p_cnt
+    gb_p_cnt_nxt = ila.ite (gb.gb_p_cnt < gb.gb_p_cnt_M,
+                         gb.gb_p_cnt + gb.gb_p_cnt_1,
+                         gb.gb_p_cnt_M)
+    gb.gb_p_cnt_nxt = ila.ite (decode, gb_p_cnt_nxt, gb.gb_p_cnt_nxt)
 
     # gb_pp_it
     gb_pp_it_0_nxt = gb.gb_pp_it_T
@@ -152,7 +152,7 @@ def U4 (gb):
                                       gb.gb_pp_it_nxt[i])
 
     # gb_exit_it
-    gb_exit_it_0_nxt = ila.ite (gb.p_cnt + gb.p_cnt_1 == gb.p_cnt_M,
+    gb_exit_it_0_nxt = ila.ite (gb.gb_p_cnt + gb.gb_p_cnt_1 == gb.gb_p_cnt_M,
                                 gb.gb_exit_it_T, gb.gb_exit_it_F)
     gb.gb_exit_it_nxt[0] = ila.ite (decode, gb_exit_it_0_nxt, 
                                     gb.gb_exit_it_nxt[0])
