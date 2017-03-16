@@ -106,7 +106,7 @@ class GBArch ():
         self.LB2D_shift_y   = m.reg ('LB2D_shift_y', ROW_ADDR_SIZE)
         self.LB2D_shift_y_0 = m.const (0x0, ROW_ADDR_SIZE)
         self.LB2D_shift_y_1 = m.const (0x1, ROW_ADDR_SIZE)
-        self.LB2D_shift_y_M = m.const (IMG_Y_SIZE-1, ROW_ADDR_SIZE)
+        self.LB2D_shift_y_M = m.const (IMG_Y_SIZE-8-1, ROW_ADDR_SIZE)
 
         # stream buffer for stencil
         self.stencil_stream_full  = m.reg ('stencil_stream_full', 1)

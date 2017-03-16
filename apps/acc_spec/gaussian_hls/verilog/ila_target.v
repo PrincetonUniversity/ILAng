@@ -863,10 +863,10 @@ assign n122 =  ( n23 ) ? ( n119 ) : ( n121 ) ;
 assign n123 =  ( n18 ) ? ( LB2D_shift_x ) : ( n122 ) ;
 assign n124 =  ( n9 ) ? ( LB2D_shift_x ) : ( n123 ) ;
 assign n125 =  ( n4 ) ? ( LB2D_shift_x ) : ( n124 ) ;
-assign n126 =  ( LB2D_shift_y ) < ( 10'd487 )  ;
+assign n126 =  ( LB2D_shift_y ) < ( 10'd479 )  ;
 assign n127 =  ( LB2D_shift_y ) + ( 10'd1 )  ;
 assign n128 =  ( n117 ) ? ( LB2D_shift_y ) : ( n127 ) ;
-assign n129 =  ( n126 ) ? ( n128 ) : ( 10'd487 ) ;
+assign n129 =  ( n126 ) ? ( n128 ) : ( 10'd479 ) ;
 assign n130 =  ( n31 ) ? ( LB2D_shift_y ) : ( LB2D_shift_y ) ;
 assign n131 =  ( n28 ) ? ( LB2D_shift_y ) : ( n130 ) ;
 assign n132 =  ( n23 ) ? ( n129 ) : ( n131 ) ;
@@ -875,7 +875,7 @@ assign n134 =  ( n9 ) ? ( LB2D_shift_y ) : ( n133 ) ;
 assign n135 =  ( n4 ) ? ( LB2D_shift_y ) : ( n134 ) ;
 assign n136 =  ( stencil_stream_full ) == ( 1'd1 )  ;
 assign n137 =  ( n136 ) ? ( stencil_stream_buff_1 ) : ( stencil_stream_buff_0 ) ;
-// assign n138 = gb_fun(n137) ;
+//assign n138 = gb_fun(n137) ;
 gb_fun gb_fun_U (
     .stencil (n137),
     .result (n138)
