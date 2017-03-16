@@ -66,13 +66,13 @@ input   hls_s_axi_config_RREADY;
 input   hls_s_axi_config_BREADY;
 input  [0:0] hls_arg_1_TLAST;
 
-reg [7:0] counter;
+reg [15:0] counter;
 always @ (posedge clk) begin
     if (rst_init) begin
-        counter <= 8'b0;
+        counter <= 16'b0;
     end
     else begin
-        counter <= counter + 8'b1;
+        counter <= counter + 16'b1;
     end
 end
 

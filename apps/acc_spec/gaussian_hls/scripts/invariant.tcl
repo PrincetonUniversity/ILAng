@@ -165,39 +165,10 @@ assume -name {inv - valid stencil stream pointer} -env \
     (hls_stencil_stream_full == 1 & hls_stencil_stream_empty == 0 & hls_stencil_stream_mOutPtr == 1) \
 )} -type {temporary} -update_db;
 
+# assume time out will not happen
 assume -name {inv - no timeout} -env \
 { ( \
     hls_timeout_LB1D == 0 \
-)} -type {temporary} -update_db;
-
-# iteration interal states 
-assume -name {inv - ppiten buf} -env \
-{ counter == 0 |=> ( \
-    hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.ap_reg_ppiten_pp0_it0 == 1 & \
-    hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.ap_reg_ppiten_pp0_it1 == 1 & \
-    hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.ap_reg_ppiten_pp0_it0 == 1 & \
-    hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.ap_reg_ppiten_pp0_it1 == 1 & \
-    hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_shift_proc_U0.ap_reg_ppiten_pp0_it0 == 1 & \
-    hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_shift_proc_U0.ap_reg_ppiten_pp0_it1 == 1 \
-)} -type {temporary} -update_db;
-
-assume -name {inv - Loop fsm} -env \
-{ counter == 0 |=> ( \
-    hls_U.hls_target_Loop_1_proc_U0.ap_CS_fsm == 2 \
-)} -type {temporary} -update_db;
-
-assume -name {inv - ppiten Loop} -env \
-{ counter == 1 & hls_arg_0_TVALID == 1 |-> ( \
-    hls_U.hls_target_Loop_1_proc_U0.ap_reg_ppiten_pp0_it0 == 1 & \
-    hls_U.hls_target_Loop_1_proc_U0.ap_reg_ppiten_pp0_it1 == 1 & \
-    hls_U.hls_target_Loop_1_proc_U0.ap_reg_ppiten_pp0_it2 == 1 & \
-    hls_U.hls_target_Loop_1_proc_U0.ap_reg_ppiten_pp0_it3 == 1 & \
-    hls_U.hls_target_Loop_1_proc_U0.ap_reg_ppiten_pp0_it4 == 1 & \
-    hls_U.hls_target_Loop_1_proc_U0.ap_reg_ppiten_pp0_it5 == 1 & \
-    hls_U.hls_target_Loop_1_proc_U0.ap_reg_ppiten_pp0_it6 == 1 & \
-    hls_U.hls_target_Loop_1_proc_U0.ap_reg_ppiten_pp0_it7 == 1 & \
-    hls_U.hls_target_Loop_1_proc_U0.ap_reg_ppiten_pp0_it8 == 1 & \
-    hls_U.hls_target_Loop_1_proc_U0.ap_reg_ppiten_pp0_it9 == 1 \
 )} -type {temporary} -update_db;
 
 # axi config
@@ -205,11 +176,6 @@ assume -name {inv - axi config} -env \
 { ( \
     hls_U.ap_start == 1 & \
     hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.in_axi_stream_V_value_V_0_areset_d == 0 \
-)} -type {temporary} -update_db;
-
-assume -name {inv -axi config init} -env \
-{ counter == 0 |-> ( \
-    hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.ap_done_reg == 0 \
 )} -type {temporary} -update_db;
 
 # time-out counter

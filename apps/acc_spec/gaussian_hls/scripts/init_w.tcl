@@ -1,5 +1,20 @@
 # Assumptions initial condition
 #
+# arch-states
+# data valid must implies iteration done
+assume -name {init - valid iterator} -env \
+{ counter == 0 |=> ( \
+    (hls_arg_0_TVALID == 1 & hls_gb_pp_it_8 == 1) | \
+    (hls_arg_0_TVALID == 0) \
+)} -type {temporary} -update_db;
+
+# micro-states
+# axi config
+assume -name {init - axi config} -env \
+{ counter == 0 |=> ( \
+    hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.ap_done_reg == 0 \
+)} -type {temporary} -update_db;
+
 # stable fsm
 assume -name {init - stable fsm} -env \
 { counter == 0 |=> ( \
@@ -7,7 +22,25 @@ assume -name {init - stable fsm} -env \
     hls_LB2D_proc_fsm == 4 & \
     hls_LB2D_shift_fsm == 4 & \
     hls_GB_fsm == 2 \
-)} -update_db;
+)} -type {temporary} -update_db;
+
+# consistent exit condition
+assume -name {init - consistent exitcond} -env \
+{ counter == 0 |=> ( \
+    hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.exitcond3_fu_388_p2 == \
+    hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.exitcond3_reg_702 \
+)} -type {temporary} -update_db;
+
+# abstract holding buffer - interanl iterator
+assume -name {init - no holding iterator} -env \
+{ counter == 0 |=> ( \
+    hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.ap_reg_ppiten_pp0_it0 == 1 & \
+    hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.ap_reg_ppiten_pp0_it1 == 1 & \
+    hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.ap_reg_ppiten_pp0_it0 == 1 & \
+    hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.ap_reg_ppiten_pp0_it1 == 1 & \
+    hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_shift_proc_U0.ap_reg_ppiten_pp0_it0 == 1 & \
+    hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_shift_proc_U0.ap_reg_ppiten_pp0_it1 == 1 \
+)} -type {temporary} -update_db;
 
 # valid pipeline iterator 
 assume -name {init - cnt vs pp - ila} -env \
@@ -98,14 +131,14 @@ assume -name {init - cnt vs pp - ila} -env \
 # valid pipeline iterator 
 assume -name {init - cnt vs exit - ila} -env \
 { counter == 0 |=> ( \
-    (ila_p_cnt <= 307200 & ila_gb_exit_it_1 == 0 & \
-                           ila_gb_exit_it_2 == 0 & \
-                           ila_gb_exit_it_3 == 0 & \
-                           ila_gb_exit_it_4 == 0 & \
-                           ila_gb_exit_it_5 == 0 & \
-                           ila_gb_exit_it_6 == 0 & \
-                           ila_gb_exit_it_7 == 0 & \
-                           ila_gb_exit_it_8 == 0) | \
+    (ila_p_cnt < 307200 & ila_gb_exit_it_1 == 0 & \
+                          ila_gb_exit_it_2 == 0 & \
+                          ila_gb_exit_it_3 == 0 & \
+                          ila_gb_exit_it_4 == 0 & \
+                          ila_gb_exit_it_5 == 0 & \
+                          ila_gb_exit_it_6 == 0 & \
+                          ila_gb_exit_it_7 == 0 & \
+                          ila_gb_exit_it_8 == 0) | \
     (ila_p_cnt == 307200 & ((ila_gb_exit_it_1 == 1 & \
                              ila_gb_exit_it_2 == 0 & \
                              ila_gb_exit_it_3 == 0 & \
