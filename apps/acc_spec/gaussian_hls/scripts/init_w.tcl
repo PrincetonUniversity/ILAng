@@ -31,6 +31,13 @@ assume -name {init - consistent exitcond} -env \
     hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.exitcond3_reg_702 \
 )} -type {temporary} -update_db;
 
+# consistent valid record
+assume -name {init - consistent valid record} -env \
+{ counter == 0 |=> ( \
+    (hls_arg_0_TVALID == 0 & hls_U.hls_target_Loop_1_proc_U0.arg_0_V_value_V_1_mVld == 0) | \
+    (hls_arg_0_TVALID == 1) \
+)} -type {temporary} -update_db;
+
 # abstract holding buffer - interanl iterator
 assume -name {init - no holding iterator} -env \
 { counter == 0 |=> ( \

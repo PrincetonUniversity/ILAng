@@ -99,6 +99,18 @@ assume -name {inv - shift vs stencil - hls} -env \
 { ( \
     (hls_LB2D_shift_x < 8 & hls_LB2D_shift_y == 0) |-> hls_stencil_stream_empty == 1 \
 )} -type {temporary} -update_db;
+#
+assume -name {inv - stencil vs gb} -env \
+{ ( \
+    (ila_p_cnt == 307200) |-> ( \
+        ila_stencil_stream_empty == 1 & \
+        ila_slice_stream_empty == 1 & \
+        ila_in_stream_empty == 1 & \
+        ila_LB2D_proc_x == 487 & \
+        ila_LB2D_proc_y == 687 & \
+        ila_LB2D_shift_x == 487 & \
+        ila_LB2D_shift_y == 679 ) \
+)} -type {temporary} -update_db;
 
 # pixel position (idx) should be consistent across process unit
 assume -name {inv - proc vs shift} -env \
