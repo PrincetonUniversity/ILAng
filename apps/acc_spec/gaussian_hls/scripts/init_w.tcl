@@ -1,11 +1,34 @@
 # Assumptions initial condition
 #
+# decompose verification
+assume -name {Subset - 1} -env \
+{ counter == 0 |=> ( \
+    ila_LB1D_p_cnt > 3904 & ila_LB1D_p_cnt < 315736 & \
+    ila_LB2D_proc_x >= 0 & ila_LB2D_proc_x < 480 & \
+    ila_LB2D_proc_y >= 8 & ila_LB2D_proc_y < 648 & \
+    ila_LB2D_shift_x >= 8 & ila_LB2D_shift_x < 480 & \
+    ila_LB2D_shift_y >= 1 & ila_LB2D_shift_y < 640 & \
+    ila_gb_p_cnt >= 10 & ila_gb_p_cnt < 306720 \
+)} -type {temporary} -update_db;
+
 # arch-states
 # data valid must implies iteration done
 assume -name {init - valid iterator} -env \
 { counter == 0 |=> ( \
     (hls_arg_0_TVALID == 1 & hls_gb_pp_it_8 == 1) | \
     (hls_arg_0_TVALID == 0) \
+)} -type {temporary} -update_db;
+
+# no incomplete write to the in stream
+assume -name {init - complete input} -env \
+{ counter == 0 |=> ( \
+    hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.in_stream_V_value_V_write == 0 \
+)} -type {temporary} -update_db;
+
+# no incomplete read to the stencil stream
+assume -name {init - complete output} -env \
+{ counter == 0 |=> ( \
+    hls_U.hls_target_Loop_1_proc_U0.p_p2_in_bounded_stencil_stream_V_value_V_read == 0 \
 )} -type {temporary} -update_db;
 
 # micro-states
@@ -37,6 +60,13 @@ assume -name {init - consistent exitcond} -env \
      hls_U.hls_target_Loop_1_proc_U0.exitcond_flatten_fu_467_p2) \
 )} -type {temporary} -update_db;
 
+# consistent ready for write instruction
+assume -name {init - consistent input ready} -env \
+{ counter == 0 |-> ( \
+    (hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.in_axi_stream_V_last_V_0_has_vld_data_reg_i == \
+     hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.in_axi_stream_V_last_V_0_has_vld_data_reg) \
+)} -type {temporary} -update_db;
+
 # consistent valid record
 assume -name {init - consistent valid record} -env \
 { counter == 0 |=> ( \
@@ -47,6 +77,8 @@ assume -name {init - consistent valid record} -env \
 # consistent pixel position
 assume -name {init - consistent pixel position} -env \
 { counter == 0 |=> ( \
+    (hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.row_reg_327 == \
+     hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.row_1_reg_693) & \
     (hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.icmp_reg_698 == \
      hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.icmp_fu_382_p2) & \
     (hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_shift_proc_U0.icmp_reg_1260 == \
