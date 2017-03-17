@@ -50,6 +50,10 @@ def U4 (gb):
     LB1D_buff_nxt = gb.LB1D_buff
     gb.LB1D_buff_nxt = ila.ite (decode, LB1D_buff_nxt, gb.LB1D_buff_nxt)
 
+    # pixel position for input data
+    LB1D_p_cnt_nxt = gb.LB1D_p_cnt
+    gb.LB1D_p_cnt_nxt = ila.ite (decode, LB1D_p_cnt_nxt, gb.LB1D_p_cnt_nxt)
+
     # in stream full 
     in_stream_full_nxt = gb.in_stream_full
     gb.in_stream_full_nxt = ila.ite (decode, in_stream_full_nxt, 

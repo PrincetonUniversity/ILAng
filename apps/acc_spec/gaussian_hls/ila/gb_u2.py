@@ -39,6 +39,10 @@ def U2 (gb):
     LB1D_buff_nxt = gb.LB1D_buff
     gb.LB1D_buff_nxt = ila.ite (decode, LB1D_buff_nxt, gb.LB1D_buff_nxt)
 
+    # pixel position for input data
+    LB1D_p_cnt_nxt = gb.LB1D_p_cnt
+    gb.LB1D_p_cnt_nxt = ila.ite (decode, LB1D_p_cnt_nxt, gb.LB1D_p_cnt_nxt)
+
     # in stream full
     in_stream_full_nxt = FULL_F
     gb.in_stream_full_nxt = ila.ite (decode, in_stream_full_nxt,
@@ -188,6 +192,22 @@ def U2 (gb):
         stencil_stream_buff_nxt = gb.stencil_stream_buff[i]
         gb.stencil_stream_buff_nxt[i] = ila.ite (decode, stencil_stream_buff_nxt,
                                                  gb.stencil_stream_buff_nxt[i])
+
+    # gb_p_cnt
+    gb_p_cnt_nxt = gb.gb_p_cnt
+    gb.gb_p_cnt_nxt = ila.ite (decode, gb_p_cnt_nxt, gb.gb_p_cnt_nxt)
+
+    # gb_pp_it
+    for i in xrange (0, gb.gb_pp_size):
+        gb_pp_it_i_nxt = gb.gb_pp_it[i]
+        gb.gb_pp_it_nxt[i] = ila.ite (decode, gb_pp_it_i_nxt,
+                                      gb.gb_pp_it_nxt[i])
+
+    # gb_exit_it
+    for i in xrange (0, gb.gb_exit_size):
+        gb_exit_it_i_nxt = gb.gb_exit_it[i]
+        gb.gb_exit_it_nxt[i] = ila.ite (decode, gb_exit_it_i_nxt,
+                                        gb.gb_exit_it_nxt[i])
 
 
 if __name__ == '__main__':
