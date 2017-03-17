@@ -67,17 +67,17 @@ assume -name {inv - index bound} -env \
 { ( \
     ila_LB1D_p_cnt >= 0 & ila_LB1D_p_cnt <= 316224 & \
     ila_LB2D_proc_x >= 0 & ila_LB2D_proc_x <= 488 & \
-    ila_LB2D_proc_y >= 0 & ila_LB2D_proc_y < 648 & \
+    ila_LB2D_proc_y >= 0 & ila_LB2D_proc_y <= 648 & \
     ila_LB2D_proc_w >= 0 & ila_LB2D_proc_w < 8 & \
     ila_LB2D_shift_x >= 0 & ila_LB2D_shift_x <= 488 & \
-    ila_LB2D_shift_y >= 0 & ila_LB2D_shift_y < 640 & \
+    ila_LB2D_shift_y >= 0 & ila_LB2D_shift_y <= 640 & \
     ila_gb_p_cnt >= 0 & ila_gb_p_cnt <= 307200 & \
     hls_LB1D_p_cnt >= 0 & hls_LB1D_p_cnt <= 316224 & \
     hls_LB2D_proc_x >= 0 & hls_LB2D_proc_x <= 488 & \
-    hls_LB2D_proc_y >= 0 & hls_LB2D_proc_y < 648 & \
+    hls_LB2D_proc_y >= 0 & hls_LB2D_proc_y <= 648 & \
     hls_LB2D_proc_w >= 0 & hls_LB2D_proc_w < 8 & \
     hls_LB2D_shift_x >= 0 & hls_LB2D_shift_x <= 488 & \
-    hls_LB2D_shift_y >= 0 & hls_LB2D_shift_y < 640 & \
+    hls_LB2D_shift_y >= 0 & hls_LB2D_shift_y <= 640 & \
     hls_gb_p_cnt >= 0 & hls_gb_p_cnt <= 307200 \
 )} -type {temporary} -update_db;
 
@@ -109,16 +109,6 @@ assume -name {inv - LB1D accumulate} -env \
         ila_arg_0_TVALID == 0 ) \
 )} -type {temporary} -update_db;
 #
-#assume -name {inv - LB1D vs in - ila} -env \
-{ ( \
-    ila_LB1D_p_cnt == 0 |-> ila_in_stream_empty == 1 \
-)} -type {temporary} -update_db;
-#
-#assume -name {inv - LB1D vs in - hls} -env \
-{ ( \
-    hls_LB1D_p_cnt == 0 |-> hls_in_stream_empty == 1 \
-)} -type {temporary} -update_db;
-#
 assume -name {inv - buff none} -env \
 { ( \
     (ila_LB2D_proc_y < 8) |-> ( \
@@ -134,16 +124,6 @@ assume -name {inv - buff done} -env \
     (ila_LB2D_proc_x == 488 & ila_LB2D_proc_y == 647) |-> ( \
         ila_LB1D_p_cnt == 316224 & \
         ila_in_stream_empty == 1 ) \
-)} -type {temporary} -update_db;
-#
-#assume -name {inv - buff vs slice - ila} -env \
-{ ( \
-    ila_LB2D_proc_y < 8 |-> ila_slice_stream_empty == 1 \
-)} -type {temporary} -update_db;
-#
-#assume -name {inv - buff vs slice - hls} -env \
-{ ( \
-    hls_LB2D_proc_y < 8 |-> hls_slice_stream_empty == 1 \
 )} -type {temporary} -update_db;
 #
 assume -name {inv - shift none} -env \
@@ -162,16 +142,6 @@ assume -name {inv - shift done} -env \
         ila_LB2D_proc_x == 488 & \
         ila_LB2D_proc_y == 647 & \
         ila_slice_stream_empty == 1 ) \
-)} -type {temporary} -update_db;
-#
-#assume -name {inv - shift vs stencil - ila} -env \
-{ ( \
-    (ila_LB2D_shift_x < 8 & ila_LB2D_shift_y == 0) |-> ila_stencil_stream_empty == 1 \
-)} -type {temporary} -update_db;
-#
-#assume -name {inv - shift vs stencil - hls} -env \
-{ ( \
-    (hls_LB2D_shift_x < 8 & hls_LB2D_shift_y == 0) |-> hls_stencil_stream_empty == 1 \
 )} -type {temporary} -update_db;
 #
 assume -name {inv - gb done} -env \
@@ -242,70 +212,10 @@ assume -name {inv - valid stencil stream pointer} -env \
     (hls_stencil_stream_full == 1 & hls_stencil_stream_empty == 0 & hls_stencil_stream_mOutPtr == 1) \
 )} -type {temporary} -update_db;
 
-# assume time out will not happen
-#assume -name {inv - no timeout} -env \
-{ ( \
-    hls_timeout_LB1D == 0 \
-)} -type {temporary} -update_db;
-
 # axi config
 assume -name {inv - axi config} -env \
 { ( \
     hls_U.ap_start == 1 & \
     hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.in_axi_stream_V_value_V_0_areset_d == 0 \
 )} -type {temporary} -update_db;
-
-#assume -env \
-{ counter == 0 & hls_arg_0_TVALID == 1 |=> ( \
-    (hls_U.hls_target_Loop_1_proc_U0.ap_reg_ppiten_pp0_it1 == 1) & \
-    (hls_U.hls_target_Loop_1_proc_U0.ap_reg_ppiten_pp0_it2 == 1) & \
-    (hls_U.hls_target_Loop_1_proc_U0.ap_reg_ppiten_pp0_it3 == 1) & \
-    (hls_U.hls_target_Loop_1_proc_U0.ap_reg_ppiten_pp0_it4 == 1) & \
-    (hls_U.hls_target_Loop_1_proc_U0.ap_reg_ppiten_pp0_it5 == 1) & \
-    (hls_U.hls_target_Loop_1_proc_U0.ap_reg_ppiten_pp0_it6 == 1) & \
-    (hls_U.hls_target_Loop_1_proc_U0.ap_reg_ppiten_pp0_it7 == 1) & \
-    (hls_U.hls_target_Loop_1_proc_U0.ap_reg_ppiten_pp0_it8 == 1) & \
-    (hls_U.hls_target_Loop_1_proc_U0.ap_reg_ppiten_pp0_it9 == 1) & \
-    (hls_U.hls_target_Loop_1_proc_U0.ap_CS_fsm == 2) \
-)} -type {temporary} -update_db;
-
-#assume -env \
-{ counter == 0 |=> ( \
-    (hls_U.hls_target_Loop_1_proc_U0.ap_reg_ppiten_pp0_it1 == 1) & \
-    (hls_U.hls_target_Loop_1_proc_U0.ap_reg_ppiten_pp0_it2 == 1) & \
-    (hls_U.hls_target_Loop_1_proc_U0.ap_reg_ppiten_pp0_it3 == 1) & \
-    (hls_U.hls_target_Loop_1_proc_U0.ap_reg_ppiten_pp0_it4 == 1) & \
-    (hls_U.hls_target_Loop_1_proc_U0.ap_reg_ppiten_pp0_it5 == 1) & \
-    (hls_U.hls_target_Loop_1_proc_U0.ap_reg_ppiten_pp0_it6 == 1) & \
-    (hls_U.hls_target_Loop_1_proc_U0.ap_reg_ppiten_pp0_it7 == 1) & \
-    (hls_U.hls_target_Loop_1_proc_U0.ap_reg_ppiten_pp0_it8 == 1) & \
-    (hls_U.hls_target_Loop_1_proc_U0.ap_reg_ppiten_pp0_it9 == 1) & \
-    (hls_U.hls_target_Loop_1_proc_U0.ap_CS_fsm == 2) \
-)} -type {temporary} -update_db;
-
-#assume -name {tmp - block corner case} -env \
-{ counter == 0 |=> ( \
-    ila_U.LB2D_proc_x < 100 & \
-    ila_U.LB2D_proc_x > 8 & \
-    ila_U.LB2D_shift_x < 100 & \
-    ila_U.LB2D_shift_x > 8 & \
-    hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.exitcond3_reg_702 == 0 & \
-    hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.row_reg_327 >= 8 & \
-    hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.row_reg_327 < 100 & \
-    hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.row_1_reg_693 >= 8 & \
-    hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.row_1_reg_693 < 100 & \
-    (hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.icmp_reg_698 == \
-     hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.icmp_fu_382_p2) & \
-    (hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_shift_proc_U0.icmp_reg_1260 == \
-     hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_shift_proc_U0.icmp_fu_197_p2) & \
-    hls_U.hls_target_Loop_1_proc_U0.p_p2_in_bounded_stencil_stream_V_value_V_read == 0 \
-)} -type {temporary} -update_db;
-
-#assume -name {tmp - inv for corner case} -env \
-{ counter == 0 |=> ( \
-    hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_shift_proc_U0.i_0_i_i_reg_152 != 488 |-> \
-    hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_shift_proc_U0.ap_CS_fsm == 4 \
-)} -type {temporary} -update_db;
-
-
 

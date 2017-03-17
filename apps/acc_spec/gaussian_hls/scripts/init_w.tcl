@@ -3,20 +3,68 @@
 # decompose verification
 assume -name {Subset - 1} -env \
 { counter == 0 |=> ( \
-    ila_LB1D_p_cnt > 3904 & ila_LB1D_p_cnt < 315736 & \
+    ila_LB1D_p_cnt >= 3904 & ila_LB1D_p_cnt < 315736 & \
     ila_LB2D_proc_x >= 0 & ila_LB2D_proc_x < 480 & \
     ila_LB2D_proc_y >= 8 & ila_LB2D_proc_y < 648 & \
     ila_LB2D_shift_x >= 8 & ila_LB2D_shift_x < 480 & \
-    ila_LB2D_shift_y >= 1 & ila_LB2D_shift_y < 640 & \
+    ila_LB2D_shift_y >= 0 & ila_LB2D_shift_y < 640 & \
     ila_gb_p_cnt >= 10 & ila_gb_p_cnt < 306720 \
+)} -type {temporary} -update_db;
+#
+assume -name {Subset - 1.1} -env \
+{ counter == 0 |=> ( \
+    ila_LB1D_p_cnt >= 5000 & ila_LBuD_p_cnt < 6000 & \
+    ila_LB2D_proc_x >= 50 & ila_LB2D_proc_x < 100 & \
+    ila_LB2D_proc_y >= 10 & ila_LB2D_proc_y < 15 & \
+    ila_LB2D_shift_x >= 50 & ila_LB2D_shift_x < 100 & \
+    ila_LB2D_shift_y >= 10 & ila_LB2D_shift_y < 15 & \
+    ila_gb_p_cnt >= 5000 & ila_gb_p_cnt < 6000 \
+)} -type {temporary} -update_db;
+
+assume -name {Subset - 2} -env \
+{ counter == 0 |=> ( \
+    ila_LB1D_p_cnt >= 3904 & ila_LB1D_p_cnt < 315736 & \
+    ila_LB2D_proc_x >= 480 & ila_LB2D_proc_x <= 488 & \
+    ila_LB2D_proc_y >= 8 & ila_LB2D_proc_y < 648 & \
+    ila_LB2D_shift_x >= 480 & ila_LB2D_proc_x <= 488 & \
+    ila_LB2D_shift_y >= 0 & ila_LB2D_shift < 640 & \
+    ila_gb_p_cnt >= 450 & ila_gb_p_cnt < 306720 \
+)} -type {temporary} -update_db;
+#
+assume -name {Subset - 2.1} -env \
+{ counter == 0 |=> ( \
+    ila_LB1D_p_cnt >= 5000 & ila_LB1D_p_cnt < 6000 & \
+    ila_LB2D_proc_x >= 480 & ila_LB2D_proc_x <= 488 & \
+    ila_LB2D_proc_y >= 10 & ila_LB2D_proc_y < 15 & \
+    ila_LB2D_shift_x >= 480 & ila_LB2D_proc_x <= 488 & \
+    ila_LB2D_shift_y >= 10  & ila_LB2D_shift < 15 & \
+    ila_gb_p_cnt >= 5000 & ila_gb_p_cnt < 6000 \
+)} -type {temporary} -update_db;
+
+assume -name {Subset - 3} -env \
+{ counter == 0 |=> ( \
+    ila_LB1D_p_cnt >= 0 & ila_LB1D_p_cnt < 3904 & \
+    ila_LB2D_proc_x >= 0 & ila_LB2D_proc_x < 480 & \
+    ila_LB2D_proc_y >= 0 & ila_LB2D_proc_y < 8 & \
+    ila_LB2D_shift_x == 0 & \
+    ila_LB2D_shift_y == 0 & \
+    ila_gb_p_cnt == 0 \
+)} -type {temporary} -update_db;
+#
+assume -name {Subset - 3.1} -env \
+{ counter == 0 |=> ( \
+    ila_LB1D_p_cnt >= 0 & ila_LB1D_p_cnt < 150 & \
+    ila_LB2D_proc_x >= 50 & ila_LB2D_proc_x < 100 & \
+    ila_LB2D_proc_y == 0 \
 )} -type {temporary} -update_db;
 
 # arch-states
 # data valid must implies iteration done
 assume -name {init - valid iterator} -env \
 { counter == 0 |=> ( \
-    (hls_arg_0_TVALID == 1 & hls_gb_pp_it_8 == 1) | \
-    (hls_arg_0_TVALID == 0) \
+    (hls_arg_0_TVALID == 0) | \
+    (hls_arg_0_TVALID == 1 & hls_gb_pp_it_8 == 1 & \
+                             hls_U.hls_target_Loop_1_proc_U0.arg_0_V_value_V_1_mVld == 1) \
 )} -type {temporary} -update_db;
 
 # no incomplete write to the in stream

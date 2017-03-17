@@ -62,13 +62,3 @@ assume -name {arch equal - start} -env \
     ila_gb_exit_it_8 == hls_gb_exit_it_8 \
 )} -type {temporary} -update_db;
 
-# block pipeline, all previous instructions complete
-#assume -name {block pipeline} -env \
-{ (counter == 0) |=> ( \
-    ~( \
-    ((ila_U.in_stream_full == 0) & (ila_U.arg_1_TREADY == 0)) | \
-    ((ila_U.slice_stream_full == 0) & (ila_U.in_stream_empty == 0)) | \
-    ((ila_U.stencil_stream_full == 0) & (ila_U.slice_stream_empty == 0)) | \
-    ((ila_U.arg_0_TVALID == 0) & (ila_U.stencil_stream_empty == 0)) \
-    ) \
-)} -type {temporary} -update_db;
