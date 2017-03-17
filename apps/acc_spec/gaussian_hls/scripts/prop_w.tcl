@@ -77,7 +77,7 @@ assert -name {eq - LB2D_proc_x} \
 ) } -update_db;
 
 # LB2D_proc_y
-assert -name {eq - LB2D_proc_y} \ 
+assert -name {eq - LB2D_proc_y} \
 { (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
     ila_LB2D_shift_y == hls_LB2D_shift_y \
 ) } -update_db;
