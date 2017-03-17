@@ -82,3 +82,120 @@ assert -name {eq - LB2D_proc_y} \
     ila_LB2D_shift_y == hls_LB2D_shift_y \
 ) } -update_db;
 
+# slice_stream_empty
+assert -name {eq - slice_stream_empty} \
+{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+    ila_slice_stream_empty == hls_slice_stream_empty \
+) } -update_db;
+
+# slice_stream_full
+assert -name {eq - slice_stream_full} \
+{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+    ila_slice_stream_full == hls_slice_stream_full \
+) } -update_db;
+
+# LB2D_shift_x
+assert -name {eq - LB2D_shift_x} \
+{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+    ila_LB2D_shift_x == hls_LB2D_shift_x \
+) } -update_db;
+
+# LB2D_shift_y
+assert -name {eq - LB2D_shift_y} \
+{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+    ila_LB2D_shift_y == hls_LB2D_shift_y \
+) } -update_db;
+
+# stencil_stream_empty
+assert -name {eq - stencil_stream_empty} \
+{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+    ila_stencil_stream_empty == hls_stencil_stream_empty \
+) } -update_db;
+
+# stencil_stream_full
+assert -name {eq - stencil_stream_full} \
+{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+    ila_stencil_stream_full == hls_stencil_stream_full \
+) } -update_db;
+
+# pp it
+assert -name {eq - pp_it_1} \
+{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+    ila_gb_pp_it_1 == hls_gb_pp_it_1 \
+) } -update_db;
+#
+assert -name {eq - pp_it_2} \
+{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+    ila_gb_pp_it_2 == hls_gb_pp_it_2 \
+) } -update_db;
+#
+assert -name {eq - pp_it_3} \
+{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+    ila_gb_pp_it_3 == hls_gb_pp_it_3 \
+) } -update_db;
+#
+assert -name {eq - pp_it_4} \
+{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+    ila_gb_pp_it_4 == hls_gb_pp_it_4 \
+) } -update_db;
+#
+assert -name {eq - pp_it_5} \
+{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+    ila_gb_pp_it_5 == hls_gb_pp_it_5 \
+) } -update_db;
+#
+assert -name {eq - pp_it_6} \
+{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+    ila_gb_pp_it_6 == hls_gb_pp_it_6 \
+) } -update_db;
+#
+assert -name {eq - pp_it_7} \
+{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+    ila_gb_pp_it_7 == hls_gb_pp_it_7 \
+) } -update_db;
+#
+assert -name {eq - pp_it_8} \
+{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+    ila_gb_pp_it_8 == hls_gb_pp_it_8 \
+) } -update_db;
+#
+assert -name {eq - pp_it_9} \
+{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+    ila_gb_pp_it_9 == hls_gb_pp_it_9 \
+) } -update_db;
+
+# exit it
+assert -name {eq - exit_it_1} \
+{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+    ila_gb_exit_it_1 == hls_gb_exit_it_1 \
+) } -update_db;
+#
+assert -name {eq - exit_it_2} \
+{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+    ila_gb_exit_it_2 == hls_gb_exit_it_2 \
+) } -update_db;
+#
+assert -name {eq - exit_it_3} \
+{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+    ila_gb_exit_it_3 == hls_gb_exit_it_3 \
+) } -update_db;
+#
+assert -name {eq - exit_it_4} \
+{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+    ila_gb_exit_it_4 == hls_gb_exit_it_4 \
+) } -update_db;
+#
+assert -name {eq - exit_it_5} \
+{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+    ila_gb_exit_it_5 == hls_gb_exit_it_5 \
+) } -update_db;
+#
+assert -name {eq - exit_it_6} \
+{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+    ila_gb_exit_it_6 == hls_gb_exit_it_6 \
+) } -update_db;
+#
+assert -name {eq - exit_it_7} \
+{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+    ila_gb_exit_it_7 == hls_gb_exit_it_7 \
+) } -update_db;
