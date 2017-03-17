@@ -905,7 +905,7 @@ assign n154 =  ( n18 ) ? ( n150 ) : ( n153 ) ;
 assign n155 =  ( n9 ) ? ( arg_0_TVALID ) : ( n154 ) ;
 assign n156 =  ( n4 ) ? ( 1'd0 ) : ( n155 ) ;
 assign n157 =  ( 19'd316224 ) - ( 19'd1 )  ;
-assign n158 =  ( LB1D_p_cnt ) == ( n157 )  ;
+assign n158 =  ( LB1D_p_cnt ) != ( n157 )  ;
 assign n159 =  ( n158 ) ? ( 1'd1 ) : ( 1'd0 ) ;
 assign n160 =  ( n33 ) ? ( n159 ) : ( arg_1_TREADY ) ;
 assign n161 =  ( n28 ) ? ( arg_1_TREADY ) : ( n160 ) ;
