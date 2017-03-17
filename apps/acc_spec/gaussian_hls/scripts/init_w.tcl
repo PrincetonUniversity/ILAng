@@ -13,12 +13,12 @@ assume -name {Subset - 1} -env \
 #
 assume -name {Subset - 1.1} -env \
 { counter == 0 |=> ( \
-    ila_LB1D_p_cnt >= 5000 & ila_LBuD_p_cnt < 6000 & \
+    ila_LB1D_p_cnt >= 4000 & ila_LB1D_p_cnt < 5000 & \
     ila_LB2D_proc_x >= 50 & ila_LB2D_proc_x < 100 & \
-    ila_LB2D_proc_y >= 10 & ila_LB2D_proc_y < 15 & \
+    ila_LB2D_proc_y >= 10 & ila_LB2D_proc_y < 20 & \
     ila_LB2D_shift_x >= 50 & ila_LB2D_shift_x < 100 & \
-    ila_LB2D_shift_y >= 10 & ila_LB2D_shift_y < 15 & \
-    ila_gb_p_cnt >= 5000 & ila_gb_p_cnt < 6000 \
+    ila_LB2D_shift_y >= 10 & ila_LB2D_shift_y < 20 & \
+    ila_gb_p_cnt >= 4000 & ila_gb_p_cnt < 5000 \
 )} -type {temporary} -update_db;
 
 assume -name {Subset - 2} -env \
@@ -27,7 +27,7 @@ assume -name {Subset - 2} -env \
     ila_LB2D_proc_x >= 480 & ila_LB2D_proc_x <= 488 & \
     ila_LB2D_proc_y >= 8 & ila_LB2D_proc_y < 648 & \
     ila_LB2D_shift_x >= 480 & ila_LB2D_proc_x <= 488 & \
-    ila_LB2D_shift_y >= 0 & ila_LB2D_shift < 640 & \
+    ila_LB2D_shift_y >= 0 & ila_LB2D_shift_y < 640 & \
     ila_gb_p_cnt >= 450 & ila_gb_p_cnt < 306720 \
 )} -type {temporary} -update_db;
 #
@@ -37,7 +37,7 @@ assume -name {Subset - 2.1} -env \
     ila_LB2D_proc_x >= 480 & ila_LB2D_proc_x <= 488 & \
     ila_LB2D_proc_y >= 10 & ila_LB2D_proc_y < 15 & \
     ila_LB2D_shift_x >= 480 & ila_LB2D_proc_x <= 488 & \
-    ila_LB2D_shift_y >= 10  & ila_LB2D_shift < 15 & \
+    ila_LB2D_shift_y >= 10  & ila_LB2D_shift_y < 15 & \
     ila_gb_p_cnt >= 5000 & ila_gb_p_cnt < 6000 \
 )} -type {temporary} -update_db;
 
