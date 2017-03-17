@@ -27,6 +27,7 @@ assume -name {comp - per instr} -env \
 assume -name {arch equal - start} -env \
 { counter == 0 |=> ( \
     ila_LB1D_buff == hls_LB1D_buff & \
+    ila_LB1D_p_cnt == hls_LB1D_p_cnt & \
     ila_arg_0_TDATA  == hls_arg_0_TDATA & \
     ila_arg_0_TVALID == hls_arg_0_TVALID & \
     ila_arg_1_TREADY == hls_arg_1_TREADY & \
@@ -41,7 +42,7 @@ assume -name {arch equal - start} -env \
     ila_LB2D_proc_w == hls_LB2D_proc_w & \
     ila_LB2D_shift_x == hls_LB2D_shift_x & \
     ila_LB2D_shift_y == hls_LB2D_shift_y & \
-    ila_p_cnt == hls_p_cnt & \
+    ila_gb_p_cnt == hls_gb_p_cnt & \
     ila_gb_pp_it_1 == hls_gb_pp_it_1 & \
     ila_gb_pp_it_2 == hls_gb_pp_it_2 & \
     ila_gb_pp_it_3 == hls_gb_pp_it_3 & \

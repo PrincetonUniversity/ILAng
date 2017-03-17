@@ -67,7 +67,7 @@ assume -name {init - no holding iterator} -env \
 # valid pipeline iterator 
 assume -name {init - cnt vs pp - ila} -env \
 { counter == 0 |=> ( \
-    (ila_p_cnt == 0 & ila_gb_pp_it_1 == 1 & \
+    (ila_gb_p_cnt == 0 & ila_gb_pp_it_1 == 1 & \
                       ila_gb_pp_it_2 == 0 & \
                       ila_gb_pp_it_3 == 0 & \
                       ila_gb_pp_it_4 == 0 & \
@@ -76,7 +76,7 @@ assume -name {init - cnt vs pp - ila} -env \
                       ila_gb_pp_it_7 == 0 & \
                       ila_gb_pp_it_8 == 0 & \
                       ila_gb_pp_it_9 == 0) | \
-    (ila_p_cnt == 1 & ila_gb_pp_it_1 == 1 & \
+    (ila_gb_p_cnt == 1 & ila_gb_pp_it_1 == 1 & \
                       ila_gb_pp_it_2 == 1 & \
                       ila_gb_pp_it_3 == 0 & \
                       ila_gb_pp_it_4 == 0 & \
@@ -85,7 +85,7 @@ assume -name {init - cnt vs pp - ila} -env \
                       ila_gb_pp_it_7 == 0 & \
                       ila_gb_pp_it_8 == 0 & \
                       ila_gb_pp_it_9 == 0) | \
-    (ila_p_cnt == 2 & ila_gb_pp_it_1 == 1 & \
+    (ila_gb_p_cnt == 2 & ila_gb_pp_it_1 == 1 & \
                       ila_gb_pp_it_2 == 1 & \
                       ila_gb_pp_it_3 == 1 & \
                       ila_gb_pp_it_4 == 0 & \
@@ -94,7 +94,7 @@ assume -name {init - cnt vs pp - ila} -env \
                       ila_gb_pp_it_7 == 0 & \
                       ila_gb_pp_it_8 == 0 & \
                       ila_gb_pp_it_9 == 0) | \
-    (ila_p_cnt == 3 & ila_gb_pp_it_1 == 1 & \
+    (ila_gb_p_cnt == 3 & ila_gb_pp_it_1 == 1 & \
                       ila_gb_pp_it_2 == 1 & \
                       ila_gb_pp_it_3 == 1 & \
                       ila_gb_pp_it_4 == 1 & \
@@ -103,7 +103,7 @@ assume -name {init - cnt vs pp - ila} -env \
                       ila_gb_pp_it_7 == 0 & \
                       ila_gb_pp_it_8 == 0 & \
                       ila_gb_pp_it_9 == 0) | \
-    (ila_p_cnt == 4 & ila_gb_pp_it_1 == 1 & \
+    (ila_gb_p_cnt == 4 & ila_gb_pp_it_1 == 1 & \
                       ila_gb_pp_it_2 == 1 & \
                       ila_gb_pp_it_3 == 1 & \
                       ila_gb_pp_it_4 == 1 & \
@@ -112,7 +112,7 @@ assume -name {init - cnt vs pp - ila} -env \
                       ila_gb_pp_it_7 == 0 & \
                       ila_gb_pp_it_8 == 0 & \
                       ila_gb_pp_it_9 == 0) | \
-    (ila_p_cnt == 5 & ila_gb_pp_it_1 == 1 & \
+    (ila_gb_p_cnt == 5 & ila_gb_pp_it_1 == 1 & \
                       ila_gb_pp_it_2 == 1 & \
                       ila_gb_pp_it_3 == 1 & \
                       ila_gb_pp_it_4 == 1 & \
@@ -121,7 +121,7 @@ assume -name {init - cnt vs pp - ila} -env \
                       ila_gb_pp_it_7 == 0 & \
                       ila_gb_pp_it_8 == 0 & \
                       ila_gb_pp_it_9 == 0) | \
-    (ila_p_cnt == 6 & ila_gb_pp_it_1 == 1 & \
+    (ila_gb_p_cnt == 6 & ila_gb_pp_it_1 == 1 & \
                       ila_gb_pp_it_2 == 1 & \
                       ila_gb_pp_it_3 == 1 & \
                       ila_gb_pp_it_4 == 1 & \
@@ -130,7 +130,7 @@ assume -name {init - cnt vs pp - ila} -env \
                       ila_gb_pp_it_7 == 1 & \
                       ila_gb_pp_it_8 == 0 & \
                       ila_gb_pp_it_9 == 0) | \
-    (ila_p_cnt == 7 & ila_gb_pp_it_1 == 1 & \
+    (ila_gb_p_cnt == 7 & ila_gb_pp_it_1 == 1 & \
                       ila_gb_pp_it_2 == 1 & \
                       ila_gb_pp_it_3 == 1 & \
                       ila_gb_pp_it_4 == 1 & \
@@ -139,7 +139,7 @@ assume -name {init - cnt vs pp - ila} -env \
                       ila_gb_pp_it_7 == 1 & \
                       ila_gb_pp_it_8 == 1 & \
                       ila_gb_pp_it_9 == 0) | \
-    (ila_p_cnt >= 8 & ila_gb_pp_it_1 == 1 & \
+    (ila_gb_p_cnt >= 8 & ila_gb_pp_it_1 == 1 & \
                       ila_gb_pp_it_2 == 1 & \
                       ila_gb_pp_it_3 == 1 & \
                       ila_gb_pp_it_4 == 1 & \
@@ -153,7 +153,7 @@ assume -name {init - cnt vs pp - ila} -env \
 # valid pipeline iterator 
 assume -name {init - cnt vs exit - ila} -env \
 { counter == 0 |=> ( \
-    (ila_p_cnt < 307200 & ila_gb_exit_it_1 == 0 & \
+    (ila_gb_p_cnt < 307200 & ila_gb_exit_it_1 == 0 & \
                           ila_gb_exit_it_2 == 0 & \
                           ila_gb_exit_it_3 == 0 & \
                           ila_gb_exit_it_4 == 0 & \
@@ -161,7 +161,7 @@ assume -name {init - cnt vs exit - ila} -env \
                           ila_gb_exit_it_6 == 0 & \
                           ila_gb_exit_it_7 == 0 & \
                           ila_gb_exit_it_8 == 0) | \
-    (ila_p_cnt == 307200 & ((ila_gb_exit_it_1 == 1 & \
+    (ila_gb_p_cnt == 307200 & ((ila_gb_exit_it_1 == 1 & \
                              ila_gb_exit_it_2 == 0 & \
                              ila_gb_exit_it_3 == 0 & \
                              ila_gb_exit_it_4 == 0 & \

@@ -98,6 +98,7 @@ wire rst = 1'b0;
 
 // ila 
 wire    [7:0]   ila_LB1D_buff;
+wire    [18:0]  ila_LB1D_p_cnt;
 wire    [8:0]   ila_LB2D_proc_x;
 wire    [9:0]   ila_LB2D_proc_y;
 wire    [63:0]  ila_LB2D_proc_w;
@@ -122,6 +123,7 @@ wire            ila_gb_exit_it_5;
 wire            ila_gb_exit_it_6;
 wire            ila_gb_exit_it_7;
 wire            ila_gb_exit_it_8;
+wire    [18:0]  ila_gb_p_cnt;
 wire            ila_gb_pp_it_1;
 wire            ila_gb_pp_it_2;
 wire            ila_gb_pp_it_3;
@@ -135,7 +137,6 @@ wire    [7:0]   ila_in_stream_buff_0;
 wire    [7:0]   ila_in_stream_buff_1;
 wire            ila_in_stream_empty;
 wire            ila_in_stream_full;
-wire    [18:0]  ila_p_cnt;
 wire    [71:0]  ila_slice_stream_buff_0;
 wire    [71:0]  ila_slice_stream_buff_1;
 wire            ila_slice_stream_empty;
@@ -152,6 +153,7 @@ GB ila_U (
     .arg_1_TDATA (arg_1_TDATA),
     .arg_1_TVALID (arg_1_TVALID),
     .LB1D_buff (ila_LB1D_buff),
+    .LB1D_p_cnt (ila_LB1D_p_cnt),
     .LB2D_proc_w (ila_LB2D_proc_w),
     .LB2D_proc_x (ila_LB2D_proc_x),
     .LB2D_proc_y (ila_LB2D_proc_y),
@@ -176,6 +178,7 @@ GB ila_U (
     .gb_exit_it_6 (ila_gb_exit_it_6),
     .gb_exit_it_7 (ila_gb_exit_it_7),
     .gb_exit_it_8 (ila_gb_exit_it_8),
+    .gb_p_cnt (ila_gb_p_cnt),
     .gb_pp_it_1 (ila_gb_pp_it_1),
     .gb_pp_it_2 (ila_gb_pp_it_2),
     .gb_pp_it_3 (ila_gb_pp_it_3),
@@ -189,7 +192,6 @@ GB ila_U (
     .in_stream_buff_1 (ila_in_stream_buff_1),
     .in_stream_empty (ila_in_stream_empty),
     .in_stream_full (ila_in_stream_full),
-    .p_cnt (ila_p_cnt),
     .slice_stream_buff_0 (ila_slice_stream_buff_0),
     .slice_stream_buff_1 (ila_slice_stream_buff_1),
     .slice_stream_empty (ila_slice_stream_empty),
@@ -226,6 +228,7 @@ wire [0:0] hls_arg_0_TLAST;
 wire [0:0] hls_arg_1_TLAST;
 
 wire    [7:0]   hls_LB1D_buff;
+wire    [18:0]  hls_LB1D_p_cnt;
 wire    [8:0]   hls_LB2D_proc_x;
 wire    [9:0]   hls_LB2D_proc_y;
 wire    [63:0]  hls_LB2D_proc_w;
@@ -250,6 +253,7 @@ wire            hls_gb_exit_it_5;
 wire            hls_gb_exit_it_6;
 wire            hls_gb_exit_it_7;
 wire            hls_gb_exit_it_8;
+wire    [18:0]  hls_gb_p_cnt;
 wire            hls_gb_pp_it_1;
 wire            hls_gb_pp_it_2;
 wire            hls_gb_pp_it_3;
@@ -263,7 +267,6 @@ wire    [7:0]   hls_in_stream_buff_0;
 wire    [7:0]   hls_in_stream_buff_1;
 wire            hls_in_stream_empty;
 wire            hls_in_stream_full;
-wire    [18:0]  hls_p_cnt;
 wire    [71:0]  hls_slice_stream_buff_0;
 wire    [71:0]  hls_slice_stream_buff_1;
 wire            hls_slice_stream_empty;
@@ -284,7 +287,6 @@ wire    [2:0]   hls_GB_fsm_nxt;
 wire    [1:0]   hls_in_stream_mOutPtr;
 wire    [1:0]   hls_slice_stream_mOutPtr;
 wire    [1:0]   hls_stencil_stream_mOutPtr;
-wire            hls_timeout_LB1D;
 
 hls_target hls_U (
     .s_axi_config_AWVALID (hls_s_axi_config_AWVALID),

@@ -889,7 +889,7 @@ assign n141 =  ( n140 ) ? ( stencil_stream_buff_1 ) : ( stencil_stream_buff_0 ) 
 //assign n142 = gb_fun(n141) ;
 gb_fun gb_fun_U (
     .stencil (n141),
-    .result (n142),
+    .result (n142)
 );
 
 assign n143 =  ( n33 ) ? ( arg_0_TDATA ) : ( arg_0_TDATA ) ;
