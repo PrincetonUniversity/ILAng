@@ -24,7 +24,8 @@ def U1 (gb):
 
     ############################ next state functions #####################
     # arg_1_TREADY
-    arg_1_TREADY_nxt = READY_T
+    arg_1_TREADY_nxt = ila.ite (gb.LB1D_p_cnt == gb.LB1D_p_cnt_M - 1,
+                                READY_T, READY_F)
     gb.arg_1_TREADY_nxt = ila.ite (decode, arg_1_TREADY_nxt, 
                                    gb.arg_1_TREADY_nxt)
 
