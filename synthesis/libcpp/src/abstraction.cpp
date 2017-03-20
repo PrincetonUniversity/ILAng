@@ -1764,9 +1764,12 @@ namespace ila
         }
 
         // Then next level micro abstraction.
-        for (auto it = uabs.begin(); it != uabs.end(); it++) {
-            it->second.abs->addVarToSimulator(gen);
-        }
+        // No need, we will verify each level separately
+        // because there is no inital values exported
+        // you cannot expect to unroll the micro states
+        //for (auto it = uabs.begin(); it != uabs.end(); it++) {
+        //    it->second.abs->addVarToSimulator(gen);
+        //}
     }
 
     void Abstraction::setUpdateToFunction(
@@ -1851,9 +1854,10 @@ namespace ila
         }
 
         // Then next level micro abstraction.
-        for (auto it = uabs.begin(); it != uabs.end(); it++) {
-            it->second.abs->setUpdateToFunction(gen, fun, it->second.valid, doHier);
-        }
+        // No need, we will export separately
+        //for (auto it = uabs.begin(); it != uabs.end(); it++) {
+        //    it->second.abs->setUpdateToFunction(gen, fun, it->second.valid, doHier);
+        //}
     }
 
 }

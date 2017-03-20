@@ -74,6 +74,14 @@ namespace ila
         return (_type + "& " + _name);
     }
 
+    std::string CppVar::ctorDef() const
+    {
+        if (_type != memStr)
+            return "";
+        return _name+"(0," + boost::lexical_cast<std::string>(_idxwidth) + "," + 
+                           boost::lexical_cast<std::string>(_width) + ")";
+    }
+
     std::string CppVar::use() const
     {
         if (_isConst) {
@@ -134,6 +142,7 @@ namespace ila
         } else if (n->type.isMem()) {
             _type = memStr;
             _width = n->type.dataWidth;
+            _idxwidth = n->type.addrWidth;
         } else if (n->type.isFunc()) {
             // Not neccessary.
             _name = n->getName();
@@ -1065,7 +1074,7 @@ namespace ila
         out << "\tstd::map<" << bvStr << ", " << bvStr << "> _map;\n";
         out << "\t" << bvStr << " _def_val;\n";
         out << "public:\n";
-        out << "\ttype_mem(" << bvStr << " def = 0)\n";
+        out << "\ttype_mem(" << bvStr << " def"<< ", unsigned addrw, unsigned dataw)\n";
         out << "\t\t: _def_val(def)\n";
         out << "\t{\n";
         out << "\t}\n";
@@ -1135,7 +1144,20 @@ namespace ila
         
         // Constructor/destructor
         out << "public:\n"
-            << "\t" << _modelName << "() {\n";
+            << "\t" << _modelName << "():\n";
+
+        bool firstLineFlag = true;
+        for (auto it = _states.begin(); it != _states.end(); it ++ ) {
+            if(it->second->ctorDef() == "" ) // if no ctor needed
+                continue;
+            if(firstLineFlag) 
+                firstLineFlag = false;
+            else
+                out <<",\n" ;
+            out << "\t" << it->second->ctorDef();
+            
+        }
+        out << "\n" "\t{\n";
         for (auto it = _masks.begin(); it != _masks.end(); it++) {
             out << "\t\t" << it->second->use() << " = " 
                 << it->second->_val << ";\n";

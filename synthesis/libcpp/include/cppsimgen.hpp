@@ -34,6 +34,7 @@ namespace ila
         std::string _name;
         std::string _val;
         int _width;
+        int _idxwidth;
         bool _isConst;
         
     public:
@@ -55,6 +56,8 @@ namespace ila
         std::string def() const;
         // Define reference, ex. " int& r0"
         std::string refDef() const;
+        // Define constructor init requirement, ex. "type_mem(16,8) m1"
+        std::string ctorDef() const;
         // Use variable, ex. " r0"
         std::string use() const;
         // Use variable as signed.
