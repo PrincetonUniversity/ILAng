@@ -161,7 +161,7 @@ assume -name {inv - gb done} -env \
 assume -name {inv - buff vs shift - ila} -env \
 { ( \
     ((ila_LB2D_proc_y == ila_LB2D_shift_y + 8) & (ila_LB2D_proc_x >= ila_LB2D_shift_x)) | \
-    (ila_LB2D_proc_y == ila_LB2D_shift_y + 8 + 1) \
+    ((ila_LB2D_proc_y == ila_LB2D_shift_y + 8 + 1) & (ila_LB2D_proc_x <= 8) & (ila_LB2D_shift_x >= 480))\
 )} -type {temporary} -update_db;
 #
 assume -name {inv - buff vs shift - hls} -env \
