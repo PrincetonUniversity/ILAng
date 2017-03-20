@@ -72,13 +72,13 @@ class GBArch ():
         self.LB2D_proc_x   = m.reg ('LB2D_proc_x', COL_ADDR_SIZE)
         self.LB2D_proc_x_0 = m.const (0x0, COL_ADDR_SIZE)
         self.LB2D_proc_x_1 = m.const (0x1, COL_ADDR_SIZE)
-        self.LB2D_proc_x_M = m.const (IMG_X_SIZE-1, COL_ADDR_SIZE)
+        self.LB2D_proc_x_M = m.const (IMG_X_SIZE, COL_ADDR_SIZE)
 
         # y index (row) in the 2-D buffer proc
         self.LB2D_proc_y   = m.reg ('LB2D_proc_y', ROW_ADDR_SIZE)
         self.LB2D_proc_y_0 = m.const (0x0, ROW_ADDR_SIZE)
         self.LB2D_proc_y_1 = m.const (0x1, ROW_ADDR_SIZE)
-        self.LB2D_proc_y_M = m.const (IMG_Y_SIZE-1, ROW_ADDR_SIZE)
+        self.LB2D_proc_y_M = m.const (IMG_Y_SIZE, ROW_ADDR_SIZE)
 
         # w index (write) in the 2-D buffer proc
         self.LB2D_proc_w = m.reg ('LB2D_proc_w', WR_ADDR_SIZE)
