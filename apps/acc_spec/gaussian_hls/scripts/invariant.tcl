@@ -106,7 +106,8 @@ assume -name {inv - LB1D accumulate} -env \
         ila_LB2D_shift_y == 0 & \
         ila_stencil_stream_empty == 1 & \
         ila_gb_p_cnt == 0 & \
-        ila_arg_0_TVALID == 0 ) \
+        ila_arg_0_TVALID == 0 \
+        ) \
 )} -type {temporary} -update_db;
 #
 assume -name {inv - buff none} -env \
@@ -121,7 +122,7 @@ assume -name {inv - buff none} -env \
 #
 assume -name {inv - buff done} -env \
 { ( \
-    (ila_LB2D_proc_x == 488 & ila_LB2D_proc_y == 647) |-> ( \
+    (ila_LB2D_proc_x == 488 & ila_LB2D_proc_y == 648) |-> ( \
         ila_LB1D_p_cnt == 316224 & \
         ila_in_stream_empty == 1 ) \
 )} -type {temporary} -update_db;
@@ -136,11 +137,11 @@ assume -name {inv - shift none} -env \
 #
 assume -name {inv - shift done} -env \
 { ( \
-    (ila_LB2D_shift_x == 488 & ila_LB2D_shift_y == 639) |-> ( \
+    (ila_LB2D_shift_x == 488 & ila_LB2D_shift_y == 640) |-> ( \
         ila_LB1D_p_cnt == 316224 & \
         ila_in_stream_empty == 1 & \
         ila_LB2D_proc_x == 488 & \
-        ila_LB2D_proc_y == 647 & \
+        ila_LB2D_proc_y == 648 & \
         ila_slice_stream_empty == 1 ) \
 )} -type {temporary} -update_db;
 #
@@ -151,23 +152,25 @@ assume -name {inv - gb done} -env \
         ila_slice_stream_empty == 1 & \
         ila_in_stream_empty == 1 & \
         ila_LB1D_p_cnt == 316224 & \
-        ila_LB2D_proc_x == 487 & \
-        ila_LB2D_proc_y == 647 & \
-        ila_LB2D_shift_x == 487 & \
-        ila_LB2D_shift_y == 639 ) \
+        ila_LB2D_proc_x == 488 & \
+        ila_LB2D_proc_y == 648 & \
+        ila_LB2D_shift_x == 488 & \
+        ila_LB2D_shift_y == 640 ) \
 )} -type {temporary} -update_db;
 
 # pixel position (idx) should be consistent across process unit
 assume -name {inv - buff vs shift - ila} -env \
 { ( \
     ((ila_LB2D_proc_y == ila_LB2D_shift_y + 8) & (ila_LB2D_proc_x >= ila_LB2D_shift_x)) | \
-    ((ila_LB2D_proc_y == ila_LB2D_shift_y + 8 + 1) & (ila_LB2D_proc_x <= 8) & (ila_LB2D_shift_x >= 480))\
+    ((ila_LB2D_proc_y == ila_LB2D_shift_y + 8 + 1) & (ila_LB2D_proc_x <= 8) & (ila_LB2D_shift_x >= 480)) | \
+    (ila_LB2D_proc_y < 8) \
 )} -type {temporary} -update_db;
 #
 assume -name {inv - buff vs shift - hls} -env \
 { ( \
     ((hls_LB2D_proc_y == hls_LB2D_shift_y + 8) & (hls_LB2D_proc_x >= hls_LB2D_shift_x)) | \
-    (hls_LB2D_proc_y == hls_LB2D_shift_y + 8 + 1) \
+    (hls_LB2D_proc_y == hls_LB2D_shift_y + 8 + 1) | \
+    (hls_LB2D_proc_y < 8) \
 )} -type {temporary} -update_db;
 #
 assume -name {inv - shift vs gb} -env \

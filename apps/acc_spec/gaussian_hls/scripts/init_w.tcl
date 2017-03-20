@@ -24,9 +24,9 @@ assume -name {Subset - 1.1} -env \
 assume -name {Subset - 2} -env \
 { counter == 0 |=> ( \
     ila_LB1D_p_cnt >= 3904 & ila_LB1D_p_cnt < 315736 & \
-    ila_LB2D_proc_x >= 480 & ila_LB2D_proc_x < 488 & \
+    ila_LB2D_proc_x >= 480 & ila_LB2D_proc_x <= 488 & \
     ila_LB2D_proc_y >= 8 & ila_LB2D_proc_y < 648 & \
-    ila_LB2D_shift_x >= 480 & ila_LB2D_proc_x < 488 & \
+    ila_LB2D_shift_x >= 480 & ila_LB2D_proc_x <= 488 & \
     ila_LB2D_shift_y >= 0 & ila_LB2D_shift_y < 640 & \
     ila_gb_p_cnt >= 450 & ila_gb_p_cnt < 306720 \
 )} -type {temporary} -update_db;
@@ -34,17 +34,17 @@ assume -name {Subset - 2} -env \
 assume -name {Subset - 2.1} -env \
 { counter == 0 |=> ( \
     ila_LB1D_p_cnt >= 4000 & ila_LB1D_p_cnt < 5000 & \
-    ila_LB2D_proc_x >= 480 & ila_LB2D_proc_x < 488 & \
+    ila_LB2D_proc_x >= 480 & ila_LB2D_proc_x <= 488 & \
     ila_LB2D_proc_y >= 10 & ila_LB2D_proc_y < 20 & \
-    ila_LB2D_shift_x >= 480 & ila_LB2D_proc_x < 488 & \
+    ila_LB2D_shift_x >= 480 & ila_LB2D_proc_x <= 488 & \
     ila_LB2D_shift_y >= 10  & ila_LB2D_shift_y < 20 & \
     ila_gb_p_cnt >= 4000 & ila_gb_p_cnt < 5000 \
 )} -type {temporary} -update_db;
 
 assume -name {Subset - 3} -env \
 { counter == 0 |=> ( \
-    ila_LB1D_p_cnt >= 0 & ila_LB1D_p_cnt < 3904 & \
-    ila_LB2D_proc_x >= 0 & ila_LB2D_proc_x < 480 & \
+    ila_LB1D_p_cnt > 0 & ila_LB1D_p_cnt < 3904 & \
+    ila_LB2D_proc_x >= 0 & ila_LB2D_proc_x <= 488 & \
     ila_LB2D_proc_y >= 0 & ila_LB2D_proc_y < 8 & \
     ila_LB2D_shift_x == 0 & \
     ila_LB2D_shift_y == 0 & \
@@ -53,10 +53,24 @@ assume -name {Subset - 3} -env \
 #
 assume -name {Subset - 3.1} -env \
 { counter == 0 |=> ( \
-    ila_LB1D_p_cnt >= 0 & ila_LB1D_p_cnt < 150 & \
+    ila_LB1D_p_cnt >= 50 & ila_LB1D_p_cnt < 150 & \
     ila_LB2D_proc_x >= 50 & ila_LB2D_proc_x < 100 & \
-    ila_LB2D_proc_y == 0 \
+    ila_LB2D_proc_y == 0 & \
+    ila_arg_0_TVALID == 0 & \
+    ila_gb_p_cnt == 0 \
 )} -type {temporary} -update_db;
+#
+#assume -name {Subset - 3.2} -env \
+{ counter == 0 |=> ( \
+    ila_LB1D_p_cnt == 1 & \
+    ila_LB2D_proc_y == 0 & \
+    ila_slice_stream_empty == 1 & \
+    ila_LB2D_shift_x == 0 & \
+    ila_LB2D_shift_y == 0 & \
+    ila_stencil_stream_empty == 1 & \
+    ila_gb_p_cnt == 0 \
+)} -type {temporary} -update_db;
+
 
 # arch-states
 # data valid must implies iteration done
@@ -68,7 +82,7 @@ assume -name {init - valid iterator} -env \
 )} -type {temporary} -update_db;
 
 # no incomplete write to the in stream
-assume -name {init - complete input} -env \
+#assume -name {init - complete input} -env \
 { counter == 0 |=> ( \
     hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.in_stream_V_value_V_write == 0 \
 )} -type {temporary} -update_db;
@@ -87,12 +101,17 @@ assume -name {init - axi config} -env \
 )} -type {temporary} -update_db;
 
 # stable fsm
-assume -name {init - stable fsm} -env \
+assume -name {init - stable fsm pre} -env \
 { counter == 0 |=> ( \
     hls_LB1D_fsm == 2 & \
     hls_LB2D_proc_fsm == 4 & \
     hls_LB2D_shift_fsm == 4 & \
     hls_GB_fsm == 2 \
+)} -type {temporary} -update_db;
+#
+assume -name {init - stable fsm post} -env \
+{ counter == 0 |-> ( \
+    hls_LB2D_shift_fsm == 4 \
 )} -type {temporary} -update_db;
 
 # consistent exit condition
@@ -136,12 +155,37 @@ assume -name {init - consistent pixel position} -env \
 # abstract holding buffer - interanl iterator
 assume -name {init - no holding iterator} -env \
 { counter == 0 |=> ( \
+    hls_gb_p_cnt != 0 |-> ( \
     hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.ap_reg_ppiten_pp0_it0 == 1 & \
     hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.ap_reg_ppiten_pp0_it1 == 1 & \
     hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.ap_reg_ppiten_pp0_it0 == 1 & \
     hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.ap_reg_ppiten_pp0_it1 == 1 & \
     hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_shift_proc_U0.ap_reg_ppiten_pp0_it0 == 1 & \
     hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_shift_proc_U0.ap_reg_ppiten_pp0_it1 == 1 \
+    ) \
+)} -type {temporary} -update_db;
+#
+assume -name {init - no holding iterator - buff} -env \
+{ counter == 0 |=> ( \
+    (hls_LB2D_proc_x != 0 | hls_LB2D_proc_y != 0) |-> ( \
+    hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.ap_reg_ppiten_pp0_it0 == 1 & \
+    hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.ap_reg_ppiten_pp0_it1 == 1 & \
+    hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.ap_reg_ppiten_pp0_it0 == 1 & \
+    hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.ap_reg_ppiten_pp0_it1 == 1 \
+    ) \
+)} -type {temporary} -update_db;
+
+#
+assume -name {init - no holding iterator - shift} -env \
+{ counter == 0 |=> ( \
+    (hls_LB2D_shift_x != 0 | hls_LB2D_shift_y != 0) |-> ( \
+    hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.ap_reg_ppiten_pp0_it0 == 1 & \
+    hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.ap_reg_ppiten_pp0_it1 == 1 & \
+    hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.ap_reg_ppiten_pp0_it0 == 1 & \
+    hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.ap_reg_ppiten_pp0_it1 == 1 & \
+    hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_shift_proc_U0.ap_reg_ppiten_pp0_it0 == 1 & \
+    hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_shift_proc_U0.ap_reg_ppiten_pp0_it1 == 1 \
+    ) \
 )} -type {temporary} -update_db;
 
 # valid pipeline iterator 
