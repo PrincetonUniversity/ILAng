@@ -2,7 +2,6 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 #include <bitset>
-#include <cmath>
 
 namespace ila
 {
@@ -64,11 +63,7 @@ namespace ila
     std::string CppVar::def() const
     {
         if (_name != "") {
-            if(_type != memStr)
-                return (_type + " " + _name);
-            return (std::string("static BIT_VEC_") + boost::lexical_cast<std::string>(_width)+ 
-                    "\t "+ _name + "[" + boost::lexical_cast<std::string>((long)(std::pow(2,_idxwidth)))
-                    +"]");
+            return (_type + " " + _name);
         } else {
             return (_type);
         }
@@ -81,10 +76,10 @@ namespace ila
 
     std::string CppVar::ctorDef() const
     {
-        //if (_type != memStr)
+        if (_type != memStr)
             return "";
-        //return _name+"(0," + boost::lexical_cast<std::string>(_idxwidth) + "," + 
-        //                   boost::lexical_cast<std::string>(_width) + ")";
+        return _name+"(0," + boost::lexical_cast<std::string>(_idxwidth) + "," + 
+                           boost::lexical_cast<std::string>(_width) + ")";
     }
 
     std::string CppVar::use() const
@@ -206,12 +201,7 @@ namespace ila
             ind = ind + "\t";
         }
 
-        std::string type;
-
-        if(_ret->_type != CppVar::memStr ) 
-            type = (_ret != NULL) ? _ret->_type : CppVar::voidStr;
-        else
-            type = 
+        std::string type = (_ret != NULL) ? _ret->_type : CppVar::voidStr;
         std::string name = (modelName == "") ? 
                            _name : (modelName + "::" + _name);
         std::string tail = (modelName == "") ? ");\n" : (")\n" + ind + "{\n");
@@ -840,7 +830,7 @@ namespace ila
                        arg0->use() + " >> " + arg1->castUse() + ") & 0x1;";
             } else if (n->op == BitvectorOp::Op::READMEM) {
                 code = var->use() + " = " + 
-                       arg0->use() + "[" + arg1->use() + "];";
+                       arg0->use() + ".rd(" + arg1->use() + ");";
             }
         //// Ternary ////
         } else if (n->op == BitvectorOp::READMEMBLOCK) {
@@ -860,13 +850,13 @@ namespace ila
             // }
             // var = (var & 0x8) ? (var | 0xfff000) : var;
             boost::format defFmt(
-                "%1% = (%2%[%3%] & %4%);");
+                "%1% = (%2%.rd(%3%) & %4%);");
             boost::format loopProlog(
                 "for (int %1% = 1; %2% < %3%; %4%++) {");
             boost::format litFmt(
-                "\t%1% = %2% | ((%3%[%4% + %5%] & %6%) << (%7% * %8%));");
+                "\t%1% = %2% | ((%3%.rd(%4% + %5%) & %6%) << (%7% * %8%));");
             boost::format bigFmt(
-                "\t%1% = (%2% << %3%) | (%4%[%5% + %6%] & %7%);");
+                "\t%1% = (%2% << %3%) | (%4%.rd(%5% + %6%) & %7%);");
 
             defFmt %var->use() %mem->use() %addr->use() %getMask(blxSize);
             _curFun->addBody(defFmt.str());
@@ -964,8 +954,8 @@ namespace ila
             var = new CppVar(n);
             code = var->use() + " = " + arg0->use() + ";";
             _curFun->addBody(code);
-            code = var->use() + "[" + arg1->use() + 
-                   "] = ( " + arg2->use() + ");";
+            code = var->use() + ".wr(" + arg1->use() + 
+                   ", " + arg2->use() + ");";
         } else if (n->op == MemOp::Op::ITE) {
             ILA_ASSERT(arg0->_type == CppVar::boolStr,
                        "Condition not bool.");
@@ -1009,7 +999,7 @@ namespace ila
             boost::format uniFmt(
                 "\t%1% = %2%;");
             boost::format writeFmt(
-                "\t%1%[%2% + %3%] = ( %4%);");
+                "\t%1%.wr(%2% + %3%, %4%);");
 
             loopProlog % idx->use()             // 1
                        % idx->use()             // 2
@@ -1129,10 +1119,9 @@ namespace ila
             out << "\n";
             out << _modelName << "::" <<  it->first->use() << ".setDef(" 
                 << it->second->memvalues.def_value << ");\n";
-            ILA_ASSERT(false,"Implementation Bug!");
             for (auto p : it->second->memvalues.values) {
                 out << it->first->use() 
-                    << "[" << p.first << "] = ( " << p.second << ");\n";
+                    << ".wr(" << p.first << ", " << p.second << ");\n";
             }
         }
         out << "/****************************************************/\n";
@@ -1155,16 +1144,14 @@ namespace ila
         
         // Constructor/destructor
         out << "public:\n"
-            << "\t" << _modelName << "()";
+            << "\t" << _modelName << "():\n";
 
         bool firstLineFlag = true;
         for (auto it = _states.begin(); it != _states.end(); it ++ ) {
             if(it->second->ctorDef() == "" ) // if no ctor needed
                 continue;
-            if(firstLineFlag) {
-                out<<":\n";
+            if(firstLineFlag) 
                 firstLineFlag = false;
-            }
             else
                 out <<",\n" ;
             out << "\t" << it->second->ctorDef();
