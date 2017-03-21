@@ -19,6 +19,7 @@ def U3 (gb):
 
     ############################ decode ###################################
     decode = (gb.slice_stream_empty == EMPTY_F) & \
+             (gb.LB2D_shift_x != gb.LB2D_shift_x_M) & \
              ((gb.stencil_stream_full == FULL_F) | \
               (gb.LB2D_shift_x < gb.LB2D_shift_size))
 
@@ -98,9 +99,7 @@ def U3 (gb):
                                                gb.slice_stream_buff_nxt[i])
 
     # LB2D shift x idx
-    LB2D_shift_x_nxt = ila.ite (gb.LB2D_shift_x < gb.LB2D_shift_x_M,
-                                gb.LB2D_shift_x + gb.LB2D_shift_x_1,
-                                gb.LB2D_shift_x_0)
+    LB2D_shift_x_nxt = gb.LB2D_shift_x + gb.LB2D_shift_x_1
     gb.LB2D_shift_x_nxt = ila.ite (decode, LB2D_shift_x_nxt,
                                    gb.LB2D_shift_x_nxt)
 
