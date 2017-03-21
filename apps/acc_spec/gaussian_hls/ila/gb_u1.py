@@ -45,7 +45,7 @@ def U1 (gb):
     gb.LB1D_buff_nxt = ila.ite (decode, LB1D_buff_nxt, gb.LB1D_buff_nxt)
 
     # pixel position for input data
-    LB1D_p_cnt_nxt = ila.ite (gb.LB1D_p_cnt == gb.LB1D_p_cnt_M,
+    LB1D_p_cnt_nxt = ila.ite (gb.LB1D_p_cnt == gb.LB1D_p_cnt_M - gb.LB1D_p_cnt_1,
                               gb.LB1D_p_cnt_0, 
                               gb.LB1D_p_cnt + gb.LB1D_p_cnt_1)
     gb.LB1D_p_cnt_nxt = ila.ite (decode, LB1D_p_cnt_nxt, gb.LB1D_p_cnt_nxt)
