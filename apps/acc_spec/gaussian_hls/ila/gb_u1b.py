@@ -20,6 +20,10 @@ def U1b (gb):
              (gb.LB1D_it_1 == gb.it_F)
 
     ############################ next state functions #####################
+    # arg_1_TREADY
+    arg_1_TREADY_nxt = READY_T # XXX see u1
+    gb.arg_1_TREADY_nxt = ila.ite (decode, arg_1_TREADY_nxt, 
+                                   gb.arg_1_TREADY_nxt)
     # LB1D_it_1
     LB1D_it_1_nxt = gb.it_T
     gb.LB1D_it_1_nxt = ila.ite (decode, LB1D_it_1_nxt, gb.LB1D_it_1_nxt)
