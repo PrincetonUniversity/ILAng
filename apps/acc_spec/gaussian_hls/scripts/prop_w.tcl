@@ -199,3 +199,39 @@ assert -name {eq - exit_it_7} \
 { (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
     ila_gb_exit_it_7 == hls_gb_exit_it_7 \
 ) } -update_db;
+#
+assert -name {eq - LB1D_buff} \
+{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+    ila_LB1D_buff == hls_LB1D_buff \
+) } -update_db;
+#
+assert -name {eq - in_stream_buff_0} \
+{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+    ila_in_stream_buff_0 == hls_in_stream_buff_0 \
+) } -update_db;
+#
+assert -name {eq - in_stream_buff_1} \
+{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+    ila_in_stream_buff_1 == hls_in_stream_buff_1 \
+) } -update_db;
+#
+assert -name {eq - slice_stream_buff_0} \
+{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+    ila_slice_stream_buff_0 == hls_slice_stream_buff_0 \
+) } -update_db;
+#
+assert -name {eq - slice_stream_buff_1} \
+{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+    ila_slice_stream_buff_1 == hls_slice_stream_buff_1 \
+) } -update_db;
+#
+assert -name {eq - stencil_stream_buff_0} \
+{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+    ila_stencil_stream_buff_0 == hls_stencil_stream_buff_0 \
+) } -update_db;
+#
+assert -name {eq - stencil_stream_buff_1} \
+{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+    ila_stencil_stream_buff_1 == hls_stencil_stream_buff_1 \
+) } -update_db;
+#

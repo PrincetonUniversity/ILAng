@@ -24,9 +24,8 @@ assume -name {comp - per instr} -env \
 )} -type {temporary} -update_db;
 
 # two models should have same architectural states
-assume -name {arch equal - start} -env \
+assume -name {arch equal - control} -env \
 { counter == 0 |=> ( \
-    ila_LB1D_buff == hls_LB1D_buff & \
     ila_LB1D_it_1 == hls_LB1D_it_1 & \
     ila_LB1D_p_cnt == hls_LB1D_p_cnt & \
     ila_arg_0_TDATA  == hls_arg_0_TDATA & \
@@ -61,6 +60,25 @@ assume -name {arch equal - start} -env \
     ila_gb_exit_it_6 == hls_gb_exit_it_6 & \
     ila_gb_exit_it_7 == hls_gb_exit_it_7 & \
     ila_gb_exit_it_8 == hls_gb_exit_it_8 \
+)} -type {temporary} -update_db;
+#
+assume -name {arch equal - data} -env \
+{ counter == 0 |=> ( \
+    ila_in_stream_buff_0 == hls_in_stream_buff_0 & \
+    ila_in_stream_buff_1 == hls_in_stream_buff_1 & \
+    ila_slice_stream_buff_0 == hls_slice_stream_buff_0 & \
+    ila_slice_stream_buff_1 == hls_slice_stream_buff_1 & \
+    ila_stencil_stream_buff_0 == hls_stencil_stream_buff_0 & \
+    ila_stencil_stream_buff_1 == hls_stencil_stream_buff_1 & \
+    ila_LB1D_buff == hls_LB1D_buff & \
+    ila_LB2D_shift_0 == hls_LB2D_shift_0 & \
+    ila_LB2D_shift_1 == hls_LB2D_shift_1 & \
+    ila_LB2D_shift_2 == hls_LB2D_shift_2 & \
+    ila_LB2D_shift_3 == hls_LB2D_shift_3 & \
+    ila_LB2D_shift_4 == hls_LB2D_shift_4 & \
+    ila_LB2D_shift_5 == hls_LB2D_shift_5 & \
+    ila_LB2D_shift_6 == hls_LB2D_shift_6 & \
+    ila_LB2D_shift_7 == hls_LB2D_shift_7 \
 )} -type {temporary} -update_db;
 
 #assume -name {arch equal - start refine} -env \
