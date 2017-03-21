@@ -27,6 +27,7 @@ assume -name {comp - per instr} -env \
 assume -name {arch equal - start} -env \
 { counter == 0 |=> ( \
     ila_LB1D_buff == hls_LB1D_buff & \
+    ila_LB1D_it_1 == hls_LB1D_it_1 & \
     ila_LB1D_p_cnt == hls_LB1D_p_cnt & \
     ila_arg_0_TDATA  == hls_arg_0_TDATA & \
     ila_arg_0_TVALID == hls_arg_0_TVALID & \

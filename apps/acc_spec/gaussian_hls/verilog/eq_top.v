@@ -99,6 +99,7 @@ wire rst = 1'b0;
 
 // ila 
 wire    [7:0]   ila_LB1D_buff;
+wire            ila_LB1D_it_1;
 wire    [18:0]  ila_LB1D_p_cnt;
 wire    [8:0]   ila_LB2D_proc_x;
 wire    [9:0]   ila_LB2D_proc_y;
@@ -154,6 +155,7 @@ GB ila_U (
     .arg_1_TDATA (arg_1_TDATA),
     .arg_1_TVALID (arg_1_TVALID),
     .LB1D_buff (ila_LB1D_buff),
+    .LB1D_it_1 (ila_LB1D_it_1),
     .LB1D_p_cnt (ila_LB1D_p_cnt),
     .LB2D_proc_w (ila_LB2D_proc_w),
     .LB2D_proc_x (ila_LB2D_proc_x),
@@ -229,6 +231,7 @@ wire [0:0] hls_arg_0_TLAST;
 wire [0:0] hls_arg_1_TLAST;
 
 wire    [7:0]   hls_LB1D_buff;
+wire            hls_LB1D_it_1;
 wire    [18:0]  hls_LB1D_p_cnt;
 wire    [8:0]   hls_LB2D_proc_x;
 wire    [9:0]   hls_LB2D_proc_y;
