@@ -52,6 +52,11 @@ class GBArch ():
         self.LB1D_p_cnt_1   = m.const (0x1, COUNT_SIZE)
         self.LB1D_p_cnt_M   = m.const (0x4D340, COUNT_SIZE)
 
+        # 1-D buffer iterator
+        self.LB1D_it_1 = m.reg ('LB1D_it_1', 1)
+        self.it_T    = m.const (0x1, 1)
+        self.it_F    = m.const (0x0, 1)
+
         # stream buffer for input data
         self.in_stream_full  = m.reg ('in_stream_full', 1)
         self.in_stream_empty = m.reg ('in_stream_empty', 1)
@@ -160,6 +165,7 @@ class GBArch ():
 
         self.LB1D_buff_nxt = self.LB1D_buff
         self.LB1D_p_cnt_nxt = self.LB1D_p_cnt
+        self.LB1D_it_1_nxt = self.LB1D_it_1
 
         self.in_stream_full_nxt  = self.in_stream_full
         self.in_stream_empty_nxt = self.in_stream_empty
@@ -209,6 +215,7 @@ class GBArch ():
         m.set_next ('arg_0_TDATA', self.arg_0_TDATA_nxt)
         m.set_next ('LB1D_buff', self.LB1D_buff_nxt)
         m.set_next ('LB1D_p_cnt', self.LB1D_p_cnt_nxt)
+        m.set_next ('LB1D_it_1', self.LB1D_it_1_nxt)
         m.set_next ('in_stream_full', self.in_stream_full_nxt)
         m.set_next ('in_stream_empty', self.in_stream_empty_nxt)
         for i in xrange (0, self.in_stream_size):
