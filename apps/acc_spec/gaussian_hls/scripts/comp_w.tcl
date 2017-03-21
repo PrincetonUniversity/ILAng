@@ -63,3 +63,18 @@ assume -name {arch equal - start} -env \
     ila_gb_exit_it_8 == hls_gb_exit_it_8 \
 )} -type {temporary} -update_db;
 
+#assume -name {arch equal - start refine} -env \
+{ counter == 0 |=> ( \
+    (hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.in_stream_V_value_V_write == 0 & \
+     ila_in_stream_full == hls_in_stream_full & \
+     ila_in_stream_empty == hls_in_stream_empty) | \
+    (hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.in_stream_V_value_V_write == 1 & \
+     ila_in_stream_full == 1 & ila_in_stream_empty == 0 & \
+     hls_in_stream_full == 0 & hls_in_stream_empty == 0) | \
+    (hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.in_stream_V_value_V_write == 1 & \
+     ila_in_stream_full == 0 & ila_in_stream_empty == 0 & \
+     hls_in_stream_full == 0 & hls_in_stream_empty == 1) \
+)} -type {temporary} -update_db;
+
+
+

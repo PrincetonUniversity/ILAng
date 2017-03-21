@@ -60,17 +60,16 @@ assume -name {Subset - 3.1} -env \
     ila_gb_p_cnt == 0 \
 )} -type {temporary} -update_db;
 #
-#assume -name {Subset - 3.2} -env \
+assume -name {Subset - 4} -env \
 { counter == 0 |=> ( \
-    ila_LB1D_p_cnt == 1 & \
-    ila_LB2D_proc_y == 0 & \
-    ila_slice_stream_empty == 1 & \
-    ila_LB2D_shift_x == 0 & \
-    ila_LB2D_shift_y == 0 & \
-    ila_stencil_stream_empty == 1 & \
-    ila_gb_p_cnt == 0 \
+    ila_LB1D_p_cnt >= 315736 & ila_LB1D_p_cnt <= 316224 & \
+    ila_LB2D_proc_x >= 0 & ila_LB2D_proc_x <= 488 & \
+    ila_LB2D_proc_y >= 647 & ila_LB2D_proc_y <= 648 & \
+    ila_LB2D_shift_x >= 0 & ila_LB2D_shift_x <= 488 & \
+    ila_LB2D_shift_y >= 638 & ila_LB2D_shift_y <= 640 & \
+    ila_gb_p_cnt >= 306240 & ila_gb_p_cnt <= 307200 \
+    #hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.in_stream_V_value_V_write == 0 \ 
 )} -type {temporary} -update_db;
-
 
 # arch-states
 # data valid must implies iteration done
@@ -131,7 +130,9 @@ assume -name {init - consistent exitcond} -env \
 assume -name {init - consistent input ready} -env \
 { counter == 0 |-> ( \
     (hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.in_axi_stream_V_last_V_0_has_vld_data_reg_i == \
-     hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.in_axi_stream_V_last_V_0_has_vld_data_reg) \
+     hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.in_axi_stream_V_last_V_0_has_vld_data_reg) & \
+    (hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.in_axi_stream_V_value_V_0_has_vld_data_reg == \
+     hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.in_axi_stream_V_value_V_0_has_vld_data_reg_i) \
 )} -type {temporary} -update_db;
 
 # consistent valid record
