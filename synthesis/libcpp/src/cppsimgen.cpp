@@ -2,6 +2,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 #include <bitset>
+#include <cmath>
 
 namespace ila
 {
@@ -49,6 +50,7 @@ namespace ila
     CppVar::CppVar(const CppVar* var)
         : _type(var->_type)
         , _width(var->_width)
+        , _idxwidth(var->_idxwidth)
     {
         _name = "cppVar_" + boost::lexical_cast<std::string>(varCnt++);
         _isConst = var->_isConst;
@@ -63,23 +65,32 @@ namespace ila
     std::string CppVar::def() const
     {
         if (_name != "") {
-            return (_type + " " + _name);
+            return (vType() + " " + _name);
         } else {
             return (_type);
         }
     }
+    
+    std::string CppVar::vType() const
+    {
+        if (_type != memStr)
+            return _type;
+        else
+            return _type + "<" + "BV" + boost::lexical_cast<std::string>(_width)  +"," 
+                    + boost::lexical_cast<std::string>((long)(std::pow(2, _idxwidth)))
+                    +">";
+    }
 
     std::string CppVar::refDef() const
     {
-        return (_type + "& " + _name);
+        return (vType() + "& " + _name);
     }
 
     std::string CppVar::ctorDef() const
     {
         if (_type != memStr)
             return "";
-        return _name+"(0," + boost::lexical_cast<std::string>(_idxwidth) + "," + 
-                           boost::lexical_cast<std::string>(_width) + ")";
+        return _name+"(0)";
     }
 
     std::string CppVar::use() const
@@ -201,7 +212,7 @@ namespace ila
             ind = ind + "\t";
         }
 
-        std::string type = (_ret != NULL) ? _ret->_type : CppVar::voidStr;
+        std::string type = (_ret != NULL) ? _ret->vType() : CppVar::voidStr;
         std::string name = (modelName == "") ? 
                            _name : (modelName + "::" + _name);
         std::string tail = (modelName == "") ? ");\n" : (")\n" + ind + "{\n");

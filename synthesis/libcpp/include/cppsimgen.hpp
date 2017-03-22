@@ -58,6 +58,8 @@ namespace ila
         std::string refDef() const;
         // Define constructor init requirement, ex. "type_mem(16,8) m1"
         std::string ctorDef() const;
+        // Corrected Mem Type, ex "type_mem<BV?, depth>"
+        std::string vType() const;
         // Use variable, ex. " r0"
         std::string use() const;
         // Use variable as signed.
