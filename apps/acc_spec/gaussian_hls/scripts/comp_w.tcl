@@ -111,6 +111,7 @@ assume -name {arch equal - data} -env \
 { counter == 0 |=> ( \
     ila_in_stream_buff_0 == hls_in_stream_buff_0 & \
     ila_in_stream_buff_1 == hls_in_stream_buff_1 & \
+    ila_LB1D_in == hls_LB1D_in & \
     ila_LB1D_buff == hls_LB1D_buff \
 )} -type {temporary} -update_db;
 

@@ -200,6 +200,11 @@ assert -name {eq - exit_it_7} \
     ila_gb_exit_it_7 == hls_gb_exit_it_7 \
 ) } -update_db;
 #
+assert -name {eq - LB1D_in} \
+{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+    ila_LB1D_in == hls_LB1D_in \
+) } -update_db;
+#
 assert -name {eq - LB1D_buff} \
 { (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
     ila_LB1D_buff == hls_LB1D_buff \

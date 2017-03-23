@@ -98,6 +98,7 @@ wire hls_clk = ~rst_init & clk & hls_step;
 wire rst = 1'b0;
 
 // ila 
+wire    [7:0]   ila_LB1D_in;
 wire    [7:0]   ila_LB1D_buff;
 wire            ila_LB1D_it_1;
 wire    [18:0]  ila_LB1D_p_cnt;
@@ -154,6 +155,7 @@ GB ila_U (
     .arg_0_TREADY (arg_0_TREADY),
     .arg_1_TDATA (arg_1_TDATA),
     .arg_1_TVALID (arg_1_TVALID),
+    .LB1D_in (ila_LB1D_in),
     .LB1D_buff (ila_LB1D_buff),
     .LB1D_it_1 (ila_LB1D_it_1),
     .LB1D_p_cnt (ila_LB1D_p_cnt),
@@ -230,6 +232,7 @@ wire hls_interrupt;
 wire [0:0] hls_arg_0_TLAST;
 wire [0:0] hls_arg_1_TLAST;
 
+wire    [7:0]   hls_LB1D_in;
 wire    [7:0]   hls_LB1D_buff;
 wire            hls_LB1D_it_1;
 wire    [18:0]  hls_LB1D_p_cnt;
