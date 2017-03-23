@@ -40,7 +40,10 @@ def RDI (gb):
                                   gb.arg_0_TDATA_nxt)
 
     # 1-D buffer for input data
-    LB1D_buff_nxt = gb.arg_1_TDATA
+    LB1D_in_nxt = gb.LB1D_in
+    gb.LB1D_in_nxt = ila.ite (decode, LB1D_in_nxt, gb.LB1D_in_nxt)
+
+    LB1D_buff_nxt = gb.LB1D_buff
     gb.LB1D_buff_nxt = ila.ite (decode, LB1D_buff_nxt, gb.LB1D_buff_nxt)
 
     # pixel position for input data
