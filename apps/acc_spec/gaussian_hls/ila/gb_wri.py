@@ -42,7 +42,7 @@ def WRI (gb):
     LB1D_in_nxt = gb.arg_1_TDATA
     gb.LB1D_in_nxt = ila.ite (decode, LB1D_in_nxt, gb.LB1D_in_nxt)
 
-    LB1D_buff_nxt = gb.LB1D_in
+    LB1D_buff_nxt = gb.LB1D_buff
     gb.LB1D_buff_nxt = ila.ite (decode, LB1D_buff_nxt, gb.LB1D_buff_nxt)
 
     # pixel position for input data
