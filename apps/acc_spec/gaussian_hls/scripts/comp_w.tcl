@@ -16,12 +16,38 @@ assume -name {comp - protocol} -env \
     hls_arg_1_TREADY == 1 \
 )} -type {temporary} -update_db;
 
+assume -name {comp - force data value} -env \
+{ ( \
+    arg_1_TDATA == 255 \
+)} -type {temporary} -update_db;
+
 # turn off all other instruction (read and write) throughout verification
 assume -name {comp - per instr} -env \
 { counter != 1 |-> ( \
     arg_1_TVALID == 0 & \
     arg_0_TREADY == 0 \
 )} -type {temporary} -update_db;
+
+#assume -name {comp - per instr protocol 4} -env \
+{ counter == 2 |-> ( \
+    arg_1_TVALID == 1 \
+)} -type {temporary} -update_db;
+
+#assume -name {comp - per instr protocol} -env \
+{ counter > 1 & hls_arg_1_TREADY == 0 & arg_1_TVALID == 1 |=> ( \
+    arg_1_TVALID == 1 \
+)} -type {temporary} -update_db;
+
+#assume -name {comp - per instr protocol 2} -env \
+{ counter > 1 & hls_arg_1_TREADY == 1 & arg_1_TVALID == 1 |=> ( \
+    arg_1_TVALID == 0 \
+)} -type {temporary} -update_db;
+
+#assume -name {comp - per instr protocol 3} -env \
+{ counter >= 1 & arg_1_TVALID == 0 |=> ( \
+    arg_1_TVALID == 0 \
+)} -type {temporary} -update_db;
+
 
 # two models should have same architectural states
 assume -name {arch equal - control} -env \
@@ -62,7 +88,7 @@ assume -name {arch equal - control} -env \
     ila_gb_exit_it_8 == hls_gb_exit_it_8 \
 )} -type {temporary} -update_db;
 #
-assume -name {arch equal - data} -env \
+#assume -name {arch equal - data} -env \
 { counter == 0 |=> ( \
     ila_in_stream_buff_0 == hls_in_stream_buff_0 & \
     ila_in_stream_buff_1 == hls_in_stream_buff_1 & \
@@ -79,6 +105,13 @@ assume -name {arch equal - data} -env \
     ila_LB2D_shift_5 == hls_LB2D_shift_5 & \
     ila_LB2D_shift_6 == hls_LB2D_shift_6 & \
     ila_LB2D_shift_7 == hls_LB2D_shift_7 \
+)} -type {temporary} -update_db;
+#
+assume -name {arch equal - data} -env \
+{ counter == 0 |=> ( \
+    ila_in_stream_buff_0 == hls_in_stream_buff_0 & \
+    ila_in_stream_buff_1 == hls_in_stream_buff_1 & \
+    ila_LB1D_buff == hls_LB1D_buff \
 )} -type {temporary} -update_db;
 
 #assume -name {arch equal - start refine} -env \
