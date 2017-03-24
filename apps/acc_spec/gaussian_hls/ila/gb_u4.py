@@ -50,6 +50,9 @@ def U4 (gb):
     LB1D_in_nxt = gb.LB1D_in
     gb.LB1D_in_nxt = ila.ite (decode, LB1D_in_nxt, gb.LB1D_in_nxt)
 
+    LB1D_uIn_nxt = gb.LB1D_uIn
+    gb.LB1D_uIn_nxt = ila.ite (decode, LB1D_uIn_nxt, gb.LB1D_uIn_nxt)
+
     LB1D_buff_nxt = gb.LB1D_buff
     gb.LB1D_buff_nxt = ila.ite (decode, LB1D_buff_nxt, gb.LB1D_buff_nxt)
 

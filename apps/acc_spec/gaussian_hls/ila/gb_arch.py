@@ -45,6 +45,7 @@ class GBArch ():
         ######################## states  #######################################
         # 1-D buffer for input data
         self.LB1D_in   = m.reg ('LB1D_in', DATA_SIZE)
+        self.LB1D_uIn  = m.reg ('LB1D_uIn', DATA_SIZE) # child-state
         self.LB1D_buff = m.reg ('LB1D_buff', DATA_SIZE)
 
         # pixel counter for input data
@@ -165,6 +166,7 @@ class GBArch ():
         self.arg_0_TDATA_nxt  = self.arg_0_TDATA
 
         self.LB1D_in_nxt = self.LB1D_in
+        self.LB1D_uIn_nxt = self.LB1D_uIn
         self.LB1D_buff_nxt = self.LB1D_buff
         self.LB1D_p_cnt_nxt = self.LB1D_p_cnt
         self.LB1D_it_1_nxt = self.LB1D_it_1
@@ -216,6 +218,7 @@ class GBArch ():
         m.set_next ('arg_0_TVALID', self.arg_0_TVALID_nxt)
         m.set_next ('arg_0_TDATA', self.arg_0_TDATA_nxt)
         m.set_next ('LB1D_in', self.LB1D_in_nxt)
+        m.set_next ('LB1D_uIn', self.LB1D_uIn_nxt)
         m.set_next ('LB1D_buff', self.LB1D_buff_nxt)
         m.set_next ('LB1D_p_cnt', self.LB1D_p_cnt_nxt)
         m.set_next ('LB1D_it_1', self.LB1D_it_1_nxt)
