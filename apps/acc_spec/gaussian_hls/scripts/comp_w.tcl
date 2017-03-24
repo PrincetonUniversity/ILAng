@@ -28,27 +28,6 @@ assume -name {comp - per instr} -env \
     arg_0_TREADY == 0 \
 )} -type {temporary} -update_db;
 
-#assume -name {comp - per instr protocol 4} -env \
-{ counter == 2 |-> ( \
-    arg_1_TVALID == 1 \
-)} -type {temporary} -update_db;
-
-#assume -name {comp - per instr protocol} -env \
-{ counter > 1 & hls_arg_1_TREADY == 0 & arg_1_TVALID == 1 |=> ( \
-    arg_1_TVALID == 1 \
-)} -type {temporary} -update_db;
-
-#assume -name {comp - per instr protocol 2} -env \
-{ counter > 1 & hls_arg_1_TREADY == 1 & arg_1_TVALID == 1 |=> ( \
-    arg_1_TVALID == 0 \
-)} -type {temporary} -update_db;
-
-#assume -name {comp - per instr protocol 3} -env \
-{ counter >= 1 & arg_1_TVALID == 0 |=> ( \
-    arg_1_TVALID == 0 \
-)} -type {temporary} -update_db;
-
-
 # two models should have same architectural states
 assume -name {arch equal - control} -env \
 { counter == 0 |=> ( \
@@ -88,7 +67,7 @@ assume -name {arch equal - control} -env \
     ila_gb_exit_it_8 == hls_gb_exit_it_8 \
 )} -type {temporary} -update_db;
 #
-#assume -name {arch equal - data} -env \
+assume -name {arch equal - data} -env \
 { counter == 0 |=> ( \
     ila_in_stream_buff_0 == hls_in_stream_buff_0 & \
     ila_in_stream_buff_1 == hls_in_stream_buff_1 & \
@@ -96,6 +75,7 @@ assume -name {arch equal - control} -env \
     ila_slice_stream_buff_1 == hls_slice_stream_buff_1 & \
     ila_stencil_stream_buff_0 == hls_stencil_stream_buff_0 & \
     ila_stencil_stream_buff_1 == hls_stencil_stream_buff_1 & \
+    ila_LB1D_in == hls_LB1D_in & \
     ila_LB1D_buff == hls_LB1D_buff & \
     ila_LB2D_shift_0 == hls_LB2D_shift_0 & \
     ila_LB2D_shift_1 == hls_LB2D_shift_1 & \
@@ -107,7 +87,7 @@ assume -name {arch equal - control} -env \
     ila_LB2D_shift_7 == hls_LB2D_shift_7 \
 )} -type {temporary} -update_db;
 #
-assume -name {arch equal - data} -env \
+#assume -name {arch equal - data} -env \
 { counter == 0 |=> ( \
     ila_in_stream_buff_0 == hls_in_stream_buff_0 & \
     ila_in_stream_buff_1 == hls_in_stream_buff_1 & \

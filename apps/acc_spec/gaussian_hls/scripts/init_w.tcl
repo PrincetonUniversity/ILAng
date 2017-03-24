@@ -86,6 +86,11 @@ assume -name {init - valid iterator} -env \
     hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.in_stream_V_value_V_write == 0 \
 )} -type {temporary} -update_db;
 
+assume -name {init - consistent input proc} -env \
+{ counter == 0 |=> ( \
+    ila_LB1D_in == ila_LB1D_uIn \
+)} -type {temporary} -update_db;
+
 # no incomplete read to the stencil stream
 assume -name {init - complete output} -env \
 { counter == 0 |=> ( \
