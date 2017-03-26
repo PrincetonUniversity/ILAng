@@ -21,7 +21,7 @@ def U2b (gb):
 
     ############################ next state functions #####################
     # LB2D_proc_x
-    LB2D_proc_x_nxt = gb.LB2D_proc_x_0
+    LB2D_proc_x_nxt = gb.LB2D_proc_x_1
     gb.LB2D_proc_x_nxt = ila.ite (decode, LB2D_proc_x_nxt, gb.LB2D_proc_x_nxt)
 
     # LB2D_proc_y

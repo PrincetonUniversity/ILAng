@@ -70,9 +70,7 @@ def U2 (gb):
     #LB2D_proc_x_nxt = ila.ite (gb.LB2D_proc_x < gb.LB2D_proc_x_M,
     #                           gb.LB2D_proc_x + gb.LB2D_proc_x_1,
     #                           gb.LB2D_proc_x_0)
-    LB2D_proc_x_nxt = ila.ite (gb.LB2D_proc_x == gb.LB2D_proc_x_0,
-                               gb.LB2D_proc_x_1 + gb.LB2D_proc_x_1,
-                               gb.LB2D_proc_x + gb.LB2D_proc_x_1)
+    LB2D_proc_x_nxt = gb.LB2D_proc_x + gb.LB2D_proc_x_1
     gb.LB2D_proc_x_nxt = ila.ite (decode, LB2D_proc_x_nxt, gb.LB2D_proc_x_nxt)
 
     # LB2D proc y idx
