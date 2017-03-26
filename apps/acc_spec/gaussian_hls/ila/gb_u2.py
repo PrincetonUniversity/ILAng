@@ -83,7 +83,7 @@ def U2 (gb):
     gb.LB2D_proc_y_nxt = ila.ite (decode, LB2D_proc_y_nxt, gb.LB2D_proc_y_nxt)
                                
     # LB2D proc w idx
-    LB2D_proc_w_nxt = gb.LB2D_proc_w + gb.LB2D_proc_w_1
+    LB2D_proc_w_nxt = gb.LB2D_proc_w
     gb.LB2D_proc_w_nxt = ila.ite (decode, LB2D_proc_w_nxt, gb.LB2D_proc_w_nxt)
 
     # LB2D proc buffer

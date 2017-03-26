@@ -25,5 +25,7 @@ def U2b (gb):
     gb.LB2D_proc_x_nxt = ila.ite (decode, LB2D_proc_x_nxt, gb.LB2D_proc_x_nxt)
 
     # LB2D_proc_w
-    LB2D_proc_w_nxt = gb.LB2D_proc_w_0
+    LB2D_proc_w_nxt = ila.ite (gb.LB2D_proc_w == gb.LB2D_proc_w_M,
+                               gb.LB2D_proc_w_0,
+                               gb.LB2D_proc_w + gb.LB2D_proc_w_1)
     gb.LB2D_proc_w_nxt = ila.ite (decode, LB2D_proc_w_nxt, gb.LB2D_proc_w_nxt)
