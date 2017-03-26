@@ -19,7 +19,7 @@ def createILA ():
     U1 (gb)
     U1b (gb)
     U2 (gb)
-    U2b (gb)
+    #U2b (gb)
     U3 (gb)
     U4 (gb)
     WRI (gb)
