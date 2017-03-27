@@ -150,8 +150,9 @@ def U2 (gb):
     def genSliceSeqs (start):
         assert (start <= gb.LB2D_proc_size)
         res = []
-        for i in xrange (0, gb.LB2D_proc_size):
-            res.append ((start + i + 7) % gb.LB2D_proc_size)
+        #for i in xrange (0, gb.LB2D_proc_size):
+        for i in xrange (gb.LB2D_proc_size-1, -1, -1):
+            res.append ((start + i) % gb.LB2D_proc_size)
         return res
 
     slice_seqs = []
