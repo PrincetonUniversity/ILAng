@@ -113,7 +113,7 @@ def U2 (gb):
     for i in xrange (0, gb.LB2D_proc_size):
         LB2D_proc_nxt = ila.ite (gb.LB2D_proc_w == i,
                                  ila.store (gb.LB2D_proc[i], 
-                                            gb.LB2D_proc_x, 
+                                            gb.LB2D_proc_x - gb.LB2D_proc_x_1, # XXX
                                             in_byte),
                                  gb.LB2D_proc[i])
         gb.LB2D_proc_nxt[i] = ila.ite (decode, LB2D_proc_nxt, gb.LB2D_proc_nxt[i])
@@ -140,10 +140,10 @@ def U2 (gb):
         def sliceSelectOne (modCase):
             idx = seqs[modCase]
             if modCase == gb.LB2D_proc_size - 1:
-                return ila.load (gb.LB2D_proc[idx], gb.LB2D_proc_x)
+                return ila.load (gb.LB2D_proc[idx], gb.LB2D_proc_x - gb.LB2D_proc_x_1)
             else:
                 return ila.ite (start == modCase, 
-                                ila.load (gb.LB2D_proc[idx], gb.LB2D_proc_x),
+                                ila.load (gb.LB2D_proc[idx], gb.LB2D_proc_x - gb.LB2D_proc_x_1),
                                 sliceSelectOne (modCase + 1))
         return sliceSelectOne (0)
 
