@@ -70,16 +70,17 @@ assert -name {eq - LB2D_proc_x} \
 { (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
     ila_LB2D_proc_x == hls_LB2D_proc_x \
 ) } -update_db;
-#
-#assert -name {eq wait - LB2D_proc_x} \
-{ (counter > 1 & ila_complete == 1 & hls_step == 0) |-> ( \
-    ila_LB2D_proc_x == hls_LB2D_proc_x \
-) } -update_db;
 
 # LB2D_proc_y
 assert -name {eq - LB2D_proc_y} \
 { (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
-    ila_LB2D_shift_y == hls_LB2D_shift_y \
+    ila_LB2D_proc_y == hls_LB2D_proc_y \
+) } -update_db;
+
+# LB2D_proc_w
+assert -name {eq - LB2D_proc_w} \
+{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> (\
+    ila_LB2D_proc_w == hls_LB2D_proc_w \
 ) } -update_db;
 
 # slice_stream_empty

@@ -77,6 +77,22 @@ assume -name {arch equal - data} -env \
     ila_stencil_stream_buff_1 == hls_stencil_stream_buff_1 & \
     ila_LB1D_in == hls_LB1D_in & \
     ila_LB1D_buff == hls_LB1D_buff & \
+    ila_U.LB2D_proc_0[487:0] == \
+        hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.buffer_0_value_V_U.hls_target_call_Loop_LB2D_buf_proc_buffer_0_value_V_ram_U.ram & \
+    ila_U.LB2D_proc_1[487:0] == \
+        hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.buffer_1_value_V_U.hls_target_call_Loop_LB2D_buf_proc_buffer_0_value_V_ram_U.ram & \
+    ila_U.LB2D_proc_2[487:0] == \
+        hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.buffer_2_value_V_U.hls_target_call_Loop_LB2D_buf_proc_buffer_0_value_V_ram_U.ram & \
+    ila_U.LB2D_proc_3[487:0] == \
+        hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.buffer_3_value_V_U.hls_target_call_Loop_LB2D_buf_proc_buffer_0_value_V_ram_U.ram & \
+    ila_U.LB2D_proc_4[487:0] == \
+        hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.buffer_4_value_V_U.hls_target_call_Loop_LB2D_buf_proc_buffer_0_value_V_ram_U.ram & \
+    ila_U.LB2D_proc_5[487:0] == \
+        hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.buffer_5_value_V_U.hls_target_call_Loop_LB2D_buf_proc_buffer_0_value_V_ram_U.ram & \
+    ila_U.LB2D_proc_6[487:0] == \
+        hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.buffer_6_value_V_U.hls_target_call_Loop_LB2D_buf_proc_buffer_0_value_V_ram_U.ram & \
+    ila_U.LB2D_proc_7[487:0] == \
+        hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.buffer_7_value_V_U.hls_target_call_Loop_LB2D_buf_proc_buffer_0_value_V_ram_U.ram & \
     ila_LB2D_shift_0 == hls_LB2D_shift_0 & \
     ila_LB2D_shift_1 == hls_LB2D_shift_1 & \
     ila_LB2D_shift_2 == hls_LB2D_shift_2 & \

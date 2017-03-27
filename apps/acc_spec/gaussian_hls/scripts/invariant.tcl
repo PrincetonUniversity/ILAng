@@ -12,9 +12,11 @@ assume -name {inv - alias} -env \
     hls_in_stream_buff_0 == hls_U.hls_target_linebuffer_1_U0.in_stream_V_value_V_U.U_FIFO_hls_target_linebuffer_1_in_stream_V_value_V_ram.SRL_SIG[0] & \
     hls_in_stream_buff_1 == hls_U.hls_target_linebuffer_1_U0.in_stream_V_value_V_U.U_FIFO_hls_target_linebuffer_1_in_stream_V_value_V_ram.SRL_SIG[1] & \
     hls_LB2D_proc_x == hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.col_reg_349 & \
-    hls_LB2D_proc_y == hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.row_reg_327 & \
+    #hls_LB2D_proc_y == hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.row_reg_327 & \ 
+    hls_LB2D_proc_y == hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.row_1_reg_693 & \
     hls_LB2D_proc_w == \
-        hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.write_idx_1_reg_315 & \
+        #hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.write_idx_1_reg_315 & \ 
+        hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.write_idx_1_1_reg_338 & \
     hls_slice_stream_empty == ~hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.slice_stream_V_value_V_U.internal_empty_n & \
     hls_slice_stream_full == ~hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.slice_stream_V_value_V_U.internal_full_n & \
     hls_slice_stream_buff_0 == \

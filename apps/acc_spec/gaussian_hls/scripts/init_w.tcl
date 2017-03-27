@@ -81,7 +81,7 @@ assume -name {init - valid iterator} -env \
 )} -type {temporary} -update_db;
 
 # no incomplete write to the in stream
-#assume -name {init - complete input} -env \
+assume -name {init - complete input} -env \
 { counter == 0 |=> ( \
     hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.in_stream_V_value_V_write == 0 \
 )} -type {temporary} -update_db;
@@ -116,6 +116,15 @@ assume -name {init - stable fsm pre} -env \
 assume -name {init - stable fsm post} -env \
 { counter == 0 |-> ( \
     hls_LB2D_shift_fsm == 4 \
+)} -type {temporary} -update_db;
+
+# consistent write index
+assume -name {init - consistent proc_w} -env \
+{ counter == 0 |=> ( \
+    hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.p_write_idx_1_1_reg_723 == \
+    hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.write_idx_1_reg_315 & \
+    hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.write_idx_1_reg_315 == \
+    hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.write_idx_1_1_reg_338 \
 )} -type {temporary} -update_db;
 
 # consistent exit condition
