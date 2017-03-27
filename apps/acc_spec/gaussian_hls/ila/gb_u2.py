@@ -50,19 +50,19 @@ def U2 (gb):
     gb.LB1D_p_cnt_nxt = ila.ite (decode, LB1D_p_cnt_nxt, gb.LB1D_p_cnt_nxt)
 
     # in stream full
-    #in_stream_full_nxt = FULL_F
     in_stream_full_nxt = ila.ite (gb.LB2D_proc_x == gb.LB2D_proc_x_M, 
                                   gb.in_stream_full,
                                   FULL_F)
+    in_stream_full_nxt = FULL_F
     gb.in_stream_full_nxt = ila.ite (decode, in_stream_full_nxt,
                                      gb.in_stream_full_nxt)
 
     # in stream empty
-    #in_stream_empty_nxt = ila.ite (gb.in_stream_full == FULL_T, EMPTY_F, EMPTY_T)
     in_stream_empty_nxt = ila.ite (gb.LB2D_proc_x == gb.LB2D_proc_x_M,
                                    gb.in_stream_empty,
                           ila.ite (gb.in_stream_full == FULL_T,
                                    EMPTY_F, EMPTY_T))
+    in_stream_empty_nxt = ila.ite (gb.in_stream_full == FULL_T, EMPTY_F, EMPTY_T)
     gb.in_stream_empty_nxt = ila.ite (decode, in_stream_empty_nxt,
                                       gb.in_stream_empty_nxt)
 
