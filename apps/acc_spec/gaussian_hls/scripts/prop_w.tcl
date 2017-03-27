@@ -250,18 +250,3 @@ assert -name {eq - stencil_stream_buff_1} \
 { (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
     ila_LB1D_buff == hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.in_axi_stream_V_value_V_0_data_out \
 ) } -update_db;
-
-assert { \
-(counter > 10) |-> ( \
-    ( \
-    ((ila_U.arg_1_TREADY == 0) & (ila_U.in_stream_full == 0)) | \
-    ((ila_U.in_stream_empty == 0) & \
-        ((ila_U.slice_stream_full == 0) | (ila_U.LB2D_proc_y < 8))) | \
-    ((ila_U.slice_stream_empty == 0) & \
-        ((ila_U.stencil_stream_full == 0) | (ila_U.LB2D_shift_x < 8))) | \
-    ((ila_U.arg_0_TVALID == 0) & \
-        (((ila_U.gb_exit_it_1 == 0) & (ila_U.stencil_stream_empty == 0)) | \
-        ((ila_U.gb_exit_it_1 == 1) & (ila_U.gb_exit_it_8 == 0)))) \
-    ) \
-)} -update_db;
-
