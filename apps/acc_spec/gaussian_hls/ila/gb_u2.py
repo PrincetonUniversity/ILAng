@@ -140,10 +140,10 @@ def U2 (gb):
         def sliceSelectOne (modCase):
             idx = seqs[modCase]
             if modCase == gb.LB2D_proc_size - 1:
-                return ila.load (gb.LB2D_proc[idx], gb.LB2D_proc_x) # XXX
+                return ila.load (gb.LB2D_proc[idx], gb.LB2D_proc_x - gb.LB2D_proc_x_1) # XXX
             else:
                 return ila.ite (start == modCase, 
-                                ila.load (gb.LB2D_proc[idx], gb.LB2D_proc_x), # XXX
+                                ila.load (gb.LB2D_proc[idx], gb.LB2D_proc_x - gb.LB2D_proc_x_1), # XXX
                                 sliceSelectOne (modCase + 1))
         return sliceSelectOne (0)
 
