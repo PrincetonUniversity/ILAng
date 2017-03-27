@@ -27,6 +27,16 @@ def U1b (gb):
     LB1D_it_1_nxt = gb.it_T
     gb.LB1D_it_1_nxt = ila.ite (decode, LB1D_it_1_nxt, gb.LB1D_it_1_nxt)
 
+    # 1-D buffer for input data
+    LB1D_in_nxt = gb.LB1D_in
+    gb.LB1D_in_nxt = ila.ite (decode, LB1D_in_nxt, gb.LB1D_in_nxt)
+
+    LB1D_uIn_nxt = gb.LB1D_in
+    gb.LB1D_uIn_nxt = ila.ite (decode, LB1D_uIn_nxt, gb.LB1D_uIn_nxt)
+
+    LB1D_buff_nxt = gb.LB1D_uIn
+    gb.LB1D_buff_nxt = ila.ite (decode, LB1D_buff_nxt, gb.LB1D_buff_nxt)
+
     # pixel position for input data
     LB1D_p_cnt_nxt = gb.LB1D_p_cnt + gb.LB1D_p_cnt_1
     gb.LB1D_p_cnt_nxt = ila.ite (decode, LB1D_p_cnt_nxt, gb.LB1D_p_cnt_nxt)
