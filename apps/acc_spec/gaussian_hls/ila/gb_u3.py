@@ -163,6 +163,16 @@ def U3 (gb):
         l = gb.DATA_SIZE * idx
         h = l + gb.DATA_SIZE - 1
         res = ila.concat ([in_slice          [h:l],
+                           gb.LB2D_shift [7] [h:l],
+                           gb.LB2D_shift [6] [h:l],
+                           gb.LB2D_shift [5] [h:l],
+                           gb.LB2D_shift [4] [h:l],
+                           gb.LB2D_shift [3] [h:l],
+                           gb.LB2D_shift [2] [h:l],
+                           gb.LB2D_shift [1] [h:l],
+                           gb.LB2D_shift [0] [h:l]])
+        """
+        res = ila.concat ([in_slice          [h:l],
                            gb.LB2D_shift [0] [h:l],
                            gb.LB2D_shift [1] [h:l],
                            gb.LB2D_shift [2] [h:l],
@@ -171,6 +181,7 @@ def U3 (gb):
                            gb.LB2D_shift [5] [h:l],
                            gb.LB2D_shift [6] [h:l],
                            gb.LB2D_shift [7] [h:l]])
+        """
         return res
 
     stencil_rows = []
