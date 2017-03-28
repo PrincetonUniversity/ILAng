@@ -123,16 +123,6 @@ def U3 (gb):
                         gb.slice_stream_buff[gb.slice_stream_size-1],
                         gb.slice_stream_buff[0])
 
-    """
-    LB2D_shift_0_nxt = in_slice
-    gb.LB2D_shift_nxt[0] = ila.ite (decode, LB2D_shift_0_nxt, 
-                                      gb.LB2D_shift_nxt[0])
-    for i in xrange (1, gb.LB2D_shift_size):
-        LB2D_shift_i_nxt = gb.LB2D_shift[i-1]
-        gb.LB2D_shift_nxt[i] = ila.ite (decode, LB2D_shift_i_nxt,
-                                        gb.LB2D_shift_nxt[i])
-    """
-
     LB2D_shift_7_nxt = in_slice
     gb.LB2D_shift_nxt[gb.LB2D_shift_size-1] = ila.ite (decode, 
                                                        LB2D_shift_7_nxt,
@@ -171,17 +161,6 @@ def U3 (gb):
                            gb.LB2D_shift [2] [h:l],
                            gb.LB2D_shift [1] [h:l],
                            gb.LB2D_shift [0] [h:l]])
-        """
-        res = ila.concat ([in_slice          [h:l],
-                           gb.LB2D_shift [0] [h:l],
-                           gb.LB2D_shift [1] [h:l],
-                           gb.LB2D_shift [2] [h:l],
-                           gb.LB2D_shift [3] [h:l],
-                           gb.LB2D_shift [4] [h:l],
-                           gb.LB2D_shift [5] [h:l],
-                           gb.LB2D_shift [6] [h:l],
-                           gb.LB2D_shift [7] [h:l]])
-        """
         return res
 
     stencil_rows = []
