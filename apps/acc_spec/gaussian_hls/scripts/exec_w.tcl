@@ -55,7 +55,7 @@ assume -name {exec - hls continue} -env \
         (((hls_gb_exit_it_1 == 0) & (hls_stencil_stream_empty == 0)) | \
          ((hls_gb_exit_it_1 == 1) & (hls_gb_exit_it_8 == 0)))) \
     ) \
-    #| hls_arg_1_TREADY != 1 \ 
+    | hls_arg_1_TREADY != 1 \
     |=> \
     (hls_complete == 0) \
 )} -type {temporary} -update_db;
@@ -72,7 +72,7 @@ assume -name {exec - hls break} -env \
         (((hls_gb_exit_it_1 == 0) & (hls_stencil_stream_empty == 0)) | \
          ((hls_gb_exit_it_1 == 1) & (hls_gb_exit_it_8 == 0)))) \
     ) \
-    #& hls_arg_1_TREADY == 1 \ 
+    & hls_arg_1_TREADY == 1 \
     |=> \
     (hls_complete == 1) \
 )} -type {temporary} -update_db;
