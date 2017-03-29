@@ -111,9 +111,9 @@ def U2 (gb):
                        gb.in_stream_buff[gb.in_stream_size-1],
                        gb.in_stream_buff[0])
     for i in xrange (0, gb.LB2D_proc_size):
-        LB2D_proc_nxt = ila.ite (gb.LB2D_proc_w == i,
+        LB2D_proc_nxt = ila.ite (gb.LB2D_proc_w == (i+7)%8,
                                  ila.store (gb.LB2D_proc[i], 
-                                            gb.LB2D_proc_x - gb.LB2D_proc_x_1 - gb.LB2D_proc_x_1, # XXX
+                                            gb.LB2D_proc_x - gb.LB2D_proc_x_1, # XXX
                                             in_byte),
                                  gb.LB2D_proc[i])
         gb.LB2D_proc_nxt[i] = ila.ite (decode, LB2D_proc_nxt, gb.LB2D_proc_nxt[i])
