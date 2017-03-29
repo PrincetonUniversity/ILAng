@@ -95,26 +95,4 @@ assume -name {arch equal - data} -env \
     ila_LB2D_shift_7 == hls_LB2D_shift_7 \
 )} -type {temporary} -update_db;
 #
-#assume -name {arch equal - data} -env \
-{ counter == 0 |=> ( \
-    ila_in_stream_buff_0 == hls_in_stream_buff_0 & \
-    ila_in_stream_buff_1 == hls_in_stream_buff_1 & \
-    ila_LB1D_in == hls_LB1D_in & \
-    ila_LB1D_buff == hls_LB1D_buff \
-)} -type {temporary} -update_db;
-
-#assume -name {arch equal - start refine} -env \
-{ counter == 0 |=> ( \
-    (hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.in_stream_V_value_V_write == 0 & \
-     ila_in_stream_full == hls_in_stream_full & \
-     ila_in_stream_empty == hls_in_stream_empty) | \
-    (hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.in_stream_V_value_V_write == 1 & \
-     ila_in_stream_full == 1 & ila_in_stream_empty == 0 & \
-     hls_in_stream_full == 0 & hls_in_stream_empty == 0) | \
-    (hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.in_stream_V_value_V_write == 1 & \
-     ila_in_stream_full == 0 & ila_in_stream_empty == 0 & \
-     hls_in_stream_full == 0 & hls_in_stream_empty == 1) \
-)} -type {temporary} -update_db;
-
-
 
