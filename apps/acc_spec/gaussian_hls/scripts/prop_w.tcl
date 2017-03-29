@@ -241,12 +241,87 @@ assert -name {eq - stencil_stream_buff_1} \
     ila_stencil_stream_buff_1 == hls_stencil_stream_buff_1 \
 ) } -update_db;
 #
-#assert -name {eq - LB1D_buff_test} \
+assert -name {eq - LB2D_shift_0} \
 { (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
-    ila_LB1D_buff == hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.in_axi_stream_V_value_V_0_data_reg \
+    ila_LB2D_shift_0 == hls_LB2D_shift_0 \
 ) } -update_db;
 #
-#assert -name {eq - LB1D_buff_test2} \
+assert -name {eq - LB2D_shift_1} \
 { (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
-    ila_LB1D_buff == hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.in_axi_stream_V_value_V_0_data_out \
+    ila_LB2D_shift_1 == hls_LB2D_shift_1 \
+) } -update_db;
+#
+assert -name {eq - LB2D_shift_2} \
+{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+    ila_LB2D_shift_2 == hls_LB2D_shift_2 \
+) } -update_db;
+#
+assert -name {eq - LB2D_shift_3} \
+{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+    ila_LB2D_shift_3 == hls_LB2D_shift_3 \
+) } -update_db;
+#
+assert -name {eq - LB2D_shift_4} \
+{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+    ila_LB2D_shift_4 == hls_LB2D_shift_4 \
+) } -update_db;
+#
+assert -name {eq - LB2D_shift_5} \
+{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+    ila_LB2D_shift_5 == hls_LB2D_shift_5 \
+) } -update_db;
+#
+assert -name {eq - LB2D_shift_6} \
+{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+    ila_LB2D_shift_6 == hls_LB2D_shift_6 \
+) } -update_db;
+#
+assert -name {eq - LB2D_shift_7} \
+{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+    ila_LB2D_shift_7 == hls_LB2D_shift_7 \
+) } -update_db;
+#
+assert -name {eq - arg_0_TDATA} \
+{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+    ila_arg_0_TDATA == hls_arg_0_TDATA \
+) } -update_db;
+#
+assert -name {eq - LB2D_proc_0} \
+{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+    ila_U.LB2D_proc_0 == hls_LB2D_proc_0 \
+) } -update_db;
+#
+assert -name {eq - LB2D_proc_1} \
+{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+    ila_U.LB2D_proc_1 == hls_LB2D_proc_1 \
+) } -update_db;
+#
+assert -name {eq - LB2D_proc_2} \
+{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+    ila_U.LB2D_proc_2 == hls_LB2D_proc_2 \
+) } -update_db;
+#
+assert -name {eq - LB2D_proc_3} \
+{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+    ila_U.LB2D_proc_3 == hls_LB2D_proc_3 \
+) } -update_db;
+#
+assert -name {eq - LB2D_proc_4} \
+{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+    ila_U.LB2D_proc_4 == hls_LB2D_proc_4 \
+) } -update_db;
+#
+assert -name {eq - LB2D_proc_5} \
+{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+    ila_U.LB2D_proc_5 == hls_LB2D_proc_5 \
+) } -update_db;
+#
+assert -name {eq - LB2D_proc_6} \
+{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+    ila_U.LB2D_proc_6 == hls_LB2D_proc_6 \
+) } -update_db;
+#
+assert -name {eq - LB2D_proc_7} \
+{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+    ila_U.LB2D_proc_7 == hls_LB2D_proc_7 \
 ) } -update_db;

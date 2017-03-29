@@ -284,6 +284,14 @@ wire    [647:0] hls_stencil_stream_buff_0;
 wire    [647:0] hls_stencil_stream_buff_1;
 wire            hls_stencil_stream_empty;
 wire            hls_stencil_stream_full;
+wire    [7:0]   hls_LB2D_proc_0 [487:0];
+wire    [7:0]   hls_LB2D_proc_1 [487:0];
+wire    [7:0]   hls_LB2D_proc_2 [487:0];
+wire    [7:0]   hls_LB2D_proc_3 [487:0];
+wire    [7:0]   hls_LB2D_proc_4 [487:0];
+wire    [7:0]   hls_LB2D_proc_5 [487:0];
+wire    [7:0]   hls_LB2D_proc_6 [487:0];
+wire    [7:0]   hls_LB2D_proc_7 [487:0];
 
 wire    [2:0]   hls_LB1D_fsm;
 wire    [2:0]   hls_LB1D_fsm_nxt;
