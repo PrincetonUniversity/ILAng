@@ -1,8 +1,7 @@
-# analyze and elaborate two implementations (integrated)
 
-set ROOT [pwd]
-set SRC $ROOT/verilog
-set TCL $ROOT/scripts
+#set ROOT [pwd]
+#set SRC $ROOT/verilog
+#set TCL $ROOT/scripts
 
 analyze -clear
 elaborate -clear

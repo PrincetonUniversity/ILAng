@@ -21,7 +21,6 @@ assume -name {exec - ila continue} -env \
         (((ila_U.gb_exit_it_1 == 0) & (ila_U.stencil_stream_empty == 0)) | \
         ((ila_U.gb_exit_it_1 == 1) & (ila_U.gb_exit_it_8 == 0)))) \
     ) \
-    #| ila_arg_1_TREADY != 1 \ 
     |=> \
     (ila_complete == 0) \
 )} -type {temporary} -update_db;
@@ -38,7 +37,6 @@ assume -name {exec - ila break} -env \
         (((ila_U.gb_exit_it_1 == 0) & (ila_U.stencil_stream_empty == 0)) | \
          ((ila_U.gb_exit_it_1 == 1) & (ila_U.gb_exit_it_8 == 0)))) \
     ) \
-    #& ila_arg_1_TREADY == 1 \ 
     |=> \
     (ila_complete == 1) \
 )} -type {temporary} -update_db;
