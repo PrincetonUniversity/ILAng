@@ -402,7 +402,10 @@ namespace ila
 
         // Add var decl (no global states)
         for (auto it = _curVarMap->begin(); it != _curVarMap->end(); it++) {
-          if (_states.find(it->first) == _states.end()) {
+          if (_states.find(it->first) == _states.end() &&
+              _inputs.find(it->first) == _inputs.end() &&
+              _unitpFuncVarMap.find(it->first) == _unitpFuncVarMap.end()
+             ) {
               std::string code = it->second->def() + ";";
               _curFun->_varList.push_back(code);
           }
