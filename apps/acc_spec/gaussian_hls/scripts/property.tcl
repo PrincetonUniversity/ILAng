@@ -202,7 +202,8 @@ assert -name {eq - exit_it_7} \
 ) } -update_db;
 #
 assert -name {eq - LB1D_in} \
-{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+{ (counter > 1 & ila_complete == 1 & hls_complete == 1 & \
+   hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.in_axi_stream_V_value_V_0_has_vld_data_reg == 1 ) |-> ( \
     ila_LB1D_in == hls_LB1D_in \
 ) } -update_db;
 #
