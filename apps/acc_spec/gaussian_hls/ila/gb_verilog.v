@@ -1061,7 +1061,7 @@ assign n186 =  ( n30 ) ? ( arg_1_TREADY ) : ( n185 ) ;
 assign n187 =  ( n25 ) ? ( arg_1_TREADY ) : ( n186 ) ;
 assign n188 =  ( n18 ) ? ( arg_1_TREADY ) : ( n187 ) ;
 assign n189 =  ( n9 ) ? ( 1'd0 ) : ( n188 ) ;
-assign n190 =  ( n4 ) ? ( 1'd0 ) : ( n189 ) ;
+assign n190 =  ( n4 ) ? ( arg_1_TREADY ) : ( n189 ) ;
 assign n191 =  ( gb_p_cnt ) + ( 19'd1 )  ;
 assign n192 =  ( n191 ) == ( 19'd307200 )  ;
 assign n193 =  ( n192 ) ? ( 1'd1 ) : ( 1'd0 ) ;

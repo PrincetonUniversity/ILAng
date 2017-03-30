@@ -25,7 +25,7 @@ def RDI (gb):
 
     ############################ next state functions #####################
     # arg_1_TREADY
-    arg_1_TREADY_nxt = READY_F
+    arg_1_TREADY_nxt = gb.arg_1_TREADY
     gb.arg_1_TREADY_nxt = ila.ite (decode, arg_1_TREADY_nxt, 
                                    gb.arg_1_TREADY_nxt)
 
