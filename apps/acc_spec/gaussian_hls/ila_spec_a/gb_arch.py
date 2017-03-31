@@ -63,6 +63,17 @@ class GBArch ():
         self.RAM_w_1    = m.const (0x1, WR_ADDR_SIZE)
         self.RAM_w_M    = m.const (self.RAM_size-1, WR_ADDR_SIZE)
 
+        # 8 1x9 bytes slice in the stencil
+        self.stencil = []
+        self.slice_size = Y_EXTEND * DATA_SIZE
+        self.stencil_size = X_EXTEND
+        for i in xrange (0, self.stencil_size):
+            buffName = 'stencil_%d' % i
+            self.stencil.append (m.reg (buffName, self.slice_size))
+
+        # uninterpreted GB function
+        self.fun = m.fun ('gb_fun', DATA_SIZE, [X_EXTEND * Y_EXTEND * DATA_SIZE])
+
         ######################## next states functions #########################
         self.arg_1_TREADY_nxt = self.arg_1_TREADY
         self.arg_0_TVALID_nxt = self.arg_0_TVALID
@@ -74,6 +85,9 @@ class GBArch ():
         self.RAM_nxt   = []
         for i in xrange (0, self.RAM_size):
             self.RAM_nxt.append (self.RAM[i])
+        self.stencil_nxt = []
+        for i in xrange (0, self.stencil_size):
+            self.stencil_nxt.append (self.stencil[i])
 
     def setNext (self):
         m = self.abst
