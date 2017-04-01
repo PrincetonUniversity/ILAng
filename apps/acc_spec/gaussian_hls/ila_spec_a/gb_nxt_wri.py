@@ -65,9 +65,7 @@ def WRI (gb):
 
     # 8 1x9 bytes slice in the stencil
     for i in xrange (0, gb.stencil_size-1):
-        stencil_i_nxt = ila.ite (gb.RAM_y < gb.RAM_size,
-                                 gb.stencil[i],
-                                 gb.stencil[i+1])
+        stencil_i_nxt = gb.stencil[i]
         gb.stencil_nxt[i] = ila.ite (decode, stencil_i_nxt, gb.stencil_nxt[i])
 
     def sliceSelect (start, seqs):
@@ -100,3 +98,4 @@ def WRI (gb):
                              gb.stencil[n],
                              ila.concat (slice_chunks))
     gb.stencil_nxt[n] = ila.ite (decode, stencil_n_nxt, gb.stencil_nxt[n])
+    

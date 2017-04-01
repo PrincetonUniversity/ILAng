@@ -58,7 +58,17 @@ def WRU1 (gb):
     gb.RAM_x_nxt = ila.ite (decode, gb.RAM_x, gb.RAM_x_nxt)
     gb.RAM_y_nxt = ila.ite (decode, gb.RAM_y, gb.RAM_y_nxt)
     gb.RAM_w_nxt = ila.ite (decode, gb.RAM_w, gb.RAM_w_nxt)
+
     for i in xrange (0, gb.RAM_size):
         gb.RAM_nxt[i] = ila.ite (decode, gb.RAM[i], gb.RAM_nxt[i])
-    for i in xrange (0, gb.stencil_size):
-        gb.stencil_nxt[i] = ila.ite (decode, gb.stencil[i], gb.stencil_nxt[i])
+
+    for i in xrange (0, gb.stencil_size-1):
+        stencil_i_nxt = ila.ite (gb.RAM_y < gb.RAM_size,
+                                 gb.stencil[i],
+                                 gb.stencil[i+1])
+        gb.stencil_nxt[i] = ila.ite (decode, stencil_i_nxt, gb.stencil_nxt[i])
+
+    n = gb.stencil_size - 1
+    stencil_n_nxt = gb.stencil[n]
+    gb.stencil_nxt[n] = ila.ite (decode, stencil_n_nxt, gb.stencil_nxt[n])
+

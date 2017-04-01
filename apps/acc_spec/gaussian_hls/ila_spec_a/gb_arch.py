@@ -98,9 +98,14 @@ class GBArch ():
         m.set_next ('RAM_x', self.RAM_x_nxt)
         m.set_next ('RAM_y', self.RAM_y_nxt)
         m.set_next ('RAM_w', self.RAM_w_nxt)
+
         for i in xrange (0, self.RAM_size):
             buffName = 'RAM_%d' % i
             m.set_next (buffName, self.RAM_nxt[i])
+
+        for i in xrange (0, self.stencil_size):
+            buffName = 'stencil_%d' % i
+            m.set_next (buffName, self.stencil_nxt[i])
 
     def exportVerilog (self, fileName):
         self.abst.generateVerilog (fileName)
