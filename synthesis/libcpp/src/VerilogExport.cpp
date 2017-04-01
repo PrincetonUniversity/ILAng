@@ -140,13 +140,15 @@ namespace ila
             }
 
             nptr_t cond = BoolConst::get(true);
-            mem_write_entry_list_t writes;
+            mem_write_entry_list_stack_t writesStack;
+            mem_write_entry_list_t empty_write_entry_list;
+            writesStack.push_back( empty_write_entry_list );
 
             for (const auto &w: current_writes)
                 past_writes.push_back(w);
                 
             current_writes.clear();
-            visitMemNodes(next, cond, writes);
+            visitMemNodes(next, cond, writesStack);
             //std::cout << current_writes << std::endl;
 
             exportCondWrites(name,addr_width,data_width,current_writes);
@@ -171,7 +173,7 @@ namespace ila
         std::vector<vlg_stmt_t> enabStmt(max_port_no,"1'b0");
         std::vector<vlg_stmt_t> addrStmt(max_port_no,"0");
         std::vector<vlg_stmt_t> dataStmt(max_port_no,"'dx"); 
-
+        // Note the reverse here!
         for (const auto & mw : boost::adaptors::reverse(writeList) ) {
             start_iterate(mw.cond.get());
             vlg_name_t cond = getName(mw.cond.get());
@@ -680,40 +682,59 @@ namespace ila
         }
         return out << "]";
     }
+    
+    std::ostream& operator<<(
+        std::ostream& out, const mem_write_entry_list_stack_t& mwel)
+    {
+        unsigned i=0;
+        for (const auto &sitem : mwel)
+            out <<"["<< (i++) <<"]:"<<sitem<<std::endl;
+        return out;
+    }
 
 
     void VerilogExport::visitMemNodes(
         const Node* n, const nptr_t& cond,
-        mem_write_entry_list_t& writes)
+        mem_write_entry_list_stack_t& writesStack)
     {
         const MemVar* memvar = dynamic_cast<const MemVar*>(n);
         const MemOp* memop = dynamic_cast<const MemOp*>(n);
         ILA_ASSERT(memvar != NULL || memop != NULL, 
             "expected a memvar or memop.");
 
+        log1("VerilogExport")<<"Visiting:"<<(*n)<<std::endl;
+        log1("VerilogExport")<<writesStack;
+
         if (memvar != NULL) {
             // here is where the recursion terminates.
+            mem_write_entry_list_t writes = writesStack.back();
             mem_write_t mw = { cond, writes };
+            log2("VerilogExport")<<"adding:"<<mw<<std::endl;
             current_writes.push_back(mw);
-            writes.clear();
         } else  {
             // we have a memop.
             MemOp::Op op = memop->getOp();
             if (op == MemOp::ITE) {
-                ILA_ASSERT(writes.size() == 0, "unexpected writes.");
+                //ILA_ASSERT(writes.size() == 0, "unexpected writes.");
                 // compute conditions for each branch.
                 nptr_t cite_t(memop->arg(0));
                 nptr_t cite_f(BoolOp::negate(cite_t, notCache));
                 nptr_t ctrue  = logicalAnd(cond, cite_t);
                 nptr_t cfalse = logicalAnd(cond, cite_f);
                 // recurse.
-                visitMemNodes(memop->arg(1).get(), ctrue, writes);
-                visitMemNodes(memop->arg(2).get(), cfalse, writes);
+                mem_write_entry_list_t writes = writesStack.back();
+                writesStack.push_back(writes);
+                visitMemNodes(memop->arg(1).get(), ctrue, writesStack);
+                writesStack.pop_back();
+                writesStack.push_back(writes);
+                visitMemNodes(memop->arg(2).get(), cfalse, writesStack);
+                writesStack.pop_back();
             } else if (op == MemOp::STORE) {
                 mem_write_entry_t mw = { memop->arg(1), memop->arg(2) };
+                mem_write_entry_list_t & writes = writesStack.back();
                 writes.push_back(mw);
                 const nptr_t& mem(memop->arg(0));
-                visitMemNodes(mem.get(), cond, writes);
+                visitMemNodes(mem.get(), cond, writesStack);
             }
         }
     }

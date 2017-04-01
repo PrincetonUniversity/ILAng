@@ -42,6 +42,7 @@ namespace ila
     };
     // This is a list of writes.
     typedef std::list<mem_write_entry_t> mem_write_entry_list_t;
+    typedef std::list<mem_write_entry_list_t> mem_write_entry_list_stack_t;
     // This is the write and its associated condition.
     struct mem_write_t 
     {
@@ -55,6 +56,8 @@ namespace ila
         std::ostream& out, const mem_write_entry_t& mwe);
     std::ostream& operator<<(
         std::ostream& out, const mem_write_entry_list_t& mwel);
+    std::ostream& operator<<(
+        std::ostream& out, const mem_write_entry_list_stack_t& mwel);        
     std::ostream& operator<<(
         std::ostream& out, const mem_write_t& mw);
     std::ostream& operator<<(
@@ -120,7 +123,7 @@ namespace ila
         void checkMemVar(const Node *n, const MemVar*& mem, int& fail);
         void visitMemNodes(
             const Node* n, const nptr_t& cond,
-            mem_write_entry_list_t& writes);
+            mem_write_entry_list_stack_t& writesStack);
         static nptr_t logicalAnd(const nptr_t& c1, const nptr_t& c2);
 
         unsigned idCounter;
