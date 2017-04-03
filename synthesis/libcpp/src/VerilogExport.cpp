@@ -169,6 +169,11 @@ namespace ila
             add_wire(name + "_addr" + toStr(portIdx),addrWidth);
             add_wire(name + "_data" + toStr(portIdx),dataWidth);
             add_wire(name + "_wen"  + toStr(portIdx),1);
+            if(ExternalMem) {
+                mem_o.push_back( vlg_sig_t(name + "_addr" + toStr(portIdx),addrWidth) );
+                mem_o.push_back( vlg_sig_t(name + "_data" + toStr(portIdx),dataWidth) );
+                mem_o.push_back( vlg_sig_t(name + "_wen"  + toStr(portIdx),1) );
+            }
         }
         std::vector<vlg_stmt_t> enabStmt(max_port_no,"1'b0");
         std::vector<vlg_stmt_t> addrStmt(max_port_no,"0");
@@ -204,7 +209,7 @@ namespace ila
             add_stmt(vlg_stmt_t("assign ") + enabWireName + " = " + enabStmt[portIdx] + ";" );
             // add memory updates in the always block
             if(ExternalMem) {
-
+                // DO NOTHING
             }
             else {
                 vlg_stmt_t assignment = name + " [ " + addrWireName + " ] " + "<= "  + dataWireName;
