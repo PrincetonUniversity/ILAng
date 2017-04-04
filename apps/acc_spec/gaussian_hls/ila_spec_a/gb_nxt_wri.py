@@ -15,10 +15,10 @@ def WRI (gb):
     VALID_F     = gb.VALID_FALSE
     DATA_SIZE   = gb.DATA_SIZE
 
-    decode = gb.arg_1_TVALID == VALID_T & \
-             gb.arg_1_TREADY == READY_T & \
-             gb.arg_0_TVALID == VALID_F & \
-             gb.arg_0_TREADY == READY_F
+    decode = (gb.arg_1_TVALID == VALID_T) & \
+             (gb.arg_1_TREADY == READY_T) & \
+             (gb.arg_0_TVALID == VALID_F) & \
+             (gb.arg_0_TREADY == READY_F)
 
     # next state functions for output ports
     arg_1_TREADY_nxt = READY_F

@@ -15,9 +15,9 @@ def WRU1 (gb):
     VALID_F     = gb.VALID_FALSE
     DATA_SIZE   = gb.DATA_SIZE
 
-    decode = gb.arg_1_TREADY == READY_F & \
-             gb.arg_0_TVALID == VALID_F & \
-             gb.arg_0_TREADY == READY_F
+    decode = (gb.arg_1_TREADY == READY_F) & \
+             (gb.arg_0_TVALID == VALID_F) & \
+             (gb.arg_0_TREADY == READY_F)
 
     # next state functions for child-states
     def genRows (idx):
