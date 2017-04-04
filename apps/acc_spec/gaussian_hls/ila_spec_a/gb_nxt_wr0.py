@@ -47,7 +47,7 @@ def WRU1 (gb):
     arg_1_TREADY_nxt = READY_T
     gb.arg_1_TREADY_nxt = ila.ite (decode, arg_1_TREADY_nxt, gb.arg_1_TREADY_nxt)
 
-    arg_0_TVALID_nxt = ila.ite (gb.RAM_x > gb.stencil_size,
+    arg_0_TVALID_nxt = ila.ite (gb.RAM_x > gb.stencil_size - 1,
                                 VALID_T, VALID_F)
     gb.arg_0_TVALID_nxt = ila.ite (decode, arg_0_TVALID_nxt, gb.arg_0_TVALID_nxt)
 
