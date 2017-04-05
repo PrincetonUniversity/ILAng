@@ -4,11 +4,11 @@
 assume -name {Subset - 1} -env \
 { counter == 0 |=> ( \
     hls_LB1D_p_cnt >= 3904 & hls_LB1D_p_cnt < 315736 & \
-    hls_LB2D_proc_x >= 0   & hls_LB2D_proc_x < 480 & \
-    hls_LB2D_proc_y >= 8   & hls_LB2D_proc_y < 648 & \
-    hls_LB2D_shift_x >= 8  & hls_LB2D_shift_x < 480 & \
-    hls_LB2D_shift_y >= 0  & hls_LB2D_shift_y < 640 & \
-    hls_gb_p_cnt >= 10     & hls_gb_p_cnt < 306720 \
+    hls_LB2D_proc_x > 0   & hls_LB2D_proc_x < 480 & \
+    hls_LB2D_proc_y >= 8  & hls_LB2D_proc_y < 648 & \
+    hls_LB2D_shift_x > 0  & hls_LB2D_shift_x < 480 & \
+    hls_LB2D_shift_y >= 0 & hls_LB2D_shift_y < 640 & \
+    hls_gb_p_cnt >= 10    & hls_gb_p_cnt < 306720 \
 )} -type {temporary} -update_db;
 #
 assume -name {Subset - 2} -env \
@@ -24,7 +24,7 @@ assume -name {Subset - 2} -env \
 assume -name {Subset - 3} -env \
 { counter == 0 |=> ( \
     hls_LB1D_p_cnt > 0    & hls_LB1D_p_cnt < 3904 & \
-    hls_LB2D_proc_x >= 0  & hls_LB2D_proc_x <= 488 & \
+    hls_LB2D_proc_x > 0   & hls_LB2D_proc_x <= 488 & \
     hls_LB2D_proc_y >= 0  & hls_LB2D_proc_y < 8 & \
     hls_LB2D_shift_x == 0 & \
     hls_LB2D_shift_y == 0 & \
@@ -33,10 +33,20 @@ assume -name {Subset - 3} -env \
 #
 assume -name {Subset - 4} -env \
 { counter == 0 |=> ( \
-    hls_LB1D_p_cnt >= 315736 & hls_LB1D_p_cnt <= 316224 & \
-    hls_LB2D_proc_x >= 0     & hls_LB2D_proc_x <= 488 & \
+    hls_LB1D_p_cnt >= 315736 & hls_LB1D_p_cnt <= 316222 & \
+    hls_LB2D_proc_x > 0      & hls_LB2D_proc_x <= 488 & \
     hls_LB2D_proc_y >= 647   & hls_LB2D_proc_y <= 648 & \
-    hls_LB2D_shift_x >= 0    & hls_LB2D_shift_x <= 488 & \
+    hls_LB2D_shift_x > 0     & hls_LB2D_shift_x <= 488 & \
+    hls_LB2D_shift_y >= 638  & hls_LB2D_shift_y <= 640 & \
+    hls_gb_p_cnt >= 306240   & hls_gb_p_cnt <= 307200 \
+)} -type {temporary} -update_db;
+#
+assume -name {Subset - 5} -env \
+{ counter == 0 |=> ( \
+    hls_LB1D_p_cnt >= 316223 & hls_LB1D_p_cnt <= 316224 & \
+    hls_LB2D_proc_x > 0      & hls_LB2D_proc_x <= 488 & \
+    hls_LB2D_proc_y >= 647   & hls_LB2D_proc_y <= 648 & \
+    hls_LB2D_shift_x > 0     & hls_LB2D_shift_x <= 488 & \
     hls_LB2D_shift_y >= 638  & hls_LB2D_shift_y <= 640 & \
     hls_gb_p_cnt >= 306240   & hls_gb_p_cnt <= 307200 \
 )} -type {temporary} -update_db;
@@ -50,7 +60,7 @@ assume -name {init - empty buffers} -env \
 )} -type {temporary} -update_db;
 
 # stable buffering
-assume -name {init - stable buffers} -env \
+#assume -name {init - stable buffers} -env \
 { counter == 0 |=> ( \
     hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.in_stream_V_value_V_write == 0 & \
     hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.in_stream_V_value_V_read == 0 & \
@@ -61,7 +71,7 @@ assume -name {init - stable buffers} -env \
 )} -type {temporary} -update_db;
 
 # data valid must implies iteration done
-assume -name {init - valid iterator} -env \
+assume -name {init - output valid vs iterator} -env \
 { counter == 0 |=> ( \
     (hls_arg_0_TVALID == 0) | \
     (hls_arg_0_TVALID == 1 & hls_gb_pp_it_8 == 1 & \
@@ -69,13 +79,13 @@ assume -name {init - valid iterator} -env \
 )} -type {temporary} -update_db;
 
 # no incomplete write to the in stream
-assume -name {init - complete input} -env \
+#assume -name {init - complete input} -env \
 { counter == 0 |=> ( \
     hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.in_stream_V_value_V_write == 0 \
 )} -type {temporary} -update_db;
 
 # no incomplete read to the stencil stream
-assume -name {init - complete output} -env \
+#assume -name {init - complete output} -env \
 { counter == 0 |=> ( \
     hls_U.hls_target_Loop_1_proc_U0.p_p2_in_bounded_stencil_stream_V_value_V_read == 0 \
 )} -type {temporary} -update_db;
@@ -98,6 +108,13 @@ assume -name {init - stable fsm pre} -env \
 assume -name {init - stable fsm post} -env \
 { counter == 0 |-> ( \
     hls_LB2D_shift_fsm == 4 \
+)} -type {temporary} -update_db;
+
+# consistent buffer index
+assume -name {init - consistent buffer x} -env \
+{ counter == 0 |=> ( \
+    (hls_LB2D_proc_x == hls_LB2D_shift_x) | \
+    (hls_LB2D_proc_y <= 7 & hls_LB2D_shift_x == 0) \
 )} -type {temporary} -update_db;
 
 # consistent write index

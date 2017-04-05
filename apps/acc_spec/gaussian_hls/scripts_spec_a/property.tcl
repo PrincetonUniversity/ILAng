@@ -18,25 +18,25 @@ assert -name {eq - arg_1_TREADY} \
 
 # arg_0_TVALID
 assert -name {eq - arg_0_TVALID} \
-{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+{ (counter > 1 & ila_complete == 1 & hls_step == 0) |-> ( \
     ila_U.arg_0_TVALID == hls_U.arg_0_TVALID \
 ) } -update_db;
 
 # RAM_x
 assert -name {eq - RAM_x} \
-{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+{ (counter > 1 & ila_complete == 1 & hls_step == 0) |-> ( \
     ila_RAM_x == hls_LB2D_proc_x \
 ) } -update_db;
 
 # RAM_y
 assert -name {eq - RAM_y} \
-{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+{ (counter > 1 & ila_complete == 1 & hls_step == 0) |-> ( \
     ila_RAM_y == hls_LB2D_proc_y \
 ) } -update_db;
 
 # RAM_w
 assert -name {eq - RAM_w} \
-{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> (\
+{ (counter > 1 & ila_complete == 1 & hls_step == 0) |-> (\
     ila_RAM_w == hls_LB2D_proc_w \
 ) } -update_db;
 
