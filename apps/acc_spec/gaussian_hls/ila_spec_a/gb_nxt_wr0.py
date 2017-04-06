@@ -32,7 +32,7 @@ def WRU0 (gb):
 
     # next state functions for internal arch-states
     # most recent pixel
-    cur_pix_nxt = gb.cur_pix_nxt
+    cur_pix_nxt = gb.cur_pix
     gb.cur_pix_nxt = ila.ite (decode, cur_pix_nxt, gb.cur_pix_nxt)
 
     # previous pixel (child-state)

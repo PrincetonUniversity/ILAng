@@ -34,7 +34,7 @@ def setNext (gb):
     m = gb.abst
     m.set_next ('proc_in', gb.proc_in_nxt)
     m.set_next ('pre_pix', gb.pre_pix_nxt)
-    m.set_next ('st_ready', gb.st_ready)
+    m.set_next ('st_ready', gb.st_ready_nxt)
 
 if __name__ == '__main__':
     gb = GBArch ()
