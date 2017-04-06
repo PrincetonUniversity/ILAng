@@ -6,6 +6,7 @@ import ila
 from gb_arch import GBArch
 from gb_nxt_wri import WRI
 from gb_nxt_wr0 import WRU0
+from gb_nxt_wr0b import WRU0b
 from gb_nxt_wr1 import WRU1
 
 # Define child-states
@@ -25,6 +26,7 @@ def defUSts (gb):
 def defNext (gb):
     WRI (gb)
     WRU0 (gb)
+    WRU0b (gb)
     WRU1 (gb)
 
 # Connect next state function to the abstraction

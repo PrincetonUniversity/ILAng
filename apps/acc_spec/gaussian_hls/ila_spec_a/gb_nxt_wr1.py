@@ -15,10 +15,13 @@ def WRU1 (gb):
     VALID_F     = gb.VALID_FALSE
     DATA_SIZE   = gb.DATA_SIZE
 
-    decode = (gb.arg_1_TREADY == READY_T) & \
+    decode = (gb.arg_1_TREADY == READY_F) & \
              (gb.arg_0_TVALID == VALID_F) & \
              (gb.arg_0_TREADY == READY_F) & \
              (gb.st_ready == READY_F) \
+
+    #endPixel = (gb.RAM_x == gb.RAM_x_M) & (gb.RAM_y == gb.RAM_y_M - gb.RAM_y_1)
+    #decode = decode & ~endPixel
 
     # next state functions for child-states
     def genRows (idx):

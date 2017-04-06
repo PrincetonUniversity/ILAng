@@ -20,11 +20,15 @@ def WRU0 (gb):
              (gb.arg_0_TREADY == READY_F) & \
              (gb.st_ready == READY_T) \
 
+    decode = decode & ~((gb.RAM_x == gb.RAM_x_0) & (gb.RAM_y == gb.RAM_y_0))
+
+    endPixel = (gb.RAM_x == gb.RAM_x_M) & (gb.RAM_y == gb.RAM_y_M - gb.RAM_y_1)
+
     # next state functions for output ports
-    arg_1_TREADY_nxt = READY_T
+    arg_1_TREADY_nxt = ila.ite (endPixel, READY_T, READY_F) # XXX end not pass
     gb.arg_1_TREADY_nxt = ila.ite (decode, arg_1_TREADY_nxt, gb.arg_1_TREADY_nxt)
 
-    arg_0_TVALID_nxt = VALID_F
+    arg_0_TVALID_nxt = gb.arg_0_TVALID
     gb.arg_0_TVALID_nxt = ila.ite (decode, arg_0_TVALID_nxt, gb.arg_0_TVALID_nxt)
 
     arg_0_TDATA_nxt = gb.arg_0_TDATA
@@ -108,7 +112,7 @@ def WRU0 (gb):
     gb.stencil_nxt[n] = ila.ite (decode, stencil_n_nxt, gb.stencil_nxt[n])
     
     # stencil ready (child-state)
-    st_ready_nxt = READY_F
+    st_ready_nxt = ila.ite (endPixel, READY_T, READY_F) # XXX end not pass
     gb.st_ready_nxt = ila.ite (decode, st_ready_nxt, gb.st_ready_nxt)
 
     # 9x9 stencil (child-state)
