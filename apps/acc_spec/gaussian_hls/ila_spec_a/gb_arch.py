@@ -38,6 +38,9 @@ class GBArch ():
         self.arg_0_TDATA  = m.reg ('arg_0_TDATA', DATA_SIZE)
 
         ######################## states  #######################################
+        # most recent pixel
+        self.cur_pix = m.reg ('cur_pix', DATA_SIZE)
+
         # 8 488x1 bytes buffer in the 2-D RAM
         self.RAM = []
         self.RAM_size = Y_EXTEND - 1
@@ -79,6 +82,7 @@ class GBArch ():
         self.arg_0_TVALID_nxt = self.arg_0_TVALID
         self.arg_0_TDATA_nxt  = self.arg_0_TDATA
 
+        self.cur_pix_nxt = self.cur_pix
         self.RAM_x_nxt = self.RAM_x
         self.RAM_y_nxt = self.RAM_y
         self.RAM_w_nxt = self.RAM_w
@@ -95,6 +99,7 @@ class GBArch ():
         m.set_next ('arg_1_TREADY', self.arg_1_TREADY_nxt)
         m.set_next ('arg_0_TVALID', self.arg_0_TVALID_nxt)
         m.set_next ('arg_0_TDATA', self.arg_0_TDATA_nxt)
+        m.set_next ('cur_pix', self.cur_pix_nxt)
         m.set_next ('RAM_x', self.RAM_x_nxt)
         m.set_next ('RAM_y', self.RAM_y_nxt)
         m.set_next ('RAM_w', self.RAM_w_nxt)
