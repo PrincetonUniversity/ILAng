@@ -16,7 +16,6 @@ def WRU0 (gb):
     DATA_SIZE   = gb.DATA_SIZE
 
     decode = (gb.arg_1_TREADY == READY_F) & \
-             (gb.arg_0_TVALID == VALID_F) & \
              (gb.arg_0_TREADY == READY_F) & \
              (gb.st_ready == READY_T) \
 

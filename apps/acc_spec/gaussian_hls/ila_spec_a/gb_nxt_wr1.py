@@ -21,7 +21,6 @@ def WRU1 (gb):
              (gb.st_ready == READY_F) \
 
     endPixel = (gb.RAM_x == gb.RAM_x_M) & (gb.RAM_y == gb.RAM_y_M - gb.RAM_y_1)
-    #decode = decode & ~endPixel
 
     # next state functions for child-states
     def genRows (idx):
