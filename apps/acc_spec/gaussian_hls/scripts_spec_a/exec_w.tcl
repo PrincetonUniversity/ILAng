@@ -16,8 +16,12 @@ assume -name {exec - ila continue} -env \
      arg_1_TVALID == 1 & \
      arg_0_TREADY == 0) | \
     (ila_arg_1_TREADY == 0 & \
+     arg_0_TREADY == 0 & \
+     ila_st_ready == 1) | \
+    (ila_arg_1_TREADY == 0 & \
      ila_arg_0_TVALID == 0 & \
-     arg_0_TREADY == 0) \
+     arg_0_TREADY == 0 & \
+     ila_st_ready == 0) \
     |=> \
     (ila_complete == 0) \
 )} -type {temporary} -update_db;
@@ -30,8 +34,12 @@ assume -name {exec - ila break} -env \
      arg_1_TVALID == 1 & \
      arg_0_TREADY == 0) | \
     (ila_arg_1_TREADY == 0 & \
+     arg_0_TREADY == 0 & \
+     ila_st_ready == 1) | \
+    (ila_arg_1_TREADY == 0 & \
      ila_arg_0_TVALID == 0 & \
-     arg_0_TREADY == 0) \
+     arg_0_TREADY == 0 & \
+     ila_st_ready == 0) \
     ) \
     |=> \
     (ila_complete == 1) \

@@ -104,6 +104,9 @@ wire      [9:0] ila_RAM_y;
 wire      [7:0] ila_arg_0_TDATA;
 wire            ila_arg_0_TVALID;
 wire            ila_arg_1_TREADY;
+wire      [7:0] ila_cur_pix;
+wire      [7:0] ila_pre_pix;
+wire            ila_st_ready;
 wire    [647:0] ila_proc_in;
 wire     [71:0] ila_stencil_0;
 wire     [71:0] ila_stencil_1;
@@ -127,6 +130,9 @@ GB ila_U (
     .arg_0_TDATA (ila_arg_0_TDATA),
     .arg_0_TVALID (ila_arg_0_TVALID),
     .arg_1_TREADY (ila_arg_1_TREADY),
+    .cur_pix (ila_cur_pix),
+    .pre_pix (ila_pre_pix),
+    .st_ready (ila_st_ready),
     .proc_in (ila_proc_in),
     .stencil_0 (ila_stencil_0),
     .stencil_1 (ila_stencil_1),

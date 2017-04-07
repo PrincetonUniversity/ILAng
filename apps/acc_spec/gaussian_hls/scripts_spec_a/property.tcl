@@ -25,7 +25,8 @@ assert -name {eq - arg_0_TVALID} \
 # RAM_x
 assert -name {eq - RAM_x} \
 { (counter > 1 & ila_complete == 1 & hls_step == 0) |-> ( \
-    ila_RAM_x == hls_LB2D_proc_x \
+    ila_RAM_x == hls_LB2D_proc_x | \
+    ila_RAM_x == hls_LB1D_p_cnt \
 ) } -update_db;
 
 # RAM_y

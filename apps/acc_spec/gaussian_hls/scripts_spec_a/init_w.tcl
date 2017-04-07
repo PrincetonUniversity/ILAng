@@ -1,27 +1,17 @@
 # Assumptions initial condition
 #
 # decompose verification
-assume -name {Subset - 1} -env \
+assume -name {Subset - A} -env \
 { counter == 0 |=> ( \
-    hls_LB1D_p_cnt >= 3904 & hls_LB1D_p_cnt < 315736 & \
-    hls_LB2D_proc_x > 0   & hls_LB2D_proc_x < 480 & \
-    hls_LB2D_proc_y >= 8  & hls_LB2D_proc_y < 648 & \
-    hls_LB2D_shift_x > 0  & hls_LB2D_shift_x < 480 & \
-    hls_LB2D_shift_y >= 0 & hls_LB2D_shift_y < 640 & \
-    hls_gb_p_cnt >= 10    & hls_gb_p_cnt < 306720 \
+    hls_LB1D_p_cnt == 0 & \
+    hls_LB2D_proc_x == 0 & \
+    hls_LB2D_proc_y == 0 & \
+    hls_LB2D_shift_x == 0 & \
+    hls_LB2D_shift_y == 0 & \
+    hls_gb_p_cnt == 0 \
 )} -type {temporary} -update_db;
 #
-assume -name {Subset - 2} -env \
-{ counter == 0 |=> ( \
-    hls_LB1D_p_cnt >= 3904  & hls_LB1D_p_cnt < 315736 & \
-    hls_LB2D_proc_x >= 480  & hls_LB2D_proc_x <= 488 & \
-    hls_LB2D_proc_y >= 8    & hls_LB2D_proc_y < 648 & \
-    hls_LB2D_shift_x >= 480 & hls_LB2D_shift_x <= 488 & \
-    hls_LB2D_shift_y >= 0   & hls_LB2D_shift_y < 640 & \
-    hls_gb_p_cnt >= 450     & hls_gb_p_cnt < 306720 \
-)} -type {temporary} -update_db;
-#
-assume -name {Subset - 3} -env \
+assume -name {Subset - B} -env \
 { counter == 0 |=> ( \
     hls_LB1D_p_cnt > 0    & hls_LB1D_p_cnt < 3904 & \
     hls_LB2D_proc_x > 0   & hls_LB2D_proc_x <= 488 & \
@@ -31,25 +21,48 @@ assume -name {Subset - 3} -env \
     hls_gb_p_cnt == 0 \
 )} -type {temporary} -update_db;
 #
-assume -name {Subset - 4} -env \
+assume -name {Subset - C1} -env \
+{ counter == 0 |=> ( \
+    hls_LB1D_p_cnt >= 3904 & hls_LB1D_p_cnt < 315736 & \
+    hls_LB2D_proc_x > 0   & hls_LB2D_proc_x < 480 & \
+    hls_LB2D_proc_y >= 8  & hls_LB2D_proc_y < 648 & \
+    hls_LB2D_shift_x > 0  & hls_LB2D_shift_x < 480 & \
+    hls_LB2D_shift_y >= 0 & hls_LB2D_shift_y < 640 & \
+    hls_gb_p_cnt >= 10    & hls_gb_p_cnt < 306720 \
+)} -type {temporary} -update_db;
+#
+assume -name {Subset - C2} -env \
+{ counter == 0 |=> ( \
+    hls_LB1D_p_cnt >= 3904  & hls_LB1D_p_cnt < 315736 & \
+    hls_LB2D_proc_x >= 480  & hls_LB2D_proc_x <= 488 & \
+    hls_LB2D_proc_y >= 8    & hls_LB2D_proc_y < 648 & \
+    hls_LB2D_shift_x >= 480 & hls_LB2D_shift_x <= 488 & \
+    hls_LB2D_shift_y >= 0   & hls_LB2D_shift_y < 640 & \
+    hls_gb_p_cnt >= 450     & hls_gb_p_cnt < 306720 & \
+    ~(hls_LB2D_proc_x >= 487 & hls_LB2D_proc_y == 647) \
+)} -type {temporary} -update_db;
+#
+assume -name {Subset - D} -env \
 { counter == 0 |=> ( \
     hls_LB1D_p_cnt >= 315736 & hls_LB1D_p_cnt <= 316222 & \
     hls_LB2D_proc_x > 0      & hls_LB2D_proc_x <= 488 & \
-    hls_LB2D_proc_y >= 647   & hls_LB2D_proc_y <= 648 & \
+    hls_LB2D_proc_y >= 647   & hls_LB2D_proc_y <= 647 & \
     hls_LB2D_shift_x > 0     & hls_LB2D_shift_x <= 488 & \
-    hls_LB2D_shift_y >= 638  & hls_LB2D_shift_y <= 640 & \
+    hls_LB2D_shift_y >= 639  & hls_LB2D_shift_y <= 639 & \
+    hls_gb_p_cnt >= 306240   & hls_gb_p_cnt <= 307200 & \
+    ~(hls_LB2D_proc_x >= 487 & hls_LB2D_proc_y == 647) \
+)} -type {temporary} -update_db;
+#
+assume -name {Subset - E} -env \
+{ counter == 0 |=> ( \
+    hls_LB1D_p_cnt == 316223 & \
+    hls_LB2D_proc_x == 487 & \
+    hls_LB2D_proc_y == 647 & \
+    hls_LB2D_shift_x == 487 & \
+    hls_LB2D_shift_y == 639 & \
     hls_gb_p_cnt >= 306240   & hls_gb_p_cnt <= 307200 \
 )} -type {temporary} -update_db;
 #
-assume -name {Subset - 5} -env \
-{ counter == 0 |=> ( \
-    hls_LB1D_p_cnt >= 316223 & hls_LB1D_p_cnt <= 316224 & \
-    hls_LB2D_proc_x > 0      & hls_LB2D_proc_x <= 488 & \
-    hls_LB2D_proc_y >= 647   & hls_LB2D_proc_y <= 648 & \
-    hls_LB2D_shift_x > 0     & hls_LB2D_shift_x <= 488 & \
-    hls_LB2D_shift_y >= 638  & hls_LB2D_shift_y <= 640 & \
-    hls_gb_p_cnt >= 306240   & hls_gb_p_cnt <= 307200 \
-)} -type {temporary} -update_db;
 
 # block buffering
 assume -name {init - empty buffers} -env \
@@ -108,6 +121,18 @@ assume -name {init - stable fsm pre} -env \
 assume -name {init - stable fsm post} -env \
 { counter == 0 |-> ( \
     hls_LB2D_shift_fsm == 4 \
+)} -type {temporary} -update_db;
+
+# pre cur input pixel
+assume -name {child init - consistent input pixel} -env \
+{ counter == 0 |-> ( \
+    ila_cur_pix == ila_pre_pix \
+)} -type {temporary} -update_db;
+
+# stencil ready
+assume -name {child init - stencil ready} -env \
+{ counter == 0 |-> ( \
+    ila_st_ready == 1 \
 )} -type {temporary} -update_db;
 
 # consistent buffer index
