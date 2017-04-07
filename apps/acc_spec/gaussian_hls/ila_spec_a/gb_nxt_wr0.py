@@ -89,7 +89,7 @@ def WRU0 (gb):
                 return ila.load (gb.RAM[idx], gb.RAM_x - gb.RAM_x_1)
             else:
                 return ila.ite (start == modCase,
-                                ila.load (gb.RAM[i], gb.RAM_x - gb.RAM_x_1),
+                                ila.load (gb.RAM[idx], gb.RAM_x - gb.RAM_x_1),
                                 sliceSelectOne (modCase + 1))
         return sliceSelectOne (0)
 
