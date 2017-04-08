@@ -41,7 +41,7 @@ def WRU1 (gb):
     for i in xrange (gb.stencil_size-1, -1, -1):
         stencil_rows.append (genRows (i))
 
-    proc_in_nxt = ila.ite (gb.RAM_x > gb.stencil_size,
+    proc_in_nxt = ila.ite (gb.RAM_x > gb.stencil_size - 1,
                            ila.concat (stencil_rows),
                            gb.proc_in)
     gb.proc_in_nxt = ila.ite (decode, proc_in_nxt, gb.proc_in_nxt)
