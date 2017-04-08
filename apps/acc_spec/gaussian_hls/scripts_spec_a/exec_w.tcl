@@ -19,7 +19,6 @@ assume -name {exec - ila continue} -env \
      arg_0_TREADY == 0 & \
      ila_st_ready == 1) | \
     (ila_arg_1_TREADY == 0 & \
-     ila_arg_0_TVALID == 0 & \
      arg_0_TREADY == 0 & \
      ila_st_ready == 0) \
     |=> \
@@ -37,7 +36,6 @@ assume -name {exec - ila break} -env \
      arg_0_TREADY == 0 & \
      ila_st_ready == 1) | \
     (ila_arg_1_TREADY == 0 & \
-     ila_arg_0_TVALID == 0 & \
      arg_0_TREADY == 0 & \
      ila_st_ready == 0) \
     ) \

@@ -126,7 +126,9 @@ assume -name {init - stable fsm post} -env \
 # pre cur input pixel
 assume -name {child init - consistent input pixel} -env \
 { counter == 0 |-> ( \
-    ila_cur_pix == ila_pre_pix \
+    ila_cur_pix == ila_pre_pix & \
+    hls_LB1D_in == hls_LB1D_buff & \
+    ila_cur_pix == hls_LB1D_buff \
 )} -type {temporary} -update_db;
 
 # stencil ready
