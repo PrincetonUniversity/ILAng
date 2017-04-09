@@ -1,5 +1,0 @@
-CMake build command:
-
-$ mkdir cbuild
-$ cd cbuild
-$ cmake ../ -L -DZ3_INCLUDE_DIR=/usr/include
