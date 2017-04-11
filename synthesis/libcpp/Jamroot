@@ -58,6 +58,7 @@ python-extension ila : src/abstraction.cpp
                        src/ast/node.cpp 
                        src/boogie.cpp
                        src/cppsimgen.cpp
+                       src/cExport.cpp
                        src/exception.cpp 
                        src/ext.cpp 
                        src/horn.cpp
@@ -120,6 +121,8 @@ testing.make-test run-pyd : ila test/eqchecker.py : : test_eqchecker ;
 # testing.make-test run-pyd : ila test/simplify.py : : test_simplify ;
 
 #testing.make-test run-pyd : ila test/export_verilog.py : : test_export_verilog ;
+
+testing.make-test run-pyd : ila test/export_c.py : : test_export_c ;
 
 testing.make-test run-pyd : ila test/hash.py : : test_hash ;
 
