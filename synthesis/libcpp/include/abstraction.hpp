@@ -13,6 +13,7 @@
 #include <imexport.hpp>
 #include <VerilogExport.hpp>
 #include <cppsimgen.hpp>
+#include <genCBMC.hpp>
 #include <MicroUnroller.hpp>
 #include <boogie.hpp>
 #include <horn.hpp>
@@ -250,6 +251,11 @@ namespace ila
         // the simulator generating function, output to seperated files in dir.
         void generateSimToDir(const std::string& dirName) const;
 
+        // the CBMC C generating function, output to one file.
+        void generateCbmcCtoFile(const std::string & fileName) const;
+        // the CBMC C generating function, output to seperated files in dir.
+        void generateCbmcCtoDir(const std::string & dirName) const;
+
         // check equality function.
         bool areEqual(NodeRef* left, NodeRef* right) const;
         // check quality under assumption
@@ -360,6 +366,8 @@ namespace ila
         HornTranslator* _ht;
         // The simulator generating function.
         CppSimGen* generateSim(bool hier) const;
+        // CBMC C generation
+        CVerifGen* generateCBMCC(bool hier) const;
         // Set inputs, states, and functions to the simulator generator.
         void addVarToSimulator(CppSimGen* gen) const;
         // Set next value to the function.
@@ -657,6 +665,16 @@ namespace ila
         void generateSimToDir(const std::string& dirName) const
         {
             abs->generateSimToDir(dirName);
+        }
+
+        void generateCbmcCtoFile(const std::string& fileName) const
+        {
+            abs->generateCbmcCtoFile(fileName);
+        }
+        
+        void generateCbmcCtoDir(const std::string& dirName) const
+        {
+            abs->generateCbmcCtoDir(dirName);
         }
 
         // check equality function.

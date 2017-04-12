@@ -468,6 +468,10 @@ BOOST_PYTHON_MODULE(ila)
         // simulator.
         .def("generateSim", &AbstractionWrapper::generateSimToFile)
         .def("generateSimToDir", &AbstractionWrapper::generateSimToDir)
+        
+        // CBMC verification 
+        .def("generateCbmcC", &AbstractionWrapper::generateCbmcCtoFile)
+        .def("generateCbmcCtoDir", &AbstractionWrapper::generateCbmcCtoDir)
 
         // generate unroller
         .def("newUnroller", &AbstractionWrapper::newUnroller, 

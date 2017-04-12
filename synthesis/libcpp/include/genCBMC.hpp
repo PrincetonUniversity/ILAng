@@ -1,26 +1,36 @@
-#ifndef __CPPSIMGEN_HPP_DEFINED
-#define __CPPSIMGEN_HPP_DEFINED
+#ifndef __GENCBMCVERIF_HPP_DEFINED
+#define __GENCBMCVERIF_HPP_DEFINED
 
 #include <ast.hpp>
 #include <util.hpp>
 #include <exception.hpp>
 #include <boost/shared_ptr.hpp>
 
+//
+// Here we make use of previous work
+// This is only inteneded to be used 
+// to generate C that works with CBMC
+// It is a temporary workaround
+// Don't rely on it too much.
+//
+// May life treat you gently.
+//              --Hongce 
+//
+
 #include <fstream>
 
 namespace ila
 {
-    class CppVar;
-    class CppFun;
-    class CppSimFun;
+    class CVar;
+    class CFun;
+    class CVerifGen;
 
-    // Cpp variable
-    class CppVar
+    // C variable
+    class CVar 
     {
-        friend class CppFun;
-        friend class CppSimGen;
+        friend class CFun;
+        friend class CVerifGen;
     public:
-        typedef mp_int_t cppBvType;
 
         // Variable count.
         static int varCnt;
@@ -34,21 +44,22 @@ namespace ila
         std::string _name;
         std::string _val;
         int _width;
+        int _idxWidth; // addr width only for memory variables
         bool _isConst;
         
     public:
         // Constructor with nptr_t, used for ast nodes.
-        CppVar(nptr_t nptr, const std::string& name = "");
+        CVar(nptr_t nptr, const std::string& name = "");
         // Constructor with Node*, used for ast nodes.
-        CppVar(const Node* node, const std::string& name = "");
+        CVar(const Node* node, const std::string& name = "");
         // Constructor for bv prototype, used for temp var and func return.
-        CppVar(int width);
+        CVar(int width);
         // Constructor for bv mask, used for bitvector mask.
-        CppVar(const std::string& name, const std::string& val);
+        CVar(const std::string& name, const std::string& val);
         // Something like copy construction, except name.
-        CppVar(const CppVar* var);
+        CVar(const CVar* var);
         // Destructor.
-        ~CppVar();
+        ~CVar();
 
     public:
         // Define variable, ex."  int r0"
@@ -64,28 +75,35 @@ namespace ila
         // Use the casted variable.
         std::string castUse() const;
 
+        // malloc in C
+        std::string memdef() const;
+        // Type used in C, ex. BV *
+        std::string ctype() const;
+
+        bool memberVar;
+
     private:
         void init(nptr_t n);
         void init(const Node* n);
     };
 
-    class CppFun
+    class CFun
     {
-        friend class CppSimGen;
+        friend class CVerifGen;
 
     protected:
         std::string _name;
-        std::vector<const CppVar*> _args;
+        std::vector<const CVar*> _args;
         std::vector<std::string> _codeList;
         std::vector<std::string> _varList;
-        CppVar* _ret;
-        std::vector<std::pair<CppVar*, CppVar*>> _updates;
+        CVar* _ret;
+        std::vector<std::pair<CVar*, CVar*>> _updates; // it seems that _updates is only used for the Update fun
 
     public:
         // Constructor.
-        CppFun(const std::string& name);
+        CFun(const std::string& name);
         // Destructor.
-        ~CppFun();
+        ~CFun();
 
         bool retSet() {
             return (_ret != NULL);
@@ -93,7 +111,7 @@ namespace ila
     
     protected:
         // Add argument.
-        void addArg(const CppVar* arg);
+        void addArg(const CVar* arg);
         // Add body.
         void addBody(const std::string& code);
 
@@ -101,71 +119,77 @@ namespace ila
         // If the modelname is not specified, assume declare within the class.
         void dumpDec(std::ostream& out, 
                      const std::string& modelName,
-                     const int& indent) const;
+                     const int& indent, bool decl = false) const;
         // Print the variable declaration to output stream.
         void dumpVarDec(std::ostream& out, const int& indent) const;
         // Print the code (with tail) to output stream.
         void dumpCode(std::ostream& out, const int& indent) const;
 
+        // Print C declaration main difference is, use struct as a pointer
+        void dumpCDec(std::ostream& out, 
+                     const std::string& modelName,
+                     const int& indent) const;
     };
 
-    // Cpp simulator generator.
-    class CppSimGen
+    // C CBMC Verification Code Generator.
+    class CVerifGen
     {
     public: 
         // Define types.
-        typedef std::map<std::string, CppVar*> CppVarMap;
-        typedef std::map<std::string, CppFun*> CppFunMap;
+        typedef std::map<std::string, CVar*> CVarMap;
+        typedef std::map<std::string, CFun*> CFunMap;
 
     private:
         // Model name.
         std::string _modelName;
 
         // State variables and other global variables(const mem).
-        CppVarMap _states;
+        CVarMap _states;
         // Input variables.
-        CppVarMap _inputs;
+        CVarMap _inputs;
         // Functions. 
-        CppFunMap _funMap;
+        CFunMap _funMap;
 
         // Uninterpreted function variables.
-        CppVarMap _unitpFuncVarMap;
+        CVarMap _unitpFuncVarMap;
         // Uninterpreted functions.
-        CppFunMap _unitpFuncMap;
+        CFunMap _unitpFuncMap;
 
         // Constant memory to be init.
-        std::map<CppVar*,const MemConst*> _memConst;
+        std::map<CVar*,const MemConst*> _memConst;
 
         // Constant bitvector mask.
-        CppVarMap _masks;
+        CVarMap _masks;
 
         // Function seeable variables. Update during function construction.
-        std::map<CppFun*, CppVarMap*> _varInFun;
+        std::map<CFun*, CVarMap*> _varInFun;
         // Current working function.
-        CppFun* _curFun;
+        CFun* _curFun;
         // Variable currently added.
-        CppVar* _curVar;
+        CVar* _curVar;
         // Var map for the current working function.
-        CppVarMap* _curVarMap;
+        CVarMap* _curVarMap;
+
+        CVarMap _localArray;
 
     public:
         // Constructor.
-        CppSimGen(const std::string& prefix);
+        CVerifGen(const std::string& prefix);
 
         // Destructor.
-        ~CppSimGen();
+        ~CVerifGen();
 
         // ------------------------------------------------------------------- //
         // Create input variable and put it in the _varMap.
-        CppVar* addInput(const std::string& name, nptr_t node, bool ms = false);
+        CVar* addInput(const std::string& name, nptr_t node, bool ms = false);
 
         // Create state variable and put it in the _varMap.
-        CppVar* addState(const std::string& name, nptr_t node, bool ms = false);
+        CVar* addState(const std::string& name, nptr_t node, bool ms = false);
 
         // Create new function and put it in the _funMap.
-        CppFun* addFun(const std::string& name, bool ms = false);
+        CFun* addFun(const std::string& name, bool ms = false);
         // Create new uninterpreted function and put it in the _unitpFunMap.
-        CppVar* addFuncVar(const std::string& name, nptr_t node, bool ms = false);
+        CVar* addFuncVar(const std::string& name, nptr_t node, bool ms = false);
         
         // ------------------------------------------------------------------- //
         // This will be used by depthFirstVisit.
@@ -173,21 +197,21 @@ namespace ila
 
         // ------------------------------------------------------------------- //
         // Build function body with ast node.
-        void buildFun(CppFun* f, nptr_t nptr);
+        void buildFun(CFun* f, nptr_t nptr);
 
         // Set return variable for the function.
-        void setFunReturn(CppFun* f, nptr_t nptr);
+        void setFunReturn(CFun* f, nptr_t nptr);
 
         // Add a variable to be updated at the end of the function.
-        void addFunUpdate(CppFun* f, nptr_t lhs, nptr_t rhs);
+        void addFunUpdate(CFun* f, nptr_t lhs, nptr_t rhs);
         // Add a variable to be updated at the end of the function.
-        void addFunUpdate(CppFun* f, nptr_t lhs, CppVar* rhs);
+        void addFunUpdate(CFun* f, nptr_t lhs, CVar* rhs);
 
         // Terminate function building.
-        void endFun(CppFun* f);
+        void endFun(CFun* f);
 
         // Apply the function and return to some variable.
-        CppVar* appFun(CppFun* appFun, CppFun* envFun);
+        CVar* appFun(CFun* appFun, CFun* envFun);
 
         // Export all code into the output stream.
         void exportAllToFile(const std::string& fileName) const;
@@ -213,26 +237,26 @@ namespace ila
         void createCommon(std::ostream& out) const;
 
         // ------------------------------------------------------------------- //
-        // Convert a bool variable into cpp code.
-        CppVar* getBoolVarCpp(const BoolVar* n);
-        // Convert a bool constant into cpp code.
-        CppVar* getBoolConstCpp(const BoolConst* n);
-        // Convert a bool op into cpp code.
-        CppVar* getBoolOpCpp(const BoolOp* n);
-        // Convert a bitvector variable into cpp code.
-        CppVar* getBvVarCpp(const BitvectorVar* n);
-        // Convert a bitvector constant into cpp code.
-        CppVar* getBvConstCpp(const BitvectorConst* n);
-        // Convert a bitvector op into cpp code.
-        CppVar* getBvOpCpp(const BitvectorOp* n);
-        // Convert a memory variable into cpp code.
-        CppVar* getMemVarCpp(const MemVar* n);
-        // Convert a memory const into cpp code.
-        CppVar* getMemConstCpp(const MemConst* n);
-        // Convert a memory op into cpp code.
-        CppVar* getMemOpCpp(const MemOp* n);
-        // Convert a function into cpp code.
-        CppVar* getFuncVarCpp(const FuncVar* n);
+        // Convert a bool variable into c code.
+        CVar* getBoolVarC(const BoolVar* n);
+        // Convert a bool constant into c code.
+        CVar* getBoolConstC(const BoolConst* n);
+        // Convert a bool op into c code.
+        CVar* getBoolOpC(const BoolOp* n);
+        // Convert a bitvector variable into c code.
+        CVar* getBvVarC(const BitvectorVar* n);
+        // Convert a bitvector constant into c code.
+        CVar* getBvConstC(const BitvectorConst* n);
+        // Convert a bitvector op into c code.
+        CVar* getBvOpC(const BitvectorOp* n);
+        // Convert a memory variable into c code.
+        CVar* getMemVarC(const MemVar* n);
+        // Convert a memory const into c code.
+        CVar* getMemConstC(const MemConst* n);
+        // Convert a memory op into c code.
+        CVar* getMemOpC(const MemOp* n);
+        // Convert a function into c code.
+        CVar* getFuncVarC(const FuncVar* n);
         // Check if the node ITE.
         bool isITE(nptr_t n);
 
@@ -242,7 +266,7 @@ namespace ila
 
         // ------------------------------------------------------------------- //
         // Helper function for getting exact signed code for multiprecision int
-        std::string getSignedCppCode(CppVar* var);
+        std::string getSignedCCode(CVar* var);
 
         // ------------------------------------------------------------------- //
         // Helper function for inserting element in map, with assertion on 1st.
@@ -252,7 +276,7 @@ namespace ila
                             T* var,
                             bool force = false);
         // Helper function for finding element in map, with assertion on find.
-        CppVar* findVar(CppVarMap& mp, const std::string& name);
+        CVar* findVar(CVarMap& mp, const std::string& name);
 
     };
 
