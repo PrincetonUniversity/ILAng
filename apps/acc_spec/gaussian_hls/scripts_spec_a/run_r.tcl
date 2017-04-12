@@ -3,8 +3,8 @@ set SRC $ROOT/verilog
 set TCL $ROOT/scripts_spec_a
 set EXP $ROOT/exps_spec_a
 
-include $TCL/setup_w.tcl
-include $TCL/eqcheck_w.tcl
+include $TCL/setup_r.tcl
+include $TCL/eqcheck_r.tcl
 
 set_prove_time_limit 0s; set_prove_per_property_time_limit 0s
 set_max_trace_length 25; set_prove_per_property_max_time_limit 60m
@@ -39,3 +39,8 @@ assume -disable {::Subset - E}
 #save -jdb $EXP/spec_a_wri_E.jdb -capture_setup -capture_session_data
 
 #exit
+
+
+assert -disable {<embedded>::eq - stencil_0}; assert -disable {<embedded>::eq - stencil_1}; assert -disable {<embedded>::eq - stencil_2}; assert -disable {<embedded>::eq - stencil_3}; assert -disable {<embedded>::eq - stencil_4}; assert -disable {<embedded>::eq - stencil_5}; assert -disable {<embedded>::eq - stencil_6}; assert -disable {<embedded>::eq - stencil_7}; assert -disable {<embedded>::eq - arg_0_TDATA}; assert -disable {<embedded>::eq - RAM_0}; assert -disable {<embedded>::eq - RAM_1}; assert -disable {<embedded>::eq - RAM_2}; assert -disable {<embedded>::eq - RAM_3}; assert -disable {<embedded>::eq - RAM_4}; assert -disable {<embedded>::eq - RAM_5}; assert -disable {<embedded>::eq - RAM_6}; assert -disable {<embedded>::eq - RAM_7}
+
+assume -disable {::arch equal - data}
