@@ -206,7 +206,7 @@ namespace ila
 
         ILA_ASSERT( (funcvar = dynamic_cast<const FuncVar *>(np.var.get()) ), "function variable type mismatched.");
 
-        vlg_stmt_t funcDecal = "function " + WidthToRange(funcvar->type.bitWidth) + " ";
+        vlg_stmt_t funcDecal = "/*\nfunction " + WidthToRange(funcvar->type.bitWidth) + " ";
         funcDecal += name + " ;\n";
 
         int argNo = 0;
@@ -216,7 +216,7 @@ namespace ila
         funcDecal += "    begin\n//TODO: Add the specific function HERE.";
         funcDecal += "    end\n";
 
-        funcDecal += "endfunction\n";
+        funcDecal += "endfunction\n*/\n";
 
         add_stmt(funcDecal);
 
