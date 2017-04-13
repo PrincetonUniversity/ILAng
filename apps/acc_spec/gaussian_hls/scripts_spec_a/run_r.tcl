@@ -10,8 +10,6 @@ set_prove_time_limit 0s; set_prove_per_property_time_limit 0s
 #set_max_trace_length 25; set_prove_per_property_max_time_limit 60m
 set_prove_per_property_max_time_limit 60m
 
-assert -disable {<embedded>::eq - RAM_0}; assert -disable {<embedded>::eq - RAM_1}; assert -disable {<embedded>::eq - RAM_2}; assert -disable {<embedded>::eq - RAM_3}; assert -disable {<embedded>::eq - RAM_4}; assert -disable {<embedded>::eq - RAM_5}; assert -disable {<embedded>::eq - RAM_6}; assert -disable {<embedded>::eq - RAM_7}
-
 assume -disable {::Subset - C1}
 assume -disable {::Subset - C2}
 assume -disable {::Subset - C3}

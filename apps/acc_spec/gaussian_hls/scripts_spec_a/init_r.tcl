@@ -210,13 +210,13 @@ assume -name {init - consistent RAM access} -env \
 
 # abstract holding buffer - interanl iterator
 assume -name {init - processing iterator} -env \
-{ counter == 0 |=> ( \
+{ (counter == 0) & (hls_gb_p_cnt != 307200) |=> ( \
     hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.ap_reg_ppiten_pp0_it0 == 1 & \
     hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.ap_reg_ppiten_pp0_it0 == 1 & \
     hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_shift_proc_U0.ap_reg_ppiten_pp0_it0 == 1 \
 )} -type {temporary} -update_db;
 #
-assume -name {init - no holding iterator} -env \
+#assume -name {init - no holding iterator} -env \
 { counter == 0 |=> ( \
     hls_gb_p_cnt != 0 |-> ( \
     hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.ap_reg_ppiten_pp0_it0 == 1 & \
@@ -228,7 +228,7 @@ assume -name {init - no holding iterator} -env \
     ) \
 )} -type {temporary} -update_db;
 #
-assume -name {init - no holding iterator - buff} -env \
+#assume -name {init - no holding iterator - buff} -env \
 { counter == 0 |=> ( \
     (hls_LB2D_proc_x != 0 | hls_LB2D_proc_y != 0) |-> ( \
     hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.ap_reg_ppiten_pp0_it0 == 1 & \
@@ -239,7 +239,7 @@ assume -name {init - no holding iterator - buff} -env \
 )} -type {temporary} -update_db;
 
 #
-assume -name {init - no holding iterator - shift} -env \
+#assume -name {init - no holding iterator - shift} -env \
 { counter == 0 |=> ( \
     (hls_LB2D_shift_x != 0 | hls_LB2D_shift_y != 0) |-> ( \
     hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.ap_reg_ppiten_pp0_it0 == 1 & \

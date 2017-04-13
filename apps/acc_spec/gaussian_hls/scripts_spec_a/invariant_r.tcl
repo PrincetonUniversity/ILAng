@@ -109,7 +109,7 @@ assume -name {inv - index bound} -env \
 )} -type {temporary} -update_db;
 
 # buffer status and pixel position (idx)
-assume -name {inv - LB1D none} -env \
+#assume -name {inv - LB1D none} -env \
 { counter == 0 |=> ( \
     (hls_LB1D_p_cnt == 0) |-> ( \
         hls_in_stream_empty == 1 & \
@@ -124,7 +124,7 @@ assume -name {inv - LB1D none} -env \
         hls_arg_0_TVALID == 0 ) \
 )} -type {temporary} -update_db;
 #
-assume -name {inv - LB1D accumulate} -env \
+#assume -name {inv - LB1D accumulate} -env \
 { counter == 0 |=> ( \
     (hls_LB1D_p_cnt < 3904) |-> ( \
         hls_LB2D_proc_y < 8 & \
@@ -137,7 +137,7 @@ assume -name {inv - LB1D accumulate} -env \
         ) \
 )} -type {temporary} -update_db;
 #
-assume -name {inv - buff none} -env \
+#assume -name {inv - buff none} -env \
 { counter == 0 |=> ( \
     (hls_LB2D_proc_y < 8) |-> ( \
         hls_slice_stream_empty == 1 & \
@@ -147,14 +147,14 @@ assume -name {inv - buff none} -env \
         hls_gb_p_cnt == 0 ) \
 )} -type {temporary} -update_db;
 #
-assume -name {inv - buff done} -env \
+#assume -name {inv - buff done} -env \
 { counter == 0 |=> ( \
     (hls_LB2D_proc_x == 488 & hls_LB2D_proc_y == 648) |-> ( \
         hls_LB1D_p_cnt == 316224 & \
         hls_in_stream_empty == 1 ) \
 )} -type {temporary} -update_db;
 #
-assume -name {inv - shift none} -env \
+#assume -name {inv - shift none} -env \
 { counter == 0 |=> ( \
     (hls_LB2D_shift_y == 0 & hls_LB2D_shift_x < 8) |-> ( \
         hls_stencil_stream_empty == 1 & \
@@ -162,7 +162,7 @@ assume -name {inv - shift none} -env \
         hls_arg_0_TVALID == 0 ) \
 )} -type {temporary} -update_db;
 #
-assume -name {inv - shift done} -env \
+#assume -name {inv - shift done} -env \
 { counter == 0 |=> ( \
     (hls_LB2D_shift_x == 488 & hls_LB2D_shift_y == 640) |-> ( \
         hls_LB1D_p_cnt == 316224 & \
@@ -172,7 +172,7 @@ assume -name {inv - shift done} -env \
         hls_slice_stream_empty == 1 ) \
 )} -type {temporary} -update_db;
 #
-assume -name {inv - gb done} -env \
+#assume -name {inv - gb done} -env \
 { counter == 0 |=> ( \
     (hls_gb_p_cnt == 307200) |-> ( \
         hls_stencil_stream_empty == 1 & \
@@ -186,21 +186,14 @@ assume -name {inv - gb done} -env \
 )} -type {temporary} -update_db;
 
 # pixel position (idx) should be consistent across process unit
-#assume -name {inv - buff vs shift - hls (more)} -env \
-{ ( \
-    ((hls_LB2D_proc_y == hls_LB2D_shift_y + 8) & (hls_LB2D_proc_x >= hls_LB2D_shift_x)) | \
-    ((hls_LB2D_proc_y == hls_LB2D_shift_y + 8 + 1) & (hls_LB2D_proc_x <= 8) & (hls_LB2D_shift_x >= 480)) | \
-    (hls_LB2D_proc_y < 8) \
-)} -type {temporary} -update_db;
-#
-assume -name {inv - buff vs shift - hls} -env \
+#assume -name {inv - buff vs shift - hls} -env \
 { ( \
     ((hls_LB2D_proc_y == hls_LB2D_shift_y + 8) & (hls_LB2D_proc_x >= hls_LB2D_shift_x)) | \
     (hls_LB2D_proc_y == hls_LB2D_shift_y + 8 + 1) | \
     (hls_LB2D_proc_y < 8) \
 )} -type {temporary} -update_db;
 #
-assume -name {inv - shift vs gb} -env \
+#assume -name {inv - shift vs gb} -env \
 { ( \
     (((hls_gb_p_cnt <= hls_LB2D_shift_x - 8) & (hls_LB2D_shift_y == 0)) | (hls_LB2D_shift_y != 0)) \
 )} -type {temporary} -update_db;

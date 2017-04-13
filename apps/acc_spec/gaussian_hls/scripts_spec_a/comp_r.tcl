@@ -23,11 +23,6 @@ assume -name {comp - protocol} -env \
     hls_arg_0_TVALID == 1 \
 )} -type {temporary} -update_db;
 
-#assume -name {comp - force data value} -env \
-{ ( \
-    arg_1_TDATA == 255 \
-)} -type {temporary} -update_db;
-
 # turn off all other instruction throughout verification
 assume -name {comp - per instr} -env \
 { counter != 1 |-> ( \
@@ -42,6 +37,91 @@ assume -name {arch equal - control} -env \
     ila_RAM_x == hls_LB2D_proc_x & \
     ila_RAM_y == hls_LB2D_proc_y & \
     ila_RAM_w == hls_LB2D_proc_w \
+)} -type {temporary} -update_db;
+#
+assume -name {arch equal - iterator} -env \
+{ counter == 0 |=> ( \
+    (ila_gbit == 0 & \
+     hls_gb_exit_it_1 == 0 & \
+     hls_gb_exit_it_2 == 0 & \
+     hls_gb_exit_it_3 == 0 & \
+     hls_gb_exit_it_4 == 0 & \
+     hls_gb_exit_it_5 == 0 & \
+     hls_gb_exit_it_6 == 0 & \
+     hls_gb_exit_it_7 == 0 & \
+     hls_gb_exit_it_8 == 0) | \
+    (ila_gbit == 1 & \
+     hls_gb_exit_it_1 == 1 & \
+     hls_gb_exit_it_2 == 0 & \
+     hls_gb_exit_it_3 == 0 & \
+     hls_gb_exit_it_4 == 0 & \
+     hls_gb_exit_it_5 == 0 & \
+     hls_gb_exit_it_6 == 0 & \
+     hls_gb_exit_it_7 == 0 & \
+     hls_gb_exit_it_8 == 0) | \
+    (ila_gbit == 2 & \
+     hls_gb_exit_it_1 == 1 & \
+     hls_gb_exit_it_2 == 1 & \
+     hls_gb_exit_it_3 == 0 & \
+     hls_gb_exit_it_4 == 0 & \
+     hls_gb_exit_it_5 == 0 & \
+     hls_gb_exit_it_6 == 0 & \
+     hls_gb_exit_it_7 == 0 & \
+     hls_gb_exit_it_8 == 0) | \
+    (ila_gbit == 3 & \
+     hls_gb_exit_it_1 == 1 & \
+     hls_gb_exit_it_2 == 1 & \
+     hls_gb_exit_it_3 == 1 & \
+     hls_gb_exit_it_4 == 0 & \
+     hls_gb_exit_it_5 == 0 & \
+     hls_gb_exit_it_6 == 0 & \
+     hls_gb_exit_it_7 == 0 & \
+     hls_gb_exit_it_8 == 0) | \
+    (ila_gbit == 4 & \
+     hls_gb_exit_it_1 == 1 & \
+     hls_gb_exit_it_2 == 1 & \
+     hls_gb_exit_it_3 == 1 & \
+     hls_gb_exit_it_4 == 1 & \
+     hls_gb_exit_it_5 == 0 & \
+     hls_gb_exit_it_6 == 0 & \
+     hls_gb_exit_it_7 == 0 & \
+     hls_gb_exit_it_8 == 0) | \
+    (ila_gbit == 5 & \
+     hls_gb_exit_it_1 == 1 & \
+     hls_gb_exit_it_2 == 1 & \
+     hls_gb_exit_it_3 == 1 & \
+     hls_gb_exit_it_4 == 1 & \
+     hls_gb_exit_it_5 == 1 & \
+     hls_gb_exit_it_6 == 0 & \
+     hls_gb_exit_it_7 == 0 & \
+     hls_gb_exit_it_8 == 0) | \
+    (ila_gbit == 6 & \
+     hls_gb_exit_it_1 == 1 & \
+     hls_gb_exit_it_2 == 1 & \
+     hls_gb_exit_it_3 == 1 & \
+     hls_gb_exit_it_4 == 1 & \
+     hls_gb_exit_it_5 == 1 & \
+     hls_gb_exit_it_6 == 1 & \
+     hls_gb_exit_it_7 == 0 & \
+     hls_gb_exit_it_8 == 0) | \
+    (ila_gbit == 7 & \
+     hls_gb_exit_it_1 == 1 & \
+     hls_gb_exit_it_2 == 1 & \
+     hls_gb_exit_it_3 == 1 & \
+     hls_gb_exit_it_4 == 1 & \
+     hls_gb_exit_it_5 == 1 & \
+     hls_gb_exit_it_6 == 1 & \
+     hls_gb_exit_it_7 == 1 & \
+     hls_gb_exit_it_8 == 0) | \
+    (ila_gbit == 8 & \
+     hls_gb_exit_it_1 == 1 & \
+     hls_gb_exit_it_2 == 1 & \
+     hls_gb_exit_it_3 == 1 & \
+     hls_gb_exit_it_4 == 1 & \
+     hls_gb_exit_it_5 == 1 & \
+     hls_gb_exit_it_6 == 1 & \
+     hls_gb_exit_it_7 == 1 & \
+     hls_gb_exit_it_8 == 1) \
 )} -type {temporary} -update_db;
 #
 assume -name {arch equal - data} -env \

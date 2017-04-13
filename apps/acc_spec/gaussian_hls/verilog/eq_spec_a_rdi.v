@@ -124,6 +124,7 @@ wire      [7:0] ila_arg_0_TDATA;
 wire            ila_arg_0_TVALID;
 wire            ila_arg_1_TREADY;
 wire      [7:0] ila_cur_pix;
+wire      [3:0] ila_gbit;
 wire     [71:0] ila_stencil_0;
 wire     [71:0] ila_stencil_1;
 wire     [71:0] ila_stencil_2;
@@ -147,6 +148,7 @@ GB ila_U (
     .arg_0_TVALID (ila_arg_0_TVALID),
     .arg_1_TREADY (ila_arg_1_TREADY),
     .cur_pix (ila_cur_pix),
+    .gbit (ila_gbit),
     .stencil_0 (ila_stencil_0),
     .stencil_1 (ila_stencil_1),
     .stencil_2 (ila_stencil_2),
