@@ -23,7 +23,7 @@ def defNext (gb):
     arg_1_TREADY_nxt = gb.arg_1_TREADY
     gb.arg_1_TREADY_nxt = ila.ite (decode, arg_1_TREADY_nxt, gb.arg_1_TREADY_nxt)
 
-    arg_0_TVALID_nxt = ila.ite ((gb.gbit > 0) & (gb.gbit < 8),
+    arg_0_TVALID_nxt = ila.ite ((gb.gbit == 0) | (gb.gbit == 8),
                                 VALID_F, VALID_T)
     gb.arg_0_TVALID_nxt = ila.ite (decode, arg_0_TVALID_nxt, gb.arg_0_TVALID_nxt)
 

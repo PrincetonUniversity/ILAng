@@ -105,43 +105,6 @@ reg      [7:0] RAM_4[487:0];
 reg      [7:0] RAM_5[487:0];
 reg      [7:0] RAM_6[487:0];
 reg      [7:0] RAM_7[487:0];
-
-wire     [8:0] addr_0;
-wire     [8:0] addr_1;
-wire     [8:0] addr_2;
-wire     [8:0] addr_3;
-wire     [8:0] addr_4;
-wire     [8:0] addr_5;
-wire     [8:0] addr_6;
-wire     [8:0] addr_7;
-
-wire     [7:0] data_0;
-wire     [7:0] data_1;
-wire     [7:0] data_2;
-wire     [7:0] data_3;
-wire     [7:0] data_4;
-wire     [7:0] data_5;
-wire     [7:0] data_6;
-wire     [7:0] data_7;
-
-assign addr_0 = n4 ? 0 : 1;
-assign addr_1 = n4 ? 0 : 1;
-assign addr_2 = n4 ? 0 : 1;
-assign addr_3 = n4 ? 0 : 1;
-assign addr_4 = n4 ? 0 : 1;
-assign addr_5 = n4 ? 0 : 1;
-assign addr_6 = n4 ? 0 : 1;
-assign addr_7 = n4 ? 0 : 1;
-
-assign data_0 = n4 ? (RAM_0[0]) : (RAM_0[1]);
-assign data_1 = n4 ? (RAM_1[0]) : (RAM_1[1]);
-assign data_2 = n4 ? (RAM_2[0]) : (RAM_2[1]);
-assign data_3 = n4 ? (RAM_3[0]) : (RAM_3[1]);
-assign data_4 = n4 ? (RAM_4[0]) : (RAM_4[1]);
-assign data_5 = n4 ? (RAM_5[0]) : (RAM_5[1]);
-assign data_6 = n4 ? (RAM_6[0]) : (RAM_6[1]);
-assign data_7 = n4 ? (RAM_7[0]) : (RAM_7[1]);
-
 wire clk;
 wire rst;
 wire step;
@@ -154,9 +117,9 @@ assign n5 =  ( n4 ) ? ( RAM_w ) : ( RAM_w ) ;
 assign n6 =  ( n4 ) ? ( RAM_x ) : ( RAM_x ) ;
 assign n7 =  ( n4 ) ? ( RAM_y ) : ( RAM_y ) ;
 assign n8 =  ( n4 ) ? ( arg_0_TDATA ) : ( arg_0_TDATA ) ;
-assign n9 =  ( gbit ) > ( 4'd0 )  ;
-assign n10 =  ( gbit ) < ( 4'd8 )  ;
-assign n11 =  ( n9 ) & ( n10 )  ;
+assign n9 =  ( gbit ) == ( 4'd0 )  ;
+assign n10 =  ( gbit ) == ( 4'd8 )  ;
+assign n11 =  ( n9 ) | ( n10 )  ;
 assign n12 =  ( n11 ) ? ( 1'd0 ) : ( 1'd1 ) ;
 assign n13 =  ( n4 ) ? ( n12 ) : ( arg_0_TVALID ) ;
 assign n14 =  ( n4 ) ? ( arg_1_TREADY ) : ( arg_1_TREADY ) ;
@@ -223,14 +186,6 @@ always @(posedge clk) begin
        stencil_6 <= n28;
        stencil_7 <= n29;
        stencil_8 <= n30;
-       RAM_0 [ addr_0 ] <= data_0;
-       RAM_1 [ addr_1 ] <= data_1;
-       RAM_2 [ addr_2 ] <= data_2;
-       RAM_3 [ addr_3 ] <= data_3;
-       RAM_4 [ addr_4 ] <= data_4;
-       RAM_5 [ addr_5 ] <= data_5;
-       RAM_6 [ addr_6 ] <= data_6;
-       RAM_7 [ addr_7 ] <= data_7;
    end
 end
 endmodule
