@@ -71,8 +71,27 @@ always @ (posedge clk) begin
     if (rst_init) begin
         counter <= 16'b0;
     end
+    else if (ila_complete == 1 & hls_step == 0) begin
+        counter <= counter;
+    end 
     else begin
         counter <= counter + 16'b1;
+    end
+end
+
+reg [1:0] phase;
+always @ (posedge clk) begin
+    if (rst_init) begin
+        phase <= 0;
+    end
+    else if (phase == 0 & ila_complete == 1 & hls_step == 0) begin
+        phase <= 1;
+    end
+    else if (phase == 1) begin
+        phase <= 2;
+    end 
+    else begin
+        phase <= phase;
     end
 end
 

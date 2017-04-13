@@ -1,32 +1,12 @@
 # Assumptions initial condition
 #
 # decompose verification
-assume -name {Subset - A} -env \
-{ counter == 0 |=> ( \
-    hls_LB1D_p_cnt == 0 & \
-    hls_LB2D_proc_x == 0 & \
-    hls_LB2D_proc_y == 0 & \
-    hls_LB2D_shift_x == 0 & \
-    hls_LB2D_shift_y == 0 & \
-    hls_gb_p_cnt == 0 \
-)} -type {temporary} -update_db;
-#
-assume -name {Subset - B} -env \
-{ counter == 0 |=> ( \
-    hls_LB1D_p_cnt > 0    & hls_LB1D_p_cnt < 3904 & \
-    hls_LB2D_proc_x > 0   & hls_LB2D_proc_x <= 488 & \
-    hls_LB2D_proc_y >= 0  & hls_LB2D_proc_y < 8 & \
-    hls_LB2D_shift_x == 0 & \
-    hls_LB2D_shift_y == 0 & \
-    hls_gb_p_cnt == 0 \
-)} -type {temporary} -update_db;
-#
 assume -name {Subset - C1} -env \
 { counter == 0 |=> ( \
     hls_LB1D_p_cnt >= 3904 & hls_LB1D_p_cnt < 315736 & \
-    hls_LB2D_proc_x > 0   & hls_LB2D_proc_x < 480 & \
+    hls_LB2D_proc_x > 0   & hls_LB2D_proc_x < 487 & \
     hls_LB2D_proc_y >= 8  & hls_LB2D_proc_y < 648 & \
-    hls_LB2D_shift_x > 0  & hls_LB2D_shift_x < 480 & \
+    hls_LB2D_shift_x > 0  & hls_LB2D_shift_x < 487 & \
     hls_LB2D_shift_y >= 0 & hls_LB2D_shift_y < 640 & \
     hls_gb_p_cnt >= 10    & hls_gb_p_cnt < 306720 \
 )} -type {temporary} -update_db;
@@ -34,9 +14,9 @@ assume -name {Subset - C1} -env \
 assume -name {Subset - C2} -env \
 { counter == 0 |=> ( \
     hls_LB1D_p_cnt >= 3904  & hls_LB1D_p_cnt < 315736 & \
-    hls_LB2D_proc_x >= 480  & hls_LB2D_proc_x <= 488 & \
+    hls_LB2D_proc_x == 487  & \
     hls_LB2D_proc_y >= 8    & hls_LB2D_proc_y < 648 & \
-    hls_LB2D_shift_x >= 480 & hls_LB2D_shift_x <= 488 & \
+    hls_LB2D_shift_x == 487 & \
     hls_LB2D_shift_y >= 0   & hls_LB2D_shift_y < 640 & \
     hls_gb_p_cnt >= 450     & hls_gb_p_cnt < 306720 & \
     ~(hls_LB2D_proc_x >= 487 & hls_LB2D_proc_y == 647) \
@@ -53,36 +33,25 @@ assume -name {Subset - C3} -env \
     ~(hls_LB2D_proc_x >= 487 & hls_LB2D_proc_y == 647) \
 )} -type {temporary} -update_db;
 #
-assume -name {Subset - C4} -env \
-{ counter == 0 |=> ( \
-    hls_LB1D_p_cnt >= 3904  & hls_LB1D_p_cnt < 315736 & \
-    hls_LB2D_proc_x == 487  & \
-    hls_LB2D_proc_y >= 8    & hls_LB2D_proc_y < 648 & \
-    hls_LB2D_shift_x == 487 & \
-    hls_LB2D_shift_y >= 0   & hls_LB2D_shift_y < 640 & \
-    hls_gb_p_cnt >= 450     & hls_gb_p_cnt < 306720 & \
-    ~(hls_LB2D_proc_x >= 487 & hls_LB2D_proc_y == 647) \
-)} -type {temporary} -update_db;
-#
 assume -name {Subset - D} -env \
 { counter == 0 |=> ( \
-    hls_LB1D_p_cnt >= 315736 & hls_LB1D_p_cnt <= 316222 & \
+    hls_LB1D_p_cnt >= 315736 & hls_LB1D_p_cnt <= 316223 & \
     hls_LB2D_proc_x > 0      & hls_LB2D_proc_x <= 488 & \
-    hls_LB2D_proc_y >= 647   & hls_LB2D_proc_y <= 647 & \
+    hls_LB2D_proc_y == 647   & \
     hls_LB2D_shift_x > 0     & hls_LB2D_shift_x <= 488 & \
-    hls_LB2D_shift_y >= 639  & hls_LB2D_shift_y <= 639 & \
-    hls_gb_p_cnt >= 306240   & hls_gb_p_cnt <= 307200 & \
+    hls_LB2D_shift_y == 639  & \
+    hls_gb_p_cnt >= 306240   & hls_gb_p_cnt < 307200 & \
     ~(hls_LB2D_proc_x >= 487 & hls_LB2D_proc_y == 647) \
 )} -type {temporary} -update_db;
 #
 assume -name {Subset - E} -env \
 { counter == 0 |=> ( \
-    hls_LB1D_p_cnt == 316223 & \
-    hls_LB2D_proc_x == 487 & \
-    hls_LB2D_proc_y == 647 & \
-    hls_LB2D_shift_x == 487 & \
-    hls_LB2D_shift_y == 639 & \
-    hls_gb_p_cnt >= 306240   & hls_gb_p_cnt <= 307200 \
+    hls_LB1D_p_cnt == 316224 & \
+    hls_LB2D_proc_x == 488   & \
+    hls_LB2D_proc_y == 648   & \
+    hls_LB2D_shift_x == 488  & \
+    hls_LB2D_shift_y == 640  & \
+    hls_gb_p_cnt == 307200 \
 )} -type {temporary} -update_db;
 #
 
@@ -123,9 +92,8 @@ assume -name {init - stable fsm post} -env \
 )} -type {temporary} -update_db;
 
 # pre cur input pixel
-#assume -name {child init - consistent input pixel} -env \
+assume -name {init - consistent input pixel} -env \
 { counter == 0 |-> ( \
-    ila_cur_pix == ila_pre_pix & \
     hls_LB1D_in == hls_LB1D_buff & \
     ila_cur_pix == hls_LB1D_buff \
 )} -type {temporary} -update_db;
@@ -149,14 +117,10 @@ assume -name {init - consistent proc_w} -env \
 )} -type {temporary} -update_db;
 
 # consistent exit condition
-assume -name {init - consistent exitcond} -env \
+assume -name {init - consistent exitcond in} -env \
 { counter == 0 |=> ( \
     (hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.exitcond_flatten_reg_88 == \
-     hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.exitcond_flatten_fu_72_p2) & \
-    (hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_shift_proc_U0.exitcond21_i_i_reg_1251 == \
-     hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_shift_proc_U0.exitcond21_i_i_fu_175_p2) & \
-    (hls_U.hls_target_Loop_1_proc_U0.exitcond_flatten_reg_2790 == \
-     hls_U.hls_target_Loop_1_proc_U0.exitcond_flatten_fu_467_p2) \
+     hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.exitcond_flatten_fu_72_p2) \
 )} -type {temporary} -update_db;
 #
 assume -name {init - consistent exitcond buff} -env \
@@ -166,6 +130,21 @@ assume -name {init - consistent exitcond buff} -env \
     (hls_LB2D_proc_x != 488 & \
      hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.exitcond3_fu_388_p2 == \
      hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.exitcond3_reg_702) \
+)} -type {temporary} -update_db;
+#
+assume -name {init - consistent exitcond shift} -env \
+{ counter == 0 |=> ( \
+    (hls_LB2D_shift_x == 488 & \
+     hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_shift_proc_U0.exitcond21_i_i_reg_1251 == 0) | \
+    (hls_LB2D_shift_x != 488 & \
+     hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_shift_proc_U0.exitcond21_i_i_reg_1251 == \
+     hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_shift_proc_U0.exitcond21_i_i_fu_175_p2) \
+)} -type {temporary} -update_db;
+#
+assume -name {init - consistent exitcond GB} -env \
+{ counter == 0 |=> ( \
+    (hls_U.hls_target_Loop_1_proc_U0.exitcond_flatten_reg_2790 == \
+     hls_U.hls_target_Loop_1_proc_U0.exitcond_flatten_fu_467_p2) \
 )} -type {temporary} -update_db;
 
 # consistent ready for write instruction

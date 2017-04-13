@@ -258,3 +258,4 @@ assume -name {inv - axi config} -env \
     |-> \
     ila_arg_0_TDATA == hls_arg_0_TDATA \
 )} -type {temporary} -update_db;
+

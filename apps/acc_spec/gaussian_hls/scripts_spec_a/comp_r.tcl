@@ -1,6 +1,13 @@
 # Assumptions for proving read instruction 
 # Compositional verification: decode, invariant, ...
 #
+# helper for phase
+assume -name {comp - phase inc} -env \
+{ phase == 1 |=> phase == 2 } -type {temporary} -update_db;
+#
+assume -name {comp - phase stop} -env \
+{ phase == 2 |=> phase == 2 } -type {temporary} -update_db;
+
 # decode 
 assume -name {comp - decode} -env \
 { counter == 0 |=> ( \
@@ -38,6 +45,19 @@ assume -name {arch equal - control} -env \
 )} -type {temporary} -update_db;
 #
 assume -name {arch equal - data} -env \
+{ counter == 0 |=> ( \
+    ila_arg_0_TDATA == hls_arg_0_TDATA & \
+    ila_stencil_0 == hls_LB2D_shift_0 & \
+    ila_stencil_1 == hls_LB2D_shift_1 & \
+    ila_stencil_2 == hls_LB2D_shift_2 & \
+    ila_stencil_3 == hls_LB2D_shift_3 & \
+    ila_stencil_4 == hls_LB2D_shift_4 & \
+    ila_stencil_5 == hls_LB2D_shift_5 & \
+    ila_stencil_6 == hls_LB2D_shift_6 & \
+    ila_stencil_7 == hls_LB2D_shift_7 & \
+    ila_stencil_8 == hls_slice_stream_buff_1 \
+)} -type {temporary} -update_db;
+#assume -name {arch equal - data} -env \
 { counter == 0 |=> ( \
     ila_arg_0_TDATA == hls_arg_0_TDATA & \
     ila_U.RAM_0 == hls_LB2D_proc_0 & \

@@ -92,6 +92,43 @@ reg      [7:0] RAM_4[487:0];
 reg      [7:0] RAM_5[487:0];
 reg      [7:0] RAM_6[487:0];
 reg      [7:0] RAM_7[487:0];
+
+wire     [8:0] addr_0;
+wire     [8:0] addr_1;
+wire     [8:0] addr_2;
+wire     [8:0] addr_3;
+wire     [8:0] addr_4;
+wire     [8:0] addr_5;
+wire     [8:0] addr_6;
+wire     [8:0] addr_7;
+
+wire     [7:0] data_0;
+wire     [7:0] data_1;
+wire     [7:0] data_2;
+wire     [7:0] data_3;
+wire     [7:0] data_4;
+wire     [7:0] data_5;
+wire     [7:0] data_6;
+wire     [7:0] data_7;
+
+assign addr_0 = n4 ? 0 : 1;
+assign addr_1 = n4 ? 0 : 1;
+assign addr_2 = n4 ? 0 : 1;
+assign addr_3 = n4 ? 0 : 1;
+assign addr_4 = n4 ? 0 : 1;
+assign addr_5 = n4 ? 0 : 1;
+assign addr_6 = n4 ? 0 : 1;
+assign addr_7 = n4 ? 0 : 1;
+
+assign data_0 = n4 ? (RAM_0[0]) : (RAM_0[1]);
+assign data_1 = n4 ? (RAM_1[0]) : (RAM_1[1]);
+assign data_2 = n4 ? (RAM_2[0]) : (RAM_2[1]);
+assign data_3 = n4 ? (RAM_3[0]) : (RAM_3[1]);
+assign data_4 = n4 ? (RAM_4[0]) : (RAM_4[1]);
+assign data_5 = n4 ? (RAM_5[0]) : (RAM_5[1]);
+assign data_6 = n4 ? (RAM_6[0]) : (RAM_6[1]);
+assign data_7 = n4 ? (RAM_7[0]) : (RAM_7[1]);
+
 wire clk;
 wire rst;
 wire step;
@@ -154,6 +191,7 @@ always @(posedge clk) begin
        stencil_6 <= n18;
        stencil_7 <= n19;
        stencil_8 <= n20;
+       RAM_0 [addr_0] <= RAM_0 [data_0];
    end
 end
 endmodule
