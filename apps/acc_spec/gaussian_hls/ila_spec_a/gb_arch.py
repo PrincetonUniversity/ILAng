@@ -74,6 +74,9 @@ class GBArch ():
             buffName = 'stencil_%d' % i
             self.stencil.append (m.reg (buffName, self.slice_size))
 
+        # holding iterator for gb
+        self.gbit = m.reg ('gbit', 4)
+
         # uninterpreted GB function
         self.fun = m.fun ('gb_fun', DATA_SIZE, [X_EXTEND * Y_EXTEND * DATA_SIZE])
 
@@ -86,6 +89,7 @@ class GBArch ():
         self.RAM_x_nxt = self.RAM_x
         self.RAM_y_nxt = self.RAM_y
         self.RAM_w_nxt = self.RAM_w
+        self.gbit_nxt = self.gbit
         self.RAM_nxt   = []
         for i in xrange (0, self.RAM_size):
             self.RAM_nxt.append (self.RAM[i])
@@ -103,6 +107,7 @@ class GBArch ():
         m.set_next ('RAM_x', self.RAM_x_nxt)
         m.set_next ('RAM_y', self.RAM_y_nxt)
         m.set_next ('RAM_w', self.RAM_w_nxt)
+        m.set_next ('gbit', self.gbit_nxt)
 
         for i in xrange (0, self.RAM_size):
             buffName = 'RAM_%d' % i
