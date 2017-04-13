@@ -118,7 +118,7 @@ assign n6 =  ( n4 ) ? ( RAM_x ) : ( RAM_x ) ;
 assign n7 =  ( n4 ) ? ( RAM_y ) : ( RAM_y ) ;
 assign n8 =  ( n4 ) ? ( arg_0_TDATA ) : ( arg_0_TDATA ) ;
 assign n9 =  ( gbit ) == ( 4'd0 )  ;
-assign n10 =  ( gbit ) == ( 4'd8 )  ;
+assign n10 =  ( gbit ) == ( 4'd7 )  ;
 assign n11 =  ( n9 ) | ( n10 )  ;
 assign n12 =  ( n11 ) ? ( 1'd0 ) : ( 1'd1 ) ;
 assign n13 =  ( n4 ) ? ( n12 ) : ( arg_0_TVALID ) ;
