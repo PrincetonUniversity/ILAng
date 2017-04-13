@@ -1,4 +1,4 @@
-module GB(
+module SPEC_A(
 arg_0_TREADY,
 arg_1_TDATA,
 arg_1_TVALID,
@@ -9,6 +9,7 @@ arg_0_TDATA,
 arg_0_TVALID,
 arg_1_TREADY,
 cur_pix,
+gbit,
 pre_pix,
 proc_in,
 st_ready,
@@ -37,6 +38,7 @@ output      [7:0] arg_0_TDATA;
 output            arg_0_TVALID;
 output            arg_1_TREADY;
 output      [7:0] cur_pix;
+output      [3:0] gbit;
 output      [7:0] pre_pix;
 output    [647:0] proc_in;
 output            st_ready;
@@ -56,6 +58,7 @@ reg      [7:0] arg_0_TDATA;
 reg            arg_0_TVALID;
 reg            arg_1_TREADY;
 reg      [7:0] cur_pix;
+reg      [3:0] gbit;
 reg      [7:0] pre_pix;
 reg    [647:0] proc_in;
 reg            st_ready;
@@ -936,11 +939,13 @@ assign n409 =  ( n385 ) & ( n408 )  ;
 assign n410 =  ( n385 ) & ( n15 )  ;
 assign RAM_7_addr0 = n410 ? (n293) : (0);
 assign RAM_7_data0 = n410 ? (pre_pix) : (RAM_7[0]);
+/*
 function [7:0] gb_fun ;
 input [647:0] arg0;
     begin
 //TODO: Add the specific function HERE.    end
 endfunction
+*/
 
 always @(posedge clk) begin
    if(rst) begin
@@ -951,6 +956,7 @@ always @(posedge clk) begin
        arg_0_TVALID <= arg_0_TVALID;
        arg_1_TREADY <= arg_1_TREADY;
        cur_pix <= cur_pix;
+       gbit <= gbit;
        pre_pix <= pre_pix;
        proc_in <= proc_in;
        st_ready <= st_ready;
@@ -972,6 +978,7 @@ always @(posedge clk) begin
        arg_0_TVALID <= n225;
        arg_1_TREADY <= n238;
        cur_pix <= n242;
+       gbit <= gbit;
        pre_pix <= n245;
        proc_in <= n248;
        st_ready <= n251;

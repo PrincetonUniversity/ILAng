@@ -15,7 +15,7 @@ WR_ADDR_SIZE    = 3
 
 class GBArch ():
     def __init__ (self):
-        self.abst = ila.Abstraction ('GB')
+        self.abst = ila.Abstraction ('SPEC_A')
         m = self.abst
 
         BV_TRUE     = m.const (0x1, 1)
