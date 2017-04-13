@@ -1,7 +1,7 @@
 set ROOT [pwd]
 set SRC $ROOT/verilog
-set TCL $ROOT/scripts_spec_a
-set EXP $ROOT/exps_spec_a
+set TCL $ROOT/scripts_impl_a
+set EXP $ROOT/exps_impl_a
 
 include $TCL/setup_r.tcl
 include $TCL/eqcheck_r.tcl
