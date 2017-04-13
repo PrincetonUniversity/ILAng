@@ -23,11 +23,16 @@ def defNext (gb):
     arg_1_TREADY_nxt = gb.arg_1_TREADY
     gb.arg_1_TREADY_nxt = ila.ite (decode, arg_1_TREADY_nxt, gb.arg_1_TREADY_nxt)
 
-    arg_0_TVALID_nxt = VALID_F
+    arg_0_TVALID_nxt = ila.ite ((gb.gbit > 0) & (gb.gbit < 8),
+                                VALID_F, VALID_T)
     gb.arg_0_TVALID_nxt = ila.ite (decode, arg_0_TVALID_nxt, gb.arg_0_TVALID_nxt)
 
     arg_0_TDATA_nxt = gb.arg_0_TDATA
     gb.arg_0_TDATA_nxt = ila.ite (decode, arg_0_TDATA_nxt, gb.arg_0_TDATA_nxt)
+
+    gbit_nxt = ila.ite ((gb.RAM_x == gb.RAM_x_M) & (gb.RAM_y == gb.RAM_y_M),
+                        gb.gbit + 1, gb.gbit)
+    gb.gbit_nxt = ila.ite (decode, gbit_nxt, gb.gbit_nxt)
 
     # other states are not affected
     gb.cur_pix_nxt = ila.ite (decode, gb.cur_pix, gb.cur_pix_nxt)
