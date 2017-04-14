@@ -84,7 +84,6 @@ assume -name {Subset - E} -env \
     b_LB2D_shift_y == 639 & \
     b_gb_p_cnt == 307199 \
 )} -type {temporary} -update_db;
-#
 
 # block buffering
 assume -name {init - empty buffers} -env \

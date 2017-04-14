@@ -39,3 +39,8 @@ assume -disable {::Subset - E}
 #save -jdb $EXP/spec_a_wri_E.jdb -capture_setup -capture_session_data
 
 #exit
+
+assert -disable {<embedded>::eq - cur_pix}; assert -disable {<embedded>::eq - stencil_0}; assert -disable {<embedded>::eq - stencil_1}; assert -disable {<embedded>::eq - stencil_2}; assert -disable {<embedded>::eq - stencil_3}; assert -disable {<embedded>::eq - stencil_4}; assert -disable {<embedded>::eq - stencil_5}; assert -disable {<embedded>::eq - stencil_6}; assert -disable {<embedded>::eq - stencil_7}; assert -disable {<embedded>::eq - arg_0_TDATA}; assert -disable {<embedded>::eq - RAM_0}; assert -disable {<embedded>::eq - RAM_1}; assert -disable {<embedded>::eq - RAM_2}; assert -disable {<embedded>::eq - RAM_3}; assert -disable {<embedded>::eq - RAM_4}; assert -disable {<embedded>::eq - RAM_5}; assert -disable {<embedded>::eq - RAM_6}; assert -disable {<embedded>::eq - RAM_7}
+
+assume -disable {::arch equal - data}
+

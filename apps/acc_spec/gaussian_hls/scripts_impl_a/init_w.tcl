@@ -45,9 +45,9 @@ assume -name {Subset - C2} -env \
 assume -name {Subset - C3} -env \
 { counter == 0 |=> ( \
     hls_LB1D_p_cnt >= 3904  & hls_LB1D_p_cnt < 315736 & \
-    hls_LB2D_proc_x == 488  & \
+    hls_LB2D_proc_x == 487  & \
     hls_LB2D_proc_y >= 8    & hls_LB2D_proc_y < 648 & \
-    hls_LB2D_shift_x == 488 & \
+    hls_LB2D_shift_x == 487 & \
     hls_LB2D_shift_y >= 0   & hls_LB2D_shift_y < 640 & \
     hls_gb_p_cnt >= 450     & hls_gb_p_cnt < 306720 & \
     ~(hls_LB2D_proc_x >= 487 & hls_LB2D_proc_y == 647) \
@@ -56,9 +56,9 @@ assume -name {Subset - C3} -env \
 assume -name {Subset - C4} -env \
 { counter == 0 |=> ( \
     hls_LB1D_p_cnt >= 3904  & hls_LB1D_p_cnt < 315736 & \
-    hls_LB2D_proc_x == 487  & \
+    hls_LB2D_proc_x == 488  & \
     hls_LB2D_proc_y >= 8    & hls_LB2D_proc_y < 648 & \
-    hls_LB2D_shift_x == 487 & \
+    hls_LB2D_shift_x == 488 & \
     hls_LB2D_shift_y >= 0   & hls_LB2D_shift_y < 640 & \
     hls_gb_p_cnt >= 450     & hls_gb_p_cnt < 306720 & \
     ~(hls_LB2D_proc_x >= 487 & hls_LB2D_proc_y == 647) \
@@ -71,7 +71,7 @@ assume -name {Subset - D} -env \
     hls_LB2D_proc_y >= 647   & hls_LB2D_proc_y <= 647 & \
     hls_LB2D_shift_x > 0     & hls_LB2D_shift_x <= 488 & \
     hls_LB2D_shift_y >= 639  & hls_LB2D_shift_y <= 639 & \
-    hls_gb_p_cnt >= 306240   & hls_gb_p_cnt <= 307200 & \
+    hls_gb_p_cnt >= 306240   & hls_gb_p_cnt < 307200 & \
     ~(hls_LB2D_proc_x >= 487 & hls_LB2D_proc_y == 647) \
 )} -type {temporary} -update_db;
 #
@@ -82,67 +82,22 @@ assume -name {Subset - E} -env \
     hls_LB2D_proc_y == 647 & \
     hls_LB2D_shift_x == 487 & \
     hls_LB2D_shift_y == 639 & \
-    hls_gb_p_cnt >= 306240   & hls_gb_p_cnt <= 307200 \
+    hls_gb_p_cnt == 307199 \
 )} -type {temporary} -update_db;
 #
 
 # block buffering
 assume -name {init - empty buffers} -env \
 { counter == 0 |=> ( \
-    hls_in_stream_empty == 1 & \
-    hls_slice_stream_empty == 1 & \
-    hls_stencil_stream_empty == 1 \
+    hls_in_stream_empty == 1 & hls_in_stream_full == 0 & \
+    hls_slice_stream_empty == 1 & hls_slice_stream_full == 0 & \
+    hls_stencil_stream_empty == 1 & hls_stencil_stream_full == 0 \
 )} -type {temporary} -update_db;
 
-# stable buffering
-#assume -name {init - stable buffers} -env \
+# input holding
+assume -name {init - in proc unit it} -env \
 { counter == 0 |=> ( \
-    hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.in_stream_V_value_V_write == 0 & \
-    hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.in_stream_V_value_V_read == 0 & \
-    hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.slice_stream_V_value_V_write == 0 & \
-    hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_shift_proc_U0.slice_stream_V_value_V_read == 0 & \
-    hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_shift_proc_U0.out_stream_V_value_V_write == 0 & \
-    hls_U.hls_target_Loop_1_proc_U0.p_p2_in_bounded_stencil_stream_V_value_V_read \
-)} -type {temporary} -update_db;
-
-# data valid must implies iteration done
-assume -name {init - output valid vs iterator} -env \
-{ counter == 0 |=> ( \
-    (hls_arg_0_TVALID == 0) | \
-    (hls_arg_0_TVALID == 1 & hls_gb_pp_it_8 == 1 & \
-                             hls_U.hls_target_Loop_1_proc_U0.arg_0_V_value_V_1_mVld == 1) \
-)} -type {temporary} -update_db;
-
-# no incomplete write to the in stream
-#assume -name {init - complete input} -env \
-{ counter == 0 |=> ( \
-    hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.in_stream_V_value_V_write == 0 \
-)} -type {temporary} -update_db;
-
-# no incomplete read to the stencil stream
-#assume -name {init - complete output} -env \
-{ counter == 0 |=> ( \
-    hls_U.hls_target_Loop_1_proc_U0.p_p2_in_bounded_stencil_stream_V_value_V_read == 0 \
-)} -type {temporary} -update_db;
-
-# axi config
-assume -name {init - axi config} -env \
-{ counter == 0 |=> ( \
-    hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.ap_done_reg == 0 \
-)} -type {temporary} -update_db;
-
-# stable fsm
-assume -name {init - stable fsm pre} -env \
-{ counter == 0 |=> ( \
-    hls_LB1D_fsm == 2 & \
-    hls_LB2D_proc_fsm == 4 & \
-    hls_LB2D_shift_fsm == 4 & \
-    hls_GB_fsm == 2 \
-)} -type {temporary} -update_db;
-#
-assume -name {init - stable fsm post} -env \
-{ counter == 0 |-> ( \
-    hls_LB2D_shift_fsm == 4 \
+    (hls_LB1D_p_cnt > 0) |-> (hls_LB1D_it_1 == 1) \
 )} -type {temporary} -update_db;
 
 # pre cur input pixel
@@ -166,6 +121,13 @@ assume -name {init - consistent buffer x} -env \
     (hls_LB2D_proc_y <= 7 & hls_LB2D_shift_x == 0) \
 )} -type {temporary} -update_db;
 
+# consistent buffer index
+assume -name {init - consistent buffer y} -env \
+{ counter == 0 |=> ( \
+    (hls_LB2D_proc_y == hls_LB2D_shift_y + 8) | \
+    (hls_LB2D_proc_y <= 7 & hls_LB2D_shift_y == 0) \
+)} -type {temporary} -update_db;
+
 # consistent write index
 assume -name {init - consistent proc_w} -env \
 { counter == 0 |=> ( \
@@ -177,15 +139,40 @@ assume -name {init - consistent proc_w} -env \
     hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.tmp_13_fu_446_p1 \
 )} -type {temporary} -update_db;
 
+# data valid must implies iteration done
+assume -name {init - output valid vs iterator} -env \
+{ counter == 0 |=> ( \
+    (hls_arg_0_TVALID == 0) | \
+    (hls_arg_0_TVALID == 1 & hls_gb_pp_it_8 == 1 & \
+                             hls_U.hls_target_Loop_1_proc_U0.arg_0_V_value_V_1_mVld == 1) \
+)} -type {temporary} -update_db;
+
+# axi config
+assume -name {init - axi config} -env \
+{ counter == 0 |=> ( \
+    hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.ap_done_reg == 0 \
+)} -type {temporary} -update_db;
+
+# stable fsm
+assume -name {init - stable fsm pre} -env \
+{ counter == 0 |=> ( \
+    hls_LB1D_fsm == 2 & \
+    hls_LB2D_proc_fsm == 4 & \
+    hls_LB2D_shift_fsm == 4 & \
+    hls_GB_fsm == 2 \
+)} -type {temporary} -update_db;
+#
+assume -name {init - stable fsm post} -env \
+{ counter == 0 |-> ( \
+    hls_LB2D_shift_fsm == 4 \
+)} -type {temporary} -update_db;
+
+
 # consistent exit condition
-assume -name {init - consistent exitcond} -env \
+assume -name {init - consistent exitcond in} -env \
 { counter == 0 |=> ( \
     (hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.exitcond_flatten_reg_88 == \
-     hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.exitcond_flatten_fu_72_p2) & \
-    (hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_shift_proc_U0.exitcond21_i_i_reg_1251 == \
-     hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_shift_proc_U0.exitcond21_i_i_fu_175_p2) & \
-    (hls_U.hls_target_Loop_1_proc_U0.exitcond_flatten_reg_2790 == \
-     hls_U.hls_target_Loop_1_proc_U0.exitcond_flatten_fu_467_p2) \
+     hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.exitcond_flatten_fu_72_p2) \
 )} -type {temporary} -update_db;
 #
 assume -name {init - consistent exitcond buff} -env \
@@ -195,6 +182,21 @@ assume -name {init - consistent exitcond buff} -env \
     (hls_LB2D_proc_x != 488 & \
      hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.exitcond3_fu_388_p2 == \
      hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.exitcond3_reg_702) \
+)} -type {temporary} -update_db;
+#
+assume -name {init - consistent exitcond shift} -env \
+{ counter == 0 |=> ( \
+    (hls_LB2D_shift_x == 488 & \
+     hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_shift_proc_U0.exitcond21_i_i_reg_1251 == 0) | \
+    (hls_LB2D_shift_x != 488 & \
+     hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_shift_proc_U0.exitcond21_i_i_reg_1251 == \
+     hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_shift_proc_U0.exitcond21_i_i_fu_175_p2) \
+)} -type {temporary} -update_db;
+#
+assume -name {init - consistent exitcond GB} -env \
+{ counter == 0 |=> ( \
+    (hls_U.hls_target_Loop_1_proc_U0.exitcond_flatten_reg_2790 == \
+     hls_U.hls_target_Loop_1_proc_U0.exitcond_flatten_fu_467_p2) \
 )} -type {temporary} -update_db;
 
 # consistent ready for write instruction
@@ -260,13 +262,13 @@ assume -name {init - consistent RAM access} -env \
 
 # abstract holding buffer - interanl iterator
 assume -name {init - processing iterator} -env \
-{ counter == 0 |=> ( \
+{ (counter == 0) |=> ( \
     hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.ap_reg_ppiten_pp0_it0 == 1 & \
     hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.ap_reg_ppiten_pp0_it0 == 1 & \
     hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_shift_proc_U0.ap_reg_ppiten_pp0_it0 == 1 \
 )} -type {temporary} -update_db;
 #
-assume -name {init - no holding iterator} -env \
+#assume -name {init - no holding iterator} -env \
 { counter == 0 |=> ( \
     hls_gb_p_cnt != 0 |-> ( \
     hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.ap_reg_ppiten_pp0_it0 == 1 & \
@@ -278,7 +280,7 @@ assume -name {init - no holding iterator} -env \
     ) \
 )} -type {temporary} -update_db;
 #
-assume -name {init - no holding iterator - buff} -env \
+#assume -name {init - no holding iterator - buff} -env \
 { counter == 0 |=> ( \
     (hls_LB2D_proc_x != 0 | hls_LB2D_proc_y != 0) |-> ( \
     hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.ap_reg_ppiten_pp0_it0 == 1 & \
@@ -289,7 +291,7 @@ assume -name {init - no holding iterator - buff} -env \
 )} -type {temporary} -update_db;
 
 #
-assume -name {init - no holding iterator - shift} -env \
+#assume -name {init - no holding iterator - shift} -env \
 { counter == 0 |=> ( \
     (hls_LB2D_shift_x != 0 | hls_LB2D_shift_y != 0) |-> ( \
     hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.ap_reg_ppiten_pp0_it0 == 1 & \
