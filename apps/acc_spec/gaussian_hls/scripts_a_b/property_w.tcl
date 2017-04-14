@@ -19,14 +19,10 @@ assert -name {eq - arg_0_TVALID} \
 ) } -update_db;
 
 # RAM_x
-#assert -name {eq - RAM_x} \
+assert -name {eq - RAM_x} \
 { (phase == 1) |-> ( \
     a_RAM_x == b_LB2D_proc_x | \
     a_RAM_x == b_LB1D_p_cnt \
-) } -update_db;
-assert -name {eq - RAM_x} \
-{ (counter > 1 & a_complete == 1 & b_complete == 1) |-> ( \
-    a_RAM_x == b_LB2D_proc_x \
 ) } -update_db;
 
 # RAM_y

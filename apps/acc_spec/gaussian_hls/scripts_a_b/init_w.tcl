@@ -34,9 +34,9 @@ assume -name {Subset - C1} -env \
 assume -name {Subset - C2} -env \
 { counter == 0 |=> ( \
     b_LB1D_p_cnt >= 3904  & b_LB1D_p_cnt < 315736 & \
-    b_LB2D_proc_x >= 480  & b_LB2D_proc_x <= 488 & \
+    b_LB2D_proc_x >= 480  & b_LB2D_proc_x < 488 & \
     b_LB2D_proc_y >= 8    & b_LB2D_proc_y < 648 & \
-    b_LB2D_shift_x >= 480 & b_LB2D_shift_x <= 488 & \
+    b_LB2D_shift_x >= 480 & b_LB2D_shift_x < 488 & \
     b_LB2D_shift_y >= 0   & b_LB2D_shift_y < 640 & \
     b_gb_p_cnt >= 450     & b_gb_p_cnt < 306720 & \
     ~(b_LB2D_proc_x >= 487 & b_LB2D_proc_y == 647) \
@@ -45,9 +45,9 @@ assume -name {Subset - C2} -env \
 assume -name {Subset - C3} -env \
 { counter == 0 |=> ( \
     b_LB1D_p_cnt >= 3904  & b_LB1D_p_cnt < 315736 & \
-    b_LB2D_proc_x == 488  & \
+    b_LB2D_proc_x == 487  & \
     b_LB2D_proc_y >= 8    & b_LB2D_proc_y < 648 & \
-    b_LB2D_shift_x == 488 & \
+    b_LB2D_shift_x == 487 & \
     b_LB2D_shift_y >= 0   & b_LB2D_shift_y < 640 & \
     b_gb_p_cnt >= 450     & b_gb_p_cnt < 306720 & \
     ~(b_LB2D_proc_x >= 487 & b_LB2D_proc_y == 647) \
@@ -56,9 +56,9 @@ assume -name {Subset - C3} -env \
 assume -name {Subset - C4} -env \
 { counter == 0 |=> ( \
     b_LB1D_p_cnt >= 3904  & b_LB1D_p_cnt < 315736 & \
-    b_LB2D_proc_x == 487  & \
+    b_LB2D_proc_x == 488  & \
     b_LB2D_proc_y >= 8    & b_LB2D_proc_y < 648 & \
-    b_LB2D_shift_x == 487 & \
+    b_LB2D_shift_x == 488 & \
     b_LB2D_shift_y >= 0   & b_LB2D_shift_y < 640 & \
     b_gb_p_cnt >= 450     & b_gb_p_cnt < 306720 & \
     ~(b_LB2D_proc_x >= 487 & b_LB2D_proc_y == 647) \
@@ -71,7 +71,7 @@ assume -name {Subset - D} -env \
     b_LB2D_proc_y >= 647   & b_LB2D_proc_y <= 647 & \
     b_LB2D_shift_x > 0     & b_LB2D_shift_x <= 488 & \
     b_LB2D_shift_y >= 639  & b_LB2D_shift_y <= 639 & \
-    b_gb_p_cnt >= 306240   & b_gb_p_cnt <= 307200 & \
+    b_gb_p_cnt >= 306240   & b_gb_p_cnt < 307200 & \
     ~(b_LB2D_proc_x >= 487 & b_LB2D_proc_y == 647) \
 )} -type {temporary} -update_db;
 #
@@ -82,16 +82,22 @@ assume -name {Subset - E} -env \
     b_LB2D_proc_y == 647 & \
     b_LB2D_shift_x == 487 & \
     b_LB2D_shift_y == 639 & \
-    b_gb_p_cnt >= 306240   & b_gb_p_cnt <= 307200 \
+    b_gb_p_cnt == 307199 \
 )} -type {temporary} -update_db;
 #
 
 # block buffering
 assume -name {init - empty buffers} -env \
 { counter == 0 |=> ( \
-    b_in_stream_empty == 1 & \
-    b_slice_stream_empty == 1 & \
-    b_stencil_stream_empty == 1 \
+    b_in_stream_empty == 1 & b_in_stream_full == 0 & \
+    b_slice_stream_empty == 1 & b_slice_stream_full == 0 & \
+    b_stencil_stream_empty == 1 & b_stencil_stream_full == 0 \
+)} -type {temporary} -update_db;
+
+# input holding
+assume -name {init - in proc unit it} -env \
+{ counter == 0 |=> ( \
+    (b_LB1D_p_cnt > 0) |-> (b_LB1D_it_1 == 1) \
 )} -type {temporary} -update_db;
 
 # data valid must implies iteration done

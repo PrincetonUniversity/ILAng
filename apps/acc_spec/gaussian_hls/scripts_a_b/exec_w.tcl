@@ -40,7 +40,7 @@ assume -name {exec - a break} -env \
      a_st_ready == 0) \
     ) \
     |=> \
-    (b_complete == 1) \
+    (a_complete == 1) \
 )} -type {temporary} -update_db;
 #
 assume -name {exec - b continue} -env \
