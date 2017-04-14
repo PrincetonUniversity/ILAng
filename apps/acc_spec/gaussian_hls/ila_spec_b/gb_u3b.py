@@ -5,7 +5,7 @@
 import ila
 from gb_arch import GBArch
 
-def U3 (gb):
+def U3b (gb):
     m = gb.abst
 
     READY_T = gb.READY_TRUE

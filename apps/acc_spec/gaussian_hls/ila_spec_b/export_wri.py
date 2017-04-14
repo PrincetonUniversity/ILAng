@@ -6,6 +6,7 @@ from gb_u1 import U1
 from gb_u1b import U1b
 from gb_u2 import U2
 from gb_u3 import U3
+from gb_u3b import U3b
 from gb_u4 import U4
 
 def createILA ():
@@ -14,6 +15,7 @@ def createILA ():
     U1b (gb)
     U2 (gb)
     U3 (gb)
+    U3b (gb)
     U4 (gb)
     WRI (gb)
 
