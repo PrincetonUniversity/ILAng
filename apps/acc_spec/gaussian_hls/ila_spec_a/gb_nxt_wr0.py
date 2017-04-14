@@ -22,8 +22,8 @@ def WRU0 (gb):
     decode = decode & ~((gb.RAM_x == gb.RAM_x_0) & (gb.RAM_y == gb.RAM_y_0))
 
     endPixel = (gb.RAM_x == gb.RAM_x_M) & (gb.RAM_y == gb.RAM_y_M - gb.RAM_y_1)
-    accPixel = (gb.RAM_y < gb.RAM_size) | \
-               ((gb.RAM_y == gb.RAM_size) & (gb.RAM_x == gb.RAM_x_1))
+    accPixel = (gb.RAM_y < gb.RAM_size) 
+               #((gb.RAM_y == gb.RAM_size) & (gb.RAM_x == gb.RAM_x_1))
 
     # next state functions for output ports
     #arg_1_TREADY_nxt = ila.ite (endPixel | accPixel, READY_T, READY_F) # XXX hold
