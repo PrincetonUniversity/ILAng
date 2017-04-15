@@ -58,6 +58,10 @@ def WRU1 (gb):
                                 ((gb.RAM_x == gb.RAM_x_1) & \
                                  (gb.RAM_y >  gb.RAM_size)), \
                                 VALID_T, VALID_F)
+    arg_0_TVALID_nxt = ila.ite ((gb.RAM_x > gb.stencil_size - 1) & \
+                                (gb.RAM_y >= gb.RAM_size),
+                                VALID_T, VALID_F)
+
     arg_0_TVALID_nxt = ila.ite (relPixel, gb.arg_0_TVALID, arg_0_TVALID_nxt)
     gb.arg_0_TVALID_nxt = ila.ite (decode, arg_0_TVALID_nxt, gb.arg_0_TVALID_nxt)
 
