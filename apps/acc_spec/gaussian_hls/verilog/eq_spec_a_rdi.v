@@ -137,7 +137,7 @@ wire     [71:0] ila_stencil_8;
 
 wire            ila_step = 1'b1;
 
-GB ila_U (
+SPEC_A ila_U (
     .arg_0_TREADY (arg_0_TREADY),
     .arg_1_TDATA (arg_1_TDATA),
     .arg_1_TVALID (arg_1_TVALID),

@@ -18,7 +18,7 @@ assume -name {comp - protocol} -env \
     b_arg_1_TREADY == 1 \
 )} -type {temporary} -update_db;
 
-#assume -name {comp - force data value} -env \
+assume -name {comp - force data value} -env \
 { ( \
     arg_1_TDATA == 255 \
 )} -type {temporary} -update_db;
