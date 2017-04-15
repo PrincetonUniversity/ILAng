@@ -39,7 +39,7 @@ assume -name {Subset - C2} -env \
     hls_LB2D_shift_x >= 480 & hls_LB2D_shift_x <= 488 & \
     hls_LB2D_shift_y >= 0   & hls_LB2D_shift_y < 640 & \
     hls_gb_p_cnt >= 450     & hls_gb_p_cnt < 306720 & \
-    ~(hls_LB2D_proc_x >= 487 & hls_LB2D_proc_y == 647) \
+    ~(hls_LB2D_proc_x >= 486 & hls_LB2D_proc_y == 647) \
 )} -type {temporary} -update_db;
 #
 assume -name {Subset - C3} -env \
@@ -50,7 +50,7 @@ assume -name {Subset - C3} -env \
     hls_LB2D_shift_x == 487 & \
     hls_LB2D_shift_y >= 0   & hls_LB2D_shift_y < 640 & \
     hls_gb_p_cnt >= 450     & hls_gb_p_cnt < 306720 & \
-    ~(hls_LB2D_proc_x >= 487 & hls_LB2D_proc_y == 647) \
+    ~(hls_LB2D_proc_x >= 486 & hls_LB2D_proc_y == 647) \
 )} -type {temporary} -update_db;
 #
 assume -name {Subset - C4} -env \
@@ -61,7 +61,7 @@ assume -name {Subset - C4} -env \
     hls_LB2D_shift_x == 488 & \
     hls_LB2D_shift_y >= 0   & hls_LB2D_shift_y < 640 & \
     hls_gb_p_cnt >= 450     & hls_gb_p_cnt < 306720 & \
-    ~(hls_LB2D_proc_x >= 487 & hls_LB2D_proc_y == 647) \
+    ~(hls_LB2D_proc_x >= 486 & hls_LB2D_proc_y == 647) \
 )} -type {temporary} -update_db;
 #
 assume -name {Subset - D} -env \
@@ -72,15 +72,15 @@ assume -name {Subset - D} -env \
     hls_LB2D_shift_x > 0     & hls_LB2D_shift_x <= 488 & \
     hls_LB2D_shift_y >= 639  & hls_LB2D_shift_y <= 639 & \
     hls_gb_p_cnt >= 306240   & hls_gb_p_cnt < 307200 & \
-    ~(hls_LB2D_proc_x >= 487 & hls_LB2D_proc_y == 647) \
+    ~(hls_LB2D_proc_x >= 486 & hls_LB2D_proc_y == 647) \
 )} -type {temporary} -update_db;
 #
 assume -name {Subset - E} -env \
 { counter == 0 |=> ( \
     hls_LB1D_p_cnt == 316223 & \
-    hls_LB2D_proc_x == 487 & \
+    hls_LB2D_proc_x == 486 & \
     hls_LB2D_proc_y == 647 & \
-    hls_LB2D_shift_x == 487 & \
+    hls_LB2D_shift_x == 486 & \
     hls_LB2D_shift_y == 639 & \
     hls_gb_p_cnt == 307199 \
 )} -type {temporary} -update_db;
