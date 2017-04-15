@@ -21,7 +21,8 @@ def U3 (gb):
     decode = (gb.slice_stream_empty == EMPTY_F) & \
              (gb.LB2D_shift_x != gb.LB2D_shift_x_M) & \
              ((gb.stencil_stream_full == FULL_F) | \
-              (gb.LB2D_shift_x < gb.LB2D_shift_size))
+              ((gb.LB2D_shift_x < gb.LB2D_shift_size) & \
+               (gb.LB2D_shift_x > gb.LB2D_shift_x_0))) \
 
     ############################ next state functions #####################
     # arg_1_TREADY
@@ -132,8 +133,10 @@ def U3 (gb):
         gb.LB2D_shift_nxt[i] = ila.ite (decode, LB2D_shift_i_nxt,
                                         gb.LB2D_shift_nxt[i])
 
+    passToStencil = (gb.LB2D_shift_x >= gb.LB2D_shift_size) & \
+                    (gb.LB2D_shift_x == gb.LB2D_shift_x_0)
     # stencil_stream_full
-    stencil_stream_full_nxt = ila.ite (gb.LB2D_shift_x < gb.LB2D_shift_size,
+    stencil_stream_full_nxt = ila.ite (~passToStencil,
                                        gb.stencil_stream_full,
                               ila.ite (gb.stencil_stream_empty == EMPTY_T,
                                        FULL_F,
@@ -142,7 +145,7 @@ def U3 (gb):
                                           gb.stencil_stream_full_nxt)
 
     # stencil_stream_empty
-    stencil_stream_empty_nxt = ila.ite (gb.LB2D_shift_x < gb.LB2D_shift_size,
+    stencil_stream_empty_nxt = ila.ite (~passToStencil,
                                         gb.stencil_stream_empty,
                                         EMPTY_F) 
     gb.stencil_stream_empty_nxt = ila.ite (decode, stencil_stream_empty_nxt,
@@ -168,7 +171,7 @@ def U3 (gb):
     for i in xrange (gb.LB2D_shift_size-1, -1, -1):
         stencil_rows.append (genRows (i))
 
-    stencil_stream_buff_0_nxt = ila.ite (gb.LB2D_shift_x >= gb.LB2D_shift_size,
+    stencil_stream_buff_0_nxt = ila.ite (passToStencil,
                                          ila.concat (stencil_rows),
                                          gb.stencil_stream_buff[0])
     gb.stencil_stream_buff_nxt[0] = ila.ite (decode, stencil_stream_buff_0_nxt,
