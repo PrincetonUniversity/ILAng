@@ -40,7 +40,7 @@ assert -name {eq - RAM_w} \
 # cur_pix
 assert -name {eq - cur_pix} \
 { (counter > 1 & a_complete == 1 & b_complete == 1) |-> ( \
-    a_cur_pix == b_LB1D_buff \
+    a_cur_pix == b_LB1D_in \
 ) } -update_db;
 
 # stencil

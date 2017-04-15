@@ -39,7 +39,7 @@ assume -name {Subset - C2} -env \
     b_LB2D_shift_x >= 480 & b_LB2D_shift_x < 488 & \
     b_LB2D_shift_y >= 0   & b_LB2D_shift_y < 640 & \
     b_gb_p_cnt >= 450     & b_gb_p_cnt < 306720 & \
-    ~(b_LB2D_proc_x >= 487 & b_LB2D_proc_y == 647) \
+    ~(b_LB2D_proc_x >= 486 & b_LB2D_proc_y == 647) \
 )} -type {temporary} -update_db;
 #
 assume -name {Subset - C3} -env \
@@ -50,7 +50,7 @@ assume -name {Subset - C3} -env \
     b_LB2D_shift_x == 487 & \
     b_LB2D_shift_y >= 0   & b_LB2D_shift_y < 640 & \
     b_gb_p_cnt >= 450     & b_gb_p_cnt < 306720 & \
-    ~(b_LB2D_proc_x >= 487 & b_LB2D_proc_y == 647) \
+    ~(b_LB2D_proc_x >= 486 & b_LB2D_proc_y == 647) \
 )} -type {temporary} -update_db;
 #
 assume -name {Subset - C4} -env \
@@ -61,7 +61,7 @@ assume -name {Subset - C4} -env \
     b_LB2D_shift_x == 488 & \
     b_LB2D_shift_y >= 0   & b_LB2D_shift_y < 640 & \
     b_gb_p_cnt >= 450     & b_gb_p_cnt < 306720 & \
-    ~(b_LB2D_proc_x >= 487 & b_LB2D_proc_y == 647) \
+    ~(b_LB2D_proc_x >= 486 & b_LB2D_proc_y == 647) \
 )} -type {temporary} -update_db;
 #
 assume -name {Subset - D} -env \
@@ -72,15 +72,15 @@ assume -name {Subset - D} -env \
     b_LB2D_shift_x > 0     & b_LB2D_shift_x <= 488 & \
     b_LB2D_shift_y >= 639  & b_LB2D_shift_y <= 639 & \
     b_gb_p_cnt >= 306240   & b_gb_p_cnt < 307200 & \
-    ~(b_LB2D_proc_x >= 487 & b_LB2D_proc_y == 647) \
+    ~(b_LB2D_proc_x >= 486 & b_LB2D_proc_y == 647) \
 )} -type {temporary} -update_db;
 #
 assume -name {Subset - E} -env \
 { counter == 0 |=> ( \
     b_LB1D_p_cnt == 316223 & \
-    b_LB2D_proc_x == 487 & \
+    b_LB2D_proc_x == 486 & \
     b_LB2D_proc_y == 647 & \
-    b_LB2D_shift_x == 487 & \
+    b_LB2D_shift_x == 486 & \
     b_LB2D_shift_y == 639 & \
     b_gb_p_cnt == 307199 \
 )} -type {temporary} -update_db;
@@ -111,6 +111,7 @@ assume -name {child init - consistent input pixel} -env \
 { counter == 0 |-> ( \
     a_cur_pix == a_pre_pix & \
     b_LB1D_in == b_LB1D_buff & \
+    b_LB1D_in == b_LB1D_uIn & \
     a_cur_pix == b_LB1D_buff \
 )} -type {temporary} -update_db;
 
