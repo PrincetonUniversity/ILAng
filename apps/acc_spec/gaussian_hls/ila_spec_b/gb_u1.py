@@ -74,6 +74,7 @@ def U1 (gb):
 
     # in stream buffer
     in_stream_buff_0_nxt = gb.LB1D_buff
+    in_stream_buff_0_nxt = gb.LB1D_uIn
     gb.in_stream_buff_nxt[0] = ila.ite (decode, in_stream_buff_0_nxt,
                                         gb.in_stream_buff_nxt[0])
     for i in xrange (1, gb.in_stream_size):
