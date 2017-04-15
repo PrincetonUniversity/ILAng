@@ -133,7 +133,7 @@ def U3 (gb):
         gb.LB2D_shift_nxt[i] = ila.ite (decode, LB2D_shift_i_nxt,
                                         gb.LB2D_shift_nxt[i])
 
-    passToStencil = (gb.LB2D_shift_x >= gb.LB2D_shift_size) & \
+    passToStencil = (gb.LB2D_shift_x >= gb.LB2D_shift_size) | \
                     (gb.LB2D_shift_x == gb.LB2D_shift_x_0)
     # stencil_stream_full
     stencil_stream_full_nxt = ila.ite (~passToStencil,

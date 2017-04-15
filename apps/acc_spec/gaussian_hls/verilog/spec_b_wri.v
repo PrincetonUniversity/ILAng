@@ -1240,7 +1240,7 @@ assign n403 =  ( n13 ) ? ( slice_stream_full ) : ( n402 ) ;
 assign n404 =  ( n4 ) ? ( slice_stream_full ) : ( n403 ) ;
 assign n405 =  ( LB2D_shift_x ) >= ( 9'd8 )  ;
 assign n406 =  ( LB2D_shift_x ) == ( 9'd0 )  ;
-assign n407 =  ( n405 ) & ( n406 )  ;
+assign n407 =  ( n405 ) | ( n406 )  ;
 assign n408 = n127[71:64] ;
 assign n409 = LB2D_shift_7[71:64] ;
 assign n410 = LB2D_shift_6[71:64] ;
