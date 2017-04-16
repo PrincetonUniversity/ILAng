@@ -3,7 +3,7 @@
 #
 # start
 assume -name {exec - start model} -env \
-{ counter <= 5 |-> ( \
+{ counter <= 6 |-> ( \
     hls_complete == 0 & \
     ila_complete == 0 \
 )} -type {temporary} -update_db;

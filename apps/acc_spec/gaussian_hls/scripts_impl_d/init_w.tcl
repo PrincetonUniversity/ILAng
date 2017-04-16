@@ -70,6 +70,36 @@ assume -name {Subset - E} -env \
 )} -type {temporary} -update_db;
 
 # arch-states
+assume -name {init - flush previous instructions - ila} -env \
+{ counter < 5 |-> ( \
+   ~( \
+    ((ila_arg_1_TREADY == 0) & (ila_in_stream_full == 0)) | \
+    ((ila_in_stream_empty == 0) & \
+        ((ila_slice_stream_full == 0) | (ila_LB2D_proc_y < 8))) | \
+    ((ila_slice_stream_empty == 0) & \
+        ((ila_stencil_stream_full == 0) | (ila_LB2D_shift_x < 8))) | \
+    ((ila_arg_0_TVALID == 0) & \
+        (((ila_gb_exit_it_1 == 0) & (ila_stencil_stream_empty == 0)) | \
+        ((ila_gb_exit_it_1 == 1) & (ila_gb_exit_it_8 == 0)))) \
+    ) \
+)} -type {temporary} -update_db;
+
+assume -name {init - flush previous instructions - hls} -env \
+{ counter < 5 |-> ( \
+   ~( \
+    ((hls_arg_1_TREADY == 0) & (hls_in_stream_full == 0)) | \
+    ((hls_in_stream_empty == 0) & \
+        ((hls_slice_stream_full == 0) | (hls_LB2D_proc_y < 8))) | \
+    ((hls_slice_stream_empty == 0) & \
+        ((hls_stencil_stream_full == 0) | (hls_LB2D_shift_x < 8))) | \
+    ((hls_arg_0_TVALID == 0) & \
+        (((hls_gb_exit_it_1 == 0) & (hls_stencil_stream_empty == 0)) | \
+         ((hls_gb_exit_it_1 == 1) & (hls_gb_exit_it_8 == 0)))) \
+    ) \
+    & hls_arg_1_TREADY == 1 \
+)} -type {temporary} -update_db;
+
+    
 # data valid must implies iteration done
 assume -name {init - valid iterator} -env \
 { counter == 5 |-> ( \

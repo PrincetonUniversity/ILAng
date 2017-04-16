@@ -26,6 +26,15 @@ assume -disable {::arch equal - data}; assume -disable {::Subset - A}; assume -d
 
 assume -disable {::init - valid iterator}; assume -disable {::init - complete input}; assume -disable {::init - consistent input proc}; assume -disable {::init - complete output}; assume -disable {::init - consistent proc_w}; assume -disable {::init - consistent exitcond in}; assume -disable {::init - consistent exitcond buff}; assume -disable {::init - consistent exitcond shift}; assume -disable {::init - consistent exitcond GB}; assume -disable {::init - consistent input ready}; assume -disable {::init - consistent valid record}; assume -disable {::init - consistent pixel position}; assume -disable {::init - consistent RAM select}; assume -disable {::init - consistent RAM RW}; assume -disable {::init - consistent RAM access}; assume -disable {::init - processing iterator}; assume -disable {::init - no holding iterator}; assume -disable {::init - no holding iterator - buff}; assume -disable {::init - no holding iterator - shift}; assume -disable {::init - cnt vs pp - ila}; assume -disable {::init - cnt vs exit - ila}; assume -disable {::inv - buff vs shift - ila}; assume -disable {::inv - buff vs shift - hls}; assume -disable {::inv - shift vs gb}
 
+assume -enable {::init - valid iterator}
+assume -enable {::init - cnt vs pp - ila}; assume -enable {::init - cnt vs exit - ila}
+assume -enable {::init - consistent pixel position}
+assume -enable {::init - consistent input proc}
+assume -enable {::init - consistent proc_w}
+ assume -enable {::init - consistent exitcond in}; assume -enable {::init - consistent exitcond buff}; assume -enable {::init - consistent exitcond shift}; assume -enable {::init - consistent exitcond GB}
+ assume -enable {::init - consistent input ready}; assume -enable {::init - consistent valid record}
+ assume -enable {::init - processing iterator}ssume -enable {::init - no holding iterator}; assume -enable {::init - no holding iterator - buff}; assume -enable {::init - no holding iterator - shift}
+
 #assume -enable {::Subset - A}
 #prove -all
 #save -jdb $EXP/wri_A.jdb -capture_setup -capture_session_data
