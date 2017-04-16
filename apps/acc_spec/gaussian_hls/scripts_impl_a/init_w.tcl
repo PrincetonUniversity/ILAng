@@ -167,7 +167,6 @@ assume -name {init - stable fsm post} -env \
     hls_LB2D_shift_fsm == 4 \
 )} -type {temporary} -update_db;
 
-
 # consistent exit condition
 assume -name {init - consistent exitcond in} -env \
 { counter == 0 |=> ( \
