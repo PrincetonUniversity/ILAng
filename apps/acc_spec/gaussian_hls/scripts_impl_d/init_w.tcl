@@ -220,7 +220,6 @@ assume -name {init - consistent valid record} -env \
 # consistent pixel position
 assume -name {init - consistent pixel position} -env \
 { counter == 5 |-> ( \
-    (hls_arg_0_TVALID == 0 & hls_U.hls_target_Loop_1_proc_U0.arg_0_V_value_V_1_mVld == 0) | \
     (hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.row_reg_327 == \
      hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.row_1_reg_693) & \
     (hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.icmp_reg_698 == \
@@ -237,7 +236,7 @@ assume -name {init - consistent RAM select} -env \
 )} -type {temporary} -update_db;
 
 assume -name {init - consistent RAM RW} -env \
-{ counter == 5 |-> ( \
+{ (counter == 5 & hls_LB2D_proc_x != 0) |-> ( \
     hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.col_cast_reg_711 == \
     hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.col_cast_fu_400_p1 - 1 \
 )} -type {temporary} -update_db;

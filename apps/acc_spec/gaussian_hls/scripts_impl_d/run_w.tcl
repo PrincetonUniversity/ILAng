@@ -31,9 +31,13 @@ assume -enable {::init - cnt vs pp - ila}; assume -enable {::init - cnt vs exit 
 assume -enable {::init - consistent pixel position}
 assume -enable {::init - consistent input proc}
 assume -enable {::init - consistent proc_w}
- assume -enable {::init - consistent exitcond in}; assume -enable {::init - consistent exitcond buff}; assume -enable {::init - consistent exitcond shift}; assume -enable {::init - consistent exitcond GB}
- assume -enable {::init - consistent input ready}; assume -enable {::init - consistent valid record}
- assume -enable {::init - processing iterator}ssume -enable {::init - no holding iterator}; assume -enable {::init - no holding iterator - buff}; assume -enable {::init - no holding iterator - shift}
+assume -enable {::init - consistent exitcond in}; assume -enable {::init - consistent exitcond buff}; assume -enable {::init - consistent exitcond shift}; assume -enable {::init - consistent exitcond GB}
+assume -enable {::init - consistent input ready}; assume -enable {::init - consistent valid record}
+assume -enable {::init - processing iterator}; assume -enable {::init - no holding iterator}; assume -enable {::init - no holding iterator - buff}; assume -enable {::init - no holding iterator - shift}
+assume -enable {::inv - buff vs shift - ila}; assume -enable {::inv - buff vs shift - hls}; assume -enable {::inv - shift vs gb}
+#assume -enable {::init - consistent RAM access}
+assume -enable {::init - consistent RAM RW}
+assume -enable {::init - consistent RAM select}
 
 #assume -enable {::Subset - A}
 #prove -all
