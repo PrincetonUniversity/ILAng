@@ -5,8 +5,6 @@ module eq_top (
     rst_init,
     a_complete,
     b_complete,
-    a_exec,
-    b_exec,
     arg_0_TREADY,
     arg_1_TDATA,
     arg_1_TVALID,
@@ -23,8 +21,6 @@ input           clk;
 input           rst_init;
 input           a_complete;
 input           b_complete;
-input           a_exec;
-input           b_exec;
 input           arg_0_TREADY;
 input   [7:0]   arg_1_TDATA;
 input           arg_1_TVALID;
@@ -40,8 +36,8 @@ always @ (posedge clk) begin
     if (rst_init) begin
         counter <= 16'b0;
     end
-    else if (a_complete == 1 & b_complete == 1) begin
-        counter <= counter;
+    else if (counter == 15) begin
+        counter <= 15;
     end 
     else begin
         counter <= counter + 16'b1;
@@ -66,8 +62,6 @@ end
 
 wire a_clk = ~rst_init & clk & ~a_complete;
 wire b_clk = ~rst_init & clk & ~b_complete;
-//wire a_clk = ~rst_init & clk & ~a_complete;
-//wire b_clk = ~rst_init & clk & ~b_complete;
 wire rst = 1'b0;
 
 // ILA a (high-level)
