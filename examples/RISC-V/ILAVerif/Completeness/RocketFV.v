@@ -238,12 +238,13 @@ riscv GM(
   );
 
 
-  wire [29:0] pc_word_addr;
-  wire [31:0] pc_mem_inst;
+  //wire [29:0] pc_word_addr;
+  //wire [31:0] pc_mem_inst;
   wire        reg_mem_mismatch_nxt; // accessible at finish1d
   wire        load_not_ack_yet;
   wire        resp_a_non_monitored_req;
-
+  wire        sm_GM_step;
+  wire        sm_Assumpt_Time;
 // *** Shared Memory
 ShareMem sm(
     .clock(clock), .reset(reset),
@@ -306,13 +307,16 @@ ShareMem sm(
     .mem_wdata0(mem_wdata0),
 
     // *** mem fetch assertion
-    .pc_word_addr(pc_word_addr),
-    .pc_mem_inst(pc_mem_inst),
+    //.pc_word_addr(pc_word_addr),
+    //.pc_mem_inst(pc_mem_inst),
 
     // kill unrelated memory operation
     .ex_monitor(ex_monitor),
     .load_not_ack_yet(load_not_ack_yet),
-    .resp_a_non_monitored_req(resp_a_non_monitored_req)
+    .resp_a_non_monitored_req(resp_a_non_monitored_req),
+
+    .GM_step(sm_GM_step),
+    .Assumpt_Time(sm_Assumpt_Time)
      );
 
 
@@ -334,6 +338,11 @@ ShareMem sm(
   wire [31:0] IMPL_wb_reg_inst_o;
 
   wire no_first_valid_pc;
+
+  wire IMPL_id_rs_0_in_use;
+  wire IMPL_id_rs_1_in_use;
+  wire [31:0] IMPL_ex_rs_0_o;
+  wire [31:0] IMPL_ex_rs_1_o;
 
   //rf IDX
   wire [4:0]  rf_idx_i;
@@ -490,6 +499,13 @@ Rocket dut(
 
       .rf_idx_i(rf_idx_i),
       .rf_idx_o(rf_idx_o),
+
+      .id_rs_0_in_use(IMPL_id_rs_0_in_use),
+      .id_rs_1_in_use(IMPL_id_rs_1_in_use),
+
+      .ex_rs_0_o(IMPL_ex_rs_0_o),
+      .ex_rs_1_o(IMPL_ex_rs_1_o),
+
     // Output states
       .x0(IMPL_x0),
       .x1(IMPL_x1),
@@ -653,60 +669,71 @@ wire inst_gpr_assert_cond = mem_monitor & IMPL_wb_valid_o;
     assume property (~( inst_begin_cond ) | (IMPL_ibuf_io_pc_o == GM_pc) );
 
 // --  Memory fetch assumption:
-    assign pc_word_addr = IMPL_ibuf_io_pc_o[31:2];
-    assume property (~( IMPL_ibuf_io_inst_0_valid_o ) | (pc_mem_inst == IMPL_ibuf_io_inst_0_bits_inst_bits_o) ); // inst_begin_cond
+    //assign pc_word_addr = IMPL_ibuf_io_pc_o[31:2];
+    reg [31:0] instruction_interested;
+    always @(posedge clock) begin 
+        if(inst_begin_cond)
+            instruction_interested <= IMPL_ibuf_io_inst_0_bits_inst_bits_o;
+    end
+
+    assume property ( ~ (GM_step) | (instruction_interested == mem_rdata0 ) );
+
+    //assume property (~( IMPL_ibuf_io_inst_0_valid_o ) | (pc_mem_inst == IMPL_ibuf_io_inst_0_bits_inst_bits_o) ); // inst_begin_cond
+
+    assign  sm_GM_step = GM_step;
+    assign  sm_Assumpt_Time = IMPL_ibuf_io_inst_0_valid_o;
 // --  No interrupt assumption:
-    wire isLB = (pc_mem_inst & 32'h0000707f) == 32'h00000003;
-    wire isLW = (pc_mem_inst & 32'h0000707f) == 32'h00002003;
-    wire isLH = (pc_mem_inst & 32'h0000707f) == 32'h00001003;
-    wire isLD = (pc_mem_inst & 32'h0000707f) == 32'h00003003;
-    wire isLBU = (pc_mem_inst & 32'h0000707f) == 32'h00004003;
-    wire isLHU = (pc_mem_inst & 32'h0000707f) == 32'h00005003;
-    wire isLWU = (pc_mem_inst & 32'h0000707f) == 32'h00006003;
-    wire isSB = (pc_mem_inst & 32'h0000707f) == 32'h00000023;
-    wire isSH = (pc_mem_inst & 32'h0000707f) == 32'h00001023;
-    wire isSW = (pc_mem_inst & 32'h0000707f) == 32'h00002023;
-    wire isSD = (pc_mem_inst & 32'h0000707f) == 32'h00003023;
-    wire isBEQ = (pc_mem_inst & 32'h0000707f) == 32'h00000063;
-    wire isBNE = (pc_mem_inst & 32'h0000707f) == 32'h00001063;
-    wire isBLT = (pc_mem_inst & 32'h0000707f) == 32'h00004063;
-    wire isBGE = (pc_mem_inst & 32'h0000707f) == 32'h00005063;
-    wire isBLTU = (pc_mem_inst & 32'h0000707f) == 32'h00006063;
-    wire isBGEU = (pc_mem_inst & 32'h0000707f) == 32'h00007063;
-    wire isJAL = (pc_mem_inst & 32'h0000007f) == 32'h0000006f;
-    wire isJALR = (pc_mem_inst & 32'h0000707f) == 32'h00000067;
-    wire isLUI = (pc_mem_inst & 32'h0000007f) == 32'h00000037;
-    wire isAUIPC = (pc_mem_inst & 32'h0000007f) == 32'h00000017;
-    wire isADDI = (pc_mem_inst & 32'h0000707f) == 32'h00000013;
-    wire isSLTI = (pc_mem_inst & 32'h0000707f) == 32'h00002013;
-    wire isSLTIU = (pc_mem_inst & 32'h0000707f) == 32'h00003013;
-    wire isXORI = (pc_mem_inst & 32'h0000707f) == 32'h00004013;
-    wire isORI = (pc_mem_inst & 32'h0000707f) == 32'h00006013;
-    wire isANDI = (pc_mem_inst & 32'h0000707f) == 32'h00007013;
-    wire isSRLI = (pc_mem_inst & 32'hfe00707f) == 32'h00005013;
-    wire isSRAI = (pc_mem_inst & 32'hfe00707f) == 32'h40005013;
-    wire isSLLI = (pc_mem_inst & 32'hfe00707f) == 32'h00001013;
-    wire isADD = (pc_mem_inst & 32'hfe00707f) == 32'h00000033;
-    wire isSUB = (pc_mem_inst & 32'hfe00707f) == 32'h40000033;
-    wire isSLL = (pc_mem_inst & 32'hfe00707f) == 32'h00001033;
-    wire isSLT = (pc_mem_inst & 32'hfe00707f) == 32'h00002033;
-    wire isSLTU = (pc_mem_inst & 32'hfe00707f) == 32'h00003033;
-    wire isXOR = (pc_mem_inst & 32'hfe00707f) == 32'h00004033;
-    wire isSRL = (pc_mem_inst & 32'hfe00707f) == 32'h00005033;
-    wire isSRA = (pc_mem_inst & 32'hfe00707f) == 32'h40005033;
-    wire isOR = (pc_mem_inst & 32'hfe00707f) == 32'h00006033;
-    wire isAND = (pc_mem_inst & 32'hfe00707f) == 32'h00007033;
-    wire isCSRRW = (pc_mem_inst & 32'h0000707f) == 32'h00001073;
-    wire isCSRRS = (pc_mem_inst & 32'h0000707f) == 32'h00002073;
-    wire isCSRRC = (pc_mem_inst & 32'h0000707f) == 32'h00003073;
-    wire isCSRRWI = (pc_mem_inst & 32'h0000707f) == 32'h00005073;
-    wire isCSRRSI = (pc_mem_inst & 32'h0000707f) == 32'h00006073;
-    wire isCSRRCI = (pc_mem_inst & 32'h0000707f) == 32'h00007073;
-    wire isECALL = (pc_mem_inst & 32'hffffffff) == 32'h00000073;
-    wire isEBREAK = (pc_mem_inst & 32'hffffffff) == 32'h00100073;
-    wire isSRET = (pc_mem_inst & 32'hffffffff) == 32'h10200073;
-    wire isMRET = (pc_mem_inst & 32'hffffffff) == 32'h30200073;
-    wire isSFENCE_VM = (pc_mem_inst & 32'hfff07fff) == 32'h10400073;
+    wire isLB = (IMPL_ibuf_io_inst_0_bits_inst_bits_o & 32'h0000707f) == 32'h00000003;
+    wire isLW = (IMPL_ibuf_io_inst_0_bits_inst_bits_o & 32'h0000707f) == 32'h00002003;
+    wire isLH = (IMPL_ibuf_io_inst_0_bits_inst_bits_o & 32'h0000707f) == 32'h00001003;
+    wire isLD = (IMPL_ibuf_io_inst_0_bits_inst_bits_o & 32'h0000707f) == 32'h00003003;
+    wire isLBU = (IMPL_ibuf_io_inst_0_bits_inst_bits_o & 32'h0000707f) == 32'h00004003;
+    wire isLHU = (IMPL_ibuf_io_inst_0_bits_inst_bits_o & 32'h0000707f) == 32'h00005003;
+    wire isLWU = (IMPL_ibuf_io_inst_0_bits_inst_bits_o & 32'h0000707f) == 32'h00006003;
+    wire isSB = (IMPL_ibuf_io_inst_0_bits_inst_bits_o & 32'h0000707f) == 32'h00000023;
+    wire isSH = (IMPL_ibuf_io_inst_0_bits_inst_bits_o & 32'h0000707f) == 32'h00001023;
+    wire isSW = (IMPL_ibuf_io_inst_0_bits_inst_bits_o & 32'h0000707f) == 32'h00002023;
+    wire isSD = (IMPL_ibuf_io_inst_0_bits_inst_bits_o & 32'h0000707f) == 32'h00003023;
+    wire isBEQ = (IMPL_ibuf_io_inst_0_bits_inst_bits_o & 32'h0000707f) == 32'h00000063;
+    wire isBNE = (IMPL_ibuf_io_inst_0_bits_inst_bits_o & 32'h0000707f) == 32'h00001063;
+    wire isBLT = (IMPL_ibuf_io_inst_0_bits_inst_bits_o & 32'h0000707f) == 32'h00004063;
+    wire isBGE = (IMPL_ibuf_io_inst_0_bits_inst_bits_o & 32'h0000707f) == 32'h00005063;
+    wire isBLTU = (IMPL_ibuf_io_inst_0_bits_inst_bits_o & 32'h0000707f) == 32'h00006063;
+    wire isBGEU = (IMPL_ibuf_io_inst_0_bits_inst_bits_o & 32'h0000707f) == 32'h00007063;
+    wire isJAL = (IMPL_ibuf_io_inst_0_bits_inst_bits_o & 32'h0000007f) == 32'h0000006f;
+    wire isJALR = (IMPL_ibuf_io_inst_0_bits_inst_bits_o & 32'h0000707f) == 32'h00000067;
+    wire isLUI = (IMPL_ibuf_io_inst_0_bits_inst_bits_o & 32'h0000007f) == 32'h00000037;
+    wire isAUIPC = (IMPL_ibuf_io_inst_0_bits_inst_bits_o & 32'h0000007f) == 32'h00000017;
+    wire isADDI = (IMPL_ibuf_io_inst_0_bits_inst_bits_o & 32'h0000707f) == 32'h00000013;
+    wire isSLTI = (IMPL_ibuf_io_inst_0_bits_inst_bits_o & 32'h0000707f) == 32'h00002013;
+    wire isSLTIU = (IMPL_ibuf_io_inst_0_bits_inst_bits_o & 32'h0000707f) == 32'h00003013;
+    wire isXORI = (IMPL_ibuf_io_inst_0_bits_inst_bits_o & 32'h0000707f) == 32'h00004013;
+    wire isORI = (IMPL_ibuf_io_inst_0_bits_inst_bits_o & 32'h0000707f) == 32'h00006013;
+    wire isANDI = (IMPL_ibuf_io_inst_0_bits_inst_bits_o & 32'h0000707f) == 32'h00007013;
+    wire isSRLI = (IMPL_ibuf_io_inst_0_bits_inst_bits_o & 32'hfe00707f) == 32'h00005013;
+    wire isSRAI = (IMPL_ibuf_io_inst_0_bits_inst_bits_o & 32'hfe00707f) == 32'h40005013;
+    wire isSLLI = (IMPL_ibuf_io_inst_0_bits_inst_bits_o & 32'hfe00707f) == 32'h00001013;
+    wire isADD = (IMPL_ibuf_io_inst_0_bits_inst_bits_o & 32'hfe00707f) == 32'h00000033;
+    wire isSUB = (IMPL_ibuf_io_inst_0_bits_inst_bits_o & 32'hfe00707f) == 32'h40000033;
+    wire isSLL = (IMPL_ibuf_io_inst_0_bits_inst_bits_o & 32'hfe00707f) == 32'h00001033;
+    wire isSLT = (IMPL_ibuf_io_inst_0_bits_inst_bits_o & 32'hfe00707f) == 32'h00002033;
+    wire isSLTU = (IMPL_ibuf_io_inst_0_bits_inst_bits_o & 32'hfe00707f) == 32'h00003033;
+    wire isXOR = (IMPL_ibuf_io_inst_0_bits_inst_bits_o & 32'hfe00707f) == 32'h00004033;
+    wire isSRL = (IMPL_ibuf_io_inst_0_bits_inst_bits_o & 32'hfe00707f) == 32'h00005033;
+    wire isSRA = (IMPL_ibuf_io_inst_0_bits_inst_bits_o & 32'hfe00707f) == 32'h40005033;
+    wire isOR = (IMPL_ibuf_io_inst_0_bits_inst_bits_o & 32'hfe00707f) == 32'h00006033;
+    wire isAND = (IMPL_ibuf_io_inst_0_bits_inst_bits_o & 32'hfe00707f) == 32'h00007033;
+    wire isCSRRW = (IMPL_ibuf_io_inst_0_bits_inst_bits_o & 32'h0000707f) == 32'h00001073;
+    wire isCSRRS = (IMPL_ibuf_io_inst_0_bits_inst_bits_o & 32'h0000707f) == 32'h00002073;
+    wire isCSRRC = (IMPL_ibuf_io_inst_0_bits_inst_bits_o & 32'h0000707f) == 32'h00003073;
+    wire isCSRRWI = (IMPL_ibuf_io_inst_0_bits_inst_bits_o & 32'h0000707f) == 32'h00005073;
+    wire isCSRRSI = (IMPL_ibuf_io_inst_0_bits_inst_bits_o & 32'h0000707f) == 32'h00006073;
+    wire isCSRRCI = (IMPL_ibuf_io_inst_0_bits_inst_bits_o & 32'h0000707f) == 32'h00007073;
+    wire isECALL = (IMPL_ibuf_io_inst_0_bits_inst_bits_o & 32'hffffffff) == 32'h00000073;
+    wire isEBREAK = (IMPL_ibuf_io_inst_0_bits_inst_bits_o & 32'hffffffff) == 32'h00100073;
+    wire isSRET = (IMPL_ibuf_io_inst_0_bits_inst_bits_o & 32'hffffffff) == 32'h10200073;
+    wire isMRET = (IMPL_ibuf_io_inst_0_bits_inst_bits_o & 32'hffffffff) == 32'h30200073;
+    wire isSFENCE_VM = (IMPL_ibuf_io_inst_0_bits_inst_bits_o & 32'hfff07fff) == 32'h10400073;
 
 
     wire WBisLB = (IMPL_wb_reg_inst_o & 32'h0000707f) == 32'h00000003;
@@ -812,7 +839,8 @@ wire inst_gpr_assert_cond = mem_monitor & IMPL_wb_valid_o;
     
     // Let's just verify one instruction at a time
     // Do:
-      assume property (~IMPL_ibuf_io_inst_0_valid_o | (isBEQ|isADD|isLW|isSW)); //valid instruction : too tight
+      assume property (~IMPL_ibuf_io_inst_0_valid_o |  (isBEQ|isADD|isLW|isSW) ); //valid instructions : too tight for this :(isBEQ|isADD|isLW|isSW)    DECODE_validInstruction
+    //  assume property ( ~inst_begin_cond | isBEQ ); // one instruction a time
     // Instead of:
     //assume property (~IMPL_ibuf_io_inst_0_valid_o | DECODE_validInstructions); //valid instruction
     assume property (~IMPL_wb_reg_valid_o | WB_validInstructions);
@@ -862,7 +890,6 @@ wire inst_gpr_assert_cond = mem_monitor & IMPL_wb_valid_o;
         check_ready_delay1 <= check_ready;
     end
 
-
 // --  GPR Assertion
     assign GM_step = mem_monitor & IMPL_wb_valid_o;
     assert property ( justFinish |-> (GM_x0 == IMPL_x0) );
@@ -895,9 +922,9 @@ wire inst_gpr_assert_cond = mem_monitor & IMPL_wb_valid_o;
     //assert property ( ( justFinish & resp_a_non_monitored_req & (io_dmem_resp_bits_tag[5:1] == 5'd1)) |-> (GM_x1 == before_val_GM_x1) );
     //assert property ( ( delay_check_point & (inst_decode_rd == 5'd1) ) |->  (GM_x1 == IMPL_x1) );
 
-    assert property (x1_no_resp_overlap);
-    assert property (x1_resp_overlap);
-    assert property (x1_load_delay);
+    x1_nro: assert property (x1_no_resp_overlap);
+    x1_ro:  assert property (x1_resp_overlap);
+    x1_ld:  assert property (x1_load_delay);
 /*
     assert property ( ~justFinish | (GM_x2 == IMPL_x2) );
     assert property ( ~justFinish | (GM_x3 == IMPL_x3) );
@@ -946,10 +973,141 @@ wire inst_gpr_assert_cond = mem_monitor & IMPL_wb_valid_o;
     end
 
     assert property( (no_valid_pc_reg & first_valid_pc) |-> (first_valid_pc == GM_pc) );*/
-    assert property ( before_next_inst_commited |-> ( IMPL_wb_reg_pc_o == GM_pc)  );
+    // This is exactly the second commmited instruction
+
+    // imem request will be acknowledge
+    always @(posedge clock) begin 
+      assume property ( io_imem_req_valid |-> ##[1:$] io_imem_resp_valid );
+    end
+
+    // a valid sequence of dmem_req
+    sequence dmem_req_VALID;
+      io_dmem_req_valid ##1 ~io_dmem_s1_kill ##1 ~io_dmem_s2_nack;
+    endsequence
+
+    // dmem_req shall be replied
+    always @(posedge clock) begin
+      assume property (dmem_req_VALID |-> ##[1:$] io_dmem_replay_next_rand );
+    end
+
+    will_finish: assert property ( inst_finished |-> ##[1:$] (before_next_inst_commited && ( IMPL_wb_reg_pc_o == GM_pc) ) );
+
+
+
+    pc_a: assert property ( before_next_inst_commited |-> ( IMPL_wb_reg_pc_o == GM_pc)  );
     //cover property  (justFinish&no_first_valid_pc);
 // --  Even Harder Assertion: Mem write (may not reply in time)
-    assert property ( inst_finish1d |->  ~reg_mem_mismatch_nxt );
+    mem_match: assert property ( inst_finish1d |->  ~reg_mem_mismatch_nxt );
+
+
+// let's prove the forwarding lemma
+
+ 
+// assumption that bypassing network is working correctly
+   reg[31:0] id_rs_0_reg;
+   reg[4:0]  id_rs_0_field;
+   reg[31:0] id_rs_1_reg;
+   reg[4:0]  id_rs_1_field;
+
+   reg       id_rs_0_in_use;
+   reg       id_rs_1_in_use;
+
+   always @(posedge clock) begin 
+    if(reset) begin 
+      id_rs_0_in_use <= 1'b0;
+      id_rs_1_in_use <= 1'b0;
+      id_rs_0_field  <= 5'd0;
+      id_rs_1_field  <= 5'd0;
+    end
+    else begin 
+      if(inst_begin_cond) begin 
+        id_rs_0_in_use <= IMPL_id_rs_0_in_use;
+        id_rs_1_in_use <= IMPL_id_rs_1_in_use;
+        id_rs_0_field <= IMPL_ibuf_io_inst_0_bits_inst_bits_o[19:15];
+        id_rs_1_field <= IMPL_ibuf_io_inst_0_bits_inst_bits_o[24:20];
+      end
+    end
+   end
+
+   always @(posedge clock) begin 
+    if(inst_begin & IMPL_ex_reg_valid_o & ~IMPL_ctrl_killx_o ) begin 
+      id_rs_0_reg <= IMPL_ex_rs_0_o;
+      id_rs_1_reg <= IMPL_ex_rs_1_o;
+    end
+   end
+
+   // @ inst_begin_cond load
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_0_in_use == 1'b1 && id_rs_0_field == 5'd0 ) || (IMPL_x0 == id_rs_0_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_0_in_use == 1'b1 && id_rs_0_field == 5'd1 ) || (IMPL_x1 == id_rs_0_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_0_in_use == 1'b1 && id_rs_0_field == 5'd2 ) || (IMPL_x2 == id_rs_0_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_0_in_use == 1'b1 && id_rs_0_field == 5'd3 ) || (IMPL_x3 == id_rs_0_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_0_in_use == 1'b1 && id_rs_0_field == 5'd4 ) || (IMPL_x4 == id_rs_0_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_0_in_use == 1'b1 && id_rs_0_field == 5'd5 ) || (IMPL_x5 == id_rs_0_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_0_in_use == 1'b1 && id_rs_0_field == 5'd6 ) || (IMPL_x6 == id_rs_0_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_0_in_use == 1'b1 && id_rs_0_field == 5'd7 ) || (IMPL_x7 == id_rs_0_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_0_in_use == 1'b1 && id_rs_0_field == 5'd8 ) || (IMPL_x8 == id_rs_0_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_0_in_use == 1'b1 && id_rs_0_field == 5'd9 ) || (IMPL_x9 == id_rs_0_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_0_in_use == 1'b1 && id_rs_0_field == 5'd10 ) || (IMPL_x10 == id_rs_0_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_0_in_use == 1'b1 && id_rs_0_field == 5'd11 ) || (IMPL_x11 == id_rs_0_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_0_in_use == 1'b1 && id_rs_0_field == 5'd12 ) || (IMPL_x12 == id_rs_0_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_0_in_use == 1'b1 && id_rs_0_field == 5'd13 ) || (IMPL_x13 == id_rs_0_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_0_in_use == 1'b1 && id_rs_0_field == 5'd14 ) || (IMPL_x14 == id_rs_0_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_0_in_use == 1'b1 && id_rs_0_field == 5'd15 ) || (IMPL_x15 == id_rs_0_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_0_in_use == 1'b1 && id_rs_0_field == 5'd16 ) || (IMPL_x16 == id_rs_0_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_0_in_use == 1'b1 && id_rs_0_field == 5'd17 ) || (IMPL_x17 == id_rs_0_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_0_in_use == 1'b1 && id_rs_0_field == 5'd18 ) || (IMPL_x18 == id_rs_0_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_0_in_use == 1'b1 && id_rs_0_field == 5'd19 ) || (IMPL_x19 == id_rs_0_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_0_in_use == 1'b1 && id_rs_0_field == 5'd20 ) || (IMPL_x20 == id_rs_0_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_0_in_use == 1'b1 && id_rs_0_field == 5'd21 ) || (IMPL_x21 == id_rs_0_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_0_in_use == 1'b1 && id_rs_0_field == 5'd22 ) || (IMPL_x22 == id_rs_0_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_0_in_use == 1'b1 && id_rs_0_field == 5'd23 ) || (IMPL_x23 == id_rs_0_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_0_in_use == 1'b1 && id_rs_0_field == 5'd24 ) || (IMPL_x24 == id_rs_0_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_0_in_use == 1'b1 && id_rs_0_field == 5'd25 ) || (IMPL_x25 == id_rs_0_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_0_in_use == 1'b1 && id_rs_0_field == 5'd26 ) || (IMPL_x26 == id_rs_0_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_0_in_use == 1'b1 && id_rs_0_field == 5'd27 ) || (IMPL_x27 == id_rs_0_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_0_in_use == 1'b1 && id_rs_0_field == 5'd28 ) || (IMPL_x28 == id_rs_0_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_0_in_use == 1'b1 && id_rs_0_field == 5'd29 ) || (IMPL_x29 == id_rs_0_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_0_in_use == 1'b1 && id_rs_0_field == 5'd30 ) || (IMPL_x30 == id_rs_0_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_0_in_use == 1'b1 && id_rs_0_field == 5'd31 ) || (IMPL_x31 == id_rs_0_reg ) ) );
+
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_1_in_use == 1'b1 && id_rs_1_field == 5'd0  ) || (IMPL_x0  == id_rs_1_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_1_in_use == 1'b1 && id_rs_1_field == 5'd1  ) || (IMPL_x1  == id_rs_1_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_1_in_use == 1'b1 && id_rs_1_field == 5'd2  ) || (IMPL_x2  == id_rs_1_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_1_in_use == 1'b1 && id_rs_1_field == 5'd3  ) || (IMPL_x3  == id_rs_1_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_1_in_use == 1'b1 && id_rs_1_field == 5'd4  ) || (IMPL_x4  == id_rs_1_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_1_in_use == 1'b1 && id_rs_1_field == 5'd5  ) || (IMPL_x5  == id_rs_1_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_1_in_use == 1'b1 && id_rs_1_field == 5'd6  ) || (IMPL_x6  == id_rs_1_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_1_in_use == 1'b1 && id_rs_1_field == 5'd7  ) || (IMPL_x7  == id_rs_1_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_1_in_use == 1'b1 && id_rs_1_field == 5'd8  ) || (IMPL_x8  == id_rs_1_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_1_in_use == 1'b1 && id_rs_1_field == 5'd9  ) || (IMPL_x9  == id_rs_1_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_1_in_use == 1'b1 && id_rs_1_field == 5'd10 ) || (IMPL_x10 == id_rs_1_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_1_in_use == 1'b1 && id_rs_1_field == 5'd11 ) || (IMPL_x11 == id_rs_1_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_1_in_use == 1'b1 && id_rs_1_field == 5'd12 ) || (IMPL_x12 == id_rs_1_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_1_in_use == 1'b1 && id_rs_1_field == 5'd13 ) || (IMPL_x13 == id_rs_1_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_1_in_use == 1'b1 && id_rs_1_field == 5'd14 ) || (IMPL_x14 == id_rs_1_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_1_in_use == 1'b1 && id_rs_1_field == 5'd15 ) || (IMPL_x15 == id_rs_1_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_1_in_use == 1'b1 && id_rs_1_field == 5'd16 ) || (IMPL_x16 == id_rs_1_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_1_in_use == 1'b1 && id_rs_1_field == 5'd17 ) || (IMPL_x17 == id_rs_1_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_1_in_use == 1'b1 && id_rs_1_field == 5'd18 ) || (IMPL_x18 == id_rs_1_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_1_in_use == 1'b1 && id_rs_1_field == 5'd19 ) || (IMPL_x19 == id_rs_1_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_1_in_use == 1'b1 && id_rs_1_field == 5'd20 ) || (IMPL_x20 == id_rs_1_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_1_in_use == 1'b1 && id_rs_1_field == 5'd21 ) || (IMPL_x21 == id_rs_1_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_1_in_use == 1'b1 && id_rs_1_field == 5'd22 ) || (IMPL_x22 == id_rs_1_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_1_in_use == 1'b1 && id_rs_1_field == 5'd23 ) || (IMPL_x23 == id_rs_1_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_1_in_use == 1'b1 && id_rs_1_field == 5'd24 ) || (IMPL_x24 == id_rs_1_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_1_in_use == 1'b1 && id_rs_1_field == 5'd25 ) || (IMPL_x25 == id_rs_1_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_1_in_use == 1'b1 && id_rs_1_field == 5'd26 ) || (IMPL_x26 == id_rs_1_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_1_in_use == 1'b1 && id_rs_1_field == 5'd27 ) || (IMPL_x27 == id_rs_1_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_1_in_use == 1'b1 && id_rs_1_field == 5'd28 ) || (IMPL_x28 == id_rs_1_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_1_in_use == 1'b1 && id_rs_1_field == 5'd29 ) || (IMPL_x29 == id_rs_1_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_1_in_use == 1'b1 && id_rs_1_field == 5'd30 ) || (IMPL_x30 == id_rs_1_reg ) ) );
+     assert property (~inst_gpr_assert_cond || ( ~( id_rs_1_in_use == 1'b1 && id_rs_1_field == 5'd31 ) || (IMPL_x31 == id_rs_1_reg ) ) );
+
+   // @ inst_gpr_assert_cond assume they are the same
+
+
+
+
 
 
 endmodule

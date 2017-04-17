@@ -332,6 +332,12 @@ module Rocket(
   input  [4:0]  rf_idx_i,
   output [31:0] rf_idx_o,
 
+  // idstage bypass network
+  output [31:0] ex_rs_0_o,
+  output [31:0] ex_rs_1_o,
+  output        id_rs_0_in_use,
+  output        id_rs_1_in_use,
+
   // Output states
   output [31:0] x0,
   output [31:0] x1,
@@ -5617,6 +5623,29 @@ assign x31 = T_6545[0];
                           ex_reg_valid&ex_pc_valid ? ex_reg_pc : 32'h0;
 
   assign no_first_valid_pc = ~(wb_valid | mem_reg_valid | (ex_reg_valid&ex_pc_valid)  );
+
+  assert property (div_io_resp_valid == 1'b0);
+  assert property (div_io_req_valid == 1'b0);
+  assert property (bpu_io_debug_if == 1'b0);
+  assert property (bpu_io_debug_ld == 1'b0);
+  assert property (bpu_io_debug_st == 1'b0);
+  assert property (bpu_io_xcpt_if == 1'b0);
+  assert property (bpu_io_xcpt_ld == 1'b0);
+  assert property (bpu_io_xcpt_st == 1'b0);
+  
+  assign  id_rs_0_in_use = id_ctrl_rxs1;
+  assign  id_rs_1_in_use = id_ctrl_rxs2;
+  assign ex_rs_0_o = ex_rs_0;
+  assign ex_rs_1_o = ex_rs_1;
+
+  // no rvc lemma
+  // Note: this is not provable, because it should be 
+  // only an assumption
+  reg error;
+  always @(posedge clock) begin
+    error <= ( mem_reg_rvc & ~ctrl_killm );
+  end
+  no_rvc_lemma: assert property ( ~(wb_valid & error) || 1 );
 
 
 endmodule

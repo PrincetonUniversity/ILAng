@@ -5138,4 +5138,7 @@ module CSRFile(
     `endif
     `endif
   end
+  
+  assert property (reg_misa == 32'h40101105);
+  
 endmodule

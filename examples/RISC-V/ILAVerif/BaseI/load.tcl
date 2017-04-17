@@ -17,10 +17,14 @@ analyze -sva \
 
 elaborate -top RocketFV -bbox_a 65536
 
+
 clock clock
 reset reset
 
 get_design_info
+
+
+
 
 	
 	
