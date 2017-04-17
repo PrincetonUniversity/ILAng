@@ -5,82 +5,86 @@
 { (counter > 1) |-> (hls_step == 1) | (ila_complete == 0) \
 } -update_db;
 
+assert -name {bound} \
+{ phase == 1 |-> counter < 15 \
+} -update_db;
+
 # equivalence on arch states
 # arg_1_TREADY
 assert -name {eq - arg_1_TREADY} \
-{ (phase == 1) |-> ( \
+{ (phase == 1 & counter < 15) |-> ( \
     ila_U.arg_1_TREADY == hls_U.arg_1_TREADY \
 ) } -update_db;
 
 # arg_0_TVALID
 assert -name {eq - arg_0_TVALID} \
-{ (phase == 1) |-> ( \
+{ (phase == 1 & counter < 15) |-> ( \
     ila_U.arg_0_TVALID == hls_U.arg_0_TVALID \
 ) } -update_db;
 
 # RAM_x
 assert -name {eq - RAM_x} \
-{ (phase == 1) |-> ( \
+{ (phase == 1 & counter < 15) |-> ( \
     ila_RAM_x == hls_LB2D_proc_x | \
     ila_RAM_x == hls_LB1D_p_cnt \
 ) } -update_db;
 
 # RAM_y
 assert -name {eq - RAM_y} \
-{ (phase == 1) |-> ( \
+{ (phase == 1 & counter < 15) |-> ( \
     ila_RAM_y == hls_LB2D_proc_y \
 ) } -update_db;
 
 # RAM_w
 assert -name {eq - RAM_w} \
-{ (phase == 1) |-> ( \
+{ (phase == 1 & counter < 15) |-> ( \
     ila_RAM_w == hls_LB2D_proc_w \
 ) } -update_db;
 
 # cur_pix
 assert -name {eq - cur_pix} \
-{ (phase == 1) |-> ( \
+{ (phase == 1 & counter < 15) |-> ( \
     ila_cur_pix == hls_LB1D_buff \
 ) } -update_db;
 
 # stencil
 assert -name {eq - stencil_0} \
-{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+{ (phase == 1 & counter < 15) |-> ( \
     ila_stencil_0 == hls_LB2D_shift_0 \
 ) } -update_db;
 #
 assert -name {eq - stencil_1} \
-{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+{ (phase == 1 & counter < 15) |-> ( \
     ila_stencil_1 == hls_LB2D_shift_1 \
 ) } -update_db;
 #
 assert -name {eq - stencil_2} \
-{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+{ (phase == 1 & counter < 15) |-> ( \
     ila_stencil_2 == hls_LB2D_shift_2 \
 ) } -update_db;
 #
 assert -name {eq - stencil_3} \
-{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+{ (phase == 1 & counter < 15) |-> ( \
     ila_stencil_3 == hls_LB2D_shift_3 \
 ) } -update_db;
 #
 assert -name {eq - stencil_4} \
-{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+{ (phase == 1 & counter < 15) |-> ( \
     ila_stencil_4 == hls_LB2D_shift_4 \
 ) } -update_db;
 #
 assert -name {eq - stencil_5} \
-{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+{ (phase == 1 & counter < 15) |-> ( \
     ila_stencil_5 == hls_LB2D_shift_5 \
 ) } -update_db;
 #
 assert -name {eq - stencil_6} \
-{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+{ (phase == 1 & counter < 15) |-> ( \
     ila_stencil_6 == hls_LB2D_shift_6 \
 ) } -update_db;
 #
 assert -name {eq - stencil_7} \
-{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
+{ (phase == 1 & counter < 15) |-> ( \
     ila_stencil_7 == hls_LB2D_shift_7 \
 ) } -update_db;
 
