@@ -1,13 +1,10 @@
 # Assertions for proving equivalence between ILA and HLS
 #
 # instructions terminate
-assert -name {terminate - ila} \
-{ (counter > 5) |-> (ila_complete == 0) \
+assert -name {terminate} \
+{ (counter > 5) |-> (ila_complete == 0 | hls_step == 1) \
 } -update_db;
-# 
-assert -name {terminate - hls} \
-{ (counter > 5) |-> (hls_step == 1) \
-} -update_db;
+
 
 # equivalence on arch states
 # arg_1_TREADY
@@ -17,25 +14,25 @@ assert -name {eq - arg_1_TREADY} \
 ) } -update_db;
 
 # arg_0_TVALID
-assert -name {eq wait - arg_0_TVALID} \
+assert -name {eq - arg_0_TVALID} \
 { (counter > 1 & ila_complete == 1 & hls_step == 0) |-> ( \
     ila_U.arg_0_TVALID == hls_U.arg_0_TVALID \
 ) } -update_db;
 
 # LB1D_p_cnt
-assert -name {eq wait - LB1D_p_cnt} \
+assert -name {eq - LB1D_p_cnt} \
 { (counter > 5 & ila_complete == 1 & hls_step == 0) |-> ( \
     ila_LB1D_p_cnt == hls_LB1D_p_cnt \
 ) } -update_db;
 
 # in_stream_empty
-assert -name {eq wait - in_stream_empty} \
+assert -name {eq - in_stream_empty} \
 { (counter > 1 & ila_complete == 1 & hls_step == 0) |-> ( \
     ila_in_stream_empty == hls_in_stream_empty \
 ) } -update_db;
 
 # in_stream_full
-assert -name {eq wait - in_stream_full} \
+assert -name {eq - in_stream_full} \
 { (counter > 1 & ila_complete == 1 & hls_step == 0) |-> ( \
     ila_in_stream_full == hls_in_stream_full \
 ) } -update_db;

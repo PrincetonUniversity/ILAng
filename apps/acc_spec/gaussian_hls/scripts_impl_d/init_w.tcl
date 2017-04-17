@@ -70,7 +70,7 @@ assume -name {Subset - E} -env \
 )} -type {temporary} -update_db;
 
 # arch-states
-assume -name {init - flush previous instructions - ila} -env \
+assume -name {init - flush ila} -env \
 { counter < 5 |-> ( \
    ~( \
     ((ila_arg_1_TREADY == 0) & (ila_in_stream_full == 0)) | \
@@ -84,7 +84,7 @@ assume -name {init - flush previous instructions - ila} -env \
     ) \
 )} -type {temporary} -update_db;
 
-assume -name {init - flush previous instructions - hls} -env \
+assume -name {init - flush hls} -env \
 { counter < 5 |-> ( \
    ~( \
     ((hls_arg_1_TREADY == 0) & (hls_in_stream_full == 0)) | \
@@ -108,31 +108,12 @@ assume -name {init - valid iterator} -env \
                              hls_U.hls_target_Loop_1_proc_U0.arg_0_V_value_V_1_mVld == 1) \
 )} -type {temporary} -update_db;
 
-#assume -name {init - empty stream buffer} -env \
+assume -name {init - consistent input buffer} -env \
 { counter == 5 |-> ( \
-    hls_in_stream_empty == 1 & hls_in_stream_full == 0 & \
-    hls_slice_stream_empty == 1 & hls_slice_stream_empty == 0 & \
-    hls_stencil_stream_empty == 1 & hls_stencil_stream_full == 0 \
-)} -type {temporary} -update_db;
-
-# no incomplete write to the in stream
-assume -name {init - complete input} -env \
-{ counter == 5 |-> ( \
-    hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.in_stream_V_value_V_write == 0 \
-)} -type {temporary} -update_db;
-
-assume -name {init - consistent input proc} -env \
-{ counter == 5 |-> ( \
+    ila_LB1D_in == ila_LB1D_buff & \
     ila_LB1D_in == ila_LB1D_uIn \
 )} -type {temporary} -update_db;
 
-# no incomplete read to the stencil stream
-assume -name {init - complete output} -env \
-{ counter == 5 |-> ( \
-    hls_U.hls_target_Loop_1_proc_U0.p_p2_in_bounded_stencil_stream_V_value_V_read == 0 \
-)} -type {temporary} -update_db;
-
-# micro-states
 # axi config
 assume -name {init - axi config} -env \
 { counter == 5 |-> ( \
@@ -154,7 +135,7 @@ assume -name {init - stable fsm post} -env \
 )} -type {temporary} -update_db;
 
 # input holding
-assume -name {init - in proc unit it} -env \
+assume -name {init - input processing unit iterator} -env \
 { (counter == 5 & hls_LB1D_p_cnt > 0) |-> ( \
     hls_LB1D_it_1 == 1 \
 )} -type {temporary} -update_db;
