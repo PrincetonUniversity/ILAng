@@ -162,7 +162,8 @@ def U4 (gb):
                                       gb.gb_pp_it_nxt[i])
 
     # gb_exit_it
-    gb_exit_it_0_nxt = ila.ite (gb.gb_p_cnt + gb.gb_p_cnt_1 == gb.gb_p_cnt_M,
+    #gb_exit_it_0_nxt = ila.ite (gb.gb_p_cnt + gb.gb_p_cnt_1 == gb.gb_p_cnt_M,
+    gb_exit_it_0_nxt = ila.ite (gb.gb_p_cnt == gb.gb_p_cnt_M,
                                 gb.gb_exit_it_T, gb.gb_exit_it_F)
     gb.gb_exit_it_nxt[0] = ila.ite (decode, gb_exit_it_0_nxt, 
                                     gb.gb_exit_it_nxt[0])
