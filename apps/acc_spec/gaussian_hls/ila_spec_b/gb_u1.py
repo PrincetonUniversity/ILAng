@@ -44,7 +44,8 @@ def U1 (gb):
     LB1D_it_1_nxt = ila.ite (gb.LB1D_p_cnt == gb.LB1D_p_cnt_M,
                              gb.it_T, gb.it_F)
     LB1D_it_1_nxt = ila.ite (gb.LB1D_p_cnt == gb.LB1D_p_cnt_M - 1,
-                             gb.it_F, gb.it_T) # XXX
+                             gb.it_F, gb.it_T) 
+    LB1D_it_1_nxt = gb.it_T # XXX
     gb.LB1D_it_1_nxt = ila.ite (decode, LB1D_it_1_nxt, gb.LB1D_it_1_nxt)
 
     # 1-D buffer for input data
