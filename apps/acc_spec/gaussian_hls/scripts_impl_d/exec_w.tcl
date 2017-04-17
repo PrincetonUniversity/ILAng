@@ -13,6 +13,7 @@ assume -name {exec - ila continue} -env \
 { (counter > 5) |-> ( \
     ( \
     ((ila_arg_1_TREADY == 0) & (ila_in_stream_full == 0)) | \
+    ((ila_arg_1_TREADY == 1) & (ila_in_stream_full == 0) & (ila_LB1D_it_1 == 1) & (ila_LB1D_p_cnt == 316224)) | \
     ((ila_in_stream_empty == 0) & \
         ((ila_slice_stream_full == 0) | (ila_LB2D_proc_y < 8))) | \
     ((ila_slice_stream_empty == 0) & \
@@ -29,6 +30,7 @@ assume -name {exec - ila break} -env \
 { (counter > 5) |-> ( \
    ~( \
     ((ila_arg_1_TREADY == 0) & (ila_in_stream_full == 0)) | \
+    ((ila_arg_1_TREADY == 1) & (ila_in_stream_full == 0) & (ila_LB1D_it_1 == 1) & (ila_LB1D_p_cnt == 316224)) | \
     ((ila_in_stream_empty == 0) & \
         ((ila_slice_stream_full == 0) | (ila_LB2D_proc_y < 8))) | \
     ((ila_slice_stream_empty == 0) & \
