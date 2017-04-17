@@ -1,4 +1,4 @@
-module GB(
+module SPEC_A(
 arg_0_TREADY,
 arg_1_TDATA,
 arg_1_TVALID,
