@@ -26,7 +26,7 @@ def U1 (gb):
     # arg_1_TREADY
     arg_1_TREADY_nxt = ila.ite (gb.LB1D_p_cnt == gb.LB1D_p_cnt_M - 1,
                                 READY_F, READY_T)
-    #arg_1_TREADY_nxt = READY_T # Eq to hls
+    arg_1_TREADY_nxt = READY_T # XXX
     gb.arg_1_TREADY_nxt = ila.ite (decode, arg_1_TREADY_nxt, 
                                    gb.arg_1_TREADY_nxt)
 
@@ -43,6 +43,8 @@ def U1 (gb):
     # LB1D_it_1
     LB1D_it_1_nxt = ila.ite (gb.LB1D_p_cnt == gb.LB1D_p_cnt_M,
                              gb.it_T, gb.it_F)
+    LB1D_it_1_nxt = ila.ite (gb.LB1D_p_cnt == gb.LB1D_p_cnt_M - 1,
+                             gb.it_F, gb.it_T) # XXX
     gb.LB1D_it_1_nxt = ila.ite (decode, LB1D_it_1_nxt, gb.LB1D_it_1_nxt)
 
     # 1-D buffer for input data
@@ -60,6 +62,7 @@ def U1 (gb):
     LB1D_p_cnt_nxt = ila.ite (gb.LB1D_p_cnt == gb.LB1D_p_cnt_M,
                               gb.LB1D_p_cnt_0, 
                               gb.LB1D_p_cnt + gb.LB1D_p_cnt_1)
+    LB1D_p_cnt_nxt = gb.LB1D_p_cnt + gb.LB1D_p_cnt_1 # XXX
     gb.LB1D_p_cnt_nxt = ila.ite (decode, LB1D_p_cnt_nxt, gb.LB1D_p_cnt_nxt)
 
     # in stream full

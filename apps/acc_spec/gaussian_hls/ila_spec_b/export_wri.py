@@ -4,6 +4,7 @@ from gb_arch import GBArch
 from gb_wri import WRI
 from gb_u1 import U1
 from gb_u1b import U1b
+from gb_u1c import U1c
 from gb_u2 import U2
 from gb_u3 import U3
 from gb_u3b import U3b
@@ -13,6 +14,7 @@ def createILA ():
     gb = GBArch ()
     U1 (gb)
     U1b (gb)
+    U1c (gb)
     U2 (gb)
     U3 (gb)
     U3b (gb)
