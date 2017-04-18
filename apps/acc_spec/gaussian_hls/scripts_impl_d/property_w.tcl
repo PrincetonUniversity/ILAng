@@ -5,7 +5,49 @@ assert -name {terminate} \
 { (counter > 5) |-> (ila_complete == 0 | hls_step == 1) \
 } -update_db;
 
-assert -name {bound help 0} \
+assert -name {bound help 0} { counter == 0 |=> counter == 1 } -update_db;
+assert -name {bound help 1} { counter == 1 |=> counter == 2 } -update_db;
+assert -name {bound help 2} { counter == 2 |=> counter == 3 } -update_db;
+assert -name {bound help 3} { counter == 3 |=> counter == 4 } -update_db;
+assert -name {bound help 4} { counter == 4 |=> counter == 5 } -update_db;
+assert -name {bound help 5} { counter == 5 |=> counter == 6 } -update_db;
+assert -name {bound help 6} { counter == 6 |=> counter == 7 } -update_db;
+assert -name {bound help 7} { counter == 7 |=> counter == 8 } -update_db;
+assert -name {bound help 8} { counter == 8 |=> counter == 9 } -update_db;
+assert -name {bound help 9} { counter == 9 |=> counter == 10 } -update_db;
+assert -name {bound help 10} { counter == 10 |=> counter == 11 } -update_db;
+assert -name {bound help 11} { counter == 11 |=> counter == 12 } -update_db;
+assert -name {bound help 12} { counter == 12 |=> counter == 13 } -update_db;
+assert -name {bound help 13} { counter == 13 |=> counter == 14 } -update_db;
+assert -name {bound help 14} { counter == 14 |=> counter == 15 } -update_db;
+assert -name {bound help 15} { counter == 15 |=> counter == 16 } -update_db;
+assert -name {bound help 16} { counter == 16 |=> counter == 17 } -update_db;
+assert -name {bound help 17} { counter == 17 |=> counter == 18 } -update_db;
+assert -name {bound help 18} { counter == 18 |=> counter == 19 } -update_db;
+assert -name {bound help 19} { counter == 19 |=> counter == 20 } -update_db;
+assert -name {bound help 20} { counter == 20 |=> counter == 21 } -update_db;
+assert -name {bound help 21} { counter == 21 |=> counter == 22 } -update_db;
+assert -name {bound help 22} { counter == 22 |=> counter == 23 } -update_db;
+assert -name {bound help 23} { counter == 23 |=> counter == 24 } -update_db;
+assert -name {bound help 24} { counter == 24 |=> counter == 25 } -update_db;
+assert -name {bound help 25} { counter == 25 |=> counter == 26 } -update_db;
+assert -name {bound help 26} { counter == 26 |=> counter == 27 } -update_db;
+assert -name {bound help 27} { counter == 27 |=> counter == 28 } -update_db;
+assert -name {bound help 28} { counter == 28 |=> counter == 29 } -update_db;
+assert -name {bound help 29} { counter == 29 |=> counter == 30 } -update_db;
+assert -name {bound help 30} { counter == 30 |=> counter == 31 } -update_db;
+assert -name {bound help 31} { counter == 31 |=> counter == 32 } -update_db;
+
+assert -name {bound end} { counter == 30 |=> (counter > 30 & counter < 40) } -update_db;
+assert -name {bound inv} { (counter > 30 & counter < 40) |=> (counter > 30 & counter < 40) } -update_db;
+assert -name {bound - ila} { counter == 30 |-> ila_complete == 1 } -update_db;
+assert -name {bound - hls} { counter == 30 |-> hls_step == 0 } -update_db;
+assert -name {fix point entry - ila} { (counter > 30 & counter < 40) |-> ila_complete == 1 } -update_db;
+assert -name {fix point entry - hls} { (counter > 30 & counter < 40) |-> hls_step == 0 } -update_db;
+assert -name {fix point - ila} { ila_complete == 1 |=> ila_complete == 1 } -update_db;
+assert -name {fix point - hls} { hls_step == 0 |=> hls_step == 0 } -update_db;
+
+#assert -name {bound help 0} \
 { counter == 0 |=> \
   counter == 1 |=> \
   counter == 2 |=> \
@@ -18,7 +60,7 @@ assert -name {bound help 0} \
   counter == 9 |=> \
   counter == 10 } -update_db;
 #
-assert -name {bound help 1} \
+#assert -name {bound help 1} \
 { counter == 10 |=> \
   counter == 11 |=> \
   counter == 12 |=> \
@@ -31,7 +73,7 @@ assert -name {bound help 1} \
   counter == 19 |=> \
   counter == 20 } -update_db;
 #
-assert -name {bound help 2} \
+#assert -name {bound help 2} \
 { counter == 20 |=> \
   counter == 21 |=> \
   counter == 22 |=> \
@@ -44,11 +86,6 @@ assert -name {bound help 2} \
   counter == 29 |=> \
   counter == 30 } -update_db;
 #
-assert -name {bound ila} \
-{ counter == 30 |-> ila_complete == 1 } -update_db;
-#
-assert -name {bound hls} \
-{ counter == 30 |-> hls_step == 0 } -update_db;
 
 # equivalence on arch states
 # arg_1_TREADY
