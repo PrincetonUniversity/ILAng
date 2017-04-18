@@ -7,7 +7,7 @@ include $TCL/setup_w.tcl
 include $TCL/eqcheck_w.tcl
 
 set_prove_time_limit 0s; set_prove_per_property_time_limit 0s
-set_max_trace_length 25; set_prove_per_property_max_time_limit 30m
+set_max_trace_length 30; set_prove_per_property_max_time_limit 60m
 
 
 assume -disable {::Subset - A}
@@ -16,6 +16,9 @@ assume -disable {::Subset - C1}
 assume -disable {::Subset - C2}
 assume -disable {::Subset - D}
 assume -disable {::Subset - E}
+
+assert -disable <embedded>::terminate
+assume -from_assert {<embedded>::bound help 0} {<embedded>::bound help 1} {<embedded>::bound help 2} {<embedded>::bound ila} {<embedded>::bound hls}
 
 assume -disable {::arch equal - data}; 
 assume -disable {::init - consistent RAM access}
@@ -32,8 +35,6 @@ assert -disable {<embedded>::eq - LB1D_in}; assert -disable {<embedded>::eq - LB
 #save -jdb $EXP/wri_ctr_B.jdb -capture_setup -capture_session_data
 #assume -disable {::Subset - B}
 
-#
-
 #assume -enable {::Subset - C1}
 #prove -all
 #save -jdb $EXP/wri_ctr_C1.jdb -capture_setup -capture_session_data
@@ -43,8 +44,6 @@ assert -disable {<embedded>::eq - LB1D_in}; assert -disable {<embedded>::eq - LB
 #prove -all
 #save -jdb $EXP/wri_ctr_C2.jdb -capture_setup -capture_session_data
 #assume -disable {::Subset - C2}
-
-#
 
 #assume -enable {::Subset - D}
 #prove -all
@@ -73,19 +72,17 @@ assert -disable {<embedded>::eq - LB1D_in}; assert -disable {<embedded>::eq - LB
 #save -jdb $EXP/wri_dat_B.jdb -capture_setup -capture_session_data
 #assume -disable {::Subset - B}
 
-#
-
 #assume -enable {::Subset - C1}
 #prove -all
 #save -jdb $EXP/wri_dat_C1.jdb -capture_setup -capture_session_data
 #assume -disable {::Subset - C1}
 
+#
+
 #assume -enable {::Subset - C2}
 #prove -all
 #save -jdb $EXP/wri_dat_C2.jdb -capture_setup -capture_session_data
 #assume -disable {::Subset - C2}
-
-#
 
 #assume -enable {::Subset - D}
 #prove -all

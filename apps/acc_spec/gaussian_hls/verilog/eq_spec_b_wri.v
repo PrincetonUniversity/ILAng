@@ -71,6 +71,9 @@ always @ (posedge clk) begin
     if (rst_init) begin
         counter <= 16'b0;
     end
+    else if (counter == 35) begin
+        counter <= 35;
+    end
     else begin
         counter <= counter + 16'b1;
     end
@@ -82,7 +85,12 @@ always @ (posedge clk) begin
         hls_wait <= 8'b0;
     end
     else if (hls_complete) begin
-        hls_wait <= hls_wait + 1;
+        if (hls_wait == 10) begin
+            hls_wait <= 10;
+        end
+        else begin
+            hls_wait <= hls_wait + 1;
+        end
     end
     else begin
         hls_wait <= 8'b0;
@@ -93,7 +101,6 @@ wire hls_step = (hls_wait <= 5);
 //wire hls_step = (hls_wait == 0);
 
 wire ila_clk = ~rst_init & clk & ~ila_complete;
-//wire hls_clk = ~rst_init & clk & ~hls_complete;
 wire hls_clk = ~rst_init & clk & hls_step;
 wire rst = 1'b0;
 
