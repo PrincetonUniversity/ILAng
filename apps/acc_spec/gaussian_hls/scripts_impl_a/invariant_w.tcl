@@ -244,10 +244,10 @@ assume -name {inv - axi config} -env \
 # uninterpreted funcion
 assume -name {inv - GB ufun} -env \
 { ( \
-    (ila_proc_in == hls_stencil_stream_buff_0 | \
-     ila_proc_in == hls_stencil_stream_buff_1) & \
-    ila_arg_0_TVALID == 1 & \
-    hls_arg_0_TVALID == 1 \
+    ((ila_proc_in == hls_stencil_stream_buff_0 | \
+      ila_proc_in == hls_stencil_stream_buff_1) & \
+     (ila_arg_0_TVALID == 1) & \
+     (hls_arg_0_TVALID == 1)) \
     |-> \
     ila_arg_0_TDATA == hls_arg_0_TDATA \
 )} -type {temporary} -update_db;

@@ -5,6 +5,23 @@
 { (counter > 1) |-> (hls_step == 1) | (ila_complete == 0) \
 } -update_db;
 
+assert -name {bound help 0} { counter == 0 |=> counter == 1 } -update_db;
+assert -name {bound help 1} { counter == 1 |=> counter == 2 } -update_db;
+assert -name {bound help 2} { counter == 2 |=> counter == 3 } -update_db;
+assert -name {bound help 3} { counter == 3 |=> counter == 4 } -update_db;
+assert -name {bound help 4} { counter == 4 |=> counter == 5 } -update_db;
+assert -name {bound help 5} { counter == 5 |=> counter == 6 } -update_db;
+assert -name {bound help 6} { counter == 6 |=> counter == 7 } -update_db;
+assert -name {bound help 7} { counter == 7 |=> counter == 8 } -update_db;
+assert -name {bound help 8} { counter == 8 |=> counter == 9 } -update_db;
+assert -name {bound help 9} { counter == 9 |=> counter == 10 } -update_db;
+assert -name {bound help 10} { counter == 10 |=> counter == 11 } -update_db;
+assert -name {bound help 11} { counter == 11 |=> counter == 12 } -update_db;
+assert -name {bound help 12} { counter == 12 |=> counter == 13 } -update_db;
+assert -name {bound help 13} { counter == 13 |=> counter == 14 } -update_db;
+assert -name {bound help 14} { counter == 14 |=> counter == 15 } -update_db;
+assert -name {bound help 15} { counter == 15 |=> counter == 15 } -update_db;
+
 assert -name {bound} \
 { phase == 1 |-> counter < 15 \
 } -update_db;
