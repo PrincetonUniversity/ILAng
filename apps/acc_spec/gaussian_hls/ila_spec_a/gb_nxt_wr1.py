@@ -41,16 +41,19 @@ def WRU1 (gb):
     for i in xrange (gb.stencil_size-1, -1, -1):
         stencil_rows.append (genRows (i))
 
-    proc_in_nxt = ila.ite (gb.RAM_x > gb.stencil_size - 1,
+    proc_in_nxt = ila.ite (((gb.RAM_x > gb.stencil_size - 1) & \
+                            (gb.RAM_y >= gb.RAM_size)) | \
+                           ((gb.RAM_x == gb.RAM_x_1) & \
+                            (gb.RAM_y >  gb.RAM_size)), \
                            ila.concat (stencil_rows),
                            gb.proc_in)
+                               
     proc_in_nxt = ila.ite (relPixel, gb.proc_in, proc_in_nxt)
     gb.proc_in_nxt = ila.ite (decode, proc_in_nxt, gb.proc_in_nxt)
 
     # next state functions for output ports
     arg_1_TREADY_nxt = ila.ite (endPixel, READY_F, READY_T) # XXX
     arg_1_TRAEDY_nxt = ila.ite (relPixel, READY_T, arg_1_TREADY_nxt)
-    #arg_1_TREADY_nxt = READY_T
     gb.arg_1_TREADY_nxt = ila.ite (decode, arg_1_TREADY_nxt, gb.arg_1_TREADY_nxt)
 
     arg_0_TVALID_nxt = ila.ite (((gb.RAM_x > gb.stencil_size - 1) & \
