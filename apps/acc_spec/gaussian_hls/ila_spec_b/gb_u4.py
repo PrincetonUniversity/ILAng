@@ -34,7 +34,7 @@ def U4 (gb):
     gb.arg_1_TREADY_nxt = ila.ite (decode, arg_1_TREADY_nxt, gb.arg_1_TREADY_nxt)
 
     # arg_0_TVALID
-    arg_0_TVALID_nxt = ila.ite ((gb.gb_pp_it[7] == IT_T) & (gb.gb_exit_it[7] == IT_F), 
+    arg_0_TVALID_nxt = ila.ite ((gb.gb_pp_it[7] == IT_T) & (gb.gb_exit_it[6] == IT_F), 
                                 VALID_T, VALID_F)
     gb.arg_0_TVALID_nxt = ila.ite (decode, arg_0_TVALID_nxt, gb.arg_0_TVALID_nxt)
 
