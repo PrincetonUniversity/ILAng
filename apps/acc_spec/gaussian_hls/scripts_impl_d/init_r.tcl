@@ -174,10 +174,12 @@ assume -name {init - consistent exitcond GB} -env \
 )} -type {temporary} -update_db;
 
 # consistent ready for write instruction
+# TODO value_has_vld_data_reg is to buffer the pixel in input processing unit, can be extracted without trigger (pull by READ)
 assume -name {init - consistent input ready} -env \
 { counter == 5 |-> ( \
     (hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.in_axi_stream_V_last_V_0_has_vld_data_reg_i == \
      hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.in_axi_stream_V_last_V_0_has_vld_data_reg) & \
+    (hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.in_axi_stream_V_value_V_0_has_vld_data_reg == 0) & \
     (hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.in_axi_stream_V_value_V_0_has_vld_data_reg == \
      hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.in_axi_stream_V_value_V_0_has_vld_data_reg_i) \
 )} -type {temporary} -update_db;
