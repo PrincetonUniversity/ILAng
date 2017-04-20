@@ -178,7 +178,7 @@ def U3 (gb):
                                              gb.stencil_stream_buff_nxt[0])
     for i in xrange (1, gb.stencil_stream_size):
         stencil_stream_buff_i_nxt = gb.stencil_stream_buff[i-1]
-        gb.stencil_stream_buff_nxt[i] = ila.ite (decode, 
+        gb.stencil_stream_buff_nxt[i] = ila.ite (decode & passToStencil, 
                                                  stencil_stream_buff_i_nxt,
                                                  gb.stencil_stream_buff_nxt[i])
 
