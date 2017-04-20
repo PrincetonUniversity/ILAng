@@ -19,15 +19,29 @@ assume -disable {::Subset - C4};
 assume -disable {::Subset - D}; 
 assume -disable {::Subset - E}
 
+#set_engine_mode {Ht B N}
+#assert -remove <embedded>::bound; assert -remove {<embedded>::eq - stencil_1}; assert -remove {<embedded>::eq - stencil_2}; assert -remove {<embedded>::eq - stencil_3}; assert -remove {<embedded>::eq - stencil_4}; assert -remove {<embedded>::eq - stencil_5}; assert -remove {<embedded>::eq - stencil_6}; assert -remove {<embedded>::eq - arg_0_TDATA}; assert -remove {<embedded>::eq - RAM_1}; assert -remove {<embedded>::eq - RAM_2}; assert -remove {<embedded>::eq - RAM_3}; assert -remove {<embedded>::eq - RAM_4}; assert -remove {<embedded>::eq - RAM_5}; assert -remove {<embedded>::eq - RAM_6}; assert -remove {<embedded>::eq - RAM_7}
+
+
 #assume -enable {::Subset - A}
 #include $TCL/iterate_w.tcl
 #save -jdb $EXP/wri_A.jdb -capture_setup -capture_session_data
 #assume -disable {::Subset - A}
 
-#assume -enable {::Subset - E}
+#assume -enable {::Subset - B}
 #include $TCL/iterate_w.tcl
-#save -jdb $EXP/wri_E.jdb -capture_setup -capture_session_data
-#assume -disable {::Subset - E}
+#save -jdb $EXP/wri_B.jdb -capture_setup -capture_session_data
+#assume -disable {::Subset - B}
+
+#assume -enable {::Subset - C1}
+#include $TCL/iterate_w.tcl
+#save -jdb $EXP/wri_C1.jdb -capture_setup -capture_session_data
+#assume -disable {::Subset - C1}
+
+#assume -enable {::Subset - C2}
+#include $TCL/iterate_w.tcl
+#save -jdb $EXP/wri_C2.jdb -capture_setup -capture_session_data
+#assume -disable {::Subset - C2}
 
 #assume -enable {::Subset - C3}
 #include $TCL/iterate_w.tcl
@@ -39,28 +53,14 @@ assume -disable {::Subset - E}
 #save -jdb $EXP/wri_C4.jdb -capture_setup -capture_session_data
 #assume -disable {::Subset - C4}
 
-####
-
-#assume -enable {::Subset - B}
-#include $TCL/iterate_w.tcl
-#save -jdb $EXP/wri_B.jdb -capture_setup -capture_session_data
-#assume -disable {::Subset - B}
-
 #assume -enable {::Subset - D}
 #include $TCL/iterate_w.tcl
 #save -jdb $EXP/wri_D.jdb -capture_setup -capture_session_data
 #assume -disable {::Subset - D}
 
-####
-
-#assume -enable {::Subset - C1}
+#assume -enable {::Subset - E}
 #include $TCL/iterate_w.tcl
-#save -jdb $EXP/wri_C1.jdb -capture_setup -capture_session_data
-#assume -disable {::Subset - C1}
-
-#assume -enable {::Subset - C2}
-#include $TCL/iterate_w.tcl
-#save -jdb $EXP/wri_C2.jdb -capture_setup -capture_session_data
-#assume -disable {::Subset - C2}
+#save -jdb $EXP/wri_E.jdb -capture_setup -capture_session_data
+#assume -disable {::Subset - E}
 
 #exit
