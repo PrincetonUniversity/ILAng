@@ -336,7 +336,7 @@ assert -name {eq - LB2D_shift_7} \
 ) } -update_db;
 #
 assert -name {eq - arg_0_TDATA} \
-{ (counter > 5 & ila_complete == 1 & hls_step == 0) |-> ( \
+{ (counter > 5 & ila_complete == 1 & hls_step == 0 & ila_arg_0_TVALID == 1 & hls_arg_0_TVALID == 1) |-> ( \
     ila_arg_0_TDATA == hls_arg_0_TDATA \
 ) } -update_db;
 #

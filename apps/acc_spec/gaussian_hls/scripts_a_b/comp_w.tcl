@@ -61,3 +61,79 @@ assume -name {arch equal - data} -env \
     a_stencil_8 == b_slice_stream_buff_1 \
 )} -type {temporary} -update_db;
 #
+assume -name {arch equal - iterator} -env \
+{ counter == 0 |=> ( \
+    (ila_a.gbit == 0 & \
+     b_gb_exit_it_1 == 0 & \
+     b_gb_exit_it_2 == 0 & \
+     b_gb_exit_it_3 == 0 & \
+     b_gb_exit_it_4 == 0 & \
+     b_gb_exit_it_5 == 0 & \
+     b_gb_exit_it_6 == 0 & \
+     b_gb_exit_it_7 == 0 & \
+     b_gb_exit_it_8 == 0) | \
+    (ila_a.gbit == 1 & \
+     b_gb_exit_it_1 == 1 & \
+     b_gb_exit_it_2 == 0 & \
+     b_gb_exit_it_3 == 0 & \
+     b_gb_exit_it_4 == 0 & \
+     b_gb_exit_it_5 == 0 & \
+     b_gb_exit_it_6 == 0 & \
+     b_gb_exit_it_7 == 0 & \
+     b_gb_exit_it_8 == 0) | \
+    (ila_a.gbit == 2 & \
+     b_gb_exit_it_1 == 1 & \
+     b_gb_exit_it_2 == 1 & \
+     b_gb_exit_it_3 == 0 & \
+     b_gb_exit_it_4 == 0 & \
+     b_gb_exit_it_5 == 0 & \
+     b_gb_exit_it_6 == 0 & \
+     b_gb_exit_it_7 == 0 & \
+     b_gb_exit_it_8 == 0) | \
+    (ila_a.gbit == 3 & \
+     b_gb_exit_it_1 == 1 & \
+     b_gb_exit_it_2 == 1 & \
+     b_gb_exit_it_3 == 1 & \
+     b_gb_exit_it_4 == 0 & \
+     b_gb_exit_it_5 == 0 & \
+     b_gb_exit_it_6 == 0 & \
+     b_gb_exit_it_7 == 0 & \
+     b_gb_exit_it_8 == 0) | \
+    (ila_a.gbit == 4 & \
+     b_gb_exit_it_1 == 1 & \
+     b_gb_exit_it_2 == 1 & \
+     b_gb_exit_it_3 == 1 & \
+     b_gb_exit_it_4 == 1 & \
+     b_gb_exit_it_5 == 0 & \
+     b_gb_exit_it_6 == 0 & \
+     b_gb_exit_it_7 == 0 & \
+     b_gb_exit_it_8 == 0) | \
+    (ila_a.gbit == 5 & \
+     b_gb_exit_it_1 == 1 & \
+     b_gb_exit_it_2 == 1 & \
+     b_gb_exit_it_3 == 1 & \
+     b_gb_exit_it_4 == 1 & \
+     b_gb_exit_it_5 == 1 & \
+     b_gb_exit_it_6 == 0 & \
+     b_gb_exit_it_7 == 0 & \
+     b_gb_exit_it_8 == 0) | \
+    (ila_a.gbit == 6 & \
+     b_gb_exit_it_1 == 1 & \
+     b_gb_exit_it_2 == 1 & \
+     b_gb_exit_it_3 == 1 & \
+     b_gb_exit_it_4 == 1 & \
+     b_gb_exit_it_5 == 1 & \
+     b_gb_exit_it_6 == 1 & \
+     b_gb_exit_it_7 == 0 & \
+     b_gb_exit_it_8 == 0) | \
+    (ila_a.gbit == 7 & \
+     b_gb_exit_it_1 == 1 & \
+     b_gb_exit_it_2 == 1 & \
+     b_gb_exit_it_3 == 1 & \
+     b_gb_exit_it_4 == 1 & \
+     b_gb_exit_it_5 == 1 & \
+     b_gb_exit_it_6 == 1 & \
+     b_gb_exit_it_7 == 1 & \
+     b_gb_exit_it_8 == 0) \
+)} -type {temporary} -update_db;
+
