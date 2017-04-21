@@ -1,0 +1,18 @@
+#include "common.hpp"
+#include "model_compute_class.hpp"
+
+BIT_VEC model_compute::cppUpdateFun_rd_index(BIT_VEC conf_done, BIT_VEC conf_num_hidden, BIT_VEC conf_num_loops, BIT_VEC conf_num_movies, BIT_VEC conf_num_testusers, BIT_VEC conf_num_users, BIT_VEC conf_num_visible, BIT_VEC data_in, BIT_VEC rd_grant, BIT_VEC rst, BIT_VEC wr_grant)
+{
+	BIT_VEC cppVar_364;
+	BIT_VEC cppVar_361;
+	BIT_VEC cppVar_362;
+	bool cppVar_363;
+	cppVar_363 = (upc == 0);
+	if (cppVar_363) {
+	cppVar_364 = (index & cppMask_un_16_);
+	cppVar_361 = cppVar_364;
+	} else {
+	cppVar_361 = rd_index;
+	}
+	return cppVar_361;
+}
