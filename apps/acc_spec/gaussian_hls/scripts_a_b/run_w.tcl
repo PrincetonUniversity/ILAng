@@ -19,6 +19,17 @@ assume -disable {::Subset - C4};
 assume -disable {::Subset - D}; 
 assume -disable {::Subset - E}
 
+#prove -property {<embedded>::bound}
+
+#set_engine_mode {Ht B N}
+#set_prove_time_limit 0s; set_prove_per_property_time_limit 0s
+#set_max_trace_length 15; set_prove_per_property_max_time_limit 0s
+
+#prove -all
+
+#save -jdb $EXP/wri_all.jdb -capture_setup -capture_session_data
+#exit
+
 #assume -enable {::Subset - A}
 #include $TCL/iterate_w.tcl
 #save -jdb $EXP/wri_A.jdb -capture_setup -capture_session_data

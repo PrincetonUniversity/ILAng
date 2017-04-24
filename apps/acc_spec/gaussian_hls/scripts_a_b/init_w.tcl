@@ -85,6 +85,78 @@ assume -name {Subset - E} -env \
     b_gb_p_cnt == 307199 \
 )} -type {temporary} -update_db;
 
+assume -name {Subset - All} -env \
+{ counter == 0 |=> ( \
+    ( \
+    b_LB1D_p_cnt == 0 & \
+    b_LB2D_proc_x == 0 & \
+    b_LB2D_proc_y == 0 & \
+    b_LB2D_shift_x == 0 & \
+    b_LB2D_shift_y == 0 & \
+    b_gb_p_cnt == 0 \
+    ) | \
+    ( \
+    b_LB1D_p_cnt > 0    & b_LB1D_p_cnt < 3904 & \
+    b_LB2D_proc_x > 0   & b_LB2D_proc_x <= 488 & \
+    b_LB2D_proc_y >= 0  & b_LB2D_proc_y < 8 & \
+    b_LB2D_shift_x == 0 & \
+    b_LB2D_shift_y == 0 & \
+    b_gb_p_cnt == 0 \
+    ) | \
+    ( \
+    b_LB1D_p_cnt >= 3904 & b_LB1D_p_cnt < 315736 & \
+    b_LB2D_proc_x > 0    & b_LB2D_proc_x < 480 & \
+    b_LB2D_proc_y >= 8   & b_LB2D_proc_y < 648 & \
+    b_LB2D_shift_x > 0   & b_LB2D_shift_x < 480 & \
+    b_LB2D_shift_y >= 0  & b_LB2D_shift_y < 640 & \
+    b_gb_p_cnt >= 10     & b_gb_p_cnt < 306720 \
+    ) | \
+    ( \
+    b_LB1D_p_cnt >= 3904  & b_LB1D_p_cnt < 315736 & \
+    b_LB2D_proc_x >= 480  & b_LB2D_proc_x < 488 & \
+    b_LB2D_proc_y >= 8    & b_LB2D_proc_y < 648 & \
+    b_LB2D_shift_x >= 480 & b_LB2D_shift_x < 488 & \
+    b_LB2D_shift_y >= 0   & b_LB2D_shift_y < 640 & \
+    b_gb_p_cnt >= 450     & b_gb_p_cnt < 306720 & \
+    ~(b_LB2D_proc_x >= 486 & b_LB2D_proc_y == 647) \
+    ) | \
+    ( \
+    b_LB1D_p_cnt >= 3904  & b_LB1D_p_cnt < 315736 & \
+    b_LB2D_proc_x == 487  & \
+    b_LB2D_proc_y >= 8    & b_LB2D_proc_y < 648 & \
+    b_LB2D_shift_x == 487 & \
+    b_LB2D_shift_y >= 0   & b_LB2D_shift_y < 640 & \
+    b_gb_p_cnt >= 450     & b_gb_p_cnt < 306720 & \
+    ~(b_LB2D_proc_x >= 486 & b_LB2D_proc_y == 647) \
+    ) | \
+    ( \
+    b_LB1D_p_cnt >= 3904  & b_LB1D_p_cnt < 315736 & \
+    b_LB2D_proc_x == 488  & \
+    b_LB2D_proc_y >= 8    & b_LB2D_proc_y < 648 & \
+    b_LB2D_shift_x == 488 & \
+    b_LB2D_shift_y >= 0   & b_LB2D_shift_y < 640 & \
+    b_gb_p_cnt >= 450     & b_gb_p_cnt < 306720 & \
+    ~(b_LB2D_proc_x >= 486 & b_LB2D_proc_y == 647) \
+    ) | \
+    ( \
+    b_LB1D_p_cnt >= 315736 & b_LB1D_p_cnt <= 316222 & \
+    b_LB2D_proc_x > 0      & b_LB2D_proc_x <= 488 & \
+    b_LB2D_proc_y >= 647   & b_LB2D_proc_y <= 647 & \
+    b_LB2D_shift_x > 0     & b_LB2D_shift_x <= 488 & \
+    b_LB2D_shift_y >= 639  & b_LB2D_shift_y <= 639 & \
+    b_gb_p_cnt >= 306240   & b_gb_p_cnt < 307200 & \
+    ~(b_LB2D_proc_x >= 486 & b_LB2D_proc_y == 647) \
+    ) | \
+    ( \
+    b_LB1D_p_cnt == 316223 & \
+    b_LB2D_proc_x == 486 & \
+    b_LB2D_proc_y == 647 & \
+    b_LB2D_shift_x == 486 & \
+    b_LB2D_shift_y == 639 & \
+    b_gb_p_cnt == 307199 
+    ) \
+)} -type {temporary} -update_db;
+
 # block buffering
 assume -name {init - empty buffers} -env \
 { counter == 0 |=> ( \
