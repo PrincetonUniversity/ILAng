@@ -21,6 +21,12 @@ assume -disable {::Subset - E}
 assume -disable {::arch equal - data}; 
 assume -disable {::init - consistent RAM access}
 
+prove -property {{<embedded>::bound help 0} {<embedded>::bound help 1} {<embedded>::bound help 2} {<embedded>::bound help 3} {<embedded>::bound help 4} {<embedded>::bound help 5} {<embedded>::bound help 6} {<embedded>::bound help 7} {<embedded>::bound help 8} {<embedded>::bound help 9} {<embedded>::bound help 10} {<embedded>::bound help 11} {<embedded>::bound help 12} {<embedded>::bound help 13} {<embedded>::bound help 14} {<embedded>::bound help 15} {<embedded>::bound help 16} {<embedded>::bound help 17} {<embedded>::bound help 18} {<embedded>::bound help 19} {<embedded>::bound help 20} {<embedded>::bound help 21} {<embedded>::bound help 22} {<embedded>::bound help 23} {<embedded>::bound help 24} {<embedded>::bound help 25} {<embedded>::bound help 26} {<embedded>::bound help 27} {<embedded>::bound help 28} {<embedded>::bound help 29} {<embedded>::bound help 30} {<embedded>::bound help 31} {<embedded>::bound end} {<embedded>::bound inv} {<embedded>::bound - ila} {<embedded>::bound - hls} {<embedded>::fix point entry - ila} {<embedded>::fix point entry - hls} {<embedded>::fix point - ila} {<embedded>::fix point - hls} {<embedded>::bound dec 29 - ila} {<embedded>::bound dec 28 - ila} {<embedded>::bound dec 27 - ila} {<embedded>::bound dec 26 - ila} {<embedded>::bound dec 25 - ila} {<embedded>::bound dec 24 - ila} {<embedded>::bound dec 23 - ila} {<embedded>::bound dec 22 - ila} {<embedded>::bound dec 21 - ila} {<embedded>::bound dec 20 - ila} {<embedded>::bound dec 29 - hls} {<embedded>::bound dec 28 - hls} {<embedded>::bound dec 27 - hls} {<embedded>::bound dec 26 - hls} {<embedded>::bound dec 25 - hls} {<embedded>::bound dec 24 - hls} {<embedded>::bound dec 23 - hls} {<embedded>::bound dec 22 - hls} {<embedded>::bound dec 21 - hls} {<embedded>::bound dec 20 - hls}}
+
+save -jdb $EXP/rdi_all_bound.jdb -capture_setup -capture_session_data
+
+exit
+
 #assume -enable {::Subset - C1}
 #include $TCL/bound_hint_r.tcl
 #prove -all

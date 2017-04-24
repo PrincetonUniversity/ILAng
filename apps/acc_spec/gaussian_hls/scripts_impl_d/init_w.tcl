@@ -69,6 +69,66 @@ assume -name {Subset - E} -env \
     hls_gb_p_cnt == 307199 \
 )} -type {temporary} -update_db;
 
+assume -name {Subset - all} -env \
+{ counter == 5 |-> ( \
+    ( \
+    hls_LB1D_p_cnt == 0 & \
+    hls_LB1D_it_1 == 0 & \
+    hls_in_stream_empty == 1 & hls_in_stream_full == 0 & \
+    hls_LB2D_proc_x == 0 & \
+    hls_LB2D_proc_y == 0 & \
+    hls_slice_stream_empty == 1 & hls_slice_stream_full == 0 & \
+    hls_LB2D_shift_x == 0 & \
+    hls_LB2D_shift_y == 0 & \
+    hls_stencil_stream_empty == 1 & hls_stencil_stream_full == 0 & \
+    hls_gb_p_cnt == 0 \
+    ) | \
+    ( \
+    hls_LB1D_p_cnt > 0    & hls_LB1D_p_cnt < 3904 & \
+    hls_LB1D_it_1 == 1    & \
+    hls_LB2D_proc_x > 0   & hls_LB2D_proc_x <= 488 & \
+    hls_LB2D_proc_y >= 0  & hls_LB2D_proc_y < 8 & \
+    hls_slice_stream_empty == 1 & hls_slice_stream_full == 0 & \
+    hls_LB2D_shift_x == 0 & \
+    hls_LB2D_shift_y == 0 & \
+    hls_stencil_stream_empty == 1 & hls_stencil_stream_full == 0 & \
+    hls_gb_p_cnt == 0 \
+    ) | \
+    ( \
+    ila_LB1D_p_cnt >= 3904 & ila_LB1D_p_cnt < 315736 & \
+    ila_LB2D_proc_x > 0    & ila_LB2D_proc_x < 480 & \
+    ila_LB2D_proc_y >= 8   & ila_LB2D_proc_y < 648 & \
+    ila_LB2D_shift_x >= 8  & ila_LB2D_shift_x < 480 & \
+    ila_LB2D_shift_y >= 0  & ila_LB2D_shift_y < 640 & \
+    ila_gb_p_cnt >= 10     & ila_gb_p_cnt < 306720 \
+    ) | \
+    ( \
+    ila_LB1D_p_cnt >= 3904  & ila_LB1D_p_cnt < 315736 & \
+    ila_LB2D_proc_x > 0     & ila_LB2D_proc_x <= 488 & \
+    ila_LB2D_proc_y >= 8    & ila_LB2D_proc_y < 648 & \
+    ila_LB2D_shift_x > 0    & ila_LB2D_shift_x <= 488 & \
+    ila_LB2D_shift_y >= 0   & ila_LB2D_shift_y < 640 & \
+    ila_gb_p_cnt >= 450     & ila_gb_p_cnt < 306720 \
+    ) | \
+    ( \
+    hls_LB1D_p_cnt >= 315736 & hls_LB1D_p_cnt <= 316222 & \
+    hls_LB2D_proc_x > 0      & hls_LB2D_proc_x <= 488 & \
+    hls_LB2D_proc_y >= 647   & hls_LB2D_proc_y <= 647 & \
+    hls_LB2D_shift_x > 0     & hls_LB2D_shift_x <= 488 & \
+    hls_LB2D_shift_y >= 639  & hls_LB2D_shift_y <= 639 & \
+    hls_gb_p_cnt >= 306240   & hls_gb_p_cnt < 307200 & \
+    ~(hls_LB2D_proc_x >= 486 & hls_LB2D_proc_y == 647) \
+    ) | \
+    ( \
+    hls_LB1D_p_cnt == 316223 & \
+    hls_LB2D_proc_x == 486 & \
+    hls_LB2D_proc_y == 647 & \
+    hls_LB2D_shift_x == 486 & \
+    hls_LB2D_shift_y == 639 & \
+    hls_gb_p_cnt == 307199 \
+    ) \
+)} -type {temporary} -update_db;
+
 # arch-states
 assume -name {init - flush ila} -env \
 { counter < 5 |-> ( \

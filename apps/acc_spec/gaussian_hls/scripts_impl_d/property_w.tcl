@@ -47,6 +47,28 @@ assert -name {fix point entry - hls} { (counter > 30 & counter < 40) |-> hls_ste
 assert -name {fix point - ila} { ila_complete == 1 |=> ila_complete == 1 } -update_db;
 assert -name {fix point - hls} { hls_step == 0 |=> hls_step == 0 } -update_db;
 
+assert -name {bound dec 29 - ila} { counter == 29 |-> ila_complete == 1} -update_db;
+assert -name {bound dec 28 - ila} { counter == 28 |-> ila_complete == 1} -update_db;
+assert -name {bound dec 27 - ila} { counter == 27 |-> ila_complete == 1} -update_db;
+assert -name {bound dec 26 - ila} { counter == 26 |-> ila_complete == 1} -update_db;
+assert -name {bound dec 25 - ila} { counter == 25 |-> ila_complete == 1} -update_db;
+assert -name {bound dec 24 - ila} { counter == 24 |-> ila_complete == 1} -update_db;
+assert -name {bound dec 23 - ila} { counter == 23 |-> ila_complete == 1} -update_db;
+assert -name {bound dec 22 - ila} { counter == 22 |-> ila_complete == 1} -update_db;
+assert -name {bound dec 21 - ila} { counter == 21 |-> ila_complete == 1} -update_db;
+assert -name {bound dec 20 - ila} { counter == 20 |-> ila_complete == 1} -update_db;
+
+assert -name {bound dec 29 - hls} { counter == 29 |-> hls_step == 0} -update_db;
+assert -name {bound dec 28 - hls} { counter == 28 |-> hls_step == 0} -update_db;
+assert -name {bound dec 27 - hls} { counter == 27 |-> hls_step == 0} -update_db;
+assert -name {bound dec 26 - hls} { counter == 26 |-> hls_step == 0} -update_db;
+assert -name {bound dec 25 - hls} { counter == 25 |-> hls_step == 0} -update_db;
+assert -name {bound dec 24 - hls} { counter == 24 |-> hls_step == 0} -update_db;
+assert -name {bound dec 23 - hls} { counter == 23 |-> hls_step == 0} -update_db;
+assert -name {bound dec 22 - hls} { counter == 22 |-> hls_step == 0} -update_db;
+assert -name {bound dec 21 - hls} { counter == 21 |-> hls_step == 0} -update_db;
+assert -name {bound dec 20 - hls} { counter == 20 |-> hls_step == 0} -update_db;
+
 #assert -name {bound help 0} \
 { counter == 0 |=> \
   counter == 1 |=> \
