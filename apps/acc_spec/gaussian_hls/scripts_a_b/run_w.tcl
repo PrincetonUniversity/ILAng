@@ -19,10 +19,6 @@ assume -disable {::Subset - C4};
 assume -disable {::Subset - D}; 
 assume -disable {::Subset - E}
 
-#set_engine_mode {Ht B N}
-#assert -remove <embedded>::bound; assert -remove {<embedded>::eq - stencil_1}; assert -remove {<embedded>::eq - stencil_2}; assert -remove {<embedded>::eq - stencil_3}; assert -remove {<embedded>::eq - stencil_4}; assert -remove {<embedded>::eq - stencil_5}; assert -remove {<embedded>::eq - stencil_6}; assert -remove {<embedded>::eq - arg_0_TDATA}; assert -remove {<embedded>::eq - RAM_1}; assert -remove {<embedded>::eq - RAM_2}; assert -remove {<embedded>::eq - RAM_3}; assert -remove {<embedded>::eq - RAM_4}; assert -remove {<embedded>::eq - RAM_5}; assert -remove {<embedded>::eq - RAM_6}; assert -remove {<embedded>::eq - RAM_7}
-
-
 #assume -enable {::Subset - A}
 #include $TCL/iterate_w.tcl
 #save -jdb $EXP/wri_A.jdb -capture_setup -capture_session_data

@@ -144,43 +144,4 @@ assert -name {eq - RAM_7 unchanged} \
     hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_U0.hls_target_call_U0.hls_target_call_Loop_LB2D_buf_proc_U0.buffer_7_value_V_U.hls_target_call_Loop_LB2D_buf_proc_buffer_0_value_V_ram_U.we1 == 0\
 ) } -update_db;
 #
-#assert -name {eq - RAM_0} \
-{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
-    ila_U.RAM_0 == hls_LB2D_proc_0 \
-) } -update_db;
-#
-#assert -name {eq - RAM_1} \
-{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
-    ila_U.RAM_1 == hls_LB2D_proc_1 \
-) } -update_db;
-#
-#assert -name {eq - RAM_2} \
-{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
-    ila_U.RAM_2 == hls_LB2D_proc_2 \
-) } -update_db;
-#
-#assert -name {eq - RAM_3} \
-{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
-    ila_U.RAM_3 == hls_LB2D_proc_3 \
-) } -update_db;
-#
-#assert -name {eq - RAM_4} \
-{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
-    ila_U.RAM_4 == hls_LB2D_proc_4 \
-) } -update_db;
-#
-#assert -name {eq - RAM_5} \
-{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
-    ila_U.RAM_5 == hls_LB2D_proc_5 \
-) } -update_db;
-#
-#assert -name {eq - RAM_6} \
-{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
-    ila_U.RAM_6 == hls_LB2D_proc_6 \
-) } -update_db;
-#
-#assert -name {eq - RAM_7} \
-{ (counter > 1 & ila_complete == 1 & hls_complete == 1) |-> ( \
-    ila_U.RAM_7 == hls_LB2D_proc_7 \
-) } -update_db;
-#
+
