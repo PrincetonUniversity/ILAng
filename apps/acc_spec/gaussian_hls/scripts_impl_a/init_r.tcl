@@ -55,6 +55,53 @@ assume -name {Subset - E} -env \
 )} -type {temporary} -update_db;
 #
 
+assume -name {Subset - all} -env \
+{ counter == 0 |=> ( \
+    ( \
+    hls_LB1D_p_cnt >= 3904 & hls_LB1D_p_cnt < 315736 & \
+    hls_LB2D_proc_x > 0   & hls_LB2D_proc_x < 487 & \
+    hls_LB2D_proc_y >= 8  & hls_LB2D_proc_y < 648 & \
+    hls_LB2D_shift_x > 0  & hls_LB2D_shift_x < 487 & \
+    hls_LB2D_shift_y >= 0 & hls_LB2D_shift_y < 640 & \
+    hls_gb_p_cnt >= 10    & hls_gb_p_cnt < 306720 \
+    ) | \
+    ( \
+    hls_LB1D_p_cnt >= 3904  & hls_LB1D_p_cnt < 315736 & \
+    hls_LB2D_proc_x == 487  & \
+    hls_LB2D_proc_y >= 8    & hls_LB2D_proc_y < 648 & \
+    hls_LB2D_shift_x == 487 & \
+    hls_LB2D_shift_y >= 0   & hls_LB2D_shift_y < 640 & \
+    hls_gb_p_cnt >= 450     & hls_gb_p_cnt < 306720 & \
+    ~(hls_LB2D_proc_x >= 487 & hls_LB2D_proc_y == 647) \
+    ) | \
+    ( \
+    hls_LB1D_p_cnt >= 3904  & hls_LB1D_p_cnt < 315736 & \
+    hls_LB2D_proc_x == 488  & \
+    hls_LB2D_proc_y >= 8    & hls_LB2D_proc_y < 648 & \
+    hls_LB2D_shift_x == 488 & \
+    hls_LB2D_shift_y >= 0   & hls_LB2D_shift_y < 640 & \
+    hls_gb_p_cnt >= 450     & hls_gb_p_cnt < 306720 & \
+    ~(hls_LB2D_proc_x >= 487 & hls_LB2D_proc_y == 647) \
+    ) | \
+    ( \
+    hls_LB1D_p_cnt >= 315736 & hls_LB1D_p_cnt <= 316223 & \
+    hls_LB2D_proc_x > 0      & hls_LB2D_proc_x <= 488 & \
+    hls_LB2D_proc_y == 647   & \
+    hls_LB2D_shift_x > 0     & hls_LB2D_shift_x <= 488 & \
+    hls_LB2D_shift_y == 639  & \
+    hls_gb_p_cnt >= 306240   & hls_gb_p_cnt < 307200 & \
+    ~(hls_LB2D_proc_x >= 487 & hls_LB2D_proc_y == 647) \
+    ) | \
+    ( \
+    hls_LB1D_p_cnt == 316224 & \
+    hls_LB2D_proc_x == 488   & \
+    hls_LB2D_proc_y == 648   & \
+    hls_LB2D_shift_x == 488  & \
+    hls_LB2D_shift_y == 640  & \
+    hls_gb_p_cnt == 307200 \
+    ) \
+)} -type {temporary} -update_db;
+
 # block buffering
 assume -name {init - empty buffers} -env \
 { counter == 0 |=> ( \
