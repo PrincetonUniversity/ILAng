@@ -241,11 +241,121 @@ assume -name {inv - axi config} -env \
     hls_U.hls_target_linebuffer_1_U0.hls_target_linebuffer_Loop_1_proc_U0.in_axi_stream_V_value_V_0_areset_d == 0 \
 )} -type {temporary} -update_db;
 
+assume -name {inv - uninterpreted GB 0} -env \
+{ ( \
+    (ila_gbit == 0 & \
+     hls_gb_exit_it_1 == 0 & \
+     hls_gb_exit_it_2 == 0 & \
+     hls_gb_exit_it_3 == 0 & \
+     hls_gb_exit_it_4 == 0 & \
+     hls_gb_exit_it_5 == 0 & \
+     hls_gb_exit_it_6 == 0 & \
+     hls_gb_exit_it_7 == 0 & \
+     hls_gb_exit_it_8 == 0) |-> \
+     ila_arg_0_TDATA == hls_arg_0_TDATA \
+)} -type {temporary} -update_db;
+
+assume -name {inv - uninterpreted GB 1} -env \
+{ ( \
+    (ila_gbit == 1 & \
+     hls_gb_exit_it_1 == 1 & \
+     hls_gb_exit_it_2 == 0 & \
+     hls_gb_exit_it_3 == 0 & \
+     hls_gb_exit_it_4 == 0 & \
+     hls_gb_exit_it_5 == 0 & \
+     hls_gb_exit_it_6 == 0 & \
+     hls_gb_exit_it_7 == 0 & \
+     hls_gb_exit_it_8 == 0) |-> \
+     ila_arg_0_TDATA == hls_arg_0_TDATA \
+)} -type {temporary} -update_db;
+
+assume -name {inv - uninterpreted GB 2} -env \
+{ ( \
+    (ila_gbit == 2 & \
+     hls_gb_exit_it_1 == 1 & \
+     hls_gb_exit_it_2 == 1 & \
+     hls_gb_exit_it_3 == 0 & \
+     hls_gb_exit_it_4 == 0 & \
+     hls_gb_exit_it_5 == 0 & \
+     hls_gb_exit_it_6 == 0 & \
+     hls_gb_exit_it_7 == 0 & \
+     hls_gb_exit_it_8 == 0) |-> \
+     ila_arg_0_TDATA == hls_arg_0_TDATA \
+)} -type {temporary} -update_db;
+
+assume -name {inv - uninterpreted GB 3} -env \
+{ ( \
+    (ila_gbit == 3 & \
+     hls_gb_exit_it_1 == 1 & \
+     hls_gb_exit_it_2 == 1 & \
+     hls_gb_exit_it_3 == 1 & \
+     hls_gb_exit_it_4 == 0 & \
+     hls_gb_exit_it_5 == 0 & \
+     hls_gb_exit_it_6 == 0 & \
+     hls_gb_exit_it_7 == 0 & \
+     hls_gb_exit_it_8 == 0) |-> \
+     ila_arg_0_TDATA == hls_arg_0_TDATA \
+)} -type {temporary} -update_db;
+
+assume -name {inv - uninterpreted GB 4} -env \
+{ ( \
+    (ila_gbit == 4 & \
+     hls_gb_exit_it_1 == 1 & \
+     hls_gb_exit_it_2 == 1 & \
+     hls_gb_exit_it_3 == 1 & \
+     hls_gb_exit_it_4 == 1 & \
+     hls_gb_exit_it_5 == 0 & \
+     hls_gb_exit_it_6 == 0 & \
+     hls_gb_exit_it_7 == 0 & \
+     hls_gb_exit_it_8 == 0) |-> \
+     ila_arg_0_TDATA == hls_arg_0_TDATA \
+)} -type {temporary} -update_db;
+
+assume -name {inv - uninterpreted GB 5} -env \
+{ ( \
+    (ila_gbit == 5 & \
+     hls_gb_exit_it_1 == 1 & \
+     hls_gb_exit_it_2 == 1 & \
+     hls_gb_exit_it_3 == 1 & \
+     hls_gb_exit_it_4 == 1 & \
+     hls_gb_exit_it_5 == 1 & \
+     hls_gb_exit_it_6 == 0 & \
+     hls_gb_exit_it_7 == 0 & \
+     hls_gb_exit_it_8 == 0) |-> \
+     ila_arg_0_TDATA == hls_arg_0_TDATA \
+)} -type {temporary} -update_db;
+
+assume -name {inv - uninterpreted GB 6} -env \
+{ ( \
+    (ila_gbit == 6 & \
+     hls_gb_exit_it_1 == 1 & \
+     hls_gb_exit_it_2 == 1 & \
+     hls_gb_exit_it_3 == 1 & \
+     hls_gb_exit_it_4 == 1 & \
+     hls_gb_exit_it_5 == 1 & \
+     hls_gb_exit_it_6 == 1 & \
+     hls_gb_exit_it_7 == 0 & \
+     hls_gb_exit_it_8 == 0) |-> \
+     ila_arg_0_TDATA == hls_arg_0_TDATA \
+)} -type {temporary} -update_db;
+
+assume -name {inv - uninterpreted GB 7} -env \
+{ ( \
+    (ila_gbit == 7 & \
+     hls_gb_exit_it_1 == 1 & \
+     hls_gb_exit_it_2 == 1 & \
+     hls_gb_exit_it_3 == 1 & \
+     hls_gb_exit_it_4 == 1 & \
+     hls_gb_exit_it_5 == 1 & \
+     hls_gb_exit_it_6 == 1 & \
+     hls_gb_exit_it_7 == 1 & \
+     hls_gb_exit_it_8 == 0) |-> \
+     ila_arg_0_TDATA == hls_arg_0_TDATA \
+)} -type {temporary} -update_db;
+
 # uninterpreted funcion
 #assume -name {inv - GB ufun} -env \
 { ( \
-    (ila_proc_in == hls_stencil_stream_buff_0 | \
-     ila_proc_in == hls_stencil_stream_buff_1) & \
     ila_arg_0_TVALID == 1 & \
     hls_arg_0_TVALID == 1 \
     |-> \
