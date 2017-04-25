@@ -8,7 +8,6 @@ include $TCL/eqcheck_w.tcl
 
 set_prove_time_limit 0s; set_prove_per_property_time_limit 0s
 set_max_trace_length 0; set_prove_per_property_max_time_limit 60m
-set_engine_mode {Hp}
 
 assume -disable {::Subset - A}
 assume -disable {::Subset - B}
@@ -22,13 +21,7 @@ assert -disable <embedded>::terminate
 assume -disable {::arch equal - data}; 
 assume -disable {::init - consistent RAM access}
 
-assert -disable {<embedded>::eq - LB1D_in}; assert -disable {<embedded>::eq - LB1D_buff}; assert -disable {<embedded>::eq - in_stream_buff_0}; assert -disable {<embedded>::eq - in_stream_buff_1}; assert -disable {<embedded>::eq - slice_stream_buff_0}; assert -disable {<embedded>::eq - slice_stream_buff_1}; assert -disable {<embedded>::eq - stencil_stream_buff_0}; assert -disable {<embedded>::eq - stencil_stream_buff_1}; assert -disable {<embedded>::eq - LB2D_shift_0}; assert -disable {<embedded>::eq - LB2D_shift_1}; assert -disable {<embedded>::eq - LB2D_shift_2}; assert -disable {<embedded>::eq - LB2D_shift_3}; assert -disable {<embedded>::eq - LB2D_shift_4}; assert -disable {<embedded>::eq - LB2D_shift_5}; assert -disable {<embedded>::eq - LB2D_shift_6}; assert -disable {<embedded>::eq - LB2D_shift_7}; assert -disable {<embedded>::eq - arg_0_TDATA}; assert -disable {<embedded>::eq - LB2D_proc_0}; assert -disable {<embedded>::eq - LB2D_proc_1}; assert -disable {<embedded>::eq - LB2D_proc_2}; assert -disable {<embedded>::eq - LB2D_proc_3}; assert -disable {<embedded>::eq - LB2D_proc_4}; assert -disable {<embedded>::eq - LB2D_proc_5}; assert -disable {<embedded>::eq - LB2D_proc_6}; assert -disable {<embedded>::eq - LB2D_proc_7}
-
-#prove -property {{<embedded>::bound help 0} {<embedded>::bound help 1} {<embedded>::bound help 2} {<embedded>::bound help 3} {<embedded>::bound help 4} {<embedded>::bound help 5} {<embedded>::bound help 6} {<embedded>::bound help 7} {<embedded>::bound help 8} {<embedded>::bound help 9} {<embedded>::bound help 10} {<embedded>::bound help 11} {<embedded>::bound help 12} {<embedded>::bound help 13} {<embedded>::bound help 14} {<embedded>::bound help 15} {<embedded>::bound help 16} {<embedded>::bound help 17} {<embedded>::bound help 18} {<embedded>::bound help 19} {<embedded>::bound help 20} {<embedded>::bound help 21} {<embedded>::bound help 22} {<embedded>::bound help 23} {<embedded>::bound help 24} {<embedded>::bound help 25} {<embedded>::bound help 26} {<embedded>::bound help 27} {<embedded>::bound help 28} {<embedded>::bound help 29} {<embedded>::bound help 30} {<embedded>::bound help 31} {<embedded>::bound end} {<embedded>::bound inv} {<embedded>::bound - ila} {<embedded>::bound - hls} {<embedded>::fix point entry - ila} {<embedded>::fix point entry - hls} {<embedded>::fix point - ila} {<embedded>::fix point - hls} {<embedded>::bound dec 29 - ila} {<embedded>::bound dec 28 - ila} {<embedded>::bound dec 27 - ila} {<embedded>::bound dec 26 - ila} {<embedded>::bound dec 25 - ila} {<embedded>::bound dec 24 - ila} {<embedded>::bound dec 23 - ila} {<embedded>::bound dec 22 - ila} {<embedded>::bound dec 21 - ila} {<embedded>::bound dec 20 - ila} {<embedded>::bound dec 29 - hls} {<embedded>::bound dec 28 - hls} {<embedded>::bound dec 27 - hls} {<embedded>::bound dec 26 - hls} {<embedded>::bound dec 25 - hls} {<embedded>::bound dec 24 - hls} {<embedded>::bound dec 23 - hls} {<embedded>::bound dec 22 - hls} {<embedded>::bound dec 21 - hls} {<embedded>::bound dec 20 - hls}}
-
-#save -jdb $EXP/wri_all_bound.jdb -capture_setup -capture_session_data
-
-#exit
+set_max_trace_length 16; set_prove_per_property_max_time_limit 0s 
 
 #assume -enable {::Subset - A}
 #include $TCL/bound_hint_w.tcl
@@ -68,8 +61,8 @@ assert -disable {<embedded>::eq - LB1D_in}; assert -disable {<embedded>::eq - LB
 
 ########
 
-set_max_trace_length 30; set_prove_per_property_max_time_limit 60m
-set_engine_mode {Hp Ht B N}
+#set_max_trace_length 30; set_prove_per_property_max_time_limit 60m
+#set_engine_mode {Hp Ht B N}
 
 #assume -enable {::arch equal - data}
 #assume -enable {::init - consistent RAM access}
