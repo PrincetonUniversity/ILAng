@@ -17,50 +17,7 @@ assume -disable {::Subset - E}
 
 #prove -property {<embedded>::bound}
 
-#set_engine_mode {Ht B N}
 #set_prove_time_limit 0s; set_prove_per_property_time_limit 0s
 #set_max_trace_length 15; set_prove_per_property_max_time_limit 0s
 
-#prove -all
-
-#save -jdb $EXP/rdi_all.jdb -capture_setup -capture_session_data
-
 #exit
-
-#assume -enable {::Subset - C1}
-#include $TCL/iterate_ctr_r.tcl
-#save -jdb $EXP/rdi_ctr_C1.jdb -capture_setup -capture_session_data
-#include $TCL/iterate_dat_r.tcl
-#save -jdb $EXP/rdi_dat_C1.jdb -capture_setup -capture_session_data
-#assume -disable {::Subset - C1}
-
-#assume -enable {::Subset - C2}
-#include $TCL/iterate_ctr_r.tcl
-#save -jdb $EXP/rdi_ctr_C2.jdb -capture_setup -capture_session_data
-#include $TCL/iterate_dat_r.tcl
-#save -jdb $EXP/rdi_dat_C2.jdb -capture_setup -capture_session_data
-#assume -disable {::Subset - C2}
-
-#assume -enable {::Subset - C3}
-#include $TCL/iterate_ctr_r.tcl
-#save -jdb $EXP/rdi_ctr_C3.jdb -capture_setup -capture_session_data
-#include $TCL/iterate_dat_r.tcl
-#save -jdb $EXP/rdi_dat_C3.jdb -capture_setup -capture_session_data
-#assume -disable {::Subset - C3}
-
-#assume -enable {::Subset - D}
-#include $TCL/iterate_ctr_r.tcl
-#save -jdb $EXP/rdi_ctr_D.jdb -capture_setup -capture_session_data
-#include $TCL/iterate_dat_r.tcl
-#save -jdb $EXP/rdi_dat_D.jdb -capture_setup -capture_session_data
-#assume -disable {::Subset - D}
-
-#assume -enable {::Subset - E}
-#include $TCL/iterate_ctr_r.tcl
-#save -jdb $EXP/rdi_ctr_E.jdb -capture_setup -capture_session_data
-#include $TCL/iterate_dat_r.tcl
-#save -jdb $EXP/rdi_dat_E.jdb -capture_setup -capture_session_data
-#assume -disable {::Subset - E}
-
-#exit
-
