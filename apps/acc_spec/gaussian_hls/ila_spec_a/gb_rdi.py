@@ -1,6 +1,3 @@
-# ILA for Halide GB accelerator that abstracts buffering.
-# read instruction.
-
 import ila
 
 from gb_arch import GBArch

@@ -1,5 +1,3 @@
-# set up all assumptions and assertions for the write instruction.
-#
 assume -clear -env
 assert -clear
 

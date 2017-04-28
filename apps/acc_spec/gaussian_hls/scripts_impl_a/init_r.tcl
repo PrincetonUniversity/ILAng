@@ -110,14 +110,6 @@ assume -name {init - empty buffers} -env \
     hls_stencil_stream_empty == 1 \
 )} -type {temporary} -update_db;
 
-# data valid must implies iteration done
-#assume -name {init - output valid vs iterator} -env \
-{ counter == 0 |=> ( \
-    (hls_arg_0_TVALID == 0) | \
-    (hls_arg_0_TVALID == 1 & hls_gb_pp_it_8 == 1 & \
-                             hls_U.hls_target_Loop_1_proc_U0.arg_0_V_value_V_1_mVld == 1) \
-)} -type {temporary} -update_db;
-
 # axi config
 assume -name {init - axi config} -env \
 { counter == 0 |=> ( \

@@ -133,12 +133,6 @@ assume -name {child init - consistent input pixel} -env \
     a_cur_pix == b_LB1D_buff \
 )} -type {temporary} -update_db;
 
-# stencil ready
-#assume -name {child init - stencil ready} -env \
-{ counter == 0 |-> ( \
-    a_st_ready == 1 \
-)} -type {temporary} -update_db;
-
 # consistent buffer index
 assume -name {init - consistent buffer x} -env \
 { counter == 0 |=> ( \

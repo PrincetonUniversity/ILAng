@@ -16,10 +16,10 @@ assume -disable {::Subset - C2}
 assume -disable {::Subset - D}
 assume -disable {::Subset - E}
 
-assert -disable <embedded>::terminate
-assume -disable {::arch equal - data}; 
-assume -disable {::init - consistent RAM access}
+#set_max_trace_length 16; set_prove_per_property_max_time_limit 0s 
 
-set_max_trace_length 16; set_prove_per_property_max_time_limit 0s 
+#prove -all
+
+#save -jdb $EXP/wri_all.jdb -capture_setup -capture_session_data
 
 #exit

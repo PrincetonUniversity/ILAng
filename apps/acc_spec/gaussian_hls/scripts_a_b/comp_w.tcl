@@ -1,6 +1,5 @@
 # Assumptions for proving write instruction 
 # Compositional verification: decode, invariant, ...
-#
 # decode 
 assume -name {comp - decode} -env \
 { counter == 0 |=> ( \

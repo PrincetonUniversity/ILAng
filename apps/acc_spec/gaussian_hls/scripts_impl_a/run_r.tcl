@@ -17,7 +17,6 @@ assume -disable {::Subset - E}
 
 #prove -property {<embedded>::bound}
 
-#set_prove_time_limit 0s; set_prove_per_property_time_limit 0s
 #set_max_trace_length 15; set_prove_per_property_max_time_limit 0s
 
 #exit

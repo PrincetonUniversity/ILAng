@@ -1,7 +1,3 @@
-# ILA for Halide Gaussian blur accelerator, with both the read and write 
-# instructions have child-instructions for data movement.
-# child instruction 3
-
 import ila
 from gb_arch import GBArch
 
@@ -198,8 +194,3 @@ def U3 (gb):
         gb.gb_exit_it_nxt[i] = ila.ite (decode, gb_exit_it_i_nxt,
                                         gb.gb_exit_it_nxt[i])
 
-
-if __name__ == '__main__':
-    m = GBArch ()
-    U3 (m)
-    print 'add child instruction 3'

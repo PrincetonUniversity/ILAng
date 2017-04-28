@@ -31,12 +31,6 @@ assert -name {bound help 22} { counter == 22 |=> counter == 23 } -update_db;
 assert -name {bound help 23} { counter == 23 |=> counter == 24 } -update_db;
 assert -name {bound help 24} { counter == 24 |=> counter == 25 } -update_db;
 assert -name {bound help 25} { counter == 25 |=> counter == 26 } -update_db;
-assert -name {bound help 26} { counter == 26 |=> counter == 27 } -update_db;
-assert -name {bound help 27} { counter == 27 |=> counter == 28 } -update_db;
-assert -name {bound help 28} { counter == 28 |=> counter == 29 } -update_db;
-assert -name {bound help 29} { counter == 29 |=> counter == 30 } -update_db;
-assert -name {bound help 30} { counter == 30 |=> counter == 31 } -update_db;
-assert -name {bound help 31} { counter == 31 |=> counter == 32 } -update_db;
 
 assert -name {bound end} { counter == 16 |=> (counter > 16 & counter < 40) } -update_db;
 assert -name {bound inv} { (counter > 16 & counter < 40) |=> (counter > 16 & counter < 40) } -update_db;
@@ -47,77 +41,17 @@ assert -name {fix point entry - hls} { (counter > 16 & counter < 40) |-> hls_ste
 assert -name {fix point - ila} { ila_complete == 1 |=> ila_complete == 1 } -update_db;
 assert -name {fix point - hls} { hls_step == 0 |=> hls_step == 0 } -update_db;
 
-assert -name {bound dec 29 - ila} { counter == 29 |-> ila_complete == 1} -update_db;
-assert -name {bound dec 28 - ila} { counter == 28 |-> ila_complete == 1} -update_db;
-assert -name {bound dec 27 - ila} { counter == 27 |-> ila_complete == 1} -update_db;
-assert -name {bound dec 26 - ila} { counter == 26 |-> ila_complete == 1} -update_db;
-assert -name {bound dec 25 - ila} { counter == 25 |-> ila_complete == 1} -update_db;
-assert -name {bound dec 24 - ila} { counter == 24 |-> ila_complete == 1} -update_db;
-assert -name {bound dec 23 - ila} { counter == 23 |-> ila_complete == 1} -update_db;
-assert -name {bound dec 22 - ila} { counter == 22 |-> ila_complete == 1} -update_db;
-assert -name {bound dec 21 - ila} { counter == 21 |-> ila_complete == 1} -update_db;
-assert -name {bound dec 20 - ila} { counter == 20 |-> ila_complete == 1} -update_db;
 assert -name {bound dec 19 - ila} { counter == 19 |-> ila_complete == 1} -update_db;
 assert -name {bound dec 18 - ila} { counter == 18 |-> ila_complete == 1} -update_db;
 assert -name {bound dec 17 - ila} { counter == 17 |-> ila_complete == 1} -update_db;
 assert -name {bound dec 16 - ila} { counter == 16 |-> ila_complete == 1} -update_db;
 assert -name {bound dec 15 - ila} { counter == 15 |-> ila_complete == 1} -update_db;
 
-assert -name {bound dec 29 - hls} { counter == 29 |-> hls_step == 0} -update_db;
-assert -name {bound dec 28 - hls} { counter == 28 |-> hls_step == 0} -update_db;
-assert -name {bound dec 27 - hls} { counter == 27 |-> hls_step == 0} -update_db;
-assert -name {bound dec 26 - hls} { counter == 26 |-> hls_step == 0} -update_db;
-assert -name {bound dec 25 - hls} { counter == 25 |-> hls_step == 0} -update_db;
-assert -name {bound dec 24 - hls} { counter == 24 |-> hls_step == 0} -update_db;
-assert -name {bound dec 23 - hls} { counter == 23 |-> hls_step == 0} -update_db;
-assert -name {bound dec 22 - hls} { counter == 22 |-> hls_step == 0} -update_db;
-assert -name {bound dec 21 - hls} { counter == 21 |-> hls_step == 0} -update_db;
-assert -name {bound dec 20 - hls} { counter == 20 |-> hls_step == 0} -update_db;
 assert -name {bound dec 19 - hls} { counter == 19 |-> hls_step == 0} -update_db;
 assert -name {bound dec 18 - hls} { counter == 18 |-> hls_step == 0} -update_db;
 assert -name {bound dec 17 - hls} { counter == 17 |-> hls_step == 0} -update_db;
 assert -name {bound dec 16 - hls} { counter == 16 |-> hls_step == 0} -update_db;
 assert -name {bound dec 15 - hls} { counter == 15 |-> hls_step == 0} -update_db;
-
-#assert -name {bound help 0} \
-{ counter == 0 |=> \
-  counter == 1 |=> \
-  counter == 2 |=> \
-  counter == 3 |=> \
-  counter == 4 |=> \
-  counter == 5 |=> \
-  counter == 6 |=> \
-  counter == 7 |=> \
-  counter == 8 |=> \
-  counter == 9 |=> \
-  counter == 10 } -update_db;
-#
-#assert -name {bound help 1} \
-{ counter == 10 |=> \
-  counter == 11 |=> \
-  counter == 12 |=> \
-  counter == 13 |=> \
-  counter == 14 |=> \
-  counter == 15 |=> \
-  counter == 16 |=> \
-  counter == 17 |=> \
-  counter == 18 |=> \
-  counter == 19 |=> \
-  counter == 20 } -update_db;
-#
-#assert -name {bound help 2} \
-{ counter == 20 |=> \
-  counter == 21 |=> \
-  counter == 22 |=> \
-  counter == 23 |=> \
-  counter == 24 |=> \
-  counter == 25 |=> \
-  counter == 26 |=> \
-  counter == 27 |=> \
-  counter == 28 |=> \
-  counter == 29 |=> \
-  counter == 30 } -update_db;
-#
 
 # equivalence on arch states
 # arg_1_TREADY

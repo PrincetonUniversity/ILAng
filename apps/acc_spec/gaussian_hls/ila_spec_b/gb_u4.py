@@ -1,7 +1,3 @@
-# ILA for Halide Gaussian blur accelerator, with both the read and write 
-# instructions have child-instructions for data movement.
-# child instruction 4
-
 import ila
 from gb_arch import GBArch
 
@@ -20,8 +16,6 @@ def U4 (gb):
     IT_F    = gb.gb_exit_it_F
 
     ############################ decode ###################################
-    #decode = (gb.stencil_stream_empty == EMPTY_F) & \
-             #(gb.arg_0_TVALID == VALID_F)
     decode = (gb.arg_0_TVALID == VALID_F) & \
              (((gb.gb_exit_it[0] == IT_F) & \
                (gb.stencil_stream_empty == EMPTY_F)) | \
@@ -39,7 +33,6 @@ def U4 (gb):
     gb.arg_0_TVALID_nxt = ila.ite (decode, arg_0_TVALID_nxt, gb.arg_0_TVALID_nxt)
 
     # arg_0_TDATA
-    # FIXME
     in_stencil = ila.ite (gb.stencil_stream_full == FULL_T,
                           gb.stencil_stream_buff[gb.stencil_stream_size-1],
                           gb.stencil_stream_buff[0])
@@ -162,7 +155,6 @@ def U4 (gb):
                                       gb.gb_pp_it_nxt[i])
 
     # gb_exit_it
-    #gb_exit_it_0_nxt = ila.ite (gb.gb_p_cnt + gb.gb_p_cnt_1 == gb.gb_p_cnt_M,
     gb_exit_it_0_nxt = ila.ite (gb.gb_p_cnt == gb.gb_p_cnt_M,
                                 gb.gb_exit_it_T, gb.gb_exit_it_F)
     gb.gb_exit_it_nxt[0] = ila.ite (decode, gb_exit_it_0_nxt, 
@@ -172,8 +164,3 @@ def U4 (gb):
         gb.gb_exit_it_nxt[i] = ila.ite (decode, gb_exit_it_i_nxt,
                                         gb.gb_exit_it_nxt[i])
 
-
-if __name__ == '__main__':
-    m = GBArch ()
-    U4 (m)
-    print 'add child instruction 4'

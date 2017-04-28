@@ -1,6 +1,3 @@
-# ILA for Halide Gaussian Blur (GB) accelerator that abstracts buffering.
-# write instruction - architecture-level instruction.
-
 import ila
 
 from gb_arch import GBArch

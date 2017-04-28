@@ -1,6 +1,3 @@
-# ILA for Halide Gaussian Blur (GB) accelerator that abstracts buffering.
-# Architecture states 
-
 import ila
 
 DATA_SIZE       = 8

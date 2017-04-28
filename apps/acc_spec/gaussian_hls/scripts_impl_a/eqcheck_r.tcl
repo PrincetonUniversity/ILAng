@@ -1,5 +1,3 @@
-# set up all assumptions and assertions for the read instruction.
-#
 assume -clear -env
 assert -clear
 

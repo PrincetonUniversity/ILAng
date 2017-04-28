@@ -1,6 +1,5 @@
 # Assumptions for proving write instruction 
 # Compositional verification: decode, invariant, ...
-#
 # helper for phase
 assume -name {comp - phase inc} -env \
 { phase == 1 |=> phase == 2 } -type {temporary} -update_db;
