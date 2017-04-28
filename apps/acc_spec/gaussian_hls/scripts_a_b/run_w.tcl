@@ -8,6 +8,7 @@ include $TCL/eqcheck_w.tcl
 
 set_prove_time_limit 0s; set_prove_per_property_time_limit 0s
 set_max_trace_length 0; set_prove_per_property_max_time_limit 0s 
+set_engine_mode {Hp Ht Bm J B D I M N G Hps Hts}
 
 assume -disable {::Subset - A}; 
 assume -disable {::Subset - B}; 
