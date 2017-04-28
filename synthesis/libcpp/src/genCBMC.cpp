@@ -3,6 +3,7 @@
 #include <boost/algorithm/string.hpp>
 #include <bitset>
 #include <cmath>
+#include <algorithm>
 
 namespace ila
 {
@@ -362,6 +363,7 @@ namespace ila
             res = getBoolVarC(boolvar);
         } else if ((boolconst = dynamic_cast<const BoolConst*>(n))) {
             res = getBoolConstC(boolconst);
+            _localConstVar[n->getName()] = res;
         } else if ((boolop = dynamic_cast<const BoolOp*>(n))) {
             res = getBoolOpC(boolop);
         //// Bitvector ////
@@ -369,6 +371,7 @@ namespace ila
             res = getBvVarC(bvvar);
         } else if ((bvconst = dynamic_cast<const BitvectorConst*>(n))) {
             res = getBvConstC(bvconst);
+            _localConstVar[n->getName()] = res;
         } else if ((bvop = dynamic_cast<const BitvectorOp*>(n))) {
             res = getBvOpC(bvop);
         //// Mem ////
@@ -412,6 +415,7 @@ namespace ila
         _curVarMap = it->second;
         _curFun = f;
         maskPtr = &_masks;
+        _localConstVar.clear();
         
         depthFirstTraverse(nptr);
 
@@ -419,7 +423,8 @@ namespace ila
         for (auto it = _curVarMap->begin(); it != _curVarMap->end(); it++) {
           if (_states.find(it->first) == _states.end() &&
               _inputs.find(it->first) == _inputs.end() && 
-              _unitpFuncVarMap.find(it->first) == _unitpFuncVarMap.end()
+              _unitpFuncVarMap.find(it->first) == _unitpFuncVarMap.end() &&
+              _localConstVar.find(it->first) == _localConstVar.end()
               ) {
                 std::string code;
                 if(it->second->_type == CVar::memStr) {
@@ -428,7 +433,11 @@ namespace ila
                 }
                 else
                     code = it->second->def() + ";";  // define of variables
-                _curFun->_varList.push_back(code);
+                //don't insert the same if you export to a single file (in a single update fun)
+                if(std::find(_curFun->_varList.begin(),_curFun->_varList.end(),code) == _curFun->_varList.end())
+                    _curFun->_varList.push_back(code);
+                //else
+                //    std::cout<<"red:"<<code<<std::endl;
           }
         }
 

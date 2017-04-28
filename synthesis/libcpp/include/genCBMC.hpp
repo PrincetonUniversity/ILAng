@@ -171,6 +171,8 @@ namespace ila
         CVarMap* _curVarMap;
 
         CVarMap _localArray;
+        CVarMap _localConstVar; // because const are refered by their value (not name)
+        // so why create a var that is never used/assigned to.
 
     public:
         // Constructor.

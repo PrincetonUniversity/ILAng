@@ -876,6 +876,7 @@ namespace ila
             return true;
         }
         S.add(!assertion);
+        
         auto assertCheck = S.check();
         if ( assertCheck == unsat ) 
             return true;
