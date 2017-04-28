@@ -1,0 +1,85 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%2345678901234567890123456789012345678901234567890123456789012345678901234567890
+%        1         2         3         4         5         6         7         8
+
+\documentclass[letterpaper, 11 pt]{article}  % Comment this line out
+                                                          % if you need a4paper
+%\documentclass[a4paper, 10pt, conference]{ieeeconf}      % Use this line for a4
+                                                          % paper
+\usepackage{url}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{proof}
+\usepackage{tikz}
+\usepackage[margin=1.2in]{geometry}
+
+
+\usepackage{color}
+\definecolor{light-gray}{gray}{0.95}
+\usepackage{listings}
+\lstset{ %
+language=Python,                % choose the language of the code
+basicstyle=\footnotesize,       % the size of the fonts that are used for the code
+numbers=left,                   % where to put the line-numbers
+numberstyle=\footnotesize,      % the size of the fonts that are used for the line-numbers
+stepnumber=1,                   % the step between two line-numbers. If it is 1 each line will be numbered
+numbersep=5pt,                  % how far the line-numbers are from the code
+backgroundcolor=\color{light-gray},  % choose the background color. You must add \usepackage{color}
+showspaces=false,               % show spaces adding particular underscores
+showstringspaces=false,         % underline spaces within strings
+showtabs=false,                 % show tabs within strings adding particular underscores
+frame=single,           % adds a frame around the code
+tabsize=2,          % sets default tabsize to 2 spaces
+captionpos=b,           % sets the caption-position to bottom
+breaklines=true,        % sets automatic line breaking
+breakatwhitespace=false,    % sets if automatic breaks should only happen at whitespace
+escapeinside={\%*}{*)}          % if you want to add a comment within your code
+}
+
+
+
+\title{ILA Modeling of Concurrency}
+\author{}
+
+\date{Draft Working Document: \today}
+
+\begin{document}
+\maketitle
+
+\providecommand{\bd}[0]{\mathbb{B}}
+\providecommand{\st}[1]{\mathrm{#1}}
+\providecommand{\ft}[1]{\mathtt{#1}}
+
+\section*{Concurrency}
+
+In this scenario we consider two different design options: physical and logical 
+multi-core (logical is simultaneous multithreading). 
+
+\subsection*{Physical multi-core} 
+In a physical multi-core design computational resources are duplicated. 
+Modern CPUs contain 2-24 physical cores, while GPUs contain thousands 
+of physical cores. Since our hierarchical-ILA supports concurrent 
+execution of instructions, it can be used to model such multi-core 
+designs. More precisely, an ILA for a multi-core design includes 
+many identical child-ILAs. Note that while multi-core designs are based 
+on the notion of duplicating computational resources, the way they 
+operate is different. The most obvious example is CPU vs. GPU. In most 
+cases, execution on different GPU cores is independent, unlike the case 
+of a CPU. We need to decide if we add this modeling power to the ILA.
+
+\subsection*{Logical multi-core, aka SMT, HyperThreading}
+In this case, the computational resources are not duplicated. 
+Instead, the architectural state (e.g. control and general 
+purpose registers) are duplicated. Using this approach, if 
+the CPU includes one core, the OS views it as two \emph{logical}
+ cores. The management of the physical core 
+ (the actual computational resource) is done at the 
+ hardware level, i.e., by the CPU and can be captured by the ILA.
+
+%\bibliography{refs}
+%\bibliographystyle{unsrt}
+
+\end{document}
+
