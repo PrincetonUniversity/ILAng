@@ -376,7 +376,7 @@ namespace ila
             ILA_ASSERT(false, "Operator not supported.");
         }
 
-        vlg_name_t tmp_result = NewId();
+        vlg_name_t tmp_result = NewId( boolop->getRefName() );
         vlg_stmt_t tmp_stmt = vlg_stmt_t("assign ") + tmp_result + " = " + result_stmt +" ;";
 
         add_wire(tmp_result, 1);
@@ -570,7 +570,7 @@ namespace ila
             ILA_ASSERT(false,"Operator not supported.");
         }
 
-        vlg_name_t tmp_result = NewId();
+        vlg_name_t tmp_result = NewId(bvop->getRefName() );
         vlg_stmt_t tmp_stmt = vlg_stmt_t("assign ") + tmp_result + " = " + result_stmt +" ;";
 
         add_wire(tmp_result,width);
@@ -758,6 +758,13 @@ namespace ila
     vlg_name_t VerilogExport::NewId()
     {
         return "n" + toStr(idCounter++);
+    }
+    
+    vlg_name_t VerilogExport::NewId(const std::string &refName)
+    {
+        if( refName != "" )
+            return "n" + toStr(idCounter++) + "__"+refName;
+        return NewId();
     }
 
     VerilogExport::VerilogExport (const std::string &modName,const std::string &clk,const std::string &rst, const VlgExportConfig & config)

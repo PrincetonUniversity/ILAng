@@ -199,6 +199,11 @@ BOOST_PYTHON_MODULE(ila)
         .def("__getitem__",
                 &NodeRef::getItemInt,
                 return_value_policy<manage_new_object>())
+                
+        // set reference name        
+        .def("setRefName",
+                &NodeRef::setRefName)
+                
 
         .def(self_ns::str(self))
 

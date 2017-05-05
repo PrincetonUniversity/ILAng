@@ -128,6 +128,7 @@ namespace ila
 
         unsigned idCounter;
         vlg_name_t NewId();
+        vlg_name_t NewId(const std::string &refName);
 
         bool ExternalMem;
         bool FunctionAsModule;
