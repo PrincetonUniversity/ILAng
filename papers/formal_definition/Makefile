@@ -8,7 +8,7 @@ ILA.pdf: *.tex #*.bib #images/*
 
 Template.pdf: Template.tex
 	pdflatex -halt-on-error -pdf -bib Template.tex
-	#bibtex ILA
+        #bibtex ILA
 	pdflatex -halt-on-error -pdf -bib Template.tex
 	pdflatex -halt-on-error -pdf -bib Template.tex
 	

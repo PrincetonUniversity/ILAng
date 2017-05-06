@@ -11,10 +11,10 @@ Build Status
 [2]: https://travis-ci.org/Bo-Yuan-Huang/ILA
 
 #### z3 
-Building ILA synthesis tool requires [z3] (https://github.com/Z3Prover/z3) 4.4.0 or above.
+Building ILA synthesis tool requires [z3](https://github.com/Z3Prover/z3) 4.4.0 or above.
 
 #### boost
-Building ILA synthesis tool requires [boost] (https://www.boost.org) 1.60.0 or above.
+Building ILA synthesis tool requires [boost](https://www.boost.org) 1.60.0 or above.
 
 ### Building with boost:
 

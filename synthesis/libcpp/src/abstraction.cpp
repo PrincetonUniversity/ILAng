@@ -1035,6 +1035,8 @@ namespace ila
         ILA_ASSERT(out.is_open(), "File " + fileName + " not open.");
         ImExport expt(&funcReducer);
 
+        ILA_ASSERT(node != NULL, "Export Node is Null\n"
+                "Please make sure you synthesize before exporting");
         expt.exportAst(out, node->node.get());
         out.close();
     }
