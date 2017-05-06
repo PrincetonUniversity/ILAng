@@ -1,0 +1,11 @@
+This directory contains four parts of proving the ISA equivalence.
+BaseI is for the base instructions, not containing interrupt.
+Completeness is the checking for instruction completeness.
+Interrupt is only for interrupts
+and LemmaCheck is for lemma.
+
+These are supposed to be checked with JasperGold. The TCL script do.tcl
+will load and run the checking, except for BaseI, where handle.py is used
+to manage multiple run.
+
+

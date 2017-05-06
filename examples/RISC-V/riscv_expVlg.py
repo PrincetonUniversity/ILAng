@@ -3,7 +3,7 @@ import riscv_um
 
 def genVlg():
     rm = riscv_um.riscvModel()
-    rm.loadNxtFromDir('asts')
+    rm.loadUnprivNxtFromDir('unpriv_asts')
     rm.model.generateVerilog('RISC-V-VLG.v')
 
 if __name__ == '__main__':
