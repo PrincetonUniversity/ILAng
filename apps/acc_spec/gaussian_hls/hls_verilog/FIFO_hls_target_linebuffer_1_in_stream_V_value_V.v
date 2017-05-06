@@ -8,14 +8,14 @@
 
 `timescale 1 ns / 1 ps
 
-module FIFO_hls_target_p_p2_in_bounded_stencil_stream_s_shiftReg (
+module FIFO_hls_target_linebuffer_1_in_stream_V_value_V_shiftReg (
     clk,
     data,
     ce,
     a,
     q);
 
-parameter DATA_WIDTH = 32'd648;
+parameter DATA_WIDTH = 32'd8;
 parameter ADDR_WIDTH = 32'd1;
 parameter DEPTH = 32'd2;
 
@@ -42,7 +42,7 @@ assign q = SRL_SIG[a];
 
 endmodule
 
-module FIFO_hls_target_p_p2_in_bounded_stencil_stream_s (
+module FIFO_hls_target_linebuffer_1_in_stream_V_value_V (
     clk,
     reset,
     if_empty_n,
@@ -55,7 +55,7 @@ module FIFO_hls_target_p_p2_in_bounded_stencil_stream_s (
     if_din);
 
 parameter MEM_STYLE = "auto";
-parameter DATA_WIDTH = 32'd648;
+parameter DATA_WIDTH = 32'd8;
 parameter ADDR_WIDTH = 32'd1;
 parameter DEPTH = 32'd2;
 
@@ -109,14 +109,13 @@ end
 
 assign shiftReg_addr = mOutPtr[ADDR_WIDTH] == 1'b0 ? mOutPtr[ADDR_WIDTH-1:0]:{ADDR_WIDTH{1'b0}};
 assign shiftReg_ce = (if_write & if_write_ce) & internal_full_n;
-//assign shiftReg_ce = 1'b0;
 
-FIFO_hls_target_p_p2_in_bounded_stencil_stream_s_shiftReg 
+FIFO_hls_target_linebuffer_1_in_stream_V_value_V_shiftReg 
 #(
     .DATA_WIDTH(DATA_WIDTH),
     .ADDR_WIDTH(ADDR_WIDTH),
     .DEPTH(DEPTH))
-U_FIFO_hls_target_p_p2_in_bounded_stencil_stream_s_ram (
+U_FIFO_hls_target_linebuffer_1_in_stream_V_value_V_ram (
     .clk(clk),
     .data(shiftReg_data),
     .ce(shiftReg_ce),
