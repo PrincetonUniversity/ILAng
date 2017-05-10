@@ -1,7 +1,3 @@
-# ILA for Halide Gaussian blur accelerator, with both the read and write 
-# instructions have child-instructions for data movement.
-# child instruction 1
-
 import ila
 from gb_arch import GBArch
 
@@ -20,7 +16,7 @@ def U1b (gb):
 
     ############################ next state functions #####################
     # arg_1_TREADY
-    arg_1_TREADY_nxt = READY_T # XXX see u1
+    arg_1_TREADY_nxt = READY_T 
     gb.arg_1_TREADY_nxt = ila.ite (decode, arg_1_TREADY_nxt, 
                                    gb.arg_1_TREADY_nxt)
     # LB1D_it_1

@@ -1,7 +1,3 @@
-# ILA for Halide Gaussian blur accelerator, with both the read and write 
-# instructions have child-instructions for data movement.
-# child instruction 2
-
 import ila
 from gb_arch import GBArch
 
@@ -50,18 +46,11 @@ def U2 (gb):
     gb.LB1D_p_cnt_nxt = ila.ite (decode, LB1D_p_cnt_nxt, gb.LB1D_p_cnt_nxt)
 
     # in stream full
-    in_stream_full_nxt = ila.ite (gb.LB2D_proc_x == gb.LB2D_proc_x_M, 
-                                  gb.in_stream_full,
-                                  FULL_F)
     in_stream_full_nxt = FULL_F
     gb.in_stream_full_nxt = ila.ite (decode, in_stream_full_nxt,
                                      gb.in_stream_full_nxt)
 
     # in stream empty
-    in_stream_empty_nxt = ila.ite (gb.LB2D_proc_x == gb.LB2D_proc_x_M,
-                                   gb.in_stream_empty,
-                          ila.ite (gb.in_stream_full == FULL_T,
-                                   EMPTY_F, EMPTY_T))
     in_stream_empty_nxt = ila.ite (gb.in_stream_full == FULL_T, EMPTY_F, EMPTY_T)
     gb.in_stream_empty_nxt = ila.ite (decode, in_stream_empty_nxt,
                                       gb.in_stream_empty_nxt)
@@ -73,23 +62,12 @@ def U2 (gb):
                                             gb.in_stream_buff_nxt[i])
 
     # LB2D proc x idx
-    #LB2D_proc_x_nxt = ila.ite (gb.LB2D_proc_x < gb.LB2D_proc_x_M,
-    #                           gb.LB2D_proc_x + gb.LB2D_proc_x_1,
-    #                           gb.LB2D_proc_x_0)
-    #LB2D_proc_x_nxt = gb.LB2D_proc_x + gb.LB2D_proc_x_1
     LB2D_proc_x_nxt = ila.ite (gb.LB2D_proc_x == gb.LB2D_proc_x_M,
                                gb.LB2D_proc_x_1,
                                gb.LB2D_proc_x + gb.LB2D_proc_x_1)
     gb.LB2D_proc_x_nxt = ila.ite (decode, LB2D_proc_x_nxt, gb.LB2D_proc_x_nxt)
 
     # LB2D proc y idx
-    #LB2D_proc_y_nxt = gb.LB2D_proc_y
-                      #ila.ite (gb.LB2D_proc_y < gb.LB2D_proc_y_M,
-                               #ila.ite (gb.LB2D_proc_x < gb.LB2D_proc_x_M,
-                               #         gb.LB2D_proc_y, 
-                               #         gb.LB2D_proc_y + gb.LB2D_proc_y_1),
-                               #gb.LB2D_proc_y,
-                               #gb.LB2D_proc_y_M)
     LB2D_proc_y_nxt = ila.ite (gb.LB2D_proc_x == gb.LB2D_proc_x_M,
                       ila.ite (gb.LB2D_proc_y == gb.LB2D_proc_y_M,
                                gb.LB2D_proc_y_0,
@@ -98,7 +76,6 @@ def U2 (gb):
     gb.LB2D_proc_y_nxt = ila.ite (decode, LB2D_proc_y_nxt, gb.LB2D_proc_y_nxt)
                                
     # LB2D proc w idx
-    #LB2D_proc_w_nxt = gb.LB2D_proc_w
     LB2D_proc_w_nxt = ila.ite (gb.LB2D_proc_x == gb.LB2D_proc_x_M,
                       ila.ite (gb.LB2D_proc_w == gb.LB2D_proc_w_M,
                                gb.LB2D_proc_w_0,
@@ -113,14 +90,14 @@ def U2 (gb):
     for i in xrange (0, gb.LB2D_proc_size):
         LB2D_proc_nxt = ila.ite (gb.LB2D_proc_w == i,
                                  ila.store (gb.LB2D_proc[i], 
-                                            gb.LB2D_proc_x - gb.LB2D_proc_x_1, # XXX
+                                            gb.LB2D_proc_x - gb.LB2D_proc_x_1, 
                                             in_byte),
                                  gb.LB2D_proc[i])
         gb.LB2D_proc_nxt[i] = ila.ite (decode, LB2D_proc_nxt, gb.LB2D_proc_nxt[i])
 
     # slice stream full
     slice_stream_full_nxt = ila.ite (gb.LB2D_proc_y < gb.LB2D_proc_size,
-                                     FULL_F, # force init
+                                     FULL_F, 
                             ila.ite (gb.slice_stream_empty == EMPTY_T,
                                      FULL_F, 
                                      FULL_T))
@@ -129,7 +106,7 @@ def U2 (gb):
 
     # slice stream empty
     slice_stream_empty_nxt = ila.ite (gb.LB2D_proc_y < gb.LB2D_proc_size,
-                                      EMPTY_T, EMPTY_F) # force init
+                                      EMPTY_T, EMPTY_F) 
     gb.slice_stream_empty_nxt = ila.ite (decode, slice_stream_empty_nxt,
                                          gb.slice_stream_empty_nxt)
 
@@ -140,17 +117,16 @@ def U2 (gb):
         def sliceSelectOne (modCase):
             idx = seqs[modCase]
             if modCase == gb.LB2D_proc_size - 1:
-                return ila.load (gb.LB2D_proc[idx], gb.LB2D_proc_x - gb.LB2D_proc_x_1) # XXX
+                return ila.load (gb.LB2D_proc[idx], gb.LB2D_proc_x - gb.LB2D_proc_x_1) 
             else:
                 return ila.ite (start == modCase, 
-                                ila.load (gb.LB2D_proc[idx], gb.LB2D_proc_x - gb.LB2D_proc_x_1), # XXX
+                                ila.load (gb.LB2D_proc[idx], gb.LB2D_proc_x - gb.LB2D_proc_x_1), 
                                 sliceSelectOne (modCase + 1))
         return sliceSelectOne (0)
 
     def genSliceSeqs (start):
         assert (start <= gb.LB2D_proc_size)
         res = []
-        #for i in xrange (gb.LB2D_proc_size-1, -1, -1):
         for i in xrange (0, gb.LB2D_proc_size):
             res.append ((start + i) % gb.LB2D_proc_size)
         return res
@@ -235,8 +211,3 @@ def U2 (gb):
         gb.gb_exit_it_nxt[i] = ila.ite (decode, gb_exit_it_i_nxt,
                                         gb.gb_exit_it_nxt[i])
 
-
-if __name__ == '__main__':
-    m = GBArch ()
-    U2 (m)
-    print 'add child instruction 2'

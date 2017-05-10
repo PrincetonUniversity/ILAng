@@ -97,6 +97,7 @@ namespace ila
     public:
         int paramSyn;
         int reduceWhenImport;
+        VlgExportConfig vlgExpConfig;
 
         // Constructor.
         Abstraction(const std::string& name);
@@ -807,6 +808,11 @@ namespace ila
 
         void setEnParamSyn(int en) {
             abs->paramSyn = en;
+        }
+
+        void setVlgExpConfig(bool extMem, bool fAsM){
+            abs->vlgExpConfig._extMem = extMem;
+            abs->vlgExpConfig._fmodule = fAsM;
         }
 
         int getReduceWhenImport() const {

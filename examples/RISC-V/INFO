@@ -1,0 +1,3 @@
+run "python riscv_expVlg.py" to generate Verilog of non-privilege model
+and run "python riscv_int.py" to generate the model of interrupt and CSRs.
+

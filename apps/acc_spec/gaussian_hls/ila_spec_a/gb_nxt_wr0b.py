@@ -1,6 +1,3 @@
-# ILA for Halide Gaussian Blur (GB) accelerator that abstracts buffering.
-# write instruction - architecture-level instruction.
-
 import ila
 
 from gb_arch import GBArch
@@ -22,7 +19,7 @@ def WRU0b (gb):
     decode = decode & (gb.RAM_x == gb.RAM_x_0) & (gb.RAM_y == gb.RAM_y_0)
 
     # next state functions for output ports
-    arg_1_TREADY_nxt = READY_T # XXX first pixel doesn't propogate
+    arg_1_TREADY_nxt = READY_T
     gb.arg_1_TREADY_nxt = ila.ite (decode, arg_1_TREADY_nxt, gb.arg_1_TREADY_nxt)
 
     arg_0_TVALID_nxt = VALID_F
@@ -49,7 +46,7 @@ def WRU0b (gb):
         gb.stencil_nxt[i] = ila.ite (decode, gb.stencil[i], gb.stencil_nxt[i])
    
     # stencil ready (child-state)
-    st_ready_nxt = READY_T # XXX first pixel doesn't propogate
+    st_ready_nxt = READY_T 
     gb.st_ready_nxt = ila.ite (decode, st_ready_nxt, gb.st_ready_nxt)
 
     # 9x9 stencil (child-state)

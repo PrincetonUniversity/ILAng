@@ -1,7 +1,3 @@
-# ILA for Halide Gaussian blur accelerator, with both the read and write 
-# instructions have child-instructions for data movement.
-# Architecture states
-
 import ila
 
 DATA_SIZE       = 8
@@ -16,7 +12,7 @@ WR_ADDR_SIZE    = 64
 
 class GBArch ():
     def __init__ (self):
-        self.abst = ila.Abstraction ('GB')
+        self.abst = ila.Abstraction ('SPEC_B')
         m = self.abst
 
         BV_TRUE     = m.const (0x1, 1)
@@ -267,7 +263,3 @@ class GBArch ():
     def exportVerilog (self, fileName):
         self.abst.generateVerilog (fileName)
 
-
-if __name__ == '__main__':
-    gb = GBArch ()
-    print 'create GB arch states'

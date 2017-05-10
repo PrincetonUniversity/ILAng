@@ -1,0 +1,10 @@
+Please first run "python R2.py" to generate the aes verification file aes.v and copy it here, 
+then source do.tcl in JasperGold
+
+This is to do an ILA vs. ILA EQ checking on Verilog level.
+ 
+You can run "python EQ.py" in the higher level to do it with ILA tool (Z3), but it is much
+much slower.
+
+
+

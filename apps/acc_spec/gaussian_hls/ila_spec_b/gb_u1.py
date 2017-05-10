@@ -1,7 +1,3 @@
-# ILA for Halide Gaussian blur accelerator, with both the read and write 
-# instructions have child-instructions for data movement.
-# child instruction 1
-
 import ila
 from gb_arch import GBArch
 
@@ -24,9 +20,9 @@ def U1 (gb):
 
     ############################ next state functions #####################
     # arg_1_TREADY
-    arg_1_TREADY_nxt = ila.ite (gb.LB1D_p_cnt != gb.LB1D_p_cnt_M - 1,
-                                READY_T, READY_F)
-    arg_1_TREADY_nxt = READY_T # Eq to hls
+    arg_1_TREADY_nxt = ila.ite (gb.LB1D_p_cnt == gb.LB1D_p_cnt_M - 1,
+                                READY_F, READY_T)
+    arg_1_TREADY_nxt = READY_T 
     gb.arg_1_TREADY_nxt = ila.ite (decode, arg_1_TREADY_nxt, 
                                    gb.arg_1_TREADY_nxt)
 
@@ -40,6 +36,10 @@ def U1 (gb):
     gb.arg_0_TDATA_nxt = ila.ite (decode, arg_0_TDATA_nxt,
                                   gb.arg_0_TDATA_nxt)
 
+    # LB1D_it_1
+    LB1D_it_1_nxt = gb.it_T 
+    gb.LB1D_it_1_nxt = ila.ite (decode, LB1D_it_1_nxt, gb.LB1D_it_1_nxt)
+
     # 1-D buffer for input data
     LB1D_in_nxt = gb.LB1D_in
     gb.LB1D_in_nxt = ila.ite (decode, LB1D_in_nxt, gb.LB1D_in_nxt)
@@ -51,9 +51,7 @@ def U1 (gb):
     gb.LB1D_buff_nxt = ila.ite (decode, LB1D_buff_nxt, gb.LB1D_buff_nxt)
 
     # pixel position for input data
-    LB1D_p_cnt_nxt = ila.ite (gb.LB1D_p_cnt == gb.LB1D_p_cnt_M - gb.LB1D_p_cnt_1,
-                              gb.LB1D_p_cnt_0, 
-                              gb.LB1D_p_cnt + gb.LB1D_p_cnt_1)
+    LB1D_p_cnt_nxt = gb.LB1D_p_cnt + gb.LB1D_p_cnt_1 
     gb.LB1D_p_cnt_nxt = ila.ite (decode, LB1D_p_cnt_nxt, gb.LB1D_p_cnt_nxt)
 
     # in stream full
@@ -67,7 +65,7 @@ def U1 (gb):
                                       gb.in_stream_empty_nxt)
 
     # in stream buffer
-    in_stream_buff_0_nxt = gb.LB1D_buff
+    in_stream_buff_0_nxt = gb.LB1D_uIn
     gb.in_stream_buff_nxt[0] = ila.ite (decode, in_stream_buff_0_nxt,
                                         gb.in_stream_buff_nxt[0])
     for i in xrange (1, gb.in_stream_size):
@@ -160,8 +158,3 @@ def U1 (gb):
         gb.gb_exit_it_nxt[i] = ila.ite (decode, gb_exit_it_i_nxt,
                                         gb.gb_exit_it_nxt[i])
 
-
-if __name__ == '__main__':
-    m = GBArch ()
-    U1 (m)
-    print 'add child instruction 1'

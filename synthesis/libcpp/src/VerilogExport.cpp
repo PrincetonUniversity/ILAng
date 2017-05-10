@@ -139,14 +139,16 @@ namespace ila
                 return;
             }
 
-            nptr_t cond;
-            mem_write_entry_list_t writes;
+            nptr_t cond = BoolConst::get(true);
+            mem_write_entry_list_stack_t writesStack;
+            mem_write_entry_list_t empty_write_entry_list;
+            writesStack.push_back( empty_write_entry_list );
 
             for (const auto &w: current_writes)
                 past_writes.push_back(w);
                 
             current_writes.clear();
-            visitMemNodes(next, cond, writes);
+            visitMemNodes(next, cond, writesStack);
             //std::cout << current_writes << std::endl;
 
             exportCondWrites(name,addr_width,data_width,current_writes);
@@ -166,10 +168,17 @@ namespace ila
         {
             add_wire(name + "_addr" + toStr(portIdx),addrWidth);
             add_wire(name + "_data" + toStr(portIdx),dataWidth);
+            add_wire(name + "_wen"  + toStr(portIdx),1);
+            if(ExternalMem) {
+                mem_o.push_back( vlg_sig_t(name + "_addr" + toStr(portIdx),addrWidth) );
+                mem_o.push_back( vlg_sig_t(name + "_data" + toStr(portIdx),dataWidth) );
+                mem_o.push_back( vlg_sig_t(name + "_wen"  + toStr(portIdx),1) );
+            }
         }
+        std::vector<vlg_stmt_t> enabStmt(max_port_no,"1'b0");
         std::vector<vlg_stmt_t> addrStmt(max_port_no,"0");
-        std::vector<vlg_stmt_t> dataStmt(max_port_no,name + "[0]"); // 'dx is not desired, since it will change the value
-
+        std::vector<vlg_stmt_t> dataStmt(max_port_no,"'dx"); 
+        // Note the reverse here!
         for (const auto & mw : boost::adaptors::reverse(writeList) ) {
             start_iterate(mw.cond.get());
             vlg_name_t cond = getName(mw.cond.get());
@@ -183,6 +192,7 @@ namespace ila
 
                 addrStmt[portIdx] = cond + " ? (" + addr + ") : (" + addrStmt[portIdx] + ")";
                 dataStmt[portIdx] = cond + " ? (" + data + ") : (" + dataStmt[portIdx] + ")";
+                enabStmt[portIdx] = cond + " ? ( 1'b1 ) : ("       + enabStmt[portIdx] + ")";
 
                 portIdx ++;
             }
@@ -193,10 +203,19 @@ namespace ila
             // add statements
             vlg_name_t addrWireName = name + "_addr" + toStr(portIdx);
             vlg_name_t dataWireName = name + "_data" + toStr(portIdx);
+            vlg_name_t enabWireName = name + "_wen"  + toStr(portIdx);
             add_stmt(vlg_stmt_t("assign ") + addrWireName + " = " + addrStmt[portIdx] + ";" );
             add_stmt(vlg_stmt_t("assign ") + dataWireName + " = " + dataStmt[portIdx] + ";" );
+            add_stmt(vlg_stmt_t("assign ") + enabWireName + " = " + enabStmt[portIdx] + ";" );
             // add memory updates in the always block
-            add_always_stmt(name + " [ " + addrWireName + " ] " + "<= "  + dataWireName);
+            if(ExternalMem) {
+                // DO NOTHING
+            }
+            else {
+                vlg_stmt_t assignment = name + " [ " + addrWireName + " ] " + "<= "  + dataWireName;
+                vlg_stmt_t condition  = enabWireName;
+                add_ite_stmt(condition, assignment, ""); // no else statement
+            }
         }
     }
 
@@ -206,20 +225,32 @@ namespace ila
 
         ILA_ASSERT( (funcvar = dynamic_cast<const FuncVar *>(np.var.get()) ), "function variable type mismatched.");
 
-        vlg_stmt_t funcDecal = "/*\nfunction " + WidthToRange(funcvar->type.bitWidth) + " ";
-        funcDecal += name + " ;\n";
+        if(FunctionAsModule) {
+            vlg_stmt_t funcModDef = "module fun_" + funcvar->getName() + " (\n";
+            int argNo = 1;
+            for (const auto &argWidth : funcvar->type.argsWidth)
+                funcModDef += "    input " + WidthToRange(argWidth) + " arg" + toStr(argNo++) + ",\n";
+            funcModDef += "    output " + WidthToRange(funcvar->type.bitWidth) + " result\n";
+            funcModDef += ");\n";
+            funcModDef += "//TODO: Add the specific function HERE.\n";
+            funcModDef += "endmodule\n";
+            preheader += funcModDef;
+        }
+        else {
+            vlg_stmt_t funcDecal = "function " + WidthToRange(funcvar->type.bitWidth) + " ";
+            funcDecal += name + " ;\n";
 
-        int argNo = 0;
+            int argNo = 0;
 
-        for (const auto &argWidth : funcvar->type.argsWidth)
-            funcDecal += vlg_stmt_t("input ") + WidthToRange(argWidth) + " arg" + toStr(argNo++) + ";\n";
-        funcDecal += "    begin\n//TODO: Add the specific function HERE.";
-        funcDecal += "    end\n";
+            for (const auto &argWidth : funcvar->type.argsWidth)
+                funcDecal += vlg_stmt_t("input ") + WidthToRange(argWidth) + " arg" + toStr(argNo++) + ";\n";
+            funcDecal += "    begin\n//TODO: Add the specific function HERE.\n";
+            funcDecal += "    end\n";
 
-        funcDecal += "endfunction\n*/\n";
+            funcDecal += "endfunction\n";
 
-        add_stmt(funcDecal);
-
+            add_stmt(funcDecal);
+        }
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -251,6 +282,10 @@ namespace ila
     void VerilogExport::add_init_stmt(const vlg_stmt_t & s)
     {
         init_stmts.push_back(s);
+    }
+    void VerilogExport::add_ite_stmt(const vlg_stmt_t & cond, const vlg_stmt_t & tstmt, const vlg_stmt_t & fstmt)
+    {
+        ite_stmts.push_back(std::make_tuple(cond,tstmt,fstmt));
     }
 
     void VerilogExport::add_mem(const vlg_name_t &n, int addr_width,int data_width)
@@ -341,7 +376,7 @@ namespace ila
             ILA_ASSERT(false, "Operator not supported.");
         }
 
-        vlg_name_t tmp_result = NewId();
+        vlg_name_t tmp_result = NewId( boolop->getRefName() );
         vlg_stmt_t tmp_stmt = vlg_stmt_t("assign ") + tmp_result + " = " + result_stmt +" ;";
 
         add_wire(tmp_result, 1);
@@ -393,7 +428,7 @@ namespace ila
 
             if (outWidth == bvWidth) result_stmt = arg0;
             else {
-                result_stmt = vlg_stmt_t(" { {") + toStr(outWidth - bvWidth) +"{"+ arg0 +"["+ toStr(bvWidth)  + "] }  }, " + arg0 + "} ";
+                result_stmt = vlg_stmt_t(" { {") + toStr(outWidth - bvWidth) +"{"+ arg0 +"["+ toStr(bvWidth-1)  + "] }  }, " + arg0 + "} ";
             }
         } else if  (op == BitvectorOp::EXTRACT) {
             unsigned hi = static_cast<unsigned> (bvop->param(0));
@@ -438,7 +473,7 @@ namespace ila
             } else if (op == BitvectorOp::LSHR) { 
                 result_stmt = vlg_stmt_t(" ( ( ") + arg1 + " ) >> ( " +  arg2 + " )) ";
             } else if (op == BitvectorOp::ASHR) { 
-                result_stmt = vlg_stmt_t(" ( ( ") + arg1 + " ) >>> ( " +  arg2 + " )) ";
+                result_stmt = vlg_stmt_t(" ( $signed( ") + arg1 + " ) >>> ( " +  arg2 + " )) ";
             } else if (op == BitvectorOp::MUL) { 
                 result_stmt = vlg_stmt_t(" ( ( ") + arg1 + " ) * ( " +  arg2 + " )) ";
             } else if (op == BitvectorOp::CONCAT) { 
@@ -447,9 +482,25 @@ namespace ila
                 result_stmt = vlg_stmt_t(" (  ") + arg1 + " [ " +  arg2 + " ] ) ";
             } else if (op == BitvectorOp::READMEM) { 
                 // FIXME: Now we have multiple read ports
-                result_stmt = vlg_stmt_t(" (  ") + arg1 + " [ " +  arg2 + " ] ) ";
+                if (ExternalMem) {
+                    int addrWidth = bvop->arg(0)->type.addrWidth;
+                    int dataWidth = bvop->arg(0)->type.dataWidth;
+                    vlg_name_t addrName = arg1 + "_addr_" + NewId();
+                    vlg_name_t dataName = arg1 + "_data_" + NewId();
+
+                    mem_o.push_back( vlg_sig_t(addrName, addrWidth) );
+                    mem_i.push_back( vlg_sig_t(dataName, dataWidth) );
+                    
+                    vlg_stmt_t tmp_stmt = vlg_stmt_t("assign ") + addrName + " = " + arg2 +" ;";
+                    add_stmt(tmp_stmt);
+                    
+                    result_stmt = vlg_stmt_t(dataName);
+                }
+                else
+                    result_stmt = vlg_stmt_t(" (  ") + arg1 + " [ " +  arg2 + " ] ) ";
             } else if (op == BitvectorOp::READMEMBLOCK) { 
-                //result_stmt = vlg_stmt_t(" ( ( ") + arg1 + " ) / ( " +  arg2 + " )) ";
+                int addrWidth = bvop->arg(0)->type.addrWidth;
+                int dataWidth = bvop->arg(0)->type.dataWidth;
                 ILA_ASSERT(bvop->nParams() == 2, "Two parameters expected.");
                 int chunks = bvop->param(0);
                 endianness_t e = (endianness_t) bvop->param(1);
@@ -457,7 +508,21 @@ namespace ila
 
                 // read from arg1 , start addr = arg1 , repeat chunks' time 
                 for (int i=0; i < chunks; i++) {
-                    vlg_stmt_t data_i = vlg_stmt_t(" (  ") + arg1 + " [ " +  arg2 + "+" + toStr(i) + " ] ) "; 
+                    vlg_stmt_t data_i;
+                    if (ExternalMem) {
+                        vlg_name_t addrName = arg1 + "_addr_" + NewId();
+                        vlg_name_t dataName = arg1 + "_data_" + NewId();
+                        
+                        mem_o.push_back( vlg_sig_t(addrName, addrWidth) );
+                        mem_i.push_back( vlg_sig_t(dataName, dataWidth) );
+                        
+                        vlg_stmt_t tmp_stmt = vlg_stmt_t("assign ") + addrName + " = " + arg2 + "+" + toStr(i) +" ;";
+                        add_stmt(tmp_stmt);
+                    
+                        data_i = dataName;
+                    }
+                    else
+                        data_i = vlg_stmt_t(" (  ") + arg1 + " [ " +  arg2 + "+" + toStr(i) + " ] ) "; 
                     if (i == 0) {
                         result_stmt = data_i;
                     } else {
@@ -480,19 +545,32 @@ namespace ila
             result_stmt = vlg_stmt_t(" ( ") + arg1 + " ) ? ( " +  arg2 + " ) : ( " + arg3 + " )";
         } else if (op == BitvectorOp::APPLY_FUNC) {
             const Node * funcVar = bvop->arg(0).get();
-            result_stmt = funcVar->getName() + "(";
-            vlg_stmt_t arg_stmt = getArg(bvop, 1);
-            int arity = bvop->nArgs();
-            for (int i = 2; i != arity; i++) {
-                arg_stmt = getArg(bvop, i) + " , " + arg_stmt;
+            if(FunctionAsModule) {
+                result_stmt = NewId();
+                add_wire(result_stmt, get_width(funcVar) );
+                vlg_stmt_t funcInstantiation = "fun_"+ funcVar->getName() + "  "+"applyFunc_"+NewId() + "(\n";
+                int arity = bvop->nArgs();
+                for (int i = 1; i != arity; i++) {
+                    funcInstantiation +=  "    .arg"+toStr(i)+"( " + getArg(bvop, i) + " ),\n";
+                }
+                funcInstantiation += "    .result( " + result_stmt + " )\n" ;
+                funcInstantiation += ");";
+                add_stmt(funcInstantiation);
             }
-            result_stmt = result_stmt + arg_stmt + ")";
+            else {
+                result_stmt = funcVar->getName() + "(";
+                vlg_stmt_t arg_stmt = getArg(bvop, 1);
+                int arity = bvop->nArgs();
+                for (int i = 2; i != arity; i++) 
+                    arg_stmt = arg_stmt +  " , " + getArg(bvop, i) ;
+                result_stmt = result_stmt + arg_stmt + ")";
+            }
         } else {
             log1 ("VerilogExport") << BitvectorOp::operatorNames[op] << " not supported.\n";
             ILA_ASSERT(false,"Operator not supported.");
         }
 
-        vlg_name_t tmp_result = NewId();
+        vlg_name_t tmp_result = NewId(bvop->getRefName() );
         vlg_stmt_t tmp_stmt = vlg_stmt_t("assign ") + tmp_result + " = " + result_stmt +" ;";
 
         add_wire(tmp_result,width);
@@ -609,40 +687,59 @@ namespace ila
         }
         return out << "]";
     }
+    
+    std::ostream& operator<<(
+        std::ostream& out, const mem_write_entry_list_stack_t& mwel)
+    {
+        unsigned i=0;
+        for (const auto &sitem : mwel)
+            out <<"["<< (i++) <<"]:"<<sitem<<std::endl;
+        return out;
+    }
 
 
     void VerilogExport::visitMemNodes(
         const Node* n, const nptr_t& cond,
-        mem_write_entry_list_t& writes)
+        mem_write_entry_list_stack_t& writesStack)
     {
         const MemVar* memvar = dynamic_cast<const MemVar*>(n);
         const MemOp* memop = dynamic_cast<const MemOp*>(n);
         ILA_ASSERT(memvar != NULL || memop != NULL, 
             "expected a memvar or memop.");
 
+        log1("VerilogExport")<<"Visiting:"<<(*n)<<std::endl;
+        log1("VerilogExport")<<writesStack;
+
         if (memvar != NULL) {
             // here is where the recursion terminates.
+            mem_write_entry_list_t writes = writesStack.back();
             mem_write_t mw = { cond, writes };
+            log2("VerilogExport")<<"adding:"<<mw<<std::endl;
             current_writes.push_back(mw);
-            writes.clear();
         } else  {
             // we have a memop.
             MemOp::Op op = memop->getOp();
             if (op == MemOp::ITE) {
-                ILA_ASSERT(writes.size() == 0, "unexpected writes.");
+                //ILA_ASSERT(writes.size() == 0, "unexpected writes.");
                 // compute conditions for each branch.
                 nptr_t cite_t(memop->arg(0));
                 nptr_t cite_f(BoolOp::negate(cite_t, notCache));
                 nptr_t ctrue  = logicalAnd(cond, cite_t);
                 nptr_t cfalse = logicalAnd(cond, cite_f);
                 // recurse.
-                visitMemNodes(memop->arg(1).get(), ctrue, writes);
-                visitMemNodes(memop->arg(2).get(), cfalse, writes);
+                mem_write_entry_list_t writes = writesStack.back();
+                writesStack.push_back(writes);
+                visitMemNodes(memop->arg(1).get(), ctrue, writesStack);
+                writesStack.pop_back();
+                writesStack.push_back(writes);
+                visitMemNodes(memop->arg(2).get(), cfalse, writesStack);
+                writesStack.pop_back();
             } else if (op == MemOp::STORE) {
                 mem_write_entry_t mw = { memop->arg(1), memop->arg(2) };
+                mem_write_entry_list_t & writes = writesStack.back();
                 writes.push_back(mw);
                 const nptr_t& mem(memop->arg(0));
-                visitMemNodes(mem.get(), cond, writes);
+                visitMemNodes(mem.get(), cond, writesStack);
             }
         }
     }
@@ -662,14 +759,23 @@ namespace ila
     {
         return "n" + toStr(idCounter++);
     }
+    
+    vlg_name_t VerilogExport::NewId(const std::string &refName)
+    {
+        if( refName != "" )
+            return "n" + toStr(idCounter++) + "__"+refName;
+        return NewId();
+    }
 
-    VerilogExport::VerilogExport (const std::string &modName,const std::string &clk,const std::string &rst)
+    VerilogExport::VerilogExport (const std::string &modName,const std::string &clk,const std::string &rst, const VlgExportConfig & config)
         : moduleName(modName)
         , clkName(clk)
         , rstName(rst)
         , nmap(NUM_HASHTABLE_BUCKETS, nodeHash, nodeEqual)
         , notCache(NUM_HASHTABLE_BUCKETS_SMALL, nodeHash, nodeEqual)
         , idCounter(0)
+        , ExternalMem(config._extMem)
+        , FunctionAsModule(config._fmodule)
     {
 
     }
@@ -681,6 +787,19 @@ namespace ila
     {
         // module XXX ( A,B,C,clk,rst );
 
+        if(preheader != "") {
+            fout << "/* PREHEADER */\n";
+            fout << preheader<<"\n";
+            fout << "/* END OF PREHEADER */\n";
+        }
+
+        if(ExternalMem) {
+            for(const auto &io: mem_i)
+                inputs.push_back(io);
+            for(const auto &io: mem_o)
+                outputs.push_back(io);
+        }
+        
         fout << "module "<< moduleName<< "(\n";
         for(auto const &sig_pair : inputs)
             fout << sig_pair.first <<",\n";
@@ -701,9 +820,13 @@ namespace ila
 
         for(auto const &sig_pair : wires)
             fout << "wire " <<std::setw(10)<<WidthToRange(sig_pair.second)<<" "<<(sig_pair.first) << ";\n";
+        if(ExternalMem) {
 
-        for(auto const &mem : mems)
-            fout << "reg "<<std::setw(10)<<WidthToRange( std::get<2>(mem) )<<" "<<( std::get<0>(mem) )<< WidthToRange(std::pow(2, std::get<1>(mem)))<<";\n";
+        }
+        else {
+            for(auto const &mem : mems)
+                fout << "reg "<<std::setw(10)<<WidthToRange( std::get<2>(mem) )<<" "<<( std::get<0>(mem) )<< WidthToRange(std::pow(2, std::get<1>(mem)))<<";\n";
+        }
 
         fout << "wire "<<clkName<<";\nwire "<<rstName<<";\n"<<"wire step;\n";
 
@@ -721,6 +844,15 @@ namespace ila
 
         for(auto const &stmt : always_stmts) 
             fout << "       "<<stmt<<";\n";
+
+        for (auto const &stmt : ite_stmts) {
+            fout << "       "<<"if (" << std::get<0>(stmt) <<") begin\n";
+            fout << "       "<<"    "<< std::get<1>(stmt)<<" ;\n";
+            fout << "       "<<"end\n";
+            if(std::get<2>(stmt) != "") {
+                fout << "       "<<"else begin\n            "<<std::get<2>(stmt)<<" ;\n        end\n";
+            }
+        }
 
         fout << "   end\n";
         fout << "end\n";

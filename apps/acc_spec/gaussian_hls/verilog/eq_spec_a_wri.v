@@ -6,8 +6,6 @@ module eq_top (
     rst_init,
     ila_complete,           // terminate when instruction completes
     hls_complete,           // terminate when instruction completes
-    ila_exec,               // virtual input for initialization
-    hls_exec,               // virtual input for initialization 
     arg_0_TREADY,
     arg_1_TDATA,
     arg_1_TVALID,
@@ -43,8 +41,6 @@ input           clk;
 input           rst_init;
 input           ila_complete;
 input           hls_complete;
-input           ila_exec;
-input           hls_exec;
 input           arg_0_TREADY;
 input   [7:0]   arg_1_TDATA;
 input           arg_1_TVALID;
@@ -71,8 +67,27 @@ always @ (posedge clk) begin
     if (rst_init) begin
         counter <= 16'b0;
     end
+    else if (counter == 15) begin
+        counter <= 15;
+    end 
     else begin
         counter <= counter + 16'b1;
+    end
+end
+
+reg [1:0] phase;
+always @ (posedge clk) begin
+    if (rst_init) begin
+        phase <= 0;
+    end
+    else if (phase == 0 & ila_complete == 1 & hls_step == 0) begin
+        phase <= 1;
+    end
+    else if (phase == 1) begin
+        phase <= 2;
+    end 
+    else begin
+        phase <= phase;
     end
 end
 
@@ -93,7 +108,6 @@ wire hls_step = (hls_wait <= 5);
 //wire hls_step = (hls_wait == 0);
 
 wire ila_clk = ~rst_init & clk & ~ila_complete;
-//wire hls_clk = ~rst_init & clk & ~hls_complete;
 wire hls_clk = ~rst_init & clk & hls_step;
 wire rst = 1'b0;
 
@@ -120,7 +134,7 @@ wire     [71:0] ila_stencil_8;
 
 wire            ila_step = 1'b1;
 
-GB ila_U (
+SPEC_A ila_U (
     .arg_0_TREADY (arg_0_TREADY),
     .arg_1_TDATA (arg_1_TDATA),
     .arg_1_TVALID (arg_1_TVALID),
@@ -271,6 +285,5 @@ hls_target hls_U (
     .arg_0_TVALID (hls_arg_0_TVALID),
     .arg_0_TREADY (arg_0_TREADY)
 );
-
 
 endmodule
