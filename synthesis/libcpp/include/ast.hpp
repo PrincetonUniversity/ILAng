@@ -118,7 +118,8 @@ namespace ila
         NodeRef* getItem(NodeRef* idx) const;
         NodeRef* getItemInt(int idx) const;
 
-
+        // set reference name.
+        void setRefName(const std::string & refName);
         // does this object have a value?
         py::object value() const;
 

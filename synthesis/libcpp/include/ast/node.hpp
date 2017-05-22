@@ -83,6 +83,8 @@ namespace ila
     protected:
         // name for this node.
         std::string name;
+        // reference name for this node (for better reference)
+        std::string refName;
         // unique id.
         const int id;
         // hash value flag.
@@ -112,6 +114,14 @@ namespace ila
 
         const std::string& getName() const {
             return name;
+        }
+
+        const std::string & getRefName() const {
+            return refName;
+        }
+
+        void setRefName(const std::string &refN) {
+            refName = refN;
         }
 
         int getId() { return id; }

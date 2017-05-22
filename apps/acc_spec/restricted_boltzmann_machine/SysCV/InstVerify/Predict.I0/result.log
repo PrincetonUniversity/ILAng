@@ -1,0 +1,139 @@
+~/clang+llvm-2.9-x86_64-linux.tar/bin/clang -S -emit-llvm -I./Cmodel/predict_mod -I./VerC -I. vWrapper.cpp
+mv vWrapper.s vWrapper.li
+~/clang+llvm-2.9-x86_64-linux.tar/bin/llc -march=c -o vWrapper.ci vWrapper.li
+mv vWrapper.ci vWrapper.c
+python sanitize.py
+[Done]
+~/cbmc/cbmc --unwind 3 --unwinding-assertions --slice-formula vWrapper.c
+CBMC version 5.6 64-bit x86_64 linux
+Parsing vWrapper.c
+Converting
+Type-checking vWrapper
+Generating GOTO Program
+Adding CPROVER library (x86_64)
+Removal of function pointers and virtual functions
+Partial Inlining
+Generic Property Instrumentation
+Starting Bounded Model Checking
+Unwinding loop _ZN3rbm11predict_rbmEv.0 iteration 1 (3 max) file vWrapper.c line 12608 function _ZN3rbm11predict_rbmEv thread 0
+Unwinding loop _ZN3rbm11predict_rbmEv.0 iteration 2 (3 max) file vWrapper.c line 12608 function _ZN3rbm11predict_rbmEv thread 0
+Not unwinding loop _ZN3rbm11predict_rbmEv.0 iteration 3 (3 max) file vWrapper.c line 12608 function _ZN3rbm11predict_rbmEv thread 0
+Unwinding loop _ZN3rbm27activateHiddenUnits_predictEbtt.8 iteration 1 (3 max) file vWrapper.c line 13176 function _ZN3rbm27activateHiddenUnits_predictEbtt thread 0
+Unwinding loop _ZN3rbm27activateHiddenUnits_predictEbtt.5 iteration 1 (3 max) file vWrapper.c line 13053 function _ZN3rbm27activateHiddenUnits_predictEbtt thread 0
+Unwinding loop _ZN3rbm27activateHiddenUnits_predictEbtt.4 iteration 1 (3 max) file vWrapper.c line 13044 function _ZN3rbm27activateHiddenUnits_predictEbtt thread 0
+Unwinding loop _ZN3rbm27activateHiddenUnits_predictEbtt.3 iteration 1 (3 max) file vWrapper.c line 13032 function _ZN3rbm27activateHiddenUnits_predictEbtt thread 0
+Unwinding loop _ZN3rbm27activateHiddenUnits_predictEbtt.2 iteration 1 (3 max) file vWrapper.c line 13025 function _ZN3rbm27activateHiddenUnits_predictEbtt thread 0
+Unwinding loop _ZN3rbm27activateHiddenUnits_predictEbtt.1 iteration 1 (3 max) file vWrapper.c line 13012 function _ZN3rbm27activateHiddenUnits_predictEbtt thread 0
+Unwinding loop _ZN3rbm27activateHiddenUnits_predictEbtt.0 iteration 1 (3 max) file vWrapper.c line 13004 function _ZN3rbm27activateHiddenUnits_predictEbtt thread 0
+Unwinding loop _ZN3rbm27activateHiddenUnits_predictEbtt.5 iteration 2 (3 max) file vWrapper.c line 13053 function _ZN3rbm27activateHiddenUnits_predictEbtt thread 0
+Unwinding loop _ZN3rbm27activateHiddenUnits_predictEbtt.4 iteration 1 (3 max) file vWrapper.c line 13044 function _ZN3rbm27activateHiddenUnits_predictEbtt thread 0
+Unwinding loop _ZN3rbm27activateHiddenUnits_predictEbtt.3 iteration 1 (3 max) file vWrapper.c line 13032 function _ZN3rbm27activateHiddenUnits_predictEbtt thread 0
+Unwinding loop _ZN3rbm27activateHiddenUnits_predictEbtt.2 iteration 1 (3 max) file vWrapper.c line 13025 function _ZN3rbm27activateHiddenUnits_predictEbtt thread 0
+Unwinding loop _ZN3rbm27activateHiddenUnits_predictEbtt.1 iteration 1 (3 max) file vWrapper.c line 13012 function _ZN3rbm27activateHiddenUnits_predictEbtt thread 0
+Unwinding loop _ZN3rbm27activateHiddenUnits_predictEbtt.0 iteration 1 (3 max) file vWrapper.c line 13004 function _ZN3rbm27activateHiddenUnits_predictEbtt thread 0
+Not unwinding loop _ZN3rbm27activateHiddenUnits_predictEbtt.5 iteration 3 (3 max) file vWrapper.c line 13053 function _ZN3rbm27activateHiddenUnits_predictEbtt thread 0
+Unwinding loop _ZN3rbm27activateHiddenUnits_predictEbtt.6 iteration 1 (3 max) file vWrapper.c line 13060 function _ZN3rbm27activateHiddenUnits_predictEbtt thread 0
+Unwinding loop _ZN3rbm27activateHiddenUnits_predictEbtt.2 iteration 1 (3 max) file vWrapper.c line 13025 function _ZN3rbm27activateHiddenUnits_predictEbtt thread 0
+Unwinding loop _ZN3rbm27activateHiddenUnits_predictEbtt.1 iteration 1 (3 max) file vWrapper.c line 13012 function _ZN3rbm27activateHiddenUnits_predictEbtt thread 0
+Unwinding loop _ZN3rbm27activateHiddenUnits_predictEbtt.0 iteration 1 (3 max) file vWrapper.c line 13004 function _ZN3rbm27activateHiddenUnits_predictEbtt thread 0
+Unwinding loop _ZN3rbm27activateHiddenUnits_predictEbtt.5 iteration 1 (3 max) file vWrapper.c line 13053 function _ZN3rbm27activateHiddenUnits_predictEbtt thread 0
+Unwinding loop _ZN3rbm27activateHiddenUnits_predictEbtt.4 iteration 1 (3 max) file vWrapper.c line 13044 function _ZN3rbm27activateHiddenUnits_predictEbtt thread 0
+Unwinding loop _ZN3rbm27activateHiddenUnits_predictEbtt.3 iteration 1 (3 max) file vWrapper.c line 13032 function _ZN3rbm27activateHiddenUnits_predictEbtt thread 0
+Unwinding loop _ZN3rbm27activateHiddenUnits_predictEbtt.2 iteration 1 (3 max) file vWrapper.c line 13025 function _ZN3rbm27activateHiddenUnits_predictEbtt thread 0
+Unwinding loop _ZN3rbm27activateHiddenUnits_predictEbtt.1 iteration 1 (3 max) file vWrapper.c line 13012 function _ZN3rbm27activateHiddenUnits_predictEbtt thread 0
+Unwinding loop _ZN3rbm27activateHiddenUnits_predictEbtt.0 iteration 1 (3 max) file vWrapper.c line 13004 function _ZN3rbm27activateHiddenUnits_predictEbtt thread 0
+Unwinding loop _ZN3rbm27activateHiddenUnits_predictEbtt.5 iteration 2 (3 max) file vWrapper.c line 13053 function _ZN3rbm27activateHiddenUnits_predictEbtt thread 0
+Unwinding loop _ZN3rbm27activateHiddenUnits_predictEbtt.4 iteration 1 (3 max) file vWrapper.c line 13044 function _ZN3rbm27activateHiddenUnits_predictEbtt thread 0
+Unwinding loop _ZN3rbm27activateHiddenUnits_predictEbtt.3 iteration 1 (3 max) file vWrapper.c line 13032 function _ZN3rbm27activateHiddenUnits_predictEbtt thread 0
+Unwinding loop _ZN3rbm27activateHiddenUnits_predictEbtt.2 iteration 1 (3 max) file vWrapper.c line 13025 function _ZN3rbm27activateHiddenUnits_predictEbtt thread 0
+Unwinding loop _ZN3rbm27activateHiddenUnits_predictEbtt.1 iteration 1 (3 max) file vWrapper.c line 13012 function _ZN3rbm27activateHiddenUnits_predictEbtt thread 0
+Unwinding loop _ZN3rbm27activateHiddenUnits_predictEbtt.0 iteration 1 (3 max) file vWrapper.c line 13004 function _ZN3rbm27activateHiddenUnits_predictEbtt thread 0
+Not unwinding loop _ZN3rbm27activateHiddenUnits_predictEbtt.5 iteration 3 (3 max) file vWrapper.c line 13053 function _ZN3rbm27activateHiddenUnits_predictEbtt thread 0
+Unwinding loop _ZN3rbm27activateHiddenUnits_predictEbtt.6 iteration 2 (3 max) file vWrapper.c line 13060 function _ZN3rbm27activateHiddenUnits_predictEbtt thread 0
+Unwinding loop _ZN3rbm27activateHiddenUnits_predictEbtt.2 iteration 1 (3 max) file vWrapper.c line 13025 function _ZN3rbm27activateHiddenUnits_predictEbtt thread 0
+Unwinding loop _ZN3rbm27activateHiddenUnits_predictEbtt.1 iteration 1 (3 max) file vWrapper.c line 13012 function _ZN3rbm27activateHiddenUnits_predictEbtt thread 0
+Unwinding loop _ZN3rbm27activateHiddenUnits_predictEbtt.0 iteration 1 (3 max) file vWrapper.c line 13004 function _ZN3rbm27activateHiddenUnits_predictEbtt thread 0
+Unwinding loop _ZN3rbm27activateHiddenUnits_predictEbtt.5 iteration 1 (3 max) file vWrapper.c line 13053 function _ZN3rbm27activateHiddenUnits_predictEbtt thread 0
+Unwinding loop _ZN3rbm27activateHiddenUnits_predictEbtt.4 iteration 1 (3 max) file vWrapper.c line 13044 function _ZN3rbm27activateHiddenUnits_predictEbtt thread 0
+Unwinding loop _ZN3rbm27activateHiddenUnits_predictEbtt.3 iteration 1 (3 max) file vWrapper.c line 13032 function _ZN3rbm27activateHiddenUnits_predictEbtt thread 0
+Unwinding loop _ZN3rbm27activateHiddenUnits_predictEbtt.2 iteration 1 (3 max) file vWrapper.c line 13025 function _ZN3rbm27activateHiddenUnits_predictEbtt thread 0
+Unwinding loop _ZN3rbm27activateHiddenUnits_predictEbtt.1 iteration 1 (3 max) file vWrapper.c line 13012 function _ZN3rbm27activateHiddenUnits_predictEbtt thread 0
+Unwinding loop _ZN3rbm27activateHiddenUnits_predictEbtt.0 iteration 1 (3 max) file vWrapper.c line 13004 function _ZN3rbm27activateHiddenUnits_predictEbtt thread 0
+Unwinding loop _ZN3rbm27activateHiddenUnits_predictEbtt.5 iteration 2 (3 max) file vWrapper.c line 13053 function _ZN3rbm27activateHiddenUnits_predictEbtt thread 0
+Unwinding loop _ZN3rbm27activateHiddenUnits_predictEbtt.4 iteration 1 (3 max) file vWrapper.c line 13044 function _ZN3rbm27activateHiddenUnits_predictEbtt thread 0
+Unwinding loop _ZN3rbm27activateHiddenUnits_predictEbtt.3 iteration 1 (3 max) file vWrapper.c line 13032 function _ZN3rbm27activateHiddenUnits_predictEbtt thread 0
+Unwinding loop _ZN3rbm27activateHiddenUnits_predictEbtt.2 iteration 1 (3 max) file vWrapper.c line 13025 function _ZN3rbm27activateHiddenUnits_predictEbtt thread 0
+Unwinding loop _ZN3rbm27activateHiddenUnits_predictEbtt.1 iteration 1 (3 max) file vWrapper.c line 13012 function _ZN3rbm27activateHiddenUnits_predictEbtt thread 0
+Unwinding loop _ZN3rbm27activateHiddenUnits_predictEbtt.0 iteration 1 (3 max) file vWrapper.c line 13004 function _ZN3rbm27activateHiddenUnits_predictEbtt thread 0
+Not unwinding loop _ZN3rbm27activateHiddenUnits_predictEbtt.5 iteration 3 (3 max) file vWrapper.c line 13053 function _ZN3rbm27activateHiddenUnits_predictEbtt thread 0
+Not unwinding loop _ZN3rbm27activateHiddenUnits_predictEbtt.6 iteration 3 (3 max) file vWrapper.c line 13060 function _ZN3rbm27activateHiddenUnits_predictEbtt thread 0
+size of program expression: 20373 steps
+slicing removed 16971 assignments
+Generated 55 VCC(s), 55 remaining after simplification
+Passing problem to propositional reduction
+converting SSA
+Running propositional reduction
+Post-processing
+Solving with MiniSAT 2.2.1 with simplifier
+10824312 variables, 42439858 clauses
+SAT checker inconsistent: instance is UNSATISFIABLE
+Runtime decision procedure: 11.367s
+
+** Results:
+[_Z6dividell.assertion.1] test3: SUCCESS
+[_ZN3rbm27activateHiddenUnits_predictEbtt.assertion.1] init_done_match: SUCCESS
+[_ZN3rbm27activateHiddenUnits_predictEbtt.assertion.2] done_match: SUCCESS
+[_ZN3rbm27activateHiddenUnits_predictEbtt.assertion.3] num_hidden_match: SUCCESS
+[_ZN3rbm27activateHiddenUnits_predictEbtt.assertion.4] num_visible_match: SUCCESS
+[_ZN3rbm27activateHiddenUnits_predictEbtt.assertion.5] num_users_match: SUCCESS
+[_ZN3rbm27activateHiddenUnits_predictEbtt.assertion.6] num_loops_match: SUCCESS
+[_ZN3rbm27activateHiddenUnits_predictEbtt.assertion.7] num_testusers_match: SUCCESS
+[_ZN3rbm27activateHiddenUnits_predictEbtt.assertion.8] num_movies_match: SUCCESS
+[_ZN3rbm27activateHiddenUnits_predictEbtt.assertion.9] rd_index_match: SUCCESS
+[_ZN3rbm27activateHiddenUnits_predictEbtt.assertion.10] rd_length_match: SUCCESS
+[_ZN3rbm27activateHiddenUnits_predictEbtt.assertion.11] rd_request_match: SUCCESS
+[_ZN3rbm27activateHiddenUnits_predictEbtt.assertion.12] wr_request_match: SUCCESS
+[_ZN3rbm27activateHiddenUnits_predictEbtt.assertion.13] wr_index_match: SUCCESS
+[_ZN3rbm27activateHiddenUnits_predictEbtt.assertion.14] wr_length_match: SUCCESS
+[_ZN3rbm27activateHiddenUnits_predictEbtt.assertion.15] data_out_match: SUCCESS
+[_ZN3rbm27activateHiddenUnits_predictEbtt.assertion.16] upc_match: SUCCESS
+[_ZN3rbm27activateHiddenUnits_predictEbtt.assertion.17] predict_input_done_match: SUCCESS
+[_ZN3rbm27activateHiddenUnits_predictEbtt.assertion.18] per_v_pc_match: SUCCESS
+[_ZN3rbm27activateHiddenUnits_predictEbtt.assertion.19] predict_upc_match: SUCCESS
+[_ZN3rbm27activateHiddenUnits_predictEbtt.assertion.20] predict_v_cnt_match: SUCCESS
+[_ZN3rbm27activateHiddenUnits_predictEbtt.assertion.21] predict_h_cnt_match: SUCCESS
+[_ZN3rbm27activateHiddenUnits_predictEbtt.assertion.22] data_match: SUCCESS
+[_ZN3rbm27activateHiddenUnits_predictEbtt.assertion.23] predict_result_match: SUCCESS
+[_ZN3rbm27activateHiddenUnits_predictEbtt.assertion.24] hidden_unit_match: SUCCESS
+[_ZN3rbm27activateHiddenUnits_predictEbtt.assertion.25] ind-inv: SUCCESS
+[_ZN3rbm27activateHiddenUnits_predictEbtt.assertion.26] ind-inv: SUCCESS
+[_ZN3rbm27activateHiddenUnits_predictEbtt.assertion.27] init_done_match: SUCCESS
+[_ZN3rbm27activateHiddenUnits_predictEbtt.assertion.28] done_match: SUCCESS
+[_ZN3rbm27activateHiddenUnits_predictEbtt.assertion.29] num_hidden_match: SUCCESS
+[_ZN3rbm27activateHiddenUnits_predictEbtt.assertion.30] num_visible_match: SUCCESS
+[_ZN3rbm27activateHiddenUnits_predictEbtt.assertion.31] num_users_match: SUCCESS
+[_ZN3rbm27activateHiddenUnits_predictEbtt.assertion.32] num_loops_match: SUCCESS
+[_ZN3rbm27activateHiddenUnits_predictEbtt.assertion.33] num_testusers_match: SUCCESS
+[_ZN3rbm27activateHiddenUnits_predictEbtt.assertion.34] num_movies_match: SUCCESS
+[_ZN3rbm27activateHiddenUnits_predictEbtt.assertion.35] rd_index_match: SUCCESS
+[_ZN3rbm27activateHiddenUnits_predictEbtt.assertion.36] rd_length_match: SUCCESS
+[_ZN3rbm27activateHiddenUnits_predictEbtt.assertion.37] rd_request_match: SUCCESS
+[_ZN3rbm27activateHiddenUnits_predictEbtt.assertion.38] wr_request_match: SUCCESS
+[_ZN3rbm27activateHiddenUnits_predictEbtt.assertion.39] wr_index_match: SUCCESS
+[_ZN3rbm27activateHiddenUnits_predictEbtt.assertion.40] wr_length_match: SUCCESS
+[_ZN3rbm27activateHiddenUnits_predictEbtt.assertion.41] data_out_match: SUCCESS
+[_ZN3rbm27activateHiddenUnits_predictEbtt.assertion.42] upc_match: SUCCESS
+[_ZN3rbm27activateHiddenUnits_predictEbtt.assertion.43] predict_input_done_match: SUCCESS
+[_ZN3rbm27activateHiddenUnits_predictEbtt.assertion.44] per_v_pc_match: SUCCESS
+[_ZN3rbm27activateHiddenUnits_predictEbtt.assertion.45] predict_upc_match: SUCCESS
+[_ZN3rbm27activateHiddenUnits_predictEbtt.assertion.46] predict_v_cnt_match: SUCCESS
+[_ZN3rbm27activateHiddenUnits_predictEbtt.assertion.47] predict_h_cnt_match: SUCCESS
+[_ZN3rbm27activateHiddenUnits_predictEbtt.assertion.48] data_match: SUCCESS
+[_ZN3rbm27activateHiddenUnits_predictEbtt.assertion.49] predict_result_match: SUCCESS
+[_ZN3rbm27activateHiddenUnits_predictEbtt.assertion.50] hidden_unit_match: SUCCESS
+[_ZN3rbm11predict_rbmEv.unwind.0] unwinding assertion loop 0: SUCCESS
+[_ZN3rbm27activateHiddenUnits_predictEbtt.unwind.5] unwinding assertion loop 5: SUCCESS
+[_ZN3rbm27activateHiddenUnits_predictEbtt.unwind.6] unwinding assertion loop 6: SUCCESS
+
+** 0 of 54 failed (1 iteration)
+VERIFICATION SUCCESSFUL

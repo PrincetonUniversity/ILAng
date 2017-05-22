@@ -59,7 +59,7 @@ namespace ila
       , m_mInputIndices(NUM_HASHTABLE_BUCKETS, nodeHash, nodeEqual)
       , m_mStateIndices(NUM_HASHTABLE_BUCKETS, nodeHash, nodeEqual)
       , m_pAssertion(NULL)
-    { newFrame (); setInit = true; }
+    { newFrame (); setInit = true; checkAbsNextExpNotNull(); }
 
     ~Unroller () { reset (NULL); }
 
@@ -154,6 +154,8 @@ namespace ila
         bool setInit;
         void addTr0  ();
         void addTrN ();
+
+        bool checkAbsNextExpNotNull();
   };
 }
 

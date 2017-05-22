@@ -70,6 +70,30 @@ namespace ila
           _initVar(z3expr, m.second, cnt);
       }
   }
+  bool Unroller::checkAbsNextExpNotNull()
+  {
+      for (auto b : m_pAbstraction->getBits()) {
+          if(!b.second.next.get())
+            throw PyILAException(
+                PyExc_RuntimeError,
+                b.first + " does not set next expression.");
+      }
+
+      for (auto r : m_pAbstraction->getRegs()) {
+          if(!r.second.next.get())
+            throw PyILAException(
+                PyExc_RuntimeError,
+                r.first + " does not set next expression.");
+      }
+
+      for (auto m : m_pAbstraction->getMems()) {
+          if(!m.second.next.get())
+            throw PyILAException(
+                PyExc_RuntimeError,
+                m.first + " does not set next expression.");        
+      }
+      return true;
+  }
 
   void Unroller::addTrN()
   {

@@ -48,7 +48,7 @@ module aes_128(clk, state, key, out);
     /* verilator lint_on PINNOCONNECT */
 
     one_round
-        r1 (clk, s0, k0b, s1),
+        r1 (clk, s0, k0b, s1), // 1d
         r2 (clk, s1, k1b, s2),
         r3 (clk, s2, k2b, s3),
         r4 (clk, s3, k3b, s4),

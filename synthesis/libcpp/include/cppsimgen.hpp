@@ -34,6 +34,7 @@ namespace ila
         std::string _name;
         std::string _val;
         int _width;
+        int _idxwidth;
         bool _isConst;
         
     public:
@@ -55,6 +56,10 @@ namespace ila
         std::string def() const;
         // Define reference, ex. " int& r0"
         std::string refDef() const;
+        // Define constructor init requirement, ex. "type_mem(16,8) m1"
+        std::string ctorDef() const;
+        // Corrected Mem Type, ex "type_mem<BV?, depth>"
+        std::string vType() const;
         // Use variable, ex. " r0"
         std::string use() const;
         // Use variable as signed.
@@ -106,6 +111,7 @@ namespace ila
         void dumpVarDec(std::ostream& out, const int& indent) const;
         // Print the code (with tail) to output stream.
         void dumpCode(std::ostream& out, const int& indent) const;
+
     };
 
     // Cpp simulator generator.

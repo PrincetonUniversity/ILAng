@@ -1,0 +1,3771 @@
+; ModuleID = 'vWrapper.cpp'
+target datalayout = "e-p:64:64:64-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:64:64-f32:32:32-f64:64:64-v64:64:64-v128:128:128-a0:0:64-s0:64:64-f80:128:128-n8:16:32:64"
+target triple = "x86_64-unknown-linux-gnu"
+
+%0 = type { float*, float* }
+%1 = type { float* }
+%2 = type { i32, void ()* }
+%class.SysCArray1D = type { i8* }
+%class.SysCArray2D = type { i8*, i8* }
+%class.model_RBM = type { %class.SysCArray1D, i64, i64, i64, i64, i64, i64, i64, i64, i64, %class.SysCArray1D, i64, i64, i64, i64, i64, i64, i64, i64, i64, i64, i64, i64 }
+%class.sc_signal_bool = type { i8 }
+%class.sc_signal_int32 = type { i32 }
+%class.sc_signal_u16 = type { i16 }
+%class.sc_signal_u32 = type { i32 }
+%"class.std::iocout" = type { i8 }
+%class.type_mem = type { i8* }
+%struct.rbm = type { %class.sc_signal_bool, %class.sc_signal_bool, %class.sc_signal_int32, %class.sc_signal_int32, %class.sc_signal_bool, %class.sc_signal_bool, %class.sc_signal_int32, %class.sc_signal_int32, %class.sc_signal_int32, %class.sc_signal_bool, %class.sc_signal_bool, %class.sc_signal_int32, %class.sc_signal_bool, %class.sc_signal_bool, %class.sc_signal_int32, %class.sc_signal_int32, %class.sc_signal_int32, %class.sc_signal_int32, %class.sc_signal_int32, %class.sc_signal_int32, %class.SysCArray2D, %class.SysCArray1D, %class.SysCArray1D, %0, %class.SysCArray2D, %class.SysCArray2D, %1, %class.SysCArray1D, %class.SysCArray2D, [624 x i32], %class.sc_signal_u16, %class.sc_signal_u16, %class.sc_signal_u16, %class.sc_signal_u16, %class.sc_signal_u16, %class.sc_signal_u16, %class.sc_signal_bool, %class.sc_signal_bool, %class.sc_signal_bool, %class.sc_signal_bool, %class.sc_signal_bool, %class.sc_signal_int32, %class.sc_signal_bool, %class.sc_signal_bool, %class.sc_signal_bool, %class.sc_signal_bool }
+
+@GM = global %class.model_RBM zeroinitializer, align 8
+@__dso_handle = external global i8*
+@_ZSt4cout = global %class.sc_signal_bool zeroinitializer, align 1
+@_ZSt4endl = global i32 0, align 4
+@cycleCnt = external global i32
+@conf_done_inp = global i8 0, align 1
+@conf_num_hidden_inp = global i32 0, align 4
+@conf_num_visible_inp = global i32 0, align 4
+@conf_num_users_inp = global i32 0, align 4
+@conf_num_loops_inp = global i32 0, align 4
+@conf_num_testusers_inp = global i32 0, align 4
+@conf_num_movies_inp = global i32 0, align 4
+@rst_inp = global i8 0, align 1
+@rd_grant_inp = global i8 0, align 1
+@data_in_inp = global i32 0, align 4
+@wr_grant_inp = global i8 0, align 1
+@.str = private unnamed_addr constant [12 x i8] c"Config done\00"
+@.str1 = private unnamed_addr constant [16 x i8] c"init_done_match\00"
+@.str2 = private unnamed_addr constant [11 x i8] c"done_match\00"
+@.str3 = private unnamed_addr constant [17 x i8] c"num_hidden_match\00"
+@.str4 = private unnamed_addr constant [18 x i8] c"num_visible_match\00"
+@.str5 = private unnamed_addr constant [16 x i8] c"num_users_match\00"
+@.str6 = private unnamed_addr constant [16 x i8] c"num_loops_match\00"
+@.str7 = private unnamed_addr constant [20 x i8] c"num_testusers_match\00"
+@.str8 = private unnamed_addr constant [17 x i8] c"num_movies_match\00"
+@.str9 = private unnamed_addr constant [15 x i8] c"rd_index_match\00"
+@.str10 = private unnamed_addr constant [16 x i8] c"rd_length_match\00"
+@.str11 = private unnamed_addr constant [17 x i8] c"wr_request_match\00"
+@.str12 = private unnamed_addr constant [15 x i8] c"wr_index_match\00"
+@.str13 = private unnamed_addr constant [16 x i8] c"wr_length_match\00"
+@.str14 = private unnamed_addr constant [15 x i8] c"data_out_match\00"
+@.str15 = private unnamed_addr constant [11 x i8] c"data_match\00"
+@.str16 = private unnamed_addr constant [21 x i8] c"predict_result_match\00"
+@.str17 = private unnamed_addr constant [4 x i8] c"123\00"
+@IMPL = global %struct.rbm zeroinitializer, align 8
+@.str19 = private unnamed_addr constant [4 x i8] c"clk\00"
+@.str20 = private unnamed_addr constant [4 x i8] c"rst\00"
+@.str21 = private unnamed_addr constant [9 x i8] c"rd_index\00"
+@.str22 = private unnamed_addr constant [10 x i8] c"rd_length\00"
+@.str23 = private unnamed_addr constant [11 x i8] c"rd_request\00"
+@.str24 = private unnamed_addr constant [9 x i8] c"rd_grant\00"
+@.str25 = private unnamed_addr constant [8 x i8] c"data_in\00"
+@.str26 = private unnamed_addr constant [9 x i8] c"wr_index\00"
+@.str27 = private unnamed_addr constant [10 x i8] c"wr_length\00"
+@.str28 = private unnamed_addr constant [11 x i8] c"wr_request\00"
+@.str29 = private unnamed_addr constant [9 x i8] c"wr_grant\00"
+@.str30 = private unnamed_addr constant [9 x i8] c"data_out\00"
+@.str31 = private unnamed_addr constant [5 x i8] c"done\00"
+@.str32 = private unnamed_addr constant [10 x i8] c"cond_done\00"
+@.str33 = private unnamed_addr constant [16 x i8] c"conf_num_hidden\00"
+@.str34 = private unnamed_addr constant [17 x i8] c"conf_num_visible\00"
+@.str35 = private unnamed_addr constant [15 x i8] c"conf_num_users\00"
+@.str36 = private unnamed_addr constant [15 x i8] c"conf_num_loops\00"
+@.str37 = private unnamed_addr constant [19 x i8] c"conf_num_testusers\00"
+@.str38 = private unnamed_addr constant [16 x i8] c"conf_num_movies\00"
+@llvm.global_ctors = appending global [1 x %2] [%2 { i32 65535, void ()* @_GLOBAL__I_a }]
+
+define void @_ZN9model_RBM17cppUpdateFun_dataElllllllllll(%class.SysCArray1D* sret %agg.result, %class.model_RBM* %this, i64 %conf_done, i64 %conf_num_hidden, i64 %conf_num_loops, i64 %conf_num_movies, i64 %conf_num_testusers, i64 %conf_num_users, i64 %conf_num_visible, i64 %data_in, i64 %rd_grant, i64 %rst, i64 %wr_grant) align 2 {
+  %1 = alloca %class.model_RBM*, align 8
+  %2 = alloca i64, align 8
+  %3 = alloca i64, align 8
+  %4 = alloca i64, align 8
+  %5 = alloca i64, align 8
+  %6 = alloca i64, align 8
+  %7 = alloca i64, align 8
+  %8 = alloca i64, align 8
+  %9 = alloca i64, align 8
+  %10 = alloca i64, align 8
+  %11 = alloca i64, align 8
+  %12 = alloca i64, align 8
+  %cppVar_174 = alloca i64, align 8
+  %cppVar_175 = alloca i64, align 8
+  %cppVar_176 = alloca %class.SysCArray1D, align 8
+  %13 = alloca i1
+  %14 = alloca i8*
+  %15 = alloca i32
+  %cppVar_169 = alloca i64, align 8
+  %cppVar_170 = alloca i8, align 1
+  %cppVar_171 = alloca i64, align 8
+  %cppVar_172 = alloca i8, align 1
+  %cppVar_173 = alloca i8, align 1
+  %16 = alloca i32
+  store %class.model_RBM* %this, %class.model_RBM** %1, align 8
+  store i64 %conf_done, i64* %2, align 8
+  store i64 %conf_num_hidden, i64* %3, align 8
+  store i64 %conf_num_loops, i64* %4, align 8
+  store i64 %conf_num_movies, i64* %5, align 8
+  store i64 %conf_num_testusers, i64* %6, align 8
+  store i64 %conf_num_users, i64* %7, align 8
+  store i64 %conf_num_visible, i64* %8, align 8
+  store i64 %data_in, i64* %9, align 8
+  store i64 %rd_grant, i64* %10, align 8
+  store i64 %rst, i64* %11, align 8
+  store i64 %wr_grant, i64* %12, align 8
+  %17 = load %class.model_RBM** %1
+  call void @_ZN8type_memIhLj512EEC1Ev(%class.SysCArray1D* %cppVar_176)
+  store i1 false, i1* %13
+  invoke void @_ZN8type_memIhLj512EEC1Ev(%class.SysCArray1D* %agg.result)
+          to label %18 unwind label %49
+
+; <label>:18                                      ; preds = %0
+  %19 = getelementptr inbounds %class.model_RBM* %17, i32 0, i32 15
+  %20 = load i64* %19, align 8
+  %21 = icmp eq i64 %20, 1
+  %22 = zext i1 %21 to i8
+  store i8 %22, i8* %cppVar_170, align 1
+  %23 = load i64* %10, align 8
+  %24 = icmp eq i64 %23, 1
+  %25 = zext i1 %24 to i8
+  store i8 %25, i8* %cppVar_172, align 1
+  %26 = load i8* %cppVar_170, align 1
+  %27 = trunc i8 %26 to i1
+  br i1 %27, label %28, label %31
+
+; <label>:28                                      ; preds = %18
+  %29 = load i8* %cppVar_172, align 1
+  %30 = trunc i8 %29 to i1
+  br label %31
+
+; <label>:31                                      ; preds = %28, %18
+  %32 = phi i1 [ false, %18 ], [ %30, %28 ]
+  %33 = zext i1 %32 to i8
+  store i8 %33, i8* %cppVar_173, align 1
+  %34 = load i8* %cppVar_173, align 1
+  %35 = trunc i8 %34 to i1
+  br i1 %35, label %36, label %55
+
+; <label>:36                                      ; preds = %31
+  %37 = load i64* %9, align 8
+  %38 = ashr i64 %37, 0
+  %39 = getelementptr inbounds %class.model_RBM* %17, i32 0, i32 22
+  %40 = load i64* %39, align 8
+  %41 = and i64 %38, %40
+  store i64 %41, i64* %cppVar_175, align 8
+  %42 = getelementptr inbounds %class.model_RBM* %17, i32 0, i32 0
+  %43 = invoke %class.SysCArray1D* @_ZN8type_memIhLj512EEaSERKS0_(%class.SysCArray1D* %cppVar_176, %class.SysCArray1D* %42)
+          to label %44 unwind label %52
+
+; <label>:44                                      ; preds = %36
+  %45 = load i64* %cppVar_175, align 8
+  invoke void @_ZN8type_memIhLj512EE2wrEll(%class.SysCArray1D* %cppVar_176, i64 0, i64 %45)
+          to label %46 unwind label %52
+
+; <label>:46                                      ; preds = %44
+  %47 = invoke %class.SysCArray1D* @_ZN8type_memIhLj512EEaSERKS0_(%class.SysCArray1D* %agg.result, %class.SysCArray1D* %cppVar_176)
+          to label %48 unwind label %52
+
+; <label>:48                                      ; preds = %46
+  br label %59
+
+; <label>:49                                      ; preds = %61, %0
+  %50 = call i8* @llvm.eh.exception() nounwind
+  store i8* %50, i8** %14
+  %51 = call i32 (i8*, i8*, ...)* @llvm.eh.selector(i8* %50, i8* bitcast (i32 (...)* @__gxx_personality_v0 to i8*), i8* null) nounwind
+  store i32 0, i32* %15
+  br label %65
+
+; <label>:52                                      ; preds = %55, %46, %44, %36
+  %53 = call i8* @llvm.eh.exception() nounwind
+  store i8* %53, i8** %14
+  %54 = call i32 (i8*, i8*, ...)* @llvm.eh.selector(i8* %53, i8* bitcast (i32 (...)* @__gxx_personality_v0 to i8*), i8* null) nounwind
+  store i32 0, i32* %15
+  invoke void @_ZN8type_memIhLj512EED1Ev(%class.SysCArray1D* %agg.result)
+          to label %64 unwind label %69
+
+; <label>:55                                      ; preds = %31
+  %56 = getelementptr inbounds %class.model_RBM* %17, i32 0, i32 0
+  %57 = invoke %class.SysCArray1D* @_ZN8type_memIhLj512EEaSERKS0_(%class.SysCArray1D* %agg.result, %class.SysCArray1D* %56)
+          to label %58 unwind label %52
+
+; <label>:58                                      ; preds = %55
+  br label %59
+
+; <label>:59                                      ; preds = %58, %48
+  store i1 true, i1* %13
+  store i32 1, i32* %16
+  %60 = load i1* %13
+  br i1 %60, label %63, label %61
+
+; <label>:61                                      ; preds = %59
+  invoke void @_ZN8type_memIhLj512EED1Ev(%class.SysCArray1D* %agg.result)
+          to label %62 unwind label %49
+
+; <label>:62                                      ; preds = %61
+  br label %63
+
+; <label>:63                                      ; preds = %62, %59
+  call void @_ZN8type_memIhLj512EED1Ev(%class.SysCArray1D* %cppVar_176)
+  ret void
+
+; <label>:64                                      ; preds = %52
+  br label %65
+
+; <label>:65                                      ; preds = %64, %49
+  invoke void @_ZN8type_memIhLj512EED1Ev(%class.SysCArray1D* %cppVar_176)
+          to label %66 unwind label %69
+
+; <label>:66                                      ; preds = %65
+  br label %67
+
+; <label>:67                                      ; preds = %66
+  %68 = load i8** %14
+  call void @_Unwind_Resume_or_Rethrow(i8* %68) noreturn
+  unreachable
+
+; <label>:69                                      ; preds = %65, %52
+  %70 = call i8* @llvm.eh.exception() nounwind
+  %71 = call i32 (i8*, i8*, ...)* @llvm.eh.selector(i8* %70, i8* bitcast (i32 (...)* @__gxx_personality_v0 to i8*), i8* null) nounwind
+  call void @_ZSt9terminatev() noreturn nounwind
+  unreachable
+}
+
+define linkonce_odr void @_ZN8type_memIhLj512EEC1Ev(%class.SysCArray1D* %this) unnamed_addr align 2 {
+  %1 = alloca %class.SysCArray1D*, align 8
+  store %class.SysCArray1D* %this, %class.SysCArray1D** %1, align 8
+  %2 = load %class.SysCArray1D** %1
+  call void @_ZN8type_memIhLj512EEC2Ev(%class.SysCArray1D* %2)
+  ret void
+}
+
+declare i8* @llvm.eh.exception() nounwind readonly
+
+declare i32 @__gxx_personality_v0(...)
+
+declare i32 @llvm.eh.selector(i8*, i8*, ...) nounwind
+
+declare i32 @llvm.eh.typeid.for(i8*) nounwind
+
+declare void @_Unwind_Resume_or_Rethrow(i8*)
+
+define linkonce_odr %class.SysCArray1D* @_ZN8type_memIhLj512EEaSERKS0_(%class.SysCArray1D* %this, %class.SysCArray1D* %r) align 2 {
+  %1 = alloca %class.SysCArray1D*, align 8
+  %2 = alloca %class.SysCArray1D*, align 8
+  store %class.SysCArray1D* %this, %class.SysCArray1D** %1, align 8
+  store %class.SysCArray1D* %r, %class.SysCArray1D** %2, align 8
+  %3 = load %class.SysCArray1D** %1
+  %4 = getelementptr inbounds %class.SysCArray1D* %3, i32 0, i32 0
+  %5 = load i8** %4, align 8
+  %6 = load %class.SysCArray1D** %2
+  %7 = getelementptr inbounds %class.SysCArray1D* %6, i32 0, i32 0
+  %8 = load i8** %7, align 8
+  call void @__CPROVER_array_copy(i8* %5, i8* %8)
+  ret %class.SysCArray1D* %3
+}
+
+define linkonce_odr void @_ZN8type_memIhLj512EE2wrEll(%class.SysCArray1D* %this, i64 %addr, i64 %data) nounwind align 2 {
+  %1 = alloca %class.SysCArray1D*, align 8
+  %2 = alloca i64, align 8
+  %3 = alloca i64, align 8
+  store %class.SysCArray1D* %this, %class.SysCArray1D** %1, align 8
+  store i64 %addr, i64* %2, align 8
+  store i64 %data, i64* %3, align 8
+  %4 = load %class.SysCArray1D** %1
+  %5 = load i64* %3, align 8
+  %6 = trunc i64 %5 to i8
+  %7 = load i64* %2, align 8
+  %8 = getelementptr inbounds %class.SysCArray1D* %4, i32 0, i32 0
+  %9 = load i8** %8, align 8
+  %10 = getelementptr inbounds i8* %9, i64 %7
+  store i8 %6, i8* %10
+  ret void
+}
+
+define linkonce_odr void @_ZN8type_memIhLj512EED1Ev(%class.SysCArray1D* %this) unnamed_addr align 2 {
+  %1 = alloca %class.SysCArray1D*, align 8
+  store %class.SysCArray1D* %this, %class.SysCArray1D** %1, align 8
+  %2 = load %class.SysCArray1D** %1
+  call void @_ZN8type_memIhLj512EED2Ev(%class.SysCArray1D* %2)
+  ret void
+}
+
+declare void @_ZSt9terminatev()
+
+define i64 @_ZN9model_RBM21cppUpdateFun_data_outElllllllllll(%class.model_RBM* %this, i64 %conf_done, i64 %conf_num_hidden, i64 %conf_num_loops, i64 %conf_num_movies, i64 %conf_num_testusers, i64 %conf_num_users, i64 %conf_num_visible, i64 %data_in, i64 %rd_grant, i64 %rst, i64 %wr_grant) align 2 {
+  %1 = alloca %class.model_RBM*, align 8
+  %2 = alloca i64, align 8
+  %3 = alloca i64, align 8
+  %4 = alloca i64, align 8
+  %5 = alloca i64, align 8
+  %6 = alloca i64, align 8
+  %7 = alloca i64, align 8
+  %8 = alloca i64, align 8
+  %9 = alloca i64, align 8
+  %10 = alloca i64, align 8
+  %11 = alloca i64, align 8
+  %12 = alloca i64, align 8
+  %cppVar_36 = alloca i64, align 8
+  %cppVar_37 = alloca i64, align 8
+  %cppVar_38 = alloca i64, align 8
+  %cppVar_33 = alloca i64, align 8
+  %cppVar_34 = alloca i64, align 8
+  %cppVar_35 = alloca i8, align 1
+  %cppVar_32 = alloca i64, align 8
+  store %class.model_RBM* %this, %class.model_RBM** %1, align 8
+  store i64 %conf_done, i64* %2, align 8
+  store i64 %conf_num_hidden, i64* %3, align 8
+  store i64 %conf_num_loops, i64* %4, align 8
+  store i64 %conf_num_movies, i64* %5, align 8
+  store i64 %conf_num_testusers, i64* %6, align 8
+  store i64 %conf_num_users, i64* %7, align 8
+  store i64 %conf_num_visible, i64* %8, align 8
+  store i64 %data_in, i64* %9, align 8
+  store i64 %rd_grant, i64* %10, align 8
+  store i64 %rst, i64* %11, align 8
+  store i64 %wr_grant, i64* %12, align 8
+  %13 = load %class.model_RBM** %1
+  %14 = getelementptr inbounds %class.model_RBM* %13, i32 0, i32 20
+  %15 = load i64* %14, align 8
+  %16 = load i64* %12, align 8
+  %17 = and i64 %15, %16
+  store i64 %17, i64* %cppVar_33, align 8
+  %18 = load i64* %cppVar_33, align 8
+  %19 = icmp eq i64 %18, 1
+  %20 = zext i1 %19 to i8
+  store i8 %20, i8* %cppVar_35, align 1
+  %21 = load i8* %cppVar_35, align 1
+  %22 = trunc i8 %21 to i1
+  br i1 %22, label %23, label %31
+
+; <label>:23                                      ; preds = %0
+  %24 = getelementptr inbounds %class.model_RBM* %13, i32 0, i32 10
+  %25 = call i64 @_ZN8type_memIhLj128EE2rdEl(%class.SysCArray1D* %24, i64 0)
+  store i64 %25, i64* %cppVar_37, align 8
+  %26 = load i64* %cppVar_37, align 8
+  %27 = getelementptr inbounds %class.model_RBM* %13, i32 0, i32 22
+  %28 = load i64* %27, align 8
+  %29 = and i64 %26, %28
+  store i64 %29, i64* %cppVar_38, align 8
+  %30 = load i64* %cppVar_38, align 8
+  store i64 %30, i64* %cppVar_32, align 8
+  br label %34
+
+; <label>:31                                      ; preds = %0
+  %32 = getelementptr inbounds %class.model_RBM* %13, i32 0, i32 1
+  %33 = load i64* %32, align 8
+  store i64 %33, i64* %cppVar_32, align 8
+  br label %34
+
+; <label>:34                                      ; preds = %31, %23
+  %35 = load i64* %cppVar_32, align 8
+  ret i64 %35
+}
+
+define linkonce_odr i64 @_ZN8type_memIhLj128EE2rdEl(%class.SysCArray1D* %this, i64 %addr) nounwind align 2 {
+  %1 = alloca %class.SysCArray1D*, align 8
+  %2 = alloca i64, align 8
+  store %class.SysCArray1D* %this, %class.SysCArray1D** %1, align 8
+  store i64 %addr, i64* %2, align 8
+  %3 = load %class.SysCArray1D** %1
+  %4 = load i64* %2, align 8
+  %5 = getelementptr inbounds %class.SysCArray1D* %3, i32 0, i32 0
+  %6 = load i8** %5, align 8
+  %7 = getelementptr inbounds i8* %6, i64 %4
+  %8 = load i8* %7
+  %9 = zext i8 %8 to i64
+  ret i64 %9
+}
+
+define i64 @_ZN9model_RBM17cppUpdateFun_doneElllllllllll(%class.model_RBM* %this, i64 %conf_done, i64 %conf_num_hidden, i64 %conf_num_loops, i64 %conf_num_movies, i64 %conf_num_testusers, i64 %conf_num_users, i64 %conf_num_visible, i64 %data_in, i64 %rd_grant, i64 %rst, i64 %wr_grant) nounwind align 2 {
+  %1 = alloca %class.model_RBM*, align 8
+  %2 = alloca i64, align 8
+  %3 = alloca i64, align 8
+  %4 = alloca i64, align 8
+  %5 = alloca i64, align 8
+  %6 = alloca i64, align 8
+  %7 = alloca i64, align 8
+  %8 = alloca i64, align 8
+  %9 = alloca i64, align 8
+  %10 = alloca i64, align 8
+  %11 = alloca i64, align 8
+  %12 = alloca i64, align 8
+  store %class.model_RBM* %this, %class.model_RBM** %1, align 8
+  store i64 %conf_done, i64* %2, align 8
+  store i64 %conf_num_hidden, i64* %3, align 8
+  store i64 %conf_num_loops, i64* %4, align 8
+  store i64 %conf_num_movies, i64* %5, align 8
+  store i64 %conf_num_testusers, i64* %6, align 8
+  store i64 %conf_num_users, i64* %7, align 8
+  store i64 %conf_num_visible, i64* %8, align 8
+  store i64 %data_in, i64* %9, align 8
+  store i64 %rd_grant, i64* %10, align 8
+  store i64 %rst, i64* %11, align 8
+  store i64 %wr_grant, i64* %12, align 8
+  %13 = load %class.model_RBM** %1
+  %14 = getelementptr inbounds %class.model_RBM* %13, i32 0, i32 2
+  %15 = load i64* %14, align 8
+  ret i64 %15
+}
+
+define i64 @_ZN9model_RBM22cppUpdateFun_init_doneElllllllllll(%class.model_RBM* %this, i64 %conf_done, i64 %conf_num_hidden, i64 %conf_num_loops, i64 %conf_num_movies, i64 %conf_num_testusers, i64 %conf_num_users, i64 %conf_num_visible, i64 %data_in, i64 %rd_grant, i64 %rst, i64 %wr_grant) nounwind align 2 {
+  %1 = alloca %class.model_RBM*, align 8
+  %2 = alloca i64, align 8
+  %3 = alloca i64, align 8
+  %4 = alloca i64, align 8
+  %5 = alloca i64, align 8
+  %6 = alloca i64, align 8
+  %7 = alloca i64, align 8
+  %8 = alloca i64, align 8
+  %9 = alloca i64, align 8
+  %10 = alloca i64, align 8
+  %11 = alloca i64, align 8
+  %12 = alloca i64, align 8
+  %cppVar_42 = alloca i64, align 8
+  %cppVar_43 = alloca i8, align 1
+  %cppVar_46 = alloca i64, align 8
+  %cppVar_47 = alloca i8, align 1
+  %cppVar_48 = alloca i64, align 8
+  %cppVar_49 = alloca i8, align 1
+  %cppVar_50 = alloca i8, align 1
+  %cppVar_51 = alloca i64, align 8
+  %cppVar_52 = alloca i8, align 1
+  %cppVar_53 = alloca i8, align 1
+  %cppVar_44 = alloca i64, align 8
+  %cppVar_54 = alloca i64, align 8
+  %cppVar_45 = alloca i64, align 8
+  %cppVar_41 = alloca i64, align 8
+  store %class.model_RBM* %this, %class.model_RBM** %1, align 8
+  store i64 %conf_done, i64* %2, align 8
+  store i64 %conf_num_hidden, i64* %3, align 8
+  store i64 %conf_num_loops, i64* %4, align 8
+  store i64 %conf_num_movies, i64* %5, align 8
+  store i64 %conf_num_testusers, i64* %6, align 8
+  store i64 %conf_num_users, i64* %7, align 8
+  store i64 %conf_num_visible, i64* %8, align 8
+  store i64 %data_in, i64* %9, align 8
+  store i64 %rd_grant, i64* %10, align 8
+  store i64 %rst, i64* %11, align 8
+  store i64 %wr_grant, i64* %12, align 8
+  %13 = load %class.model_RBM** %1
+  %14 = load i64* %11, align 8
+  %15 = icmp eq i64 %14, 1
+  %16 = zext i1 %15 to i8
+  store i8 %16, i8* %cppVar_43, align 1
+  %17 = load i8* %cppVar_43, align 1
+  %18 = trunc i8 %17 to i1
+  br i1 %18, label %19, label %20
+
+; <label>:19                                      ; preds = %0
+  store i64 0, i64* %cppVar_41, align 8
+  br label %55
+
+; <label>:20                                      ; preds = %0
+  %21 = load i64* %11, align 8
+  %22 = icmp eq i64 %21, 0
+  %23 = zext i1 %22 to i8
+  store i8 %23, i8* %cppVar_47, align 1
+  %24 = getelementptr inbounds %class.model_RBM* %13, i32 0, i32 3
+  %25 = load i64* %24, align 8
+  %26 = icmp eq i64 %25, 0
+  %27 = zext i1 %26 to i8
+  store i8 %27, i8* %cppVar_49, align 1
+  %28 = load i8* %cppVar_47, align 1
+  %29 = trunc i8 %28 to i1
+  br i1 %29, label %30, label %33
+
+; <label>:30                                      ; preds = %20
+  %31 = load i8* %cppVar_49, align 1
+  %32 = trunc i8 %31 to i1
+  br label %33
+
+; <label>:33                                      ; preds = %30, %20
+  %34 = phi i1 [ false, %20 ], [ %32, %30 ]
+  %35 = zext i1 %34 to i8
+  store i8 %35, i8* %cppVar_50, align 1
+  %36 = load i64* %2, align 8
+  %37 = icmp eq i64 %36, 1
+  %38 = zext i1 %37 to i8
+  store i8 %38, i8* %cppVar_52, align 1
+  %39 = load i8* %cppVar_50, align 1
+  %40 = trunc i8 %39 to i1
+  br i1 %40, label %41, label %44
+
+; <label>:41                                      ; preds = %33
+  %42 = load i8* %cppVar_52, align 1
+  %43 = trunc i8 %42 to i1
+  br label %44
+
+; <label>:44                                      ; preds = %41, %33
+  %45 = phi i1 [ false, %33 ], [ %43, %41 ]
+  %46 = zext i1 %45 to i8
+  store i8 %46, i8* %cppVar_53, align 1
+  %47 = load i8* %cppVar_53, align 1
+  %48 = trunc i8 %47 to i1
+  br i1 %48, label %49, label %50
+
+; <label>:49                                      ; preds = %44
+  store i64 1, i64* %cppVar_45, align 8
+  br label %53
+
+; <label>:50                                      ; preds = %44
+  %51 = getelementptr inbounds %class.model_RBM* %13, i32 0, i32 3
+  %52 = load i64* %51, align 8
+  store i64 %52, i64* %cppVar_45, align 8
+  br label %53
+
+; <label>:53                                      ; preds = %50, %49
+  %54 = load i64* %cppVar_45, align 8
+  store i64 %54, i64* %cppVar_41, align 8
+  br label %55
+
+; <label>:55                                      ; preds = %53, %19
+  %56 = load i64* %cppVar_41, align 8
+  ret i64 %56
+}
+
+define i64 @_ZN9model_RBM23cppUpdateFun_num_hiddenElllllllllll(%class.model_RBM* %this, i64 %conf_done, i64 %conf_num_hidden, i64 %conf_num_loops, i64 %conf_num_movies, i64 %conf_num_testusers, i64 %conf_num_users, i64 %conf_num_visible, i64 %data_in, i64 %rd_grant, i64 %rst, i64 %wr_grant) nounwind align 2 {
+  %1 = alloca %class.model_RBM*, align 8
+  %2 = alloca i64, align 8
+  %3 = alloca i64, align 8
+  %4 = alloca i64, align 8
+  %5 = alloca i64, align 8
+  %6 = alloca i64, align 8
+  %7 = alloca i64, align 8
+  %8 = alloca i64, align 8
+  %9 = alloca i64, align 8
+  %10 = alloca i64, align 8
+  %11 = alloca i64, align 8
+  %12 = alloca i64, align 8
+  %cppVar_57 = alloca i64, align 8
+  %cppVar_58 = alloca i8, align 1
+  %cppVar_61 = alloca i64, align 8
+  %cppVar_62 = alloca i8, align 1
+  %cppVar_63 = alloca i64, align 8
+  %cppVar_64 = alloca i8, align 1
+  %cppVar_65 = alloca i8, align 1
+  %cppVar_66 = alloca i64, align 8
+  %cppVar_67 = alloca i8, align 1
+  %cppVar_68 = alloca i8, align 1
+  %cppVar_59 = alloca i64, align 8
+  %cppVar_69 = alloca i64, align 8
+  %cppVar_60 = alloca i64, align 8
+  %cppVar_56 = alloca i64, align 8
+  store %class.model_RBM* %this, %class.model_RBM** %1, align 8
+  store i64 %conf_done, i64* %2, align 8
+  store i64 %conf_num_hidden, i64* %3, align 8
+  store i64 %conf_num_loops, i64* %4, align 8
+  store i64 %conf_num_movies, i64* %5, align 8
+  store i64 %conf_num_testusers, i64* %6, align 8
+  store i64 %conf_num_users, i64* %7, align 8
+  store i64 %conf_num_visible, i64* %8, align 8
+  store i64 %data_in, i64* %9, align 8
+  store i64 %rd_grant, i64* %10, align 8
+  store i64 %rst, i64* %11, align 8
+  store i64 %wr_grant, i64* %12, align 8
+  %13 = load %class.model_RBM** %1
+  %14 = load i64* %11, align 8
+  %15 = icmp eq i64 %14, 1
+  %16 = zext i1 %15 to i8
+  store i8 %16, i8* %cppVar_58, align 1
+  %17 = load i8* %cppVar_58, align 1
+  %18 = trunc i8 %17 to i1
+  br i1 %18, label %19, label %20
+
+; <label>:19                                      ; preds = %0
+  store i64 0, i64* %cppVar_56, align 8
+  br label %61
+
+; <label>:20                                      ; preds = %0
+  %21 = load i64* %11, align 8
+  %22 = icmp eq i64 %21, 0
+  %23 = zext i1 %22 to i8
+  store i8 %23, i8* %cppVar_62, align 1
+  %24 = getelementptr inbounds %class.model_RBM* %13, i32 0, i32 3
+  %25 = load i64* %24, align 8
+  %26 = icmp eq i64 %25, 0
+  %27 = zext i1 %26 to i8
+  store i8 %27, i8* %cppVar_64, align 1
+  %28 = load i8* %cppVar_62, align 1
+  %29 = trunc i8 %28 to i1
+  br i1 %29, label %30, label %33
+
+; <label>:30                                      ; preds = %20
+  %31 = load i8* %cppVar_64, align 1
+  %32 = trunc i8 %31 to i1
+  br label %33
+
+; <label>:33                                      ; preds = %30, %20
+  %34 = phi i1 [ false, %20 ], [ %32, %30 ]
+  %35 = zext i1 %34 to i8
+  store i8 %35, i8* %cppVar_65, align 1
+  %36 = load i64* %2, align 8
+  %37 = icmp eq i64 %36, 1
+  %38 = zext i1 %37 to i8
+  store i8 %38, i8* %cppVar_67, align 1
+  %39 = load i8* %cppVar_65, align 1
+  %40 = trunc i8 %39 to i1
+  br i1 %40, label %41, label %44
+
+; <label>:41                                      ; preds = %33
+  %42 = load i8* %cppVar_67, align 1
+  %43 = trunc i8 %42 to i1
+  br label %44
+
+; <label>:44                                      ; preds = %41, %33
+  %45 = phi i1 [ false, %33 ], [ %43, %41 ]
+  %46 = zext i1 %45 to i8
+  store i8 %46, i8* %cppVar_68, align 1
+  %47 = load i8* %cppVar_68, align 1
+  %48 = trunc i8 %47 to i1
+  br i1 %48, label %49, label %56
+
+; <label>:49                                      ; preds = %44
+  %50 = load i64* %3, align 8
+  %51 = ashr i64 %50, 0
+  %52 = getelementptr inbounds %class.model_RBM* %13, i32 0, i32 21
+  %53 = load i64* %52, align 8
+  %54 = and i64 %51, %53
+  store i64 %54, i64* %cppVar_69, align 8
+  %55 = load i64* %cppVar_69, align 8
+  store i64 %55, i64* %cppVar_60, align 8
+  br label %59
+
+; <label>:56                                      ; preds = %44
+  %57 = getelementptr inbounds %class.model_RBM* %13, i32 0, i32 4
+  %58 = load i64* %57, align 8
+  store i64 %58, i64* %cppVar_60, align 8
+  br label %59
+
+; <label>:59                                      ; preds = %56, %49
+  %60 = load i64* %cppVar_60, align 8
+  store i64 %60, i64* %cppVar_56, align 8
+  br label %61
+
+; <label>:61                                      ; preds = %59, %19
+  %62 = load i64* %cppVar_56, align 8
+  ret i64 %62
+}
+
+define i64 @_ZN9model_RBM22cppUpdateFun_num_loopsElllllllllll(%class.model_RBM* %this, i64 %conf_done, i64 %conf_num_hidden, i64 %conf_num_loops, i64 %conf_num_movies, i64 %conf_num_testusers, i64 %conf_num_users, i64 %conf_num_visible, i64 %data_in, i64 %rd_grant, i64 %rst, i64 %wr_grant) nounwind align 2 {
+  %1 = alloca %class.model_RBM*, align 8
+  %2 = alloca i64, align 8
+  %3 = alloca i64, align 8
+  %4 = alloca i64, align 8
+  %5 = alloca i64, align 8
+  %6 = alloca i64, align 8
+  %7 = alloca i64, align 8
+  %8 = alloca i64, align 8
+  %9 = alloca i64, align 8
+  %10 = alloca i64, align 8
+  %11 = alloca i64, align 8
+  %12 = alloca i64, align 8
+  %cppVar_72 = alloca i64, align 8
+  %cppVar_73 = alloca i8, align 1
+  %cppVar_76 = alloca i64, align 8
+  %cppVar_77 = alloca i8, align 1
+  %cppVar_78 = alloca i64, align 8
+  %cppVar_79 = alloca i8, align 1
+  %cppVar_80 = alloca i8, align 1
+  %cppVar_81 = alloca i64, align 8
+  %cppVar_82 = alloca i8, align 1
+  %cppVar_83 = alloca i8, align 1
+  %cppVar_74 = alloca i64, align 8
+  %cppVar_84 = alloca i64, align 8
+  %cppVar_75 = alloca i64, align 8
+  %cppVar_71 = alloca i64, align 8
+  store %class.model_RBM* %this, %class.model_RBM** %1, align 8
+  store i64 %conf_done, i64* %2, align 8
+  store i64 %conf_num_hidden, i64* %3, align 8
+  store i64 %conf_num_loops, i64* %4, align 8
+  store i64 %conf_num_movies, i64* %5, align 8
+  store i64 %conf_num_testusers, i64* %6, align 8
+  store i64 %conf_num_users, i64* %7, align 8
+  store i64 %conf_num_visible, i64* %8, align 8
+  store i64 %data_in, i64* %9, align 8
+  store i64 %rd_grant, i64* %10, align 8
+  store i64 %rst, i64* %11, align 8
+  store i64 %wr_grant, i64* %12, align 8
+  %13 = load %class.model_RBM** %1
+  %14 = load i64* %11, align 8
+  %15 = icmp eq i64 %14, 1
+  %16 = zext i1 %15 to i8
+  store i8 %16, i8* %cppVar_73, align 1
+  %17 = load i8* %cppVar_73, align 1
+  %18 = trunc i8 %17 to i1
+  br i1 %18, label %19, label %20
+
+; <label>:19                                      ; preds = %0
+  store i64 0, i64* %cppVar_71, align 8
+  br label %61
+
+; <label>:20                                      ; preds = %0
+  %21 = load i64* %11, align 8
+  %22 = icmp eq i64 %21, 0
+  %23 = zext i1 %22 to i8
+  store i8 %23, i8* %cppVar_77, align 1
+  %24 = getelementptr inbounds %class.model_RBM* %13, i32 0, i32 3
+  %25 = load i64* %24, align 8
+  %26 = icmp eq i64 %25, 0
+  %27 = zext i1 %26 to i8
+  store i8 %27, i8* %cppVar_79, align 1
+  %28 = load i8* %cppVar_77, align 1
+  %29 = trunc i8 %28 to i1
+  br i1 %29, label %30, label %33
+
+; <label>:30                                      ; preds = %20
+  %31 = load i8* %cppVar_79, align 1
+  %32 = trunc i8 %31 to i1
+  br label %33
+
+; <label>:33                                      ; preds = %30, %20
+  %34 = phi i1 [ false, %20 ], [ %32, %30 ]
+  %35 = zext i1 %34 to i8
+  store i8 %35, i8* %cppVar_80, align 1
+  %36 = load i64* %2, align 8
+  %37 = icmp eq i64 %36, 1
+  %38 = zext i1 %37 to i8
+  store i8 %38, i8* %cppVar_82, align 1
+  %39 = load i8* %cppVar_80, align 1
+  %40 = trunc i8 %39 to i1
+  br i1 %40, label %41, label %44
+
+; <label>:41                                      ; preds = %33
+  %42 = load i8* %cppVar_82, align 1
+  %43 = trunc i8 %42 to i1
+  br label %44
+
+; <label>:44                                      ; preds = %41, %33
+  %45 = phi i1 [ false, %33 ], [ %43, %41 ]
+  %46 = zext i1 %45 to i8
+  store i8 %46, i8* %cppVar_83, align 1
+  %47 = load i8* %cppVar_83, align 1
+  %48 = trunc i8 %47 to i1
+  br i1 %48, label %49, label %56
+
+; <label>:49                                      ; preds = %44
+  %50 = load i64* %4, align 8
+  %51 = ashr i64 %50, 0
+  %52 = getelementptr inbounds %class.model_RBM* %13, i32 0, i32 21
+  %53 = load i64* %52, align 8
+  %54 = and i64 %51, %53
+  store i64 %54, i64* %cppVar_84, align 8
+  %55 = load i64* %cppVar_84, align 8
+  store i64 %55, i64* %cppVar_75, align 8
+  br label %59
+
+; <label>:56                                      ; preds = %44
+  %57 = getelementptr inbounds %class.model_RBM* %13, i32 0, i32 5
+  %58 = load i64* %57, align 8
+  store i64 %58, i64* %cppVar_75, align 8
+  br label %59
+
+; <label>:59                                      ; preds = %56, %49
+  %60 = load i64* %cppVar_75, align 8
+  store i64 %60, i64* %cppVar_71, align 8
+  br label %61
+
+; <label>:61                                      ; preds = %59, %19
+  %62 = load i64* %cppVar_71, align 8
+  ret i64 %62
+}
+
+define i64 @_ZN9model_RBM23cppUpdateFun_num_moviesElllllllllll(%class.model_RBM* %this, i64 %conf_done, i64 %conf_num_hidden, i64 %conf_num_loops, i64 %conf_num_movies, i64 %conf_num_testusers, i64 %conf_num_users, i64 %conf_num_visible, i64 %data_in, i64 %rd_grant, i64 %rst, i64 %wr_grant) nounwind align 2 {
+  %1 = alloca %class.model_RBM*, align 8
+  %2 = alloca i64, align 8
+  %3 = alloca i64, align 8
+  %4 = alloca i64, align 8
+  %5 = alloca i64, align 8
+  %6 = alloca i64, align 8
+  %7 = alloca i64, align 8
+  %8 = alloca i64, align 8
+  %9 = alloca i64, align 8
+  %10 = alloca i64, align 8
+  %11 = alloca i64, align 8
+  %12 = alloca i64, align 8
+  %cppVar_87 = alloca i64, align 8
+  %cppVar_88 = alloca i8, align 1
+  %cppVar_91 = alloca i64, align 8
+  %cppVar_92 = alloca i8, align 1
+  %cppVar_93 = alloca i64, align 8
+  %cppVar_94 = alloca i8, align 1
+  %cppVar_95 = alloca i8, align 1
+  %cppVar_96 = alloca i64, align 8
+  %cppVar_97 = alloca i8, align 1
+  %cppVar_98 = alloca i8, align 1
+  %cppVar_89 = alloca i64, align 8
+  %cppVar_99 = alloca i64, align 8
+  %cppVar_90 = alloca i64, align 8
+  %cppVar_86 = alloca i64, align 8
+  store %class.model_RBM* %this, %class.model_RBM** %1, align 8
+  store i64 %conf_done, i64* %2, align 8
+  store i64 %conf_num_hidden, i64* %3, align 8
+  store i64 %conf_num_loops, i64* %4, align 8
+  store i64 %conf_num_movies, i64* %5, align 8
+  store i64 %conf_num_testusers, i64* %6, align 8
+  store i64 %conf_num_users, i64* %7, align 8
+  store i64 %conf_num_visible, i64* %8, align 8
+  store i64 %data_in, i64* %9, align 8
+  store i64 %rd_grant, i64* %10, align 8
+  store i64 %rst, i64* %11, align 8
+  store i64 %wr_grant, i64* %12, align 8
+  %13 = load %class.model_RBM** %1
+  %14 = load i64* %11, align 8
+  %15 = icmp eq i64 %14, 1
+  %16 = zext i1 %15 to i8
+  store i8 %16, i8* %cppVar_88, align 1
+  %17 = load i8* %cppVar_88, align 1
+  %18 = trunc i8 %17 to i1
+  br i1 %18, label %19, label %20
+
+; <label>:19                                      ; preds = %0
+  store i64 0, i64* %cppVar_86, align 8
+  br label %61
+
+; <label>:20                                      ; preds = %0
+  %21 = load i64* %11, align 8
+  %22 = icmp eq i64 %21, 0
+  %23 = zext i1 %22 to i8
+  store i8 %23, i8* %cppVar_92, align 1
+  %24 = getelementptr inbounds %class.model_RBM* %13, i32 0, i32 3
+  %25 = load i64* %24, align 8
+  %26 = icmp eq i64 %25, 0
+  %27 = zext i1 %26 to i8
+  store i8 %27, i8* %cppVar_94, align 1
+  %28 = load i8* %cppVar_92, align 1
+  %29 = trunc i8 %28 to i1
+  br i1 %29, label %30, label %33
+
+; <label>:30                                      ; preds = %20
+  %31 = load i8* %cppVar_94, align 1
+  %32 = trunc i8 %31 to i1
+  br label %33
+
+; <label>:33                                      ; preds = %30, %20
+  %34 = phi i1 [ false, %20 ], [ %32, %30 ]
+  %35 = zext i1 %34 to i8
+  store i8 %35, i8* %cppVar_95, align 1
+  %36 = load i64* %2, align 8
+  %37 = icmp eq i64 %36, 1
+  %38 = zext i1 %37 to i8
+  store i8 %38, i8* %cppVar_97, align 1
+  %39 = load i8* %cppVar_95, align 1
+  %40 = trunc i8 %39 to i1
+  br i1 %40, label %41, label %44
+
+; <label>:41                                      ; preds = %33
+  %42 = load i8* %cppVar_97, align 1
+  %43 = trunc i8 %42 to i1
+  br label %44
+
+; <label>:44                                      ; preds = %41, %33
+  %45 = phi i1 [ false, %33 ], [ %43, %41 ]
+  %46 = zext i1 %45 to i8
+  store i8 %46, i8* %cppVar_98, align 1
+  %47 = load i8* %cppVar_98, align 1
+  %48 = trunc i8 %47 to i1
+  br i1 %48, label %49, label %56
+
+; <label>:49                                      ; preds = %44
+  %50 = load i64* %5, align 8
+  %51 = ashr i64 %50, 0
+  %52 = getelementptr inbounds %class.model_RBM* %13, i32 0, i32 21
+  %53 = load i64* %52, align 8
+  %54 = and i64 %51, %53
+  store i64 %54, i64* %cppVar_99, align 8
+  %55 = load i64* %cppVar_99, align 8
+  store i64 %55, i64* %cppVar_90, align 8
+  br label %59
+
+; <label>:56                                      ; preds = %44
+  %57 = getelementptr inbounds %class.model_RBM* %13, i32 0, i32 6
+  %58 = load i64* %57, align 8
+  store i64 %58, i64* %cppVar_90, align 8
+  br label %59
+
+; <label>:59                                      ; preds = %56, %49
+  %60 = load i64* %cppVar_90, align 8
+  store i64 %60, i64* %cppVar_86, align 8
+  br label %61
+
+; <label>:61                                      ; preds = %59, %19
+  %62 = load i64* %cppVar_86, align 8
+  ret i64 %62
+}
+
+define i64 @_ZN9model_RBM26cppUpdateFun_num_testusersElllllllllll(%class.model_RBM* %this, i64 %conf_done, i64 %conf_num_hidden, i64 %conf_num_loops, i64 %conf_num_movies, i64 %conf_num_testusers, i64 %conf_num_users, i64 %conf_num_visible, i64 %data_in, i64 %rd_grant, i64 %rst, i64 %wr_grant) nounwind align 2 {
+  %1 = alloca %class.model_RBM*, align 8
+  %2 = alloca i64, align 8
+  %3 = alloca i64, align 8
+  %4 = alloca i64, align 8
+  %5 = alloca i64, align 8
+  %6 = alloca i64, align 8
+  %7 = alloca i64, align 8
+  %8 = alloca i64, align 8
+  %9 = alloca i64, align 8
+  %10 = alloca i64, align 8
+  %11 = alloca i64, align 8
+  %12 = alloca i64, align 8
+  %cppVar_102 = alloca i64, align 8
+  %cppVar_103 = alloca i8, align 1
+  %cppVar_106 = alloca i64, align 8
+  %cppVar_107 = alloca i8, align 1
+  %cppVar_108 = alloca i64, align 8
+  %cppVar_109 = alloca i8, align 1
+  %cppVar_110 = alloca i8, align 1
+  %cppVar_111 = alloca i64, align 8
+  %cppVar_112 = alloca i8, align 1
+  %cppVar_113 = alloca i8, align 1
+  %cppVar_104 = alloca i64, align 8
+  %cppVar_114 = alloca i64, align 8
+  %cppVar_105 = alloca i64, align 8
+  %cppVar_101 = alloca i64, align 8
+  store %class.model_RBM* %this, %class.model_RBM** %1, align 8
+  store i64 %conf_done, i64* %2, align 8
+  store i64 %conf_num_hidden, i64* %3, align 8
+  store i64 %conf_num_loops, i64* %4, align 8
+  store i64 %conf_num_movies, i64* %5, align 8
+  store i64 %conf_num_testusers, i64* %6, align 8
+  store i64 %conf_num_users, i64* %7, align 8
+  store i64 %conf_num_visible, i64* %8, align 8
+  store i64 %data_in, i64* %9, align 8
+  store i64 %rd_grant, i64* %10, align 8
+  store i64 %rst, i64* %11, align 8
+  store i64 %wr_grant, i64* %12, align 8
+  %13 = load %class.model_RBM** %1
+  %14 = load i64* %11, align 8
+  %15 = icmp eq i64 %14, 1
+  %16 = zext i1 %15 to i8
+  store i8 %16, i8* %cppVar_103, align 1
+  %17 = load i8* %cppVar_103, align 1
+  %18 = trunc i8 %17 to i1
+  br i1 %18, label %19, label %20
+
+; <label>:19                                      ; preds = %0
+  store i64 0, i64* %cppVar_101, align 8
+  br label %61
+
+; <label>:20                                      ; preds = %0
+  %21 = load i64* %11, align 8
+  %22 = icmp eq i64 %21, 0
+  %23 = zext i1 %22 to i8
+  store i8 %23, i8* %cppVar_107, align 1
+  %24 = getelementptr inbounds %class.model_RBM* %13, i32 0, i32 3
+  %25 = load i64* %24, align 8
+  %26 = icmp eq i64 %25, 0
+  %27 = zext i1 %26 to i8
+  store i8 %27, i8* %cppVar_109, align 1
+  %28 = load i8* %cppVar_107, align 1
+  %29 = trunc i8 %28 to i1
+  br i1 %29, label %30, label %33
+
+; <label>:30                                      ; preds = %20
+  %31 = load i8* %cppVar_109, align 1
+  %32 = trunc i8 %31 to i1
+  br label %33
+
+; <label>:33                                      ; preds = %30, %20
+  %34 = phi i1 [ false, %20 ], [ %32, %30 ]
+  %35 = zext i1 %34 to i8
+  store i8 %35, i8* %cppVar_110, align 1
+  %36 = load i64* %2, align 8
+  %37 = icmp eq i64 %36, 1
+  %38 = zext i1 %37 to i8
+  store i8 %38, i8* %cppVar_112, align 1
+  %39 = load i8* %cppVar_110, align 1
+  %40 = trunc i8 %39 to i1
+  br i1 %40, label %41, label %44
+
+; <label>:41                                      ; preds = %33
+  %42 = load i8* %cppVar_112, align 1
+  %43 = trunc i8 %42 to i1
+  br label %44
+
+; <label>:44                                      ; preds = %41, %33
+  %45 = phi i1 [ false, %33 ], [ %43, %41 ]
+  %46 = zext i1 %45 to i8
+  store i8 %46, i8* %cppVar_113, align 1
+  %47 = load i8* %cppVar_113, align 1
+  %48 = trunc i8 %47 to i1
+  br i1 %48, label %49, label %56
+
+; <label>:49                                      ; preds = %44
+  %50 = load i64* %6, align 8
+  %51 = ashr i64 %50, 0
+  %52 = getelementptr inbounds %class.model_RBM* %13, i32 0, i32 21
+  %53 = load i64* %52, align 8
+  %54 = and i64 %51, %53
+  store i64 %54, i64* %cppVar_114, align 8
+  %55 = load i64* %cppVar_114, align 8
+  store i64 %55, i64* %cppVar_105, align 8
+  br label %59
+
+; <label>:56                                      ; preds = %44
+  %57 = getelementptr inbounds %class.model_RBM* %13, i32 0, i32 7
+  %58 = load i64* %57, align 8
+  store i64 %58, i64* %cppVar_105, align 8
+  br label %59
+
+; <label>:59                                      ; preds = %56, %49
+  %60 = load i64* %cppVar_105, align 8
+  store i64 %60, i64* %cppVar_101, align 8
+  br label %61
+
+; <label>:61                                      ; preds = %59, %19
+  %62 = load i64* %cppVar_101, align 8
+  ret i64 %62
+}
+
+define i64 @_ZN9model_RBM22cppUpdateFun_num_usersElllllllllll(%class.model_RBM* %this, i64 %conf_done, i64 %conf_num_hidden, i64 %conf_num_loops, i64 %conf_num_movies, i64 %conf_num_testusers, i64 %conf_num_users, i64 %conf_num_visible, i64 %data_in, i64 %rd_grant, i64 %rst, i64 %wr_grant) nounwind align 2 {
+  %1 = alloca %class.model_RBM*, align 8
+  %2 = alloca i64, align 8
+  %3 = alloca i64, align 8
+  %4 = alloca i64, align 8
+  %5 = alloca i64, align 8
+  %6 = alloca i64, align 8
+  %7 = alloca i64, align 8
+  %8 = alloca i64, align 8
+  %9 = alloca i64, align 8
+  %10 = alloca i64, align 8
+  %11 = alloca i64, align 8
+  %12 = alloca i64, align 8
+  %cppVar_117 = alloca i64, align 8
+  %cppVar_118 = alloca i8, align 1
+  %cppVar_121 = alloca i64, align 8
+  %cppVar_122 = alloca i8, align 1
+  %cppVar_123 = alloca i64, align 8
+  %cppVar_124 = alloca i8, align 1
+  %cppVar_125 = alloca i8, align 1
+  %cppVar_126 = alloca i64, align 8
+  %cppVar_127 = alloca i8, align 1
+  %cppVar_128 = alloca i8, align 1
+  %cppVar_119 = alloca i64, align 8
+  %cppVar_129 = alloca i64, align 8
+  %cppVar_120 = alloca i64, align 8
+  %cppVar_116 = alloca i64, align 8
+  store %class.model_RBM* %this, %class.model_RBM** %1, align 8
+  store i64 %conf_done, i64* %2, align 8
+  store i64 %conf_num_hidden, i64* %3, align 8
+  store i64 %conf_num_loops, i64* %4, align 8
+  store i64 %conf_num_movies, i64* %5, align 8
+  store i64 %conf_num_testusers, i64* %6, align 8
+  store i64 %conf_num_users, i64* %7, align 8
+  store i64 %conf_num_visible, i64* %8, align 8
+  store i64 %data_in, i64* %9, align 8
+  store i64 %rd_grant, i64* %10, align 8
+  store i64 %rst, i64* %11, align 8
+  store i64 %wr_grant, i64* %12, align 8
+  %13 = load %class.model_RBM** %1
+  %14 = load i64* %11, align 8
+  %15 = icmp eq i64 %14, 1
+  %16 = zext i1 %15 to i8
+  store i8 %16, i8* %cppVar_118, align 1
+  %17 = load i8* %cppVar_118, align 1
+  %18 = trunc i8 %17 to i1
+  br i1 %18, label %19, label %20
+
+; <label>:19                                      ; preds = %0
+  store i64 0, i64* %cppVar_116, align 8
+  br label %61
+
+; <label>:20                                      ; preds = %0
+  %21 = load i64* %11, align 8
+  %22 = icmp eq i64 %21, 0
+  %23 = zext i1 %22 to i8
+  store i8 %23, i8* %cppVar_122, align 1
+  %24 = getelementptr inbounds %class.model_RBM* %13, i32 0, i32 3
+  %25 = load i64* %24, align 8
+  %26 = icmp eq i64 %25, 0
+  %27 = zext i1 %26 to i8
+  store i8 %27, i8* %cppVar_124, align 1
+  %28 = load i8* %cppVar_122, align 1
+  %29 = trunc i8 %28 to i1
+  br i1 %29, label %30, label %33
+
+; <label>:30                                      ; preds = %20
+  %31 = load i8* %cppVar_124, align 1
+  %32 = trunc i8 %31 to i1
+  br label %33
+
+; <label>:33                                      ; preds = %30, %20
+  %34 = phi i1 [ false, %20 ], [ %32, %30 ]
+  %35 = zext i1 %34 to i8
+  store i8 %35, i8* %cppVar_125, align 1
+  %36 = load i64* %2, align 8
+  %37 = icmp eq i64 %36, 1
+  %38 = zext i1 %37 to i8
+  store i8 %38, i8* %cppVar_127, align 1
+  %39 = load i8* %cppVar_125, align 1
+  %40 = trunc i8 %39 to i1
+  br i1 %40, label %41, label %44
+
+; <label>:41                                      ; preds = %33
+  %42 = load i8* %cppVar_127, align 1
+  %43 = trunc i8 %42 to i1
+  br label %44
+
+; <label>:44                                      ; preds = %41, %33
+  %45 = phi i1 [ false, %33 ], [ %43, %41 ]
+  %46 = zext i1 %45 to i8
+  store i8 %46, i8* %cppVar_128, align 1
+  %47 = load i8* %cppVar_128, align 1
+  %48 = trunc i8 %47 to i1
+  br i1 %48, label %49, label %56
+
+; <label>:49                                      ; preds = %44
+  %50 = load i64* %7, align 8
+  %51 = ashr i64 %50, 0
+  %52 = getelementptr inbounds %class.model_RBM* %13, i32 0, i32 21
+  %53 = load i64* %52, align 8
+  %54 = and i64 %51, %53
+  store i64 %54, i64* %cppVar_129, align 8
+  %55 = load i64* %cppVar_129, align 8
+  store i64 %55, i64* %cppVar_120, align 8
+  br label %59
+
+; <label>:56                                      ; preds = %44
+  %57 = getelementptr inbounds %class.model_RBM* %13, i32 0, i32 8
+  %58 = load i64* %57, align 8
+  store i64 %58, i64* %cppVar_120, align 8
+  br label %59
+
+; <label>:59                                      ; preds = %56, %49
+  %60 = load i64* %cppVar_120, align 8
+  store i64 %60, i64* %cppVar_116, align 8
+  br label %61
+
+; <label>:61                                      ; preds = %59, %19
+  %62 = load i64* %cppVar_116, align 8
+  ret i64 %62
+}
+
+define i64 @_ZN9model_RBM24cppUpdateFun_num_visibleElllllllllll(%class.model_RBM* %this, i64 %conf_done, i64 %conf_num_hidden, i64 %conf_num_loops, i64 %conf_num_movies, i64 %conf_num_testusers, i64 %conf_num_users, i64 %conf_num_visible, i64 %data_in, i64 %rd_grant, i64 %rst, i64 %wr_grant) nounwind align 2 {
+  %1 = alloca %class.model_RBM*, align 8
+  %2 = alloca i64, align 8
+  %3 = alloca i64, align 8
+  %4 = alloca i64, align 8
+  %5 = alloca i64, align 8
+  %6 = alloca i64, align 8
+  %7 = alloca i64, align 8
+  %8 = alloca i64, align 8
+  %9 = alloca i64, align 8
+  %10 = alloca i64, align 8
+  %11 = alloca i64, align 8
+  %12 = alloca i64, align 8
+  %cppVar_132 = alloca i64, align 8
+  %cppVar_133 = alloca i8, align 1
+  %cppVar_136 = alloca i64, align 8
+  %cppVar_137 = alloca i8, align 1
+  %cppVar_138 = alloca i64, align 8
+  %cppVar_139 = alloca i8, align 1
+  %cppVar_140 = alloca i8, align 1
+  %cppVar_141 = alloca i64, align 8
+  %cppVar_142 = alloca i8, align 1
+  %cppVar_143 = alloca i8, align 1
+  %cppVar_134 = alloca i64, align 8
+  %cppVar_144 = alloca i64, align 8
+  %cppVar_135 = alloca i64, align 8
+  %cppVar_131 = alloca i64, align 8
+  store %class.model_RBM* %this, %class.model_RBM** %1, align 8
+  store i64 %conf_done, i64* %2, align 8
+  store i64 %conf_num_hidden, i64* %3, align 8
+  store i64 %conf_num_loops, i64* %4, align 8
+  store i64 %conf_num_movies, i64* %5, align 8
+  store i64 %conf_num_testusers, i64* %6, align 8
+  store i64 %conf_num_users, i64* %7, align 8
+  store i64 %conf_num_visible, i64* %8, align 8
+  store i64 %data_in, i64* %9, align 8
+  store i64 %rd_grant, i64* %10, align 8
+  store i64 %rst, i64* %11, align 8
+  store i64 %wr_grant, i64* %12, align 8
+  %13 = load %class.model_RBM** %1
+  %14 = load i64* %11, align 8
+  %15 = icmp eq i64 %14, 1
+  %16 = zext i1 %15 to i8
+  store i8 %16, i8* %cppVar_133, align 1
+  %17 = load i8* %cppVar_133, align 1
+  %18 = trunc i8 %17 to i1
+  br i1 %18, label %19, label %20
+
+; <label>:19                                      ; preds = %0
+  store i64 0, i64* %cppVar_131, align 8
+  br label %61
+
+; <label>:20                                      ; preds = %0
+  %21 = load i64* %11, align 8
+  %22 = icmp eq i64 %21, 0
+  %23 = zext i1 %22 to i8
+  store i8 %23, i8* %cppVar_137, align 1
+  %24 = getelementptr inbounds %class.model_RBM* %13, i32 0, i32 3
+  %25 = load i64* %24, align 8
+  %26 = icmp eq i64 %25, 0
+  %27 = zext i1 %26 to i8
+  store i8 %27, i8* %cppVar_139, align 1
+  %28 = load i8* %cppVar_137, align 1
+  %29 = trunc i8 %28 to i1
+  br i1 %29, label %30, label %33
+
+; <label>:30                                      ; preds = %20
+  %31 = load i8* %cppVar_139, align 1
+  %32 = trunc i8 %31 to i1
+  br label %33
+
+; <label>:33                                      ; preds = %30, %20
+  %34 = phi i1 [ false, %20 ], [ %32, %30 ]
+  %35 = zext i1 %34 to i8
+  store i8 %35, i8* %cppVar_140, align 1
+  %36 = load i64* %2, align 8
+  %37 = icmp eq i64 %36, 1
+  %38 = zext i1 %37 to i8
+  store i8 %38, i8* %cppVar_142, align 1
+  %39 = load i8* %cppVar_140, align 1
+  %40 = trunc i8 %39 to i1
+  br i1 %40, label %41, label %44
+
+; <label>:41                                      ; preds = %33
+  %42 = load i8* %cppVar_142, align 1
+  %43 = trunc i8 %42 to i1
+  br label %44
+
+; <label>:44                                      ; preds = %41, %33
+  %45 = phi i1 [ false, %33 ], [ %43, %41 ]
+  %46 = zext i1 %45 to i8
+  store i8 %46, i8* %cppVar_143, align 1
+  %47 = load i8* %cppVar_143, align 1
+  %48 = trunc i8 %47 to i1
+  br i1 %48, label %49, label %56
+
+; <label>:49                                      ; preds = %44
+  %50 = load i64* %8, align 8
+  %51 = ashr i64 %50, 0
+  %52 = getelementptr inbounds %class.model_RBM* %13, i32 0, i32 21
+  %53 = load i64* %52, align 8
+  %54 = and i64 %51, %53
+  store i64 %54, i64* %cppVar_144, align 8
+  %55 = load i64* %cppVar_144, align 8
+  store i64 %55, i64* %cppVar_135, align 8
+  br label %59
+
+; <label>:56                                      ; preds = %44
+  %57 = getelementptr inbounds %class.model_RBM* %13, i32 0, i32 9
+  %58 = load i64* %57, align 8
+  store i64 %58, i64* %cppVar_135, align 8
+  br label %59
+
+; <label>:59                                      ; preds = %56, %49
+  %60 = load i64* %cppVar_135, align 8
+  store i64 %60, i64* %cppVar_131, align 8
+  br label %61
+
+; <label>:61                                      ; preds = %59, %19
+  %62 = load i64* %cppVar_131, align 8
+  ret i64 %62
+}
+
+define i64 @_ZN9model_RBM24cppUpdateFun_rd_completeElllllllllll(%class.model_RBM* %this, i64 %conf_done, i64 %conf_num_hidden, i64 %conf_num_loops, i64 %conf_num_movies, i64 %conf_num_testusers, i64 %conf_num_users, i64 %conf_num_visible, i64 %data_in, i64 %rd_grant, i64 %rst, i64 %wr_grant) nounwind align 2 {
+  %1 = alloca %class.model_RBM*, align 8
+  %2 = alloca i64, align 8
+  %3 = alloca i64, align 8
+  %4 = alloca i64, align 8
+  %5 = alloca i64, align 8
+  %6 = alloca i64, align 8
+  %7 = alloca i64, align 8
+  %8 = alloca i64, align 8
+  %9 = alloca i64, align 8
+  %10 = alloca i64, align 8
+  %11 = alloca i64, align 8
+  %12 = alloca i64, align 8
+  store %class.model_RBM* %this, %class.model_RBM** %1, align 8
+  store i64 %conf_done, i64* %2, align 8
+  store i64 %conf_num_hidden, i64* %3, align 8
+  store i64 %conf_num_loops, i64* %4, align 8
+  store i64 %conf_num_movies, i64* %5, align 8
+  store i64 %conf_num_testusers, i64* %6, align 8
+  store i64 %conf_num_users, i64* %7, align 8
+  store i64 %conf_num_visible, i64* %8, align 8
+  store i64 %data_in, i64* %9, align 8
+  store i64 %rd_grant, i64* %10, align 8
+  store i64 %rst, i64* %11, align 8
+  store i64 %wr_grant, i64* %12, align 8
+  %13 = load %class.model_RBM** %1
+  %14 = getelementptr inbounds %class.model_RBM* %13, i32 0, i32 11
+  %15 = load i64* %14, align 8
+  ret i64 %15
+}
+
+define i64 @_ZN9model_RBM23cppUpdateFun_rd_grantedElllllllllll(%class.model_RBM* %this, i64 %conf_done, i64 %conf_num_hidden, i64 %conf_num_loops, i64 %conf_num_movies, i64 %conf_num_testusers, i64 %conf_num_users, i64 %conf_num_visible, i64 %data_in, i64 %rd_grant, i64 %rst, i64 %wr_grant) nounwind align 2 {
+; <label>:0
+  %1 = alloca %class.model_RBM*, align 8
+  %2 = alloca i64, align 8
+  %3 = alloca i64, align 8
+  %4 = alloca i64, align 8
+  %5 = alloca i64, align 8
+  %6 = alloca i64, align 8
+  %7 = alloca i64, align 8
+  %8 = alloca i64, align 8
+  %9 = alloca i64, align 8
+  %10 = alloca i64, align 8
+  %11 = alloca i64, align 8
+  %12 = alloca i64, align 8
+  %cppVar_147 = alloca i64, align 8
+  %cppVar_148 = alloca i64, align 8
+  %cppVar_149 = alloca i8, align 1
+  %cppVar_150 = alloca i64, align 8
+  %cppVar_151 = alloca i8, align 1
+  %cppVar_152 = alloca i8, align 1
+  %cppVar_153 = alloca i64, align 8
+  store %class.model_RBM* %this, %class.model_RBM** %1, align 8
+  store i64 %conf_done, i64* %2, align 8
+  store i64 %conf_num_hidden, i64* %3, align 8
+  store i64 %conf_num_loops, i64* %4, align 8
+  store i64 %conf_num_movies, i64* %5, align 8
+  store i64 %conf_num_testusers, i64* %6, align 8
+  store i64 %conf_num_users, i64* %7, align 8
+  store i64 %conf_num_visible, i64* %8, align 8
+  store i64 %data_in, i64* %9, align 8
+  store i64 %rd_grant, i64* %10, align 8
+  store i64 %rst, i64* %11, align 8
+  store i64 %wr_grant, i64* %12, align 8
+  %13 = load %class.model_RBM** %1
+  %14 = getelementptr inbounds %class.model_RBM* %13, i32 0, i32 15
+  %15 = load i64* %14, align 8
+  %16 = icmp eq i64 %15, 1
+  %17 = zext i1 %16 to i8
+  store i8 %17, i8* %cppVar_149, align 1
+  %18 = load i64* %10, align 8
+  %19 = icmp eq i64 %18, 1
+  %20 = zext i1 %19 to i8
+  store i8 %20, i8* %cppVar_151, align 1
+  %21 = load i8* %cppVar_149, align 1
+  %22 = trunc i8 %21 to i1
+  br i1 %22, label %23, label %26
+
+; <label>:23                                      ; preds = %0
+  %24 = load i8* %cppVar_151, align 1
+  %25 = trunc i8 %24 to i1
+  br label %26
+
+; <label>:26                                      ; preds = %23, %0
+  %27 = phi i1 [ false, %0 ], [ %25, %23 ]
+  %28 = zext i1 %27 to i8
+  store i8 %28, i8* %cppVar_152, align 1
+  %29 = load i8* %cppVar_152, align 1
+  %30 = trunc i8 %29 to i1
+  br i1 %30, label %31, label %32
+
+; <label>:31                                      ; preds = %26
+  store i64 1, i64* %cppVar_147, align 8
+  br label %35
+
+; <label>:32                                      ; preds = %26
+  %33 = getelementptr inbounds %class.model_RBM* %13, i32 0, i32 12
+  %34 = load i64* %33, align 8
+  store i64 %34, i64* %cppVar_147, align 8
+  br label %35
+
+; <label>:35                                      ; preds = %32, %31
+  %36 = load i64* %cppVar_147, align 8
+  ret i64 %36
+}
+
+define i64 @_ZN9model_RBM21cppUpdateFun_rd_indexElllllllllll(%class.model_RBM* %this, i64 %conf_done, i64 %conf_num_hidden, i64 %conf_num_loops, i64 %conf_num_movies, i64 %conf_num_testusers, i64 %conf_num_users, i64 %conf_num_visible, i64 %data_in, i64 %rd_grant, i64 %rst, i64 %wr_grant) nounwind align 2 {
+  %1 = alloca %class.model_RBM*, align 8
+  %2 = alloca i64, align 8
+  %3 = alloca i64, align 8
+  %4 = alloca i64, align 8
+  %5 = alloca i64, align 8
+  %6 = alloca i64, align 8
+  %7 = alloca i64, align 8
+  %8 = alloca i64, align 8
+  %9 = alloca i64, align 8
+  %10 = alloca i64, align 8
+  %11 = alloca i64, align 8
+  %12 = alloca i64, align 8
+  store %class.model_RBM* %this, %class.model_RBM** %1, align 8
+  store i64 %conf_done, i64* %2, align 8
+  store i64 %conf_num_hidden, i64* %3, align 8
+  store i64 %conf_num_loops, i64* %4, align 8
+  store i64 %conf_num_movies, i64* %5, align 8
+  store i64 %conf_num_testusers, i64* %6, align 8
+  store i64 %conf_num_users, i64* %7, align 8
+  store i64 %conf_num_visible, i64* %8, align 8
+  store i64 %data_in, i64* %9, align 8
+  store i64 %rd_grant, i64* %10, align 8
+  store i64 %rst, i64* %11, align 8
+  store i64 %wr_grant, i64* %12, align 8
+  %13 = load %class.model_RBM** %1
+  %14 = getelementptr inbounds %class.model_RBM* %13, i32 0, i32 13
+  %15 = load i64* %14, align 8
+  ret i64 %15
+}
+
+define i64 @_ZN9model_RBM22cppUpdateFun_rd_lengthElllllllllll(%class.model_RBM* %this, i64 %conf_done, i64 %conf_num_hidden, i64 %conf_num_loops, i64 %conf_num_movies, i64 %conf_num_testusers, i64 %conf_num_users, i64 %conf_num_visible, i64 %data_in, i64 %rd_grant, i64 %rst, i64 %wr_grant) nounwind align 2 {
+  %1 = alloca %class.model_RBM*, align 8
+  %2 = alloca i64, align 8
+  %3 = alloca i64, align 8
+  %4 = alloca i64, align 8
+  %5 = alloca i64, align 8
+  %6 = alloca i64, align 8
+  %7 = alloca i64, align 8
+  %8 = alloca i64, align 8
+  %9 = alloca i64, align 8
+  %10 = alloca i64, align 8
+  %11 = alloca i64, align 8
+  %12 = alloca i64, align 8
+  store %class.model_RBM* %this, %class.model_RBM** %1, align 8
+  store i64 %conf_done, i64* %2, align 8
+  store i64 %conf_num_hidden, i64* %3, align 8
+  store i64 %conf_num_loops, i64* %4, align 8
+  store i64 %conf_num_movies, i64* %5, align 8
+  store i64 %conf_num_testusers, i64* %6, align 8
+  store i64 %conf_num_users, i64* %7, align 8
+  store i64 %conf_num_visible, i64* %8, align 8
+  store i64 %data_in, i64* %9, align 8
+  store i64 %rd_grant, i64* %10, align 8
+  store i64 %rst, i64* %11, align 8
+  store i64 %wr_grant, i64* %12, align 8
+  %13 = load %class.model_RBM** %1
+  %14 = getelementptr inbounds %class.model_RBM* %13, i32 0, i32 14
+  %15 = load i64* %14, align 8
+  ret i64 %15
+}
+
+define i64 @_ZN9model_RBM23cppUpdateFun_rd_requestElllllllllll(%class.model_RBM* %this, i64 %conf_done, i64 %conf_num_hidden, i64 %conf_num_loops, i64 %conf_num_movies, i64 %conf_num_testusers, i64 %conf_num_users, i64 %conf_num_visible, i64 %data_in, i64 %rd_grant, i64 %rst, i64 %wr_grant) nounwind align 2 {
+  %1 = alloca %class.model_RBM*, align 8
+  %2 = alloca i64, align 8
+  %3 = alloca i64, align 8
+  %4 = alloca i64, align 8
+  %5 = alloca i64, align 8
+  %6 = alloca i64, align 8
+  %7 = alloca i64, align 8
+  %8 = alloca i64, align 8
+  %9 = alloca i64, align 8
+  %10 = alloca i64, align 8
+  %11 = alloca i64, align 8
+  %12 = alloca i64, align 8
+  store %class.model_RBM* %this, %class.model_RBM** %1, align 8
+  store i64 %conf_done, i64* %2, align 8
+  store i64 %conf_num_hidden, i64* %3, align 8
+  store i64 %conf_num_loops, i64* %4, align 8
+  store i64 %conf_num_movies, i64* %5, align 8
+  store i64 %conf_num_testusers, i64* %6, align 8
+  store i64 %conf_num_users, i64* %7, align 8
+  store i64 %conf_num_visible, i64* %8, align 8
+  store i64 %data_in, i64* %9, align 8
+  store i64 %rd_grant, i64* %10, align 8
+  store i64 %rst, i64* %11, align 8
+  store i64 %wr_grant, i64* %12, align 8
+  %13 = load %class.model_RBM** %1
+  %14 = getelementptr inbounds %class.model_RBM* %13, i32 0, i32 15
+  %15 = load i64* %14, align 8
+  ret i64 %15
+}
+
+define i64 @_ZN9model_RBM24cppUpdateFun_wr_completeElllllllllll(%class.model_RBM* %this, i64 %conf_done, i64 %conf_num_hidden, i64 %conf_num_loops, i64 %conf_num_movies, i64 %conf_num_testusers, i64 %conf_num_users, i64 %conf_num_visible, i64 %data_in, i64 %rd_grant, i64 %rst, i64 %wr_grant) nounwind align 2 {
+  %1 = alloca %class.model_RBM*, align 8
+  %2 = alloca i64, align 8
+  %3 = alloca i64, align 8
+  %4 = alloca i64, align 8
+  %5 = alloca i64, align 8
+  %6 = alloca i64, align 8
+  %7 = alloca i64, align 8
+  %8 = alloca i64, align 8
+  %9 = alloca i64, align 8
+  %10 = alloca i64, align 8
+  %11 = alloca i64, align 8
+  %12 = alloca i64, align 8
+  store %class.model_RBM* %this, %class.model_RBM** %1, align 8
+  store i64 %conf_done, i64* %2, align 8
+  store i64 %conf_num_hidden, i64* %3, align 8
+  store i64 %conf_num_loops, i64* %4, align 8
+  store i64 %conf_num_movies, i64* %5, align 8
+  store i64 %conf_num_testusers, i64* %6, align 8
+  store i64 %conf_num_users, i64* %7, align 8
+  store i64 %conf_num_visible, i64* %8, align 8
+  store i64 %data_in, i64* %9, align 8
+  store i64 %rd_grant, i64* %10, align 8
+  store i64 %rst, i64* %11, align 8
+  store i64 %wr_grant, i64* %12, align 8
+  %13 = load %class.model_RBM** %1
+  %14 = getelementptr inbounds %class.model_RBM* %13, i32 0, i32 16
+  %15 = load i64* %14, align 8
+  ret i64 %15
+}
+
+define i64 @_ZN9model_RBM23cppUpdateFun_wr_grantedElllllllllll(%class.model_RBM* %this, i64 %conf_done, i64 %conf_num_hidden, i64 %conf_num_loops, i64 %conf_num_movies, i64 %conf_num_testusers, i64 %conf_num_users, i64 %conf_num_visible, i64 %data_in, i64 %rd_grant, i64 %rst, i64 %wr_grant) nounwind align 2 {
+  %1 = alloca %class.model_RBM*, align 8
+  %2 = alloca i64, align 8
+  %3 = alloca i64, align 8
+  %4 = alloca i64, align 8
+  %5 = alloca i64, align 8
+  %6 = alloca i64, align 8
+  %7 = alloca i64, align 8
+  %8 = alloca i64, align 8
+  %9 = alloca i64, align 8
+  %10 = alloca i64, align 8
+  %11 = alloca i64, align 8
+  %12 = alloca i64, align 8
+  %cppVar_163 = alloca i64, align 8
+  %cppVar_160 = alloca i64, align 8
+  %cppVar_161 = alloca i64, align 8
+  %cppVar_162 = alloca i8, align 1
+  %cppVar_159 = alloca i64, align 8
+  store %class.model_RBM* %this, %class.model_RBM** %1, align 8
+  store i64 %conf_done, i64* %2, align 8
+  store i64 %conf_num_hidden, i64* %3, align 8
+  store i64 %conf_num_loops, i64* %4, align 8
+  store i64 %conf_num_movies, i64* %5, align 8
+  store i64 %conf_num_testusers, i64* %6, align 8
+  store i64 %conf_num_users, i64* %7, align 8
+  store i64 %conf_num_visible, i64* %8, align 8
+  store i64 %data_in, i64* %9, align 8
+  store i64 %rd_grant, i64* %10, align 8
+  store i64 %rst, i64* %11, align 8
+  store i64 %wr_grant, i64* %12, align 8
+  %13 = load %class.model_RBM** %1
+  %14 = getelementptr inbounds %class.model_RBM* %13, i32 0, i32 20
+  %15 = load i64* %14, align 8
+  %16 = load i64* %12, align 8
+  %17 = and i64 %15, %16
+  store i64 %17, i64* %cppVar_160, align 8
+  %18 = load i64* %cppVar_160, align 8
+  %19 = icmp eq i64 %18, 1
+  %20 = zext i1 %19 to i8
+  store i8 %20, i8* %cppVar_162, align 1
+  %21 = load i8* %cppVar_162, align 1
+  %22 = trunc i8 %21 to i1
+  br i1 %22, label %23, label %24
+
+; <label>:23                                      ; preds = %0
+  store i64 1, i64* %cppVar_159, align 8
+  br label %27
+
+; <label>:24                                      ; preds = %0
+  %25 = getelementptr inbounds %class.model_RBM* %13, i32 0, i32 17
+  %26 = load i64* %25, align 8
+  store i64 %26, i64* %cppVar_159, align 8
+  br label %27
+
+; <label>:27                                      ; preds = %24, %23
+  %28 = load i64* %cppVar_159, align 8
+  ret i64 %28
+}
+
+define i64 @_ZN9model_RBM21cppUpdateFun_wr_indexElllllllllll(%class.model_RBM* %this, i64 %conf_done, i64 %conf_num_hidden, i64 %conf_num_loops, i64 %conf_num_movies, i64 %conf_num_testusers, i64 %conf_num_users, i64 %conf_num_visible, i64 %data_in, i64 %rd_grant, i64 %rst, i64 %wr_grant) nounwind align 2 {
+  %1 = alloca %class.model_RBM*, align 8
+  %2 = alloca i64, align 8
+  %3 = alloca i64, align 8
+  %4 = alloca i64, align 8
+  %5 = alloca i64, align 8
+  %6 = alloca i64, align 8
+  %7 = alloca i64, align 8
+  %8 = alloca i64, align 8
+  %9 = alloca i64, align 8
+  %10 = alloca i64, align 8
+  %11 = alloca i64, align 8
+  %12 = alloca i64, align 8
+  store %class.model_RBM* %this, %class.model_RBM** %1, align 8
+  store i64 %conf_done, i64* %2, align 8
+  store i64 %conf_num_hidden, i64* %3, align 8
+  store i64 %conf_num_loops, i64* %4, align 8
+  store i64 %conf_num_movies, i64* %5, align 8
+  store i64 %conf_num_testusers, i64* %6, align 8
+  store i64 %conf_num_users, i64* %7, align 8
+  store i64 %conf_num_visible, i64* %8, align 8
+  store i64 %data_in, i64* %9, align 8
+  store i64 %rd_grant, i64* %10, align 8
+  store i64 %rst, i64* %11, align 8
+  store i64 %wr_grant, i64* %12, align 8
+  %13 = load %class.model_RBM** %1
+  %14 = getelementptr inbounds %class.model_RBM* %13, i32 0, i32 18
+  %15 = load i64* %14, align 8
+  ret i64 %15
+}
+
+define i64 @_ZN9model_RBM22cppUpdateFun_wr_lengthElllllllllll(%class.model_RBM* %this, i64 %conf_done, i64 %conf_num_hidden, i64 %conf_num_loops, i64 %conf_num_movies, i64 %conf_num_testusers, i64 %conf_num_users, i64 %conf_num_visible, i64 %data_in, i64 %rd_grant, i64 %rst, i64 %wr_grant) nounwind align 2 {
+  %1 = alloca %class.model_RBM*, align 8
+  %2 = alloca i64, align 8
+  %3 = alloca i64, align 8
+  %4 = alloca i64, align 8
+  %5 = alloca i64, align 8
+  %6 = alloca i64, align 8
+  %7 = alloca i64, align 8
+  %8 = alloca i64, align 8
+  %9 = alloca i64, align 8
+  %10 = alloca i64, align 8
+  %11 = alloca i64, align 8
+  %12 = alloca i64, align 8
+  store %class.model_RBM* %this, %class.model_RBM** %1, align 8
+  store i64 %conf_done, i64* %2, align 8
+  store i64 %conf_num_hidden, i64* %3, align 8
+  store i64 %conf_num_loops, i64* %4, align 8
+  store i64 %conf_num_movies, i64* %5, align 8
+  store i64 %conf_num_testusers, i64* %6, align 8
+  store i64 %conf_num_users, i64* %7, align 8
+  store i64 %conf_num_visible, i64* %8, align 8
+  store i64 %data_in, i64* %9, align 8
+  store i64 %rd_grant, i64* %10, align 8
+  store i64 %rst, i64* %11, align 8
+  store i64 %wr_grant, i64* %12, align 8
+  %13 = load %class.model_RBM** %1
+  %14 = getelementptr inbounds %class.model_RBM* %13, i32 0, i32 19
+  %15 = load i64* %14, align 8
+  ret i64 %15
+}
+
+define i64 @_ZN9model_RBM23cppUpdateFun_wr_requestElllllllllll(%class.model_RBM* %this, i64 %conf_done, i64 %conf_num_hidden, i64 %conf_num_loops, i64 %conf_num_movies, i64 %conf_num_testusers, i64 %conf_num_users, i64 %conf_num_visible, i64 %data_in, i64 %rd_grant, i64 %rst, i64 %wr_grant) nounwind align 2 {
+  %1 = alloca %class.model_RBM*, align 8
+  %2 = alloca i64, align 8
+  %3 = alloca i64, align 8
+  %4 = alloca i64, align 8
+  %5 = alloca i64, align 8
+  %6 = alloca i64, align 8
+  %7 = alloca i64, align 8
+  %8 = alloca i64, align 8
+  %9 = alloca i64, align 8
+  %10 = alloca i64, align 8
+  %11 = alloca i64, align 8
+  %12 = alloca i64, align 8
+  store %class.model_RBM* %this, %class.model_RBM** %1, align 8
+  store i64 %conf_done, i64* %2, align 8
+  store i64 %conf_num_hidden, i64* %3, align 8
+  store i64 %conf_num_loops, i64* %4, align 8
+  store i64 %conf_num_movies, i64* %5, align 8
+  store i64 %conf_num_testusers, i64* %6, align 8
+  store i64 %conf_num_users, i64* %7, align 8
+  store i64 %conf_num_visible, i64* %8, align 8
+  store i64 %data_in, i64* %9, align 8
+  store i64 %rd_grant, i64* %10, align 8
+  store i64 %rst, i64* %11, align 8
+  store i64 %wr_grant, i64* %12, align 8
+  %13 = load %class.model_RBM** %1
+  %14 = getelementptr inbounds %class.model_RBM* %13, i32 0, i32 20
+  %15 = load i64* %14, align 8
+  ret i64 %15
+}
+
+define void @_ZN9model_RBM6updateElllllllllll(%class.model_RBM* %this, i64 %conf_done, i64 %conf_num_hidden, i64 %conf_num_loops, i64 %conf_num_movies, i64 %conf_num_testusers, i64 %conf_num_users, i64 %conf_num_visible, i64 %data_in, i64 %rd_grant, i64 %rst, i64 %wr_grant) align 2 {
+  %1 = alloca %class.model_RBM*, align 8
+  %2 = alloca i64, align 8
+  %3 = alloca i64, align 8
+  %4 = alloca i64, align 8
+  %5 = alloca i64, align 8
+  %6 = alloca i64, align 8
+  %7 = alloca i64, align 8
+  %8 = alloca i64, align 8
+  %9 = alloca i64, align 8
+  %10 = alloca i64, align 8
+  %11 = alloca i64, align 8
+  %12 = alloca i64, align 8
+  %cppVar_39 = alloca i64, align 8
+  %cppVar_40 = alloca i64, align 8
+  %cppVar_55 = alloca i64, align 8
+  %cppVar_70 = alloca i64, align 8
+  %cppVar_85 = alloca i64, align 8
+  %cppVar_100 = alloca i64, align 8
+  %cppVar_115 = alloca i64, align 8
+  %cppVar_130 = alloca i64, align 8
+  %cppVar_145 = alloca i64, align 8
+  %cppVar_146 = alloca i64, align 8
+  %cppVar_154 = alloca i64, align 8
+  %cppVar_155 = alloca i64, align 8
+  %cppVar_156 = alloca i64, align 8
+  %cppVar_157 = alloca i64, align 8
+  %cppVar_158 = alloca i64, align 8
+  %cppVar_164 = alloca i64, align 8
+  %cppVar_165 = alloca i64, align 8
+  %cppVar_166 = alloca i64, align 8
+  %cppVar_167 = alloca i64, align 8
+  %cppVar_177 = alloca %class.SysCArray1D, align 8
+  %13 = alloca i8*
+  %14 = alloca i32
+  %15 = alloca i32
+  store %class.model_RBM* %this, %class.model_RBM** %1, align 8
+  store i64 %conf_done, i64* %2, align 8
+  store i64 %conf_num_hidden, i64* %3, align 8
+  store i64 %conf_num_loops, i64* %4, align 8
+  store i64 %conf_num_movies, i64* %5, align 8
+  store i64 %conf_num_testusers, i64* %6, align 8
+  store i64 %conf_num_users, i64* %7, align 8
+  store i64 %conf_num_visible, i64* %8, align 8
+  store i64 %data_in, i64* %9, align 8
+  store i64 %rd_grant, i64* %10, align 8
+  store i64 %rst, i64* %11, align 8
+  store i64 %wr_grant, i64* %12, align 8
+  %16 = load %class.model_RBM** %1
+  %17 = load i64* %2, align 8
+  %18 = load i64* %3, align 8
+  %19 = load i64* %4, align 8
+  %20 = load i64* %5, align 8
+  %21 = load i64* %6, align 8
+  %22 = load i64* %7, align 8
+  %23 = load i64* %8, align 8
+  %24 = load i64* %9, align 8
+  %25 = load i64* %10, align 8
+  %26 = load i64* %11, align 8
+  %27 = load i64* %12, align 8
+  %28 = call i64 @_ZN9model_RBM21cppUpdateFun_data_outElllllllllll(%class.model_RBM* %16, i64 %17, i64 %18, i64 %19, i64 %20, i64 %21, i64 %22, i64 %23, i64 %24, i64 %25, i64 %26, i64 %27)
+  store i64 %28, i64* %cppVar_39, align 8
+  %29 = load i64* %2, align 8
+  %30 = load i64* %3, align 8
+  %31 = load i64* %4, align 8
+  %32 = load i64* %5, align 8
+  %33 = load i64* %6, align 8
+  %34 = load i64* %7, align 8
+  %35 = load i64* %8, align 8
+  %36 = load i64* %9, align 8
+  %37 = load i64* %10, align 8
+  %38 = load i64* %11, align 8
+  %39 = load i64* %12, align 8
+  %40 = call i64 @_ZN9model_RBM17cppUpdateFun_doneElllllllllll(%class.model_RBM* %16, i64 %29, i64 %30, i64 %31, i64 %32, i64 %33, i64 %34, i64 %35, i64 %36, i64 %37, i64 %38, i64 %39)
+  store i64 %40, i64* %cppVar_40, align 8
+  %41 = load i64* %2, align 8
+  %42 = load i64* %3, align 8
+  %43 = load i64* %4, align 8
+  %44 = load i64* %5, align 8
+  %45 = load i64* %6, align 8
+  %46 = load i64* %7, align 8
+  %47 = load i64* %8, align 8
+  %48 = load i64* %9, align 8
+  %49 = load i64* %10, align 8
+  %50 = load i64* %11, align 8
+  %51 = load i64* %12, align 8
+  %52 = call i64 @_ZN9model_RBM22cppUpdateFun_init_doneElllllllllll(%class.model_RBM* %16, i64 %41, i64 %42, i64 %43, i64 %44, i64 %45, i64 %46, i64 %47, i64 %48, i64 %49, i64 %50, i64 %51)
+  store i64 %52, i64* %cppVar_55, align 8
+  %53 = load i64* %2, align 8
+  %54 = load i64* %3, align 8
+  %55 = load i64* %4, align 8
+  %56 = load i64* %5, align 8
+  %57 = load i64* %6, align 8
+  %58 = load i64* %7, align 8
+  %59 = load i64* %8, align 8
+  %60 = load i64* %9, align 8
+  %61 = load i64* %10, align 8
+  %62 = load i64* %11, align 8
+  %63 = load i64* %12, align 8
+  %64 = call i64 @_ZN9model_RBM23cppUpdateFun_num_hiddenElllllllllll(%class.model_RBM* %16, i64 %53, i64 %54, i64 %55, i64 %56, i64 %57, i64 %58, i64 %59, i64 %60, i64 %61, i64 %62, i64 %63)
+  store i64 %64, i64* %cppVar_70, align 8
+  %65 = load i64* %2, align 8
+  %66 = load i64* %3, align 8
+  %67 = load i64* %4, align 8
+  %68 = load i64* %5, align 8
+  %69 = load i64* %6, align 8
+  %70 = load i64* %7, align 8
+  %71 = load i64* %8, align 8
+  %72 = load i64* %9, align 8
+  %73 = load i64* %10, align 8
+  %74 = load i64* %11, align 8
+  %75 = load i64* %12, align 8
+  %76 = call i64 @_ZN9model_RBM22cppUpdateFun_num_loopsElllllllllll(%class.model_RBM* %16, i64 %65, i64 %66, i64 %67, i64 %68, i64 %69, i64 %70, i64 %71, i64 %72, i64 %73, i64 %74, i64 %75)
+  store i64 %76, i64* %cppVar_85, align 8
+  %77 = load i64* %2, align 8
+  %78 = load i64* %3, align 8
+  %79 = load i64* %4, align 8
+  %80 = load i64* %5, align 8
+  %81 = load i64* %6, align 8
+  %82 = load i64* %7, align 8
+  %83 = load i64* %8, align 8
+  %84 = load i64* %9, align 8
+  %85 = load i64* %10, align 8
+  %86 = load i64* %11, align 8
+  %87 = load i64* %12, align 8
+  %88 = call i64 @_ZN9model_RBM23cppUpdateFun_num_moviesElllllllllll(%class.model_RBM* %16, i64 %77, i64 %78, i64 %79, i64 %80, i64 %81, i64 %82, i64 %83, i64 %84, i64 %85, i64 %86, i64 %87)
+  store i64 %88, i64* %cppVar_100, align 8
+  %89 = load i64* %2, align 8
+  %90 = load i64* %3, align 8
+  %91 = load i64* %4, align 8
+  %92 = load i64* %5, align 8
+  %93 = load i64* %6, align 8
+  %94 = load i64* %7, align 8
+  %95 = load i64* %8, align 8
+  %96 = load i64* %9, align 8
+  %97 = load i64* %10, align 8
+  %98 = load i64* %11, align 8
+  %99 = load i64* %12, align 8
+  %100 = call i64 @_ZN9model_RBM26cppUpdateFun_num_testusersElllllllllll(%class.model_RBM* %16, i64 %89, i64 %90, i64 %91, i64 %92, i64 %93, i64 %94, i64 %95, i64 %96, i64 %97, i64 %98, i64 %99)
+  store i64 %100, i64* %cppVar_115, align 8
+  %101 = load i64* %2, align 8
+  %102 = load i64* %3, align 8
+  %103 = load i64* %4, align 8
+  %104 = load i64* %5, align 8
+  %105 = load i64* %6, align 8
+  %106 = load i64* %7, align 8
+  %107 = load i64* %8, align 8
+  %108 = load i64* %9, align 8
+  %109 = load i64* %10, align 8
+  %110 = load i64* %11, align 8
+  %111 = load i64* %12, align 8
+  %112 = call i64 @_ZN9model_RBM22cppUpdateFun_num_usersElllllllllll(%class.model_RBM* %16, i64 %101, i64 %102, i64 %103, i64 %104, i64 %105, i64 %106, i64 %107, i64 %108, i64 %109, i64 %110, i64 %111)
+  store i64 %112, i64* %cppVar_130, align 8
+  %113 = load i64* %2, align 8
+  %114 = load i64* %3, align 8
+  %115 = load i64* %4, align 8
+  %116 = load i64* %5, align 8
+  %117 = load i64* %6, align 8
+  %118 = load i64* %7, align 8
+  %119 = load i64* %8, align 8
+  %120 = load i64* %9, align 8
+  %121 = load i64* %10, align 8
+  %122 = load i64* %11, align 8
+  %123 = load i64* %12, align 8
+  %124 = call i64 @_ZN9model_RBM24cppUpdateFun_num_visibleElllllllllll(%class.model_RBM* %16, i64 %113, i64 %114, i64 %115, i64 %116, i64 %117, i64 %118, i64 %119, i64 %120, i64 %121, i64 %122, i64 %123)
+  store i64 %124, i64* %cppVar_145, align 8
+  %125 = load i64* %2, align 8
+  %126 = load i64* %3, align 8
+  %127 = load i64* %4, align 8
+  %128 = load i64* %5, align 8
+  %129 = load i64* %6, align 8
+  %130 = load i64* %7, align 8
+  %131 = load i64* %8, align 8
+  %132 = load i64* %9, align 8
+  %133 = load i64* %10, align 8
+  %134 = load i64* %11, align 8
+  %135 = load i64* %12, align 8
+  %136 = call i64 @_ZN9model_RBM24cppUpdateFun_rd_completeElllllllllll(%class.model_RBM* %16, i64 %125, i64 %126, i64 %127, i64 %128, i64 %129, i64 %130, i64 %131, i64 %132, i64 %133, i64 %134, i64 %135)
+  store i64 %136, i64* %cppVar_146, align 8
+  %137 = load i64* %2, align 8
+  %138 = load i64* %3, align 8
+  %139 = load i64* %4, align 8
+  %140 = load i64* %5, align 8
+  %141 = load i64* %6, align 8
+  %142 = load i64* %7, align 8
+  %143 = load i64* %8, align 8
+  %144 = load i64* %9, align 8
+  %145 = load i64* %10, align 8
+  %146 = load i64* %11, align 8
+  %147 = load i64* %12, align 8
+  %148 = call i64 @_ZN9model_RBM23cppUpdateFun_rd_grantedElllllllllll(%class.model_RBM* %16, i64 %137, i64 %138, i64 %139, i64 %140, i64 %141, i64 %142, i64 %143, i64 %144, i64 %145, i64 %146, i64 %147)
+  store i64 %148, i64* %cppVar_154, align 8
+  %149 = load i64* %2, align 8
+  %150 = load i64* %3, align 8
+  %151 = load i64* %4, align 8
+  %152 = load i64* %5, align 8
+  %153 = load i64* %6, align 8
+  %154 = load i64* %7, align 8
+  %155 = load i64* %8, align 8
+  %156 = load i64* %9, align 8
+  %157 = load i64* %10, align 8
+  %158 = load i64* %11, align 8
+  %159 = load i64* %12, align 8
+  %160 = call i64 @_ZN9model_RBM21cppUpdateFun_rd_indexElllllllllll(%class.model_RBM* %16, i64 %149, i64 %150, i64 %151, i64 %152, i64 %153, i64 %154, i64 %155, i64 %156, i64 %157, i64 %158, i64 %159)
+  store i64 %160, i64* %cppVar_155, align 8
+  %161 = load i64* %2, align 8
+  %162 = load i64* %3, align 8
+  %163 = load i64* %4, align 8
+  %164 = load i64* %5, align 8
+  %165 = load i64* %6, align 8
+  %166 = load i64* %7, align 8
+  %167 = load i64* %8, align 8
+  %168 = load i64* %9, align 8
+  %169 = load i64* %10, align 8
+  %170 = load i64* %11, align 8
+  %171 = load i64* %12, align 8
+  %172 = call i64 @_ZN9model_RBM22cppUpdateFun_rd_lengthElllllllllll(%class.model_RBM* %16, i64 %161, i64 %162, i64 %163, i64 %164, i64 %165, i64 %166, i64 %167, i64 %168, i64 %169, i64 %170, i64 %171)
+  store i64 %172, i64* %cppVar_156, align 8
+  %173 = load i64* %2, align 8
+  %174 = load i64* %3, align 8
+  %175 = load i64* %4, align 8
+  %176 = load i64* %5, align 8
+  %177 = load i64* %6, align 8
+  %178 = load i64* %7, align 8
+  %179 = load i64* %8, align 8
+  %180 = load i64* %9, align 8
+  %181 = load i64* %10, align 8
+  %182 = load i64* %11, align 8
+  %183 = load i64* %12, align 8
+  %184 = call i64 @_ZN9model_RBM23cppUpdateFun_rd_requestElllllllllll(%class.model_RBM* %16, i64 %173, i64 %174, i64 %175, i64 %176, i64 %177, i64 %178, i64 %179, i64 %180, i64 %181, i64 %182, i64 %183)
+  store i64 %184, i64* %cppVar_157, align 8
+  %185 = load i64* %2, align 8
+  %186 = load i64* %3, align 8
+  %187 = load i64* %4, align 8
+  %188 = load i64* %5, align 8
+  %189 = load i64* %6, align 8
+  %190 = load i64* %7, align 8
+  %191 = load i64* %8, align 8
+  %192 = load i64* %9, align 8
+  %193 = load i64* %10, align 8
+  %194 = load i64* %11, align 8
+  %195 = load i64* %12, align 8
+  %196 = call i64 @_ZN9model_RBM24cppUpdateFun_wr_completeElllllllllll(%class.model_RBM* %16, i64 %185, i64 %186, i64 %187, i64 %188, i64 %189, i64 %190, i64 %191, i64 %192, i64 %193, i64 %194, i64 %195)
+  store i64 %196, i64* %cppVar_158, align 8
+  %197 = load i64* %2, align 8
+  %198 = load i64* %3, align 8
+  %199 = load i64* %4, align 8
+  %200 = load i64* %5, align 8
+  %201 = load i64* %6, align 8
+  %202 = load i64* %7, align 8
+  %203 = load i64* %8, align 8
+  %204 = load i64* %9, align 8
+  %205 = load i64* %10, align 8
+  %206 = load i64* %11, align 8
+  %207 = load i64* %12, align 8
+  %208 = call i64 @_ZN9model_RBM23cppUpdateFun_wr_grantedElllllllllll(%class.model_RBM* %16, i64 %197, i64 %198, i64 %199, i64 %200, i64 %201, i64 %202, i64 %203, i64 %204, i64 %205, i64 %206, i64 %207)
+  store i64 %208, i64* %cppVar_164, align 8
+  %209 = load i64* %2, align 8
+  %210 = load i64* %3, align 8
+  %211 = load i64* %4, align 8
+  %212 = load i64* %5, align 8
+  %213 = load i64* %6, align 8
+  %214 = load i64* %7, align 8
+  %215 = load i64* %8, align 8
+  %216 = load i64* %9, align 8
+  %217 = load i64* %10, align 8
+  %218 = load i64* %11, align 8
+  %219 = load i64* %12, align 8
+  %220 = call i64 @_ZN9model_RBM21cppUpdateFun_wr_indexElllllllllll(%class.model_RBM* %16, i64 %209, i64 %210, i64 %211, i64 %212, i64 %213, i64 %214, i64 %215, i64 %216, i64 %217, i64 %218, i64 %219)
+  store i64 %220, i64* %cppVar_165, align 8
+  %221 = load i64* %2, align 8
+  %222 = load i64* %3, align 8
+  %223 = load i64* %4, align 8
+  %224 = load i64* %5, align 8
+  %225 = load i64* %6, align 8
+  %226 = load i64* %7, align 8
+  %227 = load i64* %8, align 8
+  %228 = load i64* %9, align 8
+  %229 = load i64* %10, align 8
+  %230 = load i64* %11, align 8
+  %231 = load i64* %12, align 8
+  %232 = call i64 @_ZN9model_RBM22cppUpdateFun_wr_lengthElllllllllll(%class.model_RBM* %16, i64 %221, i64 %222, i64 %223, i64 %224, i64 %225, i64 %226, i64 %227, i64 %228, i64 %229, i64 %230, i64 %231)
+  store i64 %232, i64* %cppVar_166, align 8
+  %233 = load i64* %2, align 8
+  %234 = load i64* %3, align 8
+  %235 = load i64* %4, align 8
+  %236 = load i64* %5, align 8
+  %237 = load i64* %6, align 8
+  %238 = load i64* %7, align 8
+  %239 = load i64* %8, align 8
+  %240 = load i64* %9, align 8
+  %241 = load i64* %10, align 8
+  %242 = load i64* %11, align 8
+  %243 = load i64* %12, align 8
+  %244 = call i64 @_ZN9model_RBM23cppUpdateFun_wr_requestElllllllllll(%class.model_RBM* %16, i64 %233, i64 %234, i64 %235, i64 %236, i64 %237, i64 %238, i64 %239, i64 %240, i64 %241, i64 %242, i64 %243)
+  store i64 %244, i64* %cppVar_167, align 8
+  %245 = load i64* %2, align 8
+  %246 = load i64* %3, align 8
+  %247 = load i64* %4, align 8
+  %248 = load i64* %5, align 8
+  %249 = load i64* %6, align 8
+  %250 = load i64* %7, align 8
+  %251 = load i64* %8, align 8
+  %252 = load i64* %9, align 8
+  %253 = load i64* %10, align 8
+  %254 = load i64* %11, align 8
+  %255 = load i64* %12, align 8
+  call void @_ZN9model_RBM17cppUpdateFun_dataElllllllllll(%class.SysCArray1D* sret %cppVar_177, %class.model_RBM* %16, i64 %245, i64 %246, i64 %247, i64 %248, i64 %249, i64 %250, i64 %251, i64 %252, i64 %253, i64 %254, i64 %255)
+  %256 = load i64* %cppVar_39, align 8
+  %257 = getelementptr inbounds %class.model_RBM* %16, i32 0, i32 1
+  store i64 %256, i64* %257, align 8
+  %258 = load i64* %cppVar_40, align 8
+  %259 = getelementptr inbounds %class.model_RBM* %16, i32 0, i32 2
+  store i64 %258, i64* %259, align 8
+  %260 = load i64* %cppVar_55, align 8
+  %261 = getelementptr inbounds %class.model_RBM* %16, i32 0, i32 3
+  store i64 %260, i64* %261, align 8
+  %262 = load i64* %cppVar_70, align 8
+  %263 = getelementptr inbounds %class.model_RBM* %16, i32 0, i32 4
+  store i64 %262, i64* %263, align 8
+  %264 = load i64* %cppVar_85, align 8
+  %265 = getelementptr inbounds %class.model_RBM* %16, i32 0, i32 5
+  store i64 %264, i64* %265, align 8
+  %266 = load i64* %cppVar_100, align 8
+  %267 = getelementptr inbounds %class.model_RBM* %16, i32 0, i32 6
+  store i64 %266, i64* %267, align 8
+  %268 = load i64* %cppVar_115, align 8
+  %269 = getelementptr inbounds %class.model_RBM* %16, i32 0, i32 7
+  store i64 %268, i64* %269, align 8
+  %270 = load i64* %cppVar_130, align 8
+  %271 = getelementptr inbounds %class.model_RBM* %16, i32 0, i32 8
+  store i64 %270, i64* %271, align 8
+  %272 = load i64* %cppVar_145, align 8
+  %273 = getelementptr inbounds %class.model_RBM* %16, i32 0, i32 9
+  store i64 %272, i64* %273, align 8
+  %274 = load i64* %cppVar_146, align 8
+  %275 = getelementptr inbounds %class.model_RBM* %16, i32 0, i32 11
+  store i64 %274, i64* %275, align 8
+  %276 = load i64* %cppVar_154, align 8
+  %277 = getelementptr inbounds %class.model_RBM* %16, i32 0, i32 12
+  store i64 %276, i64* %277, align 8
+  %278 = load i64* %cppVar_155, align 8
+  %279 = getelementptr inbounds %class.model_RBM* %16, i32 0, i32 13
+  store i64 %278, i64* %279, align 8
+  %280 = load i64* %cppVar_156, align 8
+  %281 = getelementptr inbounds %class.model_RBM* %16, i32 0, i32 14
+  store i64 %280, i64* %281, align 8
+  %282 = load i64* %cppVar_157, align 8
+  %283 = getelementptr inbounds %class.model_RBM* %16, i32 0, i32 15
+  store i64 %282, i64* %283, align 8
+  %284 = load i64* %cppVar_158, align 8
+  %285 = getelementptr inbounds %class.model_RBM* %16, i32 0, i32 16
+  store i64 %284, i64* %285, align 8
+  %286 = load i64* %cppVar_164, align 8
+  %287 = getelementptr inbounds %class.model_RBM* %16, i32 0, i32 17
+  store i64 %286, i64* %287, align 8
+  %288 = load i64* %cppVar_165, align 8
+  %289 = getelementptr inbounds %class.model_RBM* %16, i32 0, i32 18
+  store i64 %288, i64* %289, align 8
+  %290 = load i64* %cppVar_166, align 8
+  %291 = getelementptr inbounds %class.model_RBM* %16, i32 0, i32 19
+  store i64 %290, i64* %291, align 8
+  %292 = load i64* %cppVar_167, align 8
+  %293 = getelementptr inbounds %class.model_RBM* %16, i32 0, i32 20
+  store i64 %292, i64* %293, align 8
+  %294 = getelementptr inbounds %class.model_RBM* %16, i32 0, i32 0
+  %295 = invoke %class.SysCArray1D* @_ZN8type_memIhLj512EEaSERKS0_(%class.SysCArray1D* %294, %class.SysCArray1D* %cppVar_177)
+          to label %296 unwind label %297
+
+; <label>:296                                     ; preds = %0
+  store i32 1, i32* %15
+  call void @_ZN8type_memIhLj512EED1Ev(%class.SysCArray1D* %cppVar_177)
+  ret void
+
+; <label>:297                                     ; preds = %0
+  %298 = call i8* @llvm.eh.exception() nounwind
+  store i8* %298, i8** %13
+  %299 = call i32 (i8*, i8*, ...)* @llvm.eh.selector(i8* %298, i8* bitcast (i32 (...)* @__gxx_personality_v0 to i8*), i8* null) nounwind
+  store i32 0, i32* %14
+  invoke void @_ZN8type_memIhLj512EED1Ev(%class.SysCArray1D* %cppVar_177)
+          to label %300 unwind label %303
+
+; <label>:300                                     ; preds = %297
+  br label %301
+
+; <label>:301                                     ; preds = %300
+  %302 = load i8** %13
+  call void @_Unwind_Resume_or_Rethrow(i8* %302) noreturn
+  unreachable
+
+; <label>:303                                     ; preds = %297
+  %304 = call i8* @llvm.eh.exception() nounwind
+  %305 = call i32 (i8*, i8*, ...)* @llvm.eh.selector(i8* %304, i8* bitcast (i32 (...)* @__gxx_personality_v0 to i8*), i8* null) nounwind
+  call void @_ZSt9terminatev() noreturn nounwind
+  unreachable
+}
+
+define internal void @__cxx_global_var_init() {
+  call void @_ZN9model_RBMC1Ev(%class.model_RBM* @GM)
+  %1 = call i32 @__cxa_atexit(void (i8*)* bitcast (void (%class.model_RBM*)* @_ZN9model_RBMD1Ev to void (i8*)*), i8* bitcast (%class.model_RBM* @GM to i8*), i8* bitcast (i8** @__dso_handle to i8*))
+  ret void
+}
+
+define linkonce_odr void @_ZN9model_RBMC1Ev(%class.model_RBM* %this) unnamed_addr align 2 {
+  %1 = alloca %class.model_RBM*, align 8
+  store %class.model_RBM* %this, %class.model_RBM** %1, align 8
+  %2 = load %class.model_RBM** %1
+  call void @_ZN9model_RBMC2Ev(%class.model_RBM* %2)
+  ret void
+}
+
+define linkonce_odr void @_ZN9model_RBMD1Ev(%class.model_RBM* %this) unnamed_addr align 2 {
+  %1 = alloca %class.model_RBM*, align 8
+  store %class.model_RBM* %this, %class.model_RBM** %1, align 8
+  %2 = load %class.model_RBM** %1
+  call void @_ZN9model_RBMD2Ev(%class.model_RBM* %2)
+  ret void
+}
+
+declare i32 @__cxa_atexit(void (i8*)*, i8*, i8*)
+
+define void @_Z4waitv() nounwind {
+  %1 = load i32* @cycleCnt, align 4
+  %2 = add nsw i32 %1, 1
+  store i32 %2, i32* @cycleCnt, align 4
+  ret void
+}
+
+define void @_Z15reset_signal_isib(i32, i1 zeroext) nounwind {
+  %3 = alloca i32, align 4
+  %4 = alloca i8, align 1
+  store i32 %0, i32* %3, align 4
+  %5 = zext i1 %1 to i8
+  store i8 %5, i8* %4, align 1
+  ret void
+}
+
+define void @_Z14set_stack_sizei(i32) nounwind {
+  %2 = alloca i32, align 4
+  store i32 %0, i32* %2, align 4
+  ret void
+}
+
+define void @_ZN3rbm6configEv(%struct.rbm* %this) align 2 {
+  %1 = alloca %struct.rbm*, align 8
+  %2 = alloca i16, align 2
+  %3 = alloca i16, align 2
+  %4 = alloca i16, align 2
+  %5 = alloca i16, align 2
+  %6 = alloca i16, align 2
+  %7 = alloca i8, align 1
+  %8 = alloca i16, align 2
+  %9 = alloca i16, align 2
+  %10 = alloca i16, align 2
+  %11 = alloca i16, align 2
+  %12 = alloca i16, align 2
+  %13 = alloca i16, align 2
+  %14 = alloca i8, align 1
+  store %struct.rbm* %this, %struct.rbm** %1, align 8
+  %15 = load %struct.rbm** %1
+  br label %16
+
+; <label>:16                                      ; preds = %0
+  %17 = getelementptr inbounds %struct.rbm* %15, i32 0, i32 30
+  store i16 0, i16* %2, align 2
+  call void @_ZN13sc_signal_u165writeERKt(%class.sc_signal_u16* %17, i16* %2)
+  %18 = getelementptr inbounds %struct.rbm* %15, i32 0, i32 31
+  store i16 0, i16* %3, align 2
+  call void @_ZN13sc_signal_u165writeERKt(%class.sc_signal_u16* %18, i16* %3)
+  %19 = getelementptr inbounds %struct.rbm* %15, i32 0, i32 32
+  store i16 0, i16* %4, align 2
+  call void @_ZN13sc_signal_u165writeERKt(%class.sc_signal_u16* %19, i16* %4)
+  %20 = getelementptr inbounds %struct.rbm* %15, i32 0, i32 33
+  store i16 0, i16* %5, align 2
+  call void @_ZN13sc_signal_u165writeERKt(%class.sc_signal_u16* %20, i16* %5)
+  %21 = getelementptr inbounds %struct.rbm* %15, i32 0, i32 35
+  store i16 0, i16* %6, align 2
+  call void @_ZN13sc_signal_u165writeERKt(%class.sc_signal_u16* %21, i16* %6)
+  %22 = getelementptr inbounds %struct.rbm* %15, i32 0, i32 36
+  store i8 0, i8* %7, align 1
+  call void @_ZN14sc_signal_bool5writeERKb(%class.sc_signal_bool* %22, i8* %7)
+  call void @_Z4waitv()
+  br label %23
+
+; <label>:23                                      ; preds = %16
+  br label %24
+
+; <label>:24                                      ; preds = %25, %23
+  call void @_Z4waitv()
+  br label %25
+
+; <label>:25                                      ; preds = %24
+  %26 = getelementptr inbounds %struct.rbm* %15, i32 0, i32 13
+  %27 = call zeroext i1 @_ZN14sc_signal_bool4readEv(%class.sc_signal_bool* %26)
+  %28 = xor i1 %27, true
+  br i1 %28, label %24, label %29
+
+; <label>:29                                      ; preds = %25
+  %30 = getelementptr inbounds %struct.rbm* %15, i32 0, i32 30
+  %31 = getelementptr inbounds %struct.rbm* %15, i32 0, i32 14
+  %32 = call i32 @_ZN13sc_signal_u324readEv(%class.sc_signal_int32* %31)
+  %33 = trunc i32 %32 to i16
+  store i16 %33, i16* %8, align 2
+  call void @_ZN13sc_signal_u165writeERKt(%class.sc_signal_u16* %30, i16* %8)
+  %34 = getelementptr inbounds %struct.rbm* %15, i32 0, i32 31
+  %35 = getelementptr inbounds %struct.rbm* %15, i32 0, i32 15
+  %36 = call i32 @_ZN13sc_signal_u324readEv(%class.sc_signal_int32* %35)
+  %37 = trunc i32 %36 to i16
+  store i16 %37, i16* %9, align 2
+  call void @_ZN13sc_signal_u165writeERKt(%class.sc_signal_u16* %34, i16* %9)
+  %38 = getelementptr inbounds %struct.rbm* %15, i32 0, i32 32
+  %39 = getelementptr inbounds %struct.rbm* %15, i32 0, i32 16
+  %40 = call i32 @_ZN13sc_signal_u324readEv(%class.sc_signal_int32* %39)
+  %41 = trunc i32 %40 to i16
+  store i16 %41, i16* %10, align 2
+  call void @_ZN13sc_signal_u165writeERKt(%class.sc_signal_u16* %38, i16* %10)
+  %42 = getelementptr inbounds %struct.rbm* %15, i32 0, i32 33
+  %43 = getelementptr inbounds %struct.rbm* %15, i32 0, i32 17
+  %44 = call i32 @_ZN13sc_signal_u324readEv(%class.sc_signal_int32* %43)
+  %45 = trunc i32 %44 to i16
+  store i16 %45, i16* %11, align 2
+  call void @_ZN13sc_signal_u165writeERKt(%class.sc_signal_u16* %42, i16* %11)
+  %46 = getelementptr inbounds %struct.rbm* %15, i32 0, i32 34
+  %47 = getelementptr inbounds %struct.rbm* %15, i32 0, i32 18
+  %48 = call i32 @_ZN13sc_signal_u324readEv(%class.sc_signal_int32* %47)
+  %49 = trunc i32 %48 to i16
+  store i16 %49, i16* %12, align 2
+  call void @_ZN13sc_signal_u165writeERKt(%class.sc_signal_u16* %46, i16* %12)
+  %50 = getelementptr inbounds %struct.rbm* %15, i32 0, i32 35
+  %51 = getelementptr inbounds %struct.rbm* %15, i32 0, i32 19
+  %52 = call i32 @_ZN13sc_signal_u324readEv(%class.sc_signal_int32* %51)
+  %53 = trunc i32 %52 to i16
+  store i16 %53, i16* %13, align 2
+  call void @_ZN13sc_signal_u165writeERKt(%class.sc_signal_u16* %50, i16* %13)
+  %54 = call %class.sc_signal_bool* @_ZNSt6iocoutlsEPKc(%class.sc_signal_bool* @_ZSt4cout, i8* getelementptr inbounds ([12 x i8]* @.str, i32 0, i32 0))
+  %55 = load i32* @_ZSt4endl, align 4
+  %56 = call %class.sc_signal_bool* @_ZNSt6iocoutlsEi(%class.sc_signal_bool* %54, i32 %55)
+  %57 = getelementptr inbounds %struct.rbm* %15, i32 0, i32 36
+  store i8 1, i8* %14, align 1
+  call void @_ZN14sc_signal_bool5writeERKb(%class.sc_signal_bool* %57, i8* %14)
+  br label %58
+
+; <label>:58                                      ; preds = %29
+  br label %59
+
+; <label>:59                                      ; preds = %58, %59
+  call void @_Z4waitv()
+  br label %59
+                                                  ; No predecessors!
+  ret void
+}
+
+define linkonce_odr void @_ZN13sc_signal_u165writeERKt(%class.sc_signal_u16* %this, i16* %d) nounwind align 2 {
+  %1 = alloca %class.sc_signal_u16*, align 8
+  %2 = alloca i16*, align 8
+  store %class.sc_signal_u16* %this, %class.sc_signal_u16** %1, align 8
+  store i16* %d, i16** %2, align 8
+  %3 = load %class.sc_signal_u16** %1
+  %4 = load i16** %2
+  %5 = load i16* %4, align 8
+  %6 = getelementptr inbounds %class.sc_signal_u16* %3, i32 0, i32 0
+  store i16 %5, i16* %6, align 2
+  ret void
+}
+
+define linkonce_odr void @_ZN14sc_signal_bool5writeERKb(%class.sc_signal_bool* %this, i8* %d) nounwind align 2 {
+  %1 = alloca %class.sc_signal_bool*, align 8
+  %2 = alloca i8*, align 8
+  store %class.sc_signal_bool* %this, %class.sc_signal_bool** %1, align 8
+  store i8* %d, i8** %2, align 8
+  %3 = load %class.sc_signal_bool** %1
+  %4 = load i8** %2
+  %5 = load i8* %4, align 8
+  %6 = trunc i8 %5 to i1
+  %7 = getelementptr inbounds %class.sc_signal_bool* %3, i32 0, i32 0
+  %8 = zext i1 %6 to i8
+  store i8 %8, i8* %7, align 1
+  ret void
+}
+
+define linkonce_odr zeroext i1 @_ZN14sc_signal_bool4readEv(%class.sc_signal_bool* %this) nounwind align 2 {
+  %1 = alloca %class.sc_signal_bool*, align 8
+  store %class.sc_signal_bool* %this, %class.sc_signal_bool** %1, align 8
+  %2 = load %class.sc_signal_bool** %1
+  %3 = getelementptr inbounds %class.sc_signal_bool* %2, i32 0, i32 0
+  %4 = load i8* %3, align 1
+  %5 = trunc i8 %4 to i1
+  ret i1 %5
+}
+
+define linkonce_odr i32 @_ZN13sc_signal_u324readEv(%class.sc_signal_int32* %this) nounwind align 2 {
+  %1 = alloca %class.sc_signal_int32*, align 8
+  store %class.sc_signal_int32* %this, %class.sc_signal_int32** %1, align 8
+  %2 = load %class.sc_signal_int32** %1
+  %3 = getelementptr inbounds %class.sc_signal_int32* %2, i32 0, i32 0
+  %4 = load i32* %3, align 4
+  ret i32 %4
+}
+
+define linkonce_odr %class.sc_signal_bool* @_ZNSt6iocoutlsEPKc(%class.sc_signal_bool* %this, i8*) nounwind align 2 {
+  %2 = alloca %class.sc_signal_bool*, align 8
+  %3 = alloca %class.sc_signal_bool*, align 8
+  %4 = alloca i8*, align 8
+  store %class.sc_signal_bool* %this, %class.sc_signal_bool** %3, align 8
+  store i8* %0, i8** %4, align 8
+  %5 = load %class.sc_signal_bool** %3
+  %6 = load %class.sc_signal_bool** %2
+  ret %class.sc_signal_bool* %6
+}
+
+define linkonce_odr %class.sc_signal_bool* @_ZNSt6iocoutlsEi(%class.sc_signal_bool* %this, i32) nounwind align 2 {
+  %2 = alloca %class.sc_signal_bool*, align 8
+  %3 = alloca %class.sc_signal_bool*, align 8
+  %4 = alloca i32, align 4
+  store %class.sc_signal_bool* %this, %class.sc_signal_bool** %3, align 8
+  store i32 %0, i32* %4, align 4
+  %5 = load %class.sc_signal_bool** %3
+  %6 = load %class.sc_signal_bool** %2
+  ret %class.sc_signal_bool* %6
+}
+
+define void @_ZN3rbm4loadEv(%struct.rbm* %this) align 2 {
+  %1 = alloca %struct.rbm*, align 8
+  %2 = alloca i8, align 1
+  %3 = alloca i32, align 4
+  %4 = alloca i32, align 4
+  %5 = alloca i8, align 1
+  %6 = alloca i8, align 1
+  %7 = alloca i8, align 1
+  %8 = alloca i16, align 2
+  %9 = alloca i16, align 2
+  %10 = alloca i16, align 2
+  %11 = alloca i16, align 2
+  %12 = alloca i16, align 2
+  %13 = alloca i16, align 2
+  %nv = alloca i32, align 4
+  %ntu = alloca i32, align 4
+  %nu = alloca i32, align 4
+  %nlp = alloca i32, align 4
+  %nm = alloca i32, align 4
+  %index = alloca i16, align 2
+  %loop_count = alloca i16, align 2
+  %pingpong = alloca i8, align 1
+  %tmp1 = alloca i16, align 2
+  %tmp2 = alloca i16, align 2
+  %14 = alloca i32, align 4
+  %15 = alloca i32, align 4
+  %16 = alloca i8, align 1
+  %17 = alloca i8, align 1
+  %18 = alloca i8, align 1
+  %19 = alloca i16, align 2
+  %20 = alloca i16, align 2
+  %21 = alloca i16, align 2
+  %22 = alloca i16, align 2
+  %23 = alloca i16, align 2
+  %24 = alloca i16, align 2
+  %25 = alloca i32, align 4
+  %26 = alloca i32, align 4
+  %27 = alloca i8, align 1
+  %28 = alloca i8, align 1
+  %29 = alloca i32, align 4
+  %30 = alloca i32, align 4
+  %31 = alloca i32, align 4
+  %32 = alloca i8, align 1
+  %i = alloca i16, align 2
+  %rate = alloca i8, align 1
+  %33 = alloca i8, align 1
+  %34 = alloca i8, align 1
+  %35 = alloca i8, align 1
+  %36 = alloca i8, align 1
+  %dma_index = alloca i32, align 4
+  %37 = alloca i32, align 4
+  %38 = alloca i8, align 1
+  %39 = alloca i8, align 1
+  %i1 = alloca i16, align 2
+  %rate2 = alloca i8, align 1
+  store %struct.rbm* %this, %struct.rbm** %1, align 8
+  %40 = load %struct.rbm** %1
+  %41 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 36
+  store i8 1, i8* %2, align 1
+  %42 = call zeroext i1 @_ZN14sc_signal_boolaSERKb(%class.sc_signal_bool* %41, i8* %2)
+  br label %43
+
+; <label>:43                                      ; preds = %0
+  %44 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 2
+  store i32 0, i32* %3, align 4
+  call void @_ZN13sc_signal_u325writeERKj(%class.sc_signal_int32* %44, i32* %3)
+  %45 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 3
+  store i32 0, i32* %4, align 4
+  call void @_ZN13sc_signal_u325writeERKj(%class.sc_signal_int32* %45, i32* %4)
+  %46 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 4
+  store i8 0, i8* %5, align 1
+  call void @_ZN14sc_signal_bool5writeERKb(%class.sc_signal_bool* %46, i8* %5)
+  %47 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 37
+  store i8 0, i8* %6, align 1
+  call void @_ZN14sc_signal_bool5writeERKb(%class.sc_signal_bool* %47, i8* %6)
+  %48 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 38
+  store i8 0, i8* %7, align 1
+  call void @_ZN14sc_signal_bool5writeERKb(%class.sc_signal_bool* %48, i8* %7)
+  br label %49
+
+; <label>:49                                      ; preds = %43
+  br label %50
+
+; <label>:50                                      ; preds = %51, %49
+  call void @_Z4waitv()
+  br label %51
+
+; <label>:51                                      ; preds = %50
+  %52 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 36
+  %53 = call zeroext i1 @_ZN14sc_signal_bool4readEv(%class.sc_signal_bool* %52)
+  %54 = xor i1 %53, true
+  br i1 %54, label %50, label %55
+
+; <label>:55                                      ; preds = %51
+  %56 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 30
+  %57 = load i64* getelementptr inbounds (%class.model_RBM* @GM, i32 0, i32 4), align 8
+  %58 = trunc i64 %57 to i16
+  store i16 %58, i16* %8, align 2
+  call void @_ZN13sc_signal_u165writeERKt(%class.sc_signal_u16* %56, i16* %8)
+  %59 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 31
+  %60 = load i64* getelementptr inbounds (%class.model_RBM* @GM, i32 0, i32 9), align 8
+  %61 = trunc i64 %60 to i16
+  store i16 %61, i16* %9, align 2
+  call void @_ZN13sc_signal_u165writeERKt(%class.sc_signal_u16* %59, i16* %9)
+  %62 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 32
+  %63 = load i64* getelementptr inbounds (%class.model_RBM* @GM, i32 0, i32 8), align 8
+  %64 = trunc i64 %63 to i16
+  store i16 %64, i16* %10, align 2
+  call void @_ZN13sc_signal_u165writeERKt(%class.sc_signal_u16* %62, i16* %10)
+  %65 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 33
+  %66 = load i64* getelementptr inbounds (%class.model_RBM* @GM, i32 0, i32 5), align 8
+  %67 = trunc i64 %66 to i16
+  store i16 %67, i16* %11, align 2
+  call void @_ZN13sc_signal_u165writeERKt(%class.sc_signal_u16* %65, i16* %11)
+  %68 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 34
+  %69 = load i64* getelementptr inbounds (%class.model_RBM* @GM, i32 0, i32 7), align 8
+  %70 = trunc i64 %69 to i16
+  store i16 %70, i16* %12, align 2
+  call void @_ZN13sc_signal_u165writeERKt(%class.sc_signal_u16* %68, i16* %12)
+  %71 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 35
+  %72 = load i64* getelementptr inbounds (%class.model_RBM* @GM, i32 0, i32 6), align 8
+  %73 = trunc i64 %72 to i16
+  store i16 %73, i16* %13, align 2
+  call void @_ZN13sc_signal_u165writeERKt(%class.sc_signal_u16* %71, i16* %13)
+  %74 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 31
+  %75 = call zeroext i16 @_ZN13sc_signal_u164readEv(%class.sc_signal_u16* %74)
+  %76 = zext i16 %75 to i32
+  store i32 %76, i32* %nv, align 4
+  %77 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 34
+  %78 = call zeroext i16 @_ZN13sc_signal_u164readEv(%class.sc_signal_u16* %77)
+  %79 = zext i16 %78 to i32
+  store i32 %79, i32* %ntu, align 4
+  %80 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 32
+  %81 = call zeroext i16 @_ZN13sc_signal_u164readEv(%class.sc_signal_u16* %80)
+  %82 = zext i16 %81 to i32
+  store i32 %82, i32* %nu, align 4
+  %83 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 33
+  %84 = call zeroext i16 @_ZN13sc_signal_u164readEv(%class.sc_signal_u16* %83)
+  %85 = zext i16 %84 to i32
+  store i32 %85, i32* %nlp, align 4
+  %86 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 35
+  %87 = call zeroext i16 @_ZN13sc_signal_u164readEv(%class.sc_signal_u16* %86)
+  %88 = zext i16 %87 to i32
+  store i32 %88, i32* %nm, align 4
+  store i16 0, i16* %index, align 2
+  store i16 0, i16* %loop_count, align 2
+  store i8 0, i8* %pingpong, align 1
+  br label %89
+
+; <label>:89                                      ; preds = %55
+  %90 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 2
+  %91 = load i16* %index, align 2
+  %92 = zext i16 %91 to i32
+  store i32 %92, i32* %14, align 4
+  call void @_ZN13sc_signal_u325writeERKj(%class.sc_signal_int32* %90, i32* %14)
+  %93 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 3
+  %94 = load i32* %nm, align 4
+  %95 = mul i32 5, %94
+  store i32 %95, i32* %15, align 4
+  call void @_ZN13sc_signal_u325writeERKj(%class.sc_signal_int32* %93, i32* %15)
+  br label %98
+                                                  ; No predecessors!
+  br label %97
+
+; <label>:97                                      ; preds = %197, %96
+  call void @_Z4waitv()
+  br label %98
+
+; <label>:98                                      ; preds = %97, %89
+  store i8 1, i8* @rd_grant_inp, align 1
+  %99 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 4
+  store i8 1, i8* %16, align 1
+  %100 = call zeroext i1 @_ZN14sc_signal_boolaSERKb(%class.sc_signal_bool* %99, i8* %16)
+  store i64 1, i64* getelementptr inbounds (%class.model_RBM* @GM, i32 0, i32 15), align 8
+  %101 = load i8* @conf_done_inp, align 1
+  %102 = trunc i8 %101 to i1
+  %103 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 13
+  %104 = getelementptr inbounds %class.sc_signal_bool* %103, i32 0, i32 0
+  %105 = zext i1 %102 to i8
+  store i8 %105, i8* %104, align 1
+  %106 = load i32* @conf_num_hidden_inp, align 4
+  %107 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 14
+  %108 = getelementptr inbounds %class.sc_signal_int32* %107, i32 0, i32 0
+  store i32 %106, i32* %108, align 4
+  %109 = load i32* @conf_num_visible_inp, align 4
+  %110 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 15
+  %111 = getelementptr inbounds %class.sc_signal_int32* %110, i32 0, i32 0
+  store i32 %109, i32* %111, align 4
+  %112 = load i32* @conf_num_users_inp, align 4
+  %113 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 16
+  %114 = getelementptr inbounds %class.sc_signal_int32* %113, i32 0, i32 0
+  store i32 %112, i32* %114, align 4
+  %115 = load i32* @conf_num_loops_inp, align 4
+  %116 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 17
+  %117 = getelementptr inbounds %class.sc_signal_int32* %116, i32 0, i32 0
+  store i32 %115, i32* %117, align 4
+  %118 = load i32* @conf_num_testusers_inp, align 4
+  %119 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 18
+  %120 = getelementptr inbounds %class.sc_signal_int32* %119, i32 0, i32 0
+  store i32 %118, i32* %120, align 4
+  %121 = load i32* @conf_num_movies_inp, align 4
+  %122 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 19
+  %123 = getelementptr inbounds %class.sc_signal_int32* %122, i32 0, i32 0
+  store i32 %121, i32* %123, align 4
+  %124 = load i8* @rst_inp, align 1
+  %125 = trunc i8 %124 to i1
+  %126 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 1
+  %127 = getelementptr inbounds %class.sc_signal_bool* %126, i32 0, i32 0
+  %128 = zext i1 %125 to i8
+  store i8 %128, i8* %127, align 1
+  %129 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 36
+  %130 = load i64* getelementptr inbounds (%class.model_RBM* @GM, i32 0, i32 3), align 8
+  %131 = icmp ne i64 %130, 0
+  %132 = zext i1 %131 to i8
+  store i8 %132, i8* %17, align 1
+  call void @_ZN14sc_signal_bool5writeERKb(%class.sc_signal_bool* %129, i8* %17)
+  %133 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 12
+  %134 = load i64* getelementptr inbounds (%class.model_RBM* @GM, i32 0, i32 2), align 8
+  %135 = icmp ne i64 %134, 0
+  %136 = zext i1 %135 to i8
+  store i8 %136, i8* %18, align 1
+  call void @_ZN14sc_signal_bool5writeERKb(%class.sc_signal_bool* %133, i8* %18)
+  %137 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 30
+  %138 = load i64* getelementptr inbounds (%class.model_RBM* @GM, i32 0, i32 4), align 8
+  %139 = trunc i64 %138 to i16
+  store i16 %139, i16* %19, align 2
+  call void @_ZN13sc_signal_u165writeERKt(%class.sc_signal_u16* %137, i16* %19)
+  %140 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 31
+  %141 = load i64* getelementptr inbounds (%class.model_RBM* @GM, i32 0, i32 9), align 8
+  %142 = trunc i64 %141 to i16
+  store i16 %142, i16* %20, align 2
+  call void @_ZN13sc_signal_u165writeERKt(%class.sc_signal_u16* %140, i16* %20)
+  %143 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 32
+  %144 = load i64* getelementptr inbounds (%class.model_RBM* @GM, i32 0, i32 8), align 8
+  %145 = trunc i64 %144 to i16
+  store i16 %145, i16* %21, align 2
+  call void @_ZN13sc_signal_u165writeERKt(%class.sc_signal_u16* %143, i16* %21)
+  %146 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 33
+  %147 = load i64* getelementptr inbounds (%class.model_RBM* @GM, i32 0, i32 5), align 8
+  %148 = trunc i64 %147 to i16
+  store i16 %148, i16* %22, align 2
+  call void @_ZN13sc_signal_u165writeERKt(%class.sc_signal_u16* %146, i16* %22)
+  %149 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 34
+  %150 = load i64* getelementptr inbounds (%class.model_RBM* @GM, i32 0, i32 7), align 8
+  %151 = trunc i64 %150 to i16
+  store i16 %151, i16* %23, align 2
+  call void @_ZN13sc_signal_u165writeERKt(%class.sc_signal_u16* %149, i16* %23)
+  %152 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 35
+  %153 = load i64* getelementptr inbounds (%class.model_RBM* @GM, i32 0, i32 6), align 8
+  %154 = trunc i64 %153 to i16
+  store i16 %154, i16* %24, align 2
+  call void @_ZN13sc_signal_u165writeERKt(%class.sc_signal_u16* %152, i16* %24)
+  %155 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 2
+  %156 = load i64* getelementptr inbounds (%class.model_RBM* @GM, i32 0, i32 13), align 8
+  %157 = trunc i64 %156 to i32
+  store i32 %157, i32* %25, align 4
+  call void @_ZN13sc_signal_u325writeERKj(%class.sc_signal_int32* %155, i32* %25)
+  %158 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 3
+  %159 = load i64* getelementptr inbounds (%class.model_RBM* @GM, i32 0, i32 14), align 8
+  %160 = trunc i64 %159 to i32
+  store i32 %160, i32* %26, align 4
+  call void @_ZN13sc_signal_u325writeERKj(%class.sc_signal_int32* %158, i32* %26)
+  %161 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 4
+  %162 = load i64* getelementptr inbounds (%class.model_RBM* @GM, i32 0, i32 15), align 8
+  %163 = icmp ne i64 %162, 0
+  %164 = zext i1 %163 to i8
+  store i8 %164, i8* %27, align 1
+  call void @_ZN14sc_signal_bool5writeERKb(%class.sc_signal_bool* %161, i8* %27)
+  %165 = load i8* @rd_grant_inp, align 1
+  %166 = trunc i8 %165 to i1
+  %167 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 5
+  %168 = getelementptr inbounds %class.sc_signal_bool* %167, i32 0, i32 0
+  %169 = zext i1 %166 to i8
+  store i8 %169, i8* %168, align 1
+  %170 = load i32* @data_in_inp, align 4
+  %171 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 6
+  %172 = getelementptr inbounds %class.sc_signal_int32* %171, i32 0, i32 0
+  store i32 %170, i32* %172, align 4
+  %173 = load i8* @wr_grant_inp, align 1
+  %174 = trunc i8 %173 to i1
+  %175 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 10
+  %176 = getelementptr inbounds %class.sc_signal_bool* %175, i32 0, i32 0
+  %177 = zext i1 %174 to i8
+  store i8 %177, i8* %176, align 1
+  %178 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 9
+  %179 = load i64* getelementptr inbounds (%class.model_RBM* @GM, i32 0, i32 20), align 8
+  %180 = icmp ne i64 %179, 0
+  %181 = zext i1 %180 to i8
+  store i8 %181, i8* %28, align 1
+  call void @_ZN14sc_signal_bool5writeERKb(%class.sc_signal_bool* %178, i8* %28)
+  %182 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 7
+  %183 = load i64* getelementptr inbounds (%class.model_RBM* @GM, i32 0, i32 18), align 8
+  %184 = trunc i64 %183 to i32
+  store i32 %184, i32* %29, align 4
+  call void @_ZN13sc_signal_u325writeERKj(%class.sc_signal_int32* %182, i32* %29)
+  %185 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 8
+  %186 = load i64* getelementptr inbounds (%class.model_RBM* @GM, i32 0, i32 19), align 8
+  %187 = trunc i64 %186 to i32
+  store i32 %187, i32* %30, align 4
+  call void @_ZN13sc_signal_u325writeERKj(%class.sc_signal_int32* %185, i32* %30)
+  %188 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 11
+  %189 = load i64* getelementptr inbounds (%class.model_RBM* @GM, i32 0, i32 1), align 8
+  %190 = trunc i64 %189 to i32
+  store i32 %190, i32* %31, align 4
+  call void @_ZN13sc_signal_u325writeERKj(%class.sc_signal_int32* %188, i32* %31)
+  %191 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 20
+  %192 = call i8* @_ZN11SysCArray2DIhLj2ELj512EEixEj(%class.SysCArray2D* %191, i32 0)
+  %193 = load i8** getelementptr inbounds (%class.model_RBM* @GM, i32 0, i32 0, i32 0), align 8
+  call void @__CPROVER_array_copy(i8* %192, i8* %193)
+  %194 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 28
+  %195 = call i8* @_ZN11SysCArray2DIhLj2ELj128EEixEj(%class.SysCArray2D* %194, i32 0)
+  %196 = load i8** getelementptr inbounds (%class.model_RBM* @GM, i32 0, i32 10, i32 0), align 8
+  call void @__CPROVER_array_copy(i8* %195, i8* %196)
+  br label %197
+
+; <label>:197                                     ; preds = %98
+  %198 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 5
+  %199 = call zeroext i1 @_ZN14sc_signal_bool4readEv(%class.sc_signal_bool* %198)
+  %200 = xor i1 %199, true
+  br i1 %200, label %97, label %201
+
+; <label>:201                                     ; preds = %197
+  %202 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 4
+  store i8 0, i8* %32, align 1
+  call void @_ZN14sc_signal_bool5writeERKb(%class.sc_signal_bool* %202, i8* %32)
+  %203 = load i16* %loop_count, align 2
+  %204 = zext i16 %203 to i32
+  %205 = load i32* %nu, align 4
+  %206 = mul i32 %204, %205
+  %207 = trunc i32 %206 to i16
+  store i16 %207, i16* %tmp1, align 2
+  %208 = load i16* %tmp1, align 2
+  %209 = zext i16 %208 to i32
+  %210 = load i16* %index, align 2
+  %211 = zext i16 %210 to i32
+  %212 = add nsw i32 %209, %211
+  %213 = trunc i32 %212 to i16
+  store i16 %213, i16* %tmp2, align 2
+  %214 = load i16* %tmp2, align 2
+  %215 = zext i16 %214 to i32
+  %216 = srem i32 %215, 2
+  %217 = icmp ne i32 %216, 0
+  %218 = zext i1 %217 to i8
+  store i8 %218, i8* %pingpong, align 1
+  br label %219
+
+; <label>:219                                     ; preds = %201
+  store i16 0, i16* %i, align 2
+  br label %220
+
+; <label>:220                                     ; preds = %349, %219
+  %221 = load i16* %i, align 2
+  %222 = zext i16 %221 to i32
+  %223 = icmp slt i32 %222, 500
+  br i1 %223, label %224, label %352
+
+; <label>:224                                     ; preds = %220
+  %225 = load i16* %i, align 2
+  %226 = zext i16 %225 to i32
+  %227 = load i32* %nv, align 4
+  %228 = icmp eq i32 %226, %227
+  br i1 %228, label %229, label %231
+
+; <label>:229                                     ; preds = %224
+  br i1 false, label %230, label %231
+
+; <label>:230                                     ; preds = %229
+  br label %352
+
+; <label>:231                                     ; preds = %229, %224
+  %232 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 6
+  %233 = call i32 @_ZN13sc_signal_u324readEv(%class.sc_signal_int32* %232)
+  %234 = trunc i32 %233 to i8
+  store i8 %234, i8* %rate, align 1
+  call void @_Z4waitv()
+  store i8 0, i8* %pingpong, align 1
+  %235 = load i8* %rate, align 1
+  %236 = load i16* %i, align 2
+  %237 = zext i16 %236 to i64
+  %238 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 20
+  %239 = load i8* %pingpong, align 1
+  %240 = trunc i8 %239 to i1
+  %241 = zext i1 %240 to i32
+  %242 = call i8* @_ZN11SysCArray2DIhLj2ELj512EEixEj(%class.SysCArray2D* %238, i32 %241)
+  %243 = getelementptr inbounds i8* %242, i64 %237
+  store i8 %235, i8* %243
+  br label %244
+
+; <label>:244                                     ; preds = %231
+  %245 = load i8* @conf_done_inp, align 1
+  %246 = trunc i8 %245 to i1
+  %247 = zext i1 %246 to i64
+  %248 = load i32* @conf_num_hidden_inp, align 4
+  %249 = zext i32 %248 to i64
+  %250 = load i32* @conf_num_visible_inp, align 4
+  %251 = zext i32 %250 to i64
+  %252 = load i32* @conf_num_users_inp, align 4
+  %253 = zext i32 %252 to i64
+  %254 = load i32* @conf_num_loops_inp, align 4
+  %255 = zext i32 %254 to i64
+  %256 = load i32* @conf_num_testusers_inp, align 4
+  %257 = zext i32 %256 to i64
+  %258 = load i32* @conf_num_movies_inp, align 4
+  %259 = zext i32 %258 to i64
+  %260 = load i8* @rst_inp, align 1
+  %261 = trunc i8 %260 to i1
+  %262 = zext i1 %261 to i64
+  %263 = load i8* @rd_grant_inp, align 1
+  %264 = trunc i8 %263 to i1
+  %265 = zext i1 %264 to i64
+  %266 = load i32* @data_in_inp, align 4
+  %267 = zext i32 %266 to i64
+  %268 = load i8* @wr_grant_inp, align 1
+  %269 = trunc i8 %268 to i1
+  %270 = zext i1 %269 to i64
+  call void @_ZN9model_RBM6updateElllllllllll(%class.model_RBM* @GM, i64 %247, i64 %249, i64 %251, i64 %253, i64 %255, i64 %257, i64 %259, i64 %262, i64 %265, i64 %267, i64 %270)
+  %271 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 36
+  %272 = call zeroext i1 @_ZN14sc_signal_bool4readEv(%class.sc_signal_bool* %271)
+  %273 = zext i1 %272 to i64
+  %274 = load i64* getelementptr inbounds (%class.model_RBM* @GM, i32 0, i32 3), align 8
+  %275 = icmp eq i64 %273, %274
+  call void @__CPROVER_assert(i1 zeroext %275, i8* getelementptr inbounds ([16 x i8]* @.str1, i32 0, i32 0))
+  %276 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 12
+  %277 = call zeroext i1 @_ZN14sc_signal_bool4readEv(%class.sc_signal_bool* %276)
+  %278 = zext i1 %277 to i64
+  %279 = load i64* getelementptr inbounds (%class.model_RBM* @GM, i32 0, i32 2), align 8
+  %280 = icmp eq i64 %278, %279
+  call void @__CPROVER_assert(i1 zeroext %280, i8* getelementptr inbounds ([11 x i8]* @.str2, i32 0, i32 0))
+  %281 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 30
+  %282 = call zeroext i16 @_ZN13sc_signal_u164readEv(%class.sc_signal_u16* %281)
+  %283 = zext i16 %282 to i64
+  %284 = load i64* getelementptr inbounds (%class.model_RBM* @GM, i32 0, i32 4), align 8
+  %285 = icmp eq i64 %283, %284
+  call void @__CPROVER_assert(i1 zeroext %285, i8* getelementptr inbounds ([17 x i8]* @.str3, i32 0, i32 0))
+  %286 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 31
+  %287 = call zeroext i16 @_ZN13sc_signal_u164readEv(%class.sc_signal_u16* %286)
+  %288 = zext i16 %287 to i64
+  %289 = load i64* getelementptr inbounds (%class.model_RBM* @GM, i32 0, i32 9), align 8
+  %290 = icmp eq i64 %288, %289
+  call void @__CPROVER_assert(i1 zeroext %290, i8* getelementptr inbounds ([18 x i8]* @.str4, i32 0, i32 0))
+  %291 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 32
+  %292 = call zeroext i16 @_ZN13sc_signal_u164readEv(%class.sc_signal_u16* %291)
+  %293 = zext i16 %292 to i64
+  %294 = load i64* getelementptr inbounds (%class.model_RBM* @GM, i32 0, i32 8), align 8
+  %295 = icmp eq i64 %293, %294
+  call void @__CPROVER_assert(i1 zeroext %295, i8* getelementptr inbounds ([16 x i8]* @.str5, i32 0, i32 0))
+  %296 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 33
+  %297 = call zeroext i16 @_ZN13sc_signal_u164readEv(%class.sc_signal_u16* %296)
+  %298 = zext i16 %297 to i64
+  %299 = load i64* getelementptr inbounds (%class.model_RBM* @GM, i32 0, i32 5), align 8
+  %300 = icmp eq i64 %298, %299
+  call void @__CPROVER_assert(i1 zeroext %300, i8* getelementptr inbounds ([16 x i8]* @.str6, i32 0, i32 0))
+  %301 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 34
+  %302 = call zeroext i16 @_ZN13sc_signal_u164readEv(%class.sc_signal_u16* %301)
+  %303 = zext i16 %302 to i64
+  %304 = load i64* getelementptr inbounds (%class.model_RBM* @GM, i32 0, i32 7), align 8
+  %305 = icmp eq i64 %303, %304
+  call void @__CPROVER_assert(i1 zeroext %305, i8* getelementptr inbounds ([20 x i8]* @.str7, i32 0, i32 0))
+  %306 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 35
+  %307 = call zeroext i16 @_ZN13sc_signal_u164readEv(%class.sc_signal_u16* %306)
+  %308 = zext i16 %307 to i64
+  %309 = load i64* getelementptr inbounds (%class.model_RBM* @GM, i32 0, i32 6), align 8
+  %310 = icmp eq i64 %308, %309
+  call void @__CPROVER_assert(i1 zeroext %310, i8* getelementptr inbounds ([17 x i8]* @.str8, i32 0, i32 0))
+  %311 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 2
+  %312 = call i32 @_ZN13sc_signal_u324readEv(%class.sc_signal_int32* %311)
+  %313 = zext i32 %312 to i64
+  %314 = load i64* getelementptr inbounds (%class.model_RBM* @GM, i32 0, i32 13), align 8
+  %315 = icmp eq i64 %313, %314
+  call void @__CPROVER_assert(i1 zeroext %315, i8* getelementptr inbounds ([15 x i8]* @.str9, i32 0, i32 0))
+  %316 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 3
+  %317 = call i32 @_ZN13sc_signal_u324readEv(%class.sc_signal_int32* %316)
+  %318 = zext i32 %317 to i64
+  %319 = load i64* getelementptr inbounds (%class.model_RBM* @GM, i32 0, i32 14), align 8
+  %320 = icmp eq i64 %318, %319
+  call void @__CPROVER_assert(i1 zeroext %320, i8* getelementptr inbounds ([16 x i8]* @.str10, i32 0, i32 0))
+  %321 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 9
+  %322 = call zeroext i1 @_ZN14sc_signal_bool4readEv(%class.sc_signal_bool* %321)
+  %323 = zext i1 %322 to i64
+  %324 = load i64* getelementptr inbounds (%class.model_RBM* @GM, i32 0, i32 20), align 8
+  %325 = icmp eq i64 %323, %324
+  call void @__CPROVER_assert(i1 zeroext %325, i8* getelementptr inbounds ([17 x i8]* @.str11, i32 0, i32 0))
+  %326 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 7
+  %327 = call i32 @_ZN13sc_signal_u324readEv(%class.sc_signal_int32* %326)
+  %328 = zext i32 %327 to i64
+  %329 = load i64* getelementptr inbounds (%class.model_RBM* @GM, i32 0, i32 18), align 8
+  %330 = icmp eq i64 %328, %329
+  call void @__CPROVER_assert(i1 zeroext %330, i8* getelementptr inbounds ([15 x i8]* @.str12, i32 0, i32 0))
+  %331 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 8
+  %332 = call i32 @_ZN13sc_signal_u324readEv(%class.sc_signal_int32* %331)
+  %333 = zext i32 %332 to i64
+  %334 = load i64* getelementptr inbounds (%class.model_RBM* @GM, i32 0, i32 19), align 8
+  %335 = icmp eq i64 %333, %334
+  call void @__CPROVER_assert(i1 zeroext %335, i8* getelementptr inbounds ([16 x i8]* @.str13, i32 0, i32 0))
+  %336 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 11
+  %337 = call i32 @_ZN13sc_signal_u324readEv(%class.sc_signal_int32* %336)
+  %338 = zext i32 %337 to i64
+  %339 = load i64* getelementptr inbounds (%class.model_RBM* @GM, i32 0, i32 1), align 8
+  %340 = icmp eq i64 %338, %339
+  call void @__CPROVER_assert(i1 zeroext %340, i8* getelementptr inbounds ([15 x i8]* @.str14, i32 0, i32 0))
+  %341 = load i8** getelementptr inbounds (%class.model_RBM* @GM, i32 0, i32 0, i32 0), align 8
+  %342 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 20
+  %343 = call i8* @_ZN11SysCArray2DIhLj2ELj512EEixEj(%class.SysCArray2D* %342, i32 0)
+  %344 = call zeroext i1 @__CPROVER_array_equal(i8* %341, i8* %343)
+  call void @__CPROVER_assert(i1 zeroext %344, i8* getelementptr inbounds ([11 x i8]* @.str15, i32 0, i32 0))
+  %345 = load i8** getelementptr inbounds (%class.model_RBM* @GM, i32 0, i32 10, i32 0), align 8
+  %346 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 28
+  %347 = call i8* @_ZN11SysCArray2DIhLj2ELj128EEixEj(%class.SysCArray2D* %346, i32 0)
+  %348 = call zeroext i1 @__CPROVER_array_equal(i8* %345, i8* %347)
+  call void @__CPROVER_assert(i1 zeroext %348, i8* getelementptr inbounds ([21 x i8]* @.str16, i32 0, i32 0))
+  call void @__CPROVER_assert(i1 zeroext false, i8* getelementptr inbounds ([4 x i8]* @.str17, i32 0, i32 0))
+  ret void
+                                                  ; No predecessors!
+  %350 = load i16* %i, align 2
+  %351 = add i16 %350, 1
+  store i16 %351, i16* %i, align 2
+  br label %220
+
+; <label>:352                                     ; preds = %230, %220
+  call void @_Z4waitv()
+  %353 = load i32* %nv, align 4
+  %354 = zext i32 %353 to i64
+  %355 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 20
+  %356 = load i8* %pingpong, align 1
+  %357 = trunc i8 %356 to i1
+  %358 = zext i1 %357 to i32
+  %359 = call i8* @_ZN11SysCArray2DIhLj2ELj512EEixEj(%class.SysCArray2D* %355, i32 %358)
+  %360 = getelementptr inbounds i8* %359, i64 %354
+  store i8 1, i8* %360
+  br label %361
+
+; <label>:361                                     ; preds = %352
+  br label %362
+
+; <label>:362                                     ; preds = %361, %512
+  %363 = load i16* %loop_count, align 2
+  %364 = zext i16 %363 to i32
+  %365 = load i32* %nlp, align 4
+  %366 = icmp ne i32 %364, %365
+  br i1 %366, label %367, label %381
+
+; <label>:367                                     ; preds = %362
+  %368 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 37
+  store i8 1, i8* %33, align 1
+  call void @_ZN14sc_signal_bool5writeERKb(%class.sc_signal_bool* %368, i8* %33)
+  br label %369
+
+; <label>:369                                     ; preds = %370, %367
+  call void @_Z4waitv()
+  br label %370
+
+; <label>:370                                     ; preds = %369
+  %371 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 39
+  %372 = call zeroext i1 @_ZN14sc_signal_bool4readEv(%class.sc_signal_bool* %371)
+  %373 = xor i1 %372, true
+  br i1 %373, label %369, label %374
+
+; <label>:374                                     ; preds = %370
+  %375 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 37
+  store i8 0, i8* %34, align 1
+  call void @_ZN14sc_signal_bool5writeERKb(%class.sc_signal_bool* %375, i8* %34)
+  br label %376
+
+; <label>:376                                     ; preds = %377, %374
+  call void @_Z4waitv()
+  br label %377
+
+; <label>:377                                     ; preds = %376
+  %378 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 39
+  %379 = call zeroext i1 @_ZN14sc_signal_bool4readEv(%class.sc_signal_bool* %378)
+  br i1 %379, label %376, label %380
+
+; <label>:380                                     ; preds = %377
+  br label %395
+
+; <label>:381                                     ; preds = %362
+  %382 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 38
+  store i8 1, i8* %35, align 1
+  call void @_ZN14sc_signal_bool5writeERKb(%class.sc_signal_bool* %382, i8* %35)
+  br label %383
+
+; <label>:383                                     ; preds = %384, %381
+  call void @_Z4waitv()
+  br label %384
+
+; <label>:384                                     ; preds = %383
+  %385 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 42
+  %386 = call zeroext i1 @_ZN14sc_signal_bool4readEv(%class.sc_signal_bool* %385)
+  %387 = xor i1 %386, true
+  br i1 %387, label %383, label %388
+
+; <label>:388                                     ; preds = %384
+  %389 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 38
+  store i8 0, i8* %36, align 1
+  call void @_ZN14sc_signal_bool5writeERKb(%class.sc_signal_bool* %389, i8* %36)
+  br label %390
+
+; <label>:390                                     ; preds = %391, %388
+  call void @_Z4waitv()
+  br label %391
+
+; <label>:391                                     ; preds = %390
+  %392 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 42
+  %393 = call zeroext i1 @_ZN14sc_signal_bool4readEv(%class.sc_signal_bool* %392)
+  br i1 %393, label %390, label %394
+
+; <label>:394                                     ; preds = %391
+  br label %395
+
+; <label>:395                                     ; preds = %394, %380
+  %396 = load i16* %index, align 2
+  %397 = zext i16 %396 to i32
+  %398 = add nsw i32 %397, 1
+  %399 = trunc i32 %398 to i16
+  store i16 %399, i16* %index, align 2
+  %400 = load i16* %index, align 2
+  %401 = zext i16 %400 to i32
+  %402 = load i32* %nu, align 4
+  %403 = icmp eq i32 %401, %402
+  br i1 %403, label %404, label %414
+
+; <label>:404                                     ; preds = %395
+  %405 = load i16* %loop_count, align 2
+  %406 = zext i16 %405 to i32
+  %407 = load i32* %nlp, align 4
+  %408 = icmp ne i32 %406, %407
+  br i1 %408, label %409, label %414
+
+; <label>:409                                     ; preds = %404
+  %410 = load i16* %loop_count, align 2
+  %411 = zext i16 %410 to i32
+  %412 = add nsw i32 %411, 1
+  %413 = trunc i32 %412 to i16
+  store i16 %413, i16* %loop_count, align 2
+  store i16 0, i16* %index, align 2
+  br label %414
+
+; <label>:414                                     ; preds = %409, %404, %395
+  %415 = load i16* %index, align 2
+  %416 = zext i16 %415 to i32
+  %417 = load i32* %ntu, align 4
+  %418 = icmp eq i32 %416, %417
+  br i1 %418, label %419, label %429
+
+; <label>:419                                     ; preds = %414
+  %420 = load i16* %loop_count, align 2
+  %421 = zext i16 %420 to i32
+  %422 = load i32* %nlp, align 4
+  %423 = icmp eq i32 %421, %422
+  br i1 %423, label %424, label %429
+
+; <label>:424                                     ; preds = %419
+  br label %425
+
+; <label>:425                                     ; preds = %424
+  br label %426
+
+; <label>:426                                     ; preds = %427, %425
+  call void @_Z4waitv()
+  br label %427
+
+; <label>:427                                     ; preds = %426
+  br i1 true, label %426, label %428
+
+; <label>:428                                     ; preds = %427
+  br label %429
+
+; <label>:429                                     ; preds = %428, %419, %414
+  %430 = load i32* %nv, align 4
+  %431 = load i16* %index, align 2
+  %432 = zext i16 %431 to i32
+  %433 = mul i32 %430, %432
+  store i32 %433, i32* %dma_index, align 4
+  %434 = load i16* %loop_count, align 2
+  %435 = zext i16 %434 to i32
+  %436 = load i32* %nlp, align 4
+  %437 = icmp eq i32 %435, %436
+  br i1 %437, label %438, label %444
+
+; <label>:438                                     ; preds = %429
+  %439 = load i32* %nv, align 4
+  %440 = load i32* %nu, align 4
+  %441 = mul i32 %439, %440
+  %442 = load i32* %dma_index, align 4
+  %443 = add i32 %442, %441
+  store i32 %443, i32* %dma_index, align 4
+  br label %444
+
+; <label>:444                                     ; preds = %438, %429
+  %445 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 2
+  call void @_ZN13sc_signal_u325writeERKj(%class.sc_signal_int32* %445, i32* %dma_index)
+  %446 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 3
+  %447 = load i32* %nm, align 4
+  %448 = mul i32 5, %447
+  store i32 %448, i32* %37, align 4
+  call void @_ZN13sc_signal_u325writeERKj(%class.sc_signal_int32* %446, i32* %37)
+  %449 = load i16* %loop_count, align 2
+  %450 = zext i16 %449 to i32
+  %451 = load i32* %nlp, align 4
+  %452 = icmp eq i32 %450, %451
+  br i1 %452, label %453, label %460
+
+; <label>:453                                     ; preds = %444
+  br label %454
+
+; <label>:454                                     ; preds = %455, %453
+  call void @_Z4waitv()
+  br label %455
+
+; <label>:455                                     ; preds = %454
+  %456 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 40
+  %457 = call zeroext i1 @_ZN14sc_signal_bool4readEv(%class.sc_signal_bool* %456)
+  %458 = xor i1 %457, true
+  br i1 %458, label %454, label %459
+
+; <label>:459                                     ; preds = %455
+  br label %460
+
+; <label>:460                                     ; preds = %459, %444
+  %461 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 4
+  store i8 1, i8* %38, align 1
+  call void @_ZN14sc_signal_bool5writeERKb(%class.sc_signal_bool* %461, i8* %38)
+  br label %462
+
+; <label>:462                                     ; preds = %463, %460
+  call void @_Z4waitv()
+  br label %463
+
+; <label>:463                                     ; preds = %462
+  %464 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 5
+  %465 = call zeroext i1 @_ZN14sc_signal_bool4readEv(%class.sc_signal_bool* %464)
+  %466 = xor i1 %465, true
+  br i1 %466, label %462, label %467
+
+; <label>:467                                     ; preds = %463
+  %468 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 4
+  store i8 0, i8* %39, align 1
+  call void @_ZN14sc_signal_bool5writeERKb(%class.sc_signal_bool* %468, i8* %39)
+  %469 = load i16* %loop_count, align 2
+  %470 = zext i16 %469 to i32
+  %471 = load i32* %nu, align 4
+  %472 = mul i32 %470, %471
+  %473 = trunc i32 %472 to i16
+  store i16 %473, i16* %tmp1, align 2
+  %474 = load i16* %tmp1, align 2
+  %475 = zext i16 %474 to i32
+  %476 = load i16* %index, align 2
+  %477 = zext i16 %476 to i32
+  %478 = add nsw i32 %475, %477
+  %479 = trunc i32 %478 to i16
+  store i16 %479, i16* %tmp2, align 2
+  %480 = load i16* %tmp2, align 2
+  %481 = zext i16 %480 to i32
+  %482 = srem i32 %481, 2
+  %483 = icmp ne i32 %482, 0
+  %484 = zext i1 %483 to i8
+  store i8 %484, i8* %pingpong, align 1
+  br label %485
+
+; <label>:485                                     ; preds = %467
+  store i16 0, i16* %i1, align 2
+  br label %486
+
+; <label>:486                                     ; preds = %509, %485
+  %487 = load i16* %i1, align 2
+  %488 = zext i16 %487 to i32
+  %489 = icmp slt i32 %488, 500
+  br i1 %489, label %490, label %512
+
+; <label>:490                                     ; preds = %486
+  %491 = load i16* %i1, align 2
+  %492 = zext i16 %491 to i32
+  %493 = load i32* %nv, align 4
+  %494 = icmp eq i32 %492, %493
+  br i1 %494, label %495, label %496
+
+; <label>:495                                     ; preds = %490
+  br label %512
+
+; <label>:496                                     ; preds = %490
+  %497 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 6
+  %498 = call i32 @_ZN13sc_signal_u324readEv(%class.sc_signal_int32* %497)
+  %499 = trunc i32 %498 to i8
+  store i8 %499, i8* %rate2, align 1
+  call void @_Z4waitv()
+  %500 = load i8* %rate2, align 1
+  %501 = load i16* %i1, align 2
+  %502 = zext i16 %501 to i64
+  %503 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 20
+  %504 = load i8* %pingpong, align 1
+  %505 = trunc i8 %504 to i1
+  %506 = zext i1 %505 to i32
+  %507 = call i8* @_ZN11SysCArray2DIhLj2ELj512EEixEj(%class.SysCArray2D* %503, i32 %506)
+  %508 = getelementptr inbounds i8* %507, i64 %502
+  store i8 %500, i8* %508
+  br label %509
+
+; <label>:509                                     ; preds = %496
+  %510 = load i16* %i1, align 2
+  %511 = add i16 %510, 1
+  store i16 %511, i16* %i1, align 2
+  br label %486
+
+; <label>:512                                     ; preds = %495, %486
+  call void @_Z4waitv()
+  %513 = load i32* %nv, align 4
+  %514 = zext i32 %513 to i64
+  %515 = getelementptr inbounds %struct.rbm* %40, i32 0, i32 20
+  %516 = load i8* %pingpong, align 1
+  %517 = trunc i8 %516 to i1
+  %518 = zext i1 %517 to i32
+  %519 = call i8* @_ZN11SysCArray2DIhLj2ELj512EEixEj(%class.SysCArray2D* %515, i32 %518)
+  %520 = getelementptr inbounds i8* %519, i64 %514
+  store i8 1, i8* %520
+  br label %362
+}
+
+define linkonce_odr zeroext i1 @_ZN14sc_signal_boolaSERKb(%class.sc_signal_bool* %this, i8* %d) nounwind align 2 {
+  %1 = alloca %class.sc_signal_bool*, align 8
+  %2 = alloca i8*, align 8
+  store %class.sc_signal_bool* %this, %class.sc_signal_bool** %1, align 8
+  store i8* %d, i8** %2, align 8
+  %3 = load %class.sc_signal_bool** %1
+  %4 = load i8** %2
+  %5 = load i8* %4, align 8
+  %6 = trunc i8 %5 to i1
+  %7 = getelementptr inbounds %class.sc_signal_bool* %3, i32 0, i32 0
+  %8 = zext i1 %6 to i8
+  store i8 %8, i8* %7, align 1
+  %9 = getelementptr inbounds %class.sc_signal_bool* %3, i32 0, i32 0
+  %10 = load i8* %9, align 1
+  %11 = trunc i8 %10 to i1
+  ret i1 %11
+}
+
+define linkonce_odr void @_ZN13sc_signal_u325writeERKj(%class.sc_signal_int32* %this, i32* %d) nounwind align 2 {
+  %1 = alloca %class.sc_signal_int32*, align 8
+  %2 = alloca i32*, align 8
+  store %class.sc_signal_int32* %this, %class.sc_signal_int32** %1, align 8
+  store i32* %d, i32** %2, align 8
+  %3 = load %class.sc_signal_int32** %1
+  %4 = load i32** %2
+  %5 = load i32* %4, align 8
+  %6 = getelementptr inbounds %class.sc_signal_int32* %3, i32 0, i32 0
+  store i32 %5, i32* %6, align 4
+  ret void
+}
+
+define linkonce_odr zeroext i16 @_ZN13sc_signal_u164readEv(%class.sc_signal_u16* %this) nounwind align 2 {
+  %1 = alloca %class.sc_signal_u16*, align 8
+  store %class.sc_signal_u16* %this, %class.sc_signal_u16** %1, align 8
+  %2 = load %class.sc_signal_u16** %1
+  %3 = getelementptr inbounds %class.sc_signal_u16* %2, i32 0, i32 0
+  %4 = load i16* %3, align 2
+  ret i16 %4
+}
+
+declare void @__CPROVER_array_copy(i8*, i8*)
+
+define linkonce_odr i8* @_ZN11SysCArray2DIhLj2ELj512EEixEj(%class.SysCArray2D* %this, i32 %Xidx) nounwind align 2 {
+  %1 = alloca i8*, align 8
+  %2 = alloca %class.SysCArray2D*, align 8
+  %3 = alloca i32, align 4
+  store %class.SysCArray2D* %this, %class.SysCArray2D** %2, align 8
+  store i32 %Xidx, i32* %3, align 4
+  %4 = load %class.SysCArray2D** %2
+  %5 = load i32* %3, align 4
+  %6 = icmp eq i32 %5, 0
+  br i1 %6, label %7, label %10
+
+; <label>:7                                       ; preds = %0
+  %8 = getelementptr inbounds %class.SysCArray2D* %4, i32 0, i32 1
+  %9 = load i8** %8, align 8
+  store i8* %9, i8** %1
+  br label %17
+
+; <label>:10                                      ; preds = %0
+  %11 = load i32* %3, align 4
+  %12 = mul i32 %11, 512
+  %13 = zext i32 %12 to i64
+  %14 = getelementptr inbounds %class.SysCArray2D* %4, i32 0, i32 0
+  %15 = load i8** %14, align 8
+  %16 = getelementptr inbounds i8* %15, i64 %13
+  store i8* %16, i8** %1
+  br label %17
+
+; <label>:17                                      ; preds = %10, %7
+  %18 = load i8** %1
+  ret i8* %18
+}
+
+define linkonce_odr i8* @_ZN11SysCArray2DIhLj2ELj128EEixEj(%class.SysCArray2D* %this, i32 %Xidx) nounwind align 2 {
+  %1 = alloca i8*, align 8
+  %2 = alloca %class.SysCArray2D*, align 8
+  %3 = alloca i32, align 4
+  store %class.SysCArray2D* %this, %class.SysCArray2D** %2, align 8
+  store i32 %Xidx, i32* %3, align 4
+  %4 = load %class.SysCArray2D** %2
+  %5 = load i32* %3, align 4
+  %6 = icmp eq i32 %5, 0
+  br i1 %6, label %7, label %10
+
+; <label>:7                                       ; preds = %0
+  %8 = getelementptr inbounds %class.SysCArray2D* %4, i32 0, i32 1
+  %9 = load i8** %8, align 8
+  store i8* %9, i8** %1
+  br label %17
+
+; <label>:10                                      ; preds = %0
+  %11 = load i32* %3, align 4
+  %12 = mul i32 %11, 128
+  %13 = zext i32 %12 to i64
+  %14 = getelementptr inbounds %class.SysCArray2D* %4, i32 0, i32 0
+  %15 = load i8** %14, align 8
+  %16 = getelementptr inbounds i8* %15, i64 %13
+  store i8* %16, i8** %1
+  br label %17
+
+; <label>:17                                      ; preds = %10, %7
+  %18 = load i8** %1
+  ret i8* %18
+}
+
+declare void @__CPROVER_assert(i1 zeroext, i8*)
+
+declare zeroext i1 @__CPROVER_array_equal(i8*, i8*)
+
+define internal void @__cxx_global_var_init18() {
+  call void @_ZN3rbmC1Ev(%struct.rbm* @IMPL)
+  ret void
+}
+
+define linkonce_odr void @_ZN3rbmC1Ev(%struct.rbm* %this) unnamed_addr align 2 {
+  %1 = alloca %struct.rbm*, align 8
+  store %struct.rbm* %this, %struct.rbm** %1, align 8
+  %2 = load %struct.rbm** %1
+  call void @_ZN3rbmC2Ev(%struct.rbm* %2)
+  ret void
+}
+
+define i32 @main() {
+  %1 = alloca i32, align 4
+  store i32 0, i32* %1
+  call void @_ZN3rbm4loadEv(%struct.rbm* @IMPL)
+  ret i32 0
+}
+
+define linkonce_odr void @_ZN8type_memIhLj512EEC2Ev(%class.SysCArray1D* %this) unnamed_addr align 2 {
+  %1 = alloca %class.SysCArray1D*, align 8
+  store %class.SysCArray1D* %this, %class.SysCArray1D** %1, align 8
+  %2 = load %class.SysCArray1D** %1
+  %3 = call i8* @__CPROVER_malloc(i64 512)
+  %4 = getelementptr inbounds %class.SysCArray1D* %2, i32 0, i32 0
+  store i8* %3, i8** %4, align 8
+  ret void
+}
+
+declare i8* @__CPROVER_malloc(i64)
+
+define linkonce_odr void @_ZN8type_memIhLj512EED2Ev(%class.SysCArray1D* %this) unnamed_addr nounwind align 2 {
+  %1 = alloca %class.SysCArray1D*, align 8
+  store %class.SysCArray1D* %this, %class.SysCArray1D** %1, align 8
+  %2 = load %class.SysCArray1D** %1
+  ret void
+}
+
+define linkonce_odr void @_ZN3rbmC2Ev(%struct.rbm* %this) unnamed_addr align 2 {
+  %1 = alloca %struct.rbm*, align 8
+  store %struct.rbm* %this, %struct.rbm** %1, align 8
+  %2 = load %struct.rbm** %1
+  %3 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 0
+  call void @_ZN14sc_signal_boolC1EPKc(%class.sc_signal_bool* %3, i8* getelementptr inbounds ([4 x i8]* @.str19, i32 0, i32 0))
+  %4 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 1
+  call void @_ZN14sc_signal_boolC1EPKc(%class.sc_signal_bool* %4, i8* getelementptr inbounds ([4 x i8]* @.str20, i32 0, i32 0))
+  %5 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 2
+  call void @_ZN13sc_signal_u32C1EPKc(%class.sc_signal_int32* %5, i8* getelementptr inbounds ([9 x i8]* @.str21, i32 0, i32 0))
+  %6 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 3
+  call void @_ZN13sc_signal_u32C1EPKc(%class.sc_signal_int32* %6, i8* getelementptr inbounds ([10 x i8]* @.str22, i32 0, i32 0))
+  %7 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 4
+  call void @_ZN14sc_signal_boolC1EPKc(%class.sc_signal_bool* %7, i8* getelementptr inbounds ([11 x i8]* @.str23, i32 0, i32 0))
+  %8 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 5
+  call void @_ZN14sc_signal_boolC1EPKc(%class.sc_signal_bool* %8, i8* getelementptr inbounds ([9 x i8]* @.str24, i32 0, i32 0))
+  %9 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 6
+  call void @_ZN13sc_signal_u32C1EPKc(%class.sc_signal_int32* %9, i8* getelementptr inbounds ([8 x i8]* @.str25, i32 0, i32 0))
+  %10 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 7
+  call void @_ZN13sc_signal_u32C1EPKc(%class.sc_signal_int32* %10, i8* getelementptr inbounds ([9 x i8]* @.str26, i32 0, i32 0))
+  %11 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 8
+  call void @_ZN13sc_signal_u32C1EPKc(%class.sc_signal_int32* %11, i8* getelementptr inbounds ([10 x i8]* @.str27, i32 0, i32 0))
+  %12 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 9
+  call void @_ZN14sc_signal_boolC1EPKc(%class.sc_signal_bool* %12, i8* getelementptr inbounds ([11 x i8]* @.str28, i32 0, i32 0))
+  %13 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 10
+  call void @_ZN14sc_signal_boolC1EPKc(%class.sc_signal_bool* %13, i8* getelementptr inbounds ([9 x i8]* @.str29, i32 0, i32 0))
+  %14 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 11
+  call void @_ZN13sc_signal_u32C1EPKc(%class.sc_signal_int32* %14, i8* getelementptr inbounds ([9 x i8]* @.str30, i32 0, i32 0))
+  %15 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 12
+  call void @_ZN14sc_signal_boolC1EPKc(%class.sc_signal_bool* %15, i8* getelementptr inbounds ([5 x i8]* @.str31, i32 0, i32 0))
+  %16 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 13
+  call void @_ZN14sc_signal_boolC1EPKc(%class.sc_signal_bool* %16, i8* getelementptr inbounds ([10 x i8]* @.str32, i32 0, i32 0))
+  %17 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 14
+  call void @_ZN13sc_signal_u32C1EPKc(%class.sc_signal_int32* %17, i8* getelementptr inbounds ([16 x i8]* @.str33, i32 0, i32 0))
+  %18 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 15
+  call void @_ZN13sc_signal_u32C1EPKc(%class.sc_signal_int32* %18, i8* getelementptr inbounds ([17 x i8]* @.str34, i32 0, i32 0))
+  %19 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 16
+  call void @_ZN13sc_signal_u32C1EPKc(%class.sc_signal_int32* %19, i8* getelementptr inbounds ([15 x i8]* @.str35, i32 0, i32 0))
+  %20 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 17
+  call void @_ZN13sc_signal_u32C1EPKc(%class.sc_signal_int32* %20, i8* getelementptr inbounds ([15 x i8]* @.str36, i32 0, i32 0))
+  %21 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 18
+  call void @_ZN13sc_signal_u32C1EPKc(%class.sc_signal_int32* %21, i8* getelementptr inbounds ([19 x i8]* @.str37, i32 0, i32 0))
+  %22 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 19
+  call void @_ZN13sc_signal_u32C1EPKc(%class.sc_signal_int32* %22, i8* getelementptr inbounds ([16 x i8]* @.str38, i32 0, i32 0))
+  %23 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 20
+  call void @_ZN11SysCArray2DIhLj2ELj512EEC1Ev(%class.SysCArray2D* %23)
+  %24 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 21
+  call void @_ZN11SysCArray1DIbLj512EEC1Ev(%class.SysCArray1D* %24)
+  %25 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 22
+  call void @_ZN11SysCArray1DIbLj128EEC1Ev(%class.SysCArray1D* %25)
+  %26 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 23
+  call void @_ZN11SysCArray2DIfLj501ELj101EEC1Ev(%0* %26)
+  %27 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 24
+  call void @_ZN11SysCArray2DIbLj501ELj101EEC1Ev(%class.SysCArray2D* %27)
+  %28 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 25
+  call void @_ZN11SysCArray2DIbLj501ELj101EEC1Ev(%class.SysCArray2D* %28)
+  %29 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 26
+  call void @_ZN11SysCArray1DIfLj5EEC1Ev(%1* %29)
+  %30 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 27
+  call void @_ZN11SysCArray1DIbLj512EEC1Ev(%class.SysCArray1D* %30)
+  %31 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 28
+  call void @_ZN11SysCArray2DIhLj2ELj128EEC1Ev(%class.SysCArray2D* %31)
+  %32 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 30
+  call void @_ZN13sc_signal_u16C1Ev(%class.sc_signal_u16* %32)
+  %33 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 31
+  call void @_ZN13sc_signal_u16C1Ev(%class.sc_signal_u16* %33)
+  %34 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 32
+  call void @_ZN13sc_signal_u16C1Ev(%class.sc_signal_u16* %34)
+  %35 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 33
+  call void @_ZN13sc_signal_u16C1Ev(%class.sc_signal_u16* %35)
+  %36 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 34
+  call void @_ZN13sc_signal_u16C1Ev(%class.sc_signal_u16* %36)
+  %37 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 35
+  call void @_ZN13sc_signal_u16C1Ev(%class.sc_signal_u16* %37)
+  %38 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 36
+  call void @_ZN14sc_signal_boolC1Ev(%class.sc_signal_bool* %38)
+  %39 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 37
+  call void @_ZN14sc_signal_boolC1Ev(%class.sc_signal_bool* %39)
+  %40 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 38
+  call void @_ZN14sc_signal_boolC1Ev(%class.sc_signal_bool* %40)
+  %41 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 39
+  call void @_ZN14sc_signal_boolC1Ev(%class.sc_signal_bool* %41)
+  %42 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 40
+  call void @_ZN14sc_signal_boolC1Ev(%class.sc_signal_bool* %42)
+  %43 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 41
+  call void @_ZN15sc_signal_int32C1Ev(%class.sc_signal_int32* %43)
+  %44 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 42
+  call void @_ZN14sc_signal_boolC1Ev(%class.sc_signal_bool* %44)
+  %45 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 43
+  call void @_ZN14sc_signal_boolC1Ev(%class.sc_signal_bool* %45)
+  %46 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 44
+  call void @_ZN14sc_signal_boolC1Ev(%class.sc_signal_bool* %46)
+  %47 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 45
+  call void @_ZN14sc_signal_boolC1Ev(%class.sc_signal_bool* %47)
+  br label %48
+
+; <label>:48                                      ; preds = %0
+  br label %49
+
+; <label>:49                                      ; preds = %48
+  %50 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 1
+  %51 = call i8* @_ZN14sc_signal_boolcvRbEv(%class.sc_signal_bool* %50)
+  %52 = load i8* %51
+  %53 = trunc i8 %52 to i1
+  %54 = zext i1 %53 to i32
+  call void @_Z15reset_signal_isib(i32 %54, i1 zeroext false)
+  br label %55
+
+; <label>:55                                      ; preds = %49
+  br label %56
+
+; <label>:56                                      ; preds = %55
+  %57 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 1
+  %58 = call i8* @_ZN14sc_signal_boolcvRbEv(%class.sc_signal_bool* %57)
+  %59 = load i8* %58
+  %60 = trunc i8 %59 to i1
+  %61 = zext i1 %60 to i32
+  call void @_Z15reset_signal_isib(i32 %61, i1 zeroext false)
+  br label %62
+
+; <label>:62                                      ; preds = %56
+  br label %63
+
+; <label>:63                                      ; preds = %62
+  %64 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 1
+  %65 = call i8* @_ZN14sc_signal_boolcvRbEv(%class.sc_signal_bool* %64)
+  %66 = load i8* %65
+  %67 = trunc i8 %66 to i1
+  %68 = zext i1 %67 to i32
+  call void @_Z15reset_signal_isib(i32 %68, i1 zeroext false)
+  call void @_Z14set_stack_sizei(i32 5242880)
+  br label %69
+
+; <label>:69                                      ; preds = %63
+  br label %70
+
+; <label>:70                                      ; preds = %69
+  %71 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 1
+  %72 = call i8* @_ZN14sc_signal_boolcvRbEv(%class.sc_signal_bool* %71)
+  %73 = load i8* %72
+  %74 = trunc i8 %73 to i1
+  %75 = zext i1 %74 to i32
+  call void @_Z15reset_signal_isib(i32 %75, i1 zeroext false)
+  call void @_Z14set_stack_sizei(i32 5242880)
+  br label %76
+
+; <label>:76                                      ; preds = %70
+  br label %77
+
+; <label>:77                                      ; preds = %76
+  %78 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 1
+  %79 = call i8* @_ZN14sc_signal_boolcvRbEv(%class.sc_signal_bool* %78)
+  %80 = load i8* %79
+  %81 = trunc i8 %80 to i1
+  %82 = zext i1 %81 to i32
+  call void @_Z15reset_signal_isib(i32 %82, i1 zeroext false)
+  ret void
+}
+
+define linkonce_odr void @_ZN14sc_signal_boolC1EPKc(%class.sc_signal_bool* %this, i8* %p) unnamed_addr align 2 {
+  %1 = alloca %class.sc_signal_bool*, align 8
+  %2 = alloca i8*, align 8
+  store %class.sc_signal_bool* %this, %class.sc_signal_bool** %1, align 8
+  store i8* %p, i8** %2, align 8
+  %3 = load %class.sc_signal_bool** %1
+  %4 = load i8** %2, align 8
+  call void @_ZN14sc_signal_boolC2EPKc(%class.sc_signal_bool* %3, i8* %4)
+  ret void
+}
+
+define linkonce_odr void @_ZN13sc_signal_u32C1EPKc(%class.sc_signal_int32* %this, i8* %p) unnamed_addr align 2 {
+  %1 = alloca %class.sc_signal_int32*, align 8
+  %2 = alloca i8*, align 8
+  store %class.sc_signal_int32* %this, %class.sc_signal_int32** %1, align 8
+  store i8* %p, i8** %2, align 8
+  %3 = load %class.sc_signal_int32** %1
+  %4 = load i8** %2, align 8
+  call void @_ZN13sc_signal_u32C2EPKc(%class.sc_signal_int32* %3, i8* %4)
+  ret void
+}
+
+define linkonce_odr void @_ZN11SysCArray2DIhLj2ELj512EEC1Ev(%class.SysCArray2D* %this) unnamed_addr align 2 {
+  %1 = alloca %class.SysCArray2D*, align 8
+  store %class.SysCArray2D* %this, %class.SysCArray2D** %1, align 8
+  %2 = load %class.SysCArray2D** %1
+  call void @_ZN11SysCArray2DIhLj2ELj512EEC2Ev(%class.SysCArray2D* %2)
+  ret void
+}
+
+define linkonce_odr void @_ZN11SysCArray1DIbLj512EEC1Ev(%class.SysCArray1D* %this) unnamed_addr align 2 {
+  %1 = alloca %class.SysCArray1D*, align 8
+  store %class.SysCArray1D* %this, %class.SysCArray1D** %1, align 8
+  %2 = load %class.SysCArray1D** %1
+  call void @_ZN11SysCArray1DIbLj512EEC2Ev(%class.SysCArray1D* %2)
+  ret void
+}
+
+define linkonce_odr void @_ZN11SysCArray1DIbLj128EEC1Ev(%class.SysCArray1D* %this) unnamed_addr align 2 {
+  %1 = alloca %class.SysCArray1D*, align 8
+  store %class.SysCArray1D* %this, %class.SysCArray1D** %1, align 8
+  %2 = load %class.SysCArray1D** %1
+  call void @_ZN11SysCArray1DIbLj128EEC2Ev(%class.SysCArray1D* %2)
+  ret void
+}
+
+define linkonce_odr void @_ZN11SysCArray2DIfLj501ELj101EEC1Ev(%0* %this) unnamed_addr align 2 {
+  %1 = alloca %0*, align 8
+  store %0* %this, %0** %1, align 8
+  %2 = load %0** %1
+  call void @_ZN11SysCArray2DIfLj501ELj101EEC2Ev(%0* %2)
+  ret void
+}
+
+define linkonce_odr void @_ZN11SysCArray2DIbLj501ELj101EEC1Ev(%class.SysCArray2D* %this) unnamed_addr align 2 {
+  %1 = alloca %class.SysCArray2D*, align 8
+  store %class.SysCArray2D* %this, %class.SysCArray2D** %1, align 8
+  %2 = load %class.SysCArray2D** %1
+  call void @_ZN11SysCArray2DIbLj501ELj101EEC2Ev(%class.SysCArray2D* %2)
+  ret void
+}
+
+define linkonce_odr void @_ZN11SysCArray1DIfLj5EEC1Ev(%1* %this) unnamed_addr align 2 {
+  %1 = alloca %1*, align 8
+  store %1* %this, %1** %1, align 8
+  %2 = load %1** %1
+  call void @_ZN11SysCArray1DIfLj5EEC2Ev(%1* %2)
+  ret void
+}
+
+define linkonce_odr void @_ZN11SysCArray2DIhLj2ELj128EEC1Ev(%class.SysCArray2D* %this) unnamed_addr align 2 {
+  %1 = alloca %class.SysCArray2D*, align 8
+  store %class.SysCArray2D* %this, %class.SysCArray2D** %1, align 8
+  %2 = load %class.SysCArray2D** %1
+  call void @_ZN11SysCArray2DIhLj2ELj128EEC2Ev(%class.SysCArray2D* %2)
+  ret void
+}
+
+define linkonce_odr void @_ZN13sc_signal_u16C1Ev(%class.sc_signal_u16* %this) unnamed_addr align 2 {
+  %1 = alloca %class.sc_signal_u16*, align 8
+  store %class.sc_signal_u16* %this, %class.sc_signal_u16** %1, align 8
+  %2 = load %class.sc_signal_u16** %1
+  call void @_ZN13sc_signal_u16C2Ev(%class.sc_signal_u16* %2)
+  ret void
+}
+
+define linkonce_odr void @_ZN14sc_signal_boolC1Ev(%class.sc_signal_bool* %this) unnamed_addr align 2 {
+  %1 = alloca %class.sc_signal_bool*, align 8
+  store %class.sc_signal_bool* %this, %class.sc_signal_bool** %1, align 8
+  %2 = load %class.sc_signal_bool** %1
+  call void @_ZN14sc_signal_boolC2Ev(%class.sc_signal_bool* %2)
+  ret void
+}
+
+define linkonce_odr void @_ZN15sc_signal_int32C1Ev(%class.sc_signal_int32* %this) unnamed_addr align 2 {
+  %1 = alloca %class.sc_signal_int32*, align 8
+  store %class.sc_signal_int32* %this, %class.sc_signal_int32** %1, align 8
+  %2 = load %class.sc_signal_int32** %1
+  call void @_ZN15sc_signal_int32C2Ev(%class.sc_signal_int32* %2)
+  ret void
+}
+
+define linkonce_odr i8* @_ZN14sc_signal_boolcvRbEv(%class.sc_signal_bool* %this) nounwind align 2 {
+  %1 = alloca %class.sc_signal_bool*, align 8
+  store %class.sc_signal_bool* %this, %class.sc_signal_bool** %1, align 8
+  %2 = load %class.sc_signal_bool** %1
+  %3 = getelementptr inbounds %class.sc_signal_bool* %2, i32 0, i32 0
+  ret i8* %3
+}
+
+define linkonce_odr void @_ZN15sc_signal_int32C2Ev(%class.sc_signal_int32* %this) unnamed_addr nounwind align 2 {
+  %1 = alloca %class.sc_signal_int32*, align 8
+  store %class.sc_signal_int32* %this, %class.sc_signal_int32** %1, align 8
+  %2 = load %class.sc_signal_int32** %1
+  ret void
+}
+
+define linkonce_odr void @_ZN14sc_signal_boolC2Ev(%class.sc_signal_bool* %this) unnamed_addr nounwind align 2 {
+  %1 = alloca %class.sc_signal_bool*, align 8
+  store %class.sc_signal_bool* %this, %class.sc_signal_bool** %1, align 8
+  %2 = load %class.sc_signal_bool** %1
+  ret void
+}
+
+define linkonce_odr void @_ZN13sc_signal_u16C2Ev(%class.sc_signal_u16* %this) unnamed_addr nounwind align 2 {
+  %1 = alloca %class.sc_signal_u16*, align 8
+  store %class.sc_signal_u16* %this, %class.sc_signal_u16** %1, align 8
+  %2 = load %class.sc_signal_u16** %1
+  ret void
+}
+
+define linkonce_odr void @_ZN11SysCArray2DIhLj2ELj128EEC2Ev(%class.SysCArray2D* %this) unnamed_addr align 2 {
+  %1 = alloca %class.SysCArray2D*, align 8
+  store %class.SysCArray2D* %this, %class.SysCArray2D** %1, align 8
+  %2 = load %class.SysCArray2D** %1
+  %3 = call i8* @__CPROVER_malloc(i64 256)
+  %4 = getelementptr inbounds %class.SysCArray2D* %2, i32 0, i32 0
+  store i8* %3, i8** %4, align 8
+  %5 = call i8* @__CPROVER_malloc(i64 128)
+  %6 = getelementptr inbounds %class.SysCArray2D* %2, i32 0, i32 1
+  store i8* %5, i8** %6, align 8
+  ret void
+}
+
+define linkonce_odr void @_ZN11SysCArray1DIfLj5EEC2Ev(%1* %this) unnamed_addr align 2 {
+  %1 = alloca %1*, align 8
+  store %1* %this, %1** %1, align 8
+  %2 = load %1** %1
+  %3 = call i8* @__CPROVER_malloc(i64 20)
+  %4 = bitcast i8* %3 to float*
+  %5 = getelementptr inbounds %1* %2, i32 0, i32 0
+  store float* %4, float** %5, align 8
+  ret void
+}
+
+define linkonce_odr void @_ZN11SysCArray2DIbLj501ELj101EEC2Ev(%class.SysCArray2D* %this) unnamed_addr align 2 {
+  %1 = alloca %class.SysCArray2D*, align 8
+  store %class.SysCArray2D* %this, %class.SysCArray2D** %1, align 8
+  %2 = load %class.SysCArray2D** %1
+  %3 = call i8* @__CPROVER_malloc(i64 50601)
+  %4 = getelementptr inbounds %class.SysCArray2D* %2, i32 0, i32 0
+  store i8* %3, i8** %4, align 8
+  %5 = call i8* @__CPROVER_malloc(i64 101)
+  %6 = getelementptr inbounds %class.SysCArray2D* %2, i32 0, i32 1
+  store i8* %5, i8** %6, align 8
+  ret void
+}
+
+define linkonce_odr void @_ZN11SysCArray2DIfLj501ELj101EEC2Ev(%0* %this) unnamed_addr align 2 {
+  %1 = alloca %0*, align 8
+  store %0* %this, %0** %1, align 8
+  %2 = load %0** %1
+  %3 = call i8* @__CPROVER_malloc(i64 202404)
+  %4 = bitcast i8* %3 to float*
+  %5 = getelementptr inbounds %0* %2, i32 0, i32 0
+  store float* %4, float** %5, align 8
+  %6 = call i8* @__CPROVER_malloc(i64 404)
+  %7 = bitcast i8* %6 to float*
+  %8 = getelementptr inbounds %0* %2, i32 0, i32 1
+  store float* %7, float** %8, align 8
+  ret void
+}
+
+define linkonce_odr void @_ZN11SysCArray1DIbLj128EEC2Ev(%class.SysCArray1D* %this) unnamed_addr align 2 {
+  %1 = alloca %class.SysCArray1D*, align 8
+  store %class.SysCArray1D* %this, %class.SysCArray1D** %1, align 8
+  %2 = load %class.SysCArray1D** %1
+  %3 = call i8* @__CPROVER_malloc(i64 128)
+  %4 = getelementptr inbounds %class.SysCArray1D* %2, i32 0, i32 0
+  store i8* %3, i8** %4, align 8
+  ret void
+}
+
+define linkonce_odr void @_ZN11SysCArray1DIbLj512EEC2Ev(%class.SysCArray1D* %this) unnamed_addr align 2 {
+  %1 = alloca %class.SysCArray1D*, align 8
+  store %class.SysCArray1D* %this, %class.SysCArray1D** %1, align 8
+  %2 = load %class.SysCArray1D** %1
+  %3 = call i8* @__CPROVER_malloc(i64 512)
+  %4 = getelementptr inbounds %class.SysCArray1D* %2, i32 0, i32 0
+  store i8* %3, i8** %4, align 8
+  ret void
+}
+
+define linkonce_odr void @_ZN11SysCArray2DIhLj2ELj512EEC2Ev(%class.SysCArray2D* %this) unnamed_addr align 2 {
+  %1 = alloca %class.SysCArray2D*, align 8
+  store %class.SysCArray2D* %this, %class.SysCArray2D** %1, align 8
+  %2 = load %class.SysCArray2D** %1
+  %3 = call i8* @__CPROVER_malloc(i64 1024)
+  %4 = getelementptr inbounds %class.SysCArray2D* %2, i32 0, i32 0
+  store i8* %3, i8** %4, align 8
+  %5 = call i8* @__CPROVER_malloc(i64 512)
+  %6 = getelementptr inbounds %class.SysCArray2D* %2, i32 0, i32 1
+  store i8* %5, i8** %6, align 8
+  ret void
+}
+
+define linkonce_odr void @_ZN13sc_signal_u32C2EPKc(%class.sc_signal_int32* %this, i8* %p) unnamed_addr nounwind align 2 {
+  %1 = alloca %class.sc_signal_int32*, align 8
+  %2 = alloca i8*, align 8
+  store %class.sc_signal_int32* %this, %class.sc_signal_int32** %1, align 8
+  store i8* %p, i8** %2, align 8
+  %3 = load %class.sc_signal_int32** %1
+  ret void
+}
+
+define linkonce_odr void @_ZN14sc_signal_boolC2EPKc(%class.sc_signal_bool* %this, i8* %p) unnamed_addr nounwind align 2 {
+  %1 = alloca %class.sc_signal_bool*, align 8
+  %2 = alloca i8*, align 8
+  store %class.sc_signal_bool* %this, %class.sc_signal_bool** %1, align 8
+  store i8* %p, i8** %2, align 8
+  %3 = load %class.sc_signal_bool** %1
+  ret void
+}
+
+define linkonce_odr void @_ZN9model_RBMD2Ev(%class.model_RBM* %this) unnamed_addr align 2 {
+  %1 = alloca %class.model_RBM*, align 8
+  %2 = alloca i8*
+  %3 = alloca i32
+  store %class.model_RBM* %this, %class.model_RBM** %1, align 8
+  %4 = load %class.model_RBM** %1
+  %5 = getelementptr inbounds %class.model_RBM* %4, i32 0, i32 10
+  invoke void @_ZN8type_memIhLj128EED1Ev(%class.SysCArray1D* %5)
+          to label %6 unwind label %8
+
+; <label>:6                                       ; preds = %0
+  %7 = getelementptr inbounds %class.model_RBM* %4, i32 0, i32 0
+  call void @_ZN8type_memIhLj512EED1Ev(%class.SysCArray1D* %7)
+  ret void
+
+; <label>:8                                       ; preds = %0
+  %9 = call i8* @llvm.eh.exception() nounwind
+  store i8* %9, i8** %2
+  %10 = call i32 (i8*, i8*, ...)* @llvm.eh.selector(i8* %9, i8* bitcast (i32 (...)* @__gxx_personality_v0 to i8*), i8* null) nounwind
+  store i32 0, i32* %3
+  %11 = getelementptr inbounds %class.model_RBM* %4, i32 0, i32 0
+  invoke void @_ZN8type_memIhLj512EED1Ev(%class.SysCArray1D* %11)
+          to label %12 unwind label %15
+
+; <label>:12                                      ; preds = %8
+  br label %13
+
+; <label>:13                                      ; preds = %12
+  %14 = load i8** %2
+  call void @_Unwind_Resume_or_Rethrow(i8* %14) noreturn
+  unreachable
+
+; <label>:15                                      ; preds = %8
+  %16 = call i8* @llvm.eh.exception() nounwind
+  %17 = call i32 (i8*, i8*, ...)* @llvm.eh.selector(i8* %16, i8* bitcast (i32 (...)* @__gxx_personality_v0 to i8*), i8* null) nounwind
+  call void @_ZSt9terminatev() noreturn nounwind
+  unreachable
+}
+
+define linkonce_odr void @_ZN8type_memIhLj128EED1Ev(%class.SysCArray1D* %this) unnamed_addr align 2 {
+  %1 = alloca %class.SysCArray1D*, align 8
+  store %class.SysCArray1D* %this, %class.SysCArray1D** %1, align 8
+  %2 = load %class.SysCArray1D** %1
+  call void @_ZN8type_memIhLj128EED2Ev(%class.SysCArray1D* %2)
+  ret void
+}
+
+define linkonce_odr void @_ZN8type_memIhLj128EED2Ev(%class.SysCArray1D* %this) unnamed_addr nounwind align 2 {
+  %1 = alloca %class.SysCArray1D*, align 8
+  store %class.SysCArray1D* %this, %class.SysCArray1D** %1, align 8
+  %2 = load %class.SysCArray1D** %1
+  ret void
+}
+
+define linkonce_odr void @_ZN9model_RBMC2Ev(%class.model_RBM* %this) unnamed_addr align 2 {
+  %1 = alloca %class.model_RBM*, align 8
+  %2 = alloca i8*
+  %3 = alloca i32
+  store %class.model_RBM* %this, %class.model_RBM** %1, align 8
+  %4 = load %class.model_RBM** %1
+  %5 = getelementptr inbounds %class.model_RBM* %4, i32 0, i32 0
+  call void @_ZN8type_memIhLj512EEC1El(%class.SysCArray1D* %5, i64 0)
+  %6 = getelementptr inbounds %class.model_RBM* %4, i32 0, i32 10
+  invoke void @_ZN8type_memIhLj128EEC1El(%class.SysCArray1D* %6, i64 0)
+          to label %7 unwind label %10
+
+; <label>:7                                       ; preds = %0
+  %8 = getelementptr inbounds %class.model_RBM* %4, i32 0, i32 21
+  store i64 65535, i64* %8, align 8
+  %9 = getelementptr inbounds %class.model_RBM* %4, i32 0, i32 22
+  store i64 255, i64* %9, align 8
+  ret void
+
+; <label>:10                                      ; preds = %0
+  %11 = call i8* @llvm.eh.exception() nounwind
+  store i8* %11, i8** %2
+  %12 = call i32 (i8*, i8*, ...)* @llvm.eh.selector(i8* %11, i8* bitcast (i32 (...)* @__gxx_personality_v0 to i8*), i8* null) nounwind
+  store i32 0, i32* %3
+  %13 = getelementptr inbounds %class.model_RBM* %4, i32 0, i32 0
+  invoke void @_ZN8type_memIhLj512EED1Ev(%class.SysCArray1D* %13)
+          to label %14 unwind label %17
+
+; <label>:14                                      ; preds = %10
+  br label %15
+
+; <label>:15                                      ; preds = %14
+  %16 = load i8** %2
+  call void @_Unwind_Resume_or_Rethrow(i8* %16) noreturn
+  unreachable
+
+; <label>:17                                      ; preds = %10
+  %18 = call i8* @llvm.eh.exception() nounwind
+  %19 = call i32 (i8*, i8*, ...)* @llvm.eh.selector(i8* %18, i8* bitcast (i32 (...)* @__gxx_personality_v0 to i8*), i8* null) nounwind
+  call void @_ZSt9terminatev() noreturn nounwind
+  unreachable
+}
+
+define linkonce_odr void @_ZN8type_memIhLj512EEC1El(%class.SysCArray1D* %this, i64 %def) unnamed_addr align 2 {
+  %1 = alloca %class.SysCArray1D*, align 8
+  %2 = alloca i64, align 8
+  store %class.SysCArray1D* %this, %class.SysCArray1D** %1, align 8
+  store i64 %def, i64* %2, align 8
+  %3 = load %class.SysCArray1D** %1
+  %4 = load i64* %2, align 8
+  call void @_ZN8type_memIhLj512EEC2El(%class.SysCArray1D* %3, i64 %4)
+  ret void
+}
+
+define linkonce_odr void @_ZN8type_memIhLj128EEC1El(%class.SysCArray1D* %this, i64 %def) unnamed_addr align 2 {
+  %1 = alloca %class.SysCArray1D*, align 8
+  %2 = alloca i64, align 8
+  store %class.SysCArray1D* %this, %class.SysCArray1D** %1, align 8
+  store i64 %def, i64* %2, align 8
+  %3 = load %class.SysCArray1D** %1
+  %4 = load i64* %2, align 8
+  call void @_ZN8type_memIhLj128EEC2El(%class.SysCArray1D* %3, i64 %4)
+  ret void
+}
+
+define linkonce_odr void @_ZN8type_memIhLj128EEC2El(%class.SysCArray1D* %this, i64 %def) unnamed_addr align 2 {
+  %1 = alloca %class.SysCArray1D*, align 8
+  %2 = alloca i64, align 8
+  store %class.SysCArray1D* %this, %class.SysCArray1D** %1, align 8
+  store i64 %def, i64* %2, align 8
+  %3 = load %class.SysCArray1D** %1
+  %4 = call i8* @__CPROVER_malloc(i64 128)
+  %5 = getelementptr inbounds %class.SysCArray1D* %3, i32 0, i32 0
+  store i8* %4, i8** %5, align 8
+  ret void
+}
+
+define linkonce_odr void @_ZN8type_memIhLj512EEC2El(%class.SysCArray1D* %this, i64 %def) unnamed_addr align 2 {
+  %1 = alloca %class.SysCArray1D*, align 8
+  %2 = alloca i64, align 8
+  store %class.SysCArray1D* %this, %class.SysCArray1D** %1, align 8
+  store i64 %def, i64* %2, align 8
+  %3 = load %class.SysCArray1D** %1
+  %4 = call i8* @__CPROVER_malloc(i64 512)
+  %5 = getelementptr inbounds %class.SysCArray1D* %3, i32 0, i32 0
+  store i8* %4, i8** %5, align 8
+  ret void
+}
+
+define internal void @_GLOBAL__I_a() {
+  call void @__cxx_global_var_init()
+  call void @__cxx_global_var_init18()
+  ret void
+}

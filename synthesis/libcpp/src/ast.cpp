@@ -270,6 +270,11 @@ namespace ila
         return _extractOp(this, hi, lo);
     }
 
+    void NodeRef::setRefName(const std::string & refName)
+    {
+        this->node->setRefName( refName );
+    }
+    
     NodeRef* NodeRef::getItem(NodeRef* idx) const
     {
         if (node->type.isBitvector()) {

@@ -2,6 +2,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 #include <bitset>
+#include <cmath>
 
 namespace ila
 {
@@ -49,6 +50,7 @@ namespace ila
     CppVar::CppVar(const CppVar* var)
         : _type(var->_type)
         , _width(var->_width)
+        , _idxwidth(var->_idxwidth)
     {
         _name = "cppVar_" + boost::lexical_cast<std::string>(varCnt++);
         _isConst = var->_isConst;
@@ -60,18 +62,36 @@ namespace ila
     }
 
     // ---------------------------------------------------------------------- //
+
     std::string CppVar::def() const
     {
         if (_name != "") {
-            return (_type + " " + _name);
+            return (vType() + " " + _name);
         } else {
             return (_type);
         }
     }
+    
+    std::string CppVar::vType() const
+    {
+        if (_type != memStr)
+            return _type;
+        else
+            return _type + "<" + "BV" + boost::lexical_cast<std::string>(_width)  +"," 
+                    + boost::lexical_cast<std::string>((long)(std::pow(2, _idxwidth)))
+                    +">";
+    }
 
     std::string CppVar::refDef() const
     {
-        return (_type + "& " + _name);
+        return (vType() + "& " + _name);
+    }
+
+    std::string CppVar::ctorDef() const
+    {
+        if (_type != memStr)
+            return "";
+        return _name+"(0)";
     }
 
     std::string CppVar::use() const
@@ -134,6 +154,7 @@ namespace ila
         } else if (n->type.isMem()) {
             _type = memStr;
             _width = n->type.dataWidth;
+            _idxwidth = n->type.addrWidth;
         } else if (n->type.isFunc()) {
             // Not neccessary.
             _name = n->getName();
@@ -192,7 +213,7 @@ namespace ila
             ind = ind + "\t";
         }
 
-        std::string type = (_ret != NULL) ? _ret->_type : CppVar::voidStr;
+        std::string type = (_ret != NULL) ? _ret->vType() : CppVar::voidStr;
         std::string name = (modelName == "") ? 
                            _name : (modelName + "::" + _name);
         std::string tail = (modelName == "") ? ");\n" : (")\n" + ind + "{\n");
@@ -382,7 +403,10 @@ namespace ila
 
         // Add var decl (no global states)
         for (auto it = _curVarMap->begin(); it != _curVarMap->end(); it++) {
-          if (_states.find(it->first) == _states.end()) {
+          if (_states.find(it->first) == _states.end() &&
+              _inputs.find(it->first) == _inputs.end() &&
+              _unitpFuncVarMap.find(it->first) == _unitpFuncVarMap.end()
+             ) {
               std::string code = it->second->def() + ";";
               _curFun->_varList.push_back(code);
           }
@@ -1065,7 +1089,7 @@ namespace ila
         out << "\tstd::map<" << bvStr << ", " << bvStr << "> _map;\n";
         out << "\t" << bvStr << " _def_val;\n";
         out << "public:\n";
-        out << "\ttype_mem(" << bvStr << " def = 0)\n";
+        out << "\ttype_mem(" << bvStr << " def"<< ", unsigned addrw, unsigned dataw)\n";
         out << "\t\t: _def_val(def)\n";
         out << "\t{\n";
         out << "\t}\n";
@@ -1135,7 +1159,20 @@ namespace ila
         
         // Constructor/destructor
         out << "public:\n"
-            << "\t" << _modelName << "() {\n";
+            << "\t" << _modelName << "():\n";
+
+        bool firstLineFlag = true;
+        for (auto it = _states.begin(); it != _states.end(); it ++ ) {
+            if(it->second->ctorDef() == "" ) // if no ctor needed
+                continue;
+            if(firstLineFlag) 
+                firstLineFlag = false;
+            else
+                out <<",\n" ;
+            out << "\t" << it->second->ctorDef();
+            
+        }
+        out << "\n" "\t{\n";
         for (auto it = _masks.begin(); it != _masks.end(); it++) {
             out << "\t\t" << it->second->use() << " = " 
                 << it->second->_val << ";\n";

@@ -876,6 +876,7 @@ namespace ila
             return true;
         }
         S.add(!assertion);
+        
         auto assertCheck = S.check();
         if ( assertCheck == unsat ) 
             return true;
@@ -1082,7 +1083,7 @@ namespace ila
         std::ofstream out(fileName.c_str());
         ILA_ASSERT(out.is_open(), "File " + fileName + " not open.");
 
-        VerilogExport expt(name,"clk","rst");
+        VerilogExport expt(name,"clk","rst", vlgExpConfig);
         for (auto const & inp : inps) 
             expt.exportInp(inp.first,inp.second);
         
@@ -1114,7 +1115,7 @@ namespace ila
         std::ofstream out(fileName.c_str());
         ILA_ASSERT(out.is_open(), "File " + fileName + " not open.");
 
-        VerilogExport expt(topModName,"clk","rst");
+        VerilogExport expt(topModName,"clk","rst", vlgExpConfig);
         for (auto const & inp : inps) 
             expt.exportInp(inp.first,inp.second);
         
@@ -1500,6 +1501,18 @@ namespace ila
         importAllFromStream(in);
     }
 
+    void Abstraction::generateCbmcCtoFile(const std::string & fileName) const
+    {
+        CVerifGen* gen = generateCBMCC(false);
+        gen->exportAllToFile(fileName);
+    }
+    
+    void Abstraction::generateCbmcCtoDir(const std::string & dirName) const
+    {
+        CVerifGen* gen = generateCBMCC(true);
+        gen->exportAllToDir(dirName);
+    }
+    
     void Abstraction::generateSimToFile(const std::string& fileName) const
     {
         CppSimGen* gen = generateSim(false);
@@ -1688,6 +1701,127 @@ namespace ila
     }
 
     // ---------------------------------------------------------------------- //
+    
+    CVerifGen*  Abstraction::generateCBMCC(bool hier) const
+    {
+          
+        CVerifGen* gen = new CVerifGen(name);
+
+        // add var to it
+        // Set inputs.
+        for (auto it = inps.begin(); it != inps.end(); it++) {
+            gen->addInput(it->first, it->second.var, parent != NULL);
+        }
+        // Set regs.
+        for (auto it = regs.begin(); it != regs.end(); it++) {
+            gen->addState(it->first, it->second.var, parent != NULL);
+        }
+        // Set bits.
+        for (auto it = bits.begin(); it != bits.end(); it++) {
+            gen->addState(it->first, it->second.var, parent != NULL);
+        }
+        // Set mems.
+        for (auto it = mems.begin(); it != mems.end(); it++) {
+            gen->addState(it->first, it->second.var, parent != NULL);
+        }
+        // Set funs.
+        for (auto it = funs.begin(); it != funs.end(); it++) {
+            gen->addFuncVar(it->first, it->second.var, parent != NULL);
+        }
+        
+        // Create update function.
+        CFun* updateFun = gen->addFun("update");
+
+       
+       std::set<std::string> used;
+       std::pair<std::set<std::string>::iterator, bool> check;
+       // First add current level variables.
+       // Calculate the next value.
+       for (auto it = regs.begin(); it != regs.end(); it++) {
+           check = used.insert(it->first);
+           if (check.second == false) continue;
+           nptr_t nc = it->second.next;
+           if (nc == NULL) continue;
+           if (hier) {
+               // Create new function for the state update.
+               CFun* singleUpdateFunc = gen->addFun("cUpdateFun_" + it->first);
+               gen->buildFun(singleUpdateFunc, nc);
+               gen->setFunReturn(singleUpdateFunc, nc);
+               gen->endFun(singleUpdateFunc);
+
+               ILA_ASSERT(singleUpdateFunc->retSet(), "return not set succeefully");
+               
+               // Calculate next value in top function, and update at the end
+               CVar* nxtVal = gen->appFun(singleUpdateFunc, updateFun);
+               gen->addFunUpdate(updateFun, it->second.var, nxtVal);
+           } else {
+               gen->buildFun(updateFun, nc);
+               gen->addFunUpdate(updateFun, it->second.var, nc);
+           }
+       }
+       for (auto it = bits.begin(); it != bits.end(); it++) {
+           check = used.insert(it->first);
+           if (check.second == false) continue;
+           nptr_t nc = it->second.next;
+           if (nc == NULL) continue;
+           if (hier) {
+               // Create new function for the state update.
+               CFun* singleUpdateFunc = gen->addFun("cUpdateFun_" + it->first);
+               gen->buildFun(singleUpdateFunc, nc);
+               gen->setFunReturn(singleUpdateFunc, nc);
+               gen->endFun(singleUpdateFunc);
+               
+               ILA_ASSERT(singleUpdateFunc->retSet(), "return not set succeefully");
+               
+               // Calculate next value in top function, and update at the end
+               CVar* nxtVal = gen->appFun(singleUpdateFunc, updateFun);
+               gen->addFunUpdate(updateFun, it->second.var, nxtVal);
+           } else {
+               gen->buildFun(updateFun, nc);
+               gen->addFunUpdate(updateFun, it->second.var, nc);
+           }
+       }
+       for (auto it = mems.begin(); it != mems.end(); it++) {
+           check = used.insert(it->first);
+           if (check.second == false) continue;
+           nptr_t nc = it->second.next;
+           if (nc == NULL) continue;
+           if (hier) {
+               // Create new function for the state update.
+               CFun* singleUpdateFunc = gen->addFun("cUpdateFun_" + it->first);
+               gen->buildFun(singleUpdateFunc, nc);
+               gen->setFunReturn(singleUpdateFunc, nc);
+               gen->endFun(singleUpdateFunc);
+               
+               ILA_ASSERT(singleUpdateFunc->retSet(), "return not set successfully");
+               
+               // Calculate next value in top function, and update at the end
+               CVar* nxtVal = gen->appFun(singleUpdateFunc, updateFun);
+               gen->addFunUpdate(updateFun, it->second.var, nxtVal);
+           } else {
+               gen->buildFun(updateFun, nc);
+               gen->addFunUpdate(updateFun, it->second.var, nc);
+           }
+       }
+       
+       gen->endFun(updateFun);
+       
+       // Assumps
+       std::vector<CFun*> assVec;
+       for (unsigned i = 0; i < assumps.size(); i++) {
+           CFun* assFun = gen->addFun(
+                   "assumps_" + boost::lexical_cast<std::string>(i));
+           gen->buildFun(assFun, assumps[i]);
+           gen->setFunReturn(assFun, assumps[i]);
+           gen->endFun(assFun);
+           assVec.push_back(assFun);
+       }
+       
+       return gen;
+
+   }
+        
+    
     // Set all information into simulator generator.
     CppSimGen* Abstraction::generateSim(bool hier) const
     {
@@ -1766,9 +1900,12 @@ namespace ila
         }
 
         // Then next level micro abstraction.
-        for (auto it = uabs.begin(); it != uabs.end(); it++) {
-            it->second.abs->addVarToSimulator(gen);
-        }
+        // No need, we will verify each level separately
+        // because there is no inital values exported
+        // you cannot expect to unroll the micro states
+        //for (auto it = uabs.begin(); it != uabs.end(); it++) {
+        //    it->second.abs->addVarToSimulator(gen);
+        //}
     }
 
     void Abstraction::setUpdateToFunction(
@@ -1853,9 +1990,10 @@ namespace ila
         }
 
         // Then next level micro abstraction.
-        for (auto it = uabs.begin(); it != uabs.end(); it++) {
-            it->second.abs->setUpdateToFunction(gen, fun, it->second.valid, doHier);
-        }
+        // No need, we will export separately
+        //for (auto it = uabs.begin(); it != uabs.end(); it++) {
+        //    it->second.abs->setUpdateToFunction(gen, fun, it->second.valid, doHier);
+        //}
     }
 
 }
