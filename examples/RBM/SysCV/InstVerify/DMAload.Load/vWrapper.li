@@ -1,0 +1,2884 @@
+; ModuleID = 'vWrapper.cpp'
+target datalayout = "e-p:64:64:64-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:64:64-f32:32:32-f64:64:64-v64:64:64-v128:128:128-a0:0:64-s0:64:64-f80:128:128-n8:16:32:64"
+target triple = "x86_64-unknown-linux-gnu"
+
+%0 = type { float*, float* }
+%1 = type { float* }
+%2 = type { i32, void ()* }
+%class.SysCArray1D = type { i8* }
+%class.SysCArray2D = type { i8*, i8* }
+%class.model_DMAload = type { %class.SysCArray1D, i64, i64, i64, i64, i64, i64, i64, i64, i64, i64, %class.SysCArray1D, i64, i64, i64, i64, i64, i64, i64, i64, i64, i64, i64, i64 }
+%class.sc_signal_bool = type { i8 }
+%class.sc_signal_int32 = type { i32 }
+%class.sc_signal_u16 = type { i16 }
+%class.sc_signal_u32 = type { i32 }
+%"class.std::iocout" = type { i8 }
+%class.type_mem = type { i8* }
+%struct.rbm = type { %class.sc_signal_bool, %class.sc_signal_bool, %class.sc_signal_int32, %class.sc_signal_int32, %class.sc_signal_bool, %class.sc_signal_bool, %class.sc_signal_int32, %class.sc_signal_int32, %class.sc_signal_int32, %class.sc_signal_bool, %class.sc_signal_bool, %class.sc_signal_int32, %class.sc_signal_bool, %class.sc_signal_bool, %class.sc_signal_int32, %class.sc_signal_int32, %class.sc_signal_int32, %class.sc_signal_int32, %class.sc_signal_int32, %class.sc_signal_int32, %class.SysCArray2D, %class.SysCArray1D, %class.SysCArray1D, %0, %class.SysCArray2D, %class.SysCArray2D, %1, %class.SysCArray1D, %class.SysCArray2D, [624 x i32], %class.sc_signal_u16, %class.sc_signal_u16, %class.sc_signal_u16, %class.sc_signal_u16, %class.sc_signal_u16, %class.sc_signal_u16, %class.sc_signal_bool, %class.sc_signal_bool, %class.sc_signal_bool, %class.sc_signal_bool, %class.sc_signal_bool, %class.sc_signal_int32, %class.sc_signal_bool, %class.sc_signal_bool, %class.sc_signal_bool, %class.sc_signal_bool }
+
+@GM = global %class.model_DMAload zeroinitializer, align 8
+@__dso_handle = external global i8*
+@_ZSt4cout = global %class.sc_signal_bool zeroinitializer, align 1
+@_ZSt4endl = global i32 0, align 4
+@cycleCnt = external global i32
+@conf_done_inp = global i8 0, align 1
+@conf_num_hidden_inp = global i32 0, align 4
+@conf_num_visible_inp = global i32 0, align 4
+@conf_num_users_inp = global i32 0, align 4
+@conf_num_loops_inp = global i32 0, align 4
+@conf_num_testusers_inp = global i32 0, align 4
+@conf_num_movies_inp = global i32 0, align 4
+@rst_inp = global i8 0, align 1
+@rd_grant_inp = global i8 0, align 1
+@data_in_inp = global i32 0, align 4
+@wr_grant_inp = global i8 0, align 1
+@rd_complete = global i32 0, align 4
+@.str = private unnamed_addr constant [12 x i8] c"Config done\00"
+@.str1 = private unnamed_addr constant [16 x i8] c"init_done_match\00"
+@.str2 = private unnamed_addr constant [11 x i8] c"done_match\00"
+@.str3 = private unnamed_addr constant [17 x i8] c"num_hidden_match\00"
+@.str4 = private unnamed_addr constant [18 x i8] c"num_visible_match\00"
+@.str5 = private unnamed_addr constant [16 x i8] c"num_users_match\00"
+@.str6 = private unnamed_addr constant [16 x i8] c"num_loops_match\00"
+@.str7 = private unnamed_addr constant [20 x i8] c"num_testusers_match\00"
+@.str8 = private unnamed_addr constant [17 x i8] c"num_movies_match\00"
+@.str9 = private unnamed_addr constant [15 x i8] c"rd_index_match\00"
+@.str10 = private unnamed_addr constant [16 x i8] c"rd_length_match\00"
+@.str11 = private unnamed_addr constant [17 x i8] c"rd_request_match\00"
+@.str12 = private unnamed_addr constant [17 x i8] c"wr_request_match\00"
+@.str13 = private unnamed_addr constant [15 x i8] c"wr_index_match\00"
+@.str14 = private unnamed_addr constant [16 x i8] c"wr_length_match\00"
+@.str15 = private unnamed_addr constant [15 x i8] c"data_out_match\00"
+@.str16 = private unnamed_addr constant [18 x i8] c"rd_complete_match\00"
+@.str17 = private unnamed_addr constant [8 x i8] c"i_match\00"
+@.str18 = private unnamed_addr constant [11 x i8] c"data_match\00"
+@.str19 = private unnamed_addr constant [21 x i8] c"predict_result_match\00"
+@.str20 = private unnamed_addr constant [8 x i8] c"ind-inv\00"
+@IMPL = global %struct.rbm zeroinitializer, align 8
+@.str22 = private unnamed_addr constant [4 x i8] c"clk\00"
+@.str23 = private unnamed_addr constant [4 x i8] c"rst\00"
+@.str24 = private unnamed_addr constant [9 x i8] c"rd_index\00"
+@.str25 = private unnamed_addr constant [10 x i8] c"rd_length\00"
+@.str26 = private unnamed_addr constant [11 x i8] c"rd_request\00"
+@.str27 = private unnamed_addr constant [9 x i8] c"rd_grant\00"
+@.str28 = private unnamed_addr constant [8 x i8] c"data_in\00"
+@.str29 = private unnamed_addr constant [9 x i8] c"wr_index\00"
+@.str30 = private unnamed_addr constant [10 x i8] c"wr_length\00"
+@.str31 = private unnamed_addr constant [11 x i8] c"wr_request\00"
+@.str32 = private unnamed_addr constant [9 x i8] c"wr_grant\00"
+@.str33 = private unnamed_addr constant [9 x i8] c"data_out\00"
+@.str34 = private unnamed_addr constant [5 x i8] c"done\00"
+@.str35 = private unnamed_addr constant [10 x i8] c"cond_done\00"
+@.str36 = private unnamed_addr constant [16 x i8] c"conf_num_hidden\00"
+@.str37 = private unnamed_addr constant [17 x i8] c"conf_num_visible\00"
+@.str38 = private unnamed_addr constant [15 x i8] c"conf_num_users\00"
+@.str39 = private unnamed_addr constant [15 x i8] c"conf_num_loops\00"
+@.str40 = private unnamed_addr constant [19 x i8] c"conf_num_testusers\00"
+@.str41 = private unnamed_addr constant [16 x i8] c"conf_num_movies\00"
+@llvm.global_ctors = appending global [1 x %2] [%2 { i32 65535, void ()* @_GLOBAL__I_a }]
+
+define zeroext i1 @_ZN13model_DMAload9assumps_0Elllllllllll(%class.model_DMAload* %this, i64 %conf_done, i64 %conf_num_hidden, i64 %conf_num_loops, i64 %conf_num_movies, i64 %conf_num_testusers, i64 %conf_num_users, i64 %conf_num_visible, i64 %data_in, i64 %rd_grant, i64 %rst, i64 %wr_grant) nounwind align 2 {
+  %1 = alloca %class.model_DMAload*, align 8
+  %2 = alloca i64, align 8
+  %3 = alloca i64, align 8
+  %4 = alloca i64, align 8
+  %5 = alloca i64, align 8
+  %6 = alloca i64, align 8
+  %7 = alloca i64, align 8
+  %8 = alloca i64, align 8
+  %9 = alloca i64, align 8
+  %10 = alloca i64, align 8
+  %11 = alloca i64, align 8
+  %12 = alloca i64, align 8
+  %cppVar_242 = alloca i64, align 8
+  %cppVar_243 = alloca i8, align 1
+  store %class.model_DMAload* %this, %class.model_DMAload** %1, align 8
+  store i64 %conf_done, i64* %2, align 8
+  store i64 %conf_num_hidden, i64* %3, align 8
+  store i64 %conf_num_loops, i64* %4, align 8
+  store i64 %conf_num_movies, i64* %5, align 8
+  store i64 %conf_num_testusers, i64* %6, align 8
+  store i64 %conf_num_users, i64* %7, align 8
+  store i64 %conf_num_visible, i64* %8, align 8
+  store i64 %data_in, i64* %9, align 8
+  store i64 %rd_grant, i64* %10, align 8
+  store i64 %rst, i64* %11, align 8
+  store i64 %wr_grant, i64* %12, align 8
+  %13 = load %class.model_DMAload** %1
+  %14 = getelementptr inbounds %class.model_DMAload* %13, i32 0, i32 13
+  %15 = load i64* %14, align 8
+  %16 = icmp eq i64 %15, 1
+  %17 = zext i1 %16 to i8
+  store i8 %17, i8* %cppVar_243, align 1
+  %18 = load i8* %cppVar_243, align 1
+  %19 = trunc i8 %18 to i1
+  ret i1 %19
+}
+
+define void @_ZN13model_DMAload17cppUpdateFun_dataElllllllllll(%class.SysCArray1D* sret %agg.result, %class.model_DMAload* %this, i64 %conf_done, i64 %conf_num_hidden, i64 %conf_num_loops, i64 %conf_num_movies, i64 %conf_num_testusers, i64 %conf_num_users, i64 %conf_num_visible, i64 %data_in, i64 %rd_grant, i64 %rst, i64 %wr_grant) align 2 {
+  %1 = alloca %class.model_DMAload*, align 8
+  %2 = alloca i64, align 8
+  %3 = alloca i64, align 8
+  %4 = alloca i64, align 8
+  %5 = alloca i64, align 8
+  %6 = alloca i64, align 8
+  %7 = alloca i64, align 8
+  %8 = alloca i64, align 8
+  %9 = alloca i64, align 8
+  %10 = alloca i64, align 8
+  %11 = alloca i64, align 8
+  %12 = alloca i64, align 8
+  %cppVar_230 = alloca i64, align 8
+  %cppVar_231 = alloca i8, align 1
+  %cppVar_236 = alloca i64, align 8
+  %cppVar_237 = alloca i8, align 1
+  %cppVar_232 = alloca i64, align 8
+  %cppVar_233 = alloca i64, align 8
+  %cppVar_234 = alloca %class.SysCArray1D, align 8
+  %cppVar_238 = alloca i64, align 8
+  %cppVar_240 = alloca %class.SysCArray1D, align 8
+  %13 = alloca i8*
+  %14 = alloca i32
+  %cppVar_235 = alloca %class.SysCArray1D, align 8
+  %15 = alloca i1
+  %cppVar_239 = alloca i64, align 8
+  %16 = alloca i32
+  store %class.model_DMAload* %this, %class.model_DMAload** %1, align 8
+  store i64 %conf_done, i64* %2, align 8
+  store i64 %conf_num_hidden, i64* %3, align 8
+  store i64 %conf_num_loops, i64* %4, align 8
+  store i64 %conf_num_movies, i64* %5, align 8
+  store i64 %conf_num_testusers, i64* %6, align 8
+  store i64 %conf_num_users, i64* %7, align 8
+  store i64 %conf_num_visible, i64* %8, align 8
+  store i64 %data_in, i64* %9, align 8
+  store i64 %rd_grant, i64* %10, align 8
+  store i64 %rst, i64* %11, align 8
+  store i64 %wr_grant, i64* %12, align 8
+  %17 = load %class.model_DMAload** %1
+  call void @_ZN8type_memIhLj512EEC1Ev(%class.SysCArray1D* %cppVar_234)
+  invoke void @_ZN8type_memIhLj512EEC1Ev(%class.SysCArray1D* %cppVar_240)
+          to label %18 unwind label %54
+
+; <label>:18                                      ; preds = %0
+  invoke void @_ZN8type_memIhLj512EEC1Ev(%class.SysCArray1D* %cppVar_235)
+          to label %19 unwind label %57
+
+; <label>:19                                      ; preds = %18
+  store i1 false, i1* %15
+  invoke void @_ZN8type_memIhLj512EEC1Ev(%class.SysCArray1D* %agg.result)
+          to label %20 unwind label %60
+
+; <label>:20                                      ; preds = %19
+  %21 = getelementptr inbounds %class.model_DMAload* %17, i32 0, i32 15
+  %22 = load i64* %21, align 8
+  %23 = ashr i64 %22, 0
+  %24 = getelementptr inbounds %class.model_DMAload* %17, i32 0, i32 21
+  %25 = load i64* %24, align 8
+  %26 = and i64 %23, %25
+  store i64 %26, i64* %cppVar_230, align 8
+  %27 = getelementptr inbounds %class.model_DMAload* %17, i32 0, i32 3
+  %28 = load i64* %27, align 8
+  %29 = load i64* %cppVar_230, align 8
+  %30 = icmp slt i64 %28, %29
+  %31 = zext i1 %30 to i8
+  store i8 %31, i8* %cppVar_231, align 1
+  %32 = load i8* %cppVar_231, align 1
+  %33 = trunc i8 %32 to i1
+  br i1 %33, label %34, label %66
+
+; <label>:34                                      ; preds = %20
+  %35 = getelementptr inbounds %class.model_DMAload* %17, i32 0, i32 3
+  %36 = load i64* %35, align 8
+  %37 = ashr i64 %36, 0
+  %38 = getelementptr inbounds %class.model_DMAload* %17, i32 0, i32 23
+  %39 = load i64* %38, align 8
+  %40 = and i64 %37, %39
+  store i64 %40, i64* %cppVar_232, align 8
+  %41 = load i64* %9, align 8
+  %42 = ashr i64 %41, 0
+  %43 = getelementptr inbounds %class.model_DMAload* %17, i32 0, i32 22
+  %44 = load i64* %43, align 8
+  %45 = and i64 %42, %44
+  store i64 %45, i64* %cppVar_233, align 8
+  %46 = getelementptr inbounds %class.model_DMAload* %17, i32 0, i32 0
+  %47 = invoke %class.SysCArray1D* @_ZN8type_memIhLj512EEaSERKS0_(%class.SysCArray1D* %cppVar_234, %class.SysCArray1D* %46)
+          to label %48 unwind label %63
+
+; <label>:48                                      ; preds = %34
+  %49 = load i64* %cppVar_232, align 8
+  %50 = load i64* %cppVar_233, align 8
+  invoke void @_ZN8type_memIhLj512EE2wrEll(%class.SysCArray1D* %cppVar_234, i64 %49, i64 %50)
+          to label %51 unwind label %63
+
+; <label>:51                                      ; preds = %48
+  %52 = invoke %class.SysCArray1D* @_ZN8type_memIhLj512EEaSERKS0_(%class.SysCArray1D* %agg.result, %class.SysCArray1D* %cppVar_234)
+          to label %53 unwind label %63
+
+; <label>:53                                      ; preds = %51
+  br label %101
+
+; <label>:54                                      ; preds = %107, %0
+  %55 = call i8* @llvm.eh.exception() nounwind
+  store i8* %55, i8** %13
+  %56 = call i32 (i8*, i8*, ...)* @llvm.eh.selector(i8* %55, i8* bitcast (i32 (...)* @__gxx_personality_v0 to i8*), i8* null) nounwind
+  store i32 0, i32* %14
+  br label %113
+
+; <label>:57                                      ; preds = %105, %18
+  %58 = call i8* @llvm.eh.exception() nounwind
+  store i8* %58, i8** %13
+  %59 = call i32 (i8*, i8*, ...)* @llvm.eh.selector(i8* %58, i8* bitcast (i32 (...)* @__gxx_personality_v0 to i8*), i8* null) nounwind
+  store i32 0, i32* %14
+  br label %111
+
+; <label>:60                                      ; preds = %103, %19
+  %61 = call i8* @llvm.eh.exception() nounwind
+  store i8* %61, i8** %13
+  %62 = call i32 (i8*, i8*, ...)* @llvm.eh.selector(i8* %61, i8* bitcast (i32 (...)* @__gxx_personality_v0 to i8*), i8* null) nounwind
+  store i32 0, i32* %14
+  br label %108
+
+; <label>:63                                      ; preds = %98, %94, %91, %89, %80, %51, %48, %34
+  %64 = call i8* @llvm.eh.exception() nounwind
+  store i8* %64, i8** %13
+  %65 = call i32 (i8*, i8*, ...)* @llvm.eh.selector(i8* %64, i8* bitcast (i32 (...)* @__gxx_personality_v0 to i8*), i8* null) nounwind
+  store i32 0, i32* %14
+  invoke void @_ZN8type_memIhLj512EED1Ev(%class.SysCArray1D* %agg.result)
+          to label %106 unwind label %117
+
+; <label>:66                                      ; preds = %20
+  %67 = getelementptr inbounds %class.model_DMAload* %17, i32 0, i32 15
+  %68 = load i64* %67, align 8
+  %69 = ashr i64 %68, 0
+  %70 = getelementptr inbounds %class.model_DMAload* %17, i32 0, i32 21
+  %71 = load i64* %70, align 8
+  %72 = and i64 %69, %71
+  store i64 %72, i64* %cppVar_236, align 8
+  %73 = getelementptr inbounds %class.model_DMAload* %17, i32 0, i32 3
+  %74 = load i64* %73, align 8
+  %75 = load i64* %cppVar_236, align 8
+  %76 = icmp eq i64 %74, %75
+  %77 = zext i1 %76 to i8
+  store i8 %77, i8* %cppVar_237, align 1
+  %78 = load i8* %cppVar_237, align 1
+  %79 = trunc i8 %78 to i1
+  br i1 %79, label %80, label %94
+
+; <label>:80                                      ; preds = %66
+  %81 = getelementptr inbounds %class.model_DMAload* %17, i32 0, i32 15
+  %82 = load i64* %81, align 8
+  %83 = ashr i64 %82, 0
+  %84 = getelementptr inbounds %class.model_DMAload* %17, i32 0, i32 23
+  %85 = load i64* %84, align 8
+  %86 = and i64 %83, %85
+  store i64 %86, i64* %cppVar_238, align 8
+  %87 = getelementptr inbounds %class.model_DMAload* %17, i32 0, i32 0
+  %88 = invoke %class.SysCArray1D* @_ZN8type_memIhLj512EEaSERKS0_(%class.SysCArray1D* %cppVar_240, %class.SysCArray1D* %87)
+          to label %89 unwind label %63
+
+; <label>:89                                      ; preds = %80
+  %90 = load i64* %cppVar_238, align 8
+  invoke void @_ZN8type_memIhLj512EE2wrEll(%class.SysCArray1D* %cppVar_240, i64 %90, i64 1)
+          to label %91 unwind label %63
+
+; <label>:91                                      ; preds = %89
+  %92 = invoke %class.SysCArray1D* @_ZN8type_memIhLj512EEaSERKS0_(%class.SysCArray1D* %cppVar_235, %class.SysCArray1D* %cppVar_240)
+          to label %93 unwind label %63
+
+; <label>:93                                      ; preds = %91
+  br label %98
+
+; <label>:94                                      ; preds = %66
+  %95 = getelementptr inbounds %class.model_DMAload* %17, i32 0, i32 0
+  %96 = invoke %class.SysCArray1D* @_ZN8type_memIhLj512EEaSERKS0_(%class.SysCArray1D* %cppVar_235, %class.SysCArray1D* %95)
+          to label %97 unwind label %63
+
+; <label>:97                                      ; preds = %94
+  br label %98
+
+; <label>:98                                      ; preds = %97, %93
+  %99 = invoke %class.SysCArray1D* @_ZN8type_memIhLj512EEaSERKS0_(%class.SysCArray1D* %agg.result, %class.SysCArray1D* %cppVar_235)
+          to label %100 unwind label %63
+
+; <label>:100                                     ; preds = %98
+  br label %101
+
+; <label>:101                                     ; preds = %100, %53
+  store i1 true, i1* %15
+  store i32 1, i32* %16
+  %102 = load i1* %15
+  br i1 %102, label %105, label %103
+
+; <label>:103                                     ; preds = %101
+  invoke void @_ZN8type_memIhLj512EED1Ev(%class.SysCArray1D* %agg.result)
+          to label %104 unwind label %60
+
+; <label>:104                                     ; preds = %103
+  br label %105
+
+; <label>:105                                     ; preds = %104, %101
+  invoke void @_ZN8type_memIhLj512EED1Ev(%class.SysCArray1D* %cppVar_235)
+          to label %107 unwind label %57
+
+; <label>:106                                     ; preds = %63
+  br label %108
+
+; <label>:107                                     ; preds = %105
+  invoke void @_ZN8type_memIhLj512EED1Ev(%class.SysCArray1D* %cppVar_240)
+          to label %110 unwind label %54
+
+; <label>:108                                     ; preds = %106, %60
+  invoke void @_ZN8type_memIhLj512EED1Ev(%class.SysCArray1D* %cppVar_235)
+          to label %109 unwind label %117
+
+; <label>:109                                     ; preds = %108
+  br label %111
+
+; <label>:110                                     ; preds = %107
+  call void @_ZN8type_memIhLj512EED1Ev(%class.SysCArray1D* %cppVar_234)
+  ret void
+
+; <label>:111                                     ; preds = %109, %57
+  invoke void @_ZN8type_memIhLj512EED1Ev(%class.SysCArray1D* %cppVar_240)
+          to label %112 unwind label %117
+
+; <label>:112                                     ; preds = %111
+  br label %113
+
+; <label>:113                                     ; preds = %112, %54
+  invoke void @_ZN8type_memIhLj512EED1Ev(%class.SysCArray1D* %cppVar_234)
+          to label %114 unwind label %117
+
+; <label>:114                                     ; preds = %113
+  br label %115
+
+; <label>:115                                     ; preds = %114
+  %116 = load i8** %13
+  call void @_Unwind_Resume_or_Rethrow(i8* %116) noreturn
+  unreachable
+
+; <label>:117                                     ; preds = %113, %111, %108, %63
+  %118 = call i8* @llvm.eh.exception() nounwind
+  %119 = call i32 (i8*, i8*, ...)* @llvm.eh.selector(i8* %118, i8* bitcast (i32 (...)* @__gxx_personality_v0 to i8*), i8* null) nounwind
+  call void @_ZSt9terminatev() noreturn nounwind
+  unreachable
+}
+
+define linkonce_odr void @_ZN8type_memIhLj512EEC1Ev(%class.SysCArray1D* %this) unnamed_addr align 2 {
+  %1 = alloca %class.SysCArray1D*, align 8
+  store %class.SysCArray1D* %this, %class.SysCArray1D** %1, align 8
+  %2 = load %class.SysCArray1D** %1
+  call void @_ZN8type_memIhLj512EEC2Ev(%class.SysCArray1D* %2)
+  ret void
+}
+
+declare i8* @llvm.eh.exception() nounwind readonly
+
+declare i32 @__gxx_personality_v0(...)
+
+declare i32 @llvm.eh.selector(i8*, i8*, ...) nounwind
+
+declare i32 @llvm.eh.typeid.for(i8*) nounwind
+
+declare void @_Unwind_Resume_or_Rethrow(i8*)
+
+define linkonce_odr %class.SysCArray1D* @_ZN8type_memIhLj512EEaSERKS0_(%class.SysCArray1D* %this, %class.SysCArray1D* %r) align 2 {
+  %1 = alloca %class.SysCArray1D*, align 8
+  %2 = alloca %class.SysCArray1D*, align 8
+  store %class.SysCArray1D* %this, %class.SysCArray1D** %1, align 8
+  store %class.SysCArray1D* %r, %class.SysCArray1D** %2, align 8
+  %3 = load %class.SysCArray1D** %1
+  %4 = getelementptr inbounds %class.SysCArray1D* %3, i32 0, i32 0
+  %5 = load i8** %4, align 8
+  %6 = load %class.SysCArray1D** %2
+  %7 = getelementptr inbounds %class.SysCArray1D* %6, i32 0, i32 0
+  %8 = load i8** %7, align 8
+  call void @__CPROVER_array_copy(i8* %5, i8* %8)
+  ret %class.SysCArray1D* %3
+}
+
+define linkonce_odr void @_ZN8type_memIhLj512EE2wrEll(%class.SysCArray1D* %this, i64 %addr, i64 %data) nounwind align 2 {
+  %1 = alloca %class.SysCArray1D*, align 8
+  %2 = alloca i64, align 8
+  %3 = alloca i64, align 8
+  store %class.SysCArray1D* %this, %class.SysCArray1D** %1, align 8
+  store i64 %addr, i64* %2, align 8
+  store i64 %data, i64* %3, align 8
+  %4 = load %class.SysCArray1D** %1
+  %5 = load i64* %3, align 8
+  %6 = trunc i64 %5 to i8
+  %7 = load i64* %2, align 8
+  %8 = getelementptr inbounds %class.SysCArray1D* %4, i32 0, i32 0
+  %9 = load i8** %8, align 8
+  %10 = getelementptr inbounds i8* %9, i64 %7
+  store i8 %6, i8* %10
+  ret void
+}
+
+define linkonce_odr void @_ZN8type_memIhLj512EED1Ev(%class.SysCArray1D* %this) unnamed_addr align 2 {
+  %1 = alloca %class.SysCArray1D*, align 8
+  store %class.SysCArray1D* %this, %class.SysCArray1D** %1, align 8
+  %2 = load %class.SysCArray1D** %1
+  call void @_ZN8type_memIhLj512EED2Ev(%class.SysCArray1D* %2)
+  ret void
+}
+
+declare void @_ZSt9terminatev()
+
+define i64 @_ZN13model_DMAload14cppUpdateFun_iElllllllllll(%class.model_DMAload* %this, i64 %conf_done, i64 %conf_num_hidden, i64 %conf_num_loops, i64 %conf_num_movies, i64 %conf_num_testusers, i64 %conf_num_users, i64 %conf_num_visible, i64 %data_in, i64 %rd_grant, i64 %rst, i64 %wr_grant) nounwind align 2 {
+  %1 = alloca %class.model_DMAload*, align 8
+  %2 = alloca i64, align 8
+  %3 = alloca i64, align 8
+  %4 = alloca i64, align 8
+  %5 = alloca i64, align 8
+  %6 = alloca i64, align 8
+  %7 = alloca i64, align 8
+  %8 = alloca i64, align 8
+  %9 = alloca i64, align 8
+  %10 = alloca i64, align 8
+  %11 = alloca i64, align 8
+  %12 = alloca i64, align 8
+  %cppVar_211 = alloca i64, align 8
+  %cppVar_212 = alloca i8, align 1
+  %cppVar_213 = alloca i64, align 8
+  %cppVar_214 = alloca i64, align 8
+  %cppVar_210 = alloca i64, align 8
+  store %class.model_DMAload* %this, %class.model_DMAload** %1, align 8
+  store i64 %conf_done, i64* %2, align 8
+  store i64 %conf_num_hidden, i64* %3, align 8
+  store i64 %conf_num_loops, i64* %4, align 8
+  store i64 %conf_num_movies, i64* %5, align 8
+  store i64 %conf_num_testusers, i64* %6, align 8
+  store i64 %conf_num_users, i64* %7, align 8
+  store i64 %conf_num_visible, i64* %8, align 8
+  store i64 %data_in, i64* %9, align 8
+  store i64 %rd_grant, i64* %10, align 8
+  store i64 %rst, i64* %11, align 8
+  store i64 %wr_grant, i64* %12, align 8
+  %13 = load %class.model_DMAload** %1
+  %14 = getelementptr inbounds %class.model_DMAload* %13, i32 0, i32 15
+  %15 = load i64* %14, align 8
+  %16 = ashr i64 %15, 0
+  %17 = getelementptr inbounds %class.model_DMAload* %13, i32 0, i32 21
+  %18 = load i64* %17, align 8
+  %19 = and i64 %16, %18
+  store i64 %19, i64* %cppVar_211, align 8
+  %20 = getelementptr inbounds %class.model_DMAload* %13, i32 0, i32 3
+  %21 = load i64* %20, align 8
+  %22 = load i64* %cppVar_211, align 8
+  %23 = icmp slt i64 %21, %22
+  %24 = zext i1 %23 to i8
+  store i8 %24, i8* %cppVar_212, align 1
+  %25 = load i8* %cppVar_212, align 1
+  %26 = trunc i8 %25 to i1
+  br i1 %26, label %27, label %36
+
+; <label>:27                                      ; preds = %0
+  %28 = getelementptr inbounds %class.model_DMAload* %13, i32 0, i32 3
+  %29 = load i64* %28, align 8
+  %30 = add nsw i64 %29, 1
+  store i64 %30, i64* %cppVar_214, align 8
+  %31 = load i64* %cppVar_214, align 8
+  %32 = getelementptr inbounds %class.model_DMAload* %13, i32 0, i32 21
+  %33 = load i64* %32, align 8
+  %34 = and i64 %31, %33
+  store i64 %34, i64* %cppVar_214, align 8
+  %35 = load i64* %cppVar_214, align 8
+  store i64 %35, i64* %cppVar_210, align 8
+  br label %39
+
+; <label>:36                                      ; preds = %0
+  %37 = getelementptr inbounds %class.model_DMAload* %13, i32 0, i32 3
+  %38 = load i64* %37, align 8
+  store i64 %38, i64* %cppVar_210, align 8
+  br label %39
+
+; <label>:39                                      ; preds = %36, %27
+  %40 = load i64* %cppVar_210, align 8
+  ret i64 %40
+}
+
+define i64 @_ZN13model_DMAload24cppUpdateFun_rd_completeElllllllllll(%class.model_DMAload* %this, i64 %conf_done, i64 %conf_num_hidden, i64 %conf_num_loops, i64 %conf_num_movies, i64 %conf_num_testusers, i64 %conf_num_users, i64 %conf_num_visible, i64 %data_in, i64 %rd_grant, i64 %rst, i64 %wr_grant) nounwind align 2 {
+  %1 = alloca %class.model_DMAload*, align 8
+  %2 = alloca i64, align 8
+  %3 = alloca i64, align 8
+  %4 = alloca i64, align 8
+  %5 = alloca i64, align 8
+  %6 = alloca i64, align 8
+  %7 = alloca i64, align 8
+  %8 = alloca i64, align 8
+  %9 = alloca i64, align 8
+  %10 = alloca i64, align 8
+  %11 = alloca i64, align 8
+  %12 = alloca i64, align 8
+  %cppVar_217 = alloca i64, align 8
+  %cppVar_218 = alloca i8, align 1
+  %cppVar_216 = alloca i64, align 8
+  %cppVar_219 = alloca i64, align 8
+  %cppVar_220 = alloca i64, align 8
+  store %class.model_DMAload* %this, %class.model_DMAload** %1, align 8
+  store i64 %conf_done, i64* %2, align 8
+  store i64 %conf_num_hidden, i64* %3, align 8
+  store i64 %conf_num_loops, i64* %4, align 8
+  store i64 %conf_num_movies, i64* %5, align 8
+  store i64 %conf_num_testusers, i64* %6, align 8
+  store i64 %conf_num_users, i64* %7, align 8
+  store i64 %conf_num_visible, i64* %8, align 8
+  store i64 %data_in, i64* %9, align 8
+  store i64 %rd_grant, i64* %10, align 8
+  store i64 %rst, i64* %11, align 8
+  store i64 %wr_grant, i64* %12, align 8
+  %13 = load %class.model_DMAload** %1
+  %14 = getelementptr inbounds %class.model_DMAload* %13, i32 0, i32 15
+  %15 = load i64* %14, align 8
+  %16 = ashr i64 %15, 0
+  %17 = getelementptr inbounds %class.model_DMAload* %13, i32 0, i32 21
+  %18 = load i64* %17, align 8
+  %19 = and i64 %16, %18
+  store i64 %19, i64* %cppVar_217, align 8
+  %20 = getelementptr inbounds %class.model_DMAload* %13, i32 0, i32 3
+  %21 = load i64* %20, align 8
+  %22 = load i64* %cppVar_217, align 8
+  %23 = icmp slt i64 %21, %22
+  %24 = zext i1 %23 to i8
+  store i8 %24, i8* %cppVar_218, align 1
+  %25 = load i8* %cppVar_218, align 1
+  %26 = trunc i8 %25 to i1
+  br i1 %26, label %27, label %28
+
+; <label>:27                                      ; preds = %0
+  store i64 0, i64* %cppVar_216, align 8
+  br label %29
+
+; <label>:28                                      ; preds = %0
+  store i64 1, i64* %cppVar_216, align 8
+  br label %29
+
+; <label>:29                                      ; preds = %28, %27
+  %30 = load i64* %cppVar_216, align 8
+  ret i64 %30
+}
+
+define i64 @_ZN13model_DMAload23cppUpdateFun_rd_grantedElllllllllll(%class.model_DMAload* %this, i64 %conf_done, i64 %conf_num_hidden, i64 %conf_num_loops, i64 %conf_num_movies, i64 %conf_num_testusers, i64 %conf_num_users, i64 %conf_num_visible, i64 %data_in, i64 %rd_grant, i64 %rst, i64 %wr_grant) nounwind align 2 {
+  %1 = alloca %class.model_DMAload*, align 8
+  %2 = alloca i64, align 8
+  %3 = alloca i64, align 8
+  %4 = alloca i64, align 8
+  %5 = alloca i64, align 8
+  %6 = alloca i64, align 8
+  %7 = alloca i64, align 8
+  %8 = alloca i64, align 8
+  %9 = alloca i64, align 8
+  %10 = alloca i64, align 8
+  %11 = alloca i64, align 8
+  %12 = alloca i64, align 8
+  %cppVar_223 = alloca i64, align 8
+  %cppVar_224 = alloca i8, align 1
+  %cppVar_222 = alloca i64, align 8
+  %cppVar_225 = alloca i64, align 8
+  store %class.model_DMAload* %this, %class.model_DMAload** %1, align 8
+  store i64 %conf_done, i64* %2, align 8
+  store i64 %conf_num_hidden, i64* %3, align 8
+  store i64 %conf_num_loops, i64* %4, align 8
+  store i64 %conf_num_movies, i64* %5, align 8
+  store i64 %conf_num_testusers, i64* %6, align 8
+  store i64 %conf_num_users, i64* %7, align 8
+  store i64 %conf_num_visible, i64* %8, align 8
+  store i64 %data_in, i64* %9, align 8
+  store i64 %rd_grant, i64* %10, align 8
+  store i64 %rst, i64* %11, align 8
+  store i64 %wr_grant, i64* %12, align 8
+  %13 = load %class.model_DMAload** %1
+  %14 = getelementptr inbounds %class.model_DMAload* %13, i32 0, i32 15
+  %15 = load i64* %14, align 8
+  %16 = ashr i64 %15, 0
+  %17 = getelementptr inbounds %class.model_DMAload* %13, i32 0, i32 21
+  %18 = load i64* %17, align 8
+  %19 = and i64 %16, %18
+  store i64 %19, i64* %cppVar_223, align 8
+  %20 = getelementptr inbounds %class.model_DMAload* %13, i32 0, i32 3
+  %21 = load i64* %20, align 8
+  %22 = load i64* %cppVar_223, align 8
+  %23 = icmp slt i64 %21, %22
+  %24 = zext i1 %23 to i8
+  store i8 %24, i8* %cppVar_224, align 1
+  %25 = load i8* %cppVar_224, align 1
+  %26 = trunc i8 %25 to i1
+  br i1 %26, label %27, label %30
+
+; <label>:27                                      ; preds = %0
+  %28 = getelementptr inbounds %class.model_DMAload* %13, i32 0, i32 13
+  %29 = load i64* %28, align 8
+  store i64 %29, i64* %cppVar_222, align 8
+  br label %31
+
+; <label>:30                                      ; preds = %0
+  store i64 0, i64* %cppVar_222, align 8
+  br label %31
+
+; <label>:31                                      ; preds = %30, %27
+  %32 = load i64* %cppVar_222, align 8
+  ret i64 %32
+}
+
+define i64 @_ZN13model_DMAload23cppUpdateFun_rd_requestElllllllllll(%class.model_DMAload* %this, i64 %conf_done, i64 %conf_num_hidden, i64 %conf_num_loops, i64 %conf_num_movies, i64 %conf_num_testusers, i64 %conf_num_users, i64 %conf_num_visible, i64 %data_in, i64 %rd_grant, i64 %rst, i64 %wr_grant) nounwind align 2 {
+  %1 = alloca %class.model_DMAload*, align 8
+  %2 = alloca i64, align 8
+  %3 = alloca i64, align 8
+  %4 = alloca i64, align 8
+  %5 = alloca i64, align 8
+  %6 = alloca i64, align 8
+  %7 = alloca i64, align 8
+  %8 = alloca i64, align 8
+  %9 = alloca i64, align 8
+  %10 = alloca i64, align 8
+  %11 = alloca i64, align 8
+  %12 = alloca i64, align 8
+  %cppVar_227 = alloca i64, align 8
+  store %class.model_DMAload* %this, %class.model_DMAload** %1, align 8
+  store i64 %conf_done, i64* %2, align 8
+  store i64 %conf_num_hidden, i64* %3, align 8
+  store i64 %conf_num_loops, i64* %4, align 8
+  store i64 %conf_num_movies, i64* %5, align 8
+  store i64 %conf_num_testusers, i64* %6, align 8
+  store i64 %conf_num_users, i64* %7, align 8
+  store i64 %conf_num_visible, i64* %8, align 8
+  store i64 %data_in, i64* %9, align 8
+  store i64 %rd_grant, i64* %10, align 8
+  store i64 %rst, i64* %11, align 8
+  store i64 %wr_grant, i64* %12, align 8
+  %13 = load %class.model_DMAload** %1
+  ret i64 0
+}
+
+define void @_ZN13model_DMAload6updateElllllllllll(%class.model_DMAload* %this, i64 %conf_done, i64 %conf_num_hidden, i64 %conf_num_loops, i64 %conf_num_movies, i64 %conf_num_testusers, i64 %conf_num_users, i64 %conf_num_visible, i64 %data_in, i64 %rd_grant, i64 %rst, i64 %wr_grant) align 2 {
+  %1 = alloca %class.model_DMAload*, align 8
+  %2 = alloca i64, align 8
+  %3 = alloca i64, align 8
+  %4 = alloca i64, align 8
+  %5 = alloca i64, align 8
+  %6 = alloca i64, align 8
+  %7 = alloca i64, align 8
+  %8 = alloca i64, align 8
+  %9 = alloca i64, align 8
+  %10 = alloca i64, align 8
+  %11 = alloca i64, align 8
+  %12 = alloca i64, align 8
+  %cppVar_215 = alloca i64, align 8
+  %cppVar_221 = alloca i64, align 8
+  %cppVar_226 = alloca i64, align 8
+  %cppVar_228 = alloca i64, align 8
+  %cppVar_241 = alloca %class.SysCArray1D, align 8
+  %13 = alloca i8*
+  %14 = alloca i32
+  %15 = alloca i32
+  store %class.model_DMAload* %this, %class.model_DMAload** %1, align 8
+  store i64 %conf_done, i64* %2, align 8
+  store i64 %conf_num_hidden, i64* %3, align 8
+  store i64 %conf_num_loops, i64* %4, align 8
+  store i64 %conf_num_movies, i64* %5, align 8
+  store i64 %conf_num_testusers, i64* %6, align 8
+  store i64 %conf_num_users, i64* %7, align 8
+  store i64 %conf_num_visible, i64* %8, align 8
+  store i64 %data_in, i64* %9, align 8
+  store i64 %rd_grant, i64* %10, align 8
+  store i64 %rst, i64* %11, align 8
+  store i64 %wr_grant, i64* %12, align 8
+  %16 = load %class.model_DMAload** %1
+  %17 = load i64* %2, align 8
+  %18 = load i64* %3, align 8
+  %19 = load i64* %4, align 8
+  %20 = load i64* %5, align 8
+  %21 = load i64* %6, align 8
+  %22 = load i64* %7, align 8
+  %23 = load i64* %8, align 8
+  %24 = load i64* %9, align 8
+  %25 = load i64* %10, align 8
+  %26 = load i64* %11, align 8
+  %27 = load i64* %12, align 8
+  %28 = call i64 @_ZN13model_DMAload14cppUpdateFun_iElllllllllll(%class.model_DMAload* %16, i64 %17, i64 %18, i64 %19, i64 %20, i64 %21, i64 %22, i64 %23, i64 %24, i64 %25, i64 %26, i64 %27)
+  store i64 %28, i64* %cppVar_215, align 8
+  %29 = load i64* %2, align 8
+  %30 = load i64* %3, align 8
+  %31 = load i64* %4, align 8
+  %32 = load i64* %5, align 8
+  %33 = load i64* %6, align 8
+  %34 = load i64* %7, align 8
+  %35 = load i64* %8, align 8
+  %36 = load i64* %9, align 8
+  %37 = load i64* %10, align 8
+  %38 = load i64* %11, align 8
+  %39 = load i64* %12, align 8
+  %40 = call i64 @_ZN13model_DMAload24cppUpdateFun_rd_completeElllllllllll(%class.model_DMAload* %16, i64 %29, i64 %30, i64 %31, i64 %32, i64 %33, i64 %34, i64 %35, i64 %36, i64 %37, i64 %38, i64 %39)
+  store i64 %40, i64* %cppVar_221, align 8
+  %41 = load i64* %2, align 8
+  %42 = load i64* %3, align 8
+  %43 = load i64* %4, align 8
+  %44 = load i64* %5, align 8
+  %45 = load i64* %6, align 8
+  %46 = load i64* %7, align 8
+  %47 = load i64* %8, align 8
+  %48 = load i64* %9, align 8
+  %49 = load i64* %10, align 8
+  %50 = load i64* %11, align 8
+  %51 = load i64* %12, align 8
+  %52 = call i64 @_ZN13model_DMAload23cppUpdateFun_rd_grantedElllllllllll(%class.model_DMAload* %16, i64 %41, i64 %42, i64 %43, i64 %44, i64 %45, i64 %46, i64 %47, i64 %48, i64 %49, i64 %50, i64 %51)
+  store i64 %52, i64* %cppVar_226, align 8
+  %53 = load i64* %2, align 8
+  %54 = load i64* %3, align 8
+  %55 = load i64* %4, align 8
+  %56 = load i64* %5, align 8
+  %57 = load i64* %6, align 8
+  %58 = load i64* %7, align 8
+  %59 = load i64* %8, align 8
+  %60 = load i64* %9, align 8
+  %61 = load i64* %10, align 8
+  %62 = load i64* %11, align 8
+  %63 = load i64* %12, align 8
+  %64 = call i64 @_ZN13model_DMAload23cppUpdateFun_rd_requestElllllllllll(%class.model_DMAload* %16, i64 %53, i64 %54, i64 %55, i64 %56, i64 %57, i64 %58, i64 %59, i64 %60, i64 %61, i64 %62, i64 %63)
+  store i64 %64, i64* %cppVar_228, align 8
+  %65 = load i64* %2, align 8
+  %66 = load i64* %3, align 8
+  %67 = load i64* %4, align 8
+  %68 = load i64* %5, align 8
+  %69 = load i64* %6, align 8
+  %70 = load i64* %7, align 8
+  %71 = load i64* %8, align 8
+  %72 = load i64* %9, align 8
+  %73 = load i64* %10, align 8
+  %74 = load i64* %11, align 8
+  %75 = load i64* %12, align 8
+  call void @_ZN13model_DMAload17cppUpdateFun_dataElllllllllll(%class.SysCArray1D* sret %cppVar_241, %class.model_DMAload* %16, i64 %65, i64 %66, i64 %67, i64 %68, i64 %69, i64 %70, i64 %71, i64 %72, i64 %73, i64 %74, i64 %75)
+  %76 = load i64* %cppVar_215, align 8
+  %77 = getelementptr inbounds %class.model_DMAload* %16, i32 0, i32 3
+  store i64 %76, i64* %77, align 8
+  %78 = load i64* %cppVar_221, align 8
+  %79 = getelementptr inbounds %class.model_DMAload* %16, i32 0, i32 12
+  store i64 %78, i64* %79, align 8
+  %80 = load i64* %cppVar_226, align 8
+  %81 = getelementptr inbounds %class.model_DMAload* %16, i32 0, i32 13
+  store i64 %80, i64* %81, align 8
+  %82 = getelementptr inbounds %class.model_DMAload* %16, i32 0, i32 16
+  store i64 0, i64* %82, align 8
+  %83 = getelementptr inbounds %class.model_DMAload* %16, i32 0, i32 0
+  %84 = invoke %class.SysCArray1D* @_ZN8type_memIhLj512EEaSERKS0_(%class.SysCArray1D* %83, %class.SysCArray1D* %cppVar_241)
+          to label %85 unwind label %86
+
+; <label>:85                                      ; preds = %0
+  store i32 1, i32* %15
+  call void @_ZN8type_memIhLj512EED1Ev(%class.SysCArray1D* %cppVar_241)
+  ret void
+
+; <label>:86                                      ; preds = %0
+  %87 = call i8* @llvm.eh.exception() nounwind
+  store i8* %87, i8** %13
+  %88 = call i32 (i8*, i8*, ...)* @llvm.eh.selector(i8* %87, i8* bitcast (i32 (...)* @__gxx_personality_v0 to i8*), i8* null) nounwind
+  store i32 0, i32* %14
+  invoke void @_ZN8type_memIhLj512EED1Ev(%class.SysCArray1D* %cppVar_241)
+          to label %89 unwind label %92
+
+; <label>:89                                      ; preds = %86
+  br label %90
+
+; <label>:90                                      ; preds = %89
+  %91 = load i8** %13
+  call void @_Unwind_Resume_or_Rethrow(i8* %91) noreturn
+  unreachable
+
+; <label>:92                                      ; preds = %86
+  %93 = call i8* @llvm.eh.exception() nounwind
+  %94 = call i32 (i8*, i8*, ...)* @llvm.eh.selector(i8* %93, i8* bitcast (i32 (...)* @__gxx_personality_v0 to i8*), i8* null) nounwind
+  call void @_ZSt9terminatev() noreturn nounwind
+  unreachable
+}
+
+define internal void @__cxx_global_var_init() {
+  call void @_ZN13model_DMAloadC1Ev(%class.model_DMAload* @GM)
+  %1 = call i32 @__cxa_atexit(void (i8*)* bitcast (void (%class.model_DMAload*)* @_ZN13model_DMAloadD1Ev to void (i8*)*), i8* bitcast (%class.model_DMAload* @GM to i8*), i8* bitcast (i8** @__dso_handle to i8*))
+  ret void
+}
+
+define linkonce_odr void @_ZN13model_DMAloadC1Ev(%class.model_DMAload* %this) unnamed_addr align 2 {
+  %1 = alloca %class.model_DMAload*, align 8
+  store %class.model_DMAload* %this, %class.model_DMAload** %1, align 8
+  %2 = load %class.model_DMAload** %1
+  call void @_ZN13model_DMAloadC2Ev(%class.model_DMAload* %2)
+  ret void
+}
+
+define linkonce_odr void @_ZN13model_DMAloadD1Ev(%class.model_DMAload* %this) unnamed_addr align 2 {
+  %1 = alloca %class.model_DMAload*, align 8
+  store %class.model_DMAload* %this, %class.model_DMAload** %1, align 8
+  %2 = load %class.model_DMAload** %1
+  call void @_ZN13model_DMAloadD2Ev(%class.model_DMAload* %2)
+  ret void
+}
+
+declare i32 @__cxa_atexit(void (i8*)*, i8*, i8*)
+
+define void @_Z4waitv() nounwind {
+  %1 = load i32* @cycleCnt, align 4
+  %2 = add nsw i32 %1, 1
+  store i32 %2, i32* @cycleCnt, align 4
+  ret void
+}
+
+define void @_Z15reset_signal_isib(i32, i1 zeroext) nounwind {
+  %3 = alloca i32, align 4
+  %4 = alloca i8, align 1
+  store i32 %0, i32* %3, align 4
+  %5 = zext i1 %1 to i8
+  store i8 %5, i8* %4, align 1
+  ret void
+}
+
+define void @_Z14set_stack_sizei(i32) nounwind {
+  %2 = alloca i32, align 4
+  store i32 %0, i32* %2, align 4
+  ret void
+}
+
+define void @_ZN3rbm6configEv(%struct.rbm* %this) align 2 {
+  %1 = alloca %struct.rbm*, align 8
+  %2 = alloca i16, align 2
+  %3 = alloca i16, align 2
+  %4 = alloca i16, align 2
+  %5 = alloca i16, align 2
+  %6 = alloca i16, align 2
+  %7 = alloca i8, align 1
+  %8 = alloca i16, align 2
+  %9 = alloca i16, align 2
+  %10 = alloca i16, align 2
+  %11 = alloca i16, align 2
+  %12 = alloca i16, align 2
+  %13 = alloca i16, align 2
+  %14 = alloca i8, align 1
+  store %struct.rbm* %this, %struct.rbm** %1, align 8
+  %15 = load %struct.rbm** %1
+  br label %16
+
+; <label>:16                                      ; preds = %0
+  %17 = getelementptr inbounds %struct.rbm* %15, i32 0, i32 30
+  store i16 0, i16* %2, align 2
+  call void @_ZN13sc_signal_u165writeERKt(%class.sc_signal_u16* %17, i16* %2)
+  %18 = getelementptr inbounds %struct.rbm* %15, i32 0, i32 31
+  store i16 0, i16* %3, align 2
+  call void @_ZN13sc_signal_u165writeERKt(%class.sc_signal_u16* %18, i16* %3)
+  %19 = getelementptr inbounds %struct.rbm* %15, i32 0, i32 32
+  store i16 0, i16* %4, align 2
+  call void @_ZN13sc_signal_u165writeERKt(%class.sc_signal_u16* %19, i16* %4)
+  %20 = getelementptr inbounds %struct.rbm* %15, i32 0, i32 33
+  store i16 0, i16* %5, align 2
+  call void @_ZN13sc_signal_u165writeERKt(%class.sc_signal_u16* %20, i16* %5)
+  %21 = getelementptr inbounds %struct.rbm* %15, i32 0, i32 35
+  store i16 0, i16* %6, align 2
+  call void @_ZN13sc_signal_u165writeERKt(%class.sc_signal_u16* %21, i16* %6)
+  %22 = getelementptr inbounds %struct.rbm* %15, i32 0, i32 36
+  store i8 0, i8* %7, align 1
+  call void @_ZN14sc_signal_bool5writeERKb(%class.sc_signal_bool* %22, i8* %7)
+  call void @_Z4waitv()
+  br label %23
+
+; <label>:23                                      ; preds = %16
+  br label %24
+
+; <label>:24                                      ; preds = %25, %23
+  call void @_Z4waitv()
+  br label %25
+
+; <label>:25                                      ; preds = %24
+  %26 = getelementptr inbounds %struct.rbm* %15, i32 0, i32 13
+  %27 = call zeroext i1 @_ZN14sc_signal_bool4readEv(%class.sc_signal_bool* %26)
+  %28 = xor i1 %27, true
+  br i1 %28, label %24, label %29
+
+; <label>:29                                      ; preds = %25
+  %30 = getelementptr inbounds %struct.rbm* %15, i32 0, i32 30
+  %31 = getelementptr inbounds %struct.rbm* %15, i32 0, i32 14
+  %32 = call i32 @_ZN13sc_signal_u324readEv(%class.sc_signal_int32* %31)
+  %33 = trunc i32 %32 to i16
+  store i16 %33, i16* %8, align 2
+  call void @_ZN13sc_signal_u165writeERKt(%class.sc_signal_u16* %30, i16* %8)
+  %34 = getelementptr inbounds %struct.rbm* %15, i32 0, i32 31
+  %35 = getelementptr inbounds %struct.rbm* %15, i32 0, i32 15
+  %36 = call i32 @_ZN13sc_signal_u324readEv(%class.sc_signal_int32* %35)
+  %37 = trunc i32 %36 to i16
+  store i16 %37, i16* %9, align 2
+  call void @_ZN13sc_signal_u165writeERKt(%class.sc_signal_u16* %34, i16* %9)
+  %38 = getelementptr inbounds %struct.rbm* %15, i32 0, i32 32
+  %39 = getelementptr inbounds %struct.rbm* %15, i32 0, i32 16
+  %40 = call i32 @_ZN13sc_signal_u324readEv(%class.sc_signal_int32* %39)
+  %41 = trunc i32 %40 to i16
+  store i16 %41, i16* %10, align 2
+  call void @_ZN13sc_signal_u165writeERKt(%class.sc_signal_u16* %38, i16* %10)
+  %42 = getelementptr inbounds %struct.rbm* %15, i32 0, i32 33
+  %43 = getelementptr inbounds %struct.rbm* %15, i32 0, i32 17
+  %44 = call i32 @_ZN13sc_signal_u324readEv(%class.sc_signal_int32* %43)
+  %45 = trunc i32 %44 to i16
+  store i16 %45, i16* %11, align 2
+  call void @_ZN13sc_signal_u165writeERKt(%class.sc_signal_u16* %42, i16* %11)
+  %46 = getelementptr inbounds %struct.rbm* %15, i32 0, i32 34
+  %47 = getelementptr inbounds %struct.rbm* %15, i32 0, i32 18
+  %48 = call i32 @_ZN13sc_signal_u324readEv(%class.sc_signal_int32* %47)
+  %49 = trunc i32 %48 to i16
+  store i16 %49, i16* %12, align 2
+  call void @_ZN13sc_signal_u165writeERKt(%class.sc_signal_u16* %46, i16* %12)
+  %50 = getelementptr inbounds %struct.rbm* %15, i32 0, i32 35
+  %51 = getelementptr inbounds %struct.rbm* %15, i32 0, i32 19
+  %52 = call i32 @_ZN13sc_signal_u324readEv(%class.sc_signal_int32* %51)
+  %53 = trunc i32 %52 to i16
+  store i16 %53, i16* %13, align 2
+  call void @_ZN13sc_signal_u165writeERKt(%class.sc_signal_u16* %50, i16* %13)
+  %54 = call %class.sc_signal_bool* @_ZNSt6iocoutlsEPKc(%class.sc_signal_bool* @_ZSt4cout, i8* getelementptr inbounds ([12 x i8]* @.str, i32 0, i32 0))
+  %55 = load i32* @_ZSt4endl, align 4
+  %56 = call %class.sc_signal_bool* @_ZNSt6iocoutlsEi(%class.sc_signal_bool* %54, i32 %55)
+  %57 = getelementptr inbounds %struct.rbm* %15, i32 0, i32 36
+  store i8 1, i8* %14, align 1
+  call void @_ZN14sc_signal_bool5writeERKb(%class.sc_signal_bool* %57, i8* %14)
+  br label %58
+
+; <label>:58                                      ; preds = %29
+  br label %59
+
+; <label>:59                                      ; preds = %58, %59
+  call void @_Z4waitv()
+  br label %59
+                                                  ; No predecessors!
+  ret void
+}
+
+define linkonce_odr void @_ZN13sc_signal_u165writeERKt(%class.sc_signal_u16* %this, i16* %d) nounwind align 2 {
+  %1 = alloca %class.sc_signal_u16*, align 8
+  %2 = alloca i16*, align 8
+  store %class.sc_signal_u16* %this, %class.sc_signal_u16** %1, align 8
+  store i16* %d, i16** %2, align 8
+  %3 = load %class.sc_signal_u16** %1
+  %4 = load i16** %2
+  %5 = load i16* %4, align 8
+  %6 = getelementptr inbounds %class.sc_signal_u16* %3, i32 0, i32 0
+  store i16 %5, i16* %6, align 2
+  ret void
+}
+
+define linkonce_odr void @_ZN14sc_signal_bool5writeERKb(%class.sc_signal_bool* %this, i8* %d) nounwind align 2 {
+  %1 = alloca %class.sc_signal_bool*, align 8
+  %2 = alloca i8*, align 8
+  store %class.sc_signal_bool* %this, %class.sc_signal_bool** %1, align 8
+  store i8* %d, i8** %2, align 8
+  %3 = load %class.sc_signal_bool** %1
+  %4 = load i8** %2
+  %5 = load i8* %4, align 8
+  %6 = trunc i8 %5 to i1
+  %7 = getelementptr inbounds %class.sc_signal_bool* %3, i32 0, i32 0
+  %8 = zext i1 %6 to i8
+  store i8 %8, i8* %7, align 1
+  ret void
+}
+
+define linkonce_odr zeroext i1 @_ZN14sc_signal_bool4readEv(%class.sc_signal_bool* %this) nounwind align 2 {
+  %1 = alloca %class.sc_signal_bool*, align 8
+  store %class.sc_signal_bool* %this, %class.sc_signal_bool** %1, align 8
+  %2 = load %class.sc_signal_bool** %1
+  %3 = getelementptr inbounds %class.sc_signal_bool* %2, i32 0, i32 0
+  %4 = load i8* %3, align 1
+  %5 = trunc i8 %4 to i1
+  ret i1 %5
+}
+
+define linkonce_odr i32 @_ZN13sc_signal_u324readEv(%class.sc_signal_int32* %this) nounwind align 2 {
+  %1 = alloca %class.sc_signal_int32*, align 8
+  store %class.sc_signal_int32* %this, %class.sc_signal_int32** %1, align 8
+  %2 = load %class.sc_signal_int32** %1
+  %3 = getelementptr inbounds %class.sc_signal_int32* %2, i32 0, i32 0
+  %4 = load i32* %3, align 4
+  ret i32 %4
+}
+
+define linkonce_odr %class.sc_signal_bool* @_ZNSt6iocoutlsEPKc(%class.sc_signal_bool* %this, i8*) nounwind align 2 {
+  %2 = alloca %class.sc_signal_bool*, align 8
+  %3 = alloca %class.sc_signal_bool*, align 8
+  %4 = alloca i8*, align 8
+  store %class.sc_signal_bool* %this, %class.sc_signal_bool** %3, align 8
+  store i8* %0, i8** %4, align 8
+  %5 = load %class.sc_signal_bool** %3
+  %6 = load %class.sc_signal_bool** %2
+  ret %class.sc_signal_bool* %6
+}
+
+define linkonce_odr %class.sc_signal_bool* @_ZNSt6iocoutlsEi(%class.sc_signal_bool* %this, i32) nounwind align 2 {
+  %2 = alloca %class.sc_signal_bool*, align 8
+  %3 = alloca %class.sc_signal_bool*, align 8
+  %4 = alloca i32, align 4
+  store %class.sc_signal_bool* %this, %class.sc_signal_bool** %3, align 8
+  store i32 %0, i32* %4, align 4
+  %5 = load %class.sc_signal_bool** %3
+  %6 = load %class.sc_signal_bool** %2
+  ret %class.sc_signal_bool* %6
+}
+
+define void @_ZN3rbm4loadEv(%struct.rbm* %this) align 2 {
+  %1 = alloca %struct.rbm*, align 8
+  %2 = alloca i8, align 1
+  %3 = alloca i32, align 4
+  %4 = alloca i32, align 4
+  %5 = alloca i8, align 1
+  %6 = alloca i8, align 1
+  %7 = alloca i8, align 1
+  %nv = alloca i32, align 4
+  %ntu = alloca i32, align 4
+  %nu = alloca i32, align 4
+  %nlp = alloca i32, align 4
+  %nm = alloca i32, align 4
+  %index = alloca i16, align 2
+  %loop_count = alloca i16, align 2
+  %pingpong = alloca i8, align 1
+  %tmp1 = alloca i16, align 2
+  %tmp2 = alloca i16, align 2
+  %8 = alloca i32, align 4
+  %9 = alloca i32, align 4
+  %i = alloca i16, align 2
+  %rate = alloca i8, align 1
+  %10 = alloca i8, align 1
+  %11 = alloca i8, align 1
+  %12 = alloca i8, align 1
+  %13 = alloca i16, align 2
+  %14 = alloca i16, align 2
+  %15 = alloca i16, align 2
+  %16 = alloca i16, align 2
+  %17 = alloca i16, align 2
+  %18 = alloca i16, align 2
+  %19 = alloca i32, align 4
+  %20 = alloca i32, align 4
+  %21 = alloca i8, align 1
+  %22 = alloca i8, align 1
+  %23 = alloca i32, align 4
+  %24 = alloca i32, align 4
+  %25 = alloca i32, align 4
+  %26 = alloca i8, align 1
+  %27 = alloca i8, align 1
+  %28 = alloca i8, align 1
+  %29 = alloca i8, align 1
+  %dma_index = alloca i32, align 4
+  %30 = alloca i32, align 4
+  %31 = alloca i8, align 1
+  %32 = alloca i8, align 1
+  %i1 = alloca i16, align 2
+  %rate2 = alloca i8, align 1
+  store %struct.rbm* %this, %struct.rbm** %1, align 8
+  %33 = load %struct.rbm** %1
+  %34 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 36
+  store i8 1, i8* %2, align 1
+  %35 = call zeroext i1 @_ZN14sc_signal_boolaSERKb(%class.sc_signal_bool* %34, i8* %2)
+  br label %36
+
+; <label>:36                                      ; preds = %0
+  %37 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 2
+  store i32 0, i32* %3, align 4
+  call void @_ZN13sc_signal_u325writeERKj(%class.sc_signal_int32* %37, i32* %3)
+  %38 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 3
+  store i32 0, i32* %4, align 4
+  call void @_ZN13sc_signal_u325writeERKj(%class.sc_signal_int32* %38, i32* %4)
+  %39 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 4
+  store i8 0, i8* %5, align 1
+  call void @_ZN14sc_signal_bool5writeERKb(%class.sc_signal_bool* %39, i8* %5)
+  %40 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 37
+  store i8 0, i8* %6, align 1
+  call void @_ZN14sc_signal_bool5writeERKb(%class.sc_signal_bool* %40, i8* %6)
+  %41 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 38
+  store i8 0, i8* %7, align 1
+  call void @_ZN14sc_signal_bool5writeERKb(%class.sc_signal_bool* %41, i8* %7)
+  br label %42
+
+; <label>:42                                      ; preds = %36
+  br label %43
+
+; <label>:43                                      ; preds = %44, %42
+  call void @_Z4waitv()
+  br label %44
+
+; <label>:44                                      ; preds = %43
+  %45 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 36
+  %46 = call zeroext i1 @_ZN14sc_signal_bool4readEv(%class.sc_signal_bool* %45)
+  %47 = xor i1 %46, true
+  br i1 %47, label %43, label %48
+
+; <label>:48                                      ; preds = %44
+  %49 = load i32* @conf_num_hidden_inp, align 4
+  %50 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 14
+  %51 = getelementptr inbounds %class.sc_signal_int32* %50, i32 0, i32 0
+  store i32 %49, i32* %51, align 4
+  %52 = load i32* @conf_num_visible_inp, align 4
+  %53 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 15
+  %54 = getelementptr inbounds %class.sc_signal_int32* %53, i32 0, i32 0
+  store i32 %52, i32* %54, align 4
+  %55 = load i32* @conf_num_users_inp, align 4
+  %56 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 16
+  %57 = getelementptr inbounds %class.sc_signal_int32* %56, i32 0, i32 0
+  store i32 %55, i32* %57, align 4
+  %58 = load i32* @conf_num_loops_inp, align 4
+  %59 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 17
+  %60 = getelementptr inbounds %class.sc_signal_int32* %59, i32 0, i32 0
+  store i32 %58, i32* %60, align 4
+  %61 = load i32* @conf_num_testusers_inp, align 4
+  %62 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 18
+  %63 = getelementptr inbounds %class.sc_signal_int32* %62, i32 0, i32 0
+  store i32 %61, i32* %63, align 4
+  %64 = load i32* @conf_num_movies_inp, align 4
+  %65 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 19
+  %66 = getelementptr inbounds %class.sc_signal_int32* %65, i32 0, i32 0
+  store i32 %64, i32* %66, align 4
+  %67 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 31
+  %68 = call zeroext i16 @_ZN13sc_signal_u164readEv(%class.sc_signal_u16* %67)
+  %69 = zext i16 %68 to i32
+  store i32 %69, i32* %nv, align 4
+  %70 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 34
+  %71 = call zeroext i16 @_ZN13sc_signal_u164readEv(%class.sc_signal_u16* %70)
+  %72 = zext i16 %71 to i32
+  store i32 %72, i32* %ntu, align 4
+  %73 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 32
+  %74 = call zeroext i16 @_ZN13sc_signal_u164readEv(%class.sc_signal_u16* %73)
+  %75 = zext i16 %74 to i32
+  store i32 %75, i32* %nu, align 4
+  %76 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 33
+  %77 = call zeroext i16 @_ZN13sc_signal_u164readEv(%class.sc_signal_u16* %76)
+  %78 = zext i16 %77 to i32
+  store i32 %78, i32* %nlp, align 4
+  %79 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 35
+  %80 = call zeroext i16 @_ZN13sc_signal_u164readEv(%class.sc_signal_u16* %79)
+  %81 = zext i16 %80 to i32
+  store i32 %81, i32* %nm, align 4
+  %82 = load i32* %nv, align 4
+  %83 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 3
+  %84 = call i32* @_ZN13sc_signal_u32cvRjEv(%class.sc_signal_int32* %83)
+  %85 = load i32* %84
+  %86 = icmp eq i32 %82, %85
+  call void @__CPROVER_assume(i1 zeroext %86)
+  store i16 0, i16* %index, align 2
+  store i16 0, i16* %loop_count, align 2
+  store i8 0, i8* %pingpong, align 1
+  br label %87
+
+; <label>:87                                      ; preds = %48
+  %88 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 2
+  %89 = load i16* %index, align 2
+  %90 = zext i16 %89 to i32
+  store i32 %90, i32* %8, align 4
+  call void @_ZN13sc_signal_u325writeERKj(%class.sc_signal_int32* %88, i32* %8)
+  %91 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 3
+  %92 = load i32* %nm, align 4
+  %93 = mul i32 5, %92
+  store i32 %93, i32* %9, align 4
+  call void @_ZN13sc_signal_u325writeERKj(%class.sc_signal_int32* %91, i32* %9)
+  br label %240
+                                                  ; No predecessors!
+  store i16 0, i16* %i, align 2
+  br label %95
+
+; <label>:95                                      ; preds = %345, %94
+  %96 = load i16* %i, align 2
+  %97 = zext i16 %96 to i32
+  %98 = icmp slt i32 %97, 500
+  br i1 %98, label %99, label %348
+
+; <label>:99                                      ; preds = %95
+  %100 = load i16* %i, align 2
+  %101 = zext i16 %100 to i32
+  %102 = load i32* %nv, align 4
+  %103 = icmp eq i32 %101, %102
+  br i1 %103, label %104, label %105
+
+; <label>:104                                     ; preds = %99
+  br label %348
+
+; <label>:105                                     ; preds = %99
+  %106 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 6
+  %107 = call i32 @_ZN13sc_signal_u324readEv(%class.sc_signal_int32* %106)
+  %108 = trunc i32 %107 to i8
+  store i8 %108, i8* %rate, align 1
+  call void @_Z4waitv()
+  %109 = load i8* %rate, align 1
+  %110 = load i16* %i, align 2
+  %111 = zext i16 %110 to i64
+  %112 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 20
+  %113 = load i8* %pingpong, align 1
+  %114 = trunc i8 %113 to i1
+  %115 = zext i1 %114 to i32
+  %116 = call i8* @_ZN11SysCArray2DIhLj2ELj512EEixEj(%class.SysCArray2D* %112, i32 %115)
+  %117 = getelementptr inbounds i8* %116, i64 %111
+  store i8 %109, i8* %117
+  store i32 0, i32* @rd_complete, align 4
+  br label %118
+
+; <label>:118                                     ; preds = %105
+  %119 = load i8* @conf_done_inp, align 1
+  %120 = trunc i8 %119 to i1
+  %121 = zext i1 %120 to i64
+  %122 = load i32* @conf_num_hidden_inp, align 4
+  %123 = zext i32 %122 to i64
+  %124 = load i32* @conf_num_visible_inp, align 4
+  %125 = zext i32 %124 to i64
+  %126 = load i32* @conf_num_users_inp, align 4
+  %127 = zext i32 %126 to i64
+  %128 = load i32* @conf_num_loops_inp, align 4
+  %129 = zext i32 %128 to i64
+  %130 = load i32* @conf_num_testusers_inp, align 4
+  %131 = zext i32 %130 to i64
+  %132 = load i32* @conf_num_movies_inp, align 4
+  %133 = zext i32 %132 to i64
+  %134 = load i8* @rst_inp, align 1
+  %135 = trunc i8 %134 to i1
+  %136 = zext i1 %135 to i64
+  %137 = load i8* @rd_grant_inp, align 1
+  %138 = trunc i8 %137 to i1
+  %139 = zext i1 %138 to i64
+  %140 = load i32* @data_in_inp, align 4
+  %141 = zext i32 %140 to i64
+  %142 = load i8* @wr_grant_inp, align 1
+  %143 = trunc i8 %142 to i1
+  %144 = zext i1 %143 to i64
+  call void @_ZN13model_DMAload6updateElllllllllll(%class.model_DMAload* @GM, i64 %121, i64 %123, i64 %125, i64 %127, i64 %129, i64 %131, i64 %133, i64 %136, i64 %139, i64 %141, i64 %144)
+  %145 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 36
+  %146 = call zeroext i1 @_ZN14sc_signal_bool4readEv(%class.sc_signal_bool* %145)
+  %147 = zext i1 %146 to i64
+  %148 = load i64* getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 4), align 8
+  %149 = icmp eq i64 %147, %148
+  call void @__CPROVER_assert(i1 zeroext %149, i8* getelementptr inbounds ([16 x i8]* @.str1, i32 0, i32 0))
+  %150 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 12
+  %151 = call zeroext i1 @_ZN14sc_signal_bool4readEv(%class.sc_signal_bool* %150)
+  %152 = zext i1 %151 to i64
+  %153 = load i64* getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 2), align 8
+  %154 = icmp eq i64 %152, %153
+  call void @__CPROVER_assert(i1 zeroext %154, i8* getelementptr inbounds ([11 x i8]* @.str2, i32 0, i32 0))
+  %155 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 30
+  %156 = call zeroext i16 @_ZN13sc_signal_u164readEv(%class.sc_signal_u16* %155)
+  %157 = zext i16 %156 to i64
+  %158 = load i64* getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 5), align 8
+  %159 = icmp eq i64 %157, %158
+  call void @__CPROVER_assert(i1 zeroext %159, i8* getelementptr inbounds ([17 x i8]* @.str3, i32 0, i32 0))
+  %160 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 31
+  %161 = call zeroext i16 @_ZN13sc_signal_u164readEv(%class.sc_signal_u16* %160)
+  %162 = zext i16 %161 to i64
+  %163 = load i64* getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 10), align 8
+  %164 = icmp eq i64 %162, %163
+  call void @__CPROVER_assert(i1 zeroext %164, i8* getelementptr inbounds ([18 x i8]* @.str4, i32 0, i32 0))
+  %165 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 32
+  %166 = call zeroext i16 @_ZN13sc_signal_u164readEv(%class.sc_signal_u16* %165)
+  %167 = zext i16 %166 to i64
+  %168 = load i64* getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 9), align 8
+  %169 = icmp eq i64 %167, %168
+  call void @__CPROVER_assert(i1 zeroext %169, i8* getelementptr inbounds ([16 x i8]* @.str5, i32 0, i32 0))
+  %170 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 33
+  %171 = call zeroext i16 @_ZN13sc_signal_u164readEv(%class.sc_signal_u16* %170)
+  %172 = zext i16 %171 to i64
+  %173 = load i64* getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 6), align 8
+  %174 = icmp eq i64 %172, %173
+  call void @__CPROVER_assert(i1 zeroext %174, i8* getelementptr inbounds ([16 x i8]* @.str6, i32 0, i32 0))
+  %175 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 34
+  %176 = call zeroext i16 @_ZN13sc_signal_u164readEv(%class.sc_signal_u16* %175)
+  %177 = zext i16 %176 to i64
+  %178 = load i64* getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 8), align 8
+  %179 = icmp eq i64 %177, %178
+  call void @__CPROVER_assert(i1 zeroext %179, i8* getelementptr inbounds ([20 x i8]* @.str7, i32 0, i32 0))
+  %180 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 35
+  %181 = call zeroext i16 @_ZN13sc_signal_u164readEv(%class.sc_signal_u16* %180)
+  %182 = zext i16 %181 to i64
+  %183 = load i64* getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 7), align 8
+  %184 = icmp eq i64 %182, %183
+  call void @__CPROVER_assert(i1 zeroext %184, i8* getelementptr inbounds ([17 x i8]* @.str8, i32 0, i32 0))
+  %185 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 2
+  %186 = call i32 @_ZN13sc_signal_u324readEv(%class.sc_signal_int32* %185)
+  %187 = zext i32 %186 to i64
+  %188 = load i64* getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 14), align 8
+  %189 = icmp eq i64 %187, %188
+  call void @__CPROVER_assert(i1 zeroext %189, i8* getelementptr inbounds ([15 x i8]* @.str9, i32 0, i32 0))
+  %190 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 3
+  %191 = call i32 @_ZN13sc_signal_u324readEv(%class.sc_signal_int32* %190)
+  %192 = zext i32 %191 to i64
+  %193 = load i64* getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 15), align 8
+  %194 = icmp eq i64 %192, %193
+  call void @__CPROVER_assert(i1 zeroext %194, i8* getelementptr inbounds ([16 x i8]* @.str10, i32 0, i32 0))
+  %195 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 4
+  %196 = call zeroext i1 @_ZN14sc_signal_bool4readEv(%class.sc_signal_bool* %195)
+  %197 = zext i1 %196 to i64
+  %198 = load i64* getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 16), align 8
+  %199 = icmp eq i64 %197, %198
+  call void @__CPROVER_assert(i1 zeroext %199, i8* getelementptr inbounds ([17 x i8]* @.str11, i32 0, i32 0))
+  %200 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 9
+  %201 = call zeroext i1 @_ZN14sc_signal_bool4readEv(%class.sc_signal_bool* %200)
+  %202 = zext i1 %201 to i64
+  %203 = load i64* getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 20), align 8
+  %204 = icmp eq i64 %202, %203
+  call void @__CPROVER_assert(i1 zeroext %204, i8* getelementptr inbounds ([17 x i8]* @.str12, i32 0, i32 0))
+  %205 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 7
+  %206 = call i32 @_ZN13sc_signal_u324readEv(%class.sc_signal_int32* %205)
+  %207 = zext i32 %206 to i64
+  %208 = load i64* getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 18), align 8
+  %209 = icmp eq i64 %207, %208
+  call void @__CPROVER_assert(i1 zeroext %209, i8* getelementptr inbounds ([15 x i8]* @.str13, i32 0, i32 0))
+  %210 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 8
+  %211 = call i32 @_ZN13sc_signal_u324readEv(%class.sc_signal_int32* %210)
+  %212 = zext i32 %211 to i64
+  %213 = load i64* getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 19), align 8
+  %214 = icmp eq i64 %212, %213
+  call void @__CPROVER_assert(i1 zeroext %214, i8* getelementptr inbounds ([16 x i8]* @.str14, i32 0, i32 0))
+  %215 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 11
+  %216 = call i32 @_ZN13sc_signal_u324readEv(%class.sc_signal_int32* %215)
+  %217 = zext i32 %216 to i64
+  %218 = load i64* getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 1), align 8
+  %219 = icmp eq i64 %217, %218
+  call void @__CPROVER_assert(i1 zeroext %219, i8* getelementptr inbounds ([15 x i8]* @.str15, i32 0, i32 0))
+  %220 = load i32* @rd_complete, align 4
+  %221 = zext i32 %220 to i64
+  %222 = load i64* getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 12), align 8
+  %223 = icmp eq i64 %221, %222
+  call void @__CPROVER_assert(i1 zeroext %223, i8* getelementptr inbounds ([18 x i8]* @.str16, i32 0, i32 0))
+  %224 = load i16* %i, align 2
+  %225 = zext i16 %224 to i64
+  %226 = load i64* getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 3), align 8
+  %227 = icmp eq i64 %225, %226
+  call void @__CPROVER_assert(i1 zeroext %227, i8* getelementptr inbounds ([8 x i8]* @.str17, i32 0, i32 0))
+  %228 = load i8** getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 0, i32 0), align 8
+  %229 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 20
+  %230 = call i8* @_ZN11SysCArray2DIhLj2ELj512EEixEj(%class.SysCArray2D* %229, i32 0)
+  %231 = call zeroext i1 @__CPROVER_array_equal(i8* %228, i8* %230)
+  call void @__CPROVER_assert(i1 zeroext %231, i8* getelementptr inbounds ([11 x i8]* @.str18, i32 0, i32 0))
+  %232 = load i8** getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 11, i32 0), align 8
+  %233 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 28
+  %234 = call i8* @_ZN11SysCArray2DIhLj2ELj128EEixEj(%class.SysCArray2D* %233, i32 0)
+  %235 = call zeroext i1 @__CPROVER_array_equal(i8* %232, i8* %234)
+  call void @__CPROVER_assert(i1 zeroext %235, i8* getelementptr inbounds ([21 x i8]* @.str19, i32 0, i32 0))
+  %236 = load i16* %i, align 2
+  %237 = zext i16 %236 to i32
+  %238 = load i32* %nv, align 4
+  %239 = icmp ult i32 %237, %238
+  call void @__CPROVER_assert(i1 zeroext %239, i8* getelementptr inbounds ([8 x i8]* @.str20, i32 0, i32 0))
+  br label %631
+
+; <label>:240                                     ; preds = %87
+  store i8 1, i8* @conf_done_inp, align 1
+  %241 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 36
+  store i8 1, i8* %10, align 1
+  %242 = call zeroext i1 @_ZN14sc_signal_boolaSERKb(%class.sc_signal_bool* %241, i8* %10)
+  store i64 1, i64* getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 13), align 8
+  store i64 1, i64* getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 16), align 8
+  store i8 0, i8* @rst_inp, align 1
+  store i64 0, i64* getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 12), align 8
+  %243 = load i8* @conf_done_inp, align 1
+  %244 = trunc i8 %243 to i1
+  %245 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 13
+  %246 = getelementptr inbounds %class.sc_signal_bool* %245, i32 0, i32 0
+  %247 = zext i1 %244 to i8
+  store i8 %247, i8* %246, align 1
+  %248 = load i32* @conf_num_hidden_inp, align 4
+  %249 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 14
+  %250 = getelementptr inbounds %class.sc_signal_int32* %249, i32 0, i32 0
+  store i32 %248, i32* %250, align 4
+  %251 = load i32* @conf_num_visible_inp, align 4
+  %252 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 15
+  %253 = getelementptr inbounds %class.sc_signal_int32* %252, i32 0, i32 0
+  store i32 %251, i32* %253, align 4
+  %254 = load i32* @conf_num_users_inp, align 4
+  %255 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 16
+  %256 = getelementptr inbounds %class.sc_signal_int32* %255, i32 0, i32 0
+  store i32 %254, i32* %256, align 4
+  %257 = load i32* @conf_num_loops_inp, align 4
+  %258 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 17
+  %259 = getelementptr inbounds %class.sc_signal_int32* %258, i32 0, i32 0
+  store i32 %257, i32* %259, align 4
+  %260 = load i32* @conf_num_testusers_inp, align 4
+  %261 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 18
+  %262 = getelementptr inbounds %class.sc_signal_int32* %261, i32 0, i32 0
+  store i32 %260, i32* %262, align 4
+  %263 = load i32* @conf_num_movies_inp, align 4
+  %264 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 19
+  %265 = getelementptr inbounds %class.sc_signal_int32* %264, i32 0, i32 0
+  store i32 %263, i32* %265, align 4
+  %266 = load i8* @rst_inp, align 1
+  %267 = trunc i8 %266 to i1
+  %268 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 1
+  %269 = getelementptr inbounds %class.sc_signal_bool* %268, i32 0, i32 0
+  %270 = zext i1 %267 to i8
+  store i8 %270, i8* %269, align 1
+  %271 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 36
+  %272 = load i64* getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 4), align 8
+  %273 = icmp ne i64 %272, 0
+  %274 = zext i1 %273 to i8
+  store i8 %274, i8* %11, align 1
+  call void @_ZN14sc_signal_bool5writeERKb(%class.sc_signal_bool* %271, i8* %11)
+  %275 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 12
+  %276 = load i64* getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 2), align 8
+  %277 = icmp ne i64 %276, 0
+  %278 = zext i1 %277 to i8
+  store i8 %278, i8* %12, align 1
+  call void @_ZN14sc_signal_bool5writeERKb(%class.sc_signal_bool* %275, i8* %12)
+  %279 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 30
+  %280 = load i64* getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 5), align 8
+  %281 = trunc i64 %280 to i16
+  store i16 %281, i16* %13, align 2
+  call void @_ZN13sc_signal_u165writeERKt(%class.sc_signal_u16* %279, i16* %13)
+  %282 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 31
+  %283 = load i64* getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 10), align 8
+  %284 = trunc i64 %283 to i16
+  store i16 %284, i16* %14, align 2
+  call void @_ZN13sc_signal_u165writeERKt(%class.sc_signal_u16* %282, i16* %14)
+  %285 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 32
+  %286 = load i64* getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 9), align 8
+  %287 = trunc i64 %286 to i16
+  store i16 %287, i16* %15, align 2
+  call void @_ZN13sc_signal_u165writeERKt(%class.sc_signal_u16* %285, i16* %15)
+  %288 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 33
+  %289 = load i64* getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 6), align 8
+  %290 = trunc i64 %289 to i16
+  store i16 %290, i16* %16, align 2
+  call void @_ZN13sc_signal_u165writeERKt(%class.sc_signal_u16* %288, i16* %16)
+  %291 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 34
+  %292 = load i64* getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 8), align 8
+  %293 = trunc i64 %292 to i16
+  store i16 %293, i16* %17, align 2
+  call void @_ZN13sc_signal_u165writeERKt(%class.sc_signal_u16* %291, i16* %17)
+  %294 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 35
+  %295 = load i64* getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 7), align 8
+  %296 = trunc i64 %295 to i16
+  store i16 %296, i16* %18, align 2
+  call void @_ZN13sc_signal_u165writeERKt(%class.sc_signal_u16* %294, i16* %18)
+  %297 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 2
+  %298 = load i64* getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 14), align 8
+  %299 = trunc i64 %298 to i32
+  store i32 %299, i32* %19, align 4
+  call void @_ZN13sc_signal_u325writeERKj(%class.sc_signal_int32* %297, i32* %19)
+  %300 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 3
+  %301 = load i64* getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 15), align 8
+  %302 = trunc i64 %301 to i32
+  store i32 %302, i32* %20, align 4
+  call void @_ZN13sc_signal_u325writeERKj(%class.sc_signal_int32* %300, i32* %20)
+  %303 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 4
+  %304 = load i64* getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 16), align 8
+  %305 = icmp ne i64 %304, 0
+  %306 = zext i1 %305 to i8
+  store i8 %306, i8* %21, align 1
+  call void @_ZN14sc_signal_bool5writeERKb(%class.sc_signal_bool* %303, i8* %21)
+  %307 = load i8* @rd_grant_inp, align 1
+  %308 = trunc i8 %307 to i1
+  %309 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 5
+  %310 = getelementptr inbounds %class.sc_signal_bool* %309, i32 0, i32 0
+  %311 = zext i1 %308 to i8
+  store i8 %311, i8* %310, align 1
+  %312 = load i32* @data_in_inp, align 4
+  %313 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 6
+  %314 = getelementptr inbounds %class.sc_signal_int32* %313, i32 0, i32 0
+  store i32 %312, i32* %314, align 4
+  %315 = load i8* @wr_grant_inp, align 1
+  %316 = trunc i8 %315 to i1
+  %317 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 10
+  %318 = getelementptr inbounds %class.sc_signal_bool* %317, i32 0, i32 0
+  %319 = zext i1 %316 to i8
+  store i8 %319, i8* %318, align 1
+  %320 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 9
+  %321 = load i64* getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 20), align 8
+  %322 = icmp ne i64 %321, 0
+  %323 = zext i1 %322 to i8
+  store i8 %323, i8* %22, align 1
+  call void @_ZN14sc_signal_bool5writeERKb(%class.sc_signal_bool* %320, i8* %22)
+  %324 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 7
+  %325 = load i64* getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 18), align 8
+  %326 = trunc i64 %325 to i32
+  store i32 %326, i32* %23, align 4
+  call void @_ZN13sc_signal_u325writeERKj(%class.sc_signal_int32* %324, i32* %23)
+  %327 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 8
+  %328 = load i64* getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 19), align 8
+  %329 = trunc i64 %328 to i32
+  store i32 %329, i32* %24, align 4
+  call void @_ZN13sc_signal_u325writeERKj(%class.sc_signal_int32* %327, i32* %24)
+  %330 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 11
+  %331 = load i64* getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 1), align 8
+  %332 = trunc i64 %331 to i32
+  store i32 %332, i32* %25, align 4
+  call void @_ZN13sc_signal_u325writeERKj(%class.sc_signal_int32* %330, i32* %25)
+  %333 = load i64* getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 3), align 8
+  %334 = trunc i64 %333 to i16
+  store i16 %334, i16* %i, align 2
+  %335 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 20
+  %336 = call i8* @_ZN11SysCArray2DIhLj2ELj512EEixEj(%class.SysCArray2D* %335, i32 0)
+  %337 = load i8** getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 0, i32 0), align 8
+  call void @__CPROVER_array_copy(i8* %336, i8* %337)
+  %338 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 28
+  %339 = call i8* @_ZN11SysCArray2DIhLj2ELj128EEixEj(%class.SysCArray2D* %338, i32 0)
+  %340 = load i8** getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 11, i32 0), align 8
+  call void @__CPROVER_array_copy(i8* %339, i8* %340)
+  %341 = load i16* %i, align 2
+  %342 = zext i16 %341 to i32
+  %343 = load i32* %nv, align 4
+  %344 = icmp ult i32 %342, %343
+  call void @__CPROVER_assume(i1 zeroext %344)
+  br label %345
+
+; <label>:345                                     ; preds = %240
+  %346 = load i16* %i, align 2
+  %347 = add i16 %346, 1
+  store i16 %347, i16* %i, align 2
+  br label %95
+
+; <label>:348                                     ; preds = %104, %95
+  call void @_Z4waitv()
+  %349 = load i32* %nv, align 4
+  %350 = zext i32 %349 to i64
+  %351 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 20
+  %352 = load i8* %pingpong, align 1
+  %353 = trunc i8 %352 to i1
+  %354 = zext i1 %353 to i32
+  %355 = call i8* @_ZN11SysCArray2DIhLj2ELj512EEixEj(%class.SysCArray2D* %351, i32 %354)
+  %356 = getelementptr inbounds i8* %355, i64 %350
+  store i8 1, i8* %356
+  store i32 1, i32* @rd_complete, align 4
+  br label %357
+
+; <label>:357                                     ; preds = %348
+  %358 = load i8* @conf_done_inp, align 1
+  %359 = trunc i8 %358 to i1
+  %360 = zext i1 %359 to i64
+  %361 = load i32* @conf_num_hidden_inp, align 4
+  %362 = zext i32 %361 to i64
+  %363 = load i32* @conf_num_visible_inp, align 4
+  %364 = zext i32 %363 to i64
+  %365 = load i32* @conf_num_users_inp, align 4
+  %366 = zext i32 %365 to i64
+  %367 = load i32* @conf_num_loops_inp, align 4
+  %368 = zext i32 %367 to i64
+  %369 = load i32* @conf_num_testusers_inp, align 4
+  %370 = zext i32 %369 to i64
+  %371 = load i32* @conf_num_movies_inp, align 4
+  %372 = zext i32 %371 to i64
+  %373 = load i8* @rst_inp, align 1
+  %374 = trunc i8 %373 to i1
+  %375 = zext i1 %374 to i64
+  %376 = load i8* @rd_grant_inp, align 1
+  %377 = trunc i8 %376 to i1
+  %378 = zext i1 %377 to i64
+  %379 = load i32* @data_in_inp, align 4
+  %380 = zext i32 %379 to i64
+  %381 = load i8* @wr_grant_inp, align 1
+  %382 = trunc i8 %381 to i1
+  %383 = zext i1 %382 to i64
+  call void @_ZN13model_DMAload6updateElllllllllll(%class.model_DMAload* @GM, i64 %360, i64 %362, i64 %364, i64 %366, i64 %368, i64 %370, i64 %372, i64 %375, i64 %378, i64 %380, i64 %383)
+  %384 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 36
+  %385 = call zeroext i1 @_ZN14sc_signal_bool4readEv(%class.sc_signal_bool* %384)
+  %386 = zext i1 %385 to i64
+  %387 = load i64* getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 4), align 8
+  %388 = icmp eq i64 %386, %387
+  call void @__CPROVER_assert(i1 zeroext %388, i8* getelementptr inbounds ([16 x i8]* @.str1, i32 0, i32 0))
+  %389 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 12
+  %390 = call zeroext i1 @_ZN14sc_signal_bool4readEv(%class.sc_signal_bool* %389)
+  %391 = zext i1 %390 to i64
+  %392 = load i64* getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 2), align 8
+  %393 = icmp eq i64 %391, %392
+  call void @__CPROVER_assert(i1 zeroext %393, i8* getelementptr inbounds ([11 x i8]* @.str2, i32 0, i32 0))
+  %394 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 30
+  %395 = call zeroext i16 @_ZN13sc_signal_u164readEv(%class.sc_signal_u16* %394)
+  %396 = zext i16 %395 to i64
+  %397 = load i64* getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 5), align 8
+  %398 = icmp eq i64 %396, %397
+  call void @__CPROVER_assert(i1 zeroext %398, i8* getelementptr inbounds ([17 x i8]* @.str3, i32 0, i32 0))
+  %399 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 31
+  %400 = call zeroext i16 @_ZN13sc_signal_u164readEv(%class.sc_signal_u16* %399)
+  %401 = zext i16 %400 to i64
+  %402 = load i64* getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 10), align 8
+  %403 = icmp eq i64 %401, %402
+  call void @__CPROVER_assert(i1 zeroext %403, i8* getelementptr inbounds ([18 x i8]* @.str4, i32 0, i32 0))
+  %404 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 32
+  %405 = call zeroext i16 @_ZN13sc_signal_u164readEv(%class.sc_signal_u16* %404)
+  %406 = zext i16 %405 to i64
+  %407 = load i64* getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 9), align 8
+  %408 = icmp eq i64 %406, %407
+  call void @__CPROVER_assert(i1 zeroext %408, i8* getelementptr inbounds ([16 x i8]* @.str5, i32 0, i32 0))
+  %409 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 33
+  %410 = call zeroext i16 @_ZN13sc_signal_u164readEv(%class.sc_signal_u16* %409)
+  %411 = zext i16 %410 to i64
+  %412 = load i64* getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 6), align 8
+  %413 = icmp eq i64 %411, %412
+  call void @__CPROVER_assert(i1 zeroext %413, i8* getelementptr inbounds ([16 x i8]* @.str6, i32 0, i32 0))
+  %414 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 34
+  %415 = call zeroext i16 @_ZN13sc_signal_u164readEv(%class.sc_signal_u16* %414)
+  %416 = zext i16 %415 to i64
+  %417 = load i64* getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 8), align 8
+  %418 = icmp eq i64 %416, %417
+  call void @__CPROVER_assert(i1 zeroext %418, i8* getelementptr inbounds ([20 x i8]* @.str7, i32 0, i32 0))
+  %419 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 35
+  %420 = call zeroext i16 @_ZN13sc_signal_u164readEv(%class.sc_signal_u16* %419)
+  %421 = zext i16 %420 to i64
+  %422 = load i64* getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 7), align 8
+  %423 = icmp eq i64 %421, %422
+  call void @__CPROVER_assert(i1 zeroext %423, i8* getelementptr inbounds ([17 x i8]* @.str8, i32 0, i32 0))
+  %424 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 2
+  %425 = call i32 @_ZN13sc_signal_u324readEv(%class.sc_signal_int32* %424)
+  %426 = zext i32 %425 to i64
+  %427 = load i64* getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 14), align 8
+  %428 = icmp eq i64 %426, %427
+  call void @__CPROVER_assert(i1 zeroext %428, i8* getelementptr inbounds ([15 x i8]* @.str9, i32 0, i32 0))
+  %429 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 3
+  %430 = call i32 @_ZN13sc_signal_u324readEv(%class.sc_signal_int32* %429)
+  %431 = zext i32 %430 to i64
+  %432 = load i64* getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 15), align 8
+  %433 = icmp eq i64 %431, %432
+  call void @__CPROVER_assert(i1 zeroext %433, i8* getelementptr inbounds ([16 x i8]* @.str10, i32 0, i32 0))
+  %434 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 4
+  %435 = call zeroext i1 @_ZN14sc_signal_bool4readEv(%class.sc_signal_bool* %434)
+  %436 = zext i1 %435 to i64
+  %437 = load i64* getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 16), align 8
+  %438 = icmp eq i64 %436, %437
+  call void @__CPROVER_assert(i1 zeroext %438, i8* getelementptr inbounds ([17 x i8]* @.str11, i32 0, i32 0))
+  %439 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 9
+  %440 = call zeroext i1 @_ZN14sc_signal_bool4readEv(%class.sc_signal_bool* %439)
+  %441 = zext i1 %440 to i64
+  %442 = load i64* getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 20), align 8
+  %443 = icmp eq i64 %441, %442
+  call void @__CPROVER_assert(i1 zeroext %443, i8* getelementptr inbounds ([17 x i8]* @.str12, i32 0, i32 0))
+  %444 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 7
+  %445 = call i32 @_ZN13sc_signal_u324readEv(%class.sc_signal_int32* %444)
+  %446 = zext i32 %445 to i64
+  %447 = load i64* getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 18), align 8
+  %448 = icmp eq i64 %446, %447
+  call void @__CPROVER_assert(i1 zeroext %448, i8* getelementptr inbounds ([15 x i8]* @.str13, i32 0, i32 0))
+  %449 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 8
+  %450 = call i32 @_ZN13sc_signal_u324readEv(%class.sc_signal_int32* %449)
+  %451 = zext i32 %450 to i64
+  %452 = load i64* getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 19), align 8
+  %453 = icmp eq i64 %451, %452
+  call void @__CPROVER_assert(i1 zeroext %453, i8* getelementptr inbounds ([16 x i8]* @.str14, i32 0, i32 0))
+  %454 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 11
+  %455 = call i32 @_ZN13sc_signal_u324readEv(%class.sc_signal_int32* %454)
+  %456 = zext i32 %455 to i64
+  %457 = load i64* getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 1), align 8
+  %458 = icmp eq i64 %456, %457
+  call void @__CPROVER_assert(i1 zeroext %458, i8* getelementptr inbounds ([15 x i8]* @.str15, i32 0, i32 0))
+  %459 = load i32* @rd_complete, align 4
+  %460 = zext i32 %459 to i64
+  %461 = load i64* getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 12), align 8
+  %462 = icmp eq i64 %460, %461
+  call void @__CPROVER_assert(i1 zeroext %462, i8* getelementptr inbounds ([18 x i8]* @.str16, i32 0, i32 0))
+  %463 = load i8** getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 0, i32 0), align 8
+  %464 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 20
+  %465 = call i8* @_ZN11SysCArray2DIhLj2ELj512EEixEj(%class.SysCArray2D* %464, i32 0)
+  %466 = call zeroext i1 @__CPROVER_array_equal(i8* %463, i8* %465)
+  call void @__CPROVER_assert(i1 zeroext %466, i8* getelementptr inbounds ([11 x i8]* @.str18, i32 0, i32 0))
+  %467 = load i8** getelementptr inbounds (%class.model_DMAload* @GM, i32 0, i32 11, i32 0), align 8
+  %468 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 28
+  %469 = call i8* @_ZN11SysCArray2DIhLj2ELj128EEixEj(%class.SysCArray2D* %468, i32 0)
+  %470 = call zeroext i1 @__CPROVER_array_equal(i8* %467, i8* %469)
+  call void @__CPROVER_assert(i1 zeroext %470, i8* getelementptr inbounds ([21 x i8]* @.str19, i32 0, i32 0))
+  br label %631
+                                                  ; No predecessors!
+  br label %472
+
+; <label>:472                                     ; preds = %471, %622
+  %473 = load i16* %loop_count, align 2
+  %474 = zext i16 %473 to i32
+  %475 = load i32* %nlp, align 4
+  %476 = icmp ne i32 %474, %475
+  br i1 %476, label %477, label %491
+
+; <label>:477                                     ; preds = %472
+  %478 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 37
+  store i8 1, i8* %26, align 1
+  call void @_ZN14sc_signal_bool5writeERKb(%class.sc_signal_bool* %478, i8* %26)
+  br label %479
+
+; <label>:479                                     ; preds = %480, %477
+  call void @_Z4waitv()
+  br label %480
+
+; <label>:480                                     ; preds = %479
+  %481 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 39
+  %482 = call zeroext i1 @_ZN14sc_signal_bool4readEv(%class.sc_signal_bool* %481)
+  %483 = xor i1 %482, true
+  br i1 %483, label %479, label %484
+
+; <label>:484                                     ; preds = %480
+  %485 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 37
+  store i8 0, i8* %27, align 1
+  call void @_ZN14sc_signal_bool5writeERKb(%class.sc_signal_bool* %485, i8* %27)
+  br label %486
+
+; <label>:486                                     ; preds = %487, %484
+  call void @_Z4waitv()
+  br label %487
+
+; <label>:487                                     ; preds = %486
+  %488 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 39
+  %489 = call zeroext i1 @_ZN14sc_signal_bool4readEv(%class.sc_signal_bool* %488)
+  br i1 %489, label %486, label %490
+
+; <label>:490                                     ; preds = %487
+  br label %505
+
+; <label>:491                                     ; preds = %472
+  %492 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 38
+  store i8 1, i8* %28, align 1
+  call void @_ZN14sc_signal_bool5writeERKb(%class.sc_signal_bool* %492, i8* %28)
+  br label %493
+
+; <label>:493                                     ; preds = %494, %491
+  call void @_Z4waitv()
+  br label %494
+
+; <label>:494                                     ; preds = %493
+  %495 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 42
+  %496 = call zeroext i1 @_ZN14sc_signal_bool4readEv(%class.sc_signal_bool* %495)
+  %497 = xor i1 %496, true
+  br i1 %497, label %493, label %498
+
+; <label>:498                                     ; preds = %494
+  %499 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 38
+  store i8 0, i8* %29, align 1
+  call void @_ZN14sc_signal_bool5writeERKb(%class.sc_signal_bool* %499, i8* %29)
+  br label %500
+
+; <label>:500                                     ; preds = %501, %498
+  call void @_Z4waitv()
+  br label %501
+
+; <label>:501                                     ; preds = %500
+  %502 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 42
+  %503 = call zeroext i1 @_ZN14sc_signal_bool4readEv(%class.sc_signal_bool* %502)
+  br i1 %503, label %500, label %504
+
+; <label>:504                                     ; preds = %501
+  br label %505
+
+; <label>:505                                     ; preds = %504, %490
+  %506 = load i16* %index, align 2
+  %507 = zext i16 %506 to i32
+  %508 = add nsw i32 %507, 1
+  %509 = trunc i32 %508 to i16
+  store i16 %509, i16* %index, align 2
+  %510 = load i16* %index, align 2
+  %511 = zext i16 %510 to i32
+  %512 = load i32* %nu, align 4
+  %513 = icmp eq i32 %511, %512
+  br i1 %513, label %514, label %524
+
+; <label>:514                                     ; preds = %505
+  %515 = load i16* %loop_count, align 2
+  %516 = zext i16 %515 to i32
+  %517 = load i32* %nlp, align 4
+  %518 = icmp ne i32 %516, %517
+  br i1 %518, label %519, label %524
+
+; <label>:519                                     ; preds = %514
+  %520 = load i16* %loop_count, align 2
+  %521 = zext i16 %520 to i32
+  %522 = add nsw i32 %521, 1
+  %523 = trunc i32 %522 to i16
+  store i16 %523, i16* %loop_count, align 2
+  store i16 0, i16* %index, align 2
+  br label %524
+
+; <label>:524                                     ; preds = %519, %514, %505
+  %525 = load i16* %index, align 2
+  %526 = zext i16 %525 to i32
+  %527 = load i32* %ntu, align 4
+  %528 = icmp eq i32 %526, %527
+  br i1 %528, label %529, label %539
+
+; <label>:529                                     ; preds = %524
+  %530 = load i16* %loop_count, align 2
+  %531 = zext i16 %530 to i32
+  %532 = load i32* %nlp, align 4
+  %533 = icmp eq i32 %531, %532
+  br i1 %533, label %534, label %539
+
+; <label>:534                                     ; preds = %529
+  br label %535
+
+; <label>:535                                     ; preds = %534
+  br label %536
+
+; <label>:536                                     ; preds = %537, %535
+  call void @_Z4waitv()
+  br label %537
+
+; <label>:537                                     ; preds = %536
+  br i1 true, label %536, label %538
+
+; <label>:538                                     ; preds = %537
+  br label %539
+
+; <label>:539                                     ; preds = %538, %529, %524
+  %540 = load i32* %nv, align 4
+  %541 = load i16* %index, align 2
+  %542 = zext i16 %541 to i32
+  %543 = mul i32 %540, %542
+  store i32 %543, i32* %dma_index, align 4
+  %544 = load i16* %loop_count, align 2
+  %545 = zext i16 %544 to i32
+  %546 = load i32* %nlp, align 4
+  %547 = icmp eq i32 %545, %546
+  br i1 %547, label %548, label %554
+
+; <label>:548                                     ; preds = %539
+  %549 = load i32* %nv, align 4
+  %550 = load i32* %nu, align 4
+  %551 = mul i32 %549, %550
+  %552 = load i32* %dma_index, align 4
+  %553 = add i32 %552, %551
+  store i32 %553, i32* %dma_index, align 4
+  br label %554
+
+; <label>:554                                     ; preds = %548, %539
+  %555 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 2
+  call void @_ZN13sc_signal_u325writeERKj(%class.sc_signal_int32* %555, i32* %dma_index)
+  %556 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 3
+  %557 = load i32* %nm, align 4
+  %558 = mul i32 5, %557
+  store i32 %558, i32* %30, align 4
+  call void @_ZN13sc_signal_u325writeERKj(%class.sc_signal_int32* %556, i32* %30)
+  %559 = load i16* %loop_count, align 2
+  %560 = zext i16 %559 to i32
+  %561 = load i32* %nlp, align 4
+  %562 = icmp eq i32 %560, %561
+  br i1 %562, label %563, label %570
+
+; <label>:563                                     ; preds = %554
+  br label %564
+
+; <label>:564                                     ; preds = %565, %563
+  call void @_Z4waitv()
+  br label %565
+
+; <label>:565                                     ; preds = %564
+  %566 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 40
+  %567 = call zeroext i1 @_ZN14sc_signal_bool4readEv(%class.sc_signal_bool* %566)
+  %568 = xor i1 %567, true
+  br i1 %568, label %564, label %569
+
+; <label>:569                                     ; preds = %565
+  br label %570
+
+; <label>:570                                     ; preds = %569, %554
+  %571 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 4
+  store i8 1, i8* %31, align 1
+  call void @_ZN14sc_signal_bool5writeERKb(%class.sc_signal_bool* %571, i8* %31)
+  br label %572
+
+; <label>:572                                     ; preds = %573, %570
+  call void @_Z4waitv()
+  br label %573
+
+; <label>:573                                     ; preds = %572
+  %574 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 5
+  %575 = call zeroext i1 @_ZN14sc_signal_bool4readEv(%class.sc_signal_bool* %574)
+  %576 = xor i1 %575, true
+  br i1 %576, label %572, label %577
+
+; <label>:577                                     ; preds = %573
+  %578 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 4
+  store i8 0, i8* %32, align 1
+  call void @_ZN14sc_signal_bool5writeERKb(%class.sc_signal_bool* %578, i8* %32)
+  %579 = load i16* %loop_count, align 2
+  %580 = zext i16 %579 to i32
+  %581 = load i32* %nu, align 4
+  %582 = mul i32 %580, %581
+  %583 = trunc i32 %582 to i16
+  store i16 %583, i16* %tmp1, align 2
+  %584 = load i16* %tmp1, align 2
+  %585 = zext i16 %584 to i32
+  %586 = load i16* %index, align 2
+  %587 = zext i16 %586 to i32
+  %588 = add nsw i32 %585, %587
+  %589 = trunc i32 %588 to i16
+  store i16 %589, i16* %tmp2, align 2
+  %590 = load i16* %tmp2, align 2
+  %591 = zext i16 %590 to i32
+  %592 = srem i32 %591, 2
+  %593 = icmp ne i32 %592, 0
+  %594 = zext i1 %593 to i8
+  store i8 %594, i8* %pingpong, align 1
+  br label %595
+
+; <label>:595                                     ; preds = %577
+  store i16 0, i16* %i1, align 2
+  br label %596
+
+; <label>:596                                     ; preds = %619, %595
+  %597 = load i16* %i1, align 2
+  %598 = zext i16 %597 to i32
+  %599 = icmp slt i32 %598, 500
+  br i1 %599, label %600, label %622
+
+; <label>:600                                     ; preds = %596
+  %601 = load i16* %i1, align 2
+  %602 = zext i16 %601 to i32
+  %603 = load i32* %nv, align 4
+  %604 = icmp eq i32 %602, %603
+  br i1 %604, label %605, label %606
+
+; <label>:605                                     ; preds = %600
+  br label %622
+
+; <label>:606                                     ; preds = %600
+  %607 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 6
+  %608 = call i32 @_ZN13sc_signal_u324readEv(%class.sc_signal_int32* %607)
+  %609 = trunc i32 %608 to i8
+  store i8 %609, i8* %rate2, align 1
+  call void @_Z4waitv()
+  %610 = load i8* %rate2, align 1
+  %611 = load i16* %i1, align 2
+  %612 = zext i16 %611 to i64
+  %613 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 20
+  %614 = load i8* %pingpong, align 1
+  %615 = trunc i8 %614 to i1
+  %616 = zext i1 %615 to i32
+  %617 = call i8* @_ZN11SysCArray2DIhLj2ELj512EEixEj(%class.SysCArray2D* %613, i32 %616)
+  %618 = getelementptr inbounds i8* %617, i64 %612
+  store i8 %610, i8* %618
+  store i32 0, i32* @rd_complete, align 4
+  br label %619
+
+; <label>:619                                     ; preds = %606
+  %620 = load i16* %i1, align 2
+  %621 = add i16 %620, 1
+  store i16 %621, i16* %i1, align 2
+  br label %596
+
+; <label>:622                                     ; preds = %605, %596
+  call void @_Z4waitv()
+  %623 = load i32* %nv, align 4
+  %624 = zext i32 %623 to i64
+  %625 = getelementptr inbounds %struct.rbm* %33, i32 0, i32 20
+  %626 = load i8* %pingpong, align 1
+  %627 = trunc i8 %626 to i1
+  %628 = zext i1 %627 to i32
+  %629 = call i8* @_ZN11SysCArray2DIhLj2ELj512EEixEj(%class.SysCArray2D* %625, i32 %628)
+  %630 = getelementptr inbounds i8* %629, i64 %624
+  store i8 1, i8* %630
+  store i32 1, i32* @rd_complete, align 4
+  br label %472
+
+; <label>:631                                     ; preds = %357, %118
+  ret void
+}
+
+define linkonce_odr zeroext i1 @_ZN14sc_signal_boolaSERKb(%class.sc_signal_bool* %this, i8* %d) nounwind align 2 {
+  %1 = alloca %class.sc_signal_bool*, align 8
+  %2 = alloca i8*, align 8
+  store %class.sc_signal_bool* %this, %class.sc_signal_bool** %1, align 8
+  store i8* %d, i8** %2, align 8
+  %3 = load %class.sc_signal_bool** %1
+  %4 = load i8** %2
+  %5 = load i8* %4, align 8
+  %6 = trunc i8 %5 to i1
+  %7 = getelementptr inbounds %class.sc_signal_bool* %3, i32 0, i32 0
+  %8 = zext i1 %6 to i8
+  store i8 %8, i8* %7, align 1
+  %9 = getelementptr inbounds %class.sc_signal_bool* %3, i32 0, i32 0
+  %10 = load i8* %9, align 1
+  %11 = trunc i8 %10 to i1
+  ret i1 %11
+}
+
+define linkonce_odr void @_ZN13sc_signal_u325writeERKj(%class.sc_signal_int32* %this, i32* %d) nounwind align 2 {
+  %1 = alloca %class.sc_signal_int32*, align 8
+  %2 = alloca i32*, align 8
+  store %class.sc_signal_int32* %this, %class.sc_signal_int32** %1, align 8
+  store i32* %d, i32** %2, align 8
+  %3 = load %class.sc_signal_int32** %1
+  %4 = load i32** %2
+  %5 = load i32* %4, align 8
+  %6 = getelementptr inbounds %class.sc_signal_int32* %3, i32 0, i32 0
+  store i32 %5, i32* %6, align 4
+  ret void
+}
+
+define linkonce_odr zeroext i16 @_ZN13sc_signal_u164readEv(%class.sc_signal_u16* %this) nounwind align 2 {
+  %1 = alloca %class.sc_signal_u16*, align 8
+  store %class.sc_signal_u16* %this, %class.sc_signal_u16** %1, align 8
+  %2 = load %class.sc_signal_u16** %1
+  %3 = getelementptr inbounds %class.sc_signal_u16* %2, i32 0, i32 0
+  %4 = load i16* %3, align 2
+  ret i16 %4
+}
+
+declare void @__CPROVER_assume(i1 zeroext)
+
+define linkonce_odr i32* @_ZN13sc_signal_u32cvRjEv(%class.sc_signal_int32* %this) nounwind align 2 {
+  %1 = alloca %class.sc_signal_int32*, align 8
+  store %class.sc_signal_int32* %this, %class.sc_signal_int32** %1, align 8
+  %2 = load %class.sc_signal_int32** %1
+  %3 = getelementptr inbounds %class.sc_signal_int32* %2, i32 0, i32 0
+  ret i32* %3
+}
+
+define linkonce_odr i8* @_ZN11SysCArray2DIhLj2ELj512EEixEj(%class.SysCArray2D* %this, i32 %Xidx) nounwind align 2 {
+  %1 = alloca i8*, align 8
+  %2 = alloca %class.SysCArray2D*, align 8
+  %3 = alloca i32, align 4
+  store %class.SysCArray2D* %this, %class.SysCArray2D** %2, align 8
+  store i32 %Xidx, i32* %3, align 4
+  %4 = load %class.SysCArray2D** %2
+  %5 = load i32* %3, align 4
+  %6 = icmp eq i32 %5, 0
+  br i1 %6, label %7, label %10
+
+; <label>:7                                       ; preds = %0
+  %8 = getelementptr inbounds %class.SysCArray2D* %4, i32 0, i32 1
+  %9 = load i8** %8, align 8
+  store i8* %9, i8** %1
+  br label %17
+
+; <label>:10                                      ; preds = %0
+  %11 = load i32* %3, align 4
+  %12 = mul i32 %11, 512
+  %13 = zext i32 %12 to i64
+  %14 = getelementptr inbounds %class.SysCArray2D* %4, i32 0, i32 0
+  %15 = load i8** %14, align 8
+  %16 = getelementptr inbounds i8* %15, i64 %13
+  store i8* %16, i8** %1
+  br label %17
+
+; <label>:17                                      ; preds = %10, %7
+  %18 = load i8** %1
+  ret i8* %18
+}
+
+declare void @__CPROVER_assert(i1 zeroext, i8*)
+
+declare zeroext i1 @__CPROVER_array_equal(i8*, i8*)
+
+define linkonce_odr i8* @_ZN11SysCArray2DIhLj2ELj128EEixEj(%class.SysCArray2D* %this, i32 %Xidx) nounwind align 2 {
+  %1 = alloca i8*, align 8
+  %2 = alloca %class.SysCArray2D*, align 8
+  %3 = alloca i32, align 4
+  store %class.SysCArray2D* %this, %class.SysCArray2D** %2, align 8
+  store i32 %Xidx, i32* %3, align 4
+  %4 = load %class.SysCArray2D** %2
+  %5 = load i32* %3, align 4
+  %6 = icmp eq i32 %5, 0
+  br i1 %6, label %7, label %10
+
+; <label>:7                                       ; preds = %0
+  %8 = getelementptr inbounds %class.SysCArray2D* %4, i32 0, i32 1
+  %9 = load i8** %8, align 8
+  store i8* %9, i8** %1
+  br label %17
+
+; <label>:10                                      ; preds = %0
+  %11 = load i32* %3, align 4
+  %12 = mul i32 %11, 128
+  %13 = zext i32 %12 to i64
+  %14 = getelementptr inbounds %class.SysCArray2D* %4, i32 0, i32 0
+  %15 = load i8** %14, align 8
+  %16 = getelementptr inbounds i8* %15, i64 %13
+  store i8* %16, i8** %1
+  br label %17
+
+; <label>:17                                      ; preds = %10, %7
+  %18 = load i8** %1
+  ret i8* %18
+}
+
+declare void @__CPROVER_array_copy(i8*, i8*)
+
+define void @_ZN3rbm5storeEv(%struct.rbm* %this) align 2 {
+  %1 = alloca %struct.rbm*, align 8
+  %2 = alloca i8, align 1
+  %3 = alloca i32, align 4
+  %4 = alloca i32, align 4
+  %5 = alloca i8, align 1
+  %6 = alloca i8, align 1
+  %7 = alloca i8, align 1
+  %8 = alloca i8, align 1
+  %ntu = alloca i16, align 2
+  %nm = alloca i16, align 2
+  %index = alloca i32, align 4
+  %rating = alloca i8, align 1
+  %9 = alloca i8, align 1
+  %10 = alloca i8, align 1
+  %11 = alloca i8, align 1
+  %12 = alloca i8, align 1
+  %dma_index = alloca i32, align 4
+  %13 = alloca i32, align 4
+  %14 = alloca i8, align 1
+  %15 = alloca i8, align 1
+  %i = alloca i16, align 2
+  %16 = alloca i32, align 4
+  %17 = alloca i8, align 1
+  store %struct.rbm* %this, %struct.rbm** %1, align 8
+  %18 = load %struct.rbm** %1
+  %19 = getelementptr inbounds %struct.rbm* %18, i32 0, i32 36
+  store i8 1, i8* %2, align 1
+  %20 = call zeroext i1 @_ZN14sc_signal_boolaSERKb(%class.sc_signal_bool* %19, i8* %2)
+  br label %21
+
+; <label>:21                                      ; preds = %0
+  %22 = getelementptr inbounds %struct.rbm* %18, i32 0, i32 8
+  store i32 0, i32* %3, align 4
+  call void @_ZN13sc_signal_u325writeERKj(%class.sc_signal_int32* %22, i32* %3)
+  %23 = getelementptr inbounds %struct.rbm* %18, i32 0, i32 7
+  store i32 0, i32* %4, align 4
+  call void @_ZN13sc_signal_u325writeERKj(%class.sc_signal_int32* %23, i32* %4)
+  %24 = getelementptr inbounds %struct.rbm* %18, i32 0, i32 9
+  store i8 0, i8* %5, align 1
+  call void @_ZN14sc_signal_bool5writeERKb(%class.sc_signal_bool* %24, i8* %5)
+  %25 = getelementptr inbounds %struct.rbm* %18, i32 0, i32 44
+  store i8 0, i8* %6, align 1
+  call void @_ZN14sc_signal_bool5writeERKb(%class.sc_signal_bool* %25, i8* %6)
+  %26 = getelementptr inbounds %struct.rbm* %18, i32 0, i32 45
+  store i8 1, i8* %7, align 1
+  call void @_ZN14sc_signal_bool5writeERKb(%class.sc_signal_bool* %26, i8* %7)
+  %27 = getelementptr inbounds %struct.rbm* %18, i32 0, i32 12
+  store i8 0, i8* %8, align 1
+  call void @_ZN14sc_signal_bool5writeERKb(%class.sc_signal_bool* %27, i8* %8)
+  br label %28
+
+; <label>:28                                      ; preds = %29, %21
+  call void @_Z4waitv()
+  br label %29
+
+; <label>:29                                      ; preds = %28
+  %30 = getelementptr inbounds %struct.rbm* %18, i32 0, i32 36
+  %31 = call zeroext i1 @_ZN14sc_signal_bool4readEv(%class.sc_signal_bool* %30)
+  %32 = xor i1 %31, true
+  br i1 %32, label %28, label %33
+
+; <label>:33                                      ; preds = %29
+  %34 = getelementptr inbounds %struct.rbm* %18, i32 0, i32 34
+  %35 = call zeroext i16 @_ZN13sc_signal_u164readEv(%class.sc_signal_u16* %34)
+  store i16 %35, i16* %ntu, align 2
+  %36 = getelementptr inbounds %struct.rbm* %18, i32 0, i32 35
+  %37 = call zeroext i16 @_ZN13sc_signal_u164readEv(%class.sc_signal_u16* %36)
+  store i16 %37, i16* %nm, align 2
+  store i32 0, i32* %index, align 4
+  br label %38
+
+; <label>:38                                      ; preds = %33
+  br label %39
+
+; <label>:39                                      ; preds = %38, %108
+  %40 = load i32* %index, align 4
+  %41 = load i16* %ntu, align 2
+  %42 = zext i16 %41 to i32
+  %43 = icmp eq i32 %40, %42
+  br i1 %43, label %44, label %49
+
+; <label>:44                                      ; preds = %39
+  %45 = getelementptr inbounds %struct.rbm* %18, i32 0, i32 12
+  store i8 1, i8* %9, align 1
+  call void @_ZN14sc_signal_bool5writeERKb(%class.sc_signal_bool* %45, i8* %9)
+  br label %46
+
+; <label>:46                                      ; preds = %47, %44
+  call void @_Z4waitv()
+  br label %47
+
+; <label>:47                                      ; preds = %46
+  br i1 true, label %46, label %48
+
+; <label>:48                                      ; preds = %47
+  br label %49
+
+; <label>:49                                      ; preds = %48, %39
+  br label %50
+
+; <label>:50                                      ; preds = %51, %49
+  call void @_Z4waitv()
+  br label %51
+
+; <label>:51                                      ; preds = %50
+  %52 = getelementptr inbounds %struct.rbm* %18, i32 0, i32 43
+  %53 = call zeroext i1 @_ZN14sc_signal_bool4readEv(%class.sc_signal_bool* %52)
+  %54 = xor i1 %53, true
+  br i1 %54, label %50, label %55
+
+; <label>:55                                      ; preds = %51
+  %56 = getelementptr inbounds %struct.rbm* %18, i32 0, i32 44
+  store i8 1, i8* %10, align 1
+  call void @_ZN14sc_signal_bool5writeERKb(%class.sc_signal_bool* %56, i8* %10)
+  br label %57
+
+; <label>:57                                      ; preds = %58, %55
+  call void @_Z4waitv()
+  br label %58
+
+; <label>:58                                      ; preds = %57
+  %59 = getelementptr inbounds %struct.rbm* %18, i32 0, i32 43
+  %60 = call zeroext i1 @_ZN14sc_signal_bool4readEv(%class.sc_signal_bool* %59)
+  br i1 %60, label %57, label %61
+
+; <label>:61                                      ; preds = %58
+  %62 = getelementptr inbounds %struct.rbm* %18, i32 0, i32 44
+  store i8 0, i8* %11, align 1
+  call void @_ZN14sc_signal_bool5writeERKb(%class.sc_signal_bool* %62, i8* %11)
+  %63 = getelementptr inbounds %struct.rbm* %18, i32 0, i32 45
+  store i8 0, i8* %12, align 1
+  call void @_ZN14sc_signal_bool5writeERKb(%class.sc_signal_bool* %63, i8* %12)
+  %64 = load i16* %nm, align 2
+  %65 = zext i16 %64 to i32
+  %66 = load i32* %index, align 4
+  %67 = mul i32 %65, %66
+  store i32 %67, i32* %dma_index, align 4
+  %68 = getelementptr inbounds %struct.rbm* %18, i32 0, i32 7
+  call void @_ZN13sc_signal_u325writeERKj(%class.sc_signal_int32* %68, i32* %dma_index)
+  %69 = getelementptr inbounds %struct.rbm* %18, i32 0, i32 8
+  %70 = getelementptr inbounds %struct.rbm* %18, i32 0, i32 35
+  %71 = call zeroext i16 @_ZN13sc_signal_u164readEv(%class.sc_signal_u16* %70)
+  %72 = zext i16 %71 to i32
+  store i32 %72, i32* %13, align 4
+  call void @_ZN13sc_signal_u325writeERKj(%class.sc_signal_int32* %69, i32* %13)
+  %73 = load i32* %index, align 4
+  %74 = add nsw i32 %73, 1
+  store i32 %74, i32* %index, align 4
+  %75 = getelementptr inbounds %struct.rbm* %18, i32 0, i32 9
+  store i8 1, i8* %14, align 1
+  call void @_ZN14sc_signal_bool5writeERKb(%class.sc_signal_bool* %75, i8* %14)
+  br label %76
+
+; <label>:76                                      ; preds = %77, %61
+  call void @_Z4waitv()
+  br label %77
+
+; <label>:77                                      ; preds = %76
+  %78 = getelementptr inbounds %struct.rbm* %18, i32 0, i32 10
+  %79 = call zeroext i1 @_ZN14sc_signal_bool4readEv(%class.sc_signal_bool* %78)
+  %80 = xor i1 %79, true
+  br i1 %80, label %76, label %81
+
+; <label>:81                                      ; preds = %77
+  %82 = getelementptr inbounds %struct.rbm* %18, i32 0, i32 9
+  store i8 0, i8* %15, align 1
+  call void @_ZN14sc_signal_bool5writeERKb(%class.sc_signal_bool* %82, i8* %15)
+  br label %83
+
+; <label>:83                                      ; preds = %81
+  store i16 0, i16* %i, align 2
+  br label %84
+
+; <label>:84                                      ; preds = %105, %83
+  %85 = load i16* %i, align 2
+  %86 = zext i16 %85 to i32
+  %87 = icmp slt i32 %86, 100
+  br i1 %87, label %88, label %108
+
+; <label>:88                                      ; preds = %84
+  %89 = load i16* %i, align 2
+  %90 = zext i16 %89 to i32
+  %91 = load i16* %nm, align 2
+  %92 = zext i16 %91 to i32
+  %93 = icmp eq i32 %90, %92
+  br i1 %93, label %94, label %95
+
+; <label>:94                                      ; preds = %88
+  br label %108
+
+; <label>:95                                      ; preds = %88
+  %96 = load i16* %i, align 2
+  %97 = zext i16 %96 to i64
+  %98 = getelementptr inbounds %struct.rbm* %18, i32 0, i32 28
+  %99 = call i8* @_ZN11SysCArray2DIhLj2ELj128EEixEj(%class.SysCArray2D* %98, i32 0)
+  %100 = getelementptr inbounds i8* %99, i64 %97
+  %101 = load i8* %100
+  store i8 %101, i8* %rating, align 1
+  call void @_Z4waitv()
+  %102 = getelementptr inbounds %struct.rbm* %18, i32 0, i32 11
+  %103 = load i8* %rating, align 1
+  %104 = zext i8 %103 to i32
+  store i32 %104, i32* %16, align 4
+  call void @_ZN13sc_signal_u325writeERKj(%class.sc_signal_int32* %102, i32* %16)
+  br label %105
+
+; <label>:105                                     ; preds = %95
+  %106 = load i16* %i, align 2
+  %107 = add i16 %106, 1
+  store i16 %107, i16* %i, align 2
+  br label %84
+
+; <label>:108                                     ; preds = %94, %84
+  %109 = getelementptr inbounds %struct.rbm* %18, i32 0, i32 45
+  store i8 1, i8* %17, align 1
+  call void @_ZN14sc_signal_bool5writeERKb(%class.sc_signal_bool* %109, i8* %17)
+  br label %39
+                                                  ; No predecessors!
+  ret void
+}
+
+define internal void @__cxx_global_var_init21() {
+  call void @_ZN3rbmC1Ev(%struct.rbm* @IMPL)
+  ret void
+}
+
+define linkonce_odr void @_ZN3rbmC1Ev(%struct.rbm* %this) unnamed_addr align 2 {
+  %1 = alloca %struct.rbm*, align 8
+  store %struct.rbm* %this, %struct.rbm** %1, align 8
+  %2 = load %struct.rbm** %1
+  call void @_ZN3rbmC2Ev(%struct.rbm* %2)
+  ret void
+}
+
+define i32 @main() {
+  %1 = alloca i32, align 4
+  store i32 0, i32* %1
+  call void @_ZN3rbm4loadEv(%struct.rbm* @IMPL)
+  ret i32 0
+}
+
+define linkonce_odr void @_ZN8type_memIhLj512EEC2Ev(%class.SysCArray1D* %this) unnamed_addr align 2 {
+  %1 = alloca %class.SysCArray1D*, align 8
+  store %class.SysCArray1D* %this, %class.SysCArray1D** %1, align 8
+  %2 = load %class.SysCArray1D** %1
+  %3 = call i8* @__CPROVER_malloc(i64 512)
+  %4 = getelementptr inbounds %class.SysCArray1D* %2, i32 0, i32 0
+  store i8* %3, i8** %4, align 8
+  ret void
+}
+
+declare i8* @__CPROVER_malloc(i64)
+
+define linkonce_odr void @_ZN8type_memIhLj512EED2Ev(%class.SysCArray1D* %this) unnamed_addr nounwind align 2 {
+  %1 = alloca %class.SysCArray1D*, align 8
+  store %class.SysCArray1D* %this, %class.SysCArray1D** %1, align 8
+  %2 = load %class.SysCArray1D** %1
+  ret void
+}
+
+define linkonce_odr void @_ZN3rbmC2Ev(%struct.rbm* %this) unnamed_addr align 2 {
+  %1 = alloca %struct.rbm*, align 8
+  store %struct.rbm* %this, %struct.rbm** %1, align 8
+  %2 = load %struct.rbm** %1
+  %3 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 0
+  call void @_ZN14sc_signal_boolC1EPKc(%class.sc_signal_bool* %3, i8* getelementptr inbounds ([4 x i8]* @.str22, i32 0, i32 0))
+  %4 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 1
+  call void @_ZN14sc_signal_boolC1EPKc(%class.sc_signal_bool* %4, i8* getelementptr inbounds ([4 x i8]* @.str23, i32 0, i32 0))
+  %5 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 2
+  call void @_ZN13sc_signal_u32C1EPKc(%class.sc_signal_int32* %5, i8* getelementptr inbounds ([9 x i8]* @.str24, i32 0, i32 0))
+  %6 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 3
+  call void @_ZN13sc_signal_u32C1EPKc(%class.sc_signal_int32* %6, i8* getelementptr inbounds ([10 x i8]* @.str25, i32 0, i32 0))
+  %7 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 4
+  call void @_ZN14sc_signal_boolC1EPKc(%class.sc_signal_bool* %7, i8* getelementptr inbounds ([11 x i8]* @.str26, i32 0, i32 0))
+  %8 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 5
+  call void @_ZN14sc_signal_boolC1EPKc(%class.sc_signal_bool* %8, i8* getelementptr inbounds ([9 x i8]* @.str27, i32 0, i32 0))
+  %9 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 6
+  call void @_ZN13sc_signal_u32C1EPKc(%class.sc_signal_int32* %9, i8* getelementptr inbounds ([8 x i8]* @.str28, i32 0, i32 0))
+  %10 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 7
+  call void @_ZN13sc_signal_u32C1EPKc(%class.sc_signal_int32* %10, i8* getelementptr inbounds ([9 x i8]* @.str29, i32 0, i32 0))
+  %11 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 8
+  call void @_ZN13sc_signal_u32C1EPKc(%class.sc_signal_int32* %11, i8* getelementptr inbounds ([10 x i8]* @.str30, i32 0, i32 0))
+  %12 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 9
+  call void @_ZN14sc_signal_boolC1EPKc(%class.sc_signal_bool* %12, i8* getelementptr inbounds ([11 x i8]* @.str31, i32 0, i32 0))
+  %13 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 10
+  call void @_ZN14sc_signal_boolC1EPKc(%class.sc_signal_bool* %13, i8* getelementptr inbounds ([9 x i8]* @.str32, i32 0, i32 0))
+  %14 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 11
+  call void @_ZN13sc_signal_u32C1EPKc(%class.sc_signal_int32* %14, i8* getelementptr inbounds ([9 x i8]* @.str33, i32 0, i32 0))
+  %15 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 12
+  call void @_ZN14sc_signal_boolC1EPKc(%class.sc_signal_bool* %15, i8* getelementptr inbounds ([5 x i8]* @.str34, i32 0, i32 0))
+  %16 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 13
+  call void @_ZN14sc_signal_boolC1EPKc(%class.sc_signal_bool* %16, i8* getelementptr inbounds ([10 x i8]* @.str35, i32 0, i32 0))
+  %17 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 14
+  call void @_ZN13sc_signal_u32C1EPKc(%class.sc_signal_int32* %17, i8* getelementptr inbounds ([16 x i8]* @.str36, i32 0, i32 0))
+  %18 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 15
+  call void @_ZN13sc_signal_u32C1EPKc(%class.sc_signal_int32* %18, i8* getelementptr inbounds ([17 x i8]* @.str37, i32 0, i32 0))
+  %19 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 16
+  call void @_ZN13sc_signal_u32C1EPKc(%class.sc_signal_int32* %19, i8* getelementptr inbounds ([15 x i8]* @.str38, i32 0, i32 0))
+  %20 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 17
+  call void @_ZN13sc_signal_u32C1EPKc(%class.sc_signal_int32* %20, i8* getelementptr inbounds ([15 x i8]* @.str39, i32 0, i32 0))
+  %21 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 18
+  call void @_ZN13sc_signal_u32C1EPKc(%class.sc_signal_int32* %21, i8* getelementptr inbounds ([19 x i8]* @.str40, i32 0, i32 0))
+  %22 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 19
+  call void @_ZN13sc_signal_u32C1EPKc(%class.sc_signal_int32* %22, i8* getelementptr inbounds ([16 x i8]* @.str41, i32 0, i32 0))
+  %23 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 20
+  call void @_ZN11SysCArray2DIhLj2ELj512EEC1Ev(%class.SysCArray2D* %23)
+  %24 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 21
+  call void @_ZN11SysCArray1DIbLj512EEC1Ev(%class.SysCArray1D* %24)
+  %25 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 22
+  call void @_ZN11SysCArray1DIbLj128EEC1Ev(%class.SysCArray1D* %25)
+  %26 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 23
+  call void @_ZN11SysCArray2DIfLj501ELj101EEC1Ev(%0* %26)
+  %27 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 24
+  call void @_ZN11SysCArray2DIbLj501ELj101EEC1Ev(%class.SysCArray2D* %27)
+  %28 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 25
+  call void @_ZN11SysCArray2DIbLj501ELj101EEC1Ev(%class.SysCArray2D* %28)
+  %29 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 26
+  call void @_ZN11SysCArray1DIfLj5EEC1Ev(%1* %29)
+  %30 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 27
+  call void @_ZN11SysCArray1DIbLj512EEC1Ev(%class.SysCArray1D* %30)
+  %31 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 28
+  call void @_ZN11SysCArray2DIhLj2ELj128EEC1Ev(%class.SysCArray2D* %31)
+  %32 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 30
+  call void @_ZN13sc_signal_u16C1Ev(%class.sc_signal_u16* %32)
+  %33 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 31
+  call void @_ZN13sc_signal_u16C1Ev(%class.sc_signal_u16* %33)
+  %34 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 32
+  call void @_ZN13sc_signal_u16C1Ev(%class.sc_signal_u16* %34)
+  %35 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 33
+  call void @_ZN13sc_signal_u16C1Ev(%class.sc_signal_u16* %35)
+  %36 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 34
+  call void @_ZN13sc_signal_u16C1Ev(%class.sc_signal_u16* %36)
+  %37 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 35
+  call void @_ZN13sc_signal_u16C1Ev(%class.sc_signal_u16* %37)
+  %38 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 36
+  call void @_ZN14sc_signal_boolC1Ev(%class.sc_signal_bool* %38)
+  %39 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 37
+  call void @_ZN14sc_signal_boolC1Ev(%class.sc_signal_bool* %39)
+  %40 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 38
+  call void @_ZN14sc_signal_boolC1Ev(%class.sc_signal_bool* %40)
+  %41 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 39
+  call void @_ZN14sc_signal_boolC1Ev(%class.sc_signal_bool* %41)
+  %42 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 40
+  call void @_ZN14sc_signal_boolC1Ev(%class.sc_signal_bool* %42)
+  %43 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 41
+  call void @_ZN15sc_signal_int32C1Ev(%class.sc_signal_int32* %43)
+  %44 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 42
+  call void @_ZN14sc_signal_boolC1Ev(%class.sc_signal_bool* %44)
+  %45 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 43
+  call void @_ZN14sc_signal_boolC1Ev(%class.sc_signal_bool* %45)
+  %46 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 44
+  call void @_ZN14sc_signal_boolC1Ev(%class.sc_signal_bool* %46)
+  %47 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 45
+  call void @_ZN14sc_signal_boolC1Ev(%class.sc_signal_bool* %47)
+  br label %48
+
+; <label>:48                                      ; preds = %0
+  br label %49
+
+; <label>:49                                      ; preds = %48
+  %50 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 1
+  %51 = call i8* @_ZN14sc_signal_boolcvRbEv(%class.sc_signal_bool* %50)
+  %52 = load i8* %51
+  %53 = trunc i8 %52 to i1
+  %54 = zext i1 %53 to i32
+  call void @_Z15reset_signal_isib(i32 %54, i1 zeroext false)
+  br label %55
+
+; <label>:55                                      ; preds = %49
+  br label %56
+
+; <label>:56                                      ; preds = %55
+  %57 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 1
+  %58 = call i8* @_ZN14sc_signal_boolcvRbEv(%class.sc_signal_bool* %57)
+  %59 = load i8* %58
+  %60 = trunc i8 %59 to i1
+  %61 = zext i1 %60 to i32
+  call void @_Z15reset_signal_isib(i32 %61, i1 zeroext false)
+  br label %62
+
+; <label>:62                                      ; preds = %56
+  br label %63
+
+; <label>:63                                      ; preds = %62
+  %64 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 1
+  %65 = call i8* @_ZN14sc_signal_boolcvRbEv(%class.sc_signal_bool* %64)
+  %66 = load i8* %65
+  %67 = trunc i8 %66 to i1
+  %68 = zext i1 %67 to i32
+  call void @_Z15reset_signal_isib(i32 %68, i1 zeroext false)
+  call void @_Z14set_stack_sizei(i32 5242880)
+  br label %69
+
+; <label>:69                                      ; preds = %63
+  br label %70
+
+; <label>:70                                      ; preds = %69
+  %71 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 1
+  %72 = call i8* @_ZN14sc_signal_boolcvRbEv(%class.sc_signal_bool* %71)
+  %73 = load i8* %72
+  %74 = trunc i8 %73 to i1
+  %75 = zext i1 %74 to i32
+  call void @_Z15reset_signal_isib(i32 %75, i1 zeroext false)
+  call void @_Z14set_stack_sizei(i32 5242880)
+  br label %76
+
+; <label>:76                                      ; preds = %70
+  br label %77
+
+; <label>:77                                      ; preds = %76
+  %78 = getelementptr inbounds %struct.rbm* %2, i32 0, i32 1
+  %79 = call i8* @_ZN14sc_signal_boolcvRbEv(%class.sc_signal_bool* %78)
+  %80 = load i8* %79
+  %81 = trunc i8 %80 to i1
+  %82 = zext i1 %81 to i32
+  call void @_Z15reset_signal_isib(i32 %82, i1 zeroext false)
+  ret void
+}
+
+define linkonce_odr void @_ZN14sc_signal_boolC1EPKc(%class.sc_signal_bool* %this, i8* %p) unnamed_addr align 2 {
+  %1 = alloca %class.sc_signal_bool*, align 8
+  %2 = alloca i8*, align 8
+  store %class.sc_signal_bool* %this, %class.sc_signal_bool** %1, align 8
+  store i8* %p, i8** %2, align 8
+  %3 = load %class.sc_signal_bool** %1
+  %4 = load i8** %2, align 8
+  call void @_ZN14sc_signal_boolC2EPKc(%class.sc_signal_bool* %3, i8* %4)
+  ret void
+}
+
+define linkonce_odr void @_ZN13sc_signal_u32C1EPKc(%class.sc_signal_int32* %this, i8* %p) unnamed_addr align 2 {
+  %1 = alloca %class.sc_signal_int32*, align 8
+  %2 = alloca i8*, align 8
+  store %class.sc_signal_int32* %this, %class.sc_signal_int32** %1, align 8
+  store i8* %p, i8** %2, align 8
+  %3 = load %class.sc_signal_int32** %1
+  %4 = load i8** %2, align 8
+  call void @_ZN13sc_signal_u32C2EPKc(%class.sc_signal_int32* %3, i8* %4)
+  ret void
+}
+
+define linkonce_odr void @_ZN11SysCArray2DIhLj2ELj512EEC1Ev(%class.SysCArray2D* %this) unnamed_addr align 2 {
+  %1 = alloca %class.SysCArray2D*, align 8
+  store %class.SysCArray2D* %this, %class.SysCArray2D** %1, align 8
+  %2 = load %class.SysCArray2D** %1
+  call void @_ZN11SysCArray2DIhLj2ELj512EEC2Ev(%class.SysCArray2D* %2)
+  ret void
+}
+
+define linkonce_odr void @_ZN11SysCArray1DIbLj512EEC1Ev(%class.SysCArray1D* %this) unnamed_addr align 2 {
+  %1 = alloca %class.SysCArray1D*, align 8
+  store %class.SysCArray1D* %this, %class.SysCArray1D** %1, align 8
+  %2 = load %class.SysCArray1D** %1
+  call void @_ZN11SysCArray1DIbLj512EEC2Ev(%class.SysCArray1D* %2)
+  ret void
+}
+
+define linkonce_odr void @_ZN11SysCArray1DIbLj128EEC1Ev(%class.SysCArray1D* %this) unnamed_addr align 2 {
+  %1 = alloca %class.SysCArray1D*, align 8
+  store %class.SysCArray1D* %this, %class.SysCArray1D** %1, align 8
+  %2 = load %class.SysCArray1D** %1
+  call void @_ZN11SysCArray1DIbLj128EEC2Ev(%class.SysCArray1D* %2)
+  ret void
+}
+
+define linkonce_odr void @_ZN11SysCArray2DIfLj501ELj101EEC1Ev(%0* %this) unnamed_addr align 2 {
+  %1 = alloca %0*, align 8
+  store %0* %this, %0** %1, align 8
+  %2 = load %0** %1
+  call void @_ZN11SysCArray2DIfLj501ELj101EEC2Ev(%0* %2)
+  ret void
+}
+
+define linkonce_odr void @_ZN11SysCArray2DIbLj501ELj101EEC1Ev(%class.SysCArray2D* %this) unnamed_addr align 2 {
+  %1 = alloca %class.SysCArray2D*, align 8
+  store %class.SysCArray2D* %this, %class.SysCArray2D** %1, align 8
+  %2 = load %class.SysCArray2D** %1
+  call void @_ZN11SysCArray2DIbLj501ELj101EEC2Ev(%class.SysCArray2D* %2)
+  ret void
+}
+
+define linkonce_odr void @_ZN11SysCArray1DIfLj5EEC1Ev(%1* %this) unnamed_addr align 2 {
+  %1 = alloca %1*, align 8
+  store %1* %this, %1** %1, align 8
+  %2 = load %1** %1
+  call void @_ZN11SysCArray1DIfLj5EEC2Ev(%1* %2)
+  ret void
+}
+
+define linkonce_odr void @_ZN11SysCArray2DIhLj2ELj128EEC1Ev(%class.SysCArray2D* %this) unnamed_addr align 2 {
+  %1 = alloca %class.SysCArray2D*, align 8
+  store %class.SysCArray2D* %this, %class.SysCArray2D** %1, align 8
+  %2 = load %class.SysCArray2D** %1
+  call void @_ZN11SysCArray2DIhLj2ELj128EEC2Ev(%class.SysCArray2D* %2)
+  ret void
+}
+
+define linkonce_odr void @_ZN13sc_signal_u16C1Ev(%class.sc_signal_u16* %this) unnamed_addr align 2 {
+  %1 = alloca %class.sc_signal_u16*, align 8
+  store %class.sc_signal_u16* %this, %class.sc_signal_u16** %1, align 8
+  %2 = load %class.sc_signal_u16** %1
+  call void @_ZN13sc_signal_u16C2Ev(%class.sc_signal_u16* %2)
+  ret void
+}
+
+define linkonce_odr void @_ZN14sc_signal_boolC1Ev(%class.sc_signal_bool* %this) unnamed_addr align 2 {
+  %1 = alloca %class.sc_signal_bool*, align 8
+  store %class.sc_signal_bool* %this, %class.sc_signal_bool** %1, align 8
+  %2 = load %class.sc_signal_bool** %1
+  call void @_ZN14sc_signal_boolC2Ev(%class.sc_signal_bool* %2)
+  ret void
+}
+
+define linkonce_odr void @_ZN15sc_signal_int32C1Ev(%class.sc_signal_int32* %this) unnamed_addr align 2 {
+  %1 = alloca %class.sc_signal_int32*, align 8
+  store %class.sc_signal_int32* %this, %class.sc_signal_int32** %1, align 8
+  %2 = load %class.sc_signal_int32** %1
+  call void @_ZN15sc_signal_int32C2Ev(%class.sc_signal_int32* %2)
+  ret void
+}
+
+define linkonce_odr i8* @_ZN14sc_signal_boolcvRbEv(%class.sc_signal_bool* %this) nounwind align 2 {
+  %1 = alloca %class.sc_signal_bool*, align 8
+  store %class.sc_signal_bool* %this, %class.sc_signal_bool** %1, align 8
+  %2 = load %class.sc_signal_bool** %1
+  %3 = getelementptr inbounds %class.sc_signal_bool* %2, i32 0, i32 0
+  ret i8* %3
+}
+
+define linkonce_odr void @_ZN15sc_signal_int32C2Ev(%class.sc_signal_int32* %this) unnamed_addr nounwind align 2 {
+  %1 = alloca %class.sc_signal_int32*, align 8
+  store %class.sc_signal_int32* %this, %class.sc_signal_int32** %1, align 8
+  %2 = load %class.sc_signal_int32** %1
+  ret void
+}
+
+define linkonce_odr void @_ZN14sc_signal_boolC2Ev(%class.sc_signal_bool* %this) unnamed_addr nounwind align 2 {
+  %1 = alloca %class.sc_signal_bool*, align 8
+  store %class.sc_signal_bool* %this, %class.sc_signal_bool** %1, align 8
+  %2 = load %class.sc_signal_bool** %1
+  ret void
+}
+
+define linkonce_odr void @_ZN13sc_signal_u16C2Ev(%class.sc_signal_u16* %this) unnamed_addr nounwind align 2 {
+  %1 = alloca %class.sc_signal_u16*, align 8
+  store %class.sc_signal_u16* %this, %class.sc_signal_u16** %1, align 8
+  %2 = load %class.sc_signal_u16** %1
+  ret void
+}
+
+define linkonce_odr void @_ZN11SysCArray2DIhLj2ELj128EEC2Ev(%class.SysCArray2D* %this) unnamed_addr align 2 {
+  %1 = alloca %class.SysCArray2D*, align 8
+  store %class.SysCArray2D* %this, %class.SysCArray2D** %1, align 8
+  %2 = load %class.SysCArray2D** %1
+  %3 = call i8* @__CPROVER_malloc(i64 256)
+  %4 = getelementptr inbounds %class.SysCArray2D* %2, i32 0, i32 0
+  store i8* %3, i8** %4, align 8
+  %5 = call i8* @__CPROVER_malloc(i64 128)
+  %6 = getelementptr inbounds %class.SysCArray2D* %2, i32 0, i32 1
+  store i8* %5, i8** %6, align 8
+  ret void
+}
+
+define linkonce_odr void @_ZN11SysCArray1DIfLj5EEC2Ev(%1* %this) unnamed_addr align 2 {
+  %1 = alloca %1*, align 8
+  store %1* %this, %1** %1, align 8
+  %2 = load %1** %1
+  %3 = call i8* @__CPROVER_malloc(i64 20)
+  %4 = bitcast i8* %3 to float*
+  %5 = getelementptr inbounds %1* %2, i32 0, i32 0
+  store float* %4, float** %5, align 8
+  ret void
+}
+
+define linkonce_odr void @_ZN11SysCArray2DIbLj501ELj101EEC2Ev(%class.SysCArray2D* %this) unnamed_addr align 2 {
+  %1 = alloca %class.SysCArray2D*, align 8
+  store %class.SysCArray2D* %this, %class.SysCArray2D** %1, align 8
+  %2 = load %class.SysCArray2D** %1
+  %3 = call i8* @__CPROVER_malloc(i64 50601)
+  %4 = getelementptr inbounds %class.SysCArray2D* %2, i32 0, i32 0
+  store i8* %3, i8** %4, align 8
+  %5 = call i8* @__CPROVER_malloc(i64 101)
+  %6 = getelementptr inbounds %class.SysCArray2D* %2, i32 0, i32 1
+  store i8* %5, i8** %6, align 8
+  ret void
+}
+
+define linkonce_odr void @_ZN11SysCArray2DIfLj501ELj101EEC2Ev(%0* %this) unnamed_addr align 2 {
+  %1 = alloca %0*, align 8
+  store %0* %this, %0** %1, align 8
+  %2 = load %0** %1
+  %3 = call i8* @__CPROVER_malloc(i64 202404)
+  %4 = bitcast i8* %3 to float*
+  %5 = getelementptr inbounds %0* %2, i32 0, i32 0
+  store float* %4, float** %5, align 8
+  %6 = call i8* @__CPROVER_malloc(i64 404)
+  %7 = bitcast i8* %6 to float*
+  %8 = getelementptr inbounds %0* %2, i32 0, i32 1
+  store float* %7, float** %8, align 8
+  ret void
+}
+
+define linkonce_odr void @_ZN11SysCArray1DIbLj128EEC2Ev(%class.SysCArray1D* %this) unnamed_addr align 2 {
+  %1 = alloca %class.SysCArray1D*, align 8
+  store %class.SysCArray1D* %this, %class.SysCArray1D** %1, align 8
+  %2 = load %class.SysCArray1D** %1
+  %3 = call i8* @__CPROVER_malloc(i64 128)
+  %4 = getelementptr inbounds %class.SysCArray1D* %2, i32 0, i32 0
+  store i8* %3, i8** %4, align 8
+  ret void
+}
+
+define linkonce_odr void @_ZN11SysCArray1DIbLj512EEC2Ev(%class.SysCArray1D* %this) unnamed_addr align 2 {
+  %1 = alloca %class.SysCArray1D*, align 8
+  store %class.SysCArray1D* %this, %class.SysCArray1D** %1, align 8
+  %2 = load %class.SysCArray1D** %1
+  %3 = call i8* @__CPROVER_malloc(i64 512)
+  %4 = getelementptr inbounds %class.SysCArray1D* %2, i32 0, i32 0
+  store i8* %3, i8** %4, align 8
+  ret void
+}
+
+define linkonce_odr void @_ZN11SysCArray2DIhLj2ELj512EEC2Ev(%class.SysCArray2D* %this) unnamed_addr align 2 {
+  %1 = alloca %class.SysCArray2D*, align 8
+  store %class.SysCArray2D* %this, %class.SysCArray2D** %1, align 8
+  %2 = load %class.SysCArray2D** %1
+  %3 = call i8* @__CPROVER_malloc(i64 1024)
+  %4 = getelementptr inbounds %class.SysCArray2D* %2, i32 0, i32 0
+  store i8* %3, i8** %4, align 8
+  %5 = call i8* @__CPROVER_malloc(i64 512)
+  %6 = getelementptr inbounds %class.SysCArray2D* %2, i32 0, i32 1
+  store i8* %5, i8** %6, align 8
+  ret void
+}
+
+define linkonce_odr void @_ZN13sc_signal_u32C2EPKc(%class.sc_signal_int32* %this, i8* %p) unnamed_addr nounwind align 2 {
+  %1 = alloca %class.sc_signal_int32*, align 8
+  %2 = alloca i8*, align 8
+  store %class.sc_signal_int32* %this, %class.sc_signal_int32** %1, align 8
+  store i8* %p, i8** %2, align 8
+  %3 = load %class.sc_signal_int32** %1
+  ret void
+}
+
+define linkonce_odr void @_ZN14sc_signal_boolC2EPKc(%class.sc_signal_bool* %this, i8* %p) unnamed_addr nounwind align 2 {
+  %1 = alloca %class.sc_signal_bool*, align 8
+  %2 = alloca i8*, align 8
+  store %class.sc_signal_bool* %this, %class.sc_signal_bool** %1, align 8
+  store i8* %p, i8** %2, align 8
+  %3 = load %class.sc_signal_bool** %1
+  ret void
+}
+
+define linkonce_odr void @_ZN13model_DMAloadD2Ev(%class.model_DMAload* %this) unnamed_addr align 2 {
+  %1 = alloca %class.model_DMAload*, align 8
+  %2 = alloca i8*
+  %3 = alloca i32
+  store %class.model_DMAload* %this, %class.model_DMAload** %1, align 8
+  %4 = load %class.model_DMAload** %1
+  %5 = getelementptr inbounds %class.model_DMAload* %4, i32 0, i32 11
+  invoke void @_ZN8type_memIhLj128EED1Ev(%class.SysCArray1D* %5)
+          to label %6 unwind label %8
+
+; <label>:6                                       ; preds = %0
+  %7 = getelementptr inbounds %class.model_DMAload* %4, i32 0, i32 0
+  call void @_ZN8type_memIhLj512EED1Ev(%class.SysCArray1D* %7)
+  ret void
+
+; <label>:8                                       ; preds = %0
+  %9 = call i8* @llvm.eh.exception() nounwind
+  store i8* %9, i8** %2
+  %10 = call i32 (i8*, i8*, ...)* @llvm.eh.selector(i8* %9, i8* bitcast (i32 (...)* @__gxx_personality_v0 to i8*), i8* null) nounwind
+  store i32 0, i32* %3
+  %11 = getelementptr inbounds %class.model_DMAload* %4, i32 0, i32 0
+  invoke void @_ZN8type_memIhLj512EED1Ev(%class.SysCArray1D* %11)
+          to label %12 unwind label %15
+
+; <label>:12                                      ; preds = %8
+  br label %13
+
+; <label>:13                                      ; preds = %12
+  %14 = load i8** %2
+  call void @_Unwind_Resume_or_Rethrow(i8* %14) noreturn
+  unreachable
+
+; <label>:15                                      ; preds = %8
+  %16 = call i8* @llvm.eh.exception() nounwind
+  %17 = call i32 (i8*, i8*, ...)* @llvm.eh.selector(i8* %16, i8* bitcast (i32 (...)* @__gxx_personality_v0 to i8*), i8* null) nounwind
+  call void @_ZSt9terminatev() noreturn nounwind
+  unreachable
+}
+
+define linkonce_odr void @_ZN8type_memIhLj128EED1Ev(%class.SysCArray1D* %this) unnamed_addr align 2 {
+  %1 = alloca %class.SysCArray1D*, align 8
+  store %class.SysCArray1D* %this, %class.SysCArray1D** %1, align 8
+  %2 = load %class.SysCArray1D** %1
+  call void @_ZN8type_memIhLj128EED2Ev(%class.SysCArray1D* %2)
+  ret void
+}
+
+define linkonce_odr void @_ZN8type_memIhLj128EED2Ev(%class.SysCArray1D* %this) unnamed_addr nounwind align 2 {
+  %1 = alloca %class.SysCArray1D*, align 8
+  store %class.SysCArray1D* %this, %class.SysCArray1D** %1, align 8
+  %2 = load %class.SysCArray1D** %1
+  ret void
+}
+
+define linkonce_odr void @_ZN13model_DMAloadC2Ev(%class.model_DMAload* %this) unnamed_addr align 2 {
+  %1 = alloca %class.model_DMAload*, align 8
+  %2 = alloca i8*
+  %3 = alloca i32
+  store %class.model_DMAload* %this, %class.model_DMAload** %1, align 8
+  %4 = load %class.model_DMAload** %1
+  %5 = getelementptr inbounds %class.model_DMAload* %4, i32 0, i32 0
+  call void @_ZN8type_memIhLj512EEC1El(%class.SysCArray1D* %5, i64 0)
+  %6 = getelementptr inbounds %class.model_DMAload* %4, i32 0, i32 11
+  invoke void @_ZN8type_memIhLj128EEC1El(%class.SysCArray1D* %6, i64 0)
+          to label %7 unwind label %11
+
+; <label>:7                                       ; preds = %0
+  %8 = getelementptr inbounds %class.model_DMAload* %4, i32 0, i32 21
+  store i64 65535, i64* %8, align 8
+  %9 = getelementptr inbounds %class.model_DMAload* %4, i32 0, i32 22
+  store i64 255, i64* %9, align 8
+  %10 = getelementptr inbounds %class.model_DMAload* %4, i32 0, i32 23
+  store i64 511, i64* %10, align 8
+  ret void
+
+; <label>:11                                      ; preds = %0
+  %12 = call i8* @llvm.eh.exception() nounwind
+  store i8* %12, i8** %2
+  %13 = call i32 (i8*, i8*, ...)* @llvm.eh.selector(i8* %12, i8* bitcast (i32 (...)* @__gxx_personality_v0 to i8*), i8* null) nounwind
+  store i32 0, i32* %3
+  %14 = getelementptr inbounds %class.model_DMAload* %4, i32 0, i32 0
+  invoke void @_ZN8type_memIhLj512EED1Ev(%class.SysCArray1D* %14)
+          to label %15 unwind label %18
+
+; <label>:15                                      ; preds = %11
+  br label %16
+
+; <label>:16                                      ; preds = %15
+  %17 = load i8** %2
+  call void @_Unwind_Resume_or_Rethrow(i8* %17) noreturn
+  unreachable
+
+; <label>:18                                      ; preds = %11
+  %19 = call i8* @llvm.eh.exception() nounwind
+  %20 = call i32 (i8*, i8*, ...)* @llvm.eh.selector(i8* %19, i8* bitcast (i32 (...)* @__gxx_personality_v0 to i8*), i8* null) nounwind
+  call void @_ZSt9terminatev() noreturn nounwind
+  unreachable
+}
+
+define linkonce_odr void @_ZN8type_memIhLj512EEC1El(%class.SysCArray1D* %this, i64 %def) unnamed_addr align 2 {
+  %1 = alloca %class.SysCArray1D*, align 8
+  %2 = alloca i64, align 8
+  store %class.SysCArray1D* %this, %class.SysCArray1D** %1, align 8
+  store i64 %def, i64* %2, align 8
+  %3 = load %class.SysCArray1D** %1
+  %4 = load i64* %2, align 8
+  call void @_ZN8type_memIhLj512EEC2El(%class.SysCArray1D* %3, i64 %4)
+  ret void
+}
+
+define linkonce_odr void @_ZN8type_memIhLj128EEC1El(%class.SysCArray1D* %this, i64 %def) unnamed_addr align 2 {
+  %1 = alloca %class.SysCArray1D*, align 8
+  %2 = alloca i64, align 8
+  store %class.SysCArray1D* %this, %class.SysCArray1D** %1, align 8
+  store i64 %def, i64* %2, align 8
+  %3 = load %class.SysCArray1D** %1
+  %4 = load i64* %2, align 8
+  call void @_ZN8type_memIhLj128EEC2El(%class.SysCArray1D* %3, i64 %4)
+  ret void
+}
+
+define linkonce_odr void @_ZN8type_memIhLj128EEC2El(%class.SysCArray1D* %this, i64 %def) unnamed_addr align 2 {
+  %1 = alloca %class.SysCArray1D*, align 8
+  %2 = alloca i64, align 8
+  store %class.SysCArray1D* %this, %class.SysCArray1D** %1, align 8
+  store i64 %def, i64* %2, align 8
+  %3 = load %class.SysCArray1D** %1
+  %4 = call i8* @__CPROVER_malloc(i64 128)
+  %5 = getelementptr inbounds %class.SysCArray1D* %3, i32 0, i32 0
+  store i8* %4, i8** %5, align 8
+  ret void
+}
+
+define linkonce_odr void @_ZN8type_memIhLj512EEC2El(%class.SysCArray1D* %this, i64 %def) unnamed_addr align 2 {
+  %1 = alloca %class.SysCArray1D*, align 8
+  %2 = alloca i64, align 8
+  store %class.SysCArray1D* %this, %class.SysCArray1D** %1, align 8
+  store i64 %def, i64* %2, align 8
+  %3 = load %class.SysCArray1D** %1
+  %4 = call i8* @__CPROVER_malloc(i64 512)
+  %5 = getelementptr inbounds %class.SysCArray1D* %3, i32 0, i32 0
+  store i8* %4, i8** %5, align 8
+  ret void
+}
+
+define internal void @_GLOBAL__I_a() {
+  call void @__cxx_global_var_init()
+  call void @__cxx_global_var_init21()
+  ret void
+}
