@@ -50,7 +50,6 @@ def WRU1 (gb):
 
     # next state functions for output ports
     arg_1_TREADY_nxt = ila.ite (endPixel, READY_F, READY_T) 
-    #arg_1_TREADY_nxt = ila.ite (relPixel, READY_T, arg_1_TREADY_nxt)
     gb.arg_1_TREADY_nxt = ila.ite (decode, arg_1_TREADY_nxt, 
                                            gb.arg_1_TREADY_nxt)
 

@@ -1,3 +1,12 @@
+/* PREHEADER */
+module fun_gb_fun (
+    input [647:0] arg1,
+    output [7:0] result
+);
+//TODO: Add the specific function HERE.
+endmodule
+
+/* END OF PREHEADER */
 module SPEC_A(
 arg_0_TREADY,
 arg_1_TDATA,
@@ -97,6 +106,8 @@ wire     [71:0] n28;
 wire     [71:0] n29;
 wire     [71:0] n30;
 wire            n31;
+wire            n32;
+wire            n33;
 reg      [7:0] RAM_0[511:0];
 reg      [7:0] RAM_1[511:0];
 reg      [7:0] RAM_2[511:0];
@@ -140,14 +151,8 @@ assign n28 =  ( n4 ) ? ( stencil_6 ) : ( stencil_6 ) ;
 assign n29 =  ( n4 ) ? ( stencil_7 ) : ( stencil_7 ) ;
 assign n30 =  ( n4 ) ? ( stencil_8 ) : ( stencil_8 ) ;
 assign n31 = ~ ( n4 ) ;
-/*
-function [7:0] gb_fun ;
-input [647:0] arg0;
-    begin
-//TODO: Add the specific function HERE.    end
-endfunction
-*/
-
+assign n32 =  ( 1'b1 ) & ( n31 )  ;
+assign n33 =  ( 1'b1 ) & ( n4 )  ;
 always @(posedge clk) begin
    if(rst) begin
        RAM_w <= RAM_w;
