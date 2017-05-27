@@ -4,29 +4,29 @@ from gb_arch import GBArch
 
 # Define next state functions for architectural states
 def WRU0 (gb):
-    m = gb.abst
 
     READY_T     = gb.READY_TRUE
     READY_F     = gb.READY_FALSE
-    VALID_T     = gb.VALID_TRUE
     VALID_F     = gb.VALID_FALSE
-    DATA_SIZE   = gb.DATA_SIZE
 
     decode = (gb.arg_1_TREADY == READY_F) & \
              (gb.arg_0_TREADY == READY_F) & \
              (gb.st_ready == READY_T) \
 
-    decode = decode & ~((gb.RAM_x == gb.RAM_x_0) & (gb.RAM_y == gb.RAM_y_0))
-
-    endPixel = (gb.RAM_x == gb.RAM_x_M) & (gb.RAM_y == gb.RAM_y_M - gb.RAM_y_1)
+    # General case: (x, y) != (0, 0) v (M, M-1)
+    initCon = (gb.RAM_x == gb.RAM_x_0) & (gb.RAM_y == gb.RAM_y_0)
     accPixel = (gb.RAM_y < gb.RAM_size) 
 
     # next state functions for output ports
-    arg_1_TREADY_nxt = ila.ite (accPixel, READY_T, READY_F) 
-    gb.arg_1_TREADY_nxt = ila.ite (decode, arg_1_TREADY_nxt, gb.arg_1_TREADY_nxt)
+    arg_1_TREADY_nxt = ila.ite (initCon,  READY_T, 
+                       ila.ite (accPixel, READY_T, 
+                                          READY_F))
+    gb.arg_1_TREADY_nxt = ila.ite (decode, arg_1_TREADY_nxt, 
+                                           gb.arg_1_TREADY_nxt)
 
-    arg_0_TVALID_nxt = gb.arg_0_TVALID
-    gb.arg_0_TVALID_nxt = ila.ite (decode, arg_0_TVALID_nxt, gb.arg_0_TVALID_nxt)
+    arg_0_TVALID_nxt = ila.ite (initCon, VALID_F, gb.arg_0_TVALID)
+    gb.arg_0_TVALID_nxt = ila.ite (decode, arg_0_TVALID_nxt, 
+                                           gb.arg_0_TVALID_nxt)
 
     arg_0_TDATA_nxt = gb.arg_0_TDATA
     gb.arg_0_TDATA_nxt = ila.ite (decode, arg_0_TDATA_nxt, gb.arg_0_TDATA_nxt)
@@ -41,9 +41,10 @@ def WRU0 (gb):
     gb.pre_pix_nxt = ila.ite (decode, pre_pix_nxt, gb.pre_pix_nxt)
 
     # x index (column) in the 2-D RAM
-    RAM_x_nxt = ila.ite (gb.RAM_x == gb.RAM_x_M, 
+    RAM_x_nxt = ila.ite (initCon, gb.RAM_x_1, 
+                ila.ite (gb.RAM_x == gb.RAM_x_M, 
                          gb.RAM_x_1, 
-                         gb.RAM_x + gb.RAM_x_1)
+                         gb.RAM_x + gb.RAM_x_1))
     gb.RAM_x_nxt = ila.ite (decode, RAM_x_nxt, gb.RAM_x_nxt)
 
     # y index (row) in the 2-D RAM
@@ -70,6 +71,7 @@ def WRU0 (gb):
                                         gb.RAM_x - gb.RAM_x_1, 
                                         in_byte),
                              gb.RAM[i])
+        RAM_i_nxt = ila.ite (initCon, gb.RAM[i], RAM_i_nxt)
         gb.RAM_nxt[i] = ila.ite (decode, RAM_i_nxt, gb.RAM_nxt[i])
 
     # 8 1x9 bytes slice in the stencil
@@ -109,7 +111,9 @@ def WRU0 (gb):
     gb.stencil_nxt[n] = ila.ite (decode, stencil_n_nxt, gb.stencil_nxt[n])
     
     # stencil ready (child-state)
-    st_ready_nxt = ila.ite (accPixel, READY_T, READY_F) 
+    st_ready_nxt = ila.ite (initCon,  READY_T, 
+                   ila.ite (accPixel, READY_T, 
+                                      READY_F))
     gb.st_ready_nxt = ila.ite (decode, st_ready_nxt, gb.st_ready_nxt)
 
     # 9x9 stencil (child-state)

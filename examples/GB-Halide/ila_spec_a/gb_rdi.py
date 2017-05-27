@@ -7,10 +7,8 @@ def defNext (gb):
     m = gb.abst
 
     READY_T     = gb.READY_TRUE
-    READY_F     = gb.READY_FALSE
     VALID_T     = gb.VALID_TRUE
     VALID_F     = gb.VALID_FALSE
-    DATA_SIZE   = gb.DATA_SIZE
 
     decode = (gb.arg_1_TVALID == VALID_F) & \
              (gb.arg_0_TVALID == VALID_T) & \
@@ -18,11 +16,13 @@ def defNext (gb):
 
     # next state functions for output ports
     arg_1_TREADY_nxt = gb.arg_1_TREADY
-    gb.arg_1_TREADY_nxt = ila.ite (decode, arg_1_TREADY_nxt, gb.arg_1_TREADY_nxt)
+    gb.arg_1_TREADY_nxt = ila.ite (decode, arg_1_TREADY_nxt, 
+                                           gb.arg_1_TREADY_nxt)
 
     arg_0_TVALID_nxt = ila.ite ((gb.gbit == 0) | (gb.gbit == 7),
                                 VALID_F, VALID_T)
-    gb.arg_0_TVALID_nxt = ila.ite (decode, arg_0_TVALID_nxt, gb.arg_0_TVALID_nxt)
+    gb.arg_0_TVALID_nxt = ila.ite (decode, arg_0_TVALID_nxt, 
+                                           gb.arg_0_TVALID_nxt)
 
     arg_0_TDATA_nxt = gb.arg_0_TDATA
     gb.arg_0_TDATA_nxt = ila.ite (decode, arg_0_TDATA_nxt, gb.arg_0_TDATA_nxt)

@@ -23,7 +23,6 @@ def defUSts (gb):
 def defNext (gb):
     WRI (gb)
     WRU0 (gb)
-    WRU0b (gb)
     WRU1 (gb)
 
 # Connect next state function to the abstraction
