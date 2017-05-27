@@ -7,7 +7,7 @@ include $TCL/setup_r.tcl
 include $TCL/eqcheck_r.tcl
 
 set_prove_time_limit 0s; set_prove_per_property_time_limit 0s
-set_max_trace_length 0; set_prove_per_property_max_time_limit 60m
+set_max_trace_length 0; set_prove_per_property_max_time_limit 0s
 set_engine_mode {Hp Ht Bm J B D I M N G Hps Hts}
 
 assume -disable {::Subset - C1}
@@ -18,6 +18,9 @@ assume -disable {::Subset - E}
 
 #prove -property {<embedded>::bound}
 
+#prove -all
+
 #set_max_trace_length 15; set_prove_per_property_max_time_limit 0s
+#save -jdb $EXP/rdi_new.jdb -capture_setup -capture_session_data
 
 #exit
