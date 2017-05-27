@@ -2,10 +2,6 @@ import ila
 from gb_arch import GBArch
 
 def U4 (gb):
-    m = gb.abst
-
-    READY_T = gb.READY_TRUE
-    READY_F = gb.READY_FALSE
     VALID_T = gb.VALID_TRUE
     VALID_F = gb.VALID_FALSE
     FULL_T  = gb.FULL_TRUE
@@ -25,12 +21,15 @@ def U4 (gb):
     ############################ next state functions #####################
     # arg_1_TREADY
     arg_1_TREADY_nxt = gb.arg_1_TREADY
-    gb.arg_1_TREADY_nxt = ila.ite (decode, arg_1_TREADY_nxt, gb.arg_1_TREADY_nxt)
+    gb.arg_1_TREADY_nxt = ila.ite (decode, arg_1_TREADY_nxt, 
+                                           gb.arg_1_TREADY_nxt)
 
     # arg_0_TVALID
-    arg_0_TVALID_nxt = ila.ite ((gb.gb_pp_it[7] == IT_T) & (gb.gb_exit_it[6] == IT_F), 
+    arg_0_TVALID_nxt = ila.ite ((gb.gb_pp_it[7] == IT_T) & \
+                                (gb.gb_exit_it[6] == IT_F), 
                                 VALID_T, VALID_F)
-    gb.arg_0_TVALID_nxt = ila.ite (decode, arg_0_TVALID_nxt, gb.arg_0_TVALID_nxt)
+    gb.arg_0_TVALID_nxt = ila.ite (decode, arg_0_TVALID_nxt, 
+                                           gb.arg_0_TVALID_nxt)
 
     # arg_0_TDATA
     in_stencil = ila.ite (gb.stencil_stream_full == FULL_T,
@@ -137,7 +136,8 @@ def U4 (gb):
     # stencil_stream_buff
     for i in xrange (0, gb.stencil_stream_size):
         stencil_stream_buff_nxt = gb.stencil_stream_buff[i]
-        gb.stencil_stream_buff_nxt[i] = ila.ite (decode, stencil_stream_buff_nxt,
+        gb.stencil_stream_buff_nxt[i] = ila.ite (decode, 
+                                                 stencil_stream_buff_nxt,
                                                  gb.stencil_stream_buff_nxt[i])
 
     # gb_p_cnt

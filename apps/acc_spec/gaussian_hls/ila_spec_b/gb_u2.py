@@ -2,12 +2,6 @@ import ila
 from gb_arch import GBArch
 
 def U2 (gb):
-    m = gb.abst
-
-    READY_T = gb.READY_TRUE
-    READY_F = gb.READY_FALSE
-    VALID_T = gb.VALID_TRUE
-    VALID_F = gb.VALID_FALSE
     FULL_T  = gb.FULL_TRUE
     FULL_F  = gb.FULL_FALSE
     EMPTY_T = gb.EMPTY_TRUE
@@ -21,11 +15,13 @@ def U2 (gb):
     ############################ next state functions #####################
     # arg_1_TREADY
     arg_1_TREADY_nxt = gb.arg_1_TREADY
-    gb.arg_1_TREADY_nxt = ila.ite (decode, arg_1_TREADY_nxt, gb.arg_1_TREADY_nxt)
+    gb.arg_1_TREADY_nxt = ila.ite (decode, arg_1_TREADY_nxt, 
+                                           gb.arg_1_TREADY_nxt)
 
     # arg_0_TVALID
     arg_0_TVALID_nxt = gb.arg_0_TVALID
-    gb.arg_0_TVALID_nxt = ila.ite (decode, arg_0_TVALID_nxt, gb.arg_0_TVALID_nxt)
+    gb.arg_0_TVALID_nxt = ila.ite (decode, arg_0_TVALID_nxt, 
+                                           gb.arg_0_TVALID_nxt)
 
     # arg_0_TDATA
     arg_0_TDATA_nxt = gb.arg_0_TDATA
@@ -51,7 +47,8 @@ def U2 (gb):
                                      gb.in_stream_full_nxt)
 
     # in stream empty
-    in_stream_empty_nxt = ila.ite (gb.in_stream_full == FULL_T, EMPTY_F, EMPTY_T)
+    in_stream_empty_nxt = ila.ite (gb.in_stream_full == FULL_T, EMPTY_F, 
+                                                                EMPTY_T)
     gb.in_stream_empty_nxt = ila.ite (decode, in_stream_empty_nxt,
                                       gb.in_stream_empty_nxt)
 
@@ -93,7 +90,8 @@ def U2 (gb):
                                             gb.LB2D_proc_x - gb.LB2D_proc_x_1, 
                                             in_byte),
                                  gb.LB2D_proc[i])
-        gb.LB2D_proc_nxt[i] = ila.ite (decode, LB2D_proc_nxt, gb.LB2D_proc_nxt[i])
+        gb.LB2D_proc_nxt[i] = ila.ite (decode, LB2D_proc_nxt, 
+                                               gb.LB2D_proc_nxt[i])
 
     # slice stream full
     slice_stream_full_nxt = ila.ite (gb.LB2D_proc_y < gb.LB2D_proc_size,
@@ -117,10 +115,12 @@ def U2 (gb):
         def sliceSelectOne (modCase):
             idx = seqs[modCase]
             if modCase == gb.LB2D_proc_size - 1:
-                return ila.load (gb.LB2D_proc[idx], gb.LB2D_proc_x - gb.LB2D_proc_x_1) 
+                return ila.load (gb.LB2D_proc[idx], 
+                                 gb.LB2D_proc_x - gb.LB2D_proc_x_1) 
             else:
                 return ila.ite (start == modCase, 
-                                ila.load (gb.LB2D_proc[idx], gb.LB2D_proc_x - gb.LB2D_proc_x_1), 
+                                ila.load (gb.LB2D_proc[idx], 
+                                          gb.LB2D_proc_x - gb.LB2D_proc_x_1), 
                                 sliceSelectOne (modCase + 1))
         return sliceSelectOne (0)
 
@@ -192,7 +192,8 @@ def U2 (gb):
     # stencil_stream_buff
     for i in xrange (0, gb.stencil_stream_size):
         stencil_stream_buff_nxt = gb.stencil_stream_buff[i]
-        gb.stencil_stream_buff_nxt[i] = ila.ite (decode, stencil_stream_buff_nxt,
+        gb.stencil_stream_buff_nxt[i] = ila.ite (decode, 
+                                                 stencil_stream_buff_nxt,
                                                  gb.stencil_stream_buff_nxt[i])
 
     # gb_p_cnt
