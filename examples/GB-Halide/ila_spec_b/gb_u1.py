@@ -2,12 +2,9 @@ import ila
 from gb_arch import GBArch
 
 def U1 (gb):
-    m = gb.abst
 
     READY_T = gb.READY_TRUE
     READY_F = gb.READY_FALSE
-    VALID_T = gb.VALID_TRUE
-    VALID_F = gb.VALID_FALSE
     FULL_T  = gb.FULL_TRUE
     FULL_F  = gb.FULL_FALSE
     EMPTY_T = gb.EMPTY_TRUE
@@ -15,13 +12,12 @@ def U1 (gb):
 
     ############################ decode ###################################
     decode = (gb.arg_1_TREADY == READY_F) & \
-             (gb.in_stream_full == FULL_F) & \
-             (gb.LB1D_it_1 == gb.it_T)
+             (gb.in_stream_full == FULL_F)
+
+    condLast = (gb.LB1D_it_1 == gb.it_T) & (gb.LB1D_p_cnt == gb.LB1D_p_cnt_M)
 
     ############################ next state functions #####################
     # arg_1_TREADY
-    arg_1_TREADY_nxt = ila.ite (gb.LB1D_p_cnt == gb.LB1D_p_cnt_M - 1,
-                                READY_F, READY_T)
     arg_1_TREADY_nxt = READY_T 
     gb.arg_1_TREADY_nxt = ila.ite (decode, arg_1_TREADY_nxt, 
                                    gb.arg_1_TREADY_nxt)
@@ -37,7 +33,7 @@ def U1 (gb):
                                   gb.arg_0_TDATA_nxt)
 
     # LB1D_it_1
-    LB1D_it_1_nxt = gb.it_T 
+    LB1D_it_1_nxt = ila.ite (condLast, gb.it_F, gb.it_T)
     gb.LB1D_it_1_nxt = ila.ite (decode, LB1D_it_1_nxt, gb.LB1D_it_1_nxt)
 
     # 1-D buffer for input data
@@ -51,7 +47,8 @@ def U1 (gb):
     gb.LB1D_buff_nxt = ila.ite (decode, LB1D_buff_nxt, gb.LB1D_buff_nxt)
 
     # pixel position for input data
-    LB1D_p_cnt_nxt = gb.LB1D_p_cnt + gb.LB1D_p_cnt_1 
+    LB1D_p_cnt_nxt = ila.ite (condLast, gb.LB1D_p_cnt_0, 
+                              gb.LB1D_p_cnt + gb.LB1D_p_cnt_1)
     gb.LB1D_p_cnt_nxt = ila.ite (decode, LB1D_p_cnt_nxt, gb.LB1D_p_cnt_nxt)
 
     # in stream full
@@ -139,7 +136,8 @@ def U1 (gb):
     # stencil_stream_buff
     for i in xrange (0, gb.stencil_stream_size):
         stencil_stream_buff_nxt = gb.stencil_stream_buff[i]
-        gb.stencil_stream_buff_nxt[i] = ila.ite (decode, stencil_stream_buff_nxt,
+        gb.stencil_stream_buff_nxt[i] = ila.ite (decode, 
+                                                 stencil_stream_buff_nxt,
                                                  gb.stencil_stream_buff_nxt[i])
 
     # gb_p_cnt

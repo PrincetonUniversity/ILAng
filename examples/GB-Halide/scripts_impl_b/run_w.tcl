@@ -21,6 +21,6 @@ assume -disable {::Subset - E}
 
 #prove -all
 
-#save -jdb $EXP/wri_all.jdb -capture_setup -capture_session_data
+#save -jdb $EXP/wri.jdb -capture_setup -capture_session_data
 
 #exit

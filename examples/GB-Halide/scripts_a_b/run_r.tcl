@@ -20,6 +20,6 @@ assume -disable {::Subset - E}
 
 #prove -all
 
-#save -jdb $EXP/rdi_all.jdb -capture_setup -capture_session_data
+#save -jdb $EXP/rdi.jdb -capture_setup -capture_session_data
 
 #exit

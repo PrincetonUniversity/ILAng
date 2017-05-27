@@ -2,12 +2,6 @@ import ila
 from gb_arch import GBArch
 
 def U3 (gb):
-    m = gb.abst
-
-    READY_T = gb.READY_TRUE
-    READY_F = gb.READY_FALSE
-    VALID_T = gb.VALID_TRUE
-    VALID_F = gb.VALID_FALSE
     FULL_T  = gb.FULL_TRUE
     FULL_F  = gb.FULL_FALSE
     EMPTY_T = gb.EMPTY_TRUE
@@ -15,19 +9,22 @@ def U3 (gb):
 
     ############################ decode ###################################
     decode = (gb.slice_stream_empty == EMPTY_F) & \
-             (gb.LB2D_shift_x != gb.LB2D_shift_x_M) & \
              ((gb.stencil_stream_full == FULL_F) | \
               ((gb.LB2D_shift_x < gb.LB2D_shift_size) & \
                (gb.LB2D_shift_x > gb.LB2D_shift_x_0))) \
 
+    condLast = gb.LB2D_shift_x == gb.LB2D_shift_x_M
+
     ############################ next state functions #####################
     # arg_1_TREADY
     arg_1_TREADY_nxt = gb.arg_1_TREADY
-    gb.arg_1_TREADY_nxt = ila.ite (decode, arg_1_TREADY_nxt, gb.arg_1_TREADY_nxt)
+    gb.arg_1_TREADY_nxt = ila.ite (decode, arg_1_TREADY_nxt, 
+                                           gb.arg_1_TREADY_nxt)
 
     # arg_0_TVALID
     arg_0_TVALID_nxt = gb.arg_0_TVALID
-    gb.arg_0_TVALID_nxt = ila.ite (decode, arg_0_TVALID_nxt, gb.arg_0_TVALID_nxt)
+    gb.arg_0_TVALID_nxt = ila.ite (decode, arg_0_TVALID_nxt, 
+                                           gb.arg_0_TVALID_nxt)
 
     # arg_0_TDATA
     arg_0_TDATA_nxt = gb.arg_0_TDATA
@@ -102,7 +99,8 @@ def U3 (gb):
                                                gb.slice_stream_buff_nxt[i])
 
     # LB2D shift x idx
-    LB2D_shift_x_nxt = gb.LB2D_shift_x + gb.LB2D_shift_x_1
+    LB2D_shift_x_nxt = ila.ite (condLast, gb.LB2D_shift_x_0,
+                                          gb.LB2D_shift_x + gb.LB2D_shift_x_1)
     gb.LB2D_shift_x_nxt = ila.ite (decode, LB2D_shift_x_nxt,
                                    gb.LB2D_shift_x_nxt)
 
@@ -121,9 +119,10 @@ def U3 (gb):
                         gb.slice_stream_buff[0])
 
     LB2D_shift_7_nxt = in_slice
-    gb.LB2D_shift_nxt[gb.LB2D_shift_size-1] = ila.ite (decode, 
-                                                       LB2D_shift_7_nxt,
-                                                       gb.LB2D_shift_nxt[gb.LB2D_shift_size-1])
+    gb.LB2D_shift_nxt[gb.LB2D_shift_size-1] = \
+        ila.ite (decode, 
+                 LB2D_shift_7_nxt,
+                 gb.LB2D_shift_nxt[gb.LB2D_shift_size-1])
     for i in xrange (0, gb.LB2D_shift_size-1):
         LB2D_shift_i_nxt = gb.LB2D_shift[i+1]
         gb.LB2D_shift_nxt[i] = ila.ite (decode, LB2D_shift_i_nxt,

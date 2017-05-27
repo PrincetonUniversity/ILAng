@@ -2,16 +2,9 @@ import ila
 from gb_arch import GBArch
 
 def RDI (gb):
-    m = gb.abst
-
     READY_T = gb.READY_TRUE
-    READY_F = gb.READY_FALSE
     VALID_T = gb.VALID_TRUE
     VALID_F = gb.VALID_FALSE
-    FULL_T  = gb.FULL_TRUE
-    FULL_F  = gb.FULL_FALSE
-    EMPTY_T = gb.EMPTY_TRUE
-    EMPTY_F = gb.EMPTY_FALSE
 
     ############################ decode ###################################
     decode = (gb.arg_0_TREADY == READY_T) & \
@@ -128,7 +121,8 @@ def RDI (gb):
     # stencil_stream_buff
     for i in xrange (0, gb.stencil_stream_size):
         stencil_stream_buff_nxt = gb.stencil_stream_buff[i]
-        gb.stencil_stream_buff_nxt[i] = ila.ite (decode, stencil_stream_buff_nxt,
+        gb.stencil_stream_buff_nxt[i] = ila.ite (decode, 
+                                                 stencil_stream_buff_nxt,
                                                  gb.stencil_stream_buff_nxt[i])
 
     # gb_p_cnt
