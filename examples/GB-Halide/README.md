@@ -1,5 +1,5 @@
 ### Acknowledgement 
-Thanks to the Standford VLSI Research Group led by Prof Mark Horowitz for providing the example.
+Thanks to the Standford VLSI Research Group led by Prof Mark Horowitz for providing the example (https://github.com/jingpu/Halide-HLS.git).
 
 ### Overview
 
