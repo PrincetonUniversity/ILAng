@@ -10,9 +10,6 @@
 
 /* Global Variables
    To keep it simple, IPs send msg by directly writing dst regs.
-   CTR  -- ctrl reg which will be asserted when there is a msg, and vice versa.
-   DATA -- data reg of the msg, valid when CTR is 1.
-   lock -- HW reg protection.
 */
 int32_t msg_reg_A_CTR;
 int32_t msg_reg_A_DATA;
@@ -35,11 +32,6 @@ void* entryB (void* input) {
     mainB ();
     return input;
 }
-#ifdef OVRD
-void* entryC (void* input) {
-    mainC ();
-}
-#endif
 
 int main () {
     msg_reg_A_CTR = 0;
@@ -47,13 +39,13 @@ int main () {
     //buffer_A = (int32_t*) malloc (32);
     //buffer_B = (int32_t*) malloc (32);
 
-    pthread_t tid_A, tid_B, tid_C;
+    pthread_t tid_A, tid_B;
 
     pthread_create (&tid_A, NULL, entryA, NULL);
     pthread_create (&tid_B, NULL, entryB, NULL);
 
-    pthread_join (tid_A, NULL);
-    pthread_join (tid_B, NULL);
+    //pthread_join (tid_A, NULL);
+    //pthread_join (tid_B, NULL);
 
     //free (buffer_A);
     //free (buffer_B);
