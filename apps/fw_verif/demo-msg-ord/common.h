@@ -12,8 +12,6 @@ extern int32_t msg_reg_A_CTR;
 extern int32_t msg_reg_A_DATA;
 extern int32_t msg_reg_B_CTR;
 extern int32_t msg_reg_B_DATA;
-//extern int32_t* buffer_A;
-//extern int32_t* buffer_B;
 extern int32_t buffer_A[32];
 extern int32_t buffer_B[32];
 
