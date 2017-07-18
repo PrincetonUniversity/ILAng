@@ -4,49 +4,87 @@
 #include <stdlib.h>
 #include "smack.h"
 
-#include "fwA.h"
-#include "fwB.h"
-#include "fwC.h"
+#include "common.h"
 
-// global variables
-int32_t msg_reg_A_CTR;  // ctrl reg for sending msg from A
-int32_t msg_reg_A_DATA; // data reg for sending msg from A
-int32_t msg_reg_A_CTRM; // mirrored ctrl reg for sending msg from A
+/* Global Variables 
+   master/slave interface (HW regs)
+   -- master:
+        reg_msg_slv2mst_ctr
+        reg_msg_slv2mst_dat
+        reg_msg_mst2slv_mir
+   -- slave:
+        reg_msg_mst2slv_ctr
+        reg_msg_mst2slv_dat
+        reg_msg_slv2mst_mir
+        reg_slv_int
+*/
+uint32_t reg_msg_mst2slv_ctr;
+uint32_t reg_msg_mst2slv_dat;
+uint32_t reg_msg_mst2slv_mir;
+uint32_t reg_msg_slv2mst_ctr;
+uint32_t reg_msg_slv2mst_dat;
+uint32_t reg_msg_slv2mst_mir;
+uint32_t reg_slv_int;
 
-int32_t msg_reg_B_CTR;  // ctrl reg for sending msg from B
-int32_t msg_reg_B_DATA; // data reg for sending msg from B
-int32_t msg_reg_B_CTRM; // mirrored ctrl reg for sending msg from B
-
-int32_t msg_reg_C_CTR;  // ctrl reg for sending msg from C
-int32_t msg_reg_C_DATA; // data reg for sending msg from C
-int32_t msg_reg_C_CTRM; // mirrored ctrl reg for sending msg from C
-
-// firmware entries
-void* entryA (void* input) {
-    main_A ();
-}
-
-void* entryB (void* input) {
-    main_B ();
-}
-
-void* entryC (void* input) {
-    main_C ();
-}
-
-int main () {
-    pthread_t tidA, tidB, tidC;
-
-    pthread_create (&tidA, NULL, entryA, NULL);
-    pthread_create (&tidA, NULL, entryB, NULL);
-#ifdef OVRD
-    pthread_create (&tidC, NULL, entryC, NULL);
+bool mstCpl = false;
+bool slvCpl = false;
+#ifdef INT_LOCK
+pthread_mutex_t int_lock;
 #endif
 
-    pthread_join (tidA, NULL);
-    pthread_join (tidB, NULL);
-#ifdef OVRD
-    pthread_join (tidC, NULL);
+/* Firmware entries
+   master firmware, slave firmware, and slave interrupt handler
+*/
+void* entryMst (void* in) {
+    mainMst ();
+    mstCpl = true;
+    return in;
+}
+
+void* entrySlv (void* in) {
+    mainSlv ();
+    slvCpl = true;
+    return in;
+}
+
+void* entryHdl (void* in) {
+    while (!mstCpl || !slvCpl) {
+#ifdef INT_LOCK
+        pthread_mutex_lock (&int_lock);
+        intHdl ();
+        pthread_mutex_unlock (&int_lock);
+#else
+        intHdl ();
+#endif
+    }
+    return in;
+}
+
+/* Main function
+*/
+
+int main () {
+    mstCpl = slvCpl = false;
+
+#ifdef INT_LOCK
+    pthread_mutex_init (&int_lock);
+#endif
+
+    pthread_t tidMst, tidSlv, tidHdl;
+    pthread_create (&tidMst, NULL, entryMst, NULL);
+    pthread_create (&tidSlv, NULL, entrySlv, NULL);
+    pthread_create (&tidHdl, NULL, entryHdl, NULL);
+
+#ifdef MEM_CHECK
+    while (!mstCpl || !slvCpl);
+#else
+    pthread_join (tidMst, NULL);
+    pthread_join (tidSlv, NULL);
+    pthread_join (tidHdl, NULL);
+#endif
+
+#ifdef INT_LOCK
+    pthread_mutex_destroy (&int_lock);
 #endif
 
     return 0;
