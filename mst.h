@@ -5,6 +5,7 @@
 #define __MST_H__
 
 #include "common.h"
+#include "fabric.h"
 
 #define MST_HW_BASE             0xffff0000
 

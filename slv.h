@@ -5,46 +5,41 @@
 #define __SLV_H__
 
 #include "common.h"
+#include "mb.h"
+#include "fabric.h"
 
-/* hardware interface for message buffer (MB)
- *  MB_CMD
- *  MB_STS
- *  MB_DST
- *  MB_DATA0
- *  MB_DATA1
+/* slave system flags
  */
-#define MB_SPACE_SIZE       5
-#define MB_SPACE_OFF_CMD    0
-#define MB_SPACE_OFF_STS    1
-#define MB_SPACE_OFF_DST    2
-#define MB_SPACE_OFF_DATA0  3
-#define MB_SPACE_OFF_DATA1  4
+extern uint32_t gSlvFlag[];
+#define SLV_FLAG_IMG_RDY    0
+#define SLV_FLAG_IMG_SIZE   1
+#define SLV_FLAG_SIZE       2
 
-struct hwItfMb_t {
-    // TODO
-};
-
-
-/* Shared variables
- * gMbCtx:      firmware local copy of message buffer context
- * reg_MB:      hardware interface
+/* hardware context for message buffer (MB)
  */
 extern uint32_t gMbCtx[];
-extern struct hwItfMb_t* reg_MB;
+#define MB_SPACE_OFF_S_CMD  0
+#define MB_SPACE_OFF_S_DAT0 1
+#define MB_SPACE_OFF_S_DAT1 2
+#define MB_SPACE_OFF_S_SIZE 3
+#define MB_SPACE_OFF_R_CMD  4
+#define MB_SPACE_OFF_R_DAT0 5
+#define MB_SPACE_OFF_R_DAT1 6
+#define MB_SPACE_OFF_R_SIZE 7
+#define MB_SPACE_SIZE       8
 
 /* mainstream firmware 
  */
 void mainSlv ();
 
-void sendMsgSlv2Mst (uint32_t cmd, uint32_t* data, uint8_t dataSize);
+void sendMsgSlv2Mst ();
 
 /* interrupt handler
  */
 void intHdl ();
 
-void getMbCtx (uint32_t* mbCtx);
+void getMbCtx ();
 
-void handleCmd (uint32_t* mbCtx);
-
+void handleCmd ();
 
 #endif // __SLV_H__
