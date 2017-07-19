@@ -7,22 +7,17 @@
 #include "common.h"
 #include "fabric.h"
 
-#define MST_HW_BASE             0xffff0000
+#define MST_HW_BASE             FAB_HW_BASE
 
-#define MST_HW_OFF_SLV2MST_DBM  0x0
-#define MST_HW_OFF_MST2SLV_DB   0x1
-#define MST_HW_OFF_MST2SLV_DAT0 0x2
-#define MST_HW_OFF_MST2SLV_DAT1 0x3
+#define MST_HW_OFF_SLV2MST_DBM  FAB_HW_OFF_SLV2MST_DBM
+#define MST_HW_OFF_MST2SLV_DB   FAB_HW_OFF_MST2SLV_DB
+#define MST_HW_OFF_MST2SLV_DAT0 FAB_HW_OFF_MST2SLV_DAT0   
+#define MST_HW_OFF_MST2SLV_DAT1 FAB_HW_OFF_MST2SLV_DAT1
 
-#define MST_HW_OFF_MST2SLV_DBM  0x4
-#define MST_HW_OFF_SLV2MST_DB   0x5
-#define MST_HW_OFF_SLV2MST_DAT0 0x6
-#define MST_HW_OFF_SLV2MST_DAT1 0x7
-
-//#define HW_REG_WRITE(addr, val) *addr = val
-//#define HW_REG_READ(addr) *addr
-extern void HW_REG_WRITE (uint32_t addr, uint32_t val);
-extern uint32_t HW_REG_READ (uint32_t addr);
+#define MST_HW_OFF_MST2SLV_DBM  FAB_HW_OFF_MST2SLV_DBM
+#define MST_HW_OFF_SLV2MST_DB   FAB_HW_OFF_SLV2MST_DB
+#define MST_HW_OFF_SLV2MST_DAT0 FAB_HW_OFF_SLV2MST_DAT0
+#define MST_HW_OFF_SLV2MST_DAT1 FAB_HW_OFF_SLV2MST_DAT1
 
 void mainMst ();
 

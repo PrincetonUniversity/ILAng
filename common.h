@@ -30,5 +30,6 @@ extern uint32_t reg_slv_int;
 extern char mst_sram[];
 
 extern pthread_mutex_t int_lock;
+extern pthread_mutex_t fab_lock;
 
 #endif // __COMMON_H__

@@ -6,7 +6,6 @@
 
 #include "common.h"
 #include "mb.h"
-#include "fabric.h"
 
 /* slave system flags
  */

@@ -1,9 +1,11 @@
 // File: mb.h
 // Synopsis: header file for message buffer (MB) hardware model
 
-/* TODO:
- * need to handle interrupt triggering 
- */
+#ifndef __MB_H__
+#define __MB_H__
+
+#include "common.h"
+#include "fabric.h"
 
 struct MB_ITF_t {
     union STS_t {
@@ -48,3 +50,26 @@ struct MB_ITF_t {
 };
 
 volatile extern struct MB_ITF_t* reg_MB;
+
+/* HW model (read/write centric)
+ */
+void write_reg_MB_STS (uint32_t val);
+void write_reg_MB_R_CMD (uint32_t val);
+void write_reg_MB_R_DAT0 (uint32_t val);
+void write_reg_MB_R_DAT1 (uint32_t val);
+void write_reg_MB_R_SIZE (uint32_t val);
+void write_reg_MB_S_CMD (uint32_t val);
+void write_reg_MB_S_DAT0 (uint32_t val);
+void write_reg_MB_S_DAT1 (uint32_t val);
+void write_reg_MB_S_SIZE (uint32_t val);
+uint32_t read_reg_MB_STS ();
+uint32_t read_reg_MB_R_CMD ();
+uint32_t read_reg_MB_R_DAT0 ();
+uint32_t read_reg_MB_R_DAT1 ();
+uint32_t read_reg_MB_R_SIZE ();
+uint32_t read_reg_MB_S_CMD ();
+uint32_t read_reg_MB_S_DAT0 ();
+uint32_t read_reg_MB_S_DAT1 ();
+uint32_t read_reg_MB_S_SIZE ();
+
+#endif // __MB_H__

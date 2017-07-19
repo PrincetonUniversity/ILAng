@@ -6,6 +6,8 @@
 uint32_t gSlvFlag[SLV_FLAG_SIZE] = {0};
 uint32_t gMbCtx[MB_SPACE_SIZE]   = {0};
 
+// TODO: interrupt locl
+
 /* mainSlv: slave firmware main function
  * 1. wait for image ready flag and image size
  * 2. copy from master sram to local buffer

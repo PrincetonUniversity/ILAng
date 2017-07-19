@@ -78,7 +78,7 @@ void receiveMsgSlv2Mst (uint32_t* cmd, uint32_t* data, uint8_t* dataSize) {
         data[i] = HW_REG_READ (MST_HW_BASE+MST_HW_OFF_SLV2MST_DAT0+i);
     }
 
-    HW_REG_WRITE (MST_HW_BASE+MST_HW_OFF_SLV2MST_DBM, 0);
+    HW_REG_WRITE (MST_HW_BASE+MST_HW_OFF_SLV2MST_DB, 0);
 
     return;
 }

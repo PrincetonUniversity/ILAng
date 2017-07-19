@@ -39,7 +39,10 @@ uint8_t mstCpl = 0;
 uint8_t slvCpl = 0;
 #ifdef INT_LOCK
 pthread_mutex_t int_lock;
-#endif
+#endif // INT_LOCK
+#ifdef FAB_LOCK
+pthread_mutex_t fab_lock;
+#endif // FAB_LOCK
 
 /* Firmware entries
    master firmware, slave firmware, and slave interrupt handler
@@ -77,7 +80,11 @@ int main () {
 
 #ifdef INT_LOCK
     pthread_mutex_init (&int_lock, NULL);
-#endif
+#endif // INT_LOCK
+
+#ifdef FAB_LOCK
+    pthread_mutex_init (&fab_lock, NULL);
+#endif // FAB_LOCK
 
     pthread_t tidMst, tidSlv, tidHdl;
     pthread_create (&tidMst, NULL, entryMst, NULL);
@@ -86,15 +93,19 @@ int main () {
 
 #ifdef MEM_CHECK
     while (!mstCpl || !slvCpl);
-#else
+#else // MEM_CHECK
     pthread_join (tidMst, NULL);
     pthread_join (tidSlv, NULL);
     pthread_join (tidHdl, NULL);
-#endif
+#endif // MEM_CHECK
 
 #ifdef INT_LOCK
     pthread_mutex_destroy (&int_lock);
-#endif
+#endif // INT_LOCK
+
+#ifdef FAB_LOCK
+    pthread_mutex_destroy (&fab_lock);
+#endif // FAB_LOCK
 
     return 0;
 }
