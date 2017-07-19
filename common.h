@@ -7,17 +7,27 @@
 #include <pthread.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
 #include "smack.h"
 
-#define MAX_MSG_LENGTH 1
+#define MAX_DATA_LENGTH 2
+#define MAX_SRAM_SIZE 32
 
-extern uint32_t reg_msg_mst2slv_ctr;
-extern uint32_t reg_msg_mst2slv_dat;
-extern uint32_t reg_msg_mst2slv_mir;
-extern uint32_t reg_msg_slv2mst_ctr;
-extern uint32_t reg_msg_slv2mst_mir;
+#define CMD_STATUS_REQUEST  0x1
+#define CMD_STATUS_REPLY    0x2
+#define CMD_IMAGE_READY     0x3
+#define CMD_IMAGE_DONE      0x4
+
+extern uint32_t reg_msg_mst2slv_db;
+extern uint32_t reg_msg_mst2slv_dat0;
+extern uint32_t reg_msg_mst2slv_dat1;
+extern uint32_t reg_msg_mst2slv_dbm;
+extern uint32_t reg_msg_slv2mst_db;
+extern uint32_t reg_msg_slv2mst_dat0;
+extern uint32_t reg_msg_slv2mst_dat1;
+extern uint32_t reg_msg_slv2mst_dbm;
 extern uint32_t reg_slv_int;
-extern char* mst_sram;
+extern char mst_sram[];
 
 extern pthread_mutex_t int_lock;
 

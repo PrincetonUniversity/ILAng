@@ -24,14 +24,16 @@
  *      reg_slv_int
  */
 
-uint32_t reg_msg_mst2slv_ctr;
-uint32_t reg_msg_mst2slv_dat;
-uint32_t reg_msg_mst2slv_mir;
-uint32_t reg_msg_slv2mst_ctr;
-uint32_t reg_msg_slv2mst_dat;
-uint32_t reg_msg_slv2mst_mir;
+uint32_t reg_msg_mst2slv_db;
+uint32_t reg_msg_mst2slv_dat0;
+uint32_t reg_msg_mst2slv_dat1;
+uint32_t reg_msg_mst2slv_dbm;
+uint32_t reg_msg_slv2mst_db;
+uint32_t reg_msg_slv2mst_dat0;
+uint32_t reg_msg_slv2mst_dat1;
+uint32_t reg_msg_slv2mst_dbm;
 uint32_t reg_slv_int;
-char* mst_sram;
+char mst_sram[MAX_SRAM_SIZE];
 
 uint8_t mstCpl = 0;
 uint8_t slvCpl = 0;
