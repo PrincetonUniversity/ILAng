@@ -74,7 +74,7 @@ int main () {
     mstCpl = slvCpl = 0;
 
 #ifdef INT_LOCK
-    pthread_mutex_init (&int_lock);
+    pthread_mutex_init (&int_lock, NULL);
 #endif
 
     pthread_t tidMst, tidSlv, tidHdl;
