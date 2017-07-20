@@ -6,7 +6,7 @@
 uint32_t gSlvFlag[SLV_FLAG_SIZE] = {0};
 uint32_t gMbCtx[MB_SPACE_SIZE]   = {0};
 
-// TODO: interrupt locl
+// TODO: interrupt lock
 
 /* mainSlv: slave firmware main function
  * 1. wait for image ready flag and image size
@@ -70,12 +70,15 @@ void intHdl () {
 /* getMbCtx: access MB registers to get local copy to gMbCtx
  */
 void getMbCtx () {
+    // ack message and trigger MB to get data
+    reg_MB->ACK.val = 1;
+
     // copy MB received message to local copy
     gMbCtx[MB_SPACE_OFF_R_CMD]  = reg_MB->R_CMD.val;
     gMbCtx[MB_SPACE_OFF_R_DAT0] = reg_MB->R_DAT0.val;
     gMbCtx[MB_SPACE_OFF_R_DAT1] = reg_MB->R_DAT1.val;
     gMbCtx[MB_SPACE_OFF_R_SIZE] = reg_MB->R_SIZE.val;
-
+    
     return;
 }
 

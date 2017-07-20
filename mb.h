@@ -47,9 +47,14 @@ struct MB_ITF_t {
     union S_SIZE_t {
         uint32_t val;
     } S_SIZE;
+
+    union ACK_t {
+        uint32_t val;
+    } ACK;
 };
 
-volatile extern struct MB_ITF_t* reg_MB;
+extern struct MB_ITF_t* reg_MB;
+extern struct MB_ITF_t hw_reg_MB;
 
 /* HW model (read/write centric)
  */
@@ -62,6 +67,7 @@ void write_reg_MB_S_CMD (uint32_t val);
 void write_reg_MB_S_DAT0 (uint32_t val);
 void write_reg_MB_S_DAT1 (uint32_t val);
 void write_reg_MB_S_SIZE (uint32_t val);
+void write_reg_MB_ACK (uint32_t val);
 uint32_t read_reg_MB_STS ();
 uint32_t read_reg_MB_R_CMD ();
 uint32_t read_reg_MB_R_DAT0 ();
@@ -71,5 +77,6 @@ uint32_t read_reg_MB_S_CMD ();
 uint32_t read_reg_MB_S_DAT0 ();
 uint32_t read_reg_MB_S_DAT1 ();
 uint32_t read_reg_MB_S_SIZE ();
+uint32_t read_reg_MB_ACK ();
 
 #endif // __MB_H__

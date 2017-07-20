@@ -2,7 +2,7 @@
 target datalayout = "e-m:e-p:32:32-f64:32:64-f80:32-n8:16:32-S128"
 target triple = "i686-pc-linux-gnu"
 
-%struct.MB_ITF_t = type { %union.STS_t, %union.R_CMD_t, %union.R_DAT0_t, %union.R_DAT1_t, %union.R_SIZE_t, %union.S_CMD_t, %union.S_DAT0_t, %union.S_DAT1_t, %union.S_SIZE_t }
+%struct.MB_ITF_t = type { %union.STS_t, %union.R_CMD_t, %union.R_DAT0_t, %union.R_DAT1_t, %union.R_SIZE_t, %union.S_CMD_t, %union.S_DAT0_t, %union.S_DAT1_t, %union.S_SIZE_t, %union.ACK_t }
 %union.STS_t = type { %struct.field_t }
 %struct.field_t = type { i32 }
 %union.R_CMD_t = type { i32 }
@@ -13,6 +13,7 @@ target triple = "i686-pc-linux-gnu"
 %union.S_DAT0_t = type { i32 }
 %union.S_DAT1_t = type { i32 }
 %union.S_SIZE_t = type { i32 }
+%union.ACK_t = type { i32 }
 
 @gSlvFlag = global [2 x i32] zeroinitializer, align 4
 @gMbCtx = global [8 x i32] zeroinitializer, align 4
@@ -69,7 +70,7 @@ while.cond:                                       ; preds = %while.body, %entry
   %STS = getelementptr inbounds %struct.MB_ITF_t, %struct.MB_ITF_t* %0, i32 0, i32 0
   %field = bitcast %union.STS_t* %STS to %struct.field_t*
   %1 = bitcast %struct.field_t* %field to i32*
-  %bf.load = load volatile i32, i32* %1, align 4
+  %bf.load = load i32, i32* %1, align 4
   %bf.lshr = lshr i32 %bf.load, 31
   %tobool = icmp ne i32 %bf.lshr, 0
   br i1 %tobool, label %while.body, label %while.end
@@ -82,22 +83,22 @@ while.end:                                        ; preds = %while.cond
   %3 = load %struct.MB_ITF_t*, %struct.MB_ITF_t** @reg_MB, align 4
   %S_DAT0 = getelementptr inbounds %struct.MB_ITF_t, %struct.MB_ITF_t* %3, i32 0, i32 6
   %val = bitcast %union.S_DAT0_t* %S_DAT0 to i32*
-  store volatile i32 %2, i32* %val, align 4
+  store i32 %2, i32* %val, align 4
   %4 = load i32, i32* getelementptr inbounds ([8 x i32], [8 x i32]* @gMbCtx, i32 0, i32 2), align 4
   %5 = load %struct.MB_ITF_t*, %struct.MB_ITF_t** @reg_MB, align 4
   %S_DAT1 = getelementptr inbounds %struct.MB_ITF_t, %struct.MB_ITF_t* %5, i32 0, i32 7
   %val1 = bitcast %union.S_DAT1_t* %S_DAT1 to i32*
-  store volatile i32 %4, i32* %val1, align 4
+  store i32 %4, i32* %val1, align 4
   %6 = load i32, i32* getelementptr inbounds ([8 x i32], [8 x i32]* @gMbCtx, i32 0, i32 3), align 4
   %7 = load %struct.MB_ITF_t*, %struct.MB_ITF_t** @reg_MB, align 4
   %S_SIZE = getelementptr inbounds %struct.MB_ITF_t, %struct.MB_ITF_t* %7, i32 0, i32 8
   %val2 = bitcast %union.S_SIZE_t* %S_SIZE to i32*
-  store volatile i32 %6, i32* %val2, align 4
+  store i32 %6, i32* %val2, align 4
   %8 = load i32, i32* getelementptr inbounds ([8 x i32], [8 x i32]* @gMbCtx, i32 0, i32 0), align 4
   %9 = load %struct.MB_ITF_t*, %struct.MB_ITF_t** @reg_MB, align 4
   %S_CMD = getelementptr inbounds %struct.MB_ITF_t, %struct.MB_ITF_t* %9, i32 0, i32 5
   %val3 = bitcast %union.S_CMD_t* %S_CMD to i32*
-  store volatile i32 %8, i32* %val3, align 4
+  store i32 %8, i32* %val3, align 4
   ret void
 }
 
@@ -125,25 +126,29 @@ return:                                           ; preds = %if.end, %if.then
 define void @getMbCtx() #0 {
 entry:
   %0 = load %struct.MB_ITF_t*, %struct.MB_ITF_t** @reg_MB, align 4
-  %R_CMD = getelementptr inbounds %struct.MB_ITF_t, %struct.MB_ITF_t* %0, i32 0, i32 1
-  %val = bitcast %union.R_CMD_t* %R_CMD to i32*
-  %1 = load volatile i32, i32* %val, align 4
-  store i32 %1, i32* getelementptr inbounds ([8 x i32], [8 x i32]* @gMbCtx, i32 0, i32 4), align 4
-  %2 = load %struct.MB_ITF_t*, %struct.MB_ITF_t** @reg_MB, align 4
-  %R_DAT0 = getelementptr inbounds %struct.MB_ITF_t, %struct.MB_ITF_t* %2, i32 0, i32 2
-  %val1 = bitcast %union.R_DAT0_t* %R_DAT0 to i32*
-  %3 = load volatile i32, i32* %val1, align 4
-  store i32 %3, i32* getelementptr inbounds ([8 x i32], [8 x i32]* @gMbCtx, i32 0, i32 5), align 4
-  %4 = load %struct.MB_ITF_t*, %struct.MB_ITF_t** @reg_MB, align 4
-  %R_DAT1 = getelementptr inbounds %struct.MB_ITF_t, %struct.MB_ITF_t* %4, i32 0, i32 3
-  %val2 = bitcast %union.R_DAT1_t* %R_DAT1 to i32*
-  %5 = load volatile i32, i32* %val2, align 4
-  store i32 %5, i32* getelementptr inbounds ([8 x i32], [8 x i32]* @gMbCtx, i32 0, i32 6), align 4
-  %6 = load %struct.MB_ITF_t*, %struct.MB_ITF_t** @reg_MB, align 4
-  %R_SIZE = getelementptr inbounds %struct.MB_ITF_t, %struct.MB_ITF_t* %6, i32 0, i32 4
-  %val3 = bitcast %union.R_SIZE_t* %R_SIZE to i32*
-  %7 = load volatile i32, i32* %val3, align 4
-  store i32 %7, i32* getelementptr inbounds ([8 x i32], [8 x i32]* @gMbCtx, i32 0, i32 7), align 4
+  %ACK = getelementptr inbounds %struct.MB_ITF_t, %struct.MB_ITF_t* %0, i32 0, i32 9
+  %val = bitcast %union.ACK_t* %ACK to i32*
+  store i32 1, i32* %val, align 4
+  %1 = load %struct.MB_ITF_t*, %struct.MB_ITF_t** @reg_MB, align 4
+  %R_CMD = getelementptr inbounds %struct.MB_ITF_t, %struct.MB_ITF_t* %1, i32 0, i32 1
+  %val1 = bitcast %union.R_CMD_t* %R_CMD to i32*
+  %2 = load i32, i32* %val1, align 4
+  store i32 %2, i32* getelementptr inbounds ([8 x i32], [8 x i32]* @gMbCtx, i32 0, i32 4), align 4
+  %3 = load %struct.MB_ITF_t*, %struct.MB_ITF_t** @reg_MB, align 4
+  %R_DAT0 = getelementptr inbounds %struct.MB_ITF_t, %struct.MB_ITF_t* %3, i32 0, i32 2
+  %val2 = bitcast %union.R_DAT0_t* %R_DAT0 to i32*
+  %4 = load i32, i32* %val2, align 4
+  store i32 %4, i32* getelementptr inbounds ([8 x i32], [8 x i32]* @gMbCtx, i32 0, i32 5), align 4
+  %5 = load %struct.MB_ITF_t*, %struct.MB_ITF_t** @reg_MB, align 4
+  %R_DAT1 = getelementptr inbounds %struct.MB_ITF_t, %struct.MB_ITF_t* %5, i32 0, i32 3
+  %val3 = bitcast %union.R_DAT1_t* %R_DAT1 to i32*
+  %6 = load i32, i32* %val3, align 4
+  store i32 %6, i32* getelementptr inbounds ([8 x i32], [8 x i32]* @gMbCtx, i32 0, i32 6), align 4
+  %7 = load %struct.MB_ITF_t*, %struct.MB_ITF_t** @reg_MB, align 4
+  %R_SIZE = getelementptr inbounds %struct.MB_ITF_t, %struct.MB_ITF_t* %7, i32 0, i32 4
+  %val4 = bitcast %union.R_SIZE_t* %R_SIZE to i32*
+  %8 = load i32, i32* %val4, align 4
+  store i32 %8, i32* getelementptr inbounds ([8 x i32], [8 x i32]* @gMbCtx, i32 0, i32 7), align 4
   ret void
 }
 
