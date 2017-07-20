@@ -1,26 +1,42 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-struct UNIT_t {
-    int32_t val;
+struct HW_ITF_t {
+    union STS_t {
+        struct field_t {
+            uint32_t rsvd : 31;
+            uint32_t busy : 1;
+        } field;
+        uint32_t val;
+    } STS;
+
+    union DATA_t {
+        uint32_t val;
+    } DATA;
 };
 
-struct REG_t {
-    struct UNIT_t CMD;
-    struct UNIT_t DAT;
-    struct UNIT_t CTR;
-};
+struct HW_ITF_t* mmio_HW;
+struct HW_ITF_t  reg_HW;
 
-volatile extern struct REG_t* reg;
+void foo () {
+    int counter = 0;
+    while (mmio_HW->STS.field.busy) {
+        counter++;
+        if (counter >= 5) {
+            mmio_HW->STS.val = 0;
+        }
+    }
+
+    if (mmio_HW->DATA.val == 1)
+        mmio_HW->DATA.val = 0;
+    else
+        mmio_HW->DATA.val = 1;
+
+    return;
+}
 
 int main () {
-
-    int f = 0;
-
-    reg->DAT.val = 1;
-    reg->CMD.val = 0;
-
-    if (reg->CTR.val) f = 1;
-
+    foo ();
+    
     return 0;
 }
