@@ -18,14 +18,6 @@
 #define CMD_IMAGE_READY     0x3
 #define CMD_IMAGE_DONE      0x4
 
-extern uint32_t reg_msg_mst2slv_db;
-extern uint32_t reg_msg_mst2slv_dat0;
-extern uint32_t reg_msg_mst2slv_dat1;
-extern uint32_t reg_msg_mst2slv_dbm;
-extern uint32_t reg_msg_slv2mst_db;
-extern uint32_t reg_msg_slv2mst_dat0;
-extern uint32_t reg_msg_slv2mst_dat1;
-extern uint32_t reg_msg_slv2mst_dbm;
 extern uint32_t reg_slv_int;
 extern char mst_sram[];
 

@@ -1,23 +1,34 @@
-; ModuleID = 'main.c'
+; ModuleID = '/home/soc/workspace/fwVerif/demo/fwsrc/main.c'
 target datalayout = "e-m:e-p:32:32-f64:32:64-f80:32-n8:16:32-S128"
 target triple = "i686-pc-linux-gnu"
 
 %struct.pthread_mutex_t = type { i32, i32, %struct.pthread_mutexattr_t }
 %struct.pthread_mutexattr_t = type { i32, i32, i32, i32 }
+%struct.MB_REG_t = type { %union.STS_t, %union.R_CMD_t, %union.R_DAT0_t, %union.R_DAT1_t, %union.R_SIZE_t, %union.S_CMD_t, %union.S_DAT0_t, %union.S_DAT1_t, %union.S_SIZE_t, %union.ACK_t }
+%union.STS_t = type { i32 }
+%union.R_CMD_t = type { i32 }
+%union.R_DAT0_t = type { i32 }
+%union.R_DAT1_t = type { i32 }
+%union.R_SIZE_t = type { i32 }
+%union.S_CMD_t = type { i32 }
+%union.S_DAT0_t = type { i32 }
+%union.S_DAT1_t = type { i32 }
+%union.S_SIZE_t = type { i32 }
+%union.ACK_t = type { i32 }
 
 @mstCpl = global i8 0, align 1
 @slvCpl = global i8 0, align 1
+@intCpl = global i8 0, align 1
 @int_lock = common global %struct.pthread_mutex_t zeroinitializer, align 4
 @fab_lock = common global %struct.pthread_mutex_t zeroinitializer, align 4
-@reg_msg_mst2slv_db = common global i32 0, align 4
-@reg_msg_mst2slv_dat0 = common global i32 0, align 4
-@reg_msg_mst2slv_dat1 = common global i32 0, align 4
-@reg_msg_mst2slv_dbm = common global i32 0, align 4
-@reg_msg_slv2mst_db = common global i32 0, align 4
-@reg_msg_slv2mst_dat0 = common global i32 0, align 4
-@reg_msg_slv2mst_dat1 = common global i32 0, align 4
-@reg_msg_slv2mst_dbm = common global i32 0, align 4
+@reg_msg_mst2slv_db = external global i32, align 4
+@reg_msg_mst2slv_dbm = external global i32, align 4
+@reg_msg_slv2mst_db = external global i32, align 4
+@reg_msg_slv2mst_dbm = external global i32, align 4
+@hw_reg_MB = external global %struct.MB_REG_t, align 4
 @reg_slv_int = common global i32 0, align 4
+@gSlvFlag = external global [0 x i32], align 4
+@gMbCtx = external global [0 x i32], align 4
 @mst_sram = common global [32 x i8] zeroinitializer, align 1
 
 ; Function Attrs: nounwind
@@ -75,6 +86,7 @@ while.body:                                       ; preds = %lor.end
   br label %while.cond
 
 while.end:                                        ; preds = %lor.end
+  store i8 1, i8* @intCpl, align 1
   %3 = load i8*, i8** %in.addr, align 4
   ret i8* %3
 }
@@ -93,6 +105,8 @@ entry:
   %tidSlv = alloca i32, align 4
   %tidHdl = alloca i32, align 4
   store i32 0, i32* %retval, align 4
+  call void @initHW()
+  store i8 0, i8* @intCpl, align 1
   store i8 0, i8* @slvCpl, align 1
   store i8 0, i8* @mstCpl, align 1
   %call = call i32 @pthread_mutex_init(%struct.pthread_mutex_t* @int_lock, %struct.pthread_mutexattr_t* null)
@@ -118,6 +132,23 @@ declare i32 @pthread_create(i32*, i32*, i8* (i8*)*, i8*) #1
 declare i32 @pthread_join(i32, i8**) #1
 
 declare i32 @pthread_mutex_destroy(%struct.pthread_mutex_t*) #1
+
+; Function Attrs: nounwind
+define void @initHW() #0 {
+entry:
+  store i32 0, i32* @reg_msg_mst2slv_db, align 4
+  store i32 0, i32* @reg_msg_mst2slv_dbm, align 4
+  store i32 0, i32* @reg_msg_slv2mst_db, align 4
+  store i32 0, i32* @reg_msg_slv2mst_dbm, align 4
+  store i32 0, i32* getelementptr inbounds (%struct.MB_REG_t, %struct.MB_REG_t* @hw_reg_MB, i32 0, i32 0, i32 0), align 4
+  store i32 0, i32* getelementptr inbounds (%struct.MB_REG_t, %struct.MB_REG_t* @hw_reg_MB, i32 0, i32 1, i32 0), align 4
+  store i32 0, i32* getelementptr inbounds (%struct.MB_REG_t, %struct.MB_REG_t* @hw_reg_MB, i32 0, i32 5, i32 0), align 4
+  store i32 0, i32* @reg_slv_int, align 4
+  store i32 0, i32* getelementptr inbounds ([0 x i32], [0 x i32]* @gSlvFlag, i32 0, i32 0), align 4
+  store i32 0, i32* getelementptr inbounds ([0 x i32], [0 x i32]* @gMbCtx, i32 0, i32 0), align 4
+  store i32 0, i32* getelementptr inbounds ([0 x i32], [0 x i32]* @gMbCtx, i32 0, i32 4), align 4
+  ret void
+}
 
 attributes #0 = { nounwind "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="pentium4" "target-features"="+fxsr,+mmx,+sse,+sse2" "unsafe-fp-math"="false" "use-soft-float"="false" }
 attributes #1 = { "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="pentium4" "target-features"="+fxsr,+mmx,+sse,+sse2" "unsafe-fp-math"="false" "use-soft-float"="false" }

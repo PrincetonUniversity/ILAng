@@ -11,35 +11,19 @@
 #include "slv.h"
 
 /* Global Variables 
- * HW regs:
- * - master:
- *      reg_msg_slv2mst_ctr
- *      reg_msg_slv2mst_dat
- *      reg_msg_mst2slv_mir
- *      mst_sram
- * - slave:
- *      reg_msg_mst2slv_ctr
- *      reg_msg_mst2slv_dat
- *      reg_msg_slv2mst_mir
- *      reg_slv_int
  */
 
-uint32_t reg_msg_mst2slv_db;
-uint32_t reg_msg_mst2slv_dat0;
-uint32_t reg_msg_mst2slv_dat1;
-uint32_t reg_msg_mst2slv_dbm;
-uint32_t reg_msg_slv2mst_db;
-uint32_t reg_msg_slv2mst_dat0;
-uint32_t reg_msg_slv2mst_dat1;
-uint32_t reg_msg_slv2mst_dbm;
 uint32_t reg_slv_int;
 char mst_sram[MAX_SRAM_SIZE];
 
 uint8_t mstCpl = 0;
 uint8_t slvCpl = 0;
+uint8_t intCpl = 0;
+
 #ifdef INT_LOCK
 pthread_mutex_t int_lock;
 #endif // INT_LOCK
+
 #ifdef FAB_LOCK
 pthread_mutex_t fab_lock;
 #endif // FAB_LOCK
@@ -69,14 +53,19 @@ void* entryHdl (void* in) {
         intHdl ();
 #endif
     }
+    intCpl = 1;
     return in;
 }
+
+void initHW ();
 
 /* Main function
 */
 
 int main () {
-    mstCpl = slvCpl = 0;
+    initHW ();
+
+    mstCpl = slvCpl = intCpl = 0;
 
 #ifdef INT_LOCK
     pthread_mutex_init (&int_lock, NULL);
@@ -92,7 +81,7 @@ int main () {
     pthread_create (&tidHdl, NULL, entryHdl, NULL);
 
 #ifdef MEM_CHECK
-    while (!mstCpl || !slvCpl);
+    while (!mstCpl || !slvCpl || !intCpl);
 #else // MEM_CHECK
     pthread_join (tidMst, NULL);
     pthread_join (tidSlv, NULL);
@@ -108,4 +97,20 @@ int main () {
 #endif // FAB_LOCK
 
     return 0;
+}
+
+void initHW () {
+    reg_msg_mst2slv_db = 0;
+    reg_msg_mst2slv_dbm = 0;
+    reg_msg_slv2mst_db = 0;
+    reg_msg_slv2mst_dbm = 0;
+
+    hw_reg_MB.STS.val = 0;
+    hw_reg_MB.R_CMD.val = 0;
+    hw_reg_MB.S_CMD.val = 0;
+
+    reg_slv_int = 0;
+    gSlvFlag[SLV_FLAG_IMG_RDY] = 0;
+    gMbCtx[MB_SPACE_OFF_S_CMD] = 0;
+    gMbCtx[MB_SPACE_OFF_R_CMD] = 0;
 }

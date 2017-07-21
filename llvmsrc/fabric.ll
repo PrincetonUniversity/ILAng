@@ -1,4 +1,4 @@
-; ModuleID = 'fabric.c'
+; ModuleID = '/home/soc/workspace/fwVerif/demo/fwsrc/fabric.c'
 target datalayout = "e-m:e-p:32:32-f64:32:64-f80:32-n8:16:32-S128"
 target triple = "i686-pc-linux-gnu"
 
@@ -7,14 +7,14 @@ target triple = "i686-pc-linux-gnu"
 
 @fab_lock = external global %struct.pthread_mutex_t, align 4
 @reg_slv_int = external global i32, align 4
-@reg_msg_mst2slv_db = external global i32, align 4
-@reg_msg_mst2slv_dbm = external global i32, align 4
-@reg_msg_mst2slv_dat0 = external global i32, align 4
-@reg_msg_mst2slv_dat1 = external global i32, align 4
-@reg_msg_slv2mst_db = external global i32, align 4
-@reg_msg_slv2mst_dbm = external global i32, align 4
-@reg_msg_slv2mst_dat0 = external global i32, align 4
-@reg_msg_slv2mst_dat1 = external global i32, align 4
+@reg_msg_mst2slv_db = common global i32 0, align 4
+@reg_msg_mst2slv_dbm = common global i32 0, align 4
+@reg_msg_mst2slv_dat0 = common global i32 0, align 4
+@reg_msg_mst2slv_dat1 = common global i32 0, align 4
+@reg_msg_slv2mst_db = common global i32 0, align 4
+@reg_msg_slv2mst_dbm = common global i32 0, align 4
+@reg_msg_slv2mst_dat0 = common global i32 0, align 4
+@reg_msg_slv2mst_dat1 = common global i32 0, align 4
 
 ; Function Attrs: nounwind
 define void @FAB_REG_LOCK() #0 {
@@ -200,10 +200,11 @@ declare void @__VERIFIER_assert(i32) #1
 ; Function Attrs: nounwind
 define i32 @HW_REG_READ(i32 %addr) #0 {
 entry:
-  %retval = alloca i32, align 4
   %addr.addr = alloca i32, align 4
+  %res = alloca i32, align 4
   store i32 %addr, i32* %addr.addr, align 4
   call void @FAB_REG_LOCK()
+  store i32 0, i32* %res, align 4
   %0 = load i32, i32* %addr.addr, align 4
   switch i32 %0, label %sw.default [
     i32 -65536, label %sw.bb
@@ -218,55 +219,51 @@ entry:
 
 sw.bb:                                            ; preds = %entry
   %call = call i32 @read_reg_msg_slv2mst_dbm()
-  store i32 %call, i32* %retval, align 4
-  br label %return
+  store i32 %call, i32* %res, align 4
+  br label %sw.epilog
 
 sw.bb1:                                           ; preds = %entry
   %call2 = call i32 @read_reg_msg_mst2slv_db()
-  store i32 %call2, i32* %retval, align 4
-  br label %return
+  store i32 %call2, i32* %res, align 4
+  br label %sw.epilog
 
 sw.bb3:                                           ; preds = %entry
   %call4 = call i32 @read_reg_msg_mst2slv_dat0()
-  store i32 %call4, i32* %retval, align 4
-  br label %return
+  store i32 %call4, i32* %res, align 4
+  br label %sw.epilog
 
 sw.bb5:                                           ; preds = %entry
   %call6 = call i32 @read_reg_msg_mst2slv_dat1()
-  store i32 %call6, i32* %retval, align 4
-  br label %return
+  store i32 %call6, i32* %res, align 4
+  br label %sw.epilog
 
 sw.bb7:                                           ; preds = %entry
   %call8 = call i32 @read_reg_msg_mst2slv_dbm()
-  store i32 %call8, i32* %retval, align 4
-  br label %return
+  store i32 %call8, i32* %res, align 4
+  br label %sw.epilog
 
 sw.bb9:                                           ; preds = %entry
   %call10 = call i32 @read_reg_msg_slv2mst_db()
-  store i32 %call10, i32* %retval, align 4
-  br label %return
+  store i32 %call10, i32* %res, align 4
+  br label %sw.epilog
 
 sw.bb11:                                          ; preds = %entry
   %call12 = call i32 @read_reg_msg_slv2mst_dat0()
-  store i32 %call12, i32* %retval, align 4
-  br label %return
+  store i32 %call12, i32* %res, align 4
+  br label %sw.epilog
 
 sw.bb13:                                          ; preds = %entry
   %call14 = call i32 @read_reg_msg_slv2mst_dat1()
-  store i32 %call14, i32* %retval, align 4
-  br label %return
+  store i32 %call14, i32* %res, align 4
+  br label %sw.epilog
 
 sw.default:                                       ; preds = %entry
   call void @__VERIFIER_assert(i32 0)
   br label %sw.epilog
 
-sw.epilog:                                        ; preds = %sw.default
+sw.epilog:                                        ; preds = %sw.default, %sw.bb13, %sw.bb11, %sw.bb9, %sw.bb7, %sw.bb5, %sw.bb3, %sw.bb1, %sw.bb
   call void @FAB_REG_UNLOCK()
-  store i32 0, i32* %retval, align 4
-  br label %return
-
-return:                                           ; preds = %sw.epilog, %sw.bb13, %sw.bb11, %sw.bb9, %sw.bb7, %sw.bb5, %sw.bb3, %sw.bb1, %sw.bb
-  %1 = load i32, i32* %retval, align 4
+  %1 = load i32, i32* %res, align 4
   ret i32 %1
 }
 

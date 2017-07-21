@@ -18,6 +18,15 @@
 #define FAB_HW_OFF_SLV2MST_DAT0 0x6
 #define FAB_HW_OFF_SLV2MST_DAT1 0x7
 
+extern uint32_t reg_msg_mst2slv_db;
+extern uint32_t reg_msg_mst2slv_dat0;
+extern uint32_t reg_msg_mst2slv_dat1;
+extern uint32_t reg_msg_mst2slv_dbm;
+extern uint32_t reg_msg_slv2mst_db;
+extern uint32_t reg_msg_slv2mst_dat0;
+extern uint32_t reg_msg_slv2mst_dat1;
+extern uint32_t reg_msg_slv2mst_dbm;
+
 void FAB_REG_LOCK ();
 void FAB_REG_UNLOCK ();
 

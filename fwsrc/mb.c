@@ -3,7 +3,7 @@
 
 #include "mb.h"
 
-struct MB_ITF_t hw_reg_MB;
+struct MB_REG_t hw_reg_MB;
 
 void write_reg_MB_STS (uint32_t val) {
     return;
@@ -62,9 +62,12 @@ void write_reg_MB_ACK (uint32_t val) {
     write_reg_msg_mst2slv_db (0);
 }
 
+void write_reg_MB_STS_busy (uint32_t val) {
+    return;
+}
+
 uint32_t read_reg_MB_STS () {
-    // FIXME: simplified since only used for busy bit read
-    return hw_reg_MB.STS.field.busy;
+    return hw_reg_MB.STS.val;
 }
 
 uint32_t read_reg_MB_R_CMD () {
@@ -101,4 +104,8 @@ uint32_t read_reg_MB_S_SIZE () {
 
 uint32_t read_reg_MB_ACK () {
     return 0;
+}
+
+uint32_t read_reg_MB_STS_busy () {
+    return hw_reg_MB.STS.field.busy;
 }

@@ -7,13 +7,13 @@
 #include "common.h"
 #include "fabric.h"
 
-struct MB_ITF_t {
+struct MB_REG_t {
     union STS_t {
+        uint32_t val;
         struct field_t {
             uint32_t rsvd : 31;
             uint32_t busy : 1;
         } field;
-        uint32_t val;
     } STS;
 
     union R_CMD_t {
@@ -53,8 +53,54 @@ struct MB_ITF_t {
     } ACK;
 };
 
+struct MB_ITF_t {
+    struct STS {
+        uint32_t val;
+        struct field {
+            uint32_t rsvd;
+            uint32_t busy;
+        } field;
+    } STS;
+
+    struct R_CMD {
+        uint32_t val;
+    } R_CMD;
+
+    struct R_DAT0 {
+        uint32_t val;
+    } R_DAT0;
+
+    struct R_DAT1 {
+        uint32_t val;
+    } R_DAT1;
+
+    struct R_SIZE {
+        uint32_t val;
+    } R_SIZE;
+
+    struct S_CMD {
+        uint32_t val;
+    } S_CMD;
+
+    struct S_DAT0 {
+        uint32_t val;
+    } S_DAT0;
+
+    struct S_DAT1 {
+        uint32_t val;
+    } S_DAT1;
+
+    struct S_SIZE {
+        uint32_t val;
+    } S_SIZE;
+
+    struct ACK {
+        uint32_t val;
+    } ACK;
+};
+
 extern struct MB_ITF_t* reg_MB;
-extern struct MB_ITF_t hw_reg_MB;
+extern struct MB_REG_t hw_reg_MB;
 
 /* HW model (read/write centric)
  */
@@ -68,6 +114,7 @@ void write_reg_MB_S_DAT0 (uint32_t val);
 void write_reg_MB_S_DAT1 (uint32_t val);
 void write_reg_MB_S_SIZE (uint32_t val);
 void write_reg_MB_ACK (uint32_t val);
+void write_reg_MB_STS_busy (uint32_t val);
 uint32_t read_reg_MB_STS ();
 uint32_t read_reg_MB_R_CMD ();
 uint32_t read_reg_MB_R_DAT0 ();
@@ -78,5 +125,6 @@ uint32_t read_reg_MB_S_DAT0 ();
 uint32_t read_reg_MB_S_DAT1 ();
 uint32_t read_reg_MB_S_SIZE ();
 uint32_t read_reg_MB_ACK ();
+uint32_t read_reg_MB_STS_busy ();
 
 #endif // __MB_H__

@@ -3,6 +3,15 @@
 
 #include "fabric.h"
 
+uint32_t reg_msg_mst2slv_db;
+uint32_t reg_msg_mst2slv_dat0;
+uint32_t reg_msg_mst2slv_dat1;
+uint32_t reg_msg_mst2slv_dbm;
+uint32_t reg_msg_slv2mst_db;
+uint32_t reg_msg_slv2mst_dat0;
+uint32_t reg_msg_slv2mst_dat1;
+uint32_t reg_msg_slv2mst_dbm;
+
 void FAB_REG_LOCK () {
 #ifdef FAB_LOCK
     pthread_mutex_lock (&fab_lock);
@@ -51,37 +60,38 @@ void HW_REG_WRITE (uint32_t addr, uint32_t val) {
 
 uint32_t HW_REG_READ (uint32_t addr) {
     FAB_REG_LOCK ();
+    uint32_t res = 0;
     switch (addr) {
         case FAB_HW_BASE+FAB_HW_OFF_SLV2MST_DBM:
-            return read_reg_msg_slv2mst_dbm ();
+            res = read_reg_msg_slv2mst_dbm ();
             break;
         case FAB_HW_BASE+FAB_HW_OFF_MST2SLV_DB:
-            return read_reg_msg_mst2slv_db ();
+            res = read_reg_msg_mst2slv_db ();
             break;
         case FAB_HW_BASE+FAB_HW_OFF_MST2SLV_DAT0:
-            return read_reg_msg_mst2slv_dat0 ();
+            res = read_reg_msg_mst2slv_dat0 ();
             break;
         case FAB_HW_BASE+FAB_HW_OFF_MST2SLV_DAT1:
-            return read_reg_msg_mst2slv_dat1 ();
+            res = read_reg_msg_mst2slv_dat1 ();
             break;
         case FAB_HW_BASE+FAB_HW_OFF_MST2SLV_DBM:
-            return read_reg_msg_mst2slv_dbm ();
+            res = read_reg_msg_mst2slv_dbm ();
             break;
         case FAB_HW_BASE+FAB_HW_OFF_SLV2MST_DB:
-            return read_reg_msg_slv2mst_db ();
+            res = read_reg_msg_slv2mst_db ();
             break;
         case FAB_HW_BASE+FAB_HW_OFF_SLV2MST_DAT0:
-            return read_reg_msg_slv2mst_dat0 ();
+            res = read_reg_msg_slv2mst_dat0 ();
             break;
         case FAB_HW_BASE+FAB_HW_OFF_SLV2MST_DAT1:
-            return read_reg_msg_slv2mst_dat1 ();
+            res = read_reg_msg_slv2mst_dat1 ();
             break;
         default:
             assert (0);
             break;
     }
     FAB_REG_UNLOCK ();
-    return 0;
+    return res;
 }
 
 void write_reg_msg_mst2slv_db (uint32_t val) {
