@@ -19,8 +19,6 @@ void foo () {
     else
         mmio_HW->DATA.val = 1;
 
-    wr_STS (0);
-
     return;
 }
 

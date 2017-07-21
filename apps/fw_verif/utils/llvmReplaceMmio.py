@@ -9,6 +9,7 @@ import common
 class mapStructType ():
     def __init__ (self):
         self.mapping = {}
+        self.declare = []
         self.tagType = ''
         self.tagName = ''
 
@@ -17,6 +18,9 @@ class mapStructType ():
 
     def add (self, inStr, outStr):
         self.mapping[inStr] = outStr
+
+    def addDeclare (self, dcl):
+        self.declare.append (dcl)
 
 def buildMapping (mapFile):
     """ Mapping Format:
@@ -44,9 +48,13 @@ def buildMapping (mapFile):
         elif tag == '_MapWr':
             key = 'wr/' + words[2] + '/' + words[3]
             hwMap.add (key, words[1])
+            dcl = 'declare void @' + words[1] + '(i32) #1\n'
+            hwMap.addDeclare (dcl)
         elif tag == '_MapRd':
             key = 'rd/' + words[2] + '/' + words[3]
             hwMap.add (key, words[1])
+            dcl = 'declare i32 @' + words[1] + '(...) #1\n'
+            hwMap.addDeclare (dcl)
         else:
             assert 0, 'Unknown tag ' + tag
 
@@ -91,8 +99,7 @@ def process (srcFile, hwMap, outFile) :
             if (hwMap.tagType in line) and (hwMap.tagName in line):
                 if 'load' in line:
                     state = FSM.FOUND
-            else:
-                relayCmd (line)
+            relayCmd (line)
         elif state == FSM.FOUND:
             assert 'getelementptr inbounds' in line, 'Unexpected llvm pattern'
             state = FSM.REGNAME
@@ -124,6 +131,10 @@ def process (srcFile, hwMap, outFile) :
         else:
             assert 0, 'Unexpected state'
 
+    declareList = hwMap.declare
+    for dcl in declareList:
+        relayCmd (dcl)
+
     wFile.close ()
     return
 
@@ -131,9 +142,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser ()
     parser.add_argument ("llvm_src", type=str, help="input LLVM IR")
     parser.add_argument ("mapping", type=str, help="MMIO mapping")
-    parser.add_argument ("--out", type=str, default="a.ll", help="output file")
+    parser.add_argument ("llvm_out", type=str, default="a.ll", help="output file")
     args = parser.parse_args ()
 
     mmioMap = buildMapping (args.mapping)
     assert (mmioMap is not None), 'Error getting map'
-    process (args.llvm_src, mmioMap, args.out)
+    process (args.llvm_src, mmioMap, args.llvm_out)
