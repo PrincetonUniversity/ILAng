@@ -9,18 +9,18 @@ import common
 class mapStructType ():
     def __init__ (self):
         self.mapping = {}
-        self.declare = []
+        self.declare = {}
         self.tagType = ''
         self.tagName = ''
 
     def get (self, inStr):
         return self.mapping[inStr]
 
-    def add (self, inStr, outStr):
-        self.mapping[inStr] = outStr
+    def add (self, key, func):
+        self.mapping[key] = func
 
-    def addDeclare (self, dcl):
-        self.declare.append (dcl)
+    def addDeclare (self, key, dcl):
+        self.declare[key] = dcl
 
 def buildMapping (mapFile):
     """ Mapping Format:
@@ -46,15 +46,11 @@ def buildMapping (mapFile):
         elif tag == '_Name':
             hwMap.tagName = words[1]
         elif tag == '_MapWr':
-            key = 'wr/' + words[2] + '/' + words[3]
+            key = 'wr/{}/{}'.format (words[2], words[3])
             hwMap.add (key, words[1])
-            dcl = 'declare void @' + words[1] + '(i32) #1\n'
-            hwMap.addDeclare (dcl)
         elif tag == '_MapRd':
-            key = 'rd/' + words[2] + '/' + words[3]
+            key = 'rd/{}/{}'.format (words[2], words[3])
             hwMap.add (key, words[1])
-            dcl = 'declare i32 @' + words[1] + '(...) #1\n'
-            hwMap.addDeclare (dcl)
         else:
             assert 0, 'Unknown tag ' + tag
 
@@ -71,15 +67,17 @@ def process (srcFile, hwMap, outFile) :
     def registerCmd (op, reg, off, var):
         cmd = ''
 
-        key = op + '/' + reg + '/' + off
+        key = '{}/{}/{}'.format (op, reg, off)
         func = hwMap.get (key)
 
         if op == 'wr':
-            cmd = '  call void @' + func + '(' + var + ')\n'
+            dcl = 'declare void @{}(i32) #1\n'.format (func)
+            cmd = '  call void @{}({})\n'.format (func, var)
         else:
-            cmd = '  ' + var + ' = call i32 bitcast (i32 (...)* @' + \
-                    func + ' to i32 ()*)()\n'
+            dcl = 'declare i32 @{}(...) #1\n'.format (func)
+            cmd = '  {} = call i32 bitcast (i32 (...)* @{} to i32 ()*)()\n'.format (var, func)
 
+        hwMap.addDeclare (key, dcl)
         wFile.write (cmd)
 
     class FSM:
@@ -99,6 +97,7 @@ def process (srcFile, hwMap, outFile) :
             if (hwMap.tagType in line) and (hwMap.tagName in line):
                 if 'load' in line:
                     state = FSM.FOUND
+                    found = True
             relayCmd (line)
         elif state == FSM.FOUND:
             assert 'getelementptr inbounds' in line, 'Unexpected llvm pattern'
@@ -117,13 +116,13 @@ def process (srcFile, hwMap, outFile) :
         elif state == FSM.OFFSET:
             assert 'getelementptr inbounds' in line, 'Unexpected llvm pattern'
             state = FSM.OPERATE
-            off = words[-1] # FIXME 
+            off = words[-1] # XXX starting from 0
         elif state == FSM.OPERATE:
             if words[2] == 'load':
                 var = words[0]
                 registerCmd ('rd', reg, off, var)
             elif words[0] == 'store':
-                var = words[1] + ' ' + words[2].split(',')[0]
+                var = '{} {}'.format (words[1], words[2].split(',')[0])
                 registerCmd ('wr', reg, off, var)
             else:
                 assert 0, 'Unexpected llvm pattern'
@@ -132,8 +131,8 @@ def process (srcFile, hwMap, outFile) :
             assert 0, 'Unexpected state'
 
     declareList = hwMap.declare
-    for dcl in declareList:
-        relayCmd (dcl)
+    for key in declareList:
+        relayCmd (declareList[key])
 
     wFile.close ()
     return
