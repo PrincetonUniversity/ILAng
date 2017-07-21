@@ -3,7 +3,7 @@
 import os
 import sys
 import argparse
-import util
+import common
 
 def removeMMIO(inFile, outFile, funcs, filePath, suffix):
     metMMIO = 0

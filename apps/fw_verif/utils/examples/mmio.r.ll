@@ -18,10 +18,7 @@ entry:
 
 while.cond:                                       ; preds = %if.end, %entry
   %0 = load %struct.HW_ITF_t*, %struct.HW_ITF_t** @mmio_HW, align 4
-  %STS = getelementptr inbounds %struct.HW_ITF_t, %struct.HW_ITF_t* %0, i32 0, i32 0
-  %field = getelementptr inbounds %struct.STS, %struct.STS* %STS, i32 0, i32 1
-  %busy = getelementptr inbounds %struct.field, %struct.field* %field, i32 0, i32 1
-  %1 = load i32, i32* %busy, align 4
+  %1 = call i32 bitcast (i32 (...)* @rd_STS_busy to i32 ()*)()
   %tobool = icmp ne i32 %1, 0
   br i1 %tobool, label %while.body, label %while.end
 
@@ -35,17 +32,12 @@ while.body:                                       ; preds = %while.cond
 
 if.then:                                          ; preds = %while.body
   %4 = load %struct.HW_ITF_t*, %struct.HW_ITF_t** @mmio_HW, align 4
-  %STS1 = getelementptr inbounds %struct.HW_ITF_t, %struct.HW_ITF_t* %4, i32 0, i32 0
-  %val = getelementptr inbounds %struct.STS, %struct.STS* %STS1, i32 0, i32 0
-  store i32 0, i32* %val, align 4
+  call void @wr_STS(i32 0)
   br label %if.end
 
 if.else:                                          ; preds = %while.body
   %5 = load %struct.HW_ITF_t*, %struct.HW_ITF_t** @mmio_HW, align 4
-  %STS2 = getelementptr inbounds %struct.HW_ITF_t, %struct.HW_ITF_t* %5, i32 0, i32 0
-  %field3 = getelementptr inbounds %struct.STS, %struct.STS* %STS2, i32 0, i32 1
-  %busy4 = getelementptr inbounds %struct.field, %struct.field* %field3, i32 0, i32 1
-  store i32 1, i32* %busy4, align 4
+  call void @wr_STS_busy(i32 1)
   br label %if.end
 
 if.end:                                           ; preds = %if.else, %if.then
@@ -53,24 +45,18 @@ if.end:                                           ; preds = %if.else, %if.then
 
 while.end:                                        ; preds = %while.cond
   %6 = load %struct.HW_ITF_t*, %struct.HW_ITF_t** @mmio_HW, align 4
-  %DATA = getelementptr inbounds %struct.HW_ITF_t, %struct.HW_ITF_t* %6, i32 0, i32 1
-  %val5 = getelementptr inbounds %struct.DATA, %struct.DATA* %DATA, i32 0, i32 0
-  %7 = load i32, i32* %val5, align 4
+  %7 = call i32 bitcast (i32 (...)* @rd_DATA to i32 ()*)()
   %cmp6 = icmp eq i32 %7, 1
   br i1 %cmp6, label %if.then7, label %if.else10
 
 if.then7:                                         ; preds = %while.end
   %8 = load %struct.HW_ITF_t*, %struct.HW_ITF_t** @mmio_HW, align 4
-  %DATA8 = getelementptr inbounds %struct.HW_ITF_t, %struct.HW_ITF_t* %8, i32 0, i32 1
-  %val9 = getelementptr inbounds %struct.DATA, %struct.DATA* %DATA8, i32 0, i32 0
-  store i32 0, i32* %val9, align 4
+  call void @wr_DATA(i32 0)
   br label %if.end13
 
 if.else10:                                        ; preds = %while.end
   %9 = load %struct.HW_ITF_t*, %struct.HW_ITF_t** @mmio_HW, align 4
-  %DATA11 = getelementptr inbounds %struct.HW_ITF_t, %struct.HW_ITF_t* %9, i32 0, i32 1
-  %val12 = getelementptr inbounds %struct.DATA, %struct.DATA* %DATA11, i32 0, i32 0
-  store i32 1, i32* %val12, align 4
+  call void @wr_DATA(i32 1)
   br label %if.end13
 
 if.end13:                                         ; preds = %if.else10, %if.then7
@@ -98,6 +84,16 @@ entry:
 declare i32 @HW_REG_READ(...) #1
 
 declare void @HW_REG_WRITE(i32) #1
+
+declare i32 @rd_STS(...) #1
+
+declare i32 @rd_STS_busy(...) #1
+
+declare i32 @rd_DATA(...) #1
+
+declare void @wr_STS_busy(i32) #1
+
+declare void @wr_DATA(i32) #1
 
 attributes #0 = { nounwind "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="pentium4" "target-features"="+fxsr,+mmx,+sse,+sse2" "unsafe-fp-math"="false" "use-soft-float"="false" }
 attributes #1 = { "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="pentium4" "target-features"="+fxsr,+mmx,+sse,+sse2" "unsafe-fp-math"="false" "use-soft-float"="false" }
