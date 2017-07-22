@@ -4,6 +4,8 @@ FW_SRC=$(pwd)/fwsrc
 LLVM_SRC=$(pwd)/llvmsrc
 LLVM_TAR=$(pwd)/llvmtar
 HW_MAP=$(pwd)/mb.mp
+OBJ_BPL=$(pwd)/main.bpl
+REP_BPL=$(pwd)/main.r.bpl
 SMACK_LIB=$(pwd)/smack
 SCRIPT_PATH=$HOME/workspace/ILA/apps/fw_verif/utils
 
@@ -17,6 +19,6 @@ do
     python $SCRIPT_PATH/llvmReplaceMmio.py $LLVM_SRC/$fileName $HW_MAP $LLVM_TAR/$fileName
 done
 
-#smack --pthread --context-bound 3 -v $LLVM_TAR/*.ll -w err.log
-smack --pthread --context-bound 3 --bit-precise -v $LLVM_TAR/*.ll -t -bpl main.bpl 
-#smack main.bpl -w err.log
+smack --pthread --context-bound 3 --bit-precise -v $LLVM_TAR/*.ll -t -bpl $OBJ_BPL
+python $SCRIPT_PATH/bplReplacePthread.py $OBJ_BPL $REP_BPL
+smack -v $REP_BPL -w err.log

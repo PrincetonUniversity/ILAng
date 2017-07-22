@@ -16,6 +16,9 @@ class int2bvFilter ():
         self.add ('  assume (forall i:int :: $pthreadStatus[i][0] == $pthread_uninitialized);\n',
                   '  assume (forall i:bv32 :: $pthreadStatus[i][0] == $pthread_uninitialized);\n')
         self.add ('var $pthreadStatus: [int][int]int;\n',
+                  'var $pthreadStatus: [bv32][int]int;\n')
+        """
+        self.add ('var $pthreadStatus: [int][int]int;\n',
                   'var $pthreadStatus: [bv32][int]bv32;\n')
         self.add ('const unique $pthread_uninitialized: int;\n',
                   'const unique $pthread_uninitialized: bv32;\n')
@@ -27,6 +30,7 @@ class int2bvFilter ():
                   'const unique $pthread_running: bv32;\n')
         self.add ('const unique $pthread_stopped: int;\n',
                   'const unique $pthread_stopped: bv32;\n')
+        """
 
     def add (self, key, val):
         self.mapping[key] = val 
