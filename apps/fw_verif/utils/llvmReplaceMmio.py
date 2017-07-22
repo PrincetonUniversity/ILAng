@@ -71,10 +71,10 @@ def process (srcFile, hwMap, outFile) :
         func = hwMap.get (key)
 
         if op == 'wr':
-            dcl = 'declare void @{}(i32) #1\n'.format (func)
+            dcl = 'declare void @{}(i32)\n'.format (func)
             cmd = '  call void @{}({})\n'.format (func, var)
         else:
-            dcl = 'declare i32 @{}(...) #1\n'.format (func)
+            dcl = 'declare i32 @{}(...)\n'.format (func)
             cmd = '  {} = call i32 bitcast (i32 (...)* @{} to i32 ()*)()\n'.format (var, func)
 
         hwMap.addDeclare (key, dcl)
