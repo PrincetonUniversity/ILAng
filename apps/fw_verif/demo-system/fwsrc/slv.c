@@ -101,7 +101,7 @@ void handleCmd () {
             gSlvFlag[SLV_FLAG_IMG_RDY] = 1;
             break;
         default:
-            //assert (0);
+            assert (0);
             break;
     };
 

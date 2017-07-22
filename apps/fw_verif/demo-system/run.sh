@@ -21,4 +21,4 @@ done
 
 smack --pthread --context-bound 3 --bit-precise -v $LLVM_TAR/*.ll -t -bpl $OBJ_BPL
 python $SCRIPT_PATH/bplReplacePthread.py $OBJ_BPL $REP_BPL
-smack -v $REP_BPL -w err.log
+smack -v --time-limit 3600 $REP_BPL -w err.log
