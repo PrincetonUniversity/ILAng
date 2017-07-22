@@ -21,6 +21,8 @@ void mainSlv () {
     char* slvBuff = (char*) malloc (gSlvFlag[SLV_FLAG_IMG_SIZE]);
     memcpy (slvBuff, mst_sram, gSlvFlag[SLV_FLAG_IMG_SIZE]);
 
+    assert (gSlvFlag[SLV_FLAG_IMG_SIZE] <= MAX_SRAM_SIZE);
+
     // 3. send message to master indicating copy done
     gMbCtx[MB_SPACE_OFF_S_CMD] = CMD_IMAGE_DONE;
     gMbCtx[MB_SPACE_OFF_S_SIZE] = 0;
@@ -58,11 +60,11 @@ void intHdl () {
     // 1. get register data to local copy
     getMbCtx ();
 
-    // reset interrupt signal (enable)
-    reg_slv_int = 0;
-
     // 2. handle based on the corresponding opcode
     handleCmd ();
+
+    // reset interrupt signal (enable)
+    reg_slv_int = 0;
 
     return;
 }
@@ -94,11 +96,12 @@ void handleCmd () {
             break; 
         case CMD_IMAGE_READY:
             assert (gMbCtx[MB_SPACE_OFF_R_SIZE] == 1);
+            // XXX potential false positive in interrupt handling
             gSlvFlag[SLV_FLAG_IMG_SIZE] = gMbCtx[MB_SPACE_OFF_R_DAT0];
             gSlvFlag[SLV_FLAG_IMG_RDY] = 1;
             break;
         default:
-            assert (0);
+            //assert (0);
             break;
     };
 

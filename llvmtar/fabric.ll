@@ -116,21 +116,29 @@ define void @write_reg_msg_mst2slv_db(i32 %val) #0 {
 entry:
   %val.addr = alloca i32, align 4
   store i32 %val, i32* %val.addr, align 4
+  %0 = load i32, i32* %val.addr, align 4
+  %cmp = icmp ne i32 %0, 0
+  br i1 %cmp, label %if.then, label %if.end
+
+if.then:                                          ; preds = %entry
   br label %while.cond
 
-while.cond:                                       ; preds = %while.body, %entry
-  %0 = load i32, i32* @reg_slv_int, align 4
-  %tobool = icmp ne i32 %0, 0
+while.cond:                                       ; preds = %while.body, %if.then
+  %1 = load i32, i32* @reg_slv_int, align 4
+  %tobool = icmp ne i32 %1, 0
   br i1 %tobool, label %while.body, label %while.end
 
 while.body:                                       ; preds = %while.cond
   br label %while.cond
 
 while.end:                                        ; preds = %while.cond
-  %1 = load i32, i32* %val.addr, align 4
-  store i32 %1, i32* @reg_msg_mst2slv_db, align 4
+  br label %if.end
+
+if.end:                                           ; preds = %while.end, %entry
   %2 = load i32, i32* %val.addr, align 4
-  store i32 %2, i32* @reg_msg_mst2slv_dbm, align 4
+  store i32 %2, i32* @reg_msg_mst2slv_db, align 4
+  %3 = load i32, i32* %val.addr, align 4
+  store i32 %3, i32* @reg_msg_mst2slv_dbm, align 4
   store i32 1, i32* @reg_slv_int, align 4
   ret void
 }

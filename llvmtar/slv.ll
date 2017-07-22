@@ -43,11 +43,15 @@ while.end:                                        ; preds = %while.cond
   %2 = load i8*, i8** %slvBuff, align 4
   %3 = load i32, i32* getelementptr inbounds ([2 x i32], [2 x i32]* @gSlvFlag, i32 0, i32 1), align 4
   call void @llvm.memcpy.p0i8.p0i8.i32(i8* %2, i8* getelementptr inbounds ([0 x i8], [0 x i8]* @mst_sram, i32 0, i32 0), i32 %3, i32 1, i1 false)
+  %4 = load i32, i32* getelementptr inbounds ([2 x i32], [2 x i32]* @gSlvFlag, i32 0, i32 1), align 4
+  %cmp = icmp ule i32 %4, 32
+  %conv = zext i1 %cmp to i32
+  call void @__VERIFIER_assert(i32 %conv)
   store i32 4, i32* getelementptr inbounds ([8 x i32], [8 x i32]* @gMbCtx, i32 0, i32 0), align 4
   store i32 0, i32* getelementptr inbounds ([8 x i32], [8 x i32]* @gMbCtx, i32 0, i32 3), align 4
   call void @sendMsgSlv2Mst()
-  %4 = load i8*, i8** %slvBuff, align 4
-  call void @free(i8* %4) #3
+  %5 = load i8*, i8** %slvBuff, align 4
+  call void @free(i8* %5) #3
   ret void
 }
 
@@ -56,6 +60,8 @@ declare noalias i8* @malloc(i32) #0
 
 ; Function Attrs: argmemonly nounwind
 declare void @llvm.memcpy.p0i8.p0i8.i32(i8* nocapture, i8* nocapture readonly, i32, i32, i1) #1
+
+declare void @__VERIFIER_assert(i32) #2
 
 ; Function Attrs: nounwind
 declare void @free(i8*) #0
@@ -102,8 +108,8 @@ if.then:                                          ; preds = %entry
 
 if.end:                                           ; preds = %entry
   call void @getMbCtx()
-  store i32 0, i32* @reg_slv_int, align 4
   call void @handleCmd()
+  store i32 0, i32* @reg_slv_int, align 4
   br label %return
 
 return:                                           ; preds = %if.end, %if.then
@@ -157,14 +163,11 @@ sw.bb1:                                           ; preds = %entry
   br label %sw.epilog
 
 sw.default:                                       ; preds = %entry
-  call void @__VERIFIER_assert(i32 0)
   br label %sw.epilog
 
 sw.epilog:                                        ; preds = %sw.default, %sw.bb1, %sw.bb
   ret void
 }
-
-declare void @__VERIFIER_assert(i32) #2
 
 attributes #0 = { nounwind "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="pentium4" "target-features"="+fxsr,+mmx,+sse,+sse2" "unsafe-fp-math"="false" "use-soft-float"="false" }
 attributes #1 = { argmemonly nounwind }
@@ -174,13 +177,13 @@ attributes #3 = { nounwind }
 !llvm.ident = !{!0}
 
 !0 = !{!"clang version 3.8.0 (tags/RELEASE_381/final)"}
-declare i32 @read_reg_MB_R_CMD(...) #1
-declare void @write_reg_MB_S_DAT0(i32) #1
-declare i32 @read_reg_MB_R_DAT1(...) #1
-declare void @write_reg_MB_S_SIZE(i32) #1
-declare i32 @read_reg_MB_R_DAT0(...) #1
-declare void @write_reg_MB_ACK(i32) #1
-declare i32 @read_reg_MB_R_SIZE(...) #1
-declare i32 @read_reg_MB_STS_busy(...) #1
-declare void @write_reg_MB_S_CMD(i32) #1
-declare void @write_reg_MB_S_DAT1(i32) #1
+declare i32 @read_reg_MB_R_CMD(...)
+declare void @write_reg_MB_S_DAT0(i32)
+declare i32 @read_reg_MB_R_DAT1(...)
+declare void @write_reg_MB_S_SIZE(i32)
+declare i32 @read_reg_MB_R_DAT0(...)
+declare void @write_reg_MB_ACK(i32)
+declare i32 @read_reg_MB_R_SIZE(...)
+declare i32 @read_reg_MB_STS_busy(...)
+declare void @write_reg_MB_S_CMD(i32)
+declare void @write_reg_MB_S_DAT1(i32)

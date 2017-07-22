@@ -147,19 +147,34 @@ entry:
   %0 = load i32, i32* %db, align 4
   %shr = lshr i32 %0, 9
   store i32 %shr, i32* getelementptr inbounds (%struct.MB_REG_t, %struct.MB_REG_t* @hw_reg_MB, i32 0, i32 1, i32 0), align 4
-  %1 = load i32, i32* %db, align 4
-  %shr1 = lshr i32 %1, 1
-  %and = and i32 %shr1, 255
+  %1 = load i32, i32* getelementptr inbounds (%struct.MB_REG_t, %struct.MB_REG_t* @hw_reg_MB, i32 0, i32 1, i32 0), align 4
+  %cmp = icmp eq i32 %1, 1
+  br i1 %cmp, label %lor.end, label %lor.rhs
+
+lor.rhs:                                          ; preds = %entry
+  %2 = load i32, i32* getelementptr inbounds (%struct.MB_REG_t, %struct.MB_REG_t* @hw_reg_MB, i32 0, i32 1, i32 0), align 4
+  %cmp1 = icmp eq i32 %2, 3
+  br label %lor.end
+
+lor.end:                                          ; preds = %lor.rhs, %entry
+  %3 = phi i1 [ true, %entry ], [ %cmp1, %lor.rhs ]
+  %lor.ext = zext i1 %3 to i32
+  call void @__VERIFIER_assert(i32 %lor.ext)
+  %4 = load i32, i32* %db, align 4
+  %shr2 = lshr i32 %4, 1
+  %and = and i32 %shr2, 255
   store i32 %and, i32* getelementptr inbounds (%struct.MB_REG_t, %struct.MB_REG_t* @hw_reg_MB, i32 0, i32 4, i32 0), align 4
-  %call2 = call i32 bitcast (i32 (...)* @read_reg_msg_mst2slv_dat0 to i32 ()*)()
-  store i32 %call2, i32* getelementptr inbounds (%struct.MB_REG_t, %struct.MB_REG_t* @hw_reg_MB, i32 0, i32 2, i32 0), align 4
-  %call3 = call i32 bitcast (i32 (...)* @read_reg_msg_mst2slv_dat1 to i32 ()*)()
-  store i32 %call3, i32* getelementptr inbounds (%struct.MB_REG_t, %struct.MB_REG_t* @hw_reg_MB, i32 0, i32 3, i32 0), align 4
+  %call3 = call i32 bitcast (i32 (...)* @read_reg_msg_mst2slv_dat0 to i32 ()*)()
+  store i32 %call3, i32* getelementptr inbounds (%struct.MB_REG_t, %struct.MB_REG_t* @hw_reg_MB, i32 0, i32 2, i32 0), align 4
+  %call4 = call i32 bitcast (i32 (...)* @read_reg_msg_mst2slv_dat1 to i32 ()*)()
+  store i32 %call4, i32* getelementptr inbounds (%struct.MB_REG_t, %struct.MB_REG_t* @hw_reg_MB, i32 0, i32 3, i32 0), align 4
   call void @write_reg_msg_mst2slv_db(i32 0)
   ret void
 }
 
 declare i32 @read_reg_msg_mst2slv_db(...) #1
+
+declare void @__VERIFIER_assert(i32) #1
 
 declare i32 @read_reg_msg_mst2slv_dat0(...) #1
 

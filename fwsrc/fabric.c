@@ -95,7 +95,8 @@ uint32_t HW_REG_READ (uint32_t addr) {
 }
 
 void write_reg_msg_mst2slv_db (uint32_t val) {
-    while (reg_slv_int);
+    if (val != 0)
+        while (reg_slv_int);
 
     reg_msg_mst2slv_db = val;
     reg_msg_mst2slv_dbm = val;
