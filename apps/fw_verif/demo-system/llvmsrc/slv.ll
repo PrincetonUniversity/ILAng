@@ -1,6 +1,6 @@
-; ModuleID = '/home/soc/workspace/fwVerif/demo/fwsrc/slv.c'
-target datalayout = "e-m:e-p:32:32-f64:32:64-f80:32-n8:16:32-S128"
-target triple = "i686-pc-linux-gnu"
+; ModuleID = '/home/byhuang/workspace/ILA/apps/fw_verif/demo-system/fwsrc/slv.c'
+target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
+target triple = "x86_64-unknown-linux-gnu"
 
 %struct.MB_ITF_t = type { %struct.STS, %struct.R_CMD, %struct.R_DAT0, %struct.R_DAT1, %struct.R_SIZE, %struct.S_CMD, %struct.S_DAT0, %struct.S_DAT1, %struct.S_SIZE, %struct.ACK }
 %struct.STS = type { i32, %struct.field }
@@ -16,19 +16,19 @@ target triple = "i686-pc-linux-gnu"
 %struct.ACK = type { i32 }
 
 @gSlvFlag = global [2 x i32] zeroinitializer, align 4
-@gMbCtx = global [8 x i32] zeroinitializer, align 4
+@gMbCtx = global [8 x i32] zeroinitializer, align 16
 @mst_sram = external global [0 x i8], align 1
-@reg_MB = external global %struct.MB_ITF_t*, align 4
+@reg_MB = external global %struct.MB_ITF_t*, align 8
 @reg_slv_int = external global i32, align 4
 
-; Function Attrs: nounwind
+; Function Attrs: nounwind uwtable
 define void @mainSlv() #0 {
 entry:
-  %slvBuff = alloca i8*, align 4
+  %slvBuff = alloca i8*, align 8
   br label %while.cond
 
 while.cond:                                       ; preds = %while.body, %entry
-  %0 = load i32, i32* getelementptr inbounds ([2 x i32], [2 x i32]* @gSlvFlag, i32 0, i32 0), align 4
+  %0 = load i32, i32* getelementptr inbounds ([2 x i32], [2 x i32]* @gSlvFlag, i64 0, i64 0), align 4
   %tobool = icmp ne i32 %0, 0
   %lnot = xor i1 %tobool, true
   br i1 %lnot, label %while.body, label %while.end
@@ -37,42 +37,44 @@ while.body:                                       ; preds = %while.cond
   br label %while.cond
 
 while.end:                                        ; preds = %while.cond
-  %1 = load i32, i32* getelementptr inbounds ([2 x i32], [2 x i32]* @gSlvFlag, i32 0, i32 1), align 4
-  %call = call noalias i8* @malloc(i32 %1) #3
-  store i8* %call, i8** %slvBuff, align 4
-  %2 = load i8*, i8** %slvBuff, align 4
-  %3 = load i32, i32* getelementptr inbounds ([2 x i32], [2 x i32]* @gSlvFlag, i32 0, i32 1), align 4
-  call void @llvm.memcpy.p0i8.p0i8.i32(i8* %2, i8* getelementptr inbounds ([0 x i8], [0 x i8]* @mst_sram, i32 0, i32 0), i32 %3, i32 1, i1 false)
-  %4 = load i32, i32* getelementptr inbounds ([2 x i32], [2 x i32]* @gSlvFlag, i32 0, i32 1), align 4
+  %1 = load i32, i32* getelementptr inbounds ([2 x i32], [2 x i32]* @gSlvFlag, i64 0, i64 1), align 4
+  %conv = zext i32 %1 to i64
+  %call = call noalias i8* @malloc(i64 %conv) #4
+  store i8* %call, i8** %slvBuff, align 8
+  %2 = load i8*, i8** %slvBuff, align 8
+  %3 = load i32, i32* getelementptr inbounds ([2 x i32], [2 x i32]* @gSlvFlag, i64 0, i64 1), align 4
+  %conv1 = zext i32 %3 to i64
+  call void @llvm.memcpy.p0i8.p0i8.i64(i8* %2, i8* getelementptr inbounds ([0 x i8], [0 x i8]* @mst_sram, i32 0, i32 0), i64 %conv1, i32 1, i1 false)
+  %4 = load i32, i32* getelementptr inbounds ([2 x i32], [2 x i32]* @gSlvFlag, i64 0, i64 1), align 4
   %cmp = icmp ule i32 %4, 32
-  %conv = zext i1 %cmp to i32
-  call void @__VERIFIER_assert(i32 %conv)
-  store i32 4, i32* getelementptr inbounds ([8 x i32], [8 x i32]* @gMbCtx, i32 0, i32 0), align 4
-  store i32 0, i32* getelementptr inbounds ([8 x i32], [8 x i32]* @gMbCtx, i32 0, i32 3), align 4
+  %conv2 = zext i1 %cmp to i32
+  call void @__VERIFIER_assert(i32 %conv2)
+  store i32 4, i32* getelementptr inbounds ([8 x i32], [8 x i32]* @gMbCtx, i64 0, i64 0), align 16
+  store i32 0, i32* getelementptr inbounds ([8 x i32], [8 x i32]* @gMbCtx, i64 0, i64 3), align 4
   call void @sendMsgSlv2Mst()
-  %5 = load i8*, i8** %slvBuff, align 4
-  call void @free(i8* %5) #3
+  %5 = load i8*, i8** %slvBuff, align 8
+  call void @free(i8* %5) #4
   ret void
 }
 
 ; Function Attrs: nounwind
-declare noalias i8* @malloc(i32) #0
+declare noalias i8* @malloc(i64) #1
 
 ; Function Attrs: argmemonly nounwind
-declare void @llvm.memcpy.p0i8.p0i8.i32(i8* nocapture, i8* nocapture readonly, i32, i32, i1) #1
+declare void @llvm.memcpy.p0i8.p0i8.i64(i8* nocapture, i8* nocapture readonly, i64, i32, i1) #2
 
-declare void @__VERIFIER_assert(i32) #2
-
-; Function Attrs: nounwind
-declare void @free(i8*) #0
+declare void @__VERIFIER_assert(i32) #3
 
 ; Function Attrs: nounwind
+declare void @free(i8*) #1
+
+; Function Attrs: nounwind uwtable
 define void @sendMsgSlv2Mst() #0 {
 entry:
   br label %while.cond
 
 while.cond:                                       ; preds = %while.body, %entry
-  %0 = load %struct.MB_ITF_t*, %struct.MB_ITF_t** @reg_MB, align 4
+  %0 = load %struct.MB_ITF_t*, %struct.MB_ITF_t** @reg_MB, align 8
   %STS = getelementptr inbounds %struct.MB_ITF_t, %struct.MB_ITF_t* %0, i32 0, i32 0
   %field = getelementptr inbounds %struct.STS, %struct.STS* %STS, i32 0, i32 1
   %busy = getelementptr inbounds %struct.field, %struct.field* %field, i32 0, i32 1
@@ -84,30 +86,30 @@ while.body:                                       ; preds = %while.cond
   br label %while.cond
 
 while.end:                                        ; preds = %while.cond
-  %2 = load i32, i32* getelementptr inbounds ([8 x i32], [8 x i32]* @gMbCtx, i32 0, i32 1), align 4
-  %3 = load %struct.MB_ITF_t*, %struct.MB_ITF_t** @reg_MB, align 4
+  %2 = load i32, i32* getelementptr inbounds ([8 x i32], [8 x i32]* @gMbCtx, i64 0, i64 1), align 4
+  %3 = load %struct.MB_ITF_t*, %struct.MB_ITF_t** @reg_MB, align 8
   %S_DAT0 = getelementptr inbounds %struct.MB_ITF_t, %struct.MB_ITF_t* %3, i32 0, i32 6
   %val = getelementptr inbounds %struct.S_DAT0, %struct.S_DAT0* %S_DAT0, i32 0, i32 0
   store i32 %2, i32* %val, align 4
-  %4 = load i32, i32* getelementptr inbounds ([8 x i32], [8 x i32]* @gMbCtx, i32 0, i32 2), align 4
-  %5 = load %struct.MB_ITF_t*, %struct.MB_ITF_t** @reg_MB, align 4
+  %4 = load i32, i32* getelementptr inbounds ([8 x i32], [8 x i32]* @gMbCtx, i64 0, i64 2), align 8
+  %5 = load %struct.MB_ITF_t*, %struct.MB_ITF_t** @reg_MB, align 8
   %S_DAT1 = getelementptr inbounds %struct.MB_ITF_t, %struct.MB_ITF_t* %5, i32 0, i32 7
   %val1 = getelementptr inbounds %struct.S_DAT1, %struct.S_DAT1* %S_DAT1, i32 0, i32 0
   store i32 %4, i32* %val1, align 4
-  %6 = load i32, i32* getelementptr inbounds ([8 x i32], [8 x i32]* @gMbCtx, i32 0, i32 3), align 4
-  %7 = load %struct.MB_ITF_t*, %struct.MB_ITF_t** @reg_MB, align 4
+  %6 = load i32, i32* getelementptr inbounds ([8 x i32], [8 x i32]* @gMbCtx, i64 0, i64 3), align 4
+  %7 = load %struct.MB_ITF_t*, %struct.MB_ITF_t** @reg_MB, align 8
   %S_SIZE = getelementptr inbounds %struct.MB_ITF_t, %struct.MB_ITF_t* %7, i32 0, i32 8
   %val2 = getelementptr inbounds %struct.S_SIZE, %struct.S_SIZE* %S_SIZE, i32 0, i32 0
   store i32 %6, i32* %val2, align 4
-  %8 = load i32, i32* getelementptr inbounds ([8 x i32], [8 x i32]* @gMbCtx, i32 0, i32 0), align 4
-  %9 = load %struct.MB_ITF_t*, %struct.MB_ITF_t** @reg_MB, align 4
+  %8 = load i32, i32* getelementptr inbounds ([8 x i32], [8 x i32]* @gMbCtx, i64 0, i64 0), align 16
+  %9 = load %struct.MB_ITF_t*, %struct.MB_ITF_t** @reg_MB, align 8
   %S_CMD = getelementptr inbounds %struct.MB_ITF_t, %struct.MB_ITF_t* %9, i32 0, i32 5
   %val3 = getelementptr inbounds %struct.S_CMD, %struct.S_CMD* %S_CMD, i32 0, i32 0
   store i32 %8, i32* %val3, align 4
   ret void
 }
 
-; Function Attrs: nounwind
+; Function Attrs: nounwind uwtable
 define void @intHdl() #0 {
 entry:
   %0 = load i32, i32* @reg_slv_int, align 4
@@ -127,60 +129,60 @@ return:                                           ; preds = %if.end, %if.then
   ret void
 }
 
-; Function Attrs: nounwind
+; Function Attrs: nounwind uwtable
 define void @getMbCtx() #0 {
 entry:
-  %0 = load %struct.MB_ITF_t*, %struct.MB_ITF_t** @reg_MB, align 4
+  %0 = load %struct.MB_ITF_t*, %struct.MB_ITF_t** @reg_MB, align 8
   %ACK = getelementptr inbounds %struct.MB_ITF_t, %struct.MB_ITF_t* %0, i32 0, i32 9
   %val = getelementptr inbounds %struct.ACK, %struct.ACK* %ACK, i32 0, i32 0
   store i32 1, i32* %val, align 4
-  %1 = load %struct.MB_ITF_t*, %struct.MB_ITF_t** @reg_MB, align 4
+  %1 = load %struct.MB_ITF_t*, %struct.MB_ITF_t** @reg_MB, align 8
   %R_CMD = getelementptr inbounds %struct.MB_ITF_t, %struct.MB_ITF_t* %1, i32 0, i32 1
   %val1 = getelementptr inbounds %struct.R_CMD, %struct.R_CMD* %R_CMD, i32 0, i32 0
   %2 = load i32, i32* %val1, align 4
-  store i32 %2, i32* getelementptr inbounds ([8 x i32], [8 x i32]* @gMbCtx, i32 0, i32 4), align 4
-  %3 = load %struct.MB_ITF_t*, %struct.MB_ITF_t** @reg_MB, align 4
+  store i32 %2, i32* getelementptr inbounds ([8 x i32], [8 x i32]* @gMbCtx, i64 0, i64 4), align 16
+  %3 = load %struct.MB_ITF_t*, %struct.MB_ITF_t** @reg_MB, align 8
   %R_DAT0 = getelementptr inbounds %struct.MB_ITF_t, %struct.MB_ITF_t* %3, i32 0, i32 2
   %val2 = getelementptr inbounds %struct.R_DAT0, %struct.R_DAT0* %R_DAT0, i32 0, i32 0
   %4 = load i32, i32* %val2, align 4
-  store i32 %4, i32* getelementptr inbounds ([8 x i32], [8 x i32]* @gMbCtx, i32 0, i32 5), align 4
-  %5 = load %struct.MB_ITF_t*, %struct.MB_ITF_t** @reg_MB, align 4
+  store i32 %4, i32* getelementptr inbounds ([8 x i32], [8 x i32]* @gMbCtx, i64 0, i64 5), align 4
+  %5 = load %struct.MB_ITF_t*, %struct.MB_ITF_t** @reg_MB, align 8
   %R_DAT1 = getelementptr inbounds %struct.MB_ITF_t, %struct.MB_ITF_t* %5, i32 0, i32 3
   %val3 = getelementptr inbounds %struct.R_DAT1, %struct.R_DAT1* %R_DAT1, i32 0, i32 0
   %6 = load i32, i32* %val3, align 4
-  store i32 %6, i32* getelementptr inbounds ([8 x i32], [8 x i32]* @gMbCtx, i32 0, i32 6), align 4
-  %7 = load %struct.MB_ITF_t*, %struct.MB_ITF_t** @reg_MB, align 4
+  store i32 %6, i32* getelementptr inbounds ([8 x i32], [8 x i32]* @gMbCtx, i64 0, i64 6), align 8
+  %7 = load %struct.MB_ITF_t*, %struct.MB_ITF_t** @reg_MB, align 8
   %R_SIZE = getelementptr inbounds %struct.MB_ITF_t, %struct.MB_ITF_t* %7, i32 0, i32 4
   %val4 = getelementptr inbounds %struct.R_SIZE, %struct.R_SIZE* %R_SIZE, i32 0, i32 0
   %8 = load i32, i32* %val4, align 4
-  store i32 %8, i32* getelementptr inbounds ([8 x i32], [8 x i32]* @gMbCtx, i32 0, i32 7), align 4
+  store i32 %8, i32* getelementptr inbounds ([8 x i32], [8 x i32]* @gMbCtx, i64 0, i64 7), align 4
   ret void
 }
 
-; Function Attrs: nounwind
+; Function Attrs: nounwind uwtable
 define void @handleCmd() #0 {
 entry:
-  %0 = load i32, i32* getelementptr inbounds ([8 x i32], [8 x i32]* @gMbCtx, i32 0, i32 4), align 4
+  %0 = load i32, i32* getelementptr inbounds ([8 x i32], [8 x i32]* @gMbCtx, i64 0, i64 4), align 16
   switch i32 %0, label %sw.default [
     i32 1, label %sw.bb
     i32 3, label %sw.bb1
   ]
 
 sw.bb:                                            ; preds = %entry
-  store i32 2, i32* getelementptr inbounds ([8 x i32], [8 x i32]* @gMbCtx, i32 0, i32 0), align 4
-  store i32 4, i32* getelementptr inbounds ([8 x i32], [8 x i32]* @gMbCtx, i32 0, i32 1), align 4
-  store i32 1, i32* getelementptr inbounds ([8 x i32], [8 x i32]* @gMbCtx, i32 0, i32 3), align 4
+  store i32 2, i32* getelementptr inbounds ([8 x i32], [8 x i32]* @gMbCtx, i64 0, i64 0), align 16
+  store i32 4, i32* getelementptr inbounds ([8 x i32], [8 x i32]* @gMbCtx, i64 0, i64 1), align 4
+  store i32 1, i32* getelementptr inbounds ([8 x i32], [8 x i32]* @gMbCtx, i64 0, i64 3), align 4
   call void @sendMsgSlv2Mst()
   br label %sw.epilog
 
 sw.bb1:                                           ; preds = %entry
-  %1 = load i32, i32* getelementptr inbounds ([8 x i32], [8 x i32]* @gMbCtx, i32 0, i32 7), align 4
+  %1 = load i32, i32* getelementptr inbounds ([8 x i32], [8 x i32]* @gMbCtx, i64 0, i64 7), align 4
   %cmp = icmp eq i32 %1, 1
   %conv = zext i1 %cmp to i32
   call void @__VERIFIER_assert(i32 %conv)
-  %2 = load i32, i32* getelementptr inbounds ([8 x i32], [8 x i32]* @gMbCtx, i32 0, i32 5), align 4
-  store i32 %2, i32* getelementptr inbounds ([2 x i32], [2 x i32]* @gSlvFlag, i32 0, i32 1), align 4
-  store i32 1, i32* getelementptr inbounds ([2 x i32], [2 x i32]* @gSlvFlag, i32 0, i32 0), align 4
+  %2 = load i32, i32* getelementptr inbounds ([8 x i32], [8 x i32]* @gMbCtx, i64 0, i64 5), align 4
+  store i32 %2, i32* getelementptr inbounds ([2 x i32], [2 x i32]* @gSlvFlag, i64 0, i64 1), align 4
+  store i32 1, i32* getelementptr inbounds ([2 x i32], [2 x i32]* @gSlvFlag, i64 0, i64 0), align 4
   br label %sw.epilog
 
 sw.default:                                       ; preds = %entry
@@ -190,10 +192,11 @@ sw.epilog:                                        ; preds = %sw.default, %sw.bb1
   ret void
 }
 
-attributes #0 = { nounwind "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="pentium4" "target-features"="+fxsr,+mmx,+sse,+sse2" "unsafe-fp-math"="false" "use-soft-float"="false" }
-attributes #1 = { argmemonly nounwind }
-attributes #2 = { "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="pentium4" "target-features"="+fxsr,+mmx,+sse,+sse2" "unsafe-fp-math"="false" "use-soft-float"="false" }
-attributes #3 = { nounwind }
+attributes #0 = { nounwind uwtable "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+fxsr,+mmx,+sse,+sse2" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes #1 = { nounwind "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+fxsr,+mmx,+sse,+sse2" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes #2 = { argmemonly nounwind }
+attributes #3 = { "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+fxsr,+mmx,+sse,+sse2" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes #4 = { nounwind }
 
 !llvm.ident = !{!0}
 

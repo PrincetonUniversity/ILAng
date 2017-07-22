@@ -1,6 +1,6 @@
-; ModuleID = '/home/soc/workspace/fwVerif/demo/fwsrc/fabric.c'
-target datalayout = "e-m:e-p:32:32-f64:32:64-f80:32-n8:16:32-S128"
-target triple = "i686-pc-linux-gnu"
+; ModuleID = '/home/byhuang/workspace/ILA/apps/fw_verif/demo-system/fwsrc/fabric.c'
+target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
+target triple = "x86_64-unknown-linux-gnu"
 
 %struct.pthread_mutex_t = type { i32, i32, %struct.pthread_mutexattr_t }
 %struct.pthread_mutexattr_t = type { i32, i32, i32, i32 }
@@ -16,7 +16,7 @@ target triple = "i686-pc-linux-gnu"
 @reg_msg_slv2mst_dat0 = common global i32 0, align 4
 @reg_msg_slv2mst_dat1 = common global i32 0, align 4
 
-; Function Attrs: nounwind
+; Function Attrs: nounwind uwtable
 define void @FAB_REG_LOCK() #0 {
 entry:
   %call = call i32 @pthread_mutex_lock(%struct.pthread_mutex_t* @fab_lock)
@@ -25,7 +25,7 @@ entry:
 
 declare i32 @pthread_mutex_lock(%struct.pthread_mutex_t*) #1
 
-; Function Attrs: nounwind
+; Function Attrs: nounwind uwtable
 define void @FAB_REG_UNLOCK() #0 {
 entry:
   %call = call i32 @pthread_mutex_unlock(%struct.pthread_mutex_t* @fab_lock)
@@ -34,7 +34,7 @@ entry:
 
 declare i32 @pthread_mutex_unlock(%struct.pthread_mutex_t*) #1
 
-; Function Attrs: nounwind
+; Function Attrs: nounwind uwtable
 define void @HW_REG_WRITE(i32 %addr, i32 %val) #0 {
 entry:
   %addr.addr = alloca i32, align 4
@@ -103,7 +103,7 @@ sw.epilog:                                        ; preds = %sw.default, %sw.bb7
   ret void
 }
 
-; Function Attrs: nounwind
+; Function Attrs: nounwind uwtable
 define void @write_reg_msg_slv2mst_dbm(i32 %val) #0 {
 entry:
   %val.addr = alloca i32, align 4
@@ -111,7 +111,7 @@ entry:
   ret void
 }
 
-; Function Attrs: nounwind
+; Function Attrs: nounwind uwtable
 define void @write_reg_msg_mst2slv_db(i32 %val) #0 {
 entry:
   %val.addr = alloca i32, align 4
@@ -143,7 +143,7 @@ if.end:                                           ; preds = %while.end, %entry
   ret void
 }
 
-; Function Attrs: nounwind
+; Function Attrs: nounwind uwtable
 define void @write_reg_msg_mst2slv_dat0(i32 %val) #0 {
 entry:
   %val.addr = alloca i32, align 4
@@ -153,7 +153,7 @@ entry:
   ret void
 }
 
-; Function Attrs: nounwind
+; Function Attrs: nounwind uwtable
 define void @write_reg_msg_mst2slv_dat1(i32 %val) #0 {
 entry:
   %val.addr = alloca i32, align 4
@@ -163,7 +163,7 @@ entry:
   ret void
 }
 
-; Function Attrs: nounwind
+; Function Attrs: nounwind uwtable
 define void @write_reg_msg_mst2slv_dbm(i32 %val) #0 {
 entry:
   %val.addr = alloca i32, align 4
@@ -171,7 +171,7 @@ entry:
   ret void
 }
 
-; Function Attrs: nounwind
+; Function Attrs: nounwind uwtable
 define void @write_reg_msg_slv2mst_db(i32 %val) #0 {
 entry:
   %val.addr = alloca i32, align 4
@@ -183,7 +183,7 @@ entry:
   ret void
 }
 
-; Function Attrs: nounwind
+; Function Attrs: nounwind uwtable
 define void @write_reg_msg_slv2mst_dat0(i32 %val) #0 {
 entry:
   %val.addr = alloca i32, align 4
@@ -193,7 +193,7 @@ entry:
   ret void
 }
 
-; Function Attrs: nounwind
+; Function Attrs: nounwind uwtable
 define void @write_reg_msg_slv2mst_dat1(i32 %val) #0 {
 entry:
   %val.addr = alloca i32, align 4
@@ -205,7 +205,7 @@ entry:
 
 declare void @__VERIFIER_assert(i32) #1
 
-; Function Attrs: nounwind
+; Function Attrs: nounwind uwtable
 define i32 @HW_REG_READ(i32 %addr) #0 {
 entry:
   %addr.addr = alloca i32, align 4
@@ -275,64 +275,64 @@ sw.epilog:                                        ; preds = %sw.default, %sw.bb1
   ret i32 %1
 }
 
-; Function Attrs: nounwind
+; Function Attrs: nounwind uwtable
 define i32 @read_reg_msg_mst2slv_db() #0 {
 entry:
   %0 = load i32, i32* @reg_msg_mst2slv_db, align 4
   ret i32 %0
 }
 
-; Function Attrs: nounwind
+; Function Attrs: nounwind uwtable
 define i32 @read_reg_msg_mst2slv_dbm() #0 {
 entry:
   %0 = load i32, i32* @reg_msg_mst2slv_dbm, align 4
   ret i32 %0
 }
 
-; Function Attrs: nounwind
+; Function Attrs: nounwind uwtable
 define i32 @read_reg_msg_mst2slv_dat0() #0 {
 entry:
   %0 = load i32, i32* @reg_msg_mst2slv_dat0, align 4
   ret i32 %0
 }
 
-; Function Attrs: nounwind
+; Function Attrs: nounwind uwtable
 define i32 @read_reg_msg_mst2slv_dat1() #0 {
 entry:
   %0 = load i32, i32* @reg_msg_mst2slv_dat1, align 4
   ret i32 %0
 }
 
-; Function Attrs: nounwind
+; Function Attrs: nounwind uwtable
 define i32 @read_reg_msg_slv2mst_db() #0 {
 entry:
   %0 = load i32, i32* @reg_msg_slv2mst_db, align 4
   ret i32 %0
 }
 
-; Function Attrs: nounwind
+; Function Attrs: nounwind uwtable
 define i32 @read_reg_msg_slv2mst_dbm() #0 {
 entry:
   %0 = load i32, i32* @reg_msg_slv2mst_dbm, align 4
   ret i32 %0
 }
 
-; Function Attrs: nounwind
+; Function Attrs: nounwind uwtable
 define i32 @read_reg_msg_slv2mst_dat0() #0 {
 entry:
   %0 = load i32, i32* @reg_msg_slv2mst_dat0, align 4
   ret i32 %0
 }
 
-; Function Attrs: nounwind
+; Function Attrs: nounwind uwtable
 define i32 @read_reg_msg_slv2mst_dat1() #0 {
 entry:
   %0 = load i32, i32* @reg_msg_slv2mst_dat1, align 4
   ret i32 %0
 }
 
-attributes #0 = { nounwind "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="pentium4" "target-features"="+fxsr,+mmx,+sse,+sse2" "unsafe-fp-math"="false" "use-soft-float"="false" }
-attributes #1 = { "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="pentium4" "target-features"="+fxsr,+mmx,+sse,+sse2" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes #0 = { nounwind uwtable "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+fxsr,+mmx,+sse,+sse2" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes #1 = { "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+fxsr,+mmx,+sse,+sse2" "unsafe-fp-math"="false" "use-soft-float"="false" }
 
 !llvm.ident = !{!0}
 

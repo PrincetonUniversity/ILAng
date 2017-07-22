@@ -1,6 +1,6 @@
-; ModuleID = '/home/soc/workspace/fwVerif/demo/fwsrc/main.c'
-target datalayout = "e-m:e-p:32:32-f64:32:64-f80:32-n8:16:32-S128"
-target triple = "i686-pc-linux-gnu"
+; ModuleID = '/home/byhuang/workspace/ILA/apps/fw_verif/demo-system/fwsrc/main.c'
+target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
+target triple = "x86_64-unknown-linux-gnu"
 
 %struct.pthread_mutex_t = type { i32, i32, %struct.pthread_mutexattr_t }
 %struct.pthread_mutexattr_t = type { i32, i32, i32, i32 }
@@ -29,39 +29,39 @@ target triple = "i686-pc-linux-gnu"
 @reg_slv_int = common global i32 0, align 4
 @gSlvFlag = external global [0 x i32], align 4
 @gMbCtx = external global [0 x i32], align 4
-@mst_sram = common global [32 x i8] zeroinitializer, align 1
+@mst_sram = common global [32 x i8] zeroinitializer, align 16
 
-; Function Attrs: nounwind
+; Function Attrs: nounwind uwtable
 define i8* @entryMst(i8* %in) #0 {
 entry:
-  %in.addr = alloca i8*, align 4
-  store i8* %in, i8** %in.addr, align 4
-  call void bitcast (void (...)* @mainMst to void ()*)()
+  %in.addr = alloca i8*, align 8
+  store i8* %in, i8** %in.addr, align 8
+  call void (...) @mainMst()
   store i8 1, i8* @mstCpl, align 1
-  %0 = load i8*, i8** %in.addr, align 4
+  %0 = load i8*, i8** %in.addr, align 8
   ret i8* %0
 }
 
 declare void @mainMst(...) #1
 
-; Function Attrs: nounwind
+; Function Attrs: nounwind uwtable
 define i8* @entrySlv(i8* %in) #0 {
 entry:
-  %in.addr = alloca i8*, align 4
-  store i8* %in, i8** %in.addr, align 4
-  call void bitcast (void (...)* @mainSlv to void ()*)()
+  %in.addr = alloca i8*, align 8
+  store i8* %in, i8** %in.addr, align 8
+  call void (...) @mainSlv()
   store i8 1, i8* @slvCpl, align 1
-  %0 = load i8*, i8** %in.addr, align 4
+  %0 = load i8*, i8** %in.addr, align 8
   ret i8* %0
 }
 
 declare void @mainSlv(...) #1
 
-; Function Attrs: nounwind
+; Function Attrs: nounwind uwtable
 define i8* @entryHdl(i8* %in) #0 {
 entry:
-  %in.addr = alloca i8*, align 4
-  store i8* %in, i8** %in.addr, align 4
+  %in.addr = alloca i8*, align 8
+  store i8* %in, i8** %in.addr, align 8
   br label %while.cond
 
 while.cond:                                       ; preds = %while.body, %entry
@@ -81,13 +81,13 @@ lor.end:                                          ; preds = %lor.rhs, %while.con
 
 while.body:                                       ; preds = %lor.end
   %call = call i32 @pthread_mutex_lock(%struct.pthread_mutex_t* @int_lock)
-  call void bitcast (void (...)* @intHdl to void ()*)()
+  call void (...) @intHdl()
   %call2 = call i32 @pthread_mutex_unlock(%struct.pthread_mutex_t* @int_lock)
   br label %while.cond
 
 while.end:                                        ; preds = %lor.end
   store i8 1, i8* @intCpl, align 1
-  %3 = load i8*, i8** %in.addr, align 4
+  %3 = load i8*, i8** %in.addr, align 8
   ret i8* %3
 }
 
@@ -97,7 +97,7 @@ declare void @intHdl(...) #1
 
 declare i32 @pthread_mutex_unlock(%struct.pthread_mutex_t*) #1
 
-; Function Attrs: nounwind
+; Function Attrs: nounwind uwtable
 define i32 @main() #0 {
 entry:
   %retval = alloca i32, align 4
@@ -133,7 +133,7 @@ declare i32 @pthread_join(i32, i8**) #1
 
 declare i32 @pthread_mutex_destroy(%struct.pthread_mutex_t*) #1
 
-; Function Attrs: nounwind
+; Function Attrs: nounwind uwtable
 define void @initHW() #0 {
 entry:
   store i32 0, i32* @reg_msg_mst2slv_db, align 4
@@ -144,14 +144,14 @@ entry:
   store i32 0, i32* getelementptr inbounds (%struct.MB_REG_t, %struct.MB_REG_t* @hw_reg_MB, i32 0, i32 1, i32 0), align 4
   store i32 0, i32* getelementptr inbounds (%struct.MB_REG_t, %struct.MB_REG_t* @hw_reg_MB, i32 0, i32 5, i32 0), align 4
   store i32 0, i32* @reg_slv_int, align 4
-  store i32 0, i32* getelementptr inbounds ([0 x i32], [0 x i32]* @gSlvFlag, i32 0, i32 0), align 4
-  store i32 0, i32* getelementptr inbounds ([0 x i32], [0 x i32]* @gMbCtx, i32 0, i32 0), align 4
-  store i32 0, i32* getelementptr inbounds ([0 x i32], [0 x i32]* @gMbCtx, i32 0, i32 4), align 4
+  store i32 0, i32* getelementptr inbounds ([0 x i32], [0 x i32]* @gSlvFlag, i64 0, i64 0), align 4
+  store i32 0, i32* getelementptr inbounds ([0 x i32], [0 x i32]* @gMbCtx, i64 0, i64 0), align 4
+  store i32 0, i32* getelementptr inbounds ([0 x i32], [0 x i32]* @gMbCtx, i64 0, i64 4), align 4
   ret void
 }
 
-attributes #0 = { nounwind "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="pentium4" "target-features"="+fxsr,+mmx,+sse,+sse2" "unsafe-fp-math"="false" "use-soft-float"="false" }
-attributes #1 = { "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="pentium4" "target-features"="+fxsr,+mmx,+sse,+sse2" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes #0 = { nounwind uwtable "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+fxsr,+mmx,+sse,+sse2" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes #1 = { "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+fxsr,+mmx,+sse,+sse2" "unsafe-fp-math"="false" "use-soft-float"="false" }
 
 !llvm.ident = !{!0}
 

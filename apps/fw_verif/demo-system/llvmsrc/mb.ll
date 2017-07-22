@@ -1,6 +1,6 @@
-; ModuleID = '/home/soc/workspace/fwVerif/demo/fwsrc/mb.c'
-target datalayout = "e-m:e-p:32:32-f64:32:64-f80:32-n8:16:32-S128"
-target triple = "i686-pc-linux-gnu"
+; ModuleID = '/home/byhuang/workspace/ILA/apps/fw_verif/demo-system/fwsrc/mb.c'
+target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
+target triple = "x86_64-unknown-linux-gnu"
 
 %struct.MB_REG_t = type { %union.STS_t, %union.R_CMD_t, %union.R_DAT0_t, %union.R_DAT1_t, %union.R_SIZE_t, %union.S_CMD_t, %union.S_DAT0_t, %union.S_DAT1_t, %union.S_SIZE_t, %union.ACK_t }
 %union.STS_t = type { i32 }
@@ -16,7 +16,7 @@ target triple = "i686-pc-linux-gnu"
 
 @hw_reg_MB = common global %struct.MB_REG_t zeroinitializer, align 4
 
-; Function Attrs: nounwind
+; Function Attrs: nounwind uwtable
 define void @write_reg_MB_STS(i32 %val) #0 {
 entry:
   %val.addr = alloca i32, align 4
@@ -24,7 +24,7 @@ entry:
   ret void
 }
 
-; Function Attrs: nounwind
+; Function Attrs: nounwind uwtable
 define void @write_reg_MB_R_CMD(i32 %val) #0 {
 entry:
   %val.addr = alloca i32, align 4
@@ -32,7 +32,7 @@ entry:
   ret void
 }
 
-; Function Attrs: nounwind
+; Function Attrs: nounwind uwtable
 define void @write_reg_MB_R_DAT0(i32 %val) #0 {
 entry:
   %val.addr = alloca i32, align 4
@@ -40,7 +40,7 @@ entry:
   ret void
 }
 
-; Function Attrs: nounwind
+; Function Attrs: nounwind uwtable
 define void @write_reg_MB_R_DAT1(i32 %val) #0 {
 entry:
   %val.addr = alloca i32, align 4
@@ -48,7 +48,7 @@ entry:
   ret void
 }
 
-; Function Attrs: nounwind
+; Function Attrs: nounwind uwtable
 define void @write_reg_MB_R_SIZE(i32 %val) #0 {
 entry:
   %val.addr = alloca i32, align 4
@@ -56,7 +56,7 @@ entry:
   ret void
 }
 
-; Function Attrs: nounwind
+; Function Attrs: nounwind uwtable
 define void @write_reg_MB_S_CMD(i32 %val) #0 {
 entry:
   %val.addr = alloca i32, align 4
@@ -71,7 +71,7 @@ entry:
   br label %while.cond
 
 while.cond:                                       ; preds = %while.body, %entry
-  %call = call i32 bitcast (i32 (...)* @read_reg_msg_slv2mst_dbm to i32 ()*)()
+  %call = call i32 (...) @read_reg_msg_slv2mst_dbm()
   %tobool = icmp ne i32 %call, 0
   br i1 %tobool, label %while.body, label %while.end
 
@@ -106,7 +106,7 @@ declare void @write_reg_msg_slv2mst_dat1(i32) #1
 
 declare void @write_reg_msg_slv2mst_db(i32) #1
 
-; Function Attrs: nounwind
+; Function Attrs: nounwind uwtable
 define void @write_reg_MB_S_DAT0(i32 %val) #0 {
 entry:
   %val.addr = alloca i32, align 4
@@ -116,7 +116,7 @@ entry:
   ret void
 }
 
-; Function Attrs: nounwind
+; Function Attrs: nounwind uwtable
 define void @write_reg_MB_S_DAT1(i32 %val) #0 {
 entry:
   %val.addr = alloca i32, align 4
@@ -126,7 +126,7 @@ entry:
   ret void
 }
 
-; Function Attrs: nounwind
+; Function Attrs: nounwind uwtable
 define void @write_reg_MB_S_SIZE(i32 %val) #0 {
 entry:
   %val.addr = alloca i32, align 4
@@ -136,45 +136,30 @@ entry:
   ret void
 }
 
-; Function Attrs: nounwind
+; Function Attrs: nounwind uwtable
 define void @write_reg_MB_ACK(i32 %val) #0 {
 entry:
   %val.addr = alloca i32, align 4
   %db = alloca i32, align 4
   store i32 %val, i32* %val.addr, align 4
-  %call = call i32 bitcast (i32 (...)* @read_reg_msg_mst2slv_db to i32 ()*)()
+  %call = call i32 (...) @read_reg_msg_mst2slv_db()
   store i32 %call, i32* %db, align 4
   %0 = load i32, i32* %db, align 4
   %shr = lshr i32 %0, 9
   store i32 %shr, i32* getelementptr inbounds (%struct.MB_REG_t, %struct.MB_REG_t* @hw_reg_MB, i32 0, i32 1, i32 0), align 4
-  %1 = load i32, i32* getelementptr inbounds (%struct.MB_REG_t, %struct.MB_REG_t* @hw_reg_MB, i32 0, i32 1, i32 0), align 4
-  %cmp = icmp eq i32 %1, 1
-  br i1 %cmp, label %lor.end, label %lor.rhs
-
-lor.rhs:                                          ; preds = %entry
-  %2 = load i32, i32* getelementptr inbounds (%struct.MB_REG_t, %struct.MB_REG_t* @hw_reg_MB, i32 0, i32 1, i32 0), align 4
-  %cmp1 = icmp eq i32 %2, 3
-  br label %lor.end
-
-lor.end:                                          ; preds = %lor.rhs, %entry
-  %3 = phi i1 [ true, %entry ], [ %cmp1, %lor.rhs ]
-  %lor.ext = zext i1 %3 to i32
-  call void @__VERIFIER_assert(i32 %lor.ext)
-  %4 = load i32, i32* %db, align 4
-  %shr2 = lshr i32 %4, 1
-  %and = and i32 %shr2, 255
+  %1 = load i32, i32* %db, align 4
+  %shr1 = lshr i32 %1, 1
+  %and = and i32 %shr1, 255
   store i32 %and, i32* getelementptr inbounds (%struct.MB_REG_t, %struct.MB_REG_t* @hw_reg_MB, i32 0, i32 4, i32 0), align 4
-  %call3 = call i32 bitcast (i32 (...)* @read_reg_msg_mst2slv_dat0 to i32 ()*)()
-  store i32 %call3, i32* getelementptr inbounds (%struct.MB_REG_t, %struct.MB_REG_t* @hw_reg_MB, i32 0, i32 2, i32 0), align 4
-  %call4 = call i32 bitcast (i32 (...)* @read_reg_msg_mst2slv_dat1 to i32 ()*)()
-  store i32 %call4, i32* getelementptr inbounds (%struct.MB_REG_t, %struct.MB_REG_t* @hw_reg_MB, i32 0, i32 3, i32 0), align 4
+  %call2 = call i32 (...) @read_reg_msg_mst2slv_dat0()
+  store i32 %call2, i32* getelementptr inbounds (%struct.MB_REG_t, %struct.MB_REG_t* @hw_reg_MB, i32 0, i32 2, i32 0), align 4
+  %call3 = call i32 (...) @read_reg_msg_mst2slv_dat1()
+  store i32 %call3, i32* getelementptr inbounds (%struct.MB_REG_t, %struct.MB_REG_t* @hw_reg_MB, i32 0, i32 3, i32 0), align 4
   call void @write_reg_msg_mst2slv_db(i32 0)
   ret void
 }
 
 declare i32 @read_reg_msg_mst2slv_db(...) #1
-
-declare void @__VERIFIER_assert(i32) #1
 
 declare i32 @read_reg_msg_mst2slv_dat0(...) #1
 
@@ -182,7 +167,7 @@ declare i32 @read_reg_msg_mst2slv_dat1(...) #1
 
 declare void @write_reg_msg_mst2slv_db(i32) #1
 
-; Function Attrs: nounwind
+; Function Attrs: nounwind uwtable
 define void @write_reg_MB_STS_busy(i32 %val) #0 {
 entry:
   %val.addr = alloca i32, align 4
@@ -190,76 +175,76 @@ entry:
   ret void
 }
 
-; Function Attrs: nounwind
+; Function Attrs: nounwind uwtable
 define i32 @read_reg_MB_STS() #0 {
 entry:
   %0 = load i32, i32* getelementptr inbounds (%struct.MB_REG_t, %struct.MB_REG_t* @hw_reg_MB, i32 0, i32 0, i32 0), align 4
   ret i32 %0
 }
 
-; Function Attrs: nounwind
+; Function Attrs: nounwind uwtable
 define i32 @read_reg_MB_R_CMD() #0 {
 entry:
   %0 = load i32, i32* getelementptr inbounds (%struct.MB_REG_t, %struct.MB_REG_t* @hw_reg_MB, i32 0, i32 1, i32 0), align 4
   ret i32 %0
 }
 
-; Function Attrs: nounwind
+; Function Attrs: nounwind uwtable
 define i32 @read_reg_MB_R_DAT0() #0 {
 entry:
   %0 = load i32, i32* getelementptr inbounds (%struct.MB_REG_t, %struct.MB_REG_t* @hw_reg_MB, i32 0, i32 2, i32 0), align 4
   ret i32 %0
 }
 
-; Function Attrs: nounwind
+; Function Attrs: nounwind uwtable
 define i32 @read_reg_MB_R_DAT1() #0 {
 entry:
   %0 = load i32, i32* getelementptr inbounds (%struct.MB_REG_t, %struct.MB_REG_t* @hw_reg_MB, i32 0, i32 3, i32 0), align 4
   ret i32 %0
 }
 
-; Function Attrs: nounwind
+; Function Attrs: nounwind uwtable
 define i32 @read_reg_MB_R_SIZE() #0 {
 entry:
   %0 = load i32, i32* getelementptr inbounds (%struct.MB_REG_t, %struct.MB_REG_t* @hw_reg_MB, i32 0, i32 4, i32 0), align 4
   ret i32 %0
 }
 
-; Function Attrs: nounwind
+; Function Attrs: nounwind uwtable
 define i32 @read_reg_MB_S_CMD() #0 {
 entry:
   %0 = load i32, i32* getelementptr inbounds (%struct.MB_REG_t, %struct.MB_REG_t* @hw_reg_MB, i32 0, i32 5, i32 0), align 4
   ret i32 %0
 }
 
-; Function Attrs: nounwind
+; Function Attrs: nounwind uwtable
 define i32 @read_reg_MB_S_DAT0() #0 {
 entry:
   %0 = load i32, i32* getelementptr inbounds (%struct.MB_REG_t, %struct.MB_REG_t* @hw_reg_MB, i32 0, i32 6, i32 0), align 4
   ret i32 %0
 }
 
-; Function Attrs: nounwind
+; Function Attrs: nounwind uwtable
 define i32 @read_reg_MB_S_DAT1() #0 {
 entry:
   %0 = load i32, i32* getelementptr inbounds (%struct.MB_REG_t, %struct.MB_REG_t* @hw_reg_MB, i32 0, i32 7, i32 0), align 4
   ret i32 %0
 }
 
-; Function Attrs: nounwind
+; Function Attrs: nounwind uwtable
 define i32 @read_reg_MB_S_SIZE() #0 {
 entry:
   %0 = load i32, i32* getelementptr inbounds (%struct.MB_REG_t, %struct.MB_REG_t* @hw_reg_MB, i32 0, i32 8, i32 0), align 4
   ret i32 %0
 }
 
-; Function Attrs: nounwind
+; Function Attrs: nounwind uwtable
 define i32 @read_reg_MB_ACK() #0 {
 entry:
   ret i32 0
 }
 
-; Function Attrs: nounwind
+; Function Attrs: nounwind uwtable
 define i32 @read_reg_MB_STS_busy() #0 {
 entry:
   %bf.load = load i32, i32* getelementptr inbounds (%struct.MB_REG_t, %struct.MB_REG_t* @hw_reg_MB, i32 0, i32 0, i32 0), align 4
@@ -267,8 +252,8 @@ entry:
   ret i32 %bf.lshr
 }
 
-attributes #0 = { nounwind "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="pentium4" "target-features"="+fxsr,+mmx,+sse,+sse2" "unsafe-fp-math"="false" "use-soft-float"="false" }
-attributes #1 = { "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="pentium4" "target-features"="+fxsr,+mmx,+sse,+sse2" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes #0 = { nounwind uwtable "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+fxsr,+mmx,+sse,+sse2" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes #1 = { "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+fxsr,+mmx,+sse,+sse2" "unsafe-fp-math"="false" "use-soft-float"="false" }
 
 !llvm.ident = !{!0}
 
