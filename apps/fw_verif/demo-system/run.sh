@@ -9,7 +9,7 @@ REP_BPL=$(pwd)/main.r.bpl
 SMACK_LIB=$(pwd)/smack
 SCRIPT_PATH=$HOME/workspace/ILA/apps/fw_verif/utils
 
-clang -emit-llvm -S -std=c11 -I $SMACK_LIB/include -DFAB_LOCK -DCTX_LOCK -UINT_LOCK -UMEM_CHECK $FW_SRC/*.c
+clang -emit-llvm -S -std=c11 -I $SMACK_LIB/include -DFAB_LOCK -DCTX_LOCK -DINT_LOCK -UMEM_CHECK $FW_SRC/*.c
 mv *.ll $LLVM_SRC
 
 for f in $LLVM_SRC/*.ll
@@ -21,4 +21,4 @@ done
 
 smack --pthread --context-bound 3 --bit-precise -v $LLVM_TAR/*.ll -t -bpl $OBJ_BPL
 python $SCRIPT_PATH/bplReplacePthread.py $OBJ_BPL $REP_BPL
-smack -v --time-limit 5400 $REP_BPL -w err.log
+smack -v --time-limit 5400 $REP_BPL #-w err.log
