@@ -1,0 +1,4 @@
+1. let the master be the main thread, instead of adding one more redundant thread.
+2. limit the number of interrupt by not using an infinite loop (bound handling)
+3. master trigger interrupt and create a new thread, close when interrupt handler completes.
+4. see if for loop really affect the correctness

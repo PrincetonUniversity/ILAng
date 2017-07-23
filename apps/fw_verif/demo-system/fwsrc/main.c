@@ -66,6 +66,12 @@ void* entrySlv (void* in) {
 }
 
 void* entryHdl (void* in) {
+    while (reg_slv_int == 0);
+    intHdl ();
+    while (reg_slv_int == 0);
+    intHdl ();
+
+    /*
     while (!mstCpl || !slvCpl) {
 #ifdef INT_LOCK
         pthread_mutex_lock (&int_lock);
@@ -75,6 +81,7 @@ void* entryHdl (void* in) {
         intHdl ();
 #endif
     }
+    */
     intCpl = 1;
     return in;
 }
@@ -102,17 +109,16 @@ int main () {
 #endif // CTX_LOCK
 
     pthread_t tidMst, tidSlv, tidHdl;
+    pthread_create (&tidHdl, NULL, entryHdl, NULL);
     pthread_create (&tidMst, NULL, entryMst, NULL);
     pthread_create (&tidSlv, NULL, entrySlv, NULL);
-    pthread_create (&tidHdl, NULL, entryHdl, NULL);
 
-#ifdef MEM_CHECK
     while (!mstCpl || !slvCpl || !intCpl);
-#else // MEM_CHECK
+    /*
     pthread_join (tidMst, NULL);
     pthread_join (tidSlv, NULL);
     pthread_join (tidHdl, NULL);
-#endif // MEM_CHECK
+    */
 
 #ifdef INT_LOCK
     pthread_mutex_destroy (&int_lock);

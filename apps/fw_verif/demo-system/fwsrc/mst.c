@@ -31,6 +31,7 @@ void mainMst () {
     char* mstBuff = (char*) calloc (1, imgSize);
     memcpy (mst_sram, mstBuff, imgSize);
 
+    assert (0);
     // 4. send ready message to slave to indicate image ready
     sendMsgMst2Slv (CMD_IMAGE_READY, &imgSize, 1);
 
@@ -52,9 +53,13 @@ void mainMst () {
 void sendMsgMst2Slv (uint32_t cmd, uint32_t* data, uint8_t dataSize) {
     while (HW_REG_READ (MST_HW_BASE+MST_HW_OFF_MST2SLV_DBM));
 
+    /*
     for (uint8_t i = 0; (i < dataSize) && (i < MAX_DATA_LENGTH); i++) {
         HW_REG_WRITE (MST_HW_BASE+MST_HW_OFF_MST2SLV_DAT0+i, data[i]);
     }
+    */
+    if (dataSize == 1)
+        HW_REG_WRITE (MST_HW_BASE+MST_HW_OFF_MST2SLV_DAT0, data[0]);
 
     uint32_t db = (cmd << 9) | (dataSize << 1) | 0x1;
     HW_REG_WRITE (MST_HW_BASE+MST_HW_OFF_MST2SLV_DB, db);
@@ -74,9 +79,15 @@ void receiveMsgSlv2Mst (uint32_t* cmd, uint32_t* data, uint8_t* dataSize) {
     uint32_t db = HW_REG_READ (MST_HW_BASE+MST_HW_OFF_SLV2MST_DB);
     *cmd = db >> 9;
     *dataSize = (db >> 1) & 0xff;
-    for (uint8_t i = 0; (i < *dataSize) && (i < MAX_DATA_LENGTH); i++) {
+    /* XXX
+    for (uint8_t i = 0; i < MAX_DATA_LENGTH; i++) {
         data[i] = HW_REG_READ (MST_HW_BASE+MST_HW_OFF_SLV2MST_DAT0+i);
     }
+    */
+    data[0] = HW_REG_READ (MST_HW_BASE+MST_HW_OFF_SLV2MST_DAT0);
+    data[1] = HW_REG_READ (MST_HW_BASE+MST_HW_OFF_SLV2MST_DAT1);
+
+    //assert ((*dataSize == 1) || (*dataSize == 0));
 
     HW_REG_WRITE (MST_HW_BASE+MST_HW_OFF_SLV2MST_DB, 0);
 

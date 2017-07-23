@@ -55,7 +55,7 @@ void HW_REG_WRITE (uint32_t addr, uint32_t val) {
             write_reg_msg_slv2mst_dat1 (val);
             break;
         default:
-            //assert (0);
+            assert (0);
             break;
     }
     FAB_REG_UNLOCK ();
@@ -96,7 +96,7 @@ uint32_t HW_REG_READ (uint32_t addr) {
             res = read_reg_msg_slv2mst_dat1 ();
             break;
         default:
-            //assert (0);
+            assert (0);
             break;
     }
     FAB_REG_UNLOCK ();

@@ -16,6 +16,7 @@ uint32_t gMbCtx[MB_SPACE_SIZE]   = {0};
 void mainSlv () {
     // 1. wait for image ready flag and image size
     while (!gSlvFlag[SLV_FLAG_IMG_RDY]);
+    //assert (0);
     
 #ifdef INT_LOCK
     pthread_mutex_lock (&int_lock);
@@ -25,7 +26,7 @@ void mainSlv () {
     char* slvBuff = (char*) malloc (gSlvFlag[SLV_FLAG_IMG_SIZE]);
     memcpy (slvBuff, mst_sram, gSlvFlag[SLV_FLAG_IMG_SIZE]);
 
-    assert (gSlvFlag[SLV_FLAG_IMG_SIZE] <= MAX_SRAM_SIZE);
+    //assert (gSlvFlag[SLV_FLAG_IMG_SIZE] <= MAX_SRAM_SIZE);
 
     // 3. send message to master indicating copy done
     gMbCtx[MB_SPACE_OFF_S_CMD] = CMD_IMAGE_DONE;
@@ -105,11 +106,11 @@ void handleCmd () {
         case CMD_IMAGE_READY:
             //assert (gMbCtx[MB_SPACE_OFF_R_SIZE] == 1);
             // XXX potential false positive in interrupt handling
-            gSlvFlag[SLV_FLAG_IMG_RDY] = 1;
             gSlvFlag[SLV_FLAG_IMG_SIZE] = gMbCtx[MB_SPACE_OFF_R_DAT0];
+            gSlvFlag[SLV_FLAG_IMG_RDY] = 1;
             break;
         default:
-            //assert (0);
+            assert (0);
             break;
     };
 
