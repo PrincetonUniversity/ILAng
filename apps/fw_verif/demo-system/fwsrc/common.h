@@ -23,5 +23,6 @@ extern char mst_sram[];
 
 extern pthread_mutex_t int_lock;
 extern pthread_mutex_t fab_lock;
+extern pthread_mutex_t ctx_lock;
 
 #endif // __COMMON_H__

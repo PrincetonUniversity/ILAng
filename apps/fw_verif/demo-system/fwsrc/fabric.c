@@ -25,6 +25,9 @@ void FAB_REG_UNLOCK () {
 }
 
 void HW_REG_WRITE (uint32_t addr, uint32_t val) {
+#ifdef CTX_OPT
+    pthread_mutex_unlock (&ctx_lock);
+#endif
     FAB_REG_LOCK ();
     switch (addr) {
         case FAB_HW_BASE+FAB_HW_OFF_SLV2MST_DBM:
@@ -56,9 +59,15 @@ void HW_REG_WRITE (uint32_t addr, uint32_t val) {
             break;
     }
     FAB_REG_UNLOCK ();
+#ifdef CTX_OPT
+    pthread_mutex_lock (&ctx_lock);
+#endif // CTX_OPT
 }
 
 uint32_t HW_REG_READ (uint32_t addr) {
+#ifdef CTX_OPT
+    pthread_mutex_unlock (&ctx_lock);
+#endif // CTX_OPT
     FAB_REG_LOCK ();
     uint32_t res = 0;
     switch (addr) {
@@ -91,6 +100,9 @@ uint32_t HW_REG_READ (uint32_t addr) {
             break;
     }
     FAB_REG_UNLOCK ();
+#ifdef CTX_OPT
+    pthread_mutex_lock (&ctx_lock);
+#endif // CTX_OPT
     return res;
 }
 

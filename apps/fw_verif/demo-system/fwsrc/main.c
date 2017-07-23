@@ -28,18 +28,40 @@ pthread_mutex_t int_lock;
 pthread_mutex_t fab_lock;
 #endif // FAB_LOCK
 
+#ifdef CTX_OPT
+pthread_mutex_t ctx_lock;
+#endif // CTX_OPT
+
 /* Firmware entries
    master firmware, slave firmware, and slave interrupt handler
 */
 void* entryMst (void* in) {
+#ifdef CTX_OPT
+    pthread_mutex_lock (&ctx_lock);
+#endif // CTX_OPT
+
     mainMst ();
     mstCpl = 1;
+
+#ifdef CTX_OPT
+    pthread_mutex_unlock (&ctx_lock);
+#endif // CTX_OPT
+
     return in;
 }
 
 void* entrySlv (void* in) {
+#ifdef CTX_OPT
+    pthread_mutex_lock (&ctx_lock);
+#endif // CTX_OPT
+
     mainSlv ();
     slvCpl = 1;
+
+#ifdef CTX_OPT
+    pthread_mutex_unlock (&ctx_lock);
+#endif // CTX_OPT
+
     return in;
 }
 
@@ -75,6 +97,10 @@ int main () {
     pthread_mutex_init (&fab_lock, NULL);
 #endif // FAB_LOCK
 
+#ifdef CTX_OPT
+    pthread_mutex_init (&ctx_lock, NULL);
+#endif // CTX_OPT
+
     pthread_t tidMst, tidSlv, tidHdl;
     pthread_create (&tidMst, NULL, entryMst, NULL);
     pthread_create (&tidSlv, NULL, entrySlv, NULL);
@@ -95,6 +121,10 @@ int main () {
 #ifdef FAB_LOCK
     pthread_mutex_destroy (&fab_lock);
 #endif // FAB_LOCK
+
+#ifdef CTX_OPT
+    pthread_mutex_destroy (&ctx_lock);
+#endif // CTX_OPT
 
     return 0;
 }
