@@ -16,7 +16,6 @@ uint32_t gMbCtx[MB_SPACE_SIZE]   = {0};
 void mainSlv () {
     // 1. wait for image ready flag and image size
     while (!gSlvFlag[SLV_FLAG_IMG_RDY]);
-    //assert (0);
     
 #ifdef INT_LOCK
     pthread_mutex_lock (&int_lock);
@@ -25,7 +24,7 @@ void mainSlv () {
     // 2. copy from master sram to local buffer
     char* slvBuff = (char*) malloc (gSlvFlag[SLV_FLAG_IMG_SIZE]);
     memcpy (slvBuff, mst_sram, gSlvFlag[SLV_FLAG_IMG_SIZE]);
-
+    
     //assert (gSlvFlag[SLV_FLAG_IMG_SIZE] <= MAX_SRAM_SIZE);
 
     // 3. send message to master indicating copy done
