@@ -6,8 +6,6 @@
 uint32_t gSlvFlag[SLV_FLAG_SIZE] = {0};
 uint32_t gMbCtx[MB_SPACE_SIZE]   = {0};
 
-// TODO: interrupt lock
-
 /* mainSlv: slave firmware main function
  * 1. wait for image ready flag and image size
  * 2. copy from master sram to local buffer
@@ -22,8 +20,10 @@ void mainSlv () {
 #endif // INT_LOCK
 
     // 2. copy from master sram to local buffer
+#ifdef MEM_OP
     char* slvBuff = (char*) malloc (gSlvFlag[SLV_FLAG_IMG_SIZE]);
     memcpy (slvBuff, mst_sram, gSlvFlag[SLV_FLAG_IMG_SIZE]);
+#endif // MEM_OP
     
     //assert (gSlvFlag[SLV_FLAG_IMG_SIZE] <= MAX_SRAM_SIZE);
 
@@ -31,7 +31,9 @@ void mainSlv () {
     gMbCtx[MB_SPACE_OFF_S_CMD] = CMD_IMAGE_DONE;
     gMbCtx[MB_SPACE_OFF_S_SIZE] = 0;
     sendMsgSlv2Mst ();
+#ifdef MEM_OP
     free (slvBuff);
+#endif // MEM_OP
 
 #ifdef INT_LOCK
     pthread_mutex_unlock (&int_lock);
@@ -65,6 +67,14 @@ void intHdl () {
     // Only when interrupted
     if (reg_slv_int == 0) return;
 
+#ifdef CTX_LOCK
+#ifdef MUTEX
+    pthread_mutex_lock (&ctx_lock);
+#else // MUTEX
+    __VERIFIER_atomic_begin ();
+#endif // MUTEX
+#endif // CTX_LOCK
+
     // 1. get register data to local copy
     getMbCtx ();
 
@@ -73,6 +83,14 @@ void intHdl () {
 
     // reset interrupt signal (enable)
     reg_slv_int = 0;
+
+#ifdef CTX_LOCK
+#ifdef MUTEX
+    pthread_mutex_unlock (&ctx_lock);
+#else // MUTEX
+    __VERIFIER_atomic_end ();
+#endif // MUTEX
+#endif // CTX_LOCK
 
     return;
 }

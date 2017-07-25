@@ -12,23 +12,7 @@ uint32_t reg_msg_slv2mst_dat0;
 uint32_t reg_msg_slv2mst_dat1;
 uint32_t reg_msg_slv2mst_dbm;
 
-void FAB_REG_LOCK () {
-#ifdef FAB_LOCK
-    pthread_mutex_lock (&fab_lock);
-#endif
-}
-
-void FAB_REG_UNLOCK () {
-#ifdef FAB_LOCK
-    pthread_mutex_unlock (&fab_lock);
-#endif
-}
-
 void HW_REG_WRITE (uint32_t addr, uint32_t val) {
-#ifdef CTX_LOCK
-    pthread_mutex_unlock (&ctx_lock);
-#endif
-    FAB_REG_LOCK ();
     switch (addr) {
         case FAB_HW_BASE+FAB_HW_OFF_SLV2MST_DBM:
             write_reg_msg_slv2mst_dbm (val);
@@ -58,17 +42,9 @@ void HW_REG_WRITE (uint32_t addr, uint32_t val) {
             assert (0);
             break;
     }
-    FAB_REG_UNLOCK ();
-#ifdef CTX_LOCK
-    pthread_mutex_lock (&ctx_lock);
-#endif // CTX_LOCK
 }
 
 uint32_t HW_REG_READ (uint32_t addr) {
-#ifdef CTX_LOCK
-    pthread_mutex_unlock (&ctx_lock);
-#endif // CTX_LOCK
-    FAB_REG_LOCK ();
     uint32_t res = 0;
     switch (addr) {
         case FAB_HW_BASE+FAB_HW_OFF_SLV2MST_DBM:
@@ -99,81 +75,312 @@ uint32_t HW_REG_READ (uint32_t addr) {
             assert (0);
             break;
     }
-    FAB_REG_UNLOCK ();
-#ifdef CTX_LOCK
-    pthread_mutex_lock (&ctx_lock);
-#endif // CTX_LOCK
     return res;
 }
 
 void write_reg_msg_mst2slv_db (uint32_t val) {
+#ifdef CTX_LOCK
+#ifdef MUTEX
+    pthread_mutex_unlock (&ctx_lock);
+#else //MUTEX
+    __VERIFIER_atomic_end ();
+#endif // MUtEX
+#endif // CTX_LOCK
+
     if (val != 0)
         while (reg_slv_int);
+#ifdef FAB_LOCK
+    __VERIFIER_atomic_begin ();
+#endif // FAB_LOCK
+
+    if (val != 0)
+        assert (reg_slv_int == 0);
 
     reg_msg_mst2slv_db = val;
     reg_msg_mst2slv_dbm = val;
 
     reg_slv_int = 1;
+#ifdef FAB_LOCK
+    __VERIFIER_atomic_end ();
+#endif // FAB_LOCK
+
+#ifdef CTX_LOCK
+#ifdef MUTEX
+    pthread_mutex_lock (&ctx_lock);
+#else //MUTEX
+    __VERIFIER_atomic_begin ();
+#endif // MUtEX
+#endif // CTX_LOCK
 }
 
 void write_reg_msg_mst2slv_dbm (uint32_t val) {
+#ifdef CTX_LOCK
+#ifdef MUTEX
+    pthread_mutex_unlock (&ctx_lock);
+    pthread_mutex_lock (&ctx_lock);
+#else //MUTEX
+    __VERIFIER_atomic_end ();
+    __VERIFIER_atomic_begin ();
+#endif // MUtEX
+#endif // CTX_LOCK
     return;
 }
 
 void write_reg_msg_mst2slv_dat0 (uint32_t val) {
+#ifdef CTX_LOCK
+#ifdef MUTEX
+    pthread_mutex_unlock (&ctx_lock);
+#else //MUTEX
+    __VERIFIER_atomic_end ();
+#endif // MUtEX
+#endif // CTX_LOCK
+
+#ifdef FAB_LOCK
+    __VERIFIER_atomic_begin ();
+#endif // FAB_LOCK
+
     reg_msg_mst2slv_dat0 = val;
+
+#ifdef FAB_LOCK
+    __VERIFIER_atomic_end ();
+#endif // FAB_LOCK
+
+#ifdef CTX_LOCK
+#ifdef MUTEX
+    pthread_mutex_lock (&ctx_lock);
+#else //MUTEX
+    __VERIFIER_atomic_begin ();
+#endif // MUtEX
+#endif // CTX_LOCK
 }
 
 void write_reg_msg_mst2slv_dat1 (uint32_t val) {
+#ifdef CTX_LOCK
+#ifdef MUTEX
+    pthread_mutex_unlock (&ctx_lock);
+#else //MUTEX
+    __VERIFIER_atomic_end ();
+#endif // MUtEX
+#endif // CTX_LOCK
+
+#ifdef FAB_LOCK
+    __VERIFIER_atomic_begin ();
+#endif // FAB_LOCK
+
     reg_msg_mst2slv_dat1 = val;
+
+#ifdef FAB_LOCK
+    __VERIFIER_atomic_end ();
+#endif // FAB_LOCK
+
+#ifdef CTX_LOCK
+#ifdef MUTEX
+    pthread_mutex_lock (&ctx_lock);
+#else //MUTEX
+    __VERIFIER_atomic_begin ();
+#endif // MUtEX
+#endif // CTX_LOCK
 }
 
 void write_reg_msg_slv2mst_db (uint32_t val) {
+#ifdef CTX_LOCK
+#ifdef MUTEX
+    pthread_mutex_unlock (&ctx_lock);
+#else //MUTEX
+    __VERIFIER_atomic_end ();
+#endif // MUtEX
+#endif // CTX_LOCK
+
+#ifdef FAB_LOCK
+    __VERIFIER_atomic_begin ();
+#endif // FAB_LOCK
+
     reg_msg_slv2mst_db = val;
     reg_msg_slv2mst_dbm = val;
+
+#ifdef FAB_LOCK
+    __VERIFIER_atomic_end ();
+#endif // FAB_LOCK
+
+#ifdef CTX_LOCK
+#ifdef MUTEX
+    pthread_mutex_lock (&ctx_lock);
+#else //MUTEX
+    __VERIFIER_atomic_begin ();
+#endif // MUtEX
+#endif // CTX_LOCK
 }
 
 void write_reg_msg_slv2mst_dbm (uint32_t val) {
+#ifdef CTX_LOCK
+#ifdef MUTEX
+    pthread_mutex_unlock (&ctx_lock);
+    pthread_mutex_lock (&ctx_lock);
+#else //MUTEX
+    __VERIFIER_atomic_end ();
+    __VERIFIER_atomic_begin ();
+#endif // MUtEX
+#endif // CTX_LOCK
     return;
 }
 
 void write_reg_msg_slv2mst_dat0 (uint32_t val) {
+#ifdef CTX_LOCK
+#ifdef MUTEX
+    pthread_mutex_unlock (&ctx_lock);
+#else //MUTEX
+    __VERIFIER_atomic_end ();
+#endif // MUtEX
+#endif // CTX_LOCK
+
+#ifdef FAB_LOCK
+    __VERIFIER_atomic_begin ();
+#endif // FAB_LOCK
+
     reg_msg_slv2mst_dat0 = val;
+
+#ifdef FAB_LOCK
+    __VERIFIER_atomic_end ();
+#endif // FAB_LOCK
+
+#ifdef CTX_LOCK
+#ifdef MUTEX
+    pthread_mutex_lock (&ctx_lock);
+#else //MUTEX
+    __VERIFIER_atomic_begin ();
+#endif // MUtEX
+#endif // CTX_LOCK
 }
 
 void write_reg_msg_slv2mst_dat1 (uint32_t val) {
+#ifdef CTX_LOCK
+#ifdef MUTEX
+    pthread_mutex_unlock (&ctx_lock);
+#else //MUTEX
+    __VERIFIER_atomic_end ();
+#endif // MUtEX
+#endif // CTX_LOCK
+
+#ifdef FAB_LOCK
+    __VERIFIER_atomic_begin ();
+#endif // FAB_LOCK
+
     reg_msg_slv2mst_dat1 = val;
+
+#ifdef FAB_LOCK
+    __VERIFIER_atomic_end ();
+#endif // FAB_LOCK
+
+#ifdef CTX_LOCK
+#ifdef MUTEX
+    pthread_mutex_lock (&ctx_lock);
+#else //MUTEX
+    __VERIFIER_atomic_begin ();
+#endif // MUtEX
+#endif // CTX_LOCK
 }
 
 uint32_t read_reg_msg_mst2slv_db () {
+#ifdef CTX_LOCK
+#ifdef MUTEX
+    pthread_mutex_unlock (&ctx_lock);
+    pthread_mutex_lock (&ctx_lock);
+#else //MUTEX
+    __VERIFIER_atomic_end ();
+    __VERIFIER_atomic_begin ();
+#endif // MUtEX
+#endif // CTX_LOCK
     return reg_msg_mst2slv_db;
 }
 
 uint32_t read_reg_msg_mst2slv_dbm () {
+#ifdef CTX_LOCK
+#ifdef MUTEX
+    pthread_mutex_unlock (&ctx_lock);
+    pthread_mutex_lock (&ctx_lock);
+#else //MUTEX
+    __VERIFIER_atomic_end ();
+    __VERIFIER_atomic_begin ();
+#endif // MUtEX
+#endif // CTX_LOCK
     return reg_msg_mst2slv_dbm;
 }
 
 uint32_t read_reg_msg_mst2slv_dat0 () {
+#ifdef CTX_LOCK
+#ifdef MUTEX
+    pthread_mutex_unlock (&ctx_lock);
+    pthread_mutex_lock (&ctx_lock);
+#else //MUTEX
+    __VERIFIER_atomic_end ();
+    __VERIFIER_atomic_begin ();
+#endif // MUtEX
+#endif // CTX_LOCK
     return reg_msg_mst2slv_dat0;
 }
 
 uint32_t read_reg_msg_mst2slv_dat1 () {
+#ifdef CTX_LOCK
+#ifdef MUTEX
+    pthread_mutex_unlock (&ctx_lock);
+    pthread_mutex_lock (&ctx_lock);
+#else //MUTEX
+    __VERIFIER_atomic_end ();
+    __VERIFIER_atomic_begin ();
+#endif // MUtEX
+#endif // CTX_LOCK
     return reg_msg_mst2slv_dat1;
 }
 
 uint32_t read_reg_msg_slv2mst_db () {
+#ifdef CTX_LOCK
+#ifdef MUTEX
+    pthread_mutex_unlock (&ctx_lock);
+    pthread_mutex_lock (&ctx_lock);
+#else //MUTEX
+    __VERIFIER_atomic_end ();
+    __VERIFIER_atomic_begin ();
+#endif // MUtEX
+#endif // CTX_LOCK
     return reg_msg_slv2mst_db;
 }
 
 uint32_t read_reg_msg_slv2mst_dbm () { 
+#ifdef CTX_LOCK
+#ifdef MUTEX
+    pthread_mutex_unlock (&ctx_lock);
+    pthread_mutex_lock (&ctx_lock);
+#else //MUTEX
+    __VERIFIER_atomic_end ();
+    __VERIFIER_atomic_begin ();
+#endif // MUtEX
+#endif // CTX_LOCK
     return reg_msg_slv2mst_dbm;
 }
 
 uint32_t read_reg_msg_slv2mst_dat0 () { 
+#ifdef CTX_LOCK
+#ifdef MUTEX
+    pthread_mutex_unlock (&ctx_lock);
+    pthread_mutex_lock (&ctx_lock);
+#else //MUTEX
+    __VERIFIER_atomic_end ();
+    __VERIFIER_atomic_begin ();
+#endif // MUtEX
+#endif // CTX_LOCK
     return reg_msg_slv2mst_dat0;
 }
 
 uint32_t read_reg_msg_slv2mst_dat1 () { 
+#ifdef CTX_LOCK
+#ifdef MUTEX
+    pthread_mutex_unlock (&ctx_lock);
+    pthread_mutex_lock (&ctx_lock);
+#else //MUTEX
+    __VERIFIER_atomic_end ();
+    __VERIFIER_atomic_begin ();
+#endif // MUtEX
+#endif // CTX_LOCK
     return reg_msg_slv2mst_dat1;
 }
 

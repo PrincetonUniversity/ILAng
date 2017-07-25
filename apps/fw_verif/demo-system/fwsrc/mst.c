@@ -28,11 +28,11 @@ void mainMst () {
     // 3. prepare image chunk
     uint32_t imgSize = (recDataSize >= 1 && recData[0] <= MAX_SRAM_SIZE)?
                        recData[0]: MAX_SRAM_SIZE;
+#ifdef MEM_OP
     char* mstBuff = (char*) calloc (1, imgSize);
     memcpy (mst_sram, mstBuff, imgSize);
+#endif // MEM_OP
     
-    //uint32_t imgSize = 1;
-
     // 4. send ready message to slave to indicate image ready
     sendMsgMst2Slv (CMD_IMAGE_READY, &imgSize, 1);
 
@@ -40,7 +40,10 @@ void mainMst () {
     receiveMsgSlv2Mst (&recCmd, recData, &recDataSize);
 
     // 6. remove image chunk
+#ifdef MEM_OP
     free (mstBuff);
+#endif // MEM_OP
+    assert (0);
 
     return;
 }

@@ -25,11 +25,15 @@ pthread_mutex_t int_lock;
 #endif // INT_LOCK
 
 #ifdef FAB_LOCK
+#ifdef MUTEX
 pthread_mutex_t fab_lock;
+#endif // MUTEX
 #endif // FAB_LOCK
 
 #ifdef CTX_LOCK
+#ifdef MUTEX
 pthread_mutex_t ctx_lock;
+#endif // MUTEX
 #endif // CTX_LOCK
 
 /* Firmware entries
@@ -37,14 +41,22 @@ pthread_mutex_t ctx_lock;
 */
 void* entryMst (void* in) {
 #ifdef CTX_LOCK
+#ifdef MUTEX
     pthread_mutex_lock (&ctx_lock);
+#else // MUTEX
+    __VERIFIER_atomic_begin ();
+#endif // MUTEX
 #endif // CTX_LOCK
 
     mainMst ();
     mstCpl = 1;
 
 #ifdef CTX_LOCK
+#ifdef MUTEX
     pthread_mutex_unlock (&ctx_lock);
+#else // MUTEX
+    __VERIFIER_atomic_end ();
+#endif // MUTEX
 #endif // CTX_LOCK
 
     return in;
@@ -52,14 +64,22 @@ void* entryMst (void* in) {
 
 void* entrySlv (void* in) {
 #ifdef CTX_LOCK
+#ifdef MUTEX
     pthread_mutex_lock (&ctx_lock);
+#else // MUTEX
+    __VERIFIER_atomic_begin ();
+#endif // MUTEX
 #endif // CTX_LOCK
 
     mainSlv ();
     slvCpl = 1;
 
 #ifdef CTX_LOCK
+#ifdef MUTEX
     pthread_mutex_unlock (&ctx_lock);
+#else // MUTEX
+    __VERIFIER_atomic_end ();
+#endif // MUTEX
 #endif // CTX_LOCK
 
     return in;
@@ -101,11 +121,15 @@ int main () {
 #endif // INT_LOCK
 
 #ifdef FAB_LOCK
+#ifdef MUTEX
     pthread_mutex_init (&fab_lock, NULL);
+#endif // MUTEX
 #endif // FAB_LOCK
 
 #ifdef CTX_LOCK
+#ifdef MUTEX
     pthread_mutex_init (&ctx_lock, NULL);
+#endif // MUTEX
 #endif // CTX_LOCK
 
     pthread_t tidMst, tidSlv, tidHdl;
@@ -113,23 +137,25 @@ int main () {
     pthread_create (&tidMst, NULL, entryMst, NULL);
     pthread_create (&tidSlv, NULL, entrySlv, NULL);
 
-    while (!mstCpl || !slvCpl || !intCpl);
-    /*
+    //while (!mstCpl || !slvCpl || !intCpl);
     pthread_join (tidMst, NULL);
     pthread_join (tidSlv, NULL);
     pthread_join (tidHdl, NULL);
-    */
 
 #ifdef INT_LOCK
     pthread_mutex_destroy (&int_lock);
 #endif // INT_LOCK
 
 #ifdef FAB_LOCK
+#ifdef MUTEX
     pthread_mutex_destroy (&fab_lock);
+#endif // MUTEX
 #endif // FAB_LOCK
 
 #ifdef CTX_LOCK
+#ifdef MUTEX
     pthread_mutex_destroy (&ctx_lock);
+#endif // MUTEX
 #endif // CTX_LOCK
 
     return 0;
