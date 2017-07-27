@@ -104,10 +104,17 @@ def process (srcFile, hwMap, outFile) :
             state = FSM.REGNAME
         elif state == FSM.REGNAME:
             assert 'getelementptr inbounds' in line, 'Unexpected llvm pattern'
-            if words[-1] == '0':
-                state = FSM.OPERATE
+            if words[-2] == '!dbg':
+                if words[-3] == '0,':
+                    state = FSM.OPERATE
+                else:
+                    state = FSM.OFFSET
             else:
-                state = FSM.OFFSET
+                if words[-1] == '0':
+                    state = FSM.OPERATE
+                else:
+                    state = FSM.OFFSET
+
             reg = words[4]
             reg = reg.split (',')[0]
             reg = reg.split('%')[1]
@@ -116,7 +123,11 @@ def process (srcFile, hwMap, outFile) :
         elif state == FSM.OFFSET:
             assert 'getelementptr inbounds' in line, 'Unexpected llvm pattern'
             state = FSM.OPERATE
-            off = words[-1] # XXX starting from 0
+            # XXX starting from 0
+            if words[-2] == '!dbg':
+                off = words[-3].split (',')[0]
+            else:
+                off = words[-1] 
         elif state == FSM.OPERATE:
             if words[2] == 'load':
                 var = words[0]
