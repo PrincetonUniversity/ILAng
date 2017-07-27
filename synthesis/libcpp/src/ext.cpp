@@ -487,7 +487,7 @@ BOOST_PYTHON_MODULE(ila)
         .def("bmcCond", &AbstractionWrapper::bmcCond, (arg("assertion"), arg("bound"), arg("assumpt")))
 
         // configure Verilg export
-        .def("verilogExpConfig",&AbstractionWrapper::setVlgExpConfig, (arg("externalMemory"), arg("funcAsModule")))
+        .def("verilogExpConfig",&AbstractionWrapper::setVlgExpConfig, (arg("externalMemory"), arg("funcAsModule"), arg("funcAsNondet") ))
         
         .add_property("fetch_expr", 
             make_function(&AbstractionWrapper::getFetchExpr, return_value_policy<manage_new_object>()), 

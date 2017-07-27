@@ -225,6 +225,9 @@ namespace ila
 
         ILA_ASSERT( (funcvar = dynamic_cast<const FuncVar *>(np.var.get()) ), "function variable type mismatched.");
 
+        if( funcvar->type.argsWidth.size() == 0 && FuncAsNondet ) // in this case
+            return; // we don't need to generate the declaration
+        
         if(FunctionAsModule) {
             vlg_stmt_t funcModDef = "module fun_" + funcvar->getName() + " (\n";
             int argNo = 1;
@@ -545,26 +548,36 @@ namespace ila
             result_stmt = vlg_stmt_t(" ( ") + arg1 + " ) ? ( " +  arg2 + " ) : ( " + arg3 + " )";
         } else if (op == BitvectorOp::APPLY_FUNC) {
             const Node * funcVar = bvop->arg(0).get();
-            if(FunctionAsModule) {
-                result_stmt = NewId();
-                add_wire(result_stmt, get_width(funcVar) );
-                vlg_stmt_t funcInstantiation = "fun_"+ funcVar->getName() + "  "+"applyFunc_"+NewId() + "(\n";
-                int arity = bvop->nArgs();
-                for (int i = 1; i != arity; i++) {
-                    funcInstantiation +=  "    .arg"+toStr(i)+"( " + getArg(bvop, i) + " ),\n";
+            // Export function as nondet values
+            // I would just add it as inputs
+            if( bvop->nArgs() == 1 && FuncAsNondet) {
+                result_stmt = vlg_name_t("nondet_") + NewId();
+                int width = get_width(funcVar);
+                add_wire (result_stmt,width);
+                add_input(result_stmt,width);
                 }
-                funcInstantiation += "    .result( " + result_stmt + " )\n" ;
-                funcInstantiation += ");";
-                add_stmt(funcInstantiation);
-            }
-            else {
-                result_stmt = funcVar->getName() + "(";
-                vlg_stmt_t arg_stmt = getArg(bvop, 1);
-                int arity = bvop->nArgs();
-                for (int i = 2; i != arity; i++) 
-                    arg_stmt = arg_stmt +  " , " + getArg(bvop, i) ;
-                result_stmt = result_stmt + arg_stmt + ")";
-            }
+            else { // if it is really a function
+                if(FunctionAsModule) {
+                    result_stmt = NewId();
+                    add_wire(result_stmt, get_width(funcVar) );
+                    vlg_stmt_t funcInstantiation = "fun_"+ funcVar->getName() + "  "+"applyFunc_"+NewId() + "(\n";
+                    int arity = bvop->nArgs();
+                    for (int i = 1; i != arity; i++) {
+                        funcInstantiation +=  "    .arg"+toStr(i)+"( " + getArg(bvop, i) + " ),\n";
+                    }
+                    funcInstantiation += "    .result( " + result_stmt + " )\n" ;
+                    funcInstantiation += ");";
+                    add_stmt(funcInstantiation);
+                }
+                else {
+                    result_stmt = funcVar->getName() + "(";
+                    vlg_stmt_t arg_stmt = getArg(bvop, 1);
+                    int arity = bvop->nArgs();
+                    for (int i = 2; i != arity; i++) 
+                        arg_stmt = arg_stmt +  " , " + getArg(bvop, i) ;
+                    result_stmt = result_stmt + arg_stmt + ")";
+                }
+           }
         } else {
             log1 ("VerilogExport") << BitvectorOp::operatorNames[op] << " not supported.\n";
             ILA_ASSERT(false,"Operator not supported.");
@@ -776,6 +789,7 @@ namespace ila
         , idCounter(0)
         , ExternalMem(config._extMem)
         , FunctionAsModule(config._fmodule)
+        , FuncAsNondet(config._fnondet)
     {
 
     }

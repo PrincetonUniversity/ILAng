@@ -15,7 +15,13 @@ namespace ila
     struct VlgExportConfig{
         bool _extMem;
         bool _fmodule;
-        VlgExportConfig(bool ExternalMem = false, bool FunctionAsModule = true) : _extMem(ExternalMem), _fmodule(FunctionAsModule)
+        bool _fnondet;
+        VlgExportConfig(
+            bool ExternalMem = false, 
+            bool FunctionAsModule = true,
+            bool FuncAsNondet = false) : 
+            _extMem(ExternalMem), _fmodule(FunctionAsModule),
+            _fnondet(FuncAsNondet)
         {}
     };
 
@@ -130,8 +136,10 @@ namespace ila
         vlg_name_t NewId();
         vlg_name_t NewId(const std::string &refName);
 
+        // Parameters for the export module
         bool ExternalMem;
         bool FunctionAsModule;
+        bool FuncAsNondet;
 
     public:
         VerilogExport (const std::string &modName,const std::string &clk,const std::string &rst, const VlgExportConfig & config);

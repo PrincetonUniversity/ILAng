@@ -810,9 +810,10 @@ namespace ila
             abs->paramSyn = en;
         }
 
-        void setVlgExpConfig(bool extMem, bool fAsM){
+        void setVlgExpConfig(bool extMem, bool fAsM, bool fNondet){
             abs->vlgExpConfig._extMem = extMem;
             abs->vlgExpConfig._fmodule = fAsM;
+            abs->vlgExpConfig._fnondet = fNondet;
         }
 
         int getReduceWhenImport() const {
