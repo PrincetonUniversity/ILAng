@@ -157,7 +157,25 @@ class nyGPUModel:
 							ila.ite(self.rrOpcode == NyEncoding.SUB_I, sreg1 - sreg2, 
 							ila.ite(self.rrOpcode == NyEncoding.AND, sreg1 & sreg2,
 							ila.ite(self.rrOpcode == NyEncoding.OR, sreg1 | sreg2, 
-							ila.ite(self.rrOpcode == NyEncoding.MULH_I, sreg1 * sreg2, self.scalar_registers[regNo])))))
+							ila.ite(self.rrOpcode == NyEncoding.MULH_I, self.auxMull_i(sreg1, sreg2), 
+							ila.ite(self.rrOpcode == NyEncoding.MULH_U, self.auxMulh_u(sreg1, sreg2), 
+							ila.ite(self.rrOpcode == NyEncoding.ASHR, ila.ashr(sreg1, sreg2[4:0]), 
+							ila.ite(self.rrOpcode == NyEncoding.SHR, sreg1 >> sreg2[4:0],
+							ila.ite(self.rrOpcode == NyEncoding.SHL, sreg1 << sreg2[4:0],
+							ila.ite(self.rrOpcode == NyEncoding.CLZ, self.aux_clz(sreg2),
+							ila.ite(self.rrOpcode == NyEncoding.CTZ, self.aux_ctz(sreg2),
+							ila.ite(self.rrOpcode == NyEncoding.MOVE, sreg2,
+							ila.ite(self.rrOpcode == NyEncoding.CMPEQ_I, ila.ite(sreg1 == sreg2, self.const(0xffff, SCALAR_REG_BITS), self.const(0b0, SCALAR_REG_BITS)),
+							ila.ite(self.rrOpcode == NyEncoding.CMPNE_I, ila.ite(sreg1 != sreg2, self.const(0xffff, SCALAR_REG_BITS), self.const(0b0, SCALAR_REG_BITS)),
+							ila.ite(self.rrOpcode == NyEncoding.CMPGT_I, ila.ite(self.auxCmpgt_i(sreg1, sreg2) == self.getConstOne(), self.const(0xffff, SCALAR_REG_BITS), self.const(0b0, SCALAR_REG_BITS)),
+							ila.ite(self.rrOpcode == NyEncoding.CMPGE_I, ila.ite(self.auxCmpge_i(sreg1, sreg2) == self.getConstOne(), self.const(0xffff, SCALAR_REG_BITS), self.const(0b0, SCALAR_REG_BITS)),
+							ila.ite(self.rrOpcode == NyEncoding.CMPLT_I, ila.ite(self.auxCmplt_i(sreg1, sreg2) == self.getConstOne(), self.const(0xffff, SCALAR_REG_BITS), self.const(0b0, SCALAR_REG_BITS)),
+							ila.ite(self.rrOpcode == NyEncoding.CMPLE_I, ila.ite(self.auxCmple_i(sreg1, sreg2) == self.getConstOne(), self.const(0xffff, SCALAR_REG_BITS), self.const(0b0, SCALAR_REG_BITS)),
+							ila.ite(self.rrOpcode == NyEncoding.CMPGT_U, ila.ite(sreg1 > sreg2, self.const(0xffff, SCALAR_REG_BITS), self.const(0b0, SCALAR_REG_BITS)),
+							ila.ite(self.rrOpcode == NyEncoding.CMPGE_U, ila.ite(sreg1 < sreg2, self.const(0b0, SCALAR_REG_BITS), self.const(0xffff, SCALAR_REG_BITS)),
+							ila.ite(self.rrOpcode == NyEncoding.CMPLT_U, ila.ite(sreg1 < sreg2, self.const(0xffff, SCALAR_REG_BITS), self.const(0b0, SCALAR_REG_BITS)),
+							ila.ite(self.rrOpcode == NyEncoding.CMPLE_U, ila.ite(sreg1 > sreg2, self.const(0b0, SCALAR_REG_BITS), self.const(0xffff,SCALAR_REG_BITS)),
+								self.scalar_registers[regNo]))))))))))))))))))))))
 							, self.scalar_registers[regNo]),\
 					ila.ite(self.isImmediate, 
 						ila.ite(self.immType == self.model.const(0b00, 2), 
@@ -165,7 +183,25 @@ class nyGPUModel:
 							ila.ite(ila.zero_extend(self.immOpcode, 6) == NyEncoding.SUB_I, sreg1 - self.immB,
 							ila.ite(ila.zero_extend(self.immOpcode, 6) == NyEncoding.AND, sreg1 & self.immB,
 							ila.ite(ila.zero_extend(self.immOpcode, 6) == NyEncoding.OR, sreg1 | self.immB,
-							ila.ite(ila.zero_extend(self.immOpcode, 6) == NyEncoding.MULH_I, sreg1 * sreg2, self.scalar_registers[regNo]))))),\
+							ila.ite(ila.zero_extend(self.immOpcode, 6) == NyEncoding.MULH_I, self.auxMull_i(sreg1, self.immB),
+							ila.ite(ila.zero_extend(self.immOpcode, 6) == NyEncoding.MULL_I, self.auxMulh_u(sreg1, self.immB),
+							ila.ite(ila.zero_extend(self.immOpcode, 6) == NyEncoding.ASHR, ila.ashr(sreg1, self.immB[4:0]),
+							ila.ite(ila.zero_extend(self.immOpcode, 6) == NyEncoding.SHR, sreg1 >> self.immB[4:0],
+							ila.ite(ila.zero_extend(self.immOpcode, 6) == NyEncoding.SHL, sreg1 << self.immB[4:0],
+							ila.ite(ila.zero_extend(self.immOpcode, 6) == NyEncoding.CLZ, sreg1, self.aux_clz(self.immB),
+							ila.ite(ila.zero_extend(self.immOpcode, 6) == NyEncoding.CTZ, sreg1, self.aux_ctz(self.immB),
+							ila.ite(ila.zero_extend(self.immOpcode, 6) == NyEncoding.MOVE, self.immB,
+							ila.ite(ila.zero_extend(self.immOpcode, 6) == NyEncoding.CMPEQ_I, ila.ite(sreg1 == self.immB, self.const(0xffff, SCALAR_REG_BITS), self.const(0b0, SCALAR_REG_BITS)),
+							ila.ite(ila.zero_extend(self.immOpcode, 6) == NyEncoding.CMPNE_I, ila.ite(sreg1 != self.immB, self.const(0xffff, SCALAR_REG_BITS), self.const(0b0, SCALAR_REG_BITS)),
+							ila.ite(ila.zero_extend(self.immOpcode, 6) == NyEncoding.CMPGT_I, ila.ite(self.auxCmpgt_i(sreg1, self.immB) == self.getConstOne(), self.const(0xffff, SCALAR_REG_BITS), self.const(0b0, SCALAR_REG_BITS)),
+							ila.ite(ila.zero_extend(self.immOpcode, 6) == NyEncoding.CMPGE_I, ila.ite(self.auxCmpge_i(sreg1, self.immB) == self.getConstOne(), self.const(0xffff, SCALAR_REG_BITS), self.const(0b0, SCALAR_REG_BITS)),
+							ila.ite(ila.zero_extend(self.immOpcode, 6) == NyEncoding.CMPLT_I, ila.ite(self.auxCmplt_i(sreg1, self.immB) == self.getConstOne(), self.const(0xffff, SCALAR_REG_BITS), self.const(0b0, SCALAR_REG_BITS)),
+							ila.ite(ila.zero_extend(self.immOpcode, 6) == NyEncoding.CMPLE_I, ila.ite(self.auxCmple_i(sreg1, self.immB) == self.getConstOne(), self.const(0xffff, SCALAR_REG_BITS), self.const(0b0, SCALAR_REG_BITS)),
+							ila.ite(ila.zero_extend(self.immOpcode, 6) == NyEncoding.CMPGT_U, ila.ite(sreg1 > self.immB, self.const(0xffff, SCALAR_REG_BITS), self.const(0b0, SCALAR_REG_BITS)),
+							ila.ite(ila.zero_extend(self.immOpcode, 6) == NyEncoding.CMPGE_U, ila.ite(sreg1 < self.immB, self.const(0b0, SCALAR_REG_BITS), self.const(0xffff, SCALAR_REG_BITS)),
+							ila.ite(ila.zero_extend(self.immOpcode, 6) == NyEncoding.CMPLT_U, ila.ite(sreg1 < self.immB, self.const(0xffff, SCALAR_REG_BITS), self.const(0b0, SCALAR_REG_BITS)),
+							ila.ite(ila.zero_extend(self.immOpcode, 6) == NyEncoding.CMPLE_U, ila.ite(sreg1 > self.immB, self.const(0b0, SCALAR_REG_BITS), self.const(0xffff,SCALAR_REG_BITS)),
+							 self.scalar_registers[regNo])))))))))))))))))))))),\
 						ila.ite(self.immType == self.model.const(0b10, 2),
 							ila.ite(ila.zero_extend(self.immOpcode, 6) == NyEncoding.ADD_I, sreg1 + self.immA,
 							ila.ite(ila.zero_extend(self.immOpcode, 6) == NyEncoding.SUB_I, sreg1 - self.immA,
@@ -368,3 +404,77 @@ class nyGPUModel:
     	(self.isRegReg) & (self.rrOpcode == NyEncoding.SUB_I),\
     	(self.isRegReg) & (self.rrOpcode == NyEncoding.MULH_I)]
 
+    def auxMull_i(self, dataA, dataB):				
+    	dataAIsNeg = dataA[31]
+    	dataBIsNeg = dataB[31]
+    	#First calculate whether the result is positive/negative
+    	resultIsNeg = dataAIsNeg ^ dataBIsNeg
+    	absDataA = ila.ite(dataAIsNeg, (~dataA) + self.model.const(0b1, SCALAR_REG_BITS), dataA)
+    	absDataB = ila.ite(dataBIsNeg, (~dataB) + self.model.const(0b1, SCALAR_REG_BITS), dataB)
+    	#Zero-extend the data to multiply
+        absDataADoubleLength = ila.zero_extend(absDataA, 2 * SCALAR_REG_BITS)
+        absDataBDoubleLength = ila.zero_extend(absDataB, 2 * SCALAR_REG_BITS)
+    	absResultDoubleLength = absDataADoubleLength * absDataBDoubleLength
+    	#Adjust the pos/neg of the result
+    	resultDoubleLength = ila.ite(resultIsNeg, (~absResultDoubleLength) + 1, absResultDoubleLength)
+    	mulResult = resultDoubleLength[SCALAR_REG_BITS - 1:0]
+    	return mulResult
+
+    def auxMulh_u(self, dataA, dataB):	#unsigned mul
+    	dataADoubleLength = ila.zero_extend(dataA, 2 * SCALAR_REG_BITS)
+    	dataBDoubleLength = ila.zero_extend(dataB, 2 * SCALAR_REG_BITS)
+    	resultDoubleLength = dataADoubleLength * dataBDoubleLength
+    	mulResult = resultDoubleLength[31:0]
+    	return mulResult
+    def getConstZero(self, length = 1):
+    	return self.model.const(0b0, length)
+    def getConstOne(self, length = 1):
+    	return self.model.const(0b1, length)
+
+    def auxCmpgt_i(self, dataA, dataB):	#return ila.const(1/0,1bit)
+    	dataAIsNeg = dataA[31]
+    	dataBIsNeg = dataB[31]
+    	absDataA = ila.ite(dataAIsNeg, (~dataA) + self.getConstOne(SCALAR_REG_BITS), dataA)
+    	absDataB = ila.ite(dataBIsNeg, (~dataB) + self.getConstOne(SCALAR_REG_BITS), dataB)
+
+    	return ila.ite((dataAIsNeg == self.getConstOne()) & (dataBIsNeg == self.getConstZero()), self.getConstZero(), 
+    		   ila.ite((dataAIsNeg == self.getConstZero()) & (dataBIsNeg == self.getConstOne()), self.getConstOne(), 
+    		   ila.ite(dataAIsNeg == self.getConstZero(), 
+    		   	ila.ite(absDataA > absDataB, self.getConstOne(), self.getConstZero()), 
+    		   	ila.ite(absDataA < absDataB, self.getConstOne(), self.getConstZero()))))
+
+    def auxCompge_i(self, dataA, dataB):
+     	dataAIsNeg = dataA[31]
+    	dataBIsNeg = dataB[31]
+    	absDataA = ila.ite(dataAIsNeg, (~dataA) + self.getConstOne(SCALAR_REG_BITS), dataA)
+    	absDataB = ila.ite(dataBIsNeg, (~dataB) + self.getConstOne(SCALAR_REG_BITS), dataB)
+
+    	return ila.ite((dataAIsNeg == self.getConstOne()) & (dataBIsNeg == self.getConstZero()), self.getConstZero(), 
+    		   ila.ite((dataAIsNeg == self.getConstZero()) & (dataBIsNeg == self.getConstOne()), self.getConstOne(), 
+    		   ila.ite(dataAIsNeg == self.getConstZero(), 
+    		   	ila.ite(absDataA < absDataB, self.getConstZero(), self.getConstOne()), 
+    		   	ila.ite(absDataA > absDataB, self.getConstZero(), self.getConstOne()))))  
+
+    def auxCmplt_i(self, dataA, dataB):
+    	dataAIsNeg = dataA[31]
+    	dataBIsNeg = dataB[31]
+    	absDataA = ila.ite(dataAIsNeg, (~dataA) + self.getConstOne(SCALAR_REG_BITS), dataA)
+    	absDataB = ila.ite(dataBIsNeg, (~dataB) + self.getConstOne(SCALAR_REG_BITS), dataB)
+
+    	return ila.ite((dataAIsNeg == self.getConstOne()) & (dataBIsNeg == self.getConstZero()), self.getConstOne(), 
+    		   ila.ite((dataAIsNeg == self.getConstZero()) & (dataBIsNeg == self.getConstOne()), self.getConstZero(), 
+    		   ila.ite(dataAIsNeg == self.getConstZero(), 
+    		   	ila.ite(absDataA < absDataB, self.getConstOne(), self.getConstZero()), 
+    		   	ila.ite(absDataA > absDataB, self.getConstOne(), self.getConstZero()))))
+
+    def auxCmple_i(self, dataA, dataB):
+    	dataAIsNeg = dataA[31]
+    	dataBIsNeg = dataB[31]
+    	absDataA = ila.ite(dataAIsNeg, (~dataA) + self.getConstOne(SCALAR_REG_BITS), dataA)
+    	absDataB = ila.ite(dataBIsNeg, (~dataB) + self.getConstOne(SCALAR_REG_BITS), dataB)
+
+    	return ila.ite((dataAIsNeg == self.getConstOne()) & (dataBIsNeg == self.getConstZero()), self.getConstOne(), 
+    		   ila.ite((dataAIsNeg == self.getConstZero()) & (dataBIsNeg == self.getConstOne()), self.getConstZero(), 
+    		   ila.ite(dataAIsNeg == self.getConstZero(), 
+    		   	ila.ite(absDataA > absDataB, self.getConstZero(), self.getConstOne()), 
+    		   	ila.ite(absDataA < absDataB, self.getConstZero(), self.getConstOne()))))
