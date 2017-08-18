@@ -114,6 +114,7 @@ void write_reg_msg_mst2slv_db (uint32_t val) {
 }
 
 void write_reg_msg_mst2slv_dbm (uint32_t val) {
+#ifndef POR_OPT
 #ifdef CTX_LOCK
 #ifdef MUTEX
     pthread_mutex_unlock (&ctx_lock);
@@ -123,10 +124,12 @@ void write_reg_msg_mst2slv_dbm (uint32_t val) {
     __VERIFIER_atomic_begin ();
 #endif // MUtEX
 #endif // CTX_LOCK
+#endif // POR_OPT
     return;
 }
 
 void write_reg_msg_mst2slv_dat0 (uint32_t val) {
+#ifndef POR_OPT
 #ifdef CTX_LOCK
 #ifdef MUTEX
     pthread_mutex_unlock (&ctx_lock);
@@ -138,9 +141,11 @@ void write_reg_msg_mst2slv_dat0 (uint32_t val) {
 #ifdef FAB_LOCK
     __VERIFIER_atomic_begin ();
 #endif // FAB_LOCK
+#endif // POR_OPT
 
     reg_msg_mst2slv_dat0 = val;
 
+#ifndef POR_OPT
 #ifdef FAB_LOCK
     __VERIFIER_atomic_end ();
 #endif // FAB_LOCK
@@ -152,9 +157,11 @@ void write_reg_msg_mst2slv_dat0 (uint32_t val) {
     __VERIFIER_atomic_begin ();
 #endif // MUtEX
 #endif // CTX_LOCK
+#endif // POR_OPT
 }
 
 void write_reg_msg_mst2slv_dat1 (uint32_t val) {
+#ifndef POR_OPT
 #ifdef CTX_LOCK
 #ifdef MUTEX
     pthread_mutex_unlock (&ctx_lock);
@@ -166,9 +173,11 @@ void write_reg_msg_mst2slv_dat1 (uint32_t val) {
 #ifdef FAB_LOCK
     __VERIFIER_atomic_begin ();
 #endif // FAB_LOCK
+#endif // POR_OPT
 
     reg_msg_mst2slv_dat1 = val;
 
+#ifndef POR_OPT
 #ifdef FAB_LOCK
     __VERIFIER_atomic_end ();
 #endif // FAB_LOCK
@@ -180,6 +189,7 @@ void write_reg_msg_mst2slv_dat1 (uint32_t val) {
     __VERIFIER_atomic_begin ();
 #endif // MUtEX
 #endif // CTX_LOCK
+#endif // POR_OPT
 }
 
 void write_reg_msg_slv2mst_db (uint32_t val) {
@@ -212,6 +222,7 @@ void write_reg_msg_slv2mst_db (uint32_t val) {
 }
 
 void write_reg_msg_slv2mst_dbm (uint32_t val) {
+#ifndef POR_OPT
 #ifdef CTX_LOCK
 #ifdef MUTEX
     pthread_mutex_unlock (&ctx_lock);
@@ -221,10 +232,12 @@ void write_reg_msg_slv2mst_dbm (uint32_t val) {
     __VERIFIER_atomic_begin ();
 #endif // MUtEX
 #endif // CTX_LOCK
+#endif // POR_OPT
     return;
 }
 
 void write_reg_msg_slv2mst_dat0 (uint32_t val) {
+#ifndef POR_OPT
 #ifdef CTX_LOCK
 #ifdef MUTEX
     pthread_mutex_unlock (&ctx_lock);
@@ -236,9 +249,11 @@ void write_reg_msg_slv2mst_dat0 (uint32_t val) {
 #ifdef FAB_LOCK
     __VERIFIER_atomic_begin ();
 #endif // FAB_LOCK
+#endif // POR_OPT
 
     reg_msg_slv2mst_dat0 = val;
 
+#ifndef POR_OPT
 #ifdef FAB_LOCK
     __VERIFIER_atomic_end ();
 #endif // FAB_LOCK
@@ -250,9 +265,11 @@ void write_reg_msg_slv2mst_dat0 (uint32_t val) {
     __VERIFIER_atomic_begin ();
 #endif // MUtEX
 #endif // CTX_LOCK
+#endif // POR_OPT
 }
 
 void write_reg_msg_slv2mst_dat1 (uint32_t val) {
+#ifndef POR_OPT
 #ifdef CTX_LOCK
 #ifdef MUTEX
     pthread_mutex_unlock (&ctx_lock);
@@ -264,9 +281,11 @@ void write_reg_msg_slv2mst_dat1 (uint32_t val) {
 #ifdef FAB_LOCK
     __VERIFIER_atomic_begin ();
 #endif // FAB_LOCK
+#endif // POR_OPT
 
     reg_msg_slv2mst_dat1 = val;
 
+#ifndef POR_OPT
 #ifdef FAB_LOCK
     __VERIFIER_atomic_end ();
 #endif // FAB_LOCK
@@ -278,6 +297,7 @@ void write_reg_msg_slv2mst_dat1 (uint32_t val) {
     __VERIFIER_atomic_begin ();
 #endif // MUtEX
 #endif // CTX_LOCK
+#endif // POR_OPT
 }
 
 uint32_t read_reg_msg_mst2slv_db () {
@@ -307,6 +327,7 @@ uint32_t read_reg_msg_mst2slv_dbm () {
 }
 
 uint32_t read_reg_msg_mst2slv_dat0 () {
+#ifndef POR_OPT
 #ifdef CTX_LOCK
 #ifdef MUTEX
     pthread_mutex_unlock (&ctx_lock);
@@ -316,10 +337,12 @@ uint32_t read_reg_msg_mst2slv_dat0 () {
     __VERIFIER_atomic_begin ();
 #endif // MUtEX
 #endif // CTX_LOCK
+#endif // POR_OPT
     return reg_msg_mst2slv_dat0;
 }
 
 uint32_t read_reg_msg_mst2slv_dat1 () {
+#ifndef POR_OPT
 #ifdef CTX_LOCK
 #ifdef MUTEX
     pthread_mutex_unlock (&ctx_lock);
@@ -329,6 +352,7 @@ uint32_t read_reg_msg_mst2slv_dat1 () {
     __VERIFIER_atomic_begin ();
 #endif // MUtEX
 #endif // CTX_LOCK
+#endif // POR_OPT
     return reg_msg_mst2slv_dat1;
 }
 
@@ -359,6 +383,7 @@ uint32_t read_reg_msg_slv2mst_dbm () {
 }
 
 uint32_t read_reg_msg_slv2mst_dat0 () { 
+#ifndef POR_OPT
 #ifdef CTX_LOCK
 #ifdef MUTEX
     pthread_mutex_unlock (&ctx_lock);
@@ -368,10 +393,12 @@ uint32_t read_reg_msg_slv2mst_dat0 () {
     __VERIFIER_atomic_begin ();
 #endif // MUtEX
 #endif // CTX_LOCK
+#endif // POR_OPT
     return reg_msg_slv2mst_dat0;
 }
 
 uint32_t read_reg_msg_slv2mst_dat1 () { 
+#ifndef POR_OPT
 #ifdef CTX_LOCK
 #ifdef MUTEX
     pthread_mutex_unlock (&ctx_lock);
@@ -381,6 +408,7 @@ uint32_t read_reg_msg_slv2mst_dat1 () {
     __VERIFIER_atomic_begin ();
 #endif // MUtEX
 #endif // CTX_LOCK
+#endif // POR_OPT
     return reg_msg_slv2mst_dat1;
 }
 

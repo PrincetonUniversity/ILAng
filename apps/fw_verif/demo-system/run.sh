@@ -9,7 +9,7 @@ REP_BPL=$(pwd)/main.r.bpl
 SMACK_LIB=$(pwd)/smack/include
 SCRIPT_PATH=$HOME/workspace/ILA/apps/fw_verif/utils
 
-clang -emit-llvm -S -std=c11 -I $SMACK_LIB -UMEM_OP -UMUTEX -DFAB_LOCK -DCTX_LOCK -UINT_LOCK $FW_SRC/*.c
+clang -emit-llvm -S -std=c11 -I $SMACK_LIB -UMEM_OP -UMUTEX -DFAB_LOCK -DCTX_LOCK -DPOR_OPT -UINT_LOCK $FW_SRC/*.c
 mv *.ll $LLVM_SRC
 
 for f in $LLVM_SRC/*.ll
