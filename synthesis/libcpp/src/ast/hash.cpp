@@ -3,6 +3,7 @@
 #include <ast/hash.hpp>
 #include <boost/functional/hash.hpp>
 #include <logging.hpp>
+#include <functional>
 
 namespace ila
 {
@@ -11,6 +12,8 @@ namespace ila
         if (nref.hash_inited) {
             return nref.hash_value;
         }
+
+        std::hash <std::string> hash_str;
 
         const Node* n = &nref;
 
@@ -68,7 +71,9 @@ namespace ila
             choice_hash_combine(seed, bvchoiceop);
         } else if ((inrangeop = dynamic_cast<const BVInRange*>(n))) {
             // random number that represents bvinrange operators
-            boost::hash_combine(seed, 1675467593);
+            //boost::hash_combine(seed, 1675467593);
+            size_t rdNum = hash_str (n->getName());
+            boost::hash_combine (seed, rdNum);
         //// memories ////
         } else if ((memvar = dynamic_cast<const MemVar*>(n))) {
             // type is accounted for.
