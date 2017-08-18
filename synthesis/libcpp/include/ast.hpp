@@ -120,6 +120,8 @@ namespace ila
 
         // set reference name.
         void setRefName(const std::string & refName);
+        // rewrite expression
+        NodeRef* rewrite(NodeRef * src, NodeRef * dst);
         // does this object have a value?
         py::object value() const;
 

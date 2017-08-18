@@ -203,6 +203,10 @@ BOOST_PYTHON_MODULE(ila)
         // set reference name        
         .def("setRefName",
                 &NodeRef::setRefName)
+
+        // rewrite
+        .def("rewrite",&NodeRef::rewrite,
+                return_value_policy<manage_new_object>())
                 
 
         .def(self_ns::str(self))

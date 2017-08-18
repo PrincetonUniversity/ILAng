@@ -274,6 +274,13 @@ namespace ila
     {
         this->node->setRefName( refName );
     }
+
+    NodeRef* NodeRef::rewrite(NodeRef* src, NodeRef* dst)
+    {
+        Rewriter r1;
+        r1.addRewrite(src->node.get(), dst->node);
+        return new NodeRef( r1.rewrite(this->node.get()));
+    }
     
     NodeRef* NodeRef::getItem(NodeRef* idx) const
     {
