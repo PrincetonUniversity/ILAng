@@ -11,6 +11,10 @@ For API documents and tutorials, see the [docs](https://github.com/Bo-Yuan-Huang
 
 ### Publications:
 
+* __Template-based Parameterized Synthesis of Uniform Instruction-Level Abstractions for SoC Verification__.
+  Pramod Subramanyan, Bo-Yuan Huang, Yakir Vizel, Aarti Gupta, and Sharad Malik.
+  Transactions on Computer-Aided Design of Integrated Circuits and Systems (TCAD), 2017.
+
 * (Invited) __Specification and Modeling for Systems-on-Chip Security Verification__. 
   Sharad Malik and Pramod Subramanyan. 
   Proceedings of the Design Automation Conference. (DAC 2016), Austin, TX. June 2016. 
