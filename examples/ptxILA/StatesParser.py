@@ -1,5 +1,6 @@
 import re
-
+import pickle
+import pprint
 REGTOKEN = ".reg"
 SPECREGTOKEN = ".sreg"
 CONSTTOKEN = ".const"
@@ -53,6 +54,14 @@ for reg_key in reg_states_dict.keys():
 for reg_key in reg_state_type_name_dict.keys():
 	print (reg_key + ' ' + reg_state_type_name_dict[reg_key] + ' ' + reg_state_type_length_dict[reg_key])
 
+reg_source_file = "test_reg_source.txt"
+reg_source_obj = open(reg_source_file, 'w')
+pickle.dump([reg_state_type_name_dict, reg_state_type_length_dict], reg_source_obj)
+reg_source_obj.close()
+
+mem_state_type_name_dict = {}
+mem_state_type_length_dict = {}
+mem_state_size_dict = {}
 for mem_key in mem_states_dict.keys():
 #TODO: if the type of mem_dim_group is Nonetype, then keep the mem_state_key_with_dim as mem_state_key_name, else use split to get the mem_state_key_name
 	state_type = mem_states_dict[mem_key]
@@ -64,11 +73,17 @@ for mem_key in mem_states_dict.keys():
 	mem_dim_pattern = re.compile(r'\[[a-zA-Z0-9]+\]')
 	mem_dim_group = mem_dim_pattern.findall(mem_state_key_with_dim)
 	mem_name_group = mem_dim_pattern.split(mem_state_key_with_dim)
+	mem_name = mem_name_group[0]
+	mem_state_type_name_dict[mem_name] = type_name
+	mem_state_type_length_dict[mem_name] = type_length
+	mem_state_size = []
 	for mem_dim in mem_dim_group:
-		print(mem_dim)
-	for mem_name in mem_name_group:
-		print(mem_name)
-
+	    mem_state_size.append(mem_dim)
+	mem_state_size_dict[mem_name] = mem_state_size
+mem_source_file = "test_mem_source.txt"
+mem_source_obj = open(mem_source_file, 'w')
+pickle.dump([mem_state_type_name_dict, mem_state_type_length_dict, mem_state_size_dict], mem_source_obj)
+mem_source_obj.close()
 
 
 #TODO: write dictionary from reg_state_name to reg_state_type into a file
