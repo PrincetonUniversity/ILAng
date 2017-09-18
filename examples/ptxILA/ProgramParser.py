@@ -51,7 +51,20 @@ for source_line in source_code:
     if not match_flag:
         instruction_lines.append(source_line)
 
+source_code = instruction_lines
+instruction_lines = []
+for source_line in source_code:
+    source_line = source_line.replace(',', '')
+    source_line = source_line.replace(';', '')
+    instruction_lines.append(source_line)
 
-for instruction_line in instruction_lines:
-    print instruction_line
+source_code = instruction_lines
+instruction_lines = []
+for source_line in source_code:
+    instruction_lines.append(source_line.split())
+
+program_file = 'program_' + source_file
+program_obj = open(program_file, 'w')
+pickle.dump(instruction_lines, program_obj)
+program_obj.close()
 
