@@ -77,9 +77,10 @@ namespace ila
         if (_type != memStr)
             return _type;
         else
-            return _type + "<" + "BV" + boost::lexical_cast<std::string>(_width)  +"," 
+            return _type;
+                    /*_type + "<" + "BV" + boost::lexical_cast<std::string>(_width)  +"," 
                     + boost::lexical_cast<std::string>((long)(std::pow(2, _idxwidth)))
-                    +">";
+                    +">";*/
     }
 
     std::string CppVar::refDef() const
@@ -144,7 +145,12 @@ namespace ila
 
     void CppVar::init(const Node* n)
     {
-        _name = "cppVar_" + boost::lexical_cast<std::string>(varCnt++);
+        if(n->getRefName() != "" ) {
+            _name = "cppVar_" + n->getRefName(); // + "_" + boost::lexical_cast<std::string>(varCnt++);
+            varCnt++;
+            }
+        else
+            _name = "cppVar_" + boost::lexical_cast<std::string>(varCnt++);
         if (n->type.isBool()) {
             _type = boolStr;
             _width = 0;
@@ -348,6 +354,7 @@ namespace ila
             res = getBoolVarCpp(boolvar);
         } else if ((boolconst = dynamic_cast<const BoolConst*>(n))) {
             res = getBoolConstCpp(boolconst);
+            _localConstVar[n->getName()] = res;
         } else if ((boolop = dynamic_cast<const BoolOp*>(n))) {
             res = getBoolOpCpp(boolop);
         //// Bitvector ////
@@ -355,6 +362,7 @@ namespace ila
             res = getBvVarCpp(bvvar);
         } else if ((bvconst = dynamic_cast<const BitvectorConst*>(n))) {
             res = getBvConstCpp(bvconst);
+            _localConstVar[n->getName()] = res;
         } else if ((bvop = dynamic_cast<const BitvectorOp*>(n))) {
             res = getBvOpCpp(bvop);
         //// Mem ////
@@ -405,7 +413,8 @@ namespace ila
         for (auto it = _curVarMap->begin(); it != _curVarMap->end(); it++) {
           if (_states.find(it->first) == _states.end() &&
               _inputs.find(it->first) == _inputs.end() &&
-              _unitpFuncVarMap.find(it->first) == _unitpFuncVarMap.end()
+              _unitpFuncVarMap.find(it->first) == _unitpFuncVarMap.end()&&
+              _localConstVar.find(it->first) == _localConstVar.end()
              ) {
               std::string code = it->second->def() + ";";
               _curFun->_varList.push_back(code);
@@ -462,12 +471,16 @@ namespace ila
     // Terminate the function building.
     void CppSimGen::endFun(CppFun* f)
     {
+        _localConstVar.clear();
         std::string code = "NOT SPECIFIED";
         // Update the states.
         for (unsigned i = 0; i < f->_updates.size(); i++) {
             code = f->_updates[i].first->use() + " = " + 
                    f->_updates[i].second->use() + ";";
             f->addBody(code);
+            if(f->_updates[i].first->vType() == CppVar::memStr) {
+                f->addBody( f->_updates[i].first->use() + ".updateFromNewValue();");
+            }
         }
         // Return the value.
         if (f->_ret != NULL) {
@@ -790,22 +803,22 @@ namespace ila
                        arg0->use() + " | " + arg1->use() + ");";
             } else if (n->op == BitvectorOp::Op::SDIV) {
                 code = var->use() + " = " + 
-                       arg0->signedUse() + " / " + arg1->signedUse() + ";";
+                       arg0->signedUse() + " / (" + arg1->signedUse() + " == 0 ? 1 : " + arg1->signedUse() + ");";
                 _curFun->addBody(code);
                 code = var->use() + " = " + var->exactUse() + ";";
             } else if (n->op == BitvectorOp::Op::UDIV) {
                 code = var->use() + " = " + 
-                       arg0->use() + " / " + arg1->use() + ";";
+                       arg0->use() + " / (" + arg1->use() + " == 0 ? 1 : " + arg1->use() + " ) ;";
                 _curFun->addBody(code);
                 code = var->use() + " = " + var->exactUse() + ";";
             } else if (n->op == BitvectorOp::Op::SREM) {
                 code = var->use() + " = " + 
-                       arg0->use() + " % " + arg1->use() + ";";
+                       arg0->use() + " % (" + arg1->use() + " == 0 ? 1 : " + arg1->use() + " ) ;";
                 _curFun->addBody(code);
                 code = var->use() + " = " + var->exactUse() + ";";
             } else if (n->op == BitvectorOp::Op::UREM) {
                 code = var->use() + " = " + 
-                       arg0->use() + " % " + arg1->use() + ";";
+                       arg0->use() + " % (" + arg1->use() + " == 0 ? 1 : " + arg1->use() + " ) ;";
                 _curFun->addBody(code);
                 code = var->use() + " = " + var->exactUse() + ";";
             } else if (n->op == BitvectorOp::Op::SMOD) {
@@ -1089,7 +1102,7 @@ namespace ila
         out << "\tstd::map<" << bvStr << ", " << bvStr << "> _map;\n";
         out << "\t" << bvStr << " _def_val;\n";
         out << "public:\n";
-        out << "\ttype_mem(" << bvStr << " def"<< ", unsigned addrw, unsigned dataw)\n";
+        out << "\ttype_mem(" << bvStr << " def"<< ")\n";
         out << "\t\t: _def_val(def)\n";
         out << "\t{\n";
         out << "\t}\n";
@@ -1123,6 +1136,7 @@ namespace ila
         out << "\t{\n";
         out << "\t\treturn (_map == targ._map) & (_def_val == targ._def_val);\n";
         out << "\t}\n";
+        out << "\tvoid updateFromNewValue() {} \n";
         out << "};\n";
     }
 
@@ -1237,19 +1251,19 @@ namespace ila
 
             // condition
             depthFirstTraverse(node->arg(0));
+            depthFirstTraverse(node->arg(1));
+            depthFirstTraverse(node->arg(2));
             CppVar* cond = findVar(*_curVarMap, node->arg(0)->getName());
             std::string condCode = "if (" + cond->use() + ") {";
             _curFun->addBody(condCode);
 
             // then
-            depthFirstTraverse(node->arg(1));
             CppVar* tExp = findVar(*_curVarMap, node->arg(1)->getName());
             std::string thenCode = var->use() + " = " + tExp->use() + ";";
             _curFun->addBody(thenCode);
 
             // else
             _curFun->addBody("} else {");
-            depthFirstTraverse(node->arg(2));
             CppVar* fExp = findVar(*_curVarMap, node->arg(2)->getName());
             std::string elseCode = var->use() + " = " + fExp->use() + ";";
             _curFun->addBody(elseCode);

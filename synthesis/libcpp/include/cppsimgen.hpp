@@ -152,6 +152,8 @@ namespace ila
         CppVar* _curVar;
         // Var map for the current working function.
         CppVarMap* _curVarMap;
+        
+        CppVarMap _localConstVar; // because const are refered by their value (not name)
 
     public:
         // Constructor.

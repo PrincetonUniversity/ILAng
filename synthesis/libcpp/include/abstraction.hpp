@@ -374,6 +374,10 @@ namespace ila
         // Set next value to the function.
         void setUpdateToFunction(CppSimGen* gen, CppFun* fun, 
                                  nptr_t valid, bool doHier = false) const;
+        // Set init value to the function.
+        void setInitToFunction(
+                CppSimGen* gen, 
+                CppFun* fun) const;
 
     };
 

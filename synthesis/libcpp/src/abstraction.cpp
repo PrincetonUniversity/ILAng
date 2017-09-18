@@ -1835,6 +1835,10 @@ namespace ila
         setUpdateToFunction(gen, updateFun, NULL, hier);
         gen->endFun(updateFun);
 
+        // Create init function.
+        CppFun *initFun = gen->addFun("init");
+        setInitToFunction(gen, initFun);
+        gen->endFun(initFun);
         /*
         // FetchExpr
         CppFun* fetchExprFun = gen->addFun("fetch");
@@ -1908,6 +1912,45 @@ namespace ila
         //}
     }
 
+
+    void Abstraction::setInitToFunction(
+            CppSimGen* gen, 
+            CppFun* fun) const
+    {
+        
+       std::set<std::string> used;
+       std::pair<std::set<std::string>::iterator, bool> check;
+       
+        for (auto it = regs.begin(); it != regs.end(); it++) {
+            check = used.insert(it->first);
+            if (check.second == false) continue;
+            nptr_t nc = it->second.init;
+            if (nc == NULL ) continue;
+            gen->buildFun(fun, nc);
+            gen->addFunUpdate(fun, it->second.var, nc);
+        }
+        
+        for (auto it = bits.begin(); it != bits.end(); it++) {
+            check = used.insert(it->first);
+            if (check.second == false) continue;
+            nptr_t nc = it->second.init;
+            if (nc == NULL ) continue;
+            gen->buildFun(fun, nc);
+            gen->addFunUpdate(fun, it->second.var, nc);
+        }
+        
+        for (auto it = mems.begin(); it != mems.end(); it++) {
+            check = used.insert(it->first);
+            if (check.second == false) continue;
+            nptr_t nc = it->second.init;
+            if (nc == NULL ) continue;
+            gen->buildFun(fun, nc);
+            gen->addFunUpdate(fun, it->second.var, nc);
+        }
+            
+    }
+
+
     void Abstraction::setUpdateToFunction(
             CppSimGen* gen, 
             CppFun* fun,
@@ -1926,6 +1969,7 @@ namespace ila
                     nptr_t(Node::ite(valid, it->second.next, it->second.var));
             if (nc == NULL) continue;
             if (doHier) {
+                // this is where we put different updates in different files
                 // Create new function for the state update.
                 CppFun* singleUpdateFunc = gen->addFun("cppUpdateFun_" + it->first);
                 gen->buildFun(singleUpdateFunc, nc);
@@ -1937,7 +1981,7 @@ namespace ila
                 // Calculate next value in top function, and update at the end
                 CppVar* nxtVal = gen->appFun(singleUpdateFunc, fun);
                 gen->addFunUpdate(fun, it->second.var, nxtVal);
-            } else {
+            } else { // add all to the same func
                 gen->buildFun(fun, nc);
                 gen->addFunUpdate(fun, it->second.var, nc);
             }
