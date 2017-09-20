@@ -1,7 +1,7 @@
 .reg .b32 r1, r2; 
-.global .f32 array[N];
+.global .f32 array[100];
 .global .f32 arr;
-.global .f32 a[N][N];
+.global .f32 a[100][100];
 tart: mov.b32 r1, %tid.x; 
 shl.b32 r1, r1, 2; 
 // shift thread id by 2 bits 
