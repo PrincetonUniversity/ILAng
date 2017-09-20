@@ -15,6 +15,8 @@ for mem in mem_book:
 	mem_size *= dim_size
     start_address += mem_size
 
-for mem in mem_book:
-    print mem
-    print mem_map[mem]
+mem_map_file = 'mem_map'
+mem_map_obj = open(mem_map_file, 'w')
+pickle.dump(mem_map, mem_map_obj)
+mem_map_obj.close()
+
