@@ -47,42 +47,42 @@ for program_line in program:
     immInput = -1
     if (len(program_line) > (op)):
         if isNum(program_line[op]):
-	    dst = (int(program_line[op]) >> BASE_BIT) % (1 << OP_BIT)
-	    immInput = 0
-	else:
-	    dst = reg_map[program_line[op]]
+            dst = (int(program_line[op]) >> BASE_BIT) % (1 << OP_BIT)
+            immInput = 0
+        else:
+            dst = reg_map[program_line[op]]
     op += 1
     if (len(program_line) > (op)):
         if isNum(program_line[op]):
-	    src0 = (int(program_line[op]) >> BASE_BIT) % (1 << DST_BIT)
-	    immInput = 0
-	else:
+	        src0 = (int(program_line[op]) >> BASE_BIT) % (1 << DST_BIT)
+	        immInput = 0
+        else:
             src0 = reg_map[program_line[op]]
     op += 1
     if(len(program_line) > op):
         if isNum(program_line[op]):
-	    src1 = (int(program_line[op]) >> BASE_BIT) % (1 << SRC0_BIT)
-	    immInput = 1
-	else:
+	        src1 = (int(program_line[op]) >> BASE_BIT) % (1 << SRC0_BIT)
+	        immInput = 1
+        else:
             src1 = reg_map[program_line[op]]
     op += 1
     if(len(program_line) > op):
         if isNum(program_line[op]):
-	    src2 = (int(program_line[op]) >> BASE_BIT) % (1 << SRC1_BIT)
-	    immInput = 2
-	else:
+	        src2 = (int(program_line[op]) >> BASE_BIT) % (1 << SRC1_BIT)
+	        immInput = 2
+        else:
             src2 = reg_map[program_line[op]]
     if immInput < 0:
         program_bin_line = (opcode_bin << OP_BIT) + (dst << DST_BIT) + (src0 << SRC0_BIT) + (src1 << SRC1_BIT) + (src2 << SRC2_BIT);
     else:
         if immInput == 0:
-	    program_bin_line = (opcode_bin << OP_BIT) + dst
-	elif immInput == 1:
-	    program_bin_line = (opcode_bin << OP_BIT) + (dst << DST_BIT) + src0
-	elif immInput == 2:
-	    program_bin_line = (opcode_bin << OP_BIT) + (dst << DST_BIT) + (src0 << SRC0_BIT) + src1
-	else:
-	    progran_bin_line = (opcode_bin << OP_BIT) + (dst << DST_BIT) + (src0 << SRC0_BIT) + (src1 << SRC1_BIT) + src2
+	        program_bin_line = (opcode_bin << OP_BIT) + dst
+        elif immInput == 1:
+	        program_bin_line = (opcode_bin << OP_BIT) + (dst << DST_BIT) + src0
+        elif immInput == 2:
+	        program_bin_line = (opcode_bin << OP_BIT) + (dst << DST_BIT) + (src0 << SRC0_BIT) + src1
+        else:
+	        progran_bin_line = (opcode_bin << OP_BIT) + (dst << DST_BIT) + (src0 << SRC0_BIT) + (src1 << SRC1_BIT) + src2
     program_bin.append(program_bin_line)
-    print bin(program_bin_line)
+    print (bin(program_bin_line))
 
