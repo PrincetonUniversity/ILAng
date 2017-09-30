@@ -7,4 +7,4 @@ shl.b32 r1, r1, 2;
 // shift thread id by 2 bits 
 ld.global.b32 r2, array[r1]; 
 // thread[tid] gets array[tid] 
-add.f32 r2, r2, 0.5; // add 1/2
+add.f32 r2, r2, 5; // add 1/2

@@ -69,6 +69,21 @@ instruction_lines = []
 for source_line in source_code:
     instruction_lines.append(source_line.split())
 
+#Delete type eg:.b32
+source_lines = instruction_lines
+instruction_lines = []
+for source_line in source_lines:
+    token = source_line[0]
+    source_rest = source_line[1:]
+    if token[len(token) - 1] == ':':
+        token = source_line[1]
+	source_rest = source_line[2:]
+    token_split = token.split('.')
+    source_line = []
+    source_line.append(token_split[0])
+    for rest in source_rest:
+        source_line.append(rest)
+    instruction_lines.append(source_line)
 #There are 3 types of code now: 
 # xxxx: opcode oprands
 # opcode operands

@@ -22,5 +22,9 @@ reg_map_file = 'reg_map'
 reg_map_obj = open(reg_map_file, 'w')
 pickle.dump(reg_map, reg_map_obj)
 reg_map_obj.close()
+reg_book_file = 'reg_book'
+reg_book_obj = open(reg_book_file, 'w')
+pickle.dump(reg_book, reg_book_obj)
+reg_book_obj.close()
 
 
