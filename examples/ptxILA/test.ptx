@@ -5,6 +5,6 @@
 tart: mov.b32 r1, %tid.x; 
 shl.b32 r1, r1, 2; 
 // shift thread id by 2 bits 
-ld.global.b32 r2, array[r1]; 
+//ld.global.b32 r2, array[r1]; 
 // thread[tid] gets array[tid] 
 add.f32 r2, r2, 5; // add 1/2

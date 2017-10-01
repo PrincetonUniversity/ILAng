@@ -47,29 +47,29 @@ for program_line in program:
     immInput = -1
     if (len(program_line) > (op)):
         if isNum(program_line[op]):
-            dst = (int(program_line[op]) >> BASE_BIT) % (1 << OP_BIT)
+            dst = (int(program_line[op]) << BASE_BIT) % (1 << OP_BIT)
             immInput = 0
         else:
             dst = reg_map[program_line[op]]
     op += 1
     if (len(program_line) > (op)):
         if isNum(program_line[op]):
-	        src0 = (int(program_line[op]) >> BASE_BIT) % (1 << DST_BIT)
-	        immInput = 0
+	        src0 = (int(program_line[op]) << BASE_BIT) % (1 << DST_BIT)
+	        immInput = 1
         else:
             src0 = reg_map[program_line[op]]
     op += 1
     if(len(program_line) > op):
         if isNum(program_line[op]):
-	        src1 = (int(program_line[op]) >> BASE_BIT) % (1 << SRC0_BIT)
-	        immInput = 1
+	        src1 = (int(program_line[op]) << BASE_BIT) % (1 << SRC0_BIT)
+	        immInput = 2
         else:
             src1 = reg_map[program_line[op]]
     op += 1
     if(len(program_line) > op):
         if isNum(program_line[op]):
-	        src2 = (int(program_line[op]) >> BASE_BIT) % (1 << SRC1_BIT)
-	        immInput = 2
+	        src2 = (int(program_line[op]) << BASE_BIT) % (1 << SRC1_BIT)
+	        immInput = 3
         else:
             src2 = reg_map[program_line[op]]
     if immInput < 0:
@@ -81,8 +81,15 @@ for program_line in program:
 	        program_bin_line = (opcode_bin << OP_BIT) + (dst << DST_BIT) + src0
         elif immInput == 2:
 	        program_bin_line = (opcode_bin << OP_BIT) + (dst << DST_BIT) + (src0 << SRC0_BIT) + src1
+		print(program_line[3])
         else:
 	        progran_bin_line = (opcode_bin << OP_BIT) + (dst << DST_BIT) + (src0 << SRC0_BIT) + (src1 << SRC1_BIT) + src2
+        program_bin_line += 2
     program_bin.append(program_bin_line)
     print (bin(program_bin_line))
+
+program_bin_file = 'program.bin'
+program_bin_obj = open(program_bin_file, 'w')
+pickle.dump(program_bin, program_bin_obj)
+    
 
