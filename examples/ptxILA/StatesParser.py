@@ -16,18 +16,33 @@ finally:
 reg_states_dict = {}
 mem_states_dict = {}
 for source_line in source_code:
-	dot = source_line[0]
-	if dot != '.':
-		continue
-	source_tokens = source_line.split()
-	if source_tokens[0] == REGTOKEN:
-		reg_infos = source_tokens[1:]
-		current_type = 'int64'
-		for reg_info in reg_infos:
-			if reg_info[0] == '.':
-				current_type = reg_info[1:]
-			else:
-				reg_states_dict[reg_info] = current_type
+    source_tokens = source_line.split()
+    if source_tokens == []:
+        continue
+    dot = source_tokens[0][0]
+    if dot != '.':
+        continue
+    if source_tokens[0] == REGTOKEN:
+        reg_infos = source_tokens[1:]
+        current_type = 'int64'
+        for reg_info in reg_infos:
+            if reg_info[0] == '.':
+                current_type = reg_info[1:]
+            else:
+                if reg_info.find('<') == -1:
+                    reg_states_dict[reg_info] = current_type
+                else:
+                    array_start = reg_info.find('<')
+                    array_end = reg_info.find('>')
+                    try:
+                        array_length = int(reg_info[(array_start + 1):array_end])
+                        reg_info_name = reg_info[:(array_start)]
+                        for i in range(array_length):
+                            reg_states_dict[reg_info_name + str(i) + ';'] = current_type 
+                    except ValueError:
+                        array_length = 1  
+                        reg_states_dict[reg_info] = current_type
+
 	if source_tokens[0] == GLOBALMEMTOKEN:
 		mem_infos = source_tokens[1:]
 		current_type = 'int64'
@@ -40,16 +55,17 @@ for source_line in source_code:
 
 
 #test use
-pattern = re.compile(r'[a-zA-Z0-9_\[\]]+(?=[,;$])')
+pattern = re.compile(r'[\%a-zA-Z0-9_\[\]]+(?=[,;$])')
 reg_state_type_name_dict = {}
 reg_state_type_length_dict = {}
 for reg_key in reg_states_dict.keys():
-	state_type = reg_states_dict[reg_key]
-	type_pattern = re.compile(r'[a-zA-Z]+')
-	type_name = type_pattern.findall(state_type)
-	type_length = type_pattern.split(state_type)
-	reg_state_type_name_dict[pattern.match(reg_key).group()] = type_name[0]
-	reg_state_type_length_dict[pattern.match(reg_key).group()] = type_length[1]
+    state_type = reg_states_dict[reg_key]
+    type_pattern = re.compile(r'[a-zA-Z]+')
+    type_name = type_pattern.findall(state_type)
+    type_length = type_pattern.split(state_type)
+    print reg_key
+    reg_state_type_name_dict[pattern.match(reg_key).group()] = type_name[0]
+    reg_state_type_length_dict[pattern.match(reg_key).group()] = type_length[1]
 
 for reg_key in reg_state_type_name_dict.keys():
 	print (reg_key + ' ' + reg_state_type_name_dict[reg_key] + ' ' + reg_state_type_length_dict[reg_key])

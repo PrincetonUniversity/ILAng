@@ -1,3 +1,4 @@
+.reg .b32 %r<10>;
 .reg .b32 r1, r2; 
 .global .f32 array[100];
 .global .f32 arr;

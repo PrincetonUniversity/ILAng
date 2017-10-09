@@ -5,6 +5,10 @@ source_reg_obj = open(source_reg_file, 'r')
 [reg_state_type_name_dict, reg_state_type_length_dict] = pickle.load(source_reg_obj)
 reg_book = reg_state_type_name_dict.keys()
 
+general_reg_book_file = 'general_reg_book'
+general_reg_book_obj = open(general_reg_book_file, 'w')
+pickle.dump(reg_book, general_reg_book_obj)
+
 special_reg_file = 'special_reg_book'
 special_reg_obj = open(special_reg_file, 'r')
 special_reg_book = special_reg_obj.readlines()
