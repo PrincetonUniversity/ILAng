@@ -21,7 +21,7 @@ class ptx_sim(object):
         self.OPCODE_MUL = 29
         self.OPCODE_SUB = 28
         self.OPCODE_ADD = 27
-        self.EXAMPLE_PROGRAM_HOLE = 53
+        self.EXAMPLE_PROGRAM_HOLE = 57
     def state_parser(self, state):
         state = self.ptx_next_state(state)
     
@@ -47,7 +47,7 @@ class ptx_sim(object):
         general_reg_book_obj = open(general_reg_book_file)
         general_reg_book = pickle.load(general_reg_book_obj)
         for general_reg in general_reg_book:
-            test_program.append('mov.s32 ' + general_reg + ' ' + str(state[general_reg]) + ';\n')
+            test_program.append('mov.s32 ' + general_reg + ',' + str(state[general_reg]) + '; ')
         
         reg_book_file = 'reg_book'
         reg_book_obj = open(reg_book_file, 'r')
@@ -74,8 +74,10 @@ class ptx_sim(object):
 
         src0_data = state[src0_text]
         src1_data = state[src1_text]
-        test_program.append(op_text + '.32 ' + dst_text + ' ' + src0_text + ' ' + src1_text)
-        print (op_text + ' ' + dst_text + ' ' + src0_text + ' ' + src1_text) 
+        test_program.append(op_text + '.s32 ' + dst_text + ', ' + src0_text + ', ' + src1_text + ';')
+        print (op_text + ' ' + dst_text + ', ' + src0_text + ', ' + src1_text) 
+        test_program.append('mov.s32 %r9, ' + dst_text + ';')
+        print test_program[-1]
         
         example_sim_program_file = 't266.ptx'
         example_sim_program_obj = open(example_sim_program_file, 'r')
@@ -92,8 +94,13 @@ class ptx_sim(object):
         sim_program_obj = open(example_sim_program_file, 'w')
         for sim_line in sim_program:
             sim_program_obj.write(sim_line)
-        '''
+        sim_program_obj.close()
+        (status, output) = commands.getstatusoutput('./dryrun.out')
+        print status
+        print output
         (status, output) = commands.getstatusoutput('sbatch parallel.cmd')
+        print status
+        print output
         output_word = output.split()
         taskTag = output_word[3]
         time.sleep(5)
@@ -102,8 +109,7 @@ class ptx_sim(object):
             time.sleep(5)
             (status, output) = commands.getstatusoutput('cat slurm-' + taskTag + '.out')
         nxt_state = output
-        time.sleep(5)
-        '''
+        (status, output) = commands.getstatusoutput('rm a_dlin*')
 test = ptx_sim()
 state = {}
 state['pc'] = 0
@@ -114,10 +120,9 @@ state['%r0'] = 0x0000000
 state['%r1'] = 0x0000001
 state['%r2'] = 0x0000002
 state['%r3'] = 0x0000003
-state['%r4'] = 0x0000004
+state['%r4'] = 0x000000a
 state['%r5'] = 0x0000005
 state['%r6'] = 0x0000006
 state['%r7'] = 0x0000007
 state['%r8'] = 0x0000008
-state['%r9'] = 0x0000009
 test.state_parser(state)

@@ -1,0 +1,52 @@
+# 212 "/usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stddef.h" 3
+typedef unsigned long size_t;
+#include "crt/device_runtime.h"
+# 196 "/usr/local/cuda-8.0/bin/../targets/x86_64-linux/include/crt/device_runtime.h" 3
+___device__(extern  __no_sc__) __attribute__((__externally_visible__)) __attribute__((__used__)) __attribute__((visibility("default"))) void *malloc(size_t);
+# 197 "/usr/local/cuda-8.0/bin/../targets/x86_64-linux/include/crt/device_runtime.h" 3
+___device__(extern  __no_sc__) __attribute__((__externally_visible__)) __attribute__((__used__)) __attribute__((__nothrow__)) __attribute__((visibility("default"))) void free(void *);
+#if !defined(__CUDABE__)
+# 129 "/usr/local/cuda-8.0/bin/../targets/x86_64-linux/include/common_functions.h"
+ __device_builtin__ ___device__(extern  __no_sc__) int printf(const char *__restrict__, ...);
+#endif
+# 13 "t266.cu"
+__global__ __var_used__ extern void _Z3dotPfS_S_(float *, float *, float *);
+#include "common_functions.h"
+#if !defined(__CUDABE__)
+#endif
+# 13 "t266.cu"
+__global__ __var_used__ void _Z3dotPfS_S_(
+# 13 "t266.cu"
+float *a, 
+# 13 "t266.cu"
+float *b, 
+# 13 "t266.cu"
+float *c){
+# 13 "t266.cu"
+{
+# 13 "t266.cu"
+{
+# 18 "t266.cu"
+ int __cuda_local_var_33150_9_non_const_gid;
+# 19 "t266.cu"
+ int __cuda_local_var_33151_9_non_const_i;
+# 20 "t266.cu"
+ int __cuda_local_var_33152_9_non_const_j;
+# 21 "t266.cu"
+ int __cuda_local_var_33153_9_non_const_k;
+# 18 "t266.cu"
+__cuda_local_var_33150_9_non_const_gid = ((int)((threadIdx.x) + ((blockIdx.x) * (blockDim.x))));
+# 19 "t266.cu"
+__cuda_local_var_33151_9_non_const_i = ((int)(__float2int_rz(((double)((float)(a[__cuda_local_var_33150_9_non_const_gid]))))));
+# 20 "t266.cu"
+__cuda_local_var_33152_9_non_const_j = ((int)(__float2int_rz(((double)((float)(b[__cuda_local_var_33150_9_non_const_gid]))))));
+# 21 "t266.cu"
+__cuda_local_var_33153_9_non_const_k = (__cuda_local_var_33151_9_non_const_i + __cuda_local_var_33152_9_non_const_j);
+# 22 "t266.cu"
+printf(((const char *)"%d"), __cuda_local_var_33153_9_non_const_k);
+# 24 "t266.cu"
+(c[__cuda_local_var_33150_9_non_const_gid]) = ((float)__cuda_local_var_33153_9_non_const_k);
+# 28 "t266.cu"
+} 
+# 28 "t266.cu"
+}}

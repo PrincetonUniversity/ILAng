@@ -1,0 +1,72 @@
+Mallocing memory
+Running unaligned_kernel
+Ran unaligned_kernel: no error
+Sync: unspecified launch failure
+Running out_of_bounds_kernel
+Ran out_of_bounds_kernel: unspecified launch failure
+Sync: unspecified launch failure
+========= CUDA-MEMCHECK
+========= Invalid __global__ write of size 4
+=========     at 0x00000060 in /home/yuex/ptxtest/memcheck/memcheck_demo.cu:3:unaligned_kernel(void)
+=========     by thread (0,0,0) in block (0,0,0)
+=========     Address 0x1304fe0001 is misaligned
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========     Host Frame:/usr/lib64/libcuda.so.1 (cuLaunchKernel + 0x2c5) [0x2045a5]
+=========     Host Frame:./memcheck_demo [0x18c21]
+=========     Host Frame:./memcheck_demo [0x367c3]
+=========     Host Frame:./memcheck_demo [0x3269]
+=========     Host Frame:./memcheck_demo (_Z35__device_stub__Z16unaligned_kernelvv + 0x19) [0x30f2]
+=========     Host Frame:./memcheck_demo (_Z16unaligned_kernelv + 0x9) [0x30fd]
+=========     Host Frame:./memcheck_demo (_Z13run_unalignedv + 0x75) [0x2f55]
+=========     Host Frame:./memcheck_demo (main + 0x28) [0x306e]
+=========     Host Frame:/usr/lib64/libc.so.6 (__libc_start_main + 0xf5) [0x21c05]
+=========     Host Frame:./memcheck_demo [0x2dd9]
+=========
+========= Program hit cudaErrorLaunchFailure (error 4) due to "unspecified launch failure" on CUDA API call to cudaThreadSynchronize. 
+=========     Saved host backtrace up to driver entry point at error
+=========     Host Frame:/usr/lib64/libcuda.so.1 [0x2ef3e3]
+=========     Host Frame:./memcheck_demo [0x34746]
+=========     Host Frame:./memcheck_demo (_Z13run_unalignedv + 0x98) [0x2f78]
+=========     Host Frame:./memcheck_demo (main + 0x28) [0x306e]
+=========     Host Frame:/usr/lib64/libc.so.6 (__libc_start_main + 0xf5) [0x21c05]
+=========     Host Frame:./memcheck_demo [0x2dd9]
+=========
+========= Program hit cudaErrorLaunchFailure (error 4) due to "unspecified launch failure" on CUDA API call to cudaLaunch. 
+=========     Saved host backtrace up to driver entry point at error
+=========     Host Frame:/usr/lib64/libcuda.so.1 [0x2ef3e3]
+=========     Host Frame:./memcheck_demo [0x367fe]
+=========     Host Frame:./memcheck_demo [0x3269]
+=========     Host Frame:./memcheck_demo (_Z39__device_stub__Z20out_of_bounds_kernelvv + 0x19) [0x3118]
+=========     Host Frame:./memcheck_demo (_Z20out_of_bounds_kernelv + 0x9) [0x3123]
+=========     Host Frame:./memcheck_demo (_Z17run_out_of_boundsv + 0x75) [0x3008]
+=========     Host Frame:./memcheck_demo (main + 0x2d) [0x3073]
+=========     Host Frame:/usr/lib64/libc.so.6 (__libc_start_main + 0xf5) [0x21c05]
+=========     Host Frame:./memcheck_demo [0x2dd9]
+=========
+========= Program hit cudaErrorLaunchFailure (error 4) due to "unspecified launch failure" on CUDA API call to cudaGetLastError. 
+=========     Saved host backtrace up to driver entry point at error
+=========     Host Frame:/usr/lib64/libcuda.so.1 [0x2ef3e3]
+=========     Host Frame:./memcheck_demo [0x33f23]
+=========     Host Frame:./memcheck_demo (_Z17run_out_of_boundsv + 0x7a) [0x300d]
+=========     Host Frame:./memcheck_demo (main + 0x2d) [0x3073]
+=========     Host Frame:/usr/lib64/libc.so.6 (__libc_start_main + 0xf5) [0x21c05]
+=========     Host Frame:./memcheck_demo [0x2dd9]
+=========
+========= Program hit cudaErrorLaunchFailure (error 4) due to "unspecified launch failure" on CUDA API call to cudaThreadSynchronize. 
+=========     Saved host backtrace up to driver entry point at error
+=========     Host Frame:/usr/lib64/libcuda.so.1 [0x2ef3e3]
+=========     Host Frame:./memcheck_demo [0x34746]
+=========     Host Frame:./memcheck_demo (_Z17run_out_of_boundsv + 0x98) [0x302b]
+=========     Host Frame:./memcheck_demo (main + 0x2d) [0x3073]
+=========     Host Frame:/usr/lib64/libc.so.6 (__libc_start_main + 0xf5) [0x21c05]
+=========     Host Frame:./memcheck_demo [0x2dd9]
+=========
+========= Program hit cudaErrorDevicesUnavailable (error 46) due to "all CUDA-capable devices are busy or unavailable" on CUDA API call to cudaFree. 
+=========     Saved host backtrace up to driver entry point at error
+=========     Host Frame:/usr/lib64/libcuda.so.1 [0x2ef3e3]
+=========     Host Frame:./memcheck_demo [0x40ea6]
+=========     Host Frame:./memcheck_demo (main + 0x3e) [0x3084]
+=========     Host Frame:/usr/lib64/libc.so.6 (__libc_start_main + 0xf5) [0x21c05]
+=========     Host Frame:./memcheck_demo [0x2dd9]
+=========
+========= ERROR SUMMARY: 6 errors

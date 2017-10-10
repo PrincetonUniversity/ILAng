@@ -1,0 +1,59 @@
+Mallocing memory
+Running unaligned_kernel
+Ran unaligned_kernel: invalid device function
+Sync: no error
+Running out_of_bounds_kernel
+Ran out_of_bounds_kernel: invalid device function
+Sync: no error
+========= CUDA-MEMCHECK
+========= Program hit cudaErrorInvalidDeviceFunction (error 8) due to "invalid device function" on CUDA API call to cudaLaunch. 
+=========     Saved host backtrace up to driver entry point at error
+=========     Host Frame:/usr/lib64/libcuda.so.1 [0x2ef3e3]
+=========     Host Frame:./memcheck_demo [0x3640e]
+=========     Host Frame:./memcheck_demo [0x2e79]
+=========     Host Frame:./memcheck_demo [0x2d02]
+=========     Host Frame:./memcheck_demo [0x2d0d]
+=========     Host Frame:./memcheck_demo [0x2b65]
+=========     Host Frame:./memcheck_demo [0x2c7e]
+=========     Host Frame:/usr/lib64/libc.so.6 (__libc_start_main + 0xf5) [0x21c05]
+=========     Host Frame:./memcheck_demo [0x29e9]
+=========
+========= Program hit cudaErrorInvalidDeviceFunction (error 8) due to "invalid device function" on CUDA API call to cudaGetLastError. 
+=========     Saved host backtrace up to driver entry point at error
+=========     Host Frame:/usr/lib64/libcuda.so.1 [0x2ef3e3]
+=========     Host Frame:./memcheck_demo [0x33b33]
+=========     Host Frame:./memcheck_demo [0x2b6a]
+=========     Host Frame:./memcheck_demo [0x2c7e]
+=========     Host Frame:/usr/lib64/libc.so.6 (__libc_start_main + 0xf5) [0x21c05]
+=========     Host Frame:./memcheck_demo [0x29e9]
+=========
+========= Program hit cudaErrorInvalidDeviceFunction (error 8) due to "invalid device function" on CUDA API call to cudaLaunch. 
+=========     Saved host backtrace up to driver entry point at error
+=========     Host Frame:/usr/lib64/libcuda.so.1 [0x2ef3e3]
+=========     Host Frame:./memcheck_demo [0x3640e]
+=========     Host Frame:./memcheck_demo [0x2e79]
+=========     Host Frame:./memcheck_demo [0x2d28]
+=========     Host Frame:./memcheck_demo [0x2d33]
+=========     Host Frame:./memcheck_demo [0x2c18]
+=========     Host Frame:./memcheck_demo [0x2c83]
+=========     Host Frame:/usr/lib64/libc.so.6 (__libc_start_main + 0xf5) [0x21c05]
+=========     Host Frame:./memcheck_demo [0x29e9]
+=========
+========= Program hit cudaErrorInvalidDeviceFunction (error 8) due to "invalid device function" on CUDA API call to cudaGetLastError. 
+=========     Saved host backtrace up to driver entry point at error
+=========     Host Frame:/usr/lib64/libcuda.so.1 [0x2ef3e3]
+=========     Host Frame:./memcheck_demo [0x33b33]
+=========     Host Frame:./memcheck_demo [0x2c1d]
+=========     Host Frame:./memcheck_demo [0x2c83]
+=========     Host Frame:/usr/lib64/libc.so.6 (__libc_start_main + 0xf5) [0x21c05]
+=========     Host Frame:./memcheck_demo [0x29e9]
+=========
+========= Program hit cudaErrorInvalidDevicePointer (error 17) due to "invalid device pointer" on CUDA API call to cudaFree. 
+=========     Saved host backtrace up to driver entry point at error
+=========     Host Frame:/usr/lib64/libcuda.so.1 [0x2ef3e3]
+=========     Host Frame:./memcheck_demo [0x40ab6]
+=========     Host Frame:./memcheck_demo [0x2c94]
+=========     Host Frame:/usr/lib64/libc.so.6 (__libc_start_main + 0xf5) [0x21c05]
+=========     Host Frame:./memcheck_demo [0x29e9]
+=========
+========= ERROR SUMMARY: 5 errors

@@ -1,0 +1,177 @@
+
+Fatbin elf code:
+================
+arch = sm_20
+code version = [1,7]
+producer = <unknown>
+host = linux
+compile_size = 64bit
+
+64bit elf: type=2, abi=7, sm=20, toolkit=80, flags = 0x140514
+Sections:
+Index Offset   Size ES Align   Type   Flags Link     Info Name
+    1     40     32  0  1    STRTAB       0    0        0 .shstrtab
+    2     72     32  0  1    STRTAB       0    0        0 .strtab
+    3     a8     18 18  8    SYMTAB       0    2        0 .symtab
+
+.section .strtab
+
+.section .shstrtab
+
+.section .symtab
+ index           value           size      info    other  shndx    name  
+   0               0               0        0        0      0     (null)
+
+	code for sm_20
+
+Fatbin elf code:
+================
+arch = sm_20
+code version = [1,7]
+producer = cuda
+host = linux
+compile_size = 64bit
+
+64bit elf: type=2, abi=7, sm=20, toolkit=80, flags = 0x140514
+Sections:
+Index Offset   Size ES Align   Type   Flags Link     Info Name
+    1     40     8e  0  1    STRTAB       0    0        0 .shstrtab
+    2     ce     a2  0  1    STRTAB       0    0        0 .strtab
+    3    170     60 18  8    SYMTAB       0    2        2 .symtab
+    4    1d0     24  0  4 CUDA_INFO       0    3        0 .nv.info
+    5    1f4     40  0  4 CUDA_INFO       0    3        7 .nv.info._Z3dotPfS_S_
+    6    234     38  0  4  PROGBITS       2    0        7 .nv.constant0._Z3dotPfS_S_
+    7    26c     50  0  4  PROGBITS       6    3  5000003 .text._Z3dotPfS_S_
+
+.section .strtab
+
+.section .shstrtab
+
+.section .symtab
+ index           value           size      info    other  shndx    name  
+   0               0               0        0        0      0     (null)
+   1               0               0        3        0      7     .text._Z3dotPfS_S_
+   2               0               0        3        0      6     .nv.constant0._Z3dotPfS_S_
+   3               0              80       12       10      7     _Z3dotPfS_S_
+
+
+.nv.constant0._Z3dotPfS_S_
+0x00000000  0x00000000  0x00000000  0x00000000  0x00000000  
+0x00000000  0x00000000  0x00000000  0x00000000  
+0x00000000  0x00000000  0x00000000  0x00000000  
+0x00000000  
+
+
+.nv.info
+	<0x1>
+	Attribute:	EIATTR_MAX_STACK_SIZE
+	Format:	EIFMT_SVAL
+	Value:	0x3 0x0 
+	<0x2>
+	Attribute:	EIATTR_MIN_STACK_SIZE
+	Format:	EIFMT_SVAL
+	Value:	function: _Z3dotPfS_S_(0x3)	min stack size: 0x0
+	<0x3>
+	Attribute:	EIATTR_FRAME_SIZE
+	Format:	EIFMT_SVAL
+	Value:	function: _Z3dotPfS_S_(0x3)	frame size: 0x0
+
+
+.nv.info._Z3dotPfS_S_
+	<0x1>
+	Attribute:	EIATTR_PARAM_CBANK
+	Format:	EIFMT_SVAL
+	Value:	0x2 0x180020 
+	<0x2>
+	Attribute:	EIATTR_CBANK_PARAM_SIZE
+	Format:	EIFMT_HVAL
+	Value:	0x18
+	<0x3>
+	Attribute:	EIATTR_KPARAM_INFO
+	Format:	EIFMT_SVAL
+	Value:	Index : 0x0	Ordinal : 0x2	Offset  : 0x10	Size    : 0x8
+		Pointee's logAlignment : 0x0	Space : 0x0	cbank : 0x1f	Parameter Space : CBANK	
+	<0x4>
+	Attribute:	EIATTR_KPARAM_INFO
+	Format:	EIFMT_SVAL
+	Value:	Index : 0x0	Ordinal : 0x1	Offset  : 0x8	Size    : 0x8
+		Pointee's logAlignment : 0x0	Space : 0x0	cbank : 0x1f	Parameter Space : CBANK	
+	<0x5>
+	Attribute:	EIATTR_KPARAM_INFO
+	Format:	EIFMT_SVAL
+	Value:	Index : 0x0	Ordinal : 0x0	Offset  : 0x0	Size    : 0x8
+		Pointee's logAlignment : 0x0	Space : 0x0	cbank : 0x1f	Parameter Space : CBANK	
+
+
+.text._Z3dotPfS_S_
+bar = 0	reg = 5	lmem=0	smem=0
+0x00005de4  0x28004404  0x84009c04  0x2c000000  
+0x94001c04  0x2c000000  0x1000dde2  0x18000000  
+0x00011de2  0x18fe0000  0x20001ca3  0x20044000  
+0xc0009ca3  0x20078000  0xd000dce3  0x20868000  
+0x00211c85  0x94000000  0x00001de7  0x80000000  
+
+
+	code for sm_20
+		Function : _Z3dotPfS_S_
+	.headerflags    @"EF_CUDA_SM20 EF_CUDA_PTX_SM(EF_CUDA_SM20)"
+        /*0000*/         MOV R1, c[0x1][0x100];               /* 0x2800440400005de4 */
+        /*0008*/         S2R R2, SR_TID.X;                    /* 0x2c00000084009c04 */
+        /*0010*/         S2R R0, SR_CTAID.X;                  /* 0x2c00000094001c04 */
+        /*0018*/         MOV32I R3, 0x4;                      /* 0x180000001000dde2 */
+        /*0020*/         MOV32I R4, 0x3f800000;               /* 0x18fe000000011de2 */
+        /*0028*/         IMAD R0, R0, c[0x0][0x8], R2;        /* 0x2004400020001ca3 */
+        /*0030*/         IMAD R2.CC, R0, R3, c[0x0][0x30];    /* 0x20078000c0009ca3 */
+        /*0038*/         IMAD.HI.X R3, R0, R3, c[0x0][0x34];  /* 0x20868000d000dce3 */
+        /*0040*/         ST.E [R2], R4;                       /* 0x9400000000211c85 */
+        /*0048*/         EXIT;                                /* 0x8000000000001de7 */
+		.............................
+
+
+
+Fatbin ptx code:
+================
+arch = sm_20
+code version = [5,0]
+producer = cuda
+host = linux
+compile_size = 64bit
+compressed
+
+
+
+
+
+
+
+
+.version 5.0
+.target sm_20
+.address_size 64
+
+
+
+.visible .entry _Z3dotPfS_S_(
+.param .u64 _Z3dotPfS_S__param_0,
+.param .u64 _Z3dotPfS_S__param_1,
+.param .u64 _Z3dotPfS_S__param_2
+)
+{
+.reg .b32 %r<6>;
+.reg .b64 %rd<5>;
+
+
+ld.param.u64 %rd1, [_Z3dotPfS_S__param_2];
+cvta.to.global.u64 %rd2, %rd1;
+mov.u32 %r1, %tid.x;
+mov.u32 %r2, %ctaid.x;
+mov.u32 %r3, %ntid.x;
+mad.lo.s32 %r4, %r3, %r2, %r1;
+mul.wide.s32 %rd3, %r4, 4;
+add.s64 %rd4, %rd2, %rd3;
+mov.u32 %r5, 1065353216;
+st.global.u32 [%rd4], %r5;
+ret;
+}
+
+

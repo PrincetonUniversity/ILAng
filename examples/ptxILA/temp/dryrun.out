@@ -1,0 +1,8 @@
+ptxas  -arch=sm_20 -m64  "t266.ptx"  -o "t266.sm_20.cubin" 
+fatbinary --create="t266.fatbin" -64 "--image=profile=sm_20,file=t266.sm_20.cubin" "--image=profile=compute_20,file=t266.ptx" --embedded-fatbin="t266.fatbin.c" --cuda
+gcc -D__CUDA_ARCH__=200 -E -x c++           -DCUDA_DOUBLE_MATH_FUNCTIONS  -D__USE_FAST_MATH__=0  -D__CUDA_FTZ=0 -D__CUDA_PREC_DIV=1 -D__CUDA_PREC_SQRT=1 "-I/usr/local/cuda-8.0/bin/../targets/x86_64-linux/include"   -m64 "t266.cudafe1.cpp" > "t266.cu.cpp.ii" 
+gcc -c -x c++ "-I/usr/local/cuda-8.0/bin/../targets/x86_64-linux/include"   -fpreprocessed -m64 -o "t266.o" "t266.cu.cpp.ii" 
+nvlink --arch=sm_20 --register-link-binaries="a_dlink.reg.c" -m64   "-L/usr/local/cuda-8.0/bin/../targets/x86_64-linux/lib/stubs" "-L/usr/local/cuda-8.0/bin/../targets/x86_64-linux/lib" -cpu-arch=X86_64 "t266.o"  -o "a_dlink.sm_20.cubin"
+fatbinary --create="a_dlink.fatbin" -64 -link "--image=profile=sm_20,file=a_dlink.sm_20.cubin" --embedded-fatbin="a_dlink.fatbin.c" 
+gcc -c -x c++ -DFATBINFILE="\"a_dlink.fatbin.c\"" -DREGISTERLINKBINARYFILE="\"a_dlink.reg.c\"" -I. "-I/usr/local/cuda-8.0/bin/../targets/x86_64-linux/include"   -D"__CUDACC_VER__=80044" -D"__CUDACC_VER_BUILD__=44" -D"__CUDACC_VER_MINOR__=0" -D"__CUDACC_VER_MAJOR__=8" -m64 -o "a_dlink.o" "/usr/local/cuda-8.0/bin/crt/link.stub" 
+g++ -m64 -o "a.out" -Wl,--start-group "a_dlink.o" "t266.o"   "-L/usr/local/cuda-8.0/bin/../targets/x86_64-linux/lib/stubs" "-L/usr/local/cuda-8.0/bin/../targets/x86_64-linux/lib" -lcudadevrt  -lcudart_static  -lrt -lpthread  -ldl  -Wl,--end-group 
