@@ -9,9 +9,10 @@ general_reg_book_file = 'general_reg_book'
 general_reg_book_obj = open(general_reg_book_file, 'w')
 pickle.dump(reg_book, general_reg_book_obj)
 
-special_reg_file = 'special_reg_book'
-special_reg_obj = open(special_reg_file, 'r')
-special_reg_book = special_reg_obj.readlines()
+#special_reg_file = 'special_reg_book'
+#special_reg_obj = open(special_reg_file, 'r')
+#special_reg_book = special_reg_obj.readlines()
+special_reg_book = []
 
 for special_reg in special_reg_book:
     reg_book.append(special_reg[:(len(special_reg) - 1)])

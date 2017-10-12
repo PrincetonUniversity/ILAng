@@ -55,7 +55,7 @@
 	ld.global.f32 	%f2, [%rd11];
 	cvt.rzi.s32.f32	%r6, %f2;
 	add.s32 	%r7, %r6, %r5;
-mov.s32 %r4,10; mov.s32 %r5,5; mov.s32 %r6,6; mov.s32 %r7,7; mov.s32 %r0,0; mov.s32 %r1,1; mov.s32 r2,1; mov.s32 %r3,3; mov.s32 %r8,8; mov.s32 %r2,2; mov.s32 r1,16; add.s32 %r4, %r4, %r4;mov.s32 %r9, %r4;
+mov.s32 %r4,0; mov.s32 %r5,0; mov.s32 %r6,0; mov.s32 %r7,0; mov.s32 %r0,4096; mov.s32 %r1,0; mov.s32 r2,0; mov.s32 %r3,0; mov.s32 %r8,0; mov.s32 %r2,0; mov.s32 r1,0; sub.s32 %r4, %r4, %r4;mov.s32 %r9, %r4;
 	st.local.u32 	[%rd8], %r9;
 	mov.u64 	%rd12, $str;
 	cvta.global.u64 	%rd13, %rd12;
