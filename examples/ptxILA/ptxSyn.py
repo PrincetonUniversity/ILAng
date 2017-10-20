@@ -13,12 +13,13 @@ def synthesize():
     reg_map = pickle.load(reg_map_obj)
     for reg_name in reg_map.keys():
         ptxModel.model.set_next(reg_name, ptxModel.sreg_nxt(reg_map[reg_name]))
-    test_reg = '%r4'
+    test_reg = 'pc'
     print 'start'
     ptxModel.model.synthesize(test_reg, lambda s:ptxSimulator.state_parser(s))
     ast = ptxModel.model.get_next(test_reg)
     print ast
     ptxModel.model.exportOne(ast, 'ast%r4')
+    ptxModel.compare()
 
 
 

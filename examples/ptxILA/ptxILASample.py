@@ -87,3 +87,14 @@ class ptxGPUModel(object):
         for i in range(len(self.scalar_registers)):
             expr = ila.ite(idx == i, self.scalar_registers[i], expr)
         return expr
+    '''
+    def compare(self):
+        next_1 = self.model.get_next('%r4')
+        next_2 = self.ptxSample()
+        if not self.model.areEqual(next_1, next_2):
+            print 'not equal'
+        else:
+            print 'equal'
+    def ptxSample(self):
+        return ila.ite(self.dest == 0, ila.ite(self.opcode == 26, self.sreg1 + self.sreg2, ila.ite(self.opcode == 28, self.sreg1 - self.sreg2, self.sregdest)), self.scalar_registers[0])
+    '''

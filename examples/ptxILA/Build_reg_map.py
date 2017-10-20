@@ -33,3 +33,29 @@ pickle.dump(reg_book, reg_book_obj)
 reg_book_obj.close()
 
 
+source_reg_obj = open(source_reg_file, 'r')
+[reg_state_type_name_dict, reg_state_type_length_dict] = pickle.load(source_reg_obj)
+full_reg_book = reg_state_type_name_dict.keys()
+
+
+special_reg_file = 'special_reg_book'
+special_reg_obj = open(special_reg_file, 'r')
+special_reg_book = special_reg_obj.readlines()
+
+for special_reg in special_reg_book:
+    full_reg_book.append(special_reg[:(len(special_reg) - 1)])
+
+full_reg_map = {}
+for idx in range(len(full_reg_book)):
+    full_reg_map[full_reg_book[idx]] = idx
+full_reg_map_file = 'full_reg_map'
+full_reg_map_obj = open(full_reg_map_file, 'w')
+pickle.dump(full_reg_map, full_reg_map_obj)
+full_reg_map_obj.close()
+full_reg_book_file = 'full_reg_book'
+full_reg_book_obj = open(full_reg_book_file, 'w')
+pickle.dump(full_reg_book, full_reg_book_obj)
+full_reg_book_obj.close()
+
+
+

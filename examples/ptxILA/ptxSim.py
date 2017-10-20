@@ -10,6 +10,7 @@ class ptx_sim(object):
         self.SRC1_BIT = 7
         self.SRC2_BIT = 2
         self.BASE_BIT = 2
+        self.PRED_BIT = 17
         self.OPERAND_WIDTH = 5
         self.OPCODE_MASK = 0xffc00000
         self.DST_MASK = 0x003e0000
@@ -18,9 +19,12 @@ class ptx_sim(object):
         self.SRC2_MASK = 0x0000007c
         self.BASE_MASK = 0x00000003
         self.IMM_MASK = 0x00000fff
+        self.P_MASK = 0x003e0000
+        self.BRA_MASK = 0x0001fffc
         #self.OPCODE_MUL = 29
         self.OPCODE_SUB = 28
         self.OPCODE_ADD = 27
+        self.OPCODE_BRA = 67 
         self.EXAMPLE_PROGRAM_HOLE = 57
     def state_parser(self, state):
         print 'pre:'
@@ -48,7 +52,9 @@ class ptx_sim(object):
         src1 = self.SRC1_MASK & instruction
         src1 = src1 >> self.SRC1_BIT
         base = self.BASE_MASK & instruction
-
+        pred = self.P_MASK & instruction
+        pred = pred >> self.PRED_BIT
+        bra = (self.BRA_MASK & instruction) >> self.BASE_BIT
         test_program = []
         general_reg_book_file = 'general_reg_book'
         general_reg_book_obj = open(general_reg_book_file)
@@ -64,18 +70,37 @@ class ptx_sim(object):
         instruction_book = instruction_book_obj.readlines()
         
         #if ((opcode != self.OPCODE_MUL) & (opcode != self.OPCODE_ADD) & (opcode != self.OPCODE_SUB)): 
-        if((opcode != self.OPCODE_ADD) & (opcode != self.OPCODE_SUB)):
+        if((opcode != self.OPCODE_ADD) & (opcode != self.OPCODE_SUB) & (opcode != self.OPCODE_BRA)):
+            return state
+        if (opcode == self.OPCODE_BRA):
+            if base:
+                if pred >= len(reg_book):
+                    return status
+                pred_reg_text = reg_book[pred]
+                if pred_reg_text not in general_reg_book:
+                    return status
+                pred_reg_data = state[pred_reg_text]
+                if pred_reg_data:
+                    pc += bra
+                    state['pc'] = pc
+            else:
+                pc += bra
+                state['pc'] = pc 
             return state
         op_text = instruction_book[opcode]
         op_text = op_text[:(len(op_text) - 1)]
        
         dst_text = reg_book[dst] 
+        if (src0 >= len(reg_book)) | (src1 >= len(reg_book)) | (dst >= len(reg_book)):
+            return state
         if dst_text not in general_reg_book:
             return state
-
+        
         src0_text = reg_book[src0]
         src1_text = reg_book[src1]
-        
+        if (src0_text not in general_reg_book) | (src1_text not in general_reg_book):
+            return state
+
         if (base):
             return state
 
@@ -125,6 +150,25 @@ class ptx_sim(object):
         state[dst_text] = nxt_state
         return state
 '''
+test = ptx_sim()
+state = {}
+state['pc'] = 0
+state['mem'] = [0x00000022]
+state['r1'] = 0xffffffff
+state['r2'] = 0xffffffff
+state['%r0'] = 0xffffffff
+state['%r1'] = 0xffffffff
+state['%r2'] = 0xffffffff
+state['%r3'] = 0xffffffff
+state['%r4'] = 0xffffffff
+state['%r5'] = 0xffffffff
+state['%r6'] = 0xffffffff
+state['%r7'] = 0xffffffff
+state['%r8'] = 0xffffffff
+state = test.state_parser(state)
+'''
+'''
+#test for alu instructions
 test = ptx_sim()
 state = {}
 state['pc'] = 0

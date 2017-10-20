@@ -76,14 +76,27 @@ for source_line in source_lines:
     token = source_line[0]
     source_rest = source_line[1:]
     if token[len(token) - 1] == ':':
-        token = source_line[1]
-	source_rest = source_line[2:]
+        if len(source_line) > 1:
+            instruction_lines.append([source_line[0]])
+            token = source_line[1]
+            source_rest = source_line[2:]
+            source_line = []
+        else:
+            instruction_lines.append(source_line)
+            continue
+    else:
+        source_line = []
     token_split = token.split('.')
-    source_line = []
     source_line.append(token_split[0])
     for rest in source_rest:
         source_line.append(rest)
     instruction_lines.append(source_line)
+
+for instruction_line in instruction_lines:
+    for token in instruction_line:
+        print token,
+    print ' '
+
 #There are 3 types of code now: 
 # xxxx: opcode oprands
 # opcode operands
