@@ -29,17 +29,17 @@ class ptx_sim(object):
         self.OPCODE_BAR = 71
         self.EXAMPLE_PROGRAM_HOLE = 57
         
-    def state_parser(self, state, bar_micro_flag):
+    def state_parser(self, state):
         print 'pre:'
         for s in state.keys():
             print s + ' ' + str(state[s]) 
-        state = self.ptx_next_state(state, bar_micro_flag)
+        state = self.ptx_next_state(state)
         print 'post:'
         for s in state.keys():
             print s + ' ' + str(state[s])
         return state
     
-    def ptx_next_state(self, state, bar_micro_flag):
+    def ptx_next_state(self, state):
         mem = state['mem']
         pc = state['pc']
         instruction = mem[pc/4]
@@ -96,11 +96,46 @@ class ptx_sim(object):
             #bar_counter_enter = state['bar_counter_enter']
             #bar_counter_exit = state['bar_counter_exit']
             bar_spec = ptxILA.barSpec()
+
+            bar_counter_enter = state['bar_counter_enter']
+            bar_counter_exit = state['bar_counter_exit']
+            if bar_state == bar_spec.BAR_INIT:
+                bar_state = bar_spec.BAR_ENTER
+            elif bar_state == bar_spec.BAR_FINISH:
+                state['pc'] = state['pc'] + 4
+                bar_state = bar_spec.BAR_INIT
+            elif bar_state == bar_spec.BAR_ENTER:
+                if (bar_counter_exit == 0):
+                    bar_counter_enter = bar_counter_enter + 1
+                    if bar_counter_enter == bar_spec.THREAD_NUM:
+                        bar_state = bar_spec.BAR_EXIT
+                        bar_counter_exit = bar_spec.THREAD_NUM
+                    else:
+                        if bar_counter_enter > bar_spec.THREAD_NUM:
+                            state['bar_state'] = bar_spec.BAR_WAIT
+                            return state
+                        bar_state = bar_spec.BAR_WAIT
+            elif bar_state == bar_spec.BAR_WAIT:
+                if bar_counter_enter == bar_spec.THREAD_NUM:
+                    bar_state = bar_spec.BAR_EXIT
+            elif bar_state == bar_spec.BAR_EXIT:
+                bar_counter_exit -= 1
+                bar_state = bar_spec.BAR_FINISH
+                if bar_counter_exit < 0:
+                    state['bar_state'] = bar_spec.BAR_FINISH
+                    return state
+                if bar_counter_exit == 0:
+                    bar_counter_enter = 0
+
+            state['bar_state'] = bar_state
+            state['bar_counter_enter'] = bar_counter_enter
+            state['bar_counter_exit'] = bar_counter_exit
+            '''
             if (bar_micro_flag):
                 bar_counter_enter = state['bar_counter_enter']
                 bar_counter_exit = state['bar_counter_exit']
                 if bar_state == bar_spec.BAR_ENTER:
-                    if bar_counter_exit == 0:
+                    if (bar_counter_exit == 0):
                         bar_counter_enter = bar_counter_enter + 1
                         if bar_counter_enter == bar_spec.THREAD_NUM:
                             bar_state = bar_spec.BAR_EXIT
@@ -109,12 +144,12 @@ class ptx_sim(object):
                             bar_state = bar_spec.BAR_WAIT
                 elif bar_state == bar_spec.BAR_WAIT:
                     if bar_counter_enter == bar_spec.THREAD_NUM:
-                        bar_state = bar_spec.BAR_WAIT
+                        bar_state = bar_spec.BAR_EXIT
                 elif bar_state == bar_spec.BAR_EXIT:
-                   bar_counter_exit -= 1
-                   bar_state = bar_spec.BAR_FINISH
-                   if bar_counter_exit == 0:
-                       bar_counter_enter = 0
+                    bar_counter_exit -= 1
+                    bar_state = bar_spec.BAR_FINISH
+                    if bar_counter_exit == 0:
+                        bar_counter_enter = 0
                 state['bar_state'] = bar_state
                 state['bar_counter_enter'] = bar_counter_enter
                 state['bar_counter_exit'] = bar_counter_exit
@@ -127,6 +162,7 @@ class ptx_sim(object):
                 state['bar_state'] = bar_state
                 #state['bar_counter_enter'] = bar_counter_enter
                 #state['bar_counter_exit'] = bar_counter_exit
+            '''
             return state
         pc = pc + 4
         state['pc'] = pc

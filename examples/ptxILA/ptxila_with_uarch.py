@@ -41,7 +41,7 @@ class ptxGPUModel(object):
         self.model = ila.Abstraction('GPU_ptx')
         self.program_name = 'test.ptx'
         self.createStates()
-        #self.ubar()
+        self.ubar()
         self.assumptions()
          
     def createStates(self):
@@ -81,32 +81,10 @@ class ptxGPUModel(object):
         #self.bar_state = self.model.getreg('bar_state')
         #self.bar_counter_enter = self.model.getreg('bar_counter_enter')
         #self.bar_counter_exit = self.model.getreg('bar_counter_exit')
+        bar_state_next = ila.choice('bar_state_next', [ila.const(bar_spec.BAR_INIT ,bar_spec.BAR_STATE_BITS), ila.const(bar_spec.BAR_ENTER, bar_spec.BAR_STATE_BITS)])
+        self.model.set_next('bar_state', bar_state_next)
         #self.model.set_next('bar_counter_enter', self.bar_counter_enter)
         #self.model.set_next('bar_counter_exit', self.bar_counter_exit)
-        instruction_map_file = 'instruction_map'
-        instruction_map_obj = open(instruction_map_file, 'r')
-        instruction_map = pickle.load(instruction_map_obj)
-        self.bar_counter_enter = self.model.reg('bar_counter_enter', bar_spec.BAR_COUNTER_ENTER_BITS)
-        self.bar_counter_exit = self.model.reg('bar_counter_exit', bar_spec.BAR_COUNTER_EXIT_BITS)
-        #bar_counter_enter = self.model.getreg('bar_counter_enter')
-        #bar_counter_exit = self.model.getreg('bar_counter_exit')
-        self.bar_counter_max = bar_spec.THREAD_NUM  # need cleanup
-        #bar_state_next = ila.ite(bar_state == bar_spec.bar_enter, ila.ite(bar_counter_exit != 0, bar_spec.bar_enter, ila.ite(bar_counter_enter == (bar_counter_max - 1), bar_spec.bar_exit, bar_wait)), ila.ite(bar_state == bar_spec.bar_wait, ila.ite(bar_counter_enter == bar_counter_max, bar_spec.bar_exit, bar_spec.bar_wait), ila.ite(bar_state == bar_spec.bar_exit, bar_spec.bar_finish , bar_state)))
-        #bar_counter_enter_next = ila.ite(bar_state == bar_spec.bar_enter, ila.ite(bar_counter_exit != 0, bar_counter_enter, bar_counter_enter + 1), ila.ite((bar_state == bar_spec.bar_exit) & (bar_counter_exit == 1), ila.const(0x0, bar_spec.bar_counter_enter_bits), bar_counter_enter))
-        #bar_counter_exit_next = ila.ite((bar_state == bar_spec.bar_enter) & (counter_enter == (bar_counter_max - 1)), bar_counter_max, ila.ite(bar_state == bar_spec.bar_exit, bar_counter_exit - 1, bar_counter_exit))
-        bar_state_next = ila.choice('bar_state_next', [ila.const(i, bar_spec.BAR_STATE_BITS) for i in range(0, 5)])
-        self.bar_counter_enter_next = ila.choice('bar_counter_enter_next', [self.bar_counter_enter, self.bar_counter_enter + 1, ila.const(0x0, bar_spec.BAR_COUNTER_ENTER_BITS)])
-        self.bar_counter_exit_next = ila.choice('bar_counter_exit_next', [self.bar_counter_exit, self.bar_counter_exit + 1, ila.const(self.bar_counter_max, bar_spec.BAR_COUNTER_EXIT_BITS)])
-        self.model.set_next('bar_state', bar_state_next)
-        self.model.set_next('bar_counter_enter', self.bar_counter_enter_next)
-        self.model.set_next('bar_counter_exit', self.bar_counter_exit_next)
-        self.bar_decode_list = [(self.bar_state == bar_spec.BAR_ENTER) & (self.bar_counter_exit != 0),\
-                           (self.bar_state == bar_spec.BAR_ENTER) & (self.bar_counter_exit == 0) & (self.bar_counter_enter == (self.bar_counter_max - 1)),\
-                           (self.bar_state == bar_spec.BAR_ENTER) & (self.bar_counter_exit == 0) & (self.bar_counter_enter != (self.bar_counter_max - 1)),\
-                           (self.bar_state == bar_spec.BAR_WAIT) & (self.bar_counter_enter != self.bar_counter_max),\
-                           (self.bar_state == bar_spec.BAR_WAIT) & (self.bar_counter_enter == self.bar_counter_max),\
-                           (self.bar_state == bar_spec.BAR_EXIT) & (self.bar_counter_exit != 1),\
-                           (self.bar_state == bar_spec.BAR_EXIT) & (self.bar_counter_exit == 1)]
 
     def instructionFetch(self):
         self.inst = ila.load(self.mem, ila.zero_extend(self.pc[31:2], MEM_ADDRESS_BITS))
@@ -133,18 +111,46 @@ class ptxGPUModel(object):
         #ALUInstructions = [(self.opcode == instruction_map['add']), (self.opcode == instruction_map['sub']),(self.opcode == instruction_map['mul']), ((self.opcode == instruction_map['bra']) & (self.predReg != 0) & (self.baseImm != 0)), ((self.opcode == instruction_map['bra']) & (self.baseImm == 0)), (self.opcode != instruction_map['add']) & (self.opcode != instruction_map['sub']) & (self.opcode != instruction_map['mul']) & ((self.opcode != instruction_map['bra']) | (self.predReg == 0) | (self.baseImm == 0))&((self.opcode != instruction_map['bra']) | (self.baseImm != 0)) ]
         #decodeList = ALUInstructions + [(self.opcode == instruction_map['bar']) & (self.bar_state == bar_spec.BAR_INIT), (self.opcode == instruction_map['bar']) & (self.bar_state == bar_spec.BAR_FINISH)]
         decodeList = [(self.opcode == instruction_map['bar']) & (self.bar_state == bar_spec.BAR_INIT), (self.opcode == instruction_map['bar']) & (self.bar_state == bar_spec.BAR_FINISH)]
-        for bdl in self.bar_decode_list:
-            decodeList.append((self.opcode == instruction_map['bar']) & bdl)
-        for dl in decodeList:
-            print dl
+
         self.model.decode_exprs = decodeList
         #self.bar_state_next = ila.ite((self.opcode == instruction_map['bar']) & (self.bar_state == bar_spec.BAR_INIT), ila.const(1, bar_spec.BAR_STATE_BITS) ila.ite(self.bar_state == bar_spec.BAR_FINISH, bar_spec.BAR_INIT, self.bar_state)) #non-synthesize bar instruction
+
+    def ubar(self):
+        instruction_map_file = 'instruction_map'
+        instruction_map_obj = open(instruction_map_file, 'r')
+        instruction_map = pickle.load(instruction_map_obj)
+        bar_spec = barSpec()
+        self.u_bar_model = self.model.add_microabstraction('bar_instruction', ((self.bar_state > bar_spec.BAR_INIT) & (self.bar_state < bar_spec.BAR_FINISH)))
+        self.bar_counter_enter = self.u_bar_model.reg('bar_counter_enter', bar_spec.BAR_COUNTER_ENTER_BITS)
+        self.bar_counter_exit = self.u_bar_model.reg('bar_counter_exit', bar_spec.BAR_COUNTER_EXIT_BITS)
+        #bar_counter_enter = self.model.getreg('bar_counter_enter')
+        #bar_counter_exit = self.model.getreg('bar_counter_exit')
+        bar_state = self.model.getreg('bar_state')
+        self.bar_counter_max = bar_spec.THREAD_NUM  # need cleanup
+        #bar_state_next = ila.ite(bar_state == bar_spec.bar_enter, ila.ite(bar_counter_exit != 0, bar_spec.bar_enter, ila.ite(bar_counter_enter == (bar_counter_max - 1), bar_spec.bar_exit, bar_wait)), ila.ite(bar_state == bar_spec.bar_wait, ila.ite(bar_counter_enter == bar_counter_max, bar_spec.bar_exit, bar_spec.bar_wait), ila.ite(bar_state == bar_spec.bar_exit, bar_spec.bar_finish , bar_state)))
+        #bar_counter_enter_next = ila.ite(bar_state == bar_spec.bar_enter, ila.ite(bar_counter_exit != 0, bar_counter_enter, bar_counter_enter + 1), ila.ite((bar_state == bar_spec.bar_exit) & (bar_counter_exit == 1), ila.const(0x0, bar_spec.bar_counter_enter_bits), bar_counter_enter))
+        #bar_counter_exit_next = ila.ite((bar_state == bar_spec.bar_enter) & (counter_enter == (bar_counter_max - 1)), bar_counter_max, ila.ite(bar_state == bar_spec.bar_exit, bar_counter_exit - 1, bar_counter_exit))
+        bar_state_next = ila.choice('bar_state_next', [ila.const(i, bar_spec.BAR_STATE_BITS) for i in range(1,4)])
+        self.bar_counter_enter_next = ila.choice('bar_counter_enter_next', [self.bar_counter_enter, self.bar_counter_enter + 1, ila.const(0x0, bar_spec.BAR_COUNTER_ENTER_BITS)])
+        self.bar_counter_exit_next = ila.choice('bar_counter_exit_next', [self.bar_counter_exit, self.bar_counter_exit + 1, ila.const(self.bar_counter_max, bar_spec.BAR_COUNTER_EXIT_BITS)])
+        self.u_bar_model.set_next('bar_state', bar_state_next)
+        self.u_bar_model.set_next('bar_counter_enter', self.bar_counter_enter_next)
+        self.u_bar_model.set_next('bar_counter_exit', self.bar_counter_exit_next)
+        bar_decode_list = [(bar_state == bar_spec.BAR_ENTER) & (self.bar_counter_exit != 0),\
+                           (bar_state == bar_spec.BAR_ENTER) & (self.bar_counter_exit == 0) & (self.bar_counter_enter == (self.bar_counter_max - 1)),\
+                           (bar_state == bar_spec.BAR_ENTER) & (self.bar_counter_exit == 0) & (self.bar_counter_enter != (self.bar_counter_max - 1)),\
+                           (bar_state == bar_spec.BAR_WAIT) & (self.bar_counter_enter != self.bar_counter_max),\
+                           (bar_state == bar_spec.BAR_WAIT) & (self.bar_counter_enter == self.bar_counter_max),\
+                           (bar_state == bar_spec.BAR_EXIT) & (self.bar_counter_exit != 1),\
+                           (bar_state == bar_spec.BAR_EXIT) & (self.bar_counter_exit == 1)]
+        self.u_bar_model.decode_exprs = bar_decode_list
+
     def assumptions(self):
         instruction_map_file = 'instruction_map'
         instruction_map_obj = open(instruction_map_file, 'r')
         instruction_map = pickle.load(instruction_map_obj)
         bar_spec = barSpec()
-        self.model.add_assumption((self.opcode == instruction_map['bar']) & (self.bar_state >= 0) & (self.bar_state <= 4) & (self.bar_counter_enter <= 128) & (self.bar_counter_exit >= 0)) #& ((self.bar_state == bar_spec.BAR_INIT) | (self.bar_state == bar_spec.BAR_FINISH) ))
+        self.model.add_assumption((self.opcode == instruction_map['bar'])) #& ((self.bar_state == bar_spec.BAR_INIT) | (self.bar_state == bar_spec.BAR_FINISH) ))
         #self.u_bar_model.add_assumption((self.opcode == instruction_map['bar']) & (self.bar_state > bar_spec.BAR_INIT) & (self.bar_state < bar_spec.BAR_FINISH))
 
 
@@ -167,53 +173,30 @@ class ptxGPUModel(object):
         return expr
 
     def compare(self):
-        next_1 = self.model.get_next('bar_counter_enter')
+        next_1 = self.u_bar_model.get_next('bar_state')
         next_2 = self.ptxSample()
-        if not self.model.areEqual(next_1, next_2):
+        if not self.u_bar_model.areEqual(next_1, next_2):
             print 'not equal'
         else:
             print 'equal'
-    
-    def ptxSample(self):
-        bar_spec = barSpec()
-        return ila.ite(self.opcode == 71, \
-        ila.ite(self.bar_state == bar_spec.BAR_INIT, self.bar_counter_enter, \
-        ila.ite(self.bar_state == bar_spec.BAR_FINISH, self.bar_counter_enter,\
-        ila.ite(self.bar_state == bar_spec.BAR_ENTER, ila.ite(self.bar_counter_exit == 0, self.bar_counter_enter + 1, self.bar_counter_enter),\
-        ila.ite(self.bar_state == bar_spec.BAR_WAIT, self.bar_counter_enter, \
-        ila.ite(self.bar_state == bar_spec.BAR_EXIT, ila.ite(self.bar_counter_exit == 1, ila.const(0x0, bar_spec.BAR_COUNTER_ENTER_BITS), self.bar_counter_enter), self.bar_counter_enter))))), \
-        self.bar_counter_enter)
-
-    #ptxSample for bar_state
     '''
-    def ptxSample(self):
-        bar_spec = barSpec()
-        return ila.ite(self.opcode == 71, ila.ite(self.bar_state == bar_spec.BAR_FINISH, ila.const(bar_spec.BAR_INIT, bar_spec.BAR_STATE_BITS),\
-         ila.ite(self.bar_state == bar_spec.BAR_INIT, ila.const(bar_spec.BAR_ENTER, bar_spec.BAR_STATE_BITS),\
-         ila.ite(self.bar_state == bar_spec.BAR_ENTER, ila.ite(self.bar_counter_exit != 0, self.bar_state,\
-         ila.ite(self.bar_counter_enter == (self.bar_counter_max - 1), ila.const(bar_spec.BAR_EXIT, bar_spec.BAR_STATE_BITS), ila.const(bar_spec.BAR_WAIT, bar_spec.BAR_STATE_BITS))),\
-         ila.ite(self.bar_state == bar_spec.BAR_WAIT, ila.ite(self.bar_counter_enter == self.bar_counter_max, ila.const(bar_spec.BAR_EXIT, bar_spec.BAR_STATE_BITS), self.bar_state),\
-         ila.ite(self.bar_state == bar_spec.BAR_EXIT, ila.const(bar_spec.BAR_FINISH, bar_spec.BAR_STATE_BITS), self.bar_state))))), self.bar_state)
-    '''
-    '''
-#sample for uILA bar_counter_enter update
     def ptxSample(self):
         bar_spec = barSpec()
         return ila.ite(self.bar_state == bar_spec.BAR_ENTER, ila.ite(self.bar_counter_exit != 0, self.bar_counter_enter, self.bar_counter_enter + 1), ila.ite((self.bar_state == bar_spec.BAR_EXIT) & (self.bar_counter_exit == 1), ila.const(0x0, bar_spec.BAR_COUNTER_ENTER_BITS), self.bar_counter_enter))
     '''
-    '''
+    
     #sample for uILA bar_state update.
     def ptxSample(self):
         bar_spec = barSpec()
         return ila.ite(self.bar_state == bar_spec.BAR_ENTER, ila.ite(self.bar_counter_exit != 0, ila.const(bar_spec.BAR_ENTER, bar_spec.BAR_STATE_BITS), ila.ite(self.bar_counter_enter == (self.bar_counter_max - 1), ila.const(bar_spec.BAR_EXIT, bar_spec.BAR_STATE_BITS), ila.const(bar_spec.BAR_WAIT, bar_spec.BAR_STATE_BITS))), ila.ite(self.bar_state == bar_spec.BAR_WAIT, ila.ite(self.bar_counter_enter == self.bar_counter_max, ila.const(bar_spec.BAR_EXIT, bar_spec.BAR_STATE_BITS), ila.const(bar_spec.BAR_WAIT, bar_spec.BAR_STATE_BITS)), ila.ite(self.bar_state == bar_spec.BAR_EXIT, ila.const(bar_spec.BAR_FINISH, bar_spec.BAR_STATE_BITS), self.bar_state)))
-    '''
+    
     '''
     #sample for topILA bar_state update.
     def ptxSample(self):
         bar_spec = barSpec()
         return ila.ite(self.opcode == 71, ila.ite(self.bar_state == bar_spec.BAR_FINISH, ila.const(bar_spec.BAR_INIT, bar_spec.BAR_STATE_BITS), ila.ite(self.bar_state == bar_spec.BAR_INIT, ila.const(bar_spec.BAR_ENTER, bar_spec.BAR_STATE_BITS), self.bar_state)), self.bar_state)
     '''
-    ''' 
+    '''
     #sample for topILA pc.    
     def ptxSample(self):
         bar_spec = barSpec()
