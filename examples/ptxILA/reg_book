@@ -21,4 +21,10 @@ aS'%r2'
 p10
 aS'r1'
 p11
+aS'bar_counter_enter'
+p12
+aS'bar_counter_exit'
+p13
+aS'bar_state'
+p14
 a.

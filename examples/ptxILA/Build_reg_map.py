@@ -14,6 +14,11 @@ pickle.dump(reg_book, general_reg_book_obj)
 #special_reg_book = special_reg_obj.readlines()
 special_reg_book = []
 
+#For barrier
+reg_book.append('bar_counter_enter')
+reg_book.append('bar_counter_exit')
+reg_book.append('bar_state')
+
 for special_reg in special_reg_book:
     reg_book.append(special_reg[:(len(special_reg) - 1)])
 

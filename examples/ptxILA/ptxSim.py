@@ -2,6 +2,7 @@ import pickle
 import commands
 import os
 import time
+import ptxILA
 class ptx_sim(object):
     def __init__(self):
         self.OP_BIT = 22
@@ -25,23 +26,25 @@ class ptx_sim(object):
         self.OPCODE_SUB = 28
         self.OPCODE_ADD = 27
         self.OPCODE_BRA = 67 
+        self.OPCODE_BAR = 71
         self.EXAMPLE_PROGRAM_HOLE = 57
-    def state_parser(self, state):
+        
+    def state_parser(self, state, bar_micro_flag):
         print 'pre:'
         for s in state.keys():
             print s + ' ' + str(state[s]) 
-        state = self.ptx_next_state(state)
+        state = self.ptx_next_state(state, bar_micro_flag)
         print 'post:'
         for s in state.keys():
             print s + ' ' + str(state[s])
         return state
     
-    def ptx_next_state(self, state):
+    def ptx_next_state(self, state, bar_micro_flag):
         mem = state['mem']
         pc = state['pc']
         instruction = mem[pc/4]
-        pc += 4
-        state['pc'] = pc
+        #pc += 4
+        #state['pc'] = pc
         
         opcode = self.OPCODE_MASK & instruction
         opcode = opcode >> self.OP_BIT
@@ -70,7 +73,7 @@ class ptx_sim(object):
         instruction_book = instruction_book_obj.readlines()
         
         #if ((opcode != self.OPCODE_MUL) & (opcode != self.OPCODE_ADD) & (opcode != self.OPCODE_SUB)): 
-        if((opcode != self.OPCODE_ADD) & (opcode != self.OPCODE_SUB) & (opcode != self.OPCODE_BRA)):
+        if((opcode != self.OPCODE_ADD) & (opcode != self.OPCODE_SUB) & (opcode != self.OPCODE_BRA) & (opcode != self.OPCODE_BAR)):
             return state
         if (opcode == self.OPCODE_BRA):
             if base:
@@ -87,6 +90,46 @@ class ptx_sim(object):
                 pc += bra
                 state['pc'] = pc 
             return state
+        
+        if (opcode == self.OPCODE_BAR):
+            bar_state = state['bar_state']
+            #bar_counter_enter = state['bar_counter_enter']
+            #bar_counter_exit = state['bar_counter_exit']
+            bar_spec = ptxILA.barSpec()
+            if (bar_micro_flag):
+                bar_counter_enter = state['bar_counter_enter']
+                bar_counter_exit = state['bar_counter_exit']
+                if bar_state == bar_spec.BAR_ENTER:
+                    if bar_counter_exit == 0:
+                        bar_counter_enter = bar_counter_enter + 1
+                        if bar_counter_enter == bar_spec.THREAD_NUM:
+                            bar_state = bar_spec.BAR_EXIT
+                            bar_counter_exit = bar_spec.THREAD_NUM
+                        else:
+                            bar_state = bar_spec.BAR_WAIT
+                elif bar_state == bar_spec.BAR_WAIT:
+                    if bar_counter_enter == bar_spec.THREAD_NUM:
+                        bar_state = bar_spec.BAR_WAIT
+                elif bar_state == bar_spec.BAR_EXIT:
+                   bar_counter_exit -= 1
+                   bar_state = bar_spec.BAR_FINISH
+                   if bar_counter_exit == 0:
+                       bar_counter_enter = 0
+                state['bar_state'] = bar_state
+                state['bar_counter_enter'] = bar_counter_enter
+                state['bar_counter_exit'] = bar_counter_exit
+            else:
+                if bar_state == bar_spec.BAR_INIT:
+                    bar_state = bar_spec.BAR_ENTER
+                elif bar_state == bar_spec.BAR_FINISH:
+                    bar_state = bar_spec.BAR_INIT
+                    state['pc'] = state['pc'] + 4
+                state['bar_state'] = bar_state
+                #state['bar_counter_enter'] = bar_counter_enter
+                #state['bar_counter_exit'] = bar_counter_exit
+            return state
+        pc = pc + 4
+        state['pc'] = pc
         op_text = instruction_book[opcode]
         op_text = op_text[:(len(op_text) - 1)]
        

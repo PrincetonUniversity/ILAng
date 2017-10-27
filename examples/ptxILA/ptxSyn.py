@@ -12,13 +12,19 @@ def synthesize():
     reg_map_obj = open(reg_map_file, 'r')
     reg_map = pickle.load(reg_map_obj)
     for reg_name in reg_map.keys():
+        if reg_name == 'bar_state':
+            continue
+        if reg_name == 'bar_counter_enter':
+            continue
+        if reg_name == 'bar_counter_exit':
+            continue
         ptxModel.model.set_next(reg_name, ptxModel.sreg_nxt(reg_map[reg_name]))
-    test_reg = 'pc'
+    test_reg = 'bar_state'
     print 'start'
-    ptxModel.model.synthesize(test_reg, lambda s:ptxSimulator.state_parser(s))
+    ptxModel.model.synthesize(test_reg, lambda s:ptxSimulator.state_parser(s, False))
     ast = ptxModel.model.get_next(test_reg)
     print ast
-    ptxModel.model.exportOne(ast, 'ast%r4')
+#    ptxModel.model.exportOne(ast, 'ast%r4')
     ptxModel.compare()
 
 
