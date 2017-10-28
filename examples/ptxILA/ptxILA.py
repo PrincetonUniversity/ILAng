@@ -174,18 +174,19 @@ class ptxGPUModel(object):
             print 'not equal'
         else:
             print 'equal'
-    
+     
     def ptxSample(self):
         bar_spec = barSpec()
         return ila.ite(self.opcode == 71,\
         ila.ite(self.bar_state == bar_spec.BAR_INIT, self.bar_counter_exit,\
         ila.ite(self.bar_state == bar_spec.BAR_FINISH, self.bar_counter_exit,\
-        ila.ite(self.bar_state == bar_spec.BAR_ENTER, ila.ite(self.bar_counter_enter == (self.bar_counter_max - 1), ila.const(self.bar_counter_max, bar_spec.BAR_COUNTER_EXIT_BITS), self.bar_counter_exit),\
+        ila.ite(self.bar_state == bar_spec.BAR_ENTER, ila.ite(self.bar_counter_exit == 0, ila.ite(self.bar_counter_enter == (self.bar_counter_max - 1), ila.const(self.bar_counter_max, bar_spec.BAR_COUNTER_EXIT_BITS), self.bar_counter_exit), self.bar_counter_exit),\
         ila.ite(self.bar_state == bar_spec.BAR_WAIT, self.bar_counter_exit,\
         ila.ite(self.bar_state == bar_spec.BAR_EXIT, ila.ite(self.bar_counter_exit > 0, self.bar_counter_exit - 1, self.bar_counter_exit), self.bar_counter_exit))))),\
         self.bar_counter_exit) 
+        
     
-    ''' 
+    '''
     #ptxSample for bar_counter_enter 
     def ptxSample(self):
         bar_spec = barSpec()
