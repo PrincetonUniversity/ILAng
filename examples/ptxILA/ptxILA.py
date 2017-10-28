@@ -96,7 +96,7 @@ class ptxGPUModel(object):
         #bar_counter_exit_next = ila.ite((bar_state == bar_spec.bar_enter) & (counter_enter == (bar_counter_max - 1)), bar_counter_max, ila.ite(bar_state == bar_spec.bar_exit, bar_counter_exit - 1, bar_counter_exit))
         bar_state_next = ila.choice('bar_state_next', [ila.const(i, bar_spec.BAR_STATE_BITS) for i in range(0, 5)])
         self.bar_counter_enter_next = ila.choice('bar_counter_enter_next', [self.bar_counter_enter, self.bar_counter_enter + 1, ila.const(0x0, bar_spec.BAR_COUNTER_ENTER_BITS)])
-        self.bar_counter_exit_next = ila.choice('bar_counter_exit_next', [self.bar_counter_exit, self.bar_counter_exit + 1, ila.const(self.bar_counter_max, bar_spec.BAR_COUNTER_EXIT_BITS)])
+        self.bar_counter_exit_next = ila.choice('bar_counter_exit_next', [self.bar_counter_exit, self.bar_counter_exit - 1, ila.const(self.bar_counter_max, bar_spec.BAR_COUNTER_EXIT_BITS)])
         self.model.set_next('bar_state', bar_state_next)
         self.model.set_next('bar_counter_enter', self.bar_counter_enter_next)
         self.model.set_next('bar_counter_exit', self.bar_counter_exit_next)
@@ -105,8 +105,9 @@ class ptxGPUModel(object):
                            (self.bar_state == bar_spec.BAR_ENTER) & (self.bar_counter_exit == 0) & (self.bar_counter_enter != (self.bar_counter_max - 1)),\
                            (self.bar_state == bar_spec.BAR_WAIT) & (self.bar_counter_enter != self.bar_counter_max),\
                            (self.bar_state == bar_spec.BAR_WAIT) & (self.bar_counter_enter == self.bar_counter_max),\
-                           (self.bar_state == bar_spec.BAR_EXIT) & (self.bar_counter_exit != 1),\
-                           (self.bar_state == bar_spec.BAR_EXIT) & (self.bar_counter_exit == 1)]
+                           (self.bar_state == bar_spec.BAR_EXIT) & (self.bar_counter_exit > 1),\
+                           (self.bar_state == bar_spec.BAR_EXIT) & (self.bar_counter_exit == 1),\
+                           (self.bar_state == bar_spec.BAR_EXIT) & (self.bar_counter_exit == 0)]
 
     def instructionFetch(self):
         self.inst = ila.load(self.mem, ila.zero_extend(self.pc[31:2], MEM_ADDRESS_BITS))
@@ -167,13 +168,25 @@ class ptxGPUModel(object):
         return expr
 
     def compare(self):
-        next_1 = self.model.get_next('bar_counter_enter')
+        next_1 = self.model.get_next('bar_counter_exit')
         next_2 = self.ptxSample()
         if not self.model.areEqual(next_1, next_2):
             print 'not equal'
         else:
             print 'equal'
     
+    def ptxSample(self):
+        bar_spec = barSpec()
+        return ila.ite(self.opcode == 71,\
+        ila.ite(self.bar_state == bar_spec.BAR_INIT, self.bar_counter_exit,\
+        ila.ite(self.bar_state == bar_spec.BAR_FINISH, self.bar_counter_exit,\
+        ila.ite(self.bar_state == bar_spec.BAR_ENTER, ila.ite(self.bar_counter_enter == (self.bar_counter_max - 1), ila.const(self.bar_counter_max, bar_spec.BAR_COUNTER_EXIT_BITS), self.bar_counter_exit),\
+        ila.ite(self.bar_state == bar_spec.BAR_WAIT, self.bar_counter_exit,\
+        ila.ite(self.bar_state == bar_spec.BAR_EXIT, ila.ite(self.bar_counter_exit > 0, self.bar_counter_exit - 1, self.bar_counter_exit), self.bar_counter_exit))))),\
+        self.bar_counter_exit) 
+    
+    ''' 
+    #ptxSample for bar_counter_enter 
     def ptxSample(self):
         bar_spec = barSpec()
         return ila.ite(self.opcode == 71, \
@@ -183,7 +196,7 @@ class ptxGPUModel(object):
         ila.ite(self.bar_state == bar_spec.BAR_WAIT, self.bar_counter_enter, \
         ila.ite(self.bar_state == bar_spec.BAR_EXIT, ila.ite(self.bar_counter_exit == 1, ila.const(0x0, bar_spec.BAR_COUNTER_ENTER_BITS), self.bar_counter_enter), self.bar_counter_enter))))), \
         self.bar_counter_enter)
-
+    '''
     #ptxSample for bar_state
     '''
     def ptxSample(self):

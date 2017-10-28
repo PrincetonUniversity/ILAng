@@ -246,12 +246,12 @@ state['%r7'] = 0xffffffff
 state['%r8'] = 0xffffffff
 state = test.state_parser(state)
 '''
-'''
+
 #test for alu instructions
 test = ptx_sim()
 state = {}
 state['pc'] = 0
-state['mem'] = [0x06c00000]
+state['mem'] = [0x11c00000]
 state['r1'] = 0x00000010
 state['r2'] = 0x00000001
 state['%r0'] = 0x0000000
@@ -263,7 +263,10 @@ state['%r5'] = 0x0000005
 state['%r6'] = 0x0000006
 state['%r7'] = 0x0000007
 state['%r8'] = 0x0000008
+state['bar_state'] = 0b011
+state['bar_counter_enter'] = 0x00000020
+state['bar_counter_exit'] = 0x00800000
 print state
 state = test.state_parser(state)
 print state
-'''
+

@@ -19,7 +19,7 @@ def synthesize():
         if reg_name == 'bar_counter_exit':
             continue
         ptxModel.model.set_next(reg_name, ptxModel.sreg_nxt(reg_map[reg_name]))
-    test_reg = 'bar_counter_enter'
+    test_reg = 'bar_counter_exit'
     print 'start'
     ptxModel.model.synthesize(test_reg, lambda s:ptxSimulator.state_parser(s))
     ast = ptxModel.model.get_next(test_reg)
