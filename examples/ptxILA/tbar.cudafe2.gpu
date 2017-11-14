@@ -1,0 +1,170 @@
+# 212 "/usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stddef.h" 3
+typedef unsigned long size_t;
+#include "crt/device_runtime.h"
+# 196 "/usr/local/cuda-8.0/bin/../targets/x86_64-linux/include/crt/device_runtime.h" 3
+___device__(extern  __no_sc__) __attribute__((__externally_visible__)) __attribute__((__used__)) __attribute__((visibility("default"))) void *malloc(size_t);
+# 197 "/usr/local/cuda-8.0/bin/../targets/x86_64-linux/include/crt/device_runtime.h" 3
+___device__(extern  __no_sc__) __attribute__((__externally_visible__)) __attribute__((__used__)) __attribute__((__nothrow__)) __attribute__((visibility("default"))) void free(void *);
+# 64 "tbar.cu"
+__global__ __var_used__ extern void _Z3dotPiS_S_(int *, int *, int *);
+#include "common_functions.h"
+# 64 "tbar.cu"
+__global__ __var_used__ void _Z3dotPiS_S_(
+# 64 "tbar.cu"
+int *bar_state_array, 
+# 64 "tbar.cu"
+int *bar_counter_enter_array, 
+# 64 "tbar.cu"
+int *bar_counter_exit_array){
+# 64 "tbar.cu"
+{
+# 64 "tbar.cu"
+{
+# 65 "tbar.cu"
+ int __cuda_local_var_33151_9_non_const_gid;
+# 66 "tbar.cu"
+ int __cuda_local_var_33152_9_non_const_bar_state;
+# 67 "tbar.cu"
+ int __cuda_local_var_33153_9_non_const_bar_counter_enter;
+# 68 "tbar.cu"
+ int __cuda_local_var_33154_9_non_const_bar_counter_exit;
+# 65 "tbar.cu"
+__cuda_local_var_33151_9_non_const_gid = ((int)((threadIdx.x) + ((blockIdx.x) * (blockDim.x))));
+# 66 "tbar.cu"
+__cuda_local_var_33152_9_non_const_bar_state = (bar_state_array[__cuda_local_var_33151_9_non_const_gid]);
+# 67 "tbar.cu"
+__cuda_local_var_33153_9_non_const_bar_counter_enter = (bar_counter_enter_array[__cuda_local_var_33151_9_non_const_gid]);
+# 68 "tbar.cu"
+__cuda_local_var_33154_9_non_const_bar_counter_exit = (bar_counter_exit_array[__cuda_local_var_33151_9_non_const_gid]);
+# 69 "tbar.cu"
+if (__cuda_local_var_33151_9_non_const_gid == 0)
+# 69 "tbar.cu"
+{
+# 70 "tbar.cu"
+if (__cuda_local_var_33152_9_non_const_bar_state == 0)
+# 70 "tbar.cu"
+{
+# 71 "tbar.cu"
+__cuda_local_var_33152_9_non_const_bar_state = 1;
+# 72 "tbar.cu"
+}
+# 72 "tbar.cu"
+else 
+# 72 "tbar.cu"
+{
+# 72 "tbar.cu"
+if (__cuda_local_var_33152_9_non_const_bar_state == 1)
+# 72 "tbar.cu"
+{
+# 73 "tbar.cu"
+if (__cuda_local_var_33154_9_non_const_bar_counter_exit == 0)
+# 73 "tbar.cu"
+{
+# 74 "tbar.cu"
+if (__cuda_local_var_33153_9_non_const_bar_counter_enter == 127)
+# 74 "tbar.cu"
+{
+# 75 "tbar.cu"
+__cuda_local_var_33153_9_non_const_bar_counter_enter = 128;
+# 76 "tbar.cu"
+__cuda_local_var_33152_9_non_const_bar_state = 3;
+# 77 "tbar.cu"
+__cuda_local_var_33154_9_non_const_bar_counter_exit = 128;
+# 78 "tbar.cu"
+}
+# 79 "tbar.cu"
+else 
+# 79 "tbar.cu"
+{
+# 80 "tbar.cu"
+__cuda_local_var_33153_9_non_const_bar_counter_enter += 1;
+# 81 "tbar.cu"
+__cuda_local_var_33152_9_non_const_bar_state = 2;
+# 82 "tbar.cu"
+}
+# 83 "tbar.cu"
+}
+# 84 "tbar.cu"
+}
+# 84 "tbar.cu"
+else 
+# 84 "tbar.cu"
+{
+# 84 "tbar.cu"
+if (__cuda_local_var_33152_9_non_const_bar_state == 2)
+# 84 "tbar.cu"
+{
+# 85 "tbar.cu"
+if (__cuda_local_var_33153_9_non_const_bar_counter_enter == 128)
+# 85 "tbar.cu"
+{
+# 86 "tbar.cu"
+__cuda_local_var_33152_9_non_const_bar_state = 3;
+# 87 "tbar.cu"
+}
+# 88 "tbar.cu"
+}
+# 88 "tbar.cu"
+else 
+# 88 "tbar.cu"
+{
+# 88 "tbar.cu"
+if (__cuda_local_var_33152_9_non_const_bar_state == 3)
+# 88 "tbar.cu"
+{
+# 89 "tbar.cu"
+if (__cuda_local_var_33154_9_non_const_bar_counter_exit == 1)
+# 89 "tbar.cu"
+{
+# 90 "tbar.cu"
+__cuda_local_var_33153_9_non_const_bar_counter_enter = 0;
+# 91 "tbar.cu"
+__cuda_local_var_33154_9_non_const_bar_counter_exit = 0;
+# 92 "tbar.cu"
+__cuda_local_var_33152_9_non_const_bar_state = 4;
+# 93 "tbar.cu"
+}
+# 93 "tbar.cu"
+else 
+# 93 "tbar.cu"
+{
+# 94 "tbar.cu"
+__cuda_local_var_33154_9_non_const_bar_counter_exit -= 1;
+# 95 "tbar.cu"
+__cuda_local_var_33152_9_non_const_bar_state = 4;
+# 96 "tbar.cu"
+}
+# 97 "tbar.cu"
+}
+# 97 "tbar.cu"
+else 
+# 97 "tbar.cu"
+{
+# 97 "tbar.cu"
+if (__cuda_local_var_33152_9_non_const_bar_state == 4)
+# 97 "tbar.cu"
+{
+# 98 "tbar.cu"
+__cuda_local_var_33152_9_non_const_bar_state = 0;
+# 98 "tbar.cu"
+}
+# 98 "tbar.cu"
+}
+# 98 "tbar.cu"
+}
+# 98 "tbar.cu"
+}
+# 98 "tbar.cu"
+}
+# 99 "tbar.cu"
+}
+# 100 "tbar.cu"
+(bar_state_array[__cuda_local_var_33151_9_non_const_gid]) = __cuda_local_var_33152_9_non_const_bar_state;
+# 101 "tbar.cu"
+(bar_counter_enter_array[__cuda_local_var_33151_9_non_const_gid]) = __cuda_local_var_33153_9_non_const_bar_counter_enter;
+# 102 "tbar.cu"
+(bar_counter_exit_array[__cuda_local_var_33151_9_non_const_gid]) = __cuda_local_var_33154_9_non_const_bar_counter_exit;
+# 105 "tbar.cu"
+} 
+# 105 "tbar.cu"
+}}

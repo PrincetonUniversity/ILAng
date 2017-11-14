@@ -74,6 +74,7 @@ class ptx_sim(object):
         
         #if ((opcode != self.OPCODE_MUL) & (opcode != self.OPCODE_ADD) & (opcode != self.OPCODE_SUB)): 
         if((opcode != self.OPCODE_ADD) & (opcode != self.OPCODE_SUB) & (opcode != self.OPCODE_BRA) & (opcode != self.OPCODE_BAR)):
+            state['pc'] = state['pc'] + 4
             return state
         if (opcode == self.OPCODE_BRA):
             if base:
@@ -90,7 +91,64 @@ class ptx_sim(object):
                 pc += bra
                 state['pc'] = pc 
             return state
-        
+        '''
+        if (opcode == self.OPCODE_BAR):
+            bar_state = state['bar_state']
+            bar_spec = ptxILA.barSpec();
+            bar_counter_enter = state['bar_counter_enter']
+            bar_counter_exit = state['bar_counter_exit']
+            if (bar_state == bar_spec.BAR_FINISH):
+                state['pc'] = state['pc'] + 4
+            sim_program_line = ''
+            sim_program_line += 'mov.u32 %r1, ' + str(bar_state) + ';'
+            sim_program_line += 'mov.u32 %r23, ' + str(bar_counter_enter) + ';'
+            sim_program_line += 'mov.u32 %r24, ' + str(bar_counter_exit) + '; \n'
+            example_sim_program_file = 'tbar.ptx'
+            example_sim_program_obj = open(example_sim_program_file, 'r')
+            example_sim_program = example_sim_program_obj.readlines()
+            sim_program = []
+            bar_program_hole = 42
+            for i in range(len(example_sim_program)):
+                if i == bar_program_hole:
+                    sim_program.append(sim_program_line)
+                else:
+                    sim_program.append(example_sim_program[i])
+             
+            example_sim_program_obj.close()
+            sim_program_file = 'tbar.ptx'
+            sim_program_obj = open(sim_program_file, 'w')
+            for sim_line in sim_program:
+                sim_program_obj.write(sim_line)
+            sim_program_obj.close()
+            (status, output) = commands.getstatusoutput('./dryrun_bar.out')
+            print status
+            print output
+            (status, output) = commands.getstatusoutput('sbatch parallel_bar.cmd')
+            print status
+            print output
+            output_word = output.split()
+            taskTag = output_word[3]
+            time.sleep(5)
+            (status, output) = commands.getstatusoutput('cat slurm-' + taskTag + '.out')
+            while(status == 256):
+                time.sleep(5)
+                (status, output) = commands.getstatusoutput('cat slurm-' + taskTag + '.out')
+            [bar_state, bar_counter_enter, bar_counter_exit] = output.split()
+            bar_state = int(bar_state)
+            bar_counter_enter = int(bar_counter_enter)
+            bar_counter_exit = int(bar_counter_exit)
+            if (bar_counter_enter < 0):
+                bar_counter_enter = -bar_counter_enter
+                bar_counter_enter = (1<<31) - bar_counter_enter + (1<<31)
+            if (bar_counter_exit < 0):
+                bar_counter_exit = -bar_counter_exit
+                bar_counter_exit = (1<<31) - bar_counter_exit + (1<<31)
+            state['bar_state'] = bar_state
+            state['bar_counter_enter'] = bar_counter_enter
+            state['bar_counter_exit'] = bar_counter_exit
+            return state
+            '''
+            
         if (opcode == self.OPCODE_BAR):
             bar_state = state['bar_state']
             #bar_counter_enter = state['bar_counter_enter']
@@ -123,6 +181,10 @@ class ptx_sim(object):
                 bar_state = bar_spec.BAR_FINISH
                 if bar_counter_exit < 0:
                     state['bar_state'] = bar_spec.BAR_FINISH
+                    if (bar_counter_exit < 0):
+                        bar_counter_exit = -bar_counter_exit
+                        bar_counter_exit = (1<<31) - bar_counter_exit + (1<<31)
+                    state['bar_counter_exit'] = bar_counter_exit
                     return state
                 if bar_counter_exit == 0:
                     bar_counter_enter = 0
@@ -130,6 +192,8 @@ class ptx_sim(object):
             state['bar_state'] = bar_state
             state['bar_counter_enter'] = bar_counter_enter
             state['bar_counter_exit'] = bar_counter_exit
+            return state
+            
             '''
             if (bar_micro_flag):
                 bar_counter_enter = state['bar_counter_enter']
@@ -162,8 +226,9 @@ class ptx_sim(object):
                 state['bar_state'] = bar_state
                 #state['bar_counter_enter'] = bar_counter_enter
                 #state['bar_counter_exit'] = bar_counter_exit
-            '''
+            
             return state
+            '''
         pc = pc + 4
         state['pc'] = pc
         op_text = instruction_book[opcode]

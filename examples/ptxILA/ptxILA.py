@@ -20,7 +20,8 @@ class barSpec(object):
         self.BAR_COUNTER_ENTER_BITS = 32
         self.BAR_COUNTER_EXIT_BITS = 32
         self.BAR_STATE_BITS = 3
-        self.THREAD_NUM = 128
+        self.THREAD_NUM = 2
+        self.BAR_OPCODE = 71
 
 reg_source_file = "test_reg_source.txt"
 mem_source_file = "test_mem_source.txt"
@@ -145,7 +146,7 @@ class ptxGPUModel(object):
         instruction_map_obj = open(instruction_map_file, 'r')
         instruction_map = pickle.load(instruction_map_obj)
         bar_spec = barSpec()
-        self.model.add_assumption((self.opcode == instruction_map['bar']) & (self.bar_state >= 0) & (self.bar_state <= 4) & (self.bar_counter_enter <= 128) & (self.bar_counter_exit >= 0)) #& ((self.bar_state == bar_spec.BAR_INIT) | (self.bar_state == bar_spec.BAR_FINISH) ))
+        self.model.add_assumption((self.opcode == instruction_map['bar']) & (self.bar_state >= bar_spec.BAR_INIT) & (self.bar_state <= bar_spec.BAR_FINISH) & (self.bar_counter_enter <= bar_spec.THREAD_NUM) & (self.bar_counter_exit >= 0) & (self.bar_counter_enter >= 0) & (self.bar_counter_exit <= bar_spec.THREAD_NUM)) #& ((self.bar_state == bar_spec.BAR_INIT) | (self.bar_state == bar_spec.BAR_FINISH) ))
         #self.u_bar_model.add_assumption((self.opcode == instruction_map['bar']) & (self.bar_state > bar_spec.BAR_INIT) & (self.bar_state < bar_spec.BAR_FINISH))
 
 
@@ -168,13 +169,14 @@ class ptxGPUModel(object):
         return expr
 
     def compare(self):
-        next_1 = self.model.get_next('bar_counter_exit')
+        next_1 = self.model.get_next('pc')
         next_2 = self.ptxSample()
         if not self.model.areEqual(next_1, next_2):
             print 'not equal'
         else:
             print 'equal'
-     
+
+    '''
     def ptxSample(self):
         bar_spec = barSpec()
         return ila.ite(self.opcode == 71,\
@@ -182,9 +184,9 @@ class ptxGPUModel(object):
         ila.ite(self.bar_state == bar_spec.BAR_FINISH, self.bar_counter_exit,\
         ila.ite(self.bar_state == bar_spec.BAR_ENTER, ila.ite(self.bar_counter_exit == 0, ila.ite(self.bar_counter_enter == (self.bar_counter_max - 1), ila.const(self.bar_counter_max, bar_spec.BAR_COUNTER_EXIT_BITS), self.bar_counter_exit), self.bar_counter_exit),\
         ila.ite(self.bar_state == bar_spec.BAR_WAIT, self.bar_counter_exit,\
-        ila.ite(self.bar_state == bar_spec.BAR_EXIT, ila.ite(self.bar_counter_exit > 0, self.bar_counter_exit - 1, self.bar_counter_exit), self.bar_counter_exit))))),\
+        ila.ite(self.bar_state == bar_spec.BAR_EXIT, ila.ite(self.bar_counter_exit != 0, self.bar_counter_exit - 1, self.bar_counter_exit - 1), self.bar_counter_exit))))),\
         self.bar_counter_exit) 
-        
+    '''    
     
     '''
     #ptxSample for bar_counter_enter 
@@ -227,12 +229,12 @@ class ptxGPUModel(object):
         bar_spec = barSpec()
         return ila.ite(self.opcode == 71, ila.ite(self.bar_state == bar_spec.BAR_FINISH, ila.const(bar_spec.BAR_INIT, bar_spec.BAR_STATE_BITS), ila.ite(self.bar_state == bar_spec.BAR_INIT, ila.const(bar_spec.BAR_ENTER, bar_spec.BAR_STATE_BITS), self.bar_state)), self.bar_state)
     '''
-    ''' 
+     
     #sample for topILA pc.    
     def ptxSample(self):
         bar_spec = barSpec()
         return ila.ite(self.opcode == 71, ila.ite(self.bar_state == bar_spec.BAR_FINISH, self.pc + 4 , self.pc), self.pc + 4)
-    '''
+
     '''
     #sample for branch instruction
     def ptxSample(self):
