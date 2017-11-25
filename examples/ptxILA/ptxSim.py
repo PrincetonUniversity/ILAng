@@ -3,31 +3,65 @@ import commands
 import os
 import time
 import ptxILA
+import Instruction_Format
+instruction_format = Instruction_Format.InstructionFormat()
+instruction_map_file = 'instruction_map'
+instruction_map_obj = open(instruction_map_file, 'r')
+instruction_map = pickle.load(instruction_map_obj)
+mem_map_file = 'mem_map'
+mem_map_obj = open(mem_map_file, 'r')
+[mem_map, mem_size] = pickle.load(mem_map_obj)
+
+
 class ptx_sim(object):
     def __init__(self):
-        self.OP_BIT = 22
-        self.DST_BIT = 17
-        self.SRC0_BIT = 12
-        self.SRC1_BIT = 7
-        self.SRC2_BIT = 2
-        self.BASE_BIT = 2
-        self.PRED_BIT = 17
-        self.OPERAND_WIDTH = 5
-        self.OPCODE_MASK = 0xffc00000
-        self.DST_MASK = 0x003e0000
-        self.SRC0_MASK = 0x0001f000
-        self.SRC1_MASK = 0x00000f80
-        self.SRC2_MASK = 0x0000007c
-        self.BASE_MASK = 0x00000003
-        self.IMM_MASK = 0x00000fff
-        self.P_MASK = 0x003e0000
-        self.BRA_MASK = 0x0001fffc
+        #self.OP_BIT = 22
+        #self.DST_BIT = 17
+        #self.SRC0_BIT = 12
+        #self.SRC1_BIT = 7
+        #self.SRC2_BIT = 2
+        #self.BASE_BIT = 2
+        #self.PRED_BIT = 17 
+        self.OP_BIT = instruction_format.OPCODE_BIT 
+        self.DST_BIT = instruction_format.DST_BIT
+        self.SRC0_BIT = instruction_format.SRC0_BIT
+        self.SRC1_BIT = instruction_format.SRC1_BIT
+        self.SRC2_BIT = instruction_format.SRC2_BIT 
+        self.BASE_BIT = instruction_format.BASE_BIT
+        self.PRED_BIT = instruction_format.PRED_BIT
+        self.OPCODE_LENGTH = instruction_format.OPCODE_LENGTH
+        
+        #self.OPERAND_WIDTH = 5
+        #self.OPCODE_MASK = 0xffc00000
+        #self.DST_MASK = 0x003e0000
+        #self.SRC0_MASK = 0x0001f000
+        #self.SRC1_MASK = 0x00000f80
+        #self.SRC2_MASK = 0x0000007c
+        #self.BASE_MASK = 0x00000003
+        #self.IMM_MASK = 0x00000fff
+        #self.P_MASK = 0x003e0000
+        #self.BRA_MASK = 0x0001fffc
+        
+        self.OPCODE_MASK = (1 << instruction_format.OPCODE_BIT_TOP) - (1 << instruction_format.OPCODE_BIT_BOT)
+        self.DST_MASK = (1 << instruction_format.DST_BIT_TOP) - (1 << instruction_format.DST_BIT_BOT)
+        self.SRC0_MASK = (1 << instruction_format.SRC0_BIT_TOP) - (1 << instruction_format.SRC0_BIT_BOT)
+        self.SRC1_MASK = (1 << instruction_format.SRC1_BIT_TOP) - (1 << instruction_format.SRC1_BIT_BOT)
+        self.SRC2_MASK = (1 << instruction_format.SRC2_BIT_TOP) - (1 << instruction_format.SRC2_BIT_BOT)
+        self.BASE_MASK = (1 << instruction_format.BASE_BIT_TOP) - (1 << instruction_format.BASE_BIT_BOT)
+        self.IMM_MASK = (1 << instruction_format.IMM_BIT_TOP) - (1 << instruction_format.IMM_BIT_BOT)
+        self.P_REG_MASK = self.DST_MASK
+        self.P_REG_BIT = self.DST_BIT
+        self.ldIMM_MASK = self.IMM_MASK
+        self.BRA_MASK = self.ldIMM_MASK
+
         #self.OPCODE_MUL = 29
         self.OPCODE_SUB = 28
         self.OPCODE_ADD = 27
         self.OPCODE_BRA = 67 
         self.OPCODE_BAR = 71
+        self.OPCODE_LD = instruction_map['ld']
         self.EXAMPLE_PROGRAM_HOLE = 57
+        self.PRE_LD_HOLE = 33 
         
     def state_parser(self, state):
         print 'pre:'
@@ -43,21 +77,23 @@ class ptx_sim(object):
         mem = state['mem']
         pc = state['pc']
         instruction = mem[pc/4]
+        print instruction
         #pc += 4
         #state['pc'] = pc
         
         opcode = self.OPCODE_MASK & instruction
-        opcode = opcode >> self.OP_BIT
+        opcode = opcode >> instruction_format.OPCODE_BIT_BOT
         dst = self.DST_MASK & instruction
-        dst = dst >> self.DST_BIT
+        dst = dst >> instruction_format.DST_BIT_BOT
         src0 = self.SRC0_MASK & instruction
-        src0 = src0 >> self.SRC0_BIT
+        src0 = src0 >> instruction_format.SRC0_BIT_BOT
         src1 = self.SRC1_MASK & instruction
-        src1 = src1 >> self.SRC1_BIT
+        src1 = src1 >> instruction_format.SRC1_BIT_BOT
         base = self.BASE_MASK & instruction
-        pred = self.P_MASK & instruction
-        pred = pred >> self.PRED_BIT
-        bra = (self.BRA_MASK & instruction) >> self.BASE_BIT
+        base = base >> instruction_format.BASE_BIT_BOT
+        pred = self.P_REG_MASK & instruction
+        pred = pred >> self.P_REG_BIT
+        bra = (self.BRA_MASK & instruction) >> instruction_format.IMM_BIT_BOT
         test_program = []
         general_reg_book_file = 'general_reg_book'
         general_reg_book_obj = open(general_reg_book_file)
@@ -73,7 +109,7 @@ class ptx_sim(object):
         instruction_book = instruction_book_obj.readlines()
         
         #if ((opcode != self.OPCODE_MUL) & (opcode != self.OPCODE_ADD) & (opcode != self.OPCODE_SUB)): 
-        if((opcode != self.OPCODE_ADD) & (opcode != self.OPCODE_SUB) & (opcode != self.OPCODE_BRA) & (opcode != self.OPCODE_BAR)):
+        if((opcode != self.OPCODE_ADD) & (opcode != self.OPCODE_SUB) & (opcode != self.OPCODE_BRA) & (opcode != self.OPCODE_BAR) & (opcode != self.OPCODE_LD)):
             state['pc'] = state['pc'] + 4
             return state
         if (opcode == self.OPCODE_BRA):
@@ -183,7 +219,7 @@ class ptx_sim(object):
                     state['bar_state'] = bar_spec.BAR_FINISH
                     if (bar_counter_exit < 0):
                         bar_counter_exit = -bar_counter_exit
-                        bar_counter_exit = (1<<31) - bar_counter_exit + (1<<31)
+                        bar_counter_exit = (1<<(bar_spec.BAR_COUNTER_EXIT_BITS - 1)) - bar_counter_exit + (1<< (bar_spec.BAR_COUNTER_EXIT - 1))
                     state['bar_counter_exit'] = bar_counter_exit
                     return state
                 if bar_counter_exit == 0:
@@ -233,7 +269,95 @@ class ptx_sim(object):
         state['pc'] = pc
         op_text = instruction_book[opcode]
         op_text = op_text[:(len(op_text) - 1)]
-       
+        def find_addr(laddr):
+            for mem_key in mem_map.keys():
+                if (mem_map[mem_key][1]) >= laddr:
+                    start_addr = mem_map[mem_key][0]
+                    dmem_name = mem_key
+                    return [dmem_name, start_addr]
+
+        if opcode == self.OPCODE_LD:
+            mem = state['dmem']
+            default = mem.default
+            values = mem.values
+            addr = []
+            value = []
+            for (a, v) in values:
+                addr.append(a * 4)
+                value.append(v)
+            dest_text = reg_book[dst]
+            self.ldAddr = (self.ldIMM_MASK & instruction) >> instruction_format.IMM_BIT_BOT
+            self.ldAddr = (self.ldAddr) << 2
+            print 'load_addr' + str(self.ldAddr)
+            [dmem_name, start_addr] = find_addr(self.ldAddr)
+            item = (self.ldAddr - start_addr) >> 2
+            pre_ld_program = ''
+            pre_ld_program += '.reg .b64 %r_sim_ld<3>; .reg .b32 %r_ssim_ld;'
+            for i in range(len(addr)):
+                pre_addr = addr[i]
+                [pre_mem_name, pre_start_addr] = find_addr(pre_addr)
+                pre_item = (pre_addr - pre_start_addr) >> 2
+                pre_ld_program += 'ld.param.u64 %r_sim_ld1, [' + pre_mem_name + ']; '
+                pre_ld_program += 'cvta.to.global.u64 %r_sim_ld2, %r_sim_ld1; '
+                pre_ld_program += 'mov.u32 %r_ssim_ld, ' + str(pre_item) + '; '
+                pre_ld_program += 'mul.wide.s32 %r_sim_ld1, %r_ssim_ld, 4; '
+                pre_ld_program += 'add.s64 %r_sim_ld2, %r_sim_ld1, %r_sim_ld2; '
+                pre_ld_program += 'mov.u32 %r_ssim_ld, ' + str(value[i]) + '; '
+                pre_ld_program += 'st.global.b32 [%r_sim_ld2], %r_ssim_ld; '
+            pre_ld_program += '\n'
+            ld_program = ''
+            ld_program += 'ld.param.u64 %r_sim_ld1, [' + dmem_name + ']; '
+            ld_program += 'cvta.to.global.u64 %r_sim_ld2, %r_sim_ld1; '
+            ld_program += 'mov.u32 %r_ssim_ld, ' + str(item) + '; '
+            ld_program += 'mul.wide.s32 %r_sim_ld1, %r_ssim_ld, 4; '
+            ld_program += 'add.s64 %r_sim_ld2, %r_sim_ld1, %r_sim_ld2; '
+            ld_program += 'ld.global.b32 ' + dest_text + ',[%r_sim_ld2]; '
+            ld_program += 'mov.s32 %r9, ' + dest_text + '; '
+            example_sim_program_file = 't266.ptx'
+            example_sim_program_obj = open(example_sim_program_file, 'r')
+            example_sim_program = example_sim_program_obj.readlines()
+            sim_program = []
+            for test_program_line in test_program:
+                ld_program = test_program_line + ld_program
+            for i in range(len(example_sim_program)):
+                if i == self.EXAMPLE_PROGRAM_HOLE:
+                    sim_program.append(ld_program + '\n')
+                elif i == self.PRE_LD_HOLE:
+                    sim_program.append(pre_ld_program)
+                else:
+                    sim_program.append(example_sim_program[i])       
+            example_sim_program_obj.close()
+            sim_program_file = 't266.ptx'
+            sim_program_obj = open(sim_program_file, 'w')
+            for sim_program_line in sim_program:
+                sim_program_obj.write(sim_program_line)
+            sim_program_obj.close()
+            (status, output) = commands.getstatusoutput('./dryrun.out')
+            print status
+            print output
+            (status, output) = commands.getstatusoutput('sbatch parallel.cmd')
+            print status
+            print output
+            output_word = output.split()
+            taskTag = output_word[3]
+            time.sleep(5)
+            (status, output) = commands.getstatusoutput('cat slurm-' + taskTag + '.out')
+            while(status == 256):
+                time.sleep(5)
+                (status, output) = commands.getstatusoutput('cat slurm-' + taskTag + '.out')
+            poutput = int(output)
+            if (poutput < 0):
+                poutput = -poutput
+                poutput = (1 << (instruction_format.REG_BITS - 1)) - poutput + (1 << (instruction_format.REG_BITS - 1)) 
+            print 'poutput: ' + str(poutput)
+            state[dest_text] = poutput
+            if self.ldAddr not in addr:
+                state[dest_text] = default
+            return state 
+
+            
+             
+
         dst_text = reg_book[dst] 
         if (src0 >= len(reg_book)) | (src1 >= len(reg_book)) | (dst >= len(reg_book)):
             return state
@@ -287,7 +411,7 @@ class ptx_sim(object):
         poutput = int(output)
         if (poutput < 0):
             poutput = -poutput
-            poutput = (1<<31) - poutput + (1<<31)
+            poutput = (1 << (self.REG_BITS - 1)) - poutput + (1 << (self.REG_BITS - 1))
         nxt_state = poutput
         (status, output) = commands.getstatusoutput('rm a_dlin*')
         (status, output) = commands.getstatusoutput('rm ' + 'slurm-' + taskTag + '.out')

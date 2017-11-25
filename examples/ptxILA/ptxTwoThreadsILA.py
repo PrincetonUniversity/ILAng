@@ -1,7 +1,9 @@
 import ila
 import ptxILA
 import pickle
+import Instruction_Format
 
+instruction_format = Instruction_Format.InstructionFormat()
 BAR_OPCODE = 71
 
 
@@ -19,10 +21,10 @@ class ptxTwoThreadsILA(object):
         self.pc_nxt()
 
     def createPC(self):
-        self.pc_a = self.model.reg('pc_a', ptxILA.PC_BITS)
-        self.pc_b = self.model.reg('pc_b', ptxILA.PC_BITS)
-        self.model.set_init('pc_a', self.model.const(0x0, ptxILA.PC_BITS))
-        self.model.set_init('pc_b', self.model.const(0x0, ptxILA.PC_BITS))
+        self.pc_a = self.model.reg('pc_a', instruction_format.PC_BITS)
+        self.pc_b = self.model.reg('pc_b', instruction_format.PC_BITS)
+        self.model.set_init('pc_a', self.model.const(0x0, instruction_format.PC_BITS))
+        self.model.set_init('pc_b', self.model.const(0x0, instruction_format.PC_BITS))
     
     def createRegs(self):
         self.scalar_registers_a = []
@@ -34,8 +36,8 @@ class ptxTwoThreadsILA(object):
         reg_book.remove('bar_counter_exit')
         '''
         for reg_name in reg_book:
-            self.scalar_registers_a.append(self.model.reg(reg_name + '_a', ptxILA.REG_BITS))
-            self.scalar_registers_b.append(self.model.reg(reg_name + '_b', ptxILA.REG_BITS)) 
+            self.scalar_registers_a.append(self.model.reg(reg_name + '_a', instruction_format.REG_BITS))
+            self.scalar_registers_b.append(self.model.reg(reg_name + '_b', instruction_format.REG_BITS)) 
         '''
         self.arb_fun = self.model.fun('arb_fun', 1, [])
         self.arb = self.model.reg('arb', 1)
@@ -45,11 +47,11 @@ class ptxTwoThreadsILA(object):
         self.model.set_init('arb', self.model.const(0x0, 1))
 
     def createMems(self):
-        self.mem = self.model.mem('mem',ptxILA.MEM_ADDRESS_BITS, ptxILA.MEM_ADDRESS_BITS)
+        self.mem = self.model.mem('mem', instruction_format.MEM_ADDRESS_BITS, instruction_format.MEM_BITS)
         self.model.set_next('mem', self.mem)
-        self.mem_init_value = ila.MemValues(ptxILA.MEM_ADDRESS_BITS, ptxILA.MEM_ADDRESS_BITS, 0x0)
-        self.mem_init_value[0x4] = 0x11c00000
-        self.mem_init_value[0xc] = 0x11c00000
+        self.mem_init_value = ila.MemValues(instruction_format.MEM_ADDRESS_BITS, instruction_format.MEM_BITS, 0x0)
+        self.mem_init_value[0x4] = 0x0000000011c00000
+        self.mem_init_value[0xc] = 0x0000000011c00000
         #self.mem_init_value[0x40] = 0x11c00000
         self.model.set_init('mem', self.model.const(self.mem_init_value)) 
             
@@ -123,10 +125,10 @@ class ptxTwoThreadsILA(object):
         self.model.set_next('pc_a', self.pc_a_next)
         self.model.set_next('pc_b', self.pc_b_next)
     def instructionFetch(self):
-        self.inst_a = ila.load(self.mem, ila.zero_extend(self.pc_a[31:2], ptxILA.MEM_ADDRESS_BITS))
-        self.inst_b = ila.load(self.mem, ila.zero_extend(self.pc_b[31:2], ptxILA.MEM_ADDRESS_BITS))
-        self.opcode_a = self.inst_a[(ptxILA.REG_BITS - 1) : ptxILA.OPCODE_BIT]
-        self.opcode_b = self.inst_b[(ptxILA.REG_BITS - 1) : ptxILA.OPCODE_BIT]
+        self.inst_a = ila.load(self.mem, ila.zero_extend(self.pc_a[31:2], instruction_format.MEM_ADDRESS_BITS))
+        self.inst_b = ila.load(self.mem, ila.zero_extend(self.pc_b[31:2], instruction_format.MEM_ADDRESS_BITS))
+        self.opcode_a = self.inst_a[(instruction_format.OPCODE_BIT_TOP - 1) : instruction_format.OPCODE_BIT_BOT]
+        self.opcode_b = self.inst_b[(instruction_format.OPCODE_BIT_TOP - 1) : instruction_format.OPCODE_BIT_BOT]
        
     def set_init(self):
         bar_spec = ptxILA.barSpec()
@@ -158,12 +160,12 @@ class ptxTwoThreadsILA(object):
          
     def property_test2(self):
         bar_spec = ptxILA.barSpec()
-        self.a_is_second_bar = (self.pc_a == 48)
+        self.a_is_second_bar = (self.pc_a == 12 * instruction_format.MEM_BITS / 8)
         self.a_previous_is_second_bar = self.model.bit('a_previous_is_second_bar')
         self.model.set_next('a_previous_is_second_bar', self.a_is_second_bar)
         self.a_cross_second_bar_flag = self.model.bit('a_cross_second_bar_flag')
         self.model.set_next('a_cross_second_bar_flag', ila.ite((self.a_is_second_bar == ila.bool(False)) & (self.a_previous_is_second_bar == ila.bool(True)), ila.bool(True), self.a_cross_second_bar_flag))
-        self.b_is_second_bar = (self.pc_b == ila.const(0x30, ptxILA.PC_BITS))
+        self.b_is_second_bar = (self.pc_b == ila.const(12 * instruction_format.MEM_BITS / 8, instruction_format.PC_BITS))
         self.b_come_to_second_bar_flag = self.model.bit('b_come_to_second_bar_flag')
         self.model.set_next('b_come_to_second_bar_flag', ila.ite(self.b_is_second_bar, ila.bool(True), self.b_come_to_second_bar_flag))
 
@@ -181,8 +183,8 @@ class ptxTwoThreadsILA(object):
         print ila.bmc(100, self.model, self.predicate_two, 1, golden, g_prop)
 if __name__ == '__main__':
     two_threads = ptxTwoThreadsILA()
-    #two_threads.property_test2()
-    two_threads.set_init()
+    two_threads.property_test2()
+    #two_threads.set_init()
 
 
 

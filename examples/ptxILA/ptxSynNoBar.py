@@ -11,6 +11,7 @@ def synthesize():
     ptxSimulator = ptxSim.ptx_sim()
     ptxModel.model.set_next('pc', ptxModel.pc_nxt())
     ptxModel.model.set_next('mem', ptxModel.mem_nxt())
+    ptxModel.model.set_next('dmem', ptxModel.dmem_nxt())
     reg_map_obj = open(reg_map_file, 'r')
     reg_map = pickle.load(reg_map_obj)
     reg_book = reg_map.keys()
@@ -39,6 +40,8 @@ def synthesize():
         ptxModel.model.synthesize(synthesize_reg, lambda s:ptxSimulator.state_parser(s))
         ast = ptxModel.model.get_next(synthesize_reg)
         ptxModel.model.exportOne(ast, 'ast' + synthesize_reg)
+    ptxModel.compare()
+
     
     #ptxModel.model.synthesize(test_reg, lambda s:ptxSimulator.state_parser(s))
     #ast = ptxModel.model.get_next(test_reg)
