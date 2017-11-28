@@ -2,8 +2,8 @@ Here a few minimalistic coding rules for the ILA-IR source tree.
 
 # Whitespaces
 
-Formatting is enforced using clang-format. For more information about this, see
-`COMPILING.md`. A brief summary of the formatting rules is given below:
+Formatting is enforced using clang-format. 
+A brief summary of the formatting rules is given below:
 
 - Use 2 spaces indent, no tabs.
 - No lines wider than 80 chars.
@@ -46,15 +46,6 @@ Formatting is enforced using clang-format. For more information about this, see
 
 # Comments
 - Do not use `/* */`
-- Each source and header file must start with a comment block stating the
-  author. See existing source for an example of the format of this block. This
-  should be followed by a Doxygen `\file` comment:
-  ```c++
-  /// \file
-  /// <Some information about this file goes here>
-  ```
-  Note that the `\file` tag must be immediately followed by a newline in order
-  for Doxygen to relate the comment to the current file.
 - Each function should be preceded by a Doxygen comment describing that
   function. The format should match the [LLVM
   guidelines](http://llvm.org/docs/CodingStandards.html#doxygen-use-in-documentation-comments),
@@ -104,7 +95,7 @@ Formatting is enforced using clang-format. For more information about this, see
 - Avoid unnecessary `#include`s, especially in header files
 - Prefer forward declaration to includes, but forward declare at the top of the
   header file rather than in line
-- Guard headers with `#ifndef CPROVER_DIRECTORIES_FILE_H`, etc
+- Guard headers.
 - The corresponding header for a given source file should always be the *first*
   include in the source file. For example, given `foo.h` and `foo.cpp`, the
   line `#include "foo.h"` should precede all other include statements in
@@ -123,26 +114,6 @@ Formatting is enforced using clang-format. For more information about this, see
         # Empty last line
   ```
   This ensures the Makefiles can be easily merged.
-
-# Program Command Line Options
-- Each program contains a `program_name_parse_optionst` class which should
-  contain a define `PROGRAM_NAME_PARSE_OPTIONS` which is a string of all the
-  parse options in brackets (with a colon after the bracket if it takes a
-  parameter)
-- Each parameter should be one per line to yield easy merging
-- If parameters are shared between programs, they should be pulled out into a
-  common file and then included using a define
-- The defines should be `OPT_FLAG_NAMES` which should go into the `OPTIONS`
-  define
-- The defines should include `HELP_FLAG_NAMES` which should contain the help
-  output in the format:
-  ```
-  " --flag                explanations\n" \
-  " --another flag        more explanation\n" \
-   <-------30 chars------>
-  ```
-- The defines may include `PARSE_OPTIONS_FLAG_NAMES` which move the options
-  from the command line into the options
 
 # C++ features
 - Do not use namespaces, except for anonymous namespaces.
@@ -189,11 +160,6 @@ Formatting is enforced using clang-format. For more information about this, see
   point to heap-allocated memory should be private data members of an object
   which safely manages the pointer. As such, `new` should only be used in
   constructors, and `delete` in destructors. Never use `malloc` or `free`.
-
-# Architecture-specific code
-- Avoid if possible.
-- Use `__LINUX__`, `__MACH__`, and `_WIN32` to distinguish the architectures.
-- Don't include architecture-specific header files without `#ifdef` ...
 
 # Output
 - Do not output to `cout` or `cerr` directly (except in temporary debug code,
