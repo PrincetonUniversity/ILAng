@@ -43,16 +43,17 @@ for source_line in source_code:
                         array_length = 1  
                         reg_states_dict[reg_info] = current_type
 
-	if source_tokens[0] == GLOBALMEMTOKEN:
-		mem_infos = source_tokens[1:]
-		current_type = 'int64'
-		for mem_info in mem_infos:
-			if mem_info[0] == ".":
-				current_type = mem_info[1:]
-			else:
-				mem_states_dict[mem_info] = current_type
+    if source_tokens[0] == GLOBALMEMTOKEN:
+        print source_tokens
+        mem_infos = source_tokens[1:]
+        current_type = 'int64'
+        for mem_info in mem_infos:
+            if mem_info[0] == ".":
+                current_type = mem_info[1:]
+            else:
+                mem_states_dict[mem_info] = current_type
 
-
+print mem_states_dict
 
 #test use
 pattern = re.compile(r'[\%a-zA-Z0-9_\[\]]+(?=[,;$])')
