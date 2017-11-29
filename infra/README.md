@@ -15,3 +15,13 @@ Follow [Google C++ Style Guide](https://google.github.io/styleguide/cppguide.htm
 * Phase decomposition (fetch/decode/execute)
 * Hierarchical ILA
 * SSA-like language?
+
+## Building with Cmake:
+
+```bash
+  cd path/to/infra
+  mkdir build
+  cd build
+  cmake .. -L -DZ3_INCLUDE_DIR=/usr/include -DBUILD_PYTHON_API=ON
+```
+
