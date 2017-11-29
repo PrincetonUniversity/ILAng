@@ -3,12 +3,7 @@
 Build Status
 ------------
 
-| Linux                        |
-|------------------------------|
-| [![linux build status][1]][2]|
-
-[1]: https://travis-ci.org/Bo-Yuan-Huang/ILA.svg?branch=master
-[2]: https://travis-ci.org/Bo-Yuan-Huang/ILA
+[![Build Status](https://semaphoreci.com/api/v1/bo-yuan-huang/ila/branches/ilair/badge.svg)](https://semaphoreci.com/bo-yuan-huang/ila)
 
 #### z3 
 Building ILA synthesis tool requires [z3](https://github.com/Z3Prover/z3) 4.4.0 or above.
