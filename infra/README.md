@@ -16,6 +16,8 @@ Follow [Google C++ Style Guide](https://google.github.io/styleguide/cppguide.htm
 * Hierarchical ILA
 * SSA-like language?
 
+[![Build Status](https://semaphoreci.com/api/v1/bo-yuan-huang/ila/branches/ilair/badge.svg)](https://semaphoreci.com/bo-yuan-huang/ila)
+
 ## Building with Cmake:
 
 ```bash
