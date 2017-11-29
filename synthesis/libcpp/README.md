@@ -3,12 +3,7 @@
 Build Status
 ------------
 
-| Linux                        |
-|------------------------------|
-| [![linux build status][1]][2]|
-
-[1]: https://travis-ci.org/Bo-Yuan-Huang/ILA.svg?branch=master
-[2]: https://travis-ci.org/Bo-Yuan-Huang/ILA
+[![Build Status](https://semaphoreci.com/api/v1/bo-yuan-huang/ila/branches/ilair/badge.svg)](https://semaphoreci.com/bo-yuan-huang/ila)
 
 [![Coverage Status](https://coveralls.io/repos/github/Bo-Yuan-Huang/ILA/badge.svg)](https://coveralls.io/github/Bo-Yuan-Huang/ILA)
 
