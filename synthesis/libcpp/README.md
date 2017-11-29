@@ -10,6 +10,8 @@ Build Status
 [1]: https://travis-ci.org/Bo-Yuan-Huang/ILA.svg?branch=master
 [2]: https://travis-ci.org/Bo-Yuan-Huang/ILA
 
+[![Coverage Status](https://coveralls.io/repos/github/Bo-Yuan-Huang/ILA/badge.svg)](https://coveralls.io/github/Bo-Yuan-Huang/ILA)
+
 #### z3 
 Building ILA synthesis tool requires [z3](https://github.com/Z3Prover/z3) 4.4.0 or above.
 
