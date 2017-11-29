@@ -4,6 +4,7 @@ branches:
     only:
     - travisBranch
     - master
+    - coverity_scan
 
 os:
     - linux
