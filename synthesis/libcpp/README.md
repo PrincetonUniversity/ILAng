@@ -5,12 +5,6 @@ Build Status
 
 [![Build Status](https://semaphoreci.com/api/v1/bo-yuan-huang/ila/branches/ilair/badge.svg)](https://semaphoreci.com/bo-yuan-huang/ila)
 
-[![Coverage Status](https://coveralls.io/repos/github/Bo-Yuan-Huang/ILA/badge.svg)](https://coveralls.io/github/Bo-Yuan-Huang/ILA)
-
-<a href="https://scan.coverity.com/projects/bo-yuan-huang-ila">
-  <img alt="Coverity Scan Build Status"
-       src="https://scan.coverity.com/projects/14436/badge.svg"/>
-</a>
 
 #### z3 
 Building ILA synthesis tool requires [z3](https://github.com/Z3Prover/z3) 4.4.0 or above.
