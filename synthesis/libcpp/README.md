@@ -3,7 +3,7 @@
 Build Status
 ------------
 
-[![Build Status](https://semaphoreci.com/api/v1/bo-yuan-huang/ila/branches/ilair/badge.svg)](https://semaphoreci.com/bo-yuan-huang/ila)
+[![Build Status](https://semaphoreci.com/api/v1/bo-yuan-huang/ila/branches/master/badge.svg)](https://semaphoreci.com/bo-yuan-huang/ila)
 
 
 #### z3 

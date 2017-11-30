@@ -16,20 +16,13 @@ Follow [Google C++ Style Guide](https://google.github.io/styleguide/cppguide.htm
 * Hierarchical ILA
 * SSA-like language?
 
-| Linux                        |
-|------------------------------|
-| [![linux build status][1]][2]|
 
-[1]: https://travis-ci.org/Bo-Yuan-Huang/ILA.svg?branch=master
-[2]: https://travis-ci.org/Bo-Yuan-Huang/ILA
-
+[![linux build status](https://travis-ci.org/Bo-Yuan-Huang/ILA.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILA)
 [![Coverage Status](https://coveralls.io/repos/github/Bo-Yuan-Huang/ILA/badge.svg)](https://coveralls.io/github/Bo-Yuan-Huang/ILA)
-
 <a href="https://scan.coverity.com/projects/bo-yuan-huang-ila">
   <img alt="Coverity Scan Build Status"
        src="https://scan.coverity.com/projects/14436/badge.svg"/>
 </a>
-
 
 ## Building with Cmake:
 
