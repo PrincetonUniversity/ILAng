@@ -1,59 +1,68 @@
 language: cpp
+os: linux
+sudo: required
+dist: trusty
 
 branches:
   only:
     - master
-    - dev_check
+    - coverity_check
 
-os:
-    - linux
+git:
+  depth: 1
 
-env:
-  global:
-    # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
-    #   via the "travis encrypt" command using the project repo's public key
-    - secure: "hSpQnSS61B00j8IEfA3hasOt1BExNBZiVAaXNOjqbUJft98/Xte/OwgmSvtBuQFTeKw9EV3PPgprsFJNMij1vUFHdZxSGmxE8aurDuRqMk1/61zf5lLHTKY+xwKewjW2R23bYTWkXQFvjkEfnG4iw3+v+aBytd2v71YcahsizaBJ7sP36ofiEhiilCrYBZ/hblIIVZdl7XKQ6od0QdJnmFjL9g3WQxkWq1eXw1kJFpD7n6iHf8nrX5c03++pIqlJGoVITeYPp0F1E6/jxdCwzS9fDkOeFSrm2V6z/g1Ccy0PWT2DY1BtaXCnrGWTIkEe39bpGrnr69AyNPI7T0Mizj6JoiZolsdgahTJA6NmswI8EPC1Nm9K6IPhwdat0Av8o/ThQZ3AcsLxVbwa65co/ogUt5ouKgcbLxjEiAWtCXW5XBxtEx24HIljV0E6g0RqjnMUVCdQPgmbzyjy3TgrdvsFYkOUgNv8+tB8wpPg1HmMoVhM5xgblPjhdS5feRhZVVFjjj6U33PCvjvTG1Bo9Icr5c5mt786TLit1zTj55gDZiudYKwzt7ZXE45ergPmFmRq1LR3XTvIkbUAAwWbwqBs7ITHOYCHmczi77vxTnaXMDUgAVALjsDYgVqspTeIM4YiI7zAlkm+n4/yn8mfzXSshuH4u5WE9af5vmlhYIM="
+#env:
+#  global:
+#    - secure: ""
 
 addons:
   coverity_scan:
     project:
       name: "Bo-Yuan-Huang/ILA"
-      description: "Build submitted via Travis CI"
+      description: "ILA build submitted via Travis CI"
     notification_email: byhuang1992@gmail.com
-    build_command_prepend: "cd infra; mkdir build; cd build; cmake .. -L -DZ3_INCLUDE_DIR=/usr/include; make clean"
+    build_command_prepend: "cmake -Dcoverage=ON -DZ3_INCLUDE_DIR=/usr/include $PARENT_DIR"
     build_command: "make"
-    branch_pattern: dev_check
+    branch_pattern: coverity_scan
 
 before_install:
-  # for coverity
   - echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
-  # set up toolchain
-  - sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
-  - sudo apt-get -qq --yes update
-  - sudo apt-add-repository --yes ppa:smspillaz/cmake-2.8.12
-  - sudo apt-get -qq --yes update
-    
+  - sudo apt-get update -qq yes
+
 install: 
+  - gem install coveralls-lcov
   - sudo apt-get install --yes cmake cmake-data
-  - sudo apt-get -qq --yes update
+  - sudo apt-get install --yes libboost-dev
+  - sudo apt-get install --yes lcov
 
 before_script:
+  - PARENT_DIR=$(pwd)
   # z3
-  - git clone https://github.com/Z3Prover/z3.git
+  - git clone --depth 1 https://github.com/Z3Prover/z3.git
   - cd z3
   - python scripts/mk_make.py
   - cd build
   - make; sudo make install
-  - cd $TRAVIS_BUILD_DIR
+  - cd $PARENT_DIR
+  # coverage test
+  - lcov --version
+  - gcov --version
+  - g++ --version
   # create Makefile
-  - cd $TRAVIS_BUILD_DIR/infra
-  - mkdir build; cd build
-  - cmake .. -L -DZ3_INCLUDE_DIR=/usr/include 
+  - mkdir -p $PARENT_DIR/build && cd $PARENT_DIR/build
+  - lcov --directory $PARENT_DIR/build --zerocounters
 
 script:
-  # build 
-  - cd $TRAVIS_BUILD_DIR/infra/build
+  - cd $PARENT_DIR/build
+  - cmake -L -DZ3_INCLUDE_DIR=/usr/include -Dcoverage=ON $PARENT_DIR
   - make
+
+after_success:
+  - make gtest
+  - lcov --directory $PARENTDIR/build --capture --output-file coverage.info 
+  - lcov --remove coverage.info 'test/*' 'app/*' 'external/*' 'cmake/*' '/usr/*' --output-file coverage.info 
+  - lcov --list coverage.info 
+  - coveralls-lcov coverage.info 
 
 notifications:
     email: false
