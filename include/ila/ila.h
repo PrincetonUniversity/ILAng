@@ -12,7 +12,7 @@ namespace ila {
 /// A more elaborate class description.
 class Ila {
 public:
-  /// constructor
+  /// constructore.
   Ila();
 
   /// destructor
