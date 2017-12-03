@@ -5,7 +5,7 @@
 
 Formal definition and modeling scenarios: [ILA Wiki](https://github.com/Bo-Yuan-Huang/ILA-Tools/wiki).
 
-To build ILA synthesis tool, look in the [synthesis/libcpp](https://github.com/Bo-Yuan-Huang/ILA-Tools/tree/master/synthesis/libcpp) directory.
+To build ILA synthesis tool, look in the [py-tmpl-synth](https://github.com/Bo-Yuan-Huang/ILA-Tools/tree/master/py-tmpl-synth) directory.
 
 For some examples, see the [examples](https://github.com/Bo-Yuan-Huang/ILA-Tools/tree/master/examples) directory.
 
