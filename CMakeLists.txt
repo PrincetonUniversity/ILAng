@@ -12,6 +12,12 @@ set(PROJECT_VERSION_MINOR 0)
 set(EXECUTABLE_OUTPUT_PATH "${PROJECT_BINARY_DIR}/bin")
 set(LIBRARY_OUTPUT_PATH "${PROJECT_BINARY_DIR}/lib")
 
+# Add path for custom modules
+set(CMAKE_MODULE_PATH
+  ${CMAKE_MODULE_PATH}
+  "${CMAKE_CURRENT_SOURCE_DIR}/cmake"
+  )
+
 # ------------------------------------------------------------------------------
 # Compile flags 
 # ------------------------------------------------------------------------------
@@ -41,7 +47,8 @@ endif()
 # ------------------------------------------------------------------------------
 include_directories(
   ${PROJECT_SOURCE_DIR}/include
-  ${PROJECT_SOURCE_DIR}/external/googletest/include)
+  ${PROJECT_SOURCE_DIR}/external/googletest/googletest
+  ${PROJECT_SOURCE_DIR}/external/googletest/googletest/include)
 
 # ------------------------------------------------------------------------------
 # Build
@@ -93,9 +100,7 @@ include_directories("${PROJECT_BINARY_DIR}")
 # ------------------------------------------------------------------------------
 find_package (Z3 REQUIRED)
 if (Z3_FOUND)
-  if (${Z3_INCLUDE_DIR})
-    include_directories (${Z3_INCLUDE_DIR})
-  endif()
+  include_directories (${Z3_INCLUDE_DIR})
 else ()
   set (Z3_LIBRARY "")
 endif ()
