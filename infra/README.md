@@ -19,10 +19,9 @@ Follow [Google C++ Style Guide](https://google.github.io/styleguide/cppguide.htm
 
 [![linux build status](https://travis-ci.org/Bo-Yuan-Huang/ILA.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILA)
 [![Coverage Status](https://coveralls.io/repos/github/Bo-Yuan-Huang/ILA/badge.svg)](https://coveralls.io/github/Bo-Yuan-Huang/ILA)
-<a href="https://scan.coverity.com/projects/bo-yuan-huang-ila">
-  <img alt="Coverity Scan Build Status"
-       src="https://scan.coverity.com/projects/14436/badge.svg"/>
-</a>
+[![Coverity Scan Build Status](https://img.shields.io/coverity/scan/14490.svg)](https://scan.coverity.com/projects/bo-yuan-huang-ila-tools)
+[![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active)
+[![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/Bo-Yuan-Huang/ILA-Tools/blob/master/LICENCE)
 
 ## Building with Cmake:
 
