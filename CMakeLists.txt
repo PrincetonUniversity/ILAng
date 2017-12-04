@@ -1,5 +1,5 @@
 # path = root/ (top level CMakeLists.txt)
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8.2)
 
 set(ILA_PROJECT_NAME ILA)
 
@@ -45,20 +45,9 @@ endif()
 # ------------------------------------------------------------------------------
 # Locate files
 # ------------------------------------------------------------------------------
-include_directories(
-  ${PROJECT_SOURCE_DIR}/include
-  ${PROJECT_SOURCE_DIR}/external/googletest/googletest
-  ${PROJECT_SOURCE_DIR}/external/googletest/googletest/include)
-
-# ------------------------------------------------------------------------------
-# Build
-# ------------------------------------------------------------------------------
-add_subdirectory (src)
-
-# ------------------------------------------------------------------------------
-# Test (w/ Google Test & standard CTest)
-# ------------------------------------------------------------------------------
-add_subdirectory (test)
+include_directories(${PROJECT_SOURCE_DIR}/include)
+#${PROJECT_SOURCE_DIR}/external/googletest/googletest
+#${PROJECT_SOURCE_DIR}/external/googletest/googletest/include)
 
 # ------------------------------------------------------------------------------
 # Documentation (w/ Doxygen)
@@ -72,20 +61,6 @@ if(DOXYGEN_FOUND)
         COMMENT "Generating API documentation with Doxygen" VERBATIM
         )
 endif(DOXYGEN_FOUND)
-
-# ------------------------------------------------------------------------------
-# Google Test
-# ------------------------------------------------------------------------------
-add_custom_target( git_update
-    COMMAND git submodule init
-    COMMAND git submodule update
-    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR} )
-add_library( googletest
-    ${PROJECT_SOURCE_DIR}/external/googletest/googletest/src/gtest-all.cc
-    ${PROJECT_SOURCE_DIR}/external/googletest/googletest/src/gtest_main.cc )
-add_dependencies(googletest git_update)
-set_source_files_properties(${PROJECT_SOURCE_DIR}/external/googletest/googletest/src/gtest-all.cc  PROPERTIES GENERATED 1)
-set_source_files_properties(${PROJECT_SOURCE_DIR}/external/googletest/googletest/src/gtest_main.cc PROPERTIES GENERATED 1)
 
 # ------------------------------------------------------------------------------
 # Misc
@@ -136,4 +111,56 @@ if (python_api)
   endif()
 
 endif (python_api)
+
+# ------------------------------------------------------------------------------
+# Google Test
+# ------------------------------------------------------------------------------
+#add_custom_target( git_update
+#    COMMAND git submodule init
+#    COMMAND git submodule update
+#    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR} )
+#add_library( googletest
+# ${PROJECT_SOURCE_DIR}/external/googletest/googletest/src/gtest-all.cc
+# ${PROJECT_SOURCE_DIR}/external/googletest/googletest/src/gtest_main.cc )
+#add_dependencies(googletest git_update)
+#set_source_files_properties(${PROJECT_SOURCE_DIR}/external/googletest/googletest/src/gtest-all.cc  PROPERTIES GENERATED 1)
+#set_source_files_properties(${PROJECT_SOURCE_DIR}/external/googletest/googletest/src/gtest_main.cc PROPERTIES GENERATED 1)
+
+# Download and unpack googletest at configure time
+configure_file(CMakeLists.txt.in googletest-download/CMakeLists.txt)
+execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
+  RESULT_VARIABLE result
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/googletest-download )
+if(result)
+  message(FATAL_ERROR "CMake step for googletest failed: ${result}")
+endif()
+execute_process(COMMAND ${CMAKE_COMMAND} --build .
+  RESULT_VARIABLE result
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/googletest-download )
+if(result)
+  message(FATAL_ERROR "Build step for googletest failed: ${result}")
+endif()
+# Prevent overriding the parent project's compiler/linker settings on Windows
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+# Add googletest directly to our build. This defines the gtest and gtest_main 
+# targets.
+add_subdirectory(${CMAKE_BINARY_DIR}/googletest-src
+                 ${CMAKE_BINARY_DIR}/googletest-build
+                 EXCLUDE_FROM_ALL)
+# The gtest/gtest_main targets carry header search path dependencies 
+# automatically when using CMake 2.8.11 or later. Otherwise we have to add them 
+# here ourselves.
+if (CMAKE_VERSION VERSION_LESS 2.8.11)
+  include_directories("${gtest_SOURCE_DIR}/include")
+endif()
+
+# ------------------------------------------------------------------------------
+# Build
+# ------------------------------------------------------------------------------
+add_subdirectory (src)
+
+# ------------------------------------------------------------------------------
+# Test (w/ Google Test & standard CTest)
+# ------------------------------------------------------------------------------
+add_subdirectory (test)
 

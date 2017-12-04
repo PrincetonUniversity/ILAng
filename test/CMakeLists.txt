@@ -2,13 +2,18 @@
 include(CTest)
 enable_testing()
 
-add_subdirectory(unit-ast)
-# gtest
-#add_executable(${TEST_MAIN} ${TESTFILES})
-#add_dependencies(${TEST_MAIN} googletest engine)
-#target_link_libraries(${TEST_MAIN} googletest engine pthread)
-add_custom_target(gtest 
-  COMMAND "${EXECUTABLE_OUTPUT_PATH}/${TEST_NAME}"
-  DEPENDS ila ${TEST_NAME})
-# standard test
-add_test(unit_ast ${EXECUTABLE_OUTPUT_PATH}/${TEST_NAME})
+macro (ADD_MORE_TEST test_file_name) 
+  add_executable(${test_file_name} "${test_file_name}.cc")
+  add_dependencies(${test_file_name} gtest_main ila)
+  target_link_libraries(${test_file_name} gtest_main ila)
+  add_test(${test_file_name} ${EXECUTABLE_OUTPUT_PATH}/${test_file_name})
+endmacro (ADD_MORE_TEST)
+
+# Define each test below (with prefix "unit_")
+
+ADD_MORE_TEST(unit_ila)
+
+add_custom_target(coverage 
+  COMMAND "${EXECUTABLE_OUTPUT_PATH}/unit_ila"
+)
+
