@@ -1,9 +1,11 @@
 # Instruction-Level Abstraction (ILA)
 
+Formal definition and modeling scenarios: [ILA Wiki](https://github.com/Bo-Yuan-Huang/ILA-Tools/wiki).
+
 
 ## Templated-based ILA synthesis
 
-Formal definition and modeling scenarios: [ILA Wiki](https://github.com/Bo-Yuan-Huang/ILA-Tools/wiki).
+[![Build Status](https://semaphoreci.com/api/v1/bo-yuan-huang/ila/branches/master/shields_badge.svg)](https://semaphoreci.com/bo-yuan-huang/ila)
 
 To build ILA synthesis tool, look in the [py-tmpl-synth](https://github.com/Bo-Yuan-Huang/ILA-Tools/tree/master/py-tmpl-synth) directory.
 
