@@ -275,6 +275,11 @@ namespace ila
         this->node->setRefName( refName );
     }
 
+    std::string NodeRef::getRefName() const 
+    {
+        return this->node->getRefName();
+    }
+
     NodeRef* NodeRef::rewrite(NodeRef* src, NodeRef* dst)
     {
         Rewriter r1;

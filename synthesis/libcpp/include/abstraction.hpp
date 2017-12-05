@@ -12,6 +12,7 @@
 #include <smt.hpp>
 #include <imexport.hpp>
 #include <VerilogExport.hpp>
+//#include <instruction.hpp>
 #include <cppsimgen.hpp>
 #include <genCBMC.hpp>
 #include <MicroUnroller.hpp>

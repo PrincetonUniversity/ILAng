@@ -43,6 +43,7 @@ BOOST_PYTHON_MODULE(ila)
     class_<NodeRef>("Node")
         .add_property("name", &NodeRef::getName)
         .add_property("type", &NodeRef::getType)
+        .add_property("refName", &NodeRef::getRefName)
         .def("equal", &NodeRef::equal)
         .def_readonly("value", &NodeRef::value)
         // unary operators.

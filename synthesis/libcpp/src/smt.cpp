@@ -148,7 +148,7 @@ namespace ila
         //// Functions ////
         } else if ((funcvar = dynamic_cast<const FuncVar*>(n))) {
             z3::expr r = getFuncVarExpr(funcvar);
-            if (simplify) r = r.simplify();
+            //if (simplify) r = r.simplify();
             log2("Z3ExprAdapter._populateExprMap") << *n << " --> " << r << std::endl;
             exprmap.insert({n, r});
         }
@@ -508,6 +508,13 @@ namespace ila
             }
         }
         if (op == BitvectorOp::APPLY_FUNC) {
+            
+            if(arity == 1) { // handle nondet value 
+                Node * funvar = bvop->arg(0).get();
+                expr NondetVal = c.bv_const((funvar->getName() + name_suffix).c_str(), bvop->type.bitWidth);
+                return NondetVal;
+            }
+            
             expr func_ast = getArgExpr(bvop, 0);
             cast_ast<func_decl> cast;
             func_decl func(c, cast(c, func_ast));

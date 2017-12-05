@@ -120,6 +120,8 @@ namespace ila
 
         // set reference name.
         void setRefName(const std::string & refName);
+        // get reference name.
+        std::string getRefName() const;
         // rewrite expression
         NodeRef* rewrite(NodeRef * src, NodeRef * dst);
         // does this object have a value?
