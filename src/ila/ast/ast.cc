@@ -9,6 +9,7 @@ Ast::Ast() {}
 
 Ast::~Ast() {}
 
-bool Ast::DummyTest(int *inout) { return true; }
+bool Ast::DummyTest(int* inout) { return true; }
 
-}; // namespace ila
+} // namespace ila
+

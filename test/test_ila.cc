@@ -6,13 +6,17 @@
 #include "gtest/gtest.h"
 
 TEST(IlaUnitTest, AstConstructor) {
-  ila::Ast astNode;
-  int *somePointer = new int(1);
+  ila::Ast ast_node;
+  int* some_ptr = new int(1);
 
-  bool result = astNode.DummyTest(somePointer);
+  bool result = ast_node.DummyTest(some_ptr);
   EXPECT_EQ(true, result);
 
-  delete somePointer;
+  ila::AstPtr ast_ptr(new ila::Ast);
+  result = ast_ptr->DummyTest(some_ptr);
+  ASSERT_TRUE(result);
+
+  delete some_ptr;
 }
 
 TEST(IlaUnitTest, IlaConstructor) {
@@ -26,7 +30,7 @@ TEST(IlaUnitTest, IlaConstructor) {
   ASSERT_EQ("testing ila name", result);
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }

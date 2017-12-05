@@ -45,7 +45,7 @@ private:
 /// \typedef Pointer type for Ila.
 typedef std::shared_ptr<Ila> IlaPtr;
 
-}; // namespace ila
+} // namespace ila
 
 #endif // __ILA_H__
 

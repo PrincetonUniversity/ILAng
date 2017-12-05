@@ -11,9 +11,9 @@ Ila::Ila(std::string name) : name_(name) {}
 
 Ila::~Ila() {}
 
-void Ila::SetName(const std::string &name) { name_ = name; }
+void Ila::SetName(const std::string& name) { name_ = name; }
 
-const std::string &Ila::GetName() const { return name_; }
+const std::string& Ila::GetName() const { return name_; }
 
-}; // namespace ila
+} // namespace ila
 

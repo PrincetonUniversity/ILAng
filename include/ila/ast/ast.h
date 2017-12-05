@@ -31,7 +31,7 @@ private:
 /// \typedef Pointer type for Ast nodes.
 typedef std::shared_ptr<Ast> AstPtr;
 
-}; // namespace ila
+} // namespace ila
 
 #endif // __AST_H__
 
