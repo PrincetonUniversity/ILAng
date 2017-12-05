@@ -46,15 +46,14 @@ endif()
 # Locate files
 # ------------------------------------------------------------------------------
 include_directories(${PROJECT_SOURCE_DIR}/include)
-#${PROJECT_SOURCE_DIR}/external/googletest/googletest
-#${PROJECT_SOURCE_DIR}/external/googletest/googletest/include)
 
 # ------------------------------------------------------------------------------
 # Documentation (w/ Doxygen)
 # ------------------------------------------------------------------------------
 find_package(Doxygen)
 if(DOXYGEN_FOUND)
-    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in 
+                   ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
     add_custom_target(doc 
         ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile &> doxygen.log
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
@@ -115,17 +114,6 @@ endif (python_api)
 # ------------------------------------------------------------------------------
 # Google Test
 # ------------------------------------------------------------------------------
-#add_custom_target( git_update
-#    COMMAND git submodule init
-#    COMMAND git submodule update
-#    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR} )
-#add_library( googletest
-# ${PROJECT_SOURCE_DIR}/external/googletest/googletest/src/gtest-all.cc
-# ${PROJECT_SOURCE_DIR}/external/googletest/googletest/src/gtest_main.cc )
-#add_dependencies(googletest git_update)
-#set_source_files_properties(${PROJECT_SOURCE_DIR}/external/googletest/googletest/src/gtest-all.cc  PROPERTIES GENERATED 1)
-#set_source_files_properties(${PROJECT_SOURCE_DIR}/external/googletest/googletest/src/gtest_main.cc PROPERTIES GENERATED 1)
-
 # Download and unpack googletest at configure time
 configure_file(CMakeLists.txt.in googletest-download/CMakeLists.txt)
 execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
