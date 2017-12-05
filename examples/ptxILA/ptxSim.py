@@ -4,6 +4,7 @@ import os
 import time
 import ptxILA
 import Instruction_Format
+import ila
 instruction_format = Instruction_Format.InstructionFormat()
 instruction_map_file = 'instruction_map'
 instruction_map_obj = open(instruction_map_file, 'r')
@@ -52,14 +53,17 @@ class ptx_sim(object):
         self.P_REG_MASK = self.DST_MASK
         self.P_REG_BIT = self.DST_BIT
         self.ldIMM_MASK = self.IMM_MASK
+        self.stIMM_MASK = self.IMM_MASK
         self.BRA_MASK = self.ldIMM_MASK
 
-        #self.OPCODE_MUL = 29
+        self.OPCODE_MUL = 29
         self.OPCODE_SUB = 28
         self.OPCODE_ADD = 27
         self.OPCODE_BRA = 67 
         self.OPCODE_BAR = 71
         self.OPCODE_LD = instruction_map['ld']
+        self.OPCODE_ST = instruction_map['st']
+        self.OPCODE_MOV = instruction_map['mov']
         self.EXAMPLE_PROGRAM_HOLE = 57
         self.PRE_LD_HOLE = 33 
         
@@ -109,7 +113,7 @@ class ptx_sim(object):
         instruction_book = instruction_book_obj.readlines()
         
         #if ((opcode != self.OPCODE_MUL) & (opcode != self.OPCODE_ADD) & (opcode != self.OPCODE_SUB)): 
-        if((opcode != self.OPCODE_ADD) & (opcode != self.OPCODE_SUB) & (opcode != self.OPCODE_BRA) & (opcode != self.OPCODE_BAR) & (opcode != self.OPCODE_LD)):
+        if((opcode != self.OPCODE_ADD) & (opcode != self.OPCODE_SUB) & (opcode != self.OPCODE_BRA) & (opcode != self.OPCODE_BAR) & (opcode != self.OPCODE_LD) & (opcode != self.OPCODE_ST) & (opcode != self.OPCODE_MOV) & (opcode != self.OPCODE_MUL)):
             state['pc'] = state['pc'] + 4
             return state
         if (opcode == self.OPCODE_BRA):
@@ -355,8 +359,74 @@ class ptx_sim(object):
                 state[dest_text] = default
             return state 
 
-            
+        if opcode == self.OPCODE_ST:
+            dmem = state['dmem']
+            dest_text = reg_book[dst]
+            st_value = state[dest_text]
+            self.stAddr = (self.stIMM_MASK & instruction) >> instruction_format.IMM_BIT_BOT
+            self.stAddr = self.stAddr << 2      
+            print 'store_addr' + str(self.stAddr)
+            outMem = ila.MemValues(instruction_format.MEM_ADDRESS_BITS, instruction_format.DMEM_BITS, dmem.default) 
+            for (a,v) in dmem.values:
+                outMem[a] = v
+            outMem[self.stAddr] = st_value
+            state['dmem'] = outMem
+            return state
              
+        if (opcode == self.OPCODE_MOV):
+            dst_text = reg_book[dst]
+            if (src0 >= len(reg_book)) | (dst >= len(reg_book)):
+                return state
+            if dst_text not in general_reg_book:
+                return state
+            src0_text = reg_book[src0]
+            if src0_text not in general_reg_book:
+                return state
+            if base:
+                return state
+            src0_data = state[src0_text]
+            test_program.append(op_text + '.s32 ' + dst_text + ',' + src0_text + ';')
+            test_program.append('mov.s32 %r9, ' + dst_text + ';')
+            single_op_program = ''
+            for t in test_program:
+                single_op_program += t
+            single_op_program += '\n'
+            
+            example_sim_program_file = 't266.ptx'
+            example_sim_program_obj = open(example_sim_program_file, 'r')
+            example_sim_program = example_sim_program_obj.readlines()
+            sim_program = []
+            for i in range(len(example_sim_program)):
+                if i == self.EXAMPLE_PROGRAM_HOLE:
+                    sim_program.append(single_op_program)
+                else:
+                    sim_program.append(example_sim_program[i])
+            example_sim_program_obj.close()
+            sim_program_obj = open(example_sim_program_file, 'w')
+            for sim_line in sim_program:
+                sim_program_obj.write(sim_line)
+            sim_program_obj.close()
+            (status, output) = commands.getstatusoutput('./dryrun.out')  
+            print status
+            print output
+            (status, output) = commands.getstatusoutput('sbatch parallel.cmd')
+            print status
+            print output
+            output_word = output.split()
+            taskTag = output_word[3]
+            time.sleep(5)
+            (status, output)  = commands.getstatusoutput('cat slurm-' + taskTag + '.out')
+            while(status == 256):
+                time.sleep(5)
+                (status, output) = commands.getstatusoutput('cat slurm-' + taskTag + '.out')
+            poutput = int(output)
+            if (poutput < 0):
+                poutput = -poutput
+                poutput = (1 << (instruction_format.REG_BITS - 1)) - poutput + (1 << (instruction_format.REG_BITS - 1))
+            nxt_state = poutput
+            state[dst_text] = nxt_state
+            return state         
+
 
         dst_text = reg_book[dst] 
         if (src0 >= len(reg_book)) | (src1 >= len(reg_book)) | (dst >= len(reg_book)):
@@ -411,7 +481,7 @@ class ptx_sim(object):
         poutput = int(output)
         if (poutput < 0):
             poutput = -poutput
-            poutput = (1 << (self.REG_BITS - 1)) - poutput + (1 << (self.REG_BITS - 1))
+            poutput = (1 << (instruction_format.REG_BITS - 1)) - poutput + (1 << (instruction_format.REG_BITS - 1))
         nxt_state = poutput
         (status, output) = commands.getstatusoutput('rm a_dlin*')
         (status, output) = commands.getstatusoutput('rm ' + 'slurm-' + taskTag + '.out')

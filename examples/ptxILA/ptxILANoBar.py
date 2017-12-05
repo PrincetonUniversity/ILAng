@@ -32,6 +32,7 @@ program_file = "program_test.ptx"
 reg_map_file = "reg_map"
 mem_map_file = "mem_map"
 reg_book_file = "reg_book"
+long_int_reg_book_file = 'long_int_reg_book'
 mem_book_file = "mem_book"
 reg_source_obj = open(reg_source_file, 'r')
 mem_source_obj = open(mem_source_file, 'r')
@@ -64,8 +65,11 @@ class ptxGPUModel(object):
 
     def createRegs(self):
         self.scalar_registers = []
+        self.long_scalar_registers = []
         reg_book_obj = open(reg_book_file)
         reg_book = pickle.load(reg_book_obj)
+        long_int_reg_book_obj = open(long_int_reg_book_file, 'r')
+        long_int_reg_book = pickle.load(long_int_reg_book_obj) 
         #Here's something to be cleaned up in future.
         #These 3 states are needed for ptxSim, 
         #but here we have to remove them,
@@ -75,6 +79,11 @@ class ptxGPUModel(object):
         reg_book.remove('bar_counter_exit')
         for reg_name in reg_book :
             self.scalar_registers.append(self.model.reg(reg_name, instruction_format.REG_BITS))			
+        #for reg_name in long_int_reg_book:
+        #    self.long_scalar_registers.append(self.model.reg(reg_name, instruction_format.LONG_REG_BITS))
+        #self.scalar_register_flag = self.model.bool(True)
+        #self.long_scalar_register_flag = self.model.bool(False)
+
 
     def createMems(self):
         self.mem = self.model.mem('mem', instruction_format.MEM_ADDRESS_BITS, instruction_format.MEM_BITS)
@@ -129,6 +138,7 @@ class ptxGPUModel(object):
         self.predReg = self.indexIntoReg(self.branchPred)
         self.branchImm = ila.zero_extend(self.inst[(instruction_format.IMM_BIT_TOP - 1) : instruction_format.IMM_BIT_BOT], instruction_format.PC_BITS)
         self.ldImm = ila.zero_extend(self.inst[(instruction_format.IMM_BIT_TOP - 1) : instruction_format.IMM_BIT_BOT], instruction_format.PC_BITS)
+        self.stImm = ila.zero_extend(self.inst[(instruction_format.IMM_BIT_TOP - 1) : instruction_format.IMM_BIT_BOT], instruction_format.PC_BITS)
         self.sreg1 = self.indexIntoReg(self.src1)
         self.sreg2 = self.indexIntoReg(self.src2)
         self.sreg3 = self.indexIntoReg(self.src3)
@@ -139,9 +149,12 @@ class ptxGPUModel(object):
         instruction_map_obj = open(instruction_map_file, 'r')
         instruction_map = pickle.load(instruction_map_obj)
         bar_spec = barSpec()
-        #ALUInstructions = [(self.opcode == instruction_map['add']), (self.opcode == instruction_map['sub']),(self.opcode == instruction_map['mul']), ((self.opcode == instruction_map['bra']) & (self.predReg != 0) & (self.baseImm != 0)), ((self.opcode == instruction_map['bra']) & (self.baseImm == 0)), (self.opcode == instruction_map['ld'])] 
-        ALUInstructions = [(self.opcode == instruction_map['ld'])]
-        #ALUInstructions = [(self.opcode == instruction_map['add']), (self.opcode == instruction_map['sub']),(self.opcode == instruction_map['mul']), ((self.opcode == instruction_map['bra']) & (self.predReg != 0) & (self.baseImm != 0)), ((self.opcode == instruction_map['bra']) & (self.baseImm == 0)), (self.opcode != instruction_map['add']) & (self.opcode != instruction_map['sub']) & (self.opcode != instruction_map['mul']) & ((self.opcode != instruction_map['bra']) | (self.predReg == 0) | (self.baseImm == 0))&((self.opcode != instruction_map['bra']) | (self.baseImm != 0)) ]
+        #ALUInstructions = [(self.opcode == instruction_map['add']), (self.opcode == instruction_map['sub']),(self.opcode == instruction_map['mul.lo']), ((self.opcode == instruction_map['bra']) & (self.predReg != 0) & (self.baseImm != 0)), ((self.opcode == instruction_map['bra']) & (self.baseImm == 0)), (self.opcode == instruction_map['ld'])] 
+        ALUInstructions = [(self.opcode == instruction_map['mul.lo'])]
+        #ALUInstructions = [(self.opcode == instruction_map['mov']), (self.opcode == instruction_map['ld']), (self.opcode == instruction_map['st']), (self.opcode == instruction_map['add']), (self.opcode == instruction_map['sub']), (self.opcode == instruction_map['mul.lo'])]
+        #ALUInstructions = [(self.opcode == instruction_map['st'])]
+        #ALUInstructions = [(self.opcode == instruction_map['ld'])]
+        #ALUInstructions = [(self.opcode == instruction_map['add']), (self.opcode == instruction_map['sub']),(self.opcode == instruction_map['mul.lo']), ((self.opcode == instruction_map['bra']) & (self.predReg != 0) & (self.baseImm != 0)), ((self.opcode == instruction_map['bra']) & (self.baseImm == 0)), (self.opcode != instruction_map['add']) & (self.opcode != instruction_map['sub']) & (self.opcode != instruction_map['mul.lo']) & ((self.opcode != instruction_map['bra']) | (self.predReg == 0) | (self.baseImm == 0))&((self.opcode != instruction_map['bra']) | (self.baseImm != 0)) ]
         decodeList = ALUInstructions
         #decodeList = ALUInstructions + [(self.opcode == instruction_map['bar']) & (self.bar_state == bar_spec.BAR_INIT), (self.opcode == instruction_map['bar']) & (self.bar_state == bar_spec.BAR_FINISH)]
         #decodeList = [(self.opcode == instruction_map['bar']) & (self.bar_state == bar_spec.BAR_INIT), (self.opcode == instruction_map['bar']) & (self.bar_state == bar_spec.BAR_FINISH)]
@@ -151,9 +164,12 @@ class ptxGPUModel(object):
         #    print dl
         self.model.decode_exprs = decodeList
         #self.bar_state_next = ila.ite((self.opcode == instruction_map['bar']) & (self.bar_state == bar_spec.BAR_INIT), ila.const(1, bar_spec.BAR_STATE_BITS) ila.ite(self.bar_state == bar_spec.BAR_FINISH, bar_spec.BAR_INIT, self.bar_state)) #non-synthesize bar instruction
-    def assumptions(self): #assumption for ld instruction 
-        self.model.add_assumption((self.ldImm >= ila.const(0x0, instruction_format.IMM_BIT_TOP - instruction_format.IMM_BIT_BOT)))
-        self.model.add_assumption((self.ldImm < ila.const(max_addr_size / 4, instruction_format.IMM_BIT_TOP - instruction_format.IMM_BIT_BOT)))
+    def assumptions(self):#assumption for st instruction
+        self.model.add_assumption(self.stImm >= ila.const(0x0, instruction_format.IMM_BIT_TOP - instruction_format.IMM_BIT_BOT))
+        self.model.add_assumption(self.stImm < ila.const(max_addr_size / 4, instruction_format.IMM_BIT_TOP - instruction_format.IMM_BIT_BOT))
+    #def assumptions(self): #assumption for ld instruction 
+        #self.model.add_assumption((self.ldImm >= ila.const(0x0, instruction_format.IMM_BIT_TOP - instruction_format.IMM_BIT_BOT)))
+        #self.model.add_assumption((self.ldImm < ila.const(max_addr_size / 4, instruction_format.IMM_BIT_TOP - instruction_format.IMM_BIT_BOT)))
     '''
     #Sync for bar instruction
     def assumptions(self):
@@ -171,31 +187,70 @@ class ptxGPUModel(object):
         return ila.choice("pc_nxt", [self.pc ,self.pcPlus4, self.branchPC])
 
     def sreg_nxt(self, regNo):
-        return ila.ite(self.dest == regNo, ila.choice(str(regNo) + "_nxt", [self.sreg1 + self.sreg2, self.sreg1 - self.sreg2, self.sreg1 * self.sreg2, self.dmem[self.ldImm << 0x2], self.sregdest]),self.scalar_registers[regNo])
+    #    self.ssreg1 = ila.ite(self.sreg1_flag, self.sreg1, self.sreg1[(instruction_format.REG_BITS - 1):0])
+    #    self.ssreg2 = ila.ite(self.sreg2_flag, self.sreg2, self.sreg2[(instruction_format.REG_BITS - 1):0])
+    #    self.ssreg3 = ila.ite(self.sreg3_flag, self.sreg3, self.sreg3[(instruction_format.REG_BITS - 1):0])
+        return ila.ite(self.dest == regNo, ila.choice(str(regNo) + "_nxt", [self.sreg1 + self.sreg2, self.sreg1 - self.sreg2, self.dmem[self.ldImm << 0x2], self.sreg1, self.sreg1 * self.sreg2, self.scalar_registers[regNo]]),self.scalar_registers[regNo])
 #        return ila.choice(str(regNo) + "_nxt", [self.sreg1 + self.sreg2, self.sreg1 - self.sreg2, self.sreg1 * self.sreg2, self.sregdest ,self.scalar_registers[regNo]])
+
+    #def lreg_nxt(self, regNo):
+    #    self.lsreg1 = ila.ite(self.sreg1_flag, ila.sign_extend(self.sreg1, instruction_format.LONG_REG_BITS), self.sreg1)
+    #    self.lsreg2 = ila.ite(self,sreg2_flag, ila.sign_extend(self.sreg2, instruction_format.LONG_REG_BITS), self.sreg2)
+    #    self.lsreg3 = ila.ite(self.sreg3_flag, ila.sign_extend(self.sreg3, instruction_format.LONG_REG_BITS), self.sreg3)
+    #    return ila.ite(self.dest == (regNo + len(self.scalar_registers)), ila.choice(str(regNo) + '_lnxt', [self.lsreg1 + self.lsreg2, self.lsreg1 - self.lsreg2, self.lsreg1 * self.lsreg2, self.dmem[self.ldImm << 0x2], self.lsreg1, self.long_scalar_registers[regNo]]), self.long_scalr_registers[regNo])
    
     def mem_nxt(self):
-        return self.mem
+        return self.mem 
     
     def dmem_nxt(self):
-        return self.dmem
+        self.st_addr = self.stImm << 0x2 
+        self.store_value = self.sregdest 
+        return ila.choice('dmem_nxt', [self.dmem, ila.store(self.dmem, self.st_addr, self.store_value)])
 
     def indexIntoReg(self, idx):
         expr = self.scalar_registers[0]
+        #flag = self.scalar_register_flag
         for i in range(len(self.scalar_registers)):
             expr = ila.ite(idx == i, self.scalar_registers[i], expr)
+            #flag = ila.ite(idx == i, self.scalar_register_flag, flag)
+        #for i in range(len(self.long_scalar_registers)):
+        #    expr = ila.ite(idx == (i + len(self.scalar_registers)), self.long_scalar_registers[i], expr)
+        #    flag = ila.ite(idx == (i + len(self.scalar_registers)), self.long_scalar_register_flag, flag)
         return expr
 
     def compare(self):
+        #next_1 = self.model.get_next('%r4')
+        #next_2 = self.ptxSample('%r4')
         next_1 = self.model.get_next('%r4')
-        next_2 = self.ptxSample('%r4')
+        next_2 = self.ptxSample()
         if not self.model.areEqual(next_1, next_2):
             print 'not equal'
         else:
             print 'equal'
-    
-    #ptxSample for ld
+    '''
+    def ptxSample(self):
+        instruction_map_file = 'instruction_map'
+        instruction_map_obj = open(instruction_map_file, 'r')
+        instruction_map = pickle.load(instruction_map_obj)
+        return ila.ite(self.dest == 0, ila.ite(self.opcode == instruction_map['mov'], self.sreg1, ila.ite(self.opcode == instruction_map['ld'], self.dmem[self.ldImm << 0x2], ila.ite(self.opcode == instruction_map['add'], self.sreg1 + self.sreg2, ila.ite(self.opcode == instruction_map['sub'], self.sreg1 - self.sreg2,  self.scalar_registers[0])))) ,self.scalar_registers[0])
+    '''
+    def ptxSample(self):
+        instruction_map_file = 'instruction_map'
+        instruction_map_obj = open(instruction_map_file, 'r')
+        instruction_map = pickle.load(instruction_map_obj)
+        return ila.ite(self.dest == 0, ila.ite(self.opcode == instruction_map['mul.lo'], self.sreg1 * self.sreg2, self.scalar_registers[0]), self.scalar_registers[0])
 
+    '''
+    #ptxSample to st
+    def ptxSample(self):
+        instruction_map_file = 'instruction_map'
+        instruction_map_obj = open(instruction_map_file, 'r')
+        instruction_map = pickle.load(instruction_map_obj)
+        return ila.ite(self.opcode == instruction_map['st'], ila.store(self.dmem, self.st_addr, self.store_value), self.dmem)
+    '''
+
+    #ptxSample for ld
+    '''
     def ptxSample(self, t_reg):
         instruction_map_file = 'instruction_map'
         instruction_map_obj = open(instruction_map_file, 'r')
@@ -203,6 +258,8 @@ class ptxGPUModel(object):
         reg_map_obj = open(reg_map_file, 'r')
         reg_map = pickle.load(reg_map_obj)
         return ila.ite(self.opcode == instruction_map['ld'], ila.ite(self.dest == 0, (self.dmem[self.ldImm << 0x2 ]), self.scalar_registers[0]), self.scalar_registers[0])
+    '''
+
     '''
         #ptxSample for bar_counter_exit
     def ptxSample(self):

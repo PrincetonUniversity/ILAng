@@ -27,7 +27,7 @@ testp
 copysign
 add
 sub
-mul
+mul.wide
 fma
 mad
 div
