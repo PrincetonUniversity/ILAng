@@ -10,11 +10,17 @@ macro (ADD_MORE_TEST test_file_name)
            COMMAND ${EXECUTABLE_OUTPUT_PATH}/${test_file_name})
 endmacro (ADD_MORE_TEST)
 
-# Define each test below (with prefix "unit_")
+# Define each test below (with prefix "test_")
 
 ADD_MORE_TEST(test_ila)
+ADD_MORE_TEST(test_log)
 
-add_custom_target(utest 
+add_executable(nongtest non-gtest.cc)
+add_dependencies(nongtest util)
+target_link_libraries(nongtest util)
+
+add_custom_target(run_test 
   COMMAND "${EXECUTABLE_OUTPUT_PATH}/test_ila"
+  COMMAND "${EXECUTABLE_OUTPUT_PATH}/test_log"
 )
 
