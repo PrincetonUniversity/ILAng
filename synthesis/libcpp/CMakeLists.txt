@@ -22,7 +22,7 @@ if (CUSTOM_BOOST_ROOT)
 endif()
 
 set (Boost_USE_STATIC_LIBS OFF)
-find_package (Boost 1.57.0 REQUIRED python)
+find_package (Boost 1.54.0 REQUIRED python)
 IF (Boost_FOUND)
   include_directories (${Boost_INCLUDE_DIRS})
 endif ()
