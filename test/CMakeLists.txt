@@ -14,7 +14,7 @@ endmacro (ADD_MORE_TEST)
 
 ADD_MORE_TEST(test_ila)
 
-add_custom_target(run 
+add_custom_target(utest 
   COMMAND "${EXECUTABLE_OUTPUT_PATH}/test_ila"
 )
 

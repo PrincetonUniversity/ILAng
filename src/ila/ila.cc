@@ -1,5 +1,5 @@
 /// \file
-/// Source file for the class Ila and its API
+/// The source file for the class Ila.
 
 #include "ila/ila.h"
 
@@ -7,9 +7,13 @@ namespace ila {
 
 Ila::Ila() {}
 
+Ila::Ila(std::string name) : name_(name) {}
+
 Ila::~Ila() {}
 
-bool Ila::DoSomething(const int &in) { return true; }
+void Ila::SetName(const std::string &name) { name_ = name; }
+
+const std::string &Ila::GetName() const { return name_; }
 
 }; // namespace ila
 

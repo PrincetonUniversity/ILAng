@@ -4,6 +4,8 @@
 #ifndef __AST_H__
 #define __AST_H__
 
+#include <memory>
+
 namespace ila {
 
 /// \brief The ILA AST class
@@ -25,6 +27,9 @@ private:
   /// a testing data member.
   const int dummy_ = 1;
 }; // class Ast
+
+/// \typedef Pointer type for Ast nodes.
+typedef std::shared_ptr<Ast> AstPtr;
 
 }; // namespace ila
 

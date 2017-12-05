@@ -1,8 +1,8 @@
 /// \file
 /// Unit test for ILA structure
 
-#include "ila/ila.h"
 #include "ila/ast/ast.h"
+#include "ila/ila.h"
 #include "gtest/gtest.h"
 
 TEST(IlaUnitTest, AstConstructor) {
@@ -16,12 +16,14 @@ TEST(IlaUnitTest, AstConstructor) {
 }
 
 TEST(IlaUnitTest, IlaConstructor) {
-  ila::Ila ilaNode;
-  int arbitraryVal;
+  ila::Ila ila_node;
+  std::string some_name = "testing ila name";
 
-  bool result = ilaNode.DoSomething(arbitraryVal);
-  ASSERT_TRUE(result);
-  ASSERT_EQ(true, result);
+  ila_node.SetName(some_name);
+  std::string result = ila_node.GetName();
+
+  ASSERT_TRUE("testing ila name" == result);
+  ASSERT_EQ("testing ila name", result);
 }
 
 int main(int argc, char **argv) {
