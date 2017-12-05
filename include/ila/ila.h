@@ -27,11 +27,11 @@ public:
 
   /// Set Ila name.
   /// \param[in] name the name of the Ila.
-  void SetName(const std::string &name);
+  void SetName(const std::string& name);
 
   /// Get Ila name.
   /// \return the name of the Ila.
-  const std::string &GetName() const;
+  const std::string& GetName() const;
 
 protected:
   AstPtr valid_;
