@@ -15,10 +15,6 @@ endmacro (ADD_MORE_TEST)
 ADD_MORE_TEST(test_ila)
 ADD_MORE_TEST(test_log)
 
-add_executable(nongtest non-gtest.cc)
-add_dependencies(nongtest util)
-target_link_libraries(nongtest util)
-
 add_custom_target(run_test 
   COMMAND "${EXECUTABLE_OUTPUT_PATH}/test_ila"
   COMMAND "${EXECUTABLE_OUTPUT_PATH}/test_log"
