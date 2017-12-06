@@ -104,7 +104,7 @@ I8
 sS'call'
 p35
 I68
-sS'mul'
+sS'mul.wide'
 p36
 I29
 sS'ex2'

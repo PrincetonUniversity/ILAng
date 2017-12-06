@@ -1,0 +1,42 @@
+# 212 "/usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stddef.h" 3
+typedef unsigned long size_t;
+#include "crt/device_runtime.h"
+# 196 "/usr/local/cuda-8.0/bin/../targets/x86_64-linux/include/crt/device_runtime.h" 3
+___device__(extern  __no_sc__) __attribute__((__used__)) void *malloc(size_t);
+# 197 "/usr/local/cuda-8.0/bin/../targets/x86_64-linux/include/crt/device_runtime.h" 3
+___device__(extern  __no_sc__) __attribute__((__used__)) void free(void *);
+#if !defined(__CUDABE__)
+# 168 "/usr/local/cuda-8.0/bin/../targets/x86_64-linux/include/device_functions.h"
+ __device_builtin__ ___device__(extern  __no_sc__) void __syncthreads(void);
+#endif
+# 13 "add_neighbor_correct.cu"
+__global__ __var_used__ extern void _Z13add_neighbourPii(int *, int);
+#include "common_functions.h"
+#if !defined(__CUDABE__)
+#endif
+# 13 "add_neighbor_correct.cu"
+__global__ __var_used__ void _Z13add_neighbourPii(
+# 13 "add_neighbor_correct.cu"
+int *A, 
+# 13 "add_neighbor_correct.cu"
+int offset){
+# 13 "add_neighbor_correct.cu"
+{
+# 13 "add_neighbor_correct.cu"
+{
+# 14 "add_neighbor_correct.cu"
+ unsigned __cuda_local_var_15229_23_non_const_tid;
+# 17 "add_neighbor_correct.cu"
+ int __cuda_local_var_15232_22_non_const_temp;
+# 14 "add_neighbor_correct.cu"
+__cuda_local_var_15229_23_non_const_tid = (threadIdx.x);
+# 17 "add_neighbor_correct.cu"
+__cuda_local_var_15232_22_non_const_temp = (A[(__cuda_local_var_15229_23_non_const_tid + ((unsigned)offset))]);
+# 18 "add_neighbor_correct.cu"
+__syncthreads();
+# 19 "add_neighbor_correct.cu"
+(A[__cuda_local_var_15229_23_non_const_tid]) += __cuda_local_var_15232_22_non_const_temp;
+# 20 "add_neighbor_correct.cu"
+} 
+# 20 "add_neighbor_correct.cu"
+}}

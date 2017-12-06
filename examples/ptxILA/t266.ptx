@@ -32,6 +32,7 @@
 	.reg .b32 	%r<10>, r1, r2;
 	.reg .b64 	%rd<16>;
 .reg .b64 %r_sim_ld<3>; .reg .b32 %r_ssim_ld;
+    .reg  .b16  %t<10>;
 
 	mov.u64 	%rd15, __local_depot0;
 	cvta.local.u64 	%SP, %rd15;
@@ -54,9 +55,8 @@
 	add.s64 	%rd11, %rd5, %rd9;
 	ld.global.f32 	%f2, [%rd11];
 	cvt.rzi.s32.f32	%r6, %f2;
-	add.s32 	%r7, %r6, %r5;
-    mov.s32     %r9, %rd10;
-	st.local.u32 	[%rd8], %r9;
+mov.s32 %r4,0; mov.s32 %r5,0; mov.s32 %r6,0; mov.s32 %r7,0; mov.s32 %r0,0; mov.s32 %r1,0; mov.s32 r2,0; mov.s32 %r3,0; mov.s32 %r8,0; mov.s32 %r2,0; mov.s32 r1,1048576; mul.wide.s32 %rd0, r1, %r2;
+	st.local.u32 	[%rd8], %rd0;
 	mov.u64 	%rd12, $str;
 	cvta.global.u64 	%rd13, %rd12;
 	// Callseq Start 0
