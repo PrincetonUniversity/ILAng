@@ -2,6 +2,7 @@
 /// The source file for the logging/asserting system.
 
 #include "util/log.h"
+#include "config.h"
 #include <set>
 
 namespace ila {
@@ -16,6 +17,13 @@ void InitIlaLogging() {
   InitGLog();
   // Initialize debug log.
   InitDLog();
+}
+
+void CloseIlaLogging() {
+  // Close glog.
+  CloseGLog();
+  // Close debug log.
+  CloseDLog();
 }
 
 // Macros and handlers for glog-based log system.
@@ -34,14 +42,10 @@ void InitGLog(const int& lvl, const std::string& path, const int& also) {
   google::InitGoogleLogging("ila_log");
 }
 
+void CloseGLog() {}
+
 // Wrapper for debug log system.
 /******************************************************************************/
-
-void InitDLog() {
-  log1_stream = new std::ofstream("/dev/null");
-  log2_stream = new std::ofstream("/dev/null");
-  null_stream = new std::ofstream("/dev/null");
-}
 
 void ClearStream(std::ostream*& ptr) {
   // Clear previous specified log file.
@@ -62,6 +66,17 @@ void SetStream(std::ostream*& ptr, const std::string& filename) {
   } else {
     ptr = new std::ofstream(filename);
   }
+}
+
+void InitDLog() {
+  log1_stream = new std::ofstream("/dev/null");
+  log2_stream = new std::ofstream("/dev/null");
+  null_stream = new std::ofstream("/dev/null");
+}
+
+void CloseDLog() {
+  ClearStream(log1_stream);
+  ClearStream(log2_stream);
 }
 
 void SetDLogLevel(int l, const std::string& filename) {
@@ -87,9 +102,12 @@ void DisableDLog(const std::string& tag) { enabled_tags.erase(tag); }
 void ClearDLogs() { enabled_tags.clear(); }
 
 std::ostream& IlaDLog(std::ostream& l, const std::string& tag) {
+#ifdef DEBUG
   if (enabled_tags.find(tag) != enabled_tags.end()) {
-    return l << "[" << tag << "]";
+    l << "[" << tag << "]";
+    return l.flush();
   }
+#endif // DEBUG
   return *null_stream;
 }
 

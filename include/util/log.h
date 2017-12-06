@@ -11,8 +11,11 @@
 
 namespace ila {
 
-/// Initialize the logging system (both glog and debug file log)
+/// Initialize the logging system (both glog and debug file log.)
 void InitIlaLogging();
+
+/// Close log channels (e.g. flushing buffer.)
+void CloseIlaLogging();
 
 // Macros and handlers for glog-based log system.
 /******************************************************************************/
@@ -29,6 +32,7 @@ void InitIlaLogging();
 #define ILA_WARN_IF(b) DLOG_IF(WARNING, b)
 /// \def Conditional debug log for error using glog.
 #define ILA_ERROR_IF(b) DLOG_IF(ERROR, b)
+
 /// \def Fatal assertion (with fatal log message.)
 #define ILA_ASSERT(b) CHECK(b)
 /// \def Fatal equal comparison (with fatal log message.)
@@ -58,11 +62,17 @@ void SetGLogAlsoToStdErr(const int& also);
 void InitGLog(const int& lvl = 0, const std::string& path = "",
               const int& also = 0);
 
+/// Close glog system.
+void CloseGLog();
+
 // Wrapper for debug log system.
 /******************************************************************************/
 
 /// Initialize debug log system.
 void InitDLog();
+
+/// Close debug log system.
+void CloseDLog();
 
 /// Set the log level and the log file name. Default standard output if no file
 /// name is specified.
@@ -80,8 +90,6 @@ void DisableDLog(const std::string& tag);
 
 /// Clear all log categories.
 void ClearDLogs();
-
-// TODO close channel
 
 /// Channel 1 for logging debug message (under the given tag).
 /// \param[in] tag the category to log the message.

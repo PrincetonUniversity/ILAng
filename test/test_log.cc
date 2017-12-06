@@ -1,8 +1,11 @@
 /// \file
-/// Unit test for logging system
+/// Unit test for the logging system.
 
+#include "util.h"
 #include "util/log.h"
+#include "gtest/gtest-spi.h"
 #include "gtest/gtest.h"
+#include <memory>
 
 namespace ila {
 
@@ -12,51 +15,89 @@ public:
 
   ~LogTest() {}
 
-  void SetUp() {}
+  void SetUp() {
+    SetGLogAlsoToStdErr(0);
+    SetGLogFilePath("");
+    SetGLogVerboseLevel(0);
+  }
 
-  void TeadDown() {}
+  void TeadDown() {
+    SetGLogAlsoToStdErr(0);
+    SetGLogFilePath("");
+    SetGLogVerboseLevel(0);
+  }
 };
 
 TEST_F(LogTest, GlogTest) {
   InitGLog();
 
-  SetGLogVerboseLevel(0);
+  std::string msg = "";
+  SetGLogAlsoToStdErr(1);
 
-  VLOG(1) << "Try using VLOG\n";
-  ILA_INFO << "Log the info message.\n";
-  ILA_WARN << "Log the warning message.\n";
-  ILA_ERROR << "Log the error message.\n";
+  // Logging level test.
+  SetGLogVerboseLevel(0);
+  GET_STDERR_MSG((VLOG(1) << "Try using VLOG\n"), msg);
+  EXPECT_TRUE(msg.empty());
+
+  SetGLogVerboseLevel(2);
+  GET_STDERR_MSG((VLOG(1) << "Try using VLOG\n"), msg);
+  EXPECT_FALSE(msg.empty());
+
+// Logging channel test.
+#ifdef Debug
+  SetGLogAlsoToStdErr(0);
+  GET_STDERR_MSG((ILA_INFO << "Log the info message.\n"), msg);
+  EXPECT_TRUE(msg.empty());
+
+  SetGLogAlsoToStdErr(1);
+  GET_STDERR_MSG((ILA_INFO << "Log the info message.\n"), msg);
+  EXPECT_FALSE(msg.empty());
+
+  SetGLogAlsoToStdErr(0);
+  GET_STDOUT_MSG((ILA_WARN << "Log the warning message.\n"), msg);
+  EXPECT_TRUE(msg.empty());
+
+  GET_STDERR_MSG((ILA_ERROR << "Log error.\n"), msg);
+  EXPECT_FALSE(msg.empty());
+#endif // Debug
+
+  // Assertions
+  EXPECT_DEATH(ILA_ASSERT(1 == 2), ".*");
+  EXPECT_DEATH(ILA_ASSERT_EQ(3, 5), ".*");
+  EXPECT_DEATH(ILA_ASSERT_NE(4, 4), ".*");
+
+  std::shared_ptr<int> ptr = std::make_shared<int>(12);
+  ILA_NOT_NULL(ptr.get());
+
+  CloseGLog();
 }
 
 TEST_F(LogTest, DebugLogTest) {
+  InitDLog();
+  std::string msg;
+
+  // Standard output
   SetDLogLevel(2);
   EnableDLog("Channel-1");
   EnableDLog("Channel-2");
 
-  IlaDLog1("Channel-1") << "Channel 1 write to std::cout\n";
-  IlaDLog2("Channel-2") << "Channel 2 write to std::cout\n";
+#ifdef DEBUG
+  GET_STDOUT_MSG((IlaDLog1("Channel-1") << "Channel 1 write to std::cout\n"),
+                 msg);
+  EXPECT_FALSE(msg.empty());
+  GET_STDOUT_MSG((IlaDLog2("Channel-2") << "Channel 2 write to std::cout\n"),
+                 msg);
+  EXPECT_FALSE(msg.empty());
+#endif // DEBUG
 
-  DisableDLog("Channel-2");
-
+  // Log file
   SetDLogLevel(1, "DebugLogTest");
+  DisableDLog("Channel-2");
 
   IlaDLog1("Channel-1") << "Channel 1 write to file\n";
   IlaDLog2("Channel-1") << "Channel 1 should not write to file\n";
-}
 
-int main(int argc, char** argv) {
-  ::testing::InitGoogleTest(&argc, argv);
-
-#if 0
-  FLAGS_v = 5;
-  // FLAGS_log_dir = "~/workspace/compute";
-  FLAGS_alsologtostderr = 1;
-
-  google::SetLogDestination(google::GLOG_INFO, "~/workspace/compute");
-  InitIlaLogging();
-#endif
-
-  return RUN_ALL_TESTS();
+  CloseDLog();
 }
 
 } // namespace ila
