@@ -6,9 +6,6 @@
 
 namespace ila {
 
-// Wrapper for file-based log system for debuging.
-/******************************************************************************/
-
 std::ostream* log1_stream;
 std::ostream* log2_stream;
 std::ostream* null_stream;
@@ -16,10 +13,31 @@ std::set<std::string> enabled_tags;
 
 void InitIlaLogging() {
   // Initialize glog.
-  FLAGS_alsologtostderr = 1;
-  google::InitGoogleLogging("ila_log");
-
+  InitGLog();
   // Initialize debug log.
+  InitDLog();
+}
+
+// Macros and handlers for glog-based log system.
+/******************************************************************************/
+
+void SetGLogVerboseLevel(const int& lvl) { FLAGS_v = lvl; }
+
+void SetGLogFilePath(const std::string& path) { FLAGS_log_dir = path; }
+
+void SetGLogAlsoToStdErr(const int& b) { FLAGS_alsologtostderr = b; }
+
+void InitGLog(const int& lvl, const std::string& path, const int& also) {
+  SetGLogVerboseLevel(lvl);
+  SetGLogFilePath(path);
+  SetGLogAlsoToStdErr(also);
+  google::InitGoogleLogging("ila_log");
+}
+
+// Wrapper for debug log system.
+/******************************************************************************/
+
+void InitDLog() {
   log1_stream = new std::ofstream("/dev/null");
   log2_stream = new std::ofstream("/dev/null");
   null_stream = new std::ofstream("/dev/null");
@@ -46,7 +64,7 @@ void SetStream(std::ostream*& ptr, const std::string& filename) {
   }
 }
 
-void SetLogLevel(int l, const std::string& filename) {
+void SetDLogLevel(int l, const std::string& filename) {
   if (l == 0) {
     // No debug logging.
     ClearStream(log1_stream);
@@ -62,25 +80,25 @@ void SetLogLevel(int l, const std::string& filename) {
   }
 }
 
-void EnableLog(const std::string& tag) { enabled_tags.insert(tag); }
+void EnableDLog(const std::string& tag) { enabled_tags.insert(tag); }
 
-void DisableLog(const std::string& tag) { enabled_tags.erase(tag); }
+void DisableDLog(const std::string& tag) { enabled_tags.erase(tag); }
 
-void ClearLogs() { enabled_tags.clear(); }
+void ClearDLogs() { enabled_tags.clear(); }
 
-std::ostream& IlaDebugLog(std::ostream& l, const std::string& tag) {
+std::ostream& IlaDLog(std::ostream& l, const std::string& tag) {
   if (enabled_tags.find(tag) != enabled_tags.end()) {
     return l << "[" << tag << "]";
   }
   return *null_stream;
 }
 
-std::ostream& IlaDebugLog1(const std::string& tag) {
-  return IlaDebugLog(*log1_stream, tag);
+std::ostream& IlaDLog1(const std::string& tag) {
+  return IlaDLog(*log1_stream, tag);
 }
 
-std::ostream& IlaDebugLog2(const std::string& tag) {
-  return IlaDebugLog(*log2_stream, tag);
+std::ostream& IlaDLog2(const std::string& tag) {
+  return IlaDLog(*log2_stream, tag);
 }
 
 } // namespace ila
