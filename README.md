@@ -29,6 +29,8 @@ For API documents and tutorials, see the [docs](https://github.com/Bo-Yuan-Huang
   cmake .. -L -DZ3_INCLUDE_DIR=/usr/include 
 ```
 
+For API documentations, see the page [code-doc](https://rawgit.com/Bo-Yuan-Huang/Bo-Yuan-Huang.github.io/ilair/docs/ref-html/index.html).
+
 
 ### Publications:
 
