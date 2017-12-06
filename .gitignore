@@ -36,8 +36,8 @@
 build/
 
 # Doxygen output
-html/
-latex/
+#html/
+#latex/
 
 # Python object files
 *.pyc
