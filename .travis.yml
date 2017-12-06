@@ -28,16 +28,38 @@ addons:
 
 before_install:
   - echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
+  - sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
   - sudo apt-get -qq --yes update
 
 install: 
   - gem install coveralls-lcov
   - sudo apt-get install --yes cmake cmake-data
-  - sudo apt-get install --yes libboost-dev
+  #- sudo apt-get install --yes libboost-dev
   - sudo apt-get install --yes lcov
 
 before_script:
   - PARENT_DIR=$(pwd)
+  # boost
+  - wget --output-document=boost-trunk.tar https://www.dropbox.com/s/mub9p5wl1td6r8y/boost_1_61_0.tar?dl=0
+  - export BOOST_ROOT="$TRAVIS_BUILD_DIR/../boost-trunk"
+  - mkdir -p $BOOST_ROOT
+  - tar -xvf boost-trunk.tar --strip-components=1 -C $BOOST_ROOT > /dev/null
+  - cd $BOOST_ROOT
+  - ./bootstrap.sh
+  - ./b2 
+  - sudo ./b2 install 
+  - export BOOST_ROOT=$BOOST_ROOT
+  - alias bjam=$BOOST_ROOT/bjam
+  - export C_INCLUDE_PATH=$BOOST_ROOT/:$C_INCLUDE_PATH
+  - export CPLUS_INCLUDE_PATH=$BOOST_ROOT/:$CPLUS_INCLUDE_PATH
+  - export C_INCLUDE_PATH=/usr/include/:$C_INCLUDE_PATH
+  - export CPLUS_INCLUDE_PATH=/usr/include/:$CPLUS_INCLUDE_PATH
+  - export C_INCLUDE_PATH=/usr/local/include/:$C_INCLUDE_PATH
+  - export CPLUS_INCLUDE_PATH=/usr/local/include/:$CPLUS_INCLUDE_PATH
+  - export BOOST_BUILD_PATH=$BOOST_ROOT
+  - export LIBRARY_PATH=$BOOST_ROOT/stage/lib/:$LIBRARY_PATH
+  - export LD_LIBRARY_PATH=$BOOST_ROOT/stage/lib/:$LD_LIBRARY_PATH
+  - cd $TRAVIS_BUILD_DIR
   # z3
   - git clone --depth 1 https://github.com/Z3Prover/z3.git
   - cd z3
