@@ -22,7 +22,7 @@ addons:
       name: "Bo-Yuan-Huang/ILA-Tools"
       description: "ILA build submitted via Travis CI"
     notification_email: byhuang1992@gmail.com
-    build_command_prepend: "cmake -Dcoverage=ON -DZ3_INCLUDE_DIR=/usr/include $PARENT_DIR"
+    build_command_prepend: "cmake -Dcoverage=ON -DZ3_INCLUDE_DIR=/usr/include $TRAVIS_BUILD_DIR"
     build_command: "make"
     branch_pattern: coverity_scan
 
@@ -35,21 +35,20 @@ install:
   - gem install coveralls-lcov
   - sudo apt-get install --yes cmake cmake-data
   - sudo apt-get install --yes libboost-all-dev
-  - sudo apt-get install z3
   - sudo apt-get install --yes lcov
 
 before_script:
   - export PARENT_DIR=$TRAVIS_BUILD_DIR/../
-  - cd $PARENT_DIR
   # z3
-  #- git clone --depth 1 https://github.com/Z3Prover/z3.git
-  #- cd z3
-  #- python scripts/mk_make.py
-  #- cd build
-  #- make; sudo make install
+  - cd $PARENT_DIR
+  - git clone --depth 1 https://github.com/Z3Prover/z3.git
+  - cd z3
+  - python scripts/mk_make.py
+  - cd build
+  - make; sudo make install
   # glog
   - cd $PARENT_DIR
-  - git clone https://github.com/google/glog.git
+  - git clone --depth 1 https://github.com/google/glog.git
   - mkdir -p $PARENT_DIR/glog/build/
   - cd $PARENT_DIR/glog/build/ 
   - cmake ..
@@ -64,7 +63,7 @@ before_script:
 
 script:
   - cd $TRAVIS_BUILD_DIR/build
-  - cmake -L -DZ3_INCLUDE_DIR=/usr/include -Dglog_DIR=$PARENT_DIR/glog/build -Dcoverage=ON -Dpython_api=ON $TRAVIS_BUILD_DIR
+  - cmake -L -DZ3_INCLUDE_DIR=/usr/include -Dglog_DIR=$PARENT_DIR/glog/build -Dcoverage=ON -Dpython_api=ON -Ddebug=ON $TRAVIS_BUILD_DIR
   - make
 
 after_success:
