@@ -35,7 +35,7 @@ install:
   - gem install coveralls-lcov
   - sudo apt-get install --yes cmake cmake-data
   - sudo apt-get install --yes libboost-all-dev
-  - sudo apt-get install --yes z3
+  - sudo apt-get install z3
   - sudo apt-get install --yes lcov
 
 before_script:
