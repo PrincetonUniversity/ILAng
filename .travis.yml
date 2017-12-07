@@ -24,7 +24,7 @@ addons:
     notification_email: byhuang1992@gmail.com
     build_command_prepend: "cmake -Dcoverage=ON -DZ3_INCLUDE_DIR=/usr/include $TRAVIS_BUILD_DIR"
     build_command: "make"
-    branch_pattern: coverity_scan
+    branch_pattern: coverity_check
 
 before_install:
   - echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
