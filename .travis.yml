@@ -38,56 +38,57 @@ install:
   - sudo apt-get install --yes lcov
 
 before_script:
-  - PARENT_DIR=$(pwd)
+  - export PARENT_DIR=$TRAVIS_BUILD_DIR/../
   # boost
-  - wget --output-document=boost-trunk.tar https://www.dropbox.com/s/mub9p5wl1td6r8y/boost_1_61_0.tar?dl=0
-  - export BOOST_ROOT="$TRAVIS_BUILD_DIR/../boost-trunk"
-  - mkdir -p $BOOST_ROOT
-  - tar -xvf boost-trunk.tar --strip-components=1 -C $BOOST_ROOT > /dev/null
-  - cd $BOOST_ROOT
-  - ./bootstrap.sh
-  - ./b2 
-  - sudo ./b2 install 
-  - export BOOST_ROOT=$BOOST_ROOT
-  - alias bjam=$BOOST_ROOT/bjam
-  - export C_INCLUDE_PATH=$BOOST_ROOT/:$C_INCLUDE_PATH
-  - export CPLUS_INCLUDE_PATH=$BOOST_ROOT/:$CPLUS_INCLUDE_PATH
-  - export C_INCLUDE_PATH=/usr/include/:$C_INCLUDE_PATH
-  - export CPLUS_INCLUDE_PATH=/usr/include/:$CPLUS_INCLUDE_PATH
-  - export C_INCLUDE_PATH=/usr/local/include/:$C_INCLUDE_PATH
-  - export CPLUS_INCLUDE_PATH=/usr/local/include/:$CPLUS_INCLUDE_PATH
-  - export BOOST_BUILD_PATH=$BOOST_ROOT
-  - export LIBRARY_PATH=$BOOST_ROOT/stage/lib/:$LIBRARY_PATH
-  - export LD_LIBRARY_PATH=$BOOST_ROOT/stage/lib/:$LD_LIBRARY_PATH
-  - cd $TRAVIS_BUILD_DIR
-  # z3
-  - git clone --depth 1 https://github.com/Z3Prover/z3.git
-  - cd z3
-  - python scripts/mk_make.py
-  - cd build
-  - make; sudo make install
+  #- wget --output-document=boost-trunk.tar https://www.dropbox.com/s/mub9p5wl1td6r8y/boost_1_61_0.tar?dl=0
+  #- export BOOST_ROOT="$PARENT_DIR/boost-trunk"
+  #- mkdir -p $BOOST_ROOT
+  #- tar -xvf boost-trunk.tar --strip-components=1 -C $BOOST_ROOT > /dev/null
+  #- cd $BOOST_ROOT
+  #- ./bootstrap.sh
+  #- ./b2 
+  #- sudo ./b2 install 
+  #- export BOOST_ROOT=$BOOST_ROOT
+  #- alias bjam=$BOOST_ROOT/bjam
+  #- export C_INCLUDE_PATH=$BOOST_ROOT/:$C_INCLUDE_PATH
+  #- export CPLUS_INCLUDE_PATH=$BOOST_ROOT/:$CPLUS_INCLUDE_PATH
+  #- export C_INCLUDE_PATH=/usr/include/:$C_INCLUDE_PATH
+  #- export CPLUS_INCLUDE_PATH=/usr/include/:$CPLUS_INCLUDE_PATH
+  #- export C_INCLUDE_PATH=/usr/local/include/:$C_INCLUDE_PATH
+  #- export CPLUS_INCLUDE_PATH=/usr/local/include/:$CPLUS_INCLUDE_PATH
+  #- export BOOST_BUILD_PATH=$BOOST_ROOT
+  #- export LIBRARY_PATH=$BOOST_ROOT/stage/lib/:$LIBRARY_PATH
+  #- export LD_LIBRARY_PATH=$BOOST_ROOT/stage/lib/:$LD_LIBRARY_PATH
   - cd $PARENT_DIR
+  # z3
+  #- git clone --depth 1 https://github.com/Z3Prover/z3.git
+  #- cd z3
+  #- python scripts/mk_make.py
+  #- cd build
+  #- make; sudo make install
   # glog
+  - cd $PARENT_DIR
   - git clone https://github.com/google/glog.git
-  - cd glog
-  - ./autogen.sh && ./configure 
+  - mkdir -p $PARENT_DIR/glog/build/
+  - cd $PARENT_DIR/glog/build/ 
+  - cmake ..
   - make && sudo make install
   # coverage test
   - lcov --version
   - gcov --version
   - g++ --version
   # create Makefile
-  - mkdir -p $PARENT_DIR/build && cd $PARENT_DIR/build
-  - lcov --directory $PARENT_DIR/build --zerocounters
+  - mkdir -p $TRAVIS_BUILD_DIR/build && cd $TRAVIS_BUILD_DIR/build
+  - lcov --directory $TRAVIS_BUILD_DIR/build --zerocounters
 
 script:
-  - cd $PARENT_DIR/build
-  - cmake -L -DZ3_INCLUDE_DIR=/usr/include -Dcoverage=ON $PARENT_DIR
+  - cd $TRAVIS_BUILD_DIR/build
+  - cmake -L -DZ3_INCLUDE_DIR=/usr/include -Dglog_DIR=$PARENT_DIR/glog/build -Dcoverage=ON -Dpython_api=OFF $TRAVIS_BUILD_DIR
   - make
 
 after_success:
-  - make gtest
-  - lcov --directory $PARENTDIR/build --capture --output-file coverage.info 
+  - make run_test
+  - lcov --directory $TRAVIS_BUILD_DIR/build --capture --output-file coverage.info 
   - lcov --remove coverage.info 'test/*' 'app/*' 'external/*' 'cmake/*' '/usr/*' --output-file coverage.info 
   - lcov --list coverage.info 
   - coveralls-lcov coverage.info 

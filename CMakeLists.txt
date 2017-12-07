@@ -73,12 +73,12 @@ include_directories("${PROJECT_BINARY_DIR}")
 # ------------------------------------------------------------------------------
 # Z3
 # ------------------------------------------------------------------------------
-find_package (Z3 REQUIRED)
-if (Z3_FOUND)
-  include_directories (${Z3_INCLUDE_DIR})
-else ()
-  set (Z3_LIBRARY "")
-endif ()
+#find_package (Z3 REQUIRED)
+#if (Z3_FOUND)
+#  include_directories (${Z3_INCLUDE_DIR})
+#else ()
+#  set (Z3_LIBRARY "")
+#endif ()
 
 # ------------------------------------------------------------------------------
 # Boost/python
