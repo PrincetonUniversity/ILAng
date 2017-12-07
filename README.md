@@ -16,7 +16,7 @@ For API documents and tutorials, see the [docs](https://github.com/Bo-Yuan-Huang
 
 ## ILA description and C/C++/Python API (under construction)
 
-[![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools.svg?branch=travisBranch)](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools)
+[![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools)
 [![Coverage Status](https://coveralls.io/repos/github/Bo-Yuan-Huang/ILA-Tools/badge.svg?branch=master)](https://coveralls.io/github/Bo-Yuan-Huang/ILA-Tools?branch=master)
 [![Coverity Scan Build Status](https://img.shields.io/coverity/scan/14490.svg)](https://scan.coverity.com/projects/bo-yuan-huang-ila-tools)
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active)
