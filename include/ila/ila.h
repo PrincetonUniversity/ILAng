@@ -10,7 +10,7 @@
 
 namespace ila {
 
-/// \brief The class for the Ila.
+/// \brief The class for the Instruction-Level Abstraction (ILA).
 /// An Ila object should contain state variables, input varialbes, the valid
 /// function, the fetch function, the set of instructions, and the set of
 /// child-ILAs.
@@ -25,8 +25,11 @@ public:
   /// The destructor for the Ila.
   ~Ila();
 
+  // ILA definition.
+  /****************************************************************************/
+
   /// Set Ila name.
-  /// \param[in] name the name of the Ila.
+  /// \param[in] name ILA name.
   void SetName(const std::string& name);
 
   /// Get Ila name.
