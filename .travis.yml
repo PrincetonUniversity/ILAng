@@ -34,7 +34,7 @@ before_install:
 install: 
   - gem install coveralls-lcov
   - sudo apt-get install --yes cmake cmake-data
-  #- sudo apt-get install --yes libboost-dev
+  - sudo apt-get install --yes libboost-all-dev
   - sudo apt-get install --yes lcov
 
 before_script:
@@ -83,13 +83,13 @@ before_script:
 
 script:
   - cd $TRAVIS_BUILD_DIR/build
-  - cmake -L -DZ3_INCLUDE_DIR=/usr/include -Dglog_DIR=$PARENT_DIR/glog/build -Dcoverage=ON -Dpython_api=OFF $TRAVIS_BUILD_DIR
+  - cmake -L -DZ3_INCLUDE_DIR=/usr/include -Dglog_DIR=$PARENT_DIR/glog/build -Dcoverage=ON -Dpython_api=ON $TRAVIS_BUILD_DIR
   - make
 
 after_success:
   - make run_test
   - lcov --directory $TRAVIS_BUILD_DIR/build --capture --output-file coverage.info 
-  - lcov --remove coverage.info 'test/*' 'app/*' 'external/*' 'cmake/*' '/usr/*' --output-file coverage.info 
+  - lcov --remove coverage.info 'glog/*' 'test/*' 'app/*' 'cmake/*' '/usr/*' --output-file coverage.info 
   - lcov --list coverage.info 
   - coveralls-lcov coverage.info 
 
