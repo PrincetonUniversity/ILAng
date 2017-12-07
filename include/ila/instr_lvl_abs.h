@@ -28,15 +28,13 @@ public:
   // Type definitions.
   /****************************************************************************/
   /// \def ILA specific type for the node pointer.
-  typedef Node::NodePtr NodePtr;
+  typedef std::shared_ptr<Node> NodePtr;
   /// \def ILA specific type for the instruction pointer.
-  typedef Instr::InstrPtr InstrPtr;
+  typedef std::shared_ptr<Instr> InstrPtr;
   /// \def ILA specific type for the set of node pointers.
   typedef std::set<NodePtr> NodePtrSet;
   /// \def ILA specific type for the set of instruction pointers.
   typedef std::set<InstrPtr> InstrPtrSet;
-  /// \def Type of the ILA pointer.
-  typedef std::shared_ptr<InstrLvlAbs> InstrLvlAbsPtr;
 
   // ILA definition.
   /****************************************************************************/
@@ -48,6 +46,37 @@ public:
   /// \return the name of the ILA.
   const std::string& GetName() const;
 
+  /// Add one input variable to the ILA.
+  /// \param[in] input_var pointer to the input variable being added.
+  /// \return added successfully.
+  bool AddInput(const NodePtr& input_var);
+
+  /// Add one state variable to the ILA.
+  /// \param[in] state_var pointer to the state variable being added.
+  /// \return added successfully.
+  bool AddState(const NodePtr& state_var);
+
+  /// Add one constraint to the initial condition, i.e. no contraint means
+  /// arbitrary initial values to the state variables.
+  /// \param[in] cntr_expr pointer to the constraint being added.
+  /// \return added successfully.
+  bool AddInit(const NodePtr& cntr_expr);
+
+  /// Set the fetch function.
+  /// \param[in] fetch_expr pointer to the fetch function (as an expression).
+  /// \return added successfully.
+  bool SetFetch(const NodePtr& fetch_expr);
+
+  /// Set the valid function.
+  /// \param[in] valid_expr pointer to the valid function (as an expression).
+  /// \return added successfully.
+  bool SetValid(const NodePtr& valid_expr);
+
+  /// Add one instruction to the ILA.
+  /// \param[in] instr pointer to the instruction being added.
+  /// \return added successfully.
+  bool AddInstr(const InstrPtr& instr);
+
 private:
   /// The name of the ILA.
   std::string name_;
@@ -55,7 +84,7 @@ private:
   NodePtrSet inputs_;
   /// The set of state variables.
   NodePtrSet states_;
-  /// The set of initial constraints for the state variables.
+  /// The set of initial constraints (not neccessary per-state).
   NodePtrSet inits_;
   /// The fetch function.
   NodePtr fetch_;
