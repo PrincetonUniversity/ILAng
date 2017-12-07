@@ -10,13 +10,13 @@ IlaTop::IlaTop() { InitIlaInfra(); }
 IlaTop::~IlaTop() { CloseIlaInfra(); }
 
 void IlaTop::InitIlaInfra() {
-  log_.InitGlog();
-  log_.InitDlog();
+  InitGlog(0, "", 0);
+  InitDlog();
 }
 
 void IlaTop::CloseIlaInfra() {
-  log_.CloseGlog();
-  log_.CloseDlog();
+  CloseGlog();
+  CloseDlog();
 }
 
 } // namespace ila

@@ -29,8 +29,6 @@ public:
 };
 
 TEST_F(LogTest, GlogTest) {
-  InitGLog();
-
   std::string msg = "";
   SetGLogAlsoToStdErr(1);
 
@@ -44,7 +42,7 @@ TEST_F(LogTest, GlogTest) {
   EXPECT_FALSE(msg.empty());
 
 // Logging channel test.
-#ifdef Debug
+#ifdef DEBUG
   SetGLogAlsoToStdErr(0);
   GET_STDERR_MSG((ILA_INFO << "Log the info message.\n"), msg);
   EXPECT_TRUE(msg.empty());
@@ -73,7 +71,6 @@ TEST_F(LogTest, GlogTest) {
 }
 
 TEST_F(LogTest, DebugLogTest) {
-  InitDLog();
   std::string msg;
 
   // Standard output

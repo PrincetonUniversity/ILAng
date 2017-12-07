@@ -24,9 +24,6 @@ public:
   void CloseIlaInfra();
 
 private:
-  /// The (only) logging system.
-  Logger log_;
-
 }; // class IlaTop
 
 } // namespace ila

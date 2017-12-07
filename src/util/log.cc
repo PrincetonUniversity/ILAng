@@ -7,24 +7,10 @@
 
 namespace ila {
 
-std::ostream* log1_stream;
-std::ostream* log2_stream;
-std::ostream* null_stream;
+std::ostream* log1_stream = NULL;
+std::ostream* log2_stream = NULL;
+std::ostream* null_stream = NULL;
 std::set<std::string> enabled_tags;
-
-void InitIlaLogging() {
-  // Initialize glog.
-  InitGLog();
-  // Initialize debug log.
-  InitDLog();
-}
-
-void CloseIlaLogging() {
-  // Close glog.
-  CloseGLog();
-  // Close debug log.
-  CloseDLog();
-}
 
 // Macros and handlers for glog-based log system.
 /******************************************************************************/
@@ -77,6 +63,7 @@ void InitDLog() {
 void CloseDLog() {
   ClearStream(log1_stream);
   ClearStream(log2_stream);
+  ClearStream(null_stream);
 }
 
 void SetDLogLevel(int l, const std::string& filename) {
@@ -102,6 +89,11 @@ void DisableDLog(const std::string& tag) { enabled_tags.erase(tag); }
 void ClearDLogs() { enabled_tags.clear(); }
 
 std::ostream& IlaDLog(std::ostream& l, const std::string& tag) {
+  ILA_WARN_IF(l == NULL) << "Debug log stream not initialized.\n";
+  if (l == NULL) {
+    InitDLog();
+  }
+
 #ifdef DEBUG
   if (enabled_tags.find(tag) != enabled_tags.end()) {
     l << "[" << tag << "]";

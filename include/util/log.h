@@ -11,12 +11,6 @@
 
 namespace ila {
 
-/// Initialize the logging system (both glog and debug file log.)
-void InitIlaLogging();
-
-/// Close log channels (e.g. flushing buffer.)
-void CloseIlaLogging();
-
 // Macros and handlers for glog-based log system.
 /******************************************************************************/
 
