@@ -27,10 +27,6 @@ public:
 
   // Type definitions.
   /****************************************************************************/
-  /// \def ILA specific type for the node pointer.
-  typedef std::shared_ptr<Node> NodePtr;
-  /// \def ILA specific type for the instruction pointer.
-  typedef std::shared_ptr<Instr> InstrPtr;
   /// \def ILA specific type for the set of node pointers.
   typedef std::set<NodePtr> NodePtrSet;
   /// \def ILA specific type for the set of instruction pointers.
@@ -94,6 +90,9 @@ private:
   InstrPtrSet instrs_;
 
 }; // class InstrLvlAbs
+
+/// \def The type for InstrLvlAbs pointer.
+typedef std::shared_ptr<InstrLvlAbs> InstrLvlAbsPtr;
 
 } // namespace ila
 

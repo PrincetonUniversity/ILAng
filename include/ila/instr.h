@@ -24,8 +24,6 @@ public:
 
   // Type definitions.
   /****************************************************************************/
-  /// \def Instr specific type for the node pointer.
-  typedef std::shared_ptr<Node> NodePtr;
   /// \def Instr specific type for the set of node pointers.
   typedef std::set<NodePtr> NodePtrSet;
 
@@ -44,6 +42,9 @@ private:
   std::string name_;
 
 }; // class Instr
+
+/// \def The type for Instr pointer.
+typedef std::shared_ptr<Instr> InstrPtr;
 
 } // namespace il
 

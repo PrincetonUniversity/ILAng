@@ -10,8 +10,8 @@
 namespace ila {
 
 /// \brief The class for the Node.
-/// Node is the basic type for variables, expressions, functions, etc. It is
-/// at the lowest level of the ast-based representation.
+/// Node is the abstract interface (base type) for state/input variables,
+/// constraint expressions, functions, etc.
 class Node {
 public:
   /// The constructor for the class Node.
@@ -37,6 +37,9 @@ private:
   std::string name_;
 
 }; // class Node
+
+/// \def The type for Node pointer.
+typedef std::shared_ptr<Node> NodePtr;
 
 } // namespace ila
 
