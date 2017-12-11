@@ -8,7 +8,7 @@
 
 namespace ila {
 
-class IlaTop() {
+class IlaTop {
 public:
   /// Constructor for IlaTop.
   IlaTop();

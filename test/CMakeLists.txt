@@ -4,7 +4,7 @@ enable_testing()
 
 set(TEST_MAIN test_main)
 file(GLOB TEST_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/*.cc")
-set(EXTRA_LIBS gtest_main ila)
+set(EXTRA_LIBS gtest_main ilactx ila util)
 add_executable(${TEST_MAIN} ${TEST_SOURCES})
 add_dependencies(${TEST_MAIN} ${EXTRA_LIBS})
 target_link_libraries(${TEST_MAIN} ${EXTRA_LIBS})
