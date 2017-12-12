@@ -10,13 +10,13 @@ IlaTop::IlaTop() {}
 IlaTop::~IlaTop() {}
 
 void IlaTop::Init() {
-  InitGlog(0, "", 0);
-  InitDlog();
+  InitGLog(0, "", 0);
+  InitDLog();
 }
 
-void IlaTop::Clean() {
-  CloseGlog();
-  CloseDlog();
+void IlaTop::Clear() {
+  CloseGLog();
+  CloseDLog();
 }
 
 } // namespace ila

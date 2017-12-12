@@ -8,7 +8,7 @@
 
 namespace ila {
 
-class IlaTop() {
+class IlaTop {
 public:
   /// Constructor for IlaTop.
   IlaTop();
@@ -19,9 +19,9 @@ public:
   void Init();
 
   /// Clean up the ILA tools, e.g. logging system.
-  void Clean();
+  void Clear();
 
-private:
+  // private:
 }; // class IlaTop
 
 } // namespace ila
