@@ -1,5 +1,5 @@
 /// \file
-/// The header file for the logging/asserting  system.
+/// The header file for the logging/asserting system.
 
 #ifndef __LOG_H__
 #define __LOG_H__
