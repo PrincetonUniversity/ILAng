@@ -1,7 +1,7 @@
 /// \file
 /// Unit test for the logging system.
 
-#include "util.h"
+#include "test_util.h"
 #include "util/log.h"
 #include "gtest/gtest-spi.h"
 #include "gtest/gtest.h"

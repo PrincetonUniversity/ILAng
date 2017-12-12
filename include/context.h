@@ -6,6 +6,7 @@
 #define __CONTEXT_H__
 
 #include "util/log.h"
+#include <memory>
 #include <string>
 
 /// \namespace ila
@@ -56,6 +57,8 @@ private:
   void ClearLogging();
 
 }; // class Context
+
+typedef std::shared_ptr<Context> CtxPtr;
 
 } // namespace ila
 
