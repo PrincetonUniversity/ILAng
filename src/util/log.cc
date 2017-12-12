@@ -18,21 +18,20 @@ Logger::~Logger() {
 // Macros and handlers for glog-based log system.
 /******************************************************************************/
 
-void Logger::SetGlogVerboseLevel(const int& lvl) { FLAGS_v = lvl; }
+void SetGlogVerboseLevel(const int& lvl) { FLAGS_v = lvl; }
 
-void Logger::SetGlogFilePath(const std::string& path) { FLAGS_log_dir = path; }
+void SetGlogFilePath(const std::string& path) { FLAGS_log_dir = path; }
 
-void Logger::SetGlogAlsoToStdErr(const int& b) { FLAGS_alsologtostderr = b; }
+void SetGlogAlsoToStdErr(const int& b) { FLAGS_alsologtostderr = b; }
 
-void Logger::InitGlog(const int& lvl, const std::string& path,
-                      const int& also) {
+void InitGlog(const int& lvl, const std::string& path, const int& also) {
   SetGlogVerboseLevel(lvl);
   SetGlogFilePath(path);
   SetGlogAlsoToStdErr(also);
   google::InitGoogleLogging("ila_log");
 }
 
-void Logger::CloseGlog() {}
+void CloseGlog() {}
 
 // Wrapper for debug log system.
 /******************************************************************************/
@@ -58,19 +57,19 @@ void SetStream(std::ostream*& ptr, const std::string& filename) {
   }
 }
 
-void Logger::InitDlog() {
+void InitDlog() {
   log1_stream = new std::ofstream("/dev/null");
   log2_stream = new std::ofstream("/dev/null");
   null_stream = new std::ofstream("/dev/null");
 }
 
-void Logger::CloseDlog() {
+void CloseDlog() {
   ClearStream(log1_stream);
   ClearStream(log2_stream);
   ClearStream(null_stream);
 }
 
-void Logger::SetDlogLevel(int l, const std::string& filename) {
+void SetDlogLevel(int l, const std::string& filename) {
   if (l == 0) {
     // No debug logging.
     ClearStream(log1_stream);
@@ -86,13 +85,13 @@ void Logger::SetDlogLevel(int l, const std::string& filename) {
   }
 }
 
-void Logger::EnableDlog(const std::string& tag) { enabled_tags.insert(tag); }
+void EnableDlog(const std::string& tag) { enabled_tags.insert(tag); }
 
-void Logger::DisableDlog(const std::string& tag) { enabled_tags.erase(tag); }
+void DisableDlog(const std::string& tag) { enabled_tags.erase(tag); }
 
-void Logger::ClearDlogs() { enabled_tags.clear(); }
+void ClearDlogs() { enabled_tags.clear(); }
 
-std::ostream& Logger::IlaDlog(std::ostream& l, const std::string& tag) {
+std::ostream& IlaDlog(std::ostream& l, const std::string& tag) {
   ILA_WARN_IF(l == NULL) << "Debug log stream not initialized.\n";
   if (l == NULL) {
     InitDlog();
@@ -107,11 +106,11 @@ std::ostream& Logger::IlaDlog(std::ostream& l, const std::string& tag) {
   return *null_stream;
 }
 
-std::ostream& Logger::IlaDlog1(const std::string& tag) {
+std::ostream& IlaDlog1(const std::string& tag) {
   return IlaDlog(*log1_stream, tag);
 }
 
-std::ostream& Logger::IlaDlog2(const std::string& tag) {
+std::ostream& IlaDlog2(const std::string& tag) {
   return IlaDlog(*log2_stream, tag);
 }
 

@@ -8,14 +8,9 @@
 
 namespace ila {
 
-// Context ctx;
-std::shared_ptr<Context> ctx;
-
 int main(int argc, char** argv) {
-  // InitGLog();
-  // InitDLog();
-  // Context ctx;
-  ctx = std::make_shared<Context>();
+  InitGlog();
+  InitDlog();
 
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
