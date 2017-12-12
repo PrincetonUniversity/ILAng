@@ -15,13 +15,11 @@ public:
   /// Destructor for IlaTop.
   ~IlaTop();
 
-  /// \brief Initializating the ILA infrastructure.
-  /// Initialize the logging system (including glog and debug log).
-  void InitIlaInfra();
+  /// Initializating the ILA tools, e.g. logging system.
+  void Init();
 
-  /// \brief Clear up the ILA infrastructure.
-  /// Clear up and reset the logging system (especially the debug log).
-  void CloseIlaInfra();
+  /// Clean up the ILA tools, e.g. logging system.
+  void Clean();
 
 private:
 }; // class IlaTop

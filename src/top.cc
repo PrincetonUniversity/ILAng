@@ -5,16 +5,16 @@
 
 namespace ila {
 
-IlaTop::IlaTop() { InitIlaInfra(); }
+IlaTop::IlaTop() {}
 
-IlaTop::~IlaTop() { CloseIlaInfra(); }
+IlaTop::~IlaTop() {}
 
-void IlaTop::InitIlaInfra() {
+void IlaTop::Init() {
   InitGlog(0, "", 0);
   InitDlog();
 }
 
-void IlaTop::CloseIlaInfra() {
+void IlaTop::Clean() {
   CloseGlog();
   CloseDlog();
 }

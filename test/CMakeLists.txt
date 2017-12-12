@@ -4,15 +4,15 @@ enable_testing()
 
 set(TEST_MAIN test_main)
 file(GLOB TEST_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/*.cc")
-set(EXTRA_LIBS gtest_main ila)
+set(EXTRA_LIBS gtest_main ilatools)
 add_executable(${TEST_MAIN} ${TEST_SOURCES})
 add_dependencies(${TEST_MAIN} ${EXTRA_LIBS})
 target_link_libraries(${TEST_MAIN} ${EXTRA_LIBS})
 
 macro (ADD_MORE_TEST test_file_name) 
   add_executable(${test_file_name} "${test_file_name}.cc")
-  add_dependencies(${test_file_name} gtest_main ila)
-  target_link_libraries(${test_file_name} gtest_main ila)
+  add_dependencies(${test_file_name} gtest_main ilatools)
+  target_link_libraries(${test_file_name} gtest_main ilatools)
   add_test(NAME ${test_file_name} 
            COMMAND ${EXECUTABLE_OUTPUT_PATH}/${test_file_name})
 endmacro (ADD_MORE_TEST)
