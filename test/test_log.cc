@@ -9,6 +9,7 @@
 
 namespace ila {
 
+#if 0
 class LogTest : public ::testing::Test {
 public:
   LogTest() {}
@@ -96,6 +97,7 @@ TEST_F(LogTest, DebugLogTest) {
 
   CloseDLog();
 }
+#endif
 
 } // namespace ila
 

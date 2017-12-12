@@ -5,18 +5,22 @@
 
 namespace ila {
 
-Context::Context() {}
+Context::Context(bool enable_logging) : enable_logging_(enable_logging) {}
 
 Context::~Context() {}
 
-void Context::InitLogging() {
-  logger_.InitGlog(0, "", 0);
-  logger_.InitDlog();
+void Context::Initialize() {
+  if (enable_logging_) {
+    logger_.InitGlog(0, "", 0);
+    logger_.InitDlog();
+  }
 }
 
-void Context::CloseLogging() {
-  logger_.CloseGlog();
-  logger_.CloseDlog();
+void Context::ClearUp() {
+  if (enable_logging_) {
+    logger_.CloseGlog();
+    logger_.CloseDlog();
+  }
 }
 
 } // namespace ila

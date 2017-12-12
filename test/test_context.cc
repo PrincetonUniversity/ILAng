@@ -7,7 +7,6 @@
 namespace ila {
 
 TEST(ContextUnitTest, InitializaLogging) {
-  Context ctx;
 
   std::string msg = "";
 

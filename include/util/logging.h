@@ -49,65 +49,65 @@ public:
   /// \brief Set the verbose level for glog system.
   /// All verbose log (VLOG) with smaller level will be logged.
   /// \paraam[in] lvl the verbose level (upper bound).
-  void SetGLogVerboseLevel(const int& lvl);
+  void SetGlogVerboseLevel(const int& lvl);
 
   /// Set the path for glog log file. Default no log file.
   /// \param[in] path the path for glog log file.
-  void SetGLogFilePath(const std::string& path);
+  void SetGlogFilePath(const std::string& path);
 
   /// Set whether to enable log (info and warning) to be log to standard error.
   /// \param[in] also set 1 to log to std::cerr.
-  void SetGLogAlsoToStdErr(const int& also);
+  void SetGlogAlsoToStdErr(const int& also);
 
   /// Initialize glog system.
   /// \param[in] lvl verbose level.
   /// \param[in] path log file directory.
   /// \param[in] also set 1 to log INFO and WARNING to std::cerr.
-  void InitGLog(const int& lvl = 0, const std::string& path = "",
+  void InitGlog(const int& lvl = 0, const std::string& path = "",
                 const int& also = 0);
 
   /// Close glog system.
-  void CloseGLog();
+  void CloseGlog();
 
   // Wrapper for debug log system.
   /****************************************************************************/
 
   /// Initialize debug log system.
-  void InitDLog();
+  void InitDlog();
 
   /// Close debug log system.
-  void CloseDLog();
+  void CloseDlog();
 
   /// Set the log level and the log file name. Default standard output if no
   /// file
   /// name is specified.
   /// \param[in] l log level.
   /// \param[in] filename name of the log file.
-  void SetDLogLevel(int l, const std::string& filename = "");
+  void SetDlogLevel(int l, const std::string& filename = "");
 
   /// Enable a log category.
   /// \param[in] tag log category/tag to enable.
-  void EnableDLog(const std::string& tag);
+  void EnableDlog(const std::string& tag);
 
   /// Disable a log category.
   /// \param[in] tag log category/tag to disable.
-  void DisableDLog(const std::string& tag);
+  void DisableDlog(const std::string& tag);
 
   /// Clear all log categories.
-  void ClearDLogs();
+  void ClearDlogs();
 
   /// Helper function for output the debug message to the channel.
   /// \param[in] l the debug log channel.
   /// \param[in] tag the category to log the message.
-  std::ostream& IlaDLog(std::ostream& l, const std::string& tag);
+  std::ostream& IlaDlog(std::ostream& l, const std::string& tag);
 
   /// Channel 1 for logging debug message (under the given tag).
   /// \param[in] tag the category to log the message.
-  std::ostream& IlaDLog1(const std::string& tag);
+  std::ostream& IlaDlog1(const std::string& tag);
 
   /// Channel 2 for logging debug message (under the given tag).
   /// \param[in] tag the category to log the message.
-  std::ostream& IlaDLog2(const std::string& tag);
+  std::ostream& IlaDlog2(const std::string& tag);
 
 private:
   /// Stream channel for debug log 1.

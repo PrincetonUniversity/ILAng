@@ -4,25 +4,26 @@
 #ifndef __CONTEXT_H__
 #define __CONTEXT_H__
 
-//#include "util/logging.h"
-#include "util/log.h"
+#include "util/logging.h"
 
 namespace ila {
 
 class Context {
 public:
   /// Constructor for the ILA context.
-  Context();
+  Context(bool enable_logging = true);
   /// Destructor for the ILA context.
   ~Context();
 
-  /// Initialize the logging system.
-  void InitLogging();
+  /// Initialize the context, such as the logging system.
+  void Initialize();
 
-  /// Clear up and reset the logging system.
-  void CloseLogging();
+  /// Clear up the context, such as the logging system.
+  void ClearUp();
 
 private:
+  /// Flag of enabling the logging system.
+  bool enable_logging_;
   /// The logging system, including glog and debug log.
   Logger logger_;
 
