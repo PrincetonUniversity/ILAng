@@ -1,6 +1,11 @@
 /// \file
 /// Some helper macros, functions for writing tests.
 
+#include "util/log.h"
+#include "gtest/gtest-spi.h"
+#include "gtest/gtest.h"
+#include <memory>
+
 namespace ila {
 
 /// Capture standard output message for cmd to msg.

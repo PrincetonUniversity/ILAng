@@ -6,17 +6,20 @@
 
 #include "ila/instr.h"
 #include "ila/node.h"
+#include "ila/object.h"
+#include "ila/symbol.h"
 #include <memory>
 #include <set>
 #include <string>
 
+/// \namespace ila
 namespace ila {
 
-/// \brief The class for the Instruction-Level Abstraction (ILA).
-/// An Ila object should contain state variables, input varialbes, the valid
-/// function, the fetch function, the set of instructions, and the set of
-/// child-ILAs.
-class InstrLvlAbs {
+/// \class InstrLvlAbs
+/// The class for the Instruction-Level Abstraction (ILA). An ILA object should
+/// contain state variables, input varialbes, the valid function, the fetch
+/// function, the set of instructions, and the set of child-ILAs.
+class InstrLvlAbs : public Object {
 public:
   /// The constructor for the class InstrLvlAbs.
   InstrLvlAbs();
@@ -24,6 +27,10 @@ public:
   InstrLvlAbs(const std::string& name);
   /// The destructor for the class InstrLvlAbs.
   ~InstrLvlAbs();
+
+  /// Get Object type (inherited virtual function).
+  /// \return ObjType::OBJ_ILA
+  virtual ObjType GetObjType() const;
 
   // Type definitions.
   /****************************************************************************/

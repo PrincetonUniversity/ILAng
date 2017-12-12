@@ -3,17 +3,14 @@
 
 #include "test_util.h"
 #include "util/log.h"
-#include "gtest/gtest-spi.h"
-#include "gtest/gtest.h"
-#include <memory>
 
 namespace ila {
 
-class LogTest : public ::testing::Test {
+class Log : public ::testing::Test {
 public:
-  LogTest() {}
+  Log() {}
 
-  ~LogTest() {}
+  ~Log() {}
 
   void SetUp() {
     SetGLogAlsoToStdErr(0);
@@ -28,7 +25,7 @@ public:
   }
 };
 
-TEST_F(LogTest, GlogTest) {
+TEST_F(Log, GlogTest) {
   std::string msg = "";
   SetGLogAlsoToStdErr(1);
 
@@ -70,7 +67,7 @@ TEST_F(LogTest, GlogTest) {
   CloseGLog();
 }
 
-TEST_F(LogTest, DebugLogTest) {
+TEST_F(Log, DebugLogTest) {
   std::string msg;
 
   // Standard output

@@ -3,8 +3,6 @@
 
 #include "ila/object.h"
 #include "test_util.h"
-#include "gtest/gtest.h"
-#include <memory>
 
 namespace ila {
 

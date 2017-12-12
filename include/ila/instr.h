@@ -5,22 +5,29 @@
 #define __INSTR_H__
 
 #include "ila/node.h"
+#include "ila/object.h"
+#include "ila/symbol.h"
 #include <memory>
 #include <set>
 #include <string>
 
+/// \namespace ila
 namespace ila {
 
-/// \brief The class for the Instruction.
-/// An Instr object should contain the decode function and the state update
-/// functions for all the state variables. It can optionally have some extra
-/// attributes, e.g. sub/micro, view, etc.
-class Instr {
+/// \class Instr
+/// The class for the Instruction. An Instr object should contain the decode
+/// function and the state update functions for all the state variables. It can
+/// optionally have some extra attributes, e.g. sub/micro, view, etc.
+class Instr : public Object {
 public:
   /// The constructor for the class Instr.
   Instr();
   /// The destructor for the class Instr.
   ~Instr();
+
+  /// Get Object type (inherited virtual function).
+  /// \return ObjType::OBJ_INSTR
+  virtual ObjType GetObjType() const;
 
   // Type definitions.
   /****************************************************************************/

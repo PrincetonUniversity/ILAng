@@ -3,9 +3,6 @@
 
 #include "ila/symbol.h"
 #include "test_util.h"
-#include "gtest/gtest.h"
-#include <iostream>
-#include <memory>
 
 namespace ila {
 
