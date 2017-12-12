@@ -16,42 +16,42 @@ public:
   ~LogTest() {}
 
   void SetUp() {
-    SetGLogAlsoToStdErr(0);
-    SetGLogFilePath("");
-    SetGLogVerboseLevel(0);
+    SetGlogAlsoToStdErr(0);
+    SetGlogFilePath("");
+    SetGlogVerboseLevel(0);
   }
 
   void TeadDown() {
-    SetGLogAlsoToStdErr(0);
-    SetGLogFilePath("");
-    SetGLogVerboseLevel(0);
+    SetGlogAlsoToStdErr(0);
+    SetGlogFilePath("");
+    SetGlogVerboseLevel(0);
   }
 };
 
 TEST_F(LogTest, GlogTest) {
   std::string msg = "";
-  SetGLogAlsoToStdErr(1);
+  SetGlogAlsoToStdErr(1);
 
   // Logging level test.
-  SetGLogVerboseLevel(0);
+  SetGlogVerboseLevel(0);
   GET_STDERR_MSG((VLOG(1) << "Try using VLOG\n"), msg);
   EXPECT_TRUE(msg.empty());
 
-  SetGLogVerboseLevel(2);
+  SetGlogVerboseLevel(2);
   GET_STDERR_MSG((VLOG(1) << "Try using VLOG\n"), msg);
   EXPECT_FALSE(msg.empty());
 
 // Logging channel test.
 #ifdef DEBUG
-  SetGLogAlsoToStdErr(0);
+  SetGlogAlsoToStdErr(0);
   GET_STDERR_MSG((ILA_INFO << "Log the info message.\n"), msg);
   EXPECT_TRUE(msg.empty());
 
-  SetGLogAlsoToStdErr(1);
+  SetGlogAlsoToStdErr(1);
   GET_STDERR_MSG((ILA_INFO << "Log the info message.\n"), msg);
   EXPECT_FALSE(msg.empty());
 
-  SetGLogAlsoToStdErr(0);
+  SetGlogAlsoToStdErr(0);
   GET_STDOUT_MSG((ILA_WARN << "Log the warning message.\n"), msg);
   EXPECT_TRUE(msg.empty());
 
@@ -67,34 +67,34 @@ TEST_F(LogTest, GlogTest) {
   std::shared_ptr<int> ptr = std::make_shared<int>(12);
   ILA_NOT_NULL(ptr.get());
 
-  CloseGLog();
+  CloseGlog();
 }
 
 TEST_F(LogTest, DebugLogTest) {
   std::string msg;
 
   // Standard output
-  SetDLogLevel(2);
-  EnableDLog("Channel-1");
-  EnableDLog("Channel-2");
+  SetDlogLevel(2);
+  EnableDlog("Channel-1");
+  EnableDlog("Channel-2");
 
 #ifdef DEBUG
-  GET_STDOUT_MSG((IlaDLog1("Channel-1") << "Channel 1 write to std::cout\n"),
+  GET_STDOUT_MSG((IlaDlog1("Channel-1") << "Channel 1 write to std::cout\n"),
                  msg);
   EXPECT_FALSE(msg.empty());
-  GET_STDOUT_MSG((IlaDLog2("Channel-2") << "Channel 2 write to std::cout\n"),
+  GET_STDOUT_MSG((IlaDlog2("Channel-2") << "Channel 2 write to std::cout\n"),
                  msg);
   EXPECT_FALSE(msg.empty());
 #endif // DEBUG
 
   // Log file
-  SetDLogLevel(1, "DebugLogTest");
-  DisableDLog("Channel-2");
+  SetDlogLevel(1, "DebugLogTest");
+  DisableDlog("Channel-2");
 
-  IlaDLog1("Channel-1") << "Channel 1 write to file\n";
-  IlaDLog2("Channel-1") << "Channel 1 should not write to file\n";
+  IlaDlog1("Channel-1") << "Channel 1 write to file\n";
+  IlaDlog2("Channel-1") << "Channel 1 should not write to file\n";
 
-  CloseDLog();
+  CloseDlog();
 }
 
 } // namespace ila
