@@ -7,13 +7,8 @@ add_subdirectory(ila)
 #add_subdirectory(engine)
 #add_subdirectory(synthesis)
 
-<<<<<<< HEAD
 file (GLOB TOP_SOURCES "${CMAKE_CURRENT_SOUrCE_DIR}/*.cc")
 add_library(ilatools ${TOP_SOURCES})
-=======
-file (GLOB CTX_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/*.cc")
-add_library(ilatools ${CTX_SOURCES}) 
->>>>>>> ilair
 add_dependencies(ilatools util ila)
 target_link_libraries(ilatools util ila)
 
