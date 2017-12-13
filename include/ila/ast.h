@@ -22,14 +22,13 @@ public:
   /// The destructor for the class Ast.
   ~Ast();
 
-  /// Get Object type (inherited virtual function).
-  /// \return ObjType::OBJ_AST
-  ObjType GetObjType() const;
+  /// Is type Ast.
+  bool IsAst() const { return true; }
 
   /// Is type Expr.
-  virtual bool IsExpr() const;
+  virtual bool IsExpr() const { return false; }
   /// Is type Func.
-  virtual bool IsFunc() const;
+  virtual bool IsFunc() const { return false; }
 
   /// Getting the arity.
   const int& Arity() const;

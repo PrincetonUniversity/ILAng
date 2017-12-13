@@ -18,9 +18,12 @@ TEST(Object, Construct) {
   EXPECT_EQ(obj_copy.Name().Str(), msg);
 }
 
-TEST(Object, GetType) {
+TEST(Object, ObjType) {
   Object obj;
-  EXPECT_EQ(obj.GetObjType(), ObjType::OBJ_NONE);
+  EXPECT_FALSE(obj.IsAst());
+  EXPECT_FALSE(obj.IsInstr());
+  EXPECT_FALSE(obj.IsInstrLvlAbs());
 }
 
 } // namespace ila
+

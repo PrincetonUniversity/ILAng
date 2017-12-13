@@ -25,9 +25,8 @@ public:
   /// The destructor for the class Instr.
   ~Instr();
 
-  /// Get Object type (inherited virtual function).
-  /// \return ObjType::OBJ_INSTR
-  virtual ObjType GetObjType() const;
+  /// Is type Instr.
+  bool IsInstr() const { return true; }
 
   // Type definitions.
   /****************************************************************************/

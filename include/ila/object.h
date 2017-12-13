@@ -11,9 +11,6 @@
 /// \namespace ila
 namespace ila {
 
-/// \def ObjType
-typedef enum { OBJ_ILA, OBJ_INSTR, OBJ_AST, OBJ_NONE } ObjType;
-
 /// \class Object
 /// Object is the basest type in the ILA structure. It can be either the AST
 /// node, Instr, or a (child-)ILA.
@@ -29,8 +26,12 @@ public:
   /// Get the name (symbol)
   const Symbol& Name() const;
 
-  /// Virtual function for getting object type, e.g. ILA, INSTR, AST.
-  virtual ObjType GetObjType() const;
+  /// Is type InstrLvlAbs.
+  virtual bool IsInstrLvlAbs() const { return false; }
+  /// Is type Instr.
+  virtual bool IsInstr() const { return false; }
+  /// Is type Ast.
+  virtual bool IsAst() const { return false; }
 
 private:
   /// Symbol (name) of the object.

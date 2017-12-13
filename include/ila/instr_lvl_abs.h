@@ -28,9 +28,8 @@ public:
   /// The destructor for the class InstrLvlAbs.
   ~InstrLvlAbs();
 
-  /// Get Object type (inherited virtual function).
-  /// \return ObjType::OBJ_ILA
-  virtual ObjType GetObjType() const;
+  /// Is type InstrLvlAbs.
+  bool IsInstrLvlAbs() const { return true; }
 
   // Type definitions.
   /****************************************************************************/
