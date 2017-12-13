@@ -5,11 +5,13 @@
 #define __AST_H__
 
 #include "ila/object.h"
-#include "ila/symbol.h"
 #include <memory>
 
 /// \namespace ila
 namespace ila {
+
+/// \def AstType
+typedef enum { AST_EXPR, AST_FUNC, AST_NONE } AstType;
 
 /// \class Ast
 /// The class for the Abstract Syntax Tree. An Ast object can be an expression
@@ -18,14 +20,25 @@ class Ast : public Object {
 public:
   /// The constructor for the class Ast.
   Ast();
+  /// The constructor for the class Ast with arity.
+  Ast(const int& arity);
   /// The destructor for the class Ast.
   ~Ast();
 
   /// Get Object type (inherited virtual function).
   /// \return ObjType::OBJ_AST
-  virtual ObjType GetObjType() const;
+  ObjType GetObjType() const;
+
+  /// Virtual function for getting ast type, e.g. expr, func, etc.
+  virtual AstType GetAstType() const;
+
+  /// Getting the arity.
+  const int& Arity() const;
 
 private:
+  /// Arity.
+  int arity_;
+
 }; // class Ast
 
 typedef std::shared_ptr<Ast> AstPtr;
