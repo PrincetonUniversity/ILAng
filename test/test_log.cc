@@ -52,13 +52,18 @@ TEST_F(Log, GlogTest) {
   EXPECT_FALSE(msg.empty());
 #endif // NDEBUG
 
-  // Assertions
-  EXPECT_DEATH(ILA_ASSERT(1 == 2), ".*");
-  EXPECT_DEATH(ILA_ASSERT_EQ(3, 5), ".*");
-  EXPECT_DEATH(ILA_ASSERT_NE(4, 4), ".*");
+  // Check
+  EXPECT_DEATH(ILA_CHECK(1 == 2), ".*");
+  EXPECT_DEATH(ILA_CHECK_EQ(3, 5), ".*");
+  EXPECT_DEATH(ILA_CHECK_NE(4, 4), ".*");
 
   std::shared_ptr<int> ptr = std::make_shared<int>(12);
   ILA_NOT_NULL(ptr.get());
+
+// Assert
+#ifndef NDEBUG
+  EXPECT_DEATH(ILA_ASSERT(1 == 2), ".*");
+#endif
 
   CloseGLog();
 }

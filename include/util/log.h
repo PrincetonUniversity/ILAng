@@ -26,14 +26,16 @@ namespace ila {
 #define ILA_WARN_IF(b) DLOG_IF(WARNING, b)
 /// \def Conditional debug log for error using glog.
 #define ILA_ERROR_IF(b) DLOG_IF(ERROR, b)
-
 /// \def Fatal assertion (with fatal log message.)
-#define ILA_ASSERT(b) CHECK(b)
-/// \def Fatal equal comparison (with fatal log message.)
-#define ILA_ASSERT_EQ(a, b) CHECK_EQ(a, b)
-/// \def Fatal not equal comparison (with fatal log message.)
-#define ILA_ASSERT_NE(a, b) CHECK_NE(a, b)
-/// \def Fatal not null assertion for pointer.
+#define ILA_ASSERT(b) DLOG_IF(FATAL, b)
+
+/// \def Non-debug fatal assertion (with fatal log message.)
+#define ILA_CHECK(b) CHECK(b)
+/// \def Non-debug Fatal equal comparison (with fatal log message.)
+#define ILA_CHECK_EQ(a, b) CHECK_EQ(a, b)
+/// \def Non-debug fatal not equal comparison (with fatal log message.)
+#define ILA_CHECK_NE(a, b) CHECK_NE(a, b)
+/// \def Nond-debug fatal not null assertion for pointer.
 #define ILA_NOT_NULL(ptr) CHECK_NOTNULL(ptr)
 
 /// \brief Set the verbose level for glog system.
