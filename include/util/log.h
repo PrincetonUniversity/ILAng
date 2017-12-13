@@ -93,6 +93,18 @@ std::ostream& IlaDLog1(const std::string& tag);
 /// \param[in] tag the category to log the message.
 std::ostream& IlaDLog2(const std::string& tag);
 
+/// \class LogChannel
+/// The container for debug log channel.
+class LogChannel {
+public:
+  /// Debug log channel 1
+  static std::ostream* log1_stream;
+  /// Debug log channel 2
+  static std::ostream* log2_stream;
+  /// Debug log null channel
+  static std::ostream* null_stream;
+}; // LogChannel
+
 } // namespace ila
 
 #endif // __LOG_H__

@@ -12,11 +12,7 @@ public:
 
   ~Log() {}
 
-  void SetUp() {
-    SetGLogAlsoToStdErr(0);
-    SetGLogFilePath("");
-    SetGLogVerboseLevel(0);
-  }
+  void SetUp() { InitGLog(); }
 
   void TeadDown() {
     SetGLogAlsoToStdErr(0);
@@ -39,7 +35,7 @@ TEST_F(Log, GlogTest) {
   EXPECT_FALSE(msg.empty());
 
 // Logging channel test.
-#ifdef DEBUG
+#ifndef NDEBUG
   SetGLogAlsoToStdErr(0);
   GET_STDERR_MSG((ILA_INFO << "Log the info message.\n"), msg);
   EXPECT_TRUE(msg.empty());
@@ -54,7 +50,7 @@ TEST_F(Log, GlogTest) {
 
   GET_STDERR_MSG((ILA_ERROR << "Log error.\n"), msg);
   EXPECT_FALSE(msg.empty());
-#endif // Debug
+#endif // NDEBUG
 
   // Assertions
   EXPECT_DEATH(ILA_ASSERT(1 == 2), ".*");
@@ -75,14 +71,14 @@ TEST_F(Log, DebugLogTest) {
   EnableDLog("Channel-1");
   EnableDLog("Channel-2");
 
-#ifdef DEBUG
+#ifndef NDEBUG
   GET_STDOUT_MSG((IlaDLog1("Channel-1") << "Channel 1 write to std::cout\n"),
                  msg);
   EXPECT_FALSE(msg.empty());
   GET_STDOUT_MSG((IlaDLog2("Channel-2") << "Channel 2 write to std::cout\n"),
                  msg);
   EXPECT_FALSE(msg.empty());
-#endif // DEBUG
+#endif // NDEBUG
 
   // Log file
   SetDLogLevel(1, "DebugLogTest");

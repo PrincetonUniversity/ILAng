@@ -4,14 +4,17 @@
 #ifndef __NODE_H__
 #define __NODE_H__
 
+#include "ila/object.h"
+#include "ila/symbol.h"
 #include <memory>
 #include <string>
 
+/// \namespace ila
 namespace ila {
 
-/// \brief The class for the Node.
-/// Node is the abstract interface (base type) for state/input variables,
-/// constraint expressions, functions, etc.
+/// \class Node
+/// The class for the Node. Node is the abstract interface (base type) for
+/// state/input variables, constraint expressions, functions, etc.
 class Node {
 public:
   /// The constructor for the class Node.

@@ -12,7 +12,6 @@ int main(int argc, char** argv) {
 
   ctx.SetLoggingPath(".");
   ctx.SetLogToStdErr(true);
-
   ctx.Init();
 
   ::testing::InitGoogleTest(&argc, argv);

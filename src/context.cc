@@ -2,7 +2,6 @@
 /// The source for the class Context.
 
 #include "context.h"
-#include "config.h"
 
 /// \namespace ila
 namespace ila {
@@ -10,11 +9,11 @@ namespace ila {
 Context::Context() {
   logging_inited_ = false;
 
-#ifdef DEBUG
+#ifndef NDEBUG
   logging_enable_ = true;
-#else  // DEBUG
+#else  // NDEBUG
   logging_enable_ = false;
-#endif // DEBUG
+#endif // NDEBUG
 }
 
 Context::~Context() {}
@@ -28,7 +27,7 @@ void Context::SetLoggingPath(const std::string& path) { logging_path_ = path; }
 void Context::SetLogToStdErr(bool b) { logging_stderr_ = b; }
 
 void Context::InitLogging() {
-  if (logging_enable_ && !logging_inited_) {
+  if (!logging_inited_) {
     InitGLog(logging_verbose_, logging_path_, logging_stderr_);
     InitDLog();
     logging_inited_ = true;

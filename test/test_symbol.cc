@@ -28,9 +28,11 @@ TEST(Symbol, StringConstruct) {
   EXPECT_EQ(sym.Str(), sym_copy.Str());
   EXPECT_EQ("ptr_name", sym_ptr->Str());
 
+#ifndef NDEBUG
   std::string msg = "";
   GET_STDERR_MSG(sym.ToInt(), msg);
   EXPECT_FALSE(msg.empty());
+#endif // NDEBUG
   // EXPECT_THROW(sym.ToInt(), std::invalid_argument);
 }
 
