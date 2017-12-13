@@ -11,7 +11,5 @@ Expr::Expr(const int& arity) : Ast(arity) {}
 
 Expr::~Expr() {}
 
-bool Expr::IsExpr() const { return true; }
-
 } // namespace ila
 

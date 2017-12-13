@@ -22,7 +22,7 @@ public:
   ~Expr();
 
   /// Is type expr.
-  bool IsExpr() const;
+  bool IsExpr() const { return true; }
 
 private:
 }; // class Expr

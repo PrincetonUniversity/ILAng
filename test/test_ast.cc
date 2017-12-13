@@ -8,10 +8,18 @@ namespace ila {
 
 TEST(AST, Construct) {
   Ast ast;
-  AstPtr ast_ptr = std::make_shared<Ast>();
   Ast ast_copy = ast;
-
   EXPECT_EQ(ast.Name(), ast_copy.Name());
+
+  AstPtr arity_ptr = std::make_shared<Ast>(1);
+  EXPECT_EQ(1, arity_ptr->Arity());
+
+  AstPtr name_ptr = std::make_shared<Ast>("ast_name");
+  EXPECT_EQ("ast_name", name_ptr->Name().Str());
+
+  AstPtr all_ptr = std::make_shared<Ast>("2input", 2);
+  EXPECT_EQ("2input", all_ptr->Name().Str());
+  EXPECT_EQ(2, all_ptr->Arity());
 }
 
 TEST(AST, ObjType) {

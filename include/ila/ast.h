@@ -6,6 +6,7 @@
 
 #include "ila/object.h"
 #include <memory>
+#include <string>
 
 /// \namespace ila
 namespace ila {
@@ -19,6 +20,10 @@ public:
   Ast();
   /// The constructor for the class Ast with arity.
   Ast(const int& arity);
+  /// The constructor for the class Ast with name.
+  Ast(const std::string& name);
+  /// The constructor for the class Ast with name and arity.
+  Ast(const std::string& name, const int& arity);
   /// The destructor for the class Ast.
   ~Ast();
 
