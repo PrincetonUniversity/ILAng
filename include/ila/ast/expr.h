@@ -21,9 +21,8 @@ public:
   /// The destructor for the class Expr.
   ~Expr();
 
-  /// Get Ast type.
-  /// \return AstType::AST_EXPR
-  AstType GetAstType() const;
+  /// Is type expr.
+  bool IsExpr() const;
 
 private:
 }; // class Expr

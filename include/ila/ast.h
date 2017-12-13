@@ -10,9 +10,6 @@
 /// \namespace ila
 namespace ila {
 
-/// \def AstType
-typedef enum { AST_EXPR, AST_FUNC, AST_NONE } AstType;
-
 /// \class Ast
 /// The class for the Abstract Syntax Tree. An Ast object can be an expression
 /// or function definition (interpreted or uninterpreted).
@@ -29,8 +26,10 @@ public:
   /// \return ObjType::OBJ_AST
   ObjType GetObjType() const;
 
-  /// Virtual function for getting ast type, e.g. expr, func, etc.
-  virtual AstType GetAstType() const;
+  /// Is type Expr.
+  virtual bool IsExpr() const;
+  /// Is type Func.
+  virtual bool IsFunc() const;
 
   /// Getting the arity.
   const int& Arity() const;

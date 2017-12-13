@@ -11,7 +11,6 @@ TEST(AST, Construct) {
   AstPtr ast_ptr = std::make_shared<Ast>();
   Ast ast_copy = ast;
 
-  EXPECT_EQ(ast.GetObjType(), ast_ptr->GetObjType());
   EXPECT_EQ(ast.Name(), ast_copy.Name());
 }
 

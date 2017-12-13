@@ -13,7 +13,9 @@ Ast::~Ast() {}
 
 ObjType Ast::GetObjType() const { return ObjType::OBJ_AST; }
 
-AstType Ast::GetAstType() const { return AstType::AST_NONE; }
+bool Ast::IsExpr() const { return false; }
+
+bool Ast::IsFunc() const { return false; }
 
 const int& Ast::Arity() const { return arity_; }
 
