@@ -31,6 +31,10 @@ Symbol& Symbol::operator=(const Symbol& s) {
   return *this;
 }
 
+bool operator==(const Symbol& lhs, const Symbol& rhs) {
+  return (lhs.data_ == rhs.data_);
+}
+
 std::ostream& operator<<(std::ostream& out, const Symbol& s) {
   return out << s.data_;
 }

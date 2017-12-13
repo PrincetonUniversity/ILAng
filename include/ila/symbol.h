@@ -29,10 +29,15 @@ public:
   const std::string& Str() const;
 
   /// Generate the hash
+  int Hash() const;
 
   /// Overload assignment.
   Symbol& operator=(const Symbol& s);
 
+  /// Overload comparison.
+  friend bool operator==(const Symbol& lhs, const Symbol& rhs);
+
+  /// Overload output stream.
   friend std::ostream& operator<<(std::ostream& out, const Symbol& s);
   // friend std::fstream& operator<<(std::fstream& out, const Symbol& s);
 

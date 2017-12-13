@@ -27,7 +27,7 @@ namespace ila {
 /// \def Conditional debug log for error using glog.
 #define ILA_ERROR_IF(b) DLOG_IF(ERROR, b)
 /// \def Fatal assertion (with fatal log message.)
-#define ILA_ASSERT(b) DLOG_IF(FATAL, b)
+#define ILA_ASSERT(b) DLOG_IF(FATAL, !(b))
 
 /// \def Non-debug fatal assertion (with fatal log message.)
 #define ILA_CHECK(b) CHECK(b)
