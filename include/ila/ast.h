@@ -5,6 +5,7 @@
 #define __AST_H__
 
 #include "ila/object.h"
+#include "z3++.h"
 #include <memory>
 #include <string>
 
@@ -16,31 +17,37 @@ namespace ila {
 /// or function definition (interpreted or uninterpreted).
 class Ast : public Object {
 public:
-  /// The constructor for the class Ast.
+  // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
+  /// Default constructor.
   Ast();
-  /// The constructor for the class Ast with arity.
-  Ast(const int& arity);
-  /// The constructor for the class Ast with name.
+  /// Constructor with name.
   Ast(const std::string& name);
-  /// The constructor for the class Ast with name and arity.
-  Ast(const std::string& name, const int& arity);
-  /// The destructor for the class Ast.
+  /// Default destructor.
   ~Ast();
 
+  // ------------------------- ACCESSORS/MUTATORS --------------------------- //
+
+  // ------------------------- METHODS -------------------------------------- //
   /// Is type Ast.
   bool IsAst() const { return true; }
 
-  /// Is type Expr.
+  /// Is type Ast::Sort.
+  virtual bool IsSort() const { return false; }
+  /// Is type Ast::Expr.
   virtual bool IsExpr() const { return false; }
-  /// Is type Func.
+  /// Is type Ast::Func.
   virtual bool IsFunc() const { return false; }
 
-  /// Getting the arity.
-  const int& Arity() const;
+  /// Get SMT formula of the AST node.
+  virtual z3::expr GetZ3Expr(z3::context& z3_ctx) const = 0;
+
+  /// Output function.
+  virtual std::ostream& Print(std::ostream& out) const = 0;
 
 private:
-  /// Arity.
-  int arity_;
+  // ------------------------- MEMBERS -------------------------------------- //
+
+  // ------------------------- HELPERS -------------------------------------- //
 
 }; // class Ast
 

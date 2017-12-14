@@ -7,6 +7,8 @@ namespace ila {
 
 InstrLvlAbs::InstrLvlAbs() {}
 
+InstrLvlAbs::InstrLvlAbs(const std::string& name) : Object(name) {}
+
 InstrLvlAbs::~InstrLvlAbs() {}
 
 } // namespace ila

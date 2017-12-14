@@ -8,11 +8,13 @@ namespace ila {
 
 Object::Object() {}
 
+Object::Object(const char* name) : symbol_(name) {}
+
 Object::Object(const std::string& name) : symbol_(name) {}
 
 Object::~Object() {}
 
-const Symbol& Object::Name() const { return symbol_; }
+const Symbol& Object::name() const { return symbol_; }
 
 } // namespace ila
 

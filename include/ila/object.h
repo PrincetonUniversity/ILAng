@@ -12,20 +12,28 @@
 namespace ila {
 
 /// \class Object
-/// Object is the basest type in the ILA structure. It can be either the AST
-/// node, Instr, or a (child-)ILA.
+/// Object is the basest type in the ILA structure. It can be either Ast, Instr,
+/// or InstrLvlAbs.
 class Object {
 public:
-  /// The constructor for Object.
+  // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
+  /// Default constructor.
   Object();
-  /// The constructor for Object with string name.
+  /// Constructor with cstring name.
+  Object(const char* name);
+  /// Constructor with string name.
   Object(const std::string& name);
-  /// The destructor for the class Object.
+  /// Default destructor.
   ~Object();
 
-  /// Get the name (symbol)
-  const Symbol& Name() const;
+  /// \def ObjPtr
+  typedef std::shared_ptr<Object> ObjPtr;
 
+  // ------------------------- ACCESSORS/MUTATORS --------------------------- //
+  /// Get the symbol (name).
+  const Symbol& name() const;
+
+  // ------------------------- METHODS -------------------------------------- //
   /// Is type InstrLvlAbs.
   virtual bool IsInstrLvlAbs() const { return false; }
   /// Is type Instr.
@@ -33,13 +41,19 @@ public:
   /// Is type Ast.
   virtual bool IsAst() const { return false; }
 
+  /// Output function.
+  virtual std::ostream& Print(std::ostream& out) const = 0;
+
 private:
+  // ------------------------- MEMBERS -------------------------------------- //
   /// Symbol (name) of the object.
   Symbol symbol_;
 
+  // ------------------------- HELPERS -------------------------------------- //
+
 }; // class Object
 
-typedef std::shared_ptr<Object> ObjPtr;
+typedef Object::ObjPtr ObjPtr;
 
 } // namespace ila
 

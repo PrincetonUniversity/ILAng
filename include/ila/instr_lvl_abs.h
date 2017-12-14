@@ -7,7 +7,7 @@
 #include "ila/instr.h"
 #include "ila/node.h"
 #include "ila/object.h"
-#include "ila/symbol.h"
+#include <iostream>
 #include <memory>
 #include <set>
 #include <string>
@@ -21,32 +21,31 @@ namespace ila {
 /// function, the set of instructions, and the set of child-ILAs.
 class InstrLvlAbs : public Object {
 public:
-  /// The constructor for the class InstrLvlAbs.
+  // ------------------------- ACCESSORS/MUTATORS --------------------------- //
+  /// Default constructor. DO NOT USE.
   InstrLvlAbs();
-  /// The consturctor for the class InstrLvlAbs (with name).
+  /// Consturctor with name.
   InstrLvlAbs(const std::string& name);
-  /// The destructor for the class InstrLvlAbs.
+  /// Default destructor.
   ~InstrLvlAbs();
 
-  /// Is type InstrLvlAbs.
-  bool IsInstrLvlAbs() const { return true; }
-
-  // Type definitions.
-  /****************************************************************************/
+  /// \def InstrLvlAbsPtr
+  typedef std::shared_ptr<InstrLvlAbs> InstrLvlAbsPtr;
   /// \def ILA specific type for the set of node pointers.
   typedef std::set<NodePtr> NodePtrSet;
   /// \def ILA specific type for the set of instruction pointers.
   typedef std::set<InstrPtr> InstrPtrSet;
 
-  // ILA definition.
-  /****************************************************************************/
-  /// Set the name of the ILA.
-  /// \param[in] name ILA name.
-  void SetName(const std::string& name);
+  // ------------------------- ACCESSORS/MUTATORS --------------------------- //
 
-  /// Get the name of the ILA.
-  /// \return the name of the ILA.
-  const std::string& GetName() const;
+  // ------------------------- METHODS -------------------------------------- //
+  /// Is type InstrLvlAbs.
+  bool IsInstrLvlAbs() const { return true; }
+
+  /// Output function.
+  virtual std::ostream& Print(std::ostream& out) const;
+
+  // ILA definition.
 
   /// Add one input variable to the ILA.
   /// \param[in] input_var pointer to the input variable being added.
@@ -79,9 +78,11 @@ public:
   /// \return added successfully.
   bool AddInstr(const InstrPtr& instr);
 
+  /// Output stream function.
+  friend std::ostream& operator<<(std::ostream& out);
+
 private:
-  /// The name of the ILA.
-  std::string name_;
+  // ------------------------- MEMBERS -------------------------------------- //
   /// The set of input variables.
   NodePtrSet inputs_;
   /// The set of state variables.
@@ -95,10 +96,15 @@ private:
   /// The set of instructions.
   InstrPtrSet instrs_;
 
+  /// Specification/implementation.
+  bool is_spec_;
+
+  // ------------------------- HELPERS -------------------------------------- //
+
 }; // class InstrLvlAbs
 
 /// \def The type for InstrLvlAbs pointer.
-typedef std::shared_ptr<InstrLvlAbs> InstrLvlAbsPtr;
+typedef InstrLvlAbs::InstrLvlAbsPtr InstrLvlAbsPtr;
 
 } // namespace ila
 

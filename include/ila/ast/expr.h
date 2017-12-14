@@ -11,15 +11,13 @@
 /// \namespace ila
 namespace ila {
 
-/// \def ExprType.
-typedef enum { EXPR_BOOL, EXPR_BV, EXPR_ARRAY } ExprType;
-
 /// \class Expr
 /// The class for expression, which is the basic type for variables,
 /// constraints, state update expressions, etc.
 class Expr : public Ast {
 public:
-  /// The constructor for the class Expr.
+  // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
+  /// Default constructor.
   Expr();
   /// The constructor for the class Expr with arity.
   Expr(const int& arity);
@@ -46,7 +44,6 @@ public:
   friend bool operator==(const Expr& lhs, const Expr& rhs);
 
 private:
-  ExprType expr_type_;
 }; // class Expr
 
 /// \def Pointer for Expr.

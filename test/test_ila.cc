@@ -8,7 +8,5 @@ namespace ila {
 
 TEST(InstrLvlAbs, Construct) {}
 
-TEST(InstrLvlAbs, GetObjType) {}
-
 } // namespace ila
 

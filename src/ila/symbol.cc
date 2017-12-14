@@ -9,24 +9,36 @@ namespace ila {
 
 unsigned Symbol::counter_ = 0;
 
-Symbol::Symbol() { data_ = std::to_string(counter_++); }
+Symbol::Symbol() { data_ = std::to_string(++counter_); }
 
-Symbol::Symbol(const std::string& str) { data_ = str; }
+Symbol::Symbol(const char* str) : data_(str) {}
+
+Symbol::Symbol(const std::string& str) : data_(str) {}
 
 Symbol::~Symbol() {}
 
-int Symbol::ToInt() const {
+const std::string& Symbol::str() const { return data_; }
+
+const char* Symbol::c_str() const { return data_.c_str(); }
+
+int Symbol::to_int() const {
   try {
     return std::stoi(data_);
   } catch (const std::exception& e) {
-    ILA_ERROR << "Try to convert " << data_ << " to int.\n";
+    ILA_ERROR << "Converting non-numeric value " << data_ << " to int.\n";
+    return -1;
   }
-  return -1;
 }
 
-const std::string& Symbol::Str() const { return data_; }
+int Symbol::Hash() const {
+  // TODO
+  ILA_ERROR << "Symbol hashing not implemented.\n";
+  return 0;
+}
 
-Symbol& Symbol::operator=(const Symbol& s) {
+std::ostream& Symbol::Print(std::ostream& out) const { return out << data_; }
+
+Symbol& Symbol::operator=(const Symbol& rhs) {
   data_ = s.data_;
   return *this;
 }
@@ -36,14 +48,8 @@ bool operator==(const Symbol& lhs, const Symbol& rhs) {
 }
 
 std::ostream& operator<<(std::ostream& out, const Symbol& s) {
-  return out << s.data_;
+  return s.Print(out);
 }
-
-#if 0
-std::fstream& operator<<(std::fstream& out, const Symbol& s) {
-  return out << s.data_;
-}
-#endif
 
 } // namespace ila
 

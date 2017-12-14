@@ -6,34 +6,35 @@
 
 namespace ila {
 
-TEST(Symbol, NumConstruct) {
-  Symbol sym0, sym1, sym2;
-  int sym0_int = sym0.ToInt();
-  int sym1_int = sym1.ToInt();
-  std::string sym2_str = sym2.Str();
+TEST(Symbol, Construct) {
+  Symbol sym_default;
+  Symbol sym_cstr("sym_cstr");
+  Symbol sym_str("sym_str");
 
-  EXPECT_GT(sym1_int, sym0_int);
+  Symbol sym0;
+  Symbol sym1;
+  EXPECT_GT(sym1.to_int(), sym0.to_int());
 
   std::string msg = "";
-  GET_STDOUT_MSG((std::cout << sym2), msg);
-  EXPECT_EQ(sym2_str, msg);
+  GET_STDOUT_MSG((std::cout << sym0), msg);
+  EXPECT_EQ(sym0.str(), msg);
 }
 
-TEST(Symbol, StringConstruct) {
+TEST(Symbol, Accessors) {
   Symbol sym("symbol_name");
-  std::shared_ptr<Symbol> sym_ptr = std::make_shared<Symbol>("ptr_name");
   Symbol sym_copy = sym;
+  EXPECT_EQ(sym.str(), sym_copy.str());
+  EXPECT_STREQ(sym.c_str(), sym_copy.c_str());
 
-  EXPECT_EQ("symbol_name", sym.Str());
-  EXPECT_EQ(sym.Str(), sym_copy.Str());
-  EXPECT_EQ("ptr_name", sym_ptr->Str());
+  Symbol sym_num;
+  Symbol sym_num_copy = sym_num;
+  EXPECT_EQ(sym_num.to_int(), sym_num_copy.to_int());
 
 #ifndef NDEBUG
   std::string msg = "";
-  GET_STDERR_MSG(sym.ToInt(), msg);
+  GET_STDERR_MSG(sym.to_int(), msg);
   EXPECT_FALSE(msg.empty());
 #endif // NDEBUG
-  // EXPECT_THROW(sym.ToInt(), std::invalid_argument);
 }
 
 } // namespace ila

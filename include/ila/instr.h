@@ -6,7 +6,6 @@
 
 #include "ila/node.h"
 #include "ila/object.h"
-#include "ila/symbol.h"
 #include <memory>
 #include <set>
 #include <string>
@@ -20,37 +19,45 @@ namespace ila {
 /// optionally have some extra attributes, e.g. sub/micro, view, etc.
 class Instr : public Object {
 public:
-  /// The constructor for the class Instr.
+  // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
+  /// Default constructor. DO NOT USE.
   Instr();
-  /// The destructor for the class Instr.
+  /// Constructor with name.
+  Instr(const std::string& name);
+  /// Default destructor.
   ~Instr();
 
-  /// Is type Instr.
-  bool IsInstr() const { return true; }
-
-  // Type definitions.
-  /****************************************************************************/
+  /// \def InstrPtr
+  typedef std::shared_ptr<Instr> InstrPtr;
   /// \def Instr specific type for the set of node pointers.
   typedef std::set<NodePtr> NodePtrSet;
 
-  // Instr definition.
-  /****************************************************************************/
-  /// Set the name of the Instr.
-  /// \param[in] name Instr name.
-  void SetName(const std::string& name);
+  // ------------------------- ACCESSORS/MUTATORS --------------------------- //
 
-  /// Get the name of the Instr.
-  /// \return the name of the Instr.
-  const std::string& GetName() const;
+  // ------------------------- METHODS -------------------------------------- //
+  /// Is type Instr.
+  bool IsInstr() const { return true; }
+
+  /// Output function.
+  virtual std::ostream& Print(std::ostream& out) const;
+
+  // Instr definition.
+
+  /// Set up decode function.
+  /// \param[in] decode_func pointer to the decode function.
+  bool SetDecode(NodePtr decode_func);
 
 private:
-  /// The name of the Instr.
-  std::string name_;
+  // ------------------------- MEMBERS -------------------------------------- //
+  /// Has view.
+  bool is_view_;
+
+  // ------------------------- HELPERS -------------------------------------- //
 
 }; // class Instr
 
 /// \def The type for Instr pointer.
-typedef std::shared_ptr<Instr> InstrPtr;
+typedef Instr::InstrPtr InstrPtr;
 
 } // namespace il
 
