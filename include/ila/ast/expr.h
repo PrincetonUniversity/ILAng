@@ -5,6 +5,7 @@
 #define __EXPR_H__
 
 #include "ila/ast.h"
+#include "ila/ast/sort.h"
 #include <memory>
 #include <string>
 
@@ -19,22 +20,21 @@ public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor.
   Expr();
-  /// The constructor for the class Expr with arity.
-  Expr(const int& arity);
-  /// The constructor for the class Expr with name.
-  Expr(const std::string& name);
-  /// The constructor for the class Expr with name and arity.
-  Expr(const std::string& name, const int& arity);
-  /// The uniform constructor for the class Expr.
-  Expr(ExprType type = ExprType::EXPR_BV, const int& arity = 0,
-       const std::string& name = "");
-  /// The destructor for the class Expr.
+  /// Default destructor.
   ~Expr();
 
+  typedef std::shared_ptr<Expr> ExprPtr;
+
+  // ------------------------- ACCESSORS/MUTATORS --------------------------- //
+
+  // ------------------------- METHODS -------------------------------------- //
   /// Is type expr.
   bool IsExpr() const { return true; }
 
-  typedef std::shared_ptr<Expr> ExprPtr;
+  /// Return true if this is a Boolean expression.
+  virtual bool IsBool() const = 0;
+  /// Return true if this is a Bitvector expression.
+  virtual bool IsBv() const = 0;
 
   /// Compare two expression with object.
   static bool Equal(const Expr& lhs, const Expr& rhs);
@@ -44,6 +44,14 @@ public:
   friend bool operator==(const Expr& lhs, const Expr& rhs);
 
 private:
+  // ------------------------- MEMBERS -------------------------------------- //
+  /// The sort of the expr.
+  Sort sort_;
+  /// Number of arguments.
+  int arity_;
+
+  // ------------------------- HELPERS -------------------------------------- //
+
 }; // class Expr
 
 /// \def Pointer for Expr.
