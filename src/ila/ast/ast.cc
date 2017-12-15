@@ -1,7 +1,7 @@
 /// \file
 /// Source for the class Ast.
 
-#include "ila/ast.h"
+#include "ila/ast/ast.h"
 
 namespace ila {
 

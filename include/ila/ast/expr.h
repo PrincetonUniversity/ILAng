@@ -4,7 +4,7 @@
 #ifndef __EXPR_H__
 #define __EXPR_H__
 
-#include "ila/ast.h"
+#include "ila/ast/ast.h"
 #include "ila/ast/sort.h"
 #include "z3++.h"
 #include <memory>

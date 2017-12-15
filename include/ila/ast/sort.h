@@ -4,7 +4,7 @@
 #ifndef __SORT_H__
 #define __SORT_H__
 
-#include "ila/ast.h"
+#include "ila/ast/ast.h"
 #include <ostream>
 #include <vector>
 
