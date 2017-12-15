@@ -6,8 +6,11 @@
 
 #include "ila/ast.h"
 #include "ila/ast/sort.h"
+#include "z3++.h"
 #include <memory>
+#include <ostream>
 #include <string>
+#include <vector>
 
 /// \namespace ila
 namespace ila {
@@ -18,23 +21,52 @@ namespace ila {
 class Expr : public Ast {
 public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
-  /// Default constructor.
+  /// Default constructor. DO NOT USE.
   Expr();
+  /// Constructor with the arity and the sort.
+  Expr(SortPtr sort, const int& arity);
   /// Default destructor.
   ~Expr();
 
+  /// \def ExprPtr
   typedef std::shared_ptr<Expr> ExprPtr;
+  /// \def Z3ExprVec Expr specific type for vector of z3 expr
+  typedef std::vector<z3::expr> Z3ExprVec;
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
+  /// Return the pointer of the sort.
+  SortPtr sort() const;
+  /// Return the arity.
+  const int& arity() const;
+  /// Return the i-th argument.
+  ExprPtr arg(const int& i) const;
 
   // ------------------------- METHODS -------------------------------------- //
-  /// Is type expr.
+  /// Is type expr (object).
   bool IsExpr() const { return true; }
 
   /// Return true if this is a Boolean expression.
-  virtual bool IsBool() const = 0;
+  bool IsBool() const { return sort_->IsBool(); }
   /// Return true if this is a Bitvector expression.
-  virtual bool IsBv() const = 0;
+  bool IsBv() const { return sort_->IsBv(); }
+  /// Return true if this is an Array expression.
+  bool IsArray() const { return sort_->IsArray(); }
+  /// Return true if this is an Application expression.
+  bool IsApp() const { return sort_->IsApp(); }
+
+  /// Return true if this is a constant.
+  virtual bool IsConst() const = 0;
+  /// Return true if this is a variable.
+  virtual bool IsVar() const = 0;
+  /// Return true if this is an operation.
+  virtual bool IsOp() const = 0;
+
+  /// Return the z3 expression for the node.
+  virtual z3::expr GetZ3Expr(z3::context& z3_ctx,
+                             const Z3ExprVec& z3expr_vec) const = 0;
+
+  /// Output to stream.
+  std::ostream& Print(std::ostream& out) const = 0;
 
   /// Compare two expression with object.
   static bool Equal(const Expr& lhs, const Expr& rhs);
@@ -42,19 +74,22 @@ public:
   static bool Equal(const ExprPtr lhs, const ExprPtr rhs);
   /// Overload comparison.
   friend bool operator==(const Expr& lhs, const Expr& rhs);
+  /// Overload output stream operator
+  friend std::ostream& operator<<(std::ostream& out, const Expr& expr);
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// The sort of the expr.
-  Sort sort_;
+  SortPtr sort_;
   /// Number of arguments.
   int arity_;
 
   // ------------------------- HELPERS -------------------------------------- //
+  /// Return true if the expression is well-sorted.
+  bool IsWellSorted() const;
 
 }; // class Expr
 
-/// \def Pointer for Expr.
 typedef Expr::ExprPtr ExprPtr;
 
 } // namespace ila

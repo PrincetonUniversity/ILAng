@@ -7,8 +7,8 @@
 #include "ila/instr.h"
 #include "ila/node.h"
 #include "ila/object.h"
-#include <iostream>
 #include <memory>
+#include <ostream>
 #include <set>
 #include <string>
 
@@ -79,7 +79,7 @@ public:
   bool AddInstr(const InstrPtr& instr);
 
   /// Output stream function.
-  friend std::ostream& operator<<(std::ostream& out);
+  friend std::ostream& operator<<(std::ostream& out, InstrLvlAbs& ila);
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //

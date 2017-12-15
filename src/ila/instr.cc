@@ -9,9 +9,5 @@ Instr::Instr() {}
 
 Instr::~Instr() {}
 
-void Instr::SetName(const std::string& name) { name_ = name; }
-
-const std::string& Instr::GetName() const { return name_; }
-
 } // namespace ila
 

@@ -5,6 +5,7 @@
 #define __SORT_H__
 
 #include "ila/ast.h"
+#include <ostream>
 #include <vector>
 
 /// \namespace ila
@@ -30,11 +31,21 @@ public:
   /// Constructor for Array (Memory) type.
   Sort(const int& addr_width, const int& data_width);
   /// Constructor for Application type.
-  Sort(const SortPtr& out_sort, const SortPtrVec& args_sort);
+  Sort(const SortPtr& range_sort, const SortPtrVec& args_sort);
   /// Default destructor.
   ~Sort();
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
+  /// Return the bit width (bitvector).
+  const int& bit_width() const;
+  /// Return the address width (array).
+  const int& addr_width() const;
+  /// Return the data width (array).
+  const int& data_width() const;
+  /// Return the range sort (app).
+  const SortPtr& range_sort() const;
+  /// Return the domain sort (app).
+  const SortPtr& args_sort() const;
 
   // ------------------------- METHODS -------------------------------------- //
   /// Return true if this is a Boolean expression.
@@ -50,7 +61,7 @@ public:
   std::ostream& Print(std::ostream& out) const;
 
   /// Overload output stream operator.
-  friend std::ostream& operator<<(std::ostream& out);
+  friend std::ostream& operator<<(std::ostream& out, const Sort& s);
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
@@ -63,8 +74,8 @@ private:
   /// Data width of array.
   int data_width_;
   /// Sort of the output data of application.
-  SortPtr out_sort_;
-  /// Sorts of the application arguments.
+  SortPtr range_sort_;
+  /// Sorts of the application arguments (domain).
   SortPtrVec args_sort_;
 
   // ------------------------- HELPERS -------------------------------------- //
@@ -78,6 +89,9 @@ private:
   std::ostream& PrintApp(std::ostream& out) const;
 
 }; // class Sort
+
+typedef Sort::SortPtr SortPtr;
+typedef Sort::SortPtrVec SortPtrVec;
 
 } // namespace ila
 

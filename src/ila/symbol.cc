@@ -39,7 +39,7 @@ int Symbol::Hash() const {
 std::ostream& Symbol::Print(std::ostream& out) const { return out << data_; }
 
 Symbol& Symbol::operator=(const Symbol& rhs) {
-  data_ = s.data_;
+  data_ = rhs.data_;
   return *this;
 }
 
