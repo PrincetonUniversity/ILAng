@@ -12,7 +12,7 @@
 namespace ila {
 
 /// \def SortType
-typedef enum { SORT_BOOL, SORT_BV, SORT_ARRAY, SORT_APP } SortType;
+typedef enum { SORT_BOOL, SORT_BV, SORT_MEM, SORT_APP } SortType;
 
 /// \class Sort
 /// The class for sort (type for expr, and the range/domain of functions).
@@ -28,7 +28,7 @@ public:
   Sort();
   /// Constructor for Bitvector type.
   Sort(const int& bit_width);
-  /// Constructor for Array (Memory) type.
+  /// Constructor for Memory (Array) type.
   Sort(const int& addr_width, const int& data_width);
   /// Constructor for Application type.
   Sort(const SortPtr& range_sort, const SortPtrVec& args_sort);
@@ -38,9 +38,9 @@ public:
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return the bit width (bitvector).
   const int& bit_width() const;
-  /// Return the address width (array).
+  /// Return the address width (mem).
   const int& addr_width() const;
-  /// Return the data width (array).
+  /// Return the data width (mem).
   const int& data_width() const;
   /// Return the range sort (app).
   const SortPtr& range_sort() const;
@@ -52,8 +52,8 @@ public:
   bool IsBool() const;
   /// Return true if this is a Bitvector expression.
   bool IsBv() const;
-  /// Return true if this is an Array expression.
-  bool IsArray() const;
+  /// Return true if this is an Memory expression.
+  bool IsMem() const;
   /// Return true if this is an Application expression.
   bool IsApp() const;
 
@@ -69,9 +69,9 @@ private:
   SortType type_;
   /// Bit width of bitvector.
   int bit_width_;
-  /// Address width of array.
+  /// Address width of mem.
   int addr_width_;
-  /// Data width of array.
+  /// Data width of mem.
   int data_width_;
   /// Sort of the output data of application.
   SortPtr range_sort_;
@@ -84,7 +84,7 @@ private:
   /// Print Bitvector type sort.
   std::ostream& PrintBv(std::ostream& out) const;
   /// Print Array type sort.
-  std::ostream& PrintArray(std::ostream& out) const;
+  std::ostream& PrintMem(std::ostream& out) const;
   /// Print Application type sort.
   std::ostream& PrintApp(std::ostream& out) const;
 
