@@ -1,0 +1,82 @@
+language: cpp
+
+branches:
+    only:
+    - master
+    - coverity_scan
+
+os:
+    - linux
+
+env:
+    matrix:
+        - CMAKE_CXX_COMPILER=g++-4.8
+
+git:
+    depth: 1
+
+before_install:
+    - sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
+    - sudo apt-get -qq --yes update
+    - sudo apt-add-repository --yes ppa:smspillaz/cmake-2.8.12
+    - sudo apt-get -qq --yes update
+    
+install: 
+    - sudo apt-get install --yes cmake cmake-data
+    - sudo apt-get -qq --yes update
+    - sudo apt-get install --yes libgmp-dev
+    - sudo apt-get -qq --yes update
+    - sudo apt-get install --yes -qq gcc-4.8
+    - sudo apt-get install --yes -qq g++-4.8
+    - sudo apt-get -qq --yes update
+    - sudo apt-get install --yes -qq libstdc++-4.8-dev
+    - sudo rm /usr/bin/gcc 
+    - sudo rm /usr/bin/g++
+    - sudo ln -s /usr/bin/gcc-4.8 /usr/bin/gcc
+    - sudo ln -s /usr/bin/g++-4.8 /usr/bin/g++
+
+before_script:
+    # boost
+    - wget --output-document=boost-trunk.tar https://www.dropbox.com/s/mub9p5wl1td6r8y/boost_1_61_0.tar?dl=0
+    - export BOOST_ROOT="$TRAVIS_BUILD_DIR/../boost-trunk"
+    - mkdir -p $BOOST_ROOT
+    - tar -xvf boost-trunk.tar --strip-components=1 -C $BOOST_ROOT > /dev/null
+    - cd $BOOST_ROOT
+    - ./bootstrap.sh 
+    - ./b2 
+    - sudo ./b2 install 
+    - export BOOST_ROOT=$BOOST_ROOT
+    - alias bjam=$BOOST_ROOT/bjam
+    - export C_INCLUDE_PATH=$BOOST_ROOT/:$C_INCLUDE_PATH
+    - export CPLUS_INCLUDE_PATH=$BOOST_ROOT/:$CPLUS_INCLUDE_PATH
+    - export C_INCLUDE_PATH=/usr/include/:$C_INCLUDE_PATH
+    - export CPLUS_INCLUDE_PATH=/usr/include/:$CPLUS_INCLUDE_PATH
+    - export C_INCLUDE_PATH=/usr/local/include/:$C_INCLUDE_PATH
+    - export CPLUS_INCLUDE_PATH=/usr/local/include/:$CPLUS_INCLUDE_PATH
+    - export BOOST_BUILD_PATH=$BOOST_ROOT
+    - export LIBRARY_PATH=$BOOST_ROOT/stage/lib/:$LIBRARY_PATH
+    - export LD_LIBRARY_PATH=$BOOST_ROOT/stage/lib/:$LD_LIBRARY_PATH
+    - cd $TRAVIS_BUILD_DIR
+    # z3
+    - git clone https://github.com/Z3Prover/z3.git
+    - cd z3
+    - git checkout bd0bd6052a9e52712326f680f2b7415a93c4d1e0
+    - python scripts/mk_make.py
+    - cd build
+    - make 
+    - sudo make install
+    - cd $TRAVIS_BUILD_DIR
+
+script:
+    - cd $TRAVIS_BUILD_DIR/synthesis/libcpp
+    # Boost bjam
+    - $BOOST_ROOT/bjam
+    - rm -r bin/*
+    # CMake
+    - mkdir -p cbuild
+    - cd cbuild
+    - cmake ../ -L -DZ3_INCLUDE_DIR=/usr/include -DCMAKE_CXX_COMPILER=g++-4.8
+    - make
+
+notifications:
+    email: false

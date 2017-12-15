@@ -1,59 +1,77 @@
 language: cpp
+os: linux
+sudo: required
+dist: trusty
 
 branches:
   only:
     - master
-    - dev_check
+    - coverity_check
+    - travis
 
-os:
-    - linux
+git:
+  depth: 1
 
 env:
   global:
-    # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
-    #   via the "travis encrypt" command using the project repo's public key
-    - secure: "hSpQnSS61B00j8IEfA3hasOt1BExNBZiVAaXNOjqbUJft98/Xte/OwgmSvtBuQFTeKw9EV3PPgprsFJNMij1vUFHdZxSGmxE8aurDuRqMk1/61zf5lLHTKY+xwKewjW2R23bYTWkXQFvjkEfnG4iw3+v+aBytd2v71YcahsizaBJ7sP36ofiEhiilCrYBZ/hblIIVZdl7XKQ6od0QdJnmFjL9g3WQxkWq1eXw1kJFpD7n6iHf8nrX5c03++pIqlJGoVITeYPp0F1E6/jxdCwzS9fDkOeFSrm2V6z/g1Ccy0PWT2DY1BtaXCnrGWTIkEe39bpGrnr69AyNPI7T0Mizj6JoiZolsdgahTJA6NmswI8EPC1Nm9K6IPhwdat0Av8o/ThQZ3AcsLxVbwa65co/ogUt5ouKgcbLxjEiAWtCXW5XBxtEx24HIljV0E6g0RqjnMUVCdQPgmbzyjy3TgrdvsFYkOUgNv8+tB8wpPg1HmMoVhM5xgblPjhdS5feRhZVVFjjj6U33PCvjvTG1Bo9Icr5c5mt786TLit1zTj55gDZiudYKwzt7ZXE45ergPmFmRq1LR3XTvIkbUAAwWbwqBs7ITHOYCHmczi77vxTnaXMDUgAVALjsDYgVqspTeIM4YiI7zAlkm+n4/yn8mfzXSshuH4u5WE9af5vmlhYIM="
+    - secure: "XNtJYTfzrD85b7b4ul6OVaw0UMRz5OoGQOFlDeBvpKSLhfjQ8ci6PpDiHsXsxsPJYpxHHpU6hMJSd/QVX4Ux5qd7SaDRigL8FO38XqrNrgHKWElmpfiYbI1OCXJWNbIwABXhMKSOFgsbMkKdQi5qLevCKwQWc1Kv+hODm0CIK/gmizX010egHs5olydSlHegvWz23anSYh7JBqBE2BWMACoPjl3ZmTPvP05og0FvtfEzE4FaSOgWpjarBayF/p2chHBlRhsytJ1bSdVlQTQaArwPkJr1AMxWmzzZ99h6yUetATXSr4JoXhuDyrEYO3f1I/m/nq4FaLZdka9BYOXprQ6RH5nsnonqb2HwinLKq5guHkq/HTMJkhuL0pb210U+tj9x4DuUMLBCM06p/46ZEyVrAqcllyfn4+Lmhj0tVjnC1/+5XNk7FRK0dNb+2lEQTW/KShTMD/1scu/b8keSVV6gSBDHG3OhbiYqMF9pd1gJILCsk0CUj1Br1+3yTh/CicDZ4meTixi0glefCnsTG8XftI0XM5W8rUJ/Hpz1ygCnXNcbAW+36uXICp8kmyWGSISf6AQwvr2DwB5AYW66pYXn57ZKCxpzkEHxYACXRs6Fvn/1cr/WK9H64IVmPvBkBpp8xa+FH2ZWsMhOAglqASISixQmT1emB7cxGZc5Bdk="
 
 addons:
   coverity_scan:
     project:
-      name: "Bo-Yuan-Huang/ILA"
-      description: "Build submitted via Travis CI"
+      name: "Bo-Yuan-Huang/ILA-Tools"
+      description: "ILA build submitted via Travis CI"
     notification_email: byhuang1992@gmail.com
-    build_command_prepend: "cd infra; mkdir build; cd build; cmake .. -L -DZ3_INCLUDE_DIR=/usr/include; make clean"
+    build_command_prepend: "cmake -Dcoverage=ON -DZ3_INCLUDE_DIR=/usr/include $TRAVIS_BUILD_DIR"
     build_command: "make"
-    branch_pattern: dev_check
+    branch_pattern: coverity_check
 
 before_install:
-  # for coverity
   - echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
-  # set up toolchain
   - sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
   - sudo apt-get -qq --yes update
-  - sudo apt-add-repository --yes ppa:smspillaz/cmake-2.8.12
-  - sudo apt-get -qq --yes update
-    
+
 install: 
+  - gem install coveralls-lcov
   - sudo apt-get install --yes cmake cmake-data
-  - sudo apt-get -qq --yes update
+  - sudo apt-get install --yes libboost-all-dev
+  - sudo apt-get install --yes lcov
 
 before_script:
+  - export PARENT_DIR=$TRAVIS_BUILD_DIR/../
   # z3
-  - git clone https://github.com/Z3Prover/z3.git
+  - cd $PARENT_DIR
+  - git clone --depth 1 https://github.com/Z3Prover/z3.git
   - cd z3
   - python scripts/mk_make.py
   - cd build
   - make; sudo make install
-  - cd $TRAVIS_BUILD_DIR
+  # glog
+  - cd $PARENT_DIR
+  - git clone --depth 1 https://github.com/google/glog.git
+  - mkdir -p $PARENT_DIR/glog/build/
+  - cd $PARENT_DIR/glog/build/ 
+  - cmake ..
+  - make && sudo make install
+  # coverage test
+  - lcov --version
+  - gcov --version
+  - g++ --version
   # create Makefile
-  - cd $TRAVIS_BUILD_DIR/infra
-  - mkdir build; cd build
-  - cmake .. -L -DZ3_INCLUDE_DIR=/usr/include 
+  - mkdir -p $TRAVIS_BUILD_DIR/build && cd $TRAVIS_BUILD_DIR/build
+  - lcov --directory $TRAVIS_BUILD_DIR/build --zerocounters
 
 script:
-  # build 
-  - cd $TRAVIS_BUILD_DIR/infra/build
+  - cd $TRAVIS_BUILD_DIR/build
+  - cmake -L -DZ3_INCLUDE_DIR=/usr/include -Dglog_DIR=$PARENT_DIR/glog/build -Dcoverage=ON -Dpython_api=ON -Ddebug=ON $TRAVIS_BUILD_DIR
   - make
+
+after_success:
+  - make run_test
+  - lcov --directory $TRAVIS_BUILD_DIR/build --capture --output-file coverage.info 
+  - lcov --remove coverage.info 'glog/*' 'test/*' 'app/*' 'cmake/*' '/usr/*' --output-file coverage.info 
+  - lcov --list coverage.info 
+  - coveralls-lcov coverage.info 
 
 notifications:
     email: false
