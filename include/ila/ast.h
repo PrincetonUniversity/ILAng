@@ -23,7 +23,7 @@ public:
   /// Constructor with name.
   Ast(const std::string& name);
   /// Default destructor.
-  ~Ast();
+  virtual ~Ast();
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
 

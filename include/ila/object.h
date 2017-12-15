@@ -24,7 +24,7 @@ public:
   /// Constructor with string name.
   Object(const std::string& name);
   /// Default destructor.
-  ~Object();
+  virtual ~Object();
 
   /// \def ObjPtr
   typedef std::shared_ptr<Object> ObjPtr;

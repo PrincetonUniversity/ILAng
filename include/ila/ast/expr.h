@@ -28,7 +28,7 @@ public:
   /// Constructor with the name, arity, and the sort.
   Expr(const std::string& name, SortPtr sort, const int& arity);
   /// Default destructor.
-  ~Expr();
+  virtual ~Expr();
 
   /// \def ExprPtr
   typedef std::shared_ptr<Expr> ExprPtr;
