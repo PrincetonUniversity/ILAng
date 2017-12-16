@@ -5,7 +5,7 @@
 
 namespace ila {
 
-const std::string Expr::k_prefix_expr_ = "expr_";
+const std::string Expr::k_prefix_expr_ = "expr";
 
 Expr::Expr() {}
 

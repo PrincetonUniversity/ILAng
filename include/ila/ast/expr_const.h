@@ -15,6 +15,7 @@ namespace ila {
 /// terminating nodes in the AST.
 class ExprConst : public Expr {
 public:
+  // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Constructor for Boolean constant.
   ExprConst(const BoolVal& bool_val);
   /// Constructor for Bitvector constant.
@@ -22,6 +23,12 @@ public:
   /// Constructor for Array constant.
   ExprConst(const MemVal& mem_val);
 
+  // ------------------------- ACCESSORS/MUTATORS --------------------------- //
+  /// Return the prefix of the constant expression.
+  const std::string& prefix() const { return k_prefix_const_; }
+
+  // ------------------------- METHODS -------------------------------------- //
+  /// Return true since this is a constant.
   bool IsConst() const { return true; }
 
   /// Return the z3 expression for the node.
@@ -33,7 +40,7 @@ public:
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
-  /// Static prefix for intermediate expression name.
+  /// Static prefix for constant expression.
   static const std::string k_prefix_const_;
 
 }; // class ExprConst

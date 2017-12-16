@@ -1,5 +1,5 @@
 /// \file
-/// Header for var expression
+/// Header for the class ExprVar
 
 #ifndef __EXPR_VAR_H__
 #define __EXPR_VAR_H__
@@ -24,9 +24,13 @@ public:
   ExprVar(const std::string& name, const int& addr_width,
           const int& data_width);
 
+  // ------------------------- ACCESSORS/MUTATORS --------------------------- //
+  /// Return the prefix of the variable expression.
+  const std::string& prefix() const { return k_prefix_var_; }
+
   // ------------------------- METHODS -------------------------------------- //
-  /// Return true if this is a variable.
-  virtual bool IsVar() const { return true; }
+  /// Return true since this is a variable.
+  bool IsVar() const { return true; }
 
   /// Return the z3 expression for the node.
   virtual z3::expr GetZ3Expr(z3::context& z3_ctx,
@@ -37,7 +41,7 @@ public:
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
-  /// Static prefix for intermediate expression name.
+  /// Static prefix for variable expression.
   static const std::string k_prefix_var_;
 
 }; // class ExprVar

@@ -5,7 +5,7 @@
 
 namespace ila {
 
-const std::string ExprVar::k_prefix_var_ = "var_";
+const std::string ExprVar::k_prefix_var_ = "var";
 
 } // namespace ila
 

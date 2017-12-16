@@ -6,7 +6,7 @@
 /// \namespace ila
 namespace ila {
 
-const std::string ExprConst::k_prefix_const_ = "const_";
+const std::string ExprConst::k_prefix_const_ = "const";
 
 } // namespace ila
 

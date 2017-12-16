@@ -23,15 +23,15 @@ public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor. DO NOT USE.
   Expr();
-  /// Constructor with the arity and the sort.
-  Expr(SortPtr sort, const int& arity);
-  /// Constructor with the name, arity, and the sort.
-  Expr(const std::string& name, SortPtr sort, const int& arity);
+  /// Constructor.
+  Expr(const std::string& name, const SortPtr& sort, const size_t& arity);
   /// Default destructor.
   virtual ~Expr();
 
   /// \def ExprPtr
   typedef std::shared_ptr<Expr> ExprPtr;
+  /// \def ExprPtrVec
+  typedef std::vector<Expr> ExprPtrVec;
   /// \def Z3ExprVec Expr specific type for vector of z3 expr
   typedef std::vector<z3::expr> Z3ExprVec;
 
@@ -39,9 +39,14 @@ public:
   /// Return the pointer of the sort.
   SortPtr sort() const;
   /// Return the arity.
-  const int& arity() const;
+  const size_t& arity() const;
   /// Return the i-th argument.
-  ExprPtr arg(const int& i) const;
+  ExprPtr arg(const size_t& i) const;
+  /// Return the prefix of the expression (depends on type).
+  virtual const std::string& prefix() const { return k_prefix_expr_; }
+
+  /// Set the arguments (for non-terminating nodes).
+  bool set_args(const ExprPtrVec& args);
 
   // ------------------------- METHODS -------------------------------------- //
   /// Is type expr (object).
@@ -84,7 +89,10 @@ private:
   /// The sort of the expr.
   SortPtr sort_;
   /// Number of arguments.
-  int arity_;
+  size_t arity_;
+  /// Vector of arguments.
+  ExprPtrVec args_;
+
   /// Static counter for expressions.
   static unsigned coutner_;
   /// Static prefix for intermediate expression name.
