@@ -16,12 +16,10 @@ namespace ila {
 class ExprOp : public Expr {
 public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
-  /// Default constructor. DO NOT USE. (op should have arguments)
+  /// Default constructor. DO NOT USE.
   ExprOp();
-  /// Constructor.
-  ExprOp(const ExprPtrVec& args);
-  /// Constructor with explicity specified name.
-  ExprOp(const std::string& name, const ExprPtrVec& args);
+  /// Constructor with arity.
+  ExprOp(const size_t& arity);
   /// Constructor for unary operators.
   virtual ~ExprOp();
 

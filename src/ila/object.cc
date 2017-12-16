@@ -16,5 +16,9 @@ Object::~Object() {}
 
 const Symbol& Object::name() const { return symbol_; }
 
+bool Object::set_name(const std::string& name) {
+  return symbol_.set_name(name);
+}
+
 } // namespace ila
 

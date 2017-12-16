@@ -12,12 +12,12 @@
 namespace ila {
 
 /// \class Symbol
-/// The symbol is the name of an object. If not specified, it will be generated
-/// from an internal coutner by default.
+/// The symbol is the name and ID of an object. Every object has an unique
+/// symbol.
 class Symbol {
 public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
-  /// Default constructor (integer by default).
+  /// Default constructor (empty name).
   Symbol();
   /// Constructor with cstring name.
   Symbol(const char* str);
@@ -33,26 +33,31 @@ public:
   const char* c_str() const;
   /// Get the symbol as integer.
   int to_int() const;
+  /// Get the ID.
+  const size_t& id() const;
+
+  /// Set the name.
+  bool set_name(const std::string& name);
 
   // ------------------------- METHODS -------------------------------------- //
-  /// Generate the hash
-  int Hash() const;
   /// Output function
   std::ostream& Print(std::ostream& out) const;
+  /// Overload output stream.
+  friend std::ostream& operator<<(std::ostream& out, const Symbol& s);
 
   /// Overload assignment.
   Symbol& operator=(const Symbol& rhs);
   /// Overload comparison.
   friend bool operator==(const Symbol& lhs, const Symbol& rhs);
-  /// Overload output stream.
-  friend std::ostream& operator<<(std::ostream& out, const Symbol& s);
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
-  /// Data container.
-  std::string data_;
-  /// Static counter for symbols.
-  static unsigned counter_;
+  /// Name of the object.
+  std::string name_;
+  /// The unique ID of the object.
+  size_t id_;
+  /// Static counter for symbols IDs.
+  static size_t counter_;
 
   // ------------------------- HELPERS -------------------------------------- //
 

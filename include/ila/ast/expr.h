@@ -21,10 +21,8 @@ namespace ila {
 class Expr : public Ast {
 public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
-  /// Default constructor. DO NOT USE.
+  /// Default constructor.
   Expr();
-  /// Constructor.
-  Expr(const std::string& name, const SortPtr& sort, const size_t& arity);
   /// Default destructor.
   virtual ~Expr();
 
@@ -45,6 +43,10 @@ public:
   /// Return the prefix of the expression (depends on type).
   virtual const std::string& prefix() const { return k_prefix_expr_; }
 
+  /// Set the sort of the expression.
+  bool set_sort(SortPtr sort);
+  /// Set the arity and reserve/resize the argument vector.
+  bool set_arity(const size_t& arity);
   /// Set the arguments (for non-terminating nodes).
   bool set_args(const ExprPtrVec& args);
 

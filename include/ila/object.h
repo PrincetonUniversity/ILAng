@@ -32,6 +32,8 @@ public:
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Get the symbol (name).
   const Symbol& name() const;
+  /// Set the symbol (name).
+  bool set_name(const std::string& name);
 
   // ------------------------- METHODS -------------------------------------- //
   /// Is type InstrLvlAbs.
