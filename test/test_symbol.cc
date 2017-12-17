@@ -13,7 +13,7 @@ TEST(Symbol, Construct) {
 
   Symbol sym0;
   Symbol sym1;
-  EXPECT_GT(sym1.to_int(), sym0.to_int());
+  EXPECT_GT(sym1.id(), sym0.id());
 
   std::string msg = "";
   GET_STDOUT_MSG((std::cout << sym0), msg);
@@ -23,12 +23,11 @@ TEST(Symbol, Construct) {
 TEST(Symbol, Accessors) {
   Symbol sym("symbol_name");
   Symbol sym_copy = sym;
+
   EXPECT_EQ(sym.str(), sym_copy.str());
   EXPECT_STREQ(sym.c_str(), sym_copy.c_str());
-
-  Symbol sym_num;
-  Symbol sym_num_copy = sym_num;
-  EXPECT_EQ(sym_num.to_int(), sym_num_copy.to_int());
+  EXPECT_GT(sym.id(), 0);
+  EXPECT_EQ(sym.id(), sym_copy.id());
 
 #ifndef NDEBUG
   std::string msg = "";

@@ -19,6 +19,10 @@ public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor (empty name).
   Symbol();
+#if 0
+  /// Copy constructor.
+  Symbol(const Symbol& sym);
+#endif
   /// Constructor with cstring name.
   Symbol(const char* str);
   /// Constructor with string name.

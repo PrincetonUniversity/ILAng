@@ -9,11 +9,15 @@ namespace ila {
 
 size_t Symbol::counter_ = 0;
 
-Symbol::Symbol() : name_("") { ++counter_; }
+Symbol::Symbol() : name_("") { id_ = ++counter_; }
 
-Symbol::Symbol(const char* str) : name_(str) { ++counter_; }
+#if 0
+Symbol::Symbol(const Symbol& sym) : name_(sym.name_) { id_ = ++counter_; }
+#endif
 
-Symbol::Symbol(const std::string& str) : name_(str) { ++counter_; }
+Symbol::Symbol(const char* str) : name_(str) { id_ = ++counter_; }
+
+Symbol::Symbol(const std::string& str) : name_(str) { id_ = ++counter_; }
 
 Symbol::~Symbol() {}
 
