@@ -29,26 +29,35 @@ public:
   /// \def ExprPtr
   typedef std::shared_ptr<Expr> ExprPtr;
   /// \def ExprPtrVec
-  typedef std::vector<Expr> ExprPtrVec;
+  typedef std::vector<ExprPtr> ExprPtrVec;
   /// \def Z3ExprVec Expr specific type for vector of z3 expr
   typedef std::vector<z3::expr> Z3ExprVec;
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
+  /// Return the prefix of the expression (depends on type).
+  virtual const std::string& prefix() const { return k_prefix_expr_; }
+
   /// Return the pointer of the sort.
-  SortPtr sort() const;
+  const SortPtr& sort() const;
   /// Return the arity.
   const size_t& arity() const;
   /// Return the i-th argument.
   ExprPtr arg(const size_t& i) const;
-  /// Return the prefix of the expression (depends on type).
-  virtual const std::string& prefix() const { return k_prefix_expr_; }
+  /// Return the number of parameters.
+  const size_t& num_param() const;
+  /// Return the i-th paramter.
+  const int& param(const size_t& i) const;
 
   /// Set the sort of the expression.
   bool set_sort(SortPtr sort);
   /// Set the arity and reserve/resize the argument vector.
   bool set_arity(const size_t& arity);
-  /// Set the arguments (for non-terminating nodes).
+  /// Set the arguments.
   bool set_args(const ExprPtrVec& args);
+  /// Set the number of parameters.
+  bool set_num_praram(const size_t& num_param);
+  /// Set the parameters.
+  bool set_params(const std::vector<int> params);
 
   // ------------------------- METHODS -------------------------------------- //
   /// Is type expr (object).
@@ -94,6 +103,10 @@ private:
   size_t arity_;
   /// Vector of arguments.
   ExprPtrVec args_;
+  /// Number of parameters.
+  size_t num_params_;
+  /// Vector of parameters.
+  std::vector<int> params_;
 
   /// Static counter for expressions.
   static unsigned coutner_;

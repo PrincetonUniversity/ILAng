@@ -5,6 +5,7 @@
 #define __EXPR_OP_H__
 
 #include "ila/ast/expr.h"
+#include "util/log.h"
 #include <string>
 
 /// \namespace ila
@@ -18,9 +19,10 @@ public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor. DO NOT USE.
   ExprOp();
-  /// Constructor with arity.
-  ExprOp(const size_t& arity);
   /// Constructor for unary operators.
+  ExprOp(const ExprPtr arg);
+  /// Constructor for binary operators.
+  ExprOp(const ExprPtr arg0, const ExprPtr arg1);
   virtual ~ExprOp();
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
@@ -56,21 +58,25 @@ private:
   /// Static counter for un-named op expressions.
   static unsigned counter_;
 
+  // ------------------------- HELPERS -------------------------------------- //
+  /// Derived the sort for symmetric binary operations.
+  static SortPtr DeriveSortSymBinary(const SortPtr s0, const SortPtr s1);
+
 }; // class ExprOp
 
+/// \class ExprOpAnd is the class wrapper for binary logical AND operation.
 class ExprOpAnd : protected ExprOp {
-  ExprOpAnd(const ExprPtr& arg0, const ExprPtr& arg1);
+  ExprOpAnd(const ExprPtr arg0, const ExprPtr arg1);
   std::string op_name() const { return "AND"; }
-  virtual z3::expr GetZ3Expr(z3::context& z3_ctx,
-                             const Z3ExprVec& z3expr_vec) const;
-};
+  z3::expr GetZ3Expr(z3::context& z3_ctx, const Z3ExprVec& z3expr_vec) const;
+}; // class ExprOpAnd
 
+/// \class ExprOpOr is the class wrapper for binary logical OR operation.
 class ExprOpOr : protected ExprOp {
-  ExprOpOr(const ExprPtr& arg0, const ExprPtr& arg1);
+  ExprOpOr(const ExprPtr arg0, const ExprPtr arg1);
   std::string op_name() const { return "OR"; }
-  virtual z3::expr GetZ3Expr(z3::context& z3_ctx,
-                             const Z3ExprVec& z3expr_vec) const;
-}
+  z3::expr GetZ3Expr(z3::context& z3_ctx, const Z3ExprVec& z3expr_vec) const;
+}; // class ExprOpOr
 
 } // namespace ilak
 

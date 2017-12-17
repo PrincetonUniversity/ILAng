@@ -7,7 +7,7 @@
 /// \namespace ila
 namespace ila {
 
-unsigned Symbol::counter_ = 0;
+size_t Symbol::counter_ = 0;
 
 Symbol::Symbol() : name_("") { ++counter_; }
 
@@ -25,7 +25,7 @@ int Symbol::to_int() const {
   try {
     return std::stoi(name_);
   } catch (const std::exception& e) {
-    ILA_ERROR << "Converting non-numeric value " << data_ << " to int.\n";
+    ILA_ERROR << "Converting non-numeric value " << name_ << " to int.\n";
     return -1;
   }
 }
@@ -42,15 +42,15 @@ bool Symbol::set_name(const std::string& name) {
   return true;
 }
 
-std::ostream& Symbol::Print(std::ostream& out) const { return out << data_; }
+std::ostream& Symbol::Print(std::ostream& out) const { return out << name_; }
 
 Symbol& Symbol::operator=(const Symbol& rhs) {
-  data_ = rhs.data_;
+  name_ = rhs.name_;
   return *this;
 }
 
 bool operator==(const Symbol& lhs, const Symbol& rhs) {
-  return (lhs.data_ == rhs.data_);
+  return (lhs.name_ == rhs.name_);
 }
 
 std::ostream& operator<<(std::ostream& out, const Symbol& s) {

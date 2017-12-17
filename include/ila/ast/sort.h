@@ -60,6 +60,14 @@ public:
   /// Output to stream.
   std::ostream& Print(std::ostream& out) const;
 
+  /// Compare two Sorts.
+  static bool Equal(const Sort& lhs, const Sort& rhs);
+
+  /// Overlaod comparison.
+  friend bool operator==(const Sort& lhs, const Sort& rhs);
+  /// Overlaod comparison with pointer.
+  friend bool operator==(const SortPtr& lhs, const SortPtr& rhs);
+
   /// Overload output stream operator.
   friend std::ostream& operator<<(std::ostream& out, const Sort& s);
 

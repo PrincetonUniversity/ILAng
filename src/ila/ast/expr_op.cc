@@ -14,15 +14,28 @@ ExprOp::ExprOp() {
   ILA_ERROR << "Constructor ExprOp with undefined constructor.\n";
 }
 
-ExprOp::ExprOp(const size_t& arity) { set_arity(arity); }
+ExprOp::ExprOp(const ExprPtr arg0, const ExprPtr arg1) {
+  set_arity(2);
+  ExprPtrVec args = {arg0, arg1};
+  set_args(args);
+  set_sort(DeriveSortSymBinary(arg0->sort(), arg1->sort()));
+}
 
 ExprOp::~ExprOp() {}
 
-// ------------------------- Class ExprOp ----------------------------------- //
-ExprOpAnd::ExprOpAnd(const ExprPtr& arg0, const ExprPtr& arg1) : ExprOp(2) {
-  set_args({arg0, arg1});
-  // TODO set_sort();
+SortPtr ExprOp::DeriveSortSymBinary(const SortPtr s0, const SortPtr s1) {
+  ILA_ASSERT(s0 == s1) << "Undefined sorts " << s0 << " & " << s1
+                       << " for symmetric binary operations.\n";
+  return s0;
 }
+
+// ------------------------- Class ExprOp ----------------------------------- //
+ExprOpAnd::ExprOpAnd(const ExprPtr arg0, const ExprPtr arg1)
+    : ExprOp(arg0, arg1) {}
+
+// ------------------------- Class ExprOp ----------------------------------- //
+ExprOpOr::ExprOpOr(const ExprPtr arg0, const ExprPtr arg1)
+    : ExprOp(arg0, arg1) {}
 
 } // namespace ila
 
