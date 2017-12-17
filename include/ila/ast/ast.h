@@ -38,8 +38,10 @@ public:
   /// Is type Ast::Func.
   virtual bool IsFunc() const { return false; }
 
+#if 0
   /// Get SMT formula of the AST node.
   virtual z3::expr GetZ3Expr(z3::context& z3_ctx) const = 0;
+#endif
 
   /// Output function.
   virtual std::ostream& Print(std::ostream& out) const = 0;

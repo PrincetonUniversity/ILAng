@@ -49,15 +49,15 @@ public:
   const int& param(const size_t& i) const;
 
   /// Set the sort of the expression.
-  bool set_sort(SortPtr sort);
+  void set_sort(const SortPtr sort);
   /// Set the arity and reserve/resize the argument vector.
-  bool set_arity(const size_t& arity);
+  void set_arity(const size_t& arity);
   /// Set the arguments.
-  bool set_args(const ExprPtrVec& args);
+  void set_args(const ExprPtrVec& args);
   /// Set the number of parameters.
-  bool set_num_praram(const size_t& num_param);
+  void set_num_param(const size_t& num_param);
   /// Set the parameters.
-  bool set_params(const std::vector<int> params);
+  void set_params(const std::vector<int> params);
 
   // ------------------------- METHODS -------------------------------------- //
   /// Is type expr (object).
@@ -104,7 +104,7 @@ private:
   /// Vector of arguments.
   ExprPtrVec args_;
   /// Number of parameters.
-  size_t num_params_;
+  size_t num_param_;
   /// Vector of parameters.
   std::vector<int> params_;
 

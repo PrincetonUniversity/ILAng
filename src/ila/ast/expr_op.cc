@@ -10,9 +10,7 @@ const std::string ExprOp::k_prefix_op_ = "op";
 unsigned ExprOp::counter_ = 0;
 
 // ------------------------- Class ExprOp ----------------------------------- //
-ExprOp::ExprOp() {
-  ILA_ERROR << "Constructor ExprOp with undefined constructor.\n";
-}
+ExprOp::ExprOp() { ILA_ERROR << "Undefined ExprOp constructor.\n"; }
 
 ExprOp::ExprOp(const ExprPtr arg0, const ExprPtr arg1) {
   set_arity(2);
