@@ -68,8 +68,10 @@ public:
   friend std::ostream& operator<<(std::ostream& out, const Sort& s);
   /// Overlaod comparison.
   friend bool operator==(const Sort& lhs, const Sort& rhs);
+#if 0
   /// Overlaod comparison with pointers.
   friend bool operator==(const SortPtr lhs, const SortPtr rhs);
+#endif
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //

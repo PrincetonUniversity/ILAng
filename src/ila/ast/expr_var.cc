@@ -14,14 +14,14 @@ ExprVar::ExprVar(const std::string& name) {
   set_name(name);
   set_arity(0);
   // set bool sort
-  set_sort(std::make_shared<Sort>());
+  set_sort(Sort());
 }
 
 ExprVar::ExprVar(const std::string& name, const int& bit_width) {
   set_name(name);
   set_arity(0);
   // set bv sort
-  set_sort(std::make_shared<Sort>(bit_width));
+  set_sort(Sort(bit_width));
 }
 
 ExprVar::ExprVar(const std::string& name, const int& addr_width,
@@ -29,7 +29,7 @@ ExprVar::ExprVar(const std::string& name, const int& addr_width,
   set_name(name);
   set_arity(0);
   // set mem sort
-  set_sort(std::make_shared<Sort>(addr_width, data_width));
+  set_sort(Sort(addr_width, data_width));
 }
 
 ExprVar::~ExprVar() {}

@@ -67,9 +67,11 @@ bool operator==(const Sort& lhs, const Sort& rhs) {
   return Sort::Equal(lhs, rhs);
 }
 
+#if 0
 bool operator==(const SortPtr lhs, const SortPtr rhs) {
   return Sort::Equal(*lhs.get(), *rhs.get());
 }
+#endif
 
 bool Sort::Equal(const Sort& lhs, const Sort& rhs) {
   if (lhs.IsBool() && rhs.IsBool()) {

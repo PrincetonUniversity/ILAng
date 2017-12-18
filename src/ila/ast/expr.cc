@@ -8,11 +8,11 @@ namespace ila {
 
 const std::string Expr::k_prefix_expr_ = "expr";
 
-Expr::Expr() : sort_(NULL), arity_(0), num_param_(0) {}
+Expr::Expr() : arity_(0), num_param_(0) {}
 
 Expr::~Expr() {}
 
-const SortPtr& Expr::sort() const { return sort_; }
+const Sort& Expr::sort() const { return sort_; }
 
 const size_t& Expr::arity() const { return arity_; }
 
@@ -28,10 +28,7 @@ const int& Expr::param(const size_t& i) const {
   return params_[i];
 }
 
-void Expr::set_sort(const SortPtr sort) {
-  ILA_ASSERT(sort_ == NULL) << "Overwriting existing sort.\n";
-  sort_ = sort;
-}
+void Expr::set_sort(const Sort& sort) { sort_ = sort; }
 
 void Expr::set_arity(const size_t& arity) {
   ILA_ASSERT(arity_ == 0) << "Overwriting non-zero arity " << arity_ << " to "

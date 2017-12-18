@@ -23,6 +23,7 @@ public:
   ExprOp(const ExprPtr arg);
   /// Constructor for binary operators.
   ExprOp(const ExprPtr arg0, const ExprPtr arg1);
+  /// Default destructor.
   virtual ~ExprOp();
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
@@ -40,17 +41,22 @@ public:
                              const Z3ExprVec& z3expr_vec) const = 0;
 
   /// Output to stream.
-  // virtual std::ostream& Print(std::ostream& out) const = 0;
-  std::ostream& Print(std::ostream& out) const;
+  virtual std::ostream& Print(std::ostream& out) const = 0;
+  // std::ostream& Print(std::ostream& out) const;
 
-protected:
   // ------------------------- HELPERS -------------------------------------- //
+  /// Derived the sort for binary operations.
+  Sort GetSortBinaryOperation(const Sort& s0, const Sort& s1);
+  /// Derived the sort for binary comparisons.
+  Sort GetSortBinaryComparison(const Sort& s0, const Sort& s1);
+
   /// Print unary operations.
-  static std::ostream& PrintUnaryOp(std::ostream& out, ExprPtr op);
+  std::ostream& PrintUnaryOp(std::ostream& out, ExprPtr op);
   /// Print binary operations.
-  static std::ostream& PrintBinaryOp(std::ostream& out, ExprPtr op);
+  std::ostream& PrintBinaryOp(std::ostream& out,
+                              const std::string& op_name) const;
   /// Print n-ary operations.
-  static std::ostream& PrintNaryOp(std::ostream& out, ExprPtr op);
+  std::ostream& PrintNaryOp(std::ostream& out, ExprPtr op);
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
@@ -58,10 +64,6 @@ private:
   static const std::string k_prefix_op_;
   /// Static counter for un-named op expressions.
   static unsigned counter_;
-
-  // ------------------------- HELPERS -------------------------------------- //
-  /// Derived the sort for symmetric binary operations.
-  static SortPtr DeriveSortSymBinary(const SortPtr s0, const SortPtr s1);
 
 }; // class ExprOp
 
@@ -71,7 +73,7 @@ public:
   ExprOpAnd(const ExprPtr arg0, const ExprPtr arg1);
   std::string op_name() const { return "AND"; }
   z3::expr GetZ3Expr(z3::context& z3_ctx, const Z3ExprVec& z3expr_vec) const;
-  // std::ostream& Print(std::ostream& out) const;
+  std::ostream& Print(std::ostream& out) const;
 }; // class ExprOpAnd
 
 /// \class ExprOpOr is the class wrapper for binary logical OR operation.
@@ -80,7 +82,7 @@ public:
   ExprOpOr(const ExprPtr arg0, const ExprPtr arg1);
   std::string op_name() const { return "OR"; }
   z3::expr GetZ3Expr(z3::context& z3_ctx, const Z3ExprVec& z3expr_vec) const;
-  // std::ostream& Print(std::ostream& out) const;
+  std::ostream& Print(std::ostream& out) const;
 }; // class ExprOpOr
 
 } // namespace ilak

@@ -38,7 +38,7 @@ public:
   virtual const std::string& prefix() const { return k_prefix_expr_; }
 
   /// Return the pointer of the sort.
-  const SortPtr& sort() const;
+  const Sort& sort() const;
   /// Return the arity.
   const size_t& arity() const;
   /// Return the i-th argument.
@@ -49,7 +49,7 @@ public:
   const int& param(const size_t& i) const;
 
   /// Set the sort of the expression.
-  void set_sort(const SortPtr sort);
+  void set_sort(const Sort& sort);
   /// Set the arity and reserve/resize the argument vector.
   void set_arity(const size_t& arity);
   /// Set the arguments.
@@ -64,13 +64,13 @@ public:
   bool IsExpr() const { return true; }
 
   /// Return true if this is a Boolean expression.
-  bool IsBool() const { return sort_->IsBool(); }
+  bool IsBool() const { return sort_.IsBool(); }
   /// Return true if this is a Bitvector expression.
-  bool IsBv() const { return sort_->IsBv(); }
+  bool IsBv() const { return sort_.IsBv(); }
   /// Return true if this is an Array expression.
-  bool IsMem() const { return sort_->IsMem(); }
+  bool IsMem() const { return sort_.IsMem(); }
   /// Return true if this is an Application expression.
-  bool IsApp() const { return sort_->IsApp(); }
+  bool IsApp() const { return sort_.IsApp(); }
 
   /// Return true if this is a constant.
   virtual bool IsConst() const { return false; }
@@ -98,7 +98,7 @@ public:
 private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// The sort of the expr.
-  SortPtr sort_;
+  Sort sort_;
   /// Number of arguments.
   size_t arity_;
   /// Vector of arguments.
