@@ -11,19 +11,25 @@ const std::string ExprVar::k_prefix_var_ = "var";
 ExprVar::ExprVar() { ILA_ERROR << "Undefined ExprVar constructor.\n"; }
 
 ExprVar::ExprVar(const std::string& name) {
+  set_name(name);
   set_arity(0);
-  set_sort(NULL); // FIXME
+  // set bool sort
+  set_sort(std::make_shared<Sort>());
 }
 
 ExprVar::ExprVar(const std::string& name, const int& bit_width) {
+  set_name(name);
   set_arity(0);
-  set_sort(NULL); // FIXME
+  // set bv sort
+  set_sort(std::make_shared<Sort>(bit_width));
 }
 
 ExprVar::ExprVar(const std::string& name, const int& addr_width,
                  const int& data_width) {
+  set_name(name);
   set_arity(0);
-  set_sort(NULL); // FIXME
+  // set mem sort
+  set_sort(std::make_shared<Sort>(addr_width, data_width));
 }
 
 ExprVar::~ExprVar() {}

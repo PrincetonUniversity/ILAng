@@ -31,7 +31,7 @@ public:
   /// Constructor for Memory (Array) type.
   Sort(const int& addr_width, const int& data_width);
   /// Constructor for Application type.
-  Sort(const SortPtr& range_sort, const SortPtrVec& args_sort);
+  Sort(const SortPtr range_sort, const SortPtrVec& args_sort);
   /// Default destructor.
   ~Sort();
 
