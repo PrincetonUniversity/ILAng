@@ -19,9 +19,10 @@ public:
   /// Constructor for Boolean constant.
   ExprConst(const BoolVal& bool_val);
   /// Constructor for Bitvector constant.
-  ExprConst(const BvVal& bv_val);
+  ExprConst(const BvVal& bv_val, const int& bit_width);
   /// Constructor for Array constant.
-  ExprConst(const MemVal& mem_val);
+  ExprConst(const MemVal& mem_val, const int& addr_width,
+            const int& data_width);
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return the prefix of the constant expression.
@@ -32,14 +33,20 @@ public:
   bool IsConst() const { return true; }
 
   /// Return the z3 expression for the node.
-  virtual z3::expr GetZ3Expr(z3::context& z3_ctx,
-                             const Z3ExprVec& z3expr_vec) const;
+  z3::expr GetZ3Expr(z3::context& z3_ctx, const Z3ExprVec& z3expr_vec) const;
 
   /// Output to stream.
   std::ostream& Print(std::ostream& out) const;
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
+  /// Value for Bool constant.
+  BoolVal bool_val_;
+  /// Value for Bitvector constant.
+  BvVal bv_val_;
+  /// Value for Memory constant.
+  MemVal mem_val_;
+
   /// Static prefix for constant expression.
   static const std::string k_prefix_const_;
 
