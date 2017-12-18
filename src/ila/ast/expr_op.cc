@@ -38,8 +38,8 @@ ExprOpAnd::ExprOpAnd(const ExprPtr arg0, const ExprPtr arg1)
 
 z3::expr ExprOpAnd::GetZ3Expr(z3::context& z3_ctx,
                               const Z3ExprVec& z3expr_vec) const {
-  ILA_ERROR << "Not implemented.\n"; // TODO
-  return z3_ctx.bool_const("dummy");
+  ILA_ASSERT(z3expr_vec.size() == 2);
+  return z3expr_vec[0] & z3expr_vec[1]; // XXX check if sort-independent.
 }
 
 // ------------------------- Class ExprOp ----------------------------------- //
@@ -48,8 +48,9 @@ ExprOpOr::ExprOpOr(const ExprPtr arg0, const ExprPtr arg1)
 
 z3::expr ExprOpOr::GetZ3Expr(z3::context& z3_ctx,
                              const Z3ExprVec& z3expr_vec) const {
-  ILA_ERROR << "Not implemented.\n"; // TODO
-  return z3_ctx.bool_const("dummy");
+  ILA_ASSERT(z3expr_vec.size() == 2);
+  return z3expr_vec[0] | z3expr_vec[1]; // XXX check if sort-independent.
 }
+
 } // namespace ila
 

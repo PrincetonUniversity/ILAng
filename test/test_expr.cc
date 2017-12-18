@@ -31,8 +31,10 @@ TEST(ExprOp, Construct) {
   ExprPtr var_bv_1 = std::make_shared<ExprVar>("var_bv_1", 8);
 
   ExprPtr op_and = std::make_shared<ExprOpAnd>(var_bv_0, var_bv_1);
-  // EXPECT_EQ("AND", (*op_and.get()).op_name());
-  // EXPECT_EQ("AND", std::dynamic_pointer_cast<ExprOp>(op_and)->op_name());
+  EXPECT_EQ("AND", std::dynamic_pointer_cast<ExprOp>(op_and)->op_name());
+
+  ExprPtr op_or = std::make_shared<ExprOpOr>(var_bv_0, op_and);
+  EXPECT_EQ("OR", std::dynamic_pointer_cast<ExprOp>(op_or)->op_name());
 }
 
 } // namespace ila
