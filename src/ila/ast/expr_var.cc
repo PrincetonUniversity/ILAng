@@ -36,27 +36,27 @@ ExprVar::~ExprVar() {}
 
 z3::expr ExprVar::GetZ3Expr(z3::context& z3_ctx,
                             const Z3ExprVec& z3expr_vec) const {
-  // TODO
+  ILA_ERROR << "Not implemented.\n"; // TODO
   return z3_ctx.bool_const("dummy bool var");
 }
 
 std::ostream& ExprVar::Print(std::ostream& out) const {
-  // TODO
+  ILA_ERROR << "Not implemented.\n"; // TODO
   return out;
 }
 
 std::ostream& ExprVar::PrintBool(std::ostream& out) const {
-  // TODO
+  ILA_ERROR << "Not implemented.\n"; // TODO
   return out;
 }
 
 std::ostream& ExprVar::PrintBv(std::ostream& out) const {
-  // TODO
+  ILA_ERROR << "Not implemented.\n"; // TODO
   return out;
 }
 
 std::ostream& ExprVar::PrintMem(std::ostream& out) const {
-  // TODO
+  ILA_ERROR << "Not implemented.\n"; // TODO
   return out;
 }
 

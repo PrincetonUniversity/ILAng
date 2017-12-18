@@ -43,9 +43,11 @@ public:
   /// Return the data width (mem).
   const int& data_width() const;
   /// Return the range sort (app).
-  const SortPtr& range_sort() const;
-  /// Return the domain sort (app).
-  const SortPtr& args_sort() const;
+  const SortPtr range() const;
+  /// Return the number of domain argument (app).
+  size_t num_arg() const;
+  /// Return the i-th domain sort (app).
+  const SortPtr arg(const size_t& i) const;
 
   // ------------------------- METHODS -------------------------------------- //
   /// Return true if this is a Boolean expression.
@@ -59,17 +61,15 @@ public:
 
   /// Output to stream.
   std::ostream& Print(std::ostream& out) const;
-
   /// Compare two Sorts.
   static bool Equal(const Sort& lhs, const Sort& rhs);
 
-  /// Overlaod comparison.
-  friend bool operator==(const Sort& lhs, const Sort& rhs);
-  /// Overlaod comparison with pointer.
-  friend bool operator==(const SortPtr& lhs, const SortPtr& rhs);
-
   /// Overload output stream operator.
   friend std::ostream& operator<<(std::ostream& out, const Sort& s);
+  /// Overlaod comparison.
+  friend bool operator==(const Sort& lhs, const Sort& rhs);
+  /// Overlaod comparison with pointers.
+  friend bool operator==(const SortPtr lhs, const SortPtr rhs);
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
@@ -87,6 +87,7 @@ private:
   SortPtrVec args_sort_;
 
   // ------------------------- HELPERS -------------------------------------- //
+
   /// Print Boolean type sort.
   std::ostream& PrintBool(std::ostream& out) const;
   /// Print Bitvector type sort.

@@ -40,7 +40,8 @@ public:
                              const Z3ExprVec& z3expr_vec) const = 0;
 
   /// Output to stream.
-  virtual std::ostream& Print(std::ostream& out) const = 0;
+  // virtual std::ostream& Print(std::ostream& out) const = 0;
+  std::ostream& Print(std::ostream& out) const;
 
 protected:
   // ------------------------- HELPERS -------------------------------------- //
@@ -65,17 +66,21 @@ private:
 }; // class ExprOp
 
 /// \class ExprOpAnd is the class wrapper for binary logical AND operation.
-class ExprOpAnd : protected ExprOp {
+class ExprOpAnd : public ExprOp {
+public:
   ExprOpAnd(const ExprPtr arg0, const ExprPtr arg1);
   std::string op_name() const { return "AND"; }
   z3::expr GetZ3Expr(z3::context& z3_ctx, const Z3ExprVec& z3expr_vec) const;
+  // std::ostream& Print(std::ostream& out) const;
 }; // class ExprOpAnd
 
 /// \class ExprOpOr is the class wrapper for binary logical OR operation.
-class ExprOpOr : protected ExprOp {
+class ExprOpOr : public ExprOp {
+public:
   ExprOpOr(const ExprPtr arg0, const ExprPtr arg1);
   std::string op_name() const { return "OR"; }
   z3::expr GetZ3Expr(z3::context& z3_ctx, const Z3ExprVec& z3expr_vec) const;
+  // std::ostream& Print(std::ostream& out) const;
 }; // class ExprOpOr
 
 } // namespace ilak

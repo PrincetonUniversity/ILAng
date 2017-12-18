@@ -2,6 +2,7 @@
 /// Unit test for the class Expr.
 
 #include "ila/ast/expr.h"
+#include "ila/ast/expr_op.h"
 #include "ila/ast/expr_var.h"
 #include "gtest/gtest.h"
 
@@ -28,6 +29,10 @@ TEST(ExprOp, Construct) {
   ExprPtr var_bool = std::make_shared<ExprVar>("var_bool");
   ExprPtr var_bv_0 = std::make_shared<ExprVar>("var_bv_0", 8);
   ExprPtr var_bv_1 = std::make_shared<ExprVar>("var_bv_1", 8);
+
+  ExprPtr op_and = std::make_shared<ExprOpAnd>(var_bv_0, var_bv_1);
+  // EXPECT_EQ("AND", (*op_and.get()).op_name());
+  // EXPECT_EQ("AND", std::dynamic_pointer_cast<ExprOp>(op_and)->op_name());
 }
 
 } // namespace ila

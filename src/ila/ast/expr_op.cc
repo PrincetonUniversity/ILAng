@@ -21,6 +21,11 @@ ExprOp::ExprOp(const ExprPtr arg0, const ExprPtr arg1) {
 
 ExprOp::~ExprOp() {}
 
+std::ostream& ExprOp::Print(std::ostream& out) const {
+  ILA_ERROR << "Not implemented.\n"; // TODO
+  return out;
+}
+
 SortPtr ExprOp::DeriveSortSymBinary(const SortPtr s0, const SortPtr s1) {
   ILA_ASSERT(s0 == s1) << "Undefined sorts " << s0 << " & " << s1
                        << " for symmetric binary operations.\n";
@@ -31,9 +36,20 @@ SortPtr ExprOp::DeriveSortSymBinary(const SortPtr s0, const SortPtr s1) {
 ExprOpAnd::ExprOpAnd(const ExprPtr arg0, const ExprPtr arg1)
     : ExprOp(arg0, arg1) {}
 
+z3::expr ExprOpAnd::GetZ3Expr(z3::context& z3_ctx,
+                              const Z3ExprVec& z3expr_vec) const {
+  ILA_ERROR << "Not implemented.\n"; // TODO
+  return z3_ctx.bool_const("dummy");
+}
+
 // ------------------------- Class ExprOp ----------------------------------- //
 ExprOpOr::ExprOpOr(const ExprPtr arg0, const ExprPtr arg1)
     : ExprOp(arg0, arg1) {}
 
+z3::expr ExprOpOr::GetZ3Expr(z3::context& z3_ctx,
+                             const Z3ExprVec& z3expr_vec) const {
+  ILA_ERROR << "Not implemented.\n"; // TODO
+  return z3_ctx.bool_const("dummy");
+}
 } // namespace ila
 
