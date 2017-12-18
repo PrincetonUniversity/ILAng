@@ -36,8 +36,17 @@ ExprVar::~ExprVar() {}
 
 z3::expr ExprVar::GetZ3Expr(z3::context& z3_ctx,
                             const Z3ExprVec& z3expr_vec) const {
-  ILA_ERROR << "Not implemented.\n"; // TODO
-  return z3_ctx.bool_const("dummy bool var");
+  if (IsBool()) {
+    return z3_ctx.bool_const(name().c_str());
+  } else if (IsBv()) {
+    return z3_ctx.bv_const(name().c_str(), sort().bit_width());
+  } else if (IsMem()) {
+    ILA_ERROR << "Not implemented.\n"; // TODO
+    return z3_ctx.bv_const(name().c_str(), sort().data_width());
+  } else {
+    ILA_ERROR << "Undefined sort for var " << name().str() << "\n";
+    return z3_ctx.bool_const(name().c_str());
+  }
 }
 
 std::ostream& ExprVar::Print(std::ostream& out) const {

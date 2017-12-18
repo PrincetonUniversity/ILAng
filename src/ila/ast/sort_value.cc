@@ -15,8 +15,10 @@ BoolVal::BoolVal() {
 BoolVal::BoolVal(const bool& val) : val_(val) {}
 
 bool StrToBool(const std::string& str) {
+  ILA_ERROR << str << "\n";
   std::locale loc;
   std::string up = std::toupper(str, loc);
+  ILA_ERROR << up << "\n";
   ILA_ASSERT((up == "TRUE") || (up == "FALSE")) << "Unknown boolean value "
                                                 << up << "\n";
   return (up == "TRUE");
@@ -40,7 +42,7 @@ std::ostream& operator<<(std::ostream& out, const BoolVal& val) {
 
 // ------------------------- Class BvVal -------------------------------------//
 BvVal::BvVal() {
-  ILA_ERROR << "Undefined default constructor for class BoolVal.\n";
+  ILA_ERROR << "Undefined default constructor for class BvVal.\n";
 }
 
 BvVal::BvVal(const int& val) : val_(val) {}
@@ -68,7 +70,22 @@ std::ostream& operator<<(std::ostream& out, const BvVal& val) {
 
 // ------------------------- Class MemVal ------------------------------------//
 MemVal::MemVal() {
-  ILA_ERROR << "Undefined default constructor for class BoolVal.\n";
+  ILA_ERROR << "Undefined default constructor for class MemVal.\n";
+}
+
+MemVal::~MemVal() {}
+
+const std::map<BvVal, BvVal>& MemVal::val() const { return map_; }
+
+const BvVal& MemVal::default_val() const { return default_; }
+
+std::ostream& MemVal::Print(std::ostream& out) const {
+  ILA_WARN << "Not Implemented.\n"; // TODO
+  return out;
+}
+
+std::ostream& operator<<(std::ostream& out, const MemVal& val) {
+  return val.Print(out);
 }
 
 } // namespace ila
