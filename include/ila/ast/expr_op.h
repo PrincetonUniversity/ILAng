@@ -85,6 +85,15 @@ public:
   std::ostream& Print(std::ostream& out) const;
 }; // class ExprOpOr
 
+/// \class ExprOpEq is the class wrapper for binary comparison EQ.
+class ExprOpEq : public ExprOp {
+public:
+  ExprOpEq(const ExprPtr arg0, const ExprPtr arg1);
+  std::string op_name() const { return "EQ"; }
+  z3::expr GetZ3Expr(z3::context& z3_ctx, const Z3ExprVec& z3expr_vec) const;
+  std::ostream& Print(std::ostream& out) const;
+}; // class ExprOpEq
+
 } // namespace ilak
 
 #endif // __EXPR_OP_H__

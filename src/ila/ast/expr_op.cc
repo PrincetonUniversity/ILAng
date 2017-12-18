@@ -79,5 +79,21 @@ std::ostream& ExprOpOr::Print(std::ostream& out) const {
   return PrintBinaryOp(out, op_name());
 }
 
+// ------------------------- Class ExprOp ----------------------------------- //
+ExprOpEq::ExprOpEq(const ExprPtr arg0, const ExprPtr arg1)
+    : ExprOp(arg0, arg1) {
+  set_sort(GetSortBinaryComparison(arg0->sort(), arg1->sort()));
+}
+
+z3::expr ExprOpEq::GetZ3Expr(z3::context& z3_ctx,
+                             const Z3ExprVec& z3expr_vec) const {
+  ILA_ASSERT(z3expr_vec.size() == 2);
+  return z3expr_vec[0] == z3expr_vec[1];
+}
+
+std::ostream& ExprOpEq::Print(std::ostream& out) const {
+  return PrintBinaryOp(out, op_name());
+}
+
 } // namespace ila
 

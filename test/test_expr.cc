@@ -35,6 +35,10 @@ TEST(ExprOp, Construct) {
 
   ExprPtr op_or = std::make_shared<ExprOpOr>(var_bv_0, op_and);
   EXPECT_EQ("OR", std::dynamic_pointer_cast<ExprOp>(op_or)->op_name());
+
+  ExprPtr op_eq = std::make_shared<ExprOpEq>(var_bv_1, op_or);
+  EXPECT_EQ("EQ", std::dynamic_pointer_cast<ExprOp>(op_eq)->op_name());
+  EXPECT_TRUE(op_eq->IsBool());
 }
 
 } // namespace ila
