@@ -45,11 +45,11 @@ public:
 private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// Value for Bool constant.
-  BoolVal bool_val_;
+  BoolValPtr bool_ptr_;
   /// Value for Bitvector constant.
-  BvVal bv_val_;
+  BvValPtr bv_ptr_;
   /// Value for Memory constant.
-  MemVal mem_val_;
+  MemValPtr mem_ptr_;
 
   /// Static prefix for constant expression.
   static const std::string k_prefix_const_;

@@ -3,6 +3,7 @@
 
 #include "ila/symbol.h"
 #include "util/log.h"
+#include "util/str_util.h"
 
 /// \namespace ila
 namespace ila {
@@ -25,14 +26,7 @@ const std::string& Symbol::str() const { return name_; }
 
 const char* Symbol::c_str() const { return name_.c_str(); }
 
-int Symbol::to_int() const {
-  try {
-    return std::stoi(name_);
-  } catch (const std::exception& e) {
-    ILA_ERROR << "Converting non-numeric value " << name_ << " to int.\n";
-    return -1;
-  }
-}
+int Symbol::to_int() const { return StrToInt(name_); }
 
 const size_t& Symbol::id() const { return id_; }
 

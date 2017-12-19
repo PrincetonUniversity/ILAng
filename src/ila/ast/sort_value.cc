@@ -3,7 +3,7 @@
 
 #include "ila/ast/sort_value.h"
 #include "util/log.h"
-#include <locale>
+#include "util/str_util.h"
 
 namespace ila {
 
@@ -13,16 +13,6 @@ BoolVal::BoolVal() {
 }
 
 BoolVal::BoolVal(const bool& val) : val_(val) {}
-
-bool StrToBool(const std::string& str) {
-  ILA_ERROR << str << "\n";
-  std::locale loc;
-  std::string up = std::toupper(str, loc);
-  ILA_ERROR << up << "\n";
-  ILA_ASSERT((up == "TRUE") || (up == "FALSE")) << "Unknown boolean value "
-                                                << up << "\n";
-  return (up == "TRUE");
-}
 
 BoolVal::BoolVal(const std::string& str) { val_ = StrToBool(str); }
 
@@ -47,14 +37,7 @@ BvVal::BvVal() {
 
 BvVal::BvVal(const int& val) : val_(val) {}
 
-BvVal::BvVal(const std::string& str) {
-  try {
-    val_ = std::stoi(str);
-  } catch (const std::exception& e) {
-    ILA_ERROR << "Converting non-numeric value " << str << " to int.\n";
-    val_ = 0;
-  }
-}
+BvVal::BvVal(const std::string& str) { val_ = StrToInt(str); }
 
 BvVal::~BvVal() {}
 

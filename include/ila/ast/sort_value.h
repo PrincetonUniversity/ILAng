@@ -5,6 +5,7 @@
 #define __SORT_VALUE_H__
 
 #include <map>
+#include <memory>
 #include <ostream>
 #include <string>
 
@@ -46,6 +47,9 @@ private:
 
 }; // class BoolVal
 
+/// \def BoolValPtr
+typedef std::shared_ptr<BoolVal> BoolValPtr;
+
 /// \class BvVal
 /// The container for representing Bitvector values.
 class BvVal {
@@ -79,6 +83,9 @@ private:
 
 }; // class BvVal
 
+/// \def BvValPtr
+typedef std::shared_ptr<BvVal> BvValPtr;
+
 /// \class MemVal
 /// The container for representing memory (array) values.
 class MemVal {
@@ -109,6 +116,9 @@ private:
   BvVal default_;
 
 }; // class MemVal
+
+/// \def MemValPtr
+typedef std::shared_ptr<MemVal> MemValPtr;
 
 } // namespace ila
 
