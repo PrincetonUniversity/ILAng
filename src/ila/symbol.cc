@@ -22,6 +22,21 @@ const std::string& Symbol::str() const { return name_; }
 
 const char* Symbol::c_str() const { return name_.c_str(); }
 
+const std::string Symbol::format_str(const std::string& prefix,
+                                     const std::string& suffix) const {
+  std::string res = name_;
+  if (prefix != "")
+    res = prefix + "_" + res;
+  if (suffix != "")
+    res = res + "_" + suffix;
+  return res;
+}
+
+const char* Symbol::format_c_str(const std::string& prefix,
+                                 const std::string& suffix) const {
+  return format_str(prefix, suffix).c_str();
+}
+
 int Symbol::to_int() const { return StrToInt(name_); }
 
 const size_t& Symbol::id() const { return id_; }

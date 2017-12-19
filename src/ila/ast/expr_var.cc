@@ -34,34 +34,42 @@ ExprVar::ExprVar(const std::string& name, const int& addr_width,
 
 ExprVar::~ExprVar() {}
 
-z3::expr ExprVar::GetZ3Expr(z3::context& z3_ctx, const Z3ExprVec& z3expr_vec,
+z3::expr ExprVar::GetZ3Expr(z3::context& ctx, const Z3ExprVec& z3expr_vec,
                             const std::string& suffix) const {
   if (IsBool()) {
-    return z3_ctx.bool_const(name().c_str());
+    return ctx.bool_const(name().format_c_str("", suffix));
   } else if (IsBv()) {
-    return z3_ctx.bv_const(name().c_str(), sort().bit_width());
+    return ctx.bv_const(name().format_c_str("", suffix), sort().bit_width());
   } else if (IsMem()) {
-    ILA_ERROR << "Not implemented.\n"; // TODO
-    return z3_ctx.bv_const(name().c_str(), sort().data_width());
+    auto addr_sort = ctx.bv_sort(sort().addr_width());
+    auto data_sort = ctx.bv_sort(sort().data_width());
+    auto mem_sort = ctx.array_sort(addr_sort, data_sort);
+    return ctx.constant(name().format_c_str("", suffix), mem_sort);
   } else {
-    ILA_ERROR << "Undefined sort for var " << name().str() << "\n";
-    return z3_ctx.bool_const(name().c_str());
+    ILA_ERROR << "Undefined sort for var " << name() << "\n";
+    return ctx.bool_const(name().format_c_str("", suffix));
   }
 }
 
 std::ostream& ExprVar::Print(std::ostream& out) const {
-  ILA_ERROR << "Not implemented.\n"; // TODO
-  return out;
+  if (IsBool()) {
+    return PrintBool(out);
+  } else if (IsBv()) {
+    return PrintBv(out);
+  } else if (IsMem()) {
+    return PrintMem(out);
+  } else {
+    ILA_ERROR << "Unknown sort for var " << name() << "\n";
+    return out;
+  }
 }
 
 std::ostream& ExprVar::PrintBool(std::ostream& out) const {
-  ILA_ERROR << "Not implemented.\n"; // TODO
-  return out;
+  return out << name().format_str("BoolVar", "");
 }
 
 std::ostream& ExprVar::PrintBv(std::ostream& out) const {
-  ILA_ERROR << "Not implemented.\n"; // TODO
-  return out;
+  return out << name().format_str("BitvectorVar", "");
 }
 
 std::ostream& ExprVar::PrintMem(std::ostream& out) const {

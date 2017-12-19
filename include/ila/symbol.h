@@ -31,10 +31,16 @@ public:
   ~Symbol();
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
-  /// Get the symbol as cpp string.
+  /// Get the name as basic string.
   const std::string& str() const;
-  /// Get the symbol as c string.
+  /// Get the name as c-type string.
   const char* c_str() const;
+  /// Get the symbol as cpp string.
+  const std::string format_str(const std::string& prefix = "",
+                               const std::string& suffix = "") const;
+  /// Get the symbol as c string.
+  const char* format_c_str(const std::string& prefix = "",
+                           const std::string& suffix = "") const;
   /// Get the symbol as integer.
   int to_int() const;
   /// Get the id

@@ -32,6 +32,8 @@ public:
 
   /// Perform expression simplification if true.
   void set_simplify(const bool& sim);
+  /// Set the z3 context.
+  void set_context(z3::context& ctx);
 
   // ------------------------- METHODS -------------------------------------- //
   /// Get the z3 expression of the AST node.
