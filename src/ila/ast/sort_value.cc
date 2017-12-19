@@ -56,11 +56,22 @@ MemVal::MemVal() {
   ILA_ERROR << "Undefined default constructor for class MemVal.\n";
 }
 
+MemVal::MemVal(const int& addr_width, const int& data_width, const int& def_val)
+    : default_(def_val), addr_width_(addr_width), data_width_(data_width) {
+  val_map_.clear();
+}
+
+MemVal::MemVal(const int& addr_width, const int& data_width, const int& def_val,
+               const MemValMap& val_map)
+    : default_(def_val), addr_width_(addr_width), data_width_(data_width) {
+  val_map_ = val_map;
+}
+
 MemVal::~MemVal() {}
 
-const std::map<BvVal, BvVal>& MemVal::val() const { return map_; }
+const MemValMap& MemVal::val_map() const { return val_map_; }
 
-const BvVal& MemVal::default_val() const { return default_; }
+const int& MemVal::default_val() const { return default_; }
 
 std::ostream& MemVal::Print(std::ostream& out) const {
   ILA_WARN << "Not Implemented.\n"; // TODO

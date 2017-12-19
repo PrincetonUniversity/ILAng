@@ -54,6 +54,9 @@ typedef std::shared_ptr<BoolVal> BoolValPtr;
 /// The container for representing Bitvector values.
 class BvVal {
 public:
+  /// \def data type for storing BvVal
+  typedef int BvValType;
+
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor. DO NOT USE.
   BvVal();
@@ -79,7 +82,7 @@ public:
 private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// Data container for the contant.
-  int val_;
+  BvValType val_;
 
 }; // class BvVal
 
@@ -90,19 +93,32 @@ typedef std::shared_ptr<BvVal> BvValPtr;
 /// The container for representing memory (array) values.
 class MemVal {
 public:
+  /// \def MemValMap
+  typedef std::map<int, int> MemValMap;
+
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor. DO NOT USE.
   MemVal();
+  /// Constructor with only the default value.
+  MemVal(const int& addr_width, const int& data_width, const int& def_val);
+  /// Constructor with an existed Memory value.
+  MemVal(const int& addr_width, const int& data_width, const int& def_val,
+         const MemValMap& vals);
   /// Default destructor.
   ~MemVal();
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return the map of addr/data
-  const std::map<BvVal, BvVal>& val() const;
+  const MemValMap& val_map() const;
   /// Return the default value
-  const BvVal& default_val() const;
+  const int& default_val() const;
 
-  // ------------------------- METHODS -------------------------------------- //
+  /// Return the value stored in the address.
+  const int& get_data(const int& addr) const;
+  /// Set the value stored in the address.
+  void set_data(const int& addr, const int& data);
+
+  // ------------------------- METHODS ---------------------------------------//
   /// Output to stream.
   std::ostream& Print(std::ostream& out) const;
   /// Overload output stream operator
@@ -111,12 +127,17 @@ public:
 private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// Mapping of the address/data.
-  std::map<BvVal, BvVal> map_;
+  MemValMap val_map_;
   /// Default value of non-specified data.
-  BvVal default_;
+  int default_;
+  /// Address width
+  int addr_width_;
+  /// Data width
+  int data_width_;
 
 }; // class MemVal
 
+typedef MemVal::MemValMap MemValMap;
 /// \def MemValPtr
 typedef std::shared_ptr<MemVal> MemValPtr;
 
