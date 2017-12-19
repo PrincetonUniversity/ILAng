@@ -6,8 +6,7 @@
 
 #include "ila/ast/expr.h"
 #include "z3++.h"
-#include <map>
-//#include <unordered_map>
+#include <unordered_map>
 
 /// \namespace ila
 namespace ila {
@@ -23,8 +22,7 @@ public:
   ~Z3ExprAdapter();
 
   /// \def ExprMap
-  // typedef std::unordered_map<const ExprPtr, z3::expr> ExprMap;
-  typedef std::map<ExprPtr, z3::expr> ExprMap;
+  typedef std::unordered_map<const ExprPtr, z3::expr, ExprHash> ExprMap;
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return the flag of whether to perform simplification.

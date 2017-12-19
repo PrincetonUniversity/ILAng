@@ -37,7 +37,7 @@ public:
   const char* c_str() const;
   /// Get the symbol as integer.
   int to_int() const;
-  /// Get the ID.
+  /// Get the id
   const size_t& id() const;
 
   /// Set the name.

@@ -1,5 +1,5 @@
 /// \file
-/// Header for the class Expr
+/// Header for the class Expr and its hash
 
 #ifndef __EXPR_H__
 #define __EXPR_H__
@@ -131,6 +131,14 @@ private:
 }; // class Expr
 
 typedef Expr::ExprPtr ExprPtr;
+
+/// \class ExprHash
+/// The function object for hashing Expr. The hash value is the id of the
+/// symbol, which is supposed to be unique.
+class ExprHash {
+public:
+  size_t operator()(const ExprPtr expr) const { return expr->name().id(); }
+}; // struct ExprHash
 
 } // namespace ila
 
