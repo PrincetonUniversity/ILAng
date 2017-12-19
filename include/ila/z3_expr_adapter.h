@@ -22,7 +22,7 @@ public:
   ~Z3ExprAdapter();
 
   /// \def ExprMap
-  typedef std::unordered_map<const ExprPtr, z3::expr, ExprHash> ExprMap;
+  typedef std::unordered_map<const ExprPtrRaw, z3::expr, ExprHash> ExprMap;
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return the flag of whether to perform simplification.
@@ -44,7 +44,7 @@ public:
   void Clear();
 
   /// Function object for getting z3 expression.
-  void operator()(const ExprPtr expr);
+  void operator()(const ExprPtrRaw expr);
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
@@ -58,6 +58,8 @@ private:
   std::string suffix_;
 
   // ------------------------- HELPERS -------------------------------------- //
+  /// Insert the z3 expression of the given node into the map.
+  void PopulateExprMap(const ExprPtrRaw expr);
 
 }; // class Z3Adapter
 

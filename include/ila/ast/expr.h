@@ -97,7 +97,7 @@ public:
 
   /// Templated visitor: visit each node in a depth-first order and apply the
   /// function object F on it.
-  template <class F> void DepthFirstVisit(F& func) const {
+  template <class F> void DepthFirstVisit(F& func) {
     size_t n = arity();
     for (size_t i = 0; i != n; i++) {
       const ExprPtr arg_i = this->arg(i);
@@ -130,14 +130,17 @@ private:
 
 }; // class Expr
 
+typedef Expr::Z3ExprVec Z3ExprVec;
 typedef Expr::ExprPtr ExprPtr;
+/// \def ExprPtrRaw
+typedef Expr* ExprPtrRaw;
 
 /// \class ExprHash
 /// The function object for hashing Expr. The hash value is the id of the
 /// symbol, which is supposed to be unique.
 class ExprHash {
 public:
-  size_t operator()(const ExprPtr expr) const { return expr->name().id(); }
+  size_t operator()(const ExprPtrRaw expr) const { return expr->name().id(); }
 }; // struct ExprHash
 
 } // namespace ila
