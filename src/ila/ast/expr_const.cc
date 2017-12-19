@@ -40,8 +40,8 @@ ExprConst::ExprConst(const MemVal& mem_val, const int& addr_width,
 
 ExprConst::~ExprConst() {}
 
-z3::expr ExprConst::GetZ3Expr(z3::context& ctx,
-                              const Z3ExprVec& z3expr_vec) const {
+z3::expr ExprConst::GetZ3Expr(z3::context& ctx, const Z3ExprVec& z3expr_vec,
+                              const std::string& suffix) const {
   if (IsBool()) {
     return ctx.bool_val(bool_ptr_->val());
   } else if (IsBv()) {

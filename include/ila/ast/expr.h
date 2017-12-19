@@ -80,8 +80,8 @@ public:
   virtual bool IsOp() const { return false; }
 
   /// Return the z3 expression for the node.
-  virtual z3::expr GetZ3Expr(z3::context& z3_ctx,
-                             const Z3ExprVec& z3expr_vec) const = 0;
+  virtual z3::expr GetZ3Expr(z3::context& z3_ctx, const Z3ExprVec& z3expr_vec,
+                             const std::string& suffix) const = 0;
 
   /// Output to stream.
   virtual std::ostream& Print(std::ostream& out) const = 0;

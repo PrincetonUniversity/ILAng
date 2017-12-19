@@ -46,8 +46,8 @@ ExprOpAnd::ExprOpAnd(const ExprPtr arg0, const ExprPtr arg1)
   set_sort(GetSortBinaryOperation(arg0->sort(), arg1->sort()));
 }
 
-z3::expr ExprOpAnd::GetZ3Expr(z3::context& z3_ctx,
-                              const Z3ExprVec& z3expr_vec) const {
+z3::expr ExprOpAnd::GetZ3Expr(z3::context& z3_ctx, const Z3ExprVec& z3expr_vec,
+                              const std::string& suffix) const {
   ILA_ASSERT(z3expr_vec.size() == 2);
   return z3expr_vec[0] & z3expr_vec[1]; // XXX check if sort-independent.
 }
@@ -62,8 +62,8 @@ ExprOpOr::ExprOpOr(const ExprPtr arg0, const ExprPtr arg1)
   set_sort(GetSortBinaryOperation(arg0->sort(), arg1->sort()));
 }
 
-z3::expr ExprOpOr::GetZ3Expr(z3::context& z3_ctx,
-                             const Z3ExprVec& z3expr_vec) const {
+z3::expr ExprOpOr::GetZ3Expr(z3::context& z3_ctx, const Z3ExprVec& z3expr_vec,
+                             const std::string& suffix) const {
   ILA_ASSERT(z3expr_vec.size() == 2);
   return z3expr_vec[0] | z3expr_vec[1]; // XXX check if sort-independent.
 }
@@ -78,8 +78,8 @@ ExprOpEq::ExprOpEq(const ExprPtr arg0, const ExprPtr arg1)
   set_sort(GetSortBinaryComparison(arg0->sort(), arg1->sort()));
 }
 
-z3::expr ExprOpEq::GetZ3Expr(z3::context& z3_ctx,
-                             const Z3ExprVec& z3expr_vec) const {
+z3::expr ExprOpEq::GetZ3Expr(z3::context& z3_ctx, const Z3ExprVec& z3expr_vec,
+                             const std::string& suffix) const {
   ILA_ASSERT(z3expr_vec.size() == 2);
   return z3expr_vec[0] == z3expr_vec[1];
 }

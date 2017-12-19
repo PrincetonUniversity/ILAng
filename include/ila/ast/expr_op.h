@@ -37,8 +37,8 @@ public:
   bool IsOp() const { return true; }
 
   /// Return the z3 expression for the node.
-  virtual z3::expr GetZ3Expr(z3::context& z3_ctx,
-                             const Z3ExprVec& z3expr_vec) const = 0;
+  virtual z3::expr GetZ3Expr(z3::context& z3_ctx, const Z3ExprVec& z3expr_vec,
+                             const std::string& suffix) const = 0;
 
   /// Output to stream.
   virtual std::ostream& Print(std::ostream& out) const = 0;
@@ -72,7 +72,8 @@ class ExprOpAnd : public ExprOp {
 public:
   ExprOpAnd(const ExprPtr arg0, const ExprPtr arg1);
   std::string op_name() const { return "AND"; }
-  z3::expr GetZ3Expr(z3::context& z3_ctx, const Z3ExprVec& z3expr_vec) const;
+  z3::expr GetZ3Expr(z3::context& z3_ctx, const Z3ExprVec& z3expr_vec,
+                     const std::string& suffix) const;
   std::ostream& Print(std::ostream& out) const;
 }; // class ExprOpAnd
 
@@ -81,7 +82,8 @@ class ExprOpOr : public ExprOp {
 public:
   ExprOpOr(const ExprPtr arg0, const ExprPtr arg1);
   std::string op_name() const { return "OR"; }
-  z3::expr GetZ3Expr(z3::context& z3_ctx, const Z3ExprVec& z3expr_vec) const;
+  z3::expr GetZ3Expr(z3::context& z3_ctx, const Z3ExprVec& z3expr_vec,
+                     const std::string& suffix) const;
   std::ostream& Print(std::ostream& out) const;
 }; // class ExprOpOr
 
@@ -90,7 +92,8 @@ class ExprOpEq : public ExprOp {
 public:
   ExprOpEq(const ExprPtr arg0, const ExprPtr arg1);
   std::string op_name() const { return "EQ"; }
-  z3::expr GetZ3Expr(z3::context& z3_ctx, const Z3ExprVec& z3expr_vec) const;
+  z3::expr GetZ3Expr(z3::context& z3_ctx, const Z3ExprVec& z3expr_vec,
+                     const std::string& suffix) const;
   std::ostream& Print(std::ostream& out) const;
 }; // class ExprOpEq
 

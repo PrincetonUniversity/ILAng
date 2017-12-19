@@ -34,8 +34,8 @@ ExprVar::ExprVar(const std::string& name, const int& addr_width,
 
 ExprVar::~ExprVar() {}
 
-z3::expr ExprVar::GetZ3Expr(z3::context& z3_ctx,
-                            const Z3ExprVec& z3expr_vec) const {
+z3::expr ExprVar::GetZ3Expr(z3::context& z3_ctx, const Z3ExprVec& z3expr_vec,
+                            const std::string& suffix) const {
   if (IsBool()) {
     return z3_ctx.bool_const(name().c_str());
   } else if (IsBv()) {

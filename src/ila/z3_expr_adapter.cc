@@ -65,7 +65,7 @@ void Z3ExprAdapter::PopulateExprMap(const ExprPtrRaw expr) {
   }
 
   // get the expression based on different type of the ast node.
-  z3::expr res = expr->GetZ3Expr(ctx_, expr_vec);
+  z3::expr res = expr->GetZ3Expr(ctx_, expr_vec, suffix_);
   // FIXME need to pass the suffix to nodes.
 
   // polulate in the expr cache.
