@@ -95,6 +95,17 @@ public:
   /// Overload output stream operator
   friend std::ostream& operator<<(std::ostream& out, const Expr& expr);
 
+  /// Templated visitor: visit each node in a depth-first order and apply the
+  /// function object F on it.
+  template <class F> void DepthFirstVisit(F& func) const {
+    size_t n = arity();
+    for (size_t i = 0; i != n; i++) {
+      const ExprPtr arg_i = this->arg(i);
+      arg_i->DepthFirstVisit<F>(func);
+    }
+    func(this);
+  }
+
 private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// The sort of the expr.

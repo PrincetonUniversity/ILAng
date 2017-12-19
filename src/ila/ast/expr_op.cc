@@ -20,13 +20,6 @@ ExprOp::ExprOp(const ExprPtr arg0, const ExprPtr arg1) {
 
 ExprOp::~ExprOp() {}
 
-#if 0
-std::ostream& ExprOp::Print(std::ostream& out) const {
-  ILA_ERROR << "Not implemented.\n"; // TODO
-  return out;
-}
-#endif
-
 Sort ExprOp::GetSortBinaryOperation(const Sort& s0, const Sort& s1) {
   ILA_ASSERT(s0 == s1) << "Undefined sorts " << s0 << " & " << s1
                        << " for binary operations.\n";
