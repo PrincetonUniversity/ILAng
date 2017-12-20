@@ -4,7 +4,7 @@
 #ifndef __NODE_REF_H__
 #define __NODE_REF_H__
 
-#include "ila/ast/expr_ref.h"
+#include "ila/expr_fuse.h"
 
 /// \namespace ila
 namespace ila {

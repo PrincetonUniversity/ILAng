@@ -1,8 +1,8 @@
 /// \file
-/// Header of the class ExprRef
+/// Header of the class ExprFuse
 
-#ifndef __EXPR_REF_H__
-#define __EXPR_REF_H__
+#ifndef __EXPR_FUSE_H__
+#define __EXPR_FUSE_H__
 
 #include "ila/ast/expr.h"
 #include "ila/ast/expr_const.h"
@@ -14,16 +14,16 @@
 /// \namespace ila
 namespace ila {
 
-/// \class ExprRef
-/// ExprRef is the uniform interface and wrapper for different types of
+/// \class ExprFuse
+/// ExprFuse is the uniform interface and wrapper for different types of
 /// expressions, e.g. var, constant, and different operations.
-class ExprRef {
+class ExprFuse {
 public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
-  /// Default constructor.
-  ExprRef();
-  /// Default destructor.
-  ~ExprRef();
+  /// Default constructor. NOT USED.
+  ExprFuse();
+  /// Default destructor. NOT USED.
+  ~ExprFuse();
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
 
@@ -66,9 +66,9 @@ private:
 
   // ------------------------- HELPERS -------------------------------------- //
 
-}; // class ExprRef
+}; // class ExprFuse
 
 } // namespace ila
 
-#endif // __EXPR_REF_H__
+#endif // __EXPR_FUSE_H__
 

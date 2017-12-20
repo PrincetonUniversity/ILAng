@@ -1,16 +1,16 @@
 /// \file
-/// Unit test for the class ExprRef.
+/// Unit test for the class ExprFuse
 
-#include "ila/ast/expr_ref.h"
+#include "ila/expr_fuse.h"
 #include "gtest/gtest.h"
 
 namespace ila {
 
-TEST(ExprRef, CreateVar) {
-  auto flag = ExprRef::NewBoolVar("flag");
-  auto reg_x = ExprRef::NewBvVar("reg_x", 8);
-  auto reg_y = ExprRef::NewBvVar("reg_y", 8);
-  auto mem = ExprRef::NewMemVar("mem", 8, 8);
+TEST(ExprFuse, CreateVar) {
+  auto flag = ExprFuse::NewBoolVar("flag");
+  auto reg_x = ExprFuse::NewBvVar("reg_x", 8);
+  auto reg_y = ExprFuse::NewBvVar("reg_y", 8);
+  auto mem = ExprFuse::NewMemVar("mem", 8, 8);
 
   EXPECT_TRUE(flag->IsExpr());
   EXPECT_TRUE(flag->IsVar());
@@ -20,12 +20,12 @@ TEST(ExprRef, CreateVar) {
   EXPECT_TRUE(mem->IsMem());
 }
 
-TEST(ExprRef, CreateConst) {
-  auto const_false = ExprRef::BoolConst(false);
-  auto const_true = ExprRef::BoolConst(BoolVal("True"));
-  auto const_bv0 = ExprRef::BvConst(0, 8);
-  auto const_bv1 = ExprRef::BvConst(BvVal("1"), 8);
-  auto const_mem = ExprRef::MemConst(0, 8, 8);
+TEST(ExprFuse, CreateConst) {
+  auto const_false = ExprFuse::BoolConst(false);
+  auto const_true = ExprFuse::BoolConst(BoolVal("True"));
+  auto const_bv0 = ExprFuse::BvConst(0, 8);
+  auto const_bv1 = ExprFuse::BvConst(BvVal("1"), 8);
+  auto const_mem = ExprFuse::MemConst(0, 8, 8);
   // TODO Create mem constant from MemVal
 
   EXPECT_TRUE(const_false->IsConst());
@@ -33,19 +33,19 @@ TEST(ExprRef, CreateConst) {
   // EXPECT_TRUE(const_bv0->val()????
 }
 
-TEST(ExprRef, CreateOp) {
-  auto flag = ExprRef::NewBoolVar("flag");
-  auto reg_x = ExprRef::NewBvVar("reg_x", 8);
-  auto reg_y = ExprRef::NewBvVar("reg_y", 8);
+TEST(ExprFuse, CreateOp) {
+  auto flag = ExprFuse::NewBoolVar("flag");
+  auto reg_x = ExprFuse::NewBvVar("reg_x", 8);
+  auto reg_y = ExprFuse::NewBvVar("reg_y", 8);
 
-  auto const_true = ExprRef::BoolConst(BoolVal("True"));
-  auto const_bv0 = ExprRef::BvConst(0, 8);
+  auto const_true = ExprFuse::BoolConst(BoolVal("True"));
+  auto const_bv0 = ExprFuse::BvConst(0, 8);
 
-  auto x_and_y = ExprRef::LogicalAnd(reg_x, reg_y);
-  auto x_and_y_or_y = ExprRef::LogicalOr(x_and_y, x_and_y);
-  auto y_or_0 = ExprRef::LogicalOr(reg_y, const_bv0);
-  auto equal = ExprRef::CompEq(x_and_y_or_y, y_or_0); // should be alwats true
-  auto miter = ExprRef::CompEq(equal, flag);          // bool type eq
+  auto x_and_y = ExprFuse::LogicalAnd(reg_x, reg_y);
+  auto x_and_y_or_y = ExprFuse::LogicalOr(x_and_y, x_and_y);
+  auto y_or_0 = ExprFuse::LogicalOr(reg_y, const_bv0);
+  auto equal = ExprFuse::CompEq(x_and_y_or_y, y_or_0); // should be alwats true
+  auto miter = ExprFuse::CompEq(equal, flag);          // bool type eq
 
   EXPECT_TRUE(x_and_y->IsOp());
 }
