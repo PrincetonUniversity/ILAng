@@ -51,15 +51,23 @@ ExprPtr ExprFuse::MemConst(const MemVal& val, const int& addr_width,
   return std::make_shared<ExprConst>(val, addr_width, data_width);
 }
 
-ExprPtr ExprFuse::LogicalAnd(const ExprPtr l, const ExprPtr r) {
+ExprPtr ExprFuse::Negate(const ExprPtr arg) {
+  return std::make_shared<ExprOpNeg>(arg);
+}
+
+ExprPtr ExprFuse::Complement(const ExprPtr arg) {
+  return std::make_shared<ExprOpCompl>(arg);
+}
+
+ExprPtr ExprFuse::And(const ExprPtr l, const ExprPtr r) {
   return std::make_shared<ExprOpAnd>(l, r);
 }
 
-ExprPtr ExprFuse::LogicalOr(const ExprPtr l, const ExprPtr r) {
+ExprPtr ExprFuse::Or(const ExprPtr l, const ExprPtr r) {
   return std::make_shared<ExprOpOr>(l, r);
 }
 
-ExprPtr ExprFuse::CompEq(const ExprPtr l, const ExprPtr r) {
+ExprPtr ExprFuse::Eq(const ExprPtr l, const ExprPtr r) {
   return std::make_shared<ExprOpEq>(l, r);
 }
 

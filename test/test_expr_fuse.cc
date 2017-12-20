@@ -41,11 +41,11 @@ TEST(ExprFuse, CreateOp) {
   auto const_true = ExprFuse::BoolConst(BoolVal("True"));
   auto const_bv0 = ExprFuse::BvConst(0, 8);
 
-  auto x_and_y = ExprFuse::LogicalAnd(reg_x, reg_y);
-  auto x_and_y_or_y = ExprFuse::LogicalOr(x_and_y, x_and_y);
-  auto y_or_0 = ExprFuse::LogicalOr(reg_y, const_bv0);
-  auto equal = ExprFuse::CompEq(x_and_y_or_y, y_or_0); // should be alwats true
-  auto miter = ExprFuse::CompEq(equal, flag);          // bool type eq
+  auto x_and_y = ExprFuse::And(reg_x, reg_y);
+  auto x_and_y_or_y = ExprFuse::Or(x_and_y, x_and_y);
+  auto y_or_0 = ExprFuse::Or(reg_y, const_bv0);
+  auto equal = ExprFuse::Eq(x_and_y_or_y, y_or_0); // should be alwats true
+  auto miter = ExprFuse::Eq(equal, flag);          // bool type eq
 
   EXPECT_TRUE(x_and_y->is_op());
 }

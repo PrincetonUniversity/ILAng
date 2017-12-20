@@ -36,14 +36,12 @@ public:
   bool is_op() const { return true; }
 
   // ------------------------- METHODS -------------------------------------- //
-
   /// Return the z3 expression for the node.
-  virtual z3::expr GetZ3Expr(z3::context& z3_ctx, const Z3ExprVec& z3expr_vec,
-                             const std::string& suffix) const = 0;
+  virtual z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                             const std::string& suffix = "") const = 0;
 
   /// Output to stream.
   virtual std::ostream& Print(std::ostream& out) const = 0;
-  // std::ostream& Print(std::ostream& out) const;
 
   // ------------------------- HELPERS -------------------------------------- //
   /// Derived the sort for binary operations.
@@ -52,12 +50,13 @@ public:
   Sort GetSortBinaryComparison(const Sort& s0, const Sort& s1);
 
   /// Print unary operations.
-  std::ostream& PrintUnaryOp(std::ostream& out, ExprPtr op);
+  std::ostream& PrintUnaryOp(std::ostream& out,
+                             const std::string& op_name) const;
   /// Print binary operations.
   std::ostream& PrintBinaryOp(std::ostream& out,
                               const std::string& op_name) const;
   /// Print n-ary operations.
-  std::ostream& PrintNaryOp(std::ostream& out, ExprPtr op);
+  std::ostream& PrintNnaryOp(std::ostream& out, ExprPtr op);
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
@@ -68,7 +67,35 @@ private:
 
 }; // class ExprOp
 
-/// \class ExprOpAnd is the class wrapper for binary logical AND operation.
+/******************************************************************************/
+// Different types of operators.
+// Unary: negate, complement
+// Binary: and, or, equal
+// Ternary:
+/******************************************************************************/
+
+/// \class ExprOpNeg is the wrapper for unary negate operation "-".
+class ExprOpNeg : public ExprOp {
+public:
+  ExprOpNeg(const ExprPtr arg);
+  std::string op_name() const { return "NEGATE"; }
+  z3::expr GetZ3Expr(z3::context& z3_ctx, const Z3ExprVec& z3expr_vec,
+                     const std::string& suffix) const;
+  std::ostream& Print(std::ostream& out) const;
+}; // class ExprOpNeg
+
+/// \class ExprOpCompl is the wrapper for unary complement (bit-wise) "~".
+/// This can be applied to both bool and bv, unlike bool-only "not"/"!".
+class ExprOpCompl : public ExprOp {
+public:
+  ExprOpCompl(const ExprPtr arg);
+  std::string op_name() const { return "COMPLEMENT"; }
+  z3::expr GetZ3Expr(z3::context& z3_ctx, const Z3ExprVec& z3expr_vec,
+                     const std::string& suffix) const;
+  std::ostream& Print(std::ostream& out) const;
+}; // class ExprOpCompl
+
+/// \class ExprOpAnd is the wrapper for binary logical AND operation "&".
 class ExprOpAnd : public ExprOp {
 public:
   ExprOpAnd(const ExprPtr arg0, const ExprPtr arg1);
@@ -78,7 +105,7 @@ public:
   std::ostream& Print(std::ostream& out) const;
 }; // class ExprOpAnd
 
-/// \class ExprOpOr is the class wrapper for binary logical OR operation.
+/// \class ExprOpOr is the wrapper for binary logical OR operation "|".
 class ExprOpOr : public ExprOp {
 public:
   ExprOpOr(const ExprPtr arg0, const ExprPtr arg1);
@@ -88,7 +115,7 @@ public:
   std::ostream& Print(std::ostream& out) const;
 }; // class ExprOpOr
 
-/// \class ExprOpEq is the class wrapper for binary comparison EQ.
+/// \class ExprOpEq is the class wrapper for binary comparison EQ "==".
 class ExprOpEq : public ExprOp {
 public:
   ExprOpEq(const ExprPtr arg0, const ExprPtr arg1);
