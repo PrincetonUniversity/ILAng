@@ -39,19 +39,19 @@ public:
                            const int& data_width);
 
   /// Create a Boolean constant.
-  static ExprPtr NewBoolConst(const bool& val);
+  static ExprPtr BoolConst(const bool& val);
   /// Create a Boolean constant from BoolVal.
-  static ExprPtr NewBoolConst(const BoolVal& val);
+  static ExprPtr BoolConst(const BoolVal& val);
   /// Create a bitvector constant.
-  static ExprPtr NewBvConst(const int& val, const int& bit_width);
+  static ExprPtr BvConst(const int& val, const int& bit_width);
   /// Create a bitvector constant from BvVal.
-  static ExprPtr NewBvConst(const BvVal& val, const int& bit_width);
+  static ExprPtr BvConst(const BvVal& val, const int& bit_width);
   /// Create a memory constant with only the defauly value.
-  static ExprPtr NewMemConst(const int& def_val, const int& addr_width,
-                             const int& data_width);
+  static ExprPtr MemConst(const int& def_val, const int& addr_width,
+                          const int& data_width);
   /// Create a memory constant from MemVal.
-  static ExprPtr NewMemConst(const MemVal& val, const int& addr_width,
-                             const int& data_width);
+  static ExprPtr MemConst(const MemVal& val, const int& addr_width,
+                          const int& data_width);
 
   /// Logical AND
   static ExprPtr LogicalAnd(const ExprPtr l, const ExprPtr r);
