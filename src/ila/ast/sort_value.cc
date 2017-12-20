@@ -71,7 +71,20 @@ MemVal::~MemVal() {}
 
 const MemValMap& MemVal::val_map() const { return val_map_; }
 
-const int& MemVal::default_val() const { return default_; }
+const int& MemVal::def_val() const { return default_; }
+
+const int& MemVal::get_data(const int& addr) const {
+  auto pos = val_map_.find(addr);
+  if (pos == val_map_.end()) {
+    return default_;
+  } else {
+    return pos->second;
+  }
+}
+
+void MemVal::set_data(const int& addr, const int& data) {
+  val_map_[addr] = data;
+}
 
 std::ostream& MemVal::Print(std::ostream& out) const {
   ILA_WARN << "Not Implemented.\n"; // TODO

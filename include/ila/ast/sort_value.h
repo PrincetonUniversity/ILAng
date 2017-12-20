@@ -111,7 +111,7 @@ public:
   /// Return the map of addr/data
   const MemValMap& val_map() const;
   /// Return the default value
-  const int& default_val() const;
+  const int& def_val() const;
 
   /// Return the value stored in the address.
   const int& get_data(const int& addr) const;

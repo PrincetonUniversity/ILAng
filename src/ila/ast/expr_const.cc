@@ -42,13 +42,30 @@ ExprConst::~ExprConst() {}
 
 z3::expr ExprConst::GetZ3Expr(z3::context& ctx, const Z3ExprVec& z3expr_vec,
                               const std::string& suffix) const {
+  ILA_ASSERT(z3expr_vec.empty()) << "Constant should be terminating nodes.\n";
+
   if (IsBool()) {
     return ctx.bool_val(bool_ptr_->val());
   } else if (IsBv()) {
     return ctx.bv_val(bv_ptr_->val(), sort().bit_width());
   } else if (IsMem()) {
-    ILA_ERROR << "Not implemented.\n"; // TODO
-    return ctx.bv_val(0, sort().data_width());
+    auto addr_sort = ctx.bv_sort(sort().addr_width());
+    auto data_sort = ctx.bv_sort(sort().data_width());
+
+    auto def_str = std::to_string(mem_ptr_->def_val());
+    auto def_expr = ctx.bv_val(def_str.c_str(), sort().data_width());
+
+    auto e1 = z3::const_array(addr_sort, def_expr);
+    auto& val_map = mem_ptr_->val_map();
+    for (auto p : val_map) {
+      auto addr_str = std::to_string(p.first);
+      auto addr_expr = ctx.bv_val(addr_str.c_str(), sort().addr_width());
+      auto data_str = std::to_string(p.second);
+      auto data_expr = ctx.bv_val(data_str.c_str(), sort().data_width());
+      auto e2 = z3::store(e1, addr_expr, data_expr);
+      e1 = e2;
+    }
+    return e1;
   } else {
     ILA_ERROR << "Undefined sort for constantc\n";
     return ctx.bool_val(false);

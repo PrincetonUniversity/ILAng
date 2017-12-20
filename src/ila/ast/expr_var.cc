@@ -73,8 +73,7 @@ std::ostream& ExprVar::PrintBv(std::ostream& out) const {
 }
 
 std::ostream& ExprVar::PrintMem(std::ostream& out) const {
-  ILA_ERROR << "Not implemented.\n"; // TODO
-  return out;
+  return out << name().format_str("MemoryVar", "");
 }
 
 } // namespace ila
