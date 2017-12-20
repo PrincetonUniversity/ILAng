@@ -53,8 +53,6 @@ private:
 
 }; // class Ast
 
-typedef std::shared_ptr<Ast> AstPtr;
-
 } // namespace ila
 
 #endif // __AST_H__

@@ -1,50 +1,54 @@
 /// \file
-/// The header for the class Node.
+/// The header for the class NodeRef.
 
-#ifndef __NODE_H__
-#define __NODE_H__
+#ifndef __NODE_REF_H__
+#define __NODE_REF_H__
 
-#include "ila/object.h"
-#include "ila/symbol.h"
-#include <memory>
-#include <string>
+#include "ila/ast/expr_ref.h"
 
 /// \namespace ila
 namespace ila {
 
-/// \class Node
-/// The class for the Node. Node is the abstract interface (base type) for
-/// state/input variables, constraint expressions, functions, etc.
-class Node {
+/// \class NodeRef
+/// NodeRef is wrapper for ExprRef without raw c-type pointers.
+class NodeRef {
+private:
+  // ------------------------- MEMBERS -------------------------------------- //
+  /// The actual pointer to expression.
+  ExprPtr ptr_;
+
 public:
-  /// The constructor for the class Node.
-  Node();
-  /// The destructor for the class Node.
-  ~Node();
+  // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
+  /// Default constructor. DO NOT USE.
+  NodeRef();
+  /// Constructor with data member (pointer to expression).
+  NodeRef(const ExprPtr ptr);
+  /// Copy constructor.
+  NodeRef(const NodeRef& node);
+  /// Default destructor.
+  ~NodeRef();
 
-  // Type definitions.
+  // ------------------------- ACCESSORS/MUTATORS --------------------------- //
+  /// Get the node name in basic string.
+  const std::string& name() const;
+
+  // ------------------------- METHODS -------------------------------------- //
+  /// Overload assignment operator.
+  NodeRef& operator=(const NodeRef& rhs);
+
+  // static functions for wrapping the hierarchy of AST.
   /****************************************************************************/
-
-  // Node definition.
-  /****************************************************************************/
-  /// Set the name of the Node.
-  /// \param[in] name Node name.
-  void SetName(const std::string& name);
-
-  /// Get the name of the Node.
-  /// \return the name of the Node.
-  const std::string& GetName() const;
 
 private:
-  /// The name of the Node.
-  std::string name_;
+  // ------------------------- MEMBERS -------------------------------------- //
 
-}; // class Node
+  // ------------------------- HELPERS -------------------------------------- //
 
-/// \def The type for Node pointer.
-typedef std::shared_ptr<Node> NodePtr;
+}; // class NodeRef
+
+typedef NodeRef* NodePtr; /// FIXME
 
 } // namespace ila
 
-#endif // __NODE_H__
+#endif // __NODE_REF_H__
 

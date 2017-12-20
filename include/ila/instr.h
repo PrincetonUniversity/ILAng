@@ -59,7 +59,7 @@ private:
 /// \def The type for Instr pointer.
 typedef Instr::InstrPtr InstrPtr;
 
-} // namespace il
+} // namespace ila
 
 #endif // __INSTR_H__
 
