@@ -33,10 +33,10 @@ public:
   typedef std::set<NodePtr> NodePtrSet;
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
+  /// Is type Instr.
+  bool is_instr() const { return true; }
 
   // ------------------------- METHODS -------------------------------------- //
-  /// Is type Instr.
-  bool IsInstr() const { return true; }
 
   /// Output function.
   virtual std::ostream& Print(std::ostream& out) const;

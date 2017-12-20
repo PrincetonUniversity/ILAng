@@ -32,9 +32,10 @@ public:
   /// Return the name of the operation.
   virtual std::string op_name() const = 0;
 
-  // ------------------------- METHODS -------------------------------------- //
   /// Return trus since this is an operation.
-  bool IsOp() const { return true; }
+  bool is_op() const { return true; }
+
+  // ------------------------- METHODS -------------------------------------- //
 
   /// Return the z3 expression for the node.
   virtual z3::expr GetZ3Expr(z3::context& z3_ctx, const Z3ExprVec& z3expr_vec,

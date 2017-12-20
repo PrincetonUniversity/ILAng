@@ -35,14 +35,14 @@ public:
   /// Set the symbol (name).
   bool set_name(const std::string& name);
 
-  // ------------------------- METHODS -------------------------------------- //
   /// Is type InstrLvlAbs.
-  virtual bool IsInstrLvlAbs() const { return false; }
+  virtual bool is_instr_lvl_abs() const { return false; }
   /// Is type Instr.
-  virtual bool IsInstr() const { return false; }
+  virtual bool is_instr() const { return false; }
   /// Is type Ast.
-  virtual bool IsAst() const { return false; }
+  virtual bool is_ast() const { return false; }
 
+  // ------------------------- METHODS -------------------------------------- //
   /// Output function.
   virtual std::ostream& Print(std::ostream& out) const = 0;
 

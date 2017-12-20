@@ -33,9 +33,10 @@ public:
   /// Return the prefix of the variable expression.
   const std::string& prefix() const { return k_prefix_var_; }
 
-  // ------------------------- METHODS -------------------------------------- //
   /// Return true since this is a variable.
-  bool IsVar() const { return true; }
+  bool is_var() const { return true; }
+
+  // ------------------------- METHODS -------------------------------------- //
 
   /// Return the z3 expression for the node.
   z3::expr GetZ3Expr(z3::context& z3_ctx, const Z3ExprVec& z3expr_vec,

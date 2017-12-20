@@ -36,22 +36,22 @@ const SortPtr Sort::arg(const size_t& i) const {
   return args_sort_[i];
 }
 
-bool Sort::IsBool() const { return (type_ == SortType::SORT_BOOL); }
+bool Sort::is_bool() const { return (type_ == SortType::SORT_BOOL); }
 
-bool Sort::IsBv() const { return (type_ == SortType::SORT_BV); }
+bool Sort::is_bv() const { return (type_ == SortType::SORT_BV); }
 
-bool Sort::IsMem() const { return (type_ == SortType::SORT_MEM); }
+bool Sort::is_mem() const { return (type_ == SortType::SORT_MEM); }
 
-bool Sort::IsApp() const { return (type_ == SortType::SORT_APP); }
+bool Sort::is_app() const { return (type_ == SortType::SORT_APP); }
 
 std::ostream& Sort::Print(std::ostream& out) const {
-  if (IsBool())
+  if (is_bool())
     return PrintBool(out);
-  else if (IsBv())
+  else if (is_bv())
     return PrintBv(out);
-  else if (IsMem())
+  else if (is_mem())
     return PrintMem(out);
-  else if (IsApp())
+  else if (is_app())
     return PrintApp(out);
   else {
     ILA_ERROR << "Unknown type.\n";
@@ -74,14 +74,14 @@ bool operator==(const SortPtr lhs, const SortPtr rhs) {
 #endif
 
 bool Sort::Equal(const Sort& lhs, const Sort& rhs) {
-  if (lhs.IsBool() && rhs.IsBool()) {
+  if (lhs.is_bool() && rhs.is_bool()) {
     return true;
-  } else if (lhs.IsBv() && rhs.IsBv()) {
+  } else if (lhs.is_bv() && rhs.is_bv()) {
     return (lhs.bit_width_ == rhs.bit_width_);
-  } else if (lhs.IsMem() && rhs.IsMem()) {
+  } else if (lhs.is_mem() && rhs.is_mem()) {
     return ((lhs.addr_width_ == rhs.addr_width_) &&
             (lhs.data_width_ == rhs.data_width_));
-  } else if (lhs.IsApp() && rhs.IsApp()) {
+  } else if (lhs.is_app() && rhs.is_app()) {
     if (!Equal(*lhs.range_sort_.get(), *rhs.range_sort_.get())) {
       return false;
     }

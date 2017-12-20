@@ -44,11 +44,11 @@ z3::expr ExprConst::GetZ3Expr(z3::context& ctx, const Z3ExprVec& z3expr_vec,
                               const std::string& suffix) const {
   ILA_ASSERT(z3expr_vec.empty()) << "Constant should be terminating nodes.\n";
 
-  if (IsBool()) {
+  if (is_bool()) {
     return ctx.bool_val(bool_ptr_->val());
-  } else if (IsBv()) {
+  } else if (is_bv()) {
     return ctx.bv_val(bv_ptr_->val(), sort().bit_width());
-  } else if (IsMem()) {
+  } else if (is_mem()) {
     auto addr_sort = ctx.bv_sort(sort().addr_width());
     auto data_sort = ctx.bv_sort(sort().data_width());
 
@@ -73,11 +73,11 @@ z3::expr ExprConst::GetZ3Expr(z3::context& ctx, const Z3ExprVec& z3expr_vec,
 }
 
 std::ostream& ExprConst::Print(std::ostream& out) const {
-  if (IsBool()) {
+  if (is_bool()) {
     return bool_ptr_->Print(out);
-  } else if (IsBv()) {
+  } else if (is_bv()) {
     return bv_ptr_->Print(out);
-  } else if (IsMem()) {
+  } else if (is_mem()) {
     return mem_ptr_->Print(out);
   } else {
     ILA_ERROR << "Undefined sort for constant.\n";

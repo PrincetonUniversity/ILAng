@@ -49,16 +49,16 @@ public:
   /// Return the i-th domain sort (app).
   const SortPtr arg(const size_t& i) const;
 
-  // ------------------------- METHODS -------------------------------------- //
   /// Return true if this is a Boolean expression.
-  bool IsBool() const;
+  bool is_bool() const;
   /// Return true if this is a Bitvector expression.
-  bool IsBv() const;
+  bool is_bv() const;
   /// Return true if this is an Memory expression.
-  bool IsMem() const;
+  bool is_mem() const;
   /// Return true if this is an Application expression.
-  bool IsApp() const;
+  bool is_app() const;
 
+  // ------------------------- METHODS -------------------------------------- //
   /// Output to stream.
   std::ostream& Print(std::ostream& out) const;
   /// Compare two Sorts.

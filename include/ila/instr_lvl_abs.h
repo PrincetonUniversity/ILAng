@@ -37,10 +37,10 @@ public:
   typedef std::set<InstrPtr> InstrPtrSet;
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
+  /// Is type InstrLvlAbs.
+  bool is_instr_lvl_abs() const { return true; }
 
   // ------------------------- METHODS -------------------------------------- //
-  /// Is type InstrLvlAbs.
-  bool IsInstrLvlAbs() const { return true; }
 
   /// Output function.
   virtual std::ostream& Print(std::ostream& out) const;

@@ -59,26 +59,26 @@ public:
   /// Set the parameters.
   void set_params(const std::vector<int> params);
 
-  // ------------------------- METHODS -------------------------------------- //
   /// Is type expr (object).
-  bool IsExpr() const { return true; }
-
-  /// Return true if this is a Boolean expression.
-  bool IsBool() const { return sort_.IsBool(); }
-  /// Return true if this is a Bitvector expression.
-  bool IsBv() const { return sort_.IsBv(); }
-  /// Return true if this is an Array expression.
-  bool IsMem() const { return sort_.IsMem(); }
-  /// Return true if this is an Application expression.
-  bool IsApp() const { return sort_.IsApp(); }
+  bool is_expr() const { return true; }
 
   /// Return true if this is a constant.
-  virtual bool IsConst() const { return false; }
+  virtual bool is_const() const { return false; }
   /// Return true if this is a variable.
-  virtual bool IsVar() const { return false; }
+  virtual bool is_var() const { return false; }
   /// Return true if this is an operation.
-  virtual bool IsOp() const { return false; }
+  virtual bool is_op() const { return false; }
 
+  /// Return true if this is a Boolean expression.
+  bool is_bool() const { return sort_.is_bool(); }
+  /// Return true if this is a Bitvector expression.
+  bool is_bv() const { return sort_.is_bv(); }
+  /// Return true if this is an Array expression.
+  bool is_mem() const { return sort_.is_mem(); }
+  /// Return true if this is an Application expression.
+  bool is_app() const { return sort_.is_app(); }
+
+  // ------------------------- METHODS -------------------------------------- //
   /// Return the z3 expression for the node.
   virtual z3::expr GetZ3Expr(z3::context& z3_ctx, const Z3ExprVec& z3expr_vec,
                              const std::string& suffix) const = 0;

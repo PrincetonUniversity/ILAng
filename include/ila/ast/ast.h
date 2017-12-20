@@ -26,25 +26,25 @@ public:
   virtual ~Ast();
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
-
-  // ------------------------- METHODS -------------------------------------- //
   /// Is type Ast.
-  bool IsAst() const { return true; }
+  bool is_ast() const { return true; }
 
   /// Is type Ast::Sort.
-  virtual bool IsSort() const { return false; }
+  virtual bool is_sort() const { return false; }
   /// Is type Ast::Expr.
-  virtual bool IsExpr() const { return false; }
+  virtual bool is_expr() const { return false; }
   /// Is type Ast::Func.
-  virtual bool IsFunc() const { return false; }
+  virtual bool is_func() const { return false; }
+
+  // ------------------------- METHODS -------------------------------------- //
+
+  /// Output function.
+  virtual std::ostream& Print(std::ostream& out) const = 0;
 
 #if 0
   /// Get SMT formula of the AST node.
   virtual z3::expr GetZ3Expr(z3::context& z3_ctx) const = 0;
 #endif
-
-  /// Output function.
-  virtual std::ostream& Print(std::ostream& out) const = 0;
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //

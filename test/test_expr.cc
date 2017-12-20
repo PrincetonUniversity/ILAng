@@ -16,14 +16,14 @@ TEST(ExprVar, Construct) {
   ExprPtr var_bv_1 = std::make_shared<ExprVar>("var_bv_1", 8);
   ExprPtr var_mem = std::make_shared<ExprVar>("var_mem", 8, 8);
 
-  EXPECT_TRUE(var_bool->IsExpr());
-  EXPECT_FALSE(var_bv_0->IsSort());
-  EXPECT_FALSE(var_bv_0->IsFunc());
+  EXPECT_TRUE(var_bool->is_expr());
+  EXPECT_FALSE(var_bv_0->is_sort());
+  EXPECT_FALSE(var_bv_0->is_func());
 
-  EXPECT_TRUE(var_bool->IsVar());
-  EXPECT_TRUE(var_bv_0->IsVar());
-  EXPECT_FALSE(var_bv_1->IsOp());
-  EXPECT_FALSE(var_mem->IsConst());
+  EXPECT_TRUE(var_bool->is_var());
+  EXPECT_TRUE(var_bv_0->is_var());
+  EXPECT_FALSE(var_bv_1->is_op());
+  EXPECT_FALSE(var_mem->is_const());
 }
 
 TEST(ExprConst, Construct) {
@@ -32,18 +32,18 @@ TEST(ExprConst, Construct) {
   ExprPtr const_true = std::make_shared<ExprConst>(val_true);
   ExprPtr const_false = std::make_shared<ExprConst>(val_false);
 
-  EXPECT_TRUE(const_true->IsConst());
-  EXPECT_TRUE(const_false->IsExpr());
-  EXPECT_TRUE(const_true->IsBool());
-  EXPECT_FALSE(const_false->IsBv());
+  EXPECT_TRUE(const_true->is_const());
+  EXPECT_TRUE(const_false->is_expr());
+  EXPECT_TRUE(const_true->is_bool());
+  EXPECT_FALSE(const_false->is_bv());
 
   BvVal val_0(0);
   BvVal val_1("1");
   ExprPtr const_0 = std::make_shared<ExprConst>(val_0, 8);
   ExprPtr const_1 = std::make_shared<ExprConst>(val_1, 8);
 
-  EXPECT_TRUE(const_0->IsBv());
-  EXPECT_FALSE(const_1->IsBool());
+  EXPECT_TRUE(const_0->is_bv());
+  EXPECT_FALSE(const_1->is_bool());
 }
 
 TEST(ExprOp, Construct) {
@@ -59,7 +59,7 @@ TEST(ExprOp, Construct) {
 
   ExprPtr op_eq = std::make_shared<ExprOpEq>(var_bv_1, op_or);
   EXPECT_EQ("EQ", std::dynamic_pointer_cast<ExprOp>(op_eq)->op_name());
-  EXPECT_TRUE(op_eq->IsBool());
+  EXPECT_TRUE(op_eq->is_bool());
 }
 
 } // namespace ila

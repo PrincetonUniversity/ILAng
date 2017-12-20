@@ -32,9 +32,10 @@ public:
   /// Return the prefix of the constant expression.
   const std::string& prefix() const { return k_prefix_const_; }
 
-  // ------------------------- METHODS -------------------------------------- //
   /// Return true since this is a constant.
-  bool IsConst() const { return true; }
+  bool is_const() const { return true; }
+
+  // ------------------------- METHODS -------------------------------------- //
 
   /// Return the z3 expression for the node.
   z3::expr GetZ3Expr(z3::context& z3_ctx, const Z3ExprVec& z3expr_vec,
