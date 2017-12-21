@@ -43,6 +43,7 @@ public:
   /// Output to stream.
   virtual std::ostream& Print(std::ostream& out) const = 0;
 
+protected:
   // ------------------------- HELPERS -------------------------------------- //
   /// Derived the sort for binary operations.
   Sort GetSortBinaryOperation(const Sort& s0, const Sort& s1);

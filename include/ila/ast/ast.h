@@ -41,11 +41,6 @@ public:
   /// Output function.
   virtual std::ostream& Print(std::ostream& out) const = 0;
 
-#if 0
-  /// Get SMT formula of the AST node.
-  virtual z3::expr GetZ3Expr(z3::context& z3_ctx) const = 0;
-#endif
-
 private:
   // ------------------------- MEMBERS -------------------------------------- //
 

@@ -36,9 +36,6 @@ public:
   /// Overload assignment operator.
   NodeRef& operator=(const NodeRef& rhs);
 
-  // static functions for wrapping the hierarchy of AST.
-  /****************************************************************************/
-
 private:
   // ------------------------- MEMBERS -------------------------------------- //
 

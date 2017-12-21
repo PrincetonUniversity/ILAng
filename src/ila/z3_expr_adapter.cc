@@ -55,7 +55,7 @@ void Z3ExprAdapter::PopulateExprMap(const ExprPtrRaw expr) {
   Z3ExprVec expr_vec;
   expr_vec.reserve(num_arg);
 
-  // all brguments should already have expressions, put them in the container.
+  // all arguments should already have expressions, put them in the container.
   for (size_t i = 0; i != num_arg; i++) {
     ExprPtr arg_i = expr->arg(i);
     auto pos = expr_map_.find(arg_i.get());
@@ -66,6 +66,10 @@ void Z3ExprAdapter::PopulateExprMap(const ExprPtrRaw expr) {
 
   // get the expression based on different type of the ast node.
   z3::expr res = expr->GetZ3Expr(ctx_, expr_vec, suffix_);
+
+  // simplify expression
+  if (simplify_)
+    res = res.simplify();
 
   // polulate in the expr cache.
   expr_map_.insert({expr, res});
