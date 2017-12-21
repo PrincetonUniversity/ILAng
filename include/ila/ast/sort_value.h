@@ -100,10 +100,9 @@ public:
   /// Default constructor. DO NOT USE.
   MemVal();
   /// Constructor with only the default value.
-  MemVal(const int& addr_width, const int& data_width, const int& def_val);
+  MemVal(const int& def_val);
   /// Constructor with an existed Memory value.
-  MemVal(const int& addr_width, const int& data_width, const int& def_val,
-         const MemValMap& vals);
+  MemVal(const int& def_val, const MemValMap& vals);
   /// Default destructor.
   ~MemVal();
 
@@ -130,10 +129,6 @@ private:
   MemValMap val_map_;
   /// Default value of non-specified data.
   int default_;
-  /// Address width
-  int addr_width_;
-  /// Data width
-  int data_width_;
 
 }; // class MemVal
 

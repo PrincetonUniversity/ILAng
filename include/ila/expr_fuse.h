@@ -21,25 +21,14 @@ namespace ila {
 class ExprFuse {
 public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
-  /// Default constructor. NOT USED.
+  /// Default constructor. NOT USED. Not for constructing objects.
   ExprFuse();
-  /// Default destructor. NOT USED.
+  /// Default destructor. NOT USED. Not for constructing objects.
   ~ExprFuse();
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
-  /// Return the prefix used when creating variables.
-  static const std::string& prefix();
-  /// Return the suffix used when creating variables.
-  static const std::string& suffix();
-  /// Set the prefix used when creating variables.
-  static void set_prefix(const std::string& prefix);
-  /// Set the suffix used when creating variables.
-  static void set_suffix(const std::string& suffix);
 
   // ------------------------- METHODS -------------------------------------- //
-  /// Reset string prefix/suffix.
-  static void Reset();
-
   // static functions for wrapping the hierarchy of AST.
 
   /// Create new Boolean variable.
@@ -137,10 +126,6 @@ public:
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
-  /// Prefix used when creating variables.
-  static std::string prefix_;
-  /// Suffix used when creating variables.
-  static std::string suffix_;
 
   // ------------------------- HELPERS -------------------------------------- //
 

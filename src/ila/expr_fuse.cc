@@ -6,49 +6,21 @@
 
 namespace ila {
 
-std::string ExprFuse::prefix_ = "";
-
-std::string ExprFuse::suffix_ = "";
-
-ExprFuse::ExprFuse() {}
-
-ExprFuse::~ExprFuse() {}
-
-const std::string& ExprFuse::prefix() { return prefix_; }
-
-const std::string& ExprFuse::suffix() { return suffix_; }
-
-void ExprFuse::set_prefix(const std::string& prefix) { prefix_ = prefix; }
-
-void ExprFuse::set_suffix(const std::string& suffix) { suffix_ = suffix; }
-
-void ExprFuse::Reset() {
-  prefix_ = "";
-  suffix_ = "";
-}
-
 ExprPtr ExprFuse::NewBoolVar(const std::string& name) {
-  std::string var_name = (prefix_ == "") ? name : StrConcat(prefix_, name);
-  var_name = (suffix_ == "") ? var_name : StrConcat(var_name, suffix_);
-  return std::make_shared<ExprVar>(var_name);
+  return std::make_shared<ExprVar>(name);
 }
 
 ExprPtr ExprFuse::NewBvVar(const std::string& name, const int& bit_width) {
-  std::string var_name = (prefix_ == "") ? name : StrConcat(prefix_, name);
-  var_name = (suffix_ == "") ? var_name : StrConcat(var_name, suffix_);
-  return std::make_shared<ExprVar>(var_name, bit_width);
+  return std::make_shared<ExprVar>(name, bit_width);
 }
 
 ExprPtr ExprFuse::NewMemVar(const std::string& name, const int& addr_width,
                             const int& data_width) {
-  std::string var_name = (prefix_ == "") ? name : StrConcat(prefix_, name);
-  var_name = (suffix_ == "") ? var_name : StrConcat(var_name, suffix_);
-  return std::make_shared<ExprVar>(var_name, addr_width, data_width);
+  return std::make_shared<ExprVar>(name, addr_width, data_width);
 }
 
 ExprPtr ExprFuse::BoolConst(const bool& val) {
-  BoolVal v(val);
-  return std::make_shared<ExprConst>(v);
+  return std::make_shared<ExprConst>(BoolVal(val));
 }
 
 ExprPtr ExprFuse::BoolConst(const BoolVal& val) {
@@ -56,8 +28,7 @@ ExprPtr ExprFuse::BoolConst(const BoolVal& val) {
 }
 
 ExprPtr ExprFuse::BvConst(const int& val, const int& bit_width) {
-  BvVal v(val);
-  return std::make_shared<ExprConst>(v, bit_width);
+  return std::make_shared<ExprConst>(BvVal(val), bit_width);
 }
 
 ExprPtr ExprFuse::BvConst(const BvVal& val, const int& bit_width) {
@@ -66,8 +37,7 @@ ExprPtr ExprFuse::BvConst(const BvVal& val, const int& bit_width) {
 
 ExprPtr ExprFuse::MemConst(const int& def_val, const int& addr_width,
                            const int& data_width) {
-  MemVal v(addr_width, data_width, def_val);
-  return std::make_shared<ExprConst>(v, addr_width, data_width);
+  return std::make_shared<ExprConst>(MemVal(def_val), addr_width, data_width);
 }
 
 ExprPtr ExprFuse::MemConst(const MemVal& val, const int& addr_width,
