@@ -1,0 +1,4458 @@
+[]
+[]
+[]
+[]
+['BB0_2:']
+[]
+['BB0_3:']
+['ret']
+['}']
+[]
+[]
+[]
+[]
+[]
+[]
+['BB0_2:']
+[]
+['BB0_3:']
+['ret']
+['}']
+[]
+[]
+(if false 0x0 (if (eq pc_0 0x38) (if (eq (apply_fun arb_fun_0) 0x1) (if (eq %p1_0 0x0) 0x1 0x0) (if (eq pc_0 0x30) (if (eq (apply_fun arb_fun_0) 0x1) (if (eq %p1_0 0x0) 0x1 0x0) (if (eq pc_0 0x20) (if (eq (apply_fun arb_fun_0) 0x1) (if (eq %p1_0 0x0) 0x1 0x0) en_log_register) en_log_register)) (if (eq pc_0 0x20) (if (eq (apply_fun arb_fun_0) 0x1) (if (eq %p1_0 0x0) 0x1 0x0) en_log_register) en_log_register))) (if (eq pc_0 0x30) (if (eq (apply_fun arb_fun_0) 0x1) (if (eq %p1_0 0x0) 0x1 0x0) (if (eq pc_0 0x20) (if (eq (apply_fun arb_fun_0) 0x1) (if (eq %p1_0 0x0) 0x1 0x0) en_log_register) en_log_register)) (if (eq pc_0 0x20) (if (eq (apply_fun arb_fun_0) 0x1) (if (eq %p1_0 0x0) 0x1 0x0) en_log_register) en_log_register))))
+[BMCResult] Abstraction:GPU_ptx
+Model:
+(define-fun %rd5_1_ () (_ BitVec 64)
+  #x0010002040340000)
+(define-fun %tid.x_0_ () (_ BitVec 32)
+  #x00000000)
+(define-fun pc_1_ () (_ BitVec 32)
+  #x00000000)
+(define-fun %tid.x_1_ () (_ BitVec 32)
+  #x00000001)
+(define-fun arb_fun_0_40_ () (_ BitVec 1)
+  #b1)
+(define-fun en_check_register_ () (_ BitVec 1)
+  #b0)
+(define-fun predicate_bit_ () Bool
+  true)
+(define-fun %r6_0_ () (_ BitVec 32)
+  #x00000000)
+(define-fun arb_fun_1_33_ () (_ BitVec 1)
+  #b1)
+(define-fun pc_0_ () (_ BitVec 32)
+  #x00000000)
+(define-fun %rd5_0_ () (_ BitVec 64)
+  #x0010002040340000)
+(define-fun en_log_register_ () (_ BitVec 1)
+  #b0)
+(define-fun %r6_1_ () (_ BitVec 32)
+  #x00000000)
+Frames Eval:
+<Frame 1>
+pc_1: #x00000004
+pc_0: #x00000004
+log_register: log_register_
+en_log_register: #b0
+en_check_register: #b0
+check_register: check_register_
+_Z11simple_loopPii_param_1_1: _Z11simple_loopPii_param_1_1_
+_Z11simple_loopPii_param_1_0: _Z11simple_loopPii_param_1_0_
+_Z11simple_loopPii_param_0_1: _Z11simple_loopPii_param_0_1_
+_Z11simple_loopPii_param_0_0: _Z11simple_loopPii_param_0_0_
+%tid.x_1: #x00000001
+%tid.x_0: #x00000000
+%rd8_1: %rd8_1_
+%rd8_0: %rd8_0_
+%rd7_1: %rd7_1_
+%rd7_0: %rd7_0_
+%rd6_1: %rd6_1_
+%rd6_0: %rd6_0_
+%rd4_1: %rd4_1_
+%rd4_0: %rd4_0_
+%rd3_1: %rd3_1_
+%rd3_0: %rd3_0_
+%rd2_1: %rd2_1_
+%rd2_0: %rd2_0_
+%rd1_1: %rd1_1_
+%rd1_0: %rd1_0_
+%rd0_1: %rd0_1_
+%rd0_0: %rd0_0_
+%rd5_0: #x0010002040340000
+%r9_1: %r9_1_
+%rd5_1: #x0010002040340000
+%r9_0: %r9_0_
+%r8_1: %r8_1_
+%r8_0: %r8_0_
+%r7_1: %r7_1_
+%r7_0: %r7_0_
+%r6_1: #x00000004
+%r6_0: #x00000004
+%r5_1: %r5_1_
+%r5_0: %r5_0_
+%r4_1: %r4_1_
+%r4_0: %r4_0_
+%r3_1: %r3_1_
+%r3_0: %r3_0_
+%r2_1: %r2_1_
+%r2_0: %r2_0_
+%r1_1: %r1_1_
+%r1_0: %r1_0_
+%r12_1: %r12_1_
+%r12_0: %r12_0_
+%r11_1: %r11_1_
+%r11_0: %r11_0_
+%r10_1: %r10_1_
+%r10_0: %r10_0_
+%r0_1: %r0_1_
+%r0_0: %r0_0_
+%p2_1: %p2_1_
+%p2_0: %p2_0_
+%p1_1: %p1_1_
+%p1_0: %p1_0_
+%p0_1: %p0_1_
+%p0_0: %p0_0_
+predicate_bit: true
+<Frame 2>
+pc_1: #x00000008
+pc_0: #x00000008
+log_register: log_register_
+en_log_register: #b0
+en_check_register: #b0
+check_register: check_register_
+_Z11simple_loopPii_param_1_1: _Z11simple_loopPii_param_1_1_
+_Z11simple_loopPii_param_1_0: _Z11simple_loopPii_param_1_0_
+_Z11simple_loopPii_param_0_1: _Z11simple_loopPii_param_0_1_
+_Z11simple_loopPii_param_0_0: _Z11simple_loopPii_param_0_0_
+%tid.x_1: #x00000001
+%tid.x_0: #x00000000
+%rd8_1: %rd8_1_
+%rd8_0: %rd8_0_
+%rd7_1: %rd7_1_
+%rd7_0: %rd7_0_
+%rd6_1: %rd6_1_
+%rd6_0: %rd6_0_
+%rd4_1: %rd4_1_
+%rd4_0: %rd4_0_
+%rd3_1: %rd3_1_
+%rd3_0: %rd3_0_
+%rd2_1: %rd2_1_
+%rd2_0: %rd2_0_
+%rd1_1: %rd1_1_
+%rd1_0: %rd1_0_
+%rd0_1: %rd0_1_
+%rd0_0: %rd0_0_
+%rd5_0: #x0010002040340000
+%r9_1: %r9_1_
+%rd5_1: #x0010002040340000
+%r9_0: %r9_0_
+%r8_1: %r8_1_
+%r8_0: %r8_0_
+%r7_1: %r7_1_
+%r7_0: %r7_0_
+%r6_1: #x00000004
+%r6_0: #x00000004
+%r5_1: %r5_1_
+%r5_0: %r5_0_
+%r4_1: %r4_1_
+%r4_0: %r4_0_
+%r3_1: %r3_1_
+%r3_0: %r3_0_
+%r2_1: %r2_1_
+%r2_0: %r2_0_
+%r1_1: %r1_1_
+%r1_0: %r1_0_
+%r12_1: %r12_1_
+%r12_0: %r12_0_
+%r11_1: %r11_1_
+%r11_0: %r11_0_
+%r10_1: %r10_1_
+%r10_0: %r10_0_
+%r0_1: %r0_1_
+%r0_0: %r0_0_
+%p2_1: %p2_1_
+%p2_0: %p2_0_
+%p1_1: #b0
+%p1_0: #b0
+%p0_1: %p0_1_
+%p0_0: %p0_0_
+predicate_bit: true
+<Frame 3>
+pc_1: #x0000000c
+pc_0: #x0000000c
+log_register: log_register_
+en_log_register: #b0
+en_check_register: #b0
+check_register: check_register_
+_Z11simple_loopPii_param_1_1: _Z11simple_loopPii_param_1_1_
+_Z11simple_loopPii_param_1_0: _Z11simple_loopPii_param_1_0_
+_Z11simple_loopPii_param_0_1: _Z11simple_loopPii_param_0_1_
+_Z11simple_loopPii_param_0_0: _Z11simple_loopPii_param_0_0_
+%tid.x_1: #x00000001
+%tid.x_0: #x00000000
+%rd8_1: %rd8_1_
+%rd8_0: %rd8_0_
+%rd7_1: %rd7_1_
+%rd7_0: %rd7_0_
+%rd6_1: %rd6_1_
+%rd6_0: %rd6_0_
+%rd4_1: %rd4_1_
+%rd4_0: %rd4_0_
+%rd3_1: %rd3_1_
+%rd3_0: %rd3_0_
+%rd2_1: %rd2_1_
+%rd2_0: %rd2_0_
+%rd1_1: %rd1_1_
+%rd1_0: %rd1_0_
+%rd0_1: %rd0_1_
+%rd0_0: %rd0_0_
+%rd5_0: #x0010002040340000
+%r9_1: %r9_1_
+%rd5_1: #x0010002040340000
+%r9_0: %r9_0_
+%r8_1: %r8_1_
+%r8_0: %r8_0_
+%r7_1: %r7_1_
+%r7_0: %r7_0_
+%r6_1: #x00000004
+%r6_0: #x00000004
+%r5_1: %r5_1_
+%r5_0: %r5_0_
+%r4_1: %r4_1_
+%r4_0: %r4_0_
+%r3_1: %r3_1_
+%r3_0: %r3_0_
+%r2_1: %r2_1_
+%r2_0: %r2_0_
+%r1_1: %r1_1_
+%r1_0: %r1_0_
+%r12_1: %r12_1_
+%r12_0: %r12_0_
+%r11_1: %r11_1_
+%r11_0: %r11_0_
+%r10_1: %r10_1_
+%r10_0: %r10_0_
+%r0_1: %r0_1_
+%r0_0: %r0_0_
+%p2_1: %p2_1_
+%p2_0: %p2_0_
+%p1_1: #b0
+%p1_0: #b0
+%p0_1: %p0_1_
+%p0_0: %p0_0_
+predicate_bit: true
+<Frame 4>
+pc_1: #x00000010
+pc_0: #x00000010
+log_register: log_register_
+en_log_register: #b0
+en_check_register: #b0
+check_register: check_register_
+_Z11simple_loopPii_param_1_1: _Z11simple_loopPii_param_1_1_
+_Z11simple_loopPii_param_1_0: _Z11simple_loopPii_param_1_0_
+_Z11simple_loopPii_param_0_1: _Z11simple_loopPii_param_0_1_
+_Z11simple_loopPii_param_0_0: _Z11simple_loopPii_param_0_0_
+%tid.x_1: #x00000001
+%tid.x_0: #x00000000
+%rd8_1: %rd8_1_
+%rd8_0: %rd8_0_
+%rd7_1: %rd7_1_
+%rd7_0: %rd7_0_
+%rd6_1: #x0010002040340000
+%rd6_0: #x0010002040340000
+%rd4_1: %rd4_1_
+%rd4_0: %rd4_0_
+%rd3_1: %rd3_1_
+%rd3_0: %rd3_0_
+%rd2_1: %rd2_1_
+%rd2_0: %rd2_0_
+%rd1_1: %rd1_1_
+%rd1_0: %rd1_0_
+%rd0_1: %rd0_1_
+%rd0_0: %rd0_0_
+%rd5_0: #x0010002040340000
+%r9_1: %r9_1_
+%rd5_1: #x0010002040340000
+%r9_0: %r9_0_
+%r8_1: %r8_1_
+%r8_0: %r8_0_
+%r7_1: %r7_1_
+%r7_0: %r7_0_
+%r6_1: #x00000004
+%r6_0: #x00000004
+%r5_1: %r5_1_
+%r5_0: %r5_0_
+%r4_1: %r4_1_
+%r4_0: %r4_0_
+%r3_1: %r3_1_
+%r3_0: %r3_0_
+%r2_1: %r2_1_
+%r2_0: %r2_0_
+%r1_1: %r1_1_
+%r1_0: %r1_0_
+%r12_1: %r12_1_
+%r12_0: %r12_0_
+%r11_1: %r11_1_
+%r11_0: %r11_0_
+%r10_1: %r10_1_
+%r10_0: %r10_0_
+%r0_1: %r0_1_
+%r0_0: %r0_0_
+%p2_1: %p2_1_
+%p2_0: %p2_0_
+%p1_1: #b0
+%p1_0: #b0
+%p0_1: %p0_1_
+%p0_0: %p0_0_
+predicate_bit: true
+<Frame 5>
+pc_1: #x00000014
+pc_0: #x00000014
+log_register: log_register_
+en_log_register: #b0
+en_check_register: #b0
+check_register: check_register_
+_Z11simple_loopPii_param_1_1: _Z11simple_loopPii_param_1_1_
+_Z11simple_loopPii_param_1_0: _Z11simple_loopPii_param_1_0_
+_Z11simple_loopPii_param_0_1: _Z11simple_loopPii_param_0_1_
+_Z11simple_loopPii_param_0_0: _Z11simple_loopPii_param_0_0_
+%tid.x_1: #x00000001
+%tid.x_0: #x00000000
+%rd8_1: %rd8_1_
+%rd8_0: %rd8_0_
+%rd7_1: %rd7_1_
+%rd7_0: %rd7_0_
+%rd6_1: #x0010002040340000
+%rd6_0: #x0010002040340000
+%rd4_1: %rd4_1_
+%rd4_0: %rd4_0_
+%rd3_1: %rd3_1_
+%rd3_0: %rd3_0_
+%rd2_1: %rd2_1_
+%rd2_0: %rd2_0_
+%rd1_1: %rd1_1_
+%rd1_0: %rd1_0_
+%rd0_1: %rd0_1_
+%rd0_0: %rd0_0_
+%rd5_0: #x0010002040340000
+%r9_1: %r9_1_
+%rd5_1: #x0010002040340000
+%r9_0: %r9_0_
+%r8_1: #x00000001
+%r8_0: #x00000000
+%r7_1: %r7_1_
+%r7_0: %r7_0_
+%r6_1: #x00000004
+%r6_0: #x00000004
+%r5_1: %r5_1_
+%r5_0: %r5_0_
+%r4_1: %r4_1_
+%r4_0: %r4_0_
+%r3_1: %r3_1_
+%r3_0: %r3_0_
+%r2_1: %r2_1_
+%r2_0: %r2_0_
+%r1_1: %r1_1_
+%r1_0: %r1_0_
+%r12_1: %r12_1_
+%r12_0: %r12_0_
+%r11_1: %r11_1_
+%r11_0: %r11_0_
+%r10_1: %r10_1_
+%r10_0: %r10_0_
+%r0_1: %r0_1_
+%r0_0: %r0_0_
+%p2_1: %p2_1_
+%p2_0: %p2_0_
+%p1_1: #b0
+%p1_0: #b0
+%p0_1: %p0_1_
+%p0_0: %p0_0_
+predicate_bit: true
+<Frame 6>
+pc_1: #x00000018
+pc_0: #x00000018
+log_register: log_register_
+en_log_register: #b0
+en_check_register: #b0
+check_register: check_register_
+_Z11simple_loopPii_param_1_1: _Z11simple_loopPii_param_1_1_
+_Z11simple_loopPii_param_1_0: _Z11simple_loopPii_param_1_0_
+_Z11simple_loopPii_param_0_1: _Z11simple_loopPii_param_0_1_
+_Z11simple_loopPii_param_0_0: _Z11simple_loopPii_param_0_0_
+%tid.x_1: #x00000001
+%tid.x_0: #x00000000
+%rd8_1: %rd8_1_
+%rd8_0: %rd8_0_
+%rd7_1: %rd7_1_
+%rd7_0: %rd7_0_
+%rd6_1: #x0010002040340000
+%rd6_0: #x0010002040340000
+%rd4_1: %rd4_1_
+%rd4_0: %rd4_0_
+%rd3_1: %rd3_1_
+%rd3_0: %rd3_0_
+%rd2_1: %rd2_1_
+%rd2_0: %rd2_0_
+%rd1_1: %rd1_1_
+%rd1_0: %rd1_0_
+%rd0_1: %rd0_1_
+%rd0_0: %rd0_0_
+%rd5_0: #x0010002040340000
+%r9_1: #x00000003
+%rd5_1: #x0010002040340000
+%r9_0: #x00000000
+%r8_1: #x00000001
+%r8_0: #x00000000
+%r7_1: %r7_1_
+%r7_0: %r7_0_
+%r6_1: #x00000004
+%r6_0: #x00000004
+%r5_1: %r5_1_
+%r5_0: %r5_0_
+%r4_1: %r4_1_
+%r4_0: %r4_0_
+%r3_1: %r3_1_
+%r3_0: %r3_0_
+%r2_1: %r2_1_
+%r2_0: %r2_0_
+%r1_1: %r1_1_
+%r1_0: %r1_0_
+%r12_1: %r12_1_
+%r12_0: %r12_0_
+%r11_1: %r11_1_
+%r11_0: %r11_0_
+%r10_1: %r10_1_
+%r10_0: %r10_0_
+%r0_1: %r0_1_
+%r0_0: %r0_0_
+%p2_1: %p2_1_
+%p2_0: %p2_0_
+%p1_1: #b0
+%p1_0: #b0
+%p0_1: %p0_1_
+%p0_0: %p0_0_
+predicate_bit: true
+<Frame 7>
+pc_1: #x0000001c
+pc_0: #x0000001c
+log_register: log_register_
+en_log_register: #b0
+en_check_register: #b0
+check_register: check_register_
+_Z11simple_loopPii_param_1_1: _Z11simple_loopPii_param_1_1_
+_Z11simple_loopPii_param_1_0: _Z11simple_loopPii_param_1_0_
+_Z11simple_loopPii_param_0_1: _Z11simple_loopPii_param_0_1_
+_Z11simple_loopPii_param_0_0: _Z11simple_loopPii_param_0_0_
+%tid.x_1: #x00000001
+%tid.x_0: #x00000000
+%rd8_1: %rd8_1_
+%rd8_0: %rd8_0_
+%rd7_1: #x000000000000000c
+%rd7_0: #x0000000000000000
+%rd6_1: #x0010002040340000
+%rd6_0: #x0010002040340000
+%rd4_1: %rd4_1_
+%rd4_0: %rd4_0_
+%rd3_1: %rd3_1_
+%rd3_0: %rd3_0_
+%rd2_1: %rd2_1_
+%rd2_0: %rd2_0_
+%rd1_1: %rd1_1_
+%rd1_0: %rd1_0_
+%rd0_1: %rd0_1_
+%rd0_0: %rd0_0_
+%rd5_0: #x0010002040340000
+%r9_1: #x00000003
+%rd5_1: #x0010002040340000
+%r9_0: #x00000000
+%r8_1: #x00000001
+%r8_0: #x00000000
+%r7_1: %r7_1_
+%r7_0: %r7_0_
+%r6_1: #x00000004
+%r6_0: #x00000004
+%r5_1: %r5_1_
+%r5_0: %r5_0_
+%r4_1: %r4_1_
+%r4_0: %r4_0_
+%r3_1: %r3_1_
+%r3_0: %r3_0_
+%r2_1: %r2_1_
+%r2_0: %r2_0_
+%r1_1: %r1_1_
+%r1_0: %r1_0_
+%r12_1: %r12_1_
+%r12_0: %r12_0_
+%r11_1: %r11_1_
+%r11_0: %r11_0_
+%r10_1: %r10_1_
+%r10_0: %r10_0_
+%r0_1: %r0_1_
+%r0_0: %r0_0_
+%p2_1: %p2_1_
+%p2_0: %p2_0_
+%p1_1: #b0
+%p1_0: #b0
+%p0_1: %p0_1_
+%p0_0: %p0_0_
+predicate_bit: true
+<Frame 8>
+pc_1: #x00000020
+pc_0: #x00000020
+log_register: log_register_
+en_log_register: #b0
+en_check_register: #b0
+check_register: check_register_
+_Z11simple_loopPii_param_1_1: _Z11simple_loopPii_param_1_1_
+_Z11simple_loopPii_param_1_0: _Z11simple_loopPii_param_1_0_
+_Z11simple_loopPii_param_0_1: _Z11simple_loopPii_param_0_1_
+_Z11simple_loopPii_param_0_0: _Z11simple_loopPii_param_0_0_
+%tid.x_1: #x00000001
+%tid.x_0: #x00000000
+%rd8_1: %rd8_1_
+%rd8_0: %rd8_0_
+%rd7_1: #x000000000000000c
+%rd7_0: #x0000000000000000
+%rd6_1: #x0010002040340000
+%rd6_0: #x0010002040340000
+%rd4_1: %rd4_1_
+%rd4_0: %rd4_0_
+%rd3_1: %rd3_1_
+%rd3_0: %rd3_0_
+%rd2_1: #x001000204034000c
+%rd2_0: #x0010002040340000
+%rd1_1: %rd1_1_
+%rd1_0: %rd1_0_
+%rd0_1: %rd0_1_
+%rd0_0: %rd0_0_
+%rd5_0: #x0010002040340000
+%r9_1: #x00000003
+%rd5_1: #x0010002040340000
+%r9_0: #x00000000
+%r8_1: #x00000001
+%r8_0: #x00000000
+%r7_1: %r7_1_
+%r7_0: %r7_0_
+%r6_1: #x00000004
+%r6_0: #x00000004
+%r5_1: %r5_1_
+%r5_0: %r5_0_
+%r4_1: %r4_1_
+%r4_0: %r4_0_
+%r3_1: %r3_1_
+%r3_0: %r3_0_
+%r2_1: %r2_1_
+%r2_0: %r2_0_
+%r1_1: %r1_1_
+%r1_0: %r1_0_
+%r12_1: %r12_1_
+%r12_0: %r12_0_
+%r11_1: %r11_1_
+%r11_0: %r11_0_
+%r10_1: %r10_1_
+%r10_0: %r10_0_
+%r0_1: %r0_1_
+%r0_0: %r0_0_
+%p2_1: %p2_1_
+%p2_0: %p2_0_
+%p1_1: #b0
+%p1_0: #b0
+%p0_1: %p0_1_
+%p0_0: %p0_0_
+predicate_bit: true
+<Frame 9>
+pc_1: #x00000024
+pc_0: #x00000024
+log_register: (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_)
+en_log_register: (ite (= arb_fun_0_9_ #b1) #b1 #b0)
+en_check_register: #b0
+check_register: check_register_
+_Z11simple_loopPii_param_1_1: _Z11simple_loopPii_param_1_1_
+_Z11simple_loopPii_param_1_0: _Z11simple_loopPii_param_1_0_
+_Z11simple_loopPii_param_0_1: _Z11simple_loopPii_param_0_1_
+_Z11simple_loopPii_param_0_0: _Z11simple_loopPii_param_0_0_
+%tid.x_1: #x00000001
+%tid.x_0: #x00000000
+%rd8_1: %rd8_1_
+%rd8_0: %rd8_0_
+%rd7_1: #x000000000000000c
+%rd7_0: #x0000000000000000
+%rd6_1: #x0010002040340000
+%rd6_0: #x0010002040340000
+%rd4_1: %rd4_1_
+%rd4_0: %rd4_0_
+%rd3_1: %rd3_1_
+%rd3_0: %rd3_0_
+%rd2_1: #x001000204034000c
+%rd2_0: #x0010002040340000
+%rd1_1: %rd1_1_
+%rd1_0: %rd1_0_
+%rd0_1: %rd0_1_
+%rd0_0: %rd0_0_
+%rd5_0: #x0010002040340000
+%r9_1: #x00000003
+%rd5_1: #x0010002040340000
+%r9_0: #x00000000
+%r8_1: #x00000001
+%r8_0: #x00000000
+%r7_1: %r7_1_
+%r7_0: %r7_0_
+%r6_1: #x00000004
+%r6_0: #x00000004
+%r5_1: %r5_1_
+%r5_0: %r5_0_
+%r4_1: %r4_1_
+%r4_0: %r4_0_
+%r3_1: %r3_1_
+%r3_0: %r3_0_
+%r2_1: %r2_1_
+%r2_0: %r2_0_
+%r1_1: %r1_1_
+%r1_0: %r1_0_
+%r12_1: %r12_1_
+%r12_0: %r12_0_
+%r11_1: %r11_1_
+%r11_0: %r11_0_
+%r10_1: %r10_1_
+%r10_0: %r10_0_
+%r0_1: %r0_1_
+%r0_0: %r0_0_
+%p2_1: %p2_1_
+%p2_0: %p2_0_
+%p1_1: #b0
+%p1_0: #b0
+%p0_1: %p0_1_
+%p0_0: %p0_0_
+predicate_bit: true
+<Frame 10>
+pc_1: #x00000028
+pc_0: #x00000028
+log_register: (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_)
+en_log_register: (ite (= arb_fun_0_9_ #b1) #b1 #b0)
+en_check_register: #b0
+check_register: check_register_
+_Z11simple_loopPii_param_1_1: _Z11simple_loopPii_param_1_1_
+_Z11simple_loopPii_param_1_0: _Z11simple_loopPii_param_1_0_
+_Z11simple_loopPii_param_0_1: _Z11simple_loopPii_param_0_1_
+_Z11simple_loopPii_param_0_0: _Z11simple_loopPii_param_0_0_
+%tid.x_1: #x00000001
+%tid.x_0: #x00000000
+%rd8_1: %rd8_1_
+%rd8_0: %rd8_0_
+%rd7_1: #x000000000000000c
+%rd7_0: #x0000000000000000
+%rd6_1: #x0010002040340000
+%rd6_0: #x0010002040340000
+%rd4_1: %rd4_1_
+%rd4_0: %rd4_0_
+%rd3_1: %rd3_1_
+%rd3_0: %rd3_0_
+%rd2_1: #x001000204034000c
+%rd2_0: #x0010002040340000
+%rd1_1: %rd1_1_
+%rd1_0: %rd1_0_
+%rd0_1: %rd0_1_
+%rd0_0: %rd0_0_
+%rd5_0: #x0010002040340000
+%r9_1: #x00000003
+%rd5_1: #x0010002040340000
+%r9_0: #x00000000
+%r8_1: #x00000001
+%r8_0: #x00000000
+%r7_1: %r7_1_
+%r7_0: %r7_0_
+%r6_1: #x00000004
+%r6_0: #x00000004
+%r5_1: %r5_1_
+%r5_0: %r5_0_
+%r4_1: %r4_1_
+%r4_0: %r4_0_
+%r3_1: %r3_1_
+%r3_0: %r3_0_
+%r2_1: %r2_1_
+%r2_0: %r2_0_
+%r1_1: %r1_1_
+%r1_0: %r1_0_
+%r12_1: #x00000000
+%r12_0: #x00000000
+%r11_1: %r11_1_
+%r11_0: %r11_0_
+%r10_1: %r10_1_
+%r10_0: %r10_0_
+%r0_1: %r0_1_
+%r0_0: %r0_0_
+%p2_1: %p2_1_
+%p2_0: %p2_0_
+%p1_1: #b0
+%p1_0: #b0
+%p0_1: %p0_1_
+%p0_0: %p0_0_
+predicate_bit: true
+<Frame 11>
+pc_1: #x0000002c
+pc_0: #x0000002c
+log_register: (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_)
+en_log_register: (ite (= arb_fun_0_9_ #b1) #b1 #b0)
+en_check_register: #b0
+check_register: check_register_
+_Z11simple_loopPii_param_1_1: _Z11simple_loopPii_param_1_1_
+_Z11simple_loopPii_param_1_0: _Z11simple_loopPii_param_1_0_
+_Z11simple_loopPii_param_0_1: _Z11simple_loopPii_param_0_1_
+_Z11simple_loopPii_param_0_0: _Z11simple_loopPii_param_0_0_
+%tid.x_1: #x00000001
+%tid.x_0: #x00000000
+%rd8_1: #x001000204034000c
+%rd8_0: #x0010002040340000
+%rd7_1: #x000000000000000c
+%rd7_0: #x0000000000000000
+%rd6_1: #x0010002040340000
+%rd6_0: #x0010002040340000
+%rd4_1: %rd4_1_
+%rd4_0: %rd4_0_
+%rd3_1: %rd3_1_
+%rd3_0: %rd3_0_
+%rd2_1: #x001000204034000c
+%rd2_0: #x0010002040340000
+%rd1_1: %rd1_1_
+%rd1_0: %rd1_0_
+%rd0_1: %rd0_1_
+%rd0_0: %rd0_0_
+%rd5_0: #x0010002040340000
+%r9_1: #x00000003
+%rd5_1: #x0010002040340000
+%r9_0: #x00000000
+%r8_1: #x00000001
+%r8_0: #x00000000
+%r7_1: %r7_1_
+%r7_0: %r7_0_
+%r6_1: #x00000004
+%r6_0: #x00000004
+%r5_1: %r5_1_
+%r5_0: %r5_0_
+%r4_1: %r4_1_
+%r4_0: %r4_0_
+%r3_1: %r3_1_
+%r3_0: %r3_0_
+%r2_1: %r2_1_
+%r2_0: %r2_0_
+%r1_1: %r1_1_
+%r1_0: %r1_0_
+%r12_1: #x00000000
+%r12_0: #x00000000
+%r11_1: %r11_1_
+%r11_0: %r11_0_
+%r10_1: %r10_1_
+%r10_0: %r10_0_
+%r0_1: %r0_1_
+%r0_0: %r0_0_
+%p2_1: %p2_1_
+%p2_0: %p2_0_
+%p1_1: #b0
+%p1_0: #b0
+%p0_1: %p0_1_
+%p0_0: %p0_0_
+predicate_bit: true
+<Frame 12>
+pc_1: #x00000030
+pc_0: #x00000030
+log_register: (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_)
+en_log_register: (ite (= arb_fun_0_9_ #b1) #b1 #b0)
+en_check_register: #b0
+check_register: check_register_
+_Z11simple_loopPii_param_1_1: _Z11simple_loopPii_param_1_1_
+_Z11simple_loopPii_param_1_0: _Z11simple_loopPii_param_1_0_
+_Z11simple_loopPii_param_0_1: _Z11simple_loopPii_param_0_1_
+_Z11simple_loopPii_param_0_0: _Z11simple_loopPii_param_0_0_
+%tid.x_1: #x00000001
+%tid.x_0: #x00000000
+%rd8_1: #x001000204034000c
+%rd8_0: #x0010002040340000
+%rd7_1: #x000000000000000c
+%rd7_0: #x0000000000000000
+%rd6_1: #x0010002040340000
+%rd6_0: #x0010002040340000
+%rd4_1: %rd4_1_
+%rd4_0: %rd4_0_
+%rd3_1: #x001000204034000c
+%rd3_0: #x0010002040340000
+%rd2_1: #x001000204034000c
+%rd2_0: #x0010002040340000
+%rd1_1: %rd1_1_
+%rd1_0: %rd1_0_
+%rd0_1: %rd0_1_
+%rd0_0: %rd0_0_
+%rd5_0: #x0010002040340000
+%r9_1: #x00000003
+%rd5_1: #x0010002040340000
+%r9_0: #x00000000
+%r8_1: #x00000001
+%r8_0: #x00000000
+%r7_1: %r7_1_
+%r7_0: %r7_0_
+%r6_1: #x00000004
+%r6_0: #x00000004
+%r5_1: %r5_1_
+%r5_0: %r5_0_
+%r4_1: %r4_1_
+%r4_0: %r4_0_
+%r3_1: %r3_1_
+%r3_0: %r3_0_
+%r2_1: %r2_1_
+%r2_0: %r2_0_
+%r1_1: %r1_1_
+%r1_0: %r1_0_
+%r12_1: #x00000000
+%r12_0: #x00000000
+%r11_1: %r11_1_
+%r11_0: %r11_0_
+%r10_1: %r10_1_
+%r10_0: %r10_0_
+%r0_1: %r0_1_
+%r0_0: %r0_0_
+%p2_1: %p2_1_
+%p2_0: %p2_0_
+%p1_1: #b0
+%p1_0: #b0
+%p0_1: %p0_1_
+%p0_0: %p0_0_
+predicate_bit: true
+<Frame 13>
+pc_1: #x00000034
+pc_0: #x00000034
+log_register: (ite (= arb_fun_0_13_ #b1)
+     #x0010002040340000
+     (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_))
+en_log_register: (ite (= arb_fun_0_13_ #b1) #b1 (ite (= arb_fun_0_9_ #b1) #b1 #b0))
+en_check_register: #b0
+check_register: check_register_
+_Z11simple_loopPii_param_1_1: _Z11simple_loopPii_param_1_1_
+_Z11simple_loopPii_param_1_0: _Z11simple_loopPii_param_1_0_
+_Z11simple_loopPii_param_0_1: _Z11simple_loopPii_param_0_1_
+_Z11simple_loopPii_param_0_0: _Z11simple_loopPii_param_0_0_
+%tid.x_1: #x00000001
+%tid.x_0: #x00000000
+%rd8_1: #x001000204034000c
+%rd8_0: #x0010002040340000
+%rd7_1: #x000000000000000c
+%rd7_0: #x0000000000000000
+%rd6_1: #x0010002040340000
+%rd6_0: #x0010002040340000
+%rd4_1: %rd4_1_
+%rd4_0: %rd4_0_
+%rd3_1: #x001000204034000c
+%rd3_0: #x0010002040340000
+%rd2_1: #x001000204034000c
+%rd2_0: #x0010002040340000
+%rd1_1: %rd1_1_
+%rd1_0: %rd1_0_
+%rd0_1: %rd0_1_
+%rd0_0: %rd0_0_
+%rd5_0: #x0010002040340000
+%r9_1: #x00000003
+%rd5_1: #x0010002040340000
+%r9_0: #x00000000
+%r8_1: #x00000001
+%r8_0: #x00000000
+%r7_1: %r7_1_
+%r7_0: %r7_0_
+%r6_1: #x00000004
+%r6_0: #x00000004
+%r5_1: %r5_1_
+%r5_0: %r5_0_
+%r4_1: %r4_1_
+%r4_0: %r4_0_
+%r3_1: %r3_1_
+%r3_0: %r3_0_
+%r2_1: %r2_1_
+%r2_0: %r2_0_
+%r1_1: %r1_1_
+%r1_0: %r1_0_
+%r12_1: #x00000000
+%r12_0: #x00000000
+%r11_1: %r11_1_
+%r11_0: %r11_0_
+%r10_1: %r10_1_
+%r10_0: %r10_0_
+%r0_1: %r0_1_
+%r0_0: %r0_0_
+%p2_1: %p2_1_
+%p2_0: %p2_0_
+%p1_1: #b0
+%p1_0: #b0
+%p0_1: %p0_1_
+%p0_0: %p0_0_
+predicate_bit: true
+<Frame 14>
+pc_1: #x00000038
+pc_0: #x00000038
+log_register: (ite (= arb_fun_0_13_ #b1)
+     #x0010002040340000
+     (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_))
+en_log_register: (ite (= arb_fun_0_13_ #b1) #b1 (ite (= arb_fun_0_9_ #b1) #b1 #b0))
+en_check_register: #b0
+check_register: check_register_
+_Z11simple_loopPii_param_1_1: _Z11simple_loopPii_param_1_1_
+_Z11simple_loopPii_param_1_0: _Z11simple_loopPii_param_1_0_
+_Z11simple_loopPii_param_0_1: _Z11simple_loopPii_param_0_1_
+_Z11simple_loopPii_param_0_0: _Z11simple_loopPii_param_0_0_
+%tid.x_1: #x00000001
+%tid.x_0: #x00000000
+%rd8_1: #x001000204034000c
+%rd8_0: #x0010002040340000
+%rd7_1: #x000000000000000c
+%rd7_0: #x0000000000000000
+%rd6_1: #x0010002040340000
+%rd6_0: #x0010002040340000
+%rd4_1: %rd4_1_
+%rd4_0: %rd4_0_
+%rd3_1: #x001000204034000c
+%rd3_0: #x0010002040340000
+%rd2_1: #x001000204034000c
+%rd2_0: #x0010002040340000
+%rd1_1: %rd1_1_
+%rd1_0: %rd1_0_
+%rd0_1: %rd0_1_
+%rd0_0: %rd0_0_
+%rd5_0: #x0010002040340000
+%r9_1: #x00000003
+%rd5_1: #x0010002040340000
+%r9_0: #x00000000
+%r8_1: #x00000001
+%r8_0: #x00000000
+%r7_1: %r7_1_
+%r7_0: %r7_0_
+%r6_1: #x00000004
+%r6_0: #x00000004
+%r5_1: %r5_1_
+%r5_0: %r5_0_
+%r4_1: %r4_1_
+%r4_0: %r4_0_
+%r3_1: %r3_1_
+%r3_0: %r3_0_
+%r2_1: %r2_1_
+%r2_0: %r2_0_
+%r1_1: %r1_1_
+%r1_0: %r1_0_
+%r12_1: #x00000000
+%r12_0: #x00000000
+%r11_1: (bvadd %r11_1_ %r10_1_)
+%r11_0: (bvadd %r11_0_ %r10_0_)
+%r10_1: %r10_1_
+%r10_0: %r10_0_
+%r0_1: %r0_1_
+%r0_0: %r0_0_
+%p2_1: %p2_1_
+%p2_0: %p2_0_
+%p1_1: #b0
+%p1_0: #b0
+%p0_1: %p0_1_
+%p0_0: %p0_0_
+predicate_bit: true
+<Frame 15>
+pc_1: #x0000003c
+pc_0: #x0000003c
+log_register: (ite (= arb_fun_0_15_ #b1)
+     #x0010002040340000
+     (ite (= arb_fun_0_13_ #b1)
+          #x0010002040340000
+          (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_)))
+en_log_register: (ite (= arb_fun_0_15_ #b1)
+     #b1
+     (ite (= arb_fun_0_13_ #b1) #b1 (ite (= arb_fun_0_9_ #b1) #b1 #b0)))
+en_check_register: (ite (= arb_fun_1_15_ #b1) #b1 #b0)
+check_register: (ite (= arb_fun_1_15_ #b1) #x001000204034000c check_register_)
+_Z11simple_loopPii_param_1_1: _Z11simple_loopPii_param_1_1_
+_Z11simple_loopPii_param_1_0: _Z11simple_loopPii_param_1_0_
+_Z11simple_loopPii_param_0_1: _Z11simple_loopPii_param_0_1_
+_Z11simple_loopPii_param_0_0: _Z11simple_loopPii_param_0_0_
+%tid.x_1: #x00000001
+%tid.x_0: #x00000000
+%rd8_1: #x001000204034000c
+%rd8_0: #x0010002040340000
+%rd7_1: #x000000000000000c
+%rd7_0: #x0000000000000000
+%rd6_1: #x0010002040340000
+%rd6_0: #x0010002040340000
+%rd4_1: %rd4_1_
+%rd4_0: %rd4_0_
+%rd3_1: #x001000204034000c
+%rd3_0: #x0010002040340000
+%rd2_1: #x001000204034000c
+%rd2_0: #x0010002040340000
+%rd1_1: %rd1_1_
+%rd1_0: %rd1_0_
+%rd0_1: %rd0_1_
+%rd0_0: %rd0_0_
+%rd5_0: #x0010002040340000
+%r9_1: #x00000003
+%rd5_1: #x0010002040340000
+%r9_0: #x00000000
+%r8_1: #x00000001
+%r8_0: #x00000000
+%r7_1: %r7_1_
+%r7_0: %r7_0_
+%r6_1: #x00000004
+%r6_0: #x00000004
+%r5_1: %r5_1_
+%r5_0: %r5_0_
+%r4_1: %r4_1_
+%r4_0: %r4_0_
+%r3_1: %r3_1_
+%r3_0: %r3_0_
+%r2_1: %r2_1_
+%r2_0: %r2_0_
+%r1_1: %r1_1_
+%r1_0: %r1_0_
+%r12_1: #x00000000
+%r12_0: #x00000000
+%r11_1: (bvadd %r11_1_ %r10_1_)
+%r11_0: (bvadd %r11_0_ %r10_0_)
+%r10_1: %r10_1_
+%r10_0: %r10_0_
+%r0_1: %r0_1_
+%r0_0: %r0_0_
+%p2_1: %p2_1_
+%p2_0: %p2_0_
+%p1_1: #b0
+%p1_0: #b0
+%p0_1: %p0_1_
+%p0_0: %p0_0_
+predicate_bit: true
+<Frame 16>
+pc_1: #x00000040
+pc_0: #x00000040
+log_register: (ite (= arb_fun_0_15_ #b1)
+     #x0010002040340000
+     (ite (= arb_fun_0_13_ #b1)
+          #x0010002040340000
+          (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_)))
+en_log_register: (ite (= arb_fun_0_15_ #b1)
+     #b1
+     (ite (= arb_fun_0_13_ #b1) #b1 (ite (= arb_fun_0_9_ #b1) #b1 #b0)))
+en_check_register: (ite (= arb_fun_1_15_ #b1) #b1 #b0)
+check_register: (ite (= arb_fun_1_15_ #b1) #x001000204034000c check_register_)
+_Z11simple_loopPii_param_1_1: _Z11simple_loopPii_param_1_1_
+_Z11simple_loopPii_param_1_0: _Z11simple_loopPii_param_1_0_
+_Z11simple_loopPii_param_0_1: _Z11simple_loopPii_param_0_1_
+_Z11simple_loopPii_param_0_0: _Z11simple_loopPii_param_0_0_
+%tid.x_1: #x00000001
+%tid.x_0: #x00000000
+%rd8_1: #x001000204034000c
+%rd8_0: #x0010002040340000
+%rd7_1: #x000000000000000c
+%rd7_0: #x0000000000000000
+%rd6_1: #x0010002040340000
+%rd6_0: #x0010002040340000
+%rd4_1: #x0010002040340010
+%rd4_0: #x0010002040340004
+%rd3_1: #x001000204034000c
+%rd3_0: #x0010002040340000
+%rd2_1: #x001000204034000c
+%rd2_0: #x0010002040340000
+%rd1_1: %rd1_1_
+%rd1_0: %rd1_0_
+%rd0_1: %rd0_1_
+%rd0_0: %rd0_0_
+%rd5_0: #x0010002040340000
+%r9_1: #x00000003
+%rd5_1: #x0010002040340000
+%r9_0: #x00000000
+%r8_1: #x00000001
+%r8_0: #x00000000
+%r7_1: %r7_1_
+%r7_0: %r7_0_
+%r6_1: #x00000004
+%r6_0: #x00000004
+%r5_1: %r5_1_
+%r5_0: %r5_0_
+%r4_1: %r4_1_
+%r4_0: %r4_0_
+%r3_1: %r3_1_
+%r3_0: %r3_0_
+%r2_1: %r2_1_
+%r2_0: %r2_0_
+%r1_1: %r1_1_
+%r1_0: %r1_0_
+%r12_1: #x00000000
+%r12_0: #x00000000
+%r11_1: (bvadd %r11_1_ %r10_1_)
+%r11_0: (bvadd %r11_0_ %r10_0_)
+%r10_1: %r10_1_
+%r10_0: %r10_0_
+%r0_1: %r0_1_
+%r0_0: %r0_0_
+%p2_1: %p2_1_
+%p2_0: %p2_0_
+%p1_1: #b0
+%p1_0: #b0
+%p0_1: %p0_1_
+%p0_0: %p0_0_
+predicate_bit: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #x0010002040340000
+                (ite (= arb_fun_0_13_ #b1)
+                     #x0010002040340000
+                     (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_)))))
+(let ((a!2 (and (= (ite (= arb_fun_1_15_ #b1)
+                        #x001000204034000c
+                        check_register_)
+                   a!1)
+                (or (= arb_fun_0_15_ #b1)
+                    (= arb_fun_0_13_ #b1)
+                    (= arb_fun_0_9_ #b1))
+                (= arb_fun_1_15_ #b1))))
+  (not a!2)))
+<Frame 17>
+pc_1: #x00000044
+pc_0: #x00000044
+log_register: (ite (= arb_fun_0_15_ #b1)
+     #x0010002040340000
+     (ite (= arb_fun_0_13_ #b1)
+          #x0010002040340000
+          (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_)))
+en_log_register: (ite (= arb_fun_0_15_ #b1)
+     #b1
+     (ite (= arb_fun_0_13_ #b1) #b1 (ite (= arb_fun_0_9_ #b1) #b1 #b0)))
+en_check_register: (ite (= arb_fun_1_15_ #b1) #b1 #b0)
+check_register: (ite (= arb_fun_1_15_ #b1) #x001000204034000c check_register_)
+_Z11simple_loopPii_param_1_1: _Z11simple_loopPii_param_1_1_
+_Z11simple_loopPii_param_1_0: _Z11simple_loopPii_param_1_0_
+_Z11simple_loopPii_param_0_1: _Z11simple_loopPii_param_0_1_
+_Z11simple_loopPii_param_0_0: _Z11simple_loopPii_param_0_0_
+%tid.x_1: #x00000001
+%tid.x_0: #x00000000
+%rd8_1: #x001000204034000c
+%rd8_0: #x0010002040340000
+%rd7_1: #x000000000000000c
+%rd7_0: #x0000000000000000
+%rd6_1: #x0010002040340000
+%rd6_0: #x0010002040340000
+%rd4_1: #x0010002040340010
+%rd4_0: #x0010002040340004
+%rd3_1: #x001000204034000c
+%rd3_0: #x0010002040340000
+%rd2_1: #x001000204034000c
+%rd2_0: #x0010002040340000
+%rd1_1: %rd1_1_
+%rd1_0: %rd1_0_
+%rd0_1: %rd0_1_
+%rd0_0: %rd0_0_
+%rd5_0: #x0010002040340000
+%r9_1: #x00000003
+%rd5_1: #x0010002040340000
+%r9_0: #x00000000
+%r8_1: #x00000001
+%r8_0: #x00000000
+%r7_1: %r7_1_
+%r7_0: %r7_0_
+%r6_1: #x00000004
+%r6_0: #x00000004
+%r5_1: %r5_1_
+%r5_0: %r5_0_
+%r4_1: %r4_1_
+%r4_0: %r4_0_
+%r3_1: %r3_1_
+%r3_0: %r3_0_
+%r2_1: %r2_1_
+%r2_0: %r2_0_
+%r1_1: %r1_1_
+%r1_0: %r1_0_
+%r12_1: #x00000001
+%r12_0: #x00000001
+%r11_1: (bvadd %r11_1_ %r10_1_)
+%r11_0: (bvadd %r11_0_ %r10_0_)
+%r10_1: %r10_1_
+%r10_0: %r10_0_
+%r0_1: %r0_1_
+%r0_0: %r0_0_
+%p2_1: %p2_1_
+%p2_0: %p2_0_
+%p1_1: #b0
+%p1_0: #b0
+%p0_1: %p0_1_
+%p0_0: %p0_0_
+predicate_bit: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #x0010002040340000
+                (ite (= arb_fun_0_13_ #b1)
+                     #x0010002040340000
+                     (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_)))))
+(let ((a!2 (and (= (ite (= arb_fun_1_15_ #b1)
+                        #x001000204034000c
+                        check_register_)
+                   a!1)
+                (or (= arb_fun_0_15_ #b1)
+                    (= arb_fun_0_13_ #b1)
+                    (= arb_fun_0_9_ #b1))
+                (= arb_fun_1_15_ #b1))))
+  (not a!2)))
+<Frame 18>
+pc_1: #x00000048
+pc_0: #x00000048
+log_register: (ite (= arb_fun_0_15_ #b1)
+     #x0010002040340000
+     (ite (= arb_fun_0_13_ #b1)
+          #x0010002040340000
+          (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_)))
+en_log_register: (ite (= arb_fun_0_15_ #b1)
+     #b1
+     (ite (= arb_fun_0_13_ #b1) #b1 (ite (= arb_fun_0_9_ #b1) #b1 #b0)))
+en_check_register: (ite (= arb_fun_1_15_ #b1) #b1 #b0)
+check_register: (ite (= arb_fun_1_15_ #b1) #x001000204034000c check_register_)
+_Z11simple_loopPii_param_1_1: _Z11simple_loopPii_param_1_1_
+_Z11simple_loopPii_param_1_0: _Z11simple_loopPii_param_1_0_
+_Z11simple_loopPii_param_0_1: _Z11simple_loopPii_param_0_1_
+_Z11simple_loopPii_param_0_0: _Z11simple_loopPii_param_0_0_
+%tid.x_1: #x00000001
+%tid.x_0: #x00000000
+%rd8_1: #x001000204034000c
+%rd8_0: #x0010002040340000
+%rd7_1: #x000000000000000c
+%rd7_0: #x0000000000000000
+%rd6_1: #x0010002040340000
+%rd6_0: #x0010002040340000
+%rd4_1: #x0010002040340010
+%rd4_0: #x0010002040340004
+%rd3_1: #x001000204034000c
+%rd3_0: #x0010002040340000
+%rd2_1: #x001000204034000c
+%rd2_0: #x0010002040340000
+%rd1_1: %rd1_1_
+%rd1_0: %rd1_0_
+%rd0_1: %rd0_1_
+%rd0_0: %rd0_0_
+%rd5_0: #x0010002040340000
+%r9_1: #x00000003
+%rd5_1: #x0010002040340000
+%r9_0: #x00000000
+%r8_1: #x00000001
+%r8_0: #x00000000
+%r7_1: %r7_1_
+%r7_0: %r7_0_
+%r6_1: #x00000004
+%r6_0: #x00000004
+%r5_1: %r5_1_
+%r5_0: %r5_0_
+%r4_1: %r4_1_
+%r4_0: %r4_0_
+%r3_1: %r3_1_
+%r3_0: %r3_0_
+%r2_1: %r2_1_
+%r2_0: %r2_0_
+%r1_1: %r1_1_
+%r1_0: %r1_0_
+%r12_1: #x00000001
+%r12_0: #x00000001
+%r11_1: (bvadd %r11_1_ %r10_1_)
+%r11_0: (bvadd %r11_0_ %r10_0_)
+%r10_1: %r10_1_
+%r10_0: %r10_0_
+%r0_1: %r0_1_
+%r0_0: %r0_0_
+%p2_1: #b1
+%p2_0: #b1
+%p1_1: #b0
+%p1_0: #b0
+%p0_1: %p0_1_
+%p0_0: %p0_0_
+predicate_bit: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #x0010002040340000
+                (ite (= arb_fun_0_13_ #b1)
+                     #x0010002040340000
+                     (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_)))))
+(let ((a!2 (and (= (ite (= arb_fun_1_15_ #b1)
+                        #x001000204034000c
+                        check_register_)
+                   a!1)
+                (or (= arb_fun_0_15_ #b1)
+                    (= arb_fun_0_13_ #b1)
+                    (= arb_fun_0_9_ #b1))
+                (= arb_fun_1_15_ #b1))))
+  (not a!2)))
+<Frame 19>
+pc_1: #x0000004c
+pc_0: #x0000004c
+log_register: (ite (= arb_fun_0_15_ #b1)
+     #x0010002040340000
+     (ite (= arb_fun_0_13_ #b1)
+          #x0010002040340000
+          (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_)))
+en_log_register: (ite (= arb_fun_0_15_ #b1)
+     #b1
+     (ite (= arb_fun_0_13_ #b1) #b1 (ite (= arb_fun_0_9_ #b1) #b1 #b0)))
+en_check_register: (ite (= arb_fun_1_15_ #b1) #b1 #b0)
+check_register: (ite (= arb_fun_1_15_ #b1) #x001000204034000c check_register_)
+_Z11simple_loopPii_param_1_1: _Z11simple_loopPii_param_1_1_
+_Z11simple_loopPii_param_1_0: _Z11simple_loopPii_param_1_0_
+_Z11simple_loopPii_param_0_1: _Z11simple_loopPii_param_0_1_
+_Z11simple_loopPii_param_0_0: _Z11simple_loopPii_param_0_0_
+%tid.x_1: #x00000001
+%tid.x_0: #x00000000
+%rd8_1: #x0010002040340010
+%rd8_0: #x0010002040340004
+%rd7_1: #x000000000000000c
+%rd7_0: #x0000000000000000
+%rd6_1: #x0010002040340000
+%rd6_0: #x0010002040340000
+%rd4_1: #x0010002040340010
+%rd4_0: #x0010002040340004
+%rd3_1: #x001000204034000c
+%rd3_0: #x0010002040340000
+%rd2_1: #x001000204034000c
+%rd2_0: #x0010002040340000
+%rd1_1: %rd1_1_
+%rd1_0: %rd1_0_
+%rd0_1: %rd0_1_
+%rd0_0: %rd0_0_
+%rd5_0: #x0010002040340000
+%r9_1: #x00000003
+%rd5_1: #x0010002040340000
+%r9_0: #x00000000
+%r8_1: #x00000001
+%r8_0: #x00000000
+%r7_1: %r7_1_
+%r7_0: %r7_0_
+%r6_1: #x00000004
+%r6_0: #x00000004
+%r5_1: %r5_1_
+%r5_0: %r5_0_
+%r4_1: %r4_1_
+%r4_0: %r4_0_
+%r3_1: %r3_1_
+%r3_0: %r3_0_
+%r2_1: %r2_1_
+%r2_0: %r2_0_
+%r1_1: %r1_1_
+%r1_0: %r1_0_
+%r12_1: #x00000001
+%r12_0: #x00000001
+%r11_1: (bvadd %r11_1_ %r10_1_)
+%r11_0: (bvadd %r11_0_ %r10_0_)
+%r10_1: %r10_1_
+%r10_0: %r10_0_
+%r0_1: %r0_1_
+%r0_0: %r0_0_
+%p2_1: #b1
+%p2_0: #b1
+%p1_1: #b0
+%p1_0: #b0
+%p0_1: %p0_1_
+%p0_0: %p0_0_
+predicate_bit: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #x0010002040340000
+                (ite (= arb_fun_0_13_ #b1)
+                     #x0010002040340000
+                     (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_)))))
+(let ((a!2 (and (= (ite (= arb_fun_1_15_ #b1)
+                        #x001000204034000c
+                        check_register_)
+                   a!1)
+                (or (= arb_fun_0_15_ #b1)
+                    (= arb_fun_0_13_ #b1)
+                    (= arb_fun_0_9_ #b1))
+                (= arb_fun_1_15_ #b1))))
+  (not a!2)))
+<Frame 20>
+pc_1: #x0000002c
+pc_0: #x0000002c
+log_register: (ite (= arb_fun_0_15_ #b1)
+     #x0010002040340000
+     (ite (= arb_fun_0_13_ #b1)
+          #x0010002040340000
+          (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_)))
+en_log_register: (ite (= arb_fun_0_15_ #b1)
+     #b1
+     (ite (= arb_fun_0_13_ #b1) #b1 (ite (= arb_fun_0_9_ #b1) #b1 #b0)))
+en_check_register: (ite (= arb_fun_1_15_ #b1) #b1 #b0)
+check_register: (ite (= arb_fun_1_15_ #b1) #x001000204034000c check_register_)
+_Z11simple_loopPii_param_1_1: _Z11simple_loopPii_param_1_1_
+_Z11simple_loopPii_param_1_0: _Z11simple_loopPii_param_1_0_
+_Z11simple_loopPii_param_0_1: _Z11simple_loopPii_param_0_1_
+_Z11simple_loopPii_param_0_0: _Z11simple_loopPii_param_0_0_
+%tid.x_1: #x00000001
+%tid.x_0: #x00000000
+%rd8_1: #x0010002040340010
+%rd8_0: #x0010002040340004
+%rd7_1: #x000000000000000c
+%rd7_0: #x0000000000000000
+%rd6_1: #x0010002040340000
+%rd6_0: #x0010002040340000
+%rd4_1: #x0010002040340010
+%rd4_0: #x0010002040340004
+%rd3_1: #x001000204034000c
+%rd3_0: #x0010002040340000
+%rd2_1: #x001000204034000c
+%rd2_0: #x0010002040340000
+%rd1_1: %rd1_1_
+%rd1_0: %rd1_0_
+%rd0_1: %rd0_1_
+%rd0_0: %rd0_0_
+%rd5_0: #x0010002040340000
+%r9_1: #x00000003
+%rd5_1: #x0010002040340000
+%r9_0: #x00000000
+%r8_1: #x00000001
+%r8_0: #x00000000
+%r7_1: %r7_1_
+%r7_0: %r7_0_
+%r6_1: #x00000004
+%r6_0: #x00000004
+%r5_1: %r5_1_
+%r5_0: %r5_0_
+%r4_1: %r4_1_
+%r4_0: %r4_0_
+%r3_1: %r3_1_
+%r3_0: %r3_0_
+%r2_1: %r2_1_
+%r2_0: %r2_0_
+%r1_1: %r1_1_
+%r1_0: %r1_0_
+%r12_1: #x00000001
+%r12_0: #x00000001
+%r11_1: (bvadd %r11_1_ %r10_1_)
+%r11_0: (bvadd %r11_0_ %r10_0_)
+%r10_1: %r10_1_
+%r10_0: %r10_0_
+%r0_1: %r0_1_
+%r0_0: %r0_0_
+%p2_1: #b1
+%p2_0: #b1
+%p1_1: #b0
+%p1_0: #b0
+%p0_1: %p0_1_
+%p0_0: %p0_0_
+predicate_bit: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #x0010002040340000
+                (ite (= arb_fun_0_13_ #b1)
+                     #x0010002040340000
+                     (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_)))))
+(let ((a!2 (and (= (ite (= arb_fun_1_15_ #b1)
+                        #x001000204034000c
+                        check_register_)
+                   a!1)
+                (or (= arb_fun_0_15_ #b1)
+                    (= arb_fun_0_13_ #b1)
+                    (= arb_fun_0_9_ #b1))
+                (= arb_fun_1_15_ #b1))))
+  (not a!2)))
+<Frame 21>
+pc_1: #x00000030
+pc_0: #x00000030
+log_register: (ite (= arb_fun_0_15_ #b1)
+     #x0010002040340000
+     (ite (= arb_fun_0_13_ #b1)
+          #x0010002040340000
+          (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_)))
+en_log_register: (ite (= arb_fun_0_15_ #b1)
+     #b1
+     (ite (= arb_fun_0_13_ #b1) #b1 (ite (= arb_fun_0_9_ #b1) #b1 #b0)))
+en_check_register: (ite (= arb_fun_1_15_ #b1) #b1 #b0)
+check_register: (ite (= arb_fun_1_15_ #b1) #x001000204034000c check_register_)
+_Z11simple_loopPii_param_1_1: _Z11simple_loopPii_param_1_1_
+_Z11simple_loopPii_param_1_0: _Z11simple_loopPii_param_1_0_
+_Z11simple_loopPii_param_0_1: _Z11simple_loopPii_param_0_1_
+_Z11simple_loopPii_param_0_0: _Z11simple_loopPii_param_0_0_
+%tid.x_1: #x00000001
+%tid.x_0: #x00000000
+%rd8_1: #x0010002040340010
+%rd8_0: #x0010002040340004
+%rd7_1: #x000000000000000c
+%rd7_0: #x0000000000000000
+%rd6_1: #x0010002040340000
+%rd6_0: #x0010002040340000
+%rd4_1: #x0010002040340010
+%rd4_0: #x0010002040340004
+%rd3_1: #x0010002040340010
+%rd3_0: #x0010002040340004
+%rd2_1: #x001000204034000c
+%rd2_0: #x0010002040340000
+%rd1_1: %rd1_1_
+%rd1_0: %rd1_0_
+%rd0_1: %rd0_1_
+%rd0_0: %rd0_0_
+%rd5_0: #x0010002040340000
+%r9_1: #x00000003
+%rd5_1: #x0010002040340000
+%r9_0: #x00000000
+%r8_1: #x00000001
+%r8_0: #x00000000
+%r7_1: %r7_1_
+%r7_0: %r7_0_
+%r6_1: #x00000004
+%r6_0: #x00000004
+%r5_1: %r5_1_
+%r5_0: %r5_0_
+%r4_1: %r4_1_
+%r4_0: %r4_0_
+%r3_1: %r3_1_
+%r3_0: %r3_0_
+%r2_1: %r2_1_
+%r2_0: %r2_0_
+%r1_1: %r1_1_
+%r1_0: %r1_0_
+%r12_1: #x00000001
+%r12_0: #x00000001
+%r11_1: (bvadd %r11_1_ %r10_1_)
+%r11_0: (bvadd %r11_0_ %r10_0_)
+%r10_1: %r10_1_
+%r10_0: %r10_0_
+%r0_1: %r0_1_
+%r0_0: %r0_0_
+%p2_1: #b1
+%p2_0: #b1
+%p1_1: #b0
+%p1_0: #b0
+%p0_1: %p0_1_
+%p0_0: %p0_0_
+predicate_bit: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #x0010002040340000
+                (ite (= arb_fun_0_13_ #b1)
+                     #x0010002040340000
+                     (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_)))))
+(let ((a!2 (and (= (ite (= arb_fun_1_15_ #b1)
+                        #x001000204034000c
+                        check_register_)
+                   a!1)
+                (or (= arb_fun_0_15_ #b1)
+                    (= arb_fun_0_13_ #b1)
+                    (= arb_fun_0_9_ #b1))
+                (= arb_fun_1_15_ #b1))))
+  (not a!2)))
+<Frame 22>
+pc_1: #x00000034
+pc_0: #x00000034
+log_register: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #x0010002040340000
+                (ite (= arb_fun_0_13_ #b1)
+                     #x0010002040340000
+                     (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_)))))
+  (ite (= arb_fun_0_22_ #b1) #x0010002040340004 a!1))
+en_log_register: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #b1
+                (ite (= arb_fun_0_13_ #b1)
+                     #b1
+                     (ite (= arb_fun_0_9_ #b1) #b1 #b0)))))
+  (ite (= arb_fun_0_22_ #b1) #b1 a!1))
+en_check_register: (ite (= arb_fun_1_15_ #b1) #b1 #b0)
+check_register: (ite (= arb_fun_1_15_ #b1) #x001000204034000c check_register_)
+_Z11simple_loopPii_param_1_1: _Z11simple_loopPii_param_1_1_
+_Z11simple_loopPii_param_1_0: _Z11simple_loopPii_param_1_0_
+_Z11simple_loopPii_param_0_1: _Z11simple_loopPii_param_0_1_
+_Z11simple_loopPii_param_0_0: _Z11simple_loopPii_param_0_0_
+%tid.x_1: #x00000001
+%tid.x_0: #x00000000
+%rd8_1: #x0010002040340010
+%rd8_0: #x0010002040340004
+%rd7_1: #x000000000000000c
+%rd7_0: #x0000000000000000
+%rd6_1: #x0010002040340000
+%rd6_0: #x0010002040340000
+%rd4_1: #x0010002040340010
+%rd4_0: #x0010002040340004
+%rd3_1: #x0010002040340010
+%rd3_0: #x0010002040340004
+%rd2_1: #x001000204034000c
+%rd2_0: #x0010002040340000
+%rd1_1: %rd1_1_
+%rd1_0: %rd1_0_
+%rd0_1: %rd0_1_
+%rd0_0: %rd0_0_
+%rd5_0: #x0010002040340000
+%r9_1: #x00000003
+%rd5_1: #x0010002040340000
+%r9_0: #x00000000
+%r8_1: #x00000001
+%r8_0: #x00000000
+%r7_1: %r7_1_
+%r7_0: %r7_0_
+%r6_1: #x00000004
+%r6_0: #x00000004
+%r5_1: %r5_1_
+%r5_0: %r5_0_
+%r4_1: %r4_1_
+%r4_0: %r4_0_
+%r3_1: %r3_1_
+%r3_0: %r3_0_
+%r2_1: %r2_1_
+%r2_0: %r2_0_
+%r1_1: %r1_1_
+%r1_0: %r1_0_
+%r12_1: #x00000001
+%r12_0: #x00000001
+%r11_1: (bvadd %r11_1_ %r10_1_)
+%r11_0: (bvadd %r11_0_ %r10_0_)
+%r10_1: %r10_1_
+%r10_0: %r10_0_
+%r0_1: %r0_1_
+%r0_0: %r0_0_
+%p2_1: #b1
+%p2_0: #b1
+%p1_1: #b0
+%p1_0: #b0
+%p0_1: %p0_1_
+%p0_0: %p0_0_
+predicate_bit: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #x0010002040340000
+                (ite (= arb_fun_0_13_ #b1)
+                     #x0010002040340000
+                     (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_)))))
+(let ((a!2 (and (= (ite (= arb_fun_1_15_ #b1)
+                        #x001000204034000c
+                        check_register_)
+                   a!1)
+                (or (= arb_fun_0_15_ #b1)
+                    (= arb_fun_0_13_ #b1)
+                    (= arb_fun_0_9_ #b1))
+                (= arb_fun_1_15_ #b1))))
+  (not a!2)))
+<Frame 23>
+pc_1: #x00000038
+pc_0: #x00000038
+log_register: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #x0010002040340000
+                (ite (= arb_fun_0_13_ #b1)
+                     #x0010002040340000
+                     (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_)))))
+  (ite (= arb_fun_0_22_ #b1) #x0010002040340004 a!1))
+en_log_register: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #b1
+                (ite (= arb_fun_0_13_ #b1)
+                     #b1
+                     (ite (= arb_fun_0_9_ #b1) #b1 #b0)))))
+  (ite (= arb_fun_0_22_ #b1) #b1 a!1))
+en_check_register: (ite (= arb_fun_1_15_ #b1) #b1 #b0)
+check_register: (ite (= arb_fun_1_15_ #b1) #x001000204034000c check_register_)
+_Z11simple_loopPii_param_1_1: _Z11simple_loopPii_param_1_1_
+_Z11simple_loopPii_param_1_0: _Z11simple_loopPii_param_1_0_
+_Z11simple_loopPii_param_0_1: _Z11simple_loopPii_param_0_1_
+_Z11simple_loopPii_param_0_0: _Z11simple_loopPii_param_0_0_
+%tid.x_1: #x00000001
+%tid.x_0: #x00000000
+%rd8_1: #x0010002040340010
+%rd8_0: #x0010002040340004
+%rd7_1: #x000000000000000c
+%rd7_0: #x0000000000000000
+%rd6_1: #x0010002040340000
+%rd6_0: #x0010002040340000
+%rd4_1: #x0010002040340010
+%rd4_0: #x0010002040340004
+%rd3_1: #x0010002040340010
+%rd3_0: #x0010002040340004
+%rd2_1: #x001000204034000c
+%rd2_0: #x0010002040340000
+%rd1_1: %rd1_1_
+%rd1_0: %rd1_0_
+%rd0_1: %rd0_1_
+%rd0_0: %rd0_0_
+%rd5_0: #x0010002040340000
+%r9_1: #x00000003
+%rd5_1: #x0010002040340000
+%r9_0: #x00000000
+%r8_1: #x00000001
+%r8_0: #x00000000
+%r7_1: %r7_1_
+%r7_0: %r7_0_
+%r6_1: #x00000004
+%r6_0: #x00000004
+%r5_1: %r5_1_
+%r5_0: %r5_0_
+%r4_1: %r4_1_
+%r4_0: %r4_0_
+%r3_1: %r3_1_
+%r3_0: %r3_0_
+%r2_1: %r2_1_
+%r2_0: %r2_0_
+%r1_1: %r1_1_
+%r1_0: %r1_0_
+%r12_1: #x00000001
+%r12_0: #x00000001
+%r11_1: (bvadd %r11_1_ (bvmul #x00000002 %r10_1_))
+%r11_0: (bvadd %r11_0_ (bvmul #x00000002 %r10_0_))
+%r10_1: %r10_1_
+%r10_0: %r10_0_
+%r0_1: %r0_1_
+%r0_0: %r0_0_
+%p2_1: #b1
+%p2_0: #b1
+%p1_1: #b0
+%p1_0: #b0
+%p0_1: %p0_1_
+%p0_0: %p0_0_
+predicate_bit: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #x0010002040340000
+                (ite (= arb_fun_0_13_ #b1)
+                     #x0010002040340000
+                     (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_)))))
+(let ((a!2 (and (= (ite (= arb_fun_1_15_ #b1)
+                        #x001000204034000c
+                        check_register_)
+                   (ite (= arb_fun_0_22_ #b1) #x0010002040340004 a!1))
+                (or (= arb_fun_0_22_ #b1)
+                    (= arb_fun_0_15_ #b1)
+                    (= arb_fun_0_13_ #b1)
+                    (= arb_fun_0_9_ #b1))
+                (= arb_fun_1_15_ #b1)))
+      (a!3 (and (= (ite (= arb_fun_1_15_ #b1)
+                        #x001000204034000c
+                        check_register_)
+                   a!1)
+                (or (= arb_fun_0_15_ #b1)
+                    (= arb_fun_0_13_ #b1)
+                    (= arb_fun_0_9_ #b1))
+                (= arb_fun_1_15_ #b1))))
+  (and (not a!2) (not a!3))))
+<Frame 24>
+pc_1: #x0000003c
+pc_0: #x0000003c
+log_register: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #x0010002040340000
+                (ite (= arb_fun_0_13_ #b1)
+                     #x0010002040340000
+                     (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_)))))
+  (ite (= arb_fun_0_24_ #b1)
+       #x0010002040340000
+       (ite (= arb_fun_0_22_ #b1) #x0010002040340004 a!1)))
+en_log_register: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #b1
+                (ite (= arb_fun_0_13_ #b1)
+                     #b1
+                     (ite (= arb_fun_0_9_ #b1) #b1 #b0)))))
+  (ite (= arb_fun_0_24_ #b1) #b1 (ite (= arb_fun_0_22_ #b1) #b1 a!1)))
+en_check_register: (ite (= arb_fun_1_24_ #b1) #b1 (ite (= arb_fun_1_15_ #b1) #b1 #b0))
+check_register: (ite (= arb_fun_1_24_ #b1)
+     #x001000204034000c
+     (ite (= arb_fun_1_15_ #b1) #x001000204034000c check_register_))
+_Z11simple_loopPii_param_1_1: _Z11simple_loopPii_param_1_1_
+_Z11simple_loopPii_param_1_0: _Z11simple_loopPii_param_1_0_
+_Z11simple_loopPii_param_0_1: _Z11simple_loopPii_param_0_1_
+_Z11simple_loopPii_param_0_0: _Z11simple_loopPii_param_0_0_
+%tid.x_1: #x00000001
+%tid.x_0: #x00000000
+%rd8_1: #x0010002040340010
+%rd8_0: #x0010002040340004
+%rd7_1: #x000000000000000c
+%rd7_0: #x0000000000000000
+%rd6_1: #x0010002040340000
+%rd6_0: #x0010002040340000
+%rd4_1: #x0010002040340010
+%rd4_0: #x0010002040340004
+%rd3_1: #x0010002040340010
+%rd3_0: #x0010002040340004
+%rd2_1: #x001000204034000c
+%rd2_0: #x0010002040340000
+%rd1_1: %rd1_1_
+%rd1_0: %rd1_0_
+%rd0_1: %rd0_1_
+%rd0_0: %rd0_0_
+%rd5_0: #x0010002040340000
+%r9_1: #x00000003
+%rd5_1: #x0010002040340000
+%r9_0: #x00000000
+%r8_1: #x00000001
+%r8_0: #x00000000
+%r7_1: %r7_1_
+%r7_0: %r7_0_
+%r6_1: #x00000004
+%r6_0: #x00000004
+%r5_1: %r5_1_
+%r5_0: %r5_0_
+%r4_1: %r4_1_
+%r4_0: %r4_0_
+%r3_1: %r3_1_
+%r3_0: %r3_0_
+%r2_1: %r2_1_
+%r2_0: %r2_0_
+%r1_1: %r1_1_
+%r1_0: %r1_0_
+%r12_1: #x00000001
+%r12_0: #x00000001
+%r11_1: (bvadd %r11_1_ (bvmul #x00000002 %r10_1_))
+%r11_0: (bvadd %r11_0_ (bvmul #x00000002 %r10_0_))
+%r10_1: %r10_1_
+%r10_0: %r10_0_
+%r0_1: %r0_1_
+%r0_0: %r0_0_
+%p2_1: #b1
+%p2_0: #b1
+%p1_1: #b0
+%p1_0: #b0
+%p0_1: %p0_1_
+%p0_0: %p0_0_
+predicate_bit: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #x0010002040340000
+                (ite (= arb_fun_0_13_ #b1)
+                     #x0010002040340000
+                     (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_)))))
+(let ((a!2 (and (= (ite (= arb_fun_1_15_ #b1)
+                        #x001000204034000c
+                        check_register_)
+                   (ite (= arb_fun_0_22_ #b1) #x0010002040340004 a!1))
+                (or (= arb_fun_0_22_ #b1)
+                    (= arb_fun_0_15_ #b1)
+                    (= arb_fun_0_13_ #b1)
+                    (= arb_fun_0_9_ #b1))
+                (= arb_fun_1_15_ #b1)))
+      (a!3 (and (= (ite (= arb_fun_1_15_ #b1)
+                        #x001000204034000c
+                        check_register_)
+                   a!1)
+                (or (= arb_fun_0_15_ #b1)
+                    (= arb_fun_0_13_ #b1)
+                    (= arb_fun_0_9_ #b1))
+                (= arb_fun_1_15_ #b1))))
+  (and (not a!2) (not a!3))))
+<Frame 25>
+pc_1: #x00000040
+pc_0: #x00000040
+log_register: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #x0010002040340000
+                (ite (= arb_fun_0_13_ #b1)
+                     #x0010002040340000
+                     (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_)))))
+  (ite (= arb_fun_0_24_ #b1)
+       #x0010002040340000
+       (ite (= arb_fun_0_22_ #b1) #x0010002040340004 a!1)))
+en_log_register: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #b1
+                (ite (= arb_fun_0_13_ #b1)
+                     #b1
+                     (ite (= arb_fun_0_9_ #b1) #b1 #b0)))))
+  (ite (= arb_fun_0_24_ #b1) #b1 (ite (= arb_fun_0_22_ #b1) #b1 a!1)))
+en_check_register: (ite (= arb_fun_1_24_ #b1) #b1 (ite (= arb_fun_1_15_ #b1) #b1 #b0))
+check_register: (ite (= arb_fun_1_24_ #b1)
+     #x001000204034000c
+     (ite (= arb_fun_1_15_ #b1) #x001000204034000c check_register_))
+_Z11simple_loopPii_param_1_1: _Z11simple_loopPii_param_1_1_
+_Z11simple_loopPii_param_1_0: _Z11simple_loopPii_param_1_0_
+_Z11simple_loopPii_param_0_1: _Z11simple_loopPii_param_0_1_
+_Z11simple_loopPii_param_0_0: _Z11simple_loopPii_param_0_0_
+%tid.x_1: #x00000001
+%tid.x_0: #x00000000
+%rd8_1: #x0010002040340010
+%rd8_0: #x0010002040340004
+%rd7_1: #x000000000000000c
+%rd7_0: #x0000000000000000
+%rd6_1: #x0010002040340000
+%rd6_0: #x0010002040340000
+%rd4_1: #x0010002040340014
+%rd4_0: #x0010002040340008
+%rd3_1: #x0010002040340010
+%rd3_0: #x0010002040340004
+%rd2_1: #x001000204034000c
+%rd2_0: #x0010002040340000
+%rd1_1: %rd1_1_
+%rd1_0: %rd1_0_
+%rd0_1: %rd0_1_
+%rd0_0: %rd0_0_
+%rd5_0: #x0010002040340000
+%r9_1: #x00000003
+%rd5_1: #x0010002040340000
+%r9_0: #x00000000
+%r8_1: #x00000001
+%r8_0: #x00000000
+%r7_1: %r7_1_
+%r7_0: %r7_0_
+%r6_1: #x00000004
+%r6_0: #x00000004
+%r5_1: %r5_1_
+%r5_0: %r5_0_
+%r4_1: %r4_1_
+%r4_0: %r4_0_
+%r3_1: %r3_1_
+%r3_0: %r3_0_
+%r2_1: %r2_1_
+%r2_0: %r2_0_
+%r1_1: %r1_1_
+%r1_0: %r1_0_
+%r12_1: #x00000001
+%r12_0: #x00000001
+%r11_1: (bvadd %r11_1_ (bvmul #x00000002 %r10_1_))
+%r11_0: (bvadd %r11_0_ (bvmul #x00000002 %r10_0_))
+%r10_1: %r10_1_
+%r10_0: %r10_0_
+%r0_1: %r0_1_
+%r0_0: %r0_0_
+%p2_1: #b1
+%p2_0: #b1
+%p1_1: #b0
+%p1_0: #b0
+%p0_1: %p0_1_
+%p0_0: %p0_0_
+predicate_bit: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #x0010002040340000
+                (ite (= arb_fun_0_13_ #b1)
+                     #x0010002040340000
+                     (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_)))))
+(let ((a!2 (= (ite (= arb_fun_1_24_ #b1)
+                   #x001000204034000c
+                   (ite (= arb_fun_1_15_ #b1)
+                        #x001000204034000c
+                        check_register_))
+              (ite (= arb_fun_0_24_ #b1)
+                   #x0010002040340000
+                   (ite (= arb_fun_0_22_ #b1) #x0010002040340004 a!1))))
+      (a!4 (and (= (ite (= arb_fun_1_15_ #b1)
+                        #x001000204034000c
+                        check_register_)
+                   (ite (= arb_fun_0_22_ #b1) #x0010002040340004 a!1))
+                (or (= arb_fun_0_22_ #b1)
+                    (= arb_fun_0_15_ #b1)
+                    (= arb_fun_0_13_ #b1)
+                    (= arb_fun_0_9_ #b1))
+                (= arb_fun_1_15_ #b1)))
+      (a!5 (and (= (ite (= arb_fun_1_15_ #b1)
+                        #x001000204034000c
+                        check_register_)
+                   a!1)
+                (or (= arb_fun_0_15_ #b1)
+                    (= arb_fun_0_13_ #b1)
+                    (= arb_fun_0_9_ #b1))
+                (= arb_fun_1_15_ #b1))))
+(let ((a!3 (not (and a!2
+                     (or (= arb_fun_0_24_ #b1)
+                         (= arb_fun_0_22_ #b1)
+                         (= arb_fun_0_15_ #b1)
+                         (= arb_fun_0_13_ #b1)
+                         (= arb_fun_0_9_ #b1))
+                     (or (= arb_fun_1_24_ #b1) (= arb_fun_1_15_ #b1))))))
+  (and a!3 (not a!4) (not a!5)))))
+<Frame 26>
+pc_1: #x00000044
+pc_0: #x00000044
+log_register: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #x0010002040340000
+                (ite (= arb_fun_0_13_ #b1)
+                     #x0010002040340000
+                     (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_)))))
+  (ite (= arb_fun_0_24_ #b1)
+       #x0010002040340000
+       (ite (= arb_fun_0_22_ #b1) #x0010002040340004 a!1)))
+en_log_register: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #b1
+                (ite (= arb_fun_0_13_ #b1)
+                     #b1
+                     (ite (= arb_fun_0_9_ #b1) #b1 #b0)))))
+  (ite (= arb_fun_0_24_ #b1) #b1 (ite (= arb_fun_0_22_ #b1) #b1 a!1)))
+en_check_register: (ite (= arb_fun_1_24_ #b1) #b1 (ite (= arb_fun_1_15_ #b1) #b1 #b0))
+check_register: (ite (= arb_fun_1_24_ #b1)
+     #x001000204034000c
+     (ite (= arb_fun_1_15_ #b1) #x001000204034000c check_register_))
+_Z11simple_loopPii_param_1_1: _Z11simple_loopPii_param_1_1_
+_Z11simple_loopPii_param_1_0: _Z11simple_loopPii_param_1_0_
+_Z11simple_loopPii_param_0_1: _Z11simple_loopPii_param_0_1_
+_Z11simple_loopPii_param_0_0: _Z11simple_loopPii_param_0_0_
+%tid.x_1: #x00000001
+%tid.x_0: #x00000000
+%rd8_1: #x0010002040340010
+%rd8_0: #x0010002040340004
+%rd7_1: #x000000000000000c
+%rd7_0: #x0000000000000000
+%rd6_1: #x0010002040340000
+%rd6_0: #x0010002040340000
+%rd4_1: #x0010002040340014
+%rd4_0: #x0010002040340008
+%rd3_1: #x0010002040340010
+%rd3_0: #x0010002040340004
+%rd2_1: #x001000204034000c
+%rd2_0: #x0010002040340000
+%rd1_1: %rd1_1_
+%rd1_0: %rd1_0_
+%rd0_1: %rd0_1_
+%rd0_0: %rd0_0_
+%rd5_0: #x0010002040340000
+%r9_1: #x00000003
+%rd5_1: #x0010002040340000
+%r9_0: #x00000000
+%r8_1: #x00000001
+%r8_0: #x00000000
+%r7_1: %r7_1_
+%r7_0: %r7_0_
+%r6_1: #x00000004
+%r6_0: #x00000004
+%r5_1: %r5_1_
+%r5_0: %r5_0_
+%r4_1: %r4_1_
+%r4_0: %r4_0_
+%r3_1: %r3_1_
+%r3_0: %r3_0_
+%r2_1: %r2_1_
+%r2_0: %r2_0_
+%r1_1: %r1_1_
+%r1_0: %r1_0_
+%r12_1: #x00000002
+%r12_0: #x00000002
+%r11_1: (bvadd %r11_1_ (bvmul #x00000002 %r10_1_))
+%r11_0: (bvadd %r11_0_ (bvmul #x00000002 %r10_0_))
+%r10_1: %r10_1_
+%r10_0: %r10_0_
+%r0_1: %r0_1_
+%r0_0: %r0_0_
+%p2_1: #b1
+%p2_0: #b1
+%p1_1: #b0
+%p1_0: #b0
+%p0_1: %p0_1_
+%p0_0: %p0_0_
+predicate_bit: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #x0010002040340000
+                (ite (= arb_fun_0_13_ #b1)
+                     #x0010002040340000
+                     (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_)))))
+(let ((a!2 (= (ite (= arb_fun_1_24_ #b1)
+                   #x001000204034000c
+                   (ite (= arb_fun_1_15_ #b1)
+                        #x001000204034000c
+                        check_register_))
+              (ite (= arb_fun_0_24_ #b1)
+                   #x0010002040340000
+                   (ite (= arb_fun_0_22_ #b1) #x0010002040340004 a!1))))
+      (a!4 (and (= (ite (= arb_fun_1_15_ #b1)
+                        #x001000204034000c
+                        check_register_)
+                   (ite (= arb_fun_0_22_ #b1) #x0010002040340004 a!1))
+                (or (= arb_fun_0_22_ #b1)
+                    (= arb_fun_0_15_ #b1)
+                    (= arb_fun_0_13_ #b1)
+                    (= arb_fun_0_9_ #b1))
+                (= arb_fun_1_15_ #b1)))
+      (a!5 (and (= (ite (= arb_fun_1_15_ #b1)
+                        #x001000204034000c
+                        check_register_)
+                   a!1)
+                (or (= arb_fun_0_15_ #b1)
+                    (= arb_fun_0_13_ #b1)
+                    (= arb_fun_0_9_ #b1))
+                (= arb_fun_1_15_ #b1))))
+(let ((a!3 (not (and a!2
+                     (or (= arb_fun_0_24_ #b1)
+                         (= arb_fun_0_22_ #b1)
+                         (= arb_fun_0_15_ #b1)
+                         (= arb_fun_0_13_ #b1)
+                         (= arb_fun_0_9_ #b1))
+                     (or (= arb_fun_1_24_ #b1) (= arb_fun_1_15_ #b1))))))
+  (and a!3 (not a!4) (not a!5)))))
+<Frame 27>
+pc_1: #x00000048
+pc_0: #x00000048
+log_register: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #x0010002040340000
+                (ite (= arb_fun_0_13_ #b1)
+                     #x0010002040340000
+                     (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_)))))
+  (ite (= arb_fun_0_24_ #b1)
+       #x0010002040340000
+       (ite (= arb_fun_0_22_ #b1) #x0010002040340004 a!1)))
+en_log_register: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #b1
+                (ite (= arb_fun_0_13_ #b1)
+                     #b1
+                     (ite (= arb_fun_0_9_ #b1) #b1 #b0)))))
+  (ite (= arb_fun_0_24_ #b1) #b1 (ite (= arb_fun_0_22_ #b1) #b1 a!1)))
+en_check_register: (ite (= arb_fun_1_24_ #b1) #b1 (ite (= arb_fun_1_15_ #b1) #b1 #b0))
+check_register: (ite (= arb_fun_1_24_ #b1)
+     #x001000204034000c
+     (ite (= arb_fun_1_15_ #b1) #x001000204034000c check_register_))
+_Z11simple_loopPii_param_1_1: _Z11simple_loopPii_param_1_1_
+_Z11simple_loopPii_param_1_0: _Z11simple_loopPii_param_1_0_
+_Z11simple_loopPii_param_0_1: _Z11simple_loopPii_param_0_1_
+_Z11simple_loopPii_param_0_0: _Z11simple_loopPii_param_0_0_
+%tid.x_1: #x00000001
+%tid.x_0: #x00000000
+%rd8_1: #x0010002040340010
+%rd8_0: #x0010002040340004
+%rd7_1: #x000000000000000c
+%rd7_0: #x0000000000000000
+%rd6_1: #x0010002040340000
+%rd6_0: #x0010002040340000
+%rd4_1: #x0010002040340014
+%rd4_0: #x0010002040340008
+%rd3_1: #x0010002040340010
+%rd3_0: #x0010002040340004
+%rd2_1: #x001000204034000c
+%rd2_0: #x0010002040340000
+%rd1_1: %rd1_1_
+%rd1_0: %rd1_0_
+%rd0_1: %rd0_1_
+%rd0_0: %rd0_0_
+%rd5_0: #x0010002040340000
+%r9_1: #x00000003
+%rd5_1: #x0010002040340000
+%r9_0: #x00000000
+%r8_1: #x00000001
+%r8_0: #x00000000
+%r7_1: %r7_1_
+%r7_0: %r7_0_
+%r6_1: #x00000004
+%r6_0: #x00000004
+%r5_1: %r5_1_
+%r5_0: %r5_0_
+%r4_1: %r4_1_
+%r4_0: %r4_0_
+%r3_1: %r3_1_
+%r3_0: %r3_0_
+%r2_1: %r2_1_
+%r2_0: %r2_0_
+%r1_1: %r1_1_
+%r1_0: %r1_0_
+%r12_1: #x00000002
+%r12_0: #x00000002
+%r11_1: (bvadd %r11_1_ (bvmul #x00000002 %r10_1_))
+%r11_0: (bvadd %r11_0_ (bvmul #x00000002 %r10_0_))
+%r10_1: %r10_1_
+%r10_0: %r10_0_
+%r0_1: %r0_1_
+%r0_0: %r0_0_
+%p2_1: #b1
+%p2_0: #b1
+%p1_1: #b0
+%p1_0: #b0
+%p0_1: %p0_1_
+%p0_0: %p0_0_
+predicate_bit: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #x0010002040340000
+                (ite (= arb_fun_0_13_ #b1)
+                     #x0010002040340000
+                     (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_)))))
+(let ((a!2 (= (ite (= arb_fun_1_24_ #b1)
+                   #x001000204034000c
+                   (ite (= arb_fun_1_15_ #b1)
+                        #x001000204034000c
+                        check_register_))
+              (ite (= arb_fun_0_24_ #b1)
+                   #x0010002040340000
+                   (ite (= arb_fun_0_22_ #b1) #x0010002040340004 a!1))))
+      (a!4 (and (= (ite (= arb_fun_1_15_ #b1)
+                        #x001000204034000c
+                        check_register_)
+                   (ite (= arb_fun_0_22_ #b1) #x0010002040340004 a!1))
+                (or (= arb_fun_0_22_ #b1)
+                    (= arb_fun_0_15_ #b1)
+                    (= arb_fun_0_13_ #b1)
+                    (= arb_fun_0_9_ #b1))
+                (= arb_fun_1_15_ #b1)))
+      (a!5 (and (= (ite (= arb_fun_1_15_ #b1)
+                        #x001000204034000c
+                        check_register_)
+                   a!1)
+                (or (= arb_fun_0_15_ #b1)
+                    (= arb_fun_0_13_ #b1)
+                    (= arb_fun_0_9_ #b1))
+                (= arb_fun_1_15_ #b1))))
+(let ((a!3 (not (and a!2
+                     (or (= arb_fun_0_24_ #b1)
+                         (= arb_fun_0_22_ #b1)
+                         (= arb_fun_0_15_ #b1)
+                         (= arb_fun_0_13_ #b1)
+                         (= arb_fun_0_9_ #b1))
+                     (or (= arb_fun_1_24_ #b1) (= arb_fun_1_15_ #b1))))))
+  (and a!3 (not a!4) (not a!5)))))
+<Frame 28>
+pc_1: #x0000004c
+pc_0: #x0000004c
+log_register: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #x0010002040340000
+                (ite (= arb_fun_0_13_ #b1)
+                     #x0010002040340000
+                     (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_)))))
+  (ite (= arb_fun_0_24_ #b1)
+       #x0010002040340000
+       (ite (= arb_fun_0_22_ #b1) #x0010002040340004 a!1)))
+en_log_register: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #b1
+                (ite (= arb_fun_0_13_ #b1)
+                     #b1
+                     (ite (= arb_fun_0_9_ #b1) #b1 #b0)))))
+  (ite (= arb_fun_0_24_ #b1) #b1 (ite (= arb_fun_0_22_ #b1) #b1 a!1)))
+en_check_register: (ite (= arb_fun_1_24_ #b1) #b1 (ite (= arb_fun_1_15_ #b1) #b1 #b0))
+check_register: (ite (= arb_fun_1_24_ #b1)
+     #x001000204034000c
+     (ite (= arb_fun_1_15_ #b1) #x001000204034000c check_register_))
+_Z11simple_loopPii_param_1_1: _Z11simple_loopPii_param_1_1_
+_Z11simple_loopPii_param_1_0: _Z11simple_loopPii_param_1_0_
+_Z11simple_loopPii_param_0_1: _Z11simple_loopPii_param_0_1_
+_Z11simple_loopPii_param_0_0: _Z11simple_loopPii_param_0_0_
+%tid.x_1: #x00000001
+%tid.x_0: #x00000000
+%rd8_1: #x0010002040340014
+%rd8_0: #x0010002040340008
+%rd7_1: #x000000000000000c
+%rd7_0: #x0000000000000000
+%rd6_1: #x0010002040340000
+%rd6_0: #x0010002040340000
+%rd4_1: #x0010002040340014
+%rd4_0: #x0010002040340008
+%rd3_1: #x0010002040340010
+%rd3_0: #x0010002040340004
+%rd2_1: #x001000204034000c
+%rd2_0: #x0010002040340000
+%rd1_1: %rd1_1_
+%rd1_0: %rd1_0_
+%rd0_1: %rd0_1_
+%rd0_0: %rd0_0_
+%rd5_0: #x0010002040340000
+%r9_1: #x00000003
+%rd5_1: #x0010002040340000
+%r9_0: #x00000000
+%r8_1: #x00000001
+%r8_0: #x00000000
+%r7_1: %r7_1_
+%r7_0: %r7_0_
+%r6_1: #x00000004
+%r6_0: #x00000004
+%r5_1: %r5_1_
+%r5_0: %r5_0_
+%r4_1: %r4_1_
+%r4_0: %r4_0_
+%r3_1: %r3_1_
+%r3_0: %r3_0_
+%r2_1: %r2_1_
+%r2_0: %r2_0_
+%r1_1: %r1_1_
+%r1_0: %r1_0_
+%r12_1: #x00000002
+%r12_0: #x00000002
+%r11_1: (bvadd %r11_1_ (bvmul #x00000002 %r10_1_))
+%r11_0: (bvadd %r11_0_ (bvmul #x00000002 %r10_0_))
+%r10_1: %r10_1_
+%r10_0: %r10_0_
+%r0_1: %r0_1_
+%r0_0: %r0_0_
+%p2_1: #b1
+%p2_0: #b1
+%p1_1: #b0
+%p1_0: #b0
+%p0_1: %p0_1_
+%p0_0: %p0_0_
+predicate_bit: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #x0010002040340000
+                (ite (= arb_fun_0_13_ #b1)
+                     #x0010002040340000
+                     (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_)))))
+(let ((a!2 (= (ite (= arb_fun_1_24_ #b1)
+                   #x001000204034000c
+                   (ite (= arb_fun_1_15_ #b1)
+                        #x001000204034000c
+                        check_register_))
+              (ite (= arb_fun_0_24_ #b1)
+                   #x0010002040340000
+                   (ite (= arb_fun_0_22_ #b1) #x0010002040340004 a!1))))
+      (a!4 (and (= (ite (= arb_fun_1_15_ #b1)
+                        #x001000204034000c
+                        check_register_)
+                   (ite (= arb_fun_0_22_ #b1) #x0010002040340004 a!1))
+                (or (= arb_fun_0_22_ #b1)
+                    (= arb_fun_0_15_ #b1)
+                    (= arb_fun_0_13_ #b1)
+                    (= arb_fun_0_9_ #b1))
+                (= arb_fun_1_15_ #b1)))
+      (a!5 (and (= (ite (= arb_fun_1_15_ #b1)
+                        #x001000204034000c
+                        check_register_)
+                   a!1)
+                (or (= arb_fun_0_15_ #b1)
+                    (= arb_fun_0_13_ #b1)
+                    (= arb_fun_0_9_ #b1))
+                (= arb_fun_1_15_ #b1))))
+(let ((a!3 (not (and a!2
+                     (or (= arb_fun_0_24_ #b1)
+                         (= arb_fun_0_22_ #b1)
+                         (= arb_fun_0_15_ #b1)
+                         (= arb_fun_0_13_ #b1)
+                         (= arb_fun_0_9_ #b1))
+                     (or (= arb_fun_1_24_ #b1) (= arb_fun_1_15_ #b1))))))
+  (and a!3 (not a!4) (not a!5)))))
+<Frame 29>
+pc_1: #x0000002c
+pc_0: #x0000002c
+log_register: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #x0010002040340000
+                (ite (= arb_fun_0_13_ #b1)
+                     #x0010002040340000
+                     (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_)))))
+  (ite (= arb_fun_0_24_ #b1)
+       #x0010002040340000
+       (ite (= arb_fun_0_22_ #b1) #x0010002040340004 a!1)))
+en_log_register: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #b1
+                (ite (= arb_fun_0_13_ #b1)
+                     #b1
+                     (ite (= arb_fun_0_9_ #b1) #b1 #b0)))))
+  (ite (= arb_fun_0_24_ #b1) #b1 (ite (= arb_fun_0_22_ #b1) #b1 a!1)))
+en_check_register: (ite (= arb_fun_1_24_ #b1) #b1 (ite (= arb_fun_1_15_ #b1) #b1 #b0))
+check_register: (ite (= arb_fun_1_24_ #b1)
+     #x001000204034000c
+     (ite (= arb_fun_1_15_ #b1) #x001000204034000c check_register_))
+_Z11simple_loopPii_param_1_1: _Z11simple_loopPii_param_1_1_
+_Z11simple_loopPii_param_1_0: _Z11simple_loopPii_param_1_0_
+_Z11simple_loopPii_param_0_1: _Z11simple_loopPii_param_0_1_
+_Z11simple_loopPii_param_0_0: _Z11simple_loopPii_param_0_0_
+%tid.x_1: #x00000001
+%tid.x_0: #x00000000
+%rd8_1: #x0010002040340014
+%rd8_0: #x0010002040340008
+%rd7_1: #x000000000000000c
+%rd7_0: #x0000000000000000
+%rd6_1: #x0010002040340000
+%rd6_0: #x0010002040340000
+%rd4_1: #x0010002040340014
+%rd4_0: #x0010002040340008
+%rd3_1: #x0010002040340010
+%rd3_0: #x0010002040340004
+%rd2_1: #x001000204034000c
+%rd2_0: #x0010002040340000
+%rd1_1: %rd1_1_
+%rd1_0: %rd1_0_
+%rd0_1: %rd0_1_
+%rd0_0: %rd0_0_
+%rd5_0: #x0010002040340000
+%r9_1: #x00000003
+%rd5_1: #x0010002040340000
+%r9_0: #x00000000
+%r8_1: #x00000001
+%r8_0: #x00000000
+%r7_1: %r7_1_
+%r7_0: %r7_0_
+%r6_1: #x00000004
+%r6_0: #x00000004
+%r5_1: %r5_1_
+%r5_0: %r5_0_
+%r4_1: %r4_1_
+%r4_0: %r4_0_
+%r3_1: %r3_1_
+%r3_0: %r3_0_
+%r2_1: %r2_1_
+%r2_0: %r2_0_
+%r1_1: %r1_1_
+%r1_0: %r1_0_
+%r12_1: #x00000002
+%r12_0: #x00000002
+%r11_1: (bvadd %r11_1_ (bvmul #x00000002 %r10_1_))
+%r11_0: (bvadd %r11_0_ (bvmul #x00000002 %r10_0_))
+%r10_1: %r10_1_
+%r10_0: %r10_0_
+%r0_1: %r0_1_
+%r0_0: %r0_0_
+%p2_1: #b1
+%p2_0: #b1
+%p1_1: #b0
+%p1_0: #b0
+%p0_1: %p0_1_
+%p0_0: %p0_0_
+predicate_bit: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #x0010002040340000
+                (ite (= arb_fun_0_13_ #b1)
+                     #x0010002040340000
+                     (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_)))))
+(let ((a!2 (= (ite (= arb_fun_1_24_ #b1)
+                   #x001000204034000c
+                   (ite (= arb_fun_1_15_ #b1)
+                        #x001000204034000c
+                        check_register_))
+              (ite (= arb_fun_0_24_ #b1)
+                   #x0010002040340000
+                   (ite (= arb_fun_0_22_ #b1) #x0010002040340004 a!1))))
+      (a!4 (and (= (ite (= arb_fun_1_15_ #b1)
+                        #x001000204034000c
+                        check_register_)
+                   (ite (= arb_fun_0_22_ #b1) #x0010002040340004 a!1))
+                (or (= arb_fun_0_22_ #b1)
+                    (= arb_fun_0_15_ #b1)
+                    (= arb_fun_0_13_ #b1)
+                    (= arb_fun_0_9_ #b1))
+                (= arb_fun_1_15_ #b1)))
+      (a!5 (and (= (ite (= arb_fun_1_15_ #b1)
+                        #x001000204034000c
+                        check_register_)
+                   a!1)
+                (or (= arb_fun_0_15_ #b1)
+                    (= arb_fun_0_13_ #b1)
+                    (= arb_fun_0_9_ #b1))
+                (= arb_fun_1_15_ #b1))))
+(let ((a!3 (not (and a!2
+                     (or (= arb_fun_0_24_ #b1)
+                         (= arb_fun_0_22_ #b1)
+                         (= arb_fun_0_15_ #b1)
+                         (= arb_fun_0_13_ #b1)
+                         (= arb_fun_0_9_ #b1))
+                     (or (= arb_fun_1_24_ #b1) (= arb_fun_1_15_ #b1))))))
+  (and a!3 (not a!4) (not a!5)))))
+<Frame 30>
+pc_1: #x00000030
+pc_0: #x00000030
+log_register: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #x0010002040340000
+                (ite (= arb_fun_0_13_ #b1)
+                     #x0010002040340000
+                     (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_)))))
+  (ite (= arb_fun_0_24_ #b1)
+       #x0010002040340000
+       (ite (= arb_fun_0_22_ #b1) #x0010002040340004 a!1)))
+en_log_register: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #b1
+                (ite (= arb_fun_0_13_ #b1)
+                     #b1
+                     (ite (= arb_fun_0_9_ #b1) #b1 #b0)))))
+  (ite (= arb_fun_0_24_ #b1) #b1 (ite (= arb_fun_0_22_ #b1) #b1 a!1)))
+en_check_register: (ite (= arb_fun_1_24_ #b1) #b1 (ite (= arb_fun_1_15_ #b1) #b1 #b0))
+check_register: (ite (= arb_fun_1_24_ #b1)
+     #x001000204034000c
+     (ite (= arb_fun_1_15_ #b1) #x001000204034000c check_register_))
+_Z11simple_loopPii_param_1_1: _Z11simple_loopPii_param_1_1_
+_Z11simple_loopPii_param_1_0: _Z11simple_loopPii_param_1_0_
+_Z11simple_loopPii_param_0_1: _Z11simple_loopPii_param_0_1_
+_Z11simple_loopPii_param_0_0: _Z11simple_loopPii_param_0_0_
+%tid.x_1: #x00000001
+%tid.x_0: #x00000000
+%rd8_1: #x0010002040340014
+%rd8_0: #x0010002040340008
+%rd7_1: #x000000000000000c
+%rd7_0: #x0000000000000000
+%rd6_1: #x0010002040340000
+%rd6_0: #x0010002040340000
+%rd4_1: #x0010002040340014
+%rd4_0: #x0010002040340008
+%rd3_1: #x0010002040340014
+%rd3_0: #x0010002040340008
+%rd2_1: #x001000204034000c
+%rd2_0: #x0010002040340000
+%rd1_1: %rd1_1_
+%rd1_0: %rd1_0_
+%rd0_1: %rd0_1_
+%rd0_0: %rd0_0_
+%rd5_0: #x0010002040340000
+%r9_1: #x00000003
+%rd5_1: #x0010002040340000
+%r9_0: #x00000000
+%r8_1: #x00000001
+%r8_0: #x00000000
+%r7_1: %r7_1_
+%r7_0: %r7_0_
+%r6_1: #x00000004
+%r6_0: #x00000004
+%r5_1: %r5_1_
+%r5_0: %r5_0_
+%r4_1: %r4_1_
+%r4_0: %r4_0_
+%r3_1: %r3_1_
+%r3_0: %r3_0_
+%r2_1: %r2_1_
+%r2_0: %r2_0_
+%r1_1: %r1_1_
+%r1_0: %r1_0_
+%r12_1: #x00000002
+%r12_0: #x00000002
+%r11_1: (bvadd %r11_1_ (bvmul #x00000002 %r10_1_))
+%r11_0: (bvadd %r11_0_ (bvmul #x00000002 %r10_0_))
+%r10_1: %r10_1_
+%r10_0: %r10_0_
+%r0_1: %r0_1_
+%r0_0: %r0_0_
+%p2_1: #b1
+%p2_0: #b1
+%p1_1: #b0
+%p1_0: #b0
+%p0_1: %p0_1_
+%p0_0: %p0_0_
+predicate_bit: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #x0010002040340000
+                (ite (= arb_fun_0_13_ #b1)
+                     #x0010002040340000
+                     (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_)))))
+(let ((a!2 (= (ite (= arb_fun_1_24_ #b1)
+                   #x001000204034000c
+                   (ite (= arb_fun_1_15_ #b1)
+                        #x001000204034000c
+                        check_register_))
+              (ite (= arb_fun_0_24_ #b1)
+                   #x0010002040340000
+                   (ite (= arb_fun_0_22_ #b1) #x0010002040340004 a!1))))
+      (a!4 (and (= (ite (= arb_fun_1_15_ #b1)
+                        #x001000204034000c
+                        check_register_)
+                   (ite (= arb_fun_0_22_ #b1) #x0010002040340004 a!1))
+                (or (= arb_fun_0_22_ #b1)
+                    (= arb_fun_0_15_ #b1)
+                    (= arb_fun_0_13_ #b1)
+                    (= arb_fun_0_9_ #b1))
+                (= arb_fun_1_15_ #b1)))
+      (a!5 (and (= (ite (= arb_fun_1_15_ #b1)
+                        #x001000204034000c
+                        check_register_)
+                   a!1)
+                (or (= arb_fun_0_15_ #b1)
+                    (= arb_fun_0_13_ #b1)
+                    (= arb_fun_0_9_ #b1))
+                (= arb_fun_1_15_ #b1))))
+(let ((a!3 (not (and a!2
+                     (or (= arb_fun_0_24_ #b1)
+                         (= arb_fun_0_22_ #b1)
+                         (= arb_fun_0_15_ #b1)
+                         (= arb_fun_0_13_ #b1)
+                         (= arb_fun_0_9_ #b1))
+                     (or (= arb_fun_1_24_ #b1) (= arb_fun_1_15_ #b1))))))
+  (and a!3 (not a!4) (not a!5)))))
+<Frame 31>
+pc_1: #x00000034
+pc_0: #x00000034
+log_register: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #x0010002040340000
+                (ite (= arb_fun_0_13_ #b1)
+                     #x0010002040340000
+                     (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_)))))
+  (ite (= arb_fun_0_31_ #b1)
+       #x0010002040340008
+       (ite (= arb_fun_0_24_ #b1)
+            #x0010002040340000
+            (ite (= arb_fun_0_22_ #b1) #x0010002040340004 a!1))))
+en_log_register: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #b1
+                (ite (= arb_fun_0_13_ #b1)
+                     #b1
+                     (ite (= arb_fun_0_9_ #b1) #b1 #b0)))))
+  (ite (= arb_fun_0_31_ #b1)
+       #b1
+       (ite (= arb_fun_0_24_ #b1) #b1 (ite (= arb_fun_0_22_ #b1) #b1 a!1))))
+en_check_register: (ite (= arb_fun_1_24_ #b1) #b1 (ite (= arb_fun_1_15_ #b1) #b1 #b0))
+check_register: (ite (= arb_fun_1_24_ #b1)
+     #x001000204034000c
+     (ite (= arb_fun_1_15_ #b1) #x001000204034000c check_register_))
+_Z11simple_loopPii_param_1_1: _Z11simple_loopPii_param_1_1_
+_Z11simple_loopPii_param_1_0: _Z11simple_loopPii_param_1_0_
+_Z11simple_loopPii_param_0_1: _Z11simple_loopPii_param_0_1_
+_Z11simple_loopPii_param_0_0: _Z11simple_loopPii_param_0_0_
+%tid.x_1: #x00000001
+%tid.x_0: #x00000000
+%rd8_1: #x0010002040340014
+%rd8_0: #x0010002040340008
+%rd7_1: #x000000000000000c
+%rd7_0: #x0000000000000000
+%rd6_1: #x0010002040340000
+%rd6_0: #x0010002040340000
+%rd4_1: #x0010002040340014
+%rd4_0: #x0010002040340008
+%rd3_1: #x0010002040340014
+%rd3_0: #x0010002040340008
+%rd2_1: #x001000204034000c
+%rd2_0: #x0010002040340000
+%rd1_1: %rd1_1_
+%rd1_0: %rd1_0_
+%rd0_1: %rd0_1_
+%rd0_0: %rd0_0_
+%rd5_0: #x0010002040340000
+%r9_1: #x00000003
+%rd5_1: #x0010002040340000
+%r9_0: #x00000000
+%r8_1: #x00000001
+%r8_0: #x00000000
+%r7_1: %r7_1_
+%r7_0: %r7_0_
+%r6_1: #x00000004
+%r6_0: #x00000004
+%r5_1: %r5_1_
+%r5_0: %r5_0_
+%r4_1: %r4_1_
+%r4_0: %r4_0_
+%r3_1: %r3_1_
+%r3_0: %r3_0_
+%r2_1: %r2_1_
+%r2_0: %r2_0_
+%r1_1: %r1_1_
+%r1_0: %r1_0_
+%r12_1: #x00000002
+%r12_0: #x00000002
+%r11_1: (bvadd %r11_1_ (bvmul #x00000002 %r10_1_))
+%r11_0: (bvadd %r11_0_ (bvmul #x00000002 %r10_0_))
+%r10_1: %r10_1_
+%r10_0: %r10_0_
+%r0_1: %r0_1_
+%r0_0: %r0_0_
+%p2_1: #b1
+%p2_0: #b1
+%p1_1: #b0
+%p1_0: #b0
+%p0_1: %p0_1_
+%p0_0: %p0_0_
+predicate_bit: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #x0010002040340000
+                (ite (= arb_fun_0_13_ #b1)
+                     #x0010002040340000
+                     (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_)))))
+(let ((a!2 (= (ite (= arb_fun_1_24_ #b1)
+                   #x001000204034000c
+                   (ite (= arb_fun_1_15_ #b1)
+                        #x001000204034000c
+                        check_register_))
+              (ite (= arb_fun_0_24_ #b1)
+                   #x0010002040340000
+                   (ite (= arb_fun_0_22_ #b1) #x0010002040340004 a!1))))
+      (a!4 (and (= (ite (= arb_fun_1_15_ #b1)
+                        #x001000204034000c
+                        check_register_)
+                   (ite (= arb_fun_0_22_ #b1) #x0010002040340004 a!1))
+                (or (= arb_fun_0_22_ #b1)
+                    (= arb_fun_0_15_ #b1)
+                    (= arb_fun_0_13_ #b1)
+                    (= arb_fun_0_9_ #b1))
+                (= arb_fun_1_15_ #b1)))
+      (a!5 (and (= (ite (= arb_fun_1_15_ #b1)
+                        #x001000204034000c
+                        check_register_)
+                   a!1)
+                (or (= arb_fun_0_15_ #b1)
+                    (= arb_fun_0_13_ #b1)
+                    (= arb_fun_0_9_ #b1))
+                (= arb_fun_1_15_ #b1))))
+(let ((a!3 (not (and a!2
+                     (or (= arb_fun_0_24_ #b1)
+                         (= arb_fun_0_22_ #b1)
+                         (= arb_fun_0_15_ #b1)
+                         (= arb_fun_0_13_ #b1)
+                         (= arb_fun_0_9_ #b1))
+                     (or (= arb_fun_1_24_ #b1) (= arb_fun_1_15_ #b1))))))
+  (and a!3 (not a!4) (not a!5)))))
+<Frame 32>
+pc_1: #x00000038
+pc_0: #x00000038
+log_register: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #x0010002040340000
+                (ite (= arb_fun_0_13_ #b1)
+                     #x0010002040340000
+                     (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_)))))
+  (ite (= arb_fun_0_31_ #b1)
+       #x0010002040340008
+       (ite (= arb_fun_0_24_ #b1)
+            #x0010002040340000
+            (ite (= arb_fun_0_22_ #b1) #x0010002040340004 a!1))))
+en_log_register: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #b1
+                (ite (= arb_fun_0_13_ #b1)
+                     #b1
+                     (ite (= arb_fun_0_9_ #b1) #b1 #b0)))))
+  (ite (= arb_fun_0_31_ #b1)
+       #b1
+       (ite (= arb_fun_0_24_ #b1) #b1 (ite (= arb_fun_0_22_ #b1) #b1 a!1))))
+en_check_register: (ite (= arb_fun_1_24_ #b1) #b1 (ite (= arb_fun_1_15_ #b1) #b1 #b0))
+check_register: (ite (= arb_fun_1_24_ #b1)
+     #x001000204034000c
+     (ite (= arb_fun_1_15_ #b1) #x001000204034000c check_register_))
+_Z11simple_loopPii_param_1_1: _Z11simple_loopPii_param_1_1_
+_Z11simple_loopPii_param_1_0: _Z11simple_loopPii_param_1_0_
+_Z11simple_loopPii_param_0_1: _Z11simple_loopPii_param_0_1_
+_Z11simple_loopPii_param_0_0: _Z11simple_loopPii_param_0_0_
+%tid.x_1: #x00000001
+%tid.x_0: #x00000000
+%rd8_1: #x0010002040340014
+%rd8_0: #x0010002040340008
+%rd7_1: #x000000000000000c
+%rd7_0: #x0000000000000000
+%rd6_1: #x0010002040340000
+%rd6_0: #x0010002040340000
+%rd4_1: #x0010002040340014
+%rd4_0: #x0010002040340008
+%rd3_1: #x0010002040340014
+%rd3_0: #x0010002040340008
+%rd2_1: #x001000204034000c
+%rd2_0: #x0010002040340000
+%rd1_1: %rd1_1_
+%rd1_0: %rd1_0_
+%rd0_1: %rd0_1_
+%rd0_0: %rd0_0_
+%rd5_0: #x0010002040340000
+%r9_1: #x00000003
+%rd5_1: #x0010002040340000
+%r9_0: #x00000000
+%r8_1: #x00000001
+%r8_0: #x00000000
+%r7_1: %r7_1_
+%r7_0: %r7_0_
+%r6_1: #x00000004
+%r6_0: #x00000004
+%r5_1: %r5_1_
+%r5_0: %r5_0_
+%r4_1: %r4_1_
+%r4_0: %r4_0_
+%r3_1: %r3_1_
+%r3_0: %r3_0_
+%r2_1: %r2_1_
+%r2_0: %r2_0_
+%r1_1: %r1_1_
+%r1_0: %r1_0_
+%r12_1: #x00000002
+%r12_0: #x00000002
+%r11_1: (bvadd %r11_1_ (bvmul #x00000003 %r10_1_))
+%r11_0: (bvadd %r11_0_ (bvmul #x00000003 %r10_0_))
+%r10_1: %r10_1_
+%r10_0: %r10_0_
+%r0_1: %r0_1_
+%r0_0: %r0_0_
+%p2_1: #b1
+%p2_0: #b1
+%p1_1: #b0
+%p1_0: #b0
+%p0_1: %p0_1_
+%p0_0: %p0_0_
+predicate_bit: (let ((a!1 (ite (= arb_fun_1_24_ #b1)
+                #x001000204034000c
+                (ite (= arb_fun_1_15_ #b1) #x001000204034000c check_register_)))
+      (a!2 (ite (= arb_fun_0_15_ #b1)
+                #x0010002040340000
+                (ite (= arb_fun_0_13_ #b1)
+                     #x0010002040340000
+                     (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_)))))
+(let ((a!3 (ite (= arb_fun_0_24_ #b1)
+                #x0010002040340000
+                (ite (= arb_fun_0_22_ #b1) #x0010002040340004 a!2)))
+      (a!6 (and (= (ite (= arb_fun_1_15_ #b1)
+                        #x001000204034000c
+                        check_register_)
+                   (ite (= arb_fun_0_22_ #b1) #x0010002040340004 a!2))
+                (or (= arb_fun_0_22_ #b1)
+                    (= arb_fun_0_15_ #b1)
+                    (= arb_fun_0_13_ #b1)
+                    (= arb_fun_0_9_ #b1))
+                (= arb_fun_1_15_ #b1)))
+      (a!7 (and (= (ite (= arb_fun_1_15_ #b1)
+                        #x001000204034000c
+                        check_register_)
+                   a!2)
+                (or (= arb_fun_0_15_ #b1)
+                    (= arb_fun_0_13_ #b1)
+                    (= arb_fun_0_9_ #b1))
+                (= arb_fun_1_15_ #b1))))
+(let ((a!4 (and (= a!1 (ite (= arb_fun_0_31_ #b1) #x0010002040340008 a!3))
+                (or (= arb_fun_0_31_ #b1)
+                    (= arb_fun_0_24_ #b1)
+                    (= arb_fun_0_22_ #b1)
+                    (= arb_fun_0_15_ #b1)
+                    (= arb_fun_0_13_ #b1)
+                    (= arb_fun_0_9_ #b1))
+                (or (= arb_fun_1_24_ #b1) (= arb_fun_1_15_ #b1))))
+      (a!5 (not (and (= a!1 a!3)
+                     (or (= arb_fun_0_24_ #b1)
+                         (= arb_fun_0_22_ #b1)
+                         (= arb_fun_0_15_ #b1)
+                         (= arb_fun_0_13_ #b1)
+                         (= arb_fun_0_9_ #b1))
+                     (or (= arb_fun_1_24_ #b1) (= arb_fun_1_15_ #b1))))))
+  (and (not a!4) a!5 (not a!6) (not a!7)))))
+<Frame 33>
+pc_1: #x0000003c
+pc_0: #x0000003c
+log_register: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #x0010002040340000
+                (ite (= arb_fun_0_13_ #b1)
+                     #x0010002040340000
+                     (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_)))))
+(let ((a!2 (ite (= arb_fun_0_31_ #b1)
+                #x0010002040340008
+                (ite (= arb_fun_0_24_ #b1)
+                     #x0010002040340000
+                     (ite (= arb_fun_0_22_ #b1) #x0010002040340004 a!1)))))
+  (ite (= arb_fun_0_33_ #b1) #x0010002040340000 a!2)))
+en_log_register: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #b1
+                (ite (= arb_fun_0_13_ #b1)
+                     #b1
+                     (ite (= arb_fun_0_9_ #b1) #b1 #b0)))))
+(let ((a!2 (ite (= arb_fun_0_31_ #b1)
+                #b1
+                (ite (= arb_fun_0_24_ #b1)
+                     #b1
+                     (ite (= arb_fun_0_22_ #b1) #b1 a!1)))))
+  (ite (= arb_fun_0_33_ #b1) #b1 a!2)))
+en_check_register: #b1
+check_register: #x001000204034000c
+_Z11simple_loopPii_param_1_1: _Z11simple_loopPii_param_1_1_
+_Z11simple_loopPii_param_1_0: _Z11simple_loopPii_param_1_0_
+_Z11simple_loopPii_param_0_1: _Z11simple_loopPii_param_0_1_
+_Z11simple_loopPii_param_0_0: _Z11simple_loopPii_param_0_0_
+%tid.x_1: #x00000001
+%tid.x_0: #x00000000
+%rd8_1: #x0010002040340014
+%rd8_0: #x0010002040340008
+%rd7_1: #x000000000000000c
+%rd7_0: #x0000000000000000
+%rd6_1: #x0010002040340000
+%rd6_0: #x0010002040340000
+%rd4_1: #x0010002040340014
+%rd4_0: #x0010002040340008
+%rd3_1: #x0010002040340014
+%rd3_0: #x0010002040340008
+%rd2_1: #x001000204034000c
+%rd2_0: #x0010002040340000
+%rd1_1: %rd1_1_
+%rd1_0: %rd1_0_
+%rd0_1: %rd0_1_
+%rd0_0: %rd0_0_
+%rd5_0: #x0010002040340000
+%r9_1: #x00000003
+%rd5_1: #x0010002040340000
+%r9_0: #x00000000
+%r8_1: #x00000001
+%r8_0: #x00000000
+%r7_1: %r7_1_
+%r7_0: %r7_0_
+%r6_1: #x00000004
+%r6_0: #x00000004
+%r5_1: %r5_1_
+%r5_0: %r5_0_
+%r4_1: %r4_1_
+%r4_0: %r4_0_
+%r3_1: %r3_1_
+%r3_0: %r3_0_
+%r2_1: %r2_1_
+%r2_0: %r2_0_
+%r1_1: %r1_1_
+%r1_0: %r1_0_
+%r12_1: #x00000002
+%r12_0: #x00000002
+%r11_1: (bvadd %r11_1_ (bvmul #x00000003 %r10_1_))
+%r11_0: (bvadd %r11_0_ (bvmul #x00000003 %r10_0_))
+%r10_1: %r10_1_
+%r10_0: %r10_0_
+%r0_1: %r0_1_
+%r0_0: %r0_0_
+%p2_1: #b1
+%p2_0: #b1
+%p1_1: #b0
+%p1_0: #b0
+%p0_1: %p0_1_
+%p0_0: %p0_0_
+predicate_bit: (let ((a!1 (ite (= arb_fun_1_24_ #b1)
+                #x001000204034000c
+                (ite (= arb_fun_1_15_ #b1) #x001000204034000c check_register_)))
+      (a!2 (ite (= arb_fun_0_15_ #b1)
+                #x0010002040340000
+                (ite (= arb_fun_0_13_ #b1)
+                     #x0010002040340000
+                     (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_)))))
+(let ((a!3 (ite (= arb_fun_0_24_ #b1)
+                #x0010002040340000
+                (ite (= arb_fun_0_22_ #b1) #x0010002040340004 a!2)))
+      (a!6 (and (= (ite (= arb_fun_1_15_ #b1)
+                        #x001000204034000c
+                        check_register_)
+                   (ite (= arb_fun_0_22_ #b1) #x0010002040340004 a!2))
+                (or (= arb_fun_0_22_ #b1)
+                    (= arb_fun_0_15_ #b1)
+                    (= arb_fun_0_13_ #b1)
+                    (= arb_fun_0_9_ #b1))
+                (= arb_fun_1_15_ #b1)))
+      (a!7 (and (= (ite (= arb_fun_1_15_ #b1)
+                        #x001000204034000c
+                        check_register_)
+                   a!2)
+                (or (= arb_fun_0_15_ #b1)
+                    (= arb_fun_0_13_ #b1)
+                    (= arb_fun_0_9_ #b1))
+                (= arb_fun_1_15_ #b1))))
+(let ((a!4 (and (= a!1 (ite (= arb_fun_0_31_ #b1) #x0010002040340008 a!3))
+                (or (= arb_fun_0_31_ #b1)
+                    (= arb_fun_0_24_ #b1)
+                    (= arb_fun_0_22_ #b1)
+                    (= arb_fun_0_15_ #b1)
+                    (= arb_fun_0_13_ #b1)
+                    (= arb_fun_0_9_ #b1))
+                (or (= arb_fun_1_24_ #b1) (= arb_fun_1_15_ #b1))))
+      (a!5 (not (and (= a!1 a!3)
+                     (or (= arb_fun_0_24_ #b1)
+                         (= arb_fun_0_22_ #b1)
+                         (= arb_fun_0_15_ #b1)
+                         (= arb_fun_0_13_ #b1)
+                         (= arb_fun_0_9_ #b1))
+                     (or (= arb_fun_1_24_ #b1) (= arb_fun_1_15_ #b1))))))
+  (and (not a!4) a!5 (not a!6) (not a!7)))))
+<Frame 34>
+pc_1: #x00000040
+pc_0: #x00000040
+log_register: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #x0010002040340000
+                (ite (= arb_fun_0_13_ #b1)
+                     #x0010002040340000
+                     (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_)))))
+(let ((a!2 (ite (= arb_fun_0_31_ #b1)
+                #x0010002040340008
+                (ite (= arb_fun_0_24_ #b1)
+                     #x0010002040340000
+                     (ite (= arb_fun_0_22_ #b1) #x0010002040340004 a!1)))))
+  (ite (= arb_fun_0_33_ #b1) #x0010002040340000 a!2)))
+en_log_register: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #b1
+                (ite (= arb_fun_0_13_ #b1)
+                     #b1
+                     (ite (= arb_fun_0_9_ #b1) #b1 #b0)))))
+(let ((a!2 (ite (= arb_fun_0_31_ #b1)
+                #b1
+                (ite (= arb_fun_0_24_ #b1)
+                     #b1
+                     (ite (= arb_fun_0_22_ #b1) #b1 a!1)))))
+  (ite (= arb_fun_0_33_ #b1) #b1 a!2)))
+en_check_register: #b1
+check_register: #x001000204034000c
+_Z11simple_loopPii_param_1_1: _Z11simple_loopPii_param_1_1_
+_Z11simple_loopPii_param_1_0: _Z11simple_loopPii_param_1_0_
+_Z11simple_loopPii_param_0_1: _Z11simple_loopPii_param_0_1_
+_Z11simple_loopPii_param_0_0: _Z11simple_loopPii_param_0_0_
+%tid.x_1: #x00000001
+%tid.x_0: #x00000000
+%rd8_1: #x0010002040340014
+%rd8_0: #x0010002040340008
+%rd7_1: #x000000000000000c
+%rd7_0: #x0000000000000000
+%rd6_1: #x0010002040340000
+%rd6_0: #x0010002040340000
+%rd4_1: #x0010002040340018
+%rd4_0: #x001000204034000c
+%rd3_1: #x0010002040340014
+%rd3_0: #x0010002040340008
+%rd2_1: #x001000204034000c
+%rd2_0: #x0010002040340000
+%rd1_1: %rd1_1_
+%rd1_0: %rd1_0_
+%rd0_1: %rd0_1_
+%rd0_0: %rd0_0_
+%rd5_0: #x0010002040340000
+%r9_1: #x00000003
+%rd5_1: #x0010002040340000
+%r9_0: #x00000000
+%r8_1: #x00000001
+%r8_0: #x00000000
+%r7_1: %r7_1_
+%r7_0: %r7_0_
+%r6_1: #x00000004
+%r6_0: #x00000004
+%r5_1: %r5_1_
+%r5_0: %r5_0_
+%r4_1: %r4_1_
+%r4_0: %r4_0_
+%r3_1: %r3_1_
+%r3_0: %r3_0_
+%r2_1: %r2_1_
+%r2_0: %r2_0_
+%r1_1: %r1_1_
+%r1_0: %r1_0_
+%r12_1: #x00000002
+%r12_0: #x00000002
+%r11_1: (bvadd %r11_1_ (bvmul #x00000003 %r10_1_))
+%r11_0: (bvadd %r11_0_ (bvmul #x00000003 %r10_0_))
+%r10_1: %r10_1_
+%r10_0: %r10_0_
+%r0_1: %r0_1_
+%r0_0: %r0_0_
+%p2_1: #b1
+%p2_0: #b1
+%p1_1: #b0
+%p1_0: #b0
+%p0_1: %p0_1_
+%p0_0: %p0_0_
+predicate_bit: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #x0010002040340000
+                (ite (= arb_fun_0_13_ #b1)
+                     #x0010002040340000
+                     (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_))))
+      (a!5 (ite (= arb_fun_1_24_ #b1)
+                #x001000204034000c
+                (ite (= arb_fun_1_15_ #b1) #x001000204034000c check_register_))))
+(let ((a!2 (ite (= arb_fun_0_24_ #b1)
+                #x0010002040340000
+                (ite (= arb_fun_0_22_ #b1) #x0010002040340004 a!1)))
+      (a!8 (and (= (ite (= arb_fun_1_15_ #b1)
+                        #x001000204034000c
+                        check_register_)
+                   (ite (= arb_fun_0_22_ #b1) #x0010002040340004 a!1))
+                (or (= arb_fun_0_22_ #b1)
+                    (= arb_fun_0_15_ #b1)
+                    (= arb_fun_0_13_ #b1)
+                    (= arb_fun_0_9_ #b1))
+                (= arb_fun_1_15_ #b1)))
+      (a!9 (and (= (ite (= arb_fun_1_15_ #b1)
+                        #x001000204034000c
+                        check_register_)
+                   a!1)
+                (or (= arb_fun_0_15_ #b1)
+                    (= arb_fun_0_13_ #b1)
+                    (= arb_fun_0_9_ #b1))
+                (= arb_fun_1_15_ #b1))))
+(let ((a!3 (= (ite (= arb_fun_0_33_ #b1)
+                   #x0010002040340000
+                   (ite (= arb_fun_0_31_ #b1) #x0010002040340008 a!2))
+              #x001000204034000c))
+      (a!6 (and (= a!5 (ite (= arb_fun_0_31_ #b1) #x0010002040340008 a!2))
+                (or (= arb_fun_0_31_ #b1)
+                    (= arb_fun_0_24_ #b1)
+                    (= arb_fun_0_22_ #b1)
+                    (= arb_fun_0_15_ #b1)
+                    (= arb_fun_0_13_ #b1)
+                    (= arb_fun_0_9_ #b1))
+                (or (= arb_fun_1_24_ #b1) (= arb_fun_1_15_ #b1))))
+      (a!7 (not (and (= a!5 a!2)
+                     (or (= arb_fun_0_24_ #b1)
+                         (= arb_fun_0_22_ #b1)
+                         (= arb_fun_0_15_ #b1)
+                         (= arb_fun_0_13_ #b1)
+                         (= arb_fun_0_9_ #b1))
+                     (or (= arb_fun_1_24_ #b1) (= arb_fun_1_15_ #b1))))))
+(let ((a!4 (not (and a!3
+                     (or (= arb_fun_0_33_ #b1)
+                         (= arb_fun_0_31_ #b1)
+                         (= arb_fun_0_24_ #b1)
+                         (= arb_fun_0_22_ #b1)
+                         (= arb_fun_0_15_ #b1)
+                         (= arb_fun_0_13_ #b1)
+                         (= arb_fun_0_9_ #b1))))))
+  (and a!4 (not a!6) a!7 (not a!8) (not a!9))))))
+<Frame 35>
+pc_1: #x00000044
+pc_0: #x00000044
+log_register: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #x0010002040340000
+                (ite (= arb_fun_0_13_ #b1)
+                     #x0010002040340000
+                     (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_)))))
+(let ((a!2 (ite (= arb_fun_0_31_ #b1)
+                #x0010002040340008
+                (ite (= arb_fun_0_24_ #b1)
+                     #x0010002040340000
+                     (ite (= arb_fun_0_22_ #b1) #x0010002040340004 a!1)))))
+  (ite (= arb_fun_0_33_ #b1) #x0010002040340000 a!2)))
+en_log_register: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #b1
+                (ite (= arb_fun_0_13_ #b1)
+                     #b1
+                     (ite (= arb_fun_0_9_ #b1) #b1 #b0)))))
+(let ((a!2 (ite (= arb_fun_0_31_ #b1)
+                #b1
+                (ite (= arb_fun_0_24_ #b1)
+                     #b1
+                     (ite (= arb_fun_0_22_ #b1) #b1 a!1)))))
+  (ite (= arb_fun_0_33_ #b1) #b1 a!2)))
+en_check_register: #b1
+check_register: #x001000204034000c
+_Z11simple_loopPii_param_1_1: _Z11simple_loopPii_param_1_1_
+_Z11simple_loopPii_param_1_0: _Z11simple_loopPii_param_1_0_
+_Z11simple_loopPii_param_0_1: _Z11simple_loopPii_param_0_1_
+_Z11simple_loopPii_param_0_0: _Z11simple_loopPii_param_0_0_
+%tid.x_1: #x00000001
+%tid.x_0: #x00000000
+%rd8_1: #x0010002040340014
+%rd8_0: #x0010002040340008
+%rd7_1: #x000000000000000c
+%rd7_0: #x0000000000000000
+%rd6_1: #x0010002040340000
+%rd6_0: #x0010002040340000
+%rd4_1: #x0010002040340018
+%rd4_0: #x001000204034000c
+%rd3_1: #x0010002040340014
+%rd3_0: #x0010002040340008
+%rd2_1: #x001000204034000c
+%rd2_0: #x0010002040340000
+%rd1_1: %rd1_1_
+%rd1_0: %rd1_0_
+%rd0_1: %rd0_1_
+%rd0_0: %rd0_0_
+%rd5_0: #x0010002040340000
+%r9_1: #x00000003
+%rd5_1: #x0010002040340000
+%r9_0: #x00000000
+%r8_1: #x00000001
+%r8_0: #x00000000
+%r7_1: %r7_1_
+%r7_0: %r7_0_
+%r6_1: #x00000004
+%r6_0: #x00000004
+%r5_1: %r5_1_
+%r5_0: %r5_0_
+%r4_1: %r4_1_
+%r4_0: %r4_0_
+%r3_1: %r3_1_
+%r3_0: %r3_0_
+%r2_1: %r2_1_
+%r2_0: %r2_0_
+%r1_1: %r1_1_
+%r1_0: %r1_0_
+%r12_1: #x00000003
+%r12_0: #x00000003
+%r11_1: (bvadd %r11_1_ (bvmul #x00000003 %r10_1_))
+%r11_0: (bvadd %r11_0_ (bvmul #x00000003 %r10_0_))
+%r10_1: %r10_1_
+%r10_0: %r10_0_
+%r0_1: %r0_1_
+%r0_0: %r0_0_
+%p2_1: #b1
+%p2_0: #b1
+%p1_1: #b0
+%p1_0: #b0
+%p0_1: %p0_1_
+%p0_0: %p0_0_
+predicate_bit: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #x0010002040340000
+                (ite (= arb_fun_0_13_ #b1)
+                     #x0010002040340000
+                     (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_))))
+      (a!5 (ite (= arb_fun_1_24_ #b1)
+                #x001000204034000c
+                (ite (= arb_fun_1_15_ #b1) #x001000204034000c check_register_))))
+(let ((a!2 (ite (= arb_fun_0_24_ #b1)
+                #x0010002040340000
+                (ite (= arb_fun_0_22_ #b1) #x0010002040340004 a!1)))
+      (a!8 (and (= (ite (= arb_fun_1_15_ #b1)
+                        #x001000204034000c
+                        check_register_)
+                   (ite (= arb_fun_0_22_ #b1) #x0010002040340004 a!1))
+                (or (= arb_fun_0_22_ #b1)
+                    (= arb_fun_0_15_ #b1)
+                    (= arb_fun_0_13_ #b1)
+                    (= arb_fun_0_9_ #b1))
+                (= arb_fun_1_15_ #b1)))
+      (a!9 (and (= (ite (= arb_fun_1_15_ #b1)
+                        #x001000204034000c
+                        check_register_)
+                   a!1)
+                (or (= arb_fun_0_15_ #b1)
+                    (= arb_fun_0_13_ #b1)
+                    (= arb_fun_0_9_ #b1))
+                (= arb_fun_1_15_ #b1))))
+(let ((a!3 (= (ite (= arb_fun_0_33_ #b1)
+                   #x0010002040340000
+                   (ite (= arb_fun_0_31_ #b1) #x0010002040340008 a!2))
+              #x001000204034000c))
+      (a!6 (and (= a!5 (ite (= arb_fun_0_31_ #b1) #x0010002040340008 a!2))
+                (or (= arb_fun_0_31_ #b1)
+                    (= arb_fun_0_24_ #b1)
+                    (= arb_fun_0_22_ #b1)
+                    (= arb_fun_0_15_ #b1)
+                    (= arb_fun_0_13_ #b1)
+                    (= arb_fun_0_9_ #b1))
+                (or (= arb_fun_1_24_ #b1) (= arb_fun_1_15_ #b1))))
+      (a!7 (not (and (= a!5 a!2)
+                     (or (= arb_fun_0_24_ #b1)
+                         (= arb_fun_0_22_ #b1)
+                         (= arb_fun_0_15_ #b1)
+                         (= arb_fun_0_13_ #b1)
+                         (= arb_fun_0_9_ #b1))
+                     (or (= arb_fun_1_24_ #b1) (= arb_fun_1_15_ #b1))))))
+(let ((a!4 (not (and a!3
+                     (or (= arb_fun_0_33_ #b1)
+                         (= arb_fun_0_31_ #b1)
+                         (= arb_fun_0_24_ #b1)
+                         (= arb_fun_0_22_ #b1)
+                         (= arb_fun_0_15_ #b1)
+                         (= arb_fun_0_13_ #b1)
+                         (= arb_fun_0_9_ #b1))))))
+  (and a!4 (not a!6) a!7 (not a!8) (not a!9))))))
+<Frame 36>
+pc_1: #x00000048
+pc_0: #x00000048
+log_register: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #x0010002040340000
+                (ite (= arb_fun_0_13_ #b1)
+                     #x0010002040340000
+                     (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_)))))
+(let ((a!2 (ite (= arb_fun_0_31_ #b1)
+                #x0010002040340008
+                (ite (= arb_fun_0_24_ #b1)
+                     #x0010002040340000
+                     (ite (= arb_fun_0_22_ #b1) #x0010002040340004 a!1)))))
+  (ite (= arb_fun_0_33_ #b1) #x0010002040340000 a!2)))
+en_log_register: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #b1
+                (ite (= arb_fun_0_13_ #b1)
+                     #b1
+                     (ite (= arb_fun_0_9_ #b1) #b1 #b0)))))
+(let ((a!2 (ite (= arb_fun_0_31_ #b1)
+                #b1
+                (ite (= arb_fun_0_24_ #b1)
+                     #b1
+                     (ite (= arb_fun_0_22_ #b1) #b1 a!1)))))
+  (ite (= arb_fun_0_33_ #b1) #b1 a!2)))
+en_check_register: #b1
+check_register: #x001000204034000c
+_Z11simple_loopPii_param_1_1: _Z11simple_loopPii_param_1_1_
+_Z11simple_loopPii_param_1_0: _Z11simple_loopPii_param_1_0_
+_Z11simple_loopPii_param_0_1: _Z11simple_loopPii_param_0_1_
+_Z11simple_loopPii_param_0_0: _Z11simple_loopPii_param_0_0_
+%tid.x_1: #x00000001
+%tid.x_0: #x00000000
+%rd8_1: #x0010002040340014
+%rd8_0: #x0010002040340008
+%rd7_1: #x000000000000000c
+%rd7_0: #x0000000000000000
+%rd6_1: #x0010002040340000
+%rd6_0: #x0010002040340000
+%rd4_1: #x0010002040340018
+%rd4_0: #x001000204034000c
+%rd3_1: #x0010002040340014
+%rd3_0: #x0010002040340008
+%rd2_1: #x001000204034000c
+%rd2_0: #x0010002040340000
+%rd1_1: %rd1_1_
+%rd1_0: %rd1_0_
+%rd0_1: %rd0_1_
+%rd0_0: %rd0_0_
+%rd5_0: #x0010002040340000
+%r9_1: #x00000003
+%rd5_1: #x0010002040340000
+%r9_0: #x00000000
+%r8_1: #x00000001
+%r8_0: #x00000000
+%r7_1: %r7_1_
+%r7_0: %r7_0_
+%r6_1: #x00000004
+%r6_0: #x00000004
+%r5_1: %r5_1_
+%r5_0: %r5_0_
+%r4_1: %r4_1_
+%r4_0: %r4_0_
+%r3_1: %r3_1_
+%r3_0: %r3_0_
+%r2_1: %r2_1_
+%r2_0: %r2_0_
+%r1_1: %r1_1_
+%r1_0: %r1_0_
+%r12_1: #x00000003
+%r12_0: #x00000003
+%r11_1: (bvadd %r11_1_ (bvmul #x00000003 %r10_1_))
+%r11_0: (bvadd %r11_0_ (bvmul #x00000003 %r10_0_))
+%r10_1: %r10_1_
+%r10_0: %r10_0_
+%r0_1: %r0_1_
+%r0_0: %r0_0_
+%p2_1: #b1
+%p2_0: #b1
+%p1_1: #b0
+%p1_0: #b0
+%p0_1: %p0_1_
+%p0_0: %p0_0_
+predicate_bit: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #x0010002040340000
+                (ite (= arb_fun_0_13_ #b1)
+                     #x0010002040340000
+                     (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_))))
+      (a!5 (ite (= arb_fun_1_24_ #b1)
+                #x001000204034000c
+                (ite (= arb_fun_1_15_ #b1) #x001000204034000c check_register_))))
+(let ((a!2 (ite (= arb_fun_0_24_ #b1)
+                #x0010002040340000
+                (ite (= arb_fun_0_22_ #b1) #x0010002040340004 a!1)))
+      (a!8 (and (= (ite (= arb_fun_1_15_ #b1)
+                        #x001000204034000c
+                        check_register_)
+                   (ite (= arb_fun_0_22_ #b1) #x0010002040340004 a!1))
+                (or (= arb_fun_0_22_ #b1)
+                    (= arb_fun_0_15_ #b1)
+                    (= arb_fun_0_13_ #b1)
+                    (= arb_fun_0_9_ #b1))
+                (= arb_fun_1_15_ #b1)))
+      (a!9 (and (= (ite (= arb_fun_1_15_ #b1)
+                        #x001000204034000c
+                        check_register_)
+                   a!1)
+                (or (= arb_fun_0_15_ #b1)
+                    (= arb_fun_0_13_ #b1)
+                    (= arb_fun_0_9_ #b1))
+                (= arb_fun_1_15_ #b1))))
+(let ((a!3 (= (ite (= arb_fun_0_33_ #b1)
+                   #x0010002040340000
+                   (ite (= arb_fun_0_31_ #b1) #x0010002040340008 a!2))
+              #x001000204034000c))
+      (a!6 (and (= a!5 (ite (= arb_fun_0_31_ #b1) #x0010002040340008 a!2))
+                (or (= arb_fun_0_31_ #b1)
+                    (= arb_fun_0_24_ #b1)
+                    (= arb_fun_0_22_ #b1)
+                    (= arb_fun_0_15_ #b1)
+                    (= arb_fun_0_13_ #b1)
+                    (= arb_fun_0_9_ #b1))
+                (or (= arb_fun_1_24_ #b1) (= arb_fun_1_15_ #b1))))
+      (a!7 (not (and (= a!5 a!2)
+                     (or (= arb_fun_0_24_ #b1)
+                         (= arb_fun_0_22_ #b1)
+                         (= arb_fun_0_15_ #b1)
+                         (= arb_fun_0_13_ #b1)
+                         (= arb_fun_0_9_ #b1))
+                     (or (= arb_fun_1_24_ #b1) (= arb_fun_1_15_ #b1))))))
+(let ((a!4 (not (and a!3
+                     (or (= arb_fun_0_33_ #b1)
+                         (= arb_fun_0_31_ #b1)
+                         (= arb_fun_0_24_ #b1)
+                         (= arb_fun_0_22_ #b1)
+                         (= arb_fun_0_15_ #b1)
+                         (= arb_fun_0_13_ #b1)
+                         (= arb_fun_0_9_ #b1))))))
+  (and a!4 (not a!6) a!7 (not a!8) (not a!9))))))
+<Frame 37>
+pc_1: #x0000004c
+pc_0: #x0000004c
+log_register: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #x0010002040340000
+                (ite (= arb_fun_0_13_ #b1)
+                     #x0010002040340000
+                     (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_)))))
+(let ((a!2 (ite (= arb_fun_0_31_ #b1)
+                #x0010002040340008
+                (ite (= arb_fun_0_24_ #b1)
+                     #x0010002040340000
+                     (ite (= arb_fun_0_22_ #b1) #x0010002040340004 a!1)))))
+  (ite (= arb_fun_0_33_ #b1) #x0010002040340000 a!2)))
+en_log_register: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #b1
+                (ite (= arb_fun_0_13_ #b1)
+                     #b1
+                     (ite (= arb_fun_0_9_ #b1) #b1 #b0)))))
+(let ((a!2 (ite (= arb_fun_0_31_ #b1)
+                #b1
+                (ite (= arb_fun_0_24_ #b1)
+                     #b1
+                     (ite (= arb_fun_0_22_ #b1) #b1 a!1)))))
+  (ite (= arb_fun_0_33_ #b1) #b1 a!2)))
+en_check_register: #b1
+check_register: #x001000204034000c
+_Z11simple_loopPii_param_1_1: _Z11simple_loopPii_param_1_1_
+_Z11simple_loopPii_param_1_0: _Z11simple_loopPii_param_1_0_
+_Z11simple_loopPii_param_0_1: _Z11simple_loopPii_param_0_1_
+_Z11simple_loopPii_param_0_0: _Z11simple_loopPii_param_0_0_
+%tid.x_1: #x00000001
+%tid.x_0: #x00000000
+%rd8_1: #x0010002040340018
+%rd8_0: #x001000204034000c
+%rd7_1: #x000000000000000c
+%rd7_0: #x0000000000000000
+%rd6_1: #x0010002040340000
+%rd6_0: #x0010002040340000
+%rd4_1: #x0010002040340018
+%rd4_0: #x001000204034000c
+%rd3_1: #x0010002040340014
+%rd3_0: #x0010002040340008
+%rd2_1: #x001000204034000c
+%rd2_0: #x0010002040340000
+%rd1_1: %rd1_1_
+%rd1_0: %rd1_0_
+%rd0_1: %rd0_1_
+%rd0_0: %rd0_0_
+%rd5_0: #x0010002040340000
+%r9_1: #x00000003
+%rd5_1: #x0010002040340000
+%r9_0: #x00000000
+%r8_1: #x00000001
+%r8_0: #x00000000
+%r7_1: %r7_1_
+%r7_0: %r7_0_
+%r6_1: #x00000004
+%r6_0: #x00000004
+%r5_1: %r5_1_
+%r5_0: %r5_0_
+%r4_1: %r4_1_
+%r4_0: %r4_0_
+%r3_1: %r3_1_
+%r3_0: %r3_0_
+%r2_1: %r2_1_
+%r2_0: %r2_0_
+%r1_1: %r1_1_
+%r1_0: %r1_0_
+%r12_1: #x00000003
+%r12_0: #x00000003
+%r11_1: (bvadd %r11_1_ (bvmul #x00000003 %r10_1_))
+%r11_0: (bvadd %r11_0_ (bvmul #x00000003 %r10_0_))
+%r10_1: %r10_1_
+%r10_0: %r10_0_
+%r0_1: %r0_1_
+%r0_0: %r0_0_
+%p2_1: #b1
+%p2_0: #b1
+%p1_1: #b0
+%p1_0: #b0
+%p0_1: %p0_1_
+%p0_0: %p0_0_
+predicate_bit: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #x0010002040340000
+                (ite (= arb_fun_0_13_ #b1)
+                     #x0010002040340000
+                     (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_))))
+      (a!5 (ite (= arb_fun_1_24_ #b1)
+                #x001000204034000c
+                (ite (= arb_fun_1_15_ #b1) #x001000204034000c check_register_))))
+(let ((a!2 (ite (= arb_fun_0_24_ #b1)
+                #x0010002040340000
+                (ite (= arb_fun_0_22_ #b1) #x0010002040340004 a!1)))
+      (a!8 (and (= (ite (= arb_fun_1_15_ #b1)
+                        #x001000204034000c
+                        check_register_)
+                   (ite (= arb_fun_0_22_ #b1) #x0010002040340004 a!1))
+                (or (= arb_fun_0_22_ #b1)
+                    (= arb_fun_0_15_ #b1)
+                    (= arb_fun_0_13_ #b1)
+                    (= arb_fun_0_9_ #b1))
+                (= arb_fun_1_15_ #b1)))
+      (a!9 (and (= (ite (= arb_fun_1_15_ #b1)
+                        #x001000204034000c
+                        check_register_)
+                   a!1)
+                (or (= arb_fun_0_15_ #b1)
+                    (= arb_fun_0_13_ #b1)
+                    (= arb_fun_0_9_ #b1))
+                (= arb_fun_1_15_ #b1))))
+(let ((a!3 (= (ite (= arb_fun_0_33_ #b1)
+                   #x0010002040340000
+                   (ite (= arb_fun_0_31_ #b1) #x0010002040340008 a!2))
+              #x001000204034000c))
+      (a!6 (and (= a!5 (ite (= arb_fun_0_31_ #b1) #x0010002040340008 a!2))
+                (or (= arb_fun_0_31_ #b1)
+                    (= arb_fun_0_24_ #b1)
+                    (= arb_fun_0_22_ #b1)
+                    (= arb_fun_0_15_ #b1)
+                    (= arb_fun_0_13_ #b1)
+                    (= arb_fun_0_9_ #b1))
+                (or (= arb_fun_1_24_ #b1) (= arb_fun_1_15_ #b1))))
+      (a!7 (not (and (= a!5 a!2)
+                     (or (= arb_fun_0_24_ #b1)
+                         (= arb_fun_0_22_ #b1)
+                         (= arb_fun_0_15_ #b1)
+                         (= arb_fun_0_13_ #b1)
+                         (= arb_fun_0_9_ #b1))
+                     (or (= arb_fun_1_24_ #b1) (= arb_fun_1_15_ #b1))))))
+(let ((a!4 (not (and a!3
+                     (or (= arb_fun_0_33_ #b1)
+                         (= arb_fun_0_31_ #b1)
+                         (= arb_fun_0_24_ #b1)
+                         (= arb_fun_0_22_ #b1)
+                         (= arb_fun_0_15_ #b1)
+                         (= arb_fun_0_13_ #b1)
+                         (= arb_fun_0_9_ #b1))))))
+  (and a!4 (not a!6) a!7 (not a!8) (not a!9))))))
+<Frame 38>
+pc_1: #x0000002c
+pc_0: #x0000002c
+log_register: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #x0010002040340000
+                (ite (= arb_fun_0_13_ #b1)
+                     #x0010002040340000
+                     (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_)))))
+(let ((a!2 (ite (= arb_fun_0_31_ #b1)
+                #x0010002040340008
+                (ite (= arb_fun_0_24_ #b1)
+                     #x0010002040340000
+                     (ite (= arb_fun_0_22_ #b1) #x0010002040340004 a!1)))))
+  (ite (= arb_fun_0_33_ #b1) #x0010002040340000 a!2)))
+en_log_register: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #b1
+                (ite (= arb_fun_0_13_ #b1)
+                     #b1
+                     (ite (= arb_fun_0_9_ #b1) #b1 #b0)))))
+(let ((a!2 (ite (= arb_fun_0_31_ #b1)
+                #b1
+                (ite (= arb_fun_0_24_ #b1)
+                     #b1
+                     (ite (= arb_fun_0_22_ #b1) #b1 a!1)))))
+  (ite (= arb_fun_0_33_ #b1) #b1 a!2)))
+en_check_register: #b1
+check_register: #x001000204034000c
+_Z11simple_loopPii_param_1_1: _Z11simple_loopPii_param_1_1_
+_Z11simple_loopPii_param_1_0: _Z11simple_loopPii_param_1_0_
+_Z11simple_loopPii_param_0_1: _Z11simple_loopPii_param_0_1_
+_Z11simple_loopPii_param_0_0: _Z11simple_loopPii_param_0_0_
+%tid.x_1: #x00000001
+%tid.x_0: #x00000000
+%rd8_1: #x0010002040340018
+%rd8_0: #x001000204034000c
+%rd7_1: #x000000000000000c
+%rd7_0: #x0000000000000000
+%rd6_1: #x0010002040340000
+%rd6_0: #x0010002040340000
+%rd4_1: #x0010002040340018
+%rd4_0: #x001000204034000c
+%rd3_1: #x0010002040340014
+%rd3_0: #x0010002040340008
+%rd2_1: #x001000204034000c
+%rd2_0: #x0010002040340000
+%rd1_1: %rd1_1_
+%rd1_0: %rd1_0_
+%rd0_1: %rd0_1_
+%rd0_0: %rd0_0_
+%rd5_0: #x0010002040340000
+%r9_1: #x00000003
+%rd5_1: #x0010002040340000
+%r9_0: #x00000000
+%r8_1: #x00000001
+%r8_0: #x00000000
+%r7_1: %r7_1_
+%r7_0: %r7_0_
+%r6_1: #x00000004
+%r6_0: #x00000004
+%r5_1: %r5_1_
+%r5_0: %r5_0_
+%r4_1: %r4_1_
+%r4_0: %r4_0_
+%r3_1: %r3_1_
+%r3_0: %r3_0_
+%r2_1: %r2_1_
+%r2_0: %r2_0_
+%r1_1: %r1_1_
+%r1_0: %r1_0_
+%r12_1: #x00000003
+%r12_0: #x00000003
+%r11_1: (bvadd %r11_1_ (bvmul #x00000003 %r10_1_))
+%r11_0: (bvadd %r11_0_ (bvmul #x00000003 %r10_0_))
+%r10_1: %r10_1_
+%r10_0: %r10_0_
+%r0_1: %r0_1_
+%r0_0: %r0_0_
+%p2_1: #b1
+%p2_0: #b1
+%p1_1: #b0
+%p1_0: #b0
+%p0_1: %p0_1_
+%p0_0: %p0_0_
+predicate_bit: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #x0010002040340000
+                (ite (= arb_fun_0_13_ #b1)
+                     #x0010002040340000
+                     (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_))))
+      (a!5 (ite (= arb_fun_1_24_ #b1)
+                #x001000204034000c
+                (ite (= arb_fun_1_15_ #b1) #x001000204034000c check_register_))))
+(let ((a!2 (ite (= arb_fun_0_24_ #b1)
+                #x0010002040340000
+                (ite (= arb_fun_0_22_ #b1) #x0010002040340004 a!1)))
+      (a!8 (and (= (ite (= arb_fun_1_15_ #b1)
+                        #x001000204034000c
+                        check_register_)
+                   (ite (= arb_fun_0_22_ #b1) #x0010002040340004 a!1))
+                (or (= arb_fun_0_22_ #b1)
+                    (= arb_fun_0_15_ #b1)
+                    (= arb_fun_0_13_ #b1)
+                    (= arb_fun_0_9_ #b1))
+                (= arb_fun_1_15_ #b1)))
+      (a!9 (and (= (ite (= arb_fun_1_15_ #b1)
+                        #x001000204034000c
+                        check_register_)
+                   a!1)
+                (or (= arb_fun_0_15_ #b1)
+                    (= arb_fun_0_13_ #b1)
+                    (= arb_fun_0_9_ #b1))
+                (= arb_fun_1_15_ #b1))))
+(let ((a!3 (= (ite (= arb_fun_0_33_ #b1)
+                   #x0010002040340000
+                   (ite (= arb_fun_0_31_ #b1) #x0010002040340008 a!2))
+              #x001000204034000c))
+      (a!6 (and (= a!5 (ite (= arb_fun_0_31_ #b1) #x0010002040340008 a!2))
+                (or (= arb_fun_0_31_ #b1)
+                    (= arb_fun_0_24_ #b1)
+                    (= arb_fun_0_22_ #b1)
+                    (= arb_fun_0_15_ #b1)
+                    (= arb_fun_0_13_ #b1)
+                    (= arb_fun_0_9_ #b1))
+                (or (= arb_fun_1_24_ #b1) (= arb_fun_1_15_ #b1))))
+      (a!7 (not (and (= a!5 a!2)
+                     (or (= arb_fun_0_24_ #b1)
+                         (= arb_fun_0_22_ #b1)
+                         (= arb_fun_0_15_ #b1)
+                         (= arb_fun_0_13_ #b1)
+                         (= arb_fun_0_9_ #b1))
+                     (or (= arb_fun_1_24_ #b1) (= arb_fun_1_15_ #b1))))))
+(let ((a!4 (not (and a!3
+                     (or (= arb_fun_0_33_ #b1)
+                         (= arb_fun_0_31_ #b1)
+                         (= arb_fun_0_24_ #b1)
+                         (= arb_fun_0_22_ #b1)
+                         (= arb_fun_0_15_ #b1)
+                         (= arb_fun_0_13_ #b1)
+                         (= arb_fun_0_9_ #b1))))))
+  (and a!4 (not a!6) a!7 (not a!8) (not a!9))))))
+<Frame 39>
+pc_1: #x00000030
+pc_0: #x00000030
+log_register: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #x0010002040340000
+                (ite (= arb_fun_0_13_ #b1)
+                     #x0010002040340000
+                     (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_)))))
+(let ((a!2 (ite (= arb_fun_0_31_ #b1)
+                #x0010002040340008
+                (ite (= arb_fun_0_24_ #b1)
+                     #x0010002040340000
+                     (ite (= arb_fun_0_22_ #b1) #x0010002040340004 a!1)))))
+  (ite (= arb_fun_0_33_ #b1) #x0010002040340000 a!2)))
+en_log_register: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #b1
+                (ite (= arb_fun_0_13_ #b1)
+                     #b1
+                     (ite (= arb_fun_0_9_ #b1) #b1 #b0)))))
+(let ((a!2 (ite (= arb_fun_0_31_ #b1)
+                #b1
+                (ite (= arb_fun_0_24_ #b1)
+                     #b1
+                     (ite (= arb_fun_0_22_ #b1) #b1 a!1)))))
+  (ite (= arb_fun_0_33_ #b1) #b1 a!2)))
+en_check_register: #b1
+check_register: #x001000204034000c
+_Z11simple_loopPii_param_1_1: _Z11simple_loopPii_param_1_1_
+_Z11simple_loopPii_param_1_0: _Z11simple_loopPii_param_1_0_
+_Z11simple_loopPii_param_0_1: _Z11simple_loopPii_param_0_1_
+_Z11simple_loopPii_param_0_0: _Z11simple_loopPii_param_0_0_
+%tid.x_1: #x00000001
+%tid.x_0: #x00000000
+%rd8_1: #x0010002040340018
+%rd8_0: #x001000204034000c
+%rd7_1: #x000000000000000c
+%rd7_0: #x0000000000000000
+%rd6_1: #x0010002040340000
+%rd6_0: #x0010002040340000
+%rd4_1: #x0010002040340018
+%rd4_0: #x001000204034000c
+%rd3_1: #x0010002040340018
+%rd3_0: #x001000204034000c
+%rd2_1: #x001000204034000c
+%rd2_0: #x0010002040340000
+%rd1_1: %rd1_1_
+%rd1_0: %rd1_0_
+%rd0_1: %rd0_1_
+%rd0_0: %rd0_0_
+%rd5_0: #x0010002040340000
+%r9_1: #x00000003
+%rd5_1: #x0010002040340000
+%r9_0: #x00000000
+%r8_1: #x00000001
+%r8_0: #x00000000
+%r7_1: %r7_1_
+%r7_0: %r7_0_
+%r6_1: #x00000004
+%r6_0: #x00000004
+%r5_1: %r5_1_
+%r5_0: %r5_0_
+%r4_1: %r4_1_
+%r4_0: %r4_0_
+%r3_1: %r3_1_
+%r3_0: %r3_0_
+%r2_1: %r2_1_
+%r2_0: %r2_0_
+%r1_1: %r1_1_
+%r1_0: %r1_0_
+%r12_1: #x00000003
+%r12_0: #x00000003
+%r11_1: (bvadd %r11_1_ (bvmul #x00000003 %r10_1_))
+%r11_0: (bvadd %r11_0_ (bvmul #x00000003 %r10_0_))
+%r10_1: %r10_1_
+%r10_0: %r10_0_
+%r0_1: %r0_1_
+%r0_0: %r0_0_
+%p2_1: #b1
+%p2_0: #b1
+%p1_1: #b0
+%p1_0: #b0
+%p0_1: %p0_1_
+%p0_0: %p0_0_
+predicate_bit: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #x0010002040340000
+                (ite (= arb_fun_0_13_ #b1)
+                     #x0010002040340000
+                     (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_))))
+      (a!5 (ite (= arb_fun_1_24_ #b1)
+                #x001000204034000c
+                (ite (= arb_fun_1_15_ #b1) #x001000204034000c check_register_))))
+(let ((a!2 (ite (= arb_fun_0_24_ #b1)
+                #x0010002040340000
+                (ite (= arb_fun_0_22_ #b1) #x0010002040340004 a!1)))
+      (a!8 (and (= (ite (= arb_fun_1_15_ #b1)
+                        #x001000204034000c
+                        check_register_)
+                   (ite (= arb_fun_0_22_ #b1) #x0010002040340004 a!1))
+                (or (= arb_fun_0_22_ #b1)
+                    (= arb_fun_0_15_ #b1)
+                    (= arb_fun_0_13_ #b1)
+                    (= arb_fun_0_9_ #b1))
+                (= arb_fun_1_15_ #b1)))
+      (a!9 (and (= (ite (= arb_fun_1_15_ #b1)
+                        #x001000204034000c
+                        check_register_)
+                   a!1)
+                (or (= arb_fun_0_15_ #b1)
+                    (= arb_fun_0_13_ #b1)
+                    (= arb_fun_0_9_ #b1))
+                (= arb_fun_1_15_ #b1))))
+(let ((a!3 (= (ite (= arb_fun_0_33_ #b1)
+                   #x0010002040340000
+                   (ite (= arb_fun_0_31_ #b1) #x0010002040340008 a!2))
+              #x001000204034000c))
+      (a!6 (and (= a!5 (ite (= arb_fun_0_31_ #b1) #x0010002040340008 a!2))
+                (or (= arb_fun_0_31_ #b1)
+                    (= arb_fun_0_24_ #b1)
+                    (= arb_fun_0_22_ #b1)
+                    (= arb_fun_0_15_ #b1)
+                    (= arb_fun_0_13_ #b1)
+                    (= arb_fun_0_9_ #b1))
+                (or (= arb_fun_1_24_ #b1) (= arb_fun_1_15_ #b1))))
+      (a!7 (not (and (= a!5 a!2)
+                     (or (= arb_fun_0_24_ #b1)
+                         (= arb_fun_0_22_ #b1)
+                         (= arb_fun_0_15_ #b1)
+                         (= arb_fun_0_13_ #b1)
+                         (= arb_fun_0_9_ #b1))
+                     (or (= arb_fun_1_24_ #b1) (= arb_fun_1_15_ #b1))))))
+(let ((a!4 (not (and a!3
+                     (or (= arb_fun_0_33_ #b1)
+                         (= arb_fun_0_31_ #b1)
+                         (= arb_fun_0_24_ #b1)
+                         (= arb_fun_0_22_ #b1)
+                         (= arb_fun_0_15_ #b1)
+                         (= arb_fun_0_13_ #b1)
+                         (= arb_fun_0_9_ #b1))))))
+  (and a!4 (not a!6) a!7 (not a!8) (not a!9))))))
+<Frame 40>
+pc_1: #x00000034
+pc_0: #x00000034
+log_register: #x001000204034000c
+en_log_register: #b1
+en_check_register: #b1
+check_register: #x001000204034000c
+_Z11simple_loopPii_param_1_1: _Z11simple_loopPii_param_1_1_
+_Z11simple_loopPii_param_1_0: _Z11simple_loopPii_param_1_0_
+_Z11simple_loopPii_param_0_1: _Z11simple_loopPii_param_0_1_
+_Z11simple_loopPii_param_0_0: _Z11simple_loopPii_param_0_0_
+%tid.x_1: #x00000001
+%tid.x_0: #x00000000
+%rd8_1: #x0010002040340018
+%rd8_0: #x001000204034000c
+%rd7_1: #x000000000000000c
+%rd7_0: #x0000000000000000
+%rd6_1: #x0010002040340000
+%rd6_0: #x0010002040340000
+%rd4_1: #x0010002040340018
+%rd4_0: #x001000204034000c
+%rd3_1: #x0010002040340018
+%rd3_0: #x001000204034000c
+%rd2_1: #x001000204034000c
+%rd2_0: #x0010002040340000
+%rd1_1: %rd1_1_
+%rd1_0: %rd1_0_
+%rd0_1: %rd0_1_
+%rd0_0: %rd0_0_
+%rd5_0: #x0010002040340000
+%r9_1: #x00000003
+%rd5_1: #x0010002040340000
+%r9_0: #x00000000
+%r8_1: #x00000001
+%r8_0: #x00000000
+%r7_1: %r7_1_
+%r7_0: %r7_0_
+%r6_1: #x00000004
+%r6_0: #x00000004
+%r5_1: %r5_1_
+%r5_0: %r5_0_
+%r4_1: %r4_1_
+%r4_0: %r4_0_
+%r3_1: %r3_1_
+%r3_0: %r3_0_
+%r2_1: %r2_1_
+%r2_0: %r2_0_
+%r1_1: %r1_1_
+%r1_0: %r1_0_
+%r12_1: #x00000003
+%r12_0: #x00000003
+%r11_1: (bvadd %r11_1_ (bvmul #x00000003 %r10_1_))
+%r11_0: (bvadd %r11_0_ (bvmul #x00000003 %r10_0_))
+%r10_1: %r10_1_
+%r10_0: %r10_0_
+%r0_1: %r0_1_
+%r0_0: %r0_0_
+%p2_1: #b1
+%p2_0: #b1
+%p1_1: #b0
+%p1_0: #b0
+%p0_1: %p0_1_
+%p0_0: %p0_0_
+predicate_bit: (let ((a!1 (ite (= arb_fun_0_15_ #b1)
+                #x0010002040340000
+                (ite (= arb_fun_0_13_ #b1)
+                     #x0010002040340000
+                     (ite (= arb_fun_0_9_ #b1) #x0010002040340000 log_register_))))
+      (a!5 (ite (= arb_fun_1_24_ #b1)
+                #x001000204034000c
+                (ite (= arb_fun_1_15_ #b1) #x001000204034000c check_register_))))
+(let ((a!2 (ite (= arb_fun_0_24_ #b1)
+                #x0010002040340000
+                (ite (= arb_fun_0_22_ #b1) #x0010002040340004 a!1)))
+      (a!8 (and (= (ite (= arb_fun_1_15_ #b1)
+                        #x001000204034000c
+                        check_register_)
+                   (ite (= arb_fun_0_22_ #b1) #x0010002040340004 a!1))
+                (or (= arb_fun_0_22_ #b1)
+                    (= arb_fun_0_15_ #b1)
+                    (= arb_fun_0_13_ #b1)
+                    (= arb_fun_0_9_ #b1))
+                (= arb_fun_1_15_ #b1)))
+      (a!9 (and (= (ite (= arb_fun_1_15_ #b1)
+                        #x001000204034000c
+                        check_register_)
+                   a!1)
+                (or (= arb_fun_0_15_ #b1)
+                    (= arb_fun_0_13_ #b1)
+                    (= arb_fun_0_9_ #b1))
+                (= arb_fun_1_15_ #b1))))
+(let ((a!3 (= (ite (= arb_fun_0_33_ #b1)
+                   #x0010002040340000
+                   (ite (= arb_fun_0_31_ #b1) #x0010002040340008 a!2))
+              #x001000204034000c))
+      (a!6 (and (= a!5 (ite (= arb_fun_0_31_ #b1) #x0010002040340008 a!2))
+                (or (= arb_fun_0_31_ #b1)
+                    (= arb_fun_0_24_ #b1)
+                    (= arb_fun_0_22_ #b1)
+                    (= arb_fun_0_15_ #b1)
+                    (= arb_fun_0_13_ #b1)
+                    (= arb_fun_0_9_ #b1))
+                (or (= arb_fun_1_24_ #b1) (= arb_fun_1_15_ #b1))))
+      (a!7 (not (and (= a!5 a!2)
+                     (or (= arb_fun_0_24_ #b1)
+                         (= arb_fun_0_22_ #b1)
+                         (= arb_fun_0_15_ #b1)
+                         (= arb_fun_0_13_ #b1)
+                         (= arb_fun_0_9_ #b1))
+                     (or (= arb_fun_1_24_ #b1) (= arb_fun_1_15_ #b1))))))
+(let ((a!4 (not (and a!3
+                     (or (= arb_fun_0_33_ #b1)
+                         (= arb_fun_0_31_ #b1)
+                         (= arb_fun_0_24_ #b1)
+                         (= arb_fun_0_22_ #b1)
+                         (= arb_fun_0_15_ #b1)
+                         (= arb_fun_0_13_ #b1)
+                         (= arb_fun_0_9_ #b1))))))
+  (and a!4 (not a!6) a!7 (not a!8) (not a!9))))))
+<Frame 41>
+pc_1: #x00000038
+pc_0: #x00000038
+log_register: #x001000204034000c
+en_log_register: #b1
+en_check_register: #b1
+check_register: #x001000204034000c
+_Z11simple_loopPii_param_1_1: _Z11simple_loopPii_param_1_1_
+_Z11simple_loopPii_param_1_0: _Z11simple_loopPii_param_1_0_
+_Z11simple_loopPii_param_0_1: _Z11simple_loopPii_param_0_1_
+_Z11simple_loopPii_param_0_0: _Z11simple_loopPii_param_0_0_
+%tid.x_1: #x00000001
+%tid.x_0: #x00000000
+%rd8_1: #x0010002040340018
+%rd8_0: #x001000204034000c
+%rd7_1: #x000000000000000c
+%rd7_0: #x0000000000000000
+%rd6_1: #x0010002040340000
+%rd6_0: #x0010002040340000
+%rd4_1: #x0010002040340018
+%rd4_0: #x001000204034000c
+%rd3_1: #x0010002040340018
+%rd3_0: #x001000204034000c
+%rd2_1: #x001000204034000c
+%rd2_0: #x0010002040340000
+%rd1_1: %rd1_1_
+%rd1_0: %rd1_0_
+%rd0_1: %rd0_1_
+%rd0_0: %rd0_0_
+%rd5_0: #x0010002040340000
+%r9_1: #x00000003
+%rd5_1: #x0010002040340000
+%r9_0: #x00000000
+%r8_1: #x00000001
+%r8_0: #x00000000
+%r7_1: %r7_1_
+%r7_0: %r7_0_
+%r6_1: #x00000004
+%r6_0: #x00000004
+%r5_1: %r5_1_
+%r5_0: %r5_0_
+%r4_1: %r4_1_
+%r4_0: %r4_0_
+%r3_1: %r3_1_
+%r3_0: %r3_0_
+%r2_1: %r2_1_
+%r2_0: %r2_0_
+%r1_1: %r1_1_
+%r1_0: %r1_0_
+%r12_1: #x00000003
+%r12_0: #x00000003
+%r11_1: (bvadd %r11_1_ (bvmul #x00000004 %r10_1_))
+%r11_0: (bvadd %r11_0_ (bvmul #x00000004 %r10_0_))
+%r10_1: %r10_1_
+%r10_0: %r10_0_
+%r0_1: %r0_1_
+%r0_0: %r0_0_
+%p2_1: #b1
+%p2_0: #b1
+%p1_1: #b0
+%p1_0: #b0
+%p0_1: %p0_1_
+%p0_0: %p0_0_
+predicate_bit: false
+<Frame 42>
+pc_1: #x0000003c
+pc_0: #x0000003c
+log_register: (ite (= arb_fun_0_42_ #b1) #x0010002040340000 #x001000204034000c)
+en_log_register: #b1
+en_check_register: #b1
+check_register: #x001000204034000c
+_Z11simple_loopPii_param_1_1: _Z11simple_loopPii_param_1_1_
+_Z11simple_loopPii_param_1_0: _Z11simple_loopPii_param_1_0_
+_Z11simple_loopPii_param_0_1: _Z11simple_loopPii_param_0_1_
+_Z11simple_loopPii_param_0_0: _Z11simple_loopPii_param_0_0_
+%tid.x_1: #x00000001
+%tid.x_0: #x00000000
+%rd8_1: #x0010002040340018
+%rd8_0: #x001000204034000c
+%rd7_1: #x000000000000000c
+%rd7_0: #x0000000000000000
+%rd6_1: #x0010002040340000
+%rd6_0: #x0010002040340000
+%rd4_1: #x0010002040340018
+%rd4_0: #x001000204034000c
+%rd3_1: #x0010002040340018
+%rd3_0: #x001000204034000c
+%rd2_1: #x001000204034000c
+%rd2_0: #x0010002040340000
+%rd1_1: %rd1_1_
+%rd1_0: %rd1_0_
+%rd0_1: %rd0_1_
+%rd0_0: %rd0_0_
+%rd5_0: #x0010002040340000
+%r9_1: #x00000003
+%rd5_1: #x0010002040340000
+%r9_0: #x00000000
+%r8_1: #x00000001
+%r8_0: #x00000000
+%r7_1: %r7_1_
+%r7_0: %r7_0_
+%r6_1: #x00000004
+%r6_0: #x00000004
+%r5_1: %r5_1_
+%r5_0: %r5_0_
+%r4_1: %r4_1_
+%r4_0: %r4_0_
+%r3_1: %r3_1_
+%r3_0: %r3_0_
+%r2_1: %r2_1_
+%r2_0: %r2_0_
+%r1_1: %r1_1_
+%r1_0: %r1_0_
+%r12_1: #x00000003
+%r12_0: #x00000003
+%r11_1: (bvadd %r11_1_ (bvmul #x00000004 %r10_1_))
+%r11_0: (bvadd %r11_0_ (bvmul #x00000004 %r10_0_))
+%r10_1: %r10_1_
+%r10_0: %r10_0_
+%r0_1: %r0_1_
+%r0_0: %r0_0_
+%p2_1: #b1
+%p2_0: #b1
+%p1_1: #b0
+%p1_0: #b0
+%p0_1: %p0_1_
+%p0_0: %p0_0_
+predicate_bit: false
+<Frame 43>
+pc_1: #x00000040
+pc_0: #x00000040
+log_register: (ite (= arb_fun_0_42_ #b1) #x0010002040340000 #x001000204034000c)
+en_log_register: #b1
+en_check_register: #b1
+check_register: #x001000204034000c
+_Z11simple_loopPii_param_1_1: _Z11simple_loopPii_param_1_1_
+_Z11simple_loopPii_param_1_0: _Z11simple_loopPii_param_1_0_
+_Z11simple_loopPii_param_0_1: _Z11simple_loopPii_param_0_1_
+_Z11simple_loopPii_param_0_0: _Z11simple_loopPii_param_0_0_
+%tid.x_1: #x00000001
+%tid.x_0: #x00000000
+%rd8_1: #x0010002040340018
+%rd8_0: #x001000204034000c
+%rd7_1: #x000000000000000c
+%rd7_0: #x0000000000000000
+%rd6_1: #x0010002040340000
+%rd6_0: #x0010002040340000
+%rd4_1: #x001000204034001c
+%rd4_0: #x0010002040340010
+%rd3_1: #x0010002040340018
+%rd3_0: #x001000204034000c
+%rd2_1: #x001000204034000c
+%rd2_0: #x0010002040340000
+%rd1_1: %rd1_1_
+%rd1_0: %rd1_0_
+%rd0_1: %rd0_1_
+%rd0_0: %rd0_0_
+%rd5_0: #x0010002040340000
+%r9_1: #x00000003
+%rd5_1: #x0010002040340000
+%r9_0: #x00000000
+%r8_1: #x00000001
+%r8_0: #x00000000
+%r7_1: %r7_1_
+%r7_0: %r7_0_
+%r6_1: #x00000004
+%r6_0: #x00000004
+%r5_1: %r5_1_
+%r5_0: %r5_0_
+%r4_1: %r4_1_
+%r4_0: %r4_0_
+%r3_1: %r3_1_
+%r3_0: %r3_0_
+%r2_1: %r2_1_
+%r2_0: %r2_0_
+%r1_1: %r1_1_
+%r1_0: %r1_0_
+%r12_1: #x00000003
+%r12_0: #x00000003
+%r11_1: (bvadd %r11_1_ (bvmul #x00000004 %r10_1_))
+%r11_0: (bvadd %r11_0_ (bvmul #x00000004 %r10_0_))
+%r10_1: %r10_1_
+%r10_0: %r10_0_
+%r0_1: %r0_1_
+%r0_0: %r0_0_
+%p2_1: #b1
+%p2_0: #b1
+%p1_1: #b0
+%p1_0: #b0
+%p0_1: %p0_1_
+%p0_0: %p0_0_
+predicate_bit: false
+<Frame 44>
+pc_1: #x00000044
+pc_0: #x00000044
+log_register: (ite (= arb_fun_0_42_ #b1) #x0010002040340000 #x001000204034000c)
+en_log_register: #b1
+en_check_register: #b1
+check_register: #x001000204034000c
+_Z11simple_loopPii_param_1_1: _Z11simple_loopPii_param_1_1_
+_Z11simple_loopPii_param_1_0: _Z11simple_loopPii_param_1_0_
+_Z11simple_loopPii_param_0_1: _Z11simple_loopPii_param_0_1_
+_Z11simple_loopPii_param_0_0: _Z11simple_loopPii_param_0_0_
+%tid.x_1: #x00000001
+%tid.x_0: #x00000000
+%rd8_1: #x0010002040340018
+%rd8_0: #x001000204034000c
+%rd7_1: #x000000000000000c
+%rd7_0: #x0000000000000000
+%rd6_1: #x0010002040340000
+%rd6_0: #x0010002040340000
+%rd4_1: #x001000204034001c
+%rd4_0: #x0010002040340010
+%rd3_1: #x0010002040340018
+%rd3_0: #x001000204034000c
+%rd2_1: #x001000204034000c
+%rd2_0: #x0010002040340000
+%rd1_1: %rd1_1_
+%rd1_0: %rd1_0_
+%rd0_1: %rd0_1_
+%rd0_0: %rd0_0_
+%rd5_0: #x0010002040340000
+%r9_1: #x00000003
+%rd5_1: #x0010002040340000
+%r9_0: #x00000000
+%r8_1: #x00000001
+%r8_0: #x00000000
+%r7_1: %r7_1_
+%r7_0: %r7_0_
+%r6_1: #x00000004
+%r6_0: #x00000004
+%r5_1: %r5_1_
+%r5_0: %r5_0_
+%r4_1: %r4_1_
+%r4_0: %r4_0_
+%r3_1: %r3_1_
+%r3_0: %r3_0_
+%r2_1: %r2_1_
+%r2_0: %r2_0_
+%r1_1: %r1_1_
+%r1_0: %r1_0_
+%r12_1: #x00000004
+%r12_0: #x00000004
+%r11_1: (bvadd %r11_1_ (bvmul #x00000004 %r10_1_))
+%r11_0: (bvadd %r11_0_ (bvmul #x00000004 %r10_0_))
+%r10_1: %r10_1_
+%r10_0: %r10_0_
+%r0_1: %r0_1_
+%r0_0: %r0_0_
+%p2_1: #b1
+%p2_0: #b1
+%p1_1: #b0
+%p1_0: #b0
+%p0_1: %p0_1_
+%p0_0: %p0_0_
+predicate_bit: false
+<Frame 45>
+pc_1: #x00000048
+pc_0: #x00000048
+log_register: (ite (= arb_fun_0_42_ #b1) #x0010002040340000 #x001000204034000c)
+en_log_register: #b1
+en_check_register: #b1
+check_register: #x001000204034000c
+_Z11simple_loopPii_param_1_1: _Z11simple_loopPii_param_1_1_
+_Z11simple_loopPii_param_1_0: _Z11simple_loopPii_param_1_0_
+_Z11simple_loopPii_param_0_1: _Z11simple_loopPii_param_0_1_
+_Z11simple_loopPii_param_0_0: _Z11simple_loopPii_param_0_0_
+%tid.x_1: #x00000001
+%tid.x_0: #x00000000
+%rd8_1: #x0010002040340018
+%rd8_0: #x001000204034000c
+%rd7_1: #x000000000000000c
+%rd7_0: #x0000000000000000
+%rd6_1: #x0010002040340000
+%rd6_0: #x0010002040340000
+%rd4_1: #x001000204034001c
+%rd4_0: #x0010002040340010
+%rd3_1: #x0010002040340018
+%rd3_0: #x001000204034000c
+%rd2_1: #x001000204034000c
+%rd2_0: #x0010002040340000
+%rd1_1: %rd1_1_
+%rd1_0: %rd1_0_
+%rd0_1: %rd0_1_
+%rd0_0: %rd0_0_
+%rd5_0: #x0010002040340000
+%r9_1: #x00000003
+%rd5_1: #x0010002040340000
+%r9_0: #x00000000
+%r8_1: #x00000001
+%r8_0: #x00000000
+%r7_1: %r7_1_
+%r7_0: %r7_0_
+%r6_1: #x00000004
+%r6_0: #x00000004
+%r5_1: %r5_1_
+%r5_0: %r5_0_
+%r4_1: %r4_1_
+%r4_0: %r4_0_
+%r3_1: %r3_1_
+%r3_0: %r3_0_
+%r2_1: %r2_1_
+%r2_0: %r2_0_
+%r1_1: %r1_1_
+%r1_0: %r1_0_
+%r12_1: #x00000004
+%r12_0: #x00000004
+%r11_1: (bvadd %r11_1_ (bvmul #x00000004 %r10_1_))
+%r11_0: (bvadd %r11_0_ (bvmul #x00000004 %r10_0_))
+%r10_1: %r10_1_
+%r10_0: %r10_0_
+%r0_1: %r0_1_
+%r0_0: %r0_0_
+%p2_1: #b0
+%p2_0: #b0
+%p1_1: #b0
+%p1_0: #b0
+%p0_1: %p0_1_
+%p0_0: %p0_0_
+predicate_bit: false
+<Frame 46>
+pc_1: #x0000004c
+pc_0: #x0000004c
+log_register: (ite (= arb_fun_0_42_ #b1) #x0010002040340000 #x001000204034000c)
+en_log_register: #b1
+en_check_register: #b1
+check_register: #x001000204034000c
+_Z11simple_loopPii_param_1_1: _Z11simple_loopPii_param_1_1_
+_Z11simple_loopPii_param_1_0: _Z11simple_loopPii_param_1_0_
+_Z11simple_loopPii_param_0_1: _Z11simple_loopPii_param_0_1_
+_Z11simple_loopPii_param_0_0: _Z11simple_loopPii_param_0_0_
+%tid.x_1: #x00000001
+%tid.x_0: #x00000000
+%rd8_1: #x001000204034001c
+%rd8_0: #x0010002040340010
+%rd7_1: #x000000000000000c
+%rd7_0: #x0000000000000000
+%rd6_1: #x0010002040340000
+%rd6_0: #x0010002040340000
+%rd4_1: #x001000204034001c
+%rd4_0: #x0010002040340010
+%rd3_1: #x0010002040340018
+%rd3_0: #x001000204034000c
+%rd2_1: #x001000204034000c
+%rd2_0: #x0010002040340000
+%rd1_1: %rd1_1_
+%rd1_0: %rd1_0_
+%rd0_1: %rd0_1_
+%rd0_0: %rd0_0_
+%rd5_0: #x0010002040340000
+%r9_1: #x00000003
+%rd5_1: #x0010002040340000
+%r9_0: #x00000000
+%r8_1: #x00000001
+%r8_0: #x00000000
+%r7_1: %r7_1_
+%r7_0: %r7_0_
+%r6_1: #x00000004
+%r6_0: #x00000004
+%r5_1: %r5_1_
+%r5_0: %r5_0_
+%r4_1: %r4_1_
+%r4_0: %r4_0_
+%r3_1: %r3_1_
+%r3_0: %r3_0_
+%r2_1: %r2_1_
+%r2_0: %r2_0_
+%r1_1: %r1_1_
+%r1_0: %r1_0_
+%r12_1: #x00000004
+%r12_0: #x00000004
+%r11_1: (bvadd %r11_1_ (bvmul #x00000004 %r10_1_))
+%r11_0: (bvadd %r11_0_ (bvmul #x00000004 %r10_0_))
+%r10_1: %r10_1_
+%r10_0: %r10_0_
+%r0_1: %r0_1_
+%r0_0: %r0_0_
+%p2_1: #b0
+%p2_0: #b0
+%p1_1: #b0
+%p1_0: #b0
+%p0_1: %p0_1_
+%p0_0: %p0_0_
+predicate_bit: false
+<Frame 47>
+pc_1: #x00000050
+pc_0: #x00000050
+log_register: (ite (= arb_fun_0_42_ #b1) #x0010002040340000 #x001000204034000c)
+en_log_register: #b1
+en_check_register: #b1
+check_register: #x001000204034000c
+_Z11simple_loopPii_param_1_1: _Z11simple_loopPii_param_1_1_
+_Z11simple_loopPii_param_1_0: _Z11simple_loopPii_param_1_0_
+_Z11simple_loopPii_param_0_1: _Z11simple_loopPii_param_0_1_
+_Z11simple_loopPii_param_0_0: _Z11simple_loopPii_param_0_0_
+%tid.x_1: #x00000001
+%tid.x_0: #x00000000
+%rd8_1: #x001000204034001c
+%rd8_0: #x0010002040340010
+%rd7_1: #x000000000000000c
+%rd7_0: #x0000000000000000
+%rd6_1: #x0010002040340000
+%rd6_0: #x0010002040340000
+%rd4_1: #x001000204034001c
+%rd4_0: #x0010002040340010
+%rd3_1: #x0010002040340018
+%rd3_0: #x001000204034000c
+%rd2_1: #x001000204034000c
+%rd2_0: #x0010002040340000
+%rd1_1: %rd1_1_
+%rd1_0: %rd1_0_
+%rd0_1: %rd0_1_
+%rd0_0: %rd0_0_
+%rd5_0: #x0010002040340000
+%r9_1: #x00000003
+%rd5_1: #x0010002040340000
+%r9_0: #x00000000
+%r8_1: #x00000001
+%r8_0: #x00000000
+%r7_1: %r7_1_
+%r7_0: %r7_0_
+%r6_1: #x00000004
+%r6_0: #x00000004
+%r5_1: %r5_1_
+%r5_0: %r5_0_
+%r4_1: %r4_1_
+%r4_0: %r4_0_
+%r3_1: %r3_1_
+%r3_0: %r3_0_
+%r2_1: %r2_1_
+%r2_0: %r2_0_
+%r1_1: %r1_1_
+%r1_0: %r1_0_
+%r12_1: #x00000004
+%r12_0: #x00000004
+%r11_1: (bvadd %r11_1_ (bvmul #x00000004 %r10_1_))
+%r11_0: (bvadd %r11_0_ (bvmul #x00000004 %r10_0_))
+%r10_1: %r10_1_
+%r10_0: %r10_0_
+%r0_1: %r0_1_
+%r0_0: %r0_0_
+%p2_1: #b0
+%p2_0: #b0
+%p1_1: #b0
+%p1_0: #b0
+%p0_1: %p0_1_
+%p0_0: %p0_0_
+predicate_bit: false
+<Frame 48>
+pc_1: #x00000050
+pc_0: #x00000050
+log_register: (ite (= arb_fun_0_42_ #b1) #x0010002040340000 #x001000204034000c)
+en_log_register: #b1
+en_check_register: #b1
+check_register: #x001000204034000c
+_Z11simple_loopPii_param_1_1: _Z11simple_loopPii_param_1_1_
+_Z11simple_loopPii_param_1_0: _Z11simple_loopPii_param_1_0_
+_Z11simple_loopPii_param_0_1: _Z11simple_loopPii_param_0_1_
+_Z11simple_loopPii_param_0_0: _Z11simple_loopPii_param_0_0_
+%tid.x_1: #x00000001
+%tid.x_0: #x00000000
+%rd8_1: #x001000204034001c
+%rd8_0: #x0010002040340010
+%rd7_1: #x000000000000000c
+%rd7_0: #x0000000000000000
+%rd6_1: #x0010002040340000
+%rd6_0: #x0010002040340000
+%rd4_1: #x001000204034001c
+%rd4_0: #x0010002040340010
+%rd3_1: #x0010002040340018
+%rd3_0: #x001000204034000c
+%rd2_1: #x001000204034000c
+%rd2_0: #x0010002040340000
+%rd1_1: %rd1_1_
+%rd1_0: %rd1_0_
+%rd0_1: %rd0_1_
+%rd0_0: %rd0_0_
+%rd5_0: #x0010002040340000
+%r9_1: #x00000003
+%rd5_1: #x0010002040340000
+%r9_0: #x00000000
+%r8_1: #x00000001
+%r8_0: #x00000000
+%r7_1: %r7_1_
+%r7_0: %r7_0_
+%r6_1: #x00000004
+%r6_0: #x00000004
+%r5_1: %r5_1_
+%r5_0: %r5_0_
+%r4_1: %r4_1_
+%r4_0: %r4_0_
+%r3_1: %r3_1_
+%r3_0: %r3_0_
+%r2_1: %r2_1_
+%r2_0: %r2_0_
+%r1_1: %r1_1_
+%r1_0: %r1_0_
+%r12_1: #x00000004
+%r12_0: #x00000004
+%r11_1: (bvadd %r11_1_ (bvmul #x00000004 %r10_1_))
+%r11_0: (bvadd %r11_0_ (bvmul #x00000004 %r10_0_))
+%r10_1: %r10_1_
+%r10_0: %r10_0_
+%r0_1: %r0_1_
+%r0_0: %r0_0_
+%p2_1: #b0
+%p2_0: #b0
+%p1_1: #b0
+%p1_0: #b0
+%p0_1: %p0_1_
+%p0_0: %p0_0_
+predicate_bit: false
+<Frame 49>
+pc_1: #x00000050
+pc_0: #x00000050
+log_register: (ite (= arb_fun_0_42_ #b1) #x0010002040340000 #x001000204034000c)
+en_log_register: #b1
+en_check_register: #b1
+check_register: #x001000204034000c
+_Z11simple_loopPii_param_1_1: _Z11simple_loopPii_param_1_1_
+_Z11simple_loopPii_param_1_0: _Z11simple_loopPii_param_1_0_
+_Z11simple_loopPii_param_0_1: _Z11simple_loopPii_param_0_1_
+_Z11simple_loopPii_param_0_0: _Z11simple_loopPii_param_0_0_
+%tid.x_1: #x00000001
+%tid.x_0: #x00000000
+%rd8_1: #x001000204034001c
+%rd8_0: #x0010002040340010
+%rd7_1: #x000000000000000c
+%rd7_0: #x0000000000000000
+%rd6_1: #x0010002040340000
+%rd6_0: #x0010002040340000
+%rd4_1: #x001000204034001c
+%rd4_0: #x0010002040340010
+%rd3_1: #x0010002040340018
+%rd3_0: #x001000204034000c
+%rd2_1: #x001000204034000c
+%rd2_0: #x0010002040340000
+%rd1_1: %rd1_1_
+%rd1_0: %rd1_0_
+%rd0_1: %rd0_1_
+%rd0_0: %rd0_0_
+%rd5_0: #x0010002040340000
+%r9_1: #x00000003
+%rd5_1: #x0010002040340000
+%r9_0: #x00000000
+%r8_1: #x00000001
+%r8_0: #x00000000
+%r7_1: %r7_1_
+%r7_0: %r7_0_
+%r6_1: #x00000004
+%r6_0: #x00000004
+%r5_1: %r5_1_
+%r5_0: %r5_0_
+%r4_1: %r4_1_
+%r4_0: %r4_0_
+%r3_1: %r3_1_
+%r3_0: %r3_0_
+%r2_1: %r2_1_
+%r2_0: %r2_0_
+%r1_1: %r1_1_
+%r1_0: %r1_0_
+%r12_1: #x00000004
+%r12_0: #x00000004
+%r11_1: (bvadd %r11_1_ (bvmul #x00000004 %r10_1_))
+%r11_0: (bvadd %r11_0_ (bvmul #x00000004 %r10_0_))
+%r10_1: %r10_1_
+%r10_0: %r10_0_
+%r0_1: %r0_1_
+%r0_0: %r0_0_
+%p2_1: #b0
+%p2_0: #b0
+%p1_1: #b0
+%p1_0: #b0
+%p0_1: %p0_1_
+%p0_0: %p0_0_
+predicate_bit: false
+<Frame 50>
+pc_1: #x00000050
+pc_0: #x00000050
+log_register: (ite (= arb_fun_0_42_ #b1) #x0010002040340000 #x001000204034000c)
+en_log_register: #b1
+en_check_register: #b1
+check_register: #x001000204034000c
+_Z11simple_loopPii_param_1_1: _Z11simple_loopPii_param_1_1_
+_Z11simple_loopPii_param_1_0: _Z11simple_loopPii_param_1_0_
+_Z11simple_loopPii_param_0_1: _Z11simple_loopPii_param_0_1_
+_Z11simple_loopPii_param_0_0: _Z11simple_loopPii_param_0_0_
+%tid.x_1: #x00000001
+%tid.x_0: #x00000000
+%rd8_1: #x001000204034001c
+%rd8_0: #x0010002040340010
+%rd7_1: #x000000000000000c
+%rd7_0: #x0000000000000000
+%rd6_1: #x0010002040340000
+%rd6_0: #x0010002040340000
+%rd4_1: #x001000204034001c
+%rd4_0: #x0010002040340010
+%rd3_1: #x0010002040340018
+%rd3_0: #x001000204034000c
+%rd2_1: #x001000204034000c
+%rd2_0: #x0010002040340000
+%rd1_1: %rd1_1_
+%rd1_0: %rd1_0_
+%rd0_1: %rd0_1_
+%rd0_0: %rd0_0_
+%rd5_0: #x0010002040340000
+%r9_1: #x00000003
+%rd5_1: #x0010002040340000
+%r9_0: #x00000000
+%r8_1: #x00000001
+%r8_0: #x00000000
+%r7_1: %r7_1_
+%r7_0: %r7_0_
+%r6_1: #x00000004
+%r6_0: #x00000004
+%r5_1: %r5_1_
+%r5_0: %r5_0_
+%r4_1: %r4_1_
+%r4_0: %r4_0_
+%r3_1: %r3_1_
+%r3_0: %r3_0_
+%r2_1: %r2_1_
+%r2_0: %r2_0_
+%r1_1: %r1_1_
+%r1_0: %r1_0_
+%r12_1: #x00000004
+%r12_0: #x00000004
+%r11_1: (bvadd %r11_1_ (bvmul #x00000004 %r10_1_))
+%r11_0: (bvadd %r11_0_ (bvmul #x00000004 %r10_0_))
+%r10_1: %r10_1_
+%r10_0: %r10_0_
+%r0_1: %r0_1_
+%r0_0: %r0_0_
+%p2_1: #b0
+%p2_0: #b0
+%p1_1: #b0
+%p1_0: #b0
+%p0_1: %p0_1_
+%p0_0: %p0_0_
+predicate_bit: false
+False

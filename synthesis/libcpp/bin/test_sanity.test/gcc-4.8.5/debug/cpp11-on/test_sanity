@@ -1,0 +1,34 @@
+test
+(type bitvector 16)
+16
+test
+creating new bitvecvar
+mambo
+mambo
+(~ mambo)
+(neg (~ mambo))
+$n4
+(type bitvector 24)
+24
+(+ n1 (~ n2))
+(type bitvector 16)
+(~ 0x80)
+(~ (+ 0x80 0x80))
+(+ (~ (+ 0x80 0x80)) 0x20)
+(type bitvector 16)
+(+ 0x20 (~ (+ 0x80 0x80)))
+(type bitvector 16)
+(- (~ (- 0x80 0x80)) 0x20)
+(type bitvector 16)
+(- 0x20 (~ (- 0x80 0x80)))
+(type bitvector 16)
+(type bool)
+(or (and pix qix) (and (not pix) (not qix)))
+(eq (+ n1 (~ n2)) n1)
+(type bool)
+(eq (or (and pix qix) (and (not pix) (not qix))) pix)
+(type bool)
+(neq (+ n1 (~ n2)) n1) (type bool)
+(neq (or (and pix qix) (and (not pix) (not qix))) pix) (type bool)
+
+EXIT STATUS: 0
