@@ -10,15 +10,15 @@
 /// \namespace ila
 namespace ila {
 
-/// \class ExprSimplify
+/// \class ExprSimplifier
 /// The simplify the AST tree by sharing nodes based on the hash value.
-class ExprSimplify {
+class ExprSimplifier {
 public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor.
-  ExprSimplify();
+  ExprSimplifier();
   /// Default destructor.
-  ~ExprSimplify();
+  ~ExprSimplifier();
 
   /// \def HashTable
   typedef std::map<std::string, ExprPtr> HashTable;
@@ -38,7 +38,7 @@ private:
   HashTable map_;
 
   // ------------------------- HELPERS -------------------------------------- //
-}; // class ExprSimplify
+}; // class ExprSimplifier
 
 } // namespace ila
 

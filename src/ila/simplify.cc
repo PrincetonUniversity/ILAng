@@ -5,9 +5,11 @@
 
 namespace ila {
 
-ExprSimplify::ExprSimplify() {}
+ExprSimplifier::ExprSimplifier() {}
 
-ExprSimplify::~ExprSimplify() {}
+ExprSimplifier::~ExprSimplifier() {}
+
+void ExprSimplifier::Reset() { map_.clear(); }
 
 } // namespace ila
 
