@@ -18,6 +18,11 @@ bool StrToBool(const std::string& str);
 
 int StrToInt(const std::string& str);
 
+std::string StrConcat(const std::string& l, const std::string& r);
+
+std::string StrConcat(const std::string& l, const std::string& m,
+                      const std::string& r);
+
 } // namespace ila
 
 #endif // __STR_UTIL_H__

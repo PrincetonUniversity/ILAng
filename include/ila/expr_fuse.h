@@ -27,11 +27,18 @@ public:
   ~ExprFuse();
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
-  /// Turn on node hashing if true.
-  void do_hash(const bool& b); // TODO perform node hashing (especially const)
+  /// Return the prefix used when creating variables.
+  static const std::string& prefix();
+  /// Return the suffix used when creating variables.
+  static const std::string& suffix();
+  /// Set the prefix used when creating variables.
+  static void set_prefix(const std::string& prefix);
+  /// Set the suffix used when creating variables.
+  static void set_suffix(const std::string& suffix);
 
   // ------------------------- METHODS -------------------------------------- //
-  // static z3::expr GetZ3Expr(); TODO
+  /// Reset string prefix/suffix.
+  static void Reset();
 
   // static functions for wrapping the hierarchy of AST.
 
@@ -130,8 +137,10 @@ public:
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
-  /// Flag of node hashing.
-  bool do_hash_;
+  /// Prefix used when creating variables.
+  static std::string prefix_;
+  /// Suffix used when creating variables.
+  static std::string suffix_;
 
   // ------------------------- HELPERS -------------------------------------- //
 

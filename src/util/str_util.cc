@@ -34,5 +34,14 @@ int StrToInt(const std::string& str) {
   }
 }
 
+std::string StrConcat(const std::string& l, const std::string& r) {
+  return (l + "_" + r);
+}
+
+std::string StrConcat(const std::string& l, const std::string& m,
+                      const std::string& r) {
+  return (l + "_" + m + "_" + r);
+}
+
 } // namespace ila
 
