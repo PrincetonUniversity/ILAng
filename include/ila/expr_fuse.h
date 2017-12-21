@@ -8,6 +8,7 @@
 #include "ila/ast/expr_const.h"
 #include "ila/ast/expr_op.h"
 #include "ila/ast/expr_var.h"
+#include "ila/ast/func.h"
 #include "ila/ast/sort.h"
 #include <string>
 
@@ -122,7 +123,10 @@ public:
   static ExprPtr Ite(const ExprPtr cond, const ExprPtr true_expr,
                      const ExprPtr false_expr);
 
-  // TODO apply function
+  /// Apply function with zero argument.
+  static ExprPtr AppFunc(const FuncPtr func);
+  /// Apply function with arguments.
+  static ExprPtr AppFunc(const FuncPtr func, const ExprPtrVec& args);
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //

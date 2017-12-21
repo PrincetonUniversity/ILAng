@@ -132,6 +132,7 @@ private:
 
 typedef Expr::Z3ExprVec Z3ExprVec;
 typedef Expr::ExprPtr ExprPtr;
+typedef Expr::ExprPtrVec ExprPtrVec;
 /// \def ExprPtrRaw
 typedef Expr* ExprPtrRaw;
 
