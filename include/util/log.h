@@ -1,17 +1,16 @@
 /// \file
-/// The header file for the logging/asserting system.
+/// The header file for the debug/logging/asserting system.
 
 #ifndef __LOG_H__
 #define __LOG_H__
 
-//#include <fstream>
 #include <glog/logging.h>
-#include <iostream>
+#include <set>
 #include <string>
 
 namespace ila {
 
-// Macros and handlers for glog-based log system.
+// Macros and handlers for normal assert/log system.
 /******************************************************************************/
 
 /// \def Debug log for info using glog.
@@ -41,74 +40,50 @@ namespace ila {
 /// \brief Set the verbose level for glog system.
 /// All verbose log (VLOG) with smaller level will be logged.
 /// \paraam[in] lvl the verbose level (upper bound).
-void SetGLogVerboseLevel(const int& lvl);
+void SetVerboseLevel(const int& lvl);
 
 /// Set the path for glog log file. Default no log file.
 /// \param[in] path the path for glog log file.
-void SetGLogFilePath(const std::string& path);
+void SetLogFilePath(const std::string& path);
 
 /// Set whether to enable log (info and warning) to be log to standard error.
 /// \param[in] also set 1 to log to std::cerr.
-void SetGLogAlsoToStdErr(const int& also);
-
-/// Initialize glog system.
-/// \param[in] lvl verbose level.
-/// \param[in] path log file directory.
-/// \param[in] also set 1 to log INFO and WARNING to std::cerr.
-void InitGLog(const int& lvl = 0, const std::string& path = "",
-              const int& also = 0);
-
-/// Close glog system.
-void CloseGLog();
+void SetToStdErr(const int& to_err);
 
 // Wrapper for debug log system.
 /******************************************************************************/
-
-#if 0
-/// Initialize debug log system.
-void InitDLog();
-
-/// Close debug log system.
-void CloseDLog();
-
-/// Set the log level and the log file name. Default standard output if no file
-/// name is specified.
-/// \param[in] l log level.
-/// \param[in] filename name of the log file.
-void SetDLogLevel(int l, const std::string& filename = "");
-
-/// Enable a log category.
-/// \param[in] tag log category/tag to enable.
-void EnableDLog(const std::string& tag);
-
-/// Disable a log category.
-/// \param[in] tag log category/tag to disable.
-void DisableDLog(const std::string& tag);
-
-/// Clear all log categories.
-void ClearDLogs();
-
-/// Channel 1 for logging debug message (under the given tag).
-/// \param[in] tag the category to log the message.
-std::ostream& IlaDLog1(const std::string& tag);
-
-/// Channel 2 for logging debug message (under the given tag).
-/// \param[in] tag the category to log the message.
-std::ostream& IlaDLog2(const std::string& tag);
-
-/// \class LogChannel
-/// The container for debug log channel.
-class LogChannel {
+class LogInitter {
 public:
-  /// Debug log channel 1
-  static std::ostream* log1_stream;
-  /// Debug log channel 2
-  static std::ostream* log2_stream;
-  /// Debug log null channel
-  static std::ostream* null_stream;
-}; // LogChannel
+  LogInitter();
+}; // class LogInitter
 
-#endif
+/// \class DebugLog
+/// The wrapper for enabling and disabling debug tags.
+class DebugLog {
+public:
+  /// Add a debug tag.
+  static void Enable(const std::string& tag);
+
+  /// Remove a debug tag.
+  static void Disable(const std::string& tag);
+
+  /// Clear all tags.
+  static void Clear();
+
+  /// Find if the tag is enabled.
+  static bool Find(const std::string& tag);
+
+private:
+  /// The set of debug tags.
+  static std::set<std::string> debug_tags_;
+
+  /// The one and only initializer for the log system.
+  static LogInitter init_;
+
+}; // class DebugLog
+
+/// \def Output debug log to standard output, conditioned on tag
+#define ILA_DLOG(tag) DLOG_IF(INFO, DebugLog::Find(tag))
 
 } // namespace ila
 
