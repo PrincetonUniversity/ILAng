@@ -17,6 +17,7 @@
 /// \namespace ila
 namespace ila {
 
+/// \brief The class for ILA.
 /// The class of Instruction-Level Abstraction (ILA). An ILA contains:
 /// - a set of state variables
 /// - a set of input variables
@@ -29,13 +30,13 @@ namespace ila {
 /// - the set of child-ILAs
 class InstrLvlAbs : public Object {
 public:
-  /// \def InstrLvlAbsPtr
+  /// Pointer type for normal use of InstrLvlAbs
   typedef std::shared_ptr<InstrLvlAbs> InstrLvlAbsPtr;
-  /// \def InstrLvlAbsPtrMap
+  /// Type for storing a set of InstrLvlAbs
   typedef std::map<std::string, InstrLvlAbsPtr> InstrLvlAbsPtrMap;
-  /// \def InstrPtrMap
+  /// Type for storing a set of Instr
   typedef std::map<std::string, InstrPtr> InstrPtrMap;
-  /// \def ExprPtrMap
+  /// Type for storing a set of Expr
   typedef std::map<std::string, ExprPtr> ExprPtrMap;
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
@@ -47,6 +48,7 @@ public:
   ~InstrLvlAbs();
 
   // ------------------------- HELPERS -------------------------------------- //
+  /// \brief Create new ILA.
   /// Create a new ILA (InstrLvlAbs) with the name. Used for hiding
   /// implementation specific type details.
   static InstrLvlAbsPtr NewILA(const std::string& name);
@@ -63,62 +65,65 @@ public:
   void set_spec(bool spec);
 
   // ------------------------- METHODS -------------------------------------- //
-  /// Add one input variable to the ILA.
+  /// \brief Add one input variable to the ILA.
+  /// Add one input variable to the ILA, and register to the expr manager.
   /// \param[in] input_var pointer to the input variable being added.
   void AddInput(const ExprPtr& input_var);
 
-  /// Add one state variable to the ILA.
+  /// \brief Add one state variable to the ILA.
+  /// Add one state variable to the ILA, and register to the expr manager.
   /// \param[in] state_var pointer to the state variable being added.
   void AddState(const ExprPtr& state_var);
 
-  /// Add one function to the ILA.
-  /// \param[in] func pointer to the function object.
-  void AddFunc(const FuncPtr& func);
-
+  /// \brief Add one initial condition to the ILA.
   /// Add one constraint to the initial condition, i.e. no contraint means
   /// arbitrary initial values to the state variables.
   /// \param[in] cntr_expr pointer to the constraint being added.
   void AddInit(const ExprPtr& cntr_expr);
 
-  /// Set the fetch function.
+  /// \brief Set the fetch function.
+  /// Set the fetch function, and simplify (if needed) by the expr manager.
   /// \param[in] fetch_expr pointer to the fetch function (as an expression).
   void SetFetch(const ExprPtr& fetch_expr);
 
-  /// Set the valid function.
+  /// \brief Set the valid function.
+  /// Set the valid function, and simplify (if needed) by the expr manager.
   /// \param[in] valid_expr pointer to the valid function (as an expression).
   void SetValid(const ExprPtr& valid_expr);
 
-  /// Add one instruction to the ILA.
+  /// \brief Add one instruction to the ILA.
+  /// Add one instruction to the ILA, and simplify (if needed).
   /// \param[in] instr pointer to the instruction being added.
   void AddInstr(const InstrPtr& instr);
 
-  /// Add one ILA to the child list.
+  /// \brief Add one ILA to the child list.
+  /// Add one ILA to the child list. No simplification between ILAs.
   /// \param[in] child pointer to the child-ILA being added.
   void AddChild(const InstrLvlAbsPtr& child);
 
-  /// Create one Boolean variable and add as an input.
+  /// \brief Create one Boolean variable and add as an input.
   /// \param[in] name of the bool input.
   /// \return pointer to the input.
   ExprPtr CreateBoolInput(const std::string& name);
 
-  /// Create one Bitvector variable and add as an input.
+  /// \brief Create one Bitvector variable and add as an input.
   /// \param[in] name of the bitvector input.
   /// \param[in] bit_width length of the bitvector variable.
   /// \return pointer to the input.
   ExprPtr CreateBvInput(const std::string& name, const int& bit_width);
 
-  /// Create one Boolean variable and add as a state.
+  /// \brief Create one Boolean variable and add as a state.
   /// \param[in] name of the bool state.
   /// \return pointer to the state variable.
   ExprPtr CreateBoolState(const std::string& name);
 
-  /// Create one Bitvector variable and add as a state.
+  /// \brief Create one Bitvector variable and add as a state.
   /// \param[in] name of the bitvector state.
   /// \param[in] bit_width value bit-width.
   /// \return pointer to the state variable.
   ExprPtr CreateBvState(const std::string& name, const int& bit_width);
 
-  /// Create one Memory variable and add as a state.
+  /// \brief Create one Memory variable and add as a state.
   /// \param[in] name of the memory state.
   /// \param[in] addr_width address bit-width.
   /// \param[in] data_width data bit-width.
@@ -126,22 +131,22 @@ public:
   ExprPtr CreateMemState(const std::string& name, const int& addr_width,
                          const int& data_width);
 
-  /// Create and add one instruction.
+  /// \brief Create and add one instruction.
   /// \param[in] name of the instruction.
   /// \return pointer to the instruction.
   InstrPtr CreateInstr(const std::string& name);
 
-  /// Create and add one child-ILA.
+  /// \brief Create and add one child-ILA.
   /// \param[in] name of the child.
   /// \return pointer to the child-ILA.
   InstrLvlAbsPtr CreateChild(const std::string& name);
 
-  /// Return the state variable with the specified name.
+  /// \brief Return the state variable with the specified name.
   /// \param[in] name of the state variable.
   /// \return pointer to the state variable.
   ExprPtr GetState(const std::string& name) const;
 
-  /// Return the input variable with the specified name.
+  /// \brief Return the input variable with the specified name.
   /// \param[in] name of the input variable.
   /// \return pointer to the input variable.
   ExprPtr GetInput(const std::string& name) const;
@@ -152,12 +157,12 @@ public:
   /// Return the valid function.
   ExprPtr GetValid() const;
 
-  /// Return the instruction with the specified name.
+  /// \brief Return the instruction with the specified name.
   /// \param[in] name of the instruction.
   /// \return pointer to the instruction.
   ExprPtr GetInstr(const std::string& name) const;
 
-  /// Return the child-ILA with the specified name.
+  /// \brief Return the child-ILA with the specified name.
   /// \param[in] name of the child-ILA.
   /// \return pointer to the child-ILA.
   ExprPtr GetChild(const std::string& name) const;
@@ -197,7 +202,7 @@ private:
 
 }; // class InstrLvlAbs
 
-/// \def The type for InstrLvlAbs pointer.
+/// Pointer type for normal use of InstrLvlAbs
 typedef InstrLvlAbs::InstrLvlAbsPtr InstrLvlAbsPtr;
 
 } // namespace ila

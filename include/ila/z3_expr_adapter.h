@@ -38,7 +38,7 @@ public:
   // ------------------------- METHODS -------------------------------------- //
   /// Get the z3 expression of the AST node.
   /// \param[in] expr the AST node.
-  /// \prram[in] suffix the suffix for terminating nodes (e.g. time frame)
+  /// \param[in] suffix the suffix for terminating nodes (e.g. time frame)
   /// \return z3 expression
   z3::expr GetZ3Expr(const ExprPtr expr, const std::string& suffix = "");
 
