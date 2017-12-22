@@ -92,8 +92,7 @@ private:
 /// Pointer type for normal use of BvVal.
 typedef BvVal::BvValPtr BvValPtr;
 
-/// \class MemVal
-/// The container for representing memory (array) values.
+/// \brief The container for representing memory (array) values.
 class MemVal {
 public:
   /// Pointer type for normal use of MemVal.

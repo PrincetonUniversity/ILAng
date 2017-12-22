@@ -1,4 +1,4 @@
-/// file
+/// \file
 /// Header for the class Func (uninterpreted function).
 
 #ifndef __FUNC_H__

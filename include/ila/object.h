@@ -11,7 +11,7 @@
 /// \namespace ila
 namespace ila {
 
-/// \brief Object is the basest type in the ILA structure. It can be either Ast,
+/// \brief The basest type in the ILA structure. It can be either Ast,
 /// Instr, or InstrLvlAbs.
 class Object {
 public:

@@ -15,8 +15,8 @@
 /// \namespace ila
 namespace ila {
 
-/// \brief ExprFuse is the uniform interface and wrapper for different types of
-/// expressions, e.g. var, constant, and different operations.
+/// \brief The uniform interface and wrapper for different types of expressions,
+/// e.g. var, constant, and different operations.
 class ExprFuse {
 public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //

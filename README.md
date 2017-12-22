@@ -29,7 +29,7 @@ For API documents and tutorials, see the [docs](https://github.com/Bo-Yuan-Huang
   cmake .. -L -DZ3_INCLUDE_DIR=/usr/include 
 ```
 
-For API documentations, see the page [code-doc](https://rawgit.com/Bo-Yuan-Huang/ILA-Tools/master/docs/html/index.html).
+For API documentations, see the page [ILA-Tools-API](https://rawgit.com/Bo-Yuan-Huang/ILA-Tools/master/docs/html/namespaceila.html).
 
 
 ### Publications:
