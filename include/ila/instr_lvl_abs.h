@@ -17,8 +17,7 @@
 /// \namespace ila
 namespace ila {
 
-/// \brief The class for ILA.
-/// The class of Instruction-Level Abstraction (ILA). An ILA contains:
+/// \brief The class of Instruction-Level Abstraction (ILA). An ILA contains:
 /// - a set of state variables
 /// - a set of input variables
 /// - the set constraints for initial conditiona
@@ -48,8 +47,7 @@ public:
   ~InstrLvlAbs();
 
   // ------------------------- HELPERS -------------------------------------- //
-  /// \brief Create new ILA.
-  /// Create a new ILA (InstrLvlAbs) with the name. Used for hiding
+  /// \brief Create a new ILA (InstrLvlAbs) with the name. Used for hiding
   /// implementation specific type details.
   static InstrLvlAbsPtr NewILA(const std::string& name);
 
@@ -65,39 +63,32 @@ public:
   void set_spec(bool spec);
 
   // ------------------------- METHODS -------------------------------------- //
-  /// \brief Add one input variable to the ILA.
-  /// Add one input variable to the ILA, and register to the expr manager.
+  /// \brief Add one input variable to the ILA, and register to the simplifier.
   /// \param[in] input_var pointer to the input variable being added.
   void AddInput(const ExprPtr& input_var);
 
-  /// \brief Add one state variable to the ILA.
-  /// Add one state variable to the ILA, and register to the expr manager.
+  /// \brief Add one state variable to the ILA, and register to the simplifier.
   /// \param[in] state_var pointer to the state variable being added.
   void AddState(const ExprPtr& state_var);
 
-  /// \brief Add one initial condition to the ILA.
-  /// Add one constraint to the initial condition, i.e. no contraint means
-  /// arbitrary initial values to the state variables.
+  /// \brief Add one constraint to the initial condition, i.e. no contraint
+  /// means arbitrary initial values to the state variables.
   /// \param[in] cntr_expr pointer to the constraint being added.
   void AddInit(const ExprPtr& cntr_expr);
 
-  /// \brief Set the fetch function.
-  /// Set the fetch function, and simplify (if needed) by the expr manager.
+  /// \brief Set the fetch function, and simplify (if needed) by the simplifier.
   /// \param[in] fetch_expr pointer to the fetch function (as an expression).
   void SetFetch(const ExprPtr& fetch_expr);
 
-  /// \brief Set the valid function.
-  /// Set the valid function, and simplify (if needed) by the expr manager.
+  /// \brief Set the valid function, and simplify (if needed) by the simplifier.
   /// \param[in] valid_expr pointer to the valid function (as an expression).
   void SetValid(const ExprPtr& valid_expr);
 
-  /// \brief Add one instruction to the ILA.
-  /// Add one instruction to the ILA, and simplify (if needed).
+  /// \brief Add one instruction to the ILA, and simplify (if needed).
   /// \param[in] instr pointer to the instruction being added.
   void AddInstr(const InstrPtr& instr);
 
-  /// \brief Add one ILA to the child list.
-  /// Add one ILA to the child list. No simplification between ILAs.
+  /// \brief Add one ILA to the child list. No simplification between ILAs.
   /// \param[in] child pointer to the child-ILA being added.
   void AddChild(const InstrLvlAbsPtr& child);
 

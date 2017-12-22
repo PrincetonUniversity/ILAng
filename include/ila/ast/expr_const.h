@@ -10,9 +10,8 @@
 /// \namespace ila
 namespace ila {
 
-/// \class ExprConst
-/// Expression for constant values (bool, bv, or memory). Constant should be
-/// terminating nodes in the AST.
+/// \brief Expression for constant values (bool, bv, or memory). Constant should
+/// be terminating nodes in the AST.
 class ExprConst : public Expr {
 public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //

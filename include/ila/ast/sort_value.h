@@ -12,10 +12,12 @@
 /// \namespace ila
 namespace ila {
 
-/// \class BoolVal
-/// The container for representing Boolean values.
+/// \brief The container for representing Boolean values.
 class BoolVal {
 public:
+  /// Pointer type for normal use of BoolVal.
+  typedef std::shared_ptr<BoolVal> BoolValPtr;
+
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor. DO NOT USE.
   BoolVal();
@@ -47,16 +49,15 @@ private:
 
 }; // class BoolVal
 
-/// \def BoolValPtr
-typedef std::shared_ptr<BoolVal> BoolValPtr;
+/// Pointer type for normal use of BoolVal.
+typedef BoolVal::BoolValPtr BoolValPtr;
 
-/// \class BvVal
-/// The container for representing Bitvector values.
+/// \brief The container for representing Bitvector values.
 class BvVal {
 public:
-  /// \def data type for storing BvVal
+  /// Data type for storing BvVal
   typedef int BvValType;
-  /// \def BvValPtr
+  /// Pointer type for normal use of BvVal.
   typedef std::shared_ptr<BvVal> BvValPtr;
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
@@ -88,15 +89,16 @@ private:
 
 }; // class BvVal
 
+/// Pointer type for normal use of BvVal.
 typedef BvVal::BvValPtr BvValPtr;
 
 /// \class MemVal
 /// The container for representing memory (array) values.
 class MemVal {
 public:
-  /// \def MemValPtr
+  /// Pointer type for normal use of MemVal.
   typedef std::shared_ptr<MemVal> MemValPtr;
-  /// \def MemValMap
+  /// Type for storing the address/data mapping.
   typedef std::map<int, int> MemValMap;
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
@@ -135,7 +137,9 @@ private:
 
 }; // class MemVal
 
+/// Pointer type for normal use of MemVal.
 typedef MemVal::MemValPtr MemValPtr;
+/// Type for storing the address/data mapping.
 typedef MemVal::MemValMap MemValMap;
 
 } // namespace ila

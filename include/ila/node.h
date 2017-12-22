@@ -9,8 +9,7 @@
 /// \namespace ila
 namespace ila {
 
-/// \class NodeRef
-/// NodeRef is wrapper for ExprRef without raw c-type pointers.
+/// \brief NodeRef is wrapper for ExprRef without raw c-type pointers.
 class NodeRef {
 private:
   // ------------------------- MEMBERS -------------------------------------- //
@@ -42,8 +41,6 @@ private:
   // ------------------------- HELPERS -------------------------------------- //
 
 }; // class NodeRef
-
-typedef NodeRef* NodePtr; /// FIXME
 
 } // namespace ila
 

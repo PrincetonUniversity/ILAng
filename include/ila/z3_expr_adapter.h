@@ -11,8 +11,7 @@
 /// \namespace ila
 namespace ila {
 
-/// \class Z3ExprAdapter
-/// The class for generating z3 expression from the ast expression.
+/// \brief The class for generating z3 expression from the ast expression.
 class Z3ExprAdapter {
 public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
@@ -21,7 +20,7 @@ public:
   /// ~Default destructor.
   ~Z3ExprAdapter();
 
-  /// \def ExprMap
+  /// Type for caching the generated expressions.
   typedef std::unordered_map<const ExprPtrRaw, z3::expr, ExprHash> ExprMap;
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
@@ -36,7 +35,7 @@ public:
   void set_context(z3::context& ctx);
 
   // ------------------------- METHODS -------------------------------------- //
-  /// Get the z3 expression of the AST node.
+  /// \brief Get the z3 expression of the AST node.
   /// \param[in] expr the AST node.
   /// \param[in] suffix the suffix for terminating nodes (e.g. time frame)
   /// \return z3 expression

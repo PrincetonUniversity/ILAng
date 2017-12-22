@@ -10,8 +10,7 @@
 /// \namespace ila
 namespace ila {
 
-/// \class ExprSimplifier
-/// The simplify the AST tree by sharing nodes based on the hash value.
+/// \brief The simplify the AST tree by sharing nodes based on the hash value.
 class ExprSimplifier {
 public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
@@ -20,7 +19,7 @@ public:
   /// Default destructor.
   ~ExprSimplifier();
 
-  /// \def HashTable
+  /// Type for cacheing the AST node hashing.
   typedef std::map<std::string, ExprPtr> HashTable;
   // std::unordered_map<AstHash, ExprPtr> HashTable;
 

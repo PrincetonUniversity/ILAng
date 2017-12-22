@@ -10,11 +10,10 @@
 /// \namespace ila
 namespace ila {
 
-/// \class Func
-/// The class for uninterpreted function declaration and constraints.
+/// \brief The class for uninterpreted function declaration and constraints.
 class Func : public Ast {
 public:
-  /// \def FuncPtr
+  /// Pointer type for normal use of Func.
   typedef std::shared_ptr<Func> FuncPtr;
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
@@ -30,6 +29,7 @@ private:
   // ------------------------- HELPERS -------------------------------------- //
 }; // class Func
 
+/// Pointer type for normal use of Func.
 typedef Func::FuncPtr FuncPtr;
 
 } // namespace ila

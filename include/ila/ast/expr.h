@@ -15,18 +15,17 @@
 /// \namespace ila
 namespace ila {
 
-/// \class Expr
-/// The class for expression, which is the basic type for variables,
+/// \brief The class for expression, which is the basic type for variables,
 /// constraints, state update expressions, etc.
 class Expr : public Ast {
 public:
-  /// \def ExprPtrRaw
+  /// Pointer type only for visitor function objects.
   typedef Expr* ExprPtrRaw;
-  /// \def ExprPtr
+  /// Pointer type for normal use of Expr.
   typedef std::shared_ptr<Expr> ExprPtr;
-  /// \def ExprPtrVec
+  /// Type for storing a set of Expr.
   typedef std::vector<ExprPtr> ExprPtrVec;
-  /// \def Z3ExprVec
+  /// Type for storing a set of z3 expr.
   typedef std::vector<z3::expr> Z3ExprVec;
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
@@ -97,8 +96,8 @@ public:
   /// Overload output stream operator
   friend std::ostream& operator<<(std::ostream& out, const Expr& expr);
 
-  /// Templated visitor: visit each node in a depth-first order and apply the
-  /// function object F on it.
+  /// \brief Templated visitor: visit each node in a depth-first order and apply
+  /// the function object F on it.
   template <class F> void DepthFirstVisit(F& func) {
     size_t n = arity();
     for (size_t i = 0; i != n; i++) {
@@ -132,13 +131,16 @@ private:
 
 }; // class Expr
 
-typedef Expr::Z3ExprVec Z3ExprVec;
-typedef Expr::ExprPtr ExprPtr;
+/// Pointer type only for visitor function objects.
 typedef Expr::ExprPtrRaw ExprPtrRaw;
+/// Pointer type for normal use of Expr.
+typedef Expr::ExprPtr ExprPtr;
+/// Type for storing a set of Expr.
 typedef Expr::ExprPtrVec ExprPtrVec;
+/// Type for storing a set of z3 expr.
+typedef Expr::Z3ExprVec Z3ExprVec;
 
-/// \class ExprHash
-/// The function object for hashing Expr. The hash value is the id of the
+/// \brief The function object for hashing Expr. The hash value is the id of the
 /// symbol, which is supposed to be unique.
 class ExprHash {
 public:

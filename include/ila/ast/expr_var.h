@@ -10,8 +10,7 @@
 /// \namespace ila
 namespace ila {
 
-/// \class ExprVar
-/// Expression for variables (bool, bv, or mem). Variable should be the
+/// \brief Expression for variables (bool, bv, or mem). Variable should be the
 /// terminating nodes in the AST.
 class ExprVar : public Expr {
 public:

@@ -11,9 +11,8 @@
 /// \namespace ila
 namespace ila {
 
-/// \class Object
-/// Object is the basest type in the ILA structure. It can be either Ast, Instr,
-/// or InstrLvlAbs.
+/// \brief Object is the basest type in the ILA structure. It can be either Ast,
+/// Instr, or InstrLvlAbs.
 class Object {
 public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
@@ -26,7 +25,7 @@ public:
   /// Default destructor.
   virtual ~Object();
 
-  /// \def ObjPtr
+  /// Pointer type for normal use of Object.
   typedef std::shared_ptr<Object> ObjPtr;
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //

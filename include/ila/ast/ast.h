@@ -12,9 +12,8 @@
 /// \namespace ila
 namespace ila {
 
-/// \class Ast
-/// The class for the Abstract Syntax Tree. An Ast object can be an expression
-/// or function definition (interpreted or uninterpreted).
+/// \brief The class for the Abstract Syntax Tree. An Ast object can be an
+/// expression or function definition (interpreted or uninterpreted).
 class Ast : public Object {
 public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //

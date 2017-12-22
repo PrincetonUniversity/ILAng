@@ -14,13 +14,13 @@ namespace ila {
 /// SortType
 typedef enum { SORT_BOOL, SORT_BV, SORT_MEM, SORT_APP } SortType;
 
-/// Sort
-/// The class for sort (type for expr, and the range/domain of functions).
+/// \brief The class for sort (type for expr, and the range/domain of
+/// functions).
 class Sort : public Ast {
 public:
-  /// SortPtr
+  /// Pointer type for normal use of Sort.
   typedef std::shared_ptr<Sort> SortPtr;
-  /// SortPtrVec
+  /// Type for storing a set of Sort.
   typedef std::vector<SortPtr> SortPtrVec;
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
@@ -97,7 +97,9 @@ private:
 
 }; // class Sort
 
+/// Pointer type for normal use of Sort.
 typedef Sort::SortPtr SortPtr;
+/// Type for storing a set of Sort.
 typedef Sort::SortPtrVec SortPtrVec;
 
 } // namespace ila
