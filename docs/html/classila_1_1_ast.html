@@ -61,7 +61,7 @@ $(function() {
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><b>ila</b></li><li class="navelem"><a class="el" href="classila_1_1_ast.html">Ast</a></li>  </ul>
+<li class="navelem"><a class="el" href="namespaceila.html">ila</a></li><li class="navelem"><a class="el" href="classila_1_1_ast.html">Ast</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -69,57 +69,110 @@ $(function() {
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="classila_1_1_ast-members.html">List of all members</a>  </div>
   <div class="headertitle">
-<div class="title">ila::Ast Class Reference</div>  </div>
+<div class="title">ila::Ast Class Reference<span class="mlabels"><span class="mlabel">abstract</span></span></div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p>The ILA AST class A more elaborate class description.  
- <a href="classila_1_1_ast.html#details">More...</a></p>
-
 <p><code>#include &lt;<a class="el" href="ast_8h_source.html">ast.h</a>&gt;</code></p>
+<div class="dynheader">
+Inheritance diagram for ila::Ast:</div>
+<div class="dyncontent">
+ <div class="center">
+  <img src="classila_1_1_ast.png" usemap="#ila::Ast_map" alt=""/>
+  <map id="ila::Ast_map" name="ila::Ast_map">
+<area href="classila_1_1_object.html" alt="ila::Object" shape="rect" coords="357,0,466,24"/>
+<area href="classila_1_1_expr.html" alt="ila::Expr" shape="rect" coords="238,112,347,136"/>
+<area href="classila_1_1_func.html" alt="ila::Func" shape="rect" coords="357,112,466,136"/>
+<area href="classila_1_1_sort.html" alt="ila::Sort" shape="rect" coords="476,112,585,136"/>
+<area href="classila_1_1_expr_const.html" alt="ila::ExprConst" shape="rect" coords="0,168,109,192"/>
+<area href="classila_1_1_expr_op.html" alt="ila::ExprOp" shape="rect" coords="238,168,347,192"/>
+<area href="classila_1_1_expr_var.html" alt="ila::ExprVar" shape="rect" coords="357,168,466,192"/>
+<area href="classila_1_1_expr_op_and.html" title="wrapper for binary logical AND operation &quot;&amp;&quot;. " alt="ila::ExprOpAnd" shape="rect" coords="0,224,109,248"/>
+<area href="classila_1_1_expr_op_compl.html" alt="ila::ExprOpCompl" shape="rect" coords="119,224,228,248"/>
+<area href="classila_1_1_expr_op_eq.html" title="class wrapper for binary comparison EQ &quot;==&quot;. " alt="ila::ExprOpEq" shape="rect" coords="238,224,347,248"/>
+<area href="classila_1_1_expr_op_neg.html" title="wrapper for unary negate operation &quot;-&quot;. " alt="ila::ExprOpNeg" shape="rect" coords="357,224,466,248"/>
+<area href="classila_1_1_expr_op_or.html" title="wrapper for binary logical OR operation &quot;|&quot;. " alt="ila::ExprOpOr" shape="rect" coords="476,224,585,248"/>
+</map>
+ </div></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:af78f2889fb8c3ddd84d8242806931be9"><td class="memItemLeft" align="right" valign="top"><a id="af78f2889fb8c3ddd84d8242806931be9"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_ast.html#af78f2889fb8c3ddd84d8242806931be9">Ast</a> ()</td></tr>
-<tr class="memdesc:af78f2889fb8c3ddd84d8242806931be9"><td class="mdescLeft">&#160;</td><td class="mdescRight">constructor. <br /></td></tr>
+<tr class="memdesc:af78f2889fb8c3ddd84d8242806931be9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default constructor. <br /></td></tr>
 <tr class="separator:af78f2889fb8c3ddd84d8242806931be9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1423da44ceab8b8d377f61821ce722ff"><td class="memItemLeft" align="right" valign="top"><a id="a1423da44ceab8b8d377f61821ce722ff"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_ast.html#a1423da44ceab8b8d377f61821ce722ff">Ast</a> (const std::string &amp;<a class="el" href="classila_1_1_object.html#a66cc253d55f161490899755ca4c84ec3">name</a>)</td></tr>
+<tr class="memdesc:a1423da44ceab8b8d377f61821ce722ff"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor with name. <br /></td></tr>
+<tr class="separator:a1423da44ceab8b8d377f61821ce722ff"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a91c2eaeb3a40fd4353aab8f90b6b4b15"><td class="memItemLeft" align="right" valign="top"><a id="a91c2eaeb3a40fd4353aab8f90b6b4b15"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_ast.html#a91c2eaeb3a40fd4353aab8f90b6b4b15">~Ast</a> ()</td></tr>
-<tr class="memdesc:a91c2eaeb3a40fd4353aab8f90b6b4b15"><td class="mdescLeft">&#160;</td><td class="mdescRight">destructor. <br /></td></tr>
+virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_ast.html#a91c2eaeb3a40fd4353aab8f90b6b4b15">~Ast</a> ()</td></tr>
+<tr class="memdesc:a91c2eaeb3a40fd4353aab8f90b6b4b15"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default destructor. <br /></td></tr>
 <tr class="separator:a91c2eaeb3a40fd4353aab8f90b6b4b15"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7684fc7f2b94398f2fdce1edb3336191"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_ast.html#a7684fc7f2b94398f2fdce1edb3336191">DummyTest</a> (int *inout)</td></tr>
-<tr class="separator:a7684fc7f2b94398f2fdce1edb3336191"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a52684b06145dd797133a4363b7309ef5"><td class="memItemLeft" align="right" valign="top"><a id="a52684b06145dd797133a4363b7309ef5"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_ast.html#a52684b06145dd797133a4363b7309ef5">is_ast</a> () const</td></tr>
+<tr class="memdesc:a52684b06145dd797133a4363b7309ef5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Is type <a class="el" href="classila_1_1_ast.html">Ast</a>. <br /></td></tr>
+<tr class="separator:a52684b06145dd797133a4363b7309ef5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaa853bd982ecf54826c7208ce30551cf"><td class="memItemLeft" align="right" valign="top"><a id="aaa853bd982ecf54826c7208ce30551cf"></a>
+virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_ast.html#aaa853bd982ecf54826c7208ce30551cf">is_sort</a> () const</td></tr>
+<tr class="memdesc:aaa853bd982ecf54826c7208ce30551cf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Is type Ast::Sort. <br /></td></tr>
+<tr class="separator:aaa853bd982ecf54826c7208ce30551cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a487c10d9960f7b639c0ea0992881cfb1"><td class="memItemLeft" align="right" valign="top"><a id="a487c10d9960f7b639c0ea0992881cfb1"></a>
+virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_ast.html#a487c10d9960f7b639c0ea0992881cfb1">is_expr</a> () const</td></tr>
+<tr class="memdesc:a487c10d9960f7b639c0ea0992881cfb1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Is type Ast::Expr. <br /></td></tr>
+<tr class="separator:a487c10d9960f7b639c0ea0992881cfb1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afb266da2036c520a369da09090b91b99"><td class="memItemLeft" align="right" valign="top"><a id="afb266da2036c520a369da09090b91b99"></a>
+virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_ast.html#afb266da2036c520a369da09090b91b99">is_func</a> () const</td></tr>
+<tr class="memdesc:afb266da2036c520a369da09090b91b99"><td class="mdescLeft">&#160;</td><td class="mdescRight">Is type Ast::Func. <br /></td></tr>
+<tr class="separator:afb266da2036c520a369da09090b91b99"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0206864a2b1cc2f603fefa64f4525e56"><td class="memItemLeft" align="right" valign="top"><a id="a0206864a2b1cc2f603fefa64f4525e56"></a>
+virtual std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_ast.html#a0206864a2b1cc2f603fefa64f4525e56">Print</a> (std::ostream &amp;out) const =0</td></tr>
+<tr class="memdesc:a0206864a2b1cc2f603fefa64f4525e56"><td class="mdescLeft">&#160;</td><td class="mdescRight">Output function. <br /></td></tr>
+<tr class="separator:a0206864a2b1cc2f603fefa64f4525e56"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_methods_classila_1_1_object"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classila_1_1_object')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classila_1_1_object.html">ila::Object</a></td></tr>
+<tr class="memitem:a6365934f6976ca286064290dfddfb52b inherit pub_methods_classila_1_1_object"><td class="memItemLeft" align="right" valign="top"><a id="a6365934f6976ca286064290dfddfb52b"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_object.html#a6365934f6976ca286064290dfddfb52b">Object</a> ()</td></tr>
+<tr class="memdesc:a6365934f6976ca286064290dfddfb52b inherit pub_methods_classila_1_1_object"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default constructor. <br /></td></tr>
+<tr class="separator:a6365934f6976ca286064290dfddfb52b inherit pub_methods_classila_1_1_object"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a27af9c80e87f60475843d800f07c0d01 inherit pub_methods_classila_1_1_object"><td class="memItemLeft" align="right" valign="top"><a id="a27af9c80e87f60475843d800f07c0d01"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_object.html#a27af9c80e87f60475843d800f07c0d01">Object</a> (const char *<a class="el" href="classila_1_1_object.html#a66cc253d55f161490899755ca4c84ec3">name</a>)</td></tr>
+<tr class="memdesc:a27af9c80e87f60475843d800f07c0d01 inherit pub_methods_classila_1_1_object"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor with cstring name. <br /></td></tr>
+<tr class="separator:a27af9c80e87f60475843d800f07c0d01 inherit pub_methods_classila_1_1_object"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5ea5e53a6e3df2b3d93b3736ef2cf99e inherit pub_methods_classila_1_1_object"><td class="memItemLeft" align="right" valign="top"><a id="a5ea5e53a6e3df2b3d93b3736ef2cf99e"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_object.html#a5ea5e53a6e3df2b3d93b3736ef2cf99e">Object</a> (const std::string &amp;<a class="el" href="classila_1_1_object.html#a66cc253d55f161490899755ca4c84ec3">name</a>)</td></tr>
+<tr class="memdesc:a5ea5e53a6e3df2b3d93b3736ef2cf99e inherit pub_methods_classila_1_1_object"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor with string name. <br /></td></tr>
+<tr class="separator:a5ea5e53a6e3df2b3d93b3736ef2cf99e inherit pub_methods_classila_1_1_object"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6f7c597d7ca93de00d7dcbb691ae7414 inherit pub_methods_classila_1_1_object"><td class="memItemLeft" align="right" valign="top"><a id="a6f7c597d7ca93de00d7dcbb691ae7414"></a>
+virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_object.html#a6f7c597d7ca93de00d7dcbb691ae7414">~Object</a> ()</td></tr>
+<tr class="memdesc:a6f7c597d7ca93de00d7dcbb691ae7414 inherit pub_methods_classila_1_1_object"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default destructor. <br /></td></tr>
+<tr class="separator:a6f7c597d7ca93de00d7dcbb691ae7414 inherit pub_methods_classila_1_1_object"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a66cc253d55f161490899755ca4c84ec3 inherit pub_methods_classila_1_1_object"><td class="memItemLeft" align="right" valign="top"><a id="a66cc253d55f161490899755ca4c84ec3"></a>
+const <a class="el" href="classila_1_1_symbol.html">Symbol</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_object.html#a66cc253d55f161490899755ca4c84ec3">name</a> () const</td></tr>
+<tr class="memdesc:a66cc253d55f161490899755ca4c84ec3 inherit pub_methods_classila_1_1_object"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the symbol (name). <br /></td></tr>
+<tr class="separator:a66cc253d55f161490899755ca4c84ec3 inherit pub_methods_classila_1_1_object"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3d6c4425bd06b0f556e3e24ff7979acc inherit pub_methods_classila_1_1_object"><td class="memItemLeft" align="right" valign="top"><a id="a3d6c4425bd06b0f556e3e24ff7979acc"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_object.html#a3d6c4425bd06b0f556e3e24ff7979acc">set_name</a> (const std::string &amp;<a class="el" href="classila_1_1_object.html#a66cc253d55f161490899755ca4c84ec3">name</a>)</td></tr>
+<tr class="memdesc:a3d6c4425bd06b0f556e3e24ff7979acc inherit pub_methods_classila_1_1_object"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the symbol (name). <br /></td></tr>
+<tr class="separator:a3d6c4425bd06b0f556e3e24ff7979acc inherit pub_methods_classila_1_1_object"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a75668cdee5e0e62270d30773184640b6 inherit pub_methods_classila_1_1_object"><td class="memItemLeft" align="right" valign="top"><a id="a75668cdee5e0e62270d30773184640b6"></a>
+virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_object.html#a75668cdee5e0e62270d30773184640b6">is_instr_lvl_abs</a> () const</td></tr>
+<tr class="memdesc:a75668cdee5e0e62270d30773184640b6 inherit pub_methods_classila_1_1_object"><td class="mdescLeft">&#160;</td><td class="mdescRight">Is type <a class="el" href="classila_1_1_instr_lvl_abs.html">InstrLvlAbs</a>. <br /></td></tr>
+<tr class="separator:a75668cdee5e0e62270d30773184640b6 inherit pub_methods_classila_1_1_object"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad4441ae906ab01d2e9ab88e7e47bd001 inherit pub_methods_classila_1_1_object"><td class="memItemLeft" align="right" valign="top"><a id="ad4441ae906ab01d2e9ab88e7e47bd001"></a>
+virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_object.html#ad4441ae906ab01d2e9ab88e7e47bd001">is_instr</a> () const</td></tr>
+<tr class="memdesc:ad4441ae906ab01d2e9ab88e7e47bd001 inherit pub_methods_classila_1_1_object"><td class="mdescLeft">&#160;</td><td class="mdescRight">Is type <a class="el" href="classila_1_1_instr.html">Instr</a>. <br /></td></tr>
+<tr class="separator:ad4441ae906ab01d2e9ab88e7e47bd001 inherit pub_methods_classila_1_1_object"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="inherited"></a>
+Additional Inherited Members</h2></td></tr>
+<tr class="inherit_header pub_types_classila_1_1_object"><td colspan="2" onclick="javascript:toggleInherit('pub_types_classila_1_1_object')"><img src="closed.png" alt="-"/>&#160;Public Types inherited from <a class="el" href="classila_1_1_object.html">ila::Object</a></td></tr>
+<tr class="memitem:a5aee87796fe12ce00d015f2a7141d8ce inherit pub_types_classila_1_1_object"><td class="memItemLeft" align="right" valign="top"><a id="a5aee87796fe12ce00d015f2a7141d8ce"></a>
+typedef std::shared_ptr&lt; <a class="el" href="classila_1_1_object.html">Object</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ObjPtr</b></td></tr>
+<tr class="separator:a5aee87796fe12ce00d015f2a7141d8ce inherit pub_types_classila_1_1_object"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>The ILA AST class A more elaborate class description. </p>
-</div><h2 class="groupheader">Member Function Documentation</h2>
-<a id="a7684fc7f2b94398f2fdce1edb3336191"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7684fc7f2b94398f2fdce1edb3336191">&#9670;&nbsp;</a></span>DummyTest()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool ila::Ast::DummyTest </td>
-          <td>(</td>
-          <td class="paramtype">int *&#160;</td>
-          <td class="paramname"><em>inout</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>a testing function. </p><dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">inout</td><td>a pointer. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>arbitrary value. </dd></dl>
-
-</div>
-</div>
-<hr/>The documentation for this class was generated from the following files:<ul>
+<div class="textblock"><p>The class for the Abstract Syntax Tree. An <a class="el" href="classila_1_1_ast.html">Ast</a> object can be an expression or function definition (interpreted or uninterpreted). </p>
+</div><hr/>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="ast_8h_source.html">ast.h</a></li>
 <li><a class="el" href="ast_8cc.html">ast.cc</a></li>
 </ul>
