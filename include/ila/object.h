@@ -54,6 +54,7 @@ private:
 
 }; // class Object
 
+/// Pointer type for normal use of Object.
 typedef Object::ObjPtr ObjPtr;
 
 } // namespace ila

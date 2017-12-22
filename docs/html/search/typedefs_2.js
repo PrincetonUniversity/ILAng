@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['sortptr',['SortPtr',['../classila_1_1_sort.html#a4df74038270ac346c0e1789f8ddfa192',1,'ila::Sort']]],
-  ['sortptrvec',['SortPtrVec',['../classila_1_1_sort.html#a111e9f3137364a56e9fb6a094760f3f5',1,'ila::Sort']]]
+  ['funcptr',['FuncPtr',['../classila_1_1_func.html#a8a9ed6d4e725ffab7291002be906e71c',1,'ila::Func::FuncPtr()'],['../namespaceila.html#abd0c0a4a42a4d5fd544dc467594b2bf2',1,'ila::FuncPtr()']]]
 ];

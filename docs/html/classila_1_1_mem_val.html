@@ -80,10 +80,12 @@ $(function() {
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-types"></a>
 Public Types</h2></td></tr>
 <tr class="memitem:a51c2e595e31c32ba85263aa438459462"><td class="memItemLeft" align="right" valign="top"><a id="a51c2e595e31c32ba85263aa438459462"></a>
-typedef std::shared_ptr&lt; <a class="el" href="classila_1_1_mem_val.html">MemVal</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>MemValPtr</b></td></tr>
+typedef std::shared_ptr&lt; <a class="el" href="classila_1_1_mem_val.html">MemVal</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_mem_val.html#a51c2e595e31c32ba85263aa438459462">MemValPtr</a></td></tr>
+<tr class="memdesc:a51c2e595e31c32ba85263aa438459462"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pointer type for normal use of <a class="el" href="classila_1_1_mem_val.html">MemVal</a>. <br /></td></tr>
 <tr class="separator:a51c2e595e31c32ba85263aa438459462"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9ad0709f319c48aa62296edf17f01019"><td class="memItemLeft" align="right" valign="top"><a id="a9ad0709f319c48aa62296edf17f01019"></a>
-typedef std::map&lt; int, int &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>MemValMap</b></td></tr>
+typedef std::map&lt; int, int &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_mem_val.html#a9ad0709f319c48aa62296edf17f01019">MemValMap</a></td></tr>
+<tr class="memdesc:a9ad0709f319c48aa62296edf17f01019"><td class="mdescLeft">&#160;</td><td class="mdescRight">Type for storing the address/data mapping. <br /></td></tr>
 <tr class="separator:a9ad0709f319c48aa62296edf17f01019"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
@@ -97,7 +99,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a7bd8a566b4d881df024d22fb89092c8c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor with only the default value. <br /></td></tr>
 <tr class="separator:a7bd8a566b4d881df024d22fb89092c8c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7baacfc2a2035fbc94362a62cc372a0a"><td class="memItemLeft" align="right" valign="top"><a id="a7baacfc2a2035fbc94362a62cc372a0a"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_mem_val.html#a7baacfc2a2035fbc94362a62cc372a0a">MemVal</a> (const int &amp;<a class="el" href="classila_1_1_mem_val.html#a688feea49113c6792916d7ab632aeff6">def_val</a>, const MemValMap &amp;vals)</td></tr>
+&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_mem_val.html#a7baacfc2a2035fbc94362a62cc372a0a">MemVal</a> (const int &amp;<a class="el" href="classila_1_1_mem_val.html#a688feea49113c6792916d7ab632aeff6">def_val</a>, const <a class="el" href="classila_1_1_mem_val.html#a9ad0709f319c48aa62296edf17f01019">MemValMap</a> &amp;vals)</td></tr>
 <tr class="memdesc:a7baacfc2a2035fbc94362a62cc372a0a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor with an existed Memory value. <br /></td></tr>
 <tr class="separator:a7baacfc2a2035fbc94362a62cc372a0a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2c467a1984969aed45092cfcdb65b585"><td class="memItemLeft" align="right" valign="top"><a id="a2c467a1984969aed45092cfcdb65b585"></a>
@@ -105,7 +107,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a2c467a1984969aed45092cfcdb65b585"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default destructor. <br /></td></tr>
 <tr class="separator:a2c467a1984969aed45092cfcdb65b585"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5a5bf0459f9fba11f04957aa863cddd7"><td class="memItemLeft" align="right" valign="top"><a id="a5a5bf0459f9fba11f04957aa863cddd7"></a>
-const MemValMap &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_mem_val.html#a5a5bf0459f9fba11f04957aa863cddd7">val_map</a> () const</td></tr>
+const <a class="el" href="classila_1_1_mem_val.html#a9ad0709f319c48aa62296edf17f01019">MemValMap</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_mem_val.html#a5a5bf0459f9fba11f04957aa863cddd7">val_map</a> () const</td></tr>
 <tr class="memdesc:a5a5bf0459f9fba11f04957aa863cddd7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the map of addr/data. <br /></td></tr>
 <tr class="separator:a5a5bf0459f9fba11f04957aa863cddd7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a688feea49113c6792916d7ab632aeff6"><td class="memItemLeft" align="right" valign="top"><a id="a688feea49113c6792916d7ab632aeff6"></a>

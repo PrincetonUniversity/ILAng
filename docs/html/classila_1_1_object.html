@@ -74,6 +74,9 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
+<p><a class="el" href="classila_1_1_object.html" title="Object is the basest type in the ILA structure. It can be either Ast, Instr, or InstrLvlAbs. ">Object</a> is the basest type in the ILA structure. It can be either <a class="el" href="classila_1_1_ast.html" title="The class for the Abstract Syntax Tree. An Ast object can be an expression or function definition (in...">Ast</a>, <a class="el" href="classila_1_1_instr.html" title="The class for the Instruction. An Instr object contains: ">Instr</a>, or <a class="el" href="classila_1_1_instr_lvl_abs.html" title="The class of Instruction-Level Abstraction (ILA). An ILA contains: ">InstrLvlAbs</a>.  
+ <a href="classila_1_1_object.html#details">More...</a></p>
+
 <p><code>#include &lt;<a class="el" href="object_8h_source.html">object.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for ila::Object:</div>
@@ -81,27 +84,28 @@ Inheritance diagram for ila::Object:</div>
  <div class="center">
   <img src="classila_1_1_object.png" usemap="#ila::Object_map" alt=""/>
   <map id="ila::Object_map" name="ila::Object_map">
-<area href="classila_1_1_ast.html" alt="ila::Ast" shape="rect" coords="357,56,466,80"/>
-<area href="classila_1_1_instr.html" alt="ila::Instr" shape="rect" coords="476,56,585,80"/>
-<area href="classila_1_1_instr_lvl_abs.html" title="The class for ILA. The class of Instruction-Level Abstraction (ILA). An ILA contains: ..." alt="ila::InstrLvlAbs" shape="rect" coords="595,56,704,80"/>
-<area href="classila_1_1_expr.html" alt="ila::Expr" shape="rect" coords="238,112,347,136"/>
-<area href="classila_1_1_func.html" alt="ila::Func" shape="rect" coords="357,112,466,136"/>
-<area href="classila_1_1_sort.html" alt="ila::Sort" shape="rect" coords="476,112,585,136"/>
-<area href="classila_1_1_expr_const.html" alt="ila::ExprConst" shape="rect" coords="0,168,109,192"/>
-<area href="classila_1_1_expr_op.html" alt="ila::ExprOp" shape="rect" coords="238,168,347,192"/>
-<area href="classila_1_1_expr_var.html" alt="ila::ExprVar" shape="rect" coords="357,168,466,192"/>
-<area href="classila_1_1_expr_op_and.html" title="ExprOpAnd is the wrapper for binary logical AND operation &quot;&amp;&quot;. " alt="ila::ExprOpAnd" shape="rect" coords="0,224,109,248"/>
-<area href="classila_1_1_expr_op_compl.html" alt="ila::ExprOpCompl" shape="rect" coords="119,224,228,248"/>
-<area href="classila_1_1_expr_op_eq.html" title="ExprOpEq is the class wrapper for binary comparison EQ &quot;==&quot;. " alt="ila::ExprOpEq" shape="rect" coords="238,224,347,248"/>
-<area href="classila_1_1_expr_op_neg.html" title="ExprOpNeg is the wrapper for unary negate operation &quot;-&quot;. " alt="ila::ExprOpNeg" shape="rect" coords="357,224,466,248"/>
-<area href="classila_1_1_expr_op_or.html" title="ExprOpOr is the wrapper for binary logical OR operation &quot;|&quot;. " alt="ila::ExprOpOr" shape="rect" coords="476,224,585,248"/>
+<area href="classila_1_1_ast.html" title="The class for the Abstract Syntax Tree. An Ast object can be an expression or function definition (in..." alt="ila::Ast" shape="rect" coords="357,56,466,80"/>
+<area href="classila_1_1_instr.html" title="The class for the Instruction. An Instr object contains: " alt="ila::Instr" shape="rect" coords="476,56,585,80"/>
+<area href="classila_1_1_instr_lvl_abs.html" title="The class of Instruction-Level Abstraction (ILA). An ILA contains: " alt="ila::InstrLvlAbs" shape="rect" coords="595,56,704,80"/>
+<area href="classila_1_1_expr.html" title="The class for expression, which is the basic type for variables, constraints, state update expression..." alt="ila::Expr" shape="rect" coords="238,112,347,136"/>
+<area href="classila_1_1_func.html" title="The class for uninterpreted function declaration and constraints. " alt="ila::Func" shape="rect" coords="357,112,466,136"/>
+<area href="classila_1_1_sort.html" title="The class for sort (type for expr, and the range/domain of functions). " alt="ila::Sort" shape="rect" coords="476,112,585,136"/>
+<area href="classila_1_1_expr_const.html" title="Expression for constant values (bool, bv, or memory). Constant should be terminating nodes in the AST..." alt="ila::ExprConst" shape="rect" coords="0,168,109,192"/>
+<area href="classila_1_1_expr_op.html" title="Expression for operations, e.g. AND, OR, ADD, etc. Operations are non-terminating nodes in the AST..." alt="ila::ExprOp" shape="rect" coords="238,168,347,192"/>
+<area href="classila_1_1_expr_var.html" title="Expression for variables (bool, bv, or mem). Variable should be the terminating nodes in the AST..." alt="ila::ExprVar" shape="rect" coords="357,168,466,192"/>
+<area href="classila_1_1_expr_op_and.html" title="The wrapper for binary logical AND operation &quot;&amp;&quot;. " alt="ila::ExprOpAnd" shape="rect" coords="0,224,109,248"/>
+<area href="classila_1_1_expr_op_compl.html" title="The wrapper for unary complement (bit-wise) &quot;~&quot;. This can be applied to both bool and bv..." alt="ila::ExprOpCompl" shape="rect" coords="119,224,228,248"/>
+<area href="classila_1_1_expr_op_eq.html" title="The class wrapper for binary comparison EQ &quot;==&quot;. " alt="ila::ExprOpEq" shape="rect" coords="238,224,347,248"/>
+<area href="classila_1_1_expr_op_neg.html" title="The wrapper for unary negate operation &quot;-&quot;. " alt="ila::ExprOpNeg" shape="rect" coords="357,224,466,248"/>
+<area href="classila_1_1_expr_op_or.html" title="The wrapper for binary logical OR operation &quot;|&quot;. " alt="ila::ExprOpOr" shape="rect" coords="476,224,585,248"/>
 </map>
  </div></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-types"></a>
 Public Types</h2></td></tr>
 <tr class="memitem:a5aee87796fe12ce00d015f2a7141d8ce"><td class="memItemLeft" align="right" valign="top"><a id="a5aee87796fe12ce00d015f2a7141d8ce"></a>
-typedef std::shared_ptr&lt; <a class="el" href="classila_1_1_object.html">Object</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ObjPtr</b></td></tr>
+typedef std::shared_ptr&lt; <a class="el" href="classila_1_1_object.html">Object</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_object.html#a5aee87796fe12ce00d015f2a7141d8ce">ObjPtr</a></td></tr>
+<tr class="memdesc:a5aee87796fe12ce00d015f2a7141d8ce"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pointer type for normal use of <a class="el" href="classila_1_1_object.html" title="Object is the basest type in the ILA structure. It can be either Ast, Instr, or InstrLvlAbs. ">Object</a>. <br /></td></tr>
 <tr class="separator:a5aee87796fe12ce00d015f2a7141d8ce"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
@@ -132,15 +136,15 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="separator:a3d6c4425bd06b0f556e3e24ff7979acc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a75668cdee5e0e62270d30773184640b6"><td class="memItemLeft" align="right" valign="top"><a id="a75668cdee5e0e62270d30773184640b6"></a>
 virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_object.html#a75668cdee5e0e62270d30773184640b6">is_instr_lvl_abs</a> () const</td></tr>
-<tr class="memdesc:a75668cdee5e0e62270d30773184640b6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Is type <a class="el" href="classila_1_1_instr_lvl_abs.html" title="The class for ILA. The class of Instruction-Level Abstraction (ILA). An ILA contains: ...">InstrLvlAbs</a>. <br /></td></tr>
+<tr class="memdesc:a75668cdee5e0e62270d30773184640b6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Is type <a class="el" href="classila_1_1_instr_lvl_abs.html" title="The class of Instruction-Level Abstraction (ILA). An ILA contains: ">InstrLvlAbs</a>. <br /></td></tr>
 <tr class="separator:a75668cdee5e0e62270d30773184640b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad4441ae906ab01d2e9ab88e7e47bd001"><td class="memItemLeft" align="right" valign="top"><a id="ad4441ae906ab01d2e9ab88e7e47bd001"></a>
 virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_object.html#ad4441ae906ab01d2e9ab88e7e47bd001">is_instr</a> () const</td></tr>
-<tr class="memdesc:ad4441ae906ab01d2e9ab88e7e47bd001"><td class="mdescLeft">&#160;</td><td class="mdescRight">Is type <a class="el" href="classila_1_1_instr.html">Instr</a>. <br /></td></tr>
+<tr class="memdesc:ad4441ae906ab01d2e9ab88e7e47bd001"><td class="mdescLeft">&#160;</td><td class="mdescRight">Is type <a class="el" href="classila_1_1_instr.html" title="The class for the Instruction. An Instr object contains: ">Instr</a>. <br /></td></tr>
 <tr class="separator:ad4441ae906ab01d2e9ab88e7e47bd001"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa39c9c99951339d74fa48d1a434a60fc"><td class="memItemLeft" align="right" valign="top"><a id="aa39c9c99951339d74fa48d1a434a60fc"></a>
 virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_object.html#aa39c9c99951339d74fa48d1a434a60fc">is_ast</a> () const</td></tr>
-<tr class="memdesc:aa39c9c99951339d74fa48d1a434a60fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Is type <a class="el" href="classila_1_1_ast.html">Ast</a>. <br /></td></tr>
+<tr class="memdesc:aa39c9c99951339d74fa48d1a434a60fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Is type <a class="el" href="classila_1_1_ast.html" title="The class for the Abstract Syntax Tree. An Ast object can be an expression or function definition (in...">Ast</a>. <br /></td></tr>
 <tr class="separator:aa39c9c99951339d74fa48d1a434a60fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac0218db76e76f12c5b7808d5e8e6d65a"><td class="memItemLeft" align="right" valign="top"><a id="ac0218db76e76f12c5b7808d5e8e6d65a"></a>
 virtual std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_object.html#ac0218db76e76f12c5b7808d5e8e6d65a">Print</a> (std::ostream &amp;out) const =0</td></tr>
@@ -148,7 +152,7 @@ virtual std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><a
 <tr class="separator:ac0218db76e76f12c5b7808d5e8e6d65a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p><a class="el" href="classila_1_1_object.html">Object</a> is the basest type in the ILA structure. It can be either <a class="el" href="classila_1_1_ast.html">Ast</a>, <a class="el" href="classila_1_1_instr.html">Instr</a>, or <a class="el" href="classila_1_1_instr_lvl_abs.html" title="The class for ILA. The class of Instruction-Level Abstraction (ILA). An ILA contains: ...">InstrLvlAbs</a>. </p>
+<div class="textblock"><p><a class="el" href="classila_1_1_object.html" title="Object is the basest type in the ILA structure. It can be either Ast, Instr, or InstrLvlAbs. ">Object</a> is the basest type in the ILA structure. It can be either <a class="el" href="classila_1_1_ast.html" title="The class for the Abstract Syntax Tree. An Ast object can be an expression or function definition (in...">Ast</a>, <a class="el" href="classila_1_1_instr.html" title="The class for the Instruction. An Instr object contains: ">Instr</a>, or <a class="el" href="classila_1_1_instr_lvl_abs.html" title="The class of Instruction-Level Abstraction (ILA). An ILA contains: ">InstrLvlAbs</a>. </p>
 </div><hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="object_8h_source.html">object.h</a></li>
 </ul>

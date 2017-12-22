@@ -77,6 +77,7 @@ private:
 /// \brief The wrapper for unary negate operation "-".
 class ExprOpNeg : public ExprOp {
 public:
+  /// Constructor for Negate operation.
   ExprOpNeg(const ExprPtr arg);
   std::string op_name() const { return "NEGATE"; }
   z3::expr GetZ3Expr(z3::context& z3_ctx, const Z3ExprVec& z3expr_vec,
@@ -88,6 +89,7 @@ public:
 /// to both bool and bv, unlike bool-only "not"/"!".
 class ExprOpCompl : public ExprOp {
 public:
+  /// Constructor for Complement opeation.
   ExprOpCompl(const ExprPtr arg);
   std::string op_name() const { return "COMPLEMENT"; }
   z3::expr GetZ3Expr(z3::context& z3_ctx, const Z3ExprVec& z3expr_vec,
@@ -98,6 +100,7 @@ public:
 /// \brief The wrapper for binary logical AND operation "&".
 class ExprOpAnd : public ExprOp {
 public:
+  /// Constructor for AND operation.
   ExprOpAnd(const ExprPtr arg0, const ExprPtr arg1);
   std::string op_name() const { return "AND"; }
   z3::expr GetZ3Expr(z3::context& z3_ctx, const Z3ExprVec& z3expr_vec,
@@ -108,6 +111,7 @@ public:
 /// \brief The wrapper for binary logical OR operation "|".
 class ExprOpOr : public ExprOp {
 public:
+  /// Constructor for OR operation.
   ExprOpOr(const ExprPtr arg0, const ExprPtr arg1);
   std::string op_name() const { return "OR"; }
   z3::expr GetZ3Expr(z3::context& z3_ctx, const Z3ExprVec& z3expr_vec,
@@ -118,6 +122,7 @@ public:
 /// \brief The class wrapper for binary comparison EQ "==".
 class ExprOpEq : public ExprOp {
 public:
+  /// Constructor for Equal comparison.
   ExprOpEq(const ExprPtr arg0, const ExprPtr arg1);
   std::string op_name() const { return "EQ"; }
   z3::expr GetZ3Expr(z3::context& z3_ctx, const Z3ExprVec& z3expr_vec,

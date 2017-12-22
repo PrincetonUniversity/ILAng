@@ -74,6 +74,9 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
+<p>The class for the Instruction. An <a class="el" href="classila_1_1_instr.html" title="The class for the Instruction. An Instr object contains: ">Instr</a> object contains:  
+ <a href="classila_1_1_instr.html#details">More...</a></p>
+
 <p><code>#include &lt;<a class="el" href="instr_8h_source.html">instr.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for ila::Instr:</div>
@@ -81,21 +84,24 @@ Inheritance diagram for ila::Instr:</div>
  <div class="center">
   <img src="classila_1_1_instr.png" usemap="#ila::Instr_map" alt=""/>
   <map id="ila::Instr_map" name="ila::Instr_map">
-<area href="classila_1_1_object.html" alt="ila::Object" shape="rect" coords="0,0,68,24"/>
+<area href="classila_1_1_object.html" title="Object is the basest type in the ILA structure. It can be either Ast, Instr, or InstrLvlAbs. " alt="ila::Object" shape="rect" coords="0,0,68,24"/>
 </map>
  </div></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-types"></a>
 Public Types</h2></td></tr>
 <tr class="memitem:a12ba21b378d8a5b436c1ab10f09b747d"><td class="memItemLeft" align="right" valign="top"><a id="a12ba21b378d8a5b436c1ab10f09b747d"></a>
-typedef std::shared_ptr&lt; <a class="el" href="classila_1_1_instr.html">Instr</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>InstrPtr</b></td></tr>
+typedef std::shared_ptr&lt; <a class="el" href="classila_1_1_instr.html">Instr</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_instr.html#a12ba21b378d8a5b436c1ab10f09b747d">InstrPtr</a></td></tr>
+<tr class="memdesc:a12ba21b378d8a5b436c1ab10f09b747d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pointer type for normal use of <a class="el" href="classila_1_1_instr.html" title="The class for the Instruction. An Instr object contains: ">Instr</a>. <br /></td></tr>
 <tr class="separator:a12ba21b378d8a5b436c1ab10f09b747d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a557e4dded02c21031bea149473441e84"><td class="memItemLeft" align="right" valign="top"><a id="a557e4dded02c21031bea149473441e84"></a>
-typedef std::map&lt; std::string, ExprPtr &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ExprPtrMap</b></td></tr>
+typedef std::map&lt; std::string, <a class="el" href="namespaceila.html#af610f1359caba1beb7a780ebd58d2897">ExprPtr</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_instr.html#a557e4dded02c21031bea149473441e84">ExprPtrMap</a></td></tr>
+<tr class="memdesc:a557e4dded02c21031bea149473441e84"><td class="mdescLeft">&#160;</td><td class="mdescRight">Type for storing a set of <a class="el" href="classila_1_1_expr.html" title="The class for expression, which is the basic type for variables, constraints, state update expression...">Expr</a>. <br /></td></tr>
 <tr class="separator:a557e4dded02c21031bea149473441e84"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_types_classila_1_1_object"><td colspan="2" onclick="javascript:toggleInherit('pub_types_classila_1_1_object')"><img src="closed.png" alt="-"/>&#160;Public Types inherited from <a class="el" href="classila_1_1_object.html">ila::Object</a></td></tr>
 <tr class="memitem:a5aee87796fe12ce00d015f2a7141d8ce inherit pub_types_classila_1_1_object"><td class="memItemLeft" align="right" valign="top"><a id="a5aee87796fe12ce00d015f2a7141d8ce"></a>
-typedef std::shared_ptr&lt; <a class="el" href="classila_1_1_object.html">Object</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ObjPtr</b></td></tr>
+typedef std::shared_ptr&lt; <a class="el" href="classila_1_1_object.html">Object</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_object.html#a5aee87796fe12ce00d015f2a7141d8ce">ObjPtr</a></td></tr>
+<tr class="memdesc:a5aee87796fe12ce00d015f2a7141d8ce inherit pub_types_classila_1_1_object"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pointer type for normal use of <a class="el" href="classila_1_1_object.html" title="Object is the basest type in the ILA structure. It can be either Ast, Instr, or InstrLvlAbs. ">Object</a>. <br /></td></tr>
 <tr class="separator:a5aee87796fe12ce00d015f2a7141d8ce inherit pub_types_classila_1_1_object"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
@@ -110,25 +116,30 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a6b9ae435d21e25582ffdef0794066f6c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abc5774cce02b37087db53782c4841aac"><td class="memItemLeft" align="right" valign="top"><a id="abc5774cce02b37087db53782c4841aac"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_instr.html#abc5774cce02b37087db53782c4841aac">is_instr</a> () const</td></tr>
-<tr class="memdesc:abc5774cce02b37087db53782c4841aac"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return true if Is type <a class="el" href="classila_1_1_instr.html">Instr</a>. <br /></td></tr>
+<tr class="memdesc:abc5774cce02b37087db53782c4841aac"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return true if Is type <a class="el" href="classila_1_1_instr.html" title="The class for the Instruction. An Instr object contains: ">Instr</a>. <br /></td></tr>
 <tr class="separator:abc5774cce02b37087db53782c4841aac"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad99c6933582dd5d8b5afccec1b7db8e0"><td class="memItemLeft" align="right" valign="top"><a id="ad99c6933582dd5d8b5afccec1b7db8e0"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_instr.html#ad99c6933582dd5d8b5afccec1b7db8e0">has_view</a> () const</td></tr>
 <tr class="memdesc:ad99c6933582dd5d8b5afccec1b7db8e0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return true if has view. <br /></td></tr>
 <tr class="separator:ad99c6933582dd5d8b5afccec1b7db8e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6a1b17fe8739fc3314214b1e173f33a8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_instr.html#a6a1b17fe8739fc3314214b1e173f33a8">SetDecode</a> (const ExprPtr decode_expr)</td></tr>
+<tr class="memitem:a6a1b17fe8739fc3314214b1e173f33a8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_instr.html#a6a1b17fe8739fc3314214b1e173f33a8">SetDecode</a> (const <a class="el" href="namespaceila.html#af610f1359caba1beb7a780ebd58d2897">ExprPtr</a> decode_expr)</td></tr>
+<tr class="memdesc:a6a1b17fe8739fc3314214b1e173f33a8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the decode function.  <a href="#a6a1b17fe8739fc3314214b1e173f33a8">More...</a><br /></td></tr>
 <tr class="separator:a6a1b17fe8739fc3314214b1e173f33a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a410590f668e8a1d95ad9b214ff3a384d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_instr.html#a410590f668e8a1d95ad9b214ff3a384d">AddUpdate</a> (const std::string &amp;<a class="el" href="classila_1_1_object.html#a3a4685c48b59e040b1826a59abcdae01">name</a>, const ExprPtr update)</td></tr>
+<tr class="memitem:a410590f668e8a1d95ad9b214ff3a384d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_instr.html#a410590f668e8a1d95ad9b214ff3a384d">AddUpdate</a> (const std::string &amp;<a class="el" href="classila_1_1_object.html#a3a4685c48b59e040b1826a59abcdae01">name</a>, const <a class="el" href="namespaceila.html#af610f1359caba1beb7a780ebd58d2897">ExprPtr</a> update)</td></tr>
+<tr class="memdesc:a410590f668e8a1d95ad9b214ff3a384d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add one update function for the state variable specified by name.  <a href="#a410590f668e8a1d95ad9b214ff3a384d">More...</a><br /></td></tr>
 <tr class="separator:a410590f668e8a1d95ad9b214ff3a384d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aaeff2deb658151be04af55f797d6bd01"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_instr.html#aaeff2deb658151be04af55f797d6bd01">AddUpdate</a> (const ExprPtr state, const ExprPtr update)</td></tr>
+<tr class="memitem:aaeff2deb658151be04af55f797d6bd01"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_instr.html#aaeff2deb658151be04af55f797d6bd01">AddUpdate</a> (const <a class="el" href="namespaceila.html#af610f1359caba1beb7a780ebd58d2897">ExprPtr</a> state, const <a class="el" href="namespaceila.html#af610f1359caba1beb7a780ebd58d2897">ExprPtr</a> update)</td></tr>
+<tr class="memdesc:aaeff2deb658151be04af55f797d6bd01"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add one update function for the state variable specified by var pointer.  <a href="#aaeff2deb658151be04af55f797d6bd01">More...</a><br /></td></tr>
 <tr class="separator:aaeff2deb658151be04af55f797d6bd01"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad8404e7697ac1874b4910b30b87a7a11"><td class="memItemLeft" align="right" valign="top"><a id="ad8404e7697ac1874b4910b30b87a7a11"></a>
-ExprPtr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_instr.html#ad8404e7697ac1874b4910b30b87a7a11">GetDecode</a> () const</td></tr>
+<a class="el" href="namespaceila.html#af610f1359caba1beb7a780ebd58d2897">ExprPtr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_instr.html#ad8404e7697ac1874b4910b30b87a7a11">GetDecode</a> () const</td></tr>
 <tr class="memdesc:ad8404e7697ac1874b4910b30b87a7a11"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the decode function. <br /></td></tr>
 <tr class="separator:ad8404e7697ac1874b4910b30b87a7a11"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1153f96f284a28ad7c92fed316378f46"><td class="memItemLeft" align="right" valign="top">ExprPtr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_instr.html#a1153f96f284a28ad7c92fed316378f46">GetUpdate</a> (const std::string &amp;<a class="el" href="classila_1_1_object.html#a3a4685c48b59e040b1826a59abcdae01">name</a>) const</td></tr>
+<tr class="memitem:a1153f96f284a28ad7c92fed316378f46"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceila.html#af610f1359caba1beb7a780ebd58d2897">ExprPtr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_instr.html#a1153f96f284a28ad7c92fed316378f46">GetUpdate</a> (const std::string &amp;<a class="el" href="classila_1_1_object.html#a3a4685c48b59e040b1826a59abcdae01">name</a>) const</td></tr>
+<tr class="memdesc:a1153f96f284a28ad7c92fed316378f46"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the update function for the state specified by name.  <a href="#a1153f96f284a28ad7c92fed316378f46">More...</a><br /></td></tr>
 <tr class="separator:a1153f96f284a28ad7c92fed316378f46"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7c727f887a3be1faa1b3ae3fbe796727"><td class="memItemLeft" align="right" valign="top">ExprPtr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_instr.html#a7c727f887a3be1faa1b3ae3fbe796727">GetUpdate</a> (const ExprPtr state) const</td></tr>
+<tr class="memitem:a7c727f887a3be1faa1b3ae3fbe796727"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceila.html#af610f1359caba1beb7a780ebd58d2897">ExprPtr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_instr.html#a7c727f887a3be1faa1b3ae3fbe796727">GetUpdate</a> (const <a class="el" href="namespaceila.html#af610f1359caba1beb7a780ebd58d2897">ExprPtr</a> state) const</td></tr>
+<tr class="memdesc:a7c727f887a3be1faa1b3ae3fbe796727"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the update function for the state specified by var pointer.  <a href="#a7c727f887a3be1faa1b3ae3fbe796727">More...</a><br /></td></tr>
 <tr class="separator:a7c727f887a3be1faa1b3ae3fbe796727"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a591d3bae10cc853c0154eeed5772e16e"><td class="memItemLeft" align="right" valign="top"><a id="a591d3bae10cc853c0154eeed5772e16e"></a>
 virtual std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_instr.html#a591d3bae10cc853c0154eeed5772e16e">Print</a> (std::ostream &amp;out) const</td></tr>
@@ -161,15 +172,16 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="separator:a3d6c4425bd06b0f556e3e24ff7979acc inherit pub_methods_classila_1_1_object"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a75668cdee5e0e62270d30773184640b6 inherit pub_methods_classila_1_1_object"><td class="memItemLeft" align="right" valign="top"><a id="a75668cdee5e0e62270d30773184640b6"></a>
 virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_object.html#a75668cdee5e0e62270d30773184640b6">is_instr_lvl_abs</a> () const</td></tr>
-<tr class="memdesc:a75668cdee5e0e62270d30773184640b6 inherit pub_methods_classila_1_1_object"><td class="mdescLeft">&#160;</td><td class="mdescRight">Is type <a class="el" href="classila_1_1_instr_lvl_abs.html" title="The class for ILA. The class of Instruction-Level Abstraction (ILA). An ILA contains: ...">InstrLvlAbs</a>. <br /></td></tr>
+<tr class="memdesc:a75668cdee5e0e62270d30773184640b6 inherit pub_methods_classila_1_1_object"><td class="mdescLeft">&#160;</td><td class="mdescRight">Is type <a class="el" href="classila_1_1_instr_lvl_abs.html" title="The class of Instruction-Level Abstraction (ILA). An ILA contains: ">InstrLvlAbs</a>. <br /></td></tr>
 <tr class="separator:a75668cdee5e0e62270d30773184640b6 inherit pub_methods_classila_1_1_object"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa39c9c99951339d74fa48d1a434a60fc inherit pub_methods_classila_1_1_object"><td class="memItemLeft" align="right" valign="top"><a id="aa39c9c99951339d74fa48d1a434a60fc"></a>
 virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_object.html#aa39c9c99951339d74fa48d1a434a60fc">is_ast</a> () const</td></tr>
-<tr class="memdesc:aa39c9c99951339d74fa48d1a434a60fc inherit pub_methods_classila_1_1_object"><td class="mdescLeft">&#160;</td><td class="mdescRight">Is type <a class="el" href="classila_1_1_ast.html">Ast</a>. <br /></td></tr>
+<tr class="memdesc:aa39c9c99951339d74fa48d1a434a60fc inherit pub_methods_classila_1_1_object"><td class="mdescLeft">&#160;</td><td class="mdescRight">Is type <a class="el" href="classila_1_1_ast.html" title="The class for the Abstract Syntax Tree. An Ast object can be an expression or function definition (in...">Ast</a>. <br /></td></tr>
 <tr class="separator:aa39c9c99951339d74fa48d1a434a60fc inherit pub_methods_classila_1_1_object"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>The class for the Instruction. An <a class="el" href="classila_1_1_instr.html">Instr</a> object contains:</p><ul>
+<div class="textblock"><p>The class for the Instruction. An <a class="el" href="classila_1_1_instr.html" title="The class for the Instruction. An Instr object contains: ">Instr</a> object contains: </p>
+<ul>
 <li>the decode function</li>
 <li>a set of undate functions for the state variables</li>
 <li>several attributes, e.g. view </li>
@@ -190,7 +202,7 @@ virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const ExprPtr&#160;</td>
+          <td class="paramtype">const <a class="el" href="namespaceila.html#af610f1359caba1beb7a780ebd58d2897">ExprPtr</a>&#160;</td>
           <td class="paramname"><em>update</em>&#160;</td>
         </tr>
         <tr>
@@ -200,7 +212,9 @@ virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Add one update function for the state variable specified by name. </p><dl class="params"><dt>Parameters</dt><dd>
+
+<p>Add one update function for the state variable specified by name. </p>
+<dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>the name of the state variable. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">update</td><td>the update function expression (same type as state). </td></tr>
@@ -219,13 +233,13 @@ virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
         <tr>
           <td class="memname">void ila::Instr::AddUpdate </td>
           <td>(</td>
-          <td class="paramtype">const ExprPtr&#160;</td>
+          <td class="paramtype">const <a class="el" href="namespaceila.html#af610f1359caba1beb7a780ebd58d2897">ExprPtr</a>&#160;</td>
           <td class="paramname"><em>state</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const ExprPtr&#160;</td>
+          <td class="paramtype">const <a class="el" href="namespaceila.html#af610f1359caba1beb7a780ebd58d2897">ExprPtr</a>&#160;</td>
           <td class="paramname"><em>update</em>&#160;</td>
         </tr>
         <tr>
@@ -235,7 +249,9 @@ virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Add one update function for the state variable specified by var pointer. </p><dl class="params"><dt>Parameters</dt><dd>
+
+<p>Add one update function for the state variable specified by var pointer. </p>
+<dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">state</td><td>the pointer to the state variable. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">update</td><td>the update function expression (same type as state). </td></tr>
@@ -252,7 +268,7 @@ virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">ExprPtr ila::Instr::GetUpdate </td>
+          <td class="memname"><a class="el" href="namespaceila.html#af610f1359caba1beb7a780ebd58d2897">ExprPtr</a> ila::Instr::GetUpdate </td>
           <td>(</td>
           <td class="paramtype">const std::string &amp;&#160;</td>
           <td class="paramname"><em>name</em></td><td>)</td>
@@ -260,7 +276,9 @@ virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Return the update function for the state specified by name. </p><dl class="params"><dt>Parameters</dt><dd>
+
+<p>Return the update function for the state specified by name. </p>
+<dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>the name of the state variable. </td></tr>
   </table>
@@ -277,15 +295,17 @@ virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">ExprPtr ila::Instr::GetUpdate </td>
+          <td class="memname"><a class="el" href="namespaceila.html#af610f1359caba1beb7a780ebd58d2897">ExprPtr</a> ila::Instr::GetUpdate </td>
           <td>(</td>
-          <td class="paramtype">const ExprPtr&#160;</td>
+          <td class="paramtype">const <a class="el" href="namespaceila.html#af610f1359caba1beb7a780ebd58d2897">ExprPtr</a>&#160;</td>
           <td class="paramname"><em>state</em></td><td>)</td>
           <td> const</td>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Return the update function for the state specified by var pointer. </p><dl class="params"><dt>Parameters</dt><dd>
+
+<p>Return the update function for the state specified by var pointer. </p>
+<dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">state</td><td>the pointer to the state variable. </td></tr>
   </table>
@@ -303,13 +323,15 @@ virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
         <tr>
           <td class="memname">void ila::Instr::SetDecode </td>
           <td>(</td>
-          <td class="paramtype">const ExprPtr&#160;</td>
+          <td class="paramtype">const <a class="el" href="namespaceila.html#af610f1359caba1beb7a780ebd58d2897">ExprPtr</a>&#160;</td>
           <td class="paramname"><em>decode_expr</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Set the decode function. </p><dl class="params"><dt>Parameters</dt><dd>
+
+<p>Set the decode function. </p>
+<dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">decode_expr</td><td>is the pointer to the decode function (bool). </td></tr>
   </table>
