@@ -5,9 +5,9 @@
 
 namespace ila {
 
-void SetVerboseLevel(const int& lvl) { FLAGS_v = lvl; }
+void SetLogLevel(const int& lvl) { FLAGS_minloglevel = lvl; }
 
-void SetLogFilePath(const std::string& path) { FLAGS_log_dir = path; }
+void SetLogPath(const std::string& path) { FLAGS_log_dir = path; }
 
 void SetToStdErr(const int& to_err) { FLAGS_logtostderr = to_err; }
 
