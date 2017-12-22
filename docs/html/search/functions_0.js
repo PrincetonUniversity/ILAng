@@ -2,7 +2,6 @@ var searchData=
 [
   ['add',['Add',['../classila_1_1_expr_fuse.html#a576e464c55ad4025bca30f53417ecba7',1,'ila::ExprFuse']]],
   ['addchild',['AddChild',['../classila_1_1_instr_lvl_abs.html#aeba3acbc927ae928d5ef158253a1fb57',1,'ila::InstrLvlAbs']]],
-  ['addfunc',['AddFunc',['../classila_1_1_instr_lvl_abs.html#ad89cb0a6ea1d352a3bdc829e7eb170ee',1,'ila::InstrLvlAbs']]],
   ['addinit',['AddInit',['../classila_1_1_instr_lvl_abs.html#ad825b3448a8e85917e3cb8da99727181',1,'ila::InstrLvlAbs']]],
   ['addinput',['AddInput',['../classila_1_1_instr_lvl_abs.html#a23a2107c55d2a79efed1031d1108c155',1,'ila::InstrLvlAbs']]],
   ['addinstr',['AddInstr',['../classila_1_1_instr_lvl_abs.html#a24277b97cde5d84b3345a211afd772f5',1,'ila::InstrLvlAbs']]],

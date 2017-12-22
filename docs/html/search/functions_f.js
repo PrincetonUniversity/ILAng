@@ -18,10 +18,15 @@ var searchData=
   ['setvalid',['SetValid',['../classila_1_1_instr_lvl_abs.html#ae4a9dec645d3eadd9caf04400f27b83e',1,'ila::InstrLvlAbs']]],
   ['shl',['Shl',['../classila_1_1_expr_fuse.html#a36a1ea67fe50bdf2488de98ddc010090',1,'ila::ExprFuse']]],
   ['shr',['Shr',['../classila_1_1_expr_fuse.html#adc34a8a05a41b08d1d9dbc5fa0611b54',1,'ila::ExprFuse']]],
-  ['simplify',['Simplify',['../classila_1_1_expr_simplifier.html#adb9d449cc643904313acbc972e60337a',1,'ila::ExprSimplifier::Simplify()'],['../classila_1_1_z3_expr_adapter.html#a79e26540dbf049ffe7def6e77e0b238e',1,'ila::Z3ExprAdapter::simplify()']]],
+  ['simplify',['simplify',['../classila_1_1_z3_expr_adapter.html#a79e26540dbf049ffe7def6e77e0b238e',1,'ila::Z3ExprAdapter::simplify()'],['../classila_1_1_expr_simplifier.html#adb9d449cc643904313acbc972e60337a',1,'ila::ExprSimplifier::Simplify()']]],
   ['sort',['Sort',['../classila_1_1_sort.html#a3f361e662674ec43eb1586ccceb84af2',1,'ila::Sort::Sort()'],['../classila_1_1_sort.html#a1b8528f6977a43f9b2025cfef17ed876',1,'ila::Sort::Sort(const int &amp;bit_width)'],['../classila_1_1_sort.html#a750afb3735593a8bf1af299d898cbfd6',1,'ila::Sort::Sort(const int &amp;addr_width, const int &amp;data_width)'],['../classila_1_1_sort.html#a0bf09562bdf4ded16116cf1c2cf38e4a',1,'ila::Sort::Sort(const SortPtr range_sort, const SortPtrVec &amp;args_sort)'],['../classila_1_1_expr.html#aeb657e5662baf949826035f8b5efe0fb',1,'ila::Expr::sort()']]],
   ['store',['Store',['../classila_1_1_expr_fuse.html#a40bf26033c143c76ed1445284bae3d0c',1,'ila::ExprFuse']]],
   ['str',['str',['../classila_1_1_bool_val.html#ad5fbd7570aedd99bb7e0b744df9d30f3',1,'ila::BoolVal::str()'],['../classila_1_1_bv_val.html#a604fe7c3c7f44381c91fc53fd776210b',1,'ila::BvVal::str()'],['../classila_1_1_symbol.html#a509252086aa27bf93aa13621bd451e75',1,'ila::Symbol::str()']]],
+  ['strconcat',['StrConcat',['../namespaceila.html#abb2b47be702dce85b24cc63af15e7e54',1,'ila::StrConcat(const std::string &amp;l, const std::string &amp;r)'],['../namespaceila.html#a9ad7cbaf2c68c128edffc874378c6891',1,'ila::StrConcat(const std::string &amp;l, const std::string &amp;m, const std::string &amp;r)']]],
+  ['strtobool',['StrToBool',['../namespaceila.html#a13373d6dcfc9ac9605475225df415cc1',1,'ila']]],
+  ['strtoint',['StrToInt',['../namespaceila.html#a60d1914fe746c79edda448c9d317251d',1,'ila']]],
+  ['strtolower',['StrToLower',['../namespaceila.html#a1f560053b71760c5772f4499b4dab0dd',1,'ila']]],
+  ['strtoupper',['StrToUpper',['../namespaceila.html#a8fc0871924de8e6c89833f214032fefa',1,'ila']]],
   ['sub',['Sub',['../classila_1_1_expr_fuse.html#af5f11a47b1c296da6d93a715286ecc5f',1,'ila::ExprFuse']]],
   ['symbol',['Symbol',['../classila_1_1_symbol.html#a33c1a2f6b04482e5f841352def607297',1,'ila::Symbol::Symbol()'],['../classila_1_1_symbol.html#a5cae88d854610f10427b326c0b8fd4ce',1,'ila::Symbol::Symbol(const char *str)'],['../classila_1_1_symbol.html#a7a1a2996f6c582a7b1d22e9edec0304e',1,'ila::Symbol::Symbol(const std::string &amp;str)']]]
 ];

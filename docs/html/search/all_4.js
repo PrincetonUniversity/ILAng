@@ -18,6 +18,7 @@ var searchData=
   ['expropeq',['ExprOpEq',['../classila_1_1_expr_op_eq.html',1,'ila']]],
   ['expropneg',['ExprOpNeg',['../classila_1_1_expr_op_neg.html',1,'ila']]],
   ['expropor',['ExprOpOr',['../classila_1_1_expr_op_or.html',1,'ila']]],
+  ['exprptrmap',['ExprPtrMap',['../classila_1_1_instr_lvl_abs.html#aec3ee0f8f80f69fb35ff7d6a8a0b8485',1,'ila::InstrLvlAbs']]],
   ['exprsimplifier',['ExprSimplifier',['../classila_1_1_expr_simplifier.html',1,'ila::ExprSimplifier'],['../classila_1_1_expr_simplifier.html#ac39962ef22cb78e4a27387802e8488e0',1,'ila::ExprSimplifier::ExprSimplifier()']]],
   ['exprvar',['ExprVar',['../classila_1_1_expr_var.html',1,'ila::ExprVar'],['../classila_1_1_expr_var.html#aebae6932e9965da53a5cf77ef4ef13fa',1,'ila::ExprVar::ExprVar()'],['../classila_1_1_expr_var.html#a58fff7ad63237352e3fd6d290abac3fe',1,'ila::ExprVar::ExprVar(const std::string &amp;name)'],['../classila_1_1_expr_var.html#a8f53a77886b02f58c8b923fd6bf1a4f5',1,'ila::ExprVar::ExprVar(const std::string &amp;name, const int &amp;bit_width)'],['../classila_1_1_expr_var.html#ae8d022678daa7dce6493869bff577145',1,'ila::ExprVar::ExprVar(const std::string &amp;name, const int &amp;addr_width, const int &amp;data_width)']]],
   ['extract',['Extract',['../classila_1_1_expr_fuse.html#a5f3405edf38aa86310ce09c2e7195152',1,'ila::ExprFuse']]]

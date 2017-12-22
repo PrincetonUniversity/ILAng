@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['sortptr',['SortPtr',['../classila_1_1_sort.html#a4df74038270ac346c0e1789f8ddfa192',1,'ila::Sort']]],
-  ['sortptrvec',['SortPtrVec',['../classila_1_1_sort.html#a111e9f3137364a56e9fb6a094760f3f5',1,'ila::Sort']]]
+  ['exprptrmap',['ExprPtrMap',['../classila_1_1_instr_lvl_abs.html#aec3ee0f8f80f69fb35ff7d6a8a0b8485',1,'ila::InstrLvlAbs']]]
 ];

@@ -115,6 +115,7 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_instr.html">Instr</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_instr_lvl_abs.html">InstrLvlAbs</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The class for ILA. The class of Instruction-Level Abstraction (ILA). An ILA contains:  <a href="classila_1_1_instr_lvl_abs.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_log_initter.html">LogInitter</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A one-time class for initializing GLog.  <a href="classila_1_1_log_initter.html#details">More...</a><br /></td></tr>
@@ -171,7 +172,8 @@ typedef MemVal::MemValMap&#160;</td><td class="memItemRight" valign="bottom"><b>
 typedef Instr::InstrPtr&#160;</td><td class="memItemRight" valign="bottom"><b>InstrPtr</b></td></tr>
 <tr class="separator:a4d14d93f5a396c57e5a6bc186be69a0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac7992fe63e5818774d91a3d9c4b6f0f9"><td class="memItemLeft" align="right" valign="top"><a id="ac7992fe63e5818774d91a3d9c4b6f0f9"></a>
-typedef InstrLvlAbs::InstrLvlAbsPtr&#160;</td><td class="memItemRight" valign="bottom"><b>InstrLvlAbsPtr</b></td></tr>
+typedef <a class="el" href="classila_1_1_instr_lvl_abs.html#a1fde1d236329a306296c12da9c3166f5">InstrLvlAbs::InstrLvlAbsPtr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#ac7992fe63e5818774d91a3d9c4b6f0f9">InstrLvlAbsPtr</a></td></tr>
+<tr class="memdesc:ac7992fe63e5818774d91a3d9c4b6f0f9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pointer type for normal use of <a class="el" href="classila_1_1_instr_lvl_abs.html" title="The class for ILA. The class of Instruction-Level Abstraction (ILA). An ILA contains: ...">InstrLvlAbs</a>. <br /></td></tr>
 <tr class="separator:ac7992fe63e5818774d91a3d9c4b6f0f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad5f547adb62ed04efaf6b057edfaf48b"><td class="memItemLeft" align="right" valign="top"><a id="ad5f547adb62ed04efaf6b057edfaf48b"></a>
 typedef <a class="el" href="classila_1_1_node_ref.html">NodeRef</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>NodePtr</b></td></tr>
@@ -193,30 +195,39 @@ Enumerations</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:ac519acdba0091b02dc081a5333b547ae"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#ac519acdba0091b02dc081a5333b547ae">SetLogLevel</a> (const int &amp;lvl)</td></tr>
+<tr class="memdesc:ac519acdba0091b02dc081a5333b547ae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the minimun log level. Log messages at or above this level will be logged. (Default: 0)  <a href="#ac519acdba0091b02dc081a5333b547ae">More...</a><br /></td></tr>
 <tr class="separator:ac519acdba0091b02dc081a5333b547ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a61db1e2fe1b6ca19ad77c122b924413f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a61db1e2fe1b6ca19ad77c122b924413f">SetLogPath</a> (const std::string &amp;path)</td></tr>
+<tr class="memitem:a61db1e2fe1b6ca19ad77c122b924413f"><td class="memItemLeft" align="right" valign="top"><a id="a61db1e2fe1b6ca19ad77c122b924413f"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a61db1e2fe1b6ca19ad77c122b924413f">SetLogPath</a> (const std::string &amp;path)</td></tr>
+<tr class="memdesc:a61db1e2fe1b6ca19ad77c122b924413f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the path for log file. If specified, logfiles are written into this directory instead of the default logging directory (/tmp). <br /></td></tr>
 <tr class="separator:a61db1e2fe1b6ca19ad77c122b924413f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5b61b7e80a797eca9fa38c616c2a5790"><td class="memItemLeft" align="right" valign="top"><a id="a5b61b7e80a797eca9fa38c616c2a5790"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a5b61b7e80a797eca9fa38c616c2a5790">SetToStdErr</a> (const int &amp;to_err)</td></tr>
-<tr class="memdesc:a5b61b7e80a797eca9fa38c616c2a5790"><td class="mdescLeft">&#160;</td><td class="mdescRight">Log messages to stderr instead of logfiles, if set to 1. <br /></td></tr>
+<tr class="memdesc:a5b61b7e80a797eca9fa38c616c2a5790"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pipe log to stderr. Log messages to stderr instead of logfiles, if set to 1. <br /></td></tr>
 <tr class="separator:a5b61b7e80a797eca9fa38c616c2a5790"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8fc0871924de8e6c89833f214032fefa"><td class="memItemLeft" align="right" valign="top"><a id="a8fc0871924de8e6c89833f214032fefa"></a>
-std::string&#160;</td><td class="memItemRight" valign="bottom"><b>StrToUpper</b> (const std::string &amp;str)</td></tr>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a8fc0871924de8e6c89833f214032fefa">StrToUpper</a> (const std::string &amp;str)</td></tr>
+<tr class="memdesc:a8fc0871924de8e6c89833f214032fefa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Transform basic string to upper case. <br /></td></tr>
 <tr class="separator:a8fc0871924de8e6c89833f214032fefa"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1f560053b71760c5772f4499b4dab0dd"><td class="memItemLeft" align="right" valign="top"><a id="a1f560053b71760c5772f4499b4dab0dd"></a>
-std::string&#160;</td><td class="memItemRight" valign="bottom"><b>StrToLower</b> (const std::string &amp;str)</td></tr>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a1f560053b71760c5772f4499b4dab0dd">StrToLower</a> (const std::string &amp;str)</td></tr>
+<tr class="memdesc:a1f560053b71760c5772f4499b4dab0dd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Transform basic string to lower case. <br /></td></tr>
 <tr class="separator:a1f560053b71760c5772f4499b4dab0dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a13373d6dcfc9ac9605475225df415cc1"><td class="memItemLeft" align="right" valign="top"><a id="a13373d6dcfc9ac9605475225df415cc1"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>StrToBool</b> (const std::string &amp;str)</td></tr>
+bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a13373d6dcfc9ac9605475225df415cc1">StrToBool</a> (const std::string &amp;str)</td></tr>
+<tr class="memdesc:a13373d6dcfc9ac9605475225df415cc1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return true if string is "true" or "True". <br /></td></tr>
 <tr class="separator:a13373d6dcfc9ac9605475225df415cc1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a60d1914fe746c79edda448c9d317251d"><td class="memItemLeft" align="right" valign="top"><a id="a60d1914fe746c79edda448c9d317251d"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>StrToInt</b> (const std::string &amp;str)</td></tr>
+int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a60d1914fe746c79edda448c9d317251d">StrToInt</a> (const std::string &amp;str)</td></tr>
+<tr class="memdesc:a60d1914fe746c79edda448c9d317251d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the value represented in the string, e.g. "10". <br /></td></tr>
 <tr class="separator:a60d1914fe746c79edda448c9d317251d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abb2b47be702dce85b24cc63af15e7e54"><td class="memItemLeft" align="right" valign="top"><a id="abb2b47be702dce85b24cc63af15e7e54"></a>
-std::string&#160;</td><td class="memItemRight" valign="bottom"><b>StrConcat</b> (const std::string &amp;l, const std::string &amp;r)</td></tr>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#abb2b47be702dce85b24cc63af15e7e54">StrConcat</a> (const std::string &amp;l, const std::string &amp;r)</td></tr>
+<tr class="memdesc:abb2b47be702dce85b24cc63af15e7e54"><td class="mdescLeft">&#160;</td><td class="mdescRight">Concatenate two string with "_". <br /></td></tr>
 <tr class="separator:abb2b47be702dce85b24cc63af15e7e54"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9ad7cbaf2c68c128edffc874378c6891"><td class="memItemLeft" align="right" valign="top"><a id="a9ad7cbaf2c68c128edffc874378c6891"></a>
-std::string&#160;</td><td class="memItemRight" valign="bottom"><b>StrConcat</b> (const std::string &amp;l, const std::string &amp;m, const std::string &amp;r)</td></tr>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a9ad7cbaf2c68c128edffc874378c6891">StrConcat</a> (const std::string &amp;l, const std::string &amp;m, const std::string &amp;r)</td></tr>
+<tr class="memdesc:a9ad7cbaf2c68c128edffc874378c6891"><td class="mdescLeft">&#160;</td><td class="mdescRight">Concatenate three string with "_". <br /></td></tr>
 <tr class="separator:a9ad7cbaf2c68c128edffc874378c6891"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
@@ -237,31 +248,14 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>StrConcat</b> 
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Log messages at or above this level will be logged. (Default: 0)</p><ul>
+
+<p>Set the minimun log level. Log messages at or above this level will be logged. (Default: 0) </p>
+<ul>
 <li>INFO: level 0</li>
 <li>WARNING: level 1</li>
 <li>ERROR: level 2</li>
 <li>FATAL: level 3 </li>
 </ul>
-
-</div>
-</div>
-<a id="a61db1e2fe1b6ca19ad77c122b924413f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a61db1e2fe1b6ca19ad77c122b924413f">&#9670;&nbsp;</a></span>SetLogPath()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void ila::SetLogPath </td>
-          <td>(</td>
-          <td class="paramtype">const std::string &amp;&#160;</td>
-          <td class="paramname"><em>path</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>If specified, logfiles are written into this directory instead of the default logging directory (/tmp). </p>
 
 </div>
 </div>
