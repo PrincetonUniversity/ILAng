@@ -1,7 +1,0 @@
-(+ (extract r0 #0x3 #0) (extract r1 #0x7 #0x4))
-[Export] Import ast 0.
-[Export] Import ast 1.
-(+ (extract r0 #0x3 #0) (extract r1 #0x7 #0x4))
-(+ (+ r0 r1) 0x44)
-
-EXIT STATUS: 0
