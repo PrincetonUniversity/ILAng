@@ -6,6 +6,7 @@
 
 namespace ila {
 
+#if 0
 std::ostream* LogChannel::log1_stream = new std::ofstream("/dev/null");
 std::ostream* LogChannel::log2_stream = new std::ofstream("/dev/null");
 std::ostream* LogChannel::null_stream = new std::ofstream("/dev/null");
@@ -15,6 +16,7 @@ std::ostream* LogChannel::null_stream = new std::ofstream("/dev/null");
 #define null_stream LogChannel::null_stream
 
 std::set<std::string> enabled_tags;
+#endif
 
 // Macros and handlers for glog-based log system.
 /******************************************************************************/
@@ -32,13 +34,14 @@ void InitGLog(const int& lvl, const std::string& path, const int& also) {
   SetGLogFilePath(path);
   SetGLogAlsoToStdErr(also);
   if (!glog_inited) {
-    google::InitGoogleLogging("ila_log");
+    // google::InitGoogleLogging("ila_log");
     glog_inited = true;
   }
 }
 
 void CloseGLog() {}
 
+#if 0
 // Wrapper for debug log system.
 /******************************************************************************/
 
@@ -121,6 +124,7 @@ std::ostream& IlaDLog1(const std::string& tag) {
 std::ostream& IlaDLog2(const std::string& tag) {
   return IlaDLog(*log2_stream, tag);
 }
+#endif
 
 } // namespace ila
 

@@ -68,6 +68,7 @@ TEST_F(Log, GlogTest) {
   CloseGLog();
 }
 
+#if 0
 TEST_F(Log, DebugLogTest) {
   std::string msg;
 
@@ -94,6 +95,7 @@ TEST_F(Log, DebugLogTest) {
 
   CloseDLog();
 }
+#endif
 
 } // namespace ila
 

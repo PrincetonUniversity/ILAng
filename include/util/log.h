@@ -4,7 +4,7 @@
 #ifndef __LOG_H__
 #define __LOG_H__
 
-#include <fstream>
+//#include <fstream>
 #include <glog/logging.h>
 #include <iostream>
 #include <string>
@@ -64,6 +64,7 @@ void CloseGLog();
 // Wrapper for debug log system.
 /******************************************************************************/
 
+#if 0
 /// Initialize debug log system.
 void InitDLog();
 
@@ -106,6 +107,8 @@ public:
   /// Debug log null channel
   static std::ostream* null_stream;
 }; // LogChannel
+
+#endif
 
 } // namespace ila
 
