@@ -1,5 +1,5 @@
 /// \file
-/// Header for the class IlaFuse
+/// Header for the class ILAFuse
 
 #ifndef __ILA_FUSE_H__
 #define __ILA_FUSE_H__
@@ -12,28 +12,34 @@
 /// \namespace ila
 namespace ila {
 
-/// \class IlaFuse
-/// IlaFuse is the uniform interface and wrapper for defining an ILA, except for
+/// \class ILAFuse
+/// ILAFuse is the uniform interface and wrapper for defining an ILA, except for
 /// AST construction, which is defined by ExprFuse.
-class IlaFuse : public ExprFuse {
+class ILAFuse : public ExprFuse {
 public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor. NOT USED. Not for constructing objects.
-  IlaFuse();
+  ILAFuse();
   /// Default destructor. NOT USED. Not for constructing objects.
-  ~IlaFuse();
+  ~ILAFuse();
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
 
   // ------------------------- METHODS -------------------------------------- //
   // static functions for wrapping the hierarchy of AST.
 
+  /// Create a new ILA (InstrLvlAbs) with the name.
+  static InstrLvlAbsPtr NewILA(const std::string& name);
+
+  /// Create a new instruction (Instr) with the name.
+  static InstrPtr NewInstr(const std::string& name);
+
 private:
   // ------------------------- MEMBERS -------------------------------------- //
 
   // ------------------------- HELPERS -------------------------------------- //
 
-}; // class IlaFuse
+}; // class ILAFuse
 
 } // namespace ila
 

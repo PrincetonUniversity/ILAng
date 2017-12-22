@@ -47,6 +47,11 @@ public:
   /// Default destructor.
   ~InstrLvlAbs();
 
+  // ------------------------- HELPERS -------------------------------------- //
+  /// Create a new ILA (InstrLvlAbs) with the name. Used for hiding
+  /// implementation specific type details.
+  static InstrLvlAbsPtr NewILA(const std::string& name);
+
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return true if is InstrLvlAbs.
   bool is_instr_lvl_abs() const { return true; }

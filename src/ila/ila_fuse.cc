@@ -5,7 +5,7 @@
 
 namespace ila {
 
-IlaFuse::IlaFuse() {}
+ILAFuse::ILAFuse() {}
 
 } // namespace ila
 
