@@ -11,7 +11,7 @@
 /// \namespace ila
 namespace ila {
 
-/// \class ExprOp
+/// ExprOp
 /// Expression for operations, e.g. AND, OR, ADD, etc. Operations are
 /// non-terminating nodes in the AST.
 class ExprOp : public Expr {
@@ -75,7 +75,7 @@ private:
 // Ternary:
 /******************************************************************************/
 
-/// \class ExprOpNeg is the wrapper for unary negate operation "-".
+/// ExprOpNeg is the wrapper for unary negate operation "-".
 class ExprOpNeg : public ExprOp {
 public:
   ExprOpNeg(const ExprPtr arg);
@@ -85,7 +85,7 @@ public:
   std::ostream& Print(std::ostream& out) const;
 }; // class ExprOpNeg
 
-/// \class ExprOpCompl is the wrapper for unary complement (bit-wise) "~".
+/// ExprOpCompl is the wrapper for unary complement (bit-wise) "~".
 /// This can be applied to both bool and bv, unlike bool-only "not"/"!".
 class ExprOpCompl : public ExprOp {
 public:
@@ -96,7 +96,7 @@ public:
   std::ostream& Print(std::ostream& out) const;
 }; // class ExprOpCompl
 
-/// \class ExprOpAnd is the wrapper for binary logical AND operation "&".
+/// ExprOpAnd is the wrapper for binary logical AND operation "&".
 class ExprOpAnd : public ExprOp {
 public:
   ExprOpAnd(const ExprPtr arg0, const ExprPtr arg1);
@@ -106,7 +106,7 @@ public:
   std::ostream& Print(std::ostream& out) const;
 }; // class ExprOpAnd
 
-/// \class ExprOpOr is the wrapper for binary logical OR operation "|".
+/// ExprOpOr is the wrapper for binary logical OR operation "|".
 class ExprOpOr : public ExprOp {
 public:
   ExprOpOr(const ExprPtr arg0, const ExprPtr arg1);
@@ -116,7 +116,7 @@ public:
   std::ostream& Print(std::ostream& out) const;
 }; // class ExprOpOr
 
-/// \class ExprOpEq is the class wrapper for binary comparison EQ "==".
+/// ExprOpEq is the class wrapper for binary comparison EQ "==".
 class ExprOpEq : public ExprOp {
 public:
   ExprOpEq(const ExprPtr arg0, const ExprPtr arg1);
@@ -126,7 +126,7 @@ public:
   std::ostream& Print(std::ostream& out) const;
 }; // class ExprOpEq
 
-} // namespace ilak
+} // namespace ila
 
 #endif // __EXPR_OP_H__
 

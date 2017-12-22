@@ -11,16 +11,16 @@
 /// \namespace ila
 namespace ila {
 
-/// \def SortType
+/// SortType
 typedef enum { SORT_BOOL, SORT_BV, SORT_MEM, SORT_APP } SortType;
 
-/// \class Sort
+/// Sort
 /// The class for sort (type for expr, and the range/domain of functions).
 class Sort : public Ast {
 public:
-  /// \def SortPtr
+  /// SortPtr
   typedef std::shared_ptr<Sort> SortPtr;
-  /// \def SortPtrVec
+  /// SortPtrVec
   typedef std::vector<SortPtr> SortPtrVec;
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //

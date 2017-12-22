@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['log_2ecc',['log.cc',['../log_8cc.html',1,'']]],
-  ['log_2eh',['log.h',['../log_8h.html',1,'']]]
+  ['node_2eh',['node.h',['../node_8h.html',1,'']]]
 ];

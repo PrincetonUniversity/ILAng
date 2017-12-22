@@ -83,8 +83,10 @@ $(function() {
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_log_initter.html">ila::LogInitter</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A one-time class for initializing GLog.  <a href="classila_1_1_log_initter.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_debug_log.html">ila::DebugLog</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The wrapper for enabling and disabling debug tags.  <a href="classila_1_1_debug_log.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="namespaces"></a>
@@ -95,43 +97,56 @@ Namespaces</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
 Macros</h2></td></tr>
 <tr class="memitem:aaeae8a9978eec0816d7bb8c14eb1744a"><td class="memItemLeft" align="right" valign="top"><a id="aaeae8a9978eec0816d7bb8c14eb1744a"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>ILA_DLOG</b>(tag)&#160;&#160;&#160;DLOG_IF(INFO, DebugLog::Find(tag))</td></tr>
+#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="log_8h.html#aaeae8a9978eec0816d7bb8c14eb1744a">ILA_DLOG</a>(tag)&#160;&#160;&#160;DLOG_IF(INFO, DebugLog::Find(tag))</td></tr>
+<tr class="memdesc:aaeae8a9978eec0816d7bb8c14eb1744a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Log debug message to INFO if the "tag" has been enabled. <br /></td></tr>
 <tr class="separator:aaeae8a9978eec0816d7bb8c14eb1744a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a886292718bdf1cb261c970a2fa121425"><td class="memItemLeft" align="right" valign="top"><a id="a886292718bdf1cb261c970a2fa121425"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>ILA_INFO</b>&#160;&#160;&#160;DLOG(INFO)</td></tr>
+#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="log_8h.html#a886292718bdf1cb261c970a2fa121425">ILA_INFO</a>&#160;&#160;&#160;DLOG(INFO)</td></tr>
+<tr class="memdesc:a886292718bdf1cb261c970a2fa121425"><td class="mdescLeft">&#160;</td><td class="mdescRight">Log the message to INFO (lvl 0). (Debug) <br /></td></tr>
 <tr class="separator:a886292718bdf1cb261c970a2fa121425"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae69a952fc8208d7d50d399812e2a6581"><td class="memItemLeft" align="right" valign="top"><a id="ae69a952fc8208d7d50d399812e2a6581"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>ILA_WARN</b>&#160;&#160;&#160;DLOG(WARNING)</td></tr>
+#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="log_8h.html#ae69a952fc8208d7d50d399812e2a6581">ILA_WARN</a>&#160;&#160;&#160;DLOG(WARNING)</td></tr>
+<tr class="memdesc:ae69a952fc8208d7d50d399812e2a6581"><td class="mdescLeft">&#160;</td><td class="mdescRight">Log the message to WARNING (lvl 1). (Debug) <br /></td></tr>
 <tr class="separator:ae69a952fc8208d7d50d399812e2a6581"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1c1e68e2c192323a3009d5786551b48e"><td class="memItemLeft" align="right" valign="top"><a id="a1c1e68e2c192323a3009d5786551b48e"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>ILA_ERROR</b>&#160;&#160;&#160;DLOG(ERROR)</td></tr>
+#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="log_8h.html#a1c1e68e2c192323a3009d5786551b48e">ILA_ERROR</a>&#160;&#160;&#160;DLOG(ERROR)</td></tr>
+<tr class="memdesc:a1c1e68e2c192323a3009d5786551b48e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Log the message to ERROR (lvl 2). (Debug) <br /></td></tr>
 <tr class="separator:a1c1e68e2c192323a3009d5786551b48e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8c2c9fc55eb03b4e2d1fe8b7fbcc4d7f"><td class="memItemLeft" align="right" valign="top"><a id="a8c2c9fc55eb03b4e2d1fe8b7fbcc4d7f"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>ILA_INFO_IF</b>(b)&#160;&#160;&#160;DLOG_IF(INFO, b)</td></tr>
+#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="log_8h.html#a8c2c9fc55eb03b4e2d1fe8b7fbcc4d7f">ILA_INFO_IF</a>(b)&#160;&#160;&#160;DLOG_IF(INFO, b)</td></tr>
+<tr class="memdesc:a8c2c9fc55eb03b4e2d1fe8b7fbcc4d7f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Conditionally log the message to INFO (lvl 0). (Debug) <br /></td></tr>
 <tr class="separator:a8c2c9fc55eb03b4e2d1fe8b7fbcc4d7f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab5ffd406e070d2496630184588b672d3"><td class="memItemLeft" align="right" valign="top"><a id="ab5ffd406e070d2496630184588b672d3"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>ILA_WARN_IF</b>(b)&#160;&#160;&#160;DLOG_IF(WARNING, b)</td></tr>
+#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="log_8h.html#ab5ffd406e070d2496630184588b672d3">ILA_WARN_IF</a>(b)&#160;&#160;&#160;DLOG_IF(WARNING, b)</td></tr>
+<tr class="memdesc:ab5ffd406e070d2496630184588b672d3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Conditionally log the message to WARNING (lvl 1). (Debug) <br /></td></tr>
 <tr class="separator:ab5ffd406e070d2496630184588b672d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acac6e4f0afe7f2e35a077a3b2ded5c8f"><td class="memItemLeft" align="right" valign="top"><a id="acac6e4f0afe7f2e35a077a3b2ded5c8f"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>ILA_ERROR_IF</b>(b)&#160;&#160;&#160;DLOG_IF(ERROR, b)</td></tr>
+#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="log_8h.html#acac6e4f0afe7f2e35a077a3b2ded5c8f">ILA_ERROR_IF</a>(b)&#160;&#160;&#160;DLOG_IF(ERROR, b)</td></tr>
+<tr class="memdesc:acac6e4f0afe7f2e35a077a3b2ded5c8f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Conditionally log the message to ERROR (lvl 2). (Debug) <br /></td></tr>
 <tr class="separator:acac6e4f0afe7f2e35a077a3b2ded5c8f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a905fd087721c081e4190e71c6817b88f"><td class="memItemLeft" align="right" valign="top"><a id="a905fd087721c081e4190e71c6817b88f"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>ILA_ASSERT</b>(b)&#160;&#160;&#160;DLOG_IF(FATAL, !(b))</td></tr>
+#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="log_8h.html#a905fd087721c081e4190e71c6817b88f">ILA_ASSERT</a>(b)&#160;&#160;&#160;DLOG_IF(FATAL, !(b))</td></tr>
+<tr class="memdesc:a905fd087721c081e4190e71c6817b88f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assertion with message logged to FATAL (lvl 3). (Debug) <br /></td></tr>
 <tr class="separator:a905fd087721c081e4190e71c6817b88f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8a9474c5e24a48970b613e458d019b9d"><td class="memItemLeft" align="right" valign="top"><a id="a8a9474c5e24a48970b613e458d019b9d"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>ILA_CHECK</b>(b)&#160;&#160;&#160;CHECK(b)</td></tr>
+#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="log_8h.html#a8a9474c5e24a48970b613e458d019b9d">ILA_CHECK</a>(b)&#160;&#160;&#160;CHECK(b)</td></tr>
+<tr class="memdesc:a8a9474c5e24a48970b613e458d019b9d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assertion with message logged to FATAL (lvl 3). (Debug/Release) <br /></td></tr>
 <tr class="separator:a8a9474c5e24a48970b613e458d019b9d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad5729daf80d3bf0fd21250b3adbc9953"><td class="memItemLeft" align="right" valign="top"><a id="ad5729daf80d3bf0fd21250b3adbc9953"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>ILA_CHECK_EQ</b>(a,  b)&#160;&#160;&#160;CHECK_EQ(a, b)</td></tr>
+#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="log_8h.html#ad5729daf80d3bf0fd21250b3adbc9953">ILA_CHECK_EQ</a>(a,  b)&#160;&#160;&#160;CHECK_EQ(a, b)</td></tr>
+<tr class="memdesc:ad5729daf80d3bf0fd21250b3adbc9953"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assert equal with message logged to FATAL (lvl 3). (Debug/Release) <br /></td></tr>
 <tr class="separator:ad5729daf80d3bf0fd21250b3adbc9953"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a35bf1e46585fc6bf07ad7b0437f95b84"><td class="memItemLeft" align="right" valign="top"><a id="a35bf1e46585fc6bf07ad7b0437f95b84"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>ILA_CHECK_NE</b>(a,  b)&#160;&#160;&#160;CHECK_NE(a, b)</td></tr>
+#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="log_8h.html#a35bf1e46585fc6bf07ad7b0437f95b84">ILA_CHECK_NE</a>(a,  b)&#160;&#160;&#160;CHECK_NE(a, b)</td></tr>
+<tr class="memdesc:a35bf1e46585fc6bf07ad7b0437f95b84"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assert not equal with message logged to FATAL (lvl 3). (Debug/Release) <br /></td></tr>
 <tr class="separator:a35bf1e46585fc6bf07ad7b0437f95b84"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2b14caeb0c417dae04ce45c8eab6d19b"><td class="memItemLeft" align="right" valign="top"><a id="a2b14caeb0c417dae04ce45c8eab6d19b"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>ILA_CHECK_STREQ</b>(a,  b)&#160;&#160;&#160;CHECK_STREQ(a, b)</td></tr>
+#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="log_8h.html#a2b14caeb0c417dae04ce45c8eab6d19b">ILA_CHECK_STREQ</a>(a,  b)&#160;&#160;&#160;CHECK_STREQ(a, b)</td></tr>
+<tr class="memdesc:a2b14caeb0c417dae04ce45c8eab6d19b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assert string equal with FATAL message (lvl 3). (Debug/Release) <br /></td></tr>
 <tr class="separator:a2b14caeb0c417dae04ce45c8eab6d19b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0ab3dbc9affa07b8d01e7cba4f4e38d8"><td class="memItemLeft" align="right" valign="top"><a id="a0ab3dbc9affa07b8d01e7cba4f4e38d8"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>ILA_NOT_NULL</b>(ptr)&#160;&#160;&#160;CHECK_NOTNULL(ptr)</td></tr>
+#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="log_8h.html#a0ab3dbc9affa07b8d01e7cba4f4e38d8">ILA_NOT_NULL</a>(ptr)&#160;&#160;&#160;CHECK_NOTNULL(ptr)</td></tr>
+<tr class="memdesc:a0ab3dbc9affa07b8d01e7cba4f4e38d8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assert point not NULL with FATAL message (lvl 3). (Debug/Release) <br /></td></tr>
 <tr class="separator:a0ab3dbc9affa07b8d01e7cba4f4e38d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>

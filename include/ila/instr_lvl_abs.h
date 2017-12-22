@@ -17,7 +17,6 @@
 /// \namespace ila
 namespace ila {
 
-/// \class InstrLvlAbs
 /// The class of Instruction-Level Abstraction (ILA). An ILA contains:
 /// - a set of state variables
 /// - a set of input variables
