@@ -20,16 +20,16 @@ namespace ila {
 /// - several attributes, e.g. view
 class Instr : public Object {
 public:
+  /// \def InstrPtr
+  typedef std::shared_ptr<Instr> InstrPtr;
+  /// \def ExprPtrMap
+  typedef std::map<std::string, ExprPtr> ExprPtrMap;
+
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Constructor with name.
   Instr(const std::string& name, bool simplify, ExprSimplifier& expr_mngr);
   /// Default destructor.
   ~Instr();
-
-  /// \def InstrPtr
-  typedef std::shared_ptr<Instr> InstrPtr;
-  /// \def ExprPtrMap
-  typedef std::map<std::string, ExprPtr> ExprPtrMap;
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return true if Is type Instr.

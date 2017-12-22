@@ -30,14 +30,6 @@ namespace ila {
 /// - the set of child-ILAs
 class InstrLvlAbs : public Object {
 public:
-  // ------------------------- ACCESSORS/MUTATORS --------------------------- //
-  /// Default constructor. DO NOT USE.
-  InstrLvlAbs();
-  /// Consturctor with name.
-  InstrLvlAbs(const std::string& name);
-  /// Default destructor.
-  ~InstrLvlAbs();
-
   /// \def InstrLvlAbsPtr
   typedef std::shared_ptr<InstrLvlAbs> InstrLvlAbsPtr;
   /// \def InstrLvlAbsPtrMap
@@ -46,6 +38,14 @@ public:
   typedef std::map<std::string, InstrPtr> InstrPtrMap;
   /// \def ExprPtrMap
   typedef std::map<std::string, ExprPtr> ExprPtrMap;
+
+  // ------------------------- ACCESSORS/MUTATORS --------------------------- //
+  /// Default constructor. DO NOT USE.
+  InstrLvlAbs();
+  /// Consturctor with name.
+  InstrLvlAbs(const std::string& name);
+  /// Default destructor.
+  ~InstrLvlAbs();
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return true if is InstrLvlAbs.

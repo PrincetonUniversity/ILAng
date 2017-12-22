@@ -56,6 +56,8 @@ class BvVal {
 public:
   /// \def data type for storing BvVal
   typedef int BvValType;
+  /// \def BvValPtr
+  typedef std::shared_ptr<BvVal> BvValPtr;
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor. DO NOT USE.
@@ -86,13 +88,14 @@ private:
 
 }; // class BvVal
 
-/// \def BvValPtr
-typedef std::shared_ptr<BvVal> BvValPtr;
+typedef BvVal::BvValPtr BvValPtr;
 
 /// \class MemVal
 /// The container for representing memory (array) values.
 class MemVal {
 public:
+  /// \def MemValPtr
+  typedef std::shared_ptr<MemVal> MemValPtr;
   /// \def MemValMap
   typedef std::map<int, int> MemValMap;
 
@@ -132,9 +135,8 @@ private:
 
 }; // class MemVal
 
+typedef MemVal::MemValPtr MemValPtr;
 typedef MemVal::MemValMap MemValMap;
-/// \def MemValPtr
-typedef std::shared_ptr<MemVal> MemValPtr;
 
 } // namespace ila
 

@@ -20,18 +20,20 @@ namespace ila {
 /// constraints, state update expressions, etc.
 class Expr : public Ast {
 public:
+  /// \def ExprPtrRaw
+  typedef Expr* ExprPtrRaw;
+  /// \def ExprPtr
+  typedef std::shared_ptr<Expr> ExprPtr;
+  /// \def ExprPtrVec
+  typedef std::vector<ExprPtr> ExprPtrVec;
+  /// \def Z3ExprVec
+  typedef std::vector<z3::expr> Z3ExprVec;
+
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor.
   Expr();
   /// Default destructor.
   virtual ~Expr();
-
-  /// \def ExprPtr
-  typedef std::shared_ptr<Expr> ExprPtr;
-  /// \def ExprPtrVec
-  typedef std::vector<ExprPtr> ExprPtrVec;
-  /// \def Z3ExprVec Expr specific type for vector of z3 expr
-  typedef std::vector<z3::expr> Z3ExprVec;
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return the prefix of the expression (depends on type).
@@ -132,15 +134,15 @@ private:
 
 typedef Expr::Z3ExprVec Z3ExprVec;
 typedef Expr::ExprPtr ExprPtr;
+typedef Expr::ExprPtrRaw ExprPtrRaw;
 typedef Expr::ExprPtrVec ExprPtrVec;
-/// \def ExprPtrRaw
-typedef Expr* ExprPtrRaw;
 
 /// \class ExprHash
 /// The function object for hashing Expr. The hash value is the id of the
 /// symbol, which is supposed to be unique.
 class ExprHash {
 public:
+  /// Function object for hashing
   size_t operator()(const ExprPtrRaw expr) const { return expr->name().id(); }
 }; // struct ExprHash
 
