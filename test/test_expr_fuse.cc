@@ -56,58 +56,123 @@ TEST(ExprFuse, CreateVar) {
 TEST(ExprFuse, CreateConst) {
   auto const_false = ExprFuse::BoolConst(false);
   auto const_true = ExprFuse::BoolConst(BoolVal("True"));
+
+  EXPECT_TRUE(const_true->is_ast());
+  EXPECT_FALSE(const_true->is_instr());
+  EXPECT_FALSE(const_true->is_instr_lvl_abs());
+  EXPECT_TRUE(const_true->is_expr());
+  EXPECT_FALSE(const_true->is_sort());
+  EXPECT_FALSE(const_true->is_func());
+  EXPECT_TRUE(const_true->is_const());
+  EXPECT_FALSE(const_true->is_var());
+  EXPECT_FALSE(const_true->is_op());
+  EXPECT_TRUE(const_true->is_bool());
+  EXPECT_FALSE(const_true->is_bv());
+  EXPECT_FALSE(const_true->is_mem());
+
   auto const_bv0 = ExprFuse::BvConst(0, 8);
   auto const_bv1 = ExprFuse::BvConst(BvVal("1"), 8);
-  auto const_mem = ExprFuse::MemConst(0, 8, 8);
-  // TODO Create mem constant from MemVal
 
-  EXPECT_TRUE(const_false->is_const());
-  EXPECT_TRUE(const_true->is_bool());
+  EXPECT_TRUE(const_bv0->is_ast());
+  EXPECT_FALSE(const_bv0->is_instr());
+  EXPECT_FALSE(const_bv0->is_instr_lvl_abs());
+  EXPECT_TRUE(const_bv0->is_expr());
+  EXPECT_FALSE(const_bv0->is_sort());
+  EXPECT_FALSE(const_bv0->is_func());
+  EXPECT_TRUE(const_bv0->is_const());
+  EXPECT_FALSE(const_bv0->is_var());
+  EXPECT_FALSE(const_bv0->is_op());
   EXPECT_TRUE(const_bv0->is_bv());
+  EXPECT_FALSE(const_bv0->is_bool());
+  EXPECT_FALSE(const_bv0->is_mem());
 
-  std::string msg = "";
-  GET_STDOUT_MSG(const_false->Print(std::cout), msg);
-  EXPECT_EQ("FALSE", msg);
+  auto const_mem = ExprFuse::MemConst(0, 8, 8);
+  auto const_mem_1 = ExprFuse::MemConst(MemVal(1), 8, 8);
 
-  GET_STDOUT_MSG(const_true->Print(std::cout), msg);
-  EXPECT_EQ("TRUE", msg);
-
-  GET_STDOUT_MSG(const_bv0->Print(std::cout), msg);
-  EXPECT_EQ("0", msg);
-
-  GET_STDOUT_MSG(const_bv1->Print(std::cout), msg);
-  EXPECT_EQ("1", msg);
+  EXPECT_FALSE(const_mem->is_instr());
+  EXPECT_FALSE(const_mem->is_instr_lvl_abs());
+  EXPECT_TRUE(const_mem->is_expr());
+  EXPECT_FALSE(const_mem->is_sort());
+  EXPECT_FALSE(const_mem->is_func());
+  EXPECT_TRUE(const_mem->is_const());
+  EXPECT_FALSE(const_mem->is_var());
+  EXPECT_FALSE(const_mem->is_op());
+  EXPECT_TRUE(const_mem->is_mem());
+  EXPECT_FALSE(const_mem->is_bool());
+  EXPECT_FALSE(const_mem->is_bv());
 }
 
 TEST(ExprFuse, UnaryOp) {
-  auto bv_var = ExprFuse::NewBvVar("reg", 8);
-  auto const_1 = ExprFuse::BvConst(1, 8);
+  auto bool_var = ExprFuse::NewBoolVar("bool_var");
+  auto bv_var = ExprFuse::NewBvVar("bv_var", 8);
+  auto bool_const_true = ExprFuse::BoolConst(true);
+  auto bool_const_false = ExprFuse::BoolConst(false);
+  auto bv_const_0 = ExprFuse::BvConst(0, 8);
+  auto bv_const_1 = ExprFuse::BvConst(1, 8);
+
+  auto bv_neg = ExprFuse::Negate(bv_var);
+  EXPECT_TRUE(bv_neg->is_op());
+  EXPECT_FALSE(bv_neg->is_var());
+  EXPECT_FALSE(bv_neg->is_const());
+  EXPECT_TRUE(bv_neg->is_bv());
+
+  auto bool_not = ExprFuse::Not(bool_var);
+  EXPECT_TRUE(bool_not->is_op());
+  EXPECT_FALSE(bool_not->is_var());
+  EXPECT_FALSE(bool_not->is_const());
+  EXPECT_TRUE(bool_not->is_bool());
+
+  auto bv_compl = ExprFuse::Complement(bv_const_0);
+  EXPECT_TRUE(bv_compl->is_op());
+  EXPECT_FALSE(bv_compl->is_var());
+  EXPECT_FALSE(bv_compl->is_const());
+  EXPECT_TRUE(bv_compl->is_bv());
 
 #if 0
-  auto negated = ExprFuse::Negate(bv_var);
-  auto compl1 = ExprFuse::Complement(bv_var);
-  auto compl2 = ExprFuse::Complement(compl1);
-  auto non_zero = ExprFuse::NonZero(const_1);
+  auto bv_nz = ExprFuse::NonZero(bv_const1);
+  EXPECT_TRUE(bv_nz->is_op());
+  EXPECT_FALSE(bv_nz->is_var());
+  EXPECT_FALSE(bv_nz->is_const());
+  EXPECT_TRUE(bv_nz->is_bv());
 #endif
 }
 
 TEST(ExprFuse, BinaryOp) {
-  auto flag = ExprFuse::NewBoolVar("flag");
-  auto reg_x = ExprFuse::NewBvVar("reg_x", 8);
-  auto reg_y = ExprFuse::NewBvVar("reg_y", 8);
+  auto bool_var = ExprFuse::NewBoolVar("bool_var");
+  auto bool_const_t = ExprFuse::BoolConst(true);
+  auto bool_const_f = ExprFuse::BoolConst(false);
 
-  auto const_true = ExprFuse::BoolConst(BoolVal("True"));
-  auto const_bv0 = ExprFuse::BvConst(0, 8);
+  auto bv_var = ExprFuse::NewBvVar("bv_var", 8);
+  auto bv_const_0 = ExprFuse::BvConst(0, 8);
+  auto bv_const_1 = ExprFuse::BvConst(BvVal("1"), 8);
 
-  auto x_and_y = ExprFuse::And(reg_x, reg_y);
-  auto x_and_y_or_y = ExprFuse::Or(x_and_y, x_and_y);
-  auto y_or_0 = ExprFuse::Or(reg_y, const_bv0);
-  auto bv_equal = ExprFuse::Eq(x_and_y_or_y, y_or_0); // should be alwats true
-  auto bool_equal = ExprFuse::Eq(bv_equal, flag);
-  auto bool_and = ExprFuse::And(flag, bool_equal);
-  auto bool_or = ExprFuse::Or(bool_equal, bool_and);
+  // And
+  auto bool_and = ExprFuse::And(bool_var, bool_const_t);
+  EXPECT_TRUE(bool_and->is_op());
+  EXPECT_TRUE(bool_and->is_bool());
 
-  EXPECT_TRUE(x_and_y->is_op());
+  auto bv_and = ExprFuse::And(bv_var, bv_const_0);
+  EXPECT_TRUE(bv_and->is_op());
+  EXPECT_TRUE(bv_and->is_bv());
+
+  // Or
+  auto bool_or = ExprFuse::Or(bool_var, bool_const_f);
+  EXPECT_TRUE(bool_or->is_op());
+  EXPECT_TRUE(bool_or->is_bool());
+
+  auto bv_or = ExprFuse::Or(bv_var, bv_const_0);
+  EXPECT_TRUE(bv_or->is_op());
+  EXPECT_TRUE(bv_or->is_bv());
+
+  // Eq
+  auto bool_eq = ExprFuse::Eq(bool_var, bool_const_t);
+  EXPECT_TRUE(bool_eq->is_op());
+  EXPECT_TRUE(bool_eq->is_bool());
+
+  auto bv_eq = ExprFuse::Eq(bv_var, bv_const_1);
+  EXPECT_TRUE(bv_eq->is_op());
+  EXPECT_TRUE(bv_eq->is_bool());
+  EXPECT_FALSE(bv_eq->is_bv());
 }
 
 } // namespace ila

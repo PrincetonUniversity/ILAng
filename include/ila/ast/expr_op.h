@@ -69,7 +69,7 @@ private:
 
 /******************************************************************************/
 // Different types of operators.
-// Unary: negate, complement
+// Unary: negate, not, complement
 // Binary: and, or, equal
 // Ternary:
 /******************************************************************************/
