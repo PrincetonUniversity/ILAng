@@ -49,6 +49,9 @@ public:
   /// Return the i-th domain sort (app).
   const SortPtr arg(const size_t& i) const;
 
+  /// Is type sort (object).
+  bool is_sort() const { return true; }
+
   /// Return true if this is a Boolean expression.
   bool is_bool() const;
   /// Return true if this is a Bitvector expression.

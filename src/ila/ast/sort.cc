@@ -7,16 +7,22 @@
 namespace ila {
 
 Sort::Sort()
-    : type_(SortType::SORT_BOOL), bit_width_(0), addr_width_(0),
-      data_width_(0) {}
+    : type_(SortType::SORT_BOOL), bit_width_(0), addr_width_(0), data_width_(0),
+      range_sort_(NULL) {
+  args_sort_.clear();
+}
 
 Sort::Sort(const int& bit_width)
     : type_(SortType::SORT_BV), bit_width_(bit_width), addr_width_(0),
-      data_width_(0) {}
+      data_width_(0), range_sort_(NULL) {
+  args_sort_.clear();
+}
 
 Sort::Sort(const int& addr_width, const int& data_width)
     : type_(SortType::SORT_MEM), bit_width_(0), addr_width_(addr_width),
-      data_width_(data_width) {}
+      data_width_(data_width), range_sort_(NULL) {
+  args_sort_.clear();
+}
 
 Sort::Sort(const SortPtr range_sort, const SortPtrVec& args_sort)
     : type_(SortType::SORT_APP), bit_width_(0), addr_width_(0), data_width_(0),
@@ -70,12 +76,6 @@ bool operator==(const Sort& lhs, const Sort& rhs) {
   return Sort::Equal(lhs, rhs);
 }
 
-#if 0
-bool operator==(const SortPtr lhs, const SortPtr rhs) {
-  return Sort::Equal(*lhs.get(), *rhs.get());
-}
-#endif
-
 bool Sort::Equal(const Sort& lhs, const Sort& rhs) {
   if (lhs.is_bool() && rhs.is_bool()) {
     return true;
@@ -103,22 +103,26 @@ bool Sort::Equal(const Sort& lhs, const Sort& rhs) {
 }
 
 std::ostream& Sort::PrintBool(std::ostream& out) const {
-  ILA_ERROR << "Not implemented.\n"; // TODO
-  return out;
+  return out << "Boolean";
 }
 
 std::ostream& Sort::PrintBv(std::ostream& out) const {
-  ILA_ERROR << "Not implemented.\n"; // TODO
-  return out;
+  return out << "Bv(" << bit_width_ << ")";
 }
 
 std::ostream& Sort::PrintMem(std::ostream& out) const {
-  ILA_ERROR << "Not implemented.\n"; // TODO
-  return out;
+  return out << "Mem(" << addr_width_ << ", " << data_width_ << ")";
 }
 
 std::ostream& Sort::PrintApp(std::ostream& out) const {
-  ILA_ERROR << "Not implemented.\n"; // TODO
+  out << "App(" << *range_sort_ << ")(";
+  size_t n = num_arg();
+  for (size_t i = 0; i != n; i++) {
+    if (i != 0)
+      out << ", ";
+    out << *arg(i);
+  }
+  out << ")";
   return out;
 }
 
