@@ -6,18 +6,21 @@
 
 namespace ila {
 
-Sort::Sort() : type_(SortType::SORT_BOOL) {}
+Sort::Sort()
+    : type_(SortType::SORT_BOOL), bit_width_(0), addr_width_(0),
+      data_width_(0) {}
 
 Sort::Sort(const int& bit_width)
-    : type_(SortType::SORT_BV), bit_width_(bit_width) {}
+    : type_(SortType::SORT_BV), bit_width_(bit_width), addr_width_(0),
+      data_width_(0) {}
 
 Sort::Sort(const int& addr_width, const int& data_width)
-    : type_(SortType::SORT_MEM), addr_width_(addr_width),
+    : type_(SortType::SORT_MEM), bit_width_(0), addr_width_(addr_width),
       data_width_(data_width) {}
 
 Sort::Sort(const SortPtr range_sort, const SortPtrVec& args_sort)
-    : type_(SortType::SORT_APP), range_sort_(range_sort),
-      args_sort_(args_sort) {}
+    : type_(SortType::SORT_APP), bit_width_(0), addr_width_(0), data_width_(0),
+      range_sort_(range_sort), args_sort_(args_sort) {}
 
 Sort::~Sort() {}
 

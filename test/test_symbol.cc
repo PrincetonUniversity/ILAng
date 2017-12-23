@@ -52,10 +52,6 @@ TEST(Symbol, Format) {
   EXPECT_EQ("name_suf", sym.format_str("", "suf"));
   EXPECT_EQ("pre_name", sym.format_str("pre", ""));
   EXPECT_EQ("p_name_s", sym.format_str("p", "s"));
-
-  EXPECT_STREQ("name_suf", sym.format_c_str("", "suf"));
-  EXPECT_STREQ("pre_name", sym.format_c_str("pre", ""));
-  EXPECT_STREQ("p_name_s", sym.format_c_str("p", "s"));
 }
 
 } // namespace ila

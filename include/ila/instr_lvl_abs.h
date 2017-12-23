@@ -191,6 +191,8 @@ private:
   ExprSimplifier expr_mngr_;
 
   // ------------------------- HELPERS -------------------------------------- //
+  /// Initialize default configuration, reset members, etc.
+  void InitObject();
 
 }; // class InstrLvlAbs
 

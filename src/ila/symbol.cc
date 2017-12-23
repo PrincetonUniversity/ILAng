@@ -32,10 +32,13 @@ const std::string Symbol::format_str(const std::string& prefix,
   return res;
 }
 
+#if 0
 const char* Symbol::format_c_str(const std::string& prefix,
                                  const std::string& suffix) const {
-  return format_str(prefix, suffix).c_str();
+  const char* res = format_str(prefix, suffix).c_str();
+  return res;
 }
+#endif
 
 int Symbol::to_int() const { return StrToInt(name_); }
 

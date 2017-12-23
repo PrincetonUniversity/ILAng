@@ -10,6 +10,7 @@ namespace ila {
 // ------------------------- Class BoolVal ---------------------------------- //
 BoolVal::BoolVal() {
   ILA_ERROR << "Undefined default constructor for class BoolVal.\n";
+  val_ = false;
 }
 
 BoolVal::BoolVal(const bool& val) : val_(val) {}
@@ -33,6 +34,7 @@ std::ostream& operator<<(std::ostream& out, const BoolVal& val) {
 // ------------------------- Class BvVal -------------------------------------//
 BvVal::BvVal() {
   ILA_ERROR << "Undefined default constructor for class BvVal.\n";
+  val_ = 0;
 }
 
 BvVal::BvVal(const int& val) : val_(val) {}
@@ -52,7 +54,7 @@ std::ostream& operator<<(std::ostream& out, const BvVal& val) {
 }
 
 // ------------------------- Class MemVal ------------------------------------//
-MemVal::MemVal() {
+MemVal::MemVal() : default_(0) {
   ILA_ERROR << "Undefined default constructor for class MemVal.\n";
 }
 

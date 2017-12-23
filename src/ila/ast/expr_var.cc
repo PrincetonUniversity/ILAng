@@ -37,17 +37,18 @@ ExprVar::~ExprVar() {}
 z3::expr ExprVar::GetZ3Expr(z3::context& ctx, const Z3ExprVec& z3expr_vec,
                             const std::string& suffix) const {
   if (is_bool()) {
-    return ctx.bool_const(name().format_c_str("", suffix));
+    return ctx.bool_const(name().format_str("", suffix).c_str());
   } else if (is_bv()) {
-    return ctx.bv_const(name().format_c_str("", suffix), sort().bit_width());
+    return ctx.bv_const(name().format_str("", suffix).c_str(),
+                        sort().bit_width());
   } else if (is_mem()) {
     auto addr_sort = ctx.bv_sort(sort().addr_width());
     auto data_sort = ctx.bv_sort(sort().data_width());
     auto mem_sort = ctx.array_sort(addr_sort, data_sort);
-    return ctx.constant(name().format_c_str("", suffix), mem_sort);
+    return ctx.constant(name().format_str("", suffix).c_str(), mem_sort);
   } else {
     ILA_ERROR << "Undefined sort for var " << name() << "\n";
-    return ctx.bool_const(name().format_c_str("", suffix));
+    return ctx.bool_const(name().format_str("", suffix).c_str());
   }
 }
 

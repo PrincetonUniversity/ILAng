@@ -33,9 +33,11 @@ public:
   /// Get the symbol as cpp string.
   const std::string format_str(const std::string& prefix = "",
                                const std::string& suffix = "") const;
+#if 0
   /// Get the symbol as c string.
   const char* format_c_str(const std::string& prefix = "",
                            const std::string& suffix = "") const;
+#endif
   /// Get the symbol as integer.
   int to_int() const;
   /// Get the id
