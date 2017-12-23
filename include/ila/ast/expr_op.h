@@ -85,11 +85,21 @@ public:
   std::ostream& Print(std::ostream& out) const;
 }; // class ExprOpNeg
 
-/// \brief The wrapper for unary complement (bit-wise) "~". This can be applied
-/// to both bool and bv, unlike bool-only "not"/"!".
+/// \brief The wrapper for unary not operation "!". (bool only)
+class ExprOpNot : public ExprOp {
+public:
+  /// Constructor for Not operation.
+  ExprOpNot(const ExprPtr arg);
+  std::string op_name() const { return "NOT"; }
+  z3::expr GetZ3Expr(z3::context& z3_ctx, const Z3ExprVec& z3expr_vec,
+                     const std::string& suffix) const;
+  std::ostream& Print(std::ostream& out) const;
+}; // class ExprOpNot
+
+/// \brief The wrapper for unary bit-wise complement "~". (bv only)
 class ExprOpCompl : public ExprOp {
 public:
-  /// Constructor for Complement opeation.
+  /// Constructor for Complement operation.
   ExprOpCompl(const ExprPtr arg);
   std::string op_name() const { return "COMPLEMENT"; }
   z3::expr GetZ3Expr(z3::context& z3_ctx, const Z3ExprVec& z3expr_vec,

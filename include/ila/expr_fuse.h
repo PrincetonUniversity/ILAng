@@ -55,7 +55,9 @@ public:
 
   /// Arithematic negate (bv only)
   static ExprPtr Negate(const ExprPtr obj);
-  /// Complement (bit-wise "~")
+  /// Boolean not (bool only)
+  static ExprPtr Not(const ExprPtr obj);
+  /// Bit-wise Complement (bv only)
   static ExprPtr Complement(const ExprPtr obj);
   /// Non-zero (bv only)
   static ExprPtr NonZero(const ExprPtr obj);

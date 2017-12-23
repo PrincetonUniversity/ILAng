@@ -49,6 +49,10 @@ ExprPtr ExprFuse::Negate(const ExprPtr arg) {
   return std::make_shared<ExprOpNeg>(arg);
 }
 
+ExprPtr ExprFuse::Not(const ExprPtr arg) {
+  return std::make_shared<ExprOpNot>(arg);
+}
+
 ExprPtr ExprFuse::Complement(const ExprPtr arg) {
   return std::make_shared<ExprOpCompl>(arg);
 }

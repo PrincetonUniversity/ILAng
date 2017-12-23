@@ -42,19 +42,17 @@ Sort ExprOp::GetSortBinaryComparison(const Sort& s0, const Sort& s1) {
 
 std::ostream& ExprOp::PrintBinaryOp(std::ostream& out,
                                     const std::string& op_name) const {
-  ILA_ERROR << "Not implemented.\n"; // TODO
-  return out;
+  return out << op_name;
 }
 
 std::ostream& ExprOp::PrintUnaryOp(std::ostream& out,
                                    const std::string& op_name) const {
-  ILA_ERROR << "Not implemented.\n"; // TODO
-  return out;
+  return out << op_name;
 }
 
 // ------------------------- Class ExprOpNeg -------------------------------- //
 ExprOpNeg::ExprOpNeg(const ExprPtr arg) : ExprOp(arg) {
-  ILA_ASSERT(arg->is_bv()) << "Negate can only be applied to bitvectors.\n";
+  ILA_ASSERT(arg->is_bv()) << "Negate can only be applied to bitvector.\n";
   set_sort(arg->sort());
 }
 
@@ -68,16 +66,31 @@ std::ostream& ExprOpNeg::Print(std::ostream& out) const {
   return PrintUnaryOp(out, op_name());
 }
 
+// ------------------------- Class ExprOpNot -------------------------------- //
+ExprOpNot::ExprOpNot(const ExprPtr arg) : ExprOp(arg) {
+  ILA_ASSERT(arg->is_bool()) << "Not can only be applied to bool.\n";
+  set_sort(arg->sort());
+}
+
+z3::expr ExprOpNot::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                              const std::string& suffix) const {
+  ILA_ASSERT(expr_vec.size() == 1) << "Not is a unary function.\n";
+  return !expr_vec[0];
+}
+
+std::ostream& ExprOpNot::Print(std::ostream& out) const {
+  return PrintUnaryOp(out, op_name());
+}
+
 // ------------------------- Class ExprOpCompl ------------------------------ //
 ExprOpCompl::ExprOpCompl(const ExprPtr arg) : ExprOp(arg) {
-  // bit-wise complement "~", can be applied to both bool and bv.
-  // see also "not" "!", which pre-required to be bool.
+  ILA_ASSERT(arg->is_bv()) << "Complement can only be applied to bitvector.\n";
   set_sort(arg->sort());
 }
 
 z3::expr ExprOpCompl::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                                 const std::string& suffix) const {
-  ILA_ASSERT(expr_vec.size() == 1);
+  ILA_ASSERT(expr_vec.size() == 1) << "Negate is a unary function.\n";
   return ~expr_vec[0];
 }
 

@@ -13,7 +13,7 @@ namespace ila {
 // Only in Debug mode (Ignored in Release mode)
 /******************************************************************************/
 /// Log debug message to INFO if the "tag" has been enabled.
-#define ILA_DLOG(tag) DLOG_IF(INFO, DebugLog::Find(tag))
+#define ILA_DLOG(tag) DLOG_IF(INFO, DebugLog::Find(tag)) << "[" << tag << "] "
 
 /// Log the message to INFO (lvl 0). (Debug)
 #define ILA_INFO DLOG(INFO)

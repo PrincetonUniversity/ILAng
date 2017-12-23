@@ -17,8 +17,9 @@ TEST(ExprFuse, CreateVar) {
   EXPECT_TRUE(flag->is_expr());
   EXPECT_TRUE(flag->is_var());
   EXPECT_TRUE(flag->is_bool());
-  EXPECT_TRUE(reg_x->is_bv());
   EXPECT_TRUE(reg_y->is_var());
+  EXPECT_TRUE(reg_x->is_bv());
+  EXPECT_TRUE(mem->is_ast());
   EXPECT_TRUE(mem->is_mem());
 }
 
