@@ -67,7 +67,6 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
-<a href="#namespaces">Namespaces</a> &#124;
 <a href="#define-members">Macros</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
@@ -89,15 +88,10 @@ Classes</h2></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The wrapper for enabling and disabling debug tags.  <a href="classila_1_1_debug_log.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="namespaces"></a>
-Namespaces</h2></td></tr>
-<tr class="memitem:namespaceila"><td class="memItemLeft" align="right" valign="top"> &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html">ila</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
 Macros</h2></td></tr>
 <tr class="memitem:aaeae8a9978eec0816d7bb8c14eb1744a"><td class="memItemLeft" align="right" valign="top"><a id="aaeae8a9978eec0816d7bb8c14eb1744a"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="log_8h.html#aaeae8a9978eec0816d7bb8c14eb1744a">ILA_DLOG</a>(tag)&#160;&#160;&#160;DLOG_IF(INFO, DebugLog::Find(tag))</td></tr>
+#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="log_8h.html#aaeae8a9978eec0816d7bb8c14eb1744a">ILA_DLOG</a>(tag)&#160;&#160;&#160;DLOG_IF(INFO, DebugLog::Find(tag)) &lt;&lt; &quot;[&quot; &lt;&lt; tag &lt;&lt; &quot;] &quot;</td></tr>
 <tr class="memdesc:aaeae8a9978eec0816d7bb8c14eb1744a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Log debug message to INFO if the "tag" has been enabled. <br /></td></tr>
 <tr class="separator:aaeae8a9978eec0816d7bb8c14eb1744a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a886292718bdf1cb261c970a2fa121425"><td class="memItemLeft" align="right" valign="top"><a id="a886292718bdf1cb261c970a2fa121425"></a>
@@ -151,21 +145,48 @@ Macros</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:ac519acdba0091b02dc081a5333b547ae"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#ac519acdba0091b02dc081a5333b547ae">ila::SetLogLevel</a> (const int &amp;lvl)</td></tr>
-<tr class="memdesc:ac519acdba0091b02dc081a5333b547ae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the minimun log level. Log messages at or above this level will be logged. (Default: 0)  <a href="namespaceila.html#ac519acdba0091b02dc081a5333b547ae">More...</a><br /></td></tr>
+<tr class="memitem:ac519acdba0091b02dc081a5333b547ae"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="log_8h.html#ac519acdba0091b02dc081a5333b547ae">ila::SetLogLevel</a> (const int &amp;lvl)</td></tr>
+<tr class="memdesc:ac519acdba0091b02dc081a5333b547ae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the minimun log level. Log messages at or above this level will be logged. (Default: 0)  <a href="log_8h.html#ac519acdba0091b02dc081a5333b547ae">More...</a><br /></td></tr>
 <tr class="separator:ac519acdba0091b02dc081a5333b547ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a61db1e2fe1b6ca19ad77c122b924413f"><td class="memItemLeft" align="right" valign="top"><a id="a61db1e2fe1b6ca19ad77c122b924413f"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a61db1e2fe1b6ca19ad77c122b924413f">ila::SetLogPath</a> (const std::string &amp;path)</td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="log_8h.html#a61db1e2fe1b6ca19ad77c122b924413f">ila::SetLogPath</a> (const std::string &amp;path)</td></tr>
 <tr class="memdesc:a61db1e2fe1b6ca19ad77c122b924413f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the path for log file. If specified, logfiles are written into this directory instead of the default logging directory (/tmp). <br /></td></tr>
 <tr class="separator:a61db1e2fe1b6ca19ad77c122b924413f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5b61b7e80a797eca9fa38c616c2a5790"><td class="memItemLeft" align="right" valign="top"><a id="a5b61b7e80a797eca9fa38c616c2a5790"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a5b61b7e80a797eca9fa38c616c2a5790">ila::SetToStdErr</a> (const int &amp;to_err)</td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="log_8h.html#a5b61b7e80a797eca9fa38c616c2a5790">ila::SetToStdErr</a> (const int &amp;to_err)</td></tr>
 <tr class="memdesc:a5b61b7e80a797eca9fa38c616c2a5790"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pipe log to stderr. Log messages to stderr instead of logfiles, if set to 1. <br /></td></tr>
 <tr class="separator:a5b61b7e80a797eca9fa38c616c2a5790"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>The header file for the debug/logging/asserting system. </p>
-</div></div><!-- contents -->
+</div><h2 class="groupheader">Function Documentation</h2>
+<a id="file_ac519acdba0091b02dc081a5333b547ae"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#file_ac519acdba0091b02dc081a5333b547ae">&#9670;&nbsp;</a></span>SetLogLevel()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void ila::SetLogLevel </td>
+          <td>(</td>
+          <td class="paramtype">const int &amp;&#160;</td>
+          <td class="paramname"><em>lvl</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Set the minimun log level. Log messages at or above this level will be logged. (Default: 0) </p>
+<ul>
+<li>INFO: level 0</li>
+<li>WARNING: level 1</li>
+<li>ERROR: level 2</li>
+<li>FATAL: level 3 </li>
+</ul>
+
+</div>
+</div>
+</div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by &#160;<a href="http://www.doxygen.org/index.html">
