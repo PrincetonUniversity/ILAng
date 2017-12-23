@@ -11,16 +11,46 @@ namespace ila {
 TEST(ExprFuse, CreateVar) {
   auto flag = ExprFuse::NewBoolVar("flag");
   auto reg_x = ExprFuse::NewBvVar("reg_x", 8);
-  auto reg_y = ExprFuse::NewBvVar("reg_y", 8);
   auto mem = ExprFuse::NewMemVar("mem", 8, 8);
 
+  EXPECT_TRUE(flag->is_ast());
+  EXPECT_FALSE(flag->is_instr());
+  EXPECT_FALSE(flag->is_instr_lvl_abs());
   EXPECT_TRUE(flag->is_expr());
+  EXPECT_FALSE(flag->is_sort());
+  EXPECT_FALSE(flag->is_func());
   EXPECT_TRUE(flag->is_var());
+  EXPECT_FALSE(flag->is_const());
+  EXPECT_FALSE(flag->is_op());
   EXPECT_TRUE(flag->is_bool());
-  EXPECT_TRUE(reg_y->is_var());
+  EXPECT_FALSE(flag->is_bv());
+  EXPECT_FALSE(flag->is_mem());
+
+  EXPECT_TRUE(reg_x->is_ast());
+  EXPECT_FALSE(reg_x->is_instr());
+  EXPECT_FALSE(reg_x->is_instr_lvl_abs());
+  EXPECT_TRUE(reg_x->is_expr());
+  EXPECT_FALSE(reg_x->is_sort());
+  EXPECT_FALSE(reg_x->is_func());
+  EXPECT_TRUE(reg_x->is_var());
+  EXPECT_FALSE(reg_x->is_const());
+  EXPECT_FALSE(reg_x->is_op());
   EXPECT_TRUE(reg_x->is_bv());
+  EXPECT_FALSE(reg_x->is_bool());
+  EXPECT_FALSE(reg_x->is_mem());
+
   EXPECT_TRUE(mem->is_ast());
+  EXPECT_FALSE(mem->is_instr());
+  EXPECT_FALSE(mem->is_instr_lvl_abs());
+  EXPECT_TRUE(mem->is_expr());
+  EXPECT_FALSE(mem->is_sort());
+  EXPECT_FALSE(mem->is_func());
+  EXPECT_TRUE(mem->is_var());
+  EXPECT_FALSE(mem->is_const());
+  EXPECT_FALSE(mem->is_op());
   EXPECT_TRUE(mem->is_mem());
+  EXPECT_FALSE(mem->is_bool());
+  EXPECT_FALSE(mem->is_bv());
 }
 
 TEST(ExprFuse, CreateConst) {
