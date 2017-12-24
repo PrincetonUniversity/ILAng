@@ -68,7 +68,7 @@ private:
 }; // class ExprOp
 
 /******************************************************************************/
-// Unary: negate, not, complement
+// Unary
 /******************************************************************************/
 
 /// \brief The wrapper for unary negate operation "-".
@@ -105,7 +105,7 @@ public:
 }; // class ExprOpCompl
 
 /******************************************************************************/
-// Binary: and, or, xor, equal
+// Binary operation
 /******************************************************************************/
 
 /// \brief The wrapper for binary logical AND operation "&".
@@ -140,6 +140,26 @@ public:
   std::ostream& Print(std::ostream& out) const;
 }; // class ExprOpXor
 
+// TODO ExprOpShl
+
+// TODO ExprOpShr
+
+// TODO ExprOpAdd
+
+// TODO ExprOpSub
+
+// TODO ExprOpDiv
+
+// TODO ExprOpRem
+
+// TODO ExprOpMod
+
+// TODO ExprOpMul
+
+/******************************************************************************/
+// Binary comparison
+/******************************************************************************/
+
 /// \brief The class wrapper for binary comparison EQ "==".
 class ExprOpEq : public ExprOp {
 public:
@@ -151,9 +171,48 @@ public:
   std::ostream& Print(std::ostream& out) const;
 }; // class ExprOpEq
 
+// TODO ExprOpNe
+
+// TODO ExprOpLt
+
+// TODO ExprOpGt
+
+// TODO ExprOpLe
+
+// TODO ExprOpGe
+
 /******************************************************************************/
-// Ternary:
+// Memory
 /******************************************************************************/
+
+/// \brief The class wrapper for memory load.
+class ExprOpLoad : public ExprOp {
+public:
+  /// Constructor for memory load.
+  ExprOpLoad(const ExprPtr mem, const ExprPtr addr);
+  std::string op_name() const { return "LOAD"; }
+  z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                     const std::string& suffix) const;
+  std::ostream& Print(std::ostream& out) const;
+}; // class ExprOpLoad
+
+// TODO ExprOpStore
+
+/******************************************************************************/
+// Bit-manipulation
+/******************************************************************************/
+
+// TODO ExprOpConcat
+
+// TODO ExprOpExtract
+
+// TODO ExprOpZeroExtend
+
+/******************************************************************************/
+// Function usage
+/******************************************************************************/
+
+// TODO ExprOpAppFunc
 
 } // namespace ila
 

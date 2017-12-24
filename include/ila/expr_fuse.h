@@ -30,6 +30,9 @@ public:
   // ------------------------- METHODS -------------------------------------- //
   // static functions for wrapping the hierarchy of AST.
 
+  /****************************************************************************/
+  // Variable
+  /****************************************************************************/
   /// Create new Boolean variable.
   static ExprPtr NewBoolVar(const std::string& name);
   /// Create new bitvector variable.
@@ -38,6 +41,9 @@ public:
   static ExprPtr NewMemVar(const std::string& name, const int& addr_width,
                            const int& data_width);
 
+  /****************************************************************************/
+  // Constant
+  /****************************************************************************/
   /// Create a Boolean constant.
   static ExprPtr BoolConst(const bool& val);
   /// Create a Boolean constant from BoolVal.
@@ -53,6 +59,9 @@ public:
   static ExprPtr MemConst(const MemVal& val, const int& addr_width,
                           const int& data_width);
 
+  /****************************************************************************/
+  // Unary operation
+  /****************************************************************************/
   /// Arithematic negate (bv only)
   static ExprPtr Negate(const ExprPtr obj);
   /// Boolean not (bool only)
@@ -60,6 +69,9 @@ public:
   /// Bit-wise Complement (bv only)
   static ExprPtr Complement(const ExprPtr obj);
 
+  /****************************************************************************/
+  // Binary operation
+  /****************************************************************************/
   /// Logical AND
   static ExprPtr And(const ExprPtr l, const ExprPtr r);
   /// Logical OR
@@ -84,10 +96,13 @@ public:
   static ExprPtr Mul(const ExprPtr l, const ExprPtr r);
   // TODO int version helper functions
 
+  /****************************************************************************/
+  // Comparison
+  /****************************************************************************/
   /// Comparison: equal
   static ExprPtr Eq(const ExprPtr l, const ExprPtr r);
   /// Comparison: not equal
-  static ExprPtr Neg(const ExprPtr l, const ExprPtr r);
+  static ExprPtr Ne(const ExprPtr l, const ExprPtr r);
   /// Comparison: unsigned less than (bv only)
   static ExprPtr Lt(const ExprPtr l, const ExprPtr r);
   /// Comparison: unsigned greater than (bv only)
@@ -98,12 +113,18 @@ public:
   static ExprPtr Ge(const ExprPtr l, const ExprPtr r);
   // TODO int version helper functions
 
+  /****************************************************************************/
+  // Memory
+  /****************************************************************************/
   /// Memory load
   static ExprPtr Load(const ExprPtr mem, const ExprPtr addr);
   /// Memory store
   static ExprPtr Store(const ExprPtr mem, const ExprPtr addr,
                        const ExprPtr data);
 
+  /****************************************************************************/
+  // Bit manipulation
+  /****************************************************************************/
   /// Concatenate two bitvectors (bv only)
   static ExprPtr Concat(const ExprPtr lo, const ExprPtr hi);
   /// Extract bit field in the bitvector (bv only)
@@ -111,17 +132,22 @@ public:
   /// Zero extend the bitvector to the specified length.
   static ExprPtr ZeroExtend(const ExprPtr obj, const int& out_width);
 
-  /// Logical imply (bool only)
-  static ExprPtr Imply(const ExprPtr p, const ExprPtr q);
-
-  /// If-then-else (condition bool only)
-  static ExprPtr Ite(const ExprPtr cond, const ExprPtr true_expr,
-                     const ExprPtr false_expr);
-
+  /****************************************************************************/
+  // Function usage
+  /****************************************************************************/
   /// Apply function with zero argument.
   static ExprPtr AppFunc(const FuncPtr func);
   /// Apply function with arguments.
   static ExprPtr AppFunc(const FuncPtr func, const ExprPtrVec& args);
+
+  /****************************************************************************/
+  // Others
+  /****************************************************************************/
+  /// Logical imply (bool only)
+  static ExprPtr Imply(const ExprPtr p, const ExprPtr q);
+  /// If-then-else (condition bool only)
+  static ExprPtr Ite(const ExprPtr cond, const ExprPtr true_expr,
+                     const ExprPtr false_expr);
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //

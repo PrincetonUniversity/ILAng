@@ -172,5 +172,25 @@ std::ostream& ExprOpEq::Print(std::ostream& out) const {
   return PrintBinaryOp(out, op_name());
 }
 
+// ------------------------- Class ExprOpLoad ------------------------------- //
+ExprOpLoad::ExprOpLoad(const ExprPtr mem, const ExprPtr addr)
+    : ExprOp(mem, addr) {
+  ILA_ASSERT(mem->sort().addr_width() == addr->sort().bit_width())
+      << "Address width does not match with memory.\n";
+  // sort should be the data sort of the mem
+  auto data_sort = Sort::MakeBvSort(mem->sort().data_width());
+  set_sort(data_sort);
+}
+
+z3::expr ExprOpLoad::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                               const std::string& suffix) const {
+  ILA_ASSERT(expr_vec.size() == 2);
+  return z3::select(expr_vec[0], expr_vec[1]);
+}
+
+std::ostream& ExprOpLoad::Print(std::ostream& out) const {
+  return PrintBinaryOp(out, op_name());
+}
+
 } // namespace ila
 
