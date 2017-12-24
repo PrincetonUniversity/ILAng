@@ -8,9 +8,12 @@ var searchData=
   ['expropand',['ExprOpAnd',['../classila_1_1_expr_op_and.html',1,'ila']]],
   ['expropcompl',['ExprOpCompl',['../classila_1_1_expr_op_compl.html',1,'ila']]],
   ['expropeq',['ExprOpEq',['../classila_1_1_expr_op_eq.html',1,'ila']]],
+  ['expropload',['ExprOpLoad',['../classila_1_1_expr_op_load.html',1,'ila']]],
   ['expropneg',['ExprOpNeg',['../classila_1_1_expr_op_neg.html',1,'ila']]],
   ['expropnot',['ExprOpNot',['../classila_1_1_expr_op_not.html',1,'ila']]],
   ['expropor',['ExprOpOr',['../classila_1_1_expr_op_or.html',1,'ila']]],
+  ['expropstore',['ExprOpStore',['../classila_1_1_expr_op_store.html',1,'ila']]],
+  ['expropxor',['ExprOpXor',['../classila_1_1_expr_op_xor.html',1,'ila']]],
   ['exprsimplifier',['ExprSimplifier',['../classila_1_1_expr_simplifier.html',1,'ila']]],
   ['exprvar',['ExprVar',['../classila_1_1_expr_var.html',1,'ila']]]
 ];

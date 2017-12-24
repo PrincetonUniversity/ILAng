@@ -100,10 +100,10 @@ Public Member Functions</h2></td></tr>
 std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_op_and.html#a67b8eb54a90bedc47b0d08ff07d899c9">op_name</a> () const</td></tr>
 <tr class="memdesc:a67b8eb54a90bedc47b0d08ff07d899c9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the name of the operation. <br /></td></tr>
 <tr class="separator:a67b8eb54a90bedc47b0d08ff07d899c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae80ea5b02a25f2b92c2689403e1b86a0"><td class="memItemLeft" align="right" valign="top"><a id="ae80ea5b02a25f2b92c2689403e1b86a0"></a>
-z3::expr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_op_and.html#ae80ea5b02a25f2b92c2689403e1b86a0">GetZ3Expr</a> (z3::context &amp;z3_ctx, const <a class="el" href="classila_1_1_expr.html#ab56dfa9b63c6c3d5060ccc08a65bba49">Z3ExprVec</a> &amp;z3expr_vec, const std::string &amp;suffix) const</td></tr>
-<tr class="memdesc:ae80ea5b02a25f2b92c2689403e1b86a0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the z3 expression for the node. <br /></td></tr>
-<tr class="separator:ae80ea5b02a25f2b92c2689403e1b86a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9eee321c5f53a938188a079c614bf003"><td class="memItemLeft" align="right" valign="top"><a id="a9eee321c5f53a938188a079c614bf003"></a>
+z3::expr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_op_and.html#a9eee321c5f53a938188a079c614bf003">GetZ3Expr</a> (z3::context &amp;ctx, const <a class="el" href="classila_1_1_expr.html#ab56dfa9b63c6c3d5060ccc08a65bba49">Z3ExprVec</a> &amp;expr_vec, const std::string &amp;suffix) const</td></tr>
+<tr class="memdesc:a9eee321c5f53a938188a079c614bf003"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the z3 expression for the node. <br /></td></tr>
+<tr class="separator:a9eee321c5f53a938188a079c614bf003"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab6f1f2a6286e1ba9facbbf91712fe6f4"><td class="memItemLeft" align="right" valign="top"><a id="ab6f1f2a6286e1ba9facbbf91712fe6f4"></a>
 std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_op_and.html#ab6f1f2a6286e1ba9facbbf91712fe6f4">Print</a> (std::ostream &amp;out) const</td></tr>
 <tr class="memdesc:ab6f1f2a6286e1ba9facbbf91712fe6f4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Output to stream. <br /></td></tr>
@@ -121,6 +121,10 @@ std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="
 &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_op.html#ae822184d3a7c4e024c136504c64a1a1d">ExprOp</a> (const <a class="el" href="classila_1_1_expr.html#ae12f2dd872b3d2d33ea0a0a78d22ea6c">ExprPtr</a> arg0, const <a class="el" href="classila_1_1_expr.html#ae12f2dd872b3d2d33ea0a0a78d22ea6c">ExprPtr</a> arg1)</td></tr>
 <tr class="memdesc:ae822184d3a7c4e024c136504c64a1a1d inherit pub_methods_classila_1_1_expr_op"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor for binary operators. <br /></td></tr>
 <tr class="separator:ae822184d3a7c4e024c136504c64a1a1d inherit pub_methods_classila_1_1_expr_op"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4646e5e1b3940bdacc1213313b7f0d9f inherit pub_methods_classila_1_1_expr_op"><td class="memItemLeft" align="right" valign="top"><a id="a4646e5e1b3940bdacc1213313b7f0d9f"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_op.html#a4646e5e1b3940bdacc1213313b7f0d9f">ExprOp</a> (const <a class="el" href="classila_1_1_expr.html#ae12f2dd872b3d2d33ea0a0a78d22ea6c">ExprPtr</a> arg0, const <a class="el" href="classila_1_1_expr.html#ae12f2dd872b3d2d33ea0a0a78d22ea6c">ExprPtr</a> arg1, const <a class="el" href="classila_1_1_expr.html#ae12f2dd872b3d2d33ea0a0a78d22ea6c">ExprPtr</a> arg2)</td></tr>
+<tr class="memdesc:a4646e5e1b3940bdacc1213313b7f0d9f inherit pub_methods_classila_1_1_expr_op"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor for ternary operators. <br /></td></tr>
+<tr class="separator:a4646e5e1b3940bdacc1213313b7f0d9f inherit pub_methods_classila_1_1_expr_op"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9482600bcecc38f9783224faeb2d428f inherit pub_methods_classila_1_1_expr_op"><td class="memItemLeft" align="right" valign="top"><a id="a9482600bcecc38f9783224faeb2d428f"></a>
 virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_op.html#a9482600bcecc38f9783224faeb2d428f">~ExprOp</a> ()</td></tr>
 <tr class="memdesc:a9482600bcecc38f9783224faeb2d428f inherit pub_methods_classila_1_1_expr_op"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default destructor. <br /></td></tr>
@@ -324,10 +328,10 @@ std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="
 std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_op.html#a0e668c5cc9232f448e25d32edb3f4da6">PrintBinaryOp</a> (std::ostream &amp;out, const std::string &amp;<a class="el" href="classila_1_1_expr_op.html#a2b07e94cd7b2c3db1ffbf95e1460505c">op_name</a>) const</td></tr>
 <tr class="memdesc:a0e668c5cc9232f448e25d32edb3f4da6 inherit pro_methods_classila_1_1_expr_op"><td class="mdescLeft">&#160;</td><td class="mdescRight">Print binary operations. <br /></td></tr>
 <tr class="separator:a0e668c5cc9232f448e25d32edb3f4da6 inherit pro_methods_classila_1_1_expr_op"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a45f9477e0f81e7f7d5c9a53518f7f9d4 inherit pro_methods_classila_1_1_expr_op"><td class="memItemLeft" align="right" valign="top"><a id="a45f9477e0f81e7f7d5c9a53518f7f9d4"></a>
-std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_op.html#a45f9477e0f81e7f7d5c9a53518f7f9d4">PrintNnaryOp</a> (std::ostream &amp;out, <a class="el" href="classila_1_1_expr.html#ae12f2dd872b3d2d33ea0a0a78d22ea6c">ExprPtr</a> op)</td></tr>
-<tr class="memdesc:a45f9477e0f81e7f7d5c9a53518f7f9d4 inherit pro_methods_classila_1_1_expr_op"><td class="mdescLeft">&#160;</td><td class="mdescRight">Print n-ary operations. <br /></td></tr>
-<tr class="separator:a45f9477e0f81e7f7d5c9a53518f7f9d4 inherit pro_methods_classila_1_1_expr_op"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a322b517dfdca4097a0942902b04efa2d inherit pro_methods_classila_1_1_expr_op"><td class="memItemLeft" align="right" valign="top"><a id="a322b517dfdca4097a0942902b04efa2d"></a>
+std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_op.html#a322b517dfdca4097a0942902b04efa2d">PrintNnaryOp</a> (std::ostream &amp;out, const std::string &amp;<a class="el" href="classila_1_1_expr_op.html#a2b07e94cd7b2c3db1ffbf95e1460505c">op_name</a>) const</td></tr>
+<tr class="memdesc:a322b517dfdca4097a0942902b04efa2d inherit pro_methods_classila_1_1_expr_op"><td class="mdescLeft">&#160;</td><td class="mdescRight">Print n-ary operations. <br /></td></tr>
+<tr class="separator:a322b517dfdca4097a0942902b04efa2d inherit pro_methods_classila_1_1_expr_op"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>The wrapper for binary logical AND operation "&amp;". </p>

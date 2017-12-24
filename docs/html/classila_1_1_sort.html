@@ -153,6 +153,10 @@ size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cl
 const <a class="el" href="classila_1_1_sort.html#a4df74038270ac346c0e1789f8ddfa192">SortPtr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_sort.html#a41628227dbfff70b87a996010c6b6075">arg</a> (const size_t &amp;i) const</td></tr>
 <tr class="memdesc:a41628227dbfff70b87a996010c6b6075"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the i-th domain sort (app). <br /></td></tr>
 <tr class="separator:a41628227dbfff70b87a996010c6b6075"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abdfc4ba312b53d701c95deed25bbe5bb"><td class="memItemLeft" align="right" valign="top"><a id="abdfc4ba312b53d701c95deed25bbe5bb"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_sort.html#abdfc4ba312b53d701c95deed25bbe5bb">is_sort</a> () const</td></tr>
+<tr class="memdesc:abdfc4ba312b53d701c95deed25bbe5bb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Is type sort (object). <br /></td></tr>
+<tr class="separator:abdfc4ba312b53d701c95deed25bbe5bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa512e0b3787992f75abd7f41dafdf2d3"><td class="memItemLeft" align="right" valign="top"><a id="aa512e0b3787992f75abd7f41dafdf2d3"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_sort.html#aa512e0b3787992f75abd7f41dafdf2d3">is_bool</a> () const</td></tr>
 <tr class="memdesc:aa512e0b3787992f75abd7f41dafdf2d3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return true if this is a Boolean expression. <br /></td></tr>
@@ -190,10 +194,6 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_ast.html#a52684b06145dd797133a4363b7309ef5">is_ast</a> () const</td></tr>
 <tr class="memdesc:a52684b06145dd797133a4363b7309ef5 inherit pub_methods_classila_1_1_ast"><td class="mdescLeft">&#160;</td><td class="mdescRight">Is type <a class="el" href="classila_1_1_ast.html" title="The class for the Abstract Syntax Tree. An Ast object can be an expression or function definition (in...">Ast</a>. <br /></td></tr>
 <tr class="separator:a52684b06145dd797133a4363b7309ef5 inherit pub_methods_classila_1_1_ast"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aaa853bd982ecf54826c7208ce30551cf inherit pub_methods_classila_1_1_ast"><td class="memItemLeft" align="right" valign="top"><a id="aaa853bd982ecf54826c7208ce30551cf"></a>
-virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_ast.html#aaa853bd982ecf54826c7208ce30551cf">is_sort</a> () const</td></tr>
-<tr class="memdesc:aaa853bd982ecf54826c7208ce30551cf inherit pub_methods_classila_1_1_ast"><td class="mdescLeft">&#160;</td><td class="mdescRight">Is type Ast::Sort. <br /></td></tr>
-<tr class="separator:aaa853bd982ecf54826c7208ce30551cf inherit pub_methods_classila_1_1_ast"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a487c10d9960f7b639c0ea0992881cfb1 inherit pub_methods_classila_1_1_ast"><td class="memItemLeft" align="right" valign="top"><a id="a487c10d9960f7b639c0ea0992881cfb1"></a>
 virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_ast.html#a487c10d9960f7b639c0ea0992881cfb1">is_expr</a> () const</td></tr>
 <tr class="memdesc:a487c10d9960f7b639c0ea0992881cfb1 inherit pub_methods_classila_1_1_ast"><td class="mdescLeft">&#160;</td><td class="mdescRight">Is type Ast::Expr. <br /></td></tr>
@@ -242,6 +242,26 @@ Static Public Member Functions</h2></td></tr>
 static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_sort.html#ab0701f82e5e6abe3e424df9eb42be22a">Equal</a> (const <a class="el" href="classila_1_1_sort.html">Sort</a> &amp;lhs, const <a class="el" href="classila_1_1_sort.html">Sort</a> &amp;rhs)</td></tr>
 <tr class="memdesc:ab0701f82e5e6abe3e424df9eb42be22a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compare two Sorts. <br /></td></tr>
 <tr class="separator:ab0701f82e5e6abe3e424df9eb42be22a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5a02a696c24f49a70e05a213568e06ec"><td class="memItemLeft" align="right" valign="top"><a id="a5a02a696c24f49a70e05a213568e06ec"></a>
+static <a class="el" href="classila_1_1_sort.html">Sort</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_sort.html#a5a02a696c24f49a70e05a213568e06ec">MakeBoolSort</a> ()</td></tr>
+<tr class="memdesc:a5a02a696c24f49a70e05a213568e06ec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create Bool sort. <br /></td></tr>
+<tr class="separator:a5a02a696c24f49a70e05a213568e06ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaa216a046662c985db81ad4d79f9c15d"><td class="memItemLeft" align="right" valign="top"><a id="aaa216a046662c985db81ad4d79f9c15d"></a>
+static <a class="el" href="classila_1_1_sort.html">Sort</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_sort.html#aaa216a046662c985db81ad4d79f9c15d">MakeBvSort</a> (const int &amp;<a class="el" href="classila_1_1_sort.html#a7da9554f1f3370d7d84d3032fc178800">bit_width</a>)</td></tr>
+<tr class="memdesc:aaa216a046662c985db81ad4d79f9c15d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create Bitvector sort. <br /></td></tr>
+<tr class="separator:aaa216a046662c985db81ad4d79f9c15d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7279afdab2fbc41e0acf935f85d65881"><td class="memItemLeft" align="right" valign="top"><a id="a7279afdab2fbc41e0acf935f85d65881"></a>
+static <a class="el" href="classila_1_1_sort.html">Sort</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_sort.html#a7279afdab2fbc41e0acf935f85d65881">MakeMemSort</a> (const int &amp;<a class="el" href="classila_1_1_sort.html#a2e43015cd19ed0313122393f2a490118">addr_width</a>, const int &amp;<a class="el" href="classila_1_1_sort.html#ad21703638d15798428e896ff8e9abc1d">data_width</a>)</td></tr>
+<tr class="memdesc:a7279afdab2fbc41e0acf935f85d65881"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create Memory sort. <br /></td></tr>
+<tr class="separator:a7279afdab2fbc41e0acf935f85d65881"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acd55e6f62a836a1300695717ce27d8fd"><td class="memItemLeft" align="right" valign="top"><a id="acd55e6f62a836a1300695717ce27d8fd"></a>
+static <a class="el" href="classila_1_1_sort.html">Sort</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_sort.html#acd55e6f62a836a1300695717ce27d8fd">MakeAppSort</a> (const <a class="el" href="classila_1_1_sort.html#a4df74038270ac346c0e1789f8ddfa192">SortPtr</a> <a class="el" href="classila_1_1_sort.html#a5c0d446505c3c1287c58a0f40312f665">range</a>, const <a class="el" href="classila_1_1_sort.html#a111e9f3137364a56e9fb6a094760f3f5">SortPtrVec</a> &amp;args)</td></tr>
+<tr class="memdesc:acd55e6f62a836a1300695717ce27d8fd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create Application sort. <br /></td></tr>
+<tr class="separator:acd55e6f62a836a1300695717ce27d8fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7ffddeb8843aa940612e28114c80355d"><td class="memItemLeft" align="right" valign="top"><a id="a7ffddeb8843aa940612e28114c80355d"></a>
+static <a class="el" href="classila_1_1_sort.html#a4df74038270ac346c0e1789f8ddfa192">SortPtr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_sort.html#a7ffddeb8843aa940612e28114c80355d">MakeSortPtr</a> (const <a class="el" href="classila_1_1_sort.html">Sort</a> &amp;sort)</td></tr>
+<tr class="memdesc:a7ffddeb8843aa940612e28114c80355d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create <a class="el" href="classila_1_1_sort.html" title="The class for sort (type for expr, and the range/domain of functions). ">Sort</a> pointer. <br /></td></tr>
+<tr class="separator:a7ffddeb8843aa940612e28114c80355d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="friends"></a>
 Friends</h2></td></tr>
