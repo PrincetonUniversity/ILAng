@@ -156,7 +156,14 @@ TEST(ExprFuse, BinaryOp) {
   EXPECT_TRUE(bv_or->is_op());
   EXPECT_TRUE(bv_or->is_bv());
 
-  // Xor TODO
+  // Xor
+  auto bool_xor = ExprFuse::Xor(bool_var, bool_const_t);
+  EXPECT_TRUE(bool_xor->is_op());
+  EXPECT_TRUE(bool_xor->is_bool());
+
+  auto bv_xor = ExprFuse::Xor(bv_var, bv_const_1);
+  EXPECT_TRUE(bv_xor->is_op());
+  EXPECT_TRUE(bv_xor->is_bv());
 
   // Eq
   auto bool_eq = ExprFuse::Eq(bool_var, bool_const_t);

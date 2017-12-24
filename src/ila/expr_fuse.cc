@@ -65,6 +65,10 @@ ExprPtr ExprFuse::Or(const ExprPtr l, const ExprPtr r) {
   return std::make_shared<ExprOpOr>(l, r);
 }
 
+ExprPtr ExprFuse::Xor(const ExprPtr l, const ExprPtr r) {
+  return std::make_shared<ExprOpXor>(l, r);
+}
+
 ExprPtr ExprFuse::Eq(const ExprPtr l, const ExprPtr r) {
   return std::make_shared<ExprOpEq>(l, r);
 }

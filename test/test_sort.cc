@@ -24,6 +24,11 @@ TEST(Sort, Boolean) {
   std::string msg;
   GET_STDOUT_MSG(std::cout << bool_sort, msg);
   EXPECT_EQ("Boolean", msg);
+
+  Sort wrap = Sort::MakeBoolSort();
+  EXPECT_EQ(wrap, bool_sort);
+  SortPtr ptr = Sort::MakeSortPtr(wrap);
+  EXPECT_EQ(*ptr, bool_sort);
 }
 
 TEST(Sort, Bitvector) {
@@ -41,6 +46,11 @@ TEST(Sort, Bitvector) {
   std::string msg;
   GET_STDOUT_MSG(std::cout << bv_sort, msg);
   EXPECT_EQ("Bv(8)", msg);
+
+  Sort wrap = Sort::MakeBvSort(8);
+  EXPECT_EQ(wrap, bv_sort);
+  SortPtr ptr = Sort::MakeSortPtr(wrap);
+  EXPECT_EQ(*ptr, bv_sort);
 }
 
 TEST(Sort, Memory) {
@@ -58,6 +68,11 @@ TEST(Sort, Memory) {
   std::string msg;
   GET_STDOUT_MSG(std::cout << mem_sort, msg);
   EXPECT_EQ("Mem(2, 32)", msg);
+
+  Sort wrap = Sort::MakeMemSort(2, 32);
+  EXPECT_EQ(wrap, mem_sort);
+  SortPtr ptr = Sort::MakeSortPtr(wrap);
+  EXPECT_EQ(*ptr, mem_sort);
 }
 
 TEST(Sort, Application) {
@@ -91,6 +106,11 @@ TEST(Sort, Application) {
   std::string msg;
   GET_STDOUT_MSG(std::cout << app_sort, msg);
   EXPECT_EQ("App(Bv(8))(Boolean, Bv(8), Mem(2, 32))", msg);
+
+  Sort wrap = Sort::MakeAppSort(range, args);
+  EXPECT_EQ(wrap, app_sort);
+  SortPtr ptr = Sort::MakeSortPtr(wrap);
+  EXPECT_EQ(*ptr, app_sort);
 }
 
 } // namespace ila
