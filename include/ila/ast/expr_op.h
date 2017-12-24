@@ -68,10 +68,7 @@ private:
 }; // class ExprOp
 
 /******************************************************************************/
-// Different types of operators.
 // Unary: negate, not, complement
-// Binary: and, or, equal
-// Ternary:
 /******************************************************************************/
 
 /// \brief The wrapper for unary negate operation "-".
@@ -80,7 +77,7 @@ public:
   /// Constructor for Negate operation.
   ExprOpNeg(const ExprPtr arg);
   std::string op_name() const { return "NEGATE"; }
-  z3::expr GetZ3Expr(z3::context& z3_ctx, const Z3ExprVec& z3expr_vec,
+  z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                      const std::string& suffix) const;
   std::ostream& Print(std::ostream& out) const;
 }; // class ExprOpNeg
@@ -91,7 +88,7 @@ public:
   /// Constructor for Not operation.
   ExprOpNot(const ExprPtr arg);
   std::string op_name() const { return "NOT"; }
-  z3::expr GetZ3Expr(z3::context& z3_ctx, const Z3ExprVec& z3expr_vec,
+  z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                      const std::string& suffix) const;
   std::ostream& Print(std::ostream& out) const;
 }; // class ExprOpNot
@@ -102,10 +99,14 @@ public:
   /// Constructor for Complement operation.
   ExprOpCompl(const ExprPtr arg);
   std::string op_name() const { return "COMPLEMENT"; }
-  z3::expr GetZ3Expr(z3::context& z3_ctx, const Z3ExprVec& z3expr_vec,
+  z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                      const std::string& suffix) const;
   std::ostream& Print(std::ostream& out) const;
 }; // class ExprOpCompl
+
+/******************************************************************************/
+// Binary: and, or, xor, equal
+/******************************************************************************/
 
 /// \brief The wrapper for binary logical AND operation "&".
 class ExprOpAnd : public ExprOp {
@@ -113,7 +114,7 @@ public:
   /// Constructor for AND operation.
   ExprOpAnd(const ExprPtr arg0, const ExprPtr arg1);
   std::string op_name() const { return "AND"; }
-  z3::expr GetZ3Expr(z3::context& z3_ctx, const Z3ExprVec& z3expr_vec,
+  z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                      const std::string& suffix) const;
   std::ostream& Print(std::ostream& out) const;
 }; // class ExprOpAnd
@@ -124,10 +125,20 @@ public:
   /// Constructor for OR operation.
   ExprOpOr(const ExprPtr arg0, const ExprPtr arg1);
   std::string op_name() const { return "OR"; }
-  z3::expr GetZ3Expr(z3::context& z3_ctx, const Z3ExprVec& z3expr_vec,
+  z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                      const std::string& suffix) const;
   std::ostream& Print(std::ostream& out) const;
 }; // class ExprOpOr
+
+class ExprOpXor : public ExprOp {
+public:
+  /// Constructor for XOR operation.
+  ExprOpXor(const ExprPtr arg0, const ExprPtr arg1);
+  std::string op_name() const { return "XOR"; }
+  z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                     const std::string& suffix) const;
+  std::ostream& Print(std::ostream& out) const;
+}; // class ExprOpXor
 
 /// \brief The class wrapper for binary comparison EQ "==".
 class ExprOpEq : public ExprOp {
@@ -135,10 +146,14 @@ public:
   /// Constructor for Equal comparison.
   ExprOpEq(const ExprPtr arg0, const ExprPtr arg1);
   std::string op_name() const { return "EQ"; }
-  z3::expr GetZ3Expr(z3::context& z3_ctx, const Z3ExprVec& z3expr_vec,
+  z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                      const std::string& suffix) const;
   std::ostream& Print(std::ostream& out) const;
 }; // class ExprOpEq
+
+/******************************************************************************/
+// Ternary:
+/******************************************************************************/
 
 } // namespace ila
 

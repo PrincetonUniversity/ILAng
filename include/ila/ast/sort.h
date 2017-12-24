@@ -72,6 +72,17 @@ public:
   /// Overlaod comparison.
   friend bool operator==(const Sort& lhs, const Sort& rhs);
 
+  /// Create Bool sort
+  static Sort MakeBoolSort();
+  /// Create Bitvector sort.
+  static Sort MakeBvSort(const int& bit_width);
+  /// Create Memory sort.
+  static Sort MakeMemSort(const int& addr_width, const int& data_width);
+  /// Create Application sort.
+  static Sort MakeAppSort(const SortPtr range, const SortPtrVec& args);
+  /// Create Sort pointer.
+  static SortPtr MakeSortPtr(const Sort& sort);
+
 private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// The type for the sort.

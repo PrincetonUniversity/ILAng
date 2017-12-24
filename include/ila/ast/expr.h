@@ -7,6 +7,7 @@
 #include "ila/ast/ast.h"
 #include "ila/ast/sort.h"
 #include "z3++.h"
+#include "z3_api.h"
 #include <memory>
 #include <ostream>
 #include <string>

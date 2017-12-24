@@ -37,7 +37,7 @@ Sort ExprOp::GetSortBinaryComparison(const Sort& s0, const Sort& s1) {
   ILA_ASSERT(s0 == s1) << "Compare between different sorts " << s0 << " & "
                        << s1 << "\n";
   // return boolean sort.
-  return Sort();
+  return Sort::MakeBoolSort();
 }
 
 std::ostream& ExprOp::PrintBinaryOp(std::ostream& out,
@@ -127,6 +127,32 @@ z3::expr ExprOpOr::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
 }
 
 std::ostream& ExprOpOr::Print(std::ostream& out) const {
+  return PrintBinaryOp(out, op_name());
+}
+
+// ------------------------- Class ExprOpXor -------------------------------- //
+ExprOpXor::ExprOpXor(const ExprPtr arg0, const ExprPtr arg1)
+    : ExprOp(arg0, arg1) {
+  set_sort(GetSortBinaryOperation(arg0->sort(), arg1->sort()));
+}
+
+z3::expr ExprOpXor::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                              const std::string& suffix) const {
+  return expr_vec[0] ^ expr_vec[1];
+#if 0
+  ILA_ASSERT(expr_vec.size() == 2);
+  if (is_bv() {
+    auto ast_xor = Z3_mk_bvxor(ctx, expr_vec[0], expr_vec[1]);
+    return z3::to_expr(ctx, ast_xor);
+  } else {
+    ILA_ASSERT(is_bool()) << "XOR must be either bool or bv.\n";
+    auto ast_xor = Z3_mk_xor(ctx, expr_vec[0], expr_vec[1]);
+    return z3::to_expr(ctx, ast_xor);
+  }
+#endif
+}
+
+std::ostream& ExprOpXor::Print(std::ostream& out) const {
   return PrintBinaryOp(out, op_name());
 }
 

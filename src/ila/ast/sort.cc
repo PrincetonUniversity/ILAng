@@ -68,14 +68,6 @@ std::ostream& Sort::Print(std::ostream& out) const {
   }
 }
 
-std::ostream& operator<<(std::ostream& out, const Sort& s) {
-  return s.Print(out);
-}
-
-bool operator==(const Sort& lhs, const Sort& rhs) {
-  return Sort::Equal(lhs, rhs);
-}
-
 bool Sort::Equal(const Sort& lhs, const Sort& rhs) {
   if (lhs.is_bool() && rhs.is_bool()) {
     return true;
@@ -100,6 +92,30 @@ bool Sort::Equal(const Sort& lhs, const Sort& rhs) {
   } else {
     return false;
   }
+}
+
+std::ostream& operator<<(std::ostream& out, const Sort& s) {
+  return s.Print(out);
+}
+
+bool operator==(const Sort& lhs, const Sort& rhs) {
+  return Sort::Equal(lhs, rhs);
+}
+
+Sort Sort::MakeBoolSort() { return Sort(); }
+
+Sort Sort::MakeBvSort(const int& bit_width) { return Sort(bit_width); }
+
+Sort Sort::MakeMemSort(const int& addr_width, const int& data_width) {
+  return Sort(addr_width, data_width);
+}
+
+Sort Sort::MakeAppSort(const SortPtr range, const SortPtrVec& args) {
+  return Sort(range, args);
+}
+
+SortPtr Sort::MakeSortPtr(const Sort& sort) {
+  return std::make_shared<Sort>(sort);
 }
 
 std::ostream& Sort::PrintBool(std::ostream& out) const {

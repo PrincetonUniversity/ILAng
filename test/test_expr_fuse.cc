@@ -127,14 +127,6 @@ TEST(ExprFuse, UnaryOp) {
   EXPECT_FALSE(bv_compl->is_var());
   EXPECT_FALSE(bv_compl->is_const());
   EXPECT_TRUE(bv_compl->is_bv());
-
-#if 0
-  auto bv_nz = ExprFuse::NonZero(bv_const1);
-  EXPECT_TRUE(bv_nz->is_op());
-  EXPECT_FALSE(bv_nz->is_var());
-  EXPECT_FALSE(bv_nz->is_const());
-  EXPECT_TRUE(bv_nz->is_bv());
-#endif
 }
 
 TEST(ExprFuse, BinaryOp) {
@@ -163,6 +155,8 @@ TEST(ExprFuse, BinaryOp) {
   auto bv_or = ExprFuse::Or(bv_var, bv_const_0);
   EXPECT_TRUE(bv_or->is_op());
   EXPECT_TRUE(bv_or->is_bv());
+
+  // Xor TODO
 
   // Eq
   auto bool_eq = ExprFuse::Eq(bool_var, bool_const_t);

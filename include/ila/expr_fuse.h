@@ -59,8 +59,6 @@ public:
   static ExprPtr Not(const ExprPtr obj);
   /// Bit-wise Complement (bv only)
   static ExprPtr Complement(const ExprPtr obj);
-  /// Non-zero (bv only)
-  static ExprPtr NonZero(const ExprPtr obj);
 
   /// Logical AND
   static ExprPtr And(const ExprPtr l, const ExprPtr r);
