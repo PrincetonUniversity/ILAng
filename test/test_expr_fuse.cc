@@ -120,7 +120,9 @@ TEST(ExprFuse, UnaryOp) {
   EXPECT_FALSE(bv_neg->is_const());
   EXPECT_TRUE(bv_neg->is_bv());
 
+#ifndef NDEBUG
   EXPECT_DEATH(ExprFuse::Negate(bool_var), ".*");
+#endif
 
   // Not
   auto bool_not = ExprFuse::Not(bool_var);
@@ -129,7 +131,9 @@ TEST(ExprFuse, UnaryOp) {
   EXPECT_FALSE(bool_not->is_const());
   EXPECT_TRUE(bool_not->is_bool());
 
+#ifndef NDEBUG
   EXPECT_DEATH(ExprFuse::Not(bv_var), ".*");
+#endif
 
   // Complement
   auto bv_compl = ExprFuse::Complement(bv_const_0);
@@ -138,7 +142,9 @@ TEST(ExprFuse, UnaryOp) {
   EXPECT_FALSE(bv_compl->is_const());
   EXPECT_TRUE(bv_compl->is_bv());
 
+#ifndef NDEBUG
   EXPECT_DEATH(ExprFuse::Complement(bool_var), ".*");
+#endif
 }
 
 TEST(ExprFuse, BinaryOp) {
@@ -159,7 +165,9 @@ TEST(ExprFuse, BinaryOp) {
   EXPECT_TRUE(bv_and->is_op());
   EXPECT_TRUE(bv_and->is_bv());
 
+#ifndef NDEBUG
   EXPECT_DEATH(ExprFuse::And(bool_var, bv_var), ".*");
+#endif
 
   // Or
   auto bool_or = ExprFuse::Or(bool_var, bool_const_f);
@@ -170,7 +178,9 @@ TEST(ExprFuse, BinaryOp) {
   EXPECT_TRUE(bv_or->is_op());
   EXPECT_TRUE(bv_or->is_bv());
 
+#ifndef NDEBUG
   EXPECT_DEATH(ExprFuse::Or(bool_var, bv_var), ".*");
+#endif
 
   // Xor
   auto bool_xor = ExprFuse::Xor(bool_var, bool_const_t);
@@ -181,7 +191,9 @@ TEST(ExprFuse, BinaryOp) {
   EXPECT_TRUE(bv_xor->is_op());
   EXPECT_TRUE(bv_xor->is_bv());
 
+#ifndef NDEBUG
   EXPECT_DEATH(ExprFuse::Xor(bool_var, bv_var), ".*");
+#endif
 }
 
 TEST(ExprFuse, BinaryCompare) {
@@ -203,7 +215,9 @@ TEST(ExprFuse, BinaryCompare) {
   EXPECT_TRUE(bv_eq->is_bool());
   EXPECT_FALSE(bv_eq->is_bv());
 
+#ifndef NDEBUG
   EXPECT_DEATH(ExprFuse::Eq(bv_var, bool_var), ".*");
+#endif
 }
 
 TEST(ExprFuse, Memory) {
@@ -217,7 +231,9 @@ TEST(ExprFuse, Memory) {
   EXPECT_TRUE(load->is_bv());
   EXPECT_EQ(32, load->sort().bit_width());
 
+#ifndef NDEBUG
   EXPECT_DEATH(ExprFuse::Load(mem_var, bv_var_32), ".*");
+#endif
 
   // Store
   auto store = ExprFuse::Store(mem_var, bv_var_8, bv_var_32);
@@ -225,8 +241,10 @@ TEST(ExprFuse, Memory) {
   EXPECT_TRUE(store->is_mem());
   EXPECT_EQ(store->sort(), mem_var->sort());
 
+#ifndef NDEBUG
   EXPECT_DEATH(ExprFuse::Store(mem_var, bv_var_32, bv_var_32), ".*");
   EXPECT_DEATH(ExprFuse::Store(mem_var, bv_var_8, bv_var_8), ".*");
+#endif
 }
 
 } // namespace ila

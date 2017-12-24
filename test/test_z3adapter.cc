@@ -4,12 +4,10 @@
 #include "ila/expr_fuse.h"
 #include "ila/z3_expr_adapter.h"
 #include "gtest/gtest.h"
-#include <iostream>
 
 namespace ila {
 
 TEST(Z3ExprAdapter, Construct) {
-
   SetToStdErr(1);
   DebugLog::Enable("z3_adapter");
 
