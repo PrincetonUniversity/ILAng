@@ -22,6 +22,8 @@ public:
   ExprOp(const ExprPtr arg);
   /// Constructor for binary operators.
   ExprOp(const ExprPtr arg0, const ExprPtr arg1);
+  /// Constructor for ternary operators.
+  ExprOp(const ExprPtr arg0, const ExprPtr arg1, const ExprPtr arg2);
   /// Default destructor.
   virtual ~ExprOp();
 
@@ -56,7 +58,8 @@ protected:
   std::ostream& PrintBinaryOp(std::ostream& out,
                               const std::string& op_name) const;
   /// Print n-ary operations.
-  std::ostream& PrintNnaryOp(std::ostream& out, ExprPtr op);
+  std::ostream& PrintNnaryOp(std::ostream& out,
+                             const std::string& op_name) const;
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
@@ -196,7 +199,16 @@ public:
   std::ostream& Print(std::ostream& out) const;
 }; // class ExprOpLoad
 
-// TODO ExprOpStore
+/// \brief The class wrapper for memory store.
+class ExprOpStore : public ExprOp {
+public:
+  /// Constructor for memory store.
+  ExprOpStore(const ExprPtr mem, const ExprPtr addr, const ExprPtr data);
+  std::string op_name() const { return "STORE"; }
+  z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                     const std::string& suffix) const;
+  std::ostream& Print(std::ostream& out) const;
+}; // class ExprOpStore
 
 /******************************************************************************/
 // Bit-manipulation

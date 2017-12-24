@@ -218,6 +218,15 @@ TEST(ExprFuse, Memory) {
   EXPECT_EQ(32, load->sort().bit_width());
 
   EXPECT_DEATH(ExprFuse::Load(mem_var, bv_var_32), ".*");
+
+  // Store
+  auto store = ExprFuse::Store(mem_var, bv_var_8, bv_var_32);
+  EXPECT_TRUE(store->is_op());
+  EXPECT_TRUE(store->is_mem());
+  EXPECT_EQ(store->sort(), mem_var->sort());
+
+  EXPECT_DEATH(ExprFuse::Store(mem_var, bv_var_32, bv_var_32), ".*");
+  EXPECT_DEATH(ExprFuse::Store(mem_var, bv_var_8, bv_var_8), ".*");
 }
 
 } // namespace ila

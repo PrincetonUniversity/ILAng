@@ -77,5 +77,10 @@ ExprPtr ExprFuse::Load(const ExprPtr mem, const ExprPtr addr) {
   return std::make_shared<ExprOpLoad>(mem, addr);
 }
 
+ExprPtr ExprFuse::Store(const ExprPtr mem, const ExprPtr addr,
+                        const ExprPtr data) {
+  return std::make_shared<ExprOpStore>(mem, addr, data);
+}
+
 } // namespace ila
 

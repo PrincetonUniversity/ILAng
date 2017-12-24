@@ -24,6 +24,12 @@ ExprOp::ExprOp(const ExprPtr arg0, const ExprPtr arg1) {
   set_args(args);
 }
 
+ExprOp::ExprOp(const ExprPtr arg0, const ExprPtr arg1, const ExprPtr arg2) {
+  set_arity(3);
+  ExprPtrVec args = {arg0, arg1, arg2};
+  set_args(args);
+}
+
 ExprOp::~ExprOp() {}
 
 Sort ExprOp::GetSortBinaryOperation(const Sort& s0, const Sort& s1) {
@@ -46,6 +52,11 @@ std::ostream& ExprOp::PrintBinaryOp(std::ostream& out,
 }
 
 std::ostream& ExprOp::PrintUnaryOp(std::ostream& out,
+                                   const std::string& op_name) const {
+  return out << op_name;
+}
+
+std::ostream& ExprOp::PrintNnaryOp(std::ostream& out,
                                    const std::string& op_name) const {
   return out << op_name;
 }
@@ -190,6 +201,30 @@ z3::expr ExprOpLoad::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
 
 std::ostream& ExprOpLoad::Print(std::ostream& out) const {
   return PrintBinaryOp(out, op_name());
+}
+
+// ------------------------- Class ExprOpLoad ------------------------------- //
+ExprOpStore::ExprOpStore(const ExprPtr mem, const ExprPtr addr,
+                         const ExprPtr data)
+    : ExprOp(mem, addr, data) {
+  ILA_ASSERT(mem->sort().addr_width() == addr->sort().bit_width())
+      << "Address width does not match with memory.\n";
+  ILA_ASSERT(mem->sort().data_width() == data->sort().bit_width())
+      << "Data width does not match with memory.\n";
+  set_sort(mem->sort());
+}
+
+z3::expr ExprOpStore::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                                const std::string& suffix) const {
+  ILA_ASSERT(expr_vec.size() == 3) << "Store takes 3 arguments.\n";
+  auto mem = expr_vec[0];
+  auto addr = expr_vec[1];
+  auto data = expr_vec[2];
+  return z3::store(mem, addr, data);
+}
+
+std::ostream& ExprOpStore::Print(std::ostream& out) const {
+  return PrintNnaryOp(out, op_name());
 }
 
 } // namespace ila
