@@ -7,37 +7,29 @@
 /// \namespace ila
 namespace ila {
 
-const std::string ExprConst::k_prefix_const_ = "const";
-
-ExprConst::ExprConst() {
-  ILA_ERROR << "Undefined default constructor for class ExprConst.\n";
+ExprConst::ExprConst() : val_(NULL) {
+  ILA_CHECK(false) << "Undefined default constructor for class ExprConst.\n";
 }
 
 ExprConst::ExprConst(const BoolVal& bool_val) {
-  //    : bool_ptr_(NULL), bv_ptr_(NULL), mem_ptr_(NULL) {
   set_arity(0);
   set_num_param(0);
   set_sort(Sort());
-  // bool_ptr_ = std::make_shared<BoolVal>(bool_val);
   val_ = std::make_shared<BoolVal>(bool_val);
 }
 
 ExprConst::ExprConst(const BvVal& bv_val, const int& bit_width) {
-  //: bool_ptr_(NULL), bv_ptr_(NULL), mem_ptr_(NULL) {
   set_arity(0);
   set_num_param(0);
   set_sort(Sort(bit_width));
-  // bv_ptr_ = std::make_shared<BvVal>(bv_val);
   val_ = std::make_shared<BvVal>(bv_val);
 }
 
 ExprConst::ExprConst(const MemVal& mem_val, const int& addr_width,
                      const int& data_width) {
-  //: bool_ptr_(NULL), bv_ptr_(NULL), mem_ptr_(NULL) {
   set_arity(0);
   set_num_param(0);
   set_sort(Sort(addr_width, data_width));
-  // mem_ptr_ = std::make_shared<MemVal>(mem_val);
   val_ = std::make_shared<MemVal>(mem_val);
 }
 
@@ -53,7 +45,8 @@ z3::expr ExprConst::GetZ3Expr(z3::context& ctx, const Z3ExprVec& z3expr_vec,
   } else if (is_bv()) {
     auto bv_ptr = val_bv();
     return ctx.bv_val(bv_ptr->val(), sort().bit_width());
-  } else if (is_mem()) {
+  } else {
+    ILA_ASSERT(is_mem()) << "Neither bool, bv, nor mem.\n";
     auto addr_sort = ctx.bv_sort(sort().addr_width());
     auto data_sort = ctx.bv_sort(sort().data_width());
 
@@ -72,22 +65,20 @@ z3::expr ExprConst::GetZ3Expr(z3::context& ctx, const Z3ExprVec& z3expr_vec,
       e1 = e2;
     }
     return e1;
-  } else {
-    ILA_ERROR << "Undefined sort for constantc\n";
-    return ctx.bool_val(false);
   }
 }
 
 std::ostream& ExprConst::Print(std::ostream& out) const {
   if (is_bool()) {
-    return val_bool()->Print(out);
+    auto bool_ptr = val_bool();
+    return bool_ptr->Print(out);
   } else if (is_bv()) {
-    return val_bv()->Print(out);
-  } else if (is_mem()) {
-    return val_mem()->Print(out);
+    auto bv_ptr = val_bv();
+    return bv_ptr->Print(out);
   } else {
-    ILA_ERROR << "Undefined sort for constant.\n";
-    return out;
+    ILA_ASSERT(is_mem()) << "Print neither bool, bv, nor mem.\n";
+    auto mem_ptr = val_mem();
+    return mem_ptr->Print(out);
   }
 }
 

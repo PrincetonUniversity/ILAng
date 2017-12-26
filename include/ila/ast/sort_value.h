@@ -12,24 +12,15 @@
 /// \namespace ila
 namespace ila {
 
+/// \brief The base type for constant value.
 class Value {
 public:
+  /// Default constructor.
+  Value() {}
+  /// Default destructor.
+  virtual ~Value() {}
   /// Pointer type for all use of Value.
   typedef std::shared_ptr<Value> ValPtr;
-
-  // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
-  /// Default Constructor.
-  Value();
-  /// Default destructor.
-  virtual ~Value();
-
-  // ------------------------- ACCESSORS/MUTATORS --------------------------- //
-  /// Return true if the value stored is boolean.
-  virtual bool is_bool() const { return false; }
-  /// Return true if the value stored is bitvector.
-  virtual bool is_bv() const { return false; }
-  /// Return true if the value stored is memory.
-  virtual bool is_mem() const { return false; }
 
 }; // class Value
 
@@ -55,8 +46,6 @@ public:
   ~BoolVal();
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
-  /// Return true since is boolean.
-  bool is_bool() const { return true; }
   /// Return the string representation of the value.
   std::string str() const;
   /// Return the bool representation of the value.
@@ -97,9 +86,6 @@ public:
   ~BvVal();
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
-  /// Return true if the value stored is bitvector.
-  bool is_bv() const { return true; }
-
   /// Return the string representation of the value.
   std::string str() const;
   /// Return the arithmetic representation of the value.
@@ -142,9 +128,6 @@ public:
   ~MemVal();
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
-  /// Return true if the value stored is memory.
-  bool is_mem() const { return true; }
-
   /// Return the map of addr/data
   const MemValMap& val_map() const;
   /// Return the default value

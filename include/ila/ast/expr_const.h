@@ -28,9 +28,6 @@ public:
   ~ExprConst();
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
-  /// Return the prefix of the constant expression.
-  const std::string& prefix() const { return k_prefix_const_; }
-
   /// Return true since this is a constant.
   bool is_const() const { return true; }
 
@@ -53,17 +50,6 @@ private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// Value of the constant.
   ValPtr val_;
-#if 0
-  /// Value for Bool constant.
-  BoolValPtr bool_ptr_;
-  /// Value for Bitvector constant.
-  BvValPtr bv_ptr_;
-  /// Value for Memory constant.
-  MemValPtr mem_ptr_;
-#endif
-
-  /// Static prefix for constant expression.
-  static const std::string k_prefix_const_;
 
 }; // class ExprConst
 

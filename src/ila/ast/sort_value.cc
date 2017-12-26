@@ -7,14 +7,9 @@
 
 namespace ila {
 
-Value::Value() {}
-
-Value::~Value() {}
-
 // ------------------------- Class BoolVal ---------------------------------- //
-BoolVal::BoolVal() {
-  ILA_ERROR << "Undefined default constructor for class BoolVal.\n";
-  val_ = false;
+BoolVal::BoolVal() : val_(false) {
+  ILA_CHECK(false) << "Undefined default constructor for class BoolVal.\n";
 }
 
 BoolVal::BoolVal(const bool& val) : val_(val) {}
@@ -36,9 +31,8 @@ std::ostream& operator<<(std::ostream& out, const BoolVal& val) {
 }
 
 // ------------------------- Class BvVal -------------------------------------//
-BvVal::BvVal() {
-  ILA_ERROR << "Undefined default constructor for class BvVal.\n";
-  val_ = 0;
+BvVal::BvVal() : val_(0) {
+  ILA_CHECK(false) << "Undefined default constructor for class BvVal.\n";
 }
 
 BvVal::BvVal(const int& val) : val_(val) {}
@@ -59,7 +53,7 @@ std::ostream& operator<<(std::ostream& out, const BvVal& val) {
 
 // ------------------------- Class MemVal ------------------------------------//
 MemVal::MemVal() : default_(0) {
-  ILA_ERROR << "Undefined default constructor for class MemVal.\n";
+  ILA_CHECK(false) << "Undefined default constructor for class MemVal.\n";
 }
 
 MemVal::MemVal(const int& def_val) : default_(def_val) { val_map_.clear(); }
@@ -89,8 +83,11 @@ void MemVal::set_data(const int& addr, const int& data) {
 }
 
 std::ostream& MemVal::Print(std::ostream& out) const {
-  ILA_WARN << "Not Implemented.\n"; // TODO
-  return out;
+  out << "[Def: " << default_ << "][";
+  for (auto val : val_map_) {
+    out << "(" << val.first << ", " << val.second << ")";
+  }
+  return out << "]";
 }
 
 std::ostream& operator<<(std::ostream& out, const MemVal& val) {
