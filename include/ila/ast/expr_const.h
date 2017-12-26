@@ -21,7 +21,7 @@ public:
   ExprConst(const BoolVal& bool_val);
   /// Constructor for Bitvector constant.
   ExprConst(const BvVal& bv_val, const int& bit_width);
-  /// Constructor for Array constant.
+  /// Constructor for Memory constant.
   ExprConst(const MemVal& mem_val, const int& addr_width,
             const int& data_width);
   /// Default destructor.
@@ -42,14 +42,25 @@ public:
   /// Output to stream.
   std::ostream& Print(std::ostream& out) const;
 
+  /// Return the Boolean value.
+  BoolValPtr val_bool() const;
+  /// Return the Bitvector value.
+  BvValPtr val_bv() const;
+  /// Return the Memory value.
+  MemValPtr val_mem() const;
+
 private:
   // ------------------------- MEMBERS -------------------------------------- //
+  /// Value of the constant.
+  ValPtr val_;
+#if 0
   /// Value for Bool constant.
   BoolValPtr bool_ptr_;
   /// Value for Bitvector constant.
   BvValPtr bv_ptr_;
   /// Value for Memory constant.
   MemValPtr mem_ptr_;
+#endif
 
   /// Static prefix for constant expression.
   static const std::string k_prefix_const_;

@@ -7,6 +7,10 @@
 
 namespace ila {
 
+Value::Value() {}
+
+Value::~Value() {}
+
 // ------------------------- Class BoolVal ---------------------------------- //
 BoolVal::BoolVal() {
   ILA_ERROR << "Undefined default constructor for class BoolVal.\n";

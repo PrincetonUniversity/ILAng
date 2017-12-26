@@ -12,10 +12,34 @@
 /// \namespace ila
 namespace ila {
 
-/// \brief The container for representing Boolean values.
-class BoolVal {
+class Value {
 public:
-  /// Pointer type for normal use of BoolVal.
+  /// Pointer type for all use of Value.
+  typedef std::shared_ptr<Value> ValPtr;
+
+  // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
+  /// Default Constructor.
+  Value();
+  /// Default destructor.
+  virtual ~Value();
+
+  // ------------------------- ACCESSORS/MUTATORS --------------------------- //
+  /// Return true if the value stored is boolean.
+  virtual bool is_bool() const { return false; }
+  /// Return true if the value stored is bitvector.
+  virtual bool is_bv() const { return false; }
+  /// Return true if the value stored is memory.
+  virtual bool is_mem() const { return false; }
+
+}; // class Value
+
+/// Pointer type for all use of Value.
+typedef Value::ValPtr ValPtr;
+
+/// \brief The container for representing Boolean values.
+class BoolVal : public Value {
+public:
+  /// Pointer type for all use of BoolVal.
   typedef std::shared_ptr<BoolVal> BoolValPtr;
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
@@ -31,6 +55,8 @@ public:
   ~BoolVal();
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
+  /// Return true since is boolean.
+  bool is_bool() const { return true; }
   /// Return the string representation of the value.
   std::string str() const;
   /// Return the bool representation of the value.
@@ -49,15 +75,15 @@ private:
 
 }; // class BoolVal
 
-/// Pointer type for normal use of BoolVal.
+/// Pointer type for all use of BoolVal.
 typedef BoolVal::BoolValPtr BoolValPtr;
 
 /// \brief The container for representing Bitvector values.
-class BvVal {
+class BvVal : public Value {
 public:
   /// Data type for storing BvVal
   typedef int BvValType;
-  /// Pointer type for normal use of BvVal.
+  /// Pointer type for all use of BvVal.
   typedef std::shared_ptr<BvVal> BvValPtr;
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
@@ -71,6 +97,9 @@ public:
   ~BvVal();
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
+  /// Return true if the value stored is bitvector.
+  bool is_bv() const { return true; }
+
   /// Return the string representation of the value.
   std::string str() const;
   /// Return the arithmetic representation of the value.
@@ -89,13 +118,15 @@ private:
 
 }; // class BvVal
 
-/// Pointer type for normal use of BvVal.
+/// Data type for storing BvVal.
+typedef BvVal::BvValType BvValType;
+/// Pointer type for all use of BvVal.
 typedef BvVal::BvValPtr BvValPtr;
 
 /// \brief The container for representing memory (array) values.
-class MemVal {
+class MemVal : public Value {
 public:
-  /// Pointer type for normal use of MemVal.
+  /// Pointer type for all use of MemVal.
   typedef std::shared_ptr<MemVal> MemValPtr;
   /// Type for storing the address/data mapping.
   typedef std::map<int, int> MemValMap;
@@ -111,6 +142,9 @@ public:
   ~MemVal();
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
+  /// Return true if the value stored is memory.
+  bool is_mem() const { return true; }
+
   /// Return the map of addr/data
   const MemValMap& val_map() const;
   /// Return the default value
@@ -136,7 +170,7 @@ private:
 
 }; // class MemVal
 
-/// Pointer type for normal use of MemVal.
+/// Pointer type for all use of MemVal.
 typedef MemVal::MemValPtr MemValPtr;
 /// Type for storing the address/data mapping.
 typedef MemVal::MemValMap MemValMap;
