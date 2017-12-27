@@ -12,11 +12,13 @@ std::string StrToUpper(const std::string& str) {
   return res;
 }
 
+#if 0
 std::string StrToLower(const std::string& str) {
   std::string res = str;
   std::transform(res.begin(), res.end(), res.begin(), tolower);
   return res;
 }
+#endif
 
 bool StrToBool(const std::string& str) {
   std::string up = StrToUpper(str);
@@ -34,6 +36,7 @@ int StrToInt(const std::string& str) {
   }
 }
 
+#if 0
 std::string StrConcat(const std::string& l, const std::string& r) {
   return (l + "_" + r);
 }
@@ -42,6 +45,7 @@ std::string StrConcat(const std::string& l, const std::string& m,
                       const std::string& r) {
   return (l + "_" + m + "_" + r);
 }
+#endif
 
 } // namespace ila
 

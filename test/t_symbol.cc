@@ -54,5 +54,13 @@ TEST(TestSymbol, Format) {
   EXPECT_EQ("p_name_s", sym.format_str("p", "s"));
 }
 
+TEST(TestSymbol, Compare) {
+  Symbol pre("name");
+  Symbol post;
+  post.set_name("name");
+
+  EXPECT_EQ(pre, post);
+}
+
 } // namespace ila
 

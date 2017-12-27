@@ -44,14 +44,9 @@ int Symbol::to_int() const { return StrToInt(name_); }
 
 const size_t& Symbol::id() const { return id_; }
 
-bool Symbol::set_name(const std::string& name) {
-  if (name_ != "") {
-    ILA_WARN << "Name has been assigned. Previously as " << name_ << ".\n";
-    return false;
-  }
-
+void Symbol::set_name(const std::string& name) {
+  ILA_WARN_IF(name_ != "") << "Update name (previously as " << name_ << ").\n";
   name_ = name;
-  return true;
 }
 
 std::ostream& Symbol::Print(std::ostream& out) const { return out << name_; }

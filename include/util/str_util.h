@@ -22,12 +22,14 @@ bool StrToBool(const std::string& str);
 /// Return the value represented in the string, e.g. "10".
 int StrToInt(const std::string& str);
 
+#if 0
 /// Concatenate two string with "_".
 std::string StrConcat(const std::string& l, const std::string& r);
 
 /// Concatenate three string with "_".
 std::string StrConcat(const std::string& l, const std::string& m,
                       const std::string& r);
+#endif
 
 } // namespace ila
 

@@ -18,8 +18,6 @@ public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor.
   Object();
-  /// Constructor with cstring name.
-  Object(const char* name);
   /// Constructor with string name.
   Object(const std::string& name);
   /// Default destructor.
@@ -32,7 +30,7 @@ public:
   /// Get the symbol (name).
   const Symbol& name() const;
   /// Set the symbol (name).
-  bool set_name(const std::string& name);
+  void set_name(const std::string& name);
 
   /// Is type InstrLvlAbs.
   virtual bool is_instr_lvl_abs() const { return false; }

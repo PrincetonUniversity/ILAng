@@ -38,13 +38,13 @@ public:
   const char* format_c_str(const std::string& prefix = "",
                            const std::string& suffix = "") const;
 #endif
-  /// Get the symbol as integer.
+  /// Convert the name to integer and return.
   int to_int() const;
   /// Get the id
   const size_t& id() const;
 
-  /// Set the name.
-  bool set_name(const std::string& name);
+  /// Update the name (should not be initialized before).
+  void set_name(const std::string& name);
 
   // ------------------------- METHODS -------------------------------------- //
   /// Output function
