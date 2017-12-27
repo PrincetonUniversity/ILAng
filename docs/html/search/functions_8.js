@@ -15,7 +15,7 @@ var searchData=
   ['is_5finstr_5flvl_5fabs',['is_instr_lvl_abs',['../classila_1_1_instr_lvl_abs.html#ad6fe23d4257424857a43015d51a1a8c6',1,'ila::InstrLvlAbs::is_instr_lvl_abs()'],['../classila_1_1_object.html#a75668cdee5e0e62270d30773184640b6',1,'ila::Object::is_instr_lvl_abs()']]],
   ['is_5fmem',['is_mem',['../classila_1_1_expr.html#a0aae93ebec217c7017c8fdf9ac5d82d4',1,'ila::Expr::is_mem()'],['../classila_1_1_sort.html#a50c15e350a275c31509eb2cbe814ef85',1,'ila::Sort::is_mem()']]],
   ['is_5fop',['is_op',['../classila_1_1_expr.html#ab6c0236b315be686ef13bb097cd4e8ee',1,'ila::Expr::is_op()'],['../classila_1_1_expr_op.html#aeaed12eaf744e18513673207665e2a82',1,'ila::ExprOp::is_op()']]],
-  ['is_5fsort',['is_sort',['../classila_1_1_ast.html#aaa853bd982ecf54826c7208ce30551cf',1,'ila::Ast']]],
+  ['is_5fsort',['is_sort',['../classila_1_1_ast.html#aaa853bd982ecf54826c7208ce30551cf',1,'ila::Ast::is_sort()'],['../classila_1_1_sort.html#abdfc4ba312b53d701c95deed25bbe5bb',1,'ila::Sort::is_sort()']]],
   ['is_5fspec',['is_spec',['../classila_1_1_instr_lvl_abs.html#a96abb3cf66a51207a8ba0cdd99668f67',1,'ila::InstrLvlAbs']]],
   ['is_5fvar',['is_var',['../classila_1_1_expr.html#a0ed6d5735e259011ee6d66b7ef1e0017',1,'ila::Expr::is_var()'],['../classila_1_1_expr_var.html#a4579a6d3fd79530eed73879defe00202',1,'ila::ExprVar::is_var()']]],
   ['ite',['Ite',['../classila_1_1_expr_fuse.html#a76ab61a542a7e91b3da25f36689c01e0',1,'ila::ExprFuse']]]
