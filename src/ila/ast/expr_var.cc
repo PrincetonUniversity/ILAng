@@ -39,14 +39,12 @@ z3::expr ExprVar::GetZ3Expr(z3::context& ctx, const Z3ExprVec& z3expr_vec,
   } else if (is_bv()) {
     return ctx.bv_const(name().format_str("", suffix).c_str(),
                         sort().bit_width());
-  } else if (is_mem()) {
+  } else {
+    ILA_ASSERT(is_mem()) << "Unkown sort for var " << name() << "\n";
     auto addr_sort = ctx.bv_sort(sort().addr_width());
     auto data_sort = ctx.bv_sort(sort().data_width());
     auto mem_sort = ctx.array_sort(addr_sort, data_sort);
     return ctx.constant(name().format_str("", suffix).c_str(), mem_sort);
-  } else {
-    ILA_ERROR << "Undefined sort for var " << name() << "\n";
-    return ctx.bool_const(name().format_str("", suffix).c_str());
   }
 }
 
@@ -55,11 +53,9 @@ std::ostream& ExprVar::Print(std::ostream& out) const {
     return PrintBool(out);
   } else if (is_bv()) {
     return PrintBv(out);
-  } else if (is_mem()) {
-    return PrintMem(out);
   } else {
-    ILA_ERROR << "Unknown sort for var " << name() << "\n";
-    return out;
+    ILA_ASSERT(is_mem()) << "Unkown sort for var " << name() << "\n";
+    return PrintMem(out);
   }
 }
 
@@ -68,11 +64,11 @@ std::ostream& ExprVar::PrintBool(std::ostream& out) const {
 }
 
 std::ostream& ExprVar::PrintBv(std::ostream& out) const {
-  return out << name().format_str("BitvectorVar", "");
+  return out << name().format_str("BvVar", "");
 }
 
 std::ostream& ExprVar::PrintMem(std::ostream& out) const {
-  return out << name().format_str("MemoryVar", "");
+  return out << name().format_str("MemVar", "");
 }
 
 } // namespace ila
