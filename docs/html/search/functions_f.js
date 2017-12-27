@@ -19,7 +19,11 @@ var searchData=
   ['shl',['Shl',['../classila_1_1_expr_fuse.html#a36a1ea67fe50bdf2488de98ddc010090',1,'ila::ExprFuse']]],
   ['shr',['Shr',['../classila_1_1_expr_fuse.html#adc34a8a05a41b08d1d9dbc5fa0611b54',1,'ila::ExprFuse']]],
   ['simplify',['Simplify',['../classila_1_1_expr_simplifier.html#adb9d449cc643904313acbc972e60337a',1,'ila::ExprSimplifier::Simplify()'],['../classila_1_1_z3_expr_adapter.html#a79e26540dbf049ffe7def6e77e0b238e',1,'ila::Z3ExprAdapter::simplify()']]],
+<<<<<<< HEAD
   ['sort',['sort',['../classila_1_1_expr.html#aeb657e5662baf949826035f8b5efe0fb',1,'ila::Expr::sort()'],['../classila_1_1_sort.html#a3f361e662674ec43eb1586ccceb84af2',1,'ila::Sort::Sort()'],['../classila_1_1_sort.html#a1b8528f6977a43f9b2025cfef17ed876',1,'ila::Sort::Sort(const int &amp;bit_width)'],['../classila_1_1_sort.html#a750afb3735593a8bf1af299d898cbfd6',1,'ila::Sort::Sort(const int &amp;addr_width, const int &amp;data_width)'],['../classila_1_1_sort.html#a0bf09562bdf4ded16116cf1c2cf38e4a',1,'ila::Sort::Sort(const SortPtr range_sort, const SortPtrVec &amp;args_sort)']]],
+=======
+  ['sort',['Sort',['../classila_1_1_sort.html#a3f361e662674ec43eb1586ccceb84af2',1,'ila::Sort::Sort()'],['../classila_1_1_sort.html#a1b8528f6977a43f9b2025cfef17ed876',1,'ila::Sort::Sort(const int &amp;bit_width)'],['../classila_1_1_sort.html#a750afb3735593a8bf1af299d898cbfd6',1,'ila::Sort::Sort(const int &amp;addr_width, const int &amp;data_width)'],['../classila_1_1_sort.html#a0bf09562bdf4ded16116cf1c2cf38e4a',1,'ila::Sort::Sort(const SortPtr range_sort, const SortPtrVec &amp;args_sort)'],['../classila_1_1_expr.html#aeb657e5662baf949826035f8b5efe0fb',1,'ila::Expr::sort()']]],
+>>>>>>> master
   ['store',['Store',['../classila_1_1_expr_fuse.html#a40bf26033c143c76ed1445284bae3d0c',1,'ila::ExprFuse']]],
   ['str',['str',['../classila_1_1_bool_val.html#ad5fbd7570aedd99bb7e0b744df9d30f3',1,'ila::BoolVal::str()'],['../classila_1_1_bv_val.html#a604fe7c3c7f44381c91fc53fd776210b',1,'ila::BvVal::str()'],['../classila_1_1_symbol.html#a509252086aa27bf93aa13621bd451e75',1,'ila::Symbol::str()']]],
   ['strtobool',['StrToBool',['../namespaceila.html#a13373d6dcfc9ac9605475225df415cc1',1,'ila']]],
