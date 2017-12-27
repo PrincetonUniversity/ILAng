@@ -29,9 +29,6 @@ public:
   ~ExprVar();
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
-  /// Return the prefix of the variable expression.
-  const std::string& prefix() const { return k_prefix_var_; }
-
   /// Return true since this is a variable.
   bool is_var() const { return true; }
 
@@ -46,8 +43,6 @@ public:
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
-  /// Static prefix for variable expression.
-  static const std::string k_prefix_var_;
 
   // ------------------------- HELPERS -------------------------------------- //
   /// Print Boolean variable.

@@ -6,9 +6,7 @@
 
 namespace ila {
 
-const std::string ExprVar::k_prefix_var_ = "var";
-
-ExprVar::ExprVar() { ILA_ERROR << "Undefined ExprVar constructor.\n"; }
+ExprVar::ExprVar() { ILA_CHECK(false) << "Undefined ExprVar constructor.\n"; }
 
 ExprVar::ExprVar(const std::string& name) {
   set_name(name);
