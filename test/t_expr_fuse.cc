@@ -7,7 +7,7 @@
 
 namespace ila {
 
-TEST(ExprFuse, CreateVar) {
+TEST(TestExprFuse, CreateVar) {
   auto flag = ExprFuse::NewBoolVar("flag");
   auto reg_x = ExprFuse::NewBvVar("reg_x", 8);
   auto mem = ExprFuse::NewMemVar("mem", 8, 8);
@@ -55,7 +55,7 @@ TEST(ExprFuse, CreateVar) {
   EXPECT_EQ(8, mem->sort().data_width());
 }
 
-TEST(ExprFuse, CreateConst) {
+TEST(TestExprFuse, CreateConst) {
   auto const_false = ExprFuse::BoolConst(false);
   auto const_true = ExprFuse::BoolConst(BoolVal("True"));
 
@@ -104,7 +104,7 @@ TEST(ExprFuse, CreateConst) {
   EXPECT_FALSE(const_mem->is_bv());
 }
 
-TEST(ExprFuse, UnaryOp) {
+TEST(TestExprFuse, UnaryOp) {
   auto bool_var = ExprFuse::NewBoolVar("bool_var");
   auto bv_var = ExprFuse::NewBvVar("bv_var", 8);
   auto bool_const_true = ExprFuse::BoolConst(true);
@@ -146,7 +146,7 @@ TEST(ExprFuse, UnaryOp) {
 #endif
 }
 
-TEST(ExprFuse, BinaryOp) {
+TEST(TestExprFuse, BinaryOp) {
   auto bool_var = ExprFuse::NewBoolVar("bool_var");
   auto bool_const_t = ExprFuse::BoolConst(true);
   auto bool_const_f = ExprFuse::BoolConst(false);
@@ -195,7 +195,7 @@ TEST(ExprFuse, BinaryOp) {
 #endif
 }
 
-TEST(ExprFuse, BinaryCompare) {
+TEST(TestExprFuse, BinaryCompare) {
   auto bool_var = ExprFuse::NewBoolVar("bool_var");
   auto bool_const_t = ExprFuse::BoolConst(true);
   auto bool_const_f = ExprFuse::BoolConst(false);
@@ -219,7 +219,7 @@ TEST(ExprFuse, BinaryCompare) {
 #endif
 }
 
-TEST(ExprFuse, Memory) {
+TEST(TestExprFuse, Memory) {
   auto mem_var = ExprFuse::NewMemVar("mem_var", 8, 32);
   auto bv_var_8 = ExprFuse::NewBvVar("bv_var_8", 8);
   auto bv_var_32 = ExprFuse::NewBvVar("bv_var_32", 32);

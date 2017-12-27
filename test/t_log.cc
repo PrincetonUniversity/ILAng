@@ -6,10 +6,10 @@
 
 namespace ila {
 
-class Log : public ::testing::Test {
+class TestLog : public ::testing::Test {
 public:
-  Log() {}
-  ~Log() {}
+  TestLog() {}
+  ~TestLog() {}
 
   void SetUp() {
     // precondition for log test
@@ -27,7 +27,7 @@ public:
 
 }; // Log test fixture
 
-TEST_F(Log, Level) {
+TEST_F(TestLog, Level) {
   std::string msg_info;
   std::string msg_warn;
   std::string msg_error;
@@ -92,7 +92,7 @@ TEST_F(Log, Level) {
   EXPECT_TRUE(msg_error.empty());
 }
 
-TEST_F(Log, Verbose) {
+TEST_F(TestLog, Verbose) {
   std::string msg_info;
   std::string msg_warn;
   std::string msg_error;
@@ -126,7 +126,7 @@ TEST_F(Log, Verbose) {
 #endif
 }
 
-TEST_F(Log, Death) {
+TEST_F(TestLog, Death) {
   std::string msg;
 
   // Assertions (Debug only)
@@ -154,7 +154,7 @@ TEST_F(Log, Death) {
   EXPECT_DEATH(ILA_NOT_NULL(null_ptr), ".*");
 }
 
-TEST_F(Log, DebugEnable) {
+TEST_F(TestLog, DebugEnable) {
   std::string msg0;
   std::string msg1;
 
@@ -169,7 +169,7 @@ TEST_F(Log, DebugEnable) {
 #endif
 }
 
-TEST_F(Log, DebugDisable) {
+TEST_F(TestLog, DebugDisable) {
   std::string msg;
 
   DebugLog::Enable("ch1");
@@ -184,7 +184,7 @@ TEST_F(Log, DebugDisable) {
   EXPECT_TRUE(msg.empty());
 }
 
-TEST_F(Log, Clear) {
+TEST_F(TestLog, Clear) {
   std::string msg;
 
   DebugLog::Enable("ch1");

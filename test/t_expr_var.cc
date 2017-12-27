@@ -7,7 +7,7 @@
 
 namespace ila {
 
-TEST(ExprVar, Construct) {
+TEST(TestExprVar, Construct) {
   EXPECT_DEATH(ExprVar(), ".*");
   auto bool_var = std::make_shared<ExprVar>("bool_var");
   auto bv_var = std::make_shared<ExprVar>("bv_var", 8);
@@ -29,7 +29,7 @@ TEST(ExprVar, Construct) {
   EXPECT_FALSE(mem_var->is_op());
 }
 
-TEST(ExprVar, BoolZ3Expr) {
+TEST(TestExprVar, BoolZ3Expr) {
   z3::context ctx;
   Z3ExprVec arg_vec;
   z3::solver s(ctx);
@@ -48,7 +48,7 @@ TEST(ExprVar, BoolZ3Expr) {
   EXPECT_EQ(z3::unsat, s.check());
 }
 
-TEST(ExprVar, BvZ3Expr) {
+TEST(TestExprVar, BvZ3Expr) {
   z3::context ctx;
   Z3ExprVec arg_vec;
   z3::solver s(ctx);
@@ -71,7 +71,7 @@ TEST(ExprVar, BvZ3Expr) {
   EXPECT_EQ(z3::unsat, s.check());
 }
 
-TEST(ExprVar, MemZ3Expr) {
+TEST(TestExprVar, MemZ3Expr) {
   z3::context ctx;
   Z3ExprVec arg_vec;
   z3::solver s(ctx);
@@ -87,7 +87,7 @@ TEST(ExprVar, MemZ3Expr) {
   EXPECT_EQ(z3::unsat, s.check());
 }
 
-TEST(ExprVar, BoolPrint) {
+TEST(TestExprVar, BoolPrint) {
   auto bool_var = std::make_shared<ExprVar>("bool_var");
   std::string ref_str = "BoolVar_bool_var";
 
@@ -96,7 +96,7 @@ TEST(ExprVar, BoolPrint) {
   EXPECT_EQ(ref_str, msg);
 }
 
-TEST(ExprVar, BvPrint) {
+TEST(TestExprVar, BvPrint) {
   auto bv_var = std::make_shared<ExprVar>("bv_var", 8);
   std::string ref_str = "BvVar_bv_var";
 
@@ -105,7 +105,7 @@ TEST(ExprVar, BvPrint) {
   EXPECT_EQ(ref_str, msg);
 }
 
-TEST(ExprVar, MemPrint) {
+TEST(TestExprVar, MemPrint) {
   auto mem_var = std::make_shared<ExprVar>("mem_var", 8, 32);
   std::string ref_str = "MemVar_mem_var";
 

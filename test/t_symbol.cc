@@ -6,7 +6,7 @@
 
 namespace ila {
 
-TEST(Symbol, Construct) {
+TEST(TestSymbol, Construct) {
   Symbol sym_default;
 
   const char* cstr_name = "stm_cstr";
@@ -26,7 +26,7 @@ TEST(Symbol, Construct) {
   EXPECT_EQ(sym0.str(), msg);
 }
 
-TEST(Symbol, Accessors) {
+TEST(TestSymbol, Accessors) {
   Symbol sym("symbol_name");
   Symbol sym_copy = sym;
 
@@ -46,7 +46,7 @@ TEST(Symbol, Accessors) {
 #endif // NDEBUG
 }
 
-TEST(Symbol, Format) {
+TEST(TestSymbol, Format) {
   Symbol sym("name");
 
   EXPECT_EQ("name_suf", sym.format_str("", "suf"));

@@ -7,7 +7,7 @@
 
 namespace ila {
 
-TEST(Z3ExprAdapter, Construct) {
+TEST(TestZ3Adapter, Construct) {
   SetToStdErr(1);
   DebugLog::Enable("z3_adapter");
 
@@ -51,6 +51,10 @@ TEST(Z3ExprAdapter, Construct) {
   DebugLog::Disable("z3_adapter");
   SetToStdErr(0);
 }
+
+// TODO simplify
+// TODO change context
+// TODO Clear
 
 } // namespace ila
 

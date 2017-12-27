@@ -8,7 +8,7 @@
 
 namespace ila {
 
-TEST(ExprConst, Construct) {
+TEST(TestExprConst, Construct) {
   EXPECT_DEATH(ExprConst(), ".*");
   auto bool_const = std::make_shared<ExprConst>(BoolVal(true));
   auto bv_const = std::make_shared<ExprConst>(BvVal(1), 8);
@@ -25,7 +25,7 @@ TEST(ExprConst, Construct) {
   EXPECT_FALSE(mem_const->is_var());
 }
 
-TEST(ExprConst, BoolZ3Expr) {
+TEST(TestExprConst, BoolZ3Expr) {
   z3::context ctx;
   Z3ExprVec arg_vec;
   z3::solver s(ctx);
@@ -39,7 +39,7 @@ TEST(ExprConst, BoolZ3Expr) {
   EXPECT_EQ(z3::unsat, s.check());
 }
 
-TEST(ExprConst, BvZ3Expr) {
+TEST(TestExprConst, BvZ3Expr) {
   z3::context ctx;
   Z3ExprVec arg_vec;
   z3::solver s(ctx);
@@ -53,7 +53,7 @@ TEST(ExprConst, BvZ3Expr) {
   EXPECT_EQ(z3::unsat, s.check());
 }
 
-TEST(ExprConst, MemZ3Expr) {
+TEST(TestExprConst, MemZ3Expr) {
   z3::context ctx;
   Z3ExprVec arg_vec;
   z3::solver s(ctx);
@@ -82,7 +82,7 @@ TEST(ExprConst, MemZ3Expr) {
   EXPECT_EQ(z3::unsat, s.check());
 }
 
-TEST(ExprConst, BoolVal) {
+TEST(TestExprConst, BoolVal) {
   EXPECT_DEATH(BoolVal(), ".*");
   auto bool_const = std::make_shared<ExprConst>(BoolVal(true));
 
@@ -104,7 +104,7 @@ TEST(ExprConst, BoolVal) {
   EXPECT_EQ(ref_str, msg);
 }
 
-TEST(ExprConst, BvVal) {
+TEST(TestExprConst, BvVal) {
   EXPECT_DEATH(BvVal(), ".*");
   auto bv_const = std::make_shared<ExprConst>(BvVal(1), 8);
 
@@ -126,7 +126,7 @@ TEST(ExprConst, BvVal) {
   EXPECT_EQ(ref_str, msg);
 }
 
-TEST(ExprConst, MemVal) {
+TEST(TestExprConst, MemVal) {
   EXPECT_DEATH(MemVal(), ".*");
   int def = 1;
   MemVal val(def);

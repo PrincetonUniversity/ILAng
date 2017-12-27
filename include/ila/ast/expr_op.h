@@ -28,8 +28,6 @@ public:
   virtual ~ExprOp();
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
-  /// Return the prefix of the variable expression.
-  const std::string& prefix() const { return k_prefix_op_; }
   /// Return the name of the operation.
   virtual std::string op_name() const = 0;
 
@@ -63,10 +61,6 @@ protected:
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
-  /// Static prefix for the operation expressions.
-  static const std::string k_prefix_op_;
-  /// Static counter for un-named op expressions.
-  static unsigned counter_;
 
 }; // class ExprOp
 

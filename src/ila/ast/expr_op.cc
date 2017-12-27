@@ -5,10 +5,6 @@
 
 namespace ila {
 
-const std::string ExprOp::k_prefix_op_ = "op";
-
-unsigned ExprOp::counter_ = 0;
-
 // ------------------------- Class ExprOp ----------------------------------- //
 ExprOp::ExprOp() { ILA_ERROR << "Undefined ExprOp constructor.\n"; }
 

@@ -6,7 +6,7 @@
 
 namespace ila {
 
-TEST(InstrLvlAbs, Construct) {
+TEST(TestInstrLvlAbs, Construct) {
   // TODO
 }
 

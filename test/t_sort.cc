@@ -8,7 +8,7 @@
 
 namespace ila {
 
-TEST(Sort, Boolean) {
+TEST(TestSort, Boolean) {
   Sort bool_sort;
   EXPECT_TRUE(bool_sort.is_ast());
   EXPECT_TRUE(bool_sort.is_bool());
@@ -30,7 +30,7 @@ TEST(Sort, Boolean) {
   EXPECT_EQ(*ptr, bool_sort);
 }
 
-TEST(Sort, Bitvector) {
+TEST(TestSort, Bitvector) {
   Sort bv_sort(8);
   EXPECT_TRUE(bv_sort.is_ast());
   EXPECT_TRUE(bv_sort.is_bv());
@@ -52,7 +52,7 @@ TEST(Sort, Bitvector) {
   EXPECT_EQ(*ptr, bv_sort);
 }
 
-TEST(Sort, Memory) {
+TEST(TestSort, Memory) {
   Sort mem_sort(2, 32);
   EXPECT_TRUE(mem_sort.is_ast());
   EXPECT_TRUE(mem_sort.is_mem());
@@ -74,7 +74,7 @@ TEST(Sort, Memory) {
   EXPECT_EQ(*ptr, mem_sort);
 }
 
-TEST(Sort, Application) {
+TEST(TestSort, Application) {
   Sort bool_sort;
   Sort bv_sort(8);
   Sort mem_sort(2, 32);
