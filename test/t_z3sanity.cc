@@ -3,7 +3,7 @@
 
 #include "ila/expr_fuse.h"
 #include "ila/z3_expr_adapter.h"
-#include "gtest/gtest.h"
+#include "util_test.h"
 
 namespace ila {
 

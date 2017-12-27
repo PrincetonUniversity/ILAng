@@ -2,8 +2,7 @@
 /// Unit test for the class ExprFuse
 
 #include "ila/expr_fuse.h"
-#include "test_util.h"
-#include "gtest/gtest.h"
+#include "util_test.h"
 #include <iostream>
 
 namespace ila {

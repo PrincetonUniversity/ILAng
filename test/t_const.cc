@@ -3,10 +3,8 @@
 
 #include "ila/ast/expr_const.h"
 #include "ila/ast/sort_value.h"
-#include "test_util.h"
+#include "util_test.h"
 #include "z3++.h"
-#include "gtest/gtest.h"
-#include <memory>
 
 namespace ila {
 
@@ -85,6 +83,7 @@ TEST(ExprConst, MemZ3Expr) {
 }
 
 TEST(ExprConst, BoolVal) {
+  EXPECT_DEATH(BoolVal(), ".*");
   auto bool_const = std::make_shared<ExprConst>(BoolVal(true));
 
   auto bool_val = bool_const->val_bool();
@@ -106,7 +105,8 @@ TEST(ExprConst, BoolVal) {
 }
 
 TEST(ExprConst, BvVal) {
-  auto bv_const = std::make_shared<ExprConst>(BvVal(1));
+  EXPECT_DEATH(BvVal(), ".*");
+  auto bv_const = std::make_shared<ExprConst>(BvVal(1), 8);
 
   auto bv_val = bv_const->val_bv();
   EXPECT_DEATH(bv_const->val_bool(), ".*");
@@ -123,6 +123,35 @@ TEST(ExprConst, BvVal) {
   EXPECT_EQ(ref_str, msg);
 
   GET_STDOUT_MSG(std::cout << *bv_val, msg);
+  EXPECT_EQ(ref_str, msg);
+}
+
+TEST(ExprConst, MemVal) {
+  EXPECT_DEATH(MemVal(), ".*");
+  int def = 1;
+  MemVal val(def);
+  for (int i = 0; i < 2; i++) {
+    val.set_data(i, i * 2);
+  }
+  auto mem_const = std::make_shared<ExprConst>(val, 8, 32);
+
+  auto mem_val = mem_const->val_mem();
+  EXPECT_DEATH(mem_const->val_bool(), ".*");
+  EXPECT_DEATH(mem_const->val_bv(), ".*");
+
+  EXPECT_EQ(def, mem_val->def_val());
+  MemValMap val_map = mem_val->val_map();
+  EXPECT_EQ(0, val_map[0]);
+  EXPECT_EQ(2, mem_val->get_data(1));
+  EXPECT_EQ(def, mem_val->get_data(2));
+
+  std::string ref_str = "[Def: 1][(0, 0)(1, 2)]";
+  std::string msg;
+
+  GET_STDOUT_MSG(mem_val->Print(std::cout), msg);
+  EXPECT_EQ(ref_str, msg);
+
+  GET_STDOUT_MSG(std::cout << *mem_val, msg);
   EXPECT_EQ(ref_str, msg);
 }
 

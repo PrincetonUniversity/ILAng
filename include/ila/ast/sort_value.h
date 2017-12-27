@@ -15,9 +15,7 @@ namespace ila {
 /// \brief The base type for constant value.
 class Value {
 public:
-  /// Default constructor.
-  Value() {}
-  /// Default destructor.
+  /// virtual destructor.
   virtual ~Value() {}
   /// Pointer type for all use of Value.
   typedef std::shared_ptr<Value> ValPtr;
