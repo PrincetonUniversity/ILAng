@@ -37,9 +37,13 @@ public:
   bool has_view() const;
 
   // ------------------------- METHODS -------------------------------------- //
+  /// \brief Set the decode function if not yet assigned.
+  /// \param[in] decode is the pointer to the decode function (bool).
+  void SetDecode(const ExprPtr decode);
+
   /// \brief Set the decode function.
-  /// \param[in] decode_expr is the pointer to the decode function (bool).
-  void SetDecode(const ExprPtr decode_expr);
+  /// \param[in] decode is the pointer to the decode function (bool).
+  void ForceSetDecode(const ExprPtr decode);
 
   /// \brief Add one update function for the state variable specified by name.
   /// \param[in] name the name of the state variable.
@@ -51,6 +55,11 @@ public:
   /// \param[in] state the pointer to the state variable.
   /// \param[in] update the update function expression (same type as state).
   void AddUpdate(const ExprPtr state, const ExprPtr update);
+
+  /// \brief Overwrite update function for the state variable specified by name.
+  /// \param[in] name the name of the state variable.
+  /// \param[in] update the update function expression (same type as state).
+  void ForceAddUpdate(const std::string& name, const ExprPtr update);
 
   /// Return the decode function.
   ExprPtr GetDecode() const;
@@ -65,14 +74,14 @@ public:
   ExprPtr GetUpdate(const ExprPtr state) const;
 
   /// Output function.
-  virtual std::ostream& Print(std::ostream& out) const;
+  std::ostream& Print(std::ostream& out) const;
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// Has view.
   bool has_view_;
   /// To simplify expr nodes.
-  bool to_simplify_;
+  bool simplify_;
 
   /// The decode function.
   ExprPtr decode_;

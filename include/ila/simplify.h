@@ -20,7 +20,7 @@ public:
   ~ExprSimplifier();
 
   /// Type for cacheing the AST node hashing.
-  typedef std::map<std::string, ExprPtr> HashTable;
+  typedef std::map<std::string, ExprPtr> HashTable; // TODO unordermap
   // std::unordered_map<AstHash, ExprPtr> HashTable;
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
