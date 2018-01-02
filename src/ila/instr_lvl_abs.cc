@@ -24,8 +24,17 @@ void InstrLvlAbs::set_simplify(bool simplify) { to_simplify_ = simplify; }
 void InstrLvlAbs::set_spec(bool spec) { is_spec_ = spec; }
 
 void InstrLvlAbs::InitObject() {
+  inputs_.clear();
+  states_.clear();
+  inits_.clear();
+  fetch_ = NULL;
+  valid_ = NULL;
+  instrs_.clear();
+  child_.clear();
+
   is_spec_ = true;
   to_simplify_ = true;
+
   expr_mngr_.Reset();
 }
 
