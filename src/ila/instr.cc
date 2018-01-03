@@ -5,8 +5,15 @@
 
 namespace ila {
 
-Instr::Instr(const std::string& name, bool simplify, ExprSimplifier& expr_mngr)
-    : Object(name), simplify_(simplify), expr_mngr_(expr_mngr) {
+Instr::Instr(const std::string& name)
+    : Object(name), simplify_(false), expr_mngr_(NULL) {
+  decode_ = NULL;
+  has_view_ = false;
+  updates_.clear();
+}
+
+Instr::Instr(const std::string& name, ExprMngrPtr expr_mngr)
+    : Object(name), simplify_(true), expr_mngr_(expr_mngr) {
   decode_ = NULL;
   has_view_ = false;
   updates_.clear();
@@ -15,6 +22,12 @@ Instr::Instr(const std::string& name, bool simplify, ExprSimplifier& expr_mngr)
 Instr::~Instr() {}
 
 bool Instr::has_view() const { return has_view_; }
+
+bool Instr::has_simplify() const { return simplify_; }
+
+void Instr::set_view(bool v) { has_view_ = v; }
+
+void Instr::set_simplify(bool s) { simplify_ = s; }
 
 void Instr::SetDecode(const ExprPtr decode) {
   ILA_ERROR_IF(decode_ != NULL)
@@ -27,17 +40,14 @@ void Instr::SetDecode(const ExprPtr decode) {
 }
 
 void Instr::ForceSetDecode(const ExprPtr decode) {
+  ILA_NOT_NULL(decode); // setting NULL pointer to decode function
   ILA_CHECK(decode->is_bool()) << "Decode must have Boolean sort.\n";
 
-  ExprPtr sim_decode = NULL;
-
   if (simplify_) {
-    sim_decode = expr_mngr_.Simplify(decode);
+    decode_ = expr_mngr_->Simplify(decode);
   } else {
-    sim_decode = decode;
+    decode_ = decode;
   }
-
-  decode_ = sim_decode;
 }
 
 void Instr::AddUpdate(const std::string& name, const ExprPtr update) {
@@ -61,7 +71,7 @@ void Instr::ForceAddUpdate(const std::string& name, const ExprPtr update) {
   ExprPtr sim_update = NULL;
 
   if (simplify_) {
-    sim_update = expr_mngr_.Simplify(update);
+    sim_update = expr_mngr_->Simplify(update);
   } else {
     sim_update = update;
   }

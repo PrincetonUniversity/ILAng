@@ -1,5 +1,5 @@
 /// \file
-/// Header for the class ExprSimplifier
+/// Header for the class ExprMngr
 
 #ifndef __SIMPLIFY_H__
 #define __SIMPLIFY_H__
@@ -10,15 +10,17 @@
 /// \namespace ila
 namespace ila {
 
-/// \brief The simplify the AST tree by sharing nodes based on the hash value.
-class ExprSimplifier {
+/// \brief Simplifier for AST trees by sharing nodes based on the hash value.
+class ExprMngr {
 public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor.
-  ExprSimplifier();
+  ExprMngr();
   /// Default destructor.
-  ~ExprSimplifier();
+  ~ExprMngr();
 
+  /// Pointer type for passing shared ast simplifier.
+  typedef std::shared_ptr<ExprMngr> ExprMngrPtr;
   /// Type for cacheing the AST node hashing.
   typedef std::map<std::string, ExprPtr> HashTable; // TODO unordermap
   // std::unordered_map<AstHash, ExprPtr> HashTable;
@@ -37,7 +39,10 @@ private:
   HashTable map_;
 
   // ------------------------- HELPERS -------------------------------------- //
-}; // class ExprSimplifier
+}; // class ExprMngr
+
+/// Pointer type for passing shared ast simplifier.
+typedef ExprMngr::ExprMngrPtr ExprMngrPtr;
 
 } // namespace ila
 

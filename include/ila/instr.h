@@ -25,8 +25,10 @@ public:
   typedef std::map<std::string, ExprPtr> ExprPtrMap;
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
-  /// Constructor with name.
-  Instr(const std::string& name, bool simplify, ExprSimplifier& expr_mngr);
+  /// Constructor without ast simplifier.
+  Instr(const std::string& name);
+  /// Constructor with the ast simplifier.
+  Instr(const std::string& name, ExprMngrPtr expr_mngr);
   /// Default destructor.
   ~Instr();
 
@@ -35,6 +37,15 @@ public:
   bool is_instr() const { return true; }
   /// Return true if has view.
   bool has_view() const;
+  /// Return true if simplification is performed.
+  bool has_simplify() const;
+
+  /// \brief Set the view flag.
+  /// \param[in] v the flag indicating whether the instruction has views.
+  void set_view(bool v);
+  /// \brief Turn on simplification if true.
+  /// \param[in] s the flag indicating whether to share the ast nodes.
+  void set_simplify(bool s);
 
   // ------------------------- METHODS -------------------------------------- //
   /// \brief Set the decode function if not yet assigned.
@@ -89,7 +100,7 @@ private:
   ExprPtrMap updates_;
 
   /// The simplifier for expr nodes.
-  ExprSimplifier& expr_mngr_;
+  ExprMngrPtr expr_mngr_;
 
   // ------------------------- HELPERS -------------------------------------- //
 

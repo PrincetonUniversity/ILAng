@@ -1,17 +1,17 @@
 /// \file
-/// Source for the class ExprSimplifier
+/// Source for the class ExprMngr
 
 #include "ila/simplify.h"
 
 namespace ila {
 
-ExprSimplifier::ExprSimplifier() {}
+ExprMngr::ExprMngr() {}
 
-ExprSimplifier::~ExprSimplifier() {}
+ExprMngr::~ExprMngr() {}
 
-void ExprSimplifier::Reset() { map_.clear(); }
+void ExprMngr::Reset() { map_.clear(); }
 
-ExprPtr ExprSimplifier::Simplify(const ExprPtr node) {
+ExprPtr ExprMngr::Simplify(const ExprPtr node) {
   // TODO
   return node;
 }

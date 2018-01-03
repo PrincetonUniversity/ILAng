@@ -188,11 +188,13 @@ private:
   bool to_simplify_;
 
   /// The simplifier for expr nodes.
-  ExprSimplifier expr_mngr_;
+  ExprMngrPtr expr_mngr_;
 
   // ------------------------- HELPERS -------------------------------------- //
   /// Initialize default configuration, reset members, etc.
   void InitObject();
+  /// Check instruction is complete (e.g. update sort matches).
+  void CheckInstr();
 
 }; // class InstrLvlAbs
 

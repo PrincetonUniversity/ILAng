@@ -13,7 +13,11 @@ void SetToStdErr(const int& to_err) { FLAGS_logtostderr = to_err; }
 
 // DebugLog
 
-LogInitter::LogInitter() { google::InitGoogleLogging("ila_log"); }
+LogInitter::LogInitter() {
+  google::InitGoogleLogging("ila_log");
+  FLAGS_minloglevel = 0; // log all message above level 0
+  FLAGS_logtostderr = 0; // not logging INFO and WARNING to stderr
+}
 
 std::set<std::string> DebugLog::debug_tags_;
 

@@ -35,7 +35,7 @@ void InstrLvlAbs::InitObject() {
   is_spec_ = true;
   to_simplify_ = true;
 
-  expr_mngr_.Reset();
+  expr_mngr_->Reset();
 }
 
 } // namespace ila
