@@ -9,10 +9,11 @@ Formal definition and modeling scenarios: [ILA Wiki](https://github.com/Bo-Yuan-
 
 To build ILA synthesis tool, look in the [py-tmpl-synth](https://github.com/Bo-Yuan-Huang/ILA-Tools/tree/master/py-tmpl-synth) directory.
 
-For some examples, see the [examples](https://github.com/Bo-Yuan-Huang/ILA-Tools/tree/master/examples) directory.
-
 For API documents and tutorials, see the [docs](https://github.com/Bo-Yuan-Huang/ILA-Tools/tree/master/docs) directory.
 
+## Modeling and Verification Case Studies
+
+For some examples, see the [examples](https://github.com/Bo-Yuan-Huang/ILA-Tools/tree/master/examples) directory.
 
 ## ILA description and C/C++/Python API (under construction)
 
