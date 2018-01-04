@@ -43,11 +43,7 @@ void Instr::ForceSetDecode(const ExprPtr decode) {
   ILA_NOT_NULL(decode); // setting NULL pointer to decode function
   ILA_CHECK(decode->is_bool()) << "Decode must have Boolean sort.\n";
 
-  if (simplify_) {
-    decode_ = expr_mngr_->Simplify(decode);
-  } else {
-    decode_ = decode;
-  }
+  decode_ = expr_mngr_->Simplify(decode, simplify_);
 }
 
 void Instr::AddUpdate(const std::string& name, const ExprPtr update) {
@@ -68,14 +64,7 @@ void Instr::AddUpdate(const ExprPtr state, const ExprPtr update) {
 }
 
 void Instr::ForceAddUpdate(const std::string& name, const ExprPtr update) {
-  ExprPtr sim_update = NULL;
-
-  if (simplify_) {
-    sim_update = expr_mngr_->Simplify(update);
-  } else {
-    sim_update = update;
-  }
-
+  ExprPtr sim_update = expr_mngr_->Simplify(update, simplify_);
   updates_[name] = sim_update;
 }
 

@@ -31,7 +31,7 @@ public:
   /// Reset the hash table
   void Reset();
   /// Simplify the AST node.
-  ExprPtr Simplify(const ExprPtr node);
+  ExprPtr Simplify(const ExprPtr node, bool simplify);
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //

@@ -11,8 +11,11 @@ ExprMngr::~ExprMngr() {}
 
 void ExprMngr::Reset() { map_.clear(); }
 
-ExprPtr ExprMngr::Simplify(const ExprPtr node) {
+ExprPtr ExprMngr::Simplify(const ExprPtr node, bool simplify) {
   // TODO
+  if (!simplify)
+    return node;
+
   return node;
 }
 
