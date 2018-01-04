@@ -10,11 +10,18 @@ namespace ila {
 
 size_t Symbol::counter_ = 0;
 
-Symbol::Symbol() : name_("") { id_ = ++counter_; }
+Symbol::Symbol() {
+  name_ = "$" + std::to_string(id_);
+  id_ = ++counter_;
+}
 
 Symbol::Symbol(const char* str) : name_(str) { id_ = ++counter_; }
 
 Symbol::Symbol(const std::string& str) : name_(str) { id_ = ++counter_; }
+
+Symbol::Symbol(const Symbol& rhs) : name_(rhs.name_), id_(rhs.id_) {
+  ILA_DLOG("Symbol.Copy") << "Copy Constructor\n";
+}
 
 Symbol::~Symbol() {}
 
@@ -44,15 +51,17 @@ int Symbol::to_int() const { return StrToInt(name_); }
 
 const size_t& Symbol::id() const { return id_; }
 
-void Symbol::set_name(const std::string& name) {
-  ILA_WARN_IF(name_ != "") << "Update name (previously as " << name_ << ").\n";
-  name_ = name;
-}
+void Symbol::set_name(const std::string& name) { name_ = name; }
 
 std::ostream& Symbol::Print(std::ostream& out) const { return out << name_; }
 
+std::ostream& operator<<(std::ostream& out, const Symbol& s) {
+  return s.Print(out);
+}
+
 Symbol& Symbol::operator=(const Symbol& rhs) {
   name_ = rhs.name_;
+  ILA_DLOG("Symbol.Copy") << "assignment operator\n";
   return *this;
 }
 
@@ -60,8 +69,8 @@ bool operator==(const Symbol& lhs, const Symbol& rhs) {
   return (lhs.name_ == rhs.name_);
 }
 
-std::ostream& operator<<(std::ostream& out, const Symbol& s) {
-  return s.Print(out);
+bool operator<(const Symbol& lhs, const Symbol& rhs) {
+  return (lhs.name_ < rhs.name_);
 }
 
 } // namespace ila

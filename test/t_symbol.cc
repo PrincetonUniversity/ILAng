@@ -46,6 +46,21 @@ TEST(TestSymbol, Accessors) {
 #endif // NDEBUG
 }
 
+TEST(TestSymbol, Copy) {
+  // DebugLog::Enable("Symbol.Copy");
+
+  Symbol sym;
+  Symbol sym_copy = sym;
+  Symbol sym_copy_con(sym);
+
+  EXPECT_EQ(sym.str(), sym_copy.str());
+  EXPECT_EQ(sym.str(), sym_copy_con.str());
+  EXPECT_EQ(sym.id(), sym_copy.id());
+  EXPECT_EQ(sym.id(), sym_copy_con.id());
+
+  // DebugLog::Disable("Symbol.Copy");
+}
+
 TEST(TestSymbol, Format) {
   Symbol sym("name");
 
@@ -60,6 +75,9 @@ TEST(TestSymbol, Compare) {
   post.set_name("name");
 
   EXPECT_EQ(pre, post);
+
+  EXPECT_FALSE(pre < post);
+  EXPECT_FALSE(post < pre);
 }
 
 } // namespace ila

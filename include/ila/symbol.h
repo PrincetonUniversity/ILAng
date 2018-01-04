@@ -22,6 +22,8 @@ public:
   Symbol(const char* str);
   /// Constructor with string name.
   Symbol(const std::string& str);
+  /// Copy constructor.
+  Symbol(const Symbol& rhs);
   /// Default destructor.
   ~Symbol();
 
@@ -54,8 +56,10 @@ public:
 
   /// Overload assignment.
   Symbol& operator=(const Symbol& rhs);
-  /// Overload comparison.
+  /// Overload comparison ==.
   friend bool operator==(const Symbol& lhs, const Symbol& rhs);
+  /// Overload comparison <.
+  friend bool operator<(const Symbol& lhs, const Symbol& rhs);
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //

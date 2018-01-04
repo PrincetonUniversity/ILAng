@@ -8,7 +8,6 @@
 namespace ila {
 
 TEST(TestZ3Adapter, Construct) {
-  SetToStdErr(1);
   DebugLog::Enable("z3_adapter");
 
   z3::context c;
@@ -49,7 +48,6 @@ TEST(TestZ3Adapter, Construct) {
   EXPECT_TRUE(result == z3::unsat);
 
   DebugLog::Disable("z3_adapter");
-  SetToStdErr(0);
 }
 
 // TODO simplify
