@@ -22,8 +22,9 @@ void InstrLvlAbs::set_simplify(bool simplify) { simplify_ = simplify; }
 
 void InstrLvlAbs::set_spec(bool spec) { is_spec_ = spec; }
 
-void InstrLvlAbs::AddInput(const ExprPtr& input_var) {
-  // should only register terminating variable
+void InstrLvlAbs::AddInput(const ExprPtr input_var) {
+  // sanity check
+  ILA_NOT_NULL(input_var);
   ILA_ASSERT(input_var->is_var()) << "Register non-var to Inputs\n";
   // should be the first
   auto name = input_var->name();
@@ -36,10 +37,12 @@ void InstrLvlAbs::AddInput(const ExprPtr& input_var) {
   inputs_[name] = var;
 }
 
-void InstrLvlAbs::AddState(const ExprPtr& state_var) {
-  // should only register terminating variable
-  auto name = state_var->name();
+void InstrLvlAbs::AddState(const ExprPtr state_var) {
+  // sanity check
+  ILA_NOT_NULL(state_var);
+  ILA_ASSERT(state_var->is_var()) << "Register non-var to States\n";
   // should be the first
+  auto name = state_var->name();
   auto pos = states_.find(name);
   ILA_ASSERT(pos == states_.end()) << "State variable " << state_var
                                    << "has been declared.\n";
@@ -49,11 +52,148 @@ void InstrLvlAbs::AddState(const ExprPtr& state_var) {
   states_[name] = var;
 }
 
-void InstrLvlAbs::AddInit(const ExprPtr& cntr_expr) {
-  ILA_NOT_NULL(cntr_expr); // NULL pointer
-  ILA_ASSERT(cntr_expr->is_bv()) << "Initial condition should be Boolean\n";
+void InstrLvlAbs::AddInit(const ExprPtr cntr_expr) {
+  // sanity check
+  ILA_NOT_NULL(cntr_expr);
+  ILA_ASSERT(cntr_expr->is_bool()) << "Initial condition must be Boolean.\n";
+  // simplify
+  auto cntr = expr_mngr_->Simplify(cntr_expr, simplify_);
   // register to Initial conditions
-  inits_.push_back(cntr_expr);
+  inits_.push_back(cntr);
+}
+
+void InstrLvlAbs::SetFetch(const ExprPtr fetch_expr) {
+  // sanity check
+  ILA_NOT_NULL(fetch_expr);
+  ILA_ASSERT(fetch_expr->is_bv()) << "Fetch function must be bit-vector.\n";
+  // should be the first
+  ILA_ASSERT(!fetch_) << "Fetch function has been assigned.\n";
+  // simplify
+  auto fetch = expr_mngr_->Simplify(fetch_expr, simplify_);
+  // set as fetch function
+  fetch_ = fetch;
+}
+
+void InstrLvlAbs::SetValid(const ExprPtr valid_expr) {
+  // sanity check
+  ILA_NOT_NULL(valid_expr);
+  ILA_ASSERT(valid_expr->is_bool()) << "Valid function must be Boolean.\n";
+  // should be the first
+  ILA_ASSERT(!valid_) << "Valid function has been assigned.\n";
+  // simplify
+  auto valid = expr_mngr_->Simplify(valid_expr, simplify_);
+  // set as valid function
+  valid_ = valid;
+}
+
+void InstrLvlAbs::AddInstr(const InstrPtr instr) {
+  ILA_NOT_NULL(instr);
+  // set simplifier to the instruction
+  instr->set_mngr(expr_mngr_);
+  instr->set_simplify(simplify_);
+  // register the instruction and idx
+  auto name = instr->name();
+  auto pos = instr_idxs_.find(name);
+  ILA_ASSERT(pos == instr_idxs_.end()) << "Instruction " << instr
+                                       << " has been registered.\n";
+  auto idx = instrs_.size();
+  instrs_.push_back(instr);
+  instr_idxs_[name] = idx;
+}
+
+void InstrLvlAbs::AddChild(const InstrLvlAbsPtr child) {
+  ILA_NOT_NULL(child);
+  /// register the child-ILA and idx
+  auto name = child->name();
+  auto pos = child_idxs_.find(name);
+  ILA_ASSERT(pos == child_idxs_.end()) << "Child-ILA " << child
+                                       << " has been registered.\n";
+  auto idx = childs_.size();
+  childs_.push_back(child);
+  child_idxs_[name] = idx;
+}
+
+ExprPtr InstrLvlAbs::NewBoolInput(const std::string& name) {
+  ExprPtr bool_input = ExprFuse::NewBoolVar(name);
+  AddInput(bool_input);
+  return bool_input;
+}
+
+ExprPtr InstrLvlAbs::NewBvInput(const std::string& name, const int& bit_width) {
+  ExprPtr bv_input = ExprFuse::NewBvVar(name, bit_width);
+  AddInput(bv_input);
+  return bv_input;
+}
+
+ExprPtr InstrLvlAbs::NewBoolState(const std::string& name) {
+  ExprPtr bool_state = ExprFuse::NewBoolVar(name);
+  AddState(bool_state);
+  return bool_state;
+}
+
+ExprPtr InstrLvlAbs::NewBvState(const std::string& name, const int& bit_width) {
+  ExprPtr bv_state = ExprFuse::NewBvVar(name, bit_width);
+  AddState(bv_state);
+  return bv_state;
+}
+
+ExprPtr InstrLvlAbs::NewMemState(const std::string& name, const int& addr_width,
+                                 const int& data_width) {
+  ExprPtr mem_state = ExprFuse::NewMemVar(name, addr_width, data_width);
+  AddState(mem_state);
+  return mem_state;
+}
+
+InstrPtr InstrLvlAbs::NewInstr(const std::string& name) {
+  InstrPtr instr = Instr::NewInstr(name);
+  AddInstr(instr);
+  return instr;
+}
+
+InstrLvlAbsPtr InstrLvlAbs::NewChild(const std::string& name) {
+  InstrLvlAbsPtr child = NewILA(name);
+  AddChild(child);
+  return child;
+}
+
+ExprPtr InstrLvlAbs::GetState(const std::string& name) const {
+  auto pos = states_.find(Symbol(name));
+  if (pos == states_.end())
+    return NULL;
+  else
+    return pos->second;
+}
+
+ExprPtr InstrLvlAbs::GetInput(const std::string& name) const {
+  auto pos = inputs_.find(Symbol(name));
+  if (pos == inputs_.end())
+    return NULL;
+  else
+    return pos->second;
+}
+
+ExprPtr InstrLvlAbs::GetFetch() const { return fetch_; }
+
+ExprPtr InstrLvlAbs::GetValid() const { return valid_; }
+
+InstrPtr InstrLvlAbs::GetInstr(const std::string& name) const {
+  auto pos = instr_idxs_.find(Symbol(name));
+  if (pos == instr_idxs_.end()) {
+    return NULL;
+  } else {
+    auto idx = pos->second;
+    return instrs_[idx];
+  }
+}
+
+InstrLvlAbsPtr InstrLvlAbs::GetChild(const std::string& name) const {
+  auto pos = child_idxs_.find(Symbol(name));
+  if (pos == child_idxs_.end()) {
+    return NULL;
+  } else {
+    auto idx = pos->second;
+    return childs_[idx];
+  }
 }
 
 void InstrLvlAbs::InitObject() {
@@ -64,7 +204,8 @@ void InstrLvlAbs::InitObject() {
   valid_ = NULL;
   instrs_.clear();
   instr_idxs_.clear();
-  child_.clear();
+  childs_.clear();
+  child_idxs_.clear();
 
   is_spec_ = true;
   simplify_ = true;

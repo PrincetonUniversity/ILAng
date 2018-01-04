@@ -32,12 +32,10 @@ class InstrLvlAbs : public Object {
 public:
   /// Pointer type for normal use of InstrLvlAbs
   typedef std::shared_ptr<InstrLvlAbs> InstrLvlAbsPtr;
-  /// Type for storing a set of InstrLvlAbs
-  typedef std::map<Symbol, InstrLvlAbsPtr> InstrLvlAbsPtrMap;
   /// Type for storing a set of Expr
   typedef std::map<Symbol, ExprPtr> ExprPtrMap;
 
-  // ------------------------- ACCESSORS/MUTATORS --------------------------- //
+  // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Consturctor.
   InstrLvlAbs(const std::string& name = "");
   /// Default destructor.
@@ -62,79 +60,80 @@ public:
   // ------------------------- METHODS -------------------------------------- //
   /// \brief Add one input variable to the ILA, and register to the simplifier.
   /// \param[in] input_var pointer to the input variable being added.
-  void AddInput(const ExprPtr& input_var);
+  void AddInput(const ExprPtr input_var);
 
   /// \brief Add one state variable to the ILA, and register to the simplifier.
   /// \param[in] state_var pointer to the state variable being added.
-  void AddState(const ExprPtr& state_var);
+  void AddState(const ExprPtr state_var);
 
   /// \brief Add one constraint to the initial condition, i.e. no contraint
   /// means arbitrary initial values to the state variables.
   /// \param[in] cntr_expr pointer to the constraint being added.
-  void AddInit(const ExprPtr& cntr_expr);
+  void AddInit(const ExprPtr cntr_expr);
 
   /// \brief Set the fetch function, and simplify (if needed) by the simplifier.
   /// \param[in] fetch_expr pointer to the fetch function (as an expression).
-  void SetFetch(const ExprPtr& fetch_expr);
+  void SetFetch(const ExprPtr fetch_expr);
 
   /// \brief Set the valid function, and simplify (if needed) by the simplifier.
   /// \param[in] valid_expr pointer to the valid function (as an expression).
-  void SetValid(const ExprPtr& valid_expr);
+  void SetValid(const ExprPtr valid_expr);
 
-  /// \brief Add one instruction to the ILA, and simplify (if needed).
+  /// \brief Add one instruction to the ILA, and simplify (if needed). Note that
+  /// only fully constructed instruction can be added.
   /// \param[in] instr pointer to the instruction being added.
-  void AddInstr(const InstrPtr& instr);
+  void AddInstr(const InstrPtr instr);
 
   /// \brief Add one ILA to the child list. No simplification between ILAs.
   /// \param[in] child pointer to the child-ILA being added.
-  void AddChild(const InstrLvlAbsPtr& child);
+  void AddChild(const InstrLvlAbsPtr child);
 
-  /// \brief Create one Boolean variable and add as an input.
+  /// \brief Create one Boolean variable and register as an input.
   /// \param[in] name of the bool input.
   /// \return pointer to the input.
-  ExprPtr CreateBoolInput(const std::string& name);
+  ExprPtr NewBoolInput(const std::string& name);
 
-  /// \brief Create one Bitvector variable and add as an input.
+  /// \brief Create one Bitvector variable and register as an input.
   /// \param[in] name of the bitvector input.
   /// \param[in] bit_width length of the bitvector variable.
   /// \return pointer to the input.
-  ExprPtr CreateBvInput(const std::string& name, const int& bit_width);
+  ExprPtr NewBvInput(const std::string& name, const int& bit_width);
 
-  /// \brief Create one Boolean variable and add as a state.
+  /// \brief Create one Boolean variable and register as a state.
   /// \param[in] name of the bool state.
   /// \return pointer to the state variable.
-  ExprPtr CreateBoolState(const std::string& name);
+  ExprPtr NewBoolState(const std::string& name);
 
-  /// \brief Create one Bitvector variable and add as a state.
+  /// \brief Create one Bitvector variable and register as a state.
   /// \param[in] name of the bitvector state.
   /// \param[in] bit_width value bit-width.
   /// \return pointer to the state variable.
-  ExprPtr CreateBvState(const std::string& name, const int& bit_width);
+  ExprPtr NewBvState(const std::string& name, const int& bit_width);
 
-  /// \brief Create one Memory variable and add as a state.
+  /// \brief Create one Memory variable and register as a state.
   /// \param[in] name of the memory state.
   /// \param[in] addr_width address bit-width.
   /// \param[in] data_width data bit-width.
   /// \return pointer to the memory state.
-  ExprPtr CreateMemState(const std::string& name, const int& addr_width,
-                         const int& data_width);
+  ExprPtr NewMemState(const std::string& name, const int& addr_width,
+                      const int& data_width);
 
-  /// \brief Create and add one instruction.
+  /// \brief Create and register one instruction.
   /// \param[in] name of the instruction.
   /// \return pointer to the instruction.
-  InstrPtr CreateInstr(const std::string& name);
+  InstrPtr NewInstr(const std::string& name = "");
 
-  /// \brief Create and add one child-ILA.
+  /// \brief Create and register one child-ILA.
   /// \param[in] name of the child.
   /// \return pointer to the child-ILA.
-  InstrLvlAbsPtr CreateChild(const std::string& name);
+  InstrLvlAbsPtr NewChild(const std::string& name);
 
-  /// \brief Return the state variable with the specified name.
+  /// \brief Return the state variable pointer; NULL if not registered.
   /// \param[in] name of the state variable.
   /// \return pointer to the state variable.
   ExprPtr GetState(const std::string& name) const;
 
-  /// \brief Return the input variable with the specified name.
+  /// \brief Return the input variable pointer; NULL if not registered.
   /// \param[in] name of the input variable.
   /// \return pointer to the input variable.
   ExprPtr GetInput(const std::string& name) const;
@@ -145,15 +144,34 @@ public:
   /// Return the valid function.
   ExprPtr GetValid() const;
 
-  /// \brief Return the instruction with the specified name.
+  /// \brief Return the instruction pointer; NULL if not registered.
   /// \param[in] name of the instruction.
   /// \return pointer to the instruction.
-  ExprPtr GetInstr(const std::string& name) const;
+  InstrPtr GetInstr(const std::string& name) const;
 
-  /// \brief Return the child-ILA with the specified name.
+  /// \brief Return the number of instruction registered.
+  /// \return the number of the instruction registered.
+  size_t GetInstrNum() const;
+
+  /// \brief Return the instruction indexed.
+  /// \param[in] idx the index of the instruction.
+  /// \return pointer to the instruction.
+  InstrPtr GetInstr(const size_t& idx) const;
+
+  /// \brief Return the child-ILA pointer; NULL if not registered.
   /// \param[in] name of the child-ILA.
   /// \return pointer to the child-ILA.
-  ExprPtr GetChild(const std::string& name) const;
+  InstrLvlAbsPtr GetChild(const std::string& name) const;
+
+  /// \brief Sanity check for the ILA (e.g. sort marching).
+  /// \return True if check pass.
+  bool Check() const;
+
+  /// \brief Simplify the ILA (e.g. instructions).
+  void Simplify();
+
+  /// \brief Merge child-ILAs, including variables, simplifier, etc.
+  void MergeChild();
 
   /// Output stream function.
   std::ostream& Print(std::ostream& out) const;
@@ -176,9 +194,11 @@ private:
   /// The set of instructions.
   std::vector<InstrPtr> instrs_;
   /// The name and instruction index mapping.
-  std::map<std::string, size_t> instr_idxs_;
+  std::map<Symbol, size_t> instr_idxs_;
   /// The set of child-ILAs.
-  InstrLvlAbsPtrMap child_;
+  std::vector<InstrLvlAbsPtr> childs_;
+  /// The name and child-ILA index mapping.
+  std::map<Symbol, size_t> child_idxs_;
 
   /// Specification/implementation.
   bool is_spec_;
@@ -192,7 +212,9 @@ private:
   /// Initialize default configuration, reset members, etc.
   void InitObject();
   /// Check instruction is complete (e.g. update sort matches).
-  void CheckInstr();
+  void CheckInstr(const InstrPtr instr);
+  /// Simplify instruction if not already.
+  void SimplifyInstr(const InstrPtr instr);
 
 }; // class InstrLvlAbs
 
