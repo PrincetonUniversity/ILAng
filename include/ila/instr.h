@@ -25,12 +25,16 @@ public:
   typedef std::map<std::string, ExprPtr> ExprPtrMap;
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
-  /// Constructor without ast simplifier.
-  Instr(const std::string& name);
   /// Constructor with the ast simplifier.
-  Instr(const std::string& name, ExprMngrPtr expr_mngr);
+  Instr(const std::string& name = "", ExprMngrPtr expr_mngr = NULL);
   /// Default destructor.
   ~Instr();
+
+  // ------------------------- HELPERS -------------------------------------- //
+  /// \brief Create a new instruction (Instr) binded with the simplifier. Used
+  /// for hiding implementation specific type details.
+  static InstrPtr NewInstr(const std::string& name = "",
+                           ExprMngrPtr expr_mngr = NULL);
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return true if Is type Instr.
@@ -46,6 +50,9 @@ public:
   /// \brief Turn on simplification if true.
   /// \param[in] s the flag indicating whether to share the ast nodes.
   void set_simplify(bool s);
+  /// \brief Assign the simplifier.
+  /// \param[in] mngr the ast simplifier.
+  void set_mngr(const ExprMngrPtr mngr);
 
   // ------------------------- METHODS -------------------------------------- //
   /// \brief Set the decode function if not yet assigned.

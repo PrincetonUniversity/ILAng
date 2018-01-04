@@ -5,21 +5,29 @@
 
 namespace ila {
 
-Instr::Instr(const std::string& name)
-    : Object(name), simplify_(false), expr_mngr_(NULL) {
-  decode_ = NULL;
-  has_view_ = false;
-  updates_.clear();
-}
-
-Instr::Instr(const std::string& name, ExprMngrPtr expr_mngr)
-    : Object(name), simplify_(true), expr_mngr_(expr_mngr) {
+Instr::Instr(const std::string& name, ExprMngrPtr expr_mngr) {
+  // update name if specified
+  if (name != "")
+    set_name(name);
+  // update ast simplifier if specified
+  if (expr_mngr) {
+    expr_mngr_ = expr_mngr;
+    simplify_ = true;
+  } else {
+    expr_mngr = NULL;
+    simplify_ = false;
+  }
+  // initialization for other components
   decode_ = NULL;
   has_view_ = false;
   updates_.clear();
 }
 
 Instr::~Instr() {}
+
+InstrPtr Instr::NewInstr(const std::string& name, ExprMngrPtr expr_mngr) {
+  return std::make_shared<Instr>(name, expr_mngr);
+}
 
 bool Instr::has_view() const { return has_view_; }
 
@@ -28,6 +36,11 @@ bool Instr::has_simplify() const { return simplify_; }
 void Instr::set_view(bool v) { has_view_ = v; }
 
 void Instr::set_simplify(bool s) { simplify_ = s; }
+
+void Instr::set_mngr(const ExprMngrPtr mngr) {
+  ILA_NOT_NULL(mngr);
+  expr_mngr_ = mngr;
+}
 
 void Instr::SetDecode(const ExprPtr decode) {
   ILA_ERROR_IF(decode_ != NULL)

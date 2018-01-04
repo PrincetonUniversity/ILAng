@@ -39,6 +39,24 @@ TEST_F(TestInstr, Construct) {
 
   EXPECT_FALSE(eptr->has_view());
   EXPECT_FALSE(eptr->has_simplify());
+
+  InstrPtr nptr = std::make_shared<Instr>();
+
+  EXPECT_TRUE(nptr->is_instr());
+  EXPECT_FALSE(nptr->is_instr_lvl_abs());
+  EXPECT_FALSE(nptr->is_ast());
+
+  EXPECT_FALSE(nptr->has_view());
+  EXPECT_FALSE(nptr->has_simplify());
+
+  InstrPtr hptr = Instr::NewInstr();
+
+  EXPECT_TRUE(hptr->is_instr());
+  EXPECT_FALSE(hptr->is_instr_lvl_abs());
+  EXPECT_FALSE(hptr->is_ast());
+
+  EXPECT_FALSE(hptr->has_view());
+  EXPECT_FALSE(hptr->has_simplify());
 }
 
 TEST_F(TestInstr, View) {
