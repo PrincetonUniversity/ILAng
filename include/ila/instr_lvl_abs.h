@@ -33,17 +33,13 @@ public:
   /// Pointer type for normal use of InstrLvlAbs
   typedef std::shared_ptr<InstrLvlAbs> InstrLvlAbsPtr;
   /// Type for storing a set of InstrLvlAbs
-  typedef std::map<std::string, InstrLvlAbsPtr> InstrLvlAbsPtrMap;
-  /// Type for storing a set of Instr
-  typedef std::map<std::string, InstrPtr> InstrPtrMap;
+  typedef std::map<Symbol, InstrLvlAbsPtr> InstrLvlAbsPtrMap;
   /// Type for storing a set of Expr
-  typedef std::map<std::string, ExprPtr> ExprPtrMap;
+  typedef std::map<Symbol, ExprPtr> ExprPtrMap;
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
-  /// Default constructor. DO NOT USE.
-  InstrLvlAbs();
-  /// Consturctor with name.
-  InstrLvlAbs(const std::string& name);
+  /// Consturctor.
+  InstrLvlAbs(const std::string& name = "");
   /// Default destructor.
   ~InstrLvlAbs();
 
@@ -172,20 +168,22 @@ private:
   /// The set of state variables.
   ExprPtrMap states_;
   /// The set of initial constraints (not neccessary per-state).
-  ExprPtrMap inits_;
+  ExprPtrVec inits_;
   /// The fetch function.
   ExprPtr fetch_;
   /// The valid function.
   ExprPtr valid_;
   /// The set of instructions.
-  InstrPtrMap instrs_;
+  std::vector<InstrPtr> instrs_;
+  /// The name and instruction index mapping.
+  std::map<std::string, size_t> instr_idxs_;
   /// The set of child-ILAs.
   InstrLvlAbsPtrMap child_;
 
   /// Specification/implementation.
   bool is_spec_;
   /// To simplify expr nodes.
-  bool to_simplify_;
+  bool simplify_;
 
   /// The simplifier for expr nodes.
   ExprMngrPtr expr_mngr_;
