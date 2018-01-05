@@ -9,6 +9,7 @@
 #include <memory>
 #include <vector>
 
+/// \namespace ila
 namespace ila {
 
 /// KeyVecItVal
@@ -23,6 +24,7 @@ public:
   /// Constructor
   KeyVecIt() : result(KeyVecItVal::END) {}
 
+  // ------------------------- METHODS -------------------------------------- //
   /// Overload comparison == for pointer
   friend bool operator==(const KeyVecItPtr lhs, const KeyVecItPtr rhs) {
     return lhs->result == rhs->result;
@@ -32,6 +34,7 @@ public:
     return lhs->result != rhs->result;
   }
 
+  // ------------------------- MEMBERS -------------------------------------- //
   /// Iterator value for checking whether a data is found.
   KeyVecItVal result;
   /// Ket retrived.

@@ -9,7 +9,7 @@ namespace ila {
 TEST(TestInstrLvlAbs, Construct) {
   InstrLvlAbs ila_dummy;
   InstrLvlAbs ila_obj("ila_obj");
-  auto ptr = InstrLvlAbs::NewILA("ila_ptr");
+  auto ptr = InstrLvlAbs::New("ila_ptr");
 
   EXPECT_TRUE(ila_dummy.is_instr_lvl_abs());
   EXPECT_FALSE(ila_dummy.is_instr());
@@ -23,7 +23,7 @@ TEST(TestInstrLvlAbs, Construct) {
 }
 
 TEST(TestInstrLvlAbs, Spec) {
-  auto ila = InstrLvlAbs::NewILA("ila");
+  auto ila = InstrLvlAbs::New("ila");
 
   EXPECT_TRUE(ila->is_spec());
 
@@ -32,7 +32,7 @@ TEST(TestInstrLvlAbs, Spec) {
 }
 
 TEST(TestInstrLvlAbs, Simplifier) {
-  auto ila = InstrLvlAbs::NewILA("ila");
+  auto ila = InstrLvlAbs::New("ila");
 
   EXPECT_TRUE(ila->to_simplify());
   ila->set_simplify(false);
@@ -45,7 +45,7 @@ TEST(TestInstrLvlAbs, Simplifier) {
 }
 
 TEST(TestInstrLvlAbs, Input) {
-  auto ila = InstrLvlAbs::NewILA("ila");
+  auto ila = InstrLvlAbs::New("ila");
 
   // Add
   ExprPtr bool_input = ExprFuse::NewBoolVar("bool_input");
@@ -80,7 +80,7 @@ TEST(TestInstrLvlAbs, Input) {
 }
 
 TEST(TestInstrLvlAbs, State) {
-  auto ila = InstrLvlAbs::NewILA("ila");
+  auto ila = InstrLvlAbs::New("ila");
 
   // Add
   ExprPtr bool_state = ExprFuse::NewBoolVar("bool_state");
@@ -115,7 +115,7 @@ TEST(TestInstrLvlAbs, State) {
 }
 
 TEST(TestInstrLvlAbs, Init) {
-  auto ila = InstrLvlAbs::NewILA("ila");
+  auto ila = InstrLvlAbs::New("ila");
   auto varx = ila->NewBvState("varx", 8);
   auto vary = ila->NewBvState("vary", 8);
   auto bv0 = ExprFuse::BvConst(0, 8);
@@ -136,7 +136,7 @@ TEST(TestInstrLvlAbs, Init) {
 }
 
 TEST(TestInstrLvlAbs, Fetch) {
-  auto ila = InstrLvlAbs::NewILA("ila");
+  auto ila = InstrLvlAbs::New("ila");
   auto varx = ila->NewBvState("varx", 8);
   auto vary = ila->NewBvState("vary", 8);
   auto varb = ila->NewBoolState("varb");
@@ -156,7 +156,7 @@ TEST(TestInstrLvlAbs, Fetch) {
 }
 
 TEST(TestInstrLvlAbs, Valid) {
-  auto ila = InstrLvlAbs::NewILA("ila");
+  auto ila = InstrLvlAbs::New("ila");
   auto varx = ila->NewBvState("varx", 8);
   auto varb = ila->NewBoolState("varb");
   auto mem = ila->NewMemState("mem", 8, 32);
@@ -177,19 +177,19 @@ TEST(TestInstrLvlAbs, Valid) {
 }
 
 TEST(TestInstrLvlAbs, Instr) {
-  auto ila = InstrLvlAbs::NewILA("ila");
+  auto ila = InstrLvlAbs::New("ila");
 
   // external un-named instruction
-  auto instr_ex = Instr::NewInstr();
+  auto instr_ex = Instr::New();
   ila->AddInstr(instr_ex);
 
   // external named instruction
-  auto instr_ex_n = Instr::NewInstr("instr_ex_n");
+  auto instr_ex_n = Instr::New("instr_ex_n");
   ila->AddInstr(instr_ex_n);
 
   // external named instruction with simplifier
   ila->set_simplify(false);
-  auto instr_ex_n_s = Instr::NewInstr("instr_ex_n_s", ila->expr_mngr());
+  auto instr_ex_n_s = Instr::New("instr_ex_n_s", ila->expr_mngr());
   ila->AddInstr(instr_ex_n_s);
 
   // embedded un-named instruction
@@ -234,10 +234,10 @@ TEST(TestInstrLvlAbs, Instr) {
 }
 
 TEST(TestInstrLvlAbs, Child) {
-  auto ila = InstrLvlAbs::NewILA("ila");
+  auto ila = InstrLvlAbs::New("ila");
 
   // add external
-  auto child1 = InstrLvlAbs::NewILA("child1");
+  auto child1 = InstrLvlAbs::New("child1");
   ila->AddChild(child1);
 
   // add embedded
@@ -266,19 +266,25 @@ TEST(TestInstrLvlAbs, Child) {
 }
 
 TEST(TestInstrLvlAbs, CheckAll) {
-  auto ila = InstrLvlAbs::NewILA("ila");
+  auto ila = InstrLvlAbs::New("ila");
   EXPECT_TRUE(ila->Check());
 }
 
 TEST(TestInstrLvlAbs, SimplifyAll) {
-  auto ila = InstrLvlAbs::NewILA("ila");
+  auto ila = InstrLvlAbs::New("ila");
   ila->Simplify();
   // TODO
 }
 
 TEST(TestInstrLvlAbs, MergeAll) {
-  auto ila = InstrLvlAbs::NewILA("ila");
+  auto ila = InstrLvlAbs::New("ila");
   ila->MergeChild();
+  // TODO
+}
+
+TEST(TestInstrLvlAbs, SortInstr) {
+  auto ila = InstrLvlAbs::New("ila");
+  ila->SortInstr();
   // TODO
 }
 

@@ -49,7 +49,7 @@ TEST_F(TestInstr, Construct) {
   EXPECT_FALSE(nptr->has_view());
   EXPECT_FALSE(nptr->has_simplify());
 
-  InstrPtr hptr = Instr::NewInstr();
+  InstrPtr hptr = Instr::New();
 
   EXPECT_TRUE(hptr->is_instr());
   EXPECT_FALSE(hptr->is_instr_lvl_abs());

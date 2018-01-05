@@ -50,7 +50,7 @@ public:
   // ------------------------- HELPERS -------------------------------------- //
   /// \brief Create a new ILA (InstrLvlAbs) with the name. Used for hiding
   /// implementation specific type details.
-  static InstrLvlAbsPtr NewILA(const std::string& name);
+  static InstrLvlAbsPtr New(const std::string& name);
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return true if is InstrLvlAbs.
@@ -186,6 +186,9 @@ public:
 
   /// \brief Merge child-ILAs, including variables, simplifier, etc.
   void MergeChild();
+
+  /// \brief Sort instructions based on the sequencing, if any.
+  void SortInstr();
 
   /// Output stream function.
   std::ostream& Print(std::ostream& out) const;

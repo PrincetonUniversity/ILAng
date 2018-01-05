@@ -25,7 +25,7 @@ Instr::Instr(const std::string& name, ExprMngrPtr expr_mngr) {
 
 Instr::~Instr() {}
 
-InstrPtr Instr::NewInstr(const std::string& name, ExprMngrPtr expr_mngr) {
+InstrPtr Instr::New(const std::string& name, ExprMngrPtr expr_mngr) {
   return std::make_shared<Instr>(name, expr_mngr);
 }
 

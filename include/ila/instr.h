@@ -33,8 +33,8 @@ public:
   // ------------------------- HELPERS -------------------------------------- //
   /// \brief Create a new instruction (Instr) binded with the simplifier. Used
   /// for hiding implementation specific type details.
-  static InstrPtr NewInstr(const std::string& name = "",
-                           ExprMngrPtr expr_mngr = NULL);
+  static InstrPtr New(const std::string& name = "",
+                      ExprMngrPtr expr_mngr = NULL);
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return true if Is type Instr.

@@ -12,7 +12,7 @@ InstrLvlAbs::InstrLvlAbs(const std::string& name) : Object(name) {
 
 InstrLvlAbs::~InstrLvlAbs() {}
 
-InstrLvlAbsPtr InstrLvlAbs::NewILA(const std::string& name) {
+InstrLvlAbsPtr InstrLvlAbs::New(const std::string& name) {
   return std::make_shared<InstrLvlAbs>(name);
 }
 
@@ -206,13 +206,13 @@ const ExprPtr InstrLvlAbs::NewMemState(const std::string& name,
 }
 
 const InstrPtr InstrLvlAbs::NewInstr(const std::string& name) {
-  InstrPtr instr = Instr::NewInstr(name);
+  InstrPtr instr = Instr::New(name);
   AddInstr(instr);
   return instr;
 }
 
 const InstrLvlAbsPtr InstrLvlAbs::NewChild(const std::string& name) {
-  InstrLvlAbsPtr child = NewILA(name);
+  InstrLvlAbsPtr child = New(name);
   AddChild(child);
   return child;
 }
@@ -243,6 +243,12 @@ void InstrLvlAbs::MergeChild() {
   // TODO
   // merge shared states
   // merge simplifier
+}
+
+void InstrLvlAbs::SortInstr() {
+  // TODO
+  // check this is a micro-ILA and has sequencing
+  // sort instructions based on the sequencing
 }
 
 std::ostream& InstrLvlAbs::Print(std::ostream& out) const {
