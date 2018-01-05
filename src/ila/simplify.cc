@@ -9,7 +9,7 @@ ExprMngr::ExprMngr() {}
 
 ExprMngr::~ExprMngr() {}
 
-void ExprMngr::Reset() { map_.clear(); }
+void ExprMngr::clear() { map_.clear(); }
 
 ExprPtr ExprMngr::Simplify(const ExprPtr node, bool simplify) {
   // TODO

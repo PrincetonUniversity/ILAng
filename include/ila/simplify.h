@@ -26,10 +26,10 @@ public:
   // std::unordered_map<AstHash, ExprPtr> HashTable;
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
+  /// Reset the hash table
+  void clear();
 
   // ------------------------- METHODS -------------------------------------- //
-  /// Reset the hash table
-  void Reset();
   /// Simplify the AST node.
   ExprPtr Simplify(const ExprPtr node, bool simplify);
 

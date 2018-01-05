@@ -9,6 +9,7 @@
 #include "ila/instr.h"
 #include "ila/object.h"
 #include "ila/simplify.h"
+#include "util/container.h"
 #include <map>
 #include <memory>
 #include <ostream>
@@ -30,10 +31,14 @@ namespace ila {
 /// - the set of child-ILAs
 class InstrLvlAbs : public Object {
 public:
-  /// Pointer type for normal use of InstrLvlAbs
+  /// Pointer type for normal use of InstrLvlAbs.
   typedef std::shared_ptr<InstrLvlAbs> InstrLvlAbsPtr;
-  /// Type for storing a set of Expr
-  typedef std::map<Symbol, ExprPtr> ExprPtrMap;
+  /// Type for storing a set of ExprPtr (input/state variables).
+  typedef KeyVec<Symbol, ExprPtr> VarMap;
+  /// Type for storing a set of Instr.
+  typedef KeyVec<Symbol, InstrPtr> InstrMap;
+  /// Type for storing a set of ILA (child-ILAs).
+  typedef KeyVec<Symbol, InstrLvlAbsPtr> InstrLvlAbsMap;
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Consturctor.
@@ -182,9 +187,9 @@ public:
 private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// The set of input variables.
-  ExprPtrMap inputs_;
+  VarMap inputs_;
   /// The set of state variables.
-  ExprPtrMap states_;
+  VarMap states_;
   /// The set of initial constraints (not neccessary per-state).
   ExprPtrVec inits_;
   /// The fetch function.
@@ -192,13 +197,10 @@ private:
   /// The valid function.
   ExprPtr valid_;
   /// The set of instructions.
-  std::vector<InstrPtr> instrs_;
-  /// The name and instruction index mapping.
-  std::map<Symbol, size_t> instr_idxs_;
+  InstrMap instrs_;
   /// The set of child-ILAs.
-  std::vector<InstrLvlAbsPtr> childs_;
-  /// The name and child-ILA index mapping.
-  std::map<Symbol, size_t> child_idxs_;
+  InstrLvlAbsMap childs_;
+  // TODO child-instr sequencing
 
   /// Specification/implementation.
   bool is_spec_;

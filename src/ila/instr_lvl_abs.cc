@@ -34,7 +34,7 @@ void InstrLvlAbs::AddInput(const ExprPtr input_var) {
   // register to the simplifier
   auto var = expr_mngr_->Simplify(input_var, simplify_);
   // register to Inputs
-  inputs_[name] = var;
+  inputs_.push_back(name, var);
 }
 
 void InstrLvlAbs::AddState(const ExprPtr state_var) {
@@ -49,7 +49,7 @@ void InstrLvlAbs::AddState(const ExprPtr state_var) {
   // register to the simplifier
   auto var = expr_mngr_->Simplify(state_var, simplify_);
   // register to States
-  states_[name] = var;
+  states_.push_back(name, var);
 }
 
 void InstrLvlAbs::AddInit(const ExprPtr cntr_expr) {
@@ -93,24 +93,14 @@ void InstrLvlAbs::AddInstr(const InstrPtr instr) {
   instr->set_simplify(simplify_);
   // register the instruction and idx
   auto name = instr->name();
-  auto pos = instr_idxs_.find(name);
-  ILA_ASSERT(pos == instr_idxs_.end()) << "Instruction " << instr
-                                       << " has been registered.\n";
-  auto idx = instrs_.size();
-  instrs_.push_back(instr);
-  instr_idxs_[name] = idx;
+  instrs_.push_back(name, instr);
 }
 
 void InstrLvlAbs::AddChild(const InstrLvlAbsPtr child) {
   ILA_NOT_NULL(child);
   /// register the child-ILA and idx
   auto name = child->name();
-  auto pos = child_idxs_.find(name);
-  ILA_ASSERT(pos == child_idxs_.end()) << "Child-ILA " << child
-                                       << " has been registered.\n";
-  auto idx = childs_.size();
-  childs_.push_back(child);
-  child_idxs_[name] = idx;
+  childs_.push_back(name, child);
 }
 
 ExprPtr InstrLvlAbs::NewBoolInput(const std::string& name) {
@@ -177,23 +167,58 @@ ExprPtr InstrLvlAbs::GetFetch() const { return fetch_; }
 ExprPtr InstrLvlAbs::GetValid() const { return valid_; }
 
 InstrPtr InstrLvlAbs::GetInstr(const std::string& name) const {
-  auto pos = instr_idxs_.find(Symbol(name));
-  if (pos == instr_idxs_.end()) {
+  auto pos = instrs_.find(Symbol(name));
+  if (pos == instrs_.end()) {
     return NULL;
   } else {
-    auto idx = pos->second;
-    return instrs_[idx];
+    return pos->second;
   }
 }
 
 InstrLvlAbsPtr InstrLvlAbs::GetChild(const std::string& name) const {
-  auto pos = child_idxs_.find(Symbol(name));
-  if (pos == child_idxs_.end()) {
+  auto pos = childs_.find(Symbol(name));
+  if (pos == childs_.end()) {
     return NULL;
   } else {
-    auto idx = pos->second;
-    return childs_[idx];
+    return pos->second;
   }
+}
+
+bool InstrLvlAbs::Check() const {
+  // TODO
+  // check input
+  // check state
+  // check init
+  // check fetch
+  // check valid
+  // check instr
+  // check child-ILA?
+  return true;
+}
+
+void InstrLvlAbs::Simplify() {
+  // TODO
+  // init
+  // fetch
+  // valid
+  // instr
+  // child-ILA?
+}
+
+void InstrLvlAbs::MergeChild() {
+  // TODO
+  // merge shared states
+  // merge simplifier
+}
+
+std::ostream& InstrLvlAbs::Print(std::ostream& out) const {
+  out << "ILA." << name();
+  // TODO
+  return out;
+}
+
+std::ostream& operator<<(std::ostream& out, InstrLvlAbs& ila) {
+  return ila.Print(out);
 }
 
 void InstrLvlAbs::InitObject() {
@@ -203,15 +228,13 @@ void InstrLvlAbs::InitObject() {
   fetch_ = NULL;
   valid_ = NULL;
   instrs_.clear();
-  instr_idxs_.clear();
   childs_.clear();
-  child_idxs_.clear();
 
   is_spec_ = true;
   simplify_ = true;
 
   expr_mngr_ = std::make_shared<ExprMngr>();
-  expr_mngr_->Reset();
+  expr_mngr_->clear();
 }
 
 } // namespace ila

@@ -13,7 +13,7 @@ public:
 
   ~TestInstr() {}
 
-  void SetUp() { mngr->Reset(); }
+  void SetUp() { mngr->clear(); }
 
   void TearDown() {}
 
