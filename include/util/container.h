@@ -50,19 +50,12 @@ public:
   /// Default constructor.
   KeyVec() {
     it_ = std::make_shared<KeyVecIt<Key, T>>();
-    vec_.clear();
-    map_.clear();
+    clear();
   }
   /// Default destructor.
-  ~KeyVec() {
-    vec_.clear();
-    map_.clear();
-  }
+  ~KeyVec() { clear(); }
 
   // ------------------------- METHODS -------------------------------------- //
-  /// Return the number of data stored.
-  size_t size() const { return vec_.size(); }
-
   /// Push back a data member. The name MUST NOT be registerd before.
   void push_back(const Key& key, const T& data) {
     auto pos = map_.find(key);
@@ -77,6 +70,15 @@ public:
   T operator[](const size_t& idx) {
     ILA_ASSERT(idx < vec_.size()) << "Access overflow.\n";
     return vec_[idx];
+  }
+
+  /// Return the number of data stored.
+  size_t size() const { return vec_.size(); }
+
+  /// Clear all stored data.
+  void clear() {
+    vec_.clear();
+    map_.clear();
   }
 
   /// Return whether the key has been registered.

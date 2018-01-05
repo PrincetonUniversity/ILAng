@@ -35,12 +35,11 @@ TEST(TestKeyVec, StringString) {
   EXPECT_EQ("k1", pos->first);
   EXPECT_EQ("abc", pos->second);
 
-  pos = kv.find("k2");
-  EXPECT_NE(pos, kv.end());
-  EXPECT_EQ("k2", pos->first);
-  EXPECT_EQ("123", pos->second);
-
   pos = kv.find("k4");
+  EXPECT_EQ(pos, kv.end());
+
+  kv.clear();
+  pos = kv.find("k2");
   EXPECT_EQ(pos, kv.end());
 }
 
@@ -74,6 +73,10 @@ TEST(TestKeyVec, SymbolExpr) {
   EXPECT_EQ(bv_var, pos->second);
 
   pos = kv.find(Symbol("dummy"));
+  EXPECT_EQ(pos, kv.end());
+
+  kv.clear();
+  pos = kv.find(bool_const->name());
   EXPECT_EQ(pos, kv.end());
 }
 
