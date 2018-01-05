@@ -18,9 +18,17 @@ InstrLvlAbsPtr InstrLvlAbs::NewILA(const std::string& name) {
 
 bool InstrLvlAbs::is_spec() const { return is_spec_; }
 
-void InstrLvlAbs::set_simplify(bool simplify) { simplify_ = simplify; }
+bool InstrLvlAbs::to_simplify() const { return simplify_; }
+
+const ExprMngrPtr InstrLvlAbs::expr_mngr() const { return expr_mngr_; }
 
 void InstrLvlAbs::set_spec(bool spec) { is_spec_ = spec; }
+
+void InstrLvlAbs::set_simplify(bool simplify) { simplify_ = simplify; }
+
+void InstrLvlAbs::set_expr_mngr(const ExprMngrPtr expr_mngr) {
+  expr_mngr_ = expr_mngr;
+}
 
 void InstrLvlAbs::AddInput(const ExprPtr input_var) {
   // sanity check
@@ -193,6 +201,7 @@ bool InstrLvlAbs::Check() const {
   // check valid
   // check instr
   // check child-ILA?
+  // check sequencing
   return true;
 }
 

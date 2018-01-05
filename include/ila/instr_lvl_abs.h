@@ -29,6 +29,7 @@ namespace ila {
 ///   -# the decode function
 ///   -# a set of update functions
 /// - the set of child-ILAs
+/// - the child-instruction sequencing (if not parent)
 class InstrLvlAbs : public Object {
 public:
   /// Pointer type for normal use of InstrLvlAbs.
@@ -56,11 +57,17 @@ public:
   bool is_instr_lvl_abs() const { return true; }
   /// Return true if is specification (not implementation).
   bool is_spec() const;
+  /// Return whether to perform simplification.
+  bool to_simplify() const;
+  /// Return the ast simplifier.
+  const ExprMngrPtr expr_mngr() const;
 
-  /// Turn on the expr (AST node) simplification if true.
-  void set_simplify(bool simplify);
   /// Set the ILA to be specification if true.
   void set_spec(bool spec);
+  /// Turn on the expr (AST node) simplification if true.
+  void set_simplify(bool simplify);
+  /// Update the ast simplifier.
+  void set_expr_mngr(const ExprMngrPtr expr_mngr);
 
   // ------------------------- METHODS -------------------------------------- //
   /// \brief Add one input variable to the ILA, and register to the simplifier.
