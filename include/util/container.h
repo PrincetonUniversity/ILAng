@@ -20,23 +20,16 @@ public:
   typedef std::shared_ptr<KeyVecIt> KeyVecItPtr;
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
-  /// Constructor for END (not found).
+  /// Constructor
   KeyVecIt() : result(KeyVecItVal::END) {}
-  /// Constructor for FOUND (found).
-  KeyVecIt(const Key& key, const T& data)
-      : result(KeyVecItVal::FOUND), first(key), second(data) {}
 
-  /// Overload comparison ==
-  friend bool operator==(const KeyVecIt& lhs, const KeyVecIt& rhs) {
-    return lhs.result == rhs.result;
-  }
-  /// Overload comparison !=
-  friend bool operator!=(const KeyVecIt& lhs, const KeyVecIt& rhs) {
-    return lhs.result != rhs.result;
-  }
-  /// Overload comparison for pointer
+  /// Overload comparison == for pointer
   friend bool operator==(const KeyVecItPtr lhs, const KeyVecItPtr rhs) {
-    return *lhs == *rhs;
+    return lhs->result == rhs->result;
+  }
+  /// Overload comparison != for pointer
+  friend bool operator!=(const KeyVecItPtr lhs, const KeyVecItPtr rhs) {
+    return lhs->result != rhs->result;
   }
 
   /// Iterator value for checking whether a data is found.
@@ -56,6 +49,7 @@ public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor.
   KeyVec() {
+    it_ = std::make_shared<KeyVecIt<Key, T>>();
     vec_.clear();
     map_.clear();
   }
@@ -86,19 +80,22 @@ public:
   }
 
   /// Return whether the key has been registered.
-  KeyVecIt<Key, T> find(const Key& key) const {
+  KeyVecItPtr find(const Key& key) const {
     auto pos = map_.find(key);
     if (pos == map_.end())
       return end_;
     else {
       auto idx = pos->second;
       T data = vec_[idx];
-      return KeyVecIt<Key, T>(key, data);
+      it_->result = KeyVecItVal::FOUND;
+      it_->first = key;
+      it_->second = data;
+      return it_;
     }
   }
 
-  /// Return KeyVecItVal::END, can be used to check whether data is found.
-  const KeyVecIt<Key, T>& end() const { return end_; }
+  /// Return END, can be used to check whether data is found.
+  KeyVecItPtr end() const { return end_; }
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
@@ -110,11 +107,13 @@ private:
   /// iterator
   KeyVecItPtr it_;
   /// the END for legacy interator usage.
-  static KeyVecIt<Key, T> end_;
+  static KeyVecItPtr end_;
 }; // class KeyVec
 
 /// Initialize static end interator.
-template <class Key, class T> KeyVecIt<Key, T> KeyVec<Key, T>::end_;
+template <class Key, class T>
+std::shared_ptr<KeyVecIt<Key, T>>
+    KeyVec<Key, T>::end_ = std::make_shared<KeyVecIt<Key, T>>();
 
 } // namespace ila
 
