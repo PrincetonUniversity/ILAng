@@ -44,6 +44,7 @@ public:
 /// \brief The container that support key search and index access.
 template <class Key, class T> class KeyVec {
 public:
+  /// Iterator pointer type.
   typedef std::shared_ptr<KeyVecIt<Key, T>> KeyVecItPtr;
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
@@ -67,7 +68,7 @@ public:
   }
 
   /// Get the data by index.
-  T operator[](const size_t& idx) {
+  T operator[](const size_t& idx) const {
     ILA_ASSERT(idx < vec_.size()) << "Access overflow.\n";
     return vec_[idx];
   }

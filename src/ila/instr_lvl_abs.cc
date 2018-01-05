@@ -30,6 +30,66 @@ void InstrLvlAbs::set_expr_mngr(const ExprMngrPtr expr_mngr) {
   expr_mngr_ = expr_mngr;
 }
 
+size_t InstrLvlAbs::input_num() const { return inputs_.size(); }
+
+size_t InstrLvlAbs::state_num() const { return states_.size(); }
+
+size_t InstrLvlAbs::instr_num() const { return instrs_.size(); }
+
+size_t InstrLvlAbs::child_num() const { return childs_.size(); }
+
+size_t InstrLvlAbs::init_num() const { return inits_.size(); }
+
+const ExprPtr InstrLvlAbs::fetch() const { return fetch_; }
+
+const ExprPtr InstrLvlAbs::valid() const { return valid_; }
+
+const ExprPtr InstrLvlAbs::input(const size_t& i) const { return inputs_[i]; }
+
+const ExprPtr InstrLvlAbs::state(const size_t& i) const { return states_[i]; }
+
+const InstrPtr InstrLvlAbs::instr(const size_t& i) const { return instrs_[i]; }
+
+const InstrLvlAbsPtr InstrLvlAbs::child(const size_t& i) const {
+  return childs_[i];
+}
+
+const ExprPtr InstrLvlAbs::init(const size_t& i) const { return inits_[i]; }
+
+const ExprPtr InstrLvlAbs::input(const std::string& name) const {
+  auto pos = inputs_.find(Symbol(name));
+  if (pos == inputs_.end())
+    return NULL;
+  else
+    return pos->second;
+}
+
+const ExprPtr InstrLvlAbs::state(const std::string& name) const {
+  auto pos = states_.find(Symbol(name));
+  if (pos == states_.end())
+    return NULL;
+  else
+    return pos->second;
+}
+
+const InstrPtr InstrLvlAbs::instr(const std::string& name) const {
+  auto pos = instrs_.find(Symbol(name));
+  if (pos == instrs_.end()) {
+    return NULL;
+  } else {
+    return pos->second;
+  }
+}
+
+const InstrLvlAbsPtr InstrLvlAbs::child(const std::string& name) const {
+  auto pos = childs_.find(Symbol(name));
+  if (pos == childs_.end()) {
+    return NULL;
+  } else {
+    return pos->second;
+  }
+}
+
 void InstrLvlAbs::AddInput(const ExprPtr input_var) {
   // sanity check
   ILA_NOT_NULL(input_var);
@@ -111,85 +171,50 @@ void InstrLvlAbs::AddChild(const InstrLvlAbsPtr child) {
   childs_.push_back(name, child);
 }
 
-ExprPtr InstrLvlAbs::NewBoolInput(const std::string& name) {
+const ExprPtr InstrLvlAbs::NewBoolInput(const std::string& name) {
   ExprPtr bool_input = ExprFuse::NewBoolVar(name);
   AddInput(bool_input);
   return bool_input;
 }
 
-ExprPtr InstrLvlAbs::NewBvInput(const std::string& name, const int& bit_width) {
+const ExprPtr InstrLvlAbs::NewBvInput(const std::string& name,
+                                      const int& bit_width) {
   ExprPtr bv_input = ExprFuse::NewBvVar(name, bit_width);
   AddInput(bv_input);
   return bv_input;
 }
 
-ExprPtr InstrLvlAbs::NewBoolState(const std::string& name) {
+const ExprPtr InstrLvlAbs::NewBoolState(const std::string& name) {
   ExprPtr bool_state = ExprFuse::NewBoolVar(name);
   AddState(bool_state);
   return bool_state;
 }
 
-ExprPtr InstrLvlAbs::NewBvState(const std::string& name, const int& bit_width) {
+const ExprPtr InstrLvlAbs::NewBvState(const std::string& name,
+                                      const int& bit_width) {
   ExprPtr bv_state = ExprFuse::NewBvVar(name, bit_width);
   AddState(bv_state);
   return bv_state;
 }
 
-ExprPtr InstrLvlAbs::NewMemState(const std::string& name, const int& addr_width,
-                                 const int& data_width) {
+const ExprPtr InstrLvlAbs::NewMemState(const std::string& name,
+                                       const int& addr_width,
+                                       const int& data_width) {
   ExprPtr mem_state = ExprFuse::NewMemVar(name, addr_width, data_width);
   AddState(mem_state);
   return mem_state;
 }
 
-InstrPtr InstrLvlAbs::NewInstr(const std::string& name) {
+const InstrPtr InstrLvlAbs::NewInstr(const std::string& name) {
   InstrPtr instr = Instr::NewInstr(name);
   AddInstr(instr);
   return instr;
 }
 
-InstrLvlAbsPtr InstrLvlAbs::NewChild(const std::string& name) {
+const InstrLvlAbsPtr InstrLvlAbs::NewChild(const std::string& name) {
   InstrLvlAbsPtr child = NewILA(name);
   AddChild(child);
   return child;
-}
-
-ExprPtr InstrLvlAbs::GetState(const std::string& name) const {
-  auto pos = states_.find(Symbol(name));
-  if (pos == states_.end())
-    return NULL;
-  else
-    return pos->second;
-}
-
-ExprPtr InstrLvlAbs::GetInput(const std::string& name) const {
-  auto pos = inputs_.find(Symbol(name));
-  if (pos == inputs_.end())
-    return NULL;
-  else
-    return pos->second;
-}
-
-ExprPtr InstrLvlAbs::GetFetch() const { return fetch_; }
-
-ExprPtr InstrLvlAbs::GetValid() const { return valid_; }
-
-InstrPtr InstrLvlAbs::GetInstr(const std::string& name) const {
-  auto pos = instrs_.find(Symbol(name));
-  if (pos == instrs_.end()) {
-    return NULL;
-  } else {
-    return pos->second;
-  }
-}
-
-InstrLvlAbsPtr InstrLvlAbs::GetChild(const std::string& name) const {
-  auto pos = childs_.find(Symbol(name));
-  if (pos == childs_.end()) {
-    return NULL;
-  } else {
-    return pos->second;
-  }
 }
 
 bool InstrLvlAbs::Check() const {

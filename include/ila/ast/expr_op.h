@@ -168,7 +168,7 @@ public:
   std::ostream& Print(std::ostream& out) const;
 }; // class ExprOpEq
 
-// TODO ExprOpNe
+// ExprOpNe is implemented in ExprFuse with Eq and Not.
 
 // TODO ExprOpLt
 

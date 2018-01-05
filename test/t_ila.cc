@@ -66,51 +66,232 @@ TEST(TestInstrLvlAbs, Input) {
   EXPECT_DEATH(ila->NewBvInput("bv_in_emb", 8), ".*");
 
   // Get
-  ExprPtr get_bool_input = ila->GetInput("bool_input");
+  EXPECT_EQ(3, ila->input_num());
+  EXPECT_EQ(bool_input, ila->input(0));
+  EXPECT_EQ(bool_in_emb, ila->input(1));
+  EXPECT_EQ(bv_in_emb, ila->input(2));
+  EXPECT_DEATH(ila->input(3), ".*");
+
+  ExprPtr get_bool_input = ila->input("bool_input");
   EXPECT_EQ(bool_input, get_bool_input);
 
-  ExprPtr get_fail = ila->GetInput("non-exist");
+  ExprPtr get_fail = ila->input("non-exist");
   EXPECT_TRUE(get_fail == NULL);
 }
 
 TEST(TestInstrLvlAbs, State) {
-  // TODO
+  auto ila = InstrLvlAbs::NewILA("ila");
+
+  // Add
+  ExprPtr bool_state = ExprFuse::NewBoolVar("bool_state");
+  ila->AddState(bool_state);
+
+  ExprPtr bool_const = ExprFuse::BoolConst(true);
+  EXPECT_DEATH(ila->AddState(bool_const), ".*");
+
+  EXPECT_DEATH(ila->AddState(NULL), ".*");
+
+  ExprPtr new_bool_state = ExprFuse::NewBoolVar("bool_state");
+  EXPECT_DEATH(ila->AddState(new_bool_state), ".*");
+
+  // New
+  ExprPtr bool_st_emb = ila->NewBoolState("bool_st_emb");
+  ExprPtr bv_st_emb = ila->NewBvState("bv_st_emb", 8);
+  EXPECT_DEATH(ila->NewBoolState("bool_st_emb"), ".*");
+  EXPECT_DEATH(ila->NewBvState("bv_st_emb", 8), ".*");
+
+  // Get
+  EXPECT_EQ(3, ila->state_num());
+  EXPECT_EQ(bool_state, ila->state(0));
+  EXPECT_EQ(bool_st_emb, ila->state(1));
+  EXPECT_EQ(bv_st_emb, ila->state(2));
+  EXPECT_DEATH(ila->state(3), ".*");
+
+  ExprPtr get_bool_state = ila->state("bool_state");
+  EXPECT_EQ(bool_state, get_bool_state);
+
+  ExprPtr get_fail = ila->state("non-exist");
+  EXPECT_TRUE(get_fail == NULL);
 }
 
 TEST(TestInstrLvlAbs, Init) {
-  // TODO
+  auto ila = InstrLvlAbs::NewILA("ila");
+  auto varx = ila->NewBvState("varx", 8);
+  auto vary = ila->NewBvState("vary", 8);
+  auto bv0 = ExprFuse::BvConst(0, 8);
+  auto bv1 = ExprFuse::BvConst(1, 8);
+
+  auto init0 = ExprFuse::Eq(varx, bv0);
+  auto init1 = ExprFuse::Ne(vary, bv1);
+  auto bad_cntr = ExprFuse::And(varx, bv1);
+
+  ila->AddInit(init0);
+  ila->AddInit(init1);
+  EXPECT_DEATH(ila->AddInit(bad_cntr), ".*");
+  EXPECT_DEATH(ila->AddInit(NULL), ".*");
+
+  EXPECT_EQ(2, ila->init_num());
+  EXPECT_EQ(init0, ila->init(0));
+  EXPECT_EQ(init1, ila->init(1));
 }
 
 TEST(TestInstrLvlAbs, Fetch) {
-  // TODO
+  auto ila = InstrLvlAbs::NewILA("ila");
+  auto varx = ila->NewBvState("varx", 8);
+  auto vary = ila->NewBvState("vary", 8);
+  auto varb = ila->NewBoolState("varb");
+  auto mem = ila->NewMemState("mem", 8, 32);
+
+  auto fetch = ExprFuse::Load(mem, varx);
+  auto new_f = ExprFuse::Or(varx, vary);
+
+  EXPECT_DEATH(ila->SetFetch(varb), ".*");
+  EXPECT_DEATH(ila->SetFetch(NULL), ".*");
+
+  ila->SetFetch(fetch);
+  EXPECT_DEATH(ila->SetFetch(new_f), ".*");
+
+  EXPECT_EQ(fetch, ila->fetch());
+  EXPECT_NE(new_f, ila->fetch());
 }
 
 TEST(TestInstrLvlAbs, Valid) {
-  // TODO
+  auto ila = InstrLvlAbs::NewILA("ila");
+  auto varx = ila->NewBvState("varx", 8);
+  auto varb = ila->NewBoolState("varb");
+  auto mem = ila->NewMemState("mem", 8, 32);
+  auto bv0 = ExprFuse::BvConst(0, 32);
+
+  auto opcode = ExprFuse::Load(mem, varx);
+  auto valid = ExprFuse::Eq(opcode, bv0);
+  auto new_v = varb;
+
+  EXPECT_DEATH(ila->SetValid(opcode), ".*");
+  EXPECT_DEATH(ila->SetValid(NULL), ".*");
+
+  ila->SetValid(valid);
+  EXPECT_DEATH(ila->SetValid(new_v), ".*");
+
+  EXPECT_EQ(valid, ila->valid());
+  EXPECT_NE(new_v, ila->valid());
 }
 
 TEST(TestInstrLvlAbs, Instr) {
-  // TODO
+  auto ila = InstrLvlAbs::NewILA("ila");
+
+  // external un-named instruction
+  auto instr_ex = Instr::NewInstr();
+  ila->AddInstr(instr_ex);
+
+  // external named instruction
+  auto instr_ex_n = Instr::NewInstr("instr_ex_n");
+  ila->AddInstr(instr_ex_n);
+
+  // external named instruction with simplifier
+  ila->set_simplify(false);
+  auto instr_ex_n_s = Instr::NewInstr("instr_ex_n_s", ila->expr_mngr());
+  ila->AddInstr(instr_ex_n_s);
+
+  // embedded un-named instruction
+  auto instr_em = ila->NewInstr();
+
+  // embedded named instruction
+  ila->set_simplify(true);
+  auto instr_em_n = ila->NewInstr("instr_em_n");
+
+  EXPECT_EQ(5, ila->instr_num());
+
+  // simplify flag
+  EXPECT_TRUE(instr_ex->has_simplify());
+  EXPECT_TRUE(instr_ex_n->has_simplify());
+  EXPECT_FALSE(instr_ex_n_s->has_simplify());
+  EXPECT_FALSE(instr_em->has_simplify());
+  EXPECT_TRUE(instr_em_n->has_simplify());
+
+  // add existed instr
+  EXPECT_DEATH(ila->NewInstr("instr_ex_n"), ".*");
+  EXPECT_DEATH(ila->NewInstr(instr_em_n->name().str()), ".*");
+  EXPECT_EQ(5, ila->instr_num());
+
+  // find non-existed
+  auto instr_null = ila->instr("dummy_instr");
+  EXPECT_TRUE(instr_null == NULL);
+
+  // find existed
+  EXPECT_EQ(instr_ex, ila->instr(instr_ex->name().str()));
+  EXPECT_EQ(instr_ex_n, ila->instr("instr_ex_n"));
+  EXPECT_EQ(instr_ex_n_s, ila->instr("instr_ex_n_s"));
+  EXPECT_EQ(instr_em, ila->instr(instr_em->name().str()));
+  EXPECT_EQ(instr_em_n, ila->instr("instr_em_n"));
+
+  // random access
+  EXPECT_EQ(instr_ex, ila->instr(0));
+  EXPECT_EQ(instr_ex_n, ila->instr(1));
+  EXPECT_EQ(instr_ex_n_s, ila->instr(2));
+  EXPECT_EQ(instr_em, ila->instr(3));
+  EXPECT_EQ(instr_em_n, ila->instr(4));
+  EXPECT_DEATH(ila->instr(5), ".*");
 }
 
 TEST(TestInstrLvlAbs, Child) {
-  // TODO
+  auto ila = InstrLvlAbs::NewILA("ila");
+
+  // add external
+  auto child1 = InstrLvlAbs::NewILA("child1");
+  ila->AddChild(child1);
+
+  // add embedded
+  auto child2 = ila->NewChild("child2");
+
+  EXPECT_EQ(2, ila->child_num());
+
+  // add existed
+  EXPECT_DEATH(ila->AddChild(child2), ".*");
+  EXPECT_DEATH(ila->NewChild("child1"), ".*");
+
+  EXPECT_EQ(2, ila->child_num());
+
+  // find non-existed
+  auto child_null = ila->child("child3");
+  EXPECT_TRUE(child_null == NULL);
+
+  // find existed
+  EXPECT_EQ(child1, ila->child("child1"));
+  EXPECT_EQ(child2, ila->child("child2"));
+
+  // random access
+  EXPECT_EQ(child1, ila->child(0));
+  EXPECT_EQ(child2, ila->child(1));
+  EXPECT_DEATH(ila->child(3), ".*");
 }
 
 TEST(TestInstrLvlAbs, CheckAll) {
-  // TODO
+  auto ila = InstrLvlAbs::NewILA("ila");
+  EXPECT_TRUE(ila->Check());
 }
 
 TEST(TestInstrLvlAbs, SimplifyAll) {
+  auto ila = InstrLvlAbs::NewILA("ila");
+  ila->Simplify();
   // TODO
 }
 
 TEST(TestInstrLvlAbs, MergeAll) {
+  auto ila = InstrLvlAbs::NewILA("ila");
+  ila->MergeChild();
   // TODO
 }
 
 TEST(TestInstrLvlAbs, Print) {
-  // TODO
+  InstrLvlAbs ila("ila");
+  std::string msg;
+  std::string ref_msg = "ILA.ila";
+
+  GET_STDOUT_MSG(std::cout << ila, msg);
+  EXPECT_EQ(ref_msg, msg);
+
+  GET_STDOUT_MSG(ila.Print(std::cout), msg);
+  EXPECT_EQ(ref_msg, msg);
 }
 
 } // namespace ila

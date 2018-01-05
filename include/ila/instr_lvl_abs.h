@@ -55,6 +55,7 @@ public:
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return true if is InstrLvlAbs.
   bool is_instr_lvl_abs() const { return true; }
+
   /// Return true if is specification (not implementation).
   bool is_spec() const;
   /// Return whether to perform simplification.
@@ -68,6 +69,42 @@ public:
   void set_simplify(bool simplify);
   /// Update the ast simplifier.
   void set_expr_mngr(const ExprMngrPtr expr_mngr);
+
+  /// Return the number of input variables.
+  size_t input_num() const;
+  /// Return the number of state variables.
+  size_t state_num() const;
+  /// Return the number of instructions.
+  size_t instr_num() const;
+  /// Return the number of child-ILAs.
+  size_t child_num() const;
+  /// Return the number of initial condition.
+  size_t init_num() const;
+
+  /// Return the fetch function.
+  const ExprPtr fetch() const;
+  /// Return the valid function.
+  const ExprPtr valid() const;
+
+  /// Access the i-th input variable.
+  const ExprPtr input(const size_t& i) const;
+  /// Access the i-th state variable.
+  const ExprPtr state(const size_t& i) const;
+  /// Access the i-th instruction.
+  const InstrPtr instr(const size_t& i) const;
+  /// Access the i-th child-ILA.
+  const InstrLvlAbsPtr child(const size_t& i) const;
+  /// Access the i-th initial condition.
+  const ExprPtr init(const size_t& i) const;
+
+  /// Return the named input variable; return NULL if not registered.
+  const ExprPtr input(const std::string& name) const;
+  /// Return the named state variable; return NULL if not registered.
+  const ExprPtr state(const std::string& name) const;
+  /// Return the named instruction; return NULL if not registered.
+  const InstrPtr instr(const std::string& name) const;
+  /// Return the named child-ILA; return NULL if not registered.
+  const InstrLvlAbsPtr child(const std::string& name) const;
 
   // ------------------------- METHODS -------------------------------------- //
   /// \brief Add one input variable to the ILA, and register to the simplifier.
@@ -103,77 +140,42 @@ public:
   /// \brief Create one Boolean variable and register as an input.
   /// \param[in] name of the bool input.
   /// \return pointer to the input.
-  ExprPtr NewBoolInput(const std::string& name);
+  const ExprPtr NewBoolInput(const std::string& name);
 
   /// \brief Create one Bitvector variable and register as an input.
   /// \param[in] name of the bitvector input.
   /// \param[in] bit_width length of the bitvector variable.
   /// \return pointer to the input.
-  ExprPtr NewBvInput(const std::string& name, const int& bit_width);
+  const ExprPtr NewBvInput(const std::string& name, const int& bit_width);
 
   /// \brief Create one Boolean variable and register as a state.
   /// \param[in] name of the bool state.
   /// \return pointer to the state variable.
-  ExprPtr NewBoolState(const std::string& name);
+  const ExprPtr NewBoolState(const std::string& name);
 
   /// \brief Create one Bitvector variable and register as a state.
   /// \param[in] name of the bitvector state.
   /// \param[in] bit_width value bit-width.
   /// \return pointer to the state variable.
-  ExprPtr NewBvState(const std::string& name, const int& bit_width);
+  const ExprPtr NewBvState(const std::string& name, const int& bit_width);
 
   /// \brief Create one Memory variable and register as a state.
   /// \param[in] name of the memory state.
   /// \param[in] addr_width address bit-width.
   /// \param[in] data_width data bit-width.
   /// \return pointer to the memory state.
-  ExprPtr NewMemState(const std::string& name, const int& addr_width,
-                      const int& data_width);
+  const ExprPtr NewMemState(const std::string& name, const int& addr_width,
+                            const int& data_width);
 
   /// \brief Create and register one instruction.
   /// \param[in] name of the instruction.
   /// \return pointer to the instruction.
-  InstrPtr NewInstr(const std::string& name = "");
+  const InstrPtr NewInstr(const std::string& name = "");
 
   /// \brief Create and register one child-ILA.
   /// \param[in] name of the child.
   /// \return pointer to the child-ILA.
-  InstrLvlAbsPtr NewChild(const std::string& name);
-
-  /// \brief Return the state variable pointer; NULL if not registered.
-  /// \param[in] name of the state variable.
-  /// \return pointer to the state variable.
-  ExprPtr GetState(const std::string& name) const;
-
-  /// \brief Return the input variable pointer; NULL if not registered.
-  /// \param[in] name of the input variable.
-  /// \return pointer to the input variable.
-  ExprPtr GetInput(const std::string& name) const;
-
-  /// Return the fetch function.
-  ExprPtr GetFetch() const;
-
-  /// Return the valid function.
-  ExprPtr GetValid() const;
-
-  /// \brief Return the instruction pointer; NULL if not registered.
-  /// \param[in] name of the instruction.
-  /// \return pointer to the instruction.
-  InstrPtr GetInstr(const std::string& name) const;
-
-  /// \brief Return the number of instruction registered.
-  /// \return the number of the instruction registered.
-  size_t GetInstrNum() const;
-
-  /// \brief Return the instruction indexed.
-  /// \param[in] idx the index of the instruction.
-  /// \return pointer to the instruction.
-  InstrPtr GetInstr(const size_t& idx) const;
-
-  /// \brief Return the child-ILA pointer; NULL if not registered.
-  /// \param[in] name of the child-ILA.
-  /// \return pointer to the child-ILA.
-  InstrLvlAbsPtr GetChild(const std::string& name) const;
+  const InstrLvlAbsPtr NewChild(const std::string& name);
 
   /// \brief Sanity check for the ILA (e.g. sort marching).
   /// \return True if check pass.

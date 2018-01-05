@@ -73,6 +73,11 @@ ExprPtr ExprFuse::Eq(const ExprPtr l, const ExprPtr r) {
   return std::make_shared<ExprOpEq>(l, r);
 }
 
+ExprPtr ExprFuse::Ne(const ExprPtr l, const ExprPtr r) {
+  auto eq = std::make_shared<ExprOpEq>(l, r);
+  return std::make_shared<ExprOpNot>(eq);
+}
+
 ExprPtr ExprFuse::Load(const ExprPtr mem, const ExprPtr addr) {
   return std::make_shared<ExprOpLoad>(mem, addr);
 }
