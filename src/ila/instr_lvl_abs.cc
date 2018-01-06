@@ -269,11 +269,12 @@ void InstrLvlAbs::InitObject() {
   valid_ = NULL;
   instrs_.clear();
   childs_.clear();
+  instr_seq_ = InstrSeq::New();
 
   is_spec_ = true;
   simplify_ = true;
 
-  expr_mngr_ = std::make_shared<ExprMngr>();
+  expr_mngr_ = ExprMngr::New();
   expr_mngr_->clear();
 }
 

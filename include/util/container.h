@@ -79,6 +79,9 @@ public:
   /// Return the number of data stored.
   size_t size() const { return vec_.size(); }
 
+  /// Return whether is empty.
+  bool empty() const { return size() == 0; }
+
   /// Clear all stored data.
   void clear() {
     vec_.clear();

@@ -25,6 +25,11 @@ public:
   typedef std::map<std::string, ExprPtr> HashTable; // TODO unordermap
   // std::unordered_map<AstHash, ExprPtr> HashTable;
 
+  // ------------------------- HELPERS -------------------------------------- //
+  /// \brief Create an object and return the pointer. Used for hiding
+  /// implementation specific types.
+  static ExprMngrPtr New();
+
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Reset the hash table
   void clear();
@@ -38,7 +43,6 @@ private:
   /// The map for AST nodes.
   HashTable map_;
 
-  // ------------------------- HELPERS -------------------------------------- //
 }; // class ExprMngr
 
 /// Pointer type for passing shared ast simplifier.

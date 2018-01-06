@@ -9,6 +9,8 @@ ExprMngr::ExprMngr() {}
 
 ExprMngr::~ExprMngr() {}
 
+ExprMngrPtr ExprMngr::New() { return std::make_shared<ExprMngr>(); }
+
 void ExprMngr::clear() { map_.clear(); }
 
 ExprPtr ExprMngr::Simplify(const ExprPtr node, bool simplify) {

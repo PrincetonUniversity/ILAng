@@ -9,6 +9,7 @@
 #include "ila/instr.h"
 #include "ila/object.h"
 #include "ila/simplify.h"
+#include "ila/transition.h"
 #include "util/container.h"
 #include <map>
 #include <memory>
@@ -212,7 +213,8 @@ private:
   InstrMap instrs_;
   /// The set of child-ILAs.
   InstrLvlAbsMap childs_;
-  // TODO child-instr sequencing
+  // child-instr sequencing
+  InstrSeqPtr instr_seq_; // TODO
 
   /// Specification/implementation.
   bool is_spec_;
