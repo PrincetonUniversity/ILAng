@@ -7,7 +7,7 @@ namespace ila {
 
 InstrLvlAbs::InstrLvlAbs(const std::string& name) : Object(name) {
   ILA_WARN_IF(name == "") << "ILA name not specified...\n";
-  // InitObject();
+  InitObject();
 }
 
 InstrLvlAbs::~InstrLvlAbs() {}
@@ -251,6 +251,13 @@ void InstrLvlAbs::SortInstr() {
   // sort instructions based on the sequencing
 }
 
+void InstrLvlAbs::AddSeqTran(const InstrPtr src, const InstrPtr dst,
+                             const ExprPtr cnd) {
+  // XXX src, dst should already registered.
+  auto cnd_simplified = expr_mngr_->Simplify(cnd, simplify_);
+  instr_seq_.AddTran(src, dst, cnd_simplified);
+}
+
 std::ostream& InstrLvlAbs::Print(std::ostream& out) const {
   out << "ILA." << name();
   // TODO
@@ -262,19 +269,14 @@ std::ostream& operator<<(std::ostream& out, InstrLvlAbs& ila) {
 }
 
 void InstrLvlAbs::InitObject() {
+  // local
   inputs_.clear();
   states_.clear();
   inits_.clear();
-  fetch_ = NULL;
-  valid_ = NULL;
   instrs_.clear();
   childs_.clear();
-  instr_seq_ = InstrSeq::New();
-
-  is_spec_ = true;
-  simplify_ = true;
-
-  expr_mngr_ = ExprMngr::New();
+  instr_seq_.clear();
+  // shared
   expr_mngr_->clear();
 }
 

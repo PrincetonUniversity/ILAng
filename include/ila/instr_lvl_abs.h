@@ -191,6 +191,12 @@ public:
   /// \brief Sort instructions based on the sequencing, if any.
   void SortInstr();
 
+  /// \brief Define instruction sequencing by adding a transition edge.
+  /// \param[in] src source instruction
+  /// \param[in] dst target instruction (destination)
+  /// \param[in] cnd transition condition (guard), i.e. dst.DECODE
+  void AddSeqTran(const InstrPtr src, const InstrPtr dst, const ExprPtr cnd);
+
   /// Output stream function.
   std::ostream& Print(std::ostream& out) const;
 
@@ -214,14 +220,14 @@ private:
   /// The set of child-ILAs.
   InstrLvlAbsMap childs_;
   // child-instr sequencing
-  InstrSeqPtr instr_seq_; // TODO
+  InstrSeq instr_seq_;
 
   /// Specification/implementation.
   bool is_spec_ = true;
   /// To simplify expr nodes.
   bool simplify_ = true;
 
-  /// The simplifier for expr nodes.
+  /// The simplifier for expr nodes. May be shared.
   ExprMngrPtr expr_mngr_ = ExprMngr::New();
 
   // ------------------------- HELPERS -------------------------------------- //

@@ -58,14 +58,11 @@ void InstrTranNode::AddPrev(const ItNodePtr prev) { prev_.push_back(prev); }
 typedef InstrSeq::InstrIdxKeyVec InstrIdxKeyVec;
 typedef InstrSeq::InstrIdxKeyVecPtr InstrIdxKeyVecPtr;
 
-InstrSeq::InstrSeq() {
-  edges_.clear();
-  nodes_.clear();
-  sorted_ = std::make_shared<InstrIdxKeyVec>();
-  sorted_->clear();
-}
+InstrSeq::InstrSeq() { clear(); }
 
-InstrSeq::~InstrSeq() {
+InstrSeq::~InstrSeq() { clear(); }
+
+void InstrSeq::clear() {
   edges_.clear();
   nodes_.clear();
   sorted_->clear();

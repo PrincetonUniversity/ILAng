@@ -288,6 +288,23 @@ TEST(TestInstrLvlAbs, SortInstr) {
   // TODO
 }
 
+TEST(TestInstrLvlAbs, SeqTran) {
+  auto ila = InstrLvlAbs::New("ila");
+
+  auto instr_0 = ila->NewInstr("instr_0");
+  auto instr_1 = ila->NewInstr("instr_1");
+  auto instr_2 = ila->NewInstr("instr_2");
+  auto counter = ila->NewBvState("counter", 8);
+  auto const_1 = ExprFuse::BvConst(1, 8);
+  auto const_2 = ExprFuse::BvConst(2, 8);
+  auto cnd_1 = ExprFuse::Eq(counter, const_1);
+  auto cnd_2 = ExprFuse::Eq(counter, const_2);
+
+  ila->AddSeqTran(instr_0, instr_1, cnd_1);
+  ila->AddSeqTran(instr_1, instr_2, cnd_2);
+  // TODO
+}
+
 TEST(TestInstrLvlAbs, Print) {
   InstrLvlAbs ila("ila");
   std::string msg;
