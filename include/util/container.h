@@ -22,7 +22,7 @@ public:
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Constructor
-  KeyVecIt() : result(KeyVecItVal::END) {}
+  KeyVecIt() : result(KeyVecItVal::END), first(), second() {}
 
   // ------------------------- METHODS -------------------------------------- //
   /// Overload comparison == for pointer

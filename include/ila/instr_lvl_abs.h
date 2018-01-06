@@ -206,9 +206,9 @@ private:
   /// The set of initial constraints (not neccessary per-state).
   ExprPtrVec inits_;
   /// The fetch function.
-  ExprPtr fetch_;
+  ExprPtr fetch_ = NULL;
   /// The valid function.
-  ExprPtr valid_;
+  ExprPtr valid_ = NULL;
   /// The set of instructions.
   InstrMap instrs_;
   /// The set of child-ILAs.
@@ -217,12 +217,12 @@ private:
   InstrSeqPtr instr_seq_; // TODO
 
   /// Specification/implementation.
-  bool is_spec_;
+  bool is_spec_ = true;
   /// To simplify expr nodes.
-  bool simplify_;
+  bool simplify_ = true;
 
   /// The simplifier for expr nodes.
-  ExprMngrPtr expr_mngr_;
+  ExprMngrPtr expr_mngr_ = ExprMngr::New();
 
   // ------------------------- HELPERS -------------------------------------- //
   /// Initialize default configuration, reset members, etc.

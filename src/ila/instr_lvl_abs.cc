@@ -7,7 +7,7 @@ namespace ila {
 
 InstrLvlAbs::InstrLvlAbs(const std::string& name) : Object(name) {
   ILA_WARN_IF(name == "") << "ILA name not specified...\n";
-  InitObject();
+  // InitObject();
 }
 
 InstrLvlAbs::~InstrLvlAbs() {}
