@@ -11,6 +11,9 @@ namespace ila {
 TEST(TestSort, Boolean) {
   Sort bool_sort;
   EXPECT_TRUE(bool_sort.is_ast());
+  EXPECT_TRUE(bool_sort.is_sort());
+  EXPECT_FALSE(bool_sort.is_expr());
+  EXPECT_FALSE(bool_sort.is_func());
   EXPECT_TRUE(bool_sort.is_bool());
 
   EXPECT_EQ(0, bool_sort.bit_width());
@@ -33,6 +36,9 @@ TEST(TestSort, Boolean) {
 TEST(TestSort, Bitvector) {
   Sort bv_sort(8);
   EXPECT_TRUE(bv_sort.is_ast());
+  EXPECT_TRUE(bv_sort.is_sort());
+  EXPECT_FALSE(bv_sort.is_expr());
+  EXPECT_FALSE(bv_sort.is_func());
   EXPECT_TRUE(bv_sort.is_bv());
 
   EXPECT_EQ(8, bv_sort.bit_width());
