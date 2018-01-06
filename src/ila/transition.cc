@@ -7,6 +7,8 @@
 namespace ila {
 
 // ------------------------- InstrTranEdge ---------------------------------- //
+// typedef InstrTranEdge::ItEdgePtr ItEdgePtr;
+
 InstrTranEdge::InstrTranEdge(const InstrPtr src, const InstrPtr dst,
                              const ExprPtr cnd)
     : src_(src), dst_(dst), cnd_(cnd) {}
@@ -60,15 +62,45 @@ InstrSeq::InstrSeq() {
   edges_.clear();
   nodes_.clear();
   sorted_ = std::make_shared<InstrIdxKeyVec>();
+  sorted_->clear();
 }
 
-InstrSeq::~InstrSeq() {}
+InstrSeq::~InstrSeq() {
+  edges_.clear();
+  nodes_.clear();
+  sorted_->clear();
+}
 
 InstrSeqPtr InstrSeq::New() { return std::make_shared<InstrSeq>(); }
 
 void InstrSeq::AddTran(const InstrPtr src, const InstrPtr dst,
                        const ExprPtr cnd) {
-  // TODO
+  // update edges
+  auto edge = std::make_shared<InstrTranEdge>(src, dst, cnd);
+  edges_.insert(edge);
+
+  // update nodes
+  ItNodePtr src_node = NULL;
+  ItNodePtr dst_node = NULL;
+
+  auto src_it = nodes_.find(src);
+  if (src_it == nodes_.end()) { // instr first seen
+    src_node = std::make_shared<InstrTranNode>(src);
+    nodes_[src] = src_node;
+  } else { // instr exists
+    src_node = src_it->second;
+  }
+
+  auto dst_it = nodes_.find(dst);
+  if (dst_it == nodes_.end()) { // instr first seen
+    dst_node = std::make_shared<InstrTranNode>(dst);
+    nodes_[dst] = dst_node;
+  } else { // instr exists
+    dst_node = dst_it->second;
+  }
+
+  src_node->AddNext(dst_node);
+  dst_node->AddPrev(src_node);
 }
 
 bool InstrSeq::CheckTransition() const {

@@ -27,13 +27,6 @@ public:
   /// Default destructor.
   ~InstrTranEdge();
 
-#if 0
-  // ------------------------- HELPERS -------------------------------------- //
-  /// Create a new InstrTran, used for hiding implementation specific types.
-  static ItEdgePtr New(const InstrPtr src, const InstrPtr dst,
-                       const ExprPtr cnd);
-#endif
-
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return the source instruction.
   const InstrPtr src() const;
