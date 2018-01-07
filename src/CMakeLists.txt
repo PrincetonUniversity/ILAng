@@ -2,7 +2,7 @@
 
 add_subdirectory(util)
 add_subdirectory(ila)
-add_subdirectory(ref-rel)
+add_subdirectory(eq-check)
 #add_subdirectory(python_api)
 #add_subdirectory(translator)
 #add_subdirectory(engine)

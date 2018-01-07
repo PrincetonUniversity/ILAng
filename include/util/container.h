@@ -73,7 +73,7 @@ public:
   /// Get the data by index.
   T operator[](const size_t& idx) const {
     ILA_ASSERT(idx < vec_.size()) << "Access overflow.\n";
-    return vec_[idx];
+    return vec_.at(idx);
   }
 
   /// Return the number of data stored.
