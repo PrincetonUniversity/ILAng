@@ -4,7 +4,7 @@
 #include "ila/expr_fuse.h"
 #include "ila/instr.h"
 #include "ila/transition.h"
-#include "util_test.h"
+#include "unit-include/util.h"
 
 namespace ila {
 

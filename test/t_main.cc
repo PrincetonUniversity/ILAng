@@ -1,7 +1,6 @@
 /// \file
 /// Unit test main function.
 
-#include "util/log.h"
 #include "gtest/gtest.h"
 
 namespace ila {

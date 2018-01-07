@@ -4,7 +4,7 @@
 #include "ila/ast/expr_op.h"
 #include "ila/expr_fuse.h"
 #include "ila/z3_expr_adapter.h"
-#include "util_test.h"
+#include "unit-include/util.h"
 #include "z3++.h"
 
 namespace ila {

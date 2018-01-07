@@ -3,7 +3,7 @@
 
 #include "ila/ast/expr_const.h"
 #include "ila/ast/sort_value.h"
-#include "util_test.h"
+#include "unit-include/util.h"
 #include "z3++.h"
 
 namespace ila {

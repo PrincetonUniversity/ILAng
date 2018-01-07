@@ -3,8 +3,8 @@
 
 #include "ila/expr_fuse.h"
 #include "ila/symbol.h"
+#include "unit-include/util.h"
 #include "util/container.h"
-#include "util_test.h"
 #include <string>
 
 namespace ila {

@@ -2,7 +2,7 @@
 /// Unit test for ExprVar
 
 #include "ila/ast/expr_var.h"
-#include "util_test.h"
+#include "unit-include/util.h"
 #include "z3++.h"
 
 namespace ila {

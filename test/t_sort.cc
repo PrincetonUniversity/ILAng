@@ -2,7 +2,7 @@
 /// Unit test for Sort.
 
 #include "ila/ast/sort.h"
-#include "util_test.h"
+#include "unit-include/util.h"
 #include <iostream>
 #include <string>
 

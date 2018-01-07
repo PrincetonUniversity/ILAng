@@ -1,8 +1,8 @@
 /// \file
 /// Unit test for the logging system.
 
+#include "unit-include/util.h"
 #include "util/log.h"
-#include "util_test.h"
 
 namespace ila {
 
