@@ -21,14 +21,18 @@ TEST(TestKeyVec, StringString) {
   kv.push_back("k2", "123");
   kv.push_back("k3", "xyz");
 
+#ifndef NDEBUG
   EXPECT_DEATH(kv.push_back("k2", "#$%"), ".*");
+#endif
 
   EXPECT_EQ(3, kv.size());
 
   EXPECT_EQ("abc", kv[0]);
   EXPECT_EQ("123", kv[1]);
   EXPECT_EQ("xyz", kv[2]);
+#ifndef NDEBUG
   EXPECT_DEATH(kv[3], ".*");
+#endif
 
   auto pos = kv.find("k1");
   EXPECT_NE(pos, kv.end());
@@ -58,14 +62,18 @@ TEST(TestKeyVec, SymbolExpr) {
   kv.push_back(bool_const->name(), bool_const);
   kv.push_back(mem_var->name(), mem_var);
 
+#ifndef NDEBUG
   EXPECT_DEATH(kv.push_back(Symbol("bv_var"), bool_const), ".*");
+#endif
 
   EXPECT_EQ(3, kv.size());
 
   EXPECT_EQ(bv_var, kv[0]);
   EXPECT_EQ(bool_const, kv[1]);
   EXPECT_EQ(mem_var, kv[2]);
+#ifndef NDEBUG
   EXPECT_DEATH(kv[3], ".*");
+#endif
 
   auto pos = kv.find(bv_var->name());
   EXPECT_NE(pos, kv.end());

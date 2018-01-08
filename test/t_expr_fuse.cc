@@ -246,5 +246,40 @@ TEST(TestExprFuse, Memory) {
 #endif
 }
 
+TEST(TestExprFuse, BitManipulation) {
+  // TODO
+}
+
+TEST(TestExprFuse, FunctionUsage) {
+  // TODO
+}
+
+TEST(TestExprFuse, Others) {
+  auto varx = ExprFuse::NewBvVar("varx", 8);
+  auto vary = ExprFuse::NewBvVar("vary", 8);
+  auto cond = ExprFuse::Eq(varx, vary);
+
+  auto ite = ExprFuse::Ite(cond, varx, vary);
+  EXPECT_TRUE(ite->is_op());
+  EXPECT_TRUE(ite->is_bv());
+  EXPECT_EQ(ite->sort(), varx->sort());
+
+  auto flagx = ExprFuse::NewBoolVar("flagx");
+  auto flagy = ExprFuse::NewBoolVar("flagx");
+  cond = ExprFuse::Eq(flagx, flagy);
+
+  ite = ExprFuse::Ite(cond, flagx, flagy);
+  EXPECT_TRUE(ite->is_op());
+  EXPECT_TRUE(ite->is_bool());
+  EXPECT_EQ(ite->sort(), flagx->sort());
+
+#ifndef NDEBUG
+  EXPECT_DEATH(ExprFuse::Ite(varx, varx, vary), ".*");
+  EXPECT_DEATH(ExprFuse::Ite(flagx, flagx, vary), ".*");
+#endif
+
+  // TODO imply
+}
+
 } // namespace ila
 

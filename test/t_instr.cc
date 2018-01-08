@@ -70,14 +70,18 @@ TEST_F(TestInstr, View) {
 TEST_F(TestInstr, DecodeSimplified) {
   InstrPtr ptr = std::make_shared<Instr>("dummy", mngr);
 
-  // set with NULL (forbiddened)
+// set with NULL (forbiddened)
+#ifndef NDEBUG
   EXPECT_DEATH(ptr->SetDecode(NULL), ".*");
   EXPECT_DEATH(ptr->ForceSetDecode(NULL), ".*");
+#endif
 
   // set with bitvector update function (forbiddened)
   ExprPtr bv_expr = ExprFuse::BvConst(0, 8);
+#ifndef NDEBUG
   EXPECT_DEATH(ptr->SetDecode(bv_expr), ".*");
   EXPECT_DEATH(ptr->ForceSetDecode(bv_expr), ".*");
+#endif
 
   // set with bool update function
   ExprPtr bool_expr = ExprFuse::BoolConst(true);
@@ -87,8 +91,10 @@ TEST_F(TestInstr, DecodeSimplified) {
   // try to overwrite
   ExprPtr new_bool_expr = ExprFuse::BoolConst(false);
   std::string msg;
+#ifndef NDEBUG
   GET_STDERR_MSG(ptr->SetDecode(new_bool_expr), msg);
   EXPECT_FALSE(msg.empty());
+#endif
   EXPECT_EQ(bool_expr, ptr->GetDecode());
   EXPECT_NE(new_bool_expr, ptr->GetDecode());
 
@@ -102,14 +108,18 @@ TEST_F(TestInstr, DecodeSimplified) {
 TEST_F(TestInstr, DecodeNonSimplified) {
   InstrPtr ptr = std::make_shared<Instr>("dummy");
 
-  // set with NULL (forbiddened)
+// set with NULL (forbiddened)
+#ifndef NDEBUG
   EXPECT_DEATH(ptr->SetDecode(NULL), ".*");
   EXPECT_DEATH(ptr->ForceSetDecode(NULL), ".*");
+#endif
 
   // set with bitvector update function (forbiddened)
   ExprPtr bv_expr = ExprFuse::BvConst(0, 8);
+#ifndef NDEBUG
   EXPECT_DEATH(ptr->SetDecode(bv_expr), ".*");
   EXPECT_DEATH(ptr->ForceSetDecode(bv_expr), ".*");
+#endif
 
   // set with bool update function
   ExprPtr bool_expr = ExprFuse::BoolConst(true);
@@ -119,8 +129,10 @@ TEST_F(TestInstr, DecodeNonSimplified) {
   // try to overwrite
   ExprPtr new_bool_expr = ExprFuse::BoolConst(false);
   std::string msg;
+#ifndef NDEBUG
   GET_STDERR_MSG(ptr->SetDecode(new_bool_expr), msg);
   EXPECT_FALSE(msg.empty());
+#endif
   EXPECT_EQ(bool_expr, ptr->GetDecode());
   EXPECT_NE(new_bool_expr, ptr->GetDecode());
 
@@ -156,8 +168,10 @@ TEST_F(TestInstr, UpdateSimplified) {
   // try to overwrite (with var)
   std::string msg;
   ExprPtr new_bv_update = ExprFuse::NewBvVar("non-det-bv", 8);
+#ifndef NDEBUG
   GET_STDERR_MSG(ptr->AddUpdate(bv_var, new_bv_update), msg);
   EXPECT_FALSE(msg.empty());
+#endif
   EXPECT_NE(new_bv_update, ptr->GetUpdate(bv_var));
   EXPECT_EQ(bv_update, ptr->GetUpdate(bv_var));
 
@@ -193,8 +207,10 @@ TEST_F(TestInstr, UpdateNonSimplified) {
   // try to overwrite (with var)
   std::string msg;
   ExprPtr new_bv_update = ExprFuse::NewBvVar("non-det-bv", 8);
+#ifndef NDEBUG
   GET_STDERR_MSG(ptr->AddUpdate(bv_var, new_bv_update), msg);
   EXPECT_FALSE(msg.empty());
+#endif
   EXPECT_NE(new_bv_update, ptr->GetUpdate(bv_var));
   EXPECT_EQ(bv_update, ptr->GetUpdate(bv_var));
 
