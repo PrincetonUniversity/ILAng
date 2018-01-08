@@ -23,7 +23,7 @@ private:
 }; // class TestRR
 
 TEST_F(TestRR, RefUnitFF) {
-  TwoEqIla gen;
+  EqIlaGen gen;
   ma = gen.GetIlaFlat1();
   mb = gen.GetIlaFlat2();
   // TODO

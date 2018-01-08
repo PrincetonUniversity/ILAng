@@ -12,7 +12,7 @@ namespace ila {
 ///  - opcode
 ///
 /// Architecture states:
-///  - register [0-15] (at least 8 bits)
+///  - register [0-15] (at least 8 bits) (parameterized, with 16 for example)
 ///  - address
 ///  - counter
 ///  - memory (data width is 8)
@@ -26,24 +26,37 @@ namespace ila {
 ///
 /// Instruction 3: (start == 1 && opcode == 3)
 ///  - swap the value stored in %memory, pointed by %address, with %register n.
+///  - (n == %counter)
 ///
 /// Instruction 4: (start == 1 && opcode == 4)
 ///  - sum up the value in %register [0-14] and store to %register 15.
-class TwoEqIla {
+class EqIlaGen {
 public:
   /// \brief Flat ILA 1:
   /// - no child-ILA
   /// - every computation is done in an increasing order of the index.
   InstrLvlAbsPtr GetIlaFlat1();
+
   /// \brief Flag ILA 2:
   /// - no child-ILA
   /// - every computation is done in a decreasing order of the index.
   InstrLvlAbsPtr GetIlaFlat2();
+
+  /// \brief Hierarchical ILA 1:
+  /// - with child-ILA for instruction 3, storing intermediate value of reg.
+  /// - with child-ILA for instruction 4, increasingly step-wise sum up.
   InstrLvlAbsPtr GetIlaHier1();
+
+  /// \brief Hierarchical ILA 2:
+  /// - with child-ILA for instruction 3, check reg iteratively.
+  /// - with child-ILA for instruction 4. decreasingly step-wise sum up.
   InstrLvlAbsPtr GetIlaHier2();
 
 private:
-}; // class TwoEqIla
+  /// parameterized register number. (must >= 3)
+  int reg_num_ = 8;
+
+}; // class EqIlaGen
 
 } // namespace ila
 

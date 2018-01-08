@@ -8,7 +8,7 @@ namespace ila {
 // Flat ILA 1:
 // - no child-ILA
 // - every computation is done in an increaing order of the index/address
-InstrLvlAbsPtr TwoEqIla::GetIlaFlat1() {
+InstrLvlAbsPtr EqIlaGen::GetIlaFlat1() {
   auto ila = InstrLvlAbs::New("Flat_1");
 
   // input variables.
@@ -17,7 +17,7 @@ InstrLvlAbsPtr TwoEqIla::GetIlaFlat1() {
 
   // state variables.
   std::vector<ExprPtr> regs;
-  for (auto i = 0; i < 16; i++) {
+  for (auto i = 0; i < reg_num_; i++) {
     auto reg_name = "reg_" + std::to_string(i);
     auto reg = ila->NewBvState(reg_name, 8);
     regs.push_back(reg);
@@ -45,7 +45,7 @@ InstrLvlAbsPtr TwoEqIla::GetIlaFlat1() {
 
   { // updates
     instr_1->AddUpdate(regs[0], regs[0]);
-    for (auto i = 1; i < 16; i++) {
+    for (auto i = 1; i < reg_num_; i++) {
       instr_1->AddUpdate(regs[i], regs[i - 1]);
     }
   }
@@ -62,11 +62,11 @@ InstrLvlAbsPtr TwoEqIla::GetIlaFlat1() {
   }
 
   { // updates
-    for (auto i = 0; i < 16; i++) {
+    for (auto i = 0; i < reg_num_; i++) {
       auto cnd_i = ExprFuse::Eq(cnt, ExprFuse::BvConst(i, 8));
       ExprPtr next_i = NULL;
       if (i == 0) {
-        next_i = ExprFuse::Ite(cnd_i, regs[15], regs[0]);
+        next_i = ExprFuse::Ite(cnd_i, regs[reg_num_ - 1], regs[0]);
       } else {
         next_i = ExprFuse::Ite(cnd_i, regs[i - 1], regs[i]);
       }
@@ -87,14 +87,14 @@ InstrLvlAbsPtr TwoEqIla::GetIlaFlat1() {
 
   { // updates
     auto mem_val = ExprFuse::Load(mem, addr);
-    for (auto i = 0; i < 16; i++) {
+    for (auto i = 0; i < reg_num_; i++) {
       auto cnd_i = ExprFuse::Eq(cnt, ExprFuse::BvConst(i, 8));
       auto next_i = ExprFuse::Ite(cnd_i, mem_val, regs[i]);
       instr_3->AddUpdate(regs[i], next_i);
     }
 
     auto reg_val = regs[0];
-    for (auto i = 1; i < 16; i++) {
+    for (auto i = 1; i < reg_num_; i++) {
       auto cnd_i = ExprFuse::Eq(cnt, ExprFuse::BvConst(i, 8));
       reg_val = ExprFuse::Ite(cnd_i, regs[i], reg_val);
     }
@@ -113,10 +113,10 @@ InstrLvlAbsPtr TwoEqIla::GetIlaFlat1() {
 
   { // updates
     auto sum = regs[0];
-    for (auto i = 1; i < 15; i++) {
+    for (auto i = 1; i < reg_num_; i++) {
       sum = ExprFuse::Add(sum, regs[i]);
     }
-    instr_4->AddUpdate(regs[15], sum);
+    instr_4->AddUpdate(regs[reg_num_ - 1], sum);
   }
 
   return ila;
@@ -125,7 +125,7 @@ InstrLvlAbsPtr TwoEqIla::GetIlaFlat1() {
 // Flat ILA 2:
 // - no child-ILA
 // - every computation is done in a decreasing order of the index/address
-InstrLvlAbsPtr TwoEqIla::GetIlaFlat2() {
+InstrLvlAbsPtr EqIlaGen::GetIlaFlat2() {
   auto ila = InstrLvlAbs::New("Flat_2");
 
   // input variables.
@@ -134,7 +134,7 @@ InstrLvlAbsPtr TwoEqIla::GetIlaFlat2() {
 
   // state variables.
   std::vector<ExprPtr> regs;
-  for (auto i = 0; i < 16; i++) {
+  for (auto i = 0; i < reg_num_; i++) {
     auto reg_name = "reg_" + std::to_string(i);
     auto reg = ila->NewBvState(reg_name, 8);
     regs.push_back(reg);
@@ -162,7 +162,7 @@ InstrLvlAbsPtr TwoEqIla::GetIlaFlat2() {
 
   { // updates
     instr_1->AddUpdate(regs[0], regs[0]);
-    for (auto i = 1; i < 16; i++) {
+    for (auto i = 1; i < reg_num_; i++) {
       instr_1->AddUpdate(regs[i], regs[i - 1]);
     }
   }
@@ -179,11 +179,11 @@ InstrLvlAbsPtr TwoEqIla::GetIlaFlat2() {
   }
 
   { // updates
-    for (auto i = 0; i < 16; i++) {
+    for (auto i = 0; i < reg_num_; i++) {
       auto cnd_i = ExprFuse::Eq(cnt, ExprFuse::BvConst(i, 8));
       ExprPtr next_i = NULL;
       if (i == 0) {
-        next_i = ExprFuse::Ite(cnd_i, regs[15], regs[0]);
+        next_i = ExprFuse::Ite(cnd_i, regs[reg_num_ - 1], regs[0]);
       } else {
         next_i = ExprFuse::Ite(cnd_i, regs[i - 1], regs[i]);
       }
@@ -204,14 +204,14 @@ InstrLvlAbsPtr TwoEqIla::GetIlaFlat2() {
 
   { // updates
     auto mem_val = ExprFuse::Load(mem, addr);
-    for (auto i = 0; i < 16; i++) {
+    for (auto i = 0; i < reg_num_; i++) {
       auto cnd_i = ExprFuse::Eq(cnt, ExprFuse::BvConst(i, 8));
       auto next_i = ExprFuse::Ite(cnd_i, mem_val, regs[i]);
       instr_3->AddUpdate(regs[i], next_i);
     }
 
-    auto reg_val = regs[15];
-    for (auto i = 14; i >= 0; i--) {
+    auto reg_val = regs[reg_num_ - 1];
+    for (auto i = reg_num_ - 2; i >= 0; i--) {
       auto cnd_i = ExprFuse::Eq(cnt, ExprFuse::BvConst(i, 8));
       reg_val = ExprFuse::Ite(cnd_i, regs[i], reg_val);
     }
@@ -229,11 +229,11 @@ InstrLvlAbsPtr TwoEqIla::GetIlaFlat2() {
   }
 
   { // updates
-    auto sum = regs[14];
-    for (auto i = 13; i >= 0; i--) {
+    auto sum = regs[reg_num_ - 2];
+    for (auto i = reg_num_ - 3; i >= 0; i--) {
       sum = ExprFuse::Add(sum, regs[i]);
     }
-    instr_4->AddUpdate(regs[15], sum);
+    instr_4->AddUpdate(regs[reg_num_ - 1], sum);
   }
 
   return ila;
