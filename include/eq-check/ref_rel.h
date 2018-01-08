@@ -121,6 +121,9 @@ private:
   void clear();
 }; // class RefRel
 
+/// Pointer type for passing around the refinement relation.
+typedef std::shared_ptr<RefRel> RefRelPtr;
+
 } // namespace ila
 
 #endif // __REF_REL_H__
