@@ -12,27 +12,28 @@ public:
   TestRR() {}
   ~TestRR() {}
 
-  void SetUp() {
-    ConstructIlaA();
-    ConstructIlaB();
-  }
+  void SetUp() {}
 
   void TearDown() {}
 
-  InstrLvlAbsPtr ma = InstrLvlAbs::New("ma");
-  InstrLvlAbsPtr mb = InstrLvlAbs::New("mb");
+  InstrLvlAbsPtr ma = NULL;
+  InstrLvlAbsPtr mb = NULL;
 
 private:
-  void ConstructIlaA() {
-    // TODO
-  }
-
-  void ConstructIlaB() {
-    // TODO
-  }
 }; // class TestRR
 
-TEST_F(TestRR, RefUnit) {
+TEST_F(TestRR, RefUnitFF) {
+  TwoEqIla gen;
+  ma = gen.GetIlaFlat1();
+  mb = gen.GetIlaFlat2();
+  // TODO
+}
+
+TEST_F(TestRR, RefUnitFH) {
+  // TODO
+}
+
+TEST_F(TestRR, RefUnitHH) {
   // TODO
 }
 

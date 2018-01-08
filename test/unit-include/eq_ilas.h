@@ -25,18 +25,19 @@ namespace ila {
 ///  - if (%counter == 0) then copy %reg 15 to %reg 0
 ///
 /// Instruction 3: (start == 1 && opcode == 3)
-///  - copy the value stored in %memory, pointed by %address, to %register n.
-///  - (n == %counter)
+///  - swap the value stored in %memory, pointed by %address, with %register n.
 ///
 /// Instruction 4: (start == 1 && opcode == 4)
-///  - sum up the value in %register [0-15] and store to %memory pointed by
-///    %address.
+///  - sum up the value in %register [0-14] and store to %register 15.
 class TwoEqIla {
 public:
   /// \brief Flat ILA 1:
   /// - no child-ILA
   /// - every computation is done in an increasing order of the index.
   InstrLvlAbsPtr GetIlaFlat1();
+  /// \brief Flag ILA 2:
+  /// - no child-ILA
+  /// - every computation is done in a decreasing order of the index.
   InstrLvlAbsPtr GetIlaFlat2();
   InstrLvlAbsPtr GetIlaHier1();
   InstrLvlAbsPtr GetIlaHier2();
