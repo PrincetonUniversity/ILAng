@@ -127,6 +127,7 @@ public:
   std::ostream& Print(std::ostream& out) const;
 }; // class ExprOpOr
 
+/// \brief The wrapper for binary logical XOR operation "^".
 class ExprOpXor : public ExprOp {
 public:
   /// Constructor for XOR operation.
@@ -141,7 +142,16 @@ public:
 
 // TODO ExprOpShr
 
-// TODO ExprOpAdd
+/// \brief The wrapper for unsigned addition.
+class ExprOpAdd : public ExprOp {
+public:
+  /// Constructor for ADD operation.
+  ExprOpAdd(const ExprPtr arg0, const ExprPtr arg1);
+  std::string op_name() const { return "ADD"; }
+  z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                     const std::string& suffix) const;
+  std::ostream& Print(std::ostream& out) const;
+}; // class ExprOpAdd
 
 // TODO ExprOpSub
 

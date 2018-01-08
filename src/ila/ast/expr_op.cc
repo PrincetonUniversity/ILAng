@@ -163,6 +163,22 @@ std::ostream& ExprOpXor::Print(std::ostream& out) const {
   return PrintBinaryOp(out, op_name());
 }
 
+// ------------------------- Class ExprOpAdd -------------------------------- //
+ExprOpAdd::ExprOpAdd(const ExprPtr arg0, const ExprPtr arg1)
+    : ExprOp(arg0, arg1) {
+  set_sort(GetSortBinaryOperation(arg0->sort(), arg1->sort()));
+}
+
+z3::expr ExprOpAdd::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                              const std::string& suffix) const {
+  ILA_ASSERT(expr_vec.size() == 2) << "Add is binary operation.\n";
+  return expr_vec[0] + expr_vec[1];
+}
+
+std::ostream& ExprOpAdd::Print(std::ostream& out) const {
+  return PrintBinaryOp(out, op_name());
+}
+
 // ------------------------- Class ExprOpEq --------------------------------- //
 ExprOpEq::ExprOpEq(const ExprPtr arg0, const ExprPtr arg1)
     : ExprOp(arg0, arg1) {
