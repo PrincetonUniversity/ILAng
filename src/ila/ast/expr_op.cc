@@ -223,5 +223,28 @@ std::ostream& ExprOpStore::Print(std::ostream& out) const {
   return PrintNnaryOp(out, op_name());
 }
 
+// ------------------------- Class ExprOpIte -------------------------------- //
+ExprOpIte::ExprOpIte(const ExprPtr cnd, const ExprPtr true_expr,
+                     const ExprPtr false_expr)
+    : ExprOp(cnd, true_expr, false_expr) {
+  ILA_ASSERT(cnd->is_bool()) << "Condition must be Boolean.\n";
+  ILA_ASSERT(true_expr->sort() == false_expr->sort())
+      << "True/false branch sort mismatch.\n";
+  set_sort(true_expr->sort());
+}
+
+z3::expr ExprOpIte::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                              const std::string& suffix) const {
+  ILA_ASSERT(expr_vec.size() == 3) << "Ite takes 3 arguments.\n";
+  auto cnd = expr_vec[0];
+  auto t_e = expr_vec[1];
+  auto t_f = expr_vec[2];
+  return z3::ite(cnd, t_e, t_f);
+}
+
+std::ostream& ExprOpIte::Print(std::ostream& out) const {
+  return PrintNnaryOp(out, op_name());
+}
+
 } // namespace ila
 

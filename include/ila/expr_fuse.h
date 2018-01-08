@@ -146,7 +146,7 @@ public:
   /// Logical imply (bool only)
   static ExprPtr Imply(const ExprPtr p, const ExprPtr q);
   /// If-then-else (condition bool only)
-  static ExprPtr Ite(const ExprPtr cond, const ExprPtr true_expr,
+  static ExprPtr Ite(const ExprPtr cnd, const ExprPtr true_expr,
                      const ExprPtr false_expr);
 
 private:

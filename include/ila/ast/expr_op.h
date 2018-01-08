@@ -220,6 +220,22 @@ public:
 
 // TODO ExprOpAppFunc
 
+/******************************************************************************/
+// Others
+/******************************************************************************/
+
+/// \brief The class wrapper for if-then-else.
+class ExprOpIte : public ExprOp {
+public:
+  /// Constructor for if-then-else.
+  ExprOpIte(const ExprPtr cnd, const ExprPtr true_expr,
+            const ExprPtr false_expr);
+  std::string op_name() const { return "ITE"; }
+  z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                     const std::string& suffix) const;
+  std::ostream& Print(std::ostream& out) const;
+}; // class ExprOpIte
+
 } // namespace ila
 
 #endif // __EXPR_OP_H__
