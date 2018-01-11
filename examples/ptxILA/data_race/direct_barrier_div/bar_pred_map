@@ -1,6 +1,10 @@
 (dp0
-I32
+I40
 (lp1
-S'%p1'
-p2
-as.
+sI96
+(lp2
+sI68
+(lp3
+sI124
+(lp4
+s.

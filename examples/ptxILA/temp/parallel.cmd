@@ -10,5 +10,5 @@
 # Load openmpi environment 
 module load cudatoolkit 
 
-./temp/a.out
+./a.out
 

@@ -360,6 +360,10 @@ class ptxGPUModel(object):
             reg0 = self.model.getreg(reg_name + '_%d' % (0))
             reg1 = self.model.getreg(reg_name + '_%d' % (1))
             self.init = self.init & (reg0 == reg1)
+            operand_type = ptx_declaration[reg_name]
+            operand_len = int(operand_type[2:])
+            if operand_len < 64:
+                continue
             self.init_max = self.model.const(i, instruction_format.LONG_REG_BITS) << 59
             self.init_range = self.model.const(1, instruction_format.LONG_REG_BITS) << 58
             self.init = self.init & (reg0 < self.init_max) & (reg0 > (self.init_max - self.init_range))

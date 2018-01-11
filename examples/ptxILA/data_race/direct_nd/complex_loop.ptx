@@ -24,13 +24,13 @@
 //start
 	ld.param.u64 	%rd5, [_Z11simple_loopPii_param_0];
 	ld.param.u32 	%r6, [_Z11simple_loopPii_param_1];
-    mov.u32 %r6, 3;
+    mov.u32 %r6, 10;
 	setp.lt.s32	%p1, %r6, 1;
 	@%p1 bra 	BB0_3;
 
 	cvta.to.global.u64 	%rd6, %rd5;
 	mov.u32 	%r8, %tid.x;
-	mul.lo.s32 	%r9, %r8, 3;
+	mul.lo.s32 	%r9, %r8, 10;
 	mul.wide.s32 	%rd7, %r9, 4;
 	add.s64 	%rd2, %rd6, %rd7;
 	ld.global.u32 	%r11, [%rd2];

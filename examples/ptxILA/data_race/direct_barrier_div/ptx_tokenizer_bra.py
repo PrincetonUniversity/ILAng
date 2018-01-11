@@ -1,6 +1,6 @@
 import re
 import pickle
-test_file_name = 'bra_bar_error.ptx'
+test_file_name = 'reduction_part2.ptx'
 test_file_obj = open(test_file_name, 'r')
 test_file_code = test_file_obj.readlines()
 instruction_book_file = 'instruction_book'

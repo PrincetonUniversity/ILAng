@@ -1,6 +1,6 @@
 import re
 import pickle
-test_file_name = 'bra_bar_error.ptx'
+test_file_name = 'barrier_diverge_test7.ptx'
 test_file_obj = open(test_file_name, 'r')
 test_file_code = test_file_obj.readlines()
 instruction_book_file = 'instruction_book'
@@ -72,7 +72,7 @@ for i in range(len(process_code)):
 ssa_counter = 0
 reg_map = {}
 parenthesis = []
-parenthesis_re = re.compile(r'\[[a-zA-Z0-9\%\_\+\$]+\]')
+parenthesis_re = re.compile(r'\[[a-zA-Z0-9\%\_\+\$\-]+\]')
 for i in range(len(process_code)):
     for j in range(len(process_code[i])):
         if parenthesis_re.match(process_code[i][j]) != None:
@@ -94,10 +94,13 @@ shared_read_only_obj = open('shared_read_only_regs', 'w')
 pickle.dump(shared_read_only_regs, shared_read_only_obj)
 shared_read_only_obj.close()
 
+code_line_num = 0
 for i in range(len(process_code)):
     process_code_line = process_code[i]
     if len(process_code_line) < 1:
         continue
+    if len(process_code_line) > 1:
+        code_line_num += 1
     opcode = process_code_line[0]
     if opcode[0] == '@':
         branch = opcode
@@ -105,8 +108,9 @@ for i in range(len(process_code)):
         process_code_line = [branch[0], predicate_reg] + process_code_line[1:]
         process_code[i] = process_code_line
         continue
-for process_code_line in process_code:
-    print process_code_line
+#print code_line_num
+#for process_code_line in process_code:
+    #print process_code_line
 '''
 for i in range(len(process_code)):
     for j in range(len(process_code[i])):
