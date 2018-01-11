@@ -1,103 +1,99 @@
 /// \file
-/// The header file for the logging/asserting  system.
+/// The header file for the debug/logging/asserting system.
 
 #ifndef __LOG_H__
 #define __LOG_H__
 
-#include <fstream>
 #include <glog/logging.h>
-#include <iostream>
+#include <set>
 #include <string>
 
 namespace ila {
 
-/// Initialize the logging system (both glog and debug file log.)
-void InitIlaLogging();
-
-/// Close log channels (e.g. flushing buffer.)
-void CloseIlaLogging();
-
-// Macros and handlers for glog-based log system.
+// Only in Debug mode (Ignored in Release mode)
 /******************************************************************************/
+/// Log debug message to INFO if the "tag" has been enabled.
+#define ILA_DLOG(tag) DLOG_IF(INFO, DebugLog::Find(tag)) << "[" << tag << "] "
 
-/// \def Debug log for info using glog.
+/// Log the message to INFO (lvl 0). (Debug)
 #define ILA_INFO DLOG(INFO)
-/// \def Debug log for warning using glog.
+/// Log the message to WARNING (lvl 1). (Debug)
 #define ILA_WARN DLOG(WARNING)
-/// \def Debug log for error using glog.
+/// Log the message to ERROR (lvl 2). (Debug)
 #define ILA_ERROR DLOG(ERROR)
-/// \def Conditional debug log for info using glog.
+/// Conditionally log the message to INFO (lvl 0). (Debug)
 #define ILA_INFO_IF(b) DLOG_IF(INFO, b)
-/// \def Conditional debug log for warning using glog.
+/// Conditionally log the message to WARNING (lvl 1). (Debug)
 #define ILA_WARN_IF(b) DLOG_IF(WARNING, b)
-/// \def Conditional debug log for error using glog.
+/// Conditionally log the message to ERROR (lvl 2). (Debug)
 #define ILA_ERROR_IF(b) DLOG_IF(ERROR, b)
 
-/// \def Fatal assertion (with fatal log message.)
-#define ILA_ASSERT(b) CHECK(b)
-/// \def Fatal equal comparison (with fatal log message.)
-#define ILA_ASSERT_EQ(a, b) CHECK_EQ(a, b)
-/// \def Fatal not equal comparison (with fatal log message.)
-#define ILA_ASSERT_NE(a, b) CHECK_NE(a, b)
-/// \def Fatal not null assertion for pointer.
+/// Assertion with message logged to FATAL (lvl 3). (Debug)
+#define ILA_ASSERT(b) DLOG_IF(FATAL, !(b))
+
+// Both in Debug and Release mode
+// (Use only if high-assurance & non-performance critical)
+/******************************************************************************/
+/// Assertion with message logged to FATAL (lvl 3). (Debug/Release)
+#define ILA_CHECK(b) CHECK(b)
+/// Assert equal with message logged to FATAL (lvl 3). (Debug/Release)
+#define ILA_CHECK_EQ(a, b) CHECK_EQ(a, b)
+/// Assert not equal with message logged to FATAL (lvl 3). (Debug/Release)
+#define ILA_CHECK_NE(a, b) CHECK_NE(a, b)
+/// Assert string equal with FATAL message (lvl 3). (Debug/Release)
+#define ILA_CHECK_STREQ(a, b) CHECK_STREQ(a, b)
+/// Assert point not NULL with FATAL message (lvl 3). (Debug/Release)
 #define ILA_NOT_NULL(ptr) CHECK_NOTNULL(ptr)
 
-/// \brief Set the verbose level for glog system.
-/// All verbose log (VLOG) with smaller level will be logged.
-/// \paraam[in] lvl the verbose level (upper bound).
-void SetGLogVerboseLevel(const int& lvl);
+/// \brief Set the minimun log level.
+/// Log messages at or above this level will be logged. (Default: 0)
+/// - INFO: level 0
+/// - WARNING: level 1
+/// - ERROR: level 2
+/// - FATAL: level 3
+void SetLogLevel(const int& lvl);
 
-/// Set the path for glog log file. Default no log file.
-/// \param[in] path the path for glog log file.
-void SetGLogFilePath(const std::string& path);
+/// \brief Set the path for log file.
+/// If specified, logfiles are written into this directory instead of the
+/// default logging directory (/tmp).
+void SetLogPath(const std::string& path);
 
-/// Set whether to enable log (info and warning) to be log to standard error.
-/// \param[in] also set 1 to log to std::cerr.
-void SetGLogAlsoToStdErr(const int& also);
+/// \brief Pipe log to stderr.
+/// Log messages to stderr instead of logfiles, if set to 1.
+void SetToStdErr(const int& to_err);
 
-/// Initialize glog system.
-/// \param[in] lvl verbose level.
-/// \param[in] path log file directory.
-/// \param[in] also set 1 to log INFO and WARNING to std::cerr.
-void InitGLog(const int& lvl = 0, const std::string& path = "",
-              const int& also = 0);
-
-/// Close glog system.
-void CloseGLog();
-
-// Wrapper for debug log system.
+// Wrapper for debug tag log system.
 /******************************************************************************/
+/// A one-time class for initializing GLog.
+class LogInitter {
+public:
+  /// Constructor to initialize GLog.
+  LogInitter();
+}; // class LogInitter
 
-/// Initialize debug log system.
-void InitDLog();
+/// The wrapper for enabling and disabling debug tags.
+class DebugLog {
+public:
+  /// Add a debug tag.
+  static void Enable(const std::string& tag);
 
-/// Close debug log system.
-void CloseDLog();
+  /// Remove a debug tag.
+  static void Disable(const std::string& tag);
 
-/// Set the log level and the log file name. Default standard output if no file
-/// name is specified.
-/// \param[in] l log level.
-/// \param[in] filename name of the log file.
-void SetDLogLevel(int l, const std::string& filename = "");
+  /// Clear all tags.
+  static void Clear();
 
-/// Enable a log category.
-/// \param[in] tag log category/tag to enable.
-void EnableDLog(const std::string& tag);
+  /// Find if the tag is enabled.
+  static bool Find(const std::string& tag);
 
-/// Disable a log category.
-/// \param[in] tag log category/tag to disable.
-void DisableDLog(const std::string& tag);
+private:
+  /// The set of debug tags.
+  static std::set<std::string> debug_tags_;
 
-/// Clear all log categories.
-void ClearDLogs();
+  /// The one and only initializer for the log system.
+  static LogInitter init_;
 
-/// Channel 1 for logging debug message (under the given tag).
-/// \param[in] tag the category to log the message.
-std::ostream& IlaDLog1(const std::string& tag);
-
-/// Channel 2 for logging debug message (under the given tag).
-/// \param[in] tag the category to log the message.
-std::ostream& IlaDLog2(const std::string& tag);
+}; // class DebugLog
 
 } // namespace ila
 

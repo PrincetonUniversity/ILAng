@@ -50,6 +50,7 @@ build/
 
 # Ctag/Cscope files
 tags
+
 # CUDA
 *.fatbin
 *.fatbin.c

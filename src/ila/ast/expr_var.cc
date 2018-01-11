@@ -1,0 +1,75 @@
+/// \file
+/// Source for the var expression
+
+#include "ila/ast/expr_var.h"
+#include "util/log.h"
+
+namespace ila {
+
+ExprVar::ExprVar() { ILA_CHECK(false) << "Undefined ExprVar constructor.\n"; }
+
+ExprVar::ExprVar(const std::string& name) {
+  set_name(name);
+  set_arity(0);
+  // set bool sort
+  set_sort(Sort());
+}
+
+ExprVar::ExprVar(const std::string& name, const int& bit_width) {
+  set_name(name);
+  set_arity(0);
+  // set bv sort
+  set_sort(Sort(bit_width));
+}
+
+ExprVar::ExprVar(const std::string& name, const int& addr_width,
+                 const int& data_width) {
+  set_name(name);
+  set_arity(0);
+  // set mem sort
+  set_sort(Sort(addr_width, data_width));
+}
+
+ExprVar::~ExprVar() {}
+
+z3::expr ExprVar::GetZ3Expr(z3::context& ctx, const Z3ExprVec& z3expr_vec,
+                            const std::string& suffix) const {
+  if (is_bool()) {
+    return ctx.bool_const(name().format_str("", suffix).c_str());
+  } else if (is_bv()) {
+    return ctx.bv_const(name().format_str("", suffix).c_str(),
+                        sort().bit_width());
+  } else {
+    ILA_ASSERT(is_mem()) << "Unkown sort for var " << name() << "\n";
+    auto addr_sort = ctx.bv_sort(sort().addr_width());
+    auto data_sort = ctx.bv_sort(sort().data_width());
+    auto mem_sort = ctx.array_sort(addr_sort, data_sort);
+    return ctx.constant(name().format_str("", suffix).c_str(), mem_sort);
+  }
+}
+
+std::ostream& ExprVar::Print(std::ostream& out) const {
+  if (is_bool()) {
+    return PrintBool(out);
+  } else if (is_bv()) {
+    return PrintBv(out);
+  } else {
+    ILA_ASSERT(is_mem()) << "Unkown sort for var " << name() << "\n";
+    return PrintMem(out);
+  }
+}
+
+std::ostream& ExprVar::PrintBool(std::ostream& out) const {
+  return out << name().format_str("BoolVar", "");
+}
+
+std::ostream& ExprVar::PrintBv(std::ostream& out) const {
+  return out << name().format_str("BvVar", "");
+}
+
+std::ostream& ExprVar::PrintMem(std::ostream& out) const {
+  return out << name().format_str("MemVar", "");
+}
+
+} // namespace ila
+

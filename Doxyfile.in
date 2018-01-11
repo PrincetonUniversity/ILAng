@@ -772,7 +772,7 @@ WARN_LOGFILE           =
 # Note: If this tag is empty the current directory is searched.
 
 INPUT = @CMAKE_CURRENT_SOURCE_DIR@/include
-INPUT                  += @CMAKE_CURRENT_SOURCE_DIR@/src
+#INPUT                  += @CMAKE_CURRENT_SOURCE_DIR@/src
 
 
 FILE_PATTERNS += *.md *.markdown
