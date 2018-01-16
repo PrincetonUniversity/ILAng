@@ -9,25 +9,25 @@
 
 namespace ila {
 
-class WrapInstrLvlAbs {
+class InstrLvlAbsWrap {
 
   InstrLvlAbsPtr ptr;
 
 public:
-  WrapInstrLvlAbs(const std::string& name) : ptr(InstrLvlAbs::New(name)) {}
+  InstrLvlAbsWrap(const std::string& name) : ptr(InstrLvlAbs::New(name)) {}
 
-  ~WrapInstrLvlAbs() {}
+  ~InstrLvlAbsWrap() {}
 
+  // FIXME return instruction
   void NewBvInput(const std::string& name, const int& bit_width) {
     ptr->NewBvInput(name, bit_width);
   }
 
-  ExprRef* input(const std::string& name) {
-    // return ptr->input(name);
-    return NULL;
+  ExprWrap* input(const std::string& name) {
+    return new ExprWrap(ptr->input(name));
   }
 
-}; // class WrapInstrLvlAbs
+}; // class InstrLvlAbsWrap
 
 } // namespace ila
 

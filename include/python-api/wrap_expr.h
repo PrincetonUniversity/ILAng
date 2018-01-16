@@ -8,13 +8,15 @@
 
 namespace ila {
 
-class ExprRef {
+class ExprWrap {
   ExprPtr ptr;
 
 public:
-  ExprRef() : ptr(NULL) {}
+  ExprWrap() : ptr(NULL) {}
 
-}; // class ExprREf
+  ExprWrap(const ExprPtr e) : ptr(e) {}
+
+}; // class ExprWrap
 
 } // namespace ila
 
