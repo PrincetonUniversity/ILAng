@@ -5,7 +5,7 @@
 #include "python-api/wrap_ila.h"
 
 namespace ila {
-using namespace boost::python;
+namespace pyapi {
 
 void export_instr_lvl_abs() {
 
@@ -16,5 +16,6 @@ void export_instr_lvl_abs() {
            return_value_policy<manage_new_object>());
 }
 
+} // namespace pyapi
 } // namespace ila
 

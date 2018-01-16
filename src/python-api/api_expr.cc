@@ -5,16 +5,25 @@
 #include "python-api/wrap_expr.h"
 
 namespace ila {
-namespace boost {
-namespace python {
+namespace pyapi {
 
 void export_expr() {
 
   class_<ExprWrap>("Expr", init<>())
-      // TODO
+      .add_property("name", &ExprWrap::Name)
+      // unary operators
+      .def("__invert__", &ExprWrap::Complement,
+           return_value_policy<manage_new_object>())
+      .def("__neg__", &ExprWrap::Negate,
+           return_value_policy<manage_new_object>())
+      .def("__and__", &ExprWrap::And, return_value_policy<manage_new_object>())
+      // TODO operator override
       ;
 
-} // namespace boost::python
-} // namespace boost
+  def("load", &ExprWrap::Load, return_value_policy<manage_new_object>());
+  // TODO static functions
+}
+
+} // namespace pyapi
 } // namespace ila
 

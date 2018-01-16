@@ -8,6 +8,7 @@
 #include "python-api/wrap_expr.h"
 
 namespace ila {
+namespace pyapi {
 
 class InstrLvlAbsWrap {
 
@@ -29,6 +30,7 @@ public:
 
 }; // class InstrLvlAbsWrap
 
+} // namespace pyapi
 } // namespace ila
 
 #endif // __WRAP_INSTR_LVL_ABS_H__

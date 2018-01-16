@@ -18,6 +18,8 @@ namespace ila {
 /// \brief The uniform interface and wrapper for different types of expressions,
 /// e.g. var, constant, and different operations.
 class ExprFuse {
+  // ------------------------- MEMBERS -------------------------------------- //
+
 public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor. NOT USED. Not for constructing objects.
@@ -150,8 +152,6 @@ public:
                      const ExprPtr false_expr);
 
 private:
-  // ------------------------- MEMBERS -------------------------------------- //
-
   // ------------------------- HELPERS -------------------------------------- //
 
 }; // class ExprFuse
