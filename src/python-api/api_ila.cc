@@ -11,9 +11,12 @@ void export_instr_lvl_abs() {
 
   // Expose ILA wrapper to Boost.Python
   class_<InstrLvlAbsWrap>("Abstraction", init<std::string>())
-      .def("inp", &InstrLvlAbsWrap::NewBvInput) // FIXME return instr
+      .def("inp", &InstrLvlAbsWrap::NewBvInput,
+           return_value_policy<manage_new_object>())
       .def("getinp", &InstrLvlAbsWrap::input,
-           return_value_policy<manage_new_object>());
+           return_value_policy<manage_new_object>())
+      // TODO
+      ;
 }
 
 } // namespace pyapi

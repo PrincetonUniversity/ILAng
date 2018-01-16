@@ -7,13 +7,15 @@
 #include "util/log.h"
 
 namespace ila {
+namespace pyapi {
 
-void EnableLog(const std::string& tag) { DebugLog::Enable(tag); }
+void EnableLog(const std::string& tag);
 
-void DisableLog(const std::string& tag) { DebugLog::Disable(tag); }
+void DisableLog(const std::string& tag);
 
-void ClearLogs() { DebugLog::Clear(); }
+void ClearLogs();
 
+} // namespace pyapi
 } // namespace
 
 #endif // __WRAP_LOG_H__

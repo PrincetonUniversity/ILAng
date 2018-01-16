@@ -10,23 +10,25 @@
 namespace ila {
 namespace pyapi {
 
+/// \brief The wrapper class for InstrLvlAbs
 class InstrLvlAbsWrap {
-
-  InstrLvlAbsPtr ptr;
+  // ------------------------- MEMBERS -------------------------------------- //
+  /// Wrapped data.
+  InstrLvlAbsPtr ptr_;
 
 public:
-  InstrLvlAbsWrap(const std::string& name) : ptr(InstrLvlAbs::New(name)) {}
+  // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
+  /// Constructor for Boost.Python API.
+  InstrLvlAbsWrap(const std::string& name) : ptr_(InstrLvlAbs::New(name)) {}
 
-  ~InstrLvlAbsWrap() {}
+  // ------------------------- ACCESSORS/MUTATORS --------------------------- //
 
-  // FIXME return instruction
-  void NewBvInput(const std::string& name, const int& bit_width) {
-    ptr->NewBvInput(name, bit_width);
-  }
-
-  ExprWrap* input(const std::string& name) {
-    return new ExprWrap(ptr->input(name));
-  }
+  // ------------------------- METHODS -------------------------------------- //
+  /// Create new bitvector input.
+  ExprWrap* NewBvInput(const std::string& name, const int& bit_width);
+  /// Get the input with name.
+  ExprWrap* input(const std::string& name);
+  /// TODO
 
 }; // class InstrLvlAbsWrap
 

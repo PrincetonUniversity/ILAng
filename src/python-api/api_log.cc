@@ -5,30 +5,26 @@
 #include "python-api/wrap_log.h"
 
 namespace ila {
-using namespace boost::python;
+namespace pyapi {
 
 void export_log() {
 
-  // Initialization, e.g. logging
+  // Initialize logging
 
-  /// Set the minimun log level.
+  /// Set log level to the given value.
   def("setLogLevel", SetLogLevel);
-
-  /// Set the path for log file.
+  /// Set the path for log files.
   def("setLogPath", SetLogPath);
-
-  /// Pipe log to stderr.
+  /// Output all log to std err.
   def("setToStdErr", SetToStdErr);
-
-  /// Add a debug tag.
+  /// Turn on the debug log tag.
   def("enablelog", EnableLog);
-
-  /// Remove a debug tag.
+  /// Turn off the debug log tag.
   def("disablelog", DisableLog);
-
-  /// Clear all tags.
+  /// Turn off all the debug logs.
   def("clearlogs", ClearLogs);
 }
 
+} // namespace pyapi
 } // namespace ila
 
