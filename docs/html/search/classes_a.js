@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['sort',['Sort',['../classila_1_1_sort.html',1,'ila']]],
-  ['symbol',['Symbol',['../classila_1_1_symbol.html',1,'ila']]]
+  ['noderef',['NodeRef',['../classila_1_1_node_ref.html',1,'ila']]]
 ];

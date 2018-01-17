@@ -1,6 +1,9 @@
 var searchData=
 [
   ['bit_5fwidth',['bit_width',['../classila_1_1_sort.html#a7da9554f1f3370d7d84d3032fc178800',1,'ila::Sort']]],
+  ['bmc',['Bmc',['../classila_1_1_bmc.html',1,'ila::Bmc'],['../classila_1_1_bmc.html#acc23ae9090971da38b490b20377cab57',1,'ila::Bmc::Bmc()']]],
+  ['bmc_2eh',['bmc.h',['../bmc_8h.html',1,'']]],
+  ['bmclegacy',['BmcLegacy',['../classila_1_1_bmc.html#a0f959ddb7ad934334ef8f5d9ef1c0100',1,'ila::Bmc']]],
   ['boolconst',['BoolConst',['../classila_1_1_expr_fuse.html#a2a79de8f0a68d514495c653aa3950cde',1,'ila::ExprFuse::BoolConst(const bool &amp;val)'],['../classila_1_1_expr_fuse.html#a023511dd3819e26320b55173ef953bba',1,'ila::ExprFuse::BoolConst(const BoolVal &amp;val)']]],
   ['boolval',['BoolVal',['../classila_1_1_bool_val.html',1,'ila::BoolVal'],['../classila_1_1_bool_val.html#a89d8cd810e2738ec864526a6e27c4dda',1,'ila::BoolVal::BoolVal()'],['../classila_1_1_bool_val.html#ae92f95e1f6c6e0bd42d153c990cb8cb9',1,'ila::BoolVal::BoolVal(const bool &amp;val)'],['../classila_1_1_bool_val.html#ab1298be9cf863516148a6757d1f61120',1,'ila::BoolVal::BoolVal(const std::string &amp;str)'],['../classila_1_1_bool_val.html#a60e7979bc8a8429e807c581aa7cc74b2',1,'ila::BoolVal::BoolVal(const char *cstr)']]],
   ['boolvalptr',['BoolValPtr',['../classila_1_1_bool_val.html#a9e3c87b040835f081f266841fc94718c',1,'ila::BoolVal::BoolValPtr()'],['../namespaceila.html#a0849cc69f4d0271b9986e323c3d0b485',1,'ila::BoolValPtr()']]],
