@@ -12,6 +12,11 @@
 /// \namespace ila
 namespace ila {
 
+class CompRefRel {
+public:
+private:
+}; // CompRefRel
+
 /// \brief Refinement unit, used to stored:
 /// - instruction application function (trigger condition)
 /// - instruction commit condition (e.g. dummy end decode)
