@@ -31981,82 +31981,74 @@ CUresult cuGetExportTable(const void ** ppExportTable, const CUuuid * pExportTab
 # 6 "t266.cu"
 using namespace std;
 # 9
-const int N = 1; 
+const int N = 4; 
 # 10
-const int threadsPerBlock = 1; 
+const int threadsPerBlock = 4; 
 # 11
 const int blocksPerGrid = 1; 
 # 13
-void dot(float *a, float *b, float *c) ;
+void dot(int *a) ;
 #if 0
 # 13
 { 
 # 18
-int gid = (__device_builtin_variable_threadIdx.x) + ((__device_builtin_variable_blockIdx.x) * (__device_builtin_variable_blockDim.x)); 
+int tid = __device_builtin_variable_threadIdx.x; 
 # 19
-int i = a[gid]; 
+if (tid > 1) { 
 # 20
-int j = b[gid]; 
+int t0 = a[tid - 2]; 
 # 21
-int k = i + j; 
-# 22
-printf("%d", k); 
-# 24
-(c[gid]) = k; 
-# 28
+int t1 = a[tid]; 
+# 23
+(a[tid]) = (t0 + t1); 
+# 25
+} else { 
+# 26
+int t0 = a[tid]; 
+# 27
+int t1 = a[tid + 2]; 
+# 29
+(a[tid]) = (t0 + t1); 
+# 31
+}  
+# 35
 } 
 #endif
-# 39 "t266.cu"
+# 46 "t266.cu"
 int main() { 
-# 40
-float *a, *b, *partial_c; 
-# 41
-float *dev_a, *dev_b, *dev_partial_c; 
-# 43
-a = (new float [N]); 
-# 44
-b = (new float [N]); 
-# 45
-partial_c = (new float [N]); 
-# 46
-for (int i = 0; i < N; i++) { 
 # 47
-(a[i]) = i; 
+int *a; 
 # 48
-(b[i]) = (i * (2.0F)); 
-# 49
-}  
+int *dev_a; 
 # 50
-cudaMalloc((void **)(&dev_a), sizeof(float) * N); 
+a = (new int [N]); 
 # 51
-cudaMalloc((void **)(&dev_b), sizeof(float) * N); 
+for (int i = 0; i < N; i++) { 
 # 52
-cudaMalloc((void **)(&dev_partial_c), N * sizeof(float)); 
+(a[i]) = i; 
 # 53
-cudaMemcpy(dev_a, a, N * sizeof(float), cudaMemcpyHostToDevice); 
+}  
 # 54
-cudaMemcpy(dev_b, b, N * sizeof(float), cudaMemcpyHostToDevice); 
+cudaMalloc((void **)(&dev_a), sizeof(int) * N); 
 # 55
-(cudaConfigureCall(blocksPerGrid, threadsPerBlock)) ? (void)0 : (dot)(dev_a, dev_b, dev_partial_c); 
+cudaMemcpy(dev_a, a, N * sizeof(int), cudaMemcpyHostToDevice); 
 # 56
-cudaMemcpy(partial_c, dev_partial_c, N * sizeof(float), cudaMemcpyDeviceToHost); 
-# 59
-cudaFree(dev_a); 
+(cudaConfigureCall(blocksPerGrid, threadsPerBlock)) ? (void)0 : (dot)(dev_a); 
+# 57
+cudaMemcpy(a, dev_a, N * sizeof(int), cudaMemcpyDeviceToHost); 
 # 60
-cudaFree(dev_b); 
+for (int i = 0; i < N; i++) { 
 # 61
-cudaFree(dev_partial_c); 
-# 63
-delete [] a; 
-# 64
-delete [] b; 
+printf("%d\n", a[i]); }  
+# 62
+cudaFree(dev_a); 
 # 65
-delete [] partial_c; return 0; 
+delete [] a; return 0; 
 # 66
 } 
 
 # 1 "t266.cudafe1.stub.c"
-#define _NV_ANON_NAMESPACE _GLOBAL__N__12_t266_cpp1_ii_f26a2827
+#define _NV_ANON_NAMESPACE _GLOBAL__N__12_t266_cpp1_ii__Z3dotPi
 # 1 "t266.cudafe1.stub.c"
 #include "t266.cudafe1.stub.c"
 # 1 "t266.cudafe1.stub.c"

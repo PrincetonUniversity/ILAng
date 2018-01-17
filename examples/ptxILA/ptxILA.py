@@ -117,7 +117,7 @@ class ptxGPUModel(object):
         self.inst = ila.load(self.mem, ila.zero_extend(self.pc[31:2], instruction_format.MEM_ADDRESS_BITS))
         self.opcode = self.inst[(instruction_format.OPCODE_BIT_TOP - 1):instruction_format.OPCODE_BIT_BOT]
         self.fetch_expr = self.inst
-        self.dest = self.inst[(instruction_format.OPCODE_DST_BIT_TOP - 1):instruction_format.DST_BIT_BOT]
+        self.dest = self.inst[(instruction_format.DST_BIT_TOP - 1):instruction_format.DST_BIT_BOT]
         self.src1 = self.inst[(instruction_format.SRC0_BIT_TOP - 1):instruction_format.SRC0_BIT_BOT]
         self.src2 = self.inst[(instruction_format.SRC1_BIT_TOP - 1):instruction_format.SRC1_BIT_BOT]
         self.src3 = self.inst[(instruction_format.SRC2_BIT_TOP - 1):instruction_format.SRC2_BIT_BOT]
@@ -140,11 +140,11 @@ class ptxGPUModel(object):
         decodeList = [(self.opcode == instruction_map['bar']) & (self.bar_state == bar_spec.BAR_INIT), (self.opcode == instruction_map['bar']) & (self.bar_state == bar_spec.BAR_FINISH)]
         for bdl in self.bar_decode_list:
             decodeList.append((self.opcode == instruction_map['bar']) & bdl)
-        for dl in decodeList:
-            print dl
+        #for dl in decodeList:
+            #print dl
         self.model.decode_exprs = decodeList
         #self.bar_state_next = ila.ite((self.opcode == instruction_map['bar']) & (self.bar_state == bar_spec.BAR_INIT), ila.const(1, bar_spec.BAR_STATE_BITS) ila.ite(self.bar_state == bar_spec.BAR_FINISH, bar_spec.BAR_INIT, self.bar_state)) #non-synthesize bar instruction
-    '''
+    
     #Sync for bar instruction
     def assumptions(self):
         instruction_map_file = 'instruction_map'
@@ -153,7 +153,7 @@ class ptxGPUModel(object):
         bar_spec = barSpec()
         self.model.add_assumption((self.opcode == instruction_map['bar']) & (self.bar_state >= bar_spec.BAR_INIT) & (self.bar_state <= bar_spec.BAR_FINISH) & (self.bar_counter_enter <= bar_spec.THREAD_NUM) & (self.bar_counter_exit >= 0) & (self.bar_counter_enter >= 0) & (self.bar_counter_exit <= bar_spec.THREAD_NUM)) #& ((self.bar_state == bar_spec.BAR_INIT) | (self.bar_state == bar_spec.BAR_FINISH) ))
         #self.u_bar_model.add_assumption((self.opcode == instruction_map['bar']) & (self.bar_state > bar_spec.BAR_INIT) & (self.bar_state < bar_spec.BAR_FINISH))
-    '''
+    
 
     def pc_nxt(self):
         self.pcPlus4 = self.pc + ila.const(0b100, instruction_format.PC_BITS)
@@ -260,3 +260,5 @@ class ptxGPUModel(object):
     def ptxSample(self):
         return ila.ite(self.dest == 0, ila.ite(self.opcode == 26, self.sreg1 + self.sreg2, ila.ite(self.opcode == 28, self.sreg1 - self.sreg2, self.sregdest)), self.scalar_registers[0])
     '''
+if __name__ == '__main__':
+    ptxModel = ptxGPUModel()

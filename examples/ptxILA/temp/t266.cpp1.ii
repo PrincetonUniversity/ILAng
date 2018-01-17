@@ -33138,52 +33138,52 @@ CUresult cuGetExportTable(const void **ppExportTable, const CUuuid *pExportTable
 using namespace std;
 
 
-const int N = 1;
-const int threadsPerBlock = 1;
+const int N = 4;
+const int threadsPerBlock = 4;
 const int blocksPerGrid = 1;
 
-__attribute__((global)) void dot(float *a, float *b, float *c) {
+__attribute__((global)) void dot(int *a) {
 
 
 
 
-    int gid = threadIdx.x + blockIdx.x * blockDim.x;
-    int i = a[gid];
-    int j = b[gid];
-    int k = i + j;
-    printf("%d", k);
+    int tid = threadIdx.x;
+    if (tid > 1){
+        int t0 = a[tid - 2];
+        int t1 = a[tid];
 
-        c[gid] = k;
+        a[tid] = t0+t1;
+
+    } else {
+        int t0 = a[tid];
+        int t1 = a[tid + 2];
+
+        a[tid] = t0 + t1;
+
+    }
 
 
 
 }
-# 39 "t266.cu"
+# 46 "t266.cu"
 int main(){
-    float *a, *b, *partial_c;
-    float *dev_a, *dev_b, *dev_partial_c;
+    int *a;
+    int *dev_a;
 
-    a = new float[N];
-    b = new float[N];
-    partial_c = new float[N];
+    a = new int[N];
     for (int i = 0; i < N; i++) {
         a[i] = i;
-        b[i] = i * 2.0f;
     }
-    cudaMalloc((void **)&dev_a, sizeof(float) * N);
-    cudaMalloc((void **)&dev_b, sizeof(float) * N);
-    cudaMalloc((void **)&dev_partial_c, N*sizeof(float));
-    cudaMemcpy(dev_a, a, N*sizeof(float), cudaMemcpyHostToDevice);
-    cudaMemcpy(dev_b, b, N*sizeof(float), cudaMemcpyHostToDevice);
-    dot<<<blocksPerGrid, threadsPerBlock>>>(dev_a, dev_b, dev_partial_c);
-    cudaMemcpy( partial_c, dev_partial_c, N*sizeof(float), cudaMemcpyDeviceToHost);
+    cudaMalloc((void **)&dev_a, sizeof(int) * N);
+    cudaMemcpy(dev_a, a, N*sizeof(int), cudaMemcpyHostToDevice);
+    dot<<<blocksPerGrid, threadsPerBlock>>>(dev_a);
+    cudaMemcpy( a, dev_a, N*sizeof(int), cudaMemcpyDeviceToHost);
 
 
+    for (int i = 0;i < N; i++)
+        printf("%d\n", a[i]);
     cudaFree(dev_a);
-    cudaFree(dev_b);
-    cudaFree(dev_partial_c);
+
 
     delete[] a;
-    delete[] b;
-    delete[] partial_c;
 }

@@ -272,8 +272,6 @@ class ptxGPUModel(object):
             self.bar_inst[index] = self.bar_inst[index] | (self.pc_list[index] == self.current_pc)
             if self.current_pc not in self.bar_list:
                 self.bar_list.append(self.current_pc)
-                if self.current_pc not in self.bar_list:
-                    self.bar_list.append(self.current_pc)
             #TODO: pc_next when bar
             self.pc_next_list[index] = ila.ite(self.pc_list[index] == self.current_pc, ila.ite(self.bar_arb == index, ila.ite(self.bar_state_list[index] == self.bar_spec.BAR_FINISH, self.pc_list[index] + 4, self.pc_list[index]), self.pc_list[index]), self.pc_next_list[index])
             

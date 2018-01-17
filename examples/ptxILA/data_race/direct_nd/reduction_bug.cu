@@ -14,7 +14,7 @@ using namespace std;
                   * Can you add them to eliminate all data races?
                    */
 
-#define N 2 /* Same as blockDim */
+#define N 8 /* Same as blockDim */
 
 #define tid threadIdx.x
 

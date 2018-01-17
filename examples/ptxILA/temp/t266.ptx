@@ -10,77 +10,45 @@
 .target sm_20
 .address_size 64
 
-	// .globl	_Z3dotPfS_S_
-.extern .func  (.param .b32 func_retval0) vprintf
-(
-	.param .b64 vprintf_param_0,
-	.param .b64 vprintf_param_1
-)
-;
-.global .align 1 .b8 $str[3] = {37, 100, 0};
+	// .globl	_Z3dotPi
 
-.visible .entry _Z3dotPfS_S_(
-	.param .u64 _Z3dotPfS_S__param_0,
-	.param .u64 _Z3dotPfS_S__param_1,
-	.param .u64 _Z3dotPfS_S__param_2
+.visible .entry _Z3dotPi(
+	.param .u64 _Z3dotPi_param_0
 )
 {
-	.local .align 8 .b8 	__local_depot0[8];
-	.reg .b64 	%SP;
-	.reg .b64 	%SPL;
-	.reg .f32 	%f<4>;
-	.reg .b32 	%r<10>, r1, r2;
-	.reg .b64 	%rd<16>;
+	.reg .pred 	%p<2>;
+	.reg .b32 	%r<11>;
+	.reg .b64 	%rd<5>;
 
 
-	mov.u64 	%rd15, __local_depot0;
-	cvta.local.u64 	%SP, %rd15;
-	ld.param.u64 	%rd1, [_Z3dotPfS_S__param_0];
-	ld.param.u64 	%rd2, [_Z3dotPfS_S__param_1];
-	ld.param.u64 	%rd3, [_Z3dotPfS_S__param_2];
-	cvta.to.global.u64 	%rd4, %rd3;
-	cvta.to.global.u64 	%rd5, %rd2;
-	cvta.to.global.u64 	%rd6, %rd1;
-	add.u64 	%rd7, %SP, 0;
-	cvta.to.local.u64 	%rd8, %rd7;
-	mov.u32 	%r1, %tid.x;
-	mov.u32 	%r2, %ctaid.x;
-	mov.u32 	%r3, %ntid.x;
-	mad.lo.s32 	%r4, %r3, %r2, %r1;
-	mul.wide.s32 	%rd9, %r4, 4;
-	add.s64 	%rd10, %rd6, %rd9;
-	ld.global.f32 	%f1, [%rd10];
-	cvt.rzi.s32.f32	%r5, %f1;
-	add.s64 	%rd11, %rd5, %rd9;
-	ld.global.f32 	%f2, [%rd11];
-	cvt.rzi.s32.f32	%r6, %f2;
-	add.s32 	%r7, %r6, %r5;
-mov.s32 %r4,16; mov.s32 %r5,5; mov.s32 %r6,6; mov.s32 %r7,7; mov.s32 %r0,0; mov.s32 %r1,1; mov.s32 r2,1; mov.s32 %r3,3; mov.s32 %r8,8; mov.s32 %r2,2; mov.s32 r1,16; add.s32 %r4, %r4, %r4;mov.s32 %r9, %r4;
-	st.local.u32 	[%rd8], %r9;
-	mov.u64 	%rd12, $str;
-	cvta.global.u64 	%rd13, %rd12;
-	// Callseq Start 0
-	{
-	.reg .b32 temp_param_reg;
-	// <end>}
-	.param .b64 param0;
-	st.param.b64	[param0+0], %rd13;
-	.param .b64 param1;
-	st.param.b64	[param1+0], %rd7;
-	.param .b32 retval0;
-	call.uni (retval0), 
-	vprintf, 
-	(
-	param0, 
-	param1
-	);
-	ld.param.b32	%r8, [retval0+0];
+	ld.param.u64 	%rd2, [_Z3dotPi_param_0];
+	cvta.to.global.u64 	%rd3, %rd2;
+	mov.u32 	%r8, %tid.x;
+	setp.le.s32	%p1, %r8, 1;
+	mul.wide.s32 	%rd4, %r8, 4;
+	add.s64 	%rd1, %rd3, %rd4;
+	@%p1 bra 	BB0_1;
+	bra.uni 	BB0_2;
+
+BB0_1:
+	ld.global.u32 	%r1, [%rd1];
+	ld.global.u32 	%r2, [%rd1+8];
+	bar.sync 	0;
+	add.s32 	%r10, %r2, %r1;
+	st.global.u32 	[%rd1], %r10;
+	bra.uni 	BB0_3;
+
+
+BB0_2:
+	ld.global.u32 	%r4, [%rd1+-8];
+	ld.global.u32 	%r5, [%rd1];
+	//bar.sync 	0;
+	add.s32 	%r10, %r5, %r4;
+	st.global.u32 	[%rd1], %r10;
 	
-	//{
-	}// Callseq End 0
-	cvt.rn.f32.s32	%f3, %r7;
-	add.s64 	%rd14, %rd4, %rd9;
-	st.global.f32 	[%rd14], %f3;
+
+	
+BB0_3:
 	ret;
 }
 
