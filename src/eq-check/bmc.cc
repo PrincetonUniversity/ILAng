@@ -4,10 +4,12 @@
 #include "eq-check/bmc.h"
 
 namespace ila {
-Bmc::Bmc() {}
+Bmc::Bmc() { clear(); }
 
-Bmc::~Bmc() {}
+Bmc::~Bmc() { clear(); }
 
 z3::context& Bmc::ctx() { return ctx_; }
+
+void Bmc::clear() { map_.clear(); }
 
 } // namespace ila

@@ -6,6 +6,7 @@
 
 #include "ila/instr_lvl_abs.h"
 #include "z3++.h"
+#include <map>
 
 /// \namespace ila
 namespace ila {
@@ -22,6 +23,8 @@ public:
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return the z3 context.
   z3::context& ctx();
+  /// Reset/clear all cached values, including z3 context and expr mapping.
+  void clear();
 
   // ------------------------- METHODS -------------------------------------- //
   /// \brief Legacy BMC where two ILAs are unrolled and compared monolithically.
@@ -30,10 +33,19 @@ public:
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
+  /// z3 context.
   z3::context ctx_;
+  /// z3 expression mapping.
+  std::map<std::string, z3::expr> map_;
 
   // ------------------------- HELPERS -------------------------------------- //
-  z3::expr Unroll(InstrLvlAbsPtr m, const int& k);
+  /// \brief Generate the z3 expression for the instruction.
+  /// - Valid is not considered.
+  /// - Decode should be satisfied.
+  /// - Un-specified update functions are encoded as unchanged.
+  z3::expr GetZ3ExprForInstr(InstrLvlAbsPtr m, InstrPtr instr,
+                             const std::string& prefix,
+                             const std::string& suffix) const;
 
 }; // class Bmc
 
