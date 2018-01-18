@@ -37,6 +37,7 @@ public:
   // ------------------------- METHODS -------------------------------------- //
   /// Return the z3 expression for the node.
   virtual z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                             const std::string& prefix = "",
                              const std::string& suffix = "") const = 0;
 
   /// Output to stream.
@@ -75,7 +76,8 @@ public:
   ExprOpNeg(const ExprPtr arg);
   std::string op_name() const { return "NEGATE"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
-                     const std::string& suffix) const;
+                     const std::string& prefix = "",
+                     const std::string& suffix = "") const;
   std::ostream& Print(std::ostream& out) const;
 }; // class ExprOpNeg
 
@@ -86,7 +88,8 @@ public:
   ExprOpNot(const ExprPtr arg);
   std::string op_name() const { return "NOT"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
-                     const std::string& suffix) const;
+                     const std::string& prefix = "",
+                     const std::string& suffix = "") const;
   std::ostream& Print(std::ostream& out) const;
 }; // class ExprOpNot
 
@@ -97,7 +100,8 @@ public:
   ExprOpCompl(const ExprPtr arg);
   std::string op_name() const { return "COMPLEMENT"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
-                     const std::string& suffix) const;
+                     const std::string& prefix = "",
+                     const std::string& suffix = "") const;
   std::ostream& Print(std::ostream& out) const;
 }; // class ExprOpCompl
 
@@ -112,7 +116,8 @@ public:
   ExprOpAnd(const ExprPtr arg0, const ExprPtr arg1);
   std::string op_name() const { return "AND"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
-                     const std::string& suffix) const;
+                     const std::string& prefix = "",
+                     const std::string& suffix = "") const;
   std::ostream& Print(std::ostream& out) const;
 }; // class ExprOpAnd
 
@@ -123,7 +128,8 @@ public:
   ExprOpOr(const ExprPtr arg0, const ExprPtr arg1);
   std::string op_name() const { return "OR"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
-                     const std::string& suffix) const;
+                     const std::string& prefix = "",
+                     const std::string& suffix = "") const;
   std::ostream& Print(std::ostream& out) const;
 }; // class ExprOpOr
 
@@ -134,7 +140,8 @@ public:
   ExprOpXor(const ExprPtr arg0, const ExprPtr arg1);
   std::string op_name() const { return "XOR"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
-                     const std::string& suffix) const;
+                     const std::string& prefix = "",
+                     const std::string& suffix = "") const;
   std::ostream& Print(std::ostream& out) const;
 }; // class ExprOpXor
 
@@ -149,7 +156,8 @@ public:
   ExprOpAdd(const ExprPtr arg0, const ExprPtr arg1);
   std::string op_name() const { return "ADD"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
-                     const std::string& suffix) const;
+                     const std::string& prefix = "",
+                     const std::string& suffix = "") const;
   std::ostream& Print(std::ostream& out) const;
 }; // class ExprOpAdd
 
@@ -174,7 +182,8 @@ public:
   ExprOpEq(const ExprPtr arg0, const ExprPtr arg1);
   std::string op_name() const { return "EQ"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
-                     const std::string& suffix) const;
+                     const std::string& prefix = "",
+                     const std::string& suffix = "") const;
   std::ostream& Print(std::ostream& out) const;
 }; // class ExprOpEq
 
@@ -199,7 +208,8 @@ public:
   ExprOpLoad(const ExprPtr mem, const ExprPtr addr);
   std::string op_name() const { return "LOAD"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
-                     const std::string& suffix) const;
+                     const std::string& prefix = "",
+                     const std::string& suffix = "") const;
   std::ostream& Print(std::ostream& out) const;
 }; // class ExprOpLoad
 
@@ -210,7 +220,8 @@ public:
   ExprOpStore(const ExprPtr mem, const ExprPtr addr, const ExprPtr data);
   std::string op_name() const { return "STORE"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
-                     const std::string& suffix) const;
+                     const std::string& prefix = "",
+                     const std::string& suffix = "") const;
   std::ostream& Print(std::ostream& out) const;
 }; // class ExprOpStore
 
@@ -242,7 +253,8 @@ public:
             const ExprPtr false_expr);
   std::string op_name() const { return "ITE"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
-                     const std::string& suffix) const;
+                     const std::string& prefix = "",
+                     const std::string& suffix = "") const;
   std::ostream& Print(std::ostream& out) const;
 }; // class ExprOpIte
 

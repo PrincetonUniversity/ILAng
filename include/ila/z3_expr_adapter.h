@@ -39,7 +39,8 @@ public:
   /// \param[in] expr the AST node.
   /// \param[in] suffix the suffix for terminating nodes (e.g. time frame)
   /// \return z3 expression
-  z3::expr GetZ3Expr(const ExprPtr expr, const std::string& suffix = "");
+  z3::expr GetZ3Expr(const ExprPtr expr, const std::string& prefix = "",
+                     const std::string& suffix = "");
 
   /// Clear the cached values. (Should be called for every time frame)
   void Clear();
@@ -55,7 +56,9 @@ private:
   z3::context& ctx_;
   /// Container for cacheing intermediate expressions.
   ExprMap expr_map_;
-  /// Name suffix for each expression generation (time frame)
+  /// Name prefix for each expression generation (e.g. ILA tag)
+  std::string prefix_;
+  /// Name suffix for each expression generation (e.g. time frame)
   std::string suffix_;
 
   // ------------------------- HELPERS -------------------------------------- //

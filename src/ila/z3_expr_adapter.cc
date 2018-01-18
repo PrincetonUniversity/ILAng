@@ -16,9 +16,10 @@ z3::context& Z3ExprAdapter::ctx() const { return ctx_; }
 
 void Z3ExprAdapter::set_simplify(const bool& sim) { simplify_ = sim; }
 
-z3::expr Z3ExprAdapter::GetZ3Expr(const ExprPtr expr,
+z3::expr Z3ExprAdapter::GetZ3Expr(const ExprPtr expr, const std::string& prefix,
                                   const std::string& suffix) {
   suffix_ = suffix;
+  prefix_ = prefix;
   expr->DepthFirstVisit(*this);
 
   auto pos = expr_map_.find(expr.get());
@@ -65,7 +66,7 @@ void Z3ExprAdapter::PopulateExprMap(const ExprPtrRaw expr) {
   }
 
   // get the expression based on different type of the ast node.
-  z3::expr res = expr->GetZ3Expr(ctx_, expr_vec, suffix_);
+  z3::expr res = expr->GetZ3Expr(ctx_, expr_vec, prefix_, suffix_);
 
   // simplify expression
   if (simplify_)
