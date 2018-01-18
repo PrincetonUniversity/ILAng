@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['noderef',['NodeRef',['../classila_1_1_node_ref.html',1,'ila']]]
+  ['loginitter',['LogInitter',['../classila_1_1_log_initter.html',1,'ila']]]
 ];

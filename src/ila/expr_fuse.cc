@@ -69,6 +69,10 @@ ExprPtr ExprFuse::Xor(const ExprPtr l, const ExprPtr r) {
   return std::make_shared<ExprOpXor>(l, r);
 }
 
+ExprPtr ExprFuse::Add(const ExprPtr l, const ExprPtr r) {
+  return std::make_shared<ExprOpAdd>(l, r);
+}
+
 ExprPtr ExprFuse::Eq(const ExprPtr l, const ExprPtr r) {
   return std::make_shared<ExprOpEq>(l, r);
 }
@@ -85,6 +89,11 @@ ExprPtr ExprFuse::Load(const ExprPtr mem, const ExprPtr addr) {
 ExprPtr ExprFuse::Store(const ExprPtr mem, const ExprPtr addr,
                         const ExprPtr data) {
   return std::make_shared<ExprOpStore>(mem, addr, data);
+}
+
+ExprPtr ExprFuse::Ite(const ExprPtr cnd, const ExprPtr true_expr,
+                      const ExprPtr false_expr) {
+  return std::make_shared<ExprOpIte>(cnd, true_expr, false_expr);
 }
 
 } // namespace ila

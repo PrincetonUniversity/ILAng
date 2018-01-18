@@ -4,7 +4,7 @@
 #include "ila/expr_fuse.h"
 #include "ila/instr.h"
 #include "ila/transition.h"
-#include "util_test.h"
+#include "unit-include/util.h"
 
 namespace ila {
 
@@ -105,8 +105,10 @@ TEST_F(TestInstrSeq, ItNode) {
   EXPECT_EQ(node_1, node_2->prev(0));
   EXPECT_EQ(node_3, node_2->next(0));
   EXPECT_EQ(node_0, node_2->next(1));
+#ifndef NDEBUG
   EXPECT_DEATH(node_3->next(0), ".*");
   EXPECT_DEATH(node_3->prev(1), ".*");
+#endif
 }
 
 TEST_F(TestInstrSeq, AddTran) { auto seq = InitSeq(); }

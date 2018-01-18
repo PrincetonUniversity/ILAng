@@ -2986,7 +2986,7 @@ extern __attribute__((device)) __attribute__((__externally_visible__)) __attribu
 # 129 "/usr/local/cuda-8.0/bin/../targets/x86_64-linux/include/common_functions.h"
  __attribute__((device_builtin)) extern __attribute__((device)) int printf(const char *__restrict__, ...);
 # 13 "t266.cu"
-__attribute__((global)) extern void _Z3dotPfS_S_(float *, float *, float *);
+__attribute__((global)) extern void _Z3dotPi(int *);
 # 1 "/usr/local/cuda-8.0/bin/../targets/x86_64-linux/include/common_functions.h" 1
 # 249 "/usr/local/cuda-8.0/bin/../targets/x86_64-linux/include/common_functions.h"
 # 1 "/usr/local/cuda-8.0/targets/x86_64-linux/include/math_functions.h" 1 3
@@ -3004,34 +3004,46 @@ __attribute__((global)) extern void _Z3dotPfS_S_(float *, float *, float *);
 # 250 "/usr/local/cuda-8.0/bin/../targets/x86_64-linux/include/common_functions.h" 2
 # 15 "t266.cu" 2
 # 13 "t266.cu"
-__attribute__((global)) void _Z3dotPfS_S_(
+__attribute__((global)) void _Z3dotPi(
 # 13 "t266.cu"
-float *a,
-# 13 "t266.cu"
-float *b,
-# 13 "t266.cu"
-float *c){
+int *a){
 # 13 "t266.cu"
 {
 # 18 "t266.cu"
- int __cuda_local_var_33150_9_non_const_gid;
-# 19 "t266.cu"
- int __cuda_local_var_33151_9_non_const_i;
-# 20 "t266.cu"
- int __cuda_local_var_33152_9_non_const_j;
-# 21 "t266.cu"
- int __cuda_local_var_33153_9_non_const_k;
+ int __cuda_local_var_33150_9_non_const_tid;
 # 18 "t266.cu"
-__cuda_local_var_33150_9_non_const_gid = ((int)((threadIdx.x) + ((blockIdx.x) * (blockDim.x))));
+__cuda_local_var_33150_9_non_const_tid = ((int)(threadIdx.x));
 # 19 "t266.cu"
-__cuda_local_var_33151_9_non_const_i = ((int)__float2int_rz((float)((a[__cuda_local_var_33150_9_non_const_gid]))));
+if (__cuda_local_var_33150_9_non_const_tid > 1)
+# 19 "t266.cu"
+{
 # 20 "t266.cu"
-__cuda_local_var_33152_9_non_const_j = ((int)__float2int_rz((float)((b[__cuda_local_var_33150_9_non_const_gid]))));
+ int __cuda_local_var_33152_13_non_const_t0;
 # 21 "t266.cu"
-__cuda_local_var_33153_9_non_const_k = (__cuda_local_var_33151_9_non_const_i + __cuda_local_var_33152_9_non_const_j);
-# 22 "t266.cu"
-printf(((const char *)"%d"), __cuda_local_var_33153_9_non_const_k);
-# 24 "t266.cu"
-(c[__cuda_local_var_33150_9_non_const_gid]) = ((float)__cuda_local_var_33153_9_non_const_k);
-# 28 "t266.cu"
+ int __cuda_local_var_33153_13_non_const_t1;
+# 20 "t266.cu"
+__cuda_local_var_33152_13_non_const_t0 = (a[(__cuda_local_var_33150_9_non_const_tid - 2)]);
+# 21 "t266.cu"
+__cuda_local_var_33153_13_non_const_t1 = (a[__cuda_local_var_33150_9_non_const_tid]);
+# 23 "t266.cu"
+(a[__cuda_local_var_33150_9_non_const_tid]) = (__cuda_local_var_33152_13_non_const_t0 + __cuda_local_var_33153_13_non_const_t1);
+# 25 "t266.cu"
+}
+# 25 "t266.cu"
+else
+# 25 "t266.cu"
+{
+# 26 "t266.cu"
+ int __cuda_local_var_33158_13_non_const_t0;
+# 27 "t266.cu"
+ int __cuda_local_var_33159_13_non_const_t1;
+# 26 "t266.cu"
+__cuda_local_var_33158_13_non_const_t0 = (a[__cuda_local_var_33150_9_non_const_tid]);
+# 27 "t266.cu"
+__cuda_local_var_33159_13_non_const_t1 = (a[(__cuda_local_var_33150_9_non_const_tid + 2)]);
+# 29 "t266.cu"
+(a[__cuda_local_var_33150_9_non_const_tid]) = (__cuda_local_var_33158_13_non_const_t0 + __cuda_local_var_33159_13_non_const_t1);
+# 31 "t266.cu"
+}
+# 35 "t266.cu"
 }}

@@ -76,11 +76,16 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_ast.html">Ast</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The class for the Abstract Syntax Tree. An <a class="el" href="classila_1_1_ast.html" title="The class for the Abstract Syntax Tree. An Ast object can be an expression or function definition (in...">Ast</a> object can be an expression or function definition (interpreted or uninterpreted).  <a href="classila_1_1_ast.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_bmc.html">Bmc</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bounded model checking engine for ILAs.  <a href="classila_1_1_bmc.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_bool_val.html">BoolVal</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The container for representing Boolean values.  <a href="classila_1_1_bool_val.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_bv_val.html">BvVal</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The container for representing Bitvector values.  <a href="classila_1_1_bv_val.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_comp_ref_rel.html">CompRefRel</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_debug_log.html">DebugLog</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The wrapper for enabling and disabling debug tags.  <a href="classila_1_1_debug_log.html#details">More...</a><br /></td></tr>
@@ -97,8 +102,14 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_hash.html">ExprHash</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The function object for hashing <a class="el" href="classila_1_1_expr.html" title="The class for expression, which is the basic type for variables, constraints, state update expression...">Expr</a>. The hash value is the id of the symbol, which is supposed to be unique.  <a href="classila_1_1_expr_hash.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_mngr.html">ExprMngr</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Simplifier for AST trees by sharing nodes based on the hash value.  <a href="classila_1_1_expr_mngr.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_op.html">ExprOp</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Expression for operations, e.g. AND, OR, ADD, etc. Operations are non-terminating nodes in the AST.  <a href="classila_1_1_expr_op.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_op_add.html">ExprOpAdd</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The wrapper for unsigned addition.  <a href="classila_1_1_expr_op_add.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_op_and.html">ExprOpAnd</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The wrapper for binary logical AND operation "&amp;".  <a href="classila_1_1_expr_op_and.html#details">More...</a><br /></td></tr>
@@ -108,6 +119,9 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_op_eq.html">ExprOpEq</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The class wrapper for binary comparison EQ "==".  <a href="classila_1_1_expr_op_eq.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_op_ite.html">ExprOpIte</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The class wrapper for if-then-else.  <a href="classila_1_1_expr_op_ite.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_op_load.html">ExprOpLoad</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The class wrapper for memory load.  <a href="classila_1_1_expr_op_load.html#details">More...</a><br /></td></tr>
@@ -125,9 +139,7 @@ Classes</h2></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The class wrapper for memory store.  <a href="classila_1_1_expr_op_store.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_op_xor.html">ExprOpXor</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_simplifier.html">ExprSimplifier</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The simplify the AST tree by sharing nodes based on the hash value.  <a href="classila_1_1_expr_simplifier.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The wrapper for binary logical XOR operation "^".  <a href="classila_1_1_expr_op_xor.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_var.html">ExprVar</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Expression for variables (bool, bv, or mem). Variable should be the terminating nodes in the AST.  <a href="classila_1_1_expr_var.html#details">More...</a><br /></td></tr>
@@ -141,6 +153,21 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_instr_lvl_abs.html">InstrLvlAbs</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The class of Instruction-Level Abstraction (ILA). An ILA contains:  <a href="classila_1_1_instr_lvl_abs.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_instr_seq.html">InstrSeq</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Instruction Sequencing does:  <a href="classila_1_1_instr_seq.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_instr_tran_edge.html">InstrTranEdge</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Instruction transition edge, includeing:  <a href="classila_1_1_instr_tran_edge.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_instr_tran_node.html">InstrTranNode</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Node for instruction-transition node, each node represent an instruction.  <a href="classila_1_1_instr_tran_node.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_key_vec.html">KeyVec</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The container that support key search and index access.  <a href="classila_1_1_key_vec.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_key_vec_it.html">KeyVecIt</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A pseudo-iterator for the key-search vector.  <a href="classila_1_1_key_vec_it.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_log_initter.html">LogInitter</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A one-time class for initializing GLog.  <a href="classila_1_1_log_initter.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -153,6 +180,12 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_object.html">Object</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The basest type in the ILA structure. It can be either <a class="el" href="classila_1_1_ast.html" title="The class for the Abstract Syntax Tree. An Ast object can be an expression or function definition (in...">Ast</a>, <a class="el" href="classila_1_1_instr.html" title="The class for the Instruction. An Instr object contains: ">Instr</a>, or <a class="el" href="classila_1_1_instr_lvl_abs.html" title="The class of Instruction-Level Abstraction (ILA). An ILA contains: ">InstrLvlAbs</a>.  <a href="classila_1_1_object.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_ref_rel.html">RefRel</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The class for refinement relation. This is only the container for maitaining the refinement, but not handle the verification tasks.  <a href="classila_1_1_ref_rel.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_ref_unit.html">RefUnit</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Refinement unit, used to stored:  <a href="classila_1_1_ref_unit.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_sort.html">Sort</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The class for sort (type for expr, and the range/domain of functions).  <a href="classila_1_1_sort.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -162,12 +195,23 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_value.html">Value</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The base type for constant value.  <a href="classila_1_1_value.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_verif_bd.html">VerifBd</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The class for performing equivalence checking using the Birch-Dill methodology (i.e. commutative diagram with the flushing/stall function).  <a href="classila_1_1_verif_bd.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_z3_expr_adapter.html">Z3ExprAdapter</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The class for generating z3 expression from the ast expression.  <a href="classila_1_1_z3_expr_adapter.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
 Typedefs</h2></td></tr>
+<tr class="memitem:abbb54e9e7d5dfbc30a2ccf51f6b976db"><td class="memItemLeft" align="right" valign="top"><a id="abbb54e9e7d5dfbc30a2ccf51f6b976db"></a>
+typedef std::shared_ptr&lt; <a class="el" href="classila_1_1_ref_unit.html">RefUnit</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#abbb54e9e7d5dfbc30a2ccf51f6b976db">RefUnitPtr</a></td></tr>
+<tr class="memdesc:abbb54e9e7d5dfbc30a2ccf51f6b976db"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pointer type for maintaining the refinement unit. <br /></td></tr>
+<tr class="separator:abbb54e9e7d5dfbc30a2ccf51f6b976db"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae0fe69efd13319c2f2506ab3e03e6198"><td class="memItemLeft" align="right" valign="top"><a id="ae0fe69efd13319c2f2506ab3e03e6198"></a>
+typedef std::shared_ptr&lt; <a class="el" href="classila_1_1_ref_rel.html">RefRel</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#ae0fe69efd13319c2f2506ab3e03e6198">RefRelPtr</a></td></tr>
+<tr class="memdesc:ae0fe69efd13319c2f2506ab3e03e6198"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pointer type for passing around the refinement relation. <br /></td></tr>
+<tr class="separator:ae0fe69efd13319c2f2506ab3e03e6198"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a79b6eeb85bd8dd93f332581e6a959227"><td class="memItemLeft" align="right" valign="top"><a id="a79b6eeb85bd8dd93f332581e6a959227"></a>
 typedef <a class="el" href="classila_1_1_expr.html#a47a8f1d3c933326fcc717ee4ed68bc2e">Expr::ExprPtrRaw</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a79b6eeb85bd8dd93f332581e6a959227">ExprPtrRaw</a></td></tr>
 <tr class="memdesc:a79b6eeb85bd8dd93f332581e6a959227"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pointer type only for visitor function objects. <br /></td></tr>
@@ -232,6 +276,14 @@ typedef <a class="el" href="classila_1_1_instr_lvl_abs.html#a1fde1d236329a306296
 typedef <a class="el" href="classila_1_1_object.html#a5aee87796fe12ce00d015f2a7141d8ce">Object::ObjPtr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a2cdfde1a8bca2bc310b114112d7c3dcf">ObjPtr</a></td></tr>
 <tr class="memdesc:a2cdfde1a8bca2bc310b114112d7c3dcf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pointer type for normal use of <a class="el" href="classila_1_1_object.html" title="The basest type in the ILA structure. It can be either Ast, Instr, or InstrLvlAbs. ">Object</a>. <br /></td></tr>
 <tr class="separator:a2cdfde1a8bca2bc310b114112d7c3dcf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0be6fc9e0e91cb849ee0a61232f5ab25"><td class="memItemLeft" align="right" valign="top"><a id="a0be6fc9e0e91cb849ee0a61232f5ab25"></a>
+typedef <a class="el" href="classila_1_1_expr_mngr.html#aeccb5bd5344e1b7730ca2a5df52bc17f">ExprMngr::ExprMngrPtr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a0be6fc9e0e91cb849ee0a61232f5ab25">ExprMngrPtr</a></td></tr>
+<tr class="memdesc:a0be6fc9e0e91cb849ee0a61232f5ab25"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pointer type for passing shared ast simplifier. <br /></td></tr>
+<tr class="separator:a0be6fc9e0e91cb849ee0a61232f5ab25"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8e90aff0651558ebd907485aa1b69b00"><td class="memItemLeft" align="right" valign="top"><a id="a8e90aff0651558ebd907485aa1b69b00"></a>
+typedef <a class="el" href="classila_1_1_instr_seq.html#a749ea9e18c9733ccd75082c01b342fd4">InstrSeq::InstrSeqPtr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a8e90aff0651558ebd907485aa1b69b00">InstrSeqPtr</a></td></tr>
+<tr class="memdesc:a8e90aff0651558ebd907485aa1b69b00"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pointer type for passing around <a class="el" href="classila_1_1_instr_seq.html" title="Instruction Sequencing does: ">InstrSeq</a>. <br /></td></tr>
+<tr class="separator:a8e90aff0651558ebd907485aa1b69b00"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="enum-members"></a>
 Enumerations</h2></td></tr>
@@ -242,6 +294,11 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:af7ab769f71886d8d49de536580ef884f"><td class="mdescLeft">&#160;</td><td class="mdescRight">SortType. <br /></td></tr>
 <tr class="separator:af7ab769f71886d8d49de536580ef884f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a12231b104df49b298133f49f8d46232b"><td class="memItemLeft" align="right" valign="top"><a id="a12231b104df49b298133f49f8d46232b"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a12231b104df49b298133f49f8d46232b">KeyVecItVal</a> { <b>END</b>, 
+<b>FOUND</b>
+ }</td></tr>
+<tr class="memdesc:a12231b104df49b298133f49f8d46232b"><td class="mdescLeft">&#160;</td><td class="mdescRight">KeyVecItVal. <br /></td></tr>
+<tr class="separator:a12231b104df49b298133f49f8d46232b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>

@@ -46,6 +46,7 @@ BB0_2:
 	add.s32 	%r12, %r12, 1;
 	setp.lt.s32	%p2, %r12, %r6;
 	mov.u64 	%rd8, %rd4;
+    bar.sync    0;
 	@%p2 bra 	BB0_2;
 
 BB0_3:

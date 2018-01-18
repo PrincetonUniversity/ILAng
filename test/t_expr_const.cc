@@ -3,13 +3,15 @@
 
 #include "ila/ast/expr_const.h"
 #include "ila/ast/sort_value.h"
-#include "util_test.h"
+#include "unit-include/util.h"
 #include "z3++.h"
 
 namespace ila {
 
 TEST(TestExprConst, Construct) {
+#ifndef NDEBUG
   EXPECT_DEATH(ExprConst(), ".*");
+#endif
   auto bool_const = std::make_shared<ExprConst>(BoolVal(true));
   auto bv_const = std::make_shared<ExprConst>(BvVal(1), 8);
 
@@ -83,12 +85,16 @@ TEST(TestExprConst, MemZ3Expr) {
 }
 
 TEST(TestExprConst, BoolVal) {
+#ifndef NDEBUG
   EXPECT_DEATH(BoolVal(), ".*");
+#endif
   auto bool_const = std::make_shared<ExprConst>(BoolVal(true));
 
   auto bool_val = bool_const->val_bool();
+#ifndef NDEBUG
   EXPECT_DEATH(bool_const->val_bv(), ".*");
   EXPECT_DEATH(bool_const->val_mem(), ".*");
+#endif
 
   EXPECT_EQ(true, bool_val->val());
 
@@ -105,12 +111,16 @@ TEST(TestExprConst, BoolVal) {
 }
 
 TEST(TestExprConst, BvVal) {
+#ifndef NDEBUG
   EXPECT_DEATH(BvVal(), ".*");
+#endif
   auto bv_const = std::make_shared<ExprConst>(BvVal(1), 8);
 
   auto bv_val = bv_const->val_bv();
+#ifndef NDEBUG
   EXPECT_DEATH(bv_const->val_bool(), ".*");
   EXPECT_DEATH(bv_const->val_mem(), ".*");
+#endif
 
   EXPECT_EQ(1, bv_val->val());
 
@@ -127,7 +137,9 @@ TEST(TestExprConst, BvVal) {
 }
 
 TEST(TestExprConst, MemVal) {
+#ifndef NDEBUG
   EXPECT_DEATH(MemVal(), ".*");
+#endif
   int def = 1;
   MemVal val(def);
   for (int i = 0; i < 2; i++) {
@@ -136,8 +148,10 @@ TEST(TestExprConst, MemVal) {
   auto mem_const = std::make_shared<ExprConst>(val, 8, 32);
 
   auto mem_val = mem_const->val_mem();
+#ifndef NDEBUG
   EXPECT_DEATH(mem_const->val_bool(), ".*");
   EXPECT_DEATH(mem_const->val_bv(), ".*");
+#endif
 
   EXPECT_EQ(def, mem_val->def_val());
   MemValMap val_map = mem_val->val_map();

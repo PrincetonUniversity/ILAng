@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['valptr',['ValPtr',['../classila_1_1_value.html#ac1e3b221b4a8bceeae77a76113d2d109',1,'ila::Value::ValPtr()'],['../namespaceila.html#adeac6fe68378ac3164b32c8a0b176b70',1,'ila::ValPtr()']]]
+  ['refrelptr',['RefRelPtr',['../namespaceila.html#ae0fe69efd13319c2f2506ab3e03e6198',1,'ila']]],
+  ['refunitptr',['RefUnitPtr',['../namespaceila.html#abbb54e9e7d5dfbc30a2ccf51f6b976db',1,'ila']]]
 ];

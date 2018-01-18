@@ -42,12 +42,12 @@ size_t InstrTranNode::prev_num() const { return prev_.size(); }
 
 const ItNodePtr InstrTranNode::next(const size_t& i) const {
   ILA_ASSERT(i < next_.size()) << "Access overflow for out-going nodes.\n";
-  return next_[i];
+  return next_.at(i);
 }
 
 const ItNodePtr InstrTranNode::prev(const size_t& i) const {
   ILA_ASSERT(i < prev_.size()) << "Access overflow for in-comming nodes.\n";
-  return prev_[i];
+  return prev_.at(i);
 }
 
 void InstrTranNode::AddNext(const ItNodePtr next) { next_.push_back(next); }
@@ -58,14 +58,11 @@ void InstrTranNode::AddPrev(const ItNodePtr prev) { prev_.push_back(prev); }
 typedef InstrSeq::InstrIdxKeyVec InstrIdxKeyVec;
 typedef InstrSeq::InstrIdxKeyVecPtr InstrIdxKeyVecPtr;
 
-InstrSeq::InstrSeq() {
-  edges_.clear();
-  nodes_.clear();
-  sorted_ = std::make_shared<InstrIdxKeyVec>();
-  sorted_->clear();
-}
+InstrSeq::InstrSeq() { clear(); }
 
-InstrSeq::~InstrSeq() {
+InstrSeq::~InstrSeq() { clear(); }
+
+void InstrSeq::clear() {
   edges_.clear();
   nodes_.clear();
   sorted_->clear();

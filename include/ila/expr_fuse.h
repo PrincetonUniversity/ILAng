@@ -18,6 +18,8 @@ namespace ila {
 /// \brief The uniform interface and wrapper for different types of expressions,
 /// e.g. var, constant, and different operations.
 class ExprFuse {
+  // ------------------------- MEMBERS -------------------------------------- //
+
 public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor. NOT USED. Not for constructing objects.
@@ -146,12 +148,10 @@ public:
   /// Logical imply (bool only)
   static ExprPtr Imply(const ExprPtr p, const ExprPtr q);
   /// If-then-else (condition bool only)
-  static ExprPtr Ite(const ExprPtr cond, const ExprPtr true_expr,
+  static ExprPtr Ite(const ExprPtr cnd, const ExprPtr true_expr,
                      const ExprPtr false_expr);
 
 private:
-  // ------------------------- MEMBERS -------------------------------------- //
-
   // ------------------------- HELPERS -------------------------------------- //
 
 }; // class ExprFuse

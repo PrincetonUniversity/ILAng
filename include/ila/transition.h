@@ -113,6 +113,10 @@ public:
   /// Default destructor.
   ~InstrSeq();
 
+  // ------------------------- ACCESSORS/MUTATORS --------------------------- //
+  /// Reset all stored sequences.
+  void clear();
+
   // ------------------------- HELPERS -------------------------------------- //
   /// Create a new ITG, used for hiding implementation specific types.
   static InstrSeqPtr New();
@@ -135,7 +139,7 @@ private:
   std::map<InstrPtr, ItNodePtr> nodes_;
 
   /// The sorted instruction index.
-  InstrIdxKeyVecPtr sorted_;
+  InstrIdxKeyVecPtr sorted_ = std::make_shared<InstrIdxKeyVec>();
 
 }; // class InstrSeq
 

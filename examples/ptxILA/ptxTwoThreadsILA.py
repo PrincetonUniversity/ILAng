@@ -156,7 +156,7 @@ class ptxTwoThreadsILA(object):
         g_prop = golden.bit('prop')
         golden.set_next('prop', golden.bool(True))
         golden.set_init('prop', golden.bool(True))
-        print ila.bmc(300, self.model, self.predicate_one, 1, golden, g_prop)
+        ila.bmc(30, self.model, self.predicate_one, 1, golden, g_prop)
          
     def property_test2(self):
         bar_spec = ptxILA.barSpec()
@@ -180,7 +180,7 @@ class ptxTwoThreadsILA(object):
         g_prop = golden.bit('prop')
         golden.set_next('prop', golden.bool(True))
         golden.set_init('prop', golden.bool(True))
-        print ila.bmc(100, self.model, self.predicate_two, 1, golden, g_prop)
+        ila.bmc(10, self.model, self.predicate_two, 1, golden, g_prop)
 if __name__ == '__main__':
     two_threads = ptxTwoThreadsILA()
     two_threads.property_test2()

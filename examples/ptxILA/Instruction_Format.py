@@ -4,6 +4,7 @@ class InstructionFormat(object):
         self.INSTRUCTION_BITS = 64
         self.IMM_BIT_TOP = 64 
         self.IMM_BIT_BOT = 32 
+        self.PRED_REG_BITS = 1
         self.REG_BITS = 32
         self.LONG_REG_BITS = 64
         self.OPCODE_LENGTH = 32
@@ -29,7 +30,7 @@ class InstructionFormat(object):
         self.PRED_BIT_BOT = 0
         self.PRED_BIT = 1
         self.MEM_BITS = 64
-        self.MEM_ADDRESS_BITS = 32
+        self.MEM_ADDRESS_BITS = 64 
         self.DMEM_BITS = 32
 
 

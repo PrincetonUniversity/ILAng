@@ -3,7 +3,9 @@ include(CTest)
 enable_testing()
 
 set(TEST_MAIN test_main)
-file(GLOB TEST_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/*.cc")
+file(GLOB TEST_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/*.cc"
+                       "${CMAKE_CURRENT_SOURCE_DIR}/unit-src/*.cc"
+    )
 set(EXTRA_LIBS gtest_main ilatools)
 add_executable(${TEST_MAIN} ${TEST_SOURCES})
 add_dependencies(${TEST_MAIN} ${EXTRA_LIBS})

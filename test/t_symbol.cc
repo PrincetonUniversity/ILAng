@@ -2,7 +2,7 @@
 /// Unit test for class Symbol.
 
 #include "ila/symbol.h"
-#include "util_test.h"
+#include "unit-include/util.h"
 
 namespace ila {
 

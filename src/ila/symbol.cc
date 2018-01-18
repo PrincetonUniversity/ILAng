@@ -11,8 +11,8 @@ namespace ila {
 size_t Symbol::counter_ = 0;
 
 Symbol::Symbol() {
-  name_ = "$" + std::to_string(id_);
   id_ = ++counter_;
+  name_ = "$" + std::to_string(id_);
 }
 
 Symbol::Symbol(const char* str) : name_(str) { id_ = ++counter_; }

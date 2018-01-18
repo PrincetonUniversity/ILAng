@@ -2,7 +2,7 @@
 /// Unit test for class InstrLvlAbs.
 
 #include "ila/instr_lvl_abs.h"
-#include "util_test.h"
+#include "unit-include/util.h"
 
 namespace ila {
 
@@ -52,28 +52,37 @@ TEST(TestInstrLvlAbs, Input) {
   ila->AddInput(bool_input);
 
   ExprPtr bool_const = ExprFuse::BoolConst(true);
+#ifndef NDEBUG
   EXPECT_DEATH(ila->AddInput(bool_const), ".*");
-
   EXPECT_DEATH(ila->AddInput(NULL), ".*");
+#endif
 
   ExprPtr new_bool_input = ExprFuse::NewBoolVar("bool_input");
+#ifndef NDEBUG
   EXPECT_DEATH(ila->AddInput(new_bool_input), ".*");
+#endif
 
   // New
   ExprPtr bool_in_emb = ila->NewBoolInput("bool_in_emb");
   ExprPtr bv_in_emb = ila->NewBvInput("bv_in_emb", 8);
+#ifndef NDEBUG
   EXPECT_DEATH(ila->NewBoolInput("bool_in_emb"), ".*");
   EXPECT_DEATH(ila->NewBvInput("bv_in_emb", 8), ".*");
+#endif
 
   // Get
   EXPECT_EQ(3, ila->input_num());
   EXPECT_EQ(bool_input, ila->input(0));
   EXPECT_EQ(bool_in_emb, ila->input(1));
   EXPECT_EQ(bv_in_emb, ila->input(2));
+#ifndef NDEBUG
   EXPECT_DEATH(ila->input(3), ".*");
+#endif
 
   ExprPtr get_bool_input = ila->input("bool_input");
+#ifndef NDEBUG
   EXPECT_EQ(bool_input, get_bool_input);
+#endif
 
   ExprPtr get_fail = ila->input("non-exist");
   EXPECT_TRUE(get_fail == NULL);
@@ -87,25 +96,33 @@ TEST(TestInstrLvlAbs, State) {
   ila->AddState(bool_state);
 
   ExprPtr bool_const = ExprFuse::BoolConst(true);
+#ifndef NDEBUG
   EXPECT_DEATH(ila->AddState(bool_const), ".*");
 
   EXPECT_DEATH(ila->AddState(NULL), ".*");
+#endif
 
   ExprPtr new_bool_state = ExprFuse::NewBoolVar("bool_state");
+#ifndef NDEBUG
   EXPECT_DEATH(ila->AddState(new_bool_state), ".*");
+#endif
 
   // New
   ExprPtr bool_st_emb = ila->NewBoolState("bool_st_emb");
   ExprPtr bv_st_emb = ila->NewBvState("bv_st_emb", 8);
+#ifndef NDEBUG
   EXPECT_DEATH(ila->NewBoolState("bool_st_emb"), ".*");
   EXPECT_DEATH(ila->NewBvState("bv_st_emb", 8), ".*");
+#endif
 
   // Get
   EXPECT_EQ(3, ila->state_num());
   EXPECT_EQ(bool_state, ila->state(0));
   EXPECT_EQ(bool_st_emb, ila->state(1));
   EXPECT_EQ(bv_st_emb, ila->state(2));
+#ifndef NDEBUG
   EXPECT_DEATH(ila->state(3), ".*");
+#endif
 
   ExprPtr get_bool_state = ila->state("bool_state");
   EXPECT_EQ(bool_state, get_bool_state);
@@ -127,8 +144,10 @@ TEST(TestInstrLvlAbs, Init) {
 
   ila->AddInit(init0);
   ila->AddInit(init1);
+#ifndef NDEBUG
   EXPECT_DEATH(ila->AddInit(bad_cntr), ".*");
   EXPECT_DEATH(ila->AddInit(NULL), ".*");
+#endif
 
   EXPECT_EQ(2, ila->init_num());
   EXPECT_EQ(init0, ila->init(0));
@@ -145,11 +164,15 @@ TEST(TestInstrLvlAbs, Fetch) {
   auto fetch = ExprFuse::Load(mem, varx);
   auto new_f = ExprFuse::Or(varx, vary);
 
+#ifndef NDEBUG
   EXPECT_DEATH(ila->SetFetch(varb), ".*");
   EXPECT_DEATH(ila->SetFetch(NULL), ".*");
+#endif
 
   ila->SetFetch(fetch);
+#ifndef NDEBUG
   EXPECT_DEATH(ila->SetFetch(new_f), ".*");
+#endif
 
   EXPECT_EQ(fetch, ila->fetch());
   EXPECT_NE(new_f, ila->fetch());
@@ -166,11 +189,15 @@ TEST(TestInstrLvlAbs, Valid) {
   auto valid = ExprFuse::Eq(opcode, bv0);
   auto new_v = varb;
 
+#ifndef NDEBUG
   EXPECT_DEATH(ila->SetValid(opcode), ".*");
   EXPECT_DEATH(ila->SetValid(NULL), ".*");
+#endif
 
   ila->SetValid(valid);
+#ifndef NDEBUG
   EXPECT_DEATH(ila->SetValid(new_v), ".*");
+#endif
 
   EXPECT_EQ(valid, ila->valid());
   EXPECT_NE(new_v, ila->valid());
@@ -208,9 +235,11 @@ TEST(TestInstrLvlAbs, Instr) {
   EXPECT_FALSE(instr_em->has_simplify());
   EXPECT_TRUE(instr_em_n->has_simplify());
 
-  // add existed instr
+// add existed instr
+#ifndef NDEBUG
   EXPECT_DEATH(ila->NewInstr("instr_ex_n"), ".*");
   EXPECT_DEATH(ila->NewInstr(instr_em_n->name().str()), ".*");
+#endif
   EXPECT_EQ(5, ila->instr_num());
 
   // find non-existed
@@ -230,7 +259,9 @@ TEST(TestInstrLvlAbs, Instr) {
   EXPECT_EQ(instr_ex_n_s, ila->instr(2));
   EXPECT_EQ(instr_em, ila->instr(3));
   EXPECT_EQ(instr_em_n, ila->instr(4));
+#ifndef NDEBUG
   EXPECT_DEATH(ila->instr(5), ".*");
+#endif
 }
 
 TEST(TestInstrLvlAbs, Child) {
@@ -245,9 +276,11 @@ TEST(TestInstrLvlAbs, Child) {
 
   EXPECT_EQ(2, ila->child_num());
 
-  // add existed
+// add existed
+#ifndef NDEBUG
   EXPECT_DEATH(ila->AddChild(child2), ".*");
   EXPECT_DEATH(ila->NewChild("child1"), ".*");
+#endif
 
   EXPECT_EQ(2, ila->child_num());
 
@@ -262,7 +295,9 @@ TEST(TestInstrLvlAbs, Child) {
   // random access
   EXPECT_EQ(child1, ila->child(0));
   EXPECT_EQ(child2, ila->child(1));
+#ifndef NDEBUG
   EXPECT_DEATH(ila->child(3), ".*");
+#endif
 }
 
 TEST(TestInstrLvlAbs, CheckAll) {
@@ -285,6 +320,23 @@ TEST(TestInstrLvlAbs, MergeAll) {
 TEST(TestInstrLvlAbs, SortInstr) {
   auto ila = InstrLvlAbs::New("ila");
   ila->SortInstr();
+  // TODO
+}
+
+TEST(TestInstrLvlAbs, SeqTran) {
+  auto ila = InstrLvlAbs::New("ila");
+
+  auto instr_0 = ila->NewInstr("instr_0");
+  auto instr_1 = ila->NewInstr("instr_1");
+  auto instr_2 = ila->NewInstr("instr_2");
+  auto counter = ila->NewBvState("counter", 8);
+  auto const_1 = ExprFuse::BvConst(1, 8);
+  auto const_2 = ExprFuse::BvConst(2, 8);
+  auto cnd_1 = ExprFuse::Eq(counter, const_1);
+  auto cnd_2 = ExprFuse::Eq(counter, const_2);
+
+  ila->AddSeqTran(instr_0, instr_1, cnd_1);
+  ila->AddSeqTran(instr_1, instr_2, cnd_2);
   // TODO
 }
 

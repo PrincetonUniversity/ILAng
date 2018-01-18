@@ -11,6 +11,11 @@ set(PROJECT_VERSION_MINOR 0)
 #set(CMAKE_BUILD_TYPE "Debug")
 #set(CMAKE_BUILD_TYPE "Release")
 
+# prefer linking with shared libraries
+set (CMAKE_FIND_LIBRARY_SUFFIXES ".so" ${CMAKE_FIND_LIBRARY_SUFFIXES})
+# prefer generating shared libraries
+set (BUILD_SHARED_LIBS ON)
+
 set(EXECUTABLE_OUTPUT_PATH "${PROJECT_BINARY_DIR}/bin")
 set(LIBRARY_OUTPUT_PATH "${PROJECT_BINARY_DIR}/lib")
 
@@ -19,6 +24,8 @@ set(CMAKE_MODULE_PATH
   ${CMAKE_MODULE_PATH}
   "${CMAKE_CURRENT_SOURCE_DIR}/cmake"
   )
+
+set(CMAKE_MACOSX_RPATH 1)
 
 # ------------------------------------------------------------------------------
 # Compile flags 
