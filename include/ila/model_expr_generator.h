@@ -46,6 +46,7 @@ private:
   // ------------------------- HELPERS -------------------------------------- //
 
 }; // class ModelExprGen
+typedef ModelExprGen::Z3ExprMap Z3ExprMap;
 
 } // namespace ila
 

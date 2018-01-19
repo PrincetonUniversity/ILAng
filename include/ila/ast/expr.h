@@ -28,6 +28,7 @@ public:
   typedef std::vector<ExprPtr> ExprPtrVec;
   /// Type for storing a set of z3 expr.
   typedef std::vector<z3::expr> Z3ExprVec;
+  // typedef z3::ast_vector_tpl<z3::expr> Z3ExprVec;
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor.
