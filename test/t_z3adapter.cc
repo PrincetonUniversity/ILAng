@@ -26,7 +26,7 @@ TEST(TestZ3Adapter, Construct) {
   auto y_or_0 = ExprFuse::Or(reg_y, const_bv0);
   auto bv_equal = ExprFuse::Eq(x_and_y_or_y, y_or_0); // always true
 
-  z3::expr expr_eq = adapter.GetZ3Expr(bv_equal);
+  z3::expr expr_eq = adapter.GetExpr(bv_equal);
 
   // solve the validity
   s.add(!expr_eq);
@@ -40,7 +40,7 @@ TEST(TestZ3Adapter, Construct) {
   auto const_false = ExprFuse::Not(const_true);
   auto bool_equal = ExprFuse::Eq(bv_equal, const_false); // always false
 
-  z3::expr expr_bool_equal = adapter.GetZ3Expr(bool_equal);
+  z3::expr expr_bool_equal = adapter.GetExpr(bool_equal);
 
   // solve the validity
   s.add(expr_bool_equal);

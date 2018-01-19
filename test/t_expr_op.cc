@@ -23,10 +23,7 @@ public:
     delete gen;
   }
 
-  void SetUp() {
-    s->reset();
-    gen->Clear();
-  }
+  void SetUp() { s->reset(); }
 
   void TearDown() {}
 
@@ -55,7 +52,7 @@ public:
 TEST_F(TestExprOp, And) {
   // expr
   ExprPtr bv_and = ExprFuse::And(bv_var, bv_var_0);
-  auto e_bv_and = gen->GetZ3Expr(bv_and);
+  auto e_bv_and = gen->GetExpr(bv_and);
   // print
 }
 

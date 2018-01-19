@@ -4,7 +4,7 @@
 #ifndef __Z3_EXPR_ADAPTER_H__
 #define __Z3_EXPR_ADAPTER_H__
 
-#include "ila/ast/expr.h"
+#include "ila/expr_fuse.h"
 #include "z3++.h"
 #include <unordered_map>
 
@@ -35,12 +35,13 @@ public:
   void set_context(z3::context& ctx);
 
   // ------------------------- METHODS -------------------------------------- //
-  /// Get the z3 expression of the AST node with clearing the cache.
-  z3::expr GetZ3Expr(const ExprPtr expr, const std::string& prefix = "",
-                     const std::string& suffix = "");
-  /// Get the z3 expression of the AST node.
-  z3::expr GetZ3ExprCached(const ExprPtr expr, const std::string& prefix = "",
-                           const std::string& suffix = "");
+  /// Get the z3 expression of the AST node (no cached value used).
+  z3::expr GetExpr(const ExprPtr expr, const std::string& prefix = "",
+                   const std::string& suffix = "");
+
+  /// Get the z3 expression of the AST node using the cached value.
+  z3::expr GetExprCached(const ExprPtr expr, const std::string& prefix = "",
+                         const std::string& suffix = "");
 
   /// Clear the cached values. (Should be called for every time frame)
   void Clear();
