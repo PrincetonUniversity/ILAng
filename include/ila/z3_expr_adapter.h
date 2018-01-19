@@ -52,15 +52,15 @@ public:
 private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// Flag of simplification.
-  bool simplify_;
+  bool simplify_ = true;
   /// The underlying z3 context.
   z3::context& ctx_;
   /// Container for cacheing intermediate expressions.
   ExprMap expr_map_;
   /// Name prefix for each expression generation (e.g. ILA tag)
-  std::string prefix_;
+  std::string prefix_ = "";
   /// Name suffix for each expression generation (e.g. time frame)
-  std::string suffix_;
+  std::string suffix_ = "";
 
   // ------------------------- HELPERS -------------------------------------- //
   /// Insert the z3 expression of the given node into the map.

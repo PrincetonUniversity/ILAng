@@ -18,8 +18,6 @@ Instr::Instr(const std::string& name, ExprMngrPtr expr_mngr) {
     simplify_ = false;
   }
   // initialization for other components
-  decode_ = NULL;
-  has_view_ = false;
   updates_.clear();
 }
 
@@ -41,6 +39,8 @@ void Instr::set_mngr(const ExprMngrPtr mngr) {
   ILA_NOT_NULL(mngr);
   expr_mngr_ = mngr;
 }
+
+void Instr::set_host(const InstrLvlAbsPtr host) { host_ = host; }
 
 void Instr::SetDecode(const ExprPtr decode) {
   ILA_ERROR_IF(decode_ != NULL)

@@ -6,7 +6,7 @@
 
 namespace ila {
 
-Z3ExprAdapter::Z3ExprAdapter(z3::context& ctx) : ctx_(ctx) { simplify_ = true; }
+Z3ExprAdapter::Z3ExprAdapter(z3::context& ctx) : ctx_(ctx) {}
 
 Z3ExprAdapter::~Z3ExprAdapter() {}
 
@@ -21,6 +21,22 @@ z3::expr Z3ExprAdapter::GetExpr(const ExprPtr expr, const std::string& prefix,
   Clear();
   return GetExprCached(expr, prefix, suffix);
 }
+
+z3::expr Z3ExprAdapter::GetExprCached(const ExprPtr expr,
+                                      const std::string& prefix,
+                                      const std::string& suffix) {
+  suffix_ = suffix;
+  prefix_ = prefix;
+
+  expr->DepthFirstVisit(*this);
+
+  auto pos = expr_map_.find(expr.get());
+  ILA_ASSERT(pos != expr_map_.end()) << "z3 expr cannot be generated.\n";
+
+  return pos->second;
+}
+
+void Z3ExprAdapter::Clear() { expr_map_.clear(); }
 
 void Z3ExprAdapter::operator()(const ExprPtrRaw expr) {
   auto pos = expr_map_.find(expr);
@@ -62,22 +78,6 @@ void Z3ExprAdapter::PopulateExprMap(const ExprPtrRaw expr) {
 
   // polulate in the expr cache.
   expr_map_.insert({expr, res});
-}
-
-void Z3ExprAdapter::Clear() { expr_map_.clear(); }
-
-z3::expr Z3ExprAdapter::GetExprCached(const ExprPtr expr,
-                                      const std::string& prefix,
-                                      const std::string& suffix) {
-  suffix_ = suffix;
-  prefix_ = prefix;
-
-  expr->DepthFirstVisit(*this);
-
-  auto pos = expr_map_.find(expr.get());
-  ILA_ASSERT(pos != expr_map_.end()) << "z3 expr cannot be generated.\n";
-
-  return pos->second;
 }
 
 } // namespace ila
