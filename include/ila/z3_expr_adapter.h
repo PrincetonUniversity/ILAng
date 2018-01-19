@@ -11,7 +11,7 @@
 /// \namespace ila
 namespace ila {
 
-/// \brief The class for generating z3 expression from the ast expression.
+/// \brief The class for generating z3 expression from an ILA.
 class Z3ExprAdapter {
 public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
@@ -35,12 +35,12 @@ public:
   void set_context(z3::context& ctx);
 
   // ------------------------- METHODS -------------------------------------- //
-  /// \brief Get the z3 expression of the AST node.
-  /// \param[in] expr the AST node.
-  /// \param[in] suffix the suffix for terminating nodes (e.g. time frame)
-  /// \return z3 expression
+  /// Get the z3 expression of the AST node with clearing the cache.
   z3::expr GetZ3Expr(const ExprPtr expr, const std::string& prefix = "",
                      const std::string& suffix = "");
+  /// Get the z3 expression of the AST node.
+  z3::expr GetZ3ExprCached(const ExprPtr expr, const std::string& prefix = "",
+                           const std::string& suffix = "");
 
   /// Clear the cached values. (Should be called for every time frame)
   void Clear();
@@ -65,7 +65,7 @@ private:
   /// Insert the z3 expression of the given node into the map.
   void PopulateExprMap(const ExprPtrRaw expr);
 
-}; // class Z3Adapter
+}; // class Z3ExprAdapter
 
 } // namespace ila
 

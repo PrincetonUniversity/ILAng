@@ -18,18 +18,22 @@ void Z3ExprAdapter::set_simplify(const bool& sim) { simplify_ = sim; }
 
 z3::expr Z3ExprAdapter::GetZ3Expr(const ExprPtr expr, const std::string& prefix,
                                   const std::string& suffix) {
+  Clear();
+  return GetZ3ExprCached(expr, prefix, suffix);
+}
+
+z3::expr Z3ExprAdapter::GetZ3ExprCached(const ExprPtr expr,
+                                        const std::string& prefix,
+                                        const std::string& suffix) {
   suffix_ = suffix;
   prefix_ = prefix;
+
   expr->DepthFirstVisit(*this);
 
   auto pos = expr_map_.find(expr.get());
   ILA_ASSERT(pos != expr_map_.end()) << "z3 expr cannot be generated.\n";
 
-  if (pos != expr_map_.end()) {
-    return pos->second;
-  } else {
-    return ctx_.bool_val(false);
-  }
+  return pos->second;
 }
 
 void Z3ExprAdapter::Clear() { expr_map_.clear(); }
