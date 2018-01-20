@@ -21,7 +21,5 @@ namespace ila {
   cmd;                                                                         \
   msg = ::testing::internal::GetCapturedStderr();
 
-typedef Expr::Z3ExprVec Z3ExprVec;
-
 } // namespace ila
 

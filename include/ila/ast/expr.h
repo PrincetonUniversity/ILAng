@@ -6,6 +6,7 @@
 
 #include "ila/ast/ast.h"
 #include "ila/ast/sort.h"
+#include "ila/defines.h"
 #include "z3++.h"
 #include "z3_api.h"
 #include <memory>
@@ -26,8 +27,6 @@ public:
   typedef std::shared_ptr<Expr> ExprPtr;
   /// Type for storing a set of Expr.
   typedef std::vector<ExprPtr> ExprPtrVec;
-  /// Type for storing a set of z3 expr.
-  typedef std::vector<z3::expr> Z3ExprVec;
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor.
