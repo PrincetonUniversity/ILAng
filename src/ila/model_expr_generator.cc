@@ -18,7 +18,7 @@ z3::expr ModelExprGen::Node(const ExprPtr node, const std::string& prefix,
   return ctx_.bool_val(false);
 }
 
-Z3ExprMapPtr ModelExprGen::Instr(const InstrPtr instr,
+Z3ExprVecPtr ModelExprGen::Instr(const InstrPtr instr,
                                  const std::string& prefix,
                                  const std::string& suffix) {
   // TODO
