@@ -1,6 +1,7 @@
 /// \file
 /// Some helper macros, functions for writing tests.
 
+#include "ila/expr_fuse.h"
 #include "util/log.h"
 #include "gtest/gtest-spi.h"
 #include "gtest/gtest.h"
@@ -19,6 +20,8 @@ namespace ila {
   ::testing::internal::CaptureStderr();                                        \
   cmd;                                                                         \
   msg = ::testing::internal::GetCapturedStderr();
+
+typedef Expr::Z3ExprVec Z3ExprVec;
 
 } // namespace ila
 

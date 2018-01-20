@@ -16,6 +16,9 @@ namespace ila {
 /// instruction, to state updates, etc.
 class ModelExprGen {
 public:
+  typedef KeyVec<Symbol, z3::expr> Z3ExprMap;
+  typedef std::shared_ptr<Z3ExprMap> Z3ExprMapPtr;
+
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Constructor.
   ModelExprGen(z3::context& ctx);
@@ -30,11 +33,10 @@ public:
   /// \brief Get the z3 expression for the AST node.
   z3::expr Node(const ExprPtr node, const std::string& prefix,
                 const std::string& suffix);
-  typedef z3::ast_vector_tpl<z3::expr> Z3ExprMap;
   /// \brief Get the set of z3 expression (constraints) for the instruction.
   /// Note that states with no update functions are encoded as unchanged.
-  Z3ExprMap Instr(const InstrPtr instr, const std::string& prefix,
-                  const std::string& suffix);
+  Z3ExprMapPtr Instr(const InstrPtr instr, const std::string& prefix,
+                     const std::string& suffix);
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //

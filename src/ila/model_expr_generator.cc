@@ -12,9 +12,13 @@ ModelExprGen::~ModelExprGen() {}
 
 void ModelExprGen::set_z3_simplify(bool z3_smpl) { gen_.set_simplify(z3_smpl); }
 
-Z3ExprMap ModelExprGen::Instr(const InstrPtr instr, const std::string& prefix,
-                              const std::string& suffix) {
+typedef ModelExprGen::Z3ExprMapPtr Z3ExprMapPtr;
+
+Z3ExprMapPtr ModelExprGen::Instr(const InstrPtr instr,
+                                 const std::string& prefix,
+                                 const std::string& suffix) {
   // TODO
+  return NULL;
 }
 
 } // namespace ila

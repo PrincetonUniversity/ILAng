@@ -28,7 +28,6 @@ public:
   typedef std::vector<ExprPtr> ExprPtrVec;
   /// Type for storing a set of z3 expr.
   typedef std::vector<z3::expr> Z3ExprVec;
-  // typedef z3::ast_vector_tpl<z3::expr> Z3ExprVec;
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor.
@@ -140,10 +139,6 @@ typedef Expr::ExprPtrRaw ExprPtrRaw;
 typedef Expr::ExprPtr ExprPtr;
 /// Type for storing a set of Expr.
 typedef Expr::ExprPtrVec ExprPtrVec;
-/// Type for storing a set of z3 expr.
-typedef Expr::Z3ExprVec Z3ExprVec;
-/// Pointer type for Z3ExprVec.
-// typedef std::shared_ptr<Z3ExprVec> Z3ExprVecPtr;
 
 /// \brief The function object for hashing Expr. The hash value is the id of the
 /// symbol, which is supposed to be unique.

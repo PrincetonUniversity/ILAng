@@ -1,5 +1,5 @@
 /// \file
-/// Header for containers, e.g. KeyVec
+/// Header for containers, e.g. KeyVec.
 
 #ifndef __CONTAINER_H__
 #define __CONTAINER_H__

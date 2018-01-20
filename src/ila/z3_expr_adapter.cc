@@ -57,7 +57,7 @@ void Z3ExprAdapter::PopulateExprMap(const ExprPtrRaw expr) {
   size_t num_arg = expr->arity();
 
   // reserve the container for argument expressions.
-  Z3ExprVec expr_vec;
+  Expr::Z3ExprVec expr_vec;
   expr_vec.reserve(num_arg);
 
   // all arguments should already have expressions, put them in the container.
