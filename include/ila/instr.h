@@ -48,6 +48,8 @@ public:
   bool has_view() const;
   /// Return true if simplification is performed.
   bool has_simplify() const;
+  /// Return the host ILA.
+  InstrLvlAbsPtr host() const;
 
   /// \brief Set the view flag.
   /// \param[in] v the flag indicating whether the instruction has views.

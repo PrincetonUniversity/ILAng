@@ -5,6 +5,8 @@
 
 namespace ila {
 
+typedef Instr::InstrLvlAbsPtr InstrLvlAbsPtr;
+
 Instr::Instr(const std::string& name, ExprMngrPtr expr_mngr) {
   // update name if specified
   if (name != "")
@@ -30,6 +32,8 @@ InstrPtr Instr::New(const std::string& name, ExprMngrPtr expr_mngr) {
 bool Instr::has_view() const { return has_view_; }
 
 bool Instr::has_simplify() const { return simplify_; }
+
+InstrLvlAbsPtr Instr::host() const { return host_; }
 
 void Instr::set_view(bool v) { has_view_ = v; }
 
