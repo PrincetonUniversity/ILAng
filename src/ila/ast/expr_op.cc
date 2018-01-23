@@ -118,7 +118,12 @@ z3::expr ExprOpAnd::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                               const std::string& prefix,
                               const std::string& suffix) const {
   ILA_ASSERT(expr_vec.size() == 2);
-  return expr_vec[0] & expr_vec[1];
+  if (is_bool())
+    return expr_vec[0] && expr_vec[1];
+  else {
+    ILA_ASSERT(is_bv()) << "And can be applied to either bool or bv.\n";
+    return expr_vec[0] & expr_vec[1];
+  }
 }
 
 std::ostream& ExprOpAnd::Print(std::ostream& out) const {

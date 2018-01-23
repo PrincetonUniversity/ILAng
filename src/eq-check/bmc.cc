@@ -24,9 +24,12 @@ bool Bmc::BmcLegacy(InstrLvlAbsPtr m0, const int& k0, InstrLvlAbsPtr m1,
   ILA_ASSERT(k0 > 0) << "Non-positive unroll step " << k0 << "\n";
   auto prefix_m0 = m0->name().str();
   for (auto i = 0; i != k0; i++) {
+    ILA_DLOG("Bmc.Legacy") << "Unroll m0 to " << i << "\n";
     auto suffix_i = std::to_string(i);
     auto suffix_n = std::to_string(i + 1);
+    ILA_DLOG("Bmc.Legacy") << suffix_n;
     auto cnst_i = mod_gen.IlaOneHotFlat(m0, prefix_m0, suffix_i, suffix_n);
+    ILA_DLOG("Bmc.Legacy") << "Add step " << i << "of m0 to the solver.\n";
     solver.add(cnst_i);
   }
 
@@ -34,6 +37,7 @@ bool Bmc::BmcLegacy(InstrLvlAbsPtr m0, const int& k0, InstrLvlAbsPtr m1,
   ILA_ASSERT(k1 > 0) << "Non-positive unroll step " << k1 << "\n";
   auto prefix_m1 = m1->name().str();
   for (auto i = 0; i != k1; i++) {
+    ILA_DLOG("Bmc.Legacy") << "Unroll m1 to " << i << "\n";
     auto suffix_i = std::to_string(i);
     auto suffix_n = std::to_string(i + 1);
     auto cnst_i = mod_gen.IlaOneHotFlat(m1, prefix_m1, suffix_i, suffix_n);

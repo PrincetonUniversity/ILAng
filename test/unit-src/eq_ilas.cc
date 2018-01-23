@@ -98,7 +98,8 @@ InstrLvlAbsPtr EqIlaGen::GetIlaFlat1() {
       auto cnd_i = ExprFuse::Eq(cnt, ExprFuse::BvConst(i, 8));
       reg_val = ExprFuse::Ite(cnd_i, regs[i], reg_val);
     }
-    instr_3->AddUpdate(mem, reg_val);
+    auto mem_next = ExprFuse::Store(mem, addr, reg_val);
+    instr_3->AddUpdate(mem, mem_next);
   }
 
   // Instruction 4: (start == 1 && opcode == 4)
@@ -216,7 +217,8 @@ InstrLvlAbsPtr EqIlaGen::GetIlaFlat2() {
       auto cnd_i = ExprFuse::Eq(cnt, ExprFuse::BvConst(i, 8));
       reg_val = ExprFuse::Ite(cnd_i, regs[i], reg_val);
     }
-    instr_3->AddUpdate(mem, reg_val);
+    auto mem_next = ExprFuse::Store(mem, addr, reg_val);
+    instr_3->AddUpdate(mem, mem_next);
   }
 
   // Instruction 4: (start == 1 && opcode == 4)
