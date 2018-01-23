@@ -27,14 +27,9 @@ InstrLvlAbsPtr EqIlaGen::GetIlaFlat1() {
   auto cnt = ila->NewBvState("counter", 8);
   auto mem = ila->NewMemState("memory", 8, 8);
 
-  // instructions.
-  auto instr_1 = ila->NewInstr();
-  auto instr_2 = ila->NewInstr();
-  auto instr_3 = ila->NewInstr();
-  auto instr_4 = ila->NewInstr();
-
   // Instruction 1: (start == 1 && opcode = 1)
   //  * copy the value of %reg n-1 to %reg n (for all n = [1:15])
+  auto instr_1 = ila->NewInstr();
 
   { // decode
     auto decode_start = ExprFuse::Eq(start, ExprFuse::BoolConst(true));
@@ -54,6 +49,7 @@ InstrLvlAbsPtr EqIlaGen::GetIlaFlat1() {
   //  * copy the value of %reg n-1 to %reg n (n = %counter).
   //  * if (%counter == 0) then copy %reg 15 to %reg 0
 
+  auto instr_2 = ila->NewInstr();
   { // decode
     auto decode_start = ExprFuse::Eq(start, ExprFuse::BoolConst(true));
     auto decode_opcode = ExprFuse::Eq(opcode, ExprFuse::BvConst(2, 3));
@@ -77,6 +73,7 @@ InstrLvlAbsPtr EqIlaGen::GetIlaFlat1() {
   // Instruction 3: (start == 1 && opcode == 3)
   //  - swap the value stored in %memory, pointed by %address, with %register n.
   //  - (n == %counter)
+  auto instr_3 = ila->NewInstr();
 
   { // decode
     auto decode_start = ExprFuse::Eq(start, ExprFuse::BoolConst(true));
@@ -103,6 +100,7 @@ InstrLvlAbsPtr EqIlaGen::GetIlaFlat1() {
 
   // Instruction 4: (start == 1 && opcode == 4)
   //  - sum up the value in %register [0-14] and store to %register 15.
+  auto instr_4 = ila->NewInstr();
 
   { // decode
     auto decode_start = ExprFuse::Eq(start, ExprFuse::BoolConst(true));
@@ -144,14 +142,9 @@ InstrLvlAbsPtr EqIlaGen::GetIlaFlat2() {
   auto cnt = ila->NewBvState("counter", 8);
   auto mem = ila->NewMemState("memory", 8, 8);
 
-  // instructions.
-  auto instr_1 = ila->NewInstr();
-  auto instr_2 = ila->NewInstr();
-  auto instr_3 = ila->NewInstr();
-  auto instr_4 = ila->NewInstr();
-
   // Instruction 1: (start == 1 && opcode = 1)
   //  * copy the value of %reg n-1 to %reg n (for all n = [1:15])
+  auto instr_1 = ila->NewInstr();
 
   { // decode
     auto decode_start = ExprFuse::Eq(start, ExprFuse::BoolConst(true));
@@ -170,6 +163,7 @@ InstrLvlAbsPtr EqIlaGen::GetIlaFlat2() {
   // Instruction 2: (start == 1 && opcode == 2)
   //  * copy the value of %reg n-1 to %reg n (n = %counter).
   //  * if (%counter == 0) then copy %reg 15 to %reg 0
+  auto instr_2 = ila->NewInstr();
 
   { // decode
     auto decode_start = ExprFuse::Eq(start, ExprFuse::BoolConst(true));
@@ -194,6 +188,7 @@ InstrLvlAbsPtr EqIlaGen::GetIlaFlat2() {
   // Instruction 3: (start == 1 && opcode == 3)
   //  - swap the value stored in %memory, pointed by %address, with %register n.
   //  - (n == %counter)
+  auto instr_3 = ila->NewInstr();
 
   { // decode
     auto decode_start = ExprFuse::Eq(start, ExprFuse::BoolConst(true));
@@ -220,6 +215,7 @@ InstrLvlAbsPtr EqIlaGen::GetIlaFlat2() {
 
   // Instruction 4: (start == 1 && opcode == 4)
   //  - sum up the value in %register [0-14] and store to %register 15.
+  auto instr_4 = ila->NewInstr();
 
   { // decode
     auto decode_start = ExprFuse::Eq(start, ExprFuse::BoolConst(true));
