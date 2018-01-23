@@ -44,7 +44,7 @@ public:
                          const std::string& suffix = "");
 
   /// Clear the cached values. (Should be called for every time frame)
-  void Clear();
+  void ClearCache();
 
   /// Function object for getting z3 expression.
   void operator()(const ExprPtrRaw expr);

@@ -34,8 +34,11 @@ public:
 
   /// \brief Get the set of z3 expression (constraints) for the instruction.
   /// - States with no update functions are encoded as unchanged.
-  Z3ExprVecPtr Instr(const InstrPtr instr, const std::string& prefix,
-                     const std::string& suffix);
+  Z3ExprVecPtr Instr(const InstrPtr instr, const std::string& prefix_prev = "",
+                     const std::string& suffix_prev = "0",
+                     const std::string& prefix_next = "",
+                     const std::string& suffix_next = "1",
+                     bool complete = true);
 
   /// \brief Get the set of z3 expression (constraints) for the instruction.
   /// - States with no update functions are left unconstrained.

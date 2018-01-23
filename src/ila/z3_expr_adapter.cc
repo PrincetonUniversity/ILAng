@@ -18,7 +18,7 @@ void Z3ExprAdapter::set_simplify(const bool& sim) { simplify_ = sim; }
 
 z3::expr Z3ExprAdapter::GetExpr(const ExprPtr expr, const std::string& prefix,
                                 const std::string& suffix) {
-  Clear();
+  ClearCache();
   return GetExprCached(expr, prefix, suffix);
 }
 
@@ -36,7 +36,7 @@ z3::expr Z3ExprAdapter::GetExprCached(const ExprPtr expr,
   return pos->second;
 }
 
-void Z3ExprAdapter::Clear() { expr_map_.clear(); }
+void Z3ExprAdapter::ClearCache() { expr_map_.clear(); }
 
 void Z3ExprAdapter::operator()(const ExprPtrRaw expr) {
   auto pos = expr_map_.find(expr);
