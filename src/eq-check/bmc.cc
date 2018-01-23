@@ -12,7 +12,8 @@ z3::context& Bmc::ctx() { return ctx_; }
 
 void Bmc::clear() { map_.clear(); }
 
-bool Bmc::BmcLegacy(InstrLvlAbsPtr m0, const int& k0, InstrLvlAbsPtr m1, const int& k1) {
+bool Bmc::BmcLegacy(InstrLvlAbsPtr m0, const int& k0, InstrLvlAbsPtr m1,
+                    const int& k1) {
   ILA_NOT_NULL(m0);
   ILA_NOT_NULL(m1);
 
@@ -24,7 +25,7 @@ bool Bmc::BmcLegacy(InstrLvlAbsPtr m0, const int& k0, InstrLvlAbsPtr m1, const i
   auto prefix_m0 = m0->name().str();
   for (auto i = 0; i != k0; i++) {
     auto suffix_i = std::to_string(i);
-    auto suffix_n = std::to_string(i+1);
+    auto suffix_n = std::to_string(i + 1);
     auto cnst_i = mod_gen.IlaOneHotFlat(m0, prefix_m0, suffix_i, suffix_n);
     solver.add(cnst_i);
   }
@@ -32,9 +33,9 @@ bool Bmc::BmcLegacy(InstrLvlAbsPtr m0, const int& k0, InstrLvlAbsPtr m1, const i
   // untoll m1
   ILA_ASSERT(k1 > 0) << "Non-positive unroll step " << k1 << "\n";
   auto prefix_m1 = m1->name().str();
-  for (auto i = 0; i != k1; i++) { 
+  for (auto i = 0; i != k1; i++) {
     auto suffix_i = std::to_string(i);
-    auto suffix_n = std::to_string(i+1);
+    auto suffix_n = std::to_string(i + 1);
     auto cnst_i = mod_gen.IlaOneHotFlat(m1, prefix_m1, suffix_i, suffix_n);
     solver.add(cnst_i);
   }
@@ -44,7 +45,7 @@ bool Bmc::BmcLegacy(InstrLvlAbsPtr m0, const int& k0, InstrLvlAbsPtr m1, const i
   auto suffix_init = std::to_string(0);
   auto suffix_k0 = std::to_string(k0);
   auto suffix_k1 = std::to_string(k1);
-  for (auto i = 0; i != state_num_m0; i++) {
+  for (size_t i = 0; i != state_num_m0; i++) {
     auto state_m0 = m0->state(i);
     auto state_m1 = m1->state(state_m0->name().str());
     ILA_ASSERT(state_m1 != NULL) << "State unmatched: " << state_m0 << "\n";

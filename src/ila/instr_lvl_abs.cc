@@ -162,7 +162,7 @@ void InstrLvlAbs::AddInstr(const InstrPtr instr) {
   // register the instruction and idx
   auto name = instr->name();
   instrs_.push_back(name, instr);
-  instr->set_host(InstrLvlAbsPtr(this));
+  instr->set_host(shared_from_this());
 }
 
 void InstrLvlAbs::AddChild(const InstrLvlAbsPtr child) {

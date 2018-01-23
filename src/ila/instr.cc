@@ -23,7 +23,7 @@ Instr::Instr(const std::string& name, ExprMngrPtr expr_mngr) {
   updates_.clear();
 }
 
-Instr::~Instr() {}
+Instr::~Instr(){};
 
 InstrPtr Instr::New(const std::string& name, ExprMngrPtr expr_mngr) {
   return std::make_shared<Instr>(name, expr_mngr);

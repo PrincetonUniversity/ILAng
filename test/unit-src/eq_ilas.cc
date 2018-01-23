@@ -27,6 +27,9 @@ InstrLvlAbsPtr EqIlaGen::GetIlaFlat1() {
   auto cnt = ila->NewBvState("counter", 8);
   auto mem = ila->NewMemState("memory", 8, 8);
 
+  // valid
+  ila->SetValid(ExprFuse::BoolConst(true));
+
   // Instruction 1: (start == 1 && opcode = 1)
   //  * copy the value of %reg n-1 to %reg n (for all n = [1:15])
   auto instr_1 = ila->NewInstr();
@@ -141,6 +144,9 @@ InstrLvlAbsPtr EqIlaGen::GetIlaFlat2() {
   auto addr = ila->NewBvState("address", 8);
   auto cnt = ila->NewBvState("counter", 8);
   auto mem = ila->NewMemState("memory", 8, 8);
+
+  // valid
+  ila->SetValid(ExprFuse::BoolConst(true));
 
   // Instruction 1: (start == 1 && opcode = 1)
   //  * copy the value of %reg n-1 to %reg n (for all n = [1:15])

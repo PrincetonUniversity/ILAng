@@ -31,7 +31,8 @@ namespace ila {
 ///   -# a set of update functions
 /// - the set of child-ILAs
 /// - the child-instruction sequencing (if not parent)
-class InstrLvlAbs : public Object {
+class InstrLvlAbs : public Object,
+                    public std::enable_shared_from_this<InstrLvlAbs> {
 public:
   /// Pointer type for normal use of InstrLvlAbs.
   typedef std::shared_ptr<InstrLvlAbs> InstrLvlAbsPtr;
