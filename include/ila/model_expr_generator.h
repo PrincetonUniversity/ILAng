@@ -34,21 +34,19 @@ public:
 
   /// \brief Get the set of z3 expression (constraints) for the instruction.
   /// - States with no update functions are encoded as unchanged.
-  z3::expr Instr(const InstrPtr instr, bool complete = true,
-                     const std::string& prefix_prev = "",
-                     const std::string& suffix_prev = "0",
-                     const std::string& prefix_next = "",
-                     const std::string& suffix_next = "1");
+  z3::expr Instr(const InstrPtr instr, const std::string& prefix = "",
+                 const std::string& suffix_prev = "0",
+                 const std::string& suffix_next = "1", 
+                 bool complete = true);
 
   /// \brief Get the set of z3 expression (constraints) for the ILA.
   /// - Assume no child-ILAs (not considered).
   /// - States with no update functions are encoded as unchanged.
   /// - Assume one-hot encoding of all instructions.
-  z3::expr IlaOneHotFlat(const InstrLvlAbsPtr ila,
-                             const std::string& prefix_prev,
-                             const std::string& suffix_prev,
-                             const std::string& prefix_next,
-                             const std::string& suffix_next);
+  z3::expr IlaOneHotFlat(const InstrLvlAbsPtr ila, 
+                         const std::string& prefix = "",
+                         const std::string& suffix_prev = "0",
+                         const std::string& suffix_next = "1");
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
