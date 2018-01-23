@@ -5,6 +5,7 @@
 #define __BMC_H__
 
 #include "ila/instr_lvl_abs.h"
+#include "ila/model_expr_generator.h"
 #include "z3++.h"
 #include <map>
 
@@ -39,13 +40,6 @@ private:
   std::map<std::string, z3::expr> map_;
 
   // ------------------------- HELPERS -------------------------------------- //
-  /// \brief Generate the z3 expression for the instruction.
-  /// - Valid is not considered.
-  /// - Decode should be satisfied.
-  /// - Un-specified update functions are encoded as unchanged.
-  z3::expr GetZ3ExprForInstr(InstrLvlAbsPtr m, InstrPtr instr,
-                             const std::string& prefix,
-                             const std::string& suffix) const;
 
 }; // class Bmc
 
