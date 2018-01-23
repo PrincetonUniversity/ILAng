@@ -18,48 +18,68 @@ z3::expr ModelExprGen::Node(const ExprPtr node, const std::string& prefix,
   return e;
 }
 
-Z3ExprVecPtr ModelExprGen::Instr(const InstrPtr instr,
-                                 const std::string& prefix,
-                                 const std::string& suffix) {
-  auto vec_ptr = InstrBare(instr, prefix, suffix);
-  auto ila = instr->host();
-  auto state_num - ila->state_num();
-  for (size_t i = 0; i != state_num; i++) {
-    auto state = ila->state(i);
-    autp update_n = instr->GetUpdate(state);
-    if (update_n == NULL) {
-      // TODO
-    }
-  }
-}
-
-Z3ExprVecPtr ModelExprGen::InstrBare(const InstrPtr instr,
-                                     const std::string& prefix,
-                                     const std::string& suffix) {
-  gen_.ClearCache();
-  auto vec_ptr = std::make_shared<Z3ExprVec>();
-
+z3::expr ModelExprGen::Instr(const InstrPtr instr, bool complete,
+                                 const std::string& prefix_prev,
+                                 const std::string& suffix_prev,
+                                 const std::string& prefix_next,
+                                 const std::string& suffix_next) {
   ILA_NOT_NULL(instr);
-  auto decode_n = instr->GetDecode();
-  ILA_NOT_NULL(decode_n);
 
   auto ila = instr->host();
   ILA_NOT_NULL(ila);
+
+  gen_.ClearCache();
+  auto cnst = ctx_.bool_val(true);
+
   auto state_num = ila->state_num();
   for (size_t i = 0; i != state_num; i++) {
-    auto state = ila->state(i);
-    auto update_n = instr->GetUpdate(state);
-    if (update_n != NULL) {
-      auto next = ExprFuse::Ite(decode_n, update_n, state);
-      auto next_e = gen_.GetExprCached(next);
-      // TODO Eq with next frame
-      vec_ptr->push_back(next_e);
+    auto state_n = ila->state(i);
+    auto update_n = instr->GetUpdate(state_n);
+    if (update_n != NULL) { // update function specified
+      auto next_val_e = gen_.GetExprCached(update_n, prefix_prev, suffix_prev);
+      auto next_var_e = gen_.GetExprCached(state_n, prefix_next, suffix_next);
+      auto eq_cnst = (next_var_e == next_val_e);
+      cnst = cnst && eq_cnst;
+    } else if (complete == true) {
+        auto next_val_e = gen_.GetExprCached(state_n, prefix_prev, suffix_prev);
+        auto next_var_e = gen_.GetExprCached(state_n, prefix_next, suffix_next);
+        auto eq_cnst = (next_var_e == next_val_e);
+        cnst = cnst && eq_cnst;
     }
   }
 
+  auto decode_n = instr->GetDecode();
+  ILA_NOT_NULL(decode_n);
+  auto decode_e = gen_.GetExprCached(decode_n);
+
+  gen_.ClearCache();
+  return z3::implies(decode_e, cnst);
+}
+
+z3::expr ModelExprGen::IlaOneHotFlat(const InstrLvlAbsPtr ila, 
+                                 const std::string& prefix_prev,
+                                 const std::string& suffix_prev,
+                                 const std::string& prefix_next,
+                                 const std::string& suffix_next) {
+  ILA_NOT_NULL(ila); 
   gen_.ClearCache();
 
-  return vec_ptr;
+  auto valid_n = ila->valid();
+  ILA_NOT_NULL(valid_n);
+  auto valid_e = gen_.GetExprCached(valid_n, prefix_prev, suffix_prev);
+
+  auto cnst = ctx_.bool_val(true);
+  auto instr_num = ila->instr_num();
+  for (auto i = 0; i != instr_num; i++) {
+    auto instr_i = ila->instr(i);
+    auto instr_cnst = Instr(instr_i, true, prefix_prev, suffix_prev, 
+                             prefix_next, suffix_next);
+    // Assume one-hot encoding of the instruction decode.
+    cnst = cnst && instr_cnst;
+  }
+
+  gen_.ClearCache();
+  return z3::implies(valid_e, cnst);
 }
 
 } // namespace ila
