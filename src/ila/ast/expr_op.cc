@@ -12,18 +12,42 @@ ExprOp::ExprOp(const ExprPtr arg) {
   set_arity(1);
   ExprPtrVec args = {arg};
   set_args(args);
+  set_host(arg->host());
 }
 
 ExprOp::ExprOp(const ExprPtr arg0, const ExprPtr arg1) {
   set_arity(2);
   ExprPtrVec args = {arg0, arg1};
   set_args(args);
+  // set host
+  auto host0 = arg0->host();
+  auto host1 = arg1->host();
+  if (host0 == host1) {
+    set_host(host0);
+  } else if (host0 == NULL) {
+    set_host(host1);
+  } else if (host1 == NULL) {
+    set_host(host0);
+  }
 }
 
 ExprOp::ExprOp(const ExprPtr arg0, const ExprPtr arg1, const ExprPtr arg2) {
   set_arity(3);
   ExprPtrVec args = {arg0, arg1, arg2};
   set_args(args);
+  // set host
+  auto host0 = arg0->host();
+  auto host1 = arg1->host();
+  auto host2 = arg2->host();
+  if (host0 == host1 && host1 == host2) {
+    set_host(host0);
+  } else if (host1 == NULL && host2 == NULL) {
+    set_host(host0);
+  } else if (host0 == NULL && host2 == NULL) {
+    set_host(host1);
+  } else if (host0 == NULL && host1 == NULL) {
+    set_host(host2);
+  }
 }
 
 ExprOp::~ExprOp() {}

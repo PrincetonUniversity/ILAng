@@ -6,6 +6,8 @@
 
 namespace ila {
 
+typedef Expr::InstrLvlAbsPtr InstrLvlAbsPtr;
+
 const std::string Expr::k_prefix_expr_ = "expr";
 
 Expr::Expr() : arity_(0), num_param_(0) {}
@@ -28,6 +30,8 @@ const int& Expr::param(const size_t& i) const {
   return params_[i];
 }
 
+InstrLvlAbsPtr Expr::host() const { return host_; }
+
 void Expr::set_sort(const Sort& sort) { sort_ = sort; }
 
 void Expr::set_arity(const size_t& arity) {
@@ -46,6 +50,8 @@ void Expr::set_num_param(const size_t& num_param) {
 }
 
 void Expr::set_params(const std::vector<int> params) { params_ = params; }
+
+void Expr::set_host(InstrLvlAbsPtr host) { host_ = host; }
 
 } // namespace ila
 

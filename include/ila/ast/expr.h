@@ -17,6 +17,9 @@
 /// \namespace ila
 namespace ila {
 
+// Forward declaration for host.
+class InstrLvlAbs;
+
 /// \brief The class for expression, which is the basic type for variables,
 /// constraints, state update expressions, etc.
 class Expr : public Ast {
@@ -27,6 +30,8 @@ public:
   typedef std::shared_ptr<Expr> ExprPtr;
   /// Type for storing a set of Expr.
   typedef std::vector<ExprPtr> ExprPtrVec;
+  /// Type for forward declaration of ILA.
+  typedef std::shared_ptr<InstrLvlAbs> InstrLvlAbsPtr;
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor.
@@ -48,6 +53,8 @@ public:
   const size_t& num_param() const;
   /// Return the i-th paramter.
   const int& param(const size_t& i) const;
+  /// Return the hosting ILA.
+  InstrLvlAbsPtr host() const;
 
   /// Set the sort of the expression.
   void set_sort(const Sort& sort);
@@ -59,6 +66,8 @@ public:
   void set_num_param(const size_t& num_param);
   /// Set the parameters.
   void set_params(const std::vector<int> params);
+  /// Set the hosting ILA.
+  void set_host(InstrLvlAbsPtr host);
 
   /// Is type expr (object).
   bool is_expr() const { return true; }
@@ -120,6 +129,8 @@ private:
   size_t num_param_;
   /// Vector of parameters.
   std::vector<int> params_;
+  /// Pointer to the host ILA.
+  InstrLvlAbsPtr host_ = NULL;
 
   /// Static counter for expressions.
   static unsigned coutner_;
