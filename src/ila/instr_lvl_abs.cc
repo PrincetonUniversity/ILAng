@@ -273,6 +273,10 @@ std::ostream& operator<<(std::ostream& out, InstrLvlAbs& ila) {
   return ila.Print(out);
 }
 
+std::ostream& operator<<(std::ostream& out, InstrLvlAbsPtr ila) {
+  return ila->Print(out);
+}
+
 void InstrLvlAbs::InitObject() {
   // local
   inputs_.clear();

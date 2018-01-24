@@ -201,8 +201,10 @@ public:
   /// Output stream function.
   std::ostream& Print(std::ostream& out) const;
 
-  /// Overload utput stream
+  /// Overload output stream for object
   friend std::ostream& operator<<(std::ostream& out, InstrLvlAbs& ila);
+  /// Overload output stream for pointer
+  friend std::ostream& operator<<(std::ostream& out, InstrLvlAbsPtr ila);
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
