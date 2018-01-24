@@ -73,11 +73,21 @@ bool Bmc::BmcLegacy(InstrLvlAbsPtr m0, const int& k0, InstrLvlAbsPtr m1,
       auto input_m1_init = mod_gen.Node(input_m1, prefix_m1, suffix_init);
       auto init_input = (input_m0_init == input_m1_init);
       solver.add(init_input);
+
+      if (i == 0) {
+        solver.add(input_m0_init == ctx_.bool_val(true));
+      } else if (i == 1) {
+        ILA_DLOG("Bmc.Legacy") << input_m0_init;
+        solver.add(input_m0_init == 1);
+      }
   }
 
-  ILA_DLOG("Bmc.Legacy") << solver;
-
   auto result = solver.check();
+
+  if (result == z3::sat) {
+    auto m = solver.get_model();
+    ILA_DLOG("Bmc.Legacy") << m;
+  }
 
   return (result == z3::unsat);
 }
