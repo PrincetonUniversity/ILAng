@@ -65,7 +65,6 @@ private:
   z3::expr GetExprCached(const ExprPtr expr, const std::string& prefix = "",
                          const std::string& suffix = "");
 
-
 }; // class Z3ExprAdapter
 
 } // namespace ila

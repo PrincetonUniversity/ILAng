@@ -33,9 +33,8 @@ public:
   void AddInvariant(InstrLvlAbsPtr m, ExprPtr inv);
 
   /// \brief Legacy BMC where two ILAs are unrolled and compared monolithically.
-  z3::check_result BmcLegacy(InstrLvlAbsPtr m0, const int& k0, 
-                             InstrLvlAbsPtr m1,
-                             const int& k1);
+  z3::check_result BmcLegacy(InstrLvlAbsPtr m0, const int& k0,
+                             InstrLvlAbsPtr m1, const int& k1);
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //

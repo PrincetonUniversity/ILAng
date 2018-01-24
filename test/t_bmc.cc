@@ -11,9 +11,9 @@ namespace ila {
 TEST(TestBmc, Legacy) {
   SetToStdErr(1);
 
-  //DebugLog::Enable("Bmc.Legacy");
-  //DebugLog::Enable("ModelGen.IlaOneHotFlat");
-  //DebugLog::Enable("ModelGen.Instr");
+  // DebugLog::Enable("Bmc.Legacy");
+  // DebugLog::Enable("ModelGen.IlaOneHotFlat");
+  // DebugLog::Enable("ModelGen.Instr");
 
   EqIlaGen ila_gen;
 

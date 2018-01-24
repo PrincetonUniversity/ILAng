@@ -107,7 +107,7 @@ std::ostream& Instr::Print(std::ostream& out) const {
   return out;
 }
 
-std::ostream& operator<<(std::ostream& out, InstrPtr i) { 
+std::ostream& operator<<(std::ostream& out, InstrPtr i) {
   return i->Print(out);
 }
 

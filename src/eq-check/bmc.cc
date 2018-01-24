@@ -18,9 +18,8 @@ void Bmc::AddInvariant(InstrLvlAbsPtr m, ExprPtr inv) {
   invs_.push_back(std::pair<InstrLvlAbsPtr, ExprPtr>(m, inv));
 }
 
-z3::check_result Bmc::BmcLegacy(InstrLvlAbsPtr m0, const int& k0, 
-                                InstrLvlAbsPtr m1,
-                                const int& k1) {
+z3::check_result Bmc::BmcLegacy(InstrLvlAbsPtr m0, const int& k0,
+                                InstrLvlAbsPtr m1, const int& k1) {
   ILA_NOT_NULL(m0);
   ILA_NOT_NULL(m1);
 
@@ -72,14 +71,14 @@ z3::check_result Bmc::BmcLegacy(InstrLvlAbsPtr m0, const int& k0,
   // equal input
   auto input_num_m0 = m0->input_num();
   for (size_t i = 0; i != input_num_m0; i++) {
-      auto input_m0 = m0->input(i);
-      auto input_m1 = m1->input(input_m0->name().str());
-      ILA_ASSERT(input_m1 != NULL) << "Input unmatched: " << input_m0 << "\n";
+    auto input_m0 = m0->input(i);
+    auto input_m1 = m1->input(input_m0->name().str());
+    ILA_ASSERT(input_m1 != NULL) << "Input unmatched: " << input_m0 << "\n";
 
-      auto input_m0_init = mod_gen.Node(input_m0, prefix_m0, suffix_init);
-      auto input_m1_init = mod_gen.Node(input_m1, prefix_m1, suffix_init);
-      auto init_input = (input_m0_init == input_m1_init);
-      solver.add(init_input);
+    auto input_m0_init = mod_gen.Node(input_m0, prefix_m0, suffix_init);
+    auto input_m1_init = mod_gen.Node(input_m1, prefix_m1, suffix_init);
+    auto init_input = (input_m0_init == input_m1_init);
+    solver.add(init_input);
   }
 
   // initial condition

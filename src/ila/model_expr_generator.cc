@@ -22,8 +22,8 @@ z3::expr ModelExprGen::Instr(const InstrPtr instr, const std::string& prefix,
                              const std::string& suffix_prev,
                              const std::string& suffix_next, bool complete) {
   ILA_NOT_NULL(instr);
-  ILA_DLOG("ModelGen.Instr") << "Generate z3 expr for " << instr 
-                             << " with prefix (" << prefix << ") and suffix (" 
+  ILA_DLOG("ModelGen.Instr") << "Generate z3 expr for " << instr
+                             << " with prefix (" << prefix << ") and suffix ("
                              << suffix_prev << ", " << suffix_next << ")\n";
 
   auto ila = instr->host();
@@ -62,10 +62,9 @@ z3::expr ModelExprGen::IlaOneHotFlat(const InstrLvlAbsPtr ila,
                                      const std::string& suffix_prev,
                                      const std::string& suffix_next) {
   ILA_NOT_NULL(ila);
-  ILA_DLOG("ModelGen.IlaOneHotFlat") << "Generate z3 expr for " << ila
-                                     << " with prefix (" << prefix 
-                                     << ") and suffix (" << suffix_prev << ", " 
-                                     << suffix_next << ")\n";
+  ILA_DLOG("ModelGen.IlaOneHotFlat")
+      << "Generate z3 expr for " << ila << " with prefix (" << prefix
+      << ") and suffix (" << suffix_prev << ", " << suffix_next << ")\n";
 
   auto valid_n = ila->valid();
   ILA_NOT_NULL(valid_n);
