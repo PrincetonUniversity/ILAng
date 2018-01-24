@@ -48,7 +48,6 @@ InstrLvlAbsPtr EqIlaGen::GetIlaFlat1() {
     }
   }
 
-#if 0
   // Instruction 2: (start == 1 && opcode == 2)
   //  * copy the value of %reg n-1 to %reg n (n = %counter).
   //  * if (%counter == 0) then copy %reg 15 to %reg 0
@@ -121,7 +120,6 @@ InstrLvlAbsPtr EqIlaGen::GetIlaFlat1() {
     }
     instr_4->AddUpdate(regs[reg_num_ - 1], sum);
   }
-#endif
 
   return ila;
 }
@@ -169,7 +167,6 @@ InstrLvlAbsPtr EqIlaGen::GetIlaFlat2() {
     }
   }
 
-#if 0
   // Instruction 2: (start == 1 && opcode == 2)
   //  * copy the value of %reg n-1 to %reg n (n = %counter).
   //  * if (%counter == 0) then copy %reg 15 to %reg 0
@@ -242,7 +239,6 @@ InstrLvlAbsPtr EqIlaGen::GetIlaFlat2() {
     }
     instr_4->AddUpdate(regs[reg_num_ - 1], sum);
   }
-#endif
 
   return ila;
 }

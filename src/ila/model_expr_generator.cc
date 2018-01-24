@@ -62,8 +62,11 @@ z3::expr ModelExprGen::IlaOneHotFlat(const InstrLvlAbsPtr ila,
                                      const std::string& suffix_prev,
                                      const std::string& suffix_next) {
   ILA_NOT_NULL(ila);
+  ILA_DLOG("ModelGen.IlaOneHotFlat") << "Generate z3 expr for " << ila
+                                     << " with prefix (" << prefix 
+                                     << ") and suffix (" << suffix_prev << ", " 
+                                     << suffix_next << ")\n";
 
-  ILA_DLOG("ModelGen.IlaOneHotFlat") << "Generate valid expression.\n";
   auto valid_n = ila->valid();
   ILA_NOT_NULL(valid_n);
   auto valid_e = gen_.GetExpr(valid_n, prefix, suffix_prev);
@@ -71,13 +74,10 @@ z3::expr ModelExprGen::IlaOneHotFlat(const InstrLvlAbsPtr ila,
   auto cnst = ctx_.bool_val(true);
   auto instr_num = ila->instr_num();
   for (size_t i = 0; i != instr_num; i++) {
-    ILA_DLOG("ModelGen.IlaOneHotFlat") << "Generate instr expression " << i;
     auto instr_i = ila->instr(i);
     auto instr_cnst = Instr(instr_i, prefix, suffix_prev, suffix_next, true);
-    ILA_DLOG("ModelGen.IlaOneHotFlat") << "Done instr expression " << i;
     // Assume one-hot encoding of the instruction decode.
     cnst = cnst && instr_cnst;
-    ILA_DLOG("ModelGen.IlaOneHotFlat") << "Anded instr expression " << i;
   }
 
   auto ila_cnst = z3::implies(valid_e, cnst);

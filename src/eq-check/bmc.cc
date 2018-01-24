@@ -34,7 +34,6 @@ z3::check_result Bmc::BmcLegacy(InstrLvlAbsPtr m0, const int& k0,
     auto suffix_i = std::to_string(i);
     auto suffix_n = std::to_string(i + 1);
     auto cnst_i = mod_gen.IlaOneHotFlat(m0, prefix_m0, suffix_i, suffix_n);
-    ILA_DLOG("Bmc.Legacy") << "Add step " << i << " of m0 to the solver.\n";
     solver.add(cnst_i);
   }
 
