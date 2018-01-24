@@ -11,8 +11,8 @@ namespace ila {
 TEST(TestBmc, Legacy) {
   SetToStdErr(1);
 
-  DebugLog::Enable("Bmc.Legacy");
-  DebugLog::Enable("ModelGen.IlaOneHotFlat");
+  //DebugLog::Enable("Bmc.Legacy");
+  //DebugLog::Enable("ModelGen.IlaOneHotFlat");
   //DebugLog::Enable("ModelGen.Instr");
 
   EqIlaGen ila_gen;
@@ -21,9 +21,28 @@ TEST(TestBmc, Legacy) {
   auto m1 = ila_gen.GetIlaFlat2();
 
   Bmc bmc;
+
+  { // init for m0
+    auto start = m0->input("start");
+    auto start_i = ExprFuse::Eq(start, ExprFuse::BoolConst(true));
+    auto opcode = m0->input("opcode");
+    auto opcode_i = ExprFuse::Eq(opcode, ExprFuse::BvConst(1, 3));
+    auto init = ExprFuse::And(start_i, opcode_i);
+    bmc.AddInit(m0, init);
+  }
+
+  { // init for m1
+    auto start = m1->input("start");
+    auto start_i = ExprFuse::Eq(start, ExprFuse::BoolConst(true));
+    auto opcode = m1->input("opcode");
+    auto opcode_i = ExprFuse::Eq(opcode, ExprFuse::BvConst(1, 3));
+    auto init = ExprFuse::And(start_i, opcode_i);
+    bmc.AddInit(m1, init);
+  }
+
   auto result = bmc.BmcLegacy(m0, 1, m1, 1);
 
-  EXPECT_TRUE(result);
+  EXPECT_EQ(z3::unsat, result);
 
   DebugLog::Disable("Bmc.Legacy");
   DebugLog::Disable("ModelGen.IlaOneHotFlat");

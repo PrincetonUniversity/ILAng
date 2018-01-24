@@ -4,16 +4,23 @@
 #include "eq-check/bmc.h"
 
 namespace ila {
-Bmc::Bmc() { clear(); }
+Bmc::Bmc() {}
 
-Bmc::~Bmc() { clear(); }
+Bmc::~Bmc() {}
 
 z3::context& Bmc::ctx() { return ctx_; }
 
-void Bmc::clear() { map_.clear(); }
+void Bmc::AddInit(InstrLvlAbsPtr m, ExprPtr init) {
+  inits_.push_back(std::pair<InstrLvlAbsPtr, ExprPtr>(m, init));
+}
 
-bool Bmc::BmcLegacy(InstrLvlAbsPtr m0, const int& k0, InstrLvlAbsPtr m1,
-                    const int& k1) {
+void Bmc::AddInvariant(InstrLvlAbsPtr m, ExprPtr inv) {
+  invs_.push_back(std::pair<InstrLvlAbsPtr, ExprPtr>(m, inv));
+}
+
+z3::check_result Bmc::BmcLegacy(InstrLvlAbsPtr m0, const int& k0, 
+                                InstrLvlAbsPtr m1,
+                                const int& k1) {
   ILA_NOT_NULL(m0);
   ILA_NOT_NULL(m1);
 
@@ -63,6 +70,7 @@ bool Bmc::BmcLegacy(InstrLvlAbsPtr m0, const int& k0, InstrLvlAbsPtr m1,
     solver.add(!assert_i);
   }
 
+  // equal input
   auto input_num_m0 = m0->input_num();
   for (size_t i = 0; i != input_num_m0; i++) {
       auto input_m0 = m0->input(i);
@@ -73,14 +81,18 @@ bool Bmc::BmcLegacy(InstrLvlAbsPtr m0, const int& k0, InstrLvlAbsPtr m1,
       auto input_m1_init = mod_gen.Node(input_m1, prefix_m1, suffix_init);
       auto init_input = (input_m0_init == input_m1_init);
       solver.add(init_input);
-
-      if (i == 0) {
-        solver.add(input_m0_init == ctx_.bool_val(true));
-      } else if (i == 1) {
-        ILA_DLOG("Bmc.Legacy") << input_m0_init;
-        solver.add(input_m0_init == 1);
-      }
   }
+
+  // initial condition
+  for (size_t i = 0; i != inits_.size(); i++) {
+    auto m = inits_[i].first;
+    auto init_i = inits_[i].second;
+    auto prefix_m = m->name().str();
+    auto init_e = mod_gen.Node(init_i, prefix_m, suffix_init);
+    solver.add(init_e);
+  }
+
+  // invariants
 
   auto result = solver.check();
 
@@ -89,7 +101,7 @@ bool Bmc::BmcLegacy(InstrLvlAbsPtr m0, const int& k0, InstrLvlAbsPtr m1,
     ILA_DLOG("Bmc.Legacy") << m;
   }
 
-  return (result == z3::unsat);
+  return result;
 }
 
 } // namespace ila

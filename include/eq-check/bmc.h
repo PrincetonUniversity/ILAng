@@ -24,20 +24,28 @@ public:
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return the z3 context.
   z3::context& ctx();
-  /// Reset/clear all cached values, including z3 context and expr mapping.
-  void clear();
 
   // ------------------------- METHODS -------------------------------------- //
+  /// \brief Add initial condition to the solver.
+  void AddInit(InstrLvlAbsPtr m, ExprPtr init);
+
+  /// \brief Add invariant to the solver.
+  void AddInvariant(InstrLvlAbsPtr m, ExprPtr inv);
+
   /// \brief Legacy BMC where two ILAs are unrolled and compared monolithically.
-  bool BmcLegacy(InstrLvlAbsPtr m0, const int& k0, InstrLvlAbsPtr m1,
-                 const int& k1);
+  z3::check_result BmcLegacy(InstrLvlAbsPtr m0, const int& k0, 
+                             InstrLvlAbsPtr m1,
+                             const int& k1);
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// z3 context.
   z3::context ctx_;
-  /// z3 expression mapping.
-  std::map<std::string, z3::expr> map_;
+
+  /// The set of invariants.
+  std::vector<std::pair<InstrLvlAbsPtr, ExprPtr>> invs_;
+  /// The set of initial condition.
+  std::vector<std::pair<InstrLvlAbsPtr, ExprPtr>> inits_;
 
   // ------------------------- HELPERS -------------------------------------- //
 
