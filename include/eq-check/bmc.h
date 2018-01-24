@@ -32,6 +32,9 @@ public:
   /// \brief Add invariant to the solver.
   void AddInvariant(InstrLvlAbsPtr m, ExprPtr inv);
 
+  /// \brief Add property of one ILA.
+  void AddProperty(InstrLvlAbsPtr m, ExprPtr prop);
+
   /// \brief Legacy BMC where two ILAs are unrolled and compared monolithically.
   z3::check_result BmcLegacy(InstrLvlAbsPtr m0, const int& k0,
                              InstrLvlAbsPtr m1, const int& k1);
