@@ -104,6 +104,9 @@ public:
   /// Output function.
   std::ostream& Print(std::ostream& out) const;
 
+  /// Overload output stream operator.
+  friend std::ostream& operator<<(std::ostream& out, InstrPtr i);
+
 private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// Has view.

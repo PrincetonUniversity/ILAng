@@ -10,11 +10,10 @@ namespace ila {
 
 TEST(TestBmc, Legacy) {
   SetToStdErr(1);
-#if 0
+
   DebugLog::Enable("Bmc.Legacy");
   DebugLog::Enable("ModelGen.IlaOneHotFlat");
-  DebugLog::Enable("ModelGen.Instr");
-#endif
+  //DebugLog::Enable("ModelGen.Instr");
 
   EqIlaGen ila_gen;
 
@@ -24,7 +23,7 @@ TEST(TestBmc, Legacy) {
   Bmc bmc;
   auto result = bmc.BmcLegacy(m0, 1, m1, 1);
 
-  EXPECT_EQ(result, z3::unsat);
+  EXPECT_TRUE(result);
 
   DebugLog::Disable("Bmc.Legacy");
   DebugLog::Disable("ModelGen.IlaOneHotFlat");

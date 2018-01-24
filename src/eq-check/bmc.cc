@@ -24,12 +24,10 @@ bool Bmc::BmcLegacy(InstrLvlAbsPtr m0, const int& k0, InstrLvlAbsPtr m1,
   ILA_ASSERT(k0 > 0) << "Non-positive unroll step " << k0 << "\n";
   auto prefix_m0 = m0->name().str();
   for (auto i = 0; i != k0; i++) {
-    ILA_DLOG("Bmc.Legacy") << "Unroll m0 to " << i << "\n";
     auto suffix_i = std::to_string(i);
     auto suffix_n = std::to_string(i + 1);
-    ILA_DLOG("Bmc.Legacy") << suffix_n;
     auto cnst_i = mod_gen.IlaOneHotFlat(m0, prefix_m0, suffix_i, suffix_n);
-    ILA_DLOG("Bmc.Legacy") << "Add step " << i << "of m0 to the solver.\n";
+    ILA_DLOG("Bmc.Legacy") << "Add step " << i << " of m0 to the solver.\n";
     solver.add(cnst_i);
   }
 
@@ -37,14 +35,12 @@ bool Bmc::BmcLegacy(InstrLvlAbsPtr m0, const int& k0, InstrLvlAbsPtr m1,
   ILA_ASSERT(k1 > 0) << "Non-positive unroll step " << k1 << "\n";
   auto prefix_m1 = m1->name().str();
   for (auto i = 0; i != k1; i++) {
-    ILA_DLOG("Bmc.Legacy") << "Unroll m1 to " << i << "\n";
     auto suffix_i = std::to_string(i);
     auto suffix_n = std::to_string(i + 1);
     auto cnst_i = mod_gen.IlaOneHotFlat(m1, prefix_m1, suffix_i, suffix_n);
     solver.add(cnst_i);
   }
 
-  // equal initial condition
   auto state_num_m0 = m0->state_num();
   auto suffix_init = std::to_string(0);
   auto suffix_k0 = std::to_string(k0);
@@ -66,6 +62,20 @@ bool Bmc::BmcLegacy(InstrLvlAbsPtr m0, const int& k0, InstrLvlAbsPtr m1,
     auto assert_i = (state_m0_final == state_m1_final);
     solver.add(!assert_i);
   }
+
+  auto input_num_m0 = m0->input_num();
+  for (size_t i = 0; i != input_num_m0; i++) {
+      auto input_m0 = m0->input(i);
+      auto input_m1 = m1->input(input_m0->name().str());
+      ILA_ASSERT(input_m1 != NULL) << "Input unmatched: " << input_m0 << "\n";
+
+      auto input_m0_init = mod_gen.Node(input_m0, prefix_m0, suffix_init);
+      auto input_m1_init = mod_gen.Node(input_m1, prefix_m1, suffix_init);
+      auto init_input = (input_m0_init == input_m1_init);
+      solver.add(init_input);
+  }
+
+  ILA_DLOG("Bmc.Legacy") << solver;
 
   auto result = solver.check();
 
