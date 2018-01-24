@@ -34,7 +34,6 @@ public:
   // ------------------------- METHODS -------------------------------------- //
   /// Return the z3 expression for the node.
   z3::expr GetZ3Expr(z3::context& z3_ctx, const Z3ExprVec& z3expr_vec,
-                     const std::string& prefix = "",
                      const std::string& suffix = "") const;
 
   /// Output to stream.

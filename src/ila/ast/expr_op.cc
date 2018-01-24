@@ -88,7 +88,6 @@ ExprOpNeg::ExprOpNeg(const ExprPtr arg) : ExprOp(arg) {
 }
 
 z3::expr ExprOpNeg::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
-                              const std::string& prefix,
                               const std::string& suffix) const {
   ILA_ASSERT(expr_vec.size() == 1) << "Negate is a unary function.\n";
   return -expr_vec[0];
@@ -105,7 +104,6 @@ ExprOpNot::ExprOpNot(const ExprPtr arg) : ExprOp(arg) {
 }
 
 z3::expr ExprOpNot::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
-                              const std::string& prefix,
                               const std::string& suffix) const {
   ILA_ASSERT(expr_vec.size() == 1) << "Not is a unary function.\n";
   return !expr_vec[0];
@@ -122,7 +120,6 @@ ExprOpCompl::ExprOpCompl(const ExprPtr arg) : ExprOp(arg) {
 }
 
 z3::expr ExprOpCompl::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
-                                const std::string& prefix,
                                 const std::string& suffix) const {
   ILA_ASSERT(expr_vec.size() == 1) << "Negate is a unary function.\n";
   return ~expr_vec[0];
@@ -139,7 +136,6 @@ ExprOpAnd::ExprOpAnd(const ExprPtr arg0, const ExprPtr arg1)
 }
 
 z3::expr ExprOpAnd::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
-                              const std::string& prefix,
                               const std::string& suffix) const {
   ILA_ASSERT(expr_vec.size() == 2);
   if (is_bool())
@@ -161,7 +157,6 @@ ExprOpOr::ExprOpOr(const ExprPtr arg0, const ExprPtr arg1)
 }
 
 z3::expr ExprOpOr::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
-                             const std::string& prefix,
                              const std::string& suffix) const {
   ILA_ASSERT(expr_vec.size() == 2);
   return expr_vec[0] | expr_vec[1];
@@ -178,7 +173,6 @@ ExprOpXor::ExprOpXor(const ExprPtr arg0, const ExprPtr arg1)
 }
 
 z3::expr ExprOpXor::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
-                              const std::string& prefix,
                               const std::string& suffix) const {
   return expr_vec[0] ^ expr_vec[1];
 #if 0
@@ -205,7 +199,6 @@ ExprOpAdd::ExprOpAdd(const ExprPtr arg0, const ExprPtr arg1)
 }
 
 z3::expr ExprOpAdd::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
-                              const std::string& prefix,
                               const std::string& suffix) const {
   ILA_ASSERT(expr_vec.size() == 2) << "Add is binary operation.\n";
   return expr_vec[0] + expr_vec[1];
@@ -222,7 +215,6 @@ ExprOpEq::ExprOpEq(const ExprPtr arg0, const ExprPtr arg1)
 }
 
 z3::expr ExprOpEq::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
-                             const std::string& prefix,
                              const std::string& suffix) const {
   ILA_ASSERT(expr_vec.size() == 2);
   return expr_vec[0] == expr_vec[1];
@@ -243,7 +235,6 @@ ExprOpLoad::ExprOpLoad(const ExprPtr mem, const ExprPtr addr)
 }
 
 z3::expr ExprOpLoad::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
-                               const std::string& prefix,
                                const std::string& suffix) const {
   ILA_ASSERT(expr_vec.size() == 2);
   return z3::select(expr_vec[0], expr_vec[1]);
@@ -265,7 +256,6 @@ ExprOpStore::ExprOpStore(const ExprPtr mem, const ExprPtr addr,
 }
 
 z3::expr ExprOpStore::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
-                                const std::string& prefix,
                                 const std::string& suffix) const {
   ILA_ASSERT(expr_vec.size() == 3) << "Store takes 3 arguments.\n";
   auto mem = expr_vec[0];
@@ -289,7 +279,6 @@ ExprOpIte::ExprOpIte(const ExprPtr cnd, const ExprPtr true_expr,
 }
 
 z3::expr ExprOpIte::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
-                              const std::string& prefix,
                               const std::string& suffix) const {
   ILA_ASSERT(expr_vec.size() == 3) << "Ite takes 3 arguments.\n";
   auto cnd = expr_vec[0];

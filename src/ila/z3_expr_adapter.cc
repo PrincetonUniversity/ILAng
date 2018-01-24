@@ -16,17 +16,14 @@ z3::context& Z3ExprAdapter::ctx() const { return ctx_; }
 
 void Z3ExprAdapter::set_simplify(const bool& sim) { simplify_ = sim; }
 
-z3::expr Z3ExprAdapter::GetExpr(const ExprPtr expr, const std::string& prefix,
-                                const std::string& suffix) {
+z3::expr Z3ExprAdapter::GetExpr(const ExprPtr expr, const std::string& suffix) {
   ClearCache();
-  return GetExprCached(expr, prefix, suffix);
+  return GetExprCached(expr, suffix);
 }
 
 z3::expr Z3ExprAdapter::GetExprCached(const ExprPtr expr,
-                                      const std::string& prefix,
                                       const std::string& suffix) {
   suffix_ = suffix;
-  prefix_ = prefix;
 
   expr->DepthFirstVisit(*this);
 
@@ -64,13 +61,13 @@ void Z3ExprAdapter::PopulateExprMap(const ExprPtrRaw expr) {
   for (size_t i = 0; i != num_arg; i++) {
     ExprPtr arg_i = expr->arg(i);
     auto pos = expr_map_.find(arg_i.get());
-    ILA_ASSERT(pos != expr_map_.end()) << "No expressions found for argument "
-                                       << i << ".\n";
+    ILA_ASSERT(pos != expr_map_.end())
+        << "No expressions found for argument " << i << ".\n";
     expr_vec.push_back(pos->second);
   }
 
   // get the expression based on different type of the ast node.
-  z3::expr res = expr->GetZ3Expr(ctx_, expr_vec, prefix_, suffix_);
+  z3::expr res = expr->GetZ3Expr(ctx_, expr_vec, suffix_);
 
   // simplify expression
   if (simplify_)

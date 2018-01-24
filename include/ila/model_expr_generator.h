@@ -29,22 +29,18 @@ public:
 
   // ------------------------- METHODS -------------------------------------- //
   /// \brief Get the z3 expression for the AST node.
-  z3::expr Node(const ExprPtr node, const std::string& prefix,
-                const std::string& suffix);
+  z3::expr Node(const ExprPtr node, const std::string& suffix);
 
   /// \brief Get the set of z3 expression (constraints) for the instruction.
   /// - States with no update functions are encoded as unchanged.
-  z3::expr Instr(const InstrPtr instr, const std::string& prefix = "",
-                 const std::string& suffix_prev = "0",
-                 const std::string& suffix_next = "1", 
-                 bool complete = true);
+  z3::expr Instr(const InstrPtr instr, const std::string& suffix_prev = "0",
+                 const std::string& suffix_next = "1", bool complete = true);
 
   /// \brief Get the set of z3 expression (constraints) for the ILA.
   /// - Assume no child-ILAs (not considered).
   /// - States with no update functions are encoded as unchanged.
   /// - Assume one-hot encoding of all instructions.
-  z3::expr IlaOneHotFlat(const InstrLvlAbsPtr ila, 
-                         const std::string& prefix = "",
+  z3::expr IlaOneHotFlat(const InstrLvlAbsPtr ila,
                          const std::string& suffix_prev = "0",
                          const std::string& suffix_next = "1");
 

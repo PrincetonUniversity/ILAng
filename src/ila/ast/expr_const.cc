@@ -36,7 +36,6 @@ ExprConst::ExprConst(const MemVal& mem_val, const int& addr_width,
 ExprConst::~ExprConst() {}
 
 z3::expr ExprConst::GetZ3Expr(z3::context& ctx, const Z3ExprVec& z3expr_vec,
-                              const std::string& prefix,
                               const std::string& suffix) const {
   ILA_ASSERT(z3expr_vec.empty()) << "Constant should be terminating nodes.\n";
 

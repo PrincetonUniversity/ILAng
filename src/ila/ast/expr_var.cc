@@ -2,6 +2,7 @@
 /// Source for the var expression
 
 #include "ila/ast/expr_var.h"
+#include "ila/instr_lvl_abs.h"
 #include "util/log.h"
 
 namespace ila {
@@ -33,8 +34,8 @@ ExprVar::ExprVar(const std::string& name, const int& addr_width,
 ExprVar::~ExprVar() {}
 
 z3::expr ExprVar::GetZ3Expr(z3::context& ctx, const Z3ExprVec& z3expr_vec,
-                            const std::string& prefix,
                             const std::string& suffix) const {
+  auto prefix = (host()) ? host()->name().str() : "";
   if (is_bool()) {
     return ctx.bool_const(name().format_str(prefix, suffix).c_str());
   } else if (is_bv()) {

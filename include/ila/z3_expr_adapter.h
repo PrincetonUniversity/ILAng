@@ -36,8 +36,7 @@ public:
 
   // ------------------------- METHODS -------------------------------------- //
   /// Get the z3 expression of the AST node (no cached value used).
-  z3::expr GetExpr(const ExprPtr expr, const std::string& prefix = "",
-                   const std::string& suffix = "");
+  z3::expr GetExpr(const ExprPtr expr, const std::string& suffix = "");
 
   /// Function object for getting z3 expression.
   void operator()(const ExprPtrRaw expr);
@@ -50,8 +49,6 @@ private:
   z3::context& ctx_;
   /// Container for cacheing intermediate expressions.
   ExprMap expr_map_;
-  /// Name prefix for each expression generation (e.g. ILA tag)
-  std::string prefix_ = "";
   /// Name suffix for each expression generation (e.g. time frame)
   std::string suffix_ = "";
 
@@ -62,8 +59,7 @@ private:
   /// Clear the cached values. (Should be called for every time frame)
   void ClearCache();
   /// Get the z3 expression of the AST node using the cached value.
-  z3::expr GetExprCached(const ExprPtr expr, const std::string& prefix = "",
-                         const std::string& suffix = "");
+  z3::expr GetExprCached(const ExprPtr expr, const std::string& suffix = "");
 
 }; // class Z3ExprAdapter
 

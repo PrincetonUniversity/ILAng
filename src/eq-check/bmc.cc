@@ -28,21 +28,19 @@ z3::check_result Bmc::BmcLegacy(InstrLvlAbsPtr m0, const int& k0,
 
   // unroll m0
   ILA_ASSERT(k0 > 0) << "Non-positive unroll step " << k0 << "\n";
-  auto prefix_m0 = m0->name().str();
   for (auto i = 0; i != k0; i++) {
     auto suffix_i = std::to_string(i);
     auto suffix_n = std::to_string(i + 1);
-    auto cnst_i = mod_gen.IlaOneHotFlat(m0, prefix_m0, suffix_i, suffix_n);
+    auto cnst_i = mod_gen.IlaOneHotFlat(m0, suffix_i, suffix_n);
     solver.add(cnst_i);
   }
 
   // untoll m1
   ILA_ASSERT(k1 > 0) << "Non-positive unroll step " << k1 << "\n";
-  auto prefix_m1 = m1->name().str();
   for (auto i = 0; i != k1; i++) {
     auto suffix_i = std::to_string(i);
     auto suffix_n = std::to_string(i + 1);
-    auto cnst_i = mod_gen.IlaOneHotFlat(m1, prefix_m1, suffix_i, suffix_n);
+    auto cnst_i = mod_gen.IlaOneHotFlat(m1, suffix_i, suffix_n);
     solver.add(cnst_i);
   }
 
@@ -56,14 +54,14 @@ z3::check_result Bmc::BmcLegacy(InstrLvlAbsPtr m0, const int& k0,
     ILA_ASSERT(state_m1 != NULL) << "State unmatched: " << state_m0 << "\n";
 
     // equal initial condition
-    auto state_m0_init = mod_gen.Node(state_m0, prefix_m0, suffix_init);
-    auto state_m1_init = mod_gen.Node(state_m1, prefix_m1, suffix_init);
+    auto state_m0_init = mod_gen.Node(state_m0, suffix_init);
+    auto state_m1_init = mod_gen.Node(state_m1, suffix_init);
     auto init_cnst_i = (state_m0_init == state_m1_init);
     solver.add(init_cnst_i);
 
     // assert equal final state
-    auto state_m0_final = mod_gen.Node(state_m0, prefix_m0, suffix_k0);
-    auto state_m1_final = mod_gen.Node(state_m1, prefix_m1, suffix_k1);
+    auto state_m0_final = mod_gen.Node(state_m0, suffix_k0);
+    auto state_m1_final = mod_gen.Node(state_m1, suffix_k1);
     auto assert_i = (state_m0_final == state_m1_final);
     solver.add(!assert_i);
   }
@@ -75,8 +73,8 @@ z3::check_result Bmc::BmcLegacy(InstrLvlAbsPtr m0, const int& k0,
     auto input_m1 = m1->input(input_m0->name().str());
     ILA_ASSERT(input_m1 != NULL) << "Input unmatched: " << input_m0 << "\n";
 
-    auto input_m0_init = mod_gen.Node(input_m0, prefix_m0, suffix_init);
-    auto input_m1_init = mod_gen.Node(input_m1, prefix_m1, suffix_init);
+    auto input_m0_init = mod_gen.Node(input_m0, suffix_init);
+    auto input_m1_init = mod_gen.Node(input_m1, suffix_init);
     auto init_input = (input_m0_init == input_m1_init);
     solver.add(init_input);
   }
@@ -85,8 +83,7 @@ z3::check_result Bmc::BmcLegacy(InstrLvlAbsPtr m0, const int& k0,
   for (size_t i = 0; i != inits_.size(); i++) {
     auto m = inits_[i].first;
     auto init_i = inits_[i].second;
-    auto prefix_m = m->name().str();
-    auto init_e = mod_gen.Node(init_i, prefix_m, suffix_init);
+    auto init_e = mod_gen.Node(init_i, suffix_init);
     solver.add(init_e);
   }
 
