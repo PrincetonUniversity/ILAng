@@ -53,6 +53,30 @@ public:
 
 }; // class TestZ3Expr
 
+TEST_F(TestZ3Expr, XorBool) {
+  auto ast_xor = ExprFuse::Xor(bool_var_x, bool_var_y);
+  auto ast_xnoty = ExprFuse::And(bool_var_x, ExprFuse::Not(bool_var_y));
+  auto ast_notxy = ExprFuse::And(ExprFuse::Not(bool_var_x), bool_var_y);
+  auto ast_raw = ExprFuse::Or(ast_xnoty, ast_notxy);
+  auto ast_eq = ExprFuse::Eq(ast_xor, ast_raw);
+
+  auto expr_eq = gen->GetExpr(ast_eq);
+  s->add(!expr_eq);
+  EXPECT_EQ(z3::unsat, s->check());
+}
+
+TEST_F(TestZ3Expr, XorBv) {
+  auto ast_xor = ExprFuse::Xor(bv_var_x, bv_var_y);
+  auto ast_xnoty = ExprFuse::And(bv_var_x, ExprFuse::Complement(bv_var_y));
+  auto ast_notxy = ExprFuse::And(ExprFuse::Complement(bv_var_x), bv_var_y);
+  auto ast_raw = ExprFuse::Or(ast_xnoty, ast_notxy);
+  auto ast_eq = ExprFuse::Eq(ast_xor, ast_raw);
+
+  auto expr_eq = gen->GetExpr(ast_eq);
+  s->add(!expr_eq);
+  EXPECT_EQ(z3::unsat, s->check());
+}
+
 TEST_F(TestZ3Expr, NotNot) {
   auto ast_not = ExprFuse::Not(bool_var_x);
   auto ast_notnot = ExprFuse::Not(ast_not);

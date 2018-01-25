@@ -7,7 +7,7 @@
 
 namespace ila {
 
-ExprVar::ExprVar() { ILA_CHECK(false) << "Undefined ExprVar constructor.\n"; }
+ExprVar::ExprVar() { ILA_CHECK(false) << "Undefined ExprVar constructor."; }
 
 ExprVar::ExprVar(const std::string& name) {
   set_name(name);
@@ -42,7 +42,7 @@ z3::expr ExprVar::GetZ3Expr(z3::context& ctx, const Z3ExprVec& z3expr_vec,
     return ctx.bv_const(name().format_str(prefix, suffix).c_str(),
                         sort().bit_width());
   } else {
-    ILA_ASSERT(is_mem()) << "Unkown sort for var " << name() << "\n";
+    ILA_ASSERT(is_mem()) << "Unknown sort for var " << name();
     auto addr_sort = ctx.bv_sort(sort().addr_width());
     auto data_sort = ctx.bv_sort(sort().data_width());
     auto mem_sort = ctx.array_sort(addr_sort, data_sort);
@@ -56,21 +56,21 @@ std::ostream& ExprVar::Print(std::ostream& out) const {
   } else if (is_bv()) {
     return PrintBv(out);
   } else {
-    ILA_ASSERT(is_mem()) << "Unkown sort for var " << name() << "\n";
+    ILA_ASSERT(is_mem()) << "Unknown sort for var " << name();
     return PrintMem(out);
   }
 }
 
 std::ostream& ExprVar::PrintBool(std::ostream& out) const {
-  return out << name().format_str("BoolVar", "");
+  return out << name().format_str("Bool", "");
 }
 
 std::ostream& ExprVar::PrintBv(std::ostream& out) const {
-  return out << name().format_str("BvVar", "");
+  return out << name().format_str("Bv", std::to_string(sort().bit_width()));
 }
 
 std::ostream& ExprVar::PrintMem(std::ostream& out) const {
-  return out << name().format_str("MemVar", "");
+  return out << name().format_str("Mem", "");
 }
 
 } // namespace ila

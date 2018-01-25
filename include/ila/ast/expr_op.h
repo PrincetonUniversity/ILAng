@@ -40,7 +40,7 @@ public:
                              const std::string& suffix = "") const = 0;
 
   /// Output to stream.
-  virtual std::ostream& Print(std::ostream& out) const = 0;
+  std::ostream& Print(std::ostream& out) const;
 
 protected:
   // ------------------------- HELPERS -------------------------------------- //
@@ -48,16 +48,6 @@ protected:
   Sort GetSortBinaryOperation(const Sort& s0, const Sort& s1);
   /// Derived the sort for binary comparisons.
   Sort GetSortBinaryComparison(const Sort& s0, const Sort& s1);
-
-  /// Print unary operations.
-  std::ostream& PrintUnaryOp(std::ostream& out,
-                             const std::string& op_name) const;
-  /// Print binary operations.
-  std::ostream& PrintBinaryOp(std::ostream& out,
-                              const std::string& op_name) const;
-  /// Print n-ary operations.
-  std::ostream& PrintNnaryOp(std::ostream& out,
-                             const std::string& op_name) const;
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
@@ -76,7 +66,6 @@ public:
   std::string op_name() const { return "NEGATE"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                      const std::string& suffix = "") const;
-  std::ostream& Print(std::ostream& out) const;
 }; // class ExprOpNeg
 
 /// \brief The wrapper for unary not operation "!". (bool only)
@@ -87,7 +76,6 @@ public:
   std::string op_name() const { return "NOT"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                      const std::string& suffix = "") const;
-  std::ostream& Print(std::ostream& out) const;
 }; // class ExprOpNot
 
 /// \brief The wrapper for unary bit-wise complement "~". (bv only)
@@ -98,7 +86,6 @@ public:
   std::string op_name() const { return "COMPLEMENT"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                      const std::string& suffix = "") const;
-  std::ostream& Print(std::ostream& out) const;
 }; // class ExprOpCompl
 
 /******************************************************************************/
@@ -113,7 +100,6 @@ public:
   std::string op_name() const { return "AND"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                      const std::string& suffix = "") const;
-  std::ostream& Print(std::ostream& out) const;
 }; // class ExprOpAnd
 
 /// \brief The wrapper for binary logical OR operation "|".
@@ -124,7 +110,6 @@ public:
   std::string op_name() const { return "OR"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                      const std::string& suffix = "") const;
-  std::ostream& Print(std::ostream& out) const;
 }; // class ExprOpOr
 
 /// \brief The wrapper for binary logical XOR operation "^".
@@ -135,7 +120,6 @@ public:
   std::string op_name() const { return "XOR"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                      const std::string& suffix = "") const;
-  std::ostream& Print(std::ostream& out) const;
 }; // class ExprOpXor
 
 // TODO ExprOpShl
@@ -150,7 +134,6 @@ public:
   std::string op_name() const { return "ADD"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                      const std::string& suffix = "") const;
-  std::ostream& Print(std::ostream& out) const;
 }; // class ExprOpAdd
 
 // TODO ExprOpSub
@@ -175,7 +158,6 @@ public:
   std::string op_name() const { return "EQ"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                      const std::string& suffix = "") const;
-  std::ostream& Print(std::ostream& out) const;
 }; // class ExprOpEq
 
 // ExprOpNe is implemented in ExprFuse with Eq and Not.
@@ -200,7 +182,6 @@ public:
   std::string op_name() const { return "LOAD"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                      const std::string& suffix = "") const;
-  std::ostream& Print(std::ostream& out) const;
 }; // class ExprOpLoad
 
 /// \brief The class wrapper for memory store.
@@ -211,7 +192,6 @@ public:
   std::string op_name() const { return "STORE"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                      const std::string& suffix = "") const;
-  std::ostream& Print(std::ostream& out) const;
 }; // class ExprOpStore
 
 /******************************************************************************/
@@ -243,7 +223,6 @@ public:
   std::string op_name() const { return "ITE"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                      const std::string& suffix = "") const;
-  std::ostream& Print(std::ostream& out) const;
 }; // class ExprOpIte
 
 } // namespace ila

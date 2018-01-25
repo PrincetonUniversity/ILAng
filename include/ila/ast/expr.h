@@ -40,9 +40,6 @@ public:
   virtual ~Expr();
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
-  /// Return the prefix of the expression (depends on type).
-  virtual const std::string& prefix() const { return k_prefix_expr_; }
-
   /// Return the pointer of the sort.
   const Sort& sort() const;
   /// Return the arity.
@@ -96,14 +93,8 @@ public:
   /// Output to stream.
   virtual std::ostream& Print(std::ostream& out) const = 0;
 
-  /// Compare two expression with object.
-  static bool Equal(const Expr& lhs, const Expr& rhs);
-  /// Compare two expression with pointer.
-  static bool Equal(const ExprPtr lhs, const ExprPtr rhs);
-  /// Overload comparison.
-  friend bool operator==(const Expr& lhs, const Expr& rhs);
-  /// Overload output stream operator
-  friend std::ostream& operator<<(std::ostream& out, const Expr& expr);
+  /// Overload output stream operator for pointer.
+  friend std::ostream& operator<<(std::ostream& out, ExprPtr expr);
 
   /// \brief Templated visitor: visit each node in a depth-first order and apply
   /// the function object F on it.
@@ -131,14 +122,7 @@ private:
   /// Pointer to the host ILA.
   InstrLvlAbsPtr host_ = NULL;
 
-  /// Static counter for expressions.
-  static unsigned coutner_;
-  /// Static prefix for intermediate expression name.
-  static const std::string k_prefix_expr_;
-
   // ------------------------- HELPERS -------------------------------------- //
-  /// Return true if the expression is well-sorted.
-  bool IsWellSorted() const;
 
 }; // class Expr
 
