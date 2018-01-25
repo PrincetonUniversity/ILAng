@@ -18,6 +18,7 @@ typedef enum { END, FOUND } KeyVecItVal;
 /// \brief A pseudo-iterator for the key-search vector.
 template <class Key, class T> class KeyVecIt {
 public:
+  /// Pointer type for the KeyVec iterator.
   typedef std::shared_ptr<KeyVecIt> KeyVecItPtr;
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
