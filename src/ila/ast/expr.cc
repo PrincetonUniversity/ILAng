@@ -6,7 +6,7 @@
 
 namespace ila {
 
-const std::string Expr::k_prefix_expr_ = "expr";
+typedef Expr::InstrLvlAbsPtr InstrLvlAbsPtr;
 
 Expr::Expr() : arity_(0), num_param_(0) {}
 
@@ -16,17 +16,13 @@ const Sort& Expr::sort() const { return sort_; }
 
 const size_t& Expr::arity() const { return arity_; }
 
-ExprPtr Expr::arg(const size_t& i) const {
-  ILA_ASSERT(i <= arity()) << "Invalid argument index " << i << "\n";
-  return args_[i];
-}
+ExprPtr Expr::arg(const size_t& i) const { return args_.at(i); }
 
 const size_t& Expr::num_param() const { return num_param_; }
 
-const int& Expr::param(const size_t& i) const {
-  ILA_ASSERT(i <= num_param_) << "Invalid parameter index " << i << "\n";
-  return params_[i];
-}
+const int& Expr::param(const size_t& i) const { return params_.at(i); }
+
+InstrLvlAbsPtr Expr::host() const { return host_; }
 
 void Expr::set_sort(const Sort& sort) { sort_ = sort; }
 
@@ -46,6 +42,12 @@ void Expr::set_num_param(const size_t& num_param) {
 }
 
 void Expr::set_params(const std::vector<int> params) { params_ = params; }
+
+void Expr::set_host(InstrLvlAbsPtr host) { host_ = host; }
+
+std::ostream& operator<<(std::ostream& out, ExprPtr expr) {
+  return expr->Print(out);
+}
 
 } // namespace ila
 

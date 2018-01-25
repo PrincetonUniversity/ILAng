@@ -13,6 +13,9 @@
 /// \namespace ila
 namespace ila {
 
+// Forward declaration for adding host ila.
+class InstrLvlAbs;
+
 /// \brief The class for the Instruction. An Instr object contains:
 /// - the decode function
 /// - a set of undate functions for the state variables
@@ -23,6 +26,8 @@ public:
   typedef std::shared_ptr<Instr> InstrPtr;
   /// Type for storing a set of Expr.
   typedef std::map<std::string, ExprPtr> ExprPtrMap;
+  /// Pointer type for ILA.
+  typedef std::shared_ptr<InstrLvlAbs> InstrLvlAbsPtr;
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Constructor with the ast simplifier.
@@ -43,6 +48,8 @@ public:
   bool has_view() const;
   /// Return true if simplification is performed.
   bool has_simplify() const;
+  /// Return the host ILA.
+  InstrLvlAbsPtr host() const;
 
   /// \brief Set the view flag.
   /// \param[in] v the flag indicating whether the instruction has views.
@@ -53,6 +60,9 @@ public:
   /// \brief Assign the simplifier.
   /// \param[in] mngr the ast simplifier.
   void set_mngr(const ExprMngrPtr mngr);
+  /// \brief Set the host ILA.
+  /// \param[in] host the host ILA.
+  void set_host(const InstrLvlAbsPtr host);
 
   // ------------------------- METHODS -------------------------------------- //
   /// \brief Set the decode function if not yet assigned.
@@ -94,20 +104,26 @@ public:
   /// Output function.
   std::ostream& Print(std::ostream& out) const;
 
+  /// Overload output stream operator.
+  friend std::ostream& operator<<(std::ostream& out, InstrPtr i);
+
 private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// Has view.
-  bool has_view_;
+  bool has_view_ = false;
   /// To simplify expr nodes.
   bool simplify_;
 
   /// The decode function.
-  ExprPtr decode_;
+  ExprPtr decode_ = NULL;
   /// The set of update functions, mapped by name.
   ExprPtrMap updates_;
 
   /// The simplifier for expr nodes.
   ExprMngrPtr expr_mngr_;
+
+  /// The host ILA.
+  InstrLvlAbsPtr host_ = NULL;
 
   // ------------------------- HELPERS -------------------------------------- //
 

@@ -31,7 +31,8 @@ namespace ila {
 ///   -# a set of update functions
 /// - the set of child-ILAs
 /// - the child-instruction sequencing (if not parent)
-class InstrLvlAbs : public Object {
+class InstrLvlAbs : public Object,
+                    public std::enable_shared_from_this<InstrLvlAbs> {
 public:
   /// Pointer type for normal use of InstrLvlAbs.
   typedef std::shared_ptr<InstrLvlAbs> InstrLvlAbsPtr;
@@ -200,8 +201,10 @@ public:
   /// Output stream function.
   std::ostream& Print(std::ostream& out) const;
 
-  /// Overload utput stream
+  /// Overload output stream for object
   friend std::ostream& operator<<(std::ostream& out, InstrLvlAbs& ila);
+  /// Overload output stream for pointer
+  friend std::ostream& operator<<(std::ostream& out, InstrLvlAbsPtr ila);
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
@@ -233,8 +236,10 @@ private:
   // ------------------------- HELPERS -------------------------------------- //
   /// Initialize default configuration, reset members, etc.
   void InitObject();
+
   /// Check instruction is complete (e.g. update sort matches).
   void CheckInstr(const InstrPtr instr);
+
   /// Simplify instruction if not already.
   void SimplifyInstr(const InstrPtr instr);
 

@@ -6,7 +6,7 @@
 
 namespace ila {
 
-Z3ExprAdapter::Z3ExprAdapter(z3::context& ctx) : ctx_(ctx) { simplify_ = true; }
+Z3ExprAdapter::Z3ExprAdapter(z3::context& ctx) : ctx_(ctx) {}
 
 Z3ExprAdapter::~Z3ExprAdapter() {}
 
@@ -16,22 +16,24 @@ z3::context& Z3ExprAdapter::ctx() const { return ctx_; }
 
 void Z3ExprAdapter::set_simplify(const bool& sim) { simplify_ = sim; }
 
-z3::expr Z3ExprAdapter::GetZ3Expr(const ExprPtr expr,
-                                  const std::string& suffix) {
+z3::expr Z3ExprAdapter::GetExpr(const ExprPtr expr, const std::string& suffix) {
+  ClearCache();
+  return GetExprCached(expr, suffix);
+}
+
+z3::expr Z3ExprAdapter::GetExprCached(const ExprPtr expr,
+                                      const std::string& suffix) {
   suffix_ = suffix;
+
   expr->DepthFirstVisit(*this);
 
   auto pos = expr_map_.find(expr.get());
   ILA_ASSERT(pos != expr_map_.end()) << "z3 expr cannot be generated.\n";
 
-  if (pos != expr_map_.end()) {
-    return pos->second;
-  } else {
-    return ctx_.bool_val(false);
-  }
+  return pos->second;
 }
 
-void Z3ExprAdapter::Clear() { expr_map_.clear(); }
+void Z3ExprAdapter::ClearCache() { expr_map_.clear(); }
 
 void Z3ExprAdapter::operator()(const ExprPtrRaw expr) {
   auto pos = expr_map_.find(expr);
@@ -59,8 +61,8 @@ void Z3ExprAdapter::PopulateExprMap(const ExprPtrRaw expr) {
   for (size_t i = 0; i != num_arg; i++) {
     ExprPtr arg_i = expr->arg(i);
     auto pos = expr_map_.find(arg_i.get());
-    ILA_ASSERT(pos != expr_map_.end()) << "No expressions found for argument "
-                                       << i << ".\n";
+    ILA_ASSERT(pos != expr_map_.end())
+        << "No expressions found for argument " << i << ".\n";
     expr_vec.push_back(pos->second);
   }
 

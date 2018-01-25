@@ -5,6 +5,8 @@
 
 namespace ila {
 
+typedef Instr::InstrLvlAbsPtr InstrLvlAbsPtr;
+
 Instr::Instr(const std::string& name, ExprMngrPtr expr_mngr) {
   // update name if specified
   if (name != "")
@@ -18,12 +20,10 @@ Instr::Instr(const std::string& name, ExprMngrPtr expr_mngr) {
     simplify_ = false;
   }
   // initialization for other components
-  decode_ = NULL;
-  has_view_ = false;
   updates_.clear();
 }
 
-Instr::~Instr() {}
+Instr::~Instr(){};
 
 InstrPtr Instr::New(const std::string& name, ExprMngrPtr expr_mngr) {
   return std::make_shared<Instr>(name, expr_mngr);
@@ -33,6 +33,8 @@ bool Instr::has_view() const { return has_view_; }
 
 bool Instr::has_simplify() const { return simplify_; }
 
+InstrLvlAbsPtr Instr::host() const { return host_; }
+
 void Instr::set_view(bool v) { has_view_ = v; }
 
 void Instr::set_simplify(bool s) { simplify_ = s; }
@@ -41,6 +43,8 @@ void Instr::set_mngr(const ExprMngrPtr mngr) {
   ILA_NOT_NULL(mngr);
   expr_mngr_ = mngr;
 }
+
+void Instr::set_host(const InstrLvlAbsPtr host) { host_ = host; }
 
 void Instr::SetDecode(const ExprPtr decode) {
   ILA_ERROR_IF(decode_ != NULL)
@@ -101,6 +105,10 @@ ExprPtr Instr::GetUpdate(const ExprPtr state) const {
 std::ostream& Instr::Print(std::ostream& out) const {
   out << "Instr." << name();
   return out;
+}
+
+std::ostream& operator<<(std::ostream& out, InstrPtr i) {
+  return i->Print(out);
 }
 
 } // namespace ila

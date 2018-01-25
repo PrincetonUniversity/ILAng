@@ -4,14 +4,14 @@
 #ifndef __Z3_EXPR_ADAPTER_H__
 #define __Z3_EXPR_ADAPTER_H__
 
-#include "ila/ast/expr.h"
+#include "ila/expr_fuse.h"
 #include "z3++.h"
 #include <unordered_map>
 
 /// \namespace ila
 namespace ila {
 
-/// \brief The class for generating z3 expression from the ast expression.
+/// \brief The class for generating z3 expression from an ILA.
 class Z3ExprAdapter {
 public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
@@ -35,14 +35,8 @@ public:
   void set_context(z3::context& ctx);
 
   // ------------------------- METHODS -------------------------------------- //
-  /// \brief Get the z3 expression of the AST node.
-  /// \param[in] expr the AST node.
-  /// \param[in] suffix the suffix for terminating nodes (e.g. time frame)
-  /// \return z3 expression
-  z3::expr GetZ3Expr(const ExprPtr expr, const std::string& suffix = "");
-
-  /// Clear the cached values. (Should be called for every time frame)
-  void Clear();
+  /// Get the z3 expression of the AST node (no cached value used).
+  z3::expr GetExpr(const ExprPtr expr, const std::string& suffix = "");
 
   /// Function object for getting z3 expression.
   void operator()(const ExprPtrRaw expr);
@@ -50,19 +44,24 @@ public:
 private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// Flag of simplification.
-  bool simplify_;
+  bool simplify_ = true;
   /// The underlying z3 context.
   z3::context& ctx_;
   /// Container for cacheing intermediate expressions.
   ExprMap expr_map_;
-  /// Name suffix for each expression generation (time frame)
-  std::string suffix_;
+  /// Name suffix for each expression generation (e.g. time frame)
+  std::string suffix_ = "";
 
   // ------------------------- HELPERS -------------------------------------- //
   /// Insert the z3 expression of the given node into the map.
   void PopulateExprMap(const ExprPtrRaw expr);
 
-}; // class Z3Adapter
+  /// Clear the cached values. (Should be called for every time frame)
+  void ClearCache();
+  /// Get the z3 expression of the AST node using the cached value.
+  z3::expr GetExprCached(const ExprPtr expr, const std::string& suffix = "");
+
+}; // class Z3ExprAdapter
 
 } // namespace ila
 

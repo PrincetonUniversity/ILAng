@@ -36,7 +36,7 @@ public:
 
   /// Return the z3 expression for the node.
   z3::expr GetZ3Expr(z3::context& z3_ctx, const Z3ExprVec& z3expr_vec,
-                     const std::string& suffix) const;
+                     const std::string& suffix = "") const;
 
   /// Output to stream.
   std::ostream& Print(std::ostream& out) const;
@@ -57,3 +57,4 @@ private:
 } // namespace ila
 
 #endif // __EXPR_VAR_H__
+

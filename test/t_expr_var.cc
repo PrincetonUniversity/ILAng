@@ -89,7 +89,7 @@ TEST(TestExprVar, MemZ3Expr) {
 
 TEST(TestExprVar, BoolPrint) {
   auto bool_var = std::make_shared<ExprVar>("bool_var");
-  std::string ref_str = "BoolVar_bool_var";
+  std::string ref_str = "Bool_bool_var";
 
   std::string msg;
   GET_STDOUT_MSG(bool_var->Print(std::cout), msg);
@@ -98,7 +98,7 @@ TEST(TestExprVar, BoolPrint) {
 
 TEST(TestExprVar, BvPrint) {
   auto bv_var = std::make_shared<ExprVar>("bv_var", 8);
-  std::string ref_str = "BvVar_bv_var";
+  std::string ref_str = "Bv_bv_var_8";
 
   std::string msg;
   GET_STDOUT_MSG(bv_var->Print(std::cout), msg);
@@ -107,7 +107,7 @@ TEST(TestExprVar, BvPrint) {
 
 TEST(TestExprVar, MemPrint) {
   auto mem_var = std::make_shared<ExprVar>("mem_var", 8, 32);
-  std::string ref_str = "MemVar_mem_var";
+  std::string ref_str = "Mem_mem_var";
 
   std::string msg;
   GET_STDOUT_MSG(mem_var->Print(std::cout), msg);

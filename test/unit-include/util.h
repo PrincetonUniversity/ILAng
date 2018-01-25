@@ -1,6 +1,7 @@
 /// \file
 /// Some helper macros, functions for writing tests.
 
+#include "ila/expr_fuse.h"
 #include "util/log.h"
 #include "gtest/gtest-spi.h"
 #include "gtest/gtest.h"

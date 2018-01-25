@@ -6,6 +6,7 @@
 
 #include "ila/ast/ast.h"
 #include "ila/ast/sort.h"
+#include "ila/defines.h"
 #include "z3++.h"
 #include "z3_api.h"
 #include <memory>
@@ -15,6 +16,9 @@
 
 /// \namespace ila
 namespace ila {
+
+// Forward declaration for host.
+class InstrLvlAbs;
 
 /// \brief The class for expression, which is the basic type for variables,
 /// constraints, state update expressions, etc.
@@ -26,8 +30,8 @@ public:
   typedef std::shared_ptr<Expr> ExprPtr;
   /// Type for storing a set of Expr.
   typedef std::vector<ExprPtr> ExprPtrVec;
-  /// Type for storing a set of z3 expr.
-  typedef std::vector<z3::expr> Z3ExprVec;
+  /// Type for forward declaration of ILA.
+  typedef std::shared_ptr<InstrLvlAbs> InstrLvlAbsPtr;
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor.
@@ -36,9 +40,6 @@ public:
   virtual ~Expr();
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
-  /// Return the prefix of the expression (depends on type).
-  virtual const std::string& prefix() const { return k_prefix_expr_; }
-
   /// Return the pointer of the sort.
   const Sort& sort() const;
   /// Return the arity.
@@ -49,6 +50,8 @@ public:
   const size_t& num_param() const;
   /// Return the i-th paramter.
   const int& param(const size_t& i) const;
+  /// Return the hosting ILA.
+  InstrLvlAbsPtr host() const;
 
   /// Set the sort of the expression.
   void set_sort(const Sort& sort);
@@ -60,6 +63,8 @@ public:
   void set_num_param(const size_t& num_param);
   /// Set the parameters.
   void set_params(const std::vector<int> params);
+  /// Set the hosting ILA.
+  void set_host(InstrLvlAbsPtr host);
 
   /// Is type expr (object).
   bool is_expr() const { return true; }
@@ -88,14 +93,8 @@ public:
   /// Output to stream.
   virtual std::ostream& Print(std::ostream& out) const = 0;
 
-  /// Compare two expression with object.
-  static bool Equal(const Expr& lhs, const Expr& rhs);
-  /// Compare two expression with pointer.
-  static bool Equal(const ExprPtr lhs, const ExprPtr rhs);
-  /// Overload comparison.
-  friend bool operator==(const Expr& lhs, const Expr& rhs);
-  /// Overload output stream operator
-  friend std::ostream& operator<<(std::ostream& out, const Expr& expr);
+  /// Overload output stream operator for pointer.
+  friend std::ostream& operator<<(std::ostream& out, ExprPtr expr);
 
   /// \brief Templated visitor: visit each node in a depth-first order and apply
   /// the function object F on it.
@@ -120,15 +119,10 @@ private:
   size_t num_param_;
   /// Vector of parameters.
   std::vector<int> params_;
-
-  /// Static counter for expressions.
-  static unsigned coutner_;
-  /// Static prefix for intermediate expression name.
-  static const std::string k_prefix_expr_;
+  /// Pointer to the host ILA.
+  InstrLvlAbsPtr host_ = NULL;
 
   // ------------------------- HELPERS -------------------------------------- //
-  /// Return true if the expression is well-sorted.
-  bool IsWellSorted() const;
 
 }; // class Expr
 
@@ -138,8 +132,6 @@ typedef Expr::ExprPtrRaw ExprPtrRaw;
 typedef Expr::ExprPtr ExprPtr;
 /// Type for storing a set of Expr.
 typedef Expr::ExprPtrVec ExprPtrVec;
-/// Type for storing a set of z3 expr.
-typedef Expr::Z3ExprVec Z3ExprVec;
 
 /// \brief The function object for hashing Expr. The hash value is the id of the
 /// symbol, which is supposed to be unique.

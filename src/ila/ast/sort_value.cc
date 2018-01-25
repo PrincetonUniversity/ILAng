@@ -9,7 +9,7 @@ namespace ila {
 
 // ------------------------- Class BoolVal ---------------------------------- //
 BoolVal::BoolVal() : val_(false) {
-  ILA_CHECK(false) << "Undefined default constructor for class BoolVal.\n";
+  ILA_CHECK(false) << "Undefined default constructor for class BoolVal.";
 }
 
 BoolVal::BoolVal(const bool& val) : val_(val) {}
@@ -32,7 +32,7 @@ std::ostream& operator<<(std::ostream& out, const BoolVal& val) {
 
 // ------------------------- Class BvVal -------------------------------------//
 BvVal::BvVal() : val_(0) {
-  ILA_CHECK(false) << "Undefined default constructor for class BvVal.\n";
+  ILA_CHECK(false) << "Undefined default constructor for class BvVal.";
 }
 
 BvVal::BvVal(const int& val) : val_(val) {}
@@ -53,7 +53,7 @@ std::ostream& operator<<(std::ostream& out, const BvVal& val) {
 
 // ------------------------- Class MemVal ------------------------------------//
 MemVal::MemVal() : default_(0) {
-  ILA_CHECK(false) << "Undefined default constructor for class MemVal.\n";
+  ILA_CHECK(false) << "Undefined default constructor for class MemVal.";
 }
 
 MemVal::MemVal(const int& def_val) : default_(def_val) { val_map_.clear(); }

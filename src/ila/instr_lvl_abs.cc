@@ -97,12 +97,14 @@ void InstrLvlAbs::AddInput(const ExprPtr input_var) {
   // should be the first
   auto name = input_var->name();
   auto pos = inputs_.find(name);
-  ILA_ASSERT(pos == inputs_.end()) << "Input variable " << input_var
-                                   << " has been declared.\n";
+  ILA_ASSERT(pos == inputs_.end())
+      << "Input variable " << input_var << " has been declared.\n";
   // register to the simplifier
   auto var = expr_mngr_->Simplify(input_var, simplify_);
   // register to Inputs
   inputs_.push_back(name, var);
+  // set host
+  var->set_host(shared_from_this());
 }
 
 void InstrLvlAbs::AddState(const ExprPtr state_var) {
@@ -112,12 +114,14 @@ void InstrLvlAbs::AddState(const ExprPtr state_var) {
   // should be the first
   auto name = state_var->name();
   auto pos = states_.find(name);
-  ILA_ASSERT(pos == states_.end()) << "State variable " << state_var
-                                   << "has been declared.\n";
+  ILA_ASSERT(pos == states_.end())
+      << "State variable " << state_var << "has been declared.\n";
   // register to the simplifier
   auto var = expr_mngr_->Simplify(state_var, simplify_);
   // register to States
   states_.push_back(name, var);
+  // set host
+  var->set_host(shared_from_this());
 }
 
 void InstrLvlAbs::AddInit(const ExprPtr cntr_expr) {
@@ -162,6 +166,7 @@ void InstrLvlAbs::AddInstr(const InstrPtr instr) {
   // register the instruction and idx
   auto name = instr->name();
   instrs_.push_back(name, instr);
+  instr->set_host(shared_from_this());
 }
 
 void InstrLvlAbs::AddChild(const InstrLvlAbsPtr child) {
@@ -266,6 +271,10 @@ std::ostream& InstrLvlAbs::Print(std::ostream& out) const {
 
 std::ostream& operator<<(std::ostream& out, InstrLvlAbs& ila) {
   return ila.Print(out);
+}
+
+std::ostream& operator<<(std::ostream& out, InstrLvlAbsPtr ila) {
+  return ila->Print(out);
 }
 
 void InstrLvlAbs::InitObject() {
