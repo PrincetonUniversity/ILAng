@@ -23,22 +23,12 @@ z3::check_result Bmc::BmcLegacy(InstrLvlAbsPtr m0, const int& k0,
   z3::solver solver(ctx_);
 
   // unroll m0
-  ILA_ASSERT(k0 > 0) << "Non-positive unroll step " << k0;
-  for (auto i = 0; i != k0; i++) {
-    auto suffix_i = std::to_string(i);
-    auto suffix_n = std::to_string(i + 1);
-    auto cnst_i = mod_gen.IlaOneHotFlat(m0, suffix_i, suffix_n);
-    solver.add(cnst_i);
-  }
+  auto cnst_m0 = UnrollCmplIla(m0, k0);
+  solver.add(cnst_m0);
 
   // untoll m1
-  ILA_ASSERT(k1 > 0) << "Non-positive unroll step " << k1;
-  for (auto i = 0; i != k1; i++) {
-    auto suffix_i = std::to_string(i);
-    auto suffix_n = std::to_string(i + 1);
-    auto cnst_i = mod_gen.IlaOneHotFlat(m1, suffix_i, suffix_n);
-    solver.add(cnst_i);
-  }
+  auto cnst_m1 = UnrollCmplIla(m1, k1);
+  solver.add(cnst_m1);
 
   auto state_num_m0 = m0->state_num();
   auto suffix_init = std::to_string(0);
@@ -84,6 +74,13 @@ z3::check_result Bmc::BmcLegacy(InstrLvlAbsPtr m0, const int& k0,
   }
 
   // invariants
+  for (auto i = 0; i != invs_.size(); i++) {
+    auto inv_i = invs_[i];
+    ILA_ASSERT(inv_i->host()) << "Legacy BMC can only have single-ILA inv.";
+    // XXX Only apply invariants on initial states.
+    auto inv_e = mod_gen.Node(inv_i, suffix_init);
+    solver.add(inv_e);
+  }
 
   auto result = solver.check();
 
@@ -93,6 +90,26 @@ z3::check_result Bmc::BmcLegacy(InstrLvlAbsPtr m0, const int& k0,
   }
 
   return result;
+}
+
+z3::expr Bmc::UnrollCmplIla(InstrLvlAbsPtr m, const int& k, const int& pos) {
+  ILA_NOT_NULL(m);
+  ILA_ASSERT(k > 0) << "Can only unroll positive number of steps.";
+  ILA_ASSERT(pos >= 0) << "Should start from positive frame number.";
+
+  ModelExprGen gen(ctx_);
+  auto cnst = ctx_.bool_val(true);
+
+  for (auto i = 0; i != k; i++) {
+    auto suf_prev = std::to_string(pos + i);
+    auto suf_next = std::to_string(pos + i + 1);
+    /// FIXME May not be one hot and flat -- based on flags.
+    auto cnst_i = gen.IlaOneHotFlat(m, suf_prev, suf_next);
+    /// FIXME Use rewrite for better performance -- based on flags (or def)
+    cnst = cnst_i && cnst;
+  }
+
+  return cnst;
 }
 
 } // namespace ila

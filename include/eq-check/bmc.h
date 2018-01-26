@@ -50,6 +50,16 @@ private:
   ExprPtrVec inits_;
 
   // ------------------------- HELPERS -------------------------------------- //
+  /// Unroll an ILA for k steps
+  /// \param[in] m pointer to the ILA to unroll.
+  /// \param[in] k number of steps to unroll.
+  /// \param[in] pos starting frame number (default 0).
+  /// \return the z3 expression representing the constraints.
+  z3::expr UnrollCmplIla(InstrLvlAbsPtr m, const int& k, const int& pos = 0);
+
+  /// Match the states for flat ILAs.
+  z3::expr MatchStateFlat(InstrLvlAbsPtr m0, const int& pos0, InstrLvlAbsPtr m1,
+                          const int& pos1);
 
 }; // class Bmc
 
