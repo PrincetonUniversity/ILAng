@@ -6,6 +6,7 @@
 
 #include "ila/ast/ast.h"
 #include "ila/ast/sort.h"
+#include "ila/defines.h"
 
 /// \namespace ila
 namespace ila {
@@ -24,6 +25,13 @@ public:
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   // ------------------------- METHODS -------------------------------------- //
+  /// Return the z3 expression for the function.
+  z3::expr GetZ3Expr(z3::context& z3_ctx, const Z3ExprVec& z3expr_vec,
+                     const std::string& suffix = "") const;
+
+  /// Output to stream.
+  std::ostream& Print(std::ostream& out) const;
+
 private:
   // ------------------------- MEMBERS -------------------------------------- //
   // ------------------------- HELPERS -------------------------------------- //
