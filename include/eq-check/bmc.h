@@ -27,13 +27,13 @@ public:
 
   // ------------------------- METHODS -------------------------------------- //
   /// \brief Add initial condition to the solver.
-  void AddInit(InstrLvlAbsPtr m, ExprPtr init);
+  void AddInit(ExprPtr init);
 
   /// \brief Add invariant to the solver.
-  void AddInvariant(InstrLvlAbsPtr m, ExprPtr inv);
+  void AddInvariant(ExprPtr inv);
 
   /// \brief Add property of one ILA.
-  void AddProperty(InstrLvlAbsPtr m, ExprPtr prop);
+  void AddProperty(ExprPtr prop);
 
   /// \brief Legacy BMC where two ILAs are unrolled and compared monolithically.
   z3::check_result BmcLegacy(InstrLvlAbsPtr m0, const int& k0,
@@ -45,9 +45,9 @@ private:
   z3::context ctx_;
 
   /// The set of invariants.
-  std::vector<std::pair<InstrLvlAbsPtr, ExprPtr>> invs_;
+  ExprPtrVec invs_;
   /// The set of initial condition.
-  std::vector<std::pair<InstrLvlAbsPtr, ExprPtr>> inits_;
+  ExprPtrVec inits_;
 
   // ------------------------- HELPERS -------------------------------------- //
 
