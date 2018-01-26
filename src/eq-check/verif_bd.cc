@@ -5,6 +5,7 @@
 
 namespace ila {
 
+#if 0
 VerifBd::VerifBd(RefRelPtr ref) : ref_(ref) { ILA_NOT_NULL(ref); }
 
 VerifBd::~VerifBd() {}
@@ -20,6 +21,7 @@ bool VerifBd::CheckUnit(const unsigned& bound, const size_t& i) const {
   // TODO
   return true;
 }
+#endif
 
 } // namespace ila
 
