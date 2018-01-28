@@ -39,6 +39,12 @@ public:
   z3::check_result BmcLegacy(InstrLvlAbsPtr m0, const int& k0,
                              InstrLvlAbsPtr m1, const int& k1);
 
+  /// \brief Bounded model checking on the ILA for the specified properties up
+  /// to step k.
+  z3::check_result BmcProp(InstrLvlAbsPtr m, const int& k);
+  /// \brief Incrementally increase the step of BMC up to k.
+  z3::check_result BmcPropInc(InstrLvlAbsPtr m, const int& k);
+
 private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// z3 context.

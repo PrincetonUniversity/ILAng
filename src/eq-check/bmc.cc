@@ -92,10 +92,33 @@ z3::check_result Bmc::BmcLegacy(InstrLvlAbsPtr m0, const int& k0,
   return result;
 }
 
+z3::check_result Bmc::BmcProp(InstrLvlAbsPtr m, const int& k) {
+  ILA_NOT_NULL(m);
+  ILA_ASSERT(k > 0) << "Invalid unroll steps.";
+
+  ModelExprGen gen(ctx_);
+  z3::solver solver(ctx_);
+
+  // transition relations
+  auto cnst_tran = UnrollCmplIla(m, k);
+  solver.add(cnst_tran);
+
+  // initial condition
+  // invariants
+  // properties
+
+  // check the result
+  auto result = solver.check();
+
+  // report false model
+
+  return result;
+}
+
 z3::expr Bmc::UnrollCmplIla(InstrLvlAbsPtr m, const int& k, const int& pos) {
   ILA_NOT_NULL(m);
-  ILA_ASSERT(k > 0) << "Can only unroll positive number of steps.";
-  ILA_ASSERT(pos >= 0) << "Should start from positive frame number.";
+  ILA_ASSERT(k > 0) << "Invalid unroll steps.";
+  ILA_ASSERT(pos >= 0) << "Negative starting frame number.";
 
   ModelExprGen gen(ctx_);
   auto cnst = ctx_.bool_val(true);
