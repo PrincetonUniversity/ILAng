@@ -35,7 +35,7 @@ public:
   void set_context(z3::context& ctx);
 
   // ------------------------- METHODS -------------------------------------- //
-  /// Get the z3 expression of the AST node (no cached value used).
+  /// Get the z3 expression of the AST node.
   z3::expr GetExpr(const ExprPtr expr, const std::string& suffix = "");
 
   /// Function object for getting z3 expression.
@@ -55,11 +55,6 @@ private:
   // ------------------------- HELPERS -------------------------------------- //
   /// Insert the z3 expression of the given node into the map.
   void PopulateExprMap(const ExprPtrRaw expr);
-
-  /// Clear the cached values. (Should be called for every time frame)
-  void ClearCache();
-  /// Get the z3 expression of the AST node using the cached value.
-  z3::expr GetExprCached(const ExprPtr expr, const std::string& suffix = "");
 
 }; // class Z3ExprAdapter
 

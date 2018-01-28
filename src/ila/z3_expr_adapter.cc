@@ -17,23 +17,16 @@ z3::context& Z3ExprAdapter::ctx() const { return ctx_; }
 void Z3ExprAdapter::set_simplify(const bool& sim) { simplify_ = sim; }
 
 z3::expr Z3ExprAdapter::GetExpr(const ExprPtr expr, const std::string& suffix) {
-  ClearCache();
-  return GetExprCached(expr, suffix);
-}
+  expr_map_.clear();
 
-z3::expr Z3ExprAdapter::GetExprCached(const ExprPtr expr,
-                                      const std::string& suffix) {
   suffix_ = suffix;
-
   expr->DepthFirstVisit(*this);
 
   auto pos = expr_map_.find(expr.get());
-  ILA_ASSERT(pos != expr_map_.end()) << "z3 expr cannot be generated.\n";
+  ILA_ASSERT(pos != expr_map_.end()) << "z3 expr cannot be generated.";
 
   return pos->second;
 }
-
-void Z3ExprAdapter::ClearCache() { expr_map_.clear(); }
 
 void Z3ExprAdapter::operator()(const ExprPtrRaw expr) {
   auto pos = expr_map_.find(expr);
@@ -62,7 +55,7 @@ void Z3ExprAdapter::PopulateExprMap(const ExprPtrRaw expr) {
     ExprPtr arg_i = expr->arg(i);
     auto pos = expr_map_.find(arg_i.get());
     ILA_ASSERT(pos != expr_map_.end())
-        << "No expressions found for argument " << i << ".\n";
+        << "No expressions found for argument " << i;
     expr_vec.push_back(pos->second);
   }
 
