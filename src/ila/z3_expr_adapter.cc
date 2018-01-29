@@ -17,7 +17,8 @@ z3::context& Z3ExprAdapter::ctx() const { return ctx_; }
 void Z3ExprAdapter::set_simplify(const bool& sim) { simplify_ = sim; }
 
 z3::expr Z3ExprAdapter::GetExpr(const ExprPtr expr, const std::string& suffix) {
-  expr_map_.clear();
+  if (!cache_)
+    expr_map_.clear();
 
   suffix_ = suffix;
   expr->DepthFirstVisit(*this);
@@ -26,6 +27,18 @@ z3::expr Z3ExprAdapter::GetExpr(const ExprPtr expr, const std::string& suffix) {
   ILA_ASSERT(pos != expr_map_.end()) << "z3 expr cannot be generated.";
 
   return pos->second;
+}
+
+void Z3ExprAdapter::EnableCache() {
+  ILA_ASSERT(!cache_) << "Cache already enabled.";
+  expr_map_.clear();
+  cache_ = true;
+}
+
+void Z3ExprAdapter::DisableCache() {
+  ILA_ASSERT(cache_) << "Cache not enabled.";
+  expr_map_.clear();
+  cache_ = false;
 }
 
 void Z3ExprAdapter::operator()(const ExprPtrRaw expr) {

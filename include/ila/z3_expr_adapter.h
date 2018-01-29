@@ -38,6 +38,11 @@ public:
   /// Get the z3 expression of the AST node.
   z3::expr GetExpr(const ExprPtr expr, const std::string& suffix = "");
 
+  /// Turn on cacheing reuse and reset.
+  void EnableCache();
+  /// Turn off cacheing reuse and reset.
+  void DisableCache();
+
   /// Function object for getting z3 expression.
   void operator()(const ExprPtrRaw expr);
 
@@ -51,6 +56,8 @@ private:
   ExprMap expr_map_;
   /// Name suffix for each expression generation (e.g. time frame)
   std::string suffix_ = "";
+  /// Flag of cacheing.
+  bool cache_ = false;
 
   // ------------------------- HELPERS -------------------------------------- //
   /// Insert the z3 expression of the given node into the map.

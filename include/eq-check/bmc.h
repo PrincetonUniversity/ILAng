@@ -49,6 +49,8 @@ private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// z3 context.
   z3::context ctx_;
+  /// z3 expression adapter.
+  Z3ExprAdapter gen_ = Z3ExprAdapter(ctx_);
 
   /// The set of invariants.
   ExprPtrVec invs_;
@@ -56,6 +58,26 @@ private:
   ExprPtrVec inits_;
 
   // ------------------------- HELPERS -------------------------------------- //
+  /// \brief Get the conjuction of state update functions (exclude decode).
+  /// \param[in] complete use default update functions (unchange) for
+  /// unspecified states if set true.
+  z3::expr InstrUpdate(InstrPtr instr, bool complete = false,
+                       const std::string& prefix = "0",
+                       const std::string& suffix = "1");
+
+  /// \brief Return true if two instructions are non-interfering.
+  bool CheckNonIntf(InstrPtr i0, InstrPtr i1);
+
+  /// \brief Return true if decode functions of all instructions are one-hot.
+  bool CheckOneHotDecode(InstrLvlAbsPtr m);
+
+  /// \brief Generate a step of the ILA.
+  /// \param[in] concurrent turn off default update functions and enforce
+  /// parallel execution if set true.
+  z3::expr IlaStep(InstrLvlAbsPtr m, bool concurrent = false,
+                   const std::string& prefix = "0",
+                   const std::string& suffix = "1");
+
   /// Unroll an ILA for k steps
   /// \param[in] m pointer to the ILA to unroll.
   /// \param[in] k number of steps to unroll.
