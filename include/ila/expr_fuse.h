@@ -130,9 +130,9 @@ public:
   /// Concatenate two bitvectors (bv only)
   static ExprPtr Concat(const ExprPtr lo, const ExprPtr hi);
   /// Extract bit field in the bitvector (bv only)
-  static ExprPtr Extract(const ExprPtr obj, const int& hi, const int& lo);
+  static ExprPtr Extract(const ExprPtr bv, const int& hi, const int& lo);
   /// Zero extend the bitvector to the specified length.
-  static ExprPtr ZeroExtend(const ExprPtr obj, const int& out_width);
+  static ExprPtr ZeroExtend(const ExprPtr bv, const int& out_width);
 
   /****************************************************************************/
   // Function usage

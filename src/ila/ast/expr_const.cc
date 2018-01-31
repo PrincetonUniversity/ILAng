@@ -12,23 +12,17 @@ ExprConst::ExprConst() : val_(NULL) {
 }
 
 ExprConst::ExprConst(const BoolVal& bool_val) {
-  set_arity(0);
-  set_num_param(0);
   set_sort(Sort());
   val_ = std::make_shared<BoolVal>(bool_val);
 }
 
 ExprConst::ExprConst(const BvVal& bv_val, const int& bit_width) {
-  set_arity(0);
-  set_num_param(0);
   set_sort(Sort(bit_width));
   val_ = std::make_shared<BvVal>(bv_val);
 }
 
 ExprConst::ExprConst(const MemVal& mem_val, const int& addr_width,
                      const int& data_width) {
-  set_arity(0);
-  set_num_param(0);
   set_sort(Sort(addr_width, data_width));
   val_ = std::make_shared<MemVal>(mem_val);
 }

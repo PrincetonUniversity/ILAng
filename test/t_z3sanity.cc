@@ -117,5 +117,21 @@ TEST_F(TestZ3Expr, StoreLoad) {
   EXPECT_EQ(z3::unsat, s->check());
 }
 
+TEST_F(TestZ3Expr, Extract) {
+  auto ast_hi_0 = ExprFuse::Extract(bv_const_0, 7, 6);
+  auto ast_hi_1 = ExprFuse::Extract(bv_const_1, 7, 6);
+  auto ast_eq = ExprFuse::Eq(ast_hi_0, ast_hi_1);
+
+  auto expr_eq = gen->GetExpr(ast_eq);
+  s->add(!expr_eq);
+  EXPECT_EQ(z3::unsat, s->check());
+
+  auto ast_full_1 = ExprFuse::Extract(bv_const_1, 7, 0);
+  auto ast_full_eq = ExprFuse::Eq(ast_full_1, bv_const_1);
+  auto expr_full_eq = gen->GetExpr(ast_full_eq);
+  s->add(!expr_full_eq);
+  EXPECT_EQ(z3::unsat, s->check());
+}
+
 } // namespace ila
 
