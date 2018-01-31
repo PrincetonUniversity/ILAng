@@ -1,5 +1,5 @@
 /// \file
-/// Header of the class ExprFuse
+/// Header of the wrapping Expr usage
 
 #ifndef __EXPR_FUSE_H__
 #define __EXPR_FUSE_H__
@@ -15,6 +15,7 @@
 /// \namespace ila
 namespace ila {
 
+#if 0
 /// \brief The uniform interface and wrapper for different types of expressions,
 /// e.g. var, constant, and different operations.
 class ExprFuse {
@@ -30,131 +31,137 @@ public:
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
 
   // ------------------------- METHODS -------------------------------------- //
-  // static functions for wrapping the hierarchy of AST.
+  // functions for wrapping the hierarchy of AST.
 
-  /****************************************************************************/
-  // Variable
-  /****************************************************************************/
-  /// Create new Boolean variable.
-  static ExprPtr NewBoolVar(const std::string& name);
-  /// Create new bitvector variable.
-  static ExprPtr NewBvVar(const std::string& name, const int& bit_width);
-  /// Create new memory variable.
-  static ExprPtr NewMemVar(const std::string& name, const int& addr_width,
-                           const int& data_width);
+#endif
 
-  /****************************************************************************/
-  // Constant
-  /****************************************************************************/
-  /// Create a Boolean constant.
-  static ExprPtr BoolConst(const bool& val);
-  /// Create a Boolean constant from BoolVal.
-  static ExprPtr BoolConst(const BoolVal& val);
-  /// Create a bitvector constant.
-  static ExprPtr BvConst(const int& val, const int& bit_width);
-  /// Create a bitvector constant from BvVal.
-  static ExprPtr BvConst(const BvVal& val, const int& bit_width);
-  /// Create a memory constant with only the defauly value.
-  static ExprPtr MemConst(const int& def_val, const int& addr_width,
-                          const int& data_width);
-  /// Create a memory constant from MemVal.
-  static ExprPtr MemConst(const MemVal& val, const int& addr_width,
-                          const int& data_width);
+namespace ExprFuse {
+/****************************************************************************/
+// Variable
+/****************************************************************************/
+/// Create new Boolean variable.
+ExprPtr NewBoolVar(const std::string& name);
+/// Create new bitvector variable.
+ExprPtr NewBvVar(const std::string& name, const int& bit_width);
+/// Create new memory variable.
+ExprPtr NewMemVar(const std::string& name, const int& addr_width,
+                  const int& data_width);
 
-  /****************************************************************************/
-  // Unary operation
-  /****************************************************************************/
-  /// Arithematic negate (bv only)
-  static ExprPtr Negate(const ExprPtr obj);
-  /// Boolean not (bool only)
-  static ExprPtr Not(const ExprPtr obj);
-  /// Bit-wise Complement (bv only)
-  static ExprPtr Complement(const ExprPtr obj);
+/****************************************************************************/
+// Constant
+/****************************************************************************/
+/// Create a Boolean constant.
+ExprPtr BoolConst(const bool& val);
+/// Create a Boolean constant from BoolVal.
+ExprPtr BoolConst(const BoolVal& val);
+/// Create a bitvector constant.
+ExprPtr BvConst(const int& val, const int& bit_width);
+/// Create a bitvector constant from BvVal.
+ExprPtr BvConst(const BvVal& val, const int& bit_width);
+/// Create a memory constant with only the defauly value.
+ExprPtr MemConst(const int& def_val, const int& addr_width,
+                 const int& data_width);
+/// Create a memory constant from MemVal.
+ExprPtr MemConst(const MemVal& val, const int& addr_width,
+                 const int& data_width);
 
-  /****************************************************************************/
-  // Binary operation
-  /****************************************************************************/
-  /// Logical AND
-  static ExprPtr And(const ExprPtr l, const ExprPtr r);
-  /// Logical OR
-  static ExprPtr Or(const ExprPtr l, const ExprPtr r);
-  /// Logical XOR
-  static ExprPtr Xor(const ExprPtr l, const ExprPtr r);
-  /// Logical left shift (bv only) (l << r)
-  static ExprPtr Shl(const ExprPtr l, const ExprPtr r);
-  /// Logical right shift (bv only) (l >> r)
-  static ExprPtr Shr(const ExprPtr l, const ExprPtr r);
-  /// Arithmetic addition (bv only)
-  static ExprPtr Add(const ExprPtr l, const ExprPtr r);
-  /// Arithmetic subtraction (bv only)
-  static ExprPtr Sub(const ExprPtr l, const ExprPtr r);
-  /// Arithmetic unsigned division (bv only)
-  static ExprPtr Div(const ExprPtr l, const ExprPtr r);
-  /// Arithmetic unsigned remainder (bv only)
-  static ExprPtr Rem(const ExprPtr l, const ExprPtr r);
-  /// Arithmetic unsigned modular (bv only)
-  static ExprPtr Mod(const ExprPtr l, const ExprPtr r);
-  /// Arithmetic unsigned multiply (bv only)
-  static ExprPtr Mul(const ExprPtr l, const ExprPtr r);
-  // TODO int version helper functions
+/****************************************************************************/
+// Unary operation
+/****************************************************************************/
+/// Arithematic negate (bv only)
+ExprPtr Negate(const ExprPtr obj);
+/// Boolean not (bool only)
+ExprPtr Not(const ExprPtr obj);
+/// Bit-wise Complement (bv only)
+ExprPtr Complement(const ExprPtr obj);
 
-  /****************************************************************************/
-  // Comparison
-  /****************************************************************************/
-  /// Comparison: equal
-  static ExprPtr Eq(const ExprPtr l, const ExprPtr r);
-  /// Comparison: not equal
-  static ExprPtr Ne(const ExprPtr l, const ExprPtr r);
-  /// Comparison: unsigned less than (bv only)
-  static ExprPtr Lt(const ExprPtr l, const ExprPtr r);
-  /// Comparison: unsigned greater than (bv only)
-  static ExprPtr Gt(const ExprPtr l, const ExprPtr r);
-  /// Comparison: unsigned less than or equal to (bv only)
-  static ExprPtr Le(const ExprPtr l, const ExprPtr r);
-  /// Comparison: unsigned greater than or equal to (bv only)
-  static ExprPtr Ge(const ExprPtr l, const ExprPtr r);
-  // TODO int version helper functions
+/****************************************************************************/
+// Binary operation
+/****************************************************************************/
+/// Logical AND
+ExprPtr And(const ExprPtr l, const ExprPtr r);
+/// Logical OR
+ExprPtr Or(const ExprPtr l, const ExprPtr r);
+/// Logical XOR
+ExprPtr Xor(const ExprPtr l, const ExprPtr r);
+/// Logical left shift (bv only) (l << r)
+ExprPtr Shl(const ExprPtr l, const ExprPtr r);
+/// Logical right shift (bv only) (l >> r)
+ExprPtr Shr(const ExprPtr l, const ExprPtr r);
+/// Arithmetic addition (bv only)
+ExprPtr Add(const ExprPtr l, const ExprPtr r);
+/// Arithmetic subtraction (bv only)
+ExprPtr Sub(const ExprPtr l, const ExprPtr r);
+/// Arithmetic unsigned division (bv only)
+ExprPtr Div(const ExprPtr l, const ExprPtr r);
+/// Arithmetic unsigned remainder (bv only)
+ExprPtr Rem(const ExprPtr l, const ExprPtr r);
+/// Arithmetic unsigned modular (bv only)
+ExprPtr Mod(const ExprPtr l, const ExprPtr r);
+/// Arithmetic unsigned multiply (bv only)
+ExprPtr Mul(const ExprPtr l, const ExprPtr r);
+// TODO int version helper functions
 
-  /****************************************************************************/
-  // Memory
-  /****************************************************************************/
-  /// Memory load
-  static ExprPtr Load(const ExprPtr mem, const ExprPtr addr);
-  /// Memory store
-  static ExprPtr Store(const ExprPtr mem, const ExprPtr addr,
-                       const ExprPtr data);
+/****************************************************************************/
+// Comparison
+/****************************************************************************/
+/// Comparison: equal
+ExprPtr Eq(const ExprPtr l, const ExprPtr r);
+/// Comparison: not equal
+ExprPtr Ne(const ExprPtr l, const ExprPtr r);
+/// Comparison: unsigned less than (bv only)
+ExprPtr Lt(const ExprPtr l, const ExprPtr r);
+/// Comparison: unsigned greater than (bv only)
+ExprPtr Gt(const ExprPtr l, const ExprPtr r);
+/// Comparison: unsigned less than or equal to (bv only)
+ExprPtr Le(const ExprPtr l, const ExprPtr r);
+/// Comparison: unsigned greater than or equal to (bv only)
+ExprPtr Ge(const ExprPtr l, const ExprPtr r);
+// TODO int version helper functions
 
-  /****************************************************************************/
-  // Bit manipulation
-  /****************************************************************************/
-  /// Concatenate two bitvectors (bv only)
-  static ExprPtr Concat(const ExprPtr lo, const ExprPtr hi);
-  /// Extract bit field in the bitvector (bv only)
-  static ExprPtr Extract(const ExprPtr bv, const int& hi, const int& lo);
-  /// Zero extend the bitvector to the specified length.
-  static ExprPtr ZeroExtend(const ExprPtr bv, const int& out_width);
+/****************************************************************************/
+// Memory
+/****************************************************************************/
+/// Memory load
+ExprPtr Load(const ExprPtr mem, const ExprPtr addr);
+/// Memory store
+ExprPtr Store(const ExprPtr mem, const ExprPtr addr, const ExprPtr data);
 
-  /****************************************************************************/
-  // Function usage
-  /****************************************************************************/
-  /// Apply function with zero argument.
-  static ExprPtr AppFunc(const FuncPtr func);
-  /// Apply function with arguments.
-  static ExprPtr AppFunc(const FuncPtr func, const ExprPtrVec& args);
+/****************************************************************************/
+// Bit manipulation
+/****************************************************************************/
+/// Concatenate two bitvectors (bv only)
+ExprPtr Concat(const ExprPtr lo, const ExprPtr hi);
+/// Extract bit field in the bitvector (bv only)
+ExprPtr Extract(const ExprPtr bv, const int& hi, const int& lo);
+/// Zero extend the bitvector to the specified length.
+ExprPtr ZeroExtend(const ExprPtr bv, const int& out_width);
 
-  /****************************************************************************/
-  // Others
-  /****************************************************************************/
-  /// Logical imply (bool only)
-  static ExprPtr Imply(const ExprPtr p, const ExprPtr q);
-  /// If-then-else (condition bool only)
-  static ExprPtr Ite(const ExprPtr cnd, const ExprPtr true_expr,
-                     const ExprPtr false_expr);
+/****************************************************************************/
+// Function usage
+/****************************************************************************/
+/// Apply function with zero argument.
+ExprPtr AppFunc(const FuncPtr func);
+/// Apply function with arguments.
+ExprPtr AppFunc(const FuncPtr func, const ExprPtrVec& args);
 
+/****************************************************************************/
+// Others
+/****************************************************************************/
+/// Logical imply (bool only)
+ExprPtr Imply(const ExprPtr p, const ExprPtr q);
+/// If-then-else (condition bool only)
+ExprPtr Ite(const ExprPtr cnd, const ExprPtr true_expr,
+            const ExprPtr false_expr);
+
+#if 0
 private:
-  // ------------------------- HELPERS -------------------------------------- //
+// ------------------------- HELPERS -------------------------------------- //
 
 }; // class ExprFuse
+#endif
+
+} // namespace ExprFuse
 
 } // namespace ila
 
