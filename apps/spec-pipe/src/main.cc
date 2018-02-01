@@ -263,10 +263,50 @@ InstrLvlAbsPtr SpecExecIla() {
     instr->AddUpdate(op_exec, OP_MV);
     instr->AddUpdate(idx_exec, Extract(instr_w, IDX_HI, IDX_LO));
     instr->AddUpdate(imm_exec, Extract(instr_w, IMM_HI, IMM_LO));
-
-    // child-ILA
-    // TODO
   } // Move
+
+  { // child-ILA for instruction Move
+    auto child = ila->NewChild("MoveChild");
+    // state
+    auto mv_data = child->NewBvState("mv_data", REG_SIZE);
+    auto mv_idx = child->NewBvState("mv_idx", IDX_LENGTH);
+    // valid
+    child->SetValid(TRUE);
+    // fetch
+    child->SetFetch(Concat(op_exec, op_comm));
+    // init
+    child->AddInit(Eq(mv_data, ZERO));
+
+    { // exec child-instruction
+      auto instr = child->NewInstr("MoveExec");
+      auto decode = And(Eq(op_exec, OP_MV), Not(f_flush));
+      instr->SetDecode(decode);
+
+      // state updates
+      instr->AddUpdate(mv_idx, idx_exec);
+      instr->AddUpdate(mv_data, imm_exec);
+
+      instr->AddUpdate(cache, cache);
+      instr->AddUpdate(op_comm, OP_MV);
+    }
+
+    { // comm child-instruction
+      auto instr = child->NewInstr("MoveComm");
+      auto decode = And(Eq(op_comm, OP_MV), Not(f_flush));
+      instr->SetDecode(decode);
+
+      // state updates
+      instr->AddUpdate(pc, Add(pc, ONE));
+      instr->AddUpdate(mem, mem);
+      instr->AddUpdate(f_flush, FALSE);
+
+      for (auto i = 0; i != REG_NUM; i++) {
+        auto reg_i_nxt =
+            Ite(Eq(mv_idx, BvConst(i, IDX_LENGTH)), mv_data, regs[i]);
+        instr->AddUpdate(regs[i], reg_i_nxt);
+      }
+    }
+  }
 
   // ------------------------- Instruction: NOP ----------------------------- //
   { // decode
