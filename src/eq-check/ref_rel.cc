@@ -5,6 +5,7 @@
 
 namespace ila {
 
+#if 0
 RefUnit::RefUnit() { clear(); }
 
 RefUnit::~RefUnit() { clear(); }
@@ -106,6 +107,7 @@ void RefRel::clear() {
   inv_mb_.clear();
   units_.clear();
 }
+#endif
 
 } // namespace ila
 

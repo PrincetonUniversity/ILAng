@@ -9,6 +9,7 @@
 /// \namespace ila
 namespace ila {
 
+#if 0
 /// \brief The class for performing equivalence checking using the Birch-Dill
 /// methodology (i.e. commutative diagram with the flushing/stall function).
 class VerifBd {
@@ -43,6 +44,7 @@ private:
   // ------------------------- HELPERS -------------------------------------- //
 
 }; // class VerifBd
+#endif
 
 } // namespace ila
 

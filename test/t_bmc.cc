@@ -9,11 +9,11 @@
 namespace ila {
 
 TEST(TestBmc, Legacy) {
-  SetToStdErr(1);
+  // SetToStdErr(1);
 
-  // DebugLog::Enable("Bmc.Legacy");
-  // DebugLog::Enable("ModelGen.IlaOneHotFlat");
-  // DebugLog::Enable("ModelGen.Instr");
+  DebugLog::Enable("Bmc.Legacy");
+  DebugLog::Enable("ModelGen.IlaOneHotFlat");
+  DebugLog::Enable("ModelGen.Instr");
 
   EqIlaGen ila_gen;
 
@@ -28,7 +28,8 @@ TEST(TestBmc, Legacy) {
     auto opcode = m0->input("opcode");
     auto opcode_i = ExprFuse::Eq(opcode, ExprFuse::BvConst(1, 3));
     auto init = ExprFuse::And(start_i, opcode_i);
-    bmc.AddInit(m0, init);
+    // bmc.AddInit(m0, init);
+    bmc.AddInit(init);
   }
 
   { // init for m1
@@ -37,7 +38,8 @@ TEST(TestBmc, Legacy) {
     auto opcode = m1->input("opcode");
     auto opcode_i = ExprFuse::Eq(opcode, ExprFuse::BvConst(1, 3));
     auto init = ExprFuse::And(start_i, opcode_i);
-    bmc.AddInit(m1, init);
+    // bmc.AddInit(m1, init);
+    bmc.AddInit(init);
   }
 
   auto result = bmc.BmcLegacy(m0, 1, m1, 1);
@@ -47,6 +49,8 @@ TEST(TestBmc, Legacy) {
   DebugLog::Disable("Bmc.Legacy");
   DebugLog::Disable("ModelGen.IlaOneHotFlat");
   DebugLog::Disable("ModelGen.Instr");
+
+  SetToStdErr(0);
 }
 
 } // namespace ila

@@ -17,6 +17,7 @@ public:
 private:
 }; // CompRefRel
 
+#if 0
 /// \brief Refinement unit, used to stored:
 /// - instruction application function (trigger condition)
 /// - instruction commit condition (e.g. dummy end decode)
@@ -128,6 +129,7 @@ private:
 
 /// Pointer type for passing around the refinement relation.
 typedef std::shared_ptr<RefRel> RefRelPtr;
+#endif
 
 } // namespace ila
 

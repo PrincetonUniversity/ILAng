@@ -9,8 +9,6 @@ namespace ila {
 ExprOp::ExprOp() { ILA_ERROR << "Undefined ExprOp constructor.\n"; }
 
 ExprOp::ExprOp(const ExprPtr arg) {
-  // arity
-  set_arity(1);
   // arg
   ExprPtrVec args = {arg};
   set_args(args);
@@ -19,8 +17,6 @@ ExprOp::ExprOp(const ExprPtr arg) {
 }
 
 ExprOp::ExprOp(const ExprPtr arg0, const ExprPtr arg1) {
-  // arity
-  set_arity(2);
   // args
   ExprPtrVec args = {arg0, arg1};
   set_args(args);
@@ -37,8 +33,6 @@ ExprOp::ExprOp(const ExprPtr arg0, const ExprPtr arg1) {
 }
 
 ExprOp::ExprOp(const ExprPtr arg0, const ExprPtr arg1, const ExprPtr arg2) {
-  // arity
-  set_arity(3);
   // args
   ExprPtrVec args = {arg0, arg1, arg2};
   set_args(args);
@@ -55,6 +49,17 @@ ExprOp::ExprOp(const ExprPtr arg0, const ExprPtr arg1, const ExprPtr arg2) {
   } else if (host0 == NULL && host1 == NULL) {
     set_host(host2);
   }
+}
+
+ExprOp::ExprOp(const ExprPtr arg0, const int& param1, const int& param2) {
+  // args
+  ExprPtrVec args = {arg0};
+  set_args(args);
+  // params
+  std::vector<int> params = {param1, param2};
+  set_params(params);
+  // set hsot
+  set_host(arg0->host());
 }
 
 ExprOp::~ExprOp() {}
@@ -224,6 +229,40 @@ z3::expr ExprOpStore::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
   auto addr = expr_vec[1];
   auto data = expr_vec[2];
   return z3::store(mem, addr, data);
+}
+
+// ------------------------- Class ExprOpConcat ----------------------------- //
+ExprOpConcat::ExprOpConcat(const ExprPtr hi, const ExprPtr lo)
+    : ExprOp(hi, lo) {
+  ILA_ASSERT(hi->is_bv()) << "Concat non-bv var " << hi;
+  ILA_ASSERT(lo->is_bv()) << "Concat non-bv var " << lo;
+  set_sort(Sort::MakeBvSort(hi->sort().bit_width() + lo->sort().bit_width()));
+}
+
+z3::expr ExprOpConcat::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                                 const std::string& suffix) const {
+  ILA_ASSERT(expr_vec.size() == 2) << "Concat takes 2 arguments.";
+  auto hi = expr_vec[0];
+  auto lo = expr_vec[1];
+  return z3::concat(hi, lo);
+}
+
+// ------------------------- Class ExprOpExtract ---------------------------- //
+ExprOpExtract::ExprOpExtract(const ExprPtr bv, const int& hi, const int& lo)
+    : ExprOp(bv, hi, lo) {
+  ILA_ASSERT(bv->is_bv()) << "Extract can only be applied to bitvector.";
+  ILA_ASSERT(hi >= lo) << "Invalid boundary for extraction.";
+  set_sort(Sort::MakeBvSort(hi - lo + 1));
+}
+
+z3::expr ExprOpExtract::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                                  const std::string& suffix) const {
+  ILA_ASSERT(expr_vec.size() == 1) << "Extract tale 1 argument.";
+  ILA_ASSERT(num_param() == 2) << "Extract need two parameters.";
+  auto bv = expr_vec[0];
+  unsigned hi = static_cast<unsigned>(param(0));
+  unsigned lo = static_cast<unsigned>(param(1));
+  return bv.extract(hi, lo);
 }
 
 // ------------------------- Class ExprOpIte -------------------------------- //

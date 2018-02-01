@@ -24,6 +24,8 @@ public:
   ExprOp(const ExprPtr arg0, const ExprPtr arg1);
   /// Constructor for ternary operators.
   ExprOp(const ExprPtr arg0, const ExprPtr arg1, const ExprPtr arg2);
+  /// Constructor for ternary operators with parameters.
+  ExprOp(const ExprPtr arg0, const int& param1, const int& param2);
   /// Default destructor.
   virtual ~ExprOp();
 
@@ -198,9 +200,25 @@ public:
 // Bit-manipulation
 /******************************************************************************/
 
-// TODO ExprOpConcat
+// \brief The class wrapper for bitvector concatenation.
+class ExprOpConcat : public ExprOp {
+public:
+  /// Constructor for bitvector concatenation.
+  ExprOpConcat(const ExprPtr hi, const ExprPtr lo);
+  std::string op_name() const { return "CONCAT"; }
+  z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                     const std::string& suffix = "") const;
+}; // class ExprOpConcat
 
-// TODO ExprOpExtract
+/// \brief The class wrapper for bitvector extraction.
+class ExprOpExtract : public ExprOp {
+public:
+  /// Constructor for bitvector extraction.
+  ExprOpExtract(const ExprPtr bv, const int& hi, const int& lo);
+  std::string op_name() const { return "EXTRACT"; }
+  z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                     const std::string& suffix = "") const;
+}; // class ExprOpExtract
 
 // TODO ExprOpZeroExtend
 

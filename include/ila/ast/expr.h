@@ -43,11 +43,11 @@ public:
   /// Return the pointer of the sort.
   const Sort& sort() const;
   /// Return the arity.
-  const size_t& arity() const;
+  const size_t arity() const;
   /// Return the i-th argument.
   ExprPtr arg(const size_t& i) const;
   /// Return the number of parameters.
-  const size_t& num_param() const;
+  const size_t num_param() const;
   /// Return the i-th paramter.
   const int& param(const size_t& i) const;
   /// Return the hosting ILA.
@@ -55,12 +55,8 @@ public:
 
   /// Set the sort of the expression.
   void set_sort(const Sort& sort);
-  /// Set the arity and reserve/resize the argument vector.
-  void set_arity(const size_t& arity);
   /// Set the arguments.
   void set_args(const ExprPtrVec& args);
-  /// Set the number of parameters.
-  void set_num_param(const size_t& num_param);
   /// Set the parameters.
   void set_params(const std::vector<int> params);
   /// Set the hosting ILA.
@@ -111,12 +107,8 @@ private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// The sort of the expr.
   Sort sort_;
-  /// Number of arguments.
-  size_t arity_;
   /// Vector of arguments.
   ExprPtrVec args_;
-  /// Number of parameters.
-  size_t num_param_;
   /// Vector of parameters.
   std::vector<int> params_;
   /// Pointer to the host ILA.
