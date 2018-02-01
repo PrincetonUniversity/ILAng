@@ -8,11 +8,12 @@ using namespace ExprFuse;
 
 // ------------------------- Instruction Definition ------------------------- //
 /*
- * Instruction: [15 14 13 12 11 10 09 08 07 06 05 04 03 02 01 00]
- * NOP:         [ 0  0  0  0| ----------------------------------]
- * BR:          [ 0  0  0  1| CND (REG) |            ADDR (IMM) ]
- * LD:          [ 0  0  1  0| DST (REG) |            ADDR (IMM) ]
- * MV:          [ 0  0  1  1| DST (REG) |            VAL  (IMM) ]
+ * Instruction: [15 14 13 12 11 10 09 08 07 06 05 04 03 02 01 00] [f_flush]
+ * NOP:         [ 0  0  0  0| ----------------------------------]     0
+ * BR:          [ 0  0  0  1| CND (REG) |            ADDR (IMM) ]     0
+ * LD:          [ 0  0  1  0| DST (REG) |            ADDR (IMM) ]     0
+ * MV:          [ 0  0  1  1| DST (REG) |            VAL  (IMM) ]     0
+ * FLUSH:       [-----------------------------------------------]     1
  */
 
 // ------------------------- Macros & Constants ----------------------------- //
@@ -311,19 +312,48 @@ InstrLvlAbsPtr SpecExecIla() {
   // ------------------------- Instruction: NOP ----------------------------- //
   { // decode
     auto instr = ila->NewInstr("Nop");
-    auto decode = Or(Eq(opcode, OP_NOP), f_flush);
+    auto decode = And(Eq(opcode, OP_NOP), Not(f_flush));
     instr->SetDecode(decode);
 
     // state updates
-    auto vpc_nxt = Ite(f_flush, pc, Add(vpc, ONE));
-    instr->AddUpdate(vpc, vpc_nxt);
+    instr->AddUpdate(vpc, Add(vpc, ONE));
     instr->AddUpdate(op_exec, OP_NOP);
     instr->AddUpdate(idx_exec, idx_exec);
     instr->AddUpdate(imm_exec, imm_exec);
-
-    // child-ILA
-    // TODO
   } // Nop
+
+  { // child-ILA for instruction NOP
+    auto child = ila->NewChild("NopChild");
+    // valid
+    child->SetValid(TRUE);
+    // fetch
+    child->SetFetch(Concat(op_exec, op_comm));
+
+    { // exec child-instruction
+      auto instr = child->NewInstr("NopExec");
+      auto decode = And(Eq(op_exec, OP_NOP), Not(f_flush));
+      instr->SetDecode(decode);
+
+      // state updates
+      instr->AddUpdate(cache, cache);
+      instr->AddUpdate(op_comm, OP_NOP);
+    }
+
+    { // comm child-instruction
+      auto instr = child->NewInstr("NopComm");
+      auto decode = And(Eq(op_comm, OP_NOP), Not(f_flush));
+      instr->SetDecode(decode);
+
+      // state updates
+      instr->AddUpdate(pc, Add(pc, ONE));
+      instr->AddUpdate(mem, mem);
+      instr->AddUpdate(f_flush, FALSE);
+      for (auto i = 0; i != REG_NUM; i++)
+        instr->AddUpdate(regs[i], regs[i]);
+    }
+  }
+
+  // ------------------------- Instruction: FLUSH --------------------------- //
 
   return ila;
 }
