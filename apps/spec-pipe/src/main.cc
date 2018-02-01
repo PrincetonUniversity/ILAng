@@ -10,24 +10,28 @@ using namespace ExprFuse;
 /*
  * Instruction: [15 14 13 12 11 10 09 08 07 06 05 04 03 02 01 00]
  * NOP:         [ 0  0  0  0| ----------------------------------]
- * BR:          [ 0  0  0  1|       CND |            ADDR (IMM) ]
- * LD:          [ 0  0  1  0|       DST |            ADDR (IMM) ]
- * MV:          [ 0  0  1  1|       DST |            VAL  (IMM) ]
+ * BR:          [ 0  0  0  1| CND (REG) |            ADDR (IMM) ]
+ * LD:          [ 0  0  1  0| DST (REG) |            ADDR (IMM) ]
+ * MV:          [ 0  0  1  1| DST (REG) |            VAL  (IMM) ]
  */
 
 // ------------------------- Macros & Constants ----------------------------- //
 #define REG_NUM 4
 #define REG_SIZE 8
 #define INSTR_SIZE 16
-#define OP_SIZE 4
+#define OP_LENGTH 4
+#define IDX_LENGTH 4
+#define IMM_LENGTH 8
 
-#define OP_OFF 12
-#define DST_HI 11
-#define DST_LO 8
-#define CND_HI 11
-#define CND_LO 8
-#define IMM_HI 7
+#define OP_LO 12
+#define OP_HI (OP_LO + OP_LENGTH - 1)
+#define IDX_LO 8
+#define IDX_HI (IDX_LO + IDX_LENGTH - 1)
 #define IMM_LO 0
+#define IMM_HI (IMM_LO + IMM_LENGTH - 1)
+
+#define SECRET_ADDR 0xff
+#define SECRET_DATA 0xff
 
 auto ONE = BvConst(1, REG_SIZE);
 auto ZERO = BvConst(0, REG_SIZE);
@@ -35,10 +39,10 @@ auto TRUE = BoolConst(true);
 auto FALSE = BoolConst(false);
 
 enum OPCODE { NOP = 0, BR, LD, MV };
-auto OP_NOP = BvConst(OPCODE::NOP, OP_SIZE);
-auto OP_BR = BvConst(OPCODE::BR, OP_SIZE);
-auto OP_LD = BvConst(OPCODE::LD, OP_SIZE);
-auto OP_MV = BvConst(OPCODE::MV, OP_SIZE);
+auto OP_NOP = BvConst(OPCODE::NOP, OP_LENGTH);
+auto OP_BR = BvConst(OPCODE::BR, OP_LENGTH);
+auto OP_LD = BvConst(OPCODE::LD, OP_LENGTH);
+auto OP_MV = BvConst(OPCODE::MV, OP_LENGTH);
 
 // ------------------------- Function Declaration --------------------------- //
 MemVal IrInitVal();
@@ -71,7 +75,7 @@ MemVal IrInitVal() {
   MemVal val(GenNop());
   val.set_data(0, GenMv(0, 1));
   val.set_data(1, GenBr(0, 4));
-  val.set_data(2, GenLd(2, 0xff));
+  val.set_data(2, GenLd(2, SECRET_ADDR));
   return val;
 }
 
@@ -79,7 +83,7 @@ MemVal IrInitVal() {
 InstrLvlAbsPtr SpecExecIla() {
   auto ila = InstrLvlAbs::New("m_top");
 
-  // define state
+  // ------------------------- States --------------------------------------- //
   // data memory
   auto mem = ila->NewMemState("memory", REG_SIZE, REG_SIZE);
   // instruction memory
@@ -91,7 +95,7 @@ InstrLvlAbsPtr SpecExecIla() {
   // virtual program counter
   auto vpc = ila->NewBvState("vpc", REG_SIZE);
   // speculation flag
-  auto f_spec = ila->NewBoolState("f_spec");
+  auto f_flush = ila->NewBoolState("f_flush");
   // register files
   ExprPtrVec regs;
   for (auto i = 0; i != REG_NUM; i++) {
@@ -99,94 +103,175 @@ InstrLvlAbsPtr SpecExecIla() {
     regs.push_back(ila->NewBvState(reg_name, REG_SIZE));
   }
   // micro-opcode (pipeline interface)
-  auto u_op_exec = ila->NewBvState("u_op_exec", OP_SIZE);
-  auto u_op_comm = ila->NewBvState("u_op_comm", OP_SIZE);
+  auto op_exec = ila->NewBvState("op_exec", OP_LENGTH);
+  auto op_comm = ila->NewBvState("op_comm", OP_LENGTH);
+  // micro-register-index
+  auto idx_exec = ila->NewBvState("idx_exec", IDX_LENGTH);
+  // micro-immediate
+  auto imm_exec = ila->NewBvState("imm_exec", IMM_LENGTH);
 
-  // valid
+  // ------------------------- Valid ---------------------------------------- //
   ila->SetValid(TRUE);
 
-  // fetch
+  // ------------------------- Fetch ---------------------------------------- //
   auto instr_w = Load(ir, vpc);
   ila->SetFetch(instr_w);
-  auto opcode = Extract(instr_w, 7, 4);
+  auto opcode = Extract(instr_w, OP_HI, OP_LO);
 
-  { // initial conditions
-    auto init_vpc = Eq(vpc, pc);
-    ila->AddInit(init_vpc);
+  // ------------------------- Inits ---------------------------------------- //
+  { // pc, vpc, f_flush, op_exec, op_comm, idx_exec, imm_exec, regs, mem, cache
+    ila->AddInit(Eq(pc, ZERO));
+    ila->AddInit(Eq(vpc, ZERO));
+    ila->AddInit(Eq(f_flush, FALSE));
+    ila->AddInit(Eq(op_exec, OP_NOP));
+    ila->AddInit(Eq(op_comm, OP_NOP));
 
-    auto init_pc = Eq(pc, ZERO);
-    ila->AddInit(init_pc);
-
-    auto init_fspec = Eq(f_spec, TRUE);
-    ila->AddInit(init_fspec);
-
-    auto init_op_exec = Eq(u_op_exec, OP_NOP);
-    ila->AddInit(init_op_exec);
-
-    auto init_op_comm = Eq(u_op_comm, OP_NOP);
-    ila->AddInit(init_op_comm);
-  }
-
-  // instrs: branch, load, stall, and add
-  { // branch
-    auto instr = ila->NewInstr("Branch");
-    auto decode = And(Eq(opcode, OP_BR), Not(f_spec));
-    instr->SetDecode(decode);
-
-    auto mem_nxt = mem;
-    auto ir_nxt = ir;
-    auto pc_nxt = pc;
-    // increment vpc for pre-fetch
-    auto vpc_nxt = Add(vpc, ONE);
-    auto f_spec_nxt = f_spec;
-    auto u_op_exec_nxt = OP_BR;
     for (auto i = 0; i != REG_NUM; i++) {
-      auto reg_i_nxt = regs[i];
+      ila->AddInit(Eq(regs[i], ZERO));
     }
 
-    // not considering interfering
-    instr->AddUpdate(vpc, vpc_nxt);
-    instr->AddUpdate(u_op_exec, u_op_exec_nxt);
-
-    // child-ILA for branch micro-instr
+    auto secret_addr = BvConst(SECRET_ADDR, REG_SIZE);
+    auto secret_data = BvConst(SECRET_DATA, REG_SIZE);
+    ila->AddInit(Eq(secret_data, Load(mem, secret_addr)));
+    ila->AddInit(Ne(secret_data, Load(cache, secret_addr)));
   }
 
-  // laod
-  // stall
-  // add
+  // ------------------------- Instruction: Branch -------------------------- //
+  { // decode
+    auto instr = ila->NewInstr("Branch");
+    auto decode = And(Eq(opcode, OP_BR), Not(f_flush));
+    instr->SetDecode(decode);
+
+    // state updates
+    instr->AddUpdate(vpc, Add(vpc, ONE));
+    instr->AddUpdate(op_exec, OP_BR);
+    instr->AddUpdate(idx_exec, Extract(instr_w, IDX_HI, IDX_LO));
+    instr->AddUpdate(imm_exec, Extract(instr_w, IMM_HI, IMM_LO));
+  } // Branch
+
+  { // child-ILA for instruction Branch
+    auto child = ila->NewChild("BranchChild");
+    // state
+    auto br_addr = ila->NewBvState("br_addr", REG_SIZE);
+    auto br_take = ila->NewBoolState("br_take");
+    // valid
+    child->SetValid(TRUE);
+    // fetch
+    child->SetFetch(Concat(op_exec, op_comm));
+    // init
+    child->AddInit(Eq(br_take, FALSE));
+
+    { // exec child-instruction
+      auto instr = child->NewInstr("BranchExec");
+      auto decode = And(Eq(op_exec, OP_BR), Not(f_flush));
+      instr->SetDecode(decode);
+
+      // state updates
+      auto taken_br_nxt = FALSE;
+      for (auto i = 0; i != REG_NUM; i++) {
+        auto reg_idx_i = BvConst(i, IDX_LENGTH);
+        taken_br_nxt =
+            Ite(Eq(reg_idx_i, idx_exec), Eq(regs[i], ONE), taken_br_nxt);
+      }
+      instr->AddUpdate(br_take, taken_br_nxt);
+
+      instr->AddUpdate(op_comm, OP_BR);
+      instr->AddUpdate(cache, cache);
+    }
+
+    { // commit child-instruction
+      auto instr = child->NewInstr("BranchComm");
+      auto decode = And(Eq(op_comm, OP_BR), Not(f_flush));
+      instr->SetDecode(decode);
+
+      // state updates
+      instr->AddUpdate(mem, mem);
+      for (auto i = 0; i != REG_NUM; i++)
+        instr->AddUpdate(regs[i], regs[i]);
+    }
+  }
+
+  // ------------------------- Instruction: Load ---------------------------- //
+  { // decode
+    auto instr = ila->NewInstr("Load");
+    auto decode = And(Eq(opcode, OP_LD), Not(f_flush));
+    instr->SetDecode(decode);
+
+    // state updates
+    instr->AddUpdate(vpc, Add(vpc, ONE));
+    instr->AddUpdate(op_exec, OP_LD);
+    instr->AddUpdate(idx_exec, Extract(instr_w, IDX_HI, IDX_LO));
+    instr->AddUpdate(imm_exec, Extract(instr_w, IMM_HI, IMM_LO));
+
+    // child-ILA
+    // TODO
+  } // Load
+
+  // ------------------------- Instruction: MV ------------------------------ //
+  { // decode
+    auto instr = ila->NewInstr("Move");
+    auto decode = And(Eq(opcode, OP_MV), Not(f_flush));
+    instr->SetDecode(decode);
+
+    // state updates
+    instr->AddUpdate(vpc, Add(vpc, ONE));
+    instr->AddUpdate(op_exec, OP_MV);
+    instr->AddUpdate(idx_exec, Extract(instr_w, IDX_HI, IDX_LO));
+    instr->AddUpdate(imm_exec, Extract(instr_w, IMM_HI, IMM_LO));
+
+    // child-ILA
+    // TODO
+  } // Move
+
+  // ------------------------- Instruction: NOP ----------------------------- //
+  { // decode
+    auto instr = ila->NewInstr("Nop");
+    auto decode = Or(Eq(opcode, OP_NOP), f_flush);
+    instr->SetDecode(decode);
+
+    // state updates
+    auto vpc_nxt = Ite(f_flush, pc, Add(vpc, ONE));
+    instr->AddUpdate(vpc, vpc_nxt);
+    instr->AddUpdate(op_exec, OP_NOP);
+    instr->AddUpdate(idx_exec, idx_exec);
+    instr->AddUpdate(imm_exec, imm_exec);
+
+    // child-ILA
+    // TODO
+  } // Nop
 
   return ila;
 }
 
-// NOP:         [ 0  0  0  0| ----------------------------------]
+// NOP: [ 0  0  0  0| ----------------------------------]
 int GenNop() { return 0; }
 
-// BR:          [ 0  0  0  1|       CND |            ADDR (IMM) ]
+// BR:  [ 0  0  0  1|       CND |            ADDR (IMM) ]
 int GenBr(const int& cnd, const int& addr) {
   ILA_ASSERT(cnd < REG_NUM) << "Invalid reg num.";
   ILA_ASSERT((addr >> (IMM_HI + 1)) == 0) << "Invalid address.";
-  int w = OPCODE::BR << OP_OFF;
-  w |= cnd << CND_LO;
+  int w = OPCODE::BR << OP_LO;
+  w |= cnd << IDX_LO;
   w |= addr << IMM_LO;
   return w;
 }
 
-// LD:          [ 0  0  1  0|       DST |            ADDR (IMM) ]
+// LD:  [ 0  0  1  0|       DST |            ADDR (IMM) ]
 int GenLd(const int& dst, const int& addr) {
   ILA_ASSERT(dst < REG_NUM) << "Invalid reg num.";
   ILA_ASSERT((addr >> (IMM_HI + 1)) == 0) << "Invalid address.";
-  int w = OPCODE::LD << OP_OFF;
-  w |= dst << DST_LO;
+  int w = OPCODE::LD << OP_LO;
+  w |= dst << IDX_LO;
   w |= addr << IMM_LO;
   return w;
 }
 
-// MV:          [ 0  0  1  1|       DST |            VAL  (IMM) ]
+// MV:  [ 0  0  1  1|       DST |            VAL  (IMM) ]
 int GenMv(const int& dst, const int& val) {
   ILA_ASSERT(dst < REG_NUM) << "Invalid reg num.";
   ILA_ASSERT((val >> (IMM_HI + 1)) == 0) << "Invalid value.";
-  int w = OPCODE::MV << OP_OFF;
-  w |= dst << DST_LO;
+  int w = OPCODE::MV << OP_LO;
+  w |= dst << IDX_LO;
   w |= val << IMM_LO;
   return w;
 }
