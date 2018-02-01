@@ -133,5 +133,28 @@ TEST_F(TestZ3Expr, Extract) {
   EXPECT_EQ(z3::unsat, s->check());
 }
 
+TEST_F(TestZ3Expr, Concat) {
+  using namespace ExprFuse;
+  auto seg0 = bv_var_x;
+  auto seg1 = bv_var_y;
+  auto seg2 = NewBvVar("bv_var_z", 8);
+
+  auto con0 = Concat(seg0, Concat(seg1, seg2));
+  auto con1 = Concat(Concat(seg0, seg1), seg2);
+
+  auto eq = Eq(con0, con1);
+  auto ex = gen->GetExpr(eq);
+  s->add(!ex);
+  EXPECT_EQ(z3::unsat, s->check());
+
+  s->reset();
+  auto con2 = Concat(bv_const_0, bv_const_1);
+  auto bv16 = BvConst(1, 16);
+  auto veq = Eq(bv16, con2);
+  auto eveq = gen->GetExpr(veq);
+  s->add(!eveq);
+  EXPECT_EQ(z3::unsat, s->check());
+}
+
 } // namespace ila
 

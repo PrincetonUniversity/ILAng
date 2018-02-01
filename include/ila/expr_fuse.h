@@ -131,7 +131,7 @@ ExprPtr Store(const ExprPtr mem, const ExprPtr addr, const ExprPtr data);
 // Bit manipulation
 /****************************************************************************/
 /// Concatenate two bitvectors (bv only)
-ExprPtr Concat(const ExprPtr lo, const ExprPtr hi);
+ExprPtr Concat(const ExprPtr hi, const ExprPtr lo);
 /// Extract bit field in the bitvector (bv only)
 ExprPtr Extract(const ExprPtr bv, const int& hi, const int& lo);
 /// Zero extend the bitvector to the specified length.

@@ -231,6 +231,22 @@ z3::expr ExprOpStore::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
   return z3::store(mem, addr, data);
 }
 
+// ------------------------- Class ExprOpConcat ----------------------------- //
+ExprOpConcat::ExprOpConcat(const ExprPtr hi, const ExprPtr lo)
+    : ExprOp(hi, lo) {
+  ILA_ASSERT(hi->is_bv()) << "Concat non-bv var " << hi;
+  ILA_ASSERT(lo->is_bv()) << "Concat non-bv var " << lo;
+  set_sort(Sort::MakeBvSort(hi->sort().bit_width() + lo->sort().bit_width()));
+}
+
+z3::expr ExprOpConcat::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                                 const std::string& suffix) const {
+  ILA_ASSERT(expr_vec.size() == 2) << "Concat takes 2 arguments.";
+  auto hi = expr_vec[0];
+  auto lo = expr_vec[1];
+  return z3::concat(hi, lo);
+}
+
 // ------------------------- Class ExprOpExtract ---------------------------- //
 ExprOpExtract::ExprOpExtract(const ExprPtr bv, const int& hi, const int& lo)
     : ExprOp(bv, hi, lo) {
