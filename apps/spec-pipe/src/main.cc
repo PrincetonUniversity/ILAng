@@ -1,30 +1,52 @@
+/// \file
+/// ILA modeling for speculative execution with pipeline
+
 #include "ila/instr_lvl_abs.h"
 
 using namespace ila;
 using namespace ExprFuse;
 
-// Macros and constants
+// ------------------------- Instruction Definition ------------------------- //
+/*
+ * Instruction: [15 14 13 12 11 10 09 08 07 06 05 04 03 02 01 00]
+ * NOP:         [ 0  0  0  0| ----------------------------------]
+ * BR:          [ 0  0  0  1|       CND |            ADDR (IMM) ]
+ * LD:          [ 0  0  1  0|       DST |            ADDR (IMM) ]
+ * MV:          [ 0  0  1  1|       DST |            VAL  (IMM) ]
+ */
 
+// ------------------------- Macros & Constants ----------------------------- //
 #define REG_NUM 4
 #define REG_SIZE 8
-#define INSTR_SIZE 8
+#define INSTR_SIZE 16
 #define OP_SIZE 4
 
+#define OP_OFF 12
+#define DST_HI 11
+#define DST_LO 8
+#define CND_HI 11
+#define CND_LO 8
+#define IMM_HI 7
+#define IMM_LO 0
+
+auto ONE = BvConst(1, REG_SIZE);
+auto ZERO = BvConst(0, REG_SIZE);
 auto TRUE = BoolConst(true);
 auto FALSE = BoolConst(false);
 
-auto ZERO = BvConst(0, REG_SIZE);
-auto ONE = BvConst(1, REG_SIZE);
+enum OPCODE { NOP = 0, BR, LD, MV };
+auto OP_NOP = BvConst(OPCODE::NOP, OP_SIZE);
+auto OP_BR = BvConst(OPCODE::BR, OP_SIZE);
+auto OP_LD = BvConst(OPCODE::LD, OP_SIZE);
+auto OP_MV = BvConst(OPCODE::MV, OP_SIZE);
 
-enum OPCODE { STALL = 0, BRANCH, LOAD, ADD };
-auto OP_STALL = BvConst(OPCODE::STALL, OP_SIZE);
-auto OP_BRANCH = BvConst(OPCODE::BRANCH, OP_SIZE);
-auto OP_LOAD = BvConst(OPCODE::LOAD, OP_SIZE);
-auto OP_ADD = BvConst(OPCODE::ADD, OP_SIZE);
-
-// function declaration
-MemVal GetIrVal();
+// ------------------------- Function Declaration --------------------------- //
+MemVal IrInitVal();
 InstrLvlAbsPtr SpecExecIla();
+int GenNop();
+int GenBr(const int& cnd, const int& addr);
+int GenLd(const int& dst, const int& addr);
+int GenMv(const int& dst, const int& val);
 
 // main function
 int main() {
@@ -37,16 +59,19 @@ int main() {
   return 0;
 }
 
-// initialize the constant value in the ir
-MemVal GetIrVal() {
-  // FIXME store instruction, not opcode
-  MemVal val(OPCODE::STALL);
-
-  val.set_data(0, OPCODE::BRANCH);
-  val.set_data(1, OPCODE::LOAD);
-  val.set_data(2, OPCODE::ADD);
-  val.set_data(3, OPCODE::STALL);
-
+// initialize the constant value in the ir (the program)
+MemVal IrInitVal() {
+  /*
+   * 0: mv %0 1     // branch condition (taken)
+   * 1: br %0 4     // taken -- jump to 4 (nop)
+   * 2: ld %2 0xff  // load secret to register 2 (should not be reached)
+   * 3: nop
+   * 4: nop
+   */
+  MemVal val(GenNop());
+  val.set_data(0, GenMv(0, 1));
+  val.set_data(1, GenBr(0, 4));
+  val.set_data(2, GenLd(2, 0xff));
   return val;
 }
 
@@ -58,9 +83,7 @@ InstrLvlAbsPtr SpecExecIla() {
   // data memory
   auto mem = ila->NewMemState("memory", REG_SIZE, REG_SIZE);
   // instruction memory
-  auto ir_val = GetIrVal();
-  auto ir = MemConst(ir_val, REG_SIZE, INSTR_SIZE);
-  // auto ir = ila->NewMemState("ir", REG_SIZE, INSTR_SIZE);
+  auto ir = MemConst(IrInitVal(), REG_SIZE, INSTR_SIZE);
   // cache
   auto cache = ila->NewMemState("cache", REG_SIZE, REG_SIZE);
   // actual program counter
@@ -97,17 +120,17 @@ InstrLvlAbsPtr SpecExecIla() {
     auto init_fspec = Eq(f_spec, TRUE);
     ila->AddInit(init_fspec);
 
-    auto init_op_exec = Eq(u_op_exec, OP_STALL);
+    auto init_op_exec = Eq(u_op_exec, OP_NOP);
     ila->AddInit(init_op_exec);
 
-    auto init_op_comm = Eq(u_op_comm, OP_STALL);
+    auto init_op_comm = Eq(u_op_comm, OP_NOP);
     ila->AddInit(init_op_comm);
   }
 
   // instrs: branch, load, stall, and add
   { // branch
     auto instr = ila->NewInstr("Branch");
-    auto decode = And(Eq(opcode, OP_BRANCH), Not(f_spec));
+    auto decode = And(Eq(opcode, OP_BR), Not(f_spec));
     instr->SetDecode(decode);
 
     auto mem_nxt = mem;
@@ -116,7 +139,7 @@ InstrLvlAbsPtr SpecExecIla() {
     // increment vpc for pre-fetch
     auto vpc_nxt = Add(vpc, ONE);
     auto f_spec_nxt = f_spec;
-    auto u_op_exec_nxt = OP_BRANCH;
+    auto u_op_exec_nxt = OP_BR;
     for (auto i = 0; i != REG_NUM; i++) {
       auto reg_i_nxt = regs[i];
     }
@@ -133,5 +156,38 @@ InstrLvlAbsPtr SpecExecIla() {
   // add
 
   return ila;
+}
+
+// NOP:         [ 0  0  0  0| ----------------------------------]
+int GenNop() { return 0; }
+
+// BR:          [ 0  0  0  1|       CND |            ADDR (IMM) ]
+int GenBr(const int& cnd, const int& addr) {
+  ILA_ASSERT(cnd < REG_NUM) << "Invalid reg num.";
+  ILA_ASSERT((addr >> (IMM_HI + 1)) == 0) << "Invalid address.";
+  int w = OPCODE::BR << OP_OFF;
+  w |= cnd << CND_LO;
+  w |= addr << IMM_LO;
+  return w;
+}
+
+// LD:          [ 0  0  1  0|       DST |            ADDR (IMM) ]
+int GenLd(const int& dst, const int& addr) {
+  ILA_ASSERT(dst < REG_NUM) << "Invalid reg num.";
+  ILA_ASSERT((addr >> (IMM_HI + 1)) == 0) << "Invalid address.";
+  int w = OPCODE::LD << OP_OFF;
+  w |= dst << DST_LO;
+  w |= addr << IMM_LO;
+  return w;
+}
+
+// MV:          [ 0  0  1  1|       DST |            VAL  (IMM) ]
+int GenMv(const int& dst, const int& val) {
+  ILA_ASSERT(dst < REG_NUM) << "Invalid reg num.";
+  ILA_ASSERT((val >> (IMM_HI + 1)) == 0) << "Invalid value.";
+  int w = OPCODE::MV << OP_OFF;
+  w |= dst << DST_LO;
+  w |= val << IMM_LO;
+  return w;
 }
 
