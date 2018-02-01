@@ -400,6 +400,8 @@ InstrLvlAbsPtr SpecExecIla() {
     }
   }
 
+  ILA_INFO << "Generate Spec-Pipe ILA: " << ila;
+
   return ila;
 }
 
