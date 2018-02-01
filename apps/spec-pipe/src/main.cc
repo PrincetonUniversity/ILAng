@@ -152,8 +152,8 @@ InstrLvlAbsPtr SpecExecIla() {
   { // child-ILA for instruction Branch
     auto child = ila->NewChild("BranchChild");
     // state
-    auto br_addr = ila->NewBvState("br_addr", REG_SIZE);
-    auto br_take = ila->NewBoolState("br_take");
+    auto br_addr = child->NewBvState("br_addr", REG_SIZE);
+    auto br_take = child->NewBoolState("br_take");
     // valid
     child->SetValid(TRUE);
     // fetch
@@ -174,6 +174,7 @@ InstrLvlAbsPtr SpecExecIla() {
             Ite(Eq(reg_idx_i, idx_exec), Eq(regs[i], ONE), br_take_nxt);
       }
       instr->AddUpdate(br_take, br_take_nxt);
+      instr->AddUpdate(br_addr, imm_exec);
 
       instr->AddUpdate(cache, cache);
       instr->AddUpdate(op_comm, OP_BR);
@@ -185,11 +186,12 @@ InstrLvlAbsPtr SpecExecIla() {
       instr->SetDecode(decode);
 
       // state updates
-      instr->AddUpdate(pc, Add(pc, ONE));
+      auto pc_nxt = Ite(br_take, br_addr, Add(pc, ONE));
+      instr->AddUpdate(pc, pc_nxt);
       instr->AddUpdate(mem, mem);
       for (auto i = 0; i != REG_NUM; i++)
         instr->AddUpdate(regs[i], regs[i]);
-      instr->AddUpdate(f_flush, TRUE);
+      instr->AddUpdate(f_flush, br_take); // speculate not take (flush if take)
     }
   }
 
@@ -204,10 +206,51 @@ InstrLvlAbsPtr SpecExecIla() {
     instr->AddUpdate(op_exec, OP_LD);
     instr->AddUpdate(idx_exec, Extract(instr_w, IDX_HI, IDX_LO));
     instr->AddUpdate(imm_exec, Extract(instr_w, IMM_HI, IMM_LO));
-
-    // child-ILA
-    // TODO
   } // Load
+
+  { // child-ILA for instruction Load
+    auto child = ila->NewChild("LoadChild");
+    // state
+    auto ld_data = child->NewBvState("ld_data", REG_SIZE);
+    auto ld_idx = child->NewBvState("ld_idx", IDX_LENGTH);
+    // valid
+    child->SetValid(TRUE);
+    // fetch
+    child->SetFetch(Concat(op_exec, op_comm));
+    // init
+    child->AddInit(Eq(ld_data, ZERO));
+
+    { // exec child-instruction
+      auto instr = child->NewInstr("LoadExec");
+      auto decode = And(Eq(op_exec, OP_LD), Not(f_flush));
+      instr->SetDecode(decode);
+
+      // state updates
+      instr->AddUpdate(ld_idx, idx_exec);
+      auto addr = imm_exec;
+      auto ld_data_nxt = Load(mem, addr);
+      instr->AddUpdate(ld_data, ld_data_nxt);
+
+      instr->AddUpdate(cache, Store(cache, addr, ld_data_nxt));
+      instr->AddUpdate(op_comm, OP_LD);
+    }
+
+    { // comm child-instruction
+      auto instr = child->NewInstr("LoadComm");
+      auto decode = And(Eq(op_comm, OP_LD), Not(f_flush));
+      instr->SetDecode(decode);
+
+      // state updates
+      instr->AddUpdate(pc, Add(pc, ONE));
+      instr->AddUpdate(mem, mem);
+      instr->AddUpdate(f_flush, FALSE);
+      for (auto i = 0; i != REG_NUM; i++) {
+        auto reg_i_nxt =
+            Ite(Eq(ld_idx, BvConst(i, IDX_LENGTH)), ld_data, regs[i]);
+        instr->AddUpdate(regs[i], reg_i_nxt);
+      }
+    }
+  }
 
   // ------------------------- Instruction: MV ------------------------------ //
   { // decode
