@@ -167,16 +167,16 @@ InstrLvlAbsPtr SpecExecIla() {
       instr->SetDecode(decode);
 
       // state updates
-      auto taken_br_nxt = FALSE;
+      auto br_take_nxt = FALSE;
       for (auto i = 0; i != REG_NUM; i++) {
         auto reg_idx_i = BvConst(i, IDX_LENGTH);
-        taken_br_nxt =
-            Ite(Eq(reg_idx_i, idx_exec), Eq(regs[i], ONE), taken_br_nxt);
+        br_take_nxt =
+            Ite(Eq(reg_idx_i, idx_exec), Eq(regs[i], ONE), br_take_nxt);
       }
-      instr->AddUpdate(br_take, taken_br_nxt);
+      instr->AddUpdate(br_take, br_take_nxt);
 
-      instr->AddUpdate(op_comm, OP_BR);
       instr->AddUpdate(cache, cache);
+      instr->AddUpdate(op_comm, OP_BR);
     }
 
     { // commit child-instruction
@@ -185,9 +185,11 @@ InstrLvlAbsPtr SpecExecIla() {
       instr->SetDecode(decode);
 
       // state updates
+      instr->AddUpdate(pc, Add(pc, ONE));
       instr->AddUpdate(mem, mem);
       for (auto i = 0; i != REG_NUM; i++)
         instr->AddUpdate(regs[i], regs[i]);
+      instr->AddUpdate(f_flush, TRUE);
     }
   }
 
