@@ -82,6 +82,9 @@ private:
   /// \brief Traverse the hierarchy to collect state update mapping.
   void CollectUpdateMap(InstrLvlAbsPtr m, UpdateMap& map) const;
 
+  /// \brief
+  void MkCmplByDefInstr(ExprPtr s, std::set<InstrPtr>& updts);
+
   /// \brief Return true if two instructions are non-interfering.
   bool CheckNonIntf(InstrPtr i0, InstrPtr i1);
 

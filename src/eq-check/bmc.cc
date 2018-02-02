@@ -154,7 +154,11 @@ z3::expr Bmc::IlaStep(InstrLvlAbsPtr m, const std::string& prefix,
   UpdateMap updt_map;
   CollectUpdateMap(m, updt_map);
 
-  // check totality for all states, and create instructions for default cases
+  // for each state
+  for (auto it = updt_map.begin(); it != updt_map.end(); it++) {
+    // check totality and insert default instruction if needed
+    MkCmplByDefInstr(it->first, it->second);
+  }
 
   return ctx_.bool_val(true);
 }
@@ -186,6 +190,32 @@ void Bmc::CollectUpdateMap(InstrLvlAbsPtr m, UpdateMap& map) const {
   for (size_t i = 0; i != child_num; i++) {
     auto child = m->child(i);
     CollectUpdateMap(child, map);
+  }
+}
+
+void Bmc::MkCmplByDefInstr(ExprPtr s, std::set<InstrPtr>& updts) {
+  using namespace ExprFuse;
+
+  // check totality
+  auto guard = BoolConst(false);
+  for (auto it = updts.begin(); it != updts.end(); it++) {
+    auto guard_i = (*it)->GetDecode(); // XXX host valid not considered
+    guard = Or(guard, guard_i);
+  }
+  auto cnst = gen_.GetExpr(guard);
+
+  z3::solver solver(ctx_);
+  solver.add(!cnst);
+  auto res = solver.check();
+
+  // create default instruction for the state if not total
+  if (res == z3::sat) {
+    auto m = s->host();
+    auto instr = m->NewInstr("DefInstr." + s->name().str());
+    // default condition
+    instr->SetDecode(Not(guard));
+    // remain unchanged
+    instr->AddUpdate(s, s);
   }
 }
 
