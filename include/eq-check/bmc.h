@@ -18,6 +18,8 @@ class Bmc {
 public:
   /// Bmc only type for state/instruction update map.
   typedef MapSet<ExprPtr, InstrPtr> UpdateMap;
+  /// Bmc only type for instruction set in the update map.
+  typedef UpdateMap::SetT InstrSet;
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor.
@@ -61,6 +63,7 @@ private:
   /// The set of invariants.
   ExprPtrVec invs_;
   /// The set of initial condition.
+  //
   ExprPtrVec inits_;
 
   /// Automatically add default transition (unchanged) for un-specified states
@@ -76,21 +79,32 @@ private:
   z3::expr UnrollCmplIla(InstrLvlAbsPtr m, const int& k, const int& pos = 0);
 
   /// \brief Generate a step of an ILA execution.
-  z3::expr IlaStep(InstrLvlAbsPtr m, const std::string& prefix = "0",
-                   const std::string& suffix = "1");
+  z3::expr IlaStep(InstrLvlAbsPtr m, const std::string& suf_prev = "0",
+                   const std::string& suf_next = "1");
 
   /// \brief Traverse the hierarchy to collect state update mapping.
   void CollectUpdateMap(InstrLvlAbsPtr m, UpdateMap& map) const;
 
-  /// \brief
-  void MkCmplByDefInstr(ExprPtr s, std::set<InstrPtr>& updts);
+  /// \brief Check totality and insert default instruction if needed.
+  void MkCmplByDefInstr(ExprPtr s, InstrSet& updts);
 
-  /// \brief Return true if two instructions are non-interfering.
-  bool CheckNonIntf(InstrPtr i0, InstrPtr i1);
+  /// \brief Recursively generate guard relation of each instruction.
+  z3::expr GenGuardRel(InstrLvlAbsPtr m, const std::string& suf_prev);
+
+  /// \brief Recursively generate transition relation of each instruction.
+  z3::expr GenTranRel(InstrLvlAbsPtr m, const std::string& suf_prev,
+                      const std::string& suf_next);
+
+  /// \brief Merge repeated updating instruction set.
+  std::set<InstrSet> MergeInstrSet(UpdateMap& updts);
 
   /// \brief Return true if decode functions of all instructions are one-hot.
-  bool CheckOneHotDecode(InstrLvlAbsPtr m);
+  bool CheckOneHot(InstrSet updts);
 
+  /// \brief Generate selection relation if needed.
+  z3::expr GenSelRel(InstrSet updts);
+
+#if 0
   /// \brief Get the conjuction of state update functions (exclude decode).
   z3::expr InstrUpdate(InstrPtr instr, const std::string& prefix = "0",
                        const std::string& suffix = "1");
@@ -98,6 +112,7 @@ private:
   /// Match the states for flat ILAs.
   z3::expr MatchStateFlat(InstrLvlAbsPtr m0, const int& pos0, InstrLvlAbsPtr m1,
                           const int& pos1);
+#endif
 
 }; // class Bmc
 

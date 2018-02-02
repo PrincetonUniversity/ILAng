@@ -128,6 +128,9 @@ std::shared_ptr<KeyVecIt<Key, T>>
 /// \brief A map for sets.
 template <class Key, class T> class MapSet {
 public:
+  /// Set type for data T.
+  typedef std::set<T> SetT;
+
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor.
   MapSet() {}
@@ -139,7 +142,7 @@ public:
   void insert(const Key& k, const T& t) { map_[k].insert(t); }
 
   /// Return the set of T for the given key.
-  std::set<T> get(const Key& k) const {
+  SetT get(const Key& k) const {
     auto pos = map_.find(k);
     ILA_ASSERT(pos != map_.end()) << "Key " << k << " not found.";
     return pos->second;

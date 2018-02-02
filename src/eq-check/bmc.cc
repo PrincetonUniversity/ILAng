@@ -6,6 +6,7 @@
 namespace ila {
 
 typedef Bmc::UpdateMap UpdateMap;
+typedef Bmc::InstrSet InstrSet;
 
 Bmc::Bmc() {}
 
@@ -147,10 +148,10 @@ z3::expr Bmc::UnrollCmplIla(InstrLvlAbsPtr m, const int& k, const int& pos) {
 // - Check totality and insert default instruction for states (in next steps).
 // - Generate guard (valid and decode function) of each instruction.
 // - Generate state transition relation of each instruction.
-// - Checl if one-hot and generate instruction selection relation.
-z3::expr Bmc::IlaStep(InstrLvlAbsPtr m, const std::string& prefix,
-                      const std::string& suffix) {
-  // traverse the hierarchy
+// - Check if one-hot and generate instruction selection relation.
+z3::expr Bmc::IlaStep(InstrLvlAbsPtr m, const std::string& suf_prev,
+                      const std::string& suf_next) {
+  // traverse the hierarchy to collect state update map
   UpdateMap updt_map;
   CollectUpdateMap(m, updt_map);
 
@@ -160,7 +161,29 @@ z3::expr Bmc::IlaStep(InstrLvlAbsPtr m, const std::string& prefix,
     MkCmplByDefInstr(it->first, it->second);
   }
 
-  return ctx_.bool_val(true);
+  auto res = ctx_.bool_val(true);
+  // recursively generate guard relation of each instruction
+  auto guard_rel = GenGuardRel(m, suf_prev);
+  res = res && guard_rel;
+
+  // recursively generate transition relation of each instruction
+  auto tran_rel = GenTranRel(m, suf_prev, suf_next);
+  res = res && tran_rel;
+
+  auto sel_candid = MergeInstrSet(updt_map);
+  // for each state
+  for (auto it = sel_candid.begin(); it != sel_candid.end(); it++) {
+    // check one-hot
+    auto one_hot = CheckOneHot(*it);
+    if (!one_hot) {
+      // generate instruction selection relation if needed
+      auto sel_rel = GenSelRel(*it);
+      res = res && sel_rel;
+    }
+  }
+
+  res = res.simplify();
+  return res;
 }
 
 // Check if need to use default transition for all instructions.
@@ -193,10 +216,11 @@ void Bmc::CollectUpdateMap(InstrLvlAbsPtr m, UpdateMap& map) const {
   }
 }
 
-void Bmc::MkCmplByDefInstr(ExprPtr s, std::set<InstrPtr>& updts) {
+void Bmc::MkCmplByDefInstr(ExprPtr s, InstrSet& updts) {
   using namespace ExprFuse;
 
-  // check totality
+  ILA_DLOG("Bmc.IlaStep") << "Check transition totality for state " << s;
+  // conjunct all guards (decode)
   auto guard = BoolConst(false);
   for (auto it = updts.begin(); it != updts.end(); it++) {
     auto guard_i = (*it)->GetDecode(); // XXX host valid not considered
@@ -204,12 +228,14 @@ void Bmc::MkCmplByDefInstr(ExprPtr s, std::set<InstrPtr>& updts) {
   }
   auto cnst = gen_.GetExpr(guard);
 
+  // check totality
   z3::solver solver(ctx_);
   solver.add(!cnst);
   auto res = solver.check();
 
   // create default instruction for the state if not total
   if (res == z3::sat) {
+    ILA_DLOG("Bmc.IlaStep") << "Complete transition for state " << s;
     auto m = s->host();
     auto instr = m->NewInstr("DefInstr." + s->name().str());
     // default condition
@@ -217,6 +243,41 @@ void Bmc::MkCmplByDefInstr(ExprPtr s, std::set<InstrPtr>& updts) {
     // remain unchanged
     instr->AddUpdate(s, s);
   }
+}
+
+z3::expr Bmc::GenGuardRel(InstrLvlAbsPtr m, const std::string& suf_prev) {
+  auto res = ctx_.bool_val(true);
+  // TODO guards are bind to suffix
+
+  res = res.simplify();
+  return res;
+}
+
+z3::expr Bmc::GenTranRel(InstrLvlAbsPtr m, const std::string& suf_prev,
+                         const std::string& suf_next) {
+  auto res = ctx_.bool_val(true);
+  // TODO
+
+  res = res.simplify();
+  return res;
+}
+
+std::set<InstrSet> Bmc::MergeInstrSet(UpdateMap& updts) {
+  std::set<InstrSet> merge;
+  // TODO
+  return merge;
+}
+
+bool Bmc::CheckOneHot(InstrSet updts) {
+  // TODO
+  return true;
+}
+
+z3::expr Bmc::GenSelRel(InstrSet updts) {
+  auto res = ctx_.bool_val(true);
+  // FIXME this should not be used
+
+  return res;
 }
 
 } // namespace ila
