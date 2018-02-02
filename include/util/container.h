@@ -125,6 +125,32 @@ template <class Key, class T>
 std::shared_ptr<KeyVecIt<Key, T>>
     KeyVec<Key, T>::end_ = std::make_shared<KeyVecIt<Key, T>>();
 
+/// \brief A map for sets.
+template <class Key, class T> class MapSet {
+public:
+  // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
+  /// Default constructor.
+  MapSet() {}
+  /// Default destructor.
+  ~MapSet() {}
+
+  // ------------------------- METHODS -------------------------------------- //
+  /// Insert the pair into the mapping.
+  void insert(const Key& k, const T& t) { map_[k].insert(t); }
+
+  /// Return the set of T for the given key.
+  std::set<T> get(const Key& k) const {
+    auto pos = map_.find(k);
+    ILA_ASSERT(pos != map_.end()) << "Key " << k << " not found.";
+    return pos->second;
+  }
+
+private:
+  /// The actual mapping.
+  std::map<Key, std::set<T>> map_;
+
+}; // class MapSet
+
 } // namespace ila
 
 #endif // __CONTAINER_H__
