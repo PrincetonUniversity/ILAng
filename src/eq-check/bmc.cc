@@ -4,11 +4,16 @@
 #include "eq-check/bmc.h"
 
 namespace ila {
+
+typedef Bmc::UpdateMap UpdateMap;
+
 Bmc::Bmc() {}
 
 Bmc::~Bmc() {}
 
 z3::context& Bmc::ctx() { return ctx_; }
+
+void Bmc::set_def_tran(bool use) { def_tran_ = use; }
 
 void Bmc::AddInit(ExprPtr init) { inits_.push_back(init); }
 
@@ -74,7 +79,7 @@ z3::check_result Bmc::BmcLegacy(InstrLvlAbsPtr m0, const int& k0,
   }
 
   // invariants
-  for (auto i = 0; i != invs_.size(); i++) {
+  for (size_t i = 0; i != invs_.size(); i++) {
     auto inv_i = invs_[i];
     ILA_ASSERT(inv_i->host()) << "Legacy BMC can only have single-ILA inv.";
     // XXX Only apply invariants on initial states.
@@ -100,9 +105,10 @@ z3::check_result Bmc::BmcProp(InstrLvlAbsPtr m, const int& k) {
   z3::solver solver(ctx_);
 
   // transition relations
-  auto cnst_tran = UnrollCmplIla(m, k);
+  auto cnst_tran = UnrollCmplIla(m, k); // XXX
   solver.add(cnst_tran);
 
+  // TODO
   // initial condition
   // invariants
   // properties
@@ -114,6 +120,8 @@ z3::check_result Bmc::BmcProp(InstrLvlAbsPtr m, const int& k) {
 
   return result;
 }
+
+// ------------------- PRIVATE FUNCTIONS ------------------------------------ //
 
 z3::expr Bmc::UnrollCmplIla(InstrLvlAbsPtr m, const int& k, const int& pos) {
   ILA_NOT_NULL(m);
@@ -133,6 +141,52 @@ z3::expr Bmc::UnrollCmplIla(InstrLvlAbsPtr m, const int& k, const int& pos) {
   }
 
   return cnst;
+}
+
+// - Traverse the hierarchy to collect state/instr dependency map.
+// - Check totality and insert default instruction for states (in next steps).
+// - Generate guard (valid and decode function) of each instruction.
+// - Generate state transition relation of each instruction.
+// - Checl if one-hot and generate instruction selection relation.
+z3::expr Bmc::IlaStep(InstrLvlAbsPtr m, const std::string& prefix,
+                      const std::string& suffix) {
+  // traverse the hierarchy
+  UpdateMap updt_map;
+  CollectUpdateMap(m, updt_map);
+
+  // check totality for all states, and create instructions for default cases
+
+  return ctx_.bool_val(true);
+}
+
+// Check if need to use default transition for all instructions.
+void Bmc::CollectUpdateMap(InstrLvlAbsPtr m, UpdateMap& map) const {
+  ILA_DLOG("Bmc.IlaStep") << "Collecting state update mapping for " << m;
+
+  // collect self
+  auto instr_num = m->instr_num();
+  auto state_num = m->state_num();
+  // for each instruction
+  for (size_t i = 0; i != instr_num; i++) {
+    auto instr = m->instr(i);
+    // for each state
+    for (size_t j = 0; j != state_num; j++) {
+      auto state = m->state(j);
+      // check if there is an update
+      auto updt = instr->GetUpdate(state);
+      // update map if use default or there is an update
+      if (updt || def_tran_) {
+        map.insert(state, instr);
+      }
+    }
+  }
+
+  // collect child
+  auto child_num = m->child_num();
+  for (size_t i = 0; i != child_num; i++) {
+    auto child = m->child(i);
+    CollectUpdateMap(child, map);
+  }
 }
 
 } // namespace ila

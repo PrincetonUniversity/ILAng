@@ -6,6 +6,7 @@
 
 #include "ila/instr_lvl_abs.h"
 #include "ila/model_expr_generator.h"
+#include "util/container.h"
 #include "z3++.h"
 #include <map>
 
@@ -15,6 +16,9 @@ namespace ila {
 /// \brief Bounded model checking engine for ILAs.
 class Bmc {
 public:
+  /// Bmc only type for state/instruction update map.
+  typedef MapSet<ExprPtr, InstrPtr> UpdateMap;
+
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor.
   Bmc();
@@ -24,6 +28,8 @@ public:
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return the z3 context.
   z3::context& ctx();
+  /// Set the flag for using default transition.
+  void set_def_tran(bool use);
 
   // ------------------------- METHODS -------------------------------------- //
   /// \brief Add initial condition to the solver.
@@ -57,13 +63,24 @@ private:
   /// The set of initial condition.
   ExprPtrVec inits_;
 
+  /// Automatically add default transition (unchanged) for un-specified states
+  /// if set to true.
+  bool def_tran_ = false;
+
   // ------------------------- HELPERS -------------------------------------- //
-  /// \brief Get the conjuction of state update functions (exclude decode).
-  /// \param[in] complete use default update functions (unchange) for
-  /// unspecified states if set true.
-  z3::expr InstrUpdate(InstrPtr instr, bool complete = false,
-                       const std::string& prefix = "0",
-                       const std::string& suffix = "1");
+  /// Unroll an ILA for k steps
+  /// \param[in] m pointer to the ILA to unroll.
+  /// \param[in] k number of steps to unroll.
+  /// \param[in] pos starting frame number (default 0).
+  /// \return the z3 expression representing the constraints.
+  z3::expr UnrollCmplIla(InstrLvlAbsPtr m, const int& k, const int& pos = 0);
+
+  /// \brief Generate a step of an ILA execution.
+  z3::expr IlaStep(InstrLvlAbsPtr m, const std::string& prefix = "0",
+                   const std::string& suffix = "1");
+
+  /// \brief Traverse the hierarchy to collect state update mapping.
+  void CollectUpdateMap(InstrLvlAbsPtr m, UpdateMap& map) const;
 
   /// \brief Return true if two instructions are non-interfering.
   bool CheckNonIntf(InstrPtr i0, InstrPtr i1);
@@ -71,19 +88,9 @@ private:
   /// \brief Return true if decode functions of all instructions are one-hot.
   bool CheckOneHotDecode(InstrLvlAbsPtr m);
 
-  /// \brief Generate a step of the ILA.
-  /// \param[in] concurrent turn off default update functions and enforce
-  /// parallel execution if set true.
-  z3::expr IlaStep(InstrLvlAbsPtr m, bool concurrent = false,
-                   const std::string& prefix = "0",
-                   const std::string& suffix = "1");
-
-  /// Unroll an ILA for k steps
-  /// \param[in] m pointer to the ILA to unroll.
-  /// \param[in] k number of steps to unroll.
-  /// \param[in] pos starting frame number (default 0).
-  /// \return the z3 expression representing the constraints.
-  z3::expr UnrollCmplIla(InstrLvlAbsPtr m, const int& k, const int& pos = 0);
+  /// \brief Get the conjuction of state update functions (exclude decode).
+  z3::expr InstrUpdate(InstrPtr instr, const std::string& prefix = "0",
+                       const std::string& suffix = "1");
 
   /// Match the states for flat ILAs.
   z3::expr MatchStateFlat(InstrLvlAbsPtr m0, const int& pos0, InstrLvlAbsPtr m1,
