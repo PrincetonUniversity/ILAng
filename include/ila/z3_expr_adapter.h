@@ -23,41 +23,21 @@ public:
   /// Type for caching the generated expressions.
   typedef std::unordered_map<const ExprPtrRaw, z3::expr, ExprHash> ExprMap;
 
-  // ------------------------- ACCESSORS/MUTATORS --------------------------- //
-  /// Return the flag of whether to perform simplification.
-  const bool& simplify() const;
-  /// Return the underlying z3 context.
-  z3::context& ctx() const;
-
-  /// Perform expression simplification if true.
-  void set_simplify(const bool& sim);
-  /// Set the z3 context.
-  void set_context(z3::context& ctx);
-
   // ------------------------- METHODS -------------------------------------- //
   /// Get the z3 expression of the AST node.
   z3::expr GetExpr(const ExprPtr expr, const std::string& suffix = "");
-
-  /// Turn on cacheing reuse and reset.
-  void EnableCache();
-  /// Turn off cacheing reuse and reset.
-  void DisableCache();
 
   /// Function object for getting z3 expression.
   void operator()(const ExprPtrRaw expr);
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
-  /// Flag of simplification.
-  bool simplify_ = true;
   /// The underlying z3 context.
   z3::context& ctx_;
   /// Container for cacheing intermediate expressions.
   ExprMap expr_map_;
   /// Name suffix for each expression generation (e.g. time frame)
   std::string suffix_ = "";
-  /// Flag of cacheing.
-  bool cache_ = false;
 
   // ------------------------- HELPERS -------------------------------------- //
   /// Insert the z3 expression of the given node into the map.

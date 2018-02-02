@@ -10,35 +10,16 @@ Z3ExprAdapter::Z3ExprAdapter(z3::context& ctx) : ctx_(ctx) {}
 
 Z3ExprAdapter::~Z3ExprAdapter() {}
 
-const bool& Z3ExprAdapter::simplify() const { return simplify_; }
-
-z3::context& Z3ExprAdapter::ctx() const { return ctx_; }
-
-void Z3ExprAdapter::set_simplify(const bool& sim) { simplify_ = sim; }
-
 z3::expr Z3ExprAdapter::GetExpr(const ExprPtr expr, const std::string& suffix) {
-  if (!cache_)
-    expr_map_.clear();
-
+  expr_map_.clear();
   suffix_ = suffix;
+
   expr->DepthFirstVisit(*this);
 
   auto pos = expr_map_.find(expr.get());
   ILA_ASSERT(pos != expr_map_.end()) << "z3 expr cannot be generated.";
 
   return pos->second;
-}
-
-void Z3ExprAdapter::EnableCache() {
-  ILA_ASSERT(!cache_) << "Cache already enabled.";
-  expr_map_.clear();
-  cache_ = true;
-}
-
-void Z3ExprAdapter::DisableCache() {
-  ILA_ASSERT(cache_) << "Cache not enabled.";
-  expr_map_.clear();
-  cache_ = false;
 }
 
 void Z3ExprAdapter::operator()(const ExprPtrRaw expr) {
@@ -76,8 +57,7 @@ void Z3ExprAdapter::PopulateExprMap(const ExprPtrRaw expr) {
   z3::expr res = expr->GetZ3Expr(ctx_, expr_vec, suffix_);
 
   // simplify expression
-  if (simplify_)
-    res = res.simplify();
+  res = res.simplify();
 
   // polulate in the expr cache.
   expr_map_.insert({expr, res});

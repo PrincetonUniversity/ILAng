@@ -10,8 +10,6 @@ ModelExprGen::ModelExprGen(z3::context& ctx)
 
 ModelExprGen::~ModelExprGen() {}
 
-void ModelExprGen::set_z3_simplify(bool z3_smpl) { gen_.set_simplify(z3_smpl); }
-
 z3::expr ModelExprGen::Node(const ExprPtr node, const std::string& suffix) {
   auto e = gen_.GetExpr(node, suffix);
   return e;

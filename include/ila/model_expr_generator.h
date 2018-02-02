@@ -23,10 +23,6 @@ public:
   /// Destructor.
   ~ModelExprGen();
 
-  // ------------------------- ACCESSORS/MUTATORS --------------------------- //
-  /// Turn on z3 expression simplification if true.
-  void set_z3_simplify(bool z3_smpl);
-
   // ------------------------- METHODS -------------------------------------- //
   /// \brief Get the z3 expression for the AST node.
   z3::expr Node(const ExprPtr node, const std::string& suffix);
