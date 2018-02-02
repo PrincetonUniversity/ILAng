@@ -27,6 +27,10 @@ TEST(TestMapSet, IntInt) {
   }
 
   EXPECT_DEATH(map.get(1), ".*");
+
+  for (auto i = map.begin(); i != map.end(); i++) {
+    EXPECT_FALSE(i->second.empty());
+  }
 }
 
 TEST(TestMapSet, ExprInstr) {
@@ -59,6 +63,10 @@ TEST(TestMapSet, ExprInstr) {
   }
 
   EXPECT_DEATH(map.get(vc), ".*");
+
+  for (auto i = map.begin(); i != map.end(); i++) {
+    EXPECT_FALSE(i->second.empty());
+  }
 }
 
 } // namespace ila

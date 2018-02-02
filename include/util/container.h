@@ -145,6 +145,12 @@ public:
     return pos->second;
   }
 
+  /// Return the iterator at the starting point
+  typename std::map<Key, std::set<T>>::iterator begin() { return map_.begin(); }
+
+  /// Return the iterator at the ending point.
+  typename std::map<Key, std::set<T>>::iterator end() { return map_.end(); }
+
 private:
   /// The actual mapping.
   std::map<Key, std::set<T>> map_;
