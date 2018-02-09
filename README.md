@@ -1,6 +1,6 @@
 # Instruction-Level Abstraction (ILA)
 
-Formal definition and modeling scenarios: [ILA Wiki](https://github.com/Bo-Yuan-Huang/ILA-Tools/wiki).
+A paper summarizing the formal definition and modeling case studies: [arXiv link](https://arxiv.org/abs/1801.01114).
 
 
 ## Templated-based ILA synthesis
