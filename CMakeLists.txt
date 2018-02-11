@@ -28,12 +28,24 @@ set(CMAKE_MODULE_PATH
 set(CMAKE_MACOSX_RPATH 1)
 
 # ------------------------------------------------------------------------------
+# Google Log
+# ------------------------------------------------------------------------------
+if (build_glog)
+  execute_process(COMMAND git submodule init)
+  execute_process(COMMAND git submodule update)
+  add_subdirectory(glog)
+else ()
+  find_package(glog 0.3.5 REQUIRED)
+endif ()
+
+# ------------------------------------------------------------------------------
 # Compile flags 
 # ------------------------------------------------------------------------------
 # These options can be turned on/off from the 'make' command.
 option(debug "Use debugging flag" ON)
 option(coverage "Use coverage flag" OFF)
 option(python_api "Build Python API" ON)
+option(build_glog "Build in-source Glog" OFF)
 
 # Things to always include as flags. 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
@@ -122,10 +134,6 @@ if (python_api)
 
 endif (python_api)
 
-# ------------------------------------------------------------------------------
-# Google Log
-# ------------------------------------------------------------------------------
-find_package(glog 0.3.5 REQUIRED)
 
 # ------------------------------------------------------------------------------
 # Google Test
@@ -157,6 +165,7 @@ add_subdirectory(${CMAKE_BINARY_DIR}/googletest-src
 if (CMAKE_VERSION VERSION_LESS 2.8.11)
   include_directories("${gtest_SOURCE_DIR}/include")
 endif()
+
 
 # ------------------------------------------------------------------------------
 # Build

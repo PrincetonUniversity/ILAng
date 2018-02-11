@@ -1,3 +1,6 @@
 [submodule "examples/RISC-V/simulator"]
 	path = examples/RISC-V/simulator
 	url = https://github.com/zhanghongce/riscv-ila-sim.git
+[submodule "glog"]
+	path = glog
+	url = https://github.com/google/glog.git
