@@ -9,6 +9,5 @@ var searchData=
   ['valptr',['ValPtr',['../classila_1_1_value.html#ac1e3b221b4a8bceeae77a76113d2d109',1,'ila::Value::ValPtr()'],['../namespaceila.html#adeac6fe68378ac3164b32c8a0b176b70',1,'ila::ValPtr()']]],
   ['value',['Value',['../classila_1_1_value.html',1,'ila']]],
   ['varmap',['VarMap',['../classila_1_1_instr_lvl_abs.html#adaabbd012544c8184fd04d826375ea31',1,'ila::InstrLvlAbs']]],
-  ['verif_5fbd_2eh',['verif_bd.h',['../verif__bd_8h.html',1,'']]],
-  ['verifbd',['VerifBd',['../classila_1_1_verif_bd.html',1,'ila::VerifBd'],['../classila_1_1_verif_bd.html#ad66582c4cc8341b9effbc901f2ca0e05',1,'ila::VerifBd::VerifBd()']]]
+  ['verif_5fbd_2eh',['verif_bd.h',['../verif__bd_8h.html',1,'']]]
 ];

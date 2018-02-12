@@ -1,5 +1,6 @@
 var searchData=
 [
-  ['refrelptr',['RefRelPtr',['../namespaceila.html#ae0fe69efd13319c2f2506ab3e03e6198',1,'ila']]],
-  ['refunitptr',['RefUnitPtr',['../namespaceila.html#abbb54e9e7d5dfbc30a2ccf51f6b976db',1,'ila']]]
+  ['sett',['SetT',['../classila_1_1_map_set.html#ac3f6b5630e71599546d957f735ec893e',1,'ila::MapSet']]],
+  ['sortptr',['SortPtr',['../classila_1_1_sort.html#a4df74038270ac346c0e1789f8ddfa192',1,'ila::Sort::SortPtr()'],['../namespaceila.html#a67cdf422ce3b55b52ba750e70305d0f1',1,'ila::SortPtr()']]],
+  ['sortptrvec',['SortPtrVec',['../classila_1_1_sort.html#a111e9f3137364a56e9fb6a094760f3f5',1,'ila::Sort::SortPtrVec()'],['../namespaceila.html#ae731bc79012f176d653df85150efb39b',1,'ila::SortPtrVec()']]]
 ];

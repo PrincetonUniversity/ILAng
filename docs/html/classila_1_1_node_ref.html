@@ -67,48 +67,27 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pub-static-methods">Static Public Member Functions</a> &#124;
 <a href="classila_1_1_node_ref-members.html">List of all members</a>  </div>
   <div class="headertitle">
 <div class="title">ila::NodeRef Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
-
-<p>The wrapper for ExprRef without raw c-type pointers.  
- <a href="classila_1_1_node_ref.html#details">More...</a></p>
-
-<p><code>#include &lt;<a class="el" href="node_8h_source.html">node.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:ae5837f076c1d0dbc33b0c1466001bff0"><td class="memItemLeft" align="right" valign="top"><a id="ae5837f076c1d0dbc33b0c1466001bff0"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_node_ref.html#ae5837f076c1d0dbc33b0c1466001bff0">NodeRef</a> ()</td></tr>
-<tr class="memdesc:ae5837f076c1d0dbc33b0c1466001bff0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default constructor. DO NOT USE. <br /></td></tr>
-<tr class="separator:ae5837f076c1d0dbc33b0c1466001bff0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3782021bc38461fcd1e331ace1ed8012"><td class="memItemLeft" align="right" valign="top"><a id="a3782021bc38461fcd1e331ace1ed8012"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_node_ref.html#a3782021bc38461fcd1e331ace1ed8012">NodeRef</a> (const <a class="el" href="namespaceila.html#af610f1359caba1beb7a780ebd58d2897">ExprPtr</a> ptr)</td></tr>
-<tr class="memdesc:a3782021bc38461fcd1e331ace1ed8012"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor with data member (pointer to expression). <br /></td></tr>
-<tr class="separator:a3782021bc38461fcd1e331ace1ed8012"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad84835b2000dd05fd4b7e85cb7ffb9f5"><td class="memItemLeft" align="right" valign="top"><a id="ad84835b2000dd05fd4b7e85cb7ffb9f5"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_node_ref.html#ad84835b2000dd05fd4b7e85cb7ffb9f5">NodeRef</a> (const <a class="el" href="classila_1_1_node_ref.html">NodeRef</a> &amp;node)</td></tr>
-<tr class="memdesc:ad84835b2000dd05fd4b7e85cb7ffb9f5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy constructor. <br /></td></tr>
-<tr class="separator:ad84835b2000dd05fd4b7e85cb7ffb9f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7b2309ed7558a9e77463c033be3d2615"><td class="memItemLeft" align="right" valign="top"><a id="a7b2309ed7558a9e77463c033be3d2615"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_node_ref.html#a7b2309ed7558a9e77463c033be3d2615">~NodeRef</a> ()</td></tr>
-<tr class="memdesc:a7b2309ed7558a9e77463c033be3d2615"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default destructor. <br /></td></tr>
-<tr class="separator:a7b2309ed7558a9e77463c033be3d2615"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3722f10545609d2dbcf25f0e052a62e0"><td class="memItemLeft" align="right" valign="top"><a id="a3722f10545609d2dbcf25f0e052a62e0"></a>
-const std::string &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_node_ref.html#a3722f10545609d2dbcf25f0e052a62e0">name</a> () const</td></tr>
-<tr class="memdesc:a3722f10545609d2dbcf25f0e052a62e0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the node name in basic string. <br /></td></tr>
-<tr class="separator:a3722f10545609d2dbcf25f0e052a62e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aac574ebffc3cdc457ab499a11cfd1fb4"><td class="memItemLeft" align="right" valign="top"><a id="aac574ebffc3cdc457ab499a11cfd1fb4"></a>
-<a class="el" href="classila_1_1_node_ref.html">NodeRef</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_node_ref.html#aac574ebffc3cdc457ab499a11cfd1fb4">operator=</a> (const <a class="el" href="classila_1_1_node_ref.html">NodeRef</a> &amp;rhs)</td></tr>
-<tr class="memdesc:aac574ebffc3cdc457ab499a11cfd1fb4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Overload assignment operator. <br /></td></tr>
-<tr class="separator:aac574ebffc3cdc457ab499a11cfd1fb4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a628249bd4e5f734bb5faf831ccbb590a"><td class="memItemLeft" align="right" valign="top"><a id="a628249bd4e5f734bb5faf831ccbb590a"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>NodeRef</b> (std::shared_ptr&lt; <a class="el" href="classila_1_1_expr.html">Expr</a> &gt; ptr)</td></tr>
+<tr class="separator:a628249bd4e5f734bb5faf831ccbb590a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
+Static Public Member Functions</h2></td></tr>
+<tr class="memitem:ab246332981de22c4abc92c83f0ca7825"><td class="memItemLeft" align="right" valign="top"><a id="ab246332981de22c4abc92c83f0ca7825"></a>
+static <a class="el" href="classila_1_1_node_ref.html">NodeRef</a>&#160;</td><td class="memItemRight" valign="bottom"><b>ConstBool</b> (bool val)</td></tr>
+<tr class="separator:ab246332981de22c4abc92c83f0ca7825"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>The wrapper for ExprRef without raw c-type pointers. </p>
-</div><hr/>The documentation for this class was generated from the following file:<ul>
-<li><a class="el" href="node_8h_source.html">node.h</a></li>
+<hr/>The documentation for this class was generated from the following file:<ul>
+<li><a class="el" href="ila_09_09_8h_source.html">ila++.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

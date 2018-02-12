@@ -96,9 +96,6 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_const.html">ExprConst</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Expression for constant values (bool, bv, or memory). Constant should be terminating nodes in the AST.  <a href="classila_1_1_expr_const.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_fuse.html">ExprFuse</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The uniform interface and wrapper for different types of expressions, e.g. var, constant, and different operations.  <a href="classila_1_1_expr_fuse.html#details">More...</a><br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_hash.html">ExprHash</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The function object for hashing <a class="el" href="classila_1_1_expr.html" title="The class for expression, which is the basic type for variables, constraints, state update expression...">Expr</a>. The hash value is the id of the symbol, which is supposed to be unique.  <a href="classila_1_1_expr_hash.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -117,8 +114,13 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_op_compl.html">ExprOpCompl</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The wrapper for unary bit-wise complement "~". (bv only)  <a href="classila_1_1_expr_op_compl.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_op_concat.html">ExprOpConcat</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_op_eq.html">ExprOpEq</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The class wrapper for binary comparison EQ "==".  <a href="classila_1_1_expr_op_eq.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_op_extract.html">ExprOpExtract</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The class wrapper for bitvector extraction.  <a href="classila_1_1_expr_op_extract.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_op_ite.html">ExprOpIte</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The class wrapper for if-then-else.  <a href="classila_1_1_expr_op_ite.html#details">More...</a><br /></td></tr>
@@ -171,20 +173,19 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_log_initter.html">LogInitter</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A one-time class for initializing GLog.  <a href="classila_1_1_log_initter.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_map_set.html">MapSet</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A map for sets.  <a href="classila_1_1_map_set.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_mem_val.html">MemVal</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The container for representing memory (array) values.  <a href="classila_1_1_mem_val.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_model_expr_gen.html">ModelExprGen</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The class for different z3 expression generator, from ILA, instruction, to state updates, etc.  <a href="classila_1_1_model_expr_gen.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_node_ref.html">NodeRef</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The wrapper for ExprRef without raw c-type pointers.  <a href="classila_1_1_node_ref.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_object.html">Object</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The basest type in the ILA structure. It can be either <a class="el" href="classila_1_1_ast.html" title="The class for the Abstract Syntax Tree. An Ast object can be an expression or function definition (in...">Ast</a>, <a class="el" href="classila_1_1_instr.html" title="The class for the Instruction. An Instr object contains: ">Instr</a>, or <a class="el" href="classila_1_1_instr_lvl_abs.html" title="The class of Instruction-Level Abstraction (ILA). An ILA contains: ">InstrLvlAbs</a>.  <a href="classila_1_1_object.html#details">More...</a><br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_ref_rel.html">RefRel</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The class for refinement relation. This is only the container for maitaining the refinement, but not handle the verification tasks.  <a href="classila_1_1_ref_rel.html#details">More...</a><br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_ref_unit.html">RefUnit</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Refinement unit, used to stored:  <a href="classila_1_1_ref_unit.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_sort.html">Sort</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The class for sort (type for expr, and the range/domain of functions).  <a href="classila_1_1_sort.html#details">More...</a><br /></td></tr>
@@ -195,23 +196,12 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_value.html">Value</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The base type for constant value.  <a href="classila_1_1_value.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_verif_bd.html">VerifBd</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The class for performing equivalence checking using the Birch-Dill methodology (i.e. commutative diagram with the flushing/stall function).  <a href="classila_1_1_verif_bd.html#details">More...</a><br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_z3_expr_adapter.html">Z3ExprAdapter</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The class for generating z3 expression from the ast expression.  <a href="classila_1_1_z3_expr_adapter.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The class for generating z3 expression from an ILA.  <a href="classila_1_1_z3_expr_adapter.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
 Typedefs</h2></td></tr>
-<tr class="memitem:abbb54e9e7d5dfbc30a2ccf51f6b976db"><td class="memItemLeft" align="right" valign="top"><a id="abbb54e9e7d5dfbc30a2ccf51f6b976db"></a>
-typedef std::shared_ptr&lt; <a class="el" href="classila_1_1_ref_unit.html">RefUnit</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#abbb54e9e7d5dfbc30a2ccf51f6b976db">RefUnitPtr</a></td></tr>
-<tr class="memdesc:abbb54e9e7d5dfbc30a2ccf51f6b976db"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pointer type for maintaining the refinement unit. <br /></td></tr>
-<tr class="separator:abbb54e9e7d5dfbc30a2ccf51f6b976db"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae0fe69efd13319c2f2506ab3e03e6198"><td class="memItemLeft" align="right" valign="top"><a id="ae0fe69efd13319c2f2506ab3e03e6198"></a>
-typedef std::shared_ptr&lt; <a class="el" href="classila_1_1_ref_rel.html">RefRel</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#ae0fe69efd13319c2f2506ab3e03e6198">RefRelPtr</a></td></tr>
-<tr class="memdesc:ae0fe69efd13319c2f2506ab3e03e6198"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pointer type for passing around the refinement relation. <br /></td></tr>
-<tr class="separator:ae0fe69efd13319c2f2506ab3e03e6198"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a79b6eeb85bd8dd93f332581e6a959227"><td class="memItemLeft" align="right" valign="top"><a id="a79b6eeb85bd8dd93f332581e6a959227"></a>
 typedef <a class="el" href="classila_1_1_expr.html#a47a8f1d3c933326fcc717ee4ed68bc2e">Expr::ExprPtrRaw</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a79b6eeb85bd8dd93f332581e6a959227">ExprPtrRaw</a></td></tr>
 <tr class="memdesc:a79b6eeb85bd8dd93f332581e6a959227"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pointer type only for visitor function objects. <br /></td></tr>
@@ -224,10 +214,6 @@ typedef <a class="el" href="classila_1_1_expr.html#ae12f2dd872b3d2d33ea0a0a78d22
 typedef <a class="el" href="classila_1_1_expr.html#ae3a93bfae7c3bbb83a2e2350d99772f0">Expr::ExprPtrVec</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#ad3c7eb9030e0b531f527c9bf23c3bb68">ExprPtrVec</a></td></tr>
 <tr class="memdesc:ad3c7eb9030e0b531f527c9bf23c3bb68"><td class="mdescLeft">&#160;</td><td class="mdescRight">Type for storing a set of <a class="el" href="classila_1_1_expr.html" title="The class for expression, which is the basic type for variables, constraints, state update expression...">Expr</a>. <br /></td></tr>
 <tr class="separator:ad3c7eb9030e0b531f527c9bf23c3bb68"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa4fbc07d84d2f358836dcd7a51a85a7c"><td class="memItemLeft" align="right" valign="top"><a id="aa4fbc07d84d2f358836dcd7a51a85a7c"></a>
-typedef <a class="el" href="classila_1_1_expr.html#ab56dfa9b63c6c3d5060ccc08a65bba49">Expr::Z3ExprVec</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#aa4fbc07d84d2f358836dcd7a51a85a7c">Z3ExprVec</a></td></tr>
-<tr class="memdesc:aa4fbc07d84d2f358836dcd7a51a85a7c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Type for storing a set of z3 expr. <br /></td></tr>
-<tr class="separator:aa4fbc07d84d2f358836dcd7a51a85a7c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abd0c0a4a42a4d5fd544dc467594b2bf2"><td class="memItemLeft" align="right" valign="top"><a id="abd0c0a4a42a4d5fd544dc467594b2bf2"></a>
 typedef <a class="el" href="classila_1_1_func.html#a8a9ed6d4e725ffab7291002be906e71c">Func::FuncPtr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#abd0c0a4a42a4d5fd544dc467594b2bf2">FuncPtr</a></td></tr>
 <tr class="memdesc:abd0c0a4a42a4d5fd544dc467594b2bf2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pointer type for normal use of <a class="el" href="classila_1_1_func.html" title="The class for uninterpreted function declaration and constraints. ">Func</a>. <br /></td></tr>
@@ -264,6 +250,22 @@ typedef <a class="el" href="classila_1_1_mem_val.html#a51c2e595e31c32ba85263aa43
 typedef <a class="el" href="classila_1_1_mem_val.html#a9ad0709f319c48aa62296edf17f01019">MemVal::MemValMap</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a8153b16340420f238eb19a74c17826a6">MemValMap</a></td></tr>
 <tr class="memdesc:a8153b16340420f238eb19a74c17826a6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Type for storing the address/data mapping. <br /></td></tr>
 <tr class="separator:a8153b16340420f238eb19a74c17826a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af8b5d4ee881a69b98ffe745ef6e9f84b"><td class="memItemLeft" align="right" valign="top"><a id="af8b5d4ee881a69b98ffe745ef6e9f84b"></a>
+typedef std::vector&lt; z3::expr &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#af8b5d4ee881a69b98ffe745ef6e9f84b">Z3ExprVec</a></td></tr>
+<tr class="memdesc:af8b5d4ee881a69b98ffe745ef6e9f84b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vector type for z3 expression. <br /></td></tr>
+<tr class="separator:af8b5d4ee881a69b98ffe745ef6e9f84b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af5b840ab3644e13dd2439eebd3dfa4d8"><td class="memItemLeft" align="right" valign="top"><a id="af5b840ab3644e13dd2439eebd3dfa4d8"></a>
+typedef std::shared_ptr&lt; <a class="el" href="namespaceila.html#af8b5d4ee881a69b98ffe745ef6e9f84b">Z3ExprVec</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#af5b840ab3644e13dd2439eebd3dfa4d8">Z3ExprVecPtr</a></td></tr>
+<tr class="memdesc:af5b840ab3644e13dd2439eebd3dfa4d8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pointer for the z3 expression vector. <br /></td></tr>
+<tr class="separator:af5b840ab3644e13dd2439eebd3dfa4d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a14b73eedce430674210d6c6d6eadb02c"><td class="memItemLeft" align="right" valign="top"><a id="a14b73eedce430674210d6c6d6eadb02c"></a>
+typedef <a class="el" href="classila_1_1_key_vec.html">KeyVec</a>&lt; <a class="el" href="classila_1_1_symbol.html">Symbol</a>, z3::expr &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a14b73eedce430674210d6c6d6eadb02c">Z3ExprMap</a></td></tr>
+<tr class="memdesc:a14b73eedce430674210d6c6d6eadb02c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Map type for z3 expression. <br /></td></tr>
+<tr class="separator:a14b73eedce430674210d6c6d6eadb02c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9618bac5ce17f4c47127791bbcd412e7"><td class="memItemLeft" align="right" valign="top"><a id="a9618bac5ce17f4c47127791bbcd412e7"></a>
+typedef std::shared_ptr&lt; <a class="el" href="namespaceila.html#a14b73eedce430674210d6c6d6eadb02c">Z3ExprMap</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a9618bac5ce17f4c47127791bbcd412e7">Z3ExprMapPtr</a></td></tr>
+<tr class="memdesc:a9618bac5ce17f4c47127791bbcd412e7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pointer for the z3 expression map. <br /></td></tr>
+<tr class="separator:a9618bac5ce17f4c47127791bbcd412e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4d14d93f5a396c57e5a6bc186be69a0c"><td class="memItemLeft" align="right" valign="top"><a id="a4d14d93f5a396c57e5a6bc186be69a0c"></a>
 typedef <a class="el" href="classila_1_1_instr.html#a12ba21b378d8a5b436c1ab10f09b747d">Instr::InstrPtr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a4d14d93f5a396c57e5a6bc186be69a0c">InstrPtr</a></td></tr>
 <tr class="memdesc:a4d14d93f5a396c57e5a6bc186be69a0c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pointer type for normal use of <a class="el" href="classila_1_1_instr.html" title="The class for the Instruction. An Instr object contains: ">Instr</a>. <br /></td></tr>
