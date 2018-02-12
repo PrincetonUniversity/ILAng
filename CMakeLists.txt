@@ -31,11 +31,15 @@ set(CMAKE_MACOSX_RPATH 1)
 # Google Log
 # ------------------------------------------------------------------------------
 if (build_glog)
-  execute_process(COMMAND git submodule init)
-  execute_process(COMMAND git submodule update)
+  execute_process(COMMAND git submodule init ${PROJECT_SOURCE_DIR}/glog)
+  execute_process(COMMAND git submodule update ${PROJECT_SOURCE_DIR}/glog)
   add_subdirectory(glog)
 else ()
   find_package(glog 0.3.5 REQUIRED)
+  if (NOT TARGET glog::glog)
+    MESSAGE (FATAL_ERROR 
+      "Unable to find glog. Set build_glog for in-source build.")
+  endif (NOT TARGET glog::glog)
 endif ()
 
 # ------------------------------------------------------------------------------
