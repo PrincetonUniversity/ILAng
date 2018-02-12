@@ -48,7 +48,7 @@ endif ()
 # These options can be turned on/off from the 'make' command.
 option(debug "Use debugging flag" ON)
 option(coverage "Use coverage flag" OFF)
-option(python_api "Build Python API" ON)
+option(python_api "Build Python API" OFF)
 option(build_glog "Build in-source Glog" OFF)
 
 # Things to always include as flags. 
