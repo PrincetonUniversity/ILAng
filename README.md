@@ -1,6 +1,6 @@
 # Instruction-Level Abstraction (ILA)
 
-Formal definition and modeling scenarios: [ILA Wiki](https://github.com/Bo-Yuan-Huang/ILA-Tools/wiki).
+A paper summarizing the formal definition and modeling case studies: [arXiv link](https://arxiv.org/abs/1801.01114).
 
 
 ## Templated-based ILA synthesis
@@ -34,6 +34,11 @@ For API documentations, see the page [ILA-Tools-API](https://rawgit.com/Bo-Yuan-
 
 
 ### Publications:
+
+* __Instruction-Level Abstraction (ILA): A Uniform Specification for System-on-Chip (SoC) Verification__.
+  Bo-Yuan Huang, Hongce Zhang, Pramod Subramanyan, Yakir Vizel, Aarti Gupta, and Sharad Malik.
+  [[arXiv:1801.01114](https://arxiv.org/abs/1801.01114)]
+  [[PDF](https://arxiv.org/pdf/1801.01114.pdf)]
 
 * __Template-based Parameterized Synthesis of Uniform Instruction-Level Abstractions for SoC Verification__.
   Pramod Subramanyan, Bo-Yuan Huang, Yakir Vizel, Aarti Gupta, and Sharad Malik.
