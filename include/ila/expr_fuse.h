@@ -35,6 +35,8 @@ public:
 
 #endif
 
+/// \namespace ExprFuse
+/// Defines the wrapper for hiding imeplementation dependent type details.
 namespace ExprFuse {
 /****************************************************************************/
 // Variable

@@ -11,17 +11,32 @@ namespace ila {
 
 class Expr;
 
-class NodeRef {
+/// \brief The reference of Expr (e.g. state var, var relation, constant, etc).
+class ExprRef {
 private:
+  // ------------------------- MEMBERS -------------------------------------- //
+  /// Pointer to the actual data.
   std::shared_ptr<Expr> ptr_;
 
 public:
-  NodeRef(std::shared_ptr<Expr> ptr);
-  ~NodeRef();
+  // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
+  /// Constructor with the pointer of the actual data.
+  ExprRef(std::shared_ptr<Expr> ptr);
+  /// Default destructor
+  ~ExprRef();
 
-  static NodeRef ConstBool(bool val);
+  // ------------------------- METHODS -------------------------------------- //
+  /// Overload unsigned add.
+  ExprRef operator+(const ExprRef& rhs) const;
 
 }; // class NodeRef
+
+static ExprRef BoolConst(bool bool_val);
+static ExprRef BvConst(const int& bv_val, const int& bit_width);
+
+class InstrRef {
+  // TODO
+}; // class
 
 } // namespace ila
 
