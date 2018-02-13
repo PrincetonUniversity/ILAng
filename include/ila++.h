@@ -57,6 +57,7 @@ ExprRef BvConst(const int& bv_val, const int& bit_width);
 ExprRef MemConst(const int& def_val, const std::map<int, int>& vals,
                  const int& addr_width, const int& data_width);
 
+/// \brief The reference of Instr (instruction).
 class InstrRef {
 private:
   // ------------------------- MEMBERS -------------------------------------- //
@@ -81,6 +82,50 @@ public:
   void SetUpdate(const ExprRef& state, const ExprRef& update);
 
 }; // class InstrRef
+
+/// \brief The reference of InstrLvlAbs (ILA).
+class IlaRef {
+private:
+  // ------------------------- MEMBERS -------------------------------------- //
+  /// Wrapped InstrLvlAbs pointer.
+  std::shared_ptr<InstrLvlAbs> ptr_;
+
+public:
+  // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
+  /// Constructor with the specified name.
+  IlaRef(const std::string& name);
+  /// Constructor with the pointer of the actual data.
+  IlaRef(std::shared_ptr<InstrLvlAbs> ptr);
+  /// Default destructor
+  ~IlaRef();
+
+  // ------------------------- METHODS -------------------------------------- //
+  /// \brief Declare a state variable of Boolean type.
+  /// \param[in] name state variable name.
+  ExprRef NewBoolState(const std::string& name);
+  /// \brief Declare a state variable of bit-vector type.
+  /// \param[in] name state variable name.
+  /// \param[in] bit_width bit-vector bit-width.
+  ExprRef NewBvState(const std::string& name, const int& bit_width);
+  /// \brief Declare a state variable of memory (array) type.
+  /// \param[in] name state variable name.
+  /// \param[in] addr_width address bit-width.
+  /// \param[in] data_width data bit-width.
+  ExprRef NewMemState(const std::string& name, const int& addr_width,
+                      const int& data_width);
+  /// \brief Declare an input of Boolean type.
+  /// \param[in] name input name.
+  ExprRef NewBoolInput(const std::string& name);
+  /// \brief Declare an input of bit-vector type.
+  /// \param[in] name input name.
+  /// \param[in] bit_width bit-vector bit-width.
+  ExprRef NewBvInput(const std::string& name, const int& bit_width);
+
+  /// \brief Set the fetch function of the ILA.
+  /// \param[in] fetch the bit-vector type fetch function.
+  void SetFetch(const ExprRef& fetch);
+
+}; // class IlaRef
 
 } // namespace ila
 

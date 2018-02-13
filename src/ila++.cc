@@ -54,5 +54,42 @@ void InstrRef::SetUpdate(const ExprRef& state, const ExprRef& update) {
   ptr_->AddUpdate(state.get(), update.get());
 }
 
+/******************************************************************************/
+// IlaRef
+/******************************************************************************/
+IlaRef::IlaRef(const std::string& name) { ptr_ = InstrLvlAbs::New(name); }
+
+IlaRef::IlaRef(std::shared_ptr<InstrLvlAbs> ptr) : ptr_(ptr) {}
+
+IlaRef::~IlaRef() {}
+
+ExprRef IlaRef::NewBoolState(const std::string& name) {
+  auto v = ptr_->NewBoolState(name);
+  return ExprRef(v);
+}
+
+ExprRef IlaRef::NewBvState(const std::string& name, const int& bit_width) {
+  auto v = ptr_->NewBvState(name, bit_width);
+  return ExprRef(v);
+}
+
+ExprRef IlaRef::NewMemState(const std::string& name, const int& addr_width,
+                            const int& data_width) {
+  auto v = ptr_->NewMemState(name, addr_width, data_width);
+  return ExprRef(v);
+}
+
+ExprRef IlaRef::NewBoolInput(const std::string& name) {
+  auto v = ptr_->NewBoolInput(name);
+  return ExprRef(v);
+}
+
+ExprRef IlaRef::NewBvInput(const std::string& name, const int& bit_width) {
+  auto v = ptr_->NewBvInput(name, bit_width);
+  return ExprRef(v);
+}
+
+void IlaRef::SetFetch(const ExprRef& fetch) { ptr_->SetFetch(fetch.get()); }
+
 } // namespace ila
 
