@@ -12,7 +12,11 @@ endif (python_api)
 
 set(ILA_TOOL ilatools)
 file (GLOB TOP_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/*.cc")
-add_library(${ILA_TOOL} ${TOP_SOURCES})
-add_dependencies(${ILA_TOOL} util ila eqcheck)
-target_link_libraries(${ILA_TOOL} util ila eqcheck)
+add_library(${ILA_TOOL} ${TOP_SOURCES} 
+  $<TARGET_OBJECTS:util> 
+  $<TARGET_OBJECTS:ila> 
+  $<TARGET_OBJECTS:eqcheck>
+  )
+add_dependencies(${ILA_TOOL} glog::glog)
+target_link_libraries(${ILA_TOOL} glog::glog ${Z3_LIBRARY})
 
