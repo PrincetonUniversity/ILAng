@@ -14,7 +14,7 @@ class Expr;
 class Instr;
 class InstrLvlAbs;
 
-/// \brief The reference of Expr (e.g. state var, var relation, constant, etc).
+/// \brief The wrapper of Expr (e.g. state var, var relation, constant, etc).
 class ExprRef {
 private:
   // ------------------------- MEMBERS -------------------------------------- //
@@ -33,10 +33,67 @@ public:
   inline std::shared_ptr<Expr> get() const { return ptr_; }
 
   // ------------------------- METHODS -------------------------------------- //
-  /// Arithmetic negate for bit-vector.
+  /****************************************************************************/
+  // Unary operation
+  /****************************************************************************/
+  /// Arithmetic negate for bit-vectors.
   ExprRef operator-() const;
-  /// Unsigned add for bit-vector.
+  /// Logical not for Booleans.
+  ExprRef operator!() const;
+  /// Bit-wise complement for bit-vectors.
+  ExprRef operator~() const;
+
+  /****************************************************************************/
+  // Binary operation
+  /****************************************************************************/
+  /// Logical AND (bit-wise for bit-vectors).
+  ExprRef operator&(const ExprRef& rhs) const;
+  /// Logical OR (bit-wise for bit-vectors).
+  ExprRef operator|(const ExprRef& rhs) const;
+  /// Logical XOR (bit-wise for bit-vectors).
+  ExprRef operator^(const ExprRef& rhs) const;
+  /// Unsigned addition for bit-vector.
   ExprRef operator+(const ExprRef& rhs) const;
+  /// Unsigned subtraction for bit-vector.
+  ExprRef operator-(const ExprRef& rhs) const;
+  // TODO int helper functions
+
+  /****************************************************************************/
+  // Binary comparison
+  /****************************************************************************/
+  /// Equal.
+  ExprRef operator==(const ExprRef& rhs) const;
+  /// Not equal.
+  ExprRef operator!=(const ExprRef& rhs) const;
+  /// Unsigned less than (bit-vectors only).
+  ExprRef operator<(const ExprRef& rhs) const;
+  /// Unsigned greater than (bit-vectors only).
+  ExprRef operator>(const ExprRef& rhs) const;
+  /// Unsigned less than or equal to (bit-vectors only).
+  ExprRef operator<=(const ExprRef& rhs) const;
+  /// Unsigned greater than or equal to (bit-vectors only).
+  ExprRef operator>=(const ExprRef& rhs) const;
+
+  /****************************************************************************/
+  // Memory-related operations
+  /****************************************************************************/
+  /// Load from memory.
+  ExprRef Load(const ExprRef& addr) const;
+  /// Store to memory.
+  ExprRef Store(const ExprRef& addr, const ExprRef& data) const;
+
+  /****************************************************************************/
+  // Bit manipulation for bit-vectors.
+  /****************************************************************************/
+  /// Concatenate two bit-vectors.
+  /// Extract bit-field in the bit-vector.
+  /// Zero-extend the bit-vector to the specified length.
+
+  /****************************************************************************/
+  // Others
+  /****************************************************************************/
+  /// Logical imply for Booleans.
+  /// If-then-else on the Boolean condition.
 
 }; // class NodeRef
 
@@ -57,7 +114,7 @@ ExprRef BvConst(const int& bv_val, const int& bit_width);
 ExprRef MemConst(const int& def_val, const std::map<int, int>& vals,
                  const int& addr_width, const int& data_width);
 
-/// \brief The reference of Instr (instruction).
+/// \brief The wrapper of Instr (instruction).
 class InstrRef {
 private:
   // ------------------------- MEMBERS -------------------------------------- //
@@ -83,8 +140,8 @@ public:
 
 }; // class InstrRef
 
-/// \brief The reference of InstrLvlAbs (ILA).
-class IlaRef {
+/// \brief The wrapper of InstrLvlAbs (ILA).
+class Ila {
 private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// Wrapped InstrLvlAbs pointer.
@@ -93,11 +150,11 @@ private:
 public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Constructor with the specified name.
-  IlaRef(const std::string& name);
+  Ila(const std::string& name);
   /// Constructor with the pointer of the actual data.
-  IlaRef(std::shared_ptr<InstrLvlAbs> ptr);
+  Ila(std::shared_ptr<InstrLvlAbs> ptr);
   /// Default destructor
-  ~IlaRef();
+  ~Ila();
 
   // ------------------------- METHODS -------------------------------------- //
   /// \brief Declare a state variable of Boolean type.
@@ -113,6 +170,7 @@ public:
   /// \param[in] data_width data bit-width.
   ExprRef NewMemState(const std::string& name, const int& addr_width,
                       const int& data_width);
+
   /// \brief Declare an input of Boolean type.
   /// \param[in] name input name.
   ExprRef NewBoolInput(const std::string& name);
@@ -125,7 +183,19 @@ public:
   /// \param[in] fetch the bit-vector type fetch function.
   void SetFetch(const ExprRef& fetch);
 
-}; // class IlaRef
+  /// \brief Set the valid function of the ILA.
+  /// \param[in] valid the Boolean type valid function.
+  void SetValid(const ExprRef& valid);
+
+  /// \brief Declare an instruction.
+  /// \param[in] name instruction name.
+  InstrRef NewInstr(const std::string& name);
+
+  /// \brief Declare a child-ILA.
+  /// \param[in] name child-ILA name.
+  Ila NewChild(const std::string& name);
+
+}; // class Ila
 
 } // namespace ila
 

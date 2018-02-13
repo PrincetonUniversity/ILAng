@@ -18,8 +18,78 @@ ExprRef ExprRef::operator-() const {
   return ExprRef(v);
 }
 
+ExprRef ExprRef::operator!() const {
+  auto v = ExprFuse::Not(get());
+  return ExprRef(v);
+}
+
+ExprRef ExprRef::operator~() const {
+  auto v = ExprFuse::Complement(get());
+  return ExprRef(v);
+}
+
+ExprRef ExprRef::operator&(const ExprRef& rhs) const {
+  auto v = ExprFuse::And(get(), rhs.get());
+  return ExprRef(v);
+}
+
+ExprRef ExprRef::operator|(const ExprRef& rhs) const {
+  auto v = ExprFuse::Or(get(), rhs.get());
+  return ExprRef(v);
+}
+
+ExprRef ExprRef::operator^(const ExprRef& rhs) const {
+  auto v = ExprFuse::Xor(get(), rhs.get());
+  return ExprRef(v);
+}
+
 ExprRef ExprRef::operator+(const ExprRef& rhs) const {
   auto v = ExprFuse::Add(get(), rhs.get());
+  return ExprRef(v);
+}
+
+ExprRef ExprRef::operator-(const ExprRef& rhs) const {
+  auto v = ExprFuse::Sub(get(), rhs.get());
+  return ExprRef(v);
+}
+
+ExprRef ExprRef::operator==(const ExprRef& rhs) const {
+  auto v = ExprFuse::Eq(get(), rhs.get());
+  return ExprRef(v);
+}
+
+ExprRef ExprRef::operator!=(const ExprRef& rhs) const {
+  auto v = ExprFuse::Ne(get(), rhs.get());
+  return ExprRef(v);
+}
+
+ExprRef ExprRef::operator<(const ExprRef& rhs) const {
+  auto v = ExprFuse::Lt(get(), rhs.get());
+  return ExprRef(v);
+}
+
+ExprRef ExprRef::operator>(const ExprRef& rhs) const {
+  auto v = ExprFuse::Gt(get(), rhs.get());
+  return ExprRef(v);
+}
+
+ExprRef ExprRef::operator<=(const ExprRef& rhs) const {
+  auto v = ExprFuse::Le(get(), rhs.get());
+  return ExprRef(v);
+}
+
+ExprRef ExprRef::operator>=(const ExprRef& rhs) const {
+  auto v = ExprFuse::Ge(get(), rhs.get());
+  return ExprRef(v);
+}
+
+ExprRef ExprRef::Load(const ExprRef& addr) const {
+  auto v = ExprFuse::Load(get(), addr.get());
+  return ExprRef(v);
+}
+
+ExprRef ExprRef::Store(const ExprRef& addr, const ExprRef& data) const {
+  auto v = ExprFuse::Store(get(), addr.get(), data.get());
   return ExprRef(v);
 }
 
@@ -55,41 +125,53 @@ void InstrRef::SetUpdate(const ExprRef& state, const ExprRef& update) {
 }
 
 /******************************************************************************/
-// IlaRef
+// Ila
 /******************************************************************************/
-IlaRef::IlaRef(const std::string& name) { ptr_ = InstrLvlAbs::New(name); }
+Ila::Ila(const std::string& name) { ptr_ = InstrLvlAbs::New(name); }
 
-IlaRef::IlaRef(std::shared_ptr<InstrLvlAbs> ptr) : ptr_(ptr) {}
+Ila::Ila(std::shared_ptr<InstrLvlAbs> ptr) : ptr_(ptr) {}
 
-IlaRef::~IlaRef() {}
+Ila::~Ila() {}
 
-ExprRef IlaRef::NewBoolState(const std::string& name) {
+ExprRef Ila::NewBoolState(const std::string& name) {
   auto v = ptr_->NewBoolState(name);
   return ExprRef(v);
 }
 
-ExprRef IlaRef::NewBvState(const std::string& name, const int& bit_width) {
+ExprRef Ila::NewBvState(const std::string& name, const int& bit_width) {
   auto v = ptr_->NewBvState(name, bit_width);
   return ExprRef(v);
 }
 
-ExprRef IlaRef::NewMemState(const std::string& name, const int& addr_width,
-                            const int& data_width) {
+ExprRef Ila::NewMemState(const std::string& name, const int& addr_width,
+                         const int& data_width) {
   auto v = ptr_->NewMemState(name, addr_width, data_width);
   return ExprRef(v);
 }
 
-ExprRef IlaRef::NewBoolInput(const std::string& name) {
+ExprRef Ila::NewBoolInput(const std::string& name) {
   auto v = ptr_->NewBoolInput(name);
   return ExprRef(v);
 }
 
-ExprRef IlaRef::NewBvInput(const std::string& name, const int& bit_width) {
+ExprRef Ila::NewBvInput(const std::string& name, const int& bit_width) {
   auto v = ptr_->NewBvInput(name, bit_width);
   return ExprRef(v);
 }
 
-void IlaRef::SetFetch(const ExprRef& fetch) { ptr_->SetFetch(fetch.get()); }
+void Ila::SetFetch(const ExprRef& fetch) { ptr_->SetFetch(fetch.get()); }
+
+void Ila::SetValid(const ExprRef& valid) { ptr_->SetValid(valid.get()); }
+
+InstrRef Ila::NewInstr(const std::string& name) {
+  auto i = ptr_->NewInstr(name);
+  return InstrRef(i);
+}
+
+Ila Ila::NewChild(const std::string& name) {
+  auto m = ptr_->NewChild(name);
+  return Ila(m);
+}
 
 } // namespace ila
 

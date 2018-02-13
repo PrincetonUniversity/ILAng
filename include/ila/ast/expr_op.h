@@ -138,7 +138,15 @@ public:
                      const std::string& suffix = "") const;
 }; // class ExprOpAdd
 
-// TODO ExprOpSub
+// \brief The wrapper for unsigned subtraction.
+class ExprOpSub : public ExprOp {
+public:
+  /// Constructor for SUB operation.
+  ExprOpSub(const ExprPtr arg0, const ExprPtr arg1);
+  std::string op_name() const { return "SUB"; }
+  z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                     const std::string& suffix = "") const;
+}; // class ExprOpSub
 
 // TODO ExprOpDiv
 
@@ -164,13 +172,29 @@ public:
 
 // ExprOpNe is implemented in ExprFuse with Eq and Not.
 
-// TODO ExprOpLt
+/// \brief The class wrapper for binary comparison LT "<".
+class ExprOpLt : public ExprOp {
+public:
+  /// Construtor for Lt comparison.
+  ExprOpLt(const ExprPtr arg0, const ExprPtr arg1);
+  std::string op_name() const { return "LT"; }
+  z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                     const std::string& suffix = "") const;
+}; // class ExprOpLt
 
-// TODO ExprOpGt
+/// \brief The class wrapper for binary comparison GT ">".
+class ExprOpGt : public ExprOp {
+public:
+  /// Constructor for Gt comparison.
+  ExprOpGt(const ExprPtr arg0, const ExprPtr arg1);
+  std::string op_name() const { return "GT"; }
+  z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                     const std::string& suffix = "") const;
+}; // class ExprOpGt
 
-// TODO ExprOpLe
+// ExprOpLe is implemented in ExprFuse with Eq and Lt.
 
-// TODO ExprOpGe
+// ExprOpGe is implemented in ExprFuse with Eq and Gt.
 
 /******************************************************************************/
 // Memory

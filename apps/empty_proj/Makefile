@@ -6,7 +6,7 @@ export ILA_HEADER = $(ROOT_PATH)/../../include
 CXX=g++
 CXX_FLAGS=-std=c++11 -Wall -fPIC
 CXX_FLAGS+=-I$(ILA_HEADER)
-LD_FLAGS=-L$(ILA_LIB) -lilatoolsd -lilad -lutil
+LD_FLAGS=-L$(ILA_LIB) -lilatoolsd 
 
 SRC_DIR=src
 OBJ_DIR=obj

@@ -73,6 +73,10 @@ ExprPtr ExprFuse::Add(const ExprPtr l, const ExprPtr r) {
   return std::make_shared<ExprOpAdd>(l, r);
 }
 
+ExprPtr ExprFuse::Sub(const ExprPtr l, const ExprPtr r) {
+  return std::make_shared<ExprOpSub>(l, r);
+}
+
 ExprPtr ExprFuse::Eq(const ExprPtr l, const ExprPtr r) {
   return std::make_shared<ExprOpEq>(l, r);
 }
@@ -80,6 +84,26 @@ ExprPtr ExprFuse::Eq(const ExprPtr l, const ExprPtr r) {
 ExprPtr ExprFuse::Ne(const ExprPtr l, const ExprPtr r) {
   auto eq = std::make_shared<ExprOpEq>(l, r);
   return std::make_shared<ExprOpNot>(eq);
+}
+
+ExprPtr ExprFuse::Lt(const ExprPtr l, const ExprPtr r) {
+  return std::make_shared<ExprOpLt>(l, r);
+}
+
+ExprPtr ExprFuse::Gt(const ExprPtr l, const ExprPtr r) {
+  return std::make_shared<ExprOpGt>(l, r);
+}
+
+ExprPtr ExprFuse::Le(const ExprPtr l, const ExprPtr r) {
+  auto eq = std::make_shared<ExprOpEq>(l, r);
+  auto lt = std::make_shared<ExprOpLt>(l, r);
+  return std::make_shared<ExprOpOr>(l, r);
+}
+
+ExprPtr ExprFuse::Ge(const ExprPtr l, const ExprPtr r) {
+  auto eq = std::make_shared<ExprOpEq>(l, r);
+  auto gt = std::make_shared<ExprOpGt>(l, r);
+  return std::make_shared<ExprOpOr>(eq, gt);
 }
 
 ExprPtr ExprFuse::Load(const ExprPtr mem, const ExprPtr addr) {
