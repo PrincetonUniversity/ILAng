@@ -26,7 +26,11 @@ TEST(TestMapSet, IntInt) {
     EXPECT_NE(res, set0_ref.end());
   }
 
+#ifndef NDEBUG
   EXPECT_DEATH(map.get(1), ".*");
+#else
+  map.get(1);
+#endif
 
   for (auto i = map.begin(); i != map.end(); i++) {
     EXPECT_FALSE(i->second.empty());
@@ -62,7 +66,11 @@ TEST(TestMapSet, ExprInstr) {
     EXPECT_NE(res, tar.end());
   }
 
+#ifndef NDEBUG
   EXPECT_DEATH(map.get(vc), ".*");
+#else
+  map.get(vc);
+#endif
 
   for (auto i = map.begin(); i != map.end(); i++) {
     EXPECT_FALSE(i->second.empty());

@@ -6,9 +6,13 @@
 
 namespace ila {
 
-TEST(TestFunc, Dummy) {
+TEST(TestFunc, Temporary) {
   Func func;
-  // TODO
+  z3::context c;
+  Z3ExprVec vec;
+  auto e = func.GetZ3Expr(c, vec, "");
+  std::string msg;
+  GET_STDOUT_MSG(func.Print(std::cout), msg);
 }
 
 } // namespace ila
