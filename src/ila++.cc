@@ -3,6 +3,7 @@
 
 #include "ila++.h"
 #include "ila/instr_lvl_abs.h"
+#include "util/log.h"
 
 namespace ila {
 
@@ -199,6 +200,25 @@ Ila Ila::NewChild(const std::string& name) {
   auto m = ptr_->NewChild(name);
   return Ila(m);
 }
+
+void LogLevel(const int& lvl) { SetLogLevel(lvl); }
+
+void LogPath(const std::string& path) { SetLogPath(path); }
+
+void LogToErr(bool to_err) {
+  if (to_err) {
+    SetToStdErr(1);
+    ILA_INFO << "Log to Standard Error channel.";
+
+  } else {
+    SetToStdErr(0);
+    ILA_INFO << "Log to file.";
+  }
+}
+
+void EnableDebug(const std::string& tag) { DebugLog::Enable(tag); }
+
+void DisableDebug(const std::string& tag) { DebugLog::Disable(tag); }
 
 } // namespace ila
 

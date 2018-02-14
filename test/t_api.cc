@@ -11,7 +11,10 @@
 namespace ila {
 
 TEST(TestApi, BasicConstruct) {
-  // SetToStdErr(1);
+  LogLevel(0);
+  LogPath("");
+  EnableDebug("TestApi");
+  LogToErr(true);
 
   Ila ila("top");
 
@@ -98,7 +101,9 @@ TEST(TestApi, BasicConstruct) {
   // child
   auto child = ila.NewChild("child");
 
-  // SetToStdErr(0);
+  DisableDebug("TestApi");
+  LogPath("");
+  LogToErr(false);
 }
 
 } // namespace ila

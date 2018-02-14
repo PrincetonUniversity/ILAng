@@ -219,6 +219,28 @@ public:
 
 }; // class Ila
 
+/******************************************************************************/
+// Logging system.
+/******************************************************************************/
+/// \brief Set the minimun log level.
+/// Log messages at or above this level will be logged. (Default: 0)
+/// - INFO: level 0
+/// - WARNING: level 1
+/// - ERROR: level 2
+/// - FATAL: level 3
+void LogLevel(const int& lvl);
+/// \brief Set the path for log file.
+/// If specified, logfiles are written into this directory instead of the
+/// default logging directory (/tmp).
+void LogPath(const std::string& path);
+/// \brief Pipe log to stderr.
+/// Log messages to stderr instead of logfiles, if set to 1.
+void LogToErr(bool to_err);
+/// Add a debug tag.
+void EnableDebug(const std::string& tag);
+/// Remove a debug tag.
+void DisableDebug(const std::string& tag);
+
 } // namespace ila
 
 #endif // ILAPP_H__
