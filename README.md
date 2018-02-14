@@ -30,7 +30,8 @@ For some examples, see the [examples](https://github.com/Bo-Yuan-Huang/ILA-Tools
   cmake .. -L -DZ3_INCLUDE_DIR=/usr/include 
 ```
 
-For API documentations, see the page [ILA-Tools-API](https://rawgit.com/Bo-Yuan-Huang/ILA-Tools/master/docs/html/namespaceila.html).
+For API documentation, see the page [ILA-Tools-API](https://rawgit.com/Bo-Yuan-Huang/ILA-Tools/master/docs/api-html/namespaceila.html).
+For developers, implementation details can be found on [ILA-Tools-Impl](https://rawgit.com/Bo-Yuan-Huang/ILA-Tools/master/docs/impl-html/namespaceila.html).
 
 
 ### Publications:
