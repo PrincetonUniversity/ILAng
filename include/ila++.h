@@ -8,6 +8,7 @@
 #include <memory>
 
 /// \namespace ila
+/// Defines the core data structure and APIs for constructing and storing ILA.
 namespace ila {
 
 class Expr;

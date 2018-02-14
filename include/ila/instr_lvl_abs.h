@@ -17,7 +17,6 @@
 #include <string>
 
 /// \namespace ila
-/// Defines the core data structure and APIs for constructing and storing ILA.
 namespace ila {
 
 /// \brief The class of Instruction-Level Abstraction (ILA). An ILA contains:
