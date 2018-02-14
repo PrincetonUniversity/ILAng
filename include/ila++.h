@@ -1,8 +1,8 @@
 /// \file
 /// The header for the c++ API.
 
-#ifndef __ILAPP_H__
-#define __ILAPP_H__
+#ifndef ILAPP_H__
+#define ILAPP_H__
 
 #include <map>
 #include <memory>
@@ -85,18 +85,36 @@ public:
   /****************************************************************************/
   // Bit manipulation for bit-vectors.
   /****************************************************************************/
-  /// Concatenate two bit-vectors.
+  // Append another bit-vector to the less significant side.
+  ExprRef Append(const ExprRef& lsbv) const;
   /// Extract bit-field in the bit-vector.
+  ExprRef operator()(const int& hi, const int& lo) const;
   /// Zero-extend the bit-vector to the specified length.
 
-  /****************************************************************************/
-  // Others
-  /****************************************************************************/
-  /// Logical imply for Booleans.
-  /// If-then-else on the Boolean condition.
+}; // class ExprRef
 
-}; // class NodeRef
+/******************************************************************************/
+// Others
+/******************************************************************************/
+/// \brief Concatenate two bit-vectors.
+/// \param[in] msb bit-vector on the more-significant side.
+/// \param[in] lsb bit-vector on the less-significant side.
+ExprRef Concat(const ExprRef& msbv, const ExprRef& lsbv);
 
+/// \brief Logical imply for Booleans.
+/// \param[in] ante antecedent for the operator.
+/// \param[in] cons consequent for the operator.
+ExprRef Imply(const ExprRef& ante, const ExprRef& cons);
+
+/// \brief If-then-else on the Boolean condition.
+/// \param[in] cond Boolean type condition.
+/// \param[in] t Expression to take when the condition is true.
+/// \param[in] f Expression to take when the condition is false.
+ExprRef Ite(const ExprRef& cond, const ExprRef& t, const ExprRef& f);
+
+/******************************************************************************/
+// Constant
+/******************************************************************************/
 /// \brief Return a Boolean constant.
 /// \param[in] bool_val value of the Boolean constant.
 ExprRef BoolConst(bool bool_val);
@@ -179,6 +197,10 @@ public:
   /// \param[in] bit_width bit-vector bit-width.
   ExprRef NewBvInput(const std::string& name, const int& bit_width);
 
+  /// \brief Add one initial constraint.
+  /// \param[in] init the Boolean type initial constraint.
+  void AddInit(const ExprRef& init);
+
   /// \brief Set the fetch function of the ILA.
   /// \param[in] fetch the bit-vector type fetch function.
   void SetFetch(const ExprRef& fetch);
@@ -199,5 +221,5 @@ public:
 
 } // namespace ila
 
-#endif // __ILAPP_H__
+#endif // ILAPP_H__
 

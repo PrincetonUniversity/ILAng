@@ -28,6 +28,15 @@ TEST(TestApi, BasicConstruct) {
   auto bool_in = ila.NewBoolInput("bool_in");
   auto bv_in = ila.NewBvInput("bv_in", REG_SIZE);
 
+  // init
+  auto flag_init = (flag == BoolConst(true));
+  auto regs_init = (regs[0] != BvConst(0, REG_SIZE));
+  auto mem_init =
+      (mem == MemConst(0, std::map<int, int>(), REG_SIZE, REG_SIZE));
+  ila.AddInit(flag_init);
+  ila.AddInit(regs_init);
+  ila.AddInit(mem_init);
+
   // fetch
   auto fetch = mem.Load(regs[0]);
   ila.SetFetch(fetch);
@@ -75,7 +84,15 @@ TEST(TestApi, BasicConstruct) {
     auto n_ge_bv = n_add_bv >= n_sub_bv;
 
     auto n_load_bv = mem.Load(n_add_bv);
-    auto n_store_bv = mem.Store(n_add_bv, n_load_bv);
+    auto n_store_mem = mem.Store(n_add_bv, n_load_bv);
+
+    auto n_extract_bv = n_load_bv(4, 0);
+    auto n_append_bv = n_extract_bv.Append(n_load_bv);
+    auto n_concat_bv = Concat(n_append_bv, n_extract_bv);
+
+    auto n_imply_bool = Imply(n_ne_bool, n_xor_bool);
+    auto n_ite_bool = Ite(n_imply_bool, n_ne_bool, n_xor_bool);
+    auto n_ite_bv = Ite(n_ite_bool, n_load_bv, n_sub_bv);
   }
 
   // child

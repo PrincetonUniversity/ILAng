@@ -256,6 +256,16 @@ public:
 // Others
 /******************************************************************************/
 
+/// \brief The class wrapper for logical imply.
+class ExprOpImply : public ExprOp {
+public:
+  /// Constructor for imply.
+  ExprOpImply(const ExprPtr ante, const ExprPtr cons);
+  std::string op_name() const { return "IMPLY"; }
+  z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                     const std::string& suffix = "") const;
+}; // class ExprOpImply
+
 /// \brief The class wrapper for if-then-else.
 class ExprOpIte : public ExprOp {
 public:

@@ -93,6 +93,31 @@ ExprRef ExprRef::Store(const ExprRef& addr, const ExprRef& data) const {
   return ExprRef(v);
 }
 
+ExprRef ExprRef::Append(const ExprRef& lsbv) const {
+  auto v = ExprFuse::Concat(get(), lsbv.get());
+  return ExprRef(v);
+}
+
+ExprRef ExprRef::operator()(const int& hi, const int& lo) const {
+  auto v = ExprFuse::Extract(get(), hi, lo);
+  return ExprRef(v);
+}
+
+ExprRef Concat(const ExprRef& msbv, const ExprRef& lsbv) {
+  auto v = ExprFuse::Concat(msbv.get(), lsbv.get());
+  return ExprRef(v);
+}
+
+ExprRef Imply(const ExprRef& ante, const ExprRef& cons) {
+  auto v = ExprFuse::Imply(ante.get(), cons.get());
+  return ExprRef(v);
+}
+
+ExprRef Ite(const ExprRef& cond, const ExprRef& t, const ExprRef& f) {
+  auto v = ExprFuse::Ite(cond.get(), t.get(), f.get());
+  return ExprRef(v);
+}
+
 ExprRef BoolConst(bool val) {
   auto v = ExprFuse::BoolConst(val);
   return ExprRef(v);
@@ -158,6 +183,8 @@ ExprRef Ila::NewBvInput(const std::string& name, const int& bit_width) {
   auto v = ptr_->NewBvInput(name, bit_width);
   return ExprRef(v);
 }
+
+void Ila::AddInit(const ExprRef& init) { ptr_->AddInit(init.get()); }
 
 void Ila::SetFetch(const ExprRef& fetch) { ptr_->SetFetch(fetch.get()); }
 

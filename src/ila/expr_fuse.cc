@@ -123,6 +123,10 @@ ExprPtr ExprFuse::Extract(const ExprPtr bv, const int& hi, const int& lo) {
   return std::make_shared<ExprOpExtract>(bv, hi, lo);
 }
 
+ExprPtr ExprFuse::Imply(const ExprPtr p, const ExprPtr q) {
+  return std::make_shared<ExprOpImply>(p, q);
+}
+
 ExprPtr ExprFuse::Ite(const ExprPtr cnd, const ExprPtr true_expr,
                       const ExprPtr false_expr) {
   return std::make_shared<ExprOpIte>(cnd, true_expr, false_expr);

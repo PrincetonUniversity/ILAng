@@ -305,6 +305,22 @@ z3::expr ExprOpExtract::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
 }
 
 // ------------------------- Class ExprOpIte -------------------------------- //
+ExprOpImply::ExprOpImply(const ExprPtr ante, const ExprPtr cons)
+    : ExprOp(ante, cons) {
+  ILA_ASSERT(ante->is_bool()) << "Antecedent must be Boolean.";
+  ILA_ASSERT(cons->is_bool()) << "Consequent must be Boolean.";
+  set_sort(Sort::MakeBoolSort());
+}
+
+z3::expr ExprOpImply::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                                const std::string& suffix) const {
+  ILA_ASSERT(expr_vec.size() == 2) << "Imply takes two arguments.";
+  auto ante = expr_vec[0];
+  auto cons = expr_vec[1];
+  return z3::implies(ante, cons);
+}
+
+// ------------------------- Class ExprOpIte -------------------------------- //
 ExprOpIte::ExprOpIte(const ExprPtr cnd, const ExprPtr true_expr,
                      const ExprPtr false_expr)
     : ExprOp(cnd, true_expr, false_expr) {
