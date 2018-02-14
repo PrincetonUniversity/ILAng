@@ -1,8 +1,8 @@
 /// \file
 /// Header for containers, e.g. KeyVec.
 
-#ifndef __CONTAINER_H__
-#define __CONTAINER_H__
+#ifndef CONTAINER_H__
+#define CONTAINER_H__
 
 #include "util/log.h"
 #include <map>
@@ -162,5 +162,5 @@ private:
 
 } // namespace ila
 
-#endif // __CONTAINER_H__
+#endif // CONTAINER_H__
 

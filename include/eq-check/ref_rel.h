@@ -1,8 +1,8 @@
 /// \file
 /// Header for the refinement relation
 
-#ifndef __REF_REL_H__
-#define __REF_REL_H__
+#ifndef REF_REL_H__
+#define REF_REL_H__
 
 #include "ila/expr_fuse.h"
 #include "ila/instr.h"
@@ -133,5 +133,5 @@ typedef std::shared_ptr<RefRel> RefRelPtr;
 
 } // namespace ila
 
-#endif // __REF_REL_H__
+#endif // REF_REL_H__
 

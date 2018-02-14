@@ -1,8 +1,8 @@
 /// \file
 /// Header for equivalence checking using the Birch-Dill methodology
 
-#ifndef __VERIF_BD_H__
-#define __VERIF_BD_H__
+#ifndef VERIF_BD_H__
+#define VERIF_BD_H__
 
 #include "eq-check/ref_rel.h"
 
@@ -48,5 +48,5 @@ private:
 
 } // namespace ila
 
-#endif // __VERIF_BD_H__
+#endif // VERIF_BD_H__
 

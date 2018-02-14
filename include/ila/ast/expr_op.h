@@ -1,8 +1,8 @@
 /// \file
 /// Header for the class ExprOp
 
-#ifndef __EXPR_OP_H__
-#define __EXPR_OP_H__
+#ifndef EXPR_OP_H__
+#define EXPR_OP_H__
 
 #include "ila/ast/expr.h"
 #include "util/log.h"
@@ -279,5 +279,5 @@ public:
 
 } // namespace ila
 
-#endif // __EXPR_OP_H__
+#endif // EXPR_OP_H__
 

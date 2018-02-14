@@ -1,8 +1,8 @@
 /// \file
 /// The header for the class Object.
 
-#ifndef __OBJECT_H__
-#define __OBJECT_H__
+#ifndef OBJECT_H__
+#define OBJECT_H__
 
 #include "ila/symbol.h"
 #include <memory>
@@ -57,5 +57,5 @@ typedef Object::ObjPtr ObjPtr;
 
 } // namespace ila
 
-#endif // __OBJECT_H__
+#endif // OBJECT_H__
 

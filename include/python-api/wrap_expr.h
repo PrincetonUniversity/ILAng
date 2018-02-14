@@ -1,8 +1,8 @@
 /// \file
 /// Header for wrapping Expr.
 
-#ifndef __WRAP_EXPR_H__
-#define __WRAP_EXPR_H__
+#ifndef WRAP_EXPR_H__
+#define WRAP_EXPR_H__
 
 #include "ila/expr_fuse.h"
 
@@ -42,5 +42,5 @@ public:
 } // namespace pyapi
 } // namespace ila
 
-#endif // __WRAP_EXPR_H__
+#endif // WRAP_EXPR_H__
 

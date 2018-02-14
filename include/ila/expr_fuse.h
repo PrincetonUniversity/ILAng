@@ -1,8 +1,8 @@
 /// \file
 /// Header of the wrapping Expr usage
 
-#ifndef __EXPR_FUSE_H__
-#define __EXPR_FUSE_H__
+#ifndef EXPR_FUSE_H__
+#define EXPR_FUSE_H__
 
 #include "ila/ast/expr.h"
 #include "ila/ast/expr_const.h"
@@ -167,5 +167,5 @@ private:
 
 } // namespace ila
 
-#endif // __EXPR_FUSE_H__
+#endif // EXPR_FUSE_H__
 

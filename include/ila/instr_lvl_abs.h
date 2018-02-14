@@ -1,8 +1,8 @@
 /// \file
 /// The header for the class InstrLvlAbs.
 
-#ifndef __INSTR_LVL_ABS_H__
-#define __INSTR_LVL_ABS_H__
+#ifndef INSTR_LVL_ABS_H__
+#define INSTR_LVL_ABS_H__
 
 #include "ila/ast/func.h"
 #include "ila/expr_fuse.h"

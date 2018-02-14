@@ -1,8 +1,8 @@
 /// \file
 /// Header for the class Expr and its hash
 
-#ifndef __EXPR_H__
-#define __EXPR_H__
+#ifndef EXPR_H__
+#define EXPR_H__
 
 #include "ila/ast/ast.h"
 #include "ila/ast/sort.h"
@@ -135,5 +135,5 @@ public:
 
 } // namespace ila
 
-#endif // __EXPR_H__
+#endif // EXPR_H__
 

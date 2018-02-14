@@ -1,8 +1,8 @@
 /// \file
 /// Header for the class Func (uninterpreted function).
 
-#ifndef __FUNC_H__
-#define __FUNC_H__
+#ifndef FUNC_H__
+#define FUNC_H__
 
 #include "ila/ast/ast.h"
 #include "ila/ast/sort.h"
@@ -42,5 +42,5 @@ typedef Func::FuncPtr FuncPtr;
 
 } // namespace ila
 
-#endif // __FUNC_H__
+#endif // FUNC_H__
 

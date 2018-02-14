@@ -1,8 +1,8 @@
 /// \file
 /// Header for the class Z3ExprAdapter
 
-#ifndef __Z3_EXPR_ADAPTER_H__
-#define __Z3_EXPR_ADAPTER_H__
+#ifndef Z3_EXPR_ADAPTER_H__
+#define Z3_EXPR_ADAPTER_H__
 
 #include "ila/expr_fuse.h"
 #include "z3++.h"
@@ -47,5 +47,5 @@ private:
 
 } // namespace ila
 
-#endif // __Z3_EXPR_ADAPTER_H__
+#endif // Z3_EXPR_ADAPTER_H__
 

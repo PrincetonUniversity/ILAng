@@ -1,8 +1,8 @@
 /// \file
 /// Header for the class Sort
 
-#ifndef __SORT_H__
-#define __SORT_H__
+#ifndef SORT_H__
+#define SORT_H__
 
 #include "ila/ast/ast.h"
 #include <ostream>
@@ -118,5 +118,5 @@ typedef Sort::SortPtrVec SortPtrVec;
 
 } // namespace ila
 
-#endif // __SORT_H__
+#endif // SORT_H__
 

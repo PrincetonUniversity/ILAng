@@ -1,8 +1,8 @@
 /// \file
 /// Header for bounded model checking
 
-#ifndef __BMC_H__
-#define __BMC_H__
+#ifndef BMC_H__
+#define BMC_H__
 
 #include "ila/instr_lvl_abs.h"
 #include "ila/model_expr_generator.h"
@@ -118,5 +118,5 @@ private:
 
 } // namespace ila
 
-#endif // __BMC_H__
+#endif // BMC_H__
 

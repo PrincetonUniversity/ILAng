@@ -1,8 +1,8 @@
 /// \file
 /// Header for the class InstrTran, InstrTranGraph, and InstrSeq
 
-#ifndef __INSTR_TRAN_H__
-#define __INSTR_TRAN_H__
+#ifndef INSTR_TRAN_H__
+#define INSTR_TRAN_H__
 
 #include "ila/expr_fuse.h"
 #include "ila/instr.h"
@@ -148,5 +148,5 @@ typedef InstrSeq::InstrSeqPtr InstrSeqPtr;
 
 } // namespace ila
 
-#endif // __INSTR_TRAN_H__
+#endif // INSTR_TRAN_H__
 

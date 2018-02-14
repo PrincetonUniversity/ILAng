@@ -1,8 +1,8 @@
 /// \file
 /// Header for Python API -- top level for all tools
 
-#ifndef __ILA_PY_API_H__
-#define __ILA_PY_API_H__
+#ifndef ILA_PY_API_H__
+#define ILA_PY_API_H__
 
 #include <boost/python.hpp>
 
@@ -21,5 +21,5 @@ void export_instr_lvl_abs();
 } // namespace pyapi
 } // namespace ila
 
-#endif // __ILA_PY_API_H__
+#endif // ILA_PY_API_H__
 

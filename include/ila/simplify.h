@@ -1,8 +1,8 @@
 /// \file
 /// Header for the class ExprMngr
 
-#ifndef __SIMPLIFY_H__
-#define __SIMPLIFY_H__
+#ifndef SIMPLIFY_H__
+#define SIMPLIFY_H__
 
 #include "ila/expr_fuse.h"
 #include <unordered_map>
@@ -50,5 +50,5 @@ typedef ExprMngr::ExprMngrPtr ExprMngrPtr;
 
 } // namespace ila
 
-#endif // __SIMPLIFY_H__
+#endif // SIMPLIFY_H__
 

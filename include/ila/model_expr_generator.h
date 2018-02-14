@@ -1,8 +1,8 @@
 /// \file
 /// Header for the model z3 expression generator.
 
-#ifndef __MODEL_EXPR_GEN_H__
-#define __MODEL_EXPR_GEN_H__
+#ifndef MODEL_EXPR_GEN_H__
+#define MODEL_EXPR_GEN_H__
 
 #include "ila/defines.h"
 #include "ila/instr_lvl_abs.h"
@@ -53,5 +53,5 @@ private:
 
 } // namespace ila
 
-#endif // __MODEL_EXPR_GEN_H__
+#endif // MODEL_EXPR_GEN_H__
 

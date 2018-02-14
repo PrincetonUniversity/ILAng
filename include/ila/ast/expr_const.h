@@ -1,8 +1,8 @@
 /// \file
 /// Header for constant expression
 
-#ifndef __EXPR_CONST_H__
-#define __EXPR_CONST_H__
+#ifndef EXPR_CONST_H__
+#define EXPR_CONST_H__
 
 #include "ila/ast/expr.h"
 #include "ila/ast/sort_value.h"
@@ -55,5 +55,5 @@ private:
 
 } // namespace ila
 
-#endif // __EXPR_CONST_H__
+#endif // EXPR_CONST_H__
 
