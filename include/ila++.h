@@ -56,7 +56,18 @@ public:
   ExprRef operator+(const ExprRef& rhs) const;
   /// Unsigned subtraction for bit-vector.
   ExprRef operator-(const ExprRef& rhs) const;
-  // TODO int helper functions
+
+  // helper functions with constants
+  /// Logical AND with Boolean constant.
+  ExprRef operator&(const bool& rhs) const;
+  /// Logical OR with Boolean constant.
+  ExprRef operator|(const bool& rhs) const;
+  /// Logical XOR with Boolean constant.
+  ExprRef operator^(const bool& rhs) const;
+  /// Unsigned addition with int constant.
+  ExprRef operator+(const int& rhs) const;
+  /// Unsigned subtraction with int constant.
+  ExprRef operator-(const int& rhs) const;
 
   /****************************************************************************/
   // Binary comparison
@@ -73,6 +84,22 @@ public:
   ExprRef operator<=(const ExprRef& rhs) const;
   /// Unsigned greater than or equal to (bit-vectors only).
   ExprRef operator>=(const ExprRef& rhs) const;
+
+  // helper functions with constants
+  /// Equal to Boolean constant.
+  ExprRef operator==(const bool& rhs) const;
+  /// Equal to int constant.
+  ExprRef operator==(const int& rhs) const;
+  /// Not equal to int constant.
+  ExprRef operator!=(const int& rhs) const;
+  /// Unsigned less than int constant.
+  ExprRef operator<(const int& rhs) const;
+  /// Unsigned greater than int constant.
+  ExprRef operator>(const int& rhs) const;
+  /// Unsigned less than or equal to int constant.
+  ExprRef operator<=(const int& rhs) const;
+  /// Unsigned greater than or equal to int constant.
+  ExprRef operator>=(const int& rhs) const;
 
   /****************************************************************************/
   // Memory-related operations

@@ -54,6 +54,31 @@ ExprRef ExprRef::operator-(const ExprRef& rhs) const {
   return ExprRef(v);
 }
 
+ExprRef ExprRef::operator&(const bool& rhs) const {
+  auto v = ExprFuse::And(get(), rhs);
+  return ExprRef(v);
+}
+
+ExprRef ExprRef::operator|(const bool& rhs) const {
+  auto v = ExprFuse::Or(get(), rhs);
+  return ExprRef(v);
+}
+
+ExprRef ExprRef::operator^(const bool& rhs) const {
+  auto v = ExprFuse::Xor(get(), rhs);
+  return ExprRef(v);
+}
+
+ExprRef ExprRef::operator+(const int& rhs) const {
+  auto v = ExprFuse::Add(get(), rhs);
+  return ExprRef(v);
+}
+
+ExprRef ExprRef::operator-(const int& rhs) const {
+  auto v = ExprFuse::Sub(get(), rhs);
+  return ExprRef(v);
+}
+
 ExprRef ExprRef::operator==(const ExprRef& rhs) const {
   auto v = ExprFuse::Eq(get(), rhs.get());
   return ExprRef(v);
@@ -81,6 +106,41 @@ ExprRef ExprRef::operator<=(const ExprRef& rhs) const {
 
 ExprRef ExprRef::operator>=(const ExprRef& rhs) const {
   auto v = ExprFuse::Ge(get(), rhs.get());
+  return ExprRef(v);
+}
+
+ExprRef ExprRef::operator==(const bool& rhs) const {
+  auto v = ExprFuse::Eq(get(), rhs);
+  return ExprRef(v);
+}
+
+ExprRef ExprRef::operator==(const int& rhs) const {
+  auto v = ExprFuse::Eq(get(), rhs);
+  return ExprRef(v);
+}
+
+ExprRef ExprRef::operator!=(const int& rhs) const {
+  auto v = ExprFuse::Ne(get(), rhs);
+  return ExprRef(v);
+}
+
+ExprRef ExprRef::operator<(const int& rhs) const {
+  auto v = ExprFuse::Lt(get(), rhs);
+  return ExprRef(v);
+}
+
+ExprRef ExprRef::operator>(const int& rhs) const {
+  auto v = ExprFuse::Gt(get(), rhs);
+  return ExprRef(v);
+}
+
+ExprRef ExprRef::operator<=(const int& rhs) const {
+  auto v = ExprFuse::Le(get(), rhs);
+  return ExprRef(v);
+}
+
+ExprRef ExprRef::operator>=(const int& rhs) const {
+  auto v = ExprFuse::Ge(get(), rhs);
   return ExprRef(v);
 }
 
@@ -208,11 +268,11 @@ void LogPath(const std::string& path) { SetLogPath(path); }
 void LogToErr(bool to_err) {
   if (to_err) {
     SetToStdErr(1);
-    ILA_INFO << "Log to Standard Error channel.";
+    ILA_DLOG("API_INFO") << "Log to Standard Error channel.";
 
   } else {
     SetToStdErr(0);
-    ILA_INFO << "Log to file.";
+    ILA_DLOG("API_INFO") << "Log to file.";
   }
 }
 

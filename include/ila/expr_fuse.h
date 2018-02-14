@@ -102,7 +102,18 @@ ExprPtr Rem(const ExprPtr l, const ExprPtr r);
 ExprPtr Mod(const ExprPtr l, const ExprPtr r);
 /// Arithmetic unsigned multiply (bv only)
 ExprPtr Mul(const ExprPtr l, const ExprPtr r);
-// TODO int version helper functions
+
+// helper functions for constant arguments
+/// Logical AND with Boolean constant.
+ExprPtr And(const ExprPtr l, const bool& r);
+/// Logical OR with Boolean constant.
+ExprPtr Or(const ExprPtr l, const bool& r);
+/// Logical XOR with Boolean constant.
+ExprPtr Xor(const ExprPtr l, const bool& r);
+/// Arithmetic addition with int.
+ExprPtr Add(const ExprPtr l, const int& r);
+/// Arithmetic subtraction with int.
+ExprPtr Sub(const ExprPtr l, const int& r);
 
 /****************************************************************************/
 // Comparison
@@ -119,7 +130,22 @@ ExprPtr Gt(const ExprPtr l, const ExprPtr r);
 ExprPtr Le(const ExprPtr l, const ExprPtr r);
 /// Comparison: unsigned greater than or equal to (bv only)
 ExprPtr Ge(const ExprPtr l, const ExprPtr r);
-// TODO int version helper functions
+
+// helper functions for constant arguments
+/// Equal to Boolean.
+ExprPtr Eq(const ExprPtr l, const bool& r);
+/// Equal to int.
+ExprPtr Eq(const ExprPtr l, const int& r);
+/// Not equal to int.
+ExprPtr Ne(const ExprPtr l, const int& r);
+/// Unsigned less than int.
+ExprPtr Lt(const ExprPtr l, const int& r);
+/// Unsigned greater than int.
+ExprPtr Gt(const ExprPtr l, const int& r);
+/// Unsigned less than or equal to int.
+ExprPtr Le(const ExprPtr l, const int& r);
+/// Unsigned greater than or equal to int.
+ExprPtr Ge(const ExprPtr l, const int& r);
 
 /****************************************************************************/
 // Memory
