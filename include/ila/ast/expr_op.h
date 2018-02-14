@@ -138,7 +138,7 @@ public:
                      const std::string& suffix = "") const;
 }; // class ExprOpAdd
 
-// \brief The wrapper for unsigned subtraction.
+/// \brief The wrapper for unsigned subtraction.
 class ExprOpSub : public ExprOp {
 public:
   /// Constructor for SUB operation.
@@ -224,7 +224,7 @@ public:
 // Bit-manipulation
 /******************************************************************************/
 
-// \brief The class wrapper for bitvector concatenation.
+/// \brief The class wrapper for bitvector concatenation.
 class ExprOpConcat : public ExprOp {
 public:
   /// Constructor for bitvector concatenation.

@@ -112,7 +112,7 @@ public:
   /****************************************************************************/
   // Bit manipulation for bit-vectors.
   /****************************************************************************/
-  // Append another bit-vector to the less significant side.
+  /// Append another bit-vector to the less significant side.
   ExprRef Append(const ExprRef& lsbv) const;
   /// Extract bit-field in the bit-vector.
   ExprRef operator()(const int& hi, const int& lo) const;
@@ -124,8 +124,8 @@ public:
 // Others
 /******************************************************************************/
 /// \brief Concatenate two bit-vectors.
-/// \param[in] msb bit-vector on the more-significant side.
-/// \param[in] lsb bit-vector on the less-significant side.
+/// \param[in] msbv bit-vector on the more-significant side.
+/// \param[in] lsbv bit-vector on the less-significant side.
 ExprRef Concat(const ExprRef& msbv, const ExprRef& lsbv);
 
 /// \brief Logical imply for Booleans.
