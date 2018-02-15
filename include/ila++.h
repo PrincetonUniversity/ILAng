@@ -126,11 +126,11 @@ public:
 // Unary operation
 /******************************************************************************/
 /// Arithmetic negate for bit-vectors.
-ExprRef operator-(const ExprRef a);
+ExprRef operator-(const ExprRef& a);
 /// Logical not for Booleans.
-ExprRef operator!(const ExprRef a);
+ExprRef operator!(const ExprRef& a);
 /// Bit-wise complement for bit-vectors.
-ExprRef operator~(const ExprRef a);
+ExprRef operator~(const ExprRef& a);
 
 /******************************************************************************/
 // Binary operation

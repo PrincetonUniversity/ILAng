@@ -166,17 +166,17 @@ ExprRef ExprRef::operator()(const int& hi, const int& lo) const {
   return ExprRef(v);
 }
 
-ExprRef operator-(const ExprRef a) {
+ExprRef operator-(const ExprRef& a) {
   auto v = ExprFuse::Negate(a.get());
   return ExprRef(v);
 }
 
-ExprRef operator!(const ExprRef a) {
+ExprRef operator!(const ExprRef& a) {
   auto v = ExprFuse::Not(a.get());
   return ExprRef(v);
 }
 
-ExprRef operator~(const ExprRef a) {
+ExprRef operator~(const ExprRef& a) {
   auto v = ExprFuse::Complement(a.get());
   return ExprRef(v);
 }
