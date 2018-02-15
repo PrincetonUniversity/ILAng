@@ -33,10 +33,11 @@ public:
   /// Return the wrapped Expr pointer.
   inline std::shared_ptr<Expr> get() const { return ptr_; }
 
-  // ------------------------- METHODS -------------------------------------- //
-  /****************************************************************************/
-  // Unary operation
-  /****************************************************************************/
+// ------------------------- METHODS -------------------------------------- //
+/****************************************************************************/
+// Unary operation
+/****************************************************************************/
+#if 0
   /// Arithmetic negate for bit-vectors.
   ExprRef operator-() const;
   /// Logical not for Booleans.
@@ -101,6 +102,7 @@ public:
   ExprRef operator<=(const int& rhs) const;
   /// Unsigned greater than or equal to int constant.
   ExprRef operator>=(const int& rhs) const;
+#endif
 
   /****************************************************************************/
   // Memory-related operations
@@ -117,18 +119,95 @@ public:
   ExprRef Append(const ExprRef& lsbv) const;
   /// Extract bit-field in the bit-vector.
   ExprRef operator()(const int& hi, const int& lo) const;
-  /// Zero-extend the bit-vector to the specified length.
 
 }; // class ExprRef
 
 /******************************************************************************/
-// Others
+// Unary operation
+/******************************************************************************/
+/// Arithmetic negate for bit-vectors.
+ExprRef operator-(const ExprRef a);
+/// Logical not for Booleans.
+ExprRef operator!(const ExprRef a);
+/// Bit-wise complement for bit-vectors.
+ExprRef operator~(const ExprRef a);
+
+/******************************************************************************/
+// Binary operation
+/******************************************************************************/
+/// Logical AND (bit-wise for bit-vectors).
+ExprRef operator&(const ExprRef& a, const ExprRef& b);
+/// Logical OR (bit-wise for bit-vectors).
+ExprRef operator|(const ExprRef& a, const ExprRef& b);
+/// Logical XOR (bit-wise for bit-vectors).
+ExprRef operator^(const ExprRef& a, const ExprRef& b);
+/// Unsigned addition for bit-vector.
+ExprRef operator+(const ExprRef& a, const ExprRef& b);
+/// Unsigned subtraction for bit-vector.
+ExprRef operator-(const ExprRef& a, const ExprRef& b);
+
+/// Logical AND with Boolean constant.
+ExprRef operator&(const ExprRef& a, const bool& b);
+/// Logical OR with Boolean constant.
+ExprRef operator|(const ExprRef& a, const bool& b);
+/// Logical XOR with Boolean constant.
+ExprRef operator^(const ExprRef& a, const bool& b);
+/// Unsigned addition with int constant.
+ExprRef operator+(const ExprRef& a, const int& b);
+/// Unsigned subtraction with int constant.
+ExprRef operator-(const ExprRef& a, const int& b);
+
+/******************************************************************************/
+// Binary comparison
+/******************************************************************************/
+/// Equal.
+ExprRef operator==(const ExprRef& a, const ExprRef& b);
+/// Not equal.
+ExprRef operator!=(const ExprRef& a, const ExprRef& b);
+/// Unsigned less than (bit-vectors only).
+ExprRef operator<(const ExprRef& a, const ExprRef& b);
+/// Unsigned greater than (bit-vectors only).
+ExprRef operator>(const ExprRef& a, const ExprRef& b);
+/// Unsigned less than or equal to (bit-vectors only).
+ExprRef operator<=(const ExprRef& a, const ExprRef& b);
+/// Unsigned greater than or equal to (bit-vectors only).
+ExprRef operator>=(const ExprRef& a, const ExprRef& b);
+
+// helper functions with constants
+/// Equal to Boolean constant.
+ExprRef operator==(const ExprRef& a, const bool& b);
+/// Equal to int constant.
+ExprRef operator==(const ExprRef& a, const int& b);
+/// Not equal to int constant.
+ExprRef operator!=(const ExprRef& a, const int& b);
+/// Unsigned less than int constant.
+ExprRef operator<(const ExprRef& a, const int& b);
+/// Unsigned greater than int constant.
+ExprRef operator>(const ExprRef& a, const int& b);
+/// Unsigned less than or equal to int constant.
+ExprRef operator<=(const ExprRef& a, const int& b);
+/// Unsigned greater than or equal to int constant.
+ExprRef operator>=(const ExprRef& a, const int& b);
+
+/******************************************************************************/
+// Memory-related operations
+/******************************************************************************/
+/// Load from memory.
+ExprRef Load(const ExprRef& mem, const ExprRef& addr);
+/// Store to memory.
+ExprRef Store(const ExprRef& mem, const ExprRef& addr, const ExprRef& data);
+
+/******************************************************************************/
+// Bit manipulation for bit-vectors.
 /******************************************************************************/
 /// \brief Concatenate two bit-vectors.
 /// \param[in] msbv bit-vector on the more-significant side.
 /// \param[in] lsbv bit-vector on the less-significant side.
 ExprRef Concat(const ExprRef& msbv, const ExprRef& lsbv);
 
+/******************************************************************************/
+// Others
+/******************************************************************************/
 /// \brief Logical imply for Booleans.
 /// \param[in] ante antecedent for the operator.
 /// \param[in] cons consequent for the operator.
