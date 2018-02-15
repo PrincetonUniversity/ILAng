@@ -1,8 +1,8 @@
 /// \file
 /// Header for some utily functions for string formating.
 
-#ifndef __STR_UTIL_H__
-#define __STR_UTIL_H__
+#ifndef STR_UTIL_H__
+#define STR_UTIL_H__
 
 #include <algorithm>
 #include <string>
@@ -33,5 +33,5 @@ std::string StrConcat(const std::string& l, const std::string& m,
 
 } // namespace ila
 
-#endif // __STR_UTIL_H__
+#endif // STR_UTIL_H__
 

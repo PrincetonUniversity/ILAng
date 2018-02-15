@@ -1,8 +1,8 @@
 /// \file
 /// The header for the class InstrLvlAbs.
 
-#ifndef __INSTR_LVL_ABS_H__
-#define __INSTR_LVL_ABS_H__
+#ifndef INSTR_LVL_ABS_H__
+#define INSTR_LVL_ABS_H__
 
 #include "ila/ast/func.h"
 #include "ila/expr_fuse.h"
@@ -17,7 +17,6 @@
 #include <string>
 
 /// \namespace ila
-/// Defines the core data structure and APIs for constructing and storing ILA.
 namespace ila {
 
 /// \brief The class of Instruction-Level Abstraction (ILA). An ILA contains:

@@ -1,8 +1,8 @@
 /// \file
 /// Header for the class ExprVar
 
-#ifndef __EXPR_VAR_H__
-#define __EXPR_VAR_H__
+#ifndef EXPR_VAR_H__
+#define EXPR_VAR_H__
 
 #include "ila/ast/expr.h"
 #include <string>
@@ -56,5 +56,5 @@ private:
 
 } // namespace ila
 
-#endif // __EXPR_VAR_H__
+#endif // EXPR_VAR_H__
 

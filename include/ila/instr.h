@@ -1,8 +1,8 @@
 /// \file
 /// The header for the class Instr.
 
-#ifndef __INSTR_H__
-#define __INSTR_H__
+#ifndef INSTR_H__
+#define INSTR_H__
 
 #include "ila/expr_fuse.h"
 #include "ila/object.h"
@@ -134,5 +134,5 @@ typedef Instr::InstrPtr InstrPtr;
 
 } // namespace ila
 
-#endif // __INSTR_H__
+#endif // INSTR_H__
 

@@ -73,6 +73,35 @@ ExprPtr ExprFuse::Add(const ExprPtr l, const ExprPtr r) {
   return std::make_shared<ExprOpAdd>(l, r);
 }
 
+ExprPtr ExprFuse::Sub(const ExprPtr l, const ExprPtr r) {
+  return std::make_shared<ExprOpSub>(l, r);
+}
+
+ExprPtr ExprFuse::And(const ExprPtr l, const bool& r) {
+  auto rc = ExprFuse::BoolConst(r);
+  return ExprFuse::And(l, rc);
+}
+
+ExprPtr ExprFuse::Or(const ExprPtr l, const bool& r) {
+  auto rc = ExprFuse::BoolConst(r);
+  return ExprFuse::Or(l, rc);
+}
+
+ExprPtr ExprFuse::Xor(const ExprPtr l, const bool& r) {
+  auto rc = ExprFuse::BoolConst(r);
+  return ExprFuse::Xor(l, rc);
+}
+
+ExprPtr ExprFuse::Add(const ExprPtr l, const int& r) {
+  auto rc = ExprFuse::BvConst(r, l->sort().bit_width());
+  return ExprFuse::Add(l, rc);
+}
+
+ExprPtr ExprFuse::Sub(const ExprPtr l, const int& r) {
+  auto rc = ExprFuse::BvConst(r, l->sort().bit_width());
+  return ExprFuse::Sub(l, rc);
+}
+
 ExprPtr ExprFuse::Eq(const ExprPtr l, const ExprPtr r) {
   return std::make_shared<ExprOpEq>(l, r);
 }
@@ -80,6 +109,61 @@ ExprPtr ExprFuse::Eq(const ExprPtr l, const ExprPtr r) {
 ExprPtr ExprFuse::Ne(const ExprPtr l, const ExprPtr r) {
   auto eq = std::make_shared<ExprOpEq>(l, r);
   return std::make_shared<ExprOpNot>(eq);
+}
+
+ExprPtr ExprFuse::Lt(const ExprPtr l, const ExprPtr r) {
+  return std::make_shared<ExprOpLt>(l, r);
+}
+
+ExprPtr ExprFuse::Gt(const ExprPtr l, const ExprPtr r) {
+  return std::make_shared<ExprOpGt>(l, r);
+}
+
+ExprPtr ExprFuse::Le(const ExprPtr l, const ExprPtr r) {
+  auto eq = std::make_shared<ExprOpEq>(l, r);
+  auto lt = std::make_shared<ExprOpLt>(l, r);
+  return std::make_shared<ExprOpOr>(l, r);
+}
+
+ExprPtr ExprFuse::Ge(const ExprPtr l, const ExprPtr r) {
+  auto eq = std::make_shared<ExprOpEq>(l, r);
+  auto gt = std::make_shared<ExprOpGt>(l, r);
+  return std::make_shared<ExprOpOr>(eq, gt);
+}
+
+ExprPtr ExprFuse::Eq(const ExprPtr l, const bool& r) {
+  auto rc = ExprFuse::BoolConst(r);
+  return ExprFuse::Eq(l, rc);
+}
+
+ExprPtr ExprFuse::Eq(const ExprPtr l, const int& r) {
+  auto rc = ExprFuse::BvConst(r, l->sort().bit_width());
+  return ExprFuse::Eq(l, rc);
+}
+
+ExprPtr ExprFuse::Ne(const ExprPtr l, const int& r) {
+  auto rc = ExprFuse::BvConst(r, l->sort().bit_width());
+  return ExprFuse::Ne(l, rc);
+}
+
+ExprPtr ExprFuse::Lt(const ExprPtr l, const int& r) {
+  auto rc = ExprFuse::BvConst(r, l->sort().bit_width());
+  return ExprFuse::Lt(l, rc);
+}
+
+ExprPtr ExprFuse::Gt(const ExprPtr l, const int& r) {
+  auto rc = ExprFuse::BvConst(r, l->sort().bit_width());
+  return ExprFuse::Gt(l, rc);
+}
+
+ExprPtr ExprFuse::Le(const ExprPtr l, const int& r) {
+  auto rc = ExprFuse::BvConst(r, l->sort().bit_width());
+  return ExprFuse::Le(l, rc);
+}
+
+ExprPtr ExprFuse::Ge(const ExprPtr l, const int& r) {
+  auto rc = ExprFuse::BvConst(r, l->sort().bit_width());
+  return ExprFuse::Ge(l, rc);
 }
 
 ExprPtr ExprFuse::Load(const ExprPtr mem, const ExprPtr addr) {
@@ -97,6 +181,10 @@ ExprPtr ExprFuse::Concat(const ExprPtr hi, const ExprPtr lo) {
 
 ExprPtr ExprFuse::Extract(const ExprPtr bv, const int& hi, const int& lo) {
   return std::make_shared<ExprOpExtract>(bv, hi, lo);
+}
+
+ExprPtr ExprFuse::Imply(const ExprPtr p, const ExprPtr q) {
+  return std::make_shared<ExprOpImply>(p, q);
 }
 
 ExprPtr ExprFuse::Ite(const ExprPtr cnd, const ExprPtr true_expr,

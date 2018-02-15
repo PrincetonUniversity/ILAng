@@ -1,8 +1,8 @@
 /// \file
 /// Header for containers, e.g. KeyVec.
 
-#ifndef __CONTAINER_H__
-#define __CONTAINER_H__
+#ifndef CONTAINER_H__
+#define CONTAINER_H__
 
 #include "util/log.h"
 #include <map>
@@ -125,7 +125,42 @@ template <class Key, class T>
 std::shared_ptr<KeyVecIt<Key, T>>
     KeyVec<Key, T>::end_ = std::make_shared<KeyVecIt<Key, T>>();
 
+/// \brief A map for sets.
+template <class Key, class T> class MapSet {
+public:
+  /// Set type for data T.
+  typedef std::set<T> SetT;
+
+  // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
+  /// Default constructor.
+  MapSet() {}
+  /// Default destructor.
+  ~MapSet() {}
+
+  // ------------------------- METHODS -------------------------------------- //
+  /// Insert the pair into the mapping.
+  void insert(const Key& k, const T& t) { map_[k].insert(t); }
+
+  /// Return the set of T for the given key.
+  SetT get(const Key& k) const {
+    auto pos = map_.find(k);
+    ILA_ASSERT(pos != map_.end()) << "Key " << k << " not found.";
+    return pos->second;
+  }
+
+  /// Return the iterator at the starting point
+  typename std::map<Key, std::set<T>>::iterator begin() { return map_.begin(); }
+
+  /// Return the iterator at the ending point.
+  typename std::map<Key, std::set<T>>::iterator end() { return map_.end(); }
+
+private:
+  /// The actual mapping.
+  std::map<Key, std::set<T>> map_;
+
+}; // class MapSet
+
 } // namespace ila
 
-#endif // __CONTAINER_H__
+#endif // CONTAINER_H__
 

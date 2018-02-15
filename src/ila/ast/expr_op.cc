@@ -183,6 +183,19 @@ z3::expr ExprOpAdd::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
   return expr_vec[0] + expr_vec[1];
 }
 
+// ------------------------- Class ExprOpSub -------------------------------- //
+ExprOpSub::ExprOpSub(const ExprPtr arg0, const ExprPtr arg1)
+    : ExprOp(arg0, arg1) {
+  set_sort(GetSortBinaryOperation(arg0->sort(), arg1->sort()));
+}
+
+z3::expr ExprOpSub::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                              const std::string& suffix) const {
+  ILA_ASSERT(expr_vec.size() == 2) << "Sub is binary operation.";
+  ILA_ASSERT(is_bv()) << "Sub can only be applied to bv.";
+  return expr_vec[0] - expr_vec[1];
+}
+
 // ------------------------- Class ExprOpEq --------------------------------- //
 ExprOpEq::ExprOpEq(const ExprPtr arg0, const ExprPtr arg1)
     : ExprOp(arg0, arg1) {
@@ -191,8 +204,34 @@ ExprOpEq::ExprOpEq(const ExprPtr arg0, const ExprPtr arg1)
 
 z3::expr ExprOpEq::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                              const std::string& suffix) const {
-  ILA_ASSERT(expr_vec.size() == 2);
+  ILA_ASSERT(expr_vec.size() == 2) << "Eq is binary comparison.";
   return expr_vec[0] == expr_vec[1];
+}
+
+// ------------------------- Class ExprOpLt --------------------------------- //
+ExprOpLt::ExprOpLt(const ExprPtr arg0, const ExprPtr arg1)
+    : ExprOp(arg0, arg1) {
+  set_sort(GetSortBinaryComparison(arg0->sort(), arg1->sort()));
+}
+
+z3::expr ExprOpLt::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                             const std::string& suffix) const {
+  ILA_ASSERT(expr_vec.size() == 2) << "Lt is binary comparison.";
+  ILA_ASSERT(is_bv()) << "Lt can only be applied to bv.";
+  return expr_vec[0] < expr_vec[1];
+}
+
+// ------------------------- Class ExprOpGt --------------------------------- //
+ExprOpGt::ExprOpGt(const ExprPtr arg0, const ExprPtr arg1)
+    : ExprOp(arg0, arg1) {
+  set_sort(GetSortBinaryComparison(arg0->sort(), arg1->sort()));
+}
+
+z3::expr ExprOpGt::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                             const std::string& suffix) const {
+  ILA_ASSERT(expr_vec.size() == 2) << "Gt is binary comparison.";
+  ILA_ASSERT(is_bv()) << "Gt can only be applied to bv.";
+  return expr_vec[0] > expr_vec[1];
 }
 
 // ------------------------- Class ExprOpLoad ------------------------------- //
@@ -263,6 +302,22 @@ z3::expr ExprOpExtract::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
   unsigned hi = static_cast<unsigned>(param(0));
   unsigned lo = static_cast<unsigned>(param(1));
   return bv.extract(hi, lo);
+}
+
+// ------------------------- Class ExprOpIte -------------------------------- //
+ExprOpImply::ExprOpImply(const ExprPtr ante, const ExprPtr cons)
+    : ExprOp(ante, cons) {
+  ILA_ASSERT(ante->is_bool()) << "Antecedent must be Boolean.";
+  ILA_ASSERT(cons->is_bool()) << "Consequent must be Boolean.";
+  set_sort(Sort::MakeBoolSort());
+}
+
+z3::expr ExprOpImply::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                                const std::string& suffix) const {
+  ILA_ASSERT(expr_vec.size() == 2) << "Imply takes two arguments.";
+  auto ante = expr_vec[0];
+  auto cons = expr_vec[1];
+  return z3::implies(ante, cons);
 }
 
 // ------------------------- Class ExprOpIte -------------------------------- //

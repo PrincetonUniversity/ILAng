@@ -1,8 +1,8 @@
 /// \file
 /// The header file for the debug/logging/asserting system.
 
-#ifndef __LOG_H__
-#define __LOG_H__
+#ifndef LOG_H__
+#define LOG_H__
 
 #include <glog/logging.h>
 #include <set>
@@ -97,5 +97,5 @@ private:
 
 } // namespace ila
 
-#endif // __LOG_H__
+#endif // LOG_H__
 

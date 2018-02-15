@@ -1,8 +1,8 @@
 /// \file
 /// Header for wrapping the ila.
 
-#ifndef __WRAP_INSTR_LVL_ABS_H__
-#define __WRAP_INSTR_LVL_ABS_H__
+#ifndef WRAP_INSTR_LVL_ABS_H__
+#define WRAP_INSTR_LVL_ABS_H__
 
 #include "ila/instr_lvl_abs.h"
 #include "python-api/wrap_expr.h"
@@ -35,5 +35,5 @@ public:
 } // namespace pyapi
 } // namespace ila
 
-#endif // __WRAP_INSTR_LVL_ABS_H__
+#endif // WRAP_INSTR_LVL_ABS_H__
 

@@ -1,8 +1,8 @@
 /// \file
 /// Header for the class Ast.
 
-#ifndef __AST_H__
-#define __AST_H__
+#ifndef AST_H__
+#define AST_H__
 
 #include "ila/object.h"
 #include "z3++.h"
@@ -47,5 +47,5 @@ private:
 
 } // namespace ila
 
-#endif // __AST_H__
+#endif // AST_H__
 

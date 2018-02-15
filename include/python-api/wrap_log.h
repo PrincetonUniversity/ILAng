@@ -1,8 +1,8 @@
 /// \file
 /// Header for wrapping the logging system.
 
-#ifndef __WRAP_LOG_H__
-#define __WRAP_LOG_H__
+#ifndef WRAP_LOG_H__
+#define WRAP_LOG_H__
 
 #include "util/log.h"
 
@@ -18,5 +18,5 @@ void ClearLogs();
 } // namespace pyapi
 } // namespace
 
-#endif // __WRAP_LOG_H__
+#endif // WRAP_LOG_H__
 

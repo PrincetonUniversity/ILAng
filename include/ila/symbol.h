@@ -1,8 +1,8 @@
 /// \file
 /// The header for the class Symbol.
 
-#ifndef __SYMBOL_H__
-#define __SYMBOL_H__
+#ifndef SYMBOL_H__
+#define SYMBOL_H__
 
 #include <fstream>
 #include <ostream>
@@ -76,5 +76,5 @@ private:
 
 } // namespace ila
 
-#endif // __SYMBOL_H__
+#endif // SYMBOL_H__
 
