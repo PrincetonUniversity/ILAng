@@ -14,6 +14,7 @@ ExprRef::ExprRef(std::shared_ptr<Expr> ptr) : ptr_(ptr) {}
 
 ExprRef::~ExprRef() {}
 
+#if 0
 ExprRef ExprRef::operator-() const {
   auto v = ExprFuse::Negate(get());
   return ExprRef(v);
@@ -143,6 +144,7 @@ ExprRef ExprRef::operator>=(const int& rhs) const {
   auto v = ExprFuse::Ge(get(), rhs);
   return ExprRef(v);
 }
+#endif
 
 ExprRef ExprRef::Load(const ExprRef& addr) const {
   auto v = ExprFuse::Load(get(), addr.get());
@@ -161,6 +163,146 @@ ExprRef ExprRef::Append(const ExprRef& lsbv) const {
 
 ExprRef ExprRef::operator()(const int& hi, const int& lo) const {
   auto v = ExprFuse::Extract(get(), hi, lo);
+  return ExprRef(v);
+}
+
+ExprRef operator-(const ExprRef a) {
+  auto v = ExprFuse::Negate(a.get());
+  return ExprRef(v);
+}
+
+ExprRef operator!(const ExprRef a) {
+  auto v = ExprFuse::Not(a.get());
+  return ExprRef(v);
+}
+
+ExprRef operator~(const ExprRef a) {
+  auto v = ExprFuse::Complement(a.get());
+  return ExprRef(v);
+}
+
+ExprRef operator&(const ExprRef& a, const ExprRef& b) {
+  auto v = ExprFuse::And(a.get(), b.get());
+  return ExprRef(v);
+}
+
+ExprRef operator|(const ExprRef& a, const ExprRef& b) {
+  auto v = ExprFuse::Or(a.get(), b.get());
+  return ExprRef(v);
+}
+
+ExprRef operator^(const ExprRef& a, const ExprRef& b) {
+  auto v = ExprFuse::Xor(a.get(), b.get());
+  return ExprRef(v);
+}
+
+ExprRef operator+(const ExprRef& a, const ExprRef& b) {
+  auto v = ExprFuse::Add(a.get(), b.get());
+  return ExprRef(v);
+}
+
+ExprRef operator-(const ExprRef& a, const ExprRef& b) {
+  auto v = ExprFuse::Sub(a.get(), b.get());
+  return ExprRef(v);
+}
+
+ExprRef operator&(const ExprRef& a, const bool& b) {
+  auto v = ExprFuse::And(a.get(), b);
+  return ExprRef(v);
+}
+
+ExprRef operator|(const ExprRef& a, const bool& b) {
+  auto v = ExprFuse::Or(a.get(), b);
+  return ExprRef(v);
+}
+
+ExprRef operator^(const ExprRef& a, const bool& b) {
+  auto v = ExprFuse::Xor(a.get(), b);
+  return ExprRef(v);
+}
+
+ExprRef operator+(const ExprRef& a, const int& b) {
+  auto v = ExprFuse::Add(a.get(), b);
+  return ExprRef(v);
+}
+
+ExprRef operator-(const ExprRef& a, const int& b) {
+  auto v = ExprFuse::Sub(a.get(), b);
+  return ExprRef(v);
+}
+
+ExprRef operator==(const ExprRef& a, const ExprRef& b) {
+  auto v = ExprFuse::Eq(a.get(), b.get());
+  return ExprRef(v);
+}
+
+ExprRef operator!=(const ExprRef& a, const ExprRef& b) {
+  auto v = ExprFuse::Ne(a.get(), b.get());
+  return ExprRef(v);
+}
+
+ExprRef operator<(const ExprRef& a, const ExprRef& b) {
+  auto v = ExprFuse::Lt(a.get(), b.get());
+  return ExprRef(v);
+}
+
+ExprRef operator>(const ExprRef& a, const ExprRef& b) {
+  auto v = ExprFuse::Gt(a.get(), b.get());
+  return ExprRef(v);
+}
+
+ExprRef operator<=(const ExprRef& a, const ExprRef& b) {
+  auto v = ExprFuse::Le(a.get(), b.get());
+  return ExprRef(v);
+}
+
+ExprRef operator>=(const ExprRef& a, const ExprRef& b) {
+  auto v = ExprFuse::Ge(a.get(), b.get());
+  return ExprRef(v);
+}
+
+ExprRef operator==(const ExprRef& a, const bool& b) {
+  auto v = ExprFuse::Eq(a.get(), b);
+  return ExprRef(v);
+}
+
+ExprRef operator==(const ExprRef& a, const int& b) {
+  auto v = ExprFuse::Eq(a.get(), b);
+  return ExprRef(v);
+}
+
+ExprRef operator!=(const ExprRef& a, const int& b) {
+  auto v = ExprFuse::Ne(a.get(), b);
+  return ExprRef(v);
+}
+
+ExprRef operator<(const ExprRef& a, const int& b) {
+  auto v = ExprFuse::Lt(a.get(), b);
+  return ExprRef(v);
+}
+
+ExprRef operator>(const ExprRef& a, const int& b) {
+  auto v = ExprFuse::Gt(a.get(), b);
+  return ExprRef(v);
+}
+
+ExprRef operator<=(const ExprRef& a, const int& b) {
+  auto v = ExprFuse::Le(a.get(), b);
+  return ExprRef(v);
+}
+
+ExprRef operator>=(const ExprRef& a, const int& b) {
+  auto v = ExprFuse::Ge(a.get(), b);
+  return ExprRef(v);
+}
+
+ExprRef Load(const ExprRef& mem, const ExprRef& addr) {
+  auto v = ExprFuse::Load(mem.get(), addr.get());
+  return ExprRef(v);
+}
+
+ExprRef Store(const ExprRef& mem, const ExprRef& addr, const ExprRef& data) {
+  auto v = ExprFuse::Store(mem.get(), addr.get(), data.get());
   return ExprRef(v);
 }
 
