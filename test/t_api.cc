@@ -109,7 +109,9 @@ TEST(TestApi, ExprOps) {
   auto n_ge_bv_c = n_add_bv >= 0;
 
   auto n_load_bv = v_mem.Load(n_add_bv);
+  auto n_load_bv_static = Load(v_mem, n_add_bv);
   auto n_store_mem = v_mem.Store(n_add_bv, n_load_bv);
+  auto n_store_mem_static = Store(v_mem, n_add_bv, n_load_bv);
 
   auto n_extract_bv = n_load_bv(4, 0);
   auto n_append_bv = n_extract_bv.Append(n_load_bv);
