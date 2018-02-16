@@ -49,8 +49,23 @@ ExprPtr ExprMngr::Simplify(const ExprPtr node, bool simplify) {
   if (!simplify)
     return node;
 
+  node->DFV(*this);
+
   // TODO
   return node;
+}
+
+void ExprMngr::operator()(const ExprPtr node) {
+  auto pos = map_.find(node);
+
+  // new node
+  if (pos == map_.end()) {
+    map_.insert({node, node});
+  } else { // existing node (to be shared)
+    auto rep = pos->second;
+    // replace child (must exist)
+    // no need to replace self (handled by parent)
+  }
 }
 
 } // namespace ila

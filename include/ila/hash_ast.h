@@ -43,6 +43,8 @@ public:
   // ------------------------- METHODS -------------------------------------- //
   /// Simplify the AST node.
   ExprPtr Simplify(const ExprPtr node, bool simplify);
+  /// Function object for sharing ast nodes.
+  void operator()(const ExprPtr node);
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //

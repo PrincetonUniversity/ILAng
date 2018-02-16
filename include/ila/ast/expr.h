@@ -22,7 +22,7 @@ class InstrLvlAbs;
 
 /// \brief The class for expression, which is the basic type for variables,
 /// constraints, state update expressions, etc.
-class Expr : public Ast {
+class Expr : public Ast, public std::enable_shared_from_this<Expr> {
 public:
   /// Pointer type only for visitor function objects.
   typedef Expr* ExprPtrRaw;
@@ -103,6 +103,16 @@ public:
       arg_i->DepthFirstVisit<F>(func);
     }
     func(this);
+  }
+
+  /// \brief Templated visitor: visit each node in a depth-first order and apply
+  /// the function object F on it.
+  template <class F> void DFV(F& func) {
+    for (size_t i = 0; i != arg_num(); i++) {
+      const ExprPtr arg_i = this->arg(i);
+      arg_i->DFV<F>(func);
+    }
+    func(shared_from_this());
   }
 
 private:
