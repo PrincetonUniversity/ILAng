@@ -1,5 +1,6 @@
 var searchData=
 [
+  ['selectbit',['SelectBit',['../namespaceila.html#a17fb1fad9ada96553f96773877b116f9',1,'ila']]],
   ['setdecode',['SetDecode',['../classila_1_1_instr_ref.html#a9472b2c8c07ddf66a2f42f7a20cdf32e',1,'ila::InstrRef']]],
   ['setfetch',['SetFetch',['../classila_1_1_ila.html#adfbdbbd37df8a43109338ad81fe2de01',1,'ila::Ila']]],
   ['setupdate',['SetUpdate',['../classila_1_1_instr_ref.html#a3e7d1fa7ec35e49cfae9ffde207dcd20',1,'ila::InstrRef']]],

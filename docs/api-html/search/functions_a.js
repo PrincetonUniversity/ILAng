@@ -1,11 +1,11 @@
 var searchData=
 [
   ['operator_20_26',['operator &amp;',['../namespaceila.html#a2b5845e3aee200e480737832c6f16009',1,'ila::operator &amp;(const ExprRef &amp;a, const ExprRef &amp;b)'],['../namespaceila.html#ad596fdd4c513eda5f94156614dfb13d0',1,'ila::operator &amp;(const ExprRef &amp;a, const bool &amp;b)']]],
-  ['operator_21',['operator!',['../namespaceila.html#af2e1733f94a1dbefb59ee41e9c4ba4bd',1,'ila']]],
+  ['operator_21',['operator!',['../namespaceila.html#ac5320f4f6476502853690464593d6b1b',1,'ila']]],
   ['operator_21_3d',['operator!=',['../namespaceila.html#a181b32b20794b606a8c40f25e8a8d719',1,'ila::operator!=(const ExprRef &amp;a, const ExprRef &amp;b)'],['../namespaceila.html#af86a5b52ae43efff127bb890b352bb66',1,'ila::operator!=(const ExprRef &amp;a, const int &amp;b)']]],
-  ['operator_28_29',['operator()',['../classila_1_1_expr_ref.html#a3088ffb90b05670e9d32c74d31f39398',1,'ila::ExprRef']]],
+  ['operator_28_29',['operator()',['../classila_1_1_expr_ref.html#a3088ffb90b05670e9d32c74d31f39398',1,'ila::ExprRef::operator()(const int &amp;hi, const int &amp;lo) const'],['../classila_1_1_expr_ref.html#a80eea7bb0abfd8ff8048f58c1723b279',1,'ila::ExprRef::operator()(const int &amp;idx) const']]],
   ['operator_2b',['operator+',['../namespaceila.html#a913e85cd60b160399509b7626188a21b',1,'ila::operator+(const ExprRef &amp;a, const ExprRef &amp;b)'],['../namespaceila.html#a64a5f245125f516727b439b8609589c4',1,'ila::operator+(const ExprRef &amp;a, const int &amp;b)']]],
-  ['operator_2d',['operator-',['../namespaceila.html#a0a1f7f1ee389317eeb5150c8c53ca456',1,'ila::operator-(const ExprRef a)'],['../namespaceila.html#a8cfbb4f7aedd32d430a3d38ee881eb5c',1,'ila::operator-(const ExprRef &amp;a, const ExprRef &amp;b)'],['../namespaceila.html#a3929f2f6e4742253975ffd7b666c7e22',1,'ila::operator-(const ExprRef &amp;a, const int &amp;b)']]],
+  ['operator_2d',['operator-',['../namespaceila.html#a76b9ad86db10b939a7a690245be6d332',1,'ila::operator-(const ExprRef &amp;a)'],['../namespaceila.html#a8cfbb4f7aedd32d430a3d38ee881eb5c',1,'ila::operator-(const ExprRef &amp;a, const ExprRef &amp;b)'],['../namespaceila.html#a3929f2f6e4742253975ffd7b666c7e22',1,'ila::operator-(const ExprRef &amp;a, const int &amp;b)']]],
   ['operator_3c',['operator&lt;',['../namespaceila.html#a0ae299c2a445c4cf1dd0eeba766b3eeb',1,'ila::operator&lt;(const ExprRef &amp;a, const ExprRef &amp;b)'],['../namespaceila.html#a9f12f189d90be24cbc1d279deaf41764',1,'ila::operator&lt;(const ExprRef &amp;a, const int &amp;b)']]],
   ['operator_3c_3d',['operator&lt;=',['../namespaceila.html#a2eae1e0e18174bae143df1f85affa088',1,'ila::operator&lt;=(const ExprRef &amp;a, const ExprRef &amp;b)'],['../namespaceila.html#ac2e1c16c974ab7cce06f4c0472f8ec2a',1,'ila::operator&lt;=(const ExprRef &amp;a, const int &amp;b)']]],
   ['operator_3d_3d',['operator==',['../namespaceila.html#a9e06083e20674ae359edfaf51614c184',1,'ila::operator==(const ExprRef &amp;a, const ExprRef &amp;b)'],['../namespaceila.html#af48f14b76d977055198f1c9e1c946e2e',1,'ila::operator==(const ExprRef &amp;a, const bool &amp;b)'],['../namespaceila.html#afc4273ca33bbab0d3f840bb6574d6d92',1,'ila::operator==(const ExprRef &amp;a, const int &amp;b)']]],
@@ -13,5 +13,5 @@ var searchData=
   ['operator_3e_3d',['operator&gt;=',['../namespaceila.html#af7d96ae9eba06d0fc53112587d9c1520',1,'ila::operator&gt;=(const ExprRef &amp;a, const ExprRef &amp;b)'],['../namespaceila.html#a6a0326fdd9b783135ef5e8aa0bfa5a3a',1,'ila::operator&gt;=(const ExprRef &amp;a, const int &amp;b)']]],
   ['operator_5e',['operator^',['../namespaceila.html#abb7b5784377fb4de6efa5c8a05cda478',1,'ila::operator^(const ExprRef &amp;a, const ExprRef &amp;b)'],['../namespaceila.html#abf0ef93d0e8666f7efbcce556daac436',1,'ila::operator^(const ExprRef &amp;a, const bool &amp;b)']]],
   ['operator_7c',['operator|',['../namespaceila.html#aee56ba0e4477e464412a9b91ce4a562c',1,'ila::operator|(const ExprRef &amp;a, const ExprRef &amp;b)'],['../namespaceila.html#a192dd14de247f7eb9caf1201b3b29105',1,'ila::operator|(const ExprRef &amp;a, const bool &amp;b)']]],
-  ['operator_7e',['operator~',['../namespaceila.html#a812f5bb307414f05a695a40e8bef07f5',1,'ila']]]
+  ['operator_7e',['operator~',['../namespaceila.html#a4005d5bfd22a3a5282bc1f0e2b5daccc',1,'ila']]]
 ];
