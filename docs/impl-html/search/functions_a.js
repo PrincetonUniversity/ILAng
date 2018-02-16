@@ -1,7 +1,7 @@
 var searchData=
 [
   ['le',['Le',['../expr__fuse_8h.html#a7a7a440ad450ddbd632e7c9b89b5e485',1,'ila::ExprFuse::Le(const ExprPtr l, const ExprPtr r)'],['../expr__fuse_8h.html#a0a2b80e80bcac726195f475009c3df6e',1,'ila::ExprFuse::Le(const ExprPtr l, const int &amp;r)']]],
-  ['load',['Load',['../classila_1_1_expr_ref.html#a0dbbf9d6bc8ba123a03d8a043773ed54',1,'ila::ExprRef::Load()'],['../expr__fuse_8h.html#aba96fcd6b329b0c50e34909ca7946148',1,'ila::ExprFuse::Load()']]],
+  ['load',['Load',['../classila_1_1_expr_ref.html#a0dbbf9d6bc8ba123a03d8a043773ed54',1,'ila::ExprRef::Load()'],['../expr__fuse_8h.html#aba96fcd6b329b0c50e34909ca7946148',1,'ila::ExprFuse::Load()'],['../namespaceila.html#a766eeb916095ba3d6e92d2faeb7bb0a3',1,'ila::Load()']]],
   ['loginitter',['LogInitter',['../classila_1_1_log_initter.html#abaa0c837e5ab0b1657f00d5b76bb918d',1,'ila::LogInitter']]],
   ['loglevel',['LogLevel',['../namespaceila.html#ac0071778162973867e17db173c6c3cba',1,'ila']]],
   ['logpath',['LogPath',['../namespaceila.html#ad165b44af0e8761271666f2b65ac64e4',1,'ila']]],

@@ -76,6 +76,9 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_ast.html">Ast</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The class for the Abstract Syntax Tree. An <a class="el" href="classila_1_1_ast.html" title="The class for the Abstract Syntax Tree. An Ast object can be an expression or function definition (in...">Ast</a> object can be an expression or function definition (interpreted or uninterpreted).  <a href="classila_1_1_ast.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_ast_hash.html">AstHash</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Hash for sharing AST sub-trees (syntactically).  <a href="classila_1_1_ast_hash.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_bmc.html">Bmc</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bounded model checking engine for ILAs.  <a href="classila_1_1_bmc.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -124,7 +127,7 @@ Classes</h2></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The class wrapper for bitvector extraction.  <a href="classila_1_1_expr_op_extract.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_op_gt.html">ExprOpGt</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The class wrapper for binary comparison GT "&gt;".  <a href="classila_1_1_expr_op_gt.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The class wrapper for binary comparison signed greater than "&gt;".  <a href="classila_1_1_expr_op_gt.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_op_imply.html">ExprOpImply</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The class wrapper for logical imply.  <a href="classila_1_1_expr_op_imply.html#details">More...</a><br /></td></tr>
@@ -136,7 +139,7 @@ Classes</h2></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The class wrapper for memory load.  <a href="classila_1_1_expr_op_load.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_op_lt.html">ExprOpLt</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The class wrapper for binary comparison LT "&lt;".  <a href="classila_1_1_expr_op_lt.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The class wrapper for binary comparison signed less than "&lt;".  <a href="classila_1_1_expr_op_lt.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_op_neg.html">ExprOpNeg</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The wrapper for unary negate operation "-".  <a href="classila_1_1_expr_op_neg.html#details">More...</a><br /></td></tr>
@@ -153,8 +156,17 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_op_sub.html">ExprOpSub</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The wrapper for unsigned subtraction.  <a href="classila_1_1_expr_op_sub.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_op_ugt.html">ExprOpUgt</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The class wrapper for binary comparison unsigned greater than.  <a href="classila_1_1_expr_op_ugt.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_op_ult.html">ExprOpUlt</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The class wrapper for binary comparison unsigned less than.  <a href="classila_1_1_expr_op_ult.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_op_xor.html">ExprOpXor</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The wrapper for binary logical XOR operation "^".  <a href="classila_1_1_expr_op_xor.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_op_z_ext.html">ExprOpZExt</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The class wrapper for zero-extend.  <a href="classila_1_1_expr_op_z_ext.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_ref.html">ExprRef</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The wrapper of <a class="el" href="classila_1_1_expr.html" title="The class for expression, which is the basic type for variables, constraints, state update expression...">Expr</a> (e.g. state var, var relation, constant, etc).  <a href="classila_1_1_expr_ref.html#details">More...</a><br /></td></tr>
@@ -286,6 +298,10 @@ typedef <a class="el" href="classila_1_1_key_vec.html">KeyVec</a>&lt; <a class="
 typedef std::shared_ptr&lt; <a class="el" href="namespaceila.html#a14b73eedce430674210d6c6d6eadb02c">Z3ExprMap</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a9618bac5ce17f4c47127791bbcd412e7">Z3ExprMapPtr</a></td></tr>
 <tr class="memdesc:a9618bac5ce17f4c47127791bbcd412e7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pointer for the z3 expression map. <br /></td></tr>
 <tr class="separator:a9618bac5ce17f4c47127791bbcd412e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0be6fc9e0e91cb849ee0a61232f5ab25"><td class="memItemLeft" align="right" valign="top"><a id="a0be6fc9e0e91cb849ee0a61232f5ab25"></a>
+typedef <a class="el" href="classila_1_1_expr_mngr.html#aeccb5bd5344e1b7730ca2a5df52bc17f">ExprMngr::ExprMngrPtr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a0be6fc9e0e91cb849ee0a61232f5ab25">ExprMngrPtr</a></td></tr>
+<tr class="memdesc:a0be6fc9e0e91cb849ee0a61232f5ab25"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pointer type for passing shared ast simplifier. <br /></td></tr>
+<tr class="separator:a0be6fc9e0e91cb849ee0a61232f5ab25"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4d14d93f5a396c57e5a6bc186be69a0c"><td class="memItemLeft" align="right" valign="top"><a id="a4d14d93f5a396c57e5a6bc186be69a0c"></a>
 typedef <a class="el" href="classila_1_1_instr.html#a12ba21b378d8a5b436c1ab10f09b747d">Instr::InstrPtr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a4d14d93f5a396c57e5a6bc186be69a0c">InstrPtr</a></td></tr>
 <tr class="memdesc:a4d14d93f5a396c57e5a6bc186be69a0c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pointer type for normal use of <a class="el" href="classila_1_1_instr.html" title="The class for the Instruction. An Instr object contains: ">Instr</a>. <br /></td></tr>
@@ -298,10 +314,6 @@ typedef <a class="el" href="classila_1_1_instr_lvl_abs.html#a1fde1d236329a306296
 typedef <a class="el" href="classila_1_1_object.html#a5aee87796fe12ce00d015f2a7141d8ce">Object::ObjPtr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a2cdfde1a8bca2bc310b114112d7c3dcf">ObjPtr</a></td></tr>
 <tr class="memdesc:a2cdfde1a8bca2bc310b114112d7c3dcf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pointer type for normal use of <a class="el" href="classila_1_1_object.html" title="The basest type in the ILA structure. It can be either Ast, Instr, or InstrLvlAbs. ">Object</a>. <br /></td></tr>
 <tr class="separator:a2cdfde1a8bca2bc310b114112d7c3dcf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0be6fc9e0e91cb849ee0a61232f5ab25"><td class="memItemLeft" align="right" valign="top"><a id="a0be6fc9e0e91cb849ee0a61232f5ab25"></a>
-typedef <a class="el" href="classila_1_1_expr_mngr.html#aeccb5bd5344e1b7730ca2a5df52bc17f">ExprMngr::ExprMngrPtr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a0be6fc9e0e91cb849ee0a61232f5ab25">ExprMngrPtr</a></td></tr>
-<tr class="memdesc:a0be6fc9e0e91cb849ee0a61232f5ab25"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pointer type for passing shared ast simplifier. <br /></td></tr>
-<tr class="separator:a0be6fc9e0e91cb849ee0a61232f5ab25"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8e90aff0651558ebd907485aa1b69b00"><td class="memItemLeft" align="right" valign="top"><a id="a8e90aff0651558ebd907485aa1b69b00"></a>
 typedef <a class="el" href="classila_1_1_instr_seq.html#a749ea9e18c9733ccd75082c01b342fd4">InstrSeq::InstrSeqPtr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a8e90aff0651558ebd907485aa1b69b00">InstrSeqPtr</a></td></tr>
 <tr class="memdesc:a8e90aff0651558ebd907485aa1b69b00"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pointer type for passing around <a class="el" href="classila_1_1_instr_seq.html" title="Instruction Sequencing does: ">InstrSeq</a>. <br /></td></tr>
@@ -324,9 +336,162 @@ Enumerations</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:a76b9ad86db10b939a7a690245be6d332"><td class="memItemLeft" align="right" valign="top"><a id="a76b9ad86db10b939a7a690245be6d332"></a>
+<a class="el" href="classila_1_1_expr_ref.html">ExprRef</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a76b9ad86db10b939a7a690245be6d332">operator-</a> (const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;a)</td></tr>
+<tr class="memdesc:a76b9ad86db10b939a7a690245be6d332"><td class="mdescLeft">&#160;</td><td class="mdescRight">Arithmetic negate for bit-vectors. <br /></td></tr>
+<tr class="separator:a76b9ad86db10b939a7a690245be6d332"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac5320f4f6476502853690464593d6b1b"><td class="memItemLeft" align="right" valign="top"><a id="ac5320f4f6476502853690464593d6b1b"></a>
+<a class="el" href="classila_1_1_expr_ref.html">ExprRef</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#ac5320f4f6476502853690464593d6b1b">operator!</a> (const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;a)</td></tr>
+<tr class="memdesc:ac5320f4f6476502853690464593d6b1b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Logical not for Booleans. <br /></td></tr>
+<tr class="separator:ac5320f4f6476502853690464593d6b1b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4005d5bfd22a3a5282bc1f0e2b5daccc"><td class="memItemLeft" align="right" valign="top"><a id="a4005d5bfd22a3a5282bc1f0e2b5daccc"></a>
+<a class="el" href="classila_1_1_expr_ref.html">ExprRef</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a4005d5bfd22a3a5282bc1f0e2b5daccc">operator~</a> (const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;a)</td></tr>
+<tr class="memdesc:a4005d5bfd22a3a5282bc1f0e2b5daccc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bit-wise complement for bit-vectors. <br /></td></tr>
+<tr class="separator:a4005d5bfd22a3a5282bc1f0e2b5daccc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2b5845e3aee200e480737832c6f16009"><td class="memItemLeft" align="right" valign="top"><a id="a2b5845e3aee200e480737832c6f16009"></a>
+<a class="el" href="classila_1_1_expr_ref.html">ExprRef</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a2b5845e3aee200e480737832c6f16009">operator &amp;</a> (const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;a, const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;b)</td></tr>
+<tr class="memdesc:a2b5845e3aee200e480737832c6f16009"><td class="mdescLeft">&#160;</td><td class="mdescRight">Logical AND (bit-wise for bit-vectors). <br /></td></tr>
+<tr class="separator:a2b5845e3aee200e480737832c6f16009"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aee56ba0e4477e464412a9b91ce4a562c"><td class="memItemLeft" align="right" valign="top"><a id="aee56ba0e4477e464412a9b91ce4a562c"></a>
+<a class="el" href="classila_1_1_expr_ref.html">ExprRef</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#aee56ba0e4477e464412a9b91ce4a562c">operator|</a> (const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;a, const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;b)</td></tr>
+<tr class="memdesc:aee56ba0e4477e464412a9b91ce4a562c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Logical OR (bit-wise for bit-vectors). <br /></td></tr>
+<tr class="separator:aee56ba0e4477e464412a9b91ce4a562c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abb7b5784377fb4de6efa5c8a05cda478"><td class="memItemLeft" align="right" valign="top"><a id="abb7b5784377fb4de6efa5c8a05cda478"></a>
+<a class="el" href="classila_1_1_expr_ref.html">ExprRef</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#abb7b5784377fb4de6efa5c8a05cda478">operator^</a> (const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;a, const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;b)</td></tr>
+<tr class="memdesc:abb7b5784377fb4de6efa5c8a05cda478"><td class="mdescLeft">&#160;</td><td class="mdescRight">Logical XOR (bit-wise for bit-vectors). <br /></td></tr>
+<tr class="separator:abb7b5784377fb4de6efa5c8a05cda478"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a913e85cd60b160399509b7626188a21b"><td class="memItemLeft" align="right" valign="top"><a id="a913e85cd60b160399509b7626188a21b"></a>
+<a class="el" href="classila_1_1_expr_ref.html">ExprRef</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a913e85cd60b160399509b7626188a21b">operator+</a> (const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;a, const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;b)</td></tr>
+<tr class="memdesc:a913e85cd60b160399509b7626188a21b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unsigned addition for bit-vector. <br /></td></tr>
+<tr class="separator:a913e85cd60b160399509b7626188a21b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8cfbb4f7aedd32d430a3d38ee881eb5c"><td class="memItemLeft" align="right" valign="top"><a id="a8cfbb4f7aedd32d430a3d38ee881eb5c"></a>
+<a class="el" href="classila_1_1_expr_ref.html">ExprRef</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a8cfbb4f7aedd32d430a3d38ee881eb5c">operator-</a> (const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;a, const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;b)</td></tr>
+<tr class="memdesc:a8cfbb4f7aedd32d430a3d38ee881eb5c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unsigned subtraction for bit-vector. <br /></td></tr>
+<tr class="separator:a8cfbb4f7aedd32d430a3d38ee881eb5c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad596fdd4c513eda5f94156614dfb13d0"><td class="memItemLeft" align="right" valign="top"><a id="ad596fdd4c513eda5f94156614dfb13d0"></a>
+<a class="el" href="classila_1_1_expr_ref.html">ExprRef</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#ad596fdd4c513eda5f94156614dfb13d0">operator &amp;</a> (const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;a, const bool &amp;b)</td></tr>
+<tr class="memdesc:ad596fdd4c513eda5f94156614dfb13d0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Logical AND with Boolean constant. <br /></td></tr>
+<tr class="separator:ad596fdd4c513eda5f94156614dfb13d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a192dd14de247f7eb9caf1201b3b29105"><td class="memItemLeft" align="right" valign="top"><a id="a192dd14de247f7eb9caf1201b3b29105"></a>
+<a class="el" href="classila_1_1_expr_ref.html">ExprRef</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a192dd14de247f7eb9caf1201b3b29105">operator|</a> (const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;a, const bool &amp;b)</td></tr>
+<tr class="memdesc:a192dd14de247f7eb9caf1201b3b29105"><td class="mdescLeft">&#160;</td><td class="mdescRight">Logical OR with Boolean constant. <br /></td></tr>
+<tr class="separator:a192dd14de247f7eb9caf1201b3b29105"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abf0ef93d0e8666f7efbcce556daac436"><td class="memItemLeft" align="right" valign="top"><a id="abf0ef93d0e8666f7efbcce556daac436"></a>
+<a class="el" href="classila_1_1_expr_ref.html">ExprRef</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#abf0ef93d0e8666f7efbcce556daac436">operator^</a> (const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;a, const bool &amp;b)</td></tr>
+<tr class="memdesc:abf0ef93d0e8666f7efbcce556daac436"><td class="mdescLeft">&#160;</td><td class="mdescRight">Logical XOR with Boolean constant. <br /></td></tr>
+<tr class="separator:abf0ef93d0e8666f7efbcce556daac436"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a64a5f245125f516727b439b8609589c4"><td class="memItemLeft" align="right" valign="top"><a id="a64a5f245125f516727b439b8609589c4"></a>
+<a class="el" href="classila_1_1_expr_ref.html">ExprRef</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a64a5f245125f516727b439b8609589c4">operator+</a> (const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;a, const int &amp;b)</td></tr>
+<tr class="memdesc:a64a5f245125f516727b439b8609589c4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unsigned addition with int constant. <br /></td></tr>
+<tr class="separator:a64a5f245125f516727b439b8609589c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3929f2f6e4742253975ffd7b666c7e22"><td class="memItemLeft" align="right" valign="top"><a id="a3929f2f6e4742253975ffd7b666c7e22"></a>
+<a class="el" href="classila_1_1_expr_ref.html">ExprRef</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a3929f2f6e4742253975ffd7b666c7e22">operator-</a> (const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;a, const int &amp;b)</td></tr>
+<tr class="memdesc:a3929f2f6e4742253975ffd7b666c7e22"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unsigned subtraction with int constant. <br /></td></tr>
+<tr class="separator:a3929f2f6e4742253975ffd7b666c7e22"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9e06083e20674ae359edfaf51614c184"><td class="memItemLeft" align="right" valign="top"><a id="a9e06083e20674ae359edfaf51614c184"></a>
+<a class="el" href="classila_1_1_expr_ref.html">ExprRef</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a9e06083e20674ae359edfaf51614c184">operator==</a> (const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;a, const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;b)</td></tr>
+<tr class="memdesc:a9e06083e20674ae359edfaf51614c184"><td class="mdescLeft">&#160;</td><td class="mdescRight">Equal. <br /></td></tr>
+<tr class="separator:a9e06083e20674ae359edfaf51614c184"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a181b32b20794b606a8c40f25e8a8d719"><td class="memItemLeft" align="right" valign="top"><a id="a181b32b20794b606a8c40f25e8a8d719"></a>
+<a class="el" href="classila_1_1_expr_ref.html">ExprRef</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a181b32b20794b606a8c40f25e8a8d719">operator!=</a> (const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;a, const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;b)</td></tr>
+<tr class="memdesc:a181b32b20794b606a8c40f25e8a8d719"><td class="mdescLeft">&#160;</td><td class="mdescRight">Not equal. <br /></td></tr>
+<tr class="separator:a181b32b20794b606a8c40f25e8a8d719"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0ae299c2a445c4cf1dd0eeba766b3eeb"><td class="memItemLeft" align="right" valign="top"><a id="a0ae299c2a445c4cf1dd0eeba766b3eeb"></a>
+<a class="el" href="classila_1_1_expr_ref.html">ExprRef</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a0ae299c2a445c4cf1dd0eeba766b3eeb">operator&lt;</a> (const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;a, const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;b)</td></tr>
+<tr class="memdesc:a0ae299c2a445c4cf1dd0eeba766b3eeb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signed less than (bit-vectors only). <br /></td></tr>
+<tr class="separator:a0ae299c2a445c4cf1dd0eeba766b3eeb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a817fba7d2582bdfb318c2749329d8461"><td class="memItemLeft" align="right" valign="top"><a id="a817fba7d2582bdfb318c2749329d8461"></a>
+<a class="el" href="classila_1_1_expr_ref.html">ExprRef</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a817fba7d2582bdfb318c2749329d8461">operator&gt;</a> (const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;a, const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;b)</td></tr>
+<tr class="memdesc:a817fba7d2582bdfb318c2749329d8461"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signed greater than (bit-vectors only). <br /></td></tr>
+<tr class="separator:a817fba7d2582bdfb318c2749329d8461"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2eae1e0e18174bae143df1f85affa088"><td class="memItemLeft" align="right" valign="top"><a id="a2eae1e0e18174bae143df1f85affa088"></a>
+<a class="el" href="classila_1_1_expr_ref.html">ExprRef</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a2eae1e0e18174bae143df1f85affa088">operator&lt;=</a> (const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;a, const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;b)</td></tr>
+<tr class="memdesc:a2eae1e0e18174bae143df1f85affa088"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signed less than or equal to (bit-vectors only). <br /></td></tr>
+<tr class="separator:a2eae1e0e18174bae143df1f85affa088"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af7d96ae9eba06d0fc53112587d9c1520"><td class="memItemLeft" align="right" valign="top"><a id="af7d96ae9eba06d0fc53112587d9c1520"></a>
+<a class="el" href="classila_1_1_expr_ref.html">ExprRef</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#af7d96ae9eba06d0fc53112587d9c1520">operator&gt;=</a> (const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;a, const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;b)</td></tr>
+<tr class="memdesc:af7d96ae9eba06d0fc53112587d9c1520"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signed greater than or equal to (bit-vectors only). <br /></td></tr>
+<tr class="separator:af7d96ae9eba06d0fc53112587d9c1520"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a758a7065eb9411ed86cf35bc03f596c2"><td class="memItemLeft" align="right" valign="top"><a id="a758a7065eb9411ed86cf35bc03f596c2"></a>
+<a class="el" href="classila_1_1_expr_ref.html">ExprRef</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a758a7065eb9411ed86cf35bc03f596c2">Ult</a> (const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;a, const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;b)</td></tr>
+<tr class="memdesc:a758a7065eb9411ed86cf35bc03f596c2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unsigned less than (bit-vectors only). <br /></td></tr>
+<tr class="separator:a758a7065eb9411ed86cf35bc03f596c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5a43519043d501d75add10a39fcb4a32"><td class="memItemLeft" align="right" valign="top"><a id="a5a43519043d501d75add10a39fcb4a32"></a>
+<a class="el" href="classila_1_1_expr_ref.html">ExprRef</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a5a43519043d501d75add10a39fcb4a32">Ugt</a> (const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;a, const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;b)</td></tr>
+<tr class="memdesc:a5a43519043d501d75add10a39fcb4a32"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unsigned greater than (bit-vectors only). <br /></td></tr>
+<tr class="separator:a5a43519043d501d75add10a39fcb4a32"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4e4c865704e6847a1c394364634e1ce9"><td class="memItemLeft" align="right" valign="top"><a id="a4e4c865704e6847a1c394364634e1ce9"></a>
+<a class="el" href="classila_1_1_expr_ref.html">ExprRef</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a4e4c865704e6847a1c394364634e1ce9">Ule</a> (const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;a, const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;b)</td></tr>
+<tr class="memdesc:a4e4c865704e6847a1c394364634e1ce9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unsigned less than or equal to (bit-vectors only). <br /></td></tr>
+<tr class="separator:a4e4c865704e6847a1c394364634e1ce9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a871f96ba7945eec82c46a05268e2706c"><td class="memItemLeft" align="right" valign="top"><a id="a871f96ba7945eec82c46a05268e2706c"></a>
+<a class="el" href="classila_1_1_expr_ref.html">ExprRef</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a871f96ba7945eec82c46a05268e2706c">Uge</a> (const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;a, const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;b)</td></tr>
+<tr class="memdesc:a871f96ba7945eec82c46a05268e2706c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unsigned greater than or equal to (bit-vectors only). <br /></td></tr>
+<tr class="separator:a871f96ba7945eec82c46a05268e2706c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af48f14b76d977055198f1c9e1c946e2e"><td class="memItemLeft" align="right" valign="top"><a id="af48f14b76d977055198f1c9e1c946e2e"></a>
+<a class="el" href="classila_1_1_expr_ref.html">ExprRef</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#af48f14b76d977055198f1c9e1c946e2e">operator==</a> (const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;a, const bool &amp;b)</td></tr>
+<tr class="memdesc:af48f14b76d977055198f1c9e1c946e2e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Equal to Boolean constant. <br /></td></tr>
+<tr class="separator:af48f14b76d977055198f1c9e1c946e2e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afc4273ca33bbab0d3f840bb6574d6d92"><td class="memItemLeft" align="right" valign="top"><a id="afc4273ca33bbab0d3f840bb6574d6d92"></a>
+<a class="el" href="classila_1_1_expr_ref.html">ExprRef</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#afc4273ca33bbab0d3f840bb6574d6d92">operator==</a> (const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;a, const int &amp;b)</td></tr>
+<tr class="memdesc:afc4273ca33bbab0d3f840bb6574d6d92"><td class="mdescLeft">&#160;</td><td class="mdescRight">Equal to int constant. <br /></td></tr>
+<tr class="separator:afc4273ca33bbab0d3f840bb6574d6d92"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af86a5b52ae43efff127bb890b352bb66"><td class="memItemLeft" align="right" valign="top"><a id="af86a5b52ae43efff127bb890b352bb66"></a>
+<a class="el" href="classila_1_1_expr_ref.html">ExprRef</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#af86a5b52ae43efff127bb890b352bb66">operator!=</a> (const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;a, const int &amp;b)</td></tr>
+<tr class="memdesc:af86a5b52ae43efff127bb890b352bb66"><td class="mdescLeft">&#160;</td><td class="mdescRight">Not equal to int constant. <br /></td></tr>
+<tr class="separator:af86a5b52ae43efff127bb890b352bb66"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9f12f189d90be24cbc1d279deaf41764"><td class="memItemLeft" align="right" valign="top"><a id="a9f12f189d90be24cbc1d279deaf41764"></a>
+<a class="el" href="classila_1_1_expr_ref.html">ExprRef</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a9f12f189d90be24cbc1d279deaf41764">operator&lt;</a> (const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;a, const int &amp;b)</td></tr>
+<tr class="memdesc:a9f12f189d90be24cbc1d279deaf41764"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signed less than int constant (bit-vectors only). <br /></td></tr>
+<tr class="separator:a9f12f189d90be24cbc1d279deaf41764"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a74bf2d2d7b16054480eabe5b9bbba07b"><td class="memItemLeft" align="right" valign="top"><a id="a74bf2d2d7b16054480eabe5b9bbba07b"></a>
+<a class="el" href="classila_1_1_expr_ref.html">ExprRef</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a74bf2d2d7b16054480eabe5b9bbba07b">operator&gt;</a> (const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;a, const int &amp;b)</td></tr>
+<tr class="memdesc:a74bf2d2d7b16054480eabe5b9bbba07b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signed greater than int constant (bit-vectors only). <br /></td></tr>
+<tr class="separator:a74bf2d2d7b16054480eabe5b9bbba07b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac2e1c16c974ab7cce06f4c0472f8ec2a"><td class="memItemLeft" align="right" valign="top"><a id="ac2e1c16c974ab7cce06f4c0472f8ec2a"></a>
+<a class="el" href="classila_1_1_expr_ref.html">ExprRef</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#ac2e1c16c974ab7cce06f4c0472f8ec2a">operator&lt;=</a> (const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;a, const int &amp;b)</td></tr>
+<tr class="memdesc:ac2e1c16c974ab7cce06f4c0472f8ec2a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signed less than or equal to int constant (bit-vectors only). <br /></td></tr>
+<tr class="separator:ac2e1c16c974ab7cce06f4c0472f8ec2a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6a0326fdd9b783135ef5e8aa0bfa5a3a"><td class="memItemLeft" align="right" valign="top"><a id="a6a0326fdd9b783135ef5e8aa0bfa5a3a"></a>
+<a class="el" href="classila_1_1_expr_ref.html">ExprRef</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a6a0326fdd9b783135ef5e8aa0bfa5a3a">operator&gt;=</a> (const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;a, const int &amp;b)</td></tr>
+<tr class="memdesc:a6a0326fdd9b783135ef5e8aa0bfa5a3a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signed greater than or equal to int constant (bit-vectors only). <br /></td></tr>
+<tr class="separator:a6a0326fdd9b783135ef5e8aa0bfa5a3a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8bee891e5f84b824213fc65105734436"><td class="memItemLeft" align="right" valign="top"><a id="a8bee891e5f84b824213fc65105734436"></a>
+<a class="el" href="classila_1_1_expr_ref.html">ExprRef</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a8bee891e5f84b824213fc65105734436">Ult</a> (const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;a, const int &amp;b)</td></tr>
+<tr class="memdesc:a8bee891e5f84b824213fc65105734436"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unsigned less than int constant (bit-vectors only). <br /></td></tr>
+<tr class="separator:a8bee891e5f84b824213fc65105734436"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae3dd78f02d9919e4026f6daf92bbfd66"><td class="memItemLeft" align="right" valign="top"><a id="ae3dd78f02d9919e4026f6daf92bbfd66"></a>
+<a class="el" href="classila_1_1_expr_ref.html">ExprRef</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#ae3dd78f02d9919e4026f6daf92bbfd66">Ugt</a> (const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;a, const int &amp;b)</td></tr>
+<tr class="memdesc:ae3dd78f02d9919e4026f6daf92bbfd66"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unsigned greater than int constant (bit-vectors only). <br /></td></tr>
+<tr class="separator:ae3dd78f02d9919e4026f6daf92bbfd66"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aea44af15d89c64f0412b12565524a96f"><td class="memItemLeft" align="right" valign="top"><a id="aea44af15d89c64f0412b12565524a96f"></a>
+<a class="el" href="classila_1_1_expr_ref.html">ExprRef</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#aea44af15d89c64f0412b12565524a96f">Ule</a> (const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;a, const int &amp;b)</td></tr>
+<tr class="memdesc:aea44af15d89c64f0412b12565524a96f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unsigned less than or equal to int constant (bit-vectors only). <br /></td></tr>
+<tr class="separator:aea44af15d89c64f0412b12565524a96f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8fae8e830630c252d4a4c9992d22a565"><td class="memItemLeft" align="right" valign="top"><a id="a8fae8e830630c252d4a4c9992d22a565"></a>
+<a class="el" href="classila_1_1_expr_ref.html">ExprRef</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a8fae8e830630c252d4a4c9992d22a565">Uge</a> (const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;a, const int &amp;b)</td></tr>
+<tr class="memdesc:a8fae8e830630c252d4a4c9992d22a565"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unsigned greater than or equal to int constant (bit-vectors only). <br /></td></tr>
+<tr class="separator:a8fae8e830630c252d4a4c9992d22a565"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a766eeb916095ba3d6e92d2faeb7bb0a3"><td class="memItemLeft" align="right" valign="top"><a id="a766eeb916095ba3d6e92d2faeb7bb0a3"></a>
+<a class="el" href="classila_1_1_expr_ref.html">ExprRef</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a766eeb916095ba3d6e92d2faeb7bb0a3">Load</a> (const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;mem, const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;addr)</td></tr>
+<tr class="memdesc:a766eeb916095ba3d6e92d2faeb7bb0a3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Load from memory. <br /></td></tr>
+<tr class="separator:a766eeb916095ba3d6e92d2faeb7bb0a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae170357be0b2d16f0ba5773b6aa209e7"><td class="memItemLeft" align="right" valign="top"><a id="ae170357be0b2d16f0ba5773b6aa209e7"></a>
+<a class="el" href="classila_1_1_expr_ref.html">ExprRef</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#ae170357be0b2d16f0ba5773b6aa209e7">Store</a> (const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;mem, const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;addr, const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;data)</td></tr>
+<tr class="memdesc:ae170357be0b2d16f0ba5773b6aa209e7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Store to memory. <br /></td></tr>
+<tr class="separator:ae170357be0b2d16f0ba5773b6aa209e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a007fcb0d622b585536c265f34e4ccaaf"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classila_1_1_expr_ref.html">ExprRef</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a007fcb0d622b585536c265f34e4ccaaf">Concat</a> (const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;msbv, const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;lsbv)</td></tr>
 <tr class="memdesc:a007fcb0d622b585536c265f34e4ccaaf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Concatenate two bit-vectors.  <a href="#a007fcb0d622b585536c265f34e4ccaaf">More...</a><br /></td></tr>
 <tr class="separator:a007fcb0d622b585536c265f34e4ccaaf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab5dd476b0298282d5d144be9ea3e3306"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classila_1_1_expr_ref.html">ExprRef</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#ab5dd476b0298282d5d144be9ea3e3306">Extract</a> (const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;bv, const int &amp;hi, const int &amp;lo)</td></tr>
+<tr class="memdesc:ab5dd476b0298282d5d144be9ea3e3306"><td class="mdescLeft">&#160;</td><td class="mdescRight">Extract bit-field in the bit-vector.  <a href="#ab5dd476b0298282d5d144be9ea3e3306">More...</a><br /></td></tr>
+<tr class="separator:ab5dd476b0298282d5d144be9ea3e3306"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a17fb1fad9ada96553f96773877b116f9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classila_1_1_expr_ref.html">ExprRef</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a17fb1fad9ada96553f96773877b116f9">SelectBit</a> (const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;bv, const int &amp;idx)</td></tr>
+<tr class="memdesc:a17fb1fad9ada96553f96773877b116f9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Extract single bit in the bit-vector.  <a href="#a17fb1fad9ada96553f96773877b116f9">More...</a><br /></td></tr>
+<tr class="separator:a17fb1fad9ada96553f96773877b116f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab854adb4ea347670af2f71b1ff36b40a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classila_1_1_expr_ref.html">ExprRef</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#ab854adb4ea347670af2f71b1ff36b40a">ZExt</a> (const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;bv, const int &amp;length)</td></tr>
+<tr class="memdesc:ab854adb4ea347670af2f71b1ff36b40a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zero-extend the bit-vector to the specified length.  <a href="#ab854adb4ea347670af2f71b1ff36b40a">More...</a><br /></td></tr>
+<tr class="separator:ab854adb4ea347670af2f71b1ff36b40a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afb6f7219a29dd44bbe5567c92ac59f17"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classila_1_1_expr_ref.html">ExprRef</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#afb6f7219a29dd44bbe5567c92ac59f17">Imply</a> (const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;ante, const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;cons)</td></tr>
 <tr class="memdesc:afb6f7219a29dd44bbe5567c92ac59f17"><td class="mdescLeft">&#160;</td><td class="mdescRight">Logical imply for Booleans.  <a href="#afb6f7219a29dd44bbe5567c92ac59f17">More...</a><br /></td></tr>
 <tr class="separator:afb6f7219a29dd44bbe5567c92ac59f17"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -492,6 +657,50 @@ int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="names
 
 </div>
 </div>
+<a id="ab5dd476b0298282d5d144be9ea3e3306"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab5dd476b0298282d5d144be9ea3e3306">&#9670;&nbsp;</a></span>Extract()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> ila::Extract </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;&#160;</td>
+          <td class="paramname"><em>bv</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const int &amp;&#160;</td>
+          <td class="paramname"><em>hi</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const int &amp;&#160;</td>
+          <td class="paramname"><em>lo</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Extract bit-field in the bit-vector. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">bv</td><td>source bit-vector. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">hi</td><td>the index of the most-significant bit. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">lo</td><td>the index of the least-significant bit. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="afb6f7219a29dd44bbe5567c92ac59f17"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#afb6f7219a29dd44bbe5567c92ac59f17">&#9670;&nbsp;</a></span>Imply()</h2>
 
@@ -650,6 +859,43 @@ int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="names
 
 </div>
 </div>
+<a id="a17fb1fad9ada96553f96773877b116f9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a17fb1fad9ada96553f96773877b116f9">&#9670;&nbsp;</a></span>SelectBit()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> ila::SelectBit </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;&#160;</td>
+          <td class="paramname"><em>bv</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const int &amp;&#160;</td>
+          <td class="paramname"><em>idx</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Extract single bit in the bit-vector. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">bv</td><td>source bit-vector. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">idx</td><td>the index of the selected bit. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="ac519acdba0091b02dc081a5333b547ae"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ac519acdba0091b02dc081a5333b547ae">&#9670;&nbsp;</a></span>SetLogLevel()</h2>
 
@@ -673,6 +919,43 @@ int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="names
 <li>ERROR: level 2</li>
 <li>FATAL: level 3 </li>
 </ul>
+
+</div>
+</div>
+<a id="ab854adb4ea347670af2f71b1ff36b40a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab854adb4ea347670af2f71b1ff36b40a">&#9670;&nbsp;</a></span>ZExt()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> ila::ZExt </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;&#160;</td>
+          <td class="paramname"><em>bv</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const int &amp;&#160;</td>
+          <td class="paramname"><em>length</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zero-extend the bit-vector to the specified length. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">bv</td><td>source bit-vector. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">length</td><td>bit-width of the extended (result) bit-vector. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>

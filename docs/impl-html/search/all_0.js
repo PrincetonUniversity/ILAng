@@ -18,7 +18,9 @@ var searchData=
   ['append',['Append',['../classila_1_1_expr_ref.html#a3646f6b40b3f30f4cb802940cc99acb7',1,'ila::ExprRef']]],
   ['appfunc',['AppFunc',['../expr__fuse_8h.html#a6ea6d1efcd4c60d9bd28193bae3ddc03',1,'ila::ExprFuse::AppFunc(const FuncPtr func)'],['../expr__fuse_8h.html#a58f66ce000e458c925f865da89989549',1,'ila::ExprFuse::AppFunc(const FuncPtr func, const ExprPtrVec &amp;args)']]],
   ['arg',['arg',['../classila_1_1_expr.html#a71cec0bd1747c151b501489ab3f771ed',1,'ila::Expr::arg()'],['../classila_1_1_sort.html#a41628227dbfff70b87a996010c6b6075',1,'ila::Sort::arg()']]],
+  ['arg_5fnum',['arg_num',['../classila_1_1_expr.html#a74ffb348a99c46e5708bfb8995b54862',1,'ila::Expr']]],
   ['arity',['arity',['../classila_1_1_expr.html#abf3063750c374bd98842b13e52dd0164',1,'ila::Expr']]],
   ['ast',['Ast',['../classila_1_1_ast.html',1,'ila::Ast'],['../classila_1_1_ast.html#af78f2889fb8c3ddd84d8242806931be9',1,'ila::Ast::Ast()']]],
-  ['ast_2eh',['ast.h',['../ast_8h.html',1,'']]]
+  ['ast_2eh',['ast.h',['../ast_8h.html',1,'']]],
+  ['asthash',['AstHash',['../classila_1_1_ast_hash.html',1,'ila']]]
 ];

@@ -5,6 +5,7 @@ var searchData=
   ['def_5fval',['def_val',['../classila_1_1_mem_val.html#a688feea49113c6792916d7ab632aeff6',1,'ila::MemVal']]],
   ['defines_2eh',['defines.h',['../defines_8h.html',1,'']]],
   ['depthfirstvisit',['DepthFirstVisit',['../classila_1_1_expr.html#abed866b0a319246f60b3a0cff92bec95',1,'ila::Expr']]],
+  ['dfv',['DFV',['../classila_1_1_expr.html#a3f82068c8577f0bac9174ac14ee1dff8',1,'ila::Expr']]],
   ['disable',['Disable',['../classila_1_1_debug_log.html#afb39542a441a5ac37b78aa76083cfb10',1,'ila::DebugLog']]],
   ['disabledebug',['DisableDebug',['../namespaceila.html#ae6007ce8ef047f7c5c0443575653ec80',1,'ila']]],
   ['div',['Div',['../expr__fuse_8h.html#a4117e6e96a602ed27cac49d0c65eb730',1,'ila::ExprFuse']]],

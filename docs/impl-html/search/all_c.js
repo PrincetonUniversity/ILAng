@@ -3,7 +3,7 @@ var searchData=
   ['name',['name',['../classila_1_1_object.html#a3a4685c48b59e040b1826a59abcdae01',1,'ila::Object']]],
   ['ne',['Ne',['../expr__fuse_8h.html#a7c116f8f145123de8596a5769da2175e',1,'ila::ExprFuse::Ne(const ExprPtr l, const ExprPtr r)'],['../expr__fuse_8h.html#a0116c7ef4200f41ab4bb70b71ec0b0eb',1,'ila::ExprFuse::Ne(const ExprPtr l, const int &amp;r)']]],
   ['negate',['Negate',['../expr__fuse_8h.html#aecfb48eae21021d6870b2db6684d5c4f',1,'ila::ExprFuse']]],
-  ['new',['New',['../classila_1_1_instr.html#a15ac2fd93695818b313150dd01effa1c',1,'ila::Instr::New()'],['../classila_1_1_instr_lvl_abs.html#a956abdae2babe3b06dea41cf2d8d7b26',1,'ila::InstrLvlAbs::New()'],['../classila_1_1_expr_mngr.html#a81a15c8959bffd047eb71075e4263a68',1,'ila::ExprMngr::New()'],['../classila_1_1_instr_seq.html#a29a5c535c1bc9b8dac29ecd5529818c0',1,'ila::InstrSeq::New()']]],
+  ['new',['New',['../classila_1_1_expr_mngr.html#a81a15c8959bffd047eb71075e4263a68',1,'ila::ExprMngr::New()'],['../classila_1_1_instr.html#a15ac2fd93695818b313150dd01effa1c',1,'ila::Instr::New()'],['../classila_1_1_instr_lvl_abs.html#a956abdae2babe3b06dea41cf2d8d7b26',1,'ila::InstrLvlAbs::New()'],['../classila_1_1_instr_seq.html#a29a5c535c1bc9b8dac29ecd5529818c0',1,'ila::InstrSeq::New()']]],
   ['newboolinput',['NewBoolInput',['../classila_1_1_instr_lvl_abs.html#aef3f9830c6f2a73763720c8e6f8384f5',1,'ila::InstrLvlAbs::NewBoolInput()'],['../classila_1_1_ila.html#a0b146ae1cb0f8d15b270122142921902',1,'ila::Ila::NewBoolInput()']]],
   ['newboolstate',['NewBoolState',['../classila_1_1_instr_lvl_abs.html#a7cf4cd120dd15fc906419fbfe16fead5',1,'ila::InstrLvlAbs::NewBoolState()'],['../classila_1_1_ila.html#a53d194df222cf1f5082f91abdcac42fb',1,'ila::Ila::NewBoolState()']]],
   ['newboolvar',['NewBoolVar',['../expr__fuse_8h.html#a11ad047acf00ac82a0b1716d0e8ad7b0',1,'ila::ExprFuse']]],
@@ -18,6 +18,5 @@ var searchData=
   ['next_5fnum',['next_num',['../classila_1_1_instr_tran_node.html#a4fe62629ac2e2f4f147766c44e853f02',1,'ila::InstrTranNode']]],
   ['node',['Node',['../classila_1_1_model_expr_gen.html#a103d8f1d68ef591802da4d6f6c29742b',1,'ila::ModelExprGen']]],
   ['not',['Not',['../expr__fuse_8h.html#a51c7ade717f80679e3ebd9c6146b7504',1,'ila::ExprFuse']]],
-  ['num_5farg',['num_arg',['../classila_1_1_sort.html#a4ede4b2740975a868c15424cead6643d',1,'ila::Sort']]],
-  ['num_5fparam',['num_param',['../classila_1_1_expr.html#a9b93d16d067510b95312a7660b06a5ac',1,'ila::Expr']]]
+  ['num_5farg',['num_arg',['../classila_1_1_sort.html#a4ede4b2740975a868c15424cead6643d',1,'ila::Sort']]]
 ];

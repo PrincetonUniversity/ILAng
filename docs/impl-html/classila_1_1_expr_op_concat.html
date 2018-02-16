@@ -83,10 +83,10 @@ Inheritance diagram for ila::ExprOpConcat:</div>
  <div class="center">
   <img src="classila_1_1_expr_op_concat.png" usemap="#ila::ExprOpConcat_map" alt=""/>
   <map id="ila::ExprOpConcat_map" name="ila::ExprOpConcat_map">
-<area href="classila_1_1_expr_op.html" title="Expression for operations, e.g. AND, OR, ADD, etc. Operations are non-terminating nodes in the AST..." alt="ila::ExprOp" shape="rect" coords="0,168,114,192"/>
-<area href="classila_1_1_expr.html" title="The class for expression, which is the basic type for variables, constraints, state update expression..." alt="ila::Expr" shape="rect" coords="0,112,114,136"/>
-<area href="classila_1_1_ast.html" title="The class for the Abstract Syntax Tree. An Ast object can be an expression or function definition (in..." alt="ila::Ast" shape="rect" coords="0,56,114,80"/>
-<area href="classila_1_1_object.html" title="The basest type in the ILA structure. It can be either Ast, Instr, or InstrLvlAbs. " alt="ila::Object" shape="rect" coords="0,0,114,24"/>
+<area href="classila_1_1_expr_op.html" title="Expression for operations, e.g. AND, OR, ADD, etc. Operations are non-terminating nodes in the AST..." alt="ila::ExprOp" shape="rect" coords="118,168,344,192"/>
+<area href="classila_1_1_expr.html" title="The class for expression, which is the basic type for variables, constraints, state update expression..." alt="ila::Expr" shape="rect" coords="118,112,344,136"/>
+<area href="classila_1_1_ast.html" title="The class for the Abstract Syntax Tree. An Ast object can be an expression or function definition (in..." alt="ila::Ast" shape="rect" coords="0,56,226,80"/>
+<area href="classila_1_1_object.html" title="The basest type in the ILA structure. It can be either Ast, Instr, or InstrLvlAbs. " alt="ila::Object" shape="rect" coords="0,0,226,24"/>
 </map>
  </div></div>
 <table class="memberdecls">
@@ -121,6 +121,10 @@ z3::expr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="
 &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_op.html#a4646e5e1b3940bdacc1213313b7f0d9f">ExprOp</a> (const <a class="el" href="classila_1_1_expr.html#ae12f2dd872b3d2d33ea0a0a78d22ea6c">ExprPtr</a> arg0, const <a class="el" href="classila_1_1_expr.html#ae12f2dd872b3d2d33ea0a0a78d22ea6c">ExprPtr</a> arg1, const <a class="el" href="classila_1_1_expr.html#ae12f2dd872b3d2d33ea0a0a78d22ea6c">ExprPtr</a> arg2)</td></tr>
 <tr class="memdesc:a4646e5e1b3940bdacc1213313b7f0d9f inherit pub_methods_classila_1_1_expr_op"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor for ternary operators. <br /></td></tr>
 <tr class="separator:a4646e5e1b3940bdacc1213313b7f0d9f inherit pub_methods_classila_1_1_expr_op"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6bd731c8868632e5c4a6b73fce260b86 inherit pub_methods_classila_1_1_expr_op"><td class="memItemLeft" align="right" valign="top"><a id="a6bd731c8868632e5c4a6b73fce260b86"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_op.html#a6bd731c8868632e5c4a6b73fce260b86">ExprOp</a> (const <a class="el" href="classila_1_1_expr.html#ae12f2dd872b3d2d33ea0a0a78d22ea6c">ExprPtr</a> arg0, const int &amp;param1)</td></tr>
+<tr class="memdesc:a6bd731c8868632e5c4a6b73fce260b86 inherit pub_methods_classila_1_1_expr_op"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor for binary operators with parameters. <br /></td></tr>
+<tr class="separator:a6bd731c8868632e5c4a6b73fce260b86 inherit pub_methods_classila_1_1_expr_op"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af2d7634a2b10033b1c884d6eed56cd3d inherit pub_methods_classila_1_1_expr_op"><td class="memItemLeft" align="right" valign="top"><a id="af2d7634a2b10033b1c884d6eed56cd3d"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_op.html#af2d7634a2b10033b1c884d6eed56cd3d">ExprOp</a> (const <a class="el" href="classila_1_1_expr.html#ae12f2dd872b3d2d33ea0a0a78d22ea6c">ExprPtr</a> arg0, const int &amp;param1, const int &amp;param2)</td></tr>
 <tr class="memdesc:af2d7634a2b10033b1c884d6eed56cd3d inherit pub_methods_classila_1_1_expr_op"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor for ternary operators with parameters. <br /></td></tr>
@@ -154,14 +158,18 @@ const <a class="el" href="classila_1_1_sort.html">Sort</a> &amp;&#160;</td><td c
 const size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr.html#abf3063750c374bd98842b13e52dd0164">arity</a> () const</td></tr>
 <tr class="memdesc:abf3063750c374bd98842b13e52dd0164 inherit pub_methods_classila_1_1_expr"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the arity. <br /></td></tr>
 <tr class="separator:abf3063750c374bd98842b13e52dd0164 inherit pub_methods_classila_1_1_expr"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a74ffb348a99c46e5708bfb8995b54862 inherit pub_methods_classila_1_1_expr"><td class="memItemLeft" align="right" valign="top"><a id="a74ffb348a99c46e5708bfb8995b54862"></a>
+const size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr.html#a74ffb348a99c46e5708bfb8995b54862">arg_num</a> () const</td></tr>
+<tr class="memdesc:a74ffb348a99c46e5708bfb8995b54862 inherit pub_methods_classila_1_1_expr"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrun the number of argument (same as arity). <br /></td></tr>
+<tr class="separator:a74ffb348a99c46e5708bfb8995b54862 inherit pub_methods_classila_1_1_expr"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a71cec0bd1747c151b501489ab3f771ed inherit pub_methods_classila_1_1_expr"><td class="memItemLeft" align="right" valign="top"><a id="a71cec0bd1747c151b501489ab3f771ed"></a>
 <a class="el" href="classila_1_1_expr.html#ae12f2dd872b3d2d33ea0a0a78d22ea6c">ExprPtr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr.html#a71cec0bd1747c151b501489ab3f771ed">arg</a> (const size_t &amp;i) const</td></tr>
 <tr class="memdesc:a71cec0bd1747c151b501489ab3f771ed inherit pub_methods_classila_1_1_expr"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the i-th argument. <br /></td></tr>
 <tr class="separator:a71cec0bd1747c151b501489ab3f771ed inherit pub_methods_classila_1_1_expr"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9b93d16d067510b95312a7660b06a5ac inherit pub_methods_classila_1_1_expr"><td class="memItemLeft" align="right" valign="top"><a id="a9b93d16d067510b95312a7660b06a5ac"></a>
-const size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr.html#a9b93d16d067510b95312a7660b06a5ac">num_param</a> () const</td></tr>
-<tr class="memdesc:a9b93d16d067510b95312a7660b06a5ac inherit pub_methods_classila_1_1_expr"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the number of parameters. <br /></td></tr>
-<tr class="separator:a9b93d16d067510b95312a7660b06a5ac inherit pub_methods_classila_1_1_expr"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adbaf195a72438df16cdddea543d04efe inherit pub_methods_classila_1_1_expr"><td class="memItemLeft" align="right" valign="top"><a id="adbaf195a72438df16cdddea543d04efe"></a>
+const size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr.html#adbaf195a72438df16cdddea543d04efe">param_num</a> () const</td></tr>
+<tr class="memdesc:adbaf195a72438df16cdddea543d04efe inherit pub_methods_classila_1_1_expr"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the number of parameters. <br /></td></tr>
+<tr class="separator:adbaf195a72438df16cdddea543d04efe inherit pub_methods_classila_1_1_expr"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a71a54fa1f4557d88fccfc77add00cc69 inherit pub_methods_classila_1_1_expr"><td class="memItemLeft" align="right" valign="top"><a id="a71a54fa1f4557d88fccfc77add00cc69"></a>
 const int &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr.html#a71a54fa1f4557d88fccfc77add00cc69">param</a> (const size_t &amp;i) const</td></tr>
 <tr class="memdesc:a71a54fa1f4557d88fccfc77add00cc69 inherit pub_methods_classila_1_1_expr"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the i-th paramter. <br /></td></tr>
@@ -219,6 +227,11 @@ template&lt;class F &gt; </td></tr>
 <tr class="memitem:abed866b0a319246f60b3a0cff92bec95 inherit pub_methods_classila_1_1_expr"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classila_1_1_expr.html#abed866b0a319246f60b3a0cff92bec95">DepthFirstVisit</a> (F &amp;func)</td></tr>
 <tr class="memdesc:abed866b0a319246f60b3a0cff92bec95 inherit pub_methods_classila_1_1_expr"><td class="mdescLeft">&#160;</td><td class="mdescRight">Templated visitor: visit each node in a depth-first order and apply the function object F on it. <br /></td></tr>
 <tr class="separator:abed866b0a319246f60b3a0cff92bec95 inherit pub_methods_classila_1_1_expr"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3f82068c8577f0bac9174ac14ee1dff8 inherit pub_methods_classila_1_1_expr"><td class="memTemplParams" colspan="2"><a id="a3f82068c8577f0bac9174ac14ee1dff8"></a>
+template&lt;class F &gt; </td></tr>
+<tr class="memitem:a3f82068c8577f0bac9174ac14ee1dff8 inherit pub_methods_classila_1_1_expr"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classila_1_1_expr.html#a3f82068c8577f0bac9174ac14ee1dff8">DFV</a> (F &amp;func)</td></tr>
+<tr class="memdesc:a3f82068c8577f0bac9174ac14ee1dff8 inherit pub_methods_classila_1_1_expr"><td class="mdescLeft">&#160;</td><td class="mdescRight">Templated visitor: visit each node in a depth-first order and apply the function object F on it. <br /></td></tr>
+<tr class="separator:a3f82068c8577f0bac9174ac14ee1dff8 inherit pub_methods_classila_1_1_expr"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classila_1_1_ast"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classila_1_1_ast')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classila_1_1_ast.html">ila::Ast</a></td></tr>
 <tr class="memitem:af78f2889fb8c3ddd84d8242806931be9 inherit pub_methods_classila_1_1_ast"><td class="memItemLeft" align="right" valign="top"><a id="af78f2889fb8c3ddd84d8242806931be9"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_ast.html#af78f2889fb8c3ddd84d8242806931be9">Ast</a> ()</td></tr>

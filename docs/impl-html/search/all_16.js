@@ -6,5 +6,5 @@ var searchData=
   ['z3exprmapptr',['Z3ExprMapPtr',['../namespaceila.html#a9618bac5ce17f4c47127791bbcd412e7',1,'ila']]],
   ['z3exprvec',['Z3ExprVec',['../namespaceila.html#af8b5d4ee881a69b98ffe745ef6e9f84b',1,'ila']]],
   ['z3exprvecptr',['Z3ExprVecPtr',['../namespaceila.html#af5b840ab3644e13dd2439eebd3dfa4d8',1,'ila']]],
-  ['zeroextend',['ZeroExtend',['../expr__fuse_8h.html#a311664f5408fc37abfa1e1966a02610c',1,'ila::ExprFuse']]]
+  ['zext',['ZExt',['../classila_1_1_expr_ref.html#af3086fe56f85ba8c20115e29ab40e22a',1,'ila::ExprRef::ZExt()'],['../expr__fuse_8h.html#a9a07d73bf1d0ccc42f06da4fba21b7a4',1,'ila::ExprFuse::ZExt()'],['../namespaceila.html#ab854adb4ea347670af2f71b1ff36b40a',1,'ila::ZExt()']]]
 ];

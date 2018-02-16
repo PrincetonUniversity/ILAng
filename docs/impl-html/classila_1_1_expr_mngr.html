@@ -78,7 +78,7 @@ $(function() {
 <p>Simplifier for AST trees by sharing nodes based on the hash value.  
  <a href="classila_1_1_expr_mngr.html#details">More...</a></p>
 
-<p><code>#include &lt;<a class="el" href="simplify_8h_source.html">simplify.h</a>&gt;</code></p>
+<p><code>#include &lt;<a class="el" href="hash__ast_8h_source.html">hash_ast.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-types"></a>
 Public Types</h2></td></tr>
@@ -86,10 +86,10 @@ Public Types</h2></td></tr>
 typedef std::shared_ptr&lt; <a class="el" href="classila_1_1_expr_mngr.html">ExprMngr</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_mngr.html#aeccb5bd5344e1b7730ca2a5df52bc17f">ExprMngrPtr</a></td></tr>
 <tr class="memdesc:aeccb5bd5344e1b7730ca2a5df52bc17f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pointer type for passing shared ast simplifier. <br /></td></tr>
 <tr class="separator:aeccb5bd5344e1b7730ca2a5df52bc17f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1d1d6354b03f1ca35b91680fbaa64266"><td class="memItemLeft" align="right" valign="top"><a id="a1d1d6354b03f1ca35b91680fbaa64266"></a>
-typedef std::map&lt; std::string, <a class="el" href="namespaceila.html#af610f1359caba1beb7a780ebd58d2897">ExprPtr</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_mngr.html#a1d1d6354b03f1ca35b91680fbaa64266">HashTable</a></td></tr>
-<tr class="memdesc:a1d1d6354b03f1ca35b91680fbaa64266"><td class="mdescLeft">&#160;</td><td class="mdescRight">Type for cacheing the AST node hashing. <br /></td></tr>
-<tr class="separator:a1d1d6354b03f1ca35b91680fbaa64266"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af97bce0ba49929a807a130d5a199fa5a"><td class="memItemLeft" align="right" valign="top"><a id="af97bce0ba49929a807a130d5a199fa5a"></a>
+typedef std::unordered_map&lt; const <a class="el" href="namespaceila.html#af610f1359caba1beb7a780ebd58d2897">ExprPtr</a>, const <a class="el" href="namespaceila.html#af610f1359caba1beb7a780ebd58d2897">ExprPtr</a>, <a class="el" href="classila_1_1_ast_hash.html">AstHash</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_mngr.html#af97bce0ba49929a807a130d5a199fa5a">HashTable</a></td></tr>
+<tr class="memdesc:af97bce0ba49929a807a130d5a199fa5a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Type for cacheing the AST node hashing. <br /></td></tr>
+<tr class="separator:af97bce0ba49929a807a130d5a199fa5a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -109,6 +109,10 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <a class="el" href="namespaceila.html#af610f1359caba1beb7a780ebd58d2897">ExprPtr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_mngr.html#ad3219c65d8d5cd64268d4d626c69978b">Simplify</a> (const <a class="el" href="namespaceila.html#af610f1359caba1beb7a780ebd58d2897">ExprPtr</a> node, bool simplify)</td></tr>
 <tr class="memdesc:ad3219c65d8d5cd64268d4d626c69978b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Simplify the AST node. <br /></td></tr>
 <tr class="separator:ad3219c65d8d5cd64268d4d626c69978b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a131293635f523dd152625bbb4d7e82e8"><td class="memItemLeft" align="right" valign="top"><a id="a131293635f523dd152625bbb4d7e82e8"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_mngr.html#a131293635f523dd152625bbb4d7e82e8">operator()</a> (const <a class="el" href="namespaceila.html#af610f1359caba1beb7a780ebd58d2897">ExprPtr</a> node)</td></tr>
+<tr class="memdesc:a131293635f523dd152625bbb4d7e82e8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function object for sharing ast nodes. <br /></td></tr>
+<tr class="separator:a131293635f523dd152625bbb4d7e82e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
@@ -120,7 +124,7 @@ static <a class="el" href="classila_1_1_expr_mngr.html#aeccb5bd5344e1b7730ca2a5d
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Simplifier for AST trees by sharing nodes based on the hash value. </p>
 </div><hr/>The documentation for this class was generated from the following file:<ul>
-<li><a class="el" href="simplify_8h_source.html">simplify.h</a></li>
+<li><a class="el" href="hash__ast_8h_source.html">hash_ast.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

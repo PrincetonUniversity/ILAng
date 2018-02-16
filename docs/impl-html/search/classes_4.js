@@ -21,7 +21,10 @@ var searchData=
   ['expropor',['ExprOpOr',['../classila_1_1_expr_op_or.html',1,'ila']]],
   ['expropstore',['ExprOpStore',['../classila_1_1_expr_op_store.html',1,'ila']]],
   ['expropsub',['ExprOpSub',['../classila_1_1_expr_op_sub.html',1,'ila']]],
+  ['expropugt',['ExprOpUgt',['../classila_1_1_expr_op_ugt.html',1,'ila']]],
+  ['expropult',['ExprOpUlt',['../classila_1_1_expr_op_ult.html',1,'ila']]],
   ['expropxor',['ExprOpXor',['../classila_1_1_expr_op_xor.html',1,'ila']]],
+  ['expropzext',['ExprOpZExt',['../classila_1_1_expr_op_z_ext.html',1,'ila']]],
   ['exprref',['ExprRef',['../classila_1_1_expr_ref.html',1,'ila']]],
   ['exprvar',['ExprVar',['../classila_1_1_expr_var.html',1,'ila']]],
   ['exprwrap',['ExprWrap',['../classila_1_1pyapi_1_1_expr_wrap.html',1,'ila::pyapi']]]
