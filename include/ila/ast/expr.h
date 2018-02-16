@@ -41,17 +41,19 @@ public:
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return the pointer of the sort.
-  const Sort& sort() const;
+  inline const Sort& sort() const { return sort_; }
   /// Return the arity.
-  const size_t arity() const;
+  inline const size_t arity() const { return args_.size(); }
+  /// Retrun the number of argument (same as arity).
+  inline const size_t arg_num() const { return arity(); }
   /// Return the i-th argument.
-  ExprPtr arg(const size_t& i) const;
+  inline ExprPtr arg(const size_t& i) const { return args_.at(i); }
   /// Return the number of parameters.
-  const size_t num_param() const;
+  inline const size_t param_num() const { return params_.size(); }
   /// Return the i-th paramter.
-  const int& param(const size_t& i) const;
+  inline const int& param(const size_t& i) const { return params_.at(i); }
   /// Return the hosting ILA.
-  InstrLvlAbsPtr host() const;
+  inline InstrLvlAbsPtr host() const { return host_; }
 
   /// Set the sort of the expression.
   void set_sort(const Sort& sort);

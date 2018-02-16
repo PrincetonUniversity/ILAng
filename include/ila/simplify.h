@@ -1,5 +1,5 @@
 /// \file
-/// Header for the class ExprMngr
+/// Header for the class ExprMngr and the corresponding hash
 
 #ifndef SIMPLIFY_H__
 #define SIMPLIFY_H__
@@ -9,6 +9,13 @@
 
 /// \namespace ila
 namespace ila {
+
+/// \brief Hash for sharing AST sub-trees (syntactically).
+class AstHash {
+public:
+  /// Function object for hashing.
+  size_t operator()(const ExprPtr n) const;
+}; // class AstHash
 
 /// \brief Simplifier for AST trees by sharing nodes based on the hash value.
 class ExprMngr {
@@ -22,8 +29,7 @@ public:
   /// Pointer type for passing shared ast simplifier.
   typedef std::shared_ptr<ExprMngr> ExprMngrPtr;
   /// Type for cacheing the AST node hashing.
-  typedef std::map<std::string, ExprPtr> HashTable; // TODO unordermap
-  // std::unordered_map<AstHash, ExprPtr> HashTable;
+  typedef std::unordered_map<const ExprPtr, const ExprPtr, AstHash> HashTable;
 
   // ------------------------- HELPERS -------------------------------------- //
   /// \brief Create an object and return the pointer. Used for hiding

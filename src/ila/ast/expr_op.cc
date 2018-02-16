@@ -297,7 +297,7 @@ ExprOpExtract::ExprOpExtract(const ExprPtr bv, const int& hi, const int& lo)
 z3::expr ExprOpExtract::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                                   const std::string& suffix) const {
   ILA_ASSERT(expr_vec.size() == 1) << "Extract tale 1 argument.";
-  ILA_ASSERT(num_param() == 2) << "Extract need two parameters.";
+  ILA_ASSERT(param_num() == 2) << "Extract need two parameters.";
   auto bv = expr_vec[0];
   unsigned hi = static_cast<unsigned>(param(0));
   unsigned lo = static_cast<unsigned>(param(1));
