@@ -122,14 +122,22 @@ ExprPtr Sub(const ExprPtr l, const int& r);
 ExprPtr Eq(const ExprPtr l, const ExprPtr r);
 /// Comparison: not equal
 ExprPtr Ne(const ExprPtr l, const ExprPtr r);
-/// Comparison: unsigned less than (bv only)
+/// Comparison: signed less than (bv only)
 ExprPtr Lt(const ExprPtr l, const ExprPtr r);
-/// Comparison: unsigned greater than (bv only)
+/// Comparison: signed greater than (bv only)
 ExprPtr Gt(const ExprPtr l, const ExprPtr r);
-/// Comparison: unsigned less than or equal to (bv only)
+/// Comparison: signed less than or equal to (bv only)
 ExprPtr Le(const ExprPtr l, const ExprPtr r);
-/// Comparison: unsigned greater than or equal to (bv only)
+/// Comparison: signed greater than or equal to (bv only)
 ExprPtr Ge(const ExprPtr l, const ExprPtr r);
+/// Comparison: unsigned less than (bv only)
+ExprPtr Ult(const ExprPtr l, const ExprPtr r);
+/// Comparison: unsigned greater than (bv only)
+ExprPtr Ugt(const ExprPtr l, const ExprPtr r);
+/// Comparison: unsigned less than or equal to (bv only)
+ExprPtr Ule(const ExprPtr l, const ExprPtr r);
+/// Comparison: unsigned greater than or equal to (bv only)
+ExprPtr Uge(const ExprPtr l, const ExprPtr r);
 
 // helper functions for constant arguments
 /// Equal to Boolean.
@@ -138,14 +146,22 @@ ExprPtr Eq(const ExprPtr l, const bool& r);
 ExprPtr Eq(const ExprPtr l, const int& r);
 /// Not equal to int.
 ExprPtr Ne(const ExprPtr l, const int& r);
-/// Unsigned less than int.
+/// Signed less than int.
 ExprPtr Lt(const ExprPtr l, const int& r);
-/// Unsigned greater than int.
+/// Signed greater than int.
 ExprPtr Gt(const ExprPtr l, const int& r);
-/// Unsigned less than or equal to int.
+/// Signed less than or equal to int.
 ExprPtr Le(const ExprPtr l, const int& r);
-/// Unsigned greater than or equal to int.
+/// Signed greater than or equal to int.
 ExprPtr Ge(const ExprPtr l, const int& r);
+/// Unsgned less than int.
+ExprPtr Ult(const ExprPtr l, const int& r);
+/// Unsigned greater than int.
+ExprPtr Ugt(const ExprPtr l, const int& r);
+/// Unsigned less than or equal to int.
+ExprPtr Ule(const ExprPtr l, const int& r);
+/// Unsigned greater than or equal to int.
+ExprPtr Uge(const ExprPtr l, const int& r);
 
 /****************************************************************************/
 // Memory

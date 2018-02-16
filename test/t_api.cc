@@ -107,6 +107,14 @@ TEST(TestApi, ExprOps) {
   auto n_gt_bv_c = n_add_bv > 1;
   auto n_le_bv_c = n_add_bv <= 3;
   auto n_ge_bv_c = n_add_bv >= 0;
+  auto n_ult_bv = Ult(n_add_bv, n_sub_bv);
+  auto n_ugt_bv = Ugt(n_add_bv, n_sub_bv);
+  auto n_ule_bv = Ule(n_add_bv, n_sub_bv);
+  auto n_uge_bv = Uge(n_add_bv, n_sub_bv);
+  auto n_ult_bv_c = Ult(n_add_bv, 1);
+  auto n_ugt_bv_c = Ugt(n_add_bv, 2);
+  auto n_ule_bv_c = Ule(n_add_bv, 3);
+  auto n_uge_bv_c = Uge(n_add_bv, 4);
 
   auto n_load_bv = v_mem.Load(n_add_bv);
   auto n_load_bv_static = Load(v_mem, n_add_bv);

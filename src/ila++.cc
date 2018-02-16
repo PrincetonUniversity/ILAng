@@ -270,6 +270,26 @@ ExprRef operator>=(const ExprRef& a, const ExprRef& b) {
   return ExprRef(v);
 }
 
+ExprRef Ult(const ExprRef& a, const ExprRef& b) {
+  auto v = ExprFuse::Ult(a.get(), b.get());
+  return ExprRef(v);
+}
+
+ExprRef Ugt(const ExprRef& a, const ExprRef& b) {
+  auto v = ExprFuse::Ugt(a.get(), b.get());
+  return ExprRef(v);
+}
+
+ExprRef Ule(const ExprRef& a, const ExprRef& b) {
+  auto v = ExprFuse::Ule(a.get(), b.get());
+  return ExprRef(v);
+}
+
+ExprRef Uge(const ExprRef& a, const ExprRef& b) {
+  auto v = ExprFuse::Uge(a.get(), b.get());
+  return ExprRef(v);
+}
+
 ExprRef operator==(const ExprRef& a, const bool& b) {
   auto v = ExprFuse::Eq(a.get(), b);
   return ExprRef(v);
@@ -302,6 +322,26 @@ ExprRef operator<=(const ExprRef& a, const int& b) {
 
 ExprRef operator>=(const ExprRef& a, const int& b) {
   auto v = ExprFuse::Ge(a.get(), b);
+  return ExprRef(v);
+}
+
+ExprRef Ult(const ExprRef& a, const int& b) {
+  auto v = ExprFuse::Ult(a.get(), b);
+  return ExprRef(v);
+}
+
+ExprRef Ugt(const ExprRef& a, const int& b) {
+  auto v = ExprFuse::Ugt(a.get(), b);
+  return ExprRef(v);
+}
+
+ExprRef Ule(const ExprRef& a, const int& b) {
+  auto v = ExprFuse::Ule(a.get(), b);
+  return ExprRef(v);
+}
+
+ExprRef Uge(const ExprRef& a, const int& b) {
+  auto v = ExprFuse::Uge(a.get(), b);
   return ExprRef(v);
 }
 

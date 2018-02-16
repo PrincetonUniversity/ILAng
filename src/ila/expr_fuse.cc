@@ -122,13 +122,32 @@ ExprPtr ExprFuse::Gt(const ExprPtr l, const ExprPtr r) {
 ExprPtr ExprFuse::Le(const ExprPtr l, const ExprPtr r) {
   auto eq = std::make_shared<ExprOpEq>(l, r);
   auto lt = std::make_shared<ExprOpLt>(l, r);
-  return std::make_shared<ExprOpOr>(l, r);
+  return std::make_shared<ExprOpOr>(eq, lt);
 }
 
 ExprPtr ExprFuse::Ge(const ExprPtr l, const ExprPtr r) {
   auto eq = std::make_shared<ExprOpEq>(l, r);
   auto gt = std::make_shared<ExprOpGt>(l, r);
   return std::make_shared<ExprOpOr>(eq, gt);
+}
+ExprPtr ExprFuse::Ult(const ExprPtr l, const ExprPtr r) {
+  return std::make_shared<ExprOpUlt>(l, r);
+}
+
+ExprPtr ExprFuse::Ugt(const ExprPtr l, const ExprPtr r) {
+  return std::make_shared<ExprOpUgt>(l, r);
+}
+
+ExprPtr ExprFuse::Ule(const ExprPtr l, const ExprPtr r) {
+  auto eq = std::make_shared<ExprOpEq>(l, r);
+  auto ult = std::make_shared<ExprOpUlt>(l, r);
+  return std::make_shared<ExprOpOr>(eq, ult);
+}
+
+ExprPtr ExprFuse::Uge(const ExprPtr l, const ExprPtr r) {
+  auto eq = std::make_shared<ExprOpEq>(l, r);
+  auto ugt = std::make_shared<ExprOpUgt>(l, r);
+  return std::make_shared<ExprOpOr>(eq, ugt);
 }
 
 ExprPtr ExprFuse::Eq(const ExprPtr l, const bool& r) {
@@ -164,6 +183,26 @@ ExprPtr ExprFuse::Le(const ExprPtr l, const int& r) {
 ExprPtr ExprFuse::Ge(const ExprPtr l, const int& r) {
   auto rc = ExprFuse::BvConst(r, l->sort().bit_width());
   return ExprFuse::Ge(l, rc);
+}
+
+ExprPtr ExprFuse::Ult(const ExprPtr l, const int& r) {
+  auto rc = ExprFuse::BvConst(r, l->sort().bit_width());
+  return ExprFuse::Ult(l, rc);
+}
+
+ExprPtr ExprFuse::Ugt(const ExprPtr l, const int& r) {
+  auto rc = ExprFuse::BvConst(r, l->sort().bit_width());
+  return ExprFuse::Ugt(l, rc);
+}
+
+ExprPtr ExprFuse::Ule(const ExprPtr l, const int& r) {
+  auto rc = ExprFuse::BvConst(r, l->sort().bit_width());
+  return ExprFuse::Ule(l, rc);
+}
+
+ExprPtr ExprFuse::Uge(const ExprPtr l, const int& r) {
+  auto rc = ExprFuse::BvConst(r, l->sort().bit_width());
+  return ExprFuse::Uge(l, rc);
 }
 
 ExprPtr ExprFuse::Load(const ExprPtr mem, const ExprPtr addr) {

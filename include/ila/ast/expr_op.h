@@ -172,9 +172,9 @@ public:
                      const std::string& suffix = "") const;
 }; // class ExprOpEq
 
-// ExprOpNe is implemented in ExprFuse with Eq and Not.
+// Not equal is implemented in ExprFuse with Eq and Not.
 
-/// \brief The class wrapper for binary comparison LT "<".
+/// \brief The class wrapper for binary comparison signed less than "<".
 class ExprOpLt : public ExprOp {
 public:
   /// Construtor for Lt comparison.
@@ -184,7 +184,7 @@ public:
                      const std::string& suffix = "") const;
 }; // class ExprOpLt
 
-/// \brief The class wrapper for binary comparison GT ">".
+/// \brief The class wrapper for binary comparison signed greater than ">".
 class ExprOpGt : public ExprOp {
 public:
   /// Constructor for Gt comparison.
@@ -194,9 +194,33 @@ public:
                      const std::string& suffix = "") const;
 }; // class ExprOpGt
 
-// ExprOpLe is implemented in ExprFuse with Eq and Lt.
+// Signed less than or equal to is implemented in ExprFuse with Eq and Lt.
 
-// ExprOpGe is implemented in ExprFuse with Eq and Gt.
+// Signed greater than or equal to is implemented in ExprFuse with Eq and Gt.
+
+/// \brief The class wrapper for binary comparison unsigned less than.
+class ExprOpUlt : public ExprOp {
+public:
+  /// Construtor for ULt comparison.
+  ExprOpUlt(const ExprPtr arg0, const ExprPtr arg1);
+  std::string op_name() const { return "ULT"; }
+  z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                     const std::string& suffix = "") const;
+}; // class ExprOpUlt
+
+/// \brief The class wrapper for binary comparison unsigned greater than.
+class ExprOpUgt : public ExprOp {
+public:
+  /// Constructor for UGt comparison.
+  ExprOpUgt(const ExprPtr arg0, const ExprPtr arg1);
+  std::string op_name() const { return "UGT"; }
+  z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                     const std::string& suffix = "") const;
+}; // class ExprOpUgt
+
+// Unsigned less than or equal to is implemented in ExprFuse with Eq and ULt.
+
+// Unsigned greater than or equal to is implemented in ExprFuse with Eq and UGt.
 
 /******************************************************************************/
 // Memory

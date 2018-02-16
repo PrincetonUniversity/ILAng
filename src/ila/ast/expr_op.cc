@@ -241,6 +241,32 @@ z3::expr ExprOpGt::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
   return expr_vec[0] > expr_vec[1];
 }
 
+// ------------------------- Class ExprOpUlt -------------------------------- //
+ExprOpUlt::ExprOpUlt(const ExprPtr arg0, const ExprPtr arg1)
+    : ExprOp(arg0, arg1) {
+  set_sort(GetSortBinaryComparison(arg0->sort(), arg1->sort()));
+}
+
+z3::expr ExprOpUlt::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                              const std::string& suffix) const {
+  ILA_ASSERT(expr_vec.size() == 2) << "ULt is binary comparison.";
+  ILA_ASSERT(is_bv()) << "ULt can only be applied to bv.";
+  return z3::ult(expr_vec[0], expr_vec[1]);
+}
+
+// ------------------------- Class ExprOpUgt -------------------------------- //
+ExprOpUgt::ExprOpUgt(const ExprPtr arg0, const ExprPtr arg1)
+    : ExprOp(arg0, arg1) {
+  set_sort(GetSortBinaryComparison(arg0->sort(), arg1->sort()));
+}
+
+z3::expr ExprOpUgt::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                              const std::string& suffix) const {
+  ILA_ASSERT(expr_vec.size() == 2) << "UGt is binary comparison.";
+  ILA_ASSERT(is_bv()) << "UGt can only be applied to bv.";
+  return z3::ugt(expr_vec[0], expr_vec[1]);
+}
+
 // ------------------------- Class ExprOpLoad ------------------------------- //
 ExprOpLoad::ExprOpLoad(const ExprPtr mem, const ExprPtr addr)
     : ExprOp(mem, addr) {
