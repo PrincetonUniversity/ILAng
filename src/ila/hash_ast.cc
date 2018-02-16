@@ -51,20 +51,26 @@ ExprPtr ExprMngr::Simplify(const ExprPtr node, bool simplify) {
 
   node->DFV(*this);
 
-  // TODO
-  return node;
+  auto pos = map_.find(node);
+  ILA_ASSERT(pos != map_.end()) << "Representative not found for " << node;
+  return pos->second;
 }
 
 void ExprMngr::operator()(const ExprPtr node) {
-  auto pos = map_.find(node);
+  ExprPtrVec reps;
+  // replace child (must exist)
+  for (size_t i = 0; i != node->arg_num(); i++) {
+    auto arg_i = node->arg(i);
+    auto pos_i = map_.find(arg_i);
+    ILA_ASSERT(pos_i != map_.end()) << "Child arg representative not found.";
+    reps.push_back(pos_i->second);
+  }
+  node->set_args(reps);
 
+  auto pos = map_.find(node);
   // new node
   if (pos == map_.end()) {
     map_.insert({node, node});
-  } else { // existing node (to be shared)
-    auto rep = pos->second;
-    // replace child (must exist)
-    // no need to replace self (handled by parent)
   }
 }
 
