@@ -6,9 +6,9 @@
 
 #include "ila/ast/func.h"
 #include "ila/expr_fuse.h"
+#include "ila/hash_ast.h"
 #include "ila/instr.h"
 #include "ila/object.h"
-#include "ila/simplify.h"
 #include "ila/transition.h"
 #include "util/container.h"
 #include <map>

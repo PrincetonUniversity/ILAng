@@ -1,7 +1,7 @@
 /// \file
-/// Source for the class ExprMngr
+/// Source for the class ExprMngr and the corresponding hash
 
-#include "ila/simplify.h"
+#include "ila/hash_ast.h"
 
 namespace ila {
 
@@ -46,10 +46,10 @@ ExprMngrPtr ExprMngr::New() { return std::make_shared<ExprMngr>(); }
 void ExprMngr::clear() { map_.clear(); }
 
 ExprPtr ExprMngr::Simplify(const ExprPtr node, bool simplify) {
-  // TODO
   if (!simplify)
     return node;
 
+  // TODO
   return node;
 }
 

@@ -1,8 +1,8 @@
 /// \file
 /// Header for the class ExprMngr and the corresponding hash
 
-#ifndef SIMPLIFY_H__
-#define SIMPLIFY_H__
+#ifndef AST_HASH_H__
+#define AST_HASH_H__
 
 #include "ila/expr_fuse.h"
 #include <unordered_map>
@@ -56,5 +56,5 @@ typedef ExprMngr::ExprMngrPtr ExprMngrPtr;
 
 } // namespace ila
 
-#endif // SIMPLIFY_H__
+#endif // HASH_AST_H__
 

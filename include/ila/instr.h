@@ -5,8 +5,8 @@
 #define INSTR_H__
 
 #include "ila/expr_fuse.h"
+#include "ila/hash_ast.h"
 #include "ila/object.h"
-#include "ila/simplify.h"
 #include <memory>
 #include <string>
 
