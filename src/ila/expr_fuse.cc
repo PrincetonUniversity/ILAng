@@ -183,6 +183,10 @@ ExprPtr ExprFuse::Extract(const ExprPtr bv, const int& hi, const int& lo) {
   return std::make_shared<ExprOpExtract>(bv, hi, lo);
 }
 
+ExprPtr ExprFuse::ZExt(const ExprPtr bv, const int& out_width) {
+  return std::make_shared<ExprOpZExt>(bv, out_width);
+}
+
 ExprPtr ExprFuse::Imply(const ExprPtr p, const ExprPtr q) {
   return std::make_shared<ExprOpImply>(p, q);
 }

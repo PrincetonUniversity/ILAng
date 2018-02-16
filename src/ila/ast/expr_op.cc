@@ -51,13 +51,20 @@ ExprOp::ExprOp(const ExprPtr arg0, const ExprPtr arg1, const ExprPtr arg2) {
   }
 }
 
+ExprOp::ExprOp(const ExprPtr arg0, const int& param1) {
+  // args
+  set_args({arg0});
+  // params
+  set_params({param1});
+  // set host
+  set_host(arg0->host());
+}
+
 ExprOp::ExprOp(const ExprPtr arg0, const int& param1, const int& param2) {
   // args
-  ExprPtrVec args = {arg0};
-  set_args(args);
+  set_args({arg0});
   // params
-  std::vector<int> params = {param1, param2};
-  set_params(params);
+  set_params({param1, param2});
   // set hsot
   set_host(arg0->host());
 }
@@ -296,12 +303,30 @@ ExprOpExtract::ExprOpExtract(const ExprPtr bv, const int& hi, const int& lo)
 
 z3::expr ExprOpExtract::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                                   const std::string& suffix) const {
-  ILA_ASSERT(expr_vec.size() == 1) << "Extract tale 1 argument.";
+  ILA_ASSERT(expr_vec.size() == 1) << "Extract take 1 argument.";
   ILA_ASSERT(param_num() == 2) << "Extract need two parameters.";
   auto bv = expr_vec[0];
   unsigned hi = static_cast<unsigned>(param(0));
   unsigned lo = static_cast<unsigned>(param(1));
   return bv.extract(hi, lo);
+}
+
+// ------------------------- Class ExprOpZeroExtend ------------------------- //
+ExprOpZExt::ExprOpZExt(const ExprPtr bv, const int& bit_width)
+    : ExprOp(bv, bit_width) {
+  ILA_ASSERT(bv->is_bv()) << "Zero-extend can only be applied to bit-vector.";
+  ILA_ASSERT(bit_width >= bv->sort().bit_width())
+      << "Invalid target bit-width for extend.";
+  set_sort(Sort::MakeBvSort(bit_width));
+}
+
+z3::expr ExprOpZExt::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                               const std::string& suffix) const {
+  ILA_ASSERT(expr_vec.size() == 1) << "Extend take 1 argument.";
+  ILA_ASSERT(param_num() == 1) << "Extend need one parameter.";
+  auto bv = expr_vec[0];
+  unsigned wid = static_cast<unsigned>(param(0));
+  return z3::zext(bv, wid);
 }
 
 // ------------------------- Class ExprOpIte -------------------------------- //

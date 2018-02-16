@@ -119,6 +119,10 @@ public:
   ExprRef Append(const ExprRef& lsbv) const;
   /// Extract bit-field in the bit-vector.
   ExprRef operator()(const int& hi, const int& lo) const;
+  /// Extract single-bit in the bit-vector.
+  ExprRef operator()(const int& idx) const;
+  /// Zero-extend the bit-vector to the specified length.
+  ExprRef ZExt(const int& length) const;
 
 }; // class ExprRef
 
@@ -204,6 +208,19 @@ ExprRef Store(const ExprRef& mem, const ExprRef& addr, const ExprRef& data);
 /// \param[in] msbv bit-vector on the more-significant side.
 /// \param[in] lsbv bit-vector on the less-significant side.
 ExprRef Concat(const ExprRef& msbv, const ExprRef& lsbv);
+/// \brief Extract bit-field in the bit-vector.
+/// \param[in] bv source bit-vector.
+/// \param[in] hi the index of the most-significant bit.
+/// \param[in] lo the index of the least-significant bit.
+ExprRef Extract(const ExprRef& bv, const int& hi, const int& lo);
+/// \brief Extract single bit in the bit-vector.
+/// \param[in] bv source bit-vector.
+/// \param[in] idx the index of the selected bit.
+ExprRef SelectBit(const ExprRef& bv, const int& idx);
+/// \brief Zero-extend the bit-vector to the specified length.
+/// \param[in] bv source bit-vector.
+/// \param[in] length bit-width of the extended (result) bit-vector.
+ExprRef ZExt(const ExprRef& bv, const int& length);
 
 /******************************************************************************/
 // Others

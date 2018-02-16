@@ -166,6 +166,15 @@ ExprRef ExprRef::operator()(const int& hi, const int& lo) const {
   return ExprRef(v);
 }
 
+ExprRef ExprRef::operator()(const int& idx) const {
+  return ExprFuse::Extract(get(), idx, idx);
+}
+
+ExprRef ExprRef::ZExt(const int& length) const {
+  auto v = ExprFuse::ZExt(get(), length);
+  return ExprRef(v);
+}
+
 ExprRef operator-(const ExprRef& a) {
   auto v = ExprFuse::Negate(a.get());
   return ExprRef(v);
@@ -308,6 +317,21 @@ ExprRef Store(const ExprRef& mem, const ExprRef& addr, const ExprRef& data) {
 
 ExprRef Concat(const ExprRef& msbv, const ExprRef& lsbv) {
   auto v = ExprFuse::Concat(msbv.get(), lsbv.get());
+  return ExprRef(v);
+}
+
+ExprRef Extract(const ExprRef& bv, const int& hi, const int& lo) {
+  auto v = ExprFuse::Extract(bv.get(), hi, lo);
+  return ExprRef(v);
+}
+
+ExprRef SelectBit(const ExprRef& bv, const int& idx) {
+  auto v = ExprFuse::Extract(bv.get(), idx, idx);
+  return ExprRef(v);
+}
+
+ExprRef ZExt(const ExprRef& bv, const int& length) {
+  auto v = ExprFuse::ZExt(bv.get(), length);
   return ExprRef(v);
 }
 

@@ -24,6 +24,8 @@ public:
   ExprOp(const ExprPtr arg0, const ExprPtr arg1);
   /// Constructor for ternary operators.
   ExprOp(const ExprPtr arg0, const ExprPtr arg1, const ExprPtr arg2);
+  /// Constructor for binary operators with parameters.
+  ExprOp(const ExprPtr arg0, const int& param1);
   /// Constructor for ternary operators with parameters.
   ExprOp(const ExprPtr arg0, const int& param1, const int& param2);
   /// Default destructor.
@@ -244,7 +246,15 @@ public:
                      const std::string& suffix = "") const;
 }; // class ExprOpExtract
 
-// TODO ExprOpZeroExtend
+/// \brief The class wrapper for zero-extend.
+class ExprOpZExt : public ExprOp {
+public:
+  /// Constructor for bitvector zero-extend.
+  ExprOpZExt(const ExprPtr bv, const int& bit_width);
+  std::string op_name() const { return "ZERO_EXTEND"; }
+  z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                     const std::string& suffix = "") const;
+}; // class ExprOpZeroExtend
 
 /******************************************************************************/
 // Function usage

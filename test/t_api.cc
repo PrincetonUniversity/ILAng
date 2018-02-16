@@ -115,6 +115,11 @@ TEST(TestApi, ExprOps) {
 
   auto n_extract_bv = n_load_bv(4, 0);
   auto n_append_bv = n_extract_bv.Append(n_load_bv);
+  auto n_extract_static = Extract(n_load_bv, 4, 0);
+  auto n_select_bv = SelectBit(n_load_bv, 0);
+  auto n_extract_single_bv = n_extract_bv(1);
+  auto n_zext_bv = n_extract_single_bv.ZExt(REG_SIZE);
+  auto n_zext_static = ZExt(n_extract_single_bv, REG_SIZE);
   auto n_concat_bv = Concat(n_append_bv, n_extract_bv);
 
   auto n_imply_bool = Imply(n_ne_bool, n_xor_bool);

@@ -163,7 +163,7 @@ ExprPtr Concat(const ExprPtr hi, const ExprPtr lo);
 /// Extract bit field in the bitvector (bv only)
 ExprPtr Extract(const ExprPtr bv, const int& hi, const int& lo);
 /// Zero extend the bitvector to the specified length.
-ExprPtr ZeroExtend(const ExprPtr bv, const int& out_width);
+ExprPtr ZExt(const ExprPtr bv, const int& out_width);
 
 /****************************************************************************/
 // Function usage
