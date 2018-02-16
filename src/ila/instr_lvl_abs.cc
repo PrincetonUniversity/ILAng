@@ -6,7 +6,7 @@
 namespace ila {
 
 InstrLvlAbs::InstrLvlAbs(const std::string& name) : Object(name) {
-  ILA_WARN_IF(name == "") << "ILA name not specified...\n";
+  ILA_WARN_IF(name == "") << "ILA name not specified...";
   InitObject();
 }
 
@@ -93,12 +93,12 @@ const InstrLvlAbsPtr InstrLvlAbs::child(const std::string& name) const {
 void InstrLvlAbs::AddInput(const ExprPtr input_var) {
   // sanity check
   ILA_NOT_NULL(input_var);
-  ILA_ASSERT(input_var->is_var()) << "Register non-var to Inputs\n";
+  ILA_ASSERT(input_var->is_var()) << "Register non-var to Inputs.";
   // should be the first
   auto name = input_var->name();
   auto pos = inputs_.find(name);
-  ILA_ASSERT(pos == inputs_.end())
-      << "Input variable " << input_var << " has been declared.\n";
+  ILA_ASSERT(pos == inputs_.end()) << "Input variable " << input_var
+                                   << " has been declared.";
   // register to the simplifier
   auto var = expr_mngr_->Simplify(input_var, simplify_);
   // register to Inputs
@@ -110,12 +110,12 @@ void InstrLvlAbs::AddInput(const ExprPtr input_var) {
 void InstrLvlAbs::AddState(const ExprPtr state_var) {
   // sanity check
   ILA_NOT_NULL(state_var);
-  ILA_ASSERT(state_var->is_var()) << "Register non-var to States\n";
+  ILA_ASSERT(state_var->is_var()) << "Register non-var to States.";
   // should be the first
   auto name = state_var->name();
   auto pos = states_.find(name);
-  ILA_ASSERT(pos == states_.end())
-      << "State variable " << state_var << "has been declared.\n";
+  ILA_ASSERT(pos == states_.end()) << "State variable " << state_var
+                                   << "has been declared.";
   // register to the simplifier
   auto var = expr_mngr_->Simplify(state_var, simplify_);
   // register to States
@@ -127,7 +127,7 @@ void InstrLvlAbs::AddState(const ExprPtr state_var) {
 void InstrLvlAbs::AddInit(const ExprPtr cntr_expr) {
   // sanity check
   ILA_NOT_NULL(cntr_expr);
-  ILA_ASSERT(cntr_expr->is_bool()) << "Initial condition must be Boolean.\n";
+  ILA_ASSERT(cntr_expr->is_bool()) << "Initial condition must be Boolean.";
   // simplify
   auto cntr = expr_mngr_->Simplify(cntr_expr, simplify_);
   // register to Initial conditions
@@ -137,9 +137,9 @@ void InstrLvlAbs::AddInit(const ExprPtr cntr_expr) {
 void InstrLvlAbs::SetFetch(const ExprPtr fetch_expr) {
   // sanity check
   ILA_NOT_NULL(fetch_expr);
-  ILA_ASSERT(fetch_expr->is_bv()) << "Fetch function must be bit-vector.\n";
+  ILA_ASSERT(fetch_expr->is_bv()) << "Fetch function must be bit-vector.";
   // should be the first
-  ILA_ASSERT(!fetch_) << "Fetch function has been assigned.\n";
+  ILA_ASSERT(!fetch_) << "Fetch function has been assigned.";
   // simplify
   auto fetch = expr_mngr_->Simplify(fetch_expr, simplify_);
   // set as fetch function
@@ -149,9 +149,9 @@ void InstrLvlAbs::SetFetch(const ExprPtr fetch_expr) {
 void InstrLvlAbs::SetValid(const ExprPtr valid_expr) {
   // sanity check
   ILA_NOT_NULL(valid_expr);
-  ILA_ASSERT(valid_expr->is_bool()) << "Valid function must be Boolean.\n";
+  ILA_ASSERT(valid_expr->is_bool()) << "Valid function must be Boolean.";
   // should be the first
-  ILA_ASSERT(!valid_) << "Valid function has been assigned.\n";
+  ILA_ASSERT(!valid_) << "Valid function has been assigned.";
   // simplify
   auto valid = expr_mngr_->Simplify(valid_expr, simplify_);
   // set as valid function
