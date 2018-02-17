@@ -16,8 +16,6 @@ namespace ila {
 class ExprOp : public Expr {
 public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
-  /// Default constructor. DO NOT USE.
-  ExprOp();
   /// Constructor for unary operators.
   ExprOp(const ExprPtr arg);
   /// Constructor for binary operators.

@@ -6,7 +6,6 @@
 namespace ila {
 
 // ------------------------- Class ExprOp ----------------------------------- //
-ExprOp::ExprOp() { ILA_ERROR << "Undefined ExprOp constructor.\n"; }
 
 ExprOp::ExprOp(const ExprPtr arg) {
   // arg
