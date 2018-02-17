@@ -46,8 +46,6 @@ public:
   bool is_instr() const { return true; }
   /// Return true if has view.
   bool has_view() const;
-  /// Return true if simplification is performed.
-  bool has_simplify() const;
   /// Return the host ILA.
   InstrLvlAbsPtr host() const;
 

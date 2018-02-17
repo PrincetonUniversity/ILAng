@@ -3,6 +3,9 @@
 
 #include "ila/instr_lvl_abs.h"
 
+// Do the simplification by hashing AST sub-trees.
+static const bool kUnifyAst = true;
+
 namespace ila {
 
 InstrLvlAbs::InstrLvlAbs(const std::string& name) : Object(name) {
@@ -18,13 +21,9 @@ InstrLvlAbsPtr InstrLvlAbs::New(const std::string& name) {
 
 bool InstrLvlAbs::is_spec() const { return is_spec_; }
 
-bool InstrLvlAbs::to_simplify() const { return simplify_; }
-
 const ExprMngrPtr InstrLvlAbs::expr_mngr() const { return expr_mngr_; }
 
 void InstrLvlAbs::set_spec(bool spec) { is_spec_ = spec; }
-
-void InstrLvlAbs::set_simplify(bool simplify) { simplify_ = simplify; }
 
 void InstrLvlAbs::set_expr_mngr(const ExprMngrPtr expr_mngr) {
   expr_mngr_ = expr_mngr;
@@ -162,7 +161,7 @@ void InstrLvlAbs::AddInstr(const InstrPtr instr) {
   ILA_NOT_NULL(instr);
   // set simplifier to the instruction
   instr->set_mngr(expr_mngr_);
-  instr->set_simplify(simplify_);
+  instr->set_simplify(kUnifyAst);
   // register the instruction and idx
   auto name = instr->name();
   instrs_.push_back(name, instr);
@@ -278,7 +277,7 @@ std::ostream& operator<<(std::ostream& out, InstrLvlAbsPtr ila) {
 }
 
 ExprPtr InstrLvlAbs::Unify(const ExprPtr e) {
-  return expr_mngr_->GetRep(e, simplify_);
+  return expr_mngr_->GetRep(e, kUnifyAst);
 }
 
 void InstrLvlAbs::InitObject() {

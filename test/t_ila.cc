@@ -34,9 +34,11 @@ TEST(TestInstrLvlAbs, Spec) {
 TEST(TestInstrLvlAbs, Simplifier) {
   auto ila = InstrLvlAbs::New("ila");
 
+#if 0
   EXPECT_TRUE(ila->to_simplify());
   ila->set_simplify(false);
   EXPECT_FALSE(ila->to_simplify());
+#endif
 
   ExprMngrPtr new_mngr = std::make_shared<ExprMngr>();
   EXPECT_NE(new_mngr.get(), ila->expr_mngr().get());
@@ -215,7 +217,7 @@ TEST(TestInstrLvlAbs, Instr) {
   ila->AddInstr(instr_ex_n);
 
   // external named instruction with simplifier
-  ila->set_simplify(false);
+  // ila->set_simplify(false);
   auto instr_ex_n_s = Instr::New("instr_ex_n_s", ila->expr_mngr());
   ila->AddInstr(instr_ex_n_s);
 
@@ -223,17 +225,19 @@ TEST(TestInstrLvlAbs, Instr) {
   auto instr_em = ila->NewInstr();
 
   // embedded named instruction
-  ila->set_simplify(true);
+  // ila->set_simplify(true);
   auto instr_em_n = ila->NewInstr("instr_em_n");
 
   EXPECT_EQ(5, ila->instr_num());
 
-  // simplify flag
+// simplify flag
+#if 0
   EXPECT_TRUE(instr_ex->has_simplify());
   EXPECT_TRUE(instr_ex_n->has_simplify());
   EXPECT_FALSE(instr_ex_n_s->has_simplify());
   EXPECT_FALSE(instr_em->has_simplify());
   EXPECT_TRUE(instr_em_n->has_simplify());
+#endif
 
 // add existed instr
 #ifndef NDEBUG

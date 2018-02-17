@@ -59,15 +59,11 @@ public:
 
   /// Return true if is specification (not implementation).
   bool is_spec() const;
-  /// Return whether to perform simplification.
-  bool to_simplify() const;
   /// Return the ast simplifier.
   const ExprMngrPtr expr_mngr() const;
 
   /// Set the ILA to be specification if true.
   void set_spec(bool spec);
-  /// Turn on the expr (AST node) simplification if true.
-  void set_simplify(bool simplify);
   /// Update the ast simplifier.
   void set_expr_mngr(const ExprMngrPtr expr_mngr);
 
@@ -226,8 +222,6 @@ private:
 
   /// Specification/implementation.
   bool is_spec_ = true;
-  /// To simplify expr nodes.
-  bool simplify_ = true;
 
   /// The simplifier for expr nodes. May be shared.
   ExprMngrPtr expr_mngr_ = ExprMngr::New();
