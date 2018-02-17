@@ -103,7 +103,7 @@ void InstrLvlAbs::AddInput(const ExprPtr input_var) {
   // register to Inputs
   inputs_.push_back(name, var);
   // set host
-  var->set_host(shared_from_this());
+  // var->set_host(shared_from_this());
 }
 
 void InstrLvlAbs::AddState(const ExprPtr state_var) {
@@ -120,7 +120,7 @@ void InstrLvlAbs::AddState(const ExprPtr state_var) {
   // register to States
   states_.push_back(name, var);
   // set host
-  var->set_host(shared_from_this());
+  // var->set_host(shared_from_this());
 }
 
 void InstrLvlAbs::AddInit(const ExprPtr cntr_expr) {
@@ -173,6 +173,9 @@ void InstrLvlAbs::AddChild(const InstrLvlAbsPtr child) {
 
 const ExprPtr InstrLvlAbs::NewBoolInput(const std::string& name) {
   ExprPtr bool_input = ExprFuse::NewBoolVar(name);
+  // set host
+  bool_input->set_host(shared_from_this());
+  // register
   AddInput(bool_input);
   return bool_input;
 }
@@ -180,12 +183,18 @@ const ExprPtr InstrLvlAbs::NewBoolInput(const std::string& name) {
 const ExprPtr InstrLvlAbs::NewBvInput(const std::string& name,
                                       const int& bit_width) {
   ExprPtr bv_input = ExprFuse::NewBvVar(name, bit_width);
+  // set host
+  bv_input->set_host(shared_from_this());
+  // register
   AddInput(bv_input);
   return bv_input;
 }
 
 const ExprPtr InstrLvlAbs::NewBoolState(const std::string& name) {
   ExprPtr bool_state = ExprFuse::NewBoolVar(name);
+  // set host
+  bool_state->set_host(shared_from_this());
+  // register
   AddState(bool_state);
   return bool_state;
 }
@@ -193,6 +202,9 @@ const ExprPtr InstrLvlAbs::NewBoolState(const std::string& name) {
 const ExprPtr InstrLvlAbs::NewBvState(const std::string& name,
                                       const int& bit_width) {
   ExprPtr bv_state = ExprFuse::NewBvVar(name, bit_width);
+  // set host
+  bv_state->set_host(shared_from_this());
+  // register
   AddState(bv_state);
   return bv_state;
 }
@@ -201,19 +213,33 @@ const ExprPtr InstrLvlAbs::NewMemState(const std::string& name,
                                        const int& addr_width,
                                        const int& data_width) {
   ExprPtr mem_state = ExprFuse::NewMemVar(name, addr_width, data_width);
+  // set host
+  mem_state->set_host(shared_from_this());
+  // register
   AddState(mem_state);
   return mem_state;
 }
 
 const InstrPtr InstrLvlAbs::NewInstr(const std::string& name) {
   InstrPtr instr = Instr::New(name, shared_from_this());
+  // set ast hash manager
   instr->set_mngr(expr_mngr_);
+  // register
   AddInstr(instr);
   return instr;
 }
 
 const InstrLvlAbsPtr InstrLvlAbs::NewChild(const std::string& name) {
   InstrLvlAbsPtr child = New(name);
+  // inherit states
+  for (size_t i = 0; i != states_.size(); i++) {
+    child->AddState(states_[i]);
+  }
+  // inherit inputs
+  for (size_t i = 0; i != inputs_.size(); i++) {
+    child->AddInput(inputs_[i]);
+  }
+  // register
   AddChild(child);
   return child;
 }
