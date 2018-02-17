@@ -126,6 +126,8 @@ private:
   InstrLvlAbsPtr host_ = NULL;
 
   // ------------------------- HELPERS -------------------------------------- //
+  /// Simplify AST nodes with the representatives.
+  ExprPtr Unify(const ExprPtr e);
 
 }; // class Instr
 

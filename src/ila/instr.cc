@@ -60,7 +60,7 @@ void Instr::ForceSetDecode(const ExprPtr decode) {
   ILA_NOT_NULL(decode); // setting NULL pointer to decode function
   ILA_CHECK(decode->is_bool()) << "Decode must have Boolean sort.\n";
 
-  decode_ = expr_mngr_->Simplify(decode, simplify_);
+  decode_ = GetUpdate(decode);
 }
 
 void Instr::AddUpdate(const std::string& name, const ExprPtr update) {
@@ -81,7 +81,7 @@ void Instr::AddUpdate(const ExprPtr state, const ExprPtr update) {
 }
 
 void Instr::ForceAddUpdate(const std::string& name, const ExprPtr update) {
-  ExprPtr sim_update = expr_mngr_->Simplify(update, simplify_);
+  ExprPtr sim_update = Unify(update);
   updates_[name] = sim_update;
 }
 
@@ -109,6 +109,10 @@ std::ostream& Instr::Print(std::ostream& out) const {
 
 std::ostream& operator<<(std::ostream& out, InstrPtr i) {
   return i->Print(out);
+}
+
+ExprPtr Instr::Unify(const ExprPtr e) {
+  return expr_mngr_->GetRep(e, simplify_);
 }
 
 } // namespace ila

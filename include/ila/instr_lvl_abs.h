@@ -233,12 +233,12 @@ private:
   ExprMngrPtr expr_mngr_ = ExprMngr::New();
 
   // ------------------------- HELPERS -------------------------------------- //
+  /// Simplify AST nodes with the representatives.
+  ExprPtr Unify(const ExprPtr e);
   /// Initialize default configuration, reset members, etc.
   void InitObject();
-
   /// Check instruction is complete (e.g. update sort matches).
   void CheckInstr(const InstrPtr instr);
-
   /// Simplify instruction if not already.
   void SimplifyInstr(const InstrPtr instr);
 

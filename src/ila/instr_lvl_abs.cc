@@ -100,7 +100,7 @@ void InstrLvlAbs::AddInput(const ExprPtr input_var) {
   ILA_ASSERT(pos == inputs_.end()) << "Input variable " << input_var
                                    << " has been declared.";
   // register to the simplifier
-  auto var = expr_mngr_->Simplify(input_var, simplify_);
+  auto var = Unify(input_var);
   // register to Inputs
   inputs_.push_back(name, var);
   // set host
@@ -117,7 +117,7 @@ void InstrLvlAbs::AddState(const ExprPtr state_var) {
   ILA_ASSERT(pos == states_.end()) << "State variable " << state_var
                                    << "has been declared.";
   // register to the simplifier
-  auto var = expr_mngr_->Simplify(state_var, simplify_);
+  auto var = Unify(state_var);
   // register to States
   states_.push_back(name, var);
   // set host
@@ -129,7 +129,7 @@ void InstrLvlAbs::AddInit(const ExprPtr cntr_expr) {
   ILA_NOT_NULL(cntr_expr);
   ILA_ASSERT(cntr_expr->is_bool()) << "Initial condition must be Boolean.";
   // simplify
-  auto cntr = expr_mngr_->Simplify(cntr_expr, simplify_);
+  auto cntr = Unify(cntr_expr);
   // register to Initial conditions
   inits_.push_back(cntr);
 }
@@ -141,7 +141,7 @@ void InstrLvlAbs::SetFetch(const ExprPtr fetch_expr) {
   // should be the first
   ILA_ASSERT(!fetch_) << "Fetch function has been assigned.";
   // simplify
-  auto fetch = expr_mngr_->Simplify(fetch_expr, simplify_);
+  auto fetch = Unify(fetch_expr);
   // set as fetch function
   fetch_ = fetch;
 }
@@ -153,7 +153,7 @@ void InstrLvlAbs::SetValid(const ExprPtr valid_expr) {
   // should be the first
   ILA_ASSERT(!valid_) << "Valid function has been assigned.";
   // simplify
-  auto valid = expr_mngr_->Simplify(valid_expr, simplify_);
+  auto valid = Unify(valid_expr);
   // set as valid function
   valid_ = valid;
 }
@@ -259,7 +259,7 @@ void InstrLvlAbs::SortInstr() {
 void InstrLvlAbs::AddSeqTran(const InstrPtr src, const InstrPtr dst,
                              const ExprPtr cnd) {
   // XXX src, dst should already registered.
-  auto cnd_simplified = expr_mngr_->Simplify(cnd, simplify_);
+  auto cnd_simplified = Unify(cnd);
   instr_seq_.AddTran(src, dst, cnd_simplified);
 }
 
@@ -275,6 +275,10 @@ std::ostream& operator<<(std::ostream& out, InstrLvlAbs& ila) {
 
 std::ostream& operator<<(std::ostream& out, InstrLvlAbsPtr ila) {
   return ila->Print(out);
+}
+
+ExprPtr InstrLvlAbs::Unify(const ExprPtr e) {
+  return expr_mngr_->GetRep(e, simplify_);
 }
 
 void InstrLvlAbs::InitObject() {

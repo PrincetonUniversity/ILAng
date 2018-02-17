@@ -34,8 +34,15 @@ public:
   void clear();
 
   // ------------------------- METHODS -------------------------------------- //
-  /// Simplify the AST node.
-  ExprPtr Simplify(const ExprPtr node, bool simplify = true);
+  /// Return the AST node representative.
+  inline ExprPtr GetRep(const ExprPtr node, bool simplify = true) {
+    if (simplify)
+      return Simplify(node);
+    else
+      return node;
+  }
+  /// Simplify the AST node and get the representative.
+  ExprPtr Simplify(const ExprPtr node);
   /// Function object for sharing ast nodes.
   void operator()(const ExprPtr node);
 
