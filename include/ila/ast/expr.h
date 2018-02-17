@@ -24,8 +24,6 @@ class InstrLvlAbs;
 /// constraints, state update expressions, etc.
 class Expr : public Ast, public std::enable_shared_from_this<Expr> {
 public:
-  /// Pointer type only for visitor function objects.
-  typedef Expr* ExprPtrRaw;
   /// Pointer type for normal use of Expr.
   typedef std::shared_ptr<Expr> ExprPtr;
   /// Type for storing a set of Expr.
@@ -97,20 +95,9 @@ public:
   /// \brief Templated visitor: visit each node in a depth-first order and apply
   /// the function object F on it.
   template <class F> void DepthFirstVisit(F& func) {
-    size_t n = arity();
-    for (size_t i = 0; i != n; i++) {
-      const ExprPtr arg_i = this->arg(i);
-      arg_i->DepthFirstVisit<F>(func);
-    }
-    func(this);
-  }
-
-  /// \brief Templated visitor: visit each node in a depth-first order and apply
-  /// the function object F on it.
-  template <class F> void DFV(F& func) {
     for (size_t i = 0; i != arg_num(); i++) {
       const ExprPtr arg_i = this->arg(i);
-      arg_i->DFV<F>(func);
+      arg_i->DepthFirstVisit<F>(func);
     }
     func(shared_from_this());
   }
@@ -130,8 +117,6 @@ private:
 
 }; // class Expr
 
-/// Pointer type only for visitor function objects.
-typedef Expr::ExprPtrRaw ExprPtrRaw;
 /// Pointer type for normal use of Expr.
 typedef Expr::ExprPtr ExprPtr;
 /// Type for storing a set of Expr.
@@ -142,7 +127,7 @@ typedef Expr::ExprPtrVec ExprPtrVec;
 class ExprHash {
 public:
   /// Function object for hashing
-  size_t operator()(const ExprPtrRaw expr) const { return expr->name().id(); }
+  size_t operator()(const ExprPtr expr) const { return expr->name().id(); }
 }; // struct ExprHash
 
 } // namespace ila

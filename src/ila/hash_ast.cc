@@ -17,7 +17,7 @@ ExprMngrPtr ExprMngr::New() { return std::make_shared<ExprMngr>(); }
 void ExprMngr::clear() { map_.clear(); }
 
 ExprPtr ExprMngr::Simplify(const ExprPtr node) {
-  node->DFV(*this);
+  node->DepthFirstVisit(*this);
 
   auto pos = map_.find(Hash(node));
   ILA_ASSERT(pos != map_.end()) << "Representative not found for " << node;

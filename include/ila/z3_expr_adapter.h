@@ -21,14 +21,14 @@ public:
   ~Z3ExprAdapter();
 
   /// Type for caching the generated expressions.
-  typedef std::unordered_map<const ExprPtrRaw, z3::expr, ExprHash> ExprMap;
+  typedef std::unordered_map<const ExprPtr, z3::expr, ExprHash> ExprMap;
 
   // ------------------------- METHODS -------------------------------------- //
   /// Get the z3 expression of the AST node.
   z3::expr GetExpr(const ExprPtr expr, const std::string& suffix = "");
 
   /// Function object for getting z3 expression.
-  void operator()(const ExprPtrRaw expr);
+  void operator()(const ExprPtr expr);
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
@@ -41,7 +41,7 @@ private:
 
   // ------------------------- HELPERS -------------------------------------- //
   /// Insert the z3 expression of the given node into the map.
-  void PopulateExprMap(const ExprPtrRaw expr);
+  void PopulateExprMap(const ExprPtr expr);
 
 }; // class Z3ExprAdapter
 

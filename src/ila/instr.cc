@@ -60,7 +60,7 @@ void Instr::ForceSetDecode(const ExprPtr decode) {
   ILA_NOT_NULL(decode); // setting NULL pointer to decode function
   ILA_CHECK(decode->is_bool()) << "Decode must have Boolean sort.\n";
 
-  decode_ = GetUpdate(decode);
+  decode_ = Unify(decode);
 }
 
 void Instr::AddUpdate(const std::string& name, const ExprPtr update) {
