@@ -9,11 +9,13 @@ namespace ila {
 class TestOpSanity : public ::testing::Test {
 public:
   TestOpSanity() {
+    m = new Ila("host");
     // TODO
   }
 
   ~TestOpSanity() {
-    // TODO
+    if (m)
+      delete m;
   }
 
   void SetUp() {
@@ -26,7 +28,7 @@ public:
     SetToStdErr(0);
   }
 
-  InstrLvlAbsPtr ila = InstrLvlAbs::New("host");
+  Ila* m = NULL;
 
 }; // class TestOpSanity
 
