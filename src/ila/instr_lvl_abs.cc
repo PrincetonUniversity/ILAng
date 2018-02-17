@@ -159,13 +159,9 @@ void InstrLvlAbs::SetValid(const ExprPtr valid_expr) {
 
 void InstrLvlAbs::AddInstr(const InstrPtr instr) {
   ILA_NOT_NULL(instr);
-  // set simplifier to the instruction
-  instr->set_mngr(expr_mngr_);
-  instr->set_simplify(kUnifyAst);
   // register the instruction and idx
   auto name = instr->name();
   instrs_.push_back(name, instr);
-  instr->set_host(shared_from_this());
 }
 
 void InstrLvlAbs::AddChild(const InstrLvlAbsPtr child) {
@@ -210,7 +206,8 @@ const ExprPtr InstrLvlAbs::NewMemState(const std::string& name,
 }
 
 const InstrPtr InstrLvlAbs::NewInstr(const std::string& name) {
-  InstrPtr instr = Instr::New(name);
+  InstrPtr instr = Instr::New(name, shared_from_this());
+  instr->set_mngr(expr_mngr_);
   AddInstr(instr);
   return instr;
 }
@@ -289,7 +286,7 @@ void InstrLvlAbs::InitObject() {
   childs_.clear();
   instr_seq_.clear();
   // shared
-  expr_mngr_->clear();
+  expr_mngr_ = kUnifyAst ? ExprMngr::New() : NULL;
 }
 
 } // namespace ila

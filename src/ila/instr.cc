@@ -7,26 +7,18 @@ namespace ila {
 
 typedef Instr::InstrLvlAbsPtr InstrLvlAbsPtr;
 
-Instr::Instr(const std::string& name, ExprMngrPtr expr_mngr) {
+Instr::Instr(const std::string& name, const InstrLvlAbsPtr host) : host_(host) {
   // update name if specified
   if (name != "")
     set_name(name);
-  // update ast simplifier if specified
-  if (expr_mngr) {
-    expr_mngr_ = expr_mngr;
-    simplify_ = true;
-  } else {
-    expr_mngr = NULL;
-    simplify_ = false;
-  }
   // initialization for other components
   updates_.clear();
 }
 
 Instr::~Instr(){};
 
-InstrPtr Instr::New(const std::string& name, ExprMngrPtr expr_mngr) {
-  return std::make_shared<Instr>(name, expr_mngr);
+InstrPtr Instr::New(const std::string& name, InstrLvlAbsPtr host) {
+  return std::make_shared<Instr>(name, host);
 }
 
 bool Instr::has_view() const { return has_view_; }
@@ -35,21 +27,14 @@ InstrLvlAbsPtr Instr::host() const { return host_; }
 
 void Instr::set_view(bool v) { has_view_ = v; }
 
-void Instr::set_simplify(bool s) { simplify_ = s; }
-
-void Instr::set_mngr(const ExprMngrPtr mngr) {
-  ILA_NOT_NULL(mngr);
-  expr_mngr_ = mngr;
-}
-
-void Instr::set_host(const InstrLvlAbsPtr host) { host_ = host; }
+void Instr::set_mngr(const ExprMngrPtr mngr) { expr_mngr_ = mngr; }
 
 void Instr::SetDecode(const ExprPtr decode) {
-  ILA_ERROR_IF(decode_ != NULL)
+  ILA_ERROR_IF(decode_)
       << "Decode for " << name()
       << "has been assigned. Use ForceSetDecode to overwrite.\n";
 
-  if (decode_ == NULL) {
+  if (!decode_) {
     ForceSetDecode(decode);
   }
 }
@@ -110,7 +95,7 @@ std::ostream& operator<<(std::ostream& out, InstrPtr i) {
 }
 
 ExprPtr Instr::Unify(const ExprPtr e) {
-  return expr_mngr_->GetRep(e, simplify_);
+  return expr_mngr_ ? expr_mngr_->GetRep(e) : e;
 }
 
 } // namespace ila

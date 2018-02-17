@@ -31,15 +31,14 @@ public:
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Constructor with the ast simplifier.
-  Instr(const std::string& name = "", ExprMngrPtr expr_mngr = NULL);
+  Instr(const std::string& name = "", const InstrLvlAbsPtr host = NULL);
   /// Default destructor.
   ~Instr();
 
   // ------------------------- HELPERS -------------------------------------- //
-  /// \brief Create a new instruction (Instr) binded with the simplifier. Used
+  /// \brief Create a new instruction (Instr) binded with the host. Used
   /// for hiding implementation specific type details.
-  static InstrPtr New(const std::string& name = "",
-                      ExprMngrPtr expr_mngr = NULL);
+  static InstrPtr New(const std::string& name = "", InstrLvlAbsPtr host = NULL);
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return true if Is type Instr.
@@ -54,13 +53,7 @@ public:
   void set_view(bool v);
   /// \brief Turn on simplification if true.
   /// \param[in] s the flag indicating whether to share the ast nodes.
-  void set_simplify(bool s);
-  /// \brief Assign the simplifier.
-  /// \param[in] mngr the ast simplifier.
   void set_mngr(const ExprMngrPtr mngr);
-  /// \brief Set the host ILA.
-  /// \param[in] host the host ILA.
-  void set_host(const InstrLvlAbsPtr host);
 
   // ------------------------- METHODS -------------------------------------- //
   /// \brief Set the decode function if not yet assigned.
@@ -109,8 +102,6 @@ private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// Has view.
   bool has_view_ = false;
-  /// To simplify expr nodes.
-  bool simplify_;
 
   /// The decode function.
   ExprPtr decode_ = NULL;
@@ -118,10 +109,10 @@ private:
   ExprPtrMap updates_;
 
   /// The simplifier for expr nodes.
-  ExprMngrPtr expr_mngr_;
+  ExprMngrPtr expr_mngr_ = NULL;
 
   /// The host ILA.
-  InstrLvlAbsPtr host_ = NULL;
+  InstrLvlAbsPtr host_;
 
   // ------------------------- HELPERS -------------------------------------- //
   /// Simplify AST nodes with the representatives.

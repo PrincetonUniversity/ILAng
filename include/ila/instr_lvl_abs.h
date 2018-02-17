@@ -224,7 +224,7 @@ private:
   bool is_spec_ = true;
 
   /// The simplifier for expr nodes. May be shared.
-  ExprMngrPtr expr_mngr_ = ExprMngr::New();
+  ExprMngrPtr expr_mngr_ = NULL;
 
   // ------------------------- HELPERS -------------------------------------- //
   /// Simplify AST nodes with the representatives.

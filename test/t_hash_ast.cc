@@ -19,6 +19,8 @@ public:
     bv_y = ila->NewBvState("bv_y", 8);
     bv_z = ila->NewBvState("bv_z", 8);
     mngr = ila->expr_mngr();
+    if (!mngr) // XXX make it better
+      mngr = ExprMngr::New();
   }
 
   ~TestHashApi() {}
