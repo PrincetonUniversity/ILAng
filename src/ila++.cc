@@ -175,6 +175,14 @@ ExprRef ExprRef::ZExt(const int& length) const {
   return ExprRef(v);
 }
 
+void ExprRef::ReplaceArg(const int& i, const ExprRef& new_arg) {
+  get()->replace_arg(i, new_arg.get());
+}
+
+void ExprRef::ReplaceArg(const ExprRef& org_arg, const ExprRef& new_arg) {
+  get()->replace_arg(org_arg.get(), new_arg.get());
+}
+
 ExprRef operator-(const ExprRef& a) {
   auto v = ExprFuse::Negate(a.get());
   return ExprRef(v);

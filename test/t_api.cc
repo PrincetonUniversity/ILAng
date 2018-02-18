@@ -148,6 +148,23 @@ TEST(TestApi, NonConstruct) {
   EXPECT_TRUE(TopEqual(b, c));
 }
 
+TEST(TestApi, ReplaceArg) {
+  Ila ila("host");
+  auto v_bool = ila.NewBoolState("v_bool");
+  auto c_bool = BoolConst(true);
+
+  auto a = v_bool | c_bool;
+  auto b = a & v_bool;
+  auto c = a | v_bool;
+
+  auto x = a ^ b;
+  auto y = b ^ c;
+
+  y.ReplaceArg(b, a);
+  y.ReplaceArg(1, b);
+  EXPECT_TRUE(TopEqual(x, y));
+}
+
 TEST(TestApi, Log) {
   LogLevel(0);
   LogPath("");

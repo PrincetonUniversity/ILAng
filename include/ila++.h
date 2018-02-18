@@ -66,6 +66,14 @@ public:
   /// Zero-extend the bit-vector to the specified length.
   ExprRef ZExt(const int& length) const;
 
+  /****************************************************************************/
+  // Others
+  /****************************************************************************/
+  /// \brief Replace the i-th argument with the new node.
+  void ReplaceArg(const int& i, const ExprRef& new_arg);
+  /// \brief Replace the original argument (must exist) with the new argument.
+  void ReplaceArg(const ExprRef& org_arg, const ExprRef& new_arg);
+
 }; // class ExprRef
 
 /******************************************************************************/
