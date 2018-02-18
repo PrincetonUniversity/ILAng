@@ -300,7 +300,7 @@ std::ostream& operator<<(std::ostream& out, InstrLvlAbsPtr ila) {
 }
 
 ExprPtr InstrLvlAbs::Unify(const ExprPtr e) {
-  return expr_mngr_->GetRep(e, kUnifyAst);
+  return kUnifyAst ? expr_mngr_->GetRep(e) : e;
 }
 
 void InstrLvlAbs::InitObject() {

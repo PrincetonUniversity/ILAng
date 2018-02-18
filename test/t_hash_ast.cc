@@ -52,9 +52,9 @@ TEST_F(TestHashApi, level0) {
   auto b = BoolConst(true);
   auto c = BoolConst(false);
 
-  auto sa = mngr->Simplify(a);
-  auto sb = mngr->Simplify(b);
-  auto sc = mngr->Simplify(c);
+  auto sa = mngr->GetRep(a);
+  auto sb = mngr->GetRep(b);
+  auto sc = mngr->GetRep(c);
 
   EXPECT_EQ(sa, sb);
   EXPECT_NE(sa, sc);
@@ -64,9 +64,9 @@ TEST_F(TestHashApi, level0) {
   b = BvConst(0, 8);
   c = BvConst(1, 8);
 
-  sa = mngr->Simplify(a);
-  sb = mngr->Simplify(b);
-  sc = mngr->Simplify(c);
+  sa = mngr->GetRep(a);
+  sb = mngr->GetRep(b);
+  sc = mngr->GetRep(c);
 
   EXPECT_EQ(sa, sb);
   EXPECT_NE(sa, sc);
@@ -75,8 +75,8 @@ TEST_F(TestHashApi, level0) {
   a = MemConst(0, 8, 8);
   b = MemConst(0, 8, 8);
 
-  sa = mngr->Simplify(a);
-  sb = mngr->Simplify(b);
+  sa = mngr->GetRep(a);
+  sb = mngr->GetRep(b);
 
   EXPECT_NE(sa, sb);
 }
@@ -86,8 +86,8 @@ TEST_F(TestHashApi, level1) {
   auto a = And(x, y);
   auto b = And(x, y);
 
-  auto sa = mngr->Simplify(a);
-  auto sb = mngr->Simplify(b);
+  auto sa = mngr->GetRep(a);
+  auto sb = mngr->GetRep(b);
 
   EXPECT_EQ(sa, sb);
 
@@ -95,8 +95,8 @@ TEST_F(TestHashApi, level1) {
   a = Ite(x, y, z);
   b = Ite(x, y, z);
 
-  sa = mngr->Simplify(a);
-  sb = mngr->Simplify(b);
+  sa = mngr->GetRep(a);
+  sb = mngr->GetRep(b);
 
   EXPECT_EQ(sa, sb);
 
@@ -106,10 +106,10 @@ TEST_F(TestHashApi, level1) {
   auto c = Extract(bv_y, 4, 0);
   auto d = Extract(bv_y, 3, 0);
 
-  sa = mngr->Simplify(a);
-  sb = mngr->Simplify(b);
-  auto sc = mngr->Simplify(c);
-  auto sd = mngr->Simplify(d);
+  sa = mngr->GetRep(a);
+  sb = mngr->GetRep(b);
+  auto sc = mngr->GetRep(c);
+  auto sd = mngr->GetRep(d);
 
   EXPECT_EQ(sa, sb);
   EXPECT_NE(sa, sc);
@@ -124,15 +124,15 @@ TEST_F(TestHashApi, level2) {
   auto c = And(x, y);
   auto d = Or(c, z);
 
-  auto sb = mngr->Simplify(b);
-  auto sd = mngr->Simplify(d);
+  auto sb = mngr->GetRep(b);
+  auto sd = mngr->GetRep(d);
 
   EXPECT_EQ(sb, sd);
 
   auto e = Xor(x, y);
   auto f = Or(e, z);
 
-  auto sf = mngr->Simplify(f);
+  auto sf = mngr->GetRep(f);
 
   EXPECT_NE(sb, sf);
 }

@@ -16,7 +16,7 @@ ExprMngrPtr ExprMngr::New() { return std::make_shared<ExprMngr>(); }
 
 void ExprMngr::clear() { map_.clear(); }
 
-ExprPtr ExprMngr::Simplify(const ExprPtr node) {
+ExprPtr ExprMngr::GetRep(const ExprPtr node) {
   node->DepthFirstVisit(*this);
 
   auto pos = map_.find(Hash(node));
