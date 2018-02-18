@@ -59,43 +59,47 @@ public:
   bool is_instr_lvl_abs() const { return true; }
 
   /// Return true if is specification (not implementation).
-  bool is_spec() const;
+  inline bool is_spec() const { return is_spec_; }
   /// Return the parent ILA.
   inline const InstrLvlAbsPtr parent() const { return parent_; }
   /// Return the ast simplifier.
-  const ExprMngrPtr expr_mngr() const;
+  inline const ExprMngrPtr expr_mngr() const { return expr_mngr_; }
 
   /// Set the ILA to be specification if true.
-  void set_spec(bool spec);
+  inline void set_spec(bool spec) { is_spec_ = spec; }
   /// Update the ast simplifier.
-  void set_expr_mngr(const ExprMngrPtr expr_mngr);
+  inline void set_expr_mngr(const ExprMngrPtr expr_mngr) {
+    expr_mngr_ = expr_mngr;
+  }
 
   /// Return the number of input variables.
-  size_t input_num() const;
+  inline size_t input_num() const { return inputs_.size(); }
   /// Return the number of state variables.
-  size_t state_num() const;
+  inline size_t state_num() const { return states_.size(); }
   /// Return the number of instructions.
-  size_t instr_num() const;
+  inline size_t instr_num() const { return instrs_.size(); }
   /// Return the number of child-ILAs.
-  size_t child_num() const;
+  inline size_t child_num() const { return childs_.size(); }
   /// Return the number of initial condition.
-  size_t init_num() const;
+  inline size_t init_num() const { return inits_.size(); }
 
   /// Return the fetch function.
-  const ExprPtr fetch() const;
+  inline const ExprPtr fetch() const { return fetch_; }
   /// Return the valid function.
-  const ExprPtr valid() const;
+  inline const ExprPtr valid() const { return valid_; }
 
   /// Access the i-th input variable.
-  const ExprPtr input(const size_t& i) const;
+  inline const ExprPtr input(const size_t& i) const { return inputs_[i]; }
   /// Access the i-th state variable.
-  const ExprPtr state(const size_t& i) const;
+  inline const ExprPtr state(const size_t& i) const { return states_[i]; }
   /// Access the i-th instruction.
-  const InstrPtr instr(const size_t& i) const;
+  inline const InstrPtr instr(const size_t& i) const { return instrs_[i]; }
   /// Access the i-th child-ILA.
-  const InstrLvlAbsPtr child(const size_t& i) const;
+  inline const InstrLvlAbsPtr child(const size_t& i) const {
+    return childs_[i];
+  }
   /// Access the i-th initial condition.
-  const ExprPtr init(const size_t& i) const;
+  const ExprPtr init(const size_t& i) const { return inits_[i]; }
 
   /// Return the named input variable; return NULL if not registered.
   const ExprPtr input(const std::string& name) const;
@@ -180,9 +184,6 @@ public:
   /// \brief Sanity check for the ILA (e.g. sort marching).
   /// \return True if check pass.
   bool Check() const;
-
-  /// \brief Simplify the ILA (e.g. instructions).
-  void Simplify();
 
   /// \brief Merge child-ILAs, including variables, simplifier, etc.
   void MergeChild();

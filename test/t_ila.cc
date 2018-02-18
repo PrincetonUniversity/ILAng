@@ -288,12 +288,6 @@ TEST(TestInstrLvlAbs, CheckAll) {
   EXPECT_TRUE(ila->Check());
 }
 
-TEST(TestInstrLvlAbs, SimplifyAll) {
-  auto ila = InstrLvlAbs::New("ila");
-  ila->Simplify();
-  // TODO
-}
-
 TEST(TestInstrLvlAbs, MergeAll) {
   auto ila = InstrLvlAbs::New("ila");
   ila->MergeChild();

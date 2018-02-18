@@ -21,6 +21,7 @@ InstrLvlAbsPtr InstrLvlAbs::New(const std::string& name,
   return std::make_shared<InstrLvlAbs>(name, parent);
 }
 
+#if 0
 bool InstrLvlAbs::is_spec() const { return is_spec_; }
 
 const ExprMngrPtr InstrLvlAbs::expr_mngr() const { return expr_mngr_; }
@@ -56,6 +57,7 @@ const InstrLvlAbsPtr InstrLvlAbs::child(const size_t& i) const {
 }
 
 const ExprPtr InstrLvlAbs::init(const size_t& i) const { return inits_[i]; }
+#endif
 
 const ExprPtr InstrLvlAbs::input(const std::string& name) const {
   auto pos = inputs_.find(Symbol(name));
@@ -253,15 +255,6 @@ bool InstrLvlAbs::Check() const {
   return true;
 }
 
-void InstrLvlAbs::Simplify() {
-  // TODO
-  // init
-  // fetch
-  // valid
-  // instr
-  // child-ILA?
-}
-
 void InstrLvlAbs::MergeChild() {
   // TODO
   // merge shared states
@@ -283,7 +276,6 @@ void InstrLvlAbs::AddSeqTran(const InstrPtr src, const InstrPtr dst,
 
 std::ostream& InstrLvlAbs::Print(std::ostream& out) const {
   out << "ILA." << name();
-  // TODO
   return out;
 }
 

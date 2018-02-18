@@ -44,13 +44,13 @@ public:
   /// Return true if Is type Instr.
   bool is_instr() const { return true; }
   /// Return true if has view.
-  bool has_view() const;
+  inline bool has_view() const { return has_view_; }
   /// Return the host ILA.
-  InstrLvlAbsPtr host() const;
+  inline InstrLvlAbsPtr host() const { return host_; }
 
   /// \brief Set the view flag.
   /// \param[in] v the flag indicating whether the instruction has views.
-  void set_view(bool v);
+  inline void set_view(bool v) { has_view_ = v; }
 
   // ------------------------- METHODS -------------------------------------- //
   /// \brief Set the decode function if not yet assigned.
