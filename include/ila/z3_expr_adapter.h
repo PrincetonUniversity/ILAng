@@ -11,6 +11,14 @@
 /// \namespace ila
 namespace ila {
 
+/// \brief The function object for hashing Expr in generating z3 expression. The
+/// hash value is the id of the symbol, which is supposed to be unique.
+class Z3AdapterHash {
+public:
+  /// Function object for hashing
+  size_t operator()(const ExprPtr expr) const { return expr->name().id(); }
+}; // class ExprHash
+
 /// \brief The class for generating z3 expression from an ILA.
 class Z3ExprAdapter {
 public:
@@ -21,7 +29,7 @@ public:
   ~Z3ExprAdapter();
 
   /// Type for caching the generated expressions.
-  typedef std::unordered_map<const ExprPtr, z3::expr, ExprHash> ExprMap;
+  typedef std::unordered_map<const ExprPtr, z3::expr, Z3AdapterHash> ExprMap;
 
   // ------------------------- METHODS -------------------------------------- //
   /// Get the z3 expression of the AST node.

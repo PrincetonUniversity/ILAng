@@ -1,5 +1,5 @@
 /// \file
-/// Header for the class Expr and its hash
+/// Header for the class Expr
 
 #ifndef EXPR_H__
 #define EXPR_H__
@@ -40,10 +40,8 @@ public:
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return the pointer of the sort.
   inline const Sort& sort() const { return sort_; }
-  /// Return the arity.
-  inline const size_t arity() const { return args_.size(); }
-  /// Retrun the number of argument (same as arity).
-  inline const size_t arg_num() const { return arity(); }
+  /// Retrun the number of argument (arity).
+  inline const size_t arg_num() const { return args_.size(); }
   /// Return the i-th argument.
   inline ExprPtr arg(const size_t& i) const { return args_.at(i); }
   /// Return the number of parameters.
@@ -121,14 +119,6 @@ private:
 typedef Expr::ExprPtr ExprPtr;
 /// Type for storing a set of Expr.
 typedef Expr::ExprPtrVec ExprPtrVec;
-
-/// \brief The function object for hashing Expr. The hash value is the id of the
-/// symbol, which is supposed to be unique.
-class ExprHash {
-public:
-  /// Function object for hashing
-  size_t operator()(const ExprPtr expr) const { return expr->name().id(); }
-}; // struct ExprHash
 
 } // namespace ila
 
