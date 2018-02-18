@@ -401,6 +401,10 @@ ExprRef MemConst(const int& def_val, const std::map<int, int>& vals,
   return ExprRef(v);
 }
 
+bool TopEqual(const ExprRef& a, const ExprRef& b) {
+  return ExprFuse::TopEq(a.get(), b.get());
+}
+
 /******************************************************************************/
 // InstrRef
 /******************************************************************************/

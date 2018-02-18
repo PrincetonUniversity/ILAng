@@ -135,6 +135,19 @@ TEST(TestApi, ExprOps) {
   auto n_ite_bv = Ite(n_ite_bool, n_load_bv, n_sub_bv);
 }
 
+TEST(TestApi, NonConstruct) {
+  Ila ila("host");
+
+  auto v_bool = ila.NewBoolState("v_bool");
+  auto c_bool = BoolConst(true);
+
+  auto a = v_bool | c_bool;
+  auto b = a & v_bool;
+  auto c = a & v_bool;
+
+  EXPECT_TRUE(TopEqual(b, c));
+}
+
 TEST(TestApi, Log) {
   LogLevel(0);
   LogPath("");
