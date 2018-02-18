@@ -44,14 +44,15 @@ public:
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Consturctor.
-  InstrLvlAbs(const std::string& name = "");
+  InstrLvlAbs(const std::string& name = "", const InstrLvlAbsPtr parent = NULL);
   /// Default destructor.
   ~InstrLvlAbs();
 
   // ------------------------- HELPERS -------------------------------------- //
   /// \brief Create a new ILA (InstrLvlAbs) with the name. Used for hiding
   /// implementation specific type details.
-  static InstrLvlAbsPtr New(const std::string& name);
+  static InstrLvlAbsPtr New(const std::string& name,
+                            const InstrLvlAbsPtr parent = NULL);
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return true if is InstrLvlAbs.
@@ -59,6 +60,8 @@ public:
 
   /// Return true if is specification (not implementation).
   bool is_spec() const;
+  /// Return the parent ILA.
+  inline const InstrLvlAbsPtr parent() const { return parent_; }
   /// Return the ast simplifier.
   const ExprMngrPtr expr_mngr() const;
 
@@ -205,6 +208,8 @@ public:
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
+  /// Ths parent ILA.
+  InstrLvlAbsPtr parent_;
   /// The set of input variables.
   VarMap inputs_;
   /// The set of state variables.

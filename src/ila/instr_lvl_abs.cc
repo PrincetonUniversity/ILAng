@@ -8,15 +8,17 @@ static const bool kUnifyAst = true;
 
 namespace ila {
 
-InstrLvlAbs::InstrLvlAbs(const std::string& name) : Object(name) {
+InstrLvlAbs::InstrLvlAbs(const std::string& name, const InstrLvlAbsPtr parent)
+    : Object(name), parent_(parent) {
   ILA_WARN_IF(name == "") << "ILA name not specified...";
   InitObject();
 }
 
 InstrLvlAbs::~InstrLvlAbs() {}
 
-InstrLvlAbsPtr InstrLvlAbs::New(const std::string& name) {
-  return std::make_shared<InstrLvlAbs>(name);
+InstrLvlAbsPtr InstrLvlAbs::New(const std::string& name,
+                                const InstrLvlAbsPtr parent) {
+  return std::make_shared<InstrLvlAbs>(name, parent);
 }
 
 bool InstrLvlAbs::is_spec() const { return is_spec_; }
@@ -224,9 +226,7 @@ const InstrPtr InstrLvlAbs::NewInstr(const std::string& name) {
 }
 
 const InstrLvlAbsPtr InstrLvlAbs::NewChild(const std::string& name) {
-  InstrLvlAbsPtr child = New(name);
-  // share hash manager
-  child->set_expr_mngr(expr_mngr_);
+  InstrLvlAbsPtr child = New(name, shared_from_this());
   // inherit states
   for (size_t i = 0; i != states_.size(); i++) {
     child->AddState(states_[i]);
@@ -308,7 +308,11 @@ void InstrLvlAbs::InitObject() {
   childs_.clear();
   instr_seq_.clear();
   // shared
-  expr_mngr_ = kUnifyAst ? ExprMngr::New() : NULL;
+  if (parent_) {
+    expr_mngr_ = parent_->expr_mngr();
+  } else {
+    expr_mngr_ = kUnifyAst ? ExprMngr::New() : NULL;
+  }
 }
 
 } // namespace ila

@@ -251,9 +251,11 @@ TEST(TestInstrLvlAbs, Child) {
   // add external
   auto child1 = InstrLvlAbs::New("child1");
   ila->AddChild(child1);
+  EXPECT_TRUE(child1->parent() == NULL);
 
   // add embedded
   auto child2 = ila->NewChild("child2");
+  EXPECT_EQ(ila, child2->parent());
 
   EXPECT_EQ(2, ila->child_num());
 
