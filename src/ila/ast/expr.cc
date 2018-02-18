@@ -20,6 +20,21 @@ void Expr::set_params(const std::vector<int> params) { params_ = params; }
 
 void Expr::set_host(InstrLvlAbsPtr host) { host_ = host; }
 
+void Expr::replace_arg(const int& idx, const ExprPtr arg) {
+  ILA_ASSERT(idx < static_cast<int>(arg_num())) << "Replacing idx overflow.";
+  args_[idx] = arg;
+}
+
+void Expr::replace_arg(const ExprPtr a, const ExprPtr b) {
+  size_t idx = arg_num();
+  for (size_t i = 0; i != arg_num(); i++) {
+    if (args_[i] == a)
+      idx = i;
+  }
+  ILA_ASSERT(idx != arg_num()) << a << " not found for replacing.";
+  args_[idx] = b;
+}
+
 std::ostream& operator<<(std::ostream& out, ExprPtr expr) {
   return expr->Print(out);
 }

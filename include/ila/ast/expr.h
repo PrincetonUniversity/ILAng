@@ -59,6 +59,10 @@ public:
   void set_params(const std::vector<int> params);
   /// Set the hosting ILA.
   void set_host(InstrLvlAbsPtr host);
+  /// Replace the i-th argument.
+  void replace_arg(const int& idx, const ExprPtr arg);
+  /// Replace the "a" argument with "b" argument with "exist".
+  void replace_arg(const ExprPtr a, const ExprPtr b);
 
   /// Is type expr (object).
   bool is_expr() const { return true; }
@@ -71,13 +75,13 @@ public:
   virtual bool is_op() const { return false; }
 
   /// Return true if this is a Boolean expression.
-  bool is_bool() const { return sort_.is_bool(); }
+  inline bool is_bool() const { return sort_.is_bool(); }
   /// Return true if this is a Bitvector expression.
-  bool is_bv() const { return sort_.is_bv(); }
+  inline bool is_bv() const { return sort_.is_bv(); }
   /// Return true if this is an Array expression.
-  bool is_mem() const { return sort_.is_mem(); }
+  inline bool is_mem() const { return sort_.is_mem(); }
   /// Return true if this is an Application expression.
-  bool is_app() const { return sort_.is_app(); }
+  inline bool is_app() const { return sort_.is_app(); }
 
   // ------------------------- METHODS -------------------------------------- //
   /// Return the z3 expression for the node.
