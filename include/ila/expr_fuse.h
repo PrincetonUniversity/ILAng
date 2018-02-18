@@ -198,6 +198,12 @@ ExprPtr Imply(const ExprPtr p, const ExprPtr q);
 ExprPtr Ite(const ExprPtr cnd, const ExprPtr true_expr,
             const ExprPtr false_expr);
 
+/****************************************************************************/
+// Non-AST construction utilities
+/****************************************************************************/
+/// Topologically equivalent.
+bool TopEq(const ExprPtr a, const ExprPtr b);
+
 #if 0
 private:
 // ------------------------- HELPERS -------------------------------------- //

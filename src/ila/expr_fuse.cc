@@ -2,6 +2,7 @@
 /// Source of the class ExpFusee
 
 #include "ila/expr_fuse.h"
+#include "ila/hash_ast.h"
 #include "util/str_util.h"
 
 namespace ila {
@@ -233,6 +234,13 @@ ExprPtr ExprFuse::Imply(const ExprPtr p, const ExprPtr q) {
 ExprPtr ExprFuse::Ite(const ExprPtr cnd, const ExprPtr true_expr,
                       const ExprPtr false_expr) {
   return std::make_shared<ExprOpIte>(cnd, true_expr, false_expr);
+}
+
+bool ExprFuse::TopEq(const ExprPtr a, const ExprPtr b) {
+  ExprMngr m;
+  auto x = m.GetRep(a);
+  auto y = m.GetRep(b);
+  return x == y;
 }
 
 } // namespace ila

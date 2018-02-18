@@ -281,5 +281,25 @@ TEST(TestExprFuse, Others) {
   // TODO imply
 }
 
+using namespace ExprFuse;
+TEST(TestExprFuse, TopEq) {
+  auto x = NewBoolVar("x");
+  auto y = NewBoolVar("y");
+  auto z = NewBoolVar("z");
+
+  auto a = And(x, y);
+  auto b = Or(a, z);
+  auto c = Xor(a, b);
+
+  auto d = And(x, y);
+  auto e = Or(d, z);
+  auto f = Xor(d, e);
+
+  auto g = Xor(e, d);
+
+  EXPECT_TRUE(TopEq(c, f));
+  EXPECT_FALSE(TopEq(c, g));
+}
+
 } // namespace ila
 
