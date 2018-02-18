@@ -201,6 +201,8 @@ public:
   /// Overload output stream for pointer
   friend std::ostream& operator<<(std::ostream& out, InstrLvlAbsPtr ila);
 
+  friend class Instr;
+
 private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// The set of input variables.

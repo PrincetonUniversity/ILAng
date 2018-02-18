@@ -51,9 +51,6 @@ public:
   /// \brief Set the view flag.
   /// \param[in] v the flag indicating whether the instruction has views.
   void set_view(bool v);
-  /// \brief Turn on simplification if true.
-  /// \param[in] s the flag indicating whether to share the ast nodes.
-  void set_mngr(const ExprMngrPtr mngr);
 
   // ------------------------- METHODS -------------------------------------- //
   /// \brief Set the decode function if not yet assigned.
@@ -107,9 +104,6 @@ private:
   ExprPtr decode_ = NULL;
   /// The set of update functions, mapped by name.
   ExprPtrMap updates_;
-
-  /// The simplifier for expr nodes.
-  ExprMngrPtr expr_mngr_ = NULL;
 
   /// The host ILA.
   InstrLvlAbsPtr host_;

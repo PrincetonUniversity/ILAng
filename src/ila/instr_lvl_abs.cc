@@ -102,8 +102,6 @@ void InstrLvlAbs::AddInput(const ExprPtr input_var) {
   auto var = Unify(input_var);
   // register to Inputs
   inputs_.push_back(name, var);
-  // set host
-  // var->set_host(shared_from_this());
 }
 
 void InstrLvlAbs::AddState(const ExprPtr state_var) {
@@ -119,8 +117,6 @@ void InstrLvlAbs::AddState(const ExprPtr state_var) {
   auto var = Unify(state_var);
   // register to States
   states_.push_back(name, var);
-  // set host
-  // var->set_host(shared_from_this());
 }
 
 void InstrLvlAbs::AddInit(const ExprPtr cntr_expr) {
@@ -222,8 +218,6 @@ const ExprPtr InstrLvlAbs::NewMemState(const std::string& name,
 
 const InstrPtr InstrLvlAbs::NewInstr(const std::string& name) {
   InstrPtr instr = Instr::New(name, shared_from_this());
-  // set ast hash manager
-  instr->set_mngr(expr_mngr_);
   // register
   AddInstr(instr);
   return instr;
@@ -231,6 +225,8 @@ const InstrPtr InstrLvlAbs::NewInstr(const std::string& name) {
 
 const InstrLvlAbsPtr InstrLvlAbs::NewChild(const std::string& name) {
   InstrLvlAbsPtr child = New(name);
+  // share hash manager
+  child->set_expr_mngr(expr_mngr_);
   // inherit states
   for (size_t i = 0; i != states_.size(); i++) {
     child->AddState(states_[i]);

@@ -2,10 +2,9 @@
 /// The source for the class Instr.
 
 #include "ila/instr.h"
+#include "ila/instr_lvl_abs.h"
 
 namespace ila {
-
-typedef Instr::InstrLvlAbsPtr InstrLvlAbsPtr;
 
 Instr::Instr(const std::string& name, const InstrLvlAbsPtr host) : host_(host) {
   // update name if specified
@@ -27,12 +26,10 @@ InstrLvlAbsPtr Instr::host() const { return host_; }
 
 void Instr::set_view(bool v) { has_view_ = v; }
 
-void Instr::set_mngr(const ExprMngrPtr mngr) { expr_mngr_ = mngr; }
-
 void Instr::SetDecode(const ExprPtr decode) {
   ILA_ERROR_IF(decode_)
       << "Decode for " << name()
-      << "has been assigned. Use ForceSetDecode to overwrite.\n";
+      << "has been assigned. Use ForceSetDecode to overwrite.";
 
   if (!decode_) {
     ForceSetDecode(decode);
@@ -41,7 +38,7 @@ void Instr::SetDecode(const ExprPtr decode) {
 
 void Instr::ForceSetDecode(const ExprPtr decode) {
   ILA_NOT_NULL(decode); // setting NULL pointer to decode function
-  ILA_CHECK(decode->is_bool()) << "Decode must have Boolean sort.\n";
+  ILA_CHECK(decode->is_bool()) << "Decode must have Boolean sort.";
 
   decode_ = Unify(decode);
 }
@@ -51,7 +48,7 @@ void Instr::AddUpdate(const std::string& name, const ExprPtr update) {
 
   ILA_ERROR_IF(pos != updates_.end())
       << "Update function for " << name
-      << " has been assigned. Use ForceAddUpdate to overwrite the result.\n";
+      << " has been assigned. Use ForceAddUpdate to overwrite the result.";
 
   if (pos == updates_.end()) {
     ForceAddUpdate(name, update);
@@ -94,9 +91,7 @@ std::ostream& operator<<(std::ostream& out, InstrPtr i) {
   return i->Print(out);
 }
 
-ExprPtr Instr::Unify(const ExprPtr e) {
-  return expr_mngr_ ? expr_mngr_->GetRep(e) : e;
-}
+ExprPtr Instr::Unify(const ExprPtr e) { return host_ ? host_->Unify(e) : e; }
 
 } // namespace ila
 
