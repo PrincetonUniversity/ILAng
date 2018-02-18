@@ -15,8 +15,6 @@ namespace ila {
 class ExprVar : public Expr {
 public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
-  /// Default constructor. DO NOT USE.
-  ExprVar();
   /// Constructor for Boolean variable.
   ExprVar(const std::string& name);
   /// Constructor for Bitvector variable.

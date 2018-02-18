@@ -1,5 +1,5 @@
 /// \file
-/// Unit test for operation construction, z3 formula, hash, etc.
+/// Unit test for operation construction, z3 formula, hash, print, etc.
 
 #include "ila++.h"
 #include "unit-include/util.h"

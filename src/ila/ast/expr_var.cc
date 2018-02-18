@@ -7,8 +7,6 @@
 
 namespace ila {
 
-ExprVar::ExprVar() { ILA_CHECK(false) << "Undefined ExprVar constructor."; }
-
 ExprVar::ExprVar(const std::string& name) {
   set_name(name);
   set_sort(Sort());
