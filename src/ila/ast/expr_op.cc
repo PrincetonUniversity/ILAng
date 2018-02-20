@@ -369,8 +369,7 @@ ExprOpAppFunc::ExprOpAppFunc(const FuncPtr f, const ExprPtrVec& args)
 z3::expr ExprOpAppFunc::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                                   const std::string& suffix) const {
   auto f_decl = f->GetZ3FuncDecl(ctx);
-  /// FIXME check vector works
-  return f_decl(expr_vec.size(), &expr_vec[0]);
+  return f_decl(expr_vec.size(), expr_vec.data());
 }
 
 // ------------------------- Class ExprOpIte -------------------------------- //

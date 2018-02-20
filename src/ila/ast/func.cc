@@ -46,8 +46,7 @@ z3::func_decl Func::GetZ3FuncDecl(z3::context& ctx) const {
   for (size_t i = 0; i != arg_num(); i++) {
     domains.push_back(arg(i).GetZ3Sort(ctx));
   }
-  // FIXME check vector works
-  return z3::function(name().c_str(), arg_num(), &domains[0], range);
+  return z3::function(name().c_str(), arg_num(), domains.data(), range);
 }
 
 std::ostream& Func::Print(std::ostream& out) const {
