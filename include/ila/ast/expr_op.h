@@ -6,10 +6,12 @@
 
 #include "ila/ast/expr.h"
 #include "util/log.h"
-#include <string>
 
 /// \namespace ila
 namespace ila {
+
+// Forward declaration.
+class Func;
 
 /// \brief Expression for operations, e.g. AND, OR, ADD, etc. Operations are
 /// non-terminating nodes in the AST.
@@ -26,6 +28,9 @@ public:
   ExprOp(const ExprPtr arg0, const int& param1);
   /// Constructor for ternary operators with parameters.
   ExprOp(const ExprPtr arg0, const int& param1, const int& param2);
+  /// Constructor for multiple argument operators (AppFunc).
+  ExprOp(const ExprPtrVec& args);
+
   /// Default destructor.
   virtual ~ExprOp();
 
@@ -283,7 +288,22 @@ public:
 // Function usage
 /******************************************************************************/
 
-// TODO ExprOpAppFunc
+/// \biref The class wrapper for apply uninterpreted function.
+class ExprOpAppFunc : public ExprOp {
+public:
+  /// Type for forware declaring Func.
+  typedef std::shared_ptr<Func> FuncPtr;
+
+  /// Constructor for apply uninterpreted function.
+  ExprOpAppFunc(const FuncPtr f, const ExprPtrVec& args);
+  std::string op_name() const { return "APP"; }
+  z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                     const std::string& suffix = "") const;
+
+private:
+  /// Uninterpreted funcion.
+  FuncPtr f;
+}; // class ExprOpAppFunc
 
 /******************************************************************************/
 // Others

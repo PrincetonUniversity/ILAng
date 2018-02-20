@@ -2,6 +2,7 @@
 /// Source for the op expression
 
 #include "ila/ast/expr_op.h"
+#include "ila/ast/func.h"
 
 namespace ila {
 
@@ -9,24 +10,21 @@ namespace ila {
 
 ExprOp::ExprOp(const ExprPtr arg) {
   // arg
-  ExprPtrVec args = {arg};
-  set_args(args);
+  set_args({arg});
   // host
   set_host(GetHost({arg}));
 }
 
 ExprOp::ExprOp(const ExprPtr arg0, const ExprPtr arg1) {
   // args
-  ExprPtrVec args = {arg0, arg1};
-  set_args(args);
+  set_args({arg0, arg1});
   // set host
   set_host(GetHost({arg0, arg1}));
 }
 
 ExprOp::ExprOp(const ExprPtr arg0, const ExprPtr arg1, const ExprPtr arg2) {
   // args
-  ExprPtrVec args = {arg0, arg1, arg2};
-  set_args(args);
+  set_args({arg0, arg1, arg2});
   // set host
   set_host(GetHost({arg0, arg1, arg2}));
 }
@@ -47,6 +45,13 @@ ExprOp::ExprOp(const ExprPtr arg0, const int& param1, const int& param2) {
   set_params({param1, param2});
   // set hsot
   set_host(GetHost({arg0}));
+}
+
+ExprOp::ExprOp(const ExprPtrVec& args) {
+  // args
+  set_args(args);
+  // host
+  set_host(GetHost(args));
 }
 
 ExprOp::~ExprOp() {}
@@ -71,6 +76,7 @@ Sort ExprOp::GetSortBinaryComparison(const Sort& s0, const Sort& s1) {
 
 ExprOp::InstrLvlAbsPtr ExprOp::GetHost(const ExprPtrVec& args) const {
   return NULL; // XXX Do we need to know host for op?
+  // FIXME This only works for non-hierarchical ILAs.
   ILA_ASSERT(!args.empty()) << "Get host from no argument.";
   auto h = args[0]->host();
   for (size_t i = 1; i != args.size(); i++) {
@@ -351,6 +357,20 @@ z3::expr ExprOpZExt::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
   auto bv = expr_vec[0];
   unsigned wid = static_cast<unsigned>(param(0));
   return z3::zext(bv, wid);
+}
+
+// ------------------------- Class ExprOpAppFunc ---------------------------- //
+ExprOpAppFunc::ExprOpAppFunc(const FuncPtr f, const ExprPtrVec& args)
+    : ExprOp(args) {
+  ILA_ASSERT(f->CheckSort(args));
+  set_sort(f->out());
+}
+
+z3::expr ExprOpAppFunc::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                                  const std::string& suffix) const {
+  auto f_decl = f->GetZ3FuncDecl(ctx);
+  /// FIXME check vector works
+  return f_decl(expr_vec.size(), &expr_vec[0]);
 }
 
 // ------------------------- Class ExprOpIte -------------------------------- //

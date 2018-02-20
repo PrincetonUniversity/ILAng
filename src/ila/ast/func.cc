@@ -30,7 +30,7 @@ FuncPtr Func::New(const std::string& name, const Sort& out,
   return std::make_shared<Func>(FuncConfig(name, out, args));
 }
 
-bool Func::Check(const ExprPtrVec& args) const {
+bool Func::CheckSort(const ExprPtrVec& args) const {
   ILA_CHECK(args.size() == arg_num())
       << "Argument number mismatch: " << args.size() << " " << arg_num();
   for (size_t i = 0; i != args.size(); i++) {
@@ -38,6 +38,16 @@ bool Func::Check(const ExprPtrVec& args) const {
         << i << "-th Sort mismatch: " << args[i]->sort() << " " << arg(i);
   }
   return true;
+}
+
+z3::func_decl Func::GetZ3FuncDecl(z3::context& ctx) const {
+  auto range = out().GetZ3Sort(ctx);
+  std::vector<z3::sort> domains;
+  for (size_t i = 0; i != arg_num(); i++) {
+    domains.push_back(arg(i).GetZ3Sort(ctx));
+  }
+  // FIXME check vector works
+  return z3::function(name().c_str(), arg_num(), &domains[0], range);
 }
 
 std::ostream& Func::Print(std::ostream& out) const {

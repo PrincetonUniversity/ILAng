@@ -26,6 +26,8 @@ TEST(TestSort, Boolean) {
 
   Sort wrap = Sort::MakeBoolSort();
   EXPECT_EQ(wrap, bool_sort);
+
+  // TODO z3
 }
 
 TEST(TestSort, Bitvector) {

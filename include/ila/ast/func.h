@@ -7,6 +7,7 @@
 #include "ila/ast/ast.h"
 #include "ila/ast/sort.h"
 #include "ila/defines.h"
+#include "z3++.h"
 
 /// \namespace ila
 namespace ila {
@@ -65,7 +66,10 @@ public:
                      const std::vector<Sort>& args);
 
   /// Check if the input arguments match the specified sort.
-  bool Check(const std::vector<std::shared_ptr<Expr>>& args) const;
+  bool CheckSort(const std::vector<std::shared_ptr<Expr>>& args) const;
+
+  /// Return the z3 func_decl.
+  z3::func_decl GetZ3FuncDecl(z3::context& ctx) const;
 
   /// Output to stream.
   std::ostream& Print(std::ostream& out) const;

@@ -20,6 +20,17 @@ Sort::Sort(const int& addr_width, const int& data_width)
 
 Sort::~Sort() {}
 
+z3::sort Sort::GetZ3Sort(z3::context& ctx) const {
+  if (is_bool())
+    return ctx.bool_sort();
+  else if (is_bv())
+    return ctx.bv_sort(bit_width_);
+  else {
+    ILA_ASSERT(is_mem()) << "Unknown sort.";
+    return ctx.array_sort(ctx.bv_sort(addr_width_), ctx.bv_sort(data_width_));
+  }
+}
+
 std::ostream& Sort::Print(std::ostream& out) const {
   if (is_bool())
     return PrintBool(out);

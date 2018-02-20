@@ -24,7 +24,7 @@ TEST_F(TestFunc, Atom) {
   EXPECT_EQ(b, f->out());
   EXPECT_EQ(0, f->arg_num());
   EXPECT_ANY_THROW(f->arg(0));
-  EXPECT_TRUE(f->Check({}));
+  EXPECT_TRUE(f->CheckSort({}));
 
   auto f_bv = Func::New("func", bv);
   EXPECT_EQ(bv, f_bv->out());
@@ -32,6 +32,7 @@ TEST_F(TestFunc, Atom) {
   std::string msg = "";
   GET_STDOUT_MSG(std::cout << f, msg);
   EXPECT_EQ(msg, "Func.func");
+  // TODO z3
 }
 
 TEST_F(TestFunc, Unary) {
@@ -40,9 +41,9 @@ TEST_F(TestFunc, Unary) {
   EXPECT_EQ(1, f->arg_num());
   EXPECT_EQ(bv, f->arg(0));
   EXPECT_ANY_THROW(f->arg(1));
-  EXPECT_TRUE(f->Check({ExprFuse::NewBvVar("bv_var", 8)}));
-  EXPECT_DEATH(f->Check({ExprFuse::NewBvVar("bv_var", 6)}), ".*");
-  EXPECT_DEATH(f->Check({ExprFuse::NewBoolVar("bool_var")}), ".*");
+  EXPECT_TRUE(f->CheckSort({ExprFuse::NewBvVar("bv_var", 8)}));
+  EXPECT_DEATH(f->CheckSort({ExprFuse::NewBvVar("bv_var", 6)}), ".*");
+  EXPECT_DEATH(f->CheckSort({ExprFuse::NewBoolVar("bool_var")}), ".*");
 }
 
 TEST_F(TestFunc, Binary) {
@@ -54,9 +55,9 @@ TEST_F(TestFunc, Binary) {
   EXPECT_ANY_THROW(f->arg(2));
   auto b_var = ExprFuse::NewBoolVar("bool_var");
   auto bv_var = ExprFuse::NewBvVar("bv_var", 8);
-  EXPECT_TRUE(f->Check({b_var, bv_var}));
-  EXPECT_DEATH(f->Check({b_var}), ".*");
-  EXPECT_DEATH(f->Check({b_var, b_var}), ".*");
+  EXPECT_TRUE(f->CheckSort({b_var, bv_var}));
+  EXPECT_DEATH(f->CheckSort({b_var}), ".*");
+  EXPECT_DEATH(f->CheckSort({b_var, b_var}), ".*");
 }
 
 } // namespace ila

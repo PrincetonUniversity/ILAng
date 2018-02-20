@@ -5,6 +5,7 @@
 #define SORT_H__
 
 #include "ila/ast/ast.h"
+#include "z3++.h"
 #include <ostream>
 #include <vector>
 
@@ -47,6 +48,9 @@ public:
   inline bool is_mem() const { return (type_ == SortType::SORT_MEM); }
 
   // ------------------------- METHODS -------------------------------------- //
+  /// Return z3 sort.
+  z3::sort GetZ3Sort(z3::context& ctx) const;
+
   /// Output to stream.
   std::ostream& Print(std::ostream& out) const;
   /// Compare two Sorts.
