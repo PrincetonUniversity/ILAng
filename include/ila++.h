@@ -101,6 +101,8 @@ ExprRef operator^(const ExprRef& a, const ExprRef& b);
 ExprRef operator<<(const ExprRef& a, const ExprRef& b);
 /// Arithmetic right shift for bit-vectors.
 ExprRef operator>>(const ExprRef& a, const ExprRef& b);
+/// Logical right shift for bit-vectors.
+ExprRef Lshr(const ExprRef& a, const ExprRef& b);
 /// Unsigned addition for bit-vectors.
 ExprRef operator+(const ExprRef& a, const ExprRef& b);
 /// Unsigned subtraction for bit-vectors.
@@ -116,6 +118,8 @@ ExprRef operator^(const ExprRef& a, const bool& b);
 ExprRef operator<<(const ExprRef& a, const int& b);
 /// Arithmetic right shift with int constant.
 ExprRef operator>>(const ExprRef& a, const int& b);
+/// Logical right shift with int constant.
+ExprRef Lshr(const ExprRef& a, const int& b);
 /// Unsigned addition with int constant.
 ExprRef operator+(const ExprRef& a, const int& b);
 /// Unsigned subtraction with int constant.

@@ -140,8 +140,6 @@ public:
                      const std::string& suffix = "") const;
 }; // class ExprOpShl
 
-// TODO ExprOpLshr
-
 /// \brief The wrapper for arithmetic right shifting a bit-vector.
 class ExprOpAshr : public ExprOp {
 public:
@@ -151,6 +149,16 @@ public:
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                      const std::string& suffix = "") const;
 }; // class ExprOpAshr
+
+/// \brief The wrapper for logical right shifting a bit-vector.
+class ExprOpLshr : public ExprOp {
+public:
+  /// Constructor for logical right shifting a bit-vector.
+  ExprOpLshr(const ExprPtr bv, const ExprPtr n);
+  std::string op_name() const { return "LSHR"; }
+  z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                     const std::string& suffix = "") const;
+}; // class ExprOpLshr
 
 /// \brief The wrapper for unsigned addition.
 class ExprOpAdd : public ExprOp {

@@ -91,6 +91,9 @@ TEST(TestApi, ExprOps) {
   auto n_ashr_bv = n_or_bv >> n_and_bv;
   auto n_ashr_int = n_or_bv >> 3;
 
+  auto n_lshr_bv = Lshr(n_or_bv, n_and_bv);
+  auto n_lshr_int = Lshr(n_or_bv, 4);
+
   auto n_add_bv = n_xor_bv + n_or_bv;
   auto n_sub_bv = n_add_bv - n_xor_bv;
   auto n_add_bv_c = n_add_bv + 1;

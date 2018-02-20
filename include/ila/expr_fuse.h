@@ -68,10 +68,10 @@ ExprPtr Or(const ExprPtr l, const ExprPtr r);
 ExprPtr Xor(const ExprPtr l, const ExprPtr r);
 /// Left shift (bv only) (l << r)
 ExprPtr Shl(const ExprPtr l, const ExprPtr r);
-/// Logical right shift (bv only) (l >> r)
-ExprPtr Lshr(const ExprPtr l, const ExprPtr r);
 /// Arithmetic right shift (bv only) (l >> r)
 ExprPtr Ashr(const ExprPtr l, const ExprPtr r);
+/// Logical right shift (bv only) (l >> r)
+ExprPtr Lshr(const ExprPtr l, const ExprPtr r);
 /// Arithmetic addition (bv only)
 ExprPtr Add(const ExprPtr l, const ExprPtr r);
 /// Arithmetic subtraction (bv only)
@@ -96,6 +96,8 @@ ExprPtr Xor(const ExprPtr l, const bool& r);
 ExprPtr Shl(const ExprPtr l, const int& r);
 /// Arithmetic right shift with int.
 ExprPtr Ashr(const ExprPtr l, const int& r);
+/// Logical right shift with int.
+ExprPtr Lshr(const ExprPtr l, const int& r);
 /// Arithmetic addition with int.
 ExprPtr Add(const ExprPtr l, const int& r);
 /// Arithmetic subtraction with int.

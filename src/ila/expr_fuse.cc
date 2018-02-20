@@ -78,6 +78,10 @@ ExprPtr ExprFuse::Ashr(const ExprPtr l, const ExprPtr r) {
   return std::make_shared<ExprOpAshr>(l, r);
 }
 
+ExprPtr ExprFuse::Lshr(const ExprPtr l, const ExprPtr r) {
+  return std::make_shared<ExprOpLshr>(l, r);
+}
+
 ExprPtr ExprFuse::Add(const ExprPtr l, const ExprPtr r) {
   return std::make_shared<ExprOpAdd>(l, r);
 }
@@ -109,6 +113,11 @@ ExprPtr ExprFuse::Shl(const ExprPtr l, const int& r) {
 ExprPtr ExprFuse::Ashr(const ExprPtr l, const int& r) {
   auto rc = ExprFuse::BvConst(r, l->sort().bit_width());
   return ExprFuse::Ashr(l, rc);
+}
+
+ExprPtr ExprFuse::Lshr(const ExprPtr l, const int& r) {
+  auto rc = ExprFuse::BvConst(r, l->sort().bit_width());
+  return ExprFuse::Lshr(l, rc);
 }
 
 ExprPtr ExprFuse::Add(const ExprPtr l, const int& r) {
