@@ -74,7 +74,8 @@ z3::check_result Bmc::BmcLegacy(InstrLvlAbsPtr m0, const int& k0,
   // initial condition
   for (size_t i = 0; i != inits_.size(); i++) {
     auto init_i = inits_[i];
-    ILA_ASSERT(init_i->host()) << "Legacy BMC can only have single-ILA init.";
+    // ILA_ASSERT(init_i->host()) << "Legacy BMC can only have single-ILA
+    // init.";
     auto init_e = mod_gen.Node(init_i, suffix_init);
     solver.add(init_e);
   }
@@ -82,7 +83,7 @@ z3::check_result Bmc::BmcLegacy(InstrLvlAbsPtr m0, const int& k0,
   // invariants
   for (size_t i = 0; i != invs_.size(); i++) {
     auto inv_i = invs_[i];
-    ILA_ASSERT(inv_i->host()) << "Legacy BMC can only have single-ILA inv.";
+    // ILA_ASSERT(inv_i->host()) << "Legacy BMC can only have single-ILA inv.";
     // XXX Only apply invariants on initial states.
     auto inv_e = mod_gen.Node(inv_i, suffix_init);
     solver.add(inv_e);

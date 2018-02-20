@@ -12,7 +12,7 @@ ExprOp::ExprOp(const ExprPtr arg) {
   ExprPtrVec args = {arg};
   set_args(args);
   // host
-  set_host(arg->host());
+  set_host(GetHost({arg}));
 }
 
 ExprOp::ExprOp(const ExprPtr arg0, const ExprPtr arg1) {
@@ -20,15 +20,7 @@ ExprOp::ExprOp(const ExprPtr arg0, const ExprPtr arg1) {
   ExprPtrVec args = {arg0, arg1};
   set_args(args);
   // set host
-  auto host0 = arg0->host();
-  auto host1 = arg1->host();
-  if (host0 == host1) {
-    set_host(host0);
-  } else if (host0 == NULL) {
-    set_host(host1);
-  } else if (host1 == NULL) {
-    set_host(host0);
-  }
+  set_host(GetHost({arg0, arg1}));
 }
 
 ExprOp::ExprOp(const ExprPtr arg0, const ExprPtr arg1, const ExprPtr arg2) {
@@ -36,18 +28,7 @@ ExprOp::ExprOp(const ExprPtr arg0, const ExprPtr arg1, const ExprPtr arg2) {
   ExprPtrVec args = {arg0, arg1, arg2};
   set_args(args);
   // set host
-  auto host0 = arg0->host();
-  auto host1 = arg1->host();
-  auto host2 = arg2->host();
-  if (host0 == host1 && host1 == host2) {
-    set_host(host0);
-  } else if (host1 == NULL && host2 == NULL) {
-    set_host(host0);
-  } else if (host0 == NULL && host2 == NULL) {
-    set_host(host1);
-  } else if (host0 == NULL && host1 == NULL) {
-    set_host(host2);
-  }
+  set_host(GetHost({arg0, arg1, arg2}));
 }
 
 ExprOp::ExprOp(const ExprPtr arg0, const int& param1) {
@@ -56,7 +37,7 @@ ExprOp::ExprOp(const ExprPtr arg0, const int& param1) {
   // params
   set_params({param1});
   // set host
-  set_host(arg0->host());
+  set_host(GetHost({arg0}));
 }
 
 ExprOp::ExprOp(const ExprPtr arg0, const int& param1, const int& param2) {
@@ -65,7 +46,7 @@ ExprOp::ExprOp(const ExprPtr arg0, const int& param1, const int& param2) {
   // params
   set_params({param1, param2});
   // set hsot
-  set_host(arg0->host());
+  set_host(GetHost({arg0}));
 }
 
 ExprOp::~ExprOp() {}
@@ -86,6 +67,24 @@ Sort ExprOp::GetSortBinaryComparison(const Sort& s0, const Sort& s1) {
                        << " for binary comparison.";
   // return boolean sort.
   return Sort::MakeBoolSort();
+}
+
+ExprOp::InstrLvlAbsPtr ExprOp::GetHost(const ExprPtrVec& args) const {
+  return NULL; // XXX Do we need to know host for op?
+  ILA_ASSERT(!args.empty()) << "Get host from no argument.";
+  auto h = args[0]->host();
+  for (size_t i = 1; i != args.size(); i++) {
+    auto h_i = args[i]->host();
+    if (h_i) { // h_i not NULL
+      if (h) { // h not NULL
+        if (h != h_i)
+          return NULL;
+      } else { // h is NULL
+        h = h_i;
+      }
+    } // ignore if h_i is NULL
+  }
+  return h;
 }
 
 // ------------------------- Class ExprOpNeg -------------------------------- //
