@@ -70,6 +70,10 @@ ExprPtr ExprFuse::Xor(const ExprPtr l, const ExprPtr r) {
   return std::make_shared<ExprOpXor>(l, r);
 }
 
+ExprPtr ExprFuse::Shl(const ExprPtr l, const ExprPtr r) {
+  return std::make_shared<ExprOpShl>(l, r);
+}
+
 ExprPtr ExprFuse::Add(const ExprPtr l, const ExprPtr r) {
   return std::make_shared<ExprOpAdd>(l, r);
 }
@@ -91,6 +95,11 @@ ExprPtr ExprFuse::Or(const ExprPtr l, const bool& r) {
 ExprPtr ExprFuse::Xor(const ExprPtr l, const bool& r) {
   auto rc = ExprFuse::BoolConst(r);
   return ExprFuse::Xor(l, rc);
+}
+
+ExprPtr ExprFuse::Shl(const ExprPtr l, const int& r) {
+  auto rc = ExprFuse::BvConst(r, l->sort().bit_width());
+  return ExprFuse::Shl(l, rc);
 }
 
 ExprPtr ExprFuse::Add(const ExprPtr l, const int& r) {

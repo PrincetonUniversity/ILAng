@@ -85,6 +85,9 @@ TEST(TestApi, ExprOps) {
   auto n_xor_bool = n_or_bool ^ n_and_bool;
   auto n_xor_bool_c = n_xor_bool ^ true;
 
+  auto n_shl_bv = n_or_bv << n_and_bv;
+  auto n_shl_int = n_or_bv << 2;
+
   auto n_add_bv = n_xor_bv + n_or_bv;
   auto n_sub_bv = n_add_bv - n_xor_bv;
   auto n_add_bv_c = n_add_bv + 1;

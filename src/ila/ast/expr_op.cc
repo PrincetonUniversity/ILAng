@@ -181,6 +181,18 @@ z3::expr ExprOpXor::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
   }
 }
 
+// ------------------------- Class ExprOpShl -------------------------------- //
+ExprOpShl::ExprOpShl(const ExprPtr bv, const ExprPtr n) : ExprOp(bv, n) {
+  ILA_ASSERT(bv->is_bv()) << "Left shift can only be applied to bit-vectors.";
+  set_sort(GetSortBinaryOperation(bv->sort(), n->sort()));
+}
+
+z3::expr ExprOpShl::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                              const std::string& suffix) const {
+  ILA_ASSERT(expr_vec.size() == 2) << "Left shift is binary operation.";
+  return z3::shl(expr_vec[0], expr_vec[1]);
+}
+
 // ------------------------- Class ExprOpAdd -------------------------------- //
 ExprOpAdd::ExprOpAdd(const ExprPtr arg0, const ExprPtr arg1)
     : ExprOp(arg0, arg1) {

@@ -130,9 +130,19 @@ public:
                      const std::string& suffix = "") const;
 }; // class ExprOpXor
 
-// TODO ExprOpShl
+/// \brief The wrapper for left shifting a bit-vector.
+class ExprOpShl : public ExprOp {
+public:
+  /// Constructor for left shifting a bit-vectors.
+  ExprOpShl(const ExprPtr bv, const ExprPtr n);
+  std::string op_name() const { return "SHL"; }
+  z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                     const std::string& suffix = "") const;
+}; // class ExprOpShl
 
-// TODO ExprOpShr
+// TODO ExprOpLshr
+
+// TODO ExprOpAshr
 
 /// \brief The wrapper for unsigned addition.
 class ExprOpAdd : public ExprOp {
