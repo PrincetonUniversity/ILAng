@@ -2,23 +2,35 @@
 /// Source for the class Func
 
 #include "ila/ast/func.h"
+#include "ila/expr_fuse.h"
 #include "util/log.h"
 
 namespace ila {
 
-Func::Func() {}
+Func::Func(const Sort& out) : out_(out) {}
+
+Func::Func(const Sort& out, const Sort& arg0) : out_(out), args_({arg0}) {}
+
+Func::Func(const Sort& out, const Sort& arg0, const Sort& arg1)
+    : out_(out), args_({arg0, arg1}) {}
+
+Func::Func(const Sort& out, const std::vector<Sort>& args)
+    : out_(out), args_(args) {}
 
 Func::~Func() {}
 
-z3::expr Func::GetZ3Expr(z3::context& z3_ctx, const Z3ExprVec& z3expr_vec,
-                         const std::string& suffix) const {
-  // TODO
-  return z3_ctx.bool_val(true);
+bool Func::Check(const ExprPtrVec& args) const {
+  ILA_CHECK(args.size() == arg_num())
+      << "Argument number mismatch: " << args.size() << " " << arg_num();
+  for (size_t i = 0; i != args.size(); i++) {
+    ILA_CHECK(args[i]->sort() == arg(i))
+        << i << "-th Sort mismatch: " << args[i]->sort() << " " << arg(i);
+  }
+  return true;
 }
 
 std::ostream& Func::Print(std::ostream& out) const {
-  // TODO
-  return out << name();
+  return out << "Func." << name();
 }
 
 } // namespace ila

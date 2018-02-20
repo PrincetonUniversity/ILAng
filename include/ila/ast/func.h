@@ -11,29 +11,50 @@
 /// \namespace ila
 namespace ila {
 
-/// \brief The class for uninterpreted function declaration and constraints.
+// Forward declaration.
+class Expr;
+
+/// \brief The class for uninterpreted function.
 class Func : public Ast {
 public:
   /// Pointer type for normal use of Func.
   typedef std::shared_ptr<Func> FuncPtr;
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
-  /// Default constructor.
-  Func();
+  /// Constructor for zero-argument function (non-determinism).
+  Func(const Sort& out = Sort::MakeBoolSort());
+  /// Constructor for one-argument function.
+  Func(const Sort& out, const Sort& arg0);
+  /// Constructor for two-argument function.
+  Func(const Sort& out, const Sort& arg0, const Sort& arg1);
+  /// Constructor for multiple-argument function.
+  Func(const Sort& out, const std::vector<Sort>& args);
+
   /// Default destructor.
   ~Func();
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
+  /// Return the output sort.
+  const Sort& out() const { return out_; }
+  /// Return the number of arguments.
+  size_t arg_num() const { return args_.size(); }
+  /// Return the sort of the i-th argument.
+  const Sort& arg(const int& i) const { return args_.at(i); }
+
   // ------------------------- METHODS -------------------------------------- //
-  /// Return the z3 expression for the function.
-  z3::expr GetZ3Expr(z3::context& z3_ctx, const Z3ExprVec& z3expr_vec,
-                     const std::string& suffix = "") const;
+  /// Check if the input arguments match the specified sort.
+  bool Check(const std::vector<std::shared_ptr<Expr>>& args) const;
 
   /// Output to stream.
   std::ostream& Print(std::ostream& out) const;
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
+  /// Sort of the output (range).
+  Sort out_;
+  /// Sort of the input arguments (domain).
+  std::vector<Sort> args_;
+
   // ------------------------- HELPERS -------------------------------------- //
 }; // class Func
 
