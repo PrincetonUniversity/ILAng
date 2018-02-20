@@ -20,13 +20,13 @@ public:
 }; // class TestFunc
 
 TEST_F(TestFunc, Atom) {
-  auto f = std::make_shared<Func>("func");
+  auto f = Func::New("func");
   EXPECT_EQ(b, f->out());
   EXPECT_EQ(0, f->arg_num());
   EXPECT_ANY_THROW(f->arg(0));
   EXPECT_TRUE(f->Check({}));
 
-  auto f_bv = std::make_shared<Func>("func", bv);
+  auto f_bv = Func::New("func", bv);
   EXPECT_EQ(bv, f_bv->out());
 
   std::string msg = "";
@@ -35,7 +35,7 @@ TEST_F(TestFunc, Atom) {
 }
 
 TEST_F(TestFunc, Unary) {
-  auto f = std::make_shared<Func>("func", b, bv);
+  auto f = Func::New("func", b, bv);
   EXPECT_EQ(b, f->out());
   EXPECT_EQ(1, f->arg_num());
   EXPECT_EQ(bv, f->arg(0));
@@ -46,7 +46,7 @@ TEST_F(TestFunc, Unary) {
 }
 
 TEST_F(TestFunc, Binary) {
-  auto f = std::make_shared<Func>("func", bv, b, bv);
+  auto f = Func::New("func", bv, b, bv);
   EXPECT_EQ(bv, f->out());
   EXPECT_EQ(2, f->arg_num());
   EXPECT_EQ(b, f->arg(0));

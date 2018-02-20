@@ -53,6 +53,7 @@ protected:
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
+  InstrLvlAbsPtr GetHost(const ExprPtrVec& args) const; // TODO
 
 }; // class ExprOp
 

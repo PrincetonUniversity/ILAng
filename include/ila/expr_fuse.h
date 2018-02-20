@@ -15,26 +15,6 @@
 /// \namespace ila
 namespace ila {
 
-#if 0
-/// \brief The uniform interface and wrapper for different types of expressions,
-/// e.g. var, constant, and different operations.
-class ExprFuse {
-  // ------------------------- MEMBERS -------------------------------------- //
-
-public:
-  // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
-  /// Default constructor. NOT USED. Not for constructing objects.
-  ExprFuse();
-  /// Default destructor. NOT USED. Not for constructing objects.
-  ~ExprFuse();
-
-  // ------------------------- ACCESSORS/MUTATORS --------------------------- //
-
-  // ------------------------- METHODS -------------------------------------- //
-  // functions for wrapping the hierarchy of AST.
-
-#endif
-
 /// \namespace ExprFuse
 /// Defines the wrapper for hiding imeplementation dependent type details.
 namespace ExprFuse {
@@ -203,13 +183,6 @@ ExprPtr Ite(const ExprPtr cnd, const ExprPtr true_expr,
 /****************************************************************************/
 /// Topologically equivalent.
 bool TopEq(const ExprPtr a, const ExprPtr b);
-
-#if 0
-private:
-// ------------------------- HELPERS -------------------------------------- //
-
-}; // class ExprFuse
-#endif
 
 } // namespace ExprFuse
 

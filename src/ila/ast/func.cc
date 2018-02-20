@@ -7,20 +7,28 @@
 
 namespace ila {
 
-Func::Func(const std::string& name, const Sort& out) : Ast(name), out_(out) {}
-
-Func::Func(const std::string& name, const Sort& out, const Sort& arg0)
-    : Ast(name), out_(out), args_({arg0}) {}
-
-Func::Func(const std::string& name, const Sort& out, const Sort& arg0,
-           const Sort& arg1)
-    : Ast(name), out_(out), args_({arg0, arg1}) {}
-
-Func::Func(const std::string& name, const Sort& out,
-           const std::vector<Sort>& args)
-    : Ast(name), out_(out), args_(args) {}
+Func::Func(const FuncConfig& config)
+    : Ast(config.name_), out_(config.out_), args_(config.args_) {}
 
 Func::~Func() {}
+
+FuncPtr Func::New(const std::string& name, const Sort& out) {
+  return std::make_shared<Func>(FuncConfig(name, out, {}));
+}
+
+FuncPtr Func::New(const std::string& name, const Sort& out, const Sort& arg0) {
+  return std::make_shared<Func>(FuncConfig(name, out, {arg0}));
+}
+
+FuncPtr Func::New(const std::string& name, const Sort& out, const Sort& arg0,
+                  const Sort& arg1) {
+  return std::make_shared<Func>(FuncConfig(name, out, {arg0, arg1}));
+}
+
+FuncPtr Func::New(const std::string& name, const Sort& out,
+                  const std::vector<Sort>& args) {
+  return std::make_shared<Func>(FuncConfig(name, out, args));
+}
 
 bool Func::Check(const ExprPtrVec& args) const {
   ILA_CHECK(args.size() == arg_num())
