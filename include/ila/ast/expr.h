@@ -80,8 +80,6 @@ public:
   inline bool is_bv() const { return sort_.is_bv(); }
   /// Return true if this is an Array expression.
   inline bool is_mem() const { return sort_.is_mem(); }
-  /// Return true if this is an Application expression.
-  inline bool is_app() const { return sort_.is_app(); }
 
   // ------------------------- METHODS -------------------------------------- //
   /// Return the z3 expression for the node.
