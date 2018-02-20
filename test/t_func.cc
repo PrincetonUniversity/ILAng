@@ -32,7 +32,9 @@ TEST_F(TestFunc, Atom) {
   std::string msg = "";
   GET_STDOUT_MSG(std::cout << f, msg);
   EXPECT_EQ(msg, "Func.func");
-  // TODO z3
+
+  z3::context c;
+  auto f_decl = f->GetZ3FuncDecl(c);
 }
 
 TEST_F(TestFunc, Unary) {
@@ -44,6 +46,9 @@ TEST_F(TestFunc, Unary) {
   EXPECT_TRUE(f->CheckSort({ExprFuse::NewBvVar("bv_var", 8)}));
   EXPECT_DEATH(f->CheckSort({ExprFuse::NewBvVar("bv_var", 6)}), ".*");
   EXPECT_DEATH(f->CheckSort({ExprFuse::NewBoolVar("bool_var")}), ".*");
+
+  z3::context c;
+  auto f_decl = f->GetZ3FuncDecl(c);
 }
 
 TEST_F(TestFunc, Binary) {
@@ -58,6 +63,23 @@ TEST_F(TestFunc, Binary) {
   EXPECT_TRUE(f->CheckSort({b_var, bv_var}));
   EXPECT_DEATH(f->CheckSort({b_var}), ".*");
   EXPECT_DEATH(f->CheckSort({b_var, b_var}), ".*");
+
+  z3::context c;
+  auto f_decl = f->GetZ3FuncDecl(c);
+}
+
+TEST_F(TestFunc, Multiple) {
+  auto f = Func::New("fun", b, {b, bv, bv});
+  EXPECT_EQ(b, f->out());
+  EXPECT_EQ(3, f->arg_num());
+  EXPECT_EQ(bv, f->arg(1));
+  EXPECT_ANY_THROW(f->arg(3));
+  auto b_var = ExprFuse::NewBoolVar("bool_var");
+  auto bv_var = ExprFuse::NewBvVar("bv_var", 8);
+  EXPECT_TRUE(f->CheckSort({b_var, bv_var, bv_var}));
+
+  z3::context c;
+  auto f_decl = f->GetZ3FuncDecl(c);
 }
 
 } // namespace ila
