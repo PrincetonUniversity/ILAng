@@ -7,15 +7,26 @@
 
 namespace ila {
 
-Func::Func(const Sort& out) : out_(out) {}
+Func::Func(const std::string& name, const Sort& out) : out_(out) {
+  set_name(name);
+}
 
-Func::Func(const Sort& out, const Sort& arg0) : out_(out), args_({arg0}) {}
+Func::Func(const std::string& name, const Sort& out, const Sort& arg0)
+    : out_(out), args_({arg0}) {
+  set_name(name);
+}
 
-Func::Func(const Sort& out, const Sort& arg0, const Sort& arg1)
-    : out_(out), args_({arg0, arg1}) {}
+Func::Func(const std::string& name, const Sort& out, const Sort& arg0,
+           const Sort& arg1)
+    : out_(out), args_({arg0, arg1}) {
+  set_name(name);
+}
 
-Func::Func(const Sort& out, const std::vector<Sort>& args)
-    : out_(out), args_(args) {}
+Func::Func(const std::string& name, const Sort& out,
+           const std::vector<Sort>& args)
+    : out_(out), args_(args) {
+  set_name(name);
+}
 
 Func::~Func() {}
 

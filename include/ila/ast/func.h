@@ -22,13 +22,14 @@ public:
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Constructor for zero-argument function (non-determinism).
-  Func(const Sort& out = Sort::MakeBoolSort());
+  Func(const std::string& name, const Sort& out = Sort::MakeBoolSort());
   /// Constructor for one-argument function.
-  Func(const Sort& out, const Sort& arg0);
+  Func(const std::string& name, const Sort& out, const Sort& arg0);
   /// Constructor for two-argument function.
-  Func(const Sort& out, const Sort& arg0, const Sort& arg1);
+  Func(const std::string& name, const Sort& out, const Sort& arg0,
+       const Sort& arg1);
   /// Constructor for multiple-argument function.
-  Func(const Sort& out, const std::vector<Sort>& args);
+  Func(const std::string& name, const Sort& out, const std::vector<Sort>& args);
 
   /// Default destructor.
   ~Func();
@@ -47,6 +48,9 @@ public:
 
   /// Output to stream.
   std::ostream& Print(std::ostream& out) const;
+
+  /// Overload output stream.
+  std::ostream& operator<<(std::ostream& out) const { return Print(out); }
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
