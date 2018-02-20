@@ -160,6 +160,8 @@ ExprPtr Concat(const ExprPtr hi, const ExprPtr lo);
 ExprPtr Extract(const ExprPtr bv, const int& hi, const int& lo);
 /// Zero extend the bitvector to the specified length.
 ExprPtr ZExt(const ExprPtr bv, const int& out_width);
+/// Sign extend the bitvector to the specified length.
+ExprPtr SExt(const ExprPtr bv, const int& out_width);
 
 /****************************************************************************/
 // Function usage

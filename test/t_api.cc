@@ -128,6 +128,8 @@ TEST(TestApi, ExprOps) {
   auto n_extract_single_bv = n_extract_bv(1);
   auto n_zext_bv = n_extract_single_bv.ZExt(REG_SIZE);
   auto n_zext_static = ZExt(n_extract_single_bv, REG_SIZE);
+  auto n_sext_bv = n_extract_single_bv.SExt(REG_SIZE);
+  auto n_sext_static = SExt(n_extract_single_bv, REG_SIZE);
   auto n_concat_bv = Concat(n_append_bv, n_extract_bv);
 
   auto n_imply_bool = Imply(n_ne_bool, n_xor_bool);

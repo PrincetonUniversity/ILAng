@@ -227,6 +227,10 @@ ExprPtr ExprFuse::ZExt(const ExprPtr bv, const int& out_width) {
   return std::make_shared<ExprOpZExt>(bv, out_width);
 }
 
+ExprPtr ExprFuse::SExt(const ExprPtr bv, const int& out_width) {
+  return std::make_shared<ExprOpSExt>(bv, out_width);
+}
+
 ExprPtr ExprFuse::Imply(const ExprPtr p, const ExprPtr q) {
   return std::make_shared<ExprOpImply>(p, q);
 }

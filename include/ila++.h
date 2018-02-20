@@ -65,6 +65,8 @@ public:
   ExprRef operator()(const int& idx) const;
   /// Zero-extend the bit-vector to the specified length.
   ExprRef ZExt(const int& length) const;
+  /// Sign-extend the bit-vector to the specified length.
+  ExprRef SExt(const int& length) const;
 
   /****************************************************************************/
   // Others
@@ -187,6 +189,10 @@ ExprRef SelectBit(const ExprRef& bv, const int& idx);
 /// \param[in] bv source bit-vector.
 /// \param[in] length bit-width of the extended (result) bit-vector.
 ExprRef ZExt(const ExprRef& bv, const int& length);
+/// \brief Sign-extend the bit-vector to the specified length.
+/// \param[in] bv source bit-vector.
+/// \param[in] length bit-width of the extended (result) bit-vector.
+ExprRef SExt(const ExprRef& bv, const int& length);
 
 /******************************************************************************/
 // Others

@@ -341,7 +341,7 @@ z3::expr ExprOpExtract::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
   return bv.extract(hi, lo);
 }
 
-// ------------------------- Class ExprOpZeroExtend ------------------------- //
+// ------------------------- Class ExprOpZExt ------------------------------- //
 ExprOpZExt::ExprOpZExt(const ExprPtr bv, const int& bit_width)
     : ExprOp(bv, bit_width) {
   ILA_ASSERT(bv->is_bv()) << "Zero-extend can only be applied to bit-vector.";
@@ -357,6 +357,24 @@ z3::expr ExprOpZExt::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
   auto bv = expr_vec[0];
   unsigned wid = static_cast<unsigned>(param(0));
   return z3::zext(bv, wid);
+}
+
+// ------------------------- Class ExprOpSExt ------------------------------- //
+ExprOpSExt::ExprOpSExt(const ExprPtr bv, const int& bit_width)
+    : ExprOp(bv, bit_width) {
+  ILA_ASSERT(bv->is_bv()) << "Sign-extend can only be applied to bit-vector.";
+  ILA_ASSERT(bit_width >= bv->sort().bit_width())
+      << "Invalid target bit-width for extend.";
+  set_sort(Sort::MakeBvSort(bit_width));
+}
+
+z3::expr ExprOpSExt::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                               const std::string& suffix) const {
+  ILA_ASSERT(expr_vec.size() == 1) << "Extend take 1 argument.";
+  ILA_ASSERT(param_num() == 1) << "Extend need one parameter.";
+  auto bv = expr_vec[0];
+  unsigned wid = static_cast<unsigned>(param(0));
+  return z3::sext(bv, wid);
 }
 
 // ------------------------- Class ExprOpAppFunc ---------------------------- //

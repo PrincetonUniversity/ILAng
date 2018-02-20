@@ -282,7 +282,17 @@ public:
   std::string op_name() const { return "ZERO_EXTEND"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                      const std::string& suffix = "") const;
-}; // class ExprOpZeroExtend
+}; // class ExprOpZExtend
+
+/// \brief The calss wrapper for sign-extend.
+class ExprOpSExt : public ExprOp {
+public:
+  /// Constructor for bitvector sign-extend.
+  ExprOpSExt(const ExprPtr bv, const int& bit_width);
+  std::string op_name() const { return "SIGN_EXTEND"; }
+  z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                     const std::string& suffix = "") const;
+}; // class ExprOpSExt
 
 /******************************************************************************/
 // Function usage
