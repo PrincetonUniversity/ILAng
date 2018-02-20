@@ -133,7 +133,7 @@ public:
 /// \brief The wrapper for left shifting a bit-vector.
 class ExprOpShl : public ExprOp {
 public:
-  /// Constructor for left shifting a bit-vectors.
+  /// Constructor for left shifting a bit-vector.
   ExprOpShl(const ExprPtr bv, const ExprPtr n);
   std::string op_name() const { return "SHL"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
@@ -142,7 +142,15 @@ public:
 
 // TODO ExprOpLshr
 
-// TODO ExprOpAshr
+/// \brief The wrapper for arithmetic right shifting a bit-vector.
+class ExprOpAshr : public ExprOp {
+public:
+  /// Constructor for arithmetic right shifting a bit-vector.
+  ExprOpAshr(const ExprPtr bv, const ExprPtr n);
+  std::string op_name() const { return "ASHR"; }
+  z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                     const std::string& suffix = "") const;
+}; // class ExprOpAshr
 
 /// \brief The wrapper for unsigned addition.
 class ExprOpAdd : public ExprOp {

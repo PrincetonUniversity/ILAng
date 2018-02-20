@@ -94,6 +94,8 @@ ExprPtr Or(const ExprPtr l, const bool& r);
 ExprPtr Xor(const ExprPtr l, const bool& r);
 /// Left shift with int.
 ExprPtr Shl(const ExprPtr l, const int& r);
+/// Arithmetic right shift with int.
+ExprPtr Ashr(const ExprPtr l, const int& r);
 /// Arithmetic addition with int.
 ExprPtr Add(const ExprPtr l, const int& r);
 /// Arithmetic subtraction with int.
