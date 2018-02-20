@@ -21,44 +21,6 @@ InstrLvlAbsPtr InstrLvlAbs::New(const std::string& name,
   return std::make_shared<InstrLvlAbs>(name, parent);
 }
 
-#if 0
-bool InstrLvlAbs::is_spec() const { return is_spec_; }
-
-const ExprMngrPtr InstrLvlAbs::expr_mngr() const { return expr_mngr_; }
-
-void InstrLvlAbs::set_spec(bool spec) { is_spec_ = spec; }
-
-void InstrLvlAbs::set_expr_mngr(const ExprMngrPtr expr_mngr) {
-  expr_mngr_ = expr_mngr;
-}
-
-size_t InstrLvlAbs::input_num() const { return inputs_.size(); }
-
-size_t InstrLvlAbs::state_num() const { return states_.size(); }
-
-size_t InstrLvlAbs::instr_num() const { return instrs_.size(); }
-
-size_t InstrLvlAbs::child_num() const { return childs_.size(); }
-
-size_t InstrLvlAbs::init_num() const { return inits_.size(); }
-
-const ExprPtr InstrLvlAbs::fetch() const { return fetch_; }
-
-const ExprPtr InstrLvlAbs::valid() const { return valid_; }
-
-const ExprPtr InstrLvlAbs::input(const size_t& i) const { return inputs_[i]; }
-
-const ExprPtr InstrLvlAbs::state(const size_t& i) const { return states_[i]; }
-
-const InstrPtr InstrLvlAbs::instr(const size_t& i) const { return instrs_[i]; }
-
-const InstrLvlAbsPtr InstrLvlAbs::child(const size_t& i) const {
-  return childs_[i];
-}
-
-const ExprPtr InstrLvlAbs::init(const size_t& i) const { return inits_[i]; }
-#endif
-
 const ExprPtr InstrLvlAbs::input(const std::string& name) const {
   auto pos = inputs_.find(Symbol(name));
   if (pos == inputs_.end())
@@ -221,7 +183,8 @@ const ExprPtr InstrLvlAbs::NewMemState(const std::string& name,
 }
 
 const InstrPtr InstrLvlAbs::NewInstr(const std::string& name) {
-  InstrPtr instr = Instr::New(name, shared_from_this());
+  auto tmp_name = (name == "") ? "I." + std::to_string(instr_num()) : name;
+  InstrPtr instr = Instr::New(tmp_name, shared_from_this());
   // register
   AddInstr(instr);
   return instr;

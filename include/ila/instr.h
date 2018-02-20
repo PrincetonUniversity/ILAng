@@ -31,14 +31,14 @@ public:
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Constructor with the ast simplifier.
-  Instr(const std::string& name = "", const InstrLvlAbsPtr host = NULL);
+  Instr(const std::string& name, const InstrLvlAbsPtr host = NULL);
   /// Default destructor.
   ~Instr();
 
   // ------------------------- HELPERS -------------------------------------- //
   /// \brief Create a new instruction (Instr) binded with the host. Used
   /// for hiding implementation specific type details.
-  static InstrPtr New(const std::string& name = "", InstrLvlAbsPtr host = NULL);
+  static InstrPtr New(const std::string& name, InstrLvlAbsPtr host = NULL);
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return true if Is type Instr.

@@ -10,6 +10,8 @@ typedef Expr::InstrLvlAbsPtr InstrLvlAbsPtr;
 
 Expr::Expr() {}
 
+Expr::Expr(const std::string& name) : Ast(name) {}
+
 Expr::~Expr() {}
 
 void Expr::set_sort(const Sort& sort) { sort_ = sort; }
@@ -33,10 +35,6 @@ void Expr::replace_arg(const ExprPtr a, const ExprPtr b) {
   }
   ILA_ASSERT(idx != arg_num()) << a << " not found for replacing.";
   args_[idx] = b;
-}
-
-std::ostream& operator<<(std::ostream& out, ExprPtr expr) {
-  return expr->Print(out);
 }
 
 } // namespace ila

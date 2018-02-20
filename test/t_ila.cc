@@ -202,8 +202,8 @@ TEST(TestInstrLvlAbs, Valid) {
 TEST(TestInstrLvlAbs, Instr) {
   auto ila = InstrLvlAbs::New("ila");
 
-  // external un-named instruction
-  auto instr_ex = Instr::New();
+  // external un-named instruction (Fixed to have name).
+  auto instr_ex = Instr::New("instr_ex");
   ila->AddInstr(instr_ex);
 
   // external named instruction

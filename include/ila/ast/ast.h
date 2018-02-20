@@ -19,6 +19,8 @@ public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor.
   Ast();
+  /// Constructor with name.
+  Ast(const std::string& name);
   /// Default destructor.
   virtual ~Ast();
 

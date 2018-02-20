@@ -50,7 +50,9 @@ public:
   std::ostream& Print(std::ostream& out) const;
 
   /// Overload output stream.
-  std::ostream& operator<<(std::ostream& out) const { return Print(out); }
+  friend std::ostream& operator<<(std::ostream& out, const FuncPtr f) {
+    return f->Print(out);
+  }
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //

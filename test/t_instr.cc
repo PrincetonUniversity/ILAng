@@ -38,6 +38,7 @@ TEST_F(TestInstr, Construct) {
 
   EXPECT_FALSE(eptr->has_view());
 
+#if 0
   InstrPtr nptr = std::make_shared<Instr>();
 
   EXPECT_TRUE(nptr->is_instr());
@@ -53,6 +54,7 @@ TEST_F(TestInstr, Construct) {
   EXPECT_FALSE(hptr->is_ast());
 
   EXPECT_FALSE(hptr->has_view());
+#endif
 }
 
 TEST_F(TestInstr, View) {

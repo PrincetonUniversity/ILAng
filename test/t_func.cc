@@ -28,6 +28,10 @@ TEST_F(TestFunc, Atom) {
 
   auto f_bv = std::make_shared<Func>("func", bv);
   EXPECT_EQ(bv, f_bv->out());
+
+  std::string msg = "";
+  GET_STDOUT_MSG(std::cout << f, msg);
+  EXPECT_EQ(msg, "Func.func");
 }
 
 TEST_F(TestFunc, Unary) {

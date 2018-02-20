@@ -34,6 +34,8 @@ public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor.
   Expr();
+  /// Constructor with name.
+  Expr(const std::string& name);
   /// Default destructor.
   virtual ~Expr();
 
@@ -90,7 +92,9 @@ public:
   virtual std::ostream& Print(std::ostream& out) const = 0;
 
   /// Overload output stream operator for pointer.
-  friend std::ostream& operator<<(std::ostream& out, ExprPtr expr);
+  friend std::ostream& operator<<(std::ostream& out, const ExprPtr expr) {
+    return expr->Print(out);
+  }
 
   /// \brief Templated visitor: visit each node in a depth-first order and apply
   /// the function object F on it.

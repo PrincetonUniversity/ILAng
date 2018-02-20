@@ -6,10 +6,8 @@
 
 namespace ila {
 
-Instr::Instr(const std::string& name, const InstrLvlAbsPtr host) : host_(host) {
-  // update name if specified
-  if (name != "")
-    set_name(name);
+Instr::Instr(const std::string& name, const InstrLvlAbsPtr host)
+    : Object(name), host_(host) {
   // initialization for other components
   updates_.clear();
 }
@@ -19,14 +17,6 @@ Instr::~Instr(){};
 InstrPtr Instr::New(const std::string& name, InstrLvlAbsPtr host) {
   return std::make_shared<Instr>(name, host);
 }
-
-#if 0
-bool Instr::has_view() const { return has_view_; }
-
-InstrLvlAbsPtr Instr::host() const { return host_; }
-
-void Instr::set_view(bool v) { has_view_ = v; }
-#endif
 
 void Instr::SetDecode(const ExprPtr decode) {
   ILA_ERROR_IF(decode_)
