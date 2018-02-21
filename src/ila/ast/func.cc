@@ -7,27 +7,28 @@
 
 namespace ila {
 
-Func::Func(const FuncConfig& config)
-    : Ast(config.name_), out_(config.out_), args_(config.args_) {}
+Func::Func(const std::string& name, const Sort& out,
+           const std::vector<Sort>& args)
+    : Ast(name), out_(out), args_(args) {}
 
 Func::~Func() {}
 
 FuncPtr Func::New(const std::string& name, const Sort& out) {
-  return std::make_shared<Func>(FuncConfig(name, out, {}));
+  return FuncPtr(new Func(name, out, {})); // not make_shared due to vector
 }
 
 FuncPtr Func::New(const std::string& name, const Sort& out, const Sort& arg0) {
-  return std::make_shared<Func>(FuncConfig(name, out, {arg0}));
+  return FuncPtr(new Func(name, out, {arg0})); // not make_shared due to vector
 }
 
 FuncPtr Func::New(const std::string& name, const Sort& out, const Sort& arg0,
                   const Sort& arg1) {
-  return std::make_shared<Func>(FuncConfig(name, out, {arg0, arg1}));
+  return FuncPtr(new Func(name, out, {arg0, arg1})); // not make_shared
 }
 
 FuncPtr Func::New(const std::string& name, const Sort& out,
                   const std::vector<Sort>& args) {
-  return std::make_shared<Func>(FuncConfig(name, out, args));
+  return FuncPtr(new Func(name, out, args)); // not make_shared due to vector
 }
 
 bool Func::CheckSort(const ExprPtrVec& args) const {

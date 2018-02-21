@@ -17,28 +17,13 @@ class Expr;
 
 /// \brief The class for uninterpreted function.
 class Func : public Ast {
-private:
-  /// Internal structure for wrapping constructor arguments from shared_ptr
-  struct FuncConfig {
-    /// Constructor for wrapping the arguments.
-    FuncConfig(const std::string& name, const Sort& out,
-               const std::vector<Sort>& args)
-        : name_(name), out_(out), args_(args) {}
-    /// Wrapped data: function name.
-    const std::string& name_;
-    /// Wrapped data: output sort.
-    const Sort& out_;
-    /// Wrapper data: input sorts.
-    const std::vector<Sort>& args_;
-  }; // struct FuncConfig
-
 public:
   /// Pointer type for normal use of Func.
   typedef std::shared_ptr<Func> FuncPtr;
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Constructor for multiple-argument function.
-  Func(const FuncConfig& config);
+  Func(const std::string& name, const Sort& out, const std::vector<Sort>& args);
 
   /// Default destructor.
   ~Func();
