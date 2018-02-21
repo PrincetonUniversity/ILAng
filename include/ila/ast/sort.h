@@ -12,6 +12,41 @@
 /// \namespace ila
 namespace ila {
 
+class SortBase : public Ast {
+public:
+  typedef std::shared_ptr<SortBase> SortBasePtr;
+
+  SortBase();
+  virtual ~SortBase();
+
+  virtual const int& bit_width() const = 0;
+  virtual const int& addr_width() const = 0;
+  virtual const int& data_width() const = 0;
+
+  bool is_sort() const { return true; }
+
+  virtual bool is_bool() const = 0;
+  virtual bool is_bv() const = 0;
+  virtual bool is_mem() const = 0;
+
+  // ------------------------- METHODS -------------------------------------- //
+  /// Return z3 sort.
+  virtual z3::sort GetZ3Sort(z3::context& ctx) const = 0;
+
+  /// Output to stream.
+  virtual std::ostream& Print(std::ostream& out) const = 0;
+  /// Compare two Sorts.
+  static bool Equal(const SortBasePtr& lhs, const SortBasePtr& rhs);
+
+  /// Overload output stream operator.
+  friend std::ostream& operator<<(std::ostream& out, const SortBasePtr s);
+  /// Overlaod comparison.
+  friend bool operator==(const SortBasePtr lhs, const SortBasePtr rhs);
+
+}; // class SortBase
+
+typedef SortBase::SortBasePtr SortBasePtr;
+
 /// SortType
 typedef enum { SORT_BOOL, SORT_BV, SORT_MEM } SortType;
 
