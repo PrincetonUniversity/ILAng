@@ -22,14 +22,13 @@ public:
 }; // class TestInstr
 
 TEST_F(TestInstr, Construct) {
-  InstrPtr sptr = std::make_shared<Instr>("simplify_instr", mngr);
+  InstrPtr sptr = std::make_shared<Instr>("simplify_instr");
 
   EXPECT_TRUE(sptr->is_instr());
   EXPECT_FALSE(sptr->is_instr_lvl_abs());
   EXPECT_FALSE(sptr->is_ast());
 
   EXPECT_FALSE(sptr->has_view());
-  EXPECT_TRUE(sptr->has_simplify());
 
   InstrPtr eptr = std::make_shared<Instr>("raw_instr");
 
@@ -38,8 +37,8 @@ TEST_F(TestInstr, Construct) {
   EXPECT_FALSE(eptr->is_ast());
 
   EXPECT_FALSE(eptr->has_view());
-  EXPECT_FALSE(eptr->has_simplify());
 
+#if 0
   InstrPtr nptr = std::make_shared<Instr>();
 
   EXPECT_TRUE(nptr->is_instr());
@@ -47,7 +46,6 @@ TEST_F(TestInstr, Construct) {
   EXPECT_FALSE(nptr->is_ast());
 
   EXPECT_FALSE(nptr->has_view());
-  EXPECT_FALSE(nptr->has_simplify());
 
   InstrPtr hptr = Instr::New();
 
@@ -56,11 +54,11 @@ TEST_F(TestInstr, Construct) {
   EXPECT_FALSE(hptr->is_ast());
 
   EXPECT_FALSE(hptr->has_view());
-  EXPECT_FALSE(hptr->has_simplify());
+#endif
 }
 
 TEST_F(TestInstr, View) {
-  InstrPtr ptr = std::make_shared<Instr>("dummy", mngr);
+  InstrPtr ptr = std::make_shared<Instr>("dummy");
 
   EXPECT_FALSE(ptr->has_view());
   ptr->set_view(true);
@@ -68,7 +66,7 @@ TEST_F(TestInstr, View) {
 }
 
 TEST_F(TestInstr, DecodeSimplified) {
-  InstrPtr ptr = std::make_shared<Instr>("dummy", mngr);
+  InstrPtr ptr = std::make_shared<Instr>("dummy");
 
 // set with NULL (forbiddened)
 #ifndef NDEBUG
@@ -144,7 +142,7 @@ TEST_F(TestInstr, DecodeNonSimplified) {
 }
 
 TEST_F(TestInstr, UpdateSimplified) {
-  InstrPtr ptr = std::make_shared<Instr>("dummy", mngr);
+  InstrPtr ptr = std::make_shared<Instr>("dummy");
 
   ExprPtr bv_var = ExprFuse::NewBvVar("bv_var", 8);
   ExprPtr bool_var = ExprFuse::NewBoolVar("bool_var");

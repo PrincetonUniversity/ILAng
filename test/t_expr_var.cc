@@ -8,7 +8,6 @@
 namespace ila {
 
 TEST(TestExprVar, Construct) {
-  EXPECT_DEATH(ExprVar(), ".*");
   auto bool_var = std::make_shared<ExprVar>("bool_var");
   auto bv_var = std::make_shared<ExprVar>("bv_var", 8);
   auto mem_var = std::make_shared<ExprVar>("mem_var", 8, 32);

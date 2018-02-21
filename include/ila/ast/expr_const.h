@@ -15,8 +15,6 @@ namespace ila {
 class ExprConst : public Expr {
 public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
-  /// Default constructor. DO NOT USE.
-  ExprConst();
   /// Constructor for Boolean constant.
   ExprConst(const BoolVal& bool_val);
   /// Constructor for Bitvector constant.

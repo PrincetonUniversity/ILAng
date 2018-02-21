@@ -6,18 +6,18 @@
 
 #include "ila/ast/expr.h"
 #include "util/log.h"
-#include <string>
 
 /// \namespace ila
 namespace ila {
+
+// Forward declaration.
+class Func;
 
 /// \brief Expression for operations, e.g. AND, OR, ADD, etc. Operations are
 /// non-terminating nodes in the AST.
 class ExprOp : public Expr {
 public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
-  /// Default constructor. DO NOT USE.
-  ExprOp();
   /// Constructor for unary operators.
   ExprOp(const ExprPtr arg);
   /// Constructor for binary operators.
@@ -28,6 +28,9 @@ public:
   ExprOp(const ExprPtr arg0, const int& param1);
   /// Constructor for ternary operators with parameters.
   ExprOp(const ExprPtr arg0, const int& param1, const int& param2);
+  /// Constructor for multiple argument operators (AppFunc).
+  ExprOp(const ExprPtrVec& args);
+
   /// Default destructor.
   virtual ~ExprOp();
 
@@ -55,6 +58,7 @@ protected:
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
+  InstrLvlAbsPtr GetHost(const ExprPtrVec& args) const;
 
 }; // class ExprOp
 
@@ -126,9 +130,35 @@ public:
                      const std::string& suffix = "") const;
 }; // class ExprOpXor
 
-// TODO ExprOpShl
+/// \brief The wrapper for left shifting a bit-vector.
+class ExprOpShl : public ExprOp {
+public:
+  /// Constructor for left shifting a bit-vector.
+  ExprOpShl(const ExprPtr bv, const ExprPtr n);
+  std::string op_name() const { return "SHL"; }
+  z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                     const std::string& suffix = "") const;
+}; // class ExprOpShl
 
-// TODO ExprOpShr
+/// \brief The wrapper for arithmetic right shifting a bit-vector.
+class ExprOpAshr : public ExprOp {
+public:
+  /// Constructor for arithmetic right shifting a bit-vector.
+  ExprOpAshr(const ExprPtr bv, const ExprPtr n);
+  std::string op_name() const { return "ASHR"; }
+  z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                     const std::string& suffix = "") const;
+}; // class ExprOpAshr
+
+/// \brief The wrapper for logical right shifting a bit-vector.
+class ExprOpLshr : public ExprOp {
+public:
+  /// Constructor for logical right shifting a bit-vector.
+  ExprOpLshr(const ExprPtr bv, const ExprPtr n);
+  std::string op_name() const { return "LSHR"; }
+  z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                     const std::string& suffix = "") const;
+}; // class ExprOpLshr
 
 /// \brief The wrapper for unsigned addition.
 class ExprOpAdd : public ExprOp {
@@ -278,13 +308,38 @@ public:
   std::string op_name() const { return "ZERO_EXTEND"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                      const std::string& suffix = "") const;
-}; // class ExprOpZeroExtend
+}; // class ExprOpZExtend
+
+/// \brief The calss wrapper for sign-extend.
+class ExprOpSExt : public ExprOp {
+public:
+  /// Constructor for bitvector sign-extend.
+  ExprOpSExt(const ExprPtr bv, const int& bit_width);
+  std::string op_name() const { return "SIGN_EXTEND"; }
+  z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                     const std::string& suffix = "") const;
+}; // class ExprOpSExt
 
 /******************************************************************************/
 // Function usage
 /******************************************************************************/
 
-// TODO ExprOpAppFunc
+/// \biref The class wrapper for apply uninterpreted function.
+class ExprOpAppFunc : public ExprOp {
+public:
+  /// Type for forware declaring Func.
+  typedef std::shared_ptr<Func> FuncPtr;
+
+  /// Constructor for apply uninterpreted function.
+  ExprOpAppFunc(const FuncPtr f, const ExprPtrVec& args);
+  std::string op_name() const { return "APP"; }
+  z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                     const std::string& suffix = "") const;
+
+private:
+  /// Uninterpreted funcion.
+  FuncPtr f;
+}; // class ExprOpAppFunc
 
 /******************************************************************************/
 // Others

@@ -7,10 +7,6 @@
 /// \namespace ila
 namespace ila {
 
-ExprConst::ExprConst() : val_(NULL) {
-  ILA_CHECK(false) << "Undefined default constructor for class ExprConst.\n";
-}
-
 ExprConst::ExprConst(const BoolVal& bool_val) {
   set_sort(Sort());
   val_ = std::make_shared<BoolVal>(bool_val);

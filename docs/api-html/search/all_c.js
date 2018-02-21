@@ -1,7 +1,10 @@
 var searchData=
 [
-  ['uge',['Uge',['../namespaceila.html#a871f96ba7945eec82c46a05268e2706c',1,'ila::Uge(const ExprRef &amp;a, const ExprRef &amp;b)'],['../namespaceila.html#a8fae8e830630c252d4a4c9992d22a565',1,'ila::Uge(const ExprRef &amp;a, const int &amp;b)']]],
-  ['ugt',['Ugt',['../namespaceila.html#a5a43519043d501d75add10a39fcb4a32',1,'ila::Ugt(const ExprRef &amp;a, const ExprRef &amp;b)'],['../namespaceila.html#ae3dd78f02d9919e4026f6daf92bbfd66',1,'ila::Ugt(const ExprRef &amp;a, const int &amp;b)']]],
-  ['ule',['Ule',['../namespaceila.html#a4e4c865704e6847a1c394364634e1ce9',1,'ila::Ule(const ExprRef &amp;a, const ExprRef &amp;b)'],['../namespaceila.html#aea44af15d89c64f0412b12565524a96f',1,'ila::Ule(const ExprRef &amp;a, const int &amp;b)']]],
-  ['ult',['Ult',['../namespaceila.html#a758a7065eb9411ed86cf35bc03f596c2',1,'ila::Ult(const ExprRef &amp;a, const ExprRef &amp;b)'],['../namespaceila.html#a8bee891e5f84b824213fc65105734436',1,'ila::Ult(const ExprRef &amp;a, const int &amp;b)']]]
+  ['selectbit',['SelectBit',['../namespaceila.html#a17fb1fad9ada96553f96773877b116f9',1,'ila']]],
+  ['setdecode',['SetDecode',['../classila_1_1_instr_ref.html#a9472b2c8c07ddf66a2f42f7a20cdf32e',1,'ila::InstrRef']]],
+  ['setfetch',['SetFetch',['../classila_1_1_ila.html#adfbdbbd37df8a43109338ad81fe2de01',1,'ila::Ila']]],
+  ['setupdate',['SetUpdate',['../classila_1_1_instr_ref.html#a3e7d1fa7ec35e49cfae9ffde207dcd20',1,'ila::InstrRef']]],
+  ['setvalid',['SetValid',['../classila_1_1_ila.html#ab86bf4218b000460e005a13ce0a8a523',1,'ila::Ila']]],
+  ['sext',['SExt',['../classila_1_1_expr_ref.html#a57b1e4661c82ec73011e9c5f2210877b',1,'ila::ExprRef::SExt()'],['../namespaceila.html#acb77138cddce4bf11e5f6ad73fc64efd',1,'ila::SExt()']]],
+  ['store',['Store',['../classila_1_1_expr_ref.html#a6bacb4cb719da6513a9d45415db40a82',1,'ila::ExprRef::Store()'],['../namespaceila.html#ae170357be0b2d16f0ba5773b6aa209e7',1,'ila::Store()']]]
 ];

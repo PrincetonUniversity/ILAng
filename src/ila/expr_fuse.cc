@@ -2,6 +2,7 @@
 /// Source of the class ExpFusee
 
 #include "ila/expr_fuse.h"
+#include "ila/hash_ast.h"
 #include "util/str_util.h"
 
 namespace ila {
@@ -69,6 +70,18 @@ ExprPtr ExprFuse::Xor(const ExprPtr l, const ExprPtr r) {
   return std::make_shared<ExprOpXor>(l, r);
 }
 
+ExprPtr ExprFuse::Shl(const ExprPtr l, const ExprPtr r) {
+  return std::make_shared<ExprOpShl>(l, r);
+}
+
+ExprPtr ExprFuse::Ashr(const ExprPtr l, const ExprPtr r) {
+  return std::make_shared<ExprOpAshr>(l, r);
+}
+
+ExprPtr ExprFuse::Lshr(const ExprPtr l, const ExprPtr r) {
+  return std::make_shared<ExprOpLshr>(l, r);
+}
+
 ExprPtr ExprFuse::Add(const ExprPtr l, const ExprPtr r) {
   return std::make_shared<ExprOpAdd>(l, r);
 }
@@ -90,6 +103,21 @@ ExprPtr ExprFuse::Or(const ExprPtr l, const bool& r) {
 ExprPtr ExprFuse::Xor(const ExprPtr l, const bool& r) {
   auto rc = ExprFuse::BoolConst(r);
   return ExprFuse::Xor(l, rc);
+}
+
+ExprPtr ExprFuse::Shl(const ExprPtr l, const int& r) {
+  auto rc = ExprFuse::BvConst(r, l->sort().bit_width());
+  return ExprFuse::Shl(l, rc);
+}
+
+ExprPtr ExprFuse::Ashr(const ExprPtr l, const int& r) {
+  auto rc = ExprFuse::BvConst(r, l->sort().bit_width());
+  return ExprFuse::Ashr(l, rc);
+}
+
+ExprPtr ExprFuse::Lshr(const ExprPtr l, const int& r) {
+  auto rc = ExprFuse::BvConst(r, l->sort().bit_width());
+  return ExprFuse::Lshr(l, rc);
 }
 
 ExprPtr ExprFuse::Add(const ExprPtr l, const int& r) {
@@ -226,6 +254,10 @@ ExprPtr ExprFuse::ZExt(const ExprPtr bv, const int& out_width) {
   return std::make_shared<ExprOpZExt>(bv, out_width);
 }
 
+ExprPtr ExprFuse::SExt(const ExprPtr bv, const int& out_width) {
+  return std::make_shared<ExprOpSExt>(bv, out_width);
+}
+
 ExprPtr ExprFuse::Imply(const ExprPtr p, const ExprPtr q) {
   return std::make_shared<ExprOpImply>(p, q);
 }
@@ -233,6 +265,13 @@ ExprPtr ExprFuse::Imply(const ExprPtr p, const ExprPtr q) {
 ExprPtr ExprFuse::Ite(const ExprPtr cnd, const ExprPtr true_expr,
                       const ExprPtr false_expr) {
   return std::make_shared<ExprOpIte>(cnd, true_expr, false_expr);
+}
+
+bool ExprFuse::TopEq(const ExprPtr a, const ExprPtr b) {
+  ExprMngr m;
+  auto x = m.GetRep(a);
+  auto y = m.GetRep(b);
+  return x == y;
 }
 
 } // namespace ila

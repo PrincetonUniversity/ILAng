@@ -14,138 +14,6 @@ ExprRef::ExprRef(std::shared_ptr<Expr> ptr) : ptr_(ptr) {}
 
 ExprRef::~ExprRef() {}
 
-#if 0
-ExprRef ExprRef::operator-() const {
-  auto v = ExprFuse::Negate(get());
-  return ExprRef(v);
-}
-
-ExprRef ExprRef::operator!() const {
-  auto v = ExprFuse::Not(get());
-  return ExprRef(v);
-}
-
-ExprRef ExprRef::operator~() const {
-  auto v = ExprFuse::Complement(get());
-  return ExprRef(v);
-}
-
-ExprRef ExprRef::operator&(const ExprRef& rhs) const {
-  auto v = ExprFuse::And(get(), rhs.get());
-  return ExprRef(v);
-}
-
-ExprRef ExprRef::operator|(const ExprRef& rhs) const {
-  auto v = ExprFuse::Or(get(), rhs.get());
-  return ExprRef(v);
-}
-
-ExprRef ExprRef::operator^(const ExprRef& rhs) const {
-  auto v = ExprFuse::Xor(get(), rhs.get());
-  return ExprRef(v);
-}
-
-ExprRef ExprRef::operator+(const ExprRef& rhs) const {
-  auto v = ExprFuse::Add(get(), rhs.get());
-  return ExprRef(v);
-}
-
-ExprRef ExprRef::operator-(const ExprRef& rhs) const {
-  auto v = ExprFuse::Sub(get(), rhs.get());
-  return ExprRef(v);
-}
-
-ExprRef ExprRef::operator&(const bool& rhs) const {
-  auto v = ExprFuse::And(get(), rhs);
-  return ExprRef(v);
-}
-
-ExprRef ExprRef::operator|(const bool& rhs) const {
-  auto v = ExprFuse::Or(get(), rhs);
-  return ExprRef(v);
-}
-
-ExprRef ExprRef::operator^(const bool& rhs) const {
-  auto v = ExprFuse::Xor(get(), rhs);
-  return ExprRef(v);
-}
-
-ExprRef ExprRef::operator+(const int& rhs) const {
-  auto v = ExprFuse::Add(get(), rhs);
-  return ExprRef(v);
-}
-
-ExprRef ExprRef::operator-(const int& rhs) const {
-  auto v = ExprFuse::Sub(get(), rhs);
-  return ExprRef(v);
-}
-
-ExprRef ExprRef::operator==(const ExprRef& rhs) const {
-  auto v = ExprFuse::Eq(get(), rhs.get());
-  return ExprRef(v);
-}
-
-ExprRef ExprRef::operator!=(const ExprRef& rhs) const {
-  auto v = ExprFuse::Ne(get(), rhs.get());
-  return ExprRef(v);
-}
-
-ExprRef ExprRef::operator<(const ExprRef& rhs) const {
-  auto v = ExprFuse::Lt(get(), rhs.get());
-  return ExprRef(v);
-}
-
-ExprRef ExprRef::operator>(const ExprRef& rhs) const {
-  auto v = ExprFuse::Gt(get(), rhs.get());
-  return ExprRef(v);
-}
-
-ExprRef ExprRef::operator<=(const ExprRef& rhs) const {
-  auto v = ExprFuse::Le(get(), rhs.get());
-  return ExprRef(v);
-}
-
-ExprRef ExprRef::operator>=(const ExprRef& rhs) const {
-  auto v = ExprFuse::Ge(get(), rhs.get());
-  return ExprRef(v);
-}
-
-ExprRef ExprRef::operator==(const bool& rhs) const {
-  auto v = ExprFuse::Eq(get(), rhs);
-  return ExprRef(v);
-}
-
-ExprRef ExprRef::operator==(const int& rhs) const {
-  auto v = ExprFuse::Eq(get(), rhs);
-  return ExprRef(v);
-}
-
-ExprRef ExprRef::operator!=(const int& rhs) const {
-  auto v = ExprFuse::Ne(get(), rhs);
-  return ExprRef(v);
-}
-
-ExprRef ExprRef::operator<(const int& rhs) const {
-  auto v = ExprFuse::Lt(get(), rhs);
-  return ExprRef(v);
-}
-
-ExprRef ExprRef::operator>(const int& rhs) const {
-  auto v = ExprFuse::Gt(get(), rhs);
-  return ExprRef(v);
-}
-
-ExprRef ExprRef::operator<=(const int& rhs) const {
-  auto v = ExprFuse::Le(get(), rhs);
-  return ExprRef(v);
-}
-
-ExprRef ExprRef::operator>=(const int& rhs) const {
-  auto v = ExprFuse::Ge(get(), rhs);
-  return ExprRef(v);
-}
-#endif
-
 ExprRef ExprRef::Load(const ExprRef& addr) const {
   auto v = ExprFuse::Load(get(), addr.get());
   return ExprRef(v);
@@ -173,6 +41,19 @@ ExprRef ExprRef::operator()(const int& idx) const {
 ExprRef ExprRef::ZExt(const int& length) const {
   auto v = ExprFuse::ZExt(get(), length);
   return ExprRef(v);
+}
+
+ExprRef ExprRef::SExt(const int& length) const {
+  auto v = ExprFuse::SExt(get(), length);
+  return ExprRef(v);
+}
+
+void ExprRef::ReplaceArg(const int& i, const ExprRef& new_arg) {
+  get()->replace_arg(i, new_arg.get());
+}
+
+void ExprRef::ReplaceArg(const ExprRef& org_arg, const ExprRef& new_arg) {
+  get()->replace_arg(org_arg.get(), new_arg.get());
 }
 
 ExprRef operator-(const ExprRef& a) {
@@ -205,6 +86,21 @@ ExprRef operator^(const ExprRef& a, const ExprRef& b) {
   return ExprRef(v);
 }
 
+ExprRef operator<<(const ExprRef& a, const ExprRef& b) {
+  auto v = ExprFuse::Shl(a.get(), b.get());
+  return ExprRef(v);
+}
+
+ExprRef operator>>(const ExprRef& a, const ExprRef& b) {
+  auto v = ExprFuse::Ashr(a.get(), b.get());
+  return ExprRef(v);
+}
+
+ExprRef Lshr(const ExprRef& a, const ExprRef& b) {
+  auto v = ExprFuse::Lshr(a.get(), b.get());
+  return ExprRef(v);
+}
+
 ExprRef operator+(const ExprRef& a, const ExprRef& b) {
   auto v = ExprFuse::Add(a.get(), b.get());
   return ExprRef(v);
@@ -227,6 +123,21 @@ ExprRef operator|(const ExprRef& a, const bool& b) {
 
 ExprRef operator^(const ExprRef& a, const bool& b) {
   auto v = ExprFuse::Xor(a.get(), b);
+  return ExprRef(v);
+}
+
+ExprRef operator<<(const ExprRef& a, const int& b) {
+  auto v = ExprFuse::Shl(a.get(), b);
+  return ExprRef(v);
+}
+
+ExprRef operator>>(const ExprRef& a, const int& b) {
+  auto v = ExprFuse::Ashr(a.get(), b);
+  return ExprRef(v);
+}
+
+ExprRef Lshr(const ExprRef& a, const int& b) {
+  auto v = ExprFuse::Lshr(a.get(), b);
   return ExprRef(v);
 }
 
@@ -375,6 +286,11 @@ ExprRef ZExt(const ExprRef& bv, const int& length) {
   return ExprRef(v);
 }
 
+ExprRef SExt(const ExprRef& bv, const int& length) {
+  auto v = ExprFuse::SExt(bv.get(), length);
+  return ExprRef(v);
+}
+
 ExprRef Imply(const ExprRef& ante, const ExprRef& cons) {
   auto v = ExprFuse::Imply(ante.get(), cons.get());
   return ExprRef(v);
@@ -399,6 +315,10 @@ ExprRef MemConst(const int& def_val, const std::map<int, int>& vals,
                  const int& addr_width, const int& data_width) {
   auto v = ExprFuse::MemConst(MemVal(def_val, vals), addr_width, data_width);
   return ExprRef(v);
+}
+
+bool TopEqual(const ExprRef& a, const ExprRef& b) {
+  return ExprFuse::TopEq(a.get(), b.get());
 }
 
 /******************************************************************************/

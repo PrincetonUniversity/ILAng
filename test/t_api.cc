@@ -85,6 +85,15 @@ TEST(TestApi, ExprOps) {
   auto n_xor_bool = n_or_bool ^ n_and_bool;
   auto n_xor_bool_c = n_xor_bool ^ true;
 
+  auto n_shl_bv = n_or_bv << n_and_bv;
+  auto n_shl_int = n_or_bv << 2;
+
+  auto n_ashr_bv = n_or_bv >> n_and_bv;
+  auto n_ashr_int = n_or_bv >> 3;
+
+  auto n_lshr_bv = Lshr(n_or_bv, n_and_bv);
+  auto n_lshr_int = Lshr(n_or_bv, 4);
+
   auto n_add_bv = n_xor_bv + n_or_bv;
   auto n_sub_bv = n_add_bv - n_xor_bv;
   auto n_add_bv_c = n_add_bv + 1;
@@ -128,11 +137,43 @@ TEST(TestApi, ExprOps) {
   auto n_extract_single_bv = n_extract_bv(1);
   auto n_zext_bv = n_extract_single_bv.ZExt(REG_SIZE);
   auto n_zext_static = ZExt(n_extract_single_bv, REG_SIZE);
+  auto n_sext_bv = n_extract_single_bv.SExt(REG_SIZE);
+  auto n_sext_static = SExt(n_extract_single_bv, REG_SIZE);
   auto n_concat_bv = Concat(n_append_bv, n_extract_bv);
 
   auto n_imply_bool = Imply(n_ne_bool, n_xor_bool);
   auto n_ite_bool = Ite(n_imply_bool, n_ne_bool, n_xor_bool);
   auto n_ite_bv = Ite(n_ite_bool, n_load_bv, n_sub_bv);
+}
+
+TEST(TestApi, NonConstruct) {
+  Ila ila("host");
+
+  auto v_bool = ila.NewBoolState("v_bool");
+  auto c_bool = BoolConst(true);
+
+  auto a = v_bool | c_bool;
+  auto b = a & v_bool;
+  auto c = a & v_bool;
+
+  EXPECT_TRUE(TopEqual(b, c));
+}
+
+TEST(TestApi, ReplaceArg) {
+  Ila ila("host");
+  auto v_bool = ila.NewBoolState("v_bool");
+  auto c_bool = BoolConst(true);
+
+  auto a = v_bool | c_bool;
+  auto b = a & v_bool;
+  auto c = a | v_bool;
+
+  auto x = a ^ b;
+  auto y = b ^ c;
+
+  y.ReplaceArg(b, a);
+  y.ReplaceArg(1, b);
+  EXPECT_TRUE(TopEqual(x, y));
 }
 
 TEST(TestApi, Log) {

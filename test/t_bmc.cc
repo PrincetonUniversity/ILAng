@@ -9,7 +9,7 @@
 namespace ila {
 
 TEST(TestBmc, Legacy) {
-  // SetToStdErr(1);
+  SetToStdErr(0);
 
   DebugLog::Enable("Bmc.Legacy");
   DebugLog::Enable("ModelGen.IlaOneHotFlat");

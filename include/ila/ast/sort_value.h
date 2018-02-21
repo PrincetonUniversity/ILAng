@@ -32,8 +32,6 @@ public:
   typedef std::shared_ptr<BoolVal> BoolValPtr;
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
-  /// Default constructor. DO NOT USE.
-  BoolVal();
   /// Constructor with boolean value.
   BoolVal(const bool& val);
   /// Constructor with cpp string.
@@ -74,8 +72,6 @@ public:
   typedef std::shared_ptr<BvVal> BvValPtr;
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
-  /// Default constructor. DO NOT USE.
-  BvVal();
   /// Constructor with boolean value.
   BvVal(const int& val);
   /// Constructor with cpp string.
@@ -116,8 +112,6 @@ public:
   typedef std::map<int, int> MemValMap;
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
-  /// Default constructor. DO NOT USE.
-  MemVal();
   /// Constructor with only the default value.
   MemVal(const int& def_val);
   /// Constructor with an existed Memory value.

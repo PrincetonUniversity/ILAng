@@ -2,6 +2,7 @@
 
 add_subdirectory(util)
 add_subdirectory(ila)
+add_subdirectory(verify)
 add_subdirectory(eq-check)
 if (python_api)
     add_subdirectory(python-api)
@@ -15,6 +16,7 @@ file (GLOB TOP_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/*.cc")
 add_library(${ILA_TOOL} ${TOP_SOURCES} 
   $<TARGET_OBJECTS:util> 
   $<TARGET_OBJECTS:ila> 
+  $<TARGET_OBJECTS:verify> 
   $<TARGET_OBJECTS:eqcheck>
   )
 add_dependencies(${ILA_TOOL} glog::glog)

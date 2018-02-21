@@ -3,58 +3,23 @@
 
 #include "ila/instr_lvl_abs.h"
 
+// Do the simplification by hashing AST sub-trees.
+static const bool kUnifyAst = true;
+
 namespace ila {
 
-InstrLvlAbs::InstrLvlAbs(const std::string& name) : Object(name) {
+InstrLvlAbs::InstrLvlAbs(const std::string& name, const InstrLvlAbsPtr parent)
+    : Object(name), parent_(parent) {
   ILA_WARN_IF(name == "") << "ILA name not specified...";
   InitObject();
 }
 
 InstrLvlAbs::~InstrLvlAbs() {}
 
-InstrLvlAbsPtr InstrLvlAbs::New(const std::string& name) {
-  return std::make_shared<InstrLvlAbs>(name);
+InstrLvlAbsPtr InstrLvlAbs::New(const std::string& name,
+                                const InstrLvlAbsPtr parent) {
+  return std::make_shared<InstrLvlAbs>(name, parent);
 }
-
-bool InstrLvlAbs::is_spec() const { return is_spec_; }
-
-bool InstrLvlAbs::to_simplify() const { return simplify_; }
-
-const ExprMngrPtr InstrLvlAbs::expr_mngr() const { return expr_mngr_; }
-
-void InstrLvlAbs::set_spec(bool spec) { is_spec_ = spec; }
-
-void InstrLvlAbs::set_simplify(bool simplify) { simplify_ = simplify; }
-
-void InstrLvlAbs::set_expr_mngr(const ExprMngrPtr expr_mngr) {
-  expr_mngr_ = expr_mngr;
-}
-
-size_t InstrLvlAbs::input_num() const { return inputs_.size(); }
-
-size_t InstrLvlAbs::state_num() const { return states_.size(); }
-
-size_t InstrLvlAbs::instr_num() const { return instrs_.size(); }
-
-size_t InstrLvlAbs::child_num() const { return childs_.size(); }
-
-size_t InstrLvlAbs::init_num() const { return inits_.size(); }
-
-const ExprPtr InstrLvlAbs::fetch() const { return fetch_; }
-
-const ExprPtr InstrLvlAbs::valid() const { return valid_; }
-
-const ExprPtr InstrLvlAbs::input(const size_t& i) const { return inputs_[i]; }
-
-const ExprPtr InstrLvlAbs::state(const size_t& i) const { return states_[i]; }
-
-const InstrPtr InstrLvlAbs::instr(const size_t& i) const { return instrs_[i]; }
-
-const InstrLvlAbsPtr InstrLvlAbs::child(const size_t& i) const {
-  return childs_[i];
-}
-
-const ExprPtr InstrLvlAbs::init(const size_t& i) const { return inits_[i]; }
 
 const ExprPtr InstrLvlAbs::input(const std::string& name) const {
   auto pos = inputs_.find(Symbol(name));
@@ -100,11 +65,9 @@ void InstrLvlAbs::AddInput(const ExprPtr input_var) {
   ILA_ASSERT(pos == inputs_.end()) << "Input variable " << input_var
                                    << " has been declared.";
   // register to the simplifier
-  auto var = expr_mngr_->Simplify(input_var, simplify_);
+  auto var = Unify(input_var);
   // register to Inputs
   inputs_.push_back(name, var);
-  // set host
-  var->set_host(shared_from_this());
 }
 
 void InstrLvlAbs::AddState(const ExprPtr state_var) {
@@ -117,11 +80,9 @@ void InstrLvlAbs::AddState(const ExprPtr state_var) {
   ILA_ASSERT(pos == states_.end()) << "State variable " << state_var
                                    << "has been declared.";
   // register to the simplifier
-  auto var = expr_mngr_->Simplify(state_var, simplify_);
+  auto var = Unify(state_var);
   // register to States
   states_.push_back(name, var);
-  // set host
-  var->set_host(shared_from_this());
 }
 
 void InstrLvlAbs::AddInit(const ExprPtr cntr_expr) {
@@ -129,7 +90,7 @@ void InstrLvlAbs::AddInit(const ExprPtr cntr_expr) {
   ILA_NOT_NULL(cntr_expr);
   ILA_ASSERT(cntr_expr->is_bool()) << "Initial condition must be Boolean.";
   // simplify
-  auto cntr = expr_mngr_->Simplify(cntr_expr, simplify_);
+  auto cntr = Unify(cntr_expr);
   // register to Initial conditions
   inits_.push_back(cntr);
 }
@@ -141,7 +102,7 @@ void InstrLvlAbs::SetFetch(const ExprPtr fetch_expr) {
   // should be the first
   ILA_ASSERT(!fetch_) << "Fetch function has been assigned.";
   // simplify
-  auto fetch = expr_mngr_->Simplify(fetch_expr, simplify_);
+  auto fetch = Unify(fetch_expr);
   // set as fetch function
   fetch_ = fetch;
 }
@@ -153,20 +114,16 @@ void InstrLvlAbs::SetValid(const ExprPtr valid_expr) {
   // should be the first
   ILA_ASSERT(!valid_) << "Valid function has been assigned.";
   // simplify
-  auto valid = expr_mngr_->Simplify(valid_expr, simplify_);
+  auto valid = Unify(valid_expr);
   // set as valid function
   valid_ = valid;
 }
 
 void InstrLvlAbs::AddInstr(const InstrPtr instr) {
   ILA_NOT_NULL(instr);
-  // set simplifier to the instruction
-  instr->set_mngr(expr_mngr_);
-  instr->set_simplify(simplify_);
   // register the instruction and idx
   auto name = instr->name();
   instrs_.push_back(name, instr);
-  instr->set_host(shared_from_this());
 }
 
 void InstrLvlAbs::AddChild(const InstrLvlAbsPtr child) {
@@ -178,6 +135,9 @@ void InstrLvlAbs::AddChild(const InstrLvlAbsPtr child) {
 
 const ExprPtr InstrLvlAbs::NewBoolInput(const std::string& name) {
   ExprPtr bool_input = ExprFuse::NewBoolVar(name);
+  // set host
+  bool_input->set_host(shared_from_this());
+  // register
   AddInput(bool_input);
   return bool_input;
 }
@@ -185,12 +145,18 @@ const ExprPtr InstrLvlAbs::NewBoolInput(const std::string& name) {
 const ExprPtr InstrLvlAbs::NewBvInput(const std::string& name,
                                       const int& bit_width) {
   ExprPtr bv_input = ExprFuse::NewBvVar(name, bit_width);
+  // set host
+  bv_input->set_host(shared_from_this());
+  // register
   AddInput(bv_input);
   return bv_input;
 }
 
 const ExprPtr InstrLvlAbs::NewBoolState(const std::string& name) {
   ExprPtr bool_state = ExprFuse::NewBoolVar(name);
+  // set host
+  bool_state->set_host(shared_from_this());
+  // register
   AddState(bool_state);
   return bool_state;
 }
@@ -198,6 +164,9 @@ const ExprPtr InstrLvlAbs::NewBoolState(const std::string& name) {
 const ExprPtr InstrLvlAbs::NewBvState(const std::string& name,
                                       const int& bit_width) {
   ExprPtr bv_state = ExprFuse::NewBvVar(name, bit_width);
+  // set host
+  bv_state->set_host(shared_from_this());
+  // register
   AddState(bv_state);
   return bv_state;
 }
@@ -206,18 +175,32 @@ const ExprPtr InstrLvlAbs::NewMemState(const std::string& name,
                                        const int& addr_width,
                                        const int& data_width) {
   ExprPtr mem_state = ExprFuse::NewMemVar(name, addr_width, data_width);
+  // set host
+  mem_state->set_host(shared_from_this());
+  // register
   AddState(mem_state);
   return mem_state;
 }
 
 const InstrPtr InstrLvlAbs::NewInstr(const std::string& name) {
-  InstrPtr instr = Instr::New(name);
+  auto tmp_name = (name == "") ? "I." + std::to_string(instr_num()) : name;
+  InstrPtr instr = Instr::New(tmp_name, shared_from_this());
+  // register
   AddInstr(instr);
   return instr;
 }
 
 const InstrLvlAbsPtr InstrLvlAbs::NewChild(const std::string& name) {
-  InstrLvlAbsPtr child = New(name);
+  InstrLvlAbsPtr child = New(name, shared_from_this());
+  // inherit states
+  for (size_t i = 0; i != states_.size(); i++) {
+    child->AddState(states_[i]);
+  }
+  // inherit inputs
+  for (size_t i = 0; i != inputs_.size(); i++) {
+    child->AddInput(inputs_[i]);
+  }
+  // register
   AddChild(child);
   return child;
 }
@@ -235,15 +218,6 @@ bool InstrLvlAbs::Check() const {
   return true;
 }
 
-void InstrLvlAbs::Simplify() {
-  // TODO
-  // init
-  // fetch
-  // valid
-  // instr
-  // child-ILA?
-}
-
 void InstrLvlAbs::MergeChild() {
   // TODO
   // merge shared states
@@ -259,13 +233,12 @@ void InstrLvlAbs::SortInstr() {
 void InstrLvlAbs::AddSeqTran(const InstrPtr src, const InstrPtr dst,
                              const ExprPtr cnd) {
   // XXX src, dst should already registered.
-  auto cnd_simplified = expr_mngr_->Simplify(cnd, simplify_);
+  auto cnd_simplified = Unify(cnd);
   instr_seq_.AddTran(src, dst, cnd_simplified);
 }
 
 std::ostream& InstrLvlAbs::Print(std::ostream& out) const {
   out << "ILA." << name();
-  // TODO
   return out;
 }
 
@@ -277,6 +250,10 @@ std::ostream& operator<<(std::ostream& out, InstrLvlAbsPtr ila) {
   return ila->Print(out);
 }
 
+ExprPtr InstrLvlAbs::Unify(const ExprPtr e) {
+  return kUnifyAst ? expr_mngr_->GetRep(e) : e;
+}
+
 void InstrLvlAbs::InitObject() {
   // local
   inputs_.clear();
@@ -286,7 +263,11 @@ void InstrLvlAbs::InitObject() {
   childs_.clear();
   instr_seq_.clear();
   // shared
-  expr_mngr_->clear();
+  if (parent_) {
+    expr_mngr_ = parent_->expr_mngr();
+  } else {
+    expr_mngr_ = kUnifyAst ? ExprMngr::New() : NULL;
+  }
 }
 
 } // namespace ila

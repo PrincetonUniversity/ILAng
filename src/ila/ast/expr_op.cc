@@ -2,53 +2,31 @@
 /// Source for the op expression
 
 #include "ila/ast/expr_op.h"
+#include "ila/ast/func.h"
 
 namespace ila {
 
 // ------------------------- Class ExprOp ----------------------------------- //
-ExprOp::ExprOp() { ILA_ERROR << "Undefined ExprOp constructor.\n"; }
 
 ExprOp::ExprOp(const ExprPtr arg) {
   // arg
-  ExprPtrVec args = {arg};
-  set_args(args);
+  set_args({arg});
   // host
-  set_host(arg->host());
+  set_host(GetHost({arg}));
 }
 
 ExprOp::ExprOp(const ExprPtr arg0, const ExprPtr arg1) {
   // args
-  ExprPtrVec args = {arg0, arg1};
-  set_args(args);
+  set_args({arg0, arg1});
   // set host
-  auto host0 = arg0->host();
-  auto host1 = arg1->host();
-  if (host0 == host1) {
-    set_host(host0);
-  } else if (host0 == NULL) {
-    set_host(host1);
-  } else if (host1 == NULL) {
-    set_host(host0);
-  }
+  set_host(GetHost({arg0, arg1}));
 }
 
 ExprOp::ExprOp(const ExprPtr arg0, const ExprPtr arg1, const ExprPtr arg2) {
   // args
-  ExprPtrVec args = {arg0, arg1, arg2};
-  set_args(args);
+  set_args({arg0, arg1, arg2});
   // set host
-  auto host0 = arg0->host();
-  auto host1 = arg1->host();
-  auto host2 = arg2->host();
-  if (host0 == host1 && host1 == host2) {
-    set_host(host0);
-  } else if (host1 == NULL && host2 == NULL) {
-    set_host(host0);
-  } else if (host0 == NULL && host2 == NULL) {
-    set_host(host1);
-  } else if (host0 == NULL && host1 == NULL) {
-    set_host(host2);
-  }
+  set_host(GetHost({arg0, arg1, arg2}));
 }
 
 ExprOp::ExprOp(const ExprPtr arg0, const int& param1) {
@@ -57,7 +35,7 @@ ExprOp::ExprOp(const ExprPtr arg0, const int& param1) {
   // params
   set_params({param1});
   // set host
-  set_host(arg0->host());
+  set_host(GetHost({arg0}));
 }
 
 ExprOp::ExprOp(const ExprPtr arg0, const int& param1, const int& param2) {
@@ -66,7 +44,14 @@ ExprOp::ExprOp(const ExprPtr arg0, const int& param1, const int& param2) {
   // params
   set_params({param1, param2});
   // set hsot
-  set_host(arg0->host());
+  set_host(GetHost({arg0}));
+}
+
+ExprOp::ExprOp(const ExprPtrVec& args) {
+  // args
+  set_args(args);
+  // host
+  set_host(GetHost(args));
 }
 
 ExprOp::~ExprOp() {}
@@ -87,6 +72,25 @@ Sort ExprOp::GetSortBinaryComparison(const Sort& s0, const Sort& s1) {
                        << " for binary comparison.";
   // return boolean sort.
   return Sort::MakeBoolSort();
+}
+
+ExprOp::InstrLvlAbsPtr ExprOp::GetHost(const ExprPtrVec& args) const {
+  return NULL; // XXX Do we need to know host for op?
+  // FIXME This only works for non-hierarchical ILAs.
+  ILA_ASSERT(!args.empty()) << "Get host from no argument.";
+  auto h = args[0]->host();
+  for (size_t i = 1; i != args.size(); i++) {
+    auto h_i = args[i]->host();
+    if (h_i) { // h_i not NULL
+      if (h) { // h not NULL
+        if (h != h_i)
+          return NULL;
+      } else { // h is NULL
+        h = h_i;
+      }
+    } // ignore if h_i is NULL
+  }
+  return h;
 }
 
 // ------------------------- Class ExprOpNeg -------------------------------- //
@@ -175,6 +179,42 @@ z3::expr ExprOpXor::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
     auto ast_xor = Z3_mk_xor(ctx, expr_vec[0], expr_vec[1]);
     return z3::to_expr(ctx, ast_xor);
   }
+}
+
+// ------------------------- Class ExprOpShl -------------------------------- //
+ExprOpShl::ExprOpShl(const ExprPtr bv, const ExprPtr n) : ExprOp(bv, n) {
+  ILA_ASSERT(bv->is_bv()) << "Left shift can only be applied to bit-vectors.";
+  set_sort(GetSortBinaryOperation(bv->sort(), n->sort()));
+}
+
+z3::expr ExprOpShl::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                              const std::string& suffix) const {
+  ILA_ASSERT(expr_vec.size() == 2) << "Left shift is binary operation.";
+  return z3::shl(expr_vec[0], expr_vec[1]);
+}
+
+// ------------------------- Class ExprOpAshr ------------------------------- //
+ExprOpAshr::ExprOpAshr(const ExprPtr bv, const ExprPtr n) : ExprOp(bv, n) {
+  ILA_ASSERT(bv->is_bv()) << "Right shift can only be applied to bit-vectors.";
+  set_sort(GetSortBinaryOperation(bv->sort(), n->sort()));
+}
+
+z3::expr ExprOpAshr::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                               const std::string& suffix) const {
+  ILA_ASSERT(expr_vec.size() == 2) << "Right shift is binary operation.";
+  return z3::ashr(expr_vec[0], expr_vec[1]);
+}
+
+// ------------------------- Class ExprOpLshr ------------------------------- //
+ExprOpLshr::ExprOpLshr(const ExprPtr bv, const ExprPtr n) : ExprOp(bv, n) {
+  ILA_ASSERT(bv->is_bv()) << "Right shift can only be applied to bit-vectors.";
+  set_sort(GetSortBinaryOperation(bv->sort(), n->sort()));
+}
+
+z3::expr ExprOpLshr::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                               const std::string& suffix) const {
+  ILA_ASSERT(expr_vec.size() == 2) << "Right shift is binary operation.";
+  return z3::lshr(expr_vec[0], expr_vec[1]);
 }
 
 // ------------------------- Class ExprOpAdd -------------------------------- //
@@ -337,7 +377,7 @@ z3::expr ExprOpExtract::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
   return bv.extract(hi, lo);
 }
 
-// ------------------------- Class ExprOpZeroExtend ------------------------- //
+// ------------------------- Class ExprOpZExt ------------------------------- //
 ExprOpZExt::ExprOpZExt(const ExprPtr bv, const int& bit_width)
     : ExprOp(bv, bit_width) {
   ILA_ASSERT(bv->is_bv()) << "Zero-extend can only be applied to bit-vector.";
@@ -353,6 +393,37 @@ z3::expr ExprOpZExt::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
   auto bv = expr_vec[0];
   unsigned wid = static_cast<unsigned>(param(0));
   return z3::zext(bv, wid);
+}
+
+// ------------------------- Class ExprOpSExt ------------------------------- //
+ExprOpSExt::ExprOpSExt(const ExprPtr bv, const int& bit_width)
+    : ExprOp(bv, bit_width) {
+  ILA_ASSERT(bv->is_bv()) << "Sign-extend can only be applied to bit-vector.";
+  ILA_ASSERT(bit_width >= bv->sort().bit_width())
+      << "Invalid target bit-width for extend.";
+  set_sort(Sort::MakeBvSort(bit_width));
+}
+
+z3::expr ExprOpSExt::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                               const std::string& suffix) const {
+  ILA_ASSERT(expr_vec.size() == 1) << "Extend take 1 argument.";
+  ILA_ASSERT(param_num() == 1) << "Extend need one parameter.";
+  auto bv = expr_vec[0];
+  unsigned wid = static_cast<unsigned>(param(0));
+  return z3::sext(bv, wid);
+}
+
+// ------------------------- Class ExprOpAppFunc ---------------------------- //
+ExprOpAppFunc::ExprOpAppFunc(const FuncPtr f, const ExprPtrVec& args)
+    : ExprOp(args) {
+  ILA_ASSERT(f->CheckSort(args));
+  set_sort(f->out());
+}
+
+z3::expr ExprOpAppFunc::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                                  const std::string& suffix) const {
+  auto f_decl = f->GetZ3FuncDecl(ctx);
+  return f_decl(expr_vec.size(), expr_vec.data());
 }
 
 // ------------------------- Class ExprOpIte -------------------------------- //

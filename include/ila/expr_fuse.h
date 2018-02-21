@@ -15,26 +15,6 @@
 /// \namespace ila
 namespace ila {
 
-#if 0
-/// \brief The uniform interface and wrapper for different types of expressions,
-/// e.g. var, constant, and different operations.
-class ExprFuse {
-  // ------------------------- MEMBERS -------------------------------------- //
-
-public:
-  // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
-  /// Default constructor. NOT USED. Not for constructing objects.
-  ExprFuse();
-  /// Default destructor. NOT USED. Not for constructing objects.
-  ~ExprFuse();
-
-  // ------------------------- ACCESSORS/MUTATORS --------------------------- //
-
-  // ------------------------- METHODS -------------------------------------- //
-  // functions for wrapping the hierarchy of AST.
-
-#endif
-
 /// \namespace ExprFuse
 /// Defines the wrapper for hiding imeplementation dependent type details.
 namespace ExprFuse {
@@ -86,10 +66,12 @@ ExprPtr And(const ExprPtr l, const ExprPtr r);
 ExprPtr Or(const ExprPtr l, const ExprPtr r);
 /// Logical XOR
 ExprPtr Xor(const ExprPtr l, const ExprPtr r);
-/// Logical left shift (bv only) (l << r)
+/// Left shift (bv only) (l << r)
 ExprPtr Shl(const ExprPtr l, const ExprPtr r);
+/// Arithmetic right shift (bv only) (l >> r)
+ExprPtr Ashr(const ExprPtr l, const ExprPtr r);
 /// Logical right shift (bv only) (l >> r)
-ExprPtr Shr(const ExprPtr l, const ExprPtr r);
+ExprPtr Lshr(const ExprPtr l, const ExprPtr r);
 /// Arithmetic addition (bv only)
 ExprPtr Add(const ExprPtr l, const ExprPtr r);
 /// Arithmetic subtraction (bv only)
@@ -110,6 +92,12 @@ ExprPtr And(const ExprPtr l, const bool& r);
 ExprPtr Or(const ExprPtr l, const bool& r);
 /// Logical XOR with Boolean constant.
 ExprPtr Xor(const ExprPtr l, const bool& r);
+/// Left shift with int.
+ExprPtr Shl(const ExprPtr l, const int& r);
+/// Arithmetic right shift with int.
+ExprPtr Ashr(const ExprPtr l, const int& r);
+/// Logical right shift with int.
+ExprPtr Lshr(const ExprPtr l, const int& r);
 /// Arithmetic addition with int.
 ExprPtr Add(const ExprPtr l, const int& r);
 /// Arithmetic subtraction with int.
@@ -180,6 +168,8 @@ ExprPtr Concat(const ExprPtr hi, const ExprPtr lo);
 ExprPtr Extract(const ExprPtr bv, const int& hi, const int& lo);
 /// Zero extend the bitvector to the specified length.
 ExprPtr ZExt(const ExprPtr bv, const int& out_width);
+/// Sign extend the bitvector to the specified length.
+ExprPtr SExt(const ExprPtr bv, const int& out_width);
 
 /****************************************************************************/
 // Function usage
@@ -198,12 +188,11 @@ ExprPtr Imply(const ExprPtr p, const ExprPtr q);
 ExprPtr Ite(const ExprPtr cnd, const ExprPtr true_expr,
             const ExprPtr false_expr);
 
-#if 0
-private:
-// ------------------------- HELPERS -------------------------------------- //
-
-}; // class ExprFuse
-#endif
+/****************************************************************************/
+// Non-AST construction utilities
+/****************************************************************************/
+/// Topologically equivalent.
+bool TopEq(const ExprPtr a, const ExprPtr b);
 
 } // namespace ExprFuse
 

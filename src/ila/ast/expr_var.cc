@@ -7,21 +7,15 @@
 
 namespace ila {
 
-ExprVar::ExprVar() { ILA_CHECK(false) << "Undefined ExprVar constructor."; }
+ExprVar::ExprVar(const std::string& name) : Expr(name) { set_sort(Sort()); }
 
-ExprVar::ExprVar(const std::string& name) {
-  set_name(name);
-  set_sort(Sort());
-}
-
-ExprVar::ExprVar(const std::string& name, const int& bit_width) {
-  set_name(name);
+ExprVar::ExprVar(const std::string& name, const int& bit_width) : Expr(name) {
   set_sort(Sort(bit_width));
 }
 
 ExprVar::ExprVar(const std::string& name, const int& addr_width,
-                 const int& data_width) {
-  set_name(name);
+                 const int& data_width)
+    : Expr(name) {
   set_sort(Sort(addr_width, data_width));
 }
 

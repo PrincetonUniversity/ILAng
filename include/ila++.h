@@ -33,76 +33,18 @@ public:
   /// Return the wrapped Expr pointer.
   inline std::shared_ptr<Expr> get() const { return ptr_; }
 
-// ------------------------- METHODS -------------------------------------- //
-/****************************************************************************/
-// Unary operation
-/****************************************************************************/
-#if 0
-  /// Arithmetic negate for bit-vectors.
-  ExprRef operator-() const;
-  /// Logical not for Booleans.
-  ExprRef operator!() const;
-  /// Bit-wise complement for bit-vectors.
-  ExprRef operator~() const;
+  // ------------------------- METHODS -------------------------------------- //
+  /****************************************************************************/
+  // Unary operation
+  /****************************************************************************/
 
   /****************************************************************************/
   // Binary operation
   /****************************************************************************/
-  /// Logical AND (bit-wise for bit-vectors).
-  ExprRef operator&(const ExprRef& rhs) const;
-  /// Logical OR (bit-wise for bit-vectors).
-  ExprRef operator|(const ExprRef& rhs) const;
-  /// Logical XOR (bit-wise for bit-vectors).
-  ExprRef operator^(const ExprRef& rhs) const;
-  /// Unsigned addition for bit-vector.
-  ExprRef operator+(const ExprRef& rhs) const;
-  /// Unsigned subtraction for bit-vector.
-  ExprRef operator-(const ExprRef& rhs) const;
-
-  // helper functions with constants
-  /// Logical AND with Boolean constant.
-  ExprRef operator&(const bool& rhs) const;
-  /// Logical OR with Boolean constant.
-  ExprRef operator|(const bool& rhs) const;
-  /// Logical XOR with Boolean constant.
-  ExprRef operator^(const bool& rhs) const;
-  /// Unsigned addition with int constant.
-  ExprRef operator+(const int& rhs) const;
-  /// Unsigned subtraction with int constant.
-  ExprRef operator-(const int& rhs) const;
 
   /****************************************************************************/
   // Binary comparison
   /****************************************************************************/
-  /// Equal.
-  ExprRef operator==(const ExprRef& rhs) const;
-  /// Not equal.
-  ExprRef operator!=(const ExprRef& rhs) const;
-  /// Unsigned less than (bit-vectors only).
-  ExprRef operator<(const ExprRef& rhs) const;
-  /// Unsigned greater than (bit-vectors only).
-  ExprRef operator>(const ExprRef& rhs) const;
-  /// Unsigned less than or equal to (bit-vectors only).
-  ExprRef operator<=(const ExprRef& rhs) const;
-  /// Unsigned greater than or equal to (bit-vectors only).
-  ExprRef operator>=(const ExprRef& rhs) const;
-
-  // helper functions with constants
-  /// Equal to Boolean constant.
-  ExprRef operator==(const bool& rhs) const;
-  /// Equal to int constant.
-  ExprRef operator==(const int& rhs) const;
-  /// Not equal to int constant.
-  ExprRef operator!=(const int& rhs) const;
-  /// Unsigned less than int constant.
-  ExprRef operator<(const int& rhs) const;
-  /// Unsigned greater than int constant.
-  ExprRef operator>(const int& rhs) const;
-  /// Unsigned less than or equal to int constant.
-  ExprRef operator<=(const int& rhs) const;
-  /// Unsigned greater than or equal to int constant.
-  ExprRef operator>=(const int& rhs) const;
-#endif
 
   /****************************************************************************/
   // Memory-related operations
@@ -123,6 +65,16 @@ public:
   ExprRef operator()(const int& idx) const;
   /// Zero-extend the bit-vector to the specified length.
   ExprRef ZExt(const int& length) const;
+  /// Sign-extend the bit-vector to the specified length.
+  ExprRef SExt(const int& length) const;
+
+  /****************************************************************************/
+  // Others
+  /****************************************************************************/
+  /// \brief Replace the i-th argument with the new node.
+  void ReplaceArg(const int& i, const ExprRef& new_arg);
+  /// \brief Replace the original argument (must exist) with the new argument.
+  void ReplaceArg(const ExprRef& org_arg, const ExprRef& new_arg);
 
 }; // class ExprRef
 
@@ -145,9 +97,15 @@ ExprRef operator&(const ExprRef& a, const ExprRef& b);
 ExprRef operator|(const ExprRef& a, const ExprRef& b);
 /// Logical XOR (bit-wise for bit-vectors).
 ExprRef operator^(const ExprRef& a, const ExprRef& b);
-/// Unsigned addition for bit-vector.
+/// Lefy shift for bit-vectors.
+ExprRef operator<<(const ExprRef& a, const ExprRef& b);
+/// Arithmetic right shift for bit-vectors.
+ExprRef operator>>(const ExprRef& a, const ExprRef& b);
+/// Logical right shift for bit-vectors.
+ExprRef Lshr(const ExprRef& a, const ExprRef& b);
+/// Unsigned addition for bit-vectors.
 ExprRef operator+(const ExprRef& a, const ExprRef& b);
-/// Unsigned subtraction for bit-vector.
+/// Unsigned subtraction for bit-vectors.
 ExprRef operator-(const ExprRef& a, const ExprRef& b);
 
 /// Logical AND with Boolean constant.
@@ -156,6 +114,12 @@ ExprRef operator&(const ExprRef& a, const bool& b);
 ExprRef operator|(const ExprRef& a, const bool& b);
 /// Logical XOR with Boolean constant.
 ExprRef operator^(const ExprRef& a, const bool& b);
+/// Left shift with int constant.
+ExprRef operator<<(const ExprRef& a, const int& b);
+/// Arithmetic right shift with int constant.
+ExprRef operator>>(const ExprRef& a, const int& b);
+/// Logical right shift with int constant.
+ExprRef Lshr(const ExprRef& a, const int& b);
 /// Unsigned addition with int constant.
 ExprRef operator+(const ExprRef& a, const int& b);
 /// Unsigned subtraction with int constant.
@@ -237,6 +201,10 @@ ExprRef SelectBit(const ExprRef& bv, const int& idx);
 /// \param[in] bv source bit-vector.
 /// \param[in] length bit-width of the extended (result) bit-vector.
 ExprRef ZExt(const ExprRef& bv, const int& length);
+/// \brief Sign-extend the bit-vector to the specified length.
+/// \param[in] bv source bit-vector.
+/// \param[in] length bit-width of the extended (result) bit-vector.
+ExprRef SExt(const ExprRef& bv, const int& length);
 
 /******************************************************************************/
 // Others
@@ -271,6 +239,12 @@ ExprRef BvConst(const int& bv_val, const int& bit_width);
 /// \param[in] data_width data bit-width.
 ExprRef MemConst(const int& def_val, const std::map<int, int>& vals,
                  const int& addr_width, const int& data_width);
+
+/******************************************************************************/
+// Non-AST-construction
+/******************************************************************************/
+/// \brief Topologically equivalent.
+bool TopEqual(const ExprRef& a, const ExprRef& b);
 
 /// \brief The wrapper of Instr (instruction).
 class InstrRef {

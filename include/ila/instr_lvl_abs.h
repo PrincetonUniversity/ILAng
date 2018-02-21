@@ -44,59 +44,62 @@ public:
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Consturctor.
-  InstrLvlAbs(const std::string& name = "");
+  InstrLvlAbs(const std::string& name = "", const InstrLvlAbsPtr parent = NULL);
   /// Default destructor.
   ~InstrLvlAbs();
 
   // ------------------------- HELPERS -------------------------------------- //
   /// \brief Create a new ILA (InstrLvlAbs) with the name. Used for hiding
   /// implementation specific type details.
-  static InstrLvlAbsPtr New(const std::string& name);
+  static InstrLvlAbsPtr New(const std::string& name,
+                            const InstrLvlAbsPtr parent = NULL);
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return true if is InstrLvlAbs.
   bool is_instr_lvl_abs() const { return true; }
 
   /// Return true if is specification (not implementation).
-  bool is_spec() const;
-  /// Return whether to perform simplification.
-  bool to_simplify() const;
+  inline bool is_spec() const { return is_spec_; }
+  /// Return the parent ILA.
+  inline const InstrLvlAbsPtr parent() const { return parent_; }
   /// Return the ast simplifier.
-  const ExprMngrPtr expr_mngr() const;
+  inline const ExprMngrPtr expr_mngr() const { return expr_mngr_; }
 
   /// Set the ILA to be specification if true.
-  void set_spec(bool spec);
-  /// Turn on the expr (AST node) simplification if true.
-  void set_simplify(bool simplify);
+  inline void set_spec(bool spec) { is_spec_ = spec; }
   /// Update the ast simplifier.
-  void set_expr_mngr(const ExprMngrPtr expr_mngr);
+  inline void set_expr_mngr(const ExprMngrPtr expr_mngr) {
+    expr_mngr_ = expr_mngr;
+  }
 
   /// Return the number of input variables.
-  size_t input_num() const;
+  inline size_t input_num() const { return inputs_.size(); }
   /// Return the number of state variables.
-  size_t state_num() const;
+  inline size_t state_num() const { return states_.size(); }
   /// Return the number of instructions.
-  size_t instr_num() const;
+  inline size_t instr_num() const { return instrs_.size(); }
   /// Return the number of child-ILAs.
-  size_t child_num() const;
+  inline size_t child_num() const { return childs_.size(); }
   /// Return the number of initial condition.
-  size_t init_num() const;
+  inline size_t init_num() const { return inits_.size(); }
 
   /// Return the fetch function.
-  const ExprPtr fetch() const;
+  inline const ExprPtr fetch() const { return fetch_; }
   /// Return the valid function.
-  const ExprPtr valid() const;
+  inline const ExprPtr valid() const { return valid_; }
 
   /// Access the i-th input variable.
-  const ExprPtr input(const size_t& i) const;
+  inline const ExprPtr input(const size_t& i) const { return inputs_[i]; }
   /// Access the i-th state variable.
-  const ExprPtr state(const size_t& i) const;
+  inline const ExprPtr state(const size_t& i) const { return states_[i]; }
   /// Access the i-th instruction.
-  const InstrPtr instr(const size_t& i) const;
+  inline const InstrPtr instr(const size_t& i) const { return instrs_[i]; }
   /// Access the i-th child-ILA.
-  const InstrLvlAbsPtr child(const size_t& i) const;
+  inline const InstrLvlAbsPtr child(const size_t& i) const {
+    return childs_[i];
+  }
   /// Access the i-th initial condition.
-  const ExprPtr init(const size_t& i) const;
+  const ExprPtr init(const size_t& i) const { return inits_[i]; }
 
   /// Return the named input variable; return NULL if not registered.
   const ExprPtr input(const std::string& name) const;
@@ -182,9 +185,6 @@ public:
   /// \return True if check pass.
   bool Check() const;
 
-  /// \brief Simplify the ILA (e.g. instructions).
-  void Simplify();
-
   /// \brief Merge child-ILAs, including variables, simplifier, etc.
   void MergeChild();
 
@@ -205,8 +205,12 @@ public:
   /// Overload output stream for pointer
   friend std::ostream& operator<<(std::ostream& out, InstrLvlAbsPtr ila);
 
+  friend class Instr;
+
 private:
   // ------------------------- MEMBERS -------------------------------------- //
+  /// Ths parent ILA.
+  InstrLvlAbsPtr parent_;
   /// The set of input variables.
   VarMap inputs_;
   /// The set of state variables.
@@ -226,19 +230,17 @@ private:
 
   /// Specification/implementation.
   bool is_spec_ = true;
-  /// To simplify expr nodes.
-  bool simplify_ = true;
 
   /// The simplifier for expr nodes. May be shared.
-  ExprMngrPtr expr_mngr_ = ExprMngr::New();
+  ExprMngrPtr expr_mngr_ = NULL;
 
   // ------------------------- HELPERS -------------------------------------- //
+  /// Simplify AST nodes with the representatives.
+  ExprPtr Unify(const ExprPtr e);
   /// Initialize default configuration, reset members, etc.
   void InitObject();
-
   /// Check instruction is complete (e.g. update sort matches).
   void CheckInstr(const InstrPtr instr);
-
   /// Simplify instruction if not already.
   void SimplifyInstr(const InstrPtr instr);
 

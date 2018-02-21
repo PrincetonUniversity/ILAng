@@ -1,5 +1,5 @@
 /// \file
-/// Header for the class Expr and its hash
+/// Header for the class Expr
 
 #ifndef EXPR_H__
 #define EXPR_H__
@@ -24,8 +24,6 @@ class InstrLvlAbs;
 /// constraints, state update expressions, etc.
 class Expr : public Ast, public std::enable_shared_from_this<Expr> {
 public:
-  /// Pointer type only for visitor function objects.
-  typedef Expr* ExprPtrRaw;
   /// Pointer type for normal use of Expr.
   typedef std::shared_ptr<Expr> ExprPtr;
   /// Type for storing a set of Expr.
@@ -36,16 +34,16 @@ public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor.
   Expr();
+  /// Constructor with name.
+  Expr(const std::string& name);
   /// Default destructor.
   virtual ~Expr();
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return the pointer of the sort.
   inline const Sort& sort() const { return sort_; }
-  /// Return the arity.
-  inline const size_t arity() const { return args_.size(); }
-  /// Retrun the number of argument (same as arity).
-  inline const size_t arg_num() const { return arity(); }
+  /// Retrun the number of argument (arity).
+  inline const size_t arg_num() const { return args_.size(); }
   /// Return the i-th argument.
   inline ExprPtr arg(const size_t& i) const { return args_.at(i); }
   /// Return the number of parameters.
@@ -63,6 +61,10 @@ public:
   void set_params(const std::vector<int> params);
   /// Set the hosting ILA.
   void set_host(InstrLvlAbsPtr host);
+  /// Replace the i-th argument.
+  void replace_arg(const int& idx, const ExprPtr arg);
+  /// Replace the "a" argument with "b" argument with "exist".
+  void replace_arg(const ExprPtr a, const ExprPtr b);
 
   /// Is type expr (object).
   bool is_expr() const { return true; }
@@ -75,13 +77,11 @@ public:
   virtual bool is_op() const { return false; }
 
   /// Return true if this is a Boolean expression.
-  bool is_bool() const { return sort_.is_bool(); }
+  inline bool is_bool() const { return sort_.is_bool(); }
   /// Return true if this is a Bitvector expression.
-  bool is_bv() const { return sort_.is_bv(); }
+  inline bool is_bv() const { return sort_.is_bv(); }
   /// Return true if this is an Array expression.
-  bool is_mem() const { return sort_.is_mem(); }
-  /// Return true if this is an Application expression.
-  bool is_app() const { return sort_.is_app(); }
+  inline bool is_mem() const { return sort_.is_mem(); }
 
   // ------------------------- METHODS -------------------------------------- //
   /// Return the z3 expression for the node.
@@ -92,25 +92,16 @@ public:
   virtual std::ostream& Print(std::ostream& out) const = 0;
 
   /// Overload output stream operator for pointer.
-  friend std::ostream& operator<<(std::ostream& out, ExprPtr expr);
-
-  /// \brief Templated visitor: visit each node in a depth-first order and apply
-  /// the function object F on it.
-  template <class F> void DepthFirstVisit(F& func) {
-    size_t n = arity();
-    for (size_t i = 0; i != n; i++) {
-      const ExprPtr arg_i = this->arg(i);
-      arg_i->DepthFirstVisit<F>(func);
-    }
-    func(this);
+  friend std::ostream& operator<<(std::ostream& out, const ExprPtr expr) {
+    return expr->Print(out);
   }
 
   /// \brief Templated visitor: visit each node in a depth-first order and apply
   /// the function object F on it.
-  template <class F> void DFV(F& func) {
+  template <class F> void DepthFirstVisit(F& func) {
     for (size_t i = 0; i != arg_num(); i++) {
       const ExprPtr arg_i = this->arg(i);
-      arg_i->DFV<F>(func);
+      arg_i->DepthFirstVisit<F>(func);
     }
     func(shared_from_this());
   }
@@ -130,20 +121,10 @@ private:
 
 }; // class Expr
 
-/// Pointer type only for visitor function objects.
-typedef Expr::ExprPtrRaw ExprPtrRaw;
 /// Pointer type for normal use of Expr.
 typedef Expr::ExprPtr ExprPtr;
 /// Type for storing a set of Expr.
 typedef Expr::ExprPtrVec ExprPtrVec;
-
-/// \brief The function object for hashing Expr. The hash value is the id of the
-/// symbol, which is supposed to be unique.
-class ExprHash {
-public:
-  /// Function object for hashing
-  size_t operator()(const ExprPtrRaw expr) const { return expr->name().id(); }
-}; // struct ExprHash
 
 } // namespace ila
 
