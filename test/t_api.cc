@@ -144,6 +144,8 @@ TEST(TestApi, ExprOps) {
   auto n_imply_bool = Imply(n_ne_bool, n_xor_bool);
   auto n_ite_bool = Ite(n_imply_bool, n_ne_bool, n_xor_bool);
   auto n_ite_bv = Ite(n_ite_bool, n_load_bv, n_sub_bv);
+
+  auto tmp = n_ite_bv;
 }
 
 TEST(TestApi, NonConstruct) {
