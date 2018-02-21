@@ -97,7 +97,7 @@ ExprRef operator&(const ExprRef& a, const ExprRef& b);
 ExprRef operator|(const ExprRef& a, const ExprRef& b);
 /// Logical XOR (bit-wise for bit-vectors).
 ExprRef operator^(const ExprRef& a, const ExprRef& b);
-/// Lefy shift for bit-vectors.
+/// Left shift for bit-vectors.
 ExprRef operator<<(const ExprRef& a, const ExprRef& b);
 /// Arithmetic right shift for bit-vectors.
 ExprRef operator>>(const ExprRef& a, const ExprRef& b);
