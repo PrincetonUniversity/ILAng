@@ -98,15 +98,15 @@ ExprRef riscvILA_user::CombineSlices(const ExprRef & word, const ExprRef & lowBi
     auto misalignVal = old; 
     #define zero(w) BvConst(0,w)
     if(width == CBYTE) {
-        return Ite( lowBits == BvConst(0,2) ,         zext( word(7,0) )              | ( ( ~ bv(      0xff) ) & old ) ,
-               Ite( lowBits == BvConst(1,2) , Concat( zext( word(7,0) ) , zero( 8) ) | ( ( ~ bv(    0xff00) ) & old ) ,
-               Ite( lowBits == BvConst(2,2) , Concat( zext( word(7,0) ) , zero(16) ) | ( ( ~ bv(  0xff0000) ) & old ) ,
-        /*     Ite( lowBits == BvConst(3,2)*/ Concat( zext( word(7,0) ) , zero(24) ) | ( ( ~ bv(0xff000000) ) & old ) 
+        return Ite( lowBits == BvConst(0,2) , zext(          word(7,0)               ) | ( ( ~ bv(      0xff) ) & old ) ,
+               Ite( lowBits == BvConst(1,2) , zext( Concat(  word(7,0)  , zero( 8) ) ) | ( ( ~ bv(    0xff00) ) & old ) ,
+               Ite( lowBits == BvConst(2,2) , zext( Concat(  word(7,0)  , zero(16) ) ) | ( ( ~ bv(  0xff0000) ) & old ) ,
+        /*     Ite( lowBits == BvConst(3,2)*/     ( Concat(  word(7,0)  , zero(24) ) ) | ( ( ~ bv(0xff000000) ) & old ) 
                 ) ) );
     }
     else if(width == CHALF) {
-        return Ite( lowBits == BvConst(0,2) ,         zext( word(15,0) )              | ( ( ~ bv(    0xffff) ) & old ) ,
-               Ite( lowBits == BvConst(2,2) , Concat( zext( word(15,0) ) , zero(16) ) | ( ( ~ bv(0xffff0000) ) & old ) ,
+        return Ite( lowBits == BvConst(0,2) ,   zext(  word(15,0)             ) | ( ( ~ bv(    0xffff) ) & old ) ,
+               Ite( lowBits == BvConst(2,2) , Concat(  word(15,0)  , zero(16) ) | ( ( ~ bv(0xffff0000) ) & old ) ,
                     misalignVal 
                 ) );
     }
@@ -228,7 +228,7 @@ void riscvILA_user::addInstructions()
     {
         auto rs1_val = indexIntoGPR(rs1);   
         auto addr    = rs1_val + immI;
-        auto lw_val  = LoadFromMem(mem, zext( addr(31,2) ) );
+        auto lw_val  = LoadFromMem(mem,  addr(31,2) );
         auto nxt_pc  = pc + bv(4);
 
 
@@ -348,7 +348,7 @@ void riscvILA_user::addInstructions()
     {
         auto rs1_val = indexIntoGPR(rs1);   
         auto rs2_val = indexIntoGPR(rs2);  
-        auto shamt   = rs2_val(4,0);
+        auto shamt   = zext(rs2_val(4,0));
         auto nxt_pc  = pc + bv(4);
         // ------------------------- Instruction: ADD ------------------------------ //
         {
@@ -469,7 +469,7 @@ void riscvILA_user::addInstructions()
     // ------------------------- Instruction: ALUimm ------------------------------ //
     {
         auto rs1_val   = indexIntoGPR(rs1);   
-        auto shamt = inst(24,20);
+        auto shamt = zext( inst(24,20) );
         auto nxt_pc  = pc + bv(4);
 
         // ------------------------- Instruction: ADDI ------------------------------ //
