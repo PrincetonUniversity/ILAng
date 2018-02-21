@@ -258,6 +258,23 @@ ExprPtr ExprFuse::SExt(const ExprPtr bv, const int& out_width) {
   return std::make_shared<ExprOpSExt>(bv, out_width);
 }
 
+ExprPtr ExprFuse::AppFunc(const FuncPtr func) {
+  return std::shared_ptr<ExprOpAppFunc>(new ExprOpAppFunc(func, {}));
+}
+
+ExprPtr ExprFuse::AppFunc(const FuncPtr func, const ExprPtr arg0) {
+  return std::shared_ptr<ExprOpAppFunc>(new ExprOpAppFunc(func, {arg0}));
+}
+
+ExprPtr ExprFuse::AppFunc(const FuncPtr func, const ExprPtr arg0,
+                          const ExprPtr arg1) {
+  return std::shared_ptr<ExprOpAppFunc>(new ExprOpAppFunc(func, {arg0, arg1}));
+}
+
+ExprPtr ExprFuse::AppFunc(const FuncPtr func, const ExprPtrVec& args) {
+  return std::shared_ptr<ExprOpAppFunc>(new ExprOpAppFunc(func, args));
+}
+
 ExprPtr ExprFuse::Imply(const ExprPtr p, const ExprPtr q) {
   return std::make_shared<ExprOpImply>(p, q);
 }
