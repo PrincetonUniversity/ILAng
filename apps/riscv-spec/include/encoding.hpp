@@ -65,13 +65,13 @@
 #define BGEU    BvConst(0x7, FUNCT3_LEN)
 
 // funct 3 for L/S
-#define BYTE    BvConst(0x0 , FUNCT3_LEN
-#define HALF    BvConst(0x1 , FUNCT3_LEN
-#define WORD    BvConst(0x2 , FUNCT3_LEN
-#define DOUBLE  BvConst(0x3 , FUNCT3_LEN
-#define BU      BvConst(0x4 , FUNCT3_LEN
-#define HU      BvConst(0x5 , FUNCT3_LEN
-#define WU      BvConst(0x6 , FUNCT3_LEN
+#define BYTE    BvConst(0x0 , FUNCT3_LEN)
+#define HALF    BvConst(0x1 , FUNCT3_LEN)
+#define WORD    BvConst(0x2 , FUNCT3_LEN)
+#define DOUBLE  BvConst(0x3 , FUNCT3_LEN)
+#define BU      BvConst(0x4 , FUNCT3_LEN)
+#define HU      BvConst(0x5 , FUNCT3_LEN)
+#define WU      BvConst(0x6 , FUNCT3_LEN)
 
 
 

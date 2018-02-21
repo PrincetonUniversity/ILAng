@@ -8,7 +8,6 @@
 #define __RISCV_ILA_HPP__
 
 #include <vector>
-#include <helpers.hpp>
 
 #include "encoding.hpp"
 
@@ -48,9 +47,10 @@ protected:
     
     ExprRef bv(int val) { return BvConst(val, XLEN); }
     ExprRef zext(const ExprRef & v) {return ZExt( v, XLEN ); }
-    ExprRef sext(const ExprRef & v) {return SignExtend( v, XLEN ); }
+    ExprRef sext(const ExprRef & v) {return SExt( v, XLEN ); }
 
     ExprRef getSlice(const ExprRef & word,const ExprRef & lowBits, int width, bool unSigned);
+    ExprRef CombineSlices(const ExprRef & word, const ExprRef & lowBits, int width, const ExprRef & old);
 
 
     // privileged model will overload these to insert their address translation

@@ -63,7 +63,7 @@ std::ostream& ExprOp::Print(std::ostream& out) const {
 Sort ExprOp::GetSortBinaryOperation(const Sort& s0, const Sort& s1) {
   ILA_ASSERT(s0 == s1) << "Undefined sorts " << s0 << " and " << s1
                        << " for binary operations.";
-  // return the smae sort as input arguments.
+  // return the same sort as input arguments.
   return s0;
 }
 
