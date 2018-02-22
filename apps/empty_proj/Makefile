@@ -3,7 +3,7 @@ export ROOT_PATH  = $(shell pwd)
 export ILA_LIB    = $(ROOT_PATH)/../../build/lib
 export ILA_HEADER = $(ROOT_PATH)/../../include
 
-CXX=g++
+#CXX=g++
 CXX_FLAGS=-std=c++11 -Wall -fPIC
 CXX_FLAGS+=-I$(ILA_HEADER)
 LD_FLAGS=-L$(ILA_LIB) -lilatoolsd 
