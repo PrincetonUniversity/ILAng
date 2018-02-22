@@ -7,27 +7,28 @@
 
 namespace ila {
 
-Func::Func(const std::string& name, const Sort& out,
-           const std::vector<Sort>& args)
+Func::Func(const std::string& name, const SortPtr out,
+           const std::vector<SortPtr>& args)
     : Ast(name), out_(out), args_(args) {}
 
 Func::~Func() {}
 
-FuncPtr Func::New(const std::string& name, const Sort& out) {
+FuncPtr Func::New(const std::string& name, const SortPtr out) {
   return FuncPtr(new Func(name, out, {})); // not make_shared due to vector
 }
 
-FuncPtr Func::New(const std::string& name, const Sort& out, const Sort& arg0) {
+FuncPtr Func::New(const std::string& name, const SortPtr out,
+                  const SortPtr arg0) {
   return FuncPtr(new Func(name, out, {arg0})); // not make_shared due to vector
 }
 
-FuncPtr Func::New(const std::string& name, const Sort& out, const Sort& arg0,
-                  const Sort& arg1) {
+FuncPtr Func::New(const std::string& name, const SortPtr out,
+                  const SortPtr arg0, const SortPtr arg1) {
   return FuncPtr(new Func(name, out, {arg0, arg1})); // not make_shared
 }
 
-FuncPtr Func::New(const std::string& name, const Sort& out,
-                  const std::vector<Sort>& args) {
+FuncPtr Func::New(const std::string& name, const SortPtr out,
+                  const std::vector<SortPtr>& args) {
   return FuncPtr(new Func(name, out, args)); // not make_shared due to vector
 }
 
@@ -42,10 +43,10 @@ bool Func::CheckSort(const ExprPtrVec& args) const {
 }
 
 z3::func_decl Func::GetZ3FuncDecl(z3::context& ctx) const {
-  auto range = out().GetZ3Sort(ctx);
+  auto range = out()->GetZ3Sort(ctx);
   std::vector<z3::sort> domains;
   for (size_t i = 0; i != arg_num(); i++) {
-    domains.push_back(arg(i).GetZ3Sort(ctx));
+    domains.push_back(arg(i)->GetZ3Sort(ctx));
   }
   return z3::function(name().c_str(), arg_num(), domains.data(), range);
 }

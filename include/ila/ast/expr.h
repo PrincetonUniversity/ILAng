@@ -41,7 +41,7 @@ public:
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return the pointer of the sort.
-  inline const Sort& sort() const { return sort_; }
+  inline const SortPtr sort() const { return sort_; }
   /// Retrun the number of argument (arity).
   inline const size_t arg_num() const { return args_.size(); }
   /// Return the i-th argument.
@@ -54,7 +54,7 @@ public:
   inline InstrLvlAbsPtr host() const { return host_; }
 
   /// Set the sort of the expression.
-  void set_sort(const Sort& sort);
+  void set_sort(const SortPtr sort);
   /// Set the arguments.
   void set_args(const ExprPtrVec& args);
   /// Set the parameters.
@@ -77,11 +77,11 @@ public:
   virtual bool is_op() const { return false; }
 
   /// Return true if this is a Boolean expression.
-  inline bool is_bool() const { return sort_.is_bool(); }
+  inline bool is_bool() const { return sort_->is_bool(); }
   /// Return true if this is a Bitvector expression.
-  inline bool is_bv() const { return sort_.is_bv(); }
+  inline bool is_bv() const { return sort_->is_bv(); }
   /// Return true if this is an Array expression.
-  inline bool is_mem() const { return sort_.is_mem(); }
+  inline bool is_mem() const { return sort_->is_mem(); }
 
   // ------------------------- METHODS -------------------------------------- //
   /// Return the z3 expression for the node.
@@ -109,7 +109,7 @@ public:
 private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// The sort of the expr.
-  Sort sort_;
+  SortPtr sort_;
   /// Vector of arguments.
   ExprPtrVec args_;
   /// Vector of parameters.

@@ -52,9 +52,9 @@ public:
 protected:
   // ------------------------- HELPERS -------------------------------------- //
   /// Derived the sort for binary operations.
-  Sort GetSortBinaryOperation(const Sort& s0, const Sort& s1);
+  SortPtr GetSortBinaryOperation(const SortPtr& s0, const SortPtr& s1);
   /// Derived the sort for binary comparisons.
-  Sort GetSortBinaryComparison(const Sort& s0, const Sort& s1);
+  SortPtr GetSortBinaryComparison(const SortPtr& s0, const SortPtr& s1);
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //

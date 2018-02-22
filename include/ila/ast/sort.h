@@ -51,6 +51,7 @@ public:
 }; // class SortBase
 
 typedef SortBase::SortBasePtr SortBasePtr;
+typedef SortBase::SortBasePtr SortPtr;
 
 class SortBool : public SortBase {
 public:
@@ -167,19 +168,22 @@ public:
   }
 
   /// Create Bool sort
-  static Sort MakeBoolSort() {
+  static SortPtr MakeBoolSort() {
     SortBasePtr s = std::make_shared<SortBool>();
-    return Sort(s);
+    return s;
+    // return Sort(s);
   }
   /// Create Bitvector sort.
-  static Sort MakeBvSort(const int& bit_width) {
+  static SortPtr MakeBvSort(const int& bit_width) {
     SortBasePtr s = std::make_shared<SortBv>(bit_width);
-    return Sort(s);
+    return s;
+    // return Sort(s);
   }
   /// Create Memory sort.
-  static Sort MakeMemSort(const int& addr_width, const int& data_width) {
+  static SortPtr MakeMemSort(const int& addr_width, const int& data_width) {
     SortBasePtr s = std::make_shared<SortMem>(addr_width, data_width);
-    return Sort(s);
+    return s;
+    // return Sort(s);
   }
 
 }; // class Sort

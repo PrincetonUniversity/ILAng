@@ -37,7 +37,7 @@ TEST(TestExprFuse, CreateVar) {
   EXPECT_TRUE(reg_x->is_bv());
   EXPECT_FALSE(reg_x->is_bool());
   EXPECT_FALSE(reg_x->is_mem());
-  EXPECT_EQ(8, reg_x->sort().bit_width());
+  EXPECT_EQ(8, reg_x->sort()->bit_width());
 
   EXPECT_TRUE(mem->is_ast());
   EXPECT_FALSE(mem->is_instr());
@@ -51,8 +51,8 @@ TEST(TestExprFuse, CreateVar) {
   EXPECT_TRUE(mem->is_mem());
   EXPECT_FALSE(mem->is_bool());
   EXPECT_FALSE(mem->is_bv());
-  EXPECT_EQ(8, mem->sort().addr_width());
-  EXPECT_EQ(8, mem->sort().data_width());
+  EXPECT_EQ(8, mem->sort()->addr_width());
+  EXPECT_EQ(8, mem->sort()->data_width());
 }
 
 TEST(TestExprFuse, CreateConst) {
@@ -228,7 +228,7 @@ TEST(TestExprFuse, Memory) {
   auto load = ExprFuse::Load(mem_var, bv_var_8);
   EXPECT_TRUE(load->is_op());
   EXPECT_TRUE(load->is_bv());
-  EXPECT_EQ(32, load->sort().bit_width());
+  EXPECT_EQ(32, load->sort()->bit_width());
 
 #ifndef NDEBUG
   EXPECT_DEATH(ExprFuse::Load(mem_var, bv_var_32), ".*");

@@ -14,7 +14,7 @@ Expr::Expr(const std::string& name) : Ast(name) {}
 
 Expr::~Expr() {}
 
-void Expr::set_sort(const Sort& sort) { sort_ = sort; }
+void Expr::set_sort(const SortPtr sort) { sort_ = sort; }
 
 void Expr::set_args(const ExprPtrVec& args) { args_ = args; }
 

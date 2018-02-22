@@ -60,14 +60,14 @@ std::ostream& ExprOp::Print(std::ostream& out) const {
   return out << name().format_str(op_name(), "");
 }
 
-Sort ExprOp::GetSortBinaryOperation(const Sort& s0, const Sort& s1) {
+SortPtr ExprOp::GetSortBinaryOperation(const SortPtr& s0, const SortPtr& s1) {
   ILA_ASSERT(s0 == s1) << "Undefined sorts " << s0 << " and " << s1
                        << " for binary operations.";
   // return the smae sort as input arguments.
   return s0;
 }
 
-Sort ExprOp::GetSortBinaryComparison(const Sort& s0, const Sort& s1) {
+SortPtr ExprOp::GetSortBinaryComparison(const SortPtr& s0, const SortPtr& s1) {
   ILA_ASSERT(s0 == s1) << "Undefined sorts " << s0 << " and " << s1
                        << " for binary comparison.";
   // return boolean sort.
@@ -310,10 +310,10 @@ z3::expr ExprOpUgt::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
 // ------------------------- Class ExprOpLoad ------------------------------- //
 ExprOpLoad::ExprOpLoad(const ExprPtr mem, const ExprPtr addr)
     : ExprOp(mem, addr) {
-  ILA_ASSERT(mem->sort().addr_width() == addr->sort().bit_width())
+  ILA_ASSERT(mem->sort()->addr_width() == addr->sort()->bit_width())
       << "Address width does not match with memory.";
   // sort should be the data sort of the mem
-  auto data_sort = Sort::MakeBvSort(mem->sort().data_width());
+  auto data_sort = Sort::MakeBvSort(mem->sort()->data_width());
   set_sort(data_sort);
 }
 
@@ -327,9 +327,9 @@ z3::expr ExprOpLoad::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
 ExprOpStore::ExprOpStore(const ExprPtr mem, const ExprPtr addr,
                          const ExprPtr data)
     : ExprOp(mem, addr, data) {
-  ILA_ASSERT(mem->sort().addr_width() == addr->sort().bit_width())
+  ILA_ASSERT(mem->sort()->addr_width() == addr->sort()->bit_width())
       << "Address width does not match with memory.";
-  ILA_ASSERT(mem->sort().data_width() == data->sort().bit_width())
+  ILA_ASSERT(mem->sort()->data_width() == data->sort()->bit_width())
       << "Data width does not match with memory.";
   set_sort(mem->sort());
 }
@@ -348,7 +348,7 @@ ExprOpConcat::ExprOpConcat(const ExprPtr hi, const ExprPtr lo)
     : ExprOp(hi, lo) {
   ILA_ASSERT(hi->is_bv()) << "Concat non-bv var " << hi;
   ILA_ASSERT(lo->is_bv()) << "Concat non-bv var " << lo;
-  set_sort(Sort::MakeBvSort(hi->sort().bit_width() + lo->sort().bit_width()));
+  set_sort(Sort::MakeBvSort(hi->sort()->bit_width() + lo->sort()->bit_width()));
 }
 
 z3::expr ExprOpConcat::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
@@ -381,7 +381,7 @@ z3::expr ExprOpExtract::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
 ExprOpZExt::ExprOpZExt(const ExprPtr bv, const int& bit_width)
     : ExprOp(bv, bit_width) {
   ILA_ASSERT(bv->is_bv()) << "Zero-extend can only be applied to bit-vector.";
-  ILA_ASSERT(bit_width >= bv->sort().bit_width())
+  ILA_ASSERT(bit_width >= bv->sort()->bit_width())
       << "Invalid target bit-width for extend.";
   set_sort(Sort::MakeBvSort(bit_width));
 }
@@ -399,7 +399,7 @@ z3::expr ExprOpZExt::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
 ExprOpSExt::ExprOpSExt(const ExprPtr bv, const int& bit_width)
     : ExprOp(bv, bit_width) {
   ILA_ASSERT(bv->is_bv()) << "Sign-extend can only be applied to bit-vector.";
-  ILA_ASSERT(bit_width >= bv->sort().bit_width())
+  ILA_ASSERT(bit_width >= bv->sort()->bit_width())
       << "Invalid target bit-width for extend.";
   set_sort(Sort::MakeBvSort(bit_width));
 }
