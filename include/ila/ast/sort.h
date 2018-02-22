@@ -65,6 +65,43 @@ public:
 
 }; // class SortBool
 
+class SortBv : public SortBase {
+public:
+  SortBv(const int& width);
+  ~SortBv();
+
+  bool is_bv() const { return true; }
+
+  int bit_width() const { return bit_width_; }
+
+  z3::sort GetZ3Sort(z3::context& ctx) const;
+
+  std::ostream& Print(std::ostream& out) const;
+
+private:
+  int bit_width_;
+}; // class SortBv
+
+class SortMem : public SortBase {
+public:
+  SortMem(const int& addr_w, const int& data_w);
+  ~SortMem();
+
+  bool is_mem() const { return true; }
+
+  int addr_width() const { return addr_width_; }
+
+  int data_width() const { return data_width_; }
+
+  z3::sort GetZ3Sort(z3::context& ctx) const;
+
+  std::ostream& Print(std::ostream& out) const;
+
+private:
+  int addr_width_;
+  int data_width_;
+}; // class SortMem
+
 /// SortType
 typedef enum { SORT_BOOL, SORT_BV, SORT_MEM } SortType;
 

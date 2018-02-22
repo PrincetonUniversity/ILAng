@@ -40,6 +40,31 @@ std::ostream& SortBool::Print(std::ostream& out) const {
   return out << "Boolean";
 }
 
+SortBv::SortBv(const int& width) : bit_width_(width) {}
+
+SortBv::~SortBv() {}
+
+z3::sort SortBv::GetZ3Sort(z3::context& ctx) const {
+  return ctx.bv_sort(bit_width_);
+}
+
+std::ostream& SortBv::Print(std::ostream& out) const {
+  return out << "Bv(" << bit_width_ << ")";
+}
+
+SortMem::SortMem(const int& addr_w, const int& data_w)
+    : addr_width_(addr_w), data_width_(data_w) {}
+
+SortMem::~SortMem() {}
+
+z3::sort SortMem::GetZ3Sort(z3::context& ctx) const {
+  return ctx.array_sort(ctx.bv_sort(addr_width_), ctx.bv_sort(data_width_));
+}
+
+std::ostream& SortMem::Print(std::ostream& out) const {
+  return out << "Mem(" << addr_width_ << ", " << data_width_ << ")";
+}
+
 Sort::Sort()
     : type_(SortType::SORT_BOOL), bit_width_(0), addr_width_(0),
       data_width_(0) {}
