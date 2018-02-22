@@ -67,5 +67,17 @@ TEST(TestSort, Memory) {
   EXPECT_EQ(wrap, mem_sort);
 }
 
+TEST(TestSort, Hierarchy) {
+  SortBasePtr s = std::make_shared<SortBool>();
+  EXPECT_TRUE(s->is_bool());
+  EXPECT_FALSE(s->is_bv());
+  EXPECT_FALSE(s->is_mem());
+#ifndef NDEBUG
+  EXPECT_DEATH(s->bit_width(), ".*");
+#else
+  auto w = s->bit_width();
+#endif
+}
+
 } // namespace ila
 

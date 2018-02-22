@@ -6,6 +6,40 @@
 
 namespace ila {
 
+SortBase::SortBase() {}
+
+SortBase::~SortBase() {}
+
+int SortBase::bit_width() const {
+  ILA_ASSERT(false) << "Query bit-width from non-bit-vector sort.";
+  return 0;
+}
+
+int SortBase::addr_width() const {
+  ILA_ASSERT(false) << "Query addr-width from non-mem sort.";
+  return 0;
+}
+
+int SortBase::data_width() const {
+  ILA_ASSERT(false) << "Query data-width from non-mem sort.";
+  return 0;
+}
+
+bool SortBase::Equal(const SortBasePtr lhs, const SortBasePtr rhs) {
+  // TODO
+  return true;
+}
+
+SortBool::SortBool() {}
+
+SortBool::~SortBool() {}
+
+z3::sort SortBool::GetZ3Sort(z3::context& ctx) const { return ctx.bool_sort(); }
+
+std::ostream& SortBool::Print(std::ostream& out) const {
+  return out << "Boolean";
+}
+
 Sort::Sort()
     : type_(SortType::SORT_BOOL), bit_width_(0), addr_width_(0),
       data_width_(0) {}

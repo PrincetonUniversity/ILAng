@@ -6,6 +6,7 @@
 
 #include "ila/ast/ast.h"
 #include "z3++.h"
+#include <memory>
 #include <ostream>
 #include <vector>
 
@@ -19,15 +20,15 @@ public:
   SortBase();
   virtual ~SortBase();
 
-  virtual const int& bit_width() const = 0;
-  virtual const int& addr_width() const = 0;
-  virtual const int& data_width() const = 0;
+  virtual bool is_bool() const { return false; }
+  virtual bool is_bv() const { return false; }
+  virtual bool is_mem() const { return false; }
+
+  virtual int bit_width() const;
+  virtual int addr_width() const;
+  virtual int data_width() const;
 
   bool is_sort() const { return true; }
-
-  virtual bool is_bool() const = 0;
-  virtual bool is_bv() const = 0;
-  virtual bool is_mem() const = 0;
 
   // ------------------------- METHODS -------------------------------------- //
   /// Return z3 sort.
@@ -36,16 +37,33 @@ public:
   /// Output to stream.
   virtual std::ostream& Print(std::ostream& out) const = 0;
   /// Compare two Sorts.
-  static bool Equal(const SortBasePtr& lhs, const SortBasePtr& rhs);
+  static bool Equal(const SortBasePtr lhs, const SortBasePtr rhs);
 
   /// Overload output stream operator.
-  friend std::ostream& operator<<(std::ostream& out, const SortBasePtr s);
+  friend std::ostream& operator<<(std::ostream& out, const SortBasePtr s) {
+    return s->Print(out);
+  }
   /// Overlaod comparison.
-  friend bool operator==(const SortBasePtr lhs, const SortBasePtr rhs);
+  friend bool operator==(const SortBasePtr lhs, const SortBasePtr rhs) {
+    return Equal(lhs, rhs);
+  }
 
 }; // class SortBase
 
 typedef SortBase::SortBasePtr SortBasePtr;
+
+class SortBool : public SortBase {
+public:
+  SortBool();
+  ~SortBool();
+
+  bool is_bool() const { return true; }
+
+  z3::sort GetZ3Sort(z3::context& ctx) const;
+
+  std::ostream& Print(std::ostream& out) const;
+
+}; // class SortBool
 
 /// SortType
 typedef enum { SORT_BOOL, SORT_BV, SORT_MEM } SortType;
