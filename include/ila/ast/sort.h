@@ -37,7 +37,7 @@ public:
   /// Output to stream.
   virtual std::ostream& Print(std::ostream& out) const = 0;
   /// Compare two Sorts.
-  static bool Equal(const SortBasePtr lhs, const SortBasePtr rhs);
+  virtual bool Equal(const SortBasePtr rhs) const = 0;
 
   /// Overload output stream operator.
   friend std::ostream& operator<<(std::ostream& out, const SortBasePtr s) {
@@ -45,7 +45,7 @@ public:
   }
   /// Overlaod comparison.
   friend bool operator==(const SortBasePtr lhs, const SortBasePtr rhs) {
-    return Equal(lhs, rhs);
+    return lhs->Equal(rhs);
   }
 
 }; // class SortBase
@@ -62,6 +62,7 @@ public:
 
   z3::sort GetZ3Sort(z3::context& ctx) const;
 
+  bool Equal(const SortBasePtr rhs) const;
   std::ostream& Print(std::ostream& out) const;
 
 }; // class SortBool
@@ -76,6 +77,8 @@ public:
   int bit_width() const { return bit_width_; }
 
   z3::sort GetZ3Sort(z3::context& ctx) const;
+
+  bool Equal(const SortBasePtr rhs) const;
 
   std::ostream& Print(std::ostream& out) const;
 
@@ -95,6 +98,8 @@ public:
   int data_width() const { return data_width_; }
 
   z3::sort GetZ3Sort(z3::context& ctx) const;
+
+  bool Equal(const SortBasePtr rhs) const;
 
   std::ostream& Print(std::ostream& out) const;
 
@@ -153,10 +158,12 @@ public:
     return ptr_->Print(out);
   }
 
-  /// Compare two Sorts.
+/// Compare two Sorts.
+#if 0
   static bool Equal(const Sort& lhs, const Sort& rhs) {
     return SortBase::Equal(lhs.ptr_, rhs.ptr_);
   }
+#endif
 
   /// Overload output stream operator.
   friend std::ostream& operator<<(std::ostream& out, const Sort& s) {
