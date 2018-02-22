@@ -2,6 +2,9 @@ language: cpp
 os: linux
 sudo: required
 dist: trusty
+compiler:
+  - g++
+  - clang++
 
 branches:
   only:
