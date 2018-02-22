@@ -7,6 +7,7 @@
 #ifndef __RISCV_ILA_HPP__
 #define __RISCV_ILA_HPP__
 
+#include <set>
 #include <vector>
 
 #include "encoding.hpp"

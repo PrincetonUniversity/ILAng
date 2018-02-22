@@ -2,11 +2,11 @@
 
 //
 
+#include <iostream>
 #include <string>
+#include <cassert>
 
-#include "ila/expr_fuse.h"
-#include "ila/instr.h"
-#include "ila/instr_lvl_abs.h"
+
 #include "ila++.h"
 
 #include "helpers.hpp"
@@ -38,7 +38,7 @@ ExprRef riscvILA_user::indexIntoGPR(const ExprRef & idxBits)
 }
 
 riscvILA_user::riscvILA_user ( int pc_init_val ):
-    model ( InstrLvlAbs::New("riscv") ), // define ila
+    model ( "riscv" ), // define ila
     pc    ( model.NewBvState("pc", XLEN ) ),
     mem   ( model.NewMemState("mem" , MEM_WORD_ADDR_LEN, MEM_WORD) ),
     inst  ( FetchFromMem(mem, pc( 31 , 2 ) ) ) ,
