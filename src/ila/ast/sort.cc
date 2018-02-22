@@ -65,6 +65,7 @@ std::ostream& SortMem::Print(std::ostream& out) const {
   return out << "Mem(" << addr_width_ << ", " << data_width_ << ")";
 }
 
+#if 0
 Sort::Sort()
     : type_(SortType::SORT_BOOL), bit_width_(0), addr_width_(0),
       data_width_(0) {}
@@ -141,6 +142,7 @@ std::ostream& Sort::PrintBv(std::ostream& out) const {
 std::ostream& Sort::PrintMem(std::ostream& out) const {
   return out << "Mem(" << addr_width_ << ", " << data_width_ << ")";
 }
+#endif
 
 } // namespace ila
 

@@ -8,6 +8,7 @@
 
 namespace ila {
 
+#if 0
 TEST(TestSort, Boolean) {
   Sort bool_sort;
   EXPECT_TRUE(bool_sort.is_ast());
@@ -66,6 +67,7 @@ TEST(TestSort, Memory) {
   Sort wrap = Sort::MakeMemSort(2, 32);
   EXPECT_EQ(wrap, mem_sort);
 }
+#endif
 
 TEST(TestSort, Hierarchy) {
   SortBasePtr s = std::make_shared<SortBool>();
@@ -77,6 +79,8 @@ TEST(TestSort, Hierarchy) {
 #else
   auto w = s->bit_width();
 #endif
+
+  auto m = std::make_shared<SortMem>(8, 8);
 }
 
 } // namespace ila

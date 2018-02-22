@@ -102,6 +102,89 @@ private:
   int data_width_;
 }; // class SortMem
 
+/// \brief The class for sort (type for expr, and the range/domain of
+/// functions).
+class Sort {
+private:
+  SortBasePtr ptr_;
+
+public:
+  // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
+  /// Constructor for Boolean type.
+  Sort() { ptr_ = std::make_shared<SortBool>(); }
+  /// Constructor for Bitvector type.
+  Sort(const int& bit_width) { ptr_ = std::make_shared<SortBv>(bit_width); }
+  /// Constructor for Memory (Array) type.
+  Sort(const int& addr_width, const int& data_width) {
+    ptr_ = std::make_shared<SortMem>(addr_width, data_width);
+  }
+  /// Constructor for wrapping existed sort.
+  Sort(SortBasePtr s) : ptr_(s) {}
+  /// Default destructor.
+  ~Sort() {}
+
+  // ------------------------- ACCESSORS/MUTATORS --------------------------- //
+  /// Return the bit width (bitvector).
+  inline int bit_width() const { return ptr_->bit_width(); }
+  /// Return the address width (mem).
+  inline int addr_width() const { return ptr_->addr_width(); }
+  /// Return the data width (mem).
+  inline int data_width() const { return ptr_->data_width(); }
+
+  /// Is type sort (object).
+  inline bool is_sort() const { return ptr_->is_sort(); }
+
+  /// Return true if this is a Boolean expression.
+  inline bool is_bool() const { return ptr_->is_bool(); }
+  /// Return true if this is a Bitvector expression.
+  inline bool is_bv() const { return ptr_->is_bv(); }
+  /// Return true if this is an Memory expression.
+  inline bool is_mem() const { return ptr_->is_mem(); }
+
+  // ------------------------- METHODS -------------------------------------- //
+  /// Return z3 sort.
+  inline z3::sort GetZ3Sort(z3::context& ctx) const {
+    return ptr_->GetZ3Sort(ctx);
+  }
+
+  /// Output to stream.
+  inline std::ostream& Print(std::ostream& out) const {
+    return ptr_->Print(out);
+  }
+
+  /// Compare two Sorts.
+  static bool Equal(const Sort& lhs, const Sort& rhs) {
+    return SortBase::Equal(lhs.ptr_, rhs.ptr_);
+  }
+
+  /// Overload output stream operator.
+  friend std::ostream& operator<<(std::ostream& out, const Sort& s) {
+    return out << s.ptr_;
+  }
+  /// Overlaod comparison.
+  friend bool operator==(const Sort& lhs, const Sort& rhs) {
+    return lhs.ptr_ == rhs.ptr_;
+  }
+
+  /// Create Bool sort
+  static Sort MakeBoolSort() {
+    SortBasePtr s = std::make_shared<SortBool>();
+    return Sort(s);
+  }
+  /// Create Bitvector sort.
+  static Sort MakeBvSort(const int& bit_width) {
+    SortBasePtr s = std::make_shared<SortBv>(bit_width);
+    return Sort(s);
+  }
+  /// Create Memory sort.
+  static Sort MakeMemSort(const int& addr_width, const int& data_width) {
+    SortBasePtr s = std::make_shared<SortMem>(addr_width, data_width);
+    return Sort(s);
+  }
+
+}; // class Sort
+
+#if 0
 /// SortType
 typedef enum { SORT_BOOL, SORT_BV, SORT_MEM } SortType;
 
@@ -179,6 +262,7 @@ private:
   std::ostream& PrintMem(std::ostream& out) const;
 
 }; // class Sort
+#endif
 
 } // namespace ila
 
