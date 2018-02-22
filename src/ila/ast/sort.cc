@@ -6,23 +6,38 @@
 
 namespace ila {
 
-SortBase::SortBase() {}
+Sort::Sort() {}
 
-SortBase::~SortBase() {}
+Sort::~Sort() {}
 
-int SortBase::bit_width() const {
+int Sort::bit_width() const {
   ILA_ASSERT(false) << "Query bit-width from non-bit-vector sort.";
   return 0;
 }
 
-int SortBase::addr_width() const {
+int Sort::addr_width() const {
   ILA_ASSERT(false) << "Query addr-width from non-mem sort.";
   return 0;
 }
 
-int SortBase::data_width() const {
+int Sort::data_width() const {
   ILA_ASSERT(false) << "Query data-width from non-mem sort.";
   return 0;
+}
+
+SortPtr Sort::MakeBoolSort() {
+  SortPtr s = std::make_shared<SortBool>();
+  return s;
+}
+
+SortPtr Sort::MakeBvSort(const int& bit_width) {
+  SortPtr s = std::make_shared<SortBv>(bit_width);
+  return s;
+}
+
+SortPtr Sort::MakeMemSort(const int& addr_width, const int& data_width) {
+  SortPtr s = std::make_shared<SortMem>(addr_width, data_width);
+  return s;
 }
 
 SortBool::SortBool() {}

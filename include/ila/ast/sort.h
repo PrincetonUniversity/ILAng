@@ -13,12 +13,12 @@
 /// \namespace ila
 namespace ila {
 
-class SortBase : public Ast {
+class Sort : public Ast {
 public:
-  typedef std::shared_ptr<SortBase> SortBasePtr;
+  typedef std::shared_ptr<Sort> SortPtr;
 
-  SortBase();
-  virtual ~SortBase();
+  Sort();
+  virtual ~Sort();
 
   virtual bool is_bool() const { return false; }
   virtual bool is_bv() const { return false; }
@@ -37,23 +37,31 @@ public:
   /// Output to stream.
   virtual std::ostream& Print(std::ostream& out) const = 0;
   /// Compare two Sorts.
-  virtual bool Equal(const SortBasePtr rhs) const = 0;
+  virtual bool Equal(const SortPtr rhs) const = 0;
 
   /// Overload output stream operator.
-  friend std::ostream& operator<<(std::ostream& out, const SortBasePtr s) {
+  friend std::ostream& operator<<(std::ostream& out, const SortPtr s) {
     return s->Print(out);
   }
   /// Overlaod comparison.
-  friend bool operator==(const SortBasePtr lhs, const SortBasePtr rhs) {
+  friend bool operator==(const SortPtr lhs, const SortPtr rhs) {
     return lhs->Equal(rhs);
   }
 
-}; // class SortBase
+  /// Create Bool sort
+  static SortPtr MakeBoolSort();
 
-typedef SortBase::SortBasePtr SortBasePtr;
-typedef SortBase::SortBasePtr SortPtr;
+  /// Create Bitvector sort.
+  static SortPtr MakeBvSort(const int& bit_width);
 
-class SortBool : public SortBase {
+  /// Create Memory sort.
+  static SortPtr MakeMemSort(const int& addr_width, const int& data_width);
+
+}; // class Sort
+
+typedef Sort::SortPtr SortPtr;
+
+class SortBool : public Sort {
 public:
   SortBool();
   ~SortBool();
@@ -62,12 +70,12 @@ public:
 
   z3::sort GetZ3Sort(z3::context& ctx) const;
 
-  bool Equal(const SortBasePtr rhs) const;
+  bool Equal(const SortPtr rhs) const;
   std::ostream& Print(std::ostream& out) const;
 
 }; // class SortBool
 
-class SortBv : public SortBase {
+class SortBv : public Sort {
 public:
   SortBv(const int& width);
   ~SortBv();
@@ -78,7 +86,7 @@ public:
 
   z3::sort GetZ3Sort(z3::context& ctx) const;
 
-  bool Equal(const SortBasePtr rhs) const;
+  bool Equal(const SortPtr rhs) const;
 
   std::ostream& Print(std::ostream& out) const;
 
@@ -86,7 +94,7 @@ private:
   int bit_width_;
 }; // class SortBv
 
-class SortMem : public SortBase {
+class SortMem : public Sort {
 public:
   SortMem(const int& addr_w, const int& data_w);
   ~SortMem();
@@ -99,7 +107,7 @@ public:
 
   z3::sort GetZ3Sort(z3::context& ctx) const;
 
-  bool Equal(const SortBasePtr rhs) const;
+  bool Equal(const SortPtr rhs) const;
 
   std::ostream& Print(std::ostream& out) const;
 
@@ -108,6 +116,7 @@ private:
   int data_width_;
 }; // class SortMem
 
+#if 0
 /// \brief The class for sort (type for expr, and the range/domain of
 /// functions).
 class Sort {
@@ -194,6 +203,8 @@ public:
   }
 
 }; // class Sort
+
+#endif
 
 #if 0
 /// SortType

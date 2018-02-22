@@ -70,7 +70,7 @@ TEST(TestSort, Memory) {
 #endif
 
 TEST(TestSort, Hierarchy) {
-  SortBasePtr s = std::make_shared<SortBool>();
+  auto s = Sort::MakeBoolSort();
   EXPECT_TRUE(s->is_bool());
   EXPECT_FALSE(s->is_bv());
   EXPECT_FALSE(s->is_mem());
@@ -80,7 +80,7 @@ TEST(TestSort, Hierarchy) {
   auto w = s->bit_width();
 #endif
 
-  auto m = std::make_shared<SortMem>(8, 8);
+  auto m = Sort::MakeMemSort(8, 8);
 }
 
 } // namespace ila
