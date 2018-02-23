@@ -60,14 +60,18 @@ std::ostream& ExprOp::Print(std::ostream& out) const {
   return out << name().format_str(op_name(), "");
 }
 
-SortPtr ExprOp::GetSortBinaryOperation(const SortPtr& s0, const SortPtr& s1) {
+SortPtr ExprOp::GetSortBinaryOperation(const ExprPtr e0, const ExprPtr e1) {
+  auto s0 = e0->sort();
+  auto s1 = e1->sort();
   ILA_ASSERT(s0 == s1) << "Undefined sorts " << s0 << " and " << s1
                        << " for binary operations.";
   // return the same sort as input arguments.
   return s0;
 }
 
-SortPtr ExprOp::GetSortBinaryComparison(const SortPtr& s0, const SortPtr& s1) {
+SortPtr ExprOp::GetSortBinaryComparison(const ExprPtr e0, const ExprPtr e1) {
+  auto s0 = e0->sort();
+  auto s1 = e1->sort();
   ILA_ASSERT(s0 == s1) << "Undefined sorts " << s0 << " and " << s1
                        << " for binary comparison.";
   // return boolean sort.
@@ -132,7 +136,7 @@ z3::expr ExprOpCompl::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
 // ------------------------- Class ExprOpAnd -------------------------------- //
 ExprOpAnd::ExprOpAnd(const ExprPtr arg0, const ExprPtr arg1)
     : ExprOp(arg0, arg1) {
-  set_sort(GetSortBinaryOperation(arg0->sort(), arg1->sort()));
+  set_sort(GetSortBinaryOperation(arg0, arg1));
 }
 
 z3::expr ExprOpAnd::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
@@ -148,7 +152,7 @@ z3::expr ExprOpAnd::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
 // ------------------------- Class ExprOpOr --------------------------------- //
 ExprOpOr::ExprOpOr(const ExprPtr arg0, const ExprPtr arg1)
     : ExprOp(arg0, arg1) {
-  set_sort(GetSortBinaryOperation(arg0->sort(), arg1->sort()));
+  set_sort(GetSortBinaryOperation(arg0, arg1));
 }
 
 z3::expr ExprOpOr::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
@@ -164,7 +168,7 @@ z3::expr ExprOpOr::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
 // ------------------------- Class ExprOpXor -------------------------------- //
 ExprOpXor::ExprOpXor(const ExprPtr arg0, const ExprPtr arg1)
     : ExprOp(arg0, arg1) {
-  set_sort(GetSortBinaryOperation(arg0->sort(), arg1->sort()));
+  set_sort(GetSortBinaryOperation(arg0, arg1));
 }
 
 z3::expr ExprOpXor::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
@@ -184,7 +188,7 @@ z3::expr ExprOpXor::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
 // ------------------------- Class ExprOpShl -------------------------------- //
 ExprOpShl::ExprOpShl(const ExprPtr bv, const ExprPtr n) : ExprOp(bv, n) {
   ILA_ASSERT(bv->is_bv()) << "Left shift can only be applied to bit-vectors.";
-  set_sort(GetSortBinaryOperation(bv->sort(), n->sort()));
+  set_sort(GetSortBinaryOperation(bv, n));
 }
 
 z3::expr ExprOpShl::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
@@ -196,7 +200,7 @@ z3::expr ExprOpShl::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
 // ------------------------- Class ExprOpAshr ------------------------------- //
 ExprOpAshr::ExprOpAshr(const ExprPtr bv, const ExprPtr n) : ExprOp(bv, n) {
   ILA_ASSERT(bv->is_bv()) << "Right shift can only be applied to bit-vectors.";
-  set_sort(GetSortBinaryOperation(bv->sort(), n->sort()));
+  set_sort(GetSortBinaryOperation(bv, n));
 }
 
 z3::expr ExprOpAshr::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
@@ -208,7 +212,7 @@ z3::expr ExprOpAshr::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
 // ------------------------- Class ExprOpLshr ------------------------------- //
 ExprOpLshr::ExprOpLshr(const ExprPtr bv, const ExprPtr n) : ExprOp(bv, n) {
   ILA_ASSERT(bv->is_bv()) << "Right shift can only be applied to bit-vectors.";
-  set_sort(GetSortBinaryOperation(bv->sort(), n->sort()));
+  set_sort(GetSortBinaryOperation(bv, n));
 }
 
 z3::expr ExprOpLshr::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
@@ -220,7 +224,7 @@ z3::expr ExprOpLshr::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
 // ------------------------- Class ExprOpAdd -------------------------------- //
 ExprOpAdd::ExprOpAdd(const ExprPtr arg0, const ExprPtr arg1)
     : ExprOp(arg0, arg1) {
-  set_sort(GetSortBinaryOperation(arg0->sort(), arg1->sort()));
+  set_sort(GetSortBinaryOperation(arg0, arg1));
 }
 
 z3::expr ExprOpAdd::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
@@ -233,7 +237,7 @@ z3::expr ExprOpAdd::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
 // ------------------------- Class ExprOpSub -------------------------------- //
 ExprOpSub::ExprOpSub(const ExprPtr arg0, const ExprPtr arg1)
     : ExprOp(arg0, arg1) {
-  set_sort(GetSortBinaryOperation(arg0->sort(), arg1->sort()));
+  set_sort(GetSortBinaryOperation(arg0, arg1));
 }
 
 z3::expr ExprOpSub::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
@@ -246,7 +250,7 @@ z3::expr ExprOpSub::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
 // ------------------------- Class ExprOpEq --------------------------------- //
 ExprOpEq::ExprOpEq(const ExprPtr arg0, const ExprPtr arg1)
     : ExprOp(arg0, arg1) {
-  set_sort(GetSortBinaryComparison(arg0->sort(), arg1->sort()));
+  set_sort(GetSortBinaryComparison(arg0, arg1));
 }
 
 z3::expr ExprOpEq::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
@@ -258,7 +262,7 @@ z3::expr ExprOpEq::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
 // ------------------------- Class ExprOpLt --------------------------------- //
 ExprOpLt::ExprOpLt(const ExprPtr arg0, const ExprPtr arg1)
     : ExprOp(arg0, arg1) {
-  set_sort(GetSortBinaryComparison(arg0->sort(), arg1->sort()));
+  set_sort(GetSortBinaryComparison(arg0, arg1));
 }
 
 z3::expr ExprOpLt::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
@@ -271,7 +275,7 @@ z3::expr ExprOpLt::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
 // ------------------------- Class ExprOpGt --------------------------------- //
 ExprOpGt::ExprOpGt(const ExprPtr arg0, const ExprPtr arg1)
     : ExprOp(arg0, arg1) {
-  set_sort(GetSortBinaryComparison(arg0->sort(), arg1->sort()));
+  set_sort(GetSortBinaryComparison(arg0, arg1));
 }
 
 z3::expr ExprOpGt::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
@@ -284,7 +288,7 @@ z3::expr ExprOpGt::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
 // ------------------------- Class ExprOpUlt -------------------------------- //
 ExprOpUlt::ExprOpUlt(const ExprPtr arg0, const ExprPtr arg1)
     : ExprOp(arg0, arg1) {
-  set_sort(GetSortBinaryComparison(arg0->sort(), arg1->sort()));
+  set_sort(GetSortBinaryComparison(arg0, arg1));
 }
 
 z3::expr ExprOpUlt::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
@@ -297,7 +301,7 @@ z3::expr ExprOpUlt::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
 // ------------------------- Class ExprOpUgt -------------------------------- //
 ExprOpUgt::ExprOpUgt(const ExprPtr arg0, const ExprPtr arg1)
     : ExprOp(arg0, arg1) {
-  set_sort(GetSortBinaryComparison(arg0->sort(), arg1->sort()));
+  set_sort(GetSortBinaryComparison(arg0, arg1));
 }
 
 z3::expr ExprOpUgt::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
