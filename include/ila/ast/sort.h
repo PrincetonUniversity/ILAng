@@ -54,6 +54,9 @@ public:
   // ------------------------- METHODS -------------------------------------- //
   /// Return z3::sort of the Sort.
   virtual z3::sort GetZ3Sort(z3::context& ctx) const = 0;
+  /// Return a z3 variable of the Sort.
+  virtual z3::expr GetZ3Expr(z3::context& ctx,
+                             const std::string& name) const = 0;
 
   /// Compare two Sorts.
   virtual bool Equal(const SortPtr rhs) const = 0;
@@ -90,6 +93,8 @@ public:
   // ------------------------- METHODS -------------------------------------- //
   /// Return the z3::sort of Boolean Sort.
   z3::sort GetZ3Sort(z3::context& ctx) const;
+  /// Return a z3 variable of the Sort.
+  z3::expr GetZ3Expr(z3::context& ctx, const std::string& name) const;
   /// Compare with another Sort.
   bool Equal(const SortPtr rhs) const;
   /// Print out to output stream.
@@ -114,6 +119,8 @@ public:
   int bit_width() const { return bit_width_; }
   /// Return the z3::sort of bit-vector.
   z3::sort GetZ3Sort(z3::context& ctx) const;
+  /// Return a z3 variable of the Sort.
+  z3::expr GetZ3Expr(z3::context& ctx, const std::string& name) const;
   /// Compare with another Sort.
   bool Equal(const SortPtr rhs) const;
   /// Print out to output stream.
@@ -144,6 +151,8 @@ public:
   int data_width() const { return data_width_; }
   /// Return the z3::sort of array.
   z3::sort GetZ3Sort(z3::context& ctx) const;
+  /// Return a z3 variable of the Sort.
+  z3::expr GetZ3Expr(z3::context& ctx, const std::string& name) const;
   /// Compare with another Sort.
   bool Equal(const SortPtr rhs) const;
   /// Print out to output stream.

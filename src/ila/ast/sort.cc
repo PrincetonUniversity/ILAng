@@ -41,6 +41,10 @@ SortBool::~SortBool() {}
 
 z3::sort SortBool::GetZ3Sort(z3::context& ctx) const { return ctx.bool_sort(); }
 
+z3::expr SortBool::GetZ3Expr(z3::context& ctx, const std::string& name) const {
+  return ctx.bool_const(name.c_str());
+}
+
 bool SortBool::Equal(const SortPtr rhs) const { return rhs->is_bool(); }
 
 std::ostream& SortBool::Print(std::ostream& out) const {
@@ -53,6 +57,10 @@ SortBv::~SortBv() {}
 
 z3::sort SortBv::GetZ3Sort(z3::context& ctx) const {
   return ctx.bv_sort(bit_width_);
+}
+
+z3::expr SortBv::GetZ3Expr(z3::context& ctx, const std::string& name) const {
+  return ctx.bv_const(name.c_str(), bit_width());
 }
 
 bool SortBv::Equal(const SortPtr rhs) const {
@@ -70,6 +78,13 @@ SortMem::~SortMem() {}
 
 z3::sort SortMem::GetZ3Sort(z3::context& ctx) const {
   return ctx.array_sort(ctx.bv_sort(addr_width_), ctx.bv_sort(data_width_));
+}
+
+z3::expr SortMem::GetZ3Expr(z3::context& ctx, const std::string& name) const {
+  auto addr_s = ctx.bv_sort(addr_width());
+  auto data_s = ctx.bv_sort(data_width());
+  auto mem_s = ctx.array_sort(addr_s, data_s);
+  return ctx.constant(name.c_str(), mem_s);
 }
 
 bool SortMem::Equal(const SortPtr rhs) const {

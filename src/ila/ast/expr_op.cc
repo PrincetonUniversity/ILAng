@@ -3,6 +3,7 @@
 
 #include "ila/ast/expr_op.h"
 #include "ila/ast/func.h"
+#include "ila/instr_lvl_abs.h"
 
 namespace ila {
 
@@ -426,6 +427,11 @@ ExprOpAppFunc::ExprOpAppFunc(const FuncPtr f, const ExprPtrVec& args)
 
 z3::expr ExprOpAppFunc::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                                   const std::string& suffix) const {
+  if (expr_vec.empty()) {                               // non-deterministic
+    auto prefix = (host()) ? host()->name().str() : ""; // XXX with host?
+    auto name = f->name().format_str(prefix, suffix);
+    return f->out()->GetZ3Expr(ctx, name); // get a free variable of the Sort
+  }
   auto f_decl = f->GetZ3FuncDecl(ctx);
   return f_decl(expr_vec.size(), expr_vec.data());
 }
