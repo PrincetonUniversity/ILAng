@@ -324,7 +324,7 @@ public:
 // Function usage
 /******************************************************************************/
 
-/// \biref The class wrapper for apply uninterpreted function.
+/// \brief The class wrapper for apply uninterpreted function.
 class ExprOpAppFunc : public ExprOp {
 public:
   /// Type for forware declaring Func.
