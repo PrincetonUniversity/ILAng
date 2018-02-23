@@ -149,7 +149,25 @@ TEST(TestApi, ExprOps) {
 }
 
 TEST(TestApi, Function) {
-  // TODO
+  auto s_out = SortRef::BOOL();
+  auto s_arg0 = SortRef::BOOL();
+  auto s_arg1 = SortRef::BV(8);
+  auto s_arg2 = SortRef::MEM(8, 32);
+
+  FuncRef f0("f0", s_out);
+  FuncRef f1("f1", s_out, s_arg0);
+  FuncRef f2("f2", s_out, s_arg0, s_arg1);
+  FuncRef f3("f3", s_out, {s_arg0, s_arg1, s_arg2});
+
+  Ila ila("host");
+  auto i0 = BoolConst(true);
+  auto i1 = BvConst(0, 8);
+  auto i2 = ila.NewMemState("i2", 8, 32);
+
+  auto n0 = f0();
+  auto n1 = f1(i0);
+  auto n2 = f2(i0, i1);
+  auto n3 = f3({i0, i1, i2});
 }
 
 TEST(TestApi, NonConstruct) {

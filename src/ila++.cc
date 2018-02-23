@@ -346,6 +346,9 @@ bool TopEqual(const ExprRef& a, const ExprRef& b) {
 /******************************************************************************/
 // FuncRef
 /******************************************************************************/
+FuncRef::FuncRef(const std::string& name, const SortRef& range) {
+  ptr_ = Func::New(name, range.get());
+}
 
 FuncRef::FuncRef(const std::string& name, const SortRef& range,
                  const SortRef& d0) {
@@ -384,7 +387,7 @@ ExprRef FuncRef::operator()(const ExprRef& arg0, const ExprRef& arg1) const {
 
 ExprRef FuncRef::operator()(const std::vector<ExprRef>& argvec) const {
   std::vector<ExprPtr> args;
-  for (size_t i = 0; i != args.size(); i++)
+  for (size_t i = 0; i != argvec.size(); i++)
     args.push_back(argvec[i].get());
   auto v = ExprFuse::AppFunc(get(), args);
   return ExprRef(v);

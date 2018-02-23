@@ -288,6 +288,8 @@ private:
 
 public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
+  /// Constructor with zero input argument (domain).
+  FuncRef(const std::string& name, const SortRef& range);
   /// Constructor with one input argument (domain).
   FuncRef(const std::string& name, const SortRef& range, const SortRef& d0);
   /// Constructor with two input arguments (domain).
