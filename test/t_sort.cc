@@ -41,27 +41,38 @@ TEST(TestSort, Boolean) {
   EXPECT_TRUE(z.is_bool());
 }
 
-#if 0
 TEST(TestSort, Bitvector) {
-  Sort bv_sort(8);
-  EXPECT_TRUE(bv_sort.is_ast());
-  EXPECT_TRUE(bv_sort.is_sort());
-  EXPECT_FALSE(bv_sort.is_expr());
-  EXPECT_FALSE(bv_sort.is_func());
-  EXPECT_TRUE(bv_sort.is_bv());
+  auto s = Sort::MakeBvSort(8);
+  EXPECT_TRUE(s->is_ast());
+  EXPECT_TRUE(s->is_sort());
+  EXPECT_FALSE(s->is_expr());
+  EXPECT_FALSE(s->is_func());
+  EXPECT_FALSE(s->is_bool());
+  EXPECT_TRUE(s->is_bv());
+  EXPECT_FALSE(s->is_bool());
 
-  EXPECT_EQ(8, bv_sort.bit_width());
-  EXPECT_EQ(0, bv_sort.addr_width());
-  EXPECT_EQ(0, bv_sort.data_width());
+  EXPECT_EQ(8, s->bit_width());
+#ifndef NDEBUG
+  EXPECT_DEATH(s->addr_width(), ".*");
+  EXPECT_DEATH(s->data_width(), ".*");
+#else
+  EXPECT_EQ(0, s->addr_width());
+  EXPECT_EQ(0, s->data_width());
+#endif
 
   std::string msg;
-  GET_STDOUT_MSG(std::cout << bv_sort, msg);
+  GET_STDOUT_MSG(std::cout << s, msg);
   EXPECT_EQ("Bv(8)", msg);
 
-  Sort wrap = Sort::MakeBvSort(8);
-  EXPECT_EQ(wrap, bv_sort);
+  auto s2 = Sort::MakeBvSort(8);
+  EXPECT_EQ(s, s2);
+
+  z3::context c;
+  auto z = s->GetZ3Sort(c);
+  EXPECT_TRUE(z.is_bv());
 }
 
+#if 0
 TEST(TestSort, Memory) {
   Sort mem_sort(2, 32);
   EXPECT_TRUE(mem_sort.is_ast());
