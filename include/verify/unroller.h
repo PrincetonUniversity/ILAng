@@ -28,6 +28,9 @@ private:
 
   Z3ExprAdapter gen_;
 
+  z3::expr InstrUpdDflt(const InstrLvlAbsPtr ila, const std::string& prev,
+                        const std::string& next);
+
   z3::expr InstrUpdCmpl(const InstrPtr instr, const std::string& prev,
                         const std::string& next);
 #if 0

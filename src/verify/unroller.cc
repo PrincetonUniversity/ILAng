@@ -10,6 +10,27 @@ Unroller::Unroller(z3::context& ctx) : ctx_(ctx), gen_(Z3ExprAdapter(ctx)) {}
 
 Unroller::~Unroller() {}
 
+z3::expr Unroller::InstrUpdDflt(const InstrLvlAbsPtr ila,
+                                const std::string& prev,
+                                const std::string& next) {
+  ILA_NOT_NULL(ila);
+
+  // update function accumulator
+  auto upd_acc = ctx().bool_val(true);
+  // enumerate through all states in the ILA.
+  auto state_num = ila->state_num();
+  for (size_t i = 0; i != state_num; i++) {
+    auto var_i = ila->state(i);                // state var
+    auto next_var = gen_.GetExpr(var_i, next); // next state var
+    auto next_upd = gen_.GetExpr(var_i, prev); // next state function
+    auto connect = (next_var == next_upd);     // assert same
+    upd_acc = (connect && upd_acc);            // add to the accumulator
+  }
+
+  upd_acc = upd_acc.simplify();
+  return upd_acc;
+}
+
 z3::expr Unroller::InstrUpdCmpl(const InstrPtr instr, const std::string& prev,
                                 const std::string& next) {
   ILA_NOT_NULL(instr);
