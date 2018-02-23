@@ -6,32 +6,64 @@
 
 #include <map>
 #include <memory>
+#include <string>
+#include <vector>
 
 /// \namespace ila
 /// Defines the core data structure and APIs for constructing and storing ILA.
 namespace ila {
 
+class Sort;
+class Func;
 class Expr;
 class Instr;
 class InstrLvlAbs;
 
-/// \brief The wrapper of Expr (e.g. state var, var relation, constant, etc).
-class ExprRef {
+class SortRef {
 private:
+  typedef std::shared_ptr<Sort> SortPtr;
   // ------------------------- MEMBERS -------------------------------------- //
-  /// Wrapped Expr pointer.
-  std::shared_ptr<Expr> ptr_;
+  /// Wrapped Sort pointer.
+  SortPtr ptr_ = NULL;
 
 public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Constructor with the pointer of the actual data.
-  ExprRef(std::shared_ptr<Expr> ptr);
+  SortRef(SortPtr ptr);
+  /// Default destructor.
+  ~SortRef();
+
+  // ------------------------- HELPERS -------------------------------------- //
+  /// Return a Boolean Sort.
+  static SortRef BOOL();
+  /// Return a bit-vector Sort of the given bit-width.
+  static SortRef BV(const int& bit_w);
+  /// Return a memory (array) Sort of the given address/data bit-width.
+  static SortRef MEM(const int& addr_w, const int& data_w);
+
+  // ------------------------- ACCESSORS/MUTATORS --------------------------- //
+  /// Return the wrapped Sort pointer.
+  inline SortPtr get() const { return ptr_; }
+}; // class SortRef
+
+/// \brief The wrapper of Expr (e.g. state var, var relation, constant, etc).
+class ExprRef {
+private:
+  typedef std::shared_ptr<Expr> ExprPtr;
+  // ------------------------- MEMBERS -------------------------------------- //
+  /// Wrapped Expr pointer.
+  ExprPtr ptr_ = NULL;
+
+public:
+  // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
+  /// Constructor with the pointer of the actual data.
+  ExprRef(ExprPtr ptr);
   /// Default destructor
   ~ExprRef();
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return the wrapped Expr pointer.
-  inline std::shared_ptr<Expr> get() const { return ptr_; }
+  inline ExprPtr get() const { return ptr_; }
 
   // ------------------------- METHODS -------------------------------------- //
   /****************************************************************************/
@@ -246,17 +278,56 @@ ExprRef MemConst(const int& def_val, const std::map<int, int>& vals,
 /// \brief Topologically equivalent.
 bool TopEqual(const ExprRef& a, const ExprRef& b);
 
+/// \brief The wrapper of Func (uninterpreted function).
+class FuncRef {
+private:
+  typedef std::shared_ptr<Func> FuncPtr;
+  // ------------------------- MEMBERS -------------------------------------- //
+  /// Wrapped Func pointer.
+  FuncPtr ptr_ = NULL;
+
+public:
+  // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
+  /// Constructor with one input argument (domain).
+  FuncRef(const std::string& name, const SortRef& range, const SortRef& d0);
+  /// Constructor with two input arguments (domain).
+  FuncRef(const std::string& name, const SortRef& range, const SortRef& d0,
+          const SortRef& d1);
+  /// Constructor with multiple input arguments (domain).
+  FuncRef(const std::string& name, const SortRef& range,
+          const std::vector<SortRef>& dvec);
+  /// Default destructor.
+  ~FuncRef();
+
+  // ------------------------- METHODS -------------------------------------- //
+  /// Apply the function with no argument.
+  ExprRef operator()() const;
+  /// Apply the function with one argument.
+  ExprRef operator()(const ExprRef& arg0) const;
+  /// Apply the function with two arguments.
+  ExprRef operator()(const ExprRef& arg0, const ExprRef& arg1) const;
+  /// Apply the function with multiple arguments.
+  ExprRef operator()(const std::vector<ExprRef>& argvec) const;
+
+private:
+  // ------------------------- ACCESSORS/MUTATORS --------------------------- //
+  /// Return the wrapped Func pointer.
+  inline FuncPtr get() const { return ptr_; }
+
+}; // class FuncRef
+
 /// \brief The wrapper of Instr (instruction).
 class InstrRef {
 private:
+  typedef std::shared_ptr<Instr> InstrPtr;
   // ------------------------- MEMBERS -------------------------------------- //
   /// Wrapped Instr pointer.
-  std::shared_ptr<Instr> ptr_;
+  InstrPtr ptr_ = NULL;
 
 public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Constructor with the pointer of the actual data.
-  InstrRef(std::shared_ptr<Instr> ptr);
+  InstrRef(InstrPtr ptr);
   /// Default destructor
   ~InstrRef();
 
@@ -275,16 +346,17 @@ public:
 /// \brief The wrapper of InstrLvlAbs (ILA).
 class Ila {
 private:
+  typedef std::shared_ptr<InstrLvlAbs> IlaPtr;
   // ------------------------- MEMBERS -------------------------------------- //
   /// Wrapped InstrLvlAbs pointer.
-  std::shared_ptr<InstrLvlAbs> ptr_;
+  IlaPtr ptr_ = NULL;
 
 public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Constructor with the specified name.
   Ila(const std::string& name);
   /// Constructor with the pointer of the actual data.
-  Ila(std::shared_ptr<InstrLvlAbs> ptr);
+  Ila(IlaPtr ptr);
   /// Default destructor
   ~Ila();
 

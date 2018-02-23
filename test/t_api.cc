@@ -148,6 +148,10 @@ TEST(TestApi, ExprOps) {
   auto tmp = n_ite_bv;
 }
 
+TEST(TestApi, Function) {
+  // TODO
+}
+
 TEST(TestApi, NonConstruct) {
   Ila ila("host");
 

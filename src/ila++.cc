@@ -8,9 +8,31 @@
 namespace ila {
 
 /******************************************************************************/
+// SortRef
+/******************************************************************************/
+SortRef::SortRef(SortPtr ptr) : ptr_(ptr) {}
+
+SortRef::~SortRef() {}
+
+SortRef SortRef::BOOL() {
+  auto s = Sort::MakeBoolSort();
+  return SortRef(s);
+}
+
+SortRef SortRef::BV(const int& bit_w) {
+  auto s = Sort::MakeBvSort(bit_w);
+  return SortRef(s);
+}
+
+SortRef SortRef::MEM(const int& addr_w, const int& data_w) {
+  auto s = Sort::MakeMemSort(addr_w, data_w);
+  return SortRef(s);
+}
+
+/******************************************************************************/
 // ExprRef
 /******************************************************************************/
-ExprRef::ExprRef(std::shared_ptr<Expr> ptr) : ptr_(ptr) {}
+ExprRef::ExprRef(ExprPtr ptr) : ptr_(ptr) {}
 
 ExprRef::~ExprRef() {}
 
@@ -322,9 +344,56 @@ bool TopEqual(const ExprRef& a, const ExprRef& b) {
 }
 
 /******************************************************************************/
+// FuncRef
+/******************************************************************************/
+
+FuncRef::FuncRef(const std::string& name, const SortRef& range,
+                 const SortRef& d0) {
+  ptr_ = Func::New(name, range.get(), d0.get());
+}
+
+FuncRef::FuncRef(const std::string& name, const SortRef& range,
+                 const SortRef& d0, const SortRef& d1) {
+  ptr_ = Func::New(name, range.get(), d0.get(), d1.get());
+}
+
+FuncRef::FuncRef(const std::string& name, const SortRef& range,
+                 const std::vector<SortRef>& dvec) {
+  std::vector<SortPtr> args;
+  for (size_t i = 0; i != dvec.size(); i++)
+    args.push_back(dvec[i].get());
+  ptr_ = Func::New(name, range.get(), args);
+}
+
+FuncRef::~FuncRef() {}
+
+ExprRef FuncRef::operator()() const {
+  auto v = ExprFuse::AppFunc(get());
+  return ExprRef(v);
+}
+
+ExprRef FuncRef::operator()(const ExprRef& arg0) const {
+  auto v = ExprFuse::AppFunc(get(), arg0.get());
+  return ExprRef(v);
+}
+
+ExprRef FuncRef::operator()(const ExprRef& arg0, const ExprRef& arg1) const {
+  auto v = ExprFuse::AppFunc(get(), arg0.get(), arg1.get());
+  return ExprRef(v);
+}
+
+ExprRef FuncRef::operator()(const std::vector<ExprRef>& argvec) const {
+  std::vector<ExprPtr> args;
+  for (size_t i = 0; i != args.size(); i++)
+    args.push_back(argvec[i].get());
+  auto v = ExprFuse::AppFunc(get(), args);
+  return ExprRef(v);
+}
+
+/******************************************************************************/
 // InstrRef
 /******************************************************************************/
-InstrRef::InstrRef(std::shared_ptr<Instr> ptr) : ptr_(ptr) {}
+InstrRef::InstrRef(InstrPtr ptr) : ptr_(ptr) {}
 
 InstrRef::~InstrRef() {}
 
@@ -341,7 +410,7 @@ void InstrRef::SetUpdate(const ExprRef& state, const ExprRef& update) {
 /******************************************************************************/
 Ila::Ila(const std::string& name) { ptr_ = InstrLvlAbs::New(name); }
 
-Ila::Ila(std::shared_ptr<InstrLvlAbs> ptr) : ptr_(ptr) {}
+Ila::Ila(InstrLvlAbsPtr ptr) : ptr_(ptr) {}
 
 Ila::~Ila() {}
 
