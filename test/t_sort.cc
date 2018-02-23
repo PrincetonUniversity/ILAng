@@ -8,29 +8,40 @@
 
 namespace ila {
 
-#if 0
 TEST(TestSort, Boolean) {
-  Sort bool_sort;
-  EXPECT_TRUE(bool_sort.is_ast());
-  EXPECT_TRUE(bool_sort.is_sort());
-  EXPECT_FALSE(bool_sort.is_expr());
-  EXPECT_FALSE(bool_sort.is_func());
-  EXPECT_TRUE(bool_sort.is_bool());
+  auto bool_sort = Sort::MakeBoolSort();
+  // Sort bool_sort;
+  EXPECT_TRUE(bool_sort->is_ast());
+  EXPECT_TRUE(bool_sort->is_sort());
+  EXPECT_FALSE(bool_sort->is_expr());
+  EXPECT_FALSE(bool_sort->is_func());
+  EXPECT_TRUE(bool_sort->is_bool());
+  EXPECT_FALSE(bool_sort->is_bv());
+  EXPECT_FALSE(bool_sort->is_mem());
 
-  EXPECT_EQ(0, bool_sort.bit_width());
-  EXPECT_EQ(0, bool_sort.addr_width());
-  EXPECT_EQ(0, bool_sort.data_width());
+#ifndef NDEBUG
+  EXPECT_DEATH(bool_sort->bit_width(), ".*");
+  EXPECT_DEATH(bool_sort->addr_width(), ".*");
+  EXPECT_DEATH(bool_sort->data_width(), ".*");
+#else
+  EXPECT_EQ(0, bool_sort->bit_width());
+  EXPECT_EQ(0, bool_sort->addr_width());
+  EXPECT_EQ(0, bool_sort->data_width());
+#endif
 
   std::string msg;
   GET_STDOUT_MSG(std::cout << bool_sort, msg);
   EXPECT_EQ("Boolean", msg);
 
-  Sort wrap = Sort::MakeBoolSort();
+  auto wrap = Sort::MakeBoolSort();
   EXPECT_EQ(wrap, bool_sort);
 
-  // TODO z3
+  z3::context c;
+  auto z = bool_sort->GetZ3Sort(c);
+  EXPECT_TRUE(z.is_bool());
 }
 
+#if 0
 TEST(TestSort, Bitvector) {
   Sort bv_sort(8);
   EXPECT_TRUE(bv_sort.is_ast());
