@@ -3,6 +3,8 @@
 
 #include "verify/unroller.h"
 #include "util/log.h"
+#include <map>
+#include <vector>
 
 namespace ila {
 
@@ -17,11 +19,8 @@ z3::expr Unroller::InstrSeq(const std::vector<InstrPtr>& seq, const int& pos) {
   auto seq_len = seq.size();
 
   // collect z3::expr mapping of states for each time frame
-  std::vector<std::map<ExprPtr, z3::expr>> var_frame;
-  var_frame.reserve(seq_len);
-  // collect z3::expr mapping of decodes for each time frame
-  std::vector<z3::expr> dec_frame;
-  dec_frame.reserve(seq_len);
+  std::vector<std::map<ExprPtr, z3::expr>> frame_map;
+  frame_map.reserve(seq_len);
 
   // go through each time frame (pos+i to pos+i+1)
   for (size_t i = 0; i != seq_len; i++) {
@@ -31,34 +30,56 @@ z3::expr Unroller::InstrSeq(const std::vector<InstrPtr>& seq, const int& pos) {
     for (auto it = st_set.begin(); it != st_set.end(); it++) {
       auto var = *it;
       auto upd = StateUpdCmpl(seq[i], var, prev);
-      var_frame[i].insert({var, upd});
+      frame_map[i].insert({var, upd});
     }
 
     // decode function
     auto dec = seq[i]->GetDecode();
     auto zdec = gen_.GetExpr(dec, prev);
-    dec_frame.push_back(zdec);
+    frame_map[i].insert({dec, zdec});
   }
 
   // rewrite (starting from the second frame)
   for (size_t i = 1; i != seq_len; i++) {
     auto prev = std::to_string(pos + i);
+    z3::expr_vector src_vec(ctx());
+    z3::expr_vector dst_vec(ctx());
+
+    // prepart source and destination for substitution
     for (auto it = st_set.begin(); it != st_set.end(); it++) {
       auto var = *it;
-#if 0
-      auto from = gen_.GetExpr(var, prev);
-      auto to = var_frame[i - 1][var];
-      auto org = var_frame[i][var];
-#endif
-      // Z3_ast from[] = {gen_.GetExpr(var, prev)};
-      z3::expr_vector from(ctx());
-      from.push_back(gen_.GetExpr(var, prev));
-      // auto sub = org.replace(from, to);
-      // var_frame[i][var] = sub;
-    } // XXX two level of loop
+      auto src = gen_.GetExpr(var, prev);
+      auto dst = frame_map[i - 1].at(var);
+      src_vec.push_back(src);
+      dst_vec.push_back(dst);
+    }
+
+    // substitute states
+    for (auto it = st_set.begin(); it != st_set.end(); it++) {
+      auto var = *it;
+      auto org = frame_map[i].at(var);
+      auto sub = org.substitute(src_vec, dst_vec);
+      frame_map[i].erase(var);
+      frame_map[i].insert({var, sub});
+    }
+    // substitute decode
+    auto dec = seq[i]->GetDecode();
+    auto org = frame_map[i].at(dec);
+    auto sub = org.substitute(src_vec, dst_vec);
+    frame_map[i].erase(dec);
+    frame_map[i].insert({dec, sub});
   }
 
   // accumulate final constraint
+  auto upd_acc = ctx().bool_val(true);
+  std::map<ExprPtr, z3::expr>& back = frame_map.back();
+  for (auto it = back.begin(); it != back.end(); it++) {
+    auto cstr = it->second;
+    upd_acc = upd_acc && cstr;
+  }
+
+  upd_acc = upd_acc.simplify();
+  return upd_acc;
 }
 
 z3::expr Unroller::InstrUpdDflt(const InstrLvlAbsPtr ila,
