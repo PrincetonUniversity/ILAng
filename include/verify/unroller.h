@@ -16,12 +16,9 @@ public:
   Unroller(z3::context& ctx);
   virtual ~Unroller();
 
-#if 0
-  virtual z3::expr OneStepInstrNoDecode(const InstrPtr instr) const = 0;
-  virtual z3::expr OneStepMonoIla() const = 0;
-#endif
-
   inline z3::context& ctx() const { return ctx_; }
+
+  z3::expr InstrSeq(const std::vector<InstrPtr>& seq, const int& pos = 0);
 
 private:
   z3::context& ctx_;
@@ -37,6 +34,11 @@ private:
   z3::expr InstrUpdBare(const InstrPtr instr, const std::string& prev,
                         const std::string& next);
 #endif
+
+  z3::expr StateUpdCmpl(const InstrPtr instr, const ExprPtr var,
+                        const std::string& prev);
+
+  std::set<ExprPtr> GetAllVar(const std::vector<InstrPtr>& seq) const;
 
 }; // class Unroller
 
