@@ -20,12 +20,14 @@ z3::expr Unroller::InstrSeq(const std::vector<InstrPtr>& seq, const int& pos) {
 
   // collect z3::expr mapping of states for each time frame
   std::vector<std::map<ExprPtr, z3::expr>> frame_map;
-  frame_map.reserve(seq_len);
+  frame_map.resize(seq_len);
 
+  ILA_DLOG("Unroller.InstrSeq") << "Start generating table.";
   // go through each time frame (pos+i to pos+i+1)
   for (size_t i = 0; i != seq_len; i++) {
     auto prev = std::to_string(pos + i);
 
+    ILA_DLOG("Unroller.InstrSeq") << "Table for frame " << i;
     // enumerate each state to get the update function
     for (auto it = st_set.begin(); it != st_set.end(); it++) {
       auto var = *it;
@@ -38,6 +40,9 @@ z3::expr Unroller::InstrSeq(const std::vector<InstrPtr>& seq, const int& pos) {
     auto zdec = gen_.GetExpr(dec, prev);
     frame_map[i].insert({dec, zdec});
   }
+
+  // accumulating variable
+  auto upd_acc = ctx().bool_val(true);
 
   // rewrite (starting from the second frame)
   for (size_t i = 1; i != seq_len; i++) {
@@ -68,15 +73,24 @@ z3::expr Unroller::InstrSeq(const std::vector<InstrPtr>& seq, const int& pos) {
     auto sub = org.substitute(src_vec, dst_vec);
     frame_map[i].erase(dec);
     frame_map[i].insert({dec, sub});
+
+    // accumulate in construction
+    upd_acc = upd_acc && sub;
   }
 
   // accumulate final constraint
-  auto upd_acc = ctx().bool_val(true);
-  std::map<ExprPtr, z3::expr>& back = frame_map.back();
-  for (auto it = back.begin(); it != back.end(); it++) {
-    auto cstr = it->second;
+  // auto upd_acc = ctx().bool_val(true);
+  auto next = std::to_string(pos + seq_len + 1);
+  // states
+  std::map<ExprPtr, z3::expr>& last_frame = frame_map.back();
+  for (auto it = st_set.begin(); it != st_set.end(); it++) {
+    auto var = *it;
+    auto end_var = gen_.GetExpr(var, next);
+    auto end_upd = last_frame.at(var);
+    auto cstr = (end_var == end_upd);
     upd_acc = upd_acc && cstr;
   }
+  // decodes is accumulated when generating the table
 
   upd_acc = upd_acc.simplify();
   return upd_acc;
