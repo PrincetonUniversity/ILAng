@@ -80,7 +80,7 @@ z3::expr Unroller::InstrSeq(const std::vector<InstrPtr>& seq, const int& pos) {
 
   // accumulate final constraint
   // auto upd_acc = ctx().bool_val(true);
-  auto next = std::to_string(pos + seq_len + 1);
+  auto next = std::to_string(pos + seq_len);
   // states
   std::map<ExprPtr, z3::expr>& last_frame = frame_map.back();
   for (auto it = st_set.begin(); it != st_set.end(); it++) {

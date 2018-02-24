@@ -8,8 +8,8 @@
 
 namespace ila {
 
-TEST(TestUnroll, InstrSeq) {
-  SetToStdErr(1);
+TEST(TestUnroll, InstrSeqFlat) {
+  SetToStdErr(0);
   DebugLog::Enable("Unroller.InstrSeq");
   EqIlaGen ila_gen;
   auto m = ila_gen.GetIlaFlat1();
@@ -23,12 +23,13 @@ TEST(TestUnroll, InstrSeq) {
   Unroller unroller(c);
   auto cstr = unroller.InstrSeq(seq);
 
-#if 0
-  z3::solver s(c);
-  s.add(cstr);
-  std::cout << s;
-  std::cout << cstr;
-#endif
+  // std::cout << cstr << std::endl;
+  SetToStdErr(0);
+}
+
+TEST(TestUnroll, InsteSeqFlatSimpleProp) {
+  SetToStdErr(0);
+  DebugLog::Enable("Unroller.InstrSeq");
   //
   SetToStdErr(0);
 }
