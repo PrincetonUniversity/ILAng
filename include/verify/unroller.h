@@ -28,8 +28,8 @@ public:
 
   void AddGlobPred(const ExprPtr p);
   void AddInitPred(const ExprPtr p);
-
   void BootStrap();
+
   //
   ZExpr InstrSeq(const std::vector<InstrPtr>& seq, const int& pos = 0);
 
@@ -64,10 +64,6 @@ protected:
 
   z3::expr InstrUpdCmpl(const InstrPtr instr, const std::string& prev,
                         const std::string& next);
-#if 0
-  z3::expr InstrUpdBare(const InstrPtr instr, const std::string& prev,
-                        const std::string& next);
-#endif
 
   z3::expr StateUpdCmpl(const InstrPtr instr, const ExprPtr var,
                         const std::string& prev);
@@ -76,10 +72,10 @@ protected:
 
 }; // class Unroller
 
-class InstrSeqUnroller : public Unroller {
+class ListUnroll : public Unroller {
 public:
-  InstrSeqUnroller(z3::context& ctx);
-  ~InstrSeqUnroller();
+  ListUnroll(z3::context& ctx, const InstrVec& seq);
+  ~ListUnroll();
 
 private:
   InstrVec seq_;
@@ -87,15 +83,16 @@ private:
   void CollectVar();
 };
 
-class IlaBulkUnroller : public Unroller {
+class BulkUnroll : public Unroller {
 public:
-  IlaBulkUnroller(z3::context& ctx);
-  ~IlaBulkUnroller();
+  BulkUnroll(z3::context& ctx, const InstrLvlAbsPtr top);
+  ~BulkUnroll();
 
 private:
   InstrLvlAbsPtr top_;
 
   void CollectVar();
+
   void VisitHierCollectVar(const InstrLvlAbsPtr m);
 };
 

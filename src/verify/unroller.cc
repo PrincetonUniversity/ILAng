@@ -22,19 +22,17 @@ void Unroller::BootStrap() {
   CollectVar();
   ILA_ASSERT(!ivar_.empty()) << "No state variable defined.";
 
-#if 0
   // prepare the table
-  auto var_num = ivar_.size();
-  zvar_prev_.resize(var_num);
-  zvar_next_.resize(var_num);
-#endif
+  zvar_prev_.clear();
+  zvar_next_.clear();
 }
 
-InstrSeqUnroller::InstrSeqUnroller(z3::context& ctx) : Unroller(ctx) {}
+ListUnroll::ListUnroll(z3::context& ctx, const InstrVec& seq)
+    : Unroller(ctx), seq_(seq) {}
 
-InstrSeqUnroller::~InstrSeqUnroller() {}
+ListUnroll::~ListUnroll() {}
 
-void InstrSeqUnroller::CollectVar() {
+void ListUnroll::CollectVar() {
   for (size_t i = 0; i != seq_.size(); i++) {
     auto m = seq_[i]->host();
     ILA_NOT_NULL(m);
@@ -45,9 +43,14 @@ void InstrSeqUnroller::CollectVar() {
   }
 }
 
-void IlaBulkUnroller::CollectVar() { VisitHierCollectVar(top_); }
+BulkUnroll::BulkUnroll(z3::context& ctx, const InstrLvlAbsPtr top)
+    : Unroller(ctx), top_(top) {}
 
-void IlaBulkUnroller::VisitHierCollectVar(const InstrLvlAbsPtr m) {
+BulkUnroll::~BulkUnroll() {}
+
+void BulkUnroll::CollectVar() { VisitHierCollectVar(top_); }
+
+void BulkUnroll::VisitHierCollectVar(const InstrLvlAbsPtr m) {
   ILA_NOT_NULL(m);
 
   // traverse the child-ILAs
