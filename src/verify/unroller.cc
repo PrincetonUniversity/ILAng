@@ -65,7 +65,7 @@ ZExpr Unroller::UnrollSubs(const size_t& len, const int& pos) {
     }
 
     // update next state function to the prev for next step
-    // k_next_ = k_next_z; XXX
+    k_prev_ = k_next_z;
   }
 
   // add constraints for transition relation (k_prev_ has the last value)
