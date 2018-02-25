@@ -23,8 +23,10 @@ public:
   Unroller(z3::context& ctx);
   virtual ~Unroller();
 
-  void AddGlobPred(const ExprPtr p);
-  void AddInitPred(const ExprPtr p);
+  inline void AddGlobPred(const ExprPtr p);
+  inline void AddInitPred(const ExprPtr p);
+  inline void ClearGlobPred();
+  inline void ClearInitPred();
 
   ZExpr InstrSeq(const std::vector<InstrPtr>& seq, const int& pos = 0);
 
@@ -33,28 +35,34 @@ private:
   Z3ExprAdapter gen_;
 
 protected:
-  IExprSet i_vars_;
+  IExprSet vars_;
 
   IExprVec g_pred_;
   IExprVec i_pred_;
-
   IExprVec k_pred_;
-  IExprVec i_next_;
 
-  ZExprVec z_prev_;
-  ZExprVec z_cstr_;
+  IExprVec k_next_;
+  ZExprVec k_prev_;
+
+  ZExprVec cstr_;
 
   inline z3::context& ctx() const { return ctx_; }
   inline Z3ExprAdapter& gen() { return gen_; }
 
   ZExpr UnrollSubs(const size_t& len, const int& pos = 0);
-  void BootStrap(const int& pos);
   virtual void CollectVar() = 0;
   virtual void Transition(const size_t& idx) = 0;
+
+private:
+  void BootStrap(const int& pos);
+
   inline ZExpr Substitute(ZExpr expr, const ZExprVec& src_vec,
                           const ZExprVec& dst_vec) const;
 
-private:
+  void AssertPredSubs(const IExprVec& pred_vec, const std::string& suffix,
+                      const ZExprVec& src_vec, const ZExprVec& dst_vec);
+
+  // legacy
   z3::expr InstrUpdDflt(const InstrLvlAbsPtr ila, const std::string& prev,
                         const std::string& next);
 

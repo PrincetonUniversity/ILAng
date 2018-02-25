@@ -11,13 +11,17 @@ namespace ila {
 typedef Unroller::ZExpr ZExpr;
 
 Unroller::Unroller(z3::context& ctx)
-    : ctx_(ctx), gen_(Z3ExprAdapter(ctx)), z_prev_(ctx), z_cstr_(ctx) {}
+    : ctx_(ctx), gen_(Z3ExprAdapter(ctx)), k_prev_(ctx), cstr_(ctx) {}
 
 Unroller::~Unroller() {}
 
 void Unroller::AddGlobPred(const ExprPtr p) { g_pred_.push_back(p); }
 
 void Unroller::AddInitPred(const ExprPtr p) { i_pred_.push_back(p); }
+
+void Unroller::ClearGlobPred() { g_pred_.clear(); }
+
+void Unroller::ClearInitPred() { i_pred_.clear(); }
 
 // subs
 ZExpr Unroller::UnrollSubs(const size_t& len, const int& pos) {
@@ -27,74 +31,94 @@ ZExpr Unroller::UnrollSubs(const size_t& len, const int& pos) {
   // unroll based on g_pred, i_pred, and transition relation (with guard)
   for (size_t i = 0; i != len; i++) {
     // time-stamp for this time-frame
-    auto suff_prev = std::to_string(pos + i);
-    auto suff_next = std::to_string(pos + i + 1);
+    auto suff_k = std::to_string(pos + i);
 
     // get transition relation (i_next_) and step-specific predicate (k_pred_)
     Transition(i);
 
     // the source for substitution
-    ZExprVec z_curr(ctx());
-    for (auto it = i_vars_.begin(); it != i_vars_.end(); it++) {
+    ZExprVec k_curr(ctx());
+    for (auto it = vars_.begin(); it != vars_.end(); it++) {
       auto ivar = *it;
-      auto expr = gen().GetExpr(ivar, suff_prev);
-      z_curr.push_back(expr);
-    }
-
-    // rewrite and add global predicate
-    for (auto it = g_pred_.begin(); it != g_pred_.end(); it++) {
-      auto pred = *it;
-      auto expr = gen().GetExpr(pred, suff_prev);
-      auto expr_subs = Substitute(expr, z_curr, z_prev_);
-      z_cstr_.push_back(expr_subs);
+      auto expr = gen().GetExpr(ivar, suff_k);
+      k_curr.push_back(expr);
     }
 
     // rewrite and add initial predicate
     if (i == 0) {
-      for (auto it = i_pred_.begin(); it != i_pred_.end(); it++) {
-        auto pred = *it;
-        auto expr = gen().GetExpr(pred, suff_prev);
-        auto expr_subs = Substitute(expr, z_curr, z_prev_);
-        z_cstr_.push_back(expr_subs);
-      }
+      AssertPredSubs(i_pred_, suff_k, k_curr, k_prev_);
     }
+
+    // rewrite and add global predicate
+    AssertPredSubs(g_pred_, suff_k, k_curr, k_prev_);
 
     // rewrite and add step-specific predicate
-    for (auto it = k_pred_.begin(); it != k_pred_.end(); it++) {
-      //
-    }
+    AssertPredSubs(k_pred_, suff_k, k_curr, k_prev_);
 
     // rewrite and add transition relation
+    ZExprVec k_next_z(ctx());
+    for (auto it = k_next_.begin(); it != k_next_.end(); it++) {
+      auto m_next = *it;
+      auto z_next = gen().GetExpr(m_next, suff_k);
+      auto z_next_subs = Substitute(z_next, k_curr, k_prev_);
+      k_next_z.push_back(z_next_subs);
+    }
+
     // update next state function to the prev for next step
+    // k_next_ = k_next_z; XXX
+  }
+
+  // add constraints for transition relation (k_prev_ has the last value)
+  auto suff_last = std::to_string(len);
+  ILA_ASSERT(vars_.size() == k_next_.size()) << "Var size mismatch.";
+  auto var_idx = 0;
+  for (auto it = vars_.begin(); it != vars_.end(); it++, var_idx++) {
+    auto var = gen().GetExpr(*it, suff_last);
+    auto value = k_prev_[var_idx];
+    auto connect = (var == value);
+    cstr_.push_back(connect);
   }
 
   // accumulate all constraints and return
   auto cstr = ctx().bool_val(true);
-  for (unsigned i = 0; i != z_cstr_.size(); i++) {
-    cstr = cstr && z_cstr_[i];
+  for (unsigned i = 0; i != cstr_.size(); i++) {
+    cstr = cstr && cstr_[i];
   }
+  cstr = cstr.simplify();
   return cstr;
 }
 
 void Unroller::BootStrap(const int& pos) {
   // collect dependant state variables
-  i_vars_.clear();
+  vars_.clear();
   CollectVar();
-  ILA_ASSERT(!i_vars_.empty()) << "No state variable defined.";
+  ILA_ASSERT(!vars_.empty()) << "No state variable defined.";
 
   // prepare the table
-  z_prev_.resize(0);
-  for (auto it = i_vars_.begin(); it != i_vars_.end(); it++) {
+  k_prev_.resize(0);
+  for (auto it = vars_.begin(); it != vars_.end(); it++) {
     auto suff = std::to_string(pos);
     auto ivar = *it;
     auto zvar = gen().GetExpr(ivar, suff);
-    z_prev_.push_back(zvar);
+    k_prev_.push_back(zvar);
   }
 }
 
 ZExpr Unroller::Substitute(ZExpr expr, const ZExprVec& src_vec,
                            const ZExprVec& dst_vec) const {
   return expr.substitute(src_vec, dst_vec);
+}
+
+void Unroller::AssertPredSubs(const IExprVec& pred_vec,
+                              const std::string& suffix,
+                              const ZExprVec& src_vec,
+                              const ZExprVec& dst_vec) {
+  for (auto it = pred_vec.begin(); it != pred_vec.end(); it++) {
+    auto pred = *it;
+    auto expr = gen().GetExpr(pred, suffix);
+    auto expr_subs = Substitute(expr, src_vec, dst_vec);
+    cstr_.push_back(expr_subs);
+  }
 }
 
 z3::expr Unroller::InstrSeq(const std::vector<InstrPtr>& seq, const int& pos) {
@@ -284,7 +308,7 @@ void ListUnroll::CollectVar() {
     ILA_NOT_NULL(m);
     // add states if no child-ILAs
     for (size_t i = 0; i != m->state_num(); i++) {
-      i_vars_.insert(m->state(i));
+      vars_.insert(m->state(i));
     }
   }
 }
