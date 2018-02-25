@@ -11,7 +11,8 @@ namespace ila {
 typedef Unroller::ZExpr ZExpr;
 
 Unroller::Unroller(z3::context& ctx)
-    : ctx_(ctx), gen_(Z3ExprAdapter(ctx)), k_prev_(ctx), cstr_(ctx) {}
+    : ctx_(ctx), gen_(Z3ExprAdapter(ctx)), k_prev_(ctx), k_curr_z3_(ctx),
+      k_next_z3_(ctx), cstr_(ctx) {}
 
 Unroller::~Unroller() {}
 
@@ -31,7 +32,7 @@ ZExpr Unroller::UnrollSubs(const size_t& len, const int& pos) {
   // unroll based on g_pred, i_pred, and transition relation (with guard)
   for (size_t i = 0; i != len; i++) {
     // time-stamp for this time-frame
-    auto suff_k = std::to_string(pos + i);
+    auto k_suff = std::to_string(pos + i);
 
     // get transition relation (i_next_) and step-specific predicate (k_pred_)
     Transition(i);
@@ -39,52 +40,31 @@ ZExpr Unroller::UnrollSubs(const size_t& len, const int& pos) {
     // the source for substitution
     ZExprVec k_curr(ctx());
     for (auto it = vars_.begin(); it != vars_.end(); it++) {
-      auto ivar = *it;
-      auto expr = gen().GetExpr(ivar, suff_k);
-      k_curr.push_back(expr);
+      auto i_expr = *it;
+      auto z_expr = gen().GetExpr(i_expr, k_suff);
+      k_curr.push_back(z_expr);
     }
 
     // rewrite and add initial predicate
     if (i == 0) {
-      AssertPredSubs(i_pred_, suff_k, k_curr, k_prev_);
+      AssertPredSubs(i_pred_, k_suff, k_curr, k_prev_);
     }
-
     // rewrite and add global predicate
-    AssertPredSubs(g_pred_, suff_k, k_curr, k_prev_);
-
+    AssertPredSubs(g_pred_, k_suff, k_curr, k_prev_);
     // rewrite and add step-specific predicate
-    AssertPredSubs(k_pred_, suff_k, k_curr, k_prev_);
+    AssertPredSubs(k_pred_, k_suff, k_curr, k_prev_);
 
     // rewrite and add transition relation
-    ZExprVec k_next_z(ctx());
-    for (auto it = k_next_.begin(); it != k_next_.end(); it++) {
-      auto m_next = *it;
-      auto z_next = gen().GetExpr(m_next, suff_k);
-      auto z_next_subs = Substitute(z_next, k_curr, k_prev_);
-      k_next_z.push_back(z_next_subs);
-    }
-
+    UpdateNextSubs(k_next_z3_, k_next_, k_suff, k_curr, k_prev_);
     // update next state function to the prev for next step
-    k_prev_ = k_next_z;
+    k_prev_ = k_next_z3_;
   }
 
   // add constraints for transition relation (k_prev_ has the last value)
-  auto suff_last = std::to_string(len);
-  ILA_ASSERT(vars_.size() == k_next_.size()) << "Var size mismatch.";
-  auto var_idx = 0;
-  for (auto it = vars_.begin(); it != vars_.end(); it++, var_idx++) {
-    auto var = gen().GetExpr(*it, suff_last);
-    auto value = k_prev_[var_idx];
-    auto connect = (var == value);
-    cstr_.push_back(connect);
-  }
+  AssertVarEqual(k_prev_, vars_, std::to_string(len));
 
   // accumulate all constraints and return
-  auto cstr = ctx().bool_val(true);
-  for (unsigned i = 0; i != cstr_.size(); i++) {
-    cstr = cstr && cstr_[i];
-  }
-  cstr = cstr.simplify();
+  auto cstr = ConjPred(cstr_);
   return cstr;
 }
 
@@ -119,6 +99,39 @@ void Unroller::AssertPredSubs(const IExprVec& pred_vec,
     auto expr_subs = Substitute(expr, src_vec, dst_vec);
     cstr_.push_back(expr_subs);
   }
+}
+
+void Unroller::UpdateNextSubs(ZExprVec& next_z, const IExprVec& next_i,
+                              const std::string& suffix, const ZExprVec& src,
+                              const ZExprVec& dst) {
+  next_z.resize(0);
+  for (auto it = next_i.begin(); it != next_i.end(); it++) {
+    auto i_expr = *it;
+    auto z_expr = gen().GetExpr(i_expr, suffix);
+    auto z_subs = Substitute(z_expr, src, dst);
+    next_z.push_back(z_subs);
+  }
+}
+
+void Unroller::AssertVarEqual(const ZExprVec& a, const IExprSet& b,
+                              const std::string& b_suffix) {
+  ILA_ASSERT(a.size() == b.size()) << "Var num mismatch.";
+  auto i = 0;
+  for (auto it = b.begin(); it != b.end(); it++, i++) {
+    auto bi = gen().GetExpr(*it, b_suffix);
+    auto ai = a[i];
+    auto equal = (ai == bi);
+    cstr_.push_back(equal);
+  }
+}
+
+ZExpr Unroller::ConjPred(const ZExprVec& vec) {
+  auto conj = ctx().bool_val(true);
+  for (size_t i = 0; i != vec.size(); i++) {
+    conj = (conj && vec[i]);
+  }
+  conj = conj.simplify();
+  return conj;
 }
 
 z3::expr Unroller::InstrSeq(const std::vector<InstrPtr>& seq, const int& pos) {

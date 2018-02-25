@@ -36,19 +36,22 @@ private:
 
 protected:
   IExprSet vars_;
+  IExprVec k_pred_;
+  IExprVec k_next_;
 
+private:
   IExprVec g_pred_;
   IExprVec i_pred_;
-  IExprVec k_pred_;
-
-  IExprVec k_next_;
   ZExprVec k_prev_;
+  ZExprVec k_curr_z3_;
+  ZExprVec k_next_z3_;
 
   ZExprVec cstr_;
 
   inline z3::context& ctx() const { return ctx_; }
   inline Z3ExprAdapter& gen() { return gen_; }
 
+protected:
   ZExpr UnrollSubs(const size_t& len, const int& pos = 0);
   virtual void CollectVar() = 0;
   virtual void Transition(const size_t& idx) = 0;
@@ -61,6 +64,16 @@ private:
 
   void AssertPredSubs(const IExprVec& pred_vec, const std::string& suffix,
                       const ZExprVec& src_vec, const ZExprVec& dst_vec);
+
+  void UpdateNextSubs(ZExprVec& next_z, const IExprVec& next_i,
+                      const std::string& suffix, const ZExprVec& src,
+                      const ZExprVec& dst);
+
+  // <a> == <b>_suffix
+  void AssertVarEqual(const ZExprVec& a, const IExprSet& b,
+                      const std::string& b_suffix);
+
+  ZExpr ConjPred(const ZExprVec& vec);
 
   // legacy
   z3::expr InstrUpdDflt(const InstrLvlAbsPtr ila, const std::string& prev,
