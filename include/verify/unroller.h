@@ -16,49 +16,45 @@ namespace ila {
 class Unroller {
 public:
   typedef z3::expr ZExpr;
-  typedef std::vector<ZExpr> ZExprVec;
+  typedef z3::expr_vector ZExprVec;
   typedef std::set<ExprPtr> IExprSet;
   typedef ExprPtrVec IExprVec;
-  typedef std::vector<InstrPtr> InstrVec;
 
   Unroller(z3::context& ctx);
   virtual ~Unroller();
 
-  inline z3::context& ctx() const { return ctx_; }
-
   void AddGlobPred(const ExprPtr p);
   void AddInitPred(const ExprPtr p);
-  void BootStrap();
 
-  //
   ZExpr InstrSeq(const std::vector<InstrPtr>& seq, const int& pos = 0);
-
-  ZExpr InstrSeqAssn(const std::vector<InstrPtr>& seq, const int& pos = 0);
-
-  ZExpr InstrSeqSubs(const std::vector<InstrPtr>& seq, const int& pos = 0);
-
-  ZExpr IlaBulkAssn(const InstrLvlAbsPtr top, const int& length,
-                    const int& pos = 0);
-
-  ZExpr IlaBulkSubs(const InstrLvlAbsPtr top, const int& length,
-                    const int& pos = 0);
 
 private:
   z3::context& ctx_;
-
-protected:
   Z3ExprAdapter gen_;
 
-  IExprSet g_pred_;
-  IExprSet i_pred_;
-  IExprSet ivar_;
-  ZExprVec zvar_prev_;
-  ZExprVec zvar_next_;
-  ZExprVec cstr_;
+protected:
+  IExprSet i_vars_;
 
+  IExprVec g_pred_;
+  IExprVec i_pred_;
+
+  IExprVec k_pred_;
+  IExprVec i_next_;
+
+  ZExprVec z_prev_;
+  ZExprVec z_cstr_;
+
+  inline z3::context& ctx() const { return ctx_; }
+  inline Z3ExprAdapter& gen() { return gen_; }
+
+  ZExpr UnrollSubs(const size_t& len, const int& pos = 0);
+  void BootStrap(const int& pos);
   virtual void CollectVar() = 0;
-  // virtual void CollectVar(const std::vector<InstrPtr>& seq);
+  virtual void Transition(const size_t& idx) = 0;
+  inline ZExpr Substitute(ZExpr expr, const ZExprVec& src_vec,
+                          const ZExprVec& dst_vec) const;
 
+private:
   z3::expr InstrUpdDflt(const InstrLvlAbsPtr ila, const std::string& prev,
                         const std::string& next);
 
@@ -74,27 +70,42 @@ protected:
 
 class ListUnroll : public Unroller {
 public:
-  ListUnroll(z3::context& ctx, const InstrVec& seq);
+  typedef std::vector<InstrPtr> InstrVec;
+
+  ListUnroll(z3::context& ctx, const InstrVec& seq = {});
   ~ListUnroll();
+
+  ZExpr InstrSeqAssn(const std::vector<InstrPtr>& seq, const int& pos = 0);
+
+  ZExpr InstrSeqSubs(const std::vector<InstrPtr>& seq, const int& pos = 0);
 
 private:
   InstrVec seq_;
 
   void CollectVar();
+  void Transition(const size_t& idx);
 };
 
+#if 0
 class BulkUnroll : public Unroller {
 public:
   BulkUnroll(z3::context& ctx, const InstrLvlAbsPtr top);
   ~BulkUnroll();
 
+  ZExpr IlaBulkAssn(const InstrLvlAbsPtr top, const int& length,
+                    const int& pos = 0);
+
+  ZExpr IlaBulkSubs(const InstrLvlAbsPtr top, const int& length,
+                    const int& pos = 0);
+
 private:
   InstrLvlAbsPtr top_;
 
+  void BootStrap(const InstrLvlAbsPtr top);
   void CollectVar();
-
   void VisitHierCollectVar(const InstrLvlAbsPtr m);
 };
+#endif
 
 } // namespace ila
 

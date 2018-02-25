@@ -8,64 +8,93 @@
 
 namespace ila {
 
-Unroller::Unroller(z3::context& ctx) : ctx_(ctx), gen_(Z3ExprAdapter(ctx)) {}
+typedef Unroller::ZExpr ZExpr;
+
+Unroller::Unroller(z3::context& ctx)
+    : ctx_(ctx), gen_(Z3ExprAdapter(ctx)), z_prev_(ctx), z_cstr_(ctx) {}
 
 Unroller::~Unroller() {}
 
-void Unroller::AddGlobPred(const ExprPtr p) { g_pred_.insert(p); }
+void Unroller::AddGlobPred(const ExprPtr p) { g_pred_.push_back(p); }
 
-void Unroller::AddInitPred(const ExprPtr p) { i_pred_.insert(p); }
+void Unroller::AddInitPred(const ExprPtr p) { i_pred_.push_back(p); }
 
-void Unroller::BootStrap() {
+// subs
+ZExpr Unroller::UnrollSubs(const size_t& len, const int& pos) {
+  // bootstrap basic information
+  BootStrap(pos);
+
+  // unroll based on g_pred, i_pred, and transition relation (with guard)
+  for (size_t i = 0; i != len; i++) {
+    // time-stamp for this time-frame
+    auto suff_prev = std::to_string(pos + i);
+    auto suff_next = std::to_string(pos + i + 1);
+
+    // get transition relation (i_next_) and step-specific predicate (k_pred_)
+    Transition(i);
+
+    // the source for substitution
+    ZExprVec z_curr(ctx());
+    for (auto it = i_vars_.begin(); it != i_vars_.end(); it++) {
+      auto ivar = *it;
+      auto expr = gen().GetExpr(ivar, suff_prev);
+      z_curr.push_back(expr);
+    }
+
+    // rewrite and add global predicate
+    for (auto it = g_pred_.begin(); it != g_pred_.end(); it++) {
+      auto pred = *it;
+      auto expr = gen().GetExpr(pred, suff_prev);
+      auto expr_subs = Substitute(expr, z_curr, z_prev_);
+      z_cstr_.push_back(expr_subs);
+    }
+
+    // rewrite and add initial predicate
+    if (i == 0) {
+      for (auto it = i_pred_.begin(); it != i_pred_.end(); it++) {
+        auto pred = *it;
+        auto expr = gen().GetExpr(pred, suff_prev);
+        auto expr_subs = Substitute(expr, z_curr, z_prev_);
+        z_cstr_.push_back(expr_subs);
+      }
+    }
+
+    // rewrite and add step-specific predicate
+    for (auto it = k_pred_.begin(); it != k_pred_.end(); it++) {
+      //
+    }
+
+    // rewrite and add transition relation
+    // update next state function to the prev for next step
+  }
+
+  // accumulate all constraints and return
+  auto cstr = ctx().bool_val(true);
+  for (unsigned i = 0; i != z_cstr_.size(); i++) {
+    cstr = cstr && z_cstr_[i];
+  }
+  return cstr;
+}
+
+void Unroller::BootStrap(const int& pos) {
   // collect dependant state variables
-  ivar_.clear();
+  i_vars_.clear();
   CollectVar();
-  ILA_ASSERT(!ivar_.empty()) << "No state variable defined.";
+  ILA_ASSERT(!i_vars_.empty()) << "No state variable defined.";
 
   // prepare the table
-  zvar_prev_.clear();
-  zvar_next_.clear();
-}
-
-ListUnroll::ListUnroll(z3::context& ctx, const InstrVec& seq)
-    : Unroller(ctx), seq_(seq) {}
-
-ListUnroll::~ListUnroll() {}
-
-void ListUnroll::CollectVar() {
-  for (size_t i = 0; i != seq_.size(); i++) {
-    auto m = seq_[i]->host();
-    ILA_NOT_NULL(m);
-    // add states if no child-ILAs
-    for (size_t i = 0; i != m->state_num(); i++) {
-      ivar_.insert(m->state(i));
-    }
+  z_prev_.resize(0);
+  for (auto it = i_vars_.begin(); it != i_vars_.end(); it++) {
+    auto suff = std::to_string(pos);
+    auto ivar = *it;
+    auto zvar = gen().GetExpr(ivar, suff);
+    z_prev_.push_back(zvar);
   }
 }
 
-BulkUnroll::BulkUnroll(z3::context& ctx, const InstrLvlAbsPtr top)
-    : Unroller(ctx), top_(top) {}
-
-BulkUnroll::~BulkUnroll() {}
-
-void BulkUnroll::CollectVar() { VisitHierCollectVar(top_); }
-
-void BulkUnroll::VisitHierCollectVar(const InstrLvlAbsPtr m) {
-  ILA_NOT_NULL(m);
-
-  // traverse the child-ILAs
-  for (size_t i = 0; i != m->child_num(); i++) {
-    VisitHierCollectVar(m->child(i));
-  }
-
-  // child-states must contain parent-states
-  if (m->child_num() != 0)
-    return;
-
-  // add states if no child-ILAs
-  for (size_t i = 0; i != m->state_num(); i++) {
-    ivar_.insert(m->state(i));
-  }
+ZExpr Unroller::Substitute(ZExpr expr, const ZExprVec& src_vec,
+                           const ZExprVec& dst_vec) const {
+  return expr.substitute(src_vec, dst_vec);
 }
 
 z3::expr Unroller::InstrSeq(const std::vector<InstrPtr>& seq, const int& pos) {
@@ -234,6 +263,63 @@ std::set<ExprPtr> Unroller::GetAllVar(const std::vector<InstrPtr>& seq) const {
 
   return st_set;
 }
+
+ListUnroll::ListUnroll(z3::context& ctx, const InstrVec& seq)
+    : Unroller(ctx), seq_(seq) {}
+
+ListUnroll::~ListUnroll() {}
+
+ZExpr ListUnroll::InstrSeqSubs(const InstrVec& seq, const int& pos) {
+  // set up target transition relation
+  seq_ = seq;
+
+  auto cstr = UnrollSubs(seq.size(), pos);
+
+  return cstr;
+}
+
+void ListUnroll::CollectVar() {
+  for (size_t i = 0; i != seq_.size(); i++) {
+    auto m = seq_[i]->host();
+    ILA_NOT_NULL(m);
+    // add states if no child-ILAs
+    for (size_t i = 0; i != m->state_num(); i++) {
+      i_vars_.insert(m->state(i));
+    }
+  }
+}
+
+void ListUnroll::Transition(const size_t& idx) {
+  ILA_CHECK(idx < seq_.size()) << "Out-of-bound transition not defined.";
+  //
+}
+
+#if 0
+BulkUnroll::BulkUnroll(z3::context& ctx, const InstrLvlAbsPtr top)
+    : Unroller(ctx), top_(top) {}
+
+BulkUnroll::~BulkUnroll() {}
+
+void BulkUnroll::CollectVar() { VisitHierCollectVar(top_); }
+
+void BulkUnroll::VisitHierCollectVar(const InstrLvlAbsPtr m) {
+  ILA_NOT_NULL(m);
+
+  // traverse the child-ILAs
+  for (size_t i = 0; i != m->child_num(); i++) {
+    VisitHierCollectVar(m->child(i));
+  }
+
+  // child-states must contain parent-states
+  if (m->child_num() != 0)
+    return;
+
+  // add states if no child-ILAs
+  for (size_t i = 0; i != m->state_num(); i++) {
+    ivar_.insert(m->state(i));
+  }
+}
+#endif
 
 } // namespace ila
 
