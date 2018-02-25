@@ -20,8 +20,8 @@ TEST(TestUnroll, InstrSeqFlat) {
   }
 
   z3::context c;
-  Unroller unroller(c);
-  auto cstr = unroller.InstrSeq(seq);
+  Unroller* unroller = new InstrSeqUnroller(c);
+  auto cstr = unroller->InstrSeq(seq);
 
   // std::cout << cstr << std::endl;
   SetToStdErr(0);

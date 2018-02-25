@@ -12,6 +12,59 @@ Unroller::Unroller(z3::context& ctx) : ctx_(ctx), gen_(Z3ExprAdapter(ctx)) {}
 
 Unroller::~Unroller() {}
 
+void Unroller::AddGlobPred(const ExprPtr p) { g_pred_.insert(p); }
+
+void Unroller::AddInitPred(const ExprPtr p) { i_pred_.insert(p); }
+
+void Unroller::BootStrap() {
+  // collect dependant state variables
+  ivar_.clear();
+  CollectVar();
+  ILA_ASSERT(!ivar_.empty()) << "No state variable defined.";
+
+#if 0
+  // prepare the table
+  auto var_num = ivar_.size();
+  zvar_prev_.resize(var_num);
+  zvar_next_.resize(var_num);
+#endif
+}
+
+InstrSeqUnroller::InstrSeqUnroller(z3::context& ctx) : Unroller(ctx) {}
+
+InstrSeqUnroller::~InstrSeqUnroller() {}
+
+void InstrSeqUnroller::CollectVar() {
+  for (size_t i = 0; i != seq_.size(); i++) {
+    auto m = seq_[i]->host();
+    ILA_NOT_NULL(m);
+    // add states if no child-ILAs
+    for (size_t i = 0; i != m->state_num(); i++) {
+      ivar_.insert(m->state(i));
+    }
+  }
+}
+
+void IlaBulkUnroller::CollectVar() { VisitHierCollectVar(top_); }
+
+void IlaBulkUnroller::VisitHierCollectVar(const InstrLvlAbsPtr m) {
+  ILA_NOT_NULL(m);
+
+  // traverse the child-ILAs
+  for (size_t i = 0; i != m->child_num(); i++) {
+    VisitHierCollectVar(m->child(i));
+  }
+
+  // child-states must contain parent-states
+  if (m->child_num() != 0)
+    return;
+
+  // add states if no child-ILAs
+  for (size_t i = 0; i != m->state_num(); i++) {
+    ivar_.insert(m->state(i));
+  }
+}
+
 z3::expr Unroller::InstrSeq(const std::vector<InstrPtr>& seq, const int& pos) {
   // collect all dependant states
   auto st_set = GetAllVar(seq);
