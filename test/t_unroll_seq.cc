@@ -20,7 +20,7 @@ TEST(TestUnroll, InstrSeqFlat) {
   }
 
   z3::context c;
-  Unroller* unroller = new ListUnroll(c, seq);
+  Unroller* unroller = new ListUnroll(c);
   auto cstr = unroller->InstrSeq(seq);
 
   // std::cout << cstr << std::endl;
@@ -41,7 +41,7 @@ TEST(TestUnroll, InsteSeqFlatSimpleProp) {
   }
 
   z3::context c;
-  ListUnroll* unroller = new ListUnroll(c, seq);
+  ListUnroll* unroller = new ListUnroll(c);
   auto cstr = unroller->InstrSeqSubs(seq);
 
   DebugLog::Disable("Unroller.Subs");

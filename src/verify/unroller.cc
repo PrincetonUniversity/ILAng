@@ -9,6 +9,9 @@
 namespace ila {
 
 typedef Unroller::ZExpr ZExpr;
+// typedef Unroller::ZExprVec ZExprVec;
+// typedef Unroller::IExprSet IExprSet;
+// typedef Unroller::IExprVec IExprVec;
 
 Unroller::Unroller(z3::context& ctx)
     : ctx_(ctx), gen_(Z3ExprAdapter(ctx)), k_prev_(ctx), k_curr_z3_(ctx),
@@ -24,7 +27,6 @@ void Unroller::ClearGlobPred() { g_pred_.clear(); }
 
 void Unroller::ClearInitPred() { i_pred_.clear(); }
 
-// subs
 ZExpr Unroller::UnrollSubs(const size_t& len, const int& pos) {
   // bootstrap basic information
   BootStrap(pos);
@@ -58,7 +60,6 @@ ZExpr Unroller::UnrollSubs(const size_t& len, const int& pos) {
     UpdateNextSubs(k_next_z3_, k_next_, k_suff, k_curr, k_prev_);
 
     // update next state function to the prev for next step
-    // k_prev_ = k_next_z3_; // FIXME reference
     AssignZExprVec(k_prev_, k_next_z3_);
   }
 
@@ -68,6 +69,11 @@ ZExpr Unroller::UnrollSubs(const size_t& len, const int& pos) {
   // accumulate all constraints and return
   auto cstr = ConjPred(cstr_);
   return cstr;
+}
+
+ExprPtr Unroller::StateUpdCmpl(const InstrPtr instr, const ExprPtr var) {
+  auto upd = instr->GetUpdate(var);
+  return (upd) ? upd : var;
 }
 
 void Unroller::BootStrap(const int& pos) {
@@ -84,11 +90,6 @@ void Unroller::BootStrap(const int& pos) {
     auto zvar = gen().GetExpr(ivar, suff);
     k_prev_.push_back(zvar);
   }
-}
-
-ZExpr Unroller::Substitute(ZExpr expr, const ZExprVec& src_vec,
-                           const ZExprVec& dst_vec) const {
-  return expr.substitute(src_vec, dst_vec);
 }
 
 void Unroller::AssertPredSubs(const IExprVec& pred_vec,
@@ -127,13 +128,9 @@ void Unroller::AssertVarEqual(const ZExprVec& a, const IExprSet& b,
   }
 }
 
-ZExpr Unroller::ConjPred(const ZExprVec& vec) {
-  auto conj = ctx().bool_val(true);
-  for (size_t i = 0; i != vec.size(); i++) {
-    conj = (conj && vec[i]);
-  }
-  conj = conj.simplify();
-  return conj;
+ZExpr Unroller::Substitute(ZExpr expr, const ZExprVec& src_vec,
+                           const ZExprVec& dst_vec) const {
+  return expr.substitute(src_vec, dst_vec);
 }
 
 void Unroller::AssignZExprVec(ZExprVec& dst, const ZExprVec& src) {
@@ -141,6 +138,15 @@ void Unroller::AssignZExprVec(ZExprVec& dst, const ZExprVec& src) {
   for (unsigned i = 0; i != src.size(); i++) {
     dst.push_back(src[i]);
   }
+}
+
+ZExpr Unroller::ConjPred(const ZExprVec& vec) {
+  auto conj = ctx().bool_val(true);
+  for (size_t i = 0; i != vec.size(); i++) {
+    conj = (conj && vec[i]);
+  }
+  conj = conj.simplify();
+  return conj;
 }
 
 z3::expr Unroller::InstrSeq(const std::vector<InstrPtr>& seq, const int& pos) {
@@ -286,11 +292,6 @@ z3::expr Unroller::StateUpdCmpl(const InstrPtr instr, const ExprPtr var,
   }
 }
 
-ExprPtr Unroller::StateUpdCmpl(const InstrPtr instr, const ExprPtr var) {
-  auto upd = instr->GetUpdate(var);
-  return (upd) ? upd : var;
-}
-
 std::set<ExprPtr> Unroller::GetAllVar(const std::vector<InstrPtr>& seq) const {
   ILA_CHECK(!seq.empty()) << "Unrolling empty sequence.";
 
@@ -315,17 +316,14 @@ std::set<ExprPtr> Unroller::GetAllVar(const std::vector<InstrPtr>& seq) const {
   return st_set;
 }
 
-ListUnroll::ListUnroll(z3::context& ctx, const InstrVec& seq)
-    : Unroller(ctx), seq_(seq) {}
+ListUnroll::ListUnroll(z3::context& ctx) : Unroller(ctx) {}
 
 ListUnroll::~ListUnroll() {}
 
 ZExpr ListUnroll::InstrSeqSubs(const InstrVec& seq, const int& pos) {
   // set up target transition relation
   seq_ = seq;
-
   auto cstr = UnrollSubs(seq.size(), pos);
-
   return cstr;
 }
 
