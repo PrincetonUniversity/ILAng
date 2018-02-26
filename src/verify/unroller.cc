@@ -131,38 +131,26 @@ ZExpr Unroller::Substitute(ZExpr expr, const ZExprVec& src_vec,
   return expr.substitute(src_vec, dst_vec);
 }
 
-void Unroller::ClearZVec(ZExprVec& z3_vec) { z3_vec.resize(0); }
+void Unroller::Clear(ZExprVec& z3_vec) { z3_vec.resize(0); }
 
-void Unroller::EVecToZVec(ZExprVec& z3_dst, const IExprVec& expr_src,
-                          const int& stamp) {
-  ClearZVec(z3_dst);
-  auto suffix = std::to_string(stamp);
-  for (auto it = expr_src.begin(); it != expr_src.end(); it++) {
+void Unroller::IExprToZExpr(const IExprVec& i_expr_src,
+                            const std::string& suffix, ZExprVec& z_expr_dst) {
+  for (auto it = i_expr_src.begin(); it != i_expr_src.end(); it++) {
     auto i_expr = *it;
     auto z_expr = gen().GetExpr(i_expr, suffix);
-    z3_dst.push_back(z_expr);
+    z_expr_dst.push_back(z_expr);
   }
 }
 
-void Unroller::EVecToZVecSubs(ZExprVec& z3_dst, const IExprVec& expr_src,
-                              const int& stamp, const ZExprVec& subs_src,
-                              const ZExprVec& subs_dst) {
-  ClearZVec(z3_dst);
-  auto suffix = std::to_string(stamp);
-  for (auto it = expr_src.begin(); it != expr_src.end(); it++) {
+void Unroller::IExprToZExpr(const IExprVec& i_expr_src,
+                            const std::string& suffix, ZExprVec& z_expr_dst,
+                            const ZExprVec& subs_src,
+                            const ZExprVec& subs_dst) {
+  for (auto it = i_expr_src.begin(); it != i_expr_src.end(); it++) {
     auto i_expr = *it;
     auto z_expr = gen().GetExpr(i_expr, suffix);
     auto z_subs = z_expr.substitute(subs_src, subs_dst);
-    z3_dst.push_back(z_subs);
-  }
-}
-
-void Unroller::AssertEVec(const IExprVec& expr_src, const int& stamp) {
-  auto suffix = std::to_string(stamp);
-  for (auto it = expr_src.begin(); it != expr_src.end(); it++) {
-    auto i_expr = *it;
-    auto z_expr = gen().GetExpr(i_expr, suffix);
-    cstr_.push_back(z_expr);
+    z_expr_dst.push_back(z_subs);
   }
 }
 

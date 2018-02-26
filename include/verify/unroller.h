@@ -127,23 +127,16 @@ private:
                           const ZExprVec& subs_dst) const;
 
   /// Clear the z3::epxr container.
-  inline void ClearZVec(ZExprVec& z3_vec);
+  inline void Clear(ZExprVec& z3_vec);
 
-  /// Generate the z3::expr for the set of Expr w.r.t. the time stamp.
-  void EVecToZVec(ZExprVec& z3_dst, const IExprVec& expr_src, const int& stamp);
-  /// \brief Generate the z3::expr for the set of Expr w.r.t. the time stamp
-  /// while substituting fanins.
-  void EVecToZVecSubs(ZExprVec& z3_dst, const IExprVec& expr_src,
-                      const int& stamp, const ZExprVec& subs_src,
-                      const ZExprVec& subs_dst);
-
-  /// \brief Generate and assert the z3::expr for the set of Expr w.r.t the
-  /// time stamp.
-  void AssertEVec(const IExprVec& expr_src, const int& stamp);
-  /// \brief Generate and assert the z3::expr for the set of Expr w.r.t. the
-  /// time stamp while substituting fanins.
-  void AssertEVecSubs(const IExprVec& expr_src, const int& stamp,
-                      const ZExprVec& subs_src, const ZExprVec& subs_dst);
+  /// Generate and append the z3::expr for the set of Expr w.r.t. the suffix.
+  void IExprToZExpr(const IExprVec& i_expr_src, const std::string& suffix,
+                    ZExprVec& z_expr_dst);
+  /// \brief Generate and append the z3::expr for the set of Expr w.r.t. the
+  /// suffix while substituting the fanins.
+  void IExprToZExpr(const IExprVec& i_expr_src, const std::string& suffix,
+                    ZExprVec& z_expr_dst, const ZExprVec& subs_src,
+                    const ZExprVec& subs_dst);
 
   /// Generate z3:expr for a set of Expr given a time stamp.
   void GenZExprVec(ZExprVec& dst, const IExprVec& src, const int& stamp);
