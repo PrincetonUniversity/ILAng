@@ -9,9 +9,6 @@
 namespace ila {
 
 typedef Unroller::ZExpr ZExpr;
-// typedef Unroller::ZExprVec ZExprVec;
-// typedef Unroller::IExprSet IExprSet;
-// typedef Unroller::IExprVec IExprVec;
 
 Unroller::Unroller(z3::context& ctx)
     : ctx_(ctx), gen_(Z3ExprAdapter(ctx)), k_prev_(ctx), k_curr_z3_(ctx),
@@ -34,41 +31,42 @@ ZExpr Unroller::UnrollSubs(const size_t& len, const int& pos) {
   // unroll based on g_pred, i_pred, and transition relation (with guard)
   for (size_t i = 0; i != len; i++) {
     // time-stamp for this time-frame
-    auto k_suff = std::to_string(pos + i);
+    // auto k_suff = std::to_string(pos + i);
+    auto k_stamp = pos + i;
 
     // get transition relation (i_next_) and step-specific predicate (k_pred_)
     Transition(i);
 
     // the source for substitution
     ZExprVec k_curr(ctx());
-    for (auto it = vars_.begin(); it != vars_.end(); it++) {
-      auto i_expr = *it;
-      auto z_expr = gen().GetExpr(i_expr, k_suff);
-      k_curr.push_back(z_expr);
-    }
+    GenZExprVec(k_curr, vars_, k_stamp);
 
     // rewrite and add initial predicate
     if (i == 0) {
-      AssertPredSubs(i_pred_, k_suff, k_curr, k_prev_);
+      AssertPredSubs(i_pred_, k_stamp, k_curr, k_prev_);
     }
     // rewrite and add global predicate
-    AssertPredSubs(g_pred_, k_suff, k_curr, k_prev_);
+    AssertPredSubs(g_pred_, k_stamp, k_curr, k_prev_);
     // rewrite and add step-specific predicate
-    AssertPredSubs(k_pred_, k_suff, k_curr, k_prev_);
+    AssertPredSubs(k_pred_, k_stamp, k_curr, k_prev_);
 
     // rewrite and add transition relation
-    UpdateNextSubs(k_next_z3_, k_next_, k_suff, k_curr, k_prev_);
+    UpdateNextSubs(k_next_z3_, k_next_, k_stamp, k_curr, k_prev_);
 
     // update next state function to the prev for next step
     AssignZExprVec(k_prev_, k_next_z3_);
   }
 
   // add constraints for transition relation (k_prev_ has the last value)
-  AssertVarEqual(k_prev_, vars_, std::to_string(len));
+  AssertVarEqual(k_prev_, vars_, len);
 
   // accumulate all constraints and return
   auto cstr = ConjPred(cstr_);
   return cstr;
+}
+
+ZExpr Unroller::UnrollAssn(const size_t& len, const int& pos) {
+  // TODO
 }
 
 ExprPtr Unroller::StateUpdCmpl(const InstrPtr instr, const ExprPtr var) {
@@ -92,10 +90,10 @@ void Unroller::BootStrap(const int& pos) {
   }
 }
 
-void Unroller::AssertPredSubs(const IExprVec& pred_vec,
-                              const std::string& suffix,
+void Unroller::AssertPredSubs(const IExprVec& pred_vec, const int& stamp,
                               const ZExprVec& src_vec,
                               const ZExprVec& dst_vec) {
+  auto suffix = std::to_string(stamp);
   for (auto it = pred_vec.begin(); it != pred_vec.end(); it++) {
     auto pred = *it;
     auto expr = gen().GetExpr(pred, suffix);
@@ -105,8 +103,9 @@ void Unroller::AssertPredSubs(const IExprVec& pred_vec,
 }
 
 void Unroller::UpdateNextSubs(ZExprVec& next_z, const IExprVec& next_i,
-                              const std::string& suffix, const ZExprVec& src,
+                              const int& stamp, const ZExprVec& src,
                               const ZExprVec& dst) {
+  auto suffix = std::to_string(stamp);
   next_z.resize(0);
   for (auto it = next_i.begin(); it != next_i.end(); it++) {
     auto i_expr = *it;
@@ -117,11 +116,12 @@ void Unroller::UpdateNextSubs(ZExprVec& next_z, const IExprVec& next_i,
 }
 
 void Unroller::AssertVarEqual(const ZExprVec& a, const IExprSet& b,
-                              const std::string& b_suffix) {
+                              const int& stamp) {
+  auto suffix = std::to_string(stamp);
   ILA_ASSERT(a.size() == b.size()) << "Var num mismatch.";
   auto i = 0;
   for (auto it = b.begin(); it != b.end(); it++, i++) {
-    auto bi = gen().GetExpr(*it, b_suffix);
+    auto bi = gen().GetExpr(*it, suffix);
     auto ai = a[i];
     auto equal = (ai == bi);
     cstr_.push_back(equal);
@@ -131,6 +131,17 @@ void Unroller::AssertVarEqual(const ZExprVec& a, const IExprSet& b,
 ZExpr Unroller::Substitute(ZExpr expr, const ZExprVec& src_vec,
                            const ZExprVec& dst_vec) const {
   return expr.substitute(src_vec, dst_vec);
+}
+
+void Unroller::GenZExprVec(ZExprVec& dst, const IExprSet& src,
+                           const int& stamp) {
+  dst.resize(0);
+  auto suffix = std::to_string(stamp);
+  for (auto it = src.begin(); it != src.end(); it++) {
+    auto i_expr = *it;
+    auto z_expr = gen().GetExpr(i_expr, suffix);
+    dst.push_back(z_expr);
+  }
 }
 
 void Unroller::AssignZExprVec(ZExprVec& dst, const ZExprVec& src) {

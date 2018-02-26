@@ -102,30 +102,34 @@ private:
   /// Boot-strapping information needed for unrolling, e.g. dependant vars.
   void BootStrap(const int& pos);
 
-  /// Assert the set of predicates at the given time-frame (suffix).
-  void AssertPredSubs(const IExprVec& pred_vec, const std::string& suffix,
+  /// Assert the set of predicates at the given time-stamp.
+  void AssertPredSubs(const IExprVec& pred_vec, const int& stamp,
                       const ZExprVec& src_vec, const ZExprVec& dst_vec);
 
   /// \brief Generate z3::expr for the next state functions.
   /// \param[in] next_z destination z3::epxr container
   /// \param[in] next_i source next state functions
-  /// \param[in] suffix time stamp
+  /// \param[in] stamp time stamp of the step
   /// \param[in] src the source for substitution
   /// \param[in] dst the destination for substitution
   void UpdateNextSubs(ZExprVec& next_z, const IExprVec& next_i,
-                      const std::string& suffix, const ZExprVec& src,
+                      const int& stamp, const ZExprVec& src,
                       const ZExprVec& dst);
 
   /// \brief Assert the set of z3::expr is equal to the Expr at the given
-  /// time-frame (b_suffix).
-  void AssertVarEqual(const ZExprVec& a, const IExprSet& b,
-                      const std::string& b_suffix);
+  /// step (stamp)
+  void AssertVarEqual(const ZExprVec& a, const IExprSet& b, const int& stamp);
 
   /// Wrapper for doing z3::expr substitution.
   inline ZExpr Substitute(ZExpr expr, const ZExprVec& src_vec,
                           const ZExprVec& dst_vec) const;
+
+  /// Generate z3:expr for a set of Expr given a time stamp.
+  void GenZExprVec(ZExprVec& dst, const IExprSet& src, const int& stamp);
+
   /// Wrapper for assigning (copying) z3::expr_vector from src to dst.
   void AssignZExprVec(ZExprVec& dst, const ZExprVec& src);
+
   /// Conjunct all the predicates in the set.
   ZExpr ConjPred(const ZExprVec& vec);
 
