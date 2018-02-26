@@ -92,6 +92,9 @@ private:
   /// The set of constraints that should be asserted at the end.
   ZExprVec cstr_;
 
+  /// Perform substitution if true;
+  bool f_subs_ = true;
+
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return the underlying z3::context.
   inline z3::context& ctx() const { return ctx_; }
@@ -103,10 +106,12 @@ private:
   void BootStrap(const int& pos);
 
   /// Assert the set of predicates at the given time-stamp.
+  void AssertPred(const IExprVec& pred_vec, const int& stamp);
+  /// Assert the set of predicates at the given time-stamp with substitution.
   void AssertPredSubs(const IExprVec& pred_vec, const int& stamp,
                       const ZExprVec& src_vec, const ZExprVec& dst_vec);
 
-  /// \brief Generate z3::expr for the next state functions.
+  /// \brief Generate z3::expr for the next state functions with substitution.
   /// \param[in] next_z destination z3::epxr container
   /// \param[in] next_i source next state functions
   /// \param[in] stamp time stamp of the step
@@ -116,13 +121,33 @@ private:
                       const int& stamp, const ZExprVec& src,
                       const ZExprVec& dst);
 
-  /// \brief Assert the set of z3::expr is equal to the Expr at the given
-  /// step (stamp)
-  void AssertVarEqual(const ZExprVec& a, const IExprSet& b, const int& stamp);
+  /// Assert equal between the z3::expr and the Expr w.r.t the time stamp.
+  void AssertVarEqual(const ZExprVec& z, const IExprSet& e, const int& stamp);
 
   /// Wrapper for doing z3::expr substitution.
-  inline ZExpr Substitute(ZExpr expr, const ZExprVec& src_vec,
-                          const ZExprVec& dst_vec) const;
+  inline ZExpr Substitute(ZExpr z, const ZExprVec& subs_src,
+                          const ZExprVec& subs_dst) const;
+
+  /// Clear the z3::epxr container.
+  inline void ClearZVec(ZExprVec& z3_vec);
+
+  /// Generate the z3::expr for the set of Expr w.r.t the time stamp.
+  void ESetToZVec(ZExprVec& z3_dst, const IExprSet& expr_src, const int& stamp);
+  /// Generate the z3::expr for the vector of Expr w.r.t. the time stamp.
+  void EVecToZVec(ZExprVec& z3_dst, const IExprVec& expr_src, const int& stamp);
+  /// \brief Generate the z3::expr for the vector of Expr w.r.t. the time stamp
+  /// while substituting fanins.
+  void EVecToZVecSubs(ZExprVec& z3_dst, const IExprVec& expr_src,
+                      const int& stamp, const ZExprVec& subs_src,
+                      const ZExprVec& subs_dst);
+
+  /// \brief Generate and assert the z3::expr for the vector of Expr w.r.t the
+  /// time stamp.
+  void AssertEVec(const IExprVec& expr_src, const int& stamp);
+  /// \brief Generate and assert the z3::expr for the vector of Expr w.r.t. the
+  /// time stamp while substituting fanins.
+  void AssertEVecSubs(const IExprVec& expr_src, const int& stamp,
+                      const ZExprVec& subs_src, const ZExprVec& subs_dst);
 
   /// Generate z3:expr for a set of Expr given a time stamp.
   void GenZExprVec(ZExprVec& dst, const IExprSet& src, const int& stamp);

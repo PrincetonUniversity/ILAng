@@ -31,7 +31,6 @@ ZExpr Unroller::UnrollSubs(const size_t& len, const int& pos) {
   // unroll based on g_pred, i_pred, and transition relation (with guard)
   for (size_t i = 0; i != len; i++) {
     // time-stamp for this time-frame
-    // auto k_suff = std::to_string(pos + i);
     auto k_stamp = pos + i;
 
     // get transition relation (i_next_) and step-specific predicate (k_pred_)
@@ -131,6 +130,52 @@ void Unroller::AssertVarEqual(const ZExprVec& a, const IExprSet& b,
 ZExpr Unroller::Substitute(ZExpr expr, const ZExprVec& src_vec,
                            const ZExprVec& dst_vec) const {
   return expr.substitute(src_vec, dst_vec);
+}
+
+void Unroller::ClearZVec(ZExprVec& z3_vec) { z3_vec.resize(0); }
+
+void Unroller::ESetToZVec(ZExprVec& z3_dst, const IExprSet& expr_src,
+                          const int& stamp) {
+  ClearZVec(z3_dst);
+  auto suffix = std::to_string(stamp);
+  for (auto it = expr_src.begin(); it != expr_src.end(); it++) {
+    auto i_expr = *it;
+    auto z_expr = gen().GetExpr(i_expr, suffix);
+    z3_dst.push_back(z_expr);
+  }
+}
+
+void Unroller::EVecToZVec(ZExprVec& z3_dst, const IExprVec& expr_src,
+                          const int& stamp) {
+  ClearZVec(z3_dst);
+  auto suffix = std::to_string(stamp);
+  for (auto it = expr_src.begin(); it != expr_src.end(); it++) {
+    auto i_expr = *it;
+    auto z_expr = gen().GetExpr(i_expr, suffix);
+    z3_dst.push_back(z_expr);
+  }
+}
+
+void Unroller::EVecToZVecSubs(ZExprVec& z3_dst, const IExprVec& expr_src,
+                              const int& stamp, const ZExprVec& subs_src,
+                              const ZExprVec& subs_dst) {
+  ClearZVec(z3_dst);
+  auto suffix = std::to_string(stamp);
+  for (auto it = expr_src.begin(); it != expr_src.end(); it++) {
+    auto i_expr = *it;
+    auto z_expr = gen().GetExpr(i_expr, suffix);
+    auto z_subs = z_expr.substitute(subs_src, subs_dst);
+    z3_dst.push_back(z_subs);
+  }
+}
+
+void Unroller::AssertEVec(const IExprVec& expr_src, const int& stamp) {
+  auto suffix = std::to_string(stamp);
+  for (auto it = expr_src.begin(); it != expr_src.end(); it++) {
+    auto i_expr = *it;
+    auto z_expr = gen().GetExpr(i_expr, suffix);
+    cstr_.push_back(z_expr);
+  }
 }
 
 void Unroller::GenZExprVec(ZExprVec& dst, const IExprSet& src,
