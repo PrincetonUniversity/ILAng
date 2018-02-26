@@ -23,11 +23,15 @@ namespace ila
     class Node;
     class NodeVisitorI;
     class FuncReduction;
+    class Instruction;
+    class InstRef;
 
     typedef boost::shared_ptr<Node> nptr_t;
     typedef std::vector<nptr_t> nptr_vec_t;
     typedef std::vector<const Node*> nodevec_t;
     typedef std::set<const Node*> nodeset_t;
+    typedef boost::shared_ptr<Instruction> nInstPtr_t;
+    typedef std::map<std::string, nInstPtr_t>  nInstPtr_map_t;
 
     struct npair_t {
         nptr_t var;

@@ -38,7 +38,17 @@ BOOST_PYTHON_MODULE(ila)
         .def(self_ns::str(self))
         .def(!self)
     ;
-
+    
+    class_<InstRef>("Instruction")
+        .def_readonly("name", &InstRef::getName)
+        .add_property("decode_expr", 
+            make_function(&InstRef::getDecode, return_value_policy<manage_new_object>()),
+            &InstRef::setDecode)
+        .def("set_next", &InstRef::setNext)
+        .def("get_next", &InstRef::getNext, return_value_policy<manage_new_object>())
+   ;
+    
+    
     // This is the real node type.
     class_<NodeRef>("Node")
         .add_property("name", &NodeRef::getName)
@@ -385,6 +395,16 @@ BOOST_PYTHON_MODULE(ila)
         (arg("filename"), arg("u1"),arg("u2"),
          arg("s1"),arg("s2"),arg("assumption")) );
 
+    // mcm unroller
+    def("newMcmUnroller", &AbstractionWrapper::newMCMUnroller,
+        (arg("nTh"), arg("entity"), arg("program"), 
+         arg("dummyInit"), arg("mm") ), return_value_policy<manage_new_object>() );
+
+    def("MCM_TSO", &AbstractionWrapper::newTSOMCM, return_value_policy<manage_new_object>() );
+    def("MCM_SC", &AbstractionWrapper::newSCMCM, return_value_policy<manage_new_object>() );
+
+    
+
     // This is the top-level class.
     class_<AbstractionWrapper>("Abstraction", init<const std::string&>())
         // the name of this abstraction
@@ -405,6 +425,9 @@ BOOST_PYTHON_MODULE(ila)
         // functions.
         .def("fun", &AbstractionWrapper::addFun, return_value_policy<manage_new_object>())
         .def("getfun", &AbstractionWrapper::getFun, return_value_policy<manage_new_object>())
+        // instructions.
+        .def("inst",  &AbstractionWrapper::addInst, return_value_policy<manage_new_object>())
+        .def("getinst", &AbstractionWrapper::getInst, return_value_policy<manage_new_object>())
         
         // init function
         .def("set_init", &AbstractionWrapper::setInit)
@@ -521,6 +544,23 @@ BOOST_PYTHON_MODULE(ila)
         .def("dumpAssertion", &MicroUnroller::dumpAssertion)
         .def("unrollTo", &MicroUnroller::unrollToStep)
     ;
+
+    
+    class_<mcmUnroller>("mcmUnroller", no_init)
+        .def("unroll", &mcmUnroller::py_unroll)
+        .def("finalizePiFun", &mcmUnroller::py_finalizePiFun)
+        .def("addPropertyOnEnding", &mcmUnroller::py_addPropertyOnEnding)
+        .def("pushInstConstraintAndCheck", &mcmUnroller::py_pushInstConstraintAndCheck)
+        .def("connectByAnd", &mcmUnroller::py_ConnectByAnd)
+        .def("connectByOr", &mcmUnroller::py_ConnectByOr)
+        .def("check", &mcmUnroller::py_check)
+        .def("printModel", &mcmUnroller::py_printModel)
+    ;
+
+    class_<MCMWrapper>("MemoryModel", no_init)
+        .def("name", &MCMWrapper::What)
+    ;
+        
         
     class_<MemValues>("MemValues", init<int, int, const object&>())
         .add_property("default", &MemValues::getDefault, &MemValues::setDefault)

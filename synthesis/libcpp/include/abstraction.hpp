@@ -5,6 +5,7 @@
 #include <map>
 #include <vector>
 #include <string>
+#include <memory>
 #include <boost/python.hpp>
 
 #include <common.hpp>
@@ -12,10 +13,15 @@
 #include <smt.hpp>
 #include <imexport.hpp>
 #include <VerilogExport.hpp>
-//#include <instruction.hpp>
+#include <instruction.hpp>
 #include <cppsimgen.hpp>
 #include <genCBMC.hpp>
 #include <MicroUnroller.hpp>
+
+#include <mcmCommon.hpp>
+#include <crossUnroller.hpp>
+#include <memoryModel.hpp>
+
 #include <boogie.hpp>
 #include <horn.hpp>
 
@@ -24,7 +30,9 @@ namespace ila
     class Abstraction;
     class AbstractionWrapper;
     class MicroEQCheck;
+    class mcmUnroller;
     typedef boost::shared_ptr<Abstraction> abstraction_ptr_t;
+
 
     struct assump_visitor_i {
         virtual void useAssump(const nptr_t& a) = 0;
@@ -59,6 +67,8 @@ namespace ila
 
         // list of known names.
         std::map<std::string, state_t> names;
+        std::set<std::string> localStates;
+        std::set<std::string> sharedStates;
 
         // list of inputs
         nmap_t inps;
@@ -81,6 +91,9 @@ namespace ila
         // assumptions.
         nptr_vec_t assumps;
 
+        // instructions
+        nInstPtr_map_t insts; 
+
         // list of sub-abstractions.
         uabs_map_t uabs;
         
@@ -94,6 +107,7 @@ namespace ila
 
         NodeRef* getVar(const nmap_t& m, const std::string& name);
         void addVar(state_t st, nmap_t& m, nptr_t& n);
+
 
     public:
         int paramSyn;
@@ -129,6 +143,9 @@ namespace ila
         // Create a function.
         NodeRef* addFun(const std::string& name, int retW, const py::list& l);
 
+        // Create an instruction.
+        InstRef* addInst(const std::string & name, NodeRef* decode );
+
         // Get an existing input port
         NodeRef* getInp(const std::string& name);
         // Get an existing boolean.
@@ -139,8 +156,8 @@ namespace ila
         NodeRef* getMem(const std::string& name);
         // Get an existing function.
         NodeRef* getFun(const std::string& name);
-        // Get and existing stage variable.
-        NodeRef* getStage(const std::string& name);
+        // Get an existing instruction
+        InstRef* getInst(const std::string & name );
 
         // add a var if it does not exist.
         void addVar(nptr_t& nref);
@@ -160,6 +177,9 @@ namespace ila
         NodeRef* getNext(const std::string& name) const;
         // Get the next template for the i-th instruction.
         NodeRef* getNextI(const std::string& name, int i) const;
+
+        // Assign local/shared states
+        void assignLocalSharedStates(std::set<std::string> * local = NULL, std::set<std::string> * shared = NULL);
 
         // Create a uabstraction.
         AbstractionWrapper* addUAbs(
@@ -330,11 +350,16 @@ namespace ila
             if (pos == names.end()) return false;
             else return pos->second == INP;
         }
+        
+        std::set<std::string> * getPntLocalStates() {return &localStates; }
+        std::set<std::string> * getPntSharedStates() {return &sharedStates; }
 
         friend class Synthesizer;
         friend class BoogieTranslator;
         friend unsigned DetermineUnrollBound( Abstraction * pAbs, const std::string & nodeName);
         friend class MicroUnroller;
+        friend class Instruction ;
+        friend class mcmUnroller;
 
     protected:
         nptr_t _synthesize(
@@ -435,6 +460,13 @@ namespace ila
         NodeRef* addFun(const std::string& name, int retW, const py::list& l) {
             return abs->addFun(name, retW, l);
         }
+
+        // Create an instruction
+        InstRef* addInst(const std::string & name, NodeRef* decode ){
+            return abs->addInst(name,decode);
+        }
+
+
         
         // Get an existing input port
         NodeRef* getInp(const std::string& name) {
@@ -459,6 +491,11 @@ namespace ila
         // Get an existing function.
         NodeRef* getFun(const std::string& name) {
             return abs->getFun(name);
+        }
+
+        // Get an existing instruction
+        InstRef* getInst(const std::string & name ) {
+            return abs->getInst(name);
         }
 
         // Set the init value for this var.
@@ -755,6 +792,24 @@ namespace ila
         MicroUnroller * newUnroller(AbstractionWrapper *uILA, bool initCondition)
         {
             return MicroUnroller::NewUnroller(this,uILA,initCondition);
+        }
+
+        static mcmUnroller * newMCMUnroller(const py::list & nTh,
+            const py::list & entity, const py::list & program, AbstractionWrapper * dummyInit, MCMWrapper * p_mm)
+        {
+            return mcmUnroller::py_NewMCMUnroller(nTh, entity, program, dummyInit, p_mm->mcm.get() );
+        }
+        static MCMWrapper * newTSOMCM()
+        {  
+            std::shared_ptr<TSO> derive_pnt = std::make_shared<TSO>();
+            std::shared_ptr<MemoryModel> base_pnt = derive_pnt;
+            return new MCMWrapper(base_pnt);
+        }
+        static MCMWrapper * newSCMCM()
+        {
+            std::shared_ptr<SC> derive_pnt = std::make_shared<SC>();
+            std::shared_ptr<MemoryModel> base_pnt = derive_pnt;
+            return new MCMWrapper(base_pnt);
         }
 
         void toBoogie(const std::string& name)

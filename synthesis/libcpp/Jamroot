@@ -81,6 +81,9 @@ python-extension ila : src/abstraction.cpp
                        src/MicroUnroller.cpp
                        src/funcReduct.cpp
                        src/genCBMC.cpp
+                       src/instruction.cpp
+                       src/memoryModel.cpp
+                       src/crossUnroller.cpp
                      : <include>./include ;
 
 # Put the extension and Boost.Python DLL in the current directory, so

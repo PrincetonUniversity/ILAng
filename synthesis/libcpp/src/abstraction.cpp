@@ -149,6 +149,30 @@ namespace ila
         funs.insert({name, npair_t(n->node, NULL)});
         return n;
     }
+    
+    InstRef* Abstraction::addInst(const std::string & name, NodeRef* decode )
+    {
+        if(insts.find(name)!= insts.end()) {
+            throw PyILAException(PyExc_RuntimeError,
+                "Instruction with this name already exists.");
+            return NULL;
+        }
+        nInstPtr_t inst = boost::shared_ptr<Instruction>(new Instruction(name, this));
+        inst->setDecode(decode);
+        insts.insert({name, inst});
+        
+        return new InstRef(inst);
+    }
+    InstRef* Abstraction::getInst(const std::string & name )
+    {
+        if(insts.find(name)== insts.end()) {
+            throw PyILAException(PyExc_RuntimeError,
+                "Instruction with this name already exists.");
+            return NULL;
+        }
+        
+        return new InstRef(insts[name]);
+    }
 
     // ---------------------------------------------------------------------- //
     NodeRef* Abstraction::getBit(const std::string& name)
@@ -377,6 +401,34 @@ namespace ila
         } else {
             return new NodeRef(nstruct.next_vec[i]);
         }
+    }
+    
+    // ---------------------------------------------------------------------- //
+    
+    void Abstraction::assignLocalSharedStates(std::set<std::string> * local, std::set<std::string> * shared)
+    {
+        localStates.clear();
+        sharedStates.clear();
+        
+        if(local)
+            localStates = *local;
+        if(shared)
+            sharedStates = *shared;
+
+        // now add new ones
+        auto pos = regs.begin();
+        for(;pos != regs.end(); ++pos) 
+            if( sharedStates.find(pos->first) == sharedStates.end() )
+                localStates.insert(pos->first);
+        pos = mems.begin();
+        for(;pos != mems.end(); ++pos) 
+            if( sharedStates.find(pos->first) == sharedStates.end() )
+                localStates.insert(pos->first);
+        pos = bits.begin();
+        for(;pos != bits.end(); ++pos) 
+            if( sharedStates.find(pos->first) == sharedStates.end() )
+                localStates.insert(pos->first);
+        
     }
 
     // ---------------------------------------------------------------------- //
