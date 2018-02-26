@@ -114,14 +114,13 @@ void Unroller::UpdateNextSubs(ZExprVec& next_z, const IExprVec& next_i,
   }
 }
 
-void Unroller::AssertVarEqual(const ZExprVec& a, const IExprSet& b,
+void Unroller::AssertVarEqual(const ZExprVec& a, const IExprVec& b,
                               const int& stamp) {
   auto suffix = std::to_string(stamp);
   ILA_ASSERT(a.size() == b.size()) << "Var num mismatch.";
-  auto i = 0;
-  for (auto it = b.begin(); it != b.end(); it++, i++) {
-    auto bi = gen().GetExpr(*it, suffix);
+  for (unsigned i = 0; i != a.size(); i++) {
     auto ai = a[i];
+    auto bi = gen().GetExpr(b[i], suffix);
     auto equal = (ai == bi);
     cstr_.push_back(equal);
   }
@@ -133,17 +132,6 @@ ZExpr Unroller::Substitute(ZExpr expr, const ZExprVec& src_vec,
 }
 
 void Unroller::ClearZVec(ZExprVec& z3_vec) { z3_vec.resize(0); }
-
-void Unroller::ESetToZVec(ZExprVec& z3_dst, const IExprSet& expr_src,
-                          const int& stamp) {
-  ClearZVec(z3_dst);
-  auto suffix = std::to_string(stamp);
-  for (auto it = expr_src.begin(); it != expr_src.end(); it++) {
-    auto i_expr = *it;
-    auto z_expr = gen().GetExpr(i_expr, suffix);
-    z3_dst.push_back(z_expr);
-  }
-}
 
 void Unroller::EVecToZVec(ZExprVec& z3_dst, const IExprVec& expr_src,
                           const int& stamp) {
@@ -178,7 +166,7 @@ void Unroller::AssertEVec(const IExprVec& expr_src, const int& stamp) {
   }
 }
 
-void Unroller::GenZExprVec(ZExprVec& dst, const IExprSet& src,
+void Unroller::GenZExprVec(ZExprVec& dst, const IExprVec& src,
                            const int& stamp) {
   dst.resize(0);
   auto suffix = std::to_string(stamp);
@@ -384,13 +372,21 @@ ZExpr ListUnroll::InstrSeqSubs(const InstrVec& seq, const int& pos) {
 }
 
 void ListUnroll::CollectVar() {
+  // collect the set of vars
+  std::set<ExprPtr> vars;
   for (size_t i = 0; i != seq_.size(); i++) {
     auto m = seq_[i]->host();
     ILA_NOT_NULL(m);
     // add states if no child-ILAs
     for (size_t i = 0; i != m->state_num(); i++) {
-      vars_.insert(m->state(i));
+      vars.insert(m->state(i));
     }
+  }
+
+  // update to the global set
+  vars_.clear();
+  for (auto it = vars.begin(); it != vars.end(); it++) {
+    vars_.push_back(*it);
   }
 }
 

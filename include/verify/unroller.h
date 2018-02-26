@@ -18,11 +18,9 @@ class Unroller {
 public:
   /// Type alias for z3::expr.
   typedef z3::expr ZExpr;
-  /// Type for containing a vector of z3::expr.
+  /// Type for containing a set of z3::expr.
   typedef z3::expr_vector ZExprVec;
   /// Type alias for a set of ExprPtr.
-  typedef std::set<ExprPtr> IExprSet;
-  /// Type alias for a vector of ExprPtr.
   typedef ExprPtrVec IExprVec;
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
@@ -47,7 +45,7 @@ public:
 protected:
   // ------------------------- MEMBERS -------------------------------------- //
   /// The set of dependant state variables.
-  IExprSet vars_;
+  IExprVec vars_;
   /// The set of predicates to be asserted of each step.
   IExprVec k_pred_;
   /// The set of state update functions of each step.
@@ -122,7 +120,7 @@ private:
                       const ZExprVec& dst);
 
   /// Assert equal between the z3::expr and the Expr w.r.t the time stamp.
-  void AssertVarEqual(const ZExprVec& z, const IExprSet& e, const int& stamp);
+  void AssertVarEqual(const ZExprVec& z, const IExprVec& e, const int& stamp);
 
   /// Wrapper for doing z3::expr substitution.
   inline ZExpr Substitute(ZExpr z, const ZExprVec& subs_src,
@@ -131,26 +129,24 @@ private:
   /// Clear the z3::epxr container.
   inline void ClearZVec(ZExprVec& z3_vec);
 
-  /// Generate the z3::expr for the set of Expr w.r.t the time stamp.
-  void ESetToZVec(ZExprVec& z3_dst, const IExprSet& expr_src, const int& stamp);
-  /// Generate the z3::expr for the vector of Expr w.r.t. the time stamp.
+  /// Generate the z3::expr for the set of Expr w.r.t. the time stamp.
   void EVecToZVec(ZExprVec& z3_dst, const IExprVec& expr_src, const int& stamp);
-  /// \brief Generate the z3::expr for the vector of Expr w.r.t. the time stamp
+  /// \brief Generate the z3::expr for the set of Expr w.r.t. the time stamp
   /// while substituting fanins.
   void EVecToZVecSubs(ZExprVec& z3_dst, const IExprVec& expr_src,
                       const int& stamp, const ZExprVec& subs_src,
                       const ZExprVec& subs_dst);
 
-  /// \brief Generate and assert the z3::expr for the vector of Expr w.r.t the
+  /// \brief Generate and assert the z3::expr for the set of Expr w.r.t the
   /// time stamp.
   void AssertEVec(const IExprVec& expr_src, const int& stamp);
-  /// \brief Generate and assert the z3::expr for the vector of Expr w.r.t. the
+  /// \brief Generate and assert the z3::expr for the set of Expr w.r.t. the
   /// time stamp while substituting fanins.
   void AssertEVecSubs(const IExprVec& expr_src, const int& stamp,
                       const ZExprVec& subs_src, const ZExprVec& subs_dst);
 
   /// Generate z3:expr for a set of Expr given a time stamp.
-  void GenZExprVec(ZExprVec& dst, const IExprSet& src, const int& stamp);
+  void GenZExprVec(ZExprVec& dst, const IExprVec& src, const int& stamp);
 
   /// Wrapper for assigning (copying) z3::expr_vector from src to dst.
   void AssignZExprVec(ZExprVec& dst, const ZExprVec& src);
