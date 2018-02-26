@@ -28,8 +28,8 @@ TEST(TestUnroll, InstrSeqFlat) {
 }
 
 TEST(TestUnroll, InsteSeqFlatSimpleProp) {
-  SetToStdErr(0);
-  DebugLog::Enable("Unroller.InstrSeq");
+  SetToStdErr(1);
+  DebugLog::Enable("Unroller.Subs");
   //
 
   EqIlaGen ila_gen;
@@ -44,6 +44,7 @@ TEST(TestUnroll, InsteSeqFlatSimpleProp) {
   ListUnroll* unroller = new ListUnroll(c, seq);
   auto cstr = unroller->InstrSeqSubs(seq);
 
+  DebugLog::Disable("Unroller.Subs");
   SetToStdErr(0);
 }
 

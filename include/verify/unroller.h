@@ -56,6 +56,8 @@ protected:
   virtual void CollectVar() = 0;
   virtual void Transition(const size_t& idx) = 0;
 
+  ExprPtr StateUpdCmpl(const InstrPtr instr, const ExprPtr var);
+
 private:
   void BootStrap(const int& pos);
 
