@@ -77,6 +77,8 @@ private:
 
   ZExpr ConjPred(const ZExprVec& vec);
 
+  void AssignZExprVec(ZExprVec& dst, const ZExprVec& src);
+
   // legacy
   z3::expr InstrUpdDflt(const InstrLvlAbsPtr ila, const std::string& prev,
                         const std::string& next);

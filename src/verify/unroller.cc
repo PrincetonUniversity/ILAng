@@ -53,15 +53,13 @@ ZExpr Unroller::UnrollSubs(const size_t& len, const int& pos) {
     AssertPredSubs(g_pred_, k_suff, k_curr, k_prev_);
     // rewrite and add step-specific predicate
     AssertPredSubs(k_pred_, k_suff, k_curr, k_prev_);
-    ILA_DLOG("Unroller.Subs") << k_prev_.size() << " " << k_next_z3_.size();
 
     // rewrite and add transition relation
     UpdateNextSubs(k_next_z3_, k_next_, k_suff, k_curr, k_prev_);
 
     // update next state function to the prev for next step
-    ILA_DLOG("Unroller.Subs") << k_prev_.size() << " " << k_next_z3_.size();
-    k_prev_ = k_next_z3_;
-    ILA_DLOG("Unroller.Subs") << k_prev_.size() << " " << k_next_z3_.size();
+    // k_prev_ = k_next_z3_; // FIXME reference
+    AssignZExprVec(k_prev_, k_next_z3_);
   }
 
   // add constraints for transition relation (k_prev_ has the last value)
@@ -108,27 +106,17 @@ void Unroller::AssertPredSubs(const IExprVec& pred_vec,
 void Unroller::UpdateNextSubs(ZExprVec& next_z, const IExprVec& next_i,
                               const std::string& suffix, const ZExprVec& src,
                               const ZExprVec& dst) {
-  ILA_DLOG("Unroller.Subs") << next_z.size() << " " << next_i.size() << " "
-                            << src.size() << " " << dst.size();
   next_z.resize(0);
-  ILA_DLOG("Unroller.Subs") << next_z.size() << " " << next_i.size() << " "
-                            << src.size() << " " << dst.size();
-  ILA_DLOG("Unroller.Subs") << &next_z << " " << &dst;
   for (auto it = next_i.begin(); it != next_i.end(); it++) {
     auto i_expr = *it;
-    ILA_DLOG("Unroller.Subs") << next_z.size() << " " << next_i.size() << " "
-                              << src.size() << " " << dst.size();
     auto z_expr = gen().GetExpr(i_expr, suffix);
     auto z_subs = Substitute(z_expr, src, dst);
     next_z.push_back(z_subs);
   }
-  ILA_DLOG("Unroller.Subs") << next_z.size() << " " << next_i.size() << " "
-                            << src.size() << " " << dst.size();
 }
 
 void Unroller::AssertVarEqual(const ZExprVec& a, const IExprSet& b,
                               const std::string& b_suffix) {
-  ILA_DLOG("Unroller.Subs") << a.size() << " " << b.size();
   ILA_ASSERT(a.size() == b.size()) << "Var num mismatch.";
   auto i = 0;
   for (auto it = b.begin(); it != b.end(); it++, i++) {
@@ -146,6 +134,13 @@ ZExpr Unroller::ConjPred(const ZExprVec& vec) {
   }
   conj = conj.simplify();
   return conj;
+}
+
+void Unroller::AssignZExprVec(ZExprVec& dst, const ZExprVec& src) {
+  dst.resize(0);
+  for (unsigned i = 0; i != src.size(); i++) {
+    dst.push_back(src[i]);
+  }
 }
 
 z3::expr Unroller::InstrSeq(const std::vector<InstrPtr>& seq, const int& pos) {
