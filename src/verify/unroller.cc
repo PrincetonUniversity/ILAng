@@ -10,6 +10,9 @@ namespace ila {
 
 typedef Unroller::ZExpr ZExpr;
 
+/******************************************************************************/
+// Unroller
+/******************************************************************************/
 Unroller::Unroller(z3::context& ctx)
     : ctx_(ctx), gen_(Z3ExprAdapter(ctx)), k_prev_z3_(ctx), k_curr_z3_(ctx),
       k_next_z3_(ctx), cstr_(ctx) {}
@@ -218,6 +221,9 @@ ZExpr Unroller::ConjPred(const ZExprVec& vec) {
   return conj;
 }
 
+/******************************************************************************/
+// ListUnroll
+/******************************************************************************/
 ListUnroll::ListUnroll(z3::context& ctx) : Unroller(ctx) {}
 
 ListUnroll::~ListUnroll() {}
@@ -279,20 +285,37 @@ void ListUnroll::Transition(const size_t& idx) {
   k_pred_.push_back(dec);
 }
 
-#if 0
-BulkUnroll::BulkUnroll(z3::context& ctx, const InstrLvlAbsPtr top)
-    : Unroller(ctx), top_(top) {}
+/******************************************************************************/
+// MonoUnroll
+/******************************************************************************/
+MonoUnroll::MonoUnroll(z3::context& ctx) : Unroller(ctx) {}
 
-BulkUnroll::~BulkUnroll() {}
+MonoUnroll::~MonoUnroll() {}
 
-void BulkUnroll::CollectVar() { VisitHierCollectVar(top_); }
+ZExpr MonoUnroll::MonoSubs(const InstrLvlAbsPtr top, const int& length,
+                           const int& pos) {
+  top_ = top;
+  return UnrollSubs(length, pos);
+}
 
-void BulkUnroll::VisitHierCollectVar(const InstrLvlAbsPtr m) {
+void MonoUnroll::CollectVar() {
+  ILA_ASSERT(vars_.empty()) << "var not clear yet.";
+  CollectHier(top_);
+  for (auto it = dep_vars_.begin(); it != dep_vars_.end(); it++) {
+    vars_.push_back(*it);
+  }
+}
+
+void MonoUnroll::Transition(const size_t& idx) {
+  // TODO
+}
+
+void MonoUnroll::CollectHier(const InstrLvlAbsPtr m) {
   ILA_NOT_NULL(m);
 
   // traverse the child-ILAs
   for (size_t i = 0; i != m->child_num(); i++) {
-    VisitHierCollectVar(m->child(i));
+    CollectHier(m->child(i));
   }
 
   // child-states must contain parent-states
@@ -301,10 +324,9 @@ void BulkUnroll::VisitHierCollectVar(const InstrLvlAbsPtr m) {
 
   // add states if no child-ILAs
   for (size_t i = 0; i != m->state_num(); i++) {
-    ivar_.insert(m->state(i));
+    dep_vars_.insert(m->state(i));
   }
 }
-#endif
 
 } // namespace ila
 

@@ -146,5 +146,12 @@ TEST_F(TestUnroll, InstrSeqSolve) {
   EXPECT_EQ(z3::sat, s.check());
 }
 
+TEST_F(TestUnroll, BulkFlatSubs) {
+  auto m = ila_gen_.GetIlaFlat1();
+
+  auto unroller = new MonoUnroll(ctx_);
+  auto cstr = unroller->MonoSubs(m, 4);
+}
+
 } // namespace ila
 

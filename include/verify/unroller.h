@@ -172,26 +172,54 @@ private:
   void Transition(const size_t& idx);
 };
 
-#if 0
-class BulkUnroll : public Unroller {
+/// \brief Application class for unrolling the ILA as a monolithic transition
+/// system.
+class MonoUnroll : public Unroller {
 public:
-  BulkUnroll(z3::context& ctx, const InstrLvlAbsPtr top);
-  ~BulkUnroll();
+  // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
+  /// Default constructor.
+  MonoUnroll(z3::context& ctx);
+  /// Default destructor.
+  ~MonoUnroll();
 
-  ZExpr IlaBulkAssn(const InstrLvlAbsPtr top, const int& length,
-                    const int& pos = 0);
+  // ------------------------- METHODS -------------------------------------- //
+  /// \brief Unroll the ILA with internal states substituted.
+  /// \param[in] top the top-level ILA.
+  /// \param[in] length number of steps to unroll.
+  /// \param[in] pos the starting time frame.
+  ZExpr MonoSubs(const InstrLvlAbsPtr top, const int& length,
+                 const int& pos = 0);
 
-  ZExpr IlaBulkSubs(const InstrLvlAbsPtr top, const int& length,
-                    const int& pos = 0);
+  /// \brief Unroll the ILA while asserting states are equal between each step.
+  /// \param[in] top the top-level ILA.
+  /// \param[in] length number of steps to unroll.
+  /// \param[in] pos the starting time frame.
+  ZExpr MonoAssn(const InstrLvlAbsPtr top, const int& length,
+                 const int& pos = 0);
+
+  /// \brief Unroll the ILA without asserting states relations between steps.
+  /// \param[in] top the top-level ILA.
+  /// \param[in] length number of steps to unroll.
+  /// \param[in] pos the starting time frame.
+  /// \param[in] nxt_suff the suffix added to the next state values.
+  ZExpr MonoNone(const InstrLvlAbsPtr top, const int& length,
+                 const int& pos = 0, const std::string& nxt_suff = "nxt");
 
 private:
+  // ------------------------- MEMBERS -------------------------------------- //
+  /// The sequence of instructions.
   InstrLvlAbsPtr top_;
+  /// Internal container for collecting dependant state vars.
+  std::set<ExprPtr> dep_vars_;
 
-  void BootStrap(const InstrLvlAbsPtr top);
+  // ------------------------- METHODS -------------------------------------- //
+  /// [Application-specific] Collect the set of dependant state variables.
   void CollectVar();
-  void VisitHierCollectVar(const InstrLvlAbsPtr m);
-};
-#endif
+  /// [Application-specific] Define state updates and predicates of each step.
+  void Transition(const size_t& idx);
+
+  void CollectHier(const InstrLvlAbsPtr m);
+}; // class BulkUnroll
 
 } // namespace ila
 
