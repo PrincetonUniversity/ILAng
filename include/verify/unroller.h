@@ -54,7 +54,7 @@ protected:
   /// [Application-specific] Define state updates and predicates of each step.
   virtual void Transition(const size_t& idx) = 0;
 
-  /// Unroll by substituting internal expression.
+  /// Unroll while substituting internal expression.
   ZExpr UnrollSubs(const size_t& len, const int& pos);
   /// Unroll without substituting internal expression.
   ZExpr UnrollAssn(const size_t& len, const int& pos);
@@ -63,7 +63,7 @@ protected:
                    const std::string& nxt_suff);
 
   // ------------------------- HELPERS -------------------------------------- //
-  /// Return the state update of an instruction (unchanged if not defined).
+  /// Return the state update function (unchanged if not defined).
   ExprPtr StateUpdCmpl(const InstrPtr instr, const ExprPtr var);
 
 private:
@@ -80,12 +80,12 @@ private:
 
   /// The set of z3::expr representing the latest states of previous steps.
   ZExprVec k_prev_z3_;
-  /// The set of z3::expr representing the current states (var_k).
+  /// The set of z3::expr representing the current states.
   ZExprVec k_curr_z3_;
-  /// The set of z3::expr representing the next states (N(var_k)).
+  /// The set of z3::expr representing the next states.
   ZExprVec k_next_z3_;
 
-  /// The set of constraints that should be asserted at the end.
+  /// The set of constraints that should be asserted.
   ZExprVec cstr_;
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
@@ -95,10 +95,12 @@ private:
   inline Z3ExprAdapter& gen() { return gen_; }
 
   // ------------------------- HELPERS -------------------------------------- //
-  /// Boot-strapping information needed for unrolling, e.g. dependant vars.
+  /// \brief Boot-strapping information needed for unrolling.
+  /// - collect dependant state variables
+  /// - prepare rewriting table
   void BootStrap(const int& pos);
 
-  /// Assert equal between the z3::expr and the Expr w.r.t the time stamp.
+  /// Assert equal between the z3::expr and the Expr w.r.t the suffix.
   void AssertEqual(const ZExprVec& z, const IExprVec& e,
                    const std::string& suffix);
 
@@ -109,7 +111,7 @@ private:
   void IExprToZExpr(const IExprVec& i_expr_src, const std::string& suffix,
                     ZExprVec& z_expr_dst);
   /// \brief Generate and append the z3::expr for the set of Expr w.r.t. the
-  /// suffix while substituting the fanins.
+  /// suffix while substituting internal expressions.
   void IExprToZExpr(const IExprVec& i_expr_src, const std::string& suffix,
                     ZExprVec& z_expr_dst, const ZExprVec& subs_src,
                     const ZExprVec& subs_dst);
@@ -117,7 +119,7 @@ private:
   /// Wrapper for assigning (copying) z3::expr_vector from src to dst.
   void CopyZExprVec(const ZExprVec& src, ZExprVec& dst);
 
-  /// Conjunct all the predicates in the set.
+  /// Conjunct (AND) all the predicates in the set.
   ZExpr ConjPred(const ZExprVec& vec);
 
 }; // class Unroller
@@ -147,9 +149,10 @@ public:
   ZExpr InstrSeqAssn(const std::vector<InstrPtr>& seq, const int& pos = 0);
 
   /// \brief Unroll a sequence of instructions without asserting states
-  /// relations between steps.
+  /// relations between steps. "N(var_i) == var_i.nxt_suff"
   /// \param[in] seq the sequence of instructions.
   /// \param[in] pos the starting time frame.
+  /// \param[in] nxt_suff the suffix added to the next state values.
   ZExpr InstrSeqNone(const std::vector<InstrPtr>& seq, const int& pos = 0,
                      const std::string& nxt_suff = "nxt");
 

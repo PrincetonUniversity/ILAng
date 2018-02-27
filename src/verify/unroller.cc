@@ -43,22 +43,18 @@ ZExpr Unroller::UnrollSubs(const size_t& len, const int& pos) {
     // alias (reference)
     auto subs_src = k_curr_z3_;
     auto subs_dst = k_prev_z3_;
-
     // rewrite and add initial predicate
     if (i == 0) {
       IExprToZExpr(i_pred_, k_suffix, cstr_, subs_src, subs_dst);
     }
-
     // rewrite and add global predicate
     IExprToZExpr(g_pred_, k_suffix, cstr_, subs_src, subs_dst);
-
     // rewrite and add step-specific predicate
     IExprToZExpr(k_pred_, k_suffix, cstr_, subs_src, subs_dst);
 
     // rewrite and add transition relation
     Clear(k_next_z3_);
     IExprToZExpr(k_next_, k_suffix, k_next_z3_, subs_src, subs_dst);
-
     // update next state function to the prev for next step
     CopyZExprVec(k_next_z3_, k_prev_z3_);
   }
@@ -87,17 +83,14 @@ ZExpr Unroller::UnrollAssn(const size_t& len, const int& pos) {
     if (i == 0) {
       IExprToZExpr(i_pred_, k_suffix, cstr_);
     }
-
     // assert global predicate
     IExprToZExpr(g_pred_, k_suffix, cstr_);
-
     // assert step-specific predicate
     IExprToZExpr(k_pred_, k_suffix, cstr_);
 
     // assert transition relation
     Clear(k_next_z3_);
     IExprToZExpr(k_next_, k_suffix, k_next_z3_);
-
     // assert equal between next state value and next state var
     AssertEqual(k_next_z3_, vars_, std::to_string(pos + i + 1));
   }
@@ -124,17 +117,14 @@ ZExpr Unroller::UnrollNone(const size_t& len, const int& pos,
     if (i == 0) {
       IExprToZExpr(i_pred_, k_suffix, cstr_);
     }
-
     // assert global predicate
     IExprToZExpr(g_pred_, k_suffix, cstr_);
-
     // assert step-specific predicate
     IExprToZExpr(k_pred_, k_suffix, cstr_);
 
     // assert transition relation
     Clear(k_next_z3_);
     IExprToZExpr(k_next_, k_suffix, k_next_z3_);
-
     // assert equal between next state value and next state var
     auto k_nxt_suffix = k_suffix + "." + nxt_suff;
     AssertEqual(k_next_z3_, vars_, k_nxt_suffix);
@@ -151,15 +141,18 @@ ExprPtr Unroller::StateUpdCmpl(const InstrPtr instr, const ExprPtr var) {
 }
 
 void Unroller::BootStrap(const int& pos) {
-  // collect dependant state variables
   vars_.clear();
+  k_pred_.clear();
+  k_next_.clear();
+  // collect dependant state variables
   CollectVar();
   ILA_ASSERT(!vars_.empty()) << "No state variable defined.";
 
-  // prepare the table
   Clear(k_prev_z3_);
   Clear(k_curr_z3_);
   Clear(k_next_z3_);
+  Clear(cstr_);
+  // prepare the table
   for (auto it = vars_.begin(); it != vars_.end(); it++) {
     auto suff = std::to_string(pos);
     auto ivar = *it;
