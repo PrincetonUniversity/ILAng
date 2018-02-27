@@ -90,9 +90,6 @@ private:
   /// The set of constraints that should be asserted at the end.
   ZExprVec cstr_;
 
-  /// Perform substitution if true;
-  bool f_subs_ = true;
-
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return the underlying z3::context.
   inline z3::context& ctx() const { return ctx_; }
@@ -104,8 +101,8 @@ private:
   void BootStrap(const int& pos);
 
   /// Assert equal between the z3::expr and the Expr w.r.t the time stamp.
-  void AssertVarEqual(const ZExprVec& z, const IExprVec& e,
-                      const std::string& suffix);
+  void AssertEqual(const ZExprVec& z, const IExprVec& e,
+                   const std::string& suffix);
 
   /// Clear the z3::epxr container.
   inline void Clear(ZExprVec& z3_vec);

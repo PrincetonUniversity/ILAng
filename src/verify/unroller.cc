@@ -33,12 +33,10 @@ ZExpr Unroller::UnrollSubs(const size_t& len, const int& pos) {
     // time-stamp for this time-frame
     auto k_suffix = std::to_string(pos + i);
 
-    // get transition relation (i_next_) and step-specific predicate (k_pred_)
+    // get transition relation (k_next_) and step-specific predicate (k_pred_)
     Transition(i);
 
     // the source for substitution
-    // ZExprVec k_curr(ctx());
-    // GenZExprVec(k_curr, vars_, k_stamp);
     Clear(k_curr_z3_);
     IExprToZExpr(vars_, k_suffix, k_curr_z3_);
 
@@ -49,28 +47,24 @@ ZExpr Unroller::UnrollSubs(const size_t& len, const int& pos) {
     // rewrite and add initial predicate
     if (i == 0) {
       IExprToZExpr(i_pred_, k_suffix, cstr_, subs_src, subs_dst);
-      // AssertPredSubs(i_pred_, k_stamp, k_curr, k_prev_);
     }
 
     // rewrite and add global predicate
     IExprToZExpr(g_pred_, k_suffix, cstr_, subs_src, subs_dst);
-    // AssertPredSubs(g_pred_, k_stamp, k_curr, k_prev_);
 
     // rewrite and add step-specific predicate
     IExprToZExpr(k_pred_, k_suffix, cstr_, subs_src, subs_dst);
-    // AssertPredSubs(k_pred_, k_stamp, k_curr, k_prev_);
 
     // rewrite and add transition relation
     Clear(k_next_z3_);
     IExprToZExpr(k_next_, k_suffix, k_next_z3_, subs_src, subs_dst);
-    // UpdateNextSubs(k_next_z3_, k_next_, k_stamp, k_curr, k_prev_);
 
     // update next state function to the prev for next step
     CopyZExprVec(k_next_z3_, k_prev_z3_);
   }
 
   // add constraints for transition relation (k_prev_ has the last value)
-  AssertVarEqual(k_prev_z3_, vars_, std::to_string(len));
+  AssertEqual(k_prev_z3_, vars_, std::to_string(len));
 
   // accumulate all constraints and return
   auto cstr = ConjPred(cstr_);
@@ -78,7 +72,39 @@ ZExpr Unroller::UnrollSubs(const size_t& len, const int& pos) {
 }
 
 ZExpr Unroller::UnrollAssn(const size_t& len, const int& pos) {
-  // TODO
+  // bootstrap basic information
+  BootStrap(pos);
+
+  // unroll based on g_pred, i_pred, and transition relation (with guard)
+  for (size_t i = 0; i != len; i++) {
+    // time-stamp for this time-frame
+    auto k_suffix = std::to_string(pos + i);
+
+    // get transition relation (k_next_) and step-specific predicate (k_pred_)
+    Transition(i);
+
+    // assert initial predicate
+    if (i == 0) {
+      IExprToZExpr(i_pred_, k_suffix, cstr_);
+    }
+
+    // assert global predicate
+    IExprToZExpr(g_pred_, k_suffix, cstr_);
+
+    // assert step-specific predicate
+    IExprToZExpr(k_pred_, k_suffix, cstr_);
+
+    // assert transition relation
+    Clear(k_next_z3_);
+    IExprToZExpr(k_next_, k_suffix, k_next_z3_);
+
+    // assert equal between next state value and next state var
+    AssertEqual(k_next_z3_, vars_, std::to_string(pos + i + 1));
+  }
+
+  // accumulate all constraints and return
+  auto cstr = ConjPred(cstr_);
+  return cstr;
 }
 
 ExprPtr Unroller::StateUpdCmpl(const InstrPtr instr, const ExprPtr var) {
@@ -104,8 +130,8 @@ void Unroller::BootStrap(const int& pos) {
   }
 }
 
-void Unroller::AssertVarEqual(const ZExprVec& a, const IExprVec& b,
-                              const std::string& suffix) {
+void Unroller::AssertEqual(const ZExprVec& a, const IExprVec& b,
+                           const std::string& suffix) {
   ILA_ASSERT(a.size() == b.size()) << "Var num mismatch.";
   for (unsigned i = 0; i != a.size(); i++) {
     auto ai = a[i];
@@ -329,6 +355,13 @@ ZExpr ListUnroll::InstrSeqSubs(const InstrVec& seq, const int& pos) {
   // set up target transition relation
   seq_ = seq;
   auto cstr = UnrollSubs(seq.size(), pos);
+  return cstr;
+}
+
+ZExpr ListUnroll::InstrSeqAssn(const InstrVec& seq, const int& pos) {
+  // set up target transition relation
+  seq_ = seq;
+  auto cstr = UnrollAssn(seq.size(), pos);
   return cstr;
 }
 

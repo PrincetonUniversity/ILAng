@@ -27,8 +27,8 @@ TEST(TestUnroll, InstrSeqFlat) {
   SetToStdErr(0);
 }
 
-TEST(TestUnroll, InsteSeqFlatSimpleProp) {
-  SetToStdErr(1);
+TEST(TestUnroll, InsteSeqFlatSubs) {
+  SetToStdErr(0);
   DebugLog::Enable("Unroller.Subs");
   //
 
@@ -45,6 +45,27 @@ TEST(TestUnroll, InsteSeqFlatSimpleProp) {
   auto cstr = unroller->InstrSeqSubs(seq);
 
   DebugLog::Disable("Unroller.Subs");
+  SetToStdErr(0);
+}
+
+TEST(TestUnroll, InsteSeqFlatAssn) {
+  SetToStdErr(1);
+  DebugLog::Enable("Unroller.Assn");
+  //
+
+  EqIlaGen ila_gen;
+  auto m = ila_gen.GetIlaFlat1();
+
+  std::vector<InstrPtr> seq;
+  for (size_t i = 0; i != m->instr_num(); i++) {
+    seq.push_back(m->instr(i));
+  }
+
+  z3::context c;
+  ListUnroll* unroller = new ListUnroll(c);
+  auto cstr = unroller->InstrSeqAssn(seq);
+
+  DebugLog::Disable("Unroller.Assn");
   SetToStdErr(0);
 }
 
