@@ -122,13 +122,13 @@ TEST_F(TestUnroll, InstrSeqSolve) {
   for (size_t i = 0; i != m0->state_num(); i++) {
     auto var0 = m0->state(i);
     auto var1 = m1->state(var0->name().str());
-    auto eq = gen.GetExpr(Eq(var0, var1), "0");
+    auto eq = unroller->Equal(var0, 0, var1, 0);
     s.add(eq);
   }
   // assert end value equal (take mem as example)
   auto mem0 = m0->state("mem");
   auto mem1 = m1->state("mem");
-  auto prop = gen.GetExpr(Eq(mem0, mem1), "4");
+  auto prop = unroller->Equal(mem0, 4, mem1, 4);
   s.add(!prop);
   // solve
   EXPECT_EQ(z3::unsat, s.check());

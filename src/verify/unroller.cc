@@ -24,6 +24,13 @@ void Unroller::ClearGlobPred() { g_pred_.clear(); }
 
 void Unroller::ClearInitPred() { i_pred_.clear(); }
 
+ZExpr Unroller::Equal(const ExprPtr a, const int& ta, const ExprPtr b,
+                      const int& tb) {
+  auto a_expr = gen().GetExpr(a, std::to_string(ta));
+  auto b_expr = gen().GetExpr(b, std::to_string(tb));
+  return a_expr == b_expr;
+}
+
 ZExpr Unroller::UnrollSubs(const size_t& len, const int& pos) {
   // bootstrap basic information
   BootStrap(pos);

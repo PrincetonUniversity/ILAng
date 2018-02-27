@@ -39,6 +39,10 @@ public:
   /// Clear the initial predicates.
   void ClearInitPred();
 
+  // ------------------------- HELPERS -------------------------------------- //
+  /// Return the z3::expr representing a and b are equal at their time-stamps.
+  ZExpr Equal(const ExprPtr a, const int& ta, const ExprPtr b, const int& tb);
+
 protected:
   // ------------------------- MEMBERS -------------------------------------- //
   /// The set of dependant state variables.
