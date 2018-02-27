@@ -58,6 +58,15 @@ protected:
   /// [Application-specific] Define state updates and predicates of each step.
   virtual void Transition(const size_t& idx) = 0;
 
+  /// [Customize] Suffix generator for normal expressions of each step.
+  virtual inline std::string SuffNorm(const int& t) const {
+    return std::to_string(t);
+  }
+  /// [Customize] Suffix generator for next state symbol of each step.
+  virtual inline std::string SuffNext(const int& t) const {
+    return std::to_string(t) + ".nxt";
+  }
+
   /// Unroll while substituting internal expression.
   ZExpr UnrollSubs(const size_t& len, const int& pos);
   /// Unroll without substituting internal expression.

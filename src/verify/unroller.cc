@@ -29,8 +29,8 @@ void Unroller::ClearInitPred() { i_pred_.clear(); }
 
 ZExpr Unroller::Equal(const ExprPtr a, const int& ta, const ExprPtr b,
                       const int& tb) {
-  auto a_expr = gen().GetExpr(a, std::to_string(ta));
-  auto b_expr = gen().GetExpr(b, std::to_string(tb));
+  auto a_expr = gen().GetExpr(a, SuffNorm(ta));
+  auto b_expr = gen().GetExpr(b, SuffNorm(tb));
   return a_expr == b_expr;
 }
 
@@ -41,7 +41,7 @@ ZExpr Unroller::UnrollSubs(const size_t& len, const int& pos) {
   // unroll based on g_pred, i_pred, and transition relation (with guard)
   for (size_t i = 0; i != len; i++) {
     // time-stamp for this time-frame
-    auto k_suffix = std::to_string(pos + i);
+    auto k_suffix = SuffNorm(pos + i);
 
     // get transition relation (k_next_) and step-specific predicate (k_pred_)
     Transition(i);
@@ -70,7 +70,7 @@ ZExpr Unroller::UnrollSubs(const size_t& len, const int& pos) {
   }
 
   // add constraints for transition relation (k_prev_ has the last value)
-  AssertEqual(k_prev_z3_, vars_, std::to_string(len));
+  AssertEqual(k_prev_z3_, vars_, SuffNorm(len));
 
   // accumulate all constraints and return
   auto cstr = ConjPred(cstr_);
@@ -84,7 +84,7 @@ ZExpr Unroller::UnrollAssn(const size_t& len, const int& pos) {
   // unroll based on g_pred, i_pred, and transition relation (with guard)
   for (size_t i = 0; i != len; i++) {
     // time-stamp for this time-frame
-    auto k_suffix = std::to_string(pos + i);
+    auto k_suffix = SuffNorm(pos + i);
 
     // get transition relation (k_next_) and step-specific predicate (k_pred_)
     Transition(i);
@@ -102,7 +102,7 @@ ZExpr Unroller::UnrollAssn(const size_t& len, const int& pos) {
     Clear(k_next_z3_);
     IExprToZExpr(k_next_, k_suffix, k_next_z3_);
     // assert equal between next state value and next state var
-    AssertEqual(k_next_z3_, vars_, std::to_string(pos + i + 1));
+    AssertEqual(k_next_z3_, vars_, SuffNorm(pos + i + 1));
   }
 
   // accumulate all constraints and return
@@ -118,7 +118,7 @@ ZExpr Unroller::UnrollNone(const size_t& len, const int& pos,
   // unroll based on g_pred, i_pred, and transition relation (with guard)
   for (size_t i = 0; i != len; i++) {
     // time-stamp for this time-frame
-    auto k_suffix = std::to_string(pos + i);
+    auto k_suffix = SuffNorm(pos + i);
 
     // get transition relation (k_next_) and step-specific predicate (k_pred_)
     Transition(i);
@@ -136,8 +136,7 @@ ZExpr Unroller::UnrollNone(const size_t& len, const int& pos,
     Clear(k_next_z3_);
     IExprToZExpr(k_next_, k_suffix, k_next_z3_);
     // assert equal between next state value and next state var
-    auto k_nxt_suffix = k_suffix + "." + nxt_suff;
-    AssertEqual(k_next_z3_, vars_, k_nxt_suffix);
+    AssertEqual(k_next_z3_, vars_, SuffNext(pos + i));
   }
 
   // accumulate all constraints and return
@@ -164,9 +163,8 @@ void Unroller::BootStrap(const int& pos) {
   Clear(cstr_);
   // prepare the table
   for (auto it = vars_.begin(); it != vars_.end(); it++) {
-    auto suff = std::to_string(pos);
     auto ivar = *it;
-    auto zvar = gen().GetExpr(ivar, suff);
+    auto zvar = gen().GetExpr(ivar, SuffNorm(pos));
     k_prev_z3_.push_back(zvar);
   }
 }
