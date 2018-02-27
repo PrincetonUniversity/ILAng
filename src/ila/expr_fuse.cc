@@ -242,6 +242,11 @@ ExprPtr ExprFuse::Store(const ExprPtr mem, const ExprPtr addr,
   return std::make_shared<ExprOpStore>(mem, addr, data);
 }
 
+ExprPtr ExprFuse::Load(const ExprPtr mem, const int& addr) {
+  auto rc = ExprFuse::BvConst(addr, mem->sort()->addr_width());
+  return std::make_shared<ExprOpLoad>(mem, rc);
+}
+
 ExprPtr ExprFuse::Concat(const ExprPtr hi, const ExprPtr lo) {
   return std::make_shared<ExprOpConcat>(hi, lo);
 }

@@ -159,6 +159,9 @@ ExprPtr Load(const ExprPtr mem, const ExprPtr addr);
 /// Memory store
 ExprPtr Store(const ExprPtr mem, const ExprPtr addr, const ExprPtr data);
 
+/// Memory load from constant address
+ExprPtr Load(const ExprPtr mem, const int& addr);
+
 /******************************************************************************/
 // Bit manipulation
 /******************************************************************************/
