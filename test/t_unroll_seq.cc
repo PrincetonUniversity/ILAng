@@ -110,15 +110,13 @@ TEST_F(TestUnroll, InstrSeqSolve) {
   z3::solver s(ctx_);
   s.add(cstr0);
   s.add(cstr1);
-
+  // check unconstrained two threads are free
   EXPECT_EQ(z3::sat, s.check());
 
   s.reset();
-
   s.add(cstr0);
   s.add(cstr1);
   // connect initial value
-  Z3ExprAdapter gen(ctx_);
   for (size_t i = 0; i != m0->state_num(); i++) {
     auto var0 = m0->state(i);
     auto var1 = m1->state(var0->name().str());
@@ -130,8 +128,22 @@ TEST_F(TestUnroll, InstrSeqSolve) {
   auto mem1 = m1->state("mem");
   auto prop = unroller->Equal(mem0, 4, mem1, 4);
   s.add(!prop);
-  // solve
+  // check two unrolling are equal
   EXPECT_EQ(z3::unsat, s.check());
+
+  s.reset();
+  s.add(cstr0);
+  s.add(cstr1);
+  // connect initial value
+  for (size_t i = 0; i != m0->state_num(); i++) {
+    auto var0 = m0->state(i);
+    auto var1 = m1->state(var0->name().str());
+    auto eq = unroller->Equal(var0, 0, var1, 0);
+    s.add(eq);
+  }
+  s.add(prop);
+  // check the sequence can reach the end
+  EXPECT_EQ(z3::sat, s.check());
 }
 
 } // namespace ila
