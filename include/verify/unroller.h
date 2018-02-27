@@ -81,7 +81,7 @@ private:
   IExprVec i_pred_;
 
   /// The set of z3::expr representing the latest states of previous steps.
-  ZExprVec k_prev_;
+  ZExprVec k_prev_z3_;
   /// The set of z3::expr representing the current states (var_k).
   ZExprVec k_curr_z3_;
   /// The set of z3::expr representing the next states (N(var_k)).
@@ -103,28 +103,9 @@ private:
   /// Boot-strapping information needed for unrolling, e.g. dependant vars.
   void BootStrap(const int& pos);
 
-  /// Assert the set of predicates at the given time-stamp.
-  void AssertPred(const IExprVec& pred_vec, const int& stamp);
-  /// Assert the set of predicates at the given time-stamp with substitution.
-  void AssertPredSubs(const IExprVec& pred_vec, const int& stamp,
-                      const ZExprVec& src_vec, const ZExprVec& dst_vec);
-
-  /// \brief Generate z3::expr for the next state functions with substitution.
-  /// \param[in] next_z destination z3::epxr container
-  /// \param[in] next_i source next state functions
-  /// \param[in] stamp time stamp of the step
-  /// \param[in] src the source for substitution
-  /// \param[in] dst the destination for substitution
-  void UpdateNextSubs(ZExprVec& next_z, const IExprVec& next_i,
-                      const int& stamp, const ZExprVec& src,
-                      const ZExprVec& dst);
-
   /// Assert equal between the z3::expr and the Expr w.r.t the time stamp.
-  void AssertVarEqual(const ZExprVec& z, const IExprVec& e, const int& stamp);
-
-  /// Wrapper for doing z3::expr substitution.
-  inline ZExpr Substitute(ZExpr z, const ZExprVec& subs_src,
-                          const ZExprVec& subs_dst) const;
+  void AssertVarEqual(const ZExprVec& z, const IExprVec& e,
+                      const std::string& suffix);
 
   /// Clear the z3::epxr container.
   inline void Clear(ZExprVec& z3_vec);
@@ -138,11 +119,8 @@ private:
                     ZExprVec& z_expr_dst, const ZExprVec& subs_src,
                     const ZExprVec& subs_dst);
 
-  /// Generate z3:expr for a set of Expr given a time stamp.
-  void GenZExprVec(ZExprVec& dst, const IExprVec& src, const int& stamp);
-
   /// Wrapper for assigning (copying) z3::expr_vector from src to dst.
-  void AssignZExprVec(ZExprVec& dst, const ZExprVec& src);
+  void CopyZExprVec(const ZExprVec& src, ZExprVec& dst);
 
   /// Conjunct all the predicates in the set.
   ZExpr ConjPred(const ZExprVec& vec);
