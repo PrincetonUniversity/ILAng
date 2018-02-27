@@ -107,6 +107,44 @@ ZExpr Unroller::UnrollAssn(const size_t& len, const int& pos) {
   return cstr;
 }
 
+ZExpr Unroller::UnrollNone(const size_t& len, const int& pos,
+                           const std::string& nxt_suff) {
+  // bootstrap basic information
+  BootStrap(pos);
+
+  // unroll based on g_pred, i_pred, and transition relation (with guard)
+  for (size_t i = 0; i != len; i++) {
+    // time-stamp for this time-frame
+    auto k_suffix = std::to_string(pos + i);
+
+    // get transition relation (k_next_) and step-specific predicate (k_pred_)
+    Transition(i);
+
+    // assert initial predicate
+    if (i == 0) {
+      IExprToZExpr(i_pred_, k_suffix, cstr_);
+    }
+
+    // assert global predicate
+    IExprToZExpr(g_pred_, k_suffix, cstr_);
+
+    // assert step-specific predicate
+    IExprToZExpr(k_pred_, k_suffix, cstr_);
+
+    // assert transition relation
+    Clear(k_next_z3_);
+    IExprToZExpr(k_next_, k_suffix, k_next_z3_);
+
+    // assert equal between next state value and next state var
+    auto k_nxt_suffix = k_suffix + "." + nxt_suff;
+    AssertEqual(k_next_z3_, vars_, k_nxt_suffix);
+  }
+
+  // accumulate all constraints and return
+  auto cstr = ConjPred(cstr_);
+  return cstr;
+}
+
 ExprPtr Unroller::StateUpdCmpl(const InstrPtr instr, const ExprPtr var) {
   auto upd = instr->GetUpdate(var);
   return (upd) ? upd : var;
@@ -362,6 +400,14 @@ ZExpr ListUnroll::InstrSeqAssn(const InstrVec& seq, const int& pos) {
   // set up target transition relation
   seq_ = seq;
   auto cstr = UnrollAssn(seq.size(), pos);
+  return cstr;
+}
+
+ZExpr ListUnroll::InstrSeqNone(const InstrVec& seq, const int& pos,
+                               const std::string& nxt_suff) {
+  // set up target transition relation
+  seq_ = seq;
+  auto cstr = UnrollNone(seq.size(), pos, nxt_suff);
   return cstr;
 }
 

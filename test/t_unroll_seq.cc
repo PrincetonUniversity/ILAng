@@ -8,65 +8,71 @@
 
 namespace ila {
 
-TEST(TestUnroll, InstrSeqFlat) {
-  SetToStdErr(0);
-  DebugLog::Enable("Unroller.InstrSeq");
-  EqIlaGen ila_gen;
-  auto m = ila_gen.GetIlaFlat1();
+class TestUnroll : public ::testing::Test {
+public:
+  TestUnroll() {}
+  ~TestUnroll() {}
+  void SetUp() {
+    SetToStdErr(1);
+    DebugLog::Enable("Unroller");
+  }
+  void TearDown() {
+    SetToStdErr(0);
+    DebugLog::Disable("Unroller");
+  }
+
+  EqIlaGen ila_gen_;
+  z3::context ctx_;
+
+}; // class TestUnroll
+
+TEST_F(TestUnroll, InstrSeqFlat) {
+  auto m = ila_gen_.GetIlaFlat1();
 
   std::vector<InstrPtr> seq;
   for (size_t i = 0; i != m->instr_num(); i++) {
     seq.push_back(m->instr(i));
   }
 
-  z3::context c;
-  Unroller* unroller = new ListUnroll(c);
+  Unroller* unroller = new ListUnroll(ctx_);
   auto cstr = unroller->InstrSeq(seq);
 
   // std::cout << cstr << std::endl;
-  SetToStdErr(0);
 }
 
-TEST(TestUnroll, InsteSeqFlatSubs) {
-  SetToStdErr(0);
-  DebugLog::Enable("Unroller.Subs");
-  //
-
-  EqIlaGen ila_gen;
-  auto m = ila_gen.GetIlaFlat1();
+TEST_F(TestUnroll, InsteSeqFlatSubs) {
+  auto m = ila_gen_.GetIlaFlat1();
 
   std::vector<InstrPtr> seq;
   for (size_t i = 0; i != m->instr_num(); i++) {
     seq.push_back(m->instr(i));
   }
 
-  z3::context c;
-  ListUnroll* unroller = new ListUnroll(c);
+  ListUnroll* unroller = new ListUnroll(ctx_);
   auto cstr = unroller->InstrSeqSubs(seq);
-
-  DebugLog::Disable("Unroller.Subs");
-  SetToStdErr(0);
 }
 
-TEST(TestUnroll, InsteSeqFlatAssn) {
-  SetToStdErr(1);
-  DebugLog::Enable("Unroller.Assn");
-  //
-
-  EqIlaGen ila_gen;
-  auto m = ila_gen.GetIlaFlat1();
+TEST_F(TestUnroll, InsteSeqFlatAssn) {
+  auto m = ila_gen_.GetIlaFlat1();
 
   std::vector<InstrPtr> seq;
   for (size_t i = 0; i != m->instr_num(); i++) {
     seq.push_back(m->instr(i));
   }
 
-  z3::context c;
-  ListUnroll* unroller = new ListUnroll(c);
+  ListUnroll* unroller = new ListUnroll(ctx_);
   auto cstr = unroller->InstrSeqAssn(seq);
+}
 
-  DebugLog::Disable("Unroller.Assn");
-  SetToStdErr(0);
+TEST_F(TestUnroll, InstrSeqFlatNone) {
+  auto m = ila_gen_.GetIlaFlat1();
+  std::vector<InstrPtr> seq;
+  for (size_t i = 0; i != m->instr_num(); i++) {
+    seq.push_back(m->instr(i));
+  }
+
+  ListUnroll* unroller = new ListUnroll(ctx_);
+  auto cstr = unroller->InstrSeqNone(seq);
 }
 
 } // namespace ila

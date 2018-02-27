@@ -58,11 +58,12 @@ protected:
   virtual void Transition(const size_t& idx) = 0;
 
   /// Unroll by substituting internal expression.
-  ZExpr UnrollSubs(const size_t& len, const int& pos = 0);
+  ZExpr UnrollSubs(const size_t& len, const int& pos);
   /// Unroll without substituting internal expression.
-  ZExpr UnrollAssn(const size_t& len, const int& pos = 0);
+  ZExpr UnrollAssn(const size_t& len, const int& pos);
   /// Unroll without asserting state equality between each step.
-  ZExpr UnrollNone(const size_t& len, const int& pos = 0);
+  ZExpr UnrollNone(const size_t& len, const int& pos,
+                   const std::string& nxt_suff);
 
   // ------------------------- HELPERS -------------------------------------- //
   /// Return the state update of an instruction (unchanged if not defined).
@@ -164,7 +165,8 @@ public:
   /// relations between steps.
   /// \param[in] seq the sequence of instructions.
   /// \param[in] pos the starting time frame.
-  ZExpr InstrSeqNone(const std::vector<InstrPtr>& seq, const int& pos = 0);
+  ZExpr InstrSeqNone(const std::vector<InstrPtr>& seq, const int& pos = 0,
+                     const std::string& nxt_suff = "nxt");
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
