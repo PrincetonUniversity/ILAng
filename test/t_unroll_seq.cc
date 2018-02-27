@@ -26,20 +26,6 @@ public:
 
 }; // class TestUnroll
 
-TEST_F(TestUnroll, InstrSeqFlat) {
-  auto m = ila_gen_.GetIlaFlat1();
-
-  std::vector<InstrPtr> seq;
-  for (size_t i = 0; i != m->instr_num(); i++) {
-    seq.push_back(m->instr(i));
-  }
-
-  Unroller* unroller = new ListUnroll(ctx_);
-  auto cstr = unroller->InstrSeq(seq);
-
-  // std::cout << cstr << std::endl;
-}
-
 TEST_F(TestUnroll, InsteSeqFlatSubs) {
   auto m = ila_gen_.GetIlaFlat1();
 

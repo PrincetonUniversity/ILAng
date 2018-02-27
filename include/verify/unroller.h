@@ -39,9 +39,6 @@ public:
   /// Clear the initial predicates.
   inline void ClearInitPred();
 
-  /// Legacy unrolling of instruction sequence.
-  ZExpr InstrSeq(const std::vector<InstrPtr>& seq, const int& pos = 0);
-
 protected:
   // ------------------------- MEMBERS -------------------------------------- //
   /// The set of dependant state variables.
@@ -122,18 +119,6 @@ private:
 
   /// Conjunct all the predicates in the set.
   ZExpr ConjPred(const ZExprVec& vec);
-
-  // legacy
-  z3::expr InstrUpdDflt(const InstrLvlAbsPtr ila, const std::string& prev,
-                        const std::string& next);
-
-  z3::expr InstrUpdCmpl(const InstrPtr instr, const std::string& prev,
-                        const std::string& next);
-
-  z3::expr StateUpdCmpl(const InstrPtr instr, const ExprPtr var,
-                        const std::string& prev);
-
-  std::set<ExprPtr> GetAllVar(const std::vector<InstrPtr>& seq) const;
 
 }; // class Unroller
 
