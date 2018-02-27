@@ -405,6 +405,10 @@ public:
   /// \param[in] name child-ILA name.
   Ila NewChild(const std::string& name);
 
+  // ------------------------- ACCESSORS/MUTATORS --------------------------- //
+  /// Return the wrapped ILA pointer.
+  inline IlaPtr get() const { return ptr_; }
+
 }; // class Ila
 
 /******************************************************************************/

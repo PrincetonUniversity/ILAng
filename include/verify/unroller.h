@@ -31,13 +31,13 @@ public:
 
   // ------------------------- METHODS -------------------------------------- //
   /// Add a predicate that should be asserted globally.
-  inline void AddGlobPred(const ExprPtr p);
+  void AddGlobPred(const ExprPtr p);
   /// Add a predicate that should be asserted in the initial condition.
-  inline void AddInitPred(const ExprPtr p);
+  void AddInitPred(const ExprPtr p);
   /// Clear the global predicates.
-  inline void ClearGlobPred();
+  void ClearGlobPred();
   /// Clear the initial predicates.
-  inline void ClearInitPred();
+  void ClearInitPred();
 
 protected:
   // ------------------------- MEMBERS -------------------------------------- //
