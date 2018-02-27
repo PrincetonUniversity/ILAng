@@ -26,18 +26,8 @@ ExprVar::~ExprVar() {}
 z3::expr ExprVar::GetZ3Expr(z3::context& ctx, const Z3ExprVec& z3expr_vec,
                             const std::string& suffix) const {
   auto prefix = (host()) ? host()->name().str() : "";
-  if (is_bool()) {
-    return ctx.bool_const(name().format_str(prefix, suffix).c_str());
-  } else if (is_bv()) {
-    return ctx.bv_const(name().format_str(prefix, suffix).c_str(),
-                        sort()->bit_width());
-  } else {
-    ILA_ASSERT(is_mem()) << "Unknown sort for var " << name();
-    auto addr_sort = ctx.bv_sort(sort()->addr_width());
-    auto data_sort = ctx.bv_sort(sort()->data_width());
-    auto mem_sort = ctx.array_sort(addr_sort, data_sort);
-    return ctx.constant(name().format_str(prefix, suffix).c_str(), mem_sort);
-  }
+  auto e_name = name().format_str(prefix, suffix);
+  return sort()->GetZ3Expr(ctx, e_name);
 }
 
 std::ostream& ExprVar::Print(std::ostream& out) const {
