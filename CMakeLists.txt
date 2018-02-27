@@ -59,7 +59,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 # Set debug/coverage flags, or optimize, depending on options.
 if (debug)
     set(CMAKE_BUILD_TYPE "Debug")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g3")
     # Coverage can only be set if -g is used.
     if (coverage)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage")
