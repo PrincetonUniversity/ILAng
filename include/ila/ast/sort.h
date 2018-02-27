@@ -34,9 +34,6 @@ public:
   static SortPtr MakeMemSort(const int& addr_width, const int& data_width);
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
-  /// Return true since this is the Sort type under Ast domain.
-  bool is_sort() const { return true; }
-
   /// Return true if have Boolean sort.
   virtual bool is_bool() const { return false; }
   /// Return true if have bit-vector sort.

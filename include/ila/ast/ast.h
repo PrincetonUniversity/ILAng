@@ -28,8 +28,6 @@ public:
   /// Is type Ast.
   bool is_ast() const { return true; }
 
-  /// Is type Ast::Sort.
-  virtual bool is_sort() const { return false; }
   /// Is type Ast::Expr.
   virtual bool is_expr() const { return false; }
   /// Is type Ast::Func.

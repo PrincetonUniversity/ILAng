@@ -11,10 +11,6 @@ namespace ila {
 TEST(TestSort, Boolean) {
   auto bool_sort = Sort::MakeBoolSort();
   // Sort bool_sort;
-  EXPECT_TRUE(bool_sort->is_ast());
-  EXPECT_TRUE(bool_sort->is_sort());
-  EXPECT_FALSE(bool_sort->is_expr());
-  EXPECT_FALSE(bool_sort->is_func());
   EXPECT_TRUE(bool_sort->is_bool());
   EXPECT_FALSE(bool_sort->is_bv());
   EXPECT_FALSE(bool_sort->is_mem());
@@ -43,10 +39,6 @@ TEST(TestSort, Boolean) {
 
 TEST(TestSort, Bitvector) {
   auto s = Sort::MakeBvSort(8);
-  EXPECT_TRUE(s->is_ast());
-  EXPECT_TRUE(s->is_sort());
-  EXPECT_FALSE(s->is_expr());
-  EXPECT_FALSE(s->is_func());
   EXPECT_FALSE(s->is_bool());
   EXPECT_TRUE(s->is_bv());
   EXPECT_FALSE(s->is_mem());
@@ -75,7 +67,6 @@ TEST(TestSort, Bitvector) {
 TEST(TestSort, Memory) {
   auto s = Sort::MakeMemSort(2, 32);
   EXPECT_TRUE(s->is_ast());
-  EXPECT_TRUE(s->is_sort());
   EXPECT_FALSE(s->is_expr());
   EXPECT_FALSE(s->is_func());
   EXPECT_FALSE(s->is_bool());

@@ -16,7 +16,6 @@ TEST(TestExprFuse, CreateVar) {
   EXPECT_FALSE(flag->is_instr());
   EXPECT_FALSE(flag->is_instr_lvl_abs());
   EXPECT_TRUE(flag->is_expr());
-  EXPECT_FALSE(flag->is_sort());
   EXPECT_FALSE(flag->is_func());
   EXPECT_TRUE(flag->is_var());
   EXPECT_FALSE(flag->is_const());
@@ -29,7 +28,6 @@ TEST(TestExprFuse, CreateVar) {
   EXPECT_FALSE(reg_x->is_instr());
   EXPECT_FALSE(reg_x->is_instr_lvl_abs());
   EXPECT_TRUE(reg_x->is_expr());
-  EXPECT_FALSE(reg_x->is_sort());
   EXPECT_FALSE(reg_x->is_func());
   EXPECT_TRUE(reg_x->is_var());
   EXPECT_FALSE(reg_x->is_const());
@@ -43,7 +41,6 @@ TEST(TestExprFuse, CreateVar) {
   EXPECT_FALSE(mem->is_instr());
   EXPECT_FALSE(mem->is_instr_lvl_abs());
   EXPECT_TRUE(mem->is_expr());
-  EXPECT_FALSE(mem->is_sort());
   EXPECT_FALSE(mem->is_func());
   EXPECT_TRUE(mem->is_var());
   EXPECT_FALSE(mem->is_const());
@@ -63,7 +60,6 @@ TEST(TestExprFuse, CreateConst) {
   EXPECT_FALSE(const_true->is_instr());
   EXPECT_FALSE(const_true->is_instr_lvl_abs());
   EXPECT_TRUE(const_true->is_expr());
-  EXPECT_FALSE(const_true->is_sort());
   EXPECT_FALSE(const_true->is_func());
   EXPECT_TRUE(const_true->is_const());
   EXPECT_FALSE(const_true->is_var());
@@ -79,7 +75,6 @@ TEST(TestExprFuse, CreateConst) {
   EXPECT_FALSE(const_bv0->is_instr());
   EXPECT_FALSE(const_bv0->is_instr_lvl_abs());
   EXPECT_TRUE(const_bv0->is_expr());
-  EXPECT_FALSE(const_bv0->is_sort());
   EXPECT_FALSE(const_bv0->is_func());
   EXPECT_TRUE(const_bv0->is_const());
   EXPECT_FALSE(const_bv0->is_var());
@@ -94,7 +89,6 @@ TEST(TestExprFuse, CreateConst) {
   EXPECT_FALSE(const_mem->is_instr());
   EXPECT_FALSE(const_mem->is_instr_lvl_abs());
   EXPECT_TRUE(const_mem->is_expr());
-  EXPECT_FALSE(const_mem->is_sort());
   EXPECT_FALSE(const_mem->is_func());
   EXPECT_TRUE(const_mem->is_const());
   EXPECT_FALSE(const_mem->is_var());
