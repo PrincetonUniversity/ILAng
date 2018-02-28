@@ -110,8 +110,7 @@ ZExpr Unroller::UnrollAssn(const size_t& len, const int& pos) {
   return cstr;
 }
 
-ZExpr Unroller::UnrollNone(const size_t& len, const int& pos,
-                           const std::string& nxt_suff) {
+ZExpr Unroller::UnrollNone(const size_t& len, const int& pos) {
   // bootstrap basic information
   BootStrap(pos);
 
@@ -238,11 +237,10 @@ ZExpr ListUnroll::InstrSeqAssn(const InstrVec& seq, const int& pos) {
   return UnrollAssn(seq.size(), pos);
 }
 
-ZExpr ListUnroll::InstrSeqNone(const InstrVec& seq, const int& pos,
-                               const std::string& nxt_suff) {
+ZExpr ListUnroll::InstrSeqNone(const InstrVec& seq, const int& pos) {
   // set up target transition relation
   seq_ = seq;
-  return UnrollNone(seq.size(), pos, nxt_suff);
+  return UnrollNone(seq.size(), pos);
 }
 
 void ListUnroll::CollectVar() {

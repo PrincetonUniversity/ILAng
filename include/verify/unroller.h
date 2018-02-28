@@ -72,8 +72,7 @@ protected:
   /// Unroll without substituting internal expression.
   ZExpr UnrollAssn(const size_t& len, const int& pos);
   /// Unroll without asserting state equality between each step.
-  ZExpr UnrollNone(const size_t& len, const int& pos,
-                   const std::string& nxt_suff);
+  ZExpr UnrollNone(const size_t& len, const int& pos);
 
   // ------------------------- HELPERS -------------------------------------- //
   /// Return the state update function (unchanged if not defined).
@@ -166,8 +165,7 @@ public:
   /// \param[in] seq the sequence of instructions.
   /// \param[in] pos the starting time frame.
   /// \param[in] nxt_suff the suffix added to the next state values.
-  ZExpr InstrSeqNone(const std::vector<InstrPtr>& seq, const int& pos = 0,
-                     const std::string& nxt_suff = "nxt");
+  ZExpr InstrSeqNone(const std::vector<InstrPtr>& seq, const int& pos = 0);
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
@@ -212,7 +210,7 @@ public:
   /// \param[in] pos the starting time frame.
   /// \param[in] nxt_suff the suffix added to the next state values.
   ZExpr MonoNone(const InstrLvlAbsPtr top, const int& length,
-                 const int& pos = 0, const std::string& nxt_suff = "nxt");
+                 const int& pos = 0);
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
