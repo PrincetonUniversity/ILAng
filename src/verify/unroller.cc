@@ -71,14 +71,16 @@ ZExpr Unroller::UnrollSubs(const size_t& len, const int& pos) {
     // alias (reference)
     auto subs_src = k_curr_z3_;
     auto subs_dst = k_prev_z3_;
-    // rewrite and add initial predicate
+    // rewrite and assert initial predicate
     if (i == 0) {
       IExprToZExpr(i_pred_, k_suffix, cstr_, subs_src, subs_dst);
     }
-    // rewrite and add global predicate
+    // rewrite and assert global predicate
     IExprToZExpr(g_pred_, k_suffix, cstr_, subs_src, subs_dst);
-    // rewrite and add step-specific predicate
+    // rewrite and assert step-specific predicate
     IExprToZExpr(k_pred_, k_suffix, cstr_, subs_src, subs_dst);
+    // rewrite and assert (external) step-specific predicate
+    IExprToZExpr(s_pred_[i], k_suffix, cstr_, subs_src, subs_dst);
 
     // rewrite and add transition relation
     Clear(k_next_z3_);
@@ -115,6 +117,8 @@ ZExpr Unroller::UnrollAssn(const size_t& len, const int& pos) {
     IExprToZExpr(g_pred_, k_suffix, cstr_);
     // assert step-specific predicate
     IExprToZExpr(k_pred_, k_suffix, cstr_);
+    // assert (external) step-specific predicate
+    IExprToZExpr(s_pred_[i], k_suffix, cstr_);
 
     // assert transition relation
     Clear(k_next_z3_);
@@ -148,6 +152,8 @@ ZExpr Unroller::UnrollNone(const size_t& len, const int& pos) {
     IExprToZExpr(g_pred_, k_suffix, cstr_);
     // assert step-specific predicate
     IExprToZExpr(k_pred_, k_suffix, cstr_);
+    // assert (external) step-specific predicate
+    IExprToZExpr(s_pred_[i], k_suffix, cstr_);
 
     // assert transition relation
     Clear(k_next_z3_);
@@ -164,6 +170,32 @@ ZExpr Unroller::UnrollNone(const size_t& len, const int& pos) {
 ExprPtr Unroller::StateUpdCmpl(const InstrPtr instr, const ExprPtr var) {
   auto upd = instr->GetUpdate(var);
   return (upd) ? upd : var;
+}
+
+void Unroller::UpdDepVar(const std::vector<InstrPtr>& seq,
+                         std::set<ExprPtr>& dep_var) {
+  for (size_t i = 0; i != seq.size(); i++) {
+    auto m = seq[i]->host();
+    ILA_NOT_NULL(m);
+    for (size_t i = 0; i != m->state_num(); i++) {
+      dep_var.insert(m->state(i));
+    }
+  }
+}
+
+void Unroller::UpdDepVar(const InstrLvlAbsPtr top, std::set<ExprPtr>& dep_var) {
+  ILA_NOT_NULL(top);
+  // traverse the child-ILAs
+  for (size_t i = 0; i != top->child_num(); i++) {
+    UpdDepVar(top->child(i), dep_var);
+  }
+  // child-states must contain parent-states
+  if (top->child_num() != 0)
+    return;
+  // add states if no child-ILAs
+  for (size_t i = 0; i != top->state_num(); i++) {
+    dep_var.insert(top->state(i));
+  }
 }
 
 void Unroller::BootStrap(const int& pos) {
@@ -263,19 +295,12 @@ ZExpr ListUnroll::InstrSeqNone(const InstrVec& seq, const int& pos) {
 
 void ListUnroll::DefineDepVar() {
   // collect the set of vars
-  std::set<ExprPtr> vars;
-  for (size_t i = 0; i != seq_.size(); i++) {
-    auto m = seq_[i]->host();
-    ILA_NOT_NULL(m);
-    // add states if no child-ILAs
-    for (size_t i = 0; i != m->state_num(); i++) {
-      vars.insert(m->state(i));
-    }
-  }
+  std::set<ExprPtr> dep_var;
+  UpdDepVar(seq_, dep_var);
 
   // update to the global set
   vars_.clear();
-  for (auto it = vars.begin(); it != vars.end(); it++) {
+  for (auto it = dep_var.begin(); it != dep_var.end(); it++) {
     vars_.push_back(*it);
   }
 }
@@ -313,9 +338,12 @@ ZExpr MonoUnroll::MonoSubs(const InstrLvlAbsPtr top, const int& length,
 }
 
 void MonoUnroll::DefineDepVar() {
-  ILA_ASSERT(vars_.empty()) << "var not clear yet.";
-  CollectHier(top_);
-  for (auto it = dep_vars_.begin(); it != dep_vars_.end(); it++) {
+  vars_.clear();
+  std::set<ExprPtr> dep_var;
+  UpdDepVar(top_, dep_var);
+
+  ILA_ASSERT(!dep_var.empty()) << "No state var found.";
+  for (auto it = dep_var.begin(); it != dep_var.end(); it++) {
     vars_.push_back(*it);
   }
 }
@@ -340,24 +368,6 @@ void MonoUnroll::Transition(const int& idx) {
   }
 
   // step predicate (k_pred_)
-}
-
-void MonoUnroll::CollectHier(const InstrLvlAbsPtr m) {
-  ILA_NOT_NULL(m);
-
-  // traverse the child-ILAs
-  for (size_t i = 0; i != m->child_num(); i++) {
-    CollectHier(m->child(i));
-  }
-
-  // child-states must contain parent-states
-  if (m->child_num() != 0)
-    return;
-
-  // add states if no child-ILAs
-  for (size_t i = 0; i != m->state_num(); i++) {
-    dep_vars_.insert(m->state(i));
-  }
 }
 
 } // namespace ila

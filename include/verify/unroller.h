@@ -87,6 +87,10 @@ protected:
   // ------------------------- HELPERS -------------------------------------- //
   /// Return the state update function (unchanged if not defined).
   ExprPtr StateUpdCmpl(const InstrPtr instr, const ExprPtr var);
+  /// Add dependant state vars of a sequence of instructions to the set.
+  void UpdDepVar(const std::vector<InstrPtr>& seq, std::set<ExprPtr>& dep_var);
+  /// Add dependant state vars of a tree of ILAs to the set.
+  void UpdDepVar(const InstrLvlAbsPtr top, std::set<ExprPtr>& dep_var);
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
@@ -99,7 +103,7 @@ private:
   IExprVec g_pred_;
   /// The set of initial predicates.
   IExprVec i_pred_;
-  /// The mapping of step-specific predicates.
+  /// The mapping of (external) step-specific predicates.
   std::map<int, IExprVec> s_pred_;
 
   /// The set of z3::expr representing the latest states of previous steps.
@@ -194,7 +198,12 @@ protected:
   /// = The var order stored in "vars_" will be the globally agree-upon order.
   void DefineDepVar();
 
-  /// [Application-specific] Define state updates and predicates of each step.
+  /// \brief [Application-specific] Define next state update functions.
+  /// - "k_next_" should be assigned with the next state expression.
+  /// - "k_next_" follows the global order as stored in "vars_".
+  /// - "k_next_" will NOT be cleared before calling (is the only modifier).
+  /// - "k_pred_" can be used to store step-specific predicates, e.g. decode.
+  /// - "k_pred_" will NOT be cleared before calling (is the only modifier).
   void Transition(const int& idx);
 
 private:
@@ -241,19 +250,22 @@ protected:
   /// \brief [Application-specific] Define dependant state variables.
   /// - "vars_" should be assigned with the state vars uniquely.
   /// - "vars_" will be cleared before caling this function.
-  /// = The var order stored in "vars_" will be the globally agree-upon order.
+  /// - The var order stored in "vars_" will be the globally agree-upon order.
   void DefineDepVar();
-  /// [Application-specific] Define state updates and predicates of each step.
+
+  /// \brief [Application-specific] Define next state update functions.
+  /// - "k_next_" should be assigned with the next state expression.
+  /// - "k_next_" follows the global order as stored in "vars_".
+  /// - "k_next_" will NOT be cleared before calling (is the only modifier).
+  /// - "k_pred_" can be used to store step-specific predicates, e.g. decode.
+  /// - "k_pred_" will NOT be cleared before calling (is the only modifier).
   void Transition(const int& idx);
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// The sequence of instructions.
   InstrLvlAbsPtr top_;
-  /// Internal container for collecting dependant state vars.
-  std::set<ExprPtr> dep_vars_;
 
-  void CollectHier(const InstrLvlAbsPtr m);
 }; // class BulkUnroll
 
 } // namespace ila
