@@ -34,14 +34,24 @@ public:
   void AddGlobPred(const ExprPtr p);
   /// Add a predicate that should be asserted in the initial condition.
   void AddInitPred(const ExprPtr p);
+  /// Add a predicate that should be asserted at the k-th step.
+  void AddStepPred(const ExprPtr p, const int& k);
   /// Clear the global predicates.
   void ClearGlobPred();
   /// Clear the initial predicates.
   void ClearInitPred();
+  /// Clear the step-specific predicates.
+  void ClearStepPred();
 
   // ------------------------- HELPERS -------------------------------------- //
-  /// Return the z3::expr representing a and b are equal at their time-stamps.
-  ZExpr Equal(const ExprPtr a, const int& ta, const ExprPtr b, const int& tb);
+  /// Return the z3::expr representing the current state at the time.
+  ZExpr CurrState(const ExprPtr v, const int& t);
+  /// Return the z3::expr representing the next state at the time.
+  ZExpr NextState(const ExprPtr v, const int& t);
+  /// Return the z3::expr representing the current-based Expr at the time.
+  ZExpr GetZ3Expr(const ExprPtr v, const int& t);
+  /// Return the z3::expr representing a and b are equal at their time.
+  ZExpr Equal(const ExprPtr va, const int& ta, const ExprPtr vb, const int& tb);
 
 protected:
   // ------------------------- MEMBERS -------------------------------------- //
@@ -53,21 +63,19 @@ protected:
   IExprVec k_next_;
 
   // ------------------------- METHODS -------------------------------------- //
-  /// [Application-specific] Collect the set of dependant state variables.
-  virtual void CollectVar() = 0;
-  /// [Application-specific] Define state updates and predicates of each step.
-  virtual void Transition(const size_t& idx) = 0;
-  /// [Application-specific] Used for adding additional constraints.
-  virtual ExprPtr KPred(const size_t& idx) = 0;
+  /// \brief [Application-specific] Define dependant state variables.
+  /// - "vars_" should be assigned with the state vars uniquely.
+  /// - "vars_" will be cleared before caling this function.
+  /// = The var order stored in "vars_" will be the globally agree-upon order.
+  virtual void DefineDepVar() = 0;
 
-  /// [Customize] Suffix generator for normal expressions of each step.
-  virtual inline std::string SuffNorm(const int& t) const {
-    return std::to_string(t);
-  }
-  /// [Customize] Suffix generator for next state symbol of each step.
-  virtual inline std::string SuffNext(const int& t) const {
-    return std::to_string(t) + ".nxt";
-  }
+  /// \brief [Application-specific] Define next state update functions.
+  /// - "k_next_" should be assigned with the next state expression.
+  /// - "k_next_" follows the global order as stored in "vars_".
+  /// - "k_next_" will NOT be cleared before calling (is the only modifier).
+  /// - "k_pred_" can be used to store step-specific predicates, e.g. decode.
+  /// - "k_pred_" will NOT be cleared before calling (is the only modifier).
+  virtual void Transition(const int& idx) = 0;
 
   /// Unroll while substituting internal expression.
   ZExpr UnrollSubs(const size_t& len, const int& pos);
@@ -91,6 +99,8 @@ private:
   IExprVec g_pred_;
   /// The set of initial predicates.
   IExprVec i_pred_;
+  /// The mapping of step-specific predicates.
+  std::map<int, IExprVec> s_pred_;
 
   /// The set of z3::expr representing the latest states of previous steps.
   ZExprVec k_prev_z3_;
@@ -136,6 +146,13 @@ private:
   /// Conjunct (AND) all the predicates in the set.
   ZExpr ConjPred(const ZExprVec& vec);
 
+  /// Suffix generator for current state expressions of each step.
+  inline std::string SuffCurr(const int& t) const { return std::to_string(t); }
+  /// Suffix generator for next state symbol of each step.
+  inline std::string SuffNext(const int& t) const {
+    return std::to_string(t) + ".nxt";
+  }
+
 }; // class Unroller
 
 /// \brief Application class for unrolling a list of instruction sequence.
@@ -171,12 +188,14 @@ public:
 
 protected:
   // ------------------------- METHODS -------------------------------------- //
-  /// [Application-specific] Collect the set of dependant state variables.
-  void CollectVar();
+  /// \brief [Application-specific] Define dependant state variables.
+  /// - "vars_" should be assigned with the state vars uniquely.
+  /// - "vars_" will be cleared before caling this function.
+  /// = The var order stored in "vars_" will be the globally agree-upon order.
+  void DefineDepVar();
+
   /// [Application-specific] Define state updates and predicates of each step.
-  void Transition(const size_t& idx);
-  /// [Application-specific] Used for adding additional constraints.
-  virtual ExprPtr KPred(const size_t& idx) { return NULL; }
+  void Transition(const int& idx);
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
@@ -219,12 +238,13 @@ public:
 
 protected:
   // ------------------------- METHODS -------------------------------------- //
-  /// [Application-specific] Collect the set of dependant state variables.
-  void CollectVar();
+  /// \brief [Application-specific] Define dependant state variables.
+  /// - "vars_" should be assigned with the state vars uniquely.
+  /// - "vars_" will be cleared before caling this function.
+  /// = The var order stored in "vars_" will be the globally agree-upon order.
+  void DefineDepVar();
   /// [Application-specific] Define state updates and predicates of each step.
-  void Transition(const size_t& idx);
-  /// [Application-specific] Used for adding additional constraints.
-  virtual ExprPtr KPred(const size_t& idx) { return NULL; }
+  void Transition(const int& idx);
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //

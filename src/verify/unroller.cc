@@ -23,14 +23,32 @@ void Unroller::AddGlobPred(const ExprPtr p) { g_pred_.push_back(p); }
 
 void Unroller::AddInitPred(const ExprPtr p) { i_pred_.push_back(p); }
 
+void Unroller::AddStepPred(const ExprPtr p, const int& k) {
+  s_pred_[k].push_back(p);
+}
+
 void Unroller::ClearGlobPred() { g_pred_.clear(); }
 
 void Unroller::ClearInitPred() { i_pred_.clear(); }
 
+void Unroller::ClearStepPred() { s_pred_.clear(); }
+
+ZExpr Unroller::CurrState(const ExprPtr v, const int& t) {
+  return gen().GetExpr(v, SuffCurr(t));
+}
+
+ZExpr Unroller::NextState(const ExprPtr v, const int& t) {
+  return gen().GetExpr(v, SuffNext(t));
+}
+
+ZExpr Unroller::GetZ3Expr(const ExprPtr v, const int& t) {
+  return gen().GetExpr(v, SuffCurr(t));
+}
+
 ZExpr Unroller::Equal(const ExprPtr a, const int& ta, const ExprPtr b,
                       const int& tb) {
-  auto a_expr = gen().GetExpr(a, SuffNorm(ta));
-  auto b_expr = gen().GetExpr(b, SuffNorm(tb));
+  auto a_expr = gen().GetExpr(a, SuffCurr(ta));
+  auto b_expr = gen().GetExpr(b, SuffCurr(tb));
   return a_expr == b_expr;
 }
 
@@ -41,7 +59,7 @@ ZExpr Unroller::UnrollSubs(const size_t& len, const int& pos) {
   // unroll based on g_pred, i_pred, and transition relation (with guard)
   for (size_t i = 0; i != len; i++) {
     // time-stamp for this time-frame
-    auto k_suffix = SuffNorm(pos + i);
+    auto k_suffix = SuffCurr(pos + i);
 
     // get transition relation (k_next_) and step-specific predicate (k_pred_)
     Transition(i);
@@ -70,7 +88,7 @@ ZExpr Unroller::UnrollSubs(const size_t& len, const int& pos) {
   }
 
   // add constraints for transition relation (k_prev_ has the last value)
-  AssertEqual(k_prev_z3_, vars_, SuffNorm(len));
+  AssertEqual(k_prev_z3_, vars_, SuffCurr(len));
 
   // accumulate all constraints and return
   auto cstr = ConjPred(cstr_);
@@ -84,7 +102,7 @@ ZExpr Unroller::UnrollAssn(const size_t& len, const int& pos) {
   // unroll based on g_pred, i_pred, and transition relation (with guard)
   for (size_t i = 0; i != len; i++) {
     // time-stamp for this time-frame
-    auto k_suffix = SuffNorm(pos + i);
+    auto k_suffix = SuffCurr(pos + i);
 
     // get transition relation (k_next_) and step-specific predicate (k_pred_)
     Transition(i);
@@ -102,7 +120,7 @@ ZExpr Unroller::UnrollAssn(const size_t& len, const int& pos) {
     Clear(k_next_z3_);
     IExprToZExpr(k_next_, k_suffix, k_next_z3_);
     // assert equal between next state value and next state var
-    AssertEqual(k_next_z3_, vars_, SuffNorm(pos + i + 1));
+    AssertEqual(k_next_z3_, vars_, SuffCurr(pos + i + 1));
   }
 
   // accumulate all constraints and return
@@ -117,7 +135,7 @@ ZExpr Unroller::UnrollNone(const size_t& len, const int& pos) {
   // unroll based on g_pred, i_pred, and transition relation (with guard)
   for (size_t i = 0; i != len; i++) {
     // time-stamp for this time-frame
-    auto k_suffix = SuffNorm(pos + i);
+    auto k_suffix = SuffCurr(pos + i);
 
     // get transition relation (k_next_) and step-specific predicate (k_pred_)
     Transition(i);
@@ -153,7 +171,7 @@ void Unroller::BootStrap(const int& pos) {
   k_pred_.clear();
   k_next_.clear();
   // collect dependant state variables
-  CollectVar();
+  DefineDepVar();
   ILA_ASSERT(!vars_.empty()) << "No state variable defined.";
 
   Clear(k_prev_z3_);
@@ -163,7 +181,7 @@ void Unroller::BootStrap(const int& pos) {
   // prepare the table
   for (auto it = vars_.begin(); it != vars_.end(); it++) {
     auto ivar = *it;
-    auto zvar = gen().GetExpr(ivar, SuffNorm(pos));
+    auto zvar = gen().GetExpr(ivar, SuffCurr(pos));
     k_prev_z3_.push_back(zvar);
   }
 }
@@ -243,7 +261,7 @@ ZExpr ListUnroll::InstrSeqNone(const InstrVec& seq, const int& pos) {
   return UnrollNone(seq.size(), pos);
 }
 
-void ListUnroll::CollectVar() {
+void ListUnroll::DefineDepVar() {
   // collect the set of vars
   std::set<ExprPtr> vars;
   for (size_t i = 0; i != seq_.size(); i++) {
@@ -262,8 +280,8 @@ void ListUnroll::CollectVar() {
   }
 }
 
-void ListUnroll::Transition(const size_t& idx) {
-  ILA_CHECK(idx < seq_.size()) << "Out-of-bound transition not defined.";
+void ListUnroll::Transition(const int& idx) {
+  ILA_CHECK(idx < (int)seq_.size()) << "Out-of-bound transition not defined.";
   auto instr = seq_[idx];
 
   // update next state function (k_next_)
@@ -279,9 +297,6 @@ void ListUnroll::Transition(const size_t& idx) {
   auto dec = instr->GetDecode();
   ILA_NOT_NULL(dec);
   k_pred_.push_back(dec);
-
-  // add customized step predicate (k_pred_)
-  // auto cust = CustKPred(seq_);
 }
 
 /******************************************************************************/
@@ -297,7 +312,7 @@ ZExpr MonoUnroll::MonoSubs(const InstrLvlAbsPtr top, const int& length,
   return UnrollSubs(length, pos);
 }
 
-void MonoUnroll::CollectVar() {
+void MonoUnroll::DefineDepVar() {
   ILA_ASSERT(vars_.empty()) << "var not clear yet.";
   CollectHier(top_);
   for (auto it = dep_vars_.begin(); it != dep_vars_.end(); it++) {
@@ -308,7 +323,7 @@ void MonoUnroll::CollectVar() {
 // - decode is embedded in the update function
 // - instruction selection is encoded as step predicate
 // - next state var is the representation of the update function
-void MonoUnroll::Transition(const size_t& idx) {
+void MonoUnroll::Transition(const int& idx) {
   // check whether the table has been generated.
   if (!k_next_.empty()) {
     ILA_ASSERT(k_next_.size() == vars_.size()) << "Table size mismatch.";
