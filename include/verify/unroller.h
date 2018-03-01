@@ -57,6 +57,8 @@ protected:
   virtual void CollectVar() = 0;
   /// [Application-specific] Define state updates and predicates of each step.
   virtual void Transition(const size_t& idx) = 0;
+  /// [Application-specific] Used for adding additional constraints.
+  virtual ExprPtr KPred(const size_t& idx) = 0;
 
   /// [Customize] Suffix generator for normal expressions of each step.
   virtual inline std::string SuffNorm(const int& t) const {
@@ -167,16 +169,19 @@ public:
   /// \param[in] nxt_suff the suffix added to the next state values.
   ZExpr InstrSeqNone(const std::vector<InstrPtr>& seq, const int& pos = 0);
 
-private:
-  // ------------------------- MEMBERS -------------------------------------- //
-  /// The sequence of instructions.
-  InstrVec seq_;
-
+protected:
   // ------------------------- METHODS -------------------------------------- //
   /// [Application-specific] Collect the set of dependant state variables.
   void CollectVar();
   /// [Application-specific] Define state updates and predicates of each step.
   void Transition(const size_t& idx);
+  /// [Application-specific] Used for adding additional constraints.
+  virtual ExprPtr KPred(const size_t& idx) { return NULL; }
+
+private:
+  // ------------------------- MEMBERS -------------------------------------- //
+  /// The sequence of instructions.
+  InstrVec seq_;
 };
 
 /// \brief Application class for unrolling the ILA as a monolithic transition
@@ -212,18 +217,21 @@ public:
   ZExpr MonoNone(const InstrLvlAbsPtr top, const int& length,
                  const int& pos = 0);
 
+protected:
+  // ------------------------- METHODS -------------------------------------- //
+  /// [Application-specific] Collect the set of dependant state variables.
+  void CollectVar();
+  /// [Application-specific] Define state updates and predicates of each step.
+  void Transition(const size_t& idx);
+  /// [Application-specific] Used for adding additional constraints.
+  virtual ExprPtr KPred(const size_t& idx) { return NULL; }
+
 private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// The sequence of instructions.
   InstrLvlAbsPtr top_;
   /// Internal container for collecting dependant state vars.
   std::set<ExprPtr> dep_vars_;
-
-  // ------------------------- METHODS -------------------------------------- //
-  /// [Application-specific] Collect the set of dependant state variables.
-  void CollectVar();
-  /// [Application-specific] Define state updates and predicates of each step.
-  void Transition(const size_t& idx);
 
   void CollectHier(const InstrLvlAbsPtr m);
 }; // class BulkUnroll

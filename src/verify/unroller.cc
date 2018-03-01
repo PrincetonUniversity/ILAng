@@ -279,6 +279,9 @@ void ListUnroll::Transition(const size_t& idx) {
   auto dec = instr->GetDecode();
   ILA_NOT_NULL(dec);
   k_pred_.push_back(dec);
+
+  // add customized step predicate (k_pred_)
+  // auto cust = CustKPred(seq_);
 }
 
 /******************************************************************************/
@@ -302,8 +305,26 @@ void MonoUnroll::CollectVar() {
   }
 }
 
+// - decode is embedded in the update function
+// - instruction selection is encoded as step predicate
+// - next state var is the representation of the update function
 void MonoUnroll::Transition(const size_t& idx) {
-  // TODO
+  // check whether the table has been generated.
+  if (!k_next_.empty()) {
+    ILA_ASSERT(k_next_.size() == vars_.size()) << "Table size mismatch.";
+    return;
+  }
+
+  // collect the set of insturctions
+
+  auto var_num = vars_.size();
+
+  // next state function (k_next_)
+  for (size_t v_idx = 0; v_idx != var_num; v_idx++) {
+    //
+  }
+
+  // step predicate (k_pred_)
 }
 
 void MonoUnroll::CollectHier(const InstrLvlAbsPtr m) {
