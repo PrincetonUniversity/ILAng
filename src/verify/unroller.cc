@@ -259,7 +259,7 @@ void Unroller::CopyZExprVec(const ZExprVec& src, ZExprVec& dst) {
   }
 }
 
-ZExpr Unroller::ConjPred(const ZExprVec& vec) {
+ZExpr Unroller::ConjPred(const ZExprVec& vec) const {
   auto conj = ctx().bool_val(true);
   for (size_t i = 0; i != vec.size(); i++) {
     conj = (conj && vec[i]);
@@ -359,6 +359,8 @@ void MonoUnroll::Transition(const int& idx) {
   }
 
   // collect the set of insturctions
+  std::set<InstrPtr> instrs;
+  // for (
 
   auto var_num = vars_.size();
 

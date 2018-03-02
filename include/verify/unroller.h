@@ -86,11 +86,12 @@ protected:
 
   // ------------------------- HELPERS -------------------------------------- //
   /// Return the state update function (unchanged if not defined).
-  ExprPtr StateUpdCmpl(const InstrPtr instr, const ExprPtr var);
+  static ExprPtr StateUpdCmpl(const InstrPtr instr, const ExprPtr var);
   /// Add dependant state vars of a sequence of instructions to the set.
-  void UpdDepVar(const std::vector<InstrPtr>& seq, std::set<ExprPtr>& dep_var);
+  static void UpdDepVar(const std::vector<InstrPtr>& seq,
+                        std::set<ExprPtr>& dep_var);
   /// Add dependant state vars of a tree of ILAs to the set.
-  void UpdDepVar(const InstrLvlAbsPtr top, std::set<ExprPtr>& dep_var);
+  static void UpdDepVar(const InstrLvlAbsPtr top, std::set<ExprPtr>& dep_var);
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
@@ -148,7 +149,7 @@ private:
   void CopyZExprVec(const ZExprVec& src, ZExprVec& dst);
 
   /// Conjunct (AND) all the predicates in the set.
-  ZExpr ConjPred(const ZExprVec& vec);
+  ZExpr ConjPred(const ZExprVec& vec) const;
 
   /// Suffix generator for current state expressions of each step.
   inline std::string SuffCurr(const int& t) const { return std::to_string(t); }
