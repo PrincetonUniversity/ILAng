@@ -33,6 +33,10 @@ void Unroller::ClearInitPred() { i_pred_.clear(); }
 
 void Unroller::ClearStepPred() { s_pred_.clear(); }
 
+void Unroller::SetExtraSuffix(const std::string& suff) { extra_suff_ = suff; }
+
+void Unroller::ResetExtraSuffix() { extra_suff_ = ""; }
+
 ZExpr Unroller::CurrState(const ExprPtr v, const int& t) {
   return gen().GetExpr(v, SuffCurr(t));
 }

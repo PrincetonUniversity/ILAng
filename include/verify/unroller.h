@@ -43,6 +43,11 @@ public:
   /// Clear the step-specific predicates.
   void ClearStepPred();
 
+  /// Set an extra suffix for customized applications.
+  void SetExtraSuffix(const std::string& suff);
+  /// Reset the extra suffix (rewrite to "").
+  void ResetExtraSuffix();
+
   // ------------------------- HELPERS -------------------------------------- //
   /// Return the z3::expr representing the current state at the time.
   ZExpr CurrState(const ExprPtr v, const int& t);
@@ -100,6 +105,9 @@ private:
   /// z3 expression generator.
   Z3ExprAdapter gen_;
 
+  /// Extra suffix for customized applications.
+  std::string extra_suff_ = "";
+
   /// The set of global predicates.
   IExprVec g_pred_;
   /// The set of initial predicates.
@@ -152,10 +160,12 @@ private:
   ZExpr ConjPred(const ZExprVec& vec) const;
 
   /// Suffix generator for current state expressions of each step.
-  inline std::string SuffCurr(const int& t) const { return std::to_string(t); }
+  inline std::string SuffCurr(const int& t) const {
+    return std::to_string(t) + extra_suff_;
+  }
   /// Suffix generator for next state symbol of each step.
   inline std::string SuffNext(const int& t) const {
-    return std::to_string(t) + ".nxt";
+    return std::to_string(t) + extra_suff_ + ".nxt";
   }
 
 }; // class Unroller
