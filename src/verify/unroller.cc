@@ -178,9 +178,14 @@ ExprPtr Unroller::StateUpdCmpl(const InstrPtr instr, const ExprPtr var) {
 
 void Unroller::UpdDepVar(const std::vector<InstrPtr>& seq,
                          std::set<ExprPtr>& dep_var) {
+  std::set<InstrLvlAbsPtr> hosts;
   for (size_t i = 0; i != seq.size(); i++) {
     auto m = seq[i]->host();
     ILA_NOT_NULL(m);
+    hosts.insert(m);
+  }
+  for (auto it = hosts.begin(); it != hosts.end(); it++) {
+    auto m = *it;
     for (size_t i = 0; i != m->state_num(); i++) {
       dep_var.insert(m->state(i));
     }
