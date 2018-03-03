@@ -379,6 +379,18 @@ ZExpr MonoUnroll::MonoSubs(const InstrLvlAbsPtr top, const int& length,
   return UnrollSubs(length, pos);
 }
 
+ZExpr MonoUnroll::MonoAssn(const InstrLvlAbsPtr top, const int& length,
+                           const int& pos) {
+  top_ = top;
+  return UnrollAssn(length, pos);
+}
+
+ZExpr MonoUnroll::MonoNone(const InstrLvlAbsPtr top, const int& length,
+                           const int& pos) {
+  top_ = top;
+  return UnrollNone(length, pos);
+}
+
 void MonoUnroll::DefineDepVar() {
   vars_.clear();
   std::set<ExprPtr> dep_var;

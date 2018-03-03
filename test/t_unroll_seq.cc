@@ -153,5 +153,17 @@ TEST_F(TestUnroll, BulkFlatSubs) {
   auto cstr = unroller->MonoSubs(m, 4);
 }
 
+TEST_F(TestUnroll, BulkFlatAssn) {
+  auto m = ila_gen_.GetIlaFlat1();
+  auto unroller = new MonoUnroll(ctx_);
+  auto cstr = unroller->MonoAssn(m, 4);
+}
+
+TEST_F(TestUnroll, BulkFlatNone) {
+  auto m = ila_gen_.GetIlaFlat1();
+  auto unroller = new MonoUnroll(ctx_);
+  auto cstr = unroller->MonoNone(m, 4);
+}
+
 } // namespace ila
 
