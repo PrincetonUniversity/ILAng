@@ -15,7 +15,16 @@ class TestUnroll : public ::testing::Test {
 public:
   TestUnroll() {}
   ~TestUnroll() {}
-  void SetUp() { DebugLog::Enable("Unroller"); }
+  void SetUp() {
+    DebugLog::Enable("Unroller");
+
+    MemVal init_mem_val(0);
+    init_mem_val.set_data(0, GenLoad(0, 0));
+    init_mem_val.set_data(1, GenLoad(1, 1));
+    init_mem_val.set_data(2, GenAdd(2, 0, 1));
+    init_mem_val.set_data(3, GenStore(2, 2));
+    init_mem = MemConst(init_mem_val, 8, 8);
+  }
   void TearDown() {
     SetToStdErr(0);
     DebugLog::Disable("Unroller");
@@ -23,6 +32,7 @@ public:
 
   EqIlaGen ila_gen_;
   z3::context ctx_;
+  ExprPtr init_mem = NULL;
 
 }; // class TestUnroll
 
@@ -85,10 +95,7 @@ TEST_F(TestUnroll, InstrSeqSolve) {
   }
   { // BMC init
     auto mem = m0->state("mem");
-    unroller->AddInitPred(Eq(Load(mem, 0), GenLoad(0, 0)));
-    unroller->AddInitPred(Eq(Load(mem, 1), GenLoad(1, 1)));
-    unroller->AddInitPred(Eq(Load(mem, 2), GenAdd(2, 0, 1)));
-    unroller->AddInitPred(Eq(Load(mem, 3), GenStore(2, 2)));
+    unroller->AddInitPred(Eq(mem, init_mem));
   }
   // unroll
   auto cstr0 = unroller->InstrSeqSubs(seq0);
@@ -99,10 +106,7 @@ TEST_F(TestUnroll, InstrSeqSolve) {
   }
   { // BMC init
     auto mem = m1->state("mem");
-    unroller->AddInitPred(Eq(Load(mem, 0), GenLoad(0, 0)));
-    unroller->AddInitPred(Eq(Load(mem, 1), GenLoad(1, 1)));
-    unroller->AddInitPred(Eq(Load(mem, 2), GenAdd(2, 0, 1)));
-    unroller->AddInitPred(Eq(Load(mem, 3), GenStore(2, 2)));
+    unroller->AddInitPred(Eq(mem, init_mem));
   }
   // unroll
   auto cstr1 = unroller->InstrSeqAssn(seq1);
