@@ -8,6 +8,8 @@
 
 namespace ila {
 
+using namespace ExprFuse;
+
 typedef Unroller::ZExpr ZExpr;
 
 /******************************************************************************/
@@ -176,34 +178,65 @@ ExprPtr Unroller::StateUpdCmpl(const InstrPtr instr, const ExprPtr var) {
   return (upd) ? upd : var;
 }
 
-void Unroller::UpdDepVar(const std::vector<InstrPtr>& seq,
-                         std::set<ExprPtr>& dep_var) {
+ExprPtr Unroller::DecodeCmpl(const InstrPtr instr) {
+  auto dec = instr->GetDecode();
+  return (dec) ? dec : BoolConst(true);
+}
+
+template <class I>
+void Unroller::GetVarOfInstr(const I& instrs, std::set<ExprPtr>& vars) {
   std::set<InstrLvlAbsPtr> hosts;
-  for (size_t i = 0; i != seq.size(); i++) {
-    auto m = seq[i]->host();
-    ILA_NOT_NULL(m);
-    hosts.insert(m);
+  for (auto it = instrs.begin(); it != instrs.end(); it++) {
+    auto instr = *it;
+    auto h = instr->host();
+    ILA_NOT_NULL(h);
+    hosts.insert(h);
   }
   for (auto it = hosts.begin(); it != hosts.end(); it++) {
-    auto m = *it;
-    for (size_t i = 0; i != m->state_num(); i++) {
-      dep_var.insert(m->state(i));
-    }
+    GetVarOfIla(*it, vars);
   }
 }
 
-void Unroller::UpdDepVar(const InstrLvlAbsPtr top, std::set<ExprPtr>& dep_var) {
+void Unroller::GetVarOfIla(const InstrLvlAbsPtr top, std::set<ExprPtr>& vars) {
   ILA_NOT_NULL(top);
   // traverse the child-ILAs
   for (size_t i = 0; i != top->child_num(); i++) {
-    UpdDepVar(top->child(i), dep_var);
+    GetVarOfIla(top->child(i), vars);
   }
   // child-states must contain parent-states
   if (top->child_num() != 0)
     return;
   // add states if no child-ILAs
   for (size_t i = 0; i != top->state_num(); i++) {
-    dep_var.insert(top->state(i));
+    vars.insert(top->state(i));
+  }
+}
+
+void Unroller::GetInstrOfIla(const InstrLvlAbsPtr top,
+                             std::vector<InstrPtr>& instrs) {
+  ILA_NOT_NULL(top);
+  // traverse the child-ILAs
+  for (size_t i = 0; i != top->child_num(); i++) {
+    GetInstrOfIla(top->child(i), instrs);
+  }
+  // add instr
+  for (size_t i = 0; i != top->instr_num(); i++) {
+    instrs.push_back(top->instr(i));
+  }
+}
+
+ExprPtr Unroller::NewFreeVar(const ExprPtr var, const std::string& name) {
+  auto host = var->host();
+  ILA_NOT_NULL(host);
+
+  if (var->is_bool()) {
+    return host->NewBoolFreeVar(name);
+  } else if (var->is_bv()) {
+    return host->NewBvFreeVar(name, var->sort()->bit_width());
+  } else {
+    ILA_ASSERT(var->is_mem()) << "Unknown sort for " << var;
+    return host->NewMemFreeVar(name, var->sort()->addr_width(),
+                               var->sort()->data_width());
   }
 }
 
@@ -305,7 +338,7 @@ ZExpr ListUnroll::InstrSeqNone(const InstrVec& seq, const int& pos) {
 void ListUnroll::DefineDepVar() {
   // collect the set of vars
   std::set<ExprPtr> dep_var;
-  UpdDepVar(seq_, dep_var);
+  GetVarOfInstr(seq_, dep_var);
 
   // update to the global set
   vars_.clear();
@@ -349,7 +382,7 @@ ZExpr MonoUnroll::MonoSubs(const InstrLvlAbsPtr top, const int& length,
 void MonoUnroll::DefineDepVar() {
   vars_.clear();
   std::set<ExprPtr> dep_var;
-  UpdDepVar(top_, dep_var);
+  GetVarOfIla(top_, dep_var);
 
   ILA_ASSERT(!dep_var.empty()) << "No state var found.";
   for (auto it = dep_var.begin(); it != dep_var.end(); it++) {
@@ -367,18 +400,77 @@ void MonoUnroll::Transition(const int& idx) {
     return;
   }
 
-  // collect the set of insturctions
-  std::set<InstrPtr> instrs;
-  // for (
+  // extract the set of insturctions
+  std::vector<InstrPtr> instr_set;
+  GetInstrOfIla(top_, instr_set);
+
+  // create the set of selection bits
+  std::vector<ExprPtr> sel_bits;
+  for (auto it = instr_set.begin(); it != instr_set.end(); it++) {
+    auto instr = *it;
+    auto host = instr->host();
+    auto sel = host->NewBoolFreeVar(instr->name().str() + ".sel");
+    sel_bits.push_back(sel);
+  }
+  // dummy selection bits (used for deadlock)
+  auto sel_dum = top_->NewBoolFreeVar("dead.sel");
 
   auto var_num = vars_.size();
+  auto instr_num = instr_set.size();
+  ILA_ASSERT(instr_num == sel_bits.size());
 
-  // next state function (k_next_)
+  // next state function
   for (size_t v_idx = 0; v_idx != var_num; v_idx++) {
-    //
+    auto var = vars_[v_idx];
+    auto var_next = NewFreeVar(var, var->name().str() + ".vnxt");
+    // add virtual next state to the update table
+    k_next_.push_back(var_next);
+
+    // accumulate update and decode function constraints
+    auto not_dec = BoolConst(true);
+    auto acc_dec = BoolConst(true);
+    auto acc_upd = BoolConst(true);
+    // loop through all instructions
+    for (size_t i_idx = 0; i_idx != instr_set.size(); i_idx++) {
+      auto instr = instr_set.at(i_idx);
+      auto sel = sel_bits.at(i_idx);
+      // sel -> decode
+      auto decode = DecodeCmpl(instr);
+      acc_dec = And(acc_dec, Imply(sel, decode));
+      not_dec = And(not_dec, Not(decode));
+      // sel -> Next(v, v')
+      auto next = StateUpdCmpl(instr, var);
+      auto equal = Eq(var_next, next);
+      acc_upd = And(acc_upd, Imply(sel, equal));
+    }
+    // dummy selection
+    acc_dec = And(acc_dec, Imply(sel_dum, not_dec));
+    acc_upd = And(acc_upd, Imply(sel_dum, Eq(var_next, var)));
+
+    // add to predicate
+    k_pred_.push_back(acc_dec);
+    k_pred_.push_back(acc_upd);
   }
 
-  // step predicate (k_pred_)
+  // one-hot encoding (no need to include dummy, enfored by decode)
+  // at least one (c1 \/ c2 \/ ... \/ cm)
+  auto one_hot_at_least_one = BoolConst(true);
+  for (size_t i = 0; i != instr_num; i++) {
+    auto sel_i = sel_bits.at(i);
+    one_hot_at_least_one = Or(one_hot_at_least_one, sel_i);
+  }
+  k_pred_.push_back(one_hot_at_least_one);
+  // at most one (/\i<m /\j>i (!ci \/ !cj))
+  auto one_hot_at_most_one = BoolConst(true);
+  for (size_t i = 0; i != instr_num; i++) {
+    auto sel_i = sel_bits.at(i);
+    for (size_t j = i + 1; j != instr_num; j++) {
+      auto sel_j = sel_bits.at(j);
+      auto not_both_true = Or(Not(sel_i), Not(sel_j));
+      one_hot_at_most_one = And(one_hot_at_most_one, not_both_true);
+    }
+  }
+  k_pred_.push_back(one_hot_at_most_one);
 }
 
 } // namespace ila

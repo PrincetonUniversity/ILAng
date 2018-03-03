@@ -92,11 +92,20 @@ protected:
   // ------------------------- HELPERS -------------------------------------- //
   /// Return the state update function (unchanged if not defined).
   static ExprPtr StateUpdCmpl(const InstrPtr instr, const ExprPtr var);
-  /// Add dependant state vars of a sequence of instructions to the set.
-  static void UpdDepVar(const std::vector<InstrPtr>& seq,
-                        std::set<ExprPtr>& dep_var);
+  /// Return the decode function (true if not defined).
+  static ExprPtr DecodeCmpl(const InstrPtr instr);
+
+  /// Add dependant state vars of a sequence/set of instructions to the set.
+  template <class I>
+  static void GetVarOfInstr(const I& instrs, std::set<ExprPtr>& vars);
   /// Add dependant state vars of a tree of ILAs to the set.
-  static void UpdDepVar(const InstrLvlAbsPtr top, std::set<ExprPtr>& dep_var);
+  static void GetVarOfIla(const InstrLvlAbsPtr top, std::set<ExprPtr>& vars);
+  /// Add instructions of a tree of ILAs to the set.
+  static void GetInstrOfIla(const InstrLvlAbsPtr top,
+                            std::vector<InstrPtr>& instrs);
+
+  /// Create a new free variable (with same sort) under the same host.
+  static ExprPtr NewFreeVar(const ExprPtr var, const std::string& name);
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
