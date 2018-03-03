@@ -171,6 +171,17 @@ public:
   const ExprPtr NewMemState(const std::string& name, const int& addr_width,
                             const int& data_width);
 
+  /// \brief Create one free Boolean variable.
+  /// \param[in] name of the Boolean variable.
+  /// \return pointer to the variable.
+  const ExprPtr NewBoolFreeVar(const std::string& name);
+
+  /// \brief Create one free bit-vector variable.
+  /// \param[in] name of the bit-vector variable.
+  /// \param[in] bit_width length of the bit-vector variable.
+  /// \return pointer to the variable.
+  const ExprPtr NewBvFreeVar(const std::string& name, const int& bit_width);
+
   /// \brief Create and register one instruction.
   /// \param[in] name of the instruction.
   /// \return pointer to the instruction.
