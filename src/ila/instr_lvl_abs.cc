@@ -211,6 +211,21 @@ const ExprPtr InstrLvlAbs::NewBvFreeVar(const std::string& name,
   return bv_var;
 }
 
+const ExprPtr InstrLvlAbs::NewMemFreeVar(const std::string& name,
+                                         const int& addr_width,
+                                         const int& data_width) {
+  auto posi = inputs_.find(name);
+  auto poss = states_.find(name);
+  ILA_ASSERT(posi == inputs_.end() && poss == states_.end())
+      << "Variable " << name << " has been declared.";
+  // create new var
+  ExprPtr mem_var = ExprFuse::NewMemVar(name, addr_width, data_width);
+  // set host
+  mem_var->set_host(shared_from_this());
+  // XXX need to register?
+  return mem_var;
+}
+
 const InstrPtr InstrLvlAbs::NewInstr(const std::string& name) {
   auto tmp_name = (name == "") ? "I." + std::to_string(instr_num()) : name;
   InstrPtr instr = Instr::New(tmp_name, shared_from_this());

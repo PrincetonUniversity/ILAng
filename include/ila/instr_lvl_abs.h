@@ -182,6 +182,14 @@ public:
   /// \return pointer to the variable.
   const ExprPtr NewBvFreeVar(const std::string& name, const int& bit_width);
 
+  /// \brief Create one free Memory variable.
+  /// \param[in] name of the memory variable.
+  /// \param[in] addr_width address bit-width.
+  /// \param[in] data_width data bit-width.
+  /// \return pointer to the variable.
+  const ExprPtr NewMemFreeVar(const std::string& name, const int& addr_width,
+                              const int& data_width);
+
   /// \brief Create and register one instruction.
   /// \param[in] name of the instruction.
   /// \return pointer to the instruction.
