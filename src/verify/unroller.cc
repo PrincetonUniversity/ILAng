@@ -311,31 +311,31 @@ ZExpr Unroller::ConjPred(const ZExprVec& vec) const {
 }
 
 /******************************************************************************/
-// ListUnroll
+// PathUnroll
 /******************************************************************************/
-ListUnroll::ListUnroll(z3::context& ctx) : Unroller(ctx) {}
+PathUnroll::PathUnroll(z3::context& ctx) : Unroller(ctx) {}
 
-ListUnroll::~ListUnroll() {}
+PathUnroll::~PathUnroll() {}
 
-ZExpr ListUnroll::InstrSeqSubs(const InstrVec& seq, const int& pos) {
+ZExpr PathUnroll::PathSubs(const InstrVec& seq, const int& pos) {
   // set up target transition relation
   seq_ = seq;
   return UnrollSubs(seq.size(), pos);
 }
 
-ZExpr ListUnroll::InstrSeqAssn(const InstrVec& seq, const int& pos) {
+ZExpr PathUnroll::PathAssn(const InstrVec& seq, const int& pos) {
   // set up target transition relation
   seq_ = seq;
   return UnrollAssn(seq.size(), pos);
 }
 
-ZExpr ListUnroll::InstrSeqNone(const InstrVec& seq, const int& pos) {
+ZExpr PathUnroll::PathNone(const InstrVec& seq, const int& pos) {
   // set up target transition relation
   seq_ = seq;
   return UnrollNone(seq.size(), pos);
 }
 
-void ListUnroll::DefineDepVar() {
+void PathUnroll::DefineDepVar() {
   // collect the set of vars
   std::set<ExprPtr> dep_var;
   GetVarOfInstr(seq_, dep_var);
@@ -347,7 +347,7 @@ void ListUnroll::DefineDepVar() {
   }
 }
 
-void ListUnroll::Transition(const int& idx) {
+void PathUnroll::Transition(const int& idx) {
   ILA_CHECK(idx < (int)seq_.size()) << "Out-of-bound transition not defined.";
   auto instr = seq_[idx];
 

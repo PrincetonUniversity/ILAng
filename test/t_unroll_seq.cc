@@ -44,8 +44,8 @@ TEST_F(TestUnroll, InsteSeqFlatSubs) {
     seq.push_back(m->instr(i));
   }
 
-  ListUnroll* unroller = new ListUnroll(ctx_);
-  auto cstr = unroller->InstrSeqSubs(seq);
+  auto unroller = new PathUnroll(ctx_);
+  auto cstr = unroller->PathSubs(seq);
 }
 
 TEST_F(TestUnroll, InsteSeqFlatAssn) {
@@ -56,8 +56,8 @@ TEST_F(TestUnroll, InsteSeqFlatAssn) {
     seq.push_back(m->instr(i));
   }
 
-  ListUnroll* unroller = new ListUnroll(ctx_);
-  auto cstr = unroller->InstrSeqAssn(seq);
+  auto unroller = new PathUnroll(ctx_);
+  auto cstr = unroller->PathAssn(seq);
 }
 
 TEST_F(TestUnroll, InstrSeqFlatNone) {
@@ -67,8 +67,8 @@ TEST_F(TestUnroll, InstrSeqFlatNone) {
     seq.push_back(m->instr(i));
   }
 
-  ListUnroll* unroller = new ListUnroll(ctx_);
-  auto cstr = unroller->InstrSeqNone(seq);
+  auto unroller = new PathUnroll(ctx_);
+  auto cstr = unroller->PathNone(seq);
 }
 
 TEST_F(TestUnroll, InstrSeqSolve) {
@@ -87,7 +87,7 @@ TEST_F(TestUnroll, InstrSeqSolve) {
   std::vector<InstrPtr> seq1 = {m1->instr("Load"), m1->instr("Load"),
                                 m1->instr("Add"), m1->instr("Store")};
 
-  auto unroller = new ListUnroll(ctx_);
+  auto unroller = new PathUnroll(ctx_);
 
   // ILA init
   for (size_t i = 0; i != m0->init_num(); i++) {
@@ -98,7 +98,7 @@ TEST_F(TestUnroll, InstrSeqSolve) {
     unroller->AddInitPred(Eq(ir, init_mem));
   }
   // unroll
-  auto cstr0 = unroller->InstrSeqSubs(seq0);
+  auto cstr0 = unroller->PathSubs(seq0);
   unroller->ClearInitPred();
 
   // ILA init
@@ -110,7 +110,7 @@ TEST_F(TestUnroll, InstrSeqSolve) {
     unroller->AddInitPred(Eq(ir, init_mem));
   }
   // unroll
-  auto cstr1 = unroller->InstrSeqAssn(seq1);
+  auto cstr1 = unroller->PathAssn(seq1);
 
   z3::solver s(ctx_);
   s.add(cstr0);
@@ -258,7 +258,7 @@ TEST_F(TestUnroll, PathMonoSolve) {
   std::vector<InstrPtr> seq0 = {m0->instr("Load"), m0->instr("Load"),
                                 m0->instr("Add"), m0->instr("Store")};
 
-  auto path = new ListUnroll(ctx_);
+  auto path = new PathUnroll(ctx_);
   auto mono = new MonoUnroll(ctx_);
 
   // ILA init
@@ -270,7 +270,7 @@ TEST_F(TestUnroll, PathMonoSolve) {
     path->AddInitPred(Eq(ir, init_mem));
   }
   // unroll
-  auto cstr0 = path->InstrSeqSubs(seq0);
+  auto cstr0 = path->PathSubs(seq0);
 
   // ILA init
   for (size_t i = 0; i != m1->init_num(); i++) {

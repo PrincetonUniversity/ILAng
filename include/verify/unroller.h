@@ -179,36 +179,36 @@ private:
 
 }; // class Unroller
 
-/// \brief Application class for unrolling a list of instruction sequence.
-class ListUnroll : public Unroller {
+/// \brief Application class for unrolling a path of instruction sequence.
+class PathUnroll : public Unroller {
 public:
   /// Type of a list of instruction sequence.
   typedef std::vector<InstrPtr> InstrVec;
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor.
-  ListUnroll(z3::context& ctx);
+  PathUnroll(z3::context& ctx);
   /// Default destructor.
-  ~ListUnroll();
+  ~PathUnroll();
 
   // ------------------------- METHODS -------------------------------------- //
   /// \brief Unroll a sequence of instructions with internal states substituted.
   /// \param[in] seq the sequence of instructions.
   /// \param[in] pos the starting time frame.
-  ZExpr InstrSeqSubs(const std::vector<InstrPtr>& seq, const int& pos = 0);
+  ZExpr PathSubs(const std::vector<InstrPtr>& seq, const int& pos = 0);
 
   /// \brief Unroll a sequence of instructions while asserting states are equal
   /// between each step.
   /// \param[in] seq the sequence of instructions.
   /// \param[in] pos the starting time frame.
-  ZExpr InstrSeqAssn(const std::vector<InstrPtr>& seq, const int& pos = 0);
+  ZExpr PathAssn(const std::vector<InstrPtr>& seq, const int& pos = 0);
 
   /// \brief Unroll a sequence of instructions without asserting states
   /// relations between steps. "N(var_i) == var_i.nxt_suff"
   /// \param[in] seq the sequence of instructions.
   /// \param[in] pos the starting time frame.
   /// \param[in] nxt_suff the suffix added to the next state values.
-  ZExpr InstrSeqNone(const std::vector<InstrPtr>& seq, const int& pos = 0);
+  ZExpr PathNone(const std::vector<InstrPtr>& seq, const int& pos = 0);
 
 protected:
   // ------------------------- METHODS -------------------------------------- //
@@ -230,7 +230,7 @@ private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// The sequence of instructions.
   InstrVec seq_;
-};
+}; // class PathUnroll
 
 /// \brief Application class for unrolling the ILA as a monolithic transition
 /// system.
@@ -286,7 +286,7 @@ private:
   /// The sequence of instructions.
   InstrLvlAbsPtr top_;
 
-}; // class BulkUnroll
+}; // class MonoUnroll
 
 } // namespace ila
 
