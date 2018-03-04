@@ -466,7 +466,7 @@ void MonoUnroll::Transition(const int& idx) {
 
   // one-hot encoding (no need to include dummy, enfored by decode)
   // at least one (c1 \/ c2 \/ ... \/ cm)
-  auto one_hot_at_least_one = BoolConst(true);
+  auto one_hot_at_least_one = BoolConst(false);
   for (size_t i = 0; i != instr_num; i++) {
     auto sel_i = sel_bits.at(i);
     one_hot_at_least_one = Or(one_hot_at_least_one, sel_i);
