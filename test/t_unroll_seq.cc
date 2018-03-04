@@ -244,5 +244,83 @@ TEST_F(TestUnroll, MonoSolve) {
   EXPECT_EQ(z3::sat, s.check());
 }
 
+TEST_F(TestUnroll, PathMonoSolve) {
+  SetToStdErr(1);
+  auto m0 = SimpleCpu("m0");
+  auto m1 = SimpleCpu("m1");
+
+  /*
+   * reg0 = Load 0
+   * reg1 = Load 1
+   * reg2 = reg0 + reg1
+   * Store reg2 2
+   */
+  std::vector<InstrPtr> seq0 = {m0->instr("Load"), m0->instr("Load"),
+                                m0->instr("Add"), m0->instr("Store")};
+
+  auto path = new ListUnroll(ctx_);
+  auto mono = new MonoUnroll(ctx_);
+
+  // ILA init
+  for (size_t i = 0; i != m0->init_num(); i++) {
+    path->AddInitPred(m0->init(i));
+  }
+  { // BMC init
+    auto ir = m0->state("ir");
+    path->AddInitPred(Eq(ir, init_mem));
+  }
+  // unroll
+  auto cstr0 = path->InstrSeqSubs(seq0);
+
+  // ILA init
+  for (size_t i = 0; i != m1->init_num(); i++) {
+    mono->AddInitPred(m1->init(i));
+  }
+  { // BMC init
+    auto ir = m1->state("ir");
+    mono->AddInitPred(Eq(ir, init_mem));
+  }
+  // unroll
+  auto cstr1 = mono->MonoAssn(m1, 4);
+
+  z3::solver s(ctx_);
+  s.add(cstr0);
+  s.add(cstr1);
+  // check unconstrained two threads are free
+  EXPECT_EQ(z3::sat, s.check());
+
+  s.reset();
+  s.add(cstr0);
+  s.add(cstr1);
+  // connect initial value
+  for (size_t i = 0; i != m0->state_num(); i++) {
+    auto var0 = m0->state(i);
+    auto var1 = m1->state(var0->name().str());
+    auto eq = mono->Equal(var0, 0, var1, 0);
+    s.add(eq);
+  }
+  // assert end value equal (take mem as example)
+  auto mem0 = m0->state("mem");
+  auto mem1 = m1->state("mem");
+  auto prop = mono->Equal(mem0, 4, mem1, 4);
+  s.add(!prop);
+  // check two unrolling are equal
+  EXPECT_EQ(z3::unsat, s.check());
+
+  s.reset();
+  s.add(cstr0);
+  s.add(cstr1);
+  // connect initial value
+  for (size_t i = 0; i != m0->state_num(); i++) {
+    auto var0 = m0->state(i);
+    auto var1 = m1->state(var0->name().str());
+    auto eq = mono->Equal(var0, 0, var1, 0);
+    s.add(eq);
+  }
+  s.add(prop);
+  // check the sequence can reach the end
+  EXPECT_EQ(z3::sat, s.check());
+}
+
 } // namespace ila
 
