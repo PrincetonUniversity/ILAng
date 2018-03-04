@@ -94,19 +94,20 @@ TEST_F(TestUnroll, InstrSeqSolve) {
     unroller->AddInitPred(m0->init(i));
   }
   { // BMC init
-    auto mem = m0->state("mem");
-    unroller->AddInitPred(Eq(mem, init_mem));
+    auto ir = m0->state("ir");
+    unroller->AddInitPred(Eq(ir, init_mem));
   }
   // unroll
   auto cstr0 = unroller->InstrSeqSubs(seq0);
+  unroller->ClearInitPred();
 
   // ILA init
   for (size_t i = 0; i != m1->init_num(); i++) {
     unroller->AddInitPred(m1->init(i));
   }
   { // BMC init
-    auto mem = m1->state("mem");
-    unroller->AddInitPred(Eq(mem, init_mem));
+    auto ir = m1->state("ir");
+    unroller->AddInitPred(Eq(ir, init_mem));
   }
   // unroll
   auto cstr1 = unroller->InstrSeqAssn(seq1);
@@ -150,23 +151,97 @@ TEST_F(TestUnroll, InstrSeqSolve) {
   EXPECT_EQ(z3::sat, s.check());
 }
 
-TEST_F(TestUnroll, BulkFlatSubs) {
+TEST_F(TestUnroll, MonoFlatSubs) {
   auto m = ila_gen_.GetIlaFlat1();
-
   auto unroller = new MonoUnroll(ctx_);
   auto cstr = unroller->MonoSubs(m, 4);
 }
 
-TEST_F(TestUnroll, BulkFlatAssn) {
+TEST_F(TestUnroll, MonoFlatAssn) {
   auto m = ila_gen_.GetIlaFlat1();
   auto unroller = new MonoUnroll(ctx_);
   auto cstr = unroller->MonoAssn(m, 4);
 }
 
-TEST_F(TestUnroll, BulkFlatNone) {
+TEST_F(TestUnroll, MonoFlatNone) {
   auto m = ila_gen_.GetIlaFlat1();
   auto unroller = new MonoUnroll(ctx_);
   auto cstr = unroller->MonoNone(m, 4);
+}
+
+TEST_F(TestUnroll, MonoSolve) {
+  SetToStdErr(1);
+  auto m0 = SimpleCpu("m0");
+  auto m1 = SimpleCpu("m1");
+
+  /*
+   * reg0 = Load 0
+   * reg1 = Load 1
+   * reg2 = reg0 + reg1
+   * Store reg2 2
+   */
+  auto unroller = new MonoUnroll(ctx_);
+
+  // ILA init
+  for (size_t i = 0; i != m0->init_num(); i++) {
+    unroller->AddInitPred(m0->init(i));
+  }
+  { // BMC init
+    auto ir = m0->state("ir");
+    unroller->AddInitPred(Eq(ir, init_mem));
+  }
+  // unroll
+  auto cstr0 = unroller->MonoSubs(m0, 4);
+  unroller->ClearInitPred();
+
+  // ILA init
+  for (size_t i = 0; i != m1->init_num(); i++) {
+    unroller->AddInitPred(m1->init(i));
+  }
+  { // BMC init
+    auto ir = m1->state("ir");
+    unroller->AddInitPred(Eq(ir, init_mem));
+  }
+  // unroll
+  auto cstr1 = unroller->MonoAssn(m1, 4);
+
+  z3::solver s(ctx_);
+  s.add(cstr0);
+  s.add(cstr1);
+  // check unconstrained two threads are free
+  EXPECT_EQ(z3::sat, s.check());
+
+  s.reset();
+  s.add(cstr0);
+  s.add(cstr1);
+  // connect initial value
+  for (size_t i = 0; i != m0->state_num(); i++) {
+    auto var0 = m0->state(i);
+    auto var1 = m1->state(var0->name().str());
+    auto eq = unroller->Equal(var0, 0, var1, 0);
+    s.add(eq);
+  }
+  // assert end value equal (take mem as example)
+  auto mem0 = m0->state("mem");
+  auto mem1 = m1->state("mem");
+  auto prop = unroller->Equal(mem0, 4, mem1, 4);
+  s.add(!prop);
+  // check two unrolling are equal
+  EXPECT_EQ(z3::unsat, s.check());
+
+  s.reset();
+  s.add(cstr0);
+  s.add(cstr1);
+  // connect initial value
+  for (size_t i = 0; i != m0->state_num(); i++) {
+    auto var0 = m0->state(i);
+    auto var1 = m1->state(var0->name().str());
+    auto eq = unroller->Equal(var0, 0, var1, 0);
+    s.add(eq);
+  }
+  s.add(prop);
+  // check the sequence can reach the end
+  EXPECT_EQ(z3::sat, s.check());
 }
 
 } // namespace ila
