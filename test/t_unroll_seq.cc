@@ -319,7 +319,15 @@ TEST_F(TestUnroll, PathMonoSolve) {
   }
   s.add(prop);
   // check the sequence can reach the end
-  EXPECT_EQ(z3::sat, s.check());
+  auto res = s.check();
+  EXPECT_EQ(z3::sat, res);
+  if (res == z3::sat) {
+    auto m = s.get_model();
+    auto sel_ld = m1->free_var("Load.sel");
+    auto sel_ld_0 = mono->CurrState(sel_ld, 0);
+    auto val = Z3_get_bool_value(ctx_, m.eval(sel_ld_0));
+    EXPECT_EQ(Z3_lbool::Z3_L_TRUE, val);
+  }
 }
 
 } // namespace ila
