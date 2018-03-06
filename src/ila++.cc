@@ -4,6 +4,7 @@
 #include "ila++.h"
 #include "ila/instr_lvl_abs.h"
 #include "util/log.h"
+#include "verify/unroller.h"
 
 namespace ila {
 
@@ -457,6 +458,46 @@ InstrRef Ila::NewInstr(const std::string& name) {
 Ila Ila::NewChild(const std::string& name) {
   auto m = ptr_->NewChild(name);
   return Ila(m);
+}
+
+IlaZ3Unroller::IlaZ3Unroller(z3::context& ctx) : ctx_(ctx) {}
+
+IlaZ3Unroller::~IlaZ3Unroller() {}
+
+z3::expr IlaZ3Unroller::UnrollMonoConn(const Ila& top, const int& k,
+                                       const int& init) {
+  auto u = std::make_shared<MonoUnroll>(ctx_);
+  InitializeUnroller(u);
+  return u->MonoAssn(top.get(), k, init);
+}
+
+z3::expr IlaZ3Unroller::UnrollMonoFree(const Ila& top, const int& k,
+                                       const int& init) {
+  auto u = std::make_shared<MonoUnroll>(ctx_);
+  InitializeUnroller(u);
+  return u->MonoNone(top.get(), k, init);
+}
+
+z3::expr IlaZ3Unroller::UnrollPathConn(const std::vector<InstrRef>& path,
+                                       const int& init) {
+  auto u = std::make_shared<PathUnroll>(ctx_);
+  InitializeUnroller(u);
+  std::vector<InstrPtr> seq;
+  for (size_t i = 0; i != path.size(); i++) {
+    seq.push_back(path.at(i).get());
+  }
+  return u->PathAssn(seq, init);
+}
+
+z3::expr IlaZ3Unroller::UnrollPathFree(const std::vector<InstrRef>& path,
+                                       const int& init) {
+  auto u = std::make_shared<PathUnroll>(ctx_);
+  InitializeUnroller(u);
+  std::vector<InstrPtr> seq;
+  for (size_t i = 0; i != path.size(); i++) {
+    seq.push_back(path.at(i).get());
+  }
+  return u->PathNone(seq, init);
 }
 
 void LogLevel(const int& lvl) { SetLogLevel(lvl); }

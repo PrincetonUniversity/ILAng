@@ -4,6 +4,7 @@
 #ifndef ILAPP_H__
 #define ILAPP_H__
 
+#include "z3++.h"
 #include <map>
 #include <memory>
 #include <string>
@@ -343,6 +344,10 @@ public:
   /// \param[in] update the update function (should be the same type as state).
   void SetUpdate(const ExprRef& state, const ExprRef& update);
 
+  // ------------------------- ACCESSORS/MUTATORS --------------------------- //
+  /// Return the wrapped ILA pointer.
+  inline InstrPtr get() const { return ptr_; }
+
 }; // class InstrRef
 
 /// \brief The wrapper of InstrLvlAbs (ILA).
@@ -410,6 +415,102 @@ public:
   inline IlaPtr get() const { return ptr_; }
 
 }; // class Ila
+
+/// \brief The wrapper of generating z3::expr for verification.
+class IlaZ3Unroller {
+public:
+  // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
+  /// Default constructor
+  IlaZ3Unroller(z3::context& ctx);
+  /// Default virtual destructor.
+  ~IlaZ3Unroller();
+
+  // ------------------------- METHODS -------------------------------------- //
+  /// Add a predicate that should be asserted globally when unrolled.
+  inline void AddGlobPred(const ExprRef& p) { glob_pred_.push_back(p); }
+  /// Add a predicate that should be asserted in the initial condition.
+  inline void AddInitPred(const ExprRef& p) { init_pred_.push_back(p); }
+  /// Add a predicate that should be asserted at the k-th step.
+  inline void AddStepPred(const ExprRef& p, const int& k) {
+    step_pred_.push_back({k, p});
+  }
+  /// Clear the global predicates.
+  inline void ClearGlobPred() { glob_pred_.clear(); }
+  /// Clear the initial predicates.
+  inline void ClearInitPred() { init_pred_.clear(); }
+  /// Clear the step-specific predicates.
+  inline void ClearStepPred() { step_pred_.clear(); }
+
+  /// Set an extra suffix for customized applications.
+  inline void SetExtraSuffix(const std::string& suff) { extra_suff_ = suff; }
+  /// Reset the extra suffix (rewrite to "").
+  inline void ResetExtraSuffix() { extra_suff_ = ""; }
+
+  /// \brief Unroll the ILA monolithically with each step connected.
+  /// \param[in] top the top-level ILA of the hierarchy.
+  /// \param[in] k the number of steps to unroll.
+  /// \param[in] init the starting time frame.
+  z3::expr UnrollMonoConn(const Ila& top, const int& k, const int& init = 0);
+
+  /// \brief Unroll the ILA monolithically with each step freely defined.
+  /// \param[in] top the top-level ILA of the hierarchy.
+  /// \param[in] k the number of steps to unroll.
+  /// \param[in] init the starting time frame.
+  z3::expr UnrollMonoFree(const Ila& top, const int& k, const int& init = 0);
+
+  /// \brief Unroll a path with each step connected.
+  /// \param[in] path the sequence of instructions.
+  /// \param[in] init the starting time frame.
+  z3::expr UnrollPathConn(const std::vector<InstrRef>& path,
+                          const int& init = 0);
+
+  /// \brief Unroll a path with each step freely defined.
+  /// \param[in] path the sequence of instructions.
+  /// \param[in] init the starting time frame.
+  z3::expr UnrollPathFree(const std::vector<InstrRef>& path,
+                          const int& init = 0);
+
+  // ------------------------- HELPERS -------------------------------------- //
+  /// Return the z3::expr representing the current state at the time.
+  z3::expr CurrState(const ExprRef& v, const int& t);
+  /// Return the z3::expr representing the next state at the time.
+  z3::expr NextState(const ExprRef& v, const int& t);
+  /// Return the z3::expr representing the current-based Expr at the time.
+  z3::expr GetZ3Expr(const ExprRef& v, const int& t);
+  /// Return the z3::expr representing a and b are equal at their time.
+  z3::expr Equal(const ExprRef& va, const int& ta, const ExprRef& vb,
+                 const int& tb);
+
+private:
+  // ------------------------- MEMBERS -------------------------------------- //
+  /// The underlying z3::context being used.
+  z3::context& ctx_;
+
+  /// The container for storing global predicates when unrolling.
+  std::vector<ExprRef> glob_pred_;
+  /// The container for storing initial predicates when unrolling.
+  std::vector<ExprRef> init_pred_;
+  /// The container for storing step-specific predicates when unrolling.
+  std::vector<std::pair<int, ExprRef>> step_pred_;
+  /// The extra suffix used when unrolling.
+  std::string extra_suff_;
+
+  // ------------------------- HELPERS -------------------------------------- //
+  /// Initialize the unroller based on its dynamic type.
+  template <class T> void InitializeUnroller(T unroller) {
+    for (auto it = glob_pred_.begin(); it != glob_pred_.end(); it++) {
+      unroller->AddGlobPred(it->get());
+    }
+    for (auto it = init_pred_.begin(); it != init_pred_.end(); it++) {
+      unroller->AddInitPred(it->get());
+    }
+    for (auto it = step_pred_.begin(); it != step_pred_.end(); it++) {
+      unroller->AddStepPred(it->second.get(), it->first);
+    }
+    unroller->SetExtraSuffix(extra_suff_);
+  }
+
+}; // class IlaZ3Unroller
 
 /******************************************************************************/
 // Logging system.
