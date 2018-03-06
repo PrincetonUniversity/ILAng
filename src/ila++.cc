@@ -460,9 +460,59 @@ Ila Ila::NewChild(const std::string& name) {
   return Ila(m);
 }
 
-IlaZ3Unroller::IlaZ3Unroller(z3::context& ctx) : ctx_(ctx) {}
+size_t Ila::input_num() const { return ptr_->input_num(); }
+
+size_t Ila::state_num() const { return ptr_->state_num(); }
+
+size_t Ila::instr_num() const { return ptr_->instr_num(); }
+
+size_t Ila::child_num() const { return ptr_->child_num(); }
+
+size_t Ila::init_num() const { return ptr_->init_num(); }
+
+ExprRef Ila::fetch() const { return ExprRef(ptr_->fetch()); }
+
+ExprRef Ila::valid() const { return ExprRef(ptr_->valid()); }
+
+ExprRef Ila::input(const size_t& i) const { return ExprRef(ptr_->input(i)); }
+
+ExprRef Ila::state(const size_t& i) const { return ExprRef(ptr_->state(i)); }
+
+InstrRef Ila::instr(const size_t& i) const { return InstrRef(ptr_->instr(i)); }
+
+Ila Ila::child(const size_t& i) const { return Ila(ptr_->child(i)); }
+
+ExprRef Ila::init(const size_t& i) const { return ExprRef(ptr_->init(i)); }
+
+ExprRef Ila::input(const std::string& name) const {
+  return ExprRef(ptr_->input(name));
+}
+
+ExprRef Ila::state(const std::string& name) const {
+  return ExprRef(ptr_->state(name));
+}
+
+InstrRef Ila::instr(const std::string& name) const {
+  return InstrRef(ptr_->instr(name));
+}
+
+Ila Ila::child(const std::string& name) const { return Ila(ptr_->child(name)); }
+
+IlaZ3Unroller::IlaZ3Unroller(z3::context& ctx) : ctx_(ctx) {
+  univ_ = std::make_shared<MonoUnroll>(ctx);
+}
 
 IlaZ3Unroller::~IlaZ3Unroller() {}
+
+void IlaZ3Unroller::SetExtraSuffix(const std::string& suff) {
+  extra_suff_ = suff;
+  univ_->SetExtraSuffix(suff);
+}
+
+void IlaZ3Unroller::ResetExtraSuffix() {
+  extra_suff_ = "";
+  univ_->ResetExtraSuffix();
+}
 
 z3::expr IlaZ3Unroller::UnrollMonoConn(const Ila& top, const int& k,
                                        const int& init) {
@@ -498,6 +548,23 @@ z3::expr IlaZ3Unroller::UnrollPathFree(const std::vector<InstrRef>& path,
     seq.push_back(path.at(i).get());
   }
   return u->PathNone(seq, init);
+}
+
+z3::expr IlaZ3Unroller::CurrState(const ExprRef& v, const int& t) {
+  return univ_->CurrState(v.get(), t);
+}
+
+z3::expr IlaZ3Unroller::NextState(const ExprRef& v, const int& t) {
+  return univ_->NextState(v.get(), t);
+}
+
+z3::expr IlaZ3Unroller::GetZ3Expr(const ExprRef& v, const int& t) {
+  return univ_->GetZ3Expr(v.get(), t);
+}
+
+z3::expr IlaZ3Unroller::Equal(const ExprRef& va, const int& ta,
+                              const ExprRef& vb, const int& tb) {
+  return univ_->Equal(va.get(), ta, vb.get(), tb);
 }
 
 void LogLevel(const int& lvl) { SetLogLevel(lvl); }

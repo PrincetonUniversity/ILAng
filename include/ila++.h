@@ -44,6 +44,7 @@ class Func;
 class Expr;
 class Instr;
 class InstrLvlAbs;
+class Unroller;
 
 /// \brief The wrapper of Sort (type for different AST nodes).
 class SortRef {
@@ -425,6 +426,42 @@ public:
   Ila NewChild(const std::string& name);
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
+  /// Return the number of input variables.
+  size_t input_num() const;
+  /// Return the number of state variables.
+  size_t state_num() const;
+  /// Return the number of instructions.
+  size_t instr_num() const;
+  /// Return the number of child-ILAs.
+  size_t child_num() const;
+  /// Return the number of initial condition.
+  size_t init_num() const;
+
+  /// Return the fetch function.
+  ExprRef fetch() const;
+  /// Return the valid function.
+  ExprRef valid() const;
+
+  /// Access the i-th input variable.
+  ExprRef input(const size_t& i) const;
+  /// Access the i-th state variable.
+  ExprRef state(const size_t& i) const;
+  /// Access the i-th instruction.
+  InstrRef instr(const size_t& i) const;
+  /// Access the i-th child-ILA.
+  Ila child(const size_t& i) const;
+  /// Access the i-th initial condition.
+  ExprRef init(const size_t& i) const;
+
+  /// Return the named input variable; return NULL if not registered.
+  ExprRef input(const std::string& name) const;
+  /// Return the named state variable; return NULL if not registered.
+  ExprRef state(const std::string& name) const;
+  /// Return the named instruction; return NULL if not registered.
+  InstrRef instr(const std::string& name) const;
+  /// Return the named child-ILA; return NULL if not registered.
+  Ila child(const std::string& name) const;
+
   /// Return the wrapped ILA pointer.
   inline IlaPtr get() const { return ptr_; }
 
@@ -448,7 +485,7 @@ public:
   /// Add a predicate that should be asserted in the initial condition.
   inline void AddInitPred(const ExprRef& p) { init_pred_.push_back(p); }
   /// Add a predicate that should be asserted at the k-th step.
-  inline void AddStepPred(const ExprRef& p, const int& k) {
+  inline void AddStepPred(const int& k, const ExprRef& p) {
     step_pred_.push_back({k, p});
   }
   /// Clear the global predicates.
@@ -459,9 +496,9 @@ public:
   inline void ClearStepPred() { step_pred_.clear(); }
 
   /// Set an extra suffix for customized applications.
-  inline void SetExtraSuffix(const std::string& suff) { extra_suff_ = suff; }
+  void SetExtraSuffix(const std::string& suff);
   /// Reset the extra suffix (rewrite to "").
-  inline void ResetExtraSuffix() { extra_suff_ = ""; }
+  void ResetExtraSuffix();
 
   /// \brief Unroll the ILA monolithically with each step connected.
   /// \param[in] top the top-level ILA of the hierarchy.
@@ -511,6 +548,9 @@ private:
   std::vector<std::pair<int, ExprRef>> step_pred_;
   /// The extra suffix used when unrolling.
   std::string extra_suff_;
+
+  /// Pointer for calling universal functions.
+  std::shared_ptr<Unroller> univ_ = NULL;
 
   // ------------------------- HELPERS -------------------------------------- //
   /// Initialize the unroller based on its dynamic type.
