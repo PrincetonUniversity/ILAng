@@ -207,7 +207,95 @@ TEST(TestApi, Unroll) {
 
   auto m0 = SimpleCpuRef("m0");
   auto m1 = SimpleCpuRef("m1");
-  // TODO
+
+  std::map<int, int> init_mem_val;
+  {
+    init_mem_val[0] = GenLoad(0, 0);
+    init_mem_val[1] = GenLoad(1, 1);
+    init_mem_val[2] = GenAdd(2, 0, 1);
+    init_mem_val[3] = GenStore(2, 2);
+  }
+  auto init_mem = MemConst(0, init_mem_val, 8, 8);
+
+  // dummy predicates
+  unroller.AddGlobPred(BoolConst(true));
+  unroller.AddStepPred(0, BoolConst(true));
+  unroller.AddStepPred(1, BoolConst(true));
+  unroller.AddStepPred(5, BoolConst(true));
+
+  // m0
+  for (size_t i = 0; i != m0.init_num(); i++) {
+    unroller.AddInitPred(m0.init(i));
+  }
+  unroller.AddInitPred(init_mem == m0.state("ir"));
+  auto cstr0 = unroller.UnrollMonoConn(m0, 4);
+
+  unroller.ClearInitPred();
+  unroller.ClearGlobPred();
+  unroller.ClearStepPred();
+
+  unroller.SetExtraSuffix("path");
+
+  // m1
+  for (size_t i = 0; i != m1.init_num(); i++) {
+    unroller.AddInitPred(m1.init(i));
+  }
+  unroller.AddInitPred(init_mem == m1.state("ir"));
+  std::vector<InstrRef> path = {m1.instr("Load"), m1.instr("Load"),
+                                m1.instr("Add"), m1.instr("Store")};
+  auto cstr1 = unroller.UnrollPathConn(path);
+  unroller.ResetExtraSuffix();
+  auto cstr2 = unroller.UnrollPathConn(path);
+
+  z3::solver s(c);
+  s.add(cstr0);
+  s.add(cstr1);
+  EXPECT_EQ(z3::sat, s.check());
+
+  s.reset();
+  s.add(cstr0);
+  s.add(cstr1);
+  // connect initial value
+  ASSERT_EQ(m0.state_num(), m1.state_num());
+  for (size_t i = 0; i != m0.state_num(); i++) {
+    auto var0 = m0.state(i);
+    auto var1 = m1.state(i);
+    auto eq = unroller.Equal(var0, 0, var1, 0);
+    s.add(eq);
+  }
+  // assert end value equal
+  auto mem0 = m0.state("mem");
+  auto mem1 = m1.state("mem");
+  auto prop = unroller.Equal(mem0, 4, mem1, 4);
+  s.add(!prop);
+  // should not be equal due to extra suffix
+  EXPECT_EQ(z3::sat, s.check());
+
+  // check two unrolling are equal
+  s.reset();
+  s.add(cstr0);
+  s.add(cstr2);
+  for (size_t i = 0; i != m0.state_num(); i++) {
+    auto var0 = m0.state(i);
+    auto var1 = m1.state(i);
+    auto eq = unroller.Equal(var0, 0, var1, 0);
+    s.add(eq);
+  }
+  s.add(!prop);
+  EXPECT_EQ(z3::unsat, s.check());
+
+  // check the sequence can reach the end
+  s.reset();
+  s.add(cstr0);
+  s.add(cstr2);
+  for (size_t i = 0; i != m0.state_num(); i++) {
+    auto var0 = m0.state(i);
+    auto var1 = m1.state(i);
+    auto eq = unroller.Equal(var0, 0, var1, 0);
+    s.add(eq);
+  }
+  s.add(prop);
+  EXPECT_EQ(z3::sat, s.check());
 }
 
 TEST(TestApi, Log) {
