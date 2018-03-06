@@ -2,6 +2,7 @@
 /// Unit test for c++ API
 
 #include "ila++.h"
+#include "unit-include/simple_cpu.h"
 #include "unit-include/util.h"
 #include <vector>
 
@@ -198,6 +199,15 @@ TEST(TestApi, ReplaceArg) {
   y.ReplaceArg(b, a);
   y.ReplaceArg(1, b);
   EXPECT_TRUE(TopEqual(x, y));
+}
+
+TEST(TestApi, Unroll) {
+  z3::context c;
+  IlaZ3Unroller unroller(c);
+
+  auto m0 = SimpleCpuRef("m0");
+  auto m1 = SimpleCpuRef("m1");
+  // TODO
 }
 
 TEST(TestApi, Log) {

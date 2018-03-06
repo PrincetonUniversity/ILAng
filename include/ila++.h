@@ -14,12 +14,38 @@
 /// Defines the core data structure and APIs for constructing and storing ILA.
 namespace ila {
 
+/******************************************************************************/
+// Logging system.
+/******************************************************************************/
+/// \brief Set the minimun log level.
+/// Log messages at or above this level will be logged. (Default: 0)
+/// - INFO: level 0
+/// - WARNING: level 1
+/// - ERROR: level 2
+/// - FATAL: level 3
+void LogLevel(const int& lvl);
+/// \brief Set the path for log file.
+/// If specified, logfiles are written into this directory instead of the
+/// default logging directory (/tmp).
+void LogPath(const std::string& path);
+/// \brief Pipe log to stderr.
+/// Log messages to stderr instead of logfiles, if set to 1.
+void LogToErr(bool to_err);
+/// Add a debug tag.
+void EnableDebug(const std::string& tag);
+/// Remove a debug tag.
+void DisableDebug(const std::string& tag);
+
+/******************************************************************************/
+// ILA Construction.
+/******************************************************************************/
 class Sort;
 class Func;
 class Expr;
 class Instr;
 class InstrLvlAbs;
 
+/// \brief The wrapper of Sort (type for different AST nodes).
 class SortRef {
 private:
   typedef std::shared_ptr<Sort> SortPtr;
@@ -67,18 +93,6 @@ public:
   inline ExprPtr get() const { return ptr_; }
 
   // ------------------------- METHODS -------------------------------------- //
-  /****************************************************************************/
-  // Unary operation
-  /****************************************************************************/
-
-  /****************************************************************************/
-  // Binary operation
-  /****************************************************************************/
-
-  /****************************************************************************/
-  // Binary comparison
-  /****************************************************************************/
-
   /****************************************************************************/
   // Memory-related operations
   /****************************************************************************/
@@ -416,6 +430,9 @@ public:
 
 }; // class Ila
 
+/******************************************************************************/
+// Verification.
+/******************************************************************************/
 /// \brief The wrapper of generating z3::expr for verification.
 class IlaZ3Unroller {
 public:
@@ -511,28 +528,6 @@ private:
   }
 
 }; // class IlaZ3Unroller
-
-/******************************************************************************/
-// Logging system.
-/******************************************************************************/
-/// \brief Set the minimun log level.
-/// Log messages at or above this level will be logged. (Default: 0)
-/// - INFO: level 0
-/// - WARNING: level 1
-/// - ERROR: level 2
-/// - FATAL: level 3
-void LogLevel(const int& lvl);
-/// \brief Set the path for log file.
-/// If specified, logfiles are written into this directory instead of the
-/// default logging directory (/tmp).
-void LogPath(const std::string& path);
-/// \brief Pipe log to stderr.
-/// Log messages to stderr instead of logfiles, if set to 1.
-void LogToErr(bool to_err);
-/// Add a debug tag.
-void EnableDebug(const std::string& tag);
-/// Remove a debug tag.
-void DisableDebug(const std::string& tag);
 
 } // namespace ila
 

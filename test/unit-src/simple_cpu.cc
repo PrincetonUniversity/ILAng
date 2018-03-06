@@ -106,6 +106,11 @@ std::shared_ptr<InstrLvlAbs> SimpleCpu(const std::string& name) {
   return m.get();
 }
 
+Ila SimpleCpuRef(const std::string& name) {
+  auto m = SimpleCpu(name);
+  return Ila(m);
+}
+
 int GenLoad(const int& dst, const int& addr) {
   ILA_ASSERT(dst < 4) << "2 bit reg";
   ILA_ASSERT(addr < 32) << "4 bit imm";
