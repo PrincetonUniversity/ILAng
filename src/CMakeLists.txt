@@ -11,7 +11,7 @@ endif (python_api)
 #add_subdirectory(engine)
 #add_subdirectory(synthesis)
 
-set(ILA_TOOL ilatools)
+set(ILA_TOOL ila++)
 file (GLOB TOP_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/*.cc")
 add_library(${ILA_TOOL} ${TOP_SOURCES} 
   $<TARGET_OBJECTS:util> 
@@ -21,4 +21,8 @@ add_library(${ILA_TOOL} ${TOP_SOURCES}
   )
 add_dependencies(${ILA_TOOL} glog::glog)
 target_link_libraries(${ILA_TOOL} glog::glog ${Z3_LIBRARY})
+
+install(TARGETS ${ILA_TOOL}
+        LIBRARY DESTINATION lib)
+
 

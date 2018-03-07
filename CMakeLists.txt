@@ -181,3 +181,4 @@ add_subdirectory (src)
 # ------------------------------------------------------------------------------
 add_subdirectory (test)
 
+install(FILES include/ila++.h DESTINATION include)
