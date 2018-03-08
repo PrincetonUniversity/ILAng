@@ -12,10 +12,16 @@
 /// \namespace ila
 namespace ila {
 
+// Forward declaration for host.
+class InstrLvlAbs;
+
 /// \brief The class for the Abstract Syntax Tree. An Ast object can be an
 /// expression or function definition (interpreted or uninterpreted).
 class Ast : public Object {
 public:
+  /// Type for forward declaration of ILA.
+  typedef std::shared_ptr<InstrLvlAbs> InstrLvlAbsPtr;
+
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor.
   Ast();
@@ -33,6 +39,11 @@ public:
   /// Is type Ast::Func.
   virtual bool is_func() const { return false; }
 
+  /// Return the hosting ILA.
+  inline InstrLvlAbsPtr host() const { return host_; }
+  /// Set the hosting ILA.
+  void set_host(InstrLvlAbsPtr host);
+
   // ------------------------- METHODS -------------------------------------- //
 
   /// Output function.
@@ -40,6 +51,8 @@ public:
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
+  /// Pointer to the host ILA.
+  InstrLvlAbsPtr host_ = NULL;
 
   // ------------------------- HELPERS -------------------------------------- //
 

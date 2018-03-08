@@ -6,7 +6,7 @@
 
 namespace ila {
 
-typedef Expr::InstrLvlAbsPtr InstrLvlAbsPtr;
+// typedef Expr::InstrLvlAbsPtr InstrLvlAbsPtr;
 
 Expr::Expr() {}
 
@@ -19,8 +19,6 @@ void Expr::set_sort(const SortPtr sort) { sort_ = sort; }
 void Expr::set_args(const ExprPtrVec& args) { args_ = args; }
 
 void Expr::set_params(const std::vector<int> params) { params_ = params; }
-
-void Expr::set_host(InstrLvlAbsPtr host) { host_ = host; }
 
 void Expr::replace_arg(const int& idx, const ExprPtr arg) {
   ILA_ASSERT(idx < static_cast<int>(arg_num())) << "Replacing idx overflow.";

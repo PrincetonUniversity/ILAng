@@ -17,9 +17,6 @@
 /// \namespace ila
 namespace ila {
 
-// Forward declaration for host.
-class InstrLvlAbs;
-
 /// \brief The class for expression, which is the basic type for variables,
 /// constraints, state update expressions, etc.
 class Expr : public Ast, public std::enable_shared_from_this<Expr> {
@@ -28,8 +25,6 @@ public:
   typedef std::shared_ptr<Expr> ExprPtr;
   /// Type for storing a set of Expr.
   typedef std::vector<ExprPtr> ExprPtrVec;
-  /// Type for forward declaration of ILA.
-  typedef std::shared_ptr<InstrLvlAbs> InstrLvlAbsPtr;
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor.
@@ -50,8 +45,6 @@ public:
   inline const size_t param_num() const { return params_.size(); }
   /// Return the i-th paramter.
   inline const int& param(const size_t& i) const { return params_.at(i); }
-  /// Return the hosting ILA.
-  inline InstrLvlAbsPtr host() const { return host_; }
 
   /// Set the sort of the expression.
   void set_sort(const SortPtr sort);
@@ -59,8 +52,6 @@ public:
   void set_args(const ExprPtrVec& args);
   /// Set the parameters.
   void set_params(const std::vector<int> params);
-  /// Set the hosting ILA.
-  void set_host(InstrLvlAbsPtr host);
   /// Replace the i-th argument.
   void replace_arg(const int& idx, const ExprPtr arg);
   /// Replace the "a" argument with "b" argument with "exist".
@@ -114,8 +105,6 @@ private:
   ExprPtrVec args_;
   /// Vector of parameters.
   std::vector<int> params_;
-  /// Pointer to the host ILA.
-  InstrLvlAbsPtr host_ = NULL;
 
   // ------------------------- HELPERS -------------------------------------- //
 
