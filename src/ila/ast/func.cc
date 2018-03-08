@@ -3,6 +3,7 @@
 
 #include "ila/ast/func.h"
 #include "ila/expr_fuse.h"
+#include "ila/instr_lvl_abs.h"
 #include "util/log.h"
 
 namespace ila {
@@ -48,7 +49,9 @@ z3::func_decl Func::GetZ3FuncDecl(z3::context& ctx) const {
   for (size_t i = 0; i != arg_num(); i++) {
     domains.push_back(arg(i)->GetZ3Sort(ctx));
   }
-  return z3::function(name().c_str(), arg_num(), domains.data(), range);
+  auto prefix = (host()) ? host()->name().str() : "";
+  auto f_name = name().format_str(prefix);
+  return z3::function(f_name.c_str(), arg_num(), domains.data(), range);
 }
 
 std::ostream& Func::Print(std::ostream& out) const {
