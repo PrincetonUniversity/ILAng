@@ -1,6 +1,15 @@
 # Makefile for c++ examples
 CXX_FLAGS=-std=c++11 -Wall -fPIC
+#LD_FLAGS=-lila++d
+
+# OS dependant lib name
+UNAME := $(shell uname)
+ifeq ($(UNAME), Darwin)
+LD_FLAGS=-lila++d
+endif
+ifeq ($(UNAME), Linux)
 LD_FLAGS=-lila++
+endif
 
 SRC_DIR=src
 OBJ_DIR=obj
