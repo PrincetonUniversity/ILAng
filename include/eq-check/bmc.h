@@ -29,9 +29,9 @@ public:
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return the z3 context.
-  z3::context& ctx();
+  // z3::context& ctx();
   /// Set the flag for using default transition.
-  void set_def_tran(bool use);
+  // void set_def_tran(bool use);
 
   // ------------------------- METHODS -------------------------------------- //
   /// \brief Add initial condition to the solver.
@@ -49,9 +49,9 @@ public:
 
   /// \brief Bounded model checking on the ILA for the specified properties up
   /// to step k.
-  z3::check_result BmcProp(InstrLvlAbsPtr m, const int& k);
+  // z3::check_result BmcProp(InstrLvlAbsPtr m, const int& k);
   /// \brief Incrementally increase the step of BMC up to k.
-  z3::check_result BmcPropInc(InstrLvlAbsPtr m, const int& k);
+  // z3::check_result BmcPropInc(InstrLvlAbsPtr m, const int& k);
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
@@ -78,6 +78,7 @@ private:
   /// \return the z3 expression representing the constraints.
   z3::expr UnrollCmplIla(InstrLvlAbsPtr m, const int& k, const int& pos = 0);
 
+#if 0
   /// \brief Generate a step of an ILA execution.
   z3::expr IlaStep(InstrLvlAbsPtr m, const std::string& suf_prev = "0",
                    const std::string& suf_next = "1");
@@ -103,6 +104,7 @@ private:
 
   /// \brief Generate selection relation if needed.
   z3::expr GenSelRel(InstrSet updts);
+#endif
 
 #if 0
   /// \brief Get the conjuction of state update functions (exclude decode).

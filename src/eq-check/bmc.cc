@@ -12,9 +12,9 @@ Bmc::Bmc() {}
 
 Bmc::~Bmc() {}
 
-z3::context& Bmc::ctx() { return ctx_; }
+// z3::context& Bmc::ctx() { return ctx_; }
 
-void Bmc::set_def_tran(bool use) { def_tran_ = use; }
+// void Bmc::set_def_tran(bool use) { def_tran_ = use; }
 
 void Bmc::AddInit(ExprPtr init) { inits_.push_back(init); }
 
@@ -99,6 +99,7 @@ z3::check_result Bmc::BmcLegacy(InstrLvlAbsPtr m0, const int& k0,
   return result;
 }
 
+#if 0
 z3::check_result Bmc::BmcProp(InstrLvlAbsPtr m, const int& k) {
   ILA_NOT_NULL(m);
   ILA_ASSERT(k > 0) << "Invalid unroll steps.";
@@ -122,6 +123,7 @@ z3::check_result Bmc::BmcProp(InstrLvlAbsPtr m, const int& k) {
 
   return result;
 }
+#endif
 
 // ------------------- PRIVATE FUNCTIONS ------------------------------------ //
 
@@ -145,6 +147,7 @@ z3::expr Bmc::UnrollCmplIla(InstrLvlAbsPtr m, const int& k, const int& pos) {
   return cnst;
 }
 
+#if 0
 // - Traverse the hierarchy to collect state/instr dependency map.
 // - Check totality and insert default instruction for states (in next steps).
 // - Generate guard (valid and decode function) of each instruction.
@@ -280,6 +283,7 @@ z3::expr Bmc::GenSelRel(InstrSet updts) {
 
   return res;
 }
+#endif
 
 } // namespace ila
 
