@@ -110,6 +110,107 @@ TEST_F(TestExprOp, Store) {
   }
 }
 
+TEST_F(TestExprOp, Append) {
+  { // append
+    auto append = rx.Append(ry);
+    auto z_app = unr.GetZ3Expr(append);
+    auto z_x = unr.GetZ3Expr(rx);
+    auto z_y = unr.GetZ3Expr(ry);
+
+    s.add(z_x == 0x0);
+    s.add(z_y == 0x2);
+    s.add(z_app != 0x2);
+    EXPECT_EQ(z3::unsat, s.check());
+  }
+
+  s.reset();
+
+  { // concat
+    auto concat = Concat(rx, ry);
+    auto z_con = unr.GetZ3Expr(concat);
+    auto z_x = unr.GetZ3Expr(rx);
+    auto z_y = unr.GetZ3Expr(ry);
+
+    s.add(z_x == 0x01);
+    s.add(z_y == 0x10);
+    s.add(z_con != 0x0110);
+    EXPECT_EQ(z3::unsat, s.check());
+  }
+}
+
+TEST_F(TestExprOp, Extract) {
+  { // range
+    auto bfx = rx(4, 1);
+    auto z_bfx = unr.GetZ3Expr(bfx);
+    auto z_x = unr.GetZ3Expr(rx);
+
+    auto bfy = Extract(ry, 5, 2);
+    auto z_bfy = unr.GetZ3Expr(bfy);
+    auto z_y = unr.GetZ3Expr(ry);
+
+    s.add(z_x == 0b10100101);
+    s.add(z_y == 0b11001011);
+    s.add(z_bfx != z_bfy);
+    EXPECT_EQ(z3::unsat, s.check());
+  }
+
+  s.reset();
+
+  { // single bit
+    auto bx = rx(3);
+    auto zbx = unr.GetZ3Expr(bx);
+    auto z_x = unr.GetZ3Expr(rx);
+
+    auto by = SelectBit(ry, 5);
+    auto zby = unr.GetZ3Expr(by);
+    auto z_y = unr.GetZ3Expr(ry);
+
+    s.add(z_x == 0b00011110);
+    s.add(z_y == 0b11100000);
+    s.add(zbx != zby);
+    EXPECT_EQ(z3::unsat, s.check());
+  }
+}
+
+TEST_F(TestExprOp, ZExt) {
+  auto extx = rx.ZExt(12);
+  auto exty = ZExt(ry, 12);
+  auto z_extx = unr.GetZ3Expr(extx);
+  auto z_exty = unr.GetZ3Expr(exty);
+  auto z_x = unr.GetZ3Expr(rx);
+  auto z_y = unr.GetZ3Expr(ry);
+
+  s.add(z_x == z_y);
+  s.add(z_extx != z_exty);
+  EXPECT_EQ(z3::unsat, s.check());
+
+  s.reset();
+
+  s.add(z_x == 0x44);
+  s.add(z_extx != 0x44);
+  EXPECT_EQ(z3::unsat, s.check());
+}
+
+TEST_F(TestExprOp, SExt) {
+  auto extx = rx.SExt(12);
+  auto exty = SExt(ry, 12);
+  auto z_extx = unr.GetZ3Expr(extx);
+  auto z_exty = unr.GetZ3Expr(exty);
+  auto z_x = unr.GetZ3Expr(rx);
+  auto z_y = unr.GetZ3Expr(ry);
+
+  s.add(z_x == z_y);
+  s.add(z_extx != z_exty);
+  EXPECT_EQ(z3::unsat, s.check());
+
+  s.reset();
+
+  s.add(z_x == 0x44);
+  s.add(z_y == -0x44);
+  s.add((z_extx + z_exty) != 0x0);
+  EXPECT_EQ(z3::unsat, s.check());
+}
+
 TEST_F(TestExprOp, And) {
   { // bv
     auto x_and_y = rx & ry;
