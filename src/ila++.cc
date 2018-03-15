@@ -47,6 +47,19 @@ ExprRef ExprRef::Store(const ExprRef& addr, const ExprRef& data) const {
   return ExprRef(v);
 }
 
+ExprRef ExprRef::Load(const int& addr) const {
+  auto addr_v = ExprFuse::BvConst(addr, get()->sort()->addr_width());
+  auto v = ExprFuse::Load(get(), addr_v);
+  return ExprRef(v);
+}
+
+ExprRef ExprRef::Store(const int& addr, const int& data) const {
+  auto addr_v = ExprFuse::BvConst(addr, get()->sort()->addr_width());
+  auto data_v = ExprFuse::BvConst(data, get()->sort()->data_width());
+  auto v = ExprFuse::Store(get(), addr_v, data_v);
+  return ExprRef(v);
+}
+
 ExprRef ExprRef::Append(const ExprRef& lsbv) const {
   auto v = ExprFuse::Concat(get(), lsbv.get());
   return ExprRef(v);
@@ -289,6 +302,19 @@ ExprRef Store(const ExprRef& mem, const ExprRef& addr, const ExprRef& data) {
   return ExprRef(v);
 }
 
+ExprRef Load(const ExprRef& mem, const int& addr) {
+  auto addr_v = ExprFuse::BvConst(addr, mem.get()->sort()->addr_width());
+  auto v = ExprFuse::Load(mem.get(), addr_v);
+  return ExprRef(v);
+}
+
+ExprRef Store(const ExprRef& mem, const int& addr, const int& data) {
+  auto addr_v = ExprFuse::BvConst(addr, mem.get()->sort()->addr_width());
+  auto data_v = ExprFuse::BvConst(data, mem.get()->sort()->data_width());
+  auto v = ExprFuse::Store(mem.get(), addr_v, data_v);
+  return ExprRef(v);
+}
+
 ExprRef Concat(const ExprRef& msbv, const ExprRef& lsbv) {
   auto v = ExprFuse::Concat(msbv.get(), lsbv.get());
   return ExprRef(v);
@@ -497,6 +523,18 @@ InstrRef Ila::instr(const std::string& name) const {
 }
 
 Ila Ila::child(const std::string& name) const { return Ila(ptr_->child(name)); }
+
+std::ostream& operator<<(std::ostream& out, const ExprRef& expr) {
+  return out << expr.get();
+}
+
+std::ostream& operator<<(std::ostream& out, const InstrRef& instr) {
+  return out << instr.get();
+}
+
+std::ostream& operator<<(std::ostream& out, const Ila& ila) {
+  return out << ila.get();
+}
 
 IlaZ3Unroller::IlaZ3Unroller(z3::context& ctx) : ctx_(ctx) {
   univ_ = std::make_shared<MonoUnroll>(ctx);

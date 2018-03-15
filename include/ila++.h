@@ -101,6 +101,10 @@ public:
   ExprRef Load(const ExprRef& addr) const;
   /// Store to memory.
   ExprRef Store(const ExprRef& addr, const ExprRef& data) const;
+  /// Load from memory with constant address.
+  ExprRef Load(const int& addr) const;
+  /// Store to memory with constant address and data.
+  ExprRef Store(const int& addr, const int& data) const;
 
   /****************************************************************************/
   // Bit manipulation for bit-vectors.
@@ -228,6 +232,10 @@ ExprRef Uge(const ExprRef& a, const int& b);
 ExprRef Load(const ExprRef& mem, const ExprRef& addr);
 /// Store to memory.
 ExprRef Store(const ExprRef& mem, const ExprRef& addr, const ExprRef& data);
+/// Load from memory with constant address.
+ExprRef Load(const ExprRef& mem, const int& addr);
+/// Store to memory at constant address and data.
+ExprRef Store(const ExprRef& mem, const int& addr, const int& data);
 
 /******************************************************************************/
 // Bit manipulation for bit-vectors.
@@ -466,6 +474,16 @@ public:
   inline IlaPtr get() const { return ptr_; }
 
 }; // class Ila
+
+/******************************************************************************/
+// Output stream helper
+/******************************************************************************/
+/// Print out the ExprRef.
+std::ostream& operator<<(std::ostream& out, const ExprRef& expr);
+/// Print out the Instruction.
+std::ostream& operator<<(std::ostream& out, const InstrRef& instr);
+/// Print out the ILA.
+std::ostream& operator<<(std::ostream& out, const Ila& ila);
 
 /******************************************************************************/
 // Verification.
