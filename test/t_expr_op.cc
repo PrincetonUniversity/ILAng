@@ -344,5 +344,83 @@ TEST_F(TestExprOp, Xor) {
   }
 }
 
+TEST_F(TestExprOp, LeftShift) {
+  { // expr
+    auto sh = rx << ry;
+    auto z_sh = unr.GetZ3Expr(sh);
+    auto z_x = unr.GetZ3Expr(rx);
+    auto z_y = unr.GetZ3Expr(ry);
+
+    s.add(z_x == 0xff);
+    s.add(z_y < 8);
+    s.add(z_y >= 0);
+    s.add(z_sh == 0x00);
+    EXPECT_EQ(z3::unsat, s.check());
+  }
+
+  s.reset();
+
+  { // const
+    auto sh = rx << 4;
+    auto z_sh = unr.GetZ3Expr(sh);
+    auto z_x = unr.GetZ3Expr(rx);
+
+    s.add((z_sh & 0x0f) != 0x00);
+    EXPECT_EQ(z3::unsat, s.check());
+  }
+}
+
+TEST_F(TestExprOp, RightShift) {
+  { // expr
+    auto sh = rx >> ry;
+    auto z_sh = unr.GetZ3Expr(sh);
+    auto z_x = unr.GetZ3Expr(rx);
+    auto z_y = unr.GetZ3Expr(ry);
+
+    s.add(z_x > 0x0f);
+    s.add(z_y < 4);
+    s.add(z_y >= 0);
+    s.add(z_sh == 0x00);
+    EXPECT_EQ(z3::unsat, s.check());
+  }
+
+  s.reset();
+
+  { // const
+    auto sh = rx >> 4;
+    auto z_sh = unr.GetZ3Expr(sh);
+    auto z_x = unr.GetZ3Expr(rx);
+
+    s.add(z_x >= 0);
+    s.add((z_sh & 0xf0) != 0x00);
+    EXPECT_EQ(z3::unsat, s.check());
+  }
+}
+
+TEST_F(TestExprOp, LogicRightShift) {
+  { // expr
+    auto sh = Lshr(rx, ry);
+    auto z_sh = unr.GetZ3Expr(sh);
+    auto z_x = unr.GetZ3Expr(rx);
+    auto z_y = unr.GetZ3Expr(ry);
+
+    s.add(z_x > 0x0f);
+    s.add(z_y < 4);
+    s.add(z_y >= 0);
+    s.add(z_sh == 0x00);
+    EXPECT_EQ(z3::unsat, s.check());
+  }
+
+  s.reset();
+
+  { // const
+    auto sh = Lshr(rx, 4);
+    auto z_sh = unr.GetZ3Expr(sh);
+
+    s.add((z_sh & 0xf0) != 0x00);
+    EXPECT_EQ(z3::unsat, s.check());
+  }
+}
+
 } // namespace ila
 
