@@ -48,15 +48,12 @@ ExprRef ExprRef::Store(const ExprRef& addr, const ExprRef& data) const {
 }
 
 ExprRef ExprRef::Load(const int& addr) const {
-  auto addr_v = ExprFuse::BvConst(addr, get()->sort()->addr_width());
-  auto v = ExprFuse::Load(get(), addr_v);
+  auto v = ExprFuse::Load(get(), addr);
   return ExprRef(v);
 }
 
 ExprRef ExprRef::Store(const int& addr, const int& data) const {
-  auto addr_v = ExprFuse::BvConst(addr, get()->sort()->addr_width());
-  auto data_v = ExprFuse::BvConst(data, get()->sort()->data_width());
-  auto v = ExprFuse::Store(get(), addr_v, data_v);
+  auto v = ExprFuse::Store(get(), addr, data);
   return ExprRef(v);
 }
 
@@ -303,15 +300,12 @@ ExprRef Store(const ExprRef& mem, const ExprRef& addr, const ExprRef& data) {
 }
 
 ExprRef Load(const ExprRef& mem, const int& addr) {
-  auto addr_v = ExprFuse::BvConst(addr, mem.get()->sort()->addr_width());
-  auto v = ExprFuse::Load(mem.get(), addr_v);
+  auto v = ExprFuse::Load(mem.get(), addr);
   return ExprRef(v);
 }
 
 ExprRef Store(const ExprRef& mem, const int& addr, const int& data) {
-  auto addr_v = ExprFuse::BvConst(addr, mem.get()->sort()->addr_width());
-  auto data_v = ExprFuse::BvConst(data, mem.get()->sort()->data_width());
-  auto v = ExprFuse::Store(mem.get(), addr_v, data_v);
+  auto v = ExprFuse::Store(mem.get(), addr, data);
   return ExprRef(v);
 }
 

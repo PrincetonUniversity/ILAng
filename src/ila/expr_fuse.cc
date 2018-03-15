@@ -243,8 +243,14 @@ ExprPtr ExprFuse::Store(const ExprPtr mem, const ExprPtr addr,
 }
 
 ExprPtr ExprFuse::Load(const ExprPtr mem, const int& addr) {
-  auto rc = ExprFuse::BvConst(addr, mem->sort()->addr_width());
-  return std::make_shared<ExprOpLoad>(mem, rc);
+  auto ac = ExprFuse::BvConst(addr, mem->sort()->addr_width());
+  return ExprFuse::Load(mem, ac);
+}
+
+ExprPtr ExprFuse::Store(const ExprPtr mem, const int& addr, const int& data) {
+  auto ac = ExprFuse::BvConst(addr, mem->sort()->addr_width());
+  auto dc = ExprFuse::BvConst(data, mem->sort()->data_width());
+  return ExprFuse::Store(mem, ac, dc);
 }
 
 ExprPtr ExprFuse::Concat(const ExprPtr hi, const ExprPtr lo) {
