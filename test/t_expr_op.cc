@@ -211,6 +211,39 @@ TEST_F(TestExprOp, SExt) {
   EXPECT_EQ(z3::unsat, s.check());
 }
 
+TEST_F(TestExprOp, Negate) {
+  auto neg = -rx;
+  auto z_n = unr.GetZ3Expr(neg);
+  auto z_x = unr.GetZ3Expr(rx);
+  auto z_y = unr.GetZ3Expr(ry);
+
+  s.add(z_x == z_y);
+  s.add((z_n + z_y) != 0x0);
+  EXPECT_EQ(z3::unsat, s.check());
+}
+
+TEST_F(TestExprOp, Not) {
+  auto lnot = !fx;
+  auto z_n = unr.GetZ3Expr(lnot);
+  auto z_x = unr.GetZ3Expr(fx);
+  auto z_y = unr.GetZ3Expr(fy);
+
+  s.add(z_x == z_y);
+  s.add(z_n && z_y);
+  EXPECT_EQ(z3::unsat, s.check());
+}
+
+TEST_F(TestExprOp, Complement) {
+  auto com = ~rx;
+  auto z_c = unr.GetZ3Expr(com);
+  auto z_x = unr.GetZ3Expr(rx);
+  auto z_y = unr.GetZ3Expr(ry);
+
+  s.add(z_x == z_y);
+  s.add((z_c & z_y) != 0x0);
+  EXPECT_EQ(z3::unsat, s.check());
+}
+
 TEST_F(TestExprOp, And) {
   { // bv
     auto x_and_y = rx & ry;
