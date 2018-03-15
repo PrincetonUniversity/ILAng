@@ -548,7 +548,7 @@ public:
   /// Return the z3::expr representing the next state at the time.
   z3::expr NextState(const ExprRef& v, const int& t);
   /// Return the z3::expr representing the current-based Expr at the time.
-  z3::expr GetZ3Expr(const ExprRef& v, const int& t);
+  z3::expr GetZ3Expr(const ExprRef& v, const int& t = 0);
   /// Return the z3::expr representing a and b are equal at their time.
   z3::expr Equal(const ExprRef& va, const int& ta, const ExprRef& vb,
                  const int& tb);
