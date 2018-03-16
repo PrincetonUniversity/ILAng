@@ -207,7 +207,6 @@ public:
   /// relations between steps. "N(var_i) == var_i.nxt_suff"
   /// \param[in] seq the sequence of instructions.
   /// \param[in] pos the starting time frame.
-  /// \param[in] nxt_suff the suffix added to the next state values.
   ZExpr PathNone(const std::vector<InstrPtr>& seq, const int& pos = 0);
 
 protected:
@@ -261,7 +260,6 @@ public:
   /// \param[in] top the top-level ILA.
   /// \param[in] length number of steps to unroll.
   /// \param[in] pos the starting time frame.
-  /// \param[in] nxt_suff the suffix added to the next state values.
   ZExpr MonoNone(const InstrLvlAbsPtr top, const int& length,
                  const int& pos = 0);
 
