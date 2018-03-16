@@ -73,21 +73,33 @@ $(function() {
 <div class="title">ila++.h File Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><code>#include &lt;map&gt;</code><br />
+<div class="textblock"><code>#include &quot;z3++.h&quot;</code><br />
+<code>#include &lt;map&gt;</code><br />
 <code>#include &lt;memory&gt;</code><br />
+<code>#include &lt;string&gt;</code><br />
+<code>#include &lt;vector&gt;</code><br />
 </div>
 <p><a href="ila_09_09_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_sort_ref.html">ila::SortRef</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The wrapper of Sort (type for different AST nodes).  <a href="classila_1_1_sort_ref.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_ref.html">ila::ExprRef</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The wrapper of Expr (e.g. state var, var relation, constant, etc).  <a href="classila_1_1_expr_ref.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_func_ref.html">ila::FuncRef</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The wrapper of Func (uninterpreted function).  <a href="classila_1_1_func_ref.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_instr_ref.html">ila::InstrRef</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The wrapper of Instr (instruction).  <a href="classila_1_1_instr_ref.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_ila.html">ila::Ila</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The wrapper of InstrLvlAbs (ILA).  <a href="classila_1_1_ila.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_ila_z3_unroller.html">ila::IlaZ3Unroller</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The wrapper of generating z3::expr for verification.  <a href="classila_1_1_ila_z3_unroller.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="namespaces"></a>
@@ -97,6 +109,25 @@ Namespaces</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:ac0071778162973867e17db173c6c3cba"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#ac0071778162973867e17db173c6c3cba">ila::LogLevel</a> (const int &amp;lvl)</td></tr>
+<tr class="memdesc:ac0071778162973867e17db173c6c3cba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the minimun log level. Log messages at or above this level will be logged. (Default: 0)  <a href="namespaceila.html#ac0071778162973867e17db173c6c3cba">More...</a><br /></td></tr>
+<tr class="separator:ac0071778162973867e17db173c6c3cba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad165b44af0e8761271666f2b65ac64e4"><td class="memItemLeft" align="right" valign="top"><a id="ad165b44af0e8761271666f2b65ac64e4"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#ad165b44af0e8761271666f2b65ac64e4">ila::LogPath</a> (const std::string &amp;path)</td></tr>
+<tr class="memdesc:ad165b44af0e8761271666f2b65ac64e4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the path for log file. If specified, logfiles are written into this directory instead of the default logging directory (/tmp). <br /></td></tr>
+<tr class="separator:ad165b44af0e8761271666f2b65ac64e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6fc613dad20e70d880cef98e2e2e8b9e"><td class="memItemLeft" align="right" valign="top"><a id="a6fc613dad20e70d880cef98e2e2e8b9e"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a6fc613dad20e70d880cef98e2e2e8b9e">ila::LogToErr</a> (bool to_err)</td></tr>
+<tr class="memdesc:a6fc613dad20e70d880cef98e2e2e8b9e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pipe log to stderr. Log messages to stderr instead of logfiles, if set to 1. <br /></td></tr>
+<tr class="separator:a6fc613dad20e70d880cef98e2e2e8b9e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae37d85f1a86347ace4c370cc842ad009"><td class="memItemLeft" align="right" valign="top"><a id="ae37d85f1a86347ace4c370cc842ad009"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#ae37d85f1a86347ace4c370cc842ad009">ila::EnableDebug</a> (const std::string &amp;tag)</td></tr>
+<tr class="memdesc:ae37d85f1a86347ace4c370cc842ad009"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add a debug tag. <br /></td></tr>
+<tr class="separator:ae37d85f1a86347ace4c370cc842ad009"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae6007ce8ef047f7c5c0443575653ec80"><td class="memItemLeft" align="right" valign="top"><a id="ae6007ce8ef047f7c5c0443575653ec80"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#ae6007ce8ef047f7c5c0443575653ec80">ila::DisableDebug</a> (const std::string &amp;tag)</td></tr>
+<tr class="memdesc:ae6007ce8ef047f7c5c0443575653ec80"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove a debug tag. <br /></td></tr>
+<tr class="separator:ae6007ce8ef047f7c5c0443575653ec80"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a76b9ad86db10b939a7a690245be6d332"><td class="memItemLeft" align="right" valign="top"><a id="a76b9ad86db10b939a7a690245be6d332"></a>
 ExprRef&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a76b9ad86db10b939a7a690245be6d332">ila::operator-</a> (const ExprRef &amp;a)</td></tr>
 <tr class="memdesc:a76b9ad86db10b939a7a690245be6d332"><td class="mdescLeft">&#160;</td><td class="mdescRight">Arithmetic negate for bit-vectors. <br /></td></tr>
@@ -123,7 +154,7 @@ ExprRef&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="n
 <tr class="separator:abb7b5784377fb4de6efa5c8a05cda478"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a44c843d4131fbcdf7bb51f56c00c1b82"><td class="memItemLeft" align="right" valign="top"><a id="a44c843d4131fbcdf7bb51f56c00c1b82"></a>
 ExprRef&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a44c843d4131fbcdf7bb51f56c00c1b82">ila::operator&lt;&lt;</a> (const ExprRef &amp;a, const ExprRef &amp;b)</td></tr>
-<tr class="memdesc:a44c843d4131fbcdf7bb51f56c00c1b82"><td class="mdescLeft">&#160;</td><td class="mdescRight">Lefy shift for bit-vectors. <br /></td></tr>
+<tr class="memdesc:a44c843d4131fbcdf7bb51f56c00c1b82"><td class="mdescLeft">&#160;</td><td class="mdescRight">Left shift for bit-vectors. <br /></td></tr>
 <tr class="separator:a44c843d4131fbcdf7bb51f56c00c1b82"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3d7f65c8f20bf6e21216f7c99d2502cd"><td class="memItemLeft" align="right" valign="top"><a id="a3d7f65c8f20bf6e21216f7c99d2502cd"></a>
 ExprRef&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a3d7f65c8f20bf6e21216f7c99d2502cd">ila::operator&gt;&gt;</a> (const ExprRef &amp;a, const ExprRef &amp;b)</td></tr>
@@ -265,6 +296,14 @@ ExprRef&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="n
 ExprRef&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#ae170357be0b2d16f0ba5773b6aa209e7">ila::Store</a> (const ExprRef &amp;mem, const ExprRef &amp;addr, const ExprRef &amp;data)</td></tr>
 <tr class="memdesc:ae170357be0b2d16f0ba5773b6aa209e7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Store to memory. <br /></td></tr>
 <tr class="separator:ae170357be0b2d16f0ba5773b6aa209e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a202f259f5416fbbeb1398a9fc97d78b3"><td class="memItemLeft" align="right" valign="top"><a id="a202f259f5416fbbeb1398a9fc97d78b3"></a>
+ExprRef&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a202f259f5416fbbeb1398a9fc97d78b3">ila::Load</a> (const ExprRef &amp;mem, const int &amp;addr)</td></tr>
+<tr class="memdesc:a202f259f5416fbbeb1398a9fc97d78b3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Load from memory with constant address. <br /></td></tr>
+<tr class="separator:a202f259f5416fbbeb1398a9fc97d78b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a04ac7f135e57d3a65ff01e22552bae55"><td class="memItemLeft" align="right" valign="top"><a id="a04ac7f135e57d3a65ff01e22552bae55"></a>
+ExprRef&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a04ac7f135e57d3a65ff01e22552bae55">ila::Store</a> (const ExprRef &amp;mem, const int &amp;addr, const int &amp;data)</td></tr>
+<tr class="memdesc:a04ac7f135e57d3a65ff01e22552bae55"><td class="mdescLeft">&#160;</td><td class="mdescRight">Store to memory at constant address and data. <br /></td></tr>
+<tr class="separator:a04ac7f135e57d3a65ff01e22552bae55"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a007fcb0d622b585536c265f34e4ccaaf"><td class="memItemLeft" align="right" valign="top">ExprRef&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a007fcb0d622b585536c265f34e4ccaaf">ila::Concat</a> (const ExprRef &amp;msbv, const ExprRef &amp;lsbv)</td></tr>
 <tr class="memdesc:a007fcb0d622b585536c265f34e4ccaaf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Concatenate two bit-vectors.  <a href="namespaceila.html#a007fcb0d622b585536c265f34e4ccaaf">More...</a><br /></td></tr>
 <tr class="separator:a007fcb0d622b585536c265f34e4ccaaf"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -299,25 +338,18 @@ ExprRef&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="n
 bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#aac1f3d80017db98d44588db31f43c20a">ila::TopEqual</a> (const ExprRef &amp;a, const ExprRef &amp;b)</td></tr>
 <tr class="memdesc:aac1f3d80017db98d44588db31f43c20a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Topologically equivalent. <br /></td></tr>
 <tr class="separator:aac1f3d80017db98d44588db31f43c20a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac0071778162973867e17db173c6c3cba"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#ac0071778162973867e17db173c6c3cba">ila::LogLevel</a> (const int &amp;lvl)</td></tr>
-<tr class="memdesc:ac0071778162973867e17db173c6c3cba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the minimun log level. Log messages at or above this level will be logged. (Default: 0)  <a href="namespaceila.html#ac0071778162973867e17db173c6c3cba">More...</a><br /></td></tr>
-<tr class="separator:ac0071778162973867e17db173c6c3cba"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad165b44af0e8761271666f2b65ac64e4"><td class="memItemLeft" align="right" valign="top"><a id="ad165b44af0e8761271666f2b65ac64e4"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#ad165b44af0e8761271666f2b65ac64e4">ila::LogPath</a> (const std::string &amp;path)</td></tr>
-<tr class="memdesc:ad165b44af0e8761271666f2b65ac64e4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the path for log file. If specified, logfiles are written into this directory instead of the default logging directory (/tmp). <br /></td></tr>
-<tr class="separator:ad165b44af0e8761271666f2b65ac64e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6fc613dad20e70d880cef98e2e2e8b9e"><td class="memItemLeft" align="right" valign="top"><a id="a6fc613dad20e70d880cef98e2e2e8b9e"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a6fc613dad20e70d880cef98e2e2e8b9e">ila::LogToErr</a> (bool to_err)</td></tr>
-<tr class="memdesc:a6fc613dad20e70d880cef98e2e2e8b9e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pipe log to stderr. Log messages to stderr instead of logfiles, if set to 1. <br /></td></tr>
-<tr class="separator:a6fc613dad20e70d880cef98e2e2e8b9e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae37d85f1a86347ace4c370cc842ad009"><td class="memItemLeft" align="right" valign="top"><a id="ae37d85f1a86347ace4c370cc842ad009"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#ae37d85f1a86347ace4c370cc842ad009">ila::EnableDebug</a> (const std::string &amp;tag)</td></tr>
-<tr class="memdesc:ae37d85f1a86347ace4c370cc842ad009"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add a debug tag. <br /></td></tr>
-<tr class="separator:ae37d85f1a86347ace4c370cc842ad009"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae6007ce8ef047f7c5c0443575653ec80"><td class="memItemLeft" align="right" valign="top"><a id="ae6007ce8ef047f7c5c0443575653ec80"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#ae6007ce8ef047f7c5c0443575653ec80">ila::DisableDebug</a> (const std::string &amp;tag)</td></tr>
-<tr class="memdesc:ae6007ce8ef047f7c5c0443575653ec80"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove a debug tag. <br /></td></tr>
-<tr class="separator:ae6007ce8ef047f7c5c0443575653ec80"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abb645488bcd0d3dcd2b2684c6e2e24f5"><td class="memItemLeft" align="right" valign="top"><a id="abb645488bcd0d3dcd2b2684c6e2e24f5"></a>
+std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#abb645488bcd0d3dcd2b2684c6e2e24f5">ila::operator&lt;&lt;</a> (std::ostream &amp;out, const ExprRef &amp;expr)</td></tr>
+<tr class="memdesc:abb645488bcd0d3dcd2b2684c6e2e24f5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Print out the <a class="el" href="classila_1_1_expr_ref.html" title="The wrapper of Expr (e.g. state var, var relation, constant, etc). ">ExprRef</a>. <br /></td></tr>
+<tr class="separator:abb645488bcd0d3dcd2b2684c6e2e24f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7ebabf827033714cd3f36da4536cecc4"><td class="memItemLeft" align="right" valign="top"><a id="a7ebabf827033714cd3f36da4536cecc4"></a>
+std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a7ebabf827033714cd3f36da4536cecc4">ila::operator&lt;&lt;</a> (std::ostream &amp;out, const InstrRef &amp;instr)</td></tr>
+<tr class="memdesc:a7ebabf827033714cd3f36da4536cecc4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Print out the Instruction. <br /></td></tr>
+<tr class="separator:a7ebabf827033714cd3f36da4536cecc4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7d54459e658870f3ceb1d4de5845333c"><td class="memItemLeft" align="right" valign="top"><a id="a7d54459e658870f3ceb1d4de5845333c"></a>
+std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a7d54459e658870f3ceb1d4de5845333c">ila::operator&lt;&lt;</a> (std::ostream &amp;out, const Ila &amp;ila)</td></tr>
+<tr class="memdesc:a7d54459e658870f3ceb1d4de5845333c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Print out the ILA. <br /></td></tr>
+<tr class="separator:a7d54459e658870f3ceb1d4de5845333c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>The header for the c++ API. </p>
