@@ -68,6 +68,7 @@ TEST(TestApi, Construct) {
 
   EXPECT_EQ(1, ila.child_num());
   EXPECT_EQ(child.get(), ila.child(0).get());
+  EXPECT_EQ(child.get(), ila.child("child").get());
 }
 
 TEST(TestApi, ExprOps) {
@@ -239,7 +240,17 @@ TEST(TestApi, Unroll) {
     unroller.AddInitPred(m0.init(i));
   }
   unroller.AddInitPred(init_mem == m0.state("ir"));
-  auto cstr0 = unroller.UnrollMonoConn(m0, 4);
+  auto cstr00 = unroller.UnrollMonoConn(m0, 4);
+
+  auto cstr01 = unroller.UnrollMonoFree(m0, 4);
+  for (auto i = 0; i != 4; i++) {
+    for (size_t si = 0; si != m0.state_num(); si++) {
+      auto var = m0.state(si);
+      auto next_val = unroller.NextState(var, i);
+      auto next_var = unroller.CurrState(var, i + 1);
+      cstr01 = cstr01 && (next_val == next_var);
+    }
+  }
 
   unroller.ClearInitPred();
   unroller.ClearGlobPred();
@@ -254,18 +265,18 @@ TEST(TestApi, Unroll) {
   unroller.AddInitPred(init_mem == m1.state("ir"));
   std::vector<InstrRef> path = {m1.instr("Load"), m1.instr("Load"),
                                 m1.instr("Add"), m1.instr("Store")};
-  auto cstr1 = unroller.UnrollPathConn(path);
+  auto cstr10 = unroller.UnrollPathConn(path);
   unroller.ResetExtraSuffix();
-  auto cstr2 = unroller.UnrollPathConn(path);
+  auto cstr11 = unroller.UnrollPathConn(path);
 
   z3::solver s(c);
-  s.add(cstr0);
-  s.add(cstr1);
+  s.add(cstr00);
+  s.add(cstr10);
   EXPECT_EQ(z3::sat, s.check());
 
   s.reset();
-  s.add(cstr0);
-  s.add(cstr1);
+  s.add(cstr01);
+  s.add(cstr10);
   // connect initial value
   ASSERT_EQ(m0.state_num(), m1.state_num());
   for (size_t i = 0; i != m0.state_num(); i++) {
@@ -284,8 +295,8 @@ TEST(TestApi, Unroll) {
 
   // check two unrolling are equal
   s.reset();
-  s.add(cstr0);
-  s.add(cstr2);
+  s.add(cstr00);
+  s.add(cstr11);
   for (size_t i = 0; i != m0.state_num(); i++) {
     auto var0 = m0.state(i);
     auto var1 = m1.state(i);
@@ -297,8 +308,8 @@ TEST(TestApi, Unroll) {
 
   // check the sequence can reach the end
   s.reset();
-  s.add(cstr0);
-  s.add(cstr2);
+  s.add(cstr01);
+  s.add(cstr11);
   for (size_t i = 0; i != m0.state_num(); i++) {
     auto var0 = m0.state(i);
     auto var1 = m1.state(i);

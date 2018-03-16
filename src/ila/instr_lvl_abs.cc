@@ -92,6 +92,7 @@ void InstrLvlAbs::AddState(const ExprPtr state_var) {
   states_.push_back(name, var);
 }
 
+#if 0
 void InstrLvlAbs::AddFreeVar(const ExprPtr free_var) {
   // sanity check
   ILA_NOT_NULL(free_var);
@@ -105,6 +106,7 @@ void InstrLvlAbs::AddFreeVar(const ExprPtr free_var) {
   // register to free_vars_
   free_vars_.push_back(name, free_var);
 }
+#endif
 
 void InstrLvlAbs::AddInit(const ExprPtr cntr_expr) {
   // sanity check
@@ -208,8 +210,6 @@ const ExprPtr InstrLvlAbs::NewBoolFreeVar(const std::string& name) {
   ExprPtr bool_var = ExprFuse::NewBoolVar(name);
   // set host
   bool_var->set_host(shared_from_this());
-  // register
-  AddFreeVar(bool_var);
   return bool_var;
 }
 
@@ -219,8 +219,6 @@ const ExprPtr InstrLvlAbs::NewBvFreeVar(const std::string& name,
   ExprPtr bv_var = ExprFuse::NewBvVar(name, bit_width);
   // set host
   bv_var->set_host(shared_from_this());
-  // register
-  AddFreeVar(bv_var);
   return bv_var;
 }
 
@@ -231,8 +229,6 @@ const ExprPtr InstrLvlAbs::NewMemFreeVar(const std::string& name,
   ExprPtr mem_var = ExprFuse::NewMemVar(name, addr_width, data_width);
   // set host
   mem_var->set_host(shared_from_this());
-  // register
-  AddFreeVar(mem_var);
   return mem_var;
 }
 
