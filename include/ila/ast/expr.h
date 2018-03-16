@@ -82,6 +82,11 @@ public:
   /// Output to stream.
   virtual std::ostream& Print(std::ostream& out) const = 0;
 
+  /// Overload output stream operator for pointer.
+  friend std::ostream& operator<<(std::ostream& out, const ExprPtr expr) {
+    return expr->Print(out);
+  }
+
   /// \brief Templated visitor: visit each node in a depth-first order and apply
   /// the function object F on it.
   template <class F> void DepthFirstVisit(F& func) {
