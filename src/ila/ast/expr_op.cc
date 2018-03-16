@@ -269,7 +269,6 @@ ExprOpLt::ExprOpLt(const ExprPtr arg0, const ExprPtr arg1)
 z3::expr ExprOpLt::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                              const std::string& suffix) const {
   ILA_ASSERT(expr_vec.size() == 2) << "Lt is binary comparison.";
-  ILA_ASSERT(is_bv()) << "Lt can only be applied to bv.";
   return expr_vec[0] < expr_vec[1];
 }
 
@@ -282,7 +281,6 @@ ExprOpGt::ExprOpGt(const ExprPtr arg0, const ExprPtr arg1)
 z3::expr ExprOpGt::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                              const std::string& suffix) const {
   ILA_ASSERT(expr_vec.size() == 2) << "Gt is binary comparison.";
-  ILA_ASSERT(is_bv()) << "Gt can only be applied to bv.";
   return expr_vec[0] > expr_vec[1];
 }
 
@@ -295,7 +293,6 @@ ExprOpUlt::ExprOpUlt(const ExprPtr arg0, const ExprPtr arg1)
 z3::expr ExprOpUlt::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                               const std::string& suffix) const {
   ILA_ASSERT(expr_vec.size() == 2) << "ULt is binary comparison.";
-  ILA_ASSERT(is_bv()) << "ULt can only be applied to bv.";
   return z3::ult(expr_vec[0], expr_vec[1]);
 }
 
@@ -308,7 +305,6 @@ ExprOpUgt::ExprOpUgt(const ExprPtr arg0, const ExprPtr arg1)
 z3::expr ExprOpUgt::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                               const std::string& suffix) const {
   ILA_ASSERT(expr_vec.size() == 2) << "UGt is binary comparison.";
-  ILA_ASSERT(is_bv()) << "UGt can only be applied to bv.";
   return z3::ugt(expr_vec[0], expr_vec[1]);
 }
 
