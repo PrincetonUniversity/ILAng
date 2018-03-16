@@ -69,6 +69,8 @@ TEST_F(TestExprOp, Load) {
     s.add(z_memx == z_memy);
     s.add(z_valx != z_valy);
     EXPECT_EQ(z3::unsat, s.check());
+
+    m.SetFetch(valx);
   }
 }
 
@@ -135,6 +137,8 @@ TEST_F(TestExprOp, Append) {
     s.add(z_y == 0x10);
     s.add(z_con != 0x0110);
     EXPECT_EQ(z3::unsat, s.check());
+
+    m.SetFetch(concat);
   }
 }
 
@@ -169,6 +173,8 @@ TEST_F(TestExprOp, Extract) {
     s.add(z_y == 0b11100000);
     s.add(zbx != zby);
     EXPECT_EQ(z3::unsat, s.check());
+
+    m.SetFetch(bx);
   }
 }
 
@@ -189,6 +195,8 @@ TEST_F(TestExprOp, ZExt) {
   s.add(z_x == 0x44);
   s.add(z_extx != 0x44);
   EXPECT_EQ(z3::unsat, s.check());
+
+  m.SetFetch(extx);
 }
 
 TEST_F(TestExprOp, SExt) {
@@ -209,6 +217,8 @@ TEST_F(TestExprOp, SExt) {
   s.add(z_y == -0x44);
   s.add((z_extx + z_exty) != 0x0);
   EXPECT_EQ(z3::unsat, s.check());
+
+  m.SetFetch(extx);
 }
 
 TEST_F(TestExprOp, Negate) {
@@ -220,6 +230,8 @@ TEST_F(TestExprOp, Negate) {
   s.add(z_x == z_y);
   s.add((z_n + z_y) != 0x0);
   EXPECT_EQ(z3::unsat, s.check());
+
+  m.SetFetch(neg);
 }
 
 TEST_F(TestExprOp, Not) {
@@ -231,6 +243,8 @@ TEST_F(TestExprOp, Not) {
   s.add(z_x == z_y);
   s.add(z_n && z_y);
   EXPECT_EQ(z3::unsat, s.check());
+
+  m.SetValid(lnot);
 }
 
 TEST_F(TestExprOp, Complement) {
@@ -242,6 +256,8 @@ TEST_F(TestExprOp, Complement) {
   s.add(z_x == z_y);
   s.add((z_c & z_y) != 0x0);
   EXPECT_EQ(z3::unsat, s.check());
+
+  m.SetFetch(com);
 }
 
 TEST_F(TestExprOp, And) {
@@ -253,6 +269,8 @@ TEST_F(TestExprOp, And) {
     s.add(z_x != z_y);
     s.add(z_and == 0xff);
     EXPECT_EQ(z3::unsat, s.check());
+
+    m.SetFetch(x_and_y);
   }
 
   s.reset();
@@ -274,6 +292,8 @@ TEST_F(TestExprOp, And) {
     auto z_and = unr.GetZ3Expr(x_and_y);
     s.add(z_and);
     EXPECT_EQ(z3::unsat, s.check());
+
+    m.SetValid(x_and_y);
   }
 }
 
@@ -286,6 +306,8 @@ TEST_F(TestExprOp, Or) {
     s.add(z_x != z_y);
     s.add(z_or == 0x00);
     EXPECT_EQ(z3::unsat, s.check());
+
+    m.SetFetch(x_or_y);
   }
 
   s.reset();
@@ -307,6 +329,8 @@ TEST_F(TestExprOp, Or) {
     auto z_or = unr.GetZ3Expr(x_or_y);
     s.add(!z_or);
     EXPECT_EQ(z3::unsat, s.check());
+
+    m.SetValid(x_or_y);
   }
 }
 
@@ -319,6 +343,8 @@ TEST_F(TestExprOp, Xor) {
     s.add(z_x != z_y);
     s.add(z_xor == 0x00);
     EXPECT_EQ(z3::unsat, s.check());
+
+    m.SetFetch(x_xor_y);
   }
 
   s.reset();
@@ -341,6 +367,8 @@ TEST_F(TestExprOp, Xor) {
     auto z_x = unr.GetZ3Expr(fx);
     s.add(z_x && z_xor);
     EXPECT_EQ(z3::unsat, s.check());
+
+    m.SetValid(x_xor_y);
   }
 }
 
@@ -367,6 +395,8 @@ TEST_F(TestExprOp, LeftShift) {
 
     s.add((z_sh & 0x0f) != 0x00);
     EXPECT_EQ(z3::unsat, s.check());
+
+    m.SetFetch(sh);
   }
 }
 
@@ -394,6 +424,8 @@ TEST_F(TestExprOp, RightShift) {
     s.add(z_x >= 0);
     s.add((z_sh & 0xf0) != 0x00);
     EXPECT_EQ(z3::unsat, s.check());
+
+    m.SetFetch(sh);
   }
 }
 
@@ -419,6 +451,8 @@ TEST_F(TestExprOp, LogicRightShift) {
 
     s.add((z_sh & 0xf0) != 0x00);
     EXPECT_EQ(z3::unsat, s.check());
+
+    m.SetFetch(sh);
   }
 }
 
@@ -446,6 +480,8 @@ TEST_F(TestExprOp, Add) {
     s.add(z_x < 0x0f);
     s.add(z_add >= 0xff);
     EXPECT_EQ(z3::unsat, s.check());
+
+    m.SetFetch(add);
   }
 }
 
@@ -473,6 +509,8 @@ TEST_F(TestExprOp, Sub) {
     s.add(z_x > 0x0f);
     s.add(z_sub < 0);
     EXPECT_EQ(z3::unsat, s.check());
+
+    m.SetFetch(sub);
   }
 }
 
