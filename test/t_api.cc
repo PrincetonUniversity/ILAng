@@ -26,6 +26,9 @@ TEST(TestApi, Construct) {
   // input
   auto bool_in = ila.NewBoolInput("bool_in");
   auto bv_in = ila.NewBvInput("bv_in", REG_SIZE);
+  EXPECT_EQ(2, ila.input_num());
+  EXPECT_EQ(bool_in.get(), ila.input(0).get());
+  EXPECT_EQ(bv_in.get(), ila.input("bv_in").get());
 
   // init
   auto flag_init = (flag == BoolConst(true));
@@ -39,10 +42,12 @@ TEST(TestApi, Construct) {
   // fetch
   auto fetch = mem.Load(regs[0]);
   ila.SetFetch(fetch);
+  EXPECT_EQ(fetch.get(), ila.fetch().get());
 
   // valid
   auto valid = (regs[0] == regs[1]);
   ila.SetValid(valid);
+  EXPECT_EQ(valid.get(), ila.valid().get());
 
   // instr and ast
   {
@@ -53,10 +58,16 @@ TEST(TestApi, Construct) {
     instr.SetUpdate(regs[0], bv_in);
     instr.SetUpdate(flag, (regs[1] < regs[2]));
     instr.SetUpdate(mem, mem.Store(regs[2], regs[3]));
+
+    EXPECT_EQ(1, ila.instr_num());
+    EXPECT_EQ(instr.get(), ila.instr(0).get());
   }
 
   // child
   auto child = ila.NewChild("child");
+
+  EXPECT_EQ(1, ila.child_num());
+  EXPECT_EQ(child.get(), ila.child(0).get());
 }
 
 TEST(TestApi, ExprOps) {
