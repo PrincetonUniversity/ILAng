@@ -422,5 +422,59 @@ TEST_F(TestExprOp, LogicRightShift) {
   }
 }
 
+TEST_F(TestExprOp, Add) {
+  { // expr
+    auto add = rx + ry;
+    auto z_add = unr.GetZ3Expr(add);
+    auto z_x = unr.GetZ3Expr(rx);
+    auto z_y = unr.GetZ3Expr(ry);
+
+    s.add(z_x < 0x80);
+    s.add(z_y < 0x80);
+    s.add(z_add < 0xff);
+    EXPECT_EQ(z3::unsat, s.check());
+  }
+
+  s.reset();
+
+  { // const
+    auto add = rx + 0xf0;
+    auto z_add = unr.GetZ3Expr(add);
+    auto z_x = unr.GetZ3Expr(rx);
+
+    s.add(z_x > 0);
+    s.add(z_x < 0x0f);
+    s.add(z_add >= 0xff);
+    EXPECT_EQ(z3::unsat, s.check());
+  }
+}
+
+TEST_F(TestExprOp, Sub) {
+  { // expr
+    auto sub = rx - ry;
+    auto z_sub = unr.GetZ3Expr(sub);
+    auto z_x = unr.GetZ3Expr(rx);
+    auto z_y = unr.GetZ3Expr(ry);
+
+    s.add(z_x > z_y);
+    s.add(z_x > 0);
+    s.add(z_y > 0);
+    s.add(z_sub < 0);
+    EXPECT_EQ(z3::unsat, s.check());
+  }
+
+  s.reset();
+
+  { // const
+    auto sub = rx - 0x0f;
+    auto z_sub = unr.GetZ3Expr(sub);
+    auto z_x = unr.GetZ3Expr(rx);
+
+    s.add(z_x > 0x0f);
+    s.add(z_sub < 0);
+    EXPECT_EQ(z3::unsat, s.check());
+  }
+}
+
 } // namespace ila
 
