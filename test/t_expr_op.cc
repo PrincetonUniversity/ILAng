@@ -514,5 +514,316 @@ TEST_F(TestExprOp, Sub) {
   }
 }
 
+TEST_F(TestExprOp, Equal) {
+  { // bv expr
+    auto eq = (rx == ry);
+    auto ze = unr.GetZ3Expr(eq);
+    auto zx = unr.GetZ3Expr(rx);
+    auto zy = unr.GetZ3Expr(ry);
+
+    s.add(zx != zy);
+    s.add(ze);
+    EXPECT_EQ(z3::unsat, s.check());
+
+    m.SetValid(eq);
+  }
+
+  s.reset();
+
+  { // bv const
+    auto eq = (rx == 0x00);
+    auto ze = unr.GetZ3Expr(eq);
+    auto zx = unr.GetZ3Expr(rx);
+
+    s.add(ze);
+    s.add(zx > 0);
+    EXPECT_EQ(z3::unsat, s.check());
+  }
+
+  s.reset();
+
+  { // bool expr
+    auto eq = (fx == fy);
+    auto ze = unr.GetZ3Expr(eq);
+    auto zx = unr.GetZ3Expr(fx);
+    auto zy = unr.GetZ3Expr(fy);
+
+    s.add(zx != zy);
+    s.add(ze);
+    EXPECT_EQ(z3::unsat, s.check());
+  }
+
+  s.reset();
+
+  { // bool const
+    auto eq = (fx == false);
+    auto ze = unr.GetZ3Expr(eq);
+    auto zx = unr.GetZ3Expr(fx);
+    auto zy = unr.GetZ3Expr(fy);
+
+    s.add(ze);
+    s.add(z3::forall(zy, zy == (zx && zy)));
+    EXPECT_EQ(z3::unsat, s.check());
+  }
+}
+
+TEST_F(TestExprOp, NotEqual) {
+  { // expr
+    auto ne = (rx != ry);
+    auto zn = unr.GetZ3Expr(ne);
+    auto zx = unr.GetZ3Expr(rx);
+    auto zy = unr.GetZ3Expr(ry);
+
+    s.add((zx ^ zy) == 0x00);
+    s.add(zn);
+    EXPECT_EQ(z3::unsat, s.check());
+
+    m.SetValid(ne);
+  }
+
+  s.reset();
+
+  { // const
+    auto ne = (rx != 0x00);
+    auto zn = unr.GetZ3Expr(ne);
+    auto zx = unr.GetZ3Expr(rx);
+    auto zy = unr.GetZ3Expr(ry);
+
+    s.add(z3::forall(zy, (zx & zy) == 0x00));
+    s.add(zn);
+    EXPECT_EQ(z3::unsat, s.check());
+  }
+}
+
+TEST_F(TestExprOp, LessThan) {
+  { // expr
+    auto lt = rx < ry;
+    auto zl = unr.GetZ3Expr(lt);
+    auto zx = unr.GetZ3Expr(rx);
+    auto zy = unr.GetZ3Expr(ry);
+
+    s.add(zx >= 0x0f);
+    s.add(zy <= 0x0f);
+    s.add(zl);
+    EXPECT_EQ(z3::unsat, s.check());
+
+    m.SetValid(lt);
+  }
+
+  s.reset();
+
+  { // const
+    auto lt = rx < 0x0f;
+    auto zl = unr.GetZ3Expr(lt);
+    auto zx = unr.GetZ3Expr(rx);
+
+    s.add(!zl);
+    s.add((zx & 0x0f) == zx);
+    s.add(zx != 0x0f);
+    EXPECT_EQ(z3::unsat, s.check());
+  }
+}
+
+TEST_F(TestExprOp, GreaterThan) {
+  { // expr
+    auto gt = rx > ry;
+    auto zg = unr.GetZ3Expr(gt);
+    auto zx = unr.GetZ3Expr(rx);
+    auto zy = unr.GetZ3Expr(ry);
+
+    s.add(zx <= 0x0f);
+    s.add(zy >= 0x0f);
+    s.add(zg);
+    EXPECT_EQ(z3::unsat, s.check());
+
+    m.SetValid(gt);
+  }
+
+  s.reset();
+
+  { // const
+    auto gt = rx > 0x0f;
+    auto zg = unr.GetZ3Expr(gt);
+    auto zx = unr.GetZ3Expr(rx);
+
+    s.add(zg);
+    s.add((zx & 0xf0) == 0x0);
+    EXPECT_EQ(z3::unsat, s.check());
+  }
+}
+
+TEST_F(TestExprOp, LessThanOrEqual) {
+  { // expr
+    auto le = rx <= ry;
+    auto zl = unr.GetZ3Expr(le);
+    auto zx = unr.GetZ3Expr(rx);
+    auto zy = unr.GetZ3Expr(ry);
+
+    s.add(zx > 0x0f);
+    s.add(zy < 0x0f);
+    s.add(zl);
+    EXPECT_EQ(z3::unsat, s.check());
+
+    m.SetValid(le);
+  }
+
+  s.reset();
+
+  { // const
+    auto le = rx <= 0x0f;
+    auto zl = unr.GetZ3Expr(le);
+    auto zx = unr.GetZ3Expr(rx);
+
+    s.add(!zl);
+    s.add((zx & 0x0f) == zx);
+    EXPECT_EQ(z3::unsat, s.check());
+  }
+}
+
+TEST_F(TestExprOp, GreaterThanOrEqual) {
+  { // expr
+    auto ge = rx >= ry;
+    auto zg = unr.GetZ3Expr(ge);
+    auto zx = unr.GetZ3Expr(rx);
+    auto zy = unr.GetZ3Expr(ry);
+
+    s.add(zx < 0x0f);
+    s.add(zy > 0x0f);
+    s.add(zg);
+    EXPECT_EQ(z3::unsat, s.check());
+
+    m.SetValid(ge);
+  }
+
+  s.reset();
+
+  { // const
+    auto ge = rx >= 0x0f;
+    auto zg = unr.GetZ3Expr(ge);
+    auto zx = unr.GetZ3Expr(rx);
+
+    s.add(zg);
+    s.add((zx & 0xf0) == 0x0);
+    s.add(zx != 0x0f);
+    EXPECT_EQ(z3::unsat, s.check());
+  }
+}
+
+TEST_F(TestExprOp, UnsignedLessThan) {
+  { // expr
+    auto lt = Ult(rx, ry);
+    auto zl = unr.GetZ3Expr(lt);
+    auto zx = unr.GetZ3Expr(rx);
+    auto zy = unr.GetZ3Expr(ry);
+
+    s.add(z3::uge(zx, 0x0f));
+    s.add(z3::ule(zy, 0x0f));
+    s.add(zl);
+    EXPECT_EQ(z3::unsat, s.check());
+
+    m.SetValid(lt);
+  }
+
+  s.reset();
+
+  { // const
+    auto lt = Ult(rx, 0x0f);
+    auto zl = unr.GetZ3Expr(lt);
+    auto zx = unr.GetZ3Expr(rx);
+
+    s.add(!zl);
+    s.add((zx & 0x0f) == zx);
+    s.add(zx != 0x0f);
+    EXPECT_EQ(z3::unsat, s.check());
+  }
+}
+
+TEST_F(TestExprOp, UnsignedGreaterThan) {
+  { // expr
+    auto gt = Ugt(rx, ry);
+    auto zg = unr.GetZ3Expr(gt);
+    auto zx = unr.GetZ3Expr(rx);
+    auto zy = unr.GetZ3Expr(ry);
+
+    s.add(z3::ule(zx, 0x0f));
+    s.add(z3::uge(zy, 0x0f));
+    s.add(zg);
+    EXPECT_EQ(z3::unsat, s.check());
+
+    m.SetValid(gt);
+  }
+
+  s.reset();
+
+  { // const
+    auto gt = Ugt(rx, 0x0f);
+    auto zg = unr.GetZ3Expr(gt);
+    auto zx = unr.GetZ3Expr(rx);
+
+    s.add(zg);
+    s.add((zx & 0xf0) == 0x0);
+    EXPECT_EQ(z3::unsat, s.check());
+  }
+}
+
+TEST_F(TestExprOp, UnsignedLessThanOrEqual) {
+  { // expr
+    auto le = Ule(rx, ry);
+    auto zl = unr.GetZ3Expr(le);
+    auto zx = unr.GetZ3Expr(rx);
+    auto zy = unr.GetZ3Expr(ry);
+
+    s.add(z3::ugt(zx, 0x0f));
+    s.add(z3::ult(zy, 0x0f));
+    s.add(zl);
+    EXPECT_EQ(z3::unsat, s.check());
+
+    m.SetValid(le);
+  }
+
+  s.reset();
+
+  { // const
+    auto le = Ule(rx, 0x0f);
+    auto zl = unr.GetZ3Expr(le);
+    auto zx = unr.GetZ3Expr(rx);
+
+    s.add(!zl);
+    s.add((zx & 0x0f) == zx);
+    EXPECT_EQ(z3::unsat, s.check());
+  }
+}
+
+TEST_F(TestExprOp, UnsignedGreaterThanOrEqual) {
+  { // expr
+    auto ge = Uge(rx, ry);
+    auto zg = unr.GetZ3Expr(ge);
+    auto zx = unr.GetZ3Expr(rx);
+    auto zy = unr.GetZ3Expr(ry);
+
+    s.add(z3::ult(zx, 0x0f));
+    s.add(z3::ugt(zy, 0x0f));
+    s.add(zg);
+    EXPECT_EQ(z3::unsat, s.check());
+
+    m.SetValid(ge);
+  }
+
+  s.reset();
+
+  { // const
+    auto ge = Uge(rx, 0x0f);
+    auto zg = unr.GetZ3Expr(ge);
+    auto zx = unr.GetZ3Expr(rx);
+
+    s.add(zg);
+    s.add((zx & 0xf0) == 0x0);
+    s.add(zx != 0x0f);
+    EXPECT_EQ(z3::unsat, s.check());
+  }
+}
+
+// Imply Ite FuncApp
+
 } // namespace ila
 
