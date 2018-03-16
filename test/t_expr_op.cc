@@ -823,7 +823,65 @@ TEST_F(TestExprOp, UnsignedGreaterThanOrEqual) {
   }
 }
 
-// Imply Ite FuncApp
+TEST_F(TestExprOp, Imply) {
+  auto imply = Imply(fx, fy);
+  auto zi = unr.GetZ3Expr(imply);
+  auto zx = unr.GetZ3Expr(fx);
+  auto zy = unr.GetZ3Expr(fy);
+
+  s.add(zi);
+  s.add(zx && !zy);
+  EXPECT_EQ(z3::unsat, s.check());
+
+  m.SetValid(imply);
+}
+
+TEST_F(TestExprOp, Ite) {
+  { // bv
+    auto ite = Ite(fx, rx, ry);
+    auto zi = unr.GetZ3Expr(ite);
+    auto zx = unr.GetZ3Expr(rx);
+    auto zy = unr.GetZ3Expr(ry);
+    auto zf = unr.GetZ3Expr(fx);
+
+    s.add(zx != zy);
+    s.add(z3::forall(zf, zi == zx));
+    EXPECT_EQ(z3::unsat, s.check());
+
+    m.SetFetch(ite);
+  }
+
+  s.reset();
+
+  { // bool
+    auto ite = Ite(rx == ry, fx, fy);
+    auto zi = unr.GetZ3Expr(ite);
+    auto zx = unr.GetZ3Expr(fx);
+    auto zy = unr.GetZ3Expr(fy);
+    auto zcx = unr.GetZ3Expr(rx);
+    auto zcy = unr.GetZ3Expr(ry);
+
+    s.add(zx != zy);
+    s.add(z3::forall(zcx, zcy, zi == zx));
+    EXPECT_EQ(z3::unsat, s.check());
+
+    m.SetValid(ite);
+  }
+
+  s.reset();
+
+  { // mem
+    auto ite = Ite(fx, mx, my);
+    auto zi = unr.GetZ3Expr(ite);
+    auto zx = unr.GetZ3Expr(mx);
+    auto zy = unr.GetZ3Expr(my);
+    auto zf = unr.GetZ3Expr(fx);
+
+    s.add(zx != zy);
+    s.add(z3::forall(zf, zi == zx));
+    EXPECT_EQ(z3::unsat, s.check());
+  }
+}
 
 } // namespace ila
 
