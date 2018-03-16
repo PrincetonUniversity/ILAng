@@ -86,10 +86,10 @@ Public Types</h2></td></tr>
 typedef std::shared_ptr&lt; <a class="el" href="classila_1_1_expr_mngr.html">ExprMngr</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_mngr.html#aeccb5bd5344e1b7730ca2a5df52bc17f">ExprMngrPtr</a></td></tr>
 <tr class="memdesc:aeccb5bd5344e1b7730ca2a5df52bc17f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pointer type for passing shared ast simplifier. <br /></td></tr>
 <tr class="separator:aeccb5bd5344e1b7730ca2a5df52bc17f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af97bce0ba49929a807a130d5a199fa5a"><td class="memItemLeft" align="right" valign="top"><a id="af97bce0ba49929a807a130d5a199fa5a"></a>
-typedef std::unordered_map&lt; const <a class="el" href="namespaceila.html#af610f1359caba1beb7a780ebd58d2897">ExprPtr</a>, const <a class="el" href="namespaceila.html#af610f1359caba1beb7a780ebd58d2897">ExprPtr</a>, <a class="el" href="classila_1_1_ast_hash.html">AstHash</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_mngr.html#af97bce0ba49929a807a130d5a199fa5a">HashTable</a></td></tr>
-<tr class="memdesc:af97bce0ba49929a807a130d5a199fa5a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Type for cacheing the AST node hashing. <br /></td></tr>
-<tr class="separator:af97bce0ba49929a807a130d5a199fa5a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1866dab96369caee5ea99e6b1deaa74c"><td class="memItemLeft" align="right" valign="top"><a id="a1866dab96369caee5ea99e6b1deaa74c"></a>
+typedef std::unordered_map&lt; std::string, const <a class="el" href="namespaceila.html#af610f1359caba1beb7a780ebd58d2897">ExprPtr</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_mngr.html#a1866dab96369caee5ea99e6b1deaa74c">HashTable</a></td></tr>
+<tr class="memdesc:a1866dab96369caee5ea99e6b1deaa74c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Type for cacheing the AST node hashing. <br /></td></tr>
+<tr class="separator:a1866dab96369caee5ea99e6b1deaa74c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -105,10 +105,10 @@ Public Member Functions</h2></td></tr>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_mngr.html#aeb02721394e34522574420be533f016f">clear</a> ()</td></tr>
 <tr class="memdesc:aeb02721394e34522574420be533f016f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reset the hash table. <br /></td></tr>
 <tr class="separator:aeb02721394e34522574420be533f016f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad3219c65d8d5cd64268d4d626c69978b"><td class="memItemLeft" align="right" valign="top"><a id="ad3219c65d8d5cd64268d4d626c69978b"></a>
-<a class="el" href="namespaceila.html#af610f1359caba1beb7a780ebd58d2897">ExprPtr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_mngr.html#ad3219c65d8d5cd64268d4d626c69978b">Simplify</a> (const <a class="el" href="namespaceila.html#af610f1359caba1beb7a780ebd58d2897">ExprPtr</a> node, bool simplify)</td></tr>
-<tr class="memdesc:ad3219c65d8d5cd64268d4d626c69978b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Simplify the AST node. <br /></td></tr>
-<tr class="separator:ad3219c65d8d5cd64268d4d626c69978b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9e7308460916468078d4c5ddcf521ec5"><td class="memItemLeft" align="right" valign="top"><a id="a9e7308460916468078d4c5ddcf521ec5"></a>
+<a class="el" href="namespaceila.html#af610f1359caba1beb7a780ebd58d2897">ExprPtr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_mngr.html#a9e7308460916468078d4c5ddcf521ec5">GetRep</a> (const <a class="el" href="namespaceila.html#af610f1359caba1beb7a780ebd58d2897">ExprPtr</a> node)</td></tr>
+<tr class="memdesc:a9e7308460916468078d4c5ddcf521ec5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the AST node representative. <br /></td></tr>
+<tr class="separator:a9e7308460916468078d4c5ddcf521ec5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a131293635f523dd152625bbb4d7e82e8"><td class="memItemLeft" align="right" valign="top"><a id="a131293635f523dd152625bbb4d7e82e8"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_mngr.html#a131293635f523dd152625bbb4d7e82e8">operator()</a> (const <a class="el" href="namespaceila.html#af610f1359caba1beb7a780ebd58d2897">ExprPtr</a> node)</td></tr>
 <tr class="memdesc:a131293635f523dd152625bbb4d7e82e8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function object for sharing ast nodes. <br /></td></tr>

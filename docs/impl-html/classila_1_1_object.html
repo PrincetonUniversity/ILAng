@@ -84,35 +84,43 @@ Inheritance diagram for ila::Object:</div>
  <div class="center">
   <img src="classila_1_1_object.png" usemap="#ila::Object_map" alt=""/>
   <map id="ila::Object_map" name="ila::Object_map">
-<area href="classila_1_1_ast.html" title="The class for the Abstract Syntax Tree. An Ast object can be an expression or function definition (in..." alt="ila::Ast" shape="rect" coords="248,56,362,80"/>
-<area href="classila_1_1_instr.html" title="The class for the Instruction. An Instr object contains: " alt="ila::Instr" shape="rect" coords="372,56,486,80"/>
-<area href="classila_1_1_instr_lvl_abs.html" title="The class of Instruction-Level Abstraction (ILA). An ILA contains: " alt="ila::InstrLvlAbs" shape="rect" coords="496,56,610,80"/>
-<area href="classila_1_1_expr.html" title="The class for expression, which is the basic type for variables, constraints, state update expression..." alt="ila::Expr" shape="rect" coords="124,112,238,136"/>
-<area href="classila_1_1_func.html" title="The class for uninterpreted function declaration and constraints. " alt="ila::Func" shape="rect" coords="248,112,362,136"/>
-<area href="classila_1_1_sort.html" title="The class for sort (type for expr, and the range/domain of functions). " alt="ila::Sort" shape="rect" coords="372,112,486,136"/>
-<area href="classila_1_1_expr_const.html" title="Expression for constant values (bool, bv, or memory). Constant should be terminating nodes in the AST..." alt="ila::ExprConst" shape="rect" coords="0,168,114,192"/>
-<area href="classila_1_1_expr_op.html" title="Expression for operations, e.g. AND, OR, ADD, etc. Operations are non-terminating nodes in the AST..." alt="ila::ExprOp" shape="rect" coords="124,168,238,192"/>
-<area href="classila_1_1_expr_var.html" title="Expression for variables (bool, bv, or mem). Variable should be the terminating nodes in the AST..." alt="ila::ExprVar" shape="rect" coords="248,168,362,192"/>
-<area href="classila_1_1_expr_op_add.html" title="The wrapper for unsigned addition. " alt="ila::ExprOpAdd" shape="rect" coords="248,224,362,248"/>
-<area href="classila_1_1_expr_op_and.html" title="The wrapper for binary logical AND operation &quot;&amp;&quot;. " alt="ila::ExprOpAnd" shape="rect" coords="248,280,362,304"/>
-<area href="classila_1_1_expr_op_compl.html" title="The wrapper for unary bit-wise complement &quot;~&quot;. (bv only) " alt="ila::ExprOpCompl" shape="rect" coords="248,336,362,360"/>
-<area href="classila_1_1_expr_op_concat.html" title="The class wrapper for bitvector concatenation. " alt="ila::ExprOpConcat" shape="rect" coords="248,392,362,416"/>
-<area href="classila_1_1_expr_op_eq.html" title="The class wrapper for binary comparison EQ &quot;==&quot;. " alt="ila::ExprOpEq" shape="rect" coords="248,448,362,472"/>
-<area href="classila_1_1_expr_op_extract.html" title="The class wrapper for bitvector extraction. " alt="ila::ExprOpExtract" shape="rect" coords="248,504,362,528"/>
-<area href="classila_1_1_expr_op_gt.html" title="The class wrapper for binary comparison signed greater than &quot;&gt;&quot;. " alt="ila::ExprOpGt" shape="rect" coords="248,560,362,584"/>
-<area href="classila_1_1_expr_op_imply.html" title="The class wrapper for logical imply. " alt="ila::ExprOpImply" shape="rect" coords="248,616,362,640"/>
-<area href="classila_1_1_expr_op_ite.html" title="The class wrapper for if-then-else. " alt="ila::ExprOpIte" shape="rect" coords="248,672,362,696"/>
-<area href="classila_1_1_expr_op_load.html" title="The class wrapper for memory load. " alt="ila::ExprOpLoad" shape="rect" coords="248,728,362,752"/>
-<area href="classila_1_1_expr_op_lt.html" title="The class wrapper for binary comparison signed less than &quot;&lt;&quot;. " alt="ila::ExprOpLt" shape="rect" coords="248,784,362,808"/>
-<area href="classila_1_1_expr_op_neg.html" title="The wrapper for unary negate operation &quot;-&quot;. " alt="ila::ExprOpNeg" shape="rect" coords="248,840,362,864"/>
-<area href="classila_1_1_expr_op_not.html" title="The wrapper for unary not operation &quot;!&quot;. (bool only) " alt="ila::ExprOpNot" shape="rect" coords="248,896,362,920"/>
-<area href="classila_1_1_expr_op_or.html" title="The wrapper for binary logical OR operation &quot;|&quot;. " alt="ila::ExprOpOr" shape="rect" coords="248,952,362,976"/>
-<area href="classila_1_1_expr_op_store.html" title="The class wrapper for memory store. " alt="ila::ExprOpStore" shape="rect" coords="248,1008,362,1032"/>
-<area href="classila_1_1_expr_op_sub.html" title="The wrapper for unsigned subtraction. " alt="ila::ExprOpSub" shape="rect" coords="248,1064,362,1088"/>
-<area href="classila_1_1_expr_op_ugt.html" title="The class wrapper for binary comparison unsigned greater than. " alt="ila::ExprOpUgt" shape="rect" coords="248,1120,362,1144"/>
-<area href="classila_1_1_expr_op_ult.html" title="The class wrapper for binary comparison unsigned less than. " alt="ila::ExprOpUlt" shape="rect" coords="248,1176,362,1200"/>
-<area href="classila_1_1_expr_op_xor.html" title="The wrapper for binary logical XOR operation &quot;^&quot;. " alt="ila::ExprOpXor" shape="rect" coords="248,1232,362,1256"/>
-<area href="classila_1_1_expr_op_z_ext.html" title="The class wrapper for zero-extend. " alt="ila::ExprOpZExt" shape="rect" coords="248,1288,362,1312"/>
+<area href="classila_1_1_ast.html" title="The class for the Abstract Syntax Tree. An Ast object can be an expression or function definition (in..." alt="ila::Ast" shape="rect" coords="272,56,398,80"/>
+<area href="classila_1_1_instr.html" title="The class for the Instruction. An Instr object contains: " alt="ila::Instr" shape="rect" coords="408,56,534,80"/>
+<area href="classila_1_1_instr_lvl_abs.html" title="The class of Instruction-Level Abstraction (ILA). An ILA contains: " alt="ila::InstrLvlAbs" shape="rect" coords="544,56,670,80"/>
+<area href="classila_1_1_expr.html" title="The class for expression, which is the basic type for variables, constraints, state update expression..." alt="ila::Expr" shape="rect" coords="136,112,262,136"/>
+<area href="classila_1_1_func.html" title="The class for uninterpreted function. " alt="ila::Func" shape="rect" coords="272,112,398,136"/>
+<area href="classila_1_1_sort.html" title="The class for sort (type for expr, and the range/domain of functions). " alt="ila::Sort" shape="rect" coords="544,112,670,136"/>
+<area href="classila_1_1_expr_const.html" title="Expression for constant values (bool, bv, or memory). Constant should be terminating nodes in the AST..." alt="ila::ExprConst" shape="rect" coords="0,168,126,192"/>
+<area href="classila_1_1_expr_op.html" title="Expression for operations, e.g. AND, OR, ADD, etc. Operations are non-terminating nodes in the AST..." alt="ila::ExprOp" shape="rect" coords="136,168,262,192"/>
+<area href="classila_1_1_expr_var.html" title="Expression for variables (bool, bv, or mem). Variable should be the terminating nodes in the AST..." alt="ila::ExprVar" shape="rect" coords="272,168,398,192"/>
+<area href="classila_1_1_sort_bool.html" title="The class of Boolean Sort. " alt="ila::SortBool" shape="rect" coords="408,168,534,192"/>
+<area href="classila_1_1_sort_bv.html" title="The class of bit-vector Sort. " alt="ila::SortBv" shape="rect" coords="544,168,670,192"/>
+<area href="classila_1_1_sort_mem.html" title="The class of memory (array) Sort. " alt="ila::SortMem" shape="rect" coords="680,168,806,192"/>
+<area href="classila_1_1_expr_op_add.html" title="The wrapper for unsigned addition. " alt="ila::ExprOpAdd" shape="rect" coords="272,224,398,248"/>
+<area href="classila_1_1_expr_op_and.html" title="The wrapper for binary logical AND operation &quot;&amp;&quot;. " alt="ila::ExprOpAnd" shape="rect" coords="272,280,398,304"/>
+<area href="classila_1_1_expr_op_app_func.html" title="The class wrapper for apply uninterpreted function. " alt="ila::ExprOpAppFunc" shape="rect" coords="272,336,398,360"/>
+<area href="classila_1_1_expr_op_ashr.html" title="The wrapper for arithmetic right shifting a bit-vector. " alt="ila::ExprOpAshr" shape="rect" coords="272,392,398,416"/>
+<area href="classila_1_1_expr_op_compl.html" title="The wrapper for unary bit-wise complement &quot;~&quot;. (bv only) " alt="ila::ExprOpCompl" shape="rect" coords="272,448,398,472"/>
+<area href="classila_1_1_expr_op_concat.html" title="The class wrapper for bitvector concatenation. " alt="ila::ExprOpConcat" shape="rect" coords="272,504,398,528"/>
+<area href="classila_1_1_expr_op_eq.html" title="The class wrapper for binary comparison EQ &quot;==&quot;. " alt="ila::ExprOpEq" shape="rect" coords="272,560,398,584"/>
+<area href="classila_1_1_expr_op_extract.html" title="The class wrapper for bitvector extraction. " alt="ila::ExprOpExtract" shape="rect" coords="272,616,398,640"/>
+<area href="classila_1_1_expr_op_gt.html" title="The class wrapper for binary comparison signed greater than &quot;&gt;&quot;. " alt="ila::ExprOpGt" shape="rect" coords="272,672,398,696"/>
+<area href="classila_1_1_expr_op_imply.html" title="The class wrapper for logical imply. " alt="ila::ExprOpImply" shape="rect" coords="272,728,398,752"/>
+<area href="classila_1_1_expr_op_ite.html" title="The class wrapper for if-then-else. " alt="ila::ExprOpIte" shape="rect" coords="272,784,398,808"/>
+<area href="classila_1_1_expr_op_load.html" title="The class wrapper for memory load. " alt="ila::ExprOpLoad" shape="rect" coords="272,840,398,864"/>
+<area href="classila_1_1_expr_op_lshr.html" title="The wrapper for logical right shifting a bit-vector. " alt="ila::ExprOpLshr" shape="rect" coords="272,896,398,920"/>
+<area href="classila_1_1_expr_op_lt.html" title="The class wrapper for binary comparison signed less than &quot;&lt;&quot;. " alt="ila::ExprOpLt" shape="rect" coords="272,952,398,976"/>
+<area href="classila_1_1_expr_op_neg.html" title="The wrapper for unary negate operation &quot;-&quot;. " alt="ila::ExprOpNeg" shape="rect" coords="272,1008,398,1032"/>
+<area href="classila_1_1_expr_op_not.html" title="The wrapper for unary not operation &quot;!&quot;. (bool only) " alt="ila::ExprOpNot" shape="rect" coords="272,1064,398,1088"/>
+<area href="classila_1_1_expr_op_or.html" title="The wrapper for binary logical OR operation &quot;|&quot;. " alt="ila::ExprOpOr" shape="rect" coords="272,1120,398,1144"/>
+<area href="classila_1_1_expr_op_s_ext.html" title="The calss wrapper for sign-extend. " alt="ila::ExprOpSExt" shape="rect" coords="272,1176,398,1200"/>
+<area href="classila_1_1_expr_op_shl.html" title="The wrapper for left shifting a bit-vector. " alt="ila::ExprOpShl" shape="rect" coords="272,1232,398,1256"/>
+<area href="classila_1_1_expr_op_store.html" title="The class wrapper for memory store. " alt="ila::ExprOpStore" shape="rect" coords="272,1288,398,1312"/>
+<area href="classila_1_1_expr_op_sub.html" title="The wrapper for unsigned subtraction. " alt="ila::ExprOpSub" shape="rect" coords="272,1344,398,1368"/>
+<area href="classila_1_1_expr_op_ugt.html" title="The class wrapper for binary comparison unsigned greater than. " alt="ila::ExprOpUgt" shape="rect" coords="272,1400,398,1424"/>
+<area href="classila_1_1_expr_op_ult.html" title="The class wrapper for binary comparison unsigned less than. " alt="ila::ExprOpUlt" shape="rect" coords="272,1456,398,1480"/>
+<area href="classila_1_1_expr_op_xor.html" title="The wrapper for binary logical XOR operation &quot;^&quot;. " alt="ila::ExprOpXor" shape="rect" coords="272,1512,398,1536"/>
+<area href="classila_1_1_expr_op_z_ext.html" title="The class wrapper for zero-extend. " alt="ila::ExprOpZExt" shape="rect" coords="272,1568,398,1592"/>
 </map>
  </div></div>
 <table class="memberdecls">
@@ -141,10 +149,6 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 const <a class="el" href="classila_1_1_symbol.html">Symbol</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_object.html#a3a4685c48b59e040b1826a59abcdae01">name</a> () const</td></tr>
 <tr class="memdesc:a3a4685c48b59e040b1826a59abcdae01"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the symbol (name). <br /></td></tr>
 <tr class="separator:a3a4685c48b59e040b1826a59abcdae01"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9f3dbca3c81262cd8c0a75c497a2c8da"><td class="memItemLeft" align="right" valign="top"><a id="a9f3dbca3c81262cd8c0a75c497a2c8da"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_object.html#a9f3dbca3c81262cd8c0a75c497a2c8da">set_name</a> (const std::string &amp;<a class="el" href="classila_1_1_object.html#a3a4685c48b59e040b1826a59abcdae01">name</a>)</td></tr>
-<tr class="memdesc:a9f3dbca3c81262cd8c0a75c497a2c8da"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the symbol (name). <br /></td></tr>
-<tr class="separator:a9f3dbca3c81262cd8c0a75c497a2c8da"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a75668cdee5e0e62270d30773184640b6"><td class="memItemLeft" align="right" valign="top"><a id="a75668cdee5e0e62270d30773184640b6"></a>
 virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_object.html#a75668cdee5e0e62270d30773184640b6">is_instr_lvl_abs</a> () const</td></tr>
 <tr class="memdesc:a75668cdee5e0e62270d30773184640b6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Is type <a class="el" href="classila_1_1_instr_lvl_abs.html" title="The class of Instruction-Level Abstraction (ILA). An ILA contains: ">InstrLvlAbs</a>. <br /></td></tr>

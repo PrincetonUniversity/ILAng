@@ -100,17 +100,8 @@ Public Member Functions</h2></td></tr>
 &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_bmc.html#a4b5fd52e187307266188c881f80a1187">~Bmc</a> ()</td></tr>
 <tr class="memdesc:a4b5fd52e187307266188c881f80a1187"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default destructor. <br /></td></tr>
 <tr class="separator:a4b5fd52e187307266188c881f80a1187"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abce43b59856cb3401407d234ce4a71ed"><td class="memItemLeft" align="right" valign="top"><a id="abce43b59856cb3401407d234ce4a71ed"></a>
-z3::context &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_bmc.html#abce43b59856cb3401407d234ce4a71ed">ctx</a> ()</td></tr>
-<tr class="memdesc:abce43b59856cb3401407d234ce4a71ed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the z3 context. <br /></td></tr>
-<tr class="separator:abce43b59856cb3401407d234ce4a71ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae8a862d0e2eeff84db410a5bf498b0cf"><td class="memItemLeft" align="right" valign="top"><a id="ae8a862d0e2eeff84db410a5bf498b0cf"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_bmc.html#ae8a862d0e2eeff84db410a5bf498b0cf">set_def_tran</a> (bool use)</td></tr>
-<tr class="memdesc:ae8a862d0e2eeff84db410a5bf498b0cf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the flag for using default transition. <br /></td></tr>
-<tr class="separator:ae8a862d0e2eeff84db410a5bf498b0cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6081d50b9b923fea595c406af9419d74"><td class="memItemLeft" align="right" valign="top"><a id="a6081d50b9b923fea595c406af9419d74"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_bmc.html#a6081d50b9b923fea595c406af9419d74">AddInit</a> (<a class="el" href="namespaceila.html#af610f1359caba1beb7a780ebd58d2897">ExprPtr</a> init)</td></tr>
-<tr class="memdesc:a6081d50b9b923fea595c406af9419d74"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add initial condition to the solver. <br /></td></tr>
+<tr class="memitem:a6081d50b9b923fea595c406af9419d74"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_bmc.html#a6081d50b9b923fea595c406af9419d74">AddInit</a> (<a class="el" href="namespaceila.html#af610f1359caba1beb7a780ebd58d2897">ExprPtr</a> init)</td></tr>
+<tr class="memdesc:a6081d50b9b923fea595c406af9419d74"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the z3 context.  <a href="#a6081d50b9b923fea595c406af9419d74">More...</a><br /></td></tr>
 <tr class="separator:a6081d50b9b923fea595c406af9419d74"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aab0a9face9aa970ae41b246a14c56a2d"><td class="memItemLeft" align="right" valign="top"><a id="aab0a9face9aa970ae41b246a14c56a2d"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_bmc.html#aab0a9face9aa970ae41b246a14c56a2d">AddInvariant</a> (<a class="el" href="namespaceila.html#af610f1359caba1beb7a780ebd58d2897">ExprPtr</a> inv)</td></tr>
@@ -124,18 +115,32 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 z3::check_result&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_bmc.html#a5c6f69a41776ef8bf68eeac1fb8ec513">BmcLegacy</a> (<a class="el" href="namespaceila.html#ac7992fe63e5818774d91a3d9c4b6f0f9">InstrLvlAbsPtr</a> m0, const int &amp;k0, <a class="el" href="namespaceila.html#ac7992fe63e5818774d91a3d9c4b6f0f9">InstrLvlAbsPtr</a> m1, const int &amp;k1)</td></tr>
 <tr class="memdesc:a5c6f69a41776ef8bf68eeac1fb8ec513"><td class="mdescLeft">&#160;</td><td class="mdescRight">Legacy BMC where two ILAs are unrolled and compared monolithically. <br /></td></tr>
 <tr class="separator:a5c6f69a41776ef8bf68eeac1fb8ec513"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab5366d5415cbdabee99f10b1d72aa45c"><td class="memItemLeft" align="right" valign="top"><a id="ab5366d5415cbdabee99f10b1d72aa45c"></a>
-z3::check_result&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_bmc.html#ab5366d5415cbdabee99f10b1d72aa45c">BmcProp</a> (<a class="el" href="namespaceila.html#ac7992fe63e5818774d91a3d9c4b6f0f9">InstrLvlAbsPtr</a> m, const int &amp;k)</td></tr>
-<tr class="memdesc:ab5366d5415cbdabee99f10b1d72aa45c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bounded model checking on the ILA for the specified properties up to step k. <br /></td></tr>
-<tr class="separator:ab5366d5415cbdabee99f10b1d72aa45c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af7ffb409f6da13cccdad88ae1dcb2d1e"><td class="memItemLeft" align="right" valign="top"><a id="af7ffb409f6da13cccdad88ae1dcb2d1e"></a>
-z3::check_result&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_bmc.html#af7ffb409f6da13cccdad88ae1dcb2d1e">BmcPropInc</a> (<a class="el" href="namespaceila.html#ac7992fe63e5818774d91a3d9c4b6f0f9">InstrLvlAbsPtr</a> m, const int &amp;k)</td></tr>
-<tr class="memdesc:af7ffb409f6da13cccdad88ae1dcb2d1e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Incrementally increase the step of BMC up to k. <br /></td></tr>
-<tr class="separator:af7ffb409f6da13cccdad88ae1dcb2d1e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Bounded model checking engine for ILAs. </p>
-</div><hr/>The documentation for this class was generated from the following file:<ul>
+</div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="a6081d50b9b923fea595c406af9419d74"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6081d50b9b923fea595c406af9419d74">&#9670;&nbsp;</a></span>AddInit()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void ila::Bmc::AddInit </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespaceila.html#af610f1359caba1beb7a780ebd58d2897">ExprPtr</a>&#160;</td>
+          <td class="paramname"><em>init</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Return the z3 context. </p>
+<p>Set the flag for using default transition. Add initial condition to the solver. </p>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="bmc_8h_source.html">bmc.h</a></li>
 </ul>
 </div><!-- contents -->

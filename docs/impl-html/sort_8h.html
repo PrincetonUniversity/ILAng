@@ -68,15 +68,15 @@ $(function() {
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
 <a href="#namespaces">Namespaces</a> &#124;
-<a href="#typedef-members">Typedefs</a> &#124;
-<a href="#enum-members">Enumerations</a>  </div>
+<a href="#typedef-members">Typedefs</a>  </div>
   <div class="headertitle">
 <div class="title">sort.h File Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><code>#include &quot;<a class="el" href="ast_8h_source.html">ila/ast/ast.h</a>&quot;</code><br />
+<code>#include &quot;z3++.h&quot;</code><br />
+<code>#include &lt;memory&gt;</code><br />
 <code>#include &lt;ostream&gt;</code><br />
-<code>#include &lt;vector&gt;</code><br />
 </div>
 <p><a href="sort_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
@@ -84,6 +84,15 @@ $(function() {
 Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_sort.html">ila::Sort</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The class for sort (type for expr, and the range/domain of functions).  <a href="classila_1_1_sort.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_sort_bool.html">ila::SortBool</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The class of Boolean <a class="el" href="classila_1_1_sort.html" title="The class for sort (type for expr, and the range/domain of functions). ">Sort</a>.  <a href="classila_1_1_sort_bool.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_sort_bv.html">ila::SortBv</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The class of bit-vector <a class="el" href="classila_1_1_sort.html" title="The class for sort (type for expr, and the range/domain of functions). ">Sort</a>.  <a href="classila_1_1_sort_bv.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_sort_mem.html">ila::SortMem</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The class of memory (array) <a class="el" href="classila_1_1_sort.html" title="The class for sort (type for expr, and the range/domain of functions). ">Sort</a>.  <a href="classila_1_1_sort_mem.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="namespaces"></a>
@@ -95,22 +104,8 @@ Namespaces</h2></td></tr>
 Typedefs</h2></td></tr>
 <tr class="memitem:a67cdf422ce3b55b52ba750e70305d0f1"><td class="memItemLeft" align="right" valign="top"><a id="a67cdf422ce3b55b52ba750e70305d0f1"></a>
 typedef Sort::SortPtr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#a67cdf422ce3b55b52ba750e70305d0f1">ila::SortPtr</a></td></tr>
-<tr class="memdesc:a67cdf422ce3b55b52ba750e70305d0f1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pointer type for normal use of <a class="el" href="classila_1_1_sort.html" title="The class for sort (type for expr, and the range/domain of functions). ">Sort</a>. <br /></td></tr>
+<tr class="memdesc:a67cdf422ce3b55b52ba750e70305d0f1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pointer type for storing/passing <a class="el" href="classila_1_1_sort.html" title="The class for sort (type for expr, and the range/domain of functions). ">Sort</a>. <br /></td></tr>
 <tr class="separator:a67cdf422ce3b55b52ba750e70305d0f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae731bc79012f176d653df85150efb39b"><td class="memItemLeft" align="right" valign="top"><a id="ae731bc79012f176d653df85150efb39b"></a>
-typedef Sort::SortPtrVec&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#ae731bc79012f176d653df85150efb39b">ila::SortPtrVec</a></td></tr>
-<tr class="memdesc:ae731bc79012f176d653df85150efb39b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Type for storing a set of <a class="el" href="classila_1_1_sort.html" title="The class for sort (type for expr, and the range/domain of functions). ">Sort</a>. <br /></td></tr>
-<tr class="separator:ae731bc79012f176d653df85150efb39b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="enum-members"></a>
-Enumerations</h2></td></tr>
-<tr class="memitem:af7ab769f71886d8d49de536580ef884f"><td class="memItemLeft" align="right" valign="top"><a id="af7ab769f71886d8d49de536580ef884f"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceila.html#af7ab769f71886d8d49de536580ef884f">ila::SortType</a> { <b>SORT_BOOL</b>, 
-<b>SORT_BV</b>, 
-<b>SORT_MEM</b>, 
-<b>SORT_APP</b>
- }</td></tr>
-<tr class="memdesc:af7ab769f71886d8d49de536580ef884f"><td class="mdescLeft">&#160;</td><td class="mdescRight">SortType. <br /></td></tr>
-<tr class="separator:af7ab769f71886d8d49de536580ef884f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Header for the class Sort </p>

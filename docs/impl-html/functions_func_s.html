@@ -70,32 +70,20 @@ $(function() {
 <li>set_data()
 : <a class="el" href="classila_1_1_mem_val.html#aeab2c9b199b4aa4657e48904f1f9c6a0">ila::MemVal</a>
 </li>
-<li>set_def_tran()
-: <a class="el" href="classila_1_1_bmc.html#ae8a862d0e2eeff84db410a5bf498b0cf">ila::Bmc</a>
-</li>
 <li>set_expr_mngr()
 : <a class="el" href="classila_1_1_instr_lvl_abs.html#a6f339e205aff5f8bfb56693d568ad369">ila::InstrLvlAbs</a>
 </li>
 <li>set_host()
-: <a class="el" href="classila_1_1_expr.html#a61096f27515924069652d4221c850089">ila::Expr</a>
-, <a class="el" href="classila_1_1_instr.html#a6c4d39ac5f546fe51888aec0705a1ca5">ila::Instr</a>
-</li>
-<li>set_mngr()
-: <a class="el" href="classila_1_1_instr.html#aa89e1fe54eaefce30796dec34b0cc19e">ila::Instr</a>
+: <a class="el" href="classila_1_1_ast.html#a500f0ae194736f1dc39f75165a1c9279">ila::Ast</a>
 </li>
 <li>set_name()
-: <a class="el" href="classila_1_1_object.html#a9f3dbca3c81262cd8c0a75c497a2c8da">ila::Object</a>
-, <a class="el" href="classila_1_1_symbol.html#aa7a05bbf6c5e40d3c307e7ae56b47f3e">ila::Symbol</a>
+: <a class="el" href="classila_1_1_symbol.html#aa7a05bbf6c5e40d3c307e7ae56b47f3e">ila::Symbol</a>
 </li>
 <li>set_params()
 : <a class="el" href="classila_1_1_expr.html#a64cdb5fc29141e168f9266eb63579961">ila::Expr</a>
 </li>
-<li>set_simplify()
-: <a class="el" href="classila_1_1_instr.html#a1e8329175b143ef2b0ee933ddd189939">ila::Instr</a>
-, <a class="el" href="classila_1_1_instr_lvl_abs.html#abdf0fb1c9cd16081f128209d29598d3d">ila::InstrLvlAbs</a>
-</li>
 <li>set_sort()
-: <a class="el" href="classila_1_1_expr.html#ae69f3224f71c8fb55276cb43159fcca1">ila::Expr</a>
+: <a class="el" href="classila_1_1_expr.html#a59b1653d5e6f0bca67e08862480ee3f1">ila::Expr</a>
 </li>
 <li>set_spec()
 : <a class="el" href="classila_1_1_instr_lvl_abs.html#a3bf5b7dfb99028b4558e29307fc90485">ila::InstrLvlAbs</a>
@@ -106,6 +94,10 @@ $(function() {
 <li>SetDecode()
 : <a class="el" href="classila_1_1_instr.html#adec87c898883c728722ece9e057960a4">ila::Instr</a>
 , <a class="el" href="classila_1_1_instr_ref.html#a9472b2c8c07ddf66a2f42f7a20cdf32e">ila::InstrRef</a>
+</li>
+<li>SetExtraSuffix()
+: <a class="el" href="classila_1_1_ila_z3_unroller.html#ab807665968e017059a1ae699a8cafd61">ila::IlaZ3Unroller</a>
+, <a class="el" href="classila_1_1_unroller.html#a8fc7864a92fd06af9b50d68c38ad2e4f">ila::Unroller</a>
 </li>
 <li>SetFetch()
 : <a class="el" href="classila_1_1_ila.html#adfbdbbd37df8a43109338ad81fe2de01">ila::Ila</a>
@@ -118,34 +110,50 @@ $(function() {
 : <a class="el" href="classila_1_1_ila.html#ab86bf4218b000460e005a13ce0a8a523">ila::Ila</a>
 , <a class="el" href="classila_1_1_instr_lvl_abs.html#a882f69ecd98ebf0313aa089484deaf8a">ila::InstrLvlAbs</a>
 </li>
-<li>Simplify()
-: <a class="el" href="classila_1_1_expr_mngr.html#ad3219c65d8d5cd64268d4d626c69978b">ila::ExprMngr</a>
-, <a class="el" href="classila_1_1_instr_lvl_abs.html#a43f368e00eb8069664c1bf1509ac3209">ila::InstrLvlAbs</a>
+<li>SExt()
+: <a class="el" href="classila_1_1_expr_ref.html#a57b1e4661c82ec73011e9c5f2210877b">ila::ExprRef</a>
 </li>
 <li>size()
 : <a class="el" href="classila_1_1_key_vec.html#ae0419420a0e862c91bc247f72cef7759">ila::KeyVec&lt; Key, T &gt;</a>
 </li>
 <li>sort()
-: <a class="el" href="classila_1_1_expr.html#aeb657e5662baf949826035f8b5efe0fb">ila::Expr</a>
+: <a class="el" href="classila_1_1_expr.html#a363a41993e44db66e288effb17bf1114">ila::Expr</a>
 </li>
 <li>Sort()
 : <a class="el" href="classila_1_1_instr_seq.html#a30ce3f2a82881b72d0b11117462f9cbe">ila::InstrSeq</a>
-, <a class="el" href="classila_1_1_sort.html#a0bf09562bdf4ded16116cf1c2cf38e4a">ila::Sort</a>
+, <a class="el" href="classila_1_1_sort.html#a3f361e662674ec43eb1586ccceb84af2">ila::Sort</a>
+</li>
+<li>SortBool()
+: <a class="el" href="classila_1_1_sort_bool.html#a2cef4ca4cfe4ef0a0f2cb71bcd5ad8a5">ila::SortBool</a>
+</li>
+<li>SortBv()
+: <a class="el" href="classila_1_1_sort_bv.html#a6e8b6aaa8510149b4c402dbbf1963db4">ila::SortBv</a>
 </li>
 <li>SortInstr()
 : <a class="el" href="classila_1_1_instr_lvl_abs.html#ad1876d0dff62db019d94a76e5854c876">ila::InstrLvlAbs</a>
+</li>
+<li>SortMem()
+: <a class="el" href="classila_1_1_sort_mem.html#a8f7e74d374d1932ab5579f17f8e491f4">ila::SortMem</a>
+</li>
+<li>SortRef()
+: <a class="el" href="classila_1_1_sort_ref.html#a8b008e7a2fdf9c383bdfddd0d2431b1c">ila::SortRef</a>
 </li>
 <li>src()
 : <a class="el" href="classila_1_1_instr_tran_edge.html#a13333af68db46c1702ef5085423ba88f">ila::InstrTranEdge</a>
 </li>
 <li>state()
-: <a class="el" href="classila_1_1_instr_lvl_abs.html#a436855f4fb9d291bc513f54371ca0f43">ila::InstrLvlAbs</a>
+: <a class="el" href="classila_1_1_ila.html#ac85e569839229030337922ce1b52809c">ila::Ila</a>
+, <a class="el" href="classila_1_1_instr_lvl_abs.html#a1cbbde2c5e42349b30b9b7205714217f">ila::InstrLvlAbs</a>
 </li>
 <li>state_num()
-: <a class="el" href="classila_1_1_instr_lvl_abs.html#a1be9f0ab0adc6a3f7fe54b405be70561">ila::InstrLvlAbs</a>
+: <a class="el" href="classila_1_1_ila.html#a46e33f64369dc8b6688aa3c4ba173911">ila::Ila</a>
+, <a class="el" href="classila_1_1_instr_lvl_abs.html#a1be9f0ab0adc6a3f7fe54b405be70561">ila::InstrLvlAbs</a>
+</li>
+<li>StateUpdCmpl()
+: <a class="el" href="classila_1_1_unroller.html#ae44de3c6ed606e724b9eb868055986be">ila::Unroller</a>
 </li>
 <li>Store()
-: <a class="el" href="classila_1_1_expr_ref.html#a6bacb4cb719da6513a9d45415db40a82">ila::ExprRef</a>
+: <a class="el" href="classila_1_1_expr_ref.html#abedf8e700c51c573d95eb22a17300c46">ila::ExprRef</a>
 </li>
 <li>str()
 : <a class="el" href="classila_1_1_bool_val.html#ad5fbd7570aedd99bb7e0b744df9d30f3">ila::BoolVal</a>
@@ -153,7 +161,7 @@ $(function() {
 , <a class="el" href="classila_1_1_symbol.html#a509252086aa27bf93aa13621bd451e75">ila::Symbol</a>
 </li>
 <li>Symbol()
-: <a class="el" href="classila_1_1_symbol.html#ada664c81c431be471126d1929c86fa30">ila::Symbol</a>
+: <a class="el" href="classila_1_1_symbol.html#a7a1a2996f6c582a7b1d22e9edec0304e">ila::Symbol</a>
 </li>
 </ul>
 </div><!-- contents -->

@@ -112,10 +112,10 @@ typedef std::shared_ptr&lt; <a class="el" href="classila_1_1_object.html">Object
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a1641cfaed9875fd72f0d853257c99ba8"><td class="memItemLeft" align="right" valign="top"><a id="a1641cfaed9875fd72f0d853257c99ba8"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_instr.html#a1641cfaed9875fd72f0d853257c99ba8">Instr</a> (const std::string &amp;<a class="el" href="classila_1_1_object.html#a3a4685c48b59e040b1826a59abcdae01">name</a>=&quot;&quot;, <a class="el" href="namespaceila.html#a0be6fc9e0e91cb849ee0a61232f5ab25">ExprMngrPtr</a> expr_mngr=NULL)</td></tr>
-<tr class="memdesc:a1641cfaed9875fd72f0d853257c99ba8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor with the ast simplifier. <br /></td></tr>
-<tr class="separator:a1641cfaed9875fd72f0d853257c99ba8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3780604404c6213857dd3bc6da0d4898"><td class="memItemLeft" align="right" valign="top"><a id="a3780604404c6213857dd3bc6da0d4898"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_instr.html#a3780604404c6213857dd3bc6da0d4898">Instr</a> (const std::string &amp;<a class="el" href="classila_1_1_object.html#a3a4685c48b59e040b1826a59abcdae01">name</a>, const <a class="el" href="classila_1_1_instr.html#a0d6349d30e5f136b73179131193a3d00">InstrLvlAbsPtr</a> <a class="el" href="classila_1_1_instr.html#a11be42840b982e7f3d513cf064385eaa">host</a>=NULL)</td></tr>
+<tr class="memdesc:a3780604404c6213857dd3bc6da0d4898"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor with the ast simplifier. <br /></td></tr>
+<tr class="separator:a3780604404c6213857dd3bc6da0d4898"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6b9ae435d21e25582ffdef0794066f6c"><td class="memItemLeft" align="right" valign="top"><a id="a6b9ae435d21e25582ffdef0794066f6c"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_instr.html#a6b9ae435d21e25582ffdef0794066f6c">~Instr</a> ()</td></tr>
 <tr class="memdesc:a6b9ae435d21e25582ffdef0794066f6c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default destructor. <br /></td></tr>
@@ -128,10 +128,6 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_instr.html#ad99c6933582dd5d8b5afccec1b7db8e0">has_view</a> () const</td></tr>
 <tr class="memdesc:ad99c6933582dd5d8b5afccec1b7db8e0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return true if has view. <br /></td></tr>
 <tr class="separator:ad99c6933582dd5d8b5afccec1b7db8e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a745ceebee75ba9e5280636000da035a1"><td class="memItemLeft" align="right" valign="top"><a id="a745ceebee75ba9e5280636000da035a1"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_instr.html#a745ceebee75ba9e5280636000da035a1">has_simplify</a> () const</td></tr>
-<tr class="memdesc:a745ceebee75ba9e5280636000da035a1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return true if simplification is performed. <br /></td></tr>
-<tr class="separator:a745ceebee75ba9e5280636000da035a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a11be42840b982e7f3d513cf064385eaa"><td class="memItemLeft" align="right" valign="top"><a id="a11be42840b982e7f3d513cf064385eaa"></a>
 <a class="el" href="classila_1_1_instr.html#a0d6349d30e5f136b73179131193a3d00">InstrLvlAbsPtr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_instr.html#a11be42840b982e7f3d513cf064385eaa">host</a> () const</td></tr>
 <tr class="memdesc:a11be42840b982e7f3d513cf064385eaa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the host ILA. <br /></td></tr>
@@ -139,15 +135,6 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memitem:aaeb07293e6e3658599148f8ffcee3d95"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_instr.html#aaeb07293e6e3658599148f8ffcee3d95">set_view</a> (bool v)</td></tr>
 <tr class="memdesc:aaeb07293e6e3658599148f8ffcee3d95"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the view flag.  <a href="#aaeb07293e6e3658599148f8ffcee3d95">More...</a><br /></td></tr>
 <tr class="separator:aaeb07293e6e3658599148f8ffcee3d95"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1e8329175b143ef2b0ee933ddd189939"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_instr.html#a1e8329175b143ef2b0ee933ddd189939">set_simplify</a> (bool s)</td></tr>
-<tr class="memdesc:a1e8329175b143ef2b0ee933ddd189939"><td class="mdescLeft">&#160;</td><td class="mdescRight">Turn on simplification if true.  <a href="#a1e8329175b143ef2b0ee933ddd189939">More...</a><br /></td></tr>
-<tr class="separator:a1e8329175b143ef2b0ee933ddd189939"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa89e1fe54eaefce30796dec34b0cc19e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_instr.html#aa89e1fe54eaefce30796dec34b0cc19e">set_mngr</a> (const <a class="el" href="namespaceila.html#a0be6fc9e0e91cb849ee0a61232f5ab25">ExprMngrPtr</a> mngr)</td></tr>
-<tr class="memdesc:aa89e1fe54eaefce30796dec34b0cc19e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assign the simplifier.  <a href="#aa89e1fe54eaefce30796dec34b0cc19e">More...</a><br /></td></tr>
-<tr class="separator:aa89e1fe54eaefce30796dec34b0cc19e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6c4d39ac5f546fe51888aec0705a1ca5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_instr.html#a6c4d39ac5f546fe51888aec0705a1ca5">set_host</a> (const <a class="el" href="classila_1_1_instr.html#a0d6349d30e5f136b73179131193a3d00">InstrLvlAbsPtr</a> <a class="el" href="classila_1_1_instr.html#a11be42840b982e7f3d513cf064385eaa">host</a>)</td></tr>
-<tr class="memdesc:a6c4d39ac5f546fe51888aec0705a1ca5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the host ILA.  <a href="#a6c4d39ac5f546fe51888aec0705a1ca5">More...</a><br /></td></tr>
-<tr class="separator:a6c4d39ac5f546fe51888aec0705a1ca5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adec87c898883c728722ece9e057960a4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_instr.html#adec87c898883c728722ece9e057960a4">SetDecode</a> (const <a class="el" href="namespaceila.html#af610f1359caba1beb7a780ebd58d2897">ExprPtr</a> decode)</td></tr>
 <tr class="memdesc:adec87c898883c728722ece9e057960a4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the decode function if not yet assigned.  <a href="#adec87c898883c728722ece9e057960a4">More...</a><br /></td></tr>
 <tr class="separator:adec87c898883c728722ece9e057960a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -194,10 +181,6 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 const <a class="el" href="classila_1_1_symbol.html">Symbol</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_object.html#a3a4685c48b59e040b1826a59abcdae01">name</a> () const</td></tr>
 <tr class="memdesc:a3a4685c48b59e040b1826a59abcdae01 inherit pub_methods_classila_1_1_object"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the symbol (name). <br /></td></tr>
 <tr class="separator:a3a4685c48b59e040b1826a59abcdae01 inherit pub_methods_classila_1_1_object"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9f3dbca3c81262cd8c0a75c497a2c8da inherit pub_methods_classila_1_1_object"><td class="memItemLeft" align="right" valign="top"><a id="a9f3dbca3c81262cd8c0a75c497a2c8da"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_object.html#a9f3dbca3c81262cd8c0a75c497a2c8da">set_name</a> (const std::string &amp;<a class="el" href="classila_1_1_object.html#a3a4685c48b59e040b1826a59abcdae01">name</a>)</td></tr>
-<tr class="memdesc:a9f3dbca3c81262cd8c0a75c497a2c8da inherit pub_methods_classila_1_1_object"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the symbol (name). <br /></td></tr>
-<tr class="separator:a9f3dbca3c81262cd8c0a75c497a2c8da inherit pub_methods_classila_1_1_object"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a75668cdee5e0e62270d30773184640b6 inherit pub_methods_classila_1_1_object"><td class="memItemLeft" align="right" valign="top"><a id="a75668cdee5e0e62270d30773184640b6"></a>
 virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_object.html#a75668cdee5e0e62270d30773184640b6">is_instr_lvl_abs</a> () const</td></tr>
 <tr class="memdesc:a75668cdee5e0e62270d30773184640b6 inherit pub_methods_classila_1_1_object"><td class="mdescLeft">&#160;</td><td class="mdescRight">Is type <a class="el" href="classila_1_1_instr_lvl_abs.html" title="The class of Instruction-Level Abstraction (ILA). An ILA contains: ">InstrLvlAbs</a>. <br /></td></tr>
@@ -209,10 +192,10 @@ virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr class="memitem:a15ac2fd93695818b313150dd01effa1c"><td class="memItemLeft" align="right" valign="top"><a id="a15ac2fd93695818b313150dd01effa1c"></a>
-static <a class="el" href="classila_1_1_instr.html#a12ba21b378d8a5b436c1ab10f09b747d">InstrPtr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_instr.html#a15ac2fd93695818b313150dd01effa1c">New</a> (const std::string &amp;<a class="el" href="classila_1_1_object.html#a3a4685c48b59e040b1826a59abcdae01">name</a>=&quot;&quot;, <a class="el" href="namespaceila.html#a0be6fc9e0e91cb849ee0a61232f5ab25">ExprMngrPtr</a> expr_mngr=NULL)</td></tr>
-<tr class="memdesc:a15ac2fd93695818b313150dd01effa1c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a new instruction (<a class="el" href="classila_1_1_instr.html" title="The class for the Instruction. An Instr object contains: ">Instr</a>) binded with the simplifier. Used for hiding implementation specific type details. <br /></td></tr>
-<tr class="separator:a15ac2fd93695818b313150dd01effa1c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aae9887d04645cdb876699183d2ae72c7"><td class="memItemLeft" align="right" valign="top"><a id="aae9887d04645cdb876699183d2ae72c7"></a>
+static <a class="el" href="classila_1_1_instr.html#a12ba21b378d8a5b436c1ab10f09b747d">InstrPtr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_instr.html#aae9887d04645cdb876699183d2ae72c7">New</a> (const std::string &amp;<a class="el" href="classila_1_1_object.html#a3a4685c48b59e040b1826a59abcdae01">name</a>, <a class="el" href="classila_1_1_instr.html#a0d6349d30e5f136b73179131193a3d00">InstrLvlAbsPtr</a> <a class="el" href="classila_1_1_instr.html#a11be42840b982e7f3d513cf064385eaa">host</a>=NULL)</td></tr>
+<tr class="memdesc:aae9887d04645cdb876699183d2ae72c7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a new instruction (<a class="el" href="classila_1_1_instr.html" title="The class for the Instruction. An Instr object contains: ">Instr</a>) binded with the host. Used for hiding implementation specific type details. <br /></td></tr>
+<tr class="separator:aae9887d04645cdb876699183d2ae72c7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="friends"></a>
 Friends</h2></td></tr>
@@ -419,89 +402,14 @@ std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="
 
 </div>
 </div>
-<a id="a6c4d39ac5f546fe51888aec0705a1ca5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6c4d39ac5f546fe51888aec0705a1ca5">&#9670;&nbsp;</a></span>set_host()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void ila::Instr::set_host </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="classila_1_1_instr.html#a0d6349d30e5f136b73179131193a3d00">InstrLvlAbsPtr</a>&#160;</td>
-          <td class="paramname"><em>host</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Set the host ILA. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">host</td><td>the host ILA. </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a id="aa89e1fe54eaefce30796dec34b0cc19e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa89e1fe54eaefce30796dec34b0cc19e">&#9670;&nbsp;</a></span>set_mngr()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void ila::Instr::set_mngr </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="namespaceila.html#a0be6fc9e0e91cb849ee0a61232f5ab25">ExprMngrPtr</a>&#160;</td>
-          <td class="paramname"><em>mngr</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Assign the simplifier. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">mngr</td><td>the ast simplifier. </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a id="a1e8329175b143ef2b0ee933ddd189939"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1e8329175b143ef2b0ee933ddd189939">&#9670;&nbsp;</a></span>set_simplify()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void ila::Instr::set_simplify </td>
-          <td>(</td>
-          <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>s</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Turn on simplification if true. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">s</td><td>the flag indicating whether to share the ast nodes. </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
 <a id="aaeb07293e6e3658599148f8ffcee3d95"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aaeb07293e6e3658599148f8ffcee3d95">&#9670;&nbsp;</a></span>set_view()</h2>
 
 <div class="memitem">
 <div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">void ila::Instr::set_view </td>
@@ -511,6 +419,11 @@ std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="
           <td></td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
 
 <p>Set the view flag. </p>
