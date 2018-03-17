@@ -5,116 +5,162 @@
 #define SORT_H__
 
 #include "ila/ast/ast.h"
+#include "z3++.h"
+#include <memory>
 #include <ostream>
-#include <vector>
 
 /// \namespace ila
 namespace ila {
-
-/// SortType
-typedef enum { SORT_BOOL, SORT_BV, SORT_MEM, SORT_APP } SortType;
 
 /// \brief The class for sort (type for expr, and the range/domain of
 /// functions).
 class Sort : public Ast {
 public:
-  /// Pointer type for normal use of Sort.
+  /// Pointer type for storing/passing Sort.
   typedef std::shared_ptr<Sort> SortPtr;
-  /// Type for storing a set of Sort.
-  typedef std::vector<SortPtr> SortPtrVec;
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
-  /// Constructor for Boolean type.
+  /// Default constructor.
   Sort();
-  /// Constructor for Bitvector type.
-  Sort(const int& bit_width);
-  /// Constructor for Memory (Array) type.
-  Sort(const int& addr_width, const int& data_width);
-  /// Constructor for Application type.
-  Sort(const SortPtr range_sort, const SortPtrVec& args_sort);
-  /// Default destructor.
-  ~Sort();
-
-  // ------------------------- ACCESSORS/MUTATORS --------------------------- //
-  /// Return the bit width (bitvector).
-  const int& bit_width() const;
-  /// Return the address width (mem).
-  const int& addr_width() const;
-  /// Return the data width (mem).
-  const int& data_width() const;
-  /// Return the range sort (app).
-  const SortPtr range() const;
-  /// Return the number of domain argument (app).
-  size_t num_arg() const;
-  /// Return the i-th domain sort (app).
-  const SortPtr arg(const size_t& i) const;
-
-  /// Is type sort (object).
-  bool is_sort() const { return true; }
-
-  /// Return true if this is a Boolean expression.
-  bool is_bool() const;
-  /// Return true if this is a Bitvector expression.
-  bool is_bv() const;
-  /// Return true if this is an Memory expression.
-  bool is_mem() const;
-  /// Return true if this is an Application expression.
-  bool is_app() const;
-
-  // ------------------------- METHODS -------------------------------------- //
-  /// Output to stream.
-  std::ostream& Print(std::ostream& out) const;
-  /// Compare two Sorts.
-  static bool Equal(const Sort& lhs, const Sort& rhs);
-
-  /// Overload output stream operator.
-  friend std::ostream& operator<<(std::ostream& out, const Sort& s);
-  /// Overlaod comparison.
-  friend bool operator==(const Sort& lhs, const Sort& rhs);
-
-  /// Create Bool sort
-  static Sort MakeBoolSort();
-  /// Create Bitvector sort.
-  static Sort MakeBvSort(const int& bit_width);
-  /// Create Memory sort.
-  static Sort MakeMemSort(const int& addr_width, const int& data_width);
-  /// Create Application sort.
-  static Sort MakeAppSort(const SortPtr range, const SortPtrVec& args);
-  /// Create Sort pointer.
-  static SortPtr MakeSortPtr(const Sort& sort);
-
-private:
-  // ------------------------- MEMBERS -------------------------------------- //
-  /// The type for the sort.
-  SortType type_;
-  /// Bit width of bitvector.
-  int bit_width_;
-  /// Address width of mem.
-  int addr_width_;
-  /// Data width of mem.
-  int data_width_;
-  /// Sort of the output data of application.
-  SortPtr range_sort_;
-  /// Sorts of the application arguments (domain).
-  SortPtrVec args_sort_;
+  /// Virtual default destructor.
+  virtual ~Sort();
 
   // ------------------------- HELPERS -------------------------------------- //
+  /// Create a Boolean Sort
+  static SortPtr MakeBoolSort();
+  /// Create a bit-vector Sort.
+  static SortPtr MakeBvSort(const int& bit_width);
+  /// Create a memory (array) Sort.
+  static SortPtr MakeMemSort(const int& addr_width, const int& data_width);
 
-  /// Print Boolean type sort.
-  std::ostream& PrintBool(std::ostream& out) const;
-  /// Print Bitvector type sort.
-  std::ostream& PrintBv(std::ostream& out) const;
-  /// Print Array type sort.
-  std::ostream& PrintMem(std::ostream& out) const;
-  /// Print Application type sort.
-  std::ostream& PrintApp(std::ostream& out) const;
+  // ------------------------- ACCESSORS/MUTATORS --------------------------- //
+  /// Return true if have Boolean sort.
+  virtual bool is_bool() const { return false; }
+  /// Return true if have bit-vector sort.
+  virtual bool is_bv() const { return false; }
+  /// Return true if have memory (array) sort.
+  virtual bool is_mem() const { return false; }
+
+  /// Return the bit-width of bit-vector sort.
+  virtual int bit_width() const;
+  /// Return the bit-width of the address (index).
+  virtual int addr_width() const;
+  /// Return the bit-width of the data (value).
+  virtual int data_width() const;
+
+  // ------------------------- METHODS -------------------------------------- //
+  /// Return z3::sort of the Sort.
+  virtual z3::sort GetZ3Sort(z3::context& ctx) const = 0;
+  /// Return a z3 variable of the Sort.
+  virtual z3::expr GetZ3Expr(z3::context& ctx,
+                             const std::string& name) const = 0;
+
+  /// Compare two Sorts.
+  virtual bool Equal(const SortPtr rhs) const = 0;
+  /// Overlaod comparison.
+  friend bool operator==(const SortPtr lhs, const SortPtr rhs) {
+    return lhs->Equal(rhs);
+  }
+
+  /// Print out to output stream.
+  virtual std::ostream& Print(std::ostream& out) const = 0;
+  /// Overload output stream operator.
+  friend std::ostream& operator<<(std::ostream& out, const SortPtr s) {
+    return s->Print(out);
+  }
 
 }; // class Sort
 
-/// Pointer type for normal use of Sort.
+/// Pointer type for storing/passing Sort.
 typedef Sort::SortPtr SortPtr;
-/// Type for storing a set of Sort.
-typedef Sort::SortPtrVec SortPtrVec;
+
+/// \brief The class of Boolean Sort.
+class SortBool : public Sort {
+public:
+  // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
+  /// Default constructor.
+  SortBool();
+  /// Default destructor.
+  ~SortBool();
+
+  // ------------------------- ACCESSORS/MUTATORS --------------------------- //
+  /// Return true since it is Boolean Sort.
+  bool is_bool() const { return true; }
+
+  // ------------------------- METHODS -------------------------------------- //
+  /// Return the z3::sort of Boolean Sort.
+  z3::sort GetZ3Sort(z3::context& ctx) const;
+  /// Return a z3 variable of the Sort.
+  z3::expr GetZ3Expr(z3::context& ctx, const std::string& name) const;
+  /// Compare with another Sort.
+  bool Equal(const SortPtr rhs) const;
+  /// Print out to output stream.
+  std::ostream& Print(std::ostream& out) const;
+}; // class SortBool
+
+/// \brief The class of bit-vector Sort.
+class SortBv : public Sort {
+public:
+  // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
+  /// Default constructor.
+  SortBv(const int& width);
+  /// Default destructor.
+  ~SortBv();
+
+  // ------------------------- ACCESSORS/MUTATORS --------------------------- //
+  /// Return true since it is bit-vector Sort.
+  bool is_bv() const { return true; }
+
+  // ------------------------- METHODS -------------------------------------- //
+  /// Return the bit-width.
+  int bit_width() const { return bit_width_; }
+  /// Return the z3::sort of bit-vector.
+  z3::sort GetZ3Sort(z3::context& ctx) const;
+  /// Return a z3 variable of the Sort.
+  z3::expr GetZ3Expr(z3::context& ctx, const std::string& name) const;
+  /// Compare with another Sort.
+  bool Equal(const SortPtr rhs) const;
+  /// Print out to output stream.
+  std::ostream& Print(std::ostream& out) const;
+
+private:
+  /// Bit-width of the bit-vector.
+  int bit_width_;
+}; // class SortBv
+
+/// \brief The class of memory (array) Sort.
+class SortMem : public Sort {
+public:
+  // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
+  /// Default constructor.
+  SortMem(const int& addr_w, const int& data_w);
+  /// Default destructor.
+  ~SortMem();
+
+  // ------------------------- ACCESSORS/MUTATORS --------------------------- //
+  /// Return true since it is memory (array) Sort.
+  bool is_mem() const { return true; }
+
+  // ------------------------- METHODS -------------------------------------- //
+  /// Return the bit-width of address (index).
+  int addr_width() const { return addr_width_; }
+  /// Return the bit-width of data (value).
+  int data_width() const { return data_width_; }
+  /// Return the z3::sort of array.
+  z3::sort GetZ3Sort(z3::context& ctx) const;
+  /// Return a z3 variable of the Sort.
+  z3::expr GetZ3Expr(z3::context& ctx, const std::string& name) const;
+  /// Compare with another Sort.
+  bool Equal(const SortPtr rhs) const;
+  /// Print out to output stream.
+  std::ostream& Print(std::ostream& out) const;
+
+private:
+  /// Bit-width of the address.
+  int addr_width_;
+  /// Bit-width of the data.
+  int data_width_;
+}; // class SortMem
 
 } // namespace ila
 

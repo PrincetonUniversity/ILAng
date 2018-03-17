@@ -1,5 +1,5 @@
 /// \file
-/// Header for the class Expr and its hash
+/// Header for the class Expr
 
 #ifndef EXPR_H__
 #define EXPR_H__
@@ -17,50 +17,45 @@
 /// \namespace ila
 namespace ila {
 
-// Forward declaration for host.
-class InstrLvlAbs;
-
 /// \brief The class for expression, which is the basic type for variables,
 /// constraints, state update expressions, etc.
-class Expr : public Ast {
+class Expr : public Ast, public std::enable_shared_from_this<Expr> {
 public:
-  /// Pointer type only for visitor function objects.
-  typedef Expr* ExprPtrRaw;
   /// Pointer type for normal use of Expr.
   typedef std::shared_ptr<Expr> ExprPtr;
   /// Type for storing a set of Expr.
   typedef std::vector<ExprPtr> ExprPtrVec;
-  /// Type for forward declaration of ILA.
-  typedef std::shared_ptr<InstrLvlAbs> InstrLvlAbsPtr;
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor.
   Expr();
+  /// Constructor with name.
+  Expr(const std::string& name);
   /// Default destructor.
   virtual ~Expr();
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return the pointer of the sort.
-  const Sort& sort() const;
-  /// Return the arity.
-  const size_t arity() const;
+  inline const SortPtr sort() const { return sort_; }
+  /// Retrun the number of argument (arity).
+  inline const size_t arg_num() const { return args_.size(); }
   /// Return the i-th argument.
-  ExprPtr arg(const size_t& i) const;
+  inline ExprPtr arg(const size_t& i) const { return args_.at(i); }
   /// Return the number of parameters.
-  const size_t num_param() const;
+  inline const size_t param_num() const { return params_.size(); }
   /// Return the i-th paramter.
-  const int& param(const size_t& i) const;
-  /// Return the hosting ILA.
-  InstrLvlAbsPtr host() const;
+  inline const int& param(const size_t& i) const { return params_.at(i); }
 
   /// Set the sort of the expression.
-  void set_sort(const Sort& sort);
+  void set_sort(const SortPtr sort);
   /// Set the arguments.
   void set_args(const ExprPtrVec& args);
   /// Set the parameters.
   void set_params(const std::vector<int> params);
-  /// Set the hosting ILA.
-  void set_host(InstrLvlAbsPtr host);
+  /// Replace the i-th argument.
+  void replace_arg(const int& idx, const ExprPtr arg);
+  /// Replace the "a" argument with "b" argument with "exist".
+  void replace_arg(const ExprPtr a, const ExprPtr b);
 
   /// Is type expr (object).
   bool is_expr() const { return true; }
@@ -73,13 +68,11 @@ public:
   virtual bool is_op() const { return false; }
 
   /// Return true if this is a Boolean expression.
-  bool is_bool() const { return sort_.is_bool(); }
+  inline bool is_bool() const { return sort_->is_bool(); }
   /// Return true if this is a Bitvector expression.
-  bool is_bv() const { return sort_.is_bv(); }
+  inline bool is_bv() const { return sort_->is_bv(); }
   /// Return true if this is an Array expression.
-  bool is_mem() const { return sort_.is_mem(); }
-  /// Return true if this is an Application expression.
-  bool is_app() const { return sort_.is_app(); }
+  inline bool is_mem() const { return sort_->is_mem(); }
 
   // ------------------------- METHODS -------------------------------------- //
   /// Return the z3 expression for the node.
@@ -90,48 +83,37 @@ public:
   virtual std::ostream& Print(std::ostream& out) const = 0;
 
   /// Overload output stream operator for pointer.
-  friend std::ostream& operator<<(std::ostream& out, ExprPtr expr);
+  friend std::ostream& operator<<(std::ostream& out, const ExprPtr expr) {
+    return expr->Print(out);
+  }
 
   /// \brief Templated visitor: visit each node in a depth-first order and apply
   /// the function object F on it.
   template <class F> void DepthFirstVisit(F& func) {
-    size_t n = arity();
-    for (size_t i = 0; i != n; i++) {
+    for (size_t i = 0; i != arg_num(); i++) {
       const ExprPtr arg_i = this->arg(i);
       arg_i->DepthFirstVisit<F>(func);
     }
-    func(this);
+    func(shared_from_this());
   }
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// The sort of the expr.
-  Sort sort_;
+  SortPtr sort_;
   /// Vector of arguments.
   ExprPtrVec args_;
   /// Vector of parameters.
   std::vector<int> params_;
-  /// Pointer to the host ILA.
-  InstrLvlAbsPtr host_ = NULL;
 
   // ------------------------- HELPERS -------------------------------------- //
 
 }; // class Expr
 
-/// Pointer type only for visitor function objects.
-typedef Expr::ExprPtrRaw ExprPtrRaw;
 /// Pointer type for normal use of Expr.
 typedef Expr::ExprPtr ExprPtr;
 /// Type for storing a set of Expr.
 typedef Expr::ExprPtrVec ExprPtrVec;
-
-/// \brief The function object for hashing Expr. The hash value is the id of the
-/// symbol, which is supposed to be unique.
-class ExprHash {
-public:
-  /// Function object for hashing
-  size_t operator()(const ExprPtrRaw expr) const { return expr->name().id(); }
-}; // struct ExprHash
 
 } // namespace ila
 

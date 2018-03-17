@@ -29,8 +29,6 @@ public:
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Get the symbol (name).
   const Symbol& name() const;
-  /// Set the symbol (name).
-  void set_name(const std::string& name);
 
   /// Is type InstrLvlAbs.
   virtual bool is_instr_lvl_abs() const { return false; }

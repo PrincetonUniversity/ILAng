@@ -5,8 +5,8 @@
 #define INSTR_H__
 
 #include "ila/expr_fuse.h"
+#include "ila/hash_ast.h"
 #include "ila/object.h"
-#include "ila/simplify.h"
 #include <memory>
 #include <string>
 
@@ -31,38 +31,26 @@ public:
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Constructor with the ast simplifier.
-  Instr(const std::string& name = "", ExprMngrPtr expr_mngr = NULL);
+  Instr(const std::string& name, const InstrLvlAbsPtr host = NULL);
   /// Default destructor.
   ~Instr();
 
   // ------------------------- HELPERS -------------------------------------- //
-  /// \brief Create a new instruction (Instr) binded with the simplifier. Used
+  /// \brief Create a new instruction (Instr) binded with the host. Used
   /// for hiding implementation specific type details.
-  static InstrPtr New(const std::string& name = "",
-                      ExprMngrPtr expr_mngr = NULL);
+  static InstrPtr New(const std::string& name, InstrLvlAbsPtr host = NULL);
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return true if Is type Instr.
   bool is_instr() const { return true; }
   /// Return true if has view.
-  bool has_view() const;
-  /// Return true if simplification is performed.
-  bool has_simplify() const;
+  inline bool has_view() const { return has_view_; }
   /// Return the host ILA.
-  InstrLvlAbsPtr host() const;
+  inline InstrLvlAbsPtr host() const { return host_; }
 
   /// \brief Set the view flag.
   /// \param[in] v the flag indicating whether the instruction has views.
-  void set_view(bool v);
-  /// \brief Turn on simplification if true.
-  /// \param[in] s the flag indicating whether to share the ast nodes.
-  void set_simplify(bool s);
-  /// \brief Assign the simplifier.
-  /// \param[in] mngr the ast simplifier.
-  void set_mngr(const ExprMngrPtr mngr);
-  /// \brief Set the host ILA.
-  /// \param[in] host the host ILA.
-  void set_host(const InstrLvlAbsPtr host);
+  inline void set_view(bool v) { has_view_ = v; }
 
   // ------------------------- METHODS -------------------------------------- //
   /// \brief Set the decode function if not yet assigned.
@@ -111,21 +99,18 @@ private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// Has view.
   bool has_view_ = false;
-  /// To simplify expr nodes.
-  bool simplify_;
 
   /// The decode function.
   ExprPtr decode_ = NULL;
   /// The set of update functions, mapped by name.
   ExprPtrMap updates_;
 
-  /// The simplifier for expr nodes.
-  ExprMngrPtr expr_mngr_;
-
   /// The host ILA.
-  InstrLvlAbsPtr host_ = NULL;
+  InstrLvlAbsPtr host_;
 
   // ------------------------- HELPERS -------------------------------------- //
+  /// Simplify AST nodes with the representatives.
+  ExprPtr Unify(const ExprPtr e);
 
 }; // class Instr
 

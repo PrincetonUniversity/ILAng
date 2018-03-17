@@ -16,7 +16,6 @@ TEST(TestExprFuse, CreateVar) {
   EXPECT_FALSE(flag->is_instr());
   EXPECT_FALSE(flag->is_instr_lvl_abs());
   EXPECT_TRUE(flag->is_expr());
-  EXPECT_FALSE(flag->is_sort());
   EXPECT_FALSE(flag->is_func());
   EXPECT_TRUE(flag->is_var());
   EXPECT_FALSE(flag->is_const());
@@ -29,7 +28,6 @@ TEST(TestExprFuse, CreateVar) {
   EXPECT_FALSE(reg_x->is_instr());
   EXPECT_FALSE(reg_x->is_instr_lvl_abs());
   EXPECT_TRUE(reg_x->is_expr());
-  EXPECT_FALSE(reg_x->is_sort());
   EXPECT_FALSE(reg_x->is_func());
   EXPECT_TRUE(reg_x->is_var());
   EXPECT_FALSE(reg_x->is_const());
@@ -37,13 +35,12 @@ TEST(TestExprFuse, CreateVar) {
   EXPECT_TRUE(reg_x->is_bv());
   EXPECT_FALSE(reg_x->is_bool());
   EXPECT_FALSE(reg_x->is_mem());
-  EXPECT_EQ(8, reg_x->sort().bit_width());
+  EXPECT_EQ(8, reg_x->sort()->bit_width());
 
   EXPECT_TRUE(mem->is_ast());
   EXPECT_FALSE(mem->is_instr());
   EXPECT_FALSE(mem->is_instr_lvl_abs());
   EXPECT_TRUE(mem->is_expr());
-  EXPECT_FALSE(mem->is_sort());
   EXPECT_FALSE(mem->is_func());
   EXPECT_TRUE(mem->is_var());
   EXPECT_FALSE(mem->is_const());
@@ -51,8 +48,8 @@ TEST(TestExprFuse, CreateVar) {
   EXPECT_TRUE(mem->is_mem());
   EXPECT_FALSE(mem->is_bool());
   EXPECT_FALSE(mem->is_bv());
-  EXPECT_EQ(8, mem->sort().addr_width());
-  EXPECT_EQ(8, mem->sort().data_width());
+  EXPECT_EQ(8, mem->sort()->addr_width());
+  EXPECT_EQ(8, mem->sort()->data_width());
 }
 
 TEST(TestExprFuse, CreateConst) {
@@ -63,7 +60,6 @@ TEST(TestExprFuse, CreateConst) {
   EXPECT_FALSE(const_true->is_instr());
   EXPECT_FALSE(const_true->is_instr_lvl_abs());
   EXPECT_TRUE(const_true->is_expr());
-  EXPECT_FALSE(const_true->is_sort());
   EXPECT_FALSE(const_true->is_func());
   EXPECT_TRUE(const_true->is_const());
   EXPECT_FALSE(const_true->is_var());
@@ -79,7 +75,6 @@ TEST(TestExprFuse, CreateConst) {
   EXPECT_FALSE(const_bv0->is_instr());
   EXPECT_FALSE(const_bv0->is_instr_lvl_abs());
   EXPECT_TRUE(const_bv0->is_expr());
-  EXPECT_FALSE(const_bv0->is_sort());
   EXPECT_FALSE(const_bv0->is_func());
   EXPECT_TRUE(const_bv0->is_const());
   EXPECT_FALSE(const_bv0->is_var());
@@ -94,7 +89,6 @@ TEST(TestExprFuse, CreateConst) {
   EXPECT_FALSE(const_mem->is_instr());
   EXPECT_FALSE(const_mem->is_instr_lvl_abs());
   EXPECT_TRUE(const_mem->is_expr());
-  EXPECT_FALSE(const_mem->is_sort());
   EXPECT_FALSE(const_mem->is_func());
   EXPECT_TRUE(const_mem->is_const());
   EXPECT_FALSE(const_mem->is_var());
@@ -228,7 +222,7 @@ TEST(TestExprFuse, Memory) {
   auto load = ExprFuse::Load(mem_var, bv_var_8);
   EXPECT_TRUE(load->is_op());
   EXPECT_TRUE(load->is_bv());
-  EXPECT_EQ(32, load->sort().bit_width());
+  EXPECT_EQ(32, load->sort()->bit_width());
 
 #ifndef NDEBUG
   EXPECT_DEATH(ExprFuse::Load(mem_var, bv_var_32), ".*");
@@ -279,6 +273,26 @@ TEST(TestExprFuse, Others) {
 #endif
 
   // TODO imply
+}
+
+using namespace ExprFuse;
+TEST(TestExprFuse, TopEq) {
+  auto x = NewBoolVar("x");
+  auto y = NewBoolVar("y");
+  auto z = NewBoolVar("z");
+
+  auto a = And(x, y);
+  auto b = Or(a, z);
+  auto c = Xor(a, b);
+
+  auto d = And(x, y);
+  auto e = Or(d, z);
+  auto f = Xor(d, e);
+
+  auto g = Xor(e, d);
+
+  EXPECT_TRUE(TopEq(c, f));
+  EXPECT_FALSE(TopEq(c, g));
 }
 
 } // namespace ila

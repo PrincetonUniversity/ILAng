@@ -6,26 +6,31 @@
 
 #include "ila/ast/expr.h"
 #include "util/log.h"
-#include <string>
 
 /// \namespace ila
 namespace ila {
+
+// Forward declaration.
+class Func;
 
 /// \brief Expression for operations, e.g. AND, OR, ADD, etc. Operations are
 /// non-terminating nodes in the AST.
 class ExprOp : public Expr {
 public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
-  /// Default constructor. DO NOT USE.
-  ExprOp();
   /// Constructor for unary operators.
   ExprOp(const ExprPtr arg);
   /// Constructor for binary operators.
   ExprOp(const ExprPtr arg0, const ExprPtr arg1);
   /// Constructor for ternary operators.
   ExprOp(const ExprPtr arg0, const ExprPtr arg1, const ExprPtr arg2);
+  /// Constructor for binary operators with parameters.
+  ExprOp(const ExprPtr arg0, const int& param1);
   /// Constructor for ternary operators with parameters.
   ExprOp(const ExprPtr arg0, const int& param1, const int& param2);
+  /// Constructor for multiple argument operators (AppFunc).
+  ExprOp(const ExprPtrVec& args);
+
   /// Default destructor.
   virtual ~ExprOp();
 
@@ -47,12 +52,13 @@ public:
 protected:
   // ------------------------- HELPERS -------------------------------------- //
   /// Derived the sort for binary operations.
-  Sort GetSortBinaryOperation(const Sort& s0, const Sort& s1);
+  SortPtr GetSortBinaryOperation(const ExprPtr e0, const ExprPtr e1);
   /// Derived the sort for binary comparisons.
-  Sort GetSortBinaryComparison(const Sort& s0, const Sort& s1);
+  SortPtr GetSortBinaryComparison(const ExprPtr e0, const ExprPtr e1);
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
+  InstrLvlAbsPtr GetHost(const ExprPtrVec& args) const;
 
 }; // class ExprOp
 
@@ -124,9 +130,35 @@ public:
                      const std::string& suffix = "") const;
 }; // class ExprOpXor
 
-// TODO ExprOpShl
+/// \brief The wrapper for left shifting a bit-vector.
+class ExprOpShl : public ExprOp {
+public:
+  /// Constructor for left shifting a bit-vector.
+  ExprOpShl(const ExprPtr bv, const ExprPtr n);
+  std::string op_name() const { return "SHL"; }
+  z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                     const std::string& suffix = "") const;
+}; // class ExprOpShl
 
-// TODO ExprOpShr
+/// \brief The wrapper for arithmetic right shifting a bit-vector.
+class ExprOpAshr : public ExprOp {
+public:
+  /// Constructor for arithmetic right shifting a bit-vector.
+  ExprOpAshr(const ExprPtr bv, const ExprPtr n);
+  std::string op_name() const { return "ASHR"; }
+  z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                     const std::string& suffix = "") const;
+}; // class ExprOpAshr
+
+/// \brief The wrapper for logical right shifting a bit-vector.
+class ExprOpLshr : public ExprOp {
+public:
+  /// Constructor for logical right shifting a bit-vector.
+  ExprOpLshr(const ExprPtr bv, const ExprPtr n);
+  std::string op_name() const { return "LSHR"; }
+  z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                     const std::string& suffix = "") const;
+}; // class ExprOpLshr
 
 /// \brief The wrapper for unsigned addition.
 class ExprOpAdd : public ExprOp {
@@ -170,9 +202,9 @@ public:
                      const std::string& suffix = "") const;
 }; // class ExprOpEq
 
-// ExprOpNe is implemented in ExprFuse with Eq and Not.
+// Not equal is implemented in ExprFuse with Eq and Not.
 
-/// \brief The class wrapper for binary comparison LT "<".
+/// \brief The class wrapper for binary comparison signed less than "<".
 class ExprOpLt : public ExprOp {
 public:
   /// Construtor for Lt comparison.
@@ -182,7 +214,7 @@ public:
                      const std::string& suffix = "") const;
 }; // class ExprOpLt
 
-/// \brief The class wrapper for binary comparison GT ">".
+/// \brief The class wrapper for binary comparison signed greater than ">".
 class ExprOpGt : public ExprOp {
 public:
   /// Constructor for Gt comparison.
@@ -192,9 +224,33 @@ public:
                      const std::string& suffix = "") const;
 }; // class ExprOpGt
 
-// ExprOpLe is implemented in ExprFuse with Eq and Lt.
+// Signed less than or equal to is implemented in ExprFuse with Eq and Lt.
 
-// ExprOpGe is implemented in ExprFuse with Eq and Gt.
+// Signed greater than or equal to is implemented in ExprFuse with Eq and Gt.
+
+/// \brief The class wrapper for binary comparison unsigned less than.
+class ExprOpUlt : public ExprOp {
+public:
+  /// Construtor for ULt comparison.
+  ExprOpUlt(const ExprPtr arg0, const ExprPtr arg1);
+  std::string op_name() const { return "ULT"; }
+  z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                     const std::string& suffix = "") const;
+}; // class ExprOpUlt
+
+/// \brief The class wrapper for binary comparison unsigned greater than.
+class ExprOpUgt : public ExprOp {
+public:
+  /// Constructor for UGt comparison.
+  ExprOpUgt(const ExprPtr arg0, const ExprPtr arg1);
+  std::string op_name() const { return "UGT"; }
+  z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                     const std::string& suffix = "") const;
+}; // class ExprOpUgt
+
+// Unsigned less than or equal to is implemented in ExprFuse with Eq and ULt.
+
+// Unsigned greater than or equal to is implemented in ExprFuse with Eq and UGt.
 
 /******************************************************************************/
 // Memory
@@ -244,13 +300,46 @@ public:
                      const std::string& suffix = "") const;
 }; // class ExprOpExtract
 
-// TODO ExprOpZeroExtend
+/// \brief The class wrapper for zero-extend.
+class ExprOpZExt : public ExprOp {
+public:
+  /// Constructor for bitvector zero-extend.
+  ExprOpZExt(const ExprPtr bv, const int& bit_width);
+  std::string op_name() const { return "ZERO_EXTEND"; }
+  z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                     const std::string& suffix = "") const;
+}; // class ExprOpZExtend
+
+/// \brief The calss wrapper for sign-extend.
+class ExprOpSExt : public ExprOp {
+public:
+  /// Constructor for bitvector sign-extend.
+  ExprOpSExt(const ExprPtr bv, const int& bit_width);
+  std::string op_name() const { return "SIGN_EXTEND"; }
+  z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                     const std::string& suffix = "") const;
+}; // class ExprOpSExt
 
 /******************************************************************************/
 // Function usage
 /******************************************************************************/
 
-// TODO ExprOpAppFunc
+/// \brief The class wrapper for apply uninterpreted function.
+class ExprOpAppFunc : public ExprOp {
+public:
+  /// Type for forware declaring Func.
+  typedef std::shared_ptr<Func> FuncPtr;
+
+  /// Constructor for apply uninterpreted function.
+  ExprOpAppFunc(const FuncPtr f, const ExprPtrVec& args);
+  std::string op_name() const { return "APP"; }
+  z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                     const std::string& suffix = "") const;
+
+private:
+  /// Uninterpreted funcion.
+  FuncPtr f;
+}; // class ExprOpAppFunc
 
 /******************************************************************************/
 // Others

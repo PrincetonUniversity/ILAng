@@ -9,9 +9,8 @@
 namespace ila {
 
 TEST(TestExprConst, Construct) {
-  //#ifndef NDEBUG
-  EXPECT_DEATH(ExprConst(), ".*");
-  //#endif
+  std::string blstr = "false";
+  auto bool_const_str = std::make_shared<ExprConst>(BoolVal(blstr));
   auto bool_const = std::make_shared<ExprConst>(BoolVal(true));
   auto bv_const = std::make_shared<ExprConst>(BvVal(1), 8);
 
@@ -85,11 +84,6 @@ TEST(TestExprConst, MemZ3Expr) {
 }
 
 TEST(TestExprConst, BoolVal) {
-#ifndef NDEBUG
-  EXPECT_DEATH(BoolVal(), ".*");
-#else
-  BoolVal();
-#endif
   auto bool_const = std::make_shared<ExprConst>(BoolVal(true));
   auto bool_const_str = std::make_shared<ExprConst>(BoolVal("false"));
 
@@ -114,11 +108,6 @@ TEST(TestExprConst, BoolVal) {
 }
 
 TEST(TestExprConst, BvVal) {
-#ifndef NDEBUG
-  EXPECT_DEATH(BvVal(), ".*");
-#else
-  BvVal();
-#endif
   auto bv_const = std::make_shared<ExprConst>(BvVal(1), 8);
 
   auto bv_val = bv_const->val_bv();
@@ -142,11 +131,6 @@ TEST(TestExprConst, BvVal) {
 }
 
 TEST(TestExprConst, MemVal) {
-#ifndef NDEBUG
-  EXPECT_DEATH(MemVal(), ".*");
-#else
-  MemVal();
-#endif
   int def = 1;
   MemVal val(def);
   for (int i = 0; i < 2; i++) {

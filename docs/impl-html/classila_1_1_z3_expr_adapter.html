@@ -81,10 +81,10 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr class="memitem:a86a5021e92b42bb305ffa86d915eda40"><td class="memItemLeft" align="right" valign="top"><a id="a86a5021e92b42bb305ffa86d915eda40"></a>
-typedef std::unordered_map&lt; const <a class="el" href="namespaceila.html#a79b6eeb85bd8dd93f332581e6a959227">ExprPtrRaw</a>, z3::expr, <a class="el" href="classila_1_1_expr_hash.html">ExprHash</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_z3_expr_adapter.html#a86a5021e92b42bb305ffa86d915eda40">ExprMap</a></td></tr>
-<tr class="memdesc:a86a5021e92b42bb305ffa86d915eda40"><td class="mdescLeft">&#160;</td><td class="mdescRight">Type for caching the generated expressions. <br /></td></tr>
-<tr class="separator:a86a5021e92b42bb305ffa86d915eda40"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ace87181bea875eb0185a2a3cdccd5040"><td class="memItemLeft" align="right" valign="top"><a id="ace87181bea875eb0185a2a3cdccd5040"></a>
+typedef std::unordered_map&lt; const <a class="el" href="namespaceila.html#af610f1359caba1beb7a780ebd58d2897">ExprPtr</a>, z3::expr, <a class="el" href="classila_1_1_z3_adapter_hash.html">Z3AdapterHash</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_z3_expr_adapter.html#ace87181bea875eb0185a2a3cdccd5040">ExprMap</a></td></tr>
+<tr class="memdesc:ace87181bea875eb0185a2a3cdccd5040"><td class="mdescLeft">&#160;</td><td class="mdescRight">Type for caching the generated expressions. <br /></td></tr>
+<tr class="separator:ace87181bea875eb0185a2a3cdccd5040"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -100,10 +100,10 @@ Public Member Functions</h2></td></tr>
 z3::expr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_z3_expr_adapter.html#a8f40aaf80fa01261ae3f1ceb1b23dd68">GetExpr</a> (const <a class="el" href="namespaceila.html#af610f1359caba1beb7a780ebd58d2897">ExprPtr</a> expr, const std::string &amp;suffix=&quot;&quot;)</td></tr>
 <tr class="memdesc:a8f40aaf80fa01261ae3f1ceb1b23dd68"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the z3 expression of the AST node. <br /></td></tr>
 <tr class="separator:a8f40aaf80fa01261ae3f1ceb1b23dd68"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae8512f65581f0f160b11979631fd8846"><td class="memItemLeft" align="right" valign="top"><a id="ae8512f65581f0f160b11979631fd8846"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_z3_expr_adapter.html#ae8512f65581f0f160b11979631fd8846">operator()</a> (const <a class="el" href="namespaceila.html#a79b6eeb85bd8dd93f332581e6a959227">ExprPtrRaw</a> expr)</td></tr>
-<tr class="memdesc:ae8512f65581f0f160b11979631fd8846"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function object for getting z3 expression. <br /></td></tr>
-<tr class="separator:ae8512f65581f0f160b11979631fd8846"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae0d36e1bc65bbf1d0573817eeabe5983"><td class="memItemLeft" align="right" valign="top"><a id="ae0d36e1bc65bbf1d0573817eeabe5983"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_z3_expr_adapter.html#ae0d36e1bc65bbf1d0573817eeabe5983">operator()</a> (const <a class="el" href="namespaceila.html#af610f1359caba1beb7a780ebd58d2897">ExprPtr</a> expr)</td></tr>
+<tr class="memdesc:ae0d36e1bc65bbf1d0573817eeabe5983"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function object for getting z3 expression. <br /></td></tr>
+<tr class="separator:ae0d36e1bc65bbf1d0573817eeabe5983"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>The class for generating z3 expression from an ILA. </p>

@@ -34,10 +34,6 @@ TEST(TestInstrLvlAbs, Spec) {
 TEST(TestInstrLvlAbs, Simplifier) {
   auto ila = InstrLvlAbs::New("ila");
 
-  EXPECT_TRUE(ila->to_simplify());
-  ila->set_simplify(false);
-  EXPECT_FALSE(ila->to_simplify());
-
   ExprMngrPtr new_mngr = std::make_shared<ExprMngr>();
   EXPECT_NE(new_mngr.get(), ila->expr_mngr().get());
   ila->set_expr_mngr(new_mngr);
@@ -206,41 +202,28 @@ TEST(TestInstrLvlAbs, Valid) {
 TEST(TestInstrLvlAbs, Instr) {
   auto ila = InstrLvlAbs::New("ila");
 
-  // external un-named instruction
-  auto instr_ex = Instr::New();
+  // external un-named instruction (Fixed to have name).
+  auto instr_ex = Instr::New("instr_ex");
   ila->AddInstr(instr_ex);
 
   // external named instruction
   auto instr_ex_n = Instr::New("instr_ex_n");
   ila->AddInstr(instr_ex_n);
 
-  // external named instruction with simplifier
-  ila->set_simplify(false);
-  auto instr_ex_n_s = Instr::New("instr_ex_n_s", ila->expr_mngr());
-  ila->AddInstr(instr_ex_n_s);
-
   // embedded un-named instruction
   auto instr_em = ila->NewInstr();
 
   // embedded named instruction
-  ila->set_simplify(true);
   auto instr_em_n = ila->NewInstr("instr_em_n");
 
-  EXPECT_EQ(5, ila->instr_num());
-
-  // simplify flag
-  EXPECT_TRUE(instr_ex->has_simplify());
-  EXPECT_TRUE(instr_ex_n->has_simplify());
-  EXPECT_FALSE(instr_ex_n_s->has_simplify());
-  EXPECT_FALSE(instr_em->has_simplify());
-  EXPECT_TRUE(instr_em_n->has_simplify());
+  EXPECT_EQ(4, ila->instr_num());
 
 // add existed instr
 #ifndef NDEBUG
   EXPECT_DEATH(ila->NewInstr("instr_ex_n"), ".*");
   EXPECT_DEATH(ila->NewInstr(instr_em_n->name().str()), ".*");
 #endif
-  EXPECT_EQ(5, ila->instr_num());
+  EXPECT_EQ(4, ila->instr_num());
 
   // find non-existed
   auto instr_null = ila->instr("dummy_instr");
@@ -249,16 +232,14 @@ TEST(TestInstrLvlAbs, Instr) {
   // find existed
   EXPECT_EQ(instr_ex, ila->instr(instr_ex->name().str()));
   EXPECT_EQ(instr_ex_n, ila->instr("instr_ex_n"));
-  EXPECT_EQ(instr_ex_n_s, ila->instr("instr_ex_n_s"));
   EXPECT_EQ(instr_em, ila->instr(instr_em->name().str()));
   EXPECT_EQ(instr_em_n, ila->instr("instr_em_n"));
 
   // random access
   EXPECT_EQ(instr_ex, ila->instr(0));
   EXPECT_EQ(instr_ex_n, ila->instr(1));
-  EXPECT_EQ(instr_ex_n_s, ila->instr(2));
-  EXPECT_EQ(instr_em, ila->instr(3));
-  EXPECT_EQ(instr_em_n, ila->instr(4));
+  EXPECT_EQ(instr_em, ila->instr(2));
+  EXPECT_EQ(instr_em_n, ila->instr(3));
 #ifndef NDEBUG
   EXPECT_DEATH(ila->instr(5), ".*");
 #endif
@@ -270,9 +251,11 @@ TEST(TestInstrLvlAbs, Child) {
   // add external
   auto child1 = InstrLvlAbs::New("child1");
   ila->AddChild(child1);
+  EXPECT_TRUE(child1->parent() == NULL);
 
   // add embedded
   auto child2 = ila->NewChild("child2");
+  EXPECT_EQ(ila, child2->parent());
 
   EXPECT_EQ(2, ila->child_num());
 
@@ -303,12 +286,6 @@ TEST(TestInstrLvlAbs, Child) {
 TEST(TestInstrLvlAbs, CheckAll) {
   auto ila = InstrLvlAbs::New("ila");
   EXPECT_TRUE(ila->Check());
-}
-
-TEST(TestInstrLvlAbs, SimplifyAll) {
-  auto ila = InstrLvlAbs::New("ila");
-  ila->Simplify();
-  // TODO
 }
 
 TEST(TestInstrLvlAbs, MergeAll) {

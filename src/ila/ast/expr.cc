@@ -6,34 +6,33 @@
 
 namespace ila {
 
-typedef Expr::InstrLvlAbsPtr InstrLvlAbsPtr;
+// typedef Expr::InstrLvlAbsPtr InstrLvlAbsPtr;
 
 Expr::Expr() {}
 
+Expr::Expr(const std::string& name) : Ast(name) {}
+
 Expr::~Expr() {}
 
-const Sort& Expr::sort() const { return sort_; }
-
-const size_t Expr::arity() const { return args_.size(); }
-
-ExprPtr Expr::arg(const size_t& i) const { return args_.at(i); }
-
-const size_t Expr::num_param() const { return params_.size(); }
-
-const int& Expr::param(const size_t& i) const { return params_.at(i); }
-
-InstrLvlAbsPtr Expr::host() const { return host_; }
-
-void Expr::set_sort(const Sort& sort) { sort_ = sort; }
+void Expr::set_sort(const SortPtr sort) { sort_ = sort; }
 
 void Expr::set_args(const ExprPtrVec& args) { args_ = args; }
 
 void Expr::set_params(const std::vector<int> params) { params_ = params; }
 
-void Expr::set_host(InstrLvlAbsPtr host) { host_ = host; }
+void Expr::replace_arg(const int& idx, const ExprPtr arg) {
+  ILA_ASSERT(idx < static_cast<int>(arg_num())) << "Replacing idx overflow.";
+  args_[idx] = arg;
+}
 
-std::ostream& operator<<(std::ostream& out, ExprPtr expr) {
-  return expr->Print(out);
+void Expr::replace_arg(const ExprPtr a, const ExprPtr b) {
+  size_t idx = arg_num();
+  for (size_t i = 0; i != arg_num(); i++) {
+    if (args_[i] == a)
+      idx = i;
+  }
+  ILA_ASSERT(idx != arg_num()) << a << " not found for replacing.";
+  args_[idx] = b;
 }
 
 } // namespace ila

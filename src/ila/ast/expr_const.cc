@@ -7,23 +7,22 @@
 /// \namespace ila
 namespace ila {
 
-ExprConst::ExprConst() : val_(NULL) {
-  ILA_CHECK(false) << "Undefined default constructor for class ExprConst.\n";
-}
-
 ExprConst::ExprConst(const BoolVal& bool_val) {
-  set_sort(Sort());
+  // set_sort(Sort());
+  set_sort(Sort::MakeBoolSort());
   val_ = std::make_shared<BoolVal>(bool_val);
 }
 
 ExprConst::ExprConst(const BvVal& bv_val, const int& bit_width) {
-  set_sort(Sort(bit_width));
+  set_sort(Sort::MakeBvSort(bit_width));
+  // set_sort(Sort(bit_width));
   val_ = std::make_shared<BvVal>(bv_val);
 }
 
 ExprConst::ExprConst(const MemVal& mem_val, const int& addr_width,
                      const int& data_width) {
-  set_sort(Sort(addr_width, data_width));
+  set_sort(Sort::MakeMemSort(addr_width, data_width));
+  // set_sort(Sort(addr_width, data_width));
   val_ = std::make_shared<MemVal>(mem_val);
 }
 
@@ -38,23 +37,23 @@ z3::expr ExprConst::GetZ3Expr(z3::context& ctx, const Z3ExprVec& z3expr_vec,
     return ctx.bool_val(bool_ptr->val());
   } else if (is_bv()) {
     auto bv_ptr = val_bv();
-    return ctx.bv_val(bv_ptr->val(), sort().bit_width());
+    return ctx.bv_val(bv_ptr->val(), sort()->bit_width());
   } else {
     ILA_ASSERT(is_mem()) << "Neither bool, bv, nor mem.\n";
-    auto addr_sort = ctx.bv_sort(sort().addr_width());
-    auto data_sort = ctx.bv_sort(sort().data_width());
+    auto addr_sort = ctx.bv_sort(sort()->addr_width());
+    auto data_sort = ctx.bv_sort(sort()->data_width());
 
     auto mem_ptr = val_mem();
     auto def_str = std::to_string(mem_ptr->def_val());
-    auto def_expr = ctx.bv_val(def_str.c_str(), sort().data_width());
+    auto def_expr = ctx.bv_val(def_str.c_str(), sort()->data_width());
 
     auto e1 = z3::const_array(addr_sort, def_expr);
     auto& val_map = mem_ptr->val_map();
     for (auto p : val_map) {
       auto addr_str = std::to_string(p.first);
-      auto addr_expr = ctx.bv_val(addr_str.c_str(), sort().addr_width());
+      auto addr_expr = ctx.bv_val(addr_str.c_str(), sort()->addr_width());
       auto data_str = std::to_string(p.second);
-      auto data_expr = ctx.bv_val(data_str.c_str(), sort().data_width());
+      auto data_expr = ctx.bv_val(data_str.c_str(), sort()->data_width());
       auto e2 = z3::store(e1, addr_expr, data_expr);
       e1 = e2;
     }

@@ -2,65 +2,37 @@
 /// The source for the class Instr.
 
 #include "ila/instr.h"
+#include "ila/instr_lvl_abs.h"
 
 namespace ila {
 
-typedef Instr::InstrLvlAbsPtr InstrLvlAbsPtr;
-
-Instr::Instr(const std::string& name, ExprMngrPtr expr_mngr) {
-  // update name if specified
-  if (name != "")
-    set_name(name);
-  // update ast simplifier if specified
-  if (expr_mngr) {
-    expr_mngr_ = expr_mngr;
-    simplify_ = true;
-  } else {
-    expr_mngr = NULL;
-    simplify_ = false;
-  }
+Instr::Instr(const std::string& name, const InstrLvlAbsPtr host)
+    : Object(name), host_(host) {
   // initialization for other components
   updates_.clear();
 }
 
 Instr::~Instr(){};
 
-InstrPtr Instr::New(const std::string& name, ExprMngrPtr expr_mngr) {
-  return std::make_shared<Instr>(name, expr_mngr);
+InstrPtr Instr::New(const std::string& name, InstrLvlAbsPtr host) {
+  return std::make_shared<Instr>(name, host);
 }
-
-bool Instr::has_view() const { return has_view_; }
-
-bool Instr::has_simplify() const { return simplify_; }
-
-InstrLvlAbsPtr Instr::host() const { return host_; }
-
-void Instr::set_view(bool v) { has_view_ = v; }
-
-void Instr::set_simplify(bool s) { simplify_ = s; }
-
-void Instr::set_mngr(const ExprMngrPtr mngr) {
-  ILA_NOT_NULL(mngr);
-  expr_mngr_ = mngr;
-}
-
-void Instr::set_host(const InstrLvlAbsPtr host) { host_ = host; }
 
 void Instr::SetDecode(const ExprPtr decode) {
-  ILA_ERROR_IF(decode_ != NULL)
+  ILA_ERROR_IF(decode_)
       << "Decode for " << name()
-      << "has been assigned. Use ForceSetDecode to overwrite.\n";
+      << "has been assigned. Use ForceSetDecode to overwrite.";
 
-  if (decode_ == NULL) {
+  if (!decode_) {
     ForceSetDecode(decode);
   }
 }
 
 void Instr::ForceSetDecode(const ExprPtr decode) {
   ILA_NOT_NULL(decode); // setting NULL pointer to decode function
-  ILA_CHECK(decode->is_bool()) << "Decode must have Boolean sort.\n";
+  ILA_CHECK(decode->is_bool()) << "Decode must have Boolean sort.";
 
-  decode_ = expr_mngr_->Simplify(decode, simplify_);
+  decode_ = Unify(decode);
 }
 
 void Instr::AddUpdate(const std::string& name, const ExprPtr update) {
@@ -68,7 +40,7 @@ void Instr::AddUpdate(const std::string& name, const ExprPtr update) {
 
   ILA_ERROR_IF(pos != updates_.end())
       << "Update function for " << name
-      << " has been assigned. Use ForceAddUpdate to overwrite the result.\n";
+      << " has been assigned. Use ForceAddUpdate to overwrite the result.";
 
   if (pos == updates_.end()) {
     ForceAddUpdate(name, update);
@@ -81,7 +53,7 @@ void Instr::AddUpdate(const ExprPtr state, const ExprPtr update) {
 }
 
 void Instr::ForceAddUpdate(const std::string& name, const ExprPtr update) {
-  ExprPtr sim_update = expr_mngr_->Simplify(update, simplify_);
+  ExprPtr sim_update = Unify(update);
   updates_[name] = sim_update;
 }
 
@@ -110,6 +82,8 @@ std::ostream& Instr::Print(std::ostream& out) const {
 std::ostream& operator<<(std::ostream& out, InstrPtr i) {
   return i->Print(out);
 }
+
+ExprPtr Instr::Unify(const ExprPtr e) { return host_ ? host_->Unify(e) : e; }
 
 } // namespace ila
 

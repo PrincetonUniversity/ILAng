@@ -12,9 +12,9 @@ Bmc::Bmc() {}
 
 Bmc::~Bmc() {}
 
-z3::context& Bmc::ctx() { return ctx_; }
+// z3::context& Bmc::ctx() { return ctx_; }
 
-void Bmc::set_def_tran(bool use) { def_tran_ = use; }
+// void Bmc::set_def_tran(bool use) { def_tran_ = use; }
 
 void Bmc::AddInit(ExprPtr init) { inits_.push_back(init); }
 
@@ -74,7 +74,8 @@ z3::check_result Bmc::BmcLegacy(InstrLvlAbsPtr m0, const int& k0,
   // initial condition
   for (size_t i = 0; i != inits_.size(); i++) {
     auto init_i = inits_[i];
-    ILA_ASSERT(init_i->host()) << "Legacy BMC can only have single-ILA init.";
+    // ILA_ASSERT(init_i->host()) << "Legacy BMC can only have single-ILA
+    // init.";
     auto init_e = mod_gen.Node(init_i, suffix_init);
     solver.add(init_e);
   }
@@ -82,7 +83,7 @@ z3::check_result Bmc::BmcLegacy(InstrLvlAbsPtr m0, const int& k0,
   // invariants
   for (size_t i = 0; i != invs_.size(); i++) {
     auto inv_i = invs_[i];
-    ILA_ASSERT(inv_i->host()) << "Legacy BMC can only have single-ILA inv.";
+    // ILA_ASSERT(inv_i->host()) << "Legacy BMC can only have single-ILA inv.";
     // XXX Only apply invariants on initial states.
     auto inv_e = mod_gen.Node(inv_i, suffix_init);
     solver.add(inv_e);
@@ -98,6 +99,7 @@ z3::check_result Bmc::BmcLegacy(InstrLvlAbsPtr m0, const int& k0,
   return result;
 }
 
+#if 0
 z3::check_result Bmc::BmcProp(InstrLvlAbsPtr m, const int& k) {
   ILA_NOT_NULL(m);
   ILA_ASSERT(k > 0) << "Invalid unroll steps.";
@@ -121,6 +123,7 @@ z3::check_result Bmc::BmcProp(InstrLvlAbsPtr m, const int& k) {
 
   return result;
 }
+#endif
 
 // ------------------- PRIVATE FUNCTIONS ------------------------------------ //
 
@@ -144,6 +147,7 @@ z3::expr Bmc::UnrollCmplIla(InstrLvlAbsPtr m, const int& k, const int& pos) {
   return cnst;
 }
 
+#if 0
 // - Traverse the hierarchy to collect state/instr dependency map.
 // - Check totality and insert default instruction for states (in next steps).
 // - Generate guard (valid and decode function) of each instruction.
@@ -279,6 +283,7 @@ z3::expr Bmc::GenSelRel(InstrSet updts) {
 
   return res;
 }
+#endif
 
 } // namespace ila
 
