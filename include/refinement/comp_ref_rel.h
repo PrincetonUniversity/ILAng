@@ -22,8 +22,29 @@ public:
   /// Default destructor.
   ~RefinementMap();
 
+  // ------------------------- ACCESSORS/MUTATORS --------------------------- //
+  /// Return the constraint for flushing (stall).
+  inline ExprPtr get_flush() const { return flush_; }
+  /// Return the constraint for completion indicator.
+  inline ExprPtr get_cmpl() const { return cmpl_; }
+  /// Return the number of steps required for flushing.
+  inline const int& get_step() const { return step_; }
+  /// Define the flushing function (in the form of constraint).
+  void set_flush(const ExprPtr flush);
+  /// Define the completion scenario (e.g. dummy end).
+  void set_cmpl(const ExprPtr cmpl);
+  /// Specify the number of steps required for flushing (0 if not known).
+  void set_step(const int& step);
+
 private:
   // ------------------------- MEMBERS -------------------------------------- //
+  /// Flushing function.
+  ExprPtr flush_ = NULL;
+  /// Completion indicator.
+  ExprPtr cmpl_ = NULL;
+  /// Number of steps for flushing.
+  int step_ = 0;
+
 }; // RefinementMap
 
 /// \brief Relation mapping defines how arch states of two models are mapped,

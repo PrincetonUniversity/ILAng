@@ -5,6 +5,27 @@
 
 namespace ila {
 
+RefinementMap::RefinementMap() {}
+
+RefinementMap::~RefinementMap() {}
+
+void RefinementMap::set_flush(const ExprPtr flush) {
+  ILA_ASSERT(flush->is_bool())
+      << "Flushing function should be represented as Boolean constraint.";
+  flush_ = flush;
+}
+
+void RefinementMap::set_cmpl(const ExprPtr cmpl) {
+  ILA_ASSERT(cmpl->is_bool())
+      << "Completion should be indicated as Boolean constraint.";
+  cmpl_ = cmpl;
+}
+
+void RefinementMap::set_step(const int& step) {
+  ILA_ASSERT(step > 0) << "Can only be flushed positive times.";
+  step_ = step;
+}
+
 RelationMap::RelationMap() {}
 
 RelationMap::~RelationMap() {}
