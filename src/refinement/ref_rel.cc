@@ -1,7 +1,7 @@
 /// \file
 /// Source for the refinement relation
 
-#include "eq-check/ref_rel.h"
+#include "refinement/ref_rel.h"
 
 namespace ila {
 

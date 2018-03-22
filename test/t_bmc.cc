@@ -1,7 +1,7 @@
 /// \file
 /// Unit test for BMC
 
-#include "eq-check/bmc.h"
+#include "refinement/bmc.h"
 #include "unit-include/eq_ilas.h"
 #include "unit-include/util.h"
 #include <iostream>

@@ -1,7 +1,7 @@
 /// \file
 /// Source for bounded model checking
 
-#include "eq-check/bmc.h"
+#include "refinement/bmc.h"
 
 namespace ila {
 
