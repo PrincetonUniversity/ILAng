@@ -1,7 +1,7 @@
 /// \file
 /// Unit test of the refinement relation
 
-#include "refinement/ref_rel.h"
+#include "refinement/comp_ref_rel.h"
 #include "unit-include/eq_ilas.h"
 #include "unit-include/util.h"
 

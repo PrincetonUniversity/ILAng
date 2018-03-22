@@ -1,16 +1,57 @@
 /// \file
 /// Header for the refinement relation
 
-#ifndef REF_REL_H__
-#define REF_REL_H__
+#ifndef COMP_REF_REL_H__
+#define COMP_REF_REL_H__
 
-#include "ila/expr_fuse.h"
-#include "ila/instr.h"
 #include "ila/instr_lvl_abs.h"
-#include <vector>
 
 /// \namespace ila
 namespace ila {
+
+/// \brief Refinement mapping defines how to map micro-architectural states to
+/// architectural states for comparison.
+/// - Standard flushing refinement operation (stall in the Birch/Dill paper)
+/// - Support dummy end child-instruction (commit point)
+/// - Support specifying number of steps
+class RefinementMap {
+public:
+  // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
+  /// Default constructor.
+  RefinementMap();
+  /// Default destructor.
+  ~RefinementMap();
+
+private:
+  // ------------------------- MEMBERS -------------------------------------- //
+}; // RefinementMap
+
+/// \brief Relation mapping defines how arch states of two models are mapped,
+/// i.e., state mapping.
+class RelationMap {
+public:
+  // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
+  /// Default constructor.
+  RelationMap();
+  /// Default destructor.
+  ~RelationMap();
+
+  // ------------------------- ACCESSORS/MUTATORS --------------------------- //
+  /// Add one relation.
+  void add(const ExprPtr rel);
+  /// Return the conjuncted (ANDed) relation.
+  ExprPtr get();
+
+private:
+  // ------------------------- MEMBERS -------------------------------------- //
+  /// \brief A set of state mapping, where the conjunction of all elements
+  /// ensures state equivalence.
+  std::vector<ExprPtr> rels_;
+
+  /// Cached output for conjuncting all relations.
+  ExprPtr acc_ = NULL;
+
+}; // RelationMap
 
 class CompRefRel {
 public:
@@ -133,5 +174,5 @@ typedef std::shared_ptr<RefRel> RefRelPtr;
 
 } // namespace ila
 
-#endif // REF_REL_H__
+#endif // COMP_REF_REL_H__
 

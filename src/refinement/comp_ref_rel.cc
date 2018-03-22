@@ -1,9 +1,31 @@
 /// \file
 /// Source for the refinement relation
 
-#include "refinement/ref_rel.h"
+#include "refinement/comp_ref_rel.h"
 
 namespace ila {
+
+RelationMap::RelationMap() {}
+
+RelationMap::~RelationMap() {}
+
+void RelationMap::add(const ExprPtr rel) {
+  ILA_ASSERT(rel->is_bool()) << "Relation mapping should be Boolean typed.";
+  rels_.push_back(rel);
+  acc_ = NULL;
+}
+
+ExprPtr RelationMap::get() {
+  if (acc_)
+    return acc_;
+  ILA_ASSERT(!rels_.empty()) << "No relation mapping defined...";
+
+  acc_ = ExprFuse::BoolConst(true);
+  for (auto it = rels_.begin(); it != rels_.end(); it++) {
+    acc_ = ExprFuse::And(acc_, *it);
+  }
+  return acc_;
+}
 
 #if 0
 RefUnit::RefUnit() { clear(); }
