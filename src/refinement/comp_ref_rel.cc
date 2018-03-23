@@ -32,6 +32,10 @@ void RefinementMap::set_step(const int& step) {
   step_ = step;
 }
 
+RefinementMap::RefPtr RefinementMap::New() {
+  return std::make_shared<RefinementMap>();
+}
+
 RelationMap::RelationMap() {}
 
 RelationMap::~RelationMap() {}

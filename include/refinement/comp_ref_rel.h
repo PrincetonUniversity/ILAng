@@ -16,6 +16,9 @@ namespace ila {
 /// - Support specifying number of steps
 class RefinementMap {
 public:
+  /// Pointer type for passing around the refinement mapping.
+  typedef std::shared_ptr<RefinementMap> RefPtr;
+
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor.
   RefinementMap();
@@ -24,13 +27,13 @@ public:
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return the apply function.
-  inline ExprPtr get_appl() const { return appl_; }
+  inline ExprPtr appl() const { return appl_; }
   /// Return the constraint for flushing (stall).
-  inline ExprPtr get_flush() const { return flush_; }
+  inline ExprPtr flush() const { return flush_; }
   /// Return the constraint for completion indicator.
-  inline ExprPtr get_cmpl() const { return cmpl_; }
+  inline ExprPtr cmpl() const { return cmpl_; }
   /// Return the number of steps required for flushing.
-  inline const int& get_step() const { return step_; }
+  inline const int& step() const { return step_; }
   /// Define the apply function.
   void set_appl(const ExprPtr appl);
   /// Define the flushing function.
@@ -39,6 +42,11 @@ public:
   void set_cmpl(const ExprPtr cmpl);
   /// Specify the number of steps required for flushing (0 if not known).
   void set_step(const int& step);
+
+  // ------------------------- HELPERS -------------------------------------- //
+  /// \brief Create a new refinement mapping. Used for hiding implementation
+  /// specific type details.
+  static RefPtr New();
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
@@ -54,7 +62,7 @@ private:
 }; // RefinementMap
 
 /// Pointer type for passing around the refinement mapping.
-typedef std::shared_ptr<RefinementMap> RefPtr;
+typedef RefinementMap::RefPtr RefPtr;
 
 /// \brief Relation mapping defines how arch states of two models are mapped,
 /// i.e., state mapping.
