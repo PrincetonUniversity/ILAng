@@ -23,13 +23,17 @@ public:
   ~RefinementMap();
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
+  /// Return the apply function.
+  inline ExprPtr get_appl() const { return appl_; }
   /// Return the constraint for flushing (stall).
   inline ExprPtr get_flush() const { return flush_; }
   /// Return the constraint for completion indicator.
   inline ExprPtr get_cmpl() const { return cmpl_; }
   /// Return the number of steps required for flushing.
   inline const int& get_step() const { return step_; }
-  /// Define the flushing function (in the form of constraint).
+  /// Define the apply function.
+  void set_appl(const ExprPtr appl);
+  /// Define the flushing function.
   void set_flush(const ExprPtr flush);
   /// Define the completion scenario (e.g. dummy end).
   void set_cmpl(const ExprPtr cmpl);
@@ -38,6 +42,8 @@ public:
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
+  /// Apply function.
+  ExprPtr appl_ = NULL;
   /// Flushing function.
   ExprPtr flush_ = NULL;
   /// Completion indicator.
@@ -46,6 +52,9 @@ private:
   int step_ = 0;
 
 }; // RefinementMap
+
+/// Pointer type for passing around the refinement mapping.
+typedef std::shared_ptr<RefinementMap> RefPtr;
 
 /// \brief Relation mapping defines how arch states of two models are mapped,
 /// i.e., state mapping.
@@ -61,137 +70,49 @@ public:
   /// Add one relation.
   void add(const ExprPtr rel);
   /// Return the conjuncted (ANDed) relation.
-  ExprPtr get();
+  inline ExprPtr get() const { return acc_; }
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
-  /// \brief A set of state mapping, where the conjunction of all elements
-  /// ensures state equivalence.
-  std::vector<ExprPtr> rels_;
-
   /// Cached output for conjuncting all relations.
-  ExprPtr acc_ = NULL;
+  ExprPtr acc_ = ExprFuse::BoolConst(true);
 
 }; // RelationMap
 
-class CompRefRel {
-public:
-private:
-}; // CompRefRel
+/// Pointer type for passing around the relation (state mapping).
+typedef std::shared_ptr<RelationMap> RelPtr;
 
-#if 0
-/// \brief Refinement unit, used to stored:
-/// - instruction application function (trigger condition)
-/// - instruction commit condition (e.g. dummy end decode)
-/// - stall function (flushing function in Birch-Dill commutative diagram)
-/// - (optional) relavant (child-)ILAs
-class RefUnit {
+/// \brief Compositional refinement relation defines a unit (element for the
+/// composition) of refinement relation, which specifies
+/// - how to start (apply function),
+/// - what to compare (relation), and
+/// - when to check (refinement).
+class CompRefRel {
 public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor.
-  RefUnit();
+  CompRefRel(const RefPtr ref_a, const RefPtr ref_b, const RelPtr rel);
   /// Default destructor.
-  ~RefUnit();
+  ~CompRefRel();
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
-  /// Set the application function of the ILA.
-  void set_app(const InstrLvlAbsPtr ila, const ExprPtr app);
-  /// Set the commit point of the ILA.
-  void set_commit(const InstrLvlAbsPtr ila, const ExprPtr com);
-  /// Set the stall function of the ILA.
-  void set_stall(const InstrLvlAbsPtr ila, const ExprPtr stall);
-  /// Add one relevant ILA.
-  void add_dep(const InstrLvlAbsPtr ila);
-
-  /// Return the application function of the ILA.
-  ExprPtr app(const InstrLvlAbsPtr ila) const;
-  /// Return the commit point of the ILA.
-  ExprPtr commit(const InstrLvlAbsPtr ila) const;
-  /// Return the stall function of the ILA.
-  ExprPtr stall(const InstrLvlAbsPtr ila) const;
-  /// Return the i-th relevant ILA.
-  InstrLvlAbsPtr dep(const size_t& i) const;
-
-  /// Return the number of relevant ILAs.
-  size_t dep_num() const;
+  /// Return the refinement for model A.
+  inline RefPtr refine_a() const { return ref_a_; }
+  /// Return the refinement for model B.
+  inline RefPtr refine_b() const { return ref_b_; }
+  /// Return the relation (state mapping) between model A and B.
+  inline RelPtr relation() const { return rel_; }
 
 private:
-  typedef std::map<InstrLvlAbsPtr, ExprPtr> IlaExprMap;
-
   // ------------------------- MEMBERS -------------------------------------- //
-  /// Instruction application function for ILAs.
-  IlaExprMap app_;
-  /// Instruction commit point for ILAs.
-  IlaExprMap commit_;
-  /// Stall function for ILAs.
-  IlaExprMap stall_;
-  /// Relevant (child-)ILAs (optional).
-  std::vector<InstrLvlAbsPtr> dep_;
+  /// Refinement mapping for model A.
+  RefPtr ref_a_;
+  /// Refinement mapping for model B.
+  RefPtr ref_b_;
+  /// Relation mapping.
+  RelPtr rel_;
 
-  // ------------------------- HELPERS -------------------------------------- //
-  /// Reset all members.
-  void clear();
-}; // class RefUnit
-
-/// Pointer type for maintaining the refinement unit.
-typedef std::shared_ptr<RefUnit> RefUnitPtr;
-
-/// \brief The class for refinement relation. This is only the container for
-/// maitaining the refinement, but not handle the verification tasks.
-class RefRel {
-public:
-  // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
-  /// Default constructor
-  RefRel(const InstrLvlAbsPtr ila_a, const InstrLvlAbsPtr ila_b);
-  /// Default destructor.
-  ~RefRel();
-
-  // ------------------------- ACCESSORS/MUTATORS --------------------------- //
-  /// Return the number of state mapping.
-  size_t state_map_num() const;
-  /// Return the number of invariants of the ILA.
-  size_t inv_num(const InstrLvlAbsPtr ila) const;
-  /// Return the number of refinement unit.
-  size_t unit_num() const;
-
-  /// Access the i-th state mapping.
-  ExprPtr state_map(const size_t& i) const;
-  /// Access the i-th invariant of the ILA.
-  ExprPtr inv(const InstrLvlAbsPtr ila, const size_t& i) const;
-  /// Access the i-th refinement unit.
-  RefUnitPtr unit(const size_t& i) const;
-
-  /// Return the reference ILA model. i must be either 0 or 1.
-  InstrLvlAbsPtr ila(const size_t& i) const;
-
-  // ------------------------- METHODS -------------------------------------- //
-
-private:
-  /// Type for a set of refinement unit.
-  typedef std::vector<RefUnitPtr> RefUnitVec;
-
-  // ------------------------- MEMBERS -------------------------------------- //
-  /// Reference ILA model A.
-  InstrLvlAbsPtr ma_;
-  /// Reference ILA model B.
-  InstrLvlAbsPtr mb_;
-  /// The set of state mappings (between states of ILA A and B).
-  ExprPtrVec state_maps_;
-  /// Invariants of ILA A.
-  ExprPtrVec inv_ma_;
-  /// Invariants of ILA B.
-  ExprPtrVec inv_mb_;
-  /// Refinement units (i.e. instructions)
-  RefUnitVec units_;
-
-  // ------------------------- HELPERS -------------------------------------- //
-  /// Reset all members.
-  void clear();
-}; // class RefRel
-
-/// Pointer type for passing around the refinement relation.
-typedef std::shared_ptr<RefRel> RefRelPtr;
-#endif
+}; // CompRefRel
 
 } // namespace ila
 

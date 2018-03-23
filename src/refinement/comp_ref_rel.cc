@@ -9,14 +9,20 @@ RefinementMap::RefinementMap() {}
 
 RefinementMap::~RefinementMap() {}
 
+void RefinementMap::set_appl(const ExprPtr appl) {
+  ILA_ASSERT(appl && appl->is_bool())
+      << "Apply function should be represented as Boolean constraint.";
+  appl_ = appl;
+}
+
 void RefinementMap::set_flush(const ExprPtr flush) {
-  ILA_ASSERT(flush->is_bool())
+  ILA_ASSERT(flush && flush->is_bool())
       << "Flushing function should be represented as Boolean constraint.";
   flush_ = flush;
 }
 
 void RefinementMap::set_cmpl(const ExprPtr cmpl) {
-  ILA_ASSERT(cmpl->is_bool())
+  ILA_ASSERT(cmpl && cmpl->is_bool())
       << "Completion should be indicated as Boolean constraint.";
   cmpl_ = cmpl;
 }
@@ -31,22 +37,17 @@ RelationMap::RelationMap() {}
 RelationMap::~RelationMap() {}
 
 void RelationMap::add(const ExprPtr rel) {
-  ILA_ASSERT(rel->is_bool()) << "Relation mapping should be Boolean typed.";
-  rels_.push_back(rel);
-  acc_ = NULL;
+  ILA_ASSERT(rel && rel->is_bool())
+      << "Relation mapping should be Boolean typed.";
+  acc_ = ExprFuse::And(acc_, rel);
 }
 
-ExprPtr RelationMap::get() {
-  if (acc_)
-    return acc_;
-  ILA_ASSERT(!rels_.empty()) << "No relation mapping defined...";
-
-  acc_ = ExprFuse::BoolConst(true);
-  for (auto it = rels_.begin(); it != rels_.end(); it++) {
-    acc_ = ExprFuse::And(acc_, *it);
-  }
-  return acc_;
+CompRefRel::CompRefRel(const RefPtr ref_a, const RefPtr ref_b, const RelPtr rel)
+    : ref_a_(ref_a), ref_b_(ref_b), rel_(rel) {
+  ILA_ASSERT(ref_a && ref_b && rel) << "Incomplete refinement relation.";
 }
+
+CompRefRel::~CompRefRel() {}
 
 #if 0
 RefUnit::RefUnit() { clear(); }
