@@ -26,6 +26,8 @@ public:
   ~RefinementMap();
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
+  /// Return the target (top-ILA containing the COI).
+  inline InstrLvlAbsPtr coi() const { return coi_; }
   /// Return the apply function.
   inline ExprPtr appl() const { return appl_; }
   /// Return the constraint for flushing (stall).
@@ -34,6 +36,11 @@ public:
   inline ExprPtr cmpl() const { return cmpl_; }
   /// Return the number of steps required for flushing.
   inline const int& step() const { return step_; }
+
+  /// Define the target ILA (source for coi).
+  void set_tgt(const InstrLvlAbsPtr tgt);
+  /// Define the target instruction (source for coi).
+  void set_tgt(const InstrPtr tgt);
   /// Define the apply function.
   void set_appl(const ExprPtr appl);
   /// Define the flushing function.
@@ -50,6 +57,8 @@ public:
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
+  /// Cone-of-influence (as an ILA).
+  InstrLvlAbsPtr coi_ = NULL;
   /// Apply function.
   ExprPtr appl_ = NULL;
   /// Flushing function.

@@ -9,6 +9,17 @@ RefinementMap::RefinementMap() {}
 
 RefinementMap::~RefinementMap() {}
 
+void RefinementMap::set_tgt(const InstrLvlAbsPtr tgt) {
+  ILA_ASSERT(tgt);
+  coi_ = tgt;
+}
+
+void RefinementMap::set_tgt(const InstrPtr tgt) {
+  ILA_ASSERT(tgt && tgt->host());
+  // TODO
+  coi_ = tgt->host();
+}
+
 void RefinementMap::set_appl(const ExprPtr appl) {
   ILA_ASSERT(appl && appl->is_bool())
       << "Apply function should be represented as Boolean constraint.";
