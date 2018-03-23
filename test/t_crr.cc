@@ -41,5 +41,15 @@ TEST_F(TestCrr, Refinement) {
   ref->set_step(1);
 }
 
+TEST_F(TestCrr, Relation) {
+  auto rel = RelationMap::New();
+
+  for (size_t i = 0; i != m0->state_num(); i++) {
+    rel->add(ExprFuse::Eq(m0->state(i), m1->state(i)));
+  }
+
+  EXPECT_FALSE(ExprFuse::TopEq(ExprFuse::BoolConst(true), rel->get()));
+}
+
 } // namespace ila
 

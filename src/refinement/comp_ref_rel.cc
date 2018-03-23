@@ -46,6 +46,10 @@ void RelationMap::add(const ExprPtr rel) {
   acc_ = ExprFuse::And(acc_, rel);
 }
 
+RelationMap::RelPtr RelationMap::New() {
+  return std::make_shared<RelationMap>();
+}
+
 CompRefRel::CompRefRel(const RefPtr ref_a, const RefPtr ref_b, const RelPtr rel)
     : ref_a_(ref_a), ref_b_(ref_b), rel_(rel) {
   ILA_ASSERT(ref_a && ref_b && rel) << "Incomplete refinement relation.";

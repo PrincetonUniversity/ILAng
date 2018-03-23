@@ -68,6 +68,9 @@ typedef RefinementMap::RefPtr RefPtr;
 /// i.e., state mapping.
 class RelationMap {
 public:
+  /// Pointer type for passing around the relation mapping.
+  typedef std::shared_ptr<RelationMap> RelPtr;
+
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor.
   RelationMap();
@@ -80,6 +83,11 @@ public:
   /// Return the conjuncted (ANDed) relation.
   inline ExprPtr get() const { return acc_; }
 
+  // ------------------------- HELPERS -------------------------------------- //
+  /// \brief Create a new relation mapping. Used for hiding implementation
+  /// specific type details.
+  static RelPtr New();
+
 private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// Cached output for conjuncting all relations.
@@ -87,8 +95,8 @@ private:
 
 }; // RelationMap
 
-/// Pointer type for passing around the relation (state mapping).
-typedef std::shared_ptr<RelationMap> RelPtr;
+/// Pointer type for passing around the relation mapping.
+typedef RelationMap::RelPtr RelPtr;
 
 /// \brief Compositional refinement relation defines a unit (element for the
 /// composition) of refinement relation, which specifies
