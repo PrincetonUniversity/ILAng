@@ -38,13 +38,13 @@ InstrLvlAbsPtr EqIlaGen::GetIlaFlat1() {
     auto decode_start = ExprFuse::Eq(start, ExprFuse::BoolConst(true));
     auto decode_opcode = ExprFuse::Eq(opcode, ExprFuse::BvConst(1, 3));
     auto decode = ExprFuse::And(decode_start, decode_opcode);
-    instr_1->SetDecode(decode);
+    instr_1->set_decode(decode);
   }
 
   { // updates
-    instr_1->AddUpdate(regs[0], regs[0]);
+    instr_1->set_update(regs[0], regs[0]);
     for (auto i = 1; i < reg_num_; i++) {
-      instr_1->AddUpdate(regs[i], regs[i - 1]);
+      instr_1->set_update(regs[i], regs[i - 1]);
     }
   }
 
@@ -57,7 +57,7 @@ InstrLvlAbsPtr EqIlaGen::GetIlaFlat1() {
     auto decode_start = ExprFuse::Eq(start, ExprFuse::BoolConst(true));
     auto decode_opcode = ExprFuse::Eq(opcode, ExprFuse::BvConst(2, 3));
     auto decode = ExprFuse::And(decode_start, decode_opcode);
-    instr_2->SetDecode(decode);
+    instr_2->set_decode(decode);
   }
 
   { // updates
@@ -69,7 +69,7 @@ InstrLvlAbsPtr EqIlaGen::GetIlaFlat1() {
       } else {
         next_i = ExprFuse::Ite(cnd_i, regs[i - 1], regs[i]);
       }
-      instr_2->AddUpdate(regs[i], next_i);
+      instr_2->set_update(regs[i], next_i);
     }
   }
 
@@ -82,7 +82,7 @@ InstrLvlAbsPtr EqIlaGen::GetIlaFlat1() {
     auto decode_start = ExprFuse::Eq(start, ExprFuse::BoolConst(true));
     auto decode_opcode = ExprFuse::Eq(opcode, ExprFuse::BvConst(3, 3));
     auto decode = ExprFuse::And(decode_start, decode_opcode);
-    instr_3->SetDecode(decode);
+    instr_3->set_decode(decode);
   }
 
   { // updates
@@ -90,7 +90,7 @@ InstrLvlAbsPtr EqIlaGen::GetIlaFlat1() {
     for (auto i = 0; i < reg_num_; i++) {
       auto cnd_i = ExprFuse::Eq(cnt, ExprFuse::BvConst(i, 8));
       auto next_i = ExprFuse::Ite(cnd_i, mem_val, regs[i]);
-      instr_3->AddUpdate(regs[i], next_i);
+      instr_3->set_update(regs[i], next_i);
     }
 
     auto reg_val = regs[0];
@@ -99,7 +99,7 @@ InstrLvlAbsPtr EqIlaGen::GetIlaFlat1() {
       reg_val = ExprFuse::Ite(cnd_i, regs[i], reg_val);
     }
     auto mem_next = ExprFuse::Store(mem, addr, reg_val);
-    instr_3->AddUpdate(mem, mem_next);
+    instr_3->set_update(mem, mem_next);
   }
 
   // Instruction 4: (start == 1 && opcode == 4)
@@ -110,7 +110,7 @@ InstrLvlAbsPtr EqIlaGen::GetIlaFlat1() {
     auto decode_start = ExprFuse::Eq(start, ExprFuse::BoolConst(true));
     auto decode_opcode = ExprFuse::Eq(opcode, ExprFuse::BvConst(4, 3));
     auto decode = ExprFuse::And(decode_start, decode_opcode);
-    instr_4->SetDecode(decode);
+    instr_4->set_decode(decode);
   }
 
   { // updates
@@ -118,7 +118,7 @@ InstrLvlAbsPtr EqIlaGen::GetIlaFlat1() {
     for (auto i = 1; i < reg_num_; i++) {
       sum = ExprFuse::Add(sum, regs[i]);
     }
-    instr_4->AddUpdate(regs[reg_num_ - 1], sum);
+    instr_4->set_update(regs[reg_num_ - 1], sum);
   }
 
   return ila;
@@ -157,13 +157,13 @@ InstrLvlAbsPtr EqIlaGen::GetIlaFlat2() {
     auto decode_start = ExprFuse::Eq(start, ExprFuse::BoolConst(true));
     auto decode_opcode = ExprFuse::Eq(opcode, ExprFuse::BvConst(1, 3));
     auto decode = ExprFuse::And(decode_start, decode_opcode);
-    instr_1->SetDecode(decode);
+    instr_1->set_decode(decode);
   }
 
   { // updates
-    instr_1->AddUpdate(regs[0], regs[0]);
+    instr_1->set_update(regs[0], regs[0]);
     for (auto i = 1; i < reg_num_; i++) {
-      instr_1->AddUpdate(regs[i], regs[i - 1]);
+      instr_1->set_update(regs[i], regs[i - 1]);
     }
   }
 
@@ -176,7 +176,7 @@ InstrLvlAbsPtr EqIlaGen::GetIlaFlat2() {
     auto decode_start = ExprFuse::Eq(start, ExprFuse::BoolConst(true));
     auto decode_opcode = ExprFuse::Eq(opcode, ExprFuse::BvConst(2, 3));
     auto decode = ExprFuse::And(decode_start, decode_opcode);
-    instr_2->SetDecode(decode);
+    instr_2->set_decode(decode);
   }
 
   { // updates
@@ -188,7 +188,7 @@ InstrLvlAbsPtr EqIlaGen::GetIlaFlat2() {
       } else {
         next_i = ExprFuse::Ite(cnd_i, regs[i - 1], regs[i]);
       }
-      instr_2->AddUpdate(regs[i], next_i);
+      instr_2->set_update(regs[i], next_i);
     }
   }
 
@@ -201,7 +201,7 @@ InstrLvlAbsPtr EqIlaGen::GetIlaFlat2() {
     auto decode_start = ExprFuse::Eq(start, ExprFuse::BoolConst(true));
     auto decode_opcode = ExprFuse::Eq(opcode, ExprFuse::BvConst(3, 3));
     auto decode = ExprFuse::And(decode_start, decode_opcode);
-    instr_3->SetDecode(decode);
+    instr_3->set_decode(decode);
   }
 
   { // updates
@@ -209,7 +209,7 @@ InstrLvlAbsPtr EqIlaGen::GetIlaFlat2() {
     for (auto i = 0; i < reg_num_; i++) {
       auto cnd_i = ExprFuse::Eq(cnt, ExprFuse::BvConst(i, 8));
       auto next_i = ExprFuse::Ite(cnd_i, mem_val, regs[i]);
-      instr_3->AddUpdate(regs[i], next_i);
+      instr_3->set_update(regs[i], next_i);
     }
 
     auto reg_val = regs[reg_num_ - 1];
@@ -218,7 +218,7 @@ InstrLvlAbsPtr EqIlaGen::GetIlaFlat2() {
       reg_val = ExprFuse::Ite(cnd_i, regs[i], reg_val);
     }
     auto mem_next = ExprFuse::Store(mem, addr, reg_val);
-    instr_3->AddUpdate(mem, mem_next);
+    instr_3->set_update(mem, mem_next);
   }
 
   // Instruction 4: (start == 1 && opcode == 4)
@@ -229,7 +229,7 @@ InstrLvlAbsPtr EqIlaGen::GetIlaFlat2() {
     auto decode_start = ExprFuse::Eq(start, ExprFuse::BoolConst(true));
     auto decode_opcode = ExprFuse::Eq(opcode, ExprFuse::BvConst(4, 3));
     auto decode = ExprFuse::And(decode_start, decode_opcode);
-    instr_4->SetDecode(decode);
+    instr_4->set_decode(decode);
   }
 
   { // updates
@@ -237,7 +237,7 @@ InstrLvlAbsPtr EqIlaGen::GetIlaFlat2() {
     for (auto i = reg_num_ - 3; i >= 0; i--) {
       sum = ExprFuse::Add(sum, regs[i]);
     }
-    instr_4->AddUpdate(regs[reg_num_ - 1], sum);
+    instr_4->set_update(regs[reg_num_ - 1], sum);
   }
 
   return ila;

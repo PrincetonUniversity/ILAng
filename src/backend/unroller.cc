@@ -174,12 +174,12 @@ ZExpr Unroller::UnrollNone(const size_t& len, const int& pos) {
 }
 
 ExprPtr Unroller::StateUpdCmpl(const InstrPtr instr, const ExprPtr var) {
-  auto upd = instr->GetUpdate(var);
+  auto upd = instr->update(var);
   return (upd) ? upd : var;
 }
 
 ExprPtr Unroller::DecodeCmpl(const InstrPtr instr) {
-  auto dec = instr->GetDecode();
+  auto dec = instr->decode();
   return (dec) ? dec : BoolConst(true);
 }
 
@@ -361,7 +361,7 @@ void PathUnroll::Transition(const int& idx) {
 
   // update step predicate (k_pred_)
   k_pred_.resize(0);
-  auto dec = instr->GetDecode();
+  auto dec = instr->decode();
   ILA_NOT_NULL(dec);
   k_pred_.push_back(dec);
 }

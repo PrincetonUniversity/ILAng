@@ -422,11 +422,11 @@ InstrRef::InstrRef(InstrPtr ptr) : ptr_(ptr) {}
 InstrRef::~InstrRef() {}
 
 void InstrRef::SetDecode(const ExprRef& decode) {
-  ptr_->SetDecode(decode.get());
+  ptr_->set_decode(decode.get());
 }
 
 void InstrRef::SetUpdate(const ExprRef& state, const ExprRef& update) {
-  ptr_->AddUpdate(state.get(), update.get());
+  ptr_->set_update(state.get(), update.get());
 }
 
 /******************************************************************************/

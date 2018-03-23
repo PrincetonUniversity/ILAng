@@ -31,7 +31,7 @@ z3::expr ModelExprGen::Instr(const InstrPtr instr,
   auto state_num = ila->state_num();
   for (size_t i = 0; i != state_num; i++) {
     auto state_n = ila->state(i);
-    auto update_n = instr->GetUpdate(state_n);
+    auto update_n = instr->update(state_n);
 
     if (update_n != NULL) { // update function specified
       auto next_val_e = gen_.GetExpr(update_n, suffix_prev);
@@ -46,7 +46,7 @@ z3::expr ModelExprGen::Instr(const InstrPtr instr,
     }
   }
 
-  auto decode_n = instr->GetDecode();
+  auto decode_n = instr->decode();
   ILA_NOT_NULL(decode_n);
   auto decode_e = gen_.GetExpr(decode_n, suffix_prev);
 
