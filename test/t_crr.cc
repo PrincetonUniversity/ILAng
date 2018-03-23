@@ -51,5 +51,16 @@ TEST_F(TestCrr, Relation) {
   EXPECT_FALSE(ExprFuse::TopEq(ExprFuse::BoolConst(true), rel->get()));
 }
 
+TEST_F(TestCrr, CompRefRel) {
+#ifndef NDEBUG
+  EXPECT_DEATH(CompRefRel(NULL, NULL, NULL), ".*");
+#endif
+
+  auto crr = CompRefRel::New();
+  EXPECT_TRUE(crr->refine_a());
+  EXPECT_TRUE(crr->refine_b());
+  EXPECT_TRUE(crr->relation());
+}
+
 } // namespace ila
 

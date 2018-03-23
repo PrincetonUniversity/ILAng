@@ -106,6 +106,9 @@ typedef RelationMap::RelPtr RelPtr;
 class CompRefRel {
 public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
+  /// Pointer type for passing around the compositional relation mapping.
+  typedef std::shared_ptr<CompRefRel> CrrPtr;
+
   /// Default constructor.
   CompRefRel(const RefPtr ref_a, const RefPtr ref_b, const RelPtr rel);
   /// Default destructor.
@@ -119,6 +122,13 @@ public:
   /// Return the relation (state mapping) between model A and B.
   inline RelPtr relation() const { return rel_; }
 
+  // ------------------------- HELPERS -------------------------------------- //
+  /// \brief Create a new CRR object. Used for hiding implementation
+  /// specific type details.
+  static CrrPtr New(const RefPtr ref_a = RefinementMap::New(),
+                    const RefPtr ref_b = RefinementMap::New(),
+                    const RelPtr rel = RelationMap::New());
+
 private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// Refinement mapping for model A.
@@ -129,6 +139,9 @@ private:
   RelPtr rel_;
 
 }; // CompRefRel
+
+/// Pointer type for passing around the compositional relation mapping.
+typedef CompRefRel::CrrPtr CrrPtr;
 
 } // namespace ila
 
