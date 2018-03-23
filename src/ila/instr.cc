@@ -28,13 +28,6 @@ void Instr::set_decode(const ExprPtr decode) {
   }
 }
 
-void Instr::ForceSetDecode(const ExprPtr decode) {
-  ILA_NOT_NULL(decode); // setting NULL pointer to decode function
-  ILA_CHECK(decode->is_bool()) << "Decode must have Boolean sort.";
-
-  decode_ = Unify(decode);
-}
-
 void Instr::set_update(const std::string& name, const ExprPtr update) {
   auto pos = updates_.find(name);
 
@@ -52,9 +45,10 @@ void Instr::set_update(const ExprPtr state, const ExprPtr update) {
   set_update(name, update);
 }
 
-void Instr::ForceAddUpdate(const std::string& name, const ExprPtr update) {
-  ExprPtr sim_update = Unify(update);
-  updates_[name] = sim_update;
+void Instr::set_program(const InstrLvlAbsPtr program) {
+  ILA_ASSERT(!prog_) << "Child-program has been defined for " << name();
+  ILA_ASSERT(program) << "NULL program.";
+  prog_ = program;
 }
 
 ExprPtr Instr::update(const std::string& name) const {
@@ -70,6 +64,18 @@ ExprPtr Instr::update(const std::string& name) const {
 ExprPtr Instr::update(const ExprPtr state) const {
   std::string name = state->name().str();
   return update(name);
+}
+
+void Instr::ForceSetDecode(const ExprPtr decode) {
+  ILA_NOT_NULL(decode); // setting NULL pointer to decode function
+  ILA_CHECK(decode->is_bool()) << "Decode must have Boolean sort.";
+
+  decode_ = Unify(decode);
+}
+
+void Instr::ForceAddUpdate(const std::string& name, const ExprPtr update) {
+  ExprPtr sim_update = Unify(update);
+  updates_[name] = sim_update;
 }
 
 std::ostream& Instr::Print(std::ostream& out) const {

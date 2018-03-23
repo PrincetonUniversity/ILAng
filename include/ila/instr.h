@@ -56,16 +56,20 @@ public:
   /// \param[in] decode is the pointer to the decode function (bool).
   void set_decode(const ExprPtr decode);
 
-  /// \brief Add one update function for the state variable specified by name.
+  /// \brief Set the update function for the state variable specified by name.
   /// \param[in] name the name of the state variable.
   /// \param[in] update the update function expression (same type as state).
   void set_update(const std::string& name, const ExprPtr update);
 
-  /// \brief Add one update function for the state variable specified by var
+  /// \brief Set the update function for the state variable specified by var
   /// pointer.
   /// \param[in] state the pointer to the state variable.
   /// \param[in] update the update function expression (same type as state).
   void set_update(const ExprPtr state, const ExprPtr update);
+
+  /// \brief Set the child-program (as a child-ILA) of the instruction.
+  /// \param[in] program the pointer to the child-ILA.
+  void set_program(const InstrLvlAbsPtr program);
 
   /// Return the decode function.
   inline ExprPtr decode() const { return decode_; }
@@ -78,6 +82,9 @@ public:
   /// \brief Return the update function for the state specified by var pointer.
   /// \param[in] state the pointer to the state variable.
   ExprPtr update(const ExprPtr state) const;
+
+  /// \brief Returun the child-ILA comprising the child-program.
+  inline InstrLvlAbsPtr program() const { return prog_; }
 
   // ------------------------- METHODS -------------------------------------- //
   /// \brief Set the decode function.
@@ -107,6 +114,9 @@ private:
 
   /// The host ILA.
   InstrLvlAbsPtr host_;
+
+  /// The child-program (child-ILA being triggered).
+  InstrLvlAbsPtr prog_;
 
   // ------------------------- HELPERS -------------------------------------- //
   /// Simplify AST nodes with the representatives.
