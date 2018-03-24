@@ -2,6 +2,7 @@
 /// Source for generating verification condition for equivalecne checking.
 
 #include "refinement/eq_check_crr.h"
+#include "backend/abs_knob.h"
 #include "backend/unroller.h"
 #include "util/log.h"
 
@@ -52,11 +53,29 @@ bool CommDiag::CheckRefinement(const RefPtr ref) const {
   }
 
   // check flushing and apply does not affect state equivalence
+  // collect all state variables
   auto suff_old = "o";
   auto suff_new = "n";
 
-  // collect all state variables
   std::set<ExprPtr> vars;
+  AbsKnob::GetVarOfIla(m, vars);
+
+  auto eq = c.bool_val(true);
+  for (auto it = vars.begin(); it != vars.end(); it++) {
+    auto so = g.GetExpr(*it, suff_old);
+    auto sn = g.GetExpr(*it, suff_new);
+    eq = eq && (so == sn);
+  }
+
+  auto ao = g.GetExpr(a, suff_old);
+  auto fn = g.GetExpr(f, suff_new);
+
+  s.add(ao && !(fn && ao && eq));
+  if (s.check() == z3::sat) {
+    ILA_ERROR << "Flushing and apply function intervene state equivalence.";
+    ILA_DLOG("Verbose-CheckRefine") << s.get_model();
+    return false;
+  }
 
   return true;
 }
