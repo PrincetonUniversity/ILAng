@@ -10,18 +10,25 @@ namespace ila {
 
 using namespace ExprFuse;
 
-CommDiag::CommDiag(const CrrPtr crr) : crr_(crr) {}
+CommDiag::CommDiag(z3::context& ctx, const CrrPtr crr) : ctx_(ctx), crr_(crr) {}
 
 CommDiag::~CommDiag() {}
 
-z3::expr CommDiag::GenVerCond(z3::context& ctx, const int& max) {
+z3::expr CommDiag::GenVerCond(const int& max) {
   ILA_ASSERT(ma_ && mb_) << "Need to specify two targets before VC generation.";
 
   // check the refinement is valid.
-  ILA_CHECK(CheckRefinement(crr_->refine_a())) << "Check fail.";
-  ILA_CHECK(CheckRefinement(crr_->refine_b())) << "Check fail.";
+  ILA_CHECK(CheckRefinement(crr_->refine_a())) << "Refinement check fail.";
+  ILA_CHECK(CheckRefinement(crr_->refine_b())) << "Refinement check fail.";
+  ILA_CHECK(
+      !(crr_->refine_a()->coi()->name() == crr_->refine_b()->coi()->name()))
+      << "Comparing same abstraction.";
 
-  return ctx.bool_val(true);
+  // generate vc for each model.
+  auto vc_ref_a = GenVerCondRefine(crr_->refine_a(), max);
+  auto vc_ref_b = GenVerCondRefine(crr_->refine_b(), max);
+
+  return ctx_.bool_val(true);
 }
 
 bool CommDiag::CheckRefinement(const RefPtr ref) const {
@@ -39,9 +46,8 @@ bool CommDiag::CheckRefinement(const RefPtr ref) const {
   auto a = ref->appl();
   ILA_CHECK(a) << "Apply function not set.";
 
-  z3::context c;
-  z3::solver s(c);
-  Z3ExprAdapter g(c);
+  z3::solver s(ctx_);
+  Z3ExprAdapter g(ctx_);
 
   // check flushing and apply are exclusive
   auto exc = g.GetExpr(Not(Xor(f, a)));
@@ -60,7 +66,7 @@ bool CommDiag::CheckRefinement(const RefPtr ref) const {
   std::set<ExprPtr> vars;
   AbsKnob::GetVarOfIla(m, vars);
 
-  auto eq = c.bool_val(true);
+  auto eq = ctx_.bool_val(true);
   for (auto it = vars.begin(); it != vars.end(); it++) {
     auto so = g.GetExpr(*it, suff_old);
     auto sn = g.GetExpr(*it, suff_new);
@@ -78,6 +84,12 @@ bool CommDiag::CheckRefinement(const RefPtr ref) const {
   }
 
   return true;
+}
+
+z3::expr CommDiag::GenVerCondRefine(const RefPtr ref, const int& max) const {
+  MonoUnroll un(ctx_);
+
+  return ctx_.bool_val(true);
 }
 
 void CommDiag::RegisterTarget(const InstrLvlAbsPtr t) {
