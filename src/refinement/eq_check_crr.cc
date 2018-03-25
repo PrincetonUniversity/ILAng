@@ -18,20 +18,23 @@ CommDiag::CommDiag(z3::context& ctx, const CrrPtr crr) : ctx_(ctx), crr_(crr) {}
 CommDiag::~CommDiag() {}
 
 z3::expr CommDiag::GenVerCond(const int& max) {
-  ILA_ASSERT(ma_ && mb_) << "Need to specify two targets before VC generation.";
-
   // check the refinement is valid.
   ILA_CHECK(CheckRefinement(crr_->refine_a())) << "Refinement check fail.";
   ILA_CHECK(CheckRefinement(crr_->refine_b())) << "Refinement check fail.";
   ILA_CHECK(
       !(crr_->refine_a()->coi()->name() == crr_->refine_b()->coi()->name()))
-      << "Comparing same abstraction.";
+      << "Comparing two abstraction with same name not supported.";
 
   // generate vc for each model.
   auto vc_ref_a = GenVerCondRefine(crr_->refine_a(), max);
   auto vc_ref_b = GenVerCondRefine(crr_->refine_b(), max);
 
-  return ctx_.bool_val(true);
+  // property: old state are equal -> new state should be equal
+  Z3ExprAdapter g(ctx_);
+  auto eq_old = g.GetExpr(crr_->relation()->get(), k_suff_old);
+  auto eq_new = g.GetExpr(crr_->relation()->get(), k_suff_new);
+
+  return (vc_ref_a && vc_ref_b && eq_old && !eq_new);
 }
 
 bool CommDiag::CheckRefinement(const RefPtr ref) const {
@@ -95,7 +98,7 @@ z3::expr CommDiag::GenVerCondRefine(const RefPtr ref, const int& max) const {
   auto k = ref->step() == 0 ? max : ref->step();
   if (ref->step() > max) {
     ILA_ERROR << "Unroll bound " << max << " not sufficient for " << m;
-    return ctx_.bool_val(true);
+    return ctx_.bool_val(false);
   }
   std::set<ExprPtr> vars;
   AbsKnob::GetVarOfIla(m, vars);
@@ -138,13 +141,6 @@ z3::expr CommDiag::GenVerCondRefine(const RefPtr ref, const int& max) const {
   }
 
   return (eq && path_old && path_new && complete);
-}
-
-void CommDiag::RegisterTarget(const InstrLvlAbsPtr t) {
-  ILA_NOT_NULL(t);
-  ILA_ASSERT(!ma_ || !mb_) << "Both two target has been set.";
-  mb_ = ma_ ? t : mb_;
-  ma_ = ma_ ? ma_ : t;
 }
 
 } // namespace ila

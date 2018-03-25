@@ -31,9 +31,6 @@ private:
   /// The refinement relation.
   CrrPtr crr_;
 
-  z3::expr cmpl_a = ctx_.bool_val(true);
-  z3::expr cmpl_b = ctx_.bool_val(true);
-
   /// \brief Check the refinement mapping is valid.
   /// - F: flushing function (states + inputs)
   /// - A: apply function (states + inputs)
@@ -51,14 +48,6 @@ private:
   /// - if #step in CRR < max, k = #step, otherwise k = max
   /// - if #step not known, OR all cmpl in i-th steps for i > 0 and return
   z3::expr GenVerCondRefine(const RefPtr ref, const int& max) const;
-
-  /// Top-level ILA for target A.
-  InstrLvlAbsPtr ma_ = NULL;
-  /// Top-level ILA for target B.
-  InstrLvlAbsPtr mb_ = NULL;
-
-  /// Categorize the target to either A or B.
-  void RegisterTarget(const InstrLvlAbsPtr t);
 
 }; // class CommDiag
 
