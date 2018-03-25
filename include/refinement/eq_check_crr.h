@@ -31,6 +31,9 @@ private:
   /// The refinement relation.
   CrrPtr crr_;
 
+  z3::expr cmpl_a = ctx_.bool_val(true);
+  z3::expr cmpl_b = ctx_.bool_val(true);
+
   /// \brief Check the refinement mapping is valid.
   /// - F: flushing function (states + inputs)
   /// - A: apply function (states + inputs)
@@ -42,9 +45,9 @@ private:
   /// \brief Generate verification condition for one part of the commutating
   /// diagram up to the given bound.
   /// - (so_0 = sn_0) for all state variables
+  /// - unroll, starting from so_0 for k steps, F(so_i) for all i >= 0
   /// - unroll, starting from sn_0 for 1 step, A(sn_0)
   /// - unroll, starting from sn_1 for k steps, F(sn_i) for all i > 0
-  /// - unroll, starting from so_0 for k steps, F(so_i) for all i >= 0
   /// - if #step in CRR < max, k = #step, otherwise k = max
   /// - if #step not known, OR all cmpl in i-th steps for i > 0 and return
   z3::expr GenVerCondRefine(const RefPtr ref, const int& max) const;
