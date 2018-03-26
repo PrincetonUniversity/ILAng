@@ -4,6 +4,7 @@
 #include "backend/unroller.h"
 #include "refinement/eq_check_crr.h"
 #include "unit-include/eq_ilas.h"
+#include "unit-include/stream_buffer.h"
 #include "unit-include/util.h"
 #include "z3++.h"
 
@@ -39,7 +40,7 @@ public:
 TEST_F(TestEqCheck, CommDiag_FF) {
   SetToStdErr(1);
 
-  // 1. coi analysis
+  // 1. coi analysis XXX
   // 2. step specified
   // 3. step not specified with different bound
 
@@ -115,6 +116,22 @@ TEST_F(TestEqCheck, CommDiag_FF) {
   s.reset();
   s.add(vc);
   EXPECT_EQ(z3::sat, s.check());
+}
+
+TEST_F(TestEqCheck, CommDiag_HF) {
+  // TODO
+  // with and without completion
+}
+
+TEST_F(TestEqCheck, CommDiag_HH) {
+  // TODO
+  // with and without completion
+}
+
+TEST_F(TestEqCheck, CommDiag_Pipeline) {
+  ExmpStrmBuff sb;
+  auto m = sb.GetStrmBuffSpecRaw("spec");
+  // TODO
 }
 
 } // namespace ila
