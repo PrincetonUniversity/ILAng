@@ -39,8 +39,13 @@ void RefinementMap::set_cmpl(const ExprPtr cmpl) {
 }
 
 void RefinementMap::set_step(const int& step) {
-  ILA_ASSERT(step > 0) << "Can only be flushed positive times.";
+  ILA_ASSERT(step >= 0) << "Can only be flushed positive times.";
   step_ = step;
+}
+
+void RefinementMap::add_inv(const ExprPtr inv) {
+  ILA_ASSERT(inv && inv->is_bool()) << "Invariant should be Boolean.";
+  invs_.push_back(inv);
 }
 
 RefinementMap::RefPtr RefinementMap::New() {

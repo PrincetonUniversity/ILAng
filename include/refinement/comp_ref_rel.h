@@ -36,6 +36,10 @@ public:
   inline ExprPtr cmpl() const { return cmpl_; }
   /// Return the number of steps required for flushing.
   inline const int& step() const { return step_; }
+  /// Return the number of invariant.
+  inline size_t inv_num() const { return invs_.size(); }
+  /// Access the i-th invariant.
+  inline ExprPtr inv(const size_t& i) const { return invs_.at(i); }
 
   /// Define the target ILA (source for coi).
   void set_tgt(const InstrLvlAbsPtr tgt);
@@ -49,6 +53,8 @@ public:
   void set_cmpl(const ExprPtr cmpl);
   /// Specify the number of steps required for flushing (0 if not known).
   void set_step(const int& step);
+  /// Add an invariant.
+  void add_inv(const ExprPtr inv);
 
   // ------------------------- HELPERS -------------------------------------- //
   /// \brief Create a new refinement mapping. Used for hiding implementation
@@ -66,7 +72,9 @@ private:
   /// Completion indicator.
   ExprPtr cmpl_ = NULL;
   /// Number of steps for flushing.
-  int step_ = 0;
+  int step_ = -1;
+  /// A set of invariant.
+  std::vector<ExprPtr> invs_;
 
 }; // RefinementMap
 
