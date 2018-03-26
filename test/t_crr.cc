@@ -37,7 +37,7 @@ TEST_F(TestCrr, Refinement) {
   ref->set_cmpl(ExprFuse::BoolConst(true));
   EXPECT_TRUE(ExprFuse::TopEq(ExprFuse::BoolConst(true), ref->cmpl()));
 
-  EXPECT_EQ(0, ref->step());
+  EXPECT_EQ(-1, ref->step());
   ref->set_step(1);
 }
 
