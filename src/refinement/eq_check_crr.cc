@@ -25,16 +25,10 @@ z3::expr CommDiag::GenVerCond(const int& max) {
       !(crr_->refine_a()->coi()->name() == crr_->refine_b()->coi()->name()))
       << "Comparing two abstraction with same name not supported.";
 
-  // generate vc for each model.
-  auto vc_ref_a = GenVerCondRefine(crr_->refine_a(), max);
-  auto vc_ref_b = GenVerCondRefine(crr_->refine_b(), max);
+  auto tran = GenVerCondTran(max);
+  auto prop = GenVerCondProp();
 
-  // property: old state are equal -> new state should be equal
-  Z3ExprAdapter g(ctx_);
-  auto eq_old = g.GetExpr(crr_->relation()->get(), k_suff_old);
-  auto eq_new = g.GetExpr(crr_->relation()->get(), k_suff_new);
-
-  return (vc_ref_a && vc_ref_b && eq_old && !eq_new);
+  return tran && !prop;
 }
 
 z3::expr CommDiag::GenVerCondTran(const int& max) {
@@ -42,19 +36,17 @@ z3::expr CommDiag::GenVerCondTran(const int& max) {
   auto vc_ref_a = GenVerCondRefine(crr_->refine_a(), max);
   auto vc_ref_b = GenVerCondRefine(crr_->refine_b(), max);
   // old states are equal
-  Z3ExprAdapter g(ctx_);
-  auto eq_old = g.GetExpr(crr_->relation()->get(), k_suff_old);
+  auto eq_old = g_.GetExpr(crr_->relation()->get(), k_suff_old);
   return (vc_ref_a && vc_ref_b && eq_old);
 }
 
 z3::expr CommDiag::GenVerCondProp() {
   // property: old state are equal -> new state should be equal
-  Z3ExprAdapter g(ctx_);
-  auto eq_new = g.GetExpr(crr_->relation()->get(), k_suff_new);
+  auto eq_new = g_.GetExpr(crr_->relation()->get(), k_suff_new);
   return eq_new;
 }
 
-bool CommDiag::CheckRefinement(const RefPtr ref) const {
+bool CommDiag::CheckRefinement(const RefPtr ref) {
   ILA_NOT_NULL(ref);
 
   // check target
@@ -73,10 +65,9 @@ bool CommDiag::CheckRefinement(const RefPtr ref) const {
   ILA_CHECK(ref->cmpl()) << "Complete condition not set.";
 
   z3::solver s(ctx_);
-  Z3ExprAdapter g(ctx_);
 
   // check flushing and apply does not hold at the same time
-  auto exc = g.GetExpr(And(f, a));
+  auto exc = g_.GetExpr(And(f, a));
   s.add(exc);
   if (s.check() == z3::sat) {
     ILA_DLOG("Verbose-CheckRefine") << s.get_model();
@@ -91,12 +82,12 @@ bool CommDiag::CheckRefinement(const RefPtr ref) const {
   // two copies should have the same state vars (not including inputs)
   auto eq = ctx_.bool_val(true);
   for (auto it = vars.begin(); it != vars.end(); it++) {
-    auto so = g.GetExpr(*it, k_suff_old);
-    auto sn = g.GetExpr(*it, k_suff_new);
+    auto so = g_.GetExpr(*it, k_suff_old);
+    auto sn = g_.GetExpr(*it, k_suff_new);
     eq = eq && (so == sn);
   }
-  auto ao = g.GetExpr(a, k_suff_old);
-  auto fn = g.GetExpr(f, k_suff_new);
+  auto ao = g_.GetExpr(a, k_suff_old);
+  auto fn = g_.GetExpr(f, k_suff_new);
   // should be unsat
   s.add(ao && !(fn && ao && eq));
   if (s.check() == z3::sat) {
@@ -108,8 +99,7 @@ bool CommDiag::CheckRefinement(const RefPtr ref) const {
   return true;
 }
 
-z3::expr CommDiag::GenVerCondRefine(const RefPtr ref, const int& max) const {
-  Z3ExprAdapter g(ctx_);
+z3::expr CommDiag::GenVerCondRefine(const RefPtr ref, const int& max) {
   MonoUnroll uo(ctx_);
   MonoUnroll un(ctx_);
   uo.SetExtraSuffix(k_suff_old);
@@ -140,7 +130,7 @@ z3::expr CommDiag::GenVerCondRefine(const RefPtr ref, const int& max) const {
   // connect end state to the interface (with no step suffix)
   for (auto it = vars.begin(); it != vars.end(); it++) {
     auto so_k = uo.CurrState(*it, k);
-    auto so = g.GetExpr(*it, k_suff_old);
+    auto so = g_.GetExpr(*it, k_suff_old);
     path_old = path_old && (so_k == so);
   }
 
@@ -156,7 +146,7 @@ z3::expr CommDiag::GenVerCondRefine(const RefPtr ref, const int& max) const {
   // connect end state to the interface (with no step suffix)
   for (auto it = vars.begin(); it != vars.end(); it++) {
     auto sn_k = un.CurrState(*it, k + 1);
-    auto sn = g.GetExpr(*it, k_suff_new);
+    auto sn = g_.GetExpr(*it, k_suff_new);
     path_new = path_new && (sn_k == sn);
   }
 

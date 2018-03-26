@@ -39,42 +39,44 @@ public:
 TEST_F(TestEqCheck, CommDiag_FF) {
   SetToStdErr(1);
 
-  // Test:
   // 1. coi analysis
   // 2. step specified
   // 3. step not specified with different bound
 
-  for (size_t instr_idx = 0; instr_idx != 3; instr_idx++) {
-    // refinement for f1
-    RefPtr ref1 = RefinementMap::New();
-    ref1->set_tgt(f1);
-    ref1->set_appl(f1->instr(instr_idx)->decode());
-    ref1->set_flush(Not(f1->input("start")));
-    ref1->set_cmpl(BoolConst(true));
-    ref1->set_step(0);
-    ref1->add_inv(Ule(f1->state("counter"), 7));
-    // refinement for f2
-    RefPtr ref2 = RefinementMap::New();
-    ref2->set_tgt(f2);
-    ref2->set_appl(f2->instr(instr_idx)->decode());
-    ref2->set_flush(Not(f2->input("start")));
-    ref2->set_cmpl(BoolConst(true));
-    ref2->add_inv(Ule(f2->state("counter"), 7));
-    // ref2->set_step(0);
-    // relation between f1 and f2
-    RelPtr rel = RelationMap::New();
-    for (size_t i = 0; i != f1->state_num(); i++) {
-      auto var1 = f1->state(i);
-      try {
-        auto var2 = f2->state(var1->name().str());
-        rel->add(Eq(var1, var2));
-      } catch (...) {
-        ILA_DLOG("EqCheck") << "Manual relation mapping required.";
-      }
+  // refinement for f1
+  RefPtr ref1 = RefinementMap::New();
+  ref1->set_tgt(f1);
+  ref1->set_flush(Not(f1->input("start")));
+  ref1->set_cmpl(BoolConst(true));
+  ref1->set_step(0);
+  ref1->add_inv(Ule(f1->state("counter"), 7));
+
+  // refinement for f2
+  RefPtr ref2 = RefinementMap::New();
+  ref2->set_tgt(f2);
+  ref2->set_flush(Not(f2->input("start")));
+  ref2->set_cmpl(BoolConst(true));
+  ref2->add_inv(Ule(f2->state("counter"), 7));
+  // ref2 not specify # step
+
+  // relation between f1 and f2
+  RelPtr rel = RelationMap::New();
+  for (size_t i = 0; i != f1->state_num(); i++) {
+    auto var1 = f1->state(i);
+    try {
+      auto var2 = f2->state(var1->name().str());
+      rel->add(Eq(var1, var2));
+    } catch (...) {
+      ILA_DLOG("EqCheck") << "Manual relation mapping required.";
     }
-    // crr
-    CrrPtr crr = CompRefRel::New(ref1, ref2, rel);
-    CommDiag cd = CommDiag(c, crr);
+  }
+  // crr
+  CrrPtr crr = CompRefRel::New(ref1, ref2, rel);
+  CommDiag cd = CommDiag(c, crr);
+
+  for (size_t instr_idx = 0; instr_idx != 3; instr_idx++) {
+    ref1->set_appl(f1->instr(instr_idx)->decode());
+    ref2->set_appl(f2->instr(instr_idx)->decode());
 
     for (auto i = 0; i != 1; i++) {
       auto vc = cd.GenVerCond(i);
@@ -93,12 +95,26 @@ TEST_F(TestEqCheck, CommDiag_FF) {
           g.GetExpr(f1->state("counter"), "o"));
 #endif
 
-      auto sanity = cd.GenVerCondTran(i);
+      auto tran = cd.GenVerCondTran(i);
       s.reset();
-      s.add(sanity);
+      s.add(tran);
+      EXPECT_EQ(z3::sat, s.check());
+
+      auto prop = cd.GenVerCondProp();
+      s.reset();
+      s.add(tran);
+      s.add(prop);
       EXPECT_EQ(z3::sat, s.check());
     }
   }
+
+  auto fail_idx = 3;
+  ref1->set_appl(f1->instr(fail_idx)->decode());
+  ref2->set_appl(f2->instr(fail_idx)->decode());
+  auto vc = cd.GenVerCond(0);
+  s.reset();
+  s.add(vc);
+  EXPECT_EQ(z3::sat, s.check());
 }
 
 } // namespace ila

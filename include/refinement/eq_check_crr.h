@@ -21,7 +21,8 @@ public:
   ~CommDiag();
 
   // ------------------------- METHODS -------------------------------------- //
-  /// \brief Generate verification condition up to the given maximum bound.
+  /// \brief Generate verification condition up to the given maximum bound. This
+  /// equals to tran && !prop
   z3::expr GenVerCond(const int& max);
 
   /// \brief Generate verification condition for the transition path.
@@ -35,6 +36,8 @@ private:
   z3::context& ctx_;
   /// The refinement relation.
   CrrPtr crr_;
+  /// The z3 expr adapter used.
+  Z3ExprAdapter g_ = Z3ExprAdapter(ctx_);
 
   /// \brief Check the refinement mapping is valid.
   /// - F: flushing function (states + inputs)
@@ -42,7 +45,7 @@ private:
   /// - Eq: equivalence of all state variables (not including inputs)
   /// - Property: !(F ^ A) is unsat
   /// - Property: A(s0) & !(F(s1) & A(s0) & Eq(s0, s1)) is unsat
-  bool CheckRefinement(const RefPtr ref) const;
+  bool CheckRefinement(const RefPtr ref);
 
   /// \brief Generate verification condition for one part of the commutating
   /// diagram up to the given bound.
@@ -52,7 +55,7 @@ private:
   /// - unroll, starting from sn_1 for k steps, F(sn_i) for all i > 0
   /// - if #step in CRR < max, k = #step, otherwise k = max
   /// - if #step not known, OR all cmpl in i-th steps for i > 0 and return
-  z3::expr GenVerCondRefine(const RefPtr ref, const int& max) const;
+  z3::expr GenVerCondRefine(const RefPtr ref, const int& max);
 
 }; // class CommDiag
 
