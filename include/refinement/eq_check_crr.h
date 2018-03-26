@@ -24,6 +24,11 @@ public:
   /// \brief Generate verification condition up to the given maximum bound.
   z3::expr GenVerCond(const int& max);
 
+  /// \brief Generate verification condition for the transition path.
+  z3::expr GenVerCondTran(const int& max);
+  /// \brief Generate verification condition for the property.
+  z3::expr GenVerCondProp();
+
 private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// The underlying z3 context.

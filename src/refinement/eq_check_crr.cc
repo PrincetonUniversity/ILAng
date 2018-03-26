@@ -37,6 +37,23 @@ z3::expr CommDiag::GenVerCond(const int& max) {
   return (vc_ref_a && vc_ref_b && eq_old && !eq_new);
 }
 
+z3::expr CommDiag::GenVerCondTran(const int& max) {
+  // generate vc for each model.
+  auto vc_ref_a = GenVerCondRefine(crr_->refine_a(), max);
+  auto vc_ref_b = GenVerCondRefine(crr_->refine_b(), max);
+  // old states are equal
+  Z3ExprAdapter g(ctx_);
+  auto eq_old = g.GetExpr(crr_->relation()->get(), k_suff_old);
+  return (vc_ref_a && vc_ref_b && eq_old);
+}
+
+z3::expr CommDiag::GenVerCondProp() {
+  // property: old state are equal -> new state should be equal
+  Z3ExprAdapter g(ctx_);
+  auto eq_new = g.GetExpr(crr_->relation()->get(), k_suff_new);
+  return eq_new;
+}
+
 bool CommDiag::CheckRefinement(const RefPtr ref) const {
   ILA_NOT_NULL(ref);
 
@@ -52,15 +69,18 @@ bool CommDiag::CheckRefinement(const RefPtr ref) const {
   auto a = ref->appl();
   ILA_CHECK(a) << "Apply function not set.";
 
+  // check complete
+  ILA_CHECK(ref->cmpl()) << "Complete condition not set.";
+
   z3::solver s(ctx_);
   Z3ExprAdapter g(ctx_);
 
-  // check flushing and apply are exclusive
-  auto exc = g.GetExpr(Not(Xor(f, a)));
+  // check flushing and apply does not hold at the same time
+  auto exc = g.GetExpr(And(f, a));
   s.add(exc);
   if (s.check() == z3::sat) {
-    ILA_ERROR << "Non-exclusive flushing function and apply function.";
     ILA_DLOG("Verbose-CheckRefine") << s.get_model();
+    ILA_ERROR << "Non-exclusive flushing function and apply function.";
     return false;
   }
 
@@ -95,7 +115,7 @@ z3::expr CommDiag::GenVerCondRefine(const RefPtr ref, const int& max) const {
   uo.SetExtraSuffix(k_suff_old);
   un.SetExtraSuffix(k_suff_new);
   auto m = ref->coi();
-  auto k = ref->step() == 0 ? max : ref->step();
+  auto k = ref->step() == -1 ? max : ref->step();
   if (ref->step() > max) {
     ILA_ERROR << "Unroll bound " << max << " not sufficient for " << m;
     return ctx_.bool_val(false);
@@ -113,6 +133,9 @@ z3::expr CommDiag::GenVerCondRefine(const RefPtr ref, const int& max) const {
 
   // unroll path for old state, from 0 to k, with F(so_i) for all i >= 0
   uo.AddGlobPred(ref->flush());
+  for (size_t i = 0; i != ref->inv_num(); i++) {
+    uo.AddGlobPred(ref->inv(i));
+  }
   auto path_old = uo.MonoAssn(m, k, 0);
   // connect end state to the interface (with no step suffix)
   for (auto it = vars.begin(); it != vars.end(); it++) {
@@ -126,16 +149,19 @@ z3::expr CommDiag::GenVerCondRefine(const RefPtr ref, const int& max) const {
   for (auto i = 1; i != k + 1; i++) {
     un.AddStepPred(ref->flush(), i);
   }
+  for (size_t i = 0; i != ref->inv_num(); i++) {
+    un.AddGlobPred(ref->inv(i));
+  }
   auto path_new = un.MonoAssn(m, k + 1, 0);
   // connect end state to the interface (with no step suffix)
   for (auto it = vars.begin(); it != vars.end(); it++) {
-    auto sn_k = uo.CurrState(*it, k + 1);
+    auto sn_k = un.CurrState(*it, k + 1);
     auto sn = g.GetExpr(*it, k_suff_new);
     path_new = path_new && (sn_k == sn);
   }
 
   // extract completion indicator
-  auto complete = ctx_.bool_val(false);
+  auto complete = k > 0 ? ctx_.bool_val(false) : ctx_.bool_val(true);
   for (auto i = 1; i != k + 1; i++) {
     complete = complete || un.GetZ3Expr(ref->cmpl(), i);
   }
