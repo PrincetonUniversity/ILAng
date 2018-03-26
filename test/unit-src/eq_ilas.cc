@@ -8,8 +8,8 @@ namespace ila {
 // Flat ILA 1:
 // - no child-ILA
 // - every computation is done in an increaing order of the index/address
-InstrLvlAbsPtr EqIlaGen::GetIlaFlat1() {
-  auto ila = InstrLvlAbs::New("Flat_1");
+InstrLvlAbsPtr EqIlaGen::GetIlaFlat1(const std::string& name) {
+  auto ila = InstrLvlAbs::New(name);
 
   // input variables.
   auto start = ila->NewBoolInput("start");
@@ -127,8 +127,8 @@ InstrLvlAbsPtr EqIlaGen::GetIlaFlat1() {
 // Flat ILA 2:
 // - no child-ILA
 // - every computation is done in a decreasing order of the index/address
-InstrLvlAbsPtr EqIlaGen::GetIlaFlat2() {
-  auto ila = InstrLvlAbs::New("Flat_2");
+InstrLvlAbsPtr EqIlaGen::GetIlaFlat2(const std::string& name) {
+  auto ila = InstrLvlAbs::New(name);
 
   // input variables.
   auto start = ila->NewBoolInput("start");

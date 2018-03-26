@@ -35,22 +35,22 @@ public:
   /// \brief Flat ILA 1:
   /// - no child-ILA
   /// - every computation is done in an increasing order of the index.
-  InstrLvlAbsPtr GetIlaFlat1();
+  InstrLvlAbsPtr GetIlaFlat1(const std::string& name = "Flat_1");
 
   /// \brief Flag ILA 2:
   /// - no child-ILA
   /// - every computation is done in a decreasing order of the index.
-  InstrLvlAbsPtr GetIlaFlat2();
+  InstrLvlAbsPtr GetIlaFlat2(const std::string& name = "Flat_2");
 
   /// \brief Hierarchical ILA 1:
   /// - with child-ILA for instruction 3, storing intermediate value of reg.
   /// - with child-ILA for instruction 4, increasingly step-wise sum up.
-  InstrLvlAbsPtr GetIlaHier1();
+  InstrLvlAbsPtr GetIlaHier1(const std::string& name = "Hier_1");
 
   /// \brief Hierarchical ILA 2:
   /// - with child-ILA for instruction 3, check reg iteratively.
   /// - with child-ILA for instruction 4. decreasingly step-wise sum up.
-  InstrLvlAbsPtr GetIlaHier2();
+  InstrLvlAbsPtr GetIlaHier2(const std::string& name = "Hier_2");
 
 private:
   /// parameterized register number. (must >= 3)
