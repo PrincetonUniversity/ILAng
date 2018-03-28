@@ -20,13 +20,22 @@ CommDiag::~CommDiag() {}
 bool CommDiag::EqCheck(const int& max) {
   max_ = max;
 
+  auto ref_a = crr_->refine_a();
+  auto ref_b = crr_->refine_b();
+
   // refinement relation sanity check
-  CheckRefinement(crr_->refine_a());
-  CheckRefinement(crr_->refine_b());
+  CheckRefinement(ref_a);
+  CheckRefinement(ref_b);
 
   // determine the number of steps for unrolling (check valid if specified)
+  auto o_bnd_a = DetBndOld(ref_a);
+  auto n_bnd_a = DetBndNew(ref_a);
+  auto o_bnd_b = DetBndOld(ref_b);
+  auto n_bnd_b = DetBndNew(ref_b);
 
   // generate verification condition
+  // auto tran = GenTranRel();
+
   // check (and profiling)
 
   return true;
@@ -169,6 +178,20 @@ z3::expr CommDiag::GenVerCondRefine(const RefPtr ref, const int& max) {
   }
 
   return (eq && path_old && path_new && complete);
+}
+
+int CommDiag::DetBndOld(const RefPtr ref) {
+  // TODO
+  int bnd = 0;
+  ILA_INFO << "#old flush (" << ref->coi() << "): " << bnd;
+  return bnd;
+}
+
+int CommDiag::DetBndNew(const RefPtr ref) {
+  // TODO
+  int bnd = 0;
+  ILA_INFO << "#new flush (" << ref->coi() << "): " << bnd;
+  return bnd;
 }
 
 } // namespace ila
