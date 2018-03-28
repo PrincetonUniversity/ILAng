@@ -20,25 +20,34 @@ CommDiag::~CommDiag() {}
 bool CommDiag::EqCheck(const int& max) {
   max_ = max;
 
-  auto ref_a = crr_->refine_a();
-  auto ref_b = crr_->refine_b();
-
   // refinement relation sanity check
-  CheckRefinement(ref_a);
-  CheckRefinement(ref_b);
+  auto sc_res = SanityCheck();
+  ILA_WARN_IF(!sc_res) << "The refinement relation sanity check fail.";
 
   // determine the number of steps for unrolling (check valid if specified)
-  auto o_bnd_a = DetBndOld(ref_a);
-  auto n_bnd_a = DetBndNew(ref_a);
-  auto o_bnd_b = DetBndOld(ref_b);
-  auto n_bnd_b = DetBndNew(ref_b);
+  auto pp_res = PreProcDetBnd(max);
+  ILA_WARN_IF(!pp_res) << "Error during preprocessing.";
 
   // generate verification condition
-  // auto tran = GenTranRel();
+  auto cstr_tran = GenTranRel();
 
-  // check (and profiling)
+  // generate assumptions (old state equivalent)
+  auto cstr_assm = GenAssm();
 
-  return true;
+  // generate property to check (new state equivalent)
+  auto cstr_prop = GenProp();
+
+  // check
+  z3::solver s(ctx_);
+  s.add(cstr_tran);
+  s.add(cstr_assm);
+  s.add(!cstr_prop);
+  auto res = s.check();
+  if (res == z3::sat) {
+    ILA_DLOG("EqCheck") << s.get_model();
+  }
+
+  return (res == z3::unsat);
 }
 
 z3::expr CommDiag::GenVerCond(const int& max) {
@@ -178,6 +187,31 @@ z3::expr CommDiag::GenVerCondRefine(const RefPtr ref, const int& max) {
   }
 
   return (eq && path_old && path_new && complete);
+}
+
+bool CommDiag::SanityCheck() {
+  // TODO
+  return true;
+}
+
+bool CommDiag::PreProcDetBnd(const int& max) {
+  // TODO
+  return true;
+}
+
+z3::expr CommDiag::GenTranRel() {
+  // TODO
+  return ctx_.bool_val(true);
+}
+
+z3::expr CommDiag::GenAssm() {
+  // TODO
+  return ctx_.bool_val(true);
+}
+
+z3::expr CommDiag::GenProp() {
+  // TODO
+  return ctx_.bool_val(true);
 }
 
 int CommDiag::DetBndOld(const RefPtr ref) {

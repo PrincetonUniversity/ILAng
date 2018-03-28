@@ -64,6 +64,12 @@ private:
   /// - if #step not known, OR all cmpl in i-th steps for i > 0 and return
   z3::expr GenVerCondRefine(const RefPtr ref, const int& max);
 
+  bool SanityCheck();
+  bool PreProcDetBnd(const int& max);
+  z3::expr GenTranRel();
+  z3::expr GenAssm();
+  z3::expr GenProp();
+
   int DetBndOld(const RefPtr ref);
   int DetBndNew(const RefPtr ref);
 
