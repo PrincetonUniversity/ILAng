@@ -17,6 +17,21 @@ CommDiag::CommDiag(z3::context& ctx, const CrrPtr crr) : ctx_(ctx), crr_(crr) {}
 
 CommDiag::~CommDiag() {}
 
+bool CommDiag::EqCheck(const int& max) {
+  max_ = max;
+
+  // refinement relation sanity check
+  CheckRefinement(crr_->refine_a());
+  CheckRefinement(crr_->refine_b());
+
+  // determine the number of steps for unrolling (check valid if specified)
+
+  // generate verification condition
+  // check (and profiling)
+
+  return true;
+}
+
 z3::expr CommDiag::GenVerCond(const int& max) {
   // check the refinement is valid.
   ILA_CHECK(CheckRefinement(crr_->refine_a())) << "Refinement check fail.";
@@ -52,17 +67,14 @@ bool CommDiag::CheckRefinement(const RefPtr ref) {
   // check target
   auto m = ref->coi();
   ILA_CHECK(m) << "Refinement target not set.";
-
   // check flushing
   auto f = ref->flush();
-  ILA_CHECK(f) << "Flushing function not set.";
-
+  ILA_CHECK(f) << "Flushing function not set for " << m;
   // check apply
   auto a = ref->appl();
-  ILA_CHECK(a) << "Apply function not set.";
-
+  ILA_CHECK(a) << "Apply function not set set for " << m;
   // check complete
-  ILA_CHECK(ref->cmpl()) << "Complete condition not set.";
+  ILA_CHECK(ref->cmpl()) << "Complete condition not set for " << m;
 
   z3::solver s(ctx_);
 
@@ -75,21 +87,21 @@ bool CommDiag::CheckRefinement(const RefPtr ref) {
     return false;
   }
 
-  // check flushing and apply does not affect state equivalence
   // collect all state variables
   std::set<ExprPtr> vars;
   AbsKnob::GetVarOfIla(m, vars);
-  // two copies should have the same state vars (not including inputs)
+  // check flushing and apply does not affect state equivalence
+  // default equivalence: state variables (not including inputs)
   auto eq = ctx_.bool_val(true);
   for (auto it = vars.begin(); it != vars.end(); it++) {
     auto so = g_.GetExpr(*it, k_suff_old);
     auto sn = g_.GetExpr(*it, k_suff_new);
     eq = eq && (so == sn);
   }
-  auto ao = g_.GetExpr(a, k_suff_old);
-  auto fn = g_.GetExpr(f, k_suff_new);
+  auto an = g_.GetExpr(a, k_suff_new);
+  auto fo = g_.GetExpr(f, k_suff_old);
   // should be unsat
-  s.add(ao && !(fn && ao && eq));
+  s.add(an && !(fo && an && eq));
   if (s.check() == z3::sat) {
     ILA_ERROR << "Flushing and apply function intervene state equivalence.";
     ILA_DLOG("Verbose-CheckRefine") << s.get_model();

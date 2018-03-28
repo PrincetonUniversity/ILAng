@@ -21,6 +21,11 @@ public:
   ~CommDiag();
 
   // ------------------------- METHODS -------------------------------------- //
+  /// \brief Check equivalence between two models based on the refinement
+  /// relation provided up to the given unroll bound.
+  /// \param[in] max unroll bound (0 for auto-search).
+  bool EqCheck(const int& max = 0);
+
   /// \brief Generate verification condition up to the given maximum bound. This
   /// equals to tran && !prop
   z3::expr GenVerCond(const int& max);
@@ -38,6 +43,8 @@ private:
   CrrPtr crr_;
   /// The z3 expr adapter used.
   Z3ExprAdapter g_ = Z3ExprAdapter(ctx_);
+  /// Upper bound for unrolling.
+  int max_ = 0;
 
   /// \brief Check the refinement mapping is valid.
   /// - F: flushing function (states + inputs)
