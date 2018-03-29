@@ -15,9 +15,11 @@ typedef Unroller::ZExpr ZExpr;
 /******************************************************************************/
 // Unroller
 /******************************************************************************/
-Unroller::Unroller(z3::context& ctx)
+Unroller::Unroller(z3::context& ctx, const std::string& suff)
     : ctx_(ctx), gen_(Z3ExprAdapter(ctx)), k_prev_z3_(ctx), k_curr_z3_(ctx),
-      k_next_z3_(ctx), cstr_(ctx) {}
+      k_next_z3_(ctx), cstr_(ctx) {
+  SetExtraSuffix(suff);
+}
 
 Unroller::~Unroller() {}
 
@@ -313,7 +315,8 @@ ZExpr Unroller::ConjPred(const ZExprVec& vec) const {
 /******************************************************************************/
 // PathUnroll
 /******************************************************************************/
-PathUnroll::PathUnroll(z3::context& ctx) : Unroller(ctx) {}
+PathUnroll::PathUnroll(z3::context& ctx, const std::string& suff)
+    : Unroller(ctx, suff) {}
 
 PathUnroll::~PathUnroll() {}
 
@@ -369,7 +372,8 @@ void PathUnroll::Transition(const int& idx) {
 /******************************************************************************/
 // MonoUnroll
 /******************************************************************************/
-MonoUnroll::MonoUnroll(z3::context& ctx) : Unroller(ctx) {}
+MonoUnroll::MonoUnroll(z3::context& ctx, const std::string& suff)
+    : Unroller(ctx, suff) {}
 
 MonoUnroll::~MonoUnroll() {}
 

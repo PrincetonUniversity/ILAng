@@ -25,7 +25,7 @@ public:
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor
-  Unroller(z3::context& ctx);
+  Unroller(z3::context& ctx, const std::string& suffix);
   /// Default virtual destructor.
   virtual ~Unroller();
 
@@ -187,7 +187,7 @@ public:
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor.
-  PathUnroll(z3::context& ctx);
+  PathUnroll(z3::context& ctx, const std::string& suff = "");
   /// Default destructor.
   ~PathUnroll();
 
@@ -237,7 +237,7 @@ class MonoUnroll : public Unroller {
 public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor.
-  MonoUnroll(z3::context& ctx);
+  MonoUnroll(z3::context& ctx, const std::string& suff = "");
   /// Default destructor.
   ~MonoUnroll();
 
