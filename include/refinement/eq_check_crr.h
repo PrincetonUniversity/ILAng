@@ -4,6 +4,7 @@
 #ifndef EQ_CHECK_CRR_H__
 #define EQ_CHECK_CRR_H__
 
+#include "backend/unroller.h"
 #include "ila/instr_lvl_abs.h"
 #include "refinement/comp_ref_rel.h"
 #include "z3++.h"
@@ -44,14 +45,10 @@ private:
   /// The z3 expr adapter used.
   Z3ExprAdapter g_ = Z3ExprAdapter(ctx_);
 
-  /// Unroll step for refinement A original path.
-  int step_orig_a = 0;
-  /// Unroll step for refinement A apply path.
-  int step_appl_a = 0;
-  /// Unroll step for refinement B original path.
-  int step_orig_b = 0;
-  /// Unroll step for refinement B apply path.
-  int step_appl_b = 0;
+  static const std::string k_suff_orig_;
+  static const std::string k_suff_appl_;
+  MonoUnroll unroll_appl_ = MonoUnroll(ctx_, k_suff_appl_);
+  MonoUnroll unroll_orig_ = MonoUnroll(ctx_, k_suff_orig_);
 
   /// \brief Check the refinement mapping is valid.
   /// - F: flushing function (states + inputs)
@@ -76,17 +73,23 @@ private:
   bool SanityCheckRelation(const RelPtr rel, const InstrLvlAbsPtr ma,
                            const InstrLvlAbsPtr mb) const;
 
-  bool DetStep(const int& max);
   int DetStepOrig(const RefPtr ref, const int& max);
   int DetStepAppl(const RefPtr ref, const int& max);
   bool CheckStepOrig(const RefPtr ref, const int& k);
   bool CheckStepAppl(const RefPtr ref, const int& k);
 
-  z3::expr GenInit(const RefPtr ref) const;
+  z3::expr GenInit(const RefPtr ref);
 
-  z3::expr GenTranRel();
+  z3::expr GenTranRel(const RefPtr ref, const int& k_orig, const int& k_appl);
   z3::expr GenAssm();
   z3::expr GenProp();
+
+  z3::expr AtLeastOnce(const ExprPtr cmpl, const int& start, const int& end,
+                       MonoUnroll& unroller) const;
+  z3::expr AtMostOnce(const ExprPtr cmpl, const int& start, const int& end,
+                      MonoUnroll& unroller) const;
+  z3::expr UnrollFlush(const RefPtr ref, const int& start, const int& end,
+                       MonoUnroll& unroller, const int& base);
 
 }; // class CommDiag
 
