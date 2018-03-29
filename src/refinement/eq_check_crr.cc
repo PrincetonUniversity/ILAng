@@ -295,14 +295,14 @@ bool CommDiag::CheckStepOrig(const RefPtr ref, const int& k) {
   // start checking
   auto s = z3::solver(ctx_);
   // at least once
-  auto at_least_once = AtLeastOnce(ref->cmpl(), 0, k, u);
+  auto at_least_once = AtLeastOnce(u, ref->cmpl(), 0, k);
   s.reset();
   s.add(init && tran && !at_least_once);
   if (s.check() == z3::sat) {
     return false;
   }
   // at most once
-  auto at_most_once = AtMostOnce(ref->cmpl(), 0, k, u);
+  auto at_most_once = AtMostOnce(u, ref->cmpl(), 0, k);
   s.add(init && tran && !at_most_once);
   if (s.check() == z3::sat) {
     return false;
@@ -327,14 +327,14 @@ bool CommDiag::CheckStepAppl(const RefPtr ref, const int& k) {
   // start checking
   auto s = z3::solver(ctx_);
   // at least once
-  auto at_least_once = AtLeastOnce(ref->cmpl(), 1, k + 1, u);
+  auto at_least_once = AtLeastOnce(u, ref->cmpl(), 1, k + 1);
   s.reset();
   s.add(init && tran && !at_least_once);
   if (s.check() == z3::sat) {
     return false;
   }
   // at most once
-  auto at_most_once = AtMostOnce(ref->cmpl(), 1, k + 1, u);
+  auto at_most_once = AtMostOnce(u, ref->cmpl(), 1, k + 1);
   s.add(init && tran && !at_most_once);
   if (s.check() == z3::sat) {
     return false;
@@ -361,8 +361,8 @@ z3::expr CommDiag::GenInit(const RefPtr ref) {
 z3::expr CommDiag::GenTranRel(const RefPtr ref, const int& k_orig,
                               const int& k_appl) {
   auto init = GenInit(ref);
-  auto orig = UnrollFlush(ref, 0, k_orig, unroll_orig_, 0);
-  auto appl = UnrollFlush(ref, 1, k_appl, unroll_appl_, 0);
+  auto orig = UnrollFlush(unroll_orig_, ref, 0, k_orig, 0);
+  auto appl = UnrollFlush(unroll_appl_, ref, 0, k_appl, 1);
   return (init && orig && appl);
 }
 
@@ -376,8 +376,8 @@ z3::expr CommDiag::GenProp() {
   return ctx_.bool_val(true);
 }
 
-z3::expr CommDiag::AtLeastOnce(const ExprPtr cmpl, const int& start,
-                               const int& end, MonoUnroll& unroller) const {
+z3::expr CommDiag::AtLeastOnce(MonoUnroll& unroller, const ExprPtr cmpl,
+                               const int& start, const int& end) const {
   auto cstr = unroller.GetZ3Expr(BoolConst(false), 0);
   for (auto i = start; i != end; i++) {
     cstr = cstr || unroller.GetZ3Expr(cmpl, i);
@@ -385,8 +385,8 @@ z3::expr CommDiag::AtLeastOnce(const ExprPtr cmpl, const int& start,
   return cstr;
 }
 
-z3::expr CommDiag::AtMostOnce(const ExprPtr cmpl, const int& start,
-                              const int& end, MonoUnroll& unroller) const {
+z3::expr CommDiag::AtMostOnce(MonoUnroll& unroller, const ExprPtr cmpl,
+                              const int& start, const int& end) const {
   auto cstr = unroller.GetZ3Expr(BoolConst(true), 0);
   for (auto i = start; i != end; i++) {
     auto cmpl_i = unroller.GetZ3Expr(cmpl, i);
@@ -398,9 +398,9 @@ z3::expr CommDiag::AtMostOnce(const ExprPtr cmpl, const int& start,
   return cstr;
 }
 
-z3::expr CommDiag::UnrollFlush(const RefPtr ref, const int& start,
-                               const int& end, MonoUnroll& unroller,
-                               const int& base) {
+z3::expr CommDiag::UnrollFlush(MonoUnroll& unroller, const RefPtr ref,
+                               const int& base, const int& length,
+                               const int& start) {
   // TODO
   auto cstr = ctx_.bool_val(true);
   return cstr;

@@ -84,12 +84,12 @@ private:
   z3::expr GenAssm();
   z3::expr GenProp();
 
-  z3::expr AtLeastOnce(const ExprPtr cmpl, const int& start, const int& end,
-                       MonoUnroll& unroller) const;
-  z3::expr AtMostOnce(const ExprPtr cmpl, const int& start, const int& end,
-                      MonoUnroll& unroller) const;
-  z3::expr UnrollFlush(const RefPtr ref, const int& start, const int& end,
-                       MonoUnroll& unroller, const int& base);
+  z3::expr AtLeastOnce(MonoUnroll& unroller, const ExprPtr cmpl,
+                       const int& start, const int& end) const;
+  z3::expr AtMostOnce(MonoUnroll& unroller, const ExprPtr cmpl,
+                      const int& start, const int& end) const;
+  z3::expr UnrollFlush(MonoUnroll& unroller, const RefPtr ref, const int& base,
+                       const int& length, const int& start);
 
 }; // class CommDiag
 
