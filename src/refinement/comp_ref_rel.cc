@@ -38,9 +38,14 @@ void RefinementMap::set_cmpl(const ExprPtr cmpl) {
   cmpl_ = cmpl;
 }
 
-void RefinementMap::set_step(const int& step) {
+void RefinementMap::set_step_appl(const int& step) {
   ILA_ASSERT(step >= 0) << "Can only be flushed positive times.";
-  step_ = step;
+  step_appl_ = step;
+}
+
+void RefinementMap::set_step_orig(const int& step) {
+  ILA_ASSERT(step >= 0) << "Can only be flushed positive times.";
+  step_orig_ = step;
 }
 
 void RefinementMap::add_inv(const ExprPtr inv) {

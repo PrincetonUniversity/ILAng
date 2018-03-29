@@ -34,8 +34,12 @@ public:
   inline ExprPtr flush() const { return flush_; }
   /// Return the constraint for completion indicator.
   inline ExprPtr cmpl() const { return cmpl_; }
-  /// Return the number of steps required for flushing.
-  inline const int& step() const { return step_; }
+  /// Return the number of steps required for flushing apply path.
+  inline const int& step_appl() const { return step_appl_; }
+  /// Return the number of steps required for flushing original path.
+  inline const int& step_orig() const { return step_orig_; }
+  /// Return the number of steps required for flushing. XXX
+  inline const int& step() const { return step_orig(); }
   /// Return the number of invariant.
   inline size_t inv_num() const { return invs_.size(); }
   /// Access the i-th invariant.
@@ -51,8 +55,12 @@ public:
   void set_flush(const ExprPtr flush);
   /// Define the completion scenario (e.g. dummy end).
   void set_cmpl(const ExprPtr cmpl);
-  /// Specify the number of steps required for flushing (0 if not known).
-  void set_step(const int& step);
+  /// Specify the number of steps required for flushing. XXX
+  inline void set_step(const int& step) { set_step_orig(step); }
+  /// Specify the number of steps required for flushing apply path.
+  void set_step_appl(const int& step);
+  /// Specify the number of steps required for flushing original path.
+  void set_step_orig(const int& step);
   /// Add an invariant.
   void add_inv(const ExprPtr inv);
 
@@ -70,9 +78,11 @@ private:
   /// Flushing function.
   ExprPtr flush_ = NULL;
   /// Completion indicator.
-  ExprPtr cmpl_ = NULL;
-  /// Number of steps for flushing.
-  int step_ = -1;
+  ExprPtr cmpl_ = ExprFuse::BoolConst(true);
+  /// Number of steps for flushing apply path.
+  int step_appl_ = -1;
+  /// Number of steps for flushing original path.
+  int step_orig_ = -1;
   /// A set of invariant.
   std::vector<ExprPtr> invs_;
 
