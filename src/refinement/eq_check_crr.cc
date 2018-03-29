@@ -80,53 +80,7 @@ z3::expr CommDiag::GenVerCondProp() {
 }
 
 bool CommDiag::CheckRefinement(const RefPtr ref) {
-  ILA_NOT_NULL(ref);
-
-  // check target
-  auto m = ref->coi();
-  ILA_CHECK(m) << "Refinement target not set.";
-  // check flushing
-  auto f = ref->flush();
-  ILA_CHECK(f) << "Flushing function not set for " << m;
-  // check apply
-  auto a = ref->appl();
-  ILA_CHECK(a) << "Apply function not set set for " << m;
-  // check complete
-  ILA_CHECK(ref->cmpl()) << "Complete condition not set for " << m;
-
-  z3::solver s(ctx_);
-
-  // check flushing and apply does not hold at the same time
-  auto exc = g_.GetExpr(And(f, a));
-  s.add(exc);
-  if (s.check() == z3::sat) {
-    ILA_DLOG("Verbose-CheckRefine") << s.get_model();
-    ILA_ERROR << "Non-exclusive flushing function and apply function.";
-    return false;
-  }
-
-  // collect all state variables
-  std::set<ExprPtr> vars;
-  AbsKnob::GetVarOfIla(m, vars);
-  // check flushing and apply does not affect state equivalence
-  // default equivalence: state variables (not including inputs)
-  auto eq = ctx_.bool_val(true);
-  for (auto it = vars.begin(); it != vars.end(); it++) {
-    auto so = g_.GetExpr(*it, k_suff_old);
-    auto sn = g_.GetExpr(*it, k_suff_new);
-    eq = eq && (so == sn);
-  }
-  auto an = g_.GetExpr(a, k_suff_new);
-  auto fo = g_.GetExpr(f, k_suff_old);
-  // should be unsat
-  s.add(an && !(fo && an && eq));
-  if (s.check() == z3::sat) {
-    ILA_ERROR << "Flushing and apply function intervene state equivalence.";
-    ILA_DLOG("Verbose-CheckRefine") << s.get_model();
-    return false;
-  }
-
-  return true;
+  return SanityCheckRefinement(ref);
 }
 
 z3::expr CommDiag::GenVerCondRefine(const RefPtr ref, const int& max) {
@@ -141,7 +95,7 @@ z3::expr CommDiag::GenVerCondRefine(const RefPtr ref, const int& max) {
     return ctx_.bool_val(false);
   }
   std::set<ExprPtr> vars;
-  AbsKnob::GetVarOfIla(m, vars);
+  AbsKnob::GetStVarOfIla(m, vars);
 
   // (so_0 == sn_0)
   auto eq = ctx_.bool_val(true);
@@ -189,8 +143,82 @@ z3::expr CommDiag::GenVerCondRefine(const RefPtr ref, const int& max) {
   return (eq && path_old && path_new && complete);
 }
 
-bool CommDiag::SanityCheck() {
-  // TODO
+bool CommDiag::SanityCheck() const {
+  // check refinement
+  auto res_a = SanityCheckRefinement(crr_->refine_a());
+  auto res_b = SanityCheckRefinement(crr_->refine_b());
+
+  // check relation
+  auto res_r = SanityCheckRelation(crr_->relation(), crr_->refine_a()->coi(),
+                                   crr_->refine_b()->coi());
+
+  return res_a && res_b && res_r;
+}
+
+bool CommDiag::SanityCheckRefinement(const RefPtr ref) const {
+  ILA_NOT_NULL(ref);
+
+  auto m = ref->coi();
+  auto f = ref->flush();
+  auto a = ref->appl();
+  ILA_CHECK(m) << "Refinement target not set.";
+  ILA_CHECK(f) << "Flushing function not set for " << m;
+  ILA_CHECK(a) << "Apply function not set set for " << m;
+  ILA_CHECK(ref->cmpl()) << "Complete condition not set for " << m;
+
+  auto s = z3::solver(ctx_);
+  auto g = Z3ExprAdapter(ctx_);
+  // check flushing and apply does not hold at the same time
+  auto exc = g.GetExpr(And(f, a));
+  s.add(exc);
+  if (s.check() == z3::sat) {
+    ILA_DLOG("Verbose-CheckRefine") << s.get_model();
+    ILA_ERROR << "Non-exclusive flushing function and apply function.";
+    return false;
+  }
+
+  // default equivalence: state variables (not including inputs)
+  std::set<ExprPtr> vars;
+  AbsKnob::GetStVarOfIla(m, vars);
+  // check flushing and apply does not affect state equivalence
+  auto eq = ctx_.bool_val(true);
+  for (auto it = vars.begin(); it != vars.end(); it++) {
+    auto so = g.GetExpr(*it, k_suff_old);
+    auto sn = g.GetExpr(*it, k_suff_new);
+    eq = eq && (so == sn);
+  }
+  auto an = g.GetExpr(a, k_suff_new);
+  auto fo = g.GetExpr(f, k_suff_old);
+  // check: a_n -> (a_n & f_o & eq_o_n)
+  s.add(an && !(fo && an && eq));
+  if (s.check() == z3::sat) {
+    ILA_ERROR << "Flushing and apply function intervene state equivalence.";
+    ILA_DLOG("Verbose-CheckRefine") << s.get_model();
+    return false;
+  }
+
+  return true;
+}
+
+bool CommDiag::SanityCheckRelation(const RelPtr rel, const InstrLvlAbsPtr ma,
+                                   const InstrLvlAbsPtr mb) const {
+  ILA_NOT_NULL(rel);
+  std::set<ExprPtr> rel_vars;
+  auto rel_expr = rel->get();
+  AbsKnob::GetVarOfExpr(rel_expr, rel_vars);
+
+  std::set<ExprPtr> ref_vars;
+  AbsKnob::GetStVarOfIla(ma, ref_vars);
+  AbsKnob::GetStVarOfIla(mb, ref_vars);
+
+  // check: rel_vars <= ref_vars
+  for (auto it = rel_vars.begin(); it != rel_vars.end(); it++) {
+    auto pos = ref_vars.find(*it);
+    if (pos == ref_vars.end()) { // rel has var not in ref
+      ILA_ERROR << "Relation depends on var not defined in refinement.";
+      return false;
+    }
+  }
   return true;
 }
 
