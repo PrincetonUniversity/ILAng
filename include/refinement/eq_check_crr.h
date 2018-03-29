@@ -23,8 +23,8 @@ public:
   // ------------------------- METHODS -------------------------------------- //
   /// \brief Check equivalence between two models based on the refinement
   /// relation provided up to the given unroll bound.
-  /// \param[in] max unroll bound (0 for auto-search).
-  bool EqCheck(const int& max = 0);
+  /// \param[in] max unroll bound.
+  bool EqCheck(const int& max = 10);
 
   /// \brief Generate verification condition up to the given maximum bound. This
   /// equals to tran && !prop
@@ -79,8 +79,8 @@ private:
   bool DetStep(const int& max);
   int DetStepOrig(const RefPtr ref, const int& max);
   int DetStepAppl(const RefPtr ref, const int& max);
-  bool CheckStepOrig(const RefPtr ref, const int& max);
-  bool CheckStepAppl(const RefPtr ref, const int& max);
+  bool CheckStepOrig(const RefPtr ref, const int& k);
+  bool CheckStepAppl(const RefPtr ref, const int& k);
 
   z3::expr GenInit(const RefPtr ref) const;
 

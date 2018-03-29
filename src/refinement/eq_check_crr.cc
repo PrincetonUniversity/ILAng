@@ -248,67 +248,120 @@ bool CommDiag::DetStep(const int& max) {
   step_appl_a = DetStepAppl(crr_->refine_a(), max);
   step_orig_b = DetStepOrig(crr_->refine_b(), max);
   step_appl_b = DetStepAppl(crr_->refine_b(), max);
-  return true;
+  return (step_orig_a >= 0) && (step_appl_a >= 0) && (step_orig_b >= 0) &&
+         (step_appl_b >= 0);
 }
 
 int CommDiag::DetStepOrig(const RefPtr ref, const int& max) {
-  // TODO
-  int step = 0;
-  ILA_INFO << "#orig flush (" << ref->coi() << "): " << step;
-  return step;
+  auto k = ref->step_orig();
+  ILA_WARN_IF((max > 0) && (k > max)) << "Max bound < #step";
+
+  for (auto n = (k >= 0) ? k : 0; n <= max; n++) {
+    auto res = CheckStepOrig(ref, n);
+    if (res) {
+      ILA_INFO << "#orig flush (" << ref->coi() << "): " << n;
+      return n;
+    }
+  }
+
+  ILA_ERROR << "#step not determined, increase max bound";
+  return -1;
 }
 
 int CommDiag::DetStepAppl(const RefPtr ref, const int& max) {
-  // TODO
-  int step = 0;
-  ILA_INFO << "#appl flush (" << ref->coi() << "): " << step;
-  return step;
+  auto k = ref->step_appl();
+  ILA_WARN_IF((max > 0) && (k > max)) << "Max bound < #step";
+
+  for (auto n = (k >= 0) ? k : 0; n <= max; n++) {
+    auto res = CheckStepAppl(ref, n);
+    if (res) {
+      ILA_INFO << "#appl flush (" << ref->coi() << "): " << n;
+      return n;
+    }
+  }
+
+  ILA_ERROR << "#step not determined, increase max bound";
+  return -1;
 }
 
-bool CommDiag::CheckStepOrig(const RefPtr ref, const int& max) {
-  auto k = ref->step_orig();
-  ILA_WARN_IF((max != 0) && (k > max)) << "Max bound too small.";
-  if (k >= 0) { // step has benn specified --> check if complete
-    auto init = GenInit(ref);
-    // unroll for orig state, from 0 to k, with F(so_i) for all i >= 0
-    auto u = MonoUnroll(ctx_);
-    u.SetExtraSuffix(k_suff_orig);
-    u.AddGlobPred(ref->flush());
-    for (size_t i = 0; i != ref->inv_num(); i++) {
-      u.AddGlobPred(ref->inv(i));
+bool CommDiag::CheckStepOrig(const RefPtr ref, const int& k) {
+  // ensure initial state to follow the flush && apply paradiam
+  auto init = GenInit(ref);
+  // unroll the transition relation
+  auto u = MonoUnroll(ctx_);
+  u.SetExtraSuffix(k_suff_orig);
+  u.AddGlobPred(ref->flush());
+  for (size_t i = 0; i != ref->inv_num(); i++) {
+    u.AddGlobPred(ref->inv(i));
+  }
+  auto tran = u.MonoAssn(ref->coi(), k, 0);
+  // start checking
+  auto s = z3::solver(ctx_);
+  { // check at least one complete
+    auto cmpl = ctx_.bool_val(false);
+    for (auto i = 0; i != k; i++) {
+      cmpl = cmpl || u.GetZ3Expr(ref->cmpl(), i);
     }
-    auto tran = u.MonoAssn(ref->coi(), k, 0);
-    auto s = z3::solver(ctx_);
-    { // check at least one complete
-      auto cmpl = ctx_.bool_val(false);
-      for (auto i = 0; i != k; i++) {
-        cmpl = cmpl || u.GetZ3Expr(ref->cmpl(), i);
-      }
-      s.add(init);
-      s.add(tran);
-      s.add(!cmpl);
-      if (s.check() == z3::sat) {
-        ILA_ERROR << "Orig step specified not enough.";
-        ILA_DLOG("Verbose-CrrEqCheck") << s.get_model();
-        return false;
+    s.add(init && tran && !cmpl);
+    if (s.check() == z3::sat) {
+      return false;
+    }
+  }
+  s.reset();
+  { // check at most one
+    s.add(init && tran);
+    for (auto i = 0; i != k; i++) {
+      auto cmpl_i = u.GetZ3Expr(ref->cmpl(), i);
+      for (auto j = i + 1; j != k; j++) {
+        auto cmpl_j = u.GetZ3Expr(ref->cmpl(), j);
+        s.add(!cmpl_i || !cmpl_j);
       }
     }
-    s.reset();
-    { // check at most one
-      s.add(init);
-      s.add(tran);
-      for (auto i = 0; i != k; i++) {
-        auto cmpl_i = u.GetZ3Expr(ref->cmpl(), i);
-        for (auto j = i + 1; j != k; j++) {
-          auto cmpl_j = u.GetZ3Expr(ref->cmpl(), j);
-          s.add(!cmpl_i || !cmpl_j);
-        }
+    if (s.check() == z3::sat) {
+      return false;
+    }
+  }
+  return true;
+}
+
+bool CommDiag::CheckStepAppl(const RefPtr ref, const int& k) {
+  // ensure initial state to follow the flush && apply paradiam
+  auto init = GenInit(ref);
+  // unroll the transition relation
+  auto u = MonoUnroll(ctx_);
+  u.SetExtraSuffix(k_suff_appl);
+  u.AddInitPred(ref->appl());
+  for (auto i = 1; i != k + 1; i++) {
+    u.AddStepPred(ref->flush(), i);
+  }
+  for (size_t i = 0; i != ref->inv_num(); i++) {
+    u.AddGlobPred(ref->inv(i));
+  }
+  auto tran = u.MonoAssn(ref->coi(), k + 1, 0);
+  // start checking
+  auto s = z3::solver(ctx_);
+  { // check at least one complete
+    auto cmpl = ctx_.bool_val(false);
+    for (auto i = 1; i != k + 1; i++) {
+      cmpl = cmpl || u.GetZ3Expr(ref->cmpl(), i);
+    }
+    s.add(init && tran && !cmpl);
+    if (s.check() == z3::sat) {
+      return false;
+    }
+  }
+  s.reset();
+  { // check at most one
+    s.add(init && tran);
+    for (auto i = 1; i != k + 1; i++) {
+      auto cmpl_i = u.GetZ3Expr(ref->cmpl(), i);
+      for (auto j = i + 1; j != k + 1; j++) {
+        auto cmpl_j = u.GetZ3Expr(ref->cmpl(), j);
+        s.add(!cmpl_i || !cmpl_j);
       }
-      if (s.check() == z3::sat) {
-        ILA_ERROR << "Complete more than once.";
-        ILA_DLOG("Verbose-CrrEqCheck") << s.get_model();
-        return false;
-      }
+    }
+    if (s.check() == z3::sat) {
+      return false;
     }
   }
   return true;
