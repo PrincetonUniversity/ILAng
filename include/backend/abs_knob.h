@@ -13,8 +13,15 @@ public:
   AbsKnob();
   ~AbsKnob();
 
-  /// Add dependant state vars of a tree of ILAs to the set.
+  /// Add dependant vars to the set.
   static void GetVarOfIla(const InstrLvlAbsPtr top, std::set<ExprPtr>& vars);
+  /// Add dependant state vars to the set.
+  static void GetStVarOfIla(const InstrLvlAbsPtr top, std::set<ExprPtr>& vars);
+  /// Add dependant state vars to the set.
+  static void GetInVarOfIla(const InstrLvlAbsPtr top, std::set<ExprPtr>& vars);
+
+  /// Add dependant vars (either state or input) to the set.
+  static void GetVarOfExpr(const ExprPtr e, std::set<ExprPtr>& vars);
 
 private:
 }; // class AbsKnob
