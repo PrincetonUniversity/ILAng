@@ -10,6 +10,8 @@ namespace ila {
 
 const std::string k_suff_old = "o";
 const std::string k_suff_new = "n";
+const std::string k_suff_orig = "org";
+const std::string k_suff_appl = "apl";
 
 using namespace ExprFuse;
 
@@ -18,14 +20,12 @@ CommDiag::CommDiag(z3::context& ctx, const CrrPtr crr) : ctx_(ctx), crr_(crr) {}
 CommDiag::~CommDiag() {}
 
 bool CommDiag::EqCheck(const int& max) {
-  max_ = max;
-
   // refinement relation sanity check
   auto sc_res = SanityCheck();
   ILA_WARN_IF(!sc_res) << "The refinement relation sanity check fail.";
 
   // determine the number of steps for unrolling (check valid if specified)
-  auto pp_res = PreProcDetBnd(max);
+  auto pp_res = DetStep(max);
   ILA_WARN_IF(!pp_res) << "Error during preprocessing.";
 
   // generate verification condition
@@ -89,11 +89,15 @@ z3::expr CommDiag::GenVerCondRefine(const RefPtr ref, const int& max) {
   uo.SetExtraSuffix(k_suff_old);
   un.SetExtraSuffix(k_suff_new);
   auto m = ref->coi();
+  auto k = 1;
+// FIXME
+#if 0 
   auto k = ref->step() == -1 ? max : ref->step();
   if (ref->step() > max) {
     ILA_ERROR << "Unroll bound " << max << " not sufficient for " << m;
     return ctx_.bool_val(false);
   }
+#endif
   std::set<ExprPtr> vars;
   AbsKnob::GetStVarOfIla(m, vars);
 
@@ -138,6 +142,7 @@ z3::expr CommDiag::GenVerCondRefine(const RefPtr ref, const int& max) {
   auto complete = k > 0 ? ctx_.bool_val(false) : ctx_.bool_val(true);
   for (auto i = 1; i != k + 1; i++) {
     complete = complete || un.GetZ3Expr(ref->cmpl(), i);
+    // FIXME also complete for uo
   }
 
   return (eq && path_old && path_new && complete);
@@ -161,19 +166,34 @@ bool CommDiag::SanityCheckRefinement(const RefPtr ref) const {
   auto m = ref->coi();
   auto f = ref->flush();
   auto a = ref->appl();
+  auto c = ref->cmpl();
   ILA_CHECK(m) << "Refinement target not set.";
   ILA_CHECK(f) << "Flushing function not set for " << m;
   ILA_CHECK(a) << "Apply function not set set for " << m;
-  ILA_CHECK(ref->cmpl()) << "Complete condition not set for " << m;
+  ILA_CHECK(c) << "Complete condition not set for " << m;
 
   auto s = z3::solver(ctx_);
   auto g = Z3ExprAdapter(ctx_);
+
   // check flushing and apply does not hold at the same time
   auto exc = g.GetExpr(And(f, a));
+  s.reset();
   s.add(exc);
   if (s.check() == z3::sat) {
-    ILA_DLOG("Verbose-CheckRefine") << s.get_model();
+    ILA_DLOG("Verbose-CrrEqCheck") << s.get_model();
     ILA_ERROR << "Non-exclusive flushing function and apply function.";
+    return false;
+  }
+
+  // check flushing does not imply complete (if need to unroll)
+  if ((ref->step_orig() != 0) || (ref->step_appl() != 0)) {
+    auto cmpl_unique = g.GetExpr(Imply(f, c));
+    s.reset();
+    s.add(cmpl_unique);
+    if (s.check() == z3::sat) {
+      ILA_DLOG("Verbose-CrrEqCheck") << s.get_model();
+      ILA_ERROR << "Flushing function implies completion.";
+    }
     return false;
   }
 
@@ -190,10 +210,11 @@ bool CommDiag::SanityCheckRefinement(const RefPtr ref) const {
   auto an = g.GetExpr(a, k_suff_new);
   auto fo = g.GetExpr(f, k_suff_old);
   // check: a_n -> (a_n & f_o & eq_o_n)
+  s.reset();
   s.add(an && !(fo && an && eq));
   if (s.check() == z3::sat) {
     ILA_ERROR << "Flushing and apply function intervene state equivalence.";
-    ILA_DLOG("Verbose-CheckRefine") << s.get_model();
+    ILA_DLOG("Verbose-CrrEqCheck") << s.get_model();
     return false;
   }
 
@@ -222,9 +243,91 @@ bool CommDiag::SanityCheckRelation(const RelPtr rel, const InstrLvlAbsPtr ma,
   return true;
 }
 
-bool CommDiag::PreProcDetBnd(const int& max) {
-  // TODO
+bool CommDiag::DetStep(const int& max) {
+  step_orig_a = DetStepOrig(crr_->refine_a(), max);
+  step_appl_a = DetStepAppl(crr_->refine_a(), max);
+  step_orig_b = DetStepOrig(crr_->refine_b(), max);
+  step_appl_b = DetStepAppl(crr_->refine_b(), max);
   return true;
+}
+
+int CommDiag::DetStepOrig(const RefPtr ref, const int& max) {
+  // TODO
+  int step = 0;
+  ILA_INFO << "#orig flush (" << ref->coi() << "): " << step;
+  return step;
+}
+
+int CommDiag::DetStepAppl(const RefPtr ref, const int& max) {
+  // TODO
+  int step = 0;
+  ILA_INFO << "#appl flush (" << ref->coi() << "): " << step;
+  return step;
+}
+
+bool CommDiag::CheckStepOrig(const RefPtr ref, const int& max) {
+  auto k = ref->step_orig();
+  ILA_WARN_IF((max != 0) && (k > max)) << "Max bound too small.";
+  if (k >= 0) { // step has benn specified --> check if complete
+    auto init = GenInit(ref);
+    // unroll for orig state, from 0 to k, with F(so_i) for all i >= 0
+    auto u = MonoUnroll(ctx_);
+    u.SetExtraSuffix(k_suff_orig);
+    u.AddGlobPred(ref->flush());
+    for (size_t i = 0; i != ref->inv_num(); i++) {
+      u.AddGlobPred(ref->inv(i));
+    }
+    auto tran = u.MonoAssn(ref->coi(), k, 0);
+    auto s = z3::solver(ctx_);
+    { // check at least one complete
+      auto cmpl = ctx_.bool_val(false);
+      for (auto i = 0; i != k; i++) {
+        cmpl = cmpl || u.GetZ3Expr(ref->cmpl(), i);
+      }
+      s.add(init);
+      s.add(tran);
+      s.add(!cmpl);
+      if (s.check() == z3::sat) {
+        ILA_ERROR << "Orig step specified not enough.";
+        ILA_DLOG("Verbose-CrrEqCheck") << s.get_model();
+        return false;
+      }
+    }
+    s.reset();
+    { // check at most one
+      s.add(init);
+      s.add(tran);
+      for (auto i = 0; i != k; i++) {
+        auto cmpl_i = u.GetZ3Expr(ref->cmpl(), i);
+        for (auto j = i + 1; j != k; j++) {
+          auto cmpl_j = u.GetZ3Expr(ref->cmpl(), j);
+          s.add(!cmpl_i || !cmpl_j);
+        }
+      }
+      if (s.check() == z3::sat) {
+        ILA_ERROR << "Complete more than once.";
+        ILA_DLOG("Verbose-CrrEqCheck") << s.get_model();
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+z3::expr CommDiag::GenInit(const RefPtr ref) const {
+  // default equivalence: state variables (not including inputs)
+  std::set<ExprPtr> vars;
+  AbsKnob::GetStVarOfIla(ref->coi(), vars);
+  auto g = Z3ExprAdapter(ctx_);
+  auto eq = ctx_.bool_val(true);
+  for (auto it = vars.begin(); it != vars.end(); it++) {
+    auto so = g.GetExpr(*it, k_suff_orig);
+    auto sn = g.GetExpr(*it, k_suff_appl);
+    eq = eq && (so == sn);
+  }
+  auto an = g.GetExpr(ref->appl(), k_suff_appl);
+  auto fo = g.GetExpr(ref->flush(), k_suff_orig);
+  return (an && fo && eq);
 }
 
 z3::expr CommDiag::GenTranRel() {
@@ -240,20 +343,6 @@ z3::expr CommDiag::GenAssm() {
 z3::expr CommDiag::GenProp() {
   // TODO
   return ctx_.bool_val(true);
-}
-
-int CommDiag::DetBndOld(const RefPtr ref) {
-  // TODO
-  int bnd = 0;
-  ILA_INFO << "#old flush (" << ref->coi() << "): " << bnd;
-  return bnd;
-}
-
-int CommDiag::DetBndNew(const RefPtr ref) {
-  // TODO
-  int bnd = 0;
-  ILA_INFO << "#new flush (" << ref->coi() << "): " << bnd;
-  return bnd;
 }
 
 } // namespace ila

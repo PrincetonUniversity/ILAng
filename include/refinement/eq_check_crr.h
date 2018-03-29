@@ -43,8 +43,15 @@ private:
   CrrPtr crr_;
   /// The z3 expr adapter used.
   Z3ExprAdapter g_ = Z3ExprAdapter(ctx_);
-  /// Upper bound for unrolling.
-  int max_ = 0;
+
+  /// Unroll step for refinement A original path.
+  int step_orig_a = 0;
+  /// Unroll step for refinement A apply path.
+  int step_appl_a = 0;
+  /// Unroll step for refinement B original path.
+  int step_orig_b = 0;
+  /// Unroll step for refinement B apply path.
+  int step_appl_b = 0;
 
   /// \brief Check the refinement mapping is valid.
   /// - F: flushing function (states + inputs)
@@ -69,9 +76,13 @@ private:
   bool SanityCheckRelation(const RelPtr rel, const InstrLvlAbsPtr ma,
                            const InstrLvlAbsPtr mb) const;
 
-  bool PreProcDetBnd(const int& max);
-  int DetBndOld(const RefPtr ref);
-  int DetBndNew(const RefPtr ref);
+  bool DetStep(const int& max);
+  int DetStepOrig(const RefPtr ref, const int& max);
+  int DetStepAppl(const RefPtr ref, const int& max);
+  bool CheckStepOrig(const RefPtr ref, const int& max);
+  bool CheckStepAppl(const RefPtr ref, const int& max);
+
+  z3::expr GenInit(const RefPtr ref) const;
 
   z3::expr GenTranRel();
   z3::expr GenAssm();
