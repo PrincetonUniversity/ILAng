@@ -58,6 +58,24 @@ void AbsKnob::GetStVarOfIla(const InstrLvlAbsPtr top, std::set<ExprPtr>& vars) {
   }
 }
 
+std::set<ExprPtr> AbsKnob::GetVarOfIla(const InstrLvlAbsPtr top) {
+  std::set<ExprPtr> vars;
+  GetVarOfIla(top, vars);
+  return vars;
+}
+
+std::set<ExprPtr> AbsKnob::GetStVarOfIla(const InstrLvlAbsPtr top) {
+  std::set<ExprPtr> vars;
+  GetStVarOfIla(top, vars);
+  return vars;
+}
+
+std::set<ExprPtr> AbsKnob::GetInVarOfIla(const InstrLvlAbsPtr top) {
+  std::set<ExprPtr> vars;
+  GetInVarOfIla(top, vars);
+  return vars;
+}
+
 std::set<ExprPtr> AbsKnob::GetVarOfExpr(const ExprPtr e) {
   std::set<ExprPtr> vars;
   GetVarOfExpr(e, vars);
