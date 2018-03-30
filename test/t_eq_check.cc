@@ -43,24 +43,25 @@ public:
 };
 
 TEST_F(TestEqCheck, FF_Mono) {
-  SetToStdErr(1);
-  DebugLog::Disable("Verbose-CrrEqCheck");
-
-  // refinement
-  auto instr_idx = 0;
-  auto ref1 = GetRefine(f1, instr_idx, false, true);
-  auto ref2 = GetRefine(f2, instr_idx, false, true);
-
-  // relation
-  auto rel = GetRelation(f1, f2);
-  // crr
-  auto crr = CompRefRel::New(ref1, ref2, rel);
-  auto cd = CommDiag(c, crr);
-
-  auto res = cd.EqCheck();
-  EXPECT_TRUE(res);
+  SetToStdErr(0);
+  for (auto instr_idx : {0, 1, 2, 3}) {
+    // refinement
+    auto ref1 = GetRefine(f1, instr_idx, false, true);
+    auto ref2 = GetRefine(f2, instr_idx, false, true);
+    // relation
+    auto rel = GetRelation(f1, f2);
+    // crr
+    auto crr = CompRefRel::New(ref1, ref2, rel);
+    auto cd = CommDiag(c, crr);
+    // check
+    if (instr_idx != 3) {
+      EXPECT_TRUE(cd.EqCheck());
+    } else {
+      EXPECT_FALSE(cd.EqCheck());
+    }
+  }
 }
-
+#if 0
 TEST_F(TestEqCheck, CommDiag_FF_Legacy) {
   SetToStdErr(1);
 
@@ -141,6 +142,7 @@ TEST_F(TestEqCheck, CommDiag_FF_Legacy) {
   s.add(vc);
   EXPECT_EQ(z3::sat, s.check());
 }
+#endif
 
 TEST_F(TestEqCheck, CommDiag_HF) {
   // TODO

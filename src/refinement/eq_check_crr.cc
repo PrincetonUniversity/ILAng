@@ -8,13 +8,10 @@
 
 namespace ila {
 
-const std::string k_suff_old = "o";
-const std::string k_suff_new = "n";
-
-using namespace ExprFuse;
-
 const std::string CommDiag::k_suff_orig_ = "org";
 const std::string CommDiag::k_suff_appl_ = "apl";
+
+using namespace ExprFuse;
 
 CommDiag::CommDiag(z3::context& ctx, const CrrPtr crr) : ctx_(ctx), crr_(crr) {}
 
@@ -40,11 +37,9 @@ bool CommDiag::EqCheck(const int& max) {
 
   auto s = z3::solver(ctx_);
   s.add(cstr_tran_a);
-  ILA_INFO << "Check transition of " << crr_->refine_a()->coi();
   ILA_ASSERT(s.check() == z3::sat) << "Dead transition relation.";
   s.reset();
   s.add(cstr_tran_b);
-  ILA_INFO << "Check transition of " << crr_->refine_b()->coi();
   ILA_ASSERT(s.check() == z3::sat) << "Dead transition relation.";
   s.reset();
 
@@ -57,127 +52,12 @@ bool CommDiag::EqCheck(const int& max) {
   // check
   s.add(cstr_tran_a && cstr_tran_b && cstr_assm);
   s.add(!cstr_prop);
-  ILA_INFO << "Start Checking Equivalence.";
   auto res = s.check();
   if (res == z3::sat) {
     ILA_DLOG("Verbose-CrrEqCheck") << s.get_model();
-
-    auto r1 = crr_->refine_a();
-    auto r2 = crr_->refine_b();
-    auto f1 = crr_->refine_a()->coi();
-    auto f2 = crr_->refine_b()->coi();
-
-    auto m = s.get_model();
-    ILA_DLOG("EqCheck") << m.eval(unroll_appl_.GetZ3Expr(r1->cmpl(), 0));
-    ILA_DLOG("EqCheck") << m.eval(unroll_appl_.GetZ3Expr(r1->cmpl(), 1));
-
-    ILA_DLOG("EqCheck") << m.eval(
-        unroll_appl_.CurrState(f1->state("reg_0"), 1));
-    ILA_DLOG("EqCheck") << m.eval(unroll_appl_.GetZ3Expr(f1->state("reg_0")));
-    ILA_DLOG("EqCheck") << m.eval(unroll_appl_.GetZ3Expr(f2->state("reg_0")));
   }
 
   return (res == z3::unsat);
-}
-
-z3::expr CommDiag::GenVerCond(const int& max) {
-  // check the refinement is valid.
-  ILA_CHECK(CheckRefinement(crr_->refine_a())) << "Refinement check fail.";
-  ILA_CHECK(CheckRefinement(crr_->refine_b())) << "Refinement check fail.";
-  ILA_CHECK(
-      !(crr_->refine_a()->coi()->name() == crr_->refine_b()->coi()->name()))
-      << "Comparing two abstraction with same name not supported.";
-
-  auto tran = GenVerCondTran(max);
-  auto prop = GenVerCondProp();
-
-  return tran && !prop;
-}
-
-z3::expr CommDiag::GenVerCondTran(const int& max) {
-  // generate vc for each model.
-  auto vc_ref_a = GenVerCondRefine(crr_->refine_a(), max);
-  auto vc_ref_b = GenVerCondRefine(crr_->refine_b(), max);
-  // old states are equal
-  auto eq_old = g_.GetExpr(crr_->relation()->get(), k_suff_old);
-  return (vc_ref_a && vc_ref_b && eq_old);
-}
-
-z3::expr CommDiag::GenVerCondProp() {
-  // property: old state are equal -> new state should be equal
-  auto eq_new = g_.GetExpr(crr_->relation()->get(), k_suff_new);
-  return eq_new;
-}
-
-bool CommDiag::CheckRefinement(const RefPtr ref) {
-  return SanityCheckRefinement(ref);
-}
-
-z3::expr CommDiag::GenVerCondRefine(const RefPtr ref, const int& max) {
-  MonoUnroll uo(ctx_);
-  MonoUnroll un(ctx_);
-  uo.SetExtraSuffix(k_suff_old);
-  un.SetExtraSuffix(k_suff_new);
-  auto m = ref->coi();
-  auto k = 1;
-// FIXME
-#if 0 
-  auto k = ref->step() == -1 ? max : ref->step();
-  if (ref->step() > max) {
-    ILA_ERROR << "Unroll bound " << max << " not sufficient for " << m;
-    return ctx_.bool_val(false);
-  }
-#endif
-  std::set<ExprPtr> vars;
-  AbsKnob::GetStVarOfIla(m, vars);
-
-  // (so_0 == sn_0)
-  auto eq = ctx_.bool_val(true);
-  for (auto it = vars.begin(); it != vars.end(); it++) {
-    auto so_0 = uo.CurrState(*it, 0);
-    auto sn_0 = un.CurrState(*it, 0);
-    eq = eq && (so_0 == sn_0);
-  }
-
-  // unroll path for old state, from 0 to k, with F(so_i) for all i >= 0
-  uo.ClearPred();
-  uo.AddGlobPred(ref->flush());
-  for (size_t i = 0; i != ref->inv_num(); i++) {
-    uo.AddGlobPred(ref->inv(i));
-  }
-  auto path_old = uo.MonoAssn(m, k, 0);
-  // connect end state to the interface (with no step suffix)
-  for (auto it = vars.begin(); it != vars.end(); it++) {
-    auto so_k = uo.CurrState(*it, k);
-    auto so = g_.GetExpr(*it, k_suff_old);
-    path_old = path_old && (so_k == so);
-  }
-
-  // unroll path for new state, from 0 to k, with A(sn_0) and F(sn_i) for i > 0
-  un.ClearPred();
-  un.AddInitPred(ref->appl());
-  for (auto i = 1; i != k + 1; i++) {
-    un.AddStepPred(ref->flush(), i);
-  }
-  for (size_t i = 0; i != ref->inv_num(); i++) {
-    un.AddGlobPred(ref->inv(i));
-  }
-  auto path_new = un.MonoAssn(m, k + 1, 0);
-  // connect end state to the interface (with no step suffix)
-  for (auto it = vars.begin(); it != vars.end(); it++) {
-    auto sn_k = un.CurrState(*it, k + 1);
-    auto sn = g_.GetExpr(*it, k_suff_new);
-    path_new = path_new && (sn_k == sn);
-  }
-
-  // extract completion indicator
-  auto complete = k > 0 ? ctx_.bool_val(false) : ctx_.bool_val(true);
-  for (auto i = 1; i != k + 1; i++) {
-    complete = complete || un.GetZ3Expr(ref->cmpl(), i);
-    // FIXME also complete for uo
-  }
-
-  return (eq && path_old && path_new && complete);
 }
 
 bool CommDiag::SanityCheck() {
@@ -244,7 +124,6 @@ bool CommDiag::SanityCheckRefinement(const RefPtr ref) {
   // s.add(an && !(fo && an && eq));
   if (s.check() == z3::sat) {
     ILA_ERROR << "Flushing and apply function intervene state equivalence.";
-    ILA_DLOG("EqCheck") << s.get_model();
     ILA_DLOG("Verbose-CrrEqCheck") << s.get_model();
     return false;
   }
@@ -255,9 +134,8 @@ bool CommDiag::SanityCheckRefinement(const RefPtr ref) {
 bool CommDiag::SanityCheckRelation(const RelPtr rel, const InstrLvlAbsPtr ma,
                                    const InstrLvlAbsPtr mb) const {
   ILA_NOT_NULL(rel);
-  std::set<ExprPtr> rel_vars;
   auto rel_expr = rel->get();
-  AbsKnob::GetVarOfExpr(rel_expr, rel_vars);
+  auto rel_vars = AbsKnob::GetVarOfExpr(rel_expr);
 
   std::set<ExprPtr> ref_vars;
   AbsKnob::GetStVarOfIla(ma, ref_vars);
@@ -313,7 +191,7 @@ bool CommDiag::CheckStepOrig(const RefPtr ref, const int& k) {
   auto& u = unroll_orig_;
   u.ClearPred();
   u.AddGlobPred(ref->flush());
-  for (size_t i = 0; i != ref->inv_num(); i++) {
+  for (decltype(ref->inv_num()) i = 0; i != ref->inv_num(); i++) {
     u.AddGlobPred(ref->inv(i));
   }
   auto tran = u.MonoAssn(ref->coi(), k, 0);
@@ -349,7 +227,7 @@ bool CommDiag::CheckStepAppl(const RefPtr ref, const int& k) {
   for (decltype(ref->inv_num()) i = 0; i != ref->inv_num(); i++) {
     u.AddGlobPred(ref->inv(i));
   }
-  auto tran = u.MonoAssn(ref->coi(), k + 1, 0); // XXX +1 for flush end
+  auto tran = u.MonoAssn(ref->coi(), k + 1, 0);
   // start checking
   auto s = z3::solver(ctx_);
   // at least once
@@ -371,8 +249,7 @@ bool CommDiag::CheckStepAppl(const RefPtr ref, const int& k) {
 
 z3::expr CommDiag::GenInit(const RefPtr ref) {
   // default equivalence: state variables (not including inputs)
-  std::set<ExprPtr> vars;
-  AbsKnob::GetStVarOfIla(ref->coi(), vars);
+  auto vars = AbsKnob::GetStVarOfIla(ref->coi());
   auto eq = ctx_.bool_val(true);
   for (auto it = vars.begin(); it != vars.end(); it++) {
     auto so = unroll_orig_.CurrState(*it, 0);
@@ -437,11 +314,10 @@ z3::expr CommDiag::UnrollFlush(MonoUnroll& unroller, const RefPtr ref,
   for (auto i = start; i <= base + length; i++) {
     unroller.AddStepPred(ref->flush(), i);
   }
-  // unroll XXX +1 for flushing
+  // unroll
   auto path = unroller.MonoAssn(ref->coi(), length, base);
 
-  std::set<ExprPtr> vars;
-  AbsKnob::GetStVarOfIla(ref->coi(), vars);
+  auto vars = AbsKnob::GetStVarOfIla(ref->coi());
   auto mark = ctx_.bool_val(true);
   // mark complete step with representing state
   for (auto i = start; i <= base + length; i++) {
@@ -454,7 +330,8 @@ z3::expr CommDiag::UnrollFlush(MonoUnroll& unroller, const RefPtr ref,
     }
     mark = mark && (z3::implies(cmpl_i, eq));
   }
-  // TODO assert complete
+
+  // XXX complete proved to be one and exactly one
 
   return path && mark;
 }
