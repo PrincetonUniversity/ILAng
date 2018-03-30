@@ -57,7 +57,7 @@ bool CommDiag::EqCheck(const int& max) {
   s.add(!cstr_prop);
   auto res = s.check();
   if (res == z3::sat) {
-    ILA_DLOG("EqCheck") << s.get_model();
+    ILA_DLOG("Verbose-CrrEqCheck") << s.get_model();
   }
 
   return (res == z3::unsat);
@@ -213,12 +213,19 @@ bool CommDiag::SanityCheckRefinement(const RefPtr ref) {
   // check flushing and apply does not affect state equivalence
   auto init = GenInit(ref);
   auto an = unroll_appl_.GetZ3Expr(a, 0);
-  // check: a_n -> (a_n & f_o & eq_o_n)
+  // check: /\s_n, a_n -> (a_n & f_o & eq_o_n)
   s.reset();
-  s.add(an && !init);
+  // s.add(an && !init);
+  auto appl_z3 = z3::expr_vector(ctx_);
+  auto appl_vars = AbsKnob::GetVarOfExpr(a);
+  for (auto it = appl_vars.begin(); it != appl_vars.end(); it++) {
+    appl_z3.push_back(unroll_appl_.CurrState(*it, 0));
+  }
+  s.add(z3::forall(appl_z3, an && !init));
   // s.add(an && !(fo && an && eq));
   if (s.check() == z3::sat) {
     ILA_ERROR << "Flushing and apply function intervene state equivalence.";
+    ILA_DLOG("EqCheck") << s.get_model();
     ILA_DLOG("Verbose-CrrEqCheck") << s.get_model();
     return false;
   }
