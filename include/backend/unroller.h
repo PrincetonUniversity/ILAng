@@ -174,11 +174,11 @@ private:
 
   /// Suffix generator for current state expressions of each step.
   inline std::string SuffCurr(const int& t) const {
-    return std::to_string(t) + extra_suff_;
+    return std::to_string(t) + "_" + extra_suff_;
   }
   /// Suffix generator for next state symbol of each step.
   inline std::string SuffNext(const int& t) const {
-    return std::to_string(t) + extra_suff_ + ".nxt";
+    return std::to_string(t) + "_" + extra_suff_ + ".nxt";
   }
 
 }; // class Unroller

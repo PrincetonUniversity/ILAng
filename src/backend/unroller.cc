@@ -63,7 +63,6 @@ ZExpr Unroller::GetZ3Expr(const ExprPtr e, const int& t) {
 }
 
 ZExpr Unroller::GetZ3Expr(const ExprPtr e) {
-  ILA_ASSERT(e->is_var()) << "Currently only support var";
   return gen().GetExpr(e, extra_suff_);
 }
 
