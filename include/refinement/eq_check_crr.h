@@ -68,8 +68,8 @@ private:
   /// - if #step not known, OR all cmpl in i-th steps for i > 0 and return
   z3::expr GenVerCondRefine(const RefPtr ref, const int& max);
 
-  bool SanityCheck() const;
-  bool SanityCheckRefinement(const RefPtr ref) const;
+  bool SanityCheck();
+  bool SanityCheckRefinement(const RefPtr ref);
   bool SanityCheckRelation(const RelPtr rel, const InstrLvlAbsPtr ma,
                            const InstrLvlAbsPtr mb) const;
 

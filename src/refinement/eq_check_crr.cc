@@ -161,7 +161,7 @@ z3::expr CommDiag::GenVerCondRefine(const RefPtr ref, const int& max) {
   return (eq && path_old && path_new && complete);
 }
 
-bool CommDiag::SanityCheck() const {
+bool CommDiag::SanityCheck() {
   // check refinement
   auto res_a = SanityCheckRefinement(crr_->refine_a());
   auto res_b = SanityCheckRefinement(crr_->refine_b());
@@ -173,7 +173,7 @@ bool CommDiag::SanityCheck() const {
   return res_a && res_b && res_r;
 }
 
-bool CommDiag::SanityCheckRefinement(const RefPtr ref) const {
+bool CommDiag::SanityCheckRefinement(const RefPtr ref) {
   ILA_NOT_NULL(ref);
 
   auto m = ref->coi();
@@ -186,7 +186,7 @@ bool CommDiag::SanityCheckRefinement(const RefPtr ref) const {
   ILA_CHECK(c) << "Complete condition not set for " << m;
 
   auto s = z3::solver(ctx_);
-  auto g = Z3ExprAdapter(ctx_); // FIXME use unroller all the way
+  auto g = Z3ExprAdapter(ctx_);
 
   // check flushing and apply does not hold at the same time
   auto exc = g.GetExpr(And(f, a));
@@ -210,21 +210,13 @@ bool CommDiag::SanityCheckRefinement(const RefPtr ref) const {
     return false;
   }
 
-  // default equivalence: state variables (not including inputs)
-  std::set<ExprPtr> vars;
-  AbsKnob::GetStVarOfIla(m, vars);
   // check flushing and apply does not affect state equivalence
-  auto eq = ctx_.bool_val(true);
-  for (auto it = vars.begin(); it != vars.end(); it++) {
-    auto so = g.GetExpr(*it, k_suff_old);
-    auto sn = g.GetExpr(*it, k_suff_new);
-    eq = eq && (so == sn);
-  }
-  auto an = g.GetExpr(a, k_suff_new);
-  auto fo = g.GetExpr(f, k_suff_old);
+  auto init = GenInit(ref);
+  auto an = unroll_appl_.GetZ3Expr(a, 0);
   // check: a_n -> (a_n & f_o & eq_o_n)
   s.reset();
-  s.add(an && !(fo && an && eq));
+  s.add(an && !init);
+  // s.add(an && !(fo && an && eq));
   if (s.check() == z3::sat) {
     ILA_ERROR << "Flushing and apply function intervene state equivalence.";
     ILA_DLOG("Verbose-CrrEqCheck") << s.get_model();
