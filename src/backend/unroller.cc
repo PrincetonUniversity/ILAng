@@ -58,7 +58,6 @@ ZExpr Unroller::NextState(const ExprPtr v, const int& t) {
 }
 
 ZExpr Unroller::GetZ3Expr(const ExprPtr e, const int& t) {
-  ILA_ASSERT(!e->is_var()) << "Use GetZ3Expr for var";
   return gen().GetExpr(e, SuffCurr(t));
 }
 
