@@ -113,6 +113,12 @@ ZExpr Unroller::UnrollSubs(const size_t& len, const int& pos) {
   // add constraints for transition relation (k_prev_ has the last value)
   AssertEqual(k_prev_z3_, vars_, SuffCurr(len));
 
+  { // extend for end states (invariant and step-specific predicates)
+    auto k_suffix = SuffCurr(len);
+    IExprToZExpr(g_pred_, k_suffix, cstr_);
+    IExprToZExpr(s_pred_[len], k_suffix, cstr_);
+  }
+
   // accumulate all constraints and return
   auto cstr = ConjPred(cstr_);
   return cstr;
@@ -136,16 +142,22 @@ ZExpr Unroller::UnrollAssn(const size_t& len, const int& pos) {
     }
     // assert global predicate
     IExprToZExpr(g_pred_, k_suffix, cstr_);
-    // assert step-specific predicate
-    IExprToZExpr(k_pred_, k_suffix, cstr_);
     // assert (external) step-specific predicate
     IExprToZExpr(s_pred_[i], k_suffix, cstr_);
+    // assert step-specific predicate
+    IExprToZExpr(k_pred_, k_suffix, cstr_);
 
     // assert transition relation
     Clear(k_next_z3_);
     IExprToZExpr(k_next_, k_suffix, k_next_z3_);
     // assert equal between next state value and next state var
     AssertEqual(k_next_z3_, vars_, SuffCurr(pos + i + 1));
+  }
+
+  { // extend for end states (invariant and step-specific predicates)
+    auto k_suffix = SuffCurr(len);
+    IExprToZExpr(g_pred_, k_suffix, cstr_);
+    IExprToZExpr(s_pred_[len], k_suffix, cstr_);
   }
 
   // accumulate all constraints and return

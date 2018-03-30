@@ -349,7 +349,7 @@ bool CommDiag::CheckStepAppl(const RefPtr ref, const int& k) {
   for (decltype(ref->inv_num()) i = 0; i != ref->inv_num(); i++) {
     u.AddGlobPred(ref->inv(i));
   }
-  auto tran = u.MonoAssn(ref->coi(), k + 1 + 1, 0); // XXX +1 for flush end
+  auto tran = u.MonoAssn(ref->coi(), k + 1, 0); // XXX +1 for flush end
   // start checking
   auto s = z3::solver(ctx_);
   // at least once
@@ -438,7 +438,7 @@ z3::expr CommDiag::UnrollFlush(MonoUnroll& unroller, const RefPtr ref,
     unroller.AddStepPred(ref->flush(), i);
   }
   // unroll XXX +1 for flushing
-  auto path = unroller.MonoAssn(ref->coi(), length + 1, base);
+  auto path = unroller.MonoAssn(ref->coi(), length, base);
 
   std::set<ExprPtr> vars;
   AbsKnob::GetStVarOfIla(ref->coi(), vars);
