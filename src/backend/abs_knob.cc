@@ -58,11 +58,38 @@ void AbsKnob::GetStVarOfIla(const InstrLvlAbsPtr top, std::set<ExprPtr>& vars) {
   }
 }
 
+std::set<ExprPtr> AbsKnob::GetVarOfExpr(const ExprPtr e) {
+  std::set<ExprPtr> vars;
+  GetVarOfExpr(e, vars);
+  return vars;
+}
+
 void AbsKnob::GetVarOfExpr(const ExprPtr e, std::set<ExprPtr>& vars) {
   ILA_NOT_NULL(e);
   auto obj = FuncObjAddVarToSet(vars);
   e->DepthFirstVisit(obj);
 }
+
+template <class I>
+void AbsKnob::GetInstrOfIla(const InstrLvlAbsPtr top, I& instrs) {
+  ILA_NOT_NULL(top);
+  // traverse the child-ILAs
+  for (decltype(top->child_num()) i = 0; i != top->child_num(); i++) {
+    GetInstrOfIla(top->child(i), instrs);
+  }
+  // add instr
+  auto it = instrs.end();
+  for (decltype(top->instr_num()) i = 0; i != top->instr_num(); i++) {
+    instrs.insert(it, top->instr(i));
+  }
+}
+// define the supported template type
+template void
+AbsKnob::GetInstrOfIla<std::set<InstrPtr>>(const InstrLvlAbsPtr top,
+                                           std::set<InstrPtr>& instrs);
+template void
+AbsKnob::GetInstrOfIla<std::vector<InstrPtr>>(const InstrLvlAbsPtr top,
+                                              std::vector<InstrPtr>& instrs);
 
 } // namespace ila
 
