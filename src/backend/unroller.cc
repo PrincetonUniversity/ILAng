@@ -37,20 +37,34 @@ void Unroller::ClearInitPred() { i_pred_.clear(); }
 
 void Unroller::ClearStepPred() { s_pred_.clear(); }
 
+void Unroller::ClearPred() {
+  ClearGlobPred();
+  ClearInitPred();
+  ClearStepPred();
+}
+
 void Unroller::SetExtraSuffix(const std::string& suff) { extra_suff_ = suff; }
 
 void Unroller::ResetExtraSuffix() { extra_suff_ = ""; }
 
 ZExpr Unroller::CurrState(const ExprPtr v, const int& t) {
+  ILA_ASSERT(v->is_var()) << "Use GetZ3Expr for non-var Expr";
   return gen().GetExpr(v, SuffCurr(t));
 }
 
 ZExpr Unroller::NextState(const ExprPtr v, const int& t) {
+  ILA_ASSERT(v->is_var()) << "Next state only exist for var";
   return gen().GetExpr(v, SuffNext(t));
 }
 
-ZExpr Unroller::GetZ3Expr(const ExprPtr v, const int& t) {
-  return gen().GetExpr(v, SuffCurr(t));
+ZExpr Unroller::GetZ3Expr(const ExprPtr e, const int& t) {
+  ILA_ASSERT(!e->is_var()) << "Use GetZ3Expr for var";
+  return gen().GetExpr(e, SuffCurr(t));
+}
+
+ZExpr Unroller::GetZ3Expr(const ExprPtr e) {
+  ILA_ASSERT(e->is_var()) << "Currently only support var";
+  return gen().GetExpr(e, extra_suff_);
 }
 
 ZExpr Unroller::Equal(const ExprPtr a, const int& ta, const ExprPtr b,
