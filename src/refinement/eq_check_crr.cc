@@ -40,9 +40,11 @@ bool CommDiag::EqCheck(const int& max) {
 
   auto s = z3::solver(ctx_);
   s.add(cstr_tran_a);
+  ILA_INFO << "Check transition of " << crr_->refine_a()->coi();
   ILA_ASSERT(s.check() == z3::sat) << "Dead transition relation.";
   s.reset();
   s.add(cstr_tran_b);
+  ILA_INFO << "Check transition of " << crr_->refine_b()->coi();
   ILA_ASSERT(s.check() == z3::sat) << "Dead transition relation.";
   s.reset();
 
@@ -55,9 +57,24 @@ bool CommDiag::EqCheck(const int& max) {
   // check
   s.add(cstr_tran_a && cstr_tran_b && cstr_assm);
   s.add(!cstr_prop);
+  ILA_INFO << "Start Checking Equivalence.";
   auto res = s.check();
   if (res == z3::sat) {
     ILA_DLOG("Verbose-CrrEqCheck") << s.get_model();
+
+    auto r1 = crr_->refine_a();
+    auto r2 = crr_->refine_b();
+    auto f1 = crr_->refine_a()->coi();
+    auto f2 = crr_->refine_b()->coi();
+
+    auto m = s.get_model();
+    ILA_DLOG("EqCheck") << m.eval(unroll_appl_.GetZ3Expr(r1->cmpl(), 0));
+    ILA_DLOG("EqCheck") << m.eval(unroll_appl_.GetZ3Expr(r1->cmpl(), 1));
+
+    ILA_DLOG("EqCheck") << m.eval(
+        unroll_appl_.CurrState(f1->state("reg_0"), 1));
+    ILA_DLOG("EqCheck") << m.eval(unroll_appl_.GetZ3Expr(f1->state("reg_0")));
+    ILA_DLOG("EqCheck") << m.eval(unroll_appl_.GetZ3Expr(f2->state("reg_0")));
   }
 
   return (res == z3::unsat);
@@ -123,6 +140,7 @@ z3::expr CommDiag::GenVerCondRefine(const RefPtr ref, const int& max) {
   }
 
   // unroll path for old state, from 0 to k, with F(so_i) for all i >= 0
+  uo.ClearPred();
   uo.AddGlobPred(ref->flush());
   for (size_t i = 0; i != ref->inv_num(); i++) {
     uo.AddGlobPred(ref->inv(i));
@@ -136,6 +154,7 @@ z3::expr CommDiag::GenVerCondRefine(const RefPtr ref, const int& max) {
   }
 
   // unroll path for new state, from 0 to k, with A(sn_0) and F(sn_i) for i > 0
+  un.ClearPred();
   un.AddInitPred(ref->appl());
   for (auto i = 1; i != k + 1; i++) {
     un.AddStepPred(ref->flush(), i);
@@ -292,6 +311,7 @@ bool CommDiag::CheckStepOrig(const RefPtr ref, const int& k) {
   auto init = GenInit(ref);
   // unroll the transition relation
   auto& u = unroll_orig_;
+  u.ClearPred();
   u.AddGlobPred(ref->flush());
   for (size_t i = 0; i != ref->inv_num(); i++) {
     u.AddGlobPred(ref->inv(i));
@@ -321,14 +341,15 @@ bool CommDiag::CheckStepAppl(const RefPtr ref, const int& k) {
   auto init = GenInit(ref);
   // unroll the transition relation
   auto& u = unroll_appl_;
+  u.ClearPred();
   u.AddInitPred(ref->appl());
-  for (auto i = 1; i != k + 1; i++) {
+  for (auto i = 1; i <= k + 1; i++) {
     u.AddStepPred(ref->flush(), i);
   }
-  for (size_t i = 0; i != ref->inv_num(); i++) {
+  for (decltype(ref->inv_num()) i = 0; i != ref->inv_num(); i++) {
     u.AddGlobPred(ref->inv(i));
   }
-  auto tran = u.MonoAssn(ref->coi(), k + 1, 0);
+  auto tran = u.MonoAssn(ref->coi(), k + 1 + 1, 0); // XXX +1 for flush end
   // start checking
   auto s = z3::solver(ctx_);
   // at least once
@@ -367,7 +388,7 @@ z3::expr CommDiag::GenTranRel(const RefPtr ref, const int& k_orig,
                               const int& k_appl) {
   auto init = GenInit(ref);
   auto orig = UnrollFlush(unroll_orig_, ref, 0, k_orig, 0);
-  auto appl = UnrollFlush(unroll_appl_, ref, 0, k_appl, 1);
+  auto appl = UnrollFlush(unroll_appl_, ref, 0, k_appl + 1, 1);
   return (init && orig && appl);
 }
 
@@ -384,7 +405,7 @@ z3::expr CommDiag::GenProp() {
 z3::expr CommDiag::AtLeastOnce(MonoUnroll& unroller, const ExprPtr cmpl,
                                const int& start, const int& end) const {
   auto cstr = unroller.GetZ3Expr(BoolConst(false), 0);
-  for (auto i = start; i != end; i++) {
+  for (auto i = start; i <= end; i++) {
     cstr = cstr || unroller.GetZ3Expr(cmpl, i);
   }
   return cstr;
@@ -393,9 +414,9 @@ z3::expr CommDiag::AtLeastOnce(MonoUnroll& unroller, const ExprPtr cmpl,
 z3::expr CommDiag::AtMostOnce(MonoUnroll& unroller, const ExprPtr cmpl,
                               const int& start, const int& end) const {
   auto cstr = unroller.GetZ3Expr(BoolConst(true), 0);
-  for (auto i = start; i != end; i++) {
+  for (auto i = start; i <= end; i++) {
     auto cmpl_i = unroller.GetZ3Expr(cmpl, i);
-    for (auto j = i + 1; j != end; j++) {
+    for (auto j = i + 1; j <= end; j++) {
       auto cmpl_j = unroller.GetZ3Expr(cmpl, j);
       cstr = cstr && (!cmpl_i || !cmpl_j);
     }
@@ -406,23 +427,24 @@ z3::expr CommDiag::AtMostOnce(MonoUnroll& unroller, const ExprPtr cmpl,
 z3::expr CommDiag::UnrollFlush(MonoUnroll& unroller, const RefPtr ref,
                                const int& base, const int& length,
                                const int& start) {
+  ILA_ASSERT(base + length >= start);
   unroller.ClearPred();
   // add invariant
   for (decltype(ref->inv_num()) i = 0; i != ref->inv_num(); i++) {
     unroller.AddGlobPred(ref->inv(i));
   }
   // add flush
-  for (auto i = start; i != base + length; i++) {
+  for (auto i = start; i <= base + length; i++) {
     unroller.AddStepPred(ref->flush(), i);
   }
-  // unroll
-  auto path = unroller.MonoAssn(ref->coi(), length, base);
+  // unroll XXX +1 for flushing
+  auto path = unroller.MonoAssn(ref->coi(), length + 1, base);
 
   std::set<ExprPtr> vars;
   AbsKnob::GetStVarOfIla(ref->coi(), vars);
   auto mark = ctx_.bool_val(true);
   // mark complete step with representing state
-  for (auto i = start; i != base + length; i++) {
+  for (auto i = start; i <= base + length; i++) {
     auto cmpl_i = unroller.GetZ3Expr(ref->cmpl(), i);
     auto eq = ctx_.bool_val(true);
     for (auto it = vars.begin(); it != vars.end(); it++) {
@@ -432,6 +454,7 @@ z3::expr CommDiag::UnrollFlush(MonoUnroll& unroller, const RefPtr ref,
     }
     mark = mark && (z3::implies(cmpl_i, eq));
   }
+  // TODO assert complete
 
   return path && mark;
 }
