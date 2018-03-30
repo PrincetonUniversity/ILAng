@@ -38,6 +38,14 @@ bool CommDiag::EqCheck(const int& max) {
   auto cstr_tran_a = GenTranRel(crr_->refine_a(), step_orig_a, step_appl_a);
   auto cstr_tran_b = GenTranRel(crr_->refine_b(), step_orig_b, step_appl_b);
 
+  auto s = z3::solver(ctx_);
+  s.add(cstr_tran_a);
+  ILA_ASSERT(s.check() == z3::sat) << "Dead transition relation.";
+  s.reset();
+  s.add(cstr_tran_b);
+  ILA_ASSERT(s.check() == z3::sat) << "Dead transition relation.";
+  s.reset();
+
   // generate assumptions (old state equivalent)
   auto cstr_assm = GenAssm();
 
@@ -45,9 +53,7 @@ bool CommDiag::EqCheck(const int& max) {
   auto cstr_prop = GenProp();
 
   // check
-  z3::solver s(ctx_);
-  s.add(cstr_tran_a && cstr_tran_b);
-  s.add(cstr_assm);
+  s.add(cstr_tran_a && cstr_tran_b && cstr_assm);
   s.add(!cstr_prop);
   auto res = s.check();
   if (res == z3::sat) {
@@ -349,8 +355,8 @@ z3::expr CommDiag::GenInit(const RefPtr ref) {
   AbsKnob::GetStVarOfIla(ref->coi(), vars);
   auto eq = ctx_.bool_val(true);
   for (auto it = vars.begin(); it != vars.end(); it++) {
-    auto so = unroll_orig_.GetZ3Expr(*it, 0);
-    auto sn = unroll_appl_.GetZ3Expr(*it, 0);
+    auto so = unroll_orig_.CurrState(*it, 0);
+    auto sn = unroll_appl_.CurrState(*it, 0);
     eq = eq && (so == sn);
   }
   auto an = unroll_appl_.GetZ3Expr(ref->appl(), 0);
@@ -367,13 +373,13 @@ z3::expr CommDiag::GenTranRel(const RefPtr ref, const int& k_orig,
 }
 
 z3::expr CommDiag::GenAssm() {
-  // TODO
-  return ctx_.bool_val(true);
+  auto eq = unroll_orig_.GetZ3Expr(crr_->relation()->get());
+  return eq;
 }
 
 z3::expr CommDiag::GenProp() {
-  // TODO
-  return ctx_.bool_val(true);
+  auto eq = unroll_appl_.GetZ3Expr(crr_->relation()->get());
+  return eq;
 }
 
 z3::expr CommDiag::AtLeastOnce(MonoUnroll& unroller, const ExprPtr cmpl,
@@ -401,9 +407,34 @@ z3::expr CommDiag::AtMostOnce(MonoUnroll& unroller, const ExprPtr cmpl,
 z3::expr CommDiag::UnrollFlush(MonoUnroll& unroller, const RefPtr ref,
                                const int& base, const int& length,
                                const int& start) {
-  // TODO
-  auto cstr = ctx_.bool_val(true);
-  return cstr;
+  unroller.ClearPred();
+  // add invariant
+  for (decltype(ref->inv_num()) i = 0; i != ref->inv_num(); i++) {
+    unroller.AddGlobPred(ref->inv(i));
+  }
+  // add flush
+  for (auto i = start; i != base + length; i++) {
+    unroller.AddStepPred(ref->flush(), i);
+  }
+  // unroll
+  auto path = unroller.MonoAssn(ref->coi(), length, base);
+
+  std::set<ExprPtr> vars;
+  AbsKnob::GetStVarOfIla(ref->coi(), vars);
+  auto mark = ctx_.bool_val(true);
+  // mark complete step with representing state
+  for (auto i = start; i != base + length; i++) {
+    auto cmpl_i = unroller.GetZ3Expr(ref->cmpl(), i);
+    auto eq = ctx_.bool_val(true);
+    for (auto it = vars.begin(); it != vars.end(); it++) {
+      auto s_i = unroller.CurrState(*it, i);
+      auto s = unroller.GetZ3Expr(*it);
+      eq = eq && (s == s_i);
+    }
+    mark = mark && (z3::implies(cmpl_i, eq));
+  }
+
+  return path && mark;
 }
 
 } // namespace ila
