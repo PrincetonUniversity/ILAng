@@ -101,9 +101,8 @@ bool CommDiag::SanityCheckRefinement(const RefPtr ref) {
   if ((ref->step_orig() != 0) || (ref->step_appl() != 0)) {
     auto cmpl_unique = g.GetExpr(Imply(f, c));
     s.reset();
-    s.add(cmpl_unique);
-    if (s.check() == z3::sat) {
-      ILA_DLOG("Verbose-CrrEqCheck") << s.get_model();
+    s.add(!cmpl_unique);
+    if (s.check() == z3::unsat) {
       ILA_ERROR << "Flushing function implies completion.";
     }
     return false;
