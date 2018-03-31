@@ -39,12 +39,15 @@ void DisableDebug(const std::string& tag);
 /******************************************************************************/
 // ILA Construction.
 /******************************************************************************/
+// implementation-specific structure
 class Sort;
 class Func;
 class Expr;
 class Instr;
 class InstrLvlAbs;
 class Unroller;
+// forward declaration
+class Ila;
 
 /// \brief The wrapper of Sort (type for different AST nodes).
 class SortRef {
@@ -366,6 +369,10 @@ public:
   /// \param[in] state the state variable to set.
   /// \param[in] update the update function (should be the same type as state).
   void SetUpdate(const ExprRef& state, const ExprRef& update);
+
+  /// \brief Set the child-program of the instruction.
+  /// \param[in] prog the child-ILA representing the child-program.
+  void SetProgram(const Ila& prog);
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return the wrapped ILA pointer.

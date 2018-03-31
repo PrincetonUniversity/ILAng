@@ -429,6 +429,8 @@ void InstrRef::SetUpdate(const ExprRef& state, const ExprRef& update) {
   ptr_->set_update(state.get(), update.get());
 }
 
+void InstrRef::SetProgram(const Ila& prog) { ptr_->set_program(prog.get()); }
+
 /******************************************************************************/
 // Ila
 /******************************************************************************/
