@@ -222,6 +222,9 @@ public:
   /// \param[in] cnd transition condition (guard), i.e. dst.DECODE
   void AddSeqTran(const InstrPtr src, const InstrPtr dst, const ExprPtr cnd);
 
+  /// \brief Return the ancestor names in sequence.
+  std::string GetRootName() const;
+
   /// Output stream function.
   std::ostream& Print(std::ostream& out) const;
 

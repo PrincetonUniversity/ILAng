@@ -25,7 +25,7 @@ ExprVar::~ExprVar() {}
 
 z3::expr ExprVar::GetZ3Expr(z3::context& ctx, const Z3ExprVec& z3expr_vec,
                             const std::string& suffix) const {
-  auto prefix = (host()) ? host()->name().str() : "";
+  auto prefix = (host()) ? host()->GetRootName() : "";
   auto e_name = name().format_str(prefix, suffix);
   return sort()->GetZ3Expr(ctx, e_name);
 }

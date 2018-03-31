@@ -287,6 +287,14 @@ void InstrLvlAbs::AddSeqTran(const InstrPtr src, const InstrPtr dst,
   instr_seq_.AddTran(src, dst, cnd_simplified);
 }
 
+std::string InstrLvlAbs::GetRootName() const {
+  if (parent()) {
+    return parent()->GetRootName() + "." + name().str();
+  } else {
+    return name().str();
+  }
+}
+
 std::ostream& InstrLvlAbs::Print(std::ostream& out) const {
   out << "ILA." << name();
   return out;
