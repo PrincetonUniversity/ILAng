@@ -104,8 +104,8 @@ bool CommDiag::SanityCheckRefinement(const RefPtr ref) {
     s.add(!cmpl_unique);
     if (s.check() == z3::unsat) {
       ILA_ERROR << "Flushing function implies completion.";
+      return false;
     }
-    return false;
   }
 
   // check flushing and apply does not affect state equivalence
