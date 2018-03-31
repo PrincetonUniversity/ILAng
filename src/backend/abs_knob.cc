@@ -20,8 +20,6 @@ private:
 
 }; // class DfsFuncObjAddVarToSet
 
-AbsKnob::AbsKnob() {}
-
 void AbsKnob::GetVarOfIla(const InstrLvlAbsPtr top, std::set<ExprPtr>& vars) {
   ILA_NOT_NULL(top);
   GetInVarOfIla(top, vars);
@@ -58,6 +56,26 @@ void AbsKnob::GetStVarOfIla(const InstrLvlAbsPtr top, std::set<ExprPtr>& vars) {
   }
 }
 
+template <class I>
+void AbsKnob::GetStVarOfInstr(const I& instrs, std::set<ExprPtr>& vars) {
+  std::set<InstrLvlAbsPtr> hosts;
+  for (auto it = instrs.begin(); it != instrs.end(); it++) {
+    auto instr = *it;
+    auto h = instr->host();
+    ILA_NOT_NULL(h);
+    hosts.insert(h);
+  }
+  for (auto it = hosts.begin(); it != hosts.end(); it++) {
+    GetStVarOfIla(*it, vars);
+  }
+}
+// define the supported template type
+template void
+AbsKnob::GetStVarOfInstr<std::set<InstrPtr>>(const std::set<InstrPtr>& instrs,
+                                             std::set<ExprPtr>& vars);
+template void AbsKnob::GetStVarOfInstr<std::vector<InstrPtr>>(
+    const std::vector<InstrPtr>& instrs, std::set<ExprPtr>& vars);
+
 std::set<ExprPtr> AbsKnob::GetVarOfIla(const InstrLvlAbsPtr top) {
   std::set<ExprPtr> vars;
   GetVarOfIla(top, vars);
@@ -88,6 +106,12 @@ void AbsKnob::GetVarOfExpr(const ExprPtr e, std::set<ExprPtr>& vars) {
   e->DepthFirstVisit(obj);
 }
 
+template <class I> std::set<ExprPtr> AbsKnob::GetStVarOfInstr(const I& instrs) {
+  std::set<ExprPtr> vars;
+  GetStVarOfInstr(instrs, vars);
+  return vars;
+}
+
 template <class I>
 void AbsKnob::GetInstrOfIla(const InstrLvlAbsPtr top, I& instrs) {
   ILA_NOT_NULL(top);
@@ -96,9 +120,8 @@ void AbsKnob::GetInstrOfIla(const InstrLvlAbsPtr top, I& instrs) {
     GetInstrOfIla(top->child(i), instrs);
   }
   // add instr
-  auto it = instrs.end();
   for (decltype(top->instr_num()) i = 0; i != top->instr_num(); i++) {
-    instrs.insert(it, top->instr(i));
+    instrs.insert(instrs.end(), top->instr(i));
   }
 }
 // define the supported template type
