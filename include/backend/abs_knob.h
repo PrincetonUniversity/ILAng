@@ -38,6 +38,8 @@ public:
   /// Add all instructions (including child) to the std::set/std::vector.
   template <class InstrCntr>
   static void GetInstrOfIla(const InstrLvlAbsPtr top, InstrCntr& instrs);
+  /// Get the set of instructions (including child).
+  static std::set<InstrPtr> GetInstrOfIla(const InstrLvlAbsPtr top);
 
 }; // class AbsKnob
 

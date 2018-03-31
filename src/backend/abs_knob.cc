@@ -132,5 +132,11 @@ template void
 AbsKnob::GetInstrOfIla<std::vector<InstrPtr>>(const InstrLvlAbsPtr top,
                                               std::vector<InstrPtr>& instrs);
 
+std::set<InstrPtr> AbsKnob::GetInstrOfIla(const InstrLvlAbsPtr top) {
+  std::set<InstrPtr> instrs;
+  GetInstrOfIla(top, instrs);
+  return instrs;
+}
+
 } // namespace ila
 
