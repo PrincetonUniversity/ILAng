@@ -2,6 +2,7 @@
 /// Source for constructing equivalent ILAs.
 
 #include "../unit-include/eq_ilas.h"
+#include "ila++.h"
 
 namespace ila {
 
@@ -241,6 +242,83 @@ InstrLvlAbsPtr EqIlaGen::GetIlaFlat2(const std::string& name) {
   }
 
   return ila;
+}
+
+// Hier ILA 1:
+// - with child-ILA
+// - every computation is done in an increaing order of the index/address
+InstrLvlAbsPtr EqIlaGen::GetIlaHier1(const std::string& name) {
+  auto m = Ila(name);
+
+  // input variables.
+  auto start = m.NewBoolInput("start");
+  auto opcode = m.NewBvInput("opcode", 3);
+
+  // state variables.
+  std::vector<ExprRef> regs;
+  for (auto i = 0; i < reg_num(); i++) {
+    auto reg_name = "reg_" + std::to_string(i);
+    auto reg = m.NewBvState(reg_name, reg_wid());
+    regs.push_back(reg);
+  }
+
+  auto addr = m.NewBvState("address", reg_wid());
+  auto cnt = m.NewBvState("counter", reg_wid());
+  auto mem = m.NewMemState("memory", reg_wid(), reg_wid());
+
+  // valid
+  m.SetValid(BoolConst(true));
+
+  // Instruction 1: (start == 1 && opcode = 1)
+  //  * copy the value of %reg n-1 to %reg n (for all n = [1:15])
+  auto instr_1 = m.NewInstr("instr1");
+  auto child_1_valid = m.NewBvState("c1vld", reg_wid());
+  auto child_1 = m.NewChild("child1");
+  instr_1.SetProgram(child_1);
+
+  { // decode
+    auto decode_start = (start == true);
+    auto decode_opcode = (opcode == 1);
+    auto decode_bound = ((child_1_valid >= 0) & (child_1_valid < reg_num()));
+    auto decode = (decode_start & decode_opcode & decode_bound);
+    instr_1.SetDecode(decode);
+  }
+
+  { // updates
+    instr_1.SetUpdate(child_1_valid, child_1_valid + 1);
+  }
+
+  { // Child ILA 1
+    auto& c = child_1;
+
+    // child-states
+    auto& ucnt = child_1_valid;
+    auto uptr = c.NewBvState("uptr", reg_wid());
+
+    // XXX invariant:
+    // 1. uptr \in [0, reg_num)
+    // 2. ucnt \in [0, reg_wid]
+
+    // child-instrs
+    { // instr_0
+      auto instr_0 = c.NewInstr("instr_0");
+      // decode
+      instr_0.SetDecode((uptr == 0) & (ucnt != 0));
+      // updates
+      instr_0.SetUpdate(uptr, BvConst(reg_num() - 1, reg_wid()));
+      instr_0.SetUpdate(ucnt, ucnt - 1);
+    }
+    for (auto i = 1; i < reg_num(); i++) {
+      auto instr_i = c.NewInstr("instr_" + std::to_string(i));
+      // decode
+      instr_i.SetDecode(uptr == i);
+      // updates
+      instr_i.SetUpdate(regs[i], regs[i - 1]);
+      instr_i.SetUpdate(uptr, uptr - 1);
+    }
+  }
+
+  return m.get();
 }
 
 } // namespace ila

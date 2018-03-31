@@ -52,9 +52,16 @@ public:
   /// - with child-ILA for instruction 4. decreasingly step-wise sum up.
   InstrLvlAbsPtr GetIlaHier2(const std::string& name = "Hier_2");
 
+  /// Return the number of general-purpose registers.
+  inline const int& reg_num() const { return reg_num_; }
+  /// Return the wid of the general-purpose registers.
+  inline const int& reg_wid() const { return reg_wid_; }
+
 private:
   /// parameterized register number. (must >= 3)
   int reg_num_ = 8;
+  /// parameterized register size (bit-width).
+  int reg_wid_ = 8;
 
 }; // class EqIlaGen
 
