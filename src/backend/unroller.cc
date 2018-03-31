@@ -2,6 +2,7 @@
 /// Source for unrolling ILA execution.
 
 #include "backend/unroller.h"
+#include "backend/abs_knob.h"
 #include "util/log.h"
 #include <map>
 #include <vector>
@@ -211,6 +212,8 @@ ExprPtr Unroller::DecodeCmpl(const InstrPtr instr) {
 
 template <class I>
 void Unroller::GetVarOfInstr(const I& instrs, std::set<ExprPtr>& vars) {
+  AbsKnob::GetStVarOfInstr(instrs, vars);
+#if 0
   std::set<InstrLvlAbsPtr> hosts;
   for (auto it = instrs.begin(); it != instrs.end(); it++) {
     auto instr = *it;
@@ -219,11 +222,15 @@ void Unroller::GetVarOfInstr(const I& instrs, std::set<ExprPtr>& vars) {
     hosts.insert(h);
   }
   for (auto it = hosts.begin(); it != hosts.end(); it++) {
-    GetVarOfIla(*it, vars);
+    // GetVarOfIla(*it, vars);
+    AbsKnob::GetStVarOfIla(*it, vars);
   }
+#endif
 }
 
 void Unroller::GetVarOfIla(const InstrLvlAbsPtr top, std::set<ExprPtr>& vars) {
+  AbsKnob::GetStVarOfIla(top, vars);
+#if 0
   ILA_NOT_NULL(top);
   // traverse the child-ILAs
   for (size_t i = 0; i != top->child_num(); i++) {
@@ -236,10 +243,13 @@ void Unroller::GetVarOfIla(const InstrLvlAbsPtr top, std::set<ExprPtr>& vars) {
   for (size_t i = 0; i != top->state_num(); i++) {
     vars.insert(top->state(i));
   }
+#endif
 }
 
 void Unroller::GetInstrOfIla(const InstrLvlAbsPtr top,
                              std::vector<InstrPtr>& instrs) {
+  AbsKnob::GetInstrOfIla(top, instrs);
+#if 0
   ILA_NOT_NULL(top);
   // traverse the child-ILAs
   for (size_t i = 0; i != top->child_num(); i++) {
@@ -249,6 +259,7 @@ void Unroller::GetInstrOfIla(const InstrLvlAbsPtr top,
   for (size_t i = 0; i != top->instr_num(); i++) {
     instrs.push_back(top->instr(i));
   }
+#endif
 }
 
 ExprPtr Unroller::NewFreeVar(const ExprPtr var, const std::string& name) {
