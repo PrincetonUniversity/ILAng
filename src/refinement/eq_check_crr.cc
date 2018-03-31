@@ -132,7 +132,7 @@ bool CommDiag::SanityCheckRefinement(const RefPtr ref) {
 
 bool CommDiag::SanityCheckRelation(const RelPtr rel, const InstrLvlAbsPtr ma,
                                    const InstrLvlAbsPtr mb) const {
-  ILA_ERROR_IF(!(ma->name() == mb->name()))
+  ILA_ERROR_IF(ma->name() == mb->name())
       << "Only EQ-Check ILAs with different names.";
 
   ILA_NOT_NULL(rel);
