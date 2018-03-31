@@ -34,8 +34,8 @@ public:
   EqIlaGen ila_gen;
   InstrLvlAbsPtr f1 = ila_gen.GetIlaFlat1("f1");
   InstrLvlAbsPtr f2 = ila_gen.GetIlaFlat2("f2");
-  // InstrLvlAbsPtr h1_ = ila_gen_.GetIlaHier1("h1");
-  // InstrLvlAbsPtr h2_ = ila_gen_.GetIlaHier2("h2");
+  InstrLvlAbsPtr h1 = ila_gen.GetIlaHier1("h1");
+  // InstrLvlAbsPtr h2 = ila_gen.GetIlaHier2("h2");
 
   RefPtr GetRefine(const InstrLvlAbsPtr top, const int& instr_idx, bool comp,
                    bool flat);
@@ -61,92 +61,33 @@ TEST_F(TestEqCheck, FF_Mono) {
     }
   }
 }
-#if 0
-TEST_F(TestEqCheck, CommDiag_FF_Legacy) {
-  SetToStdErr(1);
-
-  // 1. coi analysis XXX
-  // 2. step specified
-  // 3. step not specified with different bound
-
-  // refinement for f1
-  RefPtr ref1 = RefinementMap::New();
-  ref1->set_tgt(f1);
-  ref1->set_flush(Not(f1->input("start")));
-  ref1->set_cmpl(BoolConst(true));
-  ref1->set_step(0);
-  ref1->add_inv(Ule(f1->state("counter"), 7));
-
-  // refinement for f2
-  RefPtr ref2 = RefinementMap::New();
-  ref2->set_tgt(f2);
-  ref2->set_flush(Not(f2->input("start")));
-  ref2->set_cmpl(BoolConst(true));
-  ref2->add_inv(Ule(f2->state("counter"), 7));
-  // ref2 not specify # step
-
-  // relation between f1 and f2
-  RelPtr rel = RelationMap::New();
-  for (size_t i = 0; i != f1->state_num(); i++) {
-    auto var1 = f1->state(i);
-    try {
-      auto var2 = f2->state(var1->name().str());
-      rel->add(Eq(var1, var2));
-    } catch (...) {
-      ILA_DLOG("EqCheck") << "Manual relation mapping required.";
-    }
-  }
-  // crr
-  CrrPtr crr = CompRefRel::New(ref1, ref2, rel);
-  CommDiag cd = CommDiag(c, crr);
-
-  for (size_t instr_idx = 0; instr_idx != 3; instr_idx++) {
-    ref1->set_appl(f1->instr(instr_idx)->decode());
-    ref2->set_appl(f2->instr(instr_idx)->decode());
-
-    for (auto i = 0; i != 2; i++) {
-      auto vc = cd.GenVerCond(i);
-      s.reset();
-      s.add(vc);
-      EXPECT_EQ(z3::unsat, s.check());
-
-#if 0
-      ILA_DLOG("EqCheck") << s.get_model().eval(
-          g.GetExpr(f1->state("counter"), "0o"));
-      ILA_DLOG("EqCheck") << s.get_model().eval(
-          g.GetExpr(f1->state("counter"), "0n"));
-      ILA_DLOG("EqCheck") << s.get_model().eval(
-          g.GetExpr(f1->state("counter"), "n"));
-      ILA_DLOG("EqCheck") << s.get_model().eval(
-          g.GetExpr(f1->state("counter"), "o"));
-#endif
-
-      auto tran = cd.GenVerCondTran(i);
-      s.reset();
-      s.add(tran);
-      EXPECT_EQ(z3::sat, s.check());
-
-      auto prop = cd.GenVerCondProp();
-      s.reset();
-      s.add(tran);
-      s.add(prop);
-      EXPECT_EQ(z3::sat, s.check());
-    }
-  }
-
-  auto fail_idx = 3;
-  ref1->set_appl(f1->instr(fail_idx)->decode());
-  ref2->set_appl(f2->instr(fail_idx)->decode());
-  auto vc = cd.GenVerCond(0);
-  s.reset();
-  s.add(vc);
-  EXPECT_EQ(z3::sat, s.check());
-}
-#endif
 
 TEST_F(TestEqCheck, CommDiag_HF) {
-  // TODO
-  // with and without completion
+  SetToStdErr(1);
+  for (auto instr_idx : {0}) {
+    // refinement
+    auto ref1 = GetRefine(f1, instr_idx, false, true);
+    auto ref2 = GetRefine(h1, instr_idx, false, false);
+    // relation
+    auto rel = GetRelation(f1, h1);
+    // crr
+    auto crr = CompRefRel::New(ref1, ref2, rel);
+    auto cd = CommDiag(c, crr);
+    // invariant
+    { // h1 c1
+      auto c1 = h1->child(0);
+      auto ucnt = h1->state("c1vld");
+      auto uptr = c1->state("uptr");
+      ILA_NOT_NULL(ucnt);
+      ILA_NOT_NULL(uptr);
+      ref2->add_inv(Uge(ucnt, 0));
+      ref2->add_inv(Ult(ucnt, 15));
+      ref2->add_inv(Uge(uptr, 0));
+      ref2->add_inv(Ult(uptr, 8));
+    }
+
+    EXPECT_TRUE(cd.EqCheck());
+  }
 }
 
 TEST_F(TestEqCheck, CommDiag_HH) {
@@ -196,10 +137,10 @@ RefPtr TestEqCheck::GetRefine(const InstrLvlAbsPtr top, const int& instr_idx,
 RelPtr TestEqCheck::GetRelation(const InstrLvlAbsPtr m1,
                                 const InstrLvlAbsPtr m2) {
   auto rel = RelationMap::New();
-  for (decltype(f1->state_num()) i = 0; i != f1->state_num(); i++) {
-    auto var1 = f1->state(i);
+  for (decltype(m1->state_num()) i = 0; i != m1->state_num(); i++) {
+    auto var1 = m1->state(i);
     try {
-      auto var2 = f2->state(var1->name().str());
+      auto var2 = m2->state(var1->name().str());
       rel->add(Eq(var1, var2));
     } catch (...) {
       ILA_DLOG("EqCheck") << "Manual relation mapping required.";
