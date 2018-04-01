@@ -45,7 +45,7 @@ void AbsKnob::GetStVarOfIla(const InstrLvlAbsPtr top, std::set<ExprPtr>& vars) {
   ILA_NOT_NULL(top);
   // traverse the child-ILAs
   for (size_t i = 0; i != top->child_num(); i++) {
-    GetVarOfIla(top->child(i), vars);
+    GetStVarOfIla(top->child(i), vars);
   }
   // child-states must contain parent-states
   if (top->child_num() != 0)
