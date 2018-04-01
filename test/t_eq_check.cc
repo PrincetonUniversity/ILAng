@@ -64,6 +64,7 @@ TEST_F(TestEqCheck, FF_Mono) {
 
 TEST_F(TestEqCheck, CommDiag_HF) {
   SetToStdErr(1);
+  DebugLog::Disable("Verbose-CrrEqCheck");
   for (auto instr_idx : {0}) {
     // refinement
     auto ref1 = GetRefine(f1, instr_idx, false, true);
@@ -80,13 +81,17 @@ TEST_F(TestEqCheck, CommDiag_HF) {
       auto uptr = c1->state("uptr");
       ILA_NOT_NULL(ucnt);
       ILA_NOT_NULL(uptr);
+      //#if 0
       ref2->add_inv(Uge(ucnt, 0));
-      ref2->add_inv(Ult(ucnt, 15));
+      ref2->add_inv(Ult(ucnt, 2));
       ref2->add_inv(Uge(uptr, 0));
-      ref2->add_inv(Ult(uptr, 8));
+      ref2->add_inv(Ult(uptr, ila_gen.reg_num()));
+      //#endif
+      ref2->set_step_orig(15);
+      ref2->set_step_appl(15);
     }
 
-    EXPECT_TRUE(cd.EqCheck());
+    EXPECT_TRUE(cd.EqCheck(30));
   }
 }
 
@@ -129,7 +134,7 @@ RefPtr TestEqCheck::GetRefine(const InstrLvlAbsPtr top, const int& instr_idx,
     ref->set_step_appl(0);
   }
   // invariant
-  ref->add_inv(Ule(f1->state("counter"), 7));
+  ref->add_inv(Ule(top->state("counter"), 7));
 
   return ref;
 }

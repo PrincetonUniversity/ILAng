@@ -303,7 +303,7 @@ InstrLvlAbsPtr EqIlaGen::GetIlaHier1(const std::string& name) {
     { // instr_0
       auto instr_0 = c.NewInstr("instr_0");
       // decode
-      instr_0.SetDecode((uptr == 0) & (ucnt != 0));
+      instr_0.SetDecode((uptr == 0) & (ucnt != 0) & (!start)); // XXX start
       // updates
       instr_0.SetUpdate(uptr, BvConst(reg_num() - 1, reg_wid()));
       instr_0.SetUpdate(ucnt, ucnt - 1);
@@ -311,7 +311,7 @@ InstrLvlAbsPtr EqIlaGen::GetIlaHier1(const std::string& name) {
     for (auto i = 1; i < reg_num(); i++) {
       auto instr_i = c.NewInstr("instr_" + std::to_string(i));
       // decode
-      instr_i.SetDecode(uptr == i);
+      instr_i.SetDecode((uptr == i) & (!start)); // XXX start
       // updates
       instr_i.SetUpdate(regs[i], regs[i - 1]);
       instr_i.SetUpdate(uptr, uptr - 1);
