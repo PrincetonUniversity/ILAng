@@ -25,11 +25,15 @@ bool CommDiag::EqCheck(const int& max) {
   // determine the number of steps for unrolling (check valid if specified)
   auto step_orig_a = DetStepOrig(crr_->refine_a(), max);
   auto step_appl_a = DetStepAppl(crr_->refine_a(), max);
-  ILA_CHECK(step_orig_a >= 0 && step_appl_a >= 0) << "Fail determining #step";
 
   auto step_orig_b = DetStepOrig(crr_->refine_b(), max);
   auto step_appl_b = DetStepAppl(crr_->refine_b(), max);
-  ILA_CHECK(step_orig_b >= 0 && step_appl_b >= 0) << "Fail determining #step";
+
+  if (step_orig_a < 0 || step_appl_a < 0 || step_orig_b < 0 ||
+      step_appl_b < 0) {
+    ILA_ERROR << "Fail determining unroll step.";
+    return false;
+  }
 
   // generate transition relation
   auto cstr_tran_a = GenTranRel(crr_->refine_a(), step_orig_a, step_appl_a);
@@ -55,6 +59,50 @@ bool CommDiag::EqCheck(const int& max) {
   auto res = s.check();
   if (res == z3::sat) {
     ILA_DLOG("Verbose-CrrEqCheck") << s.get_model();
+
+    // XXX
+    auto m = s.get_model();
+
+    auto f1 = crr_->refine_a()->coi();
+    auto h1 = crr_->refine_b()->coi();
+    auto c1 = h1->child(0);
+
+    for (auto i = 0; i != 4; i++) {
+      auto f1_reg =
+          unroll_orig_.GetZ3Expr(f1->state("reg_" + std::to_string(i)));
+      auto h1_reg =
+          unroll_orig_.GetZ3Expr(h1->state("reg_" + std::to_string(i)));
+      ILA_DLOG("EqCheck") << "orig reg_" << i << ": " << m.eval(f1_reg) << ","
+                          << m.eval(h1_reg);
+    }
+
+    for (auto i = 0; i != 2; i++) {
+      auto h1_cmpl = unroll_appl_.GetZ3Expr(crr_->refine_b()->cmpl(), i);
+      ILA_DLOG("EqCheck") << "cmpl @" << i << ": " << m.eval(h1_cmpl);
+    }
+
+    for (auto j = 0; j != 3; j++) {
+      ILA_DLOG("EqCheck") << "appl step " << j;
+      auto h1_uptr = unroll_appl_.GetZ3Expr(c1->state("uptr"), j);
+      auto h1_ucnt = unroll_appl_.GetZ3Expr(h1->state("c1vld"), j);
+      ILA_DLOG("EqCheck") << "uptr: " << m.eval(h1_uptr)
+                          << " ucnt: " << m.eval(h1_ucnt);
+
+      for (auto i = 0; i != 4; i++) {
+        auto h1_reg =
+            unroll_appl_.GetZ3Expr(h1->state("reg_" + std::to_string(i)), j);
+        ILA_DLOG("EqCheck") << "reg_" << i << ": " << m.eval(h1_reg);
+      }
+    }
+
+    for (auto i = 0; i != 4; i++) {
+      auto f1_reg =
+          unroll_appl_.GetZ3Expr(f1->state("reg_" + std::to_string(i)));
+      auto h1_reg =
+          unroll_appl_.GetZ3Expr(h1->state("reg_" + std::to_string(i)));
+      ILA_DLOG("EqCheck") << "appl reg_" << i << ": " << m.eval(f1_reg) << ","
+                          << m.eval(h1_reg);
+    }
   }
 
   return (res == z3::unsat);
@@ -199,6 +247,14 @@ bool CommDiag::CheckStepOrig(const RefPtr ref, const int& k) {
   auto tran = u.MonoAssn(ref->coi(), k, 0);
   // start checking
   auto s = z3::solver(ctx_);
+  // sanity check on transition
+  s.add(init && tran);
+  if (s.check() == z3::unsat) {
+    ILA_ERROR << "Dead transition: " << ref->coi() << " #step: " << k;
+    ILA_DLOG("Verbose-CrrEqCheck") << s;
+    ILA_CHECK(false);
+  }
+
   // at least once
   auto at_least_once = AtLeastOnce(u, ref->cmpl(), 0, k);
   s.reset();
