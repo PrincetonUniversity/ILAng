@@ -100,13 +100,18 @@ public:
 
   /// \brief Templated visitor: visit each node in a depth-first order and apply
   /// the function object F pre/pose on it.
-  template <class F> void DepthFirstVisitPrePost(F& func) const {
-    func->pre(shared_from_this());
+  template <class F> void DepthFirstVisitPrePost(F& func) {
+    // pre check
+    if (func.pre(shared_from_this())) { // break if return true
+      return;
+    }
+    // traverse child
     for (size_t i = 0; i != arg_num(); i++) {
       auto arg_i = this->arg(i);
       arg_i->DepthFirstVisitPrePost<F>(func);
     }
-    func->post(shared_from_this());
+    // post
+    func.post(shared_from_this());
   }
 
 private:

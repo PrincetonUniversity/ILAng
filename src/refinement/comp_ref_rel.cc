@@ -2,6 +2,7 @@
 /// Source for the refinement relation
 
 #include "refinement/comp_ref_rel.h"
+#include "backend/abs_knob.h"
 
 namespace ila {
 
@@ -16,8 +17,8 @@ void RefinementMap::set_tgt(const InstrLvlAbsPtr tgt) {
 
 void RefinementMap::set_tgt(const InstrPtr tgt) {
   ILA_ASSERT(tgt && tgt->host());
-  // TODO
-  coi_ = tgt->host();
+  coi_ = tgt->host(); // FIXME
+  // coi_ = AbsKnob::ExtrDeptModl(tgt);
 }
 
 void RefinementMap::set_appl(const ExprPtr appl) {
