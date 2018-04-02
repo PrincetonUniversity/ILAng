@@ -40,6 +40,10 @@ public:
   RefPtr GetRefine(const InstrLvlAbsPtr top, const int& instr_idx, bool comp,
                    bool flat);
   RelPtr GetRelation(const InstrLvlAbsPtr m1, const InstrLvlAbsPtr m2);
+
+  void CustF1(const RefPtr ref);
+  void CustF2(const RefPtr ref);
+  void CustH1(const RefPtr ref);
 };
 
 TEST_F(TestEqCheck, FF_Mono) {
@@ -64,7 +68,6 @@ TEST_F(TestEqCheck, FF_Mono) {
 
 TEST_F(TestEqCheck, CommDiag_HF) {
   SetToStdErr(1);
-  DebugLog::Disable("Verbose-CrrEqCheck");
   for (auto instr_idx : {0}) {
     // refinement
     auto ref1 = GetRefine(f1, instr_idx, false, true);
@@ -75,23 +78,10 @@ TEST_F(TestEqCheck, CommDiag_HF) {
     auto crr = CompRefRel::New(ref1, ref2, rel);
     auto cd = CommDiag(c, crr);
     // invariant
-    { // h1 c1
-      auto c1 = h1->child(0);
-      auto ucnt = h1->state("c1vld");
-      auto uptr = c1->state("uptr");
-      ILA_NOT_NULL(ucnt);
-      ILA_NOT_NULL(uptr);
-      //#if 0
-      ref2->add_inv(Uge(ucnt, 0));
-      ref2->add_inv(Ult(ucnt, 2));
-      ref2->add_inv(Uge(uptr, 0));
-      ref2->add_inv(Ult(uptr, ila_gen.reg_num()));
-      //#endif
-      ref2->set_step_orig(15);
-      ref2->set_step_appl(15);
-    }
+    CustF1(ref1);
+    CustH1(ref2);
 
-    EXPECT_TRUE(cd.EqCheck(30));
+    EXPECT_TRUE(cd.EqCheck(100));
   }
 }
 
@@ -152,6 +142,31 @@ RelPtr TestEqCheck::GetRelation(const InstrLvlAbsPtr m1,
     }
   }
   return rel;
+}
+
+void TestEqCheck::CustF1(const RefPtr ref) {
+  //
+}
+
+void TestEqCheck::CustF2(const RefPtr ref) {
+  //
+}
+
+void TestEqCheck::CustH1(const RefPtr ref) {
+  auto c1 = h1->child(0);
+  auto ucnt = h1->state("c1vld");
+  auto uptr = c1->state("uptr");
+  ILA_NOT_NULL(ucnt);
+  ILA_NOT_NULL(uptr);
+
+  ref->add_inv(Uge(ucnt, 0));
+  // ref->add_inv(Ult(ucnt, 3));
+  ref->add_inv(Ule(ucnt, ila_gen.reg_num()));
+  ref->add_inv(Uge(uptr, 0));
+  ref->add_inv(Ult(uptr, ila_gen.reg_num()));
+
+  ref->set_step_orig(60);
+  ref->set_step_appl(70);
 }
 
 } // namespace ila
