@@ -35,6 +35,8 @@ class InstrLvlAbs : public Object,
 public:
   /// Pointer type for normal use of InstrLvlAbs.
   typedef std::shared_ptr<InstrLvlAbs> InstrLvlAbsPtr;
+  /// Pointer type for read-only usage of InstrLvlAbs
+  typedef std::shared_ptr<const InstrLvlAbs> InstrLvlAbsCnstPtr;
   /// Type for storing a set of ExprPtr (input/state variables).
   typedef KeyVec<Symbol, ExprPtr> VarMap;
   /// Type for storing a set of Instr.
@@ -278,6 +280,8 @@ private:
 
 /// Pointer type for normal use of InstrLvlAbs
 typedef InstrLvlAbs::InstrLvlAbsPtr InstrLvlAbsPtr;
+/// Pointer type for read-only usage of InstrLvlAbs
+typedef InstrLvlAbs::InstrLvlAbsCnstPtr InstrLvlAbsCnstPtr;
 
 } // namespace ila
 
