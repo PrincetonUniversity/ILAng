@@ -278,7 +278,7 @@ InstrLvlAbsPtr EqIlaGen::GetIlaHier1(const std::string& name) {
 
   { // decode
     auto decode_start = (start == true);
-    auto decode_opcode = (opcode == 1);
+    auto decode_opcode = (opcode == k_opcode::op1);
     auto decode_bound = ((child_1_valid >= 0) & (child_1_valid < reg_num()));
     auto decode = (decode_start & decode_opcode & decode_bound);
     instr_1.SetDecode(decode);
@@ -317,6 +317,79 @@ InstrLvlAbsPtr EqIlaGen::GetIlaHier1(const std::string& name) {
       instr_i.SetUpdate(uptr, uptr - 1);
     }
   }
+
+// Instruction 2: (start == 1 && opcode == 2)
+//  * copy the value of %reg n-1 to %reg n (n = %counter).
+//  * if (%counter == 0) then copy %reg 15 to %reg 0
+#if 0
+  auto instr_2 = m.NewInstr("instr2");
+  auto child_2_valid = m.NewBvState("c2vld", reg_wid());
+  auto child_2 = m.NewChild("child2");
+  instr_2.SetProgram(child_2);
+
+  { // decode
+    auto decode_start = start;
+    auto decode_opcode = (opcode == 2);
+    auto decode = (decode_start & decode_opcode);
+    instr_2.SetDecode(decode);
+  }
+
+  { // updates
+    for (auto i = 0; i < reg_num(); i++) {
+      auto cnd_i = ExprFuse::Eq(cnt, ExprFuse::BvConst(i, 8));
+      ExprPtr next_i = NULL;
+      if (i == 0) {
+        next_i = ExprFuse::Ite(cnd_i, regs[reg_num_ - 1], regs[0]);
+      } else {
+        next_i = ExprFuse::Ite(cnd_i, regs[i - 1], regs[i]);
+      }
+      instr_2->set_update(regs[i], next_i);
+    }
+  }
+#endif
+
+  return m.get();
+}
+
+// Hier ILA 2:
+// - with child-ILA
+// - every computation is done in an decreasing order of the index/address
+InstrLvlAbsPtr EqIlaGen::GetIlaHier2(const std::string& name) {
+  auto m = Ila(name);
+
+  // input variables.
+  auto start = m.NewBoolInput("start");
+  auto opcode = m.NewBvInput("opcode", 3);
+
+  // state variables.
+  std::vector<ExprRef> regs;
+  for (auto i = 0; i < reg_num(); i++) {
+    auto reg_name = "reg_" + std::to_string(i);
+    auto reg = m.NewBvState(reg_name, reg_wid());
+    regs.push_back(reg);
+  }
+
+  auto addr = m.NewBvState("address", reg_wid());
+  auto cnt = m.NewBvState("counter", reg_wid());
+  auto mem = m.NewMemState("memory", reg_wid(), reg_wid());
+
+  auto pipes = std::vector<decltype(m.NewBvState("", reg_wid()))>();
+  for (auto i = 0; i != pipe_num(); i++) {
+    auto pipe = m.NewBvState("pipe_" + std::to_string(i), reg_wid());
+    pipes.push_back(pipe);
+  }
+
+  // valid
+  auto pipe_empty = (pipes.back() == k_opcode::op0);
+  m.SetValid(pipe_empty);
+
+  auto child_0 = m.NewChild("child0");
+  {
+    // TODO
+  }
+
+  // Instruction 1: (start == 1 && opcode = 1)
+  //  * copy the value of %reg n-1 to %reg n (for all n = [1:15])
 
   return m.get();
 }
