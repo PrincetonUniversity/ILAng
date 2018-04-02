@@ -56,12 +56,19 @@ public:
   inline const int& reg_num() const { return reg_num_; }
   /// Return the wid of the general-purpose registers.
   inline const int& reg_wid() const { return reg_wid_; }
+  /// Return the number of pipeline stages.
+  inline const int& pipe_num() const { return pipe_num_; }
 
 private:
   /// parameterized register number. (must >= 3)
   int reg_num_ = 8;
   /// parameterized register size (bit-width).
   int reg_wid_ = 8;
+  /// parameterized pipieline stages.
+  int pipe_num_ = 3;
+
+  /// opcode
+  enum k_opcode { op0 = 0, op1, op2, op3, op4 };
 
 }; // class EqIlaGen
 
