@@ -2,8 +2,11 @@
 /// Source for a collection of ILA helpers.
 
 #include "backend/abs_knob.h"
+#include "backend/expr_rewrite.h"
 
 namespace ila {
+
+const std::string AbsKnob::k_verbose_tag = "Verbose-AbsKnob";
 
 class FuncObjAddVarToSet {
 public:
@@ -136,6 +139,40 @@ std::set<InstrPtr> AbsKnob::GetInstrOfIla(const InstrLvlAbsPtr top) {
   std::set<InstrPtr> instrs;
   GetInstrOfIla(top, instrs);
   return instrs;
+}
+
+InstrLvlAbsPtr AbsKnob::ExtrDeptModl(const InstrPtr instr) {
+  ILA_NOT_NULL(instr);
+  ILA_NOT_NULL(instr->host());
+
+  auto h = instr->host();
+  auto m = InstrLvlAbs::New(h->name().str());
+
+  return NULL;
+}
+
+void AbsKnob::CopyVar(const InstrLvlAbsCnstPtr src, const InstrLvlAbsPtr dst) {
+  // copy state
+  for (decltype(src->state_num()) i = 0; i != src->state_num(); i++) {
+    auto s_src = src->state(i);
+    try {
+      auto s_dst = s_src; // FIXME wrong host
+      dst->AddState(s_dst);
+    } catch (...) {
+      ILA_WARN << "Fail copying " << s_src;
+    }
+  }
+  // copy input
+}
+
+ExprPtr AbsKnob::Rewrite(const ExprPtr e, const ExprMap& rule) {
+  auto func_obj = FuncObjRewrite(rule);
+  // rewrite all sub-trees
+  e->DepthFirstVisitPrePost(func_obj);
+  // return rewrited/copied node
+  auto res = func_obj.get(e);
+  ILA_ASSERT(res) << "Fail rewriting " << e;
+  return res;
 }
 
 } // namespace ila
