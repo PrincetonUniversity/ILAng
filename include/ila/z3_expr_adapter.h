@@ -11,13 +11,8 @@
 /// \namespace ila
 namespace ila {
 
-/// \brief The function object for hashing Expr in generating z3 expression. The
-/// hash value is the id of the symbol, which is supposed to be unique.
-class Z3AdapterHash {
-public:
-  /// Function object for hashing
-  size_t operator()(const ExprPtr expr) const { return expr->name().id(); }
-}; // class ExprHash
+/// The function object for hashing Expr in generating z3 expression.
+typedef ExprHash Z3AdapterHash;
 
 /// \brief The class for generating z3 expression from an ILA.
 class Z3ExprAdapter {
