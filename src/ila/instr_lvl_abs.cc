@@ -46,10 +46,12 @@ const InstrPtr InstrLvlAbs::instr(const std::string& name) const {
   }
 }
 
+#if 0
 const ExprPtr InstrLvlAbs::free_var(const std::string& name) const {
   auto pos = free_vars_.find(Symbol(name));
   return (pos == free_vars_.end()) ? NULL : pos->second;
 }
+#endif
 
 const InstrLvlAbsPtr InstrLvlAbs::child(const std::string& name) const {
   auto pos = childs_.find(Symbol(name));

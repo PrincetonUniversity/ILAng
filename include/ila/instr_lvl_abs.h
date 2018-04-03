@@ -111,8 +111,6 @@ public:
   const InstrPtr instr(const std::string& name) const;
   /// Return the named child-ILA; return NULL if not registered.
   const InstrLvlAbsPtr child(const std::string& name) const;
-  /// Return the named free variable; return NULL if not found.
-  const ExprPtr free_var(const std::string& name) const;
 
   // ------------------------- METHODS -------------------------------------- //
   /// \brief Add one input variable to the ILA, and register to the simplifier.
@@ -245,8 +243,6 @@ private:
   VarMap inputs_;
   /// The set of state variables.
   VarMap states_;
-  /// The set of free variables.
-  VarMap free_vars_;
   /// The set of initial constraints (not neccessary per-state).
   ExprPtrVec inits_;
   /// The fetch function.
