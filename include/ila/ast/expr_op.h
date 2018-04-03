@@ -335,6 +335,7 @@ public:
   std::string op_name() const { return "APP"; }
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                      const std::string& suffix = "") const;
+  inline FuncPtr func() const { return f; }
 
 private:
   /// Uninterpreted funcion.

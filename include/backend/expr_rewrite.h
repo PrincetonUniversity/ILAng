@@ -12,7 +12,11 @@ class FuncObjRewrite {
 public:
   FuncObjRewrite(const ExprMap& rule) : rule_(rule) {}
 
-  ExprPtr get(const ExprPtr e) const;
+  inline ExprPtr get(const ExprPtr e) const {
+    auto pos = rule_.find(e);
+    ILA_ASSERT(pos != rule_.end()) << e << " not found";
+    return pos->second;
+  }
 
   bool pre(const ExprPtr e) const;
 
@@ -22,6 +26,10 @@ public:
 
 private:
   ExprMap rule_;
+
+  ExprPtr CopyConst(const ExprPtr e) const;
+  ExprPtr CopyVar(const ExprPtr e) const;
+  ExprPtr CopyOp(const ExprPtr e) const;
 
 }; // class DfsFuncObjRewrite
 
