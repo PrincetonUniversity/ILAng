@@ -22,14 +22,12 @@ public:
 
   void post(const ExprPtr e);
 
-  ExprPtr Copy(const ExprPtr e) const;
-
 private:
   ExprMap rule_;
 
-  ExprPtr CopyConst(const ExprPtr e) const;
-  ExprPtr CopyVar(const ExprPtr e) const;
-  ExprPtr CopyOp(const ExprPtr e) const;
+  ExprPtr Rewrite(const ExprPtr e) const;
+
+  ExprPtr RewriteOp(const ExprPtr e) const;
 
 }; // class DfsFuncObjRewrite
 

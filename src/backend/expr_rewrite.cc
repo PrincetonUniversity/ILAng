@@ -22,34 +22,22 @@ bool FuncObjRewrite::pre(const ExprPtr e) const {
 }
 
 void FuncObjRewrite::post(const ExprPtr e) {
-  auto dst = Copy(e);
+  auto dst = Rewrite(e);
   auto ok = rule_.insert({e, dst}).second;
   // must not be defined, otherwise, there is a cycle.
   ILA_ASSERT(ok) << "Rewriting rule redefined (exist cycle in the AST)";
 }
 
-ExprPtr FuncObjRewrite::Copy(const ExprPtr e) const {
-  if (e->is_const()) {
-    return CopyConst(e);
-  } else if (e->is_var()) {
-    return CopyVar(e);
+ExprPtr FuncObjRewrite::Rewrite(const ExprPtr e) const {
+  if (e->is_var() || e->is_const()) {
+    return e;
   } else {
-    ILA_ASSERT(e->is_op()) << "Unknown Expr type";
-    return CopyOp(e);
+    ILA_ASSERT(e->is_op()) << "Unkown type for " << e;
+    return RewriteOp(e);
   }
 }
 
-ExprPtr FuncObjRewrite::CopyConst(const ExprPtr e) const {
-  // return the same node for constant
-  return e;
-}
-
-ExprPtr FuncObjRewrite::CopyVar(const ExprPtr e) const {
-  // return the same node for var (no rule defined)
-  return e;
-}
-
-ExprPtr FuncObjRewrite::CopyOp(const ExprPtr e) const {
+ExprPtr FuncObjRewrite::RewriteOp(const ExprPtr e) const {
   // check each type of op
   if (std::dynamic_pointer_cast<ExprOpNeg>(e)) { // Negate
     auto a = get(e->arg(0));
