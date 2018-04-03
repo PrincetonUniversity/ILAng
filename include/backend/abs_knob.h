@@ -10,6 +10,15 @@ namespace ila {
 
 class AbsKnob {
 public:
+#if 0
+  /// Add all vars (including child) to the set.
+  static void AddIlaVar(const InstrLvlAbsCnstPtr top, std::set<ExprPtr>& vars);
+  /// Add all state vars (including child) to the set.
+  static void AddIlaStVar(const InstrLvlAbsPtr top, std::set<ExprPtr>& vars);
+  /// Add all input vars (including child) to the set.
+  static void AddIlaInVar(const InstrLvlAbsPtr top, std::set<ExprPtr>& vars);
+#endif
+
   /// Add all vars (including child) to the set.
   static void GetVarOfIla(const InstrLvlAbsPtr top, std::set<ExprPtr>& vars);
   /// Add all state vars (including child) to the set.
@@ -43,17 +52,26 @@ public:
 
   /// \brief Return a new ILA that contains the dependant instructions and
   /// child-ILAs of an instruction (defined by sub-programs).
-  static InstrLvlAbsPtr ExtrDeptModl(const InstrPtr instr);
+  static InstrLvlAbsPtr ExtrDeptModl(const InstrPtr instr,
+                                     const std::string& name);
 
-  /// Copy all state and input var (not including child) from A to B.
-  static void CopyVar(const InstrLvlAbsCnstPtr src, const InstrLvlAbsPtr dst);
+  /// Copy an entire ILA.
+  static void CopyIla(const InstrLvlAbsCnstPtr src, const InstrLvlAbsPtr dst);
 
   /// \brief Rewrite an expression by replacing based on the rule.
   /// - If leaves contain non-var nodes, will replace with no further traverse.
   static ExprPtr Rewrite(const ExprPtr e, const ExprMap& rule);
 
-  /// Verbose tag for logging system.
-  static const std::string k_verbose_tag;
+private:
+  /// Copy all state and input var (not including child).
+  static void CopyVar(const InstrLvlAbsCnstPtr src, const InstrLvlAbsPtr dst);
+  /// Copy ILA attributes, e.g. fetch, valid, spec, etc.
+  static void CopyAttr(const InstrLvlAbsCnstPtr src, const InstrLvlAbsPtr dst);
+
+  /// Create new state var in dst host based on the given src.
+  static ExprPtr CopyStVar(const ExprPtr src, const InstrLvlAbsPtr dst_host);
+  /// Create new input var in dst host based on the given src.
+  static ExprPtr CopyInVar(const ExprPtr src, const InstrLvlAbsPtr dst_host);
 
 }; // class AbsKnob
 

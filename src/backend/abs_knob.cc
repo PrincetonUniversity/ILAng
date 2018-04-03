@@ -6,8 +6,6 @@
 
 namespace ila {
 
-const std::string AbsKnob::k_verbose_tag = "Verbose-AbsKnob";
-
 class FuncObjAddVarToSet {
 public:
   FuncObjAddVarToSet(std::set<ExprPtr>& vars) : vars_(vars) {}
@@ -141,28 +139,80 @@ std::set<InstrPtr> AbsKnob::GetInstrOfIla(const InstrLvlAbsPtr top) {
   return instrs;
 }
 
-InstrLvlAbsPtr AbsKnob::ExtrDeptModl(const InstrPtr instr) {
+InstrLvlAbsPtr AbsKnob::ExtrDeptModl(const InstrPtr instr,
+                                     const std::string& name) {
   ILA_NOT_NULL(instr);
   ILA_NOT_NULL(instr->host());
 
   auto h = instr->host();
-  auto m = InstrLvlAbs::New(h->name().str());
+  auto m = InstrLvlAbs::New(name);
 
-  return NULL;
+  try { // Create new state/input variables in the new ILA.
+    CopyVar(h, m);
+  } catch (...) {
+    ILA_ERROR << "Error in copy variables from " << h << " to " << m;
+    return h;
+  }
+
+  try { // Rewrite ILA attributes, e.g. fetch, valid, etc.
+    CopyAttr(h, m);
+  } catch (...) {
+    ILA_ERROR << "Error in copying ILA attributes from " << h << " to " << m;
+    return h;
+  }
+
+  // TODO child-program and sub-trees
+
+  return m;
+}
+
+void AbsKnob::CopyIla(const InstrLvlAbsCnstPtr src, const InstrLvlAbsPtr dst) {
+  ILA_NOT_NULL(src);
+  ILA_NOT_NULL(dst);
+  // check that dst is empty
+  ILA_ASSERT(dst->instr_num() == 0) << "Non-empty container " << dst;
+  ILA_ASSERT(dst->child_num() == 0) << "Non-empty container " << dst;
+
+  try { // Create new state/input variables in the new ILA.
+    CopyVar(src, dst);
+    ILA_ASSERT(src->state_num() == dst->state_num()) << "State num mismatch";
+    ILA_ASSERT(src->input_num() == dst->input_num()) << "Input num mismatch";
+  } catch (...) {
+    ILA_ERROR << "Error in copying variables from " << src << " to " << dst;
+    return;
+  }
+
+  // create rewriting map
+  auto rule = ExprMap();
+  auto vars = GetVarOfIla(dst);
+  for (decltype(src->state_num()) i = 0; i != src->state_num(); i++) {
+    // rule.insert(
+  }
+
+  try { // Rewrite fetch
+    // auto fetch =
+  } catch (...) {
+    return;
+  }
 }
 
 void AbsKnob::CopyVar(const InstrLvlAbsCnstPtr src, const InstrLvlAbsPtr dst) {
   // copy state
   for (decltype(src->state_num()) i = 0; i != src->state_num(); i++) {
-    auto s_src = src->state(i);
-    try {
-      auto s_dst = s_src; // FIXME wrong host
-      dst->AddState(s_dst);
-    } catch (...) {
-      ILA_WARN << "Fail copying " << s_src;
-    }
+    CopyStVar(src->state(i), dst);
   }
   // copy input
+  for (decltype(src->input_num()) i = 0; i != src->input_num(); i++) {
+    CopyInVar(src->input(i), dst);
+  }
+}
+
+void AbsKnob::CopyAttr(const InstrLvlAbsCnstPtr src, const InstrLvlAbsPtr dst) {
+  // TODO
+  // fetch
+  // valid
+  // init
+  // spec
 }
 
 ExprPtr AbsKnob::Rewrite(const ExprPtr e, const ExprMap& rule) {
@@ -173,6 +223,52 @@ ExprPtr AbsKnob::Rewrite(const ExprPtr e, const ExprMap& rule) {
   auto res = func_obj.get(e);
   ILA_ASSERT(res) << "Fail rewriting " << e;
   return res;
+}
+
+ExprPtr AbsKnob::CopyStVar(const ExprPtr src, const InstrLvlAbsPtr dst_host) {
+  ILA_NOT_NULL(src);
+  ILA_ASSERT(src->is_var());
+
+  // bypass if is parent state
+  auto copy = dst_host->state(src->name().str());
+  if (copy) {
+    ILA_ASSERT(copy->host() != dst_host) << "State " << src << " exists.";
+    return copy;
+  }
+  // create new state var
+  if (src->is_bool()) {
+    copy = dst_host->NewBoolState(src->name().str());
+  } else if (src->is_bv()) {
+    copy = dst_host->NewBvState(src->name().str(), src->sort()->bit_width());
+  } else {
+    ILA_ASSERT(src->is_mem()) << "Unknown type of " << src;
+    copy = dst_host->NewMemState(src->name().str(), src->sort()->addr_width(),
+                                 src->sort()->data_width());
+  }
+
+  return copy;
+}
+
+ExprPtr AbsKnob::CopyInVar(const ExprPtr src, const InstrLvlAbsPtr dst_host) {
+  ILA_NOT_NULL(src);
+  ILA_ASSERT(src->is_var());
+  ILA_ASSERT(!src->is_mem()) << "Mem var typed input not support.";
+
+  // bypass if is parent input
+  auto copy = dst_host->input(src->name().str());
+  if (copy) {
+    ILA_ASSERT(copy->host() != dst_host) << "Input " << src << " exists.";
+    return copy;
+  }
+  // create new input var
+  if (src->is_bool()) {
+    copy = dst_host->NewBoolInput(src->name().str());
+  } else {
+    ILA_ASSERT(src->is_bv()) << "Unknown type of " << src;
+    copy = dst_host->NewBvInput(src->name().str(), src->sort()->bit_width());
+  }
+
+  return copy;
 }
 
 } // namespace ila
