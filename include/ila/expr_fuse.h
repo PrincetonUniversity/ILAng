@@ -9,7 +9,6 @@
 #include "ila/ast/expr_op.h"
 #include "ila/ast/expr_var.h"
 #include "ila/ast/func.h"
-#include "ila/ast/sort.h"
 #include <string>
 
 /// \namespace ila
