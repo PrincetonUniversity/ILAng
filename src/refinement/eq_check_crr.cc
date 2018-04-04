@@ -41,10 +41,18 @@ bool CommDiag::EqCheck(const int& max) {
 
   auto s = z3::solver(ctx_);
   s.add(cstr_tran_a);
-  ILA_ASSERT(s.check() == z3::sat) << "Dead transition relation.";
+  if (s.check() == z3::unsat) {
+    ILA_ERROR << "Dead transition relation.";
+    ILA_DLOG("Verbose-CrrEqCheck") << s;
+    return false;
+  }
   s.reset();
   s.add(cstr_tran_b);
-  ILA_ASSERT(s.check() == z3::sat) << "Dead transition relation.";
+  if (s.check() == z3::unsat) {
+    ILA_ERROR << "Dead transition relation.";
+    ILA_DLOG("Verbose-CrrEqCheck") << s;
+    return false;
+  }
   s.reset();
 
   // generate assumptions (old state equivalent)
@@ -119,7 +127,8 @@ bool CommDiag::SanityCheckRefinement(const RefPtr ref) {
   s.reset();
   // s.add(an && !init);
   auto appl_z3 = z3::expr_vector(ctx_);
-  auto appl_vars = AbsKnob::GetVarOfExpr(a);
+  auto appl_vars = AbsKnob::GetVar(a);
+  // auto appl_vars = AbsKnob::GetVarOfExpr(a); // FIXME
   for (auto it = appl_vars.begin(); it != appl_vars.end(); it++) {
     appl_z3.push_back(unroll_appl_.CurrState(*it, 0));
   }
@@ -141,7 +150,8 @@ bool CommDiag::SanityCheckRelation(const RelPtr rel, const InstrLvlAbsPtr ma,
 
   ILA_NOT_NULL(rel);
   auto rel_expr = rel->get();
-  auto rel_vars = AbsKnob::GetVarOfExpr(rel_expr);
+  auto rel_vars = AbsKnob::GetVar(rel_expr);
+  // auto rel_vars = AbsKnob::GetVarOfExpr(rel_expr); // XXX
 
   // std::set<ExprPtr> ref_vars;
   // AbsKnob::GetStVarOfIla(ma, ref_vars);
@@ -267,7 +277,7 @@ bool CommDiag::CheckStepAppl(const RefPtr ref, const int& k) {
 z3::expr CommDiag::GenInit(const RefPtr ref) {
   // default equivalence: state variables (not including inputs)
   // auto vars = AbsKnob::GetStVarOfIla(ref->coi());
-  auto vars = AbsKnob::GetStt(ref->coi());
+  auto vars = AbsKnob::GetSttTree(ref->coi());
   auto eq = ctx_.bool_val(true);
   for (auto it = vars.begin(); it != vars.end(); it++) {
     auto so = unroll_orig_.CurrState(*it, 0);
