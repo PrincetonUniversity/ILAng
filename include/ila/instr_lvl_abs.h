@@ -235,6 +235,33 @@ public:
 
   friend class Instr;
 
+  /// \brief Templated visitor: visit each child-ILA in a depth-first order.
+  template <class F> void DepthFirstVisit(F& func) const {
+    // traverse child
+    for (decltype(child_num()) i = 0; i != child_num(); i++) {
+      auto child_i = this->child(i);
+      child_i->DepthFirstVisit<F>(func);
+    }
+    // apply function ()
+    func(shared_from_this());
+  }
+
+  /// \brief Templated visitor: visit each child-ILA in a depth-first order and
+  /// apply the function object F pre/pose on it.
+  template <class F> void DepthFirstVisitPrePost(F& func) const {
+    // pre
+    if (func.pre(shared_from_this())) { // break if return true
+      return;
+    }
+    // traverse child
+    for (decltype(child_num()) i = 0; i != child_num(); i++) {
+      auto child_i = this->child(i);
+      child_i->DepthFirstVisitPrePost<F>(func);
+    }
+    // post
+    func.post(shared_from_this());
+  }
+
 private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// Ths parent ILA.
