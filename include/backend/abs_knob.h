@@ -10,34 +10,36 @@ namespace ila {
 
 class AbsKnob {
 public:
-#if 0
+  /// Add all vars (excluding child) to the set.
+  static void InsertVar(const InstrLvlAbsCnstPtr m, ExprSet& vars);
+  /// Add all state vars (excluding child) to the set.
+  static void InsertStt(const InstrLvlAbsCnstPtr m, ExprSet& stts);
+  /// Add all input vars (excluding child) to the set.
+  static void InsertInp(const InstrLvlAbsCnstPtr m, ExprSet& inps);
   /// Add all vars (including child) to the set.
-  static void AddIlaVar(const InstrLvlAbsCnstPtr top, std::set<ExprPtr>& vars);
+  static void InsertVarTree(const InstrLvlAbsCnstPtr top, ExprSet& vars);
   /// Add all state vars (including child) to the set.
-  static void AddIlaStVar(const InstrLvlAbsPtr top, std::set<ExprPtr>& vars);
+  static void InsertSttTree(const InstrLvlAbsCnstPtr top, ExprSet& stts);
   /// Add all input vars (including child) to the set.
-  static void AddIlaInVar(const InstrLvlAbsPtr top, std::set<ExprPtr>& vars);
-#endif
+  static void InsertInpTree(const InstrLvlAbsCnstPtr top, ExprSet& inps);
 
-  /// Add all vars (including child) to the set.
-  static void GetVarOfIla(const InstrLvlAbsPtr top, std::set<ExprPtr>& vars);
-  /// Add all state vars (including child) to the set.
-  static void GetStVarOfIla(const InstrLvlAbsPtr top, std::set<ExprPtr>& vars);
-  /// Add all input vars (including child) to the set.
-  static void GetInVarOfIla(const InstrLvlAbsPtr top, std::set<ExprPtr>& vars);
-  /// Add all state vars (including child) to the set.
-  template <class InstrCntr>
-  static void GetStVarOfInstr(const InstrCntr& instrs, std::set<ExprPtr>& vars);
+  /// Add all dependant state vars (excluding child) to the set.
+  static void InsertStt(const InstrCnstPtr instrs, ExprSet& stts);
+  /// Add all dependant state vars (including child) to the set.
+  static void InsertSttTree(const InstrCnstPtr instrs, ExprSet& stts);
 
+  /// Get the set of all vars (excluding child).
+  static ExprSet GetVar(const InstrLvlAbsCnstPtr m);
+  /// Get the set of all state vars (excluding child).
+  static ExprSet GetStt(const InstrLvlAbsCnstPtr m);
+  /// Get the set of all input vars (excluding child).
+  static ExprSet GetInp(const InstrLvlAbsCnstPtr m);
   /// Get the set of all vars (including child).
-  static std::set<ExprPtr> GetVarOfIla(const InstrLvlAbsPtr top);
+  static ExprSet GetVarTree(const InstrLvlAbsCnstPtr top);
   /// Get the set of all state vars (including child).
-  static std::set<ExprPtr> GetStVarOfIla(const InstrLvlAbsPtr top);
+  static ExprSet GetSttTree(const InstrLvlAbsCnstPtr top);
   /// Get the set of all input vars (including child).
-  static std::set<ExprPtr> GetInVarOfIla(const InstrLvlAbsPtr top);
-  /// Get the set of all state vars.
-  template <class InstrCntr>
-  static std::set<ExprPtr> GetStVarOfInstr(const InstrCntr& instrs);
+  static ExprSet GetInpTree(const InstrLvlAbsCnstPtr top);
 
   /// Add dependant vars (either state or input) to the set.
   static void GetVarOfExpr(const ExprPtr e, std::set<ExprPtr>& vars);

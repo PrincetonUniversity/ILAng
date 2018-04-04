@@ -19,81 +19,113 @@ public:
 private:
   std::set<ExprPtr>& vars_;
 
-}; // class DfsFuncObjAddVarToSet
+}; // class FuncObjAddVarToSet
 
-void AbsKnob::GetVarOfIla(const InstrLvlAbsPtr top, std::set<ExprPtr>& vars) {
-  ILA_NOT_NULL(top);
-  GetInVarOfIla(top, vars);
-  GetStVarOfIla(top, vars);
+class FuncObjInsertILAInp {
+public:
+  FuncObjInsertILAInp(ExprSet& vars) : vars_(vars) {}
+
+  void operator()(const InstrLvlAbsCnstPtr m) const {
+    AbsKnob::InsertInp(m, vars_);
+  }
+
+private:
+  ExprSet& vars_;
+}; // class FuncObjInsertILAStt
+
+class FuncObjInsertILAStt {
+public:
+  FuncObjInsertILAStt(ExprSet& vars) : vars_(vars) {}
+
+  void operator()(const InstrLvlAbsCnstPtr m) const {
+    AbsKnob::InsertStt(m, vars_);
+  }
+
+private:
+  ExprSet& vars_;
+}; // class FuncObjInsertILAStt
+
+void AbsKnob::InsertVar(const InstrLvlAbsCnstPtr m, ExprSet& vars) {
+  InsertStt(m, vars);
+  InsertInp(m, vars);
 }
 
-void AbsKnob::GetInVarOfIla(const InstrLvlAbsPtr top, std::set<ExprPtr>& vars) {
-  ILA_NOT_NULL(top);
-  // traverse the child-ILAs
-  for (size_t i = 0; i != top->child_num(); i++) {
-    GetVarOfIla(top->child(i), vars);
-  }
-  // child-states must contain parent-states
-  if (top->child_num() != 0)
-    return;
-  // add states if no child-ILAs
-  for (size_t i = 0; i != top->input_num(); i++) {
-    vars.insert(top->input(i));
+void AbsKnob::InsertStt(const InstrLvlAbsCnstPtr m, ExprSet& stts) {
+  for (decltype(m->state_num()) i = 0; i != m->state_num(); i++) {
+    stts.insert(m->state(i));
   }
 }
 
-void AbsKnob::GetStVarOfIla(const InstrLvlAbsPtr top, std::set<ExprPtr>& vars) {
-  ILA_NOT_NULL(top);
-  // traverse the child-ILAs
-  for (size_t i = 0; i != top->child_num(); i++) {
-    GetStVarOfIla(top->child(i), vars);
-  }
-  // child-states must contain parent-states
-  if (top->child_num() != 0)
-    return;
-  // add states if no child-ILAs
-  for (size_t i = 0; i != top->state_num(); i++) {
-    vars.insert(top->state(i));
+void AbsKnob::InsertInp(const InstrLvlAbsCnstPtr m, ExprSet& inps) {
+  for (decltype(m->input_num()) i = 0; i != m->input_num(); i++) {
+    inps.insert(m->input(i));
   }
 }
 
-template <class I>
-void AbsKnob::GetStVarOfInstr(const I& instrs, std::set<ExprPtr>& vars) {
-  std::set<InstrLvlAbsPtr> hosts;
-  for (auto it = instrs.begin(); it != instrs.end(); it++) {
-    auto instr = *it;
-    auto h = instr->host();
-    ILA_NOT_NULL(h);
-    hosts.insert(h);
-  }
-  for (auto it = hosts.begin(); it != hosts.end(); it++) {
-    GetStVarOfIla(*it, vars);
-  }
+void AbsKnob::InsertVarTree(const InstrLvlAbsCnstPtr top, ExprSet& vars) {
+  InsertSttTree(top, vars);
+  InsertInpTree(top, vars);
 }
-// define the supported template type
-template void
-AbsKnob::GetStVarOfInstr<std::set<InstrPtr>>(const std::set<InstrPtr>& instrs,
-                                             std::set<ExprPtr>& vars);
-template void AbsKnob::GetStVarOfInstr<std::vector<InstrPtr>>(
-    const std::vector<InstrPtr>& instrs, std::set<ExprPtr>& vars);
 
-std::set<ExprPtr> AbsKnob::GetVarOfIla(const InstrLvlAbsPtr top) {
-  std::set<ExprPtr> vars;
-  GetVarOfIla(top, vars);
+void AbsKnob::InsertSttTree(const InstrLvlAbsCnstPtr top, ExprSet& stts) {
+  auto f = FuncObjInsertILAStt(stts);
+  top->DepthFirstVisit(f);
+}
+
+void AbsKnob::InsertInpTree(const InstrLvlAbsCnstPtr top, ExprSet& inps) {
+  auto f = FuncObjInsertILAInp(inps);
+  top->DepthFirstVisit(f);
+}
+
+void AbsKnob::InsertStt(const InstrCnstPtr instr, ExprSet& vars) {
+  auto host = instr->host();
+  ILA_NOT_NULL(host);
+  InsertStt(host, vars);
+}
+
+void AbsKnob::InsertSttTree(const InstrCnstPtr instr, ExprSet& vars) {
+  auto host = instr->host();
+  ILA_NOT_NULL(host);
+  InsertSttTree(host, vars);
+}
+
+ExprSet AbsKnob::GetVar(const InstrLvlAbsCnstPtr m) {
+  auto vars = ExprSet();
+  InsertVar(m, vars);
   return vars;
 }
 
-std::set<ExprPtr> AbsKnob::GetStVarOfIla(const InstrLvlAbsPtr top) {
-  std::set<ExprPtr> vars;
-  GetStVarOfIla(top, vars);
+ExprSet AbsKnob::GetStt(const InstrLvlAbsCnstPtr m) {
+  auto stts = ExprSet();
+  InsertStt(m, stts);
+  return stts;
+}
+
+ExprSet AbsKnob::GetInp(const InstrLvlAbsCnstPtr m) {
+  auto inps = ExprSet();
+  InsertInp(m, inps);
+  return inps;
+}
+
+ExprSet AbsKnob::GetVarTree(const InstrLvlAbsCnstPtr top) {
+  auto vars = ExprSet();
+  InsertVarTree(top, vars);
   return vars;
 }
 
-std::set<ExprPtr> AbsKnob::GetInVarOfIla(const InstrLvlAbsPtr top) {
-  std::set<ExprPtr> vars;
-  GetInVarOfIla(top, vars);
-  return vars;
+ExprSet AbsKnob::GetSttTree(const InstrLvlAbsCnstPtr top) {
+  auto stts = ExprSet();
+  InsertSttTree(top, stts);
+  return stts;
 }
+
+ExprSet AbsKnob::GetInpTree(const InstrLvlAbsCnstPtr top) {
+  auto inps = ExprSet();
+  InsertInp(top, inps);
+  return inps;
+}
+
+// XXX
 
 std::set<ExprPtr> AbsKnob::GetVarOfExpr(const ExprPtr e) {
   std::set<ExprPtr> vars;
@@ -105,12 +137,6 @@ void AbsKnob::GetVarOfExpr(const ExprPtr e, std::set<ExprPtr>& vars) {
   ILA_NOT_NULL(e);
   auto obj = FuncObjAddVarToSet(vars);
   e->DepthFirstVisit(obj);
-}
-
-template <class I> std::set<ExprPtr> AbsKnob::GetStVarOfInstr(const I& instrs) {
-  std::set<ExprPtr> vars;
-  GetStVarOfInstr(instrs, vars);
-  return vars;
 }
 
 template <class I>
@@ -184,7 +210,7 @@ void AbsKnob::CopyIla(const InstrLvlAbsCnstPtr src, const InstrLvlAbsPtr dst) {
 
   // create rewriting map
   auto rule = ExprMap();
-  auto vars = GetVarOfIla(dst);
+  // auto vars = GetVarOfIla(dst);
   for (decltype(src->state_num()) i = 0; i != src->state_num(); i++) {
     // rule.insert(
   }

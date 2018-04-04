@@ -143,9 +143,12 @@ bool CommDiag::SanityCheckRelation(const RelPtr rel, const InstrLvlAbsPtr ma,
   auto rel_expr = rel->get();
   auto rel_vars = AbsKnob::GetVarOfExpr(rel_expr);
 
-  std::set<ExprPtr> ref_vars;
-  AbsKnob::GetStVarOfIla(ma, ref_vars);
-  AbsKnob::GetStVarOfIla(mb, ref_vars);
+  // std::set<ExprPtr> ref_vars;
+  // AbsKnob::GetStVarOfIla(ma, ref_vars);
+  // AbsKnob::GetStVarOfIla(mb, ref_vars);
+  auto ref_vars = ExprSet();
+  AbsKnob::InsertStt(ma, ref_vars);
+  AbsKnob::InsertStt(mb, ref_vars);
 
   // check: rel_vars <= ref_vars
   for (auto it = rel_vars.begin(); it != rel_vars.end(); it++) {
@@ -263,7 +266,8 @@ bool CommDiag::CheckStepAppl(const RefPtr ref, const int& k) {
 
 z3::expr CommDiag::GenInit(const RefPtr ref) {
   // default equivalence: state variables (not including inputs)
-  auto vars = AbsKnob::GetStVarOfIla(ref->coi());
+  // auto vars = AbsKnob::GetStVarOfIla(ref->coi());
+  auto vars = AbsKnob::GetStt(ref->coi());
   auto eq = ctx_.bool_val(true);
   for (auto it = vars.begin(); it != vars.end(); it++) {
     auto so = unroll_orig_.CurrState(*it, 0);
@@ -331,7 +335,8 @@ z3::expr CommDiag::UnrollFlush(MonoUnroll& unroller, const RefPtr ref,
   // unroll
   auto path = unroller.MonoAssn(ref->coi(), length, base);
 
-  auto vars = AbsKnob::GetStVarOfIla(ref->coi());
+  // auto vars = AbsKnob::GetStVarOfIla(ref->coi());
+  auto vars = AbsKnob::GetStt(ref->coi());
   auto mark = ctx_.bool_val(true);
   // mark complete step with representing state
   for (auto i = start; i <= base + length; i++) {

@@ -211,55 +211,21 @@ ExprPtr Unroller::DecodeCmpl(const InstrPtr instr) {
 }
 
 template <class I>
-void Unroller::GetVarOfInstr(const I& instrs, std::set<ExprPtr>& vars) {
-  AbsKnob::GetStVarOfInstr(instrs, vars);
-#if 0
-  std::set<InstrLvlAbsPtr> hosts;
+void Unroller::GetVarOfInstr(const I& instrs, ExprSet& vars) {
   for (auto it = instrs.begin(); it != instrs.end(); it++) {
-    auto instr = *it;
-    auto h = instr->host();
-    ILA_NOT_NULL(h);
-    hosts.insert(h);
+    AbsKnob::InsertStt(*it, vars);
   }
-  for (auto it = hosts.begin(); it != hosts.end(); it++) {
-    // GetVarOfIla(*it, vars);
-    AbsKnob::GetStVarOfIla(*it, vars);
-  }
-#endif
+  // AbsKnob::GetStVarOfInstr(instrs, vars);
 }
 
-void Unroller::GetVarOfIla(const InstrLvlAbsPtr top, std::set<ExprPtr>& vars) {
-  AbsKnob::GetStVarOfIla(top, vars);
-#if 0
-  ILA_NOT_NULL(top);
-  // traverse the child-ILAs
-  for (size_t i = 0; i != top->child_num(); i++) {
-    GetVarOfIla(top->child(i), vars);
-  }
-  // child-states must contain parent-states
-  if (top->child_num() != 0)
-    return;
-  // add states if no child-ILAs
-  for (size_t i = 0; i != top->state_num(); i++) {
-    vars.insert(top->state(i));
-  }
-#endif
+void Unroller::GetVarOfIla(const InstrLvlAbsPtr top, ExprSet& vars) {
+  // AbsKnob::GetStVarOfIla(top, vars);
+  AbsKnob::InsertSttTree(top, vars);
 }
 
 void Unroller::GetInstrOfIla(const InstrLvlAbsPtr top,
                              std::vector<InstrPtr>& instrs) {
   AbsKnob::GetInstrOfIla(top, instrs);
-#if 0
-  ILA_NOT_NULL(top);
-  // traverse the child-ILAs
-  for (size_t i = 0; i != top->child_num(); i++) {
-    GetInstrOfIla(top->child(i), instrs);
-  }
-  // add instr
-  for (size_t i = 0; i != top->instr_num(); i++) {
-    instrs.push_back(top->instr(i));
-  }
-#endif
 }
 
 ExprPtr Unroller::NewFreeVar(const ExprPtr var, const std::string& name) {
@@ -375,9 +341,9 @@ ZExpr PathUnroll::PathNone(const InstrVec& seq, const int& pos) {
 
 void PathUnroll::DefineDepVar() {
   // collect the set of vars
-  std::set<ExprPtr> dep_var;
+  auto dep_var = ExprSet();
   GetVarOfInstr(seq_, dep_var);
-
+  // XXX do we need to create new set?
   // update to the global set
   vars_.clear();
   for (auto it = dep_var.begin(); it != dep_var.end(); it++) {
@@ -432,9 +398,9 @@ ZExpr MonoUnroll::MonoNone(const InstrLvlAbsPtr top, const int& length,
 
 void MonoUnroll::DefineDepVar() {
   vars_.clear();
-  std::set<ExprPtr> dep_var;
+  auto dep_var = ExprSet();
   GetVarOfIla(top_, dep_var);
-
+  // XXX do we need to create new set?
   ILA_ASSERT(!dep_var.empty()) << "No state var found.";
   for (auto it = dep_var.begin(); it != dep_var.end(); it++) {
     vars_.push_back(*it);

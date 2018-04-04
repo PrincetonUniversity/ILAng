@@ -100,10 +100,9 @@ protected:
   static ExprPtr DecodeCmpl(const InstrPtr instr);
 
   /// Add dependant state vars of a sequence/set of instructions to the set.
-  template <class I>
-  static void GetVarOfInstr(const I& instrs, std::set<ExprPtr>& vars);
+  template <class I> static void GetVarOfInstr(const I& instrs, ExprSet& vars);
   /// Add dependant state vars of a tree of ILAs to the set.
-  static void GetVarOfIla(const InstrLvlAbsPtr top, std::set<ExprPtr>& vars);
+  static void GetVarOfIla(const InstrLvlAbsPtr top, ExprSet& vars);
   /// Add instructions of a tree of ILAs to the set.
   static void GetInstrOfIla(const InstrLvlAbsPtr top,
                             std::vector<InstrPtr>& instrs);
