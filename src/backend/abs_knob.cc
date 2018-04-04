@@ -6,9 +6,9 @@
 
 namespace ila {
 
-class FuncObjAddVarToSet {
+class FuncObjInsertExprVar {
 public:
-  FuncObjAddVarToSet(std::set<ExprPtr>& vars) : vars_(vars) {}
+  FuncObjInsertExprVar(ExprSet& vars) : vars_(vars) {}
 
   void operator()(const ExprPtr e) const {
     if (e->is_var()) {
@@ -17,9 +17,9 @@ public:
   }
 
 private:
-  std::set<ExprPtr>& vars_;
+  ExprSet& vars_;
 
-}; // class FuncObjAddVarToSet
+}; // class FuncObjInsertExprVar
 
 class FuncObjInsertILAInp {
 public:
@@ -45,6 +45,28 @@ private:
   ExprSet& vars_;
 }; // class FuncObjInsertILAStt
 
+/******************************************************************************/
+ExprSet AbsKnob::GetVar(const ExprPtr e) {
+  auto vars = ExprSet();
+  auto func = FuncObjInsertExprVar(vars);
+  e->DepthFirstVisit(func);
+  return vars;
+}
+
+/******************************************************************************/
+void AbsKnob::InsertStt(const InstrCnstPtr instr, ExprSet& vars) {
+  auto host = instr->host();
+  ILA_NOT_NULL(host);
+  InsertStt(host, vars);
+}
+
+void AbsKnob::InsertSttTree(const InstrCnstPtr instr, ExprSet& vars) {
+  auto host = instr->host();
+  ILA_NOT_NULL(host);
+  InsertSttTree(host, vars);
+}
+
+/******************************************************************************/
 void AbsKnob::InsertVar(const InstrLvlAbsCnstPtr m, ExprSet& vars) {
   InsertStt(m, vars);
   InsertInp(m, vars);
@@ -75,18 +97,6 @@ void AbsKnob::InsertSttTree(const InstrLvlAbsCnstPtr top, ExprSet& stts) {
 void AbsKnob::InsertInpTree(const InstrLvlAbsCnstPtr top, ExprSet& inps) {
   auto f = FuncObjInsertILAInp(inps);
   top->DepthFirstVisit(f);
-}
-
-void AbsKnob::InsertStt(const InstrCnstPtr instr, ExprSet& vars) {
-  auto host = instr->host();
-  ILA_NOT_NULL(host);
-  InsertStt(host, vars);
-}
-
-void AbsKnob::InsertSttTree(const InstrCnstPtr instr, ExprSet& vars) {
-  auto host = instr->host();
-  ILA_NOT_NULL(host);
-  InsertSttTree(host, vars);
 }
 
 ExprSet AbsKnob::GetVar(const InstrLvlAbsCnstPtr m) {
@@ -125,19 +135,7 @@ ExprSet AbsKnob::GetInpTree(const InstrLvlAbsCnstPtr top) {
   return inps;
 }
 
-// XXX
-
-std::set<ExprPtr> AbsKnob::GetVarOfExpr(const ExprPtr e) {
-  std::set<ExprPtr> vars;
-  GetVarOfExpr(e, vars);
-  return vars;
-}
-
-void AbsKnob::GetVarOfExpr(const ExprPtr e, std::set<ExprPtr>& vars) {
-  ILA_NOT_NULL(e);
-  auto obj = FuncObjAddVarToSet(vars);
-  e->DepthFirstVisit(obj);
-}
+/******************************************************************************/
 
 template <class I>
 void AbsKnob::GetInstrOfIla(const InstrLvlAbsPtr top, I& instrs) {

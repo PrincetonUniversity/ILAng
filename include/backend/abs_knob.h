@@ -10,41 +10,49 @@ namespace ila {
 
 class AbsKnob {
 public:
-  /// Add all vars (excluding child) to the set.
-  static void InsertVar(const InstrLvlAbsCnstPtr m, ExprSet& vars);
-  /// Add all state vars (excluding child) to the set.
-  static void InsertStt(const InstrLvlAbsCnstPtr m, ExprSet& stts);
-  /// Add all input vars (excluding child) to the set.
-  static void InsertInp(const InstrLvlAbsCnstPtr m, ExprSet& inps);
-  /// Add all vars (including child) to the set.
-  static void InsertVarTree(const InstrLvlAbsCnstPtr top, ExprSet& vars);
-  /// Add all state vars (including child) to the set.
-  static void InsertSttTree(const InstrLvlAbsCnstPtr top, ExprSet& stts);
-  /// Add all input vars (including child) to the set.
-  static void InsertInpTree(const InstrLvlAbsCnstPtr top, ExprSet& inps);
+  /****************************************************************************/
+  /// Add all dependent vars of the expr to the set.
+  static void InsertVar(const ExprPtr e, ExprSet& vars);
+  /// Get the set of all dependent vars of the expr.
+  static ExprSet GetVar(const ExprPtr e);
 
-  /// Add all dependant state vars (excluding child) to the set.
+  /****************************************************************************/
+  /// Add all state vars of the host (excluding child) to the set.
   static void InsertStt(const InstrCnstPtr instrs, ExprSet& stts);
-  /// Add all dependant state vars (including child) to the set.
+  /// Add all state vars of the host (including child) to the set.
   static void InsertSttTree(const InstrCnstPtr instrs, ExprSet& stts);
 
-  /// Get the set of all vars (excluding child).
+  /****************************************************************************/
+  /// Add all vars of the ILA (excluding child) to the set.
+  static void InsertVar(const InstrLvlAbsCnstPtr m, ExprSet& vars);
+  /// Add all state vars of the ILA (excluding child) to the set.
+  static void InsertStt(const InstrLvlAbsCnstPtr m, ExprSet& stts);
+  /// Add all input vars of the ILA (excluding child) to the set.
+  static void InsertInp(const InstrLvlAbsCnstPtr m, ExprSet& inps);
+  /// Add all vars of the ILA (including child) to the set.
+  static void InsertVarTree(const InstrLvlAbsCnstPtr top, ExprSet& vars);
+  /// Add all state vars of the ILA (including child) to the set.
+  static void InsertSttTree(const InstrLvlAbsCnstPtr top, ExprSet& stts);
+  /// Add all input vars of the ILA (including child) to the set.
+  static void InsertInpTree(const InstrLvlAbsCnstPtr top, ExprSet& inps);
+
+  /// Get the set of all vars of the ILA (excluding child).
   static ExprSet GetVar(const InstrLvlAbsCnstPtr m);
-  /// Get the set of all state vars (excluding child).
+  /// Get the set of all state vars of the ILA (excluding child).
   static ExprSet GetStt(const InstrLvlAbsCnstPtr m);
-  /// Get the set of all input vars (excluding child).
+  /// Get the set of all input vars of the ILA (excluding child).
   static ExprSet GetInp(const InstrLvlAbsCnstPtr m);
-  /// Get the set of all vars (including child).
+  /// Get the set of all vars of the ILA (including child).
   static ExprSet GetVarTree(const InstrLvlAbsCnstPtr top);
-  /// Get the set of all state vars (including child).
+  /// Get the set of all state vars of the ILA (including child).
   static ExprSet GetSttTree(const InstrLvlAbsCnstPtr top);
-  /// Get the set of all input vars (including child).
+  /// Get the set of all input vars of the ILA (including child).
   static ExprSet GetInpTree(const InstrLvlAbsCnstPtr top);
 
-  /// Add dependant vars (either state or input) to the set.
-  static void GetVarOfExpr(const ExprPtr e, std::set<ExprPtr>& vars);
-  /// Get the set of dependant vars (either state or input).
-  static std::set<ExprPtr> GetVarOfExpr(const ExprPtr e);
+  /// Add all instructions of the ILA (excluding child) to the set.
+  static void InsertInstr(const InstrLvlAbsCnstPtr m, InstrSet& instrs);
+  /// Add all instructions of the ILA (including child) to the set.
+  static void InsertInstrTree(const InstrLvlAbsCnstPtr m, InstrSet& instrs);
 
   /// Add all instructions (including child) to the std::set/std::vector.
   template <class InstrCntr>
