@@ -68,6 +68,7 @@ TEST_F(TestEqCheck, FF_Mono) {
 
 TEST_F(TestEqCheck, CommDiag_HF) {
   SetToStdErr(1);
+  // DebugLog::Disable("Verbose-CrrEqCheck");
   for (auto instr_idx : {0}) {
     // refinement
     auto ref1 = GetRefine(f1, instr_idx, false, true);
@@ -82,6 +83,7 @@ TEST_F(TestEqCheck, CommDiag_HF) {
     CustH1(ref2);
 
     EXPECT_TRUE(cd.EqCheck(100));
+    // EXPECT_TRUE(cd.EqCheck(20));
   }
 }
 
@@ -160,11 +162,13 @@ void TestEqCheck::CustH1(const RefPtr ref) {
   ILA_NOT_NULL(uptr);
 
   ref->add_inv(Uge(ucnt, 0));
-  // ref->add_inv(Ult(ucnt, 3));
+  // ref->add_inv(Ult(ucnt, 2));
   ref->add_inv(Ule(ucnt, ila_gen.reg_num()));
   ref->add_inv(Uge(uptr, 0));
   ref->add_inv(Ult(uptr, ila_gen.reg_num()));
 
+  // ref->set_step_orig(5);
+  // ref->set_step_appl(5);
   ref->set_step_orig(60);
   ref->set_step_appl(70);
 }
