@@ -13,6 +13,7 @@
 #include <ostream>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 /// \namespace ila
@@ -142,6 +143,8 @@ public:
 
 /// Type for mapping between Expr.
 typedef std::unordered_map<const ExprPtr, const ExprPtr, ExprHash> ExprMap;
+/// Type for storing a set of Expr.
+typedef std::unordered_set<ExprPtr, ExprHash> ExprSet;
 
 } // namespace ila
 
