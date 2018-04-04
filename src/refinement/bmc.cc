@@ -6,7 +6,7 @@
 namespace ila {
 
 typedef Bmc::UpdateMap UpdateMap;
-typedef Bmc::InstrSet InstrSet;
+// typedef Bmc::InstrSet InstrSet;
 
 Bmc::Bmc() {}
 
