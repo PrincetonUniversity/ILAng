@@ -126,6 +126,8 @@ private:
 
 /// Pointer type for normal use of Instr.
 typedef Instr::InstrPtr InstrPtr;
+/// Pointer type for read-only use of Instr.
+typedef std::shared_ptr<const Instr> InstrCnstPtr;
 
 } // namespace ila
 
