@@ -42,7 +42,7 @@ z3::check_result Bmc::BmcLegacy(InstrLvlAbsPtr m0, const int& k0,
   auto suffix_k1 = std::to_string(k1);
   for (size_t i = 0; i != state_num_m0; i++) {
     auto state_m0 = m0->state(i);
-    auto state_m1 = m1->state(state_m0->name().str());
+    auto state_m1 = m1->find_state(state_m0->name());
     ILA_ASSERT(state_m1 != NULL) << "State unmatched: " << state_m0;
 
     // equal initial condition
@@ -62,7 +62,7 @@ z3::check_result Bmc::BmcLegacy(InstrLvlAbsPtr m0, const int& k0,
   auto input_num_m0 = m0->input_num();
   for (size_t i = 0; i != input_num_m0; i++) {
     auto input_m0 = m0->input(i);
-    auto input_m1 = m1->input(input_m0->name().str());
+    auto input_m1 = m1->find_input(input_m0->name());
     ILA_ASSERT(input_m1 != NULL) << "Input unmatched: " << input_m0;
 
     auto input_m0_init = mod_gen.Node(input_m0, suffix_init);

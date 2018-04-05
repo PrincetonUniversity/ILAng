@@ -22,44 +22,47 @@ InstrLvlAbsPtr InstrLvlAbs::New(const std::string& name,
 }
 
 const ExprPtr InstrLvlAbs::input(const std::string& name) const {
-  auto pos = inputs_.find(Symbol(name));
-  if (pos == inputs_.end())
-    return NULL;
-  else
-    return pos->second;
+  auto inp = find_input(Symbol(name));
+  ILA_ASSERT(inp) << "Input " << name << " not found.";
+  return inp;
 }
 
 const ExprPtr InstrLvlAbs::state(const std::string& name) const {
-  auto pos = states_.find(Symbol(name));
-  if (pos == states_.end())
-    return NULL;
-  else
-    return pos->second;
+  auto stt = find_state(Symbol(name));
+  ILA_ASSERT(stt) << "State " << name << " not found.";
+  return stt;
 }
 
 const InstrPtr InstrLvlAbs::instr(const std::string& name) const {
-  auto pos = instrs_.find(Symbol(name));
-  if (pos == instrs_.end()) {
-    return NULL;
-  } else {
-    return pos->second;
-  }
+  auto instr = find_instr(Symbol(name));
+  ILA_ASSERT(instr) << "Instruction " << name << " not found.";
+  return instr;
 }
-
-#if 0
-const ExprPtr InstrLvlAbs::free_var(const std::string& name) const {
-  auto pos = free_vars_.find(Symbol(name));
-  return (pos == free_vars_.end()) ? NULL : pos->second;
-}
-#endif
 
 const InstrLvlAbsPtr InstrLvlAbs::child(const std::string& name) const {
-  auto pos = childs_.find(Symbol(name));
-  if (pos == childs_.end()) {
-    return NULL;
-  } else {
-    return pos->second;
-  }
+  auto child = find_child(Symbol(name));
+  ILA_ASSERT(child) << "Child-ILA " << name << " not found.";
+  return child;
+}
+
+const ExprPtr InstrLvlAbs::find_input(const Symbol& name) const {
+  auto pos = inputs_.find(name);
+  return (pos == inputs_.end()) ? NULL : pos->second;
+}
+
+const ExprPtr InstrLvlAbs::find_state(const Symbol& name) const {
+  auto pos = states_.find(name);
+  return (pos == states_.end()) ? NULL : pos->second;
+}
+
+const InstrPtr InstrLvlAbs::find_instr(const Symbol& name) const {
+  auto pos = instrs_.find(name);
+  return (pos == instrs_.end()) ? NULL : pos->second;
+}
+
+const InstrLvlAbsPtr InstrLvlAbs::find_child(const Symbol& name) const {
+  auto pos = childs_.find(name);
+  return (pos == childs_.end()) ? NULL : pos->second;
 }
 
 void InstrLvlAbs::AddInput(const ExprPtr input_var) {

@@ -261,7 +261,8 @@ ExprPtr AbsKnob::CopyStVar(const ExprPtr src, const InstrLvlAbsPtr dst_host) {
   ILA_ASSERT(src->is_var());
 
   // bypass if is parent state
-  auto copy = dst_host->state(src->name().str());
+  // auto copy = dst_host->state(src->name().str());
+  auto copy = dst_host->find_state(src->name());
   if (copy) {
     ILA_ASSERT(copy->host() != dst_host) << "State " << src << " exists.";
     return copy;
@@ -286,7 +287,8 @@ ExprPtr AbsKnob::CopyInVar(const ExprPtr src, const InstrLvlAbsPtr dst_host) {
   ILA_ASSERT(!src->is_mem()) << "Mem var typed input not support.";
 
   // bypass if is parent input
-  auto copy = dst_host->input(src->name().str());
+  // auto copy = dst_host->input(src->name().str());
+  auto copy = dst_host->find_input(src->name());
   if (copy) {
     ILA_ASSERT(copy->host() != dst_host) << "Input " << src << " exists.";
     return copy;

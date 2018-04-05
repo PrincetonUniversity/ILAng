@@ -112,6 +112,15 @@ public:
   /// Return the named child-ILA; return NULL if not registered.
   const InstrLvlAbsPtr child(const std::string& name) const;
 
+  /// Return the named input variable; return NULL if not registered.
+  const ExprPtr find_input(const Symbol& name) const;
+  /// Return the named state variable; return NULL if not registered.
+  const ExprPtr find_state(const Symbol& name) const;
+  /// Return the named instruction; return NULL if not registered.
+  const InstrPtr find_instr(const Symbol& name) const;
+  /// Return the named child-ILA; return NULL if not registered.
+  const InstrLvlAbsPtr find_child(const Symbol& name) const;
+
   // ------------------------- METHODS -------------------------------------- //
   /// \brief Add one input variable to the ILA, and register to the simplifier.
   /// \param[in] input_var pointer to the input variable being added.
