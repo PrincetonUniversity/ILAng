@@ -210,24 +210,6 @@ ExprPtr Unroller::DecodeCmpl(const InstrPtr instr) {
   return (dec) ? dec : BoolConst(true);
 }
 
-template <class I>
-void Unroller::GetVarOfInstr(const I& instrs, ExprSet& vars) {
-  for (auto it = instrs.begin(); it != instrs.end(); it++) {
-    AbsKnob::InsertStt(*it, vars);
-  }
-  // AbsKnob::GetStVarOfInstr(instrs, vars);
-}
-
-void Unroller::GetVarOfIla(const InstrLvlAbsPtr top, ExprSet& vars) {
-  // AbsKnob::GetStVarOfIla(top, vars);
-  AbsKnob::InsertSttTree(top, vars);
-}
-
-void Unroller::GetInstrOfIla(const InstrLvlAbsPtr top, InstrVec& instrs) {
-  // AbsKnob::GetInstrOfIla(top, instrs);
-  AbsKnob::InsertInstr(top, instrs);
-}
-
 ExprPtr Unroller::NewFreeVar(const ExprPtr var, const std::string& name) {
   auto host = var->host();
   ILA_NOT_NULL(host);
@@ -342,8 +324,9 @@ ZExpr PathUnroll::PathNone(const InstrVec& seq, const int& pos) {
 void PathUnroll::DefineDepVar() {
   // collect the set of vars
   auto dep_var = ExprSet();
-  GetVarOfInstr(seq_, dep_var);
-  // XXX do we need to create new set?
+  for (auto it = seq_.begin(); it != seq_.end(); it++) {
+    AbsKnob::InsertStt(*it, dep_var);
+  }
   // update to the global set
   vars_.clear();
   for (auto it = dep_var.begin(); it != dep_var.end(); it++) {
@@ -398,9 +381,8 @@ ZExpr MonoUnroll::MonoNone(const InstrLvlAbsPtr top, const int& length,
 
 void MonoUnroll::DefineDepVar() {
   vars_.clear();
-  auto dep_var = ExprSet();
-  GetVarOfIla(top_, dep_var);
-  // XXX do we need to create new set?
+  auto dep_var = AbsKnob::GetSttTree(top_);
+  // update global
   ILA_ASSERT(!dep_var.empty()) << "No state var found.";
   for (auto it = dep_var.begin(); it != dep_var.end(); it++) {
     vars_.push_back(*it);
@@ -418,8 +400,6 @@ void MonoUnroll::Transition(const int& idx) {
   }
 
   // extract the set of insturctions
-  // std::vector<InstrPtr> instr_set;
-  // GetInstrOfIla(top_, instr_set);
   auto instr_set = AbsKnob::GetInstrTree(top_);
 
   // create the set of selection bits

@@ -99,13 +99,6 @@ protected:
   /// Return the decode function (true if not defined).
   static ExprPtr DecodeCmpl(const InstrPtr instr);
 
-  /// Add dependant state vars of a sequence/set of instructions to the set.
-  template <class I> static void GetVarOfInstr(const I& instrs, ExprSet& vars);
-  /// Add dependant state vars of a tree of ILAs to the set.
-  static void GetVarOfIla(const InstrLvlAbsPtr top, ExprSet& vars);
-  /// Add instructions of a tree of ILAs to the set.
-  static void GetInstrOfIla(const InstrLvlAbsPtr top, InstrVec& instrs);
-
   /// Create a new free variable (with same sort) under the same host.
   static ExprPtr NewFreeVar(const ExprPtr var, const std::string& name);
 
