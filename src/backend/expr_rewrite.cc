@@ -1,34 +1,26 @@
 /// \file
 /// Source for function object for rewriting Expr.
 
-#include "backend/expr_rewrite.h"
+#include "backend/rewrite_expr.h"
 
 namespace ila {
 
 using namespace ExprFuse;
 
-#if 0
-ExprPtr FuncObjRewrite::get(const ExprPtr e) const {
-  auto pos = rule_.find(e);
-  ILA_ASSERT(pos != rule_.end()) << e << " not found";
-  return pos->second;
-}
-#endif
-
-bool FuncObjRewrite::pre(const ExprPtr e) const {
+bool FuncObjRewrExpr::pre(const ExprPtr e) const {
   // check rewriting rule to see if defined/visited
   auto pos = rule_.find(e);
   return pos != rule_.end(); // if found --> break
 }
 
-void FuncObjRewrite::post(const ExprPtr e) {
+void FuncObjRewrExpr::post(const ExprPtr e) {
   auto dst = Rewrite(e);
   auto ok = rule_.insert({e, dst}).second;
   // must not be defined, otherwise, there is a cycle.
   ILA_ASSERT(ok) << "Rewriting rule redefined (exist cycle in the AST)";
 }
 
-ExprPtr FuncObjRewrite::Rewrite(const ExprPtr e) const {
+ExprPtr FuncObjRewrExpr::Rewrite(const ExprPtr e) const {
   if (e->is_var() || e->is_const()) {
     return e;
   } else {
@@ -37,7 +29,7 @@ ExprPtr FuncObjRewrite::Rewrite(const ExprPtr e) const {
   }
 }
 
-ExprPtr FuncObjRewrite::RewriteOp(const ExprPtr e) const {
+ExprPtr FuncObjRewrExpr::RewriteOp(const ExprPtr e) const {
   // check each type of op
   if (std::dynamic_pointer_cast<ExprOpNeg>(e)) { // Negate
     auto a = get(e->arg(0));

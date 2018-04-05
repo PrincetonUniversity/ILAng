@@ -60,6 +60,9 @@ public:
   static InstrVec GetInstrTree(const InstrLvlAbsCnstPtr top);
 
   /****************************************************************************/
+  /// \brief Rewrite an expression by replacing based on the rule.
+  /// - If leaves contain non-var nodes, will replace with no further traverse.
+  static ExprPtr Rewrite(const ExprPtr e, const ExprMap& rule);
 
   /// \brief Return a new ILA that contains the dependant instructions and
   /// child-ILAs of an instruction (defined by sub-programs).
@@ -68,10 +71,6 @@ public:
 
   /// Copy an entire ILA.
   static void CopyIla(const InstrLvlAbsCnstPtr src, const InstrLvlAbsPtr dst);
-
-  /// \brief Rewrite an expression by replacing based on the rule.
-  /// - If leaves contain non-var nodes, will replace with no further traverse.
-  static ExprPtr Rewrite(const ExprPtr e, const ExprMap& rule);
 
 private:
   /// Copy all state and input var (not including child).

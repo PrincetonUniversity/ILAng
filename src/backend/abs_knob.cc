@@ -2,7 +2,7 @@
 /// Source for a collection of ILA helpers.
 
 #include "backend/abs_knob.h"
-#include "backend/expr_rewrite.h"
+#include "backend/rewrite_expr.h"
 
 namespace ila {
 
@@ -166,6 +166,15 @@ InstrVec AbsKnob::GetInstrTree(const InstrLvlAbsCnstPtr m) {
 }
 
 /******************************************************************************/
+ExprPtr AbsKnob::Rewrite(const ExprPtr e, const ExprMap& rule) {
+  auto func = FuncObjRewrExpr(rule);
+  // rewrite all sub-trees
+  e->DepthFirstVisitPrePost(func);
+  // return rewrited/copied node
+  auto rewr = func.get(e);
+  ILA_ASSERT(rewr) << "Fail rewriting " << e;
+  return rewr;
+}
 
 InstrLvlAbsPtr AbsKnob::ExtrDeptModl(const InstrPtr instr,
                                      const std::string& name) {
@@ -241,16 +250,6 @@ void AbsKnob::CopyAttr(const InstrLvlAbsCnstPtr src, const InstrLvlAbsPtr dst) {
   // valid
   // init
   // spec
-}
-
-ExprPtr AbsKnob::Rewrite(const ExprPtr e, const ExprMap& rule) {
-  auto func_obj = FuncObjRewrite(rule);
-  // rewrite all sub-trees
-  e->DepthFirstVisitPrePost(func_obj);
-  // return rewrited/copied node
-  auto res = func_obj.get(e);
-  ILA_ASSERT(res) << "Fail rewriting " << e;
-  return res;
 }
 
 ExprPtr AbsKnob::CopyStVar(const ExprPtr src, const InstrLvlAbsPtr dst_host) {
