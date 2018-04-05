@@ -180,6 +180,17 @@ const ExprPtr InstrLvlAbs::NewBvInput(const std::string& name,
   return bv_input;
 }
 
+const ExprPtr InstrLvlAbs::NewMemInput(const std::string& name,
+                                       const int& addr_width,
+                                       const int& data_width) {
+  ExprPtr mem_input = ExprFuse::NewMemVar(name, addr_width, data_width);
+  // set host
+  mem_input->set_host(shared_from_this());
+  // register
+  AddInput(mem_input);
+  return mem_input;
+}
+
 const ExprPtr InstrLvlAbs::NewBoolState(const std::string& name) {
   ExprPtr bool_state = ExprFuse::NewBoolVar(name);
   // set host

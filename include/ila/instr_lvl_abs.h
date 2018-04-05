@@ -167,6 +167,14 @@ public:
   /// \return pointer to the input.
   const ExprPtr NewBvInput(const std::string& name, const int& bit_width);
 
+  /// \brief Create one Memory variable and register as an input.
+  /// \param[in] name of the memory input
+  /// \param[in] addr_width address bit-width.
+  /// \param[in] data_width data bit-width.
+  /// \return pointer to the memory state.
+  const ExprPtr NewMemInput(const std::string& name, const int& addr_width,
+                            const int& data_width);
+
   /// \brief Create one Boolean variable and register as a state.
   /// \param[in] name of the bool state.
   /// \return pointer to the state variable.
