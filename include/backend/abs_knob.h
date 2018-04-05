@@ -69,8 +69,12 @@ public:
   static InstrLvlAbsPtr ExtrDeptModl(const InstrPtr instr,
                                      const std::string& name);
 
-  /// Copy an entire ILA.
-  static void CopyIla(const InstrLvlAbsCnstPtr src, const InstrLvlAbsPtr dst);
+  /// Copy an ILA (excluding child).
+  static InstrLvlAbsPtr CopyIla(const InstrLvlAbsCnstPtr src,
+                                const std::string& dst_name);
+  /// Copy and ILA (including child).
+  static InstrLvlAbsPtr CopyIlaTree(const InstrLvlAbsCnstPtr src,
+                                    const std::string& dst_name);
 
 private:
   /// Copy all state and input var (not including child).

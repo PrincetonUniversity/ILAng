@@ -203,13 +203,16 @@ InstrLvlAbsPtr AbsKnob::ExtrDeptModl(const InstrPtr instr,
   return m;
 }
 
-void AbsKnob::CopyIla(const InstrLvlAbsCnstPtr src, const InstrLvlAbsPtr dst) {
+InstrLvlAbsPtr AbsKnob::CopyIla(const InstrLvlAbsCnstPtr src,
+                                const std::string& dst_name) {
   ILA_NOT_NULL(src);
-  ILA_NOT_NULL(dst);
-  // check that dst is empty
-  ILA_ASSERT(dst->instr_num() == 0) << "Non-empty container " << dst;
-  ILA_ASSERT(dst->child_num() == 0) << "Non-empty container " << dst;
+  return NULL;
+// ILA_NOT_NULL(dst);
+// check that dst is empty
+// ILA_ASSERT(dst->instr_num() == 0) << "Non-empty container " << dst;
+// ILA_ASSERT(dst->child_num() == 0) << "Non-empty container " << dst;
 
+#if 0
   try { // Create new state/input variables in the new ILA.
     CopyVar(src, dst);
     ILA_ASSERT(src->state_num() == dst->state_num()) << "State num mismatch";
@@ -231,6 +234,7 @@ void AbsKnob::CopyIla(const InstrLvlAbsCnstPtr src, const InstrLvlAbsPtr dst) {
   } catch (...) {
     return;
   }
+#endif
 }
 
 void AbsKnob::CopyVar(const InstrLvlAbsCnstPtr src, const InstrLvlAbsPtr dst) {
