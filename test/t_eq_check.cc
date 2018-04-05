@@ -112,8 +112,7 @@ RefPtr TestEqCheck::GetRefine(const InstrLvlAbsPtr top, const int& instr_idx,
   // flush
   ref->set_flush(Not(top->input("start")));
   // complete
-  std::set<InstrPtr> instrs;
-  AbsKnob::GetInstrOfIla(top, instrs);
+  auto instrs = AbsKnob::GetInstrTree(top);
   auto cmpl = BoolConst(true);
   for (auto it = instrs.begin(); it != instrs.end(); it++) {
     auto instr = *it;

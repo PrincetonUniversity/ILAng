@@ -45,6 +45,19 @@ private:
   ExprSet& vars_;
 }; // class FuncObjInsertILAStt
 
+class FuncObjInsertILAInstr {
+public:
+  FuncObjInsertILAInstr(InstrVec& instrs) : instrs_(instrs) {}
+
+  void operator()(const InstrLvlAbsCnstPtr m) const {
+    AbsKnob::InsertInstr(m, instrs_);
+  }
+
+private:
+  InstrVec& instrs_;
+
+}; // class FuncOjbInsertILAInstr
+
 /******************************************************************************/
 ExprSet AbsKnob::GetVar(const ExprPtr e) {
   auto vars = ExprSet();
@@ -135,33 +148,24 @@ ExprSet AbsKnob::GetInpTree(const InstrLvlAbsCnstPtr top) {
   return inps;
 }
 
-/******************************************************************************/
-
-template <class I>
-void AbsKnob::GetInstrOfIla(const InstrLvlAbsPtr top, I& instrs) {
-  ILA_NOT_NULL(top);
-  // traverse the child-ILAs
-  for (decltype(top->child_num()) i = 0; i != top->child_num(); i++) {
-    GetInstrOfIla(top->child(i), instrs);
-  }
-  // add instr
-  for (decltype(top->instr_num()) i = 0; i != top->instr_num(); i++) {
-    instrs.insert(instrs.end(), top->instr(i));
+void AbsKnob::InsertInstr(const InstrLvlAbsCnstPtr m, InstrVec& instrs) {
+  for (decltype(m->instr_num()) i = 0; i != m->instr_num(); i++) {
+    instrs.insert(instrs.end(), m->instr(i));
   }
 }
-// define the supported template type
-template void
-AbsKnob::GetInstrOfIla<std::set<InstrPtr>>(const InstrLvlAbsPtr top,
-                                           std::set<InstrPtr>& instrs);
-template void
-AbsKnob::GetInstrOfIla<std::vector<InstrPtr>>(const InstrLvlAbsPtr top,
-                                              std::vector<InstrPtr>& instrs);
 
-std::set<InstrPtr> AbsKnob::GetInstrOfIla(const InstrLvlAbsPtr top) {
-  std::set<InstrPtr> instrs;
-  GetInstrOfIla(top, instrs);
+void AbsKnob::InsertInstrTree(const InstrLvlAbsCnstPtr top, InstrVec& instrs) {
+  auto f = FuncObjInsertILAInstr(instrs);
+  top->DepthFirstVisit(f);
+}
+
+InstrVec AbsKnob::GetInstrTree(const InstrLvlAbsCnstPtr m) {
+  auto instrs = InstrVec();
+  InsertInstrTree(m, instrs);
   return instrs;
 }
+
+/******************************************************************************/
 
 InstrLvlAbsPtr AbsKnob::ExtrDeptModl(const InstrPtr instr,
                                      const std::string& name) {

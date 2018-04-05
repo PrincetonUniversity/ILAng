@@ -104,8 +104,7 @@ protected:
   /// Add dependant state vars of a tree of ILAs to the set.
   static void GetVarOfIla(const InstrLvlAbsPtr top, ExprSet& vars);
   /// Add instructions of a tree of ILAs to the set.
-  static void GetInstrOfIla(const InstrLvlAbsPtr top,
-                            std::vector<InstrPtr>& instrs);
+  static void GetInstrOfIla(const InstrLvlAbsPtr top, InstrVec& instrs);
 
   /// Create a new free variable (with same sort) under the same host.
   static ExprPtr NewFreeVar(const ExprPtr var, const std::string& name);

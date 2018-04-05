@@ -129,7 +129,7 @@ typedef Instr::InstrPtr InstrPtr;
 /// Pointer type for read-only use of Instr.
 typedef std::shared_ptr<const Instr> InstrCnstPtr;
 /// Type for storing a set of Instr.
-typedef std::set<InstrCnstPtr> InstrSet;
+typedef std::vector<InstrPtr> InstrVec;
 
 } // namespace ila
 

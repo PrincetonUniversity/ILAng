@@ -50,15 +50,16 @@ public:
   static ExprSet GetInpTree(const InstrLvlAbsCnstPtr top);
 
   /// Add all instructions of the ILA (excluding child) to the set.
-  static void InsertInstr(const InstrLvlAbsCnstPtr m, InstrSet& instrs);
+  static void InsertInstr(const InstrLvlAbsCnstPtr m, InstrVec& instrs);
   /// Add all instructions of the ILA (including child) to the set.
-  static void InsertInstrTree(const InstrLvlAbsCnstPtr m, InstrSet& instrs);
+  static void InsertInstrTree(const InstrLvlAbsCnstPtr top, InstrVec& instrs);
 
-  /// Add all instructions (including child) to the std::set/std::vector.
-  template <class InstrCntr>
-  static void GetInstrOfIla(const InstrLvlAbsPtr top, InstrCntr& instrs);
-  /// Get the set of instructions (including child).
-  static std::set<InstrPtr> GetInstrOfIla(const InstrLvlAbsPtr top);
+  /// Get the set of instructions of the ILA (excluding child).
+  static InstrVec GetInstr(const InstrLvlAbsCnstPtr m);
+  /// Get the set of instructions of the ILA (including child).
+  static InstrVec GetInstrTree(const InstrLvlAbsCnstPtr top);
+
+  /****************************************************************************/
 
   /// \brief Return a new ILA that contains the dependant instructions and
   /// child-ILAs of an instruction (defined by sub-programs).

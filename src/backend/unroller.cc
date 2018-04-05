@@ -223,9 +223,9 @@ void Unroller::GetVarOfIla(const InstrLvlAbsPtr top, ExprSet& vars) {
   AbsKnob::InsertSttTree(top, vars);
 }
 
-void Unroller::GetInstrOfIla(const InstrLvlAbsPtr top,
-                             std::vector<InstrPtr>& instrs) {
-  AbsKnob::GetInstrOfIla(top, instrs);
+void Unroller::GetInstrOfIla(const InstrLvlAbsPtr top, InstrVec& instrs) {
+  // AbsKnob::GetInstrOfIla(top, instrs);
+  AbsKnob::InsertInstr(top, instrs);
 }
 
 ExprPtr Unroller::NewFreeVar(const ExprPtr var, const std::string& name) {
@@ -418,8 +418,9 @@ void MonoUnroll::Transition(const int& idx) {
   }
 
   // extract the set of insturctions
-  std::vector<InstrPtr> instr_set;
-  GetInstrOfIla(top_, instr_set);
+  // std::vector<InstrPtr> instr_set;
+  // GetInstrOfIla(top_, instr_set);
+  auto instr_set = AbsKnob::GetInstrTree(top_);
 
   // create the set of selection bits
   std::vector<ExprPtr> sel_bits;
