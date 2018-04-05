@@ -18,9 +18,9 @@ bool FuncObjRewrIla::pre(const InstrLvlAbsCnstPtr src) {
       << "Rewriting ILA to partially constructed ILA not support.";
 
   // input
-  ImitateInput(src, dst);
+  AbsKnob::DuplInp(src, dst, expr_map_);
   // state
-  ImitateState(src, dst);
+  AbsKnob::DuplStt(src, dst, expr_map_);
 
   // child
   for (decltype(src->child_num()) i = 0; i != src->child_num(); i++) {
@@ -55,6 +55,7 @@ bool FuncObjRewrIla::pre(const InstrLvlAbsCnstPtr src) {
     // rewrite
     RewriteInstr(i_src, i_dst);
     // child-program
+    // TODO
   }
 
   // sequence
@@ -67,6 +68,7 @@ void FuncObjRewrIla::post(const InstrLvlAbsCnstPtr src) const {
   // nothing
 }
 
+#if 0
 void FuncObjRewrIla::ImitateInput(const InstrLvlAbsCnstPtr src,
                                   const InstrLvlAbsPtr dst) {
   auto inps = AbsKnob::GetInp(src);
@@ -121,6 +123,7 @@ ExprPtr FuncObjRewrIla::NewState(const InstrLvlAbsPtr m, const ExprPtr stt) {
                           stt->sort()->data_width());
   }
 }
+#endif
 
 void FuncObjRewrIla::RewriteInstr(const InstrCnstPtr src, const InstrPtr dst) {
   // decode

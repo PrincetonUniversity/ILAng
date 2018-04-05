@@ -49,6 +49,9 @@ public:
   /// Get the set of all input vars of the ILA (including child).
   static ExprSet GetInpTree(const InstrLvlAbsCnstPtr top);
 
+  static void DuplInp(const InstrLvlAbsCnstPtr src, const InstrLvlAbsPtr dst);
+  static void DuplStt(const InstrLvlAbsCnstPtr src, const InstrLvlAbsPtr dst);
+
   /// Add all instructions of the ILA (excluding child) to the set.
   static void InsertInstr(const InstrLvlAbsCnstPtr m, InstrVec& instrs);
   /// Add all instructions of the ILA (including child) to the set.
@@ -69,23 +72,19 @@ public:
   static InstrLvlAbsPtr ExtrDeptModl(const InstrPtr instr,
                                      const std::string& name);
 
-  /// Copy an ILA (excluding child).
-  static InstrLvlAbsPtr CopyIla(const InstrLvlAbsCnstPtr src,
-                                const std::string& dst_name);
   /// Copy and ILA (including child).
   static InstrLvlAbsPtr CopyIlaTree(const InstrLvlAbsCnstPtr src,
                                     const std::string& dst_name);
 
-private:
-  /// Copy all state and input var (not including child).
-  static void CopyVar(const InstrLvlAbsCnstPtr src, const InstrLvlAbsPtr dst);
-  /// Copy ILA attributes, e.g. fetch, valid, spec, etc.
-  static void CopyAttr(const InstrLvlAbsCnstPtr src, const InstrLvlAbsPtr dst);
+  static void DuplInp(const InstrLvlAbsCnstPtr src, const InstrLvlAbsPtr dst,
+                      ExprMap& expr_map);
+  static void DuplStt(const InstrLvlAbsCnstPtr src, const InstrLvlAbsPtr dst,
+                      ExprMap& expr_map);
 
-  /// Create new state var in dst host based on the given src.
-  static ExprPtr CopyStVar(const ExprPtr src, const InstrLvlAbsPtr dst_host);
-  /// Create new input var in dst host based on the given src.
-  static ExprPtr CopyInVar(const ExprPtr src, const InstrLvlAbsPtr dst_host);
+private:
+  static ExprPtr DuplInp(const InstrLvlAbsPtr m, const ExprPtr inp);
+
+  static ExprPtr DuplStt(const InstrLvlAbsPtr m, const ExprPtr stt);
 
 }; // class AbsKnob
 

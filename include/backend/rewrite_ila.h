@@ -38,12 +38,14 @@ private:
     expr_map_.insert({src, dst});
   }
 
+#if 0
   void ImitateInput(const InstrLvlAbsCnstPtr src, const InstrLvlAbsPtr dst);
 
   void ImitateState(const InstrLvlAbsCnstPtr src, const InstrLvlAbsPtr dst);
 
   ExprPtr NewInput(const InstrLvlAbsPtr m, const ExprPtr inp);
   ExprPtr NewState(const InstrLvlAbsPtr m, const ExprPtr stt);
+#endif
 
   void RewriteInstr(const InstrCnstPtr src, const InstrPtr dst);
 

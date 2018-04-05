@@ -3,6 +3,7 @@
 
 #include "backend/abs_knob.h"
 #include "backend/rewrite_expr.h"
+#include "backend/rewrite_ila.h"
 
 namespace ila {
 
@@ -185,14 +186,14 @@ InstrLvlAbsPtr AbsKnob::ExtrDeptModl(const InstrPtr instr,
   auto m = InstrLvlAbs::New(name);
 
   try { // Create new state/input variables in the new ILA.
-    CopyVar(h, m);
+    // TODO
   } catch (...) {
     ILA_ERROR << "Error in copy variables from " << h << " to " << m;
     return h;
   }
 
   try { // Rewrite ILA attributes, e.g. fetch, valid, etc.
-    CopyAttr(h, m);
+    // TODO
   } catch (...) {
     ILA_ERROR << "Error in copying ILA attributes from " << h << " to " << m;
     return h;
@@ -203,105 +204,79 @@ InstrLvlAbsPtr AbsKnob::ExtrDeptModl(const InstrPtr instr,
   return m;
 }
 
-InstrLvlAbsPtr AbsKnob::CopyIla(const InstrLvlAbsCnstPtr src,
-                                const std::string& dst_name) {
+InstrLvlAbsPtr AbsKnob::CopyIlaTree(const InstrLvlAbsCnstPtr src,
+                                    const std::string& dst_name) {
   ILA_NOT_NULL(src);
-  return NULL;
-// ILA_NOT_NULL(dst);
-// check that dst is empty
-// ILA_ASSERT(dst->instr_num() == 0) << "Non-empty container " << dst;
-// ILA_ASSERT(dst->child_num() == 0) << "Non-empty container " << dst;
 
-#if 0
-  try { // Create new state/input variables in the new ILA.
-    CopyVar(src, dst);
-    ILA_ASSERT(src->state_num() == dst->state_num()) << "State num mismatch";
-    ILA_ASSERT(src->input_num() == dst->input_num()) << "Input num mismatch";
-  } catch (...) {
-    ILA_ERROR << "Error in copying variables from " << src << " to " << dst;
-    return;
-  }
+  auto dst = InstrLvlAbs::New(dst_name);
+  dst->set_spec(src->is_spec());
 
-  // create rewriting map
-  auto rule = ExprMap();
-  // auto vars = GetVarOfIla(dst);
-  for (decltype(src->state_num()) i = 0; i != src->state_num(); i++) {
-    // rule.insert(
-  }
+  auto ila_map = CnstIlaMap({{src, dst}});
+  auto expr_map = ExprMap();
 
-  try { // Rewrite fetch
-    // auto fetch =
-  } catch (...) {
-    return;
-  }
-#endif
+  auto func = FuncObjRewrIla(ila_map, expr_map);
+  src->DepthFirstVisitPrePost(func);
+
+  return dst;
 }
 
-void AbsKnob::CopyVar(const InstrLvlAbsCnstPtr src, const InstrLvlAbsPtr dst) {
-  // copy state
-  for (decltype(src->state_num()) i = 0; i != src->state_num(); i++) {
-    CopyStVar(src->state(i), dst);
-  }
-  // copy input
-  for (decltype(src->input_num()) i = 0; i != src->input_num(); i++) {
-    CopyInVar(src->input(i), dst);
-  }
-}
-
-void AbsKnob::CopyAttr(const InstrLvlAbsCnstPtr src, const InstrLvlAbsPtr dst) {
-  // TODO
-  // fetch
-  // valid
-  // init
-  // spec
-}
-
-ExprPtr AbsKnob::CopyStVar(const ExprPtr src, const InstrLvlAbsPtr dst_host) {
-  ILA_NOT_NULL(src);
-  ILA_ASSERT(src->is_var());
-
-  // bypass if is parent state
-  // auto copy = dst_host->state(src->name().str());
-  auto copy = dst_host->find_state(src->name());
-  if (copy) {
-    ILA_ASSERT(copy->host() != dst_host) << "State " << src << " exists.";
-    return copy;
-  }
-  // create new state var
-  if (src->is_bool()) {
-    copy = dst_host->NewBoolState(src->name().str());
-  } else if (src->is_bv()) {
-    copy = dst_host->NewBvState(src->name().str(), src->sort()->bit_width());
+ExprPtr AbsKnob::DuplInp(const InstrLvlAbsPtr m, const ExprPtr inp) {
+  ILA_ASSERT(inp->is_var()) << "Creating input from non-var Expr.";
+  if (inp->is_bool()) {
+    return m->NewBoolInput(inp->name().str());
+  } else if (inp->is_bv()) {
+    return m->NewBvInput(inp->name().str(), inp->sort()->bit_width());
   } else {
-    ILA_ASSERT(src->is_mem()) << "Unknown type of " << src;
-    copy = dst_host->NewMemState(src->name().str(), src->sort()->addr_width(),
-                                 src->sort()->data_width());
+    ILA_ASSERT(inp->is_mem()) << "Unknown sort of " << inp;
+    return m->NewMemInput(inp->name().str(), inp->sort()->addr_width(),
+                          inp->sort()->data_width());
   }
-
-  return copy;
 }
 
-ExprPtr AbsKnob::CopyInVar(const ExprPtr src, const InstrLvlAbsPtr dst_host) {
-  ILA_NOT_NULL(src);
-  ILA_ASSERT(src->is_var());
-  ILA_ASSERT(!src->is_mem()) << "Mem var typed input not support.";
-
-  // bypass if is parent input
-  // auto copy = dst_host->input(src->name().str());
-  auto copy = dst_host->find_input(src->name());
-  if (copy) {
-    ILA_ASSERT(copy->host() != dst_host) << "Input " << src << " exists.";
-    return copy;
-  }
-  // create new input var
-  if (src->is_bool()) {
-    copy = dst_host->NewBoolInput(src->name().str());
+ExprPtr AbsKnob::DuplStt(const InstrLvlAbsPtr m, const ExprPtr stt) {
+  ILA_ASSERT(stt->is_var()) << "Creating state from non-var Expr.";
+  if (stt->is_bool()) {
+    return m->NewBoolState(stt->name().str());
+  } else if (stt->is_bv()) {
+    return m->NewBvState(stt->name().str(), stt->sort()->bit_width());
   } else {
-    ILA_ASSERT(src->is_bv()) << "Unknown type of " << src;
-    copy = dst_host->NewBvInput(src->name().str(), src->sort()->bit_width());
+    ILA_ASSERT(stt->is_mem()) << "Unkown sort of " << stt;
+    return m->NewMemState(stt->name().str(), stt->sort()->addr_width(),
+                          stt->sort()->data_width());
   }
+}
 
-  return copy;
+void AbsKnob::DuplInp(const InstrLvlAbsCnstPtr src, const InstrLvlAbsPtr dst,
+                      ExprMap& expr_map) {
+  auto inps = AbsKnob::GetInp(src);
+  for (auto it = inps.begin(); it != inps.end(); it++) {
+    // declare new input if not exist (not parent states)
+    auto inp_src = *it;
+    auto inp_dst = dst->find_input(inp_src->name());
+    if (!inp_dst) { // not exist --> child-input --> create
+      inp_dst = DuplInp(dst, inp_src);
+    }
+    // update rewrite rule
+    if (expr_map.find(inp_src) == expr_map.end()) {
+      expr_map.insert({inp_src, inp_dst});
+    }
+  }
+}
+
+void AbsKnob::DuplStt(const InstrLvlAbsCnstPtr src, const InstrLvlAbsPtr dst,
+                      ExprMap& expr_map) {
+  auto stts = AbsKnob::GetStt(src);
+  for (auto it = stts.begin(); it != stts.end(); it++) {
+    auto stt_src = *it;
+    auto stt_dst = dst->find_state(stt_src->name());
+    if (!stt_dst) { // not exist --> child-state --> create
+      stt_dst = DuplStt(dst, stt_src);
+    }
+    // update rewrite rule
+    if (expr_map.find(stt_src) == expr_map.end()) {
+      expr_map.insert({stt_src, stt_dst});
+    }
+  }
 }
 
 } // namespace ila
