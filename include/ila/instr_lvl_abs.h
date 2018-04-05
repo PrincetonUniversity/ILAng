@@ -301,10 +301,12 @@ private:
 
 }; // class InstrLvlAbs
 
-/// Pointer type for normal use of InstrLvlAbs
+/// Pointer type for normal use of InstrLvlAbs.
 typedef InstrLvlAbs::InstrLvlAbsPtr InstrLvlAbsPtr;
-/// Pointer type for read-only usage of InstrLvlAbs
+/// Pointer type for read-only usage of InstrLvlAbs.
 typedef InstrLvlAbs::InstrLvlAbsCnstPtr InstrLvlAbsCnstPtr;
+/// Type for storing a mapping from constant ILA ptr to ILA ptr.
+typedef std::map<InstrLvlAbsCnstPtr, InstrLvlAbsPtr> CnstIlaMap;
 
 } // namespace ila
 
