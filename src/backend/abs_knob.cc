@@ -177,6 +177,27 @@ ExprPtr AbsKnob::Rewrite(const ExprPtr e, const ExprMap& rule) {
   return rewr;
 }
 
+void AbsKnob::RewriteInstr(const InstrCnstPtr src, const InstrPtr dst,
+                           const ExprMap& expr_map) {
+  // decode
+  auto d_src = src->decode();
+  auto d_dst = AbsKnob::Rewrite(d_src, expr_map);
+  dst->set_decode(d_dst);
+
+  // update
+  for (auto it = expr_map.begin(); it != expr_map.end(); it++) {
+    // state
+    auto s_src = it->first;
+    auto s_dst = it->second;
+    // update function
+    auto u_src = src->update(s_src);
+    if (u_src) {
+      auto u_dst = AbsKnob::Rewrite(u_src, expr_map);
+      dst->set_update(s_dst, u_dst);
+    }
+  }
+}
+
 InstrLvlAbsPtr AbsKnob::ExtrDeptModl(const InstrPtr instr,
                                      const std::string& name) {
   ILA_NOT_NULL(instr);
@@ -220,32 +241,7 @@ InstrLvlAbsPtr AbsKnob::CopyIlaTree(const InstrLvlAbsCnstPtr src,
   return dst;
 }
 
-ExprPtr AbsKnob::DuplInp(const InstrLvlAbsPtr m, const ExprPtr inp) {
-  ILA_ASSERT(inp->is_var()) << "Creating input from non-var Expr.";
-  if (inp->is_bool()) {
-    return m->NewBoolInput(inp->name().str());
-  } else if (inp->is_bv()) {
-    return m->NewBvInput(inp->name().str(), inp->sort()->bit_width());
-  } else {
-    ILA_ASSERT(inp->is_mem()) << "Unknown sort of " << inp;
-    return m->NewMemInput(inp->name().str(), inp->sort()->addr_width(),
-                          inp->sort()->data_width());
-  }
-}
-
-ExprPtr AbsKnob::DuplStt(const InstrLvlAbsPtr m, const ExprPtr stt) {
-  ILA_ASSERT(stt->is_var()) << "Creating state from non-var Expr.";
-  if (stt->is_bool()) {
-    return m->NewBoolState(stt->name().str());
-  } else if (stt->is_bv()) {
-    return m->NewBvState(stt->name().str(), stt->sort()->bit_width());
-  } else {
-    ILA_ASSERT(stt->is_mem()) << "Unkown sort of " << stt;
-    return m->NewMemState(stt->name().str(), stt->sort()->addr_width(),
-                          stt->sort()->data_width());
-  }
-}
-
+/******************************************************************************/
 void AbsKnob::DuplInp(const InstrLvlAbsCnstPtr src, const InstrLvlAbsPtr dst,
                       ExprMap& expr_map) {
   auto inps = AbsKnob::GetInp(src);
@@ -276,6 +272,69 @@ void AbsKnob::DuplStt(const InstrLvlAbsCnstPtr src, const InstrLvlAbsPtr dst,
     if (expr_map.find(stt_src) == expr_map.end()) {
       expr_map.insert({stt_src, stt_dst});
     }
+  }
+}
+
+ExprPtr AbsKnob::DuplFetch(const InstrLvlAbsCnstPtr src,
+                           const InstrLvlAbsPtr dst, const ExprMap& expr_map) {
+  auto f_src = src->fetch();
+  auto f_dst = AbsKnob::Rewrite(f_src, expr_map);
+  dst->SetFetch(f_dst);
+  return f_dst;
+}
+
+ExprPtr AbsKnob::DuplValid(const InstrLvlAbsCnstPtr src,
+                           const InstrLvlAbsPtr dst, const ExprMap& expr_map) {
+  auto v_src = src->valid();
+  auto v_dst = AbsKnob::Rewrite(v_src, expr_map);
+  dst->SetValid(v_dst);
+  return v_dst;
+}
+
+void AbsKnob::DuplInit(const InstrLvlAbsCnstPtr src, const InstrLvlAbsPtr dst,
+                       const ExprMap& expr_map) {
+  for (decltype(src->init_num()) i = 0; i != src->init_num(); i++) {
+    auto i_src = src->init(i);
+    auto i_dst = AbsKnob::Rewrite(i_src, expr_map);
+    dst->AddInit(i_dst);
+  }
+}
+
+InstrPtr AbsKnob::DuplInstr(const InstrCnstPtr i_src, const InstrLvlAbsPtr dst,
+                            const ExprMap& expr_map,
+                            const CnstIlaMap& ila_map) {
+  // create
+  auto i_dst = dst->NewInstr(i_src->name().str());
+  // rewrite
+  RewriteInstr(i_src, i_dst, expr_map);
+  // connect child-program
+  // TODO
+  return i_dst;
+}
+
+ExprPtr AbsKnob::DuplInp(const InstrLvlAbsPtr m, const ExprPtr inp) {
+  ILA_ASSERT(inp->is_var()) << "Creating input from non-var Expr.";
+  if (inp->is_bool()) {
+    return m->NewBoolInput(inp->name().str());
+  } else if (inp->is_bv()) {
+    return m->NewBvInput(inp->name().str(), inp->sort()->bit_width());
+  } else {
+    ILA_ASSERT(inp->is_mem()) << "Unknown sort of " << inp;
+    return m->NewMemInput(inp->name().str(), inp->sort()->addr_width(),
+                          inp->sort()->data_width());
+  }
+}
+
+ExprPtr AbsKnob::DuplStt(const InstrLvlAbsPtr m, const ExprPtr stt) {
+  ILA_ASSERT(stt->is_var()) << "Creating state from non-var Expr.";
+  if (stt->is_bool()) {
+    return m->NewBoolState(stt->name().str());
+  } else if (stt->is_bv()) {
+    return m->NewBvState(stt->name().str(), stt->sort()->bit_width());
+  } else {
+    ILA_ASSERT(stt->is_mem()) << "Unkown sort of " << stt;
+    return m->NewMemState(stt->name().str(), stt->sort()->addr_width(),
+                          stt->sort()->data_width());
   }
 }
 

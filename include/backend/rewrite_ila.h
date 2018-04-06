@@ -15,11 +15,7 @@ public:
   FuncObjRewrIla(const IlaMap& ila_map, const ExprMap& expr_map)
       : ila_map_(ila_map), expr_map_(expr_map) {}
 
-  inline InstrLvlAbsPtr get(const InstrLvlAbsCnstPtr m) const {
-    auto pos = ila_map_.find(m);
-    ILA_ASSERT(pos != ila_map_.end()) << m << " not found";
-    return pos->second;
-  }
+  InstrLvlAbsPtr get(const InstrLvlAbsCnstPtr m) const;
 
   bool pre(const InstrLvlAbsCnstPtr src);
   void post(const InstrLvlAbsCnstPtr src) const;
@@ -27,27 +23,6 @@ public:
 private:
   IlaMap ila_map_;
   ExprMap expr_map_;
-
-  inline void UpdtIla(const InstrLvlAbsCnstPtr src, const InstrLvlAbsPtr dst) {
-    ILA_ASSERT(ila_map_.find(src) == ila_map_.end()) << "Re-mapping " << src;
-    ila_map_.insert({src, dst});
-  }
-
-  inline void UpdtExpr(const ExprPtr src, const ExprPtr dst) {
-    ILA_ASSERT(expr_map_.find(src) == expr_map_.end()) << "Re-mapping " << src;
-    expr_map_.insert({src, dst});
-  }
-
-#if 0
-  void ImitateInput(const InstrLvlAbsCnstPtr src, const InstrLvlAbsPtr dst);
-
-  void ImitateState(const InstrLvlAbsCnstPtr src, const InstrLvlAbsPtr dst);
-
-  ExprPtr NewInput(const InstrLvlAbsPtr m, const ExprPtr inp);
-  ExprPtr NewState(const InstrLvlAbsPtr m, const ExprPtr stt);
-#endif
-
-  void RewriteInstr(const InstrCnstPtr src, const InstrPtr dst);
 
 }; // FuncObjRewrIla
 

@@ -67,6 +67,10 @@ public:
   /// - If leaves contain non-var nodes, will replace with no further traverse.
   static ExprPtr Rewrite(const ExprPtr e, const ExprMap& rule);
 
+  /// \brief Rewrite an instruction by replacing based on the rule.
+  static void RewriteInstr(const InstrCnstPtr instr_src,
+                           const InstrPtr instr_dst, const ExprMap& expr_map);
+
   /// \brief Return a new ILA that contains the dependant instructions and
   /// child-ILAs of an instruction (defined by sub-programs).
   static InstrLvlAbsPtr ExtrDeptModl(const InstrPtr instr,
@@ -76,10 +80,20 @@ public:
   static InstrLvlAbsPtr CopyIlaTree(const InstrLvlAbsCnstPtr src,
                                     const std::string& dst_name);
 
+  /****************************************************************************/
   static void DuplInp(const InstrLvlAbsCnstPtr src, const InstrLvlAbsPtr dst,
                       ExprMap& expr_map);
   static void DuplStt(const InstrLvlAbsCnstPtr src, const InstrLvlAbsPtr dst,
                       ExprMap& expr_map);
+  static ExprPtr DuplFetch(const InstrLvlAbsCnstPtr src,
+                           const InstrLvlAbsPtr dst, const ExprMap& expr_map);
+  static ExprPtr DuplValid(const InstrLvlAbsCnstPtr src,
+                           const InstrLvlAbsPtr dst, const ExprMap& expr_map);
+  static void DuplInit(const InstrLvlAbsCnstPtr src, const InstrLvlAbsPtr dst,
+                       const ExprMap& expr_map);
+  static InstrPtr DuplInstr(const InstrCnstPtr instr_src,
+                            const InstrLvlAbsPtr dst, const ExprMap& expr_map,
+                            const CnstIlaMap& ila_map);
 
 private:
   static ExprPtr DuplInp(const InstrLvlAbsPtr m, const ExprPtr inp);
