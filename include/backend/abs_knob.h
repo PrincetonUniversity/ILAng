@@ -81,25 +81,33 @@ public:
                                     const std::string& dst_name);
 
   /****************************************************************************/
+  /// Duplicate input vars from src to dst while updating the mapping.
   static void DuplInp(const InstrLvlAbsCnstPtr src, const InstrLvlAbsPtr dst,
                       ExprMap& expr_map);
+  /// Duplicate state vars from src to dst while updating the mapping.
   static void DuplStt(const InstrLvlAbsCnstPtr src, const InstrLvlAbsPtr dst,
                       ExprMap& expr_map);
+  /// Duplicate fetch from src to dst if defined (rewritten w.r.t. mapping).
   static ExprPtr DuplFetch(const InstrLvlAbsCnstPtr src,
                            const InstrLvlAbsPtr dst, const ExprMap& expr_map);
+  /// Duplicate valid from src to dst if defined (rewritten w.r.t. mapping).
   static ExprPtr DuplValid(const InstrLvlAbsCnstPtr src,
                            const InstrLvlAbsPtr dst, const ExprMap& expr_map);
+  /// Duplicate initial conditions from src to dst (rewritten w.r.t. mapping).
   static void DuplInit(const InstrLvlAbsCnstPtr src, const InstrLvlAbsPtr dst,
                        const ExprMap& expr_map);
+  /// Duplicate an instruction to dst (rewritten w.r.t. mapping).
   static InstrPtr DuplInstr(const InstrCnstPtr instr_src,
                             const InstrLvlAbsPtr dst, const ExprMap& expr_map,
                             const CnstIlaMap& ila_map);
+  /// Duplicate instruction sequence to dst. NOT IMPLEMENTED YET.
   static void DuplInstrSeq(const InstrLvlAbsCnstPtr src,
                            const InstrLvlAbsPtr dst);
 
 private:
+  /// Duplicate/create the input var in m.
   static ExprPtr DuplInp(const InstrLvlAbsPtr m, const ExprPtr inp);
-
+  /// Duplicate/create the state var in m.
   static ExprPtr DuplStt(const InstrLvlAbsPtr m, const ExprPtr stt);
 
 }; // class AbsKnob
