@@ -1,7 +1,7 @@
 /// \file
 /// Source for the c++ API.
 
-#include "ila++.h"
+#include "cpp_api.h"
 #include "backend/unroller.h"
 #include "ila/instr_lvl_abs.h"
 #include "util/log.h"

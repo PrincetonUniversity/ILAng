@@ -1,8 +1,8 @@
 /// \file
 /// The header for the c++ API.
 
-#ifndef ILAPP_H__
-#define ILAPP_H__
+#ifndef ILA_CPP_API_H__
+#define ILA_CPP_API_H__
 
 #include "z3++.h"
 #include <map>
@@ -596,5 +596,5 @@ private:
 
 } // namespace ila
 
-#endif // ILAPP_H__
+#endif // ILA_CPP_API_H__
 

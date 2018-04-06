@@ -2,7 +2,8 @@
 /// Source for constructing equivalent ILAs.
 
 #include "../unit-include/eq_ilas.h"
-#include "ila++.h"
+//#include "ila++.h"
+#include "cpp_api.h"
 
 namespace ila {
 

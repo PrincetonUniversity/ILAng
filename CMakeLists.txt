@@ -173,7 +173,7 @@ add_subdirectory (src)
 add_subdirectory (test)
 
 # Install target
-install(FILES include/ila++.h DESTINATION include)
+install(FILES include/cpp_api.h DESTINATION include RENAME ila++.h)
 
 # uninstall target
 if(NOT TARGET uninstall)
