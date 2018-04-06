@@ -5,8 +5,8 @@
 #define EQ_CHECK_CRR_H__
 
 #include "backend/unroller.h"
+#include "ila/comp_ref_rel.h"
 #include "ila/instr_lvl_abs.h"
-#include "refinement/comp_ref_rel.h"
 #include "z3++.h"
 
 /// \namespace ila

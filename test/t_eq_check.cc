@@ -2,8 +2,8 @@
 /// Unit test for commutating diagram-based equivalence checking
 
 #include "backend/abs_knob.h"
+#include "backend/eq_check_crr.h"
 #include "backend/unroller.h"
-#include "refinement/eq_check_crr.h"
 #include "unit-include/eq_ilas.h"
 #include "unit-include/stream_buffer.h"
 #include "unit-include/util.h"

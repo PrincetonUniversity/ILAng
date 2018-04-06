@@ -1,7 +1,7 @@
 /// \file
 /// Source for the refinement relation
 
-#include "refinement/comp_ref_rel.h"
+#include "ila/comp_ref_rel.h"
 #include "backend/abs_knob.h"
 
 namespace ila {

@@ -1,7 +1,7 @@
 /// \file
 /// Source for generating verification condition for equivalecne checking.
 
-#include "refinement/eq_check_crr.h"
+#include "backend/eq_check_crr.h"
 #include "backend/abs_knob.h"
 #include "backend/unroller.h"
 #include "util/log.h"

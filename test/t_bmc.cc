@@ -1,7 +1,7 @@
 /// \file
 /// Unit test for BMC
 
-#include "refinement/bmc.h"
+#include "backend/legacy_bmc.h"
 #include "unit-include/eq_ilas.h"
 #include "unit-include/util.h"
 #include <iostream>
