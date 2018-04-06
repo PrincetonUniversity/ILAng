@@ -94,6 +94,8 @@ public:
   static InstrPtr DuplInstr(const InstrCnstPtr instr_src,
                             const InstrLvlAbsPtr dst, const ExprMap& expr_map,
                             const CnstIlaMap& ila_map);
+  static void DuplInstrSeq(const InstrLvlAbsCnstPtr src,
+                           const InstrLvlAbsPtr dst);
 
 private:
   static ExprPtr DuplInp(const InstrLvlAbsPtr m, const ExprPtr inp);

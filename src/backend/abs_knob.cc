@@ -168,6 +168,7 @@ InstrVec AbsKnob::GetInstrTree(const InstrLvlAbsCnstPtr m) {
 
 /******************************************************************************/
 ExprPtr AbsKnob::Rewrite(const ExprPtr e, const ExprMap& rule) {
+  ILA_ASSERT(e) << "Rewriting NULL pointer";
   auto func = FuncObjRewrExpr(rule);
   // rewrite all sub-trees
   e->DepthFirstVisitPrePost(func);
@@ -214,7 +215,7 @@ InstrLvlAbsPtr AbsKnob::ExtrDeptModl(const InstrPtr instr,
     DuplFetch(src, dst, expr_map);
     DuplValid(src, dst, expr_map);
     DuplInit(src, dst, expr_map);
-    // TODO instr sequenct
+    DuplInstrSeq(src, dst);
   } catch (...) {
     ILA_ERROR << "Error in duplicating attr. from " << src << " to " << dst;
     return src;
@@ -224,9 +225,17 @@ InstrLvlAbsPtr AbsKnob::ExtrDeptModl(const InstrPtr instr,
   // target instruction, child-ILAs
   auto prog_src = instr->program();
   if (prog_src) { // duplicate child-ILA
-    auto prog_dst = CopyIlaTree(prog_src, prog_src->name().str());
+    auto prog_dst = dst->NewChild(prog_src->name().str());
     ila_map.insert({prog_src, prog_dst});
+
+    auto func = FuncObjRewrIla(ila_map, expr_map);
+    try {
+      prog_src->DepthFirstVisitPrePost(func);
+    } catch (...) {
+      ILA_ERROR << "Error in duplicating child-program " << prog_src;
+    }
   }
+
   // duplicate instruction
   DuplInstr(instr, dst, expr_map, ila_map);
 
@@ -236,6 +245,7 @@ InstrLvlAbsPtr AbsKnob::ExtrDeptModl(const InstrPtr instr,
 InstrLvlAbsPtr AbsKnob::CopyIlaTree(const InstrLvlAbsCnstPtr src,
                                     const std::string& dst_name) {
   ILA_NOT_NULL(src);
+  ILA_WARN_IF(!src->parent()) << "Copying non-root ILA " << src;
 
   auto dst = InstrLvlAbs::New(dst_name);
   dst->set_spec(src->is_spec());
@@ -286,6 +296,10 @@ void AbsKnob::DuplStt(const InstrLvlAbsCnstPtr src, const InstrLvlAbsPtr dst,
 ExprPtr AbsKnob::DuplFetch(const InstrLvlAbsCnstPtr src,
                            const InstrLvlAbsPtr dst, const ExprMap& expr_map) {
   auto f_src = src->fetch();
+  if (!f_src) {
+    ILA_WARN << "Fetch not set for " << src;
+    return NULL;
+  }
   auto f_dst = AbsKnob::Rewrite(f_src, expr_map);
   dst->SetFetch(f_dst);
   return f_dst;
@@ -294,6 +308,10 @@ ExprPtr AbsKnob::DuplFetch(const InstrLvlAbsCnstPtr src,
 ExprPtr AbsKnob::DuplValid(const InstrLvlAbsCnstPtr src,
                            const InstrLvlAbsPtr dst, const ExprMap& expr_map) {
   auto v_src = src->valid();
+  if (!v_src) {
+    ILA_WARN << "Valid not set for " << src;
+    return NULL;
+  }
   auto v_dst = AbsKnob::Rewrite(v_src, expr_map);
   dst->SetValid(v_dst);
   return v_dst;
@@ -316,8 +334,20 @@ InstrPtr AbsKnob::DuplInstr(const InstrCnstPtr i_src, const InstrLvlAbsPtr dst,
   // rewrite
   RewriteInstr(i_src, i_dst, expr_map);
   // connect child-program
-  // TODO
+  auto p_src = i_src->program();
+  if (p_src) {
+    auto pos = ila_map.find(p_src);
+    ILA_ASSERT(pos != ila_map.end()) << "Child-program " << p_src
+                                     << " not mapped.";
+    auto p_dst = pos->second;
+    i_dst->set_program(p_dst);
+  }
   return i_dst;
+}
+
+void AbsKnob::DuplInstrSeq(const InstrLvlAbsCnstPtr src,
+                           const InstrLvlAbsPtr dst) {
+  // TODO
 }
 
 ExprPtr AbsKnob::DuplInp(const InstrLvlAbsPtr m, const ExprPtr inp) {
