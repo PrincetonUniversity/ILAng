@@ -221,7 +221,7 @@ void boundedUnroller() {
 
   // get the current state at step 4 (end of 3 and begging of 4)
   auto prop = (mem.Load(2) == 5);
-  auto prop_z3 = un.CurrState(prop, 4);
+  auto prop_z3 = un.GetZ3Expr(prop, 4);
 
   z3::solver s(ctx);
   s.add(trans_rel);
