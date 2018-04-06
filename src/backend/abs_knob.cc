@@ -203,26 +203,34 @@ InstrLvlAbsPtr AbsKnob::ExtrDeptModl(const InstrPtr instr,
   ILA_NOT_NULL(instr);
   ILA_NOT_NULL(instr->host());
 
-  auto h = instr->host();
-  auto m = InstrLvlAbs::New(name);
+  auto src = instr->host();
+  auto dst = InstrLvlAbs::New(name);
+
+  auto expr_map = ExprMap();
 
   try { // Create new state/input variables in the new ILA.
-    // TODO
+    DuplInp(src, dst, expr_map);
+    DuplStt(src, dst, expr_map);
+    DuplFetch(src, dst, expr_map);
+    DuplValid(src, dst, expr_map);
+    DuplInit(src, dst, expr_map);
+    // TODO instr sequenct
   } catch (...) {
-    ILA_ERROR << "Error in copy variables from " << h << " to " << m;
-    return h;
+    ILA_ERROR << "Error in duplicating attr. from " << src << " to " << dst;
+    return src;
   }
 
-  try { // Rewrite ILA attributes, e.g. fetch, valid, etc.
-    // TODO
-  } catch (...) {
-    ILA_ERROR << "Error in copying ILA attributes from " << h << " to " << m;
-    return h;
+  auto ila_map = CnstIlaMap({{src, dst}});
+  // target instruction, child-ILAs
+  auto prog_src = instr->program();
+  if (prog_src) { // duplicate child-ILA
+    auto prog_dst = CopyIlaTree(prog_src, prog_src->name().str());
+    ila_map.insert({prog_src, prog_dst});
   }
+  // duplicate instruction
+  DuplInstr(instr, dst, expr_map, ila_map);
 
-  // TODO child-program and sub-trees
-
-  return m;
+  return dst;
 }
 
 InstrLvlAbsPtr AbsKnob::CopyIlaTree(const InstrLvlAbsCnstPtr src,
