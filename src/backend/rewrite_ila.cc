@@ -47,7 +47,7 @@ bool FuncObjRewrIla::pre(const InstrLvlAbsCnstPtr src) {
   }
 
   // sequence
-  // TODO
+  AbsKnob::DuplInstrSeq(src, dst);
 
   return false;
 }
