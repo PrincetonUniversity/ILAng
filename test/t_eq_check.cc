@@ -72,9 +72,9 @@ TEST_F(TestEqCheck, CommDiag_HF) {
   for (auto instr_idx : {0}) {
     // refinement
     auto ref1 = GetRefine(f1, instr_idx, false, true);
-    auto ref2 = GetRefine(h1, instr_idx, false, false);
+    auto ref2 = GetRefine(h1, instr_idx, true, false);
     // relation
-    auto rel = GetRelation(f1, h1);
+    auto rel = GetRelation(ref1->coi(), ref2->coi());
     // crr
     auto crr = CompRefRel::New(ref1, ref2, rel);
     auto cd = CommDiag(c, crr);
