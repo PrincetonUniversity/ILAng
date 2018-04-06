@@ -249,6 +249,8 @@ public:
   friend std::ostream& operator<<(std::ostream& out, InstrLvlAbs& ila);
   /// Overload output stream for pointer
   friend std::ostream& operator<<(std::ostream& out, InstrLvlAbsPtr ila);
+  /// Overload output stream for pointer
+  friend std::ostream& operator<<(std::ostream& out, InstrLvlAbsCnstPtr ila);
 
   friend class Instr;
 

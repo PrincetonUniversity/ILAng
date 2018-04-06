@@ -324,6 +324,10 @@ std::ostream& operator<<(std::ostream& out, InstrLvlAbsPtr ila) {
   return ila->Print(out);
 }
 
+std::ostream& operator<<(std::ostream& out, InstrLvlAbsCnstPtr ila) {
+  return ila->Print(out);
+}
+
 ExprPtr InstrLvlAbs::Unify(const ExprPtr e) {
   return kUnifyAst ? expr_mngr_->GetRep(e) : e;
 }
