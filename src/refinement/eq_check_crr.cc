@@ -125,10 +125,8 @@ bool CommDiag::SanityCheckRefinement(const RefPtr ref) {
   auto an = unroll_appl_.GetZ3Expr(a, 0);
   // check: /\s_n, a_n -> (a_n & f_o & eq_o_n)
   s.reset();
-  // s.add(an && !init);
   auto appl_z3 = z3::expr_vector(ctx_);
   auto appl_vars = AbsKnob::GetVar(a);
-  // auto appl_vars = AbsKnob::GetVarOfExpr(a); // FIXME
   for (auto it = appl_vars.begin(); it != appl_vars.end(); it++) {
     appl_z3.push_back(unroll_appl_.CurrState(*it, 0));
   }
@@ -151,11 +149,7 @@ bool CommDiag::SanityCheckRelation(const RelPtr rel, const InstrLvlAbsPtr ma,
   ILA_NOT_NULL(rel);
   auto rel_expr = rel->get();
   auto rel_vars = AbsKnob::GetVar(rel_expr);
-  // auto rel_vars = AbsKnob::GetVarOfExpr(rel_expr); // XXX
 
-  // std::set<ExprPtr> ref_vars;
-  // AbsKnob::GetStVarOfIla(ma, ref_vars);
-  // AbsKnob::GetStVarOfIla(mb, ref_vars);
   auto ref_vars = ExprSet();
   AbsKnob::InsertStt(ma, ref_vars);
   AbsKnob::InsertStt(mb, ref_vars);
