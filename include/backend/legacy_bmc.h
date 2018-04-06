@@ -1,11 +1,11 @@
 /// \file
 /// Header for bounded model checking
 
-#ifndef BMC_H__
-#define BMC_H__
+#ifndef LEGACY_BMC_H__
+#define LEGACY_BMC_H__
 
 #include "ila/instr_lvl_abs.h"
-#include "ila/model_expr_generator.h"
+#include "ila/z3_expr_adapter.h"
 #include "util/container.h"
 #include "z3++.h"
 #include <map>
@@ -13,25 +13,14 @@
 /// \namespace ila
 namespace ila {
 
-/// \brief Bounded model checking engine for ILAs.
-class Bmc {
+/// \brief Simplified bounded model checking engine for ILAs.
+class LegacyBmc {
 public:
-  /// Bmc only type for state/instruction update map.
-  typedef MapSet<ExprPtr, InstrPtr> UpdateMap;
-  /// Bmc only type for instruction set in the update map.
-  typedef UpdateMap::SetT InstrSet;
-
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor.
-  Bmc();
+  LegacyBmc();
   /// Default destructor.
-  ~Bmc();
-
-  // ------------------------- ACCESSORS/MUTATORS --------------------------- //
-  /// Return the z3 context.
-  // z3::context& ctx();
-  /// Set the flag for using default transition.
-  // void set_def_tran(bool use);
+  ~LegacyBmc();
 
   // ------------------------- METHODS -------------------------------------- //
   /// \brief Add initial condition to the solver.
@@ -44,20 +33,14 @@ public:
   void AddProperty(ExprPtr prop);
 
   /// \brief Legacy BMC where two ILAs are unrolled and compared monolithically.
-  z3::check_result BmcLegacy(InstrLvlAbsPtr m0, const int& k0,
-                             InstrLvlAbsPtr m1, const int& k1);
-
-  /// \brief Bounded model checking on the ILA for the specified properties up
-  /// to step k.
-  // z3::check_result BmcProp(InstrLvlAbsPtr m, const int& k);
-  /// \brief Incrementally increase the step of BMC up to k.
-  // z3::check_result BmcPropInc(InstrLvlAbsPtr m, const int& k);
+  z3::check_result Check(InstrLvlAbsPtr m0, const int& k0, InstrLvlAbsPtr m1,
+                         const int& k1);
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// z3 context.
   z3::context ctx_;
-  /// z3 expression adapter.
+  /// Z3 expr generator.
   Z3ExprAdapter gen_ = Z3ExprAdapter(ctx_);
 
   /// The set of invariants.
@@ -78,47 +61,22 @@ private:
   /// \return the z3 expression representing the constraints.
   z3::expr UnrollCmplIla(InstrLvlAbsPtr m, const int& k, const int& pos = 0);
 
-#if 0
-  /// \brief Generate a step of an ILA execution.
-  z3::expr IlaStep(InstrLvlAbsPtr m, const std::string& suf_prev = "0",
-                   const std::string& suf_next = "1");
+  /// \brief Get the set of z3 expression (constraints) for the instruction.
+  /// - States with no update functions are encoded as unchanged.
+  z3::expr Instr(const InstrPtr instr, const std::string& suffix_prev,
+                 const std::string& suffix_next, bool complete);
 
-  /// \brief Traverse the hierarchy to collect state update mapping.
-  void CollectUpdateMap(InstrLvlAbsPtr m, UpdateMap& map) const;
+  /// \brief Get the set of z3 expression (constraints) for the ILA.
+  /// - Assume no child-ILAs (not considered).
+  /// - States with no update functions are encoded as unchanged.
+  /// - Assume one-hot encoding of all instructions.
+  z3::expr IlaOneHotFlat(const InstrLvlAbsPtr ila,
+                         const std::string& suffix_prev,
+                         const std::string& suffix_next);
 
-  /// \brief Check totality and insert default instruction if needed.
-  void MkCmplByDefInstr(ExprPtr s, InstrSet& updts);
-
-  /// \brief Recursively generate guard relation of each instruction.
-  z3::expr GenGuardRel(InstrLvlAbsPtr m, const std::string& suf_prev);
-
-  /// \brief Recursively generate transition relation of each instruction.
-  z3::expr GenTranRel(InstrLvlAbsPtr m, const std::string& suf_prev,
-                      const std::string& suf_next);
-
-  /// \brief Merge repeated updating instruction set.
-  std::set<InstrSet> MergeInstrSet(UpdateMap& updts);
-
-  /// \brief Return true if decode functions of all instructions are one-hot.
-  bool CheckOneHot(InstrSet updts);
-
-  /// \brief Generate selection relation if needed.
-  z3::expr GenSelRel(InstrSet updts);
-#endif
-
-#if 0
-  /// \brief Get the conjuction of state update functions (exclude decode).
-  z3::expr InstrUpdate(InstrPtr instr, const std::string& prefix = "0",
-                       const std::string& suffix = "1");
-
-  /// Match the states for flat ILAs.
-  z3::expr MatchStateFlat(InstrLvlAbsPtr m0, const int& pos0, InstrLvlAbsPtr m1,
-                          const int& pos1);
-#endif
-
-}; // class Bmc
+}; // class LegacyBmc
 
 } // namespace ila
 
-#endif // BMC_H__
+#endif // LEGACY_BMC_H__
 

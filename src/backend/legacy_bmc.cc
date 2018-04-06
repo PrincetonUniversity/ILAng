@@ -5,27 +5,20 @@
 
 namespace ila {
 
-typedef Bmc::UpdateMap UpdateMap;
-// typedef Bmc::InstrSet InstrSet;
+LegacyBmc::LegacyBmc() {}
 
-Bmc::Bmc() {}
+LegacyBmc::~LegacyBmc() {}
 
-Bmc::~Bmc() {}
+void LegacyBmc::AddInit(ExprPtr init) { inits_.push_back(init); }
 
-// z3::context& Bmc::ctx() { return ctx_; }
+void LegacyBmc::AddInvariant(ExprPtr inv) { invs_.push_back(inv); }
 
-// void Bmc::set_def_tran(bool use) { def_tran_ = use; }
-
-void Bmc::AddInit(ExprPtr init) { inits_.push_back(init); }
-
-void Bmc::AddInvariant(ExprPtr inv) { invs_.push_back(inv); }
-
-z3::check_result Bmc::BmcLegacy(InstrLvlAbsPtr m0, const int& k0,
-                                InstrLvlAbsPtr m1, const int& k1) {
+z3::check_result LegacyBmc::Check(InstrLvlAbsPtr m0, const int& k0,
+                                  InstrLvlAbsPtr m1, const int& k1) {
   ILA_NOT_NULL(m0);
   ILA_NOT_NULL(m1);
 
-  ModelExprGen mod_gen(ctx_);
+  auto gen = Z3ExprAdapter(ctx_);
   z3::solver solver(ctx_);
 
   // unroll m0
@@ -46,14 +39,14 @@ z3::check_result Bmc::BmcLegacy(InstrLvlAbsPtr m0, const int& k0,
     ILA_ASSERT(state_m1 != NULL) << "State unmatched: " << state_m0;
 
     // equal initial condition
-    auto state_m0_init = mod_gen.Node(state_m0, suffix_init);
-    auto state_m1_init = mod_gen.Node(state_m1, suffix_init);
+    auto state_m0_init = gen.GetExpr(state_m0, suffix_init);
+    auto state_m1_init = gen.GetExpr(state_m1, suffix_init);
     auto init_cnst_i = (state_m0_init == state_m1_init);
     solver.add(init_cnst_i);
 
     // assert equal final state
-    auto state_m0_final = mod_gen.Node(state_m0, suffix_k0);
-    auto state_m1_final = mod_gen.Node(state_m1, suffix_k1);
+    auto state_m0_final = gen.GetExpr(state_m0, suffix_k0);
+    auto state_m1_final = gen.GetExpr(state_m1, suffix_k1);
     auto assert_i = (state_m0_final == state_m1_final);
     solver.add(!assert_i);
   }
@@ -65,8 +58,8 @@ z3::check_result Bmc::BmcLegacy(InstrLvlAbsPtr m0, const int& k0,
     auto input_m1 = m1->find_input(input_m0->name());
     ILA_ASSERT(input_m1 != NULL) << "Input unmatched: " << input_m0;
 
-    auto input_m0_init = mod_gen.Node(input_m0, suffix_init);
-    auto input_m1_init = mod_gen.Node(input_m1, suffix_init);
+    auto input_m0_init = gen.GetExpr(input_m0, suffix_init);
+    auto input_m1_init = gen.GetExpr(input_m1, suffix_init);
     auto init_input = (input_m0_init == input_m1_init);
     solver.add(init_input);
   }
@@ -76,7 +69,7 @@ z3::check_result Bmc::BmcLegacy(InstrLvlAbsPtr m0, const int& k0,
     auto init_i = inits_[i];
     // ILA_ASSERT(init_i->host()) << "Legacy BMC can only have single-ILA
     // init.";
-    auto init_e = mod_gen.Node(init_i, suffix_init);
+    auto init_e = gen.GetExpr(init_i, suffix_init);
     solver.add(init_e);
   }
 
@@ -85,7 +78,7 @@ z3::check_result Bmc::BmcLegacy(InstrLvlAbsPtr m0, const int& k0,
     auto inv_i = invs_[i];
     // ILA_ASSERT(inv_i->host()) << "Legacy BMC can only have single-ILA inv.";
     // XXX Only apply invariants on initial states.
-    auto inv_e = mod_gen.Node(inv_i, suffix_init);
+    auto inv_e = gen.GetExpr(inv_i, suffix_init);
     solver.add(inv_e);
   }
 
@@ -99,47 +92,21 @@ z3::check_result Bmc::BmcLegacy(InstrLvlAbsPtr m0, const int& k0,
   return result;
 }
 
-#if 0
-z3::check_result Bmc::BmcProp(InstrLvlAbsPtr m, const int& k) {
-  ILA_NOT_NULL(m);
-  ILA_ASSERT(k > 0) << "Invalid unroll steps.";
-
-  ModelExprGen gen(ctx_);
-  z3::solver solver(ctx_);
-
-  // transition relations
-  auto cnst_tran = UnrollCmplIla(m, k); // XXX
-  solver.add(cnst_tran);
-
-  // TODO
-  // initial condition
-  // invariants
-  // properties
-
-  // check the result
-  auto result = solver.check();
-
-  // report false model
-
-  return result;
-}
-#endif
-
 // ------------------- PRIVATE FUNCTIONS ------------------------------------ //
 
-z3::expr Bmc::UnrollCmplIla(InstrLvlAbsPtr m, const int& k, const int& pos) {
+z3::expr LegacyBmc::UnrollCmplIla(InstrLvlAbsPtr m, const int& k,
+                                  const int& pos) {
   ILA_NOT_NULL(m);
   ILA_ASSERT(k > 0) << "Invalid unroll steps.";
   ILA_ASSERT(pos >= 0) << "Negative starting frame number.";
 
-  ModelExprGen gen(ctx_);
   auto cnst = ctx_.bool_val(true);
 
   for (auto i = 0; i != k; i++) {
     auto suf_prev = std::to_string(pos + i);
     auto suf_next = std::to_string(pos + i + 1);
     /// FIXME May not be one hot and flat -- based on flags.
-    auto cnst_i = gen.IlaOneHotFlat(m, suf_prev, suf_next);
+    auto cnst_i = IlaOneHotFlat(m, suf_prev, suf_next);
     /// FIXME Use rewrite for better performance -- based on flags (or def)
     cnst = cnst_i && cnst;
   }
@@ -147,143 +114,68 @@ z3::expr Bmc::UnrollCmplIla(InstrLvlAbsPtr m, const int& k, const int& pos) {
   return cnst;
 }
 
-#if 0
-// - Traverse the hierarchy to collect state/instr dependency map.
-// - Check totality and insert default instruction for states (in next steps).
-// - Generate guard (valid and decode function) of each instruction.
-// - Generate state transition relation of each instruction.
-// - Check if one-hot and generate instruction selection relation.
-z3::expr Bmc::IlaStep(InstrLvlAbsPtr m, const std::string& suf_prev,
-                      const std::string& suf_next) {
-  // traverse the hierarchy to collect state update map
-  UpdateMap updt_map;
-  CollectUpdateMap(m, updt_map);
+z3::expr LegacyBmc::Instr(const InstrPtr instr, const std::string& suffix_prev,
+                          const std::string& suffix_next, bool complete) {
+  ILA_NOT_NULL(instr);
+  ILA_DLOG("ModelGen.Instr") << (complete ? "Complete " : "Partial ")
+                             << "Instruction: " << instr << " (" << suffix_prev
+                             << ", " << suffix_next << ")";
 
-  // for each state
-  for (auto it = updt_map.begin(); it != updt_map.end(); it++) {
-    // check totality and insert default instruction if needed
-    MkCmplByDefInstr(it->first, it->second);
-  }
+  auto ila = instr->host();
+  ILA_NOT_NULL(ila);
 
-  auto res = ctx_.bool_val(true);
-  // recursively generate guard relation of each instruction
-  auto guard_rel = GenGuardRel(m, suf_prev);
-  res = res && guard_rel;
+  auto cnst = ctx_.bool_val(true);
 
-  // recursively generate transition relation of each instruction
-  auto tran_rel = GenTranRel(m, suf_prev, suf_next);
-  res = res && tran_rel;
+  auto state_num = ila->state_num();
+  for (size_t i = 0; i != state_num; i++) {
+    auto state_n = ila->state(i);
+    auto update_n = instr->update(state_n);
 
-  auto sel_candid = MergeInstrSet(updt_map);
-  // for each state
-  for (auto it = sel_candid.begin(); it != sel_candid.end(); it++) {
-    // check one-hot
-    auto one_hot = CheckOneHot(*it);
-    if (!one_hot) {
-      // generate instruction selection relation if needed
-      auto sel_rel = GenSelRel(*it);
-      res = res && sel_rel;
+    if (update_n != NULL) { // update function specified
+      auto next_val_e = gen_.GetExpr(update_n, suffix_prev);
+      auto next_var_e = gen_.GetExpr(state_n, suffix_next);
+      auto eq_cnst = (next_var_e == next_val_e);
+      cnst = cnst && eq_cnst;
+    } else if (complete == true) {
+      auto next_val_e = gen_.GetExpr(state_n, suffix_prev);
+      auto next_var_e = gen_.GetExpr(state_n, suffix_next);
+      auto eq_cnst = (next_var_e == next_val_e);
+      cnst = cnst && eq_cnst;
     }
   }
 
-  res = res.simplify();
-  return res;
+  auto decode_n = instr->decode();
+  ILA_NOT_NULL(decode_n);
+  auto decode_e = gen_.GetExpr(decode_n, suffix_prev);
+
+  auto instr_cnst = z3::implies(decode_e, cnst);
+  return instr_cnst;
 }
 
-// Check if need to use default transition for all instructions.
-void Bmc::CollectUpdateMap(InstrLvlAbsPtr m, UpdateMap& map) const {
-  ILA_DLOG("Bmc.IlaStep") << "Collecting state update mapping for " << m;
+z3::expr LegacyBmc::IlaOneHotFlat(const InstrLvlAbsPtr ila,
+                                  const std::string& suffix_prev,
+                                  const std::string& suffix_next) {
+  ILA_NOT_NULL(ila);
+  ILA_DLOG("ModelGen.IlaOneHotFlat") << "One-hot Flat ILA: " << ila << " ("
+                                     << suffix_prev << ", " << suffix_next
+                                     << ")";
+  auto& gen = gen_;
+  auto valid_n = ila->valid();
+  ILA_NOT_NULL(valid_n);
+  auto valid_e = gen.GetExpr(valid_n, suffix_prev);
 
-  // collect self
-  auto instr_num = m->instr_num();
-  auto state_num = m->state_num();
-  // for each instruction
+  auto cnst = ctx_.bool_val(true);
+  auto instr_num = ila->instr_num();
   for (size_t i = 0; i != instr_num; i++) {
-    auto instr = m->instr(i);
-    // for each state
-    for (size_t j = 0; j != state_num; j++) {
-      auto state = m->state(j);
-      // check if there is an update
-      auto updt = instr->GetUpdate(state);
-      // update map if use default or there is an update
-      if (updt || def_tran_) {
-        map.insert(state, instr);
-      }
-    }
+    auto instr_i = ila->instr(i);
+    auto instr_cnst = Instr(instr_i, suffix_prev, suffix_next, true);
+    // Assume one-hot encoding of the instruction decode.
+    cnst = cnst && instr_cnst;
   }
 
-  // collect child
-  auto child_num = m->child_num();
-  for (size_t i = 0; i != child_num; i++) {
-    auto child = m->child(i);
-    CollectUpdateMap(child, map);
-  }
+  auto ila_cnst = z3::implies(valid_e, cnst);
+  return ila_cnst;
 }
-
-void Bmc::MkCmplByDefInstr(ExprPtr s, InstrSet& updts) {
-  using namespace ExprFuse;
-
-  ILA_DLOG("Bmc.IlaStep") << "Check transition totality for state " << s;
-  // conjunct all guards (decode)
-  auto guard = BoolConst(false);
-  for (auto it = updts.begin(); it != updts.end(); it++) {
-    auto guard_i = (*it)->GetDecode(); // XXX host valid not considered
-    guard = Or(guard, guard_i);
-  }
-  auto cnst = gen_.GetExpr(guard);
-
-  // check totality
-  z3::solver solver(ctx_);
-  solver.add(!cnst);
-  auto res = solver.check();
-
-  // create default instruction for the state if not total
-  if (res == z3::sat) {
-    ILA_DLOG("Bmc.IlaStep") << "Complete transition for state " << s;
-    auto m = s->host();
-    auto instr = m->NewInstr("DefInstr." + s->name().str());
-    // default condition
-    instr->SetDecode(Not(guard));
-    // remain unchanged
-    instr->AddUpdate(s, s);
-  }
-}
-
-z3::expr Bmc::GenGuardRel(InstrLvlAbsPtr m, const std::string& suf_prev) {
-  auto res = ctx_.bool_val(true);
-  // TODO guards are bind to suffix
-
-  res = res.simplify();
-  return res;
-}
-
-z3::expr Bmc::GenTranRel(InstrLvlAbsPtr m, const std::string& suf_prev,
-                         const std::string& suf_next) {
-  auto res = ctx_.bool_val(true);
-  // TODO
-
-  res = res.simplify();
-  return res;
-}
-
-std::set<InstrSet> Bmc::MergeInstrSet(UpdateMap& updts) {
-  std::set<InstrSet> merge;
-  // TODO
-  return merge;
-}
-
-bool Bmc::CheckOneHot(InstrSet updts) {
-  // TODO
-  return true;
-}
-
-z3::expr Bmc::GenSelRel(InstrSet updts) {
-  auto res = ctx_.bool_val(true);
-  // FIXME this should not be used
-
-  return res;
-}
-#endif
 
 } // namespace ila
 

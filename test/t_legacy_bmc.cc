@@ -1,5 +1,5 @@
 /// \file
-/// Unit test for BMC
+/// Unit test for legacy BMC
 
 #include "backend/legacy_bmc.h"
 #include "unit-include/eq_ilas.h"
@@ -8,7 +8,7 @@
 
 namespace ila {
 
-TEST(TestBmc, Legacy) {
+TEST(TestLegacyBmc, FF) {
   SetToStdErr(0);
 
   DebugLog::Enable("Bmc.Legacy");
@@ -20,7 +20,7 @@ TEST(TestBmc, Legacy) {
   auto m0 = ila_gen.GetIlaFlat1();
   auto m1 = ila_gen.GetIlaFlat2();
 
-  Bmc bmc;
+  LegacyBmc bmc;
 
   { // init for m0
     auto start = m0->input("start");
@@ -42,7 +42,7 @@ TEST(TestBmc, Legacy) {
     bmc.AddInit(init);
   }
 
-  auto result = bmc.BmcLegacy(m0, 1, m1, 1);
+  auto result = bmc.Check(m0, 1, m1, 1);
 
   EXPECT_EQ(z3::unsat, result);
 
