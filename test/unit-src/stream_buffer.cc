@@ -2,7 +2,7 @@
 /// Example model -- simple stream buffer.
 
 #include "../unit-include/stream_buffer.h"
-#include "ila++.h"
+#include "cpp_api.h"
 #include "util/log.h"
 
 namespace ila {

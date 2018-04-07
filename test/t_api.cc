@@ -1,7 +1,7 @@
 /// \file
 /// Unit test for c++ API
 
-#include "ila++.h"
+#include "cpp_api.h"
 #include "unit-include/simple_cpu.h"
 #include "unit-include/util.h"
 #include <vector>
