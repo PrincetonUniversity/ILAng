@@ -23,9 +23,15 @@ public:
 
   // ------------------------- METHODS -------------------------------------- //
   /// \brief Check equivalence between two models based on the refinement
-  /// relation provided up to the given unroll bound.
-  /// \param[in] max unroll bound.
+  /// relation up to the given unrolling bound.
+  /// \param[in] max unrolling bound.
   bool EqCheck(const int& max = 10);
+
+  /// \brief Incrementally checking equivalence between two models based on
+  /// the refinement relation up to the given unrolling bound.
+  /// \param[in] min #step of unrolling.
+  /// \param[in] max #step of unrolling.
+  bool IncEqCheck(const int& min = 0, const int& max = 10);
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
@@ -41,6 +47,8 @@ private:
   MonoUnroll unroll_appl_ = MonoUnroll(ctx_, k_suff_appl_);
   MonoUnroll unroll_orig_ = MonoUnroll(ctx_, k_suff_orig_);
 
+  void BootStrap();
+
   bool SanityCheck();
   bool SanityCheckRefinement(const RefPtr ref);
   bool SanityCheckRelation(const RelPtr rel, const InstrLvlAbsPtr ma,
@@ -51,8 +59,9 @@ private:
   bool CheckStepOrig(const RefPtr ref, const int& k);
   bool CheckStepAppl(const RefPtr ref, const int& k);
 
-  z3::expr GenInit(const RefPtr ref);
+  z3::expr GenCstrApplInstr(const ExprSet& stts, const RefPtr ref);
 
+  z3::expr GenInit(const RefPtr ref);
   z3::expr GenTranRel(const RefPtr ref, const int& k_orig, const int& k_appl);
   z3::expr GenAssm();
   z3::expr GenProp();

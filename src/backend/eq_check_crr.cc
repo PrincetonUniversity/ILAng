@@ -72,6 +72,47 @@ bool CommDiag::EqCheck(const int& max) {
   return (res == z3::unsat);
 }
 
+bool CommDiag::IncEqCheck(const int& min, const int& max) {
+  // sanity check
+  auto sc_res = SanityCheck();
+  ILA_WARN_IF(!sc_res) << "Sanity check fail";
+
+  auto ma = crr_->refine_a()->coi(); // representative ILA
+  auto mb = crr_->refine_b()->coi();
+  auto stts_a = AbsKnob::GetSttTree(ma); // used for marking
+  auto stts_b = AbsKnob::GetSttTree(mb);
+
+  auto s = z3::solver(ctx_); // solver
+  // default basic condition (appl/orig path & assm & prop)
+  {
+    auto appl_instr_a = GenCstrApplInstr(stts_a, crr_->refine_a());
+    auto appl_instr_b = GenCstrApplInstr(stts_b, crr_->refine_b());
+    auto assm = GenAssm();
+    auto prop = GenProp();
+    s.add(appl_instr_a && appl_instr_b && assm && !prop);
+    s.push(); // record backtracking point
+  }
+
+  // Incrementally unrolling and check
+  ILA_ASSERT(max >= min) << "Invalid range [" << min << ", " << max << "]";
+  auto num_appl_a = min;
+  auto num_appl_b = min;
+  auto num_orig_a = min;
+  auto num_orig_b = min;
+  for (auto i = min; i <= max; i++) {
+    // transition relation
+    // check prop
+
+    // check num_appl_a sufficient
+    // check num_appl_b sufficient
+    // check num_orig_a sufficient
+    // check num_orig_a sufficient
+  }
+
+  // no bug found up to the given bound
+  return true;
+}
+
 bool CommDiag::SanityCheck() {
   // check refinement
   auto res_a = SanityCheckRefinement(crr_->refine_a());
@@ -268,9 +309,29 @@ bool CommDiag::CheckStepAppl(const RefPtr ref, const int& k) {
   return true;
 }
 
+z3::expr CommDiag::GenCstrApplInstr(const ExprSet& stts, const RefPtr ref) {
+  // appl/orig state equal
+  auto eq = ctx_.bool_val(true);
+  for (auto it = stts.begin(); it != stts.end(); it++) {
+    auto so = unroll_orig_.CurrState(*it, 0);
+    auto sa = unroll_appl_.CurrState(*it, 0);
+    eq = eq && (so == sa);
+  }
+  // constrain apply and flush on each path
+  auto apply_on_sa = unroll_appl_.GetZ3Expr(ref->appl(), 0);
+  auto flush_on_so = unroll_orig_.GetZ3Expr(ref->flush(), 0);
+  // apply take one step
+  auto& un = unroll_appl_;
+  un.ClearPred();
+  un.AddStepPred(ref->appl(), 0);
+  auto apply_one_step = un.MonoAssn(ref->coi(), 1 /*length*/, 0 /*base*/);
+  un.ClearPred();
+  // return
+  return (eq && apply_on_sa && flush_on_so && apply_one_step);
+}
+
 z3::expr CommDiag::GenInit(const RefPtr ref) {
   // default equivalence: state variables (not including inputs)
-  // auto vars = AbsKnob::GetStVarOfIla(ref->coi());
   auto vars = AbsKnob::GetSttTree(ref->coi());
   auto eq = ctx_.bool_val(true);
   for (auto it = vars.begin(); it != vars.end(); it++) {
@@ -339,7 +400,6 @@ z3::expr CommDiag::UnrollFlush(MonoUnroll& unroller, const RefPtr ref,
   // unroll
   auto path = unroller.MonoAssn(ref->coi(), length, base);
 
-  // auto vars = AbsKnob::GetStVarOfIla(ref->coi());
   auto vars = AbsKnob::GetStt(ref->coi());
   auto mark = ctx_.bool_val(true);
   // mark complete step with representing state
