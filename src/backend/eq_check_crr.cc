@@ -113,6 +113,10 @@ bool CommDiag::IncEqCheck(const int& min, const int& max) {
   auto inc_unrl_new_a = MonoUnroll(ctx_, k_suff_new_);
   auto inc_unrl_old_b = MonoUnroll(ctx_, k_suff_old_);
   auto inc_unrl_new_b = MonoUnroll(ctx_, k_suff_new_);
+  inc_unrl_old_a.AddGlobPred(crr_->refine_a()->flush());
+  inc_unrl_new_a.AddGlobPred(crr_->refine_a()->flush());
+  inc_unrl_old_b.AddGlobPred(crr_->refine_b()->flush());
+  inc_unrl_new_b.AddGlobPred(crr_->refine_b()->flush());
   for (auto i = min; i <= max; i++) { // if (num < i) --> already fixed
     // transition relation
     if ((num_old_a < i) && (num_old_b < i) && (num_new_a < i) &&
@@ -158,6 +162,28 @@ bool CommDiag::IncEqCheck(const int& min, const int& max) {
              << num_old_b << " " << num_new_b;
     auto res = s.check();
     ILA_INFO << "Result: " << res;
+    if (res == z3::sat) {
+      auto m = s.get_model();
+      ILA_DLOG("EqCheck") << m.eval(cf);
+      // ILA_DLOG("EqCheck") << (cmpl_old_b);
+      ILA_DLOG("EqCheck") << (cmpl_new_b);
+      // ILA_DLOG("EqCheck") << m.eval(cmpl_old_b);
+      ILA_DLOG("EqCheck") << m.eval(cmpl_new_b);
+
+      auto h = mb;
+      auto c = mb->child(0);
+      auto start = h->input("start");
+      auto start_expr = inc_unrl_new_b.GetZ3Expr(start, 0);
+      ILA_DLOG("EqCheck") << start_expr << " " << m.eval(start_expr);
+      auto uptr = c->state("uptr");
+      auto uptr_expr = inc_unrl_new_b.GetZ3Expr(uptr, 0);
+      ILA_DLOG("EqCheck") << uptr_expr << " " << m.eval(uptr_expr);
+      auto c1vld = h->state("c1vld");
+      auto c1vld_expr = inc_unrl_new_b.GetZ3Expr(c1vld, 0);
+      ILA_DLOG("EqCheck") << c1vld_expr << " " << m.eval(c1vld_expr);
+
+      return false;
+    }
 
     // pop back to transition relation (removing marking and prop)
     s.pop();
@@ -391,6 +417,11 @@ z3::expr CommDiag::GetZ3ApplInstr(const ExprSet& stts, const RefPtr ref) {
   { // take one step (apply)
     auto& un = unrl_apl_;
     un.ClearPred();
+    // invariant
+    for (decltype(ref->inv_num()) i = 0; i != ref->inv_num(); i++) {
+      un.AddGlobPred(ref->inv(i));
+    }
+    // apply
     un.AddStepPred(ref->appl(), 0);
     auto apply_one_step = un.MonoAssn(ref->coi(), 1 /*length*/, 0 /*base*/);
     un.ClearPred();
@@ -456,7 +487,7 @@ z3::expr CommDiag::GetZ3Cmpl(const ExprPtr cmpl, MonoUnroll& un,
                              const int& begin, const int& end) {
   auto cmpl_acc = ctx_.bool_val(false);
   for (auto i = begin; i <= end; i++) {
-    auto cmpl_i = un.GetZ3Expr(cmpl);
+    auto cmpl_i = un.GetZ3Expr(cmpl, i);
     cmpl_acc = cmpl_acc || cmpl_i;
   }
   return cmpl_acc;
@@ -478,9 +509,12 @@ z3::expr CommDiag::GetZ3IncUnrl(MonoUnroll& un, const RefPtr ref,
 }
 
 bool CommDiag::CheckCmpl(z3::solver& s, z3::expr& cmpl_expr) const {
+  s.push();
   s.add(cmpl_expr);
   auto can_cmpl = (s.check() == z3::sat);
   s.pop();
+
+  s.push();
   s.add(!cmpl_expr);
   auto must_cmpl = (s.check() == z3::unsat);
   s.pop();
