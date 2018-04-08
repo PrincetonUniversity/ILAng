@@ -87,6 +87,27 @@ TEST_F(TestEqCheck, CommDiag_HF) {
   }
 }
 
+TEST_F(TestEqCheck, IncCommDiag_HF) {
+  SetToStdErr(1);
+  // DebugLog::Disable("Verbose-CrrEqCheck");
+  for (auto instr_idx : {0}) {
+    // refinement
+    auto ref1 = GetRefine(f1, instr_idx, false, true);
+    auto ref2 = GetRefine(h1, instr_idx, true, false);
+    // relation
+    auto rel = GetRelation(ref1->coi(), ref2->coi());
+    // crr
+    auto crr = CompRefRel::New(ref1, ref2, rel);
+    auto cd = CommDiag(c, crr);
+    // invariant
+    CustF1(ref1);
+    CustH1(ref2);
+
+    // EXPECT_TRUE(cd.IncEqCheck(100));
+    EXPECT_TRUE(cd.IncEqCheck(0, 20));
+  }
+}
+
 TEST_F(TestEqCheck, CommDiag_HH) {
   // TODO
   // with and without completion
@@ -161,15 +182,15 @@ void TestEqCheck::CustH1(const RefPtr ref) {
   ILA_NOT_NULL(uptr);
 
   ref->add_inv(Uge(ucnt, 0));
-  // ref->add_inv(Ult(ucnt, 2));
-  ref->add_inv(Ule(ucnt, ila_gen.reg_num()));
+  ref->add_inv(Ult(ucnt, 2));
+  // ref->add_inv(Ule(ucnt, ila_gen.reg_num()));
   ref->add_inv(Uge(uptr, 0));
   ref->add_inv(Ult(uptr, ila_gen.reg_num()));
 
-  // ref->set_step_orig(5);
-  // ref->set_step_appl(5);
-  ref->set_step_orig(60);
-  ref->set_step_appl(70);
+  ref->set_step_orig(5);
+  ref->set_step_appl(5);
+  // ref->set_step_orig(60);
+  // ref->set_step_appl(70);
 }
 
 } // namespace ila
