@@ -69,6 +69,11 @@ private:
   z3::expr GetZ3ApplInstr(const ExprSet& stts, const RefPtr ref);
   z3::expr GetZ3Assm();
   z3::expr GetZ3Prop();
+  z3::expr GetZ3Cmpl(const ExprPtr cmpl, MonoUnroll& un, const int& begin,
+                     const int& end);
+  z3::expr GetZ3IncUnrl(MonoUnroll& un, const RefPtr ref, const int& pos,
+                        const ExprSet& stts) const;
+  bool CheckCmpl(z3::solver& s, z3::expr& cmpl_expr) const;
 
   z3::expr GenInit(const RefPtr ref);
   z3::expr GenTranRel(const RefPtr ref, const int& k_orig, const int& k_appl);

@@ -85,7 +85,6 @@ bool CommDiag::IncEqCheck(const int& min, const int& max) {
   const auto mb = crr_->refine_b()->coi();
   const auto stts_a = AbsKnob::GetSttTree(ma); // used for marking
   const auto stts_b = AbsKnob::GetSttTree(mb);
-  auto cf = ctx_.bool_const("cmpl_flag"); // flag indicating flushing completion
 
   auto s = z3::solver(ctx_); // solver
   { // default basic condition (old/new/apply path & assm & prop)
@@ -93,32 +92,93 @@ bool CommDiag::IncEqCheck(const int& min, const int& max) {
     auto appl_instr_b = GetZ3ApplInstr(stts_b, crr_->refine_b());
     s.add(appl_instr_a);
     s.add(appl_instr_b);
-    // add assumption if complete
-    auto assm = GetZ3Assm();
-    s.add(z3::implies(cf, assm));
-    // assert propoerty if complete
-    auto prop = GetZ3Prop();
-    s.add(!(z3::implies(cf, prop)));
     s.push(); // record backtracking point
   }
 
+  auto cf = ctx_.bool_const("cmpl_flag"); // flag indicating flushing completion
+  // assumption and property to check
+  auto assm = GetZ3Assm();
+  auto prop = GetZ3Prop();
+  // check only if complete
+  assm = z3::implies(cf, assm);
+  prop = z3::implies(cf, prop);
+
   // Incrementally unrolling and check
   ILA_ASSERT(max >= min) << "Invalid range [" << min << ", " << max << "]";
-  auto num_appl_a = min;
-  auto num_appl_b = min;
-  auto num_orig_a = min;
-  auto num_orig_b = min;
+  auto num_old_a = min;
+  auto num_new_a = min;
+  auto num_old_b = min;
+  auto num_new_b = min;
+  auto inc_unrl_old_a = MonoUnroll(ctx_, k_suff_old_); // FIXME ma inc unrl
+  auto inc_unrl_new_a = MonoUnroll(ctx_, k_suff_new_);
+  auto inc_unrl_old_b = MonoUnroll(ctx_, k_suff_old_);
+  auto inc_unrl_new_b = MonoUnroll(ctx_, k_suff_new_);
   for (auto i = min; i <= max; i++) { // if (num < i) --> already fixed
     // transition relation
-    // auto flush_orig_a =
+    if ((num_old_a < i) && (num_old_b < i) && (num_new_a < i) &&
+        (num_new_b < i)) {
+      return true;
+    }
+    // unroll new flushing path FIXME
+    if (num_old_a == i) { // need to unroll new step
+      auto tran = inc_unrl_old_a.MonoAssn(ma, 1 /*length*/, i /*base*/);
+      auto mark = GetZ3IncUnrl(inc_unrl_old_a, crr_->refine_a(), i, stts_a);
+      s.add(tran);
+    }
+    if (num_new_a == i) { // need to unroll new step
+      auto tran = inc_unrl_new_a.MonoAssn(ma, 1 /*length*/, i /*base*/);
+      auto mark = GetZ3IncUnrl(inc_unrl_new_a, crr_->refine_a(), i, stts_a);
+      s.add(tran);
+    }
+    if (num_old_b == i) { // need to unroll new step
+      auto tran = inc_unrl_old_b.MonoAssn(mb, 1 /*length*/, i /*base*/);
+      auto mark = GetZ3IncUnrl(inc_unrl_old_b, crr_->refine_b(), i, stts_b);
+      s.add(tran);
+    }
+    if (num_new_b == i) { // need to unroll new step
+      auto tran = inc_unrl_new_b.MonoAssn(mb, 1 /*length*/, i /*base*/);
+      auto mark = GetZ3IncUnrl(inc_unrl_new_b, crr_->refine_b(), i, stts_b);
+      s.add(tran);
+    }
+    s.push(); // recording the current transition relation
+
+    // accumulate completion indicator
+    auto cmpl_a = crr_->refine_a()->cmpl();
+    auto cmpl_b = crr_->refine_b()->cmpl();
+    auto cmpl_old_a = GetZ3Cmpl(cmpl_a, inc_unrl_old_a, 0, num_old_a);
+    auto cmpl_new_a = GetZ3Cmpl(cmpl_a, inc_unrl_new_a, 0, num_new_a);
+    auto cmpl_old_b = GetZ3Cmpl(cmpl_b, inc_unrl_old_b, 0, num_old_b);
+    auto cmpl_new_b = GetZ3Cmpl(cmpl_b, inc_unrl_new_b, 0, num_new_b);
+    s.add(cf == (cmpl_old_a && cmpl_new_a && cmpl_old_b && cmpl_new_b));
 
     // check prop
+    s.add(assm);
+    s.add(!prop);
+    ILA_INFO << "Start checking " << num_old_a << " " << num_new_a << " "
+             << num_old_b << " " << num_new_b;
+    auto res = s.check();
+    ILA_INFO << "Result: " << res;
+
+    // pop back to transition relation (removing marking and prop)
+    s.pop();
 
     // check if num is sufficient (if not fixed yet) and increment accordingly
-    // check num_appl_a sufficient
-    // check num_appl_b sufficient
-    // check num_orig_a sufficient
-    // check num_orig_a sufficient
+    if (num_old_a == i) { // new step
+      auto sufficient = CheckCmpl(s, cmpl_old_a);
+      num_old_a = sufficient ? num_old_a : num_old_a + 1;
+    }
+    if (num_new_a == i) { // new step
+      auto sufficient = CheckCmpl(s, cmpl_new_a);
+      num_new_a = sufficient ? num_new_a : num_new_a + 1;
+    }
+    if (num_old_b == i) { // new step
+      auto sufficient = CheckCmpl(s, cmpl_old_b);
+      num_old_b = sufficient ? num_old_b : num_old_b + 1;
+    }
+    if (num_new_b == i) { // new step
+      auto sufficient = CheckCmpl(s, cmpl_new_b);
+      num_new_b = sufficient ? num_new_b : num_new_b + 1;
+    }
   }
 
   // no bug found up to the given bound
@@ -336,30 +396,26 @@ z3::expr CommDiag::GetZ3ApplInstr(const ExprSet& stts, const RefPtr ref) {
     un.ClearPred();
     acc = acc && apply_one_step;
   }
-
-  // apply_0 == old_0
-  // apply_1 == new_0
-  // flush(old_0)
-  // flush(new_0)
-
-  // appl/orig state equal
-  auto eq = ctx_.bool_val(true);
-  for (auto it = stts.begin(); it != stts.end(); it++) {
-    auto so = unroll_orig_.CurrState(*it, 0);
-    auto sa = unroll_appl_.CurrState(*it, 0);
-    eq = eq && (so == sa);
+  { // connect old/new with the apply step
+    auto eq = ctx_.bool_val(true);
+    for (auto it = stts.begin(); it != stts.end(); it++) {
+      // apply_0 == old_0)
+      auto sa_0 = unrl_apl_.CurrState(*it, 0);
+      auto so_0 = unrl_old_.CurrState(*it, 0);
+      eq = eq && (sa_0 == so_0);
+      // apply_1 == new_0)
+      auto sa_1 = unrl_apl_.CurrState(*it, 1);
+      auto sn_0 = unrl_new_.CurrState(*it, 0);
+      eq = eq && (sa_1 == sn_0);
+    }
+    acc = acc && eq;
   }
-  // constrain apply and flush on each path
-  auto apply_on_sa = unroll_appl_.GetZ3Expr(ref->appl(), 0);
-  auto flush_on_so = unroll_orig_.GetZ3Expr(ref->flush(), 0);
-  // apply take one step
-  auto& un = unroll_appl_;
-  un.ClearPred();
-  un.AddStepPred(ref->appl(), 0);
-  auto apply_one_step = un.MonoAssn(ref->coi(), 1 /*length*/, 0 /*base*/);
-  un.ClearPred();
+  // flush(old_0)
+  auto flush_on_old = unrl_old_.GetZ3Expr(ref->flush(), 0);
+  // flush(new_0)
+  auto flush_on_new = unrl_new_.GetZ3Expr(ref->flush(), 0);
   // return
-  return (eq && apply_on_sa && flush_on_so && apply_one_step);
+  return acc && flush_on_old && flush_on_new;
 }
 
 z3::expr CommDiag::GenInit(const RefPtr ref) {
@@ -384,9 +440,52 @@ z3::expr CommDiag::GenTranRel(const RefPtr ref, const int& k_orig,
   return (init && orig && appl);
 }
 
-z3::expr CommDiag::GetZ3Assm() { return GenAssm(); }
+z3::expr CommDiag::GetZ3Assm() {
+  auto un = MonoUnroll(ctx_, k_suff_old_);
+  auto eq = un.GetZ3Expr(crr_->relation()->get());
+  return eq;
+}
 
-z3::expr CommDiag::GetZ3Prop() { return GenProp(); }
+z3::expr CommDiag::GetZ3Prop() {
+  auto un = MonoUnroll(ctx_, k_suff_new_);
+  auto eq = un.GetZ3Expr(crr_->relation()->get());
+  return eq;
+}
+
+z3::expr CommDiag::GetZ3Cmpl(const ExprPtr cmpl, MonoUnroll& un,
+                             const int& begin, const int& end) {
+  auto cmpl_acc = ctx_.bool_val(false);
+  for (auto i = begin; i <= end; i++) {
+    auto cmpl_i = un.GetZ3Expr(cmpl);
+    cmpl_acc = cmpl_acc || cmpl_i;
+  }
+  return cmpl_acc;
+}
+
+z3::expr CommDiag::GetZ3IncUnrl(MonoUnroll& un, const RefPtr ref,
+                                const int& pos, const ExprSet& stts) const {
+  // auto tran = un.MonoAssn(ma, 1 /*length*/, pos /*base*/); FIXME
+  // mark
+  auto cmpl = un.GetZ3Expr(ref->cmpl(), pos);
+  auto eq = ctx_.bool_val(true);
+  for (auto it = stts.begin(); it != stts.end(); it++) {
+    auto s_i = un.CurrState(*it, pos);
+    auto s = un.GetZ3Expr(*it); // representative
+    eq = eq && (s == s_i);
+  }
+  auto mark = z3::implies(cmpl, eq);
+  return mark;
+}
+
+bool CommDiag::CheckCmpl(z3::solver& s, z3::expr& cmpl_expr) const {
+  s.add(cmpl_expr);
+  auto can_cmpl = (s.check() == z3::sat);
+  s.pop();
+  s.add(!cmpl_expr);
+  auto must_cmpl = (s.check() == z3::unsat);
+  s.pop();
+  return can_cmpl && must_cmpl;
+}
 
 z3::expr CommDiag::GenAssm() {
   auto eq = unroll_orig_.GetZ3Expr(crr_->relation()->get());
