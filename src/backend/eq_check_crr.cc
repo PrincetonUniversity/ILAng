@@ -11,6 +11,10 @@ namespace ila {
 const std::string CommDiag::k_suff_orig_ = "org";
 const std::string CommDiag::k_suff_appl_ = "apl";
 
+const std::string CommDiag::k_suff_old_ = "old";
+const std::string CommDiag::k_suff_new_ = "new";
+const std::string CommDiag::k_suff_apl_ = "apl";
+
 using namespace ExprFuse;
 
 CommDiag::CommDiag(z3::context& ctx, const CrrPtr crr) : ctx_(ctx), crr_(crr) {}
@@ -74,22 +78,27 @@ bool CommDiag::EqCheck(const int& max) {
 
 bool CommDiag::IncEqCheck(const int& min, const int& max) {
   // sanity check
-  auto sc_res = SanityCheck();
+  auto sc_res = SanityCheck(); // XXX need refresh
   ILA_WARN_IF(!sc_res) << "Sanity check fail";
 
-  auto ma = crr_->refine_a()->coi(); // representative ILA
-  auto mb = crr_->refine_b()->coi();
-  auto stts_a = AbsKnob::GetSttTree(ma); // used for marking
-  auto stts_b = AbsKnob::GetSttTree(mb);
+  const auto ma = crr_->refine_a()->coi(); // representative ILA
+  const auto mb = crr_->refine_b()->coi();
+  const auto stts_a = AbsKnob::GetSttTree(ma); // used for marking
+  const auto stts_b = AbsKnob::GetSttTree(mb);
+  auto cf = ctx_.bool_const("cmpl_flag"); // flag indicating flushing completion
 
   auto s = z3::solver(ctx_); // solver
-  // default basic condition (appl/orig path & assm & prop)
-  {
-    auto appl_instr_a = GenCstrApplInstr(stts_a, crr_->refine_a());
-    auto appl_instr_b = GenCstrApplInstr(stts_b, crr_->refine_b());
-    auto assm = GenAssm();
-    auto prop = GenProp();
-    s.add(appl_instr_a && appl_instr_b && assm && !prop);
+  { // default basic condition (old/new/apply path & assm & prop)
+    auto appl_instr_a = GetZ3ApplInstr(stts_a, crr_->refine_a());
+    auto appl_instr_b = GetZ3ApplInstr(stts_b, crr_->refine_b());
+    s.add(appl_instr_a);
+    s.add(appl_instr_b);
+    // add assumption if complete
+    auto assm = GetZ3Assm();
+    s.add(z3::implies(cf, assm));
+    // assert propoerty if complete
+    auto prop = GetZ3Prop();
+    s.add(!(z3::implies(cf, prop)));
     s.push(); // record backtracking point
   }
 
@@ -99,10 +108,13 @@ bool CommDiag::IncEqCheck(const int& min, const int& max) {
   auto num_appl_b = min;
   auto num_orig_a = min;
   auto num_orig_b = min;
-  for (auto i = min; i <= max; i++) {
+  for (auto i = min; i <= max; i++) { // if (num < i) --> already fixed
     // transition relation
+    // auto flush_orig_a =
+
     // check prop
 
+    // check if num is sufficient (if not fixed yet) and increment accordingly
     // check num_appl_a sufficient
     // check num_appl_b sufficient
     // check num_orig_a sufficient
@@ -111,6 +123,11 @@ bool CommDiag::IncEqCheck(const int& min, const int& max) {
 
   // no bug found up to the given bound
   return true;
+}
+
+void CommDiag::Reset() {
+  unroll_appl_.ClearPred();
+  unroll_orig_.ClearPred();
 }
 
 bool CommDiag::SanityCheck() {
@@ -309,7 +326,22 @@ bool CommDiag::CheckStepAppl(const RefPtr ref, const int& k) {
   return true;
 }
 
-z3::expr CommDiag::GenCstrApplInstr(const ExprSet& stts, const RefPtr ref) {
+z3::expr CommDiag::GetZ3ApplInstr(const ExprSet& stts, const RefPtr ref) {
+  auto acc = ctx_.bool_val(true);
+  { // take one step (apply)
+    auto& un = unrl_apl_;
+    un.ClearPred();
+    un.AddStepPred(ref->appl(), 0);
+    auto apply_one_step = un.MonoAssn(ref->coi(), 1 /*length*/, 0 /*base*/);
+    un.ClearPred();
+    acc = acc && apply_one_step;
+  }
+
+  // apply_0 == old_0
+  // apply_1 == new_0
+  // flush(old_0)
+  // flush(new_0)
+
   // appl/orig state equal
   auto eq = ctx_.bool_val(true);
   for (auto it = stts.begin(); it != stts.end(); it++) {
@@ -351,6 +383,10 @@ z3::expr CommDiag::GenTranRel(const RefPtr ref, const int& k_orig,
   auto appl = UnrollFlush(unroll_appl_, ref, 0, k_appl + 1, 1);
   return (init && orig && appl);
 }
+
+z3::expr CommDiag::GetZ3Assm() { return GenAssm(); }
+
+z3::expr CommDiag::GetZ3Prop() { return GenProp(); }
 
 z3::expr CommDiag::GenAssm() {
   auto eq = unroll_orig_.GetZ3Expr(crr_->relation()->get());

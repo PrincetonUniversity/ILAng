@@ -47,7 +47,14 @@ private:
   MonoUnroll unroll_appl_ = MonoUnroll(ctx_, k_suff_appl_);
   MonoUnroll unroll_orig_ = MonoUnroll(ctx_, k_suff_orig_);
 
-  void BootStrap();
+  static const std::string k_suff_old_;
+  static const std::string k_suff_new_;
+  static const std::string k_suff_apl_;
+  MonoUnroll unrl_old_ = MonoUnroll(ctx_, k_suff_old_);
+  MonoUnroll unrl_new_ = MonoUnroll(ctx_, k_suff_new_);
+  MonoUnroll unrl_apl_ = MonoUnroll(ctx_, k_suff_apl_);
+
+  void Reset();
 
   bool SanityCheck();
   bool SanityCheckRefinement(const RefPtr ref);
@@ -59,7 +66,9 @@ private:
   bool CheckStepOrig(const RefPtr ref, const int& k);
   bool CheckStepAppl(const RefPtr ref, const int& k);
 
-  z3::expr GenCstrApplInstr(const ExprSet& stts, const RefPtr ref);
+  z3::expr GetZ3ApplInstr(const ExprSet& stts, const RefPtr ref);
+  z3::expr GetZ3Assm();
+  z3::expr GetZ3Prop();
 
   z3::expr GenInit(const RefPtr ref);
   z3::expr GenTranRel(const RefPtr ref, const int& k_orig, const int& k_appl);
