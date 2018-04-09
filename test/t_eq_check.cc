@@ -104,7 +104,7 @@ TEST_F(TestEqCheck, IncCommDiag_HF) {
     CustH1(ref2);
 
     // EXPECT_TRUE(cd.IncEqCheck(0, 20));
-    EXPECT_TRUE(cd.IncEqCheck(0, 90));
+    EXPECT_TRUE(cd.IncEqCheck(0, 90, 10));
   }
 }
 

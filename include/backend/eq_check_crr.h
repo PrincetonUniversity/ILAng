@@ -31,7 +31,7 @@ public:
   /// the refinement relation up to the given unrolling bound.
   /// \param[in] min #step of unrolling.
   /// \param[in] max #step of unrolling.
-  bool IncEqCheck(const int& min = 0, const int& max = 10);
+  bool IncEqCheck(const int& min = 0, const int& max = 10, const int& step = 1);
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //

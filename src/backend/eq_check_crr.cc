@@ -76,7 +76,7 @@ bool CommDiag::EqCheck(const int& max) {
   return (res == z3::unsat);
 }
 
-bool CommDiag::IncEqCheck(const int& min, const int& max) {
+bool CommDiag::IncEqCheck(const int& min, const int& max, const int& step) {
   // sanity check
   auto sc_res = SanityCheck(); // XXX need refresh
   ILA_WARN_IF(!sc_res) << "Sanity check fail";
@@ -117,7 +117,7 @@ bool CommDiag::IncEqCheck(const int& min, const int& max) {
   inc_unrl_new_a.AddGlobPred(crr_->refine_a()->flush());
   inc_unrl_old_b.AddGlobPred(crr_->refine_b()->flush());
   inc_unrl_new_b.AddGlobPred(crr_->refine_b()->flush());
-  for (auto i = min; i <= max; i++) { // if (num < i) --> already fixed
+  for (auto i = min; i <= max; i += step) { // if (num < i) --> already fixed
     // transition relation
     if ((num_old_a < i) && (num_old_b < i) && (num_new_a < i) &&
         (num_new_b < i)) {
@@ -125,22 +125,22 @@ bool CommDiag::IncEqCheck(const int& min, const int& max) {
     }
     // unroll new flushing path FIXME
     if (num_old_a == i) { // need to unroll new step
-      auto tran = inc_unrl_old_a.MonoAssn(ma, 1 /*length*/, i /*base*/);
+      auto tran = inc_unrl_old_a.MonoAssn(ma, step /*length*/, i /*base*/);
       auto mark = GetZ3IncUnrl(inc_unrl_old_a, crr_->refine_a(), i, stts_a);
       s.add(tran && mark);
     }
     if (num_new_a == i) { // need to unroll new step
-      auto tran = inc_unrl_new_a.MonoAssn(ma, 1 /*length*/, i /*base*/);
+      auto tran = inc_unrl_new_a.MonoAssn(ma, step /*length*/, i /*base*/);
       auto mark = GetZ3IncUnrl(inc_unrl_new_a, crr_->refine_a(), i, stts_a);
       s.add(tran && mark);
     }
     if (num_old_b == i) { // need to unroll new step
-      auto tran = inc_unrl_old_b.MonoAssn(mb, 1 /*length*/, i /*base*/);
+      auto tran = inc_unrl_old_b.MonoAssn(mb, step /*length*/, i /*base*/);
       auto mark = GetZ3IncUnrl(inc_unrl_old_b, crr_->refine_b(), i, stts_b);
       s.add(tran && mark);
     }
     if (num_new_b == i) { // need to unroll new step
-      auto tran = inc_unrl_new_b.MonoAssn(mb, 1 /*length*/, i /*base*/);
+      auto tran = inc_unrl_new_b.MonoAssn(mb, step /*length*/, i /*base*/);
       auto mark = GetZ3IncUnrl(inc_unrl_new_b, crr_->refine_b(), i, stts_b);
       s.add(tran && mark);
     }
@@ -149,6 +149,7 @@ bool CommDiag::IncEqCheck(const int& min, const int& max) {
     // accumulate completion indicator
     auto cmpl_a = crr_->refine_a()->cmpl();
     auto cmpl_b = crr_->refine_b()->cmpl();
+    // XXX only create if necessary (need cache)
     auto cmpl_old_a = GetZ3Cmpl(cmpl_a, inc_unrl_old_a, 0, num_old_a);
     auto cmpl_new_a = GetZ3Cmpl(cmpl_a, inc_unrl_new_a, 0, num_new_a);
     auto cmpl_old_b = GetZ3Cmpl(cmpl_b, inc_unrl_old_b, 0, num_old_b);
@@ -164,26 +165,6 @@ bool CommDiag::IncEqCheck(const int& min, const int& max) {
     ILA_INFO << "Result: " << res;
     if (res == z3::sat) {
       auto m = s.get_model();
-      ILA_DLOG("EqCheck") << cf << ": " << m.eval(cf);
-      ILA_DLOG("EqCheck") << m.eval(assm);
-      ILA_DLOG("EqCheck") << m.eval(prop);
-
-      ILA_DLOG("EqCheck") << assm;
-
-#if 0
-      auto h = mb;
-      auto c = mb->child(0);
-      auto step = 8;
-      auto start = h->input("start");
-      auto start_expr = inc_unrl_new_b.GetZ3Expr(start, step);
-      ILA_DLOG("EqCheck") << start_expr << " " << m.eval(start_expr);
-      auto uptr = c->state("uptr");
-      auto uptr_expr = inc_unrl_new_b.GetZ3Expr(uptr, step);
-      ILA_DLOG("EqCheck") << uptr_expr << " " << m.eval(uptr_expr);
-      auto c1vld = h->state("c1vld");
-      auto c1vld_expr = inc_unrl_new_b.GetZ3Expr(c1vld, step);
-      ILA_DLOG("EqCheck") << c1vld_expr << " " << m.eval(c1vld_expr);
-#endif
 
       ILA_WARN << "Model A";
       for (auto it = stts_a.begin(); it != stts_a.end(); it++) {
@@ -218,20 +199,35 @@ bool CommDiag::IncEqCheck(const int& min, const int& max) {
     // check if num is sufficient (if not fixed yet) and increment accordingly
     if (num_old_a == i) { // new step
       auto sufficient = CheckCmpl(s, cmpl_old_a);
-      num_old_a = sufficient ? num_old_a : num_old_a + 1;
+      num_old_a = sufficient ? num_old_a : num_old_a + step;
+      if (sufficient) {
+        s.add(cmpl_old_a);
+        s.push();
+      }
     }
     if (num_new_a == i) { // new step
       auto sufficient = CheckCmpl(s, cmpl_new_a);
-      num_new_a = sufficient ? num_new_a : num_new_a + 1;
+      num_new_a = sufficient ? num_new_a : num_new_a + step;
+      if (sufficient) {
+        s.add(cmpl_new_a);
+        s.push();
+      }
     }
     if (num_old_b == i) { // new step
       auto sufficient = CheckCmpl(s, cmpl_old_b);
-      num_old_b = sufficient ? num_old_b : num_old_b + 1;
+      num_old_b = sufficient ? num_old_b : num_old_b + step;
+      if (sufficient) {
+        s.add(cmpl_old_b);
+        s.push();
+      }
     }
     if (num_new_b == i) { // new step
       auto sufficient = CheckCmpl(s, cmpl_new_b);
-      num_new_b = sufficient ? num_new_b : num_new_b + 1;
+      num_new_b = sufficient ? num_new_b : num_new_b + step;
+      s.add(cmpl_new_b);
+      s.push();
     }
+    // XXX push complete if sufficient
   }
 
   // no bug found up to the given bound
