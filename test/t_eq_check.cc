@@ -103,8 +103,8 @@ TEST_F(TestEqCheck, IncCommDiag_HF) {
     CustF1(ref1);
     CustH1(ref2);
 
-    // EXPECT_TRUE(cd.IncEqCheck(100));
-    EXPECT_TRUE(cd.IncEqCheck(0, 20));
+    // EXPECT_TRUE(cd.IncEqCheck(0, 20));
+    EXPECT_TRUE(cd.IncEqCheck(0, 90));
   }
 }
 
@@ -182,15 +182,15 @@ void TestEqCheck::CustH1(const RefPtr ref) {
   ILA_NOT_NULL(uptr);
 
   ref->add_inv(Uge(ucnt, 0));
-  ref->add_inv(Ult(ucnt, 2));
-  // ref->add_inv(Ule(ucnt, ila_gen.reg_num()));
+  // ref->add_inv(Ult(ucnt, 2));
+  ref->add_inv(Ule(ucnt, ila_gen.reg_num()));
   ref->add_inv(Uge(uptr, 0));
   ref->add_inv(Ult(uptr, ila_gen.reg_num()));
 
-  ref->set_step_orig(5);
-  ref->set_step_appl(5);
-  // ref->set_step_orig(60);
-  // ref->set_step_appl(70);
+  // ref->set_step_orig(5);
+  // ref->set_step_appl(5);
+  ref->set_step_orig(60);
+  ref->set_step_appl(70);
 }
 
 } // namespace ila
