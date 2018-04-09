@@ -89,7 +89,7 @@ protected:
   /// Unroll while substituting internal expression.
   ZExpr UnrollSubs(const size_t& len, const int& pos);
   /// Unroll without substituting internal expression.
-  ZExpr UnrollAssn(const size_t& len, const int& pos);
+  ZExpr UnrollAssn(const size_t& len, const int& pos, bool cache = false);
   /// Unroll without asserting state equality between each step.
   ZExpr UnrollNone(const size_t& len, const int& pos);
 
@@ -139,7 +139,7 @@ private:
   /// \brief Boot-strapping information needed for unrolling.
   /// - collect dependant state variables
   /// - prepare rewriting table
-  void BootStrap(const int& pos);
+  void BootStrap(const int& pos, bool cache = false);
 
   /// Assert equal between the z3::expr and the Expr w.r.t the suffix.
   void AssertEqual(const ZExprVec& z, const IExprVec& e,
@@ -257,6 +257,13 @@ public:
   /// \param[in] pos the starting time frame.
   ZExpr MonoNone(const InstrLvlAbsPtr top, const int& length,
                  const int& pos = 0);
+
+  /// \brief Incrementally unrolling the ILA using MonoAssn (with transition
+  /// relation being cached).
+  /// \param[in] top the top-level ILA.
+  /// \param[in] length number of steps to unroll.
+  /// \param[in] pos the starting time frame.
+  ZExpr MonoIncr(const InstrLvlAbsPtr top, const int& length, const int& pos);
 
 protected:
   // ------------------------- METHODS -------------------------------------- //

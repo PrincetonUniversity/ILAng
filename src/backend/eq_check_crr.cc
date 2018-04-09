@@ -125,22 +125,22 @@ bool CommDiag::IncEqCheck(const int& min, const int& max, const int& step) {
     }
     // unroll new flushing path FIXME
     if (num_old_a == i) { // need to unroll new step
-      auto tran = inc_unrl_old_a.MonoAssn(ma, step /*length*/, i /*base*/);
+      auto tran = inc_unrl_old_a.MonoIncr(ma, step /*length*/, i /*base*/);
       auto mark = GetZ3IncUnrl(inc_unrl_old_a, crr_->refine_a(), i, stts_a);
       s.add(tran && mark);
     }
     if (num_new_a == i) { // need to unroll new step
-      auto tran = inc_unrl_new_a.MonoAssn(ma, step /*length*/, i /*base*/);
+      auto tran = inc_unrl_new_a.MonoIncr(ma, step /*length*/, i /*base*/);
       auto mark = GetZ3IncUnrl(inc_unrl_new_a, crr_->refine_a(), i, stts_a);
       s.add(tran && mark);
     }
     if (num_old_b == i) { // need to unroll new step
-      auto tran = inc_unrl_old_b.MonoAssn(mb, step /*length*/, i /*base*/);
+      auto tran = inc_unrl_old_b.MonoIncr(mb, step /*length*/, i /*base*/);
       auto mark = GetZ3IncUnrl(inc_unrl_old_b, crr_->refine_b(), i, stts_b);
       s.add(tran && mark);
     }
     if (num_new_b == i) { // need to unroll new step
-      auto tran = inc_unrl_new_b.MonoAssn(mb, step /*length*/, i /*base*/);
+      auto tran = inc_unrl_new_b.MonoIncr(mb, step /*length*/, i /*base*/);
       auto mark = GetZ3IncUnrl(inc_unrl_new_b, crr_->refine_b(), i, stts_b);
       s.add(tran && mark);
     }

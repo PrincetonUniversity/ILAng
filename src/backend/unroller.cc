@@ -124,9 +124,9 @@ ZExpr Unroller::UnrollSubs(const size_t& len, const int& pos) {
   return cstr;
 }
 
-ZExpr Unroller::UnrollAssn(const size_t& len, const int& pos) {
+ZExpr Unroller::UnrollAssn(const size_t& len, const int& pos, bool cache) {
   // bootstrap basic information
-  BootStrap(pos);
+  BootStrap(pos, cache);
 
   // unroll based on g_pred, i_pred, and transition relation (with guard)
   for (size_t i = 0; i != len; i++) {
@@ -225,23 +225,36 @@ ExprPtr Unroller::NewFreeVar(const ExprPtr var, const std::string& name) {
   }
 }
 
-void Unroller::BootStrap(const int& pos) {
-  vars_.clear();
-  k_pred_.clear();
-  k_next_.clear();
-  // collect dependant state variables
-  DefineDepVar();
-  ILA_ASSERT(!vars_.empty()) << "No state variable defined.";
+void Unroller::BootStrap(const int& pos, bool cache) {
+  if (!cache) {
+    vars_.clear();
+    k_pred_.clear();
+    k_next_.clear();
+    // collect dependant state variables
+    DefineDepVar();
+    ILA_ASSERT(!vars_.empty()) << "No state variable defined.";
 
-  Clear(k_prev_z3_);
-  Clear(k_curr_z3_);
-  Clear(k_next_z3_);
-  Clear(cstr_);
-  // prepare the table
-  for (auto it = vars_.begin(); it != vars_.end(); it++) {
-    auto ivar = *it;
-    auto zvar = gen().GetExpr(ivar, SuffCurr(pos));
-    k_prev_z3_.push_back(zvar);
+    Clear(k_prev_z3_);
+    Clear(k_curr_z3_);
+    Clear(k_next_z3_);
+    Clear(cstr_);
+
+    // prepare the table
+    for (auto it = vars_.begin(); it != vars_.end(); it++) {
+      auto ivar = *it;
+      auto zvar = gen().GetExpr(ivar, SuffCurr(pos));
+      k_prev_z3_.push_back(zvar);
+    }
+  } else { // cache
+    if (vars_.empty()) {
+      DefineDepVar();
+      ILA_ASSERT(k_prev_z3_.empty()) << "Unexpected behavior in cacheing";
+      for (auto it = vars_.begin(); it != vars_.end(); it++) {
+        auto ivar = *it;
+        auto zvar = gen().GetExpr(ivar, SuffCurr(pos));
+        k_prev_z3_.push_back(zvar);
+      }
+    }
   }
 }
 
@@ -377,6 +390,12 @@ ZExpr MonoUnroll::MonoNone(const InstrLvlAbsPtr top, const int& length,
                            const int& pos) {
   top_ = top;
   return UnrollNone(length, pos);
+}
+
+ZExpr MonoUnroll::MonoIncr(const InstrLvlAbsPtr top, const int& length,
+                           const int& pos) {
+  top_ = top;
+  return UnrollAssn(length, pos, false); // XXX non-cache has better performance
 }
 
 void MonoUnroll::DefineDepVar() {
