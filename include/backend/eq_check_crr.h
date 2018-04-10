@@ -33,20 +33,36 @@ public:
   /// \param[in] max #step of unrolling.
   bool IncEqCheck(const int& min = 0, const int& max = 10, const int& step = 1);
 
+  bool IncCheck(const int& min = 0, const int& max = 10, const int& step = 1);
+
+  typedef MonoUnroll Unroll;
+
 private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// The underlying z3 context.
   z3::context& ctx_;
   /// The refinement relation.
   CrrPtr crr_;
-  /// The z3 expr adapter used.
-  Z3ExprAdapter g_ = Z3ExprAdapter(ctx_);
 
-  static const std::string k_suff_orig_;
-  static const std::string k_suff_appl_;
-  MonoUnroll unroll_appl_ = MonoUnroll(ctx_, k_suff_appl_);
-  MonoUnroll unroll_orig_ = MonoUnroll(ctx_, k_suff_orig_);
+  // ------------------------- IncCheck ------------------------------------- //
+  int lo_a_old = 0;
+  int lo_b_old = 0;
+  int lo_a_new = 0;
+  int lo_b_new = 0;
 
+  enum UID { A_OLD, A_NEW, B_OLD, B_NEW };
+
+  std::tuple<int&, int&> GetFlushUnit(const UID& uid) {
+    switch (uid) {
+    case A_OLD:
+      return std::tie(lo_a_old, lo_a_new);
+      break;
+    default:
+      break;
+    }
+  }
+
+  // ------------------------- IncEqCheck ----------------------------------- //
   static const std::string k_suff_old_;
   static const std::string k_suff_new_;
   static const std::string k_suff_apl_;
@@ -54,7 +70,20 @@ private:
   MonoUnroll unrl_new_ = MonoUnroll(ctx_, k_suff_new_);
   MonoUnroll unrl_apl_ = MonoUnroll(ctx_, k_suff_apl_);
 
-  void Reset();
+  z3::expr GetZ3ApplInstr(const ExprSet& stts, const RefPtr ref);
+  z3::expr GetZ3Assm() const;
+  z3::expr GetZ3Prop() const;
+  z3::expr GetZ3Cmpl(const ExprPtr cmpl, MonoUnroll& un, const int& begin,
+                     const int& end) const;
+  z3::expr GetZ3IncUnrl(MonoUnroll& un, const RefPtr ref, const int& begin,
+                        const int& length, const ExprSet& stts) const;
+  bool CheckCmpl(z3::solver& s, z3::expr& cmpl_expr) const;
+
+  // ------------------------- MonoCheck ------------------------------------ //
+  static const std::string k_suff_orig_;
+  static const std::string k_suff_appl_;
+  MonoUnroll unroll_appl_ = MonoUnroll(ctx_, k_suff_appl_);
+  MonoUnroll unroll_orig_ = MonoUnroll(ctx_, k_suff_orig_);
 
   bool SanityCheck();
   bool SanityCheckRefinement(const RefPtr ref);
@@ -65,15 +94,6 @@ private:
   int DetStepAppl(const RefPtr ref, const int& max);
   bool CheckStepOrig(const RefPtr ref, const int& k);
   bool CheckStepAppl(const RefPtr ref, const int& k);
-
-  z3::expr GetZ3ApplInstr(const ExprSet& stts, const RefPtr ref);
-  z3::expr GetZ3Assm();
-  z3::expr GetZ3Prop();
-  z3::expr GetZ3Cmpl(const ExprPtr cmpl, MonoUnroll& un, const int& begin,
-                     const int& end);
-  z3::expr GetZ3IncUnrl(MonoUnroll& un, const RefPtr ref, const int& pos,
-                        const ExprSet& stts) const;
-  bool CheckCmpl(z3::solver& s, z3::expr& cmpl_expr) const;
 
   z3::expr GenInit(const RefPtr ref);
   z3::expr GenTranRel(const RefPtr ref, const int& k_orig, const int& k_appl);
