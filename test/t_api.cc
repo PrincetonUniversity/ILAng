@@ -215,7 +215,7 @@ TEST(TestApi, ReplaceArg) {
 
 TEST(TestApi, Unroll) {
   z3::context c;
-  IlaZ3Unroller unroller(c);
+  auto unroller = IlaZ3Unroller(c);
 
   auto m0 = SimpleCpuRef("m0");
   auto m1 = SimpleCpuRef("m1");
@@ -256,17 +256,21 @@ TEST(TestApi, Unroll) {
   unroller.ClearGlobPred();
   unroller.ClearStepPred();
 
-  unroller.SetExtraSuffix("path");
+  auto suff_unroller = IlaZ3Unroller(c, "path");
 
   // m1
+  for (size_t i = 0; i != m1.init_num(); i++) {
+    suff_unroller.AddInitPred(m1.init(i));
+  }
+  suff_unroller.AddInitPred(init_mem == m1.state("ir"));
+  std::vector<InstrRef> path = {m1.instr("Load"), m1.instr("Load"),
+                                m1.instr("Add"), m1.instr("Store")};
+  auto cstr10 = suff_unroller.UnrollPathConn(path);
+
   for (size_t i = 0; i != m1.init_num(); i++) {
     unroller.AddInitPred(m1.init(i));
   }
   unroller.AddInitPred(init_mem == m1.state("ir"));
-  std::vector<InstrRef> path = {m1.instr("Load"), m1.instr("Load"),
-                                m1.instr("Add"), m1.instr("Store")};
-  auto cstr10 = unroller.UnrollPathConn(path);
-  unroller.ResetExtraSuffix();
   auto cstr11 = unroller.UnrollPathConn(path);
 
   z3::solver s(c);

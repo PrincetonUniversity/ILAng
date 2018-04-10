@@ -532,12 +532,14 @@ std::ostream& operator<<(std::ostream& out, const Ila& ila) {
   return out << ila.get();
 }
 
-IlaZ3Unroller::IlaZ3Unroller(z3::context& ctx) : ctx_(ctx) {
+IlaZ3Unroller::IlaZ3Unroller(z3::context& ctx, const std::string& suff)
+    : ctx_(ctx), extra_suff_(suff) {
   univ_ = std::make_shared<MonoUnroll>(ctx);
 }
 
 IlaZ3Unroller::~IlaZ3Unroller() {}
 
+#if 0
 void IlaZ3Unroller::SetExtraSuffix(const std::string& suff) {
   extra_suff_ = suff;
   univ_->SetExtraSuffix(suff);
@@ -547,24 +549,25 @@ void IlaZ3Unroller::ResetExtraSuffix() {
   extra_suff_ = "";
   univ_->ResetExtraSuffix();
 }
+#endif
 
 z3::expr IlaZ3Unroller::UnrollMonoConn(const Ila& top, const int& k,
                                        const int& init) {
-  auto u = std::make_shared<MonoUnroll>(ctx_);
+  auto u = std::make_shared<MonoUnroll>(ctx_, extra_suff_);
   InitializeUnroller(u);
   return u->MonoAssn(top.get(), k, init);
 }
 
 z3::expr IlaZ3Unroller::UnrollMonoFree(const Ila& top, const int& k,
                                        const int& init) {
-  auto u = std::make_shared<MonoUnroll>(ctx_);
+  auto u = std::make_shared<MonoUnroll>(ctx_, extra_suff_);
   InitializeUnroller(u);
   return u->MonoNone(top.get(), k, init);
 }
 
 z3::expr IlaZ3Unroller::UnrollPathConn(const std::vector<InstrRef>& path,
                                        const int& init) {
-  auto u = std::make_shared<PathUnroll>(ctx_);
+  auto u = std::make_shared<PathUnroll>(ctx_, extra_suff_);
   InitializeUnroller(u);
   std::vector<InstrPtr> seq;
   for (size_t i = 0; i != path.size(); i++) {
@@ -575,7 +578,7 @@ z3::expr IlaZ3Unroller::UnrollPathConn(const std::vector<InstrRef>& path,
 
 z3::expr IlaZ3Unroller::UnrollPathFree(const std::vector<InstrRef>& path,
                                        const int& init) {
-  auto u = std::make_shared<PathUnroll>(ctx_);
+  auto u = std::make_shared<PathUnroll>(ctx_, extra_suff_);
   InitializeUnroller(u);
   std::vector<InstrPtr> seq;
   for (size_t i = 0; i != path.size(); i++) {

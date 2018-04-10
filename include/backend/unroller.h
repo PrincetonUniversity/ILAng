@@ -45,11 +45,6 @@ public:
   /// Clear all predicates.
   void ClearPred();
 
-  /// Set an extra suffix for customized applications.
-  void SetExtraSuffix(const std::string& suff);
-  /// Reset the extra suffix (rewrite to "").
-  void ResetExtraSuffix();
-
   // ------------------------- HELPERS -------------------------------------- //
   /// Return the z3::expr representing the current state at the time.
   ZExpr CurrState(const ExprPtr v, const int& t);

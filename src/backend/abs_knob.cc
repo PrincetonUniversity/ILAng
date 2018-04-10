@@ -347,6 +347,7 @@ InstrPtr AbsKnob::DuplInstr(const InstrCnstPtr i_src, const InstrLvlAbsPtr dst,
 
 void AbsKnob::DuplInstrSeq(const InstrLvlAbsCnstPtr src,
                            const InstrLvlAbsPtr dst) {
+  ILA_WARN << "DuplInstrSeq not implemented yet.";
   // TODO
 }
 

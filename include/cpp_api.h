@@ -500,7 +500,7 @@ class IlaZ3Unroller {
 public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor
-  IlaZ3Unroller(z3::context& ctx);
+  IlaZ3Unroller(z3::context& ctx, const std::string& suff = "");
   /// Default virtual destructor.
   ~IlaZ3Unroller();
 
@@ -519,11 +519,6 @@ public:
   inline void ClearInitPred() { init_pred_.clear(); }
   /// Clear the step-specific predicates.
   inline void ClearStepPred() { step_pred_.clear(); }
-
-  /// Set an extra suffix for customized applications.
-  void SetExtraSuffix(const std::string& suff);
-  /// Reset the extra suffix (rewrite to "").
-  void ResetExtraSuffix();
 
   /// \brief Unroll the ILA monolithically with each step connected.
   /// \param[in] top the top-level ILA of the hierarchy.
@@ -589,7 +584,7 @@ private:
     for (auto it = step_pred_.begin(); it != step_pred_.end(); it++) {
       unroller->AddStepPred(it->second.get(), it->first);
     }
-    unroller->SetExtraSuffix(extra_suff_);
+    // unroller->SetExtraSuffix(extra_suff_);
   }
 
 }; // class IlaZ3Unroller

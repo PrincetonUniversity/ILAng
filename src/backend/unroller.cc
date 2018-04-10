@@ -19,7 +19,8 @@ typedef Unroller::ZExpr ZExpr;
 Unroller::Unroller(z3::context& ctx, const std::string& suff)
     : ctx_(ctx), gen_(Z3ExprAdapter(ctx)), k_prev_z3_(ctx), k_curr_z3_(ctx),
       k_next_z3_(ctx), cstr_(ctx) {
-  SetExtraSuffix(suff);
+  // SetExtraSuffix(suff);
+  extra_suff_ = suff;
 }
 
 Unroller::~Unroller() {}
@@ -43,10 +44,6 @@ void Unroller::ClearPred() {
   ClearInitPred();
   ClearStepPred();
 }
-
-void Unroller::SetExtraSuffix(const std::string& suff) { extra_suff_ = suff; }
-
-void Unroller::ResetExtraSuffix() { extra_suff_ = ""; }
 
 ZExpr Unroller::CurrState(const ExprPtr v, const int& t) {
   ILA_ASSERT(v->is_var()) << "Use GetZ3Expr for non-var Expr";
