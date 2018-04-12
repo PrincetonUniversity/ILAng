@@ -77,26 +77,6 @@ bool CommDiag::EqCheck(const int& max) {
   return (res == z3::unsat);
 }
 
-class FlushUnit {
-public:
-  typedef CommDiag::Unroll Unroll;
-
-  FlushUnit(const RefPtr r, const ExprSet& s, Unroll& u, const int& h)
-      : ref(r), stts(s), un(u), hi(h) {}
-
-  static std::shared_ptr<FlushUnit> New(const RefPtr r, const ExprSet& s,
-                                        Unroll& u, const int& h) {
-    return std::make_shared<FlushUnit>(r, s, u, h);
-  }
-
-  const RefPtr ref;
-  const ExprSet& stts;
-  Unroll& un;
-  int lo = 0;
-  int hi;
-
-}; // class UnrollUnit
-
 bool CommDiag::IncCheck(const int& min, const int& max, const int& step) {
 
   for (UID uid : {A_OLD, A_NEW, B_OLD, B_NEW}) {
@@ -269,34 +249,42 @@ bool CommDiag::IncEqCheck(const int& min, const int& max, const int& step) {
     if (num_old_a == i) { // new step
       auto sufficient = CheckCmpl(s, cmpl_old_a);
       num_old_a = sufficient ? num_old_a : num_old_a + step;
+#if 0
       if (sufficient) {
         s.add(cmpl_old_a);
         s.push();
       }
+#endif
     }
     if (num_new_a == i) { // new step
       auto sufficient = CheckCmpl(s, cmpl_new_a);
       num_new_a = sufficient ? num_new_a : num_new_a + step;
+#if 0
       if (sufficient) {
         s.add(cmpl_new_a);
         s.push();
       }
+#endif
     }
     if (num_old_b == i) { // new step
       auto sufficient = CheckCmpl(s, cmpl_old_b);
       num_old_b = sufficient ? num_old_b : num_old_b + step;
+#if 0
       if (sufficient) {
         s.add(cmpl_old_b);
         s.push();
       }
+#endif
     }
     if (num_new_b == i) { // new step
       auto sufficient = CheckCmpl(s, cmpl_new_b);
       num_new_b = sufficient ? num_new_b : num_new_b + step;
+#if 0
       if (sufficient) {
         s.add(cmpl_new_b);
         s.push();
       }
+#endif
     }
   }
 
@@ -601,16 +589,27 @@ z3::expr CommDiag::GetZ3IncUnrl(MonoUnroll& un, const RefPtr ref,
 }
 
 bool CommDiag::CheckCmpl(z3::solver& s, z3::expr& cmpl_expr) const {
+#if 0
   s.push();
   s.add(cmpl_expr);
   auto can_cmpl = (s.check() == z3::sat);
   s.pop();
 
+#endif
   s.push();
   s.add(!cmpl_expr);
   auto must_cmpl = (s.check() == z3::unsat);
   s.pop();
-  return can_cmpl && must_cmpl;
+  // return can_cmpl && must_cmpl;
+  //#if 0
+  if (must_cmpl) {
+    s.add(cmpl_expr); // added
+    s.push();         // added
+    return true;
+  } else {
+    return false;
+  }
+  //#endif
 }
 
 z3::expr CommDiag::GenAssm() {
