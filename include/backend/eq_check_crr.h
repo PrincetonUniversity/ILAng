@@ -45,17 +45,34 @@ private:
   CrrPtr crr_;
 
   // ------------------------- IncCheck ------------------------------------- //
-  int lo_a_old = 0;
-  int lo_b_old = 0;
-  int lo_a_new = 0;
-  int lo_b_new = 0;
+  /// \brief Unroll monitor for flushing.
+  class UnrlMntr {
+  public:
+    typedef CommDiag::Unroll Unroll;
+
+    UnrlMntr(const RefPtr r, Unroll& u) : ref(r), un(u) {}
+
+#if 0
+    static std::shared_ptr<UnrlMntr> New(const RefPtr r, const ExprSet& s,
+                                         Unroll& u, const int& h) {
+      return std::make_shared<UnrlMntr>(r, s, u, h);
+    }
+#endif
+
+    const RefPtr ref;
+    Unroll& un;
+    // ExprSet stts = ref->coi(); // XXX add non-coi interface
+    int lo = 0;
+    int hi = 0;
+
+  }; // class UnrlMntr
 
   enum UID { A_OLD, A_NEW, B_OLD, B_NEW };
 
   std::tuple<int&, int&> GetFlushUnit(const UID& uid) {
     switch (uid) {
     case A_OLD:
-      return std::tie(lo_a_old, lo_a_new);
+      // return std::tie(lo_a_old, lo_a_new);
       break;
     default:
       break;
