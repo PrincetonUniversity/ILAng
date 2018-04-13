@@ -245,6 +245,16 @@ bool CommDiag::IncEqCheck(const int& min, const int& max, const int& step) {
     // pop back to transition relation (removing marking and prop)
     s.pop();
 
+    // push partial property
+    auto partial_assm = GetZ3Assm();
+    auto partial_cmpl = z3::implies(
+        cmpl_old_a && cmpl_new_a && cmpl_old_b && cmpl_new_b, partial_assm);
+    auto partial_prop = GetZ3Prop();
+    // partial_prop = z3::implies(
+    // cmpl_old_a && cmpl_new_a && cmpl_old_b && cmpl_new_b, partial_prop);
+    s.add(z3::implies(partial_cmpl && partial_assm, partial_prop));
+    s.push();
+
     // check if num is sufficient (if not fixed yet) and increment accordingly
     if (num_old_a == i) { // new step
       auto sufficient = CheckCmpl(s, cmpl_old_a);
