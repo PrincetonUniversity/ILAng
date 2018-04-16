@@ -28,6 +28,8 @@ public:
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return the target (top-ILA containing the COI).
   inline InstrLvlAbsPtr coi() const { return coi_; }
+  /// Return the target (top-ILA).
+  inline InstrLvlAbsPtr ila() const { return coi_; }
   /// Return the apply function.
   inline ExprPtr appl() const { return appl_; }
   /// Return the constraint for flushing (stall).
