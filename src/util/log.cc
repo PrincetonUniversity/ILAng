@@ -11,6 +11,14 @@ void SetLogPath(const std::string& path) { FLAGS_log_dir = path; }
 
 void SetToStdErr(const int& to_err) { FLAGS_logtostderr = to_err; }
 
+bool IsSetToStdErr() {
+  if (FLAGS_logtostderr) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 // DebugLog
 
 LogInitter::LogInitter() {
