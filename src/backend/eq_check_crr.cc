@@ -78,13 +78,76 @@ bool CommDiag::EqCheck(const int& max) {
 }
 
 bool CommDiag::IncCheck(const int& min, const int& max, const int& step) {
-
+  // initialization
   for (UID uid : {A_OLD, A_NEW, B_OLD, B_NEW}) {
-    //
-    auto fu = GetFlushUnit(uid);
+    auto& uu = GetUnrlUnit(uid);
+    uu.hi = min; // XXX may not need
   }
 
   return true;
+}
+
+CommDiag::Unroll& CommDiag::GetUnroll(const UID& uid) {
+  switch (uid) {
+  case A_OLD:
+    return unrl_old_;
+    break;
+  case A_NEW:
+    return unrl_new_;
+    break;
+  case B_OLD:
+    return unrl_old_;
+    break;
+  case B_NEW:
+    return unrl_new_;
+    break;
+  default:
+    ILA_ASSERT(false) << "unknon uid " << uid;
+    return unrl_old_;
+    break;
+  }
+}
+
+RefPtr CommDiag::GetRefine(const UID& uid) {
+  switch (uid) {
+  case A_OLD:
+    return crr_->refine_a();
+    break;
+  case A_NEW:
+    return crr_->refine_a();
+    break;
+  case B_OLD:
+    return crr_->refine_b();
+    break;
+  case B_NEW:
+    return crr_->refine_b();
+    break;
+  default:
+    ILA_ASSERT(false) << "unknon uid " << uid;
+    return NULL;
+    break;
+  }
+}
+
+CommDiag::UnrlUnit& CommDiag::GetUnrlUnit(const UID& uid) {
+  switch (uid) {
+  case A_OLD:
+    return uu_a_old_;
+    break;
+  case A_NEW:
+    return uu_a_new_;
+    break;
+  case B_OLD:
+    return uu_b_old_;
+    break;
+  case B_NEW:
+    return uu_b_new_;
+    break;
+  default:
+    ILA_ASSERT(false) << "unknon uid " << uid;
+    return uu_a_old_;
+    break;
+  }
 }
 
 bool CommDiag::IncEqCheck(const int& min, const int& max, const int& step) {
