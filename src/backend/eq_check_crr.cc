@@ -18,7 +18,9 @@ const std::string CommDiag::k_suff_apl_ = "apl";
 
 using namespace ExprFuse;
 
-CommDiag::CommDiag(z3::context& ctx, const CrrPtr crr) : ctx_(ctx), crr_(crr) {}
+CommDiag::CommDiag(z3::context& ctx, const CrrPtr crr) : ctx_(ctx), crr_(crr) {
+  Init();
+}
 
 CommDiag::~CommDiag() {}
 
@@ -81,13 +83,111 @@ bool CommDiag::IncCheck(const int& min, const int& max, const int& step) {
   // initialization
   for (UID uid : {A_OLD, A_NEW, B_OLD, B_NEW}) {
     auto& uu = GetUnrlUnit(uid);
-    uu.hi = min; // XXX may not need
+    uu.lo = 0;
+    uu.hi = min;
+  }
+
+  // apply instruction
+  const auto& stts_a = stts_a_; // used for marking
+  const auto& stts_b = stts_b_;
+
+  auto s = z3::solver(ctx_); // solver
+  { // default basic condition (old/new/apply path & assm & prop)
+    auto appl_instr_a = GetZ3ApplInstr(stts_a, crr_->refine_a());
+    auto appl_instr_b = GetZ3ApplInstr(stts_b, crr_->refine_b());
+    s.add(appl_instr_a);
+    s.add(appl_instr_b);
+    s.push(); // record backtracking point
+  }
+
+  auto cf = ctx_.bool_const("cmpl_flag"); // flag indicating flushing completion
+  // assumption and property to check
+  auto assm = GetZ3Assm();
+  auto prop = GetZ3Prop();
+  // check only if complete
+  assm = z3::implies(cf, assm);
+  prop = z3::implies(cf, prop);
+
+  // incrementally unroll flushing
+  for (auto i = min; i <= max; i += step) { // if (num < i) --> already fixed
+    // check if complete
+    auto all_path_complete = true;
+    for (UID uid : {A_OLD, A_NEW, B_OLD, B_NEW}) {
+      auto& uu = GetUnrlUnit(uid);
+      all_path_complete = all_path_complete && (uu.hi < i);
+    }
+    if (all_path_complete) {
+      ILA_DLOG("Verbose-CrrEqCheck") << "Complete";
+      return true;
+    }
+
+    // unroll new flushing path
+    for (UID uid : {A_OLD, A_NEW, B_OLD, B_NEW}) {
+      auto& uu = GetUnrlUnit(uid);
+      if (uu.hi == i) { // need to unroll new step
+        auto tran = GetZ3IncFlsh(uid);
+        s.add(tran);
+      }
+    }
+    s.push(); // recording the current transition relation
+
+    // accumulate completion indicator
+    auto cmpl_acc = ctx_.bool_val(true);
+    for (UID uid : {A_OLD, A_NEW, B_OLD, B_NEW}) {
+      auto cmpl_i = GetZ3IncCmpl(uid);
+      cmpl_acc = cmpl_acc && cmpl_i;
+    }
+    s.add(cf == cmpl_acc);
+
+    // check prop
+    s.add(assm);
+    s.add(!prop);
+    auto res = s.check();
+    ILA_INFO << "Result: " << res;
+    if (res == z3::sat) {
+      return false;
+    }
+
+    // pop back to transition relation (removing marking and prop)
+    s.pop();
+
+    // push partial property
+    auto partial_assm = GetZ3Assm();
+    auto partial_cmpl = z3::implies(cmpl_acc, partial_assm);
+    auto partial_prop = GetZ3Prop();
+    s.add(z3::implies(partial_cmpl && partial_assm, partial_prop));
+    s.push();
+
+    // check if num is sufficient (if not fixed yet) and increment accordingly
+    for (UID uid : {A_OLD, A_NEW, B_OLD, B_NEW}) {
+      auto& uu = GetUnrlUnit(uid);
+      uu.lo = uu.hi;
+      if (uu.hi == i) { // new step
+        auto cmpl_i = GetZ3IncCmpl(uid);
+        auto sufficient = CheckCmpl(s, cmpl_i);
+        uu.hi = sufficient ? uu.hi : uu.hi + step;
+      }
+    }
   }
 
   return true;
 }
 
-CommDiag::Unroll& CommDiag::GetUnroll(const UID& uid) {
+void CommDiag::Init() {
+  SanityCheck();
+  // unroller initialized with flushing function
+  for (auto uid : {A_OLD, A_NEW, B_OLD, B_NEW}) {
+    auto& un = GetUnrl(uid);
+    auto ref = GetRefine(uid);
+    un.ClearPred();
+    un.AddGlobPred(ref->flush());
+  }
+  // state vars of each ILA
+  stts_a_ = AbsKnob::GetSttTree(crr_->refine_a()->ila());
+  stts_b_ = AbsKnob::GetSttTree(crr_->refine_b()->ila());
+}
+
+CommDiag::Unroll& CommDiag::GetUnrl(const UID& uid) {
   switch (uid) {
   case A_OLD:
     return unrl_old_;
@@ -107,6 +207,12 @@ CommDiag::Unroll& CommDiag::GetUnroll(const UID& uid) {
     break;
   }
 }
+
+CommDiag::Unroll& CommDiag::GetUnrlOld() { return unrl_a_old_; }
+
+CommDiag::Unroll& CommDiag::GetUnrlNew() { return unrl_a_new_; }
+
+CommDiag::Unroll& CommDiag::GetUnrlApl() { return unrl_apl_; }
 
 RefPtr CommDiag::GetRefine(const UID& uid) {
   switch (uid) {
@@ -148,6 +254,62 @@ CommDiag::UnrlUnit& CommDiag::GetUnrlUnit(const UID& uid) {
     return uu_a_old_;
     break;
   }
+}
+
+const ExprSet& CommDiag::GetStts(const UID& uid) {
+  switch (uid) {
+  case A_OLD:
+    return stts_a_;
+    break;
+  case A_NEW:
+    return stts_a_;
+    break;
+  case B_OLD:
+    return stts_b_;
+    break;
+  case B_NEW:
+    return stts_b_;
+    break;
+  default:
+    ILA_ASSERT(false) << "unknon uid " << uid;
+    return stts_a_;
+    break;
+  }
+}
+
+z3::expr CommDiag::GetZ3IncFlsh(const UID& uid) {
+  auto& un = GetUnrl(uid);
+  auto& uu = GetUnrlUnit(uid);
+  auto ref = GetRefine(uid);
+  auto& stts = GetStts(uid);
+  // transition relation
+  auto tran = un.MonoIncr(ref->ila(), uu.hi - uu.lo /*length*/, uu.lo /*base*/);
+  // mark
+  for (auto pos = uu.lo; pos <= uu.hi; pos++) {
+    auto cmpl = un.GetZ3Expr(ref->cmpl(), pos);
+    auto eq = ctx_.bool_val(true);
+    for (auto it = stts.begin(); it != stts.end(); it++) {
+      auto s_i = un.CurrState(*it, pos);
+      auto s = un.GetZ3Expr(*it); // representative
+      eq = eq && (s == s_i);
+    }
+    auto mark = z3::implies(cmpl, eq);
+    tran = tran && mark;
+  }
+  return tran;
+}
+
+z3::expr CommDiag::GetZ3IncCmpl(const UID& uid) {
+  auto& un = GetUnrl(uid);
+  auto& uu = GetUnrlUnit(uid);
+  auto cmpl = GetRefine(uid)->cmpl();
+  // OR all completion predicate
+  auto cmpl_acc = ctx_.bool_val(false);
+  for (auto i = 0; i <= uu.hi; i++) {
+    auto cmpl_i = un.GetZ3Expr(cmpl, i);
+    cmpl_acc = cmpl_acc || cmpl_i;
+  }
+  return cmpl_acc;
 }
 
 bool CommDiag::IncEqCheck(const int& min, const int& max, const int& step) {
@@ -192,14 +354,6 @@ bool CommDiag::IncEqCheck(const int& min, const int& max, const int& step) {
   inc_unrl_old_b.AddGlobPred(crr_->refine_b()->flush());
   inc_unrl_new_b.AddGlobPred(crr_->refine_b()->flush());
 
-#if 0
-  auto uus = std::set<std::shared_ptr<UnrollUnit>>();
-  uus.insert(UnrollUnit::New(inc_unrl_old_a, crr_->refine_a(), min)); // a old
-  uus.insert(UnrollUnit::New(inc_unrl_new_a, crr_->refine_a(), min)); // a new
-  uus.insert(UnrollUnit::New(inc_unrl_old_b, crr_->refine_b(), min)); // b old
-  uus.insert(UnrollUnit::New(inc_unrl_new_b, crr_->refine_b(), min)); // b new
-#endif
-
   for (auto i = min; i <= max; i += step) { // if (num < i) --> already fixed
     // transition relation
     if ((num_old_a < i) && (num_old_b < i) && (num_new_a < i) &&
@@ -208,24 +362,14 @@ bool CommDiag::IncEqCheck(const int& min, const int& max, const int& step) {
       return true;
     }
 
-#if 0
-    for (auto uu_it = uus.begin(); uu_it != uus.end(); uu_it++) {
-      auto uu = *uu_it;
-      if (uu->hi == i) {
-        // XXX
-        auto tran = GetZ3IncUnrl(uu->un, uu->ref, uu->lo, step, stts_a);
-        s.add(tran);
-      }
-    }
-#endif
-
     // unroll new flushing path
     if (num_old_a == i) { // need to unroll new step
       auto tran =
           GetZ3IncUnrl(inc_unrl_old_a, crr_->refine_a(), i, step, stts_a);
       s.add(tran);
       // auto tran = inc_unrl_old_a.MonoIncr(ma, step /*length*/, i /*base*/);
-      // auto mark = GetZ3IncUnrl(inc_unrl_old_a, crr_->refine_a(), i, stts_a);
+      // auto mark = GetZ3IncUnrl(inc_unrl_old_a, crr_->refine_a(), i,
+      // stts_a);
       // s.add(tran && mark);
     }
     if (num_new_a == i) { // need to unroll new step
@@ -233,7 +377,8 @@ bool CommDiag::IncEqCheck(const int& min, const int& max, const int& step) {
           GetZ3IncUnrl(inc_unrl_new_a, crr_->refine_a(), i, step, stts_a);
       s.add(tran);
       // auto tran = inc_unrl_new_a.MonoIncr(ma, step /*length*/, i /*base*/);
-      // auto mark = GetZ3IncUnrl(inc_unrl_new_a, crr_->refine_a(), i, stts_a);
+      // auto mark = GetZ3IncUnrl(inc_unrl_new_a, crr_->refine_a(), i,
+      // stts_a);
       // s.add(tran && mark);
     }
     if (num_old_b == i) { // need to unroll new step
@@ -241,7 +386,8 @@ bool CommDiag::IncEqCheck(const int& min, const int& max, const int& step) {
           GetZ3IncUnrl(inc_unrl_old_b, crr_->refine_b(), i, step, stts_b);
       s.add(tran);
       // auto tran = inc_unrl_old_b.MonoIncr(mb, step /*length*/, i /*base*/);
-      // auto mark = GetZ3IncUnrl(inc_unrl_old_b, crr_->refine_b(), i, stts_b);
+      // auto mark = GetZ3IncUnrl(inc_unrl_old_b, crr_->refine_b(), i,
+      // stts_b);
       // s.add(tran && mark);
     }
     if (num_new_b == i) { // need to unroll new step
@@ -249,7 +395,8 @@ bool CommDiag::IncEqCheck(const int& min, const int& max, const int& step) {
           GetZ3IncUnrl(inc_unrl_new_b, crr_->refine_b(), i, step, stts_b);
       s.add(tran);
       // auto tran = inc_unrl_new_b.MonoIncr(mb, step /*length*/, i /*base*/);
-      // auto mark = GetZ3IncUnrl(inc_unrl_new_b, crr_->refine_b(), i, stts_b);
+      // auto mark = GetZ3IncUnrl(inc_unrl_new_b, crr_->refine_b(), i,
+      // stts_b);
       // s.add(tran && mark);
     }
     s.push(); // recording the current transition relation
@@ -620,14 +767,14 @@ z3::expr CommDiag::GenTranRel(const RefPtr ref, const int& k_orig,
   return (init && orig && appl);
 }
 
-z3::expr CommDiag::GetZ3Assm() const {
-  auto un = MonoUnroll(ctx_, k_suff_old_);
+z3::expr CommDiag::GetZ3Assm() {
+  auto& un = GetUnrlOld();
   auto eq = un.GetZ3Expr(crr_->relation()->get());
   return eq;
 }
 
-z3::expr CommDiag::GetZ3Prop() const {
-  auto un = MonoUnroll(ctx_, k_suff_new_);
+z3::expr CommDiag::GetZ3Prop() {
+  auto& un = GetUnrlNew();
   auto eq = un.GetZ3Expr(crr_->relation()->get());
   return eq;
 }

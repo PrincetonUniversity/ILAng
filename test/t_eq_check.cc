@@ -108,6 +108,27 @@ TEST_F(TestEqCheck, IncCommDiag_HF) {
   }
 }
 
+TEST_F(TestEqCheck, NewIncCommDiag_HF) {
+  SetToStdErr(1);
+  // DebugLog::Disable("Verbose-CrrEqCheck");
+  for (auto instr_idx : {0}) {
+    // refinement
+    auto ref1 = GetRefine(f1, instr_idx, false, true);
+    auto ref2 = GetRefine(h1, instr_idx, true, false);
+    // relation
+    auto rel = GetRelation(ref1->coi(), ref2->coi());
+    // crr
+    auto crr = CompRefRel::New(ref1, ref2, rel);
+    auto cd = CommDiag(c, crr);
+    // invariant
+    CustF1(ref1);
+    CustH1(ref2);
+
+    // EXPECT_TRUE(cd.IncCheck(0, 90, 10));
+    EXPECT_TRUE(cd.IncCheck(10, 90, 10));
+  }
+}
+
 TEST_F(TestEqCheck, CommDiag_HH) {
   // TODO
   // with and without completion

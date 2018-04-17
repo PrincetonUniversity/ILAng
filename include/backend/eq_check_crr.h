@@ -46,6 +46,8 @@ private:
 
   // ------------------------- IncCheck ------------------------------------- //
 
+  void Init();
+
   enum UID { A_OLD, A_NEW, B_OLD, B_NEW };
 
   struct UnrlUnit {
@@ -53,9 +55,25 @@ private:
     int hi = 0;
   } uu_a_old_, uu_a_new_, uu_b_old_, uu_b_new_;
 
-  Unroll& GetUnroll(const UID& uid);
+  Unroll unrl_a_old_ = Unroll(ctx_, k_suff_old_);
+  Unroll unrl_a_new_ = Unroll(ctx_, k_suff_new_);
+  Unroll unrl_b_old_ = Unroll(ctx_, k_suff_old_);
+  Unroll unrl_b_new_ = Unroll(ctx_, k_suff_new_);
+
+  ExprSet stts_a_;
+  ExprSet stts_b_;
+
+  Unroll& GetUnrl(const UID& uid);
+  Unroll& GetUnrlOld();
+  Unroll& GetUnrlNew();
+  Unroll& GetUnrlApl();
+
   RefPtr GetRefine(const UID& uid);
   UnrlUnit& GetUnrlUnit(const UID& uid);
+  const ExprSet& GetStts(const UID& uid);
+
+  z3::expr GetZ3IncFlsh(const UID& uid);
+  z3::expr GetZ3IncCmpl(const UID& uid);
 
   // ------------------------- IncEqCheck ----------------------------------- //
   static const std::string k_suff_old_;
@@ -66,8 +84,8 @@ private:
   MonoUnroll unrl_apl_ = MonoUnroll(ctx_, k_suff_apl_);
 
   z3::expr GetZ3ApplInstr(const ExprSet& stts, const RefPtr ref);
-  z3::expr GetZ3Assm() const;
-  z3::expr GetZ3Prop() const;
+  z3::expr GetZ3Assm();
+  z3::expr GetZ3Prop();
   z3::expr GetZ3Cmpl(const ExprPtr cmpl, MonoUnroll& un, const int& begin,
                      const int& end) const;
   z3::expr GetZ3IncUnrl(MonoUnroll& un, const RefPtr ref, const int& begin,
