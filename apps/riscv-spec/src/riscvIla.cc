@@ -142,7 +142,7 @@ void riscvILA_user::addInstructions()
         // ------------------------- Instruction: BEQ ------------------------------ //
         {
             auto instr = model.NewInstr("BEQ");
-            auto decode = (opcode == BRANCH ) & (funct3 == BEQ );
+            auto decode = (opcode == BRANCH ) & (funct3 == BEQ ) & ( interruptCondition() );
             instr.SetDecode(decode);
 
 
@@ -152,7 +152,7 @@ void riscvILA_user::addInstructions()
         // ------------------------- Instruction: BNE ------------------------------ //
         {
             auto instr = model.NewInstr("BNE");
-            auto decode = (opcode == BRANCH ) & (funct3 == BNE );
+            auto decode = (opcode == BRANCH ) & (funct3 == BNE ) & ( interruptCondition() );
             instr.SetDecode(decode);
 
 
@@ -162,7 +162,7 @@ void riscvILA_user::addInstructions()
         // ------------------------- Instruction: BLT ------------------------------ //
         {
             auto instr = model.NewInstr("BLT");
-            auto decode = (opcode == BRANCH ) & (funct3 == BLT );
+            auto decode = (opcode == BRANCH ) & (funct3 == BLT ) & ( interruptCondition() );
             instr.SetDecode(decode);
 
             // this is the signed comparison
@@ -172,7 +172,7 @@ void riscvILA_user::addInstructions()
         // ------------------------- Instruction: BLTU ------------------------------ //
         {
             auto instr = model.NewInstr("BLTU");
-            auto decode = (opcode == BRANCH ) & (funct3 == BLTU );
+            auto decode = (opcode == BRANCH ) & (funct3 == BLTU ) & ( interruptCondition() ) ;
             instr.SetDecode(decode);
 
             // this is the unsigned comparison
@@ -182,7 +182,7 @@ void riscvILA_user::addInstructions()
         // ------------------------- Instruction: BGE ------------------------------ //
         {
             auto instr = model.NewInstr("BGE");
-            auto decode = (opcode == BRANCH ) & (funct3 == BGE );
+            auto decode = (opcode == BRANCH ) & (funct3 == BGE ) & ( interruptCondition() ) ;
             instr.SetDecode(decode);
 
 
@@ -192,7 +192,7 @@ void riscvILA_user::addInstructions()
         // ------------------------- Instruction: BGEU ------------------------------ //
         {
             auto instr = model.NewInstr("BGEU");
-            auto decode = (opcode == BRANCH ) & (funct3 == BGEU );
+            auto decode = (opcode == BRANCH ) & (funct3 == BGEU ) & ( interruptCondition() ) ;
             instr.SetDecode(decode);
 
 
@@ -202,7 +202,7 @@ void riscvILA_user::addInstructions()
         // ------------------------- Instruction: JAL ------------------------------ //
         {
             auto instr = model.NewInstr("JAL");
-            auto decode = (opcode == JAL ) ;
+            auto decode = (opcode == JAL )  & ( interruptCondition() ) ;
             instr.SetDecode(decode);
 
 
@@ -213,7 +213,7 @@ void riscvILA_user::addInstructions()
         // ------------------------- Instruction: JALR ------------------------------ //
         {
             auto instr = model.NewInstr("JALR");
-            auto decode = (opcode == JALR ) ;
+            auto decode = (opcode == JALR )  & ( interruptCondition() ) ;
             instr.SetDecode(decode);
 
 
@@ -237,7 +237,7 @@ void riscvILA_user::addInstructions()
         // ------------------------- Instruction: LW ------------------------------ //
         {
             auto instr = model.NewInstr("LW");
-            auto decode = ( opcode == LOAD ) & ( funct3 == WORD) ;
+            auto decode = ( opcode == LOAD ) & ( funct3 == WORD) & ( interruptCondition() ) ;
             instr.SetDecode(decode);
 
             instr.SetUpdate(pc, nxt_pc );
@@ -248,7 +248,7 @@ void riscvILA_user::addInstructions()
         // ------------------------- Instruction: LH ------------------------------ //
         {
             auto instr = model.NewInstr("LH");
-            auto decode = ( opcode == LOAD ) & ( funct3 == HALF) ;
+            auto decode = ( opcode == LOAD ) & ( funct3 == HALF) & ( interruptCondition() ) ;
             instr.SetDecode(decode);
 
             instr.SetUpdate(pc, nxt_pc );
@@ -259,7 +259,7 @@ void riscvILA_user::addInstructions()
         // ------------------------- Instruction: LB ------------------------------ //
         {
             auto instr = model.NewInstr("LB");
-            auto decode = ( opcode == LOAD ) & ( funct3 == BYTE) ;
+            auto decode = ( opcode == LOAD ) & ( funct3 == BYTE) & ( interruptCondition() ) ;
             instr.SetDecode(decode);
 
             instr.SetUpdate(pc, nxt_pc );
@@ -269,7 +269,7 @@ void riscvILA_user::addInstructions()
         // ------------------------- Instruction: LHU ------------------------------ //
         {
             auto instr = model.NewInstr("LHU");
-            auto decode = ( opcode == LOAD ) & ( funct3 == HALF) ;
+            auto decode = ( opcode == LOAD ) & ( funct3 == HALF)  & ( interruptCondition() ) ;
             instr.SetDecode(decode);
 
             instr.SetUpdate(pc, nxt_pc );
@@ -280,7 +280,7 @@ void riscvILA_user::addInstructions()
         // ------------------------- Instruction: LBU ------------------------------ //
         {
             auto instr = model.NewInstr("LBU");
-            auto decode = ( opcode == LOAD ) & ( funct3 == BYTE) ;
+            auto decode = ( opcode == LOAD ) & ( funct3 == BYTE) & ( interruptCondition() ) ;
             instr.SetDecode(decode);
 
             instr.SetUpdate(pc, nxt_pc );
@@ -302,7 +302,7 @@ void riscvILA_user::addInstructions()
         // ------------------------- Instruction: SW ------------------------------ //
         {
             auto instr = model.NewInstr("SW");
-            auto decode = ( opcode == STORE ) & ( funct3 == WORD ) ;
+            auto decode = ( opcode == STORE ) & ( funct3 == WORD ) & ( interruptCondition() ) ;
             instr.SetDecode(decode);
 
             instr.SetUpdate(pc, nxt_pc );
@@ -316,7 +316,7 @@ void riscvILA_user::addInstructions()
         // ------------------------- Instruction: SH ------------------------------ //
         {
             auto instr = model.NewInstr("SH");
-            auto decode = ( opcode == STORE ) & ( funct3 == WORD ) ;
+            auto decode = ( opcode == STORE ) & ( funct3 == WORD )  & ( interruptCondition() ) ;
             instr.SetDecode(decode);
 
             instr.SetUpdate(pc, nxt_pc );
@@ -330,7 +330,7 @@ void riscvILA_user::addInstructions()
         // ------------------------- Instruction: SB ------------------------------ //
         {
             auto instr = model.NewInstr("SB");
-            auto decode = ( opcode == STORE ) & ( funct3 == WORD ) ;
+            auto decode = ( opcode == STORE ) & ( funct3 == WORD ) & ( interruptCondition() );
             instr.SetDecode(decode);
 
             instr.SetUpdate(pc, nxt_pc );
@@ -353,7 +353,7 @@ void riscvILA_user::addInstructions()
         // ------------------------- Instruction: ADD ------------------------------ //
         {
             auto instr = model.NewInstr("ADD");
-            auto decode = ( opcode == OP ) & ( funct3 == ADD ) & (funct7 == funct7_NM );
+            auto decode = ( opcode == OP ) & ( funct3 == ADD ) & (funct7 == funct7_NM ) & ( interruptCondition() );
             instr.SetDecode(decode);
 
             instr.SetUpdate(pc, nxt_pc );
@@ -364,7 +364,7 @@ void riscvILA_user::addInstructions()
         // ------------------------- Instruction: AND ------------------------------ //
         {
             auto instr = model.NewInstr("AND");
-            auto decode = ( opcode == OP ) & ( funct3 == AND ) & (funct7 == funct7_NM );
+            auto decode = ( opcode == OP ) & ( funct3 == AND ) & (funct7 == funct7_NM ) & ( interruptCondition() );
             instr.SetDecode(decode);
 
             instr.SetUpdate(pc, nxt_pc );
@@ -375,7 +375,7 @@ void riscvILA_user::addInstructions()
         // ------------------------- Instruction: OR ------------------------------ //
         {
             auto instr = model.NewInstr("OR");
-            auto decode = ( opcode == OP ) & ( funct3 == OR ) & (funct7 == funct7_NM );
+            auto decode = ( opcode == OP ) & ( funct3 == OR ) & (funct7 == funct7_NM ) & ( interruptCondition() );
             instr.SetDecode(decode);
 
             instr.SetUpdate(pc, nxt_pc );
@@ -387,7 +387,7 @@ void riscvILA_user::addInstructions()
         // ------------------------- Instruction: XOR ------------------------------ //
         {
             auto instr = model.NewInstr("XOR");
-            auto decode = ( opcode == OP ) & ( funct3 == XOR ) & (funct7 == funct7_NM );
+            auto decode = ( opcode == OP ) & ( funct3 == XOR ) & (funct7 == funct7_NM ) & ( interruptCondition() );
             instr.SetDecode(decode);
 
             instr.SetUpdate(pc, nxt_pc );
@@ -399,7 +399,7 @@ void riscvILA_user::addInstructions()
         // ------------------------- Instruction: SLL ------------------------------ //
         {
             auto instr = model.NewInstr("SLL");
-            auto decode = ( opcode == OP ) & ( funct3 == SLL ) & (funct7 == funct7_NM );
+            auto decode = ( opcode == OP ) & ( funct3 == SLL ) & (funct7 == funct7_NM ) & ( interruptCondition() );
             instr.SetDecode(decode);
 
             instr.SetUpdate(pc, nxt_pc );
@@ -410,7 +410,7 @@ void riscvILA_user::addInstructions()
         // ------------------------- Instruction: SRL ------------------------------ //
         {
             auto instr = model.NewInstr("SRL");
-            auto decode = ( opcode == OP ) & ( funct3 == SRL ) & (funct7 == funct7_NM );
+            auto decode = ( opcode == OP ) & ( funct3 == SRL ) & (funct7 == funct7_NM ) & ( interruptCondition() );
             instr.SetDecode(decode);
 
             instr.SetUpdate(pc, nxt_pc );
@@ -422,7 +422,7 @@ void riscvILA_user::addInstructions()
         // ------------------------- Instruction: SUB ------------------------------ //
         {
             auto instr = model.NewInstr("SUB");
-            auto decode = ( opcode == OP ) & ( funct3 == SUB ) & (funct7 == funct7_PM );
+            auto decode = ( opcode == OP ) & ( funct3 == SUB ) & (funct7 == funct7_PM ) & ( interruptCondition() );
             instr.SetDecode(decode);
 
             instr.SetUpdate(pc, nxt_pc );
@@ -434,7 +434,7 @@ void riscvILA_user::addInstructions()
         // ------------------------- Instruction: SRA ------------------------------ //
         {
             auto instr = model.NewInstr("SRA");
-            auto decode = ( opcode == OP ) & ( funct3 == SRA ) & (funct7 == funct7_PM );
+            auto decode = ( opcode == OP ) & ( funct3 == SRA ) & (funct7 == funct7_PM ) & ( interruptCondition() );
             instr.SetDecode(decode);
 
             instr.SetUpdate(pc, nxt_pc );
@@ -446,7 +446,7 @@ void riscvILA_user::addInstructions()
         // ------------------------- Instruction: SLT ------------------------------ //
         {
             auto instr = model.NewInstr("SLT");
-            auto decode = ( opcode == OP ) & ( funct3 == SLT ) & (funct7 == funct7_NM );
+            auto decode = ( opcode == OP ) & ( funct3 == SLT ) & (funct7 == funct7_NM ) & ( interruptCondition() );
             instr.SetDecode(decode);
 
             instr.SetUpdate(pc, nxt_pc );
@@ -457,7 +457,7 @@ void riscvILA_user::addInstructions()
         // ------------------------- Instruction: SLTU ------------------------------ //
         {
             auto instr = model.NewInstr("SLTU");
-            auto decode = ( opcode == OP ) & ( funct3 == SLTU ) & (funct7 == funct7_NM );
+            auto decode = ( opcode == OP ) & ( funct3 == SLTU ) & (funct7 == funct7_NM ) & ( interruptCondition() );
             instr.SetDecode(decode);
 
             instr.SetUpdate(pc, nxt_pc );
@@ -475,7 +475,7 @@ void riscvILA_user::addInstructions()
         // ------------------------- Instruction: ADDI ------------------------------ //
         {
             auto instr = model.NewInstr("ADDI");
-            auto decode = ( opcode == OPIMM ) & ( funct3 == ADDI ) ;
+            auto decode = ( opcode == OPIMM ) & ( funct3 == ADDI ) & ( interruptCondition() );
             instr.SetDecode(decode);
 
             instr.SetUpdate(pc, nxt_pc );
@@ -486,7 +486,7 @@ void riscvILA_user::addInstructions()
         // ------------------------- Instruction: SLTI ------------------------------ //
         {
             auto instr = model.NewInstr("SLTI");
-            auto decode = ( opcode == OPIMM ) & ( funct3 == SLTI ) ;
+            auto decode = ( opcode == OPIMM ) & ( funct3 == SLTI ) & ( interruptCondition() );
             instr.SetDecode(decode);
 
             instr.SetUpdate(pc, nxt_pc );
@@ -497,7 +497,7 @@ void riscvILA_user::addInstructions()
         // ------------------------- Instruction: SLTIU ------------------------------ //
         {
             auto instr = model.NewInstr("SLTIU");
-            auto decode = ( opcode == OPIMM ) & ( funct3 == SLTIU ) ;
+            auto decode = ( opcode == OPIMM ) & ( funct3 == SLTIU ) & ( interruptCondition() );
             instr.SetDecode(decode);
 
             instr.SetUpdate(pc, nxt_pc );
@@ -508,7 +508,7 @@ void riscvILA_user::addInstructions()
         // ------------------------- Instruction: ANDI ------------------------------ //
         {
             auto instr = model.NewInstr("ANDI");
-            auto decode = ( opcode == OPIMM ) & ( funct3 == ANDI ) ;
+            auto decode = ( opcode == OPIMM ) & ( funct3 == ANDI ) & ( interruptCondition() );
             instr.SetDecode(decode);
 
             instr.SetUpdate(pc, nxt_pc );
@@ -519,7 +519,7 @@ void riscvILA_user::addInstructions()
         // ------------------------- Instruction: ORI ------------------------------ //
         {
             auto instr = model.NewInstr("ORI");
-            auto decode = ( opcode == OPIMM ) & ( funct3 == ORI ) ;
+            auto decode = ( opcode == OPIMM ) & ( funct3 == ORI ) & ( interruptCondition() );
             instr.SetDecode(decode);
 
             instr.SetUpdate(pc, nxt_pc );
@@ -530,7 +530,7 @@ void riscvILA_user::addInstructions()
         // ------------------------- Instruction: XORI ------------------------------ //
         {
             auto instr = model.NewInstr("XORI");
-            auto decode = ( opcode == OPIMM ) & ( funct3 == XORI ) ;
+            auto decode = ( opcode == OPIMM ) & ( funct3 == XORI ) & ( interruptCondition() );
             instr.SetDecode(decode);
 
             instr.SetUpdate(pc, nxt_pc );
@@ -541,7 +541,7 @@ void riscvILA_user::addInstructions()
         // ------------------------- Instruction: SLLI ------------------------------ //
         {
             auto instr = model.NewInstr("SLLI");
-            auto decode = ( opcode == OPIMM ) & ( funct3 == SLLI ) & (funct7 == SLLIfunct7);
+            auto decode = ( opcode == OPIMM ) & ( funct3 == SLLI ) & (funct7 == SLLIfunct7) & ( interruptCondition() );
             instr.SetDecode(decode);
 
             instr.SetUpdate(pc, nxt_pc );
@@ -552,7 +552,7 @@ void riscvILA_user::addInstructions()
         // ------------------------- Instruction: SRLI ------------------------------ //
         {
             auto instr = model.NewInstr("SRLI");
-            auto decode = ( opcode == OPIMM ) & ( funct3 == SRLI ) & (funct7 == SRLIfunct7);
+            auto decode = ( opcode == OPIMM ) & ( funct3 == SRLI ) & (funct7 == SRLIfunct7) & ( interruptCondition() );
             instr.SetDecode(decode);
 
             instr.SetUpdate(pc, nxt_pc );
@@ -563,7 +563,7 @@ void riscvILA_user::addInstructions()
         // ------------------------- Instruction: SRAI ------------------------------ //
         {
             auto instr = model.NewInstr("SRAI");
-            auto decode = ( opcode == OPIMM ) & ( funct3 == SRAI ) & (funct7 == SRAIfunct7) ;
+            auto decode = ( opcode == OPIMM ) & ( funct3 == SRAI ) & (funct7 == SRAIfunct7) & ( interruptCondition() );
             instr.SetDecode(decode);
 
             instr.SetUpdate(pc, nxt_pc );
@@ -579,7 +579,7 @@ void riscvILA_user::addInstructions()
         // ------------------------- Instruction: LUI ------------------------------ //
         {
             auto instr = model.NewInstr("LUI");
-            auto decode = ( opcode == LUI ) ;
+            auto decode = ( opcode == LUI ) & ( interruptCondition() );
             instr.SetDecode(decode);
 
             instr.SetUpdate(pc, nxt_pc );
@@ -589,7 +589,7 @@ void riscvILA_user::addInstructions()
         }
         // ------------------------- Instruction: AUIPC ------------------------------ //
         {
-            auto instr = model.NewInstr("AUIPC");
+            auto instr = model.NewInstr("AUIPC") & ( interruptCondition() );
             auto decode = ( opcode == AUIPC ) ;
             instr.SetDecode(decode);
 

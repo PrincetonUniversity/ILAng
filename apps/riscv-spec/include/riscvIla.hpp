@@ -17,6 +17,7 @@
 class riscvILA_user
 {
 
+protected:
     Ila  model;
 
     ExprRef         pc;
@@ -42,7 +43,6 @@ class riscvILA_user
     ExprRef         immJ;
     ExprRef         csr_index;
 
-protected:
     ExprRef indexIntoGPR(const ExprRef & idxBits);
     void UpdateGPR(InstrRef & inst, const ExprRef & idxBits, const ExprRef & val );
     
@@ -50,14 +50,16 @@ protected:
     ExprRef zext(const ExprRef & v) {return ZExt( v, XLEN ); }
     ExprRef sext(const ExprRef & v) {return SExt( v, XLEN ); }
 
+private:
     ExprRef getSlice(const ExprRef & word,const ExprRef & lowBits, int width, bool unSigned);
     ExprRef CombineSlices(const ExprRef & word, const ExprRef & lowBits, int width, const ExprRef & old);
 
-
+protected:
     // privileged model will overload these to insert their address translation
     virtual ExprRef FetchFromMem(const ExprRef &m, const ExprRef &addr) { return Load(m,addr); }
     virtual ExprRef LoadFromMem (const ExprRef &m, const ExprRef &addr) { return Load(m,addr); }
     virtual ExprRef StoreToMem  (const ExprRef &m, const ExprRef &addr , const ExprRef &data) { return Store(m,addr,data); }
+    virtual ExprRef interruptCondition() { return  BoolConst(true); }
 
 public:
     riscvILA_user( int pc_init_val );
@@ -69,6 +71,16 @@ public:
 
 class riscvILA_machine : public riscvILA_user
 {
+    protected:
+        virtual ExprRef FetchFromMem(const ExprRef &m, const ExprRef &addr) ;
+        virtual ExprRef LoadFromMem (const ExprRef &m, const ExprRef &addr) ;
+        virtual ExprRef StoreToMem  (const ExprRef &m, const ExprRef &addr , const ExprRef &data) ;
+        virtual ExprRef interruptCondition() ;
+
+
+        void createPrivilegeStates();
+        
+
 };
 
 
