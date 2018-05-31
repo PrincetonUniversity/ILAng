@@ -18,9 +18,9 @@ namespace ila {
 /// \namespace ExprFuse
 /// Defines the wrapper for hiding imeplementation dependent type details.
 namespace ExprFuse {
-/****************************************************************************/
+/******************************************************************************/
 // Variable
-/****************************************************************************/
+/******************************************************************************/
 /// Create new Boolean variable.
 ExprPtr NewBoolVar(const std::string& name);
 /// Create new bitvector variable.
@@ -29,9 +29,9 @@ ExprPtr NewBvVar(const std::string& name, const int& bit_width);
 ExprPtr NewMemVar(const std::string& name, const int& addr_width,
                   const int& data_width);
 
-/****************************************************************************/
+/******************************************************************************/
 // Constant
-/****************************************************************************/
+/******************************************************************************/
 /// Create a Boolean constant.
 ExprPtr BoolConst(const bool& val);
 /// Create a Boolean constant from BoolVal.
@@ -47,9 +47,9 @@ ExprPtr MemConst(const int& def_val, const int& addr_width,
 ExprPtr MemConst(const MemVal& val, const int& addr_width,
                  const int& data_width);
 
-/****************************************************************************/
+/******************************************************************************/
 // Unary operation
-/****************************************************************************/
+/******************************************************************************/
 /// Arithematic negate (bv only)
 ExprPtr Negate(const ExprPtr obj);
 /// Boolean not (bool only)
@@ -57,9 +57,9 @@ ExprPtr Not(const ExprPtr obj);
 /// Bit-wise Complement (bv only)
 ExprPtr Complement(const ExprPtr obj);
 
-/****************************************************************************/
+/******************************************************************************/
 // Binary operation
-/****************************************************************************/
+/******************************************************************************/
 /// Logical AND
 ExprPtr And(const ExprPtr l, const ExprPtr r);
 /// Logical OR
@@ -103,9 +103,9 @@ ExprPtr Add(const ExprPtr l, const int& r);
 /// Arithmetic subtraction with int.
 ExprPtr Sub(const ExprPtr l, const int& r);
 
-/****************************************************************************/
+/******************************************************************************/
 // Comparison
-/****************************************************************************/
+/******************************************************************************/
 /// Comparison: equal
 ExprPtr Eq(const ExprPtr l, const ExprPtr r);
 /// Comparison: not equal
@@ -151,17 +151,22 @@ ExprPtr Ule(const ExprPtr l, const int& r);
 /// Unsigned greater than or equal to int.
 ExprPtr Uge(const ExprPtr l, const int& r);
 
-/****************************************************************************/
+/******************************************************************************/
 // Memory
-/****************************************************************************/
+/******************************************************************************/
 /// Memory load
 ExprPtr Load(const ExprPtr mem, const ExprPtr addr);
 /// Memory store
 ExprPtr Store(const ExprPtr mem, const ExprPtr addr, const ExprPtr data);
 
-/****************************************************************************/
+/// Memory load from constant address
+ExprPtr Load(const ExprPtr mem, const int& addr);
+/// Memory store to constant address and data
+ExprPtr Store(const ExprPtr mem, const int& addr, const int& data);
+
+/******************************************************************************/
 // Bit manipulation
-/****************************************************************************/
+/******************************************************************************/
 /// Concatenate two bitvectors (bv only)
 ExprPtr Concat(const ExprPtr hi, const ExprPtr lo);
 /// Extract bit field in the bitvector (bv only)
@@ -171,26 +176,30 @@ ExprPtr ZExt(const ExprPtr bv, const int& out_width);
 /// Sign extend the bitvector to the specified length.
 ExprPtr SExt(const ExprPtr bv, const int& out_width);
 
-/****************************************************************************/
+/******************************************************************************/
 // Function usage
-/****************************************************************************/
+/******************************************************************************/
 /// Apply function with zero argument.
 ExprPtr AppFunc(const FuncPtr func);
+/// Apply function with one argument.
+ExprPtr AppFunc(const FuncPtr func, const ExprPtr arg0);
+/// Apply function with two argument.
+ExprPtr AppFunc(const FuncPtr func, const ExprPtr arg0, const ExprPtr arg1);
 /// Apply function with arguments.
 ExprPtr AppFunc(const FuncPtr func, const ExprPtrVec& args);
 
-/****************************************************************************/
+/******************************************************************************/
 // Others
-/****************************************************************************/
+/******************************************************************************/
 /// Logical imply (bool only)
 ExprPtr Imply(const ExprPtr p, const ExprPtr q);
 /// If-then-else (condition bool only)
 ExprPtr Ite(const ExprPtr cnd, const ExprPtr true_expr,
             const ExprPtr false_expr);
 
-/****************************************************************************/
+/******************************************************************************/
 // Non-AST construction utilities
-/****************************************************************************/
+/******************************************************************************/
 /// Topologically equivalent.
 bool TopEq(const ExprPtr a, const ExprPtr b);
 

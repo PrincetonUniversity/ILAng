@@ -6,80 +6,93 @@
 
 namespace ila {
 
-Sort::Sort()
-    : type_(SortType::SORT_BOOL), bit_width_(0), addr_width_(0),
-      data_width_(0) {}
-
-Sort::Sort(const int& bit_width)
-    : type_(SortType::SORT_BV), bit_width_(bit_width), addr_width_(0),
-      data_width_(0) {}
-
-Sort::Sort(const int& addr_width, const int& data_width)
-    : type_(SortType::SORT_MEM), bit_width_(0), addr_width_(addr_width),
-      data_width_(data_width) {}
+Sort::Sort() {}
 
 Sort::~Sort() {}
 
-z3::sort Sort::GetZ3Sort(z3::context& ctx) const {
-  if (is_bool())
-    return ctx.bool_sort();
-  else if (is_bv())
-    return ctx.bv_sort(bit_width_);
-  else {
-    ILA_ASSERT(is_mem()) << "Unknown sort.";
-    return ctx.array_sort(ctx.bv_sort(addr_width_), ctx.bv_sort(data_width_));
-  }
+int Sort::bit_width() const {
+  ILA_ASSERT(false) << "Query bit-width from non-bit-vector sort.";
+  return 0;
 }
 
-std::ostream& Sort::Print(std::ostream& out) const {
-  if (is_bool())
-    return PrintBool(out);
-  else if (is_bv())
-    return PrintBv(out);
-  else {
-    ILA_ASSERT(is_mem()) << "Unknown type.";
-    return PrintMem(out);
-  }
+int Sort::addr_width() const {
+  ILA_ASSERT(false) << "Query addr-width from non-mem sort.";
+  return 0;
 }
 
-bool Sort::Equal(const Sort& lhs, const Sort& rhs) {
-  if (lhs.is_bool() && rhs.is_bool()) {
-    return true;
-  } else if (lhs.is_bv() && rhs.is_bv()) {
-    return (lhs.bit_width_ == rhs.bit_width_);
-  } else if (lhs.is_mem() && rhs.is_mem()) {
-    return ((lhs.addr_width_ == rhs.addr_width_) &&
-            (lhs.data_width_ == rhs.data_width_));
-  } else {
-    return false;
-  }
+int Sort::data_width() const {
+  ILA_ASSERT(false) << "Query data-width from non-mem sort.";
+  return 0;
 }
 
-std::ostream& operator<<(std::ostream& out, const Sort& s) {
-  return s.Print(out);
+SortPtr Sort::MakeBoolSort() { return std::make_shared<SortBool>(); }
+
+SortPtr Sort::MakeBvSort(const int& bit_width) {
+  return std::make_shared<SortBv>(bit_width);
 }
 
-bool operator==(const Sort& lhs, const Sort& rhs) {
-  return Sort::Equal(lhs, rhs);
+SortPtr Sort::MakeMemSort(const int& addr_width, const int& data_width) {
+  return std::make_shared<SortMem>(addr_width, data_width);
 }
 
-Sort Sort::MakeBoolSort() { return Sort(); }
+SortBool::SortBool() {}
 
-Sort Sort::MakeBvSort(const int& bit_width) { return Sort(bit_width); }
+SortBool::~SortBool() {}
 
-Sort Sort::MakeMemSort(const int& addr_width, const int& data_width) {
-  return Sort(addr_width, data_width);
+z3::sort SortBool::GetZ3Sort(z3::context& ctx) const { return ctx.bool_sort(); }
+
+z3::expr SortBool::GetZ3Expr(z3::context& ctx, const std::string& name) const {
+  return ctx.bool_const(name.c_str());
 }
 
-std::ostream& Sort::PrintBool(std::ostream& out) const {
+bool SortBool::Equal(const SortPtr rhs) const { return rhs->is_bool(); }
+
+std::ostream& SortBool::Print(std::ostream& out) const {
   return out << "Boolean";
 }
 
-std::ostream& Sort::PrintBv(std::ostream& out) const {
+SortBv::SortBv(const int& width) : bit_width_(width) {}
+
+SortBv::~SortBv() {}
+
+z3::sort SortBv::GetZ3Sort(z3::context& ctx) const {
+  return ctx.bv_sort(bit_width_);
+}
+
+z3::expr SortBv::GetZ3Expr(z3::context& ctx, const std::string& name) const {
+  return ctx.bv_const(name.c_str(), bit_width());
+}
+
+bool SortBv::Equal(const SortPtr rhs) const {
+  return rhs->is_bv() && (rhs->bit_width() == bit_width_);
+}
+
+std::ostream& SortBv::Print(std::ostream& out) const {
   return out << "Bv(" << bit_width_ << ")";
 }
 
-std::ostream& Sort::PrintMem(std::ostream& out) const {
+SortMem::SortMem(const int& addr_w, const int& data_w)
+    : addr_width_(addr_w), data_width_(data_w) {}
+
+SortMem::~SortMem() {}
+
+z3::sort SortMem::GetZ3Sort(z3::context& ctx) const {
+  return ctx.array_sort(ctx.bv_sort(addr_width_), ctx.bv_sort(data_width_));
+}
+
+z3::expr SortMem::GetZ3Expr(z3::context& ctx, const std::string& name) const {
+  auto addr_s = ctx.bv_sort(addr_width());
+  auto data_s = ctx.bv_sort(data_width());
+  auto mem_s = ctx.array_sort(addr_s, data_s);
+  return ctx.constant(name.c_str(), mem_s);
+}
+
+bool SortMem::Equal(const SortPtr rhs) const {
+  return rhs->is_mem() && (rhs->addr_width() == addr_width_) &&
+         (rhs->data_width() == data_width_);
+}
+
+std::ostream& SortMem::Print(std::ostream& out) const {
   return out << "Mem(" << addr_width_ << ", " << data_width_ << ")";
 }
 

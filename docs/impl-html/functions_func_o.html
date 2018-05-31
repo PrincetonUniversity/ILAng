@@ -71,6 +71,8 @@ $(function() {
 : <a class="el" href="classila_1_1_expr_op.html#a2b07e94cd7b2c3db1ffbf95e1460505c">ila::ExprOp</a>
 , <a class="el" href="classila_1_1_expr_op_add.html#a8ec4b01abde687b62259ba33b836b74b">ila::ExprOpAdd</a>
 , <a class="el" href="classila_1_1_expr_op_and.html#a67b8eb54a90bedc47b0d08ff07d899c9">ila::ExprOpAnd</a>
+, <a class="el" href="classila_1_1_expr_op_app_func.html#a4cf650d33bbdba35e6e4faf9b11ebffb">ila::ExprOpAppFunc</a>
+, <a class="el" href="classila_1_1_expr_op_ashr.html#a94df781bcd2102bbbc6ba432c7e41598">ila::ExprOpAshr</a>
 , <a class="el" href="classila_1_1_expr_op_compl.html#a58468e95fde3e8abadd393a2e7819cd4">ila::ExprOpCompl</a>
 , <a class="el" href="classila_1_1_expr_op_concat.html#aafdf532ba3b12858d971abe301911ad3">ila::ExprOpConcat</a>
 , <a class="el" href="classila_1_1_expr_op_eq.html#a59f39297d55ff7f3c0a0284d248b7967">ila::ExprOpEq</a>
@@ -79,10 +81,13 @@ $(function() {
 , <a class="el" href="classila_1_1_expr_op_imply.html#a3102e6290a99d27859b8f92a6c2e2663">ila::ExprOpImply</a>
 , <a class="el" href="classila_1_1_expr_op_ite.html#af73168ea89e5cb1386af6dab8c0137cd">ila::ExprOpIte</a>
 , <a class="el" href="classila_1_1_expr_op_load.html#afbd8fc3a515e63100e0e8ccea26866bf">ila::ExprOpLoad</a>
+, <a class="el" href="classila_1_1_expr_op_lshr.html#aa4af6f6c5af371106c6c930d8a875201">ila::ExprOpLshr</a>
 , <a class="el" href="classila_1_1_expr_op_lt.html#addd1157f5450295d642ad795b5b8c70c">ila::ExprOpLt</a>
 , <a class="el" href="classila_1_1_expr_op_neg.html#a95d13067f2d9ffa7652e193c7547d047">ila::ExprOpNeg</a>
 , <a class="el" href="classila_1_1_expr_op_not.html#aaadb4bd2647799d9bda5c301e0146375">ila::ExprOpNot</a>
 , <a class="el" href="classila_1_1_expr_op_or.html#a831d3d7daa89dccc790223f33bc20e25">ila::ExprOpOr</a>
+, <a class="el" href="classila_1_1_expr_op_s_ext.html#ade6b56bc1a5d9c8c7d6d15f01a88ca7d">ila::ExprOpSExt</a>
+, <a class="el" href="classila_1_1_expr_op_shl.html#a105f6cf1ffcf29025a3152825ddd1e72">ila::ExprOpShl</a>
 , <a class="el" href="classila_1_1_expr_op_store.html#ab063a36964a7cf8c0768b9f94fb3cb4b">ila::ExprOpStore</a>
 , <a class="el" href="classila_1_1_expr_op_sub.html#a34ee2ae9657678c52657600fa96d4eec">ila::ExprOpSub</a>
 , <a class="el" href="classila_1_1_expr_op_ugt.html#a13f79f5ddf5be67d4cdd54e657076984">ila::ExprOpUgt</a>
@@ -91,17 +96,20 @@ $(function() {
 , <a class="el" href="classila_1_1_expr_op_z_ext.html#af2b38c90c9521ce4ec5e5d3826036a91">ila::ExprOpZExt</a>
 </li>
 <li>operator()()
-: <a class="el" href="classila_1_1_ast_hash.html#aae99801913f45a3c8ad6c34fef2a9025">ila::AstHash</a>
-, <a class="el" href="classila_1_1_expr_hash.html#a2a5ebfc568e0ed4a64862c847f074ca0">ila::ExprHash</a>
-, <a class="el" href="classila_1_1_expr_mngr.html#a131293635f523dd152625bbb4d7e82e8">ila::ExprMngr</a>
-, <a class="el" href="classila_1_1_expr_ref.html#a3088ffb90b05670e9d32c74d31f39398">ila::ExprRef</a>
-, <a class="el" href="classila_1_1_z3_expr_adapter.html#ae8512f65581f0f160b11979631fd8846">ila::Z3ExprAdapter</a>
+: <a class="el" href="classila_1_1_expr_mngr.html#a131293635f523dd152625bbb4d7e82e8">ila::ExprMngr</a>
+, <a class="el" href="classila_1_1_expr_ref.html#a80eea7bb0abfd8ff8048f58c1723b279">ila::ExprRef</a>
+, <a class="el" href="classila_1_1_func_ref.html#ade7272d402d6c01148d125ecca93ade8">ila::FuncRef</a>
+, <a class="el" href="classila_1_1_z3_adapter_hash.html#a17a888d2c4ca896b7e675951b72f0e19">ila::Z3AdapterHash</a>
+, <a class="el" href="classila_1_1_z3_expr_adapter.html#ae0d36e1bc65bbf1d0573817eeabe5983">ila::Z3ExprAdapter</a>
 </li>
 <li>operator=()
 : <a class="el" href="classila_1_1_symbol.html#acfc4bc9ee40717e3d932f06d42e5c998">ila::Symbol</a>
 </li>
 <li>operator[]()
 : <a class="el" href="classila_1_1_key_vec.html#ae69233bbd1900f4d4e0c2e6416591743">ila::KeyVec&lt; Key, T &gt;</a>
+</li>
+<li>out()
+: <a class="el" href="classila_1_1_func.html#abd17e91d02bb9b4aa48f7231d0d31781">ila::Func</a>
 </li>
 </ul>
 </div><!-- contents -->

@@ -17,53 +17,39 @@ class Expr;
 
 /// \brief The class for uninterpreted function.
 class Func : public Ast {
-private:
-  /// Internal structure for wrapping constructor arguments from shared_ptr
-  struct FuncConfig {
-    /// Constructor for wrapping the arguments.
-    FuncConfig(const std::string& name, const Sort& out,
-               const std::vector<Sort>& args)
-        : name_(name), out_(out), args_(args) {}
-    /// Wrapped data: function name.
-    const std::string& name_;
-    /// Wrapped data: output sort.
-    const Sort& out_;
-    /// Wrapper data: input sorts.
-    const std::vector<Sort>& args_;
-  }; // struct FuncConfig
-
 public:
   /// Pointer type for normal use of Func.
   typedef std::shared_ptr<Func> FuncPtr;
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Constructor for multiple-argument function.
-  Func(const FuncConfig& config);
+  Func(const std::string& name, const SortPtr out,
+       const std::vector<SortPtr>& args);
 
   /// Default destructor.
   ~Func();
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return the output sort.
-  const Sort& out() const { return out_; }
+  const SortPtr out() const { return out_; }
   /// Return the number of arguments.
   size_t arg_num() const { return args_.size(); }
   /// Return the sort of the i-th argument.
-  const Sort& arg(const int& i) const { return args_.at(i); }
+  const SortPtr arg(const int& i) const { return args_.at(i); }
 
   // ------------------------- METHODS -------------------------------------- //
   /// Create an uninterpreted function (Func) with no input (nondet).
   static FuncPtr New(const std::string& name,
-                     const Sort& out = Sort::MakeBoolSort());
+                     const SortPtr out = Sort::MakeBoolSort());
   /// Create an uninterpreted function (Func) with one input.
-  static FuncPtr New(const std::string& name, const Sort& out,
-                     const Sort& arg0);
+  static FuncPtr New(const std::string& name, const SortPtr out,
+                     const SortPtr arg0);
   /// Create an uninterpreted function (Func) with two inputs.
-  static FuncPtr New(const std::string& name, const Sort& out, const Sort& arg0,
-                     const Sort& arg1);
+  static FuncPtr New(const std::string& name, const SortPtr out,
+                     const SortPtr arg0, const SortPtr arg1);
   /// Create an uninterpreted function (Func) with multiple inputs.
-  static FuncPtr New(const std::string& name, const Sort& out,
-                     const std::vector<Sort>& args);
+  static FuncPtr New(const std::string& name, const SortPtr out,
+                     const std::vector<SortPtr>& args);
 
   /// Check if the input arguments match the specified sort.
   bool CheckSort(const std::vector<std::shared_ptr<Expr>>& args) const;
@@ -82,9 +68,9 @@ public:
 private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// Sort of the output (range).
-  Sort out_;
+  SortPtr out_;
   /// Sort of the input arguments (domain).
-  std::vector<Sort> args_;
+  std::vector<SortPtr> args_;
 
   // ------------------------- HELPERS -------------------------------------- //
 }; // class Func

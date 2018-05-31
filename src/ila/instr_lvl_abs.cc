@@ -46,6 +46,11 @@ const InstrPtr InstrLvlAbs::instr(const std::string& name) const {
   }
 }
 
+const ExprPtr InstrLvlAbs::free_var(const std::string& name) const {
+  auto pos = free_vars_.find(Symbol(name));
+  return (pos == free_vars_.end()) ? NULL : pos->second;
+}
+
 const InstrLvlAbsPtr InstrLvlAbs::child(const std::string& name) const {
   auto pos = childs_.find(Symbol(name));
   if (pos == childs_.end()) {
@@ -61,9 +66,10 @@ void InstrLvlAbs::AddInput(const ExprPtr input_var) {
   ILA_ASSERT(input_var->is_var()) << "Register non-var to Inputs.";
   // should be the first
   auto name = input_var->name();
-  auto pos = inputs_.find(name);
-  ILA_ASSERT(pos == inputs_.end()) << "Input variable " << input_var
-                                   << " has been declared.";
+  auto posi = inputs_.find(name);
+  auto poss = states_.find(name);
+  ILA_ASSERT(posi == inputs_.end() && poss == states_.end())
+      << "Input variable " << input_var << " has been declared.";
   // register to the simplifier
   auto var = Unify(input_var);
   // register to Inputs
@@ -76,14 +82,31 @@ void InstrLvlAbs::AddState(const ExprPtr state_var) {
   ILA_ASSERT(state_var->is_var()) << "Register non-var to States.";
   // should be the first
   auto name = state_var->name();
-  auto pos = states_.find(name);
-  ILA_ASSERT(pos == states_.end()) << "State variable " << state_var
-                                   << "has been declared.";
+  auto poss = states_.find(name);
+  auto posi = inputs_.find(name);
+  ILA_ASSERT(poss == states_.end() && posi == inputs_.end())
+      << "State variable " << state_var << "has been declared.";
   // register to the simplifier
   auto var = Unify(state_var);
   // register to States
   states_.push_back(name, var);
 }
+
+#if 0
+void InstrLvlAbs::AddFreeVar(const ExprPtr free_var) {
+  // sanity check
+  ILA_NOT_NULL(free_var);
+  ILA_ASSERT(free_var->is_var()) << "Register non-var to free_vars_.";
+  // should be the first
+  auto name = free_var->name();
+  auto poss = states_.find(name);
+  auto posi = inputs_.find(name);
+  ILA_ASSERT(poss == states_.end() && posi == inputs_.end())
+      << "Free variable " << free_var << "has been declared.";
+  // register to free_vars_
+  free_vars_.push_back(name, free_var);
+}
+#endif
 
 void InstrLvlAbs::AddInit(const ExprPtr cntr_expr) {
   // sanity check
@@ -180,6 +203,33 @@ const ExprPtr InstrLvlAbs::NewMemState(const std::string& name,
   // register
   AddState(mem_state);
   return mem_state;
+}
+
+const ExprPtr InstrLvlAbs::NewBoolFreeVar(const std::string& name) {
+  // create new var
+  ExprPtr bool_var = ExprFuse::NewBoolVar(name);
+  // set host
+  bool_var->set_host(shared_from_this());
+  return bool_var;
+}
+
+const ExprPtr InstrLvlAbs::NewBvFreeVar(const std::string& name,
+                                        const int& bit_width) {
+  // create new var
+  ExprPtr bv_var = ExprFuse::NewBvVar(name, bit_width);
+  // set host
+  bv_var->set_host(shared_from_this());
+  return bv_var;
+}
+
+const ExprPtr InstrLvlAbs::NewMemFreeVar(const std::string& name,
+                                         const int& addr_width,
+                                         const int& data_width) {
+  // create new var
+  ExprPtr mem_var = ExprFuse::NewMemVar(name, addr_width, data_width);
+  // set host
+  mem_var->set_host(shared_from_this());
+  return mem_var;
 }
 
 const InstrPtr InstrLvlAbs::NewInstr(const std::string& name) {

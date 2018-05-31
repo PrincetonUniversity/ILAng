@@ -27,20 +27,6 @@ set(CMAKE_MODULE_PATH
 
 set(CMAKE_MACOSX_RPATH 1)
 
-# ------------------------------------------------------------------------------
-# Google Log
-# ------------------------------------------------------------------------------
-if (build_glog)
-  execute_process(COMMAND git submodule init ${PROJECT_SOURCE_DIR}/glog)
-  execute_process(COMMAND git submodule update ${PROJECT_SOURCE_DIR}/glog)
-  add_subdirectory(glog)
-else ()
-  find_package(glog 0.3.5 REQUIRED)
-  if (NOT TARGET glog::glog)
-    MESSAGE (FATAL_ERROR 
-      "Unable to find glog. Set build_glog for in-source build.")
-  endif (NOT TARGET glog::glog)
-endif ()
 
 # ------------------------------------------------------------------------------
 # Compile flags 
@@ -59,7 +45,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 # Set debug/coverage flags, or optimize, depending on options.
 if (debug)
     set(CMAKE_BUILD_TYPE "Debug")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g3")
     # Coverage can only be set if -g is used.
     if (coverage)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage")
@@ -95,6 +81,11 @@ configure_file(
   "${PROJECT_SOURCE_DIR}/include/config.h.in"
   "${PROJECT_BINARY_DIR}/config.h")
 include_directories("${PROJECT_BINARY_DIR}")
+
+# ------------------------------------------------------------------------------
+# Google Log
+# ------------------------------------------------------------------------------
+find_package(glog 0.3.5 REQUIRED)
 
 # ------------------------------------------------------------------------------
 # Z3
@@ -180,4 +171,17 @@ add_subdirectory (src)
 # Test (w/ Google Test & standard CTest)
 # ------------------------------------------------------------------------------
 add_subdirectory (test)
+
+# Install target
+install(FILES include/ila++.h DESTINATION include)
+
+# uninstall target
+if(NOT TARGET uninstall)
+  configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+    IMMEDIATE @ONLY)
+  add_custom_target(uninstall
+    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
+endif()
 

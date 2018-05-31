@@ -38,7 +38,7 @@ public:
   // ------------------------- MEMBERS -------------------------------------- //
   /// Iterator value for checking whether a data is found.
   KeyVecItVal result;
-  /// Ket retrived.
+  /// Key retrived.
   Key first;
   /// Data retrived.
   T second;

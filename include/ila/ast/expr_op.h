@@ -52,9 +52,9 @@ public:
 protected:
   // ------------------------- HELPERS -------------------------------------- //
   /// Derived the sort for binary operations.
-  Sort GetSortBinaryOperation(const Sort& s0, const Sort& s1);
+  SortPtr GetSortBinaryOperation(const ExprPtr e0, const ExprPtr e1);
   /// Derived the sort for binary comparisons.
-  Sort GetSortBinaryComparison(const Sort& s0, const Sort& s1);
+  SortPtr GetSortBinaryComparison(const ExprPtr e0, const ExprPtr e1);
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
@@ -324,7 +324,7 @@ public:
 // Function usage
 /******************************************************************************/
 
-/// \biref The class wrapper for apply uninterpreted function.
+/// \brief The class wrapper for apply uninterpreted function.
 class ExprOpAppFunc : public ExprOp {
 public:
   /// Type for forware declaring Func.

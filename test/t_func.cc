@@ -14,9 +14,9 @@ public:
   void SetUp() {}
   void TearDown() {}
 
-  Sort b = Sort::MakeBoolSort();
-  Sort bv = Sort::MakeBvSort(8);
-  Sort mem = Sort::MakeMemSort(8, 8);
+  SortPtr b = Sort::MakeBoolSort();
+  SortPtr bv = Sort::MakeBvSort(8);
+  SortPtr mem = Sort::MakeMemSort(8, 8);
 }; // class TestFunc
 
 TEST_F(TestFunc, Atom) {

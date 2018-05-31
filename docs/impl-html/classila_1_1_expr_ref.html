@@ -80,18 +80,18 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a528a515aeead12981edca1dfc43e0821"><td class="memItemLeft" align="right" valign="top"><a id="a528a515aeead12981edca1dfc43e0821"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_ref.html#a528a515aeead12981edca1dfc43e0821">ExprRef</a> (std::shared_ptr&lt; <a class="el" href="classila_1_1_expr.html">Expr</a> &gt; ptr)</td></tr>
-<tr class="memdesc:a528a515aeead12981edca1dfc43e0821"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor with the pointer of the actual data. <br /></td></tr>
-<tr class="separator:a528a515aeead12981edca1dfc43e0821"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a76d0e387b4c1e4b0e119c52109ab4d2d"><td class="memItemLeft" align="right" valign="top"><a id="a76d0e387b4c1e4b0e119c52109ab4d2d"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_ref.html#a76d0e387b4c1e4b0e119c52109ab4d2d">ExprRef</a> (ExprPtr ptr)</td></tr>
+<tr class="memdesc:a76d0e387b4c1e4b0e119c52109ab4d2d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor with the pointer of the actual data. <br /></td></tr>
+<tr class="separator:a76d0e387b4c1e4b0e119c52109ab4d2d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a261996b36586168fb46ed918eeea0236"><td class="memItemLeft" align="right" valign="top"><a id="a261996b36586168fb46ed918eeea0236"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_ref.html#a261996b36586168fb46ed918eeea0236">~ExprRef</a> ()</td></tr>
 <tr class="memdesc:a261996b36586168fb46ed918eeea0236"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default destructor. <br /></td></tr>
 <tr class="separator:a261996b36586168fb46ed918eeea0236"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aded2d0ef09cfd081e4f07e559aa98ee0"><td class="memItemLeft" align="right" valign="top"><a id="aded2d0ef09cfd081e4f07e559aa98ee0"></a>
-std::shared_ptr&lt; <a class="el" href="classila_1_1_expr.html">Expr</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_ref.html#aded2d0ef09cfd081e4f07e559aa98ee0">get</a> () const</td></tr>
-<tr class="memdesc:aded2d0ef09cfd081e4f07e559aa98ee0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the wrapped <a class="el" href="classila_1_1_expr.html" title="The class for expression, which is the basic type for variables, constraints, state update expression...">Expr</a> pointer. <br /></td></tr>
-<tr class="separator:aded2d0ef09cfd081e4f07e559aa98ee0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a85b3d4a13625e8a5157b19a1dde40f6d"><td class="memItemLeft" align="right" valign="top"><a id="a85b3d4a13625e8a5157b19a1dde40f6d"></a>
+ExprPtr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_ref.html#a85b3d4a13625e8a5157b19a1dde40f6d">get</a> () const</td></tr>
+<tr class="memdesc:a85b3d4a13625e8a5157b19a1dde40f6d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the wrapped <a class="el" href="classila_1_1_expr.html" title="The class for expression, which is the basic type for variables, constraints, state update expression...">Expr</a> pointer. <br /></td></tr>
+<tr class="separator:a85b3d4a13625e8a5157b19a1dde40f6d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0dbbf9d6bc8ba123a03d8a043773ed54"><td class="memItemLeft" align="right" valign="top"><a id="a0dbbf9d6bc8ba123a03d8a043773ed54"></a>
 <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_ref.html#a0dbbf9d6bc8ba123a03d8a043773ed54">Load</a> (const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;addr) const</td></tr>
 <tr class="memdesc:a0dbbf9d6bc8ba123a03d8a043773ed54"><td class="mdescLeft">&#160;</td><td class="mdescRight">Load from memory. <br /></td></tr>
@@ -100,6 +100,14 @@ std::shared_ptr&lt; <a class="el" href="classila_1_1_expr.html">Expr</a> &gt;&#1
 <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_ref.html#a6bacb4cb719da6513a9d45415db40a82">Store</a> (const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;addr, const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;data) const</td></tr>
 <tr class="memdesc:a6bacb4cb719da6513a9d45415db40a82"><td class="mdescLeft">&#160;</td><td class="mdescRight">Store to memory. <br /></td></tr>
 <tr class="separator:a6bacb4cb719da6513a9d45415db40a82"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab1a0820bbc11f0c40bcb11857a53f1e9"><td class="memItemLeft" align="right" valign="top"><a id="ab1a0820bbc11f0c40bcb11857a53f1e9"></a>
+<a class="el" href="classila_1_1_expr_ref.html">ExprRef</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_ref.html#ab1a0820bbc11f0c40bcb11857a53f1e9">Load</a> (const int &amp;addr) const</td></tr>
+<tr class="memdesc:ab1a0820bbc11f0c40bcb11857a53f1e9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Load from memory with constant address. <br /></td></tr>
+<tr class="separator:ab1a0820bbc11f0c40bcb11857a53f1e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abedf8e700c51c573d95eb22a17300c46"><td class="memItemLeft" align="right" valign="top"><a id="abedf8e700c51c573d95eb22a17300c46"></a>
+<a class="el" href="classila_1_1_expr_ref.html">ExprRef</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_ref.html#abedf8e700c51c573d95eb22a17300c46">Store</a> (const int &amp;addr, const int &amp;data) const</td></tr>
+<tr class="memdesc:abedf8e700c51c573d95eb22a17300c46"><td class="mdescLeft">&#160;</td><td class="mdescRight">Store to memory with constant address and data. <br /></td></tr>
+<tr class="separator:abedf8e700c51c573d95eb22a17300c46"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3646f6b40b3f30f4cb802940cc99acb7"><td class="memItemLeft" align="right" valign="top"><a id="a3646f6b40b3f30f4cb802940cc99acb7"></a>
 <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_ref.html#a3646f6b40b3f30f4cb802940cc99acb7">Append</a> (const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;lsbv) const</td></tr>
 <tr class="memdesc:a3646f6b40b3f30f4cb802940cc99acb7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Append another bit-vector to the less significant side. <br /></td></tr>
@@ -116,6 +124,18 @@ std::shared_ptr&lt; <a class="el" href="classila_1_1_expr.html">Expr</a> &gt;&#1
 <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_ref.html#af3086fe56f85ba8c20115e29ab40e22a">ZExt</a> (const int &amp;length) const</td></tr>
 <tr class="memdesc:af3086fe56f85ba8c20115e29ab40e22a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zero-extend the bit-vector to the specified length. <br /></td></tr>
 <tr class="separator:af3086fe56f85ba8c20115e29ab40e22a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a57b1e4661c82ec73011e9c5f2210877b"><td class="memItemLeft" align="right" valign="top"><a id="a57b1e4661c82ec73011e9c5f2210877b"></a>
+<a class="el" href="classila_1_1_expr_ref.html">ExprRef</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_ref.html#a57b1e4661c82ec73011e9c5f2210877b">SExt</a> (const int &amp;length) const</td></tr>
+<tr class="memdesc:a57b1e4661c82ec73011e9c5f2210877b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sign-extend the bit-vector to the specified length. <br /></td></tr>
+<tr class="separator:a57b1e4661c82ec73011e9c5f2210877b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a751acc1c8785bf92f768e2fcd875c500"><td class="memItemLeft" align="right" valign="top"><a id="a751acc1c8785bf92f768e2fcd875c500"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_ref.html#a751acc1c8785bf92f768e2fcd875c500">ReplaceArg</a> (const int &amp;i, const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;new_arg)</td></tr>
+<tr class="memdesc:a751acc1c8785bf92f768e2fcd875c500"><td class="mdescLeft">&#160;</td><td class="mdescRight">Replace the i-th argument with the new node. <br /></td></tr>
+<tr class="separator:a751acc1c8785bf92f768e2fcd875c500"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1a38ce864383d0c95a6b1fe2d0cb93a1"><td class="memItemLeft" align="right" valign="top"><a id="a1a38ce864383d0c95a6b1fe2d0cb93a1"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classila_1_1_expr_ref.html#a1a38ce864383d0c95a6b1fe2d0cb93a1">ReplaceArg</a> (const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;org_arg, const <a class="el" href="classila_1_1_expr_ref.html">ExprRef</a> &amp;new_arg)</td></tr>
+<tr class="memdesc:a1a38ce864383d0c95a6b1fe2d0cb93a1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Replace the original argument (must exist) with the new argument. <br /></td></tr>
+<tr class="separator:a1a38ce864383d0c95a6b1fe2d0cb93a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>The wrapper of <a class="el" href="classila_1_1_expr.html" title="The class for expression, which is the basic type for variables, constraints, state update expression...">Expr</a> (e.g. state var, var relation, constant, etc). </p>

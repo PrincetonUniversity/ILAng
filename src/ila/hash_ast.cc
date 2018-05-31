@@ -75,7 +75,7 @@ std::string ExprMngr::Hash(const ExprPtr n) const {
       return n_const->val_bool()->str();
     } else if (n_const->is_bv()) {
       return n_const->val_bv()->str() + "_" +
-             std::to_string(n_const->sort().bit_width());
+             std::to_string(n_const->sort()->bit_width());
     } else {
       ILA_ASSERT(n_const->is_mem()) << "Unrecognized constant type";
       // mem constant sharing not supported yet
