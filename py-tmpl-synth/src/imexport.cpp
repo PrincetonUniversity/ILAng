@@ -1,3 +1,4 @@
+#include <boost/format.hpp>
 #include <abstraction.hpp>
 #include <imexport.hpp>
 #include <util.hpp>
