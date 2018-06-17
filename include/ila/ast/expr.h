@@ -12,6 +12,8 @@
 #include <memory>
 #include <ostream>
 #include <string>
+#include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 /// \namespace ila
@@ -97,6 +99,22 @@ public:
     func(shared_from_this());
   }
 
+  /// \brief Templated visitor: visit each node in a depth-first order and apply
+  /// the function object F pre/pose on it.
+  template <class F> void DepthFirstVisitPrePost(F& func) {
+    // pre check
+    if (func.pre(shared_from_this())) { // break if return true
+      return;
+    }
+    // traverse child
+    for (size_t i = 0; i != arg_num(); i++) {
+      auto arg_i = this->arg(i);
+      arg_i->DepthFirstVisitPrePost<F>(func);
+    }
+    // post
+    func.post(shared_from_this());
+  }
+
 private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// The sort of the expr.
@@ -114,6 +132,19 @@ private:
 typedef Expr::ExprPtr ExprPtr;
 /// Type for storing a set of Expr.
 typedef Expr::ExprPtrVec ExprPtrVec;
+
+/// \brief The function object for hashing Expr. The hash value is the id of the
+/// symbol, which is supposed to be unique.
+class ExprHash {
+public:
+  /// Function object for hashing
+  size_t operator()(const ExprPtr expr) const { return expr->name().id(); }
+}; // class ExprHash
+
+/// Type for mapping between Expr.
+typedef std::unordered_map<const ExprPtr, const ExprPtr, ExprHash> ExprMap;
+/// Type for storing a set of Expr.
+typedef std::unordered_set<ExprPtr, ExprHash> ExprSet;
 
 } // namespace ila
 

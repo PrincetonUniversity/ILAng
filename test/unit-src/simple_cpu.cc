@@ -2,7 +2,7 @@
 /// The ILA model of a simple processor.
 
 #include "../unit-include/simple_cpu.h"
-#include "ila++.h"
+#include "cpp_api.h"
 #include "util/log.h"
 
 /*

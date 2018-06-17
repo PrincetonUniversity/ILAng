@@ -25,7 +25,7 @@ public:
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor
-  Unroller(z3::context& ctx);
+  Unroller(z3::context& ctx, const std::string& suffix);
   /// Default virtual destructor.
   virtual ~Unroller();
 
@@ -42,11 +42,8 @@ public:
   void ClearInitPred();
   /// Clear the step-specific predicates.
   void ClearStepPred();
-
-  /// Set an extra suffix for customized applications.
-  void SetExtraSuffix(const std::string& suff);
-  /// Reset the extra suffix (rewrite to "").
-  void ResetExtraSuffix();
+  /// Clear all predicates.
+  void ClearPred();
 
   // ------------------------- HELPERS -------------------------------------- //
   /// Return the z3::expr representing the current state at the time.
@@ -54,7 +51,9 @@ public:
   /// Return the z3::expr representing the next state at the time.
   ZExpr NextState(const ExprPtr v, const int& t);
   /// Return the z3::expr representing the current-based Expr at the time.
-  ZExpr GetZ3Expr(const ExprPtr v, const int& t);
+  ZExpr GetZ3Expr(const ExprPtr e, const int& t);
+  /// Return the z3::expr representing a unique Expr (regardless of time).
+  ZExpr GetZ3Expr(const ExprPtr e);
   /// Return the z3::expr representing a and b are equal at their time.
   ZExpr Equal(const ExprPtr va, const int& ta, const ExprPtr vb, const int& tb);
 
@@ -85,7 +84,7 @@ protected:
   /// Unroll while substituting internal expression.
   ZExpr UnrollSubs(const size_t& len, const int& pos);
   /// Unroll without substituting internal expression.
-  ZExpr UnrollAssn(const size_t& len, const int& pos);
+  ZExpr UnrollAssn(const size_t& len, const int& pos, bool cache = false);
   /// Unroll without asserting state equality between each step.
   ZExpr UnrollNone(const size_t& len, const int& pos);
 
@@ -94,15 +93,6 @@ protected:
   static ExprPtr StateUpdCmpl(const InstrPtr instr, const ExprPtr var);
   /// Return the decode function (true if not defined).
   static ExprPtr DecodeCmpl(const InstrPtr instr);
-
-  /// Add dependant state vars of a sequence/set of instructions to the set.
-  template <class I>
-  static void GetVarOfInstr(const I& instrs, std::set<ExprPtr>& vars);
-  /// Add dependant state vars of a tree of ILAs to the set.
-  static void GetVarOfIla(const InstrLvlAbsPtr top, std::set<ExprPtr>& vars);
-  /// Add instructions of a tree of ILAs to the set.
-  static void GetInstrOfIla(const InstrLvlAbsPtr top,
-                            std::vector<InstrPtr>& instrs);
 
   /// Create a new free variable (with same sort) under the same host.
   static ExprPtr NewFreeVar(const ExprPtr var, const std::string& name);
@@ -144,7 +134,7 @@ private:
   /// \brief Boot-strapping information needed for unrolling.
   /// - collect dependant state variables
   /// - prepare rewriting table
-  void BootStrap(const int& pos);
+  void BootStrap(const int& pos, bool cache = false);
 
   /// Assert equal between the z3::expr and the Expr w.r.t the suffix.
   void AssertEqual(const ZExprVec& z, const IExprVec& e,
@@ -170,11 +160,11 @@ private:
 
   /// Suffix generator for current state expressions of each step.
   inline std::string SuffCurr(const int& t) const {
-    return std::to_string(t) + extra_suff_;
+    return std::to_string(t) + "_" + extra_suff_;
   }
   /// Suffix generator for next state symbol of each step.
   inline std::string SuffNext(const int& t) const {
-    return std::to_string(t) + extra_suff_ + ".nxt";
+    return std::to_string(t) + "_" + extra_suff_ + ".nxt";
   }
 
 }; // class Unroller
@@ -187,7 +177,7 @@ public:
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor.
-  PathUnroll(z3::context& ctx);
+  PathUnroll(z3::context& ctx, const std::string& suff = "");
   /// Default destructor.
   ~PathUnroll();
 
@@ -237,7 +227,7 @@ class MonoUnroll : public Unroller {
 public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor.
-  MonoUnroll(z3::context& ctx);
+  MonoUnroll(z3::context& ctx, const std::string& suff = "");
   /// Default destructor.
   ~MonoUnroll();
 
@@ -262,6 +252,13 @@ public:
   /// \param[in] pos the starting time frame.
   ZExpr MonoNone(const InstrLvlAbsPtr top, const int& length,
                  const int& pos = 0);
+
+  /// \brief Incrementally unrolling the ILA using MonoAssn (with transition
+  /// relation being cached).
+  /// \param[in] top the top-level ILA.
+  /// \param[in] length number of steps to unroll.
+  /// \param[in] pos the starting time frame.
+  ZExpr MonoIncr(const InstrLvlAbsPtr top, const int& length, const int& pos);
 
 protected:
   // ------------------------- METHODS -------------------------------------- //
