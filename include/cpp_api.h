@@ -1,8 +1,8 @@
 /// \file
 /// The header for the c++ API.
 
-#ifndef ILAPP_H__
-#define ILAPP_H__
+#ifndef ILA_CPP_API_H__
+#define ILA_CPP_API_H__
 
 #include "z3++.h"
 #include <map>
@@ -39,12 +39,15 @@ void DisableDebug(const std::string& tag);
 /******************************************************************************/
 // ILA Construction.
 /******************************************************************************/
+// implementation-specific structure
 class Sort;
 class Func;
 class Expr;
 class Instr;
 class InstrLvlAbs;
 class Unroller;
+// forward declaration
+class Ila;
 
 /// \brief The wrapper of Sort (type for different AST nodes).
 class SortRef {
@@ -367,6 +370,10 @@ public:
   /// \param[in] update the update function (should be the same type as state).
   void SetUpdate(const ExprRef& state, const ExprRef& update);
 
+  /// \brief Set the child-program of the instruction.
+  /// \param[in] prog the child-ILA representing the child-program.
+  void SetProgram(const Ila& prog);
+
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return the wrapped ILA pointer.
   inline InstrPtr get() const { return ptr_; }
@@ -493,7 +500,7 @@ class IlaZ3Unroller {
 public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor
-  IlaZ3Unroller(z3::context& ctx);
+  IlaZ3Unroller(z3::context& ctx, const std::string& suff = "");
   /// Default virtual destructor.
   ~IlaZ3Unroller();
 
@@ -512,11 +519,6 @@ public:
   inline void ClearInitPred() { init_pred_.clear(); }
   /// Clear the step-specific predicates.
   inline void ClearStepPred() { step_pred_.clear(); }
-
-  /// Set an extra suffix for customized applications.
-  void SetExtraSuffix(const std::string& suff);
-  /// Reset the extra suffix (rewrite to "").
-  void ResetExtraSuffix();
 
   /// \brief Unroll the ILA monolithically with each step connected.
   /// \param[in] top the top-level ILA of the hierarchy.
@@ -582,12 +584,12 @@ private:
     for (auto it = step_pred_.begin(); it != step_pred_.end(); it++) {
       unroller->AddStepPred(it->second.get(), it->first);
     }
-    unroller->SetExtraSuffix(extra_suff_);
+    // unroller->SetExtraSuffix(extra_suff_);
   }
 
 }; // class IlaZ3Unroller
 
 } // namespace ila
 
-#endif // ILAPP_H__
+#endif // ILA_CPP_API_H__
 

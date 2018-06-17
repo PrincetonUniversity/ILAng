@@ -35,6 +35,8 @@ class InstrLvlAbs : public Object,
 public:
   /// Pointer type for normal use of InstrLvlAbs.
   typedef std::shared_ptr<InstrLvlAbs> InstrLvlAbsPtr;
+  /// Pointer type for read-only usage of InstrLvlAbs
+  typedef std::shared_ptr<const InstrLvlAbs> InstrLvlAbsCnstPtr;
   /// Type for storing a set of ExprPtr (input/state variables).
   typedef KeyVec<Symbol, ExprPtr> VarMap;
   /// Type for storing a set of Instr.
@@ -109,8 +111,15 @@ public:
   const InstrPtr instr(const std::string& name) const;
   /// Return the named child-ILA; return NULL if not registered.
   const InstrLvlAbsPtr child(const std::string& name) const;
-  /// Return the named free variable; return NULL if not found.
-  const ExprPtr free_var(const std::string& name) const;
+
+  /// Return the named input variable; return NULL if not registered.
+  const ExprPtr find_input(const Symbol& name) const;
+  /// Return the named state variable; return NULL if not registered.
+  const ExprPtr find_state(const Symbol& name) const;
+  /// Return the named instruction; return NULL if not registered.
+  const InstrPtr find_instr(const Symbol& name) const;
+  /// Return the named child-ILA; return NULL if not registered.
+  const InstrLvlAbsPtr find_child(const Symbol& name) const;
 
   // ------------------------- METHODS -------------------------------------- //
   /// \brief Add one input variable to the ILA, and register to the simplifier.
@@ -157,6 +166,14 @@ public:
   /// \param[in] bit_width length of the bitvector variable.
   /// \return pointer to the input.
   const ExprPtr NewBvInput(const std::string& name, const int& bit_width);
+
+  /// \brief Create one Memory variable and register as an input.
+  /// \param[in] name of the memory input
+  /// \param[in] addr_width address bit-width.
+  /// \param[in] data_width data bit-width.
+  /// \return pointer to the memory state.
+  const ExprPtr NewMemInput(const std::string& name, const int& addr_width,
+                            const int& data_width);
 
   /// \brief Create one Boolean variable and register as a state.
   /// \param[in] name of the bool state.
@@ -222,6 +239,9 @@ public:
   /// \param[in] cnd transition condition (guard), i.e. dst.DECODE
   void AddSeqTran(const InstrPtr src, const InstrPtr dst, const ExprPtr cnd);
 
+  /// \brief Return the ancestor names in sequence.
+  std::string GetRootName() const;
+
   /// Output stream function.
   std::ostream& Print(std::ostream& out) const;
 
@@ -229,8 +249,37 @@ public:
   friend std::ostream& operator<<(std::ostream& out, InstrLvlAbs& ila);
   /// Overload output stream for pointer
   friend std::ostream& operator<<(std::ostream& out, InstrLvlAbsPtr ila);
+  /// Overload output stream for pointer
+  friend std::ostream& operator<<(std::ostream& out, InstrLvlAbsCnstPtr ila);
 
   friend class Instr;
+
+  /// \brief Templated visitor: visit each child-ILA in a depth-first order.
+  template <class F> void DepthFirstVisit(F& func) const {
+    // traverse child
+    for (decltype(child_num()) i = 0; i != child_num(); i++) {
+      auto child_i = this->child(i);
+      child_i->DepthFirstVisit<F>(func);
+    }
+    // apply function ()
+    func(shared_from_this());
+  }
+
+  /// \brief Templated visitor: visit each child-ILA in a depth-first order and
+  /// apply the function object F pre/pose on it.
+  template <class F> void DepthFirstVisitPrePost(F& func) const {
+    // pre
+    if (func.pre(shared_from_this())) { // break if return true
+      return;
+    }
+    // traverse child
+    for (decltype(child_num()) i = 0; i != child_num(); i++) {
+      auto child_i = this->child(i);
+      child_i->DepthFirstVisitPrePost<F>(func);
+    }
+    // post
+    func.post(shared_from_this());
+  }
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
@@ -240,8 +289,6 @@ private:
   VarMap inputs_;
   /// The set of state variables.
   VarMap states_;
-  /// The set of free variables.
-  VarMap free_vars_;
   /// The set of initial constraints (not neccessary per-state).
   ExprPtrVec inits_;
   /// The fetch function.
@@ -273,8 +320,12 @@ private:
 
 }; // class InstrLvlAbs
 
-/// Pointer type for normal use of InstrLvlAbs
+/// Pointer type for normal use of InstrLvlAbs.
 typedef InstrLvlAbs::InstrLvlAbsPtr InstrLvlAbsPtr;
+/// Pointer type for read-only usage of InstrLvlAbs.
+typedef InstrLvlAbs::InstrLvlAbsCnstPtr InstrLvlAbsCnstPtr;
+/// Type for storing a mapping from constant ILA ptr to ILA ptr.
+typedef std::map<InstrLvlAbsCnstPtr, InstrLvlAbsPtr> CnstIlaMap;
 
 } // namespace ila
 

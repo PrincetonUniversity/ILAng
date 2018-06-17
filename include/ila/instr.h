@@ -52,42 +52,49 @@ public:
   /// \param[in] v the flag indicating whether the instruction has views.
   inline void set_view(bool v) { has_view_ = v; }
 
-  // ------------------------- METHODS -------------------------------------- //
   /// \brief Set the decode function if not yet assigned.
   /// \param[in] decode is the pointer to the decode function (bool).
-  void SetDecode(const ExprPtr decode);
+  void set_decode(const ExprPtr decode);
 
-  /// \brief Set the decode function.
-  /// \param[in] decode is the pointer to the decode function (bool).
-  void ForceSetDecode(const ExprPtr decode);
-
-  /// \brief Add one update function for the state variable specified by name.
+  /// \brief Set the update function for the state variable specified by name.
   /// \param[in] name the name of the state variable.
   /// \param[in] update the update function expression (same type as state).
-  void AddUpdate(const std::string& name, const ExprPtr update);
+  void set_update(const std::string& name, const ExprPtr update);
 
-  /// \brief Add one update function for the state variable specified by var
+  /// \brief Set the update function for the state variable specified by var
   /// pointer.
   /// \param[in] state the pointer to the state variable.
   /// \param[in] update the update function expression (same type as state).
-  void AddUpdate(const ExprPtr state, const ExprPtr update);
+  void set_update(const ExprPtr state, const ExprPtr update);
+
+  /// \brief Set the child-program (as a child-ILA) of the instruction.
+  /// \param[in] program the pointer to the child-ILA.
+  void set_program(const InstrLvlAbsPtr program);
+
+  /// Return the decode function.
+  inline ExprPtr decode() const { return decode_; }
+
+  /// \brief Return the update function for the state specified by name.
+  /// \param[in] name the name of the state variable.
+  /// \return the state update function.
+  ExprPtr update(const std::string& name) const;
+
+  /// \brief Return the update function for the state specified by var pointer.
+  /// \param[in] state the pointer to the state variable.
+  ExprPtr update(const ExprPtr state) const;
+
+  /// \brief Returun the child-ILA comprising the child-program.
+  inline InstrLvlAbsPtr program() const { return prog_; }
+
+  // ------------------------- METHODS -------------------------------------- //
+  /// \brief Set the decode function.
+  /// \param[in] decode is the pointer to the decode function (bool).
+  void ForceSetDecode(const ExprPtr decode);
 
   /// \brief Overwrite update function for the state variable specified by name.
   /// \param[in] name the name of the state variable.
   /// \param[in] update the update function expression (same type as state).
   void ForceAddUpdate(const std::string& name, const ExprPtr update);
-
-  /// Return the decode function.
-  ExprPtr GetDecode() const;
-
-  /// \brief Return the update function for the state specified by name.
-  /// \param[in] name the name of the state variable.
-  /// \return the state update function.
-  ExprPtr GetUpdate(const std::string& name) const;
-
-  /// \brief Return the update function for the state specified by var pointer.
-  /// \param[in] state the pointer to the state variable.
-  ExprPtr GetUpdate(const ExprPtr state) const;
 
   /// Output function.
   std::ostream& Print(std::ostream& out) const;
@@ -108,6 +115,9 @@ private:
   /// The host ILA.
   InstrLvlAbsPtr host_;
 
+  /// The child-program (child-ILA being triggered).
+  InstrLvlAbsPtr prog_;
+
   // ------------------------- HELPERS -------------------------------------- //
   /// Simplify AST nodes with the representatives.
   ExprPtr Unify(const ExprPtr e);
@@ -116,6 +126,10 @@ private:
 
 /// Pointer type for normal use of Instr.
 typedef Instr::InstrPtr InstrPtr;
+/// Pointer type for read-only use of Instr.
+typedef std::shared_ptr<const Instr> InstrCnstPtr;
+/// Type for storing a set of Instr.
+typedef std::vector<InstrPtr> InstrVec;
 
 } // namespace ila
 

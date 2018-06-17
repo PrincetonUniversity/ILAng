@@ -22,42 +22,47 @@ InstrLvlAbsPtr InstrLvlAbs::New(const std::string& name,
 }
 
 const ExprPtr InstrLvlAbs::input(const std::string& name) const {
-  auto pos = inputs_.find(Symbol(name));
-  if (pos == inputs_.end())
-    return NULL;
-  else
-    return pos->second;
+  auto inp = find_input(Symbol(name));
+  ILA_ASSERT(inp) << "Input " << name << " not found.";
+  return inp;
 }
 
 const ExprPtr InstrLvlAbs::state(const std::string& name) const {
-  auto pos = states_.find(Symbol(name));
-  if (pos == states_.end())
-    return NULL;
-  else
-    return pos->second;
+  auto stt = find_state(Symbol(name));
+  ILA_ASSERT(stt) << "State " << name << " not found.";
+  return stt;
 }
 
 const InstrPtr InstrLvlAbs::instr(const std::string& name) const {
-  auto pos = instrs_.find(Symbol(name));
-  if (pos == instrs_.end()) {
-    return NULL;
-  } else {
-    return pos->second;
-  }
-}
-
-const ExprPtr InstrLvlAbs::free_var(const std::string& name) const {
-  auto pos = free_vars_.find(Symbol(name));
-  return (pos == free_vars_.end()) ? NULL : pos->second;
+  auto instr = find_instr(Symbol(name));
+  ILA_ASSERT(instr) << "Instruction " << name << " not found.";
+  return instr;
 }
 
 const InstrLvlAbsPtr InstrLvlAbs::child(const std::string& name) const {
-  auto pos = childs_.find(Symbol(name));
-  if (pos == childs_.end()) {
-    return NULL;
-  } else {
-    return pos->second;
-  }
+  auto child = find_child(Symbol(name));
+  ILA_ASSERT(child) << "Child-ILA " << name << " not found.";
+  return child;
+}
+
+const ExprPtr InstrLvlAbs::find_input(const Symbol& name) const {
+  auto pos = inputs_.find(name);
+  return (pos == inputs_.end()) ? NULL : pos->second;
+}
+
+const ExprPtr InstrLvlAbs::find_state(const Symbol& name) const {
+  auto pos = states_.find(name);
+  return (pos == states_.end()) ? NULL : pos->second;
+}
+
+const InstrPtr InstrLvlAbs::find_instr(const Symbol& name) const {
+  auto pos = instrs_.find(name);
+  return (pos == instrs_.end()) ? NULL : pos->second;
+}
+
+const InstrLvlAbsPtr InstrLvlAbs::find_child(const Symbol& name) const {
+  auto pos = childs_.find(name);
+  return (pos == childs_.end()) ? NULL : pos->second;
 }
 
 void InstrLvlAbs::AddInput(const ExprPtr input_var) {
@@ -175,6 +180,17 @@ const ExprPtr InstrLvlAbs::NewBvInput(const std::string& name,
   return bv_input;
 }
 
+const ExprPtr InstrLvlAbs::NewMemInput(const std::string& name,
+                                       const int& addr_width,
+                                       const int& data_width) {
+  ExprPtr mem_input = ExprFuse::NewMemVar(name, addr_width, data_width);
+  // set host
+  mem_input->set_host(shared_from_this());
+  // register
+  AddInput(mem_input);
+  return mem_input;
+}
+
 const ExprPtr InstrLvlAbs::NewBoolState(const std::string& name) {
   ExprPtr bool_state = ExprFuse::NewBoolVar(name);
   // set host
@@ -287,6 +303,14 @@ void InstrLvlAbs::AddSeqTran(const InstrPtr src, const InstrPtr dst,
   instr_seq_.AddTran(src, dst, cnd_simplified);
 }
 
+std::string InstrLvlAbs::GetRootName() const {
+  if (parent()) {
+    return parent()->GetRootName() + "." + name().str();
+  } else {
+    return name().str();
+  }
+}
+
 std::ostream& InstrLvlAbs::Print(std::ostream& out) const {
   out << "ILA." << name();
   return out;
@@ -297,6 +321,10 @@ std::ostream& operator<<(std::ostream& out, InstrLvlAbs& ila) {
 }
 
 std::ostream& operator<<(std::ostream& out, InstrLvlAbsPtr ila) {
+  return ila->Print(out);
+}
+
+std::ostream& operator<<(std::ostream& out, InstrLvlAbsCnstPtr ila) {
   return ila->Print(out);
 }
 

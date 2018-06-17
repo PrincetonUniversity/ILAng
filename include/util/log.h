@@ -43,7 +43,8 @@ namespace ila {
 /// Assert string equal with FATAL message (lvl 3). (Debug/Release)
 #define ILA_CHECK_STREQ(a, b) CHECK_STREQ(a, b)
 /// Assert point not NULL with FATAL message (lvl 3). (Debug/Release)
-#define ILA_NOT_NULL(ptr) CHECK_NOTNULL(ptr)
+//#define ILA_NOT_NULL(ptr) CHECK_NOTNULL(ptr)
+#define ILA_NOT_NULL(ptr) CHECK(ptr)
 
 /// \brief Set the minimun log level.
 /// Log messages at or above this level will be logged. (Default: 0)
@@ -61,6 +62,9 @@ void SetLogPath(const std::string& path);
 /// \brief Pipe log to stderr.
 /// Log messages to stderr instead of logfiles, if set to 1.
 void SetToStdErr(const int& to_err);
+
+/// \brief Return true if log is set to stderr.
+bool IsSetToStdErr();
 
 // Wrapper for debug tag log system.
 /******************************************************************************/

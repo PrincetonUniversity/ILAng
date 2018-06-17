@@ -1,7 +1,8 @@
 /// \file
 /// Source for unrolling ILA execution.
 
-#include "verify/unroller.h"
+#include "backend/unroller.h"
+#include "backend/abs_knob.h"
 #include "util/log.h"
 #include <map>
 #include <vector>
@@ -15,9 +16,12 @@ typedef Unroller::ZExpr ZExpr;
 /******************************************************************************/
 // Unroller
 /******************************************************************************/
-Unroller::Unroller(z3::context& ctx)
+Unroller::Unroller(z3::context& ctx, const std::string& suff)
     : ctx_(ctx), gen_(Z3ExprAdapter(ctx)), k_prev_z3_(ctx), k_curr_z3_(ctx),
-      k_next_z3_(ctx), cstr_(ctx) {}
+      k_next_z3_(ctx), cstr_(ctx) {
+  // SetExtraSuffix(suff);
+  extra_suff_ = suff;
+}
 
 Unroller::~Unroller() {}
 
@@ -35,20 +39,28 @@ void Unroller::ClearInitPred() { i_pred_.clear(); }
 
 void Unroller::ClearStepPred() { s_pred_.clear(); }
 
-void Unroller::SetExtraSuffix(const std::string& suff) { extra_suff_ = suff; }
-
-void Unroller::ResetExtraSuffix() { extra_suff_ = ""; }
+void Unroller::ClearPred() {
+  ClearGlobPred();
+  ClearInitPred();
+  ClearStepPred();
+}
 
 ZExpr Unroller::CurrState(const ExprPtr v, const int& t) {
+  ILA_ASSERT(v->is_var()) << "Use GetZ3Expr for non-var Expr";
   return gen().GetExpr(v, SuffCurr(t));
 }
 
 ZExpr Unroller::NextState(const ExprPtr v, const int& t) {
+  ILA_ASSERT(v->is_var()) << "Next state only exist for var";
   return gen().GetExpr(v, SuffNext(t));
 }
 
-ZExpr Unroller::GetZ3Expr(const ExprPtr v, const int& t) {
-  return gen().GetExpr(v, SuffCurr(t));
+ZExpr Unroller::GetZ3Expr(const ExprPtr e, const int& t) {
+  return gen().GetExpr(e, SuffCurr(t));
+}
+
+ZExpr Unroller::GetZ3Expr(const ExprPtr e) {
+  return gen().GetExpr(e, extra_suff_);
 }
 
 ZExpr Unroller::Equal(const ExprPtr a, const int& ta, const ExprPtr b,
@@ -98,14 +110,20 @@ ZExpr Unroller::UnrollSubs(const size_t& len, const int& pos) {
   // add constraints for transition relation (k_prev_ has the last value)
   AssertEqual(k_prev_z3_, vars_, SuffCurr(len));
 
+  { // extend for end states (invariant and step-specific predicates)
+    auto k_suffix = SuffCurr(len);
+    IExprToZExpr(g_pred_, k_suffix, cstr_);
+    IExprToZExpr(s_pred_[len], k_suffix, cstr_);
+  }
+
   // accumulate all constraints and return
   auto cstr = ConjPred(cstr_);
   return cstr;
 }
 
-ZExpr Unroller::UnrollAssn(const size_t& len, const int& pos) {
+ZExpr Unroller::UnrollAssn(const size_t& len, const int& pos, bool cache) {
   // bootstrap basic information
-  BootStrap(pos);
+  BootStrap(pos, cache);
 
   // unroll based on g_pred, i_pred, and transition relation (with guard)
   for (size_t i = 0; i != len; i++) {
@@ -121,16 +139,22 @@ ZExpr Unroller::UnrollAssn(const size_t& len, const int& pos) {
     }
     // assert global predicate
     IExprToZExpr(g_pred_, k_suffix, cstr_);
-    // assert step-specific predicate
-    IExprToZExpr(k_pred_, k_suffix, cstr_);
     // assert (external) step-specific predicate
     IExprToZExpr(s_pred_[i], k_suffix, cstr_);
+    // assert step-specific predicate
+    IExprToZExpr(k_pred_, k_suffix, cstr_);
 
     // assert transition relation
     Clear(k_next_z3_);
     IExprToZExpr(k_next_, k_suffix, k_next_z3_);
     // assert equal between next state value and next state var
     AssertEqual(k_next_z3_, vars_, SuffCurr(pos + i + 1));
+  }
+
+  { // extend for end states (invariant and step-specific predicates)
+    auto k_suffix = SuffCurr(len);
+    IExprToZExpr(g_pred_, k_suffix, cstr_);
+    IExprToZExpr(s_pred_[len], k_suffix, cstr_);
   }
 
   // accumulate all constraints and return
@@ -174,55 +198,13 @@ ZExpr Unroller::UnrollNone(const size_t& len, const int& pos) {
 }
 
 ExprPtr Unroller::StateUpdCmpl(const InstrPtr instr, const ExprPtr var) {
-  auto upd = instr->GetUpdate(var);
+  auto upd = instr->update(var);
   return (upd) ? upd : var;
 }
 
 ExprPtr Unroller::DecodeCmpl(const InstrPtr instr) {
-  auto dec = instr->GetDecode();
+  auto dec = instr->decode();
   return (dec) ? dec : BoolConst(true);
-}
-
-template <class I>
-void Unroller::GetVarOfInstr(const I& instrs, std::set<ExprPtr>& vars) {
-  std::set<InstrLvlAbsPtr> hosts;
-  for (auto it = instrs.begin(); it != instrs.end(); it++) {
-    auto instr = *it;
-    auto h = instr->host();
-    ILA_NOT_NULL(h);
-    hosts.insert(h);
-  }
-  for (auto it = hosts.begin(); it != hosts.end(); it++) {
-    GetVarOfIla(*it, vars);
-  }
-}
-
-void Unroller::GetVarOfIla(const InstrLvlAbsPtr top, std::set<ExprPtr>& vars) {
-  ILA_NOT_NULL(top);
-  // traverse the child-ILAs
-  for (size_t i = 0; i != top->child_num(); i++) {
-    GetVarOfIla(top->child(i), vars);
-  }
-  // child-states must contain parent-states
-  if (top->child_num() != 0)
-    return;
-  // add states if no child-ILAs
-  for (size_t i = 0; i != top->state_num(); i++) {
-    vars.insert(top->state(i));
-  }
-}
-
-void Unroller::GetInstrOfIla(const InstrLvlAbsPtr top,
-                             std::vector<InstrPtr>& instrs) {
-  ILA_NOT_NULL(top);
-  // traverse the child-ILAs
-  for (size_t i = 0; i != top->child_num(); i++) {
-    GetInstrOfIla(top->child(i), instrs);
-  }
-  // add instr
-  for (size_t i = 0; i != top->instr_num(); i++) {
-    instrs.push_back(top->instr(i));
-  }
 }
 
 ExprPtr Unroller::NewFreeVar(const ExprPtr var, const std::string& name) {
@@ -240,23 +222,36 @@ ExprPtr Unroller::NewFreeVar(const ExprPtr var, const std::string& name) {
   }
 }
 
-void Unroller::BootStrap(const int& pos) {
-  vars_.clear();
-  k_pred_.clear();
-  k_next_.clear();
-  // collect dependant state variables
-  DefineDepVar();
-  ILA_ASSERT(!vars_.empty()) << "No state variable defined.";
+void Unroller::BootStrap(const int& pos, bool cache) {
+  if (!cache) {
+    vars_.clear();
+    k_pred_.clear();
+    k_next_.clear();
+    // collect dependant state variables
+    DefineDepVar();
+    ILA_ASSERT(!vars_.empty()) << "No state variable defined.";
 
-  Clear(k_prev_z3_);
-  Clear(k_curr_z3_);
-  Clear(k_next_z3_);
-  Clear(cstr_);
-  // prepare the table
-  for (auto it = vars_.begin(); it != vars_.end(); it++) {
-    auto ivar = *it;
-    auto zvar = gen().GetExpr(ivar, SuffCurr(pos));
-    k_prev_z3_.push_back(zvar);
+    Clear(k_prev_z3_);
+    Clear(k_curr_z3_);
+    Clear(k_next_z3_);
+    Clear(cstr_);
+
+    // prepare the table
+    for (auto it = vars_.begin(); it != vars_.end(); it++) {
+      auto ivar = *it;
+      auto zvar = gen().GetExpr(ivar, SuffCurr(pos));
+      k_prev_z3_.push_back(zvar);
+    }
+  } else { // cache
+    if (vars_.empty()) {
+      DefineDepVar();
+      ILA_ASSERT(k_prev_z3_.empty()) << "Unexpected behavior in cacheing";
+      for (auto it = vars_.begin(); it != vars_.end(); it++) {
+        auto ivar = *it;
+        auto zvar = gen().GetExpr(ivar, SuffCurr(pos));
+        k_prev_z3_.push_back(zvar);
+      }
+    }
   }
 }
 
@@ -313,7 +308,8 @@ ZExpr Unroller::ConjPred(const ZExprVec& vec) const {
 /******************************************************************************/
 // PathUnroll
 /******************************************************************************/
-PathUnroll::PathUnroll(z3::context& ctx) : Unroller(ctx) {}
+PathUnroll::PathUnroll(z3::context& ctx, const std::string& suff)
+    : Unroller(ctx, suff) {}
 
 PathUnroll::~PathUnroll() {}
 
@@ -337,9 +333,10 @@ ZExpr PathUnroll::PathNone(const InstrVec& seq, const int& pos) {
 
 void PathUnroll::DefineDepVar() {
   // collect the set of vars
-  std::set<ExprPtr> dep_var;
-  GetVarOfInstr(seq_, dep_var);
-
+  auto dep_var = ExprSet();
+  for (auto it = seq_.begin(); it != seq_.end(); it++) {
+    AbsKnob::InsertStt(*it, dep_var);
+  }
   // update to the global set
   vars_.clear();
   for (auto it = dep_var.begin(); it != dep_var.end(); it++) {
@@ -361,7 +358,7 @@ void PathUnroll::Transition(const int& idx) {
 
   // update step predicate (k_pred_)
   k_pred_.resize(0);
-  auto dec = instr->GetDecode();
+  auto dec = instr->decode();
   ILA_NOT_NULL(dec);
   k_pred_.push_back(dec);
 }
@@ -369,7 +366,8 @@ void PathUnroll::Transition(const int& idx) {
 /******************************************************************************/
 // MonoUnroll
 /******************************************************************************/
-MonoUnroll::MonoUnroll(z3::context& ctx) : Unroller(ctx) {}
+MonoUnroll::MonoUnroll(z3::context& ctx, const std::string& suff)
+    : Unroller(ctx, suff) {}
 
 MonoUnroll::~MonoUnroll() {}
 
@@ -391,11 +389,16 @@ ZExpr MonoUnroll::MonoNone(const InstrLvlAbsPtr top, const int& length,
   return UnrollNone(length, pos);
 }
 
+ZExpr MonoUnroll::MonoIncr(const InstrLvlAbsPtr top, const int& length,
+                           const int& pos) {
+  top_ = top;
+  return UnrollAssn(length, pos, false); // XXX non-cache has better performance
+}
+
 void MonoUnroll::DefineDepVar() {
   vars_.clear();
-  std::set<ExprPtr> dep_var;
-  GetVarOfIla(top_, dep_var);
-
+  auto dep_var = AbsKnob::GetSttTree(top_);
+  // update global
   ILA_ASSERT(!dep_var.empty()) << "No state var found.";
   for (auto it = dep_var.begin(); it != dep_var.end(); it++) {
     vars_.push_back(*it);
@@ -413,8 +416,7 @@ void MonoUnroll::Transition(const int& idx) {
   }
 
   // extract the set of insturctions
-  std::vector<InstrPtr> instr_set;
-  GetInstrOfIla(top_, instr_set);
+  auto instr_set = AbsKnob::GetInstrTree(top_);
 
   // create the set of selection bits
   std::vector<ExprPtr> sel_bits;
@@ -464,9 +466,9 @@ void MonoUnroll::Transition(const int& idx) {
     k_pred_.push_back(acc_upd);
   }
 
-  // one-hot encoding (no need to include dummy, enfored by decode)
+  // one-hot encoding (need to include dummy)
   // at least one (c1 \/ c2 \/ ... \/ cm)
-  auto one_hot_at_least_one = BoolConst(false);
+  auto one_hot_at_least_one = sel_dum;
   for (size_t i = 0; i != instr_num; i++) {
     auto sel_i = sel_bits.at(i);
     one_hot_at_least_one = Or(one_hot_at_least_one, sel_i);

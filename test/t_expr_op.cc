@@ -1,7 +1,7 @@
 /// file
 /// Unit test for ExprOp
 
-#include "ila++.h"
+#include "cpp_api.h"
 #include "unit-include/util.h"
 #include "z3++.h"
 
