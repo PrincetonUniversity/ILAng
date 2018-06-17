@@ -23,11 +23,17 @@ For some examples, see the [examples](https://github.com/Bo-Yuan-Huang/ILA-Tools
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active)
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/Bo-Yuan-Huang/ILA-Tools/blob/master/LICENSE)
 
+### Requirements:
+* [z3](https://github.com/Z3Prover/z3) 4.4.0 or above 
+* [CMake](https://cmake.org/download/) 2.8 or above
+* [glog](https://github.com/google/glog)
+
 ### Building with Cmake:
 ```bash
   mkdir -p build
   cd build
-  cmake .. -L -DZ3_INCLUDE_DIR=<path/to/z3/header>
+  cmake .. -DZ3_INCLUDE_DIR=<path/to/z3/header>
+  make install
 ```
 
 For tutorial, see [c++ api example](https://github.com/Bo-Yuan-Huang/ILA-Tools/tree/master/examples/c++).
