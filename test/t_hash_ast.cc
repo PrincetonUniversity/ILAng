@@ -137,5 +137,15 @@ TEST_F(TestHashApi, level2) {
   EXPECT_NE(sb, sf);
 }
 
+TEST_F(TestHashApi, ExplicitName) {
+  auto bad_name = ila->NewBvState("ADDbv_xbv_y", 8);
+  auto same_name = Add(x, y);
+
+  auto rb = mngr->GetRep(bad_name);
+  auto rs = mngr->GetRep(same_name);
+
+  EXPECT_NE(rb, rs);
+}
+
 } // namespace ila
 
