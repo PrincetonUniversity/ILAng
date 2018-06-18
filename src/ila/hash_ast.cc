@@ -5,6 +5,7 @@
 
 #include "ila/hash_ast.h"
 #include "util/log.h"
+#include <functional>
 
 namespace ila {
 
@@ -50,36 +51,47 @@ void ExprMngr::operator()(const ExprPtr node) {
   }
 }
 
-std::string ExprMngr::Hash(const ExprPtr n) const {
+static std::hash<std::string> hash_fn;
+
+size_t ExprMngr::Hash(const ExprPtr n) const {
   if (n->is_op()) { // ExprOp
     auto n_op = std::dynamic_pointer_cast<ExprOp>(n);
     ILA_ASSERT(n_op) << "Dynamic cast fail for ExprOp " << n;
 
-    std::string hash = n_op->op_name();
+    // std::string hash = n_op->op_name();
+    std::string op_name_str = n_op->op_name();
+    auto hash = hash_fn(op_name_str);
     for (size_t i = 0; i != n->arg_num(); i++) {
-      hash += n->arg(i)->name().str();
+      // hash += n->arg(i)->name().str();
+      hash ^= n->arg(i)->name().id();
     }
     for (size_t i = 0; i != n->param_num(); i++) {
-      hash += std::to_string(n->param(i));
+      // hash += std::to_string(n->param(i));
+      hash ^= n->param(i);
     }
 
     return hash;
   } else if (n->is_var()) { // ExprVar
-    return n->name().str();
+    // return n->name().str();
+    return n->name().id();
   } else { // ExprConst
     ILA_ASSERT(n->is_const()) << "Unrecognized expr type";
     auto n_const = std::dynamic_pointer_cast<ExprConst>(n);
     ILA_ASSERT(n_const) << "Dynamic cast fail for ExprConst " << n;
 
     if (n_const->is_bool()) {
-      return n_const->val_bool()->str();
+      // return n_const->val_bool()->str();
+      return hash_fn(n_const->val_bool()->str());
     } else if (n_const->is_bv()) {
-      return n_const->val_bv()->str() + "_" +
-             std::to_string(n_const->sort()->bit_width());
+      auto bv_str = n_const->val_bv()->str() + "_" +
+                    std::to_string(n_const->sort()->bit_width());
+      return hash_fn(bv_str);
+      // return n_const->val_bv()->str() + "_" +
+      //       std::to_string(n_const->sort()->bit_width());
     } else {
       ILA_ASSERT(n_const->is_mem()) << "Unrecognized constant type";
       // mem constant sharing not supported yet
-      return n_const->name().str();
+      return hash_fn(n_const->name().str());
     }
   }
 }
