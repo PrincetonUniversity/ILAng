@@ -51,28 +51,26 @@ void ExprMngr::operator()(const ExprPtr node) {
   }
 }
 
-static std::hash<std::string> hash_fn;
+static std::hash<ExprPtr> ptr_hash_fn;
+static std::hash<std::string> str_hash_fn;
+static std::hash<int> int_hash_fn;
 
 size_t ExprMngr::Hash(const ExprPtr n) const {
   if (n->is_op()) { // ExprOp
     auto n_op = std::dynamic_pointer_cast<ExprOp>(n);
     ILA_ASSERT(n_op) << "Dynamic cast fail for ExprOp " << n;
 
-    // std::string hash = n_op->op_name();
     std::string op_name_str = n_op->op_name();
-    auto hash = hash_fn(op_name_str);
+    auto hash = str_hash_fn(op_name_str);
     for (size_t i = 0; i != n->arg_num(); i++) {
-      // hash += n->arg(i)->name().str();
-      hash ^= n->arg(i)->name().id();
+      hash ^= (ptr_hash_fn(n->arg(i)) << (i * 8));
     }
     for (size_t i = 0; i != n->param_num(); i++) {
-      // hash += std::to_string(n->param(i));
-      hash ^= n->param(i);
+      hash ^= (int_hash_fn(n->param(i)) << (i * 8));
     }
 
     return hash;
   } else if (n->is_var()) { // ExprVar
-    // return n->name().str();
     return n->name().id();
   } else { // ExprConst
     ILA_ASSERT(n->is_const()) << "Unrecognized expr type";
@@ -80,18 +78,14 @@ size_t ExprMngr::Hash(const ExprPtr n) const {
     ILA_ASSERT(n_const) << "Dynamic cast fail for ExprConst " << n;
 
     if (n_const->is_bool()) {
-      // return n_const->val_bool()->str();
-      return hash_fn(n_const->val_bool()->str());
+      return str_hash_fn(n_const->val_bool()->str());
     } else if (n_const->is_bv()) {
       auto bv_str = n_const->val_bv()->str() + "_" +
                     std::to_string(n_const->sort()->bit_width());
-      return hash_fn(bv_str);
-      // return n_const->val_bv()->str() + "_" +
-      //       std::to_string(n_const->sort()->bit_width());
+      return str_hash_fn(bv_str);
     } else {
       ILA_ASSERT(n_const->is_mem()) << "Unrecognized constant type";
-      // mem constant sharing not supported yet
-      return hash_fn(n_const->name().str());
+      return str_hash_fn(n_const->name().str());
     }
   }
 }
