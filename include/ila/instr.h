@@ -24,6 +24,8 @@ class Instr : public Object {
 public:
   /// Pointer type for normal use of Instr.
   typedef std::shared_ptr<Instr> InstrPtr;
+  /// Type for a set of state names
+  typedef std::set<std::string> StateNameSet;
   /// Type for storing a set of Expr.
   typedef std::map<std::string, ExprPtr> ExprPtrMap;
   /// Pointer type for ILA.
@@ -88,6 +90,9 @@ public:
   /// \brief Return the update function for the state specified by var pointer.
   /// \param[in] state the pointer to the state variable.
   ExprPtr GetUpdate(const ExprPtr state) const;
+
+  /// \brief Return the (potential) updated state of this instruction.
+  StateNameSet GetUpdatedStates() const;
 
   /// Output function.
   std::ostream& Print(std::ostream& out) const;

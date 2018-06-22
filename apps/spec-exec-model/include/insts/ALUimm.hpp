@@ -5,9 +5,9 @@
             auto decode = ( opcode == OPIMM ) & ( funct3 == ADDI ) & interruptCondition() & EXEC_COND ;
             instr.SetDecode(decode);
 
+            EXECUTE_IF_SPEC;
             UPDATE_PC(nxt_pc);
             UPDATE_R( rd,  rs1_val + immI );
-            EXECUTE_IF_SPEC;
             
             RECORD_INST("ADDI" NAME_SUFFIX);
         }
@@ -17,9 +17,9 @@
             auto decode = ( opcode == OPIMM ) & ( funct3 == SLTI ) & interruptCondition() & EXEC_COND ;
             instr.SetDecode(decode);
 
+            EXECUTE_IF_SPEC;
             UPDATE_PC(nxt_pc);
             UPDATE_R( rd,  Ite(rs1_val < immI , bv(1) , bv(0) ) ); // This is signed comparison
-            EXECUTE_IF_SPEC;
             
             RECORD_INST("SLTI" NAME_SUFFIX);
         }
@@ -29,9 +29,9 @@
             auto decode = ( opcode == OPIMM ) & ( funct3 == SLTIU ) & interruptCondition() & EXEC_COND ;
             instr.SetDecode(decode);
 
+            EXECUTE_IF_SPEC;
             UPDATE_PC(nxt_pc);
             UPDATE_R( rd,  Ite( Ult( rs1_val, immI ) , bv(1) , bv(0) ) );
-            EXECUTE_IF_SPEC;
             
             RECORD_INST("SLTIU" NAME_SUFFIX);
         }
@@ -41,9 +41,9 @@
             auto decode = ( opcode == OPIMM ) & ( funct3 == ANDI ) & interruptCondition() & EXEC_COND ;
             instr.SetDecode(decode);
 
+            EXECUTE_IF_SPEC;
             UPDATE_PC(nxt_pc);
             UPDATE_R( rd,  rs1_val & immI );
-            EXECUTE_IF_SPEC;
             
             RECORD_INST("ANDI" NAME_SUFFIX);
         }
@@ -53,9 +53,9 @@
             auto decode = ( opcode == OPIMM ) & ( funct3 == ORI ) & interruptCondition() & EXEC_COND ;
             instr.SetDecode(decode);
 
+            EXECUTE_IF_SPEC;
             UPDATE_PC(nxt_pc);
             UPDATE_R( rd,  rs1_val | immI );
-            EXECUTE_IF_SPEC;
             
             RECORD_INST("ORI" NAME_SUFFIX);
         }
@@ -65,9 +65,9 @@
             auto decode = ( opcode == OPIMM ) & ( funct3 == XORI ) & interruptCondition() & EXEC_COND ;
             instr.SetDecode(decode);
 
+            EXECUTE_IF_SPEC;
             UPDATE_PC(nxt_pc);
             UPDATE_R( rd,  rs1_val ^ immI );
-            EXECUTE_IF_SPEC;
             
             RECORD_INST("XORI" NAME_SUFFIX);
         }
@@ -77,9 +77,9 @@
             auto decode = ( opcode == OPIMM ) & ( funct3 == SLLI ) & (funct7 == SLLIfunct7) & interruptCondition() & EXEC_COND ;
             instr.SetDecode(decode);
 
+            EXECUTE_IF_SPEC;
             UPDATE_PC(nxt_pc);
             UPDATE_R( rd,  rs1_val << shamt );  // shift left
-            EXECUTE_IF_SPEC;
             
             RECORD_INST("SLLI" NAME_SUFFIX);
         }
@@ -89,9 +89,9 @@
             auto decode = ( opcode == OPIMM ) & ( funct3 == SRLI ) & (funct7 == SRLIfunct7) & interruptCondition() & EXEC_COND ;
             instr.SetDecode(decode);
 
+            EXECUTE_IF_SPEC;
             UPDATE_PC(nxt_pc);
             UPDATE_R( rd,  Lshr(rs1_val, shamt) ); // logic shift right
-            EXECUTE_IF_SPEC;
             
             RECORD_INST("SRLI" NAME_SUFFIX);
         }
@@ -101,9 +101,9 @@
             auto decode = ( opcode == OPIMM ) & ( funct3 == SRAI ) & (funct7 == SRAIfunct7) & interruptCondition() & EXEC_COND ;
             instr.SetDecode(decode);
 
+            EXECUTE_IF_SPEC;
             UPDATE_PC(nxt_pc);
             UPDATE_R( rd,  rs1_val >> shamt );  // arithmetic shift right
-            EXECUTE_IF_SPEC;
             
             RECORD_INST("SRAI" NAME_SUFFIX);
         }

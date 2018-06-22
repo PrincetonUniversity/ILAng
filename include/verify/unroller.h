@@ -150,7 +150,7 @@ private:
   void AssertEqual(const ZExprVec& z, const IExprVec& e,
                    const std::string& suffix);
 
-  /// Clear the z3::epxr container.
+  /// Clear the z3::expr container. (HZ Question: Why not a static function?)
   inline void Clear(ZExprVec& z3_vec);
 
   /// Generate and append the z3::expr for the set of Expr w.r.t. the suffix.

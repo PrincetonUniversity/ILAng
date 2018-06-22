@@ -1,0 +1,14 @@
+
+# This specification is an alternative to sc.axiom
+# It shows SC can also be specify without facet events
+
+Axiom RF_CO_FR
+forall r:READ | exists w:WRITE (~=r) |
+    SameAddress[w,r] /\ SameData[w,r] /\ Decode[w] /\
+    RF[w,r] /\ ( forall w2:WRITE (~= w)  | 
+        ( SameAddress[w,w2] /\ Decode[w2] ) => 
+            CO[w2,w] \/ FR[r,w2] )
+
+Define RF[w,r] := HB[ w , r]
+Define FR[r,w] := HB[ r , w]
+Define CO[w1,w2] := HB[ w1 , w2]

@@ -5,9 +5,9 @@
             auto decode = ( opcode == LOAD ) & ( funct3 == WORD ) &  interruptCondition()  &  EXEC_COND ;
             instr.SetDecode(decode);
 
+            EXECUTE_IF_SPEC;
             UPDATE_PC(nxt_pc);
             UPDATE_R( rd, getSlice(lw_val, addr(1,0) , CWORD , 0 )  );
-            EXECUTE_IF_SPEC;
             
             RECORD_INST("LW" NAME_SUFFIX);
         }
@@ -18,9 +18,9 @@
             auto decode = ( opcode == LOAD ) & ( funct3 == HALF ) & interruptCondition()  &  EXEC_COND ;
             instr.SetDecode(decode);
 
+            EXECUTE_IF_SPEC;
             UPDATE_PC(nxt_pc);
             UPDATE_R( rd, getSlice(lw_val, addr(1,0) , CHALF , 0 )  );
-            EXECUTE_IF_SPEC;
             
             RECORD_INST("LH" NAME_SUFFIX);
         }
@@ -31,9 +31,9 @@
             auto decode = ( opcode == LOAD ) & ( funct3 == BYTE) & interruptCondition()  &  EXEC_COND ;
             instr.SetDecode(decode);
 
+            EXECUTE_IF_SPEC;
             UPDATE_PC(nxt_pc);
             UPDATE_R( rd, getSlice(lw_val, addr(1,0) , CBYTE , 0 )  );
-            EXECUTE_IF_SPEC;
             
             RECORD_INST("LB" NAME_SUFFIX);
         }
@@ -43,9 +43,9 @@
             auto decode = ( opcode == LOAD ) & ( funct3 == HALF)  & interruptCondition()  &  EXEC_COND ;
             instr.SetDecode(decode);
 
+            EXECUTE_IF_SPEC;
             UPDATE_PC(nxt_pc);
             UPDATE_R( rd, getSlice(lw_val, addr(1,0) , CHALF , 1 )  );
-            EXECUTE_IF_SPEC;
             
             RECORD_INST("LHU" NAME_SUFFIX);
         }
@@ -56,9 +56,9 @@
             auto decode = ( opcode == LOAD ) & ( funct3 == BYTE ) & interruptCondition()  &  EXEC_COND ;
             instr.SetDecode(decode);
 
+            EXECUTE_IF_SPEC;
             UPDATE_PC(nxt_pc);
             UPDATE_R( rd, getSlice(lw_val, addr(1,0) , CBYTE , 1 )  );
-            EXECUTE_IF_SPEC;
             
             RECORD_INST("LBU" NAME_SUFFIX);
         }

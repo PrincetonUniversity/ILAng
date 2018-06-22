@@ -265,6 +265,7 @@ bool InstrLvlAbs::Check() const {
   // check instr
   // check child-ILA?
   // check sequencing
+  // HZ comment: should we also check the host() of Exprs matches the ILAs?
   return true;
 }
 

@@ -55,7 +55,7 @@ std::string ExprMngr::Hash(const ExprPtr n) const {
     auto n_op = std::dynamic_pointer_cast<ExprOp>(n);
     ILA_ASSERT(n_op) << "Dynamic cast fail for ExprOp " << n;
 
-    std::string hash = n_op->op_name();
+    std::string hash = n_op->op_name(); // HZ Question: I think this is very dangerous! 
     for (size_t i = 0; i != n->arg_num(); i++) {
       hash += n->arg(i)->name().str();
     }

@@ -188,8 +188,8 @@ void riscvILA_user::addInstructions()
         // the branch speculation
         // -------------------------
         #undef  UPDATE_PC
-        #define UPDATE_PC(v) (v)
-        #include "insts/btype.hpp"
+        #define UPDATE_PC(v) (v) 
+        // Update_R: -ARF- / Update_PC: -- / Update_MEM : -mem- / EXEC_COND : !seflag / NAME_SUFFIX "" / EXECUTE_IF_SPEC --
         #undef  UPDATE_PC
         #define UPDATE_PC(v) ( instr.SetUpdate(pc, (v) ) )
 
@@ -200,19 +200,27 @@ void riscvILA_user::addInstructions()
         #undef  NAME_SUFFIX
         #undef  EXEC_COND
         #undef  START_SPECULATION
+        #undef  EXECUTE_IF_SPEC 
         #define NAME_SUFFIX "_resolve"
         #define EXEC_COND ( seflag & ( sc == SPECULATIVE_WINDOW_SIZE ) )
         #define START_SPECULATION 
+        #define EXECUTE_IF_SPEC ( instr.SetUpdate( seflag, BoolConst(false) ) )
+        // Update_R: -ARF- / Update_PC: PC / Update_MEM : -mem- / EXEC_COND : seflag && inWindow / NAME_SUFFIX "_resolve" / EXECUTE_IF_SPEC seflag:=falses
         #include "insts/btype.hpp"
 
         #undef  START_SPECULATION
         #undef  NAME_SUFFIX
+        #undef  EXECUTE_IF_SPEC 
+        #undef  EXEC_COND
         #define NAME_SUFFIX ""
+        #define EXECUTE_IF_SPEC 
+        #define EXEC_COND (!seflag)
+        // Update_R: ARF / Update_PC: PC / Update_MEM : -mem- / EXEC_COND : !seflag / NAME_SUFFIX "" / EXECUTE_IF_SPEC --
         #include "insts/jtype.hpp"
 
     }
 
-    // ------------------------- Instruction: LOAD ------------------------------ //
+    // ------------------------- Instructions: LOAD ------------------------------ //
     {
         auto rs1_val = indexIntoGPR(GPR_ARF, rs1);   
         auto addr    = rs1_val + immI;
@@ -223,7 +231,7 @@ void riscvILA_user::addInstructions()
         #include "insts/load.hpp"
     }
 
-    // ------------------------- Instruction: STORE ------------------------------ //
+    // ------------------------- Instructions: STORE ------------------------------ //
     {
         auto rs1_val   = indexIntoGPR(GPR_ARF, rs1);   
         auto rs2_val   = indexIntoGPR(GPR_ARF, rs2);  
@@ -291,10 +299,11 @@ void riscvILA_user::addSpecInstructions()
 
     #define UPDATE_R(r,exp)     UpdateGPR( GPR_PRF, instr, (r), (exp) )
     #define UPDATE_MEM(wa, v)   ( instr.SetUpdate(spec_mem, StoreToMem(spec_mem,  (wa), (v) ) ) )
-    #define EXEC_COND           ( seflag & (sc < SPECULATIVE_WINDOW_SIZE) & nondet_spec_exec() )
+    #define EXEC_COND           ( seflag & (sc < SPECULATIVE_WINDOW_SIZE) )
     #define NAME_SUFFIX         "_speculative"
     #define EXECUTE_IF_SPEC     ( instr.SetUpdate(sc, sc + 1) )
     #define START_SPECULATION   
+    //  & nondet_spec_exec()
 
     // ------------------------- Instruction: BRANCH ------------------------------ //
     {
@@ -307,12 +316,14 @@ void riscvILA_user::addSpecInstructions()
         // the nested branch
         // -------------------------
         #define UPDATE_PC(v) ( instr.SetUpdate(spc,  nondet_PC() ) )
+        // Update_R: PRF / Update_PC: non_det / Update_MEM : -spec_mem- / EXEC_COND : seflag & inWindow / NAME_SUFFIX "_speculative" / EXECUTE_IF_SPEC sc++
         #include "insts/btype.hpp"
         #undef START_SPECULATION   
 
         // it will update spc
         #undef UPDATE_PC
         #define UPDATE_PC(v) ( instr.SetUpdate(spc, (v) ) )
+        auto pc = spc; // overwrite pc for J-type instruction
         #include "insts/jtype.hpp"
     }
 
@@ -323,10 +334,11 @@ void riscvILA_user::addSpecInstructions()
     #undef NAME_SUFFIX
     #undef EXECUTE_IF_SPEC
 
-    #define UPDATE_R(r,exp)     UpdateGPR( GPR_PRF, instr, (r), (exp) )
+    // update mem and update r won't both exist
+    #define UPDATE_R(r,exp)     UpdateGPR( GPR_PRF, instr, (r), Ite( nondet_spec_exec() , (exp) , (r)  ) )
     #define UPDATE_PC(v)        ( instr.SetUpdate(spc, (v) ) )
-    #define UPDATE_MEM(wa, v)   ( instr.SetUpdate(spec_mem, StoreToMem(spec_mem,  (wa), (v) ) ) )
-    #define EXEC_COND           (seflag & (sc < SPECULATIVE_WINDOW_SIZE) & nondet_spec_exec() )
+    #define UPDATE_MEM(wa, v)   ( instr.SetUpdate(spec_mem, Ite( nondet_spec_exec() , StoreToMem(spec_mem,  (wa), (v) ), spec_mem ) ) )
+    #define EXEC_COND           (seflag & (sc < SPECULATIVE_WINDOW_SIZE)  )
     #define NAME_SUFFIX         "_speculative"
     #define EXECUTE_IF_SPEC     ( instr.SetUpdate(sc, sc + 1) )
 

@@ -36,6 +36,8 @@ For some examples, see the [examples](https://github.com/Bo-Yuan-Huang/ILA-Tools
   make install
 ```
 
+(Note: On some Linux distributions, you may need to run `sudo ldconfig` after `make install` to make sure that the changes to the shared library is visible to the runtime linker)
+
 For tutorial, see [c++ api example](https://github.com/Bo-Yuan-Huang/ILA-Tools/tree/master/examples/c++).
 
 For API documentation, see the page [ILA-Tools-API](https://rawgit.com/Bo-Yuan-Huang/ILA-Tools/master/docs/api-html/namespaceila.html).

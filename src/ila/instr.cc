@@ -74,6 +74,14 @@ ExprPtr Instr::GetUpdate(const ExprPtr state) const {
   return GetUpdate(name);
 }
 
+StateNameSet Instr::GetUpdatedStates() const {
+  StateNameSet ret_;
+  for (const auto & pos : updates_) 
+    ret_.push_back( pos.first );
+  return ret_;
+}
+
+
 std::ostream& Instr::Print(std::ostream& out) const {
   out << "Instr." << name();
   return out;

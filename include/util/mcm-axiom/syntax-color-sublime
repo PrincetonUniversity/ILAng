@@ -1,0 +1,14 @@
+%YAML 1.2
+---
+name: FacetAxiom
+file_extensions: [axiom]
+scope: source.facetaxiom
+
+contexts:
+  main:
+    - match: \b(Axiom|Define|InstructionSet)\b
+      scope: keyword.facetaxiom
+    - match: \b(ila\-write|ila\-read|ila\-name|with\-facet\-event)\b
+      scope: keyword.facetaxiom
+    - match: (\/\\|\\\/|=>|~=|:=)
+      scope: operator.facetaxiom

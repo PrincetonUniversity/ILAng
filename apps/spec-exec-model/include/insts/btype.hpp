@@ -4,10 +4,10 @@
             auto instr = model.NewInstr("BEQ" NAME_SUFFIX);
             auto decode = (opcode == BRANCH ) & (funct3 == BEQ ) & interruptCondition() & EXEC_COND;
             instr.SetDecode(decode);
-
-            START_SPECULATION;
-            UPDATE_PC( Ite( rs1_val == rs2_val , BTarget, NC ) );
-            EXECUTE_IF_SPEC;
+																  // 1.		  2. RESOLVE	3. SPEC
+            START_SPECULATION;									  // SPEC /     ---			/     ---
+            UPDATE_PC( Ite( rs1_val == rs2_val , BTarget, NC ) ); // ---  / pc := new_val   / pc := non_det
+            EXECUTE_IF_SPEC;									  // ---  / seflag := false / sc := sc + 1 
             RECORD_INST("BEQ" NAME_SUFFIX);
         }
         // ------------------------- Instruction: BNE ------------------------------ //

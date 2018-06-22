@@ -8,9 +8,9 @@
 
             UPDATE_PC(nxt_pc);
 
+            EXECUTE_IF_SPEC;
             auto store_value = CombineSlices( rs2_val, addr(1,0), CWORD, old_val );
             UPDATE_MEM(word_addr, store_value);
-            EXECUTE_IF_SPEC;
 
             RECORD_INST("SW" NAME_SUFFIX);
         }
@@ -23,9 +23,9 @@
 
             UPDATE_PC(nxt_pc);
 
+            EXECUTE_IF_SPEC;
             auto store_value = CombineSlices( rs2_val, addr(1,0), CHALF, old_val );
             UPDATE_MEM(word_addr, store_value);
-            EXECUTE_IF_SPEC;
 
             RECORD_INST("SH" NAME_SUFFIX);
         }
@@ -38,9 +38,9 @@
 
             UPDATE_PC(nxt_pc);
 
+            EXECUTE_IF_SPEC;
             auto store_value = CombineSlices( rs2_val, addr(1,0), CBYTE, old_val );
             UPDATE_MEM(word_addr, store_value);
-            EXECUTE_IF_SPEC;
 
             RECORD_INST("SB" NAME_SUFFIX);
         }

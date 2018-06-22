@@ -4,6 +4,7 @@ add_subdirectory(util)
 add_subdirectory(ila)
 add_subdirectory(verify)
 add_subdirectory(eq-check)
+add_subdirectory(mcm)
 if (python_api)
     add_subdirectory(python-api)
 endif (python_api)
@@ -18,6 +19,7 @@ add_library(${ILA_TOOL} ${TOP_SOURCES}
   $<TARGET_OBJECTS:ila> 
   $<TARGET_OBJECTS:verify> 
   $<TARGET_OBJECTS:eqcheck>
+  $<TARGET_OBJECTS:mcm>
   )
 add_dependencies(${ILA_TOOL} glog::glog)
 target_link_libraries(${ILA_TOOL} glog::glog ${Z3_LIBRARY})
