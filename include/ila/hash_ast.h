@@ -22,7 +22,7 @@ public:
   /// Pointer type for passing shared ast simplifier.
   typedef std::shared_ptr<ExprMngr> ExprMngrPtr;
   /// Type for cacheing the AST node hashing.
-  typedef std::unordered_map<std::string, const ExprPtr> HashTable;
+  typedef std::unordered_map<size_t, const ExprPtr> HashTable;
 
   // ------------------------- HELPERS -------------------------------------- //
   /// \brief Create an object and return the pointer. Used for hiding
@@ -46,7 +46,7 @@ private:
 
   // ------------------------- HELPER FUNCTIONS ----------------------------- //
   /// Hash function.
-  std::string Hash(const ExprPtr node) const;
+  size_t Hash(const ExprPtr node) const;
 
 }; // class ExprMngr
 
