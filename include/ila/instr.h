@@ -45,7 +45,7 @@ public:
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return true if Is type Instr.
   bool is_instr() const { return true; }
-  /// Return true if has view.
+  /// Return true if has view. // HZ Comment: I'm not using this currently
   inline bool has_view() const { return has_view_; }
   /// Return the host ILA.
   inline InstrLvlAbsPtr host() const { return host_; }
@@ -93,6 +93,8 @@ public:
 
   /// \brief Return the (potential) updated state of this instruction.
   StateNameSet GetUpdatedStates() const;
+  /// \brief Get the (potential) updated state of this instruction.
+  void GetUpdatedStates(StateNameSet & ret_) const;
 
   /// Output function.
   std::ostream& Print(std::ostream& out) const;

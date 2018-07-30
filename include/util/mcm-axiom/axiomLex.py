@@ -4,15 +4,17 @@ import ply.lex as lex
 reserved = {
     'forall':'FORALL',
     'exists' : 'EXISTS',
-    'define': 'DEFINE',
+    'Define': 'DEFINE',
     'Axiom' : 'AXIOM' ,
-    'RC' : 'RC',
-    'WC' : 'WC',
-    'MC' : 'MC',
-    'IC' : 'IC'
+    'InstructionSet' : 'INSTSET',
+    'ila-read' : 'ILAREAD',
+    'ila-write' : 'ILAWRITE',
+    'ila-name' : 'ILANAME',
+    'with-facet-event' : 'WITHFACETEVENT'
 }
 
 tokens = [
+    'MACRO',
     'ID',
     'DOT',
     'COMMA',
@@ -35,14 +37,22 @@ tokens = [
     'MUL',
     'LEFTFUNC',
     'RIGHTFUNC',
+    'LEFTBRACKET',
+    'RIGHTBRACKET',
     'FUNCASSIGN',
+    'SETAND',
+    'SETXOR'
     'COLON'] + list(reserved.values())
 
 
 
+def t_MACRO(t):
+    r'\%[a-zA-Z_][a-zA-Z_0-9\-]*'
+    t.type = 'MACRO'
+    return t
 
 def t_ID(t):
-    r'[a-zA-Z_][a-zA-Z_0-9]*'
+    r'[a-zA-Z_][a-zA-Z_0-9\-]*'
     t.type = reserved.get(t.value,'ID')
     return t
 
@@ -66,6 +76,10 @@ t_EQ = r'=='
 t_NEQ = r'!='
 t_LEFTFUNC = r'\['
 t_RIGHTFUNC = r'\]'
+t_LEFTBRACKET = r'\{'
+t_RIGHTBRACKET = r'\}'
+t_SETAND = r'\&'
+t_SETXOR = r'\^'
 
 t_LT = r'\<'
 t_GT = r'\>'

@@ -13,8 +13,8 @@ namespace ila {
 // InterIlaUnroller
 /******************************************************************************/
 
-  InterIlaUnroller::InterIlaUnroller(z3::context& ctx, const IlaPtrVec & iv)
-        : ctx_(ctx), sys_ila_(iv) {
+  InterIlaUnroller::InterIlaUnroller(z3::context& ctx, const IlaPtrVec & iv, MemoryModelPtr mm)
+        : ctx_(ctx), sys_ila_(iv), mm_(mm) {
 
     CreateUnrollers();
     FindSharedStates();
@@ -28,16 +28,18 @@ namespace ila {
       ILA_NOT_NULL(ila_ptr);
       // FIXME: currently not directly handle hierarchy, you need to flatten the ILA first
       ILA_ASSERT( ila_ptr->child_num() == 0 ) << " Implementation bug: " <<
-        "currently inter_ila_unroller does handle hierarchy, flatten ILA: "<< ila_ptr->name() <<" first.";
+        "currently inter_ila_unroller does not handle hierarchy, please flatten ILA: "<< ila_ptr->name() <<" first.";
       for (size_t i = 0; i != top->state_num() ; i ++ ) {
         auto state_var_ = top->state(i);
         shared_states_[ state_var_->name().str() ].push_back(state_var); 
+
         // insert to the list of state var of the same name
         // will automatically create an empty list if not previously exists
         // Here I use .str(), because I'm afraid that Symbol("A") != Symbol("A")
       }
 
     }
+    mm->SetSharedStates(& shared_states_);
   }
 
   void InterIlaUnroller::CreateUnrollers()
@@ -54,21 +56,24 @@ namespace ila {
     ILA_ASSERT( ila_num == unrollers_.size() );
     ILA_ASSERT( ila_num == tmpl.size() );
     for (size_t idx = 0; idx != ila_num; ++ idx) {
+      mm->RegisterSteps( tmpl[idx] , cstr_ , ctx() ); // register those instructions
       ZExpr constr = unrollers_[idx]->PathNone( tmpl[idx] , 1 ); // starting from 1 : the first but not init.
       ...
       // store to constraints
       // time stamps
       // ordered or not
+      // find the shared variables and apply pi-functions?
+      // need to know when to create more steps: go through the tmpl?
     }
-
+    mm->ApplyAxioms( tmpl, cstr_, ctx() );
   }
 
   void InterIlaUnroller::GenSysInitConstraints()
   {
     // we need to get the constraints of init conditions and replace
     // global the variables there with the unified shared names
-    // An alternative may be directly give the unroller the exprs
-    // with host removed (if they are shared variable).
+    // An alternative (currently used) may be directly giving the unroller the exprs
+    // with host removed (if they are shared variables).
     auto isSharedVar = [&shared_states_](const ExprPtr &exp) -> bool {
       return shared_states_.find( exp->name().str() ) != shared_states_.end();  };
       // replace if found (is shared state)
@@ -91,7 +96,7 @@ namespace ila {
       }
 
       // add the init condition
-      ZExpr constr = unroller_ptr->PathNone( EmptyVec , 0 ); // this will only give us the init condition
+      ZExpr constr = unroller_ptr->PathNone( EmptyVec , 0 ); // this will only give us the initial condition
       cstr_.push_back(constr);
     }
     host_remover.RestoreAll(); // this will not affect the generated z3
@@ -99,34 +104,32 @@ namespace ila {
     ILA_ASSERT( CurrConstrSat() ) << "The initial conditions of ILAs are incompatible";
   }
 
-/******************************************************************************/
-// Helper Class: VarUseFinder
-/******************************************************************************/
+  bool InterIlaUnroller::CurrConstrSat() 
+  {
+    // This is to check if the current constraints are satisfiable.
+    z3::solver solver(ctx());
 
-void VarUseFinder::Traverse(const ExprPtr & expr, VarUseList & uses ) {
-  size_t num = expr->arg_num();
-  for (size_t i = 0; i != num; ++i) 
-    Traverse( expr->arg(i) );
-  if ( expr->is_var() )
-    uses.push_back(expr);
-}
+    auto cnst = ConjPred( cstr_ );
+    solver.add(cnst);
+    auto result = solver.check();
 
-void VarUseFinder::Traverse(const InstrPtr & i, VarUseList & uses ) {
-  Traverse( i->GetDecode , uses);
+    if(result == z3::sat) {
+      auto m = solver.get_model();
+      ILA_DLOG("InterIlaUnroller.CurrConstrSat") << m;
+      return true;
+    }
+    return false;
+  }
 
-  StateNameSet instr_writes_ = i->GetUpdatedStates(); // get the set of updated state names
-  for (auto & state_name_ : instr_writes_) 
-    Traverse( i->GetUpdate(state_name_) , uses ); // traverse the update function
-}
+  ZExpr InterIlaUnroller::ConjPred(const ZExprVec& vec) const {
+    auto conj = ctx().bool_val(true);
+    for (size_t i = 0; i != vec.size(); i++) {
+      conj = (conj && vec[i]);
+    }
+    conj = conj.simplify();
+    return conj;
+  }
 
-void VarUseFinder::Traverse(const InstrLvlAbsPtr & i, VarUseList & uses ) {
-  Traverse(i->fetch() , uses);
-  Traverse(i->valid() , uses);
-
-  size_t num = i->instr_num();
-  for (size_t idx = 0; idx != num ; ++ idx) 
-    Traverse(i->instr(idx) , uses);
-}
 
 
 /******************************************************************************/
@@ -148,7 +151,7 @@ void HostRemoveRestore::RecordAndRemove( ExprPtr exp )
     auto pos = map_->find(expr);
     if ( pos != map_->end() ) { // if exp is already registered
       ILA_ASSERT( pos->second == expr->host() ) << "Implementation bug: host() of expr:" << expr 
-          << " is already filled and mismatch." ; 
+          << " is already filled and they do not match." ; 
       // and then, no need to save, just remove 
     }
     else 
@@ -167,7 +170,7 @@ void HostRemoveRestore::RecordAndRemoveIf( ExprPtr exp , ExprJudgeFunc f )
     auto pos = map_->find(expr);
     if ( pos != map_->end() ) { // if exp is already registered
       ILA_ASSERT( pos->second == expr->host() ) << "Implementation bug: host() of expr:" << expr 
-          << " is already filled and mismatch." ; 
+          << " is already filled and they do not match." ; 
       // and then, no need to save, just remove 
     }
     else 

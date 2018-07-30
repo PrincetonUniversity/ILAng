@@ -36,9 +36,121 @@ def addTab(x):
 axiomList = []
 functionList =  []
 
+
+#----------------------
+#  top: def axiom funcs
+#----------------------
 def p_top(p):
-    """top : axiomList functions"""
+    """top : defList axiomList functions"""
     pass
+
+
+#----------------------
+#  defs
+#----------------------
+
+def p_defList(p):
+    """defList : defs"""
+    pass
+
+def p_defs(p):
+    """defs : def defs
+        | empty"""
+    pass
+
+def p_def(p):
+    """def : preddef
+        | cmpdef"""
+    pass
+
+def p_preddef(p):
+    """preddef : INSTSET ID LEFTBRACKET predexpr RIGHTBRACKET fevtdefs"""
+    pass
+    
+def p_fevtdefs(p):
+    """fevtdefs : fevtdef fevtdefs"""
+        | empty
+    pass
+
+def p_cmpdef(p):
+    """cmpdef : INSTSET ID EQ LEFTBRACKET cmpexpr RIGHTBRACKET"""
+    pass
+
+#----------------------
+#  facet event def
+#----------------------
+
+def p_fevtdef(p):
+    """fevtdef : WITHFACETEVENT iddot LEFTBRACKET updatelist RIGHTBRACKET"""    
+    pass
+
+def p_updatelist(p):
+    """updatelist : update
+        | update COMMA updatelist"""
+    pass
+
+def p_update(p):
+    """update : ID ID"""
+    assert p[1] == 'R' or p[1] == 'W' # R idmacro || W idmacro
+    pass
+
+#----------------------
+#  pred expr
+#----------------------
+def p_preds_singleton(p):
+    """predexpr : pred"""
+    pass
+
+def p_preds_para(p):
+    """predexpr : LEFTPARA predexpr RIGHTPARA"""
+    pass
+
+def p_preds_unary(p):
+    """predexpr : NOT predexpr"""
+    pass
+
+def p_preds_binary(p):
+    """predexpr : predexpr AND predexpr
+        | predexpr OR predexpr
+        | predexpr IMPLY predexpr"""
+    pass
+def p_pred(p):
+    """pred : ILANAME idmacro
+        | ILAWRITE idmacro
+        | ILAREAD idmacro"""
+    pass
+def p_idmacro(p):
+    """idmacro : ID
+        | MACRO"""
+    pass
+
+#----------------------
+#  cmp expr
+#----------------------
+
+# this is the name of set that should be previously defined
+# we should not solve the problem of deciding the order of definition
+def p_cmpexpr_singleton(p):
+    """cmpexpr : ID"""
+    pass
+
+def p_cmpexpr_para(p):
+    """cmpexpr : LEFTPARA cmpexpr RIGHTPARA"""
+    pass
+
+# BAR SETAND SUB SETXOR
+
+def p_cmpexpr_binary(p):
+    """cmpexpr : cmpexpr BAR cmpexpr
+        | cmpexpr SETAND cmpexpr 
+        | cmpexpr SUB cmpexpr
+        | cmpexpr SETXOR cmpexpr"""
+    pass
+
+
+#----------------------
+#  func
+#----------------------
 
 def p_functions(p):
     """functions : funcs """

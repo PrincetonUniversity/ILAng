@@ -1,3 +1,16 @@
+InstructionSet WRITE {
+    ila-inst-write %shared  # or a state name
+} # no need for a separate facet event. 
+# one is enough
+# %all-shared or a name or %individual
+# with-facet-event           or facet-events
+
+
+InstructionSet READ {
+    ila-inst-read %shared
+}  # so this won't create a facet event
+# I tend to use the instruction event 
+# instead of declare 
 
 # This specification is an alternative to sc.axiom
 # It shows SC can also be specify without facet events

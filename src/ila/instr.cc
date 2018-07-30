@@ -81,6 +81,12 @@ StateNameSet Instr::GetUpdatedStates() const {
   return ret_;
 }
 
+void Instr::GetUpdatedStates(StateNameSet & ret_) const {
+  for (const auto & pos : updates_) 
+    ret_.push_back( pos.first );
+  return ret_;
+}
+
 
 std::ostream& Instr::Print(std::ostream& out) const {
   out << "Instr." << name();

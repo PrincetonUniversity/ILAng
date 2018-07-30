@@ -8,7 +8,7 @@ contexts:
   main:
     - match: \b(Axiom|Define|InstructionSet)\b
       scope: keyword.facetaxiom
-    - match: \b(ila\-write|ila\-read|ila\-name|with\-facet\-event)\b
+    - match: \b(ila\-inst\-write|ila\-inst\-read|ila\-inst\-name|with\-facet\-event)\b
       scope: keyword.facetaxiom
     - match: (\/\\|\\\/|=>|~=|:=)
       scope: operator.facetaxiom

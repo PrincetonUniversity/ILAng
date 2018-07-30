@@ -41,15 +41,15 @@ public:
   typedef std::list<ExprPtr>  StateVarList;
   /// Type of map of shared states (set of names -> list of exprs)
   typedef std::map<std::string, StateVarList> SharedStatesSet;
+  /// Type of memory model pointer
+  typedef std::shared_ptr<MemoryModel> MemoryModelPtr;
 
   friend class MemoryModel;
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor.
-  InterIlaUnroller(z3::context& ctx, const IlaPtrVec & iv);
+  InterIlaUnroller(z3::context& ctx, const IlaPtrVec & iv, MemoryModelPtr mm);
   /// Default destructor.
   virtual ~InterIlaUnroller();
-
-  // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   
   // ------------------------- METHODS -------------------------------------- //
   /// Add a predicate that should be asserted globally.
@@ -77,7 +77,13 @@ public:
 private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// z3::context of the unroller.
-  z3::context& ctx_;
+  z3::context& ctx_; 
+  /// The memory model to be used with the unroller
+  MemoryModelPtr mm_;
+
+  // ------------------------- ACCESSORS/MUTATORS --------------------------- //
+  /// Return the underlying z3::context.
+  inline z3::context& ctx() const { return ctx_; }
 
 protected:
   // ------------------------- HELPERS -------------------------------------- //
@@ -89,6 +95,8 @@ protected:
   virtual void CreateUnrollers();
   /// \brief Sanity check if the current constraints are satisfiable
   bool CurrConstrSat();
+  /// \brief Conjunct (AND) all the predicates in the set.
+  ZExpr ConjPred(const ZExprVec& vec) const;
 
   // ------------------------- MEMBERS -------------------------------------- //
   
@@ -146,32 +154,6 @@ public:
 // Helper Class
 /******************************************************************************/
 
-/// \brief Class of finding variable uses.
-/// So that we don't need to create pi variables
-/// for unused state variables.
-/// FIXME: currently there is no need to 
-/// make a class for it, but in the future it is 
-/// possible to use a hash table to avoid traverse
-/// the same sub-tree twice.
-class VarUseFinder {
-public:
-  /// Type of vector of ExprPtr with is_var() == true
-  typedef std::vector<ExprPtr> VarUseList;
-  // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
-  /// Default constructor: do nothing
-  VarUseFinder() {}
-  /// Default destructor: do nothing
-  ~VarUseFinder() {}
-
-  // ------------------------- METHODS -------------------------------------- //
-  /// Find variable uses for an expression
-  void Traverse(const ExprPtr & expr, VarUseList & uses );
-  /// Find variable uses for an instruction (update + decode)
-  void Traverse(const InstrPtr & i, VarUseList & uses );
-  /// Find variable uses for an ila (instruction + fetch + valid )
-  void Traverse(const InstrLvlAbsPtr & i, VarUseList & uses );
-
-}; // class VarUseFinder
 
 /// \brief Class to remove and restore the host info
 /// This is useful as we want the ast with the same name generates
