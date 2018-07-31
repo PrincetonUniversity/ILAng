@@ -65,6 +65,7 @@ namespace ila {
       // find the shared variables and apply pi-functions?
       // need to know when to create more steps: go through the tmpl?
     }
+    mm->FinishRegisterSteps( tmpl, cstr_ , ctx() ); // HZ Question: is it too late?
     mm->ApplyAxioms( tmpl, cstr_, ctx() );
   }
 

@@ -3,6 +3,7 @@
 
 #include <string>
 #include "mcm/memory_model.h"
+#include "mcm/set_op.h"
 
 namespace ila {
 
@@ -66,6 +67,7 @@ std::string ExprPtr2Name(const ExprPtr & e) {
     _type(INST_EVT), _inst(inst), _cstr(cstr), _name( GetName() ), timestamp( ctx.int_const( _name.c_str() ) ) 
     {
       InitReadWriteSet(inst);
+      _cstr.push_back( timestamp > 0 ); // if it is not overwritten, then we will set this constraint
     }
 
   TraceStep::TraceStep(const InstrPtr & inst , ZExprVec & cstr, z3::context& ctx , Z3Expr ts_overwrite ) :
@@ -75,15 +77,15 @@ std::string ExprPtr2Name(const ExprPtr & e) {
 
   /// To create a facet event , the last parameter is actually not in use now
   TraceStep::TraceStep(const InstrPtr & ref_inst, ZExprVec & cstr , z3::context& ctx, const std::string & s) :
-    _type(FACET_EVT), _parent_inst(ref_inst), _name( GetName() + "_fevt" ), timestamp( ctx.int_const( _name.c_str() ) ) 
-    { InitReadWriteSet(_parent_inst); }
+    _type(FACET_EVT), _parent_inst(ref_inst), _cstr(cstr), _name( GetName() + "_fevt" ), timestamp( ctx.int_const( _name.c_str() ) ) 
+    { 
+      InitReadWriteSet(_parent_inst); 
+      _cstr.push_back( timestamp > 0 ); // For inst event and facet events
+    }
 
   /// To update the set for FACET_EVT
   void TraceStep::AddStateAccess(const std::string & name, AccessType acc_type)
   {
-
-  #define IN(e,s) ((s).find(e) != (s).end())
-
     ILA_ASSERT( _type == FACET_EVT ) << "Cannot change the state access info of instruction trace step: "<< _name ;
     switch(acc_type) {
       case AccessType::WRITE: 
@@ -126,8 +128,6 @@ std::string ExprPtr2Name(const ExprPtr & e) {
     return IN(name, access_set) ;
   }
 
-
-#define IN_p(e,s) ((s)->find(e) != (s)->end())
 
   bool TraceStep::Access( AccessType acc_type , SharedStatesSet * m_p_shared_states ) {
     ILA_ASSERT( m_p_shared_states ) << "Implementation bug: the shared state pointer is not set";
@@ -176,4 +176,40 @@ std::string ExprPtr2Name(const ExprPtr & e) {
       m_shared_state_names.insert(n_l_pair.first);
     }    
   }
+
+
+/******************************************************************************/
+// Helper Functions
+/******************************************************************************/
+
+/// This is to deal with forall (if does not exist, it should be true also)
+z3::expr Z3ForallList(const std::vector<z3::expr> & l, z3::context& ctx_) {
+  if ( l.size() == 0 )
+    return ctx_.bool_val(true); // forall x, (if does not exist, it should be true also)
+  if ( l.size() == 1 )
+    return l[0];
+  z3::expr ret = l[0];
+  auto it = l.begin();   ++it;
+  for(;it!= l.end(); ++it)
+    ret = ret && (*it);
+  return ret;
+}
+
+/// This is to apply to exists, (if does not exist, it should be false)
+z3::expr Z3ExistsList(const std::vector<z3::expr> & l, z3::context& ctx_) {
+  if ( l.size() == 0 )
+    return ctx_.bool_val(false); // exists x, (if does not exist, it should be false)
+  if ( l.size() == 1 )
+    return l[0];
+  z3::expr ret = l[0];
+  auto it = l.begin();   ++it;
+  for(;it!= l.end(); ++it)
+    ret = ret || (*it);
+  return ret;  
+}
+
+
+z3::expr Z3Implies(const z3::expr &a, const z3::expr &b) { return z3::implies(a,b); }
+z3::expr Z3And(const z3::expr &a, const z3::expr &b) { return a&&b; }
+
 }

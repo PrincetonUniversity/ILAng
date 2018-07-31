@@ -4,6 +4,7 @@
 
 #include "mcm/memory_model.h"
 #include "mcm/tso_manual.h"
+#include "mcm/set_op.h"
 
 namespace ila {
 
@@ -18,7 +19,7 @@ TsoTraceStep::TsoTraceStep(const InstrPtr & inst , ZExprVec & cstr , z3::context
 /******************************************************************************/
 // Tso
 /******************************************************************************/
-#define INTERSECT(a,b,r) (std::set_intersection( (a).begin(),(a).end(), (b).begin(), (b).end(), std::back_inserter(r) ))
+
 
 void Tso::RegisterSteps(InstrVec & _inst_seq,  ZExprVec & _constr, z3::context& ctx_ )
 {
@@ -58,16 +59,61 @@ void Tso::RegisterSteps(InstrVec & _inst_seq,  ZExprVec & _constr, z3::context& 
 
     // InstructionSet READ
     if ( inst_trace_step->Access( AccessType::READ , m_p_shared_states ) ) {
-      
+      READ.add( inst_trace_step );
     }
-    // InstructionSet FENCE
-    // InstructionSet RMW
-    // InstructionSet PureWrite
 
+    // InstructionSet FENCE
+    if ( instr_ptr_->name() == "fence" || 
+         instr_ptr_->name() == "Fence" ||
+         instr_ptr_->name() == "FENCE" ) {
+      FENCE.add( inst_trace_step );
+    }
+
+    // InstructionSet RMW
+    if ( instr_ptr_->name() == "atomic_add" || 
+         instr_ptr_->name() == "atomic_and" ) {
+      RMW.add( inst_trace_step );
+    }
 
   }
 }
+
+
+void Tso::FinishRegisterSteps(ProgramTemplate & _tmpl, ZExprVec & _constr, z3::context& ctx_ )
+{
+  DIFFERENCE(WRITE, RMW, PureWrite);
+}
+
+// Note: Same Address and Same Data
+// should handle memory things
+// you may want to do small static tests
+// to make smaller constraints
+
+// In order mode: local resolve is possible, only shared state access will be translated
+//                to pi-function
+// Out-of-order mode: all state read will be translated to pi-function?
+// 
+// * maybe we need to apply a certain check?
+
+
 void Tso::ApplyAxioms(ProgramTemplate & _tmpl, ZExprVec & _constr, z3::context& ctx_ )
+{
+  // Axiom RF_CO_FR
+
+  // Axiom TSO_WriteFacetOrder
+  ZExprVec _L1;
+  for( auto && w : PureWrite ) {
+    ZExpr var1 = HB( w, __wfe_global(w) )
+    _L1.push_back(  );
+  }
+  _constr.push_back( Z3ForallList(_L1) );
+  // Axiom TSO_Store
+
+
+
+}
+
+void Tso::SetLocalState(std::set<bool> ordered, ProgramTemplate & _tmpl, ZExprVec & _constr, z3::context& ctx_ )
 {
 
 }

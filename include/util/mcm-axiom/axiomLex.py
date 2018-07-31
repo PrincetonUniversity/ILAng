@@ -7,9 +7,9 @@ reserved = {
     'Define': 'DEFINE',
     'Axiom' : 'AXIOM' ,
     'InstructionSet' : 'INSTSET',
-    'ila-read' : 'ILAREAD',
-    'ila-write' : 'ILAWRITE',
-    'ila-name' : 'ILANAME',
+    'ila-inst-read' : 'ILAREAD',
+    'ila-inst-write' : 'ILAWRITE',
+    'ila-inst-name' : 'ILANAME',
     'with-facet-event' : 'WITHFACETEVENT'
 }
 
@@ -39,9 +39,9 @@ tokens = [
     'RIGHTFUNC',
     'LEFTBRACKET',
     'RIGHTBRACKET',
-    'FUNCASSIGN',
     'SETAND',
-    'SETXOR'
+    'SETXOR',
+    'ASSIGN',
     'COLON'] + list(reserved.values())
 
 
@@ -80,6 +80,7 @@ t_LEFTBRACKET = r'\{'
 t_RIGHTBRACKET = r'\}'
 t_SETAND = r'\&'
 t_SETXOR = r'\^'
+t_ASSIGN = r'\:='
 
 t_LT = r'\<'
 t_GT = r'\>'

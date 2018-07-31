@@ -22,16 +22,18 @@ class Tso : public MemoryModel {
   /// Type of trace steps, we need to collect the set of trace steps (WRITE)
   typedef std::set<TsoTraceStepPtr> TsoTraceStepSet;
 
-  TraceStepSet WRITE;
-  TraceStepSet READ;
-  TraceStepSet FENCE;
-  TraceStepSet RMW;
-  TraceStepSet PureWrite;
+  TraceStepSet WRITE_list;
+  TraceStepSet READ_list;
+  TraceStepSet FENCE_list;
+  TraceStepSet RMW_list;
+  TraceStepSet PureWrite_list;
 
 
 public:
   /// To create more view operations associated with an instruction, and also to add them to the set
   void virtual RegisterSteps(InstrVec & _inst_seq,  ZExprVec & _constr, z3::context& ctx_ );
+  /// To do some extra bookkeeping work when it is known that no more instruction steps are needed.
+  void virtual FinishRegisterSteps(ProgramTemplate & _tmpl, ZExprVec & _constr, z3::context& ctx_ );
   /// To apply the axioms, the complete program should be given
   void virtual ApplyAxioms(ProgramTemplate & _tmpl, ZExprVec & _constr, z3::context& ctx_ );
   // HZ note: All the step should be registered through the first function: RegisterSteps

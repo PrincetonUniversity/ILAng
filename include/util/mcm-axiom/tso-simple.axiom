@@ -27,7 +27,7 @@ InstructionSet RMW {
 # so the purpose of this set is just create a name
 # so we can refer to it later
 
-InstructionSet PureWrite =
+InstructionSet PureWrite :=
 { WRITE-RMW }
 #  
 # # operator-allowed: | & - ^ ()

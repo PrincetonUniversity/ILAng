@@ -20,6 +20,10 @@ enum { READ, WRITE } AccessType;
 // to extract the attribute
 // HZ note: In a memory model, usually a derived class of TraceStep is used.
 class TraceStep {
+  /// Type alias for z3::expr.
+  typedef z3::expr ZExpr;
+  /// Type for containing a set of z3::expr.
+  typedef std::vector<z3::expr> ZExprVec;
   /// Type of set of trace steps
   typedef std::set<TraceStep> TraceStepSet;
   /// Type of state name set
@@ -93,6 +97,10 @@ public:
 
 /// \brief The base class for memory models
 class MemoryModel {
+  /// Type alias for z3::expr.
+  typedef z3::expr ZExpr;
+  /// Type for containing a vector of z3::expr.
+  typedef std::vector<ZExpr> ZExprVec;
   /// Type of an instruction vector to represent a sequence.
   typedef std::vector<InstrPtr> InstrVec;
   /// Type of a vector of instruction sequences (currently please represent holes via 0-ary functions)
@@ -120,6 +128,8 @@ protected:
 public:
   /// To create more view operations associated with an instruction, and also to add them to the set
   void virtual RegisterSteps(InstrVec & _inst_seq,  ZExprVec & _constr, z3::context& ctx_ ) = 0;
+  /// To do some extra bookkeeping work when it is known that no more instruction steps are needed.
+  void virtual FinishRegisterSteps(ProgramTemplate & _tmpl, ZExprVec & _constr, z3::context& ctx_ ) = 0;
   /// To apply the axioms, the complete program should be given
   void virtual ApplyAxioms(ProgramTemplate & _tmpl, ZExprVec & _constr, z3::context& ctx_ ) = 0;
   // HZ note: All the step should be registered through the first function: RegisterSteps
@@ -171,6 +181,21 @@ public:
   void Traverse(const InstrLvlAbsPtr & i, VarUseList & uses );
 
 }; // class VarUseFinder
+
+
+/******************************************************************************/
+// Helper Functions
+/******************************************************************************/
+
+/// This is to deal with forall (if does not exist, it should be true also)
+z3::expr Z3ForallList(const std::vector<z3::expr> & l, z3::context& ctx_);
+/// This is to apply to exists, (if does not exist, it should be false)
+z3::expr Z3ExistsList(const std::vector<z3::expr> & l, z3::context& ctx_);
+/// This is just a shortcut to be used for generated axiom 
+z3::expr Z3Implies(const z3::expr &a, const z3::expr &b);
+/// This is just a shortcut to be used for generated axiom 
+z3::expr Z3And(const z3::expr &a, const z3::expr &b);
+
 
 } // namespace ila
 

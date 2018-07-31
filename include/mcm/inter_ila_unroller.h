@@ -27,6 +27,10 @@ class MemoryModel;
 /// considered as the same shared state.
 class InterIlaUnroller {
 public:
+  /// Type alias for z3::expr.
+  typedef z3::expr ZExpr;
+  /// Type for containing a vector of z3::expr.
+  typedef std::vector<ZExpr> ZExprVec;
   /// Type of vector of pointers to the ILAs involved
   typedef std::vector<InstrLvlAbsPtr> IlaPtrVec;
   /// Type of an instruction vector to represent a sequence.
