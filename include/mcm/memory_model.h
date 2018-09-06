@@ -28,17 +28,23 @@ class TraceStep {
   typedef std::set<TraceStep> TraceStepSet;
   /// Type of state name set
   typedef std::set<std::string> StateNameSet;
+  /// the type of trace step type
+  enum {INST_EVT, FACET_EVT} TraceStepType;
+  /// The type of z3Adapter pointer
+  typedef std::shared_ptr<Z3ExprAdapter> Z3ExprAdapterPtr;
 
   // ------------------------- HELPERS -------------------------------------- //
   /// Maintain the unique names of trace steps
-  std::string GetName();
+  std::string GetName(); // This is the helper function to generate unique names, 
+                         // this is private and usshould not be used to return the name of 
+                         // the current trace step. Please use name()
   static unsigned trace_step_seq_no;
   /// Set the read write set
   void InitReadWriteSet( const InstrPtr & inst  ) ;
 protected:
   // ------------------------- MEMBERS -------------------------------------- //
   /// the type of this trace step (event)
-  enum {INST_EVT, FACET_EVT} _type;
+  TraceStepType _type;
   // Type : INST_EVT
   /// The pointer to the instruction executed in this step
   InstrPtr _inst; // I assume it is nullptr by default
@@ -61,6 +67,13 @@ protected:
   std::string _name;
   /// The time stamp
   Z3Expr timestamp;  
+  /// The relative position
+  size_t _pos_suffix;
+  /// Keep an adapter that trace steps can share
+  Z3ExprAdapterPtr _expr2z3_ptr_;
+  /// Keep an adapter 
+  z3::context & _ctx_;
+
 public:
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return the host ILA
@@ -71,16 +84,25 @@ public:
   const StateNameSet & get_inst_read_set() const  { return _inst_read_set; }
   /// Return the set of states written by inst/parent-inst
   const StateNameSet & get_inst_write_set() const { return _inst_write_set; }
+  /// Return the type of the trace step
+  const TraceStepType type() const { return _type; }
+  /// Return the associated instruction for facet / instruction event
+  InstrPtr inst() const { return _type == TraceStepType::INST_EVT ? _inst : _parent_inst; }
+  /// Return the position suffix (for facet, they should have the same suffix as the main step to ensure they use the same var)
+  size_t pos_suffix() const { return _pos_suffix; }
+  /// Return the adapter
+  Z3ExprAdapterPtr z3adapter() const { return _expr2z3_ptr_; }
+  /// Return the context (for variable creation)
+  z3::context & ctx() { return _ctx_; }
+
   
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// To create a trace step, you need to know the instruction also should give a constraint set
-  TraceStep(const InstrPtr & inst , ZExprVec & cstr , z3::context& ctx );
+  TraceStep(const InstrPtr & inst , ZExprVec & cstr , z3::context& ctx , size_t pos , const Z3ExprAdapterPtr & z3a );
   /// This function allows you to overwrite the timestamp instead of creating a new one
-  TraceStep(const InstrPtr & inst , ZExprVec & cstr , z3::context& ctx,  Z3Expr _ts_overwrite );
-
-
+  TraceStep(const InstrPtr & inst , ZExprVec & cstr , z3::context& ctx,  Z3Expr _ts_overwrite, size_t pos , const Z3ExprAdapterPtr & z3a );
   /// To create a facet event 
-  TraceStep(const InstrPtr & ref_inst, ZExprVec & cstr , z3::context& ctx , const std::string &);
+  TraceStep(const InstrPtr & ref_inst, ZExprVec & cstr , z3::context& ctx , const std::string &, size_t pos , const Z3ExprAdapterPtr & z3a );
   // ------------------------- MEMBERS -------------------------------------- //
   /// To update the set for FACET_EVT
   void AddStateAccess(const std::string & name, AccessType acc_type);
@@ -124,6 +146,13 @@ protected:
 
   SharedStatesSet * m_p_shared_states;
   StateNameSet   m_shared_state_names;
+
+  // For passing argument, we need to keep track of the following info:
+
+  /// Keep the context
+  z3::context& _ctx_;
+  /// Keep an adapter that trace step can share
+  std::shared_ptr<Z3ExprAdapter> _expr2z3_ptr_;
 
 public:
   /// To create more view operations associated with an instruction, and also to add them to the set
@@ -196,6 +225,20 @@ z3::expr Z3Implies(const z3::expr &a, const z3::expr &b);
 /// This is just a shortcut to be used for generated axiom 
 z3::expr Z3And(const z3::expr &a, const z3::expr &b);
 
+
+/******************************************************************************/
+// Helper Functions
+/******************************************************************************/
+enum { STATIC_TRUE = 1 , STATIC_FALSE, STATIC_UNKNOWN } StaticResult;
+z3::expr HB( TraceStep & l, TraceStep & r );
+z3::expr PO( TraceStep & l, TraceStep & r );
+z3::expr SameAddress( TraceStep & l, TraceStep & r );
+z3::expr Decode( TraceStep & l);
+z3::expr SameData( TraceStep & l, TraceStep & r);
+bool     SameCore( TraceStep & l, TraceStep & r);
+StaticResult SameAddressStatic( TraceStep & l, TraceStep & r );
+StaticResult DecodeStatic( TraceStep & l);
+StaticResult SameCoreStatic( TraceStep & l, TraceStep & r);
 
 } // namespace ila
 

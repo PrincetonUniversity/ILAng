@@ -48,6 +48,7 @@ namespace ila {
     // but this does not mean it is in order
     for (auto && ila_ptr_ : sys_ila_)
       unrollers_.push_back( std::make_shared<PathUnroll>(ctx_) );
+    // Please note: we don't support extra suffix !!!
   }
 
   void InterIlaUnroller::Unroll(const ProgramTemplate & tmpl)

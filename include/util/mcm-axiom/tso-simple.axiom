@@ -49,11 +49,12 @@ forall w: PureWrite | HB[ w , w.wfe.global ]
     
 Axiom TSO_Store
 forall w1:WRITE | forall w2 : WRITE (~=w1) | 
-    PO [ w1, w2 ] => HB[ w1.wfe.global, w2.wfe.global] 
+    ( SameCore [ w1, w2 ] /\ HB [w1,w2] ) => HB[ w1.wfe.global, w2.wfe.global] 
+# PO[w1,w2] => HB[ w1.wfe.global, w2.wfe.global] 
 
 Axiom TSO_Fence
-forall f:FENCE | forall w: WRITE | PO[w,f] => 
-    HB [ w.wfe.global, f]
+forall f:FENCE | forall w: WRITE | 
+    ( SameCore[ w, f] /\ HB[ w, f] ) => HB [ w.wfe.global, f]
 
 Axiom TSO_RMW
 forall i:RMW | 

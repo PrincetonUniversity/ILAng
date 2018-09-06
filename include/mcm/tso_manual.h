@@ -5,6 +5,8 @@
 #define TSO_MANUAL_H__
 
 namespace ila {
+
+/// \brief Class of TSO trace step
 class TsoTraceStep : public TraceStep {
   /// Type of trace step pointer
   typedef std::shared_ptr<TraceStep> TraceStepPtr;
@@ -16,6 +18,7 @@ public:
   TsoTraceStep(const InstrPtr & inst , ZExprVec & cstr , z3::context& ctx );
 }; // class TsoTraceStep
 
+/// \brief Class of TSO
 class Tso : public MemoryModel {
   /// Type of trace step pointer
   typedef std::shared_ptr<TsoTraceStep> TsoTraceStepPtr;
@@ -39,6 +42,11 @@ public:
   // HZ note: All the step should be registered through the first function: RegisterSteps
 
 }; // class Tso
+
+
+// ------------------------- ACCESSOR FUNCTIONs -------------------------------------- //
+/// \brief DOT wfe DOT global
+TraceStep & __wfe_global(TraceStep & ts);
 
 }
 

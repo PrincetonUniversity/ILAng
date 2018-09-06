@@ -2,6 +2,33 @@ import ply.yacc as yacc
 import logging
 import ParseConfig
 
+import z3 
+# This is very important
+# we need z3 ability to simplify
+
+# --------------------------------------------------------------------------
+#  Simplify AST
+# --------------------------------------------------------------------------
+from collections import namedtuple
+ExprAst = namedtuple('ExprAst', 'val body simpleInfo')
+plainDescriptionAst = namedtuple('plainDescriptionAst', 'val simpleInfo')
+
+def NoneSimpInfo():
+    return None
+
+class simpInfo(object):
+    def __init__(self, z3e, z3vlist = [], simpAux = ''):
+        self.z3e = z3e
+        self.z3vlist = z3vlist
+        self.simpAux = simpAux
+
+def MergeSimpInfo(l,r, op):
+    return simpInfo( z3e = op( l.z3e,r.z3e ) , z3vlist = l.z3vlist + r.z3vlist , simpAux
+
+# --------------------------------------------------------------------------
+    
+
+
 from axiomLex import tokens
 
 SIMPLE = True
@@ -26,8 +53,19 @@ def uniqueName():
     return "var"+str(ctr)
 #---AUX------------------
 
-def body(x) : return x[1]
-def val(x)  : return x[0]
+
+#---AUX------------------
+z3ctr = 0
+def z3UniqueName():
+    global z3ctr
+    z3ctr += 1
+    return "z3var"+str(z3ctr)
+#---AUX------------------
+
+
+
+def body(x) : return x.body
+def val(x)  : return x.val
 def addTab(x):
     splitList = x.split('\n')
 
@@ -191,24 +229,27 @@ def p_quanexpr_forall(p):
     """expr : FORALL ID COLON typelist BAR expr
         | FORALL ID COLON typelist restriction BAR expr """
 
+	(_,varname,_,typelist) = tuple(p[1:4+1])
     retBody = ''
     retVal  = uniqueName() +'_L'
     retList = uniqueName()
-    varname = p[2]
     retBody += 'ZExprVec ' + retVal +';\n'
-    retBody += 'for (auto && ' + varname + ' : ' + p[4]  + ') { '+' // '+ ' '.join(p[1:5])  + '\n'
+    retBody += 'for (auto && ' + varname + ' : ' + typelist  + ') { '+' // '+ ' '.join(p[1:5])  + '\n'
 
     if len(p[1:]) == 7: # has restriction
-        retBody += addTab( p[5][1].format(varname = varname) ) + '\n' # if ( ?? == x ) continue
-        retBody += addTab( body(p[7]) ) + '\n'  # the body of inside
-        expr = val(p[7])
-        retBody += '\t' + p[5][2].format(expr = expr, varname = varname, OPANDIMPLY = 'Implies') # varX = z3.Implies( z3.And( ) , ... )
-        retBody += '\t' + retVal + '.push_back( ' +  p[5][0] + '); }\n'
+        (_,_,_,typelist,restriction,_,e) = tuple(p[1:])
+        
+        retBody += addTab( restriction[1].format(varname = varname) ) + '\n' # if ( ?? == x ) continue
+        retBody += addTab( body(e) ) + '\n'  # the body of inside
+        expr = val(e)
+        retBody += '\t' + restriction[2].format(expr = expr, varname = varname, OPANDIMPLY = 'Implies') # varX = z3.Implies( z3.And( ) , ... )
+        retBody += '\t' + retVal + '.push_back( ' +  restriction[0] + '); }\n'
         retBody += retList + ' = Z3ForallList( ' +retVal + ');\n'
         p[0] = ( retList, retBody )
     else: # 6
-        retBody += addTab( body(p[6]) ) + '\n'
-        expr = val(p[6])
+        (_,_,_,typelist,_,e) = tuple(p[1:])
+        retBody += addTab( body(e) ) + '\n'
+        expr = val(e)
         retBody += '\t' + retVal + '.push_back( '  + expr +  '); }\n'
         retBody += retList + ' = Z3ForallList( ' +retVal + ');\n'
         p[0] = ( retList, retBody )
@@ -218,27 +259,27 @@ def p_quanexpr_exists(p):
     """expr : EXISTS ID COLON typelist BAR expr
         | EXISTS ID COLON typelist restriction BAR expr  """
 
+	(_,varname,_,typelist) = tuple(p[1:4+1])
     retBody = ''
     retVal  = uniqueName() +'_L'
     retList = uniqueName()
-    varname = p[2]
     retBody += 'ZExprVec ' + retVal +';\n'
-    retBody += 'for (auto && ' + varname + ' : ' + p[4]  + ' )  { // exists\n'
+    retBody += 'for (auto && ' + varname + ' : ' + typelist  + ' )  { // exists\n'
 
     if len(p[1:]) == 7: # has restriction
-        retBody += addTab( p[5][1].format(varname = varname) ) + '\n' # if ( ?? == x ) continue
-        retBody += addTab( body(p[7]) ) + '\n'  # the body of inside
-        expr = val(p[7])
-        retBody += '\t' + p[5][2].format(expr = expr, varname = varname, OPANDIMPLY = 'And') # varX = z3.Implies( z3.And( ) , ... )
-        retBody += '\t' + retVal + '.push_back( ' +  p[5][0] + '); }\n'
+        (_,_,_,typelist,restriction,_,e) = tuple(p[1:])
+        retBody += addTab( restriction[1].format(varname = varname) ) + '\n' # if ( ?? == x ) continue
+        retBody += addTab( body(e) ) + '\n'  # the body of inside
+        expr = val(e)
+        retBody += '\t' + restriction[2].format(expr = expr, varname = varname, OPANDIMPLY = 'And') # varX = z3.Implies( z3.And( ) , ... )
+        retBody += '\t' + retVal + '.push_back( ' +  restriction[0] + '); }\n'
         retBody += retList + ' = Z3ExistsList( ' +retVal + ');\n'
         p[0] = ( retList, retBody )
     else: # 6
-        retBody += addTab( body(p[6]) ) + '\n'
-        expr = val(p[6])
+        (_,_,_,typelist,_,e) = tuple(p[1:])
+        retBody += addTab( body(e) ) + '\n'
+        expr = val(e)
         retBody += '\t' + retVal + '.push_back( '  + expr +  ')\n'
-        if 'var40' in retVal :
-            print expr
         retBody += retList + ' = Z3ExistsList( ' +retVal + ')\n'
         p[0] = ( retList, retBody )
 
@@ -247,29 +288,39 @@ def p_quanexpr_exists(p):
 
 def p_quanexpr_parath(p):
     """expr : LEFTPARA expr RIGHTPARA  """
-    p[0] = ( '( ' + val(p[2]) + ' )', body(p[2]) )
+    p[0] = ExprAst( '( ' + val(p[2]) + ' )', body(p[2]) , 
+             simpleInfo = p.simpleInfo )
 
 
 def p_quanexpr_logic_and(p):
     """expr : expr AND expr"""
-    p[0] = ( '( ' + val(p[1]) + ' && ' + val(p[3]) +' ) ' , body(p[1]) + body(p[3]) )
+    p[0] = ExprAst( '( ' + val(p[1]) + ' && ' + val(p[3]) +' ) ' , body(p[1]) + body(p[3]) , 
+             z3e = z3.And( p[1].z3e , p[3].z3e ) ,
+             z3vlist = p[1].z3vlist + p[3].z3vlist )
 
 def p_quanexpr_logic_or(p):
     """expr : expr OR expr"""
-    p[0] = ( '( ' + val(p[1]) + ' || ' + val(p[3]) +' ) ' , body(p[1]) + body(p[3]) )
+    p[0] = ExprAst( '( ' + val(p[1]) + ' || ' + val(p[3]) +' ) ' , body(p[1]) + body(p[3]) , 
+             z3e = z3.Or( p[1].z3e , p[3].z3e ) ,
+             z3vlist = p[1].z3vlist + p[3].z3vlist )
 
 def p_quanexpr_logic_imply(p):
     """expr : expr IMPLY expr"""
-    p[0] = ( 'z3::implies( ' + val(p[1]) + ' , ' + val(p[3]) +' ) ' , body(p[1]) + body(p[3]) )
+    p[0] = ExprAst( 'z3::implies( ' + val(p[1]) + ' , ' + val(p[3]) +' ) ' , body(p[1]) + body(p[3]) , 
+             z3e = z3.Imply( p[1].z3e , p[3].z3e ) ,
+             z3vlist = p[1].z3vlist + p[3].z3vlist )
+
 
 def p_quanexpr_logic_not(p):
     """expr : NOT expr"""
-    p[0] = ('!( ' + val(p[2]) + ' ) ' , body(p[2]))
+    p[0] = ExprAst('!( ' + val(p[2]) + ' ) ' , body(p[2])
+             z3e = z3.Not( p[2].z3e ) ,
+             z3vlist = p[2].z3vlist )
 
 
 def p_quanexpr_plain(p):
     """expr : plainDescription"""
-    p[0] = ( p[1], '' ) # empty body
+    p[0] = ( p[1], '' , z3e = p[1].z3e, z3vlist = p[1].z3vlist ) # empty body
 
 
 def p_plainDescript(p):
@@ -282,11 +333,13 @@ def p_plainDescript(p):
         | compRel GE compRel
         | ID LEFTFUNC paramlist RIGHTFUNC"""
     if len(p[1:]) == 1:
-        p[0] = p[1]
+        p[0] = plainDescriptionAst( p[1], z3e = z3.Bool(z3UniqueName()), z3vlist = [] ) # create z3var but uncontrolled
     elif len(p[1:]) == 3:
-        p[0] = p[1] + p[2] + p[3]
+        p[0] = plainDescriptionAst( p[1] + p[2] + p[3], z3e = z3.Bool(z3UniqueName()), z3vlist = [] ) # create z3var but uncontrolled
     elif len(p[1:]) == 4:
-        p[0] = p[1] + ' ( ' + p[3] + ' ) '
+        # this is the place we add z3 variable 
+        func_replace_val = z3.Bool(z3UniqueName())
+        p[0] = plainDescriptionAst( p[1] + ' ( ' + p[3] + ' ) ' , z3e = z3.Bool(z3UniqueName()), z3vlist = [] ) 
 
 def p_compResult(p):
     """compRel : compRel MUL compRel
