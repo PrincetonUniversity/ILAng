@@ -31,6 +31,7 @@ class Tso : public MemoryModel {
   TraceStepSet RMW_list;
   TraceStepSet PureWrite_list;
 
+  #error "remember to create init state step (Write) : SameAddr(True) , Data(initVal) , Decode(T), SameCore(Yes for any)."
 
 public:
   /// To create more view operations associated with an instruction, and also to add them to the set

@@ -5,6 +5,9 @@ InstructionSet WRITE {
 # %rest is by default rest-shared
 # with-facet-event           or facet-events
 
+# predefined StateSet: %shared 
+# can be defined via ila-state-name "name" with /\ or \/
+# their names are formatted as "%"
 
 InstructionSet READ {
     ila-inst-read %shared
@@ -32,12 +35,14 @@ InstructionSet PureWrite :=
 #  
 # # operator-allowed: | & - ^ ()
 
-Axiom RF_CO_FR
-forall r:READ | exists w:WRITE (~=r) |
-    SameAddress[w,r] /\ SameData[w,r] /\ Decode[w] /\
-    RF[w,r] /\ ( forall w2:WRITE (~= w)  | 
-        ( SameAddress[w,w2] /\ Decode[w2] ) => 
+Axiom RF_CO_FR 
+forall s: %shared | forall r:READ (%s) | exists w:WRITE (%s,~=r) |
+    SameAddress[w,r,s] /\ SameData[w,r,s] /\ Decode[w] /\
+    RF[w,r] /\ ( forall w2:WRITE (%s, ~=w, ~=r)  |   # (,~=r) is for atomic accesses it is both read & write
+        ( SameAddress[w,w2,s] /\ Decode[w2] ) => 
             CO[w2,w] \/ FR[r,w2] )
+
+# forall ? : %s '%' means a state, (%s) means accessing s, if not, we go past it
 
 # SameAddress contains two meanings actually
 # Same state name, and if it is a memory state

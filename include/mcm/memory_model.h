@@ -4,6 +4,9 @@
 #ifndef MEMORY_MODEL_H__
 #define MEMORY_MODEL_H__
 
+#include "mcm/axiom_helper.h"
+#include "mcm/ast_helper.h"
+
 /// \namespace ila
 namespace ila {
 
@@ -91,7 +94,7 @@ public:
   /// Return the position suffix (for facet, they should have the same suffix as the main step to ensure they use the same var)
   size_t pos_suffix() const { return _pos_suffix; }
   /// Return the adapter
-  Z3ExprAdapterPtr z3adapter() const { return _expr2z3_ptr_; }
+  Z3ExprAdapterPtr z3adapter() { return _expr2z3_ptr_; }
   /// Return the context (for variable creation)
   z3::context & ctx() { return _ctx_; }
 
@@ -108,6 +111,8 @@ public:
   void AddStateAccess(const std::string & name, AccessType acc_type);
   /// To update the set for FACET_EVT
   void AddStateAccess(const StateNameSet &s, AccessType acc_type);
+  /// Translate an arbitrary expr using the frame number of this step (so it refers to the var used in this step)
+  ZExpr ConvertZ3OnThisStep(const ExprPtr & ast) { return z3adapter()->GetExpr( ast , std::to_string( pos_suffix() ) ); }
 
 
   // ------------------------- HELPERS -------------------------------------- //
@@ -164,7 +169,7 @@ public:
   // HZ note: All the step should be registered through the first function: RegisterSteps
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
-  MemoryModel() : m_p_shared_states(NULL) {}
+  MemoryModel() : m_p_shared_states(NULL), nested_finder_(), mem_load_expr_finder_(nested_finder_) { }
 
   // ------------------------- HELPERS -------------------------------------- //
   /// Determine if an instruction access a shared state
@@ -173,72 +178,41 @@ public:
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   void SetSharedStates(SharedStatesSet * p);
 
+
+  // ------------------------- AXIOM HELPERS -------------------------------- //
+protected:
+  // ------------------------- MEMBERS -------------------------------------- //
+  NestedMemAddrDataAvoider nested_finder_;
+  MemReadFinder            mem_load_expr_finder_;
+  // ------------------------- HELPERS -------------------------------------- //
+  // The type of results that can statically determined
+  enum { STATIC_TRUE = 1 , STATIC_FALSE, STATIC_UNKNOWN } StaticResult;
+  // The type of hints given to the functions to tell what kind of mem ops to look for
+  enum { HINT_NONE = 0 , HINT_READ = 1, HINT_WRITE } AxiomFuncHint; // if read disable write-set, if write disable read-set
+  // Happen-before
+  z3::expr HB( TraceStep & l, TraceStep & r );
+  // At the same time
+  z3::expr Sync( TraceStep & l, TraceStep & r );
+  // Program-order
+  z3::expr PO( TraceStep & l, TraceStep & r );
+  // Same address 
+  z3::expr SameAddress( TraceStep & l, TraceStep & r , AxiomFuncHint lhint = HINT_NONE, AxiomFuncHint rhint = HINT_NONE);
+  // Get decode (z3 not ast)
+  z3::expr Decode( TraceStep & l );
+  // Enforce same data
+  z3::expr SameData( TraceStep & l, TraceStep & r , AxiomFuncHint lhint = HINT_NONE, AxiomFuncHint rhint = HINT_NONE);
+  // Enforcing same core constraint
+  bool     SameCore( TraceStep & l, TraceStep & r);
+  // STATICALLY DETERMINED
+  StaticResult SameAddressStatic( TraceStep & l, TraceStep & r );
+  // STATICALLY DETERMINED
+  StaticResult DecodeStatic( TraceStep & l);
+  // STATICALLY DETERMINED
+  StaticResult SameCoreStatic( TraceStep & l, TraceStep & r);
 }; // class MemoryModel 
 
 
 
-/******************************************************************************/
-// Helper Class
-/******************************************************************************/
-
-/// \brief Class of finding variable uses.
-/// So that we don't need to create pi variables
-/// for unused state variables.
-/// FIXME: currently there is no need to 
-/// make a class for it, but in the future it is 
-/// possible to use a hash table to avoid traverse
-/// the same sub-tree twice.
-// T can be ExprPtr or std::string
-// C is the converter from ExprPtr to T
-template <class T, typename C> 
-class VarUseFinder {
-public:
-  /// Type of vector of ExprPtr with is_var() == true
-  typedef std::set<T> VarUseList;
-  // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
-  /// Default constructor: do nothing
-  VarUseFinder() {}
-  /// Default destructor: do nothing
-  ~VarUseFinder() {}
-
-  // ------------------------- METHODS -------------------------------------- //
-  /// Find variable uses for an expression
-  void Traverse(const ExprPtr & expr, VarUseList & uses );
-  /// Find variable uses for an instruction (update + decode)
-  void Traverse(const InstrPtr & i, VarUseList & uses );
-  /// Find variable uses for an ila (instruction + fetch + valid )
-  void Traverse(const InstrLvlAbsPtr & i, VarUseList & uses );
-
-}; // class VarUseFinder
-
-
-/******************************************************************************/
-// Helper Functions
-/******************************************************************************/
-
-/// This is to deal with forall (if does not exist, it should be true also)
-z3::expr Z3ForallList(const std::vector<z3::expr> & l, z3::context& ctx_);
-/// This is to apply to exists, (if does not exist, it should be false)
-z3::expr Z3ExistsList(const std::vector<z3::expr> & l, z3::context& ctx_);
-/// This is just a shortcut to be used for generated axiom 
-z3::expr Z3Implies(const z3::expr &a, const z3::expr &b);
-/// This is just a shortcut to be used for generated axiom 
-z3::expr Z3And(const z3::expr &a, const z3::expr &b);
-
-
-/******************************************************************************/
-// Helper Functions
-/******************************************************************************/
-enum { STATIC_TRUE = 1 , STATIC_FALSE, STATIC_UNKNOWN } StaticResult;
-z3::expr HB( TraceStep & l, TraceStep & r );
-z3::expr PO( TraceStep & l, TraceStep & r );
-z3::expr SameAddress( TraceStep & l, TraceStep & r );
-z3::expr Decode( TraceStep & l);
-z3::expr SameData( TraceStep & l, TraceStep & r);
-bool     SameCore( TraceStep & l, TraceStep & r);
-StaticResult SameAddressStatic( TraceStep & l, TraceStep & r );
-StaticResult DecodeStatic( TraceStep & l);
-StaticResult SameCoreStatic( TraceStep & l, TraceStep & r);
 
 } // namespace ila
 
