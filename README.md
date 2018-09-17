@@ -45,9 +45,18 @@ For developers, implementation details can be found on [ILA-Tools-Impl](https://
 
 ### Publications:
 
+* __A Formal Instruction-Level GPU Model for Scalable Verification__.
+  Yue Xing, Bo-Yuan Huang, Aarti Gupta, and Sharad Malik.
+  *in* Proceedings of the International Conference On Computer Aided Design. (ICCAD 2018), San Diego, CA. Nov. 2018.
+
+* __Integrating Memory Consistency Models with Instruction-Level Abstraction for Heterogeneous System-on-Chip Verification__.
+  Hongce Zhang, Caroline Trippel, Yatin Manerkar, Aarti Gupta, Margaret Martonosi, and Sharad Malik.
+  *in* Proceedings of Formal Methods in Computer-Aided Design. (FMCAD 2018), Austin, TX. Oct. 2018.
+
 * __Formal Security Verification of Concurrent Firmware in SoCs using Instruction-Level Abstraction for Hardware__.
   Bo-Yuan Huang, Sayak Ray, Aarti Gupta, Jason Fung, and Sharad Malik.
   *in* Proceedings of the Design Automation Conference. (DAC 2018), San Francisco, CA. June 2018.
+  [[PDF](https://github.com/Bo-Yuan-Huang/ILA-Tools/blob/master/docs/publications/54_1_Huang_finalpaper_03_28_2018_19_15.pdf)]
 
 * __Instruction-Level Abstraction (ILA): A Uniform Specification for System-on-Chip (SoC) Verification__.
   Bo-Yuan Huang, Hongce Zhang, Pramod Subramanyan, Yakir Vizel, Aarti Gupta, and Sharad Malik.
