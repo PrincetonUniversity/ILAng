@@ -5,7 +5,7 @@ A paper summarizing the formal definition and modeling case studies: [arXiv link
 
 ## Templated-based ILA synthesis
 
-[![Build Status](https://semaphoreci.com/api/v1/bo-yuan-huang/ila/branches/master/shields_badge.svg)](https://semaphoreci.com/bo-yuan-huang/ila)
+[![Build Status](https://semaphoreci.com/api/v1/bo-yuan-huang/ila-tools/branches/master/shields_badge.svg)](https://semaphoreci.com/bo-yuan-huang/ila-tools)
 
 To build ILA synthesis tool, look in the [py-tmpl-synth](https://github.com/Bo-Yuan-Huang/ILA-Tools/tree/master/py-tmpl-synth) directory.
 
