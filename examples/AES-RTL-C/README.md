@@ -5,7 +5,7 @@ Synthesizing ILA from AES RTL implementation and C implementation and Comparison
 Prerequisite
 -------------------
 * ILA library installed
-* Verilator >= 3.8
+* Verilator 3.884
 * GCC >= 4.8.4
 
 Overview
