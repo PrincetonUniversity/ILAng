@@ -60,7 +60,7 @@ For developers, implementation details can be found on [ILA-Tools-Impl](https://
 
 * __Instruction-Level Abstraction (ILA): A Uniform Specification for System-on-Chip (SoC) Verification__.
   Bo-Yuan Huang, Hongce Zhang, Pramod Subramanyan, Yakir Vizel, Aarti Gupta, and Sharad Malik.
-  [[arXiv:1801.01114](https://arxiv.org/abs/1801.01114)]
+  ACM Transactions on Design Automation of Electronic Systems (TODAES).
   [[PDF](https://arxiv.org/pdf/1801.01114.pdf)]
 
 * __Template-based Parameterized Synthesis of Uniform Instruction-Level Abstractions for SoC Verification__.
