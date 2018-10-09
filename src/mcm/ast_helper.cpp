@@ -15,7 +15,17 @@ namespace ila {
     template <class T, typename C> 
     void VarUseFinder::Traverse(const ExprPtr & expr, VarUseList & uses ) {
       size_t num = expr->arg_num();
-      for (size_t i = 0; i != num; ++i) 
+
+      // DIRTY FIX: we need to rule out the possibility that
+      // m1 <= STORE(m1, ADDR, DATA) , here m1 access is not a use of mem variable
+      size_t start = 0;
+      if ( expr->is_op() ) {
+        auto ptr = dynamic_pointer_cast<ExprOp>(expr);
+        if( ptr->op_name() == "STORE" && ptr->arg(0)->is_var() )
+          start = 1; // skip the var field of STORE(var,addr, data)
+      }
+
+      for (size_t i = start; i != num; ++i) 
         Traverse( expr->arg(i) );
       if ( expr->is_var() )
         uses.push_back( C(expr) );
@@ -26,8 +36,9 @@ namespace ila {
       Traverse( i->GetDecode , uses);
 
       StateNameSet instr_writes_ = i->GetUpdatedStates(); // get the set of updated state names
-      for (auto & state_name_ : instr_writes_) 
+      for (auto & state_name_ : instr_writes_) {
         Traverse( i->GetUpdate(state_name_) , uses ); // traverse the update function
+      }
     }
 
     template <class T, typename C> 
@@ -101,6 +112,27 @@ namespace ila {
       return true;
     }
     
+
+    /******************************************************************************/
+    // Helper Class: NestedMemAddrDataAvoider
+    /******************************************************************************/
+
+  // we already guarantee that the outer is memop
+  bool PureNestedStoreDetector::isNestedStore(const ExprPtr & node, ... ?)
+  {
+    if ( node->is_var() ) {
+      map_[ node.get() ];
+      return true;
+    }
+  }
+  const AddrDataVec & PureNestedStoreDetector::getStoreAddrDataVec(const ExprPtr &node)
+  {
+
+  }
+
+    /******************************************************************************/
+    // Helper Class: MemReadFinder
+    /******************************************************************************/
 
   void MemReadFinder::FindAddrDataPairVecInExpr(const ExprPtr &node, MRFVal & nad_map_)
   {

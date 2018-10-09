@@ -13,9 +13,9 @@ namespace ila {
 	/******************************************************************************/
 
 	/// This is to deal with forall (if does not exist, it should be true also)
-	z3::expr Z3ForallList(const std::vector<z3::expr> & l, z3::context& ctx_);
+	// z3::expr Z3ForallList(const std::vector<z3::expr> & l); // move into mcm class
 	/// This is to apply to exists, (if does not exist, it should be false)
-	z3::expr Z3ExistsList(const std::vector<z3::expr> & l, z3::context& ctx_);
+	// z3::expr Z3ExistsList(const std::vector<z3::expr> & l);
 	/// This is just a shortcut to be used for generated axiom 
 	z3::expr Z3Implies(const z3::expr &a, const z3::expr &b);
 	/// This is just a shortcut to be used for generated axiom 

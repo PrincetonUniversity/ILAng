@@ -12,7 +12,8 @@ namespace ila {
 
 
 /// Type of state read or write
-enum { READ, WRITE } AccessType;
+enum { READ, WRITE, EITHER } AccessType; 
+// used when query the type of accesses (in register trace step)
 
 /// \brief The class for trace step (an instance of instruction)
 /// As in the unrolling, there may be multiple instances of the same 
@@ -32,7 +33,7 @@ class TraceStep {
   /// Type of state name set
   typedef std::set<std::string> StateNameSet;
   /// the type of trace step type
-  enum {INST_EVT, FACET_EVT} TraceStepType;
+  enum {INST_EVT, FACET_EVT , INIT_EVT } TraceStepType;
   /// The type of z3Adapter pointer
   typedef std::shared_ptr<Z3ExprAdapter> Z3ExprAdapterPtr;
 
@@ -80,7 +81,7 @@ protected:
 public:
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return the host ILA
-  inline InstrLvlAbsPtr host() const { return _inst->host(); }
+  inline InstrLvlAbsPtr host() const { return inst()->host(); }
   /// Return the name
   inline std::string name() const { return _name; }
   /// Return the set of states read by inst/parent-inst
@@ -113,13 +114,13 @@ public:
   void AddStateAccess(const StateNameSet &s, AccessType acc_type);
   /// Translate an arbitrary expr using the frame number of this step (so it refers to the var used in this step)
   ZExpr ConvertZ3OnThisStep(const ExprPtr & ast) { return z3adapter()->GetExpr( ast , std::to_string( pos_suffix() ) ); }
-
+  
 
   // ------------------------- HELPERS -------------------------------------- //
   /// To determine if the instruction READ/WRITE a certain state 
   bool Access( AccessType acc_type , const std::string & name);
   /// To determine if the instruction READ/WRITE a certain set
-  bool Access( AccessType acc_type , SharedStatesSet * m_p_shared_states );
+  bool Access( AccessType acc_type , StateNameSet * m_p_stateset );
 }; // class TraceStep
 
 /// \brief The base class for memory models
@@ -138,57 +139,80 @@ class MemoryModel {
   typedef std::set<TraceStepPtr> TraceStepSet;
   /// Type of map of shared states (set of names -> list of exprs)
   typedef std::map<std::string, StateVarList> SharedStatesSet;
+  /// Type of pointers to Z3ExprAdapter
+  typedef std::shared_ptr<Z3ExprAdapter> Z3ExprAdapterPtr;
+  /// Type of TraceStep set grouped by ILA (the same sequence as given to the register steps)
+  typedef std::vector<std::vector<TraceStepPtr> > PerILATraceStepSet;
+  /// Type of map ila-name to state-set
+  typedef std::map<std::string, StateNameSet> ILANameStateNameSetMap;
+
 
 protected:
-  // Axiom function RF
-  // Axiom function FR
-  // Axiom function CO
-  // pre-defined SameAddress, SameData, Decode, HB, PO, Sync, SameCore
-  // A derived class may contain set of trace steps
-  /// 
-  TraceStepSet _all_trace_steps;
-  TraceStepSet _all_inst_trace_steps;
-
-  SharedStatesSet * m_p_shared_states;
-  StateNameSet   m_shared_state_names;
-
+  // ------------------------- MEMBERS -------------------------------------- //
+  /// The pointer to the initial trace step
+  TraceStepPtr _init_trace_step; // will be assigned by function CreateGlobalInitStep
+  /// The set of all trace steps
+  TraceStepSet _all_trace_steps; // will be assigned by specific memory model
+  /// The set of all instruction trace steps
+  TraceStepSet _all_inst_trace_steps; // will be assigned by specific memory model
+  /// The set of TraceStep set grouped by ILA (the same sequence as given to the register steps)
+  PerILATraceStepSet _ila_trace_steps;
+  /// The set of names of shared states
+  const StateNameSet & m_shared_state_names; // will get a copy from the given set
+  /// The internal storage of all private states of all ilas
+  const ILANameStateNameSetMap & m_ila_private_state_names; // will get a copy from the given set
+  /// The pointer to the (dummy) global ILA
+  InstrLvlAbsPtr m_p_global_ila;
   // For passing argument, we need to keep track of the following info:
-
-  /// Keep the context
+  /// A reference to Z3 context
   z3::context& _ctx_;
-  /// Keep an adapter that trace step can share
-  std::shared_ptr<Z3ExprAdapter> _expr2z3_ptr_;
+  /// A reference to the constraint list
+  ZExprVec & _constr;
+  /// An adapter that trace step can share, will allocate internally, by the constructor
+  Z3ExprAdapterPtr _expr2z3_ptr_; 
 
 public:
+  /// To initialize the inner storage space.
+  void virtual InitSize(const ProgramTemplate & _tmpl);
   /// To create more view operations associated with an instruction, and also to add them to the set
-  void virtual RegisterSteps(InstrVec & _inst_seq,  ZExprVec & _constr, z3::context& ctx_ ) = 0;
+  void virtual RegisterSteps(size_t regIdx , InstrVec & _inst_seq ) = 0;
   /// To do some extra bookkeeping work when it is known that no more instruction steps are needed.
-  void virtual FinishRegisterSteps(ProgramTemplate & _tmpl, ZExprVec & _constr, z3::context& ctx_ ) = 0;
+  void virtual FinishRegisterSteps() = 0;
   /// To apply the axioms, the complete program should be given
-  void virtual ApplyAxioms(ProgramTemplate & _tmpl, ZExprVec & _constr, z3::context& ctx_ ) = 0;
-  // HZ note: All the step should be registered through the first function: RegisterSteps
-
+  void virtual ApplyAxioms() = 0;
+  /// To constrain on the local states, based on whether they are in order or not, can be overwritten by the specific model.
+  void virtual SetLocalState(std::vector<bool> ordered);
+  // HZ note: All the steps should be registered through the first function: RegisterSteps
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
-  MemoryModel() : m_p_shared_states(NULL), nested_finder_(), mem_load_expr_finder_(nested_finder_) { }
-
+  // we will need a wrapper on the outside
+  MemoryModel(z3::context& ctx, 
+    ZExprVec & _cstrlist, 
+    const StateNameSet & shared_states, 
+    const ILANameStateNameSetMap & private_states, 
+    const InstrLvlAbsPtr & global_ila_ptr);
+  // make destructor virtual
+  virtual ~MemoryModel() {}
   // ------------------------- HELPERS -------------------------------------- //
   /// Determine if an instruction access a shared state
-  bool AccessShared ( const InstrPtr & ip, AccessType acc_type );
-
-  // ------------------------- ACCESSORS/MUTATORS --------------------------- //
-  void SetSharedStates(SharedStatesSet * p);
+  // bool AccessShared ( const InstrPtr & ip, AccessType acc_type );  // (deprecated)
 
 
   // ------------------------- AXIOM HELPERS -------------------------------- //
 protected:
   // ------------------------- MEMBERS -------------------------------------- //
+  /// An AST traversor, make sure there are no nested asts
   NestedMemAddrDataAvoider nested_finder_;
+  /// An AST traversor, here to find memory reads: address/data
   MemReadFinder            mem_load_expr_finder_;
   // ------------------------- HELPERS -------------------------------------- //
+  /// A function for dervied classes to create init trace step
+  TraceStepPtr CreateGlobalInitStep();
+  // ------------------------- AXIOM HELPERS -------------------------------------- //
+  // The implementation of the following functions can be found in axiom_helper.cpp
   // The type of results that can statically determined
   enum { STATIC_TRUE = 1 , STATIC_FALSE, STATIC_UNKNOWN } StaticResult;
   // The type of hints given to the functions to tell what kind of mem ops to look for
-  enum { HINT_NONE = 0 , HINT_READ = 1, HINT_WRITE } AxiomFuncHint; // if read disable write-set, if write disable read-set
+  enum { HINT_NONE = 0 , HINT_READ = 1, HINT_WRITE } AxiomFuncHint; // if read disable write-set, if write disable read-set // should only used for SameAddr/SameData
   // Happen-before
   z3::expr HB( TraceStep & l, TraceStep & r );
   // At the same time
@@ -209,6 +233,30 @@ protected:
   StaticResult DecodeStatic( TraceStep & l);
   // STATICALLY DETERMINED
   StaticResult SameCoreStatic( TraceStep & l, TraceStep & r);
+
+  /// This is to deal with forall (if does not exist, it should be true also)
+  z3::expr Z3ForallList(const ZExprVec & l); // move into mcm class
+  /// This is to apply to exists, (if does not exist, it should be false)
+  z3::expr Z3ExistsList(const ZExprVec & l);
+private:
+  /// Private helper: return z3 expr to enforce address equality on mem var
+  z3::expr MemVarSameAddress(
+    const ExprPtr &leftWAddr, AddrDataVec & leftRAddrDataVec, 
+    const ExprPtr &rightWAddr, AddrDataVec &rightRAddrDataVec, 
+    TraceStep & traceL , TraceStep & traceR);
+  /// Private helper: return z3 expr to enforce data equality on mem var
+  z3::expr MemVarSameData(
+    const std::pair<ExprPtr,ExprPtr> &leftAddrDataPair , AddrDataVec & leftRAddrDataVec, 
+    const std::pair<ExprPtr,ExprPtr> &rightAddrDataPair, AddrDataVec & rightRAddrDataVec, 
+    TraceStep & traceL , TraceStep & traceR);
+  /// Private helper: from state update function to addr/data
+  ExprPtr CheckAndPeel(const ExprPtr &e , const std::string & type, size_t argn);
+  /// Private helper: return z3 expr to enforce data equality on non-mem var
+  z3::expr NonMemVarSameData(
+    TraceStep & l, TraceStep & r,
+    const std::string & sname,
+    AxiomFuncHint lhint, AxiomFuncHint rhint);
+
 }; // class MemoryModel 
 
 

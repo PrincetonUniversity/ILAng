@@ -31,16 +31,26 @@ class Tso : public MemoryModel {
   TraceStepSet RMW_list;
   TraceStepSet PureWrite_list;
 
-  #error "remember to create init state step (Write) : SameAddr(True) , Data(initVal) , Decode(T), SameCore(Yes for any)."
-
 public:
   /// To create more view operations associated with an instruction, and also to add them to the set
-  void virtual RegisterSteps(InstrVec & _inst_seq,  ZExprVec & _constr, z3::context& ctx_ );
+  void virtual RegisterSteps(size_t regIdx , InstrVec & _inst_seq);
   /// To do some extra bookkeeping work when it is known that no more instruction steps are needed.
-  void virtual FinishRegisterSteps(ProgramTemplate & _tmpl, ZExprVec & _constr, z3::context& ctx_ );
+  void virtual FinishRegisterSteps();
   /// To apply the axioms, the complete program should be given
-  void virtual ApplyAxioms(ProgramTemplate & _tmpl, ZExprVec & _constr, z3::context& ctx_ );
+  void virtual ApplyAxioms();
   // HZ note: All the step should be registered through the first function: RegisterSteps
+  /// Constructor
+  Tso(z3::context& ctx, 
+    ZExprVec & _cstrlist, 
+    const StateNameSet & shared_states, 
+    const ILANameStateNameSetMap & private_states, 
+    const InstrLvlAbsPtr & global_ila_ptr) :
+   MemoryModel(ctx, _cstrlist, shared_states, private_states, global_ila_ptr) { }
+
+private:
+  z3::expr RF( TraceStep &w,TraceStep &r);
+  z3::expr FR( TraceStep &r,TraceStep &w);
+  z3::expr CO( TraceStep &w1,TraceStep &w2);
 
 }; // class Tso
 

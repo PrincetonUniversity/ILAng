@@ -41,17 +41,28 @@ public:
   typedef std::shared_ptr<Unroller> UnrollerPtr;
   /// Type of vector of unrollers /* we may use a different unroller than PathUnroll */
   typedef std::vector<UnrollerPtr>  UnrollerVec;
+  /// Type of state name set
+  typedef std::set<std::string> StateNameSet;
+  /// Type of map ila-name to state-set
+  typedef std::map<std::string, StateNameSet> ILANameStateNameSetMap;
   /// Type of list of state variables
   typedef std::list<ExprPtr>  StateVarList;
   /// Type of map of shared states (set of names -> list of exprs)
   typedef std::map<std::string, StateVarList> SharedStatesSet;
-  /// Type of memory model pointer
-  typedef std::shared_ptr<MemoryModel> MemoryModelPtr;
+  /// Type of memory model pointer, we enforce ownership strictly, so it cannot be used else where
+  typedef std::unique_ptr<MemoryModel> MemoryModelPtr;
+  /// Type of memory model creator, nees to be the same as the ctor of MemoryModelClass
+  typedef std::function<MemoryModelPtr(
+    z3::context& ctx, 
+    ZExprVec & _cstrlist, 
+    const StateNameSet & p, 
+    const InstrLvlAbsPtr & global_ila_ptr)>  MemoryModelCreator;
+
 
   friend class MemoryModel;
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
-  /// Default constructor.
-  InterIlaUnroller(z3::context& ctx, const IlaPtrVec & iv, MemoryModelPtr mm);
+  /// Default constructor. mm_selector is used to create mm internally
+  InterIlaUnroller(z3::context& ctx, const IlaPtrVec & iv, MemoryModelCreator mm_selector);
   /// Default destructor.
   virtual ~InterIlaUnroller();
   
@@ -88,6 +99,8 @@ private:
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return the underlying z3::context.
   inline z3::context& ctx() const { return ctx_; }
+  /// Create a dummy global ila
+  void createDummyGlobalIla();
 
 protected:
   // ------------------------- HELPERS -------------------------------------- //
@@ -106,12 +119,17 @@ protected:
   
   /// The ILAs of an SoC
   IlaPtrVec  sys_ila_;
+  /// The ILA of the system
+  InstrLvlAbsPtr global_ila_;
+
   /// The given program template
   // ProgramTemplate prog_template_;
   /// The unrollers: one per ILA
   UnrollerVec unrollers_;
   /// Set of names of shared states
-  SharedStatesSet shared_states_;
+  StateNameSet shared_states_;
+  /// Map from ila-name to set-of-state-names
+  ILANameStateNameSetMap private_states_;
 
   /// The set of constraints that should be asserted.
   ZExprVec cstr_;
@@ -185,10 +203,11 @@ public:
   /// (var type, not recorded or compatible with old records)
   /// This is useful as we only need to replace the host() of shared variables
   void RecordAndRemoveIf( ExprPtr exp , ExprJudgeFunc f );
+  void RecordAndReplaceIf( ExprPtr exp, ExprJudgeFunc f, InstrLvlAbsPtr h);
   /// \brief add back the host field according to the map
   void Restore( ExprPtr exp );
   /// \brief restore all the expr recoreded
-  void RestoreAll()
+  void RestoreAll(InstrLvlAbsPtr h = nullptr);
 private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// \brief The map of ExprPtr ==> typeof( ExprPtr->host() )

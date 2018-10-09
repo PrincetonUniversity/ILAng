@@ -82,31 +82,37 @@ namespace ila {
           _read_state_set.insert(name);
         }  
         break;
-      default: ILA_ASSERT( false ) << "Access type of state: " << name << " is neither READ nor WRITE";
+      default: ILA_ASSERT( false ) << "Access type of state: " << name << " has to be READ / WRITE";
     }
 
   }
 
   bool TraceStep::Access( AccessType acc_type , const std::string & name) {
     ILA_ASSERT( _type == TraceStepType::INST_EVT ) << "Not implemented for facet event";
-    ILA_ASSERT( acc_type == AccessType::READ || acc_type == AccessType::WRITE ) << "Access type must be READ or WRITE";
-
-    StateNameSet & access_set ( acc_type == AccessType::READ ?  _inst_read_set : _inst_write_set);
-    return IN(name, access_set) ;
+    switch(acc_type) {
+      case AccessType::READ : return IN(name,_inst_read_set);
+      case AccessType::WRITE: return IN(name,_inst_write_set);
+      case AccessType::EITHER: return IN(name,_inst_read_set) || IN(name,_inst_write_set);
+      default:
+        ILA_ASSERT(false)  << "Access type must be READ or WRITE or EITHER";
+        return false;
+    }
   }
 
 
-  bool TraceStep::Access( AccessType acc_type , SharedStatesSet * m_p_shared_states ) {
-    ILA_ASSERT( m_p_shared_states ) << "Implementation bug: the shared state pointer is not set";
+  bool TraceStep::Access( AccessType acc_type , StateNameSet * m_p_stateset ) {
+    ILA_ASSERT( m_p_stateset ) << "Implementation bug: the shared state pointer is not set";
     ILA_ASSERT( _type == TraceStepType::INST_EVT ) << "Not implemented for facet event";
-    ILA_ASSERT( acc_type == AccessType::READ || acc_type == AccessType::WRITE ) << "Access type must be READ or WRITE";
+    ILA_ASSERT( acc_type == AccessType::READ || acc_type == AccessType::WRITE || acc_type == AccessType::EITHER  ) << "Access type must be READ or WRITE or EITHER";
     
-    StateNameSet & access_set ( acc_type == AccessType::READ ?  _inst_read_set : _inst_write_set);
-
-    for(auto && _s_n : access_set) {
-      if ( In_p(_s_n , m_p_shared_states) )
-        return true;
-    }
+    if(  acc_type == AccessType::READ ||  acc_type == AccessType::EITHER )
+      for(auto && _s_n : _inst_read_set) 
+        if ( In_p(_s_n , m_p_stateset) )
+          return true;
+    if(  acc_type == AccessType::WRITE ||  acc_type == AccessType::EITHER )
+      for(auto && _s_n : _inst_write_set) 
+        if ( In_p(_s_n , m_p_stateset) )
+          return true;
     return false;
   }
 
@@ -114,9 +120,24 @@ namespace ila {
 // MemoryModel
 /******************************************************************************/
 
+  MemoryModel::MemoryModel(z3::context& ctx, 
+    ZExprVec & _cstrlist, 
+    const StateNameSet & shared_states, 
+    const ILANameStateNameSetMap & private_states, 
+    const InstrLvlAbsPtr & global_ila_ptr)
+    : 
+      m_shared_state_names(shared_states), 
+      m_ila_private_state_names(private_states),
+      m_p_global_ila(global_ila_ptr), 
+      _ctx_(ctx) , _constr(_cstrlist), nested_finder_(), 
+      mem_load_expr_finder_( nested_finder_ ) 
+  {
+    _expr2z3_ptr_ = std::make_shared<Z3ExprAdapter>(_ctx_); 
+  }
+
+  /*
   bool MemoryModel::AccessShared ( const InstrPtr & ip, AccessType acc_type )
   {
-
     ILA_ASSERT(m_p_shared_states) << "Implementation bug: the shared state pointer is not set";
 
     StateNameSet access_set;
@@ -135,14 +156,88 @@ namespace ila {
     }
     return false;
   }
-  void MemoryModel::SetSharedStates(SharedStatesSet * p)
-  { 
-    ILA_ASSERT(m_p_shared_states == NULL) << "Implementation bug: overwriting the shared state pointer";
-    m_p_shared_states = p;
-    for( auto && n_l_pair : *m_p_shared_states ) {
-      m_shared_state_names.insert(n_l_pair.first);
-    }    
+  */
+
+  TraceStepPtr MemoryModel::CreateGlobalInitStep()
+  // called by specific memory model
+  {
+    _init_trace_step = make_shared<TraceStep>( 
+      m_p_global_ila->instr("__INIT__"), // const InstrPtr & inst ,
+      _constr, // ZExprVec & cstr,
+      _ctx_,   // z3::context& ctx,
+      _ctx_.int_const(0), // Z3Expr _ts_overwrite , init trace step starts from 0
+      0, // size_t pos,
+      _expr2z3_ptr_ // Z3AdapaterPtr
+      );
+    // but you need to check if it writes some states
+    // and this check should be done according to the MCM axioms.
+    return _init_trace_step;
   }
 
+  void MemoryModel::InitSize(const ProgramTemplate & _tmpl)
+  {
+    _ila_trace_steps.resize( _tmpl.size() );
+    for (size_t idx = 0 ; idx != _tmpl.size() ; ++idx ) {
+      _ila_trace_steps[idx].resize( _tmpl[idx].size() );
+    }
+  }
+
+  void MemoryModel::SetLocalState(std::vector<bool> ordered)
+  // link local states
+  {
+     for(size_t idx = 0; idx != _ila_trace_steps.size(); ++ idx) {
+       std::vector<TraceStepPtr> & ts_seq = _ila_trace_steps[idx];       
+       bool is_ordered = ordered[idx];
+       InstrLvlAbsPtr & ila_ptr = ts_seq[0]->host();
+       const std::string & ila_name = ila_ptr->name().str();
+       auto pos = m_ila_private_state_names.find(ila_name);
+       ILA_ASSERT( pos != m_ila_private_state_names.end() ) << "Implementation BUG: host of an instruction is not a provided ILA.";
+       const StateNameSet & private_state_name = pos.second;
+
+       if(is_ordered) {
+         // for each use of unshared variable, find the latest definition, add (pos_last).nxt == (pos) to constr
+         // collect states of a ila, substract shared_state
+         // make a state_name to (trace step) write expr, step
+         // generate v(step) == write_expr (instead of v(step) == v(step_old).nxt)
+         // add to constraints
+         std::map<std::string, std::pair<ExprPtr, unsigned> > last_update_of_a_state;
+         for (auto && sname : private_state_name) {
+           last_update_of_a_state.insert(sname , std::make_pair( ila_ptr->state(sname) ,0) );
+           // when later translated, we want it to be v(step) == v,0 and the value of v,0 is constrained by init constraints
+         }
+         // now go through the the vector of ts_seq
+         for(auto && ts : ts_seq) {
+           // for all the variable it uses (private), we create  v(step) == write_expr 
+           // where write_expr is translated by _expr2z3_ptr_.GetZ3Expr( , suffix = std::to_string(saved_num) )
+           StateNameSet private_read_set;
+           StateNameSet private_write_set;
+           INTERSECT( ts->_inst_read_set , private_state_name , private_read_set );
+           INTERSECT( ts->_inst_write_set, private_state_name , private_write_set );
+           for( auto && sname : private_read_set ) {
+              auto name_expr_pos_pair_ = last_update_of_a_state.find(sname);
+              ILA_ASSERT(name_expr_pos_pair_ != last_update_of_a_state.end() ) << "Implementation BUG: instruction should not read outside the provided ILA state";
+              auto & expr_ = name_expr_pos_pair_.second.first;
+              auto & pos_  = name_expr_pos_pair_.second.second;
+              auto z3constr = ts->ConvertZ3OnThisStep( ila_ptr->state(sname) ) == _expr2z3_ptr_.GetZ3Expr( expr_, std::string(pos_) );
+              _constr.push_back(z3constr);
+           }
+
+           // for all the variable it defines (private), we update last_update_of_a_state
+           // with its update expression and the trace_steps.pos_suffix()
+           for( auto && sname : private_write_set) {
+              last_update_of_a_state[sname] = std::make_pair( ts->inst()->GetUpdate(sname) , ts->pos_suffix() );
+           } // for( auto && sname : private_write_set)
+         } // for(auto && ts : ts_seq)
+       } // if( is_ordered )
+       else {
+         // apply the RF_CO_FR
+         // create the global write list 
+         std::map<std::string, std::list< std::pair<ExprPtr, unsigned> > > all_update_of_a_state;
+         // one pass to identify all defines of a state
+         // another pass to enforce rf-co-fr
+
+       } // if( ! is_ordered )
+     }
+  }
 
 } // namespace ila

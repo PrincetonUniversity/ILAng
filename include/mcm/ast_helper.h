@@ -65,6 +65,16 @@ private:
   bool InAddrOrData;
 }; // class NestedMemAddrDataAvoider
 
+class PureNestedStoreDetector {
+  typedef std::vector<ExprPtr,ExprPtr> > AddrDataVec; // (addr,data) list
+  typedef std::unordered_map<Expr *, AddrDataVec> HashTable; // here we do use the raw pointer
+public:
+  bool isNestedStore(const ExprPtr &);
+  const AddrDataVec & getStoreAddrDataVec(const ExprPtr &);
+private:
+  HashTable map_;
+}
+
 /*
 struct MRF_HASH_FUNC {
   std::size_t operator() (const std::pair<TraceStep *, Expr *> & p) const {

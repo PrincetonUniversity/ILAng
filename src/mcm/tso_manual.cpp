@@ -20,26 +20,25 @@ TsoTraceStep::TsoTraceStep(const InstrPtr & inst , ZExprVec & cstr , z3::context
 // Tso
 /******************************************************************************/
 
-
-void Tso::RegisterSteps(InstrVec & _inst_seq,  ZExprVec & _constr, z3::context& ctx_ )
+void Tso::RegisterSteps(size_t regIdx , InstrVec & _inst_seq)
 {
   size_t pos = 1; // start from 1, same as unroller.cpp
-  _expr2z3_ptr_ = std::make_shared<Z3ExprAdapter>(ctx_);
 
   for (auto && instr_ptr_ : _inst_seq) {
     // this is the same for all instructions
-    auto inst_trace_step = std::make_shared<TsoTraceStep>(instr_ptr_ , cstr, ctx , pos , _expr2z3_ptr_);
+    auto inst_trace_step = std::make_shared<TsoTraceStep>(instr_ptr_ , cstr, _ctx_ , pos , _expr2z3_ptr_);
 
     // 1 - bookkeeping
     _all_trace_steps.push_back( inst_trace_step );
     _all_inst_trace_steps.push_back( inst_trace_step );
+    _ila_trace_steps[regIdx][pos-1] = inst_trace_step;
 
     // InstructionSet WRITE
     if ( inst_trace_step->Access( AccessType::WRITE , m_p_shared_states ) ) {
       WRITE_list.add( inst_trace_step );
     // now the facet event
       {
-        auto _facet_trace_step = std::make_shared<TraceStep>(instr_ptr_ , cstr, ctx , "wfe.global", pos , _expr2z3_ptr_);
+        auto _facet_trace_step = std::make_shared<TraceStep>(instr_ptr_ , cstr, _ctx_ , "wfe.global", pos , _expr2z3_ptr_);
         inst_trace_step->wfe_global = _facet_trace_step;
         _all_trace_steps.push_back( _facet_trace_step  );
 
@@ -50,8 +49,8 @@ void Tso::RegisterSteps(InstrVec & _inst_seq,  ZExprVec & _constr, z3::context& 
         const StateNameSet & write_set_ = inst_trace_step->get_inst_write_set();
         StateNameSet global_read_set_;
         StateNameSet global_write_set_;
-        INTERSECT(read_set_, m_shared_state_names,  global_read_set_);
-        INTERSECT(write_set_, m_shared_state_names, global_write_set_);
+        INTERSECT(read_set_, m_shared_state_names,  global_read_set_);  // global_read_set_  := read_set_   & m_shared_state_names
+        INTERSECT(write_set_, m_shared_state_names, global_write_set_); // global_write_set_ := write_set_  & m_shared_state_names
 
         // _facet_trace_step->AddStateAccess( "" , AccessType::WRITE );
         // global_write_set_.erase( "" );
@@ -78,14 +77,27 @@ void Tso::RegisterSteps(InstrVec & _inst_seq,  ZExprVec & _constr, z3::context& 
       RMW_list.add( inst_trace_step );
     }
 
-  ++ pos;
+    ++ pos;
   }
 }
 
 
-void Tso::FinishRegisterSteps(ProgramTemplate & _tmpl, ZExprVec & _constr, z3::context& ctx_ )
+void Tso::FinishRegisterSteps()
 {
   DIFFERENCE(WRITE_list, RMW_list, PureWrite_list);
+
+
+  // eventually, we need to deal with the init trace 
+  auto init_trace_step_ = CreateGlobalInitStep();
+  // 1. Bookkeeping
+  _all_trace_steps.push_back( init_trace_step_ );
+  _all_inst_trace_steps.push_back( init_trace_step_ );
+  // InstructionSet WRITE
+  if ( init_trace_step_->Access( AccessType::WRITE , m_p_shared_states ) ) 
+    WRITE_list.add( init_trace_step_ );
+  // InstructionSet READ - skip, they should not read from any other trace steps, if there are, make it arbitrary
+  // InstructionSet FENCE - skip, name is not FENCE
+  // InstructionSet RMW - skip, name not matched
 }
 
 // Note: Same Address and Same Data
@@ -103,79 +115,79 @@ void Tso::FinishRegisterSteps(ProgramTemplate & _tmpl, ZExprVec & _constr, z3::c
 
 
 
-void Tso::ApplyAxioms(ProgramTemplate & _tmpl, ZExprVec & _constr, z3::context& ctx_ )
-{
+void Tso::ApplyAxioms()
+{ 
   // ----- AXIOM RF_CO_FR BEGIN -----
-  ZExprVec var7_L;
-  for (auto && r : READ_list) {  // forall r : READ_list
-    ZExprVec var5_L;
-    for (auto && w : WRITE_list )  { // exists
-      if  ( w.name() == r.name() ) continue; 
-      if  ( SameAddressStatic(w,r) == StaticResult::STATIC_FALSE ) continue; // statically determined (exists F => F)
-      ZExprVec var3_L;
-      for (auto && w2 : WRITE_list) {  // forall w2 : WRITE_list
-        if  ( w2.name() == w.name() ) continue; 
-        if  ( SameAddressStatic(w,w2) == StaticResult::STATIC_FALSE ) continue; // statically determined (forall F => T)
-        if  ( DecodeStatic(w2) == StaticResult::STATIC_FALSE ) continue;
-        var2 = Z3Implies( ctx_.bool_val(true) , z3::implies( ( ( SameAddress ( w , w2 )  && Decode ( w2 )  )  ) , ( CO ( w2 , w )  || FR ( r , w2 )  )  )  );
-        var3_L.push_back( var2); }
-      var4 = Z3ForallList( var3_L);
-      var1 = Z3And( ctx_.bool_val(true) , ( ( ( ( SameAddress ( w , r )  && SameData ( w , r )  )  && Decode ( w )  )  && RF ( w , r )  )  && ( var4 ) )  );
-      var5_L.push_back( var1); }
-    var6 = Z3ExistsList( var5_L);
-    var7_L.push_back( var6); }
-  var8 = Z3ForallList( var7_L);
-  _constr.push_back( var8);
+  ZExprVec var10_L;
+  for (auto && s : m_shared_state_names) {  // forall s : *m_p_shared_states
+    ZExprVec var8_L;
+    for (auto && r : READ_list) {  // forall r : READ_list
+      if  ( ! r.Access(AccessType::READ, s) ) continue;
+      ZExprVec var6_L;
+      for (auto && w : WRITE_list )  { // exists w : WRITE_list
+        if  ( w.name() == r.name() ) continue; 
+        if  ( ! w.Access(AccessType::WRITE, s) ) continue;
+        ZExprVec var4_L;
+        for (auto && w2 : WRITE_list) {  // forall w2 : WRITE_list
+          if  ( w2.name() == w.name() ) continue; 
+          if  ( w2.name() == r.name() ) continue; 
+          if  ( ! w2.Access(AccessType::WRITE, s) ) continue;
+          var3 = Z3Implies( _ctx_.bool_val(true) , z3::implies( ( ( SameAddress ( w,w2,s,AccessType::WRITE,AccessType::WRITE )  && Decode ( w2 )  )  ) , ( CO ( w2,w )  || FR ( r,w2 )  )  )  );
+          var4_L.push_back( var3); }
+        var5 = Z3ForallList( var4_L);
+        var2 = Z3And( _ctx_.bool_val(true) , ( ( ( ( SameAddress ( w,r,s,AccessType::WRITE,AccessType::READ )  && SameData ( w,r,s,AccessType::WRITE,AccessType::READ )  )  && Decode ( w )  )  && RF ( w,r )  )  && ( var5 ) )  );
+        var6_L.push_back( var2); }
+      var7 = Z3ExistsList( var6_L);
+      var1 = Z3Implies( _ctx_.bool_val(true) , var7 );
+      var8_L.push_back( var1); }
+    var9 = Z3ForallList( var8_L);
+    var10_L.push_back( var9); }
+  var11 = Z3ForallList( var10_L);
+  _constr.push_back( var11);
   // ----- AXIOM RF_CO_FR END -----
   // ----- AXIOM TSO_WriteFacetOrder BEGIN -----
-  ZExprVec var9_L;
+  ZExprVec var12_L;
   for (auto && w : PureWrite_list) {  // forall w : PureWrite_list
-    var9_L.push_back( HB ( w , __wfe_global( w) ) ); }
-  var10 = Z3ForallList( var9_L);
-  _constr.push_back( var10);
+    var12_L.push_back( HB ( w,__wfe_global( w) ) ); }
+  var13 = Z3ForallList( var12_L);
+  _constr.push_back( var13);
   // ----- AXIOM TSO_WriteFacetOrder END -----
   // ----- AXIOM TSO_Store BEGIN -----
-  ZExprVec var14_L;
+  ZExprVec var17_L;
   for (auto && w1 : WRITE_list) {  // forall w1 : WRITE_list
-    ZExprVec var12_L;
+    ZExprVec var15_L;
     for (auto && w2 : WRITE_list) {  // forall w2 : WRITE_list
       if  ( w2.name() == w1.name() ) continue; 
-      if  ( SameCoreStatic(w1,w2) == StaticResult::STATIC_FALSE ) continue;
-      var11 = Z3Implies( ctx_.bool_val(true) , z3::implies( PO ( w1 , w2 )  , HB ( __wfe_global( w1) , __wfe_global( w2) )  )  );
-      var12_L.push_back( var11); }
-    var13 = Z3ForallList( var12_L);
-    var14_L.push_back( var13); }
-  var15 = Z3ForallList( var14_L);
-  _constr.push_back( var15);
+      if ( !SameCore ( w1,w2 )  ) continue;
+      var14 = Z3Implies( _ctx_.bool_val(true) , z3::implies( ( ( SameCore ( w1,w2 )  && HB ( w1,w2 )  )  ) , HB ( __wfe_global( w1),__wfe_global( w2) )  )  );
+      var15_L.push_back( var14); }
+    var16 = Z3ForallList( var15_L);
+    var17_L.push_back( var16); }
+  var18 = Z3ForallList( var17_L);
+  _constr.push_back( var18);
   // ----- AXIOM TSO_Store END -----
   // ----- AXIOM TSO_Fence BEGIN -----
-  ZExprVec var18_L;
+  ZExprVec var21_L;
   for (auto && f : FENCE_list) {  // forall f : FENCE_list
-    ZExprVec var16_L;
+    ZExprVec var19_L;
     for (auto && w : WRITE_list) {  // forall w : WRITE_list
-      if  ( SameCoreStatic(w,f) == StaticResult::STATIC_FALSE ) continue;
-      var16_L.push_back( z3::implies( PO ( w , f )  , HB ( __wfe_global( w) , f )  ) ); }
-    var17 = Z3ForallList( var16_L);
-    var18_L.push_back( var17); }
-  var19 = Z3ForallList( var18_L);
-  _constr.push_back( var19);
+      if ( !SameCore ( w,f )  ) continue;
+      var19_L.push_back( z3::implies( ( ( SameCore ( w,f )  && HB ( w,f )  )  ) , HB ( __wfe_global( w),f )  ) ); }
+    var20 = Z3ForallList( var19_L);
+    var21_L.push_back( var20); }
+  var22 = Z3ForallList( var21_L);
+  _constr.push_back( var22);
   // ----- AXIOM TSO_Fence END -----
   // ----- AXIOM TSO_RMW BEGIN -----
-  ZExprVec var20_L;
+  ZExprVec var23_L;
   for (auto && i : RMW_list) {  // forall i : RMW_list
-    var20_L.push_back( Sync ( i , __wfe_global( i) ) ); }
-  var21 = Z3ForallList( var20_L);
-  _constr.push_back( var21);
+    var23_L.push_back( Sync ( i,__wfe_global( i) ) ); }
+  var24 = Z3ForallList( var23_L);
+  _constr.push_back( var24);
   // ----- AXIOM TSO_RMW END -----
 
-  // TODO: Translate the functions
-
 }
 
-void Tso::SetLocalState(std::set<bool> ordered, ProgramTemplate & _tmpl, ZExprVec & _constr, z3::context& ctx_ )
-{
-
-}
 
 }
 
@@ -186,4 +198,23 @@ TraceStep & __wfe_global(TraceStep & ts)
   TsoTraceStep * _cts = dynamic_cast<TsoTraceStep>( &ts );
   ILA_ASSERT(_cts) << "MCM: trace step: "<< ts.name() << "has no attribute: wfe.global";
   return *( (_cts->wfe_global) .get() ) ;
+}
+
+
+z3::expr Tso::RF( TraceStep &w,TraceStep &r) {
+  if (SameCore ( w,r )  ) return HB ( w,r ) ; 
+  if ( !SameCore ( w,r )  ) return HB ( __wfe_global( w),r ) ; 
+  return ( ( ( z3::implies( SameCore ( w,r )  , HB ( w,r )  )  ) && ( z3::implies( !( SameCore ( w,r )  )  , HB ( __wfe_global( w),r )  )  ) )  );
+}
+
+z3::expr Tso::FR( TraceStep &r,TraceStep &w) {
+  if (SameCore ( r,w )  ) return HB ( r,w ) ; 
+  if ( !SameCore ( r,w )  ) return HB ( r,__wfe_global( w) ) ; 
+  return ( ( ( z3::implies( SameCore ( r,w )  , HB ( r,w )  )  ) && ( z3::implies( !( SameCore ( r,w )  )  , HB ( r,__wfe_global( w) )  )  ) )  );
+}
+
+z3::expr Tso::CO( TraceStep &w1,TraceStep &w2) {
+  if (SameCore ( w1,w2 )  ) return HB ( w1,w2 ) ; 
+  if ( !SameCore ( w1,w2 )  ) return HB ( __wfe_global( w1),__wfe_global( w2) ) ; 
+  return ( ( ( z3::implies( SameCore ( w1,w2 )  , HB ( w1,w2 )  )  ) && ( z3::implies( !( SameCore ( w1,w2 )  )  , HB ( __wfe_global( w1),__wfe_global( w2) )  )  ) )  );
 }
