@@ -28,7 +28,7 @@ namespace ila {
   }
 
   TraceStep::TraceStep(const InstrPtr & inst , ZExprVec & cstr, z3::context& ctx , size_t pos , const Z3ExprAdapterPtr & z3a  ) :
-    _type(TraceStepType::INST_EVT), _inst(inst), _cstr(cstr), _name( GetName() ), timestamp( ctx.int_const( _name.c_str() ) ),
+    _type(TraceStepType::INIT_EVT), _inst(inst), _cstr(cstr), _name( GetName() ), timestamp( ctx.int_const( _name.c_str() ) ),
     _pos_suffix(pos) , _expr2z3_ptr_(z3a) , _ctx_(ctx)
     {
       InitReadWriteSet(inst);
@@ -88,7 +88,7 @@ namespace ila {
   }
 
   bool TraceStep::Access( AccessType acc_type , const std::string & name) {
-    ILA_ASSERT( _type == TraceStepType::INST_EVT ) << "Not implemented for facet event";
+    ILA_ASSERT( _type == TraceStepType::INST_EVT || _type == TraceStepType::INIT_EVT ) << "Not implemented for facet event";
     switch(acc_type) {
       case AccessType::READ : return IN(name,_inst_read_set);
       case AccessType::WRITE: return IN(name,_inst_write_set);
@@ -102,7 +102,7 @@ namespace ila {
 
   bool TraceStep::Access( AccessType acc_type , StateNameSet * m_p_stateset ) {
     ILA_ASSERT( m_p_stateset ) << "Implementation bug: the shared state pointer is not set";
-    ILA_ASSERT( _type == TraceStepType::INST_EVT ) << "Not implemented for facet event";
+    ILA_ASSERT( _type == TraceStepType::INST_EVT || _type == TraceStepType::INIT_EVT ) << "Not implemented for facet event";
     ILA_ASSERT( acc_type == AccessType::READ || acc_type == AccessType::WRITE || acc_type == AccessType::EITHER  ) << "Access type must be READ or WRITE or EITHER";
     
     if(  acc_type == AccessType::READ ||  acc_type == AccessType::EITHER )
@@ -218,26 +218,99 @@ namespace ila {
               ILA_ASSERT(name_expr_pos_pair_ != last_update_of_a_state.end() ) << "Implementation BUG: instruction should not read outside the provided ILA state";
               auto & expr_ = name_expr_pos_pair_.second.first;
               auto & pos_  = name_expr_pos_pair_.second.second;
-              auto z3constr = ts->ConvertZ3OnThisStep( ila_ptr->state(sname) ) == _expr2z3_ptr_.GetZ3Expr( expr_, std::string(pos_) );
+              auto z3constr = ts->ConvertZ3OnThisStep( ila_ptr->state(sname) ) == _expr2z3_ptr_.GetZ3Expr( expr_, std::to_string(pos_) );
               _constr.push_back(z3constr);
            }
 
            // for all the variable it defines (private), we update last_update_of_a_state
            // with its update expression and the trace_steps.pos_suffix()
            for( auto && sname : private_write_set) {
-              last_update_of_a_state[sname] = std::make_pair( ts->inst()->GetUpdate(sname) , ts->pos_suffix() );
+             auto conditional_update = make_shared<ExprOpIte>( ts->inst()->GetDecode() , ts->inst()->GetUpdate(sname) , ts->host()->state(sname) );
+             // NOT using its direct form 
+             //  -- last_update_of_a_state[sname] = std::make_pair( ts->inst()->GetUpdate(sname) , ts->pos_suffix() );
+             // But you can still enforce Decode ...
+             last_update_of_a_state[sname] = std::make_pair( conditional_update , ts->pos_suffix() );
            } // for( auto && sname : private_write_set)
          } // for(auto && ts : ts_seq)
        } // if( is_ordered )
        else {
          // apply the RF_CO_FR
          // create the global write list 
-         std::map<std::string, std::list< std::pair<ExprPtr, unsigned> > > all_update_of_a_state;
+         // update, decode , pos_suffix, timestamp
+         std::map<std::string, std::list< std::pair<ExprPtr, ExprPtr, unsigned , z3::expr &> > > all_update_of_a_state;
          // one pass to identify all defines of a state
+         ExprPtr decode_true = make_shared<ExprConst>( BoolVal(true) );
+         z3::expr time_0;
+         for (auto && sname : private_state_name) {
+           all_update_of_a_state.insert(sname , std::list< std::pair<ExprPtr, unsigned> > ());
+           all_update_of_a_state[sname].push_back( std::make_tuple( ila_ptr->state(sname),  decode_true , time_0, 0) );
+           // when later translated, we want it to be v(step) == v,0 and the value of v,0 is constrained by init constraints
+         }
+         // now go through the the vector of ts_seq, and collect the definitions
+         for(auto && ts : ts_seq) {
+           StateNameSet private_write_set;
+           INTERSECT( ts->_inst_write_set, private_state_name , private_write_set );
+           for ( auto && sname : private_write_set) {
+             all_update_of_a_state[sname].push_back( 
+              std::make_tuple( 
+                ts->inst()->GetUpdate(sname), 
+                ts->inst()->GetDecode() , 
+                ts->timestamp,
+                ts->pos_suffix() ) );
+           } // for ( auto && sname : private_write_set)
+         } // for(auto && ts : ts_seq)
          // another pass to enforce rf-co-fr
+         for(auto && ts : ts_seq) {
+           StateNameSet private_read_set;
+           INTERSECT( ts->_inst_read_set , private_state_name , private_read_set );
+           for( auto && sname : private_read_set ) {
+             // for this state
+             auto update_map_pos = all_update_of_a_state.find(sname);
+             ILA_ASSERT( update_map_pos != all_update_of_a_state.end() ) << "BUG: private state is not defined!";
+             std::list< std::pair<ExprPtr, unsigned> > & defineList = update_map_pos.second;
+             for (size_t idx_writer = 0; idx_writer != defineList.size() ; ++ idx_writer) {
+               auto & name_expr_pos_tuple_ = defineList[idx_writer];
+               auto & expr_   = std::get<0>(name_expr_pos_tuple_.second);
+               auto & decode_ = std::get<1>(name_expr_pos_tuple_.second);
+               auto & tstamp_ = std::get<2>(name_expr_pos_tuple_.second);
+               auto & pos_    = std::get<3>(name_expr_pos_tuple_.second);
+               auto z3constr  = ( ts->ConvertZ3OnThisStep( ila_ptr->state(sname) ) == _expr2z3_ptr_.GetZ3Expr( expr_, std::to_string(pos_) ) )
+                             && ( ts->timestamp < tstamp_ ) 
+                             && ( _expr2z3_ptr_.GetZ3Expr( decode_, std::to_string(pos_) ) );
+               // for all other writer (interference)
+               for ( size_t idx_interfere = 0; idx_interfere != defineList.size() ; ++ idx_interfere) {
+                 if(idx_interfere == idx_writer) continue;
+                 auto & name_expr_pos_tuple_i = defineList[idx_interfere];
+                 auto & expr_i   = std::get<0>(name_expr_pos_tuple_i.second);
+                 auto & decode_i = std::get<1>(name_expr_pos_tuple_i.second);
+                 auto & tstamp_i = std::get<2>(name_expr_pos_tuple_i.second);
+                 auto & pos_i    = std::get<3>(name_expr_pos_tuple_i.second);
 
+                 // if decode == true , either CO or FR
+                 z3constr = z3constr && 
+                            z3::implies( _expr2z3_ptr_.GetZ3Expr( decode_i, std::to_string(pos_i) ) ,  // decode => 
+                                         tstamp_i < tstamp_ || tstamp_i > ts->timestamp )           // CO(i,w) \/ FR(r,i)
+               } // for ( size_t idx_interfere ...
+               _constr.push_back(z3constr);
+             } // for (size_t idx_writer ...
+           } // for( auto && sname : private_read_set ) 
+         } // for(auto && ts : ts_seq)
        } // if( ! is_ordered )
-     }
+
+     } // for(size_t idx = 0; idx != _ila_trace_steps.size(); ++ idx)
+  } // end of function : SetLocalState
+
+  void MemoryModel::AddSingleTraceStepProperty( ExprPtr property, std::function<bool(TraceStepPtr)> filter)
+  {
+    for (auto && ts_ptr : _all_trace_steps) {
+      if( filter(ts_ptr) ) {
+        _constr.push_back( ts_ptr->ConvertZ3OnThisStep(property) );
+      }
+    }
+  }
+  void MemoryModel::AddDoubleTraceStepProperty( std::function<z3::expr(TraceStepPtr,TraceStepPtr)>, std::function<bool(TraceStepPtr,TraceStepPtr)> )
+  {
+    ILA_ASSERT(false)<< "Not implemented yet";
   }
 
 } // namespace ila

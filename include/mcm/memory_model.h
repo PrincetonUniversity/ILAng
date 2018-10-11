@@ -70,7 +70,7 @@ protected:
   /// The name of trace step
   std::string _name;
   /// The time stamp
-  Z3Expr timestamp;  
+  z3::expr timestamp;  
   /// The relative position
   size_t _pos_suffix;
   /// Keep an adapter that trace steps can share
@@ -91,7 +91,7 @@ public:
   /// Return the type of the trace step
   const TraceStepType type() const { return _type; }
   /// Return the associated instruction for facet / instruction event
-  InstrPtr inst() const { return _type == TraceStepType::INST_EVT ? _inst : _parent_inst; }
+  InstrPtr inst() const { return _type == TraceStepType::INST_EVT || _type == TraceStepType::INIT_EVT ? _inst : _parent_inst; }
   /// Return the position suffix (for facet, they should have the same suffix as the main step to ensure they use the same var)
   size_t pos_suffix() const { return _pos_suffix; }
   /// Return the adapter
@@ -101,12 +101,12 @@ public:
 
   
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
-  /// To create a trace step, you need to know the instruction also should give a constraint set
+  /// To create a trace step, you need to know the instruction also should give a constraint set: INST_EVT
   TraceStep(const InstrPtr & inst , ZExprVec & cstr , z3::context& ctx , size_t pos , const Z3ExprAdapterPtr & z3a );
-  /// This function allows you to overwrite the timestamp instead of creating a new one
+  /// This function allows you to overwrite the timestamp instead of creating a new one: INIT_EVT
   TraceStep(const InstrPtr & inst , ZExprVec & cstr , z3::context& ctx,  Z3Expr _ts_overwrite, size_t pos , const Z3ExprAdapterPtr & z3a );
-  /// To create a facet event 
-  TraceStep(const InstrPtr & ref_inst, ZExprVec & cstr , z3::context& ctx , const std::string &, size_t pos , const Z3ExprAdapterPtr & z3a );
+  /// To create a facet event: FACET_EVT
+  TraceStep(const InstrPtr & ref_inst, ZExprVec & cstr , z3::context& ctx , const std::string &fevt_name, size_t pos , const Z3ExprAdapterPtr & z3a );
   // ------------------------- MEMBERS -------------------------------------- //
   /// To update the set for FACET_EVT
   void AddStateAccess(const std::string & name, AccessType acc_type);
@@ -114,8 +114,8 @@ public:
   void AddStateAccess(const StateNameSet &s, AccessType acc_type);
   /// Translate an arbitrary expr using the frame number of this step (so it refers to the var used in this step)
   ZExpr ConvertZ3OnThisStep(const ExprPtr & ast) { return z3adapter()->GetExpr( ast , std::to_string( pos_suffix() ) ); }
-  
 
+  # error "let's add function to create property on a certain frame"
   // ------------------------- HELPERS -------------------------------------- //
   /// To determine if the instruction READ/WRITE a certain state 
   bool Access( AccessType acc_type , const std::string & name);
@@ -183,6 +183,10 @@ public:
   /// To constrain on the local states, based on whether they are in order or not, can be overwritten by the specific model.
   void virtual SetLocalState(std::vector<bool> ordered);
   // HZ note: All the steps should be registered through the first function: RegisterSteps
+  /// Assert a property that some trace step (decided by filter) should follow
+  void virtual AddSingleTraceStepProperty( ExprPtr property, std::function<bool(TraceStepPtr)> filter);
+  /// Assert a property that some pair of trace steps (decided by filter) should follow
+  void virtual AddDoubleTraceStepProperty( std::function<z3::expr(TraceStepPtr,TraceStepPtr)>, std::function<bool(TraceStepPtr,TraceStepPtr)> );
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   // we will need a wrapper on the outside
   MemoryModel(z3::context& ctx, 
