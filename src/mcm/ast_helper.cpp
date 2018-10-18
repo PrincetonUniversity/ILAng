@@ -12,7 +12,7 @@ namespace ila {
     // Helper Class: VarUseFinder
     /******************************************************************************/
 
-    template <class T, typename C> 
+    template <class T> 
     void VarUseFinder::Traverse(const ExprPtr & expr, VarUseList & uses ) {
       size_t num = expr->arg_num();
 
@@ -28,10 +28,11 @@ namespace ila {
       for (size_t i = start; i != num; ++i) 
         Traverse( expr->arg(i) );
       if ( expr->is_var() )
-        uses.push_back( C(expr) );
+        uses.push_back( procFunc(expr) );
     }
 
-    template <class T, typename C> 
+    // collect variable usage of an instruction (decode/update)
+    template <class T> 
     void VarUseFinder::Traverse(const InstrPtr & i, VarUseList & uses ) {
       Traverse( i->GetDecode , uses);
 
@@ -40,8 +41,9 @@ namespace ila {
         Traverse( i->GetUpdate(state_name_) , uses ); // traverse the update function
       }
     }
-
-    template <class T, typename C> 
+    // collect variable usage of an ila (fetch/valid/instructions)
+    // question: maybe also init?
+    template <class T> 
     void VarUseFinder::Traverse(const InstrLvlAbsPtr & i, VarUseList & uses ) {
       Traverse(i->fetch() , uses);
       Traverse(i->valid() , uses);
@@ -51,9 +53,6 @@ namespace ila {
         Traverse(i->instr(idx) , uses);
     }
 
-    std::string ExprPtr2Name(const ExprPtr & e) {
-      return e->name();
-    }
 
 
     /******************************************************************************/
@@ -116,7 +115,7 @@ namespace ila {
     /******************************************************************************/
     // Helper Class: NestedMemAddrDataAvoider
     /******************************************************************************/
-
+/* Seems not used, comment out for now
   // we already guarantee that the outer is memop
   bool PureNestedStoreDetector::isNestedStore(const ExprPtr & node, ... ?)
   {
@@ -129,7 +128,7 @@ namespace ila {
   {
 
   }
-
+*/
     /******************************************************************************/
     // Helper Class: MemReadFinder
     /******************************************************************************/
@@ -137,7 +136,9 @@ namespace ila {
   void MemReadFinder::FindAddrDataPairVecInExpr(const ExprPtr &node, MRFVal & nad_map_)
   {
     // read from the map_
-    node->DepthFirstVisit( std::bind(&MemReadFinder::VisitNode, this, _1, nad_map_ )  );
+    // I hope the above will go through, so we don't need to create
+    // a operator() that looks strange, and we have no idea what it does
+    node->DepthFirstVisit( std::bind(&MemReadFinder::VisitNode, this, std::placeholders::_1, nad_map_ )  );
   }
 
   void MemReadFinder::VisitNode(const ExprPtr &node, MRFVal & nad_map_)
@@ -156,29 +157,6 @@ namespace ila {
       }
     }
   }
-/*
-z3::expr MemoryModel::MemVarSameAddress( const ExprPtr & l , const ExprPtr & r , const z3::expr &f, const z3::expr &t, TraceStep & tracel , TraceStep & tracer ) 
-{
-  if( l->is_var() || r->is_var() )
-    return f;
-  // Here we try to peel the mem op
-  ILA_ASSERT( l->is_op() && r->is_op() ) << "Implementation bug: unable to derive z3 expression from AST about for SameAddress function, requiring AST to be ExprOp";
-  std::shared_ptr<ExprOp> lptr = dynamic_pointer_cast<ExprOp>( l );
-  std::shared_ptr<ExprOp> rptr = dynamic_pointer_cast<ExprOp>( r );
-  // Both should be convertible to ExprOp
-  ILA_ASSERT( lptr && rptr ) << "Implementation bug: unable to derive z3 expression from AST about for SameAddress function, requiring AST to be ExprOp";
-  // Now we need to make sure : either it is a load or a store
-  ILA_ASSERT( lptr->op_name() == "LOAD" || lptr->op_name() == "STORE" ) << "Implementation bug: unable to derive z3 expression from AST about for SameAddress function, requiring AST to be ExprOpLoad/Store";
-  ILA_ASSERT( rptr->op_name() == "LOAD" || rptr->op_name() == "STORE" ) << "Implementation bug: unable to derive z3 expression from AST about for SameAddress function, requiring AST to be ExprOpLoad/Store";  
-  // and not nested from here
-  ILA_ASSERT( nested_finder_.NotNested(l) && nested_finder_.NotNested(r) ) << "Implementation bug: unable to derive z3 expression from AST about for SameAddress function, unable to handle nested MemOp";
-  // So now we can extract the address field ( arg(1) ) // we don't even need to convert to the derived type
-  auto laddr = l->arg(1);
-  auto raddr = r->arg(1);
-
-  return tracel.ConvertZ3OnThisStep(laddr) == tracer.ConvertZ3OnThisStep(raddr);
-}
-*/
 
 
   const AddrDataVec & MemReadFinder::FindAddrDataPairVecInInst(const InstrPtr &instr, const std::string &sname)
@@ -206,7 +184,7 @@ z3::expr MemoryModel::MemVarSameAddress( const ExprPtr & l , const ExprPtr & r ,
     }
     else {
       // Else, 
-      return (*nad_map_ptr)[ sname ]; // I hope this would be fine
+      return (*nad_map_ptr)[ sname ]; //so it will create an empty list? Yes
     }
   }
 

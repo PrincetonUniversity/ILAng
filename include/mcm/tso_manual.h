@@ -33,11 +33,11 @@ class Tso : public MemoryModel {
 
 public:
   /// To create more view operations associated with an instruction, and also to add them to the set
-  void virtual RegisterSteps(size_t regIdx , InstrVec & _inst_seq);
+  void virtual RegisterSteps(size_t regIdx , InstrVec & _inst_seq) override;
   /// To do some extra bookkeeping work when it is known that no more instruction steps are needed.
-  void virtual FinishRegisterSteps();
+  void virtual FinishRegisterSteps() override;
   /// To apply the axioms, the complete program should be given
-  void virtual ApplyAxioms();
+  void virtual ApplyAxioms() override;
   // HZ note: All the step should be registered through the first function: RegisterSteps
   /// Constructor
   Tso(z3::context& ctx, 

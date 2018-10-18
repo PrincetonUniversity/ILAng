@@ -115,7 +115,6 @@ public:
   /// Translate an arbitrary expr using the frame number of this step (so it refers to the var used in this step)
   ZExpr ConvertZ3OnThisStep(const ExprPtr & ast) { return z3adapter()->GetExpr( ast , std::to_string( pos_suffix() ) ); }
 
-  # error "let's add function to create property on a certain frame"
   // ------------------------- HELPERS -------------------------------------- //
   /// To determine if the instruction READ/WRITE a certain state 
   bool Access( AccessType acc_type , const std::string & name);
@@ -181,7 +180,7 @@ public:
   /// To apply the axioms, the complete program should be given
   void virtual ApplyAxioms() = 0;
   /// To constrain on the local states, based on whether they are in order or not, can be overwritten by the specific model.
-  void virtual SetLocalState(std::vector<bool> ordered);
+  void virtual SetLocalState(const std::vector<bool> & ordered);
   // HZ note: All the steps should be registered through the first function: RegisterSteps
   /// Assert a property that some trace step (decided by filter) should follow
   void virtual AddSingleTraceStepProperty( ExprPtr property, std::function<bool(TraceStepPtr)> filter);

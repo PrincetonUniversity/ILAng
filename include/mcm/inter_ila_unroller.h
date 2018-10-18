@@ -8,6 +8,7 @@
 #include "ila/instr_lvl_abs.h"
 #include "ila/z3_expr_adapter.h"
 #include "verify/unroller.h"
+#include "mcm/memory_model.h"
 #include "z3++.h"
 #include <set>
 #include <vector>
@@ -56,7 +57,9 @@ public:
     z3::context& ctx, 
     ZExprVec & _cstrlist, 
     const StateNameSet & p, 
-    const InstrLvlAbsPtr & global_ila_ptr)>  MemoryModelCreator;
+    const InstrLvlAbsPtr & global_ila_ptr)>  MemoryModelCreator;  
+  /// Type of trace step pointer
+  typedef std::shared_ptr<TraceStep> TraceStepPtr;
 
 
   friend class MemoryModel;
@@ -86,8 +89,14 @@ public:
   // void ClearCondPred();
 
   /// \brief [Application-specific] Unroll (ordered/unordered)
-  /// \param[in] iv the program template.
-  virtual void Unroll(const ProgramTemplate & tmpl);
+  /// \param[in] the program template.
+  /// \param[in] whether each template should be treated as ordered or unordered
+  virtual void Unroll(const ProgramTemplate & tmpl, const std::vector<bool> & ordered);
+
+  /// \briedf Add a property
+  /// \param[in] a property that is going to translated to Z3
+  /// \param[in] a filter to choose which trace step to enforce
+  void AddSingleTraceStepProperty(ExprPtr property, std::function<bool(TraceStepPtr)> filter);
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
@@ -137,39 +146,6 @@ protected:
   ZExprVec init_shared_vars_z3_;
 
 }; // class InterIlaUnroller
-
-/// \brief Class of ordered unroller (treat the template as ordered)
-class InterIlaOrderedUnroller : public InterIlaUnroller {
-public:
-  // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
-  /// Default constructor.
-  InterIlaOrderedUnroller(z3::context& ctx, const IlaPtrVec & iv);
-  /// Default destructor.
-  virtual ~InterIlaOrderedUnroller();
-
-  // ------------------------- METHODS -------------------------------------- //
-  /// \brief [Application-specific] Unroll (ordered)
-  /// \param[in] iv the program template
-  virtual ZExpr Unroll(const ProgramTemplate & iv);
-
-}; // class InterIlaOrderedUnroller
-
-/// \brief Class of ordered unroller (treat the template as unordered)
-class InterIlaUnorderedUnroller : public InterIlaUnroller {
-public:
-  // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
-  /// Default constructor.
-  InterIlaUnorderedUnroller(z3::context& ctx, const IlaPtrVec & iv);
-  /// Default destructor.
-  virtual ~InterIlaUnorderedUnroller();
-  // ------------------------- METHODS -------------------------------------- //
-  /// \brief [Application-specific] Unroll (unordered)
-  /// \param[in] iv the program template
-  virtual ZExpr Unroll(const ProgramTemplate & iv);
-
-}; // class InterIlaUnorderedUnroller
-
-
 
 
 /******************************************************************************/

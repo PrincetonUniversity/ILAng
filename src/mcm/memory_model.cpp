@@ -20,9 +20,14 @@ namespace ila {
     return _inst->name() + "_ts" + std::to_string(trace_step_seq_no);
   }
 
+  // a small helper function
+  std::string ExprPtr2Name(const ExprPtr & e) {
+      return e->name();
+  }
+
   void TraceStep::InitReadWriteSet( const InstrPtr & inst  )  // this can be the inst/parent inst
   {
-      VarUseFinder<std::string, ExprPtr2Name> use_finder_;
+      VarUseFinder<std::string> use_finder_(ExprPtr2Name);
       use_finder_.Traverse( inst , _inst_read_set );
       inst->GetUpdatedStates(_inst_write_set);
   }
@@ -182,7 +187,7 @@ namespace ila {
     }
   }
 
-  void MemoryModel::SetLocalState(std::vector<bool> ordered)
+  void MemoryModel::SetLocalState(const std::vector<bool> & ordered)
   // link local states
   {
      for(size_t idx = 0; idx != _ila_trace_steps.size(); ++ idx) {

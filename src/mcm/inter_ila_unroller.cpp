@@ -111,25 +111,30 @@ namespace ila {
     // Please note: we don't support extra suffix !!!
   }
 
-  void InterIlaUnroller::Unroll(const ProgramTemplate & tmpl)
+  void InterIlaUnroller::Unroll(const ProgramTemplate & tmpl, std::vector<bool> ordered)
   {
+    // store to constraints
+    // time stamps
+    // ordered or not
+    // find the shared variables and apply pi-functions
+    // need to know when to create more steps: go through the tmpl
     size_t ila_num = sys_ila_.size();
     ILA_ASSERT( ila_num == unrollers_.size() );
     ILA_ASSERT( ila_num == tmpl.size() );
+    ILA_ASSERT( ila_num == ordered.size() );
     mm_->InitSize(tmpl);
     for (size_t idx = 0; idx != ila_num; ++ idx) {
       mm_->RegisterSteps( tmpl[idx] , cstr_ , ctx() ); // register those instructions
       ZExpr constr = unrollers_[idx]->PathNone( tmpl[idx] , 1 ); // starting from 1 : the first but not init.
-      ...
-      // store to constraints
-      // time stamps
-      // ordered or not
-      // find the shared variables and apply pi-functions?
-      // need to know when to create more steps: go through the tmpl?
     }
     mm_->FinishRegisterSteps( tmpl, cstr_ , ctx() ); // HZ Question: is it too late?
     mm_->ApplyAxioms( tmpl, cstr_, ctx() );
+    mm_->SetLocalState( ordered );
   }
+
+
+  void InterIlaUnroller::AddSingleTraceStepProperty(ExprPtr property, std::function<bool(TraceStepPtr)> filter)
+  { mm_->AddSingleTraceStepProperty(property, filter);  }
 
   void InterIlaUnroller::GenSysInitConstraints()
   {
