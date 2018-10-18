@@ -1,5 +1,6 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/format.hpp>
 
 #include <ast.hpp>
 #include <util.hpp>

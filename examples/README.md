@@ -1,5 +1,7 @@
 ## Examples for ILA.
 
+The below examples are written using the [Python API](https://github.com/Bo-Yuan-Huang/ILA-Tools/tree/master/py-tmpl-synth). To reproduce, see the instructions for installing the Python package. 
+
 [AES-RTL-C](https://github.com/Bo-Yuan-Huang/ILA/tree/master/examples/AES-RTL-C) 
 provides a tutorial on synthesizing ILAs for AES from RTL implementation and from C 
 implementation.
