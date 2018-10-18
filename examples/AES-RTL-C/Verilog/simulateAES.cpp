@@ -357,7 +357,7 @@ void init()
 
 void assignFromFile(const std::string& fileName)
 {
-    ifstream in(fileName.c_str());
+    std::ifstream in(fileName.c_str());
     if (!in.is_open()) {
         std::cerr << "File " << fileName << " not open.\n";
         return;
@@ -521,14 +521,14 @@ void execute() // execute a cycle clk (0)->1->0
 
 void writeToFile(const std::string& fileName)
 {
-    ofstream out(fileName.c_str());
+    std::ofstream out(fileName.c_str());
     if (!out.is_open()) {
         std::cerr << "File " << fileName << " not open.\n";
         return;
     }
     INT temp = 0;
 
-    out << ".AES_OP_START\n" << hex;
+    out << ".AES_OP_START\n" << std::hex;
     
     out << aes_stateStr << " " 
         << (INT)top->simXramAes_top__DOT__aes_top1__DOT__aes_reg_state_next << "\n";
@@ -636,7 +636,7 @@ void writeToFile(const std::string& fileName)
 
 INT hex2int(const std::string& str)
 {
-    stringstream ss;
+    std::stringstream ss;
     int64_t res;
     ss << std::hex << str;
     ss >> res;

@@ -3,14 +3,14 @@
 Build Status
 ------------
 
-[![Build Status](https://semaphoreci.com/api/v1/bo-yuan-huang/ila/branches/master/badge.svg)](https://semaphoreci.com/bo-yuan-huang/ila)
+[![Build Status](https://semaphoreci.com/api/v1/bo-yuan-huang/ila-tools/branches/master/badge.svg)](https://semaphoreci.com/bo-yuan-huang/ila-tools)
 
 
 #### z3 
-Building ILA synthesis tool requires [z3](https://github.com/Z3Prover/z3) 4.4.0 or above.
+Building ILA synthesis tool requires [z3](https://github.com/Z3Prover/z3) 4.4.0 to 4.7.1 (latest release).
 
 #### boost
-Building ILA synthesis tool requires [boost](https://www.boost.org) 1.60.0 or above.
+Building ILA synthesis tool requires [boost](https://www.boost.org) 1.54.0 to 1.60.0.
 
 ### Building with boost:
 
