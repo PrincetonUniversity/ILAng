@@ -15,8 +15,8 @@ namespace ila {
 // TsoTraceStep
 /******************************************************************************/
 
-TsoTraceStep::TsoTraceStep(const InstrPtr & inst , ZExprVec & cstr, z3::context& ctx , size_t pos , const Z3ExprAdapterPtr & z3a  )
-: TraceStep( inst, cstr, ctx, pos, z3a)
+TsoTraceStep::TsoTraceStep(const InstrPtr & inst , ZExprVec & cstr, z3::context& ctx , size_t pos )
+: TraceStep( inst, cstr, ctx, pos)
 { }
 
 /******************************************************************************/
@@ -29,7 +29,7 @@ void Tso::RegisterSteps(size_t regIdx , const InstrVec & _inst_seq)
 
   for (auto && instr_ptr_ : _inst_seq) {
     // this is the same for all instructions
-    auto inst_trace_step_ptr = std::make_shared<TsoTraceStep>(instr_ptr_ , _constr, _ctx_ , pos , _expr2z3_ptr_);
+    auto inst_trace_step_ptr = std::make_shared<TsoTraceStep>(instr_ptr_ , _constr, _ctx_ , pos );
 
     // 1 - bookkeeping
     _all_trace_steps.insert( inst_trace_step_ptr );
@@ -41,7 +41,7 @@ void Tso::RegisterSteps(size_t regIdx , const InstrVec & _inst_seq)
       WRITE_list.insert( inst_trace_step_ptr );
     // now the facet event
       {
-        auto _facet_trace_step = std::make_shared<TraceStep>(instr_ptr_ , _constr, _ctx_ , "wfe.global", pos , _expr2z3_ptr_);
+        auto _facet_trace_step = std::make_shared<TraceStep>(instr_ptr_ , _constr, _ctx_ , "wfe.global", pos );
         inst_trace_step_ptr->wfe_global = _facet_trace_step;
         _all_trace_steps.insert( _facet_trace_step  );
 

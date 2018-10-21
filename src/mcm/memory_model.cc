@@ -35,9 +35,9 @@ namespace ila {
   }
 
  // constructor of an instruction trace step
-  TraceStep::TraceStep(const InstrPtr & inst , ZExprVec & cstr, z3::context& ctx , size_t pos , const Z3ExprAdapterPtr & z3a  ) :
+  TraceStep::TraceStep(const InstrPtr & inst , ZExprVec & cstr, z3::context& ctx , size_t pos  ) :
     _type(TraceStepType::INST_EVT), _inst(inst), _cstr(cstr), _name( GetName() ), timestamp( ctx.int_const( _name.c_str() ) ),
-    _pos_suffix(pos) , _expr2z3_ptr_(z3a) , _ctx_(ctx)
+    _pos_suffix(pos) , _expr2z3_(ctx) , _ctx_(ctx)
     {
       InitReadWriteSet(inst);
       _cstr.push_back( timestamp > 0 ); // if it is not overwritten, then we will set this constraint
@@ -45,16 +45,16 @@ namespace ila {
 
   // constructor for overwritten timesamp
   // usually, only the init trace step does this
-  TraceStep::TraceStep(const InstrPtr & inst , ZExprVec & cstr, z3::context& ctx , ZExpr ts_overwrite ,  size_t pos , const Z3ExprAdapterPtr & z3a) :
+  TraceStep::TraceStep(const InstrPtr & inst , ZExprVec & cstr, z3::context& ctx , ZExpr ts_overwrite ,  size_t pos ) :
     _type(TraceStepType::INIT_EVT), _inst(inst), _cstr(cstr), _name( GetName() ), timestamp( ts_overwrite ) ,
-    _pos_suffix(pos) , _expr2z3_ptr_(z3a) , _ctx_(ctx)
+    _pos_suffix(pos) , _expr2z3_(ctx) , _ctx_(ctx)
     { InitReadWriteSet(inst); }
 
 
   /// To create a facet event , the last parameter is actually not in use now
-  TraceStep::TraceStep(const InstrPtr & ref_inst, ZExprVec & cstr , z3::context& ctx, const std::string & s,  size_t pos , const Z3ExprAdapterPtr & z3a) :
+  TraceStep::TraceStep(const InstrPtr & ref_inst, ZExprVec & cstr , z3::context& ctx, const std::string & s,  size_t pos ) :
     _type(TraceStepType::FACET_EVT), _parent_inst(ref_inst), _cstr(cstr), _name( GetName() + "_fevt" ), timestamp( ctx.int_const( _name.c_str() ) ) ,
-    _pos_suffix(pos) , _expr2z3_ptr_(z3a) , _ctx_(ctx)
+    _pos_suffix(pos) , _expr2z3_(ctx) , _ctx_(ctx)
     { 
       InitReadWriteSet(_parent_inst); 
       _cstr.push_back( timestamp > 0 ); // For inst event and facet events
@@ -138,10 +138,9 @@ namespace ila {
       m_shared_state_names(shared_states), 
       m_ila_private_state_names(private_states),
       m_p_global_ila(global_ila_ptr), 
-      _ctx_(ctx) , _constr(_cstrlist), nested_finder_(), 
+      _ctx_(ctx) , _constr(_cstrlist), _expr2z3_(ctx) , nested_finder_(), 
       mem_load_expr_finder_( nested_finder_ ) 
   {
-    _expr2z3_ptr_ = std::make_shared<Z3ExprAdapter>(_ctx_); 
   }
 
   /*
@@ -175,8 +174,7 @@ namespace ila {
       _constr, // ZExprVec & cstr,
       _ctx_,   // z3::context& ctx,
       _ctx_.int_val(0), // Z3Expr _ts_overwrite , init trace step starts from 0
-      0, // size_t pos,
-      _expr2z3_ptr_ // Z3AdapaterPtr
+      0 // size_t pos
       );
     // but you need to check if it writes some states
     // and this check should be done according to the MCM axioms.
@@ -217,7 +215,7 @@ namespace ila {
          // now go through the the vector of ts_seq
          for(auto && ts : ts_seq) {
            // for all the variable it uses (private), we create  v(step) == write_expr 
-           // where write_expr is translated by _expr2z3_ptr_->GetExpr( , suffix = std::to_string(saved_num) )
+           // where write_expr is translated by _expr2z3_.GetExpr( , suffix = std::to_string(saved_num) )
            StateNameSet private_read_set;
            StateNameSet private_write_set;
            INTERSECT( ts->_inst_read_set , private_state_name , private_read_set );
@@ -227,7 +225,7 @@ namespace ila {
               ILA_ASSERT(name_expr_pos_pair_ != last_update_of_a_state.end() ) << "Implementation BUG: instruction should not read outside the provided ILA state";
               auto & expr_ = name_expr_pos_pair_->second.first;
               auto & pos_  = name_expr_pos_pair_->second.second;
-              auto z3constr = ts->ConvertZ3OnThisStep( ila_ptr->state(sname) ) == _expr2z3_ptr_->GetExpr( expr_, std::to_string(pos_) );
+              auto z3constr = ts->ConvertZ3OnThisStep( ila_ptr->state(sname) ) == _expr2z3_.GetExpr( expr_, std::to_string(pos_) );
               _constr.push_back(z3constr);
            }
 
@@ -284,9 +282,9 @@ namespace ila {
                auto & decode_ = std::get<1>(name_expr_pos_tuple_);
                auto & tstamp_ = std::get<2>(name_expr_pos_tuple_);
                auto & pos_    = std::get<3>(name_expr_pos_tuple_);
-               auto z3constr  = ( ts->ConvertZ3OnThisStep( ila_ptr->state(sname) ) == _expr2z3_ptr_->GetExpr( expr_, std::to_string(pos_) ) )
+               auto z3constr  = ( ts->ConvertZ3OnThisStep( ila_ptr->state(sname) ) == _expr2z3_.GetExpr( expr_, std::to_string(pos_) ) )
                              && ( ts->timestamp < tstamp_ ) 
-                             && ( _expr2z3_ptr_->GetExpr( decode_, std::to_string(pos_) ) );
+                             && ( _expr2z3_.GetExpr( decode_, std::to_string(pos_) ) );
                // for all other writer (interference)
                for ( size_t idx_interfere = 0; idx_interfere != defineList.size() ; ++ idx_interfere) {
                  if(idx_interfere == idx_writer) continue;
@@ -298,7 +296,7 @@ namespace ila {
 
                  // if decode == true , either CO or FR
                  z3constr = z3constr && 
-                            z3::implies( _expr2z3_ptr_->GetExpr( decode_i, std::to_string(pos_i) ) ,  // decode => 
+                            z3::implies( _expr2z3_.GetExpr( decode_i, std::to_string(pos_i) ) ,  // decode => 
                                          tstamp_i < tstamp_ || tstamp_i > ts->timestamp );           // CO(i,w) \/ FR(r,i)
                  # warning "what about mem var?"
                } // for ( size_t idx_interfere ...

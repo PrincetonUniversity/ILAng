@@ -15,7 +15,7 @@ public:
   TraceStepPtr wfe_global; // maybe we should get away from raw pointer?
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// To create a trace step (for inst, we don't need it for facet/init)
-  TsoTraceStep(const InstrPtr & inst , ZExprVec & cstr, z3::context& ctx , size_t pos , const Z3ExprAdapterPtr & z3a  );
+  TsoTraceStep(const InstrPtr & inst , ZExprVec & cstr, z3::context& ctx , size_t pos );
 }; // class TsoTraceStep
 
 /// \brief Class of TSO

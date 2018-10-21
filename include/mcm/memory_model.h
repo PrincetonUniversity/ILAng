@@ -41,8 +41,6 @@ public:
   typedef std::set<std::string> StateNameSet;
   /// the type of trace step type
   enum TraceStepType {INST_EVT, FACET_EVT , INIT_EVT };
-  /// The type of z3Adapter pointer
-  typedef std::shared_ptr<Z3ExprAdapter> Z3ExprAdapterPtr;
 
 private:
   // ------------------------- HELPERS -------------------------------------- //
@@ -81,9 +79,9 @@ protected:
   z3::expr timestamp;  
   /// The relative position
   size_t _pos_suffix;
-  /// Keep an adapter that trace steps can share
-  Z3ExprAdapterPtr _expr2z3_ptr_;
-  /// Keep an adapter 
+  /// Keep an adapter that trace steps (won't shared w. others)
+  mutable Z3ExprAdapter _expr2z3_;
+  /// Keep a context to allocate z3 vars
   z3::context & _ctx_;
 
 public:
@@ -103,18 +101,18 @@ public:
   /// Return the position suffix (for facet, they should have the same suffix as the main step to ensure they use the same var)
   size_t pos_suffix() const { return _pos_suffix; }
   /// Return the adapter
-  inline Z3ExprAdapterPtr z3adapter() const { return _expr2z3_ptr_; }
+  inline Z3ExprAdapter & z3adapter() const { return _expr2z3_; }
   /// Return the context (for variable creation)
   z3::context & ctx() { return _ctx_; }
 
   
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// To create a trace step, you need to know the instruction also should give a constraint set: INST_EVT
-  TraceStep(const InstrPtr & inst , ZExprVec & cstr , z3::context& ctx , size_t pos , const Z3ExprAdapterPtr & z3a );
+  TraceStep(const InstrPtr & inst , ZExprVec & cstr , z3::context& ctx , size_t pos );
   /// This function allows you to overwrite the timestamp instead of creating a new one: INIT_EVT
-  TraceStep(const InstrPtr & inst , ZExprVec & cstr , z3::context& ctx,  ZExpr _ts_overwrite, size_t pos , const Z3ExprAdapterPtr & z3a );
+  TraceStep(const InstrPtr & inst , ZExprVec & cstr , z3::context& ctx,  ZExpr _ts_overwrite, size_t pos  );
   /// To create a facet event: FACET_EVT
-  TraceStep(const InstrPtr & ref_inst, ZExprVec & cstr , z3::context& ctx , const std::string &fevt_name, size_t pos , const Z3ExprAdapterPtr & z3a );
+  TraceStep(const InstrPtr & ref_inst, ZExprVec & cstr , z3::context& ctx , const std::string &fevt_name, size_t pos );
   /// Destructor, make it virtual
   virtual ~TraceStep() {}
   // ------------------------- MEMBERS -------------------------------------- //
@@ -123,7 +121,7 @@ public:
   /// To update the set for FACET_EVT
   void AddStateAccess(const StateNameSet &s, AccessType acc_type);
   /// Translate an arbitrary expr using the frame number of this step (so it refers to the var used in this step)
-  ZExpr ConvertZ3OnThisStep(const ExprPtr & ast) const { return z3adapter()->GetExpr( ast , std::to_string( pos_suffix() ) ); }
+  ZExpr ConvertZ3OnThisStep(const ExprPtr & ast) const { return z3adapter().GetExpr( ast , std::to_string( pos_suffix() ) ); }
 
   // ------------------------- HELPERS -------------------------------------- //
   /// To determine if the instruction READ/WRITE a certain state 
@@ -148,8 +146,6 @@ public:
   using TraceStepType = TraceStep::TraceStepType;
   /// Type of set of state names
   using StateNameSet = TraceStep::StateNameSet;
-  /// Type of pointers to Z3ExprAdapter
-  using Z3ExprAdapterPtr = TraceStep::Z3ExprAdapterPtr;
   /// Type of vector of (addr,data) pair
   using AddrDataVec = MemReadFinder::AddrDataVec;
   /// Type of an instruction vector to represent a sequence.
@@ -184,7 +180,7 @@ protected:
   /// A reference to the constraint list
   ZExprVec & _constr;
   /// An adapter that trace step can share, will allocate internally, by the constructor
-  Z3ExprAdapterPtr _expr2z3_ptr_; 
+  Z3ExprAdapter _expr2z3_; 
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return the context (for variable creation)

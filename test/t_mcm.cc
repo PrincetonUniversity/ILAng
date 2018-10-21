@@ -1,7 +1,7 @@
 /// \file
 /// Unit test for class MemoryModel.
 
-#include "mcm/MemoryModel.h"
+#include "mcm/memory_model.h"
 #include "unit-include/util.h"
 #include "unit-include/mcm_ilas.h"
 
