@@ -1,6 +1,7 @@
 /// \file
 /// Source for implementation of MCM AST helpers
-
+#include <string>
+#include <memory>
 #include <functional>
 
 #include "ila/instr_lvl_abs.h"
@@ -13,30 +14,30 @@ namespace ila {
     /******************************************************************************/
 
     template <class T> 
-    void VarUseFinder::Traverse(const ExprPtr & expr, VarUseList & uses ) {
+    void VarUseFinder<T>::Traverse(const ExprPtr & expr, VarUseList & uses ) {
       size_t num = expr->arg_num();
 
       // DIRTY FIX: we need to rule out the possibility that
       // m1 <= STORE(m1, ADDR, DATA) , here m1 access is not a use of mem variable
       size_t start = 0;
       if ( expr->is_op() ) {
-        auto ptr = dynamic_pointer_cast<ExprOp>(expr);
+        auto ptr = std::dynamic_pointer_cast<ExprOp>(expr);
         if( ptr->op_name() == "STORE" && ptr->arg(0)->is_var() )
           start = 1; // skip the var field of STORE(var,addr, data)
       }
 
       for (size_t i = start; i != num; ++i) 
-        Traverse( expr->arg(i) );
+        Traverse( expr->arg(i) , uses);
       if ( expr->is_var() )
-        uses.push_back( procFunc(expr) );
+        uses.insert( procFunc(expr) );
     }
 
     // collect variable usage of an instruction (decode/update)
     template <class T> 
-    void VarUseFinder::Traverse(const InstrPtr & i, VarUseList & uses ) {
-      Traverse( i->GetDecode , uses);
+    void VarUseFinder<T>::Traverse(const InstrPtr & i, VarUseList & uses ) {
+      Traverse( i->GetDecode() , uses);
 
-      StateNameSet instr_writes_ = i->GetUpdatedStates(); // get the set of updated state names
+      Instr::StateNameSet instr_writes_ = i->GetUpdatedStates(); // get the set of updated state names
       for (auto & state_name_ : instr_writes_) {
         Traverse( i->GetUpdate(state_name_) , uses ); // traverse the update function
       }
@@ -44,7 +45,7 @@ namespace ila {
     // collect variable usage of an ila (fetch/valid/instructions)
     // question: maybe also init?
     template <class T> 
-    void VarUseFinder::Traverse(const InstrLvlAbsPtr & i, VarUseList & uses ) {
+    void VarUseFinder<T>::Traverse(const InstrLvlAbsPtr & i, VarUseList & uses ) {
       Traverse(i->fetch() , uses);
       Traverse(i->valid() , uses);
 
@@ -53,7 +54,8 @@ namespace ila {
         Traverse(i->instr(idx) , uses);
     }
 
-
+    // let's instantiate it so it will not get linker error
+    template class VarUseFinder<std::string>;
 
     /******************************************************************************/
     // Helper Class: NestedMemAddrDataAvoider
@@ -62,18 +64,18 @@ namespace ila {
     // no need now
     // NestedMemAddrDataAvoider::HashTable NestedMemAddrDataAvoider::map_; // it is shared by the whole project
 
-    bool NestedMemAddrDataAvoider::NotNested(const ExprPtr node)
+    bool NestedMemAddrDataAvoider::NotNested(const ExprPtr & node)
     {
       // If we already seen this ast before and know it is nested
       auto pos = map_.find( node.get() );
       if( pos != map_.end() ) {
-        ILA_ASSERT( pos.second == false ) << "Bug: An error occurred in MCM AST helper class.";
+        ILA_ASSERT( pos->second == false ) << "Bug: An error occurred in MCM AST helper class.";
         return false;
       }
 
       size_t num = node->arg_num();
-      auto ldop_ptr = dynamic_pointer_cast<ExprOpLoad>(node);
-      auto stop_ptr = dynamic_pointer_cast<ExprOpStore>(node);
+      auto ldop_ptr = std::dynamic_pointer_cast<ExprOpLoad>(node);
+      auto stop_ptr = std::dynamic_pointer_cast<ExprOpStore>(node);
 
       if( ldop_ptr ) {     // here we are in a memLoad's
         if(InAddrOrData) { // if we are already in a memOp's data/addr
@@ -138,19 +140,20 @@ namespace ila {
     // read from the map_
     // I hope the above will go through, so we don't need to create
     // a operator() that looks strange, and we have no idea what it does
-    node->DepthFirstVisit( std::bind(&MemReadFinder::VisitNode, this, std::placeholders::_1, nad_map_ )  );
+    std::function<void(const ExprPtr &)> func = std::bind(&MemReadFinder::VisitNode, this, std::placeholders::_1, nad_map_ );
+    node->DepthFirstVisit( func  );
   }
 
   void MemReadFinder::VisitNode(const ExprPtr &node, MRFVal & nad_map_)
   {
     if( node->is_op() ) {
-      std::shared_ptr<ExprOp> ptr = dynamic_pointer_cast<ExprOp> ( node );
+      std::shared_ptr<ExprOp> ptr = std::dynamic_pointer_cast<ExprOp> ( node );
       ILA_ASSERT( ptr );
       if( ptr->op_name() == "LOAD" ) {
         ILA_ASSERT( nested_finder_.NotNested(node) ) << "Implementation bug: unable to auto-generate addr/data field from AST : nested Load/Store";
         auto mem_var = node->arg(0);
         std::string  mem_var_name = mem_var->name().str();
-        auto addr    = node_>arg(1); // we assume it is well-formed 
+        auto addr    = node->arg(1); // we assume it is well-formed 
         auto data    = node;
         // insert to the map
         nad_map_[ mem_var_name ].push_back( { addr , data } );
@@ -159,7 +162,7 @@ namespace ila {
   }
 
 
-  const AddrDataVec & MemReadFinder::FindAddrDataPairVecInInst(const InstrPtr &instr, const std::string &sname)
+  const MemReadFinder::AddrDataVec & MemReadFinder::FindAddrDataPairVecInInst(const InstrPtr &instr, const std::string &sname)
   {
     auto pos = map_.find( instr.get() );
     MRFVal * nad_map_ptr; // sname->pass
@@ -168,19 +171,19 @@ namespace ila {
       MRFVal & item = map_[ instr.get() ]; // this should create an empty sub-map
       FindAddrDataPairVecInExpr( instr->GetDecode(), item );
 
-      StateNameSet snames;
+      Instr::StateNameSet snames;
       instr->GetUpdatedStates(snames);
       for(auto & name : snames) 
         FindAddrDataPairVecInExpr( instr->GetUpdate(name) , item );
       nad_map_ptr = &item;
     }
     else
-      nad_map_ptr = & (pos.second);
+      nad_map_ptr = & (pos->second);
 
     auto ad_vec = nad_map_ptr->find(sname);
     if( ad_vec != nad_map_ptr->end() ) {
       // Yes, it contains memr name
-      return ad_vec.second();
+      return ad_vec->second;
     }
     else {
       // Else, 

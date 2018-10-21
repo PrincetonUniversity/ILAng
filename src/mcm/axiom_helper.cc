@@ -3,6 +3,7 @@
 
 #include "ila/instr_lvl_abs.h"
 #include "mcm/memory_model.h"
+#include "mcm/set_op.h"
 
 namespace ila {
 
@@ -19,7 +20,7 @@ z3::expr Z3And(const z3::expr &a, const z3::expr &b) { return a&&b; }
 /******************************************************************************/
 
 /// This is to deal with forall (if does not exist, it should be true also)
-z3::expr MemoryModel::Z3ForallList(const ZExprVec & l) {
+z3::expr MemoryModel::Z3ForallList(const ZExprVec & l) const {
   if ( l.size() == 0 )
     return ctx().bool_val(true); // forall x, (if does not exist, it should be true also)
   if ( l.size() == 1 )
@@ -32,7 +33,7 @@ z3::expr MemoryModel::Z3ForallList(const ZExprVec & l) {
 }
 
 /// This is to apply to exists, (if does not exist, it should be false)
-z3::expr MemoryModel::Z3ExistsList(const ZExprVec & l) {
+z3::expr MemoryModel::Z3ExistsList(const ZExprVec & l) const {
   if ( l.size() == 0 )
     return ctx().bool_val(false); // exists x, (if does not exist, it should be false)
   if ( l.size() == 1 )
@@ -44,15 +45,19 @@ z3::expr MemoryModel::Z3ExistsList(const ZExprVec & l) {
   return ret;  
 }
 
-z3::expr MemoryModel::HB( TraceStep & l, TraceStep & r )
+z3::expr MemoryModel::Sync( const TraceStep & l, const TraceStep & r ) const
+{
+  return l.timestamp == r.timestamp;
+}
+z3::expr MemoryModel::HB( const TraceStep & l, const TraceStep & r ) const
 {
   return l.timestamp < r.timestamp;
 }
-z3::expr MemoryModel::PO( TraceStep & l, TraceStep & r )
+z3::expr MemoryModel::PO( const TraceStep & l, const TraceStep & r ) const
 {
   return SameCore(l,r) && HB(l,r);
 }
-z3::expr MemoryModel::Decode( TraceStep & l) {
+z3::expr MemoryModel::Decode( const TraceStep & l) const {
   auto decodeExprAst = l.inst()->GetDecode();
   return l.ConvertZ3OnThisStep( decodeExprAst );
   /// NOTE: in fact, there may be also an extra_suffix
@@ -82,9 +87,9 @@ z3::expr MemoryModel::MemVarSameAddress( const ExprPtr & l , const ExprPtr & r ,
 */
 
 z3::expr MemoryModel::MemVarSameAddress(
-  const ExprPtr &leftWAddr, AddrDataVec & leftRAddrDataVec, 
-  const ExprPtr &rightWAddr, AddrDataVec &rightRAddrDataVec, 
-  TraceStep & traceL , TraceStep & traceR) // the last two parameters are just for invoking ConvertZ3OnThisStep
+  const ExprPtr &leftWAddr, const AddrDataVec & leftRAddrDataVec, 
+  const ExprPtr &rightWAddr, const AddrDataVec &rightRAddrDataVec, 
+  const TraceStep & traceL , const TraceStep & traceR)  const // the last two parameters are just for invoking ConvertZ3OnThisStep
 {
   z3::expr retVal = ctx().bool_val(true);
   bool RWMatchedFlag = false;
@@ -96,7 +101,7 @@ z3::expr MemoryModel::MemVarSameAddress(
 
   if( leftWAddr && (!rightRAddrDataVec.empty()) ) {
     RWMatchedFlag = true;
-    z3::expr match_of_addr_
+    z3::expr match_of_addr_ = ctx().bool_val(false);
     for( auto & addr_data_pair_ : rightRAddrDataVec ) {
       match_of_addr_ = match_of_addr_  || 
         ( traceL.ConvertZ3OnThisStep(leftWAddr) == traceR.ConvertZ3OnThisStep(addr_data_pair_.first) );
@@ -104,9 +109,9 @@ z3::expr MemoryModel::MemVarSameAddress(
     retVal = retVal && match_of_addr_; 
   }
 
-  if( rightWAddr && (!leftRAddrDataVec.emtpy()) ) {
+  if( rightWAddr && (!leftRAddrDataVec.empty()) ) {
     RWMatchedFlag = true;
-    z3::expr match_of_addr_
+    z3::expr match_of_addr_ = ctx().bool_val(false);
     for( auto & addr_data_pair_ : leftRAddrDataVec ) {
       match_of_addr_ = match_of_addr_  || 
         ( traceR.ConvertZ3OnThisStep(rightWAddr) == traceL.ConvertZ3OnThisStep(addr_data_pair_.first) ); // first is the address
@@ -133,9 +138,9 @@ z3::expr MemoryModel::MemVarSameAddress(
 
 
 z3::expr MemoryModel::MemVarSameData(
-  const std::pair<ExprPtr,ExprPtr> &leftAddrDataPair , AddrDataVec & leftRAddrDataVec, 
-  const std::pair<ExprPtr,ExprPtr> &rightAddrDataPair, AddrDataVec & rightRAddrDataVec, 
-  TraceStep & traceL , TraceStep & traceR) // the last two parameters are just for invoking ConvertZ3OnThisStep
+  const std::pair<ExprPtr,ExprPtr> &leftAddrDataPair , const AddrDataVec & leftRAddrDataVec, 
+  const std::pair<ExprPtr,ExprPtr> &rightAddrDataPair, const AddrDataVec & rightRAddrDataVec, 
+  const TraceStep & traceL , const TraceStep & traceR)  const // the last two parameters are just for invoking ConvertZ3OnThisStep
 {
   z3::expr retVal = ctx().bool_val(true);
   bool RWMatchedFlag = false;
@@ -153,7 +158,7 @@ z3::expr MemoryModel::MemVarSameData(
 
   if( leftWData && (!rightRAddrDataVec.empty()) ) {
     RWMatchedFlag = true;
-    z3::expr match_of_data_
+    z3::expr match_of_data_ = ctx().bool_val(true);
     for( auto & addr_data_pair_ : rightRAddrDataVec ) {
       match_of_data_ = match_of_data_  && z3::implies(
           traceL.ConvertZ3OnThisStep(leftWAddr) == traceR.ConvertZ3OnThisStep(addr_data_pair_.first) 
@@ -164,9 +169,9 @@ z3::expr MemoryModel::MemVarSameData(
     retVal = retVal && match_of_data_; 
   }
 
-  if( rightWData && (!leftRAddrDataVec.emtpy()) ) {
+  if( rightWData && (!leftRAddrDataVec.empty()) ) {
     RWMatchedFlag = true;
-    z3::expr match_of_data_
+    z3::expr match_of_data_ = ctx().bool_val(true);
     for( auto & addr_data_pair_ : leftRAddrDataVec ) {
       match_of_data_ = match_of_data_  && z3::implies( 
         traceR.ConvertZ3OnThisStep(rightWAddr) == traceL.ConvertZ3OnThisStep(addr_data_pair_.first)
@@ -203,12 +208,12 @@ z3::expr MemoryModel::MemVarSameData(
 
 #define ARG_ADDR 1
 #define ARG_DATA 2
-ExprPtr MemoryModel::CheckAndPeel(const ExprPtr &e , const std::string & type, size_t argn)
+ExprPtr MemoryModel::CheckAndPeel(const ExprPtr &e , const std::string & type, size_t argn) const
 {
   if ( !e->is_op() )
     return NULL;
   
-  std::shared_ptr<ExprOp> ptr = dynamic_pointer_cast<ExprOp> ( e );
+  std::shared_ptr<ExprOp> ptr = std::dynamic_pointer_cast<ExprOp> ( e );
   if ( !ptr )
     return NULL;
   if( type != "" && ptr->op_name() != type)
@@ -230,9 +235,9 @@ ExprPtr MemoryModel::CheckAndPeel(const ExprPtr &e , const std::string & type, s
 // z3::expr MemoryModel::SameAddress( TraceStep & l, TraceStep & r , const std::string & sname , AxiomFuncHint lhint, AxiomFuncHint rhint )
 //
 
-z3::expr MemoryModel::SameAddress( TraceStep & l, TraceStep & r , 
+z3::expr MemoryModel::SameAddress( const TraceStep & l, const TraceStep & r , 
   const std::string & sname, 
-  AxiomFuncHint lhint, AxiomFuncHint rhint )
+  AxiomFuncHint lhint, AxiomFuncHint rhint ) const
 {
   SameAddrDataSanityCheck(l,r,sname);  
 
@@ -247,7 +252,7 @@ z3::expr MemoryModel::SameAddress( TraceStep & l, TraceStep & r ,
 
   // find read and write addr expr for left and right
   // we also need to take into consideration of the hints
-  const AddrDataVec emtpyReadList;
+  const AddrDataVec emptyReadList;
 
   ExprPtr leftW; // Future Work: Store(Store(Store())) AST support (multi-store)
   {
@@ -259,7 +264,7 @@ z3::expr MemoryModel::SameAddress( TraceStep & l, TraceStep & r ,
     }
   } 
   const AddrDataVec & leftR = ( lhint == AxiomFuncHint::HINT_WRITE ) ? 
-                              emtpyReadList :
+                              emptyReadList :
                               mem_load_expr_finder_.FindAddrDataPairVecInInst( l.inst() , sname );
 
   ExprPtr rightW;
@@ -271,7 +276,7 @@ z3::expr MemoryModel::SameAddress( TraceStep & l, TraceStep & r ,
     }
   } 
   const AddrDataVec & rightR = ( rhint == AxiomFuncHint::HINT_WRITE ) ? 
-                              emtpyReadList :
+                              emptyReadList :
                               mem_load_expr_finder_.FindAddrDataPairVecInInst( r.inst() , sname );
 
   // now we need to decide how to pair the two 
@@ -280,9 +285,9 @@ z3::expr MemoryModel::SameAddress( TraceStep & l, TraceStep & r ,
 
 
 z3::expr MemoryModel::NonMemVarSameData(
-  TraceStep & l, TraceStep & r,
+  const TraceStep & l, const TraceStep & r,
   const std::string & sname,
-  AxiomFuncHint lhint, AxiomFuncHint rhint)
+  AxiomFuncHint lhint, AxiomFuncHint rhint) const
 { 
   bool RWMatchedFlag = false;
   z3::expr retVal = ctx().bool_val(true);
@@ -291,11 +296,11 @@ z3::expr MemoryModel::NonMemVarSameData(
   auto var_left = l.inst()->host()->state(sname);
   auto var_right = r.inst()->host()->state(sname);
 
-  bool leftW = l.Access( AccessType::WRITE, sname ) && lhint != AxiomFuncHint::READ; // l shoud be an instruction event
-  bool leftR = l.Access( AccessType::READ , sname ) && lhint != AxiomFuncHint::WRITE;
+  bool leftW = l.Access( AccessType::WRITE, sname ) && lhint != AxiomFuncHint::HINT_READ; // l shoud be an instruction event
+  bool leftR = l.Access( AccessType::READ , sname ) && lhint != AxiomFuncHint::HINT_WRITE;
 
-  bool rightW = r.Access( AccessType::WRITE, sname ) && rhint != AxiomFuncHint::READ; // r shoud be an instruction event
-  bool rightR = r.Access( AccessType::READ , sname ) && rhint != AxiomFuncHint::WRITE;
+  bool rightW = r.Access( AccessType::WRITE, sname ) && rhint != AxiomFuncHint::HINT_READ; // r shoud be an instruction event
+  bool rightR = r.Access( AccessType::READ , sname ) && rhint != AxiomFuncHint::HINT_WRITE;
 
   if (!leftW && !leftR)
     return ctx().bool_val(true);
@@ -328,9 +333,9 @@ z3::expr MemoryModel::NonMemVarSameData(
   // finally RR/WW
 }
 
-z3::expr MemoryModel::SameData( TraceStep & l, TraceStep & r ,
+z3::expr MemoryModel::SameData( const TraceStep & l, const TraceStep & r ,
   const std::string & sname,
-  AxiomFuncHint lhint, AxiomFuncHint rhint)
+  AxiomFuncHint lhint, AxiomFuncHint rhint) const
 {
     // First of all, we need to find the same address part and for each of them
   SameAddrDataSanityCheck(l,r,sname);
@@ -348,7 +353,7 @@ z3::expr MemoryModel::SameData( TraceStep & l, TraceStep & r ,
 
   // find read and write addr expr for left and right
   // we also need to take into consideration of the hints
-  const AddrDataVec emtpyReadList;
+  const AddrDataVec emptyReadList;
 
   ExprPtr leftWAddr;
   ExprPtr leftWData;
@@ -362,7 +367,7 @@ z3::expr MemoryModel::SameData( TraceStep & l, TraceStep & r ,
     }
   } 
   const AddrDataVec & leftR = ( lhint == AxiomFuncHint::HINT_WRITE ) ? 
-                              emtpyReadList :
+                              emptyReadList :
                               mem_load_expr_finder_.FindAddrDataPairVecInInst( l.inst() , sname );
 
   ExprPtr rightWAddr;
@@ -376,7 +381,7 @@ z3::expr MemoryModel::SameData( TraceStep & l, TraceStep & r ,
     }
   } 
   const AddrDataVec & rightR = ( rhint == AxiomFuncHint::HINT_WRITE ) ? 
-                              emtpyReadList :
+                              emptyReadList :
                               mem_load_expr_finder_.FindAddrDataPairVecInInst( r.inst() , sname );
 
   // now we need to decide how to pair the two 
@@ -385,20 +390,20 @@ z3::expr MemoryModel::SameData( TraceStep & l, TraceStep & r ,
 
 
 
-bool MemoryModel::SameCore( TraceStep & l, TraceStep & r) {
+bool MemoryModel::SameCore( const TraceStep & l, const TraceStep & r) const {
   // I hope this won't be a problem (it may require ctx to create constant)
 
-  std::string & left =  l.inst()->host()->name().str();
-  std::string & right = r.inst()->host()->name().str();
+  std::string left =  l.inst()->host()->name().str();
+  std::string right = r.inst()->host()->name().str();
   if (left == right)
     return true;
   return false;
 }
 
-void MemoryModel::SameAddrDataSanityCheck( TraceStep & l, TraceStep & r , const std::string & sname ) {
+void MemoryModel::SameAddrDataSanityCheck( const TraceStep & l, const TraceStep & r , const std::string & sname ) const {
   // Need to do optimization here (make a lookup table)
   static std::map<std::string, StateNameSet> l_r_names_to_state;
-  auto _lookup_index = l.name() + "&" r.name();
+  auto _lookup_index = l.name() + "$-&-$" + r.name();
 
   if ( IN(_lookup_index, l_r_names_to_state ) ) {
     ILA_ASSERT( IN(sname,l_r_names_to_state[_lookup_index]) ) 
@@ -409,16 +414,22 @@ void MemoryModel::SameAddrDataSanityCheck( TraceStep & l, TraceStep & r , const 
 
   StateNameSet left; // = read UNION write 
   switch( l.type() ) {
-    case TraceStepType::FACET_EVT: UNION(l._read_state_set , l._write_state_set, left );  break;
-    case TraceStepType::INST_EVT : UNION(l._inst_read_set  , l._inst_write_set,  left );  break; // it should be the instruction,  not the facet event
+    case TraceStepType::FACET_EVT: 
+      UNION(l._read_state_set , l._write_state_set, left );  break;
+    case TraceStepType::INST_EVT : 
+    case TraceStepType::INIT_EVT :
+      UNION(l._inst_read_set  , l._inst_write_set,  left );  break; // it should be the instruction,  not the facet event
     default:
       ILA_ASSERT(false) << "TraceStepType is neither facet event or instruction event.";
   }
 
   StateNameSet right; // = read UNION write 
   switch( r.type() ) {
-    case TraceStepType::FACET_EVT: UNION(r._read_state_set , r._write_state_set, right );  break;
-    case TraceStepType::INST_EVT : UNION(r._inst_read_set  , r._inst_write_set,  right );  break;
+    case TraceStepType::FACET_EVT: 
+      UNION(r._read_state_set , r._write_state_set, right );  break;
+    case TraceStepType::INST_EVT :
+    case TraceStepType::INIT_EVT :
+      UNION(r._inst_read_set  , r._inst_write_set,  right );  break;
     default:
       ILA_ASSERT(false) << "TraceStepType is neither facet event or instruction event.";
   }

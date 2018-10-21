@@ -29,23 +29,23 @@ class MemoryModel;
 class InterIlaUnroller {
 public:
   /// Type alias for z3::expr.
-  typedef z3::expr ZExpr;
+  using ZExpr = MemoryModel::ZExpr;
   /// Type for containing a vector of z3::expr.
-  typedef std::vector<ZExpr> ZExprVec;
+  using ZExprVec = MemoryModel::ZExprVec;
+  /// Type of state name set
+  using StateNameSet = MemoryModel::StateNameSet;
+  /// Type of an instruction vector to represent a sequence.
+  using InstrVec = MemoryModel::InstrVec;
+  /// Type of a vector of instruction sequences (currently please represent holes via 0-ary functions)
+  using ProgramTemplate = MemoryModel::ProgramTemplate;
+  /// Type of map ila-name to state-set
+  using ILANameStateNameSetMap = MemoryModel::ILANameStateNameSetMap;
   /// Type of vector of pointers to the ILAs involved
   typedef std::vector<InstrLvlAbsPtr> IlaPtrVec;
-  /// Type of an instruction vector to represent a sequence.
-  typedef std::vector<InstrPtr> InstrVec;
-  /// Type of a vector of instruction sequences (currently please represent holes via 0-ary functions)
-  typedef std::vector<InstrVec> ProgramTemplate;
-  /// Type of unroller pointer
-  typedef std::shared_ptr<Unroller> UnrollerPtr;
+  /// Type of unroller pointer: we use path unroller instead of mono unroller
+  typedef std::shared_ptr<PathUnroll> UnrollerPtr;
   /// Type of vector of unrollers /* we may use a different unroller than PathUnroll */
   typedef std::vector<UnrollerPtr>  UnrollerVec;
-  /// Type of state name set
-  typedef std::set<std::string> StateNameSet;
-  /// Type of map ila-name to state-set
-  typedef std::map<std::string, StateNameSet> ILANameStateNameSetMap;
   /// Type of list of state variables
   typedef std::list<ExprPtr>  StateVarList;
   /// Type of map of shared states (set of names -> list of exprs)
@@ -54,10 +54,12 @@ public:
   typedef std::unique_ptr<MemoryModel> MemoryModelPtr;
   /// Type of memory model creator, nees to be the same as the ctor of MemoryModelClass
   typedef std::function<MemoryModelPtr(
-    z3::context& ctx, 
-    ZExprVec & _cstrlist, 
-    const StateNameSet & p, 
-    const InstrLvlAbsPtr & global_ila_ptr)>  MemoryModelCreator;  
+    z3::context &,                  // z3 context
+    ZExprVec &,                     // constrain list
+    const StateNameSet &,           // shared state
+    const ILANameStateNameSetMap &, // private state
+    const InstrLvlAbsPtr &          // dummy global ila pointer
+    )>  MemoryModelCreator;  
   /// Type of trace step pointer
   typedef std::shared_ptr<TraceStep> TraceStepPtr;
 
@@ -70,25 +72,11 @@ public:
   virtual ~InterIlaUnroller();
   
   // ------------------------- METHODS -------------------------------------- //
-  /// Add a predicate that should be asserted globally.
-  void AddGlobPred(const ExprPtr p);
-  /// Add a predicate that should be asserted on all steps of an ILA.
-  void AddIlaPred(const ExprPtr p, InstrLvlAbsPtr i);
-  /// Add a predicate that should be asserted in the initial condition.
-  void AddInitPred(const ExprPtr p);
-  /// Add a predicate that should be asserted when its condition is met.
-  // void AddCondPred(const ExprPtr p, FuncPtr p ? what type ? );
+  /// \brief it generates the initial constraints and put them on to the constraint list and check
+  /// should be called before unroll
+  void GenSysInitConstraints();
 
-  /// Clear the global predicates.
-  void ClearGlobPred();
-  /// Clear the global predicates.
-  void ClearIlaPred();
-  /// Clear the initial predicates.
-  void ClearInitPred();
-  /// Clear the step-specific predicates.
-  // void ClearCondPred();
-
-  /// \brief [Application-specific] Unroll (ordered/unordered)
+  /// \brief [Application-specific] Unroll, currently just use PathUnroller
   /// \param[in] the program template.
   /// \param[in] whether each template should be treated as ordered or unordered
   virtual void Unroll(const ProgramTemplate & tmpl, const std::vector<bool> & ordered);
@@ -96,7 +84,7 @@ public:
   /// \briedf Add a property
   /// \param[in] a property that is going to translated to Z3
   /// \param[in] a filter to choose which trace step to enforce
-  void AddSingleTraceStepProperty(ExprPtr property, std::function<bool(TraceStepPtr)> filter);
+  void AddSingleTraceStepProperty(ExprPtr property, std::function<bool(const TraceStep &)> filter);
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
@@ -113,7 +101,6 @@ private:
 
 protected:
   // ------------------------- HELPERS -------------------------------------- //
-
   /// \brief It create a name list. There is no need to create an ExprPtr list
   ///  because their hosts are different and will generate different z3exprs.
   void FindSharedStates();
@@ -164,7 +151,7 @@ class HostRemoveRestore {
 public:
   /// type of the internal map
   typedef std::map<ExprPtr, InstrLvlAbsPtr> ExprHostMap;
-
+  /// type of function object from to decide if we should remove the host of a expr or not
   typedef std::function<bool(const ExprPtr &)> ExprJudgeFunc;
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor: do nothing

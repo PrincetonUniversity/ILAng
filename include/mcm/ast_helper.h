@@ -62,7 +62,7 @@ public:
   // ------------------------- METHODS -------------------------------------- //
   /// To check for a mem var, if its ast does not contain nested mem address/data access
   /// In its nested check, it should check go into all types.
-  bool NotNested(const ExprPtr node);
+  bool NotNested(const ExprPtr & node);
 private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// The map for AST nodes.
@@ -102,10 +102,12 @@ struct MRF_HASH_FUNC {
 
 /// \brief class MemReadFinder(MRF) to find (only find) the address and data part that exists in a trace step?
 class MemReadFinder {
+public:
+  // Type of (addr,data) pair list
+  typedef std::vector<std::pair<ExprPtr,ExprPtr> > AddrDataVec;
+private:
   /// Type of the Hash Key
   typedef Instr *  MRFHashKey; // typedef std::pair< TraceStep *, Expr * > MRFHashKey;
-  // Type of (addr,data) pair list
-  typedef std::vector<std::pair<ExprPtr,ExprPtr> > AddrDataVec; 
   /// Type of the dictionary value
   typedef std::unordered_map<std::string,AddrDataVec> MRFVal;  // statename -> (addr,data) list
   /// Type for caching the result of the search: Instr * -> (statename -> (addr,data) list ), for a instruction, for a given state, what are the addr/data that is read

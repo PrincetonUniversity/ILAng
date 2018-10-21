@@ -74,17 +74,16 @@ ExprPtr Instr::GetUpdate(const ExprPtr state) const {
   return GetUpdate(name);
 }
 
-StateNameSet Instr::GetUpdatedStates() const {
+Instr::StateNameSet Instr::GetUpdatedStates() const {
   StateNameSet ret_;
   for (const auto & pos : updates_) 
-    ret_.push_back( pos.first );
+    ret_.insert( pos.first );
   return ret_;
 }
 
 void Instr::GetUpdatedStates(StateNameSet & ret_) const {
   for (const auto & pos : updates_) 
-    ret_.push_back( pos.first );
-  return ret_;
+    ret_.insert( pos.first );
 }
 
 

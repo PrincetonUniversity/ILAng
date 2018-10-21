@@ -99,8 +99,23 @@ class repText(object):
         return self.get()
 
     
-# --------------------------------------------------------------------------
+# ---------------------FUNC LISTINGS-----------------------------------------------------
 
+ArgTypeTs = 0
+ArgTypeState = 1
+ArgTypeTsPtr = 2
+
+FunctionDeclList = [ \
+    ('SameAddress', [ArgTypeTs,ArgTypeTs,ArgTypeState]),
+    ('SameData',  [ArgTypeTs,ArgTypeTs,ArgTypeState]),
+    ('HB',  [ArgTypeTs,ArgTypeTs]),
+    ('Sync',  [ArgTypeTs,ArgTypeTs]),
+    ('SameCore',  [ArgTypeTs,ArgTypeTs]),
+    ('Decode',  [ArgTypeTs]) ]
+
+    #Not included: PO
+    
+# --------------------------------------------------------------------------
 
 from axiomLex import tokens
 
@@ -157,7 +172,7 @@ functionList =  []
 #  top: def axiom funcs
 #----------------------
 def p_top(p):
-    """top : defList axiomList functions"""
+    """top : defList functions axiomList"""
     pass
 
 
@@ -291,15 +306,16 @@ def p_function(p):
     restrict = restrict.format(res = 'return') + '\n'
 
     retStr  = 'z3::expr '+ AxiomName +'::' + iden + '( '
-    retStr += ','.join( ['TraceStep &' + x for x in paramlist] )
+    retStr += ','.join( ['const TraceStepPtr &' + x for x in paramlist] )
     retStr += ') {\n'
-    retStr += addTab(str(expr.body))
+    retStr += addTab( str(expr.body) )
     if (restrict):
         retStr += addTab(str(restrict)) + '\n'
     retStr += '\treturn ( '+ expr.val + ' );\n}\n'
 
     p[0] = str(retStr)
     functionList.append(p[0]) 
+    FunctionDeclList.append( (str(iden), [ArgTypeTsPtr]*len(paramlist) )  )
     
 
 def p_axioms(p):
@@ -337,8 +353,9 @@ def p_quanexpr_forall(p):
 
     CurrentVarAccType = 'CurrentVarAccType'
     QAccTypeName= varname + 'AccType'
-    QAccType= "READ" if typelist == "READ_list" else ("WRITE" if typelist == "WRITE_list" else "EITHER")
-    nameKey = {QAccTypeName:QAccType , CurrentVarAccType:QAccType}
+    QAccType= "HINT_READ" if typelist == "READ_list" else ("HINT_WRITE" if typelist == "WRITE_list" else "HINT_NONE")
+    VarAccessType = "READ" if typelist == "READ_list" else ("WRITE" if typelist == "WRITE_list" else "EITHER")
+    nameKey = {QAccTypeName:QAccType , CurrentVarAccType:VarAccessType}
 
     if len(p[1:]) == 7: # has restriction
         (_,_,_,typelist,restriction,_,e) = tuple(p[1:])
@@ -350,7 +367,7 @@ def p_quanexpr_forall(p):
         expr = val(e)
         retBody += '\t' + restriction[2].format(expr = expr, varname = varname, OPANDIMPLY = 'Implies') # varX = z3.Implies( z3.And( ) , ... )
         retBody += '\t' + retVal + '.push_back( ' +  restriction[0] + '); }\n'
-        retBody += retList + ' = Z3ForallList( ' +retVal + ');\n'
+        retBody += 'ZExpr ' + retList + ' = Z3ForallList( ' +retVal + ');\n'
         p[0] = ExprAst( retList, retBody.format(**nameKey) , simpleInfo = retSimpleInfo )
     else: # 6
         (_,_,_,typelist,_,e) = tuple(p[1:])
@@ -359,7 +376,7 @@ def p_quanexpr_forall(p):
         retBody += addTab( body(e) ) + '\n'
         expr = val(e)
         retBody += '\t' + retVal + '.push_back( '  + expr +  '); }\n'
-        retBody += retList + ' = Z3ForallList( ' +retVal + ');\n'
+        retBody += 'ZExpr ' + retList + ' = Z3ForallList( ' +retVal + ');\n'
         p[0] = ExprAst( retList, retBody.format(**nameKey) , simpleInfo = retSimpleInfo )
 
 
@@ -376,8 +393,9 @@ def p_quanexpr_exists(p):
 
     CurrentVarAccType = 'CurrentVarAccType'
     QAccTypeName= varname + 'AccType'
-    QAccType= "READ" if typelist == "READ_list" else ("WRITE" if typelist == "WRITE_list" else "EITHER")
-    nameKey = {QAccTypeName:QAccType , CurrentVarAccType:QAccType}
+    QAccType= "HINT_READ" if typelist == "READ_list" else ("HINT_WRITE" if typelist == "WRITE_list" else "HINT_NONE")
+    VarAccessType = "READ" if typelist == "READ_list" else ("WRITE" if typelist == "WRITE_list" else "EITHER")
+    nameKey = {QAccTypeName:QAccType , CurrentVarAccType:VarAccessType}
 
     retSimpleInfo = simpInfo(z3e = z3.Bool(z3UniqueName()), z3vlist = [])
 
@@ -388,14 +406,14 @@ def p_quanexpr_exists(p):
         expr = val(e)
         retBody += '\t' + restriction[2].format(expr = expr, varname = varname, OPANDIMPLY = 'And') # varX = z3.Implies( z3.And( ) , ... )
         retBody += '\t' + retVal + '.push_back( ' +  restriction[0] + '); }\n'
-        retBody += retList + ' = Z3ExistsList( ' +retVal + ');\n'
+        retBody += 'ZExpr ' + retList + ' = Z3ExistsList( ' +retVal + ');\n'
         p[0] = ExprAst( retList, retBody.format(**nameKey) , simpleInfo = retSimpleInfo )
     else: # 6
         (_,_,_,typelist,_,e) = tuple(p[1:])
         retBody += addTab( body(e) ) + '\n'
         expr = val(e)
         retBody += '\t' + retVal + '.push_back( '  + expr +  ')\n'
-        retBody += retList + ' = Z3ExistsList( ' +retVal + ')\n'
+        retBody += 'ZExpr ' + retList + ' = Z3ExistsList( ' +retVal + ')\n'
         p[0] = ExprAst( retList, retBody.format(**nameKey) , simpleInfo = retSimpleInfo )
 
 
@@ -434,12 +452,6 @@ def p_quanexpr_plain(p):
     p[0] = ExprAst( p[1].val, '' , 
              simpleInfo = p[1].simpleInfo  ) # empty body
 
-internalFunctions = [ \
-    ('SameAddress',3),
-    ('SameData', 3),
-    ('HB', 2),
-    ('SameCore', 2),
-    ('Decode', 1) ]
 
 
 def p_plainDescript(p):
@@ -460,21 +472,37 @@ def p_plainDescript(p):
         # function application
         # this is the place we add z3 variable 
         # checking Type : for internal functions
-        for func_name, argNo in internalFunctions:
-            if func_name == iden and len( paramlist ) != argNo:
-                print 'Error: argNo required:',argNo, ' provided:',len(paramlist)
-                exit(1)
+        paramGenList = []
+        for func_name, argList in FunctionDeclList:
+            argNo = len(argList)
+            if func_name == iden:
+                if len( paramlist ) != argNo:
+                    print 'Error: argNo required:',argNo, ' provided:',len(paramlist)
+                    exit(1)
+                # for each arg, treat it differently
+                print func_name,argList
+                for paramIdx,param in enumerate(paramlist) :
+                    argType = argList[paramIdx]
+                    if argType == ArgTypeTs:
+                        paramGenList.append( '*' + param )
+                    else:
+                        paramGenList.append( param )
+                break
+        else: # not found
+            paramGenList = [ '*'+x for x in paramlist ] # otherwise treated as all Ts Type
 
-        applyText = ','.join( paramlist )
+        print paramGenList
+        applyText = ','.join( paramGenList )
         # special handling
         if iden in ['SameAddress','SameData']:
             larg  = paramlist[0]
             rarg  = paramlist[1]
             sname = paramlist[2]
-            lhint = 'AccessType::{' + larg + 'AccType}'
-            rhint = 'AccessType::{' + rarg + 'AccType}'
+            lhint = 'AxiomFuncHint::{' + larg + 'AccType}'
+            rhint = 'AxiomFuncHint::{' + rarg + 'AccType}'
             applyText += ',' + lhint + ',' + rhint
 
+        # track expression using z3
         z3vName = z3UniqueName()
         func_replace_val = z3.Bool(z3vName)
         func_repl_list   = [func_replace_val] if iden in ['SameCore'] else []
@@ -537,9 +565,9 @@ def p_restriction(p): # return (val, body)
     retText = repText('')
 
     for s in staticDistinctComp:
-        retText += repText('if  ( {varname}.name() == ' + s + '.name() ) continue; \n')
+        retText += repText('if  ( {varname}->name() == ' + s + '->name() ) continue; \n')
     for s in staticStateAccComp: # this creates 's'AccType
-        retText += repText('if  ( ! {varname}.Access(AccessType::{CurrentVarAccType}, ' + s + ') ) continue;')
+        retText += repText('if  ( ! {varname}->Access(AccessType::{CurrentVarAccType}, ' + s + ') ) continue;')
     retId = uniqueName()
     
     if len(condList) == 0:
@@ -549,7 +577,7 @@ def p_restriction(p): # return (val, body)
     else:
         cond = '( '+' && '.join(condList)+' )' 
     #cond =  condList[0] if len(condList) == 1 else 'z3.And( '+' , '.join(condList)+' )' 
-    finalLine = repText(retId + (' = Z3{OPANDIMPLY}( %s , {expr} );\n' % (cond) ))  # this line was finalLine = retId + (' = z3.Implies( %s , {expr} )\n' % (cond) )
+    finalLine = repText('ZExpr ' + retId + (' = Z3{OPANDIMPLY}( %s , {expr} );\n' % (cond) ))  # this line was finalLine = retId + (' = z3.Implies( %s , {expr} )\n' % (cond) )
     p[0] = (retId, retText, finalLine)
 
 

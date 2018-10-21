@@ -35,6 +35,21 @@ InstructionSet PureWrite :=
 #  
 # # operator-allowed: | & - ^ ()
 
+
+Define RF[w,r] := 
+     ( SameCore[w,r] => HB[w , r] ) /\
+     ( ~SameCore[w,r] => HB[w.wfe.global, r] )
+
+Define FR[r,w] := 
+     (  SameCore[r,w] => HB[r , w] ) /\
+     ( ~SameCore[r,w] => HB[r , w.wfe.global] )
+
+Define CO[w1,w2] :=
+     ( SameCore[w1,w2] => HB[ w1, w2 ] ) /\
+     (~SameCore[w1,w2] => HB[ w1.wfe.global, w2.wfe.global ] )
+
+
+
 Axiom RF_CO_FR 
 forall s: %shared | forall r:READ (%s) | exists w:WRITE (%s,~=r) |
     SameAddress[w,r,s] /\ SameData[w,r,s] /\ Decode[w] /\
@@ -64,16 +79,3 @@ forall f:FENCE | forall w: WRITE |
 Axiom TSO_RMW
 forall i:RMW | 
     Sync[i, i.wfe.global ] 
-
-Define RF[w,r] := 
-     ( SameCore[w,r] => HB[w , r] ) /\
-     ( ~SameCore[w,r] => HB[w.wfe.global, r] )
-
-Define FR[r,w] := 
-     (  SameCore[r,w] => HB[r , w] ) /\
-     ( ~SameCore[r,w] => HB[r , w.wfe.global] )
-
-Define CO[w1,w2] :=
-     ( SameCore[w1,w2] => HB[ w1, w2 ] ) /\
-     (~SameCore[w1,w2] => HB[ w1.wfe.global, w2.wfe.global ] )
-

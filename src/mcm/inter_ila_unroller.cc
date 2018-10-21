@@ -1,10 +1,11 @@
 /// \file
 /// Source for multi-ILA unroller
 
-#include "mcm/inter_ila_unroller.h"
-#include "util/log.h"
 #include <map>
 #include <vector>
+#include "mcm/inter_ila_unroller.h"
+#include "mcm/set_op.h"
+#include "util/log.h"
 
 namespace ila {
 
@@ -13,7 +14,6 @@ namespace ila {
 // InterIlaUnroller
 /******************************************************************************/
 
-  # error "Memory Model cannot be created w.o. inter_ila_unroller to create info"
   InterIlaUnroller::InterIlaUnroller(z3::context& ctx, const IlaPtrVec & iv,  MemoryModelCreator mm_selector)
         : ctx_(ctx), sys_ila_(iv),  global_ila_( InstrLvlAbs::New("__GLOBAL_INIT__") ) {
 
@@ -35,7 +35,7 @@ namespace ila {
     for (size_t idx = 0; idx != state_num ; ++ idx) {
       auto state = global_ila_->state(idx);
 
-      init_instr_ptr -> SetDecode( ctx().bool_val(true) );
+      init_instr_ptr -> SetDecode( std::make_shared<ExprConst>( BoolVal(true) ) );
       init_instr_ptr -> AddUpdate( state, state ); // update itself to itself
       // This may seem strange, but remember:
       // the z3 expr generated on that step is already constrained by GenSysInitConstraints
@@ -48,19 +48,19 @@ namespace ila {
   {
     SharedStatesSet temp_shared_states_;
     for (auto && ila_ptr_ : sys_ila_) {
-      ILA_NOT_NULL(ila_ptr);
+      ILA_NOT_NULL(ila_ptr_);
       // FIXME: currently not directly handle hierarchy, you need to flatten the ILA first
-      ILA_ASSERT( ila_ptr->child_num() == 0 ) << " Implementation bug: " <<
-        "currently inter_ila_unroller does not handle hierarchy, please flatten ILA: "<< ila_ptr->name() <<" first.";
-      for (size_t i = 0; i != ila_ptr->state_num() ; i ++ ) {
-        auto state_var_ = ila_ptr->state(i);
+      ILA_ASSERT( ila_ptr_->child_num() == 0 ) << " Implementation bug: " <<
+        "currently inter_ila_unroller does not handle hierarchy, please flatten ILA: "<< ila_ptr_->name() <<" first.";
+      for (size_t i = 0; i != ila_ptr_->state_num() ; i ++ ) {
+        auto state_var_ = ila_ptr_->state(i);
         // check type
-        if( ! temp_shared_states_[ state_var_->name().str() ].empty()  ) {
-          ILA_ASSERT( *( temp_shared_states_[ state_var_->name().str() ][0]->sort() ) == * ( state_var->sort() ) )
+        if( ! temp_shared_states_[ state_var_->name().str() ].empty()  ) { // will use the override operator ==
+          ILA_ASSERT( ( temp_shared_states_[ state_var_->name().str() ].front()->sort() ) ==  ( state_var_->sort() ) )
             << "Implementation bug: Assuming states having the same name have the same sort!";
         }
         else
-          temp_shared_states_[ state_var_->name().str() ].push_back(state_var); 
+          temp_shared_states_[ state_var_->name().str() ].push_back(state_var_); 
         // insert to the list of state var of the same name
         // will automatically create an empty list if not previously exists
         // Here I use .str(), because I'm afraid that Symbol("A") != Symbol("A")
@@ -73,7 +73,7 @@ namespace ila {
       auto vars = name_vlist_pair.second;
       if( vars.size() > 1 ) { // if it has been de
         shared_states_.insert(name);
-        auto vsort = vars[0].sort();
+        auto vsort = vars.front()->sort();
 
         if ( vsort->is_bool() ) {
           global_ila_->NewBoolState(name);
@@ -92,10 +92,10 @@ namespace ila {
     }
     // create private states
     for (auto && ila_ptr_ : sys_ila_) {
-      auto ila_name = ila_ptr->name().str();
-      for (size_t i = 0; i != top->state_num() ; i ++ ) {
-        auto state_var_ = top->state(i);
-        auto state_name_ = state_var->name().str();
+      auto ila_name = ila_ptr_->name().str();
+      for (size_t i = 0; i != ila_ptr_->state_num() ; i ++ ) {
+        auto state_var_ = ila_ptr_->state(i);
+        auto state_name_ = state_var_->name().str();
         if(! IN(state_name_ , shared_states_) )
           private_states_[ila_name].insert(state_name_);
       }
@@ -106,12 +106,13 @@ namespace ila {
   {
     // by default, we use path unroller
     // but this does not mean it is in order
-    for (auto && ila_ptr_ : sys_ila_)
+    //for (auto && ila_ptr_ : sys_ila_)
+    for (size_t idx = 0; idx != sys_ila_.size() ; ++ idx)
       unrollers_.push_back( std::make_shared<PathUnroll>(ctx_) );
     // Please note: we don't support extra suffix !!!
   }
 
-  void InterIlaUnroller::Unroll(const ProgramTemplate & tmpl, std::vector<bool> ordered)
+  void InterIlaUnroller::Unroll(const ProgramTemplate & tmpl, const std::vector<bool> & ordered)
   {
     // store to constraints
     // time stamps
@@ -124,16 +125,17 @@ namespace ila {
     ILA_ASSERT( ila_num == ordered.size() );
     mm_->InitSize(tmpl);
     for (size_t idx = 0; idx != ila_num; ++ idx) {
-      mm_->RegisterSteps( tmpl[idx] , cstr_ , ctx() ); // register those instructions
+      mm_->RegisterSteps( idx, tmpl[idx]  ); // register those instructions, 
+      // first argument is for ila, not relative instr pos
       ZExpr constr = unrollers_[idx]->PathNone( tmpl[idx] , 1 ); // starting from 1 : the first but not init.
     }
-    mm_->FinishRegisterSteps( tmpl, cstr_ , ctx() ); // HZ Question: is it too late?
-    mm_->ApplyAxioms( tmpl, cstr_, ctx() );
+    mm_->FinishRegisterSteps();
+    mm_->ApplyAxioms();
     mm_->SetLocalState( ordered );
   }
 
 
-  void InterIlaUnroller::AddSingleTraceStepProperty(ExprPtr property, std::function<bool(TraceStepPtr)> filter)
+  void InterIlaUnroller::AddSingleTraceStepProperty(ExprPtr property, std::function<bool(const TraceStep &)> filter)
   { mm_->AddSingleTraceStepProperty(property, filter);  }
 
   void InterIlaUnroller::GenSysInitConstraints()
@@ -142,8 +144,9 @@ namespace ila {
     // global the variables there with the unified shared names
     // An alternative (currently used) may be directly giving the unroller the exprs
     // with host removed (if they are shared variables).
-    auto isSharedVar = [&shared_states_](const ExprPtr &exp) -> bool {
-      return shared_states_.find( exp->name().str() ) != shared_states_.end();  };
+    // capture by copy should be fine, we are just copying it once
+    auto isSharedVar = [this](const ExprPtr &exp) -> bool {
+      return (this->shared_states_).find( exp->name().str() ) != (this->shared_states_).end();  };
       // replace if found (is shared state)
 
     HostRemoveRestore host_remover;
@@ -157,7 +160,7 @@ namespace ila {
       auto &unroller_ptr = unrollers_[idx];
 
       size_t init_num = ila_ptr->init_num();
-      for (size_t init_cond_idx = 0; init_cond_idx != init_num; ++ init_cond ) {
+      for (size_t init_cond_idx = 0; init_cond_idx != init_num; ++ init_cond_idx ) {
         ExprPtr init_cond = ila_ptr->init(init_cond_idx);
         host_remover.RecordAndReplaceIf(init_cond, isSharedVar, global_ila_); 
         // We need to create a global ila, and set all to that to make a predicate
@@ -171,7 +174,7 @@ namespace ila {
     host_remover.RestoreAll(global_ila_); // this will not affect the generated z3
     // you need to give a pointer to that to restore the host?
     // A sanity check can be put here to check if the initial conditions of several components are compatible or not
-    ILA_ASSERT( CurrConstrSat() ) << "The initial conditions of ILAs are incompatible";
+    ILA_WARN_IF( ! CurrConstrSat() ) << "The initial conditions of ILAs are incompatible";
   }
 
   bool InterIlaUnroller::CurrConstrSat() 
@@ -191,7 +194,7 @@ namespace ila {
     return false;
   }
 
-  ZExpr InterIlaUnroller::ConjPred(const ZExprVec& vec) const {
+  InterIlaUnroller::ZExpr InterIlaUnroller::ConjPred(const ZExprVec& vec) const {
     auto conj = ctx().bool_val(true);
     for (size_t i = 0; i != vec.size(); i++) {
       conj = (conj && vec[i]);
@@ -212,14 +215,14 @@ namespace ila {
 // Should they be removed also? 
 // Also, more to think about for hierarchical ila
 
-void HostRemoveRestore::RecordAndRemove( ExprPtr exp )
+void HostRemoveRestore::RecordAndRemove( ExprPtr expr )
 {
   size_t num = expr->arg_num();
   for (size_t i = 0; i != num; ++i) 
     RecordAndRemove( expr->arg(i) );
   if ( expr->is_var() ) { // currently we only deal with expr vars, maybe also func?
-    auto pos = map_->find(expr);
-    if ( pos != map_->end() ) { // if exp is already registered
+    auto pos = map_.find(expr);
+    if ( pos != map_.end() ) { // if exp is already registered
       ILA_ASSERT( pos->second == expr->host() ) << "Implementation bug: host() of expr:" << expr 
           << " is already filled and they do not match." ; 
       // and then, no need to save, just remove 
@@ -229,16 +232,16 @@ void HostRemoveRestore::RecordAndRemove( ExprPtr exp )
     expr->set_host(NULL);
   }
 }
-void HostRemoveRestore::RecordAndRemoveIf( ExprPtr exp , ExprJudgeFunc f )
+void HostRemoveRestore::RecordAndRemoveIf( ExprPtr expr , ExprJudgeFunc f )
 {
   ILA_ASSERT( f != nullptr ) << "ExprJudgeFunc cannot be a null pointer";
 
   size_t num = expr->arg_num();
   for (size_t i = 0; i != num; ++i) 
     RecordAndRemoveIf( expr->arg(i) , f);
-  if ( expr->is_var() && f(exp) ) { // currently we only deal with expr vars, maybe also func?
-    auto pos = map_->find(expr);
-    if ( pos != map_->end() ) { // if exp is already registered
+  if ( expr->is_var() && f(expr) ) { // currently we only deal with expr vars, maybe also func?
+    auto pos = map_.find(expr);
+    if ( pos != map_.end() ) { // if exp is already registered
       ILA_ASSERT( pos->second == expr->host() ) << "Implementation bug: host() of expr:" << expr 
           << " is already filled and they do not match." ; 
       // and then, no need to save, just remove 
@@ -249,16 +252,16 @@ void HostRemoveRestore::RecordAndRemoveIf( ExprPtr exp , ExprJudgeFunc f )
   }
 }
 
-void HostRemoveRestore::RecordAndReplaceIf( ExprPtr exp, ExprJudgeFunc f, InstrLvlAbsPtr h)
+void HostRemoveRestore::RecordAndReplaceIf( ExprPtr expr, ExprJudgeFunc f, InstrLvlAbsPtr h)
 {
   ILA_ASSERT( f != nullptr ) << "ExprJudgeFunc cannot be a null pointer";
 
   size_t num = expr->arg_num();
   for (size_t i = 0; i != num; ++i) 
     RecordAndReplaceIf( expr->arg(i) , f, h);
-  if ( expr->is_var() && f(exp) ) { // currently we only deal with expr vars, maybe also func?
-    auto pos = map_->find(expr);
-    if ( pos != map_->end() ) { // if exp is already registered
+  if ( expr->is_var() && f(expr) ) { // currently we only deal with expr vars, maybe also func?
+    auto pos = map_.find(expr);
+    if ( pos != map_.end() ) { // if exp is already registered
       ILA_ASSERT( pos->second == expr->host() ) << "Implementation bug: host() of expr:" << expr 
           << " is already filled and they do not match." ; 
       // and then, no need to save, just remove 
@@ -269,14 +272,14 @@ void HostRemoveRestore::RecordAndReplaceIf( ExprPtr exp, ExprJudgeFunc f, InstrL
   }
 }
 
-void HostRemoveRestore::Restore( ExprPtr exp )
+void HostRemoveRestore::Restore( ExprPtr expr )
 {
   size_t num = expr->arg_num();
   for (size_t i = 0; i != num; ++i) 
     Restore( expr->arg(i) );
   if ( expr->is_var() && expr->host() == NULL) { // currenlty we only limit ourselves to expr vars
-    auto pos = map_->find(expr);
-    if (pos != map_->end() ) 
+    auto pos = map_.find(expr);
+    if (pos != map_.end() ) 
       expr->set_host( pos->second );
   }
 }
