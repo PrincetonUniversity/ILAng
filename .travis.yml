@@ -20,11 +20,6 @@ env:
   global:
   - secure: "jcRxTfzLU+rkktRPkp+IKDuWx/OoSpDqyyQbl+SZNegwFNta7exiMrOCDie33mgKtJXFzqSkbnIy8VSt8Y7Jx0EV3EPHn46amMIquIcvlEAfSjJ6vZ4qgdPz+OI6xiJ1N7ixskQjl1NTWZE0w4HTgUEV9WTuuDWPWHoL2rJWFZNBSBeuyIw1RjrpwzLTL5NEhdNW0+wCmIe1XjhO4O5UAdZR1sEMukxnZ2nhj23K8d6wBBOslJKh/Q2tKLapflaHloXq+ECmIraxe8oVX5T1brAcshfol2awUIcT/VS/2Mf21zPVwBiluzzBhstdh5hUd8up0G7S8o0eUDniihrb9YhxrR9ILHrjLEnZCr77vMqZJiKKfSzFMHVp8Da7hEpgHJND1W4IYzgSnJneC+xMhzd23TX5v8u4DqrZRtrZIoWA7Lic0btXbbZ1VBhYoZrj/ebJFUty6HDUIwlTElXdFdloDzh/l/6zehCLg9tU0oJQfwPQIwulQ9Ciy2UHda4wgWFuQMGqBMVKApCgcHVpAbuPmgNONWuvszRTsT+Qx6xYfMLCizpjMiUmZpkvGtPX5Ed8k2V8m5+G6imAlUCEUm+/RYWvhjEeVFXqQPo6+7VndZUv8SPcqAfhNnkH/JuP+NqQlZH1EGLThl0z7k9GARLgSuGj+59hrFID/WVTySQ="
 
-before_install:
-  - echo -n | openssl s_client -connect https://scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
-  - sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
-  - sudo apt-get -qq --yes update
-
 addons:
   coverity_scan:
     project:
@@ -34,6 +29,11 @@ addons:
     build_command_prepend: "mkdir build; cd build; cmake -L -Dcoverage=ON -DZ3_INCLUDE_DIR=/usr/include .."
     build_command: "make"
     branch_pattern: coverity_check
+
+before_install:
+  - echo -n | openssl s_client -connect https://scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
+  - sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
+  - sudo apt-get -qq --yes update
 
 install: 
   - gem install coveralls-lcov
