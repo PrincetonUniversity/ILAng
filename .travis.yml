@@ -18,7 +18,12 @@ git:
 
 env:
   global:
-    - secure: "V5nOxUXoHE4eVS6f1byDFNKrQQh1LrLDjukZ5FEBOfto+by+cZxrk0/KUG++CHFv2P7ePhTqcT+GHAjeGEfEkwirZFcjd6R7b/3d86zSTSTsh16o99IYeJ3rvH41fSr4Se9Lx2eeEOZmGOxdyNJykh8xGZRSPvpR/1GnJYL6owIEhOJzBx9vGVqJ9ePItbIw6/IcuvYYt9GnoS3tlnxSMeXnkCjoy2OVwNuckkPWfOKOLL6GgJynNdwPPlx1dHs3XjKB0eMA0wl90kmYKCIkRsRjXDPISiVCvjVGQm0YtqALO+3uLwQxG12c3DL8USpQgiuwjIENFi4rKZgmZt3YqmfQpoHrfeEV7Mf3kaUvSpJTEaIT563a6cQzU7fGoONSlLeYKQZqsmZtPdAlJ1KszwaL8ufcp0YOktcZ3Ra1DjFRkpWDTUJTGZCgicE8btywS7ADdyyRnVGnoYiXOZ+A4zNDSaYyXUYE4ZR7y9GUQ0e8jfeMHboIYufGd610pYBAaQCdZd8YBUFOAsAzLgYfiUphIrKSif5R/3JUdz8OClsm7983MY/kjiRVDfjdKQm5cZ8t8OlvRVpRsaN169A4mXpAMOx+ycnakzkG6RD6gWKPI+NPnZhZCrKoUS1qD287xXPoYMmg2PUVzRkHRrG9U/PdwrrmVdq0jZ58K0VtMhQ="
+  - secure: "jcRxTfzLU+rkktRPkp+IKDuWx/OoSpDqyyQbl+SZNegwFNta7exiMrOCDie33mgKtJXFzqSkbnIy8VSt8Y7Jx0EV3EPHn46amMIquIcvlEAfSjJ6vZ4qgdPz+OI6xiJ1N7ixskQjl1NTWZE0w4HTgUEV9WTuuDWPWHoL2rJWFZNBSBeuyIw1RjrpwzLTL5NEhdNW0+wCmIe1XjhO4O5UAdZR1sEMukxnZ2nhj23K8d6wBBOslJKh/Q2tKLapflaHloXq+ECmIraxe8oVX5T1brAcshfol2awUIcT/VS/2Mf21zPVwBiluzzBhstdh5hUd8up0G7S8o0eUDniihrb9YhxrR9ILHrjLEnZCr77vMqZJiKKfSzFMHVp8Da7hEpgHJND1W4IYzgSnJneC+xMhzd23TX5v8u4DqrZRtrZIoWA7Lic0btXbbZ1VBhYoZrj/ebJFUty6HDUIwlTElXdFdloDzh/l/6zehCLg9tU0oJQfwPQIwulQ9Ciy2UHda4wgWFuQMGqBMVKApCgcHVpAbuPmgNONWuvszRTsT+Qx6xYfMLCizpjMiUmZpkvGtPX5Ed8k2V8m5+G6imAlUCEUm+/RYWvhjEeVFXqQPo6+7VndZUv8SPcqAfhNnkH/JuP+NqQlZH1EGLThl0z7k9GARLgSuGj+59hrFID/WVTySQ="
+
+before_install:
+  - echo -n | openssl s_client -connect https://scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
+  - sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
+  - sudo apt-get -qq --yes update
 
 addons:
   coverity_scan:
@@ -26,14 +31,9 @@ addons:
       name: "Bo-Yuan-Huang/ILA-Tools"
       description: "ILA build submitted via Travis CI"
     notification_email: byhuang1992@gmail.com
-    build_command_prepend: "cmake -Dcoverage=ON -DZ3_INCLUDE_DIR=/usr/include $TRAVIS_BUILD_DIR"
+    build_command_prepend: "mkdir build; cd build; cmake -L -Dcoverage=ON -DZ3_INCLUDE_DIR=/usr/include .."
     build_command: "make"
     branch_pattern: coverity_check
-
-before_install:
-  - echo -n | openssl s_client -connect https://scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
-  - sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
-  - sudo apt-get -qq --yes update
 
 install: 
   - gem install coveralls-lcov
