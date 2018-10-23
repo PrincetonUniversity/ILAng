@@ -6,7 +6,7 @@
 
 using namespace ila;
 
-void GenPdpIla() {}
+void GenPdpIla() { std::cout << "Generate PDP ILA model.\n"; }
 
 int main() {
   try {
@@ -15,6 +15,5 @@ int main() {
     std::cout << "unexpected error.\n";
   }
 
-  std::cout << "PDP ILA generated.\n";
   return 0;
 }
