@@ -63,9 +63,6 @@ void SetLogPath(const std::string& path);
 /// Log messages to stderr instead of logfiles, if set to 1.
 void SetToStdErr(const int& to_err);
 
-/// \brief Return true if log is set to stderr.
-bool IsSetToStdErr();
-
 // Wrapper for debug tag log system.
 /******************************************************************************/
 /// A one-time class for initializing GLog.
