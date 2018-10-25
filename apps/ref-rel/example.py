@@ -36,6 +36,7 @@ def GetRefinementOfVerilog(""" directory path """ vmod_path):
     # specify when does the instruction complete
     ref.complete = (st["top.ctrl.status"] == 1) # specify by condition
     ref.complete_step_num = 4                   # specify by the step bound
+    ref.complete = (st["monitor.done"] == 1)    # user-provided monitor
 
     # [optional] specify how to flush the state machine (if not one cycle)
     ref.clock = st["top.clk"] # Verilog only (do we need this?)
@@ -80,7 +81,3 @@ def EqCheck():
     # perform BMC up to 10 steps
     ila.EqCheck(ref_spec, ref_impl, rel, 10)
 
-
-# TODO define through operation model (monitor) 
-def DefineMonitor(Vmod m):
-    return m
