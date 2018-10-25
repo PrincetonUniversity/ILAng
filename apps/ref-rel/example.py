@@ -18,7 +18,7 @@ def GetRefinementOfIla(""" ILA """ m):
     ref.flush = (st["cmd"] == 0)
 
     # [optional] provide invariants
-    inv_valid_cnt = (st["counter"] >= 0 && st["counter"] < 8)
+    inv_valid_cnt = (st["counter"] >= 0 & st["counter"] < 8)
     ref.AddInvariant(inv_valid_cnt)
 
 
@@ -31,7 +31,7 @@ def GetRefinementOfVerilog(""" directory path """ vmod_path):
     st = ref.GetStateVars()
 
     # specify how to apply the instruction
-    ref.apply = (st["top.cmd"] == 1 && st["top.in_addr"] == 0xff00)
+    ref.apply = (st["top.cmd"] == 1 & st["top.in_addr"] == 0xff00)
 
     # specify when does the instruction complete
     ref.complete = (st["top.ctrl.status"] == 1) # specify by condition
@@ -39,10 +39,10 @@ def GetRefinementOfVerilog(""" directory path """ vmod_path):
 
     # [optional] specify how to flush the state machine (if not one cycle)
     ref.clock = st["top.clk"] # Verilog only (do we need this?)
-    ref.flush = (st["top.in_valid"] == 0 && st["top.interrupt"] = 0)
+    ref.flush = (st["top.in_valid"] == 0 & st["top.interrupt"] = 0)
 
     # [optional] provide invariants
-    inv_valid_cnt = (st["top.ctrl.cnt"] >= 0 && st["top.ctrl.cnt"] < 8)
+    inv_valid_cnt = (st["top.ctrl.cnt"] >= 0 & st["top.ctrl.cnt"] < 8)
     ref.AddInvariant(inv_valid_cnt)
 
     return ref
