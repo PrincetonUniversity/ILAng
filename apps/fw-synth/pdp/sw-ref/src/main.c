@@ -48,8 +48,9 @@ struct DataConfig {
 
 // return the max (replaced by un-interpreted function)
 DATA Max(DATA *buff, uint8_t size) {
-  if (size == 0)
+  if (size == 0) {
     return 0;
+  }
 
   DATA max = buff[0];
   for (uint8_t i = 1; i < size; i++) {
@@ -59,6 +60,25 @@ DATA Max(DATA *buff, uint8_t size) {
   return max;
 }
 
+DATA Min(DATA *buff, uint8_t size) {
+  if (size == 0) {
+    return 0;
+  }
+
+  DATA min = buff[0];
+  for (uint8_t i = 0; i < size; i++) {
+    if (buff[i] < min) {
+      min = buff[i];
+    }
+  }
+  return min;
+}
+
+DATA Avg(DATA *buff, uint8_t size) {
+  // TODO
+  return 0;
+}
+
 #define KERNEL_BUFF_SIZE 64
 bool Pooling(struct AlgoParam algo, struct DataConfig src,
              struct DataConfig dst) {
@@ -66,8 +86,7 @@ bool Pooling(struct AlgoParam algo, struct DataConfig src,
   DATA buff[KERNEL_BUFF_SIZE];
 
   uint8_t buff_size = algo.pooling_width * algo.pooling_height;
-  uint8_t v_width =
-      src.width + algo.padding_left + algo.padding_right;
+  uint8_t v_width = src.width + algo.padding_left + algo.padding_right;
 
   // assume input/output dimension is correct
   for (uint8_t out_x = 0; out_x < dst.width; out_x++) {
@@ -80,14 +99,14 @@ bool Pooling(struct AlgoParam algo, struct DataConfig src,
       //    y in [0, kernel height)
       for (uint8_t ker_x = 0; ker_x < algo.pooling_width; ker_x++) {
         for (uint8_t ker_y = 0; ker_y < algo.pooling_height; ker_y++) {
-          // calculate the virtual address (serialized) 
+          // calculate the virtual address (serialized)
           uint8_t v_start = (out_x * algo.stride_width) +
                             (out_y * algo.stride_height * v_width);
           uint8_t v_addr = v_start + ker_x + (ker_y * v_width);
 
-          // get the value from input data or padding 
+          // get the value from input data or padding
           DATA value = 0;
-          // FIXME padding value 
+          // FIXME padding value
           if (v_addr < algo.padding_top * v_width) {
             value = 0; // padding top
           } else if (v_addr >= (algo.padding_top + src.height) * v_width) {
@@ -96,10 +115,10 @@ bool Pooling(struct AlgoParam algo, struct DataConfig src,
             uint8_t v_y_idx = v_addr / v_width;
             uint8_t v_x_idx = v_addr - v_y_idx * v_width;
             if (v_x_idx < algo.padding_left) {
-              value = 0; // padding left 
+              value = 0; // padding left
             } else if (v_x_idx >= algo.padding_left + src.width) {
               value = 0; // padding right
-            } else { // from inputt
+            } else {     // from inputt
               uint8_t p_addr = (v_y_idx - algo.padding_top) * src.width +
                                (v_x_idx - algo.padding_left);
               value = ((DATA *)src.address)[p_addr];
@@ -112,7 +131,14 @@ bool Pooling(struct AlgoParam algo, struct DataConfig src,
         }
       }
 
-      DATA out_value = Max(buff, buff_size);
+      DATA out_value = 0;
+      if (algo.pooling_mode = POOL_MAX) {
+        out_value = Max(buff, buff_size);
+      } else if (algo.pooling_mode = POOL_MIN) {
+        out_value = Min(buff, buff_size);
+      } else {
+        out_value = Avg(buff, buff_size);
+      }
       uint8_t out_idx = out_x + out_y * dst.width;
       ((DATA *)dst.address)[out_idx] = out_value;
     }
