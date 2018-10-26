@@ -66,7 +66,7 @@ DATA Min(DATA *buff, uint8_t size) {
   }
 
   DATA min = buff[0];
-  for (uint8_t i = 0; i < size; i++) {
+  for (uint8_t i = 1; i < size; i++) {
     if (buff[i] < min) {
       min = buff[i];
     }
@@ -75,8 +75,15 @@ DATA Min(DATA *buff, uint8_t size) {
 }
 
 DATA Avg(DATA *buff, uint8_t size) {
-  // TODO
-  return 0;
+  if (size == 0) {
+    return 0;
+  }
+
+  DATA acc = 0;
+  for (uint8_t i = 0; i < size; i++) {
+    acc += buff[i];
+  }
+  return acc / size;
 }
 
 #define KERNEL_BUFF_SIZE 64
@@ -132,9 +139,9 @@ bool Pooling(struct AlgoParam algo, struct DataConfig src,
       }
 
       DATA out_value = 0;
-      if (algo.pooling_mode = POOL_MAX) {
+      if (algo.pooling_mode == POOL_MAX) {
         out_value = Max(buff, buff_size);
-      } else if (algo.pooling_mode = POOL_MIN) {
+      } else if (algo.pooling_mode == POOL_MIN) {
         out_value = Min(buff, buff_size);
       } else {
         out_value = Avg(buff, buff_size);
@@ -165,7 +172,7 @@ bool Test() {
   struct DataConfig dst_config;
 
   // define algorithm parameters
-  algo_param.pooling_mode = POOL_MAX;
+  algo_param.pooling_mode = POOL_AVG;
   algo_param.pooling_width = 2;
   algo_param.pooling_height = 2;
   algo_param.stride_width = 2;
