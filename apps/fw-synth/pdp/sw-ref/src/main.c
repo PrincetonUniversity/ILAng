@@ -25,7 +25,7 @@ typedef uint8_t DATA;
 
 struct AlgoParam {
   uint8_t pooling_mode; // (POOLING_METHOD, FLYING_MODE, SPLIT_NUM)
-  uint8_t pooling_width; 
+  uint8_t pooling_width;
   uint8_t pooling_height;
   uint8_t stride_width;
   uint8_t stride_height;
@@ -48,39 +48,73 @@ struct DataConfig {
 
 // return the max (replaced by un-interpreted function)
 DATA Max(DATA *buff, uint8_t size) {
-  if (size == 0) 
+  if (size == 0)
     return 0;
 
   DATA max = buff[0];
   for (uint8_t i = 1; i < size; i++) {
-    if (buff[i] > max) 
+    if (buff[i] > max)
       max = buff[i];
   }
   return max;
 }
 
 #define KERNEL_BUFF_SIZE 64
-bool Pooling(struct AlgoParam algo_param, struct DataConfig src_config,
-             struct DataConfig dst_config) {
+bool Pooling(struct AlgoParam algo, struct DataConfig src,
+             struct DataConfig dst) {
 
   DATA buff[KERNEL_BUFF_SIZE];
 
-  uint8_t buff_size = algo_param.pooling_width * algo_param.pooling_height;
+  uint8_t buff_size = algo.pooling_width * algo.pooling_height;
+  uint8_t v_width =
+      src.width + algo.padding_left + algo.padding_right;
 
   // assume input/output dimension is correct
-  for (uint8_t out_x = 0; out_x < dst_config.width; out_x++) {
-    for (uint8_t out_y = 0; out_y < dst_config.height; out_y++) {
+  for (uint8_t out_x = 0; out_x < dst.width; out_x++) {
+    for (uint8_t out_y = 0; out_y < dst.height; out_y++) {
       // start virtual address: (out_x * stride_x, out_y * stride_y)
       // virtual address range: v_start + x + (y * v_width)
       //    v_start = (out_x * stride_x) + (out_y * stride_y * v_width)
       //    v_width = input width + padding_left + padding_right
       //    x in [0, kernel width)
       //    y in [0, kernel height)
-      for (uint8_t ker_x = 0; ker_x < algo_param.pooling_width; ker_x++) {
-        for (uint8_t ker_y = 0; ker_y < algo_param.pooling_height; ker_y++) {
-          // TODO: uint8_t virtual_address = ?
+      for (uint8_t ker_x = 0; ker_x < algo.pooling_width; ker_x++) {
+        for (uint8_t ker_y = 0; ker_y < algo.pooling_height; ker_y++) {
+          // calculate the virtual address (serialized) 
+          uint8_t v_start = (out_x * algo.stride_width) +
+                            (out_y * algo.stride_height * v_width);
+          uint8_t v_addr = v_start + ker_x + (ker_y * v_width);
+
+          // get the value from input data or padding 
+          DATA value = 0;
+          // FIXME padding value 
+          if (v_addr < algo.padding_top * v_width) {
+            value = 0; // padding top
+          } else if (v_addr >= (algo.padding_top + src.height) * v_width) {
+            value = 0; // padding bottom
+          } else {
+            uint8_t v_y_idx = v_addr / v_width;
+            uint8_t v_x_idx = v_addr - v_y_idx * v_width;
+            if (v_x_idx < algo.padding_left) {
+              value = 0; // padding left 
+            } else if (v_x_idx >= algo.padding_left + src.width) {
+              value = 0; // padding right
+            } else { // from inputt
+              uint8_t p_addr = (v_y_idx - algo.padding_top) * src.width +
+                               (v_x_idx - algo.padding_left);
+              value = ((DATA *)src.address)[p_addr];
+            }
+          }
+
+          // update output data
+          uint8_t v_idx = ker_x + ker_y * algo.pooling_width;
+          buff[v_idx] = value;
         }
       }
+
+      DATA out_value = Max(buff, buff_size);
+      uint8_t out_idx = out_x + out_y * dst.width;
+      ((DATA *)dst.address)[out_idx] = out_value;
     }
   }
 
@@ -147,12 +181,18 @@ bool Test() {
   printf("Input: \n");
   for (int i = 0; i < SRC_WIDTH * SRC_HEIGHT * SRC_CHANNEL; i++) {
     printf("%u ", input_data[i]);
+    if ((i + 1) % SRC_WIDTH == 0) {
+      printf("\n");
+    }
   }
   printf("\n");
 
   printf("Output: \n");
   for (int i = 0; i < DST_WIDTH * DST_HEIGHT * DST_CHANNEL; i++) {
     printf("%u ", output_data[i]);
+    if ((i + 1) % DST_WIDTH == 0) {
+      printf("\n");
+    }
   }
   printf("\n");
 
