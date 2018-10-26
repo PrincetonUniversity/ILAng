@@ -65,17 +65,22 @@ bool Pooling(struct AlgoParam algo_param, struct DataConfig src_config,
 
   DATA buff[KERNEL_BUFF_SIZE];
 
-  uint8_t buff_size = algo_param.width * algo_param.height;
+  uint8_t buff_size = algo_param.pooling_width * algo_param.pooling_height;
 
   // assume input/output dimension is correct
   for (uint8_t out_x = 0; out_x < dst_config.width; out_x++) {
     for (uint8_t out_y = 0; out_y < dst_config.height; out_y++) {
       // start virtual address: (out_x * stride_x, out_y * stride_y)
-      // virtual address range: start + x + (y * virtual width)
-      //                        x in [0, kernel width)
-      //                        y in [0, kernel height)
-      //                        virtual width = input width + stride width
-      uint8_t virtual_address = 0;
+      // virtual address range: v_start + x + (y * v_width)
+      //    v_start = (out_x * stride_x) + (out_y * stride_y * v_width)
+      //    v_width = input width + padding_left + padding_right
+      //    x in [0, kernel width)
+      //    y in [0, kernel height)
+      for (uint8_t ker_x = 0; ker_x < algo_param.pooling_width; ker_x++) {
+        for (uint8_t ker_y = 0; ker_y < algo_param.pooling_height; ker_y++) {
+          // TODO: uint8_t virtual_address = ?
+        }
+      }
     }
   }
 
