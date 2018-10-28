@@ -158,6 +158,11 @@ TEST(TestExprFuse, BinaryOp) {
   EXPECT_TRUE(bv_and->is_op());
   EXPECT_TRUE(bv_and->is_bv());
 
+  auto bv1_const_1 = ExprFuse::BvConst(1, 1);
+  auto bool_and_1 = ExprFuse::And(bool_var, bv1_const_1);
+  EXPECT_TRUE(bool_and_1->is_op());
+  EXPECT_TRUE(bool_and_1->is_bool());
+
 #ifndef NDEBUG
   EXPECT_DEATH(ExprFuse::And(bool_var, bv_var), ".*");
 #endif

@@ -59,7 +59,16 @@ ExprPtr ExprFuse::Complement(const ExprPtr arg) {
 }
 
 ExprPtr ExprFuse::And(const ExprPtr l, const ExprPtr r) {
-  return std::make_shared<ExprOpAnd>(l, r);
+  if (l->sort() == r->sort()) {
+    return std::make_shared<ExprOpAnd>(l, r);
+  }
+  // the only supported unequal-sort-AND is bv(1) && bool
+  if (l->sort()->is_bv() && l->sort()->bit_width() == 1) {
+    return ExprFuse::And(ExprFuse::Eq(l, 1), r);
+  } else {
+    ILA_ASSERT(r->sort()->is_bv() && r->sort()->bit_width() == 1);
+    return ExprFuse::And(l, ExprFuse::Eq(r, 1));
+  }
 }
 
 ExprPtr ExprFuse::Or(const ExprPtr l, const ExprPtr r) {
