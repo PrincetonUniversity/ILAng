@@ -21,8 +21,8 @@ void GenPdpIla() {
 
   /* specify state variables **************************************************/
   // command interface to/from memory controller
-  auto mmio_rd_cmd = m.NewBoolInput("mmio_rd_cmd"); // mcif2pdp_rd_req_valid
-  auto mmio_wr_cmd = m.NewBoolInput("mmio_wr_cmd"); // mcif2pdp_wr_req_valid
+  auto mmio_rd_cmd = m.NewBvInput("mmio_rd_cmd", 1); // mcif2pdp_rd_req_valid
+  auto mmio_wr_cmd = m.NewBvInput("mmio_wr_cmd", 1); // mcif2pdp_wr_req_valid
   auto mmio_addr = m.NewBvInput("mmio_addr", MMIO_ADDR_SIZE);
   auto mmio_wr_val = m.NewBvInput("mmio_wr_val", MMIO_DATA_SIZE);
   auto mmio_rd_val = m.NewBvState("mmio_rd_val", MMIO_DATA_SIZE);
