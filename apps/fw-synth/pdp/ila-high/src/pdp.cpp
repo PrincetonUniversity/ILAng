@@ -2,6 +2,7 @@
 
 #include "ila++.h"
 #include "z3++.h"
+#include "../include/addr_space.h"
 #include <iostream>
 
 using namespace ila;
@@ -14,6 +15,13 @@ using namespace ila;
 
 #define CTRL_SIZE 8
 #define INDX_SIZE 8
+
+#define D_OPERATION_MODE_CFG_OP_BEG 0
+#define D_OPERATION_MODE_CFG_OP_END 7
+#define D_OPERATION_MODE_CFG_FLY_BEG 8
+#define D_OPERATION_MODE_CFG_FLY_END 15
+#define D_OPERATION_MODE_CFG_NUM_BEG 16
+#define D_OPERATION_MODE_CFG_NUM_END 23
 
 void GenPdpIla() {
   // create an ILA object
@@ -37,7 +45,7 @@ void GenPdpIla() {
   // algorithm paramters
   // - D_OPERATION_MODE_CFG
   auto op_mode = m.NewBvState("op_mode", 2);
-  auto fly_mode = m.NewBvState("fly_mode", 2);
+  auto fly_mode = m.NewBvState("fly_mode", 1);
   auto split_num = m.NewBvState("split_num", CTRL_SIZE);
   // - D_POOLING_KERNEL_CFG
   auto ker_wid = m.NewBvState("kernel_width", CTRL_SIZE);
@@ -98,13 +106,41 @@ void GenPdpIla() {
 
   /* specify instructions *****************************************************/
 
+  { // write to D_OPERATION_MODE_CFG
+    auto instr = m.NewInstr("W_D_OPERATION_MODE_CFG");
+
+    instr.SetDecode((mmio_wr_cmd == 1) &
+                    (mmio_addr == ADDR_D_OPERATION_MODE_CFG));
+
+    // from NV_NVDLA_PDP_REG_dual.v
+    //  - pooling method: wr_data[1:0]
+    //  - flying mode: wr_data[4]
+    //  - split number: wr_data[15:8]
+    instr.SetUpdate(op_mode, Extract(mmio_wr_val, 1, 0));
+    instr.SetUpdate(fly_mode, SelectBit(mmio_wr_val, 4));
+    instr.SetUpdate(split_num, Extract(mmio_wr_val, 15, 8));
+  }
+
   { // write to D_SRC_BASE_ADDR_LOW
-    // set the lower 32-bit of the source (input) address
     auto instr = m.NewInstr("W_D_SRC_BASE_ADDR_LOW");
+
+    instr.SetDecode((mmio_wr_cmd == 1) &
+                    (mmio_addr == ADDR_D_SRC_BASE_ADDR_LOW));
+
+    // set the lower 32-bit of the source (input) address
+    auto src_addr_next = Concat(Extract(src_addr, 63, 32), mmio_wr_val);
+    instr.SetUpdate(src_addr, src_addr_next);
   }
 
   { // write to D_SRC_BASE_ADDR_HIGH
+    auto instr = m.NewInstr("W_D_SRC_BASE_ADDR_HIGH");
+
+    instr.SetDecode((mmio_wr_cmd == 1) &
+                    (mmio_addr == ADDR_D_SRC_BASE_ADDR_HIGH));
+
     // set the higher 32-bit of the source (input) address
+    auto src_addr_next = Concat(mmio_wr_val, Extract(src_addr, 31, 0));
+    instr.SetUpdate(src_addr, src_addr_next);
   }
 }
 
