@@ -62,21 +62,42 @@ ExprPtr ExprFuse::And(const ExprPtr l, const ExprPtr r) {
   if (l->sort() == r->sort()) {
     return std::make_shared<ExprOpAnd>(l, r);
   }
-  // the only supported unequal-sort-AND is bv(1) && bool
-  if (l->sort()->is_bv() && l->sort()->bit_width() == 1) {
+  // support unequal-sort-AND for: Bool AND bv(1)
+  if (l->is_bv(1) && r->is_bool()) {
     return ExprFuse::And(ExprFuse::Eq(l, 1), r);
   } else {
-    ILA_ASSERT(r->sort()->is_bv() && r->sort()->bit_width() == 1);
+    ILA_ASSERT(l->is_bool() && r->is_bv(1))
+        << "AND two expressions of different sorts not supported";
     return ExprFuse::And(l, ExprFuse::Eq(r, 1));
   }
 }
 
 ExprPtr ExprFuse::Or(const ExprPtr l, const ExprPtr r) {
-  return std::make_shared<ExprOpOr>(l, r);
+  if (l->sort() == r->sort()) {
+    return std::make_shared<ExprOpOr>(l, r);
+  }
+  // support unequal-sort-OR for: Bool OR bv(1)
+  if (l->is_bv(1) && r->is_bool()) {
+    return ExprFuse::Or(ExprFuse::Eq(l, 1), r);
+  } else {
+    ILA_ASSERT(l->is_bool() && r->is_bv(1))
+        << "OR two expressions of different sorts not supported";
+    return ExprFuse::Or(l, ExprFuse::Eq(r, 1));
+  }
 }
 
 ExprPtr ExprFuse::Xor(const ExprPtr l, const ExprPtr r) {
-  return std::make_shared<ExprOpXor>(l, r);
+  if (l->sort() == r->sort()) {
+    return std::make_shared<ExprOpXor>(l, r);
+  }
+  // support unequal-sort-XOR for: Bool XOR bv(1)
+  if (l->is_bv(1) && r->is_bool()) {
+    return ExprFuse::Xor(ExprFuse::Eq(l, 1), r);
+  } else {
+    ILA_ASSERT(l->is_bool() && r->is_bv(1))
+        << "XOR two expressions of different sorts not supported";
+    return ExprFuse::Xor(l, ExprFuse::Eq(r, 1));
+  }
 }
 
 ExprPtr ExprFuse::Shl(const ExprPtr l, const ExprPtr r) {

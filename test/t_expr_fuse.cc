@@ -148,6 +148,8 @@ TEST(TestExprFuse, BinaryOp) {
   auto bv_var = ExprFuse::NewBvVar("bv_var", 8);
   auto bv_const_0 = ExprFuse::BvConst(0, 8);
   auto bv_const_1 = ExprFuse::BvConst(BvVal("1"), 8);
+  auto bv1_const_0 = ExprFuse::BvConst(0, 1);
+  auto bv1_const_1 = ExprFuse::BvConst(1, 1);
 
   // And
   auto bool_and = ExprFuse::And(bool_var, bool_const_t);
@@ -158,10 +160,13 @@ TEST(TestExprFuse, BinaryOp) {
   EXPECT_TRUE(bv_and->is_op());
   EXPECT_TRUE(bv_and->is_bv());
 
-  auto bv1_const_1 = ExprFuse::BvConst(1, 1);
-  auto bool_and_1 = ExprFuse::And(bool_var, bv1_const_1);
-  EXPECT_TRUE(bool_and_1->is_op());
-  EXPECT_TRUE(bool_and_1->is_bool());
+  auto bv_and_bool = ExprFuse::And(bv1_const_0, bool_var);
+  EXPECT_TRUE(bv_and_bool->is_bool());
+  EXPECT_FALSE(bv_and_bool->is_bv(1));
+
+  auto bool_and_bv = ExprFuse::And(bool_var, bv1_const_1);
+  EXPECT_TRUE(bool_and_bv->is_bool());
+  EXPECT_FALSE(bool_and_bv->is_bv(1));
 
 #ifndef NDEBUG
   EXPECT_DEATH(ExprFuse::And(bool_var, bv_var), ".*");
@@ -176,6 +181,14 @@ TEST(TestExprFuse, BinaryOp) {
   EXPECT_TRUE(bv_or->is_op());
   EXPECT_TRUE(bv_or->is_bv());
 
+  auto bool_or_bv = ExprFuse::Or(bool_var, bv1_const_0);
+  EXPECT_TRUE(bool_or_bv->is_bool());
+  EXPECT_FALSE(bool_or_bv->is_bv(1));
+
+  auto bv_or_bool = ExprFuse::Or(bv1_const_1, bool_var);
+  EXPECT_TRUE(bv_or_bool->is_bool());
+  EXPECT_FALSE(bv_or_bool->is_bv(1));
+
 #ifndef NDEBUG
   EXPECT_DEATH(ExprFuse::Or(bool_var, bv_var), ".*");
 #endif
@@ -188,6 +201,14 @@ TEST(TestExprFuse, BinaryOp) {
   auto bv_xor = ExprFuse::Xor(bv_var, bv_const_1);
   EXPECT_TRUE(bv_xor->is_op());
   EXPECT_TRUE(bv_xor->is_bv());
+
+  auto bool_xor_bv = ExprFuse::Xor(bool_var, bv1_const_0);
+  EXPECT_TRUE(bool_xor_bv->is_bool());
+  EXPECT_FALSE(bool_xor_bv->is_bv(1));
+
+  auto bv_xor_bool = ExprFuse::Xor(bv1_const_1, bool_var);
+  EXPECT_TRUE(bv_xor_bool->is_bool());
+  EXPECT_FALSE(bv_xor_bool->is_bv(1));
 
 #ifndef NDEBUG
   EXPECT_DEATH(ExprFuse::Xor(bool_var, bv_var), ".*");

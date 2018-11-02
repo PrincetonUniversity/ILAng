@@ -37,7 +37,7 @@ public:
   /// Return true if have Boolean sort.
   virtual bool is_bool() const { return false; }
   /// Return true if have bit-vector sort.
-  virtual bool is_bv() const { return false; }
+  virtual bool is_bv(const int &width = 0) const { return false; }
   /// Return true if have memory (array) sort.
   virtual bool is_mem() const { return false; }
 
@@ -109,7 +109,9 @@ public:
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return true since it is bit-vector Sort.
-  bool is_bv() const { return true; }
+  bool is_bv(const int& width) const {
+    return (width == 0) ? true : (width == bit_width_);
+  }
 
   // ------------------------- METHODS -------------------------------------- //
   /// Return the bit-width.

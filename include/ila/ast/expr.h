@@ -72,7 +72,7 @@ public:
   /// Return true if this is a Boolean expression.
   inline bool is_bool() const { return sort_->is_bool(); }
   /// Return true if this is a Bitvector expression.
-  inline bool is_bv() const { return sort_->is_bv(); }
+  inline bool is_bv(const int& width = 0) const { return sort_->is_bv(width); }
   /// Return true if this is an Array expression.
   inline bool is_mem() const { return sort_->is_mem(); }
 
