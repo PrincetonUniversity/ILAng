@@ -2,10 +2,10 @@
   "model m0": "example-Ila.json",
   "model m1": "example-Verilog.json",
   "instruction mapping": [
-    { "instruction name/tag of m0", "instruction name/tag of m1" },
-    { "m0.START_ENCRYPT", "m1.start_encrypt" },
-    { "m0.RD_AES_STATUS", "m1.check_status" },
-    { "m0.WR_DATA_LENGTH", "m1.set_length" }
+    [ "instruction name/tag of m0", "instruction name/tag of m1" ],
+    [ "m0.START_ENCRYPT", "m1.start_encrypt" ],
+    [ "m0.RD_AES_STATUS", "m1.check_status" ],
+    [ "m0.WR_DATA_LENGTH", "m1.set_length" ]
   ],
   "state mapping": [
     "Constraints in Verilog expression, where signals/states are prefixed by m0/m1",

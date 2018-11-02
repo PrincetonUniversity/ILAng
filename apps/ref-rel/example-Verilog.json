@@ -2,71 +2,74 @@
   "target ILA": "ILA model",
   "target Verilog": "Path to Verilog files",
 
-  {
-    "instruction": "string -- instruction name/tag", 
-
-    "start decode": [
-      "Verilog expression -- e1",
-      "Verilog expression -- e2",
-      "Verilog expression -- e3"
-    ],
-
-    "ready signal": [
-      "Verilog expression -- e1",
-      "Verilog expression -- e2",
-      "Verilog expression -- e3"
-    ],
-
-    "ready bound": 4,
-
-    "flush constraint": [
-      "Verilog expression -- e1",
-      "Verilog expression -- e2",
-      "Verilog expression -- e3"
-    ]
-  },
-
-  {
-    "instruction": "start_encrypt",
-    "start decode": [
-      "aes_top.mmio_wr_req == 1'b1",
-      "aes_top.mmio_wr_addr == 16'hff00"
-    ],
-    "ready signal": [
-      "aes_top.status == 2'd0"
-    ],
-    "flush constraint": [ 
-      "aes_top.mmio_wr_req == 1'b0",
-      "aes_top_mmio_rd_req == 1'b0"
-    ]
-  },
-
-  {
-    "instruction": "check_status",
-    "start decode": [ 
-      "aes_top.mmio_rd_req == 1'b1",
-      "aes_top.mmio_rd_addr == 16'hff01"
-    ],
-    "ready bound": 1
-  },
-
-  {
-    "instruction": "set_length",
-    "start decode": [
-      "aes_top.mmio_wr_req == 1'b1",
-      "aes_top.mmio_wr_addr == 16'hff04"
-    ],
-    "ready signal": [
-      "aes_top.status == 2'd0"
-    ],
-    "flush constraint": [
-      "aes_top.mmio_wr_req == 1'b0",
-      "aes_top_mmio_rd_req == 1'b0"
-    ]
-  },
-
   "global invariants": [
+    "Verilog expression (1-bit AST) for a set of invariants",
     "(aes_top.mmio_rd_req & aes_top.mmio_wr_req) == 0'b0",
     "(aes_top.status != 2'd0) & (aes_top.mmio_wr_req == 1'b1) == 0'b0"
+  ],
+
+  "instructions": [
+    {
+      "instruction": "string -- instruction name/tag", 
+
+      "start decode": [
+        "Verilog expression -- e1",
+        "Verilog expression -- e2",
+        "Verilog expression -- e3"
+      ],
+
+      "ready signal": [
+        "Verilog expression -- e1",
+        "Verilog expression -- e2",
+        "Verilog expression -- e3"
+      ],
+
+      "ready bound": 4,
+
+      "flush constraint": [
+        "Verilog expression -- e1",
+        "Verilog expression -- e2",
+        "Verilog expression -- e3"
+      ]
+    },
+
+    {
+      "instruction": "start_encrypt",
+      "start decode": [
+        "aes_top.mmio_wr_req == 1'b1",
+        "aes_top.mmio_wr_addr == 16'hff00"
+      ],
+      "ready signal": [
+        "aes_top.status == 2'd0"
+      ],
+      "flush constraint": [ 
+        "aes_top.mmio_wr_req == 1'b0",
+        "aes_top_mmio_rd_req == 1'b0"
+      ]
+    },
+
+    {
+      "instruction": "check_status",
+      "start decode": [ 
+        "aes_top.mmio_rd_req == 1'b1",
+        "aes_top.mmio_rd_addr == 16'hff01"
+      ],
+      "ready bound": 1
+    },
+
+    {
+      "instruction": "set_length",
+      "start decode": [
+        "aes_top.mmio_wr_req == 1'b1",
+        "aes_top.mmio_wr_addr == 16'hff04"
+      ],
+      "ready signal": [
+        "aes_top.status == 2'd0"
+      ],
+      "flush constraint": [
+        "aes_top.mmio_wr_req == 1'b0",
+        "aes_top_mmio_rd_req == 1'b0"
+      ]
+    }
   ]
 }
