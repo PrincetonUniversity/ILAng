@@ -1,0 +1,6 @@
+// Address mapping 
+
+#define ADDR_D_OPERATION_MODE_CFG 0xD024
+#define ADDR_D_SRC_BASE_ADDR_LOW 0xD060
+#define ADDR_D_SRC_BASE_ADDR_HIGH 0xD064
+
