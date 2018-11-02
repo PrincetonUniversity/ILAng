@@ -1,5 +1,22 @@
 import ila
 
+def CreateVerilogVerificationWrapper():
+    ref_spec = ila.ReadRefinement("example-Ila.json")
+    ref_impl = ila.ReadRefinement("example-Verilog.json")
+    rel = ila.ReadRelation("example-mapping.json")
+
+    ila.GenVerilogWrapper(ref_spec, ref_impl, rel)
+
+def IlaEqCheck():
+    ref_spec = ila.ReadRefinement("example-Ila.json")
+    ref_impl = ila.ReadRefinement("example-Ila2.json")
+    rel - ila.ReadRelation("example-mapping2.json")
+
+    res = ila.EqCheck(ref_spec, ref_impl, rel, 10) # max bound 10
+
+"""
+Old example:
+"""
 def GetRefinementOfIla(""" ILA """ m):
     # create a refinement mapping object for the ILA 
     # extract model info for checking
