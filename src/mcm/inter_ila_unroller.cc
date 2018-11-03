@@ -127,6 +127,7 @@ namespace ila {
     for (size_t idx = 0; idx != ila_num; ++ idx) {
       mm_->RegisterSteps( idx, tmpl[idx]  ); // register those instructions, 
       // first argument is for ila, not relative instr pos
+      unrollers_[idx]->ClearInitPred(); // here we clear the initial conditions because the next unroll will not use
       ZExpr constr = unrollers_[idx]->PathNone( tmpl[idx] , 1 ); // starting from 1 : the first but not init.
     }
     mm_->FinishRegisterSteps();

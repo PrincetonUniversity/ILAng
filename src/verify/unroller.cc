@@ -143,8 +143,8 @@ ZExpr Unroller::UnrollNone(const size_t& len, const int& pos) {
   BootStrap(pos);
 
   // assert initial predicate if pos + i is the first step
-  if ( pos == 0 ) 
-    IExprToZExpr(i_pred_, SuffCurr(pos + 0), cstr_); // i == 0
+  //if ( pos == 0 ) 
+  //  IExprToZExpr(i_pred_, SuffCurr(pos + 0), cstr_); // i == 0
   
   // unroll based on g_pred, i_pred, and transition relation (with guard)
   for (size_t i = 0; i != len; i++) {
@@ -155,9 +155,9 @@ ZExpr Unroller::UnrollNone(const size_t& len, const int& pos) {
     Transition(i);
 
     // assert initial predicate
-    // if ( i == 0) { // HZ comment (and also modify) : I really hope this can be pos+i 
-    //  IExprToZExpr(i_pred_, k_suffix, cstr_);
-    // }
+    if ( i == 0) { // HZ comment (and also modify) : I really hope this can be pos+i 
+      IExprToZExpr(i_pred_, k_suffix, cstr_);
+    }
     // assert global predicate
     IExprToZExpr(g_pred_, k_suffix, cstr_);
     // assert step-specific predicate

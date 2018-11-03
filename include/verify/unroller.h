@@ -97,7 +97,7 @@ protected:
 
   /// Add dependant state vars of a sequence/set of instructions to the set.
   template <class I>
-  static void GetVarOfInstr(const I& instrs, std::set<ExprPtr>& vars);
+  static void GetVarOfInstr(const I& instrs, std::set<ExprPtr>& vars); // HZ: This is the states in the hosts
   /// Add dependant state vars of a tree of ILAs to the set.
   static void GetVarOfIla(const InstrLvlAbsPtr top, std::set<ExprPtr>& vars);
   /// Add instructions of a tree of ILAs to the set.
