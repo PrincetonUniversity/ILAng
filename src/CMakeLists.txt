@@ -9,9 +9,9 @@ endif (verilog-in)
 add_subdirectory(util)
 add_subdirectory(ila)
 add_subdirectory(backend)
-if (python_api)
+if (python-api)
     add_subdirectory(python-api)
-endif (python_api)
+endif (python-api)
 
 # ------------------------------------------------------------------------------
 # objects

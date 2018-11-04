@@ -34,8 +34,7 @@ set(CMAKE_MACOSX_RPATH 1)
 # These options can be turned on/off from the 'make' command.
 option(debug "Use debugging flag" ON)
 option(coverage "Use coverage flag" OFF)
-option(python_api "Build Python API" OFF)
-option(build_glog "Build in-source Glog" OFF)
+option(python-api "Build Python API" OFF)
 option(verilog-in "Build Verilog frontend support" ON)
 
 # Things to always include as flags. 
@@ -60,6 +59,21 @@ endif()
 # Locate files
 # ------------------------------------------------------------------------------
 include_directories(${PROJECT_SOURCE_DIR}/include)
+
+# ------------------------------------------------------------------------------
+# Configurations
+# ------------------------------------------------------------------------------
+if (python-api)
+  set(PYTHON_API_ENABLE true)
+endif (python-api)
+
+if (verilog-in)
+  set(VERILOG_IN_ENABLE true)
+endif (verilog-in)
+
+configure_file(${PROJECT_SOURCE_DIR}/src/config.h.in 
+               ${PROJECT_SOURCE_DIR}/include/config.h 
+               @ONLY)
 
 # ------------------------------------------------------------------------------
 # Documentation (w/ Doxygen)
@@ -101,7 +115,7 @@ endif ()
 # ------------------------------------------------------------------------------
 # Boost/python
 # ------------------------------------------------------------------------------
-if (python_api)
+if (python-api)
   add_definitions ("-DBOOST_VARIANT_USE_RELAXED_GET_BY_DEFAULT")
   add_definitions ("-DBOOST_NO_CXX11_NUMERIC_LIMITS=1")
   add_definitions ("-DDISABLE_ICE_DEPRECATION_WARNINGS")
@@ -128,7 +142,7 @@ if (python_api)
     MESSAGE (FATAL_ERROR "Unable to find correct Python version.")
   endif()
 
-endif (python_api)
+endif (python-api)
 
 
 # ------------------------------------------------------------------------------
