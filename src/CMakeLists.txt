@@ -3,15 +3,22 @@
 # ------------------------------------------------------------------------------
 # sub-directories
 # ------------------------------------------------------------------------------
-if (verilog-in)
-  add_subdirectory(verilog-in)
-endif (verilog-in)
 add_subdirectory(util)
 add_subdirectory(ila)
 add_subdirectory(backend)
+
 if (python-api)
     add_subdirectory(python-api)
 endif (python-api)
+
+if (verilog-in)
+  add_subdirectory(verilog-in)
+endif (verilog-in)
+
+if (json-inout)
+  add_subdirectory(json-inout)
+endif (json-inout)
+
 
 # ------------------------------------------------------------------------------
 # objects
@@ -26,6 +33,10 @@ if (verilog-in)
   set (ILA_TOOL_OBJECTS ${ILA_TOOL_OBJECTS} $<TARGET_OBJECTS:verilogin>)
   set (ILA_TOOL_OBJECTS ${ILA_TOOL_OBJECTS} $<TARGET_OBJECTS:verilogparser>)
 endif (verilog-in)
+
+if (json-inout)
+  set (ILA_TOOL_OBJECTS ${ILA_TOOL_OBJECTS} $<TARGET_OBJECTS:json_inout>)
+endif (json-inout)
 
 # ------------------------------------------------------------------------------
 # build

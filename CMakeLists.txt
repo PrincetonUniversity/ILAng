@@ -36,6 +36,8 @@ option(debug "Use debugging flag" ON)
 option(coverage "Use coverage flag" OFF)
 option(python-api "Build Python API" OFF)
 option(verilog-in "Build Verilog frontend support" ON)
+option(json-inout "Build JSON parse/genereate support" ON)
+option(json-external "Use an external JSON library" OFF)
 
 # Things to always include as flags. 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
@@ -70,6 +72,10 @@ endif (python-api)
 if (verilog-in)
   set(VERILOG_IN_ENABLE true)
 endif (verilog-in)
+
+if (json-inout)
+  set(JSON_INOUT_ENABLE true)
+endif (json-inout)
 
 configure_file(${PROJECT_SOURCE_DIR}/src/config.h.in 
                ${PROJECT_SOURCE_DIR}/include/config.h 
@@ -175,7 +181,6 @@ add_subdirectory(${CMAKE_BINARY_DIR}/googletest-src
 if (CMAKE_VERSION VERSION_LESS 2.8.11)
   include_directories("${gtest_SOURCE_DIR}/include")
 endif()
-
 
 # ------------------------------------------------------------------------------
 # Build

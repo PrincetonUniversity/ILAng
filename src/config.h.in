@@ -1,11 +1,12 @@
 /// \file
 /// CMake defined config file
 
-#ifndef CONFIG_PROJECT_H__
-#define CONFIG_PROJECT_H__
+#ifndef CONFIG_CMAKE_DEFINE_H__
+#define CONFIG_CMAKE_DEFINE_H__
 
-#cmakedefine VERILOG_IN_ENABLE
 #cmakedefine PYTHON_API_ENABLE
+#cmakedefine VERILOG_IN_ENABLE
+#cmakedefine JSON_INOUT_ENABLE
 
-#endif // CONFIG_PROJECT_H__
+#endif // CONFIG_CMAKE_DEFINE_H__
 
