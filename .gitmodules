@@ -2,3 +2,6 @@
 	path = examples/RISC-V/simulator
 	url = https://github.com/zhanghongce/riscv-ila-sim.git
 
+[submodule "src/verilog-in/verilog-parser"]
+	path = src/verilog-in/verilog-parser
+	url = git@github.com:Bo-Yuan-Huang/verilog-parser.git
