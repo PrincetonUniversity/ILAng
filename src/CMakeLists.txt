@@ -9,7 +9,6 @@ endif (verilog-in)
 add_subdirectory(util)
 add_subdirectory(ila)
 add_subdirectory(backend)
-#add_subdirectory(translator)
 if (python_api)
     add_subdirectory(python-api)
 endif (python_api)
@@ -21,7 +20,6 @@ set(ILA_TOOL_OBJECTS
     $<TARGET_OBJECTS:util> 
     $<TARGET_OBJECTS:ila> 
     $<TARGET_OBJECTS:backend> 
-    #$<TARGET_OBJECTS:translator> 
     )
 
 if (verilog-in)
