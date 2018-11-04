@@ -1,5 +1,8 @@
 # path = root/src/
 
+# ------------------------------------------------------------------------------
+# sub-directories
+# ------------------------------------------------------------------------------
 if (verilog-in)
   add_subdirectory(verilog-in)
 endif (verilog-in)
@@ -11,11 +14,14 @@ if (python_api)
     add_subdirectory(python-api)
 endif (python_api)
 
+# ------------------------------------------------------------------------------
+# objects
+# ------------------------------------------------------------------------------
 set(ILA_TOOL_OBJECTS 
     $<TARGET_OBJECTS:util> 
     $<TARGET_OBJECTS:ila> 
     $<TARGET_OBJECTS:backend> 
-    #$<TARGET_OBJECTS:translator>
+    #$<TARGET_OBJECTS:translator> 
     )
 
 if (verilog-in)
@@ -23,7 +29,9 @@ if (verilog-in)
   set (ILA_TOOL_OBJECTS ${ILA_TOOL_OBJECTS} $<TARGET_OBJECTS:verilogparser>)
 endif (verilog-in)
 
-
+# ------------------------------------------------------------------------------
+# build
+# ------------------------------------------------------------------------------
 set(ILA_TOOL ila++)
 file (GLOB TOP_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/*.cc")
 
