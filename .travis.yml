@@ -1,7 +1,7 @@
 language: cpp
 os: linux
-sudo: required
 dist: trusty
+sudo: required
 compiler:
   - g++
   #- clang++
@@ -11,6 +11,7 @@ branches:
     - master
     - coveralls
     - travis
+    - ref-rel
 
 git:
   depth: 1
@@ -21,19 +22,28 @@ before_install:
 
 install: 
   - gem install coveralls-lcov
-  - sudo apt-get install --yes cmake cmake-data
+  #- sudo apt-get install --yes cmake cmake-data
+  - sudo apt purge cmake
   - sudo apt-get install --yes libboost-all-dev
   - sudo apt-get install --yes lcov
 
 before_script:
   - export PARENT_DIR=$TRAVIS_BUILD_DIR/../
-  # z3
+  # cmake (3.12.4)
   - cd $PARENT_DIR
-  - git clone --depth 1 https://github.com/Z3Prover/z3.git
+  - wget https://cmake.org/files/v3.12/cmake-3.12.4.tar.gz
+  - tar zxvf cmake-3.12.4.tar.gz
+  - cd cmake-3.12.4
+  - ./bootstrap
+  - make && sudo make install
+  # z3 (4.8.1)
+  - cd $PARENT_DIR
+  - git clone https://github.com/Z3Prover/z3.git
   - cd z3
+  - git checkout b301a59899ff401dc1a98dd522b8a8df19471dee
   - python scripts/mk_make.py
   - cd build
-  - make; sudo make install
+  - make && sudo make install
   # glog
   - cd $PARENT_DIR
   - git clone --depth 1 https://github.com/google/glog.git
@@ -52,7 +62,7 @@ before_script:
 script:
   - cd $TRAVIS_BUILD_DIR/build
   - cmake -L -DZ3_INCLUDE_DIR=/usr/include -Dglog_DIR=$PARENT_DIR/glog/build -Dcoverage=ON -Dpython-api=ON -Ddebug=ON $TRAVIS_BUILD_DIR
-  - make
+  - make && sudo make install
 
 after_success:
   - make run_test
