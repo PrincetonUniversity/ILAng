@@ -1,5 +1,5 @@
 # path = root/src/verilog-in
-set (VERILOG_IN_NAME verilog_in)
+set(VERILOG_IN_NAME verilog_in)
 
 # ------------------------------------------------------------------------------
 # Support embedded build
