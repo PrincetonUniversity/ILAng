@@ -9,7 +9,6 @@ compiler:
 branches:
   only:
     - master
-    - coverity_check
     - coveralls
     - travis
 
