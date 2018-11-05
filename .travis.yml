@@ -15,10 +15,15 @@ branches:
 
 git:
   depth: 1
+  # handle git submodules manually
+  submodules: false
 
 before_install:
   - sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
   - sudo apt-get -qq --yes update
+  # handle git submodules manually
+  - sed -i 's/git@github.com:/https:\/\/github.com\//' .gitmodules
+  - git submodule update --init --recursive
 
 install: 
   - gem install coveralls-lcov
