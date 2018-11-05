@@ -30,8 +30,8 @@ set(ILA_TOOL_OBJECTS
     )
 
 if (verilog-in)
-  set (ILA_TOOL_OBJECTS ${ILA_TOOL_OBJECTS} $<TARGET_OBJECTS:verilogin>)
-  set (ILA_TOOL_OBJECTS ${ILA_TOOL_OBJECTS} $<TARGET_OBJECTS:verilogparser>)
+  set (ILA_TOOL_OBJECTS ${ILA_TOOL_OBJECTS} $<TARGET_OBJECTS:verilog_in>)
+  set (ILA_TOOL_OBJECTS ${ILA_TOOL_OBJECTS} $<TARGET_OBJECTS:verilog_parser>)
 endif (verilog-in)
 
 if (json-inout)

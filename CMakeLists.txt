@@ -3,13 +3,9 @@ cmake_minimum_required(VERSION 2.8.2)
 
 set(ILA_PROJECT_NAME ILA)
 
-project(${ILA_PROJECT_NAME})
+cmake_policy(SET CMP0048 NEW)
+project(${ILA_PROJECT_NAME} VERSION 1.0)
 enable_language(C CXX)
-
-set(PROJECT_VERSION_MAJOR 0)
-set(PROJECT_VERSION_MINOR 0)
-#set(CMAKE_BUILD_TYPE "Debug")
-#set(CMAKE_BUILD_TYPE "Release")
 
 # prefer linking with shared libraries
 set (CMAKE_FIND_LIBRARY_SUFFIXES ".so" ${CMAKE_FIND_LIBRARY_SUFFIXES})
@@ -94,14 +90,6 @@ if(DOXYGEN_FOUND)
         COMMENT "Generating API documentation with Doxygen" VERBATIM
         )
 endif(DOXYGEN_FOUND)
-
-# ------------------------------------------------------------------------------
-# Misc
-# ------------------------------------------------------------------------------
-#configure_file(
-#  "${PROJECT_SOURCE_DIR}/include/config.h.in"
-#  "${PROJECT_BINARY_DIR}/config.h")
-#include_directories("${PROJECT_BINARY_DIR}")
 
 # ------------------------------------------------------------------------------
 # Google Log

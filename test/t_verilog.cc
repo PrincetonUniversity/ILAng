@@ -8,10 +8,7 @@
 
 namespace ila {
 
-TEST(TestVerilogParse, Init) {
-  // TODO
-  TestParseVerilog();
-}
+TEST(TestVerilogParse, Init) { TestParseVerilog(); }
 
 }; // namespace ila
 

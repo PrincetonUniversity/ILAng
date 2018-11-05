@@ -4,14 +4,11 @@
 #include "verilog-in/verilog_parse.h"
 
 extern "C" {
-#include "verilog-parser/src/verilog_parser.h"
+#include "byh-verilog-parser/src/verilog_parser.h"
 }
 
 namespace ila {
 
-void TestParseVerilog() {
-  verilog_parser_init();
-  // TODO
-}
+void TestParseVerilog() { verilog_parser_init(); }
 
 }; // namespace ila

@@ -1,13 +1,18 @@
 # path = root/src/verilog-in
+set (VERILOG_IN_NAME verilog_in)
 
-execute_process(COMMAND git submodule update --init -- ./verilog-parser
+# ------------------------------------------------------------------------------
+# Support embedded build
+# ------------------------------------------------------------------------------
+execute_process(COMMAND git submodule update --init -- ./byh-verilog-parser
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
-add_subdirectory(verilog-parser)
+add_subdirectory(byh-verilog-parser)
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/verilog-parser/src)
-
+# ------------------------------------------------------------------------------
+# Build
+# ------------------------------------------------------------------------------
 file(GLOB VERILOG_IN_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/*.cc")
 
-add_library(verilogin OBJECT ${VERILOG_IN_SOURCES})
+add_library(${VERILOG_IN_NAME} OBJECT ${VERILOG_IN_SOURCES})
 
