@@ -34,13 +34,14 @@ install:
 
 before_script:
   - export PARENT_DIR=$TRAVIS_BUILD_DIR/../
-  # cmake (3.12.4)
+  # cmake (3.10.2)
   - cd $PARENT_DIR
-  - wget https://cmake.org/files/v3.12/cmake-3.12.4.tar.gz
-  - tar zxvf cmake-3.12.4.tar.gz
-  - cd cmake-3.12.4
+  - wget https://cmake.org/files/v3.10/cmake-3.10.2.tar.gz
+  - tar zxvf cmake-3.10.2.tar.gz
+  - cd cmake-3.10.2
   - ./bootstrap
   - make && sudo make install
+  - cmake --version
   # z3 (4.8.1)
   - cd $PARENT_DIR
   - git clone https://github.com/Z3Prover/z3.git
@@ -49,6 +50,7 @@ before_script:
   - python scripts/mk_make.py
   - cd build
   - make && sudo make install
+  - z3 --version
   # glog
   - cd $PARENT_DIR
   - git clone --depth 1 https://github.com/google/glog.git
