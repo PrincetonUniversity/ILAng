@@ -68,7 +68,7 @@ before_script:
 
 script:
   - cd $TRAVIS_BUILD_DIR/build
-  - cmake -L -DZ3_INCLUDE_DIR=/usr/include -Dglog_DIR=$PARENT_DIR/glog/build -Dcoverage=ON -Dpython-api=ON -Dverilog-in=ON -Djson-inout=ON -Ddebug=ON $TRAVIS_BUILD_DIR
+  - cmake -L -DZ3_INCLUDE_DIR=/usr/include -Dglog_DIR=$PARENT_DIR/glog/build -Dcoverage=ON -Dpython-api=ON -Dverilog-in=ON -Djson-inout=OFF -Ddebug=ON $TRAVIS_BUILD_DIR
   - make && sudo make install
 
 after_success:
