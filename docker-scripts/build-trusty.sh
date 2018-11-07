@@ -7,6 +7,7 @@ sudo apt-get update --yes
 sudo apt-get install g++ --yes
 sudo apt-get install libtool --yes
 sudo apt-get install autoconf --yes
+sudo apt-get install flex bison --yes
 
 # boost
 sudo mv /var/cache/apt/archives/lock /var/cache/apt/archives/lock_bak
