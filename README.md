@@ -52,6 +52,7 @@ For developers, implementation details can be found on [ILA-Tools-Impl](https://
 * __Integrating Memory Consistency Models with Instruction-Level Abstraction for Heterogeneous System-on-Chip Verification__.
   Hongce Zhang, Caroline Trippel, Yatin Manerkar, Aarti Gupta, Margaret Martonosi, and Sharad Malik.
   *in* Proceedings of Formal Methods in Computer-Aided Design. (FMCAD 2018), Austin, TX. Oct. 2018.
+  [[PDF](https://www.cs.utexas.edu/users/hunt/FMCAD/FMCAD18/papers/paper53.pdf)]
 
 * __Formal Security Verification of Concurrent Firmware in SoCs using Instruction-Level Abstraction for Hardware__.
   Bo-Yuan Huang, Sayak Ray, Aarti Gupta, Jason Fung, and Sharad Malik.
