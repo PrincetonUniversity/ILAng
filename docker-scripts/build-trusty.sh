@@ -13,7 +13,7 @@ sudo mv /var/cache/apt/archives/lock /var/cache/apt/archives/lock_bak
 sudo apt-get install libboost-all-dev --yes
 
 # cmake
-sudo apt-get install cmake3
+sudo apt-get install cmake3 --yes
 
 #wget https://cmake.org/files/v3.10/cmake-3.10.2.tar.gz
 #tar zxvf cmake-3.10.2.tar.gz
@@ -39,12 +39,13 @@ cmake ..
 make -j8 && sudo make install
 
 # ILA
-cd ~
-git clone https://github.com/Bo-Yuan-Huang/ILA-Tools.git
-cd ILA-Tools
+cd ~/ILA-Tools
+#git clone https://github.com/Bo-Yuan-Huang/ILA-Tools.git
+#cd ILA-Tools
+git pull
 mkdir -p build
 cd build
-cmake .. -DZ3_INCLDUE_DIR=/usr/include -Djson-inout=OFF
+cmake .. -DZ3_INCLUDE_DIR=/usr/include -Djson-inout=OFF
 make -j8 && sudo make install
 make run_test
 
