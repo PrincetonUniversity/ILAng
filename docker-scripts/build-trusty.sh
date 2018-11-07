@@ -22,16 +22,18 @@ sudo apt-get install cmake3 --yes
 #./bootstrap
 #make -j8 && sudo make install
 
+set ROOT_DIR=$pwd
+
 # z3
-cd ~
+cd $ROOT_DIR
 git clone https://github.com/Z3Prover/z3.git
-cd z3
+cd $ROOT_DIR/z3
 python scripts/mk_make.py
 cd build
 make -j8 && sudo make install
 
 # glog
-cd ~
+cd $ROOT_DIR
 git clone https://github.com/google/glog.git
 cd glog
 mkdir -p build
@@ -40,10 +42,10 @@ cmake ..
 make -j8 && sudo make install
 
 # ILA
-cd ~/ILA-Tools
+cd $ROOT_DIR/ILA-Tools
 #git clone https://github.com/Bo-Yuan-Huang/ILA-Tools.git
 #cd ILA-Tools
-git pull
+#git pull
 mkdir -p build
 cd build
 cmake .. -DZ3_INCLUDE_DIR=/usr/include -Djson-inout=OFF
