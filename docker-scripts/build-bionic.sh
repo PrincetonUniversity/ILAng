@@ -35,7 +35,7 @@ make -j8 && make install
 cd $BUILD_DIR/ILA-Tools
 mkdir -p build
 cd build
-cmake .. -DZ3_INCLUDE_DIR=/usr/include -Djson-inout=OFF
+cmake .. -DZ3_INCLUDE_DIR=/usr/include -Djson-inout=ON
 make -j8 && make install
 make run_test
 
