@@ -81,6 +81,18 @@ TEST(TestApi, ExprOps) {
   auto i_bool = ila.NewBoolInput("i_bool");
   auto i_bv = ila.NewBvInput("i_bv", REG_SIZE);
 
+  EXPECT_EQ(-1, v_bool.bit_width());
+  EXPECT_EQ(REG_SIZE, v_bv.bit_width());
+  EXPECT_EQ(-1, v_mem.bit_width());
+
+  EXPECT_EQ(-1, v_bool.addr_width());
+  EXPECT_EQ(-1, v_bv.addr_width());
+  EXPECT_EQ(REG_SIZE, v_mem.addr_width());
+
+  EXPECT_EQ(-1, v_bool.data_width());
+  EXPECT_EQ(-1, v_bv.data_width());
+  EXPECT_EQ(REG_SIZE, v_mem.data_width());
+
   // test
   auto n_negate = -v_bv;
   auto n_not = !v_bool;
