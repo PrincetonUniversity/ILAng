@@ -10,7 +10,7 @@ sudo mv /var/cache/apt/archives/lock /var/cache/apt/archives/lock_bak
 sudo apt-get install libboost-all-dev --yes
 
 # cmake
-sudo apt-get install cmake3 --yes
+sudo apt-get install cmake --yes
 
 #set BUILD_DIR=$pwd
 
