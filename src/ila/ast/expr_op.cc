@@ -81,6 +81,7 @@ SortPtr ExprOp::GetSortBinaryComparison(const ExprPtr e0, const ExprPtr e1) {
 
 ExprOp::InstrLvlAbsPtr ExprOp::GetHost(const ExprPtrVec& args) const {
   return NULL; // XXX Do we need to know host for op?
+#if 0
   // FIXME This only works for non-hierarchical ILAs.
   ILA_ASSERT(!args.empty()) << "Get host from no argument.";
   auto h = args[0]->host();
@@ -96,6 +97,7 @@ ExprOp::InstrLvlAbsPtr ExprOp::GetHost(const ExprPtrVec& args) const {
     } // ignore if h_i is NULL
   }
   return h;
+#endif
 }
 
 // ------------------------- Class ExprOpNeg -------------------------------- //
