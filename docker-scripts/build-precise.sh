@@ -6,10 +6,11 @@ apt-get install autoconf --yes
 apt-get install flex bison --yes
 
 # boost
+mv /var/cache/apt/archives/lock /var/cache/apt/archives/lock_bak
 apt-get install libboost-all-dev --yes
 
 # cmake
-apt-get install cmake --yes
+apt-get install cmake3 --yes
 
 #set BUILD_DIR=$pwd
 
@@ -34,7 +35,7 @@ make -j8 && make install
 cd $BUILD_DIR/ILA-Tools
 mkdir -p build
 cd build
-cmake .. -DZ3_INCLUDE_DIR=/usr/include 
+cmake .. -DZ3_INCLUDE_DIR=/usr/include -Djson-inout=OFF
 make -j8 && make install
 make run_test
 
