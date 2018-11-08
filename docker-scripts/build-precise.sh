@@ -6,10 +6,11 @@ apt-get install autoconf --yes
 apt-get install flex bison --yes
 
 # boost
+mv /var/cache/apt/archives/lock /var/cache/apt/archives/lock_bak
 apt-get install libboost-all-dev --yes
 
 # cmake
-apt-get install cmake --yes
+apt-get install cmake3 --yes
 
 #set BUILD_DIR=$pwd
 
