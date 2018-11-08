@@ -15,9 +15,9 @@ VerilogGenerator::VerilogGenerator (const std::string &modName,const std::string
   , cfg_(config)
 {}
 
-/// Check if a name is reserved (clk/rst/modulename/decodeNames/ctrName)
+/// Check if a name is reserved (clk/rst/moduleName/decodeNames/ctrName)
 bool VerilogGenerator::check_reserved_name(const vlg_name_t & n) const {
-  if(n == modulename || n == clkName || n == rstName || n == validName)
+  if(n == moduleName || n == clkName || n == rstName || n == validName)
     return false;
   for(auto && sig : decodeNames) {
     if( sig.first == n ) 
@@ -688,6 +688,10 @@ void VerilogGenerator::ExportTopLevelInstr( const InstrPtr & instr_ptr_ )
     << "This ExportTopLevelInstr does not put flatten states and instructions in child-ILA, please be aware.";
   ILA_WARN( instr_ptr_->host()->init_num() != 0 )
     << "For exporting a single instruction, the initial conditions are not exported, please be aware.";
+  auto ila_ptr_ = instr_ptr_()->host();
+
+  if (moduleName == "" )
+    moduleName = ila_ptr_->name.str() + "__DOT__" + instr_ptr_->name.str();
 
   // add valid signal
   auto valid_ptr = ila_ptr_->valid();
@@ -715,7 +719,6 @@ void VerilogGenerator::ExportTopLevelInstr( const InstrPtr & instr_ptr_ )
   addInternalCounter( decodeName ); // maybe no need (width = 8)
 
   // Inputs
-  auto ila_ptr_ = instr_ptr_()->host();
   for (size_t idx = 0; idx != ila_ptr_->input_num(); ++idx)
     insertInput(ila_ptr_->input(idx));
   // States
