@@ -1,5 +1,8 @@
 /// \file
 /// Header for generating Verilog files
+/// Currently not supported 
+///  1. Load(Store) / Load(ITE) / Load(MemConst) or their combination
+///  2. Function on memory
 
 #ifndef VERILOG_GEN_H__
 #define VERILOG_GEN_H__
@@ -43,7 +46,7 @@ namespace ila {
     /// Type of the memorys that are going to be created
     typedef std::tuple<vlg_name_t,int,int>          vlg_mem_t; // name addr_width data_width
     /// Type of collection of memorys
-    typedef std::vector<vlg_mem_t>                  vlg_mems_t;
+    typedef std::map< vlg_name_t, vlg_mem_t>        vlg_mems_rec_t;
     /// This is type of an individual write.
     struct mem_write_entry_t
     {
@@ -115,9 +118,9 @@ namespace ila {
     /// vector of regs to be defined
     vlg_sigs_t regs;
     /// vector of mems to be defined
-    vlg_mems_t mems_internal;
+    vlg_mems_rec_t mems_internal;
     /// vector of mems from outside (will not be defined)
-    vlg_mems_t mems_external;
+    vlg_mems_rec_t mems_external;
     /// statements to be used when reset, for initial conditions, it will try to translate, but won't guarantee
     vlg_stmts_t init_stmts;
     /// The other part will be put into SVA assumptions, and the module will have a sparate counter to enforce the assumptions
