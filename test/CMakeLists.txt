@@ -4,6 +4,11 @@ enable_testing()
 
 set(TEST_MAIN test_main)
 set(ILA_TOOLS ila++)
+if (json-inout)
+  if (json-external)
+    set (ILA_TOOLS ${ILA_TOOLS} json_inout)
+  endif ()
+endif ()
 file(GLOB TEST_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/*.cc"
                        "${CMAKE_CURRENT_SOURCE_DIR}/unit-src/*.cc"
     )

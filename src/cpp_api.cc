@@ -37,6 +37,18 @@ ExprRef::ExprRef(ExprPtr ptr) : ptr_(ptr) {}
 
 ExprRef::~ExprRef() {}
 
+int ExprRef::bit_width() const {
+  return ptr_->is_bv() ? ptr_->sort()->bit_width() : -1;
+}
+
+int ExprRef::addr_width() const {
+  return ptr_->is_mem() ? ptr_->sort()->addr_width() : -1;
+}
+
+int ExprRef::data_width() const {
+  return ptr_->is_mem() ? ptr_->sort()->data_width() : -1;
+}
+
 ExprRef ExprRef::Load(const ExprRef& addr) const {
   auto v = ExprFuse::Load(get(), addr.get());
   return ExprRef(v);

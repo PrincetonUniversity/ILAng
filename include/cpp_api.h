@@ -95,6 +95,12 @@ public:
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return the wrapped Expr pointer.
   inline ExprPtr get() const { return ptr_; }
+  /// Return the bit-width if is bit-vector; return -1 otherwise.
+  int bit_width() const;
+  /// Return the address bit-width if is memory; return -1 otherwise.
+  int addr_width() const;
+  /// Return the data bit-width if is memory; return -1 otherwise.
+  int data_width() const;
 
   // ------------------------- METHODS -------------------------------------- //
   /****************************************************************************/
