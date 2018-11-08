@@ -20,7 +20,7 @@ endif (json-external)
 # ------------------------------------------------------------------------------
 file(GLOB JSON_INOUT_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/*.cc")
 
-add_library(${JSON_INOUT_NAME} OBJECT ${JSON_INOUT_SOURCES})
+add_library(${JSON_INOUT_NAME} ${JSON_INOUT_SOURCES})
 
-#target_link_libraries(${JSON_INOUT_NAME} PRIVATE nlohmann_json::nlohmann_json)
+target_link_libraries(${JSON_INOUT_NAME} PRIVATE nlohmann_json::nlohmann_json)
 

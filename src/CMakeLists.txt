@@ -34,9 +34,9 @@ if (verilog-in)
   set (ILA_TOOL_OBJECTS ${ILA_TOOL_OBJECTS} $<TARGET_OBJECTS:verilog_parser>)
 endif (verilog-in)
 
-if (json-inout)
+#if (json-inout)
   #set (ILA_TOOL_OBJECTS ${ILA_TOOL_OBJECTS} $<TARGET_OBJECTS:json_inout>)
-endif (json-inout)
+#endif (json-inout)
 
 # ------------------------------------------------------------------------------
 # build
