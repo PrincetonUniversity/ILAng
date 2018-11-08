@@ -3,6 +3,11 @@
 /// Currently not supported 
 ///  1. Load(Store) / Load(ITE) / Load(MemConst) or their combination
 ///  2. Function on memory
+///
+/// For 0-ary func, they will be treated as nondet
+/// apply the same nondet func twice, will generate two variables
+/// if you do want to share the nondet val, please reuse the sub-tree
+///
 
 #ifndef VERILOG_GEN_H__
 #define VERILOG_GEN_H__
@@ -33,6 +38,8 @@ namespace ila {
     typedef std::string                 vlg_data_t;
     /// Type of Verilog statements (a vector)
     typedef std::vector<vlg_name_t>     vlg_stmts_t;
+    /// Type of Verilog names (a vector)
+    typedef std::vector<vlg_name_t>     vlg_names_t;
     /// Type of Verilog signal, name & bw
     typedef std::pair<vlg_name_t,int>   vlg_sig_t;
     /// Type of Verilog signals (a vector)
@@ -103,8 +110,10 @@ namespace ila {
     vlg_name_t clkName;
     /// Reset signal name
     vlg_name_t rstName;
-    /// Output signals that allows to determine if an instruction's decode is true
-    vlg_sigs_t decodeName;
+    /// Output signals that allows to determine if an instruction's decode is true,  not need for width
+    vlg_names_t decodeNames;
+    /// Output signals that allows to determine if an instruction's valid is true, not need for width
+    vlg_name_t  validName;
     /// vector of input signals
     vlg_sigs_t inputs; 
     /// vector of output signals
@@ -150,7 +159,7 @@ namespace ila {
     /// Get the width of an ExprPtr, must be supported sort
     int static get_width(const ExprPtr &n) const;
     /// convert a widith to a verilog string
-    std::string static width_to_vlg_range(int w) const;
+    std::string static WidthToRange(int w) const;
     /// get a new id
     vlg_name_t new_id();
     /// if the exprptr contains some meaning in its name, will try to incorporate that to the name;
@@ -165,6 +174,65 @@ namespace ila {
     /// Set of functions that need to be translated, we will collect this while translating the exprs
     std::set<FuncPtr> func_ptr_set;
 
+    // --------------------- HELPER FUNCTIONS ---------------------------- //
+    /// record an input signal 
+    void add_input  (const vlg_name_t & n,int w);
+    /// record an output signal 
+    void add_output (const vlg_name_t & n,int w);
+    /// record a wire
+    void add_wire   (const vlg_name_t & n,int w);
+    /// record a register
+    void add_reg    (const vlg_name_t & n,int w);
+    /// record a stmt (outside the always block)
+    void add_stmt   (const vlg_stmt_t & s);
+    /// record an assignment stmt (outside the always block), will call add_stmt
+    void add_assign_stmt (const vlg_name_t & l, const vlg_name_t & r);
+    /// record an assignment in the always block (after the reset, in the else branch, guarded by the valid condition )
+    void add_always_stmt (const vlg_stmt_t & s);
+    /// record an assignemnt in the always block (in if(rst) branch )
+    void add_init_stmt   (const vlg_stmt_t & s);
+    /// record an ite assignment, (after the reset, in the else branch, guarded by the valid condition ), (if fstmt == "", will not generate its else block)
+    void add_ite_stmt    (const vlg_stmt_t & cond, const vlg_stmt_t & tstmt, const vlg_stmt_t & fstmt);
+    /// record an internal memory 
+    void add_internal_mem(const vlg_name_t &mem_name, int addr_width,int data_width);
+    /// record an external memory
+    void add_external_mem(const vlg_name_t &mem_name, int addr_width,int data_width);
+
+    /// handle a input variable (memvar/bool/bv)
+    void insertInput( const ExprPtr & input );
+    /// handle a state variable 
+    void insertState( const ExprPtr & state );
+
+    // Here we are not using depthfirstSearch as we need to alternate between root-first/root-last traversal
+    /// traverse to the subtree, caller: ParseNonMemUpdateExpr
+    void parseArg(const ExprPtr & e);
+    /// After you parse a subtree, this can help you get the vlg name associated with it
+    void getVlgFromExpr(const ExprPtr & e);
+    /// a short cut of calling getVlgFromExpr to find arg's vlg names
+    void getArg(const ExprPtr & e, const size_t & i );
+    /// Handle function application , Caller: translateBoolOp, translateBvOp
+    vlg_name_t translateApplyFunc( std::shared_ptr<ExprOpAppFunc> func_app_ptr_ );
+    /// called by ParseNonMemUpdateExpr to deal with a boolop node
+    vlg_name_t translateBoolOp( const ExprOp & e );
+    /// called by ParseNonMemUpdateExpr to deal with a bvop node
+    vlg_name_t translateBvOp( const ExprOp & e );
+    /// travserse an expression, not used as mem-write subtree
+    void ParseNonMemUpdateExpr( const ExprPtr & e );
+    /// check if a mem-write subtree is what we can handle right now
+    bool CheckMemUpdateNode( const ExprPtr & e , const std::string & mem_var_name );
+    /// traverse the memory-write subtree of "e", its upper level has the condition "cond"
+    void VisitMemNodes( const ExprPtr & e, const ExprPtr & cond, mem_write_entry_list_stack_t& writesStack );
+
+    /// add signals & stmts for an internal counter to trace start (more not be useful)
+    void addInternalCounter( vlg_name_t decode_sig_name , size_t width = 8 );
+    /// use: func_ptr_set ;  affect: prehear, only export if func is internal 
+    void ExportFuncDefs();
+
+    /// generate the signals to write a memory (external/internal)
+    void ExportCondWrites(const ExprPtr &mem_var, const mem_write_list_t & writeList);
+    /// parse an expr used as the memory update, will affect: past_writes & current_writes
+    void ParseMemUpdateNode( const ExprPtr & e , const std::string & mem_var_name);
+
   public:
     // --------------------- CONSTRUCTOR ---------------------------- //
     VerilogGenerator(
@@ -172,14 +240,13 @@ namespace ila {
       const std::string &clk = "clk",
       const std::string &rst = "rst", 
       const VlgGenConfig & config = VlgGenConfig());
-
-    void ParseIla( const InstrLvlAbsPtr & ila_ptr_ );
-    void ParseInstr( const InstrPtr & instr_ptr_ );
-
-    void finalExport(std::ostream & fout) const;
-
-
-  };
+    /// Parse an ILA, will gen all its instructions
+    void ExportIla( const InstrLvlAbsPtr & ila_ptr_ );
+    /// Parse an instruction
+    void ExportTopLevelInstr( const InstrPtr & instr_ptr_ );
+    /// after parsing either the Instruction/ILA, use this function to dump to a file.
+    void DumpToFile(ostream & fout) const;
+  }; // class VerilogGenerator
 
 }; // namespace ila
 

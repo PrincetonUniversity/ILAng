@@ -7,7 +7,7 @@ namespace ila {
 
 #define toStr(x) (std::to_string(x))
 
-VerilogGenerator::VerilogGenerator (const std::string &modName,const std::string &clk,const std::string &rst, const VlgExportConfig & config)
+VerilogGenerator::VerilogGenerator (const std::string &modName,const std::string &clk,const std::string &rst, const VlgGenConfig & config)
   : moduleName(modName)
   , clkName(clk)
   , rstName(rst)
@@ -15,11 +15,11 @@ VerilogGenerator::VerilogGenerator (const std::string &modName,const std::string
   , cfg_(config)
 {}
 
-/// Check if a name is reserved (clk/rst/modulename/decodeName/ctrName)
+/// Check if a name is reserved (clk/rst/modulename/decodeNames/ctrName)
 bool VerilogGenerator::check_reserved_name(const vlg_name_t & n) const {
-  if(n == modulename || n == clkName || n == rstName)
+  if(n == modulename || n == clkName || n == rstName || n == validName)
     return false;
-  for(auto && sig : decodeName) {
+  for(auto && sig : decodeNames) {
     if( sig.first == n ) 
       return false;
   }
@@ -44,7 +44,7 @@ int VerilogGenerator::get_width(const ExprPtr &n) const {
   ILA_ASSERT(false)<<"Unable to get the width for sort "<< n->sort();
 }
 /// convert a widith to a verilog string
-std::string VerilogGenerator::width_to_vlg_range(int w) const {
+std::string VerilogGenerator::WidthToRange(int w) const {
   if(w>1)
     return std::string("[") + toStr(w-1) + ":0]";
   return "";
@@ -82,9 +82,13 @@ void VerilogGenerator::add_reg(const vlg_name_t & n,int w)
 {
   regs.push_back(vlg_sig_t(n,w));
 }
-void VerilogGenerator::add_stmt(const vlg_stmt_t & s)
+void VerilogGenerator::add_stmt(const vlg_stmt_t & s) // you need to put ';' but no need for \n
 {
   statements.push_back(s);
+}
+void VerilogGenerator::add_assign_stmt(const vlg_name_t & l, const vlg_name_t & r)
+{
+  add_stmt( "assign " + l + " = " + r + " ;" );
 }
 void VerilogGenerator::add_always_stmt(const vlg_stmt_t & s)
 {
@@ -108,14 +112,14 @@ void VerilogGenerator::add_external_mem(const vlg_name_t &mem_name, int addr_wid
 {
   mems_external.insert( { mem_name , vlg_mem_t(mem_name,addr_width,data_width) } );
   /* NO, this should not be done
-  vlg_name_t addr_name = mem_name + "_addr_" + NewId();
-  vlg_name_t data_name = mem_name + "_data_" + NewId();
+  vlg_name_t addr_name = mem_name + "_addr_" + new_id();
+  vlg_name_t data_name = mem_name + "_data_" + new_id();
   mem_o.push_back( vlg_sig_t(addr_name, addr_width) );
   mem_i.push_back( vlg_sig_t(data_name, data_width) );
   */
 }
 //--------------------------------------------------------------------------
-void VerilogGenerator::addInput( const ExprPtr & input ) {
+void VerilogGenerator::insertInput( const ExprPtr & input ) {
   ILA_ASSERT( input->is_var() );
   // we need to consider the case of an input memory
   if( input->is_mem() ) {
@@ -131,7 +135,7 @@ void VerilogGenerator::addInput( const ExprPtr & input ) {
   }
 }
 
-void VerilogGenerator::addState( const ExprPtr & state ) {
+void VerilogGenerator::insertState( const ExprPtr & state ) {
   ILA_ASSERT( state->is_var() );
   if( state->is_mem() ) { // depends on configuration, we choose to put into mem_external/mem_internal
     if( cfg_.extMem ) {
@@ -152,6 +156,25 @@ void VerilogGenerator::addState( const ExprPtr & state ) {
     add_reg( state->name().str(), 1 );
   }
   
+}
+
+//
+//  will export decode/start/...
+//  reg [width-1:0] __COUNTER_start__id;  // 0 : WAIT TO START , 1 : First Cycle after decode is true
+//  (init: __COUNTER__id )
+//
+//
+//
+//
+
+void VerilogGenerator::addInternalCounter( vlg_name_t decode_sig_name , size_t width ) {
+  counterName = "__COUNTER_start__" + new_id();
+  auto max_val = std::pow(2,width)-1;
+  auto inc_cond = "(" + counterName + " >= 1 ) && ( " + counterName + " < " + toStr(max_val) + " )";
+  add_reg( counterName );
+  add_init_stmt( counterName + " <= 0;"  );
+  add_ite_stmt( /*Cond*/ decode_sig_name , /*True*/ counterName + " <= 1"  , "" );
+  add_ite_stmt( /*Cond*/ inc_cond , /*True*/ counterName + " <= "+ counterName +" + 1"  , "" );
 }
 
 //--------------------------------------------------------------------------
@@ -175,7 +198,7 @@ void VerilogGenerator::getArg(const ExprPtr & e, const size_t & i ) {
 
 
 
-vlg_name_t VerilogGenerator::translateApplyFunc( std::shared_ptr<ExprOpAppFunc> func_app_ptr_ )
+VerilogGenerator::vlg_name_t VerilogGenerator::translateApplyFunc( std::shared_ptr<ExprOpAppFunc> func_app_ptr_ )
 {
     ILA_NOT_NULL(func_app_ptr_);
     int width = func_app_ptr_->sort()->is_bool() ? 1 : func_app_ptr_->sort()->bit_width();
@@ -218,8 +241,7 @@ vlg_name_t VerilogGenerator::translateApplyFunc( std::shared_ptr<ExprOpAppFunc> 
             int argWidth = get_width( func_app_ptr_->arg(i) );
             add_wire  (argOutName,argWidth);
             add_output(argOutName,argWidth);
-            vlg_stmt_t assignment = "assign " + argOutName + " = " + getArg(func_app_ptr_, i) +" ;";
-            add_stmt(assignment);
+            add_assign_stmt( argOutName, getArg(func_app_ptr_, i) );
         }
       }
       else ILA_ASSERT(false) << "Unsupported function export option";
@@ -228,7 +250,7 @@ vlg_name_t VerilogGenerator::translateApplyFunc( std::shared_ptr<ExprOpAppFunc> 
 
 // will be used by ParseNonMemUpdateExpr, will not be directly called by ParseMemUpdateNode
 // the later will call the former first
-vlg_name_t VerilogGenerator::translateBoolOp( const ExprOp & e ) {
+VerilogGenerator::vlg_name_t VerilogGenerator::translateBoolOp( const ExprOp & e ) {
   vlg_stmt_t result_stmt;
   std::string op_name = e->op_name();
   size_t arg_num = e->arg_num();
@@ -280,15 +302,14 @@ vlg_name_t VerilogGenerator::translateBoolOp( const ExprOp & e ) {
       ILA_ASSERT(false) << op_name << " is not supported by VerilogGenerator";
   }
   vlg_name_t result_var = new_id( e );
-  vlg_stmt_t additional_stmt = vlg_stmt_t("assign ") + result_var + " = " + result_stmt + " ;";
   add_wire(result_var , 1);
-  add_stmt(additional_stmt);
+  add_assign_stmt( result_var, result_stmt );
   return result_var;
 }
 
 // will be used by ParseNonMemUpdateExpr, will not be directly called by ParseMemUpdateNode
 // the later will call the former first
-vlg_name_t VerilogGenerator::translateBvOp( const ExprOp & e ) {
+VerilogGenerator::vlg_name_t VerilogGenerator::translateBvOp( const ExprOp & e ) {
   vlg_stmt_t result_stmt;
   std::string op_name = e->op_name();
   size_t arg_num = e->arg_num();
@@ -360,8 +381,7 @@ vlg_name_t VerilogGenerator::translateBvOp( const ExprOp & e ) {
         add_wire( addr_name, addr_width );
         add_wire( data_name, data_width );
 
-        vlg_stmt_t tmp_stmt = vlg_stmt_t("assign ") + addr_name + " = " + arg2 +" ;";
-        add_stmt(tmp_stmt);
+        add_assign_stmt( addr_name, arg2 );
         
         result_stmt = data_name;
       } // if( pos != mems_external.end() ) 
@@ -381,9 +401,8 @@ vlg_name_t VerilogGenerator::translateBvOp( const ExprOp & e ) {
   else ILA_ASSERT(false) << op_name << " is not supported by VerilogGenerator";
 
   vlg_name_t result_var = new_id( e );
-  vlg_stmt_t additional_stmt = vlg_stmt_t("assign ") + result_var + " = " + result_stmt + " ;";
   add_wire(result_var , get_width(e) ) ;
-  add_stmt(additional_stmt);
+  add_assign_stmt( result_var, result_stmt );
   return result_var;
 
 }
@@ -537,22 +556,46 @@ void VerilogGenerator::VisitMemNodes( const ExprPtr & e,
   }
 } // VerilogGenerator::VisitMemNodes
 
-void VerilogGenerator::ExportCondWrites(const std::string &name, int addrWidth, int dataWidth, 
+void VerilogGenerator::ExportFuncDefs() {
+  // we don't have the option of verilog function here, becase we don't think this useful for verification
+  if(cfg_.funcOpt == VlgGenConfig::funcOption::External)
+    return; // if they are external we don't care how they will be implemented
+  for (auto && func_ptr : func_ptr_set) {
+    // because we don't add 0-arg func here, there is no need to worry about it
+    auto func_name = func_ptr->name().str();
+    vlg_stmt_t funcModDef = "module fun_" + func_name + " (\n";
+    for( size_t argIdx = 0; argIdx < func_ptr->arg_num() ; ++ argIdx) {
+      auto arg_sort_ptr = func_ptr->arg(argIdx);
+      funcModDef += "    input " + WidthToRange( arg_sort_ptr->is_bool() ? 1 : arg_sort_ptr->bit_width() ) + " arg" + toStr(argIdx) + ",\n";
+    }
+    funcModDef += "    output " + WidthToRange(func_ptr->out()->is_bool() ? 1 : func_ptr->out()->bit_width() ) + " result\n";
+    funcModDef += ");\n";
+    funcModDef += "//TODO: Add the specific function HERE.\n";
+    funcModDef += "endmodule\n";
+    preheader += funcModDef;
+  }
+}
+
+void VerilogGenerator::ExportCondWrites(const ExprPtr &mem_var, 
     const mem_write_list_t & writeList) 
 {
     // count the maximum ports needed, that is for a single condition what's max size of mem_write_entry_list_t
+    auto name = mem_var->name().str();
+    auto addr_width = mem_var->sort()->addr_width;
+    auto data_width = mem_var->sort()->data_width;
+
     unsigned max_port_no = 0;
     for (const auto & mw : writeList)
         if(max_port_no < mw.writes.size())
             max_port_no = mw.writes.size();
     for (unsigned portIdx = 0; portIdx < max_port_no; ++portIdx)
     {
-        add_wire(name + "_addr" + toStr(portIdx),addrWidth);
-        add_wire(name + "_data" + toStr(portIdx),dataWidth);
+        add_wire(name + "_addr" + toStr(portIdx),addr_width);
+        add_wire(name + "_data" + toStr(portIdx),data_width);
         add_wire(name + "_wen"  + toStr(portIdx),1);
         if(cfg_.ExternalMem) {
-            mem_o.push_back( vlg_sig_t(name + "_addr" + toStr(portIdx),addrWidth) );
-            mem_o.push_back( vlg_sig_t(name + "_data" + toStr(portIdx),dataWidth) );
+            mem_o.push_back( vlg_sig_t(name + "_addr" + toStr(portIdx),addr_width) );
+            mem_o.push_back( vlg_sig_t(name + "_data" + toStr(portIdx),data_width) );
             mem_o.push_back( vlg_sig_t(name + "_wen"  + toStr(portIdx),1) );
         }
     }
@@ -584,9 +627,9 @@ void VerilogGenerator::ExportCondWrites(const std::string &name, int addrWidth, 
       vlg_name_t addrWireName = name + "_addr" + toStr(portIdx);
       vlg_name_t dataWireName = name + "_data" + toStr(portIdx);
       vlg_name_t enabWireName = name + "_wen"  + toStr(portIdx);
-      add_stmt(vlg_stmt_t("assign ") + addrWireName + " = " + addrStmt[portIdx] + ";" );
-      add_stmt(vlg_stmt_t("assign ") + dataWireName + " = " + dataStmt[portIdx] + ";" );
-      add_stmt(vlg_stmt_t("assign ") + enabWireName + " = " + enabStmt[portIdx] + ";" );
+      add_assign_stmt( addrWireName, addrStmt[portIdx] );
+      add_assign_stmt( dataWireName, dataStmt[portIdx] );
+      add_assign_stmt( enabWireName, enabStmt[portIdx] );
       // add memory updates in the always block
       if(cfg_.ExternalMem) {
         // DO NOTHING
@@ -599,7 +642,10 @@ void VerilogGenerator::ExportCondWrites(const std::string &name, int addrWidth, 
     }
 } // VerilogGenerator::ExportCondWrites
 
-void VerilogGenerator::ParseMemUpdateNode( const ExprPtr & e , const std::string & mem_var_name) { // this will invoke the depthFirstVisit
+// This function is used to parse a expr used as memvar's update
+// will first collect the writes & conditions
+// and then translate to verilog, the same idiom could be used to handle LOAD(STORE/ITE/MEMC)
+void VerilogGenerator::ParseMemUpdateNode( const ExprPtr & e , const std::string & mem_var_name) { 
   ILA_ASSERT(CheckMemUpdateNode(e, mem_var_name)) << "Unsupported Expr structure";
 
   // no we prepare to start to traverse // build initial condition for that
@@ -615,17 +661,154 @@ void VerilogGenerator::ParseMemUpdateNode( const ExprPtr & e , const std::string
   current_writes.clear();
   VisitMemNodes(next, cond, writesStack);
   
-  // okay good to go 
-  ExportCondWrites(name,addr_width,data_width,current_writes);
+  // Commented the line below, becasuse this function is not intended to really does the write 
+  // ExportCondWrites(name,addr_width,data_width,current_writes); 
+  // 
 }
 
 //--------------------------------------------------------------------------
-void VerilogGenerator::ParseIla( const InstrLvlAbsPtr & ila_ptr_ )
+void VerilogGenerator::ExportIla( const InstrLvlAbsPtr & ila_ptr_ )
 {
   ILA_ASSERT(false) <<"NOT implemented yet.";
 }
-void VerilogGenerator::ParseInstr( const InstrPtr & instr_ptr_ )
+
+
+
+// here we will add all updates, those not touched will be update to itself
+// add inputs / states / functions
+// do remember to export its parents' state (hierarchically collect its parents)
+// try to convert inits, if not add to assumptions
+// add updates
+// add guard of VALID signal to "else if"
+// make sure to generate decode/valid signal output
+// internal counter
+void VerilogGenerator::ExportTopLevelInstr( const InstrPtr & instr_ptr_ )
 {
+  ILA_WARN( instr_ptr_->host()->parent() ) 
+    << "This ExportTopLevelInstr does not put flatten states and instructions in child-ILA, please be aware.";
+  ILA_WARN( instr_ptr_->host()->init_num() != 0 )
+    << "For exporting a single instruction, the initial conditions are not exported, please be aware.";
+
+  // add valid signal
+  auto valid_ptr = ila_ptr_->valid();
+  ParseNonMemUpdateExpr(valid_ptr);
+  vlg_name_t valid_sig_name = getVlgFromExpr(valid_ptr);
+  if (validName == "")
+    validName = "__ILA_" + ila_ptr_->name().str() + "_valid__";
+  add_wire  ( validName, 1 );
+  add_output( validName, 1 );
+  add_assign_stmt( validName, valid_sig_name );
+  // decode conditions
+  auto decode_ptr = instr_ptr_->decode();
+  ParseNonMemUpdateExpr(decode_ptr);
+  vlg_name_t decode_sig_name = getVlgFromExpr(decode_ptr);
+  auto decodeName = "__ILA_" + ila_ptr_->name().str() + "_decode_of_" + ( instr_ptr_->name().str() ) + "__";
+  decodeNames.push_back(decodeName);
+  add_wire  ( decodeName, 1 );
+  add_output( decodeName, 1 );
+  add_assign_stmt( decodeName, decode_sig_name );
+
+  // clk, rst
+  add_wire(clkName, 1); add_input(clkName, 1);
+  add_wire(rstName, 1); add_input(rstName, 1);
+
+  addInternalCounter( decodeName ); // maybe no need (width = 8)
+
+  // Inputs
+  auto ila_ptr_ = instr_ptr_()->host();
+  for (size_t idx = 0; idx != ila_ptr_->input_num(); ++idx)
+    insertInput(ila_ptr_->input(idx));
+  // States
+  for (size_t idx = 0; idx != ila_ptr_->state_num(); ++idx)
+    insertState(ila_ptr_->state(idx));
+  // Func Defs
+  ExportFuncDefs();
+
+  // add updates
+  for (size_t idx = 0; idx != ila_ptr_->state_num(); ++idx) { // could be merged with the loop above
+    auto var = ila_ptr_->state(idx);
+    auto update = instr_ptr_->update(var);
+    if (!update)  update = var; // if not updated, make it to self
+    if ( var->is_mem() ) {
+      ParseMemUpdateNode(update);
+      ExportCondWrites(var, current_writes);
+    } else { // bv/bool
+      ParseNonMemUpdateExpr(update);
+      vlg_name_t result = getVlgFromExpr(update);
+      add_always_stmt( var->name.str() + " <= " + result + " ;" );
+    } // else
+  } // for (size_t idx = 0;  ...
+} // VerilogGenerator::ExportTopLevelInstr
+
+void VerilogGenerator::DumpToFile(ostream & fout) const {
+  if(preheader != "") {
+    fout << "/* PREHEADER */\n";
+    fout << preheader<<"\n";
+    fout << "/* END OF PREHEADER */\n";
+  }
+  // no need to worry about mem_i/o , already in i/o
+
+  fout << "module "<< moduleName<< "(\n";
+
+  std::string separator; // input will not be empty of course, output won't either
+  for(auto const &sig_pair : inputs)
+    fout << sig_pair.first <<",\n"; // sig_pair.first is the name
+  for(auto const &sig_pair : outputs) {
+    fout << separator<< sig_pair.first ;  separator = ",\n"; }
+
+  for(auto const &sig_pair : inputs)
+    fout << "input "<<std::setw(10)<<WidthToRange(sig_pair.second)<<" "<<(sig_pair.first) << ";\n";
+  for(auto const &sig_pair : outputs)
+    fout << "output "<<std::setw(10)<<WidthToRange(sig_pair.second)<<" "<<(sig_pair.first) << ";\n";
+  for(auto const &sig_pair : regs)
+    fout << "reg " <<std::setw(10)<<WidthToRange(sig_pair.second)<<" "<<(sig_pair.first) << ";\n";
+  for(auto const &sig_pair : wires)
+    fout << "wire " <<std::setw(10)<<WidthToRange(sig_pair.second)<<" "<<(sig_pair.first) << ";\n";
+
+  // now we deal w. the internal mems
+  for(auto const & mem : mem_i) 
+    fout << "reg "<<std::setw(10)<<WidthToRange( std::get<2>(mem) )<<" "<<( std::get<0>(mem) )<< WidthToRange(std::pow(2, std::get<1>(mem)))<<";\n";
+  // we require that the statements must have ";" ending itself
+  for(auto const &stmt : statements)
+    fout << stmt <<"\n";
+
+  fout << "always @(posedge "<< clkName<<") begin\n";
+  fout << "   if("<< rstName<<") begin\n";
+  // init_stmts go in rst cycle
+  for(auto const &stmt : init_stmts) 
+    fout << "       "<<stmt<<";\n";
+  // 
+  fout << "   end\n";
+  fout << "   else if(" << validName << ") begin\n";
+  for(auto const &stmt : always_stmts) 
+    fout << "       "<<stmt<<";\n";
+  // we don't require ite statement has that
+  for (auto const &stmt : ite_stmts) {
+    fout << "       "<<"if (" << std::get<0>(stmt) <<") begin\n";
+    fout << "       "<<"    "<< std::get<1>(stmt)<<" ;\n";
+    fout << "       "<<"end\n";
+    if(std::get<2>(stmt) != "") {
+      fout << "       "<<"else begin\n            "<<std::get<2>(stmt)<<" ;\n        end\n";
+    }
+  }
+
+  fout << "   end\n";
+  fout << "end\n";
+
+  fout << "endmodule\n";
+}
+
+
+// parse a dummy ILA where we have
+// I, and all child (as insts)
+// multi-inst case, which to trigger? and their priority?
+//# error the above question is unsolved
+
+// this function could be used to export Instr w. (some/all) their childs, but there should be an external 
+// step that assemble these part together
+// as Verilog Generator, it does not do this internally
+//void VerilogGenerator::ExportIla( const InstrPtr & instr_ptr_ )
+//{
   // add inputs / states / functions
   // do remember to export its parents' state (hierarchically collect its parents)
   
@@ -636,10 +819,7 @@ void VerilogGenerator::ParseInstr( const InstrPtr & instr_ptr_ )
   // add guard of valid signal to "else if"
 
   // make sure to generate decode/valid signal output
-}
-// parse a dummy ILA where we have
-// I, and all child (as insts)
-// multi-inst case, which to trigger? and their priority?
-# error the above question is unsolved
+//}
+
 
 }; // namespace ila
