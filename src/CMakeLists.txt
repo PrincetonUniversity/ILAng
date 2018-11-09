@@ -6,6 +6,7 @@
 add_subdirectory(util)
 add_subdirectory(ila)
 add_subdirectory(backend)
+add_subdirectory(verilog-out)
 
 if (python-api)
     add_subdirectory(python-api)
@@ -27,6 +28,7 @@ set(ILA_TOOL_OBJECTS
     $<TARGET_OBJECTS:util> 
     $<TARGET_OBJECTS:ila> 
     $<TARGET_OBJECTS:backend> 
+    $<TARGET_OBJECTS:verilog-out> 
     )
 
 if (verilog-in)

@@ -12,9 +12,11 @@
 #ifndef VERILOG_GEN_H__
 #define VERILOG_GEN_H__
 
+#include "ila/instr_lvl_abs.h"
 #include "ila/expr_fuse.h"
 #include "z3++.h"
 #include <map>
+#include <list>
 #include <unordered_map>
 #include <vector>
 
@@ -73,9 +75,14 @@ namespace ila {
     /// List of writes w. associated conditions.
     typedef std::list<mem_write_t> mem_write_list_t;
     // VerilogGen Configure
+public:
+    /// the structure to configure the verilog generator
     struct VlgGenConfig{
-      bool extMem;   // whether to export as a verilog array or an interface to operate external memory
+      /// whether to export as a verilog array or an interface to operate external memory
+      bool extMem;   
+      /// whether to treat function as internal module/external module
       enum funcOption { Internal, External } fcOpt;
+      /// Constructor, set default value, ExternalMem : false, function: internal module
       VlgGenConfig( // provide the default settings
         bool ExternalMem = false,
         funcOption funcOpt = funcOption::Internal ) : 
@@ -84,10 +91,9 @@ namespace ila {
       {}
     };
 
-
+private:
     /// Type for caching the generated expressions.
     typedef std::unordered_map<const ExprPtr, vlg_name_t, VerilogGenHash> ExprMap;
-
 
     // --------------------- HELPER for DEBUG PURPOSE ---------------------------- //
     friend std::ostream& operator<<(
@@ -114,6 +120,8 @@ namespace ila {
     vlg_names_t decodeNames;
     /// Output signals that allows to determine if an instruction's valid is true, not need for width
     vlg_name_t  validName;
+    /// The name of internal counter
+    vlg_name_t counterName;
     /// vector of input signals
     vlg_sigs_t inputs; 
     /// vector of output signals
@@ -157,9 +165,9 @@ namespace ila {
     /// Check if a name is reserved (clk/rst/modulename/decodeName/ctrName)
     bool check_reserved_name(const vlg_name_t & n) const;
     /// Get the width of an ExprPtr, must be supported sort
-    int static get_width(const ExprPtr &n) const;
+    int static get_width(const ExprPtr &n);
     /// convert a widith to a verilog string
-    std::string static WidthToRange(int w) const;
+    std::string static WidthToRange(int w);
     /// get a new id
     vlg_name_t new_id();
     /// if the exprptr contains some meaning in its name, will try to incorporate that to the name;
@@ -207,15 +215,15 @@ namespace ila {
     /// traverse to the subtree, caller: ParseNonMemUpdateExpr
     void parseArg(const ExprPtr & e);
     /// After you parse a subtree, this can help you get the vlg name associated with it
-    void getVlgFromExpr(const ExprPtr & e);
+    VerilogGenerator::vlg_name_t getVlgFromExpr(const ExprPtr & e);
     /// a short cut of calling getVlgFromExpr to find arg's vlg names
-    void getArg(const ExprPtr & e, const size_t & i );
+    VerilogGenerator::vlg_name_t getArg(const ExprPtr & e, const size_t & i );
     /// Handle function application , Caller: translateBoolOp, translateBvOp
     vlg_name_t translateApplyFunc( std::shared_ptr<ExprOpAppFunc> func_app_ptr_ );
     /// called by ParseNonMemUpdateExpr to deal with a boolop node
-    vlg_name_t translateBoolOp( const ExprOp & e );
+    vlg_name_t translateBoolOp( const  std::shared_ptr<ExprOp> & e );
     /// called by ParseNonMemUpdateExpr to deal with a bvop node
-    vlg_name_t translateBvOp( const ExprOp & e );
+    vlg_name_t translateBvOp( const  std::shared_ptr<ExprOp> & e );
     /// travserse an expression, not used as mem-write subtree
     void ParseNonMemUpdateExpr( const ExprPtr & e );
     /// check if a mem-write subtree is what we can handle right now
@@ -231,21 +239,21 @@ namespace ila {
     /// generate the signals to write a memory (external/internal)
     void ExportCondWrites(const ExprPtr &mem_var, const mem_write_list_t & writeList);
     /// parse an expr used as the memory update, will affect: past_writes & current_writes
-    void ParseMemUpdateNode( const ExprPtr & e , const std::string & mem_var_name);
+    void ParseMemUpdateNode( const ExprPtr & cond, const ExprPtr & e , const std::string & mem_var_name);
 
   public:
     // --------------------- CONSTRUCTOR ---------------------------- //
     VerilogGenerator(
+      const VlgGenConfig & config = VlgGenConfig(),
       const std::string &modName = "",
       const std::string &clk = "clk",
-      const std::string &rst = "rst", 
-      const VlgGenConfig & config = VlgGenConfig());
+      const std::string &rst = "rst" );
     /// Parse an ILA, will gen all its instructions
     void ExportIla( const InstrLvlAbsPtr & ila_ptr_ );
     /// Parse an instruction
     void ExportTopLevelInstr( const InstrPtr & instr_ptr_ );
     /// after parsing either the Instruction/ILA, use this function to dump to a file.
-    void DumpToFile(ostream & fout) const;
+    void DumpToFile(std::ostream & fout) const;
   }; // class VerilogGenerator
 
 }; // namespace ila
