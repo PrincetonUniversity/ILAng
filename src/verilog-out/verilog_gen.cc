@@ -144,7 +144,7 @@ void VerilogGenerator::insertState( const ExprPtr & state ) {
       add_external_mem( state->name().str(), // name
                         state->sort()->addr_width(), // addr_width
                         state->sort()->data_width() );
-      ILA_INFO<<"insert emem:" << state->name().str();
+      ILA_DLOG("VerilogGen.insertState")<<"insert emem:" << state->name().str();
     }
     else {
       add_internal_mem( state->name().str(), // name
@@ -381,10 +381,10 @@ VerilogGenerator::vlg_name_t VerilogGenerator::translateBvOp( const std::shared_
       ILA_ASSERT( e->arg(0)->is_var() ) << "Implementation bug: unable to handle LOAD(STORE/ITE/MEMCONST) pattern";
       auto mem_var_name = e->arg(0)->name().str();
       auto pos = mems_external.find( mem_var_name );
-      ILA_INFO<<"finding mem in external record:"<< mem_var_name ;
+      ILA_DLOG("VerilogGen.translateBvOp")<<"finding mem in external record:"<< mem_var_name ;
       if( pos != mems_external.end() ) {
         // should generate signals (for mem_i/mem_o)
-        ILA_INFO << "Found.";
+        ILA_DLOG("VerilogGen.translateBvOp") << "Found.";
         int addr_width = std::get<1>(pos->second);
         int data_width = std::get<2>(pos->second);
         vlg_name_t addr_name = arg1 + "_addr_" + new_id();
@@ -401,7 +401,7 @@ VerilogGenerator::vlg_name_t VerilogGenerator::translateBvOp( const std::shared_
       else {
         result_stmt = vlg_stmt_t(" (  ") + mem_var_name + " [ " +  arg2 + " ] ) ";
 
-        ILA_INFO << "Not found.";
+        ILA_DLOG("VerilogGen.translateBvOp") << "Not found.";
       }
     } // else if(op_name == "LOAD")
     else ILA_ASSERT(false) << op_name << " is not supported by VerilogGenerator";

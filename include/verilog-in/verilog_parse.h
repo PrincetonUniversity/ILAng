@@ -4,10 +4,14 @@
 #ifndef VERILOG_PARSE_H__
 #define VERILOG_PARSE_H__
 
+#include <iostream>
+#include <cstdio>
+
 /// \namespace ila
 namespace ila {
 
 void TestParseVerilog();
+int TestParseVerilogFrom(std::FILE * fp);
 
 }; // namespace ila
 
