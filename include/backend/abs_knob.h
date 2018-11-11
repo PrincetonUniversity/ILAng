@@ -70,7 +70,15 @@ public:
   /// \brief Rewrite an instruction by replacing based on the rule.
   static void RewriteInstr(const InstrCnstPtr instr_src,
                            const InstrPtr instr_dst, const ExprMap& expr_map);
-
+  
+  /// \brief Flatten the given ILA, the initial conditions will be added to the top
+  /// the child instructions will also be added to the top, but their (hierarchical)
+  /// valid conditions will be added to their decode condition
+  /// Some usage hint: this function is intended to generate an ILA for Verilog generator
+  /// or other verification model generator. You can first use ExtrDeptModl to extract
+  /// the dependent model and use this to flatten the that model and send to the generator
+  static void FlattenIla(const InstrLvlAbsPtr ila_ptr_);
+    
   /// \brief Return a new ILA that contains the dependant instructions and
   /// child-ILAs of an instruction (defined by sub-programs).
   static InstrLvlAbsPtr ExtrDeptModl(const InstrPtr instr,

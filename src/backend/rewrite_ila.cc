@@ -56,5 +56,42 @@ void FuncObjRewrIla::post(const InstrLvlAbsCnstPtr src) const {
   // nothing
 }
 
+// -----------------------------------------------------------------------------------------
+
+/// Constructor.
+FuncObjFlatIla::FuncObjFlatIla(const IlaMap& ila_map, const ExprMap& expr_map)
+	: ila_map_(ila_map), expr_map_(expr_map) {
+		valid_cond_stack_.push( ExprFuse::BoolConst(true)  );
+	}
+
+	
+bool FuncObjFlatIla::pre(const InstrLvlAbsCnstPtr src) {
+  auto pos = ila_map_.find(src);
+  ILA_ASSERT(pos != ila_map_.end()) << "ILA dst for " << src << " not found.";
+  auto dst = pos->second;
+
+  auto valid_cond_ = src->valid();
+  valid_cond_stack_.push( ExprFuse::And( valid_cond_stack_.top(), valid_cond_ ) );
+  const auto & hierarchical_valid_cond = valid_cond_stack_.top();
+
+  // instruction && child-program
+  for (decltype(src->instr_num()) i = 0; i != src->instr_num(); i++) {
+	auto i_src = src->instr(i);
+	auto i_dst = AbsKnob::DuplInstr(i_src, dst, expr_map_, ila_map_);
+	auto new_decode = ExprFuse::And(i_dst->decode() , hierarchical_valid_cond) ;
+  }
+
+  // sequence - do we need to do this?
+  // AbsKnob::DuplInstrSeq(src, dst);
+
+  return false;
+}
+
+void FuncObjFlatIla::post(const InstrLvlAbsCnstPtr src) {
+  // pop the stack
+  valid_cond_stack_.pop();
+}
+
+
 } // namespace ila
 

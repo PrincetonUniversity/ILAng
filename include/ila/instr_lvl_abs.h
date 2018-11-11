@@ -11,6 +11,7 @@
 #include "ila/object.h"
 #include "ila/transition.h"
 #include "util/container.h"
+#include <stack>
 #include <map>
 #include <memory>
 #include <ostream>

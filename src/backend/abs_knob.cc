@@ -1,6 +1,7 @@
 /// \file
 /// Source for a collection of ILA helpers.
 
+#include <functional>
 #include "backend/abs_knob.h"
 #include "backend/rewrite_expr.h"
 #include "backend/rewrite_ila.h"
@@ -198,6 +199,31 @@ void AbsKnob::RewriteInstr(const InstrCnstPtr src, const InstrPtr dst,
     }
   }
 }
+
+// this function will change the input ! You can copy it first.
+void AbsKnob::FlattenIla(const InstrLvlAbsPtr ila_ptr_) {
+  ILA_NOT_NULL(ila_ptr_);
+
+  // let's first record all the child's input/states
+  auto expr_map = ExprMap();
+  CnstIlaMap ila_map_;
+
+  std::function<void(const InstrLvlAbsCnstPtr &)> recordInpStates = [&] (const InstrLvlAbsCnstPtr & a) {
+    if( a == ila_ptr_ ) return; // will not change the top
+    DuplInp(a, ila_ptr_, expr_map);
+    DuplStt(a, ila_ptr_, expr_map);
+    DuplInit(a, ila_ptr_, expr_map);
+
+    ila_map_.insert({a, ila_ptr_});
+    // remember to change the decode !!! to factor in the valid state
+  };
+
+  ila_ptr_->DepthFirstVisit(recordInpStates);
+
+  FuncObjFlatIla flattener(ila_map_, expr_map);
+  ila_ptr_->DepthFirstVisitPrePost(flattener);
+}
+
 
 InstrLvlAbsPtr AbsKnob::ExtrDeptModl(const InstrPtr instr,
                                      const std::string& name) {
