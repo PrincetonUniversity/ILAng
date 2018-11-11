@@ -209,6 +209,7 @@ void AbsKnob::FlattenIla(const InstrLvlAbsPtr ila_ptr_) {
   CnstIlaMap ila_map_;
 
   std::function<void(const InstrLvlAbsCnstPtr &)> recordInpStates = [&] (const InstrLvlAbsCnstPtr & a) {
+  	ILA_INFO << "Traverse:" << (a->name().str());
     if( a == ila_ptr_ ) return; // will not change the top
     DuplInp(a, ila_ptr_, expr_map);
     DuplStt(a, ila_ptr_, expr_map);
@@ -220,7 +221,7 @@ void AbsKnob::FlattenIla(const InstrLvlAbsPtr ila_ptr_) {
 
   ila_ptr_->DepthFirstVisit(recordInpStates);
 
-  FuncObjFlatIla flattener(ila_map_, expr_map);
+  FuncObjFlatIla flattener(ila_ptr_ , ila_map_, expr_map);
   ila_ptr_->DepthFirstVisitPrePost(flattener);
 }
 

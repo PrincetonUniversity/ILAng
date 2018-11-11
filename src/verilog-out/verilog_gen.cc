@@ -755,10 +755,6 @@ void VerilogGenerator::ParseMemUpdateNode( const ExprPtr & cond, const ExprPtr &
 
 //--------------------------------------------------------------------------
 
-// This helper function will try to create a new ila (flatten) 
-//  with 1. States & all child states
-//  the 2. selected instructions & all instructions of the child
-//  this is not very general, but mean to be useful.
 
 // 1. please use the ExtrDeptModl to extract the dependent model
 // 2. then, use FlattenIla to get a flatten ILA model
@@ -853,7 +849,7 @@ void VerilogGenerator::ExportIla( const InstrLvlAbsPtr & ila_ptr_ )
         auto decode_name = decodeNames[instIdx];
         auto grant_name  = grantAccName.first + "[" + toStr(instIdx) + "]";
 
-        add_always_stmt(end_else_if + "if ( " + decode_name + " && " + grantAccName.first + " ) begin" );
+        add_always_stmt(end_else_if + "if ( " + decode_name + " && " + grant_name + " ) begin" );
         add_always_stmt("    " + sanitizeName( state ) + " <= " + result + ";" );
 
         end_else_if = "end else ";

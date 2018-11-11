@@ -59,18 +59,20 @@ void FuncObjRewrIla::post(const InstrLvlAbsCnstPtr src) const {
 // -----------------------------------------------------------------------------------------
 
 /// Constructor.
-FuncObjFlatIla::FuncObjFlatIla(const IlaMap& ila_map, const ExprMap& expr_map)
-	: ila_map_(ila_map), expr_map_(expr_map) {
+FuncObjFlatIla::FuncObjFlatIla(const InstrLvlAbsCnstPtr & top_, const IlaMap& ila_map, const ExprMap& expr_map)
+	: ila_map_(ila_map), expr_map_(expr_map) , top_ila_(top_){
 		valid_cond_stack_.push( ExprFuse::BoolConst(true)  );
 	}
 
 	
 bool FuncObjFlatIla::pre(const InstrLvlAbsCnstPtr src) {
+  if(src == top_ila_) return false; // skip the top level ila, do nothing
   auto pos = ila_map_.find(src);
   ILA_ASSERT(pos != ila_map_.end()) << "ILA dst for " << src << " not found.";
   auto dst = pos->second;
 
   auto valid_cond_ = src->valid();
+  if(! valid_cond_) { ILA_WARN << "valid condition for "<<src<<" is unset"; valid_cond_ = ExprFuse::BoolConst(true); }
   valid_cond_stack_.push( ExprFuse::And( valid_cond_stack_.top(), valid_cond_ ) );
   const auto & hierarchical_valid_cond = valid_cond_stack_.top();
 

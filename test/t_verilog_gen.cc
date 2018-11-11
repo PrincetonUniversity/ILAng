@@ -4,14 +4,14 @@
 #include <cstdio>
 #include <cstdlib>
 
+#include "backend/abs_knob.h"
 #include "verilog-out/verilog_gen.h"
 #include "verilog-in/verilog_parse.h"
 
 #include "unit-include/simple_cpu.h"
+#include "unit-include/eq_ilas.h"
 #include "unit-include/util.h"
 
-// always enabled, because we don't rely on other sources
-// #ifdef VERILOG_OUT_ENABLE
 
 namespace ila {
 
@@ -117,7 +117,7 @@ TEST(TestVerilogGen, ParseInst) {
 	}
 } // TEST (ParseInst)
 
-TEST(TestVerilogGen, ParseILA) {
+TEST(TestVerilogGen, ParseIla) {
 	auto ila_ptr_ = SimpleCpu("proc");
 	// test 1 gen all : internal mem
 	{
@@ -141,10 +141,22 @@ TEST(TestVerilogGen, ParseILA) {
 #endif
 	}
 } // TEST: ParseILA
-TEST(TestVerilogGen, FlattenILA) {
+TEST(TestVerilogGen, FlattenIla) {
+	EqIlaGen ila_gen;
+	auto ila_ptr = ila_gen.GetIlaHier1("CpReg");
+
+	auto dep_ila_ptr = AbsKnob::ExtrDeptModl(ila_ptr->instr("instr1"), "FlattenCpReg");
+	AbsKnob::FlattenIla(dep_ila_ptr);
+
+	auto vgen = VerilogGenerator();
+	vgen.ExportIla( dep_ila_ptr );
+
+#ifdef VERILOG_IN_ENABLE
+	parseable( "Testing/Temporary/t_proc_flatten.v" , vgen);
+#else
+	vgen.DumpToFile( ILA_DLOG("TestVerilogGen.FlattenIla") );
+#endif
 
 } // TEST: FlattenILA
 
 }; // namespace ila
-
-// #endif // VERILOG_OUT_ENABLE

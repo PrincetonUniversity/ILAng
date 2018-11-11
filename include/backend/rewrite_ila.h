@@ -52,7 +52,7 @@ public:
   typedef std::stack<ExprPtr> ValidCondStack;
 
   /// Constructor.
-  FuncObjFlatIla(const IlaMap& ila_map, const ExprMap& expr_map);
+  FuncObjFlatIla(const InstrLvlAbsCnstPtr & top_, const IlaMap& ila_map, const ExprMap& expr_map);
 
   /// Pre-processing: create new ILA based on the given source.
   bool pre(const InstrLvlAbsCnstPtr src);
@@ -66,6 +66,8 @@ private:
   ExprMap expr_map_;
   /// A stack to keep track of the hierarchical valid condition
   ValidCondStack valid_cond_stack_;
+  /// Record which ila is the top level one
+  InstrLvlAbsCnstPtr top_ila_;
 }; // FuncObjRewrIla
 
 
