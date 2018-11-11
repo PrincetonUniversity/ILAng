@@ -2,6 +2,7 @@
 /// Verilog Generator
 #include <string>
 #include <cmath>
+#include <cctype>
 #include <iomanip>
 #include "verilog-out/verilog_gen.h"
 
@@ -27,6 +28,65 @@ bool VerilogGenerator::check_reserved_name(const vlg_name_t & n) const {
   }
   return true;
 }
+
+// static helper function
+std::map<char,std::string> sanitizeTable
+({ 
+    {'.',"__DOT__"},
+    {'<',"__LT__"},
+    {'>',"__GT__"},
+    {'!',"__NOT__"},
+    {'~',"__NEG__"},
+    {'-',"__DASH__"},
+    {'&',"__AND__"},
+    {'|',"__SEP__"},
+    {' ',"__SPACE__"},
+    {'*',"__STAR__"},
+    {'%',"__PERC__"},
+    {'#',"__BANG__"},
+    {'@',"__AT__"},
+    {'0',"__ZERO__"},
+    {'1',"__ONE__"},
+    {'2',"__TWO__"},
+    {'3',"__THREE__"},
+    {'4',"__FOUR__"},
+    {'5',"__FIVE__"},
+    {'6',"__SIX__"},
+    {'7',"__SEVEN__"},
+    {'8',"__EIGHT__"},
+    {'9',"__NINE__"}
+ });
+
+VerilogGenerator::vlg_name_t VerilogGenerator::sanitizeName(const vlg_name_t &n) {
+  std::string outStr;
+  for (unsigned idx = 0; idx < n.length(); ++idx) {
+    char c =n[idx];
+    if(idx==0 && isdigit(c)) {
+      outStr += sanitizeTable[c];
+      continue;
+    }
+
+    if( isalnum(c) || c == '_' ) {
+      outStr += c;
+      continue;
+    }
+    auto pos = sanitizeTable.find(c);
+    if(pos != sanitizeTable.end() ) {
+      outStr += pos->second;
+      continue;
+    }
+    // not in table, add it
+    auto newName = "_s_" + new_id() + "_s_";
+    sanitizeTable.insert({c, newName});
+    outStr += newName;
+  }
+  return outStr;
+}
+VerilogGenerator::vlg_name_t VerilogGenerator::sanitizeName(const ExprPtr &n) {
+  ILA_ASSERT(n->is_var() ) << "Should not be used on node other than variables";
+  return sanitizeName( n->name().str() );
+}
+
 
 // Currently not used, can be added to enforce sanity check
 #define CHECK_NAME(s) (ILA_ERROR_IF( !check_reserved_name(s) ) << "Name "<<(s) << " is reserved, which should not be used" );
@@ -127,13 +187,13 @@ void VerilogGenerator::insertInput( const ExprPtr & input ) {
   if( input->is_mem() ) {
     ILA_ASSERT(false) << "NOT implemented"; //FIXME: add wires to read from external
     // when in expr parse, remember it is (EXTERNAL mem)
-    add_external_mem( input->name().str(), // name
+    add_external_mem( sanitizeName(input), // name
                       input->sort()->addr_width(), // addr_width
                       input->sort()->data_width() );
   }
   else{
-    add_input( input->name().str() , get_width(input) );
-    add_wire ( input->name().str() , get_width(input) );
+    add_input( sanitizeName(input) , get_width(input) );
+    add_wire ( sanitizeName(input) , get_width(input) );
   }
 }
 
@@ -141,22 +201,22 @@ void VerilogGenerator::insertState( const ExprPtr & state ) {
   ILA_ASSERT( state->is_var() );
   if( state->is_mem() ) { // depends on configuration, we choose to put into mem_external/mem_internal
     if( cfg_.extMem ) {
-      add_external_mem( state->name().str(), // name
+      add_external_mem( sanitizeName(state), // name
                         state->sort()->addr_width(), // addr_width
                         state->sort()->data_width() );
       ILA_DLOG("VerilogGen.insertState")<<"insert emem:" << state->name().str();
     }
     else {
-      add_internal_mem( state->name().str(), // name
+      add_internal_mem( sanitizeName(state), // name
                         state->sort()->addr_width(), // addr_width
                         state->sort()->data_width() );
     }
   }
   else if( state->is_bv() ) {
-    add_reg( state->name().str(), state->sort()->bit_width() );
+    add_reg( sanitizeName(state), state->sort()->bit_width() );
   }
   else if(state->is_bool()  ) {
-    add_reg( state->name().str(), 1 );
+    add_reg( sanitizeName(state), 1 );
   }
   
 }
@@ -216,7 +276,7 @@ VerilogGenerator::vlg_name_t VerilogGenerator::translateApplyFunc( std::shared_p
   int width = func_app_ptr_->sort()->is_bool() ? 1 : func_app_ptr_->sort()->bit_width();
   if ( func_app_ptr_->arg_num() == 0 ) { 
     // 0-arg should be treated as nondet (input) , this should be fine for both Yosys and JasperGold
-    result_stmt = "nondet_" + func_app_ptr_->func()->name().str() + "_" + new_id();
+    result_stmt = "nondet_" + sanitizeName( func_app_ptr_->func()->name().str() ) + "_" + new_id();
     add_wire ( result_stmt, width);
     add_input( result_stmt, width);
   }
@@ -226,7 +286,7 @@ VerilogGenerator::vlg_name_t VerilogGenerator::translateApplyFunc( std::shared_p
       // here we create a module to do this
       result_stmt = new_id(func_app_ptr_);
       add_wire( result_stmt, width ); 
-      vlg_stmt_t funcInstantiation = "fun_"+ func_app_ptr_->func()->name().str() + "  "+"applyFunc_"+new_id() + "(\n";
+      vlg_stmt_t funcInstantiation = "fun_"+ sanitizeName( func_app_ptr_->func()->name().str() )  + "  "+"applyFunc_"+new_id() + "(\n";
       size_t arity = func_app_ptr_->arg_num();
       for (size_t i = 0; i != arity; i++) {
           ILA_ASSERT( func_app_ptr_->arg(i)->is_bool() || func_app_ptr_->arg(i)->is_bv() ) << "unable to translate f(mem, ...)" ;
@@ -240,7 +300,7 @@ VerilogGenerator::vlg_name_t VerilogGenerator::translateApplyFunc( std::shared_p
     }
     else if (cfg_.fcOpt == VlgGenConfig::funcOption::External) {
       // here we need to generate the input/output
-      vlg_name_t prefix =  "fun_" + func_app_ptr_->func()->name().str() + "_applyFunc_"+new_id();
+      vlg_name_t prefix =  "fun_" + sanitizeName( func_app_ptr_->func()->name().str() )  + "_applyFunc_"+new_id();
       vlg_name_t resultName = prefix + "_result";
       add_input( resultName, width );
       add_wire ( resultName, width );
@@ -379,7 +439,7 @@ VerilogGenerator::vlg_name_t VerilogGenerator::translateBvOp( const std::shared_
       // in the future, we may need to avoid the leaves first traverse to account for 
       // the LOAD(STORE) LOAD(ITE)
       ILA_ASSERT( e->arg(0)->is_var() ) << "Implementation bug: unable to handle LOAD(STORE/ITE/MEMCONST) pattern";
-      auto mem_var_name = e->arg(0)->name().str();
+      auto mem_var_name = sanitizeName( e->arg(0) );
       auto pos = mems_external.find( mem_var_name );
       ILA_DLOG("VerilogGen.translateBvOp")<<"finding mem in external record:"<< mem_var_name ;
       if( pos != mems_external.end() ) {
@@ -438,7 +498,7 @@ void VerilogGenerator::ParseNonMemUpdateExpr( const ExprPtr & e ) { // will be u
 
   if( e->is_bool() ) {
     if( e->is_var() ) {
-      nmap[e] = e->name().str(); // just use its name
+      nmap[e] = sanitizeName( e ); // just use its name
       ILA_DLOG("VerilogGen.ParseNonMemUpdateExpr") << "BoolVar: " << e->name().str();
     }
     else if( e->is_op() ) { // bool op
@@ -459,7 +519,7 @@ void VerilogGenerator::ParseNonMemUpdateExpr( const ExprPtr & e ) { // will be u
   }
   else if( e->is_bv() ) {
     if( e->is_var() ) {
-      nmap[e] = e->name().str(); // just use its name
+      nmap[e] = sanitizeName( e ); // just use its name
       ILA_DLOG("VerilogGen.ParseNonMemUpdateExpr") << "BV: " << e->name().str();
     }
     else if( e->is_op() ) {
@@ -485,9 +545,9 @@ void VerilogGenerator::ParseNonMemUpdateExpr( const ExprPtr & e ) { // will be u
   else if( e->is_mem() ) {
     // TODO: ? 
     if( e->is_var() )
-      nmap[e] = e->name().str(); // should not be used
+      nmap[e] = sanitizeName( e ); // should not be used
     else if(e->is_const() )
-      nmap[e] = e->name().str(); // should not be used, currently unsupported
+      nmap[e] = sanitizeName( e ); // should not be used, currently unsupported
     else if( e->is_op() )
       ILA_ASSERT(false) << "Implementation bug, do not support mem_op ( LOAD(STORE/ITE/MEMCONST) pattern ) in non-mem-update expression";
     // NOTE: EVEN when we later implement the three LOAD(STORE/ITE/MEMCONST) pattern
@@ -530,7 +590,7 @@ bool VerilogGenerator::CheckMemUpdateNode( const ExprPtr & e , const std::string
   if( e->is_const() ) 
     return false;
   else if( e->is_var() ) {
-    if(e->name().str() == mem_var_name) 
+    if(sanitizeName( e ) == mem_var_name) 
       return true;
     // else
     return false;
@@ -540,7 +600,7 @@ bool VerilogGenerator::CheckMemUpdateNode( const ExprPtr & e , const std::string
     if(expr_op_ptr -> op_name() == "STORE" ) 
       return CheckMemUpdateNode(expr_op_ptr->arg(0), mem_var_name) ; // it depends if its subtree conforms to the pattern.
     if(expr_op_ptr -> op_name() == "ITE")
-      return CheckMemUpdateNode(expr_op_ptr->arg(0), mem_var_name) && CheckMemUpdateNode(expr_op_ptr->arg(1), mem_var_name);
+      return CheckMemUpdateNode(expr_op_ptr->arg(1), mem_var_name) && CheckMemUpdateNode(expr_op_ptr->arg(2), mem_var_name);
     return false;
   }  // ITE/STORE
   // else
@@ -591,7 +651,7 @@ void VerilogGenerator::ExportFuncDefs() {
     return; // if they are external we don't care how they will be implemented
   for (auto && func_ptr : func_ptr_set) {
     // because we don't add 0-arg func here, there is no need to worry about it
-    auto func_name = func_ptr->name().str();
+    auto func_name = sanitizeName( func_ptr->name().str() );
     vlg_stmt_t funcModDef = "module fun_" + func_name + " (\n";
     for( size_t argIdx = 0; argIdx < func_ptr->arg_num() ; ++ argIdx) {
       auto arg_sort_ptr = func_ptr->arg(argIdx);
@@ -609,7 +669,7 @@ void VerilogGenerator::ExportCondWrites(const ExprPtr &mem_var,
     const mem_write_list_t & writeList) 
 {
     // count the maximum ports needed, that is for a single condition what's max size of mem_write_entry_list_t
-    auto name = mem_var->name().str();
+    auto name = sanitizeName( mem_var );
     auto addr_width = mem_var->sort()->addr_width();
     auto data_width = mem_var->sort()->data_width();
 
@@ -629,7 +689,7 @@ void VerilogGenerator::ExportCondWrites(const ExprPtr &mem_var,
         }
     }
     std::vector<vlg_stmt_t> addrStmt(max_port_no,"0");
-    std::vector<vlg_stmt_t> dataStmt(max_port_no,"'dx");
+    std::vector<vlg_stmt_t> dataStmt(max_port_no,"'d0");// "'dx"); our parser dislikes this, though it is okay for other parsers
     std::vector<vlg_stmt_t> enabStmt(max_port_no,"1'b0"); 
     // Note the reverse here!
     for(auto mw_pos = writeList.rbegin() ; mw_pos != writeList.rend() ; ++mw_pos) {
@@ -661,7 +721,7 @@ void VerilogGenerator::ExportCondWrites(const ExprPtr &mem_var,
       add_assign_stmt( enabWireName, enabStmt[portIdx] );
       // add memory updates in the always block
       if(cfg_.extMem) {
-        // DO NOTHING
+        // DO NOTHINGls
       }
       else {
         vlg_stmt_t assignment = name + " [ " + addrWireName + " ] " + "<= "  + dataWireName;
@@ -694,10 +754,117 @@ void VerilogGenerator::ParseMemUpdateNode( const ExprPtr & cond, const ExprPtr &
 }
 
 //--------------------------------------------------------------------------
+
+// This helper function will try to create a new ila (flatten) 
+//  with 1. States & all child states
+//  the 2. selected instructions & all instructions of the child
+//  this is not very general, but mean to be useful.
+
+// 1. please use the ExtrDeptModl to extract the dependent model
+// 2. then, use FlattenIla to get a flatten ILA model
+// Export a whole ila, 
+// you need to put together their update model.
+
 void VerilogGenerator::ExportIla( const InstrLvlAbsPtr & ila_ptr_ )
 {
   ILA_NOT_NULL(ila_ptr_);
-  ILA_ASSERT(false) <<"NOT implemented yet.";
+
+  ILA_WARN_IF( ila_ptr_->init_num() != 0 )
+    << "Currently, it does not translate the initial conditions";
+
+  if (moduleName == "" )
+    moduleName = sanitizeName( ila_ptr_->name().str() );
+
+  // Inputs
+  for (size_t idx = 0; idx != ila_ptr_->input_num(); ++idx)
+    insertInput(ila_ptr_->input(idx));
+  // States
+  for (size_t idx = 0; idx != ila_ptr_->state_num(); ++idx)
+    insertState(ila_ptr_->state(idx));
+  // clk, rst
+  add_wire(clkName, 1); add_input(clkName, 1);
+  add_wire(rstName, 1); add_input(rstName, 1);
+
+  // add valid signal
+  auto valid_ptr = ila_ptr_->valid();
+  if(!valid_ptr) {
+    valid_ptr = ExprFuse::BoolConst(true);
+    ILA_WARN << "Valid condition for ILA: " << ila_ptr_->name().str() <<" is unset";
+  }
+  ParseNonMemUpdateExpr(valid_ptr);
+  vlg_name_t valid_sig_name = getVlgFromExpr(valid_ptr);
+  if (validName == "")
+    validName = "__ILA_" + sanitizeName(ila_ptr_->name().str() ) + "_valid__";
+  add_wire  ( validName, 1 );
+  add_output( validName, 1 );
+  add_assign_stmt( validName, valid_sig_name );
+
+  grantAccName =  {"__ILA_" + sanitizeName(ila_ptr_->name().str() ) + "_grant__",  ila_ptr_->instr_num()};
+  decodeAccName = {"__ILA_" + sanitizeName(ila_ptr_->name().str() ) + "_acc_decode__",  ila_ptr_->instr_num()};
+  // add grants inputs
+  add_wire( grantAccName.first, ila_ptr_->instr_num() );  add_input ( grantAccName.first, ila_ptr_->instr_num() );
+  add_wire( decodeAccName.first, ila_ptr_->instr_num() ); add_output( decodeAccName.first, ila_ptr_->instr_num());
+
+  // export the decode conditions
+  // decode conditions
+  for(size_t instIdx = 0; instIdx < ila_ptr_->instr_num(); instIdx ++ ) {
+    auto instr_ptr_ = ila_ptr_->instr(instIdx);
+    auto decode_ptr = instr_ptr_->decode();
+    if(!decode_ptr) { // make sure decode is not null
+      decode_ptr = ExprFuse::BoolConst(true);
+      ILA_WARN << "Decode condition for instr: " << (instr_ptr_->name().str()) <<" is unset"; }
+    ParseNonMemUpdateExpr(decode_ptr);
+    vlg_name_t decode_sig_name = getVlgFromExpr(decode_ptr);
+
+    auto decodeName = "__ILA_" + sanitizeName(ila_ptr_->name().str()) + "_decode_of_" + sanitizeName( instr_ptr_->name().str() ) + "__";
+    decodeNames.push_back(decodeName);
+    add_wire  ( decodeName, 1 );
+    add_output( decodeName, 1 );
+    add_assign_stmt( decodeName, decode_sig_name );
+    add_assign_stmt( decodeAccName.first + "[" + toStr(instIdx) + "]" , decodeName );
+    // grant name will be put together
+  }
+
+  // output state update functions
+  for(size_t stateIdx = 0; stateIdx < ila_ptr_->state_num() ; ++ stateIdx ) {
+    auto state = ila_ptr_->state(stateIdx);
+    if ( state->is_mem() ) {
+      // put together an expression
+      ExprPtr mem_update_expr = state;
+      for(size_t instIdx = 0; instIdx < ila_ptr_->instr_num(); instIdx ++ ) {
+        auto update_expr = ila_ptr_->instr(instIdx)->update( state->name().str() ); // explicitly use name to index
+        if( !update_expr ) continue; // will not generate state <= state; // no use
+        auto decode_cond = ila_ptr_->instr(instIdx)->decode();
+        mem_update_expr = ExprFuse::Ite(decode_cond, update_expr, mem_update_expr); 
+      } // end for all instructions
+      ParseMemUpdateNode( ExprFuse::BoolConst(true) , mem_update_expr,  state->name().str() );
+      ExportCondWrites( state, current_writes );
+      // done export memory
+    } else {
+      std::string end_else_if; // ""
+      for(size_t instIdx = 0; instIdx < ila_ptr_->instr_num(); instIdx ++ ) {
+        // for all instructions, find their update to the state
+        auto update_expr = ila_ptr_->instr(instIdx)->update( state->name().str() ); // explicitly use name to index
+        if( !update_expr ) continue; // will not generate state <= state; // no use
+
+        ParseNonMemUpdateExpr(update_expr);
+        vlg_name_t result = getVlgFromExpr(update_expr);
+
+        auto decode_name = decodeNames[instIdx];
+        auto grant_name  = grantAccName.first + "[" + toStr(instIdx) + "]";
+
+        add_always_stmt(end_else_if + "if ( " + decode_name + " && " + grantAccName.first + " ) begin" );
+        add_always_stmt("    " + sanitizeName( state ) + " <= " + result + ";" );
+
+        end_else_if = "end else ";
+      }
+      if (end_else_if != "") add_always_stmt("end"); // the final end
+    } // end of memvar/bool/bv
+  } // for all states
+  // we may need to collect the state update function : yes!
+
+  // Func Defs
+  ExportFuncDefs();
 }
 
 
@@ -720,7 +887,7 @@ void VerilogGenerator::ExportTopLevelInstr( const InstrPtr & instr_ptr_ )
   auto ila_ptr_ = instr_ptr_->host();
 
   if (moduleName == "" )
-    moduleName = ila_ptr_->name().str() + "__DOT__" + instr_ptr_->name().str();
+    moduleName = sanitizeName( ila_ptr_->name().str() ) + "__DOT__" + sanitizeName( instr_ptr_->name().str() );
 
   // Inputs
   for (size_t idx = 0; idx != ila_ptr_->input_num(); ++idx)
@@ -728,6 +895,9 @@ void VerilogGenerator::ExportTopLevelInstr( const InstrPtr & instr_ptr_ )
   // States
   for (size_t idx = 0; idx != ila_ptr_->state_num(); ++idx)
     insertState(ila_ptr_->state(idx));
+  // clk, rst
+  add_wire(clkName, 1); add_input(clkName, 1);
+  add_wire(rstName, 1); add_input(rstName, 1);
 
   // add valid signal
   auto valid_ptr = ila_ptr_->valid();
@@ -738,7 +908,7 @@ void VerilogGenerator::ExportTopLevelInstr( const InstrPtr & instr_ptr_ )
   ParseNonMemUpdateExpr(valid_ptr);
   vlg_name_t valid_sig_name = getVlgFromExpr(valid_ptr);
   if (validName == "")
-    validName = "__ILA_" + ila_ptr_->name().str() + "_valid__";
+    validName = "__ILA_" + sanitizeName(ila_ptr_->name().str() ) + "_valid__";
   add_wire  ( validName, 1 );
   add_output( validName, 1 );
   add_assign_stmt( validName, valid_sig_name );
@@ -746,19 +916,16 @@ void VerilogGenerator::ExportTopLevelInstr( const InstrPtr & instr_ptr_ )
   auto decode_ptr = instr_ptr_->decode();
   if(!decode_ptr) {
     decode_ptr = ExprFuse::BoolConst(true);
-    ILA_WARN << "Decode condition for instr: " << instr_ptr_->name().str() <<" is unset";
+    ILA_WARN << "Decode condition for instr: " << (instr_ptr_->name().str()) <<" is unset";
   }
   ParseNonMemUpdateExpr(decode_ptr);
   vlg_name_t decode_sig_name = getVlgFromExpr(decode_ptr);
-  auto decodeName = "__ILA_" + ila_ptr_->name().str() + "_decode_of_" + ( instr_ptr_->name().str() ) + "__";
+  auto decodeName = "__ILA_" + sanitizeName(ila_ptr_->name().str()) + "_decode_of_" + sanitizeName( instr_ptr_->name().str() ) + "__";
   decodeNames.push_back(decodeName);
   add_wire  ( decodeName, 1 );
   add_output( decodeName, 1 );
   add_assign_stmt( decodeName, decode_sig_name );
 
-  // clk, rst
-  add_wire(clkName, 1); add_input(clkName, 1);
-  add_wire(rstName, 1); add_input(rstName, 1);
 
   addInternalCounter( decodeName ); // maybe no need (width = 8)
 
@@ -773,7 +940,7 @@ void VerilogGenerator::ExportTopLevelInstr( const InstrPtr & instr_ptr_ )
     } else { // bv/bool
       ParseNonMemUpdateExpr(update);
       vlg_name_t result = getVlgFromExpr(update);
-      add_always_stmt( var->name().str() + " <= " + result + " ;" );
+      add_ite_stmt( decodeName , sanitizeName( var ) + " <= " + result , "" );
     } // else
   } // for (size_t idx = 0;  ...
 

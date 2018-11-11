@@ -24,16 +24,17 @@ void parseable(const std::string &fname, VerilogGenerator & vgen ) {
 		fout.close();
 	}
 	else 
-		ILA_WARN << "Cannot write tmpfile for vlog gen test.";
+		ILA_WARN << "Cannot write tmpfile:"<< fname<<" for vlog-gen test.";
 
-	std::FILE * fp = std::fopen("./t_proc_Add.v", "r");
+	std::FILE * fp = std::fopen(fname.c_str(), "r");
 	if(fp) {
 		int result = TestParseVerilogFrom(fp);
 		std::fclose(fp);
-		EXPECT_EQ(result, 0);			
+		EXPECT_EQ(result, 0);
+		if(result != 0) ILA_INFO << "ParseErrorFileName = "<<fname;			
 	}
 	else
-		ILA_WARN << "Cannot read tmpfile for vlog gen test.";
+		ILA_WARN << "Cannot read tmpfile:"<< fname<<" for vlog-gen test.";
 }
 #endif
 
@@ -114,8 +115,35 @@ TEST(TestVerilogGen, ParseInst) {
 		vgen.DumpToFile( ILA_DLOG("TestVerilogGen.ParseInst") );
 #endif
 	}
-}
+} // TEST (ParseInst)
 
+TEST(TestVerilogGen, ParseILA) {
+	auto ila_ptr_ = SimpleCpu("proc");
+	// test 1 gen all : internal mem
+	{
+		auto vgen = VerilogGenerator();
+		vgen.ExportIla( ila_ptr_ );
+#ifdef VERILOG_IN_ENABLE
+		parseable( "Testing/Temporary/t_proc_all.v" , vgen);
+#else
+		vgen.DumpToFile( ILA_DLOG("TestVerilogGen.ParseILA") );
+#endif
+	}
+	// test 2 gen all : external mem
+	{
+		auto config = VerilogGenerator::VlgGenConfig( true , VerilogGenerator::VlgGenConfig::funcOption::Internal );
+		auto vgen = VerilogGenerator( config );
+		vgen.ExportIla( ila_ptr_ );
+#ifdef VERILOG_IN_ENABLE
+		parseable( "Testing/Temporary/t_proc_all_extmem.v" , vgen);
+#else
+		vgen.DumpToFile( ILA_DLOG("TestVerilogGen.ParseILA") );
+#endif
+	}
+} // TEST: ParseILA
+TEST(TestVerilogGen, FlattenILA) {
+
+} // TEST: FlattenILA
 
 }; // namespace ila
 

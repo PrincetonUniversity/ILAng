@@ -120,6 +120,13 @@ private:
     vlg_names_t decodeNames;
     /// Output signals that allows to determine if an instruction's valid is true, not need for width
     vlg_name_t  validName;
+    /// An input, that can be used to control which instruction you would like to execute if more than one is ready
+    /// you can assume in JasperGold that: $onehot(grant) && ( grant & decodeAccName == grant )
+    /// to enforce that: you only grant to one and only one instruction whose decode is true.
+    /// another approach is to set grant to all 1s.
+    vlg_sig_t grantAccName;
+    /// accumulated decode signals
+    vlg_sig_t decodeAccName;
     /// The name of internal counter
     vlg_name_t counterName;
     /// vector of input signals
@@ -172,6 +179,10 @@ private:
     vlg_name_t new_id();
     /// if the exprptr contains some meaning in its name, will try to incorporate that to the name;
     vlg_name_t new_id(const ExprPtr & e); 
+    /// sanitize a name string, so it will generate illegal verilog identifier
+    vlg_name_t sanitizeName(const vlg_name_t &n);
+    /// sanitize the name of an expr, so it will generate illegal verilog identifier
+    vlg_name_t sanitizeName(const ExprPtr &n);
 
     /// The id counter
     unsigned idCounter;
