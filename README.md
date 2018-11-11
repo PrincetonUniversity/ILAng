@@ -48,6 +48,7 @@ For developers, implementation details can be found on [ILA-Tools-Impl](https://
 * __A Formal Instruction-Level GPU Model for Scalable Verification__.
   Yue Xing, Bo-Yuan Huang, Aarti Gupta, and Sharad Malik.
   *in* Proceedings of the International Conference On Computer Aided Design. (ICCAD 2018), San Diego, CA. Nov. 2018.
+  [[PDF](https://github.com/Bo-Yuan-Huang/ILA-Tools/blob/master/docs/publications/formal-instruction-level_camera_ready.pdf)]
 
 * __Integrating Memory Consistency Models with Instruction-Level Abstraction for Heterogeneous System-on-Chip Verification__.
   Hongce Zhang, Caroline Trippel, Yatin Manerkar, Aarti Gupta, Margaret Martonosi, and Sharad Malik.
