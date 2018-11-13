@@ -379,6 +379,16 @@ public:
   /// \brief Set the child-program of the instruction.
   /// \param[in] prog the child-ILA representing the child-program.
   void SetProgram(const Ila& prog);
+  
+  
+  // ------------------------- GENERATORS --------------------------------- //
+  /// \brief Export instruction without child-program as Verilog
+  /// \param[in] filename the file name of the generated Verilog source
+  void ExportToVerilog(std::ostream & fout);
+  
+  /// \brief Export instruction with the child-program as Verilog
+  /// \param[in] filename the file name of the generated Verilog source
+  void ExportToVerilogWithChild(std::ostream & fout);
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return the wrapped ILA pointer.
@@ -445,6 +455,11 @@ public:
   /// \brief Declare a child-ILA.
   /// \param[in] name child-ILA name.
   Ila NewChild(const std::string& name);
+  
+  // ------------------------- GENERATORS --------------------------------- //
+  /// \brief Export an ILA as Verilog
+  /// \param[in] filename the file name of the generated Verilog source
+  void ExportToVerilog(std::ostream & fout);
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return the number of input variables.
