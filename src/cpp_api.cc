@@ -445,14 +445,14 @@ void InstrRef::SetUpdate(const ExprRef& state, const ExprRef& update) {
 
 void InstrRef::SetProgram(const Ila& prog) { ptr_->set_program(prog.get()); }
 
-void InstrRef::ExportToVerilog(std::ostream & fout) {
+void InstrRef::ExportToVerilog(std::ostream & fout) const {
 	VerilogGenerator vgen( VerilogGenerator::VlgGenConfig(true) ); // overwrite default configuration : memory is external
 	vgen.ExportTopLevelInstr(ptr_);
 	vgen.DumpToFile(fout);
 }
 
 
-void InstrRef::ExportToVerilogWithChild(std::ostream & fout) {
+void InstrRef::ExportToVerilogWithChild(std::ostream & fout) const {
 	auto dept_ila_ptr = AbsKnob::ExtrDeptModl(ptr_, ptr_->name().str() + "_ila_");
 	AbsKnob::FlattenIla(dept_ila_ptr);
 
@@ -551,7 +551,7 @@ InstrRef Ila::instr(const std::string& name) const {
 
 Ila Ila::child(const std::string& name) const { return Ila(ptr_->child(name)); }
 
-void Ila::ExportToVerilog(std::ostream & fout) {
+void Ila::ExportToVerilog(std::ostream & fout) const {
 	VerilogGenerator vgen( VerilogGenerator::VlgGenConfig(true) ); // overwrite default configuration : memory is external
 	vgen.ExportIla(ptr_);
 	vgen.DumpToFile(fout);

@@ -384,11 +384,11 @@ public:
   // ------------------------- GENERATORS --------------------------------- //
   /// \brief Export instruction without child-program as Verilog
   /// \param[in] filename the file name of the generated Verilog source
-  void ExportToVerilog(std::ostream & fout);
+  void ExportToVerilog(std::ostream & fout) const;
   
   /// \brief Export instruction with the child-program as Verilog
   /// \param[in] filename the file name of the generated Verilog source
-  void ExportToVerilogWithChild(std::ostream & fout);
+  void ExportToVerilogWithChild(std::ostream & fout) const;
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return the wrapped ILA pointer.
@@ -459,7 +459,7 @@ public:
   // ------------------------- GENERATORS --------------------------------- //
   /// \brief Export an ILA as Verilog
   /// \param[in] filename the file name of the generated Verilog source
-  void ExportToVerilog(std::ostream & fout);
+  void ExportToVerilog(std::ostream & fout) const;
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return the number of input variables.
