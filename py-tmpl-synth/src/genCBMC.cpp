@@ -761,10 +761,13 @@ namespace ila
             n->op <= BitvectorOp::Op::EXTRACT) {
             CVar* arg0 = findVar(*_curVarMap, n->arg(0)->getName());
             if (n->op == BitvectorOp::Op::NEGATE) {
+				if( n->arg(0)->type.bitWidth > 64 ) std::cerr<<"W:"<<(n->arg(0)->type.bitWidth)<< " NEGATE " <<std::endl;
                 code = var->use() + " = -" + arg0->signedUse() + ";";
             } else if (n->op == BitvectorOp::Op::COMPLEMENT) {
+				if( n->arg(0)->type.bitWidth > 64 ) std::cerr<<"W:"<<(n->arg(0)->type.bitWidth)<< " COMPLEMENT " <<std::endl;
                 code = var->use() + " = ~" + arg0->use() + ";";
             } else if (n->op == BitvectorOp::Op::LROTATE) {
+				if( n->arg(0)->type.bitWidth > 64 ) std::cerr<<"W:"<<(n->arg(0)->type.bitWidth)<< " LROTATE " <<std::endl;
                 int par0 = n->param(0);
                 int total = var->_width;
                 std::string l = boost::lexical_cast<std::string>(par0);
@@ -778,6 +781,7 @@ namespace ila
                        var->use() + " >> " + r + ")) & " + 
                        getMask(var->_width) + ";";
             } else if (n->op == BitvectorOp::Op::RROTATE) {
+				if( n->arg(0)->type.bitWidth > 64 ) std::cerr<<"W:"<<(n->arg(0)->type.bitWidth)<< " RROTATE " <<std::endl;
                 int par0 = n->param(0);
                 int total = var->_width;
                 std::string r = boost::lexical_cast<std::string>(par0);
@@ -791,12 +795,21 @@ namespace ila
                        var->use() + " >> " + r + ")) & " + 
                        getMask(var->_width) + ";";
             } else if (n->op == BitvectorOp::Op::Z_EXT) {
+				if( n->arg(0)->type.bitWidth > 64 ) std::cerr<<"W:"<<(n->arg(0)->type.bitWidth)<< " Z_EXT(*) " <<std::endl;
+				if( n->type.bitWidth > 64 ) std::cerr<<"W:"<<(n->type.bitWidth)<< " * Z_EXT " <<std::endl;
                 code = var->use() + " = " + arg0->exactUse() + ";";
             } else if (n->op == BitvectorOp::Op::S_EXT) {
+				if( n->arg(0)->type.bitWidth > 64 ) std::cerr<<"W:"<<(n->arg(0)->type.bitWidth)<< " S_EXT(*) " <<std::endl;
+				if( n->type.bitWidth > 64 ) std::cerr<<"W:"<<(n->type.bitWidth)<< " * S_EXT " <<std::endl;
                 code = var->use() + " = " + arg0->signedUse() + ";";
             } else if (n->op == BitvectorOp::Op::EXTRACT) {
+				
                 int msb = n->param(0);
                 int lsb = n->param(1);
+				
+				if( n->arg(0)->type.bitWidth > 64 ) std::cerr<<"W:"<<(n->arg(0)->type.bitWidth)<< " EXTRACT(*) to " << (n->type.bitWidth) <<" " <<msb <<":" <<lsb <<std::endl;
+				if( n->type.bitWidth > 64 ) std::cerr<<"W:"<<(n->arg(0)->type.bitWidth)<< " EXTRACT(*) to " << (n->type.bitWidth) <<" " <<msb <<":" <<lsb <<std::endl;
+				
                 std::string r = boost::lexical_cast<std::string>(lsb);
                 // (x >> r) & 0xfff..(-r)
                 code = var->use() + " = (" + arg0->use() + " >> " + r +
@@ -808,79 +821,116 @@ namespace ila
             CVar* arg0 = findVar(*_curVarMap, n->arg(0)->getName());
             CVar* arg1 = findVar(*_curVarMap, n->arg(1)->getName());
             if (n->op == BitvectorOp::Op::ADD) {
+				if( n->arg(0)->type.bitWidth > 64 ) std::cerr<<"W:"<<(n->arg(0)->type.bitWidth)<< " ADD(L) " <<std::endl;
+				if( n->arg(1)->type.bitWidth > 64 ) std::cerr<<"W:"<<(n->arg(1)->type.bitWidth)<< " ADD(R) " <<std::endl;
                 code = var->use() + " = " + 
                        arg0->use() + " + " + arg1->use() + ";";
                 _curFun->addBody(code);
                 code = var->use() + " = " + var->exactUse() + ";";
             } else if (n->op == BitvectorOp::Op::SUB) {
+				if( n->arg(0)->type.bitWidth > 64 ) std::cerr<<"W:"<<(n->arg(0)->type.bitWidth)<< " SUB(L) " <<std::endl;
+				if( n->arg(1)->type.bitWidth > 64 ) std::cerr<<"W:"<<(n->arg(1)->type.bitWidth)<< " SUB(R) " <<std::endl;
                 code = var->use() + " = " + 
                        arg0->use() + " - " + arg1->use() + ";";
                 _curFun->addBody(code);
                 code = var->use() + " = " + var->exactUse() + ";";
 //                code = getSignedCCode(var);
             } else if (n->op == BitvectorOp::Op::AND) {
+				if( n->arg(0)->type.bitWidth > 64 ) std::cerr<<"W:"<<(n->arg(0)->type.bitWidth)<< " AND(L) " <<std::endl;
+				if( n->arg(1)->type.bitWidth > 64 ) std::cerr<<"W:"<<(n->arg(1)->type.bitWidth)<< " AND(R) " <<std::endl;
                 code = var->use() + " = " + 
                        arg0->use() + " & " + arg1->use() + ";";
             } else if (n->op == BitvectorOp::Op::OR) {
+				if( n->arg(0)->type.bitWidth > 64 ) std::cerr<<"W:"<<(n->arg(0)->type.bitWidth)<< " OR(L) " <<std::endl;
+				if( n->arg(1)->type.bitWidth > 64 ) std::cerr<<"W:"<<(n->arg(1)->type.bitWidth)<< " OR(R) " <<std::endl;
                 code = var->use() + " = " + 
                        arg0->use() + " | " + arg1->use() + ";";
             } else if (n->op == BitvectorOp::Op::XOR) {
+				if( n->arg(0)->type.bitWidth > 64 ) std::cerr<<"W:"<<(n->arg(0)->type.bitWidth)<< " XOR(L) " <<std::endl;
+				if( n->arg(1)->type.bitWidth > 64 ) std::cerr<<"W:"<<(n->arg(1)->type.bitWidth)<< " XOR(R) " <<std::endl;
                 code = var->use() + " = " + 
                        arg0->use() + " ^ " + arg1->use() + ";";
             } else if (n->op == BitvectorOp::Op::XNOR) {
+				if( n->arg(0)->type.bitWidth > 64 ) std::cerr<<"W:"<<(n->arg(0)->type.bitWidth)<< " XNOR(L) " <<std::endl;
+				if( n->arg(1)->type.bitWidth > 64 ) std::cerr<<"W:"<<(n->arg(1)->type.bitWidth)<< " XNOR(R) " <<std::endl;
                 code = var->use() + " = ~(" + 
                        arg0->use() + " ^ " + arg1->use() + ");";
             } else if (n->op == BitvectorOp::Op::NAND) {
+				if( n->arg(0)->type.bitWidth > 64 ) std::cerr<<"W:"<<(n->arg(0)->type.bitWidth)<< " NAND(L) " <<std::endl;
+				if( n->arg(1)->type.bitWidth > 64 ) std::cerr<<"W:"<<(n->arg(1)->type.bitWidth)<< " NAND(R) " <<std::endl;
                 code = var->use() + " = ~(" + 
                        arg0->use() + " & " + arg1->use() + ");";
             } else if (n->op == BitvectorOp::Op::NOR) {
+				if( n->arg(0)->type.bitWidth > 64 ) std::cerr<<"W:"<<(n->arg(0)->type.bitWidth)<< " NOR(L) " <<std::endl;
+				if( n->arg(1)->type.bitWidth > 64 ) std::cerr<<"W:"<<(n->arg(1)->type.bitWidth)<< " NOR(R) " <<std::endl;
                 code = var->use() + " = ~(" + 
                        arg0->use() + " | " + arg1->use() + ");";
             } else if (n->op == BitvectorOp::Op::SDIV) {
+				if( n->arg(0)->type.bitWidth > 64 ) std::cerr<<"W:"<<(n->arg(0)->type.bitWidth)<< " SDIV(L) " <<std::endl;
+				if( n->arg(1)->type.bitWidth > 64 ) std::cerr<<"W:"<<(n->arg(1)->type.bitWidth)<< " SDIV(R) " <<std::endl;
                 code = var->use() + " = " + 
                        arg0->signedUse() + " / " + arg1->signedUse() + ";";
                 _curFun->addBody(code);
                 code = var->use() + " = " + var->exactUse() + ";";
             } else if (n->op == BitvectorOp::Op::UDIV) {
+				if( n->arg(0)->type.bitWidth > 64 ) std::cerr<<"W:"<<(n->arg(0)->type.bitWidth)<< " UDIV(L) " <<std::endl;
+				if( n->arg(1)->type.bitWidth > 64 ) std::cerr<<"W:"<<(n->arg(1)->type.bitWidth)<< " UDIV(R) " <<std::endl;
                 code = var->use() + " = " + 
                        arg0->use() + " / " + arg1->use() + ";";
                 _curFun->addBody(code);
                 code = var->use() + " = " + var->exactUse() + ";";
             } else if (n->op == BitvectorOp::Op::SREM) {
+				if( n->arg(0)->type.bitWidth > 64 ) std::cerr<<"W:"<<(n->arg(0)->type.bitWidth)<< " SREM(L) " <<std::endl;
+				if( n->arg(1)->type.bitWidth > 64 ) std::cerr<<"W:"<<(n->arg(1)->type.bitWidth)<< " SREM(R) " <<std::endl;
                 code = var->use() + " = " + 
                        arg0->use() + " % " + arg1->use() + ";";
                 _curFun->addBody(code);
                 code = var->use() + " = " + var->exactUse() + ";";
             } else if (n->op == BitvectorOp::Op::UREM) {
+				if( n->arg(0)->type.bitWidth > 64 ) std::cerr<<"W:"<<(n->arg(0)->type.bitWidth)<< " UREM(L) " <<std::endl;
+				if( n->arg(1)->type.bitWidth > 64 ) std::cerr<<"W:"<<(n->arg(1)->type.bitWidth)<< " UREM(R) " <<std::endl;
                 code = var->use() + " = " + 
                        arg0->use() + " % " + arg1->use() + ";";
                 _curFun->addBody(code);
                 code = var->use() + " = " + var->exactUse() + ";";
             } else if (n->op == BitvectorOp::Op::SMOD) {
                 // FIXME C++ has no modulo operator, equal to % when positive
+				if( n->arg(0)->type.bitWidth > 64 ) std::cerr<<"W:"<<(n->arg(0)->type.bitWidth)<< " SMOD(L) " <<std::endl;
+				if( n->arg(1)->type.bitWidth > 64 ) std::cerr<<"W:"<<(n->arg(1)->type.bitWidth)<< " SMOD(R) " <<std::endl;
                 code = var->use() + " = " + 
                        arg0->use() + " % " + arg1->use() + ";";
                 _curFun->addBody(code);
                 code = var->use() + " = " + var->exactUse() + ";";
             } else if (n->op == BitvectorOp::Op::SHL) {
+				if( n->arg(0)->type.bitWidth > 64 ) std::cerr<<"W:"<<(n->arg(0)->type.bitWidth)<< " SHL(L) " <<std::endl;
+				if( n->arg(1)->type.bitWidth > 64 ) std::cerr<<"W:"<<(n->arg(1)->type.bitWidth)<< " SHL(R) " <<std::endl;
                 code = var->use() + " = " + 
                        arg0->use() + " << " + arg1->castUse() + ";";
                 _curFun->addBody(code);
                 code = var->use() + " = " + var->exactUse() + ";";
             } else if (n->op == BitvectorOp::Op::LSHR) {
+				if( n->arg(0)->type.bitWidth > 64 ) std::cerr<<"W:"<<(n->arg(0)->type.bitWidth)<< " LSHR(L) " <<std::endl;
+				if( n->arg(1)->type.bitWidth > 64 ) std::cerr<<"W:"<<(n->arg(1)->type.bitWidth)<< " LSHR(R) " <<std::endl;
                 code = var->use() + " = " + 
                        arg0->use() + " >> " + arg1->castUse() + ";";
             } else if (n->op == BitvectorOp::Op::ASHR) {
+				if( n->arg(0)->type.bitWidth > 64 ) std::cerr<<"W:"<<(n->arg(0)->type.bitWidth)<< " ASHR(L) " <<std::endl;
+				if( n->arg(1)->type.bitWidth > 64 ) std::cerr<<"W:"<<(n->arg(1)->type.bitWidth)<< " ASHR(R) " <<std::endl;
                 code = var->use() + " = " + 
                        arg0->signedUse() + " >> " + arg1->castUse() + ";";
                 _curFun->addBody(code);
                 code = var->use() + " = " + var->exactUse() + ";";
             } else if (n->op == BitvectorOp::Op::MUL) {
+				if( n->arg(0)->type.bitWidth > 64 ) std::cerr<<"W:"<<(n->arg(0)->type.bitWidth)<< " MUL(L) " <<std::endl;
+				if( n->arg(1)->type.bitWidth > 64 ) std::cerr<<"W:"<<(n->arg(1)->type.bitWidth)<< " MUL(R) " <<std::endl;
                 code = var->use() + " = " + 
                        arg0->use() + " * " + arg1->use() + ";";
                 _curFun->addBody(code);
                 code = var->use() + " = " + var->exactUse() + ";";
             } else if (n->op == BitvectorOp::Op::CONCAT) {
+				if( n->arg(0)->type.bitWidth > 64 ) std::cerr<<"W:"<<(n->arg(0)->type.bitWidth)<< " CONCAT(L) " <<std::endl;
+				if( n->arg(1)->type.bitWidth > 64 ) std::cerr<<"W:"<<(n->arg(1)->type.bitWidth)<< " CONCAT(R) " <<std::endl;
+				if( n->arg(0)->type.bitWidth + n->arg(1)->type.bitWidth > 64 ) std::cerr<<"W:"<<( n->arg(0)->type.bitWidth + n->arg(1)->type.bitWidth )<< "* CONCAT " <<std::endl;
                 std::string w = boost::lexical_cast<std::string>(arg1->_width);
                 // |arg0| << arg1.width | |arg1|
                 code = var->use() + " = (" + 
@@ -889,15 +939,19 @@ namespace ila
                 _curFun->addBody(code);
                 code = var->use() + " = " + var->exactUse() + ";";
             } else if (n->op == BitvectorOp::Op::GET_BIT) {
+				if( n->arg(0)->type.bitWidth > 64 ) std::cerr<<"W:"<<(n->arg(0)->type.bitWidth)<< " GET_BIT(L) " <<std::endl;
+				if( n->arg(1)->type.bitWidth > 64 ) std::cerr<<"W:"<<(n->arg(1)->type.bitWidth)<< " GET_BIT(R) " <<std::endl;
                 code = var->use() + " = (" + 
                        arg0->use() + " >> " + arg1->castUse() + ") & 0x1;";
             } else if (n->op == BitvectorOp::Op::READMEM) {
+				if( n->arg(1)->type.bitWidth > 64 ) std::cerr<<"W:"<<(n->arg(1)->type.bitWidth)<< " READMEM(addr) " <<std::endl;
                 code = var->use() + " = " + 
                        arg0->use() + "[" + arg1->use() + "];";
             }
         //// Ternary ////
         } else if (n->op == BitvectorOp::READMEMBLOCK) {
             ILA_ASSERT(n->nArgs() == 2, "Two parameters expected.");
+				if( n->arg(1)->type.bitWidth > 64 ) std::cerr<<"W:"<<(n->arg(1)->type.bitWidth)<< " READMEMBLOCK(addr) " <<std::endl;
             CVar* mem = findVar(*_curVarMap, n->arg(0)->getName());
             CVar* addr = findVar(*_curVarMap, n->arg(1)->getName());
             ILA_ASSERT(n->nParams() == 2, "Two parameters expected.");
@@ -957,6 +1011,8 @@ namespace ila
             CVar* arg0 = findVar(*_curVarMap, n->arg(0)->getName());
             CVar* arg1 = findVar(*_curVarMap, n->arg(1)->getName());
             CVar* arg2 = findVar(*_curVarMap, n->arg(2)->getName());
+				if( n->arg(1)->type.bitWidth > 64 ) std::cerr<<"W:"<<(n->arg(1)->type.bitWidth)<< " IF(L) " <<std::endl;
+				if( n->arg(2)->type.bitWidth > 64 ) std::cerr<<"W:"<<(n->arg(2)->type.bitWidth)<< " IF(R) " <<std::endl;
             code = var->use() + " = (" + arg0->use() + ") ? " +
                    arg1->use() + " : " + arg2->use() + ";";
         } else if (n->op == BitvectorOp::Op::APPLY_FUNC) {
@@ -964,6 +1020,7 @@ namespace ila
             std::vector<CVar*> argVec;
             for (unsigned i = 1; i != n->nArgs(); i++) {
                 CVar* arg = findVar(*_curVarMap, n->arg(i)->getName());
+				if( n->arg(i)->type.bitWidth > 64 ) std::cerr<<"W:"<<(n->arg(0)->type.bitWidth)<< " APPLY_FUNC(" << i << ") " <<std::endl;
                 argVec.push_back(arg);
             }
             code = var->use() + " = " + fun->use() + "(";

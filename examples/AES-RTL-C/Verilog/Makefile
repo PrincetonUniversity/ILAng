@@ -5,36 +5,37 @@ VERILOG_TOP = simXramAes_top.v
 CXX_SRC = simulateAES.cpp
 EXEC = AESsim
 
-
-IDIR = /usr/local/share/verilator/include/
+IDIR = /usr/share/verilator/include
 LOCAL_IDIR = obj_dir
+
+VERILATOR_SRC = $(IDIR)/verilated.cpp
 CFLAGS = -I $(IDIR) -I $(LOCAL_IDIR) -Wall -O3
 
 CXX_OBJ = $(CXX_SRC:.cpp=.o)
+VXX_OBJ = verilated.o
 VERILOG_MK = $(VERILOG_TOP:.v=.mk)
 VERILOG_LIB = $(VERILOG_TOP:.v=__ALL.a)
 
-$(EXEC):verilogcxx $(CXX_OBJ) 
-	$(CC) $(CXX_OBJ) verilated.o $(LOCAL_IDIR)/V$(VERILOG_LIB) -o $@
-	cp $@ ../
-
-verilated.o:$(CXX_OBJ)
+$(EXEC):verilogcxx $(CXX_OBJ) $(VXX_OBJ)
+	$(CC) $(CXX_OBJ) $(VXX_OBJ) $(LOCAL_IDIR)/V$(VERILOG_LIB) -o $@
+	cp $@ ..
 
 clean:
 	-rm -r -f $(LOCAL_IDIR)
-	-rm -f $(EXE)
-	-rm	-f $(CXX_OBJ)
+	-rm -f $(EXEC)
+	-rm	-f $(CXX_OBJ) $(VXX_OBJ)
 	-rm -f sim
-	-rm -f AESsim
-	-rm -f ../AESsim
+	-rm -f ../$(EXEC)
 	-rm -f *~
-	
+
+$(VXX_OBJ):
+	$(CC) $(CFLAGS) -c $(VERILATOR_SRC)
+
 .cpp.o:
 	$(CC) $(CFLAGS) -c $<
-	make -C $(LOCAL_IDIR) -j -f V$(VERILOG_MK) ../$@ verilated.o
 
 
-verilogcxx: $(VERILOG_SRC)
+verilogcxx: $(VERILOG_SRC) 
 	$(VCC) -Wall --cc $^
 	make -C $(LOCAL_IDIR) -j -f V$(VERILOG_MK) V$(VERILOG_LIB)
 

@@ -61,6 +61,7 @@ class EQCheck:
                 print 'It is valid.'
 
     def InductiveStep(self,bound1,bound2, inv1,inv2,invCross):
+        checkRsFlag = True
         ## For abs 1
         u1 = self.a1.newUnroller(self.ua1,setInitCondition = False)
 
@@ -72,11 +73,12 @@ class EQCheck:
         for inv in inv1:
             u1.addAssumption(inv)
 
+        print 'Unrolling...'
         u1.unrollTo(bound1)
         u1.addAssumption( self.ua1.fetch_valid )
         for idx,inv in enumerate(inv1):
-            print invStr + ' -> ' + '$%d' % (idx)
-            u1.checkAssertion(inv)
+            print 'Checking', invStr + ' -> ' + '$%d' % (idx),'...'
+            checkRsFlag = checkRsFlag and u1.checkAssertion(inv)
 
         ## For abs 2
         print 'Checking invariants:'
@@ -88,10 +90,11 @@ class EQCheck:
         for inv in inv2:
             u2.addAssumption(inv)
 
+        print 'Unrolling...'
         u2.unrollTo(bound2)
         u2.addAssumption( self.ua2.fetch_valid )
         for idx,inv in enumerate(inv2):
-            print invStr + ' -> ' + '$%d' % (idx)
+            print 'Checking', invStr + ' -> ' + '$%d' % (idx),'...'
             if u2.checkAssertion(inv) == False:
                 print 'Fail!'
                 return False
@@ -105,8 +108,13 @@ class EQCheck:
                 print 'left.{n1} = right.{n2}  --/-->  left.{n1} = right.{n2}'.format (n1=n1,n2=n2)
                 return False
 
+        return checkRsFlag
+
+
+
     def Exit(self,bound1,bound2, a1,a2,c1,c2,CrossAssumpt, CrossConclusion):
         ## For abs 1
+        checkRsFlag = True
         u1 = self.a1.newUnroller(self.ua1,setInitCondition = False)
 
         print 'Assuming:'
@@ -116,14 +124,15 @@ class EQCheck:
 
         for inv in a1:
             u1.addAssumption(inv)
-
+        
+        print 'Unrolling...'
         u1.unrollTo(bound1)
         u1.addAssumption( ~ self.ua1.fetch_valid )
-        print 'And also: micro-prog ends $$: ', ~ self.ua1.fetch_valid
+        print 'And also micro-program terminates: ', ~ self.ua1.fetch_valid
 
         for idx,cond in enumerate(c1):
             print invStr + ' -> ' + str(cond)
-            u1.checkAssertion(cond)
+            checkRsFlag = checkRsFlag and u1.checkAssertion(cond)
 
         ## For abs 2
         u2 = self.a2.newUnroller(self.ua2,setInitCondition = False)
@@ -141,7 +150,7 @@ class EQCheck:
 
         for idx,cond in enumerate(c2):
             print invStr + ' -> ' + str(cond)
-            u2.checkAssertion(cond)
+            checkRsFlag = checkRsFlag and u2.checkAssertion(cond)
 
         ## Cross 
         CrossAssumptList = []
@@ -152,5 +161,9 @@ class EQCheck:
             ila.setloglevel(3,"info.txt")
             if ila.eqcheck(u1,u2,n1,n2,assumption = CrossAssumptList) == False:
                 print 'left.{n1} = right.{n2}  --/-->  left.{n1} = right.{n2}'.format (n1=n1,n2=n2)
+                checkRsFlag = False
             else:
-                print 'left.{n1} = right.{n2}  ==>>  left.{n1} = right.{n2}'.format (n1=n1,n2=n2)
+                print 'left.{n1} = right.{n2}  ==>>  left.{n1} = right.{n2},  is valid'.format (n1=n1,n2=n2)
+
+        return checkRsFlag
+

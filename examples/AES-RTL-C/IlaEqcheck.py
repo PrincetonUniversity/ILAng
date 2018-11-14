@@ -61,14 +61,16 @@ def Checking():
         )
 
     print '##### INDUCTIVE STEP #####'
-    eq.InductiveStep(34,4,
+    r = \
+        eq.InductiveStep(34,4,
         inv1 = inductiveInvariant_Vlg,
         inv2 = inductiveInvariant_C,
         invCross = [('blk_cnt','blk_cnt'), ('uaes_ctr','uaes_ctr')]
         )
     
     print '##### EXIT STEP #####'
-    eq.Exit(34,4,
+    r = r and \
+        eq.Exit(34,4,
         a1 = inductiveInvariant_Vlg,
         a2 = inductiveInvariant_C,
         c1 = [],
@@ -76,6 +78,11 @@ def Checking():
         CrossAssumpt = [('blk_cnt','blk_cnt'), ('uaes_ctr','uaes_ctr')],
         CrossConclusion = [ ('aes_state','aes_state') , ('enc_data','enc_data')]
         )
+
+    if r:
+        print 'Equivalence between "' + vILA.name + '" and "' + cILA.name + '" holds.' 
+    else:
+        print  ILA.name, 'and' , cILA.name, 'are not equivalent.' 
 
 
 if __name__ == '__main__':

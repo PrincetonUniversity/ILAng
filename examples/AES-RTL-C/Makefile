@@ -3,6 +3,7 @@ clean:
 	-rm -f *~
 	-rm -f cILA/*
 	-rm -f vILA/*
+	-rm -f CVerify
 	-rm -f AESsim
 	-rm -f C/Cinst.c
 	-rm -f C/test

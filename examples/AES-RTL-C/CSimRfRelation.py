@@ -40,7 +40,7 @@ def buildRefMap(Cinfo, refSimSp, PCstate):
 		instDecode = ILA.AnyInstruction , # any instruction {}
 		CInstSet = Cinfo.Sep(begin = '@_ILA_aes_top_0', end = Cinfo.ANY) , 
 		varMap = [ ('@_ILA_aes_top_0',aesVarMap) ]
-	) 
+	)
 	
 	refSimSp.setCondition(
 		level = 'aes_compute',
