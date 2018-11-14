@@ -1,0 +1,62 @@
+{
+  "target ILA": "vlg-gen/alu.v:simpeALU",
+  "target Verilog": "verilog/simple_alu.v:pipeline_alu",
+
+  "global invariants": [ 
+    "(! (m1.reg_0_w_stage == 2'b00 ) ) ||  ( ( m1.id_ex_reg_wen == 0 || m1.id_ex_rd != 2'd0 ) && ( m1.ex_wb_reg_wen == 0 || m1.ex_wb_rd != 2'd0 ) )",
+    "(! (m1.reg_1_w_stage == 2'b00 ) ) ||  ( ( m1.id_ex_reg_wen == 0 || m1.id_ex_rd != 2'd1 ) && ( m1.ex_wb_reg_wen == 0 || m1.ex_wb_rd != 2'd1 ) )",
+    "(! (m1.reg_2_w_stage == 2'b00 ) ) ||  ( ( m1.id_ex_reg_wen == 0 || m1.id_ex_rd != 2'd2 ) && ( m1.ex_wb_reg_wen == 0 || m1.ex_wb_rd != 2'd2 ) )",
+    "(! (m1.reg_3_w_stage == 2'b00 ) ) ||  ( ( m1.id_ex_reg_wen == 0 || m1.id_ex_rd != 2'd3 ) && ( m1.ex_wb_reg_wen == 0 || m1.ex_wb_rd != 2'd3 ) )",
+    
+    "(! (m1.reg_0_w_stage == 2'b10 ) ) ||  ( ( m1.id_ex_reg_wen == 1 && m1.id_ex_rd == 2'd0 ) && ( m1.ex_wb_reg_wen == 0 || m1.ex_wb_rd != 2'd0 ) )",
+    "(! (m1.reg_1_w_stage == 2'b10 ) ) ||  ( ( m1.id_ex_reg_wen == 1 && m1.id_ex_rd == 2'd1 ) && ( m1.ex_wb_reg_wen == 0 || m1.ex_wb_rd != 2'd1 ) )",
+    "(! (m1.reg_2_w_stage == 2'b10 ) ) ||  ( ( m1.id_ex_reg_wen == 1 && m1.id_ex_rd == 2'd2 ) && ( m1.ex_wb_reg_wen == 0 || m1.ex_wb_rd != 2'd2 ) )",
+    "(! (m1.reg_3_w_stage == 2'b10 ) ) ||  ( ( m1.id_ex_reg_wen == 1 && m1.id_ex_rd == 2'd3 ) && ( m1.ex_wb_reg_wen == 0 || m1.ex_wb_rd != 2'd3 ) )",
+    
+    "(! (m1.reg_0_w_stage == 2'b11 ) ) ||  ( ( m1.id_ex_reg_wen == 1 && m1.id_ex_rd == 2'd0 ) && ( m1.ex_wb_reg_wen == 1 && m1.ex_wb_rd == 2'd0 ) )",
+    "(! (m1.reg_1_w_stage == 2'b11 ) ) ||  ( ( m1.id_ex_reg_wen == 1 && m1.id_ex_rd == 2'd1 ) && ( m1.ex_wb_reg_wen == 1 && m1.ex_wb_rd == 2'd1 ) )",
+    "(! (m1.reg_2_w_stage == 2'b11 ) ) ||  ( ( m1.id_ex_reg_wen == 1 && m1.id_ex_rd == 2'd2 ) && ( m1.ex_wb_reg_wen == 1 && m1.ex_wb_rd == 2'd2 ) )",
+    "(! (m1.reg_3_w_stage == 2'b11 ) ) ||  ( ( m1.id_ex_reg_wen == 1 && m1.id_ex_rd == 2'd3 ) && ( m1.ex_wb_reg_wen == 1 && m1.ex_wb_rd == 2'd3 ) )",
+    
+    "(! (m1.reg_0_w_stage == 2'b01 ) ) ||  ( ( m1.id_ex_reg_wen == 0 || m1.id_ex_rd != 2'd0 ) && ( m1.ex_wb_reg_wen == 1 && m1.ex_wb_rd == 2'd0 ) )",
+    "(! (m1.reg_1_w_stage == 2'b01 ) ) ||  ( ( m1.id_ex_reg_wen == 0 || m1.id_ex_rd != 2'd1 ) && ( m1.ex_wb_reg_wen == 1 && m1.ex_wb_rd == 2'd1 ) )",
+    "(! (m1.reg_2_w_stage == 2'b01 ) ) ||  ( ( m1.id_ex_reg_wen == 0 || m1.id_ex_rd != 2'd2 ) && ( m1.ex_wb_reg_wen == 1 && m1.ex_wb_rd == 2'd2 ) )",
+    "(! (m1.reg_3_w_stage == 2'b01 ) ) ||  ( ( m1.id_ex_reg_wen == 0 || m1.id_ex_rd != 2'd3 ) && ( m1.ex_wb_reg_wen == 1 && m1.ex_wb_rd == 2'd3 ) )"
+  ],
+
+  "instructions": [
+    {
+      "instruction": "NOP",
+      "start decode": [], 
+      "ready signal": [],  
+      "ready bound": 3,
+
+      "flush constraint": []
+    },
+    {
+      "instruction": "ADD",
+      "start decode": [], 
+      "ready signal": [],  
+      "ready bound": 3,
+
+      "flush constraint": []
+    },
+    {
+      "instruction": "SUB",
+      "start decode": [], 
+      "ready signal": [],  
+      "ready bound": 3,
+
+      "flush constraint": []
+    },
+    {
+      "instruction": "AND",
+      "start decode": [],
+      "ready signal": [],
+      "ready bound": 3,
+
+      "flush constraint": []
+    }
+  ]
+}
+
