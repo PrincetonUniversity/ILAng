@@ -28,65 +28,38 @@ be connected through memory-mapped IO, it is assigned to the following address s
 File Content
 -------------------
 
-* C                     : C code for AES Encryption
+* C                     : C implementation for AES block encryption
   * AES.h               : Header of AES computation
   * mmio.h              : Header of memory mapped IO interface 
   * AES_CTR_TOP.c       : Top module of C module
-* Verilog
+* Verilog               : Verilog code for AES Block encryption implementation
   * aes_top.v           : Top module of Verilog
-  * simulateAES.hpp     :
+  * simulateAES.hpp     : Simulator wrapper (header)
   * simulateAES.cpp     : Simulator wrapper
 * CSimRfRelation.py     : Refinement relation for C implementation
 * VSimRfRelation.py     : Refinement relation for Verilog implementation
-* CTemplate.py          : ILA template for C implementation
-* VTemplate.py          : ILA template for Verilog implementation
+* CRound.py             : ILA template for C implementation (round-level)
+* CTemplate.py          : ILA template for C implementation (block-level)
+* VRound.py             : ILA template for Verilog implementation (round-level)
+* VTemplate.py          : ILA template for Verilog implementation (block-level)
 * syn_C.py              : Script for synthesize ILA from C 
 * syn_Vlg.py            : Script for synthesize ILA from Verilog
-* EQCheckLib.py         : Providing functions to check inductive invariants
-* EQcheck.py            : Tactics for proving equivalence
+* EQCheckLib.py         : Providing interface to ILA equivalence checking utilities
+* IlaEqcheck.py         : Script for checking equivalence
 
-
-Commands for running the example
----------------------------------
-
-First, compile the Verilog Simulator.
-		
-		cd Verilog
-		make
-
-This will generate the simulator named `AESsim` and save a copy on the 
-parent directory.
-
-Then, synthesize ILA from Verilog.
-
-		cd ..
-		python syn_Vlg.py
-		
-Now, in the subfolder `vILA`, there will be files each named by a state
-storing the state update function. There are also two extra file called
-`all` and `allu`. They are the complete ILA model for all instructions
-and micro-instructions.
-
-Next, let's synthesize ILA from C.
-
-		python syn_C.py
-
-Now `cILA` folder should contain the ILA we got from C implementation.
-
-Equivalence checking
-		python EQcheck.py
 
 
 Behavorial Equivalence Checking
 ---------------------------------
 
-The behavorial equivalence checking here tries to prove (or disprove)
-that the instructions on the two ILA models are equivalent, meaning
-the updates to architectural states are matched. The two implementations
-share the same number of architectural states, but they are different
-in the microarchitectural states. The two ILAs also differ in the 
-micro-instructions. Or in other words, they have different implementations
-of the AES block encryption.
+The behavorial equivalence is
+at a higher level than combinational or sequential equivalence checking. 
+The checking here tries to prove (or disprove) that the instructions on 
+the two ILA models are equivalent, meaning the updates to architectural 
+states are matched. The two implementations share the same number of 
+architectural states, but they are different in the microarchitectural 
+states. The two ILAs also differ in the micro-instructions. Or in other 
+words, they have different implementations of the AES block encryption.
 
 Because microarchitectural state update are invisible, they can be
 put together (or in other words, unrolled) to get the final visible update
@@ -149,7 +122,66 @@ The C code, some labels can be used. Labels are in the following format: `//##LA
 where `...` should be replaced by its name. For one label, it can be placed in multiple places in
 the source code.
 
+	
+	
 
-	
-	
-	
+Instructions
+-------------------
+
+   1. After sucessfully installing ILAng, open a new terminal and run the following command  
+      ```
+      cd <ILAROOT>/examples/AES-RTL-C
+      ```
+
+      This will land you in the directory of the AES case study.
+       
+      NOTE:
+         * For the template for AES_C (block-level), you can look into `CTemplate.py`
+         * For the template for AES_C (round-level), you can refer to `CRound.py` 
+         * The refinement relations is rewritten in `CSimRfRelation.py`
+           It is similar for AES_V, except the file names start with a letter `V`. 
+         * If you have further questions about how to write a template, 
+           you can refer to the following documentation: 
+           `<ILAROOT>/docs/ILA_Tutorial_Template_Synthesis_Verification.pdf` and
+           `<ILAROOT>/docs/ILA_User_Manual.pdf`.
+    
+   2. To synthesize ILA from a Verilog implementation, first run:
+      ```
+      cd Verilog
+      make
+      ```
+      
+      This step requires you to have verilator installed, we tested with "Verilator 3.916 2017-11-25 rev verilator_3_914-65-g0478dbd", which is provided by package "verilator 3.916-1build1" on Ubuntu 18.04 LTS.
+
+      This step will build a simulator from the Verilog design provided in the `Verilog` 
+      directory, the simulator is an executable named `AESsim` 
+        
+      Then start ILA synthesis using the following commands:
+      
+      ```
+      cd ..
+      time python syn_Vlg.py
+      ```
+        
+      The synthesis algorithm will query the simulator and use the outcome to figure
+      out the holes in the template. The generated ILA intemediate representation (IR)
+      will be stored under folder `vILA`.
+        
+   3. Next, let's synthesize ILA from a C implementation (under folder `$ILAROOT/examples/AES-RTL-C/C`). Run
+      ```  
+      time python syn_C.py
+      ```
+            
+      To start synthesis. The synthesis process will automatically instrument the C
+      code to generate a simulator. After synthesis completes, the ILA-IR will be stored
+      in folder `cILA`.
+    
+   4. Behavioral equivalence checking. With the ILA-IR for both AES_V and AES_C generated, run
+      ```
+      time python IlaEqcheck.py -v vILA -c cILA
+      ```
+            
+      This script will use the ILA equivalence checking utilities to check for behavioral equivalence.
+      If no discrepency between the two models is found, the tool will report that 
+      the equivalence holds.
+       

@@ -108,16 +108,8 @@ def buildTemplate():
         aes.set_next('debug', Lto32(dvar))
 
     byte0 = ila.const(0,8)
-
-    key0 = aes.reg('in_key0',32)
-    key1 = aes.reg('in_key1',32)
-    key2 = aes.reg('in_key2',32)
-    key3 = aes.reg('in_key3',32)
-
-    state0 = aes.reg('state0',32)
-    state1 = aes.reg('state1',32)
-    state2 = aes.reg('state2',32)
-    state3 = aes.reg('state3',32)
+    key0   = aes.reg('in_key0',32); key1 = aes.reg('in_key1',32); key2 = aes.reg('in_key2',32); key3 = aes.reg('in_key3',32)
+    state0 = aes.reg('state0',32); state1 = aes.reg('state1',32); state2 = aes.reg('state2',32); state3 = aes.reg('state3',32)
 
     debug = aes.reg('debug',32)
 
@@ -134,15 +126,9 @@ def buildTemplate():
     [k0,k1,k2,k3] = [key0,key1,key2,key3]
     stateL = [state0,state1,state2,state3]
     
-    stateL[0] = ila.ite(i==1, stateL[0] ^ k0, stateL[0] )
-    stateL[1] = ila.ite(i==1, stateL[1] ^ k1, stateL[1] )
-    stateL[2] = ila.ite(i==1, stateL[2] ^ k2, stateL[2] )
-    stateL[3] = ila.ite(i==1, stateL[3] ^ k3, stateL[3] )
+    stateL[0] = ila.ite(i==1, stateL[0] ^ k0, stateL[0] );  stateL[1] = ila.ite(i==1, stateL[1] ^ k1, stateL[1] );   stateL[2] = ila.ite(i==1, stateL[2] ^ k2, stateL[2] );  stateL[3] = ila.ite(i==1, stateL[3] ^ k3, stateL[3] )
 
-    k0 = _32toL(key0)
-    k1 = _32toL(key1)
-    k2 = _32toL(key2)
-    k3 = _32toL(key3)
+    k0 = _32toL(key0); k1 = _32toL(key1); k2 = _32toL(key2); k3 = _32toL(key3)
     for idx in range(4):
         stateL[idx] = _32toL(stateL[idx])
 
@@ -157,10 +143,7 @@ def buildTemplate():
     j = j ^ ( (j>>8)&ila.const(0x1b,32) )
     rcon = j[7:0] # set next ?
 
-    k0 = xor(k0, tempL)
-    k1 = xor(k1, k0)
-    k2 = xor(k2, k1)
-    k3 = xor(k3, k2)
+    k0 = xor(k0, tempL); k1 = xor(k1, k0); k2 = xor(k2, k1);  k3 = xor(k3, k2)
 
     z0 = k0[:]; z1 = k1[:]; z2 = k2[:]; z3 = k3[:]
     bList = stateL[0] # this is a list
@@ -184,44 +167,20 @@ def buildTemplate():
     pListWord = table_lookup(bList, tab, byte0)
     rot(pListWord)
 
-    stateL[0] = xor(z0, pListWord[3])
-    stateL[1] = xor(z1, pListWord[2])
-    stateL[2] = xor(z2, pListWord[1])
-    stateL[3] = xor(z3, pListWord[0])
-
-    stateL[0] = Lto32(stateL[0])
-    stateL[1] = Lto32(stateL[1])
-    stateL[2] = Lto32(stateL[2])
-    stateL[3] = Lto32(stateL[3])
-
-    k0 = Lto32(k0)
-    k1 = Lto32(k1)
-    k2 = Lto32(k2)
-    k3 = Lto32(k3)
+    stateL[0] = xor(z0, pListWord[3]); stateL[1] = xor(z1, pListWord[2]);  stateL[2] = xor(z2, pListWord[1]);   stateL[3] = xor(z3, pListWord[0])
+    stateL[0] = Lto32(stateL[0]); stateL[1] = Lto32(stateL[1]);  stateL[2] = Lto32(stateL[2]);  stateL[3] = Lto32(stateL[3])
+    k0 = Lto32(k0); k1 = Lto32(k1); k2 = Lto32(k2); k3 = Lto32(k3)
 
     # set next to stateList
 
-    aes.set_next('state0', stateL[0] )
-    aes.set_next('state1', stateL[1] )
-    aes.set_next('state2', stateL[2] )
-    aes.set_next('state3', stateL[3] )
+    aes.set_next('state0', stateL[0] ); aes.set_next('state1', stateL[1] ); aes.set_next('state2', stateL[2] );  aes.set_next('state3', stateL[3] )
 
     aes.set_next('i', i+1 )
     aes.set_next('rcon', rcon)
 
-    aes.set_next('in_key0', k0 )
-    aes.set_next('in_key1', k1 )
-    aes.set_next('in_key2', k2 )
-    aes.set_next('in_key3', k3 )
+    aes.set_next('in_key0', k0 ); aes.set_next('in_key1', k1 ); aes.set_next('in_key2', k2 ); aes.set_next('in_key3', k3 )
 
     aes.set_next('debug',debug);
     aes.set_next('table', table0);
     return aes
 
-def main():
-    aes = buildTemplate()
-    aes.generateCbmcC('cbmcAes.c')
-
-
-if __name__ == '__main__':
-    main()

@@ -1,44 +1,73 @@
 #!/usr/bin/python
-
+import os
+import argparse
 import ila
 import EqCheckLib
 
-def loadILAs():
+def checkPath(pathname):
+    if not os.path.exists(pathname):
+        print pathname,'does not exists!'
+        return False
+    if not os.path.isdir(pathname):
+        print pathname,'is not a directory'
+        return False
+    if not os.path.exists(os.path.join(pathname, 'all')):
+        print pathname,'does not contain an ILA-IR'
+        return False
+    if not os.path.exists(os.path.join(pathname, 'allu')):
+        print pathname,'does not a complete ILA-IR'
+        return False
+    return True
+    
+
+def loadILAs(vname,cname):
     vILA = ila.Abstraction('vaes')
-    vILA.importAll('vILA/all')
+    vILA.importAll(os.path.join(vname, 'all') )
     vuILA = vILA.get_microabstraction('aes_compute')
-    vuILA.importAll('vILA/allu')
+    vuILA.importAll(os.path.join(vname, 'allu'))
     
     cILA = ila.Abstraction('caes')
-    cILA.importAll('cILA/all')
+    cILA.importAll(os.path.join(cname, 'all') )
     cuILA = cILA.get_microabstraction('aes_compute')
-    cuILA.importAll('cILA/allu')
+    cuILA.importAll(os.path.join(cname, 'allu') )
 
     return (vILA,vuILA,cILA,cuILA)
 
-def Checking():
-    (vILA,vuILA,cILA,cuILA) = loadILAs()
+def Checking(vname,cname):
+    (vILA,vuILA,cILA,cuILA) = loadILAs(vname, cname)
     eq = EqCheckLib.EQCheck(vILA,vuILA,cILA,cuILA)
+    
+    try:
+        cmd_Vlg           = vuILA.getinp('cmd')
+        cmdaddr_Vlg       = vuILA.getinp('cmdaddr')
+        cmddata_Vlg       = vuILA.getinp('cmddata')
+        aes_state_Vlg     = vuILA.getreg('aes_state')
+        byte_cnt_Vlg      = vuILA.getreg('byte_cnt') 
+        blk_cnt_Vlg       = vuILA.getreg('blk_cnt') 
+        oped_byte_cnt_Vlg = vuILA.getreg('oped_byte_cnt')
+        uaes_ctr_Vlg      = vuILA.getreg('uaes_ctr')
+        aes_len_Vlg       = vuILA.getreg('aes_len')
+        
 
-    cmd_Vlg           = vuILA.getinp('cmd')
-    cmdaddr_Vlg       = vuILA.getinp('cmdaddr')
-    cmddata_Vlg       = vuILA.getinp('cmddata')
-    aes_state_Vlg     = vuILA.getreg('aes_state')
-    byte_cnt_Vlg      = vuILA.getreg('byte_cnt') 
-    blk_cnt_Vlg       = vuILA.getreg('blk_cnt') 
-    oped_byte_cnt_Vlg = vuILA.getreg('oped_byte_cnt')
-    uaes_ctr_Vlg      = vuILA.getreg('uaes_ctr')
-    aes_len_Vlg       = vuILA.getreg('aes_len') 
-
-
-    cmd_C             = cuILA.getinp('cmd')
-    cmdaddr_C         = cuILA.getinp('cmdaddr')
-    cmddata_C         = cuILA.getinp('cmddata')
-    aes_state_C       = cuILA.getreg('aes_state')
-    aes_ctr_C         = cuILA.getreg('aes_ctr')
-    uaes_ctr_C        = cuILA.getreg('uaes_ctr')
-    blk_cnt_C         = cuILA.getreg('blk_cnt') 
-    aes_len_C         = cuILA.getreg('aes_len') 
+        cmd_C             = cuILA.getinp('cmd')
+        cmdaddr_C         = cuILA.getinp('cmdaddr')
+        cmddata_C         = cuILA.getinp('cmddata')
+        aes_state_C       = cuILA.getreg('aes_state')
+        aes_ctr_C         = cuILA.getreg('aes_ctr')
+        uaes_ctr_C        = cuILA.getreg('uaes_ctr')
+        blk_cnt_C         = cuILA.getreg('blk_cnt') 
+        aes_len_C         = cuILA.getreg('aes_len')
+    except IndexError:
+        print 'Error: ILA does not match refinement relations'
+        exit(1)
+        
+    
+    try:
+        cuILA.getreg('oped_byte_cnt')
+        print 'Error: ILA does not match refinement relations'
+        exit(1)
+    except IndexError:
+        pass
 
     inductiveInvariant_Vlg = [  vuILA.fetch_valid , 
                                 ( aes_state_Vlg == 1 ) & ( byte_cnt_Vlg == 0) , 
@@ -82,9 +111,20 @@ def Checking():
     if r:
         print 'Equivalence between "' + vILA.name + '" and "' + cILA.name + '" holds.' 
     else:
-        print  ILA.name, 'and' , cILA.name, 'are not equivalent.' 
+        print  vILA.name, 'and' , cILA.name, 'are not equivalent.' 
 
 
 if __name__ == '__main__':
-    #ila.enablelog("Unroller")
-    Checking()
+    parser = argparse.ArgumentParser(description='ILA Equivalence Checking Helper')
+    parser.add_argument('-v', type = str, help = 'ILA AST from Verilog', default="vILA")
+    parser.add_argument('-c', type = str, help = 'ILA AST from C', default='cILA')
+    args = parser.parse_args()
+    if not args.v or not checkPath(args.v):
+        print 'Incorrect path', args.v,' for ILA AST from Verilog'
+        exit(1)
+    
+    if not args.c or not checkPath(args.c):
+        print 'Incorrect path', args.c,' for ILA AST from C'
+        exit(1)
+        
+    Checking(args.v, args.c)

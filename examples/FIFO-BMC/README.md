@@ -49,3 +49,31 @@ read pointer steps by one (aka, read when empty)
 The overflow property is equivalent to LTL:  G !( full /\ wptr == c /\ X ( wptr == c + 1)  ),
 It says there should not be the case that the fifo is full and write pointer steps by one 
 (aka, write when empty)
+
+
+ 
+Instructions
+-----------------
+
+  1. Change directory to the folder that contains the design. In a terminal, type
+     ```
+     cd <ILAROOT>/examples/FIFO-BMC
+     ```
+
+  2. Compile the code, run
+     ```
+     make
+     ```
+     This will create an executable named `fifo-bmc`
+
+  3. Run BMC to check the property. Run 
+     ```
+     ./fifo-bmc N
+     ```
+     where `N` is the bound, and it should be a positive integer, for example.
+     ```
+     ./fifo-bmc 20
+     ```
+     You will find that, if you set `N` to be smaller than or equal to the configured FIFO depth (which is 16 by default), BMC will not find that the `FIFO without protection` can overflow, though it can always find it can underflow. This is understandable, because to trigger the overflow, there has to be at least #Depth+1 (ie. 17) Enqueue operations whereas underflow can be triggered just be a Dequeue operation in the first step, when the FIFO is initiallly empty.
+
+              

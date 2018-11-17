@@ -99,3 +99,69 @@ of the solver, and it is capable of performaing Bounded Model Checking (BMC).
 
 
 
+#### Instructions ####
+
+   1. After sucessfully installing ILAng, open a new terminal. Run  
+      ```
+      cd <ILAROOT>/examples/Simple-Pipe
+      ```
+        
+      This will land you in the directory of the simple pipeline case study.
+      In this directory, there is a README.md that gives an overview of this case
+      study. 
+
+
+   2. Construct the ILA and generate Verilog model from ILA. Run
+      ```
+      make
+      ./main
+      ```
+      
+      This will compile the C++ code under `ila` directory. This piece
+      of C++ code constructs ILA-IR by calling its C++ API and use the
+      ILAng functionality to generate a Verilog module (`vlg-gen/pipe.v`) 
+      for equivalence checking.
+
+      The ILA constructed by C++ code does not contain the 
+      information of microarchitectural details (e.g., # of pipeline stages,
+      scoreboard or forwarding network), because these are micro-architectural.
+      The ILA constructed here, is a specification that only requires
+      the correct execution of instructions according to the state update
+      functions definitions. So is the Verilog code (`vlg-gen/pipe.v`),
+      which also contains no pipelines. The behavior equivalence checking
+      is to check functional equivalence while allowing flexibility in 
+      specific implementations.
+      
+      To reproduce the result of equivalence checking, run
+      ```
+      time python vlg-verif.py -v verilog/simple_pipe.v -i vlg-gen/pipe.v
+      ```
+      
+      The equivalence checking will first parse in the refinement relations,
+      and decides the verification tasks. For each verification task, it
+      will first generate a verification wrapper (`vlg-gen/all.v`), and calls
+      yosys to parse the wrapper and produce a SMT-LIB2 file for SMT queries.
+      The verification tasks contains (a) verifying the given inductive invariants,
+      and (b) verifying the equivalence of each instruction assuming the invariants
+      given are valid. A more detailed explanantion of what the inductive
+      invariants specify can be found in `$ILAROOT/examples/Simple-Pipe/README.md`.
+      If the verification failed, a waveform named `trace.vcd` showing the failing
+      trace will be generated.
+      
+      We also provide an incorrectly implemented design `verilog/simple_pipe_wrong.v`,
+      where the only difference from `verilog/simple_pipe.v` is around Line 162-163,
+      about the forwarding network. In this wrong design, the designer wanted to 
+      save some typing by copying the code of forwarding `rs1` and use it for 
+      `rs2`, but carelessly forgot to change the name of a signal from `1` to `2`, to 
+      adapt it for rs2. You can check for the equvialence also between this Verilog
+      implementation and the ILA specification using the following command:
+      ```
+      time python vlg-verif.py -v verilog/simple_pipe_wrong.v -i vlg-gen/pipe.v      
+      ```
+
+      The checking should fail and the trace that manifests this problem is generated and
+      saved as `trace.vcd` in the same folder, which can be viewed using GtkWave:
+      ```
+      gtkwave trace.vcd &
+      ```
+      
