@@ -1,12 +1,6 @@
 [submodule "examples/RISC-V/simulator"]
 	path = examples/RISC-V/simulator
 	url = https://github.com/zhanghongce/riscv-ila-sim.git
-[submodule "src/json-inout/nlohmann-json"]
-	path = src/json-inout/nlohmann-json
-	url = https://github.com/nlohmann/json.git
-[submodule "src/verilog-in/byh-verilog-parser"]
-	path = src/verilog-in/byh-verilog-parser
-	url = https://github.com/Bo-Yuan-Huang/verilog-parser.git
 [submodule "extern/glog"]
 	path = extern/glog
 	url = https://github.com/google/glog.git
