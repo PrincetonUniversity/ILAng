@@ -1,8 +1,15 @@
-# path = /root/src/util
+# ---------------------------------------------------------------------------- #
+# TARGET
+# object library ${ILANG_LIB_OBJ_UTIL}
+# ---------------------------------------------------------------------------- #
+add_library(${ILANG_LIB_OBJ_UTIL} OBJECT 
+  log.cc
+  str_util.cc
+)
 
-file(GLOB UTIL_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/*.cc")
+target_compile_features(${ILANG_LIB_OBJ_UTIL} PUBLIC cxx_std_11)
 
-add_library(util OBJECT ${UTIL_SOURCES}) # Compile sources into an object.
-#add_dependencies(util glog::glog)
-#target_link_libraries(util glog::glog)
+target_include_directories(${ILANG_LIB_OBJ_UTIL} 
+  PRIVATE ${PROJECT_SOURCE_DIR}/include
+) 
 

@@ -1,18 +1,14 @@
-# path = root/src/verilog-in
-set(VERILOG_IN_NAME verilog_in)
+# ---------------------------------------------------------------------------- #
+# TARGET
+# object library ${ILANG_LIB_OBJ_VLOG_IN}
+# ---------------------------------------------------------------------------- #
+add_library(${ILANG_LIB_OBJ_VLOG_IN} OBJECT
+  verilog_parse.cc
+)
 
-# ------------------------------------------------------------------------------
-# Support embedded build
-# ------------------------------------------------------------------------------
-execute_process(COMMAND git submodule update --init -- ./byh-verilog-parser
-                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+target_compile_features(${ILANG_LIB_OBJ_VLOG_IN} PUBLIC cxx_std_11)
 
-add_subdirectory(byh-verilog-parser)
-
-# ------------------------------------------------------------------------------
-# Build
-# ------------------------------------------------------------------------------
-file(GLOB VERILOG_IN_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/*.cc")
-
-add_library(${VERILOG_IN_NAME} OBJECT ${VERILOG_IN_SOURCES})
+target_include_directories(${ILANG_LIB_OBJ_VLOG_IN}
+  PRIVATE ${PROJECT_SOURCE_DIR}/include
+)
 

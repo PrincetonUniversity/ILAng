@@ -1,6 +1,19 @@
-# path = root/src/backend
+# ---------------------------------------------------------------------------- #
+# TARGET
+# object library ${ILANG_LIB_OBJ_VERIF}
+# ---------------------------------------------------------------------------- #
+add_library(${ILANG_LIB_OBJ_VERIF} OBJECT 
+  abs_knob.cc
+  eq_check_crr.cc
+  legacy_bmc.cc
+  rewrite_expr.cc
+  rewrite_ila.cc
+  unroller.cc
+)
 
-file(GLOB BACKEND_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/*.cc")
+target_compile_features(${ILANG_LIB_OBJ_VERIF} PUBLIC cxx_std_11)
 
-add_library(backend OBJECT ${BACKEND_SOURCES}) # Compile sources into an object
+target_include_directories(${ILANG_LIB_OBJ_VERIF} 
+  PRIVATE ${PROJECT_SOURCE_DIR}/include
+) 
 

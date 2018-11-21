@@ -1,6 +1,14 @@
-# path = root/src/verilog-out
+# ---------------------------------------------------------------------------- #
+# TARGET
+# object library ${ILANG_LIB_OBJ_VLOG_OUT}
+# ---------------------------------------------------------------------------- #
+add_library(${ILANG_LIB_OBJ_VLOG_OUT} OBJECT
+  verilog_gen.cc
+)
 
-file(GLOB VERILOG_OUT_SOURCES  "${CMAKE_CURRENT_SOURCE_DIR}/*.cc")
+target_compile_features(${ILANG_LIB_OBJ_VLOG_OUT} PUBLIC cxx_std_11)
 
-add_library(verilog-out OBJECT ${VERILOG_OUT_SOURCES}) # Compile sources into an object
+target_include_directories(${ILANG_LIB_OBJ_VLOG_OUT} 
+  PRIVATE ${PROJECT_SOURCE_DIR}/include
+)
 

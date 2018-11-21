@@ -1,195 +1,125 @@
-# path = root/ (top level CMakeLists.txt)
-cmake_minimum_required(VERSION 2.8.2)
+cmake_minimum_required(VERSION 3.8)
 
-set(ILA_PROJECT_NAME ILA)
-
-cmake_policy(SET CMP0048 NEW)
-project(${ILA_PROJECT_NAME} VERSION 1.0)
-enable_language(C CXX)
-
-# prefer linking with shared libraries
-set (CMAKE_FIND_LIBRARY_SUFFIXES ".so" ${CMAKE_FIND_LIBRARY_SUFFIXES})
-# prefer generating shared libraries
-set (BUILD_SHARED_LIBS ON)
-
-set(EXECUTABLE_OUTPUT_PATH "${PROJECT_BINARY_DIR}/bin")
-set(LIBRARY_OUTPUT_PATH "${PROJECT_BINARY_DIR}/lib")
-
-# Add path for custom modules
-set(CMAKE_MODULE_PATH
-  ${CMAKE_MODULE_PATH}
-  "${CMAKE_CURRENT_SOURCE_DIR}/cmake"
-  )
-
-set(CMAKE_MACOSX_RPATH 1)
-
-
-# ------------------------------------------------------------------------------
-# Compile flags 
-# ------------------------------------------------------------------------------
-# These options can be turned on/off from the 'make' command.
-option(debug "Use debugging flag" ON)
-option(coverage "Use coverage flag" OFF)
-option(python-api "Build Python API" OFF)
-option(verilog-in "Build Verilog frontend support" ON)
-option(json-inout "Build JSON parse/genereate support" ON)
-option(json-external "Use an external JSON library" OFF)
-
-# Things to always include as flags. 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
-
-# Set debug/coverage flags, or optimize, depending on options.
-if (debug)
-    set(CMAKE_BUILD_TYPE "Debug")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g3")
-    # Coverage can only be set if -g is used.
-    if (coverage)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage")
-    endif()
-else ()
-  set(CMAKE_BUILD_TYPE "Release")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+if(${CMAKE_VERSION} VERSION_LESS 3.12)
+  cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
+else()
+  cmake_policy(VERSION 3.12)
 endif()
 
-# ------------------------------------------------------------------------------
-# Locate files
-# ------------------------------------------------------------------------------
-include_directories(${PROJECT_SOURCE_DIR}/include)
 
-# ------------------------------------------------------------------------------
-# Configurations
-# ------------------------------------------------------------------------------
-if (python-api)
-  set(PYTHON_API_ENABLE true)
-endif (python-api)
+# ---------------------------------------------------------------------------- #
+# PROJECT
+# name version language
+# ---------------------------------------------------------------------------- #
+project(ilang VERSION     1.0 
+              LANGUAGES   CXX
+              #DESCRIPTION "ILAng platform for SoC Modeling and Verification"
+)
 
-if (verilog-in)
-  set(VERILOG_IN_ENABLE true)
-endif (verilog-in)
 
-if (json-inout)
-  set(JSON_INOUT_ENABLE true)
-endif (json-inout)
+# ---------------------------------------------------------------------------- #
+# INCLUDE
+# cmake helper modules 
+# ---------------------------------------------------------------------------- #
+include(CMakeDependentOption)
 
-configure_file(${PROJECT_SOURCE_DIR}/src/config.h.in 
-               ${PROJECT_SOURCE_DIR}/include/config.h 
-               @ONLY)
 
-# ------------------------------------------------------------------------------
-# Documentation (w/ Doxygen)
-# ------------------------------------------------------------------------------
-find_package(Doxygen)
-if(DOXYGEN_FOUND)
-    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in 
-                   ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
-    add_custom_target(doc 
-        ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile &> doxygen.log
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-        COMMENT "Generating API documentation with Doxygen" VERBATIM
-        )
-endif(DOXYGEN_FOUND)
+# ---------------------------------------------------------------------------- #
+# OPTION
+# build configuration
+# ---------------------------------------------------------------------------- #
+option(ILANG_EMBED_DEPS  "Embed dependent libs if packages not found."       ON)
+option(ILANG_BUILD_VLOG  "Build Verilog I/O."                                ON)
+option(ILANG_BUILD_JSON  "Build JSON I/O."                                   ON)
+option(ILANG_BUILD_PYAPI "Build the Python interface."                       ON)
 
-# ------------------------------------------------------------------------------
-# Google Log
-# ------------------------------------------------------------------------------
-find_package(glog 0.3.5 REQUIRED)
+cmake_dependent_option(ILANG_FETCH_DEPS "Fetch dependecies at config time"   ON
+  "ILANG_EMBED_DEPS" OFF)
 
-# ------------------------------------------------------------------------------
-# Z3
-# ------------------------------------------------------------------------------
-find_package (Z3 REQUIRED)
-if (Z3_FOUND)
-  include_directories (${Z3_INCLUDE_DIR})
-else ()
-  set (Z3_LIBRARY "")
-endif ()
+cmake_dependent_option(ILANG_BUILD_TEST "Build unit tests."                  ON
+  "PROJECT_NAME STREQUAL CMAKE_PROJECT_NAME" OFF)
 
-# ------------------------------------------------------------------------------
-# Boost/python
-# ------------------------------------------------------------------------------
-if (python-api)
-  add_definitions ("-DBOOST_VARIANT_USE_RELAXED_GET_BY_DEFAULT")
-  add_definitions ("-DBOOST_NO_CXX11_NUMERIC_LIMITS=1")
-  add_definitions ("-DDISABLE_ICE_DEPRECATION_WARNINGS")
+cmake_dependent_option(ILANG_BUILD_COV  "Build with coverage flags."         OFF
+  "CMAKE_BUILD_TYPE MATCHES Debug AND ILANG_BUILD_TEST" OFF)
 
-  set (CUSTOM_BOOST_ROOT "" CACHE PATH "Path to custom boost installation.")
-  if (CUSTOM_BOOST_ROOT)
-    set (BOOST_ROOT ${CUSTOM_BOOST_ROOT})
-    set (Boost_NO_SYSTEM_PATHS "ON")
-  endif ()
 
-  set (Boost_USE_STATIC_LIBS OFF)
-  find_package (Boost 1.54.0 REQUIRED python)
-  IF (Boost_FOUND)
-    include_directories (${Boost_INCLUDE_DIRS})
-  endif ()
+# ---------------------------------------------------------------------------- #
+# External dependencies
+# ---------------------------------------------------------------------------- #
+##
+## Update git submodules.
+##
+if(ILANG_FETCH_DEPS)
 
-  find_package (PythonLibs 2.7 REQUIRED)
-  if (PYTHONLIBS_FOUND)
-    message (STATUS "PYTHON_LIBRARIES = ${PYTHON_LIBRARIES}")
-    message (STATUS "PYTHON_EXECUTABLE = ${PYTHON_EXECUTABLE}")
-    message (STATUS "PYTHON_INCLUDE_DIRS = ${PYTHON_INCLUDE_DIRS}")
-    include_directories(${PYTHON_INCLUDE_DIRS})
-  elseif (NOT PYTHONLIBS_FOUND) 
-    MESSAGE (FATAL_ERROR "Unable to find correct Python version.")
+  find_package(Git QUIET)
+
+  if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
+
+    message(STATUS "Submodule update")
+    execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
+                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                    RESULT_VARIABLE GIT_SUBMOD_RESULT)
+
+    if(NOT GIT_SUBMOD_RESULT EQUAL "0")
+      message(FATAL_ERROR "Submodule update failed with ${GIT_SUBMOD_RESULT}")
+    endif()
+
   endif()
 
-endif (python-api)
-
-
-# ------------------------------------------------------------------------------
-# Google Test
-# ------------------------------------------------------------------------------
-# Download and unpack googletest at configure time
-configure_file(CMakeLists.txt.in googletest-download/CMakeLists.txt)
-execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
-  RESULT_VARIABLE result
-  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/googletest-download )
-if(result)
-  message(FATAL_ERROR "CMake step for googletest failed: ${result}")
-endif()
-execute_process(COMMAND ${CMAKE_COMMAND} --build .
-  RESULT_VARIABLE result
-  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/googletest-download )
-if(result)
-  message(FATAL_ERROR "Build step for googletest failed: ${result}")
-endif()
-# Prevent overriding the parent project's compiler/linker settings on Windows
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-# Add googletest directly to our build. This defines the gtest and gtest_main 
-# targets.
-add_subdirectory(${CMAKE_BINARY_DIR}/googletest-src
-                 ${CMAKE_BINARY_DIR}/googletest-build
-                 EXCLUDE_FROM_ALL)
-# The gtest/gtest_main targets carry header search path dependencies 
-# automatically when using CMake 2.8.11 or later. Otherwise we have to add them 
-# here ourselves.
-if (CMAKE_VERSION VERSION_LESS 2.8.11)
-  include_directories("${gtest_SOURCE_DIR}/include")
 endif()
 
-# ------------------------------------------------------------------------------
-# Build
-# ------------------------------------------------------------------------------
-add_subdirectory (src)
+##
+## Make sure that custom modules can be found.
+##
+set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
-# ------------------------------------------------------------------------------
-# Test (w/ Google Test & standard CTest)
-# ------------------------------------------------------------------------------
-add_subdirectory (test)
+##
+## Third-party packages
+##
+add_subdirectory(extern)
 
-# Install target
-install(FILES include/cpp_api.h DESTINATION include RENAME ila++.h)
 
-# uninstall target
-if(NOT TARGET uninstall)
-  configure_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
-    IMMEDIATE @ONLY)
-  add_custom_target(uninstall
-    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
+# ---------------------------------------------------------------------------- #
+# TARGET
+# library target
+# ---------------------------------------------------------------------------- #
+set(ILANG_LIB_NAME "${PROJECT_NAME}++")
+
+if(${ILANG_BUILD_COV}) # FIXME only set compile features for required targets
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage")
+endif()
+
+add_subdirectory(src)
+
+add_library(${PROJECT_NAME}::${ILANG_LIB_NAME} ALIAS ${ILANG_LIB_NAME})
+
+# ---------------------------------------------------------------------------- #
+# TARGET
+# Python API 
+# ---------------------------------------------------------------------------- #
+if(ILANG_BUILD_PYAPI)
+  set(ILANG_PYAPI_NAME "${PROJECT_NAME}py")
+  #add_subdirectory(src/python)
+  #add_subdirectory(src/python-api)
+endif()
+
+# ---------------------------------------------------------------------------- #
+# TARGET
+# interface target
+# ---------------------------------------------------------------------------- #
+#add_library(${ILANG_TARGET_NAME} INTERFACE)
+#add_library(${PROJECT_NAME}::${ILANG_TARGET_NAME} ALIAS ${ILANG_TARGET_NAME})
+
+# ---------------------------------------------------------------------------- #
+# TARGET
+# Making the executable
+# ---------------------------------------------------------------------------- #
+
+# ---------------------------------------------------------------------------- #
+# Unit tests
+# ---------------------------------------------------------------------------- #
+if(ILANG_BUILD_TEST)
+  enable_testing()
+  add_subdirectory(test)
 endif()
 
