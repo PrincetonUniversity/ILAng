@@ -10,3 +10,6 @@
 [submodule "extern/json"]
 	path = extern/json
 	url = https://github.com/nlohmann/json.git
+[submodule "by-modern-cmake"]
+	path = extern/verilog-parser
+	url = https://github.com/Bo-Yuan-Huang/verilog-parser.git
