@@ -1,7 +1,8 @@
 # ---------------------------------------------------------------------------- #
 # External dependency
 # ---------------------------------------------------------------------------- #
-add_subdirectory("${PROJECT_SOURCE_DIR}/extern/googletest" "extern/googletest")
+add_subdirectory("${PROJECT_SOURCE_DIR}/extern/googletest" "extern/googletest" 
+  EXCLUDE_FROM_ALL)
 
 ##
 ## To keep cache clean

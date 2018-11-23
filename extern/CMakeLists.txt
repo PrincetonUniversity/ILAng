@@ -65,7 +65,7 @@ if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extern/glog/CMakeLists.txt")
   message(FATAL_ERROR "glog submodule was not downloaded.")
 
 else()
-  add_subdirectory(glog)
+  add_subdirectory(glog EXCLUDE_FROM_ALL)
 
 endif() 
 
@@ -77,7 +77,7 @@ if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extern/json/CMakeLists.txt")
 
 else()
   set(JSON_BuildTests OFF CACHE INTERNAL "")
-  add_subdirectory(json)
+  add_subdirectory(json EXCLUDE_FROM_ALL)
 
 endif() 
 
@@ -90,7 +90,7 @@ if(ILANG_BUILD_VLOG)
     message(FATAL_ERROR "verilog-parser submodule was not downloaded.")
 
   else()
-    add_subdirectory(verilog-parser)
+    add_subdirectory(verilog-parser EXCLUDE_FROM_ALL)
 
   endif() # submodule exist
 
