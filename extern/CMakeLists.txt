@@ -6,7 +6,8 @@
 #   glog
 #   json
 #   verilog-parser
-#   googletest
+#
+#   googletest (in test)
 #   gflag (optional)
 #   doxygen (optional)
 # ---------------------------------------------------------------------------- #
@@ -14,12 +15,6 @@
 ## z3
 ##
 find_package(Z3 REQUIRED)
-
-if(Z3_FOUND)
-  message(STATUS "Z3 version: ${Z3_VERSION}")
-else()
-  message(FATAL_ERROR "Z3 package not found.")
-endif()
 
 ##
 ## Boost
@@ -31,12 +26,6 @@ if(ILANG_BUILD_PYAPI)
 
   find_package(Boost 1.50 REQUIRED COMPONENTS python)
   
-  if(Boost_FOUND)
-    message(STATUS "Boost version: ${Boost_VERSION}")
-  else()
-    message(FATAL_ERROR "Boost::python not found.")
-  endif()
-
   # For Boost version newer than CMake version
   if(NOT TARGET Boost::python)
     add_library(Boost::python IMPORTED INTERFACE)
@@ -47,7 +36,7 @@ if(ILANG_BUILD_PYAPI)
     set_property(TARGET Boost::python PROPERTY 
       INTERFACE_LINK_LIBRARIES ${Boost_LIBRARIES})
 
-  endif() 
+  endif() # Boost::python FOUND
 
 endif() # ILANG_BUILD_PYAPI
 
@@ -61,8 +50,10 @@ if(ILANG_BUILD_PYAPI)
     message(STATUS "PYTHON_LIBRARIES = ${PYTHON_LIBRARIES}")
     message(STATUS "PYTHON_EXECUTABLE = ${PYTHON_EXECUTABLE}")
     message(STATUS "PYTHON_INCLUDE_DIRS = ${PYTHON_INCLUDE_DIRS}")
+
   else()
     message(FATAL_ERROR "Python libs not found.")
+
   endif() # PYTHONLIBS_FOUND
 
 endif() # ILANG_BUILD_PYAPI
@@ -70,85 +61,38 @@ endif() # ILANG_BUILD_PYAPI
 ##
 ## glog
 ##
-find_package(glog 0.3.5)
-
-if(GLOG_FOUND)
-  message(STATUS "glog version: ${GLOG_VERSION}")
+if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extern/glog/CMakeLists.txt")
+  message(FATAL_ERROR "glog submodule was not downloaded.")
 
 else()
-  message(STATUS "glog was not installed; use embedded build.")
+  add_subdirectory(glog)
 
-  if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extern/glog/CMakeLists.txt")
-    message(FATAL_ERROR "glog submodule was not downloaded.")
-  else()
-    add_subdirectory(glog)
-
-  endif() # submodule exist
-
-endif() # GLOG_FOUND
+endif() 
 
 ##
 ## json
 ##
-if(ILANG_BUILD_JSON)
-  #find_package(nlohmann_json 3.2.0)
+if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extern/json/CMakeLists.txt")
+  message(FATAL_ERROR "nlohmann_json submodule was not downloaded.")
 
-  if (NLOHMANN_JSON_FOUND)
-    message(STATUS "nlohmann_json version: ${NLOHMANN_JSON_VERSION}")
+else()
+  set(JSON_BuildTests OFF CACHE INTERNAL "")
+  add_subdirectory(json)
 
-  else()
-    message(STATUS "nlohmann_json not installed; use embedded build.")
-
-    if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extern/json/CMakeLists.txt")
-      message(FATAL_ERROR "nlohmann_json submodule was not downloaded.")
-    else()
-      set(JSON_BuildTests OFF CACHE INTERNAL "")
-      add_subdirectory(json)
-    endif() # submodule exist
-
-  endif() # NLOHMANN_JSON_FOUND
-
-endif() # ILANG_BUILD_JSON
+endif() 
 
 ##
 ## verilog-parser
 ##
 if(ILANG_BUILD_VLOG)
-  find_package(vlog_parser)
 
-  if(VLOG_PARSER_FOUND)
-    message(STATUS "verilog_parser version: ${VLOG_PARSER_VERSION}")
+  if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extern/verilog-parser/CMakeLists.txt")
+    message(FATAL_ERROR "verilog-parser submodule was not downloaded.")
 
   else()
-    message(STATUS "verilog_parser not installed; use embedded build")
+    add_subdirectory(verilog-parser)
 
-    if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extern/verilog-parser/CMakeLists.txt")
-      message(FATAL_ERROR "verilog_parser submodule was not downloaded.")
-    else()
-      add_subdirectory(verilog-parser)
-    endif() # submodule exist
-
-    # TODO check that a TARGET has been found
-
-  endif() # VLOG_PARSER_FOUND
+  endif() # submodule exist
 
 endif() # ILANG_BUILD_VLOG
-
-##
-## googletest
-##
-if(ILANG_BUILD_TEST AND (PROJECT_NAME STREQUAL CMAKE_PROJECT_NAME))
-
-  #enable_testing()
-
-  #add_subdirectory(googletest googletest)
-
-  #mark_as_advanced(
-  #BUILD_GMOCK BUILD_GTEST BUILD_SHARED_LIBS
-  #gmock_build_tests gtest_build_samples gtest_build_tests
-  #gtest_disable_pthreads gtest_force_shared_crt gtest_hide_internal_symbols
-  #)
-
-endif() # ILANG_BUILD_TEST & current project
-
 

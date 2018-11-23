@@ -18,13 +18,6 @@ project(ilang VERSION     1.0
 
 
 # ---------------------------------------------------------------------------- #
-# INCLUDE
-# cmake helper modules 
-# ---------------------------------------------------------------------------- #
-include(CMakeDependentOption)
-
-
-# ---------------------------------------------------------------------------- #
 # OPTION
 # build configuration
 # ---------------------------------------------------------------------------- #
@@ -32,6 +25,8 @@ option(ILANG_EMBED_DEPS  "Embed dependent libs if packages not found."       ON)
 option(ILANG_BUILD_VLOG  "Build Verilog I/O."                                ON)
 option(ILANG_BUILD_JSON  "Build JSON I/O."                                   ON)
 option(ILANG_BUILD_PYAPI "Build the Python interface."                       ON)
+
+include(CMakeDependentOption)
 
 cmake_dependent_option(ILANG_FETCH_DEPS "Fetch dependecies at config time"   ON
   "ILANG_EMBED_DEPS" OFF)
@@ -41,6 +36,21 @@ cmake_dependent_option(ILANG_BUILD_TEST "Build unit tests."                  ON
 
 cmake_dependent_option(ILANG_BUILD_COV  "Build with coverage flags."         OFF
   "CMAKE_BUILD_TYPE MATCHES Debug AND ILANG_BUILD_TEST" OFF)
+
+# ---------------------------------------------------------------------------- #
+# VARARIABLE
+# alias and configurations
+# ---------------------------------------------------------------------------- #
+set(ILANG_TARGET_NAME                ${PROJECT_NAME}) # project name?
+set(ILANG_CONFIG_INSTALL_DIR         "lib/cmake/${PROJECT_NAME}" CACHE INTERNAL "")
+set(ILANG_INCLUDE_INSTALL_DIR        "include")
+set(ILANG_INCLUDE_BUILD_DIR          "${PROJECT_SOURCE_DIR}/include")
+set(ILANG_TARGETS_EXPORT_NAME        "${PROJECT_NAME}Targets")
+set(ILANG_CMAKE_CONFIG_TEMPLATE      "cmake/config.cmake.in")
+set(ILANG_CMAKE_CONFIG_DIR           "${CMAKE_CURRENT_BINARY_DIR}")
+set(ILANG_CMAKE_VERSION_CONFIG_FILE  "${ILANG_CMAKE_CONFIG_DIR}/${PROJECT_NAME}ConfigVersion.cmake")
+set(ILANG_CMAKE_PROJECT_CONFIG_FILE  "${ILANG_CMAKE_CONFIG_DIR}/${PROJECT_NAME}Config.cmake")
+set(ILANG_CMAKE_PROJECT_TARGETS_FILE "${PROJECT_NAME}Targets.cmake")
 
 
 # ---------------------------------------------------------------------------- #
@@ -83,43 +93,82 @@ add_subdirectory(extern)
 # TARGET
 # library target
 # ---------------------------------------------------------------------------- #
-set(ILANG_LIB_NAME "${PROJECT_NAME}++")
-
-if(${ILANG_BUILD_COV}) # FIXME only set compile features for required targets
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage")
-endif()
+set(ILANG_LIB_NAME ${ILANG_TARGET_NAME})
 
 add_subdirectory(src)
 
-add_library(${PROJECT_NAME}::${ILANG_LIB_NAME} ALIAS ${ILANG_LIB_NAME})
 
 # ---------------------------------------------------------------------------- #
 # TARGET
 # Python API 
 # ---------------------------------------------------------------------------- #
 if(ILANG_BUILD_PYAPI)
-  set(ILANG_PYAPI_NAME "${PROJECT_NAME}py")
+  set(ILANG_PYAPI_NAME "${ILANG_TARGET_NAME}py")
+  # TODO
   #add_subdirectory(src/python)
   #add_subdirectory(src/python-api)
 endif()
 
-# ---------------------------------------------------------------------------- #
-# TARGET
-# interface target
-# ---------------------------------------------------------------------------- #
-#add_library(${ILANG_TARGET_NAME} INTERFACE)
-#add_library(${PROJECT_NAME}::${ILANG_TARGET_NAME} ALIAS ${ILANG_TARGET_NAME})
 
 # ---------------------------------------------------------------------------- #
 # TARGET
 # Making the executable
 # ---------------------------------------------------------------------------- #
 
+
+# ---------------------------------------------------------------------------- #
+# INSTALL
+# project related
+# ---------------------------------------------------------------------------- #
+##
+## forward version for find_package
+##
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+  ${ILANG_CMAKE_VERSION_CONFIG_FILE} 
+  COMPATIBILITY SameMajorVersion # AnyNewVersion
+)
+
+##
+## cmake config
+##
+configure_file(
+  ${ILANG_CMAKE_CONFIG_TEMPLATE}
+  ${ILANG_CMAKE_PROJECT_CONFIG_FILE}
+  @ONLY
+)
+
+install(
+  FILES ${ILANG_CMAKE_PROJECT_CONFIG_FILE} ${ILANG_CMAKE_VERSION_CONFIG_FILE}
+  DESTINATION ${ILANG_CONFIG_INSTALL_DIR}
+)
+
+##
+## project export
+##
+install(
+  EXPORT ${ILANG_TARGETS_EXPORT_NAME}
+  DESTINATION ${ILANG_CONFIG_INSTALL_DIR}
+  NAMESPACE ${PROJECT_NAME}::
+  FILE ${ILANG_CMAKE_PROJECT_TARGETS_FILE}
+)
+
+export(
+  TARGETS ${ILANG_LIB_NAME}
+  NAMESPACE ${PROJECT_NAME}::
+  FILE ${ILANG_CMAKE_PROJECT_TARGETS_FILE}
+)
+
+export(PACKAGE ${PROJECT_NAME})
+
+
 # ---------------------------------------------------------------------------- #
 # Unit tests
 # ---------------------------------------------------------------------------- #
 if(ILANG_BUILD_TEST)
+
   enable_testing()
   add_subdirectory(test)
+
 endif()
 

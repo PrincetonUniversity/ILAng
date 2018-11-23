@@ -5,8 +5,7 @@
 #
 #   Z3_FOUND
 #   Z3_INCLUDE_DIRS
-#   Z3_C_LIBRARIES
-#   Z3_CXX_LIBRARIES
+#   Z3_LIBRARIES
 #
 # and the following imported targets
 #
@@ -44,8 +43,7 @@ if(Z3_FOUND)
 endif()
 
 # create imported target z3::z3
-# FIXME target cannot be found
-if(Z3_FOUND )#AND NOT TARGET z3::z3)
+if(Z3_FOUND AND NOT TARGET z3::z3)
   add_library(z3::z3 INTERFACE IMPORTED)
   set_target_properties(z3::z3 PROPERTIES
     INTERFACE_INCLUDE_DIRECTORIES "${Z3_INCLUDE_DIR}")

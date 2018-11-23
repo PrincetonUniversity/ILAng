@@ -48,40 +48,86 @@ endif()
 # archive library 
 # ---------------------------------------------------------------------------- #
 add_library(${ILANG_LIB_NAME} cpp_api.cc)
+add_library(${PROJECT_NAME}::${ILANG_LIB_NAME} ALIAS ${ILANG_LIB_NAME})
+
+##
+## compile features/options
+##
 target_compile_features(${ILANG_LIB_NAME} PUBLIC cxx_std_11)
+
+if(${ILANG_BUILD_COV})
+  target_compile_options(${ILANG_LIB_NAME} PRIVATE -fprofile-arcs)
+  target_compile_options(${ILANG_LIB_NAME} PRIVATE -ftest-coverage)
+endif()
 
 ##
 ## include paths
 ##
 target_include_directories(${ILANG_LIB_NAME} 
   PUBLIC 
-    $<INSTALL_INTERFACE:include>
-    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-  #PRIVATE
+    $<INSTALL_INTERFACE:${ILANG_INCLUDE_INSTALL_DIR}>
+    $<BUILD_INTERFACE:${ILANG_INCLUDE_BUILD_DIR}>
 )
-
 
 ##
 ## object dependencies
 ##
-target_link_libraries(${ILANG_LIB_NAME} PUBLIC ${ILANG_LIB_OBJ_UTIL})
-target_link_libraries(${ILANG_LIB_NAME} PUBLIC ${ILANG_LIB_OBJ_ILA})
-target_link_libraries(${ILANG_LIB_NAME} PUBLIC ${ILANG_LIB_OBJ_VERIF})
-target_link_libraries(${ILANG_LIB_NAME} PUBLIC ${ILANG_LIB_OBJ_VLOG_OUT})
+target_link_libraries(${ILANG_LIB_NAME} 
+  PUBLIC $<TARGET_OBJECTS:${ILANG_LIB_OBJ_UTIL}>)
+
+target_link_libraries(${ILANG_LIB_NAME} 
+  PUBLIC $<TARGET_OBJECTS:${ILANG_LIB_OBJ_ILA}>)
+
+target_link_libraries(${ILANG_LIB_NAME} 
+  PUBLIC $<TARGET_OBJECTS:${ILANG_LIB_OBJ_VERIF}>)
+
+target_link_libraries(${ILANG_LIB_NAME} 
+  PUBLIC $<TARGET_OBJECTS:${ILANG_LIB_OBJ_VLOG_OUT}>)
 
 if(ILANG_BUILD_VLOG)
-  target_link_libraries(${ILANG_LIB_NAME} PUBLIC ${ILANG_LIB_OBJ_VLOG_IN})
+  target_link_libraries(${ILANG_LIB_NAME} 
+    PUBLIC $<TARGET_OBJECTS:${ILANG_LIB_OBJ_VLOG_IN}>)
 endif()
 
 if(ILANG_BUILD_JSON)
-  target_link_libraries(${ILANG_LIB_NAME} PUBLIC ${ILANG_LIB_OBJ_JSON_IO})
+  target_link_libraries(${ILANG_LIB_NAME} 
+    PUBLIC $<TARGET_OBJECTS:${ILANG_LIB_OBJ_JSON_IO}>)
 endif()
 
 ##
 ## external dependencies
 ##
-target_link_libraries(${ILANG_LIB_NAME} PUBLIC  ${Z3_LIBRARY}) # FIXME use z3::z3 interface
-target_link_libraries(${ILANG_LIB_NAME} PUBLIC  glog::glog)
-#target_link_libraries(${ILANG_LIB_NAME} PRIVATE nlohmann_json::nlohmann_json)
-target_link_libraries(${ILANG_LIB_NAME} PRIVATE verilogparser)
+find_package(Z3 REQUIRED) # need to call here to see the imported target
+target_link_libraries(${ILANG_LIB_NAME} PUBLIC z3::z3)
+
+target_link_libraries(${ILANG_LIB_NAME} PUBLIC glog::glog)
+
+if(ILANG_BUILD_VLOG)
+  target_link_libraries(${ILANG_LIB_NAME} PRIVATE verilogparser::verilogparser)
+endif()
+
+if(ILANG_BUILD_JSON)
+  target_link_libraries(${ILANG_LIB_NAME} PRIVATE nlohmann_json::nlohmann_json)
+endif()
+
+# ---------------------------------------------------------------------------- #
+# INSTALL
+# install and export lib target
+# ---------------------------------------------------------------------------- #
+install(
+  TARGETS ${ILANG_LIB_NAME} 
+  EXPORT  ${ILANG_TARGETS_EXPORT_NAME}
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION bin
+  INCLUDES DESTINATION ${ILANG_INCLUDE_INSTALL_DIR}
+)
+
+##
+## include directory
+##
+install(
+  DIRECTORY ${ILANG_INCLUDE_BUILD_DIR}
+  DESTINATION ${ILANG_INCLUDE_INSTALL_DIR}
+)
 
