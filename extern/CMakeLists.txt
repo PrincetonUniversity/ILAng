@@ -5,7 +5,7 @@
 #   Python
 #   glog
 #   json
-#   verilog-parser
+#   verilogparser
 #
 #   googletest (in test)
 #   gflag (optional)

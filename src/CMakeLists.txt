@@ -2,29 +2,35 @@
 # TARGET
 # object library
 # ---------------------------------------------------------------------------- #
+set(ILANG_LIB_OBJS "")
+
 ##
 ## util
 ##
 set(ILANG_LIB_OBJ_UTIL util)
 add_subdirectory(util)
+set(ILANG_LIB_OBJS ${ILANG_LIB_OBJS} $<TARGET_OBJECTS:${ILANG_LIB_OBJ_UTIL}>)
 
 ##
 ## ila
 ##
 set(ILANG_LIB_OBJ_ILA ila)
 add_subdirectory(ila)
+set(ILANG_LIB_OBJS ${ILANG_LIB_OBJS} $<TARGET_OBJECTS:${ILANG_LIB_OBJ_ILA}>)
 
 ##
 ## verif
 ##
 set(ILANG_LIB_OBJ_VERIF verif)
 add_subdirectory(backend)
+set(ILANG_LIB_OBJS ${ILANG_LIB_OBJS} $<TARGET_OBJECTS:${ILANG_LIB_OBJ_VERIF}>)
 
 ##
 ## vlog-out
 ##
 set(ILANG_LIB_OBJ_VLOG_OUT vlog_out)
 add_subdirectory(verilog-out)
+set(ILANG_LIB_OBJS ${ILANG_LIB_OBJS} $<TARGET_OBJECTS:${ILANG_LIB_OBJ_VLOG_OUT}>)
 
 ##
 ## vlog-in
@@ -32,6 +38,7 @@ add_subdirectory(verilog-out)
 if(ILANG_BUILD_VLOG)
   set(ILANG_LIB_OBJ_VLOG_IN vlog_in)
   add_subdirectory(verilog-in)
+  set(ILANG_LIB_OBJS ${ILANG_LIB_OBJS} $<TARGET_OBJECTS:${ILANG_LIB_OBJ_VLOG_IN}>)
 endif()
 
 ##
@@ -40,6 +47,7 @@ endif()
 if(ILANG_BUILD_JSON)
   set(ILANG_LIB_OBJ_JSON_IO json_io)
   add_subdirectory(json-inout)
+  set(ILANG_LIB_OBJS ${ILANG_LIB_OBJS} $<TARGET_OBJECTS:${ILANG_LIB_OBJ_JSON_IO}>)
 endif()
 
 
@@ -47,7 +55,7 @@ endif()
 # TARGET
 # archive library 
 # ---------------------------------------------------------------------------- #
-add_library(${ILANG_LIB_NAME} cpp_api.cc)
+add_library(${ILANG_LIB_NAME} cpp_api.cc ${ILANG_LIB_OBJS})
 add_library(${PROJECT_NAME}::${ILANG_LIB_NAME} ALIAS ${ILANG_LIB_NAME})
 
 ##
@@ -68,31 +76,6 @@ target_include_directories(${ILANG_LIB_NAME}
     $<INSTALL_INTERFACE:${ILANG_INCLUDE_INSTALL_DIR}>
     $<BUILD_INTERFACE:${ILANG_INCLUDE_BUILD_DIR}>
 )
-
-##
-## object dependencies
-##
-target_link_libraries(${ILANG_LIB_NAME} 
-  PUBLIC $<TARGET_OBJECTS:${ILANG_LIB_OBJ_UTIL}>)
-
-target_link_libraries(${ILANG_LIB_NAME} 
-  PUBLIC $<TARGET_OBJECTS:${ILANG_LIB_OBJ_ILA}>)
-
-target_link_libraries(${ILANG_LIB_NAME} 
-  PUBLIC $<TARGET_OBJECTS:${ILANG_LIB_OBJ_VERIF}>)
-
-target_link_libraries(${ILANG_LIB_NAME} 
-  PUBLIC $<TARGET_OBJECTS:${ILANG_LIB_OBJ_VLOG_OUT}>)
-
-if(ILANG_BUILD_VLOG)
-  target_link_libraries(${ILANG_LIB_NAME} 
-    PUBLIC $<TARGET_OBJECTS:${ILANG_LIB_OBJ_VLOG_IN}>)
-endif()
-
-if(ILANG_BUILD_JSON)
-  target_link_libraries(${ILANG_LIB_NAME} 
-    PUBLIC $<TARGET_OBJECTS:${ILANG_LIB_OBJ_JSON_IO}>)
-endif()
 
 ##
 ## external dependencies

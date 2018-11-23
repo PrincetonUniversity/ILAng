@@ -41,16 +41,20 @@ cmake_dependent_option(ILANG_BUILD_COV  "Build with coverage flags."         OFF
 # VARARIABLE
 # alias and configurations
 # ---------------------------------------------------------------------------- #
-set(ILANG_TARGET_NAME                ${PROJECT_NAME}) # project name?
+set(ILANG_TARGET_NAME                ${PROJECT_NAME}) 
 set(ILANG_CONFIG_INSTALL_DIR         "lib/cmake/${PROJECT_NAME}" CACHE INTERNAL "")
 set(ILANG_INCLUDE_INSTALL_DIR        "include")
 set(ILANG_INCLUDE_BUILD_DIR          "${PROJECT_SOURCE_DIR}/include")
 set(ILANG_TARGETS_EXPORT_NAME        "${PROJECT_NAME}Targets")
 set(ILANG_CMAKE_CONFIG_TEMPLATE      "cmake/config.cmake.in")
 set(ILANG_CMAKE_CONFIG_DIR           "${CMAKE_CURRENT_BINARY_DIR}")
-set(ILANG_CMAKE_VERSION_CONFIG_FILE  "${ILANG_CMAKE_CONFIG_DIR}/${PROJECT_NAME}ConfigVersion.cmake")
-set(ILANG_CMAKE_PROJECT_CONFIG_FILE  "${ILANG_CMAKE_CONFIG_DIR}/${PROJECT_NAME}Config.cmake")
 set(ILANG_CMAKE_PROJECT_TARGETS_FILE "${PROJECT_NAME}Targets.cmake")
+
+set(ILANG_CMAKE_VERSION_CONFIG_FILE  
+  "${ILANG_CMAKE_CONFIG_DIR}/${PROJECT_NAME}ConfigVersion.cmake")
+
+set(ILANG_CMAKE_PROJECT_CONFIG_FILE  
+  "${ILANG_CMAKE_CONFIG_DIR}/${PROJECT_NAME}Config.cmake")
 
 if(${ILANG_BUILD_PYAPI})
   set(PYTHON_API_ENABLE TRUE)
@@ -116,8 +120,6 @@ add_subdirectory(src)
 # ---------------------------------------------------------------------------- #
 if(ILANG_BUILD_PYAPI)
   set(ILANG_PYAPI_NAME "${ILANG_TARGET_NAME}py")
-  # TODO
-  #add_subdirectory(src/python)
   #add_subdirectory(src/python-api)
 endif()
 
@@ -180,18 +182,17 @@ export(PACKAGE ${PROJECT_NAME})
 # ---------------------------------------------------------------------------- #
 if(NOT TARGET uninstall)
   configure_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/cmake/cmake_uninstall.cmake"
     IMMEDIATE @ONLY
   )
 
   add_custom_target(uninstall
     COMMAND 
-      ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake
+      ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake/cmake_uninstall.cmake
   )
 
 endif()
-
 
 
 # ---------------------------------------------------------------------------- #
