@@ -4,7 +4,7 @@
 #ifndef JSON_PARSE_H__
 #define JSON_PARSE_H__
 
-#include "ila/instr_lvl_abs.h"
+#include <ilang/ila/instr_lvl_abs.h>
 
 namespace ila {
 

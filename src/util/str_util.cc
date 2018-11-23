@@ -1,8 +1,8 @@
 /// \file
 /// Source for some utility functions for string formating.
 
-#include "util/str_util.h"
-#include "util/log.h"
+#include <ilang/util/str_util.h>
+#include <ilang/util/log.h>
 
 namespace ila {
 

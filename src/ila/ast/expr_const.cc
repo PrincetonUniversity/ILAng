@@ -1,8 +1,8 @@
 /// \file
 /// Source for the class ExprConst
 
-#include "ila/ast/expr_const.h"
-#include "util/log.h"
+#include <ilang/ila/ast/expr_const.h>
+#include <ilang/util/log.h>
 
 /// \namespace ila
 namespace ila {

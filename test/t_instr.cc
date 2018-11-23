@@ -1,8 +1,8 @@
 /// \file
 /// Unit test for class Instr.
 
-#include "ila/expr_fuse.h"
-#include "ila/instr.h"
+#include <ilang/ila/expr_fuse.h>
+#include <ilang/ila/instr.h>
 #include "unit-include/util.h"
 
 namespace ila {

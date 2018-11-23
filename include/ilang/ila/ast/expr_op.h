@@ -4,8 +4,8 @@
 #ifndef EXPR_OP_H__
 #define EXPR_OP_H__
 
-#include "ila/ast/expr.h"
-#include "util/log.h"
+#include <ilang/ila/ast/expr.h>
+#include <ilang/util/log.h>
 
 /// \namespace ila
 namespace ila {

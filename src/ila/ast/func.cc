@@ -1,10 +1,10 @@
 /// \file
 /// Source for the class Func
 
-#include "ila/ast/func.h"
-#include "ila/expr_fuse.h"
-#include "ila/instr_lvl_abs.h"
-#include "util/log.h"
+#include <ilang/ila/ast/func.h>
+#include <ilang/ila/expr_fuse.h>
+#include <ilang/ila/instr_lvl_abs.h>
+#include <ilang/util/log.h>
 
 namespace ila {
 

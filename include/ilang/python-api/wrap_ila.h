@@ -4,8 +4,8 @@
 #ifndef WRAP_INSTR_LVL_ABS_H__
 #define WRAP_INSTR_LVL_ABS_H__
 
-#include "ila/instr_lvl_abs.h"
-#include "python-api/wrap_expr.h"
+#include <ilang/ila/instr_lvl_abs.h>
+#include <ilang/python-api/wrap_expr.h>
 
 namespace ila {
 namespace pyapi {

@@ -2,8 +2,8 @@
 /// The ILA model of a simple processor.
 
 #include "../unit-include/simple_cpu.h"
-#include "cpp_api.h"
-#include "util/log.h"
+#include <ilang/cpp_api.h>
+#include <ilang/util/log.h>
 
 /*
  * INSTR: [7:0]

@@ -4,7 +4,7 @@
 #ifndef WRAP_LOG_H__
 #define WRAP_LOG_H__
 
-#include "util/log.h"
+#include <ilang/util/log.h>
 
 namespace ila {
 namespace pyapi {

@@ -1,9 +1,9 @@
 /// \file
 /// Unit test for instruction sequencing
 
-#include "ila/expr_fuse.h"
-#include "ila/instr.h"
-#include "ila/transition.h"
+#include <ilang/ila/expr_fuse.h>
+#include <ilang/ila/instr.h>
+#include <ilang/ila/transition.h>
 #include "unit-include/util.h"
 
 namespace ila {

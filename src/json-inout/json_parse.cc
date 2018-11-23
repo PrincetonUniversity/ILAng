@@ -1,7 +1,7 @@
 /// \file
 /// Dummy file for testing JSON lib integration
 
-#include "json-inout/json_parse.h"
+#include <ilang/json-inout/json_parse.h>
 #include "nlohmann/json.hpp"
 #include <iostream>
 

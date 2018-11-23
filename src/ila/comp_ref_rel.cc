@@ -1,8 +1,8 @@
 /// \file
 /// Source for the refinement relation
 
-#include "ila/comp_ref_rel.h"
-#include "backend/abs_knob.h"
+#include <ilang/ila/comp_ref_rel.h>
+#include <ilang/backend/abs_knob.h>
 
 namespace ila {
 

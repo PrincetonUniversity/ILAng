@@ -1,7 +1,7 @@
 /// \file
 /// Source for the class Object.
 
-#include "ila/object.h"
+#include <ilang/ila/object.h>
 
 /// \namespace ila
 namespace ila {

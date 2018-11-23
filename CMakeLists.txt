@@ -52,6 +52,18 @@ set(ILANG_CMAKE_VERSION_CONFIG_FILE  "${ILANG_CMAKE_CONFIG_DIR}/${PROJECT_NAME}C
 set(ILANG_CMAKE_PROJECT_CONFIG_FILE  "${ILANG_CMAKE_CONFIG_DIR}/${PROJECT_NAME}Config.cmake")
 set(ILANG_CMAKE_PROJECT_TARGETS_FILE "${PROJECT_NAME}Targets.cmake")
 
+if(${ILANG_BUILD_PYAPI})
+  set(PYTHON_API_ENABLE TRUE)
+endif()
+
+if(${ILANG_BUILD_VLOG})
+  set(VERILOG_IN_ENABLE TRUE)
+endif()
+
+if(${ILANG_BUILD_JSON})
+  set(JSON_INOUT_ENABLE TRUE)
+endif()
+
 
 # ---------------------------------------------------------------------------- #
 # External dependencies

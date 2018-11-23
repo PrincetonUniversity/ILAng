@@ -1,7 +1,7 @@
 /// \file
 /// Unit test for operation construction, z3 formula, hash, print, etc.
 
-#include "cpp_api.h"
+#include <ilang/cpp_api.h>
 #include "unit-include/util.h"
 
 namespace ila {

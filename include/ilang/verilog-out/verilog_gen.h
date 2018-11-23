@@ -12,8 +12,8 @@
 #ifndef VERILOG_GEN_H__
 #define VERILOG_GEN_H__
 
-#include "ila/instr_lvl_abs.h"
-#include "ila/expr_fuse.h"
+#include <ilang/ila/instr_lvl_abs.h>
+#include <ilang/ila/expr_fuse.h>
 #include "z3++.h"
 #include <map>
 #include <list>

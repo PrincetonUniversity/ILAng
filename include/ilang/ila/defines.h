@@ -4,8 +4,8 @@
 #ifndef DEFINES_H__
 #define DEFINES_H__
 
-#include "ila/symbol.h"
-#include "util/container.h"
+#include <ilang/ila/symbol.h>
+#include <ilang/util/container.h>
 #include "z3++.h"
 #include <memory>
 #include <vector>

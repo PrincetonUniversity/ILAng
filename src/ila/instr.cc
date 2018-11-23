@@ -1,8 +1,8 @@
 /// \file
 /// The source for the class Instr.
 
-#include "ila/instr.h"
-#include "ila/instr_lvl_abs.h"
+#include <ilang/ila/instr.h>
+#include <ilang/ila/instr_lvl_abs.h>
 
 namespace ila {
 

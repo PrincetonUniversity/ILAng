@@ -4,7 +4,7 @@
 #ifndef ABS_KNOB_H__
 #define ABS_KNOB_H__
 
-#include "ila/instr_lvl_abs.h"
+#include <ilang/ila/instr_lvl_abs.h>
 
 namespace ila {
 

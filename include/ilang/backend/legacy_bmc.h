@@ -4,9 +4,9 @@
 #ifndef LEGACY_BMC_H__
 #define LEGACY_BMC_H__
 
-#include "ila/instr_lvl_abs.h"
-#include "ila/z3_expr_adapter.h"
-#include "util/container.h"
+#include <ilang/ila/instr_lvl_abs.h>
+#include <ilang/ila/z3_expr_adapter.h>
+#include <ilang/util/container.h>
 #include "z3++.h"
 #include <map>
 

@@ -1,7 +1,7 @@
 /// \file
 /// Test for using third-party verilog-parse
 
-#include "verilog-in/verilog_parse.h"
+#include <ilang/verilog-in/verilog_parse.h>
 
 extern "C" {
 #include "verilog_parser.h"

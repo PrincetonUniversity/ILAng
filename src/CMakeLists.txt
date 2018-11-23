@@ -126,8 +126,14 @@ install(
 ##
 ## include directory
 ##
+configure_file(
+  ${PROJECT_SOURCE_DIR}/src/config.h.in
+  ${PROJECT_SOURCE_DIR}/include/ilang/config.h
+  @ONLY
+)
+
 install(
-  DIRECTORY ${ILANG_INCLUDE_BUILD_DIR}
+  DIRECTORY ${ILANG_INCLUDE_BUILD_DIR}/ilang
   DESTINATION ${ILANG_INCLUDE_INSTALL_DIR}
 )
 

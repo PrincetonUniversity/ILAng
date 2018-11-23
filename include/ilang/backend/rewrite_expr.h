@@ -4,7 +4,7 @@
 #ifndef REWRITE_EXPR_H__
 #define REWRITE_EXPR_H__
 
-#include "ila/expr_fuse.h"
+#include <ilang/ila/expr_fuse.h>
 
 namespace ila {
 

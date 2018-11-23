@@ -1,8 +1,8 @@
 /// \file
 /// Unit test for generating z3 express for ast.
 
-#include "ila/expr_fuse.h"
-#include "ila/z3_expr_adapter.h"
+#include <ilang/ila/expr_fuse.h>
+#include <ilang/ila/z3_expr_adapter.h>
 #include "unit-include/util.h"
 
 namespace ila {

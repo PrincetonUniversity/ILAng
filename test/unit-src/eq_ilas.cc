@@ -3,7 +3,7 @@
 
 #include "../unit-include/eq_ilas.h"
 //#include "ila++.h"
-#include "cpp_api.h"
+#include <ilang/cpp_api.h>
 
 namespace ila {
 

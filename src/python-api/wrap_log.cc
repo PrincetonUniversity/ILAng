@@ -1,7 +1,7 @@
 /// \file
 /// Source for wrapping logging system
 
-#include "python-api/wrap_log.h"
+#include <ilang/python-api/wrap_log.h>
 
 namespace ila {
 namespace pyapi {

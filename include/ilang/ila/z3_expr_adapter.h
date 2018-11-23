@@ -4,7 +4,7 @@
 #ifndef Z3_EXPR_ADAPTER_H__
 #define Z3_EXPR_ADAPTER_H__
 
-#include "ila/expr_fuse.h"
+#include <ilang/ila/expr_fuse.h>
 #include "z3++.h"
 #include <unordered_map>
 

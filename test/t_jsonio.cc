@@ -2,7 +2,7 @@
 /// Unit test for JSON parser.
 
 #include "unit-include/util.h"
-#include "json-inout/json_parse.h"
+#include <ilang/json-inout/json_parse.h>
 
 #ifdef JSON_INOUT_ENABLE
 namespace ila {

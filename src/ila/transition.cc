@@ -1,8 +1,8 @@
 /// \file
 /// Source of instruction sequencing
 
-#include "ila/transition.h"
-#include "util/log.h"
+#include <ilang/ila/transition.h>
+#include <ilang/util/log.h>
 
 namespace ila {
 

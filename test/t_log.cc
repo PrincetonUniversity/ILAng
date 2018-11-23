@@ -2,7 +2,7 @@
 /// Unit test for the logging system.
 
 #include "unit-include/util.h"
-#include "util/log.h"
+#include <ilang/util/log.h>
 
 namespace ila {
 

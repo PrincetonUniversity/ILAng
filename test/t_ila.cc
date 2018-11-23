@@ -1,7 +1,7 @@
 /// \file
 /// Unit test for class InstrLvlAbs.
 
-#include "ila/instr_lvl_abs.h"
+#include <ilang/ila/instr_lvl_abs.h>
 #include "unit-include/util.h"
 
 namespace ila {

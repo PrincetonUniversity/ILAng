@@ -3,8 +3,8 @@
 
 // XXX Current replacing is not efficient.
 
-#include "ila/hash_ast.h"
-#include "util/log.h"
+#include <ilang/ila/hash_ast.h>
+#include <ilang/util/log.h>
 #include <functional>
 
 namespace ila {

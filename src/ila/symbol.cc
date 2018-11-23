@@ -1,9 +1,9 @@
 /// \file
 /// Source for the class Symbol.
 
-#include "ila/symbol.h"
-#include "util/log.h"
-#include "util/str_util.h"
+#include <ilang/ila/symbol.h>
+#include <ilang/util/log.h>
+#include <ilang/util/str_util.h>
 
 /// \namespace ila
 namespace ila {

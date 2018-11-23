@@ -1,7 +1,7 @@
 /// \file
 /// Unit test for compositional refinement relation.
 
-#include "ila/comp_ref_rel.h"
+#include <ilang/ila/comp_ref_rel.h>
 #include "unit-include/simple_cpu.h"
 #include "unit-include/util.h"
 

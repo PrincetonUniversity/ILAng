@@ -1,7 +1,7 @@
 /// \file
 /// Unit test for the class ExprFuse
 
-#include "ila/expr_fuse.h"
+#include <ilang/ila/expr_fuse.h>
 #include "unit-include/util.h"
 #include <iostream>
 

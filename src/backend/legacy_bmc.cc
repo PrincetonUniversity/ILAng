@@ -1,7 +1,7 @@
 /// \file
 /// Source for bounded model checking
 
-#include "backend/legacy_bmc.h"
+#include <ilang/backend/legacy_bmc.h>
 
 namespace ila {
 

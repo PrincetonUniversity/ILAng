@@ -1,7 +1,7 @@
 /// \file
 /// Unit test for Sort.
 
-#include "ila/ast/sort.h"
+#include <ilang/ila/ast/sort.h>
 #include "unit-include/util.h"
 #include <iostream>
 #include <string>

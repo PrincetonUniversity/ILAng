@@ -2,8 +2,8 @@
 /// Example model -- simple stream buffer.
 
 #include "../unit-include/stream_buffer.h"
-#include "cpp_api.h"
-#include "util/log.h"
+#include <ilang/cpp_api.h>
+#include <ilang/util/log.h>
 
 namespace ila {
 

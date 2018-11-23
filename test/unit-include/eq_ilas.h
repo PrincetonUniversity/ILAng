@@ -1,7 +1,7 @@
 /// \file
 /// Functions to construct equivalent ILAs (wrapped in a class).
 
-#include "ila/instr_lvl_abs.h"
+#include <ilang/ila/instr_lvl_abs.h>
 
 namespace ila {
 

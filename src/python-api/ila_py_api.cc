@@ -1,7 +1,7 @@
 /// \file
 /// Source for Python API -- top level for all tools
 
-#include "python-api/ila_py_api.h"
+#include <ilang/python-api/ila_py_api.h>
 
 namespace ila {
 namespace pyapi {

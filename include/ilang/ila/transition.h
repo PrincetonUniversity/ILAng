@@ -4,10 +4,10 @@
 #ifndef INSTR_TRAN_H__
 #define INSTR_TRAN_H__
 
-#include "ila/expr_fuse.h"
-#include "ila/instr.h"
-#include "ila/z3_expr_adapter.h"
-#include "util/container.h"
+#include <ilang/ila/expr_fuse.h>
+#include <ilang/ila/instr.h>
+#include <ilang/ila/z3_expr_adapter.h>
+#include <ilang/util/container.h>
 
 /// \namespace ila
 namespace ila {

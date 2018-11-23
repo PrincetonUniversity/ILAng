@@ -1,7 +1,7 @@
 /// \file
 /// Unit test for Expr
 
-#include "ila/hash_ast.h"
+#include <ilang/ila/hash_ast.h>
 #include "unit-include/expr_bank.h"
 
 namespace ila {

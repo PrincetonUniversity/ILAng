@@ -1,8 +1,8 @@
 /// \file
 /// Source for function object for rewriting ILA.
 
-#include "backend/rewrite_ila.h"
-#include "backend/abs_knob.h"
+#include <ilang/backend/rewrite_ila.h>
+#include <ilang/backend/abs_knob.h>
 
 namespace ila {
 

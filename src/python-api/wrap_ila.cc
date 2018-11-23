@@ -1,7 +1,7 @@
 /// \file
 /// Source for wrapping ILA
 
-#include "python-api/wrap_ila.h"
+#include <ilang/python-api/wrap_ila.h>
 
 namespace ila {
 namespace pyapi {

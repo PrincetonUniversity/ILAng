@@ -4,7 +4,7 @@
 #ifndef OBJECT_H__
 #define OBJECT_H__
 
-#include "ila/symbol.h"
+#include <ilang/ila/symbol.h>
 #include <memory>
 #include <string>
 

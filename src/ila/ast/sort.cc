@@ -1,8 +1,8 @@
 /// \file
 /// Source for the class Sort
 
-#include "ila/ast/sort.h"
-#include "util/log.h"
+#include <ilang/ila/ast/sort.h>
+#include <ilang/util/log.h>
 
 namespace ila {
 

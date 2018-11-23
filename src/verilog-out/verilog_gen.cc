@@ -4,7 +4,7 @@
 #include <cmath>
 #include <cctype>
 #include <iomanip>
-#include "verilog-out/verilog_gen.h"
+#include <ilang/verilog-out/verilog_gen.h>
 
 namespace ila {
 

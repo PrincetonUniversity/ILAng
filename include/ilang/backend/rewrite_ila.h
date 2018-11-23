@@ -4,7 +4,7 @@
 #ifndef REWRITE_ILA_H__
 #define REWRITE_ILA_H__
 
-#include "ila/instr_lvl_abs.h"
+#include <ilang/ila/instr_lvl_abs.h>
 
 namespace ila {
 

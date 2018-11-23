@@ -4,9 +4,9 @@
 #ifndef INSTR_H__
 #define INSTR_H__
 
-#include "ila/expr_fuse.h"
-#include "ila/hash_ast.h"
-#include "ila/object.h"
+#include <ilang/ila/expr_fuse.h>
+#include <ilang/ila/hash_ast.h>
+#include <ilang/ila/object.h>
 #include <memory>
 #include <string>
 

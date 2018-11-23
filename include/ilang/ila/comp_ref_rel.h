@@ -4,7 +4,7 @@
 #ifndef COMP_REF_REL_H__
 #define COMP_REF_REL_H__
 
-#include "ila/instr_lvl_abs.h"
+#include <ilang/ila/instr_lvl_abs.h>
 
 /// \namespace ila
 namespace ila {

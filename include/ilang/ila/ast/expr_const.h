@@ -4,8 +4,8 @@
 #ifndef EXPR_CONST_H__
 #define EXPR_CONST_H__
 
-#include "ila/ast/expr.h"
-#include "ila/ast/sort_value.h"
+#include <ilang/ila/ast/expr.h>
+#include <ilang/ila/ast/sort_value.h>
 
 /// \namespace ila
 namespace ila {

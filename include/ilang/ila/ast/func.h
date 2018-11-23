@@ -4,9 +4,9 @@
 #ifndef FUNC_H__
 #define FUNC_H__
 
-#include "ila/ast/ast.h"
-#include "ila/ast/sort.h"
-#include "ila/defines.h"
+#include <ilang/ila/ast/ast.h>
+#include <ilang/ila/ast/sort.h>
+#include <ilang/ila/defines.h>
 #include "z3++.h"
 
 /// \namespace ila

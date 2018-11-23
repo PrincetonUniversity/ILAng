@@ -1,12 +1,12 @@
 /// \file
 /// Source for the c++ API.
 
-#include "cpp_api.h"
-#include "backend/unroller.h"
-#include "backend/abs_knob.h"
-#include "ila/instr_lvl_abs.h"
-#include "verilog-out/verilog_gen.h"
-#include "util/log.h"
+#include <ilang/cpp_api.h>
+#include <ilang/backend/unroller.h>
+#include <ilang/backend/abs_knob.h>
+#include <ilang/ila/instr_lvl_abs.h>
+#include <ilang/verilog-out/verilog_gen.h>
+#include <ilang/util/log.h>
 
 namespace ila {
 

@@ -1,10 +1,10 @@
 /// \file
 /// Source for generating verification condition for equivalecne checking.
 
-#include "backend/eq_check_crr.h"
-#include "backend/abs_knob.h"
-#include "backend/unroller.h"
-#include "util/log.h"
+#include <ilang/backend/eq_check_crr.h>
+#include <ilang/backend/abs_knob.h>
+#include <ilang/backend/unroller.h>
+#include <ilang/util/log.h>
 #include <tuple>
 
 namespace ila {

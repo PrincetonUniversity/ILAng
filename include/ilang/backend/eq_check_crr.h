@@ -4,9 +4,9 @@
 #ifndef EQ_CHECK_CRR_H__
 #define EQ_CHECK_CRR_H__
 
-#include "backend/unroller.h"
-#include "ila/comp_ref_rel.h"
-#include "ila/instr_lvl_abs.h"
+#include <ilang/backend/unroller.h>
+#include <ilang/ila/comp_ref_rel.h>
+#include <ilang/ila/instr_lvl_abs.h>
 #include "z3++.h"
 
 /// \namespace ila

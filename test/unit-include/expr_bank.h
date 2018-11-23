@@ -4,7 +4,7 @@
 #ifndef EXPR_BANK_H__
 #define EXPR_BANK_H__
 
-#include "ila/expr_fuse.h"
+#include <ilang/ila/expr_fuse.h>
 #include "util.h"
 #include <vector>
 

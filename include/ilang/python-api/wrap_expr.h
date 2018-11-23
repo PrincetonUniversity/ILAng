@@ -4,7 +4,7 @@
 #ifndef WRAP_EXPR_H__
 #define WRAP_EXPR_H__
 
-#include "ila/expr_fuse.h"
+#include <ilang/ila/expr_fuse.h>
 
 namespace ila {
 namespace pyapi {

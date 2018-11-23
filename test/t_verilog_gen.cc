@@ -4,9 +4,9 @@
 #include <cstdio>
 #include <cstdlib>
 
-#include "backend/abs_knob.h"
-#include "verilog-out/verilog_gen.h"
-#include "verilog-in/verilog_parse.h"
+#include <ilang/backend/abs_knob.h>
+#include <ilang/verilog-out/verilog_gen.h>
+#include <ilang/verilog-in/verilog_parse.h>
 
 #include "unit-include/simple_cpu.h"
 #include "unit-include/eq_ilas.h"
