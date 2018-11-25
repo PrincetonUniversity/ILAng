@@ -1,11 +1,14 @@
 // lib.cc
+// Synopsis: implementation of the library
 
-#include "simple/lib.h"
-#include <ilang/ila++.h>
+#include <simple/lib.h>
+#include <ilang/cpp_api.h>
 #include <iostream>
 
 void Foo() {
-  std::cout << "Hello from lib" << std::endl;
+  auto m = ila::Ila("bar");
 
-  auto m = IlaRef("bar");
+  std::cout << "Hello from " << m << " in the lib." << std::endl;
+
+  return;
 }
