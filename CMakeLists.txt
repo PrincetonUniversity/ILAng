@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.12.4)
 
 if(${CMAKE_VERSION} VERSION_LESS 3.12)
   cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
@@ -25,6 +25,7 @@ option(ILANG_EMBED_DEPS  "Embed dependent libs if packages not found."       ON)
 option(ILANG_BUILD_VLOG  "Build Verilog I/O."                                ON)
 option(ILANG_BUILD_JSON  "Build JSON I/O."                                   ON)
 option(ILANG_BUILD_PYAPI "Build the Python interface."                       ON)
+option(ILANG_BUILD_DOCS  "Build documents."                                 OFF)
 
 include(CMakeDependentOption)
 
@@ -198,10 +199,36 @@ endif()
 # ---------------------------------------------------------------------------- #
 # Unit tests
 # ---------------------------------------------------------------------------- #
-if(ILANG_BUILD_TEST)
+if(${ILANG_BUILD_TEST})
 
   enable_testing()
   add_subdirectory(test)
 
 endif()
+
+
+# ---------------------------------------------------------------------------- #
+# Documents
+# ---------------------------------------------------------------------------- #
+if(${ILANG_BUILD_DOCS})
+  find_package(Doxygen QUIET)
+
+  if(DOXYGEN_FOUND)
+    configure_file(
+      ${CMAKE_CURRENT_SOURCE_DIR}/docs/Doxyfile.in
+      ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
+      @ONLY
+    )
+
+    add_custom_target(doc
+      COMMAND 
+        ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile &> doxygen.log
+      WORKING_DIRECTORY 
+        ${CMAKE_CURRENT_BIN_DIR}
+      VERBATIM
+    )
+
+  endif() # DOXYGEN_FOUND
+
+endif() # ${ILANG_BUILD_DOCS}
 
