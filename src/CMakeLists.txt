@@ -41,32 +41,36 @@ target_link_libraries(${ILANG_LIB_NAME} PUBLIC glog::glog)
 ##
 set(ILANG_LIB_OBJ_UTIL util)
 add_subdirectory(util)
-target_sources(${ILANG_LIB_NAME} 
-  PRIVATE $<TARGET_OBJECTS:${ILANG_LIB_OBJ_UTIL}>)
+target_link_libraries(${ILANG_LIB_NAME} 
+  PUBLIC $<TARGET_OBJECTS:${ILANG_LIB_OBJ_UTIL}>
+)
 
 ##
 ## ila
 ##
 set(ILANG_LIB_OBJ_ILA ila)
 add_subdirectory(ila)
-target_sources(${ILANG_LIB_NAME}
-  PRIVATE $<TARGET_OBJECTS:${ILANG_LIB_OBJ_ILA}>)
+target_link_libraries(${ILANG_LIB_NAME}
+  PUBLIC $<TARGET_OBJECTS:${ILANG_LIB_OBJ_ILA}>
+)
 
 ##
 ## verif
 ##
 set(ILANG_LIB_OBJ_VERIF verif)
 add_subdirectory(backend)
-target_sources(${ILANG_LIB_NAME}
-  PRIVATE $<TARGET_OBJECTS:${ILANG_LIB_OBJ_VERIF}>)
+target_link_libraries(${ILANG_LIB_NAME}
+  PUBLIC $<TARGET_OBJECTS:${ILANG_LIB_OBJ_VERIF}>
+)
 
 ##
 ## vlog-out
 ##
 set(ILANG_LIB_OBJ_VLOG_OUT vlog_out)
 add_subdirectory(verilog-out)
-target_sources(${ILANG_LIB_NAME}
-  PRIVATE $<TARGET_OBJECTS:${ILANG_LIB_OBJ_VLOG_OUT}>)
+target_link_libraries(${ILANG_LIB_NAME}
+  PUBLIC $<TARGET_OBJECTS:${ILANG_LIB_OBJ_VLOG_OUT}>
+)
 
 ##
 ## vlog-in
@@ -75,12 +79,14 @@ if(ILANG_BUILD_VLOG)
   set(ILANG_LIB_OBJ_VLOG_IN vlog_in)
   add_subdirectory(verilog-in)
 
-  target_sources(${ILANG_LIB_NAME}
-    PRIVATE $<TARGET_OBJECTS:${ILANG_LIB_OBJ_VLOG_IN}>)
+  target_link_libraries(${ILANG_LIB_NAME}
+    PUBLIC $<TARGET_OBJECTS:${ILANG_LIB_OBJ_VLOG_IN}>
+  )
 
   # XXX is is required for non-interface lib?
   target_link_libraries(${ILANG_LIB_NAME} 
-    PRIVATE verilogparser::verilogparser)
+    PRIVATE verilogparser::verilogparser
+  )
 
 endif()
 
@@ -91,8 +97,9 @@ if(ILANG_BUILD_JSON)
   set(ILANG_LIB_OBJ_JSON_IO json_io)
   add_subdirectory(json-inout)
 
-  target_sources(${ILANG_LIB_NAME}
-    PRIVATE $<TARGET_OBJECTS:${ILANG_LIB_OBJ_JSON_IO}>)
+  target_link_libraries(${ILANG_LIB_NAME}
+    PUBLIC $<TARGET_OBJECTS:${ILANG_LIB_OBJ_JSON_IO}>
+  )
 
 endif()
 

@@ -12,3 +12,8 @@ target_include_directories(${ILANG_LIB_OBJ_VLOG_OUT}
   PRIVATE ${PROJECT_SOURCE_DIR}/include
 )
 
+target_link_libraries(${ILANG_LIB_OBJ_VLOG_OUT}
+  PRIVATE $<TARGET_OBJECTS:${ILANG_LIB_OBJ_UTIL}>
+  PRIVATE $<TARGET_OBJECTS:${ILANG_LIB_OBJ_ILA}>
+)
+

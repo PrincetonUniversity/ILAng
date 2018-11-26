@@ -13,3 +13,7 @@ target_include_directories(${ILANG_LIB_OBJ_UTIL}
   PRIVATE ${PROJECT_SOURCE_DIR}/include
 ) 
 
+target_link_libraries(${ILANG_LIB_OBJ_UTIL}
+  PUBLIC glog::glog
+)
+

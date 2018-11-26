@@ -28,3 +28,8 @@ target_include_directories(${ILANG_LIB_OBJ_ILA}
   PRIVATE ${PROJECT_SOURCE_DIR}/include
 ) 
 
+target_link_libraries(${ILANG_LIB_OBJ_ILA}
+  PUBLIC z3::z3
+  PRIVATE $<TARGET_OBJECTS:${ILANG_LIB_OBJ_UTIL}>
+)
+
