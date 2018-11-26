@@ -13,6 +13,7 @@ target_include_directories(${ILANG_LIB_OBJ_VLOG_OUT}
 )
 
 target_link_libraries(${ILANG_LIB_OBJ_VLOG_OUT}
+  PUBLIC glog::glog # FIXME should be util only
   PRIVATE $<TARGET_OBJECTS:${ILANG_LIB_OBJ_UTIL}>
   PRIVATE $<TARGET_OBJECTS:${ILANG_LIB_OBJ_ILA}>
 )

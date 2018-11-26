@@ -30,6 +30,7 @@ target_include_directories(${ILANG_LIB_OBJ_ILA}
 
 target_link_libraries(${ILANG_LIB_OBJ_ILA}
   PUBLIC z3::z3
+  PUBLIC glog::glog # FIXME should be util only
   PRIVATE $<TARGET_OBJECTS:${ILANG_LIB_OBJ_UTIL}>
 )
 
