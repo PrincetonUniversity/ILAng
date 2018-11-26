@@ -40,21 +40,69 @@ target_include_directories(${ILANG_LIB_NAME}
     $<BUILD_INTERFACE:${ILANG_INCLUDE_BUILD_DIR}>
 )
 
+# ---------------------------------------------------------------------------- #
+# LINK LIBRARIES
+# external dependencies
+# ---------------------------------------------------------------------------- #
 ##
-## external dependencies
+## z3
 ##
-find_package(Z3 REQUIRED) # need to call here to see the imported target
+find_package(Z3 4.5.0 REQUIRED)
 target_link_libraries(${ILANG_LIB_NAME} PUBLIC z3::z3)
+
+##
+## glog
+##
+find_package(glog 0.3.5 QUIET) 
+
+if(NOT GLOG_FOUND)
+  add_subdirectory(
+    ${PROJECT_SOURCE_DIR}/extern/glog 
+    ${CMAKE_CURRENT_BINARY_DIR}/extern/glog
+    EXCLUDE_FROM_ALL
+  )
+endif()
 
 target_link_libraries(${ILANG_LIB_NAME} PUBLIC glog::glog)
 
+##
+## verilog parser
+##
 if(${ILANG_BUILD_VLOG})
+
+  add_subdirectory(
+    ${PROJECT_SOURCE_DIR}/extern/verilog-parser 
+    ${CMAKE_CURRENT_BINARY_DIR}/extern/verilog-parser
+    EXCLUDE_FROM_ALL
+  )
+
   target_link_libraries(${ILANG_LIB_NAME} PRIVATE verilogparser::verilogparser)
+
 endif()
 
+##
+## json
+##
 if(${ILANG_BUILD_JSON})
-  find_package(nlohmann_json QUIET)
+  
+  find_package(nlohmann_json 3.4.0 QUIET)
+
+  if(NOT NLOHMANN_JSON_FOUND)
+
+      set(JSON_BuildTests OFF CACHE INTERNAL "")
+
+      add_subdirectory(
+        ${PROJECT_SOURCE_DIR}/extern/json 
+        ${CMAKE_CURRENT_BINARY_DIR}/extern/json
+        EXCLUDE_FROM_ALL
+      )
+
+      export(PACKAGE nlohmann_json) # for install
+
+  endif()
+
   target_link_libraries(${ILANG_LIB_NAME} PRIVATE nlohmann_json::nlohmann_json)
+
 endif()
 
 

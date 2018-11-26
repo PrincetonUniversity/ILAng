@@ -1,21 +1,14 @@
 # ---------------------------------------------------------------------------- #
 # External dependencies
-#   z3
 #   Boost
 #   Python
 #   glog
 #   json
-#   verilogparser
+#   verilog parser
 #
-#   googletest (in test)
-#   gflag (optional)
-#   doxygen (optional)
+#   gflag (TODO)
+#   doxygen (TODO)
 # ---------------------------------------------------------------------------- #
-##
-## z3
-##
-find_package(Z3 4.5.0 REQUIRED)
-
 ##
 ## Boost
 ##
@@ -67,11 +60,6 @@ if(NOT GLOG_FOUND)
 
   if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extern/glog/CMakeLists.txt")
     message(FATAL_ERROR "glog submodule was not downloaded.")
-
-  else()
-    set(WITH_GFLAGS OFF)
-    add_subdirectory(glog)
-
   endif() # submodule exist
 
 endif() # GLOG_FOUND
@@ -83,14 +71,10 @@ if(${ILANG_BUILD_JSON})
   find_package(nlohmann_json 3.4.0 QUIET)
 
   if(NOT NLOHMANN_JSON_FOUND)
+
     if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extern/json/CMakeLists.txt")
       message(FATAL_ERROR "nlohmann_json submodule was not downloaded.")
-
-    else()
-      set(JSON_BuildTests OFF CACHE INTERNAL "")
-      add_subdirectory(json)
-
-    endif() # submodule exist
+    endif()
 
   endif() # NLOHMANN_JSON_FOUND
 
@@ -103,10 +87,6 @@ if(${ILANG_BUILD_VLOG})
 
   if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extern/verilog-parser/CMakeLists.txt")
     message(FATAL_ERROR "verilog-parser submodule was not downloaded.")
-
-  else()
-    add_subdirectory(verilog-parser EXCLUDE_FROM_ALL)
-
   endif() # submodule exist
 
 endif() # ILANG_BUILD_VLOG
