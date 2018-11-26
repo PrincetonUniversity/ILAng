@@ -1,36 +1,23 @@
 # ------------------------------------------------------------------------------
-# TARGET
-# object library ${ILANG_LIB_OBJ_ILA}
+# source 
 # ------------------------------------------------------------------------------
-add_library(${ILANG_LIB_OBJ_ILA} OBJECT 
-  ast/ast.cc
-  ast/expr.cc
-  ast/expr_const.cc
-  ast/expr_op.cc
-  ast/expr_var.cc
-  ast/func.cc
-  ast/sort.cc
-  ast/sort_value.cc
-  comp_ref_rel.cc
-  expr_fuse.cc
-  hash_ast.cc
-  instr.cc
-  instr_lvl_abs.cc
-  object.cc
-  symbol.cc
-  transition.cc
-  z3_expr_adapter.cc
-)
-
-target_compile_features(${ILANG_LIB_OBJ_ILA} PUBLIC cxx_std_11)
-
-target_include_directories(${ILANG_LIB_OBJ_ILA} 
-  PRIVATE ${PROJECT_SOURCE_DIR}/include
-) 
-
-target_link_libraries(${ILANG_LIB_OBJ_ILA}
-  PUBLIC z3::z3
-  PUBLIC glog::glog # FIXME should be util only
-  PRIVATE $<TARGET_OBJECTS:${ILANG_LIB_OBJ_UTIL}>
+target_sources(${ILANG_LIB_NAME} PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/ast/ast.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/ast/expr.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/ast/expr_const.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/ast/expr_op.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/ast/expr_var.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/ast/func.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/ast/sort.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/ast/sort_value.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/comp_ref_rel.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/expr_fuse.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/hash_ast.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/instr.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/instr_lvl_abs.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/object.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/symbol.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/transition.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/z3_expr_adapter.cc
 )
 

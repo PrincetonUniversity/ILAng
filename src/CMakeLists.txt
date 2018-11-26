@@ -6,6 +6,22 @@ add_library(${ILANG_LIB_NAME} cpp_api.cc)
 add_library(${PROJECT_NAME}::${ILANG_LIB_NAME} ALIAS ${ILANG_LIB_NAME})
 
 ##
+## source files
+##
+add_subdirectory(util)
+add_subdirectory(ila)
+add_subdirectory(backend)
+add_subdirectory(verilog-out)
+
+if(${ILANG_BUILD_VLOG})
+  add_subdirectory(verilog-in)
+endif()
+
+if(${ILANG_BUILD_JSON})
+  add_subdirectory(json-inout)
+endif()
+
+##
 ## compile features/options
 ##
 target_compile_features(${ILANG_LIB_NAME} PUBLIC cxx_std_11)
@@ -29,78 +45,16 @@ target_include_directories(${ILANG_LIB_NAME}
 ##
 find_package(Z3 REQUIRED) # need to call here to see the imported target
 target_link_libraries(${ILANG_LIB_NAME} PUBLIC z3::z3)
+
 target_link_libraries(${ILANG_LIB_NAME} PUBLIC glog::glog)
 
-
-# ---------------------------------------------------------------------------- #
-# TARGET
-# object library
-# ---------------------------------------------------------------------------- #
-##
-## util
-##
-set(ILANG_LIB_OBJ_UTIL util)
-add_subdirectory(util)
-target_link_libraries(${ILANG_LIB_NAME} 
-  PUBLIC $<TARGET_OBJECTS:${ILANG_LIB_OBJ_UTIL}>
-)
-
-##
-## ila
-##
-set(ILANG_LIB_OBJ_ILA ila)
-add_subdirectory(ila)
-target_link_libraries(${ILANG_LIB_NAME}
-  PUBLIC $<TARGET_OBJECTS:${ILANG_LIB_OBJ_ILA}>
-)
-
-##
-## verif
-##
-set(ILANG_LIB_OBJ_VERIF verif)
-add_subdirectory(backend)
-target_link_libraries(${ILANG_LIB_NAME}
-  PUBLIC $<TARGET_OBJECTS:${ILANG_LIB_OBJ_VERIF}>
-)
-
-##
-## vlog-out
-##
-set(ILANG_LIB_OBJ_VLOG_OUT vlog_out)
-add_subdirectory(verilog-out)
-target_link_libraries(${ILANG_LIB_NAME}
-  PUBLIC $<TARGET_OBJECTS:${ILANG_LIB_OBJ_VLOG_OUT}>
-)
-
-##
-## vlog-in
-##
-if(ILANG_BUILD_VLOG)
-  set(ILANG_LIB_OBJ_VLOG_IN vlog_in)
-  add_subdirectory(verilog-in)
-
-  target_link_libraries(${ILANG_LIB_NAME}
-    PUBLIC $<TARGET_OBJECTS:${ILANG_LIB_OBJ_VLOG_IN}>
-  )
-
-  # XXX is is required for non-interface lib?
-  target_link_libraries(${ILANG_LIB_NAME} 
-    PRIVATE verilogparser::verilogparser
-  )
-
+if(${ILANG_BUILD_VLOG})
+  target_link_libraries(${ILANG_LIB_NAME} PRIVATE verilogparser::verilogparser)
 endif()
 
-##
-## json
-##
-if(ILANG_BUILD_JSON)
-  set(ILANG_LIB_OBJ_JSON_IO json_io)
-  add_subdirectory(json-inout)
-
-  target_link_libraries(${ILANG_LIB_NAME}
-    PUBLIC $<TARGET_OBJECTS:${ILANG_LIB_OBJ_JSON_IO}>
-  )
-
+if(${ILANG_BUILD_JSON})
+  find_package(nlohmann_json QUIET)
+  target_link_libraries(${ILANG_LIB_NAME} PRIVATE nlohmann_json::nlohmann_json)
 endif()
 
 

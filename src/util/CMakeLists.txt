@@ -1,19 +1,8 @@
 # ---------------------------------------------------------------------------- #
-# TARGET
-# object library ${ILANG_LIB_OBJ_UTIL}
+# source 
 # ---------------------------------------------------------------------------- #
-add_library(${ILANG_LIB_OBJ_UTIL} OBJECT 
-  log.cc
-  str_util.cc
-)
-
-target_compile_features(${ILANG_LIB_OBJ_UTIL} PUBLIC cxx_std_11)
-
-target_include_directories(${ILANG_LIB_OBJ_UTIL} 
-  PRIVATE ${PROJECT_SOURCE_DIR}/include
-) 
-
-target_link_libraries(${ILANG_LIB_OBJ_UTIL}
-  PUBLIC glog::glog
+target_sources(${ILANG_LIB_NAME} PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/log.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/str_util.cc
 )
 
