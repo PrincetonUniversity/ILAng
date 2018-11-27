@@ -66,6 +66,13 @@ ExprPtr Instr::update(const ExprPtr state) const {
   return update(name);
 }
 
+Instr::StateNameSet Instr::updated_states() const {
+  StateNameSet ret_;
+  for (const auto & pos : updates_) 
+    ret_.insert( pos.first );
+  return ret_;  
+}
+
 void Instr::ForceSetDecode(const ExprPtr decode) {
   ILA_NOT_NULL(decode); // setting NULL pointer to decode function
   ILA_CHECK(decode->is_bool()) << "Decode must have Boolean sort.";

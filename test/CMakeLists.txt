@@ -41,6 +41,7 @@ package_add_test(${ILANG_TEST_MAIN}
   unit-src/eq_ilas.cc
   unit-src/simple_cpu.cc
   unit-src/stream_buffer.cc
+  unit-src/mcm_ilas.cc
   t_api.cc
   t_crr.cc
   t_eq_check.cc
@@ -68,6 +69,7 @@ package_add_test(${ILANG_TEST_MAIN}
   t_verilog_gen.cc
   t_z3adapter.cc
   t_z3sanity.cc
+  t_mcm.cc
 )
 
 target_link_libraries(${ILANG_TEST_MAIN} ${ILANG_LIB_NAME})
