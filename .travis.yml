@@ -12,18 +12,16 @@ branches:
     - coveralls
     - travis
     - ref-rel
+    - restructure
 
 git:
   depth: 1
-  # handle git submodules manually
+  # test config time init
   submodules: false
 
 before_install:
   - sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
   - sudo apt-get -qq --yes update
-  # handle git submodules manually
-  - sed -i 's/git@github.com:/https:\/\/github.com\//' .gitmodules
-  - git submodule update --init --recursive
 
 install: 
   - gem install coveralls-lcov
@@ -31,6 +29,7 @@ install:
   - sudo apt purge cmake
   - sudo apt-get install --yes libboost-all-dev
   - sudo apt-get install --yes lcov
+  - sudo apt-get install --yes flex bison
 
 before_script:
   - export PARENT_DIR=$TRAVIS_BUILD_DIR/../
@@ -51,13 +50,6 @@ before_script:
   - cd build
   - make && sudo make install
   - z3 --version
-  # glog
-  - cd $PARENT_DIR
-  - git clone --depth 1 https://github.com/google/glog.git
-  - mkdir -p $PARENT_DIR/glog/build/
-  - cd $PARENT_DIR/glog/build/ 
-  - cmake ..
-  - make && sudo make install
   # coverage test
   - lcov --version
   - gcov --version
@@ -68,13 +60,13 @@ before_script:
 
 script:
   - cd $TRAVIS_BUILD_DIR/build
-  - cmake -L -DZ3_INCLUDE_DIR=/usr/include -Dglog_DIR=$PARENT_DIR/glog/build -Dcoverage=ON -Dpython-api=ON -Dverilog-in=ON -Djson-inout=OFF -Ddebug=ON $TRAVIS_BUILD_DIR
+  - cmake .. -DILANG_BUILD_COV=ON
   - make && sudo make install
 
 after_success:
   - make run_test
   - lcov --directory $TRAVIS_BUILD_DIR/build --capture --output-file coverage.info 
-  - lcov --remove coverage.info 'glog/*' 'test/*' 'app/*' 'cmake/*' '/usr/*' 'src/verilog-in/byh-verilog-parser/*' 'src/json-inout/nlohmann-json/*' --output-file coverage.info 
+  - lcov --remove coverage.info 'glog/*' 'test/*' 'app/*' 'cmake/*' '/usr/*' 'extern/*' --output-file coverage.info 
   - lcov --list coverage.info 
   - coveralls-lcov coverage.info 
 
