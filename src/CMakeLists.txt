@@ -97,8 +97,6 @@ if(${ILANG_BUILD_JSON})
         EXCLUDE_FROM_ALL
       )
 
-      export(PACKAGE nlohmann_json) # for install
-
   endif()
 
   target_link_libraries(${ILANG_LIB_NAME} PRIVATE nlohmann_json::nlohmann_json)
