@@ -10,7 +10,6 @@ namespace ila {
 
 TEST(TestVerilogParse, Init) { TestParseVerilog(); }
 
-}; // namespace ila
+};  // namespace ila
 
-#endif // VERILOG_IN_ENABLE
-
+#endif  // VERILOG_IN_ENABLE

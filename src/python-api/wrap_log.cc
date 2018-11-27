@@ -12,6 +12,5 @@ void DisableLog(const std::string& tag) { DebugLog::Disable(tag); }
 
 void ClearLogs() { DebugLog::Clear(); }
 
-} // namespace pyapi
-} // namespace ila
-
+}  // namespace pyapi
+}  // namespace ila

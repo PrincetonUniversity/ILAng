@@ -3,9 +3,9 @@
 
 #include <ilang/ila/expr_fuse.h>
 #include <ilang/ila/symbol.h>
-#include "unit-include/util.h"
 #include <ilang/util/container.h>
 #include <string>
+#include "unit-include/util.h"
 
 namespace ila {
 
@@ -88,5 +88,4 @@ TEST(TestKeyVec, SymbolExpr) {
   EXPECT_EQ(pos, kv.end());
 }
 
-} // namespace ila
-
+}  // namespace ila

@@ -18,8 +18,7 @@ void export_instr();
 
 void export_instr_lvl_abs();
 
-} // namespace pyapi
-} // namespace ila
+}  // namespace pyapi
+}  // namespace ila
 
-#endif // ILA_PY_API_H__
-
+#endif  // ILA_PY_API_H__

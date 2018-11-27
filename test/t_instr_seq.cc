@@ -9,7 +9,7 @@
 namespace ila {
 
 class TestInstrSeq : public ::testing::Test {
-public:
+ public:
   TestInstrSeq() {}
   ~TestInstrSeq() {}
 
@@ -62,7 +62,7 @@ public:
   InstrPtr instr_4;
   InstrPtr instr_5;
 
-}; // class TestInstrSeq
+};  // class TestInstrSeq
 
 TEST_F(TestInstrSeq, ItEdge) {
   auto cnd = ExprFuse::Eq(counter, const_0);
@@ -125,5 +125,4 @@ TEST_F(TestInstrSeq, Sort) {
   auto sorted_seq = seq->Sort();
 }
 
-} // namespace ila
-
+}  // namespace ila

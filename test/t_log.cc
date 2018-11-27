@@ -1,35 +1,35 @@
 /// \file
 /// Unit test for the logging system.
 
-#include "unit-include/util.h"
 #include <ilang/util/log.h>
+#include "unit-include/util.h"
 
 namespace ila {
 
 class TestLog : public ::testing::Test {
-public:
+ public:
   TestLog() {}
   ~TestLog() {}
 
   void SetUp() {
     // precondition for log test
-    SetLogLevel(0); // log all
-    SetLogPath(""); // log to /tmp
-    SetToStdErr(1); // log to stderr for easy catching
+    SetLogLevel(0);  // log all
+    SetLogPath("");  // log to /tmp
+    SetToStdErr(1);  // log to stderr for easy catching
   }
 
   void TearDown() {
     // reset to default condition
-    SetLogLevel(0); // log all
-    SetLogPath(""); // log to /tmp
+    SetLogLevel(0);  // log all
+    SetLogPath("");  // log to /tmp
 #ifndef NDEBUG
-    SetToStdErr(0); // still log to stderr
-#else               // NDEBUG
-    SetToStdErr(0); // not log to stderr
-#endif              // NDEBUG
+    SetToStdErr(0);  // still log to stderr
+#else                // NDEBUG
+    SetToStdErr(0);  // not log to stderr
+#endif               // NDEBUG
   }
 
-}; // Log test fixture
+};  // Log test fixture
 
 TEST_F(TestLog, Level) {
   std::string msg_info;
@@ -202,5 +202,4 @@ TEST_F(TestLog, Clear) {
   EXPECT_TRUE(msg.empty());
 }
 
-} // namespace ila
-
+}  // namespace ila

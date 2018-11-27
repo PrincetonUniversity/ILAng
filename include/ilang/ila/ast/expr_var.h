@@ -13,7 +13,7 @@ namespace ila {
 /// \brief Expression for variables (bool, bv, or mem). Variable should be the
 /// terminating nodes in the AST.
 class ExprVar : public Expr {
-public:
+ public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Constructor for Boolean variable.
   ExprVar(const std::string& name);
@@ -39,7 +39,7 @@ public:
   /// Output to stream.
   std::ostream& Print(std::ostream& out) const;
 
-private:
+ private:
   // ------------------------- MEMBERS -------------------------------------- //
 
   // ------------------------- HELPERS -------------------------------------- //
@@ -50,9 +50,8 @@ private:
   /// Print Memory variable.
   std::ostream& PrintMem(std::ostream& out) const;
 
-}; // class ExprVar
+};  // class ExprVar
 
-} // namespace ila
+}  // namespace ila
 
-#endif // EXPR_VAR_H__
-
+#endif  // EXPR_VAR_H__

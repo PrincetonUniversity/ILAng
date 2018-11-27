@@ -1,12 +1,12 @@
 /// \file
 /// Source for the c++ API.
 
-#include <ilang/cpp_api.h>
-#include <ilang/backend/unroller.h>
 #include <ilang/backend/abs_knob.h>
+#include <ilang/backend/unroller.h>
+#include <ilang/cpp_api.h>
 #include <ilang/ila/instr_lvl_abs.h>
-#include <ilang/verilog-out/verilog_gen.h>
 #include <ilang/util/log.h>
+#include <ilang/verilog-out/verilog_gen.h>
 
 namespace ila {
 
@@ -398,8 +398,7 @@ FuncRef::FuncRef(const std::string& name, const SortRef& range,
 FuncRef::FuncRef(const std::string& name, const SortRef& range,
                  const std::vector<SortRef>& dvec) {
   std::vector<SortPtr> args;
-  for (size_t i = 0; i != dvec.size(); i++)
-    args.push_back(dvec[i].get());
+  for (size_t i = 0; i != dvec.size(); i++) args.push_back(dvec[i].get());
   ptr_ = Func::New(name, range.get(), args);
 }
 
@@ -422,8 +421,7 @@ ExprRef FuncRef::operator()(const ExprRef& arg0, const ExprRef& arg1) const {
 
 ExprRef FuncRef::operator()(const std::vector<ExprRef>& argvec) const {
   std::vector<ExprPtr> args;
-  for (size_t i = 0; i != argvec.size(); i++)
-    args.push_back(argvec[i].get());
+  for (size_t i = 0; i != argvec.size(); i++) args.push_back(argvec[i].get());
   auto v = ExprFuse::AppFunc(get(), args);
   return ExprRef(v);
 }
@@ -439,39 +437,34 @@ void InstrRef::SetDecode(const ExprRef& decode) {
   ptr_->set_decode(decode.get());
 }
 
-ExprRef InstrRef::GetDecode() const {
-  return ptr_->decode();
-}
+ExprRef InstrRef::GetDecode() const { return ptr_->decode(); }
 
 void InstrRef::SetUpdate(const ExprRef& state, const ExprRef& update) {
   ptr_->set_update(state.get(), update.get());
 }
 
-
-
 ExprRef InstrRef::GetUpdate(const ExprRef& state) const {
   return ptr_->update(state.get());
 }
 
-
 void InstrRef::SetProgram(const Ila& prog) { ptr_->set_program(prog.get()); }
 
-void InstrRef::ExportToVerilog(std::ostream & fout) const {
-	VerilogGenerator vgen( VerilogGenerator::VlgGenConfig(true) ); // overwrite default configuration : memory is external
-	vgen.ExportTopLevelInstr(ptr_);
-	vgen.DumpToFile(fout);
+void InstrRef::ExportToVerilog(std::ostream& fout) const {
+  VerilogGenerator vgen(VerilogGenerator::VlgGenConfig(
+      true));  // overwrite default configuration : memory is external
+  vgen.ExportTopLevelInstr(ptr_);
+  vgen.DumpToFile(fout);
 }
 
+void InstrRef::ExportToVerilogWithChild(std::ostream& fout) const {
+  auto dept_ila_ptr = AbsKnob::ExtrDeptModl(ptr_, ptr_->name().str() + "_ila_");
+  AbsKnob::FlattenIla(dept_ila_ptr);
 
-void InstrRef::ExportToVerilogWithChild(std::ostream & fout) const {
-	auto dept_ila_ptr = AbsKnob::ExtrDeptModl(ptr_, ptr_->name().str() + "_ila_");
-	AbsKnob::FlattenIla(dept_ila_ptr);
-
-	VerilogGenerator vgen( VerilogGenerator::VlgGenConfig(true) ); // overwrite default configuration : memory is external
-	vgen.ExportIla(dept_ila_ptr);
-	vgen.DumpToFile(fout);
+  VerilogGenerator vgen(VerilogGenerator::VlgGenConfig(
+      true));  // overwrite default configuration : memory is external
+  vgen.ExportIla(dept_ila_ptr);
+  vgen.DumpToFile(fout);
 }
-
 
 /******************************************************************************/
 // Ila
@@ -564,10 +557,11 @@ InstrRef Ila::instr(const std::string& name) const {
 
 Ila Ila::child(const std::string& name) const { return Ila(ptr_->child(name)); }
 
-void Ila::ExportToVerilog(std::ostream & fout) const {
-	VerilogGenerator vgen( VerilogGenerator::VlgGenConfig(true) ); // overwrite default configuration : memory is external
-	vgen.ExportIla(ptr_);
-	vgen.DumpToFile(fout);
+void Ila::ExportToVerilog(std::ostream& fout) const {
+  VerilogGenerator vgen(VerilogGenerator::VlgGenConfig(
+      true));  // overwrite default configuration : memory is external
+  vgen.ExportIla(ptr_);
+  vgen.DumpToFile(fout);
 }
 
 std::ostream& operator<<(std::ostream& out, const ExprRef& expr) {
@@ -673,5 +667,4 @@ void EnableDebug(const std::string& tag) { DebugLog::Enable(tag); }
 
 void DisableDebug(const std::string& tag) { DebugLog::Disable(tag); }
 
-} // namespace ila
-
+}  // namespace ila

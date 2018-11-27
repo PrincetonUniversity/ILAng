@@ -96,5 +96,4 @@ MemValPtr ExprConst::val_mem() const {
   return ptr;
 }
 
-} // namespace ila
-
+}  // namespace ila

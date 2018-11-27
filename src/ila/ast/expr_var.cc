@@ -57,5 +57,4 @@ std::ostream& ExprVar::PrintMem(std::ostream& out) const {
                     ", " + std::to_string(sort()->data_width()) + ")";
 }
 
-} // namespace ila
-
+}  // namespace ila

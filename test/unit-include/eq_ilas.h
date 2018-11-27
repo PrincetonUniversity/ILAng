@@ -31,7 +31,7 @@ namespace ila {
 /// Instruction 4: (start == 1 && opcode == 4)
 ///  - sum up the value in %register [0-14] and store to %register 15.
 class EqIlaGen {
-public:
+ public:
   /// \brief Flat ILA 1:
   /// - no child-ILA
   /// - every computation is done in an increasing order of the index.
@@ -59,7 +59,7 @@ public:
   /// Return the number of pipeline stages.
   inline const int& pipe_num() const { return pipe_num_; }
 
-private:
+ private:
   /// parameterized register number. (must >= 3)
   int reg_num_ = 8;
   /// parameterized register size (bit-width).
@@ -70,7 +70,6 @@ private:
   /// opcode
   enum k_opcode { op0 = 0, op1, op2, op3, op4 };
 
-}; // class EqIlaGen
+};  // class EqIlaGen
 
-} // namespace ila
-
+}  // namespace ila

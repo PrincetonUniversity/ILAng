@@ -5,9 +5,9 @@
 #define AST_H__
 
 #include <ilang/ila/object.h>
-#include "z3++.h"
 #include <memory>
 #include <string>
+#include "z3++.h"
 
 /// \namespace ila
 namespace ila {
@@ -18,7 +18,7 @@ class InstrLvlAbs;
 /// \brief The class for the Abstract Syntax Tree. An Ast object can be an
 /// expression or function definition (interpreted or uninterpreted).
 class Ast : public Object {
-public:
+ public:
   /// Type for forward declaration of ILA.
   typedef std::shared_ptr<InstrLvlAbs> InstrLvlAbsPtr;
 
@@ -49,16 +49,15 @@ public:
   /// Output function.
   virtual std::ostream& Print(std::ostream& out) const = 0;
 
-private:
+ private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// Pointer to the host ILA.
   InstrLvlAbsPtr host_ = NULL;
 
   // ------------------------- HELPERS -------------------------------------- //
 
-}; // class Ast
+};  // class Ast
 
-} // namespace ila
+}  // namespace ila
 
-#endif // AST_H__
-
+#endif  // AST_H__

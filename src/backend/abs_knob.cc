@@ -1,15 +1,15 @@
 /// \file
 /// Source for a collection of ILA helpers.
 
-#include <functional>
 #include <ilang/backend/abs_knob.h>
 #include <ilang/backend/rewrite_expr.h>
 #include <ilang/backend/rewrite_ila.h>
+#include <functional>
 
 namespace ila {
 
 class FuncObjInsertExprVar {
-public:
+ public:
   FuncObjInsertExprVar(ExprSet& vars) : vars_(vars) {}
 
   void operator()(const ExprPtr e) const {
@@ -18,47 +18,47 @@ public:
     }
   }
 
-private:
+ private:
   ExprSet& vars_;
 
-}; // class FuncObjInsertExprVar
+};  // class FuncObjInsertExprVar
 
 class FuncObjInsertILAInp {
-public:
+ public:
   FuncObjInsertILAInp(ExprSet& vars) : vars_(vars) {}
 
   void operator()(const InstrLvlAbsCnstPtr m) const {
     AbsKnob::InsertInp(m, vars_);
   }
 
-private:
+ private:
   ExprSet& vars_;
-}; // class FuncObjInsertILAStt
+};  // class FuncObjInsertILAStt
 
 class FuncObjInsertILAStt {
-public:
+ public:
   FuncObjInsertILAStt(ExprSet& vars) : vars_(vars) {}
 
   void operator()(const InstrLvlAbsCnstPtr m) const {
     AbsKnob::InsertStt(m, vars_);
   }
 
-private:
+ private:
   ExprSet& vars_;
-}; // class FuncObjInsertILAStt
+};  // class FuncObjInsertILAStt
 
 class FuncObjInsertILAInstr {
-public:
+ public:
   FuncObjInsertILAInstr(InstrVec& instrs) : instrs_(instrs) {}
 
   void operator()(const InstrLvlAbsCnstPtr m) const {
     AbsKnob::InsertInstr(m, instrs_);
   }
 
-private:
+ private:
   InstrVec& instrs_;
 
-}; // class FuncOjbInsertILAInstr
+};  // class FuncOjbInsertILAInstr
 
 /******************************************************************************/
 ExprSet AbsKnob::GetVar(const ExprPtr e) {
@@ -208,23 +208,23 @@ void AbsKnob::FlattenIla(const InstrLvlAbsPtr ila_ptr_) {
   auto expr_map = ExprMap();
   CnstIlaMap ila_map_;
 
-  std::function<void(const InstrLvlAbsCnstPtr &)> recordInpStates = [&] (const InstrLvlAbsCnstPtr & a) {
-  	ILA_INFO << "Traverse:" << (a->name().str());
-    if( a == ila_ptr_ ) return; // will not change the top
-    DuplInp(a, ila_ptr_, expr_map);
-    DuplStt(a, ila_ptr_, expr_map);
-    DuplInit(a, ila_ptr_, expr_map);
+  std::function<void(const InstrLvlAbsCnstPtr&)> recordInpStates =
+      [&](const InstrLvlAbsCnstPtr& a) {
+        ILA_INFO << "Traverse:" << (a->name().str());
+        if (a == ila_ptr_) return;  // will not change the top
+        DuplInp(a, ila_ptr_, expr_map);
+        DuplStt(a, ila_ptr_, expr_map);
+        DuplInit(a, ila_ptr_, expr_map);
 
-    ila_map_.insert({a, ila_ptr_});
-    // remember to change the decode !!! to factor in the valid state
-  };
+        ila_map_.insert({a, ila_ptr_});
+        // remember to change the decode !!! to factor in the valid state
+      };
 
   ila_ptr_->DepthFirstVisit(recordInpStates);
 
-  FuncObjFlatIla flattener(ila_ptr_ , ila_map_, expr_map);
+  FuncObjFlatIla flattener(ila_ptr_, ila_map_, expr_map);
   ila_ptr_->DepthFirstVisitPrePost(flattener);
 }
-
 
 InstrLvlAbsPtr AbsKnob::ExtrDeptModl(const InstrPtr instr,
                                      const std::string& name) {
@@ -236,7 +236,7 @@ InstrLvlAbsPtr AbsKnob::ExtrDeptModl(const InstrPtr instr,
 
   auto expr_map = ExprMap();
 
-  try { // Create new state/input variables in the new ILA.
+  try {  // Create new state/input variables in the new ILA.
     DuplInp(src, dst, expr_map);
     DuplStt(src, dst, expr_map);
     DuplFetch(src, dst, expr_map);
@@ -251,7 +251,7 @@ InstrLvlAbsPtr AbsKnob::ExtrDeptModl(const InstrPtr instr,
   auto ila_map = CnstIlaMap({{src, dst}});
   // target instruction, child-ILAs
   auto prog_src = instr->program();
-  if (prog_src) { // duplicate child-ILA
+  if (prog_src) {  // duplicate child-ILA
     auto prog_dst = dst->NewChild(prog_src->name().str());
     ila_map.insert({prog_src, prog_dst});
 
@@ -294,7 +294,7 @@ void AbsKnob::DuplInp(const InstrLvlAbsCnstPtr src, const InstrLvlAbsPtr dst,
     // declare new input if not exist (not parent states)
     auto inp_src = *it;
     auto inp_dst = dst->find_input(inp_src->name());
-    if (!inp_dst) { // not exist --> child-input --> create
+    if (!inp_dst) {  // not exist --> child-input --> create
       inp_dst = DuplInp(dst, inp_src);
     }
     // update rewrite rule
@@ -310,7 +310,7 @@ void AbsKnob::DuplStt(const InstrLvlAbsCnstPtr src, const InstrLvlAbsPtr dst,
   for (auto it = stts.begin(); it != stts.end(); it++) {
     auto stt_src = *it;
     auto stt_dst = dst->find_state(stt_src->name());
-    if (!stt_dst) { // not exist --> child-state --> create
+    if (!stt_dst) {  // not exist --> child-state --> create
       stt_dst = DuplStt(dst, stt_src);
     }
     // update rewrite rule
@@ -364,8 +364,8 @@ InstrPtr AbsKnob::DuplInstr(const InstrCnstPtr i_src, const InstrLvlAbsPtr dst,
   auto p_src = i_src->program();
   if (p_src) {
     auto pos = ila_map.find(p_src);
-    ILA_ASSERT(pos != ila_map.end()) << "Child-program " << p_src
-                                     << " not mapped.";
+    ILA_ASSERT(pos != ila_map.end())
+        << "Child-program " << p_src << " not mapped.";
     auto p_dst = pos->second;
     i_dst->set_program(p_dst);
   }
@@ -404,5 +404,4 @@ ExprPtr AbsKnob::DuplStt(const InstrLvlAbsPtr m, const ExprPtr stt) {
   }
 }
 
-} // namespace ila
-
+}  // namespace ila

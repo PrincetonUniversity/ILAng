@@ -9,12 +9,12 @@ namespace ila {
 using namespace ExprFuse;
 
 class TestExpr : public ::testing::Test, public ExprBank<8> {
-public:
+ public:
   TestExpr() {}
   ~TestExpr() {}
   void SetUp() {}
   void TearDown() {}
-}; // class TestExpr
+};  // class TestExpr
 
 TEST_F(TestExpr, ReplaceArgIdx) {
   auto a = And(BOOL[0], BOOL[1]);
@@ -46,5 +46,4 @@ TEST_F(TestExpr, ReplaceArgExpr) {
   EXPECT_DEATH(c->replace_arg(b, d), ".*");
 }
 
-} // namespace ila
-
+}  // namespace ila

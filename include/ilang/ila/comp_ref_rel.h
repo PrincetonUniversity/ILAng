@@ -15,7 +15,7 @@ namespace ila {
 /// - Support dummy end child-instruction (commit point)
 /// - Support specifying number of steps
 class RefinementMap {
-public:
+ public:
   /// Pointer type for passing around the refinement mapping.
   typedef std::shared_ptr<RefinementMap> RefPtr;
 
@@ -71,7 +71,7 @@ public:
   /// specific type details.
   static RefPtr New();
 
-private:
+ private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// Cone-of-influence (as an ILA).
   InstrLvlAbsPtr coi_ = NULL;
@@ -88,7 +88,7 @@ private:
   /// A set of invariant.
   std::vector<ExprPtr> invs_;
 
-}; // RefinementMap
+};  // RefinementMap
 
 /// Pointer type for passing around the refinement mapping.
 typedef RefinementMap::RefPtr RefPtr;
@@ -96,7 +96,7 @@ typedef RefinementMap::RefPtr RefPtr;
 /// \brief Relation mapping defines how arch states of two models are mapped,
 /// i.e., state mapping.
 class RelationMap {
-public:
+ public:
   /// Pointer type for passing around the relation mapping.
   typedef std::shared_ptr<RelationMap> RelPtr;
 
@@ -117,12 +117,12 @@ public:
   /// specific type details.
   static RelPtr New();
 
-private:
+ private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// Cached output for conjuncting all relations.
   ExprPtr acc_ = ExprFuse::BoolConst(true);
 
-}; // RelationMap
+};  // RelationMap
 
 /// Pointer type for passing around the relation mapping.
 typedef RelationMap::RelPtr RelPtr;
@@ -133,7 +133,7 @@ typedef RelationMap::RelPtr RelPtr;
 /// - what to compare (relation), and
 /// - when to check (refinement).
 class CompRefRel {
-public:
+ public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Pointer type for passing around the compositional relation mapping.
   typedef std::shared_ptr<CompRefRel> CrrPtr;
@@ -158,7 +158,7 @@ public:
                     const RefPtr ref_b = RefinementMap::New(),
                     const RelPtr rel = RelationMap::New());
 
-private:
+ private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// Refinement mapping for model A.
   RefPtr ref_a_;
@@ -167,12 +167,11 @@ private:
   /// Relation mapping.
   RelPtr rel_;
 
-}; // CompRefRel
+};  // CompRefRel
 
 /// Pointer type for passing around the compositional relation mapping.
 typedef CompRefRel::CrrPtr CrrPtr;
 
-} // namespace ila
+}  // namespace ila
 
-#endif // COMP_REF_REL_H__
-
+#endif  // COMP_REF_REL_H__

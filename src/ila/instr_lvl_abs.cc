@@ -348,5 +348,4 @@ void InstrLvlAbs::InitObject() {
   }
 }
 
-} // namespace ila
-
+}  // namespace ila

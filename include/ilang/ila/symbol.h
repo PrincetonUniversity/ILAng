@@ -14,7 +14,7 @@ namespace ila {
 /// \brief The symbol is the name and ID of an object. Every object has an
 /// unique symbol.
 class Symbol {
-public:
+ public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor (empty name).
   Symbol();
@@ -56,7 +56,7 @@ public:
   /// Overload comparison <.
   friend bool operator<(const Symbol& lhs, const Symbol& rhs);
 
-private:
+ private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// Name of the object.
   std::string name_;
@@ -67,9 +67,8 @@ private:
 
   // ------------------------- HELPERS -------------------------------------- //
 
-}; // class Symbol
+};  // class Symbol
 
-} // namespace ila
+}  // namespace ila
 
-#endif // SYMBOL_H__
-
+#endif  // SYMBOL_H__

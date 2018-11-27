@@ -8,7 +8,6 @@ namespace ila {
 namespace pyapi {
 
 void export_log() {
-
   // Initialize logging
 
   /// Set log level to the given value.
@@ -25,6 +24,5 @@ void export_log() {
   def("clearlogs", ClearLogs);
 }
 
-} // namespace pyapi
-} // namespace ila
-
+}  // namespace pyapi
+}  // namespace ila

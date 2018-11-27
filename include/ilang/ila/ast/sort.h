@@ -5,9 +5,9 @@
 #define SORT_H__
 
 #include <ilang/ila/ast/ast.h>
-#include "z3++.h"
 #include <memory>
 #include <ostream>
+#include "z3++.h"
 
 /// \namespace ila
 namespace ila {
@@ -15,7 +15,7 @@ namespace ila {
 /// \brief The class for sort (type for expr, and the range/domain of
 /// functions).
 class Sort : public Ast {
-public:
+ public:
   /// Pointer type for storing/passing Sort.
   typedef std::shared_ptr<Sort> SortPtr;
 
@@ -37,7 +37,7 @@ public:
   /// Return true if have Boolean sort.
   virtual bool is_bool() const { return false; }
   /// Return true if have bit-vector sort.
-  virtual bool is_bv(const int &width = 0) const { return false; }
+  virtual bool is_bv(const int& width = 0) const { return false; }
   /// Return true if have memory (array) sort.
   virtual bool is_mem() const { return false; }
 
@@ -69,14 +69,14 @@ public:
     return s->Print(out);
   }
 
-}; // class Sort
+};  // class Sort
 
 /// Pointer type for storing/passing Sort.
 typedef Sort::SortPtr SortPtr;
 
 /// \brief The class of Boolean Sort.
 class SortBool : public Sort {
-public:
+ public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor.
   SortBool();
@@ -96,11 +96,11 @@ public:
   bool Equal(const SortPtr rhs) const;
   /// Print out to output stream.
   std::ostream& Print(std::ostream& out) const;
-}; // class SortBool
+};  // class SortBool
 
 /// \brief The class of bit-vector Sort.
 class SortBv : public Sort {
-public:
+ public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor.
   SortBv(const int& width);
@@ -125,14 +125,14 @@ public:
   /// Print out to output stream.
   std::ostream& Print(std::ostream& out) const;
 
-private:
+ private:
   /// Bit-width of the bit-vector.
   int bit_width_;
-}; // class SortBv
+};  // class SortBv
 
 /// \brief The class of memory (array) Sort.
 class SortMem : public Sort {
-public:
+ public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor.
   SortMem(const int& addr_w, const int& data_w);
@@ -157,14 +157,13 @@ public:
   /// Print out to output stream.
   std::ostream& Print(std::ostream& out) const;
 
-private:
+ private:
   /// Bit-width of the address.
   int addr_width_;
   /// Bit-width of the data.
   int data_width_;
-}; // class SortMem
+};  // class SortMem
 
-} // namespace ila
+}  // namespace ila
 
-#endif // SORT_H__
-
+#endif  // SORT_H__

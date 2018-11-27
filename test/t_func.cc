@@ -8,7 +8,7 @@
 namespace ila {
 
 class TestFunc : public ::testing::Test {
-public:
+ public:
   TestFunc() {}
   ~TestFunc() {}
   void SetUp() {}
@@ -17,7 +17,7 @@ public:
   SortPtr b = Sort::MakeBoolSort();
   SortPtr bv = Sort::MakeBvSort(8);
   SortPtr mem = Sort::MakeMemSort(8, 8);
-}; // class TestFunc
+};  // class TestFunc
 
 TEST_F(TestFunc, Atom) {
   auto f = Func::New("func");
@@ -82,5 +82,4 @@ TEST_F(TestFunc, Multiple) {
   auto f_decl = f->GetZ3FuncDecl(c);
 }
 
-} // namespace ila
-
+}  // namespace ila

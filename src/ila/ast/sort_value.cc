@@ -82,5 +82,4 @@ std::ostream& operator<<(std::ostream& out, const MemVal& val) {
   return val.Print(out);
 }
 
-} // namespace ila
-
+}  // namespace ila

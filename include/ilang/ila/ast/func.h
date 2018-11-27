@@ -17,7 +17,7 @@ class Expr;
 
 /// \brief The class for uninterpreted function.
 class Func : public Ast {
-public:
+ public:
   /// Pointer type for normal use of Func.
   typedef std::shared_ptr<Func> FuncPtr;
 
@@ -65,7 +65,7 @@ public:
     return f->Print(out);
   }
 
-private:
+ private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// Sort of the output (range).
   SortPtr out_;
@@ -73,12 +73,11 @@ private:
   std::vector<SortPtr> args_;
 
   // ------------------------- HELPERS -------------------------------------- //
-}; // class Func
+};  // class Func
 
 /// Pointer type for normal use of Func.
 typedef Func::FuncPtr FuncPtr;
 
-} // namespace ila
+}  // namespace ila
 
-#endif // FUNC_H__
-
+#endif  // FUNC_H__

@@ -160,5 +160,4 @@ TEST(TestExprConst, MemVal) {
   EXPECT_EQ(ref_str, msg);
 }
 
-} // namespace ila
-
+}  // namespace ila

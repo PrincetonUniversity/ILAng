@@ -15,4 +15,4 @@ int TestParseVerilogFrom(std::FILE *fp) {
   return verilog_parse_file(fp);
 }
 
-}; // namespace ila
+};  // namespace ila

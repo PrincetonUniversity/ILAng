@@ -2,8 +2,8 @@
 /// Unit test for the class ExprFuse
 
 #include <ilang/ila/expr_fuse.h>
-#include "unit-include/util.h"
 #include <iostream>
+#include "unit-include/util.h"
 
 namespace ila {
 
@@ -321,5 +321,4 @@ TEST(TestExprFuse, TopEq) {
   EXPECT_FALSE(TopEq(c, g));
 }
 
-} // namespace ila
-
+}  // namespace ila

@@ -2,9 +2,9 @@
 /// Unit test for Sort.
 
 #include <ilang/ila/ast/sort.h>
-#include "unit-include/util.h"
 #include <iostream>
 #include <string>
+#include "unit-include/util.h"
 
 namespace ila {
 
@@ -93,5 +93,4 @@ TEST(TestSort, Memory) {
   EXPECT_TRUE(z.is_array());
 }
 
-} // namespace ila
-
+}  // namespace ila

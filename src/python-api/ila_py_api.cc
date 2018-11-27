@@ -13,6 +13,5 @@ BOOST_PYTHON_MODULE(ila) {
   export_instr_lvl_abs();
 }
 
-} // namespace pyapi
-} // namespace ila
-
+}  // namespace pyapi
+}  // namespace ila

@@ -14,7 +14,7 @@ namespace ila {
 /// \brief The basest type in the ILA structure. It can be either Ast,
 /// Instr, or InstrLvlAbs.
 class Object {
-public:
+ public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor.
   Object();
@@ -41,19 +41,18 @@ public:
   /// Output function.
   virtual std::ostream& Print(std::ostream& out) const = 0;
 
-private:
+ private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// Symbol (name) of the object.
   Symbol symbol_;
 
   // ------------------------- HELPERS -------------------------------------- //
 
-}; // class Object
+};  // class Object
 
 /// Pointer type for normal use of Object.
 typedef Object::ObjPtr ObjPtr;
 
-} // namespace ila
+}  // namespace ila
 
-#endif // OBJECT_H__
-
+#endif  // OBJECT_H__

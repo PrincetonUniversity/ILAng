@@ -2,9 +2,9 @@
 /// Unit test for legacy BMC
 
 #include <ilang/backend/legacy_bmc.h>
+#include <iostream>
 #include "unit-include/eq_ilas.h"
 #include "unit-include/util.h"
-#include <iostream>
 
 namespace ila {
 
@@ -22,7 +22,7 @@ TEST(TestLegacyBmc, FF) {
 
   LegacyBmc bmc;
 
-  { // init for m0
+  {  // init for m0
     auto start = m0->input("start");
     auto start_i = ExprFuse::Eq(start, ExprFuse::BoolConst(true));
     auto opcode = m0->input("opcode");
@@ -32,7 +32,7 @@ TEST(TestLegacyBmc, FF) {
     bmc.AddInit(init);
   }
 
-  { // init for m1
+  {  // init for m1
     auto start = m1->input("start");
     auto start_i = ExprFuse::Eq(start, ExprFuse::BoolConst(true));
     auto opcode = m1->input("opcode");
@@ -53,5 +53,4 @@ TEST(TestLegacyBmc, FF) {
   SetToStdErr(0);
 }
 
-} // namespace ila
-
+}  // namespace ila

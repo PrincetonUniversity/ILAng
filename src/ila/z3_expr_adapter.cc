@@ -49,8 +49,8 @@ void Z3ExprAdapter::PopulateExprMap(const ExprPtr expr) {
   for (size_t i = 0; i != num; i++) {
     ExprPtr arg_i = expr->arg(i);
     auto pos = expr_map_.find(arg_i);
-    ILA_ASSERT(pos != expr_map_.end()) << "No expressions found for argument "
-                                       << i;
+    ILA_ASSERT(pos != expr_map_.end())
+        << "No expressions found for argument " << i;
     expr_vec.push_back(pos->second);
   }
 
@@ -64,5 +64,4 @@ void Z3ExprAdapter::PopulateExprMap(const ExprPtr expr) {
   expr_map_.insert({expr, res});
 }
 
-} // namespace ila
-
+}  // namespace ila

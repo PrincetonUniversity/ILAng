@@ -17,7 +17,6 @@ int GenLoad(const int& dst, const int& addr);
 int GenAdd(const int& dst, const int& in1, const int& in2);
 int GenStore(const int& src, const int& addr);
 
-}; // namespace ila
+};  // namespace ila
 
-#endif // SIMPLE_CPU_H__
-
+#endif  // SIMPLE_CPU_H__

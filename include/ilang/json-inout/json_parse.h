@@ -10,7 +10,6 @@ namespace ila {
 
 void TestJsonParse();
 
-}; // namespace ila
+};  // namespace ila
 
-#endif // JSON_PARSE_H__
-
+#endif  // JSON_PARSE_H__

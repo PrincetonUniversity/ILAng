@@ -8,7 +8,6 @@ namespace ila {
 namespace pyapi {
 
 void export_expr() {
-
   class_<ExprWrap>("Expr", init<>())
       .add_property("name", &ExprWrap::Name)
       // unary operators
@@ -24,6 +23,5 @@ void export_expr() {
   // TODO static functions
 }
 
-} // namespace pyapi
-} // namespace ila
-
+}  // namespace pyapi
+}  // namespace ila

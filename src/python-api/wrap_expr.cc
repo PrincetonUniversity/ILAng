@@ -26,6 +26,5 @@ ExprWrap* ExprWrap::Load(ExprWrap* mem, ExprWrap* addr) {
   return new ExprWrap(ExprFuse::Load(mem->get(), addr->get()));
 }
 
-} // namespace pyapi
-} // namespace ila
-
+}  // namespace pyapi
+}  // namespace ila

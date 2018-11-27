@@ -16,7 +16,7 @@ class InstrLvlAbsWrap {
   /// Wrapped data.
   InstrLvlAbsPtr ptr_;
 
-public:
+ public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Constructor for Boost.Python API.
   InstrLvlAbsWrap(const std::string& name) : ptr_(InstrLvlAbs::New(name)) {}
@@ -30,10 +30,9 @@ public:
   ExprWrap* input(const std::string& name);
   /// TODO
 
-}; // class InstrLvlAbsWrap
+};  // class InstrLvlAbsWrap
 
-} // namespace pyapi
-} // namespace ila
+}  // namespace pyapi
+}  // namespace ila
 
-#endif // WRAP_INSTR_LVL_ABS_H__
-
+#endif  // WRAP_INSTR_LVL_ABS_H__

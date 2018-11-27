@@ -1,8 +1,8 @@
 /// \file
 /// Source for the refinement relation
 
-#include <ilang/ila/comp_ref_rel.h>
 #include <ilang/backend/abs_knob.h>
+#include <ilang/ila/comp_ref_rel.h>
 
 namespace ila {
 
@@ -83,5 +83,4 @@ CompRefRel::CrrPtr CompRefRel::New(const RefPtr ref_a, const RefPtr ref_b,
   return std::make_shared<CompRefRel>(ref_a, ref_b, rel);
 }
 
-} // namespace ila
-
+}  // namespace ila

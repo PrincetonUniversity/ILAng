@@ -14,7 +14,7 @@ namespace ila {
 
 /// \brief Generator for commutating diagram-based equivalence checking.
 class CommDiag {
-public:
+ public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor.
   CommDiag(z3::context& ctx, const CrrPtr crr);
@@ -37,7 +37,7 @@ public:
 
   typedef MonoUnroll Unroll;
 
-private:
+ private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// The underlying z3 context.
   z3::context& ctx_;
@@ -120,9 +120,8 @@ private:
   z3::expr UnrollFlush(MonoUnroll& unroller, const RefPtr ref, const int& base,
                        const int& length, const int& start);
 
-}; // class CommDiag
+};  // class CommDiag
 
-} // namespace ila
+}  // namespace ila
 
-#endif // EQ_CHECK_CRR_H__
-
+#endif  // EQ_CHECK_CRR_H__

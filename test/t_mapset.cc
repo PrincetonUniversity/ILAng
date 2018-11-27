@@ -2,9 +2,9 @@
 /// Unit test for MapSet
 
 #include <ilang/ila/instr_lvl_abs.h>
-#include "unit-include/util.h"
 #include <ilang/util/container.h>
 #include <set>
+#include "unit-include/util.h"
 
 namespace ila {
 
@@ -77,5 +77,4 @@ TEST(TestMapSet, ExprInstr) {
   }
 }
 
-} // namespace ila
-
+}  // namespace ila

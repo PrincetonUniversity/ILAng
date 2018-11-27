@@ -1,8 +1,8 @@
 /// \file
 /// Source for unrolling ILA execution.
 
-#include <ilang/backend/unroller.h>
 #include <ilang/backend/abs_knob.h>
+#include <ilang/backend/unroller.h>
 #include <ilang/util/log.h>
 #include <map>
 #include <vector>
@@ -17,8 +17,12 @@ typedef Unroller::ZExpr ZExpr;
 // Unroller
 /******************************************************************************/
 Unroller::Unroller(z3::context& ctx, const std::string& suff)
-    : ctx_(ctx), gen_(Z3ExprAdapter(ctx)), k_prev_z3_(ctx), k_curr_z3_(ctx),
-      k_next_z3_(ctx), cstr_(ctx) {
+    : ctx_(ctx),
+      gen_(Z3ExprAdapter(ctx)),
+      k_prev_z3_(ctx),
+      k_curr_z3_(ctx),
+      k_next_z3_(ctx),
+      cstr_(ctx) {
   // SetExtraSuffix(suff);
   extra_suff_ = suff;
 }
@@ -110,7 +114,7 @@ ZExpr Unroller::UnrollSubs(const size_t& len, const int& pos) {
   // add constraints for transition relation (k_prev_ has the last value)
   AssertEqual(k_prev_z3_, vars_, SuffCurr(len));
 
-  { // extend for end states (invariant and step-specific predicates)
+  {  // extend for end states (invariant and step-specific predicates)
     auto k_suffix = SuffCurr(len);
     IExprToZExpr(g_pred_, k_suffix, cstr_);
     IExprToZExpr(s_pred_[len], k_suffix, cstr_);
@@ -151,7 +155,7 @@ ZExpr Unroller::UnrollAssn(const size_t& len, const int& pos, bool cache) {
     AssertEqual(k_next_z3_, vars_, SuffCurr(pos + i + 1));
   }
 
-  { // extend for end states (invariant and step-specific predicates)
+  {  // extend for end states (invariant and step-specific predicates)
     auto k_suffix = SuffCurr(len);
     IExprToZExpr(g_pred_, k_suffix, cstr_);
     IExprToZExpr(s_pred_[len], k_suffix, cstr_);
@@ -242,7 +246,7 @@ void Unroller::BootStrap(const int& pos, bool cache) {
       auto zvar = gen().GetExpr(ivar, SuffCurr(pos));
       k_prev_z3_.push_back(zvar);
     }
-  } else { // cache
+  } else {  // cache
     if (vars_.empty()) {
       DefineDepVar();
       ILA_ASSERT(k_prev_z3_.empty()) << "Unexpected behavior in cacheing";
@@ -392,7 +396,8 @@ ZExpr MonoUnroll::MonoNone(const InstrLvlAbsPtr top, const int& length,
 ZExpr MonoUnroll::MonoIncr(const InstrLvlAbsPtr top, const int& length,
                            const int& pos) {
   top_ = top;
-  return UnrollAssn(length, pos, false); // XXX non-cache has better performance
+  return UnrollAssn(length, pos,
+                    false);  // XXX non-cache has better performance
 }
 
 void MonoUnroll::DefineDepVar() {
@@ -487,5 +492,4 @@ void MonoUnroll::Transition(const int& idx) {
   k_pred_.push_back(one_hot_at_most_one);
 }
 
-} // namespace ila
-
+}  // namespace ila

@@ -117,9 +117,9 @@ z3::expr LegacyBmc::UnrollCmplIla(InstrLvlAbsPtr m, const int& k,
 z3::expr LegacyBmc::Instr(const InstrPtr instr, const std::string& suffix_prev,
                           const std::string& suffix_next, bool complete) {
   ILA_NOT_NULL(instr);
-  ILA_DLOG("ModelGen.Instr") << (complete ? "Complete " : "Partial ")
-                             << "Instruction: " << instr << " (" << suffix_prev
-                             << ", " << suffix_next << ")";
+  ILA_DLOG("ModelGen.Instr")
+      << (complete ? "Complete " : "Partial ") << "Instruction: " << instr
+      << " (" << suffix_prev << ", " << suffix_next << ")";
 
   auto ila = instr->host();
   ILA_NOT_NULL(ila);
@@ -131,7 +131,7 @@ z3::expr LegacyBmc::Instr(const InstrPtr instr, const std::string& suffix_prev,
     auto state_n = ila->state(i);
     auto update_n = instr->update(state_n);
 
-    if (update_n != NULL) { // update function specified
+    if (update_n != NULL) {  // update function specified
       auto next_val_e = gen_.GetExpr(update_n, suffix_prev);
       auto next_var_e = gen_.GetExpr(state_n, suffix_next);
       auto eq_cnst = (next_var_e == next_val_e);
@@ -156,9 +156,9 @@ z3::expr LegacyBmc::IlaOneHotFlat(const InstrLvlAbsPtr ila,
                                   const std::string& suffix_prev,
                                   const std::string& suffix_next) {
   ILA_NOT_NULL(ila);
-  ILA_DLOG("ModelGen.IlaOneHotFlat") << "One-hot Flat ILA: " << ila << " ("
-                                     << suffix_prev << ", " << suffix_next
-                                     << ")";
+  ILA_DLOG("ModelGen.IlaOneHotFlat")
+      << "One-hot Flat ILA: " << ila << " (" << suffix_prev << ", "
+      << suffix_next << ")";
   auto& gen = gen_;
   auto valid_n = ila->valid();
   ILA_NOT_NULL(valid_n);
@@ -177,5 +177,4 @@ z3::expr LegacyBmc::IlaOneHotFlat(const InstrLvlAbsPtr ila,
   return ila_cnst;
 }
 
-} // namespace ila
-
+}  // namespace ila

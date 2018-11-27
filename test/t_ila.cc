@@ -333,5 +333,4 @@ TEST(TestInstrLvlAbs, Print) {
   EXPECT_EQ(ref_msg, msg);
 }
 
-} // namespace ila
-
+}  // namespace ila

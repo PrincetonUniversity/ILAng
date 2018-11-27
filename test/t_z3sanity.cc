@@ -8,7 +8,7 @@
 namespace ila {
 
 class TestZ3Expr : public ::testing::Test {
-public:
+ public:
   TestZ3Expr() {
     s = new z3::solver(ctx);
     gen = new Z3ExprAdapter(ctx);
@@ -51,7 +51,7 @@ public:
   ExprPtr mem_var_y;
   ExprPtr mem_const;
 
-}; // class TestZ3Expr
+};  // class TestZ3Expr
 
 TEST_F(TestZ3Expr, XorBool) {
   auto ast_xor = ExprFuse::Xor(bool_var_x, bool_var_y);
@@ -156,5 +156,4 @@ TEST_F(TestZ3Expr, Concat) {
   EXPECT_EQ(z3::unsat, s->check());
 }
 
-} // namespace ila
-
+}  // namespace ila

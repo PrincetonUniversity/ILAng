@@ -4,11 +4,11 @@
 #ifndef ILA_CPP_API_H__
 #define ILA_CPP_API_H__
 
-#include "z3++.h"
 #include <map>
 #include <memory>
 #include <string>
 #include <vector>
+#include "z3++.h"
 
 /// \namespace ila
 /// Defines the core data structure and APIs for constructing and storing ILA.
@@ -51,13 +51,13 @@ class Ila;
 
 /// \brief The wrapper of Sort (type for different AST nodes).
 class SortRef {
-private:
+ private:
   typedef std::shared_ptr<Sort> SortPtr;
   // ------------------------- MEMBERS -------------------------------------- //
   /// Wrapped Sort pointer.
   SortPtr ptr_ = NULL;
 
-public:
+ public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Constructor with the pointer of the actual data.
   SortRef(SortPtr ptr);
@@ -75,17 +75,17 @@ public:
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return the wrapped Sort pointer.
   inline SortPtr get() const { return ptr_; }
-}; // class SortRef
+};  // class SortRef
 
 /// \brief The wrapper of Expr (e.g. state var, var relation, constant, etc).
 class ExprRef {
-private:
+ private:
   typedef std::shared_ptr<Expr> ExprPtr;
   // ------------------------- MEMBERS -------------------------------------- //
   /// Wrapped Expr pointer.
   ExprPtr ptr_ = NULL;
 
-public:
+ public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Constructor with the pointer of the actual data.
   ExprRef(ExprPtr ptr);
@@ -137,7 +137,7 @@ public:
   /// \brief Replace the original argument (must exist) with the new argument.
   void ReplaceArg(const ExprRef& org_arg, const ExprRef& new_arg);
 
-}; // class ExprRef
+};  // class ExprRef
 
 /******************************************************************************/
 // Unary operation
@@ -313,13 +313,13 @@ bool TopEqual(const ExprRef& a, const ExprRef& b);
 
 /// \brief The wrapper of Func (uninterpreted function).
 class FuncRef {
-private:
+ private:
   typedef std::shared_ptr<Func> FuncPtr;
   // ------------------------- MEMBERS -------------------------------------- //
   /// Wrapped Func pointer.
   FuncPtr ptr_ = NULL;
 
-public:
+ public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Constructor with zero input argument (domain).
   FuncRef(const std::string& name, const SortRef& range);
@@ -344,22 +344,22 @@ public:
   /// Apply the function with multiple arguments.
   ExprRef operator()(const std::vector<ExprRef>& argvec) const;
 
-private:
+ private:
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return the wrapped Func pointer.
   inline FuncPtr get() const { return ptr_; }
 
-}; // class FuncRef
+};  // class FuncRef
 
 /// \brief The wrapper of Instr (instruction).
 class InstrRef {
-private:
+ private:
   typedef std::shared_ptr<Instr> InstrPtr;
   // ------------------------- MEMBERS -------------------------------------- //
   /// Wrapped Instr pointer.
   InstrPtr ptr_ = NULL;
 
-public:
+ public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Constructor with the pointer of the actual data.
   InstrRef(InstrPtr ptr);
@@ -383,38 +383,36 @@ public:
   /// \brief Get the decode function of the instruction.
   /// \return the decode function wrapped in Expression reference.
   ExprRef GetDecode() const;
-  
 
   /// \brief Set the update function of the given state variable.
   /// \param[in] state the state variable to set.
   /// \return the update function.
   ExprRef GetUpdate(const ExprRef& state) const;
-  
-  
+
   // ------------------------- GENERATORS --------------------------------- //
   /// \brief Export instruction without child-program as Verilog
   /// \param[in] filename the file name of the generated Verilog source
-  void ExportToVerilog(std::ostream & fout) const;
-  
+  void ExportToVerilog(std::ostream& fout) const;
+
   /// \brief Export instruction with the child-program as Verilog
   /// \param[in] filename the file name of the generated Verilog source
-  void ExportToVerilogWithChild(std::ostream & fout) const;
+  void ExportToVerilogWithChild(std::ostream& fout) const;
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return the wrapped ILA pointer.
   inline InstrPtr get() const { return ptr_; }
 
-}; // class InstrRef
+};  // class InstrRef
 
 /// \brief The wrapper of InstrLvlAbs (ILA).
 class Ila {
-private:
+ private:
   typedef std::shared_ptr<InstrLvlAbs> IlaPtr;
   // ------------------------- MEMBERS -------------------------------------- //
   /// Wrapped InstrLvlAbs pointer.
   IlaPtr ptr_ = NULL;
 
-public:
+ public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Constructor with the specified name.
   Ila(const std::string& name);
@@ -465,11 +463,11 @@ public:
   /// \brief Declare a child-ILA.
   /// \param[in] name child-ILA name.
   Ila NewChild(const std::string& name);
-  
+
   // ------------------------- GENERATORS --------------------------------- //
   /// \brief Export an ILA as Verilog
   /// \param[in] filename the file name of the generated Verilog source
-  void ExportToVerilog(std::ostream & fout) const;
+  void ExportToVerilog(std::ostream& fout) const;
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return the number of input variables.
@@ -513,7 +511,7 @@ public:
   /// Return the wrapped ILA pointer.
   inline IlaPtr get() const { return ptr_; }
 
-}; // class Ila
+};  // class Ila
 
 /******************************************************************************/
 // Output stream helper
@@ -530,7 +528,7 @@ std::ostream& operator<<(std::ostream& out, const Ila& ila);
 /******************************************************************************/
 /// \brief The wrapper of generating z3::expr for verification.
 class IlaZ3Unroller {
-public:
+ public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor
   IlaZ3Unroller(z3::context& ctx, const std::string& suff = "");
@@ -588,7 +586,7 @@ public:
   z3::expr Equal(const ExprRef& va, const int& ta, const ExprRef& vb,
                  const int& tb);
 
-private:
+ private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// The underlying z3::context being used.
   z3::context& ctx_;
@@ -607,7 +605,8 @@ private:
 
   // ------------------------- HELPERS -------------------------------------- //
   /// Initialize the unroller based on its dynamic type.
-  template <class T> void InitializeUnroller(T unroller) {
+  template <class T>
+  void InitializeUnroller(T unroller) {
     for (auto it = glob_pred_.begin(); it != glob_pred_.end(); it++) {
       unroller->AddGlobPred(it->get());
     }
@@ -620,9 +619,8 @@ private:
     // unroller->SetExtraSuffix(extra_suff_);
   }
 
-}; // class IlaZ3Unroller
+};  // class IlaZ3Unroller
 
-} // namespace ila
+}  // namespace ila
 
-#endif // ILA_CPP_API_H__
-
+#endif  // ILA_CPP_API_H__

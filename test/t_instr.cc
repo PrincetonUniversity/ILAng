@@ -8,7 +8,7 @@
 namespace ila {
 
 class TestInstr : public ::testing::Test {
-public:
+ public:
   TestInstr() { mngr = std::make_shared<ExprMngr>(); }
 
   ~TestInstr() {}
@@ -19,7 +19,7 @@ public:
 
   ExprMngrPtr mngr;
 
-}; // class TestInstr
+};  // class TestInstr
 
 TEST_F(TestInstr, Construct) {
   InstrPtr sptr = std::make_shared<Instr>("simplify_instr");
@@ -227,5 +227,4 @@ TEST_F(TestInstr, Print) {
   EXPECT_EQ("Instr.dummy", msg);
 }
 
-} // namespace ila
-
+}  // namespace ila

@@ -10,7 +10,7 @@ namespace ila {
 
 /// \brief Function object for rewriting Expr.
 class FuncObjRewrExpr {
-public:
+ public:
   /// Constructor, initialize rewriting rule.
   FuncObjRewrExpr(const ExprMap& rule) : rule_(rule) {}
 
@@ -26,7 +26,7 @@ public:
   /// Post-process: update the rewriting rule map.
   void post(const ExprPtr e);
 
-private:
+ private:
   /// Internal rewriting table.
   ExprMap rule_;
 
@@ -35,9 +35,8 @@ private:
   /// Rewrite Operation sorted Expr.
   ExprPtr RewriteOp(const ExprPtr e) const;
 
-}; // class FuncObjRewrExpr
+};  // class FuncObjRewrExpr
 
-} // namespace ila
+}  // namespace ila
 
-#endif // REWRITE_EXPR_H__
-
+#endif  // REWRITE_EXPR_H__

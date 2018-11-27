@@ -1,8 +1,8 @@
 /// \file
 /// Source for generating verification condition for equivalecne checking.
 
-#include <ilang/backend/eq_check_crr.h>
 #include <ilang/backend/abs_knob.h>
+#include <ilang/backend/eq_check_crr.h>
 #include <ilang/backend/unroller.h>
 #include <ilang/util/log.h>
 #include <tuple>
@@ -88,19 +88,20 @@ bool CommDiag::IncCheck(const int& min, const int& max, const int& step) {
   }
 
   // apply instruction
-  const auto& stts_a = stts_a_; // used for marking
+  const auto& stts_a = stts_a_;  // used for marking
   const auto& stts_b = stts_b_;
 
-  auto s = z3::solver(ctx_); // solver
-  { // default basic condition (old/new/apply path & assm & prop)
+  auto s = z3::solver(ctx_);  // solver
+  {  // default basic condition (old/new/apply path & assm & prop)
     auto appl_instr_a = GetZ3ApplInstr(stts_a, crr_->refine_a());
     auto appl_instr_b = GetZ3ApplInstr(stts_b, crr_->refine_b());
     s.add(appl_instr_a);
     s.add(appl_instr_b);
-    s.push(); // record backtracking point
+    s.push();  // record backtracking point
   }
 
-  auto cf = ctx_.bool_const("cmpl_flag"); // flag indicating flushing completion
+  auto cf =
+      ctx_.bool_const("cmpl_flag");  // flag indicating flushing completion
   // assumption and property to check
   auto assm = GetZ3Assm();
   auto prop = GetZ3Prop();
@@ -109,7 +110,7 @@ bool CommDiag::IncCheck(const int& min, const int& max, const int& step) {
   prop = z3::implies(cf, prop);
 
   // incrementally unroll flushing
-  for (auto i = min; i <= max; i += step) { // if (num < i) --> already fixed
+  for (auto i = min; i <= max; i += step) {  // if (num < i) --> already fixed
     // check if complete
     auto all_path_complete = true;
     for (UID uid : {A_OLD, A_NEW, B_OLD, B_NEW}) {
@@ -124,12 +125,12 @@ bool CommDiag::IncCheck(const int& min, const int& max, const int& step) {
     // unroll new flushing path
     for (UID uid : {A_OLD, A_NEW, B_OLD, B_NEW}) {
       auto& uu = GetUnrlUnit(uid);
-      if (uu.hi == i) { // need to unroll new step
+      if (uu.hi == i) {  // need to unroll new step
         auto tran = GetZ3IncFlsh(uid);
         s.add(tran);
       }
     }
-    s.push(); // recording the current transition relation
+    s.push();  // recording the current transition relation
 
     // accumulate completion indicator
     auto cmpl_acc = ctx_.bool_val(true);
@@ -162,7 +163,7 @@ bool CommDiag::IncCheck(const int& min, const int& max, const int& step) {
     for (UID uid : {A_OLD, A_NEW, B_OLD, B_NEW}) {
       auto& uu = GetUnrlUnit(uid);
       uu.lo = uu.hi;
-      if (uu.hi == i) { // new step
+      if (uu.hi == i) {  // new step
         auto cmpl_i = GetZ3IncCmpl(uid);
         auto sufficient = CheckCmpl(s, cmpl_i);
         uu.hi = sufficient ? uu.hi : uu.hi + step;
@@ -189,22 +190,22 @@ void CommDiag::Init() {
 
 CommDiag::Unroll& CommDiag::GetUnrl(const UID& uid) {
   switch (uid) {
-  case A_OLD:
-    return unrl_old_;
-    break;
-  case A_NEW:
-    return unrl_new_;
-    break;
-  case B_OLD:
-    return unrl_old_;
-    break;
-  case B_NEW:
-    return unrl_new_;
-    break;
-  default:
-    ILA_ASSERT(false) << "unknon uid " << uid;
-    return unrl_old_;
-    break;
+    case A_OLD:
+      return unrl_old_;
+      break;
+    case A_NEW:
+      return unrl_new_;
+      break;
+    case B_OLD:
+      return unrl_old_;
+      break;
+    case B_NEW:
+      return unrl_new_;
+      break;
+    default:
+      ILA_ASSERT(false) << "unknon uid " << uid;
+      return unrl_old_;
+      break;
   }
 }
 
@@ -216,64 +217,64 @@ CommDiag::Unroll& CommDiag::GetUnrlApl() { return unrl_apl_; }
 
 RefPtr CommDiag::GetRefine(const UID& uid) {
   switch (uid) {
-  case A_OLD:
-    return crr_->refine_a();
-    break;
-  case A_NEW:
-    return crr_->refine_a();
-    break;
-  case B_OLD:
-    return crr_->refine_b();
-    break;
-  case B_NEW:
-    return crr_->refine_b();
-    break;
-  default:
-    ILA_ASSERT(false) << "unknon uid " << uid;
-    return NULL;
-    break;
+    case A_OLD:
+      return crr_->refine_a();
+      break;
+    case A_NEW:
+      return crr_->refine_a();
+      break;
+    case B_OLD:
+      return crr_->refine_b();
+      break;
+    case B_NEW:
+      return crr_->refine_b();
+      break;
+    default:
+      ILA_ASSERT(false) << "unknon uid " << uid;
+      return NULL;
+      break;
   }
 }
 
 CommDiag::UnrlUnit& CommDiag::GetUnrlUnit(const UID& uid) {
   switch (uid) {
-  case A_OLD:
-    return uu_a_old_;
-    break;
-  case A_NEW:
-    return uu_a_new_;
-    break;
-  case B_OLD:
-    return uu_b_old_;
-    break;
-  case B_NEW:
-    return uu_b_new_;
-    break;
-  default:
-    ILA_ASSERT(false) << "unknon uid " << uid;
-    return uu_a_old_;
-    break;
+    case A_OLD:
+      return uu_a_old_;
+      break;
+    case A_NEW:
+      return uu_a_new_;
+      break;
+    case B_OLD:
+      return uu_b_old_;
+      break;
+    case B_NEW:
+      return uu_b_new_;
+      break;
+    default:
+      ILA_ASSERT(false) << "unknon uid " << uid;
+      return uu_a_old_;
+      break;
   }
 }
 
 const ExprSet& CommDiag::GetStts(const UID& uid) {
   switch (uid) {
-  case A_OLD:
-    return stts_a_;
-    break;
-  case A_NEW:
-    return stts_a_;
-    break;
-  case B_OLD:
-    return stts_b_;
-    break;
-  case B_NEW:
-    return stts_b_;
-    break;
-  default:
-    ILA_ASSERT(false) << "unknon uid " << uid;
-    return stts_a_;
-    break;
+    case A_OLD:
+      return stts_a_;
+      break;
+    case A_NEW:
+      return stts_a_;
+      break;
+    case B_OLD:
+      return stts_b_;
+      break;
+    case B_NEW:
+      return stts_b_;
+      break;
+    default:
+      ILA_ASSERT(false) << "unknon uid " << uid;
+      return stts_a_;
+      break;
   }
 }
 
@@ -290,7 +291,7 @@ z3::expr CommDiag::GetZ3IncFlsh(const UID& uid) {
     auto eq = ctx_.bool_val(true);
     for (auto it = stts.begin(); it != stts.end(); it++) {
       auto s_i = un.CurrState(*it, pos);
-      auto s = un.GetZ3Expr(*it); // representative
+      auto s = un.GetZ3Expr(*it);  // representative
       eq = eq && (s == s_i);
     }
     auto mark = z3::implies(cmpl, eq);
@@ -314,24 +315,25 @@ z3::expr CommDiag::GetZ3IncCmpl(const UID& uid) {
 
 bool CommDiag::IncEqCheck(const int& min, const int& max, const int& step) {
   // sanity check
-  auto sc_res = SanityCheck(); // XXX need refresh
+  auto sc_res = SanityCheck();  // XXX need refresh
   ILA_WARN_IF(!sc_res) << "Sanity check fail";
 
-  const auto ma = crr_->refine_a()->coi(); // representative ILA
+  const auto ma = crr_->refine_a()->coi();  // representative ILA
   const auto mb = crr_->refine_b()->coi();
-  const auto stts_a = AbsKnob::GetSttTree(ma); // used for marking
+  const auto stts_a = AbsKnob::GetSttTree(ma);  // used for marking
   const auto stts_b = AbsKnob::GetSttTree(mb);
 
-  auto s = z3::solver(ctx_); // solver
-  { // default basic condition (old/new/apply path & assm & prop)
+  auto s = z3::solver(ctx_);  // solver
+  {  // default basic condition (old/new/apply path & assm & prop)
     auto appl_instr_a = GetZ3ApplInstr(stts_a, crr_->refine_a());
     auto appl_instr_b = GetZ3ApplInstr(stts_b, crr_->refine_b());
     s.add(appl_instr_a);
     s.add(appl_instr_b);
-    s.push(); // record backtracking point
+    s.push();  // record backtracking point
   }
 
-  auto cf = ctx_.bool_const("cmpl_flag"); // flag indicating flushing completion
+  auto cf =
+      ctx_.bool_const("cmpl_flag");  // flag indicating flushing completion
   // assumption and property to check
   auto assm = GetZ3Assm();
   auto prop = GetZ3Prop();
@@ -354,7 +356,7 @@ bool CommDiag::IncEqCheck(const int& min, const int& max, const int& step) {
   inc_unrl_old_b.AddGlobPred(crr_->refine_b()->flush());
   inc_unrl_new_b.AddGlobPred(crr_->refine_b()->flush());
 
-  for (auto i = min; i <= max; i += step) { // if (num < i) --> already fixed
+  for (auto i = min; i <= max; i += step) {  // if (num < i) --> already fixed
     // transition relation
     if ((num_old_a < i) && (num_old_b < i) && (num_new_a < i) &&
         (num_new_b < i)) {
@@ -363,7 +365,7 @@ bool CommDiag::IncEqCheck(const int& min, const int& max, const int& step) {
     }
 
     // unroll new flushing path
-    if (num_old_a == i) { // need to unroll new step
+    if (num_old_a == i) {  // need to unroll new step
       auto tran =
           GetZ3IncUnrl(inc_unrl_old_a, crr_->refine_a(), i, step, stts_a);
       s.add(tran);
@@ -372,7 +374,7 @@ bool CommDiag::IncEqCheck(const int& min, const int& max, const int& step) {
       // stts_a);
       // s.add(tran && mark);
     }
-    if (num_new_a == i) { // need to unroll new step
+    if (num_new_a == i) {  // need to unroll new step
       auto tran =
           GetZ3IncUnrl(inc_unrl_new_a, crr_->refine_a(), i, step, stts_a);
       s.add(tran);
@@ -381,7 +383,7 @@ bool CommDiag::IncEqCheck(const int& min, const int& max, const int& step) {
       // stts_a);
       // s.add(tran && mark);
     }
-    if (num_old_b == i) { // need to unroll new step
+    if (num_old_b == i) {  // need to unroll new step
       auto tran =
           GetZ3IncUnrl(inc_unrl_old_b, crr_->refine_b(), i, step, stts_b);
       s.add(tran);
@@ -390,7 +392,7 @@ bool CommDiag::IncEqCheck(const int& min, const int& max, const int& step) {
       // stts_b);
       // s.add(tran && mark);
     }
-    if (num_new_b == i) { // need to unroll new step
+    if (num_new_b == i) {  // need to unroll new step
       auto tran =
           GetZ3IncUnrl(inc_unrl_new_b, crr_->refine_b(), i, step, stts_b);
       s.add(tran);
@@ -399,7 +401,7 @@ bool CommDiag::IncEqCheck(const int& min, const int& max, const int& step) {
       // stts_b);
       // s.add(tran && mark);
     }
-    s.push(); // recording the current transition relation
+    s.push();  // recording the current transition relation
 
     // accumulate completion indicator
     auto cmpl_a = crr_->refine_a()->cmpl();
@@ -466,7 +468,7 @@ bool CommDiag::IncEqCheck(const int& min, const int& max, const int& step) {
     s.push();
 
     // check if num is sufficient (if not fixed yet) and increment accordingly
-    if (num_old_a == i) { // new step
+    if (num_old_a == i) {  // new step
       auto sufficient = CheckCmpl(s, cmpl_old_a);
       num_old_a = sufficient ? num_old_a : num_old_a + step;
 #if 0
@@ -476,7 +478,7 @@ bool CommDiag::IncEqCheck(const int& min, const int& max, const int& step) {
       }
 #endif
     }
-    if (num_new_a == i) { // new step
+    if (num_new_a == i) {  // new step
       auto sufficient = CheckCmpl(s, cmpl_new_a);
       num_new_a = sufficient ? num_new_a : num_new_a + step;
 #if 0
@@ -486,7 +488,7 @@ bool CommDiag::IncEqCheck(const int& min, const int& max, const int& step) {
       }
 #endif
     }
-    if (num_old_b == i) { // new step
+    if (num_old_b == i) {  // new step
       auto sufficient = CheckCmpl(s, cmpl_old_b);
       num_old_b = sufficient ? num_old_b : num_old_b + step;
 #if 0
@@ -496,7 +498,7 @@ bool CommDiag::IncEqCheck(const int& min, const int& max, const int& step) {
       }
 #endif
     }
-    if (num_new_b == i) { // new step
+    if (num_new_b == i) {  // new step
       auto sufficient = CheckCmpl(s, cmpl_new_b);
       num_new_b = sufficient ? num_new_b : num_new_b + step;
 #if 0
@@ -597,7 +599,7 @@ bool CommDiag::SanityCheckRelation(const RelPtr rel, const InstrLvlAbsPtr ma,
   // check: rel_vars <= ref_vars
   for (auto it = rel_vars.begin(); it != rel_vars.end(); it++) {
     auto pos = ref_vars.find(*it);
-    if (pos == ref_vars.end()) { // rel has var not in ref
+    if (pos == ref_vars.end()) {  // rel has var not in ref
       ILA_ERROR << "Relation depends on var not defined in refinement.";
       return false;
     }
@@ -710,7 +712,7 @@ bool CommDiag::CheckStepAppl(const RefPtr ref, const int& k) {
 
 z3::expr CommDiag::GetZ3ApplInstr(const ExprSet& stts, const RefPtr ref) {
   auto acc = ctx_.bool_val(true);
-  { // take one step (apply)
+  {  // take one step (apply)
     auto& un = unrl_apl_;
     un.ClearPred();
     // invariant
@@ -723,7 +725,7 @@ z3::expr CommDiag::GetZ3ApplInstr(const ExprSet& stts, const RefPtr ref) {
     un.ClearPred();
     acc = acc && apply_one_step;
   }
-  { // connect old/new with the apply step
+  {  // connect old/new with the apply step
     auto eq = ctx_.bool_val(true);
     for (auto it = stts.begin(); it != stts.end(); it++) {
       // apply_0 == old_0)
@@ -799,7 +801,7 @@ z3::expr CommDiag::GetZ3IncUnrl(MonoUnroll& un, const RefPtr ref,
     auto eq = ctx_.bool_val(true);
     for (auto it = stts.begin(); it != stts.end(); it++) {
       auto s_i = un.CurrState(*it, pos);
-      auto s = un.GetZ3Expr(*it); // representative
+      auto s = un.GetZ3Expr(*it);  // representative
       eq = eq && (s == s_i);
     }
     auto mark = z3::implies(cmpl, eq);
@@ -823,8 +825,8 @@ bool CommDiag::CheckCmpl(z3::solver& s, z3::expr& cmpl_expr) const {
   // return can_cmpl && must_cmpl;
   //#if 0
   if (must_cmpl) {
-    s.add(cmpl_expr); // added
-    s.push();         // added
+    s.add(cmpl_expr);  // added
+    s.push();          // added
     return true;
   } else {
     return false;
@@ -899,5 +901,4 @@ z3::expr CommDiag::UnrollFlush(MonoUnroll& unroller, const RefPtr ref,
   return path && mark;
 }
 
-} // namespace ila
-
+}  // namespace ila

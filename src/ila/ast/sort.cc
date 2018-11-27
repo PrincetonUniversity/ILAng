@@ -96,5 +96,4 @@ std::ostream& SortMem::Print(std::ostream& out) const {
   return out << "Mem(" << addr_width_ << ", " << data_width_ << ")";
 }
 
-} // namespace ila
-
+}  // namespace ila

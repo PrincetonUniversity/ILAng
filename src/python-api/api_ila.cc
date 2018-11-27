@@ -8,7 +8,6 @@ namespace ila {
 namespace pyapi {
 
 void export_instr_lvl_abs() {
-
   // Expose ILA wrapper to Boost.Python
   class_<InstrLvlAbsWrap>("Abstraction", init<std::string>())
       .def("inp", &InstrLvlAbsWrap::NewBvInput,
@@ -19,6 +18,5 @@ void export_instr_lvl_abs() {
       ;
 }
 
-} // namespace pyapi
-} // namespace ila
-
+}  // namespace pyapi
+}  // namespace ila
