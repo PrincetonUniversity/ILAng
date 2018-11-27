@@ -15,7 +15,7 @@ void DisableLog(const std::string& tag);
 
 void ClearLogs();
 
-}  // namespace pyapi
-}  // namespace ila
+} // namespace pyapi
+} // namespace ila
 
-#endif  // WRAP_LOG_H__
+#endif // WRAP_LOG_H__

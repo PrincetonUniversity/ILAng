@@ -83,4 +83,4 @@ CompRefRel::CrrPtr CompRefRel::New(const RefPtr ref_a, const RefPtr ref_b,
   return std::make_shared<CompRefRel>(ref_a, ref_b, rel);
 }
 
-}  // namespace ila
+} // namespace ila

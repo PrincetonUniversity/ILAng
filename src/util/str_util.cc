@@ -47,4 +47,4 @@ std::string StrConcat(const std::string& l, const std::string& m,
 }
 #endif
 
-}  // namespace ila
+} // namespace ila

@@ -30,8 +30,10 @@ const char* Symbol::c_str() const { return name_.c_str(); }
 const std::string Symbol::format_str(const std::string& prefix,
                                      const std::string& suffix) const {
   std::string res = name_;
-  if (prefix != "") res = prefix + "_" + res;
-  if (suffix != "") res = res + "_" + suffix;
+  if (prefix != "")
+    res = prefix + "_" + res;
+  if (suffix != "")
+    res = res + "_" + suffix;
   return res;
 }
 
@@ -60,4 +62,4 @@ bool operator<(const Symbol& lhs, const Symbol& rhs) {
   return (lhs.name_ < rhs.name_);
 }
 
-}  // namespace ila
+} // namespace ila

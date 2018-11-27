@@ -14,4 +14,4 @@ Object::~Object() {}
 
 const Symbol& Object::name() const { return symbol_; }
 
-}  // namespace ila
+} // namespace ila

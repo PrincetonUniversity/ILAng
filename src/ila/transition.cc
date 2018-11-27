@@ -81,18 +81,18 @@ void InstrSeq::AddTran(const InstrPtr src, const InstrPtr dst,
   ItNodePtr dst_node = NULL;
 
   auto src_it = nodes_.find(src);
-  if (src_it == nodes_.end()) {  // instr first seen
+  if (src_it == nodes_.end()) { // instr first seen
     src_node = std::make_shared<InstrTranNode>(src);
     nodes_[src] = src_node;
-  } else {  // instr exists
+  } else { // instr exists
     src_node = src_it->second;
   }
 
   auto dst_it = nodes_.find(dst);
-  if (dst_it == nodes_.end()) {  // instr first seen
+  if (dst_it == nodes_.end()) { // instr first seen
     dst_node = std::make_shared<InstrTranNode>(dst);
     nodes_[dst] = dst_node;
-  } else {  // instr exists
+  } else { // instr exists
     dst_node = dst_it->second;
   }
 
@@ -111,4 +111,4 @@ InstrIdxKeyVecPtr InstrSeq::Sort() {
   return sorted_;
 }
 
-}  // namespace ila
+} // namespace ila

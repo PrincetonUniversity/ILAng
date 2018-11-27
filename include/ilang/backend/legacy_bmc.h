@@ -4,18 +4,18 @@
 #ifndef LEGACY_BMC_H__
 #define LEGACY_BMC_H__
 
+#include "z3++.h"
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/ila/z3_expr_adapter.h>
 #include <ilang/util/container.h>
 #include <map>
-#include "z3++.h"
 
 /// \namespace ila
 namespace ila {
 
 /// \brief Simplified bounded model checking engine for ILAs.
 class LegacyBmc {
- public:
+public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor.
   LegacyBmc();
@@ -36,7 +36,7 @@ class LegacyBmc {
   z3::check_result Check(InstrLvlAbsPtr m0, const int& k0, InstrLvlAbsPtr m1,
                          const int& k1);
 
- private:
+private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// z3 context.
   z3::context ctx_;
@@ -74,8 +74,8 @@ class LegacyBmc {
                          const std::string& suffix_prev,
                          const std::string& suffix_next);
 
-};  // class LegacyBmc
+}; // class LegacyBmc
 
-}  // namespace ila
+} // namespace ila
 
-#endif  // LEGACY_BMC_H__
+#endif // LEGACY_BMC_H__

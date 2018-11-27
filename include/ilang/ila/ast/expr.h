@@ -4,6 +4,8 @@
 #ifndef EXPR_H__
 #define EXPR_H__
 
+#include "z3++.h"
+#include "z3_api.h"
 #include <ilang/ila/ast/ast.h>
 #include <ilang/ila/ast/sort.h>
 #include <ilang/ila/defines.h>
@@ -13,8 +15,6 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
-#include "z3++.h"
-#include "z3_api.h"
 
 /// \namespace ila
 namespace ila {
@@ -22,7 +22,7 @@ namespace ila {
 /// \brief The class for expression, which is the basic type for variables,
 /// constraints, state update expressions, etc.
 class Expr : public Ast, public std::enable_shared_from_this<Expr> {
- public:
+public:
   /// Pointer type for normal use of Expr.
   typedef std::shared_ptr<Expr> ExprPtr;
   /// Type for storing a set of Expr.
@@ -91,8 +91,7 @@ class Expr : public Ast, public std::enable_shared_from_this<Expr> {
 
   /// \brief Templated visitor: visit each node in a depth-first order and apply
   /// the function object F on it.
-  template <class F>
-  void DepthFirstVisit(F& func) {
+  template <class F> void DepthFirstVisit(F& func) {
     for (size_t i = 0; i != arg_num(); i++) {
       const ExprPtr arg_i = this->arg(i);
       arg_i->DepthFirstVisit<F>(func);
@@ -102,10 +101,9 @@ class Expr : public Ast, public std::enable_shared_from_this<Expr> {
 
   /// \brief Templated visitor: visit each node in a depth-first order and apply
   /// the function object F pre/pose on it.
-  template <class F>
-  void DepthFirstVisitPrePost(F& func) {
+  template <class F> void DepthFirstVisitPrePost(F& func) {
     // pre check
-    if (func.pre(shared_from_this())) {  // break if return true
+    if (func.pre(shared_from_this())) { // break if return true
       return;
     }
     // traverse child
@@ -117,7 +115,7 @@ class Expr : public Ast, public std::enable_shared_from_this<Expr> {
     func.post(shared_from_this());
   }
 
- private:
+private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// The sort of the expr.
   SortPtr sort_;
@@ -128,7 +126,7 @@ class Expr : public Ast, public std::enable_shared_from_this<Expr> {
 
   // ------------------------- HELPERS -------------------------------------- //
 
-};  // class Expr
+}; // class Expr
 
 /// Pointer type for normal use of Expr.
 typedef Expr::ExprPtr ExprPtr;
@@ -138,16 +136,16 @@ typedef Expr::ExprPtrVec ExprPtrVec;
 /// \brief The function object for hashing Expr. The hash value is the id of the
 /// symbol, which is supposed to be unique.
 class ExprHash {
- public:
+public:
   /// Function object for hashing
   size_t operator()(const ExprPtr expr) const { return expr->name().id(); }
-};  // class ExprHash
+}; // class ExprHash
 
 /// Type for mapping between Expr.
 typedef std::unordered_map<const ExprPtr, const ExprPtr, ExprHash> ExprMap;
 /// Type for storing a set of Expr.
 typedef std::unordered_set<ExprPtr, ExprHash> ExprSet;
 
-}  // namespace ila
+} // namespace ila
 
-#endif  // EXPR_H__
+#endif // EXPR_H__

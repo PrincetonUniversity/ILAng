@@ -33,7 +33,7 @@ namespace ila {
 /// - the child-instruction sequencing (if not parent)
 class InstrLvlAbs : public Object,
                     public std::enable_shared_from_this<InstrLvlAbs> {
- public:
+public:
   /// Pointer type for normal use of InstrLvlAbs.
   typedef std::shared_ptr<InstrLvlAbs> InstrLvlAbsPtr;
   /// Pointer type for read-only usage of InstrLvlAbs
@@ -256,8 +256,7 @@ class InstrLvlAbs : public Object,
   friend class Instr;
 
   /// \brief Templated visitor: visit each child-ILA in a depth-first order.
-  template <class F>
-  void DepthFirstVisit(F& func) const {
+  template <class F> void DepthFirstVisit(F& func) const {
     // traverse child
     for (decltype(child_num()) i = 0; i != child_num(); i++) {
       auto child_i = this->child(i);
@@ -269,10 +268,9 @@ class InstrLvlAbs : public Object,
 
   /// \brief Templated visitor: visit each child-ILA in a depth-first order and
   /// apply the function object F pre/pose on it.
-  template <class F>
-  void DepthFirstVisitPrePost(F& func) const {
+  template <class F> void DepthFirstVisitPrePost(F& func) const {
     // pre
-    if (func.pre(shared_from_this())) {  // break if return true
+    if (func.pre(shared_from_this())) { // break if return true
       return;
     }
     // traverse child
@@ -284,7 +282,7 @@ class InstrLvlAbs : public Object,
     func.post(shared_from_this());
   }
 
- private:
+private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// Ths parent ILA.
   InstrLvlAbsPtr parent_;
@@ -321,7 +319,7 @@ class InstrLvlAbs : public Object,
   /// Simplify instruction if not already.
   void SimplifyInstr(const InstrPtr instr);
 
-};  // class InstrLvlAbs
+}; // class InstrLvlAbs
 
 /// Pointer type for normal use of InstrLvlAbs.
 typedef InstrLvlAbs::InstrLvlAbsPtr InstrLvlAbsPtr;
@@ -330,6 +328,6 @@ typedef InstrLvlAbs::InstrLvlAbsCnstPtr InstrLvlAbsCnstPtr;
 /// Type for storing a mapping from constant ILA ptr to ILA ptr.
 typedef std::map<InstrLvlAbsCnstPtr, InstrLvlAbsPtr> CnstIlaMap;
 
-}  // namespace ila
+} // namespace ila
 
-#endif  // INSTR_LVL_ABS_H__
+#endif // INSTR_LVL_ABS_H__

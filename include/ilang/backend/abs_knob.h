@@ -9,7 +9,7 @@
 namespace ila {
 
 class AbsKnob {
- public:
+public:
   /****************************************************************************/
   /// Add all dependent vars of the expr to the set.
   static void InsertVar(const ExprPtr e, ExprSet& vars);
@@ -113,14 +113,14 @@ class AbsKnob {
   static void DuplInstrSeq(const InstrLvlAbsCnstPtr src,
                            const InstrLvlAbsPtr dst);
 
- private:
+private:
   /// Duplicate/create the input var in m.
   static ExprPtr DuplInp(const InstrLvlAbsPtr m, const ExprPtr inp);
   /// Duplicate/create the state var in m.
   static ExprPtr DuplStt(const InstrLvlAbsPtr m, const ExprPtr stt);
 
-};  // class AbsKnob
+}; // class AbsKnob
 
-}  // namespace ila
+} // namespace ila
 
-#endif  // ABS_KNOB_H__
+#endif // ABS_KNOB_H__

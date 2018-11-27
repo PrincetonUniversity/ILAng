@@ -398,7 +398,8 @@ FuncRef::FuncRef(const std::string& name, const SortRef& range,
 FuncRef::FuncRef(const std::string& name, const SortRef& range,
                  const std::vector<SortRef>& dvec) {
   std::vector<SortPtr> args;
-  for (size_t i = 0; i != dvec.size(); i++) args.push_back(dvec[i].get());
+  for (size_t i = 0; i != dvec.size(); i++)
+    args.push_back(dvec[i].get());
   ptr_ = Func::New(name, range.get(), args);
 }
 
@@ -421,7 +422,8 @@ ExprRef FuncRef::operator()(const ExprRef& arg0, const ExprRef& arg1) const {
 
 ExprRef FuncRef::operator()(const std::vector<ExprRef>& argvec) const {
   std::vector<ExprPtr> args;
-  for (size_t i = 0; i != argvec.size(); i++) args.push_back(argvec[i].get());
+  for (size_t i = 0; i != argvec.size(); i++)
+    args.push_back(argvec[i].get());
   auto v = ExprFuse::AppFunc(get(), args);
   return ExprRef(v);
 }
@@ -451,7 +453,7 @@ void InstrRef::SetProgram(const Ila& prog) { ptr_->set_program(prog.get()); }
 
 void InstrRef::ExportToVerilog(std::ostream& fout) const {
   VerilogGenerator vgen(VerilogGenerator::VlgGenConfig(
-      true));  // overwrite default configuration : memory is external
+      true)); // overwrite default configuration : memory is external
   vgen.ExportTopLevelInstr(ptr_);
   vgen.DumpToFile(fout);
 }
@@ -461,7 +463,7 @@ void InstrRef::ExportToVerilogWithChild(std::ostream& fout) const {
   AbsKnob::FlattenIla(dept_ila_ptr);
 
   VerilogGenerator vgen(VerilogGenerator::VlgGenConfig(
-      true));  // overwrite default configuration : memory is external
+      true)); // overwrite default configuration : memory is external
   vgen.ExportIla(dept_ila_ptr);
   vgen.DumpToFile(fout);
 }
@@ -559,7 +561,7 @@ Ila Ila::child(const std::string& name) const { return Ila(ptr_->child(name)); }
 
 void Ila::ExportToVerilog(std::ostream& fout) const {
   VerilogGenerator vgen(VerilogGenerator::VlgGenConfig(
-      true));  // overwrite default configuration : memory is external
+      true)); // overwrite default configuration : memory is external
   vgen.ExportIla(ptr_);
   vgen.DumpToFile(fout);
 }
@@ -667,4 +669,4 @@ void EnableDebug(const std::string& tag) { DebugLog::Enable(tag); }
 
 void DisableDebug(const std::string& tag) { DebugLog::Disable(tag); }
 
-}  // namespace ila
+} // namespace ila

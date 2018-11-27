@@ -4,10 +4,10 @@
 #ifndef FUNC_H__
 #define FUNC_H__
 
+#include "z3++.h"
 #include <ilang/ila/ast/ast.h>
 #include <ilang/ila/ast/sort.h>
 #include <ilang/ila/defines.h>
-#include "z3++.h"
 
 /// \namespace ila
 namespace ila {
@@ -17,7 +17,7 @@ class Expr;
 
 /// \brief The class for uninterpreted function.
 class Func : public Ast {
- public:
+public:
   /// Pointer type for normal use of Func.
   typedef std::shared_ptr<Func> FuncPtr;
 
@@ -65,7 +65,7 @@ class Func : public Ast {
     return f->Print(out);
   }
 
- private:
+private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// Sort of the output (range).
   SortPtr out_;
@@ -73,11 +73,11 @@ class Func : public Ast {
   std::vector<SortPtr> args_;
 
   // ------------------------- HELPERS -------------------------------------- //
-};  // class Func
+}; // class Func
 
 /// Pointer type for normal use of Func.
 typedef Func::FuncPtr FuncPtr;
 
-}  // namespace ila
+} // namespace ila
 
-#endif  // FUNC_H__
+#endif // FUNC_H__

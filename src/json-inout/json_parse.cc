@@ -1,9 +1,9 @@
 /// \file
 /// Dummy file for testing JSON lib integration
 
+#include "nlohmann/json.hpp"
 #include <ilang/json-inout/json_parse.h>
 #include <iostream>
-#include "nlohmann/json.hpp"
 
 namespace ila {
 
@@ -38,4 +38,4 @@ void TestJsonParse() {
   std::cout << j.dump(4) << std::endl;
 }
 
-};  // namespace ila
+}; // namespace ila

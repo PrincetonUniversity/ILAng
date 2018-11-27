@@ -131,7 +131,7 @@ z3::expr LegacyBmc::Instr(const InstrPtr instr, const std::string& suffix_prev,
     auto state_n = ila->state(i);
     auto update_n = instr->update(state_n);
 
-    if (update_n != NULL) {  // update function specified
+    if (update_n != NULL) { // update function specified
       auto next_val_e = gen_.GetExpr(update_n, suffix_prev);
       auto next_var_e = gen_.GetExpr(state_n, suffix_next);
       auto eq_cnst = (next_var_e == next_val_e);
@@ -177,4 +177,4 @@ z3::expr LegacyBmc::IlaOneHotFlat(const InstrLvlAbsPtr ila,
   return ila_cnst;
 }
 
-}  // namespace ila
+} // namespace ila

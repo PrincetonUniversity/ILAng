@@ -15,5 +15,5 @@ ExprWrap* InstrLvlAbsWrap::input(const std::string& name) {
   return new ExprWrap(ptr_->input(name));
 }
 
-}  // namespace pyapi
-}  // namespace ila
+} // namespace pyapi
+} // namespace ila

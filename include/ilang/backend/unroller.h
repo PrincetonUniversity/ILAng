@@ -4,18 +4,18 @@
 #ifndef UNROLLER_H__
 #define UNROLLER_H__
 
+#include "z3++.h"
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/ila/z3_expr_adapter.h>
 #include <set>
 #include <vector>
-#include "z3++.h"
 
 /// \namespace ila
 namespace ila {
 
 /// \brief Base class for unrolling ILA execution in different settings.
 class Unroller {
- public:
+public:
   /// Type alias for z3::expr.
   typedef z3::expr ZExpr;
   /// Type for containing a set of z3::expr.
@@ -57,7 +57,7 @@ class Unroller {
   /// Return the z3::expr representing a and b are equal at their time.
   ZExpr Equal(const ExprPtr va, const int& ta, const ExprPtr vb, const int& tb);
 
- protected:
+protected:
   // ------------------------- MEMBERS -------------------------------------- //
   /// The set of dependant state variables.
   IExprVec vars_;
@@ -97,7 +97,7 @@ class Unroller {
   /// Create a new free variable (with same sort) under the same host.
   static ExprPtr NewFreeVar(const ExprPtr var, const std::string& name);
 
- private:
+private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// z3::context of the unroller.
   z3::context& ctx_;
@@ -167,11 +167,11 @@ class Unroller {
     return std::to_string(t) + "_" + extra_suff_ + ".nxt";
   }
 
-};  // class Unroller
+}; // class Unroller
 
 /// \brief Application class for unrolling a path of instruction sequence.
 class PathUnroll : public Unroller {
- public:
+public:
   /// Type of a list of instruction sequence.
   typedef std::vector<InstrPtr> InstrVec;
 
@@ -199,7 +199,7 @@ class PathUnroll : public Unroller {
   /// \param[in] pos the starting time frame.
   ZExpr PathNone(const std::vector<InstrPtr>& seq, const int& pos = 0);
 
- protected:
+protected:
   // ------------------------- METHODS -------------------------------------- //
   /// \brief [Application-specific] Define dependant state variables.
   /// - "vars_" should be assigned with the state vars uniquely.
@@ -215,16 +215,16 @@ class PathUnroll : public Unroller {
   /// - "k_pred_" will NOT be cleared before calling (is the only modifier).
   void Transition(const int& idx);
 
- private:
+private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// The sequence of instructions.
   InstrVec seq_;
-};  // class PathUnroll
+}; // class PathUnroll
 
 /// \brief Application class for unrolling the ILA as a monolithic transition
 /// system.
 class MonoUnroll : public Unroller {
- public:
+public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor.
   MonoUnroll(z3::context& ctx, const std::string& suff = "");
@@ -260,7 +260,7 @@ class MonoUnroll : public Unroller {
   /// \param[in] pos the starting time frame.
   ZExpr MonoIncr(const InstrLvlAbsPtr top, const int& length, const int& pos);
 
- protected:
+protected:
   // ------------------------- METHODS -------------------------------------- //
   /// \brief [Application-specific] Define dependant state variables.
   /// - "vars_" should be assigned with the state vars uniquely.
@@ -276,13 +276,13 @@ class MonoUnroll : public Unroller {
   /// - "k_pred_" will NOT be cleared before calling (is the only modifier).
   void Transition(const int& idx);
 
- private:
+private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// The sequence of instructions.
   InstrLvlAbsPtr top_;
 
-};  // class MonoUnroll
+}; // class MonoUnroll
 
-}  // namespace ila
+} // namespace ila
 
-#endif  // UNROLLER_H__
+#endif // UNROLLER_H__

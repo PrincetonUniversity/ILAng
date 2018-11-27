@@ -3,9 +3,9 @@
 
 // XXX Current replacing is not efficient.
 
+#include <functional>
 #include <ilang/ila/hash_ast.h>
 #include <ilang/util/log.h>
-#include <functional>
 
 namespace ila {
 
@@ -56,7 +56,7 @@ static std::hash<std::string> str_hash_fn;
 static std::hash<int> int_hash_fn;
 
 size_t ExprMngr::Hash(const ExprPtr n) const {
-  if (n->is_op()) {  // ExprOp
+  if (n->is_op()) { // ExprOp
     auto n_op = std::dynamic_pointer_cast<ExprOp>(n);
     ILA_ASSERT(n_op) << "Dynamic cast fail for ExprOp " << n;
 
@@ -70,9 +70,9 @@ size_t ExprMngr::Hash(const ExprPtr n) const {
     }
 
     return hash;
-  } else if (n->is_var()) {  // ExprVar
+  } else if (n->is_var()) { // ExprVar
     return n->name().id();
-  } else {  // ExprConst
+  } else { // ExprConst
     ILA_ASSERT(n->is_const()) << "Unrecognized expr type";
     auto n_const = std::dynamic_pointer_cast<ExprConst>(n);
     ILA_ASSERT(n_const) << "Dynamic cast fail for ExprConst " << n;
@@ -90,4 +90,4 @@ size_t ExprMngr::Hash(const ExprPtr n) const {
   }
 }
 
-}  // namespace ila
+} // namespace ila

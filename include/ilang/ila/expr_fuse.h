@@ -202,8 +202,8 @@ ExprPtr Ite(const ExprPtr cnd, const ExprPtr true_expr,
 /// Topologically equivalent.
 bool TopEq(const ExprPtr a, const ExprPtr b);
 
-}  // namespace ExprFuse
+} // namespace ExprFuse
 
-}  // namespace ila
+} // namespace ila
 
-#endif  // EXPR_FUSE_H__
+#endif // EXPR_FUSE_H__

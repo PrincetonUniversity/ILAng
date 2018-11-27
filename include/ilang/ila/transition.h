@@ -17,7 +17,7 @@ namespace ila {
 /// - "dst": target instruction
 /// - "cnd": guard (transition condition)
 class InstrTranEdge {
- public:
+public:
   /// Pointer type for passing around the InstrTran.
   typedef std::shared_ptr<InstrTranEdge> ItEdgePtr;
 
@@ -35,7 +35,7 @@ class InstrTranEdge {
   /// Return the guarded transition condition.
   const ExprPtr cnd() const;
 
- private:
+private:
   /// Source instruction, the starting point of the transition.
   InstrPtr src_;
   /// Target instruction, the ending/destination point of the transition.
@@ -43,12 +43,12 @@ class InstrTranEdge {
   /// Transition condition for the guarded transition.
   ExprPtr cnd_;
 
-};  // class InstrTranEdge
+}; // class InstrTranEdge
 
 /// \brief Node for instruction-transition node, each node represent an
 /// instruction.
 class InstrTranNode {
- public:
+public:
   /// Pointer type for ITNode.
   typedef std::shared_ptr<InstrTranNode> ItNodePtr;
 
@@ -78,7 +78,7 @@ class InstrTranNode {
   /// Update the set of in-comming node.
   void AddPrev(const ItNodePtr prev);
 
- private:
+private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// The represented instruction.
   InstrPtr instr_;
@@ -87,7 +87,7 @@ class InstrTranNode {
   /// The set of out-going node.
   std::vector<ItNodePtr> prev_;
 
-};  // class InstrTranNode
+}; // class InstrTranNode
 
 /// \brief Instruction Sequencing does:
 /// - maintain the set of transition edges
@@ -95,7 +95,7 @@ class InstrTranNode {
 /// - perform checks on the transition
 /// - sort the instructions based on the transition.
 class InstrSeq {
- public:
+public:
   /// Pointer type for passing around InstrSeq.
   typedef std::shared_ptr<InstrSeq> InstrSeqPtr;
   /// Pointer type for passing around InstrTranEdge.
@@ -131,7 +131,7 @@ class InstrSeq {
   /// Sort the instructions based on the control flow.
   InstrIdxKeyVecPtr Sort();
 
- private:
+private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// The set of transition relations (edges).
   std::set<ItEdgePtr> edges_;
@@ -141,11 +141,11 @@ class InstrSeq {
   /// The sorted instruction index.
   InstrIdxKeyVecPtr sorted_ = std::make_shared<InstrIdxKeyVec>();
 
-};  // class InstrSeq
+}; // class InstrSeq
 
 /// Pointer type for passing around InstrSeq.
 typedef InstrSeq::InstrSeqPtr InstrSeqPtr;
 
-}  // namespace ila
+} // namespace ila
 
-#endif  // INSTR_TRAN_H__
+#endif // INSTR_TRAN_H__

@@ -67,7 +67,7 @@ ExprPtr Instr::update(const ExprPtr state) const {
 }
 
 void Instr::ForceSetDecode(const ExprPtr decode) {
-  ILA_NOT_NULL(decode);  // setting NULL pointer to decode function
+  ILA_NOT_NULL(decode); // setting NULL pointer to decode function
   ILA_CHECK(decode->is_bool()) << "Decode must have Boolean sort.";
 
   decode_ = Unify(decode);
@@ -89,4 +89,4 @@ std::ostream& operator<<(std::ostream& out, InstrPtr i) {
 
 ExprPtr Instr::Unify(const ExprPtr e) { return host_ ? host_->Unify(e) : e; }
 
-}  // namespace ila
+} // namespace ila

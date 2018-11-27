@@ -16,9 +16,8 @@ namespace ila {
 typedef enum { END, FOUND } KeyVecItVal;
 
 /// \brief A pseudo-iterator for the key-search vector.
-template <class Key, class T>
-class KeyVecIt {
- public:
+template <class Key, class T> class KeyVecIt {
+public:
   /// Pointer type for the KeyVec iterator.
   typedef std::shared_ptr<KeyVecIt> KeyVecItPtr;
 
@@ -44,12 +43,11 @@ class KeyVecIt {
   /// Data retrived.
   T second;
 
-};  // KeyVecIt
+}; // KeyVecIt
 
 /// \brief The container that support key search and index access.
-template <class Key, class T>
-class KeyVec {
- public:
+template <class Key, class T> class KeyVec {
+public:
   /// Iterator pointer type.
   typedef std::shared_ptr<KeyVecIt<Key, T>> KeyVecItPtr;
 
@@ -109,7 +107,7 @@ class KeyVec {
   /// Return END, can be used to check whether data is found.
   KeyVecItPtr end() const { return end_; }
 
- private:
+private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// vector of data (used for random access with index).
   std::vector<T> vec_;
@@ -120,17 +118,16 @@ class KeyVec {
   KeyVecItPtr it_;
   /// the END for legacy interator usage.
   static KeyVecItPtr end_;
-};  // class KeyVec
+}; // class KeyVec
 
 /// Initialize static end interator.
 template <class Key, class T>
-std::shared_ptr<KeyVecIt<Key, T>> KeyVec<Key, T>::end_ =
-    std::make_shared<KeyVecIt<Key, T>>();
+std::shared_ptr<KeyVecIt<Key, T>>
+    KeyVec<Key, T>::end_ = std::make_shared<KeyVecIt<Key, T>>();
 
 /// \brief A map for sets.
-template <class Key, class T>
-class MapSet {
- public:
+template <class Key, class T> class MapSet {
+public:
   /// Set type for data T.
   typedef std::set<T> SetT;
 
@@ -157,12 +154,12 @@ class MapSet {
   /// Return the iterator at the ending point.
   typename std::map<Key, std::set<T>>::iterator end() { return map_.end(); }
 
- private:
+private:
   /// The actual mapping.
   std::map<Key, std::set<T>> map_;
 
-};  // class MapSet
+}; // class MapSet
 
-}  // namespace ila
+} // namespace ila
 
-#endif  // CONTAINER_H__
+#endif // CONTAINER_H__

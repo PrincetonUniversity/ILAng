@@ -67,14 +67,14 @@ void SetToStdErr(const int& to_err);
 /******************************************************************************/
 /// A one-time class for initializing GLog.
 class LogInitter {
- public:
+public:
   /// Constructor to initialize GLog.
   LogInitter();
-};  // class LogInitter
+}; // class LogInitter
 
 /// The wrapper for enabling and disabling debug tags.
 class DebugLog {
- public:
+public:
   /// Add a debug tag.
   static void Enable(const std::string& tag);
 
@@ -87,15 +87,15 @@ class DebugLog {
   /// Find if the tag is enabled.
   static bool Find(const std::string& tag);
 
- private:
+private:
   /// The set of debug tags.
   static std::set<std::string> debug_tags_;
 
   /// The one and only initializer for the log system.
   static LogInitter init_;
 
-};  // class DebugLog
+}; // class DebugLog
 
-}  // namespace ila
+} // namespace ila
 
-#endif  // LOG_H__
+#endif // LOG_H__

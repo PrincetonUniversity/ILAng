@@ -332,4 +332,4 @@ bool ExprFuse::TopEq(const ExprPtr a, const ExprPtr b) {
   return x == y;
 }
 
-}  // namespace ila
+} // namespace ila

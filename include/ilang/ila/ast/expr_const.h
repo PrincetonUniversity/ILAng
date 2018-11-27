@@ -13,7 +13,7 @@ namespace ila {
 /// \brief Expression for constant values (bool, bv, or memory). Constant should
 /// be terminating nodes in the AST.
 class ExprConst : public Expr {
- public:
+public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Constructor for Boolean constant.
   ExprConst(const BoolVal& bool_val);
@@ -44,13 +44,13 @@ class ExprConst : public Expr {
   /// Return the Memory value.
   MemValPtr val_mem() const;
 
- private:
+private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// Value of the constant.
   ValPtr val_;
 
-};  // class ExprConst
+}; // class ExprConst
 
-}  // namespace ila
+} // namespace ila
 
-#endif  // EXPR_CONST_H__
+#endif // EXPR_CONST_H__

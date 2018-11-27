@@ -1,8 +1,8 @@
 /// \file
 /// Verilog Generator
-#include <ilang/verilog-out/verilog_gen.h>
 #include <cctype>
 #include <cmath>
+#include <ilang/verilog-out/verilog_gen.h>
 #include <iomanip>
 #include <string>
 
@@ -10,40 +10,38 @@ namespace ila {
 
 #define toStr(x) (std::to_string(x))
 
-VerilogGenerator::VerilogGenerator(const VlgGenConfig &config,
-                                   const std::string &modName,
-                                   const std::string &clk,
-                                   const std::string &rst)
-    : moduleName(modName),
-      clkName(clk),
-      rstName(rst),
-      idCounter(0),
+VerilogGenerator::VerilogGenerator(const VlgGenConfig& config,
+                                   const std::string& modName,
+                                   const std::string& clk,
+                                   const std::string& rst)
+    : moduleName(modName), clkName(clk), rstName(rst), idCounter(0),
       cfg_(config) {}
 
 /// Check if a name is reserved (clk/rst/moduleName/decodeNames/ctrName)
-bool VerilogGenerator::check_reserved_name(const vlg_name_t &n) const {
+bool VerilogGenerator::check_reserved_name(const vlg_name_t& n) const {
   if (n == moduleName || n == clkName || n == rstName || n == validName ||
       n == counterName)
     return false;
-  for (auto &&sig : decodeNames) {
-    if (sig == n) return false;
+  for (auto&& sig : decodeNames) {
+    if (sig == n)
+      return false;
   }
   return true;
 }
 
 // static helper function
-std::map<char, std::string> sanitizeTable(
-    {{'.', "__DOT__"},   {'<', "__LT__"},    {'>', "__GT__"},
-     {'!', "__NOT__"},   {'~', "__NEG__"},   {'-', "__DASH__"},
-     {'&', "__AND__"},   {'|', "__SEP__"},   {' ', "__SPACE__"},
-     {'*', "__STAR__"},  {'%', "__PERC__"},  {'#', "__BANG__"},
-     {'@', "__AT__"},    {'0', "__ZERO__"},  {'1', "__ONE__"},
-     {'2', "__TWO__"},   {'3', "__THREE__"}, {'4', "__FOUR__"},
-     {'5', "__FIVE__"},  {'6', "__SIX__"},   {'7', "__SEVEN__"},
-     {'8', "__EIGHT__"}, {'9', "__NINE__"}});
+std::map<char, std::string>
+    sanitizeTable({{'.', "__DOT__"},   {'<', "__LT__"},    {'>', "__GT__"},
+                   {'!', "__NOT__"},   {'~', "__NEG__"},   {'-', "__DASH__"},
+                   {'&', "__AND__"},   {'|', "__SEP__"},   {' ', "__SPACE__"},
+                   {'*', "__STAR__"},  {'%', "__PERC__"},  {'#', "__BANG__"},
+                   {'@', "__AT__"},    {'0', "__ZERO__"},  {'1', "__ONE__"},
+                   {'2', "__TWO__"},   {'3', "__THREE__"}, {'4', "__FOUR__"},
+                   {'5', "__FIVE__"},  {'6', "__SIX__"},   {'7', "__SEVEN__"},
+                   {'8', "__EIGHT__"}, {'9', "__NINE__"}});
 
-VerilogGenerator::vlg_name_t VerilogGenerator::sanitizeName(
-    const vlg_name_t &n) {
+VerilogGenerator::vlg_name_t
+VerilogGenerator::sanitizeName(const vlg_name_t& n) {
   std::string outStr;
   for (unsigned idx = 0; idx < n.length(); ++idx) {
     char c = n[idx];
@@ -68,32 +66,35 @@ VerilogGenerator::vlg_name_t VerilogGenerator::sanitizeName(
   }
   return outStr;
 }
-VerilogGenerator::vlg_name_t VerilogGenerator::sanitizeName(const ExprPtr &n) {
+VerilogGenerator::vlg_name_t VerilogGenerator::sanitizeName(const ExprPtr& n) {
   ILA_ASSERT(n->is_var()) << "Should not be used on node other than variables";
   return sanitizeName(n->name().str());
 }
 
 // Currently not used, can be added to enforce sanity check
-#define CHECK_NAME(s)                    \
-  (ILA_ERROR_IF(!check_reserved_name(s)) \
+#define CHECK_NAME(s)                                                          \
+  (ILA_ERROR_IF(!check_reserved_name(s))                                       \
    << "Name " << (s) << " is reserved, which should not be used");
-#define EXISTS_NAME(n, w) \
+#define EXISTS_NAME(n, w)                                                      \
   (all_valid_names.find({(n), (w)}) != all_valid_names.end())
 #define ADD_NAME(n, w) all_valid_names.insert({(n), (w)})
 
 /// Get the width of an ExprPtr, must be supported sort, NOTE: function is not
 /// an exp Do we really need it?
-int VerilogGenerator::get_width(const ExprPtr &n) {
-  if (n->sort()->is_bool()) return 1;
-  if (n->sort()->is_bv()) return n->sort()->bit_width();
+int VerilogGenerator::get_width(const ExprPtr& n) {
+  if (n->sort()->is_bool())
+    return 1;
+  if (n->sort()->is_bv())
+    return n->sort()->bit_width();
   if (n->sort()->is_mem())
-    return n->sort()->data_width();  // NOTE : here we get the data width
+    return n->sort()->data_width(); // NOTE : here we get the data width
 
   ILA_ASSERT(false) << "Unable to get the width for sort " << n->sort();
 }
 /// convert a widith to a verilog string
 std::string VerilogGenerator::WidthToRange(int w) {
-  if (w > 1) return std::string("[") + toStr(w - 1) + ":0]";
+  if (w > 1)
+    return std::string("[") + toStr(w - 1) + ":0]";
   return "";
 }
 /// get a new id
@@ -102,57 +103,58 @@ VerilogGenerator::vlg_name_t VerilogGenerator::new_id() {
 }
 /// if the exprptr contains some meaning in its name, will try to incorporate
 /// that to the name;
-VerilogGenerator::vlg_name_t VerilogGenerator::new_id(const ExprPtr &e) {
-  if (!e) return new_id();
+VerilogGenerator::vlg_name_t VerilogGenerator::new_id(const ExprPtr& e) {
+  if (!e)
+    return new_id();
 
   auto name = e->name().str();
   auto pos = reference_name_set.find(name);
   if (pos ==
-      reference_name_set.end())  // not registered to the refererence name set
-    return new_id();             // just return the plain name
+      reference_name_set.end()) // not registered to the refererence name set
+    return new_id();            // just return the plain name
   return "n" + toStr(idCounter++) + "__" + pos->second;
 }
 //--------------------------------------------------------------------------
 
-void VerilogGenerator::add_input(const vlg_name_t &n, int w) {
+void VerilogGenerator::add_input(const vlg_name_t& n, int w) {
   inputs.push_back(vlg_sig_t(n, w));
 }
-void VerilogGenerator::add_output(const vlg_name_t &n, int w) {
+void VerilogGenerator::add_output(const vlg_name_t& n, int w) {
   outputs.push_back(vlg_sig_t(n, w));
 }
-void VerilogGenerator::add_wire(const vlg_name_t &n, int w) {
+void VerilogGenerator::add_wire(const vlg_name_t& n, int w) {
   wires.push_back(vlg_sig_t(n, w));
 }
-void VerilogGenerator::add_reg(const vlg_name_t &n, int w) {
+void VerilogGenerator::add_reg(const vlg_name_t& n, int w) {
   regs.push_back(vlg_sig_t(n, w));
 }
 void VerilogGenerator::add_stmt(
-    const vlg_stmt_t &s)  // you need to put ';' but no need for \n
+    const vlg_stmt_t& s) // you need to put ';' but no need for \n
 {
   statements.push_back(s);
 }
-void VerilogGenerator::add_assign_stmt(const vlg_name_t &l,
-                                       const vlg_name_t &r) {
+void VerilogGenerator::add_assign_stmt(const vlg_name_t& l,
+                                       const vlg_name_t& r) {
   add_stmt("assign " + l + " = " + r + " ;");
 }
-void VerilogGenerator::add_always_stmt(const vlg_stmt_t &s) {
+void VerilogGenerator::add_always_stmt(const vlg_stmt_t& s) {
   always_stmts.push_back(s);
 }
-void VerilogGenerator::add_init_stmt(const vlg_stmt_t &s) {
+void VerilogGenerator::add_init_stmt(const vlg_stmt_t& s) {
   init_stmts.push_back(s);
 }
-void VerilogGenerator::add_ite_stmt(const vlg_stmt_t &cond,
-                                    const vlg_stmt_t &tstmt,
-                                    const vlg_stmt_t &fstmt) {
+void VerilogGenerator::add_ite_stmt(const vlg_stmt_t& cond,
+                                    const vlg_stmt_t& tstmt,
+                                    const vlg_stmt_t& fstmt) {
   ite_stmts.push_back(std::make_tuple(cond, tstmt, fstmt));
 }
 
 // the mems to be created
-void VerilogGenerator::add_internal_mem(const vlg_name_t &mem_name,
+void VerilogGenerator::add_internal_mem(const vlg_name_t& mem_name,
                                         int addr_width, int data_width) {
   mems_internal.insert({mem_name, vlg_mem_t(mem_name, addr_width, data_width)});
 }
-void VerilogGenerator::add_external_mem(const vlg_name_t &mem_name,
+void VerilogGenerator::add_external_mem(const vlg_name_t& mem_name,
                                         int addr_width, int data_width) {
   mems_external.insert({mem_name, vlg_mem_t(mem_name, addr_width, data_width)});
   /* NO, this should not be done
@@ -163,15 +165,15 @@ void VerilogGenerator::add_external_mem(const vlg_name_t &mem_name,
   */
 }
 //--------------------------------------------------------------------------
-void VerilogGenerator::insertInput(const ExprPtr &input) {
+void VerilogGenerator::insertInput(const ExprPtr& input) {
   ILA_ASSERT(input->is_var());
   // we need to consider the case of an input memory
   if (input->is_mem()) {
     ILA_ASSERT(false)
-        << "NOT implemented";  // FIXME: add wires to read from external
+        << "NOT implemented"; // FIXME: add wires to read from external
     // when in expr parse, remember it is (EXTERNAL mem)
-    add_external_mem(sanitizeName(input),          // name
-                     input->sort()->addr_width(),  // addr_width
+    add_external_mem(sanitizeName(input),         // name
+                     input->sort()->addr_width(), // addr_width
                      input->sort()->data_width());
   } else {
     add_input(sanitizeName(input), get_width(input));
@@ -179,19 +181,19 @@ void VerilogGenerator::insertInput(const ExprPtr &input) {
   }
 }
 
-void VerilogGenerator::insertState(const ExprPtr &state) {
+void VerilogGenerator::insertState(const ExprPtr& state) {
   ILA_ASSERT(state->is_var());
-  if (state->is_mem()) {  // depends on configuration, we choose to put into
-                          // mem_external/mem_internal
+  if (state->is_mem()) { // depends on configuration, we choose to put into
+                         // mem_external/mem_internal
     if (cfg_.extMem) {
-      add_external_mem(sanitizeName(state),          // name
-                       state->sort()->addr_width(),  // addr_width
+      add_external_mem(sanitizeName(state),         // name
+                       state->sort()->addr_width(), // addr_width
                        state->sort()->data_width());
       ILA_DLOG("VerilogGen.insertState")
           << "insert emem:" << state->name().str();
     } else {
-      add_internal_mem(sanitizeName(state),          // name
-                       state->sort()->addr_width(),  // addr_width
+      add_internal_mem(sanitizeName(state),         // name
+                       state->sort()->addr_width(), // addr_width
                        state->sort()->data_width());
     }
   } else if (state->is_bv()) {
@@ -234,21 +236,21 @@ void VerilogGenerator::addInternalCounter(vlg_name_t decode_sig_name,
 
 //--------------------------------------------------------------------------
 
-void VerilogGenerator::parseArg(const ExprPtr &e) {
+void VerilogGenerator::parseArg(const ExprPtr& e) {
   for (size_t i = 0; i != e->arg_num(); ++i) {
     ParseNonMemUpdateExpr(e->arg(i));
   }
 }
 
-VerilogGenerator::vlg_name_t VerilogGenerator::getVlgFromExpr(
-    const ExprPtr &e) {
+VerilogGenerator::vlg_name_t
+VerilogGenerator::getVlgFromExpr(const ExprPtr& e) {
   auto pos = nmap.find(e);
   ILA_ASSERT(pos != nmap.end())
       << "Expr:" << (e) << " has not been translated yet";
   return pos->second;
 }
-VerilogGenerator::vlg_name_t VerilogGenerator::getArg(const ExprPtr &e,
-                                                      const size_t &i) {
+VerilogGenerator::vlg_name_t VerilogGenerator::getArg(const ExprPtr& e,
+                                                      const size_t& i) {
   auto arg_i = e->arg(i);
   return getVlgFromExpr(arg_i);
 }
@@ -269,8 +271,8 @@ VerilogGenerator::vlg_name_t VerilogGenerator::translateApplyFunc(
     add_input(result_stmt, width);
   } else {
     func_ptr_set.insert(
-        func_app_ptr_->func());  // record that we have met this function, later
-                                 // may need to declare a module if internal
+        func_app_ptr_->func()); // record that we have met this function, later
+                                // may need to declare a module if internal
     if (cfg_.fcOpt == VlgGenConfig::funcOption::Internal) {
       // here we create a module to do this
       result_stmt = new_id(func_app_ptr_);
@@ -320,13 +322,13 @@ VerilogGenerator::vlg_name_t VerilogGenerator::translateApplyFunc(
 
 // will be used by ParseNonMemUpdateExpr, will not be directly called by
 // ParseMemUpdateNode the later will call the former first
-VerilogGenerator::vlg_name_t VerilogGenerator::translateBoolOp(
-    const std::shared_ptr<ExprOp> &e) {
+VerilogGenerator::vlg_name_t
+VerilogGenerator::translateBoolOp(const std::shared_ptr<ExprOp>& e) {
   vlg_stmt_t result_stmt;
   std::string op_name = e->op_name();
   size_t arg_num = e->arg_num();
 
-  if (op_name == "APP") {  // Function application
+  if (op_name == "APP") { // Function application
     // deal with the case with a function
     std::shared_ptr<ExprOpAppFunc> func_app_ptr_ =
         std::dynamic_pointer_cast<ExprOpAppFunc>(e);
@@ -349,7 +351,7 @@ VerilogGenerator::vlg_name_t VerilogGenerator::translateBoolOp(
       result_stmt = " ( " + arg1 + " ) == ( " + arg2 + " ) ";
     else if (op_name == "IMPLY")
       result_stmt = " ( ~ ( " + arg1 + " ) | ( " + arg2 +
-                    " ) )";  // do we need to support boolean comparison?
+                    " ) )"; // do we need to support boolean comparison?
     else if (op_name == "LT")
       result_stmt =
           vlg_stmt_t(" $signed( ") + arg1 + " ) < $signed( " + arg2 + " ) ";
@@ -379,13 +381,13 @@ VerilogGenerator::vlg_name_t VerilogGenerator::translateBoolOp(
 
 // will be used by ParseNonMemUpdateExpr, will not be directly called by
 // ParseMemUpdateNode the later will call the former first
-VerilogGenerator::vlg_name_t VerilogGenerator::translateBvOp(
-    const std::shared_ptr<ExprOp> &e) {
+VerilogGenerator::vlg_name_t
+VerilogGenerator::translateBvOp(const std::shared_ptr<ExprOp>& e) {
   vlg_stmt_t result_stmt;
   std::string op_name = e->op_name();
   size_t arg_num = e->arg_num();
 
-  if (op_name == "APP") {  // Function application
+  if (op_name == "APP") { // Function application
     // deal with the case with a function
     // deal with the case with a function
     std::shared_ptr<ExprOpAppFunc> func_app_ptr_ =
@@ -393,9 +395,9 @@ VerilogGenerator::vlg_name_t VerilogGenerator::translateBvOp(
     result_stmt = translateApplyFunc(func_app_ptr_);
   } else if (arg_num == 1) {
     vlg_name_t arg0 = getArg(e, 0);
-    if (op_name == "NEGATE")  // negate : 2's complement
+    if (op_name == "NEGATE") // negate : 2's complement
       result_stmt = vlg_stmt_t("( ~ ( ") + arg0 + " ) + 1'b1 )";
-    else if (op_name == "COMPLEMENT")  // 1's complement
+    else if (op_name == "COMPLEMENT") // 1's complement
       result_stmt = vlg_stmt_t("~ ( ") + arg0 + " )";
     else if (op_name == "EXTRACT") {
       int hi = e->param(0);
@@ -419,7 +421,7 @@ VerilogGenerator::vlg_name_t VerilogGenerator::translateBvOp(
                       "[" + toStr(inw - 1) + "] }  }, " + arg0 + "} ";
     } else
       ILA_ASSERT(false) << op_name << " is not supported by VerilogGenerator";
-  }  // else if(arg_num == 1)
+  } // else if(arg_num == 1)
   else if (arg_num == 2) {
     vlg_name_t arg1 = getArg(e, 0);
     vlg_name_t arg2 = getArg(e, 1);
@@ -429,9 +431,9 @@ VerilogGenerator::vlg_name_t VerilogGenerator::translateBvOp(
       result_stmt = vlg_stmt_t(" ( ") + arg1 + " ) | ( " + arg2 + " ) ";
     else if (op_name == "XOR")
       result_stmt = vlg_stmt_t(" ( ") + arg1 + " ) ^ ( " + arg2 + " ) ";
-    else if (op_name == "SHL")  // only shift, use 0 on the right
+    else if (op_name == "SHL") // only shift, use 0 on the right
       result_stmt = vlg_stmt_t(" ( ") + arg1 + " ) << ( " + arg2 + " ) ";
-    else if (op_name == "ASHR")  // arithmetic shift right
+    else if (op_name == "ASHR") // arithmetic shift right
       result_stmt =
           vlg_stmt_t(" ( $signed( ") + arg1 + " ) >>> ( " + arg2 + " )) ";
     else if (op_name == "LSHR")
@@ -467,17 +469,17 @@ VerilogGenerator::vlg_name_t VerilogGenerator::translateBvOp(
         add_assign_stmt(addr_name, arg2);
 
         result_stmt = data_name;
-      }  // if( pos != mems_external.end() )
+      } // if( pos != mems_external.end() )
       else {
         result_stmt =
             vlg_stmt_t(" (  ") + mem_var_name + " [ " + arg2 + " ] ) ";
 
         ILA_DLOG("VerilogGen.translateBvOp") << "Not found.";
       }
-    }  // else if(op_name == "LOAD")
+    } // else if(op_name == "LOAD")
     else
       ILA_ASSERT(false) << op_name << " is not supported by VerilogGenerator";
-  }  // else if(arg_num == 2)
+  } // else if(arg_num == 2)
   else if (arg_num == 3) {
     vlg_name_t arg1 = getArg(e, 0);
     vlg_name_t arg2 = getArg(e, 1);
@@ -487,7 +489,7 @@ VerilogGenerator::vlg_name_t VerilogGenerator::translateBvOp(
           vlg_stmt_t(" ( ") + arg1 + " ) ? ( " + arg2 + " ) : ( " + arg3 + " )";
     else
       ILA_ASSERT(false) << op_name << " is not supported by VerilogGenerator";
-  }  // else if(arg_num == 3)
+  } // else if(arg_num == 3)
   else
     ILA_ASSERT(false) << op_name << " is not supported by VerilogGenerator";
 
@@ -500,8 +502,8 @@ VerilogGenerator::vlg_name_t VerilogGenerator::translateBvOp(
 //--------------------------------------------------------------------------
 // used in general for an expression (not the update of a memvar)
 void VerilogGenerator::ParseNonMemUpdateExpr(
-    const ExprPtr &e) {  // will be used in parsing state update of non mem and
-                         // decode function
+    const ExprPtr& e) { // will be used in parsing state update of non mem and
+                        // decode function
   // memorize
 
   ILA_DLOG("VerilogGen.ParseNonMemUpdateExpr") << "Parsing:" << e;
@@ -512,10 +514,10 @@ void VerilogGenerator::ParseNonMemUpdateExpr(
 
   if (e->is_bool()) {
     if (e->is_var()) {
-      nmap[e] = sanitizeName(e);  // just use its name
+      nmap[e] = sanitizeName(e); // just use its name
       ILA_DLOG("VerilogGen.ParseNonMemUpdateExpr")
           << "BoolVar: " << e->name().str();
-    } else if (e->is_op()) {  // bool op
+    } else if (e->is_op()) { // bool op
       // leaves first,
       ILA_DLOG("VerilogGen.ParseNonMemUpdateExpr") << "BoolOp, leaves-first ";
       parseArg(e);
@@ -523,7 +525,7 @@ void VerilogGenerator::ParseNonMemUpdateExpr(
           std::dynamic_pointer_cast<ExprOp>(e);
       ILA_NOT_NULL(expr_op_ptr);
       nmap[e] = translateBoolOp(expr_op_ptr);
-    } else if (e->is_const()) {  // bool const
+    } else if (e->is_const()) { // bool const
       vlg_name_t bcnst =
           vlg_name_t("1'b") +
           (std::dynamic_pointer_cast<ExprConst>(e)->val_bool()->val() ? "1"
@@ -534,7 +536,7 @@ void VerilogGenerator::ParseNonMemUpdateExpr(
       ILA_ASSERT(false) << "Expr sort: " << (e->sort()) << " is not supported.";
   } else if (e->is_bv()) {
     if (e->is_var()) {
-      nmap[e] = sanitizeName(e);  // just use its name
+      nmap[e] = sanitizeName(e); // just use its name
       ILA_DLOG("VerilogGen.ParseNonMemUpdateExpr") << "BV: " << e->name().str();
     } else if (e->is_op()) {
       // leaves first
@@ -543,7 +545,7 @@ void VerilogGenerator::ParseNonMemUpdateExpr(
       ILA_NOT_NULL(expr_op_ptr);
 
       ILA_DLOG("VerilogGen.ParseNonMemUpdateExpr") << "BVop, leaves-first ";
-      parseArg(e);  // FIXME: if not LOAD, leaf-first
+      parseArg(e); // FIXME: if not LOAD, leaf-first
       // BTW, you cannot cache the LOAD(STORE/ITE/MEMCONST) pattern
       nmap[e] = translateBvOp(expr_op_ptr);
     } else if (e->is_const()) {
@@ -559,9 +561,9 @@ void VerilogGenerator::ParseNonMemUpdateExpr(
   } else if (e->is_mem()) {
     // TODO: ?
     if (e->is_var())
-      nmap[e] = sanitizeName(e);  // should not be used
+      nmap[e] = sanitizeName(e); // should not be used
     else if (e->is_const())
-      nmap[e] = sanitizeName(e);  // should not be used, currently unsupported
+      nmap[e] = sanitizeName(e); // should not be used, currently unsupported
     else if (e->is_op())
       ILA_ASSERT(false)
           << "Implementation bug, do not support mem_op ( "
@@ -602,13 +604,14 @@ void VerilogGenerator::ParseNonMemUpdateExpr(
 // as we are verify just one instruction
 // for the child-abs, their initial condition should be set by the
 // parent instruction
-bool VerilogGenerator::CheckMemUpdateNode(const ExprPtr &e,
-                                          const std::string &mem_var_name) {
-  ILA_ASSERT(e->is_mem());  // require it to be memory
+bool VerilogGenerator::CheckMemUpdateNode(const ExprPtr& e,
+                                          const std::string& mem_var_name) {
+  ILA_ASSERT(e->is_mem()); // require it to be memory
   if (e->is_const())
     return false;
   else if (e->is_var()) {
-    if (sanitizeName(e) == mem_var_name) return true;
+    if (sanitizeName(e) == mem_var_name)
+      return true;
     // else
     return false;
   } else if (e->is_op()) {
@@ -617,12 +620,12 @@ bool VerilogGenerator::CheckMemUpdateNode(const ExprPtr &e,
     if (expr_op_ptr->op_name() == "STORE")
       return CheckMemUpdateNode(
           expr_op_ptr->arg(0),
-          mem_var_name);  // it depends if its subtree conforms to the pattern.
+          mem_var_name); // it depends if its subtree conforms to the pattern.
     if (expr_op_ptr->op_name() == "ITE")
       return CheckMemUpdateNode(expr_op_ptr->arg(1), mem_var_name) &&
              CheckMemUpdateNode(expr_op_ptr->arg(2), mem_var_name);
     return false;
-  }  // ITE/STORE
+  } // ITE/STORE
   // else
   return false;
 }
@@ -631,8 +634,8 @@ bool VerilogGenerator::CheckMemUpdateNode(const ExprPtr &e,
 // root first
 // collect writes and their conditions
 void VerilogGenerator::VisitMemNodes(
-    const ExprPtr &e, const ExprPtr &cond,
-    mem_write_entry_list_stack_t &writesStack) {
+    const ExprPtr& e, const ExprPtr& cond,
+    mem_write_entry_list_stack_t& writesStack) {
   // ILA_ASSERT( e->is_var() || e->is_op() )
 
   if (e->is_var()) {
@@ -646,38 +649,38 @@ void VerilogGenerator::VisitMemNodes(
     ILA_NOT_NULL(expr_op_ptr);
     if (expr_op_ptr->op_name() == "ITE") {
       ExprPtr ctrue = ExprFuse::And(
-          cond, expr_op_ptr->arg(0));  // the writes in the true-branch conforms
-                                       // to these conditions
+          cond, expr_op_ptr->arg(0)); // the writes in the true-branch conforms
+                                      // to these conditions
       ExprPtr cfalse = ExprFuse::And(
-          cond, ExprFuse::Not(
-                    expr_op_ptr->arg(0)));  // the writes in the false-branch
-                                            // conforms to these conditions
+          cond,
+          ExprFuse::Not(expr_op_ptr->arg(0))); // the writes in the false-branch
+                                               // conforms to these conditions
 
       mem_write_entry_list_t writes = writesStack.back();
       writesStack.push_back(
-          writes);  // make a copy of the top the stack and push it
+          writes); // make a copy of the top the stack and push it
       VisitMemNodes(expr_op_ptr->arg(1), ctrue, writesStack);
       writesStack.pop_back();
       writesStack.push_back(
-          writes);  // recover the top of the stack to be the copy we have
+          writes); // recover the top of the stack to be the copy we have
       VisitMemNodes(expr_op_ptr->arg(2), cfalse, writesStack);
       writesStack.pop_back();
-    }       // if (ITE)
-    else {  // ILA_ASSERT ( expr_op_ptr->op_name()== "STORE" )
+    }      // if (ITE)
+    else { // ILA_ASSERT ( expr_op_ptr->op_name()== "STORE" )
       mem_write_entry_t mw = {e->arg(1), e->arg(2)};
-      mem_write_entry_list_t &writes = writesStack.back();
+      mem_write_entry_list_t& writes = writesStack.back();
       writes.push_back(mw);
       VisitMemNodes(e->arg(0), cond, writesStack);
     }
-  }  // is memop
-}  // VerilogGenerator::VisitMemNodes
+  } // is memop
+} // VerilogGenerator::VisitMemNodes
 
 void VerilogGenerator::ExportFuncDefs() {
   // we don't have the option of verilog function here, becase we don't think
   // this useful for verification
   if (cfg_.fcOpt == VlgGenConfig::funcOption::External)
-    return;  // if they are external we don't care how they will be implemented
-  for (auto &&func_ptr : func_ptr_set) {
+    return; // if they are external we don't care how they will be implemented
+  for (auto&& func_ptr : func_ptr_set) {
     // because we don't add 0-arg func here, there is no need to worry about it
     auto func_name = sanitizeName(func_ptr->name().str());
     vlg_stmt_t funcModDef = "module fun_" + func_name + " (\n";
@@ -701,8 +704,8 @@ void VerilogGenerator::ExportFuncDefs() {
   }
 }
 
-void VerilogGenerator::ExportCondWrites(const ExprPtr &mem_var,
-                                        const mem_write_list_t &writeList) {
+void VerilogGenerator::ExportCondWrites(const ExprPtr& mem_var,
+                                        const mem_write_list_t& writeList) {
   // count the maximum ports needed, that is for a single condition what's max
   // size of mem_write_entry_list_t
   auto name = sanitizeName(mem_var);
@@ -710,8 +713,9 @@ void VerilogGenerator::ExportCondWrites(const ExprPtr &mem_var,
   auto data_width = mem_var->sort()->data_width();
 
   unsigned max_port_no = 0;
-  for (const auto &mw : writeList)
-    if (max_port_no < mw.writes.size()) max_port_no = mw.writes.size();
+  for (const auto& mw : writeList)
+    if (max_port_no < mw.writes.size())
+      max_port_no = mw.writes.size();
   for (unsigned portIdx = 0; portIdx < max_port_no; ++portIdx) {
     add_wire(name + "_addr" + toStr(portIdx), addr_width);
     add_wire(name + "_data" + toStr(portIdx), data_width);
@@ -724,16 +728,16 @@ void VerilogGenerator::ExportCondWrites(const ExprPtr &mem_var,
   }
   std::vector<vlg_stmt_t> addrStmt(max_port_no, "0");
   std::vector<vlg_stmt_t> dataStmt(
-      max_port_no, "'d0");  // "'dx"); our parser dislikes this, though it is
-                            // okay for other parsers
+      max_port_no, "'d0"); // "'dx"); our parser dislikes this, though it is
+                           // okay for other parsers
   std::vector<vlg_stmt_t> enabStmt(max_port_no, "1'b0");
   // Note the reverse here!
   for (auto mw_pos = writeList.rbegin(); mw_pos != writeList.rend(); ++mw_pos) {
-    const auto &mw = *mw_pos;
+    const auto& mw = *mw_pos;
     ParseNonMemUpdateExpr(mw.cond);
     vlg_name_t cond = getVlgFromExpr(mw.cond);
     int portIdx = 0;
-    for (const auto &wr : mw.writes) {
+    for (const auto& wr : mw.writes) {
       ParseNonMemUpdateExpr(wr.addr);
       vlg_name_t addr = getVlgFromExpr(wr.addr);
       ParseNonMemUpdateExpr(wr.data);
@@ -746,8 +750,8 @@ void VerilogGenerator::ExportCondWrites(const ExprPtr &mem_var,
 
       portIdx++;
     }
-  }  // accumulate the final expression, if it is external, then no need to
-     // anything here
+  } // accumulate the final expression, if it is external, then no need to
+    // anything here
 
   for (unsigned portIdx = 0; portIdx < max_port_no; ++portIdx) {
     // add statements
@@ -764,17 +768,17 @@ void VerilogGenerator::ExportCondWrites(const ExprPtr &mem_var,
       vlg_stmt_t assignment =
           name + " [ " + addrWireName + " ] " + "<= " + dataWireName;
       vlg_stmt_t condition = enabWireName;
-      add_ite_stmt(condition, assignment, "");  // no else statement
+      add_ite_stmt(condition, assignment, ""); // no else statement
     }
   }
-}  // VerilogGenerator::ExportCondWrites
+} // VerilogGenerator::ExportCondWrites
 
 // This function is used to parse a expr used as memvar's update
 // will first collect the writes & conditions
 // and then translate to verilog, the same idiom could be used to handle
 // LOAD(STORE/ITE/MEMC)
-void VerilogGenerator::ParseMemUpdateNode(const ExprPtr &cond, const ExprPtr &e,
-                                          const std::string &mem_var_name) {
+void VerilogGenerator::ParseMemUpdateNode(const ExprPtr& cond, const ExprPtr& e,
+                                          const std::string& mem_var_name) {
   ILA_ASSERT(CheckMemUpdateNode(e, mem_var_name))
       << "Unsupported Expr structure";
 
@@ -783,9 +787,9 @@ void VerilogGenerator::ParseMemUpdateNode(const ExprPtr &cond, const ExprPtr &e,
   mem_write_entry_list_t empty_write_entry_list;
   writesStack.push_back(empty_write_entry_list);
 
-  for (const auto &w : current_writes)
-    past_writes.push_back(w);  // have a container to hold them so will not be
-                               // garbarge collected before used
+  for (const auto& w : current_writes)
+    past_writes.push_back(w); // have a container to hold them so will not be
+                              // garbarge collected before used
 
   current_writes.clear();
   VisitMemNodes(e, cond, writesStack);
@@ -802,13 +806,14 @@ void VerilogGenerator::ParseMemUpdateNode(const ExprPtr &cond, const ExprPtr &e,
 // Export a whole ila,
 // you need to put together their update model.
 
-void VerilogGenerator::ExportIla(const InstrLvlAbsPtr &ila_ptr_) {
+void VerilogGenerator::ExportIla(const InstrLvlAbsPtr& ila_ptr_) {
   ILA_NOT_NULL(ila_ptr_);
 
   ILA_WARN_IF(ila_ptr_->init_num() != 0)
       << "Currently, it does not translate the initial conditions";
 
-  if (moduleName == "") moduleName = sanitizeName(ila_ptr_->name().str());
+  if (moduleName == "")
+    moduleName = sanitizeName(ila_ptr_->name().str());
 
   // Inputs
   for (size_t idx = 0; idx != ila_ptr_->input_num(); ++idx)
@@ -839,9 +844,9 @@ void VerilogGenerator::ExportIla(const InstrLvlAbsPtr &ila_ptr_) {
 
   grantAccName = {"__ILA_" + sanitizeName(ila_ptr_->name().str()) + "_grant__",
                   ila_ptr_->instr_num()};
-  decodeAccName = {
-      "__ILA_" + sanitizeName(ila_ptr_->name().str()) + "_acc_decode__",
-      ila_ptr_->instr_num()};
+  decodeAccName = {"__ILA_" + sanitizeName(ila_ptr_->name().str()) +
+                       "_acc_decode__",
+                   ila_ptr_->instr_num()};
   // add grants inputs
   add_wire(grantAccName.first, ila_ptr_->instr_num());
   add_input(grantAccName.first, ila_ptr_->instr_num());
@@ -853,7 +858,7 @@ void VerilogGenerator::ExportIla(const InstrLvlAbsPtr &ila_ptr_) {
   for (size_t instIdx = 0; instIdx < ila_ptr_->instr_num(); instIdx++) {
     auto instr_ptr_ = ila_ptr_->instr(instIdx);
     auto decode_ptr = instr_ptr_->decode();
-    if (!decode_ptr) {  // make sure decode is not null
+    if (!decode_ptr) { // make sure decode is not null
       decode_ptr = ExprFuse::BoolConst(true);
       ILA_WARN << "Decode condition for instr: " << (instr_ptr_->name().str())
                << " is unset";
@@ -881,25 +886,25 @@ void VerilogGenerator::ExportIla(const InstrLvlAbsPtr &ila_ptr_) {
       ExprPtr mem_update_expr = state;
       for (size_t instIdx = 0; instIdx < ila_ptr_->instr_num(); instIdx++) {
         auto update_expr = ila_ptr_->instr(instIdx)->update(
-            state->name().str());  // explicitly use name to index
+            state->name().str()); // explicitly use name to index
         if (!update_expr)
-          continue;  // will not generate state <= state; // no use
+          continue; // will not generate state <= state; // no use
         auto decode_cond = ila_ptr_->instr(instIdx)->decode();
         mem_update_expr =
             ExprFuse::Ite(decode_cond, update_expr, mem_update_expr);
-      }  // end for all instructions
+      } // end for all instructions
       ParseMemUpdateNode(ExprFuse::BoolConst(true), mem_update_expr,
                          state->name().str());
       ExportCondWrites(state, current_writes);
       // done export memory
     } else {
-      std::string end_else_if;  // ""
+      std::string end_else_if; // ""
       for (size_t instIdx = 0; instIdx < ila_ptr_->instr_num(); instIdx++) {
         // for all instructions, find their update to the state
         auto update_expr = ila_ptr_->instr(instIdx)->update(
-            state->name().str());  // explicitly use name to index
+            state->name().str()); // explicitly use name to index
         if (!update_expr)
-          continue;  // will not generate state <= state; // no use
+          continue; // will not generate state <= state; // no use
 
         ParseNonMemUpdateExpr(update_expr);
         vlg_name_t result = getVlgFromExpr(update_expr);
@@ -913,9 +918,10 @@ void VerilogGenerator::ExportIla(const InstrLvlAbsPtr &ila_ptr_) {
 
         end_else_if = "end else ";
       }
-      if (end_else_if != "") add_always_stmt("end");  // the final end
-    }                                                 // end of memvar/bool/bv
-  }                                                   // for all states
+      if (end_else_if != "")
+        add_always_stmt("end"); // the final end
+    }                           // end of memvar/bool/bv
+  }                             // for all states
   // we may need to collect the state update function : yes!
 
   // Func Defs
@@ -930,7 +936,7 @@ void VerilogGenerator::ExportIla(const InstrLvlAbsPtr &ila_ptr_) {
 // add guard of VALID signal to "else if"
 // make sure to generate decode/valid signal output
 // internal counter
-void VerilogGenerator::ExportTopLevelInstr(const InstrPtr &instr_ptr_) {
+void VerilogGenerator::ExportTopLevelInstr(const InstrPtr& instr_ptr_) {
   ILA_NOT_NULL(instr_ptr_);
   ILA_WARN_IF(instr_ptr_->host()->parent())
       << "This ExportTopLevelInstr does not put flatten states and "
@@ -987,29 +993,30 @@ void VerilogGenerator::ExportTopLevelInstr(const InstrPtr &instr_ptr_) {
   add_output(decodeName, 1);
   add_assign_stmt(decodeName, decode_sig_name);
 
-  addInternalCounter(decodeName);  // maybe no need (width = 8)
+  addInternalCounter(decodeName); // maybe no need (width = 8)
 
   // add updates
   for (size_t idx = 0; idx != ila_ptr_->state_num(); ++idx) {
     auto var = ila_ptr_->state(idx);
     auto update = instr_ptr_->update(var);
-    if (!update) update = var;  // if not updated, make it to self
+    if (!update)
+      update = var; // if not updated, make it to self
     if (var->is_mem()) {
       ParseMemUpdateNode(decode_ptr, update, var->name().str());
       ExportCondWrites(var, current_writes);
-    } else {  // bv/bool
+    } else { // bv/bool
       ParseNonMemUpdateExpr(update);
       vlg_name_t result = getVlgFromExpr(update);
       add_ite_stmt(decodeName, sanitizeName(var) + " <= " + result, "");
-    }  // else
-  }    // for (size_t idx = 0;  ...
+    } // else
+  }   // for (size_t idx = 0;  ...
 
   // Func Defs
   ExportFuncDefs();
 
-}  // VerilogGenerator::ExportTopLevelInstr
+} // VerilogGenerator::ExportTopLevelInstr
 
-void VerilogGenerator::DumpToFile(std::ostream &fout) const {
+void VerilogGenerator::DumpToFile(std::ostream& fout) const {
   if (preheader != "") {
     fout << "/* PREHEADER */\n";
     fout << preheader << "\n";
@@ -1020,16 +1027,16 @@ void VerilogGenerator::DumpToFile(std::ostream &fout) const {
   fout << "module " << moduleName << "(\n";
 
   std::string
-      separator;  // input will not be empty of course, output won't either
-  for (auto const &sig_pair : inputs)
-    fout << sig_pair.first << ",\n";  // sig_pair.first is the name
-  for (auto const &sig_pair : outputs)
-    fout << sig_pair.first << ",\n";  // sig_pair.first is the name
-  for (auto const &sig_pair : mem_i)
-    fout << sig_pair.first << ",\n";  // sig_pair.first is the name
-  for (auto const &sig_pair : mem_o)
-    fout << sig_pair.first << ",\n";  // sig_pair.first is the name
-  for (auto const &sig_pair : regs) {
+      separator; // input will not be empty of course, output won't either
+  for (auto const& sig_pair : inputs)
+    fout << sig_pair.first << ",\n"; // sig_pair.first is the name
+  for (auto const& sig_pair : outputs)
+    fout << sig_pair.first << ",\n"; // sig_pair.first is the name
+  for (auto const& sig_pair : mem_i)
+    fout << sig_pair.first << ",\n"; // sig_pair.first is the name
+  for (auto const& sig_pair : mem_o)
+    fout << sig_pair.first << ",\n"; // sig_pair.first is the name
+  for (auto const& sig_pair : regs) {
     fout << separator << sig_pair.first;
     separator = ",\n";
   }
@@ -1037,43 +1044,46 @@ void VerilogGenerator::DumpToFile(std::ostream &fout) const {
 
   fout << "\n);\n";
 
-  for (auto const &sig_pair : inputs)
+  for (auto const& sig_pair : inputs)
     fout << "input " << std::setw(10) << WidthToRange(sig_pair.second) << " "
          << (sig_pair.first) << ";\n";
-  for (auto const &sig_pair : mem_i)
+  for (auto const& sig_pair : mem_i)
     fout << "input " << std::setw(10) << WidthToRange(sig_pair.second) << " "
          << (sig_pair.first) << ";\n";
-  for (auto const &sig_pair : outputs)
+  for (auto const& sig_pair : outputs)
     fout << "output " << std::setw(10) << WidthToRange(sig_pair.second) << " "
          << (sig_pair.first) << ";\n";
-  for (auto const &sig_pair : mem_o)
+  for (auto const& sig_pair : mem_o)
     fout << "output " << std::setw(10) << WidthToRange(sig_pair.second) << " "
          << (sig_pair.first) << ";\n";
-  for (auto const &sig_pair : regs)
+  for (auto const& sig_pair : regs)
     fout << "output reg " << std::setw(10) << WidthToRange(sig_pair.second)
          << " " << (sig_pair.first) << ";\n";
-  for (auto const &sig_pair : wires)
+  for (auto const& sig_pair : wires)
     fout << "wire " << std::setw(10) << WidthToRange(sig_pair.second) << " "
          << (sig_pair.first) << ";\n";
 
   // now we deal w. the internal mems
-  for (auto const &mem : mems_internal)  // mems.first is just a name
+  for (auto const& mem : mems_internal) // mems.first is just a name
     fout << "reg " << std::setw(10) << WidthToRange(std::get<2>(mem.second))
          << " " << (std::get<0>(mem.second))
          << WidthToRange(std::pow(2, std::get<1>(mem.second))) << ";\n";
   // we require that the statements must have ";" ending itself
-  for (auto const &stmt : statements) fout << stmt << "\n";
+  for (auto const& stmt : statements)
+    fout << stmt << "\n";
 
   fout << "always @(posedge " << clkName << ") begin\n";
   fout << "   if(" << rstName << ") begin\n";
   // init_stmts go in rst cycle
-  for (auto const &stmt : init_stmts) fout << "       " << stmt << "\n";
+  for (auto const& stmt : init_stmts)
+    fout << "       " << stmt << "\n";
   //
   fout << "   end\n";
   fout << "   else if(" << validName << ") begin\n";
-  for (auto const &stmt : always_stmts) fout << "       " << stmt << "\n";
+  for (auto const& stmt : always_stmts)
+    fout << "       " << stmt << "\n";
   // we don't require ite statement has that
-  for (auto const &stmt : ite_stmts) {
+  for (auto const& stmt : ite_stmts) {
     fout << "       "
          << "if (" << std::get<0>(stmt) << ") begin\n";
     fout << "       "
@@ -1115,4 +1125,4 @@ void VerilogGenerator::DumpToFile(std::ostream &fout) const {
 // make sure to generate decode/valid signal output
 //}
 
-};  // namespace ila
+}; // namespace ila

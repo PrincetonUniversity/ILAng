@@ -31,6 +31,6 @@ std::string StrConcat(const std::string& l, const std::string& m,
                       const std::string& r);
 #endif
 
-}  // namespace ila
+} // namespace ila
 
-#endif  // STR_UTIL_H__
+#endif // STR_UTIL_H__

@@ -10,9 +10,9 @@ extern "C" {
 namespace ila {
 
 void TestParseVerilog() { verilog_parser_init(); }
-int TestParseVerilogFrom(std::FILE *fp) {
+int TestParseVerilogFrom(std::FILE* fp) {
   verilog_parser_init();
   return verilog_parse_file(fp);
 }
 
-};  // namespace ila
+}; // namespace ila

@@ -66,7 +66,8 @@ FuncObjFlatIla::FuncObjFlatIla(const InstrLvlAbsCnstPtr& top_,
 }
 
 bool FuncObjFlatIla::pre(const InstrLvlAbsCnstPtr src) {
-  if (src == top_ila_) return false;  // skip the top level ila, do nothing
+  if (src == top_ila_)
+    return false; // skip the top level ila, do nothing
   auto pos = ila_map_.find(src);
   ILA_ASSERT(pos != ila_map_.end()) << "ILA dst for " << src << " not found.";
   auto dst = pos->second;
@@ -97,4 +98,4 @@ void FuncObjFlatIla::post(const InstrLvlAbsCnstPtr src) {
   valid_cond_stack_.pop();
 }
 
-}  // namespace ila
+} // namespace ila

@@ -4,11 +4,11 @@
 #ifndef DEFINES_H__
 #define DEFINES_H__
 
+#include "z3++.h"
 #include <ilang/ila/symbol.h>
 #include <ilang/util/container.h>
 #include <memory>
 #include <vector>
-#include "z3++.h"
 
 /// \namespace ila
 namespace ila {
@@ -22,6 +22,6 @@ typedef KeyVec<Symbol, z3::expr> Z3ExprMap;
 /// Pointer for the z3 expression map.
 typedef std::shared_ptr<Z3ExprMap> Z3ExprMapPtr;
 
-}  // namespace ila
+} // namespace ila
 
-#endif  // DEFINES_H__
+#endif // DEFINES_H__

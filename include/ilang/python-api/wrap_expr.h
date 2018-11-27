@@ -15,7 +15,7 @@ class ExprWrap {
   /// Wrapped data.
   ExprPtr ptr_;
 
- public:
+public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor for Boost.Python wrapper.
   ExprWrap() : ptr_(NULL) {}
@@ -37,9 +37,9 @@ class ExprWrap {
   // ------------------------- STATIC METHODS ------------------------------- //
   static ExprWrap* Load(ExprWrap* mem, ExprWrap* addr);
 
-};  // class ExprWrap
+}; // class ExprWrap
 
-}  // namespace pyapi
-}  // namespace ila
+} // namespace pyapi
+} // namespace ila
 
-#endif  // WRAP_EXPR_H__
+#endif // WRAP_EXPR_H__

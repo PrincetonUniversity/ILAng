@@ -80,19 +80,20 @@ SortPtr ExprOp::GetSortBinaryComparison(const ExprPtr e0, const ExprPtr e1) {
 }
 
 ExprOp::InstrLvlAbsPtr ExprOp::GetHost(const ExprPtrVec& args) const {
-  return NULL;  // XXX Do we need to know host for op?
+  return NULL; // XXX Do we need to know host for op?
   // FIXME This only works for non-hierarchical ILAs.
   ILA_ASSERT(!args.empty()) << "Get host from no argument.";
   auto h = args[0]->host();
   for (size_t i = 1; i != args.size(); i++) {
     auto h_i = args[i]->host();
-    if (h_i) {  // h_i not NULL
-      if (h) {  // h not NULL
-        if (h != h_i) return NULL;
-      } else {  // h is NULL
+    if (h_i) { // h_i not NULL
+      if (h) { // h not NULL
+        if (h != h_i)
+          return NULL;
+      } else { // h is NULL
         h = h_i;
       }
-    }  // ignore if h_i is NULL
+    } // ignore if h_i is NULL
   }
   return h;
 }
@@ -423,10 +424,10 @@ ExprOpAppFunc::ExprOpAppFunc(const FuncPtr f, const ExprPtrVec& args)
 
 z3::expr ExprOpAppFunc::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                                   const std::string& suffix) const {
-  if (expr_vec.empty()) {                                // non-deterministic
-    auto prefix = (host()) ? host()->name().str() : "";  // XXX with host?
+  if (expr_vec.empty()) {                               // non-deterministic
+    auto prefix = (host()) ? host()->name().str() : ""; // XXX with host?
     auto name = f->name().format_str(prefix, suffix);
-    return f->out()->GetZ3Expr(ctx, name);  // get a free variable of the Sort
+    return f->out()->GetZ3Expr(ctx, name); // get a free variable of the Sort
   }
   auto f_decl = f->GetZ3FuncDecl(ctx);
   return f_decl(expr_vec.size(), expr_vec.data());
@@ -467,4 +468,4 @@ z3::expr ExprOpIte::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
   return z3::ite(cnd, t_e, t_f);
 }
 
-}  // namespace ila
+} // namespace ila

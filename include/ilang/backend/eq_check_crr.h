@@ -4,17 +4,17 @@
 #ifndef EQ_CHECK_CRR_H__
 #define EQ_CHECK_CRR_H__
 
+#include "z3++.h"
 #include <ilang/backend/unroller.h>
 #include <ilang/ila/comp_ref_rel.h>
 #include <ilang/ila/instr_lvl_abs.h>
-#include "z3++.h"
 
 /// \namespace ila
 namespace ila {
 
 /// \brief Generator for commutating diagram-based equivalence checking.
 class CommDiag {
- public:
+public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor.
   CommDiag(z3::context& ctx, const CrrPtr crr);
@@ -37,7 +37,7 @@ class CommDiag {
 
   typedef MonoUnroll Unroll;
 
- private:
+private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// The underlying z3 context.
   z3::context& ctx_;
@@ -120,8 +120,8 @@ class CommDiag {
   z3::expr UnrollFlush(MonoUnroll& unroller, const RefPtr ref, const int& base,
                        const int& length, const int& start);
 
-};  // class CommDiag
+}; // class CommDiag
 
-}  // namespace ila
+} // namespace ila
 
-#endif  // EQ_CHECK_CRR_H__
+#endif // EQ_CHECK_CRR_H__

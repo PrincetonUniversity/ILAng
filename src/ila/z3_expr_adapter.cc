@@ -64,4 +64,4 @@ void Z3ExprAdapter::PopulateExprMap(const ExprPtr expr) {
   expr_map_.insert({expr, res});
 }
 
-}  // namespace ila
+} // namespace ila

@@ -24,5 +24,5 @@ void export_log() {
   def("clearlogs", ClearLogs);
 }
 
-}  // namespace pyapi
-}  // namespace ila
+} // namespace pyapi
+} // namespace ila

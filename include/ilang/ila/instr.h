@@ -21,7 +21,7 @@ class InstrLvlAbs;
 /// - a set of undate functions for the state variables
 /// - several attributes, e.g. view
 class Instr : public Object {
- public:
+public:
   /// Pointer type for normal use of Instr.
   typedef std::shared_ptr<Instr> InstrPtr;
   /// Type for storing a set of Expr.
@@ -102,7 +102,7 @@ class Instr : public Object {
   /// Overload output stream operator.
   friend std::ostream& operator<<(std::ostream& out, InstrPtr i);
 
- private:
+private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// Has view.
   bool has_view_ = false;
@@ -122,7 +122,7 @@ class Instr : public Object {
   /// Simplify AST nodes with the representatives.
   ExprPtr Unify(const ExprPtr e);
 
-};  // class Instr
+}; // class Instr
 
 /// Pointer type for normal use of Instr.
 typedef Instr::InstrPtr InstrPtr;
@@ -131,6 +131,6 @@ typedef std::shared_ptr<const Instr> InstrCnstPtr;
 /// Type for storing a set of Instr.
 typedef std::vector<InstrPtr> InstrVec;
 
-}  // namespace ila
+} // namespace ila
 
-#endif  // INSTR_H__
+#endif // INSTR_H__

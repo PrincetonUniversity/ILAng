@@ -4,9 +4,9 @@
 #ifndef Z3_EXPR_ADAPTER_H__
 #define Z3_EXPR_ADAPTER_H__
 
+#include "z3++.h"
 #include <ilang/ila/expr_fuse.h>
 #include <unordered_map>
-#include "z3++.h"
 
 /// \namespace ila
 namespace ila {
@@ -16,7 +16,7 @@ typedef ExprHash Z3AdapterHash;
 
 /// \brief The class for generating z3 expression from an ILA.
 class Z3ExprAdapter {
- public:
+public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Constructor.
   Z3ExprAdapter(z3::context& ctx);
@@ -33,7 +33,7 @@ class Z3ExprAdapter {
   /// Function object for getting z3 expression.
   void operator()(const ExprPtr expr);
 
- private:
+private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// The underlying z3 context.
   z3::context& ctx_;
@@ -46,8 +46,8 @@ class Z3ExprAdapter {
   /// Insert the z3 expression of the given node into the map.
   void PopulateExprMap(const ExprPtr expr);
 
-};  // class Z3ExprAdapter
+}; // class Z3ExprAdapter
 
-}  // namespace ila
+} // namespace ila
 
-#endif  // Z3_EXPR_ADAPTER_H__
+#endif // Z3_EXPR_ADAPTER_H__

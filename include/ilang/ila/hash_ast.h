@@ -12,7 +12,7 @@ namespace ila {
 
 /// \brief Simplifier for AST trees by sharing nodes based on the hash value.
 class ExprMngr {
- public:
+public:
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor.
   ExprMngr();
@@ -39,7 +39,7 @@ class ExprMngr {
   /// Function object for sharing ast nodes.
   void operator()(const ExprPtr node);
 
- private:
+private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// The map for AST nodes.
   HashTable map_;
@@ -48,11 +48,11 @@ class ExprMngr {
   /// Hash function.
   size_t Hash(const ExprPtr node) const;
 
-};  // class ExprMngr
+}; // class ExprMngr
 
 /// Pointer type for passing shared ast simplifier.
 typedef ExprMngr::ExprMngrPtr ExprMngrPtr;
 
-}  // namespace ila
+} // namespace ila
 
-#endif  // HASH_AST_H__
+#endif // HASH_AST_H__

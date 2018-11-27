@@ -15,4 +15,4 @@ Ast::~Ast() {}
 
 void Ast::set_host(InstrLvlAbsPtr host) { host_ = host; }
 
-}  // namespace ila
+} // namespace ila

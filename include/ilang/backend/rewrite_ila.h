@@ -10,7 +10,7 @@ namespace ila {
 
 /// \brief  Function object for rewriting ILA tree.
 class FuncObjRewrIla {
- public:
+public:
   /// Type for storing ILA to ILA mapping.
   typedef CnstIlaMap IlaMap;
 
@@ -26,13 +26,13 @@ class FuncObjRewrIla {
   /// Nothing.
   void post(const InstrLvlAbsCnstPtr src) const;
 
- private:
+private:
   /// ILA mapping.
   IlaMap ila_map_;
   /// Expr mapping.
   ExprMap expr_map_;
 
-};  // FuncObjRewrIla
+}; // FuncObjRewrIla
 
 /// \brief  Function object for flatten ILA tree.
 /// There is currently a problem:
@@ -45,7 +45,7 @@ class FuncObjRewrIla {
 ///   depends on variable names to generate variables
 ///   but may not be good enough for other purpose.
 class FuncObjFlatIla {
- public:
+public:
   /// Type for storing ILA to ILA mapping.
   typedef CnstIlaMap IlaMap;
   typedef std::stack<ExprPtr> ValidCondStack;
@@ -59,7 +59,7 @@ class FuncObjFlatIla {
   /// Nothing.
   void post(const InstrLvlAbsCnstPtr src);
 
- private:
+private:
   /// ILA mapping.
   IlaMap ila_map_;
   /// Expr mapping.
@@ -68,8 +68,8 @@ class FuncObjFlatIla {
   ValidCondStack valid_cond_stack_;
   /// Record which ila is the top level one
   InstrLvlAbsCnstPtr top_ila_;
-};  // FuncObjRewrIla
+}; // FuncObjRewrIla
 
-}  // namespace ila
+} // namespace ila
 
-#endif  // REWRITE_ILA_H__
+#endif // REWRITE_ILA_H__

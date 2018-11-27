@@ -13,6 +13,6 @@ namespace ila {
 void TestParseVerilog();
 int TestParseVerilogFrom(std::FILE* fp);
 
-};  // namespace ila
+}; // namespace ila
 
-#endif  // VERILOG_PARSE_H__
+#endif // VERILOG_PARSE_H__

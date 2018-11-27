@@ -12,13 +12,13 @@
 #ifndef VERILOG_GEN_H__
 #define VERILOG_GEN_H__
 
+#include "z3++.h"
 #include <ilang/ila/expr_fuse.h>
 #include <ilang/ila/instr_lvl_abs.h>
 #include <list>
 #include <map>
 #include <unordered_map>
 #include <vector>
-#include "z3++.h"
 
 /// \namespace ila
 namespace ila {
@@ -52,7 +52,7 @@ class VerilogGenerator {
   typedef std::vector<vlg_ite_stmt_t> vlg_ite_stmts_t;
   /// Type of the memorys that are going to be created
   typedef std::tuple<vlg_name_t, int, int>
-      vlg_mem_t;  // name addr_width data_width
+      vlg_mem_t; // name addr_width data_width
   /// Type of collection of memorys
   typedef std::map<vlg_name_t, vlg_mem_t> vlg_mems_rec_t;
   /// This is type of an individual write.
@@ -72,7 +72,7 @@ class VerilogGenerator {
   /// List of writes w. associated conditions.
   typedef std::list<mem_write_t> mem_write_list_t;
   // VerilogGen Configure
- public:
+public:
   /// the structure to configure the verilog generator
   struct VlgGenConfig {
     /// whether to export as a verilog array or an interface to operate external
@@ -82,12 +82,12 @@ class VerilogGenerator {
     enum funcOption { Internal, External } fcOpt;
     /// Constructor, set default value, ExternalMem : false, function: internal
     /// module
-    VlgGenConfig(  // provide the default settings
+    VlgGenConfig( // provide the default settings
         bool ExternalMem = false, funcOption funcOpt = funcOption::Internal)
         : extMem(ExternalMem), fcOpt(funcOpt) {}
   };
 
- private:
+private:
   /// Type for caching the generated expressions.
   typedef std::unordered_map<const ExprPtr, vlg_name_t, VerilogGenHash> ExprMap;
 
@@ -104,7 +104,7 @@ class VerilogGenerator {
                                   const mem_write_list_t& mwl);
 
   // --------------------- MEMBERS ---------------------------- //
- private:
+private:
   // --------------------- Verilog  related ---------------------------- //
   /// Verilog Module Name
   vlg_name_t moduleName;
@@ -157,7 +157,7 @@ class VerilogGenerator {
   /// statements to be used in the always block but out of the reset with ITE
   /// conditions
   vlg_ite_stmts_t
-      ite_stmts;  // this stmt is only used in sequential always block
+      ite_stmts; // this stmt is only used in sequential always block
   /// For auxiliary definitions
   vlg_stmt_t preheader;
   /// The map to cache the expression (we only need to store the name)
@@ -272,7 +272,7 @@ class VerilogGenerator {
   void ParseMemUpdateNode(const ExprPtr& cond, const ExprPtr& e,
                           const std::string& mem_var_name);
 
- public:
+public:
   // --------------------- CONSTRUCTOR ---------------------------- //
   VerilogGenerator(const VlgGenConfig& config = VlgGenConfig(),
                    const std::string& modName = "",
@@ -285,8 +285,8 @@ class VerilogGenerator {
   /// after parsing either the Instruction/ILA, use this function to dump to a
   /// file.
   void DumpToFile(std::ostream& fout) const;
-};  // class VerilogGenerator
+}; // class VerilogGenerator
 
-};  // namespace ila
+}; // namespace ila
 
-#endif  // VERILOG_GEN_H__
+#endif // VERILOG_GEN_H__
