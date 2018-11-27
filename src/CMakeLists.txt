@@ -53,15 +53,11 @@ target_link_libraries(${ILANG_LIB_NAME} PUBLIC z3::z3)
 ##
 ## glog
 ##
-find_package(glog 0.3.5 QUIET) 
-
-if(NOT GLOG_FOUND)
-  add_subdirectory(
-    ${PROJECT_SOURCE_DIR}/extern/glog 
-    ${CMAKE_CURRENT_BINARY_DIR}/extern/glog
-    EXCLUDE_FROM_ALL
-  )
-endif()
+add_subdirectory(
+  ${PROJECT_SOURCE_DIR}/extern/glog 
+  ${CMAKE_CURRENT_BINARY_DIR}/extern/glog
+  EXCLUDE_FROM_ALL
+)
 
 target_link_libraries(${ILANG_LIB_NAME} PUBLIC glog::glog)
 
@@ -84,20 +80,14 @@ endif()
 ## json
 ##
 if(${ILANG_BUILD_JSON})
-  
-  find_package(nlohmann_json 3.4.0 QUIET)
 
-  if(NOT NLOHMANN_JSON_FOUND)
+  set(JSON_BuildTests OFF CACHE INTERNAL "")
 
-      set(JSON_BuildTests OFF CACHE INTERNAL "")
-
-      add_subdirectory(
-        ${PROJECT_SOURCE_DIR}/extern/json 
-        ${CMAKE_CURRENT_BINARY_DIR}/extern/json
-        EXCLUDE_FROM_ALL
-      )
-
-  endif()
+  add_subdirectory(
+    ${PROJECT_SOURCE_DIR}/extern/json 
+    ${CMAKE_CURRENT_BINARY_DIR}/extern/json
+    EXCLUDE_FROM_ALL
+  )
 
   target_link_libraries(${ILANG_LIB_NAME} PRIVATE nlohmann_json::nlohmann_json)
 
@@ -127,7 +117,15 @@ configure_file(
 )
 
 install(
-  DIRECTORY ${ILANG_INCLUDE_BUILD_DIR}/ilang
+  FILES ${ILANG_INCLUDE_BUILD_DIR}/ilang/cpp_api.h
   DESTINATION ${ILANG_INCLUDE_INSTALL_DIR}
+  RENAME ila++.h
 )
+
+if(${ILANG_INSTALL_DEV})
+  install(
+    DIRECTORY ${ILANG_INCLUDE_BUILD_DIR}/ilang
+    DESTINATION ${ILANG_INCLUDE_INSTALL_DIR}
+  )
+endif()
 

@@ -54,29 +54,18 @@ endif() # ILANG_BUILD_PYAPI
 ##
 ## glog
 ##
-find_package(glog 0.3.5 QUIET) 
-
-if(NOT GLOG_FOUND)
-
-  if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extern/glog/CMakeLists.txt")
-    message(FATAL_ERROR "glog submodule was not downloaded.")
-  endif() # submodule exist
-
-endif() # GLOG_FOUND
+if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extern/glog/CMakeLists.txt")
+  message(FATAL_ERROR "glog submodule was not downloaded.")
+endif() # submodule exist
 
 ##
 ## json
 ##
 if(${ILANG_BUILD_JSON})
-  find_package(nlohmann_json 3.4.0 QUIET)
 
-  if(NOT NLOHMANN_JSON_FOUND)
-
-    if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extern/json/CMakeLists.txt")
-      message(FATAL_ERROR "nlohmann_json submodule was not downloaded.")
-    endif()
-
-  endif() # NLOHMANN_JSON_FOUND
+  if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extern/json/CMakeLists.txt")
+    message(FATAL_ERROR "nlohmann_json submodule was not downloaded.")
+  endif() # submodule exist
 
 endif() # ILANG_BUILD_JSON
 
