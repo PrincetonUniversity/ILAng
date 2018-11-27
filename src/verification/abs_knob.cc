@@ -2,9 +2,9 @@
 /// Source for a collection of ILA helpers.
 
 #include <functional>
-#include <ilang/backend/abs_knob.h>
-#include <ilang/backend/rewrite_expr.h>
-#include <ilang/backend/rewrite_ila.h>
+#include <ilang/verification/abs_knob.h>
+#include <ilang/verification/rewrite_expr.h>
+#include <ilang/verification/rewrite_ila.h>
 
 namespace ila {
 

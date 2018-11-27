@@ -4,7 +4,7 @@
 #include <cstdlib>
 #include <iostream>
 
-#include <ilang/backend/abs_knob.h>
+#include <ilang/verification/abs_knob.h>
 #include <ilang/verilog-in/verilog_parse.h>
 #include <ilang/verilog-out/verilog_gen.h>
 

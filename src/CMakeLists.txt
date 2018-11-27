@@ -10,7 +10,7 @@ add_library(${PROJECT_NAME}::${ILANG_LIB_NAME} ALIAS ${ILANG_LIB_NAME})
 ##
 add_subdirectory(util)
 add_subdirectory(ila)
-add_subdirectory(backend)
+add_subdirectory(verification)
 add_subdirectory(verilog-out)
 
 if(${ILANG_BUILD_VLOG})
