@@ -2,7 +2,7 @@
 // Synopsis: implementation of the library
 
 #include <simple/lib.h>
-#include <ilang/cpp_api.h>
+#include <ila++.h>
 #include <iostream>
 
 void Foo() {
