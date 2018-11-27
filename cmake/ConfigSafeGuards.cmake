@@ -5,7 +5,7 @@ if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
 endif()
 
 # guard against bad build-type strings
-if(NOT CMAKE_BUILD_TYPE)
+if(NOT ${CMAKE_BUILD_TYPE})
   set(CMAKE_BUILD_TYPE "Debug")
 endif()
 
