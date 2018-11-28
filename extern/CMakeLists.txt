@@ -54,6 +54,7 @@ endif() # ILANG_BUILD_PYAPI
 ##
 ## glog
 ##
+
 if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extern/glog/CMakeLists.txt")
   message(FATAL_ERROR "glog submodule was not downloaded.")
 endif() # submodule exist
@@ -69,14 +70,36 @@ if(${ILANG_BUILD_JSON})
 
 endif() # ILANG_BUILD_JSON
 
+# ---------------------------------------------------------------------------- #
 ##
 ## verilog-parser
 ##
 if(${ILANG_BUILD_VLOG})
 
-  if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extern/verilog-parser/CMakeLists.txt")
-    message(FATAL_ERROR "verilog-parser submodule was not downloaded.")
-  endif() # submodule exist
+  # look for system installation
+  find_package(verilogparser QUIET)
+  
+  # embedd to build tree if not installed
+  if(NOT VERILOGPARSER_FOUND)
+
+    # fetch from git
+    execute_process(
+      COMMAND ${GIT_EXECUTABLE} submodule update --init vlog-parser
+      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+      RESULT_VARIABLE GIT_SUBMOD_RESULT
+    )
+
+    # check fetch success
+    if(NOT GIT_SUBMOD_RESULT EQUAL "0")
+      message(FATAL_ERROR "Submodule update failed with ${GIT_SUBMOD_RESULT}")
+    else()
+      message(STATUS "Update submodule to ${CMAKE_CURRENT_SOURCE}.")
+    endif()
+
+    # embedded build
+    add_subdirectory(vlog-parser)
+
+  endif() # VERILOGPARSER_FOUND
 
 endif() # ILANG_BUILD_VLOG
 

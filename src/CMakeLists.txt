@@ -66,11 +66,9 @@ target_link_libraries(${ILANG_LIB_NAME} PUBLIC glog::glog)
 ##
 if(${ILANG_BUILD_VLOG})
 
-  add_subdirectory(
-    ${PROJECT_SOURCE_DIR}/extern/verilog-parser 
-    ${CMAKE_CURRENT_BINARY_DIR}/extern/verilog-parser
-    EXCLUDE_FROM_ALL
-  )
+  if(NOT TARGET verilogparser::verilogparser)
+    find_package(verilogparser REQUIRED)
+  endif()
 
   target_link_libraries(${ILANG_LIB_NAME} PRIVATE verilogparser::verilogparser)
 
