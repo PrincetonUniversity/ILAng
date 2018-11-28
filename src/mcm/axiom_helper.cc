@@ -217,7 +217,7 @@ z3::expr MemoryModel::MemVarSameData(
       retVal = retVal && 
         ( 
           z3::select( 
-            _expr2z3_.GetExpr( memVar, std::to_string(0)  ) , 
+            ConvertZ3( memVar, std::to_string(0)  ) , 
             traceR.ConvertZ3OnThisStep(rightWAddr)
             ) == traceR.ConvertZ3OnThisStep(rightWData)
         );
@@ -225,7 +225,7 @@ z3::expr MemoryModel::MemVarSameData(
       retVal = retVal && 
         ( 
           z3::select( 
-            _expr2z3_.GetExpr( memVar, std::to_string(0)  ) , 
+            ConvertZ3( memVar, std::to_string(0)  ) , 
             traceR.ConvertZ3OnThisStep(addr_data_pair_.first)
             ) == traceR.ConvertZ3OnThisStep(addr_data_pair_.second)
         );
@@ -238,7 +238,7 @@ z3::expr MemoryModel::MemVarSameData(
       retVal = retVal && 
         ( 
           z3::select( 
-            _expr2z3_.GetExpr( memVar, std::to_string(0)  ) , 
+            ConvertZ3( memVar, std::to_string(0)  ) , 
             traceL.ConvertZ3OnThisStep(leftWAddr)
             ) == traceL.ConvertZ3OnThisStep(leftWData)
         );
@@ -246,7 +246,7 @@ z3::expr MemoryModel::MemVarSameData(
       retVal = retVal && 
         ( 
           z3::select( 
-            _expr2z3_.GetExpr( memVar, std::to_string(0)  ) , 
+            ConvertZ3( memVar, std::to_string(0)  ) , 
             traceL.ConvertZ3OnThisStep(addr_data_pair_.first)
             ) == traceL.ConvertZ3OnThisStep(addr_data_pair_.second)
         );

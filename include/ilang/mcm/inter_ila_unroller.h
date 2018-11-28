@@ -7,7 +7,6 @@
 
 #include "ilang/ila/instr_lvl_abs.h"
 #include "ilang/ila/z3_expr_adapter.h"
-#include "ilang/verification/unroller.h"
 #include "ilang/mcm/memory_model.h"
 #include "z3++.h"
 #include <set>
@@ -45,10 +44,6 @@ public:
   using TraceStepPtrSet = MemoryModel::TraceStepPtrSet;
   /// Type of vector of pointers to the ILAs involved
   typedef std::vector<InstrLvlAbsPtr> IlaPtrVec;
-  /// Type of unroller pointer: we use path unroller instead of mono unroller
-  typedef std::shared_ptr<PathUnroll> UnrollerPtr;
-  /// Type of vector of unrollers /* we may use a different unroller than PathUnroll */
-  typedef std::vector<UnrollerPtr>  UnrollerVec;
   /// Type of list of state variables
   typedef std::list<ExprPtr>  StateVarList;
   /// Type of map of shared states (set of names -> list of exprs)
@@ -139,8 +134,6 @@ protected:
   /// \brief It create a name list. There is no need to create an ExprPtr list
   ///  because their hosts are different and will generate different z3exprs.
   void FindSharedStates();
-  /// \brief [Application-specific] Create unrollers (one for each ILA)
-  virtual void CreateUnrollers();
   /// \brief Sanity check if the current constraints are satisfiable
   bool CurrConstrSat();
   /// \brief Conjunct (AND) all the predicates in the set.
@@ -153,10 +146,6 @@ protected:
   /// The ILA of the system
   InstrLvlAbsPtr global_ila_;
 
-  /// The given program template
-  // ProgramTemplate prog_template_;
-  /// The unrollers: one per ILA
-  UnrollerVec unrollers_;
   /// Set of names of shared states
   StateNameSet shared_states_;
   /// Map from ila-name to set-of-state-names

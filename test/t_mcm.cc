@@ -84,7 +84,7 @@ TEST(TestTraceStep, ConvertZ3) {
 
 }
 
-TEST(TestUnroller, SingleILAUnroll) {
+TEST(TestMcm, SingleILAUnroll) {
   z3::context c;
   InterIlaUnroller::IlaPtrVec ila_vec;
   InterIlaUnroller::InstrVec inst_seq_;
@@ -141,10 +141,10 @@ TEST(TestUnroller, SingleILAUnroll) {
   //for(auto && tsptr : tsSet) {
   //  std::cout<<tsptr->Print(model)<<std::endl;
   //}
-  std::cout<<"Constraints Dump:"<<std::endl;
-  for(auto && cstr : cstrSet) {
-    std::cout<< cstr << std::endl;
-  }
+  //std::cout<<"Constraints Dump:"<<std::endl;
+  //for(auto && cstr : cstrSet) {
+  //  std::cout<< cstr << std::endl;
+  //}
   
 
   u.Pop();
@@ -168,7 +168,7 @@ TEST(TestUnroller, SingleILAUnroll) {
 }
 
 
-TEST(TestUnroller, SingleILAUnrollOrderedReverse) {
+TEST(TestMcm, SingleILAUnrollOrderedReverse) {
   z3::context c;
   InterIlaUnroller::IlaPtrVec ila_vec;
   InterIlaUnroller::InstrVec inst_seq_;
@@ -235,7 +235,7 @@ TEST(TestUnroller, SingleILAUnrollOrderedReverse) {
 }
 
 
-TEST(TestUnroller, SingleILAUnrollUnorderedReverse) {
+TEST(TestMcm, SingleILAUnrollUnorderedReverse) {
   z3::context c;
   InterIlaUnroller::IlaPtrVec ila_vec;
   InterIlaUnroller::InstrVec inst_seq_;
@@ -316,7 +316,7 @@ TEST(TestUnroller, SingleILAUnrollUnorderedReverse) {
 }
 
 // this seems okay
-TEST(TestUnroller, SingleIlaMcm) { // multi inst - non linear
+TEST(TestMcm, SingleIlaMcm) { // multi inst - non linear
   z3::context c;
   InterIlaUnroller::IlaPtrVec ila_vec;
   InterIlaUnroller::InstrVec inst_seq_;
@@ -711,7 +711,7 @@ void TestScMp(InstrLvlAbsPtr & T1, InstrLvlAbsPtr &  T2) {
 }
 
 // this is to test MCMs.
-TEST(TestUnroller, RegBasedMcmSc) { // 
+TEST(TestMcm, RegBasedMcmSc) { // 
   {
     InstrLvlAbsPtr T1; InstrLvlAbsPtr T2;
     auto testcase = McmIlaGen();
@@ -727,7 +727,7 @@ TEST(TestUnroller, RegBasedMcmSc) { //
   }
 }
 
-TEST(TestUnroller, RegBasedMcmTso) { // 
+TEST(TestMcm, RegBasedMcmTso) { // 
   {
     InstrLvlAbsPtr T1; InstrLvlAbsPtr T2;
     auto testcase = McmIlaGen();
@@ -743,7 +743,7 @@ TEST(TestUnroller, RegBasedMcmTso) { //
   }
 }
 
-TEST(TestUnroller, McmSc) { // 
+TEST(TestMcm, McmSc) { // 
   {
     InstrLvlAbsPtr T1; InstrLvlAbsPtr T2;
     auto testcase = McmIlaGen();
@@ -760,7 +760,7 @@ TEST(TestUnroller, McmSc) { //
 
 }
 
-TEST(TestUnroller, McmTso) { // 
+TEST(TestMcm, McmTso) { // 
   {
     InstrLvlAbsPtr T1; InstrLvlAbsPtr T2;
     auto testcase = McmIlaGen();

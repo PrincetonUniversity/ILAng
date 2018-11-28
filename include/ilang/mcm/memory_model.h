@@ -228,6 +228,10 @@ protected:
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return the context (for variable creation)
   z3::context & ctx() const { return _ctx_; }
+  
+public:
+  /// Return the z3 converter used by this memory model
+  ZExpr ConvertZ3( const ExprPtr &ast, const std::string &suffix  ) const { return _expr2z3_.GetExpr(ast,suffix); }
 
 public:
   /// To initialize the inner storage space.

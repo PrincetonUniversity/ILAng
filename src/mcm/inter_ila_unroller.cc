@@ -17,7 +17,6 @@ namespace ila {
   InterIlaUnroller::InterIlaUnroller(z3::context& ctx, const IlaPtrVec & iv,  MemoryModelCreator mm_selector)
         : ctx_(ctx), sys_ila_(iv),  global_ila_( InstrLvlAbs::New("__GLOBAL_INIT__") ) {
 
-    CreateUnrollers();
     FindSharedStates();
     createDummyGlobalIla();
     mm_ = mm_selector( ctx_, cstr_,  shared_states_ , private_states_ , global_ila_ );
@@ -105,15 +104,6 @@ namespace ila {
     }
   }
 
-  void InterIlaUnroller::CreateUnrollers()
-  {
-    // by default, we use path unroller
-    // but this does not mean it is in order
-    //for (auto && ila_ptr_ : sys_ila_)
-    for (size_t idx = 0; idx != sys_ila_.size() ; ++ idx)
-      unrollers_.push_back( std::make_shared<PathUnroll>(ctx_) );
-    // Please note: we don't support extra suffix !!!
-  }
 
   void InterIlaUnroller::Unroll(const ProgramTemplate & tmpl)
   {
@@ -123,15 +113,11 @@ namespace ila {
     // find the shared variables and apply pi-functions
     // need to know when to create more steps: go through the tmpl
     size_t ila_num = sys_ila_.size();
-    ILA_ASSERT( ila_num == unrollers_.size() );
     ILA_ASSERT( ila_num == tmpl.size() );
     mm_->InitSize(tmpl);
     for (size_t idx = 0; idx != ila_num; ++ idx) {
       mm_->RegisterSteps( idx, tmpl[idx]  ); // register those instructions, 
-      // first argument is for ila, not relative instr pos
-      unrollers_[idx]->ClearInitPred(); // here we clear the initial conditions because the next unroll will not use
-      ZExpr constr = unrollers_[idx]->PathNone( tmpl[idx] , 1 ); // starting from 1 : the first but not init.
-    }
+      }
     mm_->FinishRegisterSteps();
   }
 
@@ -168,11 +154,11 @@ namespace ila {
     HostRemoveRestore host_remover;
     
     size_t ila_num = sys_ila_.size();
-    ILA_ASSERT( ila_num == unrollers_.size() );
+    ZExprVec init_cond_vec;
 
     for (size_t idx = 0; idx != ila_num; ++ idx) {
       auto &ila_ptr = sys_ila_[idx];
-      auto &unroller_ptr = unrollers_[idx];
+      //auto &unroller_ptr = unrollers_[idx];
       InstrVec InitInstVec; // Only one instruction init
       InitInstVec.push_back ( Instr::New("__INIT__" , ila_ptr) ); 
       InitInstVec[0]->set_decode( ExprFuse::BoolConst(true) );
@@ -182,12 +168,13 @@ namespace ila {
         ExprPtr init_cond = ila_ptr->init(init_cond_idx);
         host_remover.RecordAndReplaceIf(init_cond, isSharedVar, global_ila_); 
         // We need to create a global ila, and set all to that to make a predicate
-        unroller_ptr->AddInitPred( init_cond );
+        init_cond_vec.push_back( mm_->ConvertZ3( init_cond, std::to_string(0) ) );
+        //unroller_ptr->AddInitPred( init_cond );
       }
 
       // add the init condition
-      ZExpr constr = unroller_ptr->PathNone( InitInstVec , 0 ); // this will only give us the initial condition
-      cstr_.push_back(constr);
+      //ZExpr constr = unroller_ptr->PathNone( InitInstVec , 0 ); // this will only give us the initial condition
+      cstr_.push_back( ConjPred(init_cond_vec) );
     }
     host_remover.RestoreAll(global_ila_); // this will not affect the generated z3
     // you need to give a pointer to that to restore the host?

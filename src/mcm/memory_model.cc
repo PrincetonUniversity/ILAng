@@ -332,7 +332,7 @@ namespace ila {
          auto prev_ts = ts_seq[0];
          for(auto && ts : ts_seq) {
            // for all the variable it uses (private), we create  v(step) == write_expr 
-           // where write_expr is translated by _expr2z3_.GetExpr( , suffix = std::to_string(saved_num) )
+           // where write_expr is translated by ConvertZ3( , suffix = std::to_string(saved_num) )
            StateNameSet private_read_set;
            StateNameSet private_write_set;
            INTERSECT( ts->_inst_read_set , private_state_name , private_read_set );
@@ -342,7 +342,7 @@ namespace ila {
               ILA_ASSERT(name_expr_pos_pair_ != last_update_of_a_state.end() ) << "Implementation BUG: instruction should not read outside the provided ILA state";
               auto & expr_ = name_expr_pos_pair_->second.first;
               auto & pos_  = name_expr_pos_pair_->second.second;
-              auto z3constr = ts->ConvertZ3OnThisStep( ila_ptr->state(sname) ) == _expr2z3_.GetExpr( expr_, std::to_string(pos_) );
+              auto z3constr = ts->ConvertZ3OnThisStep( ila_ptr->state(sname) ) == ConvertZ3( expr_, std::to_string(pos_) );
               _constr.push_back(z3constr);
            }
 
@@ -370,7 +370,7 @@ namespace ila {
             ILA_ASSERT(name_expr_pos_pair_ != last_update_of_a_state.end() ) << "Implementation BUG: all private state should at least has its default initializer";
             auto & expr_ = name_expr_pos_pair_->second.first;
             auto & pos_  = name_expr_pos_pair_->second.second;
-            auto z3constr = _expr2z3_.GetExpr( ila_ptr->state(sname) , FINAL_STEP_SUFFIX ) == _expr2z3_.GetExpr( expr_, std::to_string(pos_) );
+            auto z3constr = ConvertZ3( ila_ptr->state(sname) , FINAL_STEP_SUFFIX ) == ConvertZ3( expr_, std::to_string(pos_) );
             _constr.push_back(z3constr);
          }
 
@@ -411,7 +411,7 @@ namespace ila {
                auto & decode_ = std::get<1>(tpl_);
                auto & tstamp_ = std::get<2>(tpl_);
                auto & pos_    = std::get<3>(tpl_);
-               ILA_DLOG("MCM.SetLocalState.Unordered") << "\t@"<<pos_<<" ("<<tstamp_<<") "<<" Upon D:"<< _expr2z3_.GetExpr( decode_, std::to_string(pos_)) <<" --> "<<_expr2z3_.GetExpr( expr_, std::to_string(pos_) );
+               ILA_DLOG("MCM.SetLocalState.Unordered") << "\t@"<<pos_<<" ("<<tstamp_<<") "<<" Upon D:"<< ConvertZ3( decode_, std::to_string(pos_)) <<" --> "<<ConvertZ3( expr_, std::to_string(pos_) );
           }
          }
 
@@ -433,9 +433,9 @@ namespace ila {
                auto & decode_ = std::get<1>(name_expr_pos_tuple_);
                auto & tstamp_ = std::get<2>(name_expr_pos_tuple_);
                auto & pos_    = std::get<3>(name_expr_pos_tuple_);
-               auto z3constr  = ( ts_read->ConvertZ3OnThisStep( ila_ptr->state(sname) ) == _expr2z3_.GetExpr( expr_, std::to_string(pos_) ) )
+               auto z3constr  = ( ts_read->ConvertZ3OnThisStep( ila_ptr->state(sname) ) == ConvertZ3( expr_, std::to_string(pos_) ) )
                              && ( tstamp_ < ts_read->timestamp  )  // HB (writer, ts_read)
-                             && ( _expr2z3_.GetExpr( decode_, std::to_string(pos_) ) );
+                             && ( ConvertZ3( decode_, std::to_string(pos_) ) );
 
                // avoid read-from itself !
                if( pos_ == ts_read->pos_suffix()  ) {  
@@ -465,7 +465,7 @@ namespace ila {
                  ILA_DLOG("MCM.SetLocalState.Unordered") <<"  "<<idx_interfere <<" (timestamp: "<< (tstamp_i) <<")";
                  // if decode == true , either CO or FR
                  z3constr = z3constr && 
-                            z3::implies( _expr2z3_.GetExpr( decode_i, std::to_string(pos_i) ) ,  // decode => 
+                            z3::implies( ConvertZ3( decode_i, std::to_string(pos_i) ) ,  // decode => 
                                          tstamp_i < tstamp_ || tstamp_i > ts_read->timestamp );           // CO(i,w) \/ FR(r,i)
                  // # warning "what about mem var?" HZ Comment: should be okay
                } // for ( size_t idx_interfere ...
@@ -488,9 +488,9 @@ namespace ila {
                auto & decode_ = std::get<1>(name_expr_pos_tuple_);
                auto & tstamp_ = std::get<2>(name_expr_pos_tuple_);
                auto & pos_    = std::get<3>(name_expr_pos_tuple_);
-               auto z3constr  = ( _expr2z3_.GetExpr( ila_ptr->state(sname) , FINAL_STEP_SUFFIX ) == _expr2z3_.GetExpr( expr_, std::to_string(pos_) ) )
+               auto z3constr  = ( ConvertZ3( ila_ptr->state(sname) , FINAL_STEP_SUFFIX ) == ConvertZ3( expr_, std::to_string(pos_) ) )
                              // && ( tstamp_ < ts_read->timestamp  )  // HB (writer, ts_read), always true no need for this
-                             && ( _expr2z3_.GetExpr( decode_, std::to_string(pos_) ) );
+                             && ( ConvertZ3( decode_, std::to_string(pos_) ) );
                for ( size_t idx_interfere = 0; idx_interfere != defineList.size() ; ++ idx_interfere) {
                  if(idx_interfere == idx_writer)  continue;
 
@@ -500,7 +500,7 @@ namespace ila {
                  auto & tstamp_i = std::get<2>(name_expr_pos_tuple_i);
                  auto & pos_i    = std::get<3>(name_expr_pos_tuple_i);
                  z3constr = z3constr && 
-                            z3::implies( _expr2z3_.GetExpr( decode_i, std::to_string(pos_i) ) ,  // decode => 
+                            z3::implies( ConvertZ3( decode_i, std::to_string(pos_i) ) ,  // decode => 
                                          tstamp_i < tstamp_  );           // CO(i,w) \/ FR(r,i)
                  
                } // for the interference writer
