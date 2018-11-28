@@ -1,0 +1,81 @@
+InstructionSet WRITE {
+    ila-inst-write %shared  # or a state name
+} with-facet-event wfe.global {W %rest}  
+# W means update, wfe.global is a label
+# %rest is by default rest-shared
+# with-facet-event           or facet-events
+
+# predefined StateSet: %shared 
+# can be defined via ila-state-name "name" with /\ or \/
+# their names are formatted as "%"
+
+InstructionSet READ {
+    ila-inst-read %shared
+}  # so this won't create a facet event
+# I tend to use the instruction event 
+# instead of declare 
+
+InstructionSet FENCE {
+    ila-inst-name fence \/
+    ila-inst-name Fence \/
+    ila-inst-name FENCE 
+}  # this means no facet events
+
+InstructionSet RMW {
+    ila-inst-name atomic_add \/
+    ila-inst-name atomic_and # \/ ... possibly more
+} 
+# this will not create more facet events
+# but the above READ/WRITE already create events
+# so the purpose of this set is just create a name
+# so we can refer to it later
+
+InstructionSet PureWrite :=
+{ WRITE-RMW }
+#  
+# # operator-allowed: | & - ^ ()
+
+
+Define RF[w,r] := 
+     ( SameCore[w,r] => HB[w , r] ) /\
+     ( ~SameCore[w,r] => HB[w.wfe.global, r] )
+
+Define FR[r,w] := 
+     (  SameCore[r,w] => HB[r , w] ) /\
+     ( ~SameCore[r,w] => HB[r , w.wfe.global] )
+
+Define CO[w1,w2] :=
+     ( SameCore[w1,w2] => HB[ w1, w2 ] ) /\
+     (~SameCore[w1,w2] => HB[ w1.wfe.global, w2.wfe.global ] )
+
+
+
+Axiom RF_CO_FR 
+forall s: %shared | forall r:READ (%s) | exists w:WRITE (%s,~=r) |
+    SameAddress[w,r,s] /\ SameData[w,r,s] /\ Decode[w] /\
+    RF[w,r] /\ ( forall w2:WRITE (%s, ~=w, ~=r)  |   # (,~=r) is for atomic accesses it is both read & write
+        ( SameAddress[r,w2,s] /\ Decode[w2] ) => 
+            CO[w2,w] \/ FR[r,w2] )
+
+# forall ? : %s '%' means a state, (%s) means accessing s, if not, we go past it
+
+# SameAddress contains two meanings actually
+# Same state name, and if it is a memory state
+# The addresses are the same
+
+Axiom TSO_WriteFacetOrder
+forall w: PureWrite | HB[ w , w.wfe.global ] 
+#forall w: ( WRITE - RMW ) | HB[ w , w.wfe.global ] 
+    
+Axiom TSO_Store
+forall w1:WRITE | forall w2 : WRITE (~=w1) | 
+    ( SameCore [ w1, w2 ] /\ HB [w1,w2] ) => HB[ w1.wfe.global, w2.wfe.global] 
+# PO[w1,w2] => HB[ w1.wfe.global, w2.wfe.global] 
+
+Axiom TSO_Fence
+forall f:FENCE | forall w: WRITE | 
+    ( SameCore[ w, f] /\ HB[ w, f] ) => HB [ w.wfe.global, f]
+
+Axiom TSO_RMW
+forall i:RMW | 
+    Sync[i, i.wfe.global ] 
