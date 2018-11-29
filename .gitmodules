@@ -7,9 +7,9 @@
 [submodule "extern/googletest"]
 	path = extern/googletest
 	url = https://github.com/abseil/googletest.git
-[submodule "json-export-package"]
-	path = extern/json
-	url = https://github.com/Bo-Yuan-Huang/json.git
 [submodule "extern/vlog-parser"]
 	path = extern/vlog-parser
 	url = https://github.com/Bo-Yuan-Huang/verilog-parser.git
+[submodule "extern/json-lib"]
+	path = extern/json-lib
+	url = https://github.com/nlohmann/json.git

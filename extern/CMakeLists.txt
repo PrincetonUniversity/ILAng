@@ -1,17 +1,10 @@
 # ---------------------------------------------------------------------------- #
-# External dependencies
-#   Boost
-#   Python
-#   glog
-#   json
-#   verilog parser
+# Boost
 #
-#   gflag (TODO)
-#   doxygen (TODO)
+#   TARGET 
+#   SOURCE
+#   PATH
 # ---------------------------------------------------------------------------- #
-##
-## Boost
-##
 if(${ILANG_BUILD_PYAPI})
   set(Boost_USE_STATIC_LIBS OFF)
   set(Boost_USE_MULTITHREADED ON)
@@ -33,9 +26,13 @@ if(${ILANG_BUILD_PYAPI})
 
 endif() # ILANG_BUILD_PYAPI
 
-##
-## python
-##
+# ---------------------------------------------------------------------------- #
+# Python
+#
+#   TARGET 
+#   SOURCE
+#   PATH
+# ---------------------------------------------------------------------------- #
 if(${ILANG_BUILD_PYAPI})
   find_package(PythonLibs 2.7 REQUIRED)
 
@@ -51,35 +48,97 @@ if(${ILANG_BUILD_PYAPI})
 
 endif() # ILANG_BUILD_PYAPI
 
-##
-## glog
-##
 
-if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extern/glog/CMakeLists.txt")
-  message(FATAL_ERROR "glog submodule was not downloaded.")
-endif() # submodule exist
+# ---------------------------------------------------------------------------- #
+# z3
+#
+#   TARGET z3::z3
+#   SOURCE https://github.com/Z3Prover/z3.git
+#   PATH   N/A
+# ---------------------------------------------------------------------------- #
+find_package(Z3 4.5.0 REQUIRED)
 
-##
-## json
-##
+
+# ---------------------------------------------------------------------------- #
+# Google Log
+#
+#   TARGET glog::glog
+#   SOURCE https://github.com/google/glog.git
+#   PATH   extern/glog
+# ---------------------------------------------------------------------------- #
+# find installed package 
+find_package(glog REQUIRED)
+
+# embed to build tree if not installed
+if(NOT GLOG_FOUND)
+
+  # fetch from git
+  execute_process(
+    COMMAND ${GIT_EXECUTABLE} submodule update --init glog
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    RESULT_VARIABLE GIT_SUBMOD_RESULT
+  )
+
+  # check fetch result
+  if(NOT GIT_SUBMOD_RESULT EQUAL "0")
+    message(FATAL_ERROR "Submodule update failed with ${GIT_SUBMOD_RESULT}")
+  endif()
+
+  # embedded build
+  add_subdirectory(glog)
+
+endif() # GLOG_FOUND
+
+
+# ---------------------------------------------------------------------------- #
+# JSON Library
+# 
+#   TARGET nlohmann_json::nlohmann_json
+#   SOURCE https://github.com/nlohmann/json.git
+#   PATH   extern/json-lib
+# ---------------------------------------------------------------------------- #
 if(${ILANG_BUILD_JSON})
 
-  if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extern/json/CMakeLists.txt")
-    message(FATAL_ERROR "nlohmann_json submodule was not downloaded.")
-  endif() # submodule exist
+  # find installed package
+  find_package(nlohmann_json QUIET)
+
+  # embed to build tree if not installed
+  if(NOT NLOHMANN_JSON_FOUND)
+
+    # fetch from git
+    execute_process(
+      COMMAND ${GIT_EXECUTABLE} submodule update --init json-lib
+      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+      RESULT_VARIABLE GIT_SUBMOD_RESULT
+    )
+
+    # check fetch result
+    if(NOT GIT_SUBMOD_RESULT EQUAL "0")
+      message(FATAL_ERROR "Submodule update failed with ${GIT_SUBMOD_RESULT}")
+    endif()
+
+    # embedded build
+    set(JSON_BuildTests OFF CACHE INTERNAL "")
+    add_subdirectory(json-lib)
+
+  endif() # NLOHMANN_JSON_FOUND
 
 endif() # ILANG_BUILD_JSON
 
+
 # ---------------------------------------------------------------------------- #
-##
-## verilog-parser
-##
+# Verilog Parser
+# 
+#   TARGET verilogparser::verilogparser
+#   SOURCE https://github.com/Bo-Yuan-Huang/verilog-parser.git
+#   PATH   extern/vlog-parser
+# ---------------------------------------------------------------------------- #
 if(${ILANG_BUILD_VLOG})
 
-  # look for system installation
+  # find installed package
   find_package(verilogparser QUIET)
   
-  # embedd to build tree if not installed
+  # embed to build tree if not installed
   if(NOT VERILOGPARSER_FOUND)
 
     # fetch from git
@@ -89,11 +148,9 @@ if(${ILANG_BUILD_VLOG})
       RESULT_VARIABLE GIT_SUBMOD_RESULT
     )
 
-    # check fetch success
+    # check fetch result
     if(NOT GIT_SUBMOD_RESULT EQUAL "0")
       message(FATAL_ERROR "Submodule update failed with ${GIT_SUBMOD_RESULT}")
-    else()
-      message(STATUS "Update submodule to ${CMAKE_CURRENT_SOURCE}.")
     endif()
 
     # embedded build
