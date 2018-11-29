@@ -27,6 +27,7 @@ option(ILANG_BUILD_JSON  "Build JSON I/O."                                   ON)
 option(ILANG_BUILD_DOCS  "Build documentations."                            OFF)
 option(ILANG_BUILD_PYAPI "Build the Python interface."                       ON)
 option(ILANG_INSTALL_DEV "Install dev features."                            OFF)
+option(ILANG_EXPORT_PACKAGE "Export CMake package if enabled."              OFF)
 
 include(CMakeDependentOption)
 
@@ -173,7 +174,9 @@ export(
   FILE ${ILANG_CMAKE_PROJECT_TARGETS_FILE}
 )
 
-export(PACKAGE ${PROJECT_NAME})
+if(${ILANG_EXPORT_PACKAGE})
+  export(PACKAGE ${PROJECT_NAME})
+endif()
 
 
 # ---------------------------------------------------------------------------- #
