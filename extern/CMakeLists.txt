@@ -216,7 +216,7 @@ endif() # ILANG_BUILD_SYNTH
 #   SOURCE  https://github.com/abseil/googletest
 #   PATH    extern/googletest
 # ---------------------------------------------------------------------------- #
-if(${ILANG_BUILD_TEST)
+if(${ILANG_BUILD_TEST})
 
   if(${ILANG_FETCH_DEPS})
 
