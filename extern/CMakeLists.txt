@@ -67,7 +67,7 @@ find_package(Z3 4.5.0 REQUIRED)
 #   PATH   extern/glog
 # ---------------------------------------------------------------------------- #
 # find installed package 
-find_package(glog REQUIRED)
+find_package(glog QUIET)
 
 # embed to build tree if not installed
 if(NOT GLOG_FOUND)
