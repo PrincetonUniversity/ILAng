@@ -1,4 +1,125 @@
 # ---------------------------------------------------------------------------- #
+# z3
+#
+#   TARGET z3::z3
+#   SOURCE https://github.com/Z3Prover/z3.git
+#   PATH   N/A
+# ---------------------------------------------------------------------------- #
+find_package(Z3 4.5.0 REQUIRED)
+
+
+# ---------------------------------------------------------------------------- #
+# Google Log
+#
+#   TARGET glog::glog
+#   SOURCE https://github.com/google/glog.git
+#   PATH   extern/glog
+# ---------------------------------------------------------------------------- #
+# find installed package 
+find_package(glog QUIET)
+
+# embed to build tree if not installed
+if(NOT GLOG_FOUND)
+
+  # fetch from git
+  if(${ILANG_FETCH_DEPS})
+
+    execute_process(
+      COMMAND ${GIT_EXECUTABLE} submodule update --init glog
+      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+      RESULT_VARIABLE GIT_SUBMOD_RESULT
+    )
+
+    if(NOT GIT_SUBMOD_RESULT EQUAL "0")
+      message(FATAL_ERROR "Submodule update failed with ${GIT_SUBMOD_RESULT}")
+    endif()
+
+  endif() # ILANG_FETCH_DEPS
+
+  # embedded build
+  add_subdirectory(glog)
+
+endif() # GLOG_FOUND
+
+
+# ---------------------------------------------------------------------------- #
+# JSON Library
+# 
+#   TARGET nlohmann_json::nlohmann_json
+#   SOURCE https://github.com/nlohmann/json.git
+#   PATH   extern/json-lib
+# ---------------------------------------------------------------------------- #
+if(${ILANG_BUILD_JSON})
+
+  # find installed package
+  find_package(nlohmann_json QUIET)
+
+  # embed to build tree if not installed
+  if(NOT NLOHMANN_JSON_FOUND)
+
+    # fetch from git
+    if(${ILANG_FETCH_DEPS})
+
+      execute_process(
+        COMMAND ${GIT_EXECUTABLE} submodule update --init json-lib
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        RESULT_VARIABLE GIT_SUBMOD_RESULT
+      )
+
+      if(NOT GIT_SUBMOD_RESULT EQUAL "0")
+        message(FATAL_ERROR "Submodule update failed with ${GIT_SUBMOD_RESULT}")
+      endif()
+
+    endif() # ILANG_FETCH_DEPS
+
+    # embedded build
+    set(JSON_BuildTests OFF CACHE INTERNAL "")
+    add_subdirectory(json-lib)
+
+  endif() # NLOHMANN_JSON_FOUND
+
+endif() # ILANG_BUILD_JSON
+
+
+# ---------------------------------------------------------------------------- #
+# Verilog Parser
+# 
+#   TARGET verilogparser::verilogparser
+#   SOURCE https://github.com/Bo-Yuan-Huang/verilog-parser.git
+#   PATH   extern/vlog-parser
+# ---------------------------------------------------------------------------- #
+if(${ILANG_BUILD_VLOG})
+
+  # find installed package
+  find_package(verilogparser QUIET)
+  
+  # embed to build tree if not installed
+  if(NOT VERILOGPARSER_FOUND)
+
+    # fetch from git
+    if(${ILANG_FETCH_DEPS})
+
+      execute_process(
+        COMMAND ${GIT_EXECUTABLE} submodule update --init vlog-parser
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        RESULT_VARIABLE GIT_SUBMOD_RESULT
+      )
+
+      if(NOT GIT_SUBMOD_RESULT EQUAL "0")
+        message(FATAL_ERROR "Submodule update failed with ${GIT_SUBMOD_RESULT}")
+      endif()
+
+    endif() # ILANG_FETCH_DEPS
+
+    # embedded build
+    add_subdirectory(vlog-parser)
+
+  endif() # VERILOGPARSER_FOUND
+
+endif() # ILANG_BUILD_VLOG
+
+
+# ---------------------------------------------------------------------------- #
 # Boost
 #
 #   TARGET 
@@ -26,6 +147,7 @@ if(${ILANG_BUILD_PYAPI})
 
 endif() # ILANG_BUILD_PYAPI
 
+
 # ---------------------------------------------------------------------------- #
 # Python
 #
@@ -50,113 +172,39 @@ endif() # ILANG_BUILD_PYAPI
 
 
 # ---------------------------------------------------------------------------- #
-# z3
+# Template-based ILA Synthesis
 #
-#   TARGET z3::z3
-#   SOURCE https://github.com/Z3Prover/z3.git
-#   PATH   N/A
+#   TARGET  ilasynth::ilasynth
+#   SOURCE  https://github.com/PrincetonUniversity/ILA-Synthesis-Python.git
+#   PATH    extern/tmpl-synth
 # ---------------------------------------------------------------------------- #
-find_package(Z3 4.5.0 REQUIRED)
-
-
-# ---------------------------------------------------------------------------- #
-# Google Log
-#
-#   TARGET glog::glog
-#   SOURCE https://github.com/google/glog.git
-#   PATH   extern/glog
-# ---------------------------------------------------------------------------- #
-# find installed package 
-find_package(glog QUIET)
-
-# embed to build tree if not installed
-if(NOT GLOG_FOUND)
-
-  # fetch from git
-  execute_process(
-    COMMAND ${GIT_EXECUTABLE} submodule update --init glog
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-    RESULT_VARIABLE GIT_SUBMOD_RESULT
-  )
-
-  # check fetch result
-  if(NOT GIT_SUBMOD_RESULT EQUAL "0")
-    message(FATAL_ERROR "Submodule update failed with ${GIT_SUBMOD_RESULT}")
-  endif()
-
-  # embedded build
-  add_subdirectory(glog)
-
-endif() # GLOG_FOUND
-
-
-# ---------------------------------------------------------------------------- #
-# JSON Library
-# 
-#   TARGET nlohmann_json::nlohmann_json
-#   SOURCE https://github.com/nlohmann/json.git
-#   PATH   extern/json-lib
-# ---------------------------------------------------------------------------- #
-if(${ILANG_BUILD_JSON})
+if(${ILANG_BUILD_SYNTH})
 
   # find installed package
-  find_package(nlohmann_json QUIET)
+  find_package(ilasynth QUIET)
 
   # embed to build tree if not installed
-  if(NOT NLOHMANN_JSON_FOUND)
+  if(NOT ILASYNTH_FOUND)
 
     # fetch from git
-    execute_process(
-      COMMAND ${GIT_EXECUTABLE} submodule update --init json-lib
-      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-      RESULT_VARIABLE GIT_SUBMOD_RESULT
-    )
+    if(${ILANG_FETCH_DEPS})
 
-    # check fetch result
-    if(NOT GIT_SUBMOD_RESULT EQUAL "0")
-      message(FATAL_ERROR "Submodule update failed with ${GIT_SUBMOD_RESULT}")
-    endif()
+      execute_process(
+        COMMAND ${GIT_EXECUTABLE} submodule update --init tmpl-synth
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        RESULT_VARIABLE GIT_SUBMOD_RESULT
+      )
 
-    # embedded build
-    set(JSON_BuildTests OFF CACHE INTERNAL "")
-    add_subdirectory(json-lib)
+      if(NOT GIT_SUBMOD_RESULT EQUAL "0")
+        message(FATAL_ERROR "Submodule update failed with ${GIT_SUBMOD_RESULT}")
+      endif()
 
-  endif() # NLOHMANN_JSON_FOUND
-
-endif() # ILANG_BUILD_JSON
-
-
-# ---------------------------------------------------------------------------- #
-# Verilog Parser
-# 
-#   TARGET verilogparser::verilogparser
-#   SOURCE https://github.com/Bo-Yuan-Huang/verilog-parser.git
-#   PATH   extern/vlog-parser
-# ---------------------------------------------------------------------------- #
-if(${ILANG_BUILD_VLOG})
-
-  # find installed package
-  find_package(verilogparser QUIET)
-  
-  # embed to build tree if not installed
-  if(NOT VERILOGPARSER_FOUND)
-
-    # fetch from git
-    execute_process(
-      COMMAND ${GIT_EXECUTABLE} submodule update --init vlog-parser
-      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-      RESULT_VARIABLE GIT_SUBMOD_RESULT
-    )
-
-    # check fetch result
-    if(NOT GIT_SUBMOD_RESULT EQUAL "0")
-      message(FATAL_ERROR "Submodule update failed with ${GIT_SUBMOD_RESULT}")
-    endif()
+    endif() # ILANG_FETCH_DEPS
 
     # embedded build
-    add_subdirectory(vlog-parser)
+    add_subdirectory(tmpl-synth)
 
-  endif() # VERILOGPARSER_FOUND
+  endif() # ILASYNTH_FOUND
 
-endif() # ILANG_BUILD_VLOG
+endif() # ILANG_BUILD_SYNTH
 

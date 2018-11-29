@@ -22,10 +22,11 @@ project(ilang VERSION     1.0
 # build configuration
 # ---------------------------------------------------------------------------- #
 option(ILANG_FETCH_DEPS  "Fetch source of dependencies at config time."      ON)
-option(ILANG_BUILD_VLOG  "Build Verilog I/O."                                ON)
 option(ILANG_BUILD_JSON  "Build JSON I/O."                                   ON)
+option(ILANG_BUILD_VLOG  "Build Verilog I/O."                                ON)
 option(ILANG_BUILD_DOCS  "Build documentations."                            OFF)
 option(ILANG_BUILD_PYAPI "Build the Python interface."                       ON)
+option(ILANG_BUILD_SYNTH "Build the synthesis engine."                       ON)
 option(ILANG_INSTALL_DEV "Install dev features."                            OFF)
 option(ILANG_EXPORT_PACKAGE "Export CMake package if enabled."              OFF)
 
@@ -74,31 +75,22 @@ endif()
 # External dependencies
 # ---------------------------------------------------------------------------- #
 ##
-## Update git submodules.
-##
-if(ILANG_FETCH_DEPS)
-
-  find_package(Git QUIET)
-
-  if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
-
-    message(STATUS "Submodule update")
-    execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
-                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-                    RESULT_VARIABLE GIT_SUBMOD_RESULT)
-
-    if(NOT GIT_SUBMOD_RESULT EQUAL "0")
-      message(FATAL_ERROR "Submodule update failed with ${GIT_SUBMOD_RESULT}")
-    endif()
-
-  endif()
-
-endif()
-
-##
 ## Make sure that custom modules can be found.
 ##
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
+
+##
+## git submodules
+##
+if(${ILANG_FETCH_DEPS})
+
+  find_package(Git REQUIRED)
+
+  if(NOT EXISTS "${PROJECT_SOURCE_DIR}/.git")
+    message(FATAL_ERROR "Submodule info not found.")
+  endif()
+
+endif()
 
 ##
 ## Third-party packages
