@@ -13,3 +13,6 @@
 [submodule "extern/json-lib"]
 	path = extern/json-lib
 	url = https://github.com/nlohmann/json.git
+[submodule "extern/tmpl-synth"]
+	path = extern/tmpl-synth
+	url = https://github.com/PrincetonUniversity/ILA-Synthesis-Python.git
