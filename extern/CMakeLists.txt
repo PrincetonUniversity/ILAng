@@ -208,3 +208,37 @@ if(${ILANG_BUILD_SYNTH})
 
 endif() # ILANG_BUILD_SYNTH
 
+
+# ---------------------------------------------------------------------------- #
+# Google Test
+#
+#   TARGET  N/A
+#   SOURCE  https://github.com/abseil/googletest
+#   PATH    extern/googletest
+# ---------------------------------------------------------------------------- #
+if(${ILANG_BUILD_TEST)
+
+  if(${ILANG_FETCH_DEPS})
+
+    # fetch from git
+    execute_process(
+      COMMAND ${GIT_EXECUTABLE} submodule update --init googletest
+      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+      RESULT_VARIABLE GIT_SUBMOD_RESULT
+    )
+
+    if(NOT GIT_SUBMOD_RESULT EQUAL "0")
+      message(FATAL_ERROR "Submodule update failed with ${GIT_SUBMOD_RESULT}")
+    endif()
+
+  else() 
+
+    # check has been downloaded
+    if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extern/googletest/CMakeLists.txt")
+        message(FATAL_ERROR "googletest submodule was not downloaded.")
+    endif() 
+
+  endif() # ILANG_FETCH_DEPS
+
+endif()
+
