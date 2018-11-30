@@ -7,7 +7,7 @@
 #include <string>
 #include "unit-include/util.h"
 
-namespace ila {
+namespace ilang {
 
 TEST(TestKeyVec, StringString) {
   KeyVec<std::string, std::string> kv;
@@ -88,4 +88,4 @@ TEST(TestKeyVec, SymbolExpr) {
   EXPECT_EQ(pos, kv.end());
 }
 
-}  // namespace ila
+}  // namespace ilang

@@ -3,7 +3,7 @@
 
 #include <ilang/python-api/wrap_expr.h>
 
-namespace ila {
+namespace ilang {
 namespace pyapi {
 
 const ExprPtr ExprWrap::get() const { return ptr_; }
@@ -27,4 +27,4 @@ ExprWrap* ExprWrap::Load(ExprWrap* mem, ExprWrap* addr) {
 }
 
 } // namespace pyapi
-} // namespace ila
+} // namespace ilang

@@ -6,7 +6,7 @@
 
 #include <ilang/ila/expr_fuse.h>
 
-namespace ila {
+namespace ilang {
 namespace pyapi {
 
 /// \brief The Expr wrapper for Boost.Python API.
@@ -40,6 +40,6 @@ public:
 }; // class ExprWrap
 
 } // namespace pyapi
-} // namespace ila
+} // namespace ilang
 
 #endif // WRAP_EXPR_H__

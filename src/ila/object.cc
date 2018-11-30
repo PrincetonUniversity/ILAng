@@ -3,8 +3,8 @@
 
 #include <ilang/ila/object.h>
 
-/// \namespace ila
-namespace ila {
+/// \namespace ilang
+namespace ilang {
 
 Object::Object() {}
 
@@ -14,4 +14,4 @@ Object::~Object() {}
 
 const Symbol& Object::name() const { return symbol_; }
 
-} // namespace ila
+} // namespace ilang

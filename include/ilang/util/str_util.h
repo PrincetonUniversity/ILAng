@@ -7,8 +7,8 @@
 #include <algorithm>
 #include <string>
 
-/// \namespace ila
-namespace ila {
+/// \namespace ilang
+namespace ilang {
 
 /// Transform basic string to upper case.
 std::string StrToUpper(const std::string& str);
@@ -31,6 +31,6 @@ std::string StrConcat(const std::string& l, const std::string& m,
                       const std::string& r);
 #endif
 
-} // namespace ila
+} // namespace ilang
 
 #endif // STR_UTIL_H__

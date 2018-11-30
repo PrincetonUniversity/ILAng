@@ -4,7 +4,7 @@
 #include <ilang/cpp_api.h>
 #include "unit-include/util.h"
 
-namespace ila {
+namespace ilang {
 
 class TestOpSanity : public ::testing::Test {
  public:
@@ -36,4 +36,4 @@ TEST_F(TestOpSanity, AndBool) {
   // Need to have a API for node equivalence (semantically).
 }
 
-}  // namespace ila
+}  // namespace ilang

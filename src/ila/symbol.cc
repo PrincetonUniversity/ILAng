@@ -5,8 +5,8 @@
 #include <ilang/util/log.h>
 #include <ilang/util/str_util.h>
 
-/// \namespace ila
-namespace ila {
+/// \namespace ilang
+namespace ilang {
 
 size_t Symbol::counter_ = 0;
 
@@ -62,4 +62,4 @@ bool operator<(const Symbol& lhs, const Symbol& rhs) {
   return (lhs.name_ < rhs.name_);
 }
 
-} // namespace ila
+} // namespace ilang

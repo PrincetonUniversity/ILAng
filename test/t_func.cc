@@ -5,7 +5,7 @@
 #include <ilang/ila/expr_fuse.h>
 #include "unit-include/util.h"
 
-namespace ila {
+namespace ilang {
 
 class TestFunc : public ::testing::Test {
  public:
@@ -82,4 +82,4 @@ TEST_F(TestFunc, Multiple) {
   auto f_decl = f->GetZ3FuncDecl(c);
 }
 
-}  // namespace ila
+}  // namespace ilang

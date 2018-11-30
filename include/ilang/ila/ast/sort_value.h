@@ -9,8 +9,8 @@
 #include <ostream>
 #include <string>
 
-/// \namespace ila
-namespace ila {
+/// \namespace ilang
+namespace ilang {
 
 /// \brief The base type for constant value.
 class Value {
@@ -150,6 +150,6 @@ typedef MemVal::MemValPtr MemValPtr;
 /// Type for storing the address/data mapping.
 typedef MemVal::MemValMap MemValMap;
 
-} // namespace ila
+} // namespace ilang
 
 #endif // SORT_VALUE_H__

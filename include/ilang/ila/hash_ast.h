@@ -7,8 +7,8 @@
 #include <ilang/ila/expr_fuse.h>
 #include <unordered_map>
 
-/// \namespace ila
-namespace ila {
+/// \namespace ilang
+namespace ilang {
 
 /// \brief Simplifier for AST trees by sharing nodes based on the hash value.
 class ExprMngr {
@@ -53,6 +53,6 @@ private:
 /// Pointer type for passing shared ast simplifier.
 typedef ExprMngr::ExprMngrPtr ExprMngrPtr;
 
-} // namespace ila
+} // namespace ilang
 
 #endif // HASH_AST_H__

@@ -7,7 +7,7 @@
 #include <map>
 #include <vector>
 
-namespace ila {
+namespace ilang {
 
 using namespace ExprFuse;
 
@@ -488,4 +488,4 @@ void MonoUnroll::Transition(const int& idx) {
   k_pred_.push_back(one_hot_at_most_one);
 }
 
-} // namespace ila
+} // namespace ilang

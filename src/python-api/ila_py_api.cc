@@ -3,7 +3,7 @@
 
 #include <ilang/python-api/ila_py_api.h>
 
-namespace ila {
+namespace ilang {
 namespace pyapi {
 
 BOOST_PYTHON_MODULE(ila) {
@@ -14,4 +14,4 @@ BOOST_PYTHON_MODULE(ila) {
 }
 
 } // namespace pyapi
-} // namespace ila
+} // namespace ilang

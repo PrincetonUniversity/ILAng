@@ -6,7 +6,7 @@
 #include "unit-include/util.h"
 #include "z3++.h"
 
-namespace ila {
+namespace ilang {
 
 TEST(TestExprConst, Construct) {
   std::string blstr = "false";
@@ -160,4 +160,4 @@ TEST(TestExprConst, MemVal) {
   EXPECT_EQ(ref_str, msg);
 }
 
-}  // namespace ila
+}  // namespace ilang

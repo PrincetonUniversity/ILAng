@@ -4,7 +4,7 @@
 #include <ilang/ila/hash_ast.h>
 #include "unit-include/expr_bank.h"
 
-namespace ila {
+namespace ilang {
 
 using namespace ExprFuse;
 
@@ -46,4 +46,4 @@ TEST_F(TestExpr, ReplaceArgExpr) {
   EXPECT_DEATH(c->replace_arg(b, d), ".*");
 }
 
-}  // namespace ila
+}  // namespace ilang

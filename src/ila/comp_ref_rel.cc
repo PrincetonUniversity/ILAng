@@ -4,7 +4,7 @@
 #include <ilang/verification/abs_knob.h>
 #include <ilang/ila/comp_ref_rel.h>
 
-namespace ila {
+namespace ilang {
 
 RefinementMap::RefinementMap() {}
 
@@ -83,4 +83,4 @@ CompRefRel::CrrPtr CompRefRel::New(const RefPtr ref_a, const RefPtr ref_b,
   return std::make_shared<CompRefRel>(ref_a, ref_b, rel);
 }
 
-} // namespace ila
+} // namespace ilang

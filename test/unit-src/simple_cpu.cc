@@ -18,7 +18,7 @@
 #define REG_NUM 4
 enum OP { LOAD = 0, ADD, STORE };
 
-namespace ila {
+namespace ilang {
 
 std::shared_ptr<InstrLvlAbs> SimpleCpu(const std::string& name) {
   Ila m(name);
@@ -140,4 +140,4 @@ int GenStore(const int& src, const int& addr) {
   return w;
 }
 
-}  // namespace ila
+}  // namespace ilang

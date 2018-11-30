@@ -10,8 +10,8 @@
 #include <set>
 #include <vector>
 
-/// \namespace ila
-namespace ila {
+/// \namespace ilang
+namespace ilang {
 
 /// \brief Base class for unrolling ILA execution in different settings.
 class Unroller {
@@ -283,6 +283,6 @@ private:
 
 }; // class MonoUnroll
 
-} // namespace ila
+} // namespace ilang
 
 #endif // UNROLLER_H__

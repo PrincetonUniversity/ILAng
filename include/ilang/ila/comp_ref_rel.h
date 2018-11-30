@@ -6,8 +6,8 @@
 
 #include <ilang/ila/instr_lvl_abs.h>
 
-/// \namespace ila
-namespace ila {
+/// \namespace ilang
+namespace ilang {
 
 /// \brief Refinement mapping defines how to map micro-architectural states to
 /// architectural states for comparison.
@@ -172,6 +172,6 @@ private:
 /// Pointer type for passing around the compositional relation mapping.
 typedef CompRefRel::CrrPtr CrrPtr;
 
-} // namespace ila
+} // namespace ilang
 
 #endif // COMP_REF_REL_H__

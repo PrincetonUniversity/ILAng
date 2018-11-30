@@ -8,7 +8,7 @@
 #include <set>
 #include <string>
 
-namespace ila {
+namespace ilang {
 
 // Only in Debug mode (Ignored in Release mode)
 /******************************************************************************/
@@ -96,6 +96,6 @@ private:
 
 }; // class DebugLog
 
-} // namespace ila
+} // namespace ilang
 
 #endif // LOG_H__

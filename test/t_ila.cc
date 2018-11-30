@@ -4,7 +4,7 @@
 #include <ilang/ila/instr_lvl_abs.h>
 #include "unit-include/util.h"
 
-namespace ila {
+namespace ilang {
 
 TEST(TestInstrLvlAbs, Construct) {
   InstrLvlAbs ila_dummy;
@@ -333,4 +333,4 @@ TEST(TestInstrLvlAbs, Print) {
   EXPECT_EQ(ref_msg, msg);
 }
 
-}  // namespace ila
+}  // namespace ilang

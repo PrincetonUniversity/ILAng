@@ -17,8 +17,8 @@
 #include <stack>
 #include <string>
 
-/// \namespace ila
-namespace ila {
+/// \namespace ilang
+namespace ilang {
 
 /// \brief The class of Instruction-Level Abstraction (ILA). An ILA contains:
 /// - a set of state variables
@@ -328,6 +328,6 @@ typedef InstrLvlAbs::InstrLvlAbsCnstPtr InstrLvlAbsCnstPtr;
 /// Type for storing a mapping from constant ILA ptr to ILA ptr.
 typedef std::map<InstrLvlAbsCnstPtr, InstrLvlAbsPtr> CnstIlaMap;
 
-} // namespace ila
+} // namespace ilang
 
 #endif // INSTR_LVL_ABS_H__

@@ -7,8 +7,8 @@
 #include <ilang/ila/ast/expr.h>
 #include <string>
 
-/// \namespace ila
-namespace ila {
+/// \namespace ilang
+namespace ilang {
 
 /// \brief Expression for variables (bool, bv, or mem). Variable should be the
 /// terminating nodes in the AST.
@@ -52,6 +52,6 @@ private:
 
 }; // class ExprVar
 
-} // namespace ila
+} // namespace ilang
 
 #endif // EXPR_VAR_H__

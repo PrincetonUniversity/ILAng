@@ -5,7 +5,7 @@
 #include <ilang/json-inout/json_parse.h>
 #include <iostream>
 
-namespace ila {
+namespace ilang {
 
 using json = nlohmann::json;
 
@@ -38,4 +38,4 @@ void TestJsonParse() {
   std::cout << j.dump(4) << std::endl;
 }
 
-}; // namespace ila
+}; // namespace ilang

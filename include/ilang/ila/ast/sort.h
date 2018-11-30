@@ -9,8 +9,8 @@
 #include <memory>
 #include <ostream>
 
-/// \namespace ila
-namespace ila {
+/// \namespace ilang
+namespace ilang {
 
 /// \brief The class for sort (type for expr, and the range/domain of
 /// functions).
@@ -164,6 +164,6 @@ private:
   int data_width_;
 }; // class SortMem
 
-} // namespace ila
+} // namespace ilang
 
 #endif // SORT_H__

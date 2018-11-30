@@ -5,7 +5,7 @@
 #include <iostream>
 #include "unit-include/util.h"
 
-namespace ila {
+namespace ilang {
 
 TEST(TestExprFuse, CreateVar) {
   auto flag = ExprFuse::NewBoolVar("flag");
@@ -321,4 +321,4 @@ TEST(TestExprFuse, TopEq) {
   EXPECT_FALSE(TopEq(c, g));
 }
 
-}  // namespace ila
+}  // namespace ilang

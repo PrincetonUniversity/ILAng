@@ -9,8 +9,8 @@
 #include <memory>
 #include <vector>
 
-/// \namespace ila
-namespace ila {
+/// \namespace ilang
+namespace ilang {
 
 /// KeyVecItVal
 typedef enum { END, FOUND } KeyVecItVal;
@@ -160,6 +160,6 @@ private:
 
 }; // class MapSet
 
-} // namespace ila
+} // namespace ilang
 
 #endif // CONTAINER_H__

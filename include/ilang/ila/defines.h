@@ -10,8 +10,8 @@
 #include <memory>
 #include <vector>
 
-/// \namespace ila
-namespace ila {
+/// \namespace ilang
+namespace ilang {
 
 /// Vector type for z3 expression.
 typedef std::vector<z3::expr> Z3ExprVec;
@@ -22,6 +22,6 @@ typedef KeyVec<Symbol, z3::expr> Z3ExprMap;
 /// Pointer for the z3 expression map.
 typedef std::shared_ptr<Z3ExprMap> Z3ExprMapPtr;
 
-} // namespace ila
+} // namespace ilang
 
 #endif // DEFINES_H__

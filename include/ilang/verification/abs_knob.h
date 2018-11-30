@@ -6,7 +6,7 @@
 
 #include <ilang/ila/instr_lvl_abs.h>
 
-namespace ila {
+namespace ilang {
 
 class AbsKnob {
 public:
@@ -121,6 +121,6 @@ private:
 
 }; // class AbsKnob
 
-} // namespace ila
+} // namespace ilang
 
 #endif // ABS_KNOB_H__

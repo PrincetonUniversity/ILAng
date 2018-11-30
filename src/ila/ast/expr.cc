@@ -4,7 +4,7 @@
 #include <ilang/ila/ast/expr.h>
 #include <ilang/util/log.h>
 
-namespace ila {
+namespace ilang {
 
 // typedef Expr::InstrLvlAbsPtr InstrLvlAbsPtr;
 
@@ -35,4 +35,4 @@ void Expr::replace_arg(const ExprPtr a, const ExprPtr b) {
   args_[idx] = b;
 }
 
-} // namespace ila
+} // namespace ilang

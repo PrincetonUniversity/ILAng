@@ -5,7 +5,7 @@
 #include <ilang/ila/ast/func.h>
 #include <ilang/ila/instr_lvl_abs.h>
 
-namespace ila {
+namespace ilang {
 
 // ------------------------- Class ExprOp ----------------------------------- //
 
@@ -468,4 +468,4 @@ z3::expr ExprOpIte::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
   return z3::ite(cnd, t_e, t_f);
 }
 
-} // namespace ila
+} // namespace ilang

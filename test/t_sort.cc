@@ -6,7 +6,7 @@
 #include <string>
 #include "unit-include/util.h"
 
-namespace ila {
+namespace ilang {
 
 TEST(TestSort, Boolean) {
   auto bool_sort = Sort::MakeBoolSort();
@@ -93,4 +93,4 @@ TEST(TestSort, Memory) {
   EXPECT_TRUE(z.is_array());
 }
 
-}  // namespace ila
+}  // namespace ilang

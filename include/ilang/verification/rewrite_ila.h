@@ -6,7 +6,7 @@
 
 #include <ilang/ila/instr_lvl_abs.h>
 
-namespace ila {
+namespace ilang {
 
 /// \brief  Function object for rewriting ILA tree.
 class FuncObjRewrIla {
@@ -70,6 +70,6 @@ private:
   InstrLvlAbsCnstPtr top_ila_;
 }; // FuncObjRewrIla
 
-} // namespace ila
+} // namespace ilang
 
 #endif // REWRITE_ILA_H__

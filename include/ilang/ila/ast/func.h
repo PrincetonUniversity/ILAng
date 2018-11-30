@@ -9,8 +9,8 @@
 #include <ilang/ila/ast/sort.h>
 #include <ilang/ila/defines.h>
 
-/// \namespace ila
-namespace ila {
+/// \namespace ilang
+namespace ilang {
 
 // Forward declaration.
 class Expr;
@@ -78,6 +78,6 @@ private:
 /// Pointer type for normal use of Func.
 typedef Func::FuncPtr FuncPtr;
 
-} // namespace ila
+} // namespace ilang
 
 #endif // FUNC_H__

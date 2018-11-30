@@ -9,8 +9,8 @@
 #include <ilang/ila/z3_expr_adapter.h>
 #include <ilang/util/container.h>
 
-/// \namespace ila
-namespace ila {
+/// \namespace ilang
+namespace ilang {
 
 /// \brief Instruction transition edge, includeing:
 /// - "src": source instruction
@@ -146,6 +146,6 @@ private:
 /// Pointer type for passing around InstrSeq.
 typedef InstrSeq::InstrSeqPtr InstrSeqPtr;
 
-} // namespace ila
+} // namespace ilang
 
 #endif // INSTR_TRAN_H__

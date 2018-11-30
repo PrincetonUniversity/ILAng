@@ -6,10 +6,10 @@
 
 #include <ilang/ila/instr_lvl_abs.h>
 
-namespace ila {
+namespace ilang {
 
 void TestJsonParse();
 
-}; // namespace ila
+}; // namespace ilang
 
 #endif // JSON_PARSE_H__

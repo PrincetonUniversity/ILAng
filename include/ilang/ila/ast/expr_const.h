@@ -7,8 +7,8 @@
 #include <ilang/ila/ast/expr.h>
 #include <ilang/ila/ast/sort_value.h>
 
-/// \namespace ila
-namespace ila {
+/// \namespace ilang
+namespace ilang {
 
 /// \brief Expression for constant values (bool, bv, or memory). Constant should
 /// be terminating nodes in the AST.
@@ -51,6 +51,6 @@ private:
 
 }; // class ExprConst
 
-} // namespace ila
+} // namespace ilang
 
 #endif // EXPR_CONST_H__

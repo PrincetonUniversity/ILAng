@@ -4,7 +4,7 @@
 #include <ilang/util/log.h>
 #include "unit-include/util.h"
 
-namespace ila {
+namespace ilang {
 
 class TestLog : public ::testing::Test {
  public:
@@ -202,4 +202,4 @@ TEST_F(TestLog, Clear) {
   EXPECT_TRUE(msg.empty());
 }
 
-}  // namespace ila
+}  // namespace ilang

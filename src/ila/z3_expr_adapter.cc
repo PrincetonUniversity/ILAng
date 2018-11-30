@@ -4,7 +4,7 @@
 #include <ilang/ila/z3_expr_adapter.h>
 #include <ilang/util/log.h>
 
-namespace ila {
+namespace ilang {
 
 Z3ExprAdapter::Z3ExprAdapter(z3::context& ctx) : ctx_(ctx) {}
 
@@ -64,4 +64,4 @@ void Z3ExprAdapter::PopulateExprMap(const ExprPtr expr) {
   expr_map_.insert({expr, res});
 }
 
-} // namespace ila
+} // namespace ilang

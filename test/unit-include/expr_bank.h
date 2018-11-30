@@ -8,7 +8,7 @@
 #include <vector>
 #include "util.h"
 
-namespace ila {
+namespace ilang {
 
 using namespace ExprFuse;
 
@@ -39,6 +39,6 @@ class ExprBank {
 
 };  // class ExprBank
 
-}  // namespace ila
+}  // namespace ilang
 
 #endif  // EXPR_BANK_H__

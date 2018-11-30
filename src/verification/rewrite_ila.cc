@@ -4,7 +4,7 @@
 #include <ilang/verification/abs_knob.h>
 #include <ilang/verification/rewrite_ila.h>
 
-namespace ila {
+namespace ilang {
 
 InstrLvlAbsPtr FuncObjRewrIla::get(const InstrLvlAbsCnstPtr m) const {
   auto pos = ila_map_.find(m);
@@ -98,4 +98,4 @@ void FuncObjFlatIla::post(const InstrLvlAbsCnstPtr src) {
   valid_cond_stack_.pop();
 }
 
-} // namespace ila
+} // namespace ilang

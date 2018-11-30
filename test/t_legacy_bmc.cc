@@ -6,7 +6,7 @@
 #include "unit-include/eq_ilas.h"
 #include "unit-include/util.h"
 
-namespace ila {
+namespace ilang {
 
 TEST(TestLegacyBmc, FF) {
   SetToStdErr(0);
@@ -53,4 +53,4 @@ TEST(TestLegacyBmc, FF) {
   SetToStdErr(0);
 }
 
-}  // namespace ila
+}  // namespace ilang

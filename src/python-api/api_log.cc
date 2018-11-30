@@ -4,7 +4,7 @@
 #include <ilang/python-api/ila_py_api.h>
 #include <ilang/python-api/wrap_log.h>
 
-namespace ila {
+namespace ilang {
 namespace pyapi {
 
 void export_log() {
@@ -25,4 +25,4 @@ void export_log() {
 }
 
 } // namespace pyapi
-} // namespace ila
+} // namespace ilang

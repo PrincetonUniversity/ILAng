@@ -10,8 +10,8 @@
 #include <memory>
 #include <string>
 
-/// \namespace ila
-namespace ila {
+/// \namespace ilang
+namespace ilang {
 
 // Forward declaration for adding host ila.
 class InstrLvlAbs;
@@ -131,6 +131,6 @@ typedef std::shared_ptr<const Instr> InstrCnstPtr;
 /// Type for storing a set of Instr.
 typedef std::vector<InstrPtr> InstrVec;
 
-} // namespace ila
+} // namespace ilang
 
 #endif // INSTR_H__

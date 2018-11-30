@@ -8,7 +8,7 @@
 #include <ilang/util/log.h>
 #include <ilang/verilog-out/verilog_gen.h>
 
-namespace ila {
+namespace ilang {
 
 /******************************************************************************/
 // SortRef
@@ -669,4 +669,4 @@ void EnableDebug(const std::string& tag) { DebugLog::Enable(tag); }
 
 void DisableDebug(const std::string& tag) { DebugLog::Disable(tag); }
 
-} // namespace ila
+} // namespace ilang

@@ -11,8 +11,8 @@
 #include <ilang/ila/ast/func.h>
 #include <string>
 
-/// \namespace ila
-namespace ila {
+/// \namespace ilang
+namespace ilang {
 
 /// \namespace ExprFuse
 /// Defines the wrapper for hiding imeplementation dependent type details.
@@ -204,6 +204,6 @@ bool TopEq(const ExprPtr a, const ExprPtr b);
 
 } // namespace ExprFuse
 
-} // namespace ila
+} // namespace ilang
 
 #endif // EXPR_FUSE_H__

@@ -7,8 +7,8 @@
 #include <ilang/ila/ast/expr.h>
 #include <ilang/util/log.h>
 
-/// \namespace ila
-namespace ila {
+/// \namespace ilang
+namespace ilang {
 
 // Forward declaration.
 class Func;
@@ -367,6 +367,6 @@ public:
                      const std::string& suffix = "") const;
 }; // class ExprOpIte
 
-} // namespace ila
+} // namespace ilang
 
 #endif // EXPR_OP_H__

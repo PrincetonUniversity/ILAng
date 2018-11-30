@@ -6,7 +6,7 @@
 #include <ilang/ila/transition.h>
 #include "unit-include/util.h"
 
-namespace ila {
+namespace ilang {
 
 class TestInstrSeq : public ::testing::Test {
  public:
@@ -125,4 +125,4 @@ TEST_F(TestInstrSeq, Sort) {
   auto sorted_seq = seq->Sort();
 }
 
-}  // namespace ila
+}  // namespace ilang

@@ -4,7 +4,7 @@
 #include <ilang/python-api/ila_py_api.h>
 #include <ilang/python-api/wrap_ila.h>
 
-namespace ila {
+namespace ilang {
 namespace pyapi {
 
 void export_instr_lvl_abs() {
@@ -19,4 +19,4 @@ void export_instr_lvl_abs() {
 }
 
 } // namespace pyapi
-} // namespace ila
+} // namespace ilang

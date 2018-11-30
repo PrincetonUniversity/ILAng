@@ -5,12 +5,12 @@
 #include "unit-include/util.h"
 
 #ifdef JSON_INOUT_ENABLE
-namespace ila {
+namespace ilang {
 
 TEST(TestJsonParse, Declare) {
   // TODO
   TestJsonParse();
 }
 
-};      // namespace ila
+};      // namespace ilang
 #endif  // JSON_INOUT_ENABLE

@@ -9,7 +9,7 @@
 #include "unit-include/util.h"
 #include "z3++.h"
 
-namespace ila {
+namespace ilang {
 
 using namespace ExprFuse;
 
@@ -214,4 +214,4 @@ void TestEqCheck::CustH1(const RefPtr ref) {
   ref->set_step_appl(70);
 }
 
-}  // namespace ila
+}  // namespace ilang

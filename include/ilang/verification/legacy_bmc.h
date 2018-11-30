@@ -10,8 +10,8 @@
 #include <ilang/util/container.h>
 #include <map>
 
-/// \namespace ila
-namespace ila {
+/// \namespace ilang
+namespace ilang {
 
 /// \brief Simplified bounded model checking engine for ILAs.
 class LegacyBmc {
@@ -76,6 +76,6 @@ private:
 
 }; // class LegacyBmc
 
-} // namespace ila
+} // namespace ilang
 
 #endif // LEGACY_BMC_H__

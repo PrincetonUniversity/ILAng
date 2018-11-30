@@ -8,8 +8,8 @@
 #include <memory>
 #include <string>
 
-/// \namespace ila
-namespace ila {
+/// \namespace ilang
+namespace ilang {
 
 /// \brief The basest type in the ILA structure. It can be either Ast,
 /// Instr, or InstrLvlAbs.
@@ -53,6 +53,6 @@ private:
 /// Pointer type for normal use of Object.
 typedef Object::ObjPtr ObjPtr;
 
-} // namespace ila
+} // namespace ilang
 
 #endif // OBJECT_H__

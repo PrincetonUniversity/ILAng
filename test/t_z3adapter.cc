@@ -5,7 +5,7 @@
 #include <ilang/ila/z3_expr_adapter.h>
 #include "unit-include/util.h"
 
-namespace ila {
+namespace ilang {
 
 TEST(TestZ3Adapter, Construct) {
   DebugLog::Enable("z3_adapter");
@@ -80,4 +80,4 @@ TEST(TestZ3Adapter, Suffix) {
 // TODO change context
 // TODO Clear
 
-}  // namespace ila
+}  // namespace ilang

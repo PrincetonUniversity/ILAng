@@ -10,9 +10,9 @@
 #include <string>
 #include <vector>
 
-/// \namespace ila
+/// \namespace ilang
 /// Defines the core data structure and APIs for constructing and storing ILA.
-namespace ila {
+namespace ilang {
 
 /******************************************************************************/
 // Logging system.
@@ -620,6 +620,6 @@ private:
 
 }; // class IlaZ3Unroller
 
-} // namespace ila
+} // namespace ilang
 
 #endif // ILA_CPP_API_H__

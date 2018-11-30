@@ -3,7 +3,7 @@
 
 #include <ilang/util/log.h>
 
-namespace ila {
+namespace ilang {
 
 void SetLogLevel(const int& lvl) { FLAGS_minloglevel = lvl; }
 
@@ -37,4 +37,4 @@ bool DebugLog::Find(const std::string& tag) {
   return (debug_tags_.find(tag) != debug_tags_.end());
 }
 
-} // namespace ila
+} // namespace ilang

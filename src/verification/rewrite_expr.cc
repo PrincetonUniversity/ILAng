@@ -3,7 +3,7 @@
 
 #include <ilang/verification/rewrite_expr.h>
 
-namespace ila {
+namespace ilang {
 
 using namespace ExprFuse;
 
@@ -140,4 +140,4 @@ ExprPtr FuncObjRewrExpr::RewriteOp(const ExprPtr e) const {
   }
 }
 
-} // namespace ila
+} // namespace ilang

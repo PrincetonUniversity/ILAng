@@ -3,7 +3,7 @@
 
 #include <ilang/verification/legacy_bmc.h>
 
-namespace ila {
+namespace ilang {
 
 LegacyBmc::LegacyBmc() {}
 
@@ -177,4 +177,4 @@ z3::expr LegacyBmc::IlaOneHotFlat(const InstrLvlAbsPtr ila,
   return ila_cnst;
 }
 
-} // namespace ila
+} // namespace ilang

@@ -3,7 +3,7 @@
 
 #include <ilang/ila/ast/ast.h>
 
-namespace ila {
+namespace ilang {
 
 typedef Ast::InstrLvlAbsPtr InstrLvlAbsPtr;
 
@@ -15,4 +15,4 @@ Ast::~Ast() {}
 
 void Ast::set_host(InstrLvlAbsPtr host) { host_ = host; }
 
-} // namespace ila
+} // namespace ilang

@@ -5,7 +5,7 @@
 #include "unit-include/util.h"
 #include "z3++.h"
 
-namespace ila {
+namespace ilang {
 
 class TestExprOp : public ::testing::Test {
  public:
@@ -884,4 +884,4 @@ TEST_F(TestExprOp, Ite) {
   }
 }
 
-}  // namespace ila
+}  // namespace ilang

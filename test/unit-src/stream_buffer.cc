@@ -5,7 +5,7 @@
 #include <ilang/cpp_api.h>
 #include <ilang/util/log.h>
 
-namespace ila {
+namespace ilang {
 
 Ila ExmpStrmBuff::GetStrmBuffSpec(const std::string& name) {
   Ila m(name);
@@ -57,4 +57,4 @@ std::shared_ptr<InstrLvlAbs> ExmpStrmBuff::GetStrmBuffSpecRaw(
   return m.get();
 }
 
-}  // namespace ila
+}  // namespace ilang

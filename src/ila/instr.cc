@@ -4,7 +4,7 @@
 #include <ilang/ila/instr.h>
 #include <ilang/ila/instr_lvl_abs.h>
 
-namespace ila {
+namespace ilang {
 
 Instr::Instr(const std::string& name, const InstrLvlAbsPtr host)
     : Object(name), host_(host) {
@@ -89,4 +89,4 @@ std::ostream& operator<<(std::ostream& out, InstrPtr i) {
 
 ExprPtr Instr::Unify(const ExprPtr e) { return host_ ? host_->Unify(e) : e; }
 
-} // namespace ila
+} // namespace ilang

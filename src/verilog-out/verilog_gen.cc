@@ -6,7 +6,7 @@
 #include <iomanip>
 #include <string>
 
-namespace ila {
+namespace ilang {
 
 #define toStr(x) (std::to_string(x))
 
@@ -1125,4 +1125,4 @@ void VerilogGenerator::DumpToFile(std::ostream& fout) const {
 // make sure to generate decode/valid signal output
 //}
 
-}; // namespace ila
+}; // namespace ilang

@@ -8,8 +8,8 @@
 #include <ilang/ila/expr_fuse.h>
 #include <unordered_map>
 
-/// \namespace ila
-namespace ila {
+/// \namespace ilang
+namespace ilang {
 
 /// The function object for hashing Expr in generating z3 expression.
 typedef ExprHash Z3AdapterHash;
@@ -48,6 +48,6 @@ private:
 
 }; // class Z3ExprAdapter
 
-} // namespace ila
+} // namespace ilang
 
 #endif // Z3_EXPR_ADAPTER_H__

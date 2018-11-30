@@ -20,8 +20,8 @@
 #include <unordered_map>
 #include <vector>
 
-/// \namespace ila
-namespace ila {
+/// \namespace ilang
+namespace ilang {
 
 typedef ExprHash VerilogGenHash;
 
@@ -287,6 +287,6 @@ public:
   void DumpToFile(std::ostream& fout) const;
 }; // class VerilogGenerator
 
-}; // namespace ila
+}; // namespace ilang
 
 #endif // VERILOG_GEN_H__

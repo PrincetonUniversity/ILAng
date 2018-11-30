@@ -3,7 +3,7 @@
 
 #include <ilang/python-api/wrap_ila.h>
 
-namespace ila {
+namespace ilang {
 namespace pyapi {
 
 ExprWrap* InstrLvlAbsWrap::NewBvInput(const std::string& name,
@@ -16,4 +16,4 @@ ExprWrap* InstrLvlAbsWrap::input(const std::string& name) {
 }
 
 } // namespace pyapi
-} // namespace ila
+} // namespace ilang

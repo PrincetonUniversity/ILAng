@@ -5,7 +5,7 @@
 #include "unit-include/simple_cpu.h"
 #include "unit-include/util.h"
 
-namespace ila {
+namespace ilang {
 
 class TestCrr : public ::testing::Test {
  public:
@@ -64,4 +64,4 @@ TEST_F(TestCrr, CompRefRel) {
   EXPECT_TRUE(crr->relation());
 }
 
-}  // namespace ila
+}  // namespace ilang

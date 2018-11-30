@@ -4,7 +4,7 @@
 #include <ilang/ila/symbol.h>
 #include "unit-include/util.h"
 
-namespace ila {
+namespace ilang {
 
 TEST(TestSymbol, Construct) {
   Symbol sym_default;
@@ -80,4 +80,4 @@ TEST(TestSymbol, Compare) {
   EXPECT_FALSE(post < pre);
 }
 
-}  // namespace ila
+}  // namespace ilang

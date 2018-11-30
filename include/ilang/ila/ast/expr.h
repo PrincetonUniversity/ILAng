@@ -16,8 +16,8 @@
 #include <unordered_set>
 #include <vector>
 
-/// \namespace ila
-namespace ila {
+/// \namespace ilang
+namespace ilang {
 
 /// \brief The class for expression, which is the basic type for variables,
 /// constraints, state update expressions, etc.
@@ -146,6 +146,6 @@ typedef std::unordered_map<const ExprPtr, const ExprPtr, ExprHash> ExprMap;
 /// Type for storing a set of Expr.
 typedef std::unordered_set<ExprPtr, ExprHash> ExprSet;
 
-} // namespace ila
+} // namespace ilang
 
 #endif // EXPR_H__

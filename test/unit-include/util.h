@@ -8,7 +8,7 @@
 #include "gtest/gtest-spi.h"
 #include "gtest/gtest.h"
 
-namespace ila {
+namespace ilang {
 
 /// \def Capture standard output message for cmd to msg.
 #define GET_STDOUT_MSG(cmd, msg)        \
@@ -22,4 +22,4 @@ namespace ila {
   cmd;                                  \
   msg = ::testing::internal::GetCapturedStderr();
 
-}  // namespace ila
+}  // namespace ilang

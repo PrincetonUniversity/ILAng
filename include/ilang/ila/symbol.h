@@ -8,8 +8,8 @@
 #include <ostream>
 #include <string>
 
-/// \namespace ila
-namespace ila {
+/// \namespace ilang
+namespace ilang {
 
 /// \brief The symbol is the name and ID of an object. Every object has an
 /// unique symbol.
@@ -69,6 +69,6 @@ private:
 
 }; // class Symbol
 
-} // namespace ila
+} // namespace ilang
 
 #endif // SYMBOL_H__

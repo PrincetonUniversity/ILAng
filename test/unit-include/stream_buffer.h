@@ -3,7 +3,7 @@
 
 #include <memory>
 
-namespace ila {
+namespace ilang {
 
 class InstrLvlAbs;
 class Ila;
@@ -29,4 +29,4 @@ class ExmpStrmBuff {
 
 };  // class ExamStreamBuff
 
-}  // namespace ila
+}  // namespace ilang

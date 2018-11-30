@@ -5,7 +5,7 @@
 #include <ilang/ila/instr.h>
 #include "unit-include/util.h"
 
-namespace ila {
+namespace ilang {
 
 class TestInstr : public ::testing::Test {
  public:
@@ -227,4 +227,4 @@ TEST_F(TestInstr, Print) {
   EXPECT_EQ("Instr.dummy", msg);
 }
 
-}  // namespace ila
+}  // namespace ilang

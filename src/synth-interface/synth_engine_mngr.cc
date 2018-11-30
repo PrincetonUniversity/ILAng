@@ -4,7 +4,7 @@
 #include <ilang/synth-interface/synth_engine_mngr.h>
 #include <ilasynth/abstraction.hpp>
 
-namespace ila {
+namespace ilang {
 
 SynEngMngr::SynEngMngr() {
   // TODO
@@ -17,12 +17,12 @@ SynEngMngr::~SynEngMngr() {
 SynEngMngrPtr SynEngMngr::New() { return std::make_shared<SynEngMngr>(); }
 
 InstrLvlAbsPtr SynEngMngr::ImportIlaFromFile(const std::string& fileName) {
-  Abstraction abs("");
+  ila::Abstraction abs("");
   abs.importAllFromFile(fileName);
   // TODO
 
   return NULL;
 }
 
-} // namespace ila
+} // namespace ilang
 

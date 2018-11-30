@@ -9,8 +9,8 @@
 #include <memory>
 #include <string>
 
-/// \namespace ila
-namespace ila {
+/// \namespace ilang
+namespace ilang {
 
 // Forward declaration for host.
 class InstrLvlAbs;
@@ -58,6 +58,6 @@ private:
 
 }; // class Ast
 
-} // namespace ila
+} // namespace ilang
 
 #endif // AST_H__

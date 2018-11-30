@@ -5,7 +5,7 @@
 //#include "ila++.h"
 #include <ilang/cpp_api.h>
 
-namespace ila {
+namespace ilang {
 
 // Flat ILA 1:
 // - no child-ILA
@@ -395,4 +395,4 @@ InstrLvlAbsPtr EqIlaGen::GetIlaHier2(const std::string& name) {
   return m.get();
 }
 
-}  // namespace ila
+}  // namespace ilang

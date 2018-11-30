@@ -7,7 +7,7 @@
 #include <ilang/ila/hash_ast.h>
 #include <ilang/util/log.h>
 
-namespace ila {
+namespace ilang {
 
 ExprMngr::ExprMngr() {}
 
@@ -90,4 +90,4 @@ size_t ExprMngr::Hash(const ExprPtr n) const {
   }
 }
 
-} // namespace ila
+} // namespace ilang

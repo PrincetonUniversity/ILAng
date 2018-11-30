@@ -6,7 +6,7 @@
 
 #include <ilang/ila/expr_fuse.h>
 
-namespace ila {
+namespace ilang {
 
 /// \brief Function object for rewriting Expr.
 class FuncObjRewrExpr {
@@ -37,6 +37,6 @@ private:
 
 }; // class FuncObjRewrExpr
 
-} // namespace ila
+} // namespace ilang
 
 #endif // REWRITE_EXPR_H__

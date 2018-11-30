@@ -6,7 +6,7 @@
 
 #include <boost/python.hpp>
 
-namespace ila {
+namespace ilang {
 namespace pyapi {
 using namespace boost::python;
 
@@ -19,6 +19,6 @@ void export_instr();
 void export_instr_lvl_abs();
 
 } // namespace pyapi
-} // namespace ila
+} // namespace ilang
 
 #endif // ILA_PY_API_H__

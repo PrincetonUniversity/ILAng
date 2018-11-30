@@ -12,7 +12,7 @@
 #include "unit-include/simple_cpu.h"
 #include "unit-include/util.h"
 
-namespace ila {
+namespace ilang {
 
 #ifdef VERILOG_IN_ENABLE
 void parseable(const std::string &fname, VerilogGenerator &vgen) {
@@ -159,4 +159,4 @@ TEST(TestVerilogGen, FlattenIla) {
 
 }  // TEST: FlattenILA
 
-};  // namespace ila
+};  // namespace ilang

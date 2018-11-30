@@ -6,7 +6,7 @@
 #include <set>
 #include "unit-include/util.h"
 
-namespace ila {
+namespace ilang {
 
 TEST(TestMapSet, IntInt) {
   MapSet<int, int> map;
@@ -77,4 +77,4 @@ TEST(TestMapSet, ExprInstr) {
   }
 }
 
-}  // namespace ila
+}  // namespace ilang

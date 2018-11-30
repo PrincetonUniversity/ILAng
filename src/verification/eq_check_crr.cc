@@ -7,7 +7,7 @@
 #include <ilang/util/log.h>
 #include <tuple>
 
-namespace ila {
+namespace ilang {
 
 const std::string CommDiag::k_suff_orig_ = "org";
 const std::string CommDiag::k_suff_appl_ = "apl";
@@ -899,4 +899,4 @@ z3::expr CommDiag::UnrollFlush(MonoUnroll& unroller, const RefPtr ref,
   return path && mark;
 }
 
-} // namespace ila
+} // namespace ilang

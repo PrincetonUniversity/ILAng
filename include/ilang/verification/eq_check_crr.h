@@ -9,8 +9,8 @@
 #include <ilang/ila/comp_ref_rel.h>
 #include <ilang/ila/instr_lvl_abs.h>
 
-/// \namespace ila
-namespace ila {
+/// \namespace ilang
+namespace ilang {
 
 /// \brief Generator for commutating diagram-based equivalence checking.
 class CommDiag {
@@ -122,6 +122,6 @@ private:
 
 }; // class CommDiag
 
-} // namespace ila
+} // namespace ilang
 
 #endif // EQ_CHECK_CRR_H__

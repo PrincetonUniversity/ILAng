@@ -6,10 +6,10 @@
 
 #ifdef VERILOG_IN_ENABLE
 
-namespace ila {
+namespace ilang {
 
 TEST(TestVerilogParse, Init) { TestParseVerilog(); }
 
-};  // namespace ila
+};  // namespace ilang
 
 #endif  // VERILOG_IN_ENABLE

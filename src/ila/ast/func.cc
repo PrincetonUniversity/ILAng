@@ -6,7 +6,7 @@
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/util/log.h>
 
-namespace ila {
+namespace ilang {
 
 Func::Func(const std::string& name, const SortPtr out,
            const std::vector<SortPtr>& args)
@@ -58,4 +58,4 @@ std::ostream& Func::Print(std::ostream& out) const {
   return out << "Func." << name();
 }
 
-} // namespace ila
+} // namespace ilang

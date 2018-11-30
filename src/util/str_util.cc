@@ -4,7 +4,7 @@
 #include <ilang/util/log.h>
 #include <ilang/util/str_util.h>
 
-namespace ila {
+namespace ilang {
 
 std::string StrToUpper(const std::string& str) {
   std::string res = str;
@@ -47,4 +47,4 @@ std::string StrConcat(const std::string& l, const std::string& m,
 }
 #endif
 
-} // namespace ila
+} // namespace ilang

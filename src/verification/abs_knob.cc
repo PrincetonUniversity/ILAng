@@ -6,7 +6,7 @@
 #include <ilang/verification/rewrite_expr.h>
 #include <ilang/verification/rewrite_ila.h>
 
-namespace ila {
+namespace ilang {
 
 class FuncObjInsertExprVar {
 public:
@@ -405,4 +405,4 @@ ExprPtr AbsKnob::DuplStt(const InstrLvlAbsPtr m, const ExprPtr stt) {
   }
 }
 
-} // namespace ila
+} // namespace ilang

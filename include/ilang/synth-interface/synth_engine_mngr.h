@@ -7,8 +7,8 @@
 #include <ilang/ila/instr_lvl_abs.h>
 #include <string>
 
-/// \namespace ila
-namespace ila {
+/// \namespace ilang
+namespace ilang {
 
 /// \brief The class for interfacing templated-based synthesis engine.
 class SynEngMngr {
@@ -46,7 +46,7 @@ private:
 /// Pointer type for normal use of SynEngMngr.
 typedef SynEngMngr::SynEngMngrPtr SynEngMngrPtr;
 
-}; // namespace ila
+}; // namespace ilang
 
 #endif // SYNTH_ENGINE_MNGR_H__
 

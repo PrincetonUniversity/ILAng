@@ -5,7 +5,7 @@
 #include <ilang/ila/z3_expr_adapter.h>
 #include "unit-include/util.h"
 
-namespace ila {
+namespace ilang {
 
 class TestZ3Expr : public ::testing::Test {
  public:
@@ -156,4 +156,4 @@ TEST_F(TestZ3Expr, Concat) {
   EXPECT_EQ(z3::unsat, s->check());
 }
 
-}  // namespace ila
+}  // namespace ilang

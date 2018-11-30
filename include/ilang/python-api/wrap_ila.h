@@ -7,7 +7,7 @@
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/python-api/wrap_expr.h>
 
-namespace ila {
+namespace ilang {
 namespace pyapi {
 
 /// \brief The wrapper class for InstrLvlAbs
@@ -33,6 +33,6 @@ public:
 }; // class InstrLvlAbsWrap
 
 } // namespace pyapi
-} // namespace ila
+} // namespace ilang
 
 #endif // WRAP_INSTR_LVL_ABS_H__

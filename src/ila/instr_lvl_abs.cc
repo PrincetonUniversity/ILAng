@@ -6,7 +6,7 @@
 // Do the simplification by hashing AST sub-trees.
 static const bool kUnifyAst = true;
 
-namespace ila {
+namespace ilang {
 
 InstrLvlAbs::InstrLvlAbs(const std::string& name, const InstrLvlAbsPtr parent)
     : Object(name), parent_(parent) {
@@ -348,4 +348,4 @@ void InstrLvlAbs::InitObject() {
   }
 }
 
-} // namespace ila
+} // namespace ilang

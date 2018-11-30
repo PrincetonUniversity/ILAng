@@ -3,7 +3,7 @@
 
 #include <ilang/ila/instr_lvl_abs.h>
 
-namespace ila {
+namespace ilang {
 
 /// \brief The class wrapper for constructing equivalent ILAs with behavior:
 ///
@@ -72,4 +72,4 @@ class EqIlaGen {
 
 };  // class EqIlaGen
 
-}  // namespace ila
+}  // namespace ilang

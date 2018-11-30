@@ -4,7 +4,7 @@
 #include <ilang/ila/instr_lvl_abs.h>
 #include "unit-include/util.h"
 
-namespace ila {
+namespace ilang {
 
 using namespace ExprFuse;
 
@@ -147,4 +147,4 @@ TEST_F(TestHashApi, ExplicitName) {
   EXPECT_NE(rb, rs);
 }
 
-}  // namespace ila
+}  // namespace ilang

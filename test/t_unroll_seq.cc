@@ -7,7 +7,7 @@
 #include "unit-include/simple_cpu.h"
 #include "unit-include/util.h"
 
-namespace ila {
+namespace ilang {
 
 using namespace ExprFuse;
 
@@ -331,4 +331,4 @@ TEST_F(TestUnroll, PathMonoSolve) {
   }
 }
 
-}  // namespace ila
+}  // namespace ilang

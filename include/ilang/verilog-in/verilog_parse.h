@@ -7,12 +7,12 @@
 #include <cstdio>
 #include <iostream>
 
-/// \namespace ila
-namespace ila {
+/// \namespace ilang
+namespace ilang {
 
 void TestParseVerilog();
 int TestParseVerilogFrom(std::FILE* fp);
 
-}; // namespace ila
+}; // namespace ilang
 
 #endif // VERILOG_PARSE_H__
