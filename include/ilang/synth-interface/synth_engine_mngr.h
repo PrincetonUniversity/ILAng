@@ -14,7 +14,7 @@ namespace ila {
 class SynEngMngr {
 public:
   /// Pointer type for normal use of SynEngMngr.
-  typedef std::shared_ptr<SynEngMngr> SynEngMngr;
+  typedef std::shared_ptr<SynEngMngr> SynEngMngrPtr;
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Constructor.

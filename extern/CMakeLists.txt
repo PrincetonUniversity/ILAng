@@ -1,14 +1,4 @@
 # ---------------------------------------------------------------------------- #
-# z3
-#
-#   TARGET z3::z3
-#   SOURCE https://github.com/Z3Prover/z3.git
-#   PATH   N/A
-# ---------------------------------------------------------------------------- #
-find_package(Z3 4.5.0 REQUIRED)
-
-
-# ---------------------------------------------------------------------------- #
 # Google Log
 #
 #   TARGET glog::glog
@@ -117,69 +107,6 @@ if(${ILANG_BUILD_VLOG})
   endif() # VERILOGPARSER_FOUND
 
 endif() # ILANG_BUILD_VLOG
-
-
-# ---------------------------------------------------------------------------- #
-# Boost
-#
-#   TARGET 
-#   SOURCE
-#   PATH
-# ---------------------------------------------------------------------------- #
-if(${ILANG_BUILD_PYAPI} OR ${ILANG_BUILD_SYNTH})
-  set(Boost_USE_STATIC_LIBS OFF)
-  set(Boost_USE_MULTITHREADED ON)
-  set(Boost_USE_STATIC_RUNTIME OFF)
-
-  find_package(Boost 1.50 REQUIRED COMPONENTS python)
-  
-  if(NOT TARGET Boost)
-
-    add_library(Boost IMPORTED INTERFACE)
-
-    set_property(TARGET Boost 
-      PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${Boost_INCLUDE_DIR}
-    )
-
-    set_property(TARGET Boost 
-      PROPERTY INTERFACE_LINK_LIBRARIES ${Boost_LIBRARIES}
-    )
-
-  endif() # target Boost 
-
-endif() # ILANG_BUILD_PYAPI
-
-
-# ---------------------------------------------------------------------------- #
-# Python
-#
-#   TARGET 
-#   SOURCE
-#   PATH
-# ---------------------------------------------------------------------------- #
-if(${ILANG_BUILD_PYAPI} OR ${ILANG_BUILD_SYNTH})
-  find_package(PythonLibs 2.7 REQUIRED)
-
-  if(PYTHONLIBS_FOUND)
-    message(STATUS "PYTHON_LIBRARIES = ${PYTHON_LIBRARIES}")
-    message(STATUS "PYTHON_INCLUDE_DIRS = ${PYTHON_INCLUDE_DIRS}")
-  endif() # PYTHONLIBS_FOUND
-
-  if(NOT TARGET PythonLibs)
-
-    add_library(PythonLibs IMPORTED INTERFACE)
-
-    set_property(TARGET PythonLibs 
-      PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${PYTHON_INCLUDE_DIRS}
-    )
-
-    set_property(TARGET PythonLibs 
-      PROPERTY INTERFACE_LINK_LIBRARIES ${PYTHON_LIBRARIES}
-    )
-
-  endif() # target PythonLibs
-
-endif() # ILANG_BUILD_PYAPI
 
 
 # ---------------------------------------------------------------------------- #
