@@ -21,6 +21,10 @@ if(${ILANG_BUILD_JSON})
   add_subdirectory(json-inout)
 endif()
 
+if(${ILANG_BUILD_SYNTH})
+  add_subdirectory(synth-interface)
+endif()
+
 ##
 ## compile features/options
 ##
@@ -85,6 +89,45 @@ if(${ILANG_BUILD_VLOG})
   endif()
 
   target_link_libraries(${ILANG_LIB_NAME} PRIVATE verilogparser::verilogparser)
+
+endif()
+
+##
+## Boost 
+##
+if(${ILANG_BUILD_PYAPI} OR ${ILANG_BUILD_SYNTH})
+  
+  if(NOT TARGET Boost)
+    find_package(Boost REQUIRED COMPONENTS python)
+  endif()
+
+  target_link_libraries(${ILANG_LIB_NAME} PUBLIC Boost)
+
+endif()
+
+##
+## Python
+##
+if(${ILANG_BUILD_PYAPI} OR ${ILANG_BUILD_SYNTH})
+
+  if(NOT TARGET PythonLibs)
+    find_package(PythonLibs REQUIRED)
+  endif()
+
+  target_link_libraries(${ILANG_LIB_NAME} PUBLIC PythonLibs)
+
+endif()
+
+##
+## template-based synthesis
+##
+if(${ILANG_BUILD_SYNTH})
+
+  if(NOT TARGET ilasynth::ilasynth)
+    find_package(ilasynth)
+  endif()
+
+  target_link_libraries(${ILANG_LIB_NAME} PRIVATE ilasynth::ilasynth) 
 
 endif()
 

@@ -126,24 +126,26 @@ endif() # ILANG_BUILD_VLOG
 #   SOURCE
 #   PATH
 # ---------------------------------------------------------------------------- #
-if(${ILANG_BUILD_PYAPI})
+if(${ILANG_BUILD_PYAPI} OR ${ILANG_BUILD_SYNTH})
   set(Boost_USE_STATIC_LIBS OFF)
   set(Boost_USE_MULTITHREADED ON)
   set(Boost_USE_STATIC_RUNTIME OFF)
 
   find_package(Boost 1.50 REQUIRED COMPONENTS python)
   
-  # For Boost version newer than CMake version
-  if(NOT TARGET Boost::python)
-    add_library(Boost::python IMPORTED INTERFACE)
+  if(NOT TARGET Boost)
 
-    set_property(TARGET Boost::python PROPERTY
-      INTERFACE_INCLUDE_DIRECTORIES ${Boost_INCLUDE_DIR})
+    add_library(Boost IMPORTED INTERFACE)
 
-    set_property(TARGET Boost::python PROPERTY 
-      INTERFACE_LINK_LIBRARIES ${Boost_LIBRARIES})
+    set_property(TARGET Boost 
+      PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${Boost_INCLUDE_DIR}
+    )
 
-  endif() # Boost::python FOUND
+    set_property(TARGET Boost 
+      PROPERTY INTERFACE_LINK_LIBRARIES ${Boost_LIBRARIES}
+    )
+
+  endif() # target Boost 
 
 endif() # ILANG_BUILD_PYAPI
 
@@ -155,18 +157,27 @@ endif() # ILANG_BUILD_PYAPI
 #   SOURCE
 #   PATH
 # ---------------------------------------------------------------------------- #
-if(${ILANG_BUILD_PYAPI})
+if(${ILANG_BUILD_PYAPI} OR ${ILANG_BUILD_SYNTH})
   find_package(PythonLibs 2.7 REQUIRED)
 
   if(PYTHONLIBS_FOUND)
     message(STATUS "PYTHON_LIBRARIES = ${PYTHON_LIBRARIES}")
-    message(STATUS "PYTHON_EXECUTABLE = ${PYTHON_EXECUTABLE}")
     message(STATUS "PYTHON_INCLUDE_DIRS = ${PYTHON_INCLUDE_DIRS}")
-
-  else()
-    message(FATAL_ERROR "Python libs not found.")
-
   endif() # PYTHONLIBS_FOUND
+
+  if(NOT TARGET PythonLibs)
+
+    add_library(PythonLibs IMPORTED INTERFACE)
+
+    set_property(TARGET PythonLibs 
+      PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${PYTHON_INCLUDE_DIRS}
+    )
+
+    set_property(TARGET PythonLibs 
+      PROPERTY INTERFACE_LINK_LIBRARIES ${PYTHON_LIBRARIES}
+    )
+
+  endif() # target PythonLibs
 
 endif() # ILANG_BUILD_PYAPI
 
