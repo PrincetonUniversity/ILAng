@@ -67,7 +67,7 @@ TEST_F(TestEqCheck, FF_Mono) {
 }
 
 TEST_F(TestEqCheck, CommDiag_HF) {
-  SetToStdErr(1);
+  SetToStdErr(0);
   // DebugLog::Disable("Verbose-CrrEqCheck");
   for (auto instr_idx : {0}) {
     // refinement
@@ -88,7 +88,7 @@ TEST_F(TestEqCheck, CommDiag_HF) {
 }
 
 TEST_F(TestEqCheck, IncCommDiag_HF) {
-  SetToStdErr(1);
+  SetToStdErr(0);
   // DebugLog::Disable("Verbose-CrrEqCheck");
   for (auto instr_idx : {0}) {
     // refinement
@@ -109,7 +109,7 @@ TEST_F(TestEqCheck, IncCommDiag_HF) {
 }
 
 TEST_F(TestEqCheck, NewIncCommDiag_HF) {
-  SetToStdErr(1);
+  SetToStdErr(0);
   // DebugLog::Disable("Verbose-CrrEqCheck");
   for (auto instr_idx : {0}) {
     // refinement
