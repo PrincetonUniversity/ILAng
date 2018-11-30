@@ -6,7 +6,7 @@
 #include <iostream>
 
 void Foo() {
-  auto m = ila::Ila("bar");
+  auto m = ilang::Ila("bar");
 
   std::cout << "Hello from " << m << " in the lib." << std::endl;
 
