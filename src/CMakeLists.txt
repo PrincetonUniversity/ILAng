@@ -12,6 +12,7 @@ add_subdirectory(util)
 add_subdirectory(ila)
 add_subdirectory(verification)
 add_subdirectory(verilog-out)
+add_subdirectory(mcm)
 
 if(${ILANG_BUILD_VLOG})
   add_subdirectory(verilog-in)
