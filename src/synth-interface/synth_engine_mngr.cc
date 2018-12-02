@@ -17,7 +17,7 @@ SynEngMngr::~SynEngMngr() {
 SynEngMngrPtr SynEngMngr::New() { return std::make_shared<SynEngMngr>(); }
 
 InstrLvlAbsPtr SynEngMngr::ImportIlaFromFile(const std::string& fileName) {
-  ila::Abstraction abs("");
+  ilasynth::Abstraction abs("");
   abs.importAllFromFile(fileName);
   // TODO
 
