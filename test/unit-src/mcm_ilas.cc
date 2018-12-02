@@ -3,45 +3,45 @@
 
 #include "../unit-include/mcm_ilas.h"
 
-namespace ila {
+namespace ilang {
 
-  void McmIlaGen::GetLitmusSbReg(InstrLvlAbsPtr & T1, InstrLvlAbsPtr & T2) {
-    T1 = InstrLvlAbs::New("T1");
+void McmIlaGen::GetLitmusSbReg(InstrLvlAbsPtr& T1, InstrLvlAbsPtr& T2) {
+  T1 = InstrLvlAbs::New("T1");
+  {
+    auto x = T1->NewBvState("x", 8);
+    auto y = T1->NewBvState("y", 8);
+    auto r1 = T1->NewBvState("r1", 8);
+    T1->AddInit(ExprFuse::Eq(x, ExprFuse::BvConst(0, 8)));
+    T1->AddInit(ExprFuse::Eq(y, ExprFuse::BvConst(0, 8)));
     {
-      auto x = T1->NewBvState("x",8);
-      auto y = T1->NewBvState("y",8);
-      auto r1 = T1->NewBvState("r1",8);
-      T1->AddInit( ExprFuse::Eq(x, ExprFuse::BvConst(0,8) ) );
-      T1->AddInit( ExprFuse::Eq(y, ExprFuse::BvConst(0,8) ) );
-      {
-        auto instr = T1->NewInstr("store [x], 1");
-        instr->set_decode(ExprFuse::BoolConst(true));
-        instr->set_update(x, ExprFuse::BvConst(1,8));
-      }
-      {
-        auto instr = T1->NewInstr("load r1, [y]");
-        instr->set_decode(ExprFuse::BoolConst(true));
-        instr->set_update(r1, y);
-      }
+      auto instr = T1->NewInstr("store [x], 1");
+      instr->set_decode(ExprFuse::BoolConst(true));
+      instr->set_update(x, ExprFuse::BvConst(1, 8));
     }
-    T2 = InstrLvlAbs::New("T2");
     {
-      auto x = T2->NewBvState("x",8);
-      auto y = T2->NewBvState("y",8);
-      auto r2 = T2->NewBvState("r2",8);
-      T2->AddInit( ExprFuse::Eq(ExprFuse::Add(x,y), ExprFuse::BvConst(0,8) ) );
+      auto instr = T1->NewInstr("load r1, [y]");
+      instr->set_decode(ExprFuse::BoolConst(true));
+      instr->set_update(r1, y);
+    }
+  }
+  T2 = InstrLvlAbs::New("T2");
+  {
+    auto x = T2->NewBvState("x", 8);
+    auto y = T2->NewBvState("y", 8);
+    auto r2 = T2->NewBvState("r2", 8);
+    T2->AddInit(ExprFuse::Eq(ExprFuse::Add(x, y), ExprFuse::BvConst(0, 8)));
 
-      {
-        auto instr = T2->NewInstr("store [y], 1");
-        instr->set_decode(ExprFuse::BoolConst(true));
-        instr->set_update(y, ExprFuse::BvConst(1,8));
-      }
-      {
-        auto instr = T2->NewInstr("load r2, [x]");
-        instr->set_decode(ExprFuse::BoolConst(true));
-        instr->set_update(r2, x);
-      }
+    {
+      auto instr = T2->NewInstr("store [y], 1");
+      instr->set_decode(ExprFuse::BoolConst(true));
+      instr->set_update(y, ExprFuse::BvConst(1, 8));
     }
+    {
+      auto instr = T2->NewInstr("load r2, [x]");
+      instr->set_decode(ExprFuse::BoolConst(true));
+      instr->set_update(r2, x);
+    }
+  }
   }
   void McmIlaGen::GetLitmusMpReg(InstrLvlAbsPtr & T1, InstrLvlAbsPtr & T2) {
     T1 = InstrLvlAbs::New("T1");
@@ -426,5 +426,5 @@ namespace ila {
     return GetIlaOneInstPcDecode("Sys2Ila3");
   }
 
-} // namespace ila
+  } // namespace ilang
 

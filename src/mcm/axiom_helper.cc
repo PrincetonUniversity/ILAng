@@ -5,7 +5,7 @@
 #include "ilang/mcm/memory_model.h"
 #include "ilang/mcm/set_op.h"
 
-namespace ila {
+namespace ilang {
 
 /******************************************************************************/
 // Helper Functions
@@ -582,4 +582,4 @@ void MemoryModel::SameAddrDataSanityCheck( const TraceStep & l, const TraceStep 
 
 
 
-} // namespace ila
+} // namespace ilang

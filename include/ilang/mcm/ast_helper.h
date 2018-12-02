@@ -8,8 +8,8 @@
 #include <functional>
 #include <utility>
 
-/// \namespace ila
-namespace ila {
+/// \namespace ilang
+namespace ilang {
 
 
 /******************************************************************************/
@@ -137,7 +137,7 @@ private:
 }; // class MemReadFinder
 */
 
-} // namespace ila
+} // namespace ilang
 
 #endif // AST_HELPER_H__
 

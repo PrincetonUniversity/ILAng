@@ -5,8 +5,8 @@
 #ifndef AXIOM_HELPER_H__
 #define AXIOM_HELPER_H__
 
-/// \namespace ila
-namespace ila {
+/// \namespace ilang
+namespace ilang {
 
 	/******************************************************************************/
 	// Helper Functions
@@ -27,6 +27,6 @@ namespace ila {
 	/******************************************************************************/
 	
 
-} // namespace ila
+} // namespace ilang
 
 #endif // AXIOM_HELPER_H__

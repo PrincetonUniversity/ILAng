@@ -13,7 +13,7 @@
 
 // Test some access things
 // Test some axiom functions
-namespace ila {
+namespace ilang {
 
 TEST(TestTraceStep, AccessDeduction) {
   z3::context c;
@@ -793,5 +793,4 @@ TEST(TestMcm, McmTso) { //
     }
 */
 
-
-} // namespace ila
+} // namespace ilang

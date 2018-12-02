@@ -7,7 +7,7 @@
 #include "ilang/ila/instr_lvl_abs.h"
 #include "ilang/mcm/memory_model.h"
 
-namespace ila {
+namespace ilang {
 
     /******************************************************************************/
     // Helper Class: VarUseFinder
@@ -206,4 +206,4 @@ namespace ila {
   }
   */
 
-} // namespace ila
+} // namespace ilang

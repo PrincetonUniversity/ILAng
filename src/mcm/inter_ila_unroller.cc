@@ -7,7 +7,7 @@
 #include "ilang/mcm/set_op.h"
 #include "ilang/util/log.h"
 
-namespace ila {
+namespace ilang {
 
 
 /******************************************************************************/
@@ -347,4 +347,4 @@ void HostRemoveRestore::RestoreAll(InstrLvlAbsPtr h) {
   }
 }
 
-} // namespace ila
+} // namespace ilang

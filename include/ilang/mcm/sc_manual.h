@@ -4,7 +4,7 @@
 #ifndef SC_MANUAL_H__
 #define SC_MANUAL_H__
 
-namespace ila {
+namespace ilang {
 
 /// \brief Class of TSO trace step
 class ScTraceStep : public TraceStep {

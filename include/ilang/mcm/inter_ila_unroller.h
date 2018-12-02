@@ -15,8 +15,8 @@
 #include <stack>
 #include <functional>
 
-/// \namespace ila
-namespace ila {
+/// \namespace ilang
+namespace ilang {
 
 class MemoryModel;
 
@@ -203,7 +203,7 @@ private:
 
 
 
-} // namespace ila
+} // namespace ilang
 
 #endif // INTER_ILA_UNROLLER_H__
 

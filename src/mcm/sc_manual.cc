@@ -10,7 +10,7 @@
 #include "ilang/mcm/sc_manual.h"
 #include "ilang/mcm/set_op.h"
 
-namespace ila {
+namespace ilang {
 
 /******************************************************************************/
 // ScTraceStep
@@ -170,4 +170,4 @@ InterIlaUnroller::MemoryModelCreator Sc::ScModel = [] (
           };
 
 
-} // namespace ila
+} // namespace ilang

@@ -10,7 +10,7 @@
 #include "ilang/mcm/tso_manual.h"
 #include "ilang/mcm/set_op.h"
 
-namespace ila {
+namespace ilang {
 
 /******************************************************************************/
 // TsoTraceStep
@@ -265,4 +265,4 @@ InterIlaUnroller::MemoryModelCreator Tso::TsoModel = [] (
           };
 
 
-} // namespace ila
+} // namespace ilang

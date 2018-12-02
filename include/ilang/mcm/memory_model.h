@@ -7,8 +7,8 @@
 #include "ilang/mcm/axiom_helper.h"
 #include "ilang/mcm/ast_helper.h"
 
-/// \namespace ila
-namespace ila {
+/// \namespace ilang
+namespace ilang {
 
 #define FINAL_STEP_SUFFIX "final"
 
@@ -339,6 +339,6 @@ private:
 
 
 
-} // namespace ila
+} // namespace ilang
 
 #endif // MEMORY_MODEL_H__
