@@ -1,9 +1,9 @@
 // lib.cc
 // Synopsis: implementation of the library
 
-#include <simple/lib.h>
 #include <ila++.h>
 #include <iostream>
+#include <simple/lib.h>
 
 void Foo() {
   auto m = ilang::Ila("bar");
