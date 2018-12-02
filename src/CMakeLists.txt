@@ -98,7 +98,7 @@ endif()
 if(${ILANG_BUILD_SYNTH})
 
   if(NOT TARGET ilasynth::ilasynth)
-    find_package(ilasynth)
+    find_package(ilasynth REQUIRED)
   endif()
 
   target_link_libraries(${ILANG_LIB_NAME} PRIVATE ilasynth::ilasynth) 
@@ -106,61 +106,51 @@ if(${ILANG_BUILD_SYNTH})
 endif()
 
 ##
-## Boost 
+## Boost python
 ##
-if(${ILANG_BUILD_PYAPI} OR ${ILANG_BUILD_SYNTH})
+if(${ILANG_BUILD_PYAPI})
 
   set(Boost_USE_STATIC_LIBS OFF)
   set(Boost_USE_MULTITHREADED ON)
   set(Boost_USE_STATIC_RUNTIME OFF)
 
   find_package(Boost 1.50 REQUIRED COMPONENTS python)
-  
-  if(NOT TARGET Boost)
 
-    add_library(Boost IMPORTED INTERFACE)
+  target_link_libraries(${ILANG_LIB_NAME} PRIVATE Boost::python)
 
-    set_property(TARGET Boost 
-      PROPERTY INTERFACE_LINK_LIBRARIES ${Boost_LIBRARIES}
-    )
+endif() # ILANG_BUILD_PYAPI
 
-    set_property(TARGET Boost 
-      PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${Boost_INCLUDE_DIR}
-    )
-
-  endif() # target Boost 
-
-  target_link_libraries(${ILANG_LIB_NAME} PRIVATE Boost)
-
-endif()
 
 ##
 ## Python
 ##
-if(${ILANG_BUILD_PYAPI} OR ${ILANG_BUILD_SYNTH})
+if(${ILANG_BUILD_PYAPI})
 
-  find_package(PythonLibs 2.7 REQUIRED)
+  if(${CMAKE_VERSION} VERSION_LESS 3.12)
+    
+    find_package(PythonLibs 2.7 REQUIRED)
 
-  if(PYTHONLIBS_FOUND)
-    message(STATUS "PYTHON_LIBRARIES = ${PYTHON_LIBRARIES}")
-    message(STATUS "PYTHON_INCLUDE_DIRS = ${PYTHON_INCLUDE_DIRS}")
-  endif() # PYTHONLIBS_FOUND
+    if(NOT TARGET Python::Python)
 
-  if(NOT TARGET PythonLibs)
+      add_library(Python::Python IMPORTED INTERFACE)
 
-    add_library(PythonLibs IMPORTED INTERFACE)
+      set_property(TARGET Python::Python
+        PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${PYTHON_INCLUDE_DIRS}
+      )
 
-    set_property(TARGET PythonLibs 
-      PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${PYTHON_INCLUDE_DIRS}
-    )
+      set_property(TARGET Python::Python
+        PROPERTY INTERFACE_LINK_LIBRARIES ${PYTHON_LIBRARIES}
+      )
 
-    set_property(TARGET PythonLibs 
-      PROPERTY INTERFACE_LINK_LIBRARIES ${PYTHON_LIBRARIES}
-    )
+    endif()
 
-  endif() # target PythonLibs
+  else()
 
-  target_link_libraries(${ILANG_LIB_NAME} PRIVATE PythonLibs)
+    find_package(Python 2.7 REQUIRED COMPONENTS Development)
+
+  endif()
+
+  target_link_libraries(${ILANG_LIB_NAME} PRIVATE Python::Python)
 
 endif()
 

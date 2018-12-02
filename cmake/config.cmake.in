@@ -2,9 +2,32 @@
 # define dependencies
 # ---------------------------------------------------------------------------- #
 include(CMakeFindDependencyMacro)
+find_dependency(Z3 REQUIRED)
 find_dependency(glog REQUIRED)
-find_dependency(nlohmann_json REQUIRED)
-find_dependency(verilogparser REQUIRED)
+
+if(@ILANG_BUILD_JSON@)
+  find_dependency(nlohmann_json REQUIRED)
+endif()
+
+if(@ILANG_BUILD_VLOG@)
+  find_dependency(verilogparser REQUIRED)
+endif()
+
+if(@ILANG_BUILD_SYNTH@)
+  find_dependency(ilasynth REQUIRED)
+endif()
+
+if(@ILANG_BUILD_PYAPI@)
+  find_dependency(Boost 1.50 REQUIRED COMPONENTS python)
+
+  if(${CMAKE_VERSION} VERSION_LESS 3.12)
+    message(WARNING "Imported target Python::Python not supported.")
+    find_dependency(PythonLibs 2.7 REQUIRED)
+  else()
+    find_dependency(Python 2.7 REQUIRED COMPONENTS Development)
+  endif()
+
+endif()
 
 # ---------------------------------------------------------------------------- #
 # define exports
