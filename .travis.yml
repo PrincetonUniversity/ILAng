@@ -16,7 +16,6 @@ branches:
 
 git:
   depth: 1
-  # test config time init
   submodules: false
 
 before_install:
@@ -25,7 +24,6 @@ before_install:
 
 install: 
   - gem install coveralls-lcov
-  #- sudo apt-get install --yes cmake cmake-data
   - sudo apt purge cmake
   - sudo apt-get install --yes libboost-all-dev
   - sudo apt-get install --yes lcov
@@ -42,19 +40,19 @@ before_script:
   - ./configure
   - make && sudo make install
   - bison --version
-  # cmake (3.10.2)
+  # cmake 
   - cd $PARENT_DIR
-  - wget https://cmake.org/files/v3.10/cmake-3.10.2.tar.gz
-  - tar zxvf cmake-3.10.2.tar.gz
-  - cd cmake-3.10.2
+  - git clone https://github.com/Kitware/CMake.git 
+  - cd CMake
+  - git checkout tags/v3.8.0 -b v380
   - ./bootstrap
   - make && sudo make install
   - cmake --version
-  # z3 (4.8.1)
+  # z3 
   - cd $PARENT_DIR
   - git clone https://github.com/Z3Prover/z3.git
   - cd z3
-  - git checkout b301a59899ff401dc1a98dd522b8a8df19471dee
+  - git checkout tags/z3-4.7.1 -b v471
   - python scripts/mk_make.py
   - cd build
   - make && sudo make install
@@ -75,7 +73,7 @@ script:
 after_success:
   - make run_test
   - lcov --directory $TRAVIS_BUILD_DIR/build --capture --output-file coverage.info 
-  - lcov --remove coverage.info 'glog/*' 'test/*' 'app/*' 'cmake/*' '/usr/*' 'extern/*' --output-file coverage.info 
+  - lcov --remove coverage.info 'test/*' 'app/*' 'cmake/*' 'extern/*' '/usr/*' --output-file coverage.info 
   - lcov --list coverage.info 
   - coveralls-lcov coverage.info 
 
