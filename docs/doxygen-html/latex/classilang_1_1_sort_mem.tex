@@ -1,0 +1,56 @@
+\hypertarget{classilang_1_1_sort_mem}{}\section{ilang\+:\+:Sort\+Mem Class Reference}
+\label{classilang_1_1_sort_mem}\index{ilang\+::\+Sort\+Mem@{ilang\+::\+Sort\+Mem}}
+
+
+The class of memory (array) \mbox{\hyperlink{classilang_1_1_sort}{Sort}}.  
+
+
+
+
+{\ttfamily \#include $<$sort.\+h$>$}
+
+Inheritance diagram for ilang\+:\+:Sort\+Mem\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=4.000000cm]{classilang_1_1_sort_mem}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classilang_1_1_sort_mem_a2455b7867ad7cce9f0801496f2e467a9}\label{classilang_1_1_sort_mem_a2455b7867ad7cce9f0801496f2e467a9}} 
+\mbox{\hyperlink{classilang_1_1_sort_mem_a2455b7867ad7cce9f0801496f2e467a9}{Sort\+Mem}} (const int \&addr\+\_\+w, const int \&data\+\_\+w)
+\begin{DoxyCompactList}\small\item\em Default constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_sort_mem_abb737799978d877c308f6fdbdc4e7e23}\label{classilang_1_1_sort_mem_abb737799978d877c308f6fdbdc4e7e23}} 
+\mbox{\hyperlink{classilang_1_1_sort_mem_abb737799978d877c308f6fdbdc4e7e23}{$\sim$\+Sort\+Mem}} ()
+\begin{DoxyCompactList}\small\item\em Default destructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_sort_mem_a1d759adf23637c86b7e55494bca3d796}\label{classilang_1_1_sort_mem_a1d759adf23637c86b7e55494bca3d796}} 
+bool \mbox{\hyperlink{classilang_1_1_sort_mem_a1d759adf23637c86b7e55494bca3d796}{is\+\_\+mem}} () const
+\begin{DoxyCompactList}\small\item\em Return true since it is memory (array) \mbox{\hyperlink{classilang_1_1_sort}{Sort}}. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_sort_mem_af66c8caff3ed99050d0318778d6c2874}\label{classilang_1_1_sort_mem_af66c8caff3ed99050d0318778d6c2874}} 
+int \mbox{\hyperlink{classilang_1_1_sort_mem_af66c8caff3ed99050d0318778d6c2874}{addr\+\_\+width}} () const
+\begin{DoxyCompactList}\small\item\em Return the bit-\/width of address (index). \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_sort_mem_af17205182f575932e7b920f26d3c9b73}\label{classilang_1_1_sort_mem_af17205182f575932e7b920f26d3c9b73}} 
+int \mbox{\hyperlink{classilang_1_1_sort_mem_af17205182f575932e7b920f26d3c9b73}{data\+\_\+width}} () const
+\begin{DoxyCompactList}\small\item\em Return the bit-\/width of data (value). \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_sort_mem_aeafa419b22faa636d935752429b695af}\label{classilang_1_1_sort_mem_aeafa419b22faa636d935752429b695af}} 
+z3\+::sort \mbox{\hyperlink{classilang_1_1_sort_mem_aeafa419b22faa636d935752429b695af}{Get\+Z3\+Sort}} (z3\+::context \&ctx) const
+\begin{DoxyCompactList}\small\item\em Return the z3\+::sort of array. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_sort_mem_ad0aedbc62b13d9d1a2b5decee835896a}\label{classilang_1_1_sort_mem_ad0aedbc62b13d9d1a2b5decee835896a}} 
+z3\+::expr \mbox{\hyperlink{classilang_1_1_sort_mem_ad0aedbc62b13d9d1a2b5decee835896a}{Get\+Z3\+Expr}} (z3\+::context \&ctx, const std\+::string \&\mbox{\hyperlink{classilang_1_1_object_acf20b072e69f572910d7d80c93af0b38}{name}}) const
+\begin{DoxyCompactList}\small\item\em Return a z3 variable of the \mbox{\hyperlink{classilang_1_1_sort}{Sort}}. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_sort_mem_afeccd3077def31f67a1d73654f942b63}\label{classilang_1_1_sort_mem_afeccd3077def31f67a1d73654f942b63}} 
+bool \mbox{\hyperlink{classilang_1_1_sort_mem_afeccd3077def31f67a1d73654f942b63}{Equal}} (const \mbox{\hyperlink{classilang_1_1_sort_a8b9cc5e381404211a1c0423327866d3b}{Sort\+Ptr}} rhs) const
+\begin{DoxyCompactList}\small\item\em Compare with another \mbox{\hyperlink{classilang_1_1_sort}{Sort}}. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_sort_mem_aa9398647b9fb47919ffedc34998cb3bc}\label{classilang_1_1_sort_mem_aa9398647b9fb47919ffedc34998cb3bc}} 
+std\+::ostream \& \mbox{\hyperlink{classilang_1_1_sort_mem_aa9398647b9fb47919ffedc34998cb3bc}{Print}} (std\+::ostream \&out) const
+\begin{DoxyCompactList}\small\item\em Print out to output stream. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+\subsection{Detailed Description}
+The class of memory (array) \mbox{\hyperlink{classilang_1_1_sort}{Sort}}. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{sort_8h}{sort.\+h}}\end{DoxyCompactItemize}

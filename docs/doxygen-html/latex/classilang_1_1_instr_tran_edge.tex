@@ -1,0 +1,50 @@
+\hypertarget{classilang_1_1_instr_tran_edge}{}\section{ilang\+:\+:Instr\+Tran\+Edge Class Reference}
+\label{classilang_1_1_instr_tran_edge}\index{ilang\+::\+Instr\+Tran\+Edge@{ilang\+::\+Instr\+Tran\+Edge}}
+
+
+Instruction transition edge, includeing\+:  
+
+
+
+
+{\ttfamily \#include $<$transition.\+h$>$}
+
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classilang_1_1_instr_tran_edge_ada0821479c930f2895d2614405d3971f}\label{classilang_1_1_instr_tran_edge_ada0821479c930f2895d2614405d3971f}} 
+typedef std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classilang_1_1_instr_tran_edge}{Instr\+Tran\+Edge}} $>$ \mbox{\hyperlink{classilang_1_1_instr_tran_edge_ada0821479c930f2895d2614405d3971f}{It\+Edge\+Ptr}}
+\begin{DoxyCompactList}\small\item\em Pointer type for passing around the Instr\+Tran. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classilang_1_1_instr_tran_edge_a67aee6a9bb66a3392f1594b2d9d67f0a}\label{classilang_1_1_instr_tran_edge_a67aee6a9bb66a3392f1594b2d9d67f0a}} 
+\mbox{\hyperlink{classilang_1_1_instr_tran_edge_a67aee6a9bb66a3392f1594b2d9d67f0a}{Instr\+Tran\+Edge}} (const \mbox{\hyperlink{namespaceilang_af88a19312ae653d687a0d1207bb284f6}{Instr\+Ptr}} \mbox{\hyperlink{classilang_1_1_instr_tran_edge_ae3b6f3684b98eeaf817421aa8773dc2f}{src}}, const \mbox{\hyperlink{namespaceilang_af88a19312ae653d687a0d1207bb284f6}{Instr\+Ptr}} \mbox{\hyperlink{classilang_1_1_instr_tran_edge_a5d2048dcd17f66e21ae7fc73347402fe}{dst}}, const \mbox{\hyperlink{namespaceilang_a7c4196c72e53ea4df4b7861af7bc3bce}{Expr\+Ptr}} \mbox{\hyperlink{classilang_1_1_instr_tran_edge_ab6637ebd4055b22e3146a40bdaea2fdd}{cnd}})
+\begin{DoxyCompactList}\small\item\em Constructor with all components. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_instr_tran_edge_a7b5476f77b3650168d44fa83f35a7cae}\label{classilang_1_1_instr_tran_edge_a7b5476f77b3650168d44fa83f35a7cae}} 
+\mbox{\hyperlink{classilang_1_1_instr_tran_edge_a7b5476f77b3650168d44fa83f35a7cae}{$\sim$\+Instr\+Tran\+Edge}} ()
+\begin{DoxyCompactList}\small\item\em Default destructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_instr_tran_edge_ae3b6f3684b98eeaf817421aa8773dc2f}\label{classilang_1_1_instr_tran_edge_ae3b6f3684b98eeaf817421aa8773dc2f}} 
+const \mbox{\hyperlink{namespaceilang_af88a19312ae653d687a0d1207bb284f6}{Instr\+Ptr}} \mbox{\hyperlink{classilang_1_1_instr_tran_edge_ae3b6f3684b98eeaf817421aa8773dc2f}{src}} () const
+\begin{DoxyCompactList}\small\item\em Return the source instruction. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_instr_tran_edge_a5d2048dcd17f66e21ae7fc73347402fe}\label{classilang_1_1_instr_tran_edge_a5d2048dcd17f66e21ae7fc73347402fe}} 
+const \mbox{\hyperlink{namespaceilang_af88a19312ae653d687a0d1207bb284f6}{Instr\+Ptr}} \mbox{\hyperlink{classilang_1_1_instr_tran_edge_a5d2048dcd17f66e21ae7fc73347402fe}{dst}} () const
+\begin{DoxyCompactList}\small\item\em Return the target instruction. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_instr_tran_edge_ab6637ebd4055b22e3146a40bdaea2fdd}\label{classilang_1_1_instr_tran_edge_ab6637ebd4055b22e3146a40bdaea2fdd}} 
+const \mbox{\hyperlink{namespaceilang_a7c4196c72e53ea4df4b7861af7bc3bce}{Expr\+Ptr}} \mbox{\hyperlink{classilang_1_1_instr_tran_edge_ab6637ebd4055b22e3146a40bdaea2fdd}{cnd}} () const
+\begin{DoxyCompactList}\small\item\em Return the guarded transition condition. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Instruction transition edge, includeing\+: 
+
+
+\begin{DoxyItemize}
+\item \char`\"{}src\char`\"{}\+: source instruction
+\item \char`\"{}dst\char`\"{}\+: target instruction
+\item \char`\"{}cnd\char`\"{}\+: guard (transition condition) 
+\end{DoxyItemize}
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{transition_8h}{transition.\+h}}\end{DoxyCompactItemize}

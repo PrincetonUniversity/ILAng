@@ -1,0 +1,61 @@
+\hypertarget{classilang_1_1_bool_val}{}\section{ilang\+:\+:Bool\+Val Class Reference}
+\label{classilang_1_1_bool_val}\index{ilang\+::\+Bool\+Val@{ilang\+::\+Bool\+Val}}
+
+
+The container for representing Boolean values.  
+
+
+
+
+{\ttfamily \#include $<$sort\+\_\+value.\+h$>$}
+
+Inheritance diagram for ilang\+:\+:Bool\+Val\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classilang_1_1_bool_val}
+\end{center}
+\end{figure}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classilang_1_1_bool_val_aba4dff009d7d7f6c0a879312dbb23ba3}\label{classilang_1_1_bool_val_aba4dff009d7d7f6c0a879312dbb23ba3}} 
+typedef std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classilang_1_1_bool_val}{Bool\+Val}} $>$ \mbox{\hyperlink{classilang_1_1_bool_val_aba4dff009d7d7f6c0a879312dbb23ba3}{Bool\+Val\+Ptr}}
+\begin{DoxyCompactList}\small\item\em Pointer type for all use of \mbox{\hyperlink{classilang_1_1_bool_val}{Bool\+Val}}. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classilang_1_1_bool_val_afe7f0116518d5438dd3b450f72ec0645}\label{classilang_1_1_bool_val_afe7f0116518d5438dd3b450f72ec0645}} 
+\mbox{\hyperlink{classilang_1_1_bool_val_afe7f0116518d5438dd3b450f72ec0645}{Bool\+Val}} (const bool \&\mbox{\hyperlink{classilang_1_1_bool_val_a7f6bbc41e3756c774a28f3b43ebc9120}{val}})
+\begin{DoxyCompactList}\small\item\em Constructor with boolean value. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_bool_val_a69e29963d40d12b36b21f4f041e36782}\label{classilang_1_1_bool_val_a69e29963d40d12b36b21f4f041e36782}} 
+\mbox{\hyperlink{classilang_1_1_bool_val_a69e29963d40d12b36b21f4f041e36782}{Bool\+Val}} (const std\+::string \&\mbox{\hyperlink{classilang_1_1_bool_val_a98a6e4a4d7e449a47cb630327cf0b23a}{str}})
+\begin{DoxyCompactList}\small\item\em Constructor with cpp string. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_bool_val_a8cbbf2232558caeb903e0b1cf0a0b649}\label{classilang_1_1_bool_val_a8cbbf2232558caeb903e0b1cf0a0b649}} 
+\mbox{\hyperlink{classilang_1_1_bool_val_a8cbbf2232558caeb903e0b1cf0a0b649}{Bool\+Val}} (const char $\ast$cstr)
+\begin{DoxyCompactList}\small\item\em Constructor with c string. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_bool_val_a4771c631276d5d94b8408bbaba35db87}\label{classilang_1_1_bool_val_a4771c631276d5d94b8408bbaba35db87}} 
+\mbox{\hyperlink{classilang_1_1_bool_val_a4771c631276d5d94b8408bbaba35db87}{$\sim$\+Bool\+Val}} ()
+\begin{DoxyCompactList}\small\item\em Default destructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_bool_val_a98a6e4a4d7e449a47cb630327cf0b23a}\label{classilang_1_1_bool_val_a98a6e4a4d7e449a47cb630327cf0b23a}} 
+std\+::string \mbox{\hyperlink{classilang_1_1_bool_val_a98a6e4a4d7e449a47cb630327cf0b23a}{str}} () const
+\begin{DoxyCompactList}\small\item\em Return the string representation of the value. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_bool_val_a7f6bbc41e3756c774a28f3b43ebc9120}\label{classilang_1_1_bool_val_a7f6bbc41e3756c774a28f3b43ebc9120}} 
+const bool \& \mbox{\hyperlink{classilang_1_1_bool_val_a7f6bbc41e3756c774a28f3b43ebc9120}{val}} () const
+\begin{DoxyCompactList}\small\item\em Return the bool representation of the value. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_bool_val_a1df186f08d40141abb855bed1a2c205c}\label{classilang_1_1_bool_val_a1df186f08d40141abb855bed1a2c205c}} 
+std\+::ostream \& \mbox{\hyperlink{classilang_1_1_bool_val_a1df186f08d40141abb855bed1a2c205c}{Print}} (std\+::ostream \&out) const
+\begin{DoxyCompactList}\small\item\em Output to stream. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classilang_1_1_bool_val_aafea591c39421f4a44b0d1b1e95fd9a7}\label{classilang_1_1_bool_val_aafea591c39421f4a44b0d1b1e95fd9a7}} 
+std\+::ostream \& \mbox{\hyperlink{classilang_1_1_bool_val_aafea591c39421f4a44b0d1b1e95fd9a7}{operator$<$$<$}} (std\+::ostream \&out, const \mbox{\hyperlink{classilang_1_1_bool_val}{Bool\+Val}} \&\mbox{\hyperlink{classilang_1_1_bool_val_a7f6bbc41e3756c774a28f3b43ebc9120}{val}})
+\begin{DoxyCompactList}\small\item\em Overload output stream operator. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+The container for representing Boolean values. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{sort__value_8h}{sort\+\_\+value.\+h}}\end{DoxyCompactItemize}

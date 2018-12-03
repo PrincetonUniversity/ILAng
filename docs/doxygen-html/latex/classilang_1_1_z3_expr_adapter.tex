@@ -1,0 +1,40 @@
+\hypertarget{classilang_1_1_z3_expr_adapter}{}\section{ilang\+:\+:Z3\+Expr\+Adapter Class Reference}
+\label{classilang_1_1_z3_expr_adapter}\index{ilang\+::\+Z3\+Expr\+Adapter@{ilang\+::\+Z3\+Expr\+Adapter}}
+
+
+The class for generating z3 expression from an I\+LA.  
+
+
+
+
+{\ttfamily \#include $<$z3\+\_\+expr\+\_\+adapter.\+h$>$}
+
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classilang_1_1_z3_expr_adapter_a436c6e57e304f011380816315d0d8d85}\label{classilang_1_1_z3_expr_adapter_a436c6e57e304f011380816315d0d8d85}} 
+typedef std\+::unordered\+\_\+map$<$ const \mbox{\hyperlink{namespaceilang_a7c4196c72e53ea4df4b7861af7bc3bce}{Expr\+Ptr}}, z3\+::expr, \mbox{\hyperlink{namespaceilang_a784e2a4ef111b96f327b76f11e86b01a}{Z3\+Adapter\+Hash}} $>$ \mbox{\hyperlink{classilang_1_1_z3_expr_adapter_a436c6e57e304f011380816315d0d8d85}{Expr\+Map}}
+\begin{DoxyCompactList}\small\item\em Type for caching the generated expressions. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classilang_1_1_z3_expr_adapter_a1cd84d64c736b74025c51293b5f14a5a}\label{classilang_1_1_z3_expr_adapter_a1cd84d64c736b74025c51293b5f14a5a}} 
+\mbox{\hyperlink{classilang_1_1_z3_expr_adapter_a1cd84d64c736b74025c51293b5f14a5a}{Z3\+Expr\+Adapter}} (z3\+::context \&ctx)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_z3_expr_adapter_a61db9bcebad1599b4fe125f25c5e7301}\label{classilang_1_1_z3_expr_adapter_a61db9bcebad1599b4fe125f25c5e7301}} 
+\mbox{\hyperlink{classilang_1_1_z3_expr_adapter_a61db9bcebad1599b4fe125f25c5e7301}{$\sim$\+Z3\+Expr\+Adapter}} ()
+\begin{DoxyCompactList}\small\item\em $\sim$\+Default destructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_z3_expr_adapter_ae0cacd20a3ebd51b1e16480508d44162}\label{classilang_1_1_z3_expr_adapter_ae0cacd20a3ebd51b1e16480508d44162}} 
+z3\+::expr \mbox{\hyperlink{classilang_1_1_z3_expr_adapter_ae0cacd20a3ebd51b1e16480508d44162}{Get\+Expr}} (const \mbox{\hyperlink{namespaceilang_a7c4196c72e53ea4df4b7861af7bc3bce}{Expr\+Ptr}} expr, const std\+::string \&suffix=\char`\"{}\char`\"{})
+\begin{DoxyCompactList}\small\item\em Get the z3 expression of the A\+ST node. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_z3_expr_adapter_a71e0f6c8940b9b9b9ab66b60a6f90b8a}\label{classilang_1_1_z3_expr_adapter_a71e0f6c8940b9b9b9ab66b60a6f90b8a}} 
+void \mbox{\hyperlink{classilang_1_1_z3_expr_adapter_a71e0f6c8940b9b9b9ab66b60a6f90b8a}{operator()}} (const \mbox{\hyperlink{namespaceilang_a7c4196c72e53ea4df4b7861af7bc3bce}{Expr\+Ptr}} expr)
+\begin{DoxyCompactList}\small\item\em Function object for getting z3 expression. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+The class for generating z3 expression from an I\+LA. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{z3__expr__adapter_8h}{z3\+\_\+expr\+\_\+adapter.\+h}}\end{DoxyCompactItemize}

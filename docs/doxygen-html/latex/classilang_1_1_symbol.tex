@@ -1,0 +1,73 @@
+\hypertarget{classilang_1_1_symbol}{}\section{ilang\+:\+:Symbol Class Reference}
+\label{classilang_1_1_symbol}\index{ilang\+::\+Symbol@{ilang\+::\+Symbol}}
+
+
+The symbol is the name and ID of an object. Every object has an unique symbol.  
+
+
+
+
+{\ttfamily \#include $<$symbol.\+h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classilang_1_1_symbol_aad108f719d4057fa5a4d6d1c3b2b34e3}\label{classilang_1_1_symbol_aad108f719d4057fa5a4d6d1c3b2b34e3}} 
+\mbox{\hyperlink{classilang_1_1_symbol_aad108f719d4057fa5a4d6d1c3b2b34e3}{Symbol}} ()
+\begin{DoxyCompactList}\small\item\em Default constructor (empty name). \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_symbol_a022b68ff8c9d7be4b1480941c81f675d}\label{classilang_1_1_symbol_a022b68ff8c9d7be4b1480941c81f675d}} 
+\mbox{\hyperlink{classilang_1_1_symbol_a022b68ff8c9d7be4b1480941c81f675d}{Symbol}} (const char $\ast$\mbox{\hyperlink{classilang_1_1_symbol_a268f38293a5538cb1da7dc7cc36a8940}{str}})
+\begin{DoxyCompactList}\small\item\em Constructor with cstring name. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_symbol_a5ccc60921db781e23ebad99b4387614f}\label{classilang_1_1_symbol_a5ccc60921db781e23ebad99b4387614f}} 
+\mbox{\hyperlink{classilang_1_1_symbol_a5ccc60921db781e23ebad99b4387614f}{Symbol}} (const std\+::string \&\mbox{\hyperlink{classilang_1_1_symbol_a268f38293a5538cb1da7dc7cc36a8940}{str}})
+\begin{DoxyCompactList}\small\item\em Constructor with string name. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_symbol_a89c64866ed5cb913bed047354ad24e7f}\label{classilang_1_1_symbol_a89c64866ed5cb913bed047354ad24e7f}} 
+\mbox{\hyperlink{classilang_1_1_symbol_a89c64866ed5cb913bed047354ad24e7f}{Symbol}} (const \mbox{\hyperlink{classilang_1_1_symbol}{Symbol}} \&rhs)
+\begin{DoxyCompactList}\small\item\em Copy constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_symbol_a27e60a194b5c2a5a9f0b02cbfc3fd627}\label{classilang_1_1_symbol_a27e60a194b5c2a5a9f0b02cbfc3fd627}} 
+\mbox{\hyperlink{classilang_1_1_symbol_a27e60a194b5c2a5a9f0b02cbfc3fd627}{$\sim$\+Symbol}} ()
+\begin{DoxyCompactList}\small\item\em Default destructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_symbol_a268f38293a5538cb1da7dc7cc36a8940}\label{classilang_1_1_symbol_a268f38293a5538cb1da7dc7cc36a8940}} 
+const std\+::string \& \mbox{\hyperlink{classilang_1_1_symbol_a268f38293a5538cb1da7dc7cc36a8940}{str}} () const
+\begin{DoxyCompactList}\small\item\em Get the name as basic string. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_symbol_a9c031209ed040a6dad1da0530186172d}\label{classilang_1_1_symbol_a9c031209ed040a6dad1da0530186172d}} 
+const char $\ast$ \mbox{\hyperlink{classilang_1_1_symbol_a9c031209ed040a6dad1da0530186172d}{c\+\_\+str}} () const
+\begin{DoxyCompactList}\small\item\em Get the name as c-\/type string. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_symbol_afcddff50b929dbaeac4a5a91a582997e}\label{classilang_1_1_symbol_afcddff50b929dbaeac4a5a91a582997e}} 
+const std\+::string \mbox{\hyperlink{classilang_1_1_symbol_afcddff50b929dbaeac4a5a91a582997e}{format\+\_\+str}} (const std\+::string \&prefix=\char`\"{}\char`\"{}, const std\+::string \&suffix=\char`\"{}\char`\"{}) const
+\begin{DoxyCompactList}\small\item\em Get the symbol as cpp string. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_symbol_a90d96533891063f1081d28509a4d45dd}\label{classilang_1_1_symbol_a90d96533891063f1081d28509a4d45dd}} 
+int \mbox{\hyperlink{classilang_1_1_symbol_a90d96533891063f1081d28509a4d45dd}{to\+\_\+int}} () const
+\begin{DoxyCompactList}\small\item\em Convert the name to integer and return. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_symbol_a20c9c256b53448390e4b5fde048a8d84}\label{classilang_1_1_symbol_a20c9c256b53448390e4b5fde048a8d84}} 
+const size\+\_\+t \& \mbox{\hyperlink{classilang_1_1_symbol_a20c9c256b53448390e4b5fde048a8d84}{id}} () const
+\begin{DoxyCompactList}\small\item\em Get the id. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_symbol_a1d4e093322417193cb2d9eb8150a12a0}\label{classilang_1_1_symbol_a1d4e093322417193cb2d9eb8150a12a0}} 
+void \mbox{\hyperlink{classilang_1_1_symbol_a1d4e093322417193cb2d9eb8150a12a0}{set\+\_\+name}} (const std\+::string \&name)
+\begin{DoxyCompactList}\small\item\em Update the name (should not be initialized before). \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_symbol_a4adbf4c872250d009692bc9f00af5d2b}\label{classilang_1_1_symbol_a4adbf4c872250d009692bc9f00af5d2b}} 
+std\+::ostream \& \mbox{\hyperlink{classilang_1_1_symbol_a4adbf4c872250d009692bc9f00af5d2b}{Print}} (std\+::ostream \&out) const
+\begin{DoxyCompactList}\small\item\em Output function. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_symbol_aff110767606fdddc742cf8e3519d8044}\label{classilang_1_1_symbol_aff110767606fdddc742cf8e3519d8044}} 
+\mbox{\hyperlink{classilang_1_1_symbol}{Symbol}} \& \mbox{\hyperlink{classilang_1_1_symbol_aff110767606fdddc742cf8e3519d8044}{operator=}} (const \mbox{\hyperlink{classilang_1_1_symbol}{Symbol}} \&rhs)
+\begin{DoxyCompactList}\small\item\em Overload assignment. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classilang_1_1_symbol_a040d792e691cdd02f09b8411b9b141ac}\label{classilang_1_1_symbol_a040d792e691cdd02f09b8411b9b141ac}} 
+std\+::ostream \& \mbox{\hyperlink{classilang_1_1_symbol_a040d792e691cdd02f09b8411b9b141ac}{operator$<$$<$}} (std\+::ostream \&out, const \mbox{\hyperlink{classilang_1_1_symbol}{Symbol}} \&s)
+\begin{DoxyCompactList}\small\item\em Overload output stream. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_symbol_ab8f8bc25ef0f5bca1641e9c8c160fe7d}\label{classilang_1_1_symbol_ab8f8bc25ef0f5bca1641e9c8c160fe7d}} 
+bool \mbox{\hyperlink{classilang_1_1_symbol_ab8f8bc25ef0f5bca1641e9c8c160fe7d}{operator==}} (const \mbox{\hyperlink{classilang_1_1_symbol}{Symbol}} \&lhs, const \mbox{\hyperlink{classilang_1_1_symbol}{Symbol}} \&rhs)
+\begin{DoxyCompactList}\small\item\em Overload comparison ==. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_symbol_a522e7c09469c187f1e39140f5cb71bc5}\label{classilang_1_1_symbol_a522e7c09469c187f1e39140f5cb71bc5}} 
+bool \mbox{\hyperlink{classilang_1_1_symbol_a522e7c09469c187f1e39140f5cb71bc5}{operator$<$}} (const \mbox{\hyperlink{classilang_1_1_symbol}{Symbol}} \&lhs, const \mbox{\hyperlink{classilang_1_1_symbol}{Symbol}} \&rhs)
+\begin{DoxyCompactList}\small\item\em Overload comparison $<$. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+The symbol is the name and ID of an object. Every object has an unique symbol. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{symbol_8h}{symbol.\+h}}\end{DoxyCompactItemize}

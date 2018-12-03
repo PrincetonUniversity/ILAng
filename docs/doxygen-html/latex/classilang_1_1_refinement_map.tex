@@ -1,0 +1,104 @@
+\hypertarget{classilang_1_1_refinement_map}{}\section{ilang\+:\+:Refinement\+Map Class Reference}
+\label{classilang_1_1_refinement_map}\index{ilang\+::\+Refinement\+Map@{ilang\+::\+Refinement\+Map}}
+
+
+Refinement mapping defines how to map micro-\/architectural states to architectural states for comparison.  
+
+
+
+
+{\ttfamily \#include $<$comp\+\_\+ref\+\_\+rel.\+h$>$}
+
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classilang_1_1_refinement_map_ab988c650cef076c777dd0200e8dab51f}\label{classilang_1_1_refinement_map_ab988c650cef076c777dd0200e8dab51f}} 
+typedef std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classilang_1_1_refinement_map}{Refinement\+Map}} $>$ \mbox{\hyperlink{classilang_1_1_refinement_map_ab988c650cef076c777dd0200e8dab51f}{Ref\+Ptr}}
+\begin{DoxyCompactList}\small\item\em Pointer type for passing around the refinement mapping. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classilang_1_1_refinement_map_a29de1c380688f7e57bf8c15cdf5f9c0b}\label{classilang_1_1_refinement_map_a29de1c380688f7e57bf8c15cdf5f9c0b}} 
+\mbox{\hyperlink{classilang_1_1_refinement_map_a29de1c380688f7e57bf8c15cdf5f9c0b}{Refinement\+Map}} ()
+\begin{DoxyCompactList}\small\item\em Default constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_refinement_map_a1943d4417bc6093bdeeb87416c0c4432}\label{classilang_1_1_refinement_map_a1943d4417bc6093bdeeb87416c0c4432}} 
+\mbox{\hyperlink{classilang_1_1_refinement_map_a1943d4417bc6093bdeeb87416c0c4432}{$\sim$\+Refinement\+Map}} ()
+\begin{DoxyCompactList}\small\item\em Default destructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_refinement_map_a6233bdd332a17f1d5b1d7b289696238b}\label{classilang_1_1_refinement_map_a6233bdd332a17f1d5b1d7b289696238b}} 
+\mbox{\hyperlink{namespaceilang_ad1b30fdf347e493b3937143da05d1a72}{Instr\+Lvl\+Abs\+Ptr}} \mbox{\hyperlink{classilang_1_1_refinement_map_a6233bdd332a17f1d5b1d7b289696238b}{coi}} () const
+\begin{DoxyCompactList}\small\item\em Return the target (top-\/\+I\+LA containing the C\+OI). \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_refinement_map_a83a14a5da881e0914bf7245ac1b088d9}\label{classilang_1_1_refinement_map_a83a14a5da881e0914bf7245ac1b088d9}} 
+\mbox{\hyperlink{namespaceilang_ad1b30fdf347e493b3937143da05d1a72}{Instr\+Lvl\+Abs\+Ptr}} \mbox{\hyperlink{classilang_1_1_refinement_map_a83a14a5da881e0914bf7245ac1b088d9}{ila}} () const
+\begin{DoxyCompactList}\small\item\em Return the target (top-\/\+I\+LA). \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_refinement_map_aeb5a18fcf44126369725c7ba31e1d201}\label{classilang_1_1_refinement_map_aeb5a18fcf44126369725c7ba31e1d201}} 
+\mbox{\hyperlink{namespaceilang_a7c4196c72e53ea4df4b7861af7bc3bce}{Expr\+Ptr}} \mbox{\hyperlink{classilang_1_1_refinement_map_aeb5a18fcf44126369725c7ba31e1d201}{appl}} () const
+\begin{DoxyCompactList}\small\item\em Return the apply function. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_refinement_map_aef5fd6634b3dbefad911450b2c0deab1}\label{classilang_1_1_refinement_map_aef5fd6634b3dbefad911450b2c0deab1}} 
+\mbox{\hyperlink{namespaceilang_a7c4196c72e53ea4df4b7861af7bc3bce}{Expr\+Ptr}} \mbox{\hyperlink{classilang_1_1_refinement_map_aef5fd6634b3dbefad911450b2c0deab1}{flush}} () const
+\begin{DoxyCompactList}\small\item\em Return the constraint for flushing (stall). \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_refinement_map_a2b23526ffff2ed62a69469b8a33d9581}\label{classilang_1_1_refinement_map_a2b23526ffff2ed62a69469b8a33d9581}} 
+\mbox{\hyperlink{namespaceilang_a7c4196c72e53ea4df4b7861af7bc3bce}{Expr\+Ptr}} \mbox{\hyperlink{classilang_1_1_refinement_map_a2b23526ffff2ed62a69469b8a33d9581}{cmpl}} () const
+\begin{DoxyCompactList}\small\item\em Return the constraint for completion indicator. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_refinement_map_aedf922d0bd7acf9d405bf5b52671c120}\label{classilang_1_1_refinement_map_aedf922d0bd7acf9d405bf5b52671c120}} 
+const int \& \mbox{\hyperlink{classilang_1_1_refinement_map_aedf922d0bd7acf9d405bf5b52671c120}{step\+\_\+appl}} () const
+\begin{DoxyCompactList}\small\item\em Return the number of steps required for flushing apply path. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_refinement_map_adc04e1195249f39144341d33d366044e}\label{classilang_1_1_refinement_map_adc04e1195249f39144341d33d366044e}} 
+const int \& \mbox{\hyperlink{classilang_1_1_refinement_map_adc04e1195249f39144341d33d366044e}{step\+\_\+orig}} () const
+\begin{DoxyCompactList}\small\item\em Return the number of steps required for flushing original path. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_refinement_map_a280d7ecd9328e202b203425e268c4635}\label{classilang_1_1_refinement_map_a280d7ecd9328e202b203425e268c4635}} 
+const int \& \mbox{\hyperlink{classilang_1_1_refinement_map_a280d7ecd9328e202b203425e268c4635}{step}} () const
+\begin{DoxyCompactList}\small\item\em Return the number of steps required for flushing. X\+XX. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_refinement_map_a2d2575282ba7d63bf8be28c14e9ad3a1}\label{classilang_1_1_refinement_map_a2d2575282ba7d63bf8be28c14e9ad3a1}} 
+size\+\_\+t \mbox{\hyperlink{classilang_1_1_refinement_map_a2d2575282ba7d63bf8be28c14e9ad3a1}{inv\+\_\+num}} () const
+\begin{DoxyCompactList}\small\item\em Return the number of invariant. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_refinement_map_aca2583ef42b23c93b2574e7d2fb28a4e}\label{classilang_1_1_refinement_map_aca2583ef42b23c93b2574e7d2fb28a4e}} 
+\mbox{\hyperlink{namespaceilang_a7c4196c72e53ea4df4b7861af7bc3bce}{Expr\+Ptr}} \mbox{\hyperlink{classilang_1_1_refinement_map_aca2583ef42b23c93b2574e7d2fb28a4e}{inv}} (const size\+\_\+t \&i) const
+\begin{DoxyCompactList}\small\item\em Access the i-\/th invariant. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_refinement_map_a693f4c11cc7cc112deea9e8af1c701a2}\label{classilang_1_1_refinement_map_a693f4c11cc7cc112deea9e8af1c701a2}} 
+void \mbox{\hyperlink{classilang_1_1_refinement_map_a693f4c11cc7cc112deea9e8af1c701a2}{set\+\_\+tgt}} (const \mbox{\hyperlink{namespaceilang_ad1b30fdf347e493b3937143da05d1a72}{Instr\+Lvl\+Abs\+Ptr}} tgt)
+\begin{DoxyCompactList}\small\item\em Define the target I\+LA (source for coi). \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_refinement_map_a0912208174a0a2c0b70b3f5529f8cd4d}\label{classilang_1_1_refinement_map_a0912208174a0a2c0b70b3f5529f8cd4d}} 
+void \mbox{\hyperlink{classilang_1_1_refinement_map_a0912208174a0a2c0b70b3f5529f8cd4d}{set\+\_\+tgt}} (const \mbox{\hyperlink{namespaceilang_af88a19312ae653d687a0d1207bb284f6}{Instr\+Ptr}} tgt)
+\begin{DoxyCompactList}\small\item\em Define the target instruction (source for coi). \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_refinement_map_a11ff60e2d977de10ffa725c3e4b7eeac}\label{classilang_1_1_refinement_map_a11ff60e2d977de10ffa725c3e4b7eeac}} 
+void \mbox{\hyperlink{classilang_1_1_refinement_map_a11ff60e2d977de10ffa725c3e4b7eeac}{set\+\_\+appl}} (const \mbox{\hyperlink{namespaceilang_a7c4196c72e53ea4df4b7861af7bc3bce}{Expr\+Ptr}} \mbox{\hyperlink{classilang_1_1_refinement_map_aeb5a18fcf44126369725c7ba31e1d201}{appl}})
+\begin{DoxyCompactList}\small\item\em Define the apply function. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_refinement_map_a522b2482545bbc2c3c878e9d6dc7b772}\label{classilang_1_1_refinement_map_a522b2482545bbc2c3c878e9d6dc7b772}} 
+void \mbox{\hyperlink{classilang_1_1_refinement_map_a522b2482545bbc2c3c878e9d6dc7b772}{set\+\_\+flush}} (const \mbox{\hyperlink{namespaceilang_a7c4196c72e53ea4df4b7861af7bc3bce}{Expr\+Ptr}} \mbox{\hyperlink{classilang_1_1_refinement_map_aef5fd6634b3dbefad911450b2c0deab1}{flush}})
+\begin{DoxyCompactList}\small\item\em Define the flushing function. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_refinement_map_a513cead0710663e77ffc4030544701c2}\label{classilang_1_1_refinement_map_a513cead0710663e77ffc4030544701c2}} 
+void \mbox{\hyperlink{classilang_1_1_refinement_map_a513cead0710663e77ffc4030544701c2}{set\+\_\+cmpl}} (const \mbox{\hyperlink{namespaceilang_a7c4196c72e53ea4df4b7861af7bc3bce}{Expr\+Ptr}} \mbox{\hyperlink{classilang_1_1_refinement_map_a2b23526ffff2ed62a69469b8a33d9581}{cmpl}})
+\begin{DoxyCompactList}\small\item\em Define the completion scenario (e.\+g. dummy end). \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_refinement_map_ae9ec6e5188dccdab2f362b53598d3da2}\label{classilang_1_1_refinement_map_ae9ec6e5188dccdab2f362b53598d3da2}} 
+void \mbox{\hyperlink{classilang_1_1_refinement_map_ae9ec6e5188dccdab2f362b53598d3da2}{set\+\_\+step}} (const int \&\mbox{\hyperlink{classilang_1_1_refinement_map_a280d7ecd9328e202b203425e268c4635}{step}})
+\begin{DoxyCompactList}\small\item\em Specify the number of steps required for flushing. X\+XX. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_refinement_map_a9addef636ea61a317a8da94584917cb7}\label{classilang_1_1_refinement_map_a9addef636ea61a317a8da94584917cb7}} 
+void \mbox{\hyperlink{classilang_1_1_refinement_map_a9addef636ea61a317a8da94584917cb7}{set\+\_\+step\+\_\+appl}} (const int \&\mbox{\hyperlink{classilang_1_1_refinement_map_a280d7ecd9328e202b203425e268c4635}{step}})
+\begin{DoxyCompactList}\small\item\em Specify the number of steps required for flushing apply path. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_refinement_map_a11a3b3b60aaea9ceb07597cfc30d745f}\label{classilang_1_1_refinement_map_a11a3b3b60aaea9ceb07597cfc30d745f}} 
+void \mbox{\hyperlink{classilang_1_1_refinement_map_a11a3b3b60aaea9ceb07597cfc30d745f}{set\+\_\+step\+\_\+orig}} (const int \&\mbox{\hyperlink{classilang_1_1_refinement_map_a280d7ecd9328e202b203425e268c4635}{step}})
+\begin{DoxyCompactList}\small\item\em Specify the number of steps required for flushing original path. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_refinement_map_ac33bb0f1f64aa237a0e4f46b286714b7}\label{classilang_1_1_refinement_map_ac33bb0f1f64aa237a0e4f46b286714b7}} 
+void \mbox{\hyperlink{classilang_1_1_refinement_map_ac33bb0f1f64aa237a0e4f46b286714b7}{add\+\_\+inv}} (const \mbox{\hyperlink{namespaceilang_a7c4196c72e53ea4df4b7861af7bc3bce}{Expr\+Ptr}} \mbox{\hyperlink{classilang_1_1_refinement_map_aca2583ef42b23c93b2574e7d2fb28a4e}{inv}})
+\begin{DoxyCompactList}\small\item\em Add an invariant. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classilang_1_1_refinement_map_a786f04262f0a6da48c594abe7ab2c84e}\label{classilang_1_1_refinement_map_a786f04262f0a6da48c594abe7ab2c84e}} 
+static \mbox{\hyperlink{classilang_1_1_refinement_map_ab988c650cef076c777dd0200e8dab51f}{Ref\+Ptr}} \mbox{\hyperlink{classilang_1_1_refinement_map_a786f04262f0a6da48c594abe7ab2c84e}{New}} ()
+\begin{DoxyCompactList}\small\item\em Create a new refinement mapping. Used for hiding implementation specific type details. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Refinement mapping defines how to map micro-\/architectural states to architectural states for comparison. 
+
+
+\begin{DoxyItemize}
+\item Standard flushing refinement operation (stall in the Birch/\+Dill paper)
+\item Support dummy end child-\/instruction (commit point)
+\item Support specifying number of steps 
+\end{DoxyItemize}
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{comp__ref__rel_8h}{comp\+\_\+ref\+\_\+rel.\+h}}\end{DoxyCompactItemize}

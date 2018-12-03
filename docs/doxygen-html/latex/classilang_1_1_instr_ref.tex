@@ -1,0 +1,156 @@
+\hypertarget{classilang_1_1_instr_ref}{}\section{ilang\+:\+:Instr\+Ref Class Reference}
+\label{classilang_1_1_instr_ref}\index{ilang\+::\+Instr\+Ref@{ilang\+::\+Instr\+Ref}}
+
+
+The wrapper of \mbox{\hyperlink{classilang_1_1_instr}{Instr}} (instruction).  
+
+
+
+
+{\ttfamily \#include $<$cpp\+\_\+api.\+h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classilang_1_1_instr_ref_a135d8d3d80743910945d03a04909db2a}\label{classilang_1_1_instr_ref_a135d8d3d80743910945d03a04909db2a}} 
+\mbox{\hyperlink{classilang_1_1_instr_ref_a135d8d3d80743910945d03a04909db2a}{Instr\+Ref}} (Instr\+Ptr ptr)
+\begin{DoxyCompactList}\small\item\em Constructor with the pointer of the actual data. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_instr_ref_ad308a4b25d1a9904fdd27d8de57b747f}\label{classilang_1_1_instr_ref_ad308a4b25d1a9904fdd27d8de57b747f}} 
+\mbox{\hyperlink{classilang_1_1_instr_ref_ad308a4b25d1a9904fdd27d8de57b747f}{$\sim$\+Instr\+Ref}} ()
+\begin{DoxyCompactList}\small\item\em Default destructor. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classilang_1_1_instr_ref_a5cfba90d3110e6a484fbef83a9f19c0e}{Set\+Decode}} (const \mbox{\hyperlink{classilang_1_1_expr_ref}{Expr\+Ref}} \&decode)
+\begin{DoxyCompactList}\small\item\em Set the decode function of the instruction. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classilang_1_1_instr_ref_af71d7eb364db7f78451a8cf4f268840c}{Set\+Update}} (const \mbox{\hyperlink{classilang_1_1_expr_ref}{Expr\+Ref}} \&state, const \mbox{\hyperlink{classilang_1_1_expr_ref}{Expr\+Ref}} \&update)
+\begin{DoxyCompactList}\small\item\em Set the update function of the given state variable. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classilang_1_1_instr_ref_a6ef8193b5d81b1d93f34529bf9fce9bb}{Set\+Program}} (const \mbox{\hyperlink{classilang_1_1_ila}{Ila}} \&prog)
+\begin{DoxyCompactList}\small\item\em Set the child-\/program of the instruction. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classilang_1_1_expr_ref}{Expr\+Ref}} \mbox{\hyperlink{classilang_1_1_instr_ref_a0c28b811ca70252542fb7629fc71f643}{Get\+Decode}} () const
+\begin{DoxyCompactList}\small\item\em Get the decode function of the instruction. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classilang_1_1_expr_ref}{Expr\+Ref}} \mbox{\hyperlink{classilang_1_1_instr_ref_ac149bb5581c5176642bac9585814de89}{Get\+Update}} (const \mbox{\hyperlink{classilang_1_1_expr_ref}{Expr\+Ref}} \&state) const
+\begin{DoxyCompactList}\small\item\em Set the update function of the given state variable. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classilang_1_1_instr_ref_aeba473876c6b0ede7a5419ccf041f7a4}{Export\+To\+Verilog}} (std\+::ostream \&fout) const
+\begin{DoxyCompactList}\small\item\em Export instruction without child-\/program as Verilog. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classilang_1_1_instr_ref_a18358b75b64144e875a5afca306d3fa7}{Export\+To\+Verilog\+With\+Child}} (std\+::ostream \&fout) const
+\begin{DoxyCompactList}\small\item\em Export instruction with the child-\/program as Verilog. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_instr_ref_abafd68b0a612e6de87252816960ef436}\label{classilang_1_1_instr_ref_abafd68b0a612e6de87252816960ef436}} 
+Instr\+Ptr \mbox{\hyperlink{classilang_1_1_instr_ref_abafd68b0a612e6de87252816960ef436}{get}} () const
+\begin{DoxyCompactList}\small\item\em Return the wrapped I\+LA pointer. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+The wrapper of \mbox{\hyperlink{classilang_1_1_instr}{Instr}} (instruction). 
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{classilang_1_1_instr_ref_aeba473876c6b0ede7a5419ccf041f7a4}\label{classilang_1_1_instr_ref_aeba473876c6b0ede7a5419ccf041f7a4}} 
+\index{ilang\+::\+Instr\+Ref@{ilang\+::\+Instr\+Ref}!Export\+To\+Verilog@{Export\+To\+Verilog}}
+\index{Export\+To\+Verilog@{Export\+To\+Verilog}!ilang\+::\+Instr\+Ref@{ilang\+::\+Instr\+Ref}}
+\subsubsection{\texorpdfstring{Export\+To\+Verilog()}{ExportToVerilog()}}
+{\footnotesize\ttfamily void ilang\+::\+Instr\+Ref\+::\+Export\+To\+Verilog (\begin{DoxyParamCaption}\item[{std\+::ostream \&}]{fout }\end{DoxyParamCaption}) const}
+
+
+
+Export instruction without child-\/program as Verilog. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em filename} & the file name of the generated Verilog source \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classilang_1_1_instr_ref_a18358b75b64144e875a5afca306d3fa7}\label{classilang_1_1_instr_ref_a18358b75b64144e875a5afca306d3fa7}} 
+\index{ilang\+::\+Instr\+Ref@{ilang\+::\+Instr\+Ref}!Export\+To\+Verilog\+With\+Child@{Export\+To\+Verilog\+With\+Child}}
+\index{Export\+To\+Verilog\+With\+Child@{Export\+To\+Verilog\+With\+Child}!ilang\+::\+Instr\+Ref@{ilang\+::\+Instr\+Ref}}
+\subsubsection{\texorpdfstring{Export\+To\+Verilog\+With\+Child()}{ExportToVerilogWithChild()}}
+{\footnotesize\ttfamily void ilang\+::\+Instr\+Ref\+::\+Export\+To\+Verilog\+With\+Child (\begin{DoxyParamCaption}\item[{std\+::ostream \&}]{fout }\end{DoxyParamCaption}) const}
+
+
+
+Export instruction with the child-\/program as Verilog. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em filename} & the file name of the generated Verilog source \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classilang_1_1_instr_ref_a0c28b811ca70252542fb7629fc71f643}\label{classilang_1_1_instr_ref_a0c28b811ca70252542fb7629fc71f643}} 
+\index{ilang\+::\+Instr\+Ref@{ilang\+::\+Instr\+Ref}!Get\+Decode@{Get\+Decode}}
+\index{Get\+Decode@{Get\+Decode}!ilang\+::\+Instr\+Ref@{ilang\+::\+Instr\+Ref}}
+\subsubsection{\texorpdfstring{Get\+Decode()}{GetDecode()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classilang_1_1_expr_ref}{Expr\+Ref}} ilang\+::\+Instr\+Ref\+::\+Get\+Decode (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const}
+
+
+
+Get the decode function of the instruction. 
+
+\begin{DoxyReturn}{Returns}
+the decode function wrapped in Expression reference. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classilang_1_1_instr_ref_ac149bb5581c5176642bac9585814de89}\label{classilang_1_1_instr_ref_ac149bb5581c5176642bac9585814de89}} 
+\index{ilang\+::\+Instr\+Ref@{ilang\+::\+Instr\+Ref}!Get\+Update@{Get\+Update}}
+\index{Get\+Update@{Get\+Update}!ilang\+::\+Instr\+Ref@{ilang\+::\+Instr\+Ref}}
+\subsubsection{\texorpdfstring{Get\+Update()}{GetUpdate()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classilang_1_1_expr_ref}{Expr\+Ref}} ilang\+::\+Instr\+Ref\+::\+Get\+Update (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classilang_1_1_expr_ref}{Expr\+Ref}} \&}]{state }\end{DoxyParamCaption}) const}
+
+
+
+Set the update function of the given state variable. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em state} & the state variable to set. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the update function. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classilang_1_1_instr_ref_a5cfba90d3110e6a484fbef83a9f19c0e}\label{classilang_1_1_instr_ref_a5cfba90d3110e6a484fbef83a9f19c0e}} 
+\index{ilang\+::\+Instr\+Ref@{ilang\+::\+Instr\+Ref}!Set\+Decode@{Set\+Decode}}
+\index{Set\+Decode@{Set\+Decode}!ilang\+::\+Instr\+Ref@{ilang\+::\+Instr\+Ref}}
+\subsubsection{\texorpdfstring{Set\+Decode()}{SetDecode()}}
+{\footnotesize\ttfamily void ilang\+::\+Instr\+Ref\+::\+Set\+Decode (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classilang_1_1_expr_ref}{Expr\+Ref}} \&}]{decode }\end{DoxyParamCaption})}
+
+
+
+Set the decode function of the instruction. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em decode} & the Boolean typed decode function. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classilang_1_1_instr_ref_a6ef8193b5d81b1d93f34529bf9fce9bb}\label{classilang_1_1_instr_ref_a6ef8193b5d81b1d93f34529bf9fce9bb}} 
+\index{ilang\+::\+Instr\+Ref@{ilang\+::\+Instr\+Ref}!Set\+Program@{Set\+Program}}
+\index{Set\+Program@{Set\+Program}!ilang\+::\+Instr\+Ref@{ilang\+::\+Instr\+Ref}}
+\subsubsection{\texorpdfstring{Set\+Program()}{SetProgram()}}
+{\footnotesize\ttfamily void ilang\+::\+Instr\+Ref\+::\+Set\+Program (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classilang_1_1_ila}{Ila}} \&}]{prog }\end{DoxyParamCaption})}
+
+
+
+Set the child-\/program of the instruction. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em prog} & the child-\/\+I\+LA representing the child-\/program. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classilang_1_1_instr_ref_af71d7eb364db7f78451a8cf4f268840c}\label{classilang_1_1_instr_ref_af71d7eb364db7f78451a8cf4f268840c}} 
+\index{ilang\+::\+Instr\+Ref@{ilang\+::\+Instr\+Ref}!Set\+Update@{Set\+Update}}
+\index{Set\+Update@{Set\+Update}!ilang\+::\+Instr\+Ref@{ilang\+::\+Instr\+Ref}}
+\subsubsection{\texorpdfstring{Set\+Update()}{SetUpdate()}}
+{\footnotesize\ttfamily void ilang\+::\+Instr\+Ref\+::\+Set\+Update (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classilang_1_1_expr_ref}{Expr\+Ref}} \&}]{state,  }\item[{const \mbox{\hyperlink{classilang_1_1_expr_ref}{Expr\+Ref}} \&}]{update }\end{DoxyParamCaption})}
+
+
+
+Set the update function of the given state variable. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em state} & the state variable to set. \\
+\hline
+\mbox{\texttt{ in}}  & {\em update} & the update function (should be the same type as state). \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{cpp__api_8h}{cpp\+\_\+api.\+h}}\end{DoxyCompactItemize}

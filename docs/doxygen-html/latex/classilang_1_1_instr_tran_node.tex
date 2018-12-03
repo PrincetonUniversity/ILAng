@@ -1,0 +1,55 @@
+\hypertarget{classilang_1_1_instr_tran_node}{}\section{ilang\+:\+:Instr\+Tran\+Node Class Reference}
+\label{classilang_1_1_instr_tran_node}\index{ilang\+::\+Instr\+Tran\+Node@{ilang\+::\+Instr\+Tran\+Node}}
+
+
+Node for instruction-\/transition node, each node represent an instruction.  
+
+
+
+
+{\ttfamily \#include $<$transition.\+h$>$}
+
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classilang_1_1_instr_tran_node_a449144ce50eff60a35867b970f4608c6}\label{classilang_1_1_instr_tran_node_a449144ce50eff60a35867b970f4608c6}} 
+typedef std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classilang_1_1_instr_tran_node}{Instr\+Tran\+Node}} $>$ \mbox{\hyperlink{classilang_1_1_instr_tran_node_a449144ce50eff60a35867b970f4608c6}{It\+Node\+Ptr}}
+\begin{DoxyCompactList}\small\item\em Pointer type for I\+T\+Node. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classilang_1_1_instr_tran_node_a5380fac61ab83d2b03e9c50788061b6a}\label{classilang_1_1_instr_tran_node_a5380fac61ab83d2b03e9c50788061b6a}} 
+\mbox{\hyperlink{classilang_1_1_instr_tran_node_a5380fac61ab83d2b03e9c50788061b6a}{Instr\+Tran\+Node}} (const \mbox{\hyperlink{namespaceilang_af88a19312ae653d687a0d1207bb284f6}{Instr\+Ptr}} \mbox{\hyperlink{classilang_1_1_instr_tran_node_a386f522ded97759ac3a1db089029307f}{instr}})
+\begin{DoxyCompactList}\small\item\em Default constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_instr_tran_node_af85a50b384c56d0f8723a13d18fca64a}\label{classilang_1_1_instr_tran_node_af85a50b384c56d0f8723a13d18fca64a}} 
+\mbox{\hyperlink{classilang_1_1_instr_tran_node_af85a50b384c56d0f8723a13d18fca64a}{$\sim$\+Instr\+Tran\+Node}} ()
+\begin{DoxyCompactList}\small\item\em Default destructir. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_instr_tran_node_a386f522ded97759ac3a1db089029307f}\label{classilang_1_1_instr_tran_node_a386f522ded97759ac3a1db089029307f}} 
+const \mbox{\hyperlink{namespaceilang_af88a19312ae653d687a0d1207bb284f6}{Instr\+Ptr}} \mbox{\hyperlink{classilang_1_1_instr_tran_node_a386f522ded97759ac3a1db089029307f}{instr}} () const
+\begin{DoxyCompactList}\small\item\em Return the represented instruction. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_instr_tran_node_a6bdb9ed63da3b3835839e7768f71ad21}\label{classilang_1_1_instr_tran_node_a6bdb9ed63da3b3835839e7768f71ad21}} 
+size\+\_\+t \mbox{\hyperlink{classilang_1_1_instr_tran_node_a6bdb9ed63da3b3835839e7768f71ad21}{next\+\_\+num}} () const
+\begin{DoxyCompactList}\small\item\em Return the number of out-\/going node. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_instr_tran_node_a1070dc2ab0aeb4315308cd7ef0cad725}\label{classilang_1_1_instr_tran_node_a1070dc2ab0aeb4315308cd7ef0cad725}} 
+size\+\_\+t \mbox{\hyperlink{classilang_1_1_instr_tran_node_a1070dc2ab0aeb4315308cd7ef0cad725}{prev\+\_\+num}} () const
+\begin{DoxyCompactList}\small\item\em Return the number of in-\/comming node. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_instr_tran_node_a9f2ef8c2ebfde9d7b0b709812d0f0c35}\label{classilang_1_1_instr_tran_node_a9f2ef8c2ebfde9d7b0b709812d0f0c35}} 
+const \mbox{\hyperlink{classilang_1_1_instr_tran_node_a449144ce50eff60a35867b970f4608c6}{It\+Node\+Ptr}} \mbox{\hyperlink{classilang_1_1_instr_tran_node_a9f2ef8c2ebfde9d7b0b709812d0f0c35}{next}} (const size\+\_\+t \&i) const
+\begin{DoxyCompactList}\small\item\em Access the i-\/th out-\/going node. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_instr_tran_node_a21db60f0fb29e0cf4fe63171669e7203}\label{classilang_1_1_instr_tran_node_a21db60f0fb29e0cf4fe63171669e7203}} 
+const \mbox{\hyperlink{classilang_1_1_instr_tran_node_a449144ce50eff60a35867b970f4608c6}{It\+Node\+Ptr}} \mbox{\hyperlink{classilang_1_1_instr_tran_node_a21db60f0fb29e0cf4fe63171669e7203}{prev}} (const size\+\_\+t \&i) const
+\begin{DoxyCompactList}\small\item\em Access the i-\/th in-\/comming node. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_instr_tran_node_a3a75a267a456dc119628fa098192dd19}\label{classilang_1_1_instr_tran_node_a3a75a267a456dc119628fa098192dd19}} 
+void \mbox{\hyperlink{classilang_1_1_instr_tran_node_a3a75a267a456dc119628fa098192dd19}{Add\+Next}} (const \mbox{\hyperlink{classilang_1_1_instr_tran_node_a449144ce50eff60a35867b970f4608c6}{It\+Node\+Ptr}} \mbox{\hyperlink{classilang_1_1_instr_tran_node_a9f2ef8c2ebfde9d7b0b709812d0f0c35}{next}})
+\begin{DoxyCompactList}\small\item\em Update the set of out-\/going node. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_instr_tran_node_af5d58fc40e4c0f4035c40c216c82969a}\label{classilang_1_1_instr_tran_node_af5d58fc40e4c0f4035c40c216c82969a}} 
+void \mbox{\hyperlink{classilang_1_1_instr_tran_node_af5d58fc40e4c0f4035c40c216c82969a}{Add\+Prev}} (const \mbox{\hyperlink{classilang_1_1_instr_tran_node_a449144ce50eff60a35867b970f4608c6}{It\+Node\+Ptr}} \mbox{\hyperlink{classilang_1_1_instr_tran_node_a21db60f0fb29e0cf4fe63171669e7203}{prev}})
+\begin{DoxyCompactList}\small\item\em Update the set of in-\/comming node. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Node for instruction-\/transition node, each node represent an instruction. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{transition_8h}{transition.\+h}}\end{DoxyCompactItemize}

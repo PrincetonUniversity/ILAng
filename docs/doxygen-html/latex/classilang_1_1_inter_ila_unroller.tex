@@ -1,0 +1,224 @@
+\hypertarget{classilang_1_1_inter_ila_unroller}{}\section{ilang\+:\+:Inter\+Ila\+Unroller Class Reference}
+\label{classilang_1_1_inter_ila_unroller}\index{ilang\+::\+Inter\+Ila\+Unroller@{ilang\+::\+Inter\+Ila\+Unroller}}
+
+
+Base class for unrolling multiple I\+L\+As. There are two ways of unrolling\+: ordered and unordered. Ordered unrolling assumes an ordered program template, despite that some may not exist in the final outcome. By default the state with the same name among I\+L\+As is considered as the same shared state.  
+
+
+
+
+{\ttfamily \#include $<$inter\+\_\+ila\+\_\+unroller.\+h$>$}
+
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classilang_1_1_inter_ila_unroller_a35e84754b0b5b10deee54b2ef7421ab1}\label{classilang_1_1_inter_ila_unroller_a35e84754b0b5b10deee54b2ef7421ab1}} 
+using \mbox{\hyperlink{classilang_1_1_inter_ila_unroller_a35e84754b0b5b10deee54b2ef7421ab1}{Z\+Expr}} = \mbox{\hyperlink{classilang_1_1_memory_model_a9c7a763da08245af4a9465d261ed483a}{Memory\+Model\+::\+Z\+Expr}}
+\begin{DoxyCompactList}\small\item\em Type alias for z3\+::expr. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_inter_ila_unroller_ae83ebf1fea382fb26be5c53052e86ae4}\label{classilang_1_1_inter_ila_unroller_ae83ebf1fea382fb26be5c53052e86ae4}} 
+using \mbox{\hyperlink{classilang_1_1_inter_ila_unroller_ae83ebf1fea382fb26be5c53052e86ae4}{Z\+Expr\+Vec}} = \mbox{\hyperlink{classilang_1_1_memory_model_ab0d3de967acef0330edf4d65d5782ce5}{Memory\+Model\+::\+Z\+Expr\+Vec}}
+\begin{DoxyCompactList}\small\item\em Type for containing a vector of z3\+::expr. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_inter_ila_unroller_a6be4afc388acb3f408871255fedb96cf}\label{classilang_1_1_inter_ila_unroller_a6be4afc388acb3f408871255fedb96cf}} 
+using \mbox{\hyperlink{classilang_1_1_inter_ila_unroller_a6be4afc388acb3f408871255fedb96cf}{State\+Name\+Set}} = \mbox{\hyperlink{classilang_1_1_memory_model_a0950692c6a72496a2dda46aa985cb337}{Memory\+Model\+::\+State\+Name\+Set}}
+\begin{DoxyCompactList}\small\item\em Type of state name set. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_inter_ila_unroller_a3a0a224bb1edf4eef8a8b377dfe05e8a}\label{classilang_1_1_inter_ila_unroller_a3a0a224bb1edf4eef8a8b377dfe05e8a}} 
+using \mbox{\hyperlink{classilang_1_1_inter_ila_unroller_a3a0a224bb1edf4eef8a8b377dfe05e8a}{Instr\+Vec}} = \mbox{\hyperlink{classilang_1_1_memory_model_ac6cb2d9253fb53a10ea66fd1e71267bc}{Memory\+Model\+::\+Instr\+Vec}}
+\begin{DoxyCompactList}\small\item\em Type of an instruction vector to represent a sequence. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_inter_ila_unroller_acc24c6ee17b58b05e18882d73c5affde}\label{classilang_1_1_inter_ila_unroller_acc24c6ee17b58b05e18882d73c5affde}} 
+using \mbox{\hyperlink{classilang_1_1_inter_ila_unroller_acc24c6ee17b58b05e18882d73c5affde}{Program\+Template}} = \mbox{\hyperlink{classilang_1_1_memory_model_a72bd17543b5e5cbaefeb994c933622f5}{Memory\+Model\+::\+Program\+Template}}
+\begin{DoxyCompactList}\small\item\em Type of a vector of instruction sequences (currently please represent holes via 0-\/ary functions) \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_inter_ila_unroller_ab5d4e092989c943ae2978dd9e01e016a}\label{classilang_1_1_inter_ila_unroller_ab5d4e092989c943ae2978dd9e01e016a}} 
+using \mbox{\hyperlink{classilang_1_1_inter_ila_unroller_ab5d4e092989c943ae2978dd9e01e016a}{I\+L\+A\+Name\+State\+Name\+Set\+Map}} = \mbox{\hyperlink{classilang_1_1_memory_model_a9e23cd7d325902a4ab1a4f5d8acea67b}{Memory\+Model\+::\+I\+L\+A\+Name\+State\+Name\+Set\+Map}}
+\begin{DoxyCompactList}\small\item\em Type of map ila-\/name to state-\/set. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_inter_ila_unroller_a78cea73f936eeb438cdf33a8e9ccd9f6}\label{classilang_1_1_inter_ila_unroller_a78cea73f936eeb438cdf33a8e9ccd9f6}} 
+using \mbox{\hyperlink{classilang_1_1_inter_ila_unroller_a78cea73f936eeb438cdf33a8e9ccd9f6}{Trace\+Step\+Ptr\+Set}} = \mbox{\hyperlink{classilang_1_1_memory_model_adf275c2b36d17acd5b6e782c1eca7f92}{Memory\+Model\+::\+Trace\+Step\+Ptr\+Set}}
+\begin{DoxyCompactList}\small\item\em Type of set of trace step pointers (D\+E\+B\+UG use) \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_inter_ila_unroller_aa955b80ccc2435d5c81bb8c3ea3659b2}\label{classilang_1_1_inter_ila_unroller_aa955b80ccc2435d5c81bb8c3ea3659b2}} 
+typedef std\+::vector$<$ \mbox{\hyperlink{namespaceilang_ad1b30fdf347e493b3937143da05d1a72}{Instr\+Lvl\+Abs\+Ptr}} $>$ \mbox{\hyperlink{classilang_1_1_inter_ila_unroller_aa955b80ccc2435d5c81bb8c3ea3659b2}{Ila\+Ptr\+Vec}}
+\begin{DoxyCompactList}\small\item\em Type of vector of pointers to the I\+L\+As involved. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_inter_ila_unroller_adf26c108a1a2954c735c21e16373e81d}\label{classilang_1_1_inter_ila_unroller_adf26c108a1a2954c735c21e16373e81d}} 
+typedef std\+::list$<$ \mbox{\hyperlink{namespaceilang_a7c4196c72e53ea4df4b7861af7bc3bce}{Expr\+Ptr}} $>$ \mbox{\hyperlink{classilang_1_1_inter_ila_unroller_adf26c108a1a2954c735c21e16373e81d}{State\+Var\+List}}
+\begin{DoxyCompactList}\small\item\em Type of list of state variables. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_inter_ila_unroller_a86c14fdd9ecdb3c194c5620097aaf01e}\label{classilang_1_1_inter_ila_unroller_a86c14fdd9ecdb3c194c5620097aaf01e}} 
+typedef std\+::map$<$ std\+::string, \mbox{\hyperlink{classilang_1_1_inter_ila_unroller_adf26c108a1a2954c735c21e16373e81d}{State\+Var\+List}} $>$ \mbox{\hyperlink{classilang_1_1_inter_ila_unroller_a86c14fdd9ecdb3c194c5620097aaf01e}{Shared\+States\+Set}}
+\begin{DoxyCompactList}\small\item\em Type of map of shared states (set of names -\/$>$ list of exprs) \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_inter_ila_unroller_aed4209693907f472d4bf20f4b1752232}\label{classilang_1_1_inter_ila_unroller_aed4209693907f472d4bf20f4b1752232}} 
+typedef std\+::unique\+\_\+ptr$<$ \mbox{\hyperlink{classilang_1_1_memory_model}{Memory\+Model}} $>$ \mbox{\hyperlink{classilang_1_1_inter_ila_unroller_aed4209693907f472d4bf20f4b1752232}{Memory\+Model\+Ptr}}
+\begin{DoxyCompactList}\small\item\em Type of memory model pointer, we enforce ownership strictly, so it cannot be used else where. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_inter_ila_unroller_a3f06eb0ada6cdaee6ac0e1f7ad511b1c}\label{classilang_1_1_inter_ila_unroller_a3f06eb0ada6cdaee6ac0e1f7ad511b1c}} 
+typedef std\+::function$<$ \mbox{\hyperlink{classilang_1_1_inter_ila_unroller_aed4209693907f472d4bf20f4b1752232}{Memory\+Model\+Ptr}}(z3\+::context \&, \mbox{\hyperlink{classilang_1_1_inter_ila_unroller_ae83ebf1fea382fb26be5c53052e86ae4}{Z\+Expr\+Vec}} \&, const \mbox{\hyperlink{classilang_1_1_inter_ila_unroller_a6be4afc388acb3f408871255fedb96cf}{State\+Name\+Set}} \&, const \mbox{\hyperlink{classilang_1_1_inter_ila_unroller_ab5d4e092989c943ae2978dd9e01e016a}{I\+L\+A\+Name\+State\+Name\+Set\+Map}} \&, const \mbox{\hyperlink{namespaceilang_ad1b30fdf347e493b3937143da05d1a72}{Instr\+Lvl\+Abs\+Ptr}} \&)$>$ \mbox{\hyperlink{classilang_1_1_inter_ila_unroller_a3f06eb0ada6cdaee6ac0e1f7ad511b1c}{Memory\+Model\+Creator}}
+\begin{DoxyCompactList}\small\item\em Type of memory model creator, nees to be the same as the ctor of Memory\+Model\+Class. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_inter_ila_unroller_a3f08db6db6aac58581bad67ca778073e}\label{classilang_1_1_inter_ila_unroller_a3f08db6db6aac58581bad67ca778073e}} 
+typedef std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classilang_1_1_trace_step}{Trace\+Step}} $>$ \mbox{\hyperlink{classilang_1_1_inter_ila_unroller_a3f08db6db6aac58581bad67ca778073e}{Trace\+Step\+Ptr}}
+\begin{DoxyCompactList}\small\item\em Type of trace step pointer. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classilang_1_1_inter_ila_unroller_a5031e957f9a2b539bbfe3a21af489729}\label{classilang_1_1_inter_ila_unroller_a5031e957f9a2b539bbfe3a21af489729}} 
+\mbox{\hyperlink{classilang_1_1_inter_ila_unroller_a5031e957f9a2b539bbfe3a21af489729}{Inter\+Ila\+Unroller}} (z3\+::context \&ctx, const \mbox{\hyperlink{classilang_1_1_inter_ila_unroller_aa955b80ccc2435d5c81bb8c3ea3659b2}{Ila\+Ptr\+Vec}} \&iv, \mbox{\hyperlink{classilang_1_1_inter_ila_unroller_a3f06eb0ada6cdaee6ac0e1f7ad511b1c}{Memory\+Model\+Creator}} mm\+\_\+selector)
+\begin{DoxyCompactList}\small\item\em Default constructor. mm\+\_\+selector is used to create mm internally. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_inter_ila_unroller_ad3f100076083324362da6147968c2fc2}\label{classilang_1_1_inter_ila_unroller_ad3f100076083324362da6147968c2fc2}} 
+virtual \mbox{\hyperlink{classilang_1_1_inter_ila_unroller_ad3f100076083324362da6147968c2fc2}{$\sim$\+Inter\+Ila\+Unroller}} ()
+\begin{DoxyCompactList}\small\item\em Default destructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_inter_ila_unroller_a13dcb99558799f90604282e805f58ec1}\label{classilang_1_1_inter_ila_unroller_a13dcb99558799f90604282e805f58ec1}} 
+void \mbox{\hyperlink{classilang_1_1_inter_ila_unroller_a13dcb99558799f90604282e805f58ec1}{Gen\+Sys\+Init\+Constraints}} ()
+\begin{DoxyCompactList}\small\item\em it generates the initial constraints and put them on to the constraint list and check should be called before unroll \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classilang_1_1_inter_ila_unroller_ac56ad07cf9d03caa3f1fb10091779dc0}{Unroll}} (const \mbox{\hyperlink{classilang_1_1_inter_ila_unroller_acc24c6ee17b58b05e18882d73c5affde}{Program\+Template}} \&tmpl)
+\begin{DoxyCompactList}\small\item\em \mbox{[}Application-\/specific\mbox{]} Unroll, currently just use Path\+Unroller \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classilang_1_1_inter_ila_unroller_a7a3dc348887464db257ac8bd84c36324}{Link\+States}} (const std\+::vector$<$ bool $>$ \&ordered)
+\begin{DoxyCompactList}\small\item\em \mbox{[}Application-\/specific\mbox{]} Link states, where each trace step read from \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classilang_1_1_inter_ila_unroller_a2c4a41a5a7bcd6ec89e757bc12823da7}{Add\+Single\+Trace\+Step\+Property}} (const \mbox{\hyperlink{namespaceilang_a7c4196c72e53ea4df4b7861af7bc3bce}{Expr\+Ptr}} \&property, std\+::function$<$ bool(const \mbox{\hyperlink{classilang_1_1_trace_step}{Trace\+Step}} \&)$>$ filter)
+\begin{DoxyCompactList}\small\item\em Add a property. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classilang_1_1_inter_ila_unroller_ae341d1d6ee4ce09419821a970cc79c39}{Get\+Single\+Trace\+Step\+Property}} (const \mbox{\hyperlink{namespaceilang_a7c4196c72e53ea4df4b7861af7bc3bce}{Expr\+Ptr}} \&property, std\+::function$<$ bool(const \mbox{\hyperlink{classilang_1_1_trace_step}{Trace\+Step}} \&)$>$ filter, std\+::function$<$ void(const z3\+::expr \&)$>$ collector)
+\begin{DoxyCompactList}\small\item\em Get the z3 expression of a property on a trace step, so you can play with it. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classilang_1_1_inter_ila_unroller_a7d187936775e69e41c24fbef3aa5ca22}{Set\+Final\+Property}} (const \mbox{\hyperlink{namespaceilang_a7c4196c72e53ea4df4b7861af7bc3bce}{Expr\+Ptr}} \&property)
+\begin{DoxyCompactList}\small\item\em Set final property (you should only call this function only O\+N\+CE) \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_inter_ila_unroller_a4916b8b8859c4c9d7f8880c59520ea5b}\label{classilang_1_1_inter_ila_unroller_a4916b8b8859c4c9d7f8880c59520ea5b}} 
+bool \mbox{\hyperlink{classilang_1_1_inter_ila_unroller_a4916b8b8859c4c9d7f8880c59520ea5b}{Check\+Sat}} ()
+\begin{DoxyCompactList}\small\item\em Check and potentially set the model\+: return true if sat , false o.\+w. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_inter_ila_unroller_a7393cee916d7f0227348e7d155c0fd8e}\label{classilang_1_1_inter_ila_unroller_a7393cee916d7f0227348e7d155c0fd8e}} 
+z3\+::model \& \mbox{\hyperlink{classilang_1_1_inter_ila_unroller_a7393cee916d7f0227348e7d155c0fd8e}{Get\+Model}} ()
+\begin{DoxyCompactList}\small\item\em Get the model\+: the reference will only be usable if unroller is not destroyed. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_inter_ila_unroller_a904c8501311d1f0ab7c8a57002797dc9}\label{classilang_1_1_inter_ila_unroller_a904c8501311d1f0ab7c8a57002797dc9}} 
+const \mbox{\hyperlink{classilang_1_1_inter_ila_unroller_ae83ebf1fea382fb26be5c53052e86ae4}{Z\+Expr\+Vec}} \& \mbox{\hyperlink{classilang_1_1_inter_ila_unroller_a904c8501311d1f0ab7c8a57002797dc9}{Debug\+Access\+Constr\+List}} () const
+\begin{DoxyCompactList}\small\item\em Get access to expr vector, will only be usable if unroller is not destroyed, only for D\+E\+B\+UG use. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_inter_ila_unroller_a156f2962b14bfa373df3c8aaa7957aea}\label{classilang_1_1_inter_ila_unroller_a156f2962b14bfa373df3c8aaa7957aea}} 
+const \mbox{\hyperlink{classilang_1_1_inter_ila_unroller_a78cea73f936eeb438cdf33a8e9ccd9f6}{Trace\+Step\+Ptr\+Set}} \& \mbox{\hyperlink{classilang_1_1_inter_ila_unroller_a156f2962b14bfa373df3c8aaa7957aea}{Debug\+Access\+All\+Trace\+Step\+Ptr\+Set}} () const
+\begin{DoxyCompactList}\small\item\em Get access to expr vector, will only be usable if unroller is not destroyed, only for D\+E\+B\+UG use. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_inter_ila_unroller_aa29b2b4958a7fc8ab39dc48913435add}\label{classilang_1_1_inter_ila_unroller_aa29b2b4958a7fc8ab39dc48913435add}} 
+void \mbox{\hyperlink{classilang_1_1_inter_ila_unroller_aa29b2b4958a7fc8ab39dc48913435add}{Push}} ()
+\begin{DoxyCompactList}\small\item\em Push the size of current set of constraints. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_inter_ila_unroller_a922a75c80f16820692b720e6151885eb}\label{classilang_1_1_inter_ila_unroller_a922a75c80f16820692b720e6151885eb}} 
+void \mbox{\hyperlink{classilang_1_1_inter_ila_unroller_a922a75c80f16820692b720e6151885eb}{Pop}} ()
+\begin{DoxyCompactList}\small\item\em Restore the previous set of constraints. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classilang_1_1_inter_ila_unroller_aea10fd80ffa6f186591735812473d54c}\label{classilang_1_1_inter_ila_unroller_aea10fd80ffa6f186591735812473d54c}} 
+void \mbox{\hyperlink{classilang_1_1_inter_ila_unroller_aea10fd80ffa6f186591735812473d54c}{Find\+Shared\+States}} ()
+\begin{DoxyCompactList}\small\item\em It create a name list. There is no need to create an Expr\+Ptr list because their hosts are different and will generate different z3exprs. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_inter_ila_unroller_aed907c324b08115a75807052e25b3bb9}\label{classilang_1_1_inter_ila_unroller_aed907c324b08115a75807052e25b3bb9}} 
+bool \mbox{\hyperlink{classilang_1_1_inter_ila_unroller_aed907c324b08115a75807052e25b3bb9}{Curr\+Constr\+Sat}} ()
+\begin{DoxyCompactList}\small\item\em Sanity check if the current constraints are satisfiable. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_inter_ila_unroller_aba6ea3c5d710936ec0d869d584cc96fd}\label{classilang_1_1_inter_ila_unroller_aba6ea3c5d710936ec0d869d584cc96fd}} 
+\mbox{\hyperlink{classilang_1_1_inter_ila_unroller_a35e84754b0b5b10deee54b2ef7421ab1}{Z\+Expr}} \mbox{\hyperlink{classilang_1_1_inter_ila_unroller_aba6ea3c5d710936ec0d869d584cc96fd}{Conj\+Pred}} (const \mbox{\hyperlink{classilang_1_1_inter_ila_unroller_ae83ebf1fea382fb26be5c53052e86ae4}{Z\+Expr\+Vec}} \&vec) const
+\begin{DoxyCompactList}\small\item\em Conjunct (A\+ND) all the predicates in the set. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classilang_1_1_inter_ila_unroller_a3e35f38a342c994afe43edc13ed77bd5}\label{classilang_1_1_inter_ila_unroller_a3e35f38a342c994afe43edc13ed77bd5}} 
+\mbox{\hyperlink{classilang_1_1_inter_ila_unroller_aa955b80ccc2435d5c81bb8c3ea3659b2}{Ila\+Ptr\+Vec}} \mbox{\hyperlink{classilang_1_1_inter_ila_unroller_a3e35f38a342c994afe43edc13ed77bd5}{sys\+\_\+ila\+\_\+}}
+\begin{DoxyCompactList}\small\item\em The I\+L\+As of an SoC. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_inter_ila_unroller_aece8433c151904e49a68611f53b45f0f}\label{classilang_1_1_inter_ila_unroller_aece8433c151904e49a68611f53b45f0f}} 
+\mbox{\hyperlink{namespaceilang_ad1b30fdf347e493b3937143da05d1a72}{Instr\+Lvl\+Abs\+Ptr}} \mbox{\hyperlink{classilang_1_1_inter_ila_unroller_aece8433c151904e49a68611f53b45f0f}{global\+\_\+ila\+\_\+}}
+\begin{DoxyCompactList}\small\item\em The I\+LA of the system. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_inter_ila_unroller_a91d8777fb33aa08f416f1681cca8188c}\label{classilang_1_1_inter_ila_unroller_a91d8777fb33aa08f416f1681cca8188c}} 
+\mbox{\hyperlink{classilang_1_1_inter_ila_unroller_a6be4afc388acb3f408871255fedb96cf}{State\+Name\+Set}} \mbox{\hyperlink{classilang_1_1_inter_ila_unroller_a91d8777fb33aa08f416f1681cca8188c}{shared\+\_\+states\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Set of names of shared states. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_inter_ila_unroller_ac7aeda8ba6169eda6fbc57c0481386de}\label{classilang_1_1_inter_ila_unroller_ac7aeda8ba6169eda6fbc57c0481386de}} 
+\mbox{\hyperlink{classilang_1_1_inter_ila_unroller_ab5d4e092989c943ae2978dd9e01e016a}{I\+L\+A\+Name\+State\+Name\+Set\+Map}} \mbox{\hyperlink{classilang_1_1_inter_ila_unroller_ac7aeda8ba6169eda6fbc57c0481386de}{private\+\_\+states\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Map from ila-\/name to set-\/of-\/state-\/names. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_inter_ila_unroller_a19040211712fa2f0584ce55f950aed29}\label{classilang_1_1_inter_ila_unroller_a19040211712fa2f0584ce55f950aed29}} 
+\mbox{\hyperlink{classilang_1_1_inter_ila_unroller_ae83ebf1fea382fb26be5c53052e86ae4}{Z\+Expr\+Vec}} \mbox{\hyperlink{classilang_1_1_inter_ila_unroller_a19040211712fa2f0584ce55f950aed29}{cstr\+\_\+}}
+\begin{DoxyCompactList}\small\item\em The set of constraints that should be asserted. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_inter_ila_unroller_a386d5901334665f7318e404944b2965b}\label{classilang_1_1_inter_ila_unroller_a386d5901334665f7318e404944b2965b}} 
+\mbox{\hyperlink{classilang_1_1_inter_ila_unroller_ae83ebf1fea382fb26be5c53052e86ae4}{Z\+Expr\+Vec}} \mbox{\hyperlink{classilang_1_1_inter_ila_unroller_a386d5901334665f7318e404944b2965b}{init\+\_\+shared\+\_\+vars\+\_\+z3\+\_\+}}
+\begin{DoxyCompactList}\small\item\em The set of constraints that should be asserted. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classilang_1_1_inter_ila_unroller_a2a502ee5bc6cd8e1f708dc4b77d85385}\label{classilang_1_1_inter_ila_unroller_a2a502ee5bc6cd8e1f708dc4b77d85385}} 
+class {\bfseries Memory\+Model}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Base class for unrolling multiple I\+L\+As. There are two ways of unrolling\+: ordered and unordered. Ordered unrolling assumes an ordered program template, despite that some may not exist in the final outcome. By default the state with the same name among I\+L\+As is considered as the same shared state. 
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{classilang_1_1_inter_ila_unroller_a2c4a41a5a7bcd6ec89e757bc12823da7}\label{classilang_1_1_inter_ila_unroller_a2c4a41a5a7bcd6ec89e757bc12823da7}} 
+\index{ilang\+::\+Inter\+Ila\+Unroller@{ilang\+::\+Inter\+Ila\+Unroller}!Add\+Single\+Trace\+Step\+Property@{Add\+Single\+Trace\+Step\+Property}}
+\index{Add\+Single\+Trace\+Step\+Property@{Add\+Single\+Trace\+Step\+Property}!ilang\+::\+Inter\+Ila\+Unroller@{ilang\+::\+Inter\+Ila\+Unroller}}
+\subsubsection{\texorpdfstring{Add\+Single\+Trace\+Step\+Property()}{AddSingleTraceStepProperty()}}
+{\footnotesize\ttfamily void ilang\+::\+Inter\+Ila\+Unroller\+::\+Add\+Single\+Trace\+Step\+Property (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{namespaceilang_a7c4196c72e53ea4df4b7861af7bc3bce}{Expr\+Ptr}} \&}]{property,  }\item[{std\+::function$<$ bool(const \mbox{\hyperlink{classilang_1_1_trace_step}{Trace\+Step}} \&)$>$}]{filter }\end{DoxyParamCaption})}
+
+
+
+Add a property. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em a} & property that is going to translated to Z3, note\+: the state are treated as prestate \\
+\hline
+\mbox{\texttt{ in}}  & {\em a} & filter to choose which trace step to enforce \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classilang_1_1_inter_ila_unroller_ae341d1d6ee4ce09419821a970cc79c39}\label{classilang_1_1_inter_ila_unroller_ae341d1d6ee4ce09419821a970cc79c39}} 
+\index{ilang\+::\+Inter\+Ila\+Unroller@{ilang\+::\+Inter\+Ila\+Unroller}!Get\+Single\+Trace\+Step\+Property@{Get\+Single\+Trace\+Step\+Property}}
+\index{Get\+Single\+Trace\+Step\+Property@{Get\+Single\+Trace\+Step\+Property}!ilang\+::\+Inter\+Ila\+Unroller@{ilang\+::\+Inter\+Ila\+Unroller}}
+\subsubsection{\texorpdfstring{Get\+Single\+Trace\+Step\+Property()}{GetSingleTraceStepProperty()}}
+{\footnotesize\ttfamily void ilang\+::\+Inter\+Ila\+Unroller\+::\+Get\+Single\+Trace\+Step\+Property (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{namespaceilang_a7c4196c72e53ea4df4b7861af7bc3bce}{Expr\+Ptr}} \&}]{property,  }\item[{std\+::function$<$ bool(const \mbox{\hyperlink{classilang_1_1_trace_step}{Trace\+Step}} \&)$>$}]{filter,  }\item[{std\+::function$<$ void(const z3\+::expr \&)$>$}]{collector }\end{DoxyParamCaption})}
+
+
+
+Get the z3 expression of a property on a trace step, so you can play with it. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em a} & property that is going to translated to Z3, note\+: the state are treated as prestate \\
+\hline
+\mbox{\texttt{ in}}  & {\em a} & filter to choose which trace step to enforce \\
+\hline
+\mbox{\texttt{ in}}  & {\em a} & collector (callback function) to do something as each time a property is created on a step \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classilang_1_1_inter_ila_unroller_a7a3dc348887464db257ac8bd84c36324}\label{classilang_1_1_inter_ila_unroller_a7a3dc348887464db257ac8bd84c36324}} 
+\index{ilang\+::\+Inter\+Ila\+Unroller@{ilang\+::\+Inter\+Ila\+Unroller}!Link\+States@{Link\+States}}
+\index{Link\+States@{Link\+States}!ilang\+::\+Inter\+Ila\+Unroller@{ilang\+::\+Inter\+Ila\+Unroller}}
+\subsubsection{\texorpdfstring{Link\+States()}{LinkStates()}}
+{\footnotesize\ttfamily virtual void ilang\+::\+Inter\+Ila\+Unroller\+::\+Link\+States (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ bool $>$ \&}]{ordered }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+\mbox{[}Application-\/specific\mbox{]} Link states, where each trace step read from 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em whether} & each template should be treated as ordered or unordered \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classilang_1_1_inter_ila_unroller_a7d187936775e69e41c24fbef3aa5ca22}\label{classilang_1_1_inter_ila_unroller_a7d187936775e69e41c24fbef3aa5ca22}} 
+\index{ilang\+::\+Inter\+Ila\+Unroller@{ilang\+::\+Inter\+Ila\+Unroller}!Set\+Final\+Property@{Set\+Final\+Property}}
+\index{Set\+Final\+Property@{Set\+Final\+Property}!ilang\+::\+Inter\+Ila\+Unroller@{ilang\+::\+Inter\+Ila\+Unroller}}
+\subsubsection{\texorpdfstring{Set\+Final\+Property()}{SetFinalProperty()}}
+{\footnotesize\ttfamily void ilang\+::\+Inter\+Ila\+Unroller\+::\+Set\+Final\+Property (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{namespaceilang_a7c4196c72e53ea4df4b7861af7bc3bce}{Expr\+Ptr}} \&}]{property }\end{DoxyParamCaption})}
+
+
+
+Set final property (you should only call this function only O\+N\+CE) 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em the} & property \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classilang_1_1_inter_ila_unroller_ac56ad07cf9d03caa3f1fb10091779dc0}\label{classilang_1_1_inter_ila_unroller_ac56ad07cf9d03caa3f1fb10091779dc0}} 
+\index{ilang\+::\+Inter\+Ila\+Unroller@{ilang\+::\+Inter\+Ila\+Unroller}!Unroll@{Unroll}}
+\index{Unroll@{Unroll}!ilang\+::\+Inter\+Ila\+Unroller@{ilang\+::\+Inter\+Ila\+Unroller}}
+\subsubsection{\texorpdfstring{Unroll()}{Unroll()}}
+{\footnotesize\ttfamily virtual void ilang\+::\+Inter\+Ila\+Unroller\+::\+Unroll (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classilang_1_1_inter_ila_unroller_acc24c6ee17b58b05e18882d73c5affde}{Program\+Template}} \&}]{tmpl }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+\mbox{[}Application-\/specific\mbox{]} Unroll, currently just use Path\+Unroller 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em the} & program template. \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{inter__ila__unroller_8h}{inter\+\_\+ila\+\_\+unroller.\+h}}\end{DoxyCompactItemize}

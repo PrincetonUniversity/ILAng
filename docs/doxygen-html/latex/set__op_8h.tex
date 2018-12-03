@@ -1,0 +1,29 @@
+\hypertarget{set__op_8h}{}\section{set\+\_\+op.\+h File Reference}
+\label{set__op_8h}\index{set\+\_\+op.\+h@{set\+\_\+op.\+h}}
+{\ttfamily \#include $<$algorithm$>$}\newline
+{\ttfamily \#include $<$set$>$}\newline
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{set__op_8h_a492b1ba4cb2e737fd3875dc586f9f2d4}\label{set__op_8h_a492b1ba4cb2e737fd3875dc586f9f2d4}} 
+\#define {\bfseries U\+N\+I\+ON}(a,  b,  r)~(std\+::set\+\_\+union(  (a).begin(),(a).end(), (b).begin(), (b).end(), std\+::inserter((r),(r).end()) ) )
+\item 
+\mbox{\Hypertarget{set__op_8h_a9aea7d58224409a726ee85b222ef142c}\label{set__op_8h_a9aea7d58224409a726ee85b222ef142c}} 
+\#define {\bfseries I\+N\+T\+E\+R\+S\+E\+CT}(a,  b,  r)~(std\+::set\+\_\+intersection( (a).begin(),(a).end(), (b).begin(), (b).end(), std\+::inserter((r),(r).end()) ))
+\item 
+\mbox{\Hypertarget{set__op_8h_ab70ffcd05c0e20e6cfad610ea1517135}\label{set__op_8h_ab70ffcd05c0e20e6cfad610ea1517135}} 
+\#define {\bfseries D\+I\+F\+F\+E\+R\+E\+N\+CE}(a,  b,  r)~(std\+::set\+\_\+difference(  (a).begin(),(a).end(), (b).begin(), (b).end(), std\+::inserter((r),(r).end()) ) )
+\item 
+\mbox{\Hypertarget{set__op_8h_ae12620827963f6a117b58da9c97b8591}\label{set__op_8h_ae12620827963f6a117b58da9c97b8591}} 
+\#define {\bfseries S\+Y\+M\+D\+I\+FF}(a,  b,  r)~(std\+::set\+\_\+symmetric\+\_\+difference(  (a).begin(),(a).end(), (b).begin(), (b).end(), std\+::inserter((r),(r).end()) ) )
+\item 
+\mbox{\Hypertarget{set__op_8h_ad0375107ce12fbf344da879f5ca47e38}\label{set__op_8h_ad0375107ce12fbf344da879f5ca47e38}} 
+\#define {\bfseries IN}(e,  s)~((s).find(e) != (s).end())
+\item 
+\mbox{\Hypertarget{set__op_8h_a38a6e4530308baa1e682dcb445419eb8}\label{set__op_8h_a38a6e4530308baa1e682dcb445419eb8}} 
+\#define {\bfseries I\+N\+\_\+p}(e,  s)~((s)-\/$>$find(e) != (s)-\/$>$end())
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Some short cut for set operations 

@@ -1,0 +1,77 @@
+\hypertarget{classilang_1_1_tso}{}\section{ilang\+:\+:Tso Class Reference}
+\label{classilang_1_1_tso}\index{ilang\+::\+Tso@{ilang\+::\+Tso}}
+
+
+Class of T\+SO.  
+
+
+
+
+{\ttfamily \#include $<$tso\+\_\+manual.\+h$>$}
+
+Inheritance diagram for ilang\+:\+:Tso\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classilang_1_1_tso}
+\end{center}
+\end{figure}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classilang_1_1_tso_ac98cf74e5ddad20b672679cca77e3560}\label{classilang_1_1_tso_ac98cf74e5ddad20b672679cca77e3560}} 
+typedef std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classilang_1_1_tso_trace_step}{Tso\+Trace\+Step}} $>$ \mbox{\hyperlink{classilang_1_1_tso_ac98cf74e5ddad20b672679cca77e3560}{Tso\+Trace\+Step\+Ptr}}
+\begin{DoxyCompactList}\small\item\em Type of trace step pointer. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_tso_af9a3c9f62377597e9fb0771d5301f404}\label{classilang_1_1_tso_af9a3c9f62377597e9fb0771d5301f404}} 
+typedef std\+::set$<$ \mbox{\hyperlink{classilang_1_1_tso_ac98cf74e5ddad20b672679cca77e3560}{Tso\+Trace\+Step\+Ptr}} $>$ \mbox{\hyperlink{classilang_1_1_tso_af9a3c9f62377597e9fb0771d5301f404}{Tso\+Trace\+Step\+Ptr\+Set}}
+\begin{DoxyCompactList}\small\item\em Type of trace steps, we need to collect the set of trace steps (W\+R\+I\+TE) \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classilang_1_1_tso_a79354c755bdb91f4ad9a054116c4b242}\label{classilang_1_1_tso_a79354c755bdb91f4ad9a054116c4b242}} 
+virtual void \mbox{\hyperlink{classilang_1_1_tso_a79354c755bdb91f4ad9a054116c4b242}{Register\+Steps}} (size\+\_\+t reg\+Idx, const \mbox{\hyperlink{classilang_1_1_memory_model_ac6cb2d9253fb53a10ea66fd1e71267bc}{Instr\+Vec}} \&\+\_\+inst\+\_\+seq) override
+\begin{DoxyCompactList}\small\item\em To create more view operations associated with an instruction, and also to add them to the set. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_tso_a44edf79e55ba95c8b65f85285314ce1c}\label{classilang_1_1_tso_a44edf79e55ba95c8b65f85285314ce1c}} 
+virtual void \mbox{\hyperlink{classilang_1_1_tso_a44edf79e55ba95c8b65f85285314ce1c}{Finish\+Register\+Steps}} () override
+\begin{DoxyCompactList}\small\item\em To do some extra bookkeeping work when it is known that no more instruction steps are needed. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_tso_a9237afb143f6b2506d9a7147bafabd66}\label{classilang_1_1_tso_a9237afb143f6b2506d9a7147bafabd66}} 
+virtual void \mbox{\hyperlink{classilang_1_1_tso_a9237afb143f6b2506d9a7147bafabd66}{Apply\+Axioms}} () override
+\begin{DoxyCompactList}\small\item\em To apply the axioms, the complete program should be given. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_tso_ac6ae9b0f23e28948362b7acdb6fae8c8}\label{classilang_1_1_tso_ac6ae9b0f23e28948362b7acdb6fae8c8}} 
+virtual void \mbox{\hyperlink{classilang_1_1_tso_ac6ae9b0f23e28948362b7acdb6fae8c8}{Set\+Final\+Property}} (const \mbox{\hyperlink{namespaceilang_a7c4196c72e53ea4df4b7861af7bc3bce}{Expr\+Ptr}} \&property) override
+\begin{DoxyCompactList}\small\item\em Set the final property, this is implementation-\/specific. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_tso_aa2ba49e809639e1a331ba3aaa4a901ed}\label{classilang_1_1_tso_aa2ba49e809639e1a331ba3aaa4a901ed}} 
+\mbox{\hyperlink{classilang_1_1_tso_aa2ba49e809639e1a331ba3aaa4a901ed}{Tso}} (z3\+::context \&\mbox{\hyperlink{classilang_1_1_memory_model_af2ca71c0d173e7cb5502d05a2e4cf24c}{ctx}}, \mbox{\hyperlink{classilang_1_1_memory_model_ab0d3de967acef0330edf4d65d5782ce5}{Z\+Expr\+Vec}} \&\+\_\+cstrlist, const \mbox{\hyperlink{classilang_1_1_memory_model_a0950692c6a72496a2dda46aa985cb337}{State\+Name\+Set}} \&shared\+\_\+states, const \mbox{\hyperlink{classilang_1_1_memory_model_a9e23cd7d325902a4ab1a4f5d8acea67b}{I\+L\+A\+Name\+State\+Name\+Set\+Map}} \&private\+\_\+states, const \mbox{\hyperlink{namespaceilang_ad1b30fdf347e493b3937143da05d1a72}{Instr\+Lvl\+Abs\+Ptr}} \&global\+\_\+ila\+\_\+ptr)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classilang_1_1_tso_a7255fb41c4cad900232e902a474d075d}\label{classilang_1_1_tso_a7255fb41c4cad900232e902a474d075d}} 
+static \mbox{\hyperlink{classilang_1_1_inter_ila_unroller_a3f06eb0ada6cdaee6ac0e1f7ad511b1c}{Inter\+Ila\+Unroller\+::\+Memory\+Model\+Creator}} \mbox{\hyperlink{classilang_1_1_tso_a7255fb41c4cad900232e902a474d075d}{Tso\+Model}}
+\begin{DoxyCompactList}\small\item\em Declaration of memory model creator that chooses \mbox{\hyperlink{classilang_1_1_tso}{Tso}}. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classilang_1_1_tso_a77a6f54cb0059c4e54490dc0f55d4ced}\label{classilang_1_1_tso_a77a6f54cb0059c4e54490dc0f55d4ced}} 
+\mbox{\hyperlink{classilang_1_1_memory_model_adf275c2b36d17acd5b6e782c1eca7f92}{Trace\+Step\+Ptr\+Set}} {\bfseries W\+R\+I\+T\+E\+\_\+list}
+\item 
+\mbox{\Hypertarget{classilang_1_1_tso_a2afda787de95f2ebe9ed5ad1ae8ef126}\label{classilang_1_1_tso_a2afda787de95f2ebe9ed5ad1ae8ef126}} 
+\mbox{\hyperlink{classilang_1_1_memory_model_adf275c2b36d17acd5b6e782c1eca7f92}{Trace\+Step\+Ptr\+Set}} {\bfseries R\+E\+A\+D\+\_\+list}
+\item 
+\mbox{\Hypertarget{classilang_1_1_tso_a0dbdf741def39d550ea5c01f0427eeb4}\label{classilang_1_1_tso_a0dbdf741def39d550ea5c01f0427eeb4}} 
+\mbox{\hyperlink{classilang_1_1_memory_model_adf275c2b36d17acd5b6e782c1eca7f92}{Trace\+Step\+Ptr\+Set}} {\bfseries F\+E\+N\+C\+E\+\_\+list}
+\item 
+\mbox{\Hypertarget{classilang_1_1_tso_ae014119bb77ee3aac6fd9ac3cc3e7c9a}\label{classilang_1_1_tso_ae014119bb77ee3aac6fd9ac3cc3e7c9a}} 
+\mbox{\hyperlink{classilang_1_1_memory_model_adf275c2b36d17acd5b6e782c1eca7f92}{Trace\+Step\+Ptr\+Set}} {\bfseries R\+M\+W\+\_\+list}
+\item 
+\mbox{\Hypertarget{classilang_1_1_tso_aa3c99cc8fcadf328e936a90b73ac3ab9}\label{classilang_1_1_tso_aa3c99cc8fcadf328e936a90b73ac3ab9}} 
+\mbox{\hyperlink{classilang_1_1_memory_model_adf275c2b36d17acd5b6e782c1eca7f92}{Trace\+Step\+Ptr\+Set}} {\bfseries Pure\+Write\+\_\+list}
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+\subsection{Detailed Description}
+Class of T\+SO. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{tso__manual_8h}{tso\+\_\+manual.\+h}}\end{DoxyCompactItemize}

@@ -1,0 +1,37 @@
+\hypertarget{verilog__gen_8h}{}\section{verilog\+\_\+gen.\+h File Reference}
+\label{verilog__gen_8h}\index{verilog\+\_\+gen.\+h@{verilog\+\_\+gen.\+h}}
+{\ttfamily \#include \char`\"{}z3++.\+h\char`\"{}}\newline
+{\ttfamily \#include $<$ilang/ila/expr\+\_\+fuse.\+h$>$}\newline
+{\ttfamily \#include $<$ilang/ila/instr\+\_\+lvl\+\_\+abs.\+h$>$}\newline
+{\ttfamily \#include $<$list$>$}\newline
+{\ttfamily \#include $<$map$>$}\newline
+{\ttfamily \#include $<$unordered\+\_\+map$>$}\newline
+{\ttfamily \#include $<$vector$>$}\newline
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{classilang_1_1_verilog_generator}{ilang\+::\+Verilog\+Generator}}
+\begin{DoxyCompactList}\small\item\em Class of Verilog Generator. \end{DoxyCompactList}\item 
+struct \mbox{\hyperlink{structilang_1_1_verilog_generator_1_1_vlg_gen_config}{ilang\+::\+Verilog\+Generator\+::\+Vlg\+Gen\+Config}}
+\begin{DoxyCompactList}\small\item\em the structure to configure the verilog generator \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Namespaces}
+\begin{DoxyCompactItemize}
+\item 
+ \mbox{\hyperlink{namespaceilang}{ilang}}
+\end{DoxyCompactItemize}
+\subsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{namespaceilang_a6ae3529ea370d3252b9e44e20b53532e}\label{namespaceilang_a6ae3529ea370d3252b9e44e20b53532e}} 
+typedef Expr\+Hash {\bfseries ilang\+::\+Verilog\+Gen\+Hash}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Header for generating Verilog files Currently not supported
+\begin{DoxyEnumerate}
+\item Load(\+Store) / Load(\+I\+T\+E) / Load(\+Mem\+Const) or their combination
+\item Function on memory
+\end{DoxyEnumerate}
+
+For 0-\/ary func, they will be treated as nondet apply the same nondet func twice, will generate two variables if you do want to share the nondet val, please reuse the sub-\/tree 

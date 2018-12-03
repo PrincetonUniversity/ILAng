@@ -1,0 +1,61 @@
+\hypertarget{classilang_1_1_ast}{}\section{ilang\+:\+:Ast Class Reference}
+\label{classilang_1_1_ast}\index{ilang\+::\+Ast@{ilang\+::\+Ast}}
+
+
+The class for the Abstract Syntax Tree. An \mbox{\hyperlink{classilang_1_1_ast}{Ast}} object can be an expression or function definition (interpreted or uninterpreted).  
+
+
+
+
+{\ttfamily \#include $<$ast.\+h$>$}
+
+Inheritance diagram for ilang\+:\+:Ast\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=12.000000cm]{classilang_1_1_ast}
+\end{center}
+\end{figure}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classilang_1_1_ast_a7433a1e6c865c5c7f64eb7bceca11ec2}\label{classilang_1_1_ast_a7433a1e6c865c5c7f64eb7bceca11ec2}} 
+typedef std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classilang_1_1_instr_lvl_abs}{Instr\+Lvl\+Abs}} $>$ \mbox{\hyperlink{classilang_1_1_ast_a7433a1e6c865c5c7f64eb7bceca11ec2}{Instr\+Lvl\+Abs\+Ptr}}
+\begin{DoxyCompactList}\small\item\em Type for forward declaration of I\+LA. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classilang_1_1_ast_ac3ce0c23b9fbb09e5acf7548753cb1d1}\label{classilang_1_1_ast_ac3ce0c23b9fbb09e5acf7548753cb1d1}} 
+\mbox{\hyperlink{classilang_1_1_ast_ac3ce0c23b9fbb09e5acf7548753cb1d1}{Ast}} ()
+\begin{DoxyCompactList}\small\item\em Default constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_ast_aef23b3e9a35daff1001cdd514378b530}\label{classilang_1_1_ast_aef23b3e9a35daff1001cdd514378b530}} 
+\mbox{\hyperlink{classilang_1_1_ast_aef23b3e9a35daff1001cdd514378b530}{Ast}} (const std\+::string \&\mbox{\hyperlink{classilang_1_1_object_acf20b072e69f572910d7d80c93af0b38}{name}})
+\begin{DoxyCompactList}\small\item\em Constructor with name. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_ast_afbbee934f66e030349c990dfa2595d23}\label{classilang_1_1_ast_afbbee934f66e030349c990dfa2595d23}} 
+virtual \mbox{\hyperlink{classilang_1_1_ast_afbbee934f66e030349c990dfa2595d23}{$\sim$\+Ast}} ()
+\begin{DoxyCompactList}\small\item\em Default destructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_ast_a071b2d5bf4b3a9ed7ec847e04ab556da}\label{classilang_1_1_ast_a071b2d5bf4b3a9ed7ec847e04ab556da}} 
+bool \mbox{\hyperlink{classilang_1_1_ast_a071b2d5bf4b3a9ed7ec847e04ab556da}{is\+\_\+ast}} () const
+\begin{DoxyCompactList}\small\item\em Is type \mbox{\hyperlink{classilang_1_1_ast}{Ast}}. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_ast_aa9db592b2a805191aa69673ff5d85078}\label{classilang_1_1_ast_aa9db592b2a805191aa69673ff5d85078}} 
+virtual bool \mbox{\hyperlink{classilang_1_1_ast_aa9db592b2a805191aa69673ff5d85078}{is\+\_\+expr}} () const
+\begin{DoxyCompactList}\small\item\em Is type Ast\+::\+Expr. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_ast_a3e62a4b82a325341a7933649375b63ef}\label{classilang_1_1_ast_a3e62a4b82a325341a7933649375b63ef}} 
+virtual bool \mbox{\hyperlink{classilang_1_1_ast_a3e62a4b82a325341a7933649375b63ef}{is\+\_\+func}} () const
+\begin{DoxyCompactList}\small\item\em Is type Ast\+::\+Func. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_ast_a533dd9faf9db1cb76e479c1cacdde285}\label{classilang_1_1_ast_a533dd9faf9db1cb76e479c1cacdde285}} 
+\mbox{\hyperlink{classilang_1_1_ast_a7433a1e6c865c5c7f64eb7bceca11ec2}{Instr\+Lvl\+Abs\+Ptr}} \mbox{\hyperlink{classilang_1_1_ast_a533dd9faf9db1cb76e479c1cacdde285}{host}} () const
+\begin{DoxyCompactList}\small\item\em Return the hosting I\+LA. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_ast_a5f6ec0aef013e95d4798500b9d6058dd}\label{classilang_1_1_ast_a5f6ec0aef013e95d4798500b9d6058dd}} 
+void \mbox{\hyperlink{classilang_1_1_ast_a5f6ec0aef013e95d4798500b9d6058dd}{set\+\_\+host}} (\mbox{\hyperlink{classilang_1_1_ast_a7433a1e6c865c5c7f64eb7bceca11ec2}{Instr\+Lvl\+Abs\+Ptr}} \mbox{\hyperlink{classilang_1_1_ast_a533dd9faf9db1cb76e479c1cacdde285}{host}})
+\begin{DoxyCompactList}\small\item\em Set the hosting I\+LA. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_ast_ac28b7b1df94499cbdecf82a9557c7689}\label{classilang_1_1_ast_ac28b7b1df94499cbdecf82a9557c7689}} 
+virtual std\+::ostream \& \mbox{\hyperlink{classilang_1_1_ast_ac28b7b1df94499cbdecf82a9557c7689}{Print}} (std\+::ostream \&out) const =0
+\begin{DoxyCompactList}\small\item\em Output function. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+The class for the Abstract Syntax Tree. An \mbox{\hyperlink{classilang_1_1_ast}{Ast}} object can be an expression or function definition (interpreted or uninterpreted). 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{ast_8h}{ast.\+h}}\end{DoxyCompactItemize}

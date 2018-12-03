@@ -1,0 +1,52 @@
+\hypertarget{classilang_1_1_expr_mngr}{}\section{ilang\+:\+:Expr\+Mngr Class Reference}
+\label{classilang_1_1_expr_mngr}\index{ilang\+::\+Expr\+Mngr@{ilang\+::\+Expr\+Mngr}}
+
+
+Simplifier for A\+ST trees by sharing nodes based on the hash value.  
+
+
+
+
+{\ttfamily \#include $<$hash\+\_\+ast.\+h$>$}
+
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classilang_1_1_expr_mngr_ad35ebf0cecad6f10877667b766bdfac1}\label{classilang_1_1_expr_mngr_ad35ebf0cecad6f10877667b766bdfac1}} 
+typedef std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classilang_1_1_expr_mngr}{Expr\+Mngr}} $>$ \mbox{\hyperlink{classilang_1_1_expr_mngr_ad35ebf0cecad6f10877667b766bdfac1}{Expr\+Mngr\+Ptr}}
+\begin{DoxyCompactList}\small\item\em Pointer type for passing shared ast simplifier. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_expr_mngr_a7ea331492ead4c6dbd3c6b1104deb92c}\label{classilang_1_1_expr_mngr_a7ea331492ead4c6dbd3c6b1104deb92c}} 
+typedef std\+::unordered\+\_\+map$<$ size\+\_\+t, const \mbox{\hyperlink{namespaceilang_a7c4196c72e53ea4df4b7861af7bc3bce}{Expr\+Ptr}} $>$ \mbox{\hyperlink{classilang_1_1_expr_mngr_a7ea331492ead4c6dbd3c6b1104deb92c}{Hash\+Table}}
+\begin{DoxyCompactList}\small\item\em Type for cacheing the A\+ST node hashing. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classilang_1_1_expr_mngr_a26b8d898425956cc09c989a7dd166799}\label{classilang_1_1_expr_mngr_a26b8d898425956cc09c989a7dd166799}} 
+\mbox{\hyperlink{classilang_1_1_expr_mngr_a26b8d898425956cc09c989a7dd166799}{Expr\+Mngr}} ()
+\begin{DoxyCompactList}\small\item\em Default constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_expr_mngr_af1a5b18c4f788503bf92496114b810b4}\label{classilang_1_1_expr_mngr_af1a5b18c4f788503bf92496114b810b4}} 
+\mbox{\hyperlink{classilang_1_1_expr_mngr_af1a5b18c4f788503bf92496114b810b4}{$\sim$\+Expr\+Mngr}} ()
+\begin{DoxyCompactList}\small\item\em Default destructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_expr_mngr_a27870f9467647a3f66c1eca4f78cf162}\label{classilang_1_1_expr_mngr_a27870f9467647a3f66c1eca4f78cf162}} 
+void \mbox{\hyperlink{classilang_1_1_expr_mngr_a27870f9467647a3f66c1eca4f78cf162}{clear}} ()
+\begin{DoxyCompactList}\small\item\em Reset the hash table. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_expr_mngr_ae4854bc79239f1594a9c1ab2d2333147}\label{classilang_1_1_expr_mngr_ae4854bc79239f1594a9c1ab2d2333147}} 
+\mbox{\hyperlink{namespaceilang_a7c4196c72e53ea4df4b7861af7bc3bce}{Expr\+Ptr}} \mbox{\hyperlink{classilang_1_1_expr_mngr_ae4854bc79239f1594a9c1ab2d2333147}{Get\+Rep}} (const \mbox{\hyperlink{namespaceilang_a7c4196c72e53ea4df4b7861af7bc3bce}{Expr\+Ptr}} node)
+\begin{DoxyCompactList}\small\item\em Return the A\+ST node representative. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_expr_mngr_a9299c83d6d3d68ce4de08bdd12ee4cf5}\label{classilang_1_1_expr_mngr_a9299c83d6d3d68ce4de08bdd12ee4cf5}} 
+void \mbox{\hyperlink{classilang_1_1_expr_mngr_a9299c83d6d3d68ce4de08bdd12ee4cf5}{operator()}} (const \mbox{\hyperlink{namespaceilang_a7c4196c72e53ea4df4b7861af7bc3bce}{Expr\+Ptr}} node)
+\begin{DoxyCompactList}\small\item\em Function object for sharing ast nodes. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classilang_1_1_expr_mngr_a0c13e0f27f9e071dec64f1c958405817}\label{classilang_1_1_expr_mngr_a0c13e0f27f9e071dec64f1c958405817}} 
+static \mbox{\hyperlink{classilang_1_1_expr_mngr_ad35ebf0cecad6f10877667b766bdfac1}{Expr\+Mngr\+Ptr}} \mbox{\hyperlink{classilang_1_1_expr_mngr_a0c13e0f27f9e071dec64f1c958405817}{New}} ()
+\begin{DoxyCompactList}\small\item\em Create an object and return the pointer. Used for hiding implementation specific types. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Simplifier for A\+ST trees by sharing nodes based on the hash value. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{hash__ast_8h}{hash\+\_\+ast.\+h}}\end{DoxyCompactItemize}

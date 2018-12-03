@@ -1,0 +1,185 @@
+\hypertarget{classilang_1_1_trace_step}{}\section{ilang\+:\+:Trace\+Step Class Reference}
+\label{classilang_1_1_trace_step}\index{ilang\+::\+Trace\+Step@{ilang\+::\+Trace\+Step}}
+
+
+The class for trace step (an instance of instruction) As in the unrolling, there may be multiple instances of the same instructions, so we have the trace steps.  
+
+
+
+
+{\ttfamily \#include $<$memory\+\_\+model.\+h$>$}
+
+Inheritance diagram for ilang\+:\+:Trace\+Step\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classilang_1_1_trace_step}
+\end{center}
+\end{figure}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classilang_1_1_trace_step_af2fb22e1a0aeacee818188a3e14c46dd}\label{classilang_1_1_trace_step_af2fb22e1a0aeacee818188a3e14c46dd}} 
+enum \mbox{\hyperlink{classilang_1_1_trace_step_af2fb22e1a0aeacee818188a3e14c46dd}{Trace\+Step\+Type}} \{ {\bfseries I\+N\+S\+T\+\_\+\+E\+VT}, 
+{\bfseries F\+A\+C\+E\+T\+\_\+\+E\+VT}, 
+{\bfseries I\+N\+I\+T\+\_\+\+E\+VT}, 
+{\bfseries F\+I\+N\+A\+L\+\_\+\+E\+VT}
+ \}
+\begin{DoxyCompactList}\small\item\em The type of trace step type. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_trace_step_a30c567f4df5a8481f8432b8c178a1794}\label{classilang_1_1_trace_step_a30c567f4df5a8481f8432b8c178a1794}} 
+typedef z3\+::expr \mbox{\hyperlink{classilang_1_1_trace_step_a30c567f4df5a8481f8432b8c178a1794}{Z\+Expr}}
+\begin{DoxyCompactList}\small\item\em Type alias for z3\+::expr. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_trace_step_a19a387426712dbec11dcecf170fb7e1a}\label{classilang_1_1_trace_step_a19a387426712dbec11dcecf170fb7e1a}} 
+typedef std\+::vector$<$ \mbox{\hyperlink{classilang_1_1_trace_step_a30c567f4df5a8481f8432b8c178a1794}{Z\+Expr}} $>$ \mbox{\hyperlink{classilang_1_1_trace_step_a19a387426712dbec11dcecf170fb7e1a}{Z\+Expr\+Vec}}
+\begin{DoxyCompactList}\small\item\em Type for containing a set of z3\+::expr. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_trace_step_a33d28af7bafbd3eadec8a957c63738ca}\label{classilang_1_1_trace_step_a33d28af7bafbd3eadec8a957c63738ca}} 
+typedef std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classilang_1_1_trace_step}{Trace\+Step}} $>$ \mbox{\hyperlink{classilang_1_1_trace_step_a33d28af7bafbd3eadec8a957c63738ca}{Trace\+Step\+Ptr}}
+\begin{DoxyCompactList}\small\item\em Type of trace step pointer. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_trace_step_a83bd16e93305d10001282dbc5adb1583}\label{classilang_1_1_trace_step_a83bd16e93305d10001282dbc5adb1583}} 
+typedef std\+::set$<$ \mbox{\hyperlink{classilang_1_1_trace_step_a33d28af7bafbd3eadec8a957c63738ca}{Trace\+Step\+Ptr}} $>$ \mbox{\hyperlink{classilang_1_1_trace_step_a83bd16e93305d10001282dbc5adb1583}{Trace\+Step\+Ptr\+Set}}
+\begin{DoxyCompactList}\small\item\em Type of set of trace steps. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_trace_step_a784c4a30b16707ec6a2ed6e96e268c86}\label{classilang_1_1_trace_step_a784c4a30b16707ec6a2ed6e96e268c86}} 
+typedef std\+::set$<$ std\+::string $>$ \mbox{\hyperlink{classilang_1_1_trace_step_a784c4a30b16707ec6a2ed6e96e268c86}{State\+Name\+Set}}
+\begin{DoxyCompactList}\small\item\em Type of state name set. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_trace_step_aad863955fb33a4d2604383d407eaade2}\label{classilang_1_1_trace_step_aad863955fb33a4d2604383d407eaade2}} 
+typedef std\+::vector$<$ std\+::pair$<$ \mbox{\hyperlink{namespaceilang_a7c4196c72e53ea4df4b7861af7bc3bce}{Expr\+Ptr}}, \mbox{\hyperlink{namespaceilang_a7c4196c72e53ea4df4b7861af7bc3bce}{Expr\+Ptr}} $>$ $>$ \mbox{\hyperlink{classilang_1_1_trace_step_aad863955fb33a4d2604383d407eaade2}{Addr\+Data\+Vec}}
+\begin{DoxyCompactList}\small\item\em Type of (addr,data) pair vector. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_trace_step_ad57144131ae15f38344eb4626446e30e}\label{classilang_1_1_trace_step_ad57144131ae15f38344eb4626446e30e}} 
+typedef std\+::unordered\+\_\+map$<$ std\+::string, \mbox{\hyperlink{classilang_1_1_trace_step_aad863955fb33a4d2604383d407eaade2}{Addr\+Data\+Vec}} $>$ \mbox{\hyperlink{classilang_1_1_trace_step_ad57144131ae15f38344eb4626446e30e}{M\+R\+F\+Val}}
+\begin{DoxyCompactList}\small\item\em Map from state name to memory read pair. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classilang_1_1_trace_step_abac6e1d81a83a513e89f8e5a7e0aa12d}\label{classilang_1_1_trace_step_abac6e1d81a83a513e89f8e5a7e0aa12d}} 
+\mbox{\hyperlink{namespaceilang_ad1b30fdf347e493b3937143da05d1a72}{Instr\+Lvl\+Abs\+Ptr}} \mbox{\hyperlink{classilang_1_1_trace_step_abac6e1d81a83a513e89f8e5a7e0aa12d}{host}} () const
+\begin{DoxyCompactList}\small\item\em Return the host I\+LA. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_trace_step_a38df7c1cd47ec7dc399b8ecb8dbaf2a7}\label{classilang_1_1_trace_step_a38df7c1cd47ec7dc399b8ecb8dbaf2a7}} 
+std\+::string \mbox{\hyperlink{classilang_1_1_trace_step_a38df7c1cd47ec7dc399b8ecb8dbaf2a7}{name}} () const
+\begin{DoxyCompactList}\small\item\em Return the name. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_trace_step_a718de31ac8a6222b2640cbcd88a85421}\label{classilang_1_1_trace_step_a718de31ac8a6222b2640cbcd88a85421}} 
+const \mbox{\hyperlink{classilang_1_1_trace_step_a784c4a30b16707ec6a2ed6e96e268c86}{State\+Name\+Set}} \& \mbox{\hyperlink{classilang_1_1_trace_step_a718de31ac8a6222b2640cbcd88a85421}{get\+\_\+inst\+\_\+read\+\_\+set}} () const
+\begin{DoxyCompactList}\small\item\em Return the set of states read by inst/parent-\/inst. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_trace_step_a893542af9575911f5d68dbeb38a042fc}\label{classilang_1_1_trace_step_a893542af9575911f5d68dbeb38a042fc}} 
+const \mbox{\hyperlink{classilang_1_1_trace_step_a784c4a30b16707ec6a2ed6e96e268c86}{State\+Name\+Set}} \& \mbox{\hyperlink{classilang_1_1_trace_step_a893542af9575911f5d68dbeb38a042fc}{get\+\_\+inst\+\_\+write\+\_\+set}} () const
+\begin{DoxyCompactList}\small\item\em Return the set of states written by inst/parent-\/inst. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_trace_step_a741d4d9cbf77376a43c311abfecddf1b}\label{classilang_1_1_trace_step_a741d4d9cbf77376a43c311abfecddf1b}} 
+const \mbox{\hyperlink{classilang_1_1_trace_step_af2fb22e1a0aeacee818188a3e14c46dd}{Trace\+Step\+Type}} \mbox{\hyperlink{classilang_1_1_trace_step_a741d4d9cbf77376a43c311abfecddf1b}{type}} () const
+\begin{DoxyCompactList}\small\item\em Return the type of the trace step. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_trace_step_a562a1a6df9047d9527219edbd83d591b}\label{classilang_1_1_trace_step_a562a1a6df9047d9527219edbd83d591b}} 
+bool \mbox{\hyperlink{classilang_1_1_trace_step_a562a1a6df9047d9527219edbd83d591b}{is\+\_\+init\+\_\+tracestep}} () const
+\begin{DoxyCompactList}\small\item\em Decide if the trace step is the initial trace step (a short-\/cut) \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_trace_step_a24d43d73d572afa91eeb4e477e626baf}\label{classilang_1_1_trace_step_a24d43d73d572afa91eeb4e477e626baf}} 
+bool \mbox{\hyperlink{classilang_1_1_trace_step_a24d43d73d572afa91eeb4e477e626baf}{is\+\_\+facet\+\_\+tracestep}} () const
+\begin{DoxyCompactList}\small\item\em Decide if the trace step is the facet trace step (a short-\/cut) \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_trace_step_a7e216aea9c0ad3612f8d7238056597ca}\label{classilang_1_1_trace_step_a7e216aea9c0ad3612f8d7238056597ca}} 
+bool \mbox{\hyperlink{classilang_1_1_trace_step_a7e216aea9c0ad3612f8d7238056597ca}{is\+\_\+final\+\_\+tracestep}} () const
+\begin{DoxyCompactList}\small\item\em Decide if the trace step is the facet trace step (a short-\/cut) \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_trace_step_ad46be2e7ab006f89051c91dd939ece7a}\label{classilang_1_1_trace_step_ad46be2e7ab006f89051c91dd939ece7a}} 
+\mbox{\hyperlink{namespaceilang_af88a19312ae653d687a0d1207bb284f6}{Instr\+Ptr}} \mbox{\hyperlink{classilang_1_1_trace_step_ad46be2e7ab006f89051c91dd939ece7a}{inst}} () const
+\begin{DoxyCompactList}\small\item\em Return the associated instruction for facet / instruction event. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_trace_step_aa5a52e788d8776bc6a51de60646def46}\label{classilang_1_1_trace_step_aa5a52e788d8776bc6a51de60646def46}} 
+size\+\_\+t \mbox{\hyperlink{classilang_1_1_trace_step_aa5a52e788d8776bc6a51de60646def46}{pos\+\_\+suffix}} () const
+\begin{DoxyCompactList}\small\item\em Return the position suffix (for facet, they should have the same suffix as the main step to ensure they use the same var) \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_trace_step_a2c5f986fa4a3bd33b4d34b076e894958}\label{classilang_1_1_trace_step_a2c5f986fa4a3bd33b4d34b076e894958}} 
+\mbox{\hyperlink{classilang_1_1_z3_expr_adapter}{Z3\+Expr\+Adapter}} \& \mbox{\hyperlink{classilang_1_1_trace_step_a2c5f986fa4a3bd33b4d34b076e894958}{z3adapter}} () const
+\begin{DoxyCompactList}\small\item\em Return the adapter. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_trace_step_afcab3e7a5ce7b619dd445882a9846c93}\label{classilang_1_1_trace_step_afcab3e7a5ce7b619dd445882a9846c93}} 
+z3\+::context \& \mbox{\hyperlink{classilang_1_1_trace_step_afcab3e7a5ce7b619dd445882a9846c93}{ctx}} ()
+\begin{DoxyCompactList}\small\item\em Return the context (for variable creation) \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_trace_step_a6c8f204468eccaca393969386ca29c18}\label{classilang_1_1_trace_step_a6c8f204468eccaca393969386ca29c18}} 
+\mbox{\hyperlink{namespaceilang_a7c4196c72e53ea4df4b7861af7bc3bce}{Expr\+Ptr}} \mbox{\hyperlink{classilang_1_1_trace_step_a6c8f204468eccaca393969386ca29c18}{final\+\_\+property}} ()
+\begin{DoxyCompactList}\small\item\em Return final property. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_trace_step_a66648351fc56eb04788815ee04621153}\label{classilang_1_1_trace_step_a66648351fc56eb04788815ee04621153}} 
+\mbox{\hyperlink{classilang_1_1_trace_step_a66648351fc56eb04788815ee04621153}{Trace\+Step}} (const \mbox{\hyperlink{namespaceilang_af88a19312ae653d687a0d1207bb284f6}{Instr\+Ptr}} \&\mbox{\hyperlink{classilang_1_1_trace_step_ad46be2e7ab006f89051c91dd939ece7a}{inst}}, \mbox{\hyperlink{classilang_1_1_trace_step_a19a387426712dbec11dcecf170fb7e1a}{Z\+Expr\+Vec}} \&cstr, z3\+::context \&\mbox{\hyperlink{classilang_1_1_trace_step_afcab3e7a5ce7b619dd445882a9846c93}{ctx}}, size\+\_\+t pos)
+\begin{DoxyCompactList}\small\item\em To create a trace step, you need to know the instruction also should give a constraint set\+: I\+N\+S\+T\+\_\+\+E\+VT. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_trace_step_a58487a85ca2aac2b322702bd1277d360}\label{classilang_1_1_trace_step_a58487a85ca2aac2b322702bd1277d360}} 
+\mbox{\hyperlink{classilang_1_1_trace_step_a58487a85ca2aac2b322702bd1277d360}{Trace\+Step}} (const \mbox{\hyperlink{namespaceilang_af88a19312ae653d687a0d1207bb284f6}{Instr\+Ptr}} \&\mbox{\hyperlink{classilang_1_1_trace_step_ad46be2e7ab006f89051c91dd939ece7a}{inst}}, \mbox{\hyperlink{classilang_1_1_trace_step_a19a387426712dbec11dcecf170fb7e1a}{Z\+Expr\+Vec}} \&cstr, z3\+::context \&\mbox{\hyperlink{classilang_1_1_trace_step_afcab3e7a5ce7b619dd445882a9846c93}{ctx}}, \mbox{\hyperlink{classilang_1_1_trace_step_a30c567f4df5a8481f8432b8c178a1794}{Z\+Expr}} \+\_\+ts\+\_\+overwrite, size\+\_\+t pos)
+\begin{DoxyCompactList}\small\item\em This function allows you to overwrite the timestamp instead of creating a new one\+: I\+N\+I\+T\+\_\+\+E\+VT. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_trace_step_a00bb697aae1b0f55a0bb9623463a7c15}\label{classilang_1_1_trace_step_a00bb697aae1b0f55a0bb9623463a7c15}} 
+\mbox{\hyperlink{classilang_1_1_trace_step_a00bb697aae1b0f55a0bb9623463a7c15}{Trace\+Step}} (const \mbox{\hyperlink{namespaceilang_af88a19312ae653d687a0d1207bb284f6}{Instr\+Ptr}} \&ref\+\_\+inst, \mbox{\hyperlink{classilang_1_1_trace_step_a19a387426712dbec11dcecf170fb7e1a}{Z\+Expr\+Vec}} \&cstr, z3\+::context \&\mbox{\hyperlink{classilang_1_1_trace_step_afcab3e7a5ce7b619dd445882a9846c93}{ctx}}, const std\+::string \&fevt\+\_\+name, size\+\_\+t pos)
+\begin{DoxyCompactList}\small\item\em To create a facet event\+: F\+A\+C\+E\+T\+\_\+\+E\+VT. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_trace_step_affbe3297e4c725e08a851177c215c7ed}\label{classilang_1_1_trace_step_affbe3297e4c725e08a851177c215c7ed}} 
+\mbox{\hyperlink{classilang_1_1_trace_step_affbe3297e4c725e08a851177c215c7ed}{Trace\+Step}} (const \mbox{\hyperlink{namespaceilang_a7c4196c72e53ea4df4b7861af7bc3bce}{Expr\+Ptr}} \&property, \mbox{\hyperlink{classilang_1_1_trace_step_a19a387426712dbec11dcecf170fb7e1a}{Z\+Expr\+Vec}} \&cstr, z3\+::context \&\mbox{\hyperlink{classilang_1_1_trace_step_afcab3e7a5ce7b619dd445882a9846c93}{ctx}}, const \mbox{\hyperlink{namespaceilang_ad1b30fdf347e493b3937143da05d1a72}{Instr\+Lvl\+Abs\+Ptr}} \&\mbox{\hyperlink{classilang_1_1_trace_step_abac6e1d81a83a513e89f8e5a7e0aa12d}{host}})
+\begin{DoxyCompactList}\small\item\em To create a final event\+: F\+I\+N\+A\+L\+\_\+\+E\+VT. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_trace_step_ad82970790c1930b6da444d6ddc5c78e7}\label{classilang_1_1_trace_step_ad82970790c1930b6da444d6ddc5c78e7}} 
+virtual \mbox{\hyperlink{classilang_1_1_trace_step_ad82970790c1930b6da444d6ddc5c78e7}{$\sim$\+Trace\+Step}} ()
+\begin{DoxyCompactList}\small\item\em Destructor, make it virtual. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_trace_step_a9b9d72154fce43d0640383e17b3a3a29}\label{classilang_1_1_trace_step_a9b9d72154fce43d0640383e17b3a3a29}} 
+void \mbox{\hyperlink{classilang_1_1_trace_step_a9b9d72154fce43d0640383e17b3a3a29}{Add\+State\+Access}} (const std\+::string \&\mbox{\hyperlink{classilang_1_1_trace_step_a38df7c1cd47ec7dc399b8ecb8dbaf2a7}{name}}, \mbox{\hyperlink{namespaceilang_ab4dc990a0af528177f6f90b63bd208c7}{Access\+Type}} acc\+\_\+type)
+\begin{DoxyCompactList}\small\item\em To update the set for F\+A\+C\+E\+T\+\_\+\+E\+VT. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_trace_step_af83c548a59be2dfbb55f8e306665e1b0}\label{classilang_1_1_trace_step_af83c548a59be2dfbb55f8e306665e1b0}} 
+void \mbox{\hyperlink{classilang_1_1_trace_step_af83c548a59be2dfbb55f8e306665e1b0}{Add\+State\+Access}} (const \mbox{\hyperlink{classilang_1_1_trace_step_a784c4a30b16707ec6a2ed6e96e268c86}{State\+Name\+Set}} \&s, \mbox{\hyperlink{namespaceilang_ab4dc990a0af528177f6f90b63bd208c7}{Access\+Type}} acc\+\_\+type)
+\begin{DoxyCompactList}\small\item\em To update the set for F\+A\+C\+E\+T\+\_\+\+E\+VT. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_trace_step_ae3b361bcc0f0d01c27d5ed617032bf9a}\label{classilang_1_1_trace_step_ae3b361bcc0f0d01c27d5ed617032bf9a}} 
+\mbox{\hyperlink{classilang_1_1_trace_step_a30c567f4df5a8481f8432b8c178a1794}{Z\+Expr}} \mbox{\hyperlink{classilang_1_1_trace_step_ae3b361bcc0f0d01c27d5ed617032bf9a}{Convert\+Z3\+On\+This\+Step}} (const \mbox{\hyperlink{namespaceilang_a7c4196c72e53ea4df4b7861af7bc3bce}{Expr\+Ptr}} \&ast) const
+\begin{DoxyCompactList}\small\item\em Translate an arbitrary expr using the frame number of this step (so it refers to the var used in this step) \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_trace_step_aea903528a1e31416a70986d6a189b9d5}\label{classilang_1_1_trace_step_aea903528a1e31416a70986d6a189b9d5}} 
+bool \mbox{\hyperlink{classilang_1_1_trace_step_aea903528a1e31416a70986d6a189b9d5}{Access}} (\mbox{\hyperlink{namespaceilang_ab4dc990a0af528177f6f90b63bd208c7}{Access\+Type}} acc\+\_\+type, const std\+::string \&\mbox{\hyperlink{classilang_1_1_trace_step_a38df7c1cd47ec7dc399b8ecb8dbaf2a7}{name}}) const
+\begin{DoxyCompactList}\small\item\em To determine if the instruction R\+E\+A\+D/\+W\+R\+I\+TE a certain state. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_trace_step_a4548ca4185a17c6d06f4c0f61b26247e}\label{classilang_1_1_trace_step_a4548ca4185a17c6d06f4c0f61b26247e}} 
+bool \mbox{\hyperlink{classilang_1_1_trace_step_a4548ca4185a17c6d06f4c0f61b26247e}{Access}} (\mbox{\hyperlink{namespaceilang_ab4dc990a0af528177f6f90b63bd208c7}{Access\+Type}} acc\+\_\+type, const \mbox{\hyperlink{classilang_1_1_trace_step_a784c4a30b16707ec6a2ed6e96e268c86}{State\+Name\+Set}} \&stateset) const
+\begin{DoxyCompactList}\small\item\em To determine if the instruction R\+E\+A\+D/\+W\+R\+I\+TE a certain set. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_trace_step_ac2c95af4fe9144b4bc7dc430574ed993}\label{classilang_1_1_trace_step_ac2c95af4fe9144b4bc7dc430574ed993}} 
+std\+::string \mbox{\hyperlink{classilang_1_1_trace_step_ac2c95af4fe9144b4bc7dc430574ed993}{Print}} (z3\+::model \&m) const
+\begin{DoxyCompactList}\small\item\em Print out a trace step for debug purpose. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classilang_1_1_trace_step_a73261de8f31c1a25ca303e9fe5b50eb4}\label{classilang_1_1_trace_step_a73261de8f31c1a25ca303e9fe5b50eb4}} 
+\mbox{\hyperlink{classilang_1_1_trace_step_af2fb22e1a0aeacee818188a3e14c46dd}{Trace\+Step\+Type}} \mbox{\hyperlink{classilang_1_1_trace_step_a73261de8f31c1a25ca303e9fe5b50eb4}{\+\_\+type}}
+\begin{DoxyCompactList}\small\item\em the type of this trace step (event) \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_trace_step_a7800d9ce7ad73703bb4c1a7b30f2a892}\label{classilang_1_1_trace_step_a7800d9ce7ad73703bb4c1a7b30f2a892}} 
+\mbox{\hyperlink{namespaceilang_af88a19312ae653d687a0d1207bb284f6}{Instr\+Ptr}} \mbox{\hyperlink{classilang_1_1_trace_step_a7800d9ce7ad73703bb4c1a7b30f2a892}{\+\_\+inst}}
+\begin{DoxyCompactList}\small\item\em The pointer to the instruction executed in this step. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_trace_step_acebe873df838b548513bcc9651ed1fb2}\label{classilang_1_1_trace_step_acebe873df838b548513bcc9651ed1fb2}} 
+\mbox{\hyperlink{namespaceilang_af88a19312ae653d687a0d1207bb284f6}{Instr\+Ptr}} \mbox{\hyperlink{classilang_1_1_trace_step_acebe873df838b548513bcc9651ed1fb2}{\+\_\+parent\+\_\+inst}}
+\begin{DoxyCompactList}\small\item\em The pointer to the referred instruction. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_trace_step_a15793cd927d72b7631f9a7be52fed8b8}\label{classilang_1_1_trace_step_a15793cd927d72b7631f9a7be52fed8b8}} 
+\mbox{\hyperlink{classilang_1_1_trace_step_a784c4a30b16707ec6a2ed6e96e268c86}{State\+Name\+Set}} \mbox{\hyperlink{classilang_1_1_trace_step_a15793cd927d72b7631f9a7be52fed8b8}{\+\_\+read\+\_\+state\+\_\+set}}
+\begin{DoxyCompactList}\small\item\em Set of states (should be global) that are read by this event\+: Type \+: F\+A\+C\+E\+T\+\_\+\+E\+VT. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_trace_step_a0175ed8ddef80e471209f784924cd64a}\label{classilang_1_1_trace_step_a0175ed8ddef80e471209f784924cd64a}} 
+\mbox{\hyperlink{classilang_1_1_trace_step_a784c4a30b16707ec6a2ed6e96e268c86}{State\+Name\+Set}} \mbox{\hyperlink{classilang_1_1_trace_step_a0175ed8ddef80e471209f784924cd64a}{\+\_\+write\+\_\+state\+\_\+set}}
+\begin{DoxyCompactList}\small\item\em Set of states (should be global) that are written by this event\+: Type \+: F\+A\+C\+E\+T\+\_\+\+E\+VT. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_trace_step_a41a27793bf36f8df75c59b15c00155c2}\label{classilang_1_1_trace_step_a41a27793bf36f8df75c59b15c00155c2}} 
+\mbox{\hyperlink{classilang_1_1_trace_step_a784c4a30b16707ec6a2ed6e96e268c86}{State\+Name\+Set}} \mbox{\hyperlink{classilang_1_1_trace_step_a41a27793bf36f8df75c59b15c00155c2}{\+\_\+inst\+\_\+read\+\_\+set}}
+\begin{DoxyCompactList}\small\item\em Set of states (that are read by inst or parent-\/inst) \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_trace_step_aca61ea02b831fc575165cf3f35cd1f88}\label{classilang_1_1_trace_step_aca61ea02b831fc575165cf3f35cd1f88}} 
+\mbox{\hyperlink{classilang_1_1_trace_step_a784c4a30b16707ec6a2ed6e96e268c86}{State\+Name\+Set}} \mbox{\hyperlink{classilang_1_1_trace_step_aca61ea02b831fc575165cf3f35cd1f88}{\+\_\+inst\+\_\+write\+\_\+set}}
+\begin{DoxyCompactList}\small\item\em Set of states (that are written by inst or parent-\/inst) \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_trace_step_a8fe0e811994ac404328a2f5ca7c15921}\label{classilang_1_1_trace_step_a8fe0e811994ac404328a2f5ca7c15921}} 
+\mbox{\hyperlink{classilang_1_1_trace_step_a19a387426712dbec11dcecf170fb7e1a}{Z\+Expr\+Vec}} \& \mbox{\hyperlink{classilang_1_1_trace_step_a8fe0e811994ac404328a2f5ca7c15921}{\+\_\+cstr}}
+\begin{DoxyCompactList}\small\item\em The reference to the constratint set, so it can add constraints when needed. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_trace_step_a9d6acc91fb2dc05d869cc03a6d5da2a5}\label{classilang_1_1_trace_step_a9d6acc91fb2dc05d869cc03a6d5da2a5}} 
+std\+::string \mbox{\hyperlink{classilang_1_1_trace_step_a9d6acc91fb2dc05d869cc03a6d5da2a5}{\+\_\+name}}
+\begin{DoxyCompactList}\small\item\em The name of trace step. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_trace_step_aa0b1ef939a7e401bec4e5bbbaa51c87b}\label{classilang_1_1_trace_step_aa0b1ef939a7e401bec4e5bbbaa51c87b}} 
+z3\+::expr \mbox{\hyperlink{classilang_1_1_trace_step_aa0b1ef939a7e401bec4e5bbbaa51c87b}{timestamp}}
+\begin{DoxyCompactList}\small\item\em The time stamp. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_trace_step_a5e83d5e4025da3af5a368f1ede165e82}\label{classilang_1_1_trace_step_a5e83d5e4025da3af5a368f1ede165e82}} 
+size\+\_\+t \mbox{\hyperlink{classilang_1_1_trace_step_a5e83d5e4025da3af5a368f1ede165e82}{\+\_\+pos\+\_\+suffix}}
+\begin{DoxyCompactList}\small\item\em The relative position. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_trace_step_a6661768f54a30c7dbe932d5670beaf1a}\label{classilang_1_1_trace_step_a6661768f54a30c7dbe932d5670beaf1a}} 
+\mbox{\hyperlink{classilang_1_1_z3_expr_adapter}{Z3\+Expr\+Adapter}} \mbox{\hyperlink{classilang_1_1_trace_step_a6661768f54a30c7dbe932d5670beaf1a}{\+\_\+expr2z3\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Keep an adapter that trace steps (won\textquotesingle{}t shared w. others) \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_trace_step_aed56f1b6b03968217ad5c7406a99a536}\label{classilang_1_1_trace_step_aed56f1b6b03968217ad5c7406a99a536}} 
+z3\+::context \& \mbox{\hyperlink{classilang_1_1_trace_step_aed56f1b6b03968217ad5c7406a99a536}{\+\_\+ctx\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Keep a context to allocate z3 vars. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_trace_step_adcbae4d23a60a028956a3f67a4c0035e}\label{classilang_1_1_trace_step_adcbae4d23a60a028956a3f67a4c0035e}} 
+\mbox{\hyperlink{namespaceilang_ad1b30fdf347e493b3937143da05d1a72}{Instr\+Lvl\+Abs\+Ptr}} \mbox{\hyperlink{classilang_1_1_trace_step_adcbae4d23a60a028956a3f67a4c0035e}{\+\_\+host\+\_\+final\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Host for Final Event. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_trace_step_a8b6aced2b295be8696329888373008c1}\label{classilang_1_1_trace_step_a8b6aced2b295be8696329888373008c1}} 
+\mbox{\hyperlink{namespaceilang_a7c4196c72e53ea4df4b7861af7bc3bce}{Expr\+Ptr}} \mbox{\hyperlink{classilang_1_1_trace_step_a8b6aced2b295be8696329888373008c1}{\+\_\+final\+\_\+property}}
+\begin{DoxyCompactList}\small\item\em The cache for the property to witness on the final step. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classilang_1_1_trace_step_a2a502ee5bc6cd8e1f708dc4b77d85385}\label{classilang_1_1_trace_step_a2a502ee5bc6cd8e1f708dc4b77d85385}} 
+class \mbox{\hyperlink{classilang_1_1_trace_step_a2a502ee5bc6cd8e1f708dc4b77d85385}{Memory\+Model}}
+\begin{DoxyCompactList}\small\item\em Add friend, so it can get access to the types. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+The class for trace step (an instance of instruction) As in the unrolling, there may be multiple instances of the same instructions, so we have the trace steps. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{memory__model_8h}{memory\+\_\+model.\+h}}\end{DoxyCompactItemize}

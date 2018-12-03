@@ -1,0 +1,76 @@
+\hypertarget{classilang_1_1_comm_diag}{}\section{ilang\+:\+:Comm\+Diag Class Reference}
+\label{classilang_1_1_comm_diag}\index{ilang\+::\+Comm\+Diag@{ilang\+::\+Comm\+Diag}}
+
+
+Generator for commutating diagram-\/based equivalence checking.  
+
+
+
+
+{\ttfamily \#include $<$eq\+\_\+check\+\_\+crr.\+h$>$}
+
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classilang_1_1_comm_diag_ab4d9eed440ed1bb117544d1891b8750d}\label{classilang_1_1_comm_diag_ab4d9eed440ed1bb117544d1891b8750d}} 
+typedef \mbox{\hyperlink{classilang_1_1_mono_unroll}{Mono\+Unroll}} {\bfseries Unroll}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classilang_1_1_comm_diag_ae4a2740c66b7832bb22aec6744f3df2f}\label{classilang_1_1_comm_diag_ae4a2740c66b7832bb22aec6744f3df2f}} 
+\mbox{\hyperlink{classilang_1_1_comm_diag_ae4a2740c66b7832bb22aec6744f3df2f}{Comm\+Diag}} (z3\+::context \&ctx, const \mbox{\hyperlink{namespaceilang_a3c2c096b87ad7a9475c5a32315c18ba6}{Crr\+Ptr}} crr)
+\begin{DoxyCompactList}\small\item\em Default constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_comm_diag_aad71b5b375e8b9f848ccc7ac0afdad5d}\label{classilang_1_1_comm_diag_aad71b5b375e8b9f848ccc7ac0afdad5d}} 
+\mbox{\hyperlink{classilang_1_1_comm_diag_aad71b5b375e8b9f848ccc7ac0afdad5d}{$\sim$\+Comm\+Diag}} ()
+\begin{DoxyCompactList}\small\item\em Default destructor. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classilang_1_1_comm_diag_ab5f4df82ccead4a6b23df4096df344d0}{Eq\+Check}} (const int \&max=10)
+\begin{DoxyCompactList}\small\item\em Check equivalence between two models based on the refinement relation up to the given unrolling bound. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classilang_1_1_comm_diag_afe69e51f7e659fbeb5fa0a247bf8ee49}{Inc\+Eq\+Check}} (const int \&min=0, const int \&max=10, const int \&step=1)
+\begin{DoxyCompactList}\small\item\em Incrementally checking equivalence between two models based on the refinement relation up to the given unrolling bound. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_comm_diag_a9665e2a03ce96d33bfea64e1caa92eae}\label{classilang_1_1_comm_diag_a9665e2a03ce96d33bfea64e1caa92eae}} 
+bool {\bfseries Inc\+Check} (const int \&min=0, const int \&max=10, const int \&step=1)
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Generator for commutating diagram-\/based equivalence checking. 
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{classilang_1_1_comm_diag_ab5f4df82ccead4a6b23df4096df344d0}\label{classilang_1_1_comm_diag_ab5f4df82ccead4a6b23df4096df344d0}} 
+\index{ilang\+::\+Comm\+Diag@{ilang\+::\+Comm\+Diag}!Eq\+Check@{Eq\+Check}}
+\index{Eq\+Check@{Eq\+Check}!ilang\+::\+Comm\+Diag@{ilang\+::\+Comm\+Diag}}
+\subsubsection{\texorpdfstring{Eq\+Check()}{EqCheck()}}
+{\footnotesize\ttfamily bool ilang\+::\+Comm\+Diag\+::\+Eq\+Check (\begin{DoxyParamCaption}\item[{const int \&}]{max = {\ttfamily 10} }\end{DoxyParamCaption})}
+
+
+
+Check equivalence between two models based on the refinement relation up to the given unrolling bound. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em max} & unrolling bound. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classilang_1_1_comm_diag_afe69e51f7e659fbeb5fa0a247bf8ee49}\label{classilang_1_1_comm_diag_afe69e51f7e659fbeb5fa0a247bf8ee49}} 
+\index{ilang\+::\+Comm\+Diag@{ilang\+::\+Comm\+Diag}!Inc\+Eq\+Check@{Inc\+Eq\+Check}}
+\index{Inc\+Eq\+Check@{Inc\+Eq\+Check}!ilang\+::\+Comm\+Diag@{ilang\+::\+Comm\+Diag}}
+\subsubsection{\texorpdfstring{Inc\+Eq\+Check()}{IncEqCheck()}}
+{\footnotesize\ttfamily bool ilang\+::\+Comm\+Diag\+::\+Inc\+Eq\+Check (\begin{DoxyParamCaption}\item[{const int \&}]{min = {\ttfamily 0},  }\item[{const int \&}]{max = {\ttfamily 10},  }\item[{const int \&}]{step = {\ttfamily 1} }\end{DoxyParamCaption})}
+
+
+
+Incrementally checking equivalence between two models based on the refinement relation up to the given unrolling bound. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em min} & \#step of unrolling. \\
+\hline
+\mbox{\texttt{ in}}  & {\em max} & \#step of unrolling. \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{eq__check__crr_8h}{eq\+\_\+check\+\_\+crr.\+h}}\end{DoxyCompactItemize}

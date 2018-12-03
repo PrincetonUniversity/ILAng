@@ -1,0 +1,19 @@
+\hypertarget{rewrite__ila_8h}{}\section{rewrite\+\_\+ila.\+h File Reference}
+\label{rewrite__ila_8h}\index{rewrite\+\_\+ila.\+h@{rewrite\+\_\+ila.\+h}}
+{\ttfamily \#include $<$ilang/ila/instr\+\_\+lvl\+\_\+abs.\+h$>$}\newline
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{classilang_1_1_func_obj_rewr_ila}{ilang\+::\+Func\+Obj\+Rewr\+Ila}}
+\begin{DoxyCompactList}\small\item\em Function object for rewriting I\+LA tree. \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{classilang_1_1_func_obj_flat_ila}{ilang\+::\+Func\+Obj\+Flat\+Ila}}
+\begin{DoxyCompactList}\small\item\em Function object for flatten I\+LA tree. There is currently a problem\+: this func obj calls dupl\+Inst which in turn uses rewrite\+Expr and rewrite\+Expr does not change the host of of state variables, so the flatten expression still has the host pointed to their original I\+LA. This is fine for Verilog Gen, which only depends on variable names to generate variables but may not be good enough for other purpose. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Namespaces}
+\begin{DoxyCompactItemize}
+\item 
+ \mbox{\hyperlink{namespaceilang}{ilang}}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Header for function object for rewriting I\+LA. 

@@ -1,0 +1,72 @@
+\hypertarget{classilang_1_1_instr_seq}{}\section{ilang\+:\+:Instr\+Seq Class Reference}
+\label{classilang_1_1_instr_seq}\index{ilang\+::\+Instr\+Seq@{ilang\+::\+Instr\+Seq}}
+
+
+Instruction Sequencing does\+:  
+
+
+
+
+{\ttfamily \#include $<$transition.\+h$>$}
+
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classilang_1_1_instr_seq_a37dd168ce5d95507eb7bf53455d79b80}\label{classilang_1_1_instr_seq_a37dd168ce5d95507eb7bf53455d79b80}} 
+typedef std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classilang_1_1_instr_seq}{Instr\+Seq}} $>$ \mbox{\hyperlink{classilang_1_1_instr_seq_a37dd168ce5d95507eb7bf53455d79b80}{Instr\+Seq\+Ptr}}
+\begin{DoxyCompactList}\small\item\em Pointer type for passing around \mbox{\hyperlink{classilang_1_1_instr_seq}{Instr\+Seq}}. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_instr_seq_ad6cdd19a1f5c41fa5e381bd8fa024cbc}\label{classilang_1_1_instr_seq_ad6cdd19a1f5c41fa5e381bd8fa024cbc}} 
+typedef \mbox{\hyperlink{classilang_1_1_instr_tran_edge_ada0821479c930f2895d2614405d3971f}{Instr\+Tran\+Edge\+::\+It\+Edge\+Ptr}} \mbox{\hyperlink{classilang_1_1_instr_seq_ad6cdd19a1f5c41fa5e381bd8fa024cbc}{It\+Edge\+Ptr}}
+\begin{DoxyCompactList}\small\item\em Pointer type for passing around \mbox{\hyperlink{classilang_1_1_instr_tran_edge}{Instr\+Tran\+Edge}}. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_instr_seq_a8733287d8a758300cbed05c5d86df2f5}\label{classilang_1_1_instr_seq_a8733287d8a758300cbed05c5d86df2f5}} 
+typedef \mbox{\hyperlink{classilang_1_1_instr_tran_node_a449144ce50eff60a35867b970f4608c6}{Instr\+Tran\+Node\+::\+It\+Node\+Ptr}} \mbox{\hyperlink{classilang_1_1_instr_seq_a8733287d8a758300cbed05c5d86df2f5}{It\+Node\+Ptr}}
+\begin{DoxyCompactList}\small\item\em Pointer type for passing around \mbox{\hyperlink{classilang_1_1_instr_tran_node}{Instr\+Tran\+Node}}. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_instr_seq_a88aec9fe794aec924d30c0fc2cb0fdd4}\label{classilang_1_1_instr_seq_a88aec9fe794aec924d30c0fc2cb0fdd4}} 
+typedef \mbox{\hyperlink{classilang_1_1_key_vec}{Key\+Vec}}$<$ \mbox{\hyperlink{namespaceilang_af88a19312ae653d687a0d1207bb284f6}{Instr\+Ptr}}, size\+\_\+t $>$ \mbox{\hyperlink{classilang_1_1_instr_seq_a88aec9fe794aec924d30c0fc2cb0fdd4}{Instr\+Idx\+Key\+Vec}}
+\begin{DoxyCompactList}\small\item\em Type for the sorted index key-\/vector. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_instr_seq_a3d0e6e7c233f7def6b7023e9be05f034}\label{classilang_1_1_instr_seq_a3d0e6e7c233f7def6b7023e9be05f034}} 
+typedef std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classilang_1_1_instr_seq_a88aec9fe794aec924d30c0fc2cb0fdd4}{Instr\+Idx\+Key\+Vec}} $>$ \mbox{\hyperlink{classilang_1_1_instr_seq_a3d0e6e7c233f7def6b7023e9be05f034}{Instr\+Idx\+Key\+Vec\+Ptr}}
+\begin{DoxyCompactList}\small\item\em Pointer type for the sorted index key-\/vector. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classilang_1_1_instr_seq_a5842330b29a7e61153131857121cc6d9}\label{classilang_1_1_instr_seq_a5842330b29a7e61153131857121cc6d9}} 
+\mbox{\hyperlink{classilang_1_1_instr_seq_a5842330b29a7e61153131857121cc6d9}{Instr\+Seq}} ()
+\begin{DoxyCompactList}\small\item\em Default constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_instr_seq_aca968c2827548947b269432341e0acae}\label{classilang_1_1_instr_seq_aca968c2827548947b269432341e0acae}} 
+\mbox{\hyperlink{classilang_1_1_instr_seq_aca968c2827548947b269432341e0acae}{$\sim$\+Instr\+Seq}} ()
+\begin{DoxyCompactList}\small\item\em Default destructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_instr_seq_a9a8a95534f7c656d7fca14d5b2de619b}\label{classilang_1_1_instr_seq_a9a8a95534f7c656d7fca14d5b2de619b}} 
+void \mbox{\hyperlink{classilang_1_1_instr_seq_a9a8a95534f7c656d7fca14d5b2de619b}{clear}} ()
+\begin{DoxyCompactList}\small\item\em Reset all stored sequences. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_instr_seq_a8aff40b39ca609f3ac31553bc14e4026}\label{classilang_1_1_instr_seq_a8aff40b39ca609f3ac31553bc14e4026}} 
+void \mbox{\hyperlink{classilang_1_1_instr_seq_a8aff40b39ca609f3ac31553bc14e4026}{Add\+Tran}} (const \mbox{\hyperlink{namespaceilang_af88a19312ae653d687a0d1207bb284f6}{Instr\+Ptr}} src, const \mbox{\hyperlink{namespaceilang_af88a19312ae653d687a0d1207bb284f6}{Instr\+Ptr}} dst, const \mbox{\hyperlink{namespaceilang_a7c4196c72e53ea4df4b7861af7bc3bce}{Expr\+Ptr}} cnd)
+\begin{DoxyCompactList}\small\item\em Add one transition to the set. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_instr_seq_afc9b3f34afc96d38e26525ececd5f4a3}\label{classilang_1_1_instr_seq_afc9b3f34afc96d38e26525ececd5f4a3}} 
+bool \mbox{\hyperlink{classilang_1_1_instr_seq_afc9b3f34afc96d38e26525ececd5f4a3}{Check\+Transition}} () const
+\begin{DoxyCompactList}\small\item\em Check the transition condition for each edge is valid. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_instr_seq_af2562bcdb8066a018711879adf6ab4bf}\label{classilang_1_1_instr_seq_af2562bcdb8066a018711879adf6ab4bf}} 
+\mbox{\hyperlink{classilang_1_1_instr_seq_a3d0e6e7c233f7def6b7023e9be05f034}{Instr\+Idx\+Key\+Vec\+Ptr}} \mbox{\hyperlink{classilang_1_1_instr_seq_af2562bcdb8066a018711879adf6ab4bf}{Sort}} ()
+\begin{DoxyCompactList}\small\item\em \mbox{\hyperlink{classilang_1_1_sort}{Sort}} the instructions based on the control flow. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classilang_1_1_instr_seq_aa36450a3792027107df34c2ab15c9ed5}\label{classilang_1_1_instr_seq_aa36450a3792027107df34c2ab15c9ed5}} 
+static \mbox{\hyperlink{classilang_1_1_instr_seq_a37dd168ce5d95507eb7bf53455d79b80}{Instr\+Seq\+Ptr}} \mbox{\hyperlink{classilang_1_1_instr_seq_aa36450a3792027107df34c2ab15c9ed5}{New}} ()
+\begin{DoxyCompactList}\small\item\em Create a new I\+TG, used for hiding implementation specific types. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Instruction Sequencing does\+: 
+
+
+\begin{DoxyItemize}
+\item maintain the set of transition edges
+\item construct the graph (should be single thread of control)
+\item perform checks on the transition
+\item sort the instructions based on the transition. 
+\end{DoxyItemize}
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{transition_8h}{transition.\+h}}\end{DoxyCompactItemize}

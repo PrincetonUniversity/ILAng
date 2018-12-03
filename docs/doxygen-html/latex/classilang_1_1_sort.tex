@@ -1,0 +1,91 @@
+\hypertarget{classilang_1_1_sort}{}\section{ilang\+:\+:Sort Class Reference}
+\label{classilang_1_1_sort}\index{ilang\+::\+Sort@{ilang\+::\+Sort}}
+
+
+The class for sort (type for expr, and the range/domain of functions).  
+
+
+
+
+{\ttfamily \#include $<$sort.\+h$>$}
+
+Inheritance diagram for ilang\+:\+:Sort\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=4.000000cm]{classilang_1_1_sort}
+\end{center}
+\end{figure}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classilang_1_1_sort_a8b9cc5e381404211a1c0423327866d3b}\label{classilang_1_1_sort_a8b9cc5e381404211a1c0423327866d3b}} 
+typedef std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classilang_1_1_sort}{Sort}} $>$ \mbox{\hyperlink{classilang_1_1_sort_a8b9cc5e381404211a1c0423327866d3b}{Sort\+Ptr}}
+\begin{DoxyCompactList}\small\item\em Pointer type for storing/passing \mbox{\hyperlink{classilang_1_1_sort}{Sort}}. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classilang_1_1_sort_a9073ce0d29a535949387aebbbea2a10c}\label{classilang_1_1_sort_a9073ce0d29a535949387aebbbea2a10c}} 
+\mbox{\hyperlink{classilang_1_1_sort_a9073ce0d29a535949387aebbbea2a10c}{Sort}} ()
+\begin{DoxyCompactList}\small\item\em Default constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_sort_a91e8360e60a137ea439353a9edd0917a}\label{classilang_1_1_sort_a91e8360e60a137ea439353a9edd0917a}} 
+virtual \mbox{\hyperlink{classilang_1_1_sort_a91e8360e60a137ea439353a9edd0917a}{$\sim$\+Sort}} ()
+\begin{DoxyCompactList}\small\item\em Virtual default destructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_sort_a84919df08dd02bbb47dcb169231fb2cc}\label{classilang_1_1_sort_a84919df08dd02bbb47dcb169231fb2cc}} 
+virtual bool \mbox{\hyperlink{classilang_1_1_sort_a84919df08dd02bbb47dcb169231fb2cc}{is\+\_\+bool}} () const
+\begin{DoxyCompactList}\small\item\em Return true if have Boolean sort. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_sort_a001f643435887b2db4592c832f824b3b}\label{classilang_1_1_sort_a001f643435887b2db4592c832f824b3b}} 
+virtual bool \mbox{\hyperlink{classilang_1_1_sort_a001f643435887b2db4592c832f824b3b}{is\+\_\+bv}} (const int \&width=0) const
+\begin{DoxyCompactList}\small\item\em Return true if have bit-\/vector sort. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_sort_a7188bb5d9589c9b3590c976d4d0ff2dd}\label{classilang_1_1_sort_a7188bb5d9589c9b3590c976d4d0ff2dd}} 
+virtual bool \mbox{\hyperlink{classilang_1_1_sort_a7188bb5d9589c9b3590c976d4d0ff2dd}{is\+\_\+mem}} () const
+\begin{DoxyCompactList}\small\item\em Return true if have memory (array) sort. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_sort_a8bfc1d2049279a2ad2be608e14731d1d}\label{classilang_1_1_sort_a8bfc1d2049279a2ad2be608e14731d1d}} 
+virtual int \mbox{\hyperlink{classilang_1_1_sort_a8bfc1d2049279a2ad2be608e14731d1d}{bit\+\_\+width}} () const
+\begin{DoxyCompactList}\small\item\em Return the bit-\/width of bit-\/vector sort. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_sort_a6f3a690a09c3f4aad3ff63daeede0715}\label{classilang_1_1_sort_a6f3a690a09c3f4aad3ff63daeede0715}} 
+virtual int \mbox{\hyperlink{classilang_1_1_sort_a6f3a690a09c3f4aad3ff63daeede0715}{addr\+\_\+width}} () const
+\begin{DoxyCompactList}\small\item\em Return the bit-\/width of the address (index). \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_sort_a4c5f5d8cb6b9b16f68236b515e2f2567}\label{classilang_1_1_sort_a4c5f5d8cb6b9b16f68236b515e2f2567}} 
+virtual int \mbox{\hyperlink{classilang_1_1_sort_a4c5f5d8cb6b9b16f68236b515e2f2567}{data\+\_\+width}} () const
+\begin{DoxyCompactList}\small\item\em Return the bit-\/width of the data (value). \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_sort_ab9ea013e2fe4c71757194b3d24184eb7}\label{classilang_1_1_sort_ab9ea013e2fe4c71757194b3d24184eb7}} 
+virtual z3\+::sort \mbox{\hyperlink{classilang_1_1_sort_ab9ea013e2fe4c71757194b3d24184eb7}{Get\+Z3\+Sort}} (z3\+::context \&ctx) const =0
+\begin{DoxyCompactList}\small\item\em Return z3\+::sort of the \mbox{\hyperlink{classilang_1_1_sort}{Sort}}. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_sort_a75aa2fc1da69fceaaf6c2fc0edcd9659}\label{classilang_1_1_sort_a75aa2fc1da69fceaaf6c2fc0edcd9659}} 
+virtual z3\+::expr \mbox{\hyperlink{classilang_1_1_sort_a75aa2fc1da69fceaaf6c2fc0edcd9659}{Get\+Z3\+Expr}} (z3\+::context \&ctx, const std\+::string \&\mbox{\hyperlink{classilang_1_1_object_acf20b072e69f572910d7d80c93af0b38}{name}}) const =0
+\begin{DoxyCompactList}\small\item\em Return a z3 variable of the \mbox{\hyperlink{classilang_1_1_sort}{Sort}}. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_sort_a3670e77914dfb7185a02a12d4dbaeab6}\label{classilang_1_1_sort_a3670e77914dfb7185a02a12d4dbaeab6}} 
+virtual bool \mbox{\hyperlink{classilang_1_1_sort_a3670e77914dfb7185a02a12d4dbaeab6}{Equal}} (const \mbox{\hyperlink{classilang_1_1_sort_a8b9cc5e381404211a1c0423327866d3b}{Sort\+Ptr}} rhs) const =0
+\begin{DoxyCompactList}\small\item\em Compare two Sorts. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_sort_ae17cf40bd44b0104ff9eef32a0078b4a}\label{classilang_1_1_sort_ae17cf40bd44b0104ff9eef32a0078b4a}} 
+virtual std\+::ostream \& \mbox{\hyperlink{classilang_1_1_sort_ae17cf40bd44b0104ff9eef32a0078b4a}{Print}} (std\+::ostream \&out) const =0
+\begin{DoxyCompactList}\small\item\em Print out to output stream. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classilang_1_1_sort_ad051b4711582cf543e6ed268dd24907c}\label{classilang_1_1_sort_ad051b4711582cf543e6ed268dd24907c}} 
+static \mbox{\hyperlink{classilang_1_1_sort_a8b9cc5e381404211a1c0423327866d3b}{Sort\+Ptr}} \mbox{\hyperlink{classilang_1_1_sort_ad051b4711582cf543e6ed268dd24907c}{Make\+Bool\+Sort}} ()
+\begin{DoxyCompactList}\small\item\em Create a Boolean \mbox{\hyperlink{classilang_1_1_sort}{Sort}}. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_sort_a988f21e434cafda438e791276dada110}\label{classilang_1_1_sort_a988f21e434cafda438e791276dada110}} 
+static \mbox{\hyperlink{classilang_1_1_sort_a8b9cc5e381404211a1c0423327866d3b}{Sort\+Ptr}} \mbox{\hyperlink{classilang_1_1_sort_a988f21e434cafda438e791276dada110}{Make\+Bv\+Sort}} (const int \&\mbox{\hyperlink{classilang_1_1_sort_a8bfc1d2049279a2ad2be608e14731d1d}{bit\+\_\+width}})
+\begin{DoxyCompactList}\small\item\em Create a bit-\/vector \mbox{\hyperlink{classilang_1_1_sort}{Sort}}. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_sort_a0a292d2658d5c44190dc94a81ef62b73}\label{classilang_1_1_sort_a0a292d2658d5c44190dc94a81ef62b73}} 
+static \mbox{\hyperlink{classilang_1_1_sort_a8b9cc5e381404211a1c0423327866d3b}{Sort\+Ptr}} \mbox{\hyperlink{classilang_1_1_sort_a0a292d2658d5c44190dc94a81ef62b73}{Make\+Mem\+Sort}} (const int \&\mbox{\hyperlink{classilang_1_1_sort_a6f3a690a09c3f4aad3ff63daeede0715}{addr\+\_\+width}}, const int \&\mbox{\hyperlink{classilang_1_1_sort_a4c5f5d8cb6b9b16f68236b515e2f2567}{data\+\_\+width}})
+\begin{DoxyCompactList}\small\item\em Create a memory (array) \mbox{\hyperlink{classilang_1_1_sort}{Sort}}. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classilang_1_1_sort_a3dca84cb983c2dea4b9dc3685701c498}\label{classilang_1_1_sort_a3dca84cb983c2dea4b9dc3685701c498}} 
+bool \mbox{\hyperlink{classilang_1_1_sort_a3dca84cb983c2dea4b9dc3685701c498}{operator==}} (const \mbox{\hyperlink{classilang_1_1_sort_a8b9cc5e381404211a1c0423327866d3b}{Sort\+Ptr}} lhs, const \mbox{\hyperlink{classilang_1_1_sort_a8b9cc5e381404211a1c0423327866d3b}{Sort\+Ptr}} rhs)
+\begin{DoxyCompactList}\small\item\em Overlaod comparison. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_sort_a483a669ce1bb7709417f405090b068bf}\label{classilang_1_1_sort_a483a669ce1bb7709417f405090b068bf}} 
+std\+::ostream \& \mbox{\hyperlink{classilang_1_1_sort_a483a669ce1bb7709417f405090b068bf}{operator$<$$<$}} (std\+::ostream \&out, const \mbox{\hyperlink{classilang_1_1_sort_a8b9cc5e381404211a1c0423327866d3b}{Sort\+Ptr}} s)
+\begin{DoxyCompactList}\small\item\em Overload output stream operator. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+The class for sort (type for expr, and the range/domain of functions). 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{sort_8h}{sort.\+h}}\end{DoxyCompactItemize}

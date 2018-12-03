@@ -1,0 +1,68 @@
+\hypertarget{expr__op_8h}{}\section{expr\+\_\+op.\+h File Reference}
+\label{expr__op_8h}\index{expr\+\_\+op.\+h@{expr\+\_\+op.\+h}}
+{\ttfamily \#include $<$ilang/ila/ast/expr.\+h$>$}\newline
+{\ttfamily \#include $<$ilang/util/log.\+h$>$}\newline
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{classilang_1_1_expr_op}{ilang\+::\+Expr\+Op}}
+\begin{DoxyCompactList}\small\item\em Expression for operations, e.\+g. A\+ND, OR, A\+DD, etc. Operations are non-\/terminating nodes in the A\+ST. \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{classilang_1_1_expr_op_neg}{ilang\+::\+Expr\+Op\+Neg}}
+\begin{DoxyCompactList}\small\item\em The wrapper for unary negate operation \char`\"{}-\/\char`\"{}. \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{classilang_1_1_expr_op_not}{ilang\+::\+Expr\+Op\+Not}}
+\begin{DoxyCompactList}\small\item\em The wrapper for unary not operation \char`\"{}!\char`\"{}. (bool only) \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{classilang_1_1_expr_op_compl}{ilang\+::\+Expr\+Op\+Compl}}
+\begin{DoxyCompactList}\small\item\em The wrapper for unary bit-\/wise complement \char`\"{}$\sim$\char`\"{}. (bv only) \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{classilang_1_1_expr_op_and}{ilang\+::\+Expr\+Op\+And}}
+\begin{DoxyCompactList}\small\item\em The wrapper for binary logical A\+ND operation \char`\"{}\&\char`\"{}. \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{classilang_1_1_expr_op_or}{ilang\+::\+Expr\+Op\+Or}}
+\begin{DoxyCompactList}\small\item\em The wrapper for binary logical OR operation \char`\"{}$\vert$\char`\"{}. \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{classilang_1_1_expr_op_xor}{ilang\+::\+Expr\+Op\+Xor}}
+\begin{DoxyCompactList}\small\item\em The wrapper for binary logical X\+OR operation \char`\"{}$^\wedge$\char`\"{}. \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{classilang_1_1_expr_op_shl}{ilang\+::\+Expr\+Op\+Shl}}
+\begin{DoxyCompactList}\small\item\em The wrapper for left shifting a bit-\/vector. \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{classilang_1_1_expr_op_ashr}{ilang\+::\+Expr\+Op\+Ashr}}
+\begin{DoxyCompactList}\small\item\em The wrapper for arithmetic right shifting a bit-\/vector. \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{classilang_1_1_expr_op_lshr}{ilang\+::\+Expr\+Op\+Lshr}}
+\begin{DoxyCompactList}\small\item\em The wrapper for logical right shifting a bit-\/vector. \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{classilang_1_1_expr_op_add}{ilang\+::\+Expr\+Op\+Add}}
+\begin{DoxyCompactList}\small\item\em The wrapper for unsigned addition. \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{classilang_1_1_expr_op_sub}{ilang\+::\+Expr\+Op\+Sub}}
+\begin{DoxyCompactList}\small\item\em The wrapper for unsigned subtraction. \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{classilang_1_1_expr_op_eq}{ilang\+::\+Expr\+Op\+Eq}}
+\begin{DoxyCompactList}\small\item\em The class wrapper for binary comparison EQ \char`\"{}==\char`\"{}. \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{classilang_1_1_expr_op_lt}{ilang\+::\+Expr\+Op\+Lt}}
+\begin{DoxyCompactList}\small\item\em The class wrapper for binary comparison signed less than \char`\"{}$<$\char`\"{}. \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{classilang_1_1_expr_op_gt}{ilang\+::\+Expr\+Op\+Gt}}
+\begin{DoxyCompactList}\small\item\em The class wrapper for binary comparison signed greater than \char`\"{}$>$\char`\"{}. \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{classilang_1_1_expr_op_ult}{ilang\+::\+Expr\+Op\+Ult}}
+\begin{DoxyCompactList}\small\item\em The class wrapper for binary comparison unsigned less than. \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{classilang_1_1_expr_op_ugt}{ilang\+::\+Expr\+Op\+Ugt}}
+\begin{DoxyCompactList}\small\item\em The class wrapper for binary comparison unsigned greater than. \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{classilang_1_1_expr_op_load}{ilang\+::\+Expr\+Op\+Load}}
+\begin{DoxyCompactList}\small\item\em The class wrapper for memory load. \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{classilang_1_1_expr_op_store}{ilang\+::\+Expr\+Op\+Store}}
+\begin{DoxyCompactList}\small\item\em The class wrapper for memory store. \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{classilang_1_1_expr_op_concat}{ilang\+::\+Expr\+Op\+Concat}}
+\begin{DoxyCompactList}\small\item\em The class wrapper for bitvector concatenation. \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{classilang_1_1_expr_op_extract}{ilang\+::\+Expr\+Op\+Extract}}
+\begin{DoxyCompactList}\small\item\em The class wrapper for bitvector extraction. \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{classilang_1_1_expr_op_z_ext}{ilang\+::\+Expr\+Op\+Z\+Ext}}
+\begin{DoxyCompactList}\small\item\em The class wrapper for zero-\/extend. \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{classilang_1_1_expr_op_s_ext}{ilang\+::\+Expr\+Op\+S\+Ext}}
+\begin{DoxyCompactList}\small\item\em The calss wrapper for sign-\/extend. \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{classilang_1_1_expr_op_app_func}{ilang\+::\+Expr\+Op\+App\+Func}}
+\begin{DoxyCompactList}\small\item\em The class wrapper for apply uninterpreted function. \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{classilang_1_1_expr_op_imply}{ilang\+::\+Expr\+Op\+Imply}}
+\begin{DoxyCompactList}\small\item\em The class wrapper for logical imply. \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{classilang_1_1_expr_op_ite}{ilang\+::\+Expr\+Op\+Ite}}
+\begin{DoxyCompactList}\small\item\em The class wrapper for if-\/then-\/else. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Namespaces}
+\begin{DoxyCompactItemize}
+\item 
+ \mbox{\hyperlink{namespaceilang}{ilang}}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Header for the class Expr\+Op 

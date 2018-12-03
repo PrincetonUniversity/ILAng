@@ -1,0 +1,58 @@
+\hypertarget{classilang_1_1_object}{}\section{ilang\+:\+:Object Class Reference}
+\label{classilang_1_1_object}\index{ilang\+::\+Object@{ilang\+::\+Object}}
+
+
+The basest type in the I\+LA structure. It can be either \mbox{\hyperlink{classilang_1_1_ast}{Ast}}, \mbox{\hyperlink{classilang_1_1_instr}{Instr}}, or \mbox{\hyperlink{classilang_1_1_instr_lvl_abs}{Instr\+Lvl\+Abs}}.  
+
+
+
+
+{\ttfamily \#include $<$object.\+h$>$}
+
+Inheritance diagram for ilang\+:\+:Object\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=12.000000cm]{classilang_1_1_object}
+\end{center}
+\end{figure}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classilang_1_1_object_af23d3767cfbc8cb9312281cbfa4aae48}\label{classilang_1_1_object_af23d3767cfbc8cb9312281cbfa4aae48}} 
+typedef std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classilang_1_1_object}{Object}} $>$ \mbox{\hyperlink{classilang_1_1_object_af23d3767cfbc8cb9312281cbfa4aae48}{Obj\+Ptr}}
+\begin{DoxyCompactList}\small\item\em Pointer type for normal use of \mbox{\hyperlink{classilang_1_1_object}{Object}}. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classilang_1_1_object_acd2c81efbfd62f8d4de1d3007a187fc5}\label{classilang_1_1_object_acd2c81efbfd62f8d4de1d3007a187fc5}} 
+\mbox{\hyperlink{classilang_1_1_object_acd2c81efbfd62f8d4de1d3007a187fc5}{Object}} ()
+\begin{DoxyCompactList}\small\item\em Default constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_object_a12c8abc39d9d9d4fb1876ce54970e880}\label{classilang_1_1_object_a12c8abc39d9d9d4fb1876ce54970e880}} 
+\mbox{\hyperlink{classilang_1_1_object_a12c8abc39d9d9d4fb1876ce54970e880}{Object}} (const std\+::string \&\mbox{\hyperlink{classilang_1_1_object_acf20b072e69f572910d7d80c93af0b38}{name}})
+\begin{DoxyCompactList}\small\item\em Constructor with string name. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_object_a3d9140b62e70e2b96537aa4452932197}\label{classilang_1_1_object_a3d9140b62e70e2b96537aa4452932197}} 
+virtual \mbox{\hyperlink{classilang_1_1_object_a3d9140b62e70e2b96537aa4452932197}{$\sim$\+Object}} ()
+\begin{DoxyCompactList}\small\item\em Default destructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_object_acf20b072e69f572910d7d80c93af0b38}\label{classilang_1_1_object_acf20b072e69f572910d7d80c93af0b38}} 
+const \mbox{\hyperlink{classilang_1_1_symbol}{Symbol}} \& \mbox{\hyperlink{classilang_1_1_object_acf20b072e69f572910d7d80c93af0b38}{name}} () const
+\begin{DoxyCompactList}\small\item\em Get the symbol (name). \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_object_aee41c5fd5a09e58fe4f2217eacf0a7ab}\label{classilang_1_1_object_aee41c5fd5a09e58fe4f2217eacf0a7ab}} 
+virtual bool \mbox{\hyperlink{classilang_1_1_object_aee41c5fd5a09e58fe4f2217eacf0a7ab}{is\+\_\+instr\+\_\+lvl\+\_\+abs}} () const
+\begin{DoxyCompactList}\small\item\em Is type \mbox{\hyperlink{classilang_1_1_instr_lvl_abs}{Instr\+Lvl\+Abs}}. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_object_abafa1d9b1ba81835b191fc8a032f13ae}\label{classilang_1_1_object_abafa1d9b1ba81835b191fc8a032f13ae}} 
+virtual bool \mbox{\hyperlink{classilang_1_1_object_abafa1d9b1ba81835b191fc8a032f13ae}{is\+\_\+instr}} () const
+\begin{DoxyCompactList}\small\item\em Is type \mbox{\hyperlink{classilang_1_1_instr}{Instr}}. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_object_a923a6cec7e1bad09507337c8ffb23942}\label{classilang_1_1_object_a923a6cec7e1bad09507337c8ffb23942}} 
+virtual bool \mbox{\hyperlink{classilang_1_1_object_a923a6cec7e1bad09507337c8ffb23942}{is\+\_\+ast}} () const
+\begin{DoxyCompactList}\small\item\em Is type \mbox{\hyperlink{classilang_1_1_ast}{Ast}}. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_object_adbe3fc31434382a559e5337535f1edde}\label{classilang_1_1_object_adbe3fc31434382a559e5337535f1edde}} 
+virtual std\+::ostream \& \mbox{\hyperlink{classilang_1_1_object_adbe3fc31434382a559e5337535f1edde}{Print}} (std\+::ostream \&out) const =0
+\begin{DoxyCompactList}\small\item\em Output function. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+The basest type in the I\+LA structure. It can be either \mbox{\hyperlink{classilang_1_1_ast}{Ast}}, \mbox{\hyperlink{classilang_1_1_instr}{Instr}}, or \mbox{\hyperlink{classilang_1_1_instr_lvl_abs}{Instr\+Lvl\+Abs}}. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{object_8h}{object.\+h}}\end{DoxyCompactItemize}

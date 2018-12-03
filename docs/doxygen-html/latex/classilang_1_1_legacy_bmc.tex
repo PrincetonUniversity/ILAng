@@ -1,0 +1,40 @@
+\hypertarget{classilang_1_1_legacy_bmc}{}\section{ilang\+:\+:Legacy\+Bmc Class Reference}
+\label{classilang_1_1_legacy_bmc}\index{ilang\+::\+Legacy\+Bmc@{ilang\+::\+Legacy\+Bmc}}
+
+
+Simplified bounded model checking engine for I\+L\+As.  
+
+
+
+
+{\ttfamily \#include $<$legacy\+\_\+bmc.\+h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classilang_1_1_legacy_bmc_ae521e48152acc2a79123ccf6020f037d}\label{classilang_1_1_legacy_bmc_ae521e48152acc2a79123ccf6020f037d}} 
+\mbox{\hyperlink{classilang_1_1_legacy_bmc_ae521e48152acc2a79123ccf6020f037d}{Legacy\+Bmc}} ()
+\begin{DoxyCompactList}\small\item\em Default constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_legacy_bmc_a1841aa508b435631541a83f525f29193}\label{classilang_1_1_legacy_bmc_a1841aa508b435631541a83f525f29193}} 
+\mbox{\hyperlink{classilang_1_1_legacy_bmc_a1841aa508b435631541a83f525f29193}{$\sim$\+Legacy\+Bmc}} ()
+\begin{DoxyCompactList}\small\item\em Default destructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_legacy_bmc_a5b23dfbfd4e89db6bba3baecee9228cc}\label{classilang_1_1_legacy_bmc_a5b23dfbfd4e89db6bba3baecee9228cc}} 
+void \mbox{\hyperlink{classilang_1_1_legacy_bmc_a5b23dfbfd4e89db6bba3baecee9228cc}{Add\+Init}} (\mbox{\hyperlink{namespaceilang_a7c4196c72e53ea4df4b7861af7bc3bce}{Expr\+Ptr}} init)
+\begin{DoxyCompactList}\small\item\em Add initial condition to the solver. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_legacy_bmc_a0e3603ca99e51e0d12786ce2386110e6}\label{classilang_1_1_legacy_bmc_a0e3603ca99e51e0d12786ce2386110e6}} 
+void \mbox{\hyperlink{classilang_1_1_legacy_bmc_a0e3603ca99e51e0d12786ce2386110e6}{Add\+Invariant}} (\mbox{\hyperlink{namespaceilang_a7c4196c72e53ea4df4b7861af7bc3bce}{Expr\+Ptr}} inv)
+\begin{DoxyCompactList}\small\item\em Add invariant to the solver. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_legacy_bmc_a4d096b7db72d448163865b78449324db}\label{classilang_1_1_legacy_bmc_a4d096b7db72d448163865b78449324db}} 
+void \mbox{\hyperlink{classilang_1_1_legacy_bmc_a4d096b7db72d448163865b78449324db}{Add\+Property}} (\mbox{\hyperlink{namespaceilang_a7c4196c72e53ea4df4b7861af7bc3bce}{Expr\+Ptr}} prop)
+\begin{DoxyCompactList}\small\item\em Add property of one I\+LA. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_legacy_bmc_af52a74ba7df5fe3b7bc3d3c0a9b82789}\label{classilang_1_1_legacy_bmc_af52a74ba7df5fe3b7bc3d3c0a9b82789}} 
+z3\+::check\+\_\+result \mbox{\hyperlink{classilang_1_1_legacy_bmc_af52a74ba7df5fe3b7bc3d3c0a9b82789}{Check}} (\mbox{\hyperlink{namespaceilang_ad1b30fdf347e493b3937143da05d1a72}{Instr\+Lvl\+Abs\+Ptr}} m0, const int \&k0, \mbox{\hyperlink{namespaceilang_ad1b30fdf347e493b3937143da05d1a72}{Instr\+Lvl\+Abs\+Ptr}} m1, const int \&k1)
+\begin{DoxyCompactList}\small\item\em Legacy B\+MC where two I\+L\+As are unrolled and compared monolithically. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Simplified bounded model checking engine for I\+L\+As. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{legacy__bmc_8h}{legacy\+\_\+bmc.\+h}}\end{DoxyCompactItemize}

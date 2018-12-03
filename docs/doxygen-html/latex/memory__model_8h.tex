@@ -1,0 +1,35 @@
+\hypertarget{memory__model_8h}{}\section{memory\+\_\+model.\+h File Reference}
+\label{memory__model_8h}\index{memory\+\_\+model.\+h@{memory\+\_\+model.\+h}}
+{\ttfamily \#include \char`\"{}ilang/mcm/axiom\+\_\+helper.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}ilang/mcm/ast\+\_\+helper.\+h\char`\"{}}\newline
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{classilang_1_1_trace_step}{ilang\+::\+Trace\+Step}}
+\begin{DoxyCompactList}\small\item\em The class for trace step (an instance of instruction) As in the unrolling, there may be multiple instances of the same instructions, so we have the trace steps. \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{classilang_1_1_memory_model}{ilang\+::\+Memory\+Model}}
+\begin{DoxyCompactList}\small\item\em The base class for memory models. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Namespaces}
+\begin{DoxyCompactItemize}
+\item 
+ \mbox{\hyperlink{namespaceilang}{ilang}}
+\end{DoxyCompactItemize}
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{memory__model_8h_a85f83f90c2f3bc8b7e9c0236f731e3af}\label{memory__model_8h_a85f83f90c2f3bc8b7e9c0236f731e3af}} 
+\#define {\bfseries F\+I\+N\+A\+L\+\_\+\+S\+T\+E\+P\+\_\+\+S\+U\+F\+F\+IX}~\char`\"{}final\char`\"{}
+\end{DoxyCompactItemize}
+\subsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{namespaceilang_ab4dc990a0af528177f6f90b63bd208c7}\label{namespaceilang_ab4dc990a0af528177f6f90b63bd208c7}} 
+enum \mbox{\hyperlink{namespaceilang_ab4dc990a0af528177f6f90b63bd208c7}{ilang\+::\+Access\+Type}} \{ {\bfseries R\+E\+AD}, 
+{\bfseries W\+R\+I\+TE}, 
+{\bfseries E\+I\+T\+H\+ER}
+ \}
+\begin{DoxyCompactList}\small\item\em Type of state read or write. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Header for memory model 

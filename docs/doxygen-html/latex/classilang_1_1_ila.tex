@@ -1,0 +1,283 @@
+\hypertarget{classilang_1_1_ila}{}\section{ilang\+:\+:Ila Class Reference}
+\label{classilang_1_1_ila}\index{ilang\+::\+Ila@{ilang\+::\+Ila}}
+
+
+The wrapper of \mbox{\hyperlink{classilang_1_1_instr_lvl_abs}{Instr\+Lvl\+Abs}} (I\+LA).  
+
+
+
+
+{\ttfamily \#include $<$cpp\+\_\+api.\+h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classilang_1_1_ila_a04b8de613b8afad49d3c6758755aae4d}\label{classilang_1_1_ila_a04b8de613b8afad49d3c6758755aae4d}} 
+\mbox{\hyperlink{classilang_1_1_ila_a04b8de613b8afad49d3c6758755aae4d}{Ila}} (const std\+::string \&\mbox{\hyperlink{classilang_1_1_ila_aef59c0b294a99f65ce5dccef8dd1ccb7}{name}})
+\begin{DoxyCompactList}\small\item\em Constructor with the specified name. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_ila_a2b661ff9568608f43af0b3c556003472}\label{classilang_1_1_ila_a2b661ff9568608f43af0b3c556003472}} 
+\mbox{\hyperlink{classilang_1_1_ila_a2b661ff9568608f43af0b3c556003472}{Ila}} (Ila\+Ptr ptr)
+\begin{DoxyCompactList}\small\item\em Constructor with the pointer of the actual data. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_ila_ae128e007280d3d334834af931ef60217}\label{classilang_1_1_ila_ae128e007280d3d334834af931ef60217}} 
+\mbox{\hyperlink{classilang_1_1_ila_ae128e007280d3d334834af931ef60217}{$\sim$\+Ila}} ()
+\begin{DoxyCompactList}\small\item\em Default destructor. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classilang_1_1_expr_ref}{Expr\+Ref}} \mbox{\hyperlink{classilang_1_1_ila_aa08f99af425455d098aaae6c139476b0}{New\+Bool\+State}} (const std\+::string \&\mbox{\hyperlink{classilang_1_1_ila_aef59c0b294a99f65ce5dccef8dd1ccb7}{name}})
+\begin{DoxyCompactList}\small\item\em Declare a state variable of Boolean type. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classilang_1_1_expr_ref}{Expr\+Ref}} \mbox{\hyperlink{classilang_1_1_ila_a38c75ca43e70d29087279a13c66c0e4f}{New\+Bv\+State}} (const std\+::string \&\mbox{\hyperlink{classilang_1_1_ila_aef59c0b294a99f65ce5dccef8dd1ccb7}{name}}, const int \&bit\+\_\+width)
+\begin{DoxyCompactList}\small\item\em Declare a state variable of bit-\/vector type. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classilang_1_1_expr_ref}{Expr\+Ref}} \mbox{\hyperlink{classilang_1_1_ila_aba2cc80796a528ec4d051b08cc968d1e}{New\+Mem\+State}} (const std\+::string \&\mbox{\hyperlink{classilang_1_1_ila_aef59c0b294a99f65ce5dccef8dd1ccb7}{name}}, const int \&addr\+\_\+width, const int \&data\+\_\+width)
+\begin{DoxyCompactList}\small\item\em Declare a state variable of memory (array) type. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classilang_1_1_expr_ref}{Expr\+Ref}} \mbox{\hyperlink{classilang_1_1_ila_a08e6a42c29779103ef08e87142048aec}{New\+Bool\+Input}} (const std\+::string \&\mbox{\hyperlink{classilang_1_1_ila_aef59c0b294a99f65ce5dccef8dd1ccb7}{name}})
+\begin{DoxyCompactList}\small\item\em Declare an input of Boolean type. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classilang_1_1_expr_ref}{Expr\+Ref}} \mbox{\hyperlink{classilang_1_1_ila_a22fa6a46415f285a85ad8a02eb55c006}{New\+Bv\+Input}} (const std\+::string \&\mbox{\hyperlink{classilang_1_1_ila_aef59c0b294a99f65ce5dccef8dd1ccb7}{name}}, const int \&bit\+\_\+width)
+\begin{DoxyCompactList}\small\item\em Declare an input of bit-\/vector type. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classilang_1_1_ila_a38d066e8093e5b84b3cd26dda72a50b2}{Add\+Init}} (const \mbox{\hyperlink{classilang_1_1_expr_ref}{Expr\+Ref}} \&\mbox{\hyperlink{classilang_1_1_ila_ac1d991c75fe669b9c39c84ad1820f125}{init}})
+\begin{DoxyCompactList}\small\item\em Add one initial constraint. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classilang_1_1_ila_a13311b670d91f92bce21835231b33c1d}{Set\+Fetch}} (const \mbox{\hyperlink{classilang_1_1_expr_ref}{Expr\+Ref}} \&\mbox{\hyperlink{classilang_1_1_ila_a88022eda9900c50563ac6d0cfd3820f8}{fetch}})
+\begin{DoxyCompactList}\small\item\em Set the fetch function of the I\+LA. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classilang_1_1_ila_a68c51d944fab4a623be6af022a579afc}{Set\+Valid}} (const \mbox{\hyperlink{classilang_1_1_expr_ref}{Expr\+Ref}} \&\mbox{\hyperlink{classilang_1_1_ila_afe9140d18ae01f7956c136ea40b1dba7}{valid}})
+\begin{DoxyCompactList}\small\item\em Set the valid function of the I\+LA. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classilang_1_1_instr_ref}{Instr\+Ref}} \mbox{\hyperlink{classilang_1_1_ila_ac154deacddf086c175365744490a6405}{New\+Instr}} (const std\+::string \&\mbox{\hyperlink{classilang_1_1_ila_aef59c0b294a99f65ce5dccef8dd1ccb7}{name}})
+\begin{DoxyCompactList}\small\item\em Declare an instruction. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classilang_1_1_ila}{Ila}} \mbox{\hyperlink{classilang_1_1_ila_aececb677cbc28452afa22f90da102022}{New\+Child}} (const std\+::string \&\mbox{\hyperlink{classilang_1_1_ila_aef59c0b294a99f65ce5dccef8dd1ccb7}{name}})
+\begin{DoxyCompactList}\small\item\em Declare a child-\/\+I\+LA. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classilang_1_1_ila_a08499172526aea2df0a58420de5eab44}{Export\+To\+Verilog}} (std\+::ostream \&fout) const
+\begin{DoxyCompactList}\small\item\em Export an I\+LA as Verilog. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_ila_ae8dc4a2b9b78b36da849e19a4e2cd0a1}\label{classilang_1_1_ila_ae8dc4a2b9b78b36da849e19a4e2cd0a1}} 
+size\+\_\+t \mbox{\hyperlink{classilang_1_1_ila_ae8dc4a2b9b78b36da849e19a4e2cd0a1}{input\+\_\+num}} () const
+\begin{DoxyCompactList}\small\item\em Return the number of input variables. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_ila_a311c18856362d1baa0852072688f4ae0}\label{classilang_1_1_ila_a311c18856362d1baa0852072688f4ae0}} 
+size\+\_\+t \mbox{\hyperlink{classilang_1_1_ila_a311c18856362d1baa0852072688f4ae0}{state\+\_\+num}} () const
+\begin{DoxyCompactList}\small\item\em Return the number of state variables. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_ila_a20c19ce59e225dc1a1f8c8e159245e3f}\label{classilang_1_1_ila_a20c19ce59e225dc1a1f8c8e159245e3f}} 
+size\+\_\+t \mbox{\hyperlink{classilang_1_1_ila_a20c19ce59e225dc1a1f8c8e159245e3f}{instr\+\_\+num}} () const
+\begin{DoxyCompactList}\small\item\em Return the number of instructions. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_ila_a1365aca7ddfcd4a2111dd208a2563b9a}\label{classilang_1_1_ila_a1365aca7ddfcd4a2111dd208a2563b9a}} 
+size\+\_\+t \mbox{\hyperlink{classilang_1_1_ila_a1365aca7ddfcd4a2111dd208a2563b9a}{child\+\_\+num}} () const
+\begin{DoxyCompactList}\small\item\em Return the number of child-\/\+I\+L\+As. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_ila_a1ca88d77cc016a17cf07153de0bd2621}\label{classilang_1_1_ila_a1ca88d77cc016a17cf07153de0bd2621}} 
+size\+\_\+t \mbox{\hyperlink{classilang_1_1_ila_a1ca88d77cc016a17cf07153de0bd2621}{init\+\_\+num}} () const
+\begin{DoxyCompactList}\small\item\em Return the number of initial condition. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_ila_aef59c0b294a99f65ce5dccef8dd1ccb7}\label{classilang_1_1_ila_aef59c0b294a99f65ce5dccef8dd1ccb7}} 
+std\+::string \mbox{\hyperlink{classilang_1_1_ila_aef59c0b294a99f65ce5dccef8dd1ccb7}{name}} () const
+\begin{DoxyCompactList}\small\item\em Return the \mbox{\hyperlink{classilang_1_1_ila}{Ila}} name. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_ila_a88022eda9900c50563ac6d0cfd3820f8}\label{classilang_1_1_ila_a88022eda9900c50563ac6d0cfd3820f8}} 
+\mbox{\hyperlink{classilang_1_1_expr_ref}{Expr\+Ref}} \mbox{\hyperlink{classilang_1_1_ila_a88022eda9900c50563ac6d0cfd3820f8}{fetch}} () const
+\begin{DoxyCompactList}\small\item\em Return the fetch function. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_ila_afe9140d18ae01f7956c136ea40b1dba7}\label{classilang_1_1_ila_afe9140d18ae01f7956c136ea40b1dba7}} 
+\mbox{\hyperlink{classilang_1_1_expr_ref}{Expr\+Ref}} \mbox{\hyperlink{classilang_1_1_ila_afe9140d18ae01f7956c136ea40b1dba7}{valid}} () const
+\begin{DoxyCompactList}\small\item\em Return the valid function. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_ila_adca88c16978b6b38d3136e4bb80a4edf}\label{classilang_1_1_ila_adca88c16978b6b38d3136e4bb80a4edf}} 
+\mbox{\hyperlink{classilang_1_1_expr_ref}{Expr\+Ref}} \mbox{\hyperlink{classilang_1_1_ila_adca88c16978b6b38d3136e4bb80a4edf}{input}} (const size\+\_\+t \&i) const
+\begin{DoxyCompactList}\small\item\em Access the i-\/th input variable. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_ila_a1b00fea38839636b56b001c0d617b300}\label{classilang_1_1_ila_a1b00fea38839636b56b001c0d617b300}} 
+\mbox{\hyperlink{classilang_1_1_expr_ref}{Expr\+Ref}} \mbox{\hyperlink{classilang_1_1_ila_a1b00fea38839636b56b001c0d617b300}{state}} (const size\+\_\+t \&i) const
+\begin{DoxyCompactList}\small\item\em Access the i-\/th state variable. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_ila_aefa0aecd00a104cdcfc25a04a99316cd}\label{classilang_1_1_ila_aefa0aecd00a104cdcfc25a04a99316cd}} 
+\mbox{\hyperlink{classilang_1_1_instr_ref}{Instr\+Ref}} \mbox{\hyperlink{classilang_1_1_ila_aefa0aecd00a104cdcfc25a04a99316cd}{instr}} (const size\+\_\+t \&i) const
+\begin{DoxyCompactList}\small\item\em Access the i-\/th instruction. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_ila_a4b2e825a157ab9207dc6d6cd6d13fbdd}\label{classilang_1_1_ila_a4b2e825a157ab9207dc6d6cd6d13fbdd}} 
+\mbox{\hyperlink{classilang_1_1_ila}{Ila}} \mbox{\hyperlink{classilang_1_1_ila_a4b2e825a157ab9207dc6d6cd6d13fbdd}{child}} (const size\+\_\+t \&i) const
+\begin{DoxyCompactList}\small\item\em Access the i-\/th child-\/\+I\+LA. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_ila_ac1d991c75fe669b9c39c84ad1820f125}\label{classilang_1_1_ila_ac1d991c75fe669b9c39c84ad1820f125}} 
+\mbox{\hyperlink{classilang_1_1_expr_ref}{Expr\+Ref}} \mbox{\hyperlink{classilang_1_1_ila_ac1d991c75fe669b9c39c84ad1820f125}{init}} (const size\+\_\+t \&i) const
+\begin{DoxyCompactList}\small\item\em Access the i-\/th initial condition. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_ila_aea7ae3e8819b4cab0524eef4b66bf97f}\label{classilang_1_1_ila_aea7ae3e8819b4cab0524eef4b66bf97f}} 
+\mbox{\hyperlink{classilang_1_1_expr_ref}{Expr\+Ref}} \mbox{\hyperlink{classilang_1_1_ila_aea7ae3e8819b4cab0524eef4b66bf97f}{input}} (const std\+::string \&\mbox{\hyperlink{classilang_1_1_ila_aef59c0b294a99f65ce5dccef8dd1ccb7}{name}}) const
+\begin{DoxyCompactList}\small\item\em Return the named input variable; return N\+U\+LL if not registered. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_ila_af4faf3005888bf8dbfea193c9257d8bf}\label{classilang_1_1_ila_af4faf3005888bf8dbfea193c9257d8bf}} 
+\mbox{\hyperlink{classilang_1_1_expr_ref}{Expr\+Ref}} \mbox{\hyperlink{classilang_1_1_ila_af4faf3005888bf8dbfea193c9257d8bf}{state}} (const std\+::string \&\mbox{\hyperlink{classilang_1_1_ila_aef59c0b294a99f65ce5dccef8dd1ccb7}{name}}) const
+\begin{DoxyCompactList}\small\item\em Return the named state variable; return N\+U\+LL if not registered. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_ila_aa22f7d8ff1692c2267f5b41a06c383be}\label{classilang_1_1_ila_aa22f7d8ff1692c2267f5b41a06c383be}} 
+\mbox{\hyperlink{classilang_1_1_instr_ref}{Instr\+Ref}} \mbox{\hyperlink{classilang_1_1_ila_aa22f7d8ff1692c2267f5b41a06c383be}{instr}} (const std\+::string \&\mbox{\hyperlink{classilang_1_1_ila_aef59c0b294a99f65ce5dccef8dd1ccb7}{name}}) const
+\begin{DoxyCompactList}\small\item\em Return the named instruction; return N\+U\+LL if not registered. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_ila_a01e323477e1d6c6954a3b73df3da02ac}\label{classilang_1_1_ila_a01e323477e1d6c6954a3b73df3da02ac}} 
+\mbox{\hyperlink{classilang_1_1_ila}{Ila}} \mbox{\hyperlink{classilang_1_1_ila_a01e323477e1d6c6954a3b73df3da02ac}{child}} (const std\+::string \&\mbox{\hyperlink{classilang_1_1_ila_aef59c0b294a99f65ce5dccef8dd1ccb7}{name}}) const
+\begin{DoxyCompactList}\small\item\em Return the named child-\/\+I\+LA; return N\+U\+LL if not registered. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_ila_a69736aa320c68e4eb7d80c6a083af55f}\label{classilang_1_1_ila_a69736aa320c68e4eb7d80c6a083af55f}} 
+Ila\+Ptr \mbox{\hyperlink{classilang_1_1_ila_a69736aa320c68e4eb7d80c6a083af55f}{get}} () const
+\begin{DoxyCompactList}\small\item\em Return the wrapped I\+LA pointer. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+The wrapper of \mbox{\hyperlink{classilang_1_1_instr_lvl_abs}{Instr\+Lvl\+Abs}} (I\+LA). 
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{classilang_1_1_ila_a38d066e8093e5b84b3cd26dda72a50b2}\label{classilang_1_1_ila_a38d066e8093e5b84b3cd26dda72a50b2}} 
+\index{ilang\+::\+Ila@{ilang\+::\+Ila}!Add\+Init@{Add\+Init}}
+\index{Add\+Init@{Add\+Init}!ilang\+::\+Ila@{ilang\+::\+Ila}}
+\subsubsection{\texorpdfstring{Add\+Init()}{AddInit()}}
+{\footnotesize\ttfamily void ilang\+::\+Ila\+::\+Add\+Init (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classilang_1_1_expr_ref}{Expr\+Ref}} \&}]{init }\end{DoxyParamCaption})}
+
+
+
+Add one initial constraint. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em init} & the Boolean type initial constraint. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classilang_1_1_ila_a08499172526aea2df0a58420de5eab44}\label{classilang_1_1_ila_a08499172526aea2df0a58420de5eab44}} 
+\index{ilang\+::\+Ila@{ilang\+::\+Ila}!Export\+To\+Verilog@{Export\+To\+Verilog}}
+\index{Export\+To\+Verilog@{Export\+To\+Verilog}!ilang\+::\+Ila@{ilang\+::\+Ila}}
+\subsubsection{\texorpdfstring{Export\+To\+Verilog()}{ExportToVerilog()}}
+{\footnotesize\ttfamily void ilang\+::\+Ila\+::\+Export\+To\+Verilog (\begin{DoxyParamCaption}\item[{std\+::ostream \&}]{fout }\end{DoxyParamCaption}) const}
+
+
+
+Export an I\+LA as Verilog. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em filename} & the file name of the generated Verilog source \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classilang_1_1_ila_a08e6a42c29779103ef08e87142048aec}\label{classilang_1_1_ila_a08e6a42c29779103ef08e87142048aec}} 
+\index{ilang\+::\+Ila@{ilang\+::\+Ila}!New\+Bool\+Input@{New\+Bool\+Input}}
+\index{New\+Bool\+Input@{New\+Bool\+Input}!ilang\+::\+Ila@{ilang\+::\+Ila}}
+\subsubsection{\texorpdfstring{New\+Bool\+Input()}{NewBoolInput()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classilang_1_1_expr_ref}{Expr\+Ref}} ilang\+::\+Ila\+::\+New\+Bool\+Input (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{name }\end{DoxyParamCaption})}
+
+
+
+Declare an input of Boolean type. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em name} & input name. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classilang_1_1_ila_aa08f99af425455d098aaae6c139476b0}\label{classilang_1_1_ila_aa08f99af425455d098aaae6c139476b0}} 
+\index{ilang\+::\+Ila@{ilang\+::\+Ila}!New\+Bool\+State@{New\+Bool\+State}}
+\index{New\+Bool\+State@{New\+Bool\+State}!ilang\+::\+Ila@{ilang\+::\+Ila}}
+\subsubsection{\texorpdfstring{New\+Bool\+State()}{NewBoolState()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classilang_1_1_expr_ref}{Expr\+Ref}} ilang\+::\+Ila\+::\+New\+Bool\+State (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{name }\end{DoxyParamCaption})}
+
+
+
+Declare a state variable of Boolean type. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em name} & state variable name. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classilang_1_1_ila_a22fa6a46415f285a85ad8a02eb55c006}\label{classilang_1_1_ila_a22fa6a46415f285a85ad8a02eb55c006}} 
+\index{ilang\+::\+Ila@{ilang\+::\+Ila}!New\+Bv\+Input@{New\+Bv\+Input}}
+\index{New\+Bv\+Input@{New\+Bv\+Input}!ilang\+::\+Ila@{ilang\+::\+Ila}}
+\subsubsection{\texorpdfstring{New\+Bv\+Input()}{NewBvInput()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classilang_1_1_expr_ref}{Expr\+Ref}} ilang\+::\+Ila\+::\+New\+Bv\+Input (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{name,  }\item[{const int \&}]{bit\+\_\+width }\end{DoxyParamCaption})}
+
+
+
+Declare an input of bit-\/vector type. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em name} & input name. \\
+\hline
+\mbox{\texttt{ in}}  & {\em bit\+\_\+width} & bit-\/vector bit-\/width. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classilang_1_1_ila_a38c75ca43e70d29087279a13c66c0e4f}\label{classilang_1_1_ila_a38c75ca43e70d29087279a13c66c0e4f}} 
+\index{ilang\+::\+Ila@{ilang\+::\+Ila}!New\+Bv\+State@{New\+Bv\+State}}
+\index{New\+Bv\+State@{New\+Bv\+State}!ilang\+::\+Ila@{ilang\+::\+Ila}}
+\subsubsection{\texorpdfstring{New\+Bv\+State()}{NewBvState()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classilang_1_1_expr_ref}{Expr\+Ref}} ilang\+::\+Ila\+::\+New\+Bv\+State (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{name,  }\item[{const int \&}]{bit\+\_\+width }\end{DoxyParamCaption})}
+
+
+
+Declare a state variable of bit-\/vector type. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em name} & state variable name. \\
+\hline
+\mbox{\texttt{ in}}  & {\em bit\+\_\+width} & bit-\/vector bit-\/width. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classilang_1_1_ila_aececb677cbc28452afa22f90da102022}\label{classilang_1_1_ila_aececb677cbc28452afa22f90da102022}} 
+\index{ilang\+::\+Ila@{ilang\+::\+Ila}!New\+Child@{New\+Child}}
+\index{New\+Child@{New\+Child}!ilang\+::\+Ila@{ilang\+::\+Ila}}
+\subsubsection{\texorpdfstring{New\+Child()}{NewChild()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classilang_1_1_ila}{Ila}} ilang\+::\+Ila\+::\+New\+Child (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{name }\end{DoxyParamCaption})}
+
+
+
+Declare a child-\/\+I\+LA. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em name} & child-\/\+I\+LA name. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classilang_1_1_ila_ac154deacddf086c175365744490a6405}\label{classilang_1_1_ila_ac154deacddf086c175365744490a6405}} 
+\index{ilang\+::\+Ila@{ilang\+::\+Ila}!New\+Instr@{New\+Instr}}
+\index{New\+Instr@{New\+Instr}!ilang\+::\+Ila@{ilang\+::\+Ila}}
+\subsubsection{\texorpdfstring{New\+Instr()}{NewInstr()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classilang_1_1_instr_ref}{Instr\+Ref}} ilang\+::\+Ila\+::\+New\+Instr (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{name }\end{DoxyParamCaption})}
+
+
+
+Declare an instruction. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em name} & instruction name. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classilang_1_1_ila_aba2cc80796a528ec4d051b08cc968d1e}\label{classilang_1_1_ila_aba2cc80796a528ec4d051b08cc968d1e}} 
+\index{ilang\+::\+Ila@{ilang\+::\+Ila}!New\+Mem\+State@{New\+Mem\+State}}
+\index{New\+Mem\+State@{New\+Mem\+State}!ilang\+::\+Ila@{ilang\+::\+Ila}}
+\subsubsection{\texorpdfstring{New\+Mem\+State()}{NewMemState()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classilang_1_1_expr_ref}{Expr\+Ref}} ilang\+::\+Ila\+::\+New\+Mem\+State (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{name,  }\item[{const int \&}]{addr\+\_\+width,  }\item[{const int \&}]{data\+\_\+width }\end{DoxyParamCaption})}
+
+
+
+Declare a state variable of memory (array) type. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em name} & state variable name. \\
+\hline
+\mbox{\texttt{ in}}  & {\em addr\+\_\+width} & address bit-\/width. \\
+\hline
+\mbox{\texttt{ in}}  & {\em data\+\_\+width} & data bit-\/width. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classilang_1_1_ila_a13311b670d91f92bce21835231b33c1d}\label{classilang_1_1_ila_a13311b670d91f92bce21835231b33c1d}} 
+\index{ilang\+::\+Ila@{ilang\+::\+Ila}!Set\+Fetch@{Set\+Fetch}}
+\index{Set\+Fetch@{Set\+Fetch}!ilang\+::\+Ila@{ilang\+::\+Ila}}
+\subsubsection{\texorpdfstring{Set\+Fetch()}{SetFetch()}}
+{\footnotesize\ttfamily void ilang\+::\+Ila\+::\+Set\+Fetch (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classilang_1_1_expr_ref}{Expr\+Ref}} \&}]{fetch }\end{DoxyParamCaption})}
+
+
+
+Set the fetch function of the I\+LA. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em fetch} & the bit-\/vector type fetch function. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classilang_1_1_ila_a68c51d944fab4a623be6af022a579afc}\label{classilang_1_1_ila_a68c51d944fab4a623be6af022a579afc}} 
+\index{ilang\+::\+Ila@{ilang\+::\+Ila}!Set\+Valid@{Set\+Valid}}
+\index{Set\+Valid@{Set\+Valid}!ilang\+::\+Ila@{ilang\+::\+Ila}}
+\subsubsection{\texorpdfstring{Set\+Valid()}{SetValid()}}
+{\footnotesize\ttfamily void ilang\+::\+Ila\+::\+Set\+Valid (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classilang_1_1_expr_ref}{Expr\+Ref}} \&}]{valid }\end{DoxyParamCaption})}
+
+
+
+Set the valid function of the I\+LA. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em valid} & the Boolean type valid function. \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{cpp__api_8h}{cpp\+\_\+api.\+h}}\end{DoxyCompactItemize}

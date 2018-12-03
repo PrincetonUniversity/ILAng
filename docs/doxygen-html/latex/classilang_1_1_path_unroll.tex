@@ -1,0 +1,147 @@
+\hypertarget{classilang_1_1_path_unroll}{}\section{ilang\+:\+:Path\+Unroll Class Reference}
+\label{classilang_1_1_path_unroll}\index{ilang\+::\+Path\+Unroll@{ilang\+::\+Path\+Unroll}}
+
+
+Application class for unrolling a path of instruction sequence.  
+
+
+
+
+{\ttfamily \#include $<$unroller.\+h$>$}
+
+Inheritance diagram for ilang\+:\+:Path\+Unroll\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classilang_1_1_path_unroll}
+\end{center}
+\end{figure}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classilang_1_1_path_unroll_aae631abacb7a820ec67ae4d6aac916e0}\label{classilang_1_1_path_unroll_aae631abacb7a820ec67ae4d6aac916e0}} 
+typedef std\+::vector$<$ \mbox{\hyperlink{namespaceilang_af88a19312ae653d687a0d1207bb284f6}{Instr\+Ptr}} $>$ \mbox{\hyperlink{classilang_1_1_path_unroll_aae631abacb7a820ec67ae4d6aac916e0}{Instr\+Vec}}
+\begin{DoxyCompactList}\small\item\em Type of a list of instruction sequence. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classilang_1_1_path_unroll_a0f073cd61314e5f15bade868ed3e5edb}\label{classilang_1_1_path_unroll_a0f073cd61314e5f15bade868ed3e5edb}} 
+\mbox{\hyperlink{classilang_1_1_path_unroll_a0f073cd61314e5f15bade868ed3e5edb}{Path\+Unroll}} (z3\+::context \&ctx, const std\+::string \&suff=\char`\"{}\char`\"{})
+\begin{DoxyCompactList}\small\item\em Default constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classilang_1_1_path_unroll_a5a576df2fbdebff5cbbbf8f77c0be41e}\label{classilang_1_1_path_unroll_a5a576df2fbdebff5cbbbf8f77c0be41e}} 
+\mbox{\hyperlink{classilang_1_1_path_unroll_a5a576df2fbdebff5cbbbf8f77c0be41e}{$\sim$\+Path\+Unroll}} ()
+\begin{DoxyCompactList}\small\item\em Default destructor. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classilang_1_1_unroller_a9fd0359e3ffd666f8f92ad3c3ef52673}{Z\+Expr}} \mbox{\hyperlink{classilang_1_1_path_unroll_acef6347d7273597c2574478065af5512}{Path\+Subs}} (const std\+::vector$<$ \mbox{\hyperlink{namespaceilang_af88a19312ae653d687a0d1207bb284f6}{Instr\+Ptr}} $>$ \&seq, const int \&pos=0)
+\begin{DoxyCompactList}\small\item\em Unroll a sequence of instructions with internal states substituted. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classilang_1_1_unroller_a9fd0359e3ffd666f8f92ad3c3ef52673}{Z\+Expr}} \mbox{\hyperlink{classilang_1_1_path_unroll_a838d9960d23482e7673bfc77d9399d44}{Path\+Assn}} (const std\+::vector$<$ \mbox{\hyperlink{namespaceilang_af88a19312ae653d687a0d1207bb284f6}{Instr\+Ptr}} $>$ \&seq, const int \&pos=0)
+\begin{DoxyCompactList}\small\item\em Unroll a sequence of instructions while asserting states are equal between each step. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classilang_1_1_unroller_a9fd0359e3ffd666f8f92ad3c3ef52673}{Z\+Expr}} \mbox{\hyperlink{classilang_1_1_path_unroll_abd088f982ccfeceb63d5f993e7f91b9e}{Path\+None}} (const std\+::vector$<$ \mbox{\hyperlink{namespaceilang_af88a19312ae653d687a0d1207bb284f6}{Instr\+Ptr}} $>$ \&seq, const int \&pos=0)
+\begin{DoxyCompactList}\small\item\em Unroll a sequence of instructions without asserting states relations between steps. \char`\"{}\+N(var\+\_\+i) == var\+\_\+i.\+nxt\+\_\+suff\char`\"{}. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{classilang_1_1_path_unroll_a862b0d21850b43ff4da423eaf37dc18f}{Define\+Dep\+Var}} ()
+\begin{DoxyCompactList}\small\item\em \mbox{[}Application-\/specific\mbox{]} Define dependant state variables. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classilang_1_1_path_unroll_acb62716a4e43a6a3147f664bb6fecaf9}{Transition}} (const int \&idx)
+\begin{DoxyCompactList}\small\item\em \mbox{[}Application-\/specific\mbox{]} Define next state update functions. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+\subsection{Detailed Description}
+Application class for unrolling a path of instruction sequence. 
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{classilang_1_1_path_unroll_a862b0d21850b43ff4da423eaf37dc18f}\label{classilang_1_1_path_unroll_a862b0d21850b43ff4da423eaf37dc18f}} 
+\index{ilang\+::\+Path\+Unroll@{ilang\+::\+Path\+Unroll}!Define\+Dep\+Var@{Define\+Dep\+Var}}
+\index{Define\+Dep\+Var@{Define\+Dep\+Var}!ilang\+::\+Path\+Unroll@{ilang\+::\+Path\+Unroll}}
+\subsubsection{\texorpdfstring{Define\+Dep\+Var()}{DefineDepVar()}}
+{\footnotesize\ttfamily void ilang\+::\+Path\+Unroll\+::\+Define\+Dep\+Var (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}, {\ttfamily [virtual]}}
+
+
+
+\mbox{[}Application-\/specific\mbox{]} Define dependant state variables. 
+
+
+\begin{DoxyItemize}
+\item \char`\"{}vars\+\_\+\char`\"{} should be assigned with the state vars uniquely.
+\item \char`\"{}vars\+\_\+\char`\"{} will be cleared before caling this function. = The var order stored in \char`\"{}vars\+\_\+\char`\"{} will be the globally agree-\/upon order. 
+\end{DoxyItemize}
+
+Implements \mbox{\hyperlink{classilang_1_1_unroller_a97361e0a881ea09d32153166ef41dd82}{ilang\+::\+Unroller}}.
+
+\mbox{\Hypertarget{classilang_1_1_path_unroll_a838d9960d23482e7673bfc77d9399d44}\label{classilang_1_1_path_unroll_a838d9960d23482e7673bfc77d9399d44}} 
+\index{ilang\+::\+Path\+Unroll@{ilang\+::\+Path\+Unroll}!Path\+Assn@{Path\+Assn}}
+\index{Path\+Assn@{Path\+Assn}!ilang\+::\+Path\+Unroll@{ilang\+::\+Path\+Unroll}}
+\subsubsection{\texorpdfstring{Path\+Assn()}{PathAssn()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classilang_1_1_unroller_a9fd0359e3ffd666f8f92ad3c3ef52673}{Z\+Expr}} ilang\+::\+Path\+Unroll\+::\+Path\+Assn (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ \mbox{\hyperlink{namespaceilang_af88a19312ae653d687a0d1207bb284f6}{Instr\+Ptr}} $>$ \&}]{seq,  }\item[{const int \&}]{pos = {\ttfamily 0} }\end{DoxyParamCaption})}
+
+
+
+Unroll a sequence of instructions while asserting states are equal between each step. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em seq} & the sequence of instructions. \\
+\hline
+\mbox{\texttt{ in}}  & {\em pos} & the starting time frame. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classilang_1_1_path_unroll_abd088f982ccfeceb63d5f993e7f91b9e}\label{classilang_1_1_path_unroll_abd088f982ccfeceb63d5f993e7f91b9e}} 
+\index{ilang\+::\+Path\+Unroll@{ilang\+::\+Path\+Unroll}!Path\+None@{Path\+None}}
+\index{Path\+None@{Path\+None}!ilang\+::\+Path\+Unroll@{ilang\+::\+Path\+Unroll}}
+\subsubsection{\texorpdfstring{Path\+None()}{PathNone()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classilang_1_1_unroller_a9fd0359e3ffd666f8f92ad3c3ef52673}{Z\+Expr}} ilang\+::\+Path\+Unroll\+::\+Path\+None (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ \mbox{\hyperlink{namespaceilang_af88a19312ae653d687a0d1207bb284f6}{Instr\+Ptr}} $>$ \&}]{seq,  }\item[{const int \&}]{pos = {\ttfamily 0} }\end{DoxyParamCaption})}
+
+
+
+Unroll a sequence of instructions without asserting states relations between steps. \char`\"{}\+N(var\+\_\+i) == var\+\_\+i.\+nxt\+\_\+suff\char`\"{}. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em seq} & the sequence of instructions. \\
+\hline
+\mbox{\texttt{ in}}  & {\em pos} & the starting time frame. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classilang_1_1_path_unroll_acef6347d7273597c2574478065af5512}\label{classilang_1_1_path_unroll_acef6347d7273597c2574478065af5512}} 
+\index{ilang\+::\+Path\+Unroll@{ilang\+::\+Path\+Unroll}!Path\+Subs@{Path\+Subs}}
+\index{Path\+Subs@{Path\+Subs}!ilang\+::\+Path\+Unroll@{ilang\+::\+Path\+Unroll}}
+\subsubsection{\texorpdfstring{Path\+Subs()}{PathSubs()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classilang_1_1_unroller_a9fd0359e3ffd666f8f92ad3c3ef52673}{Z\+Expr}} ilang\+::\+Path\+Unroll\+::\+Path\+Subs (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ \mbox{\hyperlink{namespaceilang_af88a19312ae653d687a0d1207bb284f6}{Instr\+Ptr}} $>$ \&}]{seq,  }\item[{const int \&}]{pos = {\ttfamily 0} }\end{DoxyParamCaption})}
+
+
+
+Unroll a sequence of instructions with internal states substituted. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em seq} & the sequence of instructions. \\
+\hline
+\mbox{\texttt{ in}}  & {\em pos} & the starting time frame. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classilang_1_1_path_unroll_acb62716a4e43a6a3147f664bb6fecaf9}\label{classilang_1_1_path_unroll_acb62716a4e43a6a3147f664bb6fecaf9}} 
+\index{ilang\+::\+Path\+Unroll@{ilang\+::\+Path\+Unroll}!Transition@{Transition}}
+\index{Transition@{Transition}!ilang\+::\+Path\+Unroll@{ilang\+::\+Path\+Unroll}}
+\subsubsection{\texorpdfstring{Transition()}{Transition()}}
+{\footnotesize\ttfamily void ilang\+::\+Path\+Unroll\+::\+Transition (\begin{DoxyParamCaption}\item[{const int \&}]{idx }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}, {\ttfamily [virtual]}}
+
+
+
+\mbox{[}Application-\/specific\mbox{]} Define next state update functions. 
+
+
+\begin{DoxyItemize}
+\item \char`\"{}k\+\_\+next\+\_\+\char`\"{} should be assigned with the next state expression.
+\item \char`\"{}k\+\_\+next\+\_\+\char`\"{} follows the global order as stored in \char`\"{}vars\+\_\+\char`\"{}.
+\item \char`\"{}k\+\_\+next\+\_\+\char`\"{} will N\+OT be cleared before calling (is the only modifier).
+\item \char`\"{}k\+\_\+pred\+\_\+\char`\"{} can be used to store step-\/specific predicates, e.\+g. decode.
+\item \char`\"{}k\+\_\+pred\+\_\+\char`\"{} will N\+OT be cleared before calling (is the only modifier). 
+\end{DoxyItemize}
+
+Implements \mbox{\hyperlink{classilang_1_1_unroller_a18357c55c9aef2627f0d6340f353cf2b}{ilang\+::\+Unroller}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{unroller_8h}{unroller.\+h}}\end{DoxyCompactItemize}

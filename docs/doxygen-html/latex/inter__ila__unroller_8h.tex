@@ -1,0 +1,27 @@
+\hypertarget{inter__ila__unroller_8h}{}\section{inter\+\_\+ila\+\_\+unroller.\+h File Reference}
+\label{inter__ila__unroller_8h}\index{inter\+\_\+ila\+\_\+unroller.\+h@{inter\+\_\+ila\+\_\+unroller.\+h}}
+{\ttfamily \#include \char`\"{}ilang/ila/instr\+\_\+lvl\+\_\+abs.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}ilang/ila/z3\+\_\+expr\+\_\+adapter.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}ilang/mcm/memory\+\_\+model.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}z3++.\+h\char`\"{}}\newline
+{\ttfamily \#include $<$set$>$}\newline
+{\ttfamily \#include $<$vector$>$}\newline
+{\ttfamily \#include $<$list$>$}\newline
+{\ttfamily \#include $<$stack$>$}\newline
+{\ttfamily \#include $<$functional$>$}\newline
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{classilang_1_1_inter_ila_unroller}{ilang\+::\+Inter\+Ila\+Unroller}}
+\begin{DoxyCompactList}\small\item\em Base class for unrolling multiple I\+L\+As. There are two ways of unrolling\+: ordered and unordered. Ordered unrolling assumes an ordered program template, despite that some may not exist in the final outcome. By default the state with the same name among I\+L\+As is considered as the same shared state. \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{classilang_1_1_host_remove_restore}{ilang\+::\+Host\+Remove\+Restore}}
+\begin{DoxyCompactList}\small\item\em Class to remove and restore the host info This is useful as we want the ast with the same name generates the same z3 expr. This framework is based on an assumption that if we call z3 to create the variable of the same name multiple times they refer to the same one internally. F\+I\+X\+ME\+: Need to check this assumption if we want to support other S\+MT solvers! \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Namespaces}
+\begin{DoxyCompactItemize}
+\item 
+ \mbox{\hyperlink{namespaceilang}{ilang}}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Header for multi-\/\+I\+LA unroller 
