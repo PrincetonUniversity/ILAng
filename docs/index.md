@@ -15,4 +15,4 @@ TODO
 ```
 
 ## Code base documentation
-[API](https://github.com/Bo-Yuan-Huang/ILA-Tools/blob/master/docs/api-html/index.html)
+[API](/api-html/index.html)
