@@ -25,7 +25,6 @@ var searchData=
   ['imply',['Imply',['../namespaceilang.html#a717385221eb8322e7b19096ba48d2516',1,'ilang::Imply()'],['../expr__fuse_8h.html#a35e67a1cf1851920fbe21a67b8d84069',1,'ilang::ExprFuse::Imply()']]],
   ['importilafromfile',['ImportIlaFromFile',['../classilang_1_1_syn_eng_mngr.html#a01fbc4b3acceda0511cb499f7e1c2781',1,'ilang::SynEngMngr']]],
   ['inceqcheck',['IncEqCheck',['../classilang_1_1_comm_diag.html#afe69e51f7e659fbeb5fa0a247bf8ee49',1,'ilang::CommDiag']]],
-  ['installation',['Installation',['../index.html',1,'']]],
   ['init',['init',['../classilang_1_1_ila.html#ac1d991c75fe669b9c39c84ad1820f125',1,'ilang::Ila::init()'],['../classilang_1_1_instr_lvl_abs.html#a35b33274ac498f86bedc57dd959eb730',1,'ilang::InstrLvlAbs::init()']]],
   ['init_5fnum',['init_num',['../classilang_1_1_ila.html#a1ca88d77cc016a17cf07153de0bd2621',1,'ilang::Ila::init_num()'],['../classilang_1_1_instr_lvl_abs.html#ad77de22351e2e1ec141f273b62b434c4',1,'ilang::InstrLvlAbs::init_num()']]],
   ['init_5fshared_5fvars_5fz3_5f',['init_shared_vars_z3_',['../classilang_1_1_inter_ila_unroller.html#a386d5901334665f7318e404944b2965b',1,'ilang::InterIlaUnroller']]],
