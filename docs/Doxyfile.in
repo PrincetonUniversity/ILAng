@@ -772,7 +772,7 @@ WARN_LOGFILE           =
 # Note: If this tag is empty the current directory is searched.
 
 INPUT = @PROJECT_SOURCE_DIR@/include/ilang 
-INPUT += @CMAKE_CURRENT_SOURCE_DIR@/README.md
+#INPUT += @CMAKE_CURRENT_SOURCE_DIR@/README.md
 
 FILE_PATTERNS += *.md *.markdown
 
@@ -923,7 +923,7 @@ FILTER_SOURCE_PATTERNS =
 # (index.html). This can be useful if you have a project on for instance GitHub
 # and want to reuse the introduction page also for the doxygen output.
 
-USE_MDFILE_AS_MAINPAGE = @CMAKE_CURRENT_SOURCE_DIR@/README.md
+USE_MDFILE_AS_MAINPAGE = #@CMAKE_CURRENT_SOURCE_DIR@/README.md
 
 
 #---------------------------------------------------------------------------
