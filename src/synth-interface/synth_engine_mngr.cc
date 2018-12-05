@@ -4,16 +4,13 @@
 #include <ilang/synth-interface/synth_engine_mngr.h>
 #include <ilang/util/log.h>
 #include <ilasynth/abstraction.hpp>
+// XXX ILA_ASSERT macro redefined in both ilang and ilasynth. Use ILA_CHECK.
 
 namespace ilang {
 
-SynEngMngr::SynEngMngr() {
-  // TODO
-}
+SynEngMngr::SynEngMngr() {}
 
-SynEngMngr::~SynEngMngr() {
-  // TODO
-}
+SynEngMngr::~SynEngMngr() {}
 
 SynEngMngrPtr SynEngMngr::New() { return std::make_shared<SynEngMngr>(); }
 
@@ -36,8 +33,7 @@ InstrLvlAbsPtr SynEngMngr::ImportIlaFromFile(const std::string& fileName) {
     auto node = it.second.var;
     auto type = node->getType();
     auto name = node->getName();
-    ILA_WARN_IF(name != it.first)
-        << "Name " << name << " " << it.first << " mismatch " << std::endl;
+    ILA_WARN_IF(name != it.first) << "Name mismatch " << name << std::endl;
 
     if (type.isBool()) {
       m->NewBoolInput(name);
@@ -73,7 +69,6 @@ InstrLvlAbsPtr SynEngMngr::ImportIlaFromFile(const std::string& fileName) {
     ILA_WARN_IF(name != it.first) << "Name mismatch " << name << std::endl;
 
     m->NewBvState(name, type.bitWidth);
-
   }
 
   // state vars -- mem
@@ -89,7 +84,32 @@ InstrLvlAbsPtr SynEngMngr::ImportIlaFromFile(const std::string& fileName) {
     m->NewMemState(name, type.addrWidth, type.dataWidth);
   }
 
-  // functions TODO
+  // functions
+  auto funs_synth = abs.getFuns();
+  for (auto it : funs_synth) {
+    ILA_DLOG("SynthImport") << "Fun: " << it.first << std::endl;
+    auto node = it.second.var;
+    auto type = node->getType();
+    auto name = node->getName();
+    ILA_WARN_IF(!type.isFunc()) << "Type mismatch " << name << std::endl;
+    ILA_WARN_IF(name != it.first) << "Name mismatch " << name << std::endl;
+
+    // TODO double check node type in ilasynth
+    decltype(Sort::MakeBoolSort()) out_sort = NULL;
+    if (type.bitWidth == 1) {
+      out_sort = Sort::MakeBoolSort();
+    } else {
+      out_sort = Sort::MakeBvSort(type.bitWidth);
+    }
+    ILA_NOT_NULL(out_sort);
+
+    std::vector<decltype(Sort::MakeBoolSort())> arg_sort = {};
+    auto synth_args_type = type.argsWidth;
+    for (auto i = 0; i != synth_args_type.size(); i++) {
+      // FIXME
+      arg_sort.push_back(Sort::MakeBoolSort());
+    }
+  }
 
   return m;
 }

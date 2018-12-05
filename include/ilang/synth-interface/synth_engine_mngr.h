@@ -33,11 +33,12 @@ public:
   /// \brief Import complete exported ILA from a file.
   /// \param[in] fileName file name of the exported ILA.
   /// \return pointer to the processed ILA.
-  InstrLvlAbsPtr ImportIlaFromFile(const std::string &fileName);
+  InstrLvlAbsPtr ImportIlaFromFile(const std::string& fileName);
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
-  //
+  /// \brief Mapping for uninterpreted functions.
+  std::map<std::string, FuncPtr> funcs_;
 
   // ------------------------- HELPERS -------------------------------------- //
   //
