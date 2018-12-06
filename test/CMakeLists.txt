@@ -72,6 +72,19 @@ package_add_test(${ILANG_TEST_MAIN}
   t_mcm.cc
 )
 
+if(${ILANG_BUILD_SYNTH})
+
+  target_sources(${ILANG_TEST_MAIN} PRIVATE
+    t_synth_import.cc
+  )
+
+  configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/unit-data/aes_v/all
+    ${CMAKE_CURRENT_BINARY_DIR}/unit-data/aes_v/all
+  )
+
+endif()
+
 target_link_libraries(${ILANG_TEST_MAIN} ${ILANG_LIB_NAME})
 
 add_custom_target(run_test

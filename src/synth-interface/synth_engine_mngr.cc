@@ -15,11 +15,12 @@ SynEngMngr::~SynEngMngr() {}
 SynEngMngrPtr SynEngMngr::New() { return std::make_shared<SynEngMngr>(); }
 
 InstrLvlAbsPtr SynEngMngr::ImportIlaFromFile(const std::string& fileName) {
+  // import the exported model as the synthesis engine internal structure
   ilasynth::Abstraction abs("");
   try {
     abs.importAllFromFile(fileName);
   } catch (...) {
-    ILA_ERROR << "Fail importing ILAs from " << fileName << std::endl;
+    ILA_ERROR << "Fail importing ILAs from " << fileName;
   }
 
   // create place holder for the ILA
@@ -29,86 +30,97 @@ InstrLvlAbsPtr SynEngMngr::ImportIlaFromFile(const std::string& fileName) {
   // inputs
   auto inps_synth = abs.getInps();
   for (auto it : inps_synth) {
-    ILA_DLOG("SynthImport") << "Input: " << it.first << std::endl;
     auto node = it.second.var;
     auto type = node->getType();
     auto name = node->getName();
-    ILA_WARN_IF(name != it.first) << "Name mismatch " << name << std::endl;
+    ILA_WARN_IF(name != it.first) << "Name mismatch " << name;
 
     if (type.isBool()) {
       m->NewBoolInput(name);
     } else if (type.isBitvector()) {
       m->NewBvInput(name, type.bitWidth);
     } else {
-      ILA_CHECK(type.isMem()) << "Unknown node type " << type << std::endl;
+      ILA_CHECK(type.isMem()) << "Unknown node type " << type;
       m->NewMemInput(name, type.addrWidth, type.dataWidth);
     }
+
+    ILA_DLOG("SynthImport") << "Input: " << m->input(name);
   }
 
   // state vars -- bits
   auto bits_synth = abs.getBits();
   for (auto it : bits_synth) {
-    ILA_DLOG("SynthImport") << "Bit: " << it.first << std::endl;
     auto node = it.second.var;
+
     auto type = node->getType();
+    ILA_CHECK(type.isBool());
+
     auto name = node->getName();
-    ILA_WARN_IF(!type.isBool()) << "Type mismatch " << name << std::endl;
-    ILA_WARN_IF(name != it.first) << "Name mismatch " << name << std::endl;
+    ILA_WARN_IF(name != it.first) << name << " != " << it.first;
 
     m->NewBoolState(name);
+    ILA_DLOG("SynthImport") << "Bool Var: " << m->state(name);
   }
 
   // state vars -- regs
   auto regs_synth = abs.getRegs();
   for (auto it : regs_synth) {
-    ILA_DLOG("SynthImport") << "Reg: " << it.first << std::endl;
     auto node = it.second.var;
+
     auto type = node->getType();
+    ILA_CHECK(type.isBitvector());
+
     auto name = node->getName();
-    ILA_WARN_IF(!type.isBitvector()) << "Type mismatch " << name << std::endl;
-    ILA_WARN_IF(name != it.first) << "Name mismatch " << name << std::endl;
+    ILA_WARN_IF(name != it.first) << name << " != " << it.first;
 
     m->NewBvState(name, type.bitWidth);
+    ILA_DLOG("SynthImport") << "Bv Var: " << m->state(name);
   }
 
   // state vars -- mem
   auto mems_synth = abs.getMems();
   for (auto it : mems_synth) {
-    ILA_DLOG("SynthImport") << "Mem: " << it.first << std::endl;
     auto node = it.second.var;
+
     auto type = node->getType();
+    ILA_CHECK(type.isMem());
+
     auto name = node->getName();
-    ILA_WARN_IF(!type.isMem()) << "Type mismatch " << name << std::endl;
-    ILA_WARN_IF(name != it.first) << "Name mismatch " << name << std::endl;
+    ILA_WARN_IF(name != it.first) << name << " != " << it.first;
 
     m->NewMemState(name, type.addrWidth, type.dataWidth);
+    ILA_DLOG("SynthImport") << "Mem: " << it.first;
   }
 
   // functions
   auto funs_synth = abs.getFuns();
   for (auto it : funs_synth) {
-    ILA_DLOG("SynthImport") << "Fun: " << it.first << std::endl;
     auto node = it.second.var;
+
     auto type = node->getType();
+    ILA_CHECK(type.isFunc());
+
     auto name = node->getName();
-    ILA_WARN_IF(!type.isFunc()) << "Type mismatch " << name << std::endl;
-    ILA_WARN_IF(name != it.first) << "Name mismatch " << name << std::endl;
+    ILA_WARN_IF(name != it.first) << name << " != " << it.first;
 
-    // TODO double check node type in ilasynth
-    decltype(Sort::MakeBoolSort()) out_sort = NULL;
-    if (type.bitWidth == 1) {
-      out_sort = Sort::MakeBoolSort();
-    } else {
-      out_sort = Sort::MakeBvSort(type.bitWidth);
-    }
-    ILA_NOT_NULL(out_sort);
+    // output sort
+    ILA_CHECK(type.bitWidth > 0) << "Invalid output width " << type.bitWidth;
+    auto out_sort = Sort::MakeBvSort(type.bitWidth);
 
-    std::vector<decltype(Sort::MakeBoolSort())> arg_sort = {};
-    auto synth_args_type = type.argsWidth;
-    for (auto i = 0; i != synth_args_type.size(); i++) {
-      // FIXME
-      arg_sort.push_back(Sort::MakeBoolSort());
+    // argument sort
+    std::vector<decltype(Sort::MakeBvSort(1))> args_sort = {};
+    auto& args_width = type.argsWidth;
+    for (auto i = 0; i != args_width.size(); i++) {
+      args_sort.push_back(Sort::MakeBvSort(args_width.at(i)));
     }
+
+    // create the func object
+    auto func = Func::New(name, out_sort, args_sort);
+    ILA_DLOG("SynthImport") << "Fun: " << func;
+
+    // add the func in the map
+    ILA_ERROR_IF(funcs_.find(name) != funcs_.end()) << "Redefine " << name;
+    funcs_[name] = func;
   }
 
   return m;

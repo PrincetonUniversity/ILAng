@@ -1,8 +1,8 @@
 /// \file
 /// Unit test for class InstrLvlAbs.
 
-#include <ilang/ila/instr_lvl_abs.h>
 #include "unit-include/util.h"
+#include <ilang/ila/instr_lvl_abs.h>
 
 namespace ilang {
 
@@ -333,4 +333,4 @@ TEST(TestInstrLvlAbs, Print) {
   EXPECT_EQ(ref_msg, msg);
 }
 
-}  // namespace ilang
+} // namespace ilang
