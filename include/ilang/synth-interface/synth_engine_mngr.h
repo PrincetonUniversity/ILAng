@@ -40,8 +40,13 @@ private:
   /// \brief Mapping for uninterpreted functions.
   std::map<std::string, FuncPtr> funcs_;
 
+  /// \brief The set of decode functions.
+  std::vector<ExprPtr> decodes_;
+
+  /// \brief The set of next state functions.
+  std::map<std::string, ExprPtr> nexts_;
+
   // ------------------------- HELPERS -------------------------------------- //
-  //
 }; // class SynEngMngr
 
 /// Pointer type for normal use of SynEngMngr.
