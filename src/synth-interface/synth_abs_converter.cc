@@ -303,7 +303,6 @@ void SynthAbsConverter::CnvtNodeToExprBoolOp(const ilasynth::Node* n) {
     auto node_arg_i = n->arg(i);
     auto pos = node_expr_map_.find(node_arg_i.get());
     ILA_ASSERT(pos != node_expr_map_.end()) << "Invalid DF-visit";
-    // XXX func?
 
     auto expr_arg_i = pos->second;
     expr_args.push_back(expr_arg_i);
@@ -395,9 +394,15 @@ void SynthAbsConverter::CnvtNodeToExprBvOp(const ilasynth::Node* n) {
   ExprPtrVec expr_args = {};
   for (auto i = 0; i != n->nArgs(); i++) {
     auto node_arg_i = n->arg(i);
+
+    // APPLY_FUNC
+    if (node_arg_i->getType().isFunc()) {
+      ILA_ASSERT(node_func_map_.find(node_arg_i.get()) != node_func_map_.end());
+      continue;
+    }
+    // normal bit-vector operation
     auto pos = node_expr_map_.find(node_arg_i.get());
     ILA_ASSERT(pos != node_expr_map_.end()) << "Invalid DF-visit";
-    // XXX func?
 
     auto expr_arg_i = pos->second;
     expr_args.push_back(expr_arg_i);
@@ -508,9 +513,15 @@ void SynthAbsConverter::CnvtNodeToExprBvOp(const ilasynth::Node* n) {
   case ilasynth::BitvectorOp::Op::IF:
     expr = ExprFuse::Ite(expr_args.at(0), expr_args.at(1), expr_args.at(2));
     break;
-  case ilasynth::BitvectorOp::Op::APPLY_FUNC:
-    ILA_ERROR << "APPLY_FUNC not implemented.";
+  case ilasynth::BitvectorOp::Op::APPLY_FUNC: {
+    auto func_node = n->arg(0);
+    auto func_find = node_func_map_.find(func_node.get());
+    ILA_ASSERT(func_find != node_func_map_.end());
+
+    auto func = func_find->second;
+    expr = ExprFuse::AppFunc(func, expr_args);
     break;
+  }
   default:
     ILA_ERROR << "Cannot find corresponding Bv Op for " << n->getName();
     break;
@@ -523,7 +534,41 @@ void SynthAbsConverter::CnvtNodeToExprBvOp(const ilasynth::Node* n) {
 }
 
 void SynthAbsConverter::CnvtNodeToExprMemOp(const ilasynth::Node* n) {
-  // TODO
+  // get input arguments
+  ExprPtrVec expr_args = {};
+  for (auto i = 0; i != n->nArgs(); i++) {
+    auto node_arg_i = n->arg(i);
+    auto pos = node_expr_map_.find(node_arg_i.get());
+    ILA_ASSERT(pos != node_expr_map_.end()) << "Invalid DF-visit";
+
+    auto expr_arg_i = pos->second;
+    expr_args.push_back(expr_arg_i);
+  }
+
+  // construct Expr
+  auto op_ptr = dynamic_cast<const ilasynth::MemOp*>(n);
+  ILA_NOT_NULL(op_ptr) << "Fail casting " << n->getName() << " to Mem Op";
+
+  decltype(ExprFuse::MemConst(0, 8, 8)) expr = NULL;
+
+  switch (op_ptr->getOp()) {
+  case ilasynth::MemOp::Op::STORE:
+    expr = ExprFuse::Store(expr_args.at(0), expr_args.at(1), expr_args.at(2));
+    break;
+  case ilasynth::MemOp::Op::STOREBLOCK:
+    ILA_ERROR << "STOREBLOCK not implemented.";
+    break;
+  case ilasynth::MemOp::Op::ITE:
+    expr = ExprFuse::Ite(expr_args.at(0), expr_args.at(1), expr_args.at(2));
+    break;
+  default:
+    ILA_ERROR << "Cannot find corresponding Mem Op for " << n->getName();
+    break;
+  };
+
+  ILA_NOT_NULL(expr) << "Fail converting Mem Op node " << n->getName();
+  node_expr_map_[n] = expr;
+
   return;
 }
 
