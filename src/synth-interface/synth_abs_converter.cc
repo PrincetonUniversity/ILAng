@@ -54,6 +54,7 @@ SynthAbsConverter::ConvertSynthNodeToIlangExpr(const ilasynth::nptr_t& node,
 
   node->depthFirstVisit(CnvtNode2Expr);
 
+  // make sure Expr has been converted/generated
   pos = node_expr_map_.find(n);
   ILA_ASSERT(pos != node_expr_map_.end()) << "Fail converting " << n->getName();
 
@@ -70,6 +71,26 @@ void SynthAbsConverter::PortInputs(const ilasynth::Abstraction& abs,
     ILA_WARN_IF(name != it.first) << name << " != " << it.first;
 
     // create input var accordingly
+    switch (type.type) {
+
+    case ilasynth::NodeType::Type::BOOL:
+      ila->NewBoolInput(name);
+      break;
+
+    case ilasynth::NodeType::Type::BITVECTOR:
+      ila->NewBvInput(name, type.bitWidth);
+      break;
+
+    case ilasynth::NodeType::Type::MEM:
+      ila->NewMemInput(name, type.addrWidth, type.dataWidth);
+      break;
+
+    default:
+      ILA_ERROR << "Input of type other than Bool/Bv/Mem not supported.";
+      break;
+    };
+
+#if 0
     if (type.isBool()) {
       ila->NewBoolInput(name);
     } else if (type.isBitvector()) {
@@ -79,6 +100,7 @@ void SynthAbsConverter::PortInputs(const ilasynth::Abstraction& abs,
           << "Unknown type " << type << " for input " << name;
       ila->NewMemInput(name, type.addrWidth, type.dataWidth);
     }
+#endif
 
     // update book keeping
     ILA_ASSERT(node_expr_map_.find(node.get()) == node_expr_map_.end());
@@ -196,9 +218,8 @@ void SynthAbsConverter::PortFuncs(const ilasynth::Abstraction& abs,
     ILA_DLOG("SynthImport") << "Fun: " << func;
 
     // add to the mapping
-    ILA_ERROR_IF(funcs_.find(name) != funcs_.end()) << "Redefine " << name;
-
-    funcs_[name] = func;
+    ILA_ASSERT(node_func_map_.find(node.get()) == node_func_map_.end());
+    node_func_map_[node.get()] = func;
   }
 
   return;
@@ -218,7 +239,14 @@ void SynthAbsConverter::PortNextStateFuncs(const ilasynth::Abstraction& abs,
 
 void SynthAbsConverter::CnvtNodeToExpr(const ilasynth::Node* n) {
   ILA_NOT_NULL(n);
-  ILA_ASSERT(node_expr_map_.find(n) == node_expr_map_.end());
+
+  // return if already visited
+  if (node_expr_map_.find(n) != node_expr_map_.end()) {
+    return;
+  }
+  if (node_func_map_.find(n) != node_func_map_.end()) {
+    return;
+  }
 
   // Only convert consts and operators, since we need host info for vars.
   // vars should and must be already created.
@@ -226,14 +254,20 @@ void SynthAbsConverter::CnvtNodeToExpr(const ilasynth::Node* n) {
     CnvtNodeToExprConst(n);
   } else {
     auto type = n->getType();
-    if (type.isBool()) {
+    switch (type.type) {
+    case ilasynth::NodeType::Type::BOOL:
       CnvtNodeToExprBoolOp(n);
-    } else if (type.isBitvector()) {
+      break;
+    case ilasynth::NodeType::Type::BITVECTOR:
       CnvtNodeToExprBvOp(n);
-    } else {
-      ILA_ASSERT(type.isMem()) << "Unknown type for operation " << type;
+      break;
+    case ilasynth::NodeType::Type::MEM:
       CnvtNodeToExprMemOp(n);
-    }
+      break;
+    default:
+      ILA_ERROR << "Op of type other than Bool/Bv/Mem not supported.";
+      break;
+    };
   }
 
   return;
@@ -269,6 +303,7 @@ void SynthAbsConverter::CnvtNodeToExprBoolOp(const ilasynth::Node* n) {
     auto node_arg_i = n->arg(i);
     auto pos = node_expr_map_.find(node_arg_i.get());
     ILA_ASSERT(pos != node_expr_map_.end()) << "Invalid DF-visit";
+    // XXX func?
 
     auto expr_arg_i = pos->second;
     expr_args.push_back(expr_arg_i);
@@ -281,7 +316,7 @@ void SynthAbsConverter::CnvtNodeToExprBoolOp(const ilasynth::Node* n) {
   decltype(ExprFuse::BoolConst(true)) expr = NULL;
 
   switch (op_ptr->getOp()) {
-  case (ilasynth::BoolOp::Op::NOT):
+  case ilasynth::BoolOp::Op::NOT:
     expr = ExprFuse::Not(expr_args.at(0));
     break;
   case ilasynth::BoolOp::Op::AND:
@@ -362,12 +397,11 @@ void SynthAbsConverter::CnvtNodeToExprBvOp(const ilasynth::Node* n) {
     auto node_arg_i = n->arg(i);
     auto pos = node_expr_map_.find(node_arg_i.get());
     ILA_ASSERT(pos != node_expr_map_.end()) << "Invalid DF-visit";
+    // XXX func?
 
     auto expr_arg_i = pos->second;
     expr_args.push_back(expr_arg_i);
   }
-
-  // get input parameters
 
   // construct Expr
   auto op_ptr = dynamic_cast<const ilasynth::BitvectorOp*>(n);
@@ -376,8 +410,107 @@ void SynthAbsConverter::CnvtNodeToExprBvOp(const ilasynth::Node* n) {
   decltype(ExprFuse::BvConst(1, 1)) expr = NULL;
 
   switch (op_ptr->getOp()) {
-  case (ilasynth::BitvectorOp::Op::NEGATE):
-    // expr = ExprFuse::Not(expr_args.at(0));
+  case ilasynth::BitvectorOp::Op::NEGATE:
+    expr = ExprFuse::Negate(expr_args.at(0));
+    break;
+  case ilasynth::BitvectorOp::Op::COMPLEMENT:
+    expr = ExprFuse::Complement(expr_args.at(0));
+    break;
+  case ilasynth::BitvectorOp::Op::LROTATE:
+    ILA_ERROR << "LROTATE not implemented.";
+    break;
+  case ilasynth::BitvectorOp::Op::RROTATE:
+    ILA_ERROR << "RROTATE not implemented.";
+    break;
+  case ilasynth::BitvectorOp::Op::Z_EXT:
+    expr = ExprFuse::ZExt(expr_args.at(0), op_ptr->param(0));
+    break;
+  case ilasynth::BitvectorOp::Op::S_EXT:
+    expr = ExprFuse::SExt(expr_args.at(0), op_ptr->param(0));
+    break;
+  case ilasynth::BitvectorOp::Op::EXTRACT:
+    expr =
+        ExprFuse::Extract(expr_args.at(0), op_ptr->param(0), op_ptr->param(1));
+    break;
+  case ilasynth::BitvectorOp::Op::ADD:
+    expr = ExprFuse::Add(expr_args.at(0), expr_args.at(1));
+    break;
+  case ilasynth::BitvectorOp::Op::SUB:
+    expr = ExprFuse::Sub(expr_args.at(0), expr_args.at(1));
+    break;
+  case ilasynth::BitvectorOp::Op::AND:
+    expr = ExprFuse::And(expr_args.at(0), expr_args.at(1));
+    break;
+  case ilasynth::BitvectorOp::Op::OR:
+    expr = ExprFuse::Or(expr_args.at(0), expr_args.at(1));
+    break;
+  case ilasynth::BitvectorOp::Op::XOR:
+    expr = ExprFuse::Xor(expr_args.at(0), expr_args.at(1));
+    break;
+  case ilasynth::BitvectorOp::Op::XNOR: {
+    auto tmp_xor = ExprFuse::Xor(expr_args.at(0), expr_args.at(1));
+    expr = ExprFuse::Not(tmp_xor);
+    break;
+  }
+  case ilasynth::BitvectorOp::Op::NAND: {
+    auto tmp_and = ExprFuse::And(expr_args.at(0), expr_args.at(1));
+    expr = ExprFuse::Not(tmp_and);
+    break;
+  }
+  case ilasynth::BitvectorOp::Op::NOR: {
+    auto tmp_or = ExprFuse::Or(expr_args.at(0), expr_args.at(1));
+    expr = ExprFuse::Not(tmp_or);
+    break;
+  }
+  case ilasynth::BitvectorOp::Op::SDIV:
+    ILA_ERROR << "SDIV not implemented.";
+    break;
+  case ilasynth::BitvectorOp::Op::UDIV:
+    ILA_ERROR << "UDIV not implemented.";
+    // expr = ExprFuse::Div(expr_args.at(0), expr_args.at(1));
+    break;
+  case ilasynth::BitvectorOp::Op::SREM:
+    ILA_ERROR << "SREM not implemented.";
+    break;
+  case ilasynth::BitvectorOp::Op::UREM:
+    ILA_ERROR << "UREM not implemented.";
+    // expr = ExprFuse::Rem(expr_args.at(0), expr_args.at(1));
+    break;
+  case ilasynth::BitvectorOp::Op::SMOD:
+    ILA_ERROR << "SMOD not implemented.";
+    break;
+  case ilasynth::BitvectorOp::Op::SHL:
+    expr = ExprFuse::Shl(expr_args.at(0), expr_args.at(1));
+    break;
+  case ilasynth::BitvectorOp::Op::LSHR:
+    expr = ExprFuse::Lshr(expr_args.at(0), expr_args.at(1));
+    break;
+  case ilasynth::BitvectorOp::Op::ASHR:
+    expr = ExprFuse::Ashr(expr_args.at(0), expr_args.at(1));
+    break;
+  case ilasynth::BitvectorOp::Op::MUL:
+    ILA_ERROR << "MUL not implemented.";
+    // expr = ExprFuse::Mul(expr_args.at(0), expr_args.at(1));
+    break;
+  case ilasynth::BitvectorOp::Op::CONCAT:
+    expr = ExprFuse::Concat(expr_args.at(0), expr_args.at(1));
+    break;
+  case ilasynth::BitvectorOp::Op::GET_BIT:
+    expr =
+        ExprFuse::Extract(expr_args.at(0), op_ptr->param(0), op_ptr->param(0));
+    break;
+  case ilasynth::BitvectorOp::Op::READMEM:
+    expr = ExprFuse::Load(expr_args.at(0), expr_args.at(1));
+    break;
+  case ilasynth::BitvectorOp::Op::READMEMBLOCK:
+    ILA_ERROR << "READMEMBLOCK not implemented.";
+    break;
+  case ilasynth::BitvectorOp::Op::IF:
+    expr = ExprFuse::Ite(expr_args.at(0), expr_args.at(1), expr_args.at(2));
+    break;
+  case ilasynth::BitvectorOp::Op::APPLY_FUNC:
+    ILA_ERROR << "APPLY_FUNC not implemented.";
+    break;
   default:
     ILA_ERROR << "Cannot find corresponding Bv Op for " << n->getName();
     break;

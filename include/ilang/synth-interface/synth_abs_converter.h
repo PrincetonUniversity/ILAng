@@ -47,17 +47,17 @@ public:
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
-  /// Mapping for uninterpreted functions.
-  std::map<std::string, FuncPtr> funcs_;
-
   /// The set of decode functions.
   std::vector<ExprPtr> decodes_;
 
   /// The set of next state functions.
   std::map<std::string, ExprPtr> nexts_;
 
-  /// The mapping between synthesis engine node to ILAng expression.
+  /// The mapping from node in synthesis engine to expression.
   std::map<const ilasynth::Node*, ExprPtr> node_expr_map_;
+
+  /// The mapping from node in synthesis engein to uninterpreted function.
+  std::map<const ilasynth::Node*, FuncPtr> node_func_map_;
 
   // ------------------------- HELPERS -------------------------------------- //
 
