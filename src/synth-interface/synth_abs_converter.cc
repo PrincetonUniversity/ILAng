@@ -72,35 +72,19 @@ void SynthAbsConverter::PortInputs(const ilasynth::Abstraction& abs,
 
     // create input var accordingly
     switch (type.type) {
-
     case ilasynth::NodeType::Type::BOOL:
       ila->NewBoolInput(name);
       break;
-
     case ilasynth::NodeType::Type::BITVECTOR:
       ila->NewBvInput(name, type.bitWidth);
       break;
-
     case ilasynth::NodeType::Type::MEM:
       ila->NewMemInput(name, type.addrWidth, type.dataWidth);
       break;
-
     default:
       ILA_ERROR << "Input of type other than Bool/Bv/Mem not supported.";
       break;
     };
-
-#if 0
-    if (type.isBool()) {
-      ila->NewBoolInput(name);
-    } else if (type.isBitvector()) {
-      ila->NewBvInput(name, type.bitWidth);
-    } else {
-      ILA_ASSERT(type.isMem())
-          << "Unknown type " << type << " for input " << name;
-      ila->NewMemInput(name, type.addrWidth, type.dataWidth);
-    }
-#endif
 
     // update book keeping
     ILA_ASSERT(node_expr_map_.find(node.get()) == node_expr_map_.end());
@@ -169,18 +153,19 @@ void SynthAbsConverter::PortStates(const ilasynth::Abstraction& abs,
 
 void SynthAbsConverter::PortValid(const ilasynth::Abstraction& abs,
                                   const InstrLvlAbsPtr& ila) {
-  auto valid_synth = abs.getFetchValidNode();
-  auto type = valid_synth->getType();
-  ILA_WARN_IF(!type.isBool()) << "Non-Bool valid function " << valid_synth;
-
+  auto valid_synth = abs.getFetchValidRef();
   auto valid_ilang = ConvertSynthNodeToIlangExpr(valid_synth, ila);
 
+  ila->SetValid(valid_ilang);
   return;
 }
 
 void SynthAbsConverter::PortFetch(const ilasynth::Abstraction& abs,
                                   const InstrLvlAbsPtr& ila) {
-  // TODO
+  auto fetch_synth = abs.getFetchExprRef();
+  auto fetch_ilang = ConvertSynthNodeToIlangExpr(fetch_synth, ila);
+
+  ila->SetFetch(fetch_ilang);
   return;
 }
 
