@@ -171,7 +171,28 @@ void SynthAbsConverter::PortFetch(const ilasynth::Abstraction& abs,
 
 void SynthAbsConverter::PortInits(const ilasynth::Abstraction& abs,
                                   const InstrLvlAbsPtr& ila) {
-  // TODO
+  // only add initial condition for state vars that are already defined
+  for (auto i = 0; i != ila->state_num(); i++) {
+    auto var_expr = ila->state(i);
+    auto var_name = var_expr->name().str();
+
+    // initial value
+    auto init_val_node = abs.getInit(var_name)->node;
+
+    if (init_val_node) {
+      auto init_val_expr = ConvertSynthNodeToIlangExpr(init_val_node, ila);
+      ila->AddInit(ExprFuse::Eq(var_expr, init_val_expr));
+    }
+
+    // initial predicate
+    auto init_pred_node = abs.getIpred(var_name)->node;
+
+    if (init_pred_node) {
+      auto init_pred_expr = ConvertSynthNodeToIlangExpr(init_pred_node, ila);
+      ila->AddInit(init_pred_expr);
+    }
+  }
+
   return;
 }
 
