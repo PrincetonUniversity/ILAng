@@ -284,18 +284,42 @@ void SynthAbsConverter::CnvtNodeToExprConst(const ilasynth::Node* n) {
   decltype(ExprFuse::BoolConst(true)) expr = NULL;
 
   auto type = n->getType();
-  if (type.isBool()) {
-    auto val = true; // FIXME
-    expr = ExprFuse::BoolConst(val);
-  } else if (type.isBitvector()) {
-    auto val = 0; // FIXME
-    expr = ExprFuse::BvConst(val, type.bitWidth);
-  } else {
-    ILA_ASSERT(type.isMem());
-    auto def_val = 0; // FIXME
-    expr = ExprFuse::MemConst(def_val, type.addrWidth, type.dataWidth);
+  switch (type.type) {
+  case ilasynth::NodeType::Type::BOOL: {
+    auto bool_const = dynamic_cast<const ilasynth::BoolConst*>(n);
+    expr = ExprFuse::BoolConst(bool_const->val());
+    break;
   }
 
+  case ilasynth::NodeType::Type::BITVECTOR: {
+    auto bv_const = dynamic_cast<const ilasynth::BitvectorConst*>(n);
+    auto val = static_cast<int>(bv_const->val());
+    expr = ExprFuse::BvConst(val, type.bitWidth);
+    break;
+  }
+
+  case ilasynth::NodeType::Type::MEM: {
+    auto mem_const = dynamic_cast<const ilasynth::MemConst*>(n);
+    auto def_value = static_cast<int>(mem_const->memvalues.def_value);
+
+    auto mem_value = MemVal(def_value);
+
+    for (auto pair : mem_const->memvalues.values) {
+      auto addr = static_cast<int>(pair.first);
+      auto data = static_cast<int>(pair.second);
+      mem_value.set_data(addr, data);
+    }
+
+    expr = ExprFuse::MemConst(mem_value, type.addrWidth, type.dataWidth);
+    break;
+  }
+
+  default: // FUNC
+    ILA_ERROR << "Const of type other than Bool/Bv/Mem not supported.";
+    break;
+  };
+
+  // update book keeping
   ILA_NOT_NULL(expr) << "Fail converting constant node " << n->getName();
   node_expr_map_[n] = expr;
 
