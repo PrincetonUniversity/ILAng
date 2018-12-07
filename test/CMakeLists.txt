@@ -83,6 +83,11 @@ if(${ILANG_BUILD_SYNTH})
     ${CMAKE_CURRENT_BINARY_DIR}/unit-data/aes_v/all
   )
 
+  configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/unit-data/aes_v/allu
+    ${CMAKE_CURRENT_BINARY_DIR}/unit-data/aes_v/allu
+  )
+
 endif()
 
 target_link_libraries(${ILANG_TEST_MAIN} ${ILANG_LIB_NAME})
