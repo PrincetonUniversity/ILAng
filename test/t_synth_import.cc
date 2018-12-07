@@ -6,11 +6,22 @@
 
 namespace ilang {
 
-TEST(TestSynthImport, State) {
+TEST(TestSynthImport, AES) {
   SetToStdErr(1);
   DebugLog::Enable("SynthImport");
 
   auto fileName = "test/unit-data/aes_v/all";
+  auto m = ImportSynthAbsFromFile(fileName);
+
+  DebugLog::Disable("SynthImport");
+  SetToStdErr(0);
+}
+
+TEST(TestSynthImport, microAES) {
+  SetToStdErr(1);
+  DebugLog::Enable("SynthImport");
+
+  auto fileName = "test/unit-data/aes_v/allu";
   auto m = ImportSynthAbsFromFile(fileName);
 
   DebugLog::Disable("SynthImport");
