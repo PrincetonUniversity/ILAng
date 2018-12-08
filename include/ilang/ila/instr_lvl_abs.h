@@ -133,7 +133,7 @@ public:
 
   /// \brief Add one free variable to the ILA.
   /// \param[in] free_var pointer to the free variable being added.
-  void AddFreeVar(const ExprPtr free_var);
+  // void AddFreeVar(const ExprPtr free_var);
 
   /// \brief Add one constraint to the initial condition, i.e. no contraint
   /// means arbitrary initial values to the state variables.

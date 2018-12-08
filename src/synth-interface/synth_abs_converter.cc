@@ -6,15 +6,17 @@
 
 namespace ilang {
 
-SynthAbsConverter::SynthAbsConverter() {}
+SynthAbsConverter::SynthAbsConverter() { Reset(); }
 
-SynthAbsConverter::~SynthAbsConverter() {}
+SynthAbsConverter::~SynthAbsConverter() { Reset(); }
 
 SynthAbsConverterPtr SynthAbsConverter::New() {
   return std::make_shared<SynthAbsConverter>();
 }
 
 InstrLvlAbsPtr SynthAbsConverter::Convert(const ilasynth::Abstraction& abs) {
+  Reset();
+
   // output placeholder
   auto model_name = abs.getName();
   auto m = InstrLvlAbs::New(model_name);
@@ -32,15 +34,38 @@ InstrLvlAbsPtr SynthAbsConverter::Convert(const ilasynth::Abstraction& abs) {
   PortFetch(abs, m);
   PortInits(abs, m);
 
-  // TODO child-ILAs
+  // hierarchy (i.e., child-ILA) was not supported in the synthesis engine.
 
   return m;
+}
+
+void SynthAbsConverter::Port(const ilasynth::Abstraction& abs,
+                             const InstrLvlAbsPtr& ila) {
+  ILA_NOT_NULL(ila);
+  Reset();
+
+  // leaf nodes
+  PortInputs(abs, ila);
+  PortStates(abs, ila);
+  PortFuncs(abs, ila);
+
+  // instruction
+  PortInstructions(abs, ila);
+
+  // others
+  PortValid(abs, ila);
+  PortFetch(abs, ila);
+  PortInits(abs, ila);
+
+  // hierarchy (i.e., child-ILA) was not supported in the synthesis engine.
+  return;
 }
 
 ExprPtr
 SynthAbsConverter::ConvertSynthNodeToIlangExpr(const ilasynth::nptr_t& node,
                                                const InstrLvlAbsPtr& ila) {
   ILA_CHECK(!node_expr_map_.empty()) << "Empty map -- missing leaf vars";
+  ILA_NOT_NULL(ila);
   ILA_NOT_NULL(node);
   auto n = node.get();
 
@@ -50,8 +75,10 @@ SynthAbsConverter::ConvertSynthNodeToIlangExpr(const ilasynth::nptr_t& node,
     return pos->second;
   }
 
-  // create new Expr w.r.t the node
-  auto CnvtNode2Expr = [this](const ilasynth::Node* nl) { CnvtNodeToExpr(nl); };
+  auto CnvtNode2Expr = [this](const ilasynth::Node* nl) {
+    // create new Expr w.r.t the node
+    CnvtNodeToExpr(nl);
+  };
 
   node->depthFirstVisit(CnvtNode2Expr);
 
@@ -71,27 +98,30 @@ void SynthAbsConverter::PortInputs(const ilasynth::Abstraction& abs,
     auto name = node->getName();
     ILA_WARN_IF(name != it.first) << name << " != " << it.first;
 
-    // create input var accordingly
-    switch (type.type) {
-    case ilasynth::NodeType::Type::BOOL:
-      ila->NewBoolInput(name);
-      break;
-    case ilasynth::NodeType::Type::BITVECTOR:
-      ila->NewBvInput(name, type.bitWidth);
-      break;
-    case ilasynth::NodeType::Type::MEM:
-      ila->NewMemInput(name, type.addrWidth, type.dataWidth);
-      break;
-    default:
-      ILA_ERROR << "Input of type other than Bool/Bv/Mem not supported.";
-      break;
-    };
+    if (ila->input(name)) {
+      ILA_DLOG("SynthImport") << "Use input " << name << " in " << ila;
+    } else {
+      // create input var accordingly
+      switch (type.type) {
+      case ilasynth::NodeType::Type::BOOL:
+        ila->NewBoolInput(name);
+        break;
+      case ilasynth::NodeType::Type::BITVECTOR:
+        ila->NewBvInput(name, type.bitWidth);
+        break;
+      case ilasynth::NodeType::Type::MEM:
+        ila->NewMemInput(name, type.addrWidth, type.dataWidth);
+        break;
+      default:
+        ILA_ERROR << "Input of type " << type.type << " not supported.";
+        break;
+      };
+      ILA_DLOG("SynthImport") << "Define input " << ila->input(name);
+    }
 
     // update book keeping
     ILA_ASSERT(node_expr_map_.find(node.get()) == node_expr_map_.end());
     node_expr_map_[node.get()] = ila->input(name);
-
-    ILA_DLOG("SynthImport") << "Input: " << ila->input(name);
   }
 }
 
@@ -107,12 +137,15 @@ void SynthAbsConverter::PortStates(const ilasynth::Abstraction& abs,
     ILA_ASSERT(type.isBool());
     ILA_WARN_IF(name != it.first) << name << " != " << it.first;
 
-    auto var = ila->NewBoolState(name);
+    if (ila->state(name)) {
+      ILA_DLOG("SynthImport") << "Use state " << name << " in " << ila;
+    } else {
+      auto var = ila->NewBoolState(name);
+      ILA_DLOG("SynthImport") << "Define state " << var;
+    }
 
     ILA_ASSERT(node_expr_map_.find(node.get()) == node_expr_map_.end());
-    node_expr_map_[node.get()] = var;
-
-    ILA_DLOG("SynthImport") << "Bool Var: " << ila->state(name);
+    node_expr_map_[node.get()] = ila->state(name);
   }
 
   // bv
@@ -125,12 +158,15 @@ void SynthAbsConverter::PortStates(const ilasynth::Abstraction& abs,
     ILA_ASSERT(type.isBitvector());
     ILA_WARN_IF(name != it.first) << name << " != " << it.first;
 
-    auto var = ila->NewBvState(name, type.bitWidth);
+    if (ila->state(name)) {
+      ILA_DLOG("SynthImport") << "Use state " << name << " in " << ila;
+    } else {
+      auto var = ila->NewBvState(name, type.bitWidth);
+      ILA_DLOG("SynthImport") << "Define state " << var;
+    }
 
     ILA_ASSERT(node_expr_map_.find(node.get()) == node_expr_map_.end());
-    node_expr_map_[node.get()] = var;
-
-    ILA_DLOG("SynthImport") << "Bv Var: " << ila->state(name);
+    node_expr_map_[node.get()] = ila->state(name);
   }
 
   // mem
@@ -143,12 +179,15 @@ void SynthAbsConverter::PortStates(const ilasynth::Abstraction& abs,
     ILA_ASSERT(type.isMem());
     ILA_WARN_IF(name != it.first) << name << " != " << it.first;
 
-    auto var = ila->NewMemState(name, type.addrWidth, type.dataWidth);
+    if (ila->state(name)) {
+      ILA_DLOG("SynthImport") << "Use state " << name << " in " << ila;
+    } else {
+      auto var = ila->NewMemState(name, type.addrWidth, type.dataWidth);
+      ILA_DLOG("SynthImport") << "Define state " << var;
+    }
 
     ILA_ASSERT(node_expr_map_.find(node.get()) == node_expr_map_.end());
-    node_expr_map_[node.get()] = var;
-
-    ILA_DLOG("SynthImport") << "Mem Var: " << ila->state(name);
+    node_expr_map_[node.get()] = ila->state(name);
   }
 }
 

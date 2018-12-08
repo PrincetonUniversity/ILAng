@@ -23,25 +23,21 @@ InstrLvlAbsPtr InstrLvlAbs::New(const std::string& name,
 
 const ExprPtr InstrLvlAbs::input(const std::string& name) const {
   auto inp = find_input(Symbol(name));
-  ILA_ASSERT(inp) << "Input " << name << " not found.";
   return inp;
 }
 
 const ExprPtr InstrLvlAbs::state(const std::string& name) const {
   auto stt = find_state(Symbol(name));
-  ILA_ASSERT(stt) << "State " << name << " not found.";
   return stt;
 }
 
 const InstrPtr InstrLvlAbs::instr(const std::string& name) const {
   auto instr = find_instr(Symbol(name));
-  ILA_ASSERT(instr) << "Instruction " << name << " not found.";
   return instr;
 }
 
 const InstrLvlAbsPtr InstrLvlAbs::child(const std::string& name) const {
   auto child = find_child(Symbol(name));
-  ILA_ASSERT(child) << "Child-ILA " << name << " not found.";
   return child;
 }
 

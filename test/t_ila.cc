@@ -80,9 +80,7 @@ TEST(TestInstrLvlAbs, Input) {
   EXPECT_EQ(bool_input, get_bool_input);
 #endif
 
-#ifndef NDEBUG
-  EXPECT_DEATH(ila->input("non-exist"), ".*");
-#endif
+  EXPECT_DEATH(ILA_NOT_NULL(ila->input("non-exist")), ".*");
 }
 
 TEST(TestInstrLvlAbs, State) {
@@ -124,9 +122,7 @@ TEST(TestInstrLvlAbs, State) {
   ExprPtr get_bool_state = ila->state("bool_state");
   EXPECT_EQ(bool_state, get_bool_state);
 
-#ifndef NDEBUG
-  EXPECT_DEATH(ila->state("non-exist"), ".*");
-#endif
+  EXPECT_DEATH(ILA_NOT_NULL(ila->state("non-exist")), ".*");
 }
 
 TEST(TestInstrLvlAbs, Init) {
@@ -227,10 +223,8 @@ TEST(TestInstrLvlAbs, Instr) {
 #endif
   EXPECT_EQ(4, ila->instr_num());
 
-// find non-existed
-#ifndef NDEBUG
-  EXPECT_DEATH(ila->instr("dummy_instr"), ".*");
-#endif
+  // find non-existed
+  EXPECT_DEATH(ILA_NOT_NULL(ila->instr("dummy_instr")), ".*");
 
   // find existed
   EXPECT_EQ(instr_ex, ila->instr(instr_ex->name().str()));
@@ -270,10 +264,8 @@ TEST(TestInstrLvlAbs, Child) {
 
   EXPECT_EQ(2, ila->child_num());
 
-// find non-existed
-#ifndef NDEBUG
-  EXPECT_DEATH(ila->child("child3"), ".*");
-#endif
+  // find non-existed
+  EXPECT_DEATH(ILA_NOT_NULL(ila->child("child3")), ".*");
 
   // find existed
   EXPECT_EQ(child1, ila->child("child1"));
