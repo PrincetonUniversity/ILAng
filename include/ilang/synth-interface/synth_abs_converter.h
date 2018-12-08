@@ -47,19 +47,20 @@ public:
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
-  /// The set of decode functions.
-  std::vector<ExprPtr> decodes_;
-
-  /// The set of next state functions for each state var.
-  std::map<ExprPtr, ExprPtr> nexts_;
-
   /// The mapping from node in synthesis engine to expression.
   std::map<const ilasynth::Node*, ExprPtr> node_expr_map_;
-
   /// The mapping from node in synthesis engein to uninterpreted function.
   std::map<const ilasynth::Node*, FuncPtr> node_func_map_;
 
-  // ------------------------- HELPERS -------------------------------------- //
+  /// A set of entry for decomposition.
+  ExprSet decom_entry_;
+  /// The mapping of entries to decomposed sub-trees.
+  // ExprMap decom_match_;
+  std::map<ExprPtr, ExprPtr> decom_match_;
+  /// A set of visited (decomposed) glue (ITE) nodes.
+  ExprSet decom_glue_;
+  /// A set of else branch sub-trees of the decomposed glue nodes.
+  ExprSet decom_else_;
 
   // ------------------------- METHODS -------------------------------------- //
   /// Define input variables in ila based on abs.
@@ -75,12 +76,19 @@ private:
 
   /// Collect uninterpreted functions from abs.
   void PortFuncs(const ilasynth::Abstraction& abs, const InstrLvlAbsPtr& ila);
-  /// Collect decode functions from abs.
-  void PortDecodeFuncs(const ilasynth::Abstraction& abs,
-                       const InstrLvlAbsPtr& ila);
-  /// Collect next state functions from abs.
-  void PortNextStateFuncs(const ilasynth::Abstraction& abs,
-                          const InstrLvlAbsPtr& ila);
+  /// Create the set of instructions based on abs.
+  void PortInstructions(const ilasynth::Abstraction& abs,
+                        const InstrLvlAbsPtr& ila);
+
+  // ------------------------- HELPERS -------------------------------------- //
+  /// Decompose an expression src into a set of conjuncted guarded expressions.
+  /// For example, src = Ite(entry_1, match_1, Ite(entry_2, match_2, ...)) will
+  /// be decomposed into (entry_1, match_1), (entry_2, match_2), etc.
+  /// XXX this only works for the synthesis engine.
+  /// decom_entry_ should store the set of entries.
+  /// decom_visit_ will be updated with a set of decomposed nodes.
+  /// decom_match_ will be updated with a mapping of matched sub-trees.
+  void DecomposeExpr(const ExprPtr& src);
 
   /// The entry point for converting non-var nodes into expr.
   void CnvtNodeToExpr(const ilasynth::Node* n);

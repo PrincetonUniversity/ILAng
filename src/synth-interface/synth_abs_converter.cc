@@ -15,23 +15,22 @@ SynthAbsConverterPtr SynthAbsConverter::New() {
 }
 
 InstrLvlAbsPtr SynthAbsConverter::Convert(const ilasynth::Abstraction& abs) {
-  // destination ILA
+  // output placeholder
   auto model_name = abs.getName();
   auto m = InstrLvlAbs::New(model_name);
 
-  // port basic abstraction definition
+  // leaf nodes
   PortInputs(abs, m);
   PortStates(abs, m);
   PortFuncs(abs, m);
 
+  // instruction
+  PortInstructions(abs, m);
+
+  // others
   PortValid(abs, m);
   PortFetch(abs, m);
-
   PortInits(abs, m);
-
-  // TODO instruction
-  PortDecodeFuncs(abs, m);
-  PortNextStateFuncs(abs, m);
 
   // TODO child-ILAs
 
@@ -233,30 +232,107 @@ void SynthAbsConverter::PortFuncs(const ilasynth::Abstraction& abs,
   return;
 }
 
-void SynthAbsConverter::PortDecodeFuncs(const ilasynth::Abstraction& abs,
-                                        const InstrLvlAbsPtr& ila) {
-  auto decode_synth = abs.getDecodeNodes();
+void SynthAbsConverter::PortInstructions(const ilasynth::Abstraction& abs,
+                                         const InstrLvlAbsPtr& ila) {
+  std::map<ExprPtr, InstrPtr> instr_map;
 
+  // get the set of decode functions
+  auto& decode_exprs = decom_entry_;
+  // auto decode_exprs = ExprSet();
+  auto decode_synth = abs.getDecodeNodes();
   for (auto decode_node_i : decode_synth) {
     auto decode_expr_i = ConvertSynthNodeToIlangExpr(decode_node_i, ila);
-    decodes_.push_back(decode_expr_i);
+
+    // create instruction for each decode function
+    auto instr_i = ila->NewInstr(); // XXX name
+    instr_i->set_decode(decode_expr_i);
+    instr_map[decode_expr_i] = instr_i;
+
+    decode_exprs.insert(decode_expr_i);
   }
 
-  return;
-}
-
-void SynthAbsConverter::PortNextStateFuncs(const ilasynth::Abstraction& abs,
-                                           const InstrLvlAbsPtr& ila) {
+  // get the next state function of each state var
   for (auto i = 0; i != ila->state_num(); i++) {
     auto var = ila->state(i);
 
     // next state functions are conjuncted when being exported
     auto name = var->name().str();
     auto next_node = abs.getNext(name)->node;
-
     auto next_expr = ConvertSynthNodeToIlangExpr(next_node, ila);
 
-    nexts_[var] = next_expr;
+    // decompose the next state functions
+    DecomposeExpr(next_expr);
+    ILA_DLOG("SynthImport") << next_expr << " decomposed";
+
+#if 1
+    // update each instruction
+    for (auto decode : decode_exprs) {
+      auto pos_instr = instr_map.find(decode);
+      ILA_ASSERT(pos_instr != instr_map.end());
+
+      auto instr = pos_instr->second;
+
+      auto pos_next = decom_match_.find(decode);
+      ILA_ASSERT(pos_next != decom_match_.end()) << var << " " << decode;
+      auto next = pos_next->second;
+
+      instr->set_update(var, next);
+    }
+#endif
+  }
+
+  return;
+}
+
+void SynthAbsConverter::DecomposeExpr(const ExprPtr& src) {
+
+  auto Compare = [this](const ExprPtr n) {
+    // syntactically decompose at ITE nodes
+    const ExprOpIte* expr_ite = NULL;
+    if (expr_ite = dynamic_cast<const ExprOpIte*>(n.get())) {
+      // check if the condition argument is one of the entries
+      auto condition = n->arg(0);
+      for (auto entry : decom_entry_) {
+        if (ExprFuse::TopEq(condition, entry)) {
+          // this glue node is decomposed
+          decom_glue_.insert(n);
+
+          // record success matching
+          ILA_ASSERT(decom_match_.find(entry) == decom_match_.end());
+          decom_match_[entry] = n->arg(1);
+
+          // track the else branch
+          decom_else_.insert(n->arg(2));
+
+          // should have only one match
+          break;
+        }
+      }
+    }
+  };
+
+  ILA_ASSERT(!decom_entry_.empty());
+  decom_match_.clear();
+  decom_glue_.clear();
+  decom_else_.clear();
+
+  src->DepthFirstVisit(Compare);
+
+#if 0
+  for (auto pair : decom_match_) {
+    ILA_DLOG("SynthImport") << pair.first << " -> " << pair.second;
+  }
+#endif
+
+  for (auto else_i : decom_else_) {
+    if (decom_glue_.find(else_i) == decom_glue_.end()) {
+      // ILA_DLOG("SynthImport") << "Lump: " << else_i;
+      for (auto entry : decom_entry_) {
+        if (decom_match_.find(entry) == decom_match_.end()) {
+          decom_match_[entry] = else_i;
+        }
+      }
+    }
   }
 
   return;

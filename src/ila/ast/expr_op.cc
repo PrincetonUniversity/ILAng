@@ -433,7 +433,7 @@ z3::expr ExprOpAppFunc::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
   return f_decl(expr_vec.size(), expr_vec.data());
 }
 
-// ------------------------- Class ExprOpIte -------------------------------- //
+// ------------------------- Class ExprOpImply ------------------------------ //
 ExprOpImply::ExprOpImply(const ExprPtr ante, const ExprPtr cons)
     : ExprOp(ante, cons) {
   ILA_ASSERT(ante->is_bool()) << "Antecedent must be Boolean.";
