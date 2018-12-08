@@ -72,6 +72,14 @@ package_add_test(${ILANG_TEST_MAIN}
   t_mcm.cc
 )
 
+set(TEST_CONFIG_TEST_ROOT ${CMAKE_CURRENT_BINARY_DIR})
+
+configure_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/unit-src/config.h.in
+  ${CMAKE_CURRENT_SOURCE_DIR}/unit-include/config.h
+  IMMEDIATE @ONLY
+)
+
 if(${ILANG_BUILD_SYNTH})
 
   target_sources(${ILANG_TEST_MAIN} PRIVATE

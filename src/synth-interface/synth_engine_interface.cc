@@ -4,11 +4,15 @@
 #include <ilang/synth-interface/synth_abs_converter.h>
 #include <ilang/synth-interface/synth_engine_interface.h>
 #include <ilang/util/log.h>
+#include <sys/stat.h>
 
 namespace ilang {
 
 InstrLvlAbsPtr ImportSynthAbsFromFile(const std::string& fileName,
                                       const std::string& name) {
+  struct stat buffer;
+  ILA_CHECK(stat(fileName.c_str(), &buffer) == 0) << fileName << " not exist";
+
   // read in abstraction from file
   ilasynth::Abstraction abs(name);
   try {
@@ -29,6 +33,9 @@ InstrLvlAbsPtr ImportSynthAbsFromFile(const std::string& fileName,
 InstrLvlAbsPtr ImportSynthAbsFromFileHier(const std::string& fileName,
                                           const InstrLvlAbsPtr parent,
                                           const std::string& name) {
+  struct stat buffer;
+  ILA_CHECK(stat(fileName.c_str(), &buffer) == 0) << fileName << " not exist";
+
   // read in abstraction from file
   ilasynth::Abstraction abs(name);
   try {
