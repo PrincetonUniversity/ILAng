@@ -30,6 +30,7 @@ InstrLvlAbsPtr SynthAbsConverter::Convert(const ilasynth::Abstraction& abs) {
   PortInits(abs, m);
 
   // TODO instruction
+  PortDecodeFuncs(abs, m);
 
   // TODO child-ILAs
 
@@ -233,7 +234,13 @@ void SynthAbsConverter::PortFuncs(const ilasynth::Abstraction& abs,
 
 void SynthAbsConverter::PortDecodeFuncs(const ilasynth::Abstraction& abs,
                                         const InstrLvlAbsPtr& ila) {
-  // TODO
+  auto decode_synth = abs.getDecodeNodes();
+
+  for (auto decode_node_i : decode_synth) {
+    auto decode_expr_i = ConvertSynthNodeToIlangExpr(decode_node_i, ila);
+    decodes_.push_back(decode_expr_i);
+  }
+
   return;
 }
 
