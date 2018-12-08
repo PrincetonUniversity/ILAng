@@ -28,5 +28,19 @@ TEST(TestSynthImport, microAES) {
   SetToStdErr(0);
 }
 
+TEST(TestSynthImport, Child) {
+  SetToStdErr(1);
+
+  auto aesFile = "test/unit-data/aes_v/all";
+  auto aesuFile = "test/unit-data/aes_v/allu";
+  auto aes = ImportSynthAbsFromFile(aesFile);
+  auto aesu = ImportSynthAbsFromFile(aesuFile);
+
+  aes->AddChild(aesu);
+  aes->MergeChild();
+
+  SetToStdErr(0);
+}
+
 }; // namespace ilang
 

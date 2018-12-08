@@ -272,6 +272,7 @@ const InstrLvlAbsPtr InstrLvlAbs::NewChild(const std::string& name) {
 }
 
 bool InstrLvlAbs::Check() const {
+  ILA_WARN << "Check in InstrLvlAbs not implemented.";
   // TODO
   // check input
   // check state
@@ -285,12 +286,14 @@ bool InstrLvlAbs::Check() const {
 }
 
 void InstrLvlAbs::MergeChild() {
+  ILA_WARN << "MergeChild in InstrLvlAbs not implemented.";
   // TODO
   // merge shared states
   // merge simplifier
 }
 
 void InstrLvlAbs::SortInstr() {
+  ILA_WARN << "SortInstr in InstrLvlAbs not implemented.";
   // TODO
   // check this is a micro-ILA and has sequencing
   // sort instructions based on the sequencing
