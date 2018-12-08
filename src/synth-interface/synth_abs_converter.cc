@@ -262,14 +262,11 @@ void SynthAbsConverter::PortInstructions(const ilasynth::Abstraction& abs,
 
     // decompose the next state functions
     DecomposeExpr(next_expr);
-    ILA_DLOG("SynthImport") << next_expr << " decomposed";
 
-#if 1
     // update each instruction
     for (auto decode : decode_exprs) {
       auto pos_instr = instr_map.find(decode);
       ILA_ASSERT(pos_instr != instr_map.end());
-
       auto instr = pos_instr->second;
 
       auto pos_next = decom_match_.find(decode);
@@ -278,7 +275,6 @@ void SynthAbsConverter::PortInstructions(const ilasynth::Abstraction& abs,
 
       instr->set_update(var, next);
     }
-#endif
   }
 
   return;
@@ -296,14 +292,11 @@ void SynthAbsConverter::DecomposeExpr(const ExprPtr& src) {
         if (ExprFuse::TopEq(condition, entry)) {
           // this glue node is decomposed
           decom_glue_.insert(n);
-
           // record success matching
           ILA_ASSERT(decom_match_.find(entry) == decom_match_.end());
           decom_match_[entry] = n->arg(1);
-
           // track the else branch
           decom_else_.insert(n->arg(2));
-
           // should have only one match
           break;
         }
@@ -311,27 +304,27 @@ void SynthAbsConverter::DecomposeExpr(const ExprPtr& src) {
     }
   };
 
-  ILA_ASSERT(!decom_entry_.empty());
+  // set up intermediate and result space
   decom_match_.clear();
   decom_glue_.clear();
   decom_else_.clear();
+  ILA_ASSERT(!decom_entry_.empty());
 
+  // start decompose
   src->DepthFirstVisit(Compare);
 
-#if 0
-  for (auto pair : decom_match_) {
-    ILA_DLOG("SynthImport") << pair.first << " -> " << pair.second;
-  }
-#endif
-
+  // determine sub-expression of lumped entries
+  auto default_sub_expr = src; // required when not being composed at all
   for (auto else_i : decom_else_) {
     if (decom_glue_.find(else_i) == decom_glue_.end()) {
-      // ILA_DLOG("SynthImport") << "Lump: " << else_i;
-      for (auto entry : decom_entry_) {
-        if (decom_match_.find(entry) == decom_match_.end()) {
-          decom_match_[entry] = else_i;
-        }
-      }
+      default_sub_expr = else_i;
+    }
+  }
+
+  // update mapping for lumped entries
+  for (auto entry : decom_entry_) {
+    if (decom_match_.find(entry) == decom_match_.end()) {
+      decom_match_[entry] = default_sub_expr;
     }
   }
 
