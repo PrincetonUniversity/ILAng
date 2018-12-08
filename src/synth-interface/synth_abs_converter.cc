@@ -31,6 +31,7 @@ InstrLvlAbsPtr SynthAbsConverter::Convert(const ilasynth::Abstraction& abs) {
 
   // TODO instruction
   PortDecodeFuncs(abs, m);
+  PortNextStateFuncs(abs, m);
 
   // TODO child-ILAs
 
@@ -246,7 +247,18 @@ void SynthAbsConverter::PortDecodeFuncs(const ilasynth::Abstraction& abs,
 
 void SynthAbsConverter::PortNextStateFuncs(const ilasynth::Abstraction& abs,
                                            const InstrLvlAbsPtr& ila) {
-  // TODO
+  for (auto i = 0; i != ila->state_num(); i++) {
+    auto var = ila->state(i);
+
+    // next state functions are conjuncted when being exported
+    auto name = var->name().str();
+    auto next_node = abs.getNext(name)->node;
+
+    auto next_expr = ConvertSynthNodeToIlangExpr(next_node, ila);
+
+    nexts_[var] = next_expr;
+  }
+
   return;
 }
 

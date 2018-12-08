@@ -50,8 +50,8 @@ private:
   /// The set of decode functions.
   std::vector<ExprPtr> decodes_;
 
-  /// The set of next state functions.
-  std::map<std::string, ExprPtr> nexts_;
+  /// The set of next state functions for each state var.
+  std::map<ExprPtr, ExprPtr> nexts_;
 
   /// The mapping from node in synthesis engine to expression.
   std::map<const ilasynth::Node*, ExprPtr> node_expr_map_;
