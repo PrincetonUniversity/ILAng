@@ -9,9 +9,6 @@ compiler:
 branches:
   only:
     - master
-    - coveralls
-    - travis
-    - ref-rel
     - restructure
 
 git:
