@@ -67,7 +67,7 @@ before_script:
 
 script:
   - cd $TRAVIS_BUILD_DIR/build
-  - cmake .. -DILANG_BUILD_COV=ON
+  - cmake .. -DILANG_BUILD_COV=ON -DCMAKE_BUILD_TYPE=Debug
   - make && sudo make install
 
 after_success:

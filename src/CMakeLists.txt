@@ -32,8 +32,8 @@ endif()
 target_compile_features(${ILANG_LIB_NAME} PUBLIC cxx_std_11)
 
 if(${ILANG_BUILD_COV})
-  target_compile_options(${ILANG_LIB_NAME} PRIVATE -fprofile-arcs)
-  target_compile_options(${ILANG_LIB_NAME} PRIVATE -ftest-coverage)
+  target_compile_options(${ILANG_LIB_NAME} PUBLIC -fprofile-arcs)
+  target_compile_options(${ILANG_LIB_NAME} PUBLIC -ftest-coverage)
 endif()
 
 ##
