@@ -1,15 +1,15 @@
 /// \file
 /// Unit test for hashing ast sub-trees
 
-#include "ila/instr_lvl_abs.h"
+#include <ilang/ila/instr_lvl_abs.h>
 #include "unit-include/util.h"
 
-namespace ila {
+namespace ilang {
 
 using namespace ExprFuse;
 
 class TestHashApi : public ::testing::Test {
-public:
+ public:
   TestHashApi() {
     ila = InstrLvlAbs::New("host");
     x = ila->NewBoolState("x");
@@ -19,7 +19,7 @@ public:
     bv_y = ila->NewBvState("bv_y", 8);
     bv_z = ila->NewBvState("bv_z", 8);
     mngr = ila->expr_mngr();
-    if (!mngr) // XXX make it better
+    if (!mngr)  // XXX make it better
       mngr = ExprMngr::New();
   }
 
@@ -44,7 +44,7 @@ public:
   ExprPtr bv_z = NULL;
   ExprMngrPtr mngr = NULL;
 
-}; // TestHashApi
+};  // TestHashApi
 
 TEST_F(TestHashApi, level0) {
   // bool const
@@ -147,5 +147,4 @@ TEST_F(TestHashApi, ExplicitName) {
   EXPECT_NE(rb, rs);
 }
 
-} // namespace ila
-
+}  // namespace ilang

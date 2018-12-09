@@ -57,7 +57,7 @@ def createAESILA(enable_ps):
     rd_data       = um.reg('rd_data', 128)
     enc_data      = um.reg('enc_data', 128)
     blk_cnt       = um.reg('blk_cnt', 16)
-    uaes_ctr       = um.reg('uaes_ctr', 128)
+    uaes_ctr      = um.reg('uaes_ctr', 128)
     
     um.set_init('blk_cnt', um.const(0, 16))
     um.set_init('uaes_ctr', um.getreg('aes_ctr') )
@@ -96,7 +96,7 @@ def createAESILA(enable_ps):
     uaes_ctr_nxt = ila.choice('uaes_ctr_nxt', 
         uaes_ctr, uaes_ctr + ila.inrange('uaes_ctr_nxt_range',m.const(1,128), m.const(128,128) ) )
     um.set_next('uaes_ctr',uaes_ctr_nxt)
-	
+    
     # xram write
     xram_w_addr = opaddr + blk_cnt
     xram_w_aes = ila.storeblk(uxram, xram_w_addr, enc_data)

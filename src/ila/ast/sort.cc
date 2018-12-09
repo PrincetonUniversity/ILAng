@@ -1,10 +1,10 @@
 /// \file
 /// Source for the class Sort
 
-#include "ila/ast/sort.h"
-#include "util/log.h"
+#include <ilang/ila/ast/sort.h>
+#include <ilang/util/log.h>
 
-namespace ila {
+namespace ilang {
 
 Sort::Sort() {}
 
@@ -96,5 +96,4 @@ std::ostream& SortMem::Print(std::ostream& out) const {
   return out << "Mem(" << addr_width_ << ", " << data_width_ << ")";
 }
 
-} // namespace ila
-
+} // namespace ilang

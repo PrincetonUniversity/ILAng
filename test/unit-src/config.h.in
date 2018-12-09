@@ -1,0 +1,10 @@
+/// \file
+/// CMake defined config file for unit tests
+
+#ifndef TEST_CONFIG_CMAKE_DEFINE_H__
+#define TEST_CONFIG_CMAKE_DEFINE_H__
+
+#cmakedefine TEST_CONFIG_TEST_ROOT "@TEST_CONFIG_TEST_ROOT@"
+
+#endif // TEST_CONFIG_CMAKE_DEFINE_H__
+

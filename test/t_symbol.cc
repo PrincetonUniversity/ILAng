@@ -1,10 +1,10 @@
 /// \file
 /// Unit test for class Symbol.
 
-#include "ila/symbol.h"
+#include <ilang/ila/symbol.h>
 #include "unit-include/util.h"
 
-namespace ila {
+namespace ilang {
 
 TEST(TestSymbol, Construct) {
   Symbol sym_default;
@@ -43,7 +43,7 @@ TEST(TestSymbol, Accessors) {
   GET_STDERR_MSG(sym.to_int(), msg);
 #ifndef NDEBUG
   EXPECT_FALSE(msg.empty());
-#endif // NDEBUG
+#endif  // NDEBUG
 }
 
 TEST(TestSymbol, Copy) {
@@ -80,5 +80,4 @@ TEST(TestSymbol, Compare) {
   EXPECT_FALSE(post < pre);
 }
 
-} // namespace ila
-
+}  // namespace ilang

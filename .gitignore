@@ -33,7 +33,7 @@
 *.x
 
 # Build directory
-build/
+build/*
 
 # Doxygen output
 #html/

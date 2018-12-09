@@ -1,21 +1,20 @@
 /// \file
 /// Unit test for operation construction, z3 formula, hash, print, etc.
 
-#include "cpp_api.h"
+#include <ilang/cpp_api.h>
 #include "unit-include/util.h"
 
-namespace ila {
+namespace ilang {
 
 class TestOpSanity : public ::testing::Test {
-public:
+ public:
   TestOpSanity() {
     m = new Ila("host");
     // TODO
   }
 
   ~TestOpSanity() {
-    if (m)
-      delete m;
+    if (m) delete m;
   }
 
   void SetUp() {
@@ -30,12 +29,11 @@ public:
 
   Ila* m = NULL;
 
-}; // class TestOpSanity
+};  // class TestOpSanity
 
 TEST_F(TestOpSanity, AndBool) {
   // TODO
   // Need to have a API for node equivalence (semantically).
 }
 
-} // namespace ila
-
+}  // namespace ilang

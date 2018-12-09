@@ -1,11 +1,11 @@
 /// \file
 /// Unit test for ExprVar
 
-#include "ila/ast/expr_var.h"
+#include <ilang/ila/ast/expr_var.h>
 #include "unit-include/util.h"
 #include "z3++.h"
 
-namespace ila {
+namespace ilang {
 
 TEST(TestExprVar, Construct) {
   auto bool_var = std::make_shared<ExprVar>("bool_var");
@@ -113,5 +113,4 @@ TEST(TestExprVar, MemPrint) {
   EXPECT_EQ(ref_str, msg);
 }
 
-} // namespace ila
-
+}  // namespace ilang

@@ -1,15 +1,15 @@
 /// \file
 /// Unit test for c++ API
 
-#include "cpp_api.h"
+#include <ilang/cpp_api.h>
+#include <vector>
 #include "unit-include/simple_cpu.h"
 #include "unit-include/util.h"
-#include <vector>
 
 #define REG_NUM 16
 #define REG_SIZE 8
 
-namespace ila {
+namespace ilang {
 
 TEST(TestApi, Construct) {
   Ila ila("top");
@@ -357,5 +357,4 @@ TEST(TestApi, Log) {
 #endif
 }
 
-} // namespace ila
-
+}  // namespace ilang

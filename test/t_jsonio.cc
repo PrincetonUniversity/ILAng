@@ -1,17 +1,16 @@
 /// \file
 /// Unit test for JSON parser.
 
+#include <ilang/json-inout/json_parse.h>
 #include "unit-include/util.h"
-#include "json-inout/json_parse.h"
 
 #ifdef JSON_INOUT_ENABLE
-namespace ila {
+namespace ilang {
 
 TEST(TestJsonParse, Declare) {
   // TODO
   TestJsonParse();
 }
 
-};     // namespace ila
-#endif // JSON_INOUT_ENABLE
-
+};      // namespace ilang
+#endif  // JSON_INOUT_ENABLE

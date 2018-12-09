@@ -1,11 +1,11 @@
 /// \file
 /// Source for the class ExprConst
 
-#include "ila/ast/expr_const.h"
-#include "util/log.h"
+#include <ilang/ila/ast/expr_const.h>
+#include <ilang/util/log.h>
 
-/// \namespace ila
-namespace ila {
+/// \namespace ilang
+namespace ilang {
 
 ExprConst::ExprConst(const BoolVal& bool_val) {
   // set_sort(Sort());
@@ -96,5 +96,4 @@ MemValPtr ExprConst::val_mem() const {
   return ptr;
 }
 
-} // namespace ila
-
+} // namespace ilang

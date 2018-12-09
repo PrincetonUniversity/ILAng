@@ -1,11 +1,11 @@
 /// \file
 /// Source for the var expression
 
-#include "ila/ast/expr_var.h"
-#include "ila/instr_lvl_abs.h"
-#include "util/log.h"
+#include <ilang/ila/ast/expr_var.h>
+#include <ilang/ila/instr_lvl_abs.h>
+#include <ilang/util/log.h>
 
-namespace ila {
+namespace ilang {
 
 ExprVar::ExprVar(const std::string& name) : Expr(name) {
   set_sort(Sort::MakeBoolSort());
@@ -57,5 +57,4 @@ std::ostream& ExprVar::PrintMem(std::ostream& out) const {
                     ", " + std::to_string(sort()->data_width()) + ")";
 }
 
-} // namespace ila
-
+} // namespace ilang

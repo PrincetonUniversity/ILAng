@@ -1,14 +1,13 @@
 /// \file
 /// Source for Python API -- logging system
 
-#include "python-api/ila_py_api.h"
-#include "python-api/wrap_log.h"
+#include <ilang/python-api/ila_py_api.h>
+#include <ilang/python-api/wrap_log.h>
 
-namespace ila {
+namespace ilang {
 namespace pyapi {
 
 void export_log() {
-
   // Initialize logging
 
   /// Set log level to the given value.
@@ -26,5 +25,4 @@ void export_log() {
 }
 
 } // namespace pyapi
-} // namespace ila
-
+} // namespace ilang

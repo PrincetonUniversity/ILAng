@@ -1,10 +1,10 @@
 /// \file
 /// Source for some utility functions for string formating.
 
-#include "util/str_util.h"
-#include "util/log.h"
+#include <ilang/util/log.h>
+#include <ilang/util/str_util.h>
 
-namespace ila {
+namespace ilang {
 
 std::string StrToUpper(const std::string& str) {
   std::string res = str;
@@ -22,8 +22,8 @@ std::string StrToLower(const std::string& str) {
 
 bool StrToBool(const std::string& str) {
   std::string up = StrToUpper(str);
-  ILA_ASSERT((up == "TRUE") || (up == "FALSE")) << "Unknown boolean value "
-                                                << up << "\n";
+  ILA_ASSERT((up == "TRUE") || (up == "FALSE"))
+      << "Unknown boolean value " << up << "\n";
   return (up == "TRUE");
 }
 
@@ -47,5 +47,4 @@ std::string StrConcat(const std::string& l, const std::string& m,
 }
 #endif
 
-} // namespace ila
-
+} // namespace ilang

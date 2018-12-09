@@ -1,11 +1,11 @@
 /// \file
 /// Source for the op expression
 
-#include "ila/ast/expr_op.h"
-#include "ila/ast/func.h"
-#include "ila/instr_lvl_abs.h"
+#include <ilang/ila/ast/expr_op.h>
+#include <ilang/ila/ast/func.h>
+#include <ilang/ila/instr_lvl_abs.h>
 
-namespace ila {
+namespace ilang {
 
 // ------------------------- Class ExprOp ----------------------------------- //
 
@@ -435,7 +435,7 @@ z3::expr ExprOpAppFunc::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
   return f_decl(expr_vec.size(), expr_vec.data());
 }
 
-// ------------------------- Class ExprOpIte -------------------------------- //
+// ------------------------- Class ExprOpImply ------------------------------ //
 ExprOpImply::ExprOpImply(const ExprPtr ante, const ExprPtr cons)
     : ExprOp(ante, cons) {
   ILA_ASSERT(ante->is_bool()) << "Antecedent must be Boolean.";
@@ -470,5 +470,4 @@ z3::expr ExprOpIte::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
   return z3::ite(cnd, t_e, t_f);
 }
 
-} // namespace ila
-
+} // namespace ilang

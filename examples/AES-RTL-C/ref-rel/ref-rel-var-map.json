@@ -1,0 +1,38 @@
+{
+  "model m0": "C",
+  "model m1": ["ref-rel-aes.json","ref-rel-aes.json"],
+  "instruction mapping": [],
+  "state mapping": {
+        "aes_sts" :  { "PCState" :
+                            { "@_ILA_aes_top_0":0, 
+                              "@_ILA_aes_step_1":1,
+                              "@_ILA_aes_step_2":2,
+                              "@_ILA_aes_step_3":3,
+                              "@_ILA_aes_end":0}
+                      },
+        "buffer"  : { "CArray" : {"addr" : {"cnt" : 65536} , "data" : {"width" : 8} } },
+        "aesVarMap" : {
+                        "cmd"    : "cmd",
+                        "cmdaddr"  : "cmdaddr",
+                        "cmddata"  : "cmddata",
+                        "aes_state": { "PCState" : "aes_sts" }, 
+                        "aes_addr" : "mmport.PlainTextPointer" , 
+                        "aes_len"  : "mmport.EncryptLength",
+                        "aes_ctr"  : {"mmport.EncryptCtr[0]": [3,0] , "mmport.EncryptCtr[1]": [7, 4]   ,
+                                      "mmport.EncryptCtr[2]":[11,8] , "mmport.EncryptCtr[3]":[15,12] } ,
+                        "aes_key0" : {"mmport.EncryptKey[0]": [3,0] , "mmport.EncryptKey[1]": [7, 4]   ,
+                                      "mmport.EncryptKey[2]":[11,8] , "mmport.EncryptKey[3]":[15,12] } ,
+                        "XRAM"     : { "CArray" : "buffer" }
+                        },
+        "computeAesMap" : {
+                        "rd_data"  : {"plaintext[0]": [3,0], "plaintext[1]": [7, 4],
+                                      "plaintext[2]": [11,8],"plaintext[3]": [15,12]},
+                        "enc_data" : {"final_result[0]": [3,0], "final_result[1]": [7, 4],
+                                      "final_result[2]":[11,8], "final_result[3]":[15,12]},
+                        "uaes_ctr" :  {"AES_ctr[0]": [3,0],  "AES_ctr[1]": [7, 4],
+                                       "AES_ctr[2]": [11,8], "AES_ctr[3]": [15,12] },
+                        "blk_cnt"  : "byteCount"
+                        }
+  }
+}
+

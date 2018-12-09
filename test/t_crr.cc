@@ -1,14 +1,14 @@
 /// \file
 /// Unit test for compositional refinement relation.
 
-#include "ila/comp_ref_rel.h"
+#include <ilang/ila/comp_ref_rel.h>
 #include "unit-include/simple_cpu.h"
 #include "unit-include/util.h"
 
-namespace ila {
+namespace ilang {
 
 class TestCrr : public ::testing::Test {
-public:
+ public:
   TestCrr() {}
   ~TestCrr() {}
   void SetUp() { DebugLog::Enable("CRR"); }
@@ -20,7 +20,7 @@ public:
   InstrLvlAbsPtr m0 = SimpleCpu("m0");
   InstrLvlAbsPtr m1 = SimpleCpu("m1");
 
-}; // class TestCrr
+};  // class TestCrr
 
 TEST_F(TestCrr, Refinement) {
   auto ref = RefinementMap::New();
@@ -64,5 +64,4 @@ TEST_F(TestCrr, CompRefRel) {
   EXPECT_TRUE(crr->relation());
 }
 
-} // namespace ila
-
+}  // namespace ilang

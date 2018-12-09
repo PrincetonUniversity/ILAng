@@ -1,12 +1,12 @@
 /// \file
 /// Source for the class Symbol.
 
-#include "ila/symbol.h"
-#include "util/log.h"
-#include "util/str_util.h"
+#include <ilang/ila/symbol.h>
+#include <ilang/util/log.h>
+#include <ilang/util/str_util.h>
 
-/// \namespace ila
-namespace ila {
+/// \namespace ilang
+namespace ilang {
 
 size_t Symbol::counter_ = 0;
 
@@ -62,5 +62,4 @@ bool operator<(const Symbol& lhs, const Symbol& rhs) {
   return (lhs.name_ < rhs.name_);
 }
 
-} // namespace ila
-
+} // namespace ilang

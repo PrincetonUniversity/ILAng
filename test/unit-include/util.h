@@ -1,14 +1,14 @@
 /// \file
 /// Some helper macros, functions for writing tests.
 
-#include "config.h"
-#include "ila/expr_fuse.h"
-#include "util/log.h"
 #include "gtest/gtest-spi.h"
 #include "gtest/gtest.h"
+#include <ilang/config.h>
+#include <ilang/ila/expr_fuse.h>
+#include <ilang/util/log.h>
 #include <memory>
 
-namespace ila {
+namespace ilang {
 
 /// \def Capture standard output message for cmd to msg.
 #define GET_STDOUT_MSG(cmd, msg)                                               \
@@ -22,5 +22,4 @@ namespace ila {
   cmd;                                                                         \
   msg = ::testing::internal::GetCapturedStderr();
 
-} // namespace ila
-
+} // namespace ilang

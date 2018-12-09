@@ -1,10 +1,10 @@
 /// \file
 /// Source of instruction sequencing
 
-#include "ila/transition.h"
-#include "util/log.h"
+#include <ilang/ila/transition.h>
+#include <ilang/util/log.h>
 
-namespace ila {
+namespace ilang {
 
 // ------------------------- InstrTranEdge ---------------------------------- //
 // typedef InstrTranEdge::ItEdgePtr ItEdgePtr;
@@ -111,5 +111,4 @@ InstrIdxKeyVecPtr InstrSeq::Sort() {
   return sorted_;
 }
 
-} // namespace ila
-
+} // namespace ilang

@@ -1,14 +1,13 @@
 /// \file
 /// Source for Python API -- ILA
 
-#include "python-api/ila_py_api.h"
-#include "python-api/wrap_ila.h"
+#include <ilang/python-api/ila_py_api.h>
+#include <ilang/python-api/wrap_ila.h>
 
-namespace ila {
+namespace ilang {
 namespace pyapi {
 
 void export_instr_lvl_abs() {
-
   // Expose ILA wrapper to Boost.Python
   class_<InstrLvlAbsWrap>("Abstraction", init<std::string>())
       .def("inp", &InstrLvlAbsWrap::NewBvInput,
@@ -20,5 +19,4 @@ void export_instr_lvl_abs() {
 }
 
 } // namespace pyapi
-} // namespace ila
-
+} // namespace ilang

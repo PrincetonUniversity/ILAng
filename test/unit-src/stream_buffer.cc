@@ -2,10 +2,10 @@
 /// Example model -- simple stream buffer.
 
 #include "../unit-include/stream_buffer.h"
-#include "cpp_api.h"
-#include "util/log.h"
+#include <ilang/cpp_api.h>
+#include <ilang/util/log.h>
 
-namespace ila {
+namespace ilang {
 
 Ila ExmpStrmBuff::GetStrmBuffSpec(const std::string& name) {
   Ila m(name);
@@ -28,7 +28,7 @@ Ila ExmpStrmBuff::GetStrmBuffSpec(const std::string& name) {
   // valid
   m.SetValid(in_wr | in_rd);
 
-  { // write instruction
+  {  // write instruction
     auto instr = m.NewInstr("write");
     instr.SetDecode(in_wr & out_wr_en);
 
@@ -39,10 +39,10 @@ Ila ExmpStrmBuff::GetStrmBuffSpec(const std::string& name) {
     }
     instr.SetUpdate(cnt, cnt + 1);
     instr.SetUpdate(out_wr_en, (cnt < buff_size() - 1));
-    instr.SetUpdate(out_rd_en, (cnt >= 0)); // or true
+    instr.SetUpdate(out_rd_en, (cnt >= 0));  // or true
   }
 
-  { // read instruction
+  {  // read instruction
     auto instr = m.NewInstr("read");
     instr.SetDecode(in_rd & out_rd_en);
     // TODO use cnt as the pointer for reading (review write)
@@ -51,11 +51,10 @@ Ila ExmpStrmBuff::GetStrmBuffSpec(const std::string& name) {
   return m;
 }
 
-std::shared_ptr<InstrLvlAbs>
-ExmpStrmBuff::GetStrmBuffSpecRaw(const std::string& name) {
+std::shared_ptr<InstrLvlAbs> ExmpStrmBuff::GetStrmBuffSpecRaw(
+    const std::string& name) {
   auto m = GetStrmBuffSpec(name);
   return m.get();
 }
 
-} // namespace ila
-
+}  // namespace ilang

@@ -1,11 +1,11 @@
 /// \file
 /// Unit test for the class Z3ExprAdapter
 
-#include "ila/expr_fuse.h"
-#include "ila/z3_expr_adapter.h"
+#include <ilang/ila/expr_fuse.h>
+#include <ilang/ila/z3_expr_adapter.h>
 #include "unit-include/util.h"
 
-namespace ila {
+namespace ilang {
 
 TEST(TestZ3Adapter, Construct) {
   DebugLog::Enable("z3_adapter");
@@ -24,7 +24,7 @@ TEST(TestZ3Adapter, Construct) {
   auto x_and_y = ExprFuse::And(reg_x, reg_y);
   auto x_and_y_or_y = ExprFuse::Or(x_and_y, reg_y);
   auto y_or_0 = ExprFuse::Or(reg_y, const_bv0);
-  auto bv_equal = ExprFuse::Eq(x_and_y_or_y, y_or_0); // always true
+  auto bv_equal = ExprFuse::Eq(x_and_y_or_y, y_or_0);  // always true
 
   z3::expr expr_eq = adapter.GetExpr(bv_equal);
 
@@ -38,7 +38,7 @@ TEST(TestZ3Adapter, Construct) {
 
   // second expression check
   auto const_false = ExprFuse::Not(const_true);
-  auto bool_equal = ExprFuse::Eq(bv_equal, const_false); // always false
+  auto bool_equal = ExprFuse::Eq(bv_equal, const_false);  // always false
 
   z3::expr expr_bool_equal = adapter.GetExpr(bool_equal);
 
@@ -51,7 +51,6 @@ TEST(TestZ3Adapter, Construct) {
 }
 
 TEST(TestZ3Adapter, Suffix) {
-
   DebugLog::Enable("z3_adapter");
 
   z3::context c;
@@ -61,10 +60,13 @@ TEST(TestZ3Adapter, Suffix) {
   auto reg_x = ExprFuse::NewBvVar("reg_x", 8);
   auto reg_y = ExprFuse::NewBvVar("reg_y", 8);
 
-  z3::expr expr_x_plus_y_frame_1_ = adapter.GetExpr(ExprFuse::Add(reg_x,reg_y), "_frame_1_");
-  z3::expr expr_x_plus_y_frame_2_ = adapter.GetExpr(ExprFuse::Add(reg_x,reg_y), "_frame_2_");
+  z3::expr expr_x_plus_y_frame_1_ =
+      adapter.GetExpr(ExprFuse::Add(reg_x, reg_y), "_frame_1_");
+  z3::expr expr_x_plus_y_frame_2_ =
+      adapter.GetExpr(ExprFuse::Add(reg_x, reg_y), "_frame_2_");
 
-  z3::expr two_frames_should_be_independent = expr_x_plus_y_frame_1_ != expr_x_plus_y_frame_2_;
+  z3::expr two_frames_should_be_independent =
+      expr_x_plus_y_frame_1_ != expr_x_plus_y_frame_2_;
 
   s.add(two_frames_should_be_independent);
 
@@ -78,6 +80,4 @@ TEST(TestZ3Adapter, Suffix) {
 // TODO change context
 // TODO Clear
 
-
-} // namespace ila
-
+}  // namespace ilang

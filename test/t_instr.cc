@@ -1,14 +1,14 @@
 /// \file
 /// Unit test for class Instr.
 
-#include "ila/expr_fuse.h"
-#include "ila/instr.h"
+#include <ilang/ila/expr_fuse.h>
+#include <ilang/ila/instr.h>
 #include "unit-include/util.h"
 
-namespace ila {
+namespace ilang {
 
 class TestInstr : public ::testing::Test {
-public:
+ public:
   TestInstr() { mngr = std::make_shared<ExprMngr>(); }
 
   ~TestInstr() {}
@@ -19,7 +19,7 @@ public:
 
   ExprMngrPtr mngr;
 
-}; // class TestInstr
+};  // class TestInstr
 
 TEST_F(TestInstr, Construct) {
   InstrPtr sptr = std::make_shared<Instr>("simplify_instr");
@@ -227,5 +227,4 @@ TEST_F(TestInstr, Print) {
   EXPECT_EQ("Instr.dummy", msg);
 }
 
-} // namespace ila
-
+}  // namespace ilang

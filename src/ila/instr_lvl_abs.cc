@@ -1,12 +1,12 @@
 /// \file
 /// The source for the class InstrLvlAbs.
 
-#include "ila/instr_lvl_abs.h"
+#include <ilang/ila/instr_lvl_abs.h>
 
 // Do the simplification by hashing AST sub-trees.
 static const bool kUnifyAst = true;
 
-namespace ila {
+namespace ilang {
 
 InstrLvlAbs::InstrLvlAbs(const std::string& name, const InstrLvlAbsPtr parent)
     : Object(name), parent_(parent) {
@@ -23,25 +23,21 @@ InstrLvlAbsPtr InstrLvlAbs::New(const std::string& name,
 
 const ExprPtr InstrLvlAbs::input(const std::string& name) const {
   auto inp = find_input(Symbol(name));
-  ILA_ASSERT(inp) << "Input " << name << " not found.";
   return inp;
 }
 
 const ExprPtr InstrLvlAbs::state(const std::string& name) const {
   auto stt = find_state(Symbol(name));
-  ILA_ASSERT(stt) << "State " << name << " not found.";
   return stt;
 }
 
 const InstrPtr InstrLvlAbs::instr(const std::string& name) const {
   auto instr = find_instr(Symbol(name));
-  ILA_ASSERT(instr) << "Instruction " << name << " not found.";
   return instr;
 }
 
 const InstrLvlAbsPtr InstrLvlAbs::child(const std::string& name) const {
   auto child = find_child(Symbol(name));
-  ILA_ASSERT(child) << "Child-ILA " << name << " not found.";
   return child;
 }
 
@@ -272,6 +268,7 @@ const InstrLvlAbsPtr InstrLvlAbs::NewChild(const std::string& name) {
 }
 
 bool InstrLvlAbs::Check() const {
+  ILA_WARN << "Check in InstrLvlAbs not implemented.";
   // TODO
   // check input
   // check state
@@ -285,12 +282,14 @@ bool InstrLvlAbs::Check() const {
 }
 
 void InstrLvlAbs::MergeChild() {
+  ILA_WARN << "MergeChild in InstrLvlAbs not implemented.";
   // TODO
   // merge shared states
   // merge simplifier
 }
 
 void InstrLvlAbs::SortInstr() {
+  ILA_WARN << "SortInstr in InstrLvlAbs not implemented.";
   // TODO
   // check this is a micro-ILA and has sequencing
   // sort instructions based on the sequencing
@@ -348,5 +347,4 @@ void InstrLvlAbs::InitObject() {
   }
 }
 
-} // namespace ila
-
+} // namespace ilang

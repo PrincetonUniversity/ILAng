@@ -1,16 +1,15 @@
 /// \file
 /// Unit test for Verilog parser.
 
-#include "verilog-in/verilog_parse.h"
+#include <ilang/verilog-in/verilog_parse.h>
 #include "unit-include/util.h"
 
 #ifdef VERILOG_IN_ENABLE
 
-namespace ila {
+namespace ilang {
 
 TEST(TestVerilogParse, Init) { TestParseVerilog(); }
 
-}; // namespace ila
+};  // namespace ilang
 
-#endif // VERILOG_IN_ENABLE
-
+#endif  // VERILOG_IN_ENABLE

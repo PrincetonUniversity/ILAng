@@ -4,16 +4,17 @@
 #ifndef EXPR_BANK_H__
 #define EXPR_BANK_H__
 
-#include "ila/expr_fuse.h"
-#include "util.h"
+#include <ilang/ila/expr_fuse.h>
 #include <vector>
+#include "util.h"
 
-namespace ila {
+namespace ilang {
 
 using namespace ExprFuse;
 
-template <int BV_SIZE = 8, int VAR_NUM = 16> class ExprBank {
-public:
+template <int BV_SIZE = 8, int VAR_NUM = 16>
+class ExprBank {
+ public:
   std::vector<ExprPtr> BOOL;
   std::vector<ExprPtr> BV;
   std::vector<ExprPtr> MEM;
@@ -36,9 +37,8 @@ public:
     }
   }
 
-}; // class ExprBank
+};  // class ExprBank
 
-} // namespace ila
+}  // namespace ilang
 
-#endif // EXPR_BANK_H__
-
+#endif  // EXPR_BANK_H__

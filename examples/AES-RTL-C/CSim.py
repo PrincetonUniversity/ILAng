@@ -135,7 +135,7 @@ class CSim():
         subprocess.call(['gcc',self.CAnno,'-o','test','-w'])
         subprocess.call(['./test'])
         self.getStates()
-        print 'state!=',self.aes_state,'blk_count\'=%x' % self.blk_cnt
+        print 'state=',self.aes_state,'blk_count=%x' % self.blk_cnt
         s_out = self.s_dict()
         # self.dump('OUT', s_in)
         return s_out

@@ -1,0 +1,8 @@
+FROM ubuntu:xenial
+
+WORKDIR /app
+
+COPY . /app
+
+CMD ["/bin/bash"]
+

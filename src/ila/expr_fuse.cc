@@ -1,11 +1,11 @@
 /// \file
 /// Source of the class ExpFusee
 
-#include "ila/expr_fuse.h"
-#include "ila/hash_ast.h"
-#include "util/str_util.h"
+#include <ilang/ila/expr_fuse.h>
+#include <ilang/ila/hash_ast.h>
+#include <ilang/util/str_util.h>
 
-namespace ila {
+namespace ilang {
 
 ExprPtr ExprFuse::NewBoolVar(const std::string& name) {
   return std::make_shared<ExprVar>(name);
@@ -332,5 +332,4 @@ bool ExprFuse::TopEq(const ExprPtr a, const ExprPtr b) {
   return x == y;
 }
 
-} // namespace ila
-
+} // namespace ilang

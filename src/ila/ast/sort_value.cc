@@ -1,11 +1,11 @@
 /// \file
 /// Source for the class BoolVal, BvVal, and MemVal
 
-#include "ila/ast/sort_value.h"
-#include "util/log.h"
-#include "util/str_util.h"
+#include <ilang/ila/ast/sort_value.h>
+#include <ilang/util/log.h>
+#include <ilang/util/str_util.h>
 
-namespace ila {
+namespace ilang {
 
 // ------------------------- Class BoolVal ---------------------------------- //
 BoolVal::BoolVal(const bool& val) : val_(val) {}
@@ -82,5 +82,4 @@ std::ostream& operator<<(std::ostream& out, const MemVal& val) {
   return val.Print(out);
 }
 
-} // namespace ila
-
+} // namespace ilang

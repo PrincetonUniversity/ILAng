@@ -3,14 +3,6 @@
 A paper summarizing the formal definition and modeling case studies: [arXiv link](https://arxiv.org/abs/1801.01114).
 
 
-## Templated-based ILA synthesis
-
-[![Build Status](https://semaphoreci.com/api/v1/bo-yuan-huang/ila-tools/branches/master/shields_badge.svg)](https://semaphoreci.com/bo-yuan-huang/ila-tools)
-
-To build ILA synthesis tool, look in the [py-tmpl-synth](https://github.com/Bo-Yuan-Huang/ILA-Tools/tree/master/py-tmpl-synth) directory.
-
-For API documents and tutorials, see the [docs](https://github.com/Bo-Yuan-Huang/ILA-Tools/tree/master/docs) directory.
-
 ## Modeling and Verification Case Studies
 
 For some examples, see the [examples](https://github.com/Bo-Yuan-Huang/ILA-Tools/tree/master/examples) directory.
@@ -22,6 +14,7 @@ For some examples, see the [examples](https://github.com/Bo-Yuan-Huang/ILA-Tools
 [![Coverity Scan Build Status](https://img.shields.io/coverity/scan/14490.svg)](https://scan.coverity.com/projects/bo-yuan-huang-ila-tools)
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active)
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/Bo-Yuan-Huang/ILA-Tools/blob/master/LICENSE)
+[![Build Status](https://semaphoreci.com/api/v1/bo-yuan-huang/ila-tools/branches/master/shields_badge.svg)](https://semaphoreci.com/bo-yuan-huang/ila-tools)
 
 ### Requirements:
 * [z3](https://github.com/Z3Prover/z3) 4.4.0 or above 
@@ -48,6 +41,7 @@ For developers, implementation details can be found on [ILA-Tools-Impl](https://
 * __A Formal Instruction-Level GPU Model for Scalable Verification__.
   Yue Xing, Bo-Yuan Huang, Aarti Gupta, and Sharad Malik.
   *in* Proceedings of the International Conference On Computer Aided Design. (ICCAD 2018), San Diego, CA. Nov. 2018.
+  [[PDF](https://github.com/Bo-Yuan-Huang/ILA-Tools/blob/master/docs/publications/formal-instruction-level_camera_ready.pdf)]
 
 * __Integrating Memory Consistency Models with Instruction-Level Abstraction for Heterogeneous System-on-Chip Verification__.
   Hongce Zhang, Caroline Trippel, Yatin Manerkar, Aarti Gupta, Margaret Martonosi, and Sharad Malik.
