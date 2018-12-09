@@ -120,8 +120,8 @@ void SynthAbsConverter::PortInputs(const ilasynth::Abstraction& abs,
     }
 
     // update book keeping
-    ILA_ASSERT(node_expr_map_.find(node.get()) == node_expr_map_.end());
-    node_expr_map_[node.get()] = ila->input(name);
+    auto res = node_expr_map_.emplace(node.get(), ila->input(name));
+    ILA_WARN_IF(!res.second) << "Input " << res.first->second << " re-ported.";
   }
 }
 
@@ -144,8 +144,8 @@ void SynthAbsConverter::PortStates(const ilasynth::Abstraction& abs,
       ILA_DLOG("SynthImport") << "Define state " << var;
     }
 
-    ILA_ASSERT(node_expr_map_.find(node.get()) == node_expr_map_.end());
-    node_expr_map_[node.get()] = ila->state(name);
+    auto res = node_expr_map_.emplace(node.get(), ila->state(name));
+    ILA_WARN_IF(!res.second) << "State " << res.first->second << "re-ported.";
   }
 
   // bv
@@ -165,8 +165,8 @@ void SynthAbsConverter::PortStates(const ilasynth::Abstraction& abs,
       ILA_DLOG("SynthImport") << "Define state " << var;
     }
 
-    ILA_ASSERT(node_expr_map_.find(node.get()) == node_expr_map_.end());
-    node_expr_map_[node.get()] = ila->state(name);
+    auto res = node_expr_map_.emplace(node.get(), ila->state(name));
+    ILA_WARN_IF(!res.second) << "State " << res.first->second << "re-ported.";
   }
 
   // mem
@@ -186,8 +186,8 @@ void SynthAbsConverter::PortStates(const ilasynth::Abstraction& abs,
       ILA_DLOG("SynthImport") << "Define state " << var;
     }
 
-    ILA_ASSERT(node_expr_map_.find(node.get()) == node_expr_map_.end());
-    node_expr_map_[node.get()] = ila->state(name);
+    auto res = node_expr_map_.emplace(node.get(), ila->state(name));
+    ILA_WARN_IF(!res.second) << "State " << res.first->second << "re-ported.";
   }
 }
 
@@ -264,8 +264,8 @@ void SynthAbsConverter::PortFuncs(const ilasynth::Abstraction& abs,
     ILA_DLOG("SynthImport") << "Fun: " << func;
 
     // add to the mapping
-    ILA_ASSERT(node_func_map_.find(node.get()) == node_func_map_.end());
-    node_func_map_[node.get()] = func;
+    auto res = node_func_map_.emplace(node.get(), func);
+    ILA_WARN_IF(!res.second) << "Func " << name << " has been ported.";
   }
 
   return;
@@ -281,13 +281,12 @@ void SynthAbsConverter::PortInstructions(const ilasynth::Abstraction& abs,
   auto decode_synth = abs.getDecodeNodes();
   for (auto decode_node_i : decode_synth) {
     auto decode_expr_i = ConvertSynthNodeToIlangExpr(decode_node_i, ila);
+    decode_exprs.insert(decode_expr_i);
 
     // create instruction for each decode function
     auto instr_i = ila->NewInstr(); // XXX name
     instr_i->set_decode(decode_expr_i);
-    instr_map[decode_expr_i] = instr_i;
-
-    decode_exprs.insert(decode_expr_i);
+    instr_map.emplace(decode_expr_i, instr_i);
   }
 
   // get the next state function of each state var
@@ -332,8 +331,8 @@ void SynthAbsConverter::DecomposeExpr(const ExprPtr& src) {
           // this glue node is decomposed
           decom_glue_.insert(n);
           // record success matching
-          ILA_ASSERT(decom_match_.find(entry) == decom_match_.end());
-          decom_match_[entry] = n->arg(1);
+          auto res = decom_match_.emplace(entry, n->arg(1));
+          ILA_WARN_IF(!res.second) << "Sub-expr of " << entry << " exists.";
           // track the else branch
           decom_else_.insert(n->arg(2));
           // should have only one match
@@ -362,9 +361,7 @@ void SynthAbsConverter::DecomposeExpr(const ExprPtr& src) {
 
   // update mapping for lumped entries
   for (auto entry : decom_entry_) {
-    if (decom_match_.find(entry) == decom_match_.end()) {
-      decom_match_[entry] = default_sub_expr;
-    }
+    decom_match_.emplace(entry, default_sub_expr);
   }
 
   return;
@@ -448,7 +445,8 @@ void SynthAbsConverter::CnvtNodeToExprConst(const ilasynth::Node* n) {
 
   // update book keeping
   ILA_NOT_NULL(expr) << "Fail converting constant node " << n->getName();
-  node_expr_map_[n] = expr;
+  auto res = node_expr_map_.emplace(n, expr);
+  ILA_WARN_IF(!res.second) << "Expr of " << n->getName() << " exists.";
 
   return;
 }
@@ -541,7 +539,8 @@ void SynthAbsConverter::CnvtNodeToExprBoolOp(const ilasynth::Node* n) {
   };
 
   ILA_NOT_NULL(expr) << "Fail converting Bool Op node " << n->getName();
-  node_expr_map_[n] = expr;
+  auto res = node_expr_map_.emplace(n, expr);
+  ILA_WARN_IF(!res.second) << "Expr of " << n->getName() << " exists.";
 
   return;
 }
@@ -685,7 +684,8 @@ void SynthAbsConverter::CnvtNodeToExprBvOp(const ilasynth::Node* n) {
   };
 
   ILA_NOT_NULL(expr) << "Fail converting Bv Op node " << n->getName();
-  node_expr_map_[n] = expr;
+  auto res = node_expr_map_.emplace(n, expr);
+  ILA_WARN_IF(!res.second) << "Expr of " << n->getName() << " exists.";
 
   return;
 }
@@ -724,7 +724,8 @@ void SynthAbsConverter::CnvtNodeToExprMemOp(const ilasynth::Node* n) {
   };
 
   ILA_NOT_NULL(expr) << "Fail converting Mem Op node " << n->getName();
-  node_expr_map_[n] = expr;
+  auto res = node_expr_map_.emplace(n, expr);
+  ILA_WARN_IF(!res.second) << "Expr " << res.first->second << " exists.";
 
   return;
 }

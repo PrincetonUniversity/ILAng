@@ -67,7 +67,7 @@ const int& MemVal::get_data(const int& addr) const {
 }
 
 void MemVal::set_data(const int& addr, const int& data) {
-  val_map_[addr] = data;
+  val_map_.emplace(addr, data);
 }
 
 std::ostream& MemVal::Print(std::ostream& out) const {

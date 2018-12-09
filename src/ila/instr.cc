@@ -68,9 +68,9 @@ ExprPtr Instr::update(const ExprPtr state) const {
 
 Instr::StateNameSet Instr::updated_states() const {
   StateNameSet ret_;
-  for (const auto & pos : updates_) 
-    ret_.insert( pos.first );
-  return ret_;  
+  for (const auto& pos : updates_)
+    ret_.insert(pos.first);
+  return ret_;
 }
 
 void Instr::ForceSetDecode(const ExprPtr decode) {
