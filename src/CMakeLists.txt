@@ -50,6 +50,13 @@ target_include_directories(${ILANG_LIB_NAME}
 # external dependencies
 # ---------------------------------------------------------------------------- #
 ##
+## gcov 
+##
+if(${ILANG_BUILD_COV})
+  target_link_libraries(${ILANG_LIB_NAME} PUBLIC gcov)
+endif()
+
+##
 ## z3
 ##
 if(NOT TARGET z3::z3)
