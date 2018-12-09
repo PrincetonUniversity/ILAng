@@ -1,0 +1,19 @@
+/// \file
+/// Some short cut for set operations
+
+#ifndef CONTAINER_SHORTCUT_H__
+#define CONTAINER_SHORTCUT_H__
+
+#include <algorithm>
+#include <set>
+
+#define UNION(a,b,r) (std::set_union(  (a).begin(),(a).end(), (b).begin(), (b).end(), std::inserter((r),(r).end()) ) )
+#define INTERSECT(a,b,r) (std::set_intersection( (a).begin(),(a).end(), (b).begin(), (b).end(), std::inserter((r),(r).end()) ))
+#define DIFFERENCE(a,b,r) (std::set_difference(  (a).begin(),(a).end(), (b).begin(), (b).end(), std::inserter((r),(r).end()) ) )
+#define SYMDIFF(a,b,r) (std::set_symmetric_difference(  (a).begin(),(a).end(), (b).begin(), (b).end(), std::inserter((r),(r).end()) ) )
+
+#define IN(e,s) ((s).find(e) != (s).end())
+#define IN_p(e,s) ((s)->find(e) != (s)->end())
+
+
+#endif // CONTAINER_SHORTCUT_H__
