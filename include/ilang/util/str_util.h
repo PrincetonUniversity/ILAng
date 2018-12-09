@@ -5,7 +5,9 @@
 #define STR_UTIL_H__
 
 #include <algorithm>
+#include <functional>
 #include <string>
+#include <vector>
 
 /// \namespace ilang
 namespace ilang {
@@ -21,6 +23,18 @@ bool StrToBool(const std::string& str);
 
 /// Return the value represented in the string, e.g. "10".
 int StrToInt(const std::string& str);
+
+/// Python-style split , return a vector of splitted strings
+std::vector<std::string> Split(const std::string& str, const std::string& delim);
+
+/// Python-style join, return a string that joins the list by the delim
+std::string Join(const std::vector<std::string> & in, const std::string& delim);
+
+/// Filter out a list of substring by the regular expression
+std::vector<std::string> ReFindList(const std::string& s, const std::string& re);
+
+/// Filter out a list of substring by the regular expression, call f each time and use its return value in the list, f can also do something else in itself
+std::vector<std::string> ReFindAndDo(const std::string& s, const std::string& re, std::function<std::string(std::string)> f);
 
 #if 0
 /// Concatenate two string with "_".

@@ -1,6 +1,7 @@
 /// \file
 /// Source for some utility functions for string formating.
 
+#include <regex>
 #include <ilang/util/log.h>
 #include <ilang/util/str_util.h>
 
@@ -35,6 +36,65 @@ int StrToInt(const std::string& str) {
     return 0;
   }
 }
+
+
+std::vector<std::string> Split(const std::string& str, const std::string& delim)
+{
+    std::vector<std::string> tokens;
+    size_t prev = 0, pos = 0;
+    do
+    {
+        pos = str.find(delim, prev);
+        if (pos == std::string::npos) pos = str.length();
+        std::string token = str.substr(prev, pos - prev);
+        if (!token.empty()) tokens.push_back(token);
+        prev = pos + delim.length();
+    }
+    while (pos < str.length() && prev < str.length());
+    return tokens;
+}
+
+std::string Join(const std::vector<std::string> & in, const std::string& delim)
+{
+  std::string ret;
+  std::string d = "";
+  for(auto && s:in) {
+    ret += (d + s);
+    d = delim;
+  }
+  return ret;
+}
+
+std::vector<std::string> ReFindList(const std::string& s, const std::string& re)
+{
+  std::vector<std::string> tokens;
+  std::regex word_regex(re);
+  auto words_begin = std::sregex_iterator(s.begin(), s.end(), word_regex);
+  auto words_end   = std::sregex_iterator();
+
+  for(std::sregex_iterator i = words_begin; i != words_end; ++i) {
+    std::smatch match = *i;
+    std::string match_str = match.str();
+    tokens.push_back( match_str );
+  }
+  return tokens;
+}
+
+std::vector<std::string> ReFindAndDo(const std::string& s, const std::string& re, std::function<std::string(std::string)> f)
+{
+  std::vector<std::string> tokens;
+  std::regex word_regex(re);
+  auto words_begin = std::sregex_iterator(s.begin(), s.end(), word_regex);
+  auto words_end   = std::sregex_iterator();
+
+  for(std::sregex_iterator i = words_begin; i != words_end; ++i) {
+    std::smatch match = *i;
+    std::string match_str = match.str();
+    tokens.push_back( f(match_str) );
+  }
+  return tokens;
+}
+
 
 #if 0
 std::string StrConcat(const std::string& l, const std::string& r) {
