@@ -65,6 +65,12 @@ std::string Join(const std::vector<std::string> & in, const std::string& delim)
   return ret;
 }
 
+// GCC supports this after 4.9.0
+// not available on Ubuntu 14.04 LTS
+
+#ifdef __GNUC__
+#if (__GNUC__ > 4  || (__GNUC__ == 4 &&  __GNUC_MINOR__ >= 9)   ) 
+
 std::vector<std::string> ReFindList(const std::string& s, const std::string& re)
 {
   std::vector<std::string> tokens;
@@ -94,6 +100,37 @@ std::vector<std::string> ReFindAndDo(const std::string& s, const std::string& re
   }
   return tokens;
 }
+
+#else
+// not supported
+std::vector<std::string> ReFindList(const std::string& s, const std::string& re)
+{
+  ILA_ASSERT(false) << "Not suppported: please use GCC 4.9.0 or above to enable this function";
+  return std::vector<std::string>();
+}
+
+std::vector<std::string> ReFindAndDo(const std::string& s, const std::string& re, std::function<std::string(std::string)> f)
+{
+  ILA_ASSERT(false) << "Not suppported: please use GCC 4.9.0 or above to enable this function";
+  return std::vector<std::string>();
+}
+
+#endif
+
+#else
+ // not defined
+std::vector<std::string> ReFindList(const std::string& s, const std::string& re)
+{
+  ILA_ASSERT(false) << "Not suppported: please use GCC 4.9.0 or above to enable this function";
+  return std::vector<std::string>();
+}
+
+std::vector<std::string> ReFindAndDo(const std::string& s, const std::string& re, std::function<std::string(std::string)> f)
+{
+  ILA_ASSERT(false) << "Not suppported: please use GCC 4.9.0 or above to enable this function";
+  return std::vector<std::string>();
+}
+#endif
 
 
 #if 0
