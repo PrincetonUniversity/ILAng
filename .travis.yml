@@ -73,7 +73,7 @@ script:
 after_success:
   - make run_test
   - lcov --directory $TRAVIS_BUILD_DIR/build --capture --output-file coverage.info 
-  - lcov --remove coverage.info 'test/*' 'app/*' 'cmake/*' 'extern/*' '/usr/*' --output-file coverage.info 
+  - lcov --remove coverage.info 'extern/*' '/usr/*' --output-file coverage.info 
   - lcov --list coverage.info 
   - coveralls-lcov coverage.info 
 
