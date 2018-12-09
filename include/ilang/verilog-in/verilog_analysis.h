@@ -110,10 +110,11 @@ protected:
 public:
   // --------------------- CONSTRUCTOR ---------------------------- //
   /// Analyze a set of file
-  /// [in] the path to search for include
-  /// [in] the source files
-  /// [in] the instance name given to the topmodule
-  VerilogAnalyzer(const path_vec_t & include_path, const path_vec_t & srcs, const std::string & top_module_inst_name );
+  /// \param[in] the path to search for include
+  /// \param[in] the source files
+  /// \param[in] the instance name given to the topmodule
+  /// \param[in] an optional of the top module name, can be left empty
+  VerilogAnalyzer(const path_vec_t & include_path, const path_vec_t & srcs, const std::string & top_module_inst_name , const std::string & optional_top_module);
   // --------------------- DESTRUCTOR ---------------------------- //
   /// Destructor: clear vlg parser things
   ~VerilogAnalyzer();
@@ -122,7 +123,7 @@ protected:
   /// invoke the parser to parse the files
   void invoke_parser();
   /// extract the top module name
-  void find_top_module(verilog_source_tree * source);
+  void find_top_module(verilog_source_tree * source, const std::string & optional_top_module);
   /// check the result of module resolution and update the name_module_map;
   void check_resolve_modules(verilog_source_tree * source);
   /// Update the modules_to_submodules_map

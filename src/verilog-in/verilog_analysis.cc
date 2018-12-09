@@ -43,7 +43,7 @@ bool VerilogAnalyzer::_bad_state_return() const{
 }
 
 VerilogAnalyzer::VerilogAnalyzer(const path_vec_t & include_path, const path_vec_t & srcs,
-    const std::string & top_module_inst_name  ):
+    const std::string & top_module_inst_name, const std::string & optional_top_module  ):
   vlg_include_path(include_path), vlg_src_files(srcs), top_inst_name(top_module_inst_name), _bad_state(false)
 {     
   instance_count ++;
@@ -58,7 +58,7 @@ VerilogAnalyzer::VerilogAnalyzer(const path_vec_t & include_path, const path_vec
   if(_bad_state_return()) return;
   create_module_submodule_map(yy_verilog_source_tree);
   if(_bad_state_return()) return;
-  find_top_module(yy_verilog_source_tree);
+  find_top_module(yy_verilog_source_tree, optional_top_module);
   if(_bad_state_return()) return;
 
 } // VerilogAnalyzer::VerilogAnalyzer
@@ -173,7 +173,7 @@ void VerilogAnalyzer::create_module_submodule_map(verilog_source_tree * source) 
 } // create_module_submodule_map
 
 // extract the top module name
-void VerilogAnalyzer::find_top_module(verilog_source_tree * source) {
+void VerilogAnalyzer::find_top_module(verilog_source_tree * source, const std::string & optional_top_module) {
   ILA_NOT_NULL(source);
   ILA_NOT_NULL(source->modules);
   for(auto && nm_pos :  name_module_map ) {
@@ -204,14 +204,26 @@ void VerilogAnalyzer::find_top_module(verilog_source_tree * source) {
     ILA_ERROR << "VerilogAnalyzer thinks there is a loop in module instantiation.";
     _bad_state = true;
     return;
-  } else if (top_module_candidates.size() > 1) {
-    ILA_WARN << "VerilogAnalyzer finds multiple top module candidates. They are:" ;
-    for (auto && n : top_module_candidates) {
-      ILA_WARN << n; 
+  } else if(optional_top_module != "") {
+    if( ! IN(optional_top_module, name_module_map ) ) {
+      ILA_ERROR << "VerilogAnalyzer: the specified top module:"<< optional_top_module <<" is not found!";
+      _bad_state = true;
+      return;
     }
-    ILA_WARN << "The first one will be used.";
+    ILA_WARN_IF( !IN(optional_top_module, top_module_candidates) ) << "VerilogAnalyzer: the specified top module:"<< optional_top_module <<" has instantiations. Please consider cleaning the source tree!";
+    top_module_name = optional_top_module;
   }
-  top_module_name = top_module_candidates[0];
+  else {
+      if (top_module_candidates.size() > 1) {
+      ILA_WARN << "VerilogAnalyzer finds multiple top module candidates. They are:" ;
+      for (auto && n : top_module_candidates) {
+        ILA_WARN << n; 
+      }
+      ILA_WARN << "The first one will be used.";
+    }
+    top_module_name = top_module_candidates[0];
+  }
+
 } // find_top_module
 
 VerilogAnalyzer::hierarchical_name_type VerilogAnalyzer::check_hierarchical_name_type(const std::string & net_name) const

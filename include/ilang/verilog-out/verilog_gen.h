@@ -13,7 +13,6 @@
 #define VERILOG_GEN_H__
 
 #include "z3++.h"
-#include <ilang/ila/expr_fuse.h>
 #include <ilang/ila/instr_lvl_abs.h>
 #include <list>
 #include <map>
@@ -24,10 +23,13 @@
 namespace ilang {
 
 typedef ExprHash VerilogGenHash;
+class VlgVerifTgtGen;
 
 /// \brief Class of Verilog Generator
 class VerilogGenerator {
   // --------------------- TYPE DEFINITIONS ---------------------------- //
+  /// let VlgVerifTgtGen use this module to generate the wrapper module
+  friend class VlgVerifTgtGen;
   /// Type of Verilog id names
   typedef std::string vlg_name_t;
   /// Type of Verilog statement

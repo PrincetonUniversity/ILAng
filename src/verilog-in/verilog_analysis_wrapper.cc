@@ -4,8 +4,8 @@
 
 namespace ilang {
 
-  VerilogInfo::VerilogInfo(const path_vec_t & include_path, const path_vec_t & srcs, const std::string & top_module_inst_name ):
-  _analyzer( new VerilogAnalyzer( include_path,srcs, top_module_inst_name ) )
+  VerilogInfo::VerilogInfo(const path_vec_t & include_path, const path_vec_t & srcs, const std::string & top_module_inst_name, const std::string & optional_top_module ):
+  _analyzer( new VerilogAnalyzer( include_path,srcs, top_module_inst_name, optional_top_module ) )
   {
   	// do nothing
   }

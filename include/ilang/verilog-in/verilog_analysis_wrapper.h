@@ -109,11 +109,15 @@ public:
   /// Return the width of the signal
   virtual unsigned get_width() const { return _width; }
   /// Whether is a IO signal
-  virtual bool is_io_sig() const { VerilogAnalyzerBase::is_io_sig(_type); }
+  virtual bool is_io_sig() const { return VerilogAnalyzerBase::is_io_sig(_type); }
   /// Whether it is defined only at the port
-  virtual bool no_internal_def() const { VerilogAnalyzerBase::no_internal_def(_type); }
+  virtual bool no_internal_def() const { return VerilogAnalyzerBase::no_internal_def(_type); }
   /// Whether it is a register
-  virtual bool is_reg() const { VerilogAnalyzerBase::is_reg(_type); }
+  virtual bool is_reg() const { return VerilogAnalyzerBase::is_reg(_type); }
+  /// Whether it is an input signal
+  virtual bool is_input() const { return VerilogAnalyzerBase::is_input(_type); }
+  /// Whether it is an output signal
+  virtual bool is_output() const { return VerilogAnalyzerBase::is_output(_type); }
   /// return its type
   virtual VerilogAnalyzerBase::hierarchical_name_type get_type() const { return _type; }
   /// Return its location
@@ -166,7 +170,8 @@ public:
   /// [in] the path to search for include
   /// [in] the source files
   /// [in] the instance name given to the topmodule
-  VerilogInfo(const path_vec_t & include_path, const path_vec_t & srcs, const std::string & top_module_inst_name );
+  /// \param[in] an optional of the top module name, can be left empty
+  VerilogInfo(const path_vec_t & include_path, const path_vec_t & srcs, const std::string & top_module_inst_name, , const std::string & optional_top_module );
   /// Please don't make a copy of it
   VerilogInfo(const VerilogInfo&) = delete;
   /// Please don't use assignment over it

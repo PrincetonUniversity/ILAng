@@ -2,6 +2,7 @@
 /// Verilog Generator
 #include <cctype>
 #include <cmath>
+#include <ilang/ila/expr_fuse.h>
 #include <ilang/verilog-out/verilog_gen.h>
 #include <iomanip>
 #include <string>
