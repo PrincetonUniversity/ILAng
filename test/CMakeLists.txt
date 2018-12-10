@@ -61,16 +61,16 @@ package_add_test(${ILANG_TEST_MAIN}
   t_log.cc
   t_main.cc
   t_mapset.cc
+  t_mcm.cc
   t_op_sanity.cc
   t_sort.cc
   t_symbol.cc
   t_unroll_seq.cc
+  #t_verilog_analysis.cc
   t_verilog.cc
   t_verilog_gen.cc
-  t_verilog_analysis.cc
   t_z3adapter.cc
   t_z3sanity.cc
-  t_mcm.cc
 )
 
 set(TEST_CONFIG_TEST_ROOT ${CMAKE_CURRENT_BINARY_DIR})
