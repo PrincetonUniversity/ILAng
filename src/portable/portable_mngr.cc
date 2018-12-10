@@ -1,11 +1,8 @@
 /// \file
 /// The implementation of the ILA portable manager.
 
-#include <ilang/json-inout/ila_portable_mngr.h>
+#include <ilang/portable/portable_mngr.h>
 #include <ilang/util/log.h>
-#include <nlohmann/json.hpp>
-
-using json = nlohmann::json;
 
 namespace ilang {
 

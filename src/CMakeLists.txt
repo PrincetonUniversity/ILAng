@@ -20,6 +20,7 @@ endif()
 
 if(${ILANG_BUILD_JSON})
   add_subdirectory(json-inout)
+  add_subdirectory(portable)
 endif()
 
 if(${ILANG_BUILD_SYNTH})

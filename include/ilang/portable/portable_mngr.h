@@ -6,6 +6,10 @@
 
 #include <ilang/ila/instr_lvl_abs.h>
 #include <memory>
+#include <nlohmann/json.hpp>
+#include <string>
+
+using json = nlohmann::json;
 
 /// \namespace ilang
 namespace ilang {
@@ -46,6 +50,7 @@ private:
   // ------------------------- HELPERS -------------------------------------- //
 
   // ------------------------- METHODS -------------------------------------- //
+  json GenJsonObjOfInstr(const InstrPtr* instr);
 
 }; // class IlaPortableMngr
 

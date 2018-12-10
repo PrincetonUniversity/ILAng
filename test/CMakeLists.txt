@@ -99,6 +99,12 @@ if(${ILANG_BUILD_SYNTH})
 
 endif()
 
+if(${ILANG_BUILD_JSON})
+  target_sources(${ILANG_TEST_MAIN} PRIVATE
+    t_portable.cc
+  )
+endif()
+
 target_link_libraries(${ILANG_TEST_MAIN} ${ILANG_LIB_NAME})
 
 add_custom_target(run_test
