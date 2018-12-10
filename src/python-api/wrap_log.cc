@@ -2,6 +2,7 @@
 /// Source for wrapping logging system
 
 #include <ilang/python-api/wrap_log.h>
+#include <ilang/util/log.h>
 
 namespace ilang {
 namespace pyapi {
