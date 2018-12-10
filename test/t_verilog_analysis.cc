@@ -11,36 +11,32 @@
 
 #include "unit-include/eq_ilas.h"
 #include "unit-include/simple_cpu.h"
+#include "unit-include/config.h"
 #include "unit-include/util.h"
 
 namespace ilang {
 
 #ifdef VERILOG_IN_ENABLE
-void write_to_file(const std::string &fname, VerilogGenerator &vgen) {
-  std::ofstream fout(fname);
-  if (fout.is_open()) {
-    vgen.DumpToFile(fout);
-    fout.close();
-  } else
-    ILA_WARN << "Cannot write tmpfile:" << fname << " for vlog-gen test.";
-}
+
 
 TEST(TestVerilogAnalysis, Init) {
 
+  /*
   auto ila_ptr_ = SimpleCpu("proc");
   // test 1 gen Add : internal mem
   {
     auto vgen = VerilogGenerator();
     vgen.ExportTopLevelInstr(ila_ptr_->instr("Add"));
-    write_to_file( "test/t_ana.v" , vgen);
+    write_to_file( "test/unit-data/verilog_sample/t_ana_inst.v" , vgen);
   }
+  */
 
-  VerilogInfo va ( VerilogInfo::path_vec_t() , VerilogInfo::path_vec_t({"test/t_ana.v"}) , "m1");
+  VerilogInfo va ( VerilogInfo::path_vec_t() , VerilogInfo::path_vec_t({std::string(TEST_CONFIG_TEST_ROOT) + "/unit-data/verilog_sample/t_ana_inst.v"}) , "m1");
 }
 
 #ifdef TEST_BAD_STATE
 TEST(TestVerilogAnalysis, BadState) {
-  VerilogInfo va ( VerilogInfo::path_vec_t() , VerilogInfo::path_vec_t({"test/t_ana-nonexisting.v"}) , "m1");
+  VerilogInfo va ( VerilogInfo::path_vec_t() , VerilogInfo::path_vec_t({std::string(TEST_CONFIG_TEST_ROOT) + "/unit-data/verilog_sample/t_ana-nonexisting.v"}) , "m1");
   // The above will make it into bad state
   // but it should not affect other things
 
@@ -56,16 +52,18 @@ TEST(TestVerilogAnalysis, BadState) {
 
 TEST(TestVerilogAnalysis, AnalyzeName) {
 
+  /*
   auto ila_ptr_ = SimpleCpu("proc");
   ila_ptr_->NewBoolState("nouse");
   // test 1 gen Add : internal mem
   {
     auto vgen = VerilogGenerator();
     vgen.ExportTopLevelInstr(ila_ptr_->instr("Add"));
-    write_to_file( "test/t_ana.v" , vgen);
+    write_to_file( "test/unit-data/verilog_sample/t_ana_insta.v" , vgen);
   }
+  */
 
-  VerilogInfo va ( VerilogInfo::path_vec_t() , VerilogInfo::path_vec_t({"test/t_ana.v"}) , "m1");
+  VerilogInfo va ( VerilogInfo::path_vec_t() , VerilogInfo::path_vec_t({std::string(TEST_CONFIG_TEST_ROOT) + "/unit-data/verilog_sample/t_ana_insta.v"}) , "m1");
 
   { // output wire
     auto tp_ = va.check_hierarchical_name_type("m1.__ILA_proc_valid__");
@@ -175,16 +173,18 @@ TEST(TestVerilogAnalysis, AnalyzeName) {
 
 TEST(TestVerilogAnalysis, GetTopIo) {
 
+  /* not generating
   auto ila_ptr_ = SimpleCpu("proc");
   ila_ptr_->NewBoolState("nouse");
   // test 1 gen Add : internal mem
   {
     auto vgen = VerilogGenerator();
     vgen.ExportIla(ila_ptr_);
-    write_to_file( "test/t_ana.v" , vgen);
+    write_to_file( "test/unit-data/verilog_sample/t_ana_ila.v" , vgen);
   }
+  */
 
-  VerilogInfo va ( VerilogInfo::path_vec_t() , VerilogInfo::path_vec_t({"test/t_ana.v"}) , "m1");
+  VerilogInfo va ( VerilogInfo::path_vec_t() , VerilogInfo::path_vec_t({std::string(TEST_CONFIG_TEST_ROOT) + "/unit-data/verilog_sample/t_ana_ila.v"}) , "m1");
   ILA_DLOG("TestVerilogAnalysis.GetTopIo") << "Top module name:" << va.get_top_module_name();
   VerilogInfo::module_io_vec_t top_io = va.get_top_module_io();
 
