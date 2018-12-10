@@ -213,8 +213,7 @@ TEST(TestInstrLvlAbs, Instr) {
   EXPECT_EQ(4, ila->instr_num());
 
   // add existed instr
-  EXPECT_ANY_THROW(ila->NewInstr("instr_exe_n"));
-  EXPECT_ANY_THROW(instr_em_n->name().str());
+  ila->NewInstr("instr_ex_n");
   EXPECT_EQ(4, ila->instr_num());
 
   // find non-existed
@@ -249,8 +248,8 @@ TEST(TestInstrLvlAbs, Child) {
   EXPECT_EQ(2, ila->child_num());
 
   // add existed
-  EXPECT_ANY_THROW(ila->AddChild(child2));
-  EXPECT_ANY_THROW(ila->NewChild("child1"));
+  ila->AddChild(child2);
+  ila->NewChild("child1");
 
   EXPECT_EQ(2, ila->child_num());
 
@@ -264,9 +263,7 @@ TEST(TestInstrLvlAbs, Child) {
   // random access
   EXPECT_EQ(child1, ila->child(0));
   EXPECT_EQ(child2, ila->child(1));
-#ifndef NDEBUG
-  EXPECT_DEATH(ila->child(3), ".*");
-#endif
+  EXPECT_ANY_THROW(ila->child(3));
 }
 
 TEST(TestInstrLvlAbs, CheckAll) {

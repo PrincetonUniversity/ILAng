@@ -1,11 +1,11 @@
 /// \file
 /// Unit test for KeyVec
 
+#include "unit-include/util.h"
 #include <ilang/ila/expr_fuse.h>
 #include <ilang/ila/symbol.h>
 #include <ilang/util/container.h>
 #include <string>
-#include "unit-include/util.h"
 
 namespace ilang {
 
@@ -21,18 +21,15 @@ TEST(TestKeyVec, StringString) {
   kv.push_back("k2", "123");
   kv.push_back("k3", "xyz");
 
-#ifndef NDEBUG
-  EXPECT_DEATH(kv.push_back("k2", "#$%"), ".*");
-#endif
+  EXPECT_FALSE(kv.push_back("k2", "#$%"));
+  EXPECT_EQ(kv.find("k2")->second, "123");
 
   EXPECT_EQ(3, kv.size());
 
   EXPECT_EQ("abc", kv[0]);
   EXPECT_EQ("123", kv[1]);
   EXPECT_EQ("xyz", kv[2]);
-#ifndef NDEBUG
-  EXPECT_DEATH(kv[3], ".*");
-#endif
+  EXPECT_ANY_THROW(kv[3]);
 
   auto pos = kv.find("k1");
   EXPECT_NE(pos, kv.end());
@@ -62,18 +59,15 @@ TEST(TestKeyVec, SymbolExpr) {
   kv.push_back(bool_const->name(), bool_const);
   kv.push_back(mem_var->name(), mem_var);
 
-#ifndef NDEBUG
-  EXPECT_DEATH(kv.push_back(Symbol("bv_var"), bool_const), ".*");
-#endif
+  EXPECT_FALSE(kv.push_back(Symbol("bv_var"), bool_const));
+  EXPECT_EQ(kv[0], bv_var);
 
   EXPECT_EQ(3, kv.size());
 
   EXPECT_EQ(bv_var, kv[0]);
   EXPECT_EQ(bool_const, kv[1]);
   EXPECT_EQ(mem_var, kv[2]);
-#ifndef NDEBUG
-  EXPECT_DEATH(kv[3], ".*");
-#endif
+  EXPECT_ANY_THROW(kv[3]);
 
   auto pos = kv.find(bv_var->name());
   EXPECT_NE(pos, kv.end());
@@ -88,4 +82,4 @@ TEST(TestKeyVec, SymbolExpr) {
   EXPECT_EQ(pos, kv.end());
 }
 
-}  // namespace ilang
+} // namespace ilang

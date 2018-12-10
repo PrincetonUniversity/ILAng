@@ -1,10 +1,10 @@
 /// \file
 /// Unit test for MapSet
 
+#include "unit-include/util.h"
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/util/container.h>
 #include <set>
-#include "unit-include/util.h"
 
 namespace ilang {
 
@@ -26,11 +26,7 @@ TEST(TestMapSet, IntInt) {
     EXPECT_NE(res, set0_ref.end());
   }
 
-#ifndef NDEBUG
-  EXPECT_DEATH(map.get(1), ".*");
-#else
-  map.get(1);
-#endif
+  EXPECT_ANY_THROW(map.get(1));
 
   for (auto i = map.begin(); i != map.end(); i++) {
     EXPECT_FALSE(i->second.empty());
@@ -66,15 +62,11 @@ TEST(TestMapSet, ExprInstr) {
     EXPECT_NE(res, tar.end());
   }
 
-#ifndef NDEBUG
-  EXPECT_DEATH(map.get(vc), ".*");
-#else
-  map.get(vc);
-#endif
+  EXPECT_ANY_THROW(map.get(vc));
 
   for (auto i = map.begin(); i != map.end(); i++) {
     EXPECT_FALSE(i->second.empty());
   }
 }
 
-}  // namespace ilang
+} // namespace ilang

@@ -62,12 +62,13 @@ public:
 
   // ------------------------- METHODS -------------------------------------- //
   /// Push back a data member. The name MUST NOT be registerd before.
-  void push_back(const Key& key, const T& data) {
+  bool push_back(const Key& key, const T& data) {
     auto idx = vec_.size();
     auto res = map_.emplace(key, idx);
     if (res.second) {
       vec_.push_back(data);
     }
+    return res.second;
   }
 
   /// Get the data by index.
