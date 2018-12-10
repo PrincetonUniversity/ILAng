@@ -87,6 +87,9 @@ public:
     VlgGenConfig( // provide the default settings
         bool ExternalMem = false, funcOption funcOpt = funcOption::Internal)
         : extMem(ExternalMem), fcOpt(funcOpt) {}
+    /// Overwrite configuration, used by vtarget gen
+    VlgGenConfig(const VlgGenConfig && c, bool ExternalMem, funcOption funcOpt ):
+        : extMem(ExternalMem), fcOpt(funcOpt) {} // set other fields if there are
   };
 
 private:

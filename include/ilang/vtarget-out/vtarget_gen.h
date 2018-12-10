@@ -17,6 +17,7 @@
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/verilog-in/verilog_analysis_wrapper.h>
 #include <ilang/verilog-out/verilog_gen.h>
+#include <ilang/vtarget-out/interface_directive.h>
 #include <list>
 #include <map>
 #include <unordered_map>
@@ -78,6 +79,8 @@ class VlgVerifTgtGen {
     /// Analyzer for the implementation
     // we don't know the module name, before analyzing the rfmap. so we cannot initialize in the beginning
     VerilogInfo      *vlg_info_ptr;
+    /// inteface directive recorder
+    IntefaceDirectiveRecorder _idr;
 
     /// store the vmap info
     json rf_vmap;
