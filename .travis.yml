@@ -39,9 +39,6 @@ install:
   - if [[ "$TRAVIS_COMPILER" == "clang" ]]; then export LD_LIBRARY_PATH=/usr/local/clang/lib:$LD_LIBRARY_PATH ; fi
   - if [[ "$TRAVIS_COMPILER" == "clang" ]]; then CXX=clang++ CC=clang python scripts/mk_make.py ; fi
   - cd build
-    #- mkdir -p build
-    #- cd build
-    #- cmake .. 
   - make && sudo make install
   - z3 --version
 
@@ -49,6 +46,7 @@ before_script:
   - cmake --version
   - lcov --version
   - gcov --version
+  - if [[ "$TRAVIS_COMPILER" == "gcc" ]]; then export SUBMIT_COVERAGE=true ; fi
 
 script:
   - mkdir -p $TRAVIS_BUILD_DIR/build 
@@ -64,7 +62,7 @@ after_success:
   - lcov --directory $TRAVIS_BUILD_DIR/build --capture --output-file coverage.info 
   - lcov --remove coverage.info '*/extern/*' '*/test/*' '/usr/*' --output-file coverage.info 
   - lcov --list coverage.info 
-  - coveralls-lcov coverage.info 
+  - if [[ $SUBMIT_COVERAGE ]]; then coveralls-lcov coverage.info
 
 notifications:
     email: false

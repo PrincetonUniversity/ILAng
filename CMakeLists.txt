@@ -36,7 +36,7 @@ cmake_dependent_option(ILANG_BUILD_TEST "Build unit tests."                  ON
   "PROJECT_NAME STREQUAL CMAKE_PROJECT_NAME" OFF)
 
 cmake_dependent_option(ILANG_BUILD_COV  "Build with coverage flags."        OFF
-  "CMAKE_BUILD_TYPE MATCHES Debug AND ILANG_BUILD_TEST" OFF)
+  "CMAKE_BUILD_TYPE MATCHES Debug AND CMAKE_COMPILER_IS_GNUCXX"             OFF)
 
 
 # ---------------------------------------------------------------------------- #

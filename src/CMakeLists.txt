@@ -32,12 +32,19 @@ endif()
 target_compile_features(${ILANG_LIB_NAME} PUBLIC cxx_std_11)
 
 if(${ILANG_BUILD_COV})
-  target_compile_options(${ILANG_LIB_NAME} PUBLIC -fprofile-arcs)
-  target_compile_options(${ILANG_LIB_NAME} PUBLIC -ftest-coverage)
 
-  if("${CMAKE_C_COMPILER_ID}" MATCHES "(Apple)?[Cc]lang" OR 
-     "${CMAKE_CXX_COMPILER_ID}" MATCHES "(Apple)?[Cc]lang")
-    target_compile_options(${ILANG_LIB_NAME} PUBLIC --coverage)
+  if(${CMAKE_COMPILER_IS_GNUCXX})
+
+    target_compile_options(${ILANG_LIB_NAME} PUBLIC -fprofile-arcs)
+    target_compile_options(${ILANG_LIB_NAME} PUBLIC -ftest-coverage)
+
+  elseif("${CMAKE_C_COMPILER_ID}" MATCHES "(Apple)?[Cc]lang" OR 
+         "${CMAKE_CXX_COMPILER_ID}" MATCHES "(Apple)?[Cc]lang")
+
+    message(FATAL_ERROR "Coverage with Clang not supported.")
+    #target_compile_options(${ILANG_LIB_NAME} PUBLIC -fprofile-instr-generate)
+    #target_compile_options(${ILANG_LIB_NAME} PUBLIC -fcoverage-mapping)
+
   endif()
 
 endif()
