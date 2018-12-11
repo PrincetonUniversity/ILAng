@@ -83,7 +83,7 @@ void InstrSeq::AddTran(const InstrPtr src, const InstrPtr dst,
   auto src_it = nodes_.find(src);
   if (src_it == nodes_.end()) { // instr first seen
     src_node = std::make_shared<InstrTranNode>(src);
-    nodes_[src] = src_node;
+    nodes_.emplace(src, src_node);
   } else { // instr exists
     src_node = src_it->second;
   }
@@ -91,7 +91,7 @@ void InstrSeq::AddTran(const InstrPtr src, const InstrPtr dst,
   auto dst_it = nodes_.find(dst);
   if (dst_it == nodes_.end()) { // instr first seen
     dst_node = std::make_shared<InstrTranNode>(dst);
-    nodes_[dst] = dst_node;
+    nodes_.emplace(dst, dst_node);
   } else { // instr exists
     dst_node = dst_it->second;
   }
