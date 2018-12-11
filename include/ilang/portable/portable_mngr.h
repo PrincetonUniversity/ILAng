@@ -1,8 +1,8 @@
 /// \file
 /// The object to export and import ILA portable in JSON format.
 
-#ifndef ILA_PORTABLE_MNGR_H__
-#define ILA_PORTABLE_MNGR_H__
+#ifndef ILANG_PORTABLE_MNGR_H__
+#define ILANG_PORTABLE_MNGR_H__
 
 #include <ilang/ila/instr_lvl_abs.h>
 #include <memory>
@@ -15,21 +15,21 @@ using json = nlohmann::json;
 namespace ilang {
 
 /// \brief The class for exporting and importing ILA portable in JSON format.
-class IlaPortableMngr {
+class PortableMngr {
 public:
   /// Pointer type for normal use of IlaPortableMngr.
-  typedef std::shared_ptr<IlaPortableMngr> IlaPortableMngrPtr;
+  typedef std::shared_ptr<PortableMngr> PortableMngrPtr;
 
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor.
-  IlaPortableMngr();
+  PortableMngr();
   /// Default destructor.
-  ~IlaPortableMngr();
+  ~PortableMngr();
 
   // ------------------------- HELPERS -------------------------------------- //
-  /// \brief Create a new IlaPortableMngr. Used for hiding implementation
+  /// \brief Create a new PortableMngr. Used for hiding implementation
   /// specific type details.
-  static IlaPortableMngrPtr New();
+  static PortableMngrPtr New();
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
 
@@ -50,14 +50,14 @@ private:
   // ------------------------- HELPERS -------------------------------------- //
 
   // ------------------------- METHODS -------------------------------------- //
-  json GenJsonObjOfInstr(const InstrPtr* instr);
+  json GenJsonObjOfInstr(const InstrPtr& instr);
 
-}; // class IlaPortableMngr
+}; // class PortableMngr
 
-/// Pointer type for normal use of IlaPortableMngr.
-typedef IlaPortableMngr::IlaPortableMngrPtr IlaPortableMngrPtr;
+/// Pointer type for normal use of PortableMngr.
+typedef PortableMngr::PortableMngrPtr PortableMngrPtr;
 
 }; // namespace ilang
 
-#endif // ILA_PORTABLE_MNGR_H__
+#endif // ILANG_PORTABLE_MNGR_H__
 

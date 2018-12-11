@@ -6,22 +6,25 @@
 
 namespace ilang {
 
-IlaPortableMngr::IlaPortableMngr() {}
+PortableMngr::PortableMngr() {}
 
-IlaPortableMngr::~IlaPortableMngr() {}
+PortableMngr::~PortableMngr() {}
 
-IlaPortableMngrPtr IlaPortableMngr::New() {
-  return std::make_shared<IlaPortableMngr>();
-}
+PortableMngrPtr PortableMngr::New() { return std::make_shared<PortableMngr>(); }
 
-bool IlaPortableMngr::ExportToFile(const std::string& fileName) const {
+bool PortableMngr::ExportToFile(const std::string& fileName) const {
   return true;
   // TODO
 }
 
-InstrLvlAbsPtr
-IlaPortableMngr::ImportFromFile(const std::string& fileName) const {
+InstrLvlAbsPtr PortableMngr::ImportFromFile(const std::string& fileName) const {
   return NULL;
+  // TODO
+}
+
+json PortableMngr::GenJsonObjOfInstr(const InstrPtr& instr) {
+  auto j = json();
+  return j;
   // TODO
 }
 
