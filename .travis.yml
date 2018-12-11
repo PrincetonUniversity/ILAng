@@ -2,16 +2,19 @@ language: cpp
 
 matrix:
   include:
-    - name: "linux family"
+    - name: "linux gcc"
       os: linux
       dist: xenial
-    - name: "osx family"
+      compiler: gcc
+    - name: "linux clang"
+      os: linux
+      dist: xenial
+      compiler: clang
+    - name: "osx gcc"
       os: osx
-      osx_image: xcode9.4
-
-compiler:
-  - gcc
-  - clang
+      compiler: gcc
+    - name: "osx clang"
+      compiler: clang
 
 sudo: required
 
