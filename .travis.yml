@@ -1,50 +1,30 @@
-language: cpp
 os: linux
-dist: trusty
+dist: xenial
 sudo: required
+language: cpp
 compiler:
-  - g++
-  #- clang++
+  - gcc
+  - clang
 
 branches:
   only:
     - master
     - travis
 
-git:
-  depth: 1
-  submodules: false
-
 before_install:
-  - sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
-  - sudo apt-get -qq --yes update
+  - gem install coveralls-lcov
+
+addons:
+  apt:
+    update: true
+    packages:
+      - lcov
+      - flex
+      - bison
+      - libboost-all-dev
 
 install: 
-  - gem install coveralls-lcov
-  - sudo apt purge cmake
-  - sudo apt-get install --yes libboost-all-dev
-  - sudo apt-get install --yes lcov
-  - sudo apt-get install --yes flex 
-  #- sudo apt-get install --yes bison
-
-before_script:
   - export PARENT_DIR=$TRAVIS_BUILD_DIR/../
-  # bison (3.0.4)
-  - cd $PARENT_DIR
-  - wget http://ftp.gnu.org/gnu/bison/bison-3.0.4.tar.gz
-  - tar zxvf bison-3.0.4.tar.gz
-  - cd bison-3.0.4
-  - ./configure
-  - make && sudo make install
-  - bison --version
-  # cmake 
-  - cd $PARENT_DIR
-  - git clone https://github.com/Kitware/CMake.git 
-  - cd CMake
-  - git checkout tags/v3.8.0 -b v380
-  - ./bootstrap
-  - make && sudo make install
-  - cmake --version
   # z3 
   - cd $PARENT_DIR
   - git clone https://github.com/Z3Prover/z3.git
@@ -54,10 +34,11 @@ before_script:
   - cd build
   - make && sudo make install
   - z3 --version
-  # coverage test
+
+before_script:
+  - cmake --version
   - lcov --version
   - gcov --version
-  - g++ --version
   # create Makefile
   - mkdir -p $TRAVIS_BUILD_DIR/build && cd $TRAVIS_BUILD_DIR/build
   - lcov --directory $TRAVIS_BUILD_DIR/build --zerocounters
