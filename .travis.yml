@@ -14,6 +14,7 @@ matrix:
       os: osx
       compiler: gcc
     - name: "osx clang"
+      os: osx
       compiler: clang
 
 sudo: required
