@@ -62,7 +62,7 @@ after_success:
   - lcov --directory $TRAVIS_BUILD_DIR/build --capture --output-file coverage.info 
   - lcov --remove coverage.info '*/extern/*' '*/test/*' '/usr/*' --output-file coverage.info 
   - lcov --list coverage.info 
-  - if [[ $SUBMIT_COVERAGE ]]; then coveralls-lcov coverage.info
+  - if [[ "$SUBMIT_COVERAGE" == "true" ]]; then coveralls-lcov coverage.info
 
 notifications:
     email: false
