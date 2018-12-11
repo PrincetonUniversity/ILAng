@@ -43,6 +43,7 @@ package_add_test(${ILANG_TEST_MAIN}
   unit-src/stream_buffer.cc
   unit-src/mcm_ilas.cc
   t_api.cc
+  t_case_aes_eq.cc
   t_crr.cc
   t_eq_check.cc
   t_expr.cc
