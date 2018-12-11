@@ -48,6 +48,12 @@ namespace ilang {
   	return _ptr->get_top_module_io();
   }
 
+  SignalInfoBase VerilogInfo::get_signal(const std::string & net_name) const {
+    const VerilogAnalyzer * _ptr = dynamic_cast<const VerilogAnalyzer *>( _analyzer );
+    ILA_NOT_NULL(_ptr);
+    return _ptr->get_signal(net_name);
+  }
+
 
 /// overload the operator << for printing location
 std::ostream & operator<<(std::ostream & os, const VerilogAnalyzerBase::vlg_loc_t & obj ) { return VerilogAnalyzerBase::PrintLoc(os,obj); }

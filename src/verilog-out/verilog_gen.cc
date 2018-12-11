@@ -11,15 +11,16 @@ namespace ilang {
 
 #define toStr(x) (std::to_string(x))
 
-VerilogGenerator::VerilogGenerator(const VlgGenConfig& config,
-                                   const std::string& modName,
-                                   const std::string& clk,
-                                   const std::string& rst)
+VerilogGeneratorBase::VerilogGeneratorBase
+        (const VlgGenConfig& config,
+         const std::string& modName,
+         const std::string& clk,
+         const std::string& rst)
     : moduleName(modName), clkName(clk), rstName(rst), idCounter(0),
       cfg_(config) {}
 
 /// Check if a name is reserved (clk/rst/moduleName/decodeNames/ctrName)
-bool VerilogGenerator::check_reserved_name(const vlg_name_t& n) const {
+bool VerilogGeneratorBase::check_reserved_name(const vlg_name_t& n) const {
   if (n == moduleName || n == clkName || n == rstName || n == validName ||
       n == counterName)
     return false;
@@ -41,8 +42,9 @@ std::map<char, std::string>
                    {'5', "__FIVE__"},  {'6', "__SIX__"},   {'7', "__SEVEN__"},
                    {'8', "__EIGHT__"}, {'9', "__NINE__"}});
 
-VerilogGenerator::vlg_name_t
-VerilogGenerator::sanitizeName(const vlg_name_t& n) {
+VerilogGeneratorBase::vlg_name_t
+ VerilogGeneratorBase::sanitizeName(const vlg_name_t& n) {
+
   std::string outStr;
   for (unsigned idx = 0; idx < n.length(); ++idx) {
     char c = n[idx];
@@ -67,7 +69,7 @@ VerilogGenerator::sanitizeName(const vlg_name_t& n) {
   }
   return outStr;
 }
-VerilogGenerator::vlg_name_t VerilogGenerator::sanitizeName(const ExprPtr& n) {
+VerilogGeneratorBase::vlg_name_t VerilogGeneratorBase::sanitizeName(const ExprPtr& n) {
   ILA_ASSERT(n->is_var()) << "Should not be used on node other than variables";
   return sanitizeName(n->name().str());
 }
@@ -82,7 +84,7 @@ VerilogGenerator::vlg_name_t VerilogGenerator::sanitizeName(const ExprPtr& n) {
 
 /// Get the width of an ExprPtr, must be supported sort, NOTE: function is not
 /// an exp Do we really need it?
-int VerilogGenerator::get_width(const ExprPtr& n) {
+int VerilogGeneratorBase::get_width(const ExprPtr& n) {
   if (n->sort()->is_bool())
     return 1;
   if (n->sort()->is_bv())
@@ -93,18 +95,18 @@ int VerilogGenerator::get_width(const ExprPtr& n) {
   ILA_ASSERT(false) << "Unable to get the width for sort " << n->sort();
 }
 /// convert a widith to a verilog string
-std::string VerilogGenerator::WidthToRange(int w) {
+std::string VerilogGeneratorBase::WidthToRange(int w) {
   if (w > 1)
     return std::string("[") + toStr(w - 1) + ":0]";
   return "";
 }
 /// get a new id
-VerilogGenerator::vlg_name_t VerilogGenerator::new_id() {
+VerilogGeneratorBase::vlg_name_t VerilogGeneratorBase::new_id() {
   return "n" + toStr(idCounter++);
 }
 /// if the exprptr contains some meaning in its name, will try to incorporate
 /// that to the name;
-VerilogGenerator::vlg_name_t VerilogGenerator::new_id(const ExprPtr& e) {
+VerilogGeneratorBase::vlg_name_t VerilogGeneratorBase::new_id(const ExprPtr& e) {
   if (!e)
     return new_id();
 
@@ -120,42 +122,43 @@ VerilogGenerator::vlg_name_t VerilogGenerator::new_id(const ExprPtr& e) {
 void VerilogGenerator::add_input(const vlg_name_t& n, int w) {
   inputs.push_back(vlg_sig_t(n, w));
 }
-void VerilogGenerator::add_output(const vlg_name_t& n, int w) {
+void VerilogGeneratorBase::add_output(const vlg_name_t& n, int w) {
   outputs.push_back(vlg_sig_t(n, w));
 }
-void VerilogGenerator::add_wire(const vlg_name_t& n, int w) {
+void VerilogGeneratorBase::add_wire(const vlg_name_t& n, int w , bool keep) {
   wires.push_back(vlg_sig_t(n, w));
+  if (keep) wires_keep.insert( {n, true} );
 }
-void VerilogGenerator::add_reg(const vlg_name_t& n, int w) {
+void VerilogGeneratorBase::add_reg(const vlg_name_t& n, int w) {
   regs.push_back(vlg_sig_t(n, w));
 }
-void VerilogGenerator::add_stmt(
+void VerilogGeneratorBase::add_stmt(
     const vlg_stmt_t& s) // you need to put ';' but no need for \n
 {
   statements.push_back(s);
 }
-void VerilogGenerator::add_assign_stmt(const vlg_name_t& l,
+void VerilogGeneratorBase::add_assign_stmt(const vlg_name_t& l,
                                        const vlg_name_t& r) {
   add_stmt("assign " + l + " = " + r + " ;");
 }
-void VerilogGenerator::add_always_stmt(const vlg_stmt_t& s) {
+void VerilogGeneratorBase::add_always_stmt(const vlg_stmt_t& s) {
   always_stmts.push_back(s);
 }
-void VerilogGenerator::add_init_stmt(const vlg_stmt_t& s) {
+void VerilogGeneratorBase::add_init_stmt(const vlg_stmt_t& s) {
   init_stmts.push_back(s);
 }
-void VerilogGenerator::add_ite_stmt(const vlg_stmt_t& cond,
+void VerilogGeneratorBase::add_ite_stmt(const vlg_stmt_t& cond,
                                     const vlg_stmt_t& tstmt,
                                     const vlg_stmt_t& fstmt) {
   ite_stmts.push_back(std::make_tuple(cond, tstmt, fstmt));
 }
 
 // the mems to be created
-void VerilogGenerator::add_internal_mem(const vlg_name_t& mem_name,
+void VerilogGeneratorBase::add_internal_mem(const vlg_name_t& mem_name,
                                         int addr_width, int data_width) {
   mems_internal.insert({mem_name, vlg_mem_t(mem_name, addr_width, data_width)});
 }
-void VerilogGenerator::add_external_mem(const vlg_name_t& mem_name,
+void VerilogGeneratorBase::add_external_mem(const vlg_name_t& mem_name,
                                         int addr_width, int data_width) {
   mems_external.insert({mem_name, vlg_mem_t(mem_name, addr_width, data_width)});
   /* NO, this should not be done
@@ -165,7 +168,109 @@ void VerilogGenerator::add_external_mem(const vlg_name_t& mem_name,
   mem_i.push_back( vlg_sig_t(data_name, data_width) );
   */
 }
+
+
+void VerilogGeneratorBase::DumpToFile(std::ostream& fout) const {
+  if (preheader != "") {
+    fout << "/* PREHEADER */\n";
+    fout << preheader << "\n";
+    fout << "/* END OF PREHEADER */\n";
+  }
+  // no need to worry about mem_i/o , already in i/o
+
+  fout << "module " << moduleName << "(\n";
+
+  std::string separator; // input will not be empty of course, output won't either
+  for (auto const& sig_pair : inputs)
+    fout << sig_pair.first << ",\n"; // sig_pair.first is the name
+  for (auto const& sig_pair : outputs)
+    fout << sig_pair.first << ",\n"; // sig_pair.first is the name
+  for (auto const& sig_pair : mem_i)
+    fout << sig_pair.first << ",\n"; // sig_pair.first is the name
+  for (auto const& sig_pair : mem_o)
+    fout << sig_pair.first << ",\n"; // sig_pair.first is the name
+  for (auto const& sig_pair : regs) {
+    fout << separator << sig_pair.first;
+    separator = ",\n";
+  }
+  // let all registers to be output, so they can be acccessible from the port
+
+  fout << "\n);\n";
+
+  for (auto const& sig_pair : inputs)
+    fout << "input " << std::setw(10) << WidthToRange(sig_pair.second) << " "
+         << (sig_pair.first) << ";\n";
+  for (auto const& sig_pair : mem_i)
+    fout << "input " << std::setw(10) << WidthToRange(sig_pair.second) << " "
+         << (sig_pair.first) << ";\n";
+  for (auto const& sig_pair : outputs)
+    fout << "output " << std::setw(10) << WidthToRange(sig_pair.second) << " "
+         << (sig_pair.first) << ";\n";
+  for (auto const& sig_pair : mem_o)
+    fout << "output " << std::setw(10) << WidthToRange(sig_pair.second) << " "
+         << (sig_pair.first) << ";\n";
+  for (auto const& sig_pair : regs)
+    fout << "output reg " << std::setw(10) << WidthToRange(sig_pair.second)
+         << " " << (sig_pair.first) << ";\n";
+  for (auto const& sig_pair : wires) {
+    auto pos  = wires_keep.find(sig_pair.first);
+    if ( pos != wires_keep.end() && pos->second ) 
+    fout << "(* keep *)\n";
+    fout << "wire " << std::setw(10) << WidthToRange(sig_pair.second) << " "
+         << (sig_pair.first) << ";\n";
+  }
+
+  // now we deal w. the internal mems
+  for (auto const& mem : mems_internal) // mems.first is just a name
+    fout << "reg " << std::setw(10) << WidthToRange(std::get<2>(mem.second))
+         << " " << (std::get<0>(mem.second))
+         << WidthToRange(std::pow(2, std::get<1>(mem.second))) << ";\n";
+  // we require that the statements must have ";" ending itself
+  for (auto const& stmt : statements)
+    fout << stmt << "\n";
+
+  fout << "always @(posedge " << clkName << ") begin\n";
+  fout << "   if(" << rstName << ") begin\n";
+  // init_stmts go in rst cycle
+  for (auto const& stmt : init_stmts)
+    fout << "       " << stmt << "\n";
+  //
+  fout << "   end\n";
+  fout << "   else if(" << validName << ") begin\n";
+  for (auto const& stmt : always_stmts)
+    fout << "       " << stmt << "\n";
+  // we don't require ite statement has that
+  for (auto const& stmt : ite_stmts) {
+    fout << "       "
+         << "if (" << std::get<0>(stmt) << ") begin\n";
+    fout << "       "
+         << "    " << std::get<1>(stmt) << " ;\n";
+    fout << "       "
+         << "end\n";
+    if (std::get<2>(stmt) != "") {
+      fout << "       "
+           << "else begin\n            " << std::get<2>(stmt)
+           << " ;\n        end\n";
+    }
+  }
+
+  fout << "   end\n";
+  fout << "end\n";
+
+  fout << "endmodule\n";
+}
+
+
 //--------------------------------------------------------------------------
+
+
+VerilogGenerator::VerilogGenerator(const VlgGenConfig& config,
+                                   const std::string& modName,
+                                   const std::string& clk,
+                                   const std::string& rst)
+    : VerilogGeneratorBase(config, modName, clk, rst) {}
+
+
 void VerilogGenerator::insertInput(const ExprPtr& input) {
   ILA_ASSERT(input->is_var());
   // we need to consider the case of an input memory
@@ -235,6 +340,7 @@ void VerilogGenerator::addInternalCounter(vlg_name_t decode_sig_name,
   // counterName +" + 1"  , "" );
 }
 
+
 //--------------------------------------------------------------------------
 
 void VerilogGenerator::parseArg(const ExprPtr& e) {
@@ -244,7 +350,8 @@ void VerilogGenerator::parseArg(const ExprPtr& e) {
 }
 
 VerilogGenerator::vlg_name_t
-VerilogGenerator::getVlgFromExpr(const ExprPtr& e) {
+  VerilogGenerator::getVlgFromExpr(const ExprPtr& e) {
+
   auto pos = nmap.find(e);
   ILA_ASSERT(pos != nmap.end())
       << "Expr:" << (e) << " has not been translated yet";
@@ -324,7 +431,8 @@ VerilogGenerator::vlg_name_t VerilogGenerator::translateApplyFunc(
 // will be used by ParseNonMemUpdateExpr, will not be directly called by
 // ParseMemUpdateNode the later will call the former first
 VerilogGenerator::vlg_name_t
-VerilogGenerator::translateBoolOp(const std::shared_ptr<ExprOp>& e) {
+  VerilogGenerator::translateBoolOp(const std::shared_ptr<ExprOp>& e) {
+
   vlg_stmt_t result_stmt;
   std::string op_name = e->op_name();
   size_t arg_num = e->arg_num();
@@ -383,7 +491,8 @@ VerilogGenerator::translateBoolOp(const std::shared_ptr<ExprOp>& e) {
 // will be used by ParseNonMemUpdateExpr, will not be directly called by
 // ParseMemUpdateNode the later will call the former first
 VerilogGenerator::vlg_name_t
-VerilogGenerator::translateBvOp(const std::shared_ptr<ExprOp>& e) {
+  VerilogGenerator::translateBvOp(const std::shared_ptr<ExprOp>& e) {
+
   vlg_stmt_t result_stmt;
   std::string op_name = e->op_name();
   size_t arg_num = e->arg_num();
@@ -1017,92 +1126,6 @@ void VerilogGenerator::ExportTopLevelInstr(const InstrPtr& instr_ptr_) {
 
 } // VerilogGenerator::ExportTopLevelInstr
 
-void VerilogGenerator::DumpToFile(std::ostream& fout) const {
-  if (preheader != "") {
-    fout << "/* PREHEADER */\n";
-    fout << preheader << "\n";
-    fout << "/* END OF PREHEADER */\n";
-  }
-  // no need to worry about mem_i/o , already in i/o
-
-  fout << "module " << moduleName << "(\n";
-
-  std::string
-      separator; // input will not be empty of course, output won't either
-  for (auto const& sig_pair : inputs)
-    fout << sig_pair.first << ",\n"; // sig_pair.first is the name
-  for (auto const& sig_pair : outputs)
-    fout << sig_pair.first << ",\n"; // sig_pair.first is the name
-  for (auto const& sig_pair : mem_i)
-    fout << sig_pair.first << ",\n"; // sig_pair.first is the name
-  for (auto const& sig_pair : mem_o)
-    fout << sig_pair.first << ",\n"; // sig_pair.first is the name
-  for (auto const& sig_pair : regs) {
-    fout << separator << sig_pair.first;
-    separator = ",\n";
-  }
-  // let all registers to be output, so they can be acccessible from the port
-
-  fout << "\n);\n";
-
-  for (auto const& sig_pair : inputs)
-    fout << "input " << std::setw(10) << WidthToRange(sig_pair.second) << " "
-         << (sig_pair.first) << ";\n";
-  for (auto const& sig_pair : mem_i)
-    fout << "input " << std::setw(10) << WidthToRange(sig_pair.second) << " "
-         << (sig_pair.first) << ";\n";
-  for (auto const& sig_pair : outputs)
-    fout << "output " << std::setw(10) << WidthToRange(sig_pair.second) << " "
-         << (sig_pair.first) << ";\n";
-  for (auto const& sig_pair : mem_o)
-    fout << "output " << std::setw(10) << WidthToRange(sig_pair.second) << " "
-         << (sig_pair.first) << ";\n";
-  for (auto const& sig_pair : regs)
-    fout << "output reg " << std::setw(10) << WidthToRange(sig_pair.second)
-         << " " << (sig_pair.first) << ";\n";
-  for (auto const& sig_pair : wires)
-    fout << "wire " << std::setw(10) << WidthToRange(sig_pair.second) << " "
-         << (sig_pair.first) << ";\n";
-
-  // now we deal w. the internal mems
-  for (auto const& mem : mems_internal) // mems.first is just a name
-    fout << "reg " << std::setw(10) << WidthToRange(std::get<2>(mem.second))
-         << " " << (std::get<0>(mem.second))
-         << WidthToRange(std::pow(2, std::get<1>(mem.second))) << ";\n";
-  // we require that the statements must have ";" ending itself
-  for (auto const& stmt : statements)
-    fout << stmt << "\n";
-
-  fout << "always @(posedge " << clkName << ") begin\n";
-  fout << "   if(" << rstName << ") begin\n";
-  // init_stmts go in rst cycle
-  for (auto const& stmt : init_stmts)
-    fout << "       " << stmt << "\n";
-  //
-  fout << "   end\n";
-  fout << "   else if(" << validName << ") begin\n";
-  for (auto const& stmt : always_stmts)
-    fout << "       " << stmt << "\n";
-  // we don't require ite statement has that
-  for (auto const& stmt : ite_stmts) {
-    fout << "       "
-         << "if (" << std::get<0>(stmt) << ") begin\n";
-    fout << "       "
-         << "    " << std::get<1>(stmt) << " ;\n";
-    fout << "       "
-         << "end\n";
-    if (std::get<2>(stmt) != "") {
-      fout << "       "
-           << "else begin\n            " << std::get<2>(stmt)
-           << " ;\n        end\n";
-    }
-  }
-
-  fout << "   end\n";
-  fout << "end\n";
-
-  fout << "endmodule\n";
-}
 
 // parse a dummy ILA where we have
 // I, and all child (as insts)

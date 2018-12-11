@@ -433,6 +433,45 @@ VerilogAnalyzer::vlg_loc_t VerilogAnalyzer::name2loc(const std::string & net_nam
 
 
 
+  /// Find a signal 
+SignalInfoBase VerilogAnalyzer::get_signal(const std::string & net_name) const
+{
+  SignalInfoBase bad_signal("","",0,hierarchical_name_type::NONE, vlg_loc_t());
+
+  if(_bad_state_return()) return bad_signal;
+
+  void * ast_ptr = find_declaration_of_name(net_name);
+  auto tp_ = check_hierarchical_name_type(net_name);
+
+  if(ast_ptr == NULL) return bad_signal;
+  
+  switch(tp_) {
+    case I_WIRE_wo_INTERNAL_DEF: 
+    case O_WIRE_wo_INTERNAL_DEF:
+    case IO_WIRE_wo_INTERNAL_DEF:  
+      return SignalInfoPort( (ast_port_declaration *) ast_ptr, net_name, tp_  );
+
+    case I_WIRE_w_INTERNAL_DEF:
+    case O_WIRE_w_INTERNAL_DEF:
+    case IO_WIRE_w_INTERNAL_DEF: 
+    case WIRE:
+      return SignalInfoWire( (ast_net_declaration *) ast_ptr, net_name, tp_  );
+
+    case O_REG_wo_INTERNAL_DEF: 
+      return SignalInfoPort( (ast_port_declaration *) ast_ptr, net_name, tp_  );
+    case O_REG_w_INTERNAL_DEF: 
+    case REG:
+      return SignalInfoReg( (ast_reg_declaration *) ast_ptr, port_name, tp_  );
+    case MODULE:
+      ILA_ERROR <<"Module instance:"<<net_name <<" is not a signal.";
+    default:
+      ILA_ERROR <<"Does not know how to handle:"<<net_name <<", which is not a signal.";
+      return bad_signal;
+  }
+  // should not be reachable
+  return bad_signal;
+}
+
 
   /// Return top module signal
 VerilogAnalyzer::module_io_vec_t VerilogAnalyzer::get_top_module_io() const {

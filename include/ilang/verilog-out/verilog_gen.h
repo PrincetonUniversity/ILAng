@@ -25,8 +25,8 @@ namespace ilang {
 typedef ExprHash VerilogGenHash;
 class VlgVerifTgtGen;
 
-/// \brief Class of Verilog Generator
-class VerilogGenerator {
+/// \brief Base class of VerilogGenerator
+class VerilogGeneratorBase {
   // --------------------- TYPE DEFINITIONS ---------------------------- //
   /// let VlgVerifTgtGen use this module to generate the wrapper module
   friend class VlgVerifTgtGen;
@@ -46,6 +46,8 @@ class VerilogGenerator {
   typedef std::pair<vlg_name_t, int> vlg_sig_t;
   /// Type of Verilog signals (a vector)
   typedef std::vector<vlg_sig_t> vlg_sigs_t;
+  /// Type of a map: name -> need to add keep?
+  typedef std::map<vlg_name_t, bool> vlg_sig_keep_t;
   /// Type of set of Verilog signals
   typedef std::set<vlg_sig_t> vlg_sigs_set_t;
   /// Type of Verilog ITEs (IN sequential block)
@@ -73,6 +75,8 @@ class VerilogGenerator {
   };
   /// List of writes w. associated conditions.
   typedef std::list<mem_write_t> mem_write_list_t;
+  /// Type for caching the generated expressions.
+  typedef std::unordered_map<const ExprPtr, vlg_name_t, VerilogGenHash> ExprMap;
   // VerilogGen Configure
 public:
   /// the structure to configure the verilog generator
@@ -92,12 +96,9 @@ public:
         : extMem(ExternalMem), fcOpt(funcOpt) {} // set other fields if there are
   };
 
-private:
-  /// Type for caching the generated expressions.
-  typedef std::unordered_map<const ExprPtr, vlg_name_t, VerilogGenHash> ExprMap;
 
   // --------------------- HELPER for DEBUG PURPOSE ----------------------------
-  // //
+  //
   friend std::ostream& operator<<(std::ostream& out,
                                   const mem_write_entry_t& mwe);
   friend std::ostream& operator<<(std::ostream& out,
@@ -109,7 +110,7 @@ private:
                                   const mem_write_list_t& mwl);
 
   // --------------------- MEMBERS ---------------------------- //
-private:
+protected:
   // --------------------- Verilog  related ---------------------------- //
   /// Verilog Module Name
   vlg_name_t moduleName;
@@ -143,6 +144,8 @@ private:
   vlg_sigs_t mem_o;
   /// vector of wires to be defined
   vlg_sigs_t wires;
+  /// a map to store if a wire needs to keep
+  vlg_sig_keep_t wires_keep;
   /// vector of regs to be defined
   vlg_sigs_t regs;
   /// vector of mems to be defined
@@ -161,8 +164,7 @@ private:
   vlg_stmts_t always_stmts;
   /// statements to be used in the always block but out of the reset with ITE
   /// conditions
-  vlg_ite_stmts_t
-      ite_stmts; // this stmt is only used in sequential always block
+  vlg_ite_stmts_t ite_stmts; // this stmt is only used in sequential always block
   /// For auxiliary definitions
   vlg_stmt_t preheader;
   /// The map to cache the expression (we only need to store the name)
@@ -206,12 +208,13 @@ private:
   std::set<FuncPtr> func_ptr_set;
 
   // --------------------- HELPER FUNCTIONS ---------------------------- //
+public:
   /// record an input signal
   void add_input(const vlg_name_t& n, int w);
   /// record an output signal
   void add_output(const vlg_name_t& n, int w);
   /// record a wire
-  void add_wire(const vlg_name_t& n, int w);
+  void add_wire(const vlg_name_t& n, int w, bool keep = false);
   /// record a register
   void add_reg(const vlg_name_t& n, int w);
   /// record a stmt (outside the always block)
@@ -233,7 +236,74 @@ private:
   /// record an external memory
   void add_external_mem(const vlg_name_t& mem_name, int addr_width,
                         int data_width);
+public:
+  // --------------------- CONSTRUCTOR ---------------------------- //
+  /// \param[in] Configuration
+  /// \param[in] Top module name, if empty, get it from instruction name
+  /// \param[in] clock signal name
+  /// \param[in] reset signal name
+  VerilogGenerator(const VlgGenConfig& config = VlgGenConfig(),
+                   const std::string& modName = "",
+                   const std::string& clk = "clk",
+                   const std::string& rst = "rst");
 
+  /// after parsing either the Instruction/ILA, use this function to dump to a
+  /// file.
+  virtual void DumpToFile(std::ostream& fout) const;
+}; // class VerilogGeneratorBase
+
+
+/// \brief Class of Verilog Generator
+class VerilogGenerator : public VerilogGeneratorBase {
+  // --------------------- TYPE DEFINITIONS ---------------------------- //
+  /// Type of Verilog id names'
+  using vlg_name_t = VerilogGeneratorBase::vlg_name_t;
+  /// Type of Verilog statement
+  using vlg_stmt_t = VerilogGeneratorBase::vlg_stmt_t;
+  /// Type of Verilog address
+  using vlg_addr_t = VerilogGeneratorBase::vlg_addr_t;
+  /// Type of Verilog data
+  using vlg_data_t = VerilogGeneratorBase::vlg_data_t;
+  /// Type of Verilog statements (a vector)
+  using vlg_stmts_t = VerilogGeneratorBase::vlg_stmts_t;
+  /// Type of Verilog names (a vector)
+  using vlg_names_t = VerilogGeneratorBase::vlg_names_t;
+  /// Type of Verilog signal, name & bw
+  using vlg_sig_t = VerilogGeneratorBase::vlg_sig_t;
+  /// Type of Verilog signals (a vector)
+  using vlg_sigs_t = VerilogGeneratorBase::vlg_sigs_t;
+  /// Type of a map: name -> need to add keep?
+  using vlg_sig_keep_t = VerilogGeneratorBase::vlg_sig_keep_t;
+  /// Type of set of Verilog signals
+  using vlg_sigs_set_t = VerilogGeneratorBase::vlg_sigs_set_t;
+  /// Type of Verilog ITEs (IN sequential block)
+  using vlg_ite_stmt_t = VerilogGeneratorBase::vlg_ite_stmt_t;
+  /// Type of Verilog ITEs statements
+  using vlg_ite_stmts_t = VerilogGeneratorBase::vlg_ite_stmts_t;
+  /// Type of the memorys that are going to be created
+  using vlg_mem_t = VerilogGeneratorBase::vlg_mem_t;
+  /// Type of collection of memorys
+  using vlg_mems_rec_t = VerilogGeneratorBase::vlg_mems_rec_t;
+  /// This is type of an individual write.
+  using mem_write_entry_t = VerilogGeneratorBase::mem_write_entry_t;
+  /// This is type of a list of writes.
+  using mem_write_entry_list_t = VerilogGeneratorBase::mem_write_entry_list_t;
+  /// Type of a stack of writes use in visitMemNodes
+  using mem_write_entry_list_stack_t = VerilogGeneratorBase::mem_write_entry_list_stack_t;
+  /// This is the write and its associated condition.
+  using mem_write_t = VerilogGeneratorBase::mem_write_t;
+  /// List of writes w. associated conditions.
+  using mem_write_list_t = VerilogGeneratorBase::mem_write_list_t;
+  /// Type for caching the generated expressions.
+  using ExprMap = VerilogGeneratorBase::ExprMap;
+  // VerilogGen Configure
+public:
+  /// the structure to configure the verilog generator
+  using VlgGenConfig = VerilogGeneratorBase::VlgGenConfig;
+
+private:
+
+  // --------------------- HELPER FUNCTIONS ---------------------------- //
   /// handle a input variable (memvar/bool/bv)
   void insertInput(const ExprPtr& input);
   /// handle a state variable
@@ -279,6 +349,10 @@ private:
 
 public:
   // --------------------- CONSTRUCTOR ---------------------------- //
+  /// \param[in] Configuration
+  /// \param[in] Top module name, if empty, get it from instruction name
+  /// \param[in] clock signal name
+  /// \param[in] reset signal name
   VerilogGenerator(const VlgGenConfig& config = VlgGenConfig(),
                    const std::string& modName = "",
                    const std::string& clk = "clk",

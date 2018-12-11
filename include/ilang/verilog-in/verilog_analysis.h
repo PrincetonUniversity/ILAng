@@ -148,6 +148,8 @@ public:
   std::string get_top_module_name() const { return top_module_name;}
   /// Return top module signal
   module_io_vec_t get_top_module_io() const;
+  /// Find a signal 
+  SignalInfoBase get_signal(const std::string & net_name) const;
 
   // --------------------- HELPERS ---------------------------- //
   /// Print Meta info (Usage PrintMeta(os, ?? ) << ?? ;  )

@@ -118,6 +118,8 @@ public:
   virtual bool is_input() const { return VerilogAnalyzerBase::is_input(_type); }
   /// Whether it is an output signal
   virtual bool is_output() const { return VerilogAnalyzerBase::is_output(_type); }
+  /// Whether this info is usable
+  virtual bool is_bad_signal() const {return _type == VerilogAnalyzerBase::hierarchical_name_type::NONE;}
   /// return its type
   virtual VerilogAnalyzerBase::hierarchical_name_type get_type() const { return _type; }
   /// Return its location
@@ -194,6 +196,8 @@ public:
   std::string get_top_module_name() const;
   /// Return top module signal
   module_io_vec_t get_top_module_io() const;
+  /// Find a signal 
+  SignalInfoBase get_signal(const std::string & net_name) const;
 
 }; // class Verilog Info
 

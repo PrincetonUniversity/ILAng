@@ -2,7 +2,7 @@
 // --- Hongce Zhang
 
 #include <ilang/util/log.h>
-#include <ilang/vtarget-out/interface_directive.h>
+#include <ilang/vtarget-out/directive.h>
 
 namespace ilang {
 
@@ -36,7 +36,7 @@ namespace ilang {
   bool IntefaceDirectiveRecorder::interfaceDeclare(const std::string & c) {
     ILA_ASSERT(isSpecialInputDir(c));
     if(c == "**KEEP**") return true;
-    if(c == "**NC**")   return true;
+    if(c == "**NC**")   return false;
     if(c == "**SO**")   return true;
     if(c == "**RESET**" || c == "**CLOCK**") return false;
     if(beginsWith(c, "**MEM**")) {
@@ -52,6 +52,14 @@ namespace ilang {
     }
     ILA_ERROR<<"Unknown IO directive in refinement relations:"<<c;
     return true;   
+  }
+
+  // ------------------------------------------------------------------------
+
+
+  static bool StateMappingDirectiveRecorder::isSpecialStateDir(const std::string & c)
+  {
+    return IntefaceDirectiveRecorder::beginsWith(c,"**"); 
   }
 
 } // namespace ilang
