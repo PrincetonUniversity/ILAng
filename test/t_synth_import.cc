@@ -71,11 +71,19 @@ TEST_F(TestSynthImport, AES_C_child) {
 }
 
 TEST_F(TestSynthImport, Add_child_AES_C) {
-  //
+  auto aes = ImportSynthAbsFromFile(file_abs_aes_c_top, "AES");
+  ASSERT_NE(aes, nullptr);
+
+  auto aesu = ImportSynthAbsFromFile(file_abs_aes_c_child, "AES_U");
+  EXPECT_NE(aesu, nullptr);
 }
 
 TEST_F(TestSynthImport, Port_child_AES_C) {
-  //
+  auto aes = ImportSynthAbsFromFile(file_abs_aes_c_top, "AES");
+  ASSERT_NE(aes, nullptr);
+
+  auto aesu = ImportSynthAbsFromFileHier(file_abs_aes_c_child, aes, "AES_U");
+  EXPECT_NE(aesu, nullptr);
 }
 
 }; // namespace ilang
