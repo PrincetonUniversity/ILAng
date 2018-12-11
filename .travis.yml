@@ -1,10 +1,16 @@
-os: linux
-dist: xenial
-sudo: required
+matrix:
+  include:
+    - os: linux
+      dist: xenial
+    - os: osx
+
 language: cpp
+
 compiler:
   - gcc
   - clang
+
+sudo: required
 
 branches:
   only:
