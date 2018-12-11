@@ -55,7 +55,6 @@ package_add_test(${ILANG_TEST_MAIN}
   t_ila.cc
   t_instr.cc
   t_instr_seq.cc
-  t_jsonio.cc
   t_keyvec.cc
   t_legacy_bmc.cc
   t_log.cc
@@ -63,6 +62,7 @@ package_add_test(${ILANG_TEST_MAIN}
   t_mapset.cc
   t_mcm.cc
   t_op_sanity.cc
+  t_portable.cc
   t_sort.cc
   t_symbol.cc
   t_unroll_seq.cc
@@ -97,12 +97,6 @@ if(${ILANG_BUILD_SYNTH})
     ${CMAKE_CURRENT_BINARY_DIR}/unit-data/aes_v/allu
   )
 
-endif()
-
-if(${ILANG_BUILD_JSON})
-  target_sources(${ILANG_TEST_MAIN} PRIVATE
-    t_portable.cc
-  )
 endif()
 
 target_link_libraries(${ILANG_TEST_MAIN} ${ILANG_LIB_NAME})

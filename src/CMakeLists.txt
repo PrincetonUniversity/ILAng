@@ -13,14 +13,10 @@ add_subdirectory(ila)
 add_subdirectory(verification)
 add_subdirectory(verilog-out)
 add_subdirectory(mcm)
+add_subdirectory(portable)
 
 if(${ILANG_BUILD_VLOG})
   add_subdirectory(verilog-in)
-endif()
-
-if(${ILANG_BUILD_JSON})
-  add_subdirectory(json-inout)
-  add_subdirectory(portable)
 endif()
 
 if(${ILANG_BUILD_SYNTH})
@@ -78,15 +74,12 @@ target_link_libraries(${ILANG_LIB_NAME} PUBLIC glog::glog)
 ##
 ## json lib
 ##
-if(${ILANG_BUILD_JSON})
-
-  if(NOT TARGET nlohmann_json::nlohmann_json)
-    find_package(nlohmann_json REQUIRED)
-  endif()
-
-  target_link_libraries(${ILANG_LIB_NAME} PRIVATE nlohmann_json::nlohmann_json)
-
+if(NOT TARGET nlohmann_json::nlohmann_json)
+  find_package(nlohmann_json REQUIRED)
 endif()
+
+target_link_libraries(${ILANG_LIB_NAME} PRIVATE nlohmann_json::nlohmann_json)
+
 
 ##
 ## verilog parser

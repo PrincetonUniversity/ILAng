@@ -22,7 +22,6 @@ project(ilang VERSION     1.0
 # build configuration
 # ---------------------------------------------------------------------------- #
 option(ILANG_FETCH_DEPS  "Fetch source of dependencies at config time."      ON)
-option(ILANG_BUILD_JSON  "Build JSON I/O."                                   ON)
 option(ILANG_BUILD_VLOG  "Build Verilog I/O."                                ON)
 option(ILANG_BUILD_DOCS  "Build documentations."                            OFF)
 option(ILANG_BUILD_PYAPI "Build the Python interface."                       ON)
@@ -64,10 +63,6 @@ endif()
 
 if(${ILANG_BUILD_VLOG})
   set(VERILOG_IN_ENABLE TRUE)
-endif()
-
-if(${ILANG_BUILD_JSON})
-  set(JSON_INOUT_ENABLE TRUE)
 endif()
 
 
