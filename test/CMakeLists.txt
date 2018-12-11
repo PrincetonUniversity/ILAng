@@ -73,31 +73,20 @@ package_add_test(${ILANG_TEST_MAIN}
   t_z3sanity.cc
 )
 
+if(${ILANG_BUILD_SYNTH})
+  target_sources(${ILANG_TEST_MAIN} PRIVATE
+    t_synth_import.cc
+  )
+endif()
+
 set(TEST_CONFIG_TEST_ROOT ${CMAKE_CURRENT_BINARY_DIR})
+set(ILANG_TEST_SRC_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
 
 configure_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/unit-src/config.h.in
   ${CMAKE_CURRENT_SOURCE_DIR}/unit-include/config.h
   IMMEDIATE @ONLY
 )
-
-if(${ILANG_BUILD_SYNTH})
-
-  target_sources(${ILANG_TEST_MAIN} PRIVATE
-    t_synth_import.cc
-  )
-
-  configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/unit-data/aes_v/all
-    ${CMAKE_CURRENT_BINARY_DIR}/unit-data/aes_v/all
-  )
-
-  configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/unit-data/aes_v/allu
-    ${CMAKE_CURRENT_BINARY_DIR}/unit-data/aes_v/allu
-  )
-
-endif()
 
 target_link_libraries(${ILANG_TEST_MAIN} ${ILANG_LIB_NAME})
 
