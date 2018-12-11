@@ -11,6 +11,9 @@ branches:
     - master
     - travis
 
+git:
+  submodules: false
+
 before_install:
   - gem install coveralls-lcov
 
@@ -31,6 +34,8 @@ install:
   - cd z3
   - git checkout tags/z3-4.7.1 -b v471
   - python scripts/mk_make.py
+  - if [[ "$TRAVIS_COMPILER" == "gcc" ]]; then python scripts/mk_make.py ; fi
+  - if [[ "$TRAVIS_COMPILER" == "clang" ]]; then CXX=clang++ CC=clang python scripts/mk_make.py ; fi
   - cd build
   - make && sudo make install
   - z3 --version
@@ -39,14 +44,14 @@ before_script:
   - cmake --version
   - lcov --version
   - gcov --version
-  # create Makefile
-  - mkdir -p $TRAVIS_BUILD_DIR/build && cd $TRAVIS_BUILD_DIR/build
-  - lcov --directory $TRAVIS_BUILD_DIR/build --zerocounters
 
 script:
+  - mkdir -p $TRAVIS_BUILD_DIR/build 
   - cd $TRAVIS_BUILD_DIR/build
+  - lcov --directory $TRAVIS_BUILD_DIR/build --zerocounters
   - cmake .. -DILANG_BUILD_COV=ON -DCMAKE_BUILD_TYPE=Debug
-  - make && sudo make install
+  - make 
+  - sudo make install
   - make run_test
   - ctest -R ExampleCMakeBuild
 
