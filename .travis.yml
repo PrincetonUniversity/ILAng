@@ -63,10 +63,10 @@ install:
   - z3 --version
 
 before_script:
-  - chmod ugo+x scripts/clean-coverage.sh
-  - chmod ugo+x scripts/submit-coverage.sh
-  - mkdir -p $TRAVIS_BUILD_DIR/build 
-  - if [[ "$TRAVIS_JOB_NAME" == "linux-gcc" ]]; then ./scripts/clean-coverage.sh $TRAVIS_BUILD_DIR/build ; fi
+  - chmod ugo+x $TRAVIS_BUILD_DIR/scripts/clean-coverage.sh
+  - chmod ugo+x $TRAVIS_BUILD_DIR/scripts/submit-coverage.sh
+  - mkdir -p $TRAVIS_BUILD_DIR/build
+  - if [[ "$TRAVIS_JOB_NAME" == "linux-gcc" ]]; then source $TRAVIS_BUILD_DIR/scripts/clean-coverage.sh $TRAVIS_BUILD_DIR/build ; fi
 
 script:
   - cd $TRAVIS_BUILD_DIR/build
@@ -77,7 +77,7 @@ script:
   - ctest -R ExampleCMakeBuild
 
 after_success:
-  - if [[ "$TRAVIS_JOB_NAME" == "linux-gcc" ]]; then ./scripts/submit-coverage.sh $TRAVIS_BUILD_DIR/build ; fi
+  - if [[ "$TRAVIS_JOB_NAME" == "linux-gcc" ]]; then source $TRAVIS_BUILD_DIR/scripts/submit-coverage.sh $TRAVIS_BUILD_DIR/build ; fi
 
 notifications:
     email: false
