@@ -1,11 +1,13 @@
+language: cpp
+
 matrix:
   include:
-    - os: linux
+    - name: "linux family"
+      os: linux
       dist: xenial
-    - os: osx
+    - name: "osx family"
+      os: osx
       osx_image: xcode9.4
-
-language: cpp
 
 compiler:
   - gcc
@@ -50,15 +52,14 @@ install:
   - z3 --version
 
 before_script:
-  - cmake --version
-  - lcov --version
-  - gcov --version
-  - if [[ "$TRAVIS_COMPILER" == "gcc" ]]; then export SUBMIT_COVERAGE=true ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" -a "$TRAVIS_COMPILER" == "gcc" ]]; then export SUBMIT_COVERAGE=true ; fi
+  - chmod ugo+x scripts/clean-coverage.sh
+  - chmod ugo+x scripts/submit-coverage.sh
+  - mkdir -p $TRAVIS_BUILD_DIR/build 
+  - if [[ "$SUBMIT_COVERAGE" == "true" ]]; then ./scripts/clean-coverage.sh $TRAVIS_BUILD_DIR/build ; fi
 
 script:
-  - mkdir -p $TRAVIS_BUILD_DIR/build 
   - cd $TRAVIS_BUILD_DIR/build
-  - lcov --directory $TRAVIS_BUILD_DIR/build --zerocounters
   - cmake .. -DILANG_BUILD_COV=ON -DCMAKE_BUILD_TYPE=Debug
   - make 
   - sudo make install
@@ -66,10 +67,7 @@ script:
   - ctest -R ExampleCMakeBuild
 
 after_success:
-  - lcov --directory $TRAVIS_BUILD_DIR/build --capture --output-file coverage.info 
-  - lcov --remove coverage.info '*/extern/*' '*/test/*' '/usr/*' --output-file coverage.info 
-  - lcov --list coverage.info 
-  - if [[ "$SUBMIT_COVERAGE" == "true" ]]; then coveralls-lcov coverage.info ; fi
+  - if [[ "$SUBMIT_COVERAGE" == "true" ]]; then ./scripts/submit-coverage.sh $TRAVIS_BUILD_DIR/build ; fi
 
 notifications:
     email: false
