@@ -38,6 +38,13 @@ addons:
       - flex
       - bison
       - libboost-all-dev
+  homebrew:
+    update: true
+    packages:
+      - bison
+      - flex
+      - boost
+      - boost-python
 
 install: 
   - export PARENT_DIR=$TRAVIS_BUILD_DIR/../
