@@ -2,18 +2,18 @@ language: cpp
 
 matrix:
   include:
-    - name: "linux gcc"
+    - name: "linux-gcc"
       os: linux
       dist: xenial
       compiler: gcc
-    - name: "linux clang"
+    - name: "linux-clang"
       os: linux
       dist: xenial
       compiler: clang
-    - name: "osx gcc"
+    - name: "osx-gcc"
       os: osx
       compiler: gcc
-    - name: "osx clang"
+    - name: "osx-clang"
       os: osx
       compiler: clang
 
@@ -56,11 +56,10 @@ install:
   - z3 --version
 
 before_script:
-  - if [[ "$TRAVIS_OS_NAME" == "linux" -a "$TRAVIS_COMPILER" == "gcc" ]]; then export SUBMIT_COVERAGE=true ; fi
   - chmod ugo+x scripts/clean-coverage.sh
   - chmod ugo+x scripts/submit-coverage.sh
   - mkdir -p $TRAVIS_BUILD_DIR/build 
-  - if [[ "$SUBMIT_COVERAGE" == "true" ]]; then ./scripts/clean-coverage.sh $TRAVIS_BUILD_DIR/build ; fi
+  - if [[ "$TRAVIS_JOB_NAME" == "linux-gcc" ]]; then ./scripts/clean-coverage.sh $TRAVIS_BUILD_DIR/build ; fi
 
 script:
   - cd $TRAVIS_BUILD_DIR/build
@@ -71,7 +70,7 @@ script:
   - ctest -R ExampleCMakeBuild
 
 after_success:
-  - if [[ "$SUBMIT_COVERAGE" == "true" ]]; then ./scripts/submit-coverage.sh $TRAVIS_BUILD_DIR/build ; fi
+  - if [[ "$TRAVIS_JOB_NAME" == "linux-gcc" ]]; then ./scripts/submit-coverage.sh $TRAVIS_BUILD_DIR/build ; fi
 
 notifications:
     email: false
