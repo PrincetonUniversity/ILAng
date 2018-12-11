@@ -33,10 +33,13 @@ install:
   - git clone https://github.com/Z3Prover/z3.git
   - cd z3
   - git checkout tags/z3-4.7.1 -b v471
-  - python scripts/mk_make.py
-  - if [[ "$TRAVIS_COMPILER" == "gcc" ]]; then python scripts/mk_make.py ; fi
-  - if [[ "$TRAVIS_COMPILER" == "clang" ]]; then CXX=clang++ CC=clang python scripts/mk_make.py ; fi
+    #- python scripts/mk_make.py
+    #- if [[ "$TRAVIS_COMPILER" == "gcc" ]]; then python scripts/mk_make.py ; fi
+    #- if [[ "$TRAVIS_COMPILER" == "clang" ]]; then CXX=clang++ CC=clang python scripts/mk_make.py ; fi
+    #- cd build
+  - mkdir -p build
   - cd build
+  - cmake .. 
   - make && sudo make install
   - z3 --version
 
