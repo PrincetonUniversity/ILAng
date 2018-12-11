@@ -101,6 +101,9 @@ std::vector<std::string> ReFindAndDo(const std::string& s, const std::string& re
   return tokens;
 }
 
+
+bool IsRExprUsable() { return true; }
+
 #else
 // not supported
 std::vector<std::string> ReFindList(const std::string& s, const std::string& re)
@@ -114,6 +117,9 @@ std::vector<std::string> ReFindAndDo(const std::string& s, const std::string& re
   ILA_ASSERT(false) << "Not suppported: please use GCC 4.9.0 or above to enable this function";
   return std::vector<std::string>();
 }
+
+
+bool IsRExprUsable() { return false; }
 
 #endif
 
@@ -130,6 +136,9 @@ std::vector<std::string> ReFindAndDo(const std::string& s, const std::string& re
   ILA_ASSERT(false) << "Not suppported: please use GCC 4.9.0 or above to enable this function";
   return std::vector<std::string>();
 }
+
+
+bool IsRExprUsable() { return false; }
 #endif
 
 
