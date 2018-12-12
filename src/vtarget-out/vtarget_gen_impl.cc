@@ -2,6 +2,7 @@
 /// 
 // --- Hongce Zhang
 
+#include <ilang/util/log.h>
 #include <ilang/ila/expr_fuse.h>
 #include <ilang/vtarget-out/vtarget_gen_impl.h>
 #include <ilang/util/str_util.h>
@@ -16,7 +17,6 @@ namespace ilang {
 #define MAX_CYCLE_CTR 127
 #define VLG_TRUE "`true"
 
-.. remember to add this to header
 //---------------- SOURCES -------------------------
 
 
@@ -90,8 +90,8 @@ namespace ilang {
       const auto & name_  = input_->name().str();
       auto width_   = get_width( input_ );
 
-      vlg_wrapper.add_wire (name_, width_);
-      vlg_wrapper.add_input(name_, width_);
+      vlg_wrapper.add_wire ( "__ILA_I_" + name_, width_);
+      vlg_wrapper.add_input( "__ILA_I_" + name_, width_);
     }
     // remember to add ila_outputs (reg)
     size_t ila_state_num = instr_ptr->host()->state_num();
@@ -110,13 +110,26 @@ namespace ilang {
   } // ConstructWrapper_add_ila_input()
 
   void VlgVerifTgtGen::ConstructWrapper_add_vlg_input_output() {
+    // clear the old record, if any
+    _idr.Clear();
+
     auto vlg_inputs = vlg_info_ptr->get_top_module_io();
     auto & io_map = rf_vmap["interface mapping"];
-    for(auto && name_siginfo_pair : vlg_inputs) { // for all verilog input, find in rfmap
+    for(auto && name_siginfo_pair : vlg_inputs) { 
+      std::string refstr =  IN(name_signal.first , io_map) ? io_map[name_signal.first].get<std::string>() : "";
+      _idr.RegisterInterface( name_siginfo_pair.second, refstr,
+        // Verifier_compatible_w_ila_input
+        [this] (const std::string &ila_name, const SignalInfoBase & vlg_sig_info) -> bool {
+            return TypeMatched(IlaGetInput(ila_name), vlg_sig_info) != 0; }
+         );
+    }
+
+    // for all verilog input, find in rfmap
       auto & short_name = name_siginfo_pair.first.get_signal_name(); // short name
       auto & vlg_sig_info = name_siginfo_pair.second;
       //auto & long_name  = name_siginfo_pair.first.get_hierarchical_name();  // no using it
       // try short name and warn if it is not specified
+      if( not IN(short_name, io_map) ) 
       ILA_WARN_IF ( ! IN(short_name, io_map))  << "Verilog input:"<<short_name << " is not mentioned in the input mapping";
 
       // Check if directive is compatible w read io
@@ -133,7 +146,7 @@ namespace ilang {
         }
         
         // if it is memory data input, feed from memory, not outside
-        if ( IN(short_name,io_map) && _idr.isSpecialInputDir(io_map[short_name]) && ! _idr.interfaceDeclare(io_map[short_name]) ) {
+        if ( IN(short_name,io_map) && _idr.isSpecialInputDir(io_map[short_name]) && ! _idr.interfaceDeclareTop(io_map[short_name]) ) {
           vlg_wrapper.add_wire (short_name, vlg_sig_info.get_width(), true ); // keep added 
           continue; // do not add input
         }
@@ -143,7 +156,7 @@ namespace ilang {
         ILA_ERROR_IF(  IN(short_name,io_map) && ! _idr.isSpecialInputDir(io_map[short_name]) ) << "Verilog output:" << short_name << " cannot be mapped, treated as **KEEP**";
 
         // if it is memory data output, address, enable and etc. we don't need to make them wrapper output?
-        if ( IN(short_name,io_map) && _idr.isSpecialInputDir(io_map[short_name]) && ! _idr.interfaceDeclare(io_map[short_name]) ) {
+        if ( IN(short_name,io_map) && _idr.isSpecialInputDir(io_map[short_name]) && ! _idr.interfaceDeclareTop(io_map[short_name]) ) {
           vlg_wrapper.add_wire (short_name, get_width() , true); continue; // do not add input
         }
         vlg_wrapper.add_wire (short_name, get_width() , false); // remember to connect later
@@ -188,7 +201,7 @@ namespace ilang {
 
     .. // remember to generate
     // __RESETED__
-    // __ISSUE__ == start condition 
+    // __ISSUE__ == start condition (if no flush, issue == true?)
     // __IEND__ == ( end condition ) &&  STARTED
     // __ENDFLUSH__ == (end flush condition ) && ENDED
     // flush : !( __ISSUE__ ? || __START__ || __STARTED__ ) |-> flush 
@@ -198,6 +211,7 @@ namespace ilang {
     vlg_wrapper->add_preheader("\n`define \"true\"  1\n");
   }
 
+  // for special memory, we don't need to do anything?
   void VlgVerifTgtGen::AddVarMapAssumptions() {
     std::set<std::string> ila_state_names;
 
@@ -214,8 +228,16 @@ namespace ilang {
       // ISSUE ==> vmap
       add_an_assumption( "~ __START__ || " +"(" + GetStateVarMapExpr(sname, i.value()) +")" );
     }
+    // check for unmapped states
+    if( not ila_state_names.empty() ) {
+      ILA_ERROR<<"Refinement relation: missing state mapping for the following states:";
+      for (auto && sn : ila_state_names)
+        ILA_ERROR<<"  "<<sn;
+    }
   }
 
+  // for memory, we need to assert new data match and ?
+  // 
   void VlgVerifTgtGen::AddVarMapAssertions(bool has_flush) {
     std::set<std::string> ila_state_names;
 
@@ -231,21 +253,41 @@ namespace ilang {
       ila_state_names.erase(sname);
       // ISSUE ==> vmap
       auto precondition = has_flush ? "~ __ENDFLUSH__ || " : "~ __IEND__ || " ;
-      add_an_assumption(  +"(" + GetStateVarMapExpr(sname, i.value()) +")" );
+      add_an_assertion( precondition  +"(" + GetStateVarMapExpr(sname, i.value()) +")" );
     }
   }
 
 
-  void VlgVerifTgtGen::AddInvAssumptions(void) {
-    if ()
-    if ( not rf_cond["global invariants"] or not rf_cond["global invariants"].is_array() ) {
-      ILA_ERROR << ""
+  void VlgVerifTgtGen::AddInvAssumptions(bool has_flush) {
+    if ( not rf_cond["global invariants"] ) return; // no invariants to add
+    if ( not rf_cond["global invariants"].is_array() ) { 
+      ILA_ERROR << "'global invariants' field in refinement relation has to be a JSON array."
+      return;
+    }
+    for( auto & cond :  rf_cond["global invariants"] ) {
+      auto new_cond = ReplExpr(cond.get<std::string>(), true);
+      auto precondition = has_flush ? "~ __RESETED__ || " : "~ __START__ || " ;
+      add_an_assumption( precondition + "(" + new_cond + ")" );
     }
   }
 
+  // 
+  // should not have the flush condition set!
   void VlgVerifTgtGen::AddInvAssertions(void) {
-    
+    if ( not rf_cond["global invariants"] ) return; // no invariants to add
+    if ( not rf_cond["global invariants"].is_array() ) { 
+      ILA_ERROR << "'global invariants' field in refinement relation has to be a JSON array."
+      return;
+    }
+    for( auto & cond :  rf_cond["global invariants"] ) {
+      auto new_cond = ReplExpr(cond.get<std::string>(), true); // force vlg state
+      add_an_assertion( "(" + new_cond + ")" );
+    }
   }
+
+  void VlgVerifTgtGen::AddAdditionalMappingControl(void) {
+
+  } // AddAdditionalMappingControl
 
   void VlgVerifTgtGen::AddModuleInstantiation(void) {
     

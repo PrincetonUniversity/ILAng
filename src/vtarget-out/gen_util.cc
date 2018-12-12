@@ -1,13 +1,14 @@
-/// \file Verilog Target Generation Utilities
-/// Should only be included in vtarget_gen_impl.cc
-/// Should not be used anywhere else
+/// \file Source for Verilog Target Generation Utilities
 /// Store some functions that the vtarget_gen_impl.cc
 /// needes, but not that important so does not need to
 /// go in the same file and make it that long.
 // --- Hongce Zhang
 
-#ifndef GEN_UTIL_H__
-#define GEN_UTIL_H__
+#include <ilang/util/log.h>
+#include <ilang/ila/expr_fuse.h>
+#include <ilang/vtarget-out/vtarget_gen_impl.h>
+#include <ilang/util/str_util.h>
+#include <ilang/vtarget-out/gen_util.h>
 
 namespace ilang {
 
@@ -102,6 +103,12 @@ std::string VlgVerifTgtGen::ModifyCondExprAndRecordVlgName(const VarExtractor::t
 
 // static function
 unsigned VlgVerifTgtGen::TypeMatched(const ExprPtr & ila_var, const VerilogInfo & vlg_var) {
+
+  if (ila_var == nullptr) {
+    ILA_ERROR << "Not able to check type for unknown ila signal";
+    return 0;
+  }
+
   auto ila_sort = ila_var->sort();
   if( vlg_var.get_width() == 0 ) {
     ILA_ERROR<<"Cannot determine type-match for vlg signal"<<vlg_var.get_hierarchical_name();
@@ -246,5 +253,3 @@ void VlgVerifTgtGen::load_json(const std::string & fname, json & j) {
 } // load_json
 
 }; // namespace ilang
-
-#endif // GEN_UTIL_H__

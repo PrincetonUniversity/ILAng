@@ -5,10 +5,52 @@
 #ifndef DIRECTIVE_H__
 #define DIRECTIVE_H__
 
+#include <functional>
+#include <tuple>
+#include <map>
 #include <string>
 #include <ilang/verilog-in/verilog_analysis_wrapper.h>
+#include <ilang/verilog-out/verilog_gen.h>
 
 namespace ilang {
+
+/// \brief a struct to store abstract memory
+struct VlgAbsMem {
+  // ---------------------- TYPES --------------- //
+  /// type of read port
+  typedef struct  {
+    /// what to connect for raddr
+    std::string raddr; 
+    /// what to connect for rdata
+    std::string rdata;
+    /// what to connect for ren
+    std::string ren;
+  } rport_t;
+  /// type of write port
+  typedef struct  {
+    /// what to connect for waddr
+    std::string waddr;
+    /// what to connect for wdata
+    std::string wdata;
+    /// what to connect for wen
+    std::string wen;
+  } wport_t;
+
+  // ---------------------- MEMBERS --------------- //
+  /// read ports
+  std::vector<rport_t> rports;
+  /// write ports
+  std::vector<wport_t> wports;
+
+  /// how many are considered to be concrete
+  unsigned concrete_level; 
+  /// widths
+  unsigned data_width;
+  /// widths
+  unsigned addr_width;
+  /// which ila state it is mapped to
+  std::string ila_map_name;
+}; // class VlgAbsMem
 
 /// \brief Used in Verilog Verification Target Generation
 /// for dealing with interface directives
@@ -20,13 +62,55 @@ namespace ilang {
 **MEM** rdata/raddr/ren/wdata/waddr/wen.?
 */
 class IntefaceDirectiveRecorder {
-
 public:
+  /// Type interface directives
+  typedef enum {KEEP = 0, NC /*not connected*/, 
+    SO /*state out*/, INPUT /*general input*/, RESET, CLOCK, 
+    MEM_R_A, MEM_R_D, MEM_R_EN, MEM_W_A, MEM_W_D, MEM_W_EN } inf_dir_t;
+  /// Type of interface connector
+  typedef std::pair<inf_dir_t, std::string>            inf_connector_t;
+  /// Type of interface connector storage
+  typedef std::map<std::string, inf_connector_t>        mod_inst_rec_t;
+  /// Using vlg-out's signal type
+  using vlg_sig_t = VerilogGeneratorBase::vlg_sig_t;
+  /// Using vlg-out's signal vector type
+  using vlg_sig_vec_t = VerilogGeneratorBase::vlg_sigs_t;
+  /// ILA input compatible checker type
+  typedef std::function<bool(const std::string &, const SignalInfoBase & )>
+    ila_input_checker_t;
+  
+public:
+  /// Return if a string 'c' begins with string 's'
   static bool beginsWith(const std::string & c, const std::string & s);
+  /// Return true if 'c' is special input directive
   static bool isSpecialInputDir(const std::string & c);
+  /// Check for compatibility
   static bool isSpecialInputDirCompatibleWith(const std::string & c, const SignalInfoBase & vlg_sig );
-  static bool interfaceDeclare(const std::string & c);
+  /// Check if an interface needs to be declare as top module I/O
+  static bool interfaceDeclareTop(const std::string & c);
   // --- more to added 
+  // ------------------------ MEMBERS ------------------------ //
+  /// clear all internal storage
+  void Clear();
+  /// Return a string used for instantiating
+  std::string GetVlgModInstString(void) const;
+  /// Add signals to the wrapper_generator
+  void VlgAddTopInteface(VerilogGeneratorBase & gen) const;
+  /// Used to tell this module about the refinement relations
+  void RegisterInterface(const SignalInfoBase & vlg_sig, 
+    const std::string & refstr,
+    ila_input_checker_t chk);
+
+protected:
+  mod_inst_rec_t mod_inst_rec;
+  // a wire will not appear in two or more of the category
+  vlg_sig_vec_t  input_wires;
+  vlg_sig_vec_t  output_wires
+  vlg_sig_vec_t  internal_wires;
+  /// ila-mem-name -> abs
+  std::map< std::string, VlgAbsMem> abs_mems;
+
+  // check if all the vlg module i/o has been declared correctly.
 
 }; // class IntefaceDirectiveRecorder
 
