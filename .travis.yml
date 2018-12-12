@@ -33,7 +33,6 @@ matrix:
         - brew install bison
         - export PATH="/usr/local/opt/bison/bin:$PATH"
         - export LDFLAGS="-L/usr/local/opt/bison/lib"
-        - brew install boost --with-python
         - brew install boost-python
 
 sudo: required
@@ -50,6 +49,7 @@ addons:
     update: true
     packages:
       - flex
+      - boost
 
 install: 
   - export PARENT_DIR=$TRAVIS_BUILD_DIR/../
