@@ -33,9 +33,7 @@ matrix:
         - brew install bison
         - export PATH="/usr/local/opt/bison/bin:$PATH"
         - export LDFLAGS="-L/usr/local/opt/bison/lib"
-        - brew uninstall boost
-        - brew remove boost
-        - brew install boost --with-python
+        - brew reinstall boost --with-python
         - brew install boost-python
 
 sudo: required
