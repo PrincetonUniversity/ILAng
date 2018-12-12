@@ -29,6 +29,8 @@ git:
 
 before_install:
   - gem install coveralls-lcov
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install bison ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew link bison --force ; fi
 
 addons:
   apt:
@@ -41,7 +43,6 @@ addons:
   homebrew:
     update: true
     packages:
-      - bison
       - flex
       - boost
       - boost-python
