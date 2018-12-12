@@ -37,11 +37,16 @@ public:
   VarExtractor( str_j is_ila_state, str_j is_vlg_sig  );
   // ---------------------- METHODS ----------------- //
   /// Parse a string and populate the token vector, will clear the _tokens storage
-  void ParseToExtract(const std::string & in);
+  void ParseToExtract(const std::string & in, bool force_vlg_statename = false); // the later is only used in dealing w. invariants
   /// Traverse the tokens, see if replace is needed
   void ForEachTokenReplace( str_r replacer ) ; // you can return the same so it will not be replaced
   /// Get back string
   std::string GenString () const;
+  /// A shortcut to do all at once
+  std::string Replace(const std::string & in, bool force_vlg_statename, str_r replacer) { 
+    ParseToExtract(in, force_vlg_statename);
+    ForEachTokenReplace(replacer);
+    return GenString(); }
  // ---------------------- HELPERS ----------------- //
   static bool contains_mod_inst_name(const std::string & s, const std::string & mi);
 

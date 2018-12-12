@@ -1,4 +1,4 @@
-/// \file Verilog Verification Target Generator -- for CoSA
+/// \file Verilog Verification Target Generator -- for JasperGold
 // ---Hongce Zhang
 
 #ifndef VTARGET_GEN_JASPER_H__
@@ -8,7 +8,9 @@
 
 namespace ilang {
 
-
+/// \brief  Verilog Verification Target Generator -- for JasperGold
+/// Unlike for cosa, we don't need a separate file
+/// although we do have some ...
 class VlgVerifTgtGenCosa_Jasper : public VlgVerifTgtGen {
   
 public:
@@ -33,6 +35,13 @@ public:
       const VerilogGenerator::VlgGenConfig& config = VlgGenConfig() 
       );
 
+protected:
+
+  /// Add an assumption
+  virtual void add_an_assumption(const std::string & aspt) override;
+  /// Add an assertion
+  virtual void add_an_assertion (const std::string & asst) override
+  
 private:
   // It is okay to instantiation 
   virtual void do_not_instantiate(void) override {} ;

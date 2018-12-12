@@ -7,6 +7,9 @@
 #define VTARGET_GEN_COSA_H__
 
 #include <ilang/vtarget-out/vtarget_gen_impl.h>
+#include <iostream>
+#include <string>
+#include <vector>
 
 namespace ilang {
 
@@ -15,12 +18,20 @@ namespace ilang {
 class Cosa_problem {
   /// Type of assertions and assumptions
   typedef std::vector<std::string> prop_t;
+  /// Type of a problem --- we  can handle multiple several problems (may not needed)
+  typedef struct {
+    std::string problem_name;
+    prop_t  assumptions;
+    prop_t  assertions;
+  } problem_t;
+  /// set of problems
+  typedef std::vector<problem_t> problemset_t;
 
 protected:
-  prop_t  assumptions;
-  prop_t  assertions;
+  problemset_t _ps;
 
 public:
+  void generate_to_file(std::ostream & os) const;
   
 
 }; // Cosa_problem
@@ -49,9 +60,20 @@ public:
       const VerilogGenerator::VlgGenConfig& config = VlgGenConfig() 
       );
 
+protected:
+  /// Cosa problem generate
+  Cosa_problem _problems;
+
+protected:
+  /// Add an assumption
+  virtual void add_an_assumption(const std::string & aspt) override;
+  /// Add an assertion
+  virtual void add_an_assertion (const std::string & asst) override;
+
 private:
   // It is okay to instantiation 
   virtual void do_not_instantiate(void) override {} ;
+
 
 }; // class VlgVerifTgtGenCosa  
 

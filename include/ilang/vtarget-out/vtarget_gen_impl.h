@@ -22,6 +22,7 @@
 #include <ilang/verilog-out/verilog_gen.h>
 #include <ilang/vtarget-out/vtarget_gen.h>
 #include <ilang/vtarget-out/interface_directive.h>
+#include <ilang/vtarget-out/var_extract.h>
 #include "nlohmann/json.hpp"
 #include <list>
 #include <map>
@@ -86,6 +87,8 @@ class VlgVerifTgtGen : public VlgVerifTgtGenBase {
     std::string                    _vlg_mod_inst_name; 
     /// The name of ila-verilog top module instance in the wrapper
     std::string                    _ila_mod_inst_name;
+    /// record all the referred vlg names, so you can add (*keep*) if needed
+    const std::vector<std::string> _all_referred_vlg_names
 
   protected:
     /// Generator for the wrapper module
@@ -99,6 +102,8 @@ class VlgVerifTgtGen : public VlgVerifTgtGenBase {
     IntefaceDirectiveRecorder _idr;
     /// state directive recorder
     StateMappingDirectiveRecorder _sdr;
+    /// variable extractor to handle property expressions
+    VarExtractor _vext;
 
     /// store the vmap info
     nlohmann::json rf_vmap;
@@ -114,11 +119,20 @@ class VlgVerifTgtGen : public VlgVerifTgtGenBase {
     bool in_bad_state(void) const { return _bad_state; }
 
   protected:
+    /// If it is bad state, return true and display a message
     bool bad_state_return(void); 
+    /// load json from a file name to the given j
     void load_json(const std::string & fname, json & j);
 
+    /// Return a new variable name for mapping
     std::string new_mapping_id();
+    /// Return a new variable name for property
     std::string new_property_id();
+
+    /// The way to add an assumption and assertion is tool-specific
+    virtual void add_an_assumption(const std::string & aspt) = 0;
+    /// The way to add an assumption and assertion is tool-specific
+    virtual void add_an_assertion (const std::string & asst) = 0;
 
   private:
     /// If it is in a bad state

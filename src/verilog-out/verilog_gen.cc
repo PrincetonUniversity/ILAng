@@ -170,6 +170,10 @@ void VerilogGeneratorBase::add_external_mem(const vlg_name_t& mem_name,
 }
 
 
+void VerilogGeneratorBase::add_preheader(const vlg_stmt_t & stmt) {
+  preheader += stmt;
+}
+
 void VerilogGeneratorBase::DumpToFile(std::ostream& fout) const {
   if (preheader != "") {
     fout << "/* PREHEADER */\n";
@@ -810,7 +814,7 @@ void VerilogGenerator::ExportFuncDefs() {
     funcModDef += ");\n";
     funcModDef += "//TODO: Add the specific function HERE.\n";
     funcModDef += "endmodule\n";
-    preheader += funcModDef;
+    add_preheader(funcModDef);
   }
 }
 

@@ -236,6 +236,8 @@ public:
   /// record an external memory
   void add_external_mem(const vlg_name_t& mem_name, int addr_width,
                         int data_width);
+  /// add an item to the preheader
+  void add_preheader(const vlg_stmt_t & stmt);
 public:
   // --------------------- CONSTRUCTOR ---------------------------- //
   /// \param[in] Configuration

@@ -47,7 +47,7 @@ namespace ilang {
 
   // [A-Za-z_][A-Za-z0-9\.]+ ==> state
   // ['0-9][A-Za-z0-9']+ ==> num
-  void VarExtractor::ParseToExtract(const std::string & in) {
+  void VarExtractor::ParseToExtract(const std::string & in, bool force_vlg_statename) {
     _tokens.clear();
     if ( in.empty() ) {
       ILA_ERROR << "Parsing an empty refinement string!";
@@ -82,9 +82,12 @@ namespace ilang {
           is_state = false;
           auto subs = in.substr(left, idx - left );
           token_type tp;
-          if(_is_ila_state(subs) )        tp = ILA_S;
-          else if (_is_vlg_state(subs) )  tp = VLG_S;
-          else                            tp = UNKN_S;
+          if(_is_ila_state(subs) && !force_vlg_statename )        
+            tp = ILA_S;
+          else if (_is_vlg_state(subs) )  
+            tp = VLG_S;  
+          else                            
+            tp = UNKN_S;
           _tokens.push_back( { tp , subs } ); 
           left = idx;
           if(is_num_new) 
@@ -118,9 +121,12 @@ namespace ilang {
         _tokens.push_back( { token_type::NUM , subs } );
       else if (is_state) {
         token_type tp;
-        if(_is_ila_state(subs) )        tp = ILA_S;
-        else if (_is_vlg_state(subs) )  tp = VLG_S;
-        else                            tp = UNKN_S;
+        if(_is_ila_state(subs) && !force_vlg_statename)       
+         tp = ILA_S;
+        else if (_is_vlg_state(subs) )  
+          tp = VLG_S;
+        else                            
+          tp = UNKN_S;
         _tokens.push_back( { tp , subs } ); 
       }
     }

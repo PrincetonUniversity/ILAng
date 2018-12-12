@@ -39,7 +39,9 @@ namespace ilang {
   _instr_ptr            (instr_ptr),
   vlg_wrapper(VerilogGenerator::VlgGenConfig(), "wrapper"),   // default option
   vlg_ila(VerilogGenerator::VlgGenConfig(vlg_gen_config, true, funcOption::External )  ), // configure is only for ila
-  vlg_info_ptr(NULL),
+  vlg_info_ptr(NULL), // not creating it now, because we don't have the info to do so
+  _vext( [this](const std::string &n) -> bool { return TryFindIlaState(n); } , 
+         [this](const std::string &n) -> bool { return TryFindVlgState(n); } ),
   _bad_state(false)
   {
     load_json(_rf_var_map_name, rf_vmap);
@@ -166,7 +168,7 @@ namespace ilang {
     auto cnt_width = (int) std::ceil( std::log2 ( max_bound + 10 ) );
     vlg_wrapper.add_reg("__CYCLE_CNT__", cnt_width); // by default it will be an output reg
     vlg_wrapper.add_always_stmt("if (rst) __CYCLE_CNT__ <= 0;")
-    vlg_wrapper.add_always_stmt("else if ( ( __ISSUE__ || __START__ || __STARTED__ ) &&  __CYCLE_CNT__ < " + IntToStr(MAX_CYCLE_CTR+5) + ") __CYCLE_CNT__ <= __CYCLE_CNT__ + 1;");
+    vlg_wrapper.add_always_stmt("else if ( ( __START__ || __STARTED__ ) &&  __CYCLE_CNT__ < " + IntToStr(MAX_CYCLE_CTR+5) + ") __CYCLE_CNT__ <= __CYCLE_CNT__ + 1;");
     
     vlg_wrapper.add_reg("__START__", 1);
     vlg_wrapper.add_always_stmt("if (rst) __START__ <= 0;");
@@ -176,6 +178,10 @@ namespace ilang {
     vlg_wrapper.add_reg("__STARTED__", 1);
     vlg_wrapper.add_always_stmt("if (rst) __STARTED__ <= 0;");
     vlg_wrapper.add_always_stmt("else if (__START__) __STARTED__ <= 1;"); // will never return to zero
+    
+    vlg_wrapper.add_reg("__ENDED__", 1);
+    vlg_wrapper.add_always_stmt("if (rst) __ENDED__ <= 0;");
+    vlg_wrapper.add_always_stmt("else if (__IEND__) __ENDED__ <= 1;"); // will never return to zero
 
     vlg_wrapper.add_reg("__RESETED__", 1);
     vlg_wrapper.add_always_stmt("if (rst) __RESETED__ <= 1;");
@@ -183,16 +189,61 @@ namespace ilang {
     .. // remember to generate
     // __RESETED__
     // __ISSUE__ == start condition 
-    // __IEND__ == end condition
-    // __ENDFLUSH__ 
-    // flush : !( __ISSUE__ || __START__ || __STARTED__ ) |-> flush 
+    // __IEND__ == ( end condition ) &&  STARTED
+    // __ENDFLUSH__ == (end flush condition ) && ENDED
+    // flush : !( __ISSUE__ ? || __START__ || __STARTED__ ) |-> flush 
   }
 
-  void VlgVerifTgtGen::AddAssumptions(void) {
-
+  void VlgVerifTgtGen::GenerateHeader() {
+    vlg_wrapper->add_preheader("\n`define \"true\"  1\n");
   }
 
-  void VlgVerifTgtGen::AddAssertions(void) {
+  void VlgVerifTgtGen::AddVarMapAssumptions() {
+    std::set<std::string> ila_state_names;
+
+    for ( size_t state_idx = 0; state_idx < instr_ptr->host()->state_num() ; ++ state_idx )
+      ila_state_names.insert( instr_ptr->host()->state(state_idx)->name().str() );
+
+    for ( auto & i : rf_vmap ) {
+      auto sname = i.key().get<std::string>();
+      if( not IN(sname, ila_state_names) )  {
+        ILA_ERROR << sname << " is not a state of the ILA:" << instr_ptr->host()->name().str();
+        continue;
+      }
+      ila_state_names.erase(sname);
+      // ISSUE ==> vmap
+      add_an_assumption( "~ __START__ || " +"(" + GetStateVarMapExpr(sname, i.value()) +")" );
+    }
+  }
+
+  void VlgVerifTgtGen::AddVarMapAssertions(bool has_flush) {
+    std::set<std::string> ila_state_names;
+
+    for ( size_t state_idx = 0; state_idx < instr_ptr->host()->state_num() ; ++ state_idx )
+      ila_state_names.insert( instr_ptr->host()->state(state_idx)->name().str() );
+
+    for ( auto & i : rf_vmap ) {
+      auto sname = i.key().get<std::string>();
+      if( not IN(sname, ila_state_names) )  {
+        ILA_ERROR << sname << " is not a state of the ILA:" << instr_ptr->host()->name().str();
+        continue;
+      }
+      ila_state_names.erase(sname);
+      // ISSUE ==> vmap
+      auto precondition = has_flush ? "~ __ENDFLUSH__ || " : "~ __IEND__ || " ;
+      add_an_assumption(  +"(" + GetStateVarMapExpr(sname, i.value()) +")" );
+    }
+  }
+
+
+  void VlgVerifTgtGen::AddInvAssumptions(void) {
+    if ()
+    if ( not rf_cond["global invariants"] or not rf_cond["global invariants"].is_array() ) {
+      ILA_ERROR << ""
+    }
+  }
+
+  void VlgVerifTgtGen::AddInvAssertions(void) {
     
   }
 
@@ -206,6 +257,8 @@ namespace ilang {
 
   void VlgVerifTgtGen::ConstructWrapper(void) {
 
+    // 0. The headers you may need to have
+    GenerateHeader();
 
     // 1. add input
     vlg_wrapper.add_input ("nondet_start", 1);
