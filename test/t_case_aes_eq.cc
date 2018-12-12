@@ -78,6 +78,7 @@ TEST(TestCase, AES_V_C_EQ) {
   auto DefaultRefinement = [=](InstrLvlAbsPtr ila, InstrPtr target_instr) {
     // target
     auto ref = RefinementMap::New();
+    // ref->set_tgt(ila); // FIXME
     ref->set_tgt(target_instr);
 
     // apply
