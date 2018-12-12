@@ -33,8 +33,8 @@ matrix:
         - brew install bison
         - export PATH="/usr/local/opt/bison/bin:$PATH"
         - export LDFLAGS="-L/usr/local/opt/bison/lib"
-        - brew install boost-python --with-python
-        #- export BOOST_ROOT="/usr/local/Cellar/boost/1.68.0"
+        - brew install boost-python
+        - export BOOST_ROOT="/usr/local/Cellar/boost/1.68.0"
 
 sudo: required
 
@@ -71,7 +71,7 @@ install:
 script:
   - mkdir -p $TRAVIS_BUILD_DIR/build
   - cd $TRAVIS_BUILD_DIR/build
-  #- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then cmake .. -DBOOST_ROOT=$BOOST_ROOT ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then cmake .. -DBOOST_ROOT=$BOOST_ROOT ; fi
   - cmake .. -DILANG_BUILD_COV=ON -DCMAKE_BUILD_TYPE=Debug
   - make 
   - sudo make install
