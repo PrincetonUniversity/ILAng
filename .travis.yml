@@ -29,8 +29,8 @@ git:
 
 before_install:
   - gem install coveralls-lcov
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install bison ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew link bison --force ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then sudo brew install bison ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then sudo brew link bison --force ; fi
 
 addons:
   apt:
