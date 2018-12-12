@@ -1,24 +1,3 @@
-language: cpp
-
-matrix:
-  include:
-    - name: "linux-gcc"
-      os: linux
-      dist: xenial
-      compiler: gcc
-    - name: "linux-clang"
-      os: linux
-      dist: xenial
-      compiler: clang
-    - name: "osx-gcc"
-      os: osx
-      compiler: gcc
-    - name: "osx-clang"
-      os: osx
-      compiler: clang
-
-sudo: required
-
 branches:
   only:
     - master
@@ -27,11 +6,39 @@ branches:
 git:
   submodules: false
 
-before_install:
-  - gem install coveralls-lcov
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install bison ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export PATH="/usr/local/opt/bison/bin:$PATH" ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export LDFLAGS="-L/usr/local/opt/bison/lib" ; fi
+language: cpp
+
+matrix:
+  include:
+    - name: "linux-gcc"
+      os: linux
+      dist: xenial
+      compiler: gcc
+      before_install:
+        - gem install coveralls-lcov
+      before_script:
+        - mkdir -p $TRAVIS_BUILD_DIR/build 
+        - source $TRAVIS_BUILD_DIR/scripts/clean-coverage.sh $TRAVIS_BUILD_DIR/build
+      after_success:
+        - source $TRAVIS_BUILD_DIR/scripts/submit-coverage.sh $TRAVIS_BUILD_DIR/build
+
+    - name: "linux-clang"
+      os: linux
+      dist: xenial
+      compiler: clang
+
+    - os: osx
+      compiler: 
+        - gcc
+        - clang
+      before_install:
+        - brew install bison
+        - export PATH="/usr/local/opt/bison/bin:$PATH"
+        - export LDFLAGS="-L/usr/local/opt/bison/lib"
+        - brew install boost --with-python
+        - brew install boost-python
+
+sudo: required
 
 addons:
   apt:
@@ -45,8 +52,6 @@ addons:
     update: true
     packages:
       - flex
-      - boost
-      - boost-python
 
 install: 
   - export PARENT_DIR=$TRAVIS_BUILD_DIR/../
@@ -64,13 +69,8 @@ install:
   - make && sudo make install
   - z3 --version
 
-before_script:
-  - chmod ugo+x $TRAVIS_BUILD_DIR/scripts/clean-coverage.sh
-  - chmod ugo+x $TRAVIS_BUILD_DIR/scripts/submit-coverage.sh
-  - mkdir -p $TRAVIS_BUILD_DIR/build
-  - if [[ "$TRAVIS_JOB_NAME" == "linux-gcc" ]]; then source $TRAVIS_BUILD_DIR/scripts/clean-coverage.sh $TRAVIS_BUILD_DIR/build ; fi
-
 script:
+  - mkdir -p $TRAVIS_BUILD_DIR/build
   - cd $TRAVIS_BUILD_DIR/build
   - cmake .. -DILANG_BUILD_COV=ON -DCMAKE_BUILD_TYPE=Debug
   - make 
@@ -78,9 +78,5 @@ script:
   - make run_test
   - ctest -R ExampleCMakeBuild
 
-after_success:
-  - if [[ "$TRAVIS_JOB_NAME" == "linux-gcc" ]]; then source $TRAVIS_BUILD_DIR/scripts/submit-coverage.sh $TRAVIS_BUILD_DIR/build ; fi
-
 notifications:
     email: false
-
