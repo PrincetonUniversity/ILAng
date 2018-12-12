@@ -4,6 +4,7 @@
 #include "unit-include/config.h"
 #include "unit-include/util.h"
 #include <ilang/synth-interface/synth_engine_interface.h>
+#include <ilang/verification/abs_knob.h>
 #include <ilang/verification/eq_check_crr.h>
 #include <z3++.h>
 
@@ -60,8 +61,7 @@ TEST(TestCase, AES_V_C_EQ) {
   ILA_DLOG("CaseAesEq") << "Found " << start_v << " for " << m_v;
   ILA_DLOG("CaseAesEq") << "Found " << start_c << " for " << m_c;
 
-  // define refinement relation
-
+  // relation (state mapping)
   auto relation = RelationMap::New();
   for (auto i = 0; i < u_v->state_num(); i++) {
     auto var_v = u_v->state(i);
@@ -74,7 +74,45 @@ TEST(TestCase, AES_V_C_EQ) {
     }
   }
 
+  // refinement mapping
+  auto DefaultRefinement = [=](InstrLvlAbsPtr ila, InstrPtr target_instr) {
+    // target
+    auto ref = RefinementMap::New();
+    ref->set_tgt(target_instr);
+
+    // apply
+    ref->set_appl(target_instr->decode());
+
+    // flush
+    auto has_instr = ExprFuse::BoolConst(false);
+    for (auto i = 0; i < ila->instr_num(); i++) {
+      has_instr = ExprFuse::Or(has_instr, ila->instr(i)->decode());
+    }
+    ref->set_flush(ExprFuse::Not(has_instr));
+
+    // ready
+    auto instrs = AbsKnob::GetInstrTree(ila);
+    auto ready = ExprFuse::BoolConst(true);
+    for (auto it = instrs.begin(); it != instrs.end(); it++) {
+      auto instr = *it;
+      ready = ExprFuse::And(ready, ExprFuse::Not(instr->decode()));
+    }
+    ref->set_cmpl(ready);
+
+    return ref;
+  };
+
+  auto refinement_v = DefaultRefinement(m_v, start_v);
+  auto refinement_c = DefaultRefinement(m_c, start_c);
+
+  // invariant TODO
+
   // check
+  auto crr = CompRefRel::New(refinement_v, refinement_c, relation);
+  z3::context ctx;
+  auto cd = CommDiag(ctx, crr);
+
+  cd.IncCheck(10, 50, 50);
 
   SetToStdErr(0);
   DebugLog::Disable("CaseAesEq");
