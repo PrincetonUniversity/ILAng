@@ -38,9 +38,9 @@ struct VlgAbsMem {
 
   // ---------------------- MEMBERS --------------- //
   /// read ports
-  std::vector<rport_t> rports;
+  std::map<unsigned,rport_t> rports;
   /// write ports
-  std::vector<wport_t> wports;
+  std::map<unsigned,wport_t> wports;
 
   /// how many are considered to be concrete
   unsigned concrete_level; 
@@ -78,6 +78,9 @@ public:
   /// ILA input compatible checker type
   typedef std::function<bool(const std::string &, const SignalInfoBase & )>
     ila_input_checker_t;
+  /// Type of call back function to find information about a memory
+  typedef std::function<std::pair<unsigned,unsigned>(const std::string &)>
+    ila_mem_checker_t;
   
 public:
   /// Return if a string 'c' begins with string 's'
@@ -99,7 +102,16 @@ public:
   /// Used to tell this module about the refinement relations
   void RegisterInterface(const SignalInfoBase & vlg_sig, 
     const std::string & refstr,
-    ila_input_checker_t chk);
+    ila_input_checker_t chk,
+    ila_mem_checker_t   mget);
+  
+protected:
+  /// a sanity check for module instantiation string gen
+  void ModuleInstSanityCheck() const;
+  /// a shortcut to connect module and add wire
+  void ConnectModuleInputAddWire(const std::string & short_name, unsigned width);
+  /// a shortcut to connect module and add wire
+  void ConnectModuleOutputAddWire(const std::string & short_name, unsigned width);
 
 protected:
   mod_inst_rec_t mod_inst_rec;

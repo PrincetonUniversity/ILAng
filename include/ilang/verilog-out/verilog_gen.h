@@ -191,12 +191,15 @@ protected:
   /// if the exprptr contains some meaning in its name, will try to incorporate
   /// that to the name;
   vlg_name_t new_id(const ExprPtr& e);
+  
+public:
   /// sanitize a name string, so it will generate illegal verilog identifier
-  vlg_name_t sanitizeName(const vlg_name_t& n);
+  static vlg_name_t sanitizeName(const vlg_name_t& n);
   /// sanitize the name of an expr, so it will generate illegal verilog
   /// identifier
-  vlg_name_t sanitizeName(const ExprPtr& n);
-
+  static vlg_name_t sanitizeName(const ExprPtr& n);
+  
+protected:
   /// The id counter
   unsigned idCounter;
   /// The configuration

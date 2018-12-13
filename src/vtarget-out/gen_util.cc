@@ -31,6 +31,15 @@ const ExprPtr VlgVerifTgtGen::IlaGetInput(const std::string &sname) {
   return ptr;
 }
 
+std::pair<unsigned,unsigned> VlgVerifTgtGen::GetMemInfo( const std::string &ila_mem_name ) {
+  auto ptr_ =  _instr_ptr->host()->state(ila_mem_name);
+  if( ptr_ == nullptr  ) 
+    return std::pair<unsigned,unsigned> ({0,0});
+  if( ! ptr_->sort()->is_mem() ) 
+    return std::pair<unsigned,unsigned> ({0,0});
+  return std::pair<unsigned,unsigned> ({ ptr_->sort()->addr_width() , ptr_->sort()->data_width() });
+}
+
 
 bool VlgVerifTgtGen::TryFindIlaState(const std::string &sname) {
   if (_instr_ptr->host()->state(sname) ) return true;
@@ -182,11 +191,14 @@ std::string VlgVerifTgtGen::PerStateMap(const std::string & ila_state_name_or_eq
   return map_sig;
 } // PerStateMap
 
+// ila-state -> ref (json)
 // return a verilog verilog, that should be asserted to be true for this purpose
 std::string VlgVerifTgtGen::GetStateVarMapExpr(const std::string & ila_state_name, nlohmann::json & m) {
   if( m.is_string() ) {
     if ( _sdr.isSpecialStateDir() ) {
-      ILA_ASSERT(false) <<"FIXME: not implemented."; .. 
+      ILA_DLOG("VlgVerifTgtGen.GetStateVarMapExpr") <<"map mem:" << ila_state_name; 
+      return ;
+      // return ; // **MEM** should be fine
     } else { 
       // return the mapping variable 
       return PerStateMap(ila_state_name, m.get<std::string>());

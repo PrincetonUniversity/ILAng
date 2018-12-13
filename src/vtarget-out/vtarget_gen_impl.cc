@@ -120,49 +120,12 @@ namespace ilang {
       _idr.RegisterInterface( name_siginfo_pair.second, refstr,
         // Verifier_compatible_w_ila_input
         [this] (const std::string &ila_name, const SignalInfoBase & vlg_sig_info) -> bool {
-            return TypeMatched(IlaGetInput(ila_name), vlg_sig_info) != 0; }
-         );
+          return TypeMatched(IlaGetInput(ila_name), vlg_sig_info) != 0; } ,
+        // Verifier_get_ila_mem_info
+        [this] (const std::string &ila_mem_name) -> std::pair<unsigned,unsigned> {
+          return GetMemInfo(ila_mem_name);  }
+         ); // end of function call: RegisterInterface
     }
-
-    // for all verilog input, find in rfmap
-      auto & short_name = name_siginfo_pair.first.get_signal_name(); // short name
-      auto & vlg_sig_info = name_siginfo_pair.second;
-      //auto & long_name  = name_siginfo_pair.first.get_hierarchical_name();  // no using it
-      // try short name and warn if it is not specified
-      if( not IN(short_name, io_map) ) 
-      ILA_WARN_IF ( ! IN(short_name, io_map))  << "Verilog input:"<<short_name << " is not mentioned in the input mapping";
-
-      // Check if directive is compatible w read io
-      if ( IN(short_name,io_map) && _idr.isSpecialInputDir(io_map[short_name]) ) 
-        ILA_ERROR_IF( ! _idr.isSpecialInputDirCompatibleWith(io_map[short_name], vlg_sig_info )) << short_name << " in refinement does not match the verilog interface.";
-
-      // check if it is I/O, add wires
-      if(vlg_sig_info.is_input()) {
-
-        if ( IN(short_name,io_map) && !_idr.isSpecialInputDir(io_map[short_name]) ) {
-          // check for ila compatibility
-          ILA_ERROR_IF( TypeMatched(IlaGetInput(io_map[short_name]), vlg_sig_info) == 0 ) << "Verilog input:"<< short_name << " is not compatible with ILA input:"<< io_map[short_name];
-          continue; // do nothing if you are going to connect something to this input
-        }
-        
-        // if it is memory data input, feed from memory, not outside
-        if ( IN(short_name,io_map) && _idr.isSpecialInputDir(io_map[short_name]) && ! _idr.interfaceDeclareTop(io_map[short_name]) ) {
-          vlg_wrapper.add_wire (short_name, vlg_sig_info.get_width(), true ); // keep added 
-          continue; // do not add input
-        }
-        vlg_wrapper.add_wire (short_name, vlg_sig_info.get_width(), false ); 
-        vlg_wrapper.add_input(short_name, vlg_sig_info.get_width() );
-      } else if(vlg_sig_info.is_output()) {
-        ILA_ERROR_IF(  IN(short_name,io_map) && ! _idr.isSpecialInputDir(io_map[short_name]) ) << "Verilog output:" << short_name << " cannot be mapped, treated as **KEEP**";
-
-        // if it is memory data output, address, enable and etc. we don't need to make them wrapper output?
-        if ( IN(short_name,io_map) && _idr.isSpecialInputDir(io_map[short_name]) && ! _idr.interfaceDeclareTop(io_map[short_name]) ) {
-          vlg_wrapper.add_wire (short_name, get_width() , true); continue; // do not add input
-        }
-        vlg_wrapper.add_wire (short_name, get_width() , false); // remember to connect later
-        vlg_wrapper.add_output(short_name, get_width() );
-      } else { ILA_WARN<<short_name<<" is not handled by ConstructWrapper_add_vlg_input_output: unknown IO";  }
-    } // for(auto && name_siginfo_pair : vlg_inputs)
   } // ConstructWrapper_wrapper_addinput
 
   void VlgVerifTgtGen::AddCycleCountMoniter() {
