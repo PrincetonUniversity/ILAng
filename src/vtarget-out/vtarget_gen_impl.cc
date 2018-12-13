@@ -38,7 +38,7 @@ namespace ilang {
   _output_path          (output_path),
   _instr_ptr            (instr_ptr),
   vlg_wrapper(VerilogGenerator::VlgGenConfig(), "wrapper"),   // default option
-  vlg_ila(VerilogGenerator::VlgGenConfig(vlg_gen_config, true, funcOption::External )  ), // configure is only for ila
+  vlg_ila(VerilogGenerator::VlgGenConfig(vlg_gen_config, true, funcOption::External, true )  ), // configure is only for ila
   vlg_info_ptr(NULL), // not creating it now, because we don't have the info to do so
   _vext( [this](const std::string &n) -> bool { return TryFindIlaState(n); } , 
          [this](const std::string &n) -> bool { return TryFindVlgState(n); } ),

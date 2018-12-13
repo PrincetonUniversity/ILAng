@@ -24,12 +24,15 @@ namespace ilang {
 
 typedef ExprHash VerilogGenHash;
 class VlgVerifTgtGen;
+class IntefaceDirectiveRecorder;
 
 /// \brief Base class of VerilogGenerator
 class VerilogGeneratorBase {
   // --------------------- TYPE DEFINITIONS ---------------------------- //
   /// let VlgVerifTgtGen use this module to generate the wrapper module
   friend class VlgVerifTgtGen;
+  /// let IntefaceDirectiveRecorder use this module to generate the wrapper module
+  friend class IntefaceDirectiveRecorder;
   /// Type of Verilog id names
   typedef std::string vlg_name_t;
   /// Type of Verilog statement
@@ -46,6 +49,8 @@ class VerilogGeneratorBase {
   typedef std::pair<vlg_name_t, int> vlg_sig_t;
   /// Type of Verilog signals (a vector)
   typedef std::vector<vlg_sig_t> vlg_sigs_t;
+  /// Type of Verilog signals (a vector)
+  typedef std::map<vlg_name_t, int> vlg_sigs_map_t;
   /// Type of a map: name -> need to add keep?
   typedef std::map<vlg_name_t, bool> vlg_sig_keep_t;
   /// Type of set of Verilog signals
@@ -86,14 +91,23 @@ public:
     bool extMem;
     /// whether to treat function as internal module/external module
     enum funcOption { Internal, External } fcOpt;
+    /// whether to have the start signal
+    bool start_signal;
+    
     /// Constructor, set default value, ExternalMem : false, function: internal
     /// module
     VlgGenConfig( // provide the default settings
-        bool ExternalMem = false, funcOption funcOpt = funcOption::Internal)
-        : extMem(ExternalMem), fcOpt(funcOpt) {}
+        bool ExternalMem = false, funcOption funcOpt = funcOption::Internal,
+        bool gen_start = false )
+        : extMem(ExternalMem), fcOpt(funcOpt), start_signal(gen_start) {}
     /// Overwrite configuration, used by vtarget gen
-    VlgGenConfig(const VlgGenConfig && c, bool ExternalMem, funcOption funcOpt ):
-        : extMem(ExternalMem), fcOpt(funcOpt) {} // set other fields if there are
+    VlgGenConfig(
+        const VlgGenConfig && c, 
+        bool ExternalMem, 
+        funcOption funcOpt,
+        bool gen_start ):
+        : extMem(ExternalMem), fcOpt(funcOpt), start_signal(gen_start) {} 
+        // set other fields if there are such need (?)
   };
 
 
@@ -124,6 +138,8 @@ protected:
   /// Output signals that allows to determine if an instruction's valid is true,
   /// not need for width
   vlg_name_t validName;
+  /// start signal name, may not be used
+  vlg_name_t startName;
   /// An input, that can be used to control which instruction you would like to
   /// execute if more than one is ready you can assume in JasperGold that:
   /// $onehot(grant) && ( grant & decodeAccName == grant ) to enforce that: you
@@ -135,15 +151,15 @@ protected:
   /// The name of internal counter
   vlg_name_t counterName;
   /// vector of input signals
-  vlg_sigs_t inputs;
+  vlg_sigs_map_t inputs;
   /// vector of output signals
-  vlg_sigs_t outputs;
+  vlg_sigs_map_t outputs;
   /// vector of memory input signals
   vlg_sigs_t mem_i;
   /// vector of memory output signals
   vlg_sigs_t mem_o;
   /// vector of wires to be defined
-  vlg_sigs_t wires;
+  vlg_sigs_map_t wires;
   /// a map to store if a wire needs to keep
   vlg_sig_keep_t wires_keep;
   /// vector of regs to be defined
@@ -307,7 +323,7 @@ public:
   using VlgGenConfig = VerilogGeneratorBase::VlgGenConfig;
 
 private:
-
+  
   // --------------------- HELPER FUNCTIONS ---------------------------- //
   /// handle a input variable (memvar/bool/bv)
   void insertInput(const ExprPtr& input);

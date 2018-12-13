@@ -17,12 +17,24 @@ VerilogGeneratorBase::VerilogGeneratorBase
          const std::string& clk,
          const std::string& rst)
     : moduleName(modName), clkName(clk), rstName(rst), idCounter(0),
-      cfg_(config) {}
+      cfg_(config) {
+      
+    // clk, rst
+    add_wire(clkName, 1);
+    add_input(clkName, 1);
+    add_wire(rstName, 1);
+    add_input(rstName, 1);
+    if(cfg_.start_signal) {
+      startName = "__START__";
+      add_wire(startName, 1);
+      add_input(startName, 1);
+    }
+}
 
 /// Check if a name is reserved (clk/rst/moduleName/decodeNames/ctrName)
 bool VerilogGeneratorBase::check_reserved_name(const vlg_name_t& n) const {
   if (n == moduleName || n == clkName || n == rstName || n == validName ||
-      n == counterName)
+      n == counterName || n == startName)
     return false;
   for (auto&& sig : decodeNames) {
     if (sig == n)
@@ -120,13 +132,31 @@ VerilogGeneratorBase::vlg_name_t VerilogGeneratorBase::new_id(const ExprPtr& e) 
 //--------------------------------------------------------------------------
 
 void VerilogGenerator::add_input(const vlg_name_t& n, int w) {
-  inputs.push_back(vlg_sig_t(n, w));
+  if( inputs.find(n) != inputs.end() ) {
+    ILA_ASSERT( inputs[n] == w ) 
+      << "Implementation bug: redeclare of " << n 
+      << " width:" << w <<" old:" <<  inputs[n];
+    ILA_WARN << "Redeclaration of " << n << ", ignored.";
+  }
+  inputs.insert({n, w});
 }
 void VerilogGeneratorBase::add_output(const vlg_name_t& n, int w) {
-  outputs.push_back(vlg_sig_t(n, w));
+  if( outputs.find(n) != outputs.end() ) {
+    ILA_ASSERT( outputs[n] == w ) 
+      << "Implementation bug: redeclare of " << n 
+      << " width:" << w <<" old:" <<  outputs[n];
+    ILA_WARN << "Redeclaration of " << n << ", ignored.";
+  }
+  outputs.insert({n, w});
 }
 void VerilogGeneratorBase::add_wire(const vlg_name_t& n, int w , bool keep) {
-  wires.push_back(vlg_sig_t(n, w));
+  if( wires.find(n) != wires.end() ) {
+    ILA_ASSERT( wires[n] == w ) 
+      << "Implementation bug: redeclare of " << n 
+      << " width:" << w <<" old:" <<  wires[n];
+    ILA_WARN << "Redeclaration of " << n << ", ignored.";
+  }
+  wires.insert({n, w});
   if (keep) wires_keep.insert( {n, true} );
 }
 void VerilogGeneratorBase::add_reg(const vlg_name_t& n, int w) {
@@ -240,7 +270,13 @@ void VerilogGeneratorBase::DumpToFile(std::ostream& fout) const {
     fout << "       " << stmt << "\n";
   //
   fout << "   end\n";
-  fout << "   else if(" << validName << ") begin\n";
+  
+  // whether to use start to control it
+  if (cfg_.start_signal)
+    fout << "   else if(" << validName << ") begin\n";
+  else
+    fout << "   else if(" << startName <<  " && " << validName << ") begin\n";
+  
   for (auto const& stmt : always_stmts)
     fout << "       " << stmt << "\n";
   // we don't require ite statement has that
@@ -271,8 +307,9 @@ void VerilogGeneratorBase::DumpToFile(std::ostream& fout) const {
 VerilogGenerator::VerilogGenerator(const VlgGenConfig& config,
                                    const std::string& modName,
                                    const std::string& clk,
-                                   const std::string& rst)
-    : VerilogGeneratorBase(config, modName, clk, rst) {}
+                                   const std::string& rst,
+                                   bool gen_step)
+    : VerilogGeneratorBase(config, modName, clk, rst), gen_step_signal(gen_step) {}
 
 
 void VerilogGenerator::insertInput(const ExprPtr& input) {
@@ -935,11 +972,6 @@ void VerilogGenerator::ExportIla(const InstrLvlAbsPtr& ila_ptr_) {
   // States
   for (size_t idx = 0; idx != ila_ptr_->state_num(); ++idx)
     insertState(ila_ptr_->state(idx));
-  // clk, rst
-  add_wire(clkName, 1);
-  add_input(clkName, 1);
-  add_wire(rstName, 1);
-  add_input(rstName, 1);
 
   // add valid signal
   auto valid_ptr = ila_ptr_->valid();
@@ -1070,11 +1102,7 @@ void VerilogGenerator::ExportTopLevelInstr(const InstrPtr& instr_ptr_) {
   // States
   for (size_t idx = 0; idx != ila_ptr_->state_num(); ++idx)
     insertState(ila_ptr_->state(idx));
-  // clk, rst
-  add_wire(clkName, 1);
-  add_input(clkName, 1);
-  add_wire(rstName, 1);
-  add_input(rstName, 1);
+  // clk, rst -- done in the beginning
 
   // add valid signal
   auto valid_ptr = ila_ptr_->valid();

@@ -96,7 +96,7 @@ public:
   /// clear all internal storage
   void Clear();
   /// Return a string used for instantiating
-  std::string GetVlgModInstString(void) const;
+  std::string GetVlgModInstString(VerilogGeneratorBase & gen) const;
   /// Add signals to the wrapper_generator
   void VlgAddTopInteface(VerilogGeneratorBase & gen) const;
   /// Used to tell this module about the refinement relations
@@ -104,9 +104,9 @@ public:
     const std::string & refstr,
     ila_input_checker_t chk,
     ila_mem_checker_t   mget);
-  
+
 protected:
-  /// a sanity check for module instantiation string gen
+  /// a sanity check for module instantiation string gen, check if all the vlg module i/o has been declared correctly.
   void ModuleInstSanityCheck() const;
   /// a shortcut to connect module and add wire
   void ConnectModuleInputAddWire(const std::string & short_name, unsigned width);
@@ -114,16 +114,18 @@ protected:
   void ConnectModuleOutputAddWire(const std::string & short_name, unsigned width);
 
 protected:
+  /// a map of port-name -> (tp, signal name)
   mod_inst_rec_t mod_inst_rec;
   // a wire will not appear in two or more of the category
+  /// wires to be declared as input and wire
   vlg_sig_vec_t  input_wires;
+  /// wires to be declared as output and wire
   vlg_sig_vec_t  output_wires
+  /// wires to be declared as just wire
   vlg_sig_vec_t  internal_wires;
   /// ila-mem-name -> abs
   std::map< std::string, VlgAbsMem> abs_mems;
-
-  // check if all the vlg module i/o has been declared correctly.
-
+  
 }; // class IntefaceDirectiveRecorder
 
 
@@ -131,8 +133,11 @@ protected:
 **MEM**.?
 */
 
+/// \brief a class to handle state mapping directives in the refinement relations
 class StateMappingDirectiveRecorder {
 public:
+  // ------------------------------ HELPER ------------------------------------//
+  /// a function to determine if a state map refstr is special directie (**???)
   static bool isSpecialStateDir(const std::string & c);
 
 }; // class StateMappingDirectiveRecorder

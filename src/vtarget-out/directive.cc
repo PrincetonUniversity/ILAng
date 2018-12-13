@@ -80,40 +80,55 @@ namespace ilang {
 
 
   /// Return a string used for instantiating
-  std::string IntefaceDirectiveRecorder::GetVlgModInstString(void) const {
-    ModuleInstSanityCheck(); // make sure we didn't miss any wire
+  std::string IntefaceDirectiveRecorder::GetVlgModInstString(VerilogGeneratorBase & gen) const {
+    ModuleInstSanityCheck(gen); // make sure we didn't miss any wire
+    std::string retStr;
+    std::string sep;
+    for (auto && signal_conn_pair : mod_inst_rec) { 
+      const auto & signal_name = signal_conn_pair.first;
+      const auto & conn_tp = signal_conn_pair.second.first;
+      const auto & the_wire_connected_to_the_port = signal_conn_pair.second.second;
 
-  }
+      retStr += sep + "    ." + signal_name + "(" + the_wire_connected_to_the_port + ")";
+      sep = ",\n"
+    }
+    retStr += "\n";
+    return retStr;
+  } // you can append after it
+
+
   /// Add signals to the wrapper_generator
   void IntefaceDirectiveRecorder::VlgAddTopInteface(VerilogGeneratorBase & gen) const {
-    for()
+    for( auto && w : output_wires) {
+      gen.add_output(w.first,w.second);
+      gen.add_wire  (w.first,w.second);
+    }
+    for( auto && w : input_wires) {
+      gen.add_input (w.first,w.second);
+      gen.add_wire  (w.first,w.second);
+    }
+    for( auto && w: internal_wires) {
+      gen.add_wire  (w.first,w.second);
+    }
   }
   
-  void IntefaceDirectiveRecorder::ModuleInstSanityCheck() const {
+  void IntefaceDirectiveRecorder::ModuleInstSanityCheck(VerilogGeneratorBase & gen) const {
     for (auto && signal_conn_pair : mod_inst_rec) {
       const auto & conn_tp = signal_conn_pair.second.first;
       const auto & the_wire_connected_to_the_port = signal_conn_pair.second.second;
-      if (conn_tp == inf_dir_t::NC || conn_tp == inf_dir_t::CLOCK || conn_tp == inf_dir_t::RESET )
+      if (conn_tp == inf_dir_t::NC )
         continue ; // no need to check them, will be declared 
-      bool found = false;
-      if(!found)
-        for( auto && w : output_wires ) 
-          if( w.first == the_wire_connected_to_the_port ) 
-            { found = true; break; }
-      if(!found)
-        for( auto && w : input_wires ) 
-          if( w.first == the_wire_connected_to_the_port ) 
-            { found = true; break; }
-      if(!found)
-        for( auto && w : internal_wires ) 
-          if( w.first == the_wire_connected_to_the_port ) 
-            { found = true; break; }
+      
+      for( auto && w : gen.wires ) 
+        if( w.first == the_wire_connected_to_the_port ) 
+          continue;
+
       ILA_ASSERT(found) << "Connecting signal: "<< the_wire_connected_to_the_port 
         << " tp: " << conn_tp << " is not declared. Implementation bug!";
     }
   }
 
-  /// Used to tell this module about the refinement relations , ... , ila interface checker?
+  /// Used to tell this module about the refinement relations ,  , ila interface checker?
   void IntefaceDirectiveRecorder::RegisterInterface(
     const SignalInfoBase & vlg_sig, 
     const std::string & refstr,
@@ -242,8 +257,9 @@ namespace ilang {
       ILA_ERROR_IF( not chk(refstr, vlg_sig) ) 
         << "Uncompatible input refinement:" 
         << refstr << "for " << short_name
-        << ". Connect anyway. Please check."
-      ConnectModuleInputAddWire( "__ILA_I_" + refstr, width);
+        << ". Connect anyway. Please check.";
+
+      mod_inst_rec.insert( {short_name, { inf_dir_t::INPUT , "__ILA_I_" + refstr } } );
     }
     if(is_output) {
       ILA_ERROR << "Cannot map output signals to ILA input for :" << refstr << ", left unconnected.";
