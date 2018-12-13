@@ -33,6 +33,24 @@ class VerilogGeneratorBase {
   friend class VlgVerifTgtGen;
   /// let IntefaceDirectiveRecorder use this module to generate the wrapper module
   friend class IntefaceDirectiveRecorder;
+  /// type of read port
+  typedef struct  {
+    /// what to connect for raddr
+    std::string raddr; 
+    /// what to connect for rdata
+    std::string rdata;
+    /// what to connect for ren
+    std::string ren;
+  } rport_t;
+  /// type of write port
+  typedef struct  {
+    /// what to connect for waddr
+    std::string waddr;
+    /// what to connect for wdata
+    std::string wdata;
+    /// what to connect for wen
+    std::string wen;
+  } wport_t;
   /// Type of Verilog id names
   typedef std::string vlg_name_t;
   /// Type of Verilog statement
@@ -194,6 +212,11 @@ protected:
 
   /// to hold all valid names, a sanity check
   vlg_sigs_set_t all_valid_names;
+  /// To record which mem interface signal correspond to what...
+  /// ila read ports
+  std::map<std::string,std::map<unsigned,rport_t> > ila_rports;
+  /// ila write ports
+  std::map<std::string,std::map<unsigned,wport_t> > ila_wports;
 
   // --------------------- HELPER FUNCTIONS ---------------------------- //
   /// Check if a name is reserved (clk/rst/modulename/decodeName/ctrName)

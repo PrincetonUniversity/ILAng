@@ -37,10 +37,14 @@ struct VlgAbsMem {
   } wport_t;
 
   // ---------------------- MEMBERS --------------- //
-  /// read ports
-  std::map<unsigned,rport_t> rports;
-  /// write ports
-  std::map<unsigned,wport_t> wports;
+  /// verilog read ports
+  std::map<unsigned,rport_t> vlg_rports;
+  /// verilog write ports
+  std::map<unsigned,wport_t> vlg_wports;
+  /// ila read ports
+  std::map<unsigned,rport_t> ila_rports;
+  /// ila write ports
+  std::map<unsigned,wport_t> ila_wports;
 
   /// how many are considered to be concrete
   unsigned concrete_level; 
@@ -125,7 +129,7 @@ protected:
   vlg_sig_vec_t  internal_wires;
   /// ila-mem-name -> abs
   std::map< std::string, VlgAbsMem> abs_mems;
-  
+
 }; // class IntefaceDirectiveRecorder
 
 

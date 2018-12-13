@@ -224,17 +224,17 @@ namespace ilang {
         } while(0);
 
         if(port_name == "rdata") {
-          ADD_PORT_WIRE( "rdata" , data_w, "Data" , "data", is_input, abs_mems[ila_mem_name].rports[port_no].rdata,  inf_dir_t::MEM_R_D );
+          ADD_PORT_WIRE( "rdata" , data_w, "Data" , "data", is_input, abs_mems[ila_mem_name].vlg_rports[port_no].rdata,  inf_dir_t::MEM_R_D );
         } else if (port_name == "raddr") {
-          ADD_PORT_WIRE( "raddr" , addr_w, "Addr" , "addr", is_output, abs_mems[ila_mem_name].rports[port_no].raddr, inf_dir_t::MEM_R_A );
+          ADD_PORT_WIRE( "raddr" , addr_w, "Addr" , "addr", is_output, abs_mems[ila_mem_name].vlg_rports[port_no].raddr, inf_dir_t::MEM_R_A );
         } else if (port_name == "ren") {
-          ADD_PORT_WIRE( "ren" ,1, "Enable signal" , "en",  is_output, abs_mems[ila_mem_name].rports[port_no].ren,   inf_dir_t::MEM_R_EN );
+          ADD_PORT_WIRE( "ren" ,1, "Enable signal" , "en",  is_output, abs_mems[ila_mem_name].vlg_rports[port_no].ren,   inf_dir_t::MEM_R_EN );
         } else if (port_name == "wdata") {
-          ADD_PORT_WIRE( "wdata" , data_w, "Data" , "data", is_output, abs_mems[ila_mem_name].wports[port_no].wdata, inf_dir_t::MEM_W_D);
+          ADD_PORT_WIRE( "wdata" , data_w, "Data" , "data", is_output, abs_mems[ila_mem_name].vlg_wports[port_no].wdata, inf_dir_t::MEM_W_D);
         } else if (port_name == "waddr") {
-          ADD_PORT_WIRE( "waddr" , addr_w, "Addr" , "addr", is_output, abs_mems[ila_mem_name].wports[port_no].waddr, inf_dir_t::MEM_W_A );
+          ADD_PORT_WIRE( "waddr" , addr_w, "Addr" , "addr", is_output, abs_mems[ila_mem_name].vlg_wports[port_no].waddr, inf_dir_t::MEM_W_A );
         } else if (port_name == "wen") {
-          ADD_PORT_WIRE( "wen" ,1, "Enable signal" , "en",  is_output, abs_mems[ila_mem_name].wports[port_no].wen,   inf_dir_t::MEM_W_EN );
+          ADD_PORT_WIRE( "wen" ,1, "Enable signal" , "en",  is_output, abs_mems[ila_mem_name].vlg_wports[port_no].wen,   inf_dir_t::MEM_W_EN );
         } else{
           ILA_ERROR << "no such port:" << port_name 
             << " on built-in mem abstraction for " 
@@ -294,7 +294,7 @@ namespace ilang {
             << ila_mem_name << ".data (" << data_w << ")";
           ILA_ERROR_IF ( ! is_input ) << "rdata should be an input to the verilog module.";
 
-          abs_mems[ila_mem_name].rports[port_no].rdata = new_wire_name;
+          abs_mems[ila_mem_name].vlg_rports[port_no].rdata = new_wire_name;
           mod_inst_rec.insert( {short_name, {inf_dir_t::MEM_R_D, new_wire_name } } );
           internal_wires.push_back( {new_wire_name, data_w} ); */
 /*
@@ -306,7 +306,7 @@ namespace ilang {
             << ila_mem_name << ".addr (" << addr_w << ")";
           ILA_ERROR_IF ( ! is_output ) << "raddr should be an output of the verilog module.";
 
-          abs_mems[ila_mem_name].rports[port_no].raddr = new_wire_name;
+          abs_mems[ila_mem_name].vlg_rports[port_no].raddr = new_wire_name;
           mod_inst_rec.insert( {short_name, {inf_dir_t::MEM_R_A, new_wire_name } } );
           internal_wires.push_back( {new_wire_name, addr_w} );
 
@@ -318,7 +318,7 @@ namespace ilang {
             << ila_mem_name << ".ren (" << 1 << ")";
           ILA_ERROR_IF ( ! is_output ) << "ren should be an output of the verilog module.";
 
-          abs_mems[ila_mem_name].rports[port_no].ren = new_wire_name;
+          abs_mems[ila_mem_name].vlg_rports[port_no].ren = new_wire_name;
           mod_inst_rec.insert( {short_name, {inf_dir_t::MEM_R_EN, new_wire_name } } );
           internal_wires.push_back( {new_wire_name, 1} );
 

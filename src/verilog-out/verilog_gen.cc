@@ -617,6 +617,10 @@ VerilogGenerator::vlg_name_t
         add_wire(addr_name, addr_width);
         add_wire(data_name, data_width);
 
+        new_size_id = ila_rports[mem_var_name].size();
+        ila_rports[mem_var_name][new_size_id].raddr = addr_name;
+        ila_rports[mem_var_name][new_size_id].rdata = data_name;
+
         add_assign_stmt(addr_name, arg2);
 
         result_stmt = data_name;
@@ -875,6 +879,12 @@ void VerilogGenerator::ExportCondWrites(const ExprPtr& mem_var,
       mem_o.push_back(vlg_sig_t(name + "_addr" + toStr(portIdx), addr_width));
       mem_o.push_back(vlg_sig_t(name + "_data" + toStr(portIdx), data_width));
       mem_o.push_back(vlg_sig_t(name + "_wen" + toStr(portIdx), 1));
+      // record the mem io
+      auto new_size_id = ila_wports[name].size();
+      ila_wports[name][new_size_id].waddr = name + "_addr" + toStr(portIdx);
+      ila_wports[name][new_size_id].wdata = name + "_data" + toStr(portIdx);
+      ila_wports[name][new_size_id].wen   = name + "_web"  + toStr(portIdx);
+
     }
   }
   std::vector<vlg_stmt_t> addrStmt(max_port_no, "0");

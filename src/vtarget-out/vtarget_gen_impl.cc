@@ -37,8 +37,10 @@ namespace ilang {
   _rf_cond_name         (refinement_conditions),
   _output_path          (output_path),
   _instr_ptr            (instr_ptr),
-  vlg_wrapper(VerilogGenerator::VlgGenConfig(), "wrapper"),   // default option
-  vlg_ila(VerilogGenerator::VlgGenConfig(vlg_gen_config, true, funcOption::External, true )  ), // configure is only for ila
+  vlg_wrapper(VerilogGenerator::VlgGenConfig(), "wrapper"),   
+  // default option, no start
+  vlg_ila(VerilogGenerator::VlgGenConfig(vlg_gen_config, true, funcOption::External, true )  ), 
+  // configure is only for ila, generate the start signal
   vlg_info_ptr(NULL), // not creating it now, because we don't have the info to do so
   _vext( [this](const std::string &n) -> bool { return TryFindIlaState(n); } , 
          [this](const std::string &n) -> bool { return TryFindVlgState(n); } ),
@@ -67,18 +69,19 @@ namespace ilang {
     auto & model_specified = rf_cond["models"];
     for ( auto && name_description_pair: model_specified ) {
       if(name_description_pair.second == "ILA" ) {
-
+        _ila_mod_inst_name = name_description_pair.first;
       } else if (name_description_pair.second == "VERILOG") {
-
+        _vlg_mod_inst_name = name_description_pair.first;
       } else ILA_ERROR << "Unknown model specification:"<<name_description_pair.second <<" expect VERILOG or ILA";
     }
+    // if unset
     if (_vlg_mod_inst_name == "") {
       ILA_WARN<<"Verilog top module instance name not set, assuming to be VERILOG";
       _vlg_mod_inst_name = "VERILOG";
     }
     if (_ila_mod_inst_name == "") {
       ILA_WARN<<"ILA top module instance name not set, assuming to be ILA";
-      _vlg_mod_inst_name = "ILA";      
+      _ila_mod_inst_name = "ILA";      
     }
   } // set_module_instantiation_name
 
@@ -105,6 +108,101 @@ namespace ilang {
       .. // remember to connect in the instantiation step
 
     }
+
+  std::string VlgVerifTgtGen::ConstructWrapper_get_ila_module_inst() {
+
+    ILA_ASSERT(vlg_ila.decodeNames.size() == 1) << "Implementation bug: decode condition.";
+    vlg_wrapper.add_wire( vlg_ila.validName , 1 ); 
+    vlg_wrapper.add_wire( vlg_ila.decodeNames[0], 1 );
+
+    .. assume valid
+    .. assume decode
+    .. record function
+
+    auto retStr = vlg_ila.moduleName + " " + _vlg_impl_top_name + " (\n";
+    retStr += "   ." + vlg_ila.clkName + "(" + vlg_wrapper.clkName +"),\n";
+    retStr += "   ." + vlg_ila.rstName + "(" + vlg_wrapper.rstName +"),\n";
+    retStr += "   ." + vlg_ila.validName + "(" + vlg_ila.validName +"),\n";
+
+    // handle input
+    for(auto && w : vlg_ila.inputs) {
+      // deal w. clock
+      if(w.first == vlg_ila.clkName) 
+        retStr += "   ." + vlg_ila.clkName + "(" + vlg_wrapper.clkName +"),\n";
+      else if (w.first == vlg_ila.rstName)
+        retStr += "   ." + vlg_ila.rstName + "(" + vlg_wrapper.rstName +"),\n";
+      else
+        retStr += "   ." + w.first + "(__ILA_I_" +  w.first +"),\n";
+    }
+
+    // TODO:: FUnction here !
+    // handle output
+    for(auto && w : vlg_ila.outputs) {
+      // deal w. valid and decode
+      if (w.first == vlg_ila.decodeNames[0])
+        retStr += "   ." + vlg_ila.decodeNames[0] + "(" + vlg_ila.decodeNames[0] +"),\n";
+      else if (w.first == vlg_ila.validName)
+        retStr += "   ." + vlg_ila.validName + "(" + vlg_ila.validName +"),\n";
+      else 
+        retStr += "   ." + w.first + "(__ILA_I_" +  w.first +"),\n";
+    }
+    // handle memory io - use internal storage for this purpose
+    for( auto && ila_name_rport_pair : vlg_ila.ila_rports) {
+      const auto & ila_name = ila_name_rport_pair.first;
+      const auto & rports   = ila_name_rport_pair.second;
+      const auto adw = GetMemInfo(ila_name);
+      auto aw = adw.first; auto dw = adw.second; // address/data width
+      ILA_ASSERT(aw > 0 and dw > 0) <<"Implementation bug: unable to find mem:"<<ila_name;
+
+      for(auto && rport : rports) {
+        auto no = rport.first; // is the num
+        auto port = rport.second; // is the port
+        auto rdw = "__IMEM_" + ila_name + "_" + IntToStr(no) + "_rdata";
+        auto raw = "__IMEM_" + ila_name + "_" + IntToStr(no) + "_raddr";
+        // auto rew = "__IMEM_" + ila_name + "_" + IntToStr(no) + "_ren"; no need, r_en is the start signal
+
+        vlg_wrapper.add_wire( rdw, dw );
+        vlg_wrapper.add_wire( raw, aw );
+
+        retStr += "   ." + port.rdata + "(" + rdw + "),\n";
+        retStr += "   ." + port.raddr + "(" + raw + "),\n";
+
+      } // for rport
+    } // for ila_rports
+
+    for( auto && ila_name_wport_pair : vlg_ila.ila_wports) {
+      const auto & ila_name = ila_name_wport_pair.first;
+      const auto & wports   = ila_name_wport_pair.second;
+      const auto adw = GetMemInfo(ila_name);
+      auto aw = adw.first; auto dw = adw.second; // address/data width
+      ILA_ASSERT(aw > 0 and dw > 0) <<"Implementation bug: unable to find mem:"<<ila_name;
+
+      for(auto && wport : wports) {
+        auto no = wport.first; // is the num
+        auto port = wport.second; // is the port
+        auto wdw = "__IMEM_" + ila_name + "_" + IntToStr(no) + "_wdata";
+        auto waw = "__IMEM_" + ila_name + "_" + IntToStr(no) + "_waddr";
+        auto wew = "__IMEM_" + ila_name + "_" + IntToStr(no) + "_wen"; 
+
+        vlg_wrapper.add_wire( wdw, dw );
+        vlg_wrapper.add_wire( wdw, aw );
+        vlg_wrapper.add_wire( wew, 1 );
+
+        retStr += "   ." + port.wdata + "(" + wdw + "),\n";
+        retStr += "   ." + port.waddr + "(" + waw + "),\n";
+        retStr += "   ." + port.wen + "(" + wew + "),\n";
+
+      } // for wport
+    } // for ila_wports
+
+    // handle state-output
+    auto sep;
+    for(auto && r: vlg_ila.regs) {
+      retStr += sep + "   ." + r.first + "(__ILA_SO_" + w.first + ")";
+      sep = ",\n";
+    }
+    retStr += "\n);"
+  }
 
 
   } // ConstructWrapper_add_ila_input()
