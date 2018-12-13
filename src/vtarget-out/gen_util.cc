@@ -13,25 +13,25 @@
 namespace ilang {
 
 
-std::string VlgVerifTgtGen::new_mapping_id() {
+std::string VlgSglTgtGen::new_mapping_id() {
   return std::string("__m") + IntToStr(mapping_counter++) + "__";
 }
-std::string VlgVerifTgtGen::new_property_id(); {
+std::string VlgSglTgtGen::new_property_id(); {
   return std::string("__p") + IntToStr(mapping_counter++) + "__";
 }
 
-const ExprPtr VlgVerifTgtGen::IlaGetState(const std::string &sname) {
+const ExprPtr VlgSglTgtGen::IlaGetState(const std::string &sname) const {
   auto ptr = _instr_ptr->host()->state(sname);
   ILA_ERROR_IF(ptr == nullptr) << "Cannot find state:"<<sname<<" in ila:"<<_instr_ptr->host()->name().str();
   return ptr;
 }
-const ExprPtr VlgVerifTgtGen::IlaGetInput(const std::string &sname) {
+const ExprPtr VlgSglTgtGen::IlaGetInput(const std::string &sname) const {
   auto ptr = _instr_ptr->host()->input(sname);
   ILA_ERROR_IF(ptr == nullptr) << "Cannot find state:"<<sname<<" in ila:"<<_instr_ptr->host()->name().str();
   return ptr;
 }
 
-std::pair<unsigned,unsigned> VlgVerifTgtGen::GetMemInfo( const std::string &ila_mem_name ) {
+std::pair<unsigned,unsigned> VlgSglTgtGen::GetMemInfo( const std::string &ila_mem_name ) const {
   auto ptr_ =  _instr_ptr->host()->state(ila_mem_name);
   if( ptr_ == nullptr  ) 
     return std::pair<unsigned,unsigned> ({0,0});
@@ -41,7 +41,7 @@ std::pair<unsigned,unsigned> VlgVerifTgtGen::GetMemInfo( const std::string &ila_
 }
 
 
-bool VlgVerifTgtGen::TryFindIlaState(const std::string &sname) {
+bool VlgSglTgtGen::TryFindIlaState(const std::string &sname) {
   if (_instr_ptr->host()->state(sname) ) return true;
   // if it uses the reference it self
   auto hierName = Split(sname, ".");
@@ -52,7 +52,7 @@ bool VlgVerifTgtGen::TryFindIlaState(const std::string &sname) {
   }
   return false;
 }
-bool VlgVerifTgtGen::TryFindVlgState(const std::string &sname) {
+bool VlgSglTgtGen::TryFindVlgState(const std::string &sname) {
 
   if(vlg_info_ptr->check_hierarchical_name_type(sname) 
      != VerilogInfo::hierarchical_name_type::NONE)
@@ -66,7 +66,7 @@ bool VlgVerifTgtGen::TryFindVlgState(const std::string &sname) {
 // for ila state: add __ILA_SO_
 // for verilog signal: keep as it is should be fine
 // btw, record all referred vlg name
-std::string VlgVerifTgtGen::ModifyCondExprAndRecordVlgName(const VarExtractor::token &t ) {
+std::string VlgSglTgtGen::ModifyCondExprAndRecordVlgName(const VarExtractor::token &t ) {
   // modify name and ...
   const auto & token_tp = t.first;
   const auto & sname     = t.second;
@@ -111,7 +111,7 @@ std::string VlgVerifTgtGen::ModifyCondExprAndRecordVlgName(const VarExtractor::t
 }
 
 // static function
-unsigned VlgVerifTgtGen::TypeMatched(const ExprPtr & ila_var, const VerilogInfo & vlg_var) {
+unsigned VlgSglTgtGen::TypeMatched(const ExprPtr & ila_var, const VerilogInfo & vlg_var) {
 
   if (ila_var == nullptr) {
     ILA_ERROR << "Not able to check type for unknown ila signal";
@@ -139,7 +139,7 @@ unsigned VlgVerifTgtGen::TypeMatched(const ExprPtr & ila_var, const VerilogInfo 
   return 0;
 }
 // static function
-unsigned VlgVerifTgtGen::get_width( const ExprPtr& n ) {
+unsigned VlgSglTgtGen::get_width( const ExprPtr& n ) {
   ILA_WARN_IF(n->sort()->is_mem()) << "Using data width for "<<n->name().str();
   return VerilogGenerator::get_width(n);
 }
@@ -156,14 +156,14 @@ bool isEqu(const std::string & c)  { return (c.find("=") != std::string::npos); 
 // 4.  "ila-state":[ {"cond":,"map":}, ] 
 
 // Replace an expr's variable name
-std::string VlgVerifTgtGen::ReplExpr(const std::string & expr , bool force_vlg_sts = false) {
+std::string VlgSglTgtGen::ReplExpr(const std::string & expr , bool force_vlg_sts) {
   return _vext.Replace(expr, 
         force_vlg_sts, 
         [this] (const VarExtractor::token &t ) {
           return ModifyCondExprAndRecordVlgName(t) } );
 }
 
-std::string VlgVerifTgtGen::PerStateMap(const std::string & ila_state_name_or_equ, const std::string & vlg_st_name ) {
+std::string VlgSglTgtGen::PerStateMap(const std::string & ila_state_name_or_equ, const std::string & vlg_st_name ) {
 
   if( isEqu(ila_state_name_or_equ) ) { // is equ
     // not using re here
@@ -193,10 +193,10 @@ std::string VlgVerifTgtGen::PerStateMap(const std::string & ila_state_name_or_eq
 
 // ila-state -> ref (json)
 // return a verilog verilog, that should be asserted to be true for this purpose
-std::string VlgVerifTgtGen::GetStateVarMapExpr(const std::string & ila_state_name, nlohmann::json & m) {
+std::string VlgSglTgtGen::GetStateVarMapExpr(const std::string & ila_state_name, nlohmann::json & m) {
   if( m.is_string() ) {
     if ( _sdr.isSpecialStateDir() ) {
-      ILA_DLOG("VlgVerifTgtGen.GetStateVarMapExpr") <<"map mem:" << ila_state_name; 
+      ILA_DLOG("VlgSglTgtGen.GetStateVarMapExpr") <<"map mem:" << ila_state_name; 
       return ;
       // return ; // **MEM** should be fine
     } else { 
@@ -248,20 +248,5 @@ std::string VlgVerifTgtGen::GetStateVarMapExpr(const std::string & ila_state_nam
   return VLG_TRUE;
 } // GetStateVarMapExpr
 
-
-bool VlgVerifTgtGen::bad_state_return(void) {
-  ILA_ERROR_IF(_bad_state) <<"VlgVerifTgtGen is in a bad state, cannot proceed.";
-  return _bad_state;
-} // bad_state_return
-
-void VlgVerifTgtGen::load_json(const std::string & fname, json & j) {
-  std::ifstream fin(fname);
-  if(!fin.is_open() ) {
-    ILA_ERROR << "Cannot read from file:"<<fname;
-    _bad_state = true;
-    return;
-  }
-  fname >> j;
-} // load_json
 
 }; // namespace ilang

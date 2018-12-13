@@ -81,7 +81,7 @@ public:
     /// refinement relation instruction conditions
     nlohmann::json    & rf_cond;
     /// record all the referred vlg names, so you can add (*keep*) if needed
-    const std::vector<std::string> _all_referred_vlg_names
+    const std::vector<std::string> _all_referred_vlg_names;
 
   private:
     /// Counter of mapping
@@ -90,10 +90,40 @@ public:
     unsigned property_counter;
 
   protected:
+    // --------------------- HELPERS ---------------------------- //
     /// Return a new variable name for mapping
     std::string new_mapping_id();
     /// Return a new variable name for property
     std::string new_property_id();
+    /// Get the pointer of a ila state, it must exist
+    const ExprPtr IlaGetState(const std::string &sname) const;
+    /// Get the pointer of an ila input, it must exist
+    const ExprPtr IlaGetInput(const std::string &sname) const;
+    /// Get (a,d) width of a memory, if not existing, (0,0)
+    std::pair<unsigned,unsigned> GetMemInfo( const std::string &ila_mem_name ) const;
+    /// Test if a string represents an ila state name
+    bool TryFindIlaState(const std::string &sname);
+    /// Test if a string represents a Verilog signal name
+    bool TryFindVlgState(const std::string &sname);
+    /// Modify a token and record its use
+    std::string ModifyCondExprAndRecordVlgName(const VarExtractor::token &t );
+    /// Check if ila name and vlg name are type compatible (not including special directives)
+    static unsigned TypeMatched(const ExprPtr & ila_var, const VerilogInfo & vlg_var);
+    /// get width of an ila node
+    static unsigned VlgSglTgtGen::get_width( const ExprPtr& n );
+    /// Parse and modify a condition string 
+    std::string ReplExpr(const std::string & expr , bool force_vlg_sts = false) ;
+    /// handle a single string map (s-name/equ-string)
+    std::string PerStateMap(const std::string & ila_state_name_or_equ, const std::string & vlg_st_name ) ;
+    /// handle a var map
+    /// will create new variables "m?" and return it
+    /// 1.  "ila-state":"**MEM**.?"
+    /// 2a. "ila-state":"statename"  --> PerStateMap
+    /// 2b. "ila-state":"(cond)&map"   --> PerStateMap
+    /// 3.  "ila-state":[ "cond&map" ]
+    /// 4.  "ila-state":[ {"cond":,"map":}, ] 
+    std::string GetStateVarMapExpr(const std::string & ila_state_name, nlohmann::json & m) ;
+
 
   protected:
     // --------------- STEPS OF GENERATION ------------------------//
