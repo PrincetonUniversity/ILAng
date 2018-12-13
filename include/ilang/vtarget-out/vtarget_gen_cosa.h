@@ -37,7 +37,7 @@ public:
 }; // Cosa_problem
 
 /// \brief a class to interface w.  COSA
-class VlgVerifTgtGen_Cosa : public VlgVerifTgtGen {
+class VlgVerifTgtGen_Cosa : public VlgSglTgtGen {
 public:
   // --------------------- CONSTRUCTOR ---------------------------- //
     /// To construct a target generator
@@ -58,7 +58,7 @@ public:
       const std::string              & output_path,
       const InstrPtr                 & instr_ptr,
       const VerilogGenerator::VlgGenConfig& config = VlgGenConfig() 
-      );
+      ); .. change above
 
 protected:
   /// Cosa problem generate

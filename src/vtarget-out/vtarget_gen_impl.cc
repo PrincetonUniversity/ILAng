@@ -20,72 +20,37 @@ namespace ilang {
 //---------------- SOURCES -------------------------
 
 
-  VlgVerifTgtGen::VlgVerifTgtGen(
-      const std::vector<std::string> & implementation_include_path,
-      const std::vector<std::string> & implementation_srcs,
-      const std::string              & implementation_top_module,
-      const std::string              & refinement_variable_mapping,
-      const std::string              & refinement_conditions,
-      const std::string              & output_path,
-      const InstrPtr                 & instr_ptr,
-      const VerilogGenerator::VlgGenConfig& vlg_gen_config = VlgGenConfig() 
-      ):
-  _vlg_impl_include_path(implementation_include_path),
-  _vlg_impl_srcs        (implementation_srcs),
-  _vlg_impl_top_name    (implementation_top_module),
-  _rf_var_map_name      (refinement_variable_mapping),
-  _rf_cond_name         (refinement_conditions),
-  _output_path          (output_path),
-  _instr_ptr            (instr_ptr),
+// ------------------------------ VlgSglTgtGen --------------------------------- //
+
+VlgSglTgtGen::VlgSglTgtGen(
+      const std::string              & output_path, // will be a sub directory of the output_path of its parent
+      const InstrPtr                 & instr_ptr, // which could be an empty pointer, and it will be used to verify invariants
+      const VerilogGenerator::VlgGenConfig & config,
+      nlohmann::json                 & _rf_vmap,
+      nlohmann::json                 & _rf_cond,
+      VerilogInfo                    * _vlg_info_ptr,
+      const std::string              & vlg_mod_inst_name,
+      const std::string              & ila_mod_inst_name
+    ) : 
+  _output_path(output_path), _instr_ptr(instr_ptr),
+  _vlg_mod_inst_name(vlg_mod_inst_name),
+  _ila_mod_inst_name(ila_mod_inst_name),
+  // default option on wrapper
   vlg_wrapper(VerilogGenerator::VlgGenConfig(), "wrapper"),   
-  // default option, no start
+  // use given, except for core options
   vlg_ila(VerilogGenerator::VlgGenConfig(vlg_gen_config, true, funcOption::External, true )  ), 
-  // configure is only for ila, generate the start signal
-  vlg_info_ptr(NULL), // not creating it now, because we don't have the info to do so
+  // verilog info
+  vlg_info_ptr(_vlg_info_ptr),
+  // variable extractor
   _vext( [this](const std::string &n) -> bool { return TryFindIlaState(n); } , 
          [this](const std::string &n) -> bool { return TryFindVlgState(n); } ),
-  _bad_state(false)
-  {
-    load_json(_rf_var_map_name, rf_vmap);
-    load_json(_rf_cond_name   , rf_cond);
-    set_module_instantiation_name();
+  // ref to refmaps
+  rf_vmap(_rf_vmap),
+  rf_cond(_rf_cond) {
+    // do nothing
   }
-
-
-
-  void VlgVerifTgtGen::GenerateTarget(void) {
-    vlg_info_ptr = new VerilogInfo(_vlg_impl_include_path, _vlg_impl_srcs, ???, _vlg_impl_top_name );
-
-
-
-    if(vlg_info_ptr) {
-      delete vlg_info_ptr;
-      vlg_info_ptr = NULL;
-    }
-  }
-
-  void VlgVerifTgtGen::set_module_instantiation_name() {
-    // use the content in the refinement relations to determine the instance name
-    auto & model_specified = rf_cond["models"];
-    for ( auto && name_description_pair: model_specified ) {
-      if(name_description_pair.second == "ILA" ) {
-        _ila_mod_inst_name = name_description_pair.first;
-      } else if (name_description_pair.second == "VERILOG") {
-        _vlg_mod_inst_name = name_description_pair.first;
-      } else ILA_ERROR << "Unknown model specification:"<<name_description_pair.second <<" expect VERILOG or ILA";
-    }
-    // if unset
-    if (_vlg_mod_inst_name == "") {
-      ILA_WARN<<"Verilog top module instance name not set, assuming to be VERILOG";
-      _vlg_mod_inst_name = "VERILOG";
-    }
-    if (_ila_mod_inst_name == "") {
-      ILA_WARN<<"ILA top module instance name not set, assuming to be ILA";
-      _ila_mod_inst_name = "ILA";      
-    }
-  } // set_module_instantiation_name
-
-  void VlgVerifTgtGen::ConstructWrapper_add_ila_input() {
+  
+  void VlgSglTgtGen::ConstructWrapper_add_ila_input() {
     // add ila input
     size_t ila_input_num = instr_ptr->host()->input_num();
     for(size_t input_idx = 0; input_idx < ila_input_num; input_idx ++) {
@@ -109,7 +74,7 @@ namespace ilang {
 
     }
 
-  std::string VlgVerifTgtGen::ConstructWrapper_get_ila_module_inst() {
+  std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
 
     ILA_ASSERT(vlg_ila.decodeNames.size() == 1) << "Implementation bug: decode condition.";
     vlg_wrapper.add_wire( vlg_ila.validName , 1 ); 
@@ -207,7 +172,7 @@ namespace ilang {
 
   } // ConstructWrapper_add_ila_input()
 
-  void VlgVerifTgtGen::ConstructWrapper_add_vlg_input_output() {
+  void VlgSglTgtGen::ConstructWrapper_add_vlg_input_output() {
     // clear the old record, if any
     _idr.Clear();
 
@@ -226,7 +191,7 @@ namespace ilang {
     }
   } // ConstructWrapper_wrapper_addinput
 
-  void VlgVerifTgtGen::AddCycleCountMoniter() {
+  void VlgSglTgtGen::ConstructWrapper_add_cycle_count_moniter() {
     // find in rf_cond, how many cycles will be needed
     unsigned max_bound = 0;
     auto & instrs = rf_cond["instructions"];
@@ -268,12 +233,12 @@ namespace ilang {
     // flush : !( __ISSUE__ ? || __START__ || __STARTED__ ) |-> flush 
   }
 
-  void VlgVerifTgtGen::GenerateHeader() {
-    vlg_wrapper->add_preheader("\n`define \"true\"  1\n");
+  void VlgSglTgtGen::ConstructWrapper_generate_header() {
+    vlg_wrapper.add_preheader("\n`define \"true\"  1\n");
   }
 
   // for special memory, we don't need to do anything?
-  void VlgVerifTgtGen::AddVarMapAssumptions() {
+  void VlgSglTgtGen::ConstructWrapper_add_varmap_assumptions() {
     std::set<std::string> ila_state_names;
 
     for ( size_t state_idx = 0; state_idx < instr_ptr->host()->state_num() ; ++ state_idx )
@@ -299,7 +264,7 @@ namespace ilang {
 
   // for memory, we need to assert new data match and ?
   // 
-  void VlgVerifTgtGen::AddVarMapAssertions(bool has_flush) {
+  void VlgSglTgtGen::ConstructWrapper_add_varmap_assertions(bool has_flush) {
     std::set<std::string> ila_state_names;
 
     for ( size_t state_idx = 0; state_idx < instr_ptr->host()->state_num() ; ++ state_idx )
@@ -319,7 +284,7 @@ namespace ilang {
   }
 
 
-  void VlgVerifTgtGen::AddInvAssumptions(bool has_flush) {
+  void VlgSglTgtGen::ConstructWrapper_add_inv_assumptions(bool has_flush) {
     if ( not rf_cond["global invariants"] ) return; // no invariants to add
     if ( not rf_cond["global invariants"].is_array() ) { 
       ILA_ERROR << "'global invariants' field in refinement relation has to be a JSON array."
@@ -334,7 +299,7 @@ namespace ilang {
 
   // 
   // should not have the flush condition set!
-  void VlgVerifTgtGen::AddInvAssertions(void) {
+  void VlgSglTgtGen::ConstructWrapper_add_inv_assertions(void) {
     if ( not rf_cond["global invariants"] ) return; // no invariants to add
     if ( not rf_cond["global invariants"].is_array() ) { 
       ILA_ERROR << "'global invariants' field in refinement relation has to be a JSON array."
@@ -346,19 +311,38 @@ namespace ilang {
     }
   }
 
-  void VlgVerifTgtGen::AddAdditionalMappingControl(void) {
-
+  void VlgSglTgtGen::ConstructWrapper_add_additional_mapping_control(void) {
+    ..
   } // AddAdditionalMappingControl
 
-  void VlgVerifTgtGen::AddModuleInstantiation(void) {
-    
+  void VlgSglTgtGen::ConstructWrapper_add_condition_signals(void)  {
+    // TODO 
   }
 
-  void VlgVerifTgtGen::AddHelperMemory(void) {
-    
+  void VlgSglTgtGen::ConstructWrapper_add_module_instantiation(void) {
+    // instantiate ila module
+    auto ila_mod_inst = ConstructWrapper_get_ila_module_inst;
+    vlg_wrapper.add_stmt ( ila_mod_inst ); 
+
+    // instantiate verilog module
+    std::string verilog_inst_str = 
+      vlg_info_ptr->get_top_module_name() 
+      + " " + _vlg_mod_inst_name + "(\n";
+
+    _idr.VlgAddTopInteface(vlg_wrapper);
+    verilog_inst_str +=
+       _idr.GetVlgModInstString(vlg_wrapper);
+    verilog_inst_str += ");"
+
+    vlg_wrapper.add_stmt ( verilog_inst_str );
   }
 
-  void VlgVerifTgtGen::ConstructWrapper(void) {
+  void VlgSglTgtGen::ConstructWrapper_add_helper_memory(void) {
+    // TODO ..
+  }
+
+  // for invariants or for instruction
+  void VlgSglTgtGen::ConstructWrapper(void) {
 
     // 0. The headers you may need to have
     GenerateHeader();
@@ -386,7 +370,75 @@ namespace ilang {
     // 6. add helper memory module
     AddHelperMemory();
 
+    // 7. additional controls
+    AddAdditionalMappingControl();
+
   }
+
+
+// ------------------------------ VlgVerifTgtGen --------------------------------- //
+
+
+  VlgVerifTgtGen::VlgVerifTgtGen(
+      const std::vector<std::string> & implementation_include_path,
+      const std::vector<std::string> & implementation_srcs,
+      const std::string              & implementation_top_module,
+      const std::string              & refinement_variable_mapping,
+      const std::string              & refinement_conditions,
+      const std::string              & output_path,
+      const InstrPtr                 & instr_ptr,
+      const VerilogGenerator::VlgGenConfig& vlg_gen_config = VlgGenConfig() 
+      ):
+  _vlg_impl_include_path(implementation_include_path),
+  _vlg_impl_srcs        (implementation_srcs),
+  _vlg_impl_top_name    (implementation_top_module),
+  _rf_var_map_name      (refinement_variable_mapping),
+  _rf_cond_name         (refinement_conditions),
+  _output_path          (output_path),
+  _instr_ptr            (instr_ptr),
+  // configure is only for ila, generate the start signal
+  vlg_info_ptr(NULL), // not creating it now, because we don't have the info to do so
+  _bad_state(false)
+  {
+    load_json(_rf_var_map_name, rf_vmap);
+    load_json(_rf_cond_name   , rf_cond);
+    set_module_instantiation_name();
+  }
+
+
+
+  void VlgVerifTgtGen::GenerateTargets(void) {
+    vlg_info_ptr = new VerilogInfo(_vlg_impl_include_path, _vlg_impl_srcs, ???, _vlg_impl_top_name );
+
+
+
+    if(vlg_info_ptr) {
+      delete vlg_info_ptr;
+      vlg_info_ptr = NULL;
+    }
+  }
+
+  void VlgVerifTgtGen::set_module_instantiation_name() {
+    // use the content in the refinement relations to determine the instance name
+    auto & model_specified = rf_cond["models"];
+    for ( auto && name_description_pair: model_specified ) {
+      if(name_description_pair.second == "ILA" ) {
+        _ila_mod_inst_name = name_description_pair.first;
+      } else if (name_description_pair.second == "VERILOG") {
+        _vlg_mod_inst_name = name_description_pair.first;
+      } else ILA_ERROR << "Unknown model specification:"<<name_description_pair.second <<" expect VERILOG or ILA";
+    }
+    // if unset
+    if (_vlg_mod_inst_name == "") {
+      ILA_WARN<<"Verilog top module instance name not set, assuming to be VERILOG";
+      _vlg_mod_inst_name = "VERILOG";
+    }
+    if (_ila_mod_inst_name == "") {
+      ILA_WARN<<"ILA top module instance name not set, assuming to be ILA";
+      _ila_mod_inst_name = "ILA";      
+    }
+  } // set_module_instantiation_name
+
 
   void VlgVerifTgtGen::ModifyImplVlg(void) {
     // decide mentions and locations
