@@ -323,7 +323,7 @@ void SynthAbsConverter::DecomposeExpr(const ExprPtr& src) {
   auto Compare = [this](const ExprPtr n) {
     // syntactically decompose at ITE nodes
     const ExprOpIte* expr_ite = NULL;
-    if (expr_ite = dynamic_cast<const ExprOpIte*>(n.get())) {
+    if ((expr_ite = dynamic_cast<const ExprOpIte*>(n.get()))) {
       // check if the condition argument is one of the entries
       auto condition = n->arg(0);
       for (auto entry : decom_entry_) {
