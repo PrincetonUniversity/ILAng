@@ -1,5 +1,5 @@
 /// \file
-/// The implementation of the elavated synthesis engine interface.
+/// The implementation of the elevated synthesis engine interface.
 
 #include <ilang/synth-interface/synth_abs_converter.h>
 #include <ilang/synth-interface/synth_engine_interface.h>

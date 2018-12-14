@@ -1,5 +1,5 @@
 /// \file
-/// Unit test for importing ILA from the synthesis engine
+/// Unit tests for importing ILA from the synthesis engine
 
 #include "unit-include/config.h"
 #include "unit-include/util.h"

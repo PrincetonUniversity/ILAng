@@ -71,9 +71,7 @@ TEST(TestInstrLvlAbs, Input) {
   EXPECT_EQ(bool_input, ila->input(0));
   EXPECT_EQ(bool_in_emb, ila->input(1));
   EXPECT_EQ(bv_in_emb, ila->input(2));
-#ifndef NDEBUG
-  EXPECT_DEATH(ila->input(3), ".*");
-#endif
+  EXPECT_ANY_THROW(ila->input(3));
 
   ExprPtr get_bool_input = ila->input("bool_input");
 #ifndef NDEBUG
@@ -115,9 +113,7 @@ TEST(TestInstrLvlAbs, State) {
   EXPECT_EQ(bool_state, ila->state(0));
   EXPECT_EQ(bool_st_emb, ila->state(1));
   EXPECT_EQ(bv_st_emb, ila->state(2));
-#ifndef NDEBUG
-  EXPECT_DEATH(ila->state(3), ".*");
-#endif
+  EXPECT_ANY_THROW(ila->state(3));
 
   ExprPtr get_bool_state = ila->state("bool_state");
   EXPECT_EQ(bool_state, get_bool_state);
@@ -216,11 +212,8 @@ TEST(TestInstrLvlAbs, Instr) {
 
   EXPECT_EQ(4, ila->instr_num());
 
-// add existed instr
-#ifndef NDEBUG
-  EXPECT_DEATH(ila->NewInstr("instr_ex_n"), ".*");
-  EXPECT_DEATH(ila->NewInstr(instr_em_n->name().str()), ".*");
-#endif
+  // add existed instr
+  ila->NewInstr("instr_ex_n");
   EXPECT_EQ(4, ila->instr_num());
 
   // find non-existed
@@ -237,9 +230,7 @@ TEST(TestInstrLvlAbs, Instr) {
   EXPECT_EQ(instr_ex_n, ila->instr(1));
   EXPECT_EQ(instr_em, ila->instr(2));
   EXPECT_EQ(instr_em_n, ila->instr(3));
-#ifndef NDEBUG
-  EXPECT_DEATH(ila->instr(5), ".*");
-#endif
+  EXPECT_ANY_THROW(ila->instr(5));
 }
 
 TEST(TestInstrLvlAbs, Child) {
@@ -256,11 +247,9 @@ TEST(TestInstrLvlAbs, Child) {
 
   EXPECT_EQ(2, ila->child_num());
 
-// add existed
-#ifndef NDEBUG
-  EXPECT_DEATH(ila->AddChild(child2), ".*");
-  EXPECT_DEATH(ila->NewChild("child1"), ".*");
-#endif
+  // add existed
+  ila->AddChild(child2);
+  ila->NewChild("child1");
 
   EXPECT_EQ(2, ila->child_num());
 
@@ -274,9 +263,7 @@ TEST(TestInstrLvlAbs, Child) {
   // random access
   EXPECT_EQ(child1, ila->child(0));
   EXPECT_EQ(child2, ila->child(1));
-#ifndef NDEBUG
-  EXPECT_DEATH(ila->child(3), ".*");
-#endif
+  EXPECT_ANY_THROW(ila->child(3));
 }
 
 TEST(TestInstrLvlAbs, CheckAll) {

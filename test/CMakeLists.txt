@@ -56,7 +56,6 @@ package_add_test(${ILANG_TEST_MAIN}
   t_ila.cc
   t_instr.cc
   t_instr_seq.cc
-  t_jsonio.cc
   t_keyvec.cc
   t_legacy_bmc.cc
   t_log.cc
@@ -64,6 +63,7 @@ package_add_test(${ILANG_TEST_MAIN}
   t_mapset.cc
   t_mcm.cc
   t_op_sanity.cc
+  t_portable.cc
   t_sort.cc
   t_symbol.cc
   t_unroll_seq.cc

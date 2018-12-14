@@ -4,10 +4,7 @@
 include(CMakeFindDependencyMacro)
 find_dependency(Z3 REQUIRED)
 find_dependency(glog REQUIRED)
-
-if(@ILANG_BUILD_JSON@)
-  find_dependency(nlohmann_json REQUIRED)
-endif()
+find_dependency(nlohmann_json REQUIRED)
 
 if(@ILANG_BUILD_VLOG@)
   find_dependency(verilogparser REQUIRED)

@@ -2,6 +2,7 @@
 /// Source for a collection of ILA helpers.
 
 #include <functional>
+#include <ilang/util/log.h>
 #include <ilang/verification/abs_knob.h>
 #include <ilang/verification/rewrite_expr.h>
 #include <ilang/verification/rewrite_ila.h>
