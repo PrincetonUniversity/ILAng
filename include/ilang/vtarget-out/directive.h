@@ -94,11 +94,17 @@ public:
   /// Check for compatibility
   static bool isSpecialInputDirCompatibleWith(const std::string & c, const SignalInfoBase & vlg_sig );
   /// Check if an interface needs to be declare as top module I/O
-  static bool interfaceDeclareTop(const std::string & c);
+  // static bool interfaceDeclareTop(const std::string & c);
   // --- more to added 
+  // -------------------- CONSTRUCTOR ---------------------------- //
+  /// \param[in] : whether to connect reset signal to rst/dummy_reset
+  /// The former is for invariants, the latter for instructions
+  IntefaceDirectiveRecorder(bool reset_vlg) : _reset_vlg(reset_vlg) {}
+
+
   // ------------------------ MEMBERS ------------------------ //
   /// clear all internal storage
-  void Clear();
+  void Clear(bool reset_vlg);
   /// Return a string used for instantiating
   std::string GetVlgModInstString(VerilogGeneratorBase & gen) const;
   /// Add signals to the wrapper_generator
@@ -129,6 +135,8 @@ protected:
   vlg_sig_vec_t  internal_wires;
   /// ila-mem-name -> abs
   std::map< std::string, VlgAbsMem> abs_mems;
+  /// whether to reset this vlg (reset to rst or dummy_reset)
+  bool _reset_vlg;
 
 }; // class IntefaceDirectiveRecorder
 

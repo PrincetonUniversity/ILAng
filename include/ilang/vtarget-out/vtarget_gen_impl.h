@@ -33,6 +33,8 @@ namespace ilang {
 
 /// \brief Generating a target (just the invairant or for an instruction)
 class VlgSglTgtGen {
+    // --------------------- TYPE DEFINITION ------------------------ //
+    typedef enum { INVARIANTS, INSTRUCTIONS } target_type_t;
 
 public:
     // --------------------- CONSTRUCTOR ---------------------------- //
@@ -82,6 +84,8 @@ public:
     nlohmann::json    & rf_cond;
     /// record all the referred vlg names, so you can add (*keep*) if needed
     const std::vector<std::string> _all_referred_vlg_names;
+    /// target type 
+    target_type_t       target_type;
 
   private:
     /// Counter of mapping
@@ -129,9 +133,9 @@ public:
     // --------------- STEPS OF GENERATION ------------------------//
     /// add ila input to the wrapper
     void ConstructWrapper_add_ila_input();
-    /// add 
+    /// get the ila module instantiation string
     std::string ConstructWrapper_get_ila_module_inst();
-    /// 
+    /// add the vlg input ouput to the wrapper I/O
     void ConstructWrapper_add_vlg_input_output();
     /// add a cycle counter to be used to deal with the end cycle
     void ConstructWrapper_add_cycle_count_moniter();
@@ -145,7 +149,7 @@ public:
     void ConstructWrapper_add_inv_assumptions(bool has_flush);
     /// Add invariants as assertions
     void ConstructWrapper_add_inv_assertions(void);
-    /// 
+    /// Add more assumptions/assertions
     void ConstructWrapper_add_additional_mapping_control(void);
     /// Generate __ISSUE__, __IEND__, ... signals
     void ConstructWrapper_add_condition_signals(void);
@@ -156,11 +160,18 @@ public:
     /// Call the above functions to make a wrapper (not yet export it)
     void ConstructWrapper(void) ;
   public:
-    void ExportWrapper(void);
-    void ExportIlaVlg(void);
-    void ExportScript(void);
-    void ExportExtra(void);
-    void ExportMem
+    /// create the wrapper file
+    void virtual Export_wrapper(void);
+    /// export the ila verilog
+    void virtual Export_ila_vlg(void);
+    /// export the script to run the verification
+    void virtual Export_script(void);
+    /// export extra things (problem)
+    void virtual Export_extra(void);
+    /// export the memory abstraction 
+    void virtual Export_mem(void);
+    /// Use the Export_* functions to export everything
+    void virtual Export(void);
 
   protected:
     // helper function to be implemented by COSA/JASPER

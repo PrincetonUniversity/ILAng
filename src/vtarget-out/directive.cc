@@ -38,7 +38,9 @@ namespace ilang {
     ILA_ERROR<<"Unknown IO directive in refinement relations:"<<c;
     return false;
   }
+
   // static function
+  /*
   bool IntefaceDirectiveRecorder::interfaceDeclareTop(const std::string & c) {
     ILA_ASSERT(isSpecialInputDir(c));
     if(c == "**KEEP**") return true;
@@ -58,7 +60,7 @@ namespace ilang {
     }
     ILA_ERROR<<"Unknown IO directive in refinement relations:"<<c;
     return true;   
-  }
+  }*/
 
   void IntefaceDirectiveRecorder::ConnectModuleInputAddWire(const std::string & short_name, unsigned width)  {
     if( IN(short_name , mod_inst_rec ) ) {
@@ -182,7 +184,10 @@ namespace ilang {
         ILA_ERROR_IF ( ! is_output ) << "Forcing a non-output signal to be connected as output:" << short_name;
         ConnectModuleOutputAddWire(short_name, width);
       } else if ( refstr ==  "**RESET**" ) {
-        mod_inst_rec.insert( {short_name, std::make_pair({ inf_dir_t::RESET ,  "rst"}) } );
+        if(_reset_vlg)
+          mod_inst_rec.insert( {short_name, std::make_pair({ inf_dir_t::RESET ,  "rst"}) } );
+        else
+          mod_inst_rec.insert( {short_name, std::make_pair({ inf_dir_t::RESET ,  "dummy_reset"}) } );
       } else if ( refstr == "**CLOCK**" ) {
         mod_inst_rec.insert( {short_name, std::make_pair({ inf_dir_t::CLOCK ,  "clk"}) } );
       } else if ( beginsWith(refstr, "**MEM**") ) {
@@ -269,12 +274,13 @@ namespace ilang {
   } // IntefaceDirectiveRecorder::RegisterInterface
 
 
-  void IntefaceDirectiveRecorder::Clear() {
+  void IntefaceDirectiveRecorder::Clear(bool reset_vlg) {
     mod_inst_rec.clear();
     input_wires.clear();
     internal_wires.clear();
     output_wires.clear();
     abs_mems.clear();
+    _reset_vlg = reset_vlg;
   }
 
   // ------------------------------------------------------------------------

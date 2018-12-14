@@ -15,7 +15,7 @@
 namespace ilang {
 
 // ------------------------------ CONFIGURATIONS --------------------------------- //
-	
+
 #define MAX_CYCLE_CTR 127
 #define VLG_TRUE "`true"
 
@@ -38,6 +38,10 @@ VlgSglTgtGen::VlgSglTgtGen(
   vlg_wrapper(VerilogGenerator::VlgGenConfig(), "wrapper"),   
   // use given, except for core options
   vlg_ila(VerilogGenerator::VlgGenConfig(vlg_gen_config, true, funcOption::External, true )  ), 
+  // interface mapping directive
+  _idr( instr_ptr == nullptr ? true : false ), // if nullptr, verify inv., reset it
+  // state mapping directive
+  _sdr(), // currently no
   // verilog info
   vlg_info_ptr(_vlg_info_ptr),
   // variable extractor
@@ -45,8 +49,13 @@ VlgSglTgtGen::VlgSglTgtGen(
          [this](const std::string &n) -> bool { return TryFindVlgState(n); } ),
   // ref to refmaps
   rf_vmap(_rf_vmap),
-  rf_cond(_rf_cond) {
+  rf_cond(_rf_cond),
+  target_type( instr_ptr == nullptr ? 
+    target_type_t::INVARIANTS : target_type_t::INSTRUCTIONS // whether it is invariant/instructions
+   ) {
     // do nothing
+    if (target_type == target_type_t::INSTRUCTIONS) 
+      vlg_ila.ExportTopLevelInstr(instr_ptr);
   }
   
   void VlgSglTgtGen::ConstructWrapper_add_ila_input() {
@@ -65,13 +74,15 @@ VlgSglTgtGen::VlgSglTgtGen(
     for(size_t state_idx = 0; state_idx < ila_state_num; ++ state_idx) {
       const auto & state_ = instr_ptr->host()->state(state_idx);
       const auto & name_  = state->name().str();
+      if( state->sort()->is_mem() ) 
+        continue; // please ignore memory, they should not be connected this way
       auto width_ = get_width(state_);
 
       vlg_wrapper.add_wire  ("__ILA_SO_" + name_, width_);
       vlg_wrapper.add_output("__ILA_SO_" + name_, width_); 
-      .. // remember to connect in the instantiation step
-
+      // remember to connect in the instantiation step
     }
+  } // ConstructWrapper_add_ila_input
 
   std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
 
@@ -84,17 +95,14 @@ VlgSglTgtGen::VlgSglTgtGen(
     .. record function
 
     auto retStr = vlg_ila.moduleName + " " + _vlg_impl_top_name + " (\n";
-    retStr += "   ." + vlg_ila.clkName + "(" + vlg_wrapper.clkName +"),\n";
-    retStr += "   ." + vlg_ila.rstName + "(" + vlg_wrapper.rstName +"),\n";
-    retStr += "   ." + vlg_ila.validName + "(" + vlg_ila.validName +"),\n";
 
     // handle input
     for(auto && w : vlg_ila.inputs) {
       // deal w. clock
-      if(w.first == vlg_ila.clkName) 
+      if(w.first == vlg_ila.clkName) // .clk(clk)
         retStr += "   ." + vlg_ila.clkName + "(" + vlg_wrapper.clkName +"),\n";
-      else if (w.first == vlg_ila.rstName)
-        retStr += "   ." + vlg_ila.rstName + "(" + vlg_wrapper.rstName +"),\n";
+      else if (w.first == vlg_ila.rstName) // .rst(rst) -- this does not need to be changed
+        retStr += "   ." + vlg_ila.rstName + "(" + vlg_wrapper.rstName +"),\n"; // no init anyway!
       else
         retStr += "   ." + w.first + "(__ILA_I_" +  w.first +"),\n";
     }
@@ -347,7 +355,6 @@ VlgSglTgtGen::VlgSglTgtGen(
     GenerateHeader();
 
     // 1. add input
-    vlg_wrapper.add_input ("nondet_start", 1);
     vlg_wrapper.add_input ("dummy_reset", 1);
     vlg_wrapper.add_output("allassert", 1);
     // -- find out the inputs
