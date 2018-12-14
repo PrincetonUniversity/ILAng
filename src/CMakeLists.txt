@@ -38,13 +38,6 @@ if(${ILANG_BUILD_COV})
     target_compile_options(${ILANG_LIB_NAME} PUBLIC -fprofile-arcs)
     target_compile_options(${ILANG_LIB_NAME} PUBLIC -ftest-coverage)
 
-  elseif("${CMAKE_C_COMPILER_ID}" MATCHES "(Apple)?[Cc]lang" OR 
-         "${CMAKE_CXX_COMPILER_ID}" MATCHES "(Apple)?[Cc]lang")
-
-    message(FATAL_ERROR "Coverage with Clang not supported.")
-    #target_compile_options(${ILANG_LIB_NAME} PUBLIC -fprofile-instr-generate)
-    #target_compile_options(${ILANG_LIB_NAME} PUBLIC -fcoverage-mapping)
-
   endif()
 
 endif()
