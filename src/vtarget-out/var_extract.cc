@@ -11,16 +11,18 @@
 
 namespace ilang {
 
+
+  VarExtractor::VarExtractor( str_j is_ila_state, str_j is_ila_input, str_j is_vlg_sig  ) :
+    _is_ila_state(is_ila_state),_is_ila_input(is_ila_input),_is_vlg_sig(is_vlg_sig) {}
+
+
   // mi == ila_inst_name / vlg_inst_name
   bool VarExtractor::contains_mod_inst_name(const std::string & s, const std::string & mi) {
     ILA_ERROR_IF(mi == "") << "Implementation bug: set the module instances name first";
     return Split(s,".").front() == mi;
   }
 
-  
-  void VarExtractor::set_module_inst_name(const std::string & i, const std::string & v) {
-    ila_inst_name = i; vlg_inst_name = v;
-  }
+
 
   std::string VarExtractor::GenString () const {
     std::string ret;
@@ -84,6 +86,8 @@ namespace ilang {
           token_type tp;
           if(_is_ila_state(subs) && !force_vlg_statename )        
             tp = ILA_S;
+          else if(_is_ila_input(subs) && !force_vlg_statename )
+            tp = ILA_IN;
           else if (_is_vlg_state(subs) )  
             tp = VLG_S;  
           else                            
@@ -123,6 +127,8 @@ namespace ilang {
         token_type tp;
         if(_is_ila_state(subs) && !force_vlg_statename)       
          tp = ILA_S;
+        else if(_is_ila_input(subs) && !force_vlg_statename )
+          tp = ILA_IN;
         else if (_is_vlg_state(subs) )  
           tp = VLG_S;
         else                            

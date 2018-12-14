@@ -35,6 +35,7 @@ namespace ilang {
 class VlgSglTgtGen {
     // --------------------- TYPE DEFINITION ------------------------ //
     typedef enum { INVARIANTS, INSTRUCTIONS } target_type_t;
+    typedef enum { NA = 0, READY_SIGNAL = 1, READY_BOUND = 2, BOTH = 3 }  ready_type_t;
 
 public:
     // --------------------- CONSTRUCTOR ---------------------------- //
@@ -86,6 +87,11 @@ public:
     const std::vector<std::string> _all_referred_vlg_names;
     /// target type 
     target_type_t       target_type;
+    /// a shortcut of whether rf has flush condition set
+    bool                has_flush;
+    /// ready type
+    ready_type_t        ready_type;
+
 
   private:
     /// Counter of mapping
@@ -107,6 +113,8 @@ public:
     std::pair<unsigned,unsigned> GetMemInfo( const std::string &ila_mem_name ) const;
     /// Test if a string represents an ila state name
     bool TryFindIlaState(const std::string &sname);
+    /// Test if a string represents an ila input name
+    bool TryFindIlaInput(const std::string &sname);
     /// Test if a string represents a Verilog signal name
     bool TryFindVlgState(const std::string &sname);
     /// Modify a token and record its use
@@ -127,14 +135,14 @@ public:
     /// 3.  "ila-state":[ "cond&map" ]
     /// 4.  "ila-state":[ {"cond":,"map":}, ] 
     std::string GetStateVarMapExpr(const std::string & ila_state_name, nlohmann::json & m) ;
+    /// Find the current instruction mapping
+    nlohmann::json & VlgSglTgtGen::get_current_instruction_rf();
 
 
   protected:
     // --------------- STEPS OF GENERATION ------------------------//
     /// add ila input to the wrapper
     void ConstructWrapper_add_ila_input();
-    /// get the ila module instantiation string
-    std::string ConstructWrapper_get_ila_module_inst();
     /// add the vlg input ouput to the wrapper I/O
     void ConstructWrapper_add_vlg_input_output();
     /// add a cycle counter to be used to deal with the end cycle
@@ -144,45 +152,64 @@ public:
     /// add state equ assumptions
     void ConstructWrapper_add_varmap_assumptions();
     /// add state equ assertions 
-    void ConstructWrapper_add_varmap_assertions(bool has_flush);
+    void ConstructWrapper_add_varmap_assertions();
     /// Add invariants as assumptions
-    void ConstructWrapper_add_inv_assumptions(bool has_flush);
+    void ConstructWrapper_add_inv_assumptions();
     /// Add invariants as assertions
-    void ConstructWrapper_add_inv_assertions(void);
+    void ConstructWrapper_add_inv_assertions();
     /// Add more assumptions/assertions
-    void ConstructWrapper_add_additional_mapping_control(void);
+    void ConstructWrapper_add_additional_mapping_control();
     /// Generate __ISSUE__, __IEND__, ... signals
-    void ConstructWrapper_add_condition_signals(void);
+    void ConstructWrapper_add_condition_signals();
     /// Add instantiation statement of the two modules
-    void ConstructWrapper_add_module_instantiation(void);
+    void ConstructWrapper_add_module_instantiation();
     /// Add instantiation of the memory and put the needed mem implementation in extra export
-    void ConstructWrapper_add_helper_memory(void);
+    /// This also include the assertions
+    void ConstructWrapper_add_helper_memory();
+    /// Add buffers and assumption/assertions about the 
+    void ConstructWrapper_add_uf_buffers();
     /// Call the above functions to make a wrapper (not yet export it)
-    void ConstructWrapper(void) ;
+    void ConstructWrapper() ;
+
+  protected:
+    /// get the ila module instantiation string
+    std::string ConstructWrapper_get_ila_module_inst();
+
   public:
     /// create the wrapper file
-    void virtual Export_wrapper(void);
+    void virtual Export_wrapper();
     /// export the ila verilog
-    void virtual Export_ila_vlg(void);
+    void virtual Export_ila_vlg();
     /// export the script to run the verification
-    void virtual Export_script(void);
+    void virtual Export_script();
     /// export extra things (problem)
-    void virtual Export_extra(void);
+    void virtual Export_extra();
     /// export the memory abstraction 
-    void virtual Export_mem(void);
+    void virtual Export_mem();
     /// Use the Export_* functions to export everything
-    void virtual Export(void);
+    void virtual Export();
 
   protected:
     // helper function to be implemented by COSA/JASPER
     /// Add an assumption
-    virtual void add_an_assumption(const std::string & aspt) = 0;
+    virtual void add_an_assumption(const std::string & aspt, const std::string & dspt) = 0;
     /// Add an assertion
-    virtual void add_an_assertion (const std::string & asst) = 0;
+    virtual void add_an_assertion (const std::string & asst, const std::string & dspt) = 0;
 
   private:
     // Do not instantiate 
     virtual void do_not_instantiate(void) = 0;
+
+  // ----------------------- BAD STATE -------------------- //
+  public:
+    /// check if this module is in a bad state
+    bool in_bad_state(void) const { return _bad_state; }
+  protected:
+    /// If it is bad state, return true and display a message
+    bool bad_state_return(void); 
+  private:
+    /// If it is in a bad state
+    bool _bad_state;
 
 }; // class VlgSglTgtGen
 

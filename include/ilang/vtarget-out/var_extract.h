@@ -16,7 +16,7 @@ namespace ilang {
 
 class VarExtractor{
   /// Type of tokens
-  typedef enum { KEEP = 0, ILA_S, VLG_S, UNKN_S, NUM } token_type;
+  typedef enum { KEEP = 0, ILA_S, ILA_IN, VLG_S, UNKN_S, NUM } token_type;
   /// Tokens
   typedef std::pair<token_type, std::string> token;
   /// Type of function pointer of string judger
@@ -29,12 +29,14 @@ protected:
   std::vector<token> _tokens;
   /// a pointer to string judger (is ila state?)
   str_j _is_ila_state;
+  /// a pointer to string judge (is ila input?)
+  str_j _is_ila_input;
   /// a pointer to string judger (is vlg signal?)
   str_j _is_vlg_sig;
 
 public:
   // ---------------------- CONSTRUCTOR ----------------- //
-  VarExtractor( str_j is_ila_state, str_j is_vlg_sig  );
+  VarExtractor( str_j is_ila_state, str_j is_ila_input, str_j is_vlg_sig  );
   // ---------------------- METHODS ----------------- //
   /// Parse a string and populate the token vector, will clear the _tokens storage
   void ParseToExtract(const std::string & in, bool force_vlg_statename = false); // the later is only used in dealing w. invariants

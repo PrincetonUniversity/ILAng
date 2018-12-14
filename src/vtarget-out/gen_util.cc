@@ -52,6 +52,20 @@ bool VlgSglTgtGen::TryFindIlaState(const std::string &sname) {
   }
   return false;
 }
+
+bool VlgSglTgtGen::TryFindIlaInput(const std::string &sname) {
+  if (_instr_ptr->host()->input(sname) ) return true;
+  // if it uses the reference it self
+  auto hierName = Split(sname, ".");
+  if (hierName.size() == 2 ) { // maybe it contains an unnecessary head
+    if( (hierName[0] == _ila_mod_inst_name || hierName[0] == "ILA") && _instr_ptr->host()->input(hierName[1]) )
+      return true;
+    return false;
+  }
+  return false;
+}
+
+
 bool VlgSglTgtGen::TryFindVlgState(const std::string &sname) {
 
   if(vlg_info_ptr->check_hierarchical_name_type(sname) 
@@ -75,11 +89,11 @@ std::string VlgSglTgtGen::ModifyCondExprAndRecordVlgName(const VarExtractor::tok
     ILA_WARN << "In refinement relations: unknown reference to name:" << name << " keep unchanged.";
     return sname;
   }
-  if (token_tp == VarExtractor::token_type::KEEP || 
+  else if (token_tp == VarExtractor::token_type::KEEP || 
       token_tp == VarExtractor::token_type::UNKN_S ||
       token_tp == VarExtractor::token_type::NUM ) 
     return sname; // NC
-  if (token_tp == VarExtractor::token_type::ILA_S) {
+  else if (token_tp == VarExtractor::token_type::ILA_S) {
     // if it refers to ILA state
     if (_instr_ptr->host()->state(sname) ) return "__ILA_SO_" + sname;
     // if it uses the reference it self
@@ -91,7 +105,19 @@ std::string VlgSglTgtGen::ModifyCondExprAndRecordVlgName(const VarExtractor::tok
     ILA_ASSERT(false) << "Implementation bug: should not be reachable. token_tp: ILA_S";
     return sname;
   }
-  if (token_tp == VarExtractor::token_type::VLG_S)  {
+  else if (token_tp == VarExtractor::token_type::ILA_IN) {
+    // if it refers to ILA state
+    if (_instr_ptr->host()->input(sname) ) return "__ILA_I_" + sname;
+    // if it uses the reference it self
+    auto hierName = Split(sname, ".");
+    if (hierName.size() == 2 && ) // maybe it contains an unnecessary head
+      if( (hierName[0] == _ila_mod_inst_name || hierName[0] == "ILA") && _instr_ptr->host()->input(hierName[1]) )
+        return "__ILA_I_" + hierName[1];
+    // should not reachable
+    ILA_ASSERT(false) << "Implementation bug: should not be reachable. token_tp: ILA_IN";
+    return sname;
+  }
+  else if (token_tp == VarExtractor::token_type::VLG_S)  {
 
     if(vlg_info_ptr->check_hierarchical_name_type(sname) 
        != VerilogInfo::hierarchical_name_type::NONE) {
@@ -247,6 +273,17 @@ std::string VlgSglTgtGen::GetStateVarMapExpr(const std::string & ila_state_name,
   LA_ERROR<<"Unable to handle this piece of JSON input:"<<m;
   return VLG_TRUE;
 } // GetStateVarMapExpr
+
+
+// use instruction pointer and the rf_cond to get it (no need to provide)
+nlohmann::json & VlgSglTgtGen::get_current_instruction_rf() {
+  auto & instrs = rf_cond["instructions"];
+  for (auto && instr : instrs) {
+    if(instr["instruction"] == instr_ptr->name().str())
+      return instr;
+  }
+  return nlohmann::json(nullptr);
+}
 
 
 }; // namespace ilang

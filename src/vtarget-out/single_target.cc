@@ -18,6 +18,8 @@ namespace ilang {
 
 #define MAX_CYCLE_CTR 127
 #define VLG_TRUE "`true"
+#define VLG_FALSE "`false"
+#define ONLY_INITIAL_INV true
 
 // ------------------------------ VlgSglTgtGen --------------------------------- //
 
@@ -45,18 +47,55 @@ VlgSglTgtGen::VlgSglTgtGen(
   // verilog info
   vlg_info_ptr(_vlg_info_ptr),
   // variable extractor
-  _vext( [this](const std::string &n) -> bool { return TryFindIlaState(n); } , 
-         [this](const std::string &n) -> bool { return TryFindVlgState(n); } ),
+  _vext( [this](const std::string &n) -> bool { return TryFindIlaState(n); } ,
+         [this](const std::string &n) -> bool { return TryFindIlaInput(n); } ,
+         [this](const std::string &n) -> bool { return TryFindVlgState(n); }  ),
   // ref to refmaps
   rf_vmap(_rf_vmap),
   rf_cond(_rf_cond),
   target_type( instr_ptr == nullptr ? 
-    target_type_t::INVARIANTS : target_type_t::INSTRUCTIONS // whether it is invariant/instructions
-   ) {
+    target_type_t::INVARIANTS : target_type_t::INSTRUCTIONS ), // whether it is invariant/instructions
+  has_flush(false),
+  ready_type(ready_type_t::NA)
+  _bad_state(false),
+   {
     // do nothing
-    if (target_type == target_type_t::INSTRUCTIONS) 
+    if (target_type == target_type_t::INSTRUCTIONS) {
+
       vlg_ila.ExportTopLevelInstr(instr_ptr);
-  }
+      if( vlg_ila.decodeNames.size() != 1 ) {
+        ILA_ERROR << "Implementation bug btw. vlg gen and vtarget-gen";
+        _bad_state = true;
+      }
+
+      auto & instr = get_current_instruction_rf();
+      if ( instr.is_null() ) {
+        ILA_ERROR 
+          << "No refinement relation is defined for current instruction:"
+          << instr_ptr->name().str();
+        _bad_state = true;
+      }
+      if( IN( "flush constraint" ,instr) and instr["flush constraint"]) {
+        if ( IN( "pre-flush end" ,instr) and instr["pre-flush end"] and 
+             IN( "post-flush end" ,instr) and instr["post-flush end"] )
+          has_flush = true; // requiring three items
+        else {
+          ILA_ERROR << "When using flushing, 'pre-flush end' and 'post-flush end' "
+            << "must be specify";
+          _bad_state = true;
+        }
+      }
+      if( IN("ready signal", instr) and instr["ready signal"] ) 
+        ready_type |= ready_type_t::READY_SIGNAL;
+      if( IN("ready bound", instr) and instr["ready bound"] )
+        ready_type |= ready_type_t::READY_BOUND;
+      if( ready_type == ready_type_t::NA ) {
+        ILA_ERROR << "refinement relation for:"<< instr_ptr->name().str()
+          << " has to specify a ready condition";
+        _bad_state = true;
+      }
+    }
+  } // END of constructor
   
   void VlgSglTgtGen::ConstructWrapper_add_ila_input() {
     // add ila input
@@ -90,9 +129,7 @@ VlgSglTgtGen::VlgSglTgtGen(
     vlg_wrapper.add_wire( vlg_ila.validName , 1 ); 
     vlg_wrapper.add_wire( vlg_ila.decodeNames[0], 1 );
 
-    .. assume valid
-    .. assume decode
-    .. record function
+    // .. record function
 
     auto retStr = vlg_ila.moduleName + " " + _vlg_impl_top_name + " (\n";
 
@@ -174,10 +211,7 @@ VlgSglTgtGen::VlgSglTgtGen(
       sep = ",\n";
     }
     retStr += "\n);"
-  }
-
-
-  } // ConstructWrapper_add_ila_input()
+  } // ConstructWrapper_get_ila_module_inst()
 
   void VlgSglTgtGen::ConstructWrapper_add_vlg_input_output() {
     // clear the old record, if any
@@ -196,20 +230,18 @@ VlgSglTgtGen::VlgSglTgtGen(
           return GetMemInfo(ila_mem_name);  }
          ); // end of function call: RegisterInterface
     }
-  } // ConstructWrapper_wrapper_addinput
+  } // ConstructWrapper_add_vlg_input_output
 
   void VlgSglTgtGen::ConstructWrapper_add_cycle_count_moniter() {
     // find in rf_cond, how many cycles will be needed
     unsigned max_bound = 0;
-    auto & instrs = rf_cond["instructions"];
-    for (auto && instr : instrs) {
-      if(instr["instruction"] != instr_ptr->name().str() ) continue; // not this entry
-      if(instr["ready bound"]) {
-        bound = StrToInt(instr["ready bound"]);
-        if (max_bound < bound) max_bound = bound;
-      }
-    }
-    if (max_bound == 0) max_bound = MAX_CYCLE_CTR;
+
+    auto & instr = get_current_instruction_rf();
+
+    if(! instr.is_null() and instr["ready bound"]) 
+      max_bound = StrToInt(instr["ready bound"]);
+    else
+      max_bound = MAX_CYCLE_CTR;
 
     auto cnt_width = (int) std::ceil( std::log2 ( max_bound + 10 ) );
     vlg_wrapper.add_reg("__CYCLE_CNT__", cnt_width); // by default it will be an output reg
@@ -232,20 +264,23 @@ VlgSglTgtGen::VlgSglTgtGen(
     vlg_wrapper.add_reg("__RESETED__", 1);
     vlg_wrapper.add_always_stmt("if (rst) __RESETED__ <= 1;");
 
-    .. // remember to generate
+    // remember to generate
     // __RESETED__
     // __ISSUE__ == start condition (if no flush, issue == true?)
     // __IEND__ == ( end condition ) &&  STARTED
     // __ENDFLUSH__ == (end flush condition ) && ENDED
     // flush : !( __ISSUE__ ? || __START__ || __STARTED__ ) |-> flush 
-  }
+  } // ConstructWrapper_add_cycle_count_moniter
 
   void VlgSglTgtGen::ConstructWrapper_generate_header() {
-    vlg_wrapper.add_preheader("\n`define \"true\"  1\n");
-  }
+    vlg_wrapper.add_preheader("\n`define true  1\n");
+    vlg_wrapper.add_preheader("\n`define false 0\n");
+  } // ConstructWrapper_generate_header
 
   // for special memory, we don't need to do anything?
   void VlgSglTgtGen::ConstructWrapper_add_varmap_assumptions() {
+    ILA_ASSERT(target_type == target_type_t::INSTRUCTIONS) <<
+      "Implementation bug: vmap assumpt should only be used when verifying instructions.";
     std::set<std::string> ila_state_names;
 
     for ( size_t state_idx = 0; state_idx < instr_ptr->host()->state_num() ; ++ state_idx )
@@ -267,11 +302,13 @@ VlgSglTgtGen::VlgSglTgtGen(
       for (auto && sn : ila_state_names)
         ILA_ERROR<<"  "<<sn;
     }
-  }
+  } // ConstructWrapper_add_varmap_assumptions
 
   // for memory, we need to assert new data match and ?
   // 
-  void VlgSglTgtGen::ConstructWrapper_add_varmap_assertions(bool has_flush) {
+  void VlgSglTgtGen::ConstructWrapper_add_varmap_assertions() {
+    ILA_ASSERT(target_type == target_type_t::INSTRUCTIONS) <<
+      "Implementation bug: vmap assts should only be used when verifying instructions.";
     std::set<std::string> ila_state_names;
 
     for ( size_t state_idx = 0; state_idx < instr_ptr->host()->state_num() ; ++ state_idx )
@@ -288,10 +325,12 @@ VlgSglTgtGen::VlgSglTgtGen(
       auto precondition = has_flush ? "~ __ENDFLUSH__ || " : "~ __IEND__ || " ;
       add_an_assertion( precondition  +"(" + GetStateVarMapExpr(sname, i.value()) +")" );
     }
-  }
+  } // ConstructWrapper_add_varmap_assertions
 
 
-  void VlgSglTgtGen::ConstructWrapper_add_inv_assumptions(bool has_flush) {
+  void VlgSglTgtGen::ConstructWrapper_add_inv_assumptions() {
+    ILA_ASSERT(target_type == target_type_t::INSTRUCTIONS) <<
+      "Implementation bug: inv assumpt should only be used when verifying instructions.";
     if ( not rf_cond["global invariants"] ) return; // no invariants to add
     if ( not rf_cond["global invariants"].is_array() ) { 
       ILA_ERROR << "'global invariants' field in refinement relation has to be a JSON array."
@@ -299,14 +338,22 @@ VlgSglTgtGen::VlgSglTgtGen(
     }
     for( auto & cond :  rf_cond["global invariants"] ) {
       auto new_cond = ReplExpr(cond.get<std::string>(), true);
-      auto precondition = has_flush ? "~ __RESETED__ || " : "~ __START__ || " ;
+      auto precondition
+      if(ONLY_INITIAL_INV)
+        precondition = has_flush ? "~ __RESETED__ || " : "~ __START__ || " ;
+      else
+        precondition = ""; // always assme no matter what
+
       add_an_assumption( precondition + "(" + new_cond + ")" );
     }
-  }
+  } // ConstructWrapper_add_inv_assumptions
 
   // 
-  // should not have the flush condition set!
-  void VlgSglTgtGen::ConstructWrapper_add_inv_assertions(void) {
+  // should not have the flush condition set -- > because this should only be called when target is invariants
+
+  void VlgSglTgtGen::ConstructWrapper_add_inv_assertions() {
+    ILA_ASSERT(target_type == target_type_t::INVARIANTS) <<
+      "Implementation bug: should only be used when verifying invariants";
     if ( not rf_cond["global invariants"] ) return; // no invariants to add
     if ( not rf_cond["global invariants"].is_array() ) { 
       ILA_ERROR << "'global invariants' field in refinement relation has to be a JSON array."
@@ -318,15 +365,108 @@ VlgSglTgtGen::VlgSglTgtGen(
     }
   }
 
-  void VlgSglTgtGen::ConstructWrapper_add_additional_mapping_control(void) {
-    ..
-  } // AddAdditionalMappingControl
+  void VlgSglTgtGen::ConstructWrapper_add_additional_mapping_control() {
+    if(IN("mapping control", rf_vmap)) {
+      for(auto && c : rf_vmap["mapping control"]) {
+        add_an_assumption( ReplExpr(c.get<std::string>()) );
+      }
+    }
+  } // ConstructWrapper_add_additional_mapping_control
 
-  void VlgSglTgtGen::ConstructWrapper_add_condition_signals(void)  {
+  void VlgSglTgtGen::ConstructWrapper_add_condition_signals()  {
     // TODO 
+    // remember to generate
+    // __ISSUE__ == start condition (if no flush, issue == true?)
+    // __IEND__ == ( end condition ) &&  STARTED
+    // __ENDFLUSH__ == (end flush condition ) && ENDED
+    // flush : !( __ISSUE__ ? || __START__ || __STARTED__ ) |-> flush 
+
+    if (target_type == target_type_t::INVARIANTS)
+      return; 
+      // we don't need additional signals, just make reset drives the design
+
+    // find the instruction 
+    auto & instr = get_current_instruction_rf();
+    ILA_ASSERT ( ! instr.is_null() ) ;
+
+    // __IEND__
+    std::string iend_cond = VLG_FALSE;
+    if(ready_type & ready_type_t::READY_SIGNAL) {
+      if( instr["ready signal"].is_string() ) {
+        iend_cond += "|| (" + ReplExpr(instr["ready signal"].get<std::string>(), true) + ")"; // force vlg
+      } else if (instr["ready signal"].is_array()) {
+        for(auto && cond : instr["ready signal"] )
+          if (cond.is_string())
+            iend_cond += " || (" + ReplExpr(cond.get<std::string>()) + ")";
+          else
+            ILA_ERROR << "ready signal field of instruction: " 
+              << instr_ptr->name().str() 
+              << " has to be string or array or string";
+      } else 
+        ILA_ERROR << "ready signal field of instruction: " 
+          << instr_ptr->name().str() 
+          << " has to be string or array or string";
+    }
+    if(ready_type & ready_type_t::READY_BOUND) { // can be both applied
+      if ( instr["ready bound"].is_number_integer() ) {
+        int bound = instr["ready bound"].get<int>();
+        if( bound > 0 ) {
+          // okay now we enforce the bound
+          iend_cond += "|| ( __CYCLE_CNT__ == " + IntToStr(bound) + ")";
+        }
+        else
+          ILA_ERROR << "ready bound field of instruction: " 
+          << instr_ptr->name().str() 
+          << " has to a positive integer";
+      }
+      else
+        ILA_ERROR << "ready bound field of instruction: " 
+          << instr_ptr->name().str() 
+          << " has to a positive integer";
+    } // end of ready bound/condition
+    vlg_wrapper.add_wire( "__IEND__" , 1 );
+    vlg_wrapper.add_assign_stmt("__IEND__" , "(" + iend_cond + ") && __STARTED__");
+    
+    add_an_assumption( "~ __ISSUE__ || (" + vlg_ila.decodeNames[0] + ")" ); // __ISSUE__ |=> decode
+    add_an_assumption( "~ __ISSUE__ || (" + vlg_ila.validName + ")" ); // __ISSUE__ |=> decode
+
+    if(has_flush) {
+      ILA_ASSERT( instr["pre-flush end"] and instr["post-flush end"] ); // there has to be something
+
+      auto issue_cond = "(" + ReplExpr( instr["pre-flush end"].get<std::string>() ) + ") && __RESETED__";
+      vlg_wrapper.add_wire("__ISSUE__" , 1);
+      vlg_wrapper.add_assign_stmt( "__ISSUE__", issue_cond );
+      
+      auto finish_cond = "(" + ReplExpr( instr["post-flush end"].get<std::string>() ) + ") && __ENDED__";
+      vlg_wrapper.add_wire("__ENDFLUSH__" , 1);
+      vlg_wrapper.add_assign_stmt( "__ENDFLUSH__", finish_cond );
+
+      // enforcing flush constraints
+      std::string flush_enforcement = VLG_TRUE;
+      if( instr["flush constraints"].is_string() ) {
+        flush_enforcement += "&& (" + ReplExpr(instr["flush constraints"].get<std::string>()) + ")"; 
+      } else if (instr["flush constraints"].is_array() )  {
+        for (auto && c: instr["flush constraints"])
+          if(c.is_string())
+            flush_enforcement += "&& (" + ReplExpr(c.get<std::string>()) + ")"; 
+          else
+            ILA_ERROR << "flush constraint field of instruction:" << instr_ptr->name().str()
+              << " must be a string or an array of string.";
+      } else 
+        ILA_ERROR << "flush constraint field of instruction:" << instr_ptr->name().str()
+          << " must be string or array of string.";
+
+      add_an_assumption ("~ ( __RESETED__ && ~ ( __START__  || __STARTED__ ) ) || (" + flush_enforcement + ")");
+      add_an_assumption ("~ ( __ENDED__ ) || (" + flush_enforcement + ")");
+
+    } else {
+      vlg_wrapper.add_wire("__ISSUE__" , 1);
+      vlg_wrapper.add_assign_stmt( "__ISSUE__", VLG_TRUE ); // issue ASAP
+      // start decode -- issue enforce (e.g. valid, input)
+    } // end of no flush
   }
 
-  void VlgSglTgtGen::ConstructWrapper_add_module_instantiation(void) {
+  void VlgSglTgtGen::ConstructWrapper_add_module_instantiation() {
     // instantiate ila module
     auto ila_mod_inst = ConstructWrapper_get_ila_module_inst;
     vlg_wrapper.add_stmt ( ila_mod_inst ); 
@@ -344,40 +484,54 @@ VlgSglTgtGen::VlgSglTgtGen(
     vlg_wrapper.add_stmt ( verilog_inst_str );
   }
 
-  void VlgSglTgtGen::ConstructWrapper_add_helper_memory(void) {
+  void VlgSglTgtGen::ConstructWrapper_add_helper_memory() {
     // TODO ..
   }
 
   // for invariants or for instruction
-  void VlgSglTgtGen::ConstructWrapper(void) {
+  void VlgSglTgtGen::ConstructWrapper() {
+    ILA_ASSERT(
+      target_type == target_type_t::INVARIANTS ||
+      target_type == target_type_t::INSTRUCTIONS );
 
     // 0. The headers you may need to have
-    GenerateHeader();
+    ConstructWrapper_generate_header();
 
     // 1. add input
-    vlg_wrapper.add_input ("dummy_reset", 1);
-    vlg_wrapper.add_output("allassert", 1);
+    if(target_type == target_type_t::INVARIANTS)
+      vlg_wrapper.add_input ("dummy_reset", 1);
+
     // -- find out the inputs
     ConstructWrapper_add_vlg_input();
     ConstructWrapper_add_ila_input();
 
     // 2. add some monitors (bound cnt)
-    AddCycleCountMoniter();
+    ConstructWrapper_add_cycle_count_moniter();
 
-    // 3. add assumptions
-    AddAssumptions();
+    // 3. add assumptions & assertions
+    if(target_type == target_type_t::INSTRUCTIONS) {
+      ConstructWrapper_add_varmap_assumptions();
+      ConstructWrapper_add_varmap_assertions();
+      ConstructWrapper_add_inv_assumptions();
+    }
+    else if (target_type == target_type_t::INVARIANTS) {
+      ConstructWrapper_add_inv_assertions();
+    }
+    // 4. additional mapping if any 
+    ConstructWrapper_add_additional_mapping_control();
 
-    // 4. add assertions (don't forget to connect allassert) assert property (...); wire ??; assign ?? = ??;
-    AddAssertions();
+    // if invariants, will do nothing
+    ConstructWrapper_add_condition_signals();
 
-    // 5. add instantiation. 2
-    AddModuleInstantiation();
+    // 5. module instantiation
+    ConstructWrapper_add_module_instantiation();
 
-    // 6. add helper memory module
-    AddHelperMemory();
+    // 6. helper memory
+    ConstructWrapper_add_helper_memory();
 
-    // 7. additional controls
-    AddAdditionalMappingControl();
+    // 7. uni-functions
+    ConstructWrapper_add_uf_buffers();
+    
 
   }
 
