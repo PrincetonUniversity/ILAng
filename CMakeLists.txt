@@ -25,7 +25,7 @@ option(ILANG_FETCH_DEPS  "Fetch source of dependencies at config time."      ON)
 option(ILANG_BUILD_JSON  "Build JSON I/O."                                   ON)
 option(ILANG_BUILD_VLOG  "Build Verilog I/O."                                ON)
 option(ILANG_BUILD_DOCS  "Build documentations."                            OFF)
-option(ILANG_BUILD_PYAPI "Build the Python interface."                       ON)
+option(ILANG_BUILD_PYAPI "Build the Python interface."                      OFF)
 option(ILANG_BUILD_SYNTH "Build the synthesis engine."                       ON)
 option(ILANG_INSTALL_DEV "Install dev features."                            OFF)
 option(ILANG_EXPORT_PACKAGE "Export CMake package if enabled."              OFF)
@@ -36,7 +36,7 @@ cmake_dependent_option(ILANG_BUILD_TEST "Build unit tests."                  ON
   "PROJECT_NAME STREQUAL CMAKE_PROJECT_NAME" OFF)
 
 cmake_dependent_option(ILANG_BUILD_COV  "Build with coverage flags."        OFF
-  "CMAKE_BUILD_TYPE MATCHES Debug AND ILANG_BUILD_TEST" OFF)
+  "CMAKE_BUILD_TYPE MATCHES Debug AND CMAKE_COMPILER_IS_GNUCXX"             OFF)
 
 
 # ---------------------------------------------------------------------------- #
