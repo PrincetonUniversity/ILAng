@@ -54,8 +54,13 @@ std::map<char, std::string>
                    {'5', "__FIVE__"},  {'6', "__SIX__"},   {'7', "__SEVEN__"},
                    {'8', "__EIGHT__"}, {'9', "__NINE__"}});
 
+unsigned symbol_cnt = 0;
+static std::string get_symbol_new() {
+  return std::string("n") + std::to_string(symbol_cnt ++);
+}
+
 VerilogGeneratorBase::vlg_name_t
- VerilogGeneratorBase::sanitizeName(const vlg_name_t& n) {
+  VerilogGeneratorBase::sanitizeName(const vlg_name_t& n) {
 
   std::string outStr;
   for (unsigned idx = 0; idx < n.length(); ++idx) {
@@ -75,7 +80,7 @@ VerilogGeneratorBase::vlg_name_t
       continue;
     }
     // not in table, add it
-    auto newName = "_s_" + new_id() + "_s_";
+    auto newName = "_s_" + get_symbol_new() + "_s_";
     sanitizeTable.insert({c, newName});
     outStr += newName;
   }
@@ -131,7 +136,7 @@ VerilogGeneratorBase::vlg_name_t VerilogGeneratorBase::new_id(const ExprPtr& e) 
 }
 //--------------------------------------------------------------------------
 
-void VerilogGenerator::add_input(const vlg_name_t& n, int w) {
+void VerilogGeneratorBase::add_input(const vlg_name_t& n, int w) {
   if( inputs.find(n) != inputs.end() ) {
     ILA_ASSERT( inputs[n] == w ) 
       << "Implementation bug: redeclare of " << n 
@@ -307,9 +312,8 @@ void VerilogGeneratorBase::DumpToFile(std::ostream& fout) const {
 VerilogGenerator::VerilogGenerator(const VlgGenConfig& config,
                                    const std::string& modName,
                                    const std::string& clk,
-                                   const std::string& rst,
-                                   bool gen_step)
-    : VerilogGeneratorBase(config, modName, clk, rst), gen_step_signal(gen_step) {}
+                                   const std::string& rst)
+    : VerilogGeneratorBase(config, modName, clk, rst) {}
 
 
 void VerilogGenerator::insertInput(const ExprPtr& input) {
@@ -617,7 +621,7 @@ VerilogGenerator::vlg_name_t
         add_wire(addr_name, addr_width);
         add_wire(data_name, data_width);
 
-        new_size_id = ila_rports[mem_var_name].size();
+        unsigned new_size_id = ila_rports[mem_var_name].size();
         ila_rports[mem_var_name][new_size_id].raddr = addr_name;
         ila_rports[mem_var_name][new_size_id].rdata = data_name;
 

@@ -15,6 +15,8 @@
 namespace ilang {
 
 class VarExtractor{
+  
+public:
   /// Type of tokens
   typedef enum { KEEP = 0, ILA_S, ILA_IN, VLG_S, UNKN_S, NUM } token_type;
   /// Tokens

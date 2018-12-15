@@ -8,15 +8,18 @@
 #include <ilang/ila/expr_fuse.h>
 #include <ilang/vtarget-out/vtarget_gen_impl.h>
 #include <ilang/util/str_util.h>
-#include <ilang/vtarget-out/gen_util.h>
 
 namespace ilang {
 
+#define VLG_TRUE "`true"
+#define VLG_FALSE "`false"
+
+#define IntToStr(x) (std::to_string(x))
 
 std::string VlgSglTgtGen::new_mapping_id() {
   return std::string("__m") + IntToStr(mapping_counter++) + "__";
 }
-std::string VlgSglTgtGen::new_property_id(); {
+std::string VlgSglTgtGen::new_property_id() {
   return std::string("__p") + IntToStr(mapping_counter++) + "__";
 }
 
@@ -86,7 +89,7 @@ std::string VlgSglTgtGen::ModifyCondExprAndRecordVlgName(const VarExtractor::tok
   const auto & sname     = t.second;
 
   if (token_tp == VarExtractor::token_type::UNKN_S) {
-    ILA_WARN << "In refinement relations: unknown reference to name:" << name << " keep unchanged.";
+    ILA_WARN << "In refinement relations: unknown reference to name:" << sname << " keep unchanged.";
     return sname;
   }
   else if (token_tp == VarExtractor::token_type::KEEP || 
@@ -95,10 +98,11 @@ std::string VlgSglTgtGen::ModifyCondExprAndRecordVlgName(const VarExtractor::tok
     return sname; // NC
   else if (token_tp == VarExtractor::token_type::ILA_S) {
     // if it refers to ILA state
-    if (_instr_ptr->host()->state(sname) ) return "__ILA_SO_" + sname;
+    if (_instr_ptr->host()->state(sname) ) 
+      return "__ILA_SO_" + sname;
     // if it uses the reference it self
     auto hierName = Split(sname, ".");
-    if (hierName.size() == 2 && ) // maybe it contains an unnecessary head
+    if (hierName.size() == 2 ) // maybe it contains an unnecessary head
       if( (hierName[0] == _ila_mod_inst_name || hierName[0] == "ILA") && _instr_ptr->host()->state(hierName[1]) )
         return "__ILA_SO_" + hierName[1];
     // should not reachable
@@ -107,10 +111,11 @@ std::string VlgSglTgtGen::ModifyCondExprAndRecordVlgName(const VarExtractor::tok
   }
   else if (token_tp == VarExtractor::token_type::ILA_IN) {
     // if it refers to ILA state
-    if (_instr_ptr->host()->input(sname) ) return "__ILA_I_" + sname;
+    if (_instr_ptr->host()->input(sname) ) 
+      return "__ILA_I_" + sname;
     // if it uses the reference it self
     auto hierName = Split(sname, ".");
-    if (hierName.size() == 2 && ) // maybe it contains an unnecessary head
+    if (hierName.size() == 2 ) // maybe it contains an unnecessary head
       if( (hierName[0] == _ila_mod_inst_name || hierName[0] == "ILA") && _instr_ptr->host()->input(hierName[1]) )
         return "__ILA_I_" + hierName[1];
     // should not reachable
@@ -121,12 +126,12 @@ std::string VlgSglTgtGen::ModifyCondExprAndRecordVlgName(const VarExtractor::tok
 
     if(vlg_info_ptr->check_hierarchical_name_type(sname) 
        != VerilogInfo::hierarchical_name_type::NONE) {
-      _all_referred_vlg_names.push_back(sname)
+      _all_referred_vlg_names.push_back(sname);
       return sname;
     }
     if(vlg_info_ptr->check_hierarchical_name_type( _vlg_mod_inst_name + "." + sname) 
        != VerilogInfo::hierarchical_name_type::NONE) {
-      _all_referred_vlg_names.push_back(_vlg_mod_inst_name + "." + sname)
+      _all_referred_vlg_names.push_back(_vlg_mod_inst_name + "." + sname);
       return _vlg_mod_inst_name + "." + sname;      
     }
     ILA_ASSERT(false) << "Implementation bug: should not be reachable. token_type: VLG_S";
@@ -137,7 +142,7 @@ std::string VlgSglTgtGen::ModifyCondExprAndRecordVlgName(const VarExtractor::tok
 }
 
 // static function
-unsigned VlgSglTgtGen::TypeMatched(const ExprPtr & ila_var, const VerilogInfo & vlg_var) {
+unsigned VlgSglTgtGen::TypeMatched(const ExprPtr & ila_var, const SignalInfoBase & vlg_var) {
 
   if (ila_var == nullptr) {
     ILA_ERROR << "Not able to check type for unknown ila signal";
@@ -167,7 +172,7 @@ unsigned VlgSglTgtGen::TypeMatched(const ExprPtr & ila_var, const VerilogInfo & 
 // static function
 unsigned VlgSglTgtGen::get_width( const ExprPtr& n ) {
   ILA_WARN_IF(n->sort()->is_mem()) << "Using data width for "<<n->name().str();
-  return VerilogGenerator::get_width(n);
+  return VerilogGeneratorBase::get_width(n);
 }
 
 // static function
@@ -186,7 +191,7 @@ std::string VlgSglTgtGen::ReplExpr(const std::string & expr , bool force_vlg_sts
   return _vext.Replace(expr, 
         force_vlg_sts, 
         [this] (const VarExtractor::token &t ) {
-          return ModifyCondExprAndRecordVlgName(t) } );
+          return ModifyCondExprAndRecordVlgName(t); } );
 }
 
 std::string VlgSglTgtGen::PerStateMap(const std::string & ila_state_name_or_equ, const std::string & vlg_st_name ) {
@@ -201,15 +206,15 @@ std::string VlgSglTgtGen::PerStateMap(const std::string & ila_state_name_or_equ,
     return map_sig;
   } 
   // else it is a vlg signal name
-  auto ila_state = IlaGetState(ila_state_name); 
+  auto ila_state = IlaGetState(ila_state_name_or_equ); 
   if (!ila_state) return VLG_TRUE;
   if ( ila_state->sort()->is_mem() ) { ILA_ERROR << "Please use **MEM**.? directive for memory state matching"; return VLG_TRUE; }
   // check for state match
   std::string vlg_state_name = vlg_st_name;
   if (vlg_state_name.find(".") == std::string::npos )  { 
     vlg_state_name = _vlg_mod_inst_name + "." + vlg_state_name ; } // auto-add module name
-  auto vlg_sig_info = vlg_info_ptr->get_signal( vlg_state_name )
-  ILA_ERROR_IF( !TypeMatched(ila_state, vlg_sig_info ) ) << "ila state:" << ila_state_name <<" has mismatched type w. verilog signal:" << vlg_state_name;
+  auto vlg_sig_info = vlg_info_ptr->get_signal( vlg_state_name );
+  ILA_ERROR_IF( !TypeMatched(ila_state, vlg_sig_info ) ) << "ila state:" << ila_state_name_or_equ <<" has mismatched type w. verilog signal:" << vlg_state_name;
   // add signal
   std::string map_sig = new_mapping_id();
   vlg_wrapper.add_wire(map_sig, 1);
@@ -221,8 +226,9 @@ std::string VlgSglTgtGen::PerStateMap(const std::string & ila_state_name_or_equ,
 // return a verilog verilog, that should be asserted to be true for this purpose
 std::string VlgSglTgtGen::GetStateVarMapExpr(const std::string & ila_state_name, nlohmann::json & m) {
   if( m.is_string() ) {
-    if ( _sdr.isSpecialStateDir() ) {
+    if ( _sdr.isSpecialStateDir(m.get<std::string>()) ) {
       ILA_DLOG("VlgSglTgtGen.GetStateVarMapExpr") <<"map mem:" << ila_state_name; 
+      // may be we need to log them here
       return ;
       // return ; // **MEM** should be fine
     } else { 
@@ -270,7 +276,7 @@ std::string VlgSglTgtGen::GetStateVarMapExpr(const std::string & ila_state_name,
   }// if it is an array 
 
   // fall-through case
-  LA_ERROR<<"Unable to handle this piece of JSON input:"<<m;
+  ILA_ERROR<<"Unable to handle this piece of JSON input:"<<m;
   return VLG_TRUE;
 } // GetStateVarMapExpr
 
@@ -279,10 +285,10 @@ std::string VlgSglTgtGen::GetStateVarMapExpr(const std::string & ila_state_name,
 nlohmann::json & VlgSglTgtGen::get_current_instruction_rf() {
   auto & instrs = rf_cond["instructions"];
   for (auto && instr : instrs) {
-    if(instr["instruction"] == instr_ptr->name().str())
+    if(instr["instruction"] == _instr_ptr->name().str())
       return instr;
   }
-  return nlohmann::json(nullptr);
+  return empty_json;
 }
 
 

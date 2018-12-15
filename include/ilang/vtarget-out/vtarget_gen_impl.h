@@ -14,6 +14,7 @@
 #ifndef VTARGET_GEN_IMPL_H__
 #define VTARGET_GEN_IMPL_H__
 
+#include <ilang/config.h>
 
 #ifdef JSON_INOUT_ENABLE
 
@@ -21,7 +22,7 @@
 #include <ilang/verilog-in/verilog_analysis_wrapper.h>
 #include <ilang/verilog-out/verilog_gen.h>
 #include <ilang/vtarget-out/vtarget_gen.h>
-#include <ilang/vtarget-out/interface_directive.h>
+#include <ilang/vtarget-out/directive.h>
 #include <ilang/vtarget-out/var_extract.h>
 #include "nlohmann/json.hpp"
 #include <list>
@@ -41,9 +42,16 @@ public:
     // --------------------- CONSTRUCTOR ---------------------------- //
     ///
     /// \param[in] output path (ila-verilog, wrapper-verilog, problem.txt, run-verify-by-???, modify-impl, it there is )
-    /// \param[in] pointer to the ila
+    /// \param[in] pointer to the instruction
     /// \param[in] the default configuration for outputing verilog
-    VlgVerifTgtGen(
+    /// \param[in] the variable map
+    /// \param[in] the conditions
+    /// \param[in] pointer to verify info class
+    /// \param[in] verilog module name
+    /// \param[in] ila module name
+    /// \param[in] verilog wrapper module name
+    /// \param[in] implemenation sources, can be used to modify and copy
+    VlgSglTgtGen(
       const std::string              & output_path, // will be a sub directory of the output_path of its parent
       const InstrPtr                 & instr_ptr, // which could be an empty pointer, and it will be used to verify invariants
       const VerilogGenerator::VlgGenConfig & config,
@@ -51,7 +59,9 @@ public:
       nlohmann::json                 & _rf_cond,
       VerilogInfo      *               _vlg_info_ptr,
       const std::string              & vlg_mod_inst_name,
-      const std::string              & ila_mod_inst_name
+      const std::string              & ila_mod_inst_name,
+      const std::string              & wrapper_name,
+      const std::vector<std::string> & implementation_srcs
     );
 
   protected:
@@ -83,8 +93,10 @@ public:
     nlohmann::json    & rf_vmap;
     /// refinement relation instruction conditions
     nlohmann::json    & rf_cond;
+    /// An empty json for default fallthrough cases
+    nlohmann::json      empty_json;
     /// record all the referred vlg names, so you can add (*keep*) if needed
-    const std::vector<std::string> _all_referred_vlg_names;
+    std::vector<std::string> _all_referred_vlg_names;
     /// target type 
     target_type_t       target_type;
     /// a shortcut of whether rf has flush condition set
@@ -120,7 +132,7 @@ public:
     /// Modify a token and record its use
     std::string ModifyCondExprAndRecordVlgName(const VarExtractor::token &t );
     /// Check if ila name and vlg name are type compatible (not including special directives)
-    static unsigned TypeMatched(const ExprPtr & ila_var, const VerilogInfo & vlg_var);
+    static unsigned TypeMatched(const ExprPtr & ila_var, const SignalInfoBase & vlg_var);
     /// get width of an ila node
     static unsigned VlgSglTgtGen::get_width( const ExprPtr& n );
     /// Parse and modify a condition string 
@@ -175,19 +187,29 @@ public:
     /// get the ila module instantiation string
     std::string ConstructWrapper_get_ila_module_inst();
 
+  protected:
+    // ----------------------- MEMBERS for Export ------------------- //
+    /// top verilog module name
+    std::string top_mod_name;
+    /// top verilog module file
+    std::string top_file_name;
+    /// top verilog module file
+    std::string ila_file_name;
+    /// design files
+    std::vector<std::string> vlg_design_files; // mainly design file
+
+
   public:
     /// create the wrapper file
-    void virtual Export_wrapper();
+    void virtual Export_wrapper(const std::string & wrapper_name);
     /// export the ila verilog
-    void virtual Export_ila_vlg();
+    void virtual Export_ila_vlg(const std::string & ila_vlg_name);
     /// export the script to run the verification
-    void virtual Export_script();
+    void virtual Export_script(const std::string & script_name);
     /// export extra things (problem)
-    void virtual Export_extra();
-    /// export the memory abstraction 
-    void virtual Export_mem();
-    /// Use the Export_* functions to export everything
-    void virtual Export();
+    void virtual Export_problem(const std::string & extra_name); // only for cosa
+    /// export the memory abstraction (implementation)
+    void virtual Export_mem(const std::string & mem_name);
 
   protected:
     // helper function to be implemented by COSA/JASPER
@@ -236,7 +258,7 @@ class VlgVerifTgtGen : public VlgVerifTgtGenBase {
       const std::string              & refinement_conditions,
       const std::string              & output_path,
       const InstrPtr                 & instr_ptr,
-      const VerilogGenerator::VlgGenConfig& config = VlgGenConfig() 
+      const VerilogGenerator::VlgGenConfig& config = VerilogGenerator::VlgGenConfig() 
       );
 
     /// no copy constructor, please
@@ -255,7 +277,7 @@ class VlgVerifTgtGen : public VlgVerifTgtGenBase {
     /// implementation include path
     const std::vector<std::string> _vlg_impl_include_path;
     /// implementatino path
-    const std::string<std::string> _vlg_impl_srcs;
+    const std::vector<std::string> _vlg_impl_srcs;
     /// implementation top module name
     const std::string              _vlg_impl_top_name;
     /// refinement relation - variable mapping path
@@ -270,12 +292,14 @@ class VlgVerifTgtGen : public VlgVerifTgtGenBase {
     std::string                    _vlg_mod_inst_name; 
     /// The name of ila-verilog top module instance in the wrapper
     std::string                    _ila_mod_inst_name;
+    /// A pointer to create verilog analyzer
+    VerilogInfo      *vlg_info_ptr;
 
 protected:
     /// store the vmap info
     nlohmann::json rf_vmap;
     /// store the condition
-    nlohmann::json rf_cond
+    nlohmann::json rf_cond;
 
   public:
   // --------------------- METHODS ---------------------------- //
@@ -289,7 +313,7 @@ protected:
     /// If it is bad state, return true and display a message
     bool bad_state_return(void); 
     /// load json from a file name to the given j
-    void load_json(const std::string & fname, json & j);
+    void load_json(const std::string & fname, nlohmann::json & j);
 
 
     /// The way to add an assumption and assertion is tool-specific

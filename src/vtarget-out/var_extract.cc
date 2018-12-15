@@ -88,7 +88,7 @@ namespace ilang {
             tp = ILA_S;
           else if(_is_ila_input(subs) && !force_vlg_statename )
             tp = ILA_IN;
-          else if (_is_vlg_state(subs) )  
+          else if (_is_vlg_sig(subs) )  
             tp = VLG_S;  
           else                            
             tp = UNKN_S;
@@ -129,7 +129,7 @@ namespace ilang {
          tp = ILA_S;
         else if(_is_ila_input(subs) && !force_vlg_statename )
           tp = ILA_IN;
-        else if (_is_vlg_state(subs) )  
+        else if (_is_vlg_sig(subs) )  
           tp = VLG_S;
         else                            
           tp = UNKN_S;

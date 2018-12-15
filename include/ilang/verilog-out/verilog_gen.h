@@ -23,14 +23,16 @@
 namespace ilang {
 
 typedef ExprHash VerilogGenHash;
+class VlgSglTgtGen;
 class VlgVerifTgtGen;
 class IntefaceDirectiveRecorder;
 
 /// \brief Base class of VerilogGenerator
 class VerilogGeneratorBase {
+public:
   // --------------------- TYPE DEFINITIONS ---------------------------- //
   /// let VlgVerifTgtGen use this module to generate the wrapper module
-  friend class VlgVerifTgtGen;
+  friend class VlgSglTgtGen;
   /// let IntefaceDirectiveRecorder use this module to generate the wrapper module
   friend class IntefaceDirectiveRecorder;
   /// type of read port
@@ -120,10 +122,10 @@ public:
         : extMem(ExternalMem), fcOpt(funcOpt), start_signal(gen_start) {}
     /// Overwrite configuration, used by vtarget gen
     VlgGenConfig(
-        const VlgGenConfig && c, 
+        const VlgGenConfig & c, 
         bool ExternalMem, 
         funcOption funcOpt,
-        bool gen_start ):
+        bool gen_start )
         : extMem(ExternalMem), fcOpt(funcOpt), start_signal(gen_start) {} 
         // set other fields if there are such need (?)
   };
@@ -286,7 +288,8 @@ public:
   /// \param[in] Top module name, if empty, get it from instruction name
   /// \param[in] clock signal name
   /// \param[in] reset signal name
-  VerilogGenerator(const VlgGenConfig& config = VlgGenConfig(),
+  VerilogGeneratorBase(
+                   const VlgGenConfig& config = VlgGenConfig(),
                    const std::string& modName = "",
                    const std::string& clk = "clk",
                    const std::string& rst = "rst");
@@ -299,6 +302,7 @@ public:
 
 /// \brief Class of Verilog Generator
 class VerilogGenerator : public VerilogGeneratorBase {
+public:
   // --------------------- TYPE DEFINITIONS ---------------------------- //
   /// Type of Verilog id names'
   using vlg_name_t = VerilogGeneratorBase::vlg_name_t;
@@ -341,7 +345,6 @@ class VerilogGenerator : public VerilogGeneratorBase {
   /// Type for caching the generated expressions.
   using ExprMap = VerilogGeneratorBase::ExprMap;
   // VerilogGen Configure
-public:
   /// the structure to configure the verilog generator
   using VlgGenConfig = VerilogGeneratorBase::VlgGenConfig;
 

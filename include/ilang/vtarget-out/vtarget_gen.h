@@ -5,6 +5,8 @@
 #ifndef VTARGET_GEN_H__
 #define VTARGET_GEN_H__
 
+#include <ilang/config.h>
+
 #ifdef JSON_INOUT_ENABLE
 
 namespace ilang {
@@ -47,7 +49,7 @@ public:
     const std::string              & output_path,
     const InstrPtr                 & instr_ptr,
     backend_selector                 backend,
-    const VerilogGenerator::VlgGenConfig& config = VlgGenConfig() 
+    const VerilogGenerator::VlgGenConfig& config = VerilogGenerator::VlgGenConfig() 
     );
   // --------------------- DECONSTRUCTOR ---------------------------- //
   ~VerilogVerificationTargetGenerator();

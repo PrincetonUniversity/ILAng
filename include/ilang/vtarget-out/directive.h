@@ -130,7 +130,7 @@ protected:
   /// wires to be declared as input and wire
   vlg_sig_vec_t  input_wires;
   /// wires to be declared as output and wire
-  vlg_sig_vec_t  output_wires
+  vlg_sig_vec_t  output_wires;
   /// wires to be declared as just wire
   vlg_sig_vec_t  internal_wires;
   /// ila-mem-name -> abs
