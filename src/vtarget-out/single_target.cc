@@ -4,6 +4,7 @@
 
 
 #include <ilang/util/log.h>
+#include <ilang/util/fs.h>
 #include <ilang/util/container_shortcut.h>
 #include <ilang/ila/expr_fuse.h>
 #include <ilang/vtarget-out/vtarget_gen_impl.h>
@@ -559,17 +560,21 @@ VlgSglTgtGen::VlgSglTgtGen(
     std::ofstream fout( ila_vlg_name );
     vlg_ila.DumpToFile(fout);
   }
-  /// export the script to run the verification
-  void VlgSglTgtGen::Export_script(const std::string & script_name) {
 
-  }
-  /// export extra things (problem)
-  void VlgSglTgtGen::Export_problem(const std::string & extra_name) {
-
-  } // only for cosa
-  /// export the memory abstraction (implementation)
-  void VlgSglTgtGen::Export_mem(const std::string & mem_name) {
-
+  void VlgSglTgtGen::ExportAll(
+    const std::string & wrapper_name,
+    const std::string & ila_vlg_name,
+    const std::string & script_name,
+    const std::string & extra_name,
+    const std::string & mem_name
+  ) {
+    // you don't need to worry about the path and names
+    Export_wrapper(wrapper_name);
+    Export_ila_vlg(ila_vlg_name);
+    Export_script(script_name);
+    Export_problem(extra_name);
+    Export_modify_verilog();
+    Export_mem(mem_name);
   }
 
 } // namespace ilang

@@ -19,9 +19,11 @@
 
 namespace ilang {
 
+class VlgSglTgtGen_Cosa;
 
 /// \brief a class to store (and generate) the problem for cosa
 class Cosa_problem {
+  friend class VlgSglTgtGen_Cosa;
   /// Type of assertions and assumptions
   typedef std::vector<std::string> prop_t;
   /// Type of a problem --- we  can handle multiple several problems (may not needed)
@@ -43,7 +45,7 @@ public:
 }; // Cosa_problem
 
 /// \brief a class to interface w.  COSA
-class VlgVerifTgtGen_Cosa : public VlgSglTgtGen {
+class VlgSglTgtGen_Cosa : public VlgSglTgtGen {
 public:
   // --------------------- CONSTRUCTOR ---------------------------- //
   ///
@@ -54,8 +56,9 @@ public:
   /// \param[in] the conditions
   /// \param[in] pointer to verify info class
   /// \param[in] verilog module name
-  /// \param[in] ila module name
-  VlgVerifTgtGen_Cosa(
+  /// \param[in] ila module name,
+  /// \param[in] all implementation sources
+  VlgSglTgtGen_Cosa(
     const std::string              & output_path, // will be a sub directory of the output_path of its parent
     const InstrPtr                 & instr_ptr, // which could be an empty pointer, and it will be used to verify invariants
     const VerilogGenerator::VlgGenConfig & config,
@@ -64,7 +67,8 @@ public:
     VerilogInfo      *               _vlg_info_ptr,
     const std::string              & vlg_mod_inst_name,
     const std::string              & ila_mod_inst_name,
-    const std::string              & wrapper_name
+    const std::string              & wrapper_name,
+    const std::vector<std::string> & implementation_srcs
   );
 
 protected:
@@ -76,6 +80,16 @@ protected:
   virtual void add_an_assumption(const std::string & aspt, const std::string & dspt) override;
   /// Add an assertion
   virtual void add_an_assertion (const std::string & asst, const std::string & dspt) override;
+
+  /// export the script to run the verification
+  virtual void Export_script(const std::string & script_name) override;
+  /// export extra things (problem)
+  virtual void Export_problem(const std::string & extra_name) override; // only for cosa
+  /// export the memory abstraction (implementation)
+  /// Yes, this is also implementation specific, (jasper may use a different one)
+  virtual void Export_mem(const std::string & mem_name) override;
+    /// For jasper, this means do nothing, for yosys, you need to add (*keep*)
+  virtual void Export_modify_verilog() override;
 
 private:
   // It is okay to instantiation 

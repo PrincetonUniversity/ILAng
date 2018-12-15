@@ -205,11 +205,21 @@ public:
     /// export the ila verilog
     void virtual Export_ila_vlg(const std::string & ila_vlg_name);
     /// export the script to run the verification
-    void virtual Export_script(const std::string & script_name);
+    void virtual Export_script(const std::string & script_name) = 0;
     /// export extra things (problem)
-    void virtual Export_problem(const std::string & extra_name); // only for cosa
+    void virtual Export_problem(const std::string & extra_name) = 0; // only for cosa
     /// export the memory abstraction (implementation)
-    void virtual Export_mem(const std::string & mem_name);
+    /// Yes, this is also implementation specific, (jasper may use a different one)
+    void virtual Export_mem(const std::string & mem_name) = 0;
+    /// For jasper, this means do nothing, for yosys, you need to add (*keep*)
+    void virtual Export_modify_verilog() = 0;
+    /// Take care of exporting all of a single target
+    void virtual ExportAll(
+        const std::string & wrapper_name,
+        const std::string & ila_vlg_name,
+        const std::string & script_name,
+        const std::string & extra_name,
+        const std::string & mem_name);
 
   protected:
     // helper function to be implemented by COSA/JASPER
