@@ -192,11 +192,11 @@ void VerilogAnalyzer::find_top_module(verilog_source_tree * source, const std::s
     }
   }
 
-  std::vector<std::string> top_module_candidates;
+  std::set<std::string> top_module_candidates;
   for(auto && nm_pos :  name_module_map ) {
     auto name = nm_pos.first;
     if (module_to_whereuses_map.find(name) == module_to_whereuses_map.end() ) { // if not used
-      top_module_candidates.push_back( name );
+      top_module_candidates.insert( name );
     }
   }
   unsigned candidate_cnt = top_module_candidates.size() ;
@@ -221,7 +221,7 @@ void VerilogAnalyzer::find_top_module(verilog_source_tree * source, const std::s
       }
       ILA_WARN << "The first one will be used.";
     }
-    top_module_name = top_module_candidates[0];
+    top_module_name = *(top_module_candidates.begin());
   }
 
 } // find_top_module
@@ -461,7 +461,7 @@ SignalInfoBase VerilogAnalyzer::get_signal(const std::string & net_name) const
       return SignalInfoPort( (ast_port_declaration *) ast_ptr, net_name, tp_  );
     case O_REG_w_INTERNAL_DEF: 
     case REG:
-      return SignalInfoReg( (ast_reg_declaration *) ast_ptr, port_name, tp_  );
+      return SignalInfoReg( (ast_reg_declaration *) ast_ptr, net_name, tp_  );
     case MODULE:
       ILA_ERROR <<"Module instance:"<<net_name <<" is not a signal.";
     default:

@@ -305,7 +305,7 @@ protected:
   // --------------------- METHODS ---------------------------- //
     /// Generate everything 
     // only set the info pointer within it and delete it afterwards
-    void GenerateTarget(void);
+    void GenerateTargets(void);
     /// Return true if it is in bad state
     bool in_bad_state(void) const { return _bad_state; }
 
@@ -314,6 +314,8 @@ protected:
     bool bad_state_return(void); 
     /// load json from a file name to the given j
     void load_json(const std::string & fname, nlohmann::json & j);
+    /// Get instance name from rfmap
+    void set_module_instantiation_name();
 
 
     /// The way to add an assumption and assertion is tool-specific

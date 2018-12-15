@@ -6,7 +6,6 @@
 #include <ilang/ila/expr_fuse.h>
 #include <ilang/vtarget-out/vtarget_gen_impl.h>
 #include <ilang/util/str_util.h>
-#include <ilang/vtarget-out/gen_util.h>
 
 #include <iostream>
 #include <cmath>
@@ -26,7 +25,7 @@ namespace ilang {
       const std::string              & refinement_conditions,
       const std::string              & output_path,
       const InstrPtr                 & instr_ptr,
-      const VerilogGenerator::VlgGenConfig& vlg_gen_config = VlgGenConfig() 
+      const VerilogGenerator::VlgGenConfig& vlg_gen_config = VerilogGenerator::VlgGenConfig() 
       ):
   _vlg_impl_include_path(implementation_include_path),
   _vlg_impl_srcs        (implementation_srcs),
@@ -47,7 +46,7 @@ namespace ilang {
 
 
   void VlgVerifTgtGen::GenerateTargets(void) {
-    vlg_info_ptr = new VerilogInfo(_vlg_impl_include_path, _vlg_impl_srcs, ???, _vlg_impl_top_name );
+    vlg_info_ptr = new VerilogInfo(_vlg_impl_include_path, _vlg_impl_srcs, _vlg_mod_inst_name, _vlg_impl_top_name );
 
 
 
@@ -60,12 +59,12 @@ namespace ilang {
   void VlgVerifTgtGen::set_module_instantiation_name() {
     // use the content in the refinement relations to determine the instance name
     auto & model_specified = rf_cond["models"];
-    for ( auto && name_description_pair: model_specified ) {
-      if(name_description_pair.second == "ILA" ) {
-        _ila_mod_inst_name = name_description_pair.first;
-      } else if (name_description_pair.second == "VERILOG") {
-        _vlg_mod_inst_name = name_description_pair.first;
-      } else ILA_ERROR << "Unknown model specification:"<<name_description_pair.second <<" expect VERILOG or ILA";
+    for ( auto && name_description_pair: nlohmann::json::iterator_wrapper(model_specified)  ) {
+      if(name_description_pair.key() == "ILA" ) {
+        _ila_mod_inst_name = name_description_pair.value();
+      } else if (name_description_pair.key() == "VERILOG") {
+        _vlg_mod_inst_name = name_description_pair.value();
+      } else ILA_ERROR << "Unknown model specification:"<<name_description_pair.key() <<" expect VERILOG or ILA";
     }
     // if unset
     if (_vlg_mod_inst_name == "") {
@@ -79,34 +78,19 @@ namespace ilang {
   } // set_module_instantiation_name
 
 
-  void VlgVerifTgtGen::ModifyImplVlg(void) {
-    // decide mentions and locations
-    // read in and write out
-  }
-
-  void VlgVerifTgtGen::GenVerilogs(void) {
-    // decide mentions and locations
-    // read in and write out
-  }
-
-  void VlgVerifTgtGen::GenScript(void) {
-    // decide mentions and locations
-    // read in and write out
-  }
-
   bool VlgVerifTgtGen::bad_state_return(void) {
     ILA_ERROR_IF(_bad_state) <<"VlgVerifTgtGen is in a bad state, cannot proceed.";
     return _bad_state;
   } // bad_state_return
 
-  void VlgVerifTgtGen::load_json(const std::string & fname, json & j) {
+  void VlgVerifTgtGen::load_json(const std::string & fname, nlohmann::json & j) {
     std::ifstream fin(fname);
     if(!fin.is_open() ) {
       ILA_ERROR << "Cannot read from file:"<<fname;
       _bad_state = true;
       return;
     }
-    fname >> j;
+    fin >> j;
   } // load_json
 
 
