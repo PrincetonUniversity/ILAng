@@ -35,8 +35,12 @@ namespace ilang {
 /// \brief Generating a target (just the invairant or for an instruction)
 class VlgSglTgtGen {
     // --------------------- TYPE DEFINITION ------------------------ //
+    /// Type of the target
     typedef enum { INVARIANTS, INSTRUCTIONS } target_type_t;
+    /// Type of the ready condition
     typedef enum { NA = 0, READY_SIGNAL = 1, READY_BOUND = 2, BOTH = 3 }  ready_type_t;
+    /// Per func apply counter
+    typedef std::map<std::string, unsigned>  func_app_cnt_t;
 
 public:
     // --------------------- CONSTRUCTOR ---------------------------- //
@@ -103,6 +107,10 @@ public:
     bool                has_flush;
     /// ready type
     ready_type_t        ready_type;
+    /// func apply counter
+    func_app_cnt_t      func_cnt;
+    /// max bound , default 127
+    unsigned            max_bound;
 
 
   private:

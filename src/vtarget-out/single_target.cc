@@ -137,17 +137,60 @@ VlgSglTgtGen::VlgSglTgtGen(
     vlg_wrapper.add_wire( vlg_ila.validName , 1 ); 
     vlg_wrapper.add_wire( vlg_ila.decodeNames[0], 1 );
 
-    // .. record function
+    // TODO: check whether all ports have been dealt with
+    // TODO: check whether there are any extra ports we create
+    std::set<std::string> port_connected; // store the name of ila port
+    std::set<std::string> port_of_ila; // store the name of ila port also
 
+    // .. record function
     auto retStr = vlg_ila.moduleName + " " + _vlg_mod_inst_name + " (\n";
+
+    std::set<std::string> func_port_skip_set;
+    for( auto && func_app : vlg_ila.ila_func_app) {
+      func_port_skip_set.insert(func_app.result.first);
+      port_connected.insert(func_app.result.first );
+      /// new reg : put in when __START__
+      unsigned func_no = func_cnt[ func_app.func_name ] ++;
+
+      std::string func_reg_w = func_app.func_name + "_" + IntToStr(func_no) + "_result_wire";
+      std::string func_reg   = func_app.func_name + "_" + IntToStr(func_no) + "_result_reg";
+      vlg_wrapper.add_reg(func_reg, func_app.result.second);
+      vlg_wrapper.add_wire(func_reg_w, func_app.result.second);
+      vlg_wrapper.add_always_stmt( "if( __START__ ) " + func_reg + " <= " + func_reg_w + ";" );
+      
+      retStr += "   ." + func_app.result.first + "(" + func_reg_w + "),\n";
+
+      unsigned argNo = 0;
+      for (auto && arg : func_app.args) {
+        func_port_skip_set.insert(arg.first);
+        port_connected.insert( arg.first );
+              
+        std::string func_arg_w = func_app.func_name + "_" + IntToStr(func_no) + "_arg"+IntToStr(argNo)+"_wire";
+        std::string func_arg   = func_app.func_name + "_" + IntToStr(func_no) + "_arg"+IntToStr(argNo)+"_reg";
+        vlg_wrapper.add_reg(func_arg, arg.second);
+        vlg_wrapper.add_wire(func_arg_w, arg.second);
+        vlg_wrapper.add_always_stmt( "if( __START__ ) " + func_arg + " <= " + func_arg_w + ";" );
+      
+
+        retStr += "   ." + arg.first + "(" + func_arg_w + "),\n";
+        argNo ++;
+      }
+
+
+    }
 
     // handle input
     for(auto && w : vlg_ila.inputs) {
-      // deal w. clock
+      if (IN(w.first, func_port_skip_set) ) continue;
+      // w.first will be connected
+      port_connected.insert(w.first);
+      // deal w. clock and reset and start
       if(w.first == vlg_ila.clkName) // .clk(clk)
         retStr += "   ." + vlg_ila.clkName + "(" + vlg_wrapper.clkName +"),\n";
       else if (w.first == vlg_ila.rstName) // .rst(rst) -- this does not need to be changed
         retStr += "   ." + vlg_ila.rstName + "(" + vlg_wrapper.rstName +"),\n"; // no init anyway!
+      else if (w.first == vlg_ila.startName) // .__START__(__START__)
+        retStr += "   ." + vlg_ila.startName + "(" + vlg_wrapper.startName +"),\n"; 
       else
         retStr += "   ." + w.first + "(__ILA_I_" +  w.first +"),\n";
     }
@@ -155,6 +198,9 @@ VlgSglTgtGen::VlgSglTgtGen(
     // TODO:: FUnction here !
     // handle output
     for(auto && w : vlg_ila.outputs) {
+      if (IN(w.first, func_port_skip_set) ) continue;
+      // w.first will be connected
+      port_connected.insert(w.first);
       // deal w. valid and decode
       if (w.first == vlg_ila.decodeNames[0])
         retStr += "   ." + vlg_ila.decodeNames[0] + "(" + vlg_ila.decodeNames[0] +"),\n";
@@ -163,6 +209,7 @@ VlgSglTgtGen::VlgSglTgtGen(
       else 
         retStr += "   ." + w.first + "(__ILA_I_" +  w.first +"),\n";
     }
+
     // handle memory io - use internal storage for this purpose
     for( auto && ila_name_rport_pair : vlg_ila.ila_rports) {
       const auto & ila_name = ila_name_rport_pair.first;
@@ -184,10 +231,15 @@ VlgSglTgtGen::VlgSglTgtGen(
         retStr += "   ." + port.rdata + "(" + rdw + "),\n";
         retStr += "   ." + port.raddr + "(" + raw + "),\n";
 
+        // port.rdata/raddr will be connected
+        port_connected.insert(port.rdata);
+        port_connected.insert(port.raddr);
+
       } // for rport
     } // for ila_rports
 
     for( auto && ila_name_wport_pair : vlg_ila.ila_wports) {
+
       const auto & ila_name = ila_name_wport_pair.first;
       const auto & wports   = ila_name_wport_pair.second;
       const auto adw = GetMemInfo(ila_name);
@@ -209,6 +261,12 @@ VlgSglTgtGen::VlgSglTgtGen(
         retStr += "   ." + port.waddr + "(" + waw + "),\n";
         retStr += "   ." + port.wen + "(" + wew + "),\n";
 
+
+        // port.rdata/raddr will be connected
+        port_connected.insert(port.wdata);
+        port_connected.insert(port.waddr);
+        port_connected.insert(port.wen);
+
       } // for wport
     } // for ila_wports
 
@@ -217,8 +275,13 @@ VlgSglTgtGen::VlgSglTgtGen(
     for(auto && r: vlg_ila.regs) {
       retStr += sep + "   ." + r.first + "(__ILA_SO_" + r.first + ")";
       sep = ",\n";
+      // reg out will be connected
+      port_connected.insert(r.first);
     }
     retStr += "\n);";
+    // TODO: check port_conencted and port_ila
+    // currently not
+
   } // ConstructWrapper_get_ila_module_inst()
 
   void VlgSglTgtGen::ConstructWrapper_add_vlg_input_output() {
@@ -240,7 +303,7 @@ VlgSglTgtGen::VlgSglTgtGen(
 
   void VlgSglTgtGen::ConstructWrapper_add_cycle_count_moniter() {
     // find in rf_cond, how many cycles will be needed
-    unsigned max_bound = 0;
+    max_bound = 0;
 
     auto & instr = get_current_instruction_rf();
 
@@ -552,12 +615,21 @@ VlgSglTgtGen::VlgSglTgtGen(
   /// create the wrapper file
   void VlgSglTgtGen::Export_wrapper(const std::string & wrapper_name) {
     top_file_name = wrapper_name;
-    vlg_wrapper;
+    std::ofstream fout (os_portable_append_dir(_output_path,wrapper_name));
+    if(! fout.is_open() ) {
+      ILA_ERROR << "Error writing file: " << os_portable_append_dir(_output_path,wrapper_name);
+      return;
+    }    
+    vlg_wrapper.DumpToFile(fout);
   }
   /// export the ila verilog
   void VlgSglTgtGen::Export_ila_vlg(const std::string & ila_vlg_name) {
     ila_file_name = ila_vlg_name;
-    std::ofstream fout( ila_vlg_name );
+    std::ofstream fout( os_portable_append_dir(_output_path,ila_vlg_name) );
+    if(! fout.is_open() ) {
+      ILA_ERROR << "Error writing file: " << os_portable_append_dir(_output_path,ila_vlg_name);
+      return;
+    }    
     vlg_ila.DumpToFile(fout);
   }
 
@@ -568,6 +640,8 @@ VlgSglTgtGen::VlgSglTgtGen(
     const std::string & extra_name,
     const std::string & mem_name
   ) {
+    if( os_portable_mkdir(_output_path) == false) 
+      ILA_WARN << "Cannot create output path:" << _output_path;
     // you don't need to worry about the path and names
     Export_wrapper(wrapper_name);
     Export_ila_vlg(ila_vlg_name);

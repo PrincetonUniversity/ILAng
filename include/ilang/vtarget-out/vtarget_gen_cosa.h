@@ -28,24 +28,36 @@ class Cosa_problem {
   typedef std::vector<std::string> prop_t;
   /// Type of a problem --- we  can handle multiple several problems (may not needed)
   typedef struct {
-    std::string problem_name;
-    prop_t  assumptions;
-    prop_t  assertions;
+    // the name in [??]
+    // std::string  problem_name;
+    /// will be conjuncted and put in the question
+    prop_t       assertions;
   } problem_t;
   /// set of problems
-  typedef std::vector<problem_t> problemset_t;
+  typedef std::map<problem_name, problem_t> problemset_t;
 
 protected:
-  problemset_t _ps;
-
-public:
-  void generate_to_file(std::ostream & os) const;
+  /// assumptions are shared
+  prop_t assumptions;
+  /// problems are splitted into items
+  problemset_t probitem;
   
 
 }; // Cosa_problem
 
 /// \brief a class to interface w.  COSA
 class VlgSglTgtGen_Cosa : public VlgSglTgtGen {
+
+  /// a tuple to store all related info for modification
+  typedef std::tuple<
+      long,   // lineno
+      std::string, // varname (short name)
+      bool> info_t;
+
+  /// filename -> (lineno, varname, is_port_sig) vec
+  typedef std::map<
+    std::string, // file name
+    std::vector<info_t> > fn_l_map_t;
 public:
   // --------------------- CONSTRUCTOR ---------------------------- //
   ///
@@ -74,6 +86,8 @@ public:
 protected:
   /// Cosa problem generate
   Cosa_problem _problems;
+  /// Cosa problem file name
+  std::string cosa_prob_fname;
 
 protected:
   /// Add an assumption
@@ -91,8 +105,13 @@ protected:
     /// For jasper, this means do nothing, for yosys, you need to add (*keep*)
   virtual void Export_modify_verilog() override;
 
+public:
+  /// A function not fully implemented !!!
+  static std::string add_keep_to_port(const std::string & line_in, const std::string & vname) ;
 private:
-  // It is okay to instantiation 
+  /// helper to read-modify-write a file
+  void rmw(std::ifstream & fin, std::ofstream & fout, std::vector<info_t> & info );
+  /// It is okay to instantiation 
   virtual void do_not_instantiate(void) override {} ;
 
 

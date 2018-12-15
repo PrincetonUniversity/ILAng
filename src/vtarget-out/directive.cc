@@ -68,7 +68,7 @@ namespace ilang {
       return;
     }
     input_wires.push_back( {short_name, width} );
-    mod_inst_rec.insert( {short_name, std::make_pair({ inf_dir_t::INPUT ,  short_name}) } );
+    mod_inst_rec.insert( {short_name, inf_connector_t({ inf_dir_t::INPUT ,  short_name}) } );
   }
 
   void IntefaceDirectiveRecorder::ConnectModuleOutputAddWire(const std::string & short_name, unsigned width)  {
@@ -77,7 +77,7 @@ namespace ilang {
       return;
     }
     output_wires.push_back( {short_name, width} );
-    mod_inst_rec.insert( {short_name, std::make_pair({ inf_dir_t::SO ,  short_name}) } );
+    mod_inst_rec.insert( {short_name, inf_connector_t({ inf_dir_t::SO ,  short_name}) } );
   }
 
 
@@ -92,7 +92,7 @@ namespace ilang {
       const auto & the_wire_connected_to_the_port = signal_conn_pair.second.second;
 
       retStr += sep + "    ." + signal_name + "(" + the_wire_connected_to_the_port + ")";
-      sep = ",\n"
+      sep = ",\n";
     }
     retStr += "\n";
     return retStr;
@@ -121,11 +121,10 @@ namespace ilang {
       if (conn_tp == inf_dir_t::NC )
         continue ; // no need to check them, will be declared 
       
-      for( auto && w : gen.wires ) 
-        if( w.first == the_wire_connected_to_the_port ) 
-          continue;
+      if(IN(the_wire_connected_to_the_port,gen.wires))
+        continue; // if found okay
 
-      ILA_ASSERT(found) << "Connecting signal: "<< the_wire_connected_to_the_port 
+      ILA_ASSERT(false) << "Connecting signal: "<< the_wire_connected_to_the_port 
         << " tp: " << conn_tp << " is not declared. Implementation bug!";
     }
   }
@@ -138,7 +137,7 @@ namespace ilang {
     ila_mem_checker_t   mget
     ) {
 
-    auto & short_name = vlg_sig.get_signal_name();
+    auto short_name   = vlg_sig.get_signal_name();
     bool is_input     = vlg_sig.is_input();
     bool is_output    = vlg_sig.is_output();
     unsigned width    = vlg_sig.get_width();
@@ -154,14 +153,14 @@ namespace ilang {
     if (is_input and is_output) { 
       ILA_WARN << "not handling inout wire: " << short_name << ", will not be connected"; 
       // nc and skip
-      mod_inst_rec.push_back( {short_name, std::make_pair({ inf_dir_t::NC ,  ""}) } );
+      mod_inst_rec.insert( {short_name, inf_connector_t({ inf_dir_t::NC ,  ""}) } );
       return;
     }
 
     if( refstr == "" ) {
       ILA_WARN << "Verilog I/O:"<<short_name << " is not mentioned in the input mapping";
       // add an KEEP directive
-      mod_inst_rec.insert( {short_name, std::make_pair({ inf_dir_t::KEEP ,  short_name}) } );
+      mod_inst_rec.insert( {short_name, inf_connector_t({ inf_dir_t::KEEP ,  short_name}) } );
       if( is_input ) 
         input_wires.push_back( {short_name, width} );
       else if(is_output)
@@ -179,17 +178,17 @@ namespace ilang {
         if(is_input)  ConnectModuleInputAddWire ("__VLG_I_" + short_name, width);
         if(is_output) ConnectModuleOutputAddWire("__VLG_O_" + short_name, width);
       } else if (refstr == "**NC**") {
-        mod_inst_rec.push_back( {short_name, std::make_pair({ inf_dir_t::NC ,  ""}) } );
+        mod_inst_rec.insert( {short_name, inf_connector_t({ inf_dir_t::NC ,  ""}) } );
       } else if ( refstr == "**SO**" ) {
         ILA_ERROR_IF ( ! is_output ) << "Forcing a non-output signal to be connected as output:" << short_name;
         ConnectModuleOutputAddWire(short_name, width);
       } else if ( refstr ==  "**RESET**" ) {
         if(_reset_vlg)
-          mod_inst_rec.insert( {short_name, std::make_pair({ inf_dir_t::RESET ,  "rst"}) } );
+          mod_inst_rec.insert( {short_name, inf_connector_t({ inf_dir_t::RESET ,  "rst"}) } );
         else
-          mod_inst_rec.insert( {short_name, std::make_pair({ inf_dir_t::RESET ,  "dummy_reset"}) } );
+          mod_inst_rec.insert( {short_name, inf_connector_t({ inf_dir_t::RESET ,  "dummy_reset"}) } );
       } else if ( refstr == "**CLOCK**" ) {
-        mod_inst_rec.insert( {short_name, std::make_pair({ inf_dir_t::CLOCK ,  "clk"}) } );
+        mod_inst_rec.insert( {short_name, inf_connector_t({ inf_dir_t::CLOCK ,  "clk"}) } );
       } else if ( beginsWith(refstr, "**MEM**") ) {
         // now we need to keep recording it , how many mems mentiond, how many connected
         //1. get the remaining part
@@ -268,7 +267,7 @@ namespace ilang {
     }
     if(is_output) {
       ILA_ERROR << "Cannot map output signals to ILA input for :" << refstr << ", left unconnected.";
-      mod_inst_rec.push_back( {short_name, std::make_pair({ inf_dir_t::NC ,  ""}) } ); 
+      mod_inst_rec.insert( {short_name, inf_connector_t({ inf_dir_t::NC ,  ""}) } ); 
     } // ignoring it
     // okay we are done now
   } // IntefaceDirectiveRecorder::RegisterInterface

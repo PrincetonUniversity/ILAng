@@ -53,6 +53,7 @@ public:
     /// what to connect for wen
     std::string wen;
   } wport_t;
+
   /// Type of Verilog id names
   typedef std::string vlg_name_t;
   /// Type of Verilog statement
@@ -100,6 +101,20 @@ public:
   };
   /// List of writes w. associated conditions.
   typedef std::list<mem_write_t> mem_write_list_t;
+
+  /// Type of app func
+  struct function_app_t {
+    /// arguments
+    std::vector<vlg_sig_t> args;
+    /// result
+    const vlg_sig_t result;
+    /// ila func name
+    const std::string func_name;
+    /// constructor
+    function_app_t(const vlg_sig_t & res, const std::string fn) : result(res) , func_name(fn) {}
+  }; // struct function_app_t
+  typedef std::vector<function_app_t> function_app_vec_t;
+
   /// Type for caching the generated expressions.
   typedef std::unordered_map<const ExprPtr, vlg_name_t, VerilogGenHash> ExprMap;
   // VerilogGen Configure
@@ -219,6 +234,8 @@ protected:
   std::map<std::string,std::map<unsigned,rport_t> > ila_rports;
   /// ila write ports
   std::map<std::string,std::map<unsigned,wport_t> > ila_wports;
+  /// a collection of all function application
+  function_app_vec_t ila_func_app;
 
   // --------------------- HELPER FUNCTIONS ---------------------------- //
   /// Check if a name is reserved (clk/rst/modulename/decodeName/ctrName)
@@ -347,6 +364,10 @@ public:
   // VerilogGen Configure
   /// the structure to configure the verilog generator
   using VlgGenConfig = VerilogGeneratorBase::VlgGenConfig;
+  /// Type of function apply record
+  using function_app_t = VerilogGeneratorBase::function_app_t;
+  /// Type of func app vector record
+  using function_app_vec_t = VerilogGeneratorBase::function_app_vec_t;
 
 private:
   

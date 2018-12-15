@@ -16,7 +16,12 @@ namespace ilang {
   bool os_portable_mkdir(const std::string & dir);
 
   /// Append two path (you have to decide whether it is / or \)
-  void os_portable_append_dir(const std::string & dir1, const std::string & dir2);
+  std::string os_portable_append_dir(const std::string & dir1, const std::string & dir2);
+  
+  /// Extract filename from path
+  /// C:\a\b\c.txt -> c.txt
+  /// d/e/ghi  -> ghi
+  std::string os_portable_file_name_from_path(const std::string & path);
 
 }; // namespace ilang
 

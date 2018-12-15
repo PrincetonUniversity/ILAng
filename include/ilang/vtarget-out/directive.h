@@ -117,7 +117,7 @@ public:
 
 protected:
   /// a sanity check for module instantiation string gen, check if all the vlg module i/o has been declared correctly.
-  void ModuleInstSanityCheck() const;
+  void ModuleInstSanityCheck(VerilogGeneratorBase & gen) const;
   /// a shortcut to connect module and add wire
   void ConnectModuleInputAddWire(const std::string & short_name, unsigned width);
   /// a shortcut to connect module and add wire

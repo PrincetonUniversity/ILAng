@@ -90,7 +90,7 @@ TEST(TestVerilogAnalysis, AnalyzeName) {
     EXPECT_TRUE (VerilogAnalyzerBase::is_reg   (tp_));
     EXPECT_TRUE (VerilogAnalyzerBase::is_io_sig(tp_));
     EXPECT_FALSE(VerilogAnalyzerBase::is_wire  (tp_));
-    EXPECT_TRUE (VerilogAnalyzerBase::no_internal_def(tp_));
+    EXPECT_TRUE (VerilogAnalyzerBase::no_internal_def(tp_)); // warning : this is no internal def!! because it only has a output reg
     EXPECT_FALSE(VerilogAnalyzerBase::is_module(tp_));
   }
   { // input wire

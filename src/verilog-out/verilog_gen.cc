@@ -414,14 +414,18 @@ VerilogGenerator::vlg_name_t VerilogGenerator::translateApplyFunc(
   vlg_stmt_t result_stmt;
   int width =
       func_app_ptr_->sort()->is_bool() ? 1 : func_app_ptr_->sort()->bit_width();
+  auto func_name = sanitizeName(func_app_ptr_->func()->name().str());
+
   if (func_app_ptr_->arg_num() == 0) {
     // 0-arg should be treated as nondet (input) , this should be fine for both
     // Yosys and JasperGold
-    result_stmt = "nondet_" +
-                  sanitizeName(func_app_ptr_->func()->name().str()) + "_" +
-                  new_id();
+    result_stmt = "nondet_" + func_name + "_" + new_id();
     add_wire(result_stmt, width);
     add_input(result_stmt, width);
+
+    ila_func_app.push_back( 
+      function_app_t( 
+        vlg_sig_t({result_stmt, width}) , func_name ) );
   } else {
     func_ptr_set.insert(
         func_app_ptr_->func()); // record that we have met this function, later
@@ -431,7 +435,7 @@ VerilogGenerator::vlg_name_t VerilogGenerator::translateApplyFunc(
       result_stmt = new_id(func_app_ptr_);
       add_wire(result_stmt, width);
       vlg_stmt_t funcInstantiation =
-          "fun_" + sanitizeName(func_app_ptr_->func()->name().str()) + "  " +
+          "fun_" + func_name + "  " +
           "applyFunc_" + new_id() + "(\n";
       size_t arity = func_app_ptr_->arg_num();
       for (size_t i = 0; i != arity; i++) {
@@ -456,6 +460,10 @@ VerilogGenerator::vlg_name_t VerilogGenerator::translateApplyFunc(
       add_wire(resultName, width);
       result_stmt = resultName;
 
+      ila_func_app.push_back( 
+        function_app_t( 
+          vlg_sig_t({result_stmt, width}) , func_name ) );
+
       size_t arity = func_app_ptr_->arg_num();
       for (size_t i = 0; i != arity; i++) {
         vlg_name_t argOutName = prefix + "_arg" + toStr(i);
@@ -466,9 +474,11 @@ VerilogGenerator::vlg_name_t VerilogGenerator::translateApplyFunc(
         add_wire(argOutName, argWidth);
         add_output(argOutName, argWidth);
         add_assign_stmt(argOutName, getArg(func_app_ptr_, i));
+
+        ila_func_app.back().args.push_back({argOutName, argWidth});
       }
     } else
-      ILA_ASSERT(false) << "Unsupported function export option";
+      ILA_ASSERT(false) << "Unsupported function export option:" << cfg_.fcOpt;
   }
   return result_stmt;
 }

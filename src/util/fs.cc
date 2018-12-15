@@ -6,6 +6,7 @@
 // --- Hongce Zhang
 
 #include <ilang/util/fs.h> 
+#include <ilang/util/str_util.h>
 #include <ilang/util/log.h>
 
 #if defined(_WIN32) || defined(_WIN64)
@@ -41,7 +42,7 @@ static bool startsWith(const std::string & str, const std::string & prefix)
   }
 
   /// Append two path (you have to decide whether it is / or \)
-  void os_portable_append_dir(const std::string & dir1, const std::string & dir2) {
+  std::string os_portable_append_dir(const std::string & dir1, const std::string & dir2) {
     std::string sep;
 #if defined(_WIN32) || defined(_WIN64)
   // on windows
@@ -59,6 +60,20 @@ static bool startsWith(const std::string & str, const std::string & prefix)
       str2 = dir2.substr(1);
     }
     return str1 + str2;
+  }
+
+  /// C:\a\b\c.txt -> c.txt
+  /// d/e/ghi  -> ghi
+  std::string os_portable_file_name_from_path(const std::string & path) {
+    std::string sep;
+#if defined(_WIN32) || defined(_WIN64)
+  // on windows
+    sep = "\\";
+#else
+  // on *nix
+    sep = "/";
+#endif
+    return Split(path,sep).back();
   }
 
 }; // namespace ilang
