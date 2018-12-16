@@ -429,9 +429,6 @@ public:
   void ExportIla(const InstrLvlAbsPtr& ila_ptr_);
   /// Parse an instruction
   void ExportTopLevelInstr(const InstrPtr& instr_ptr_);
-  /// after parsing either the Instruction/ILA, use this function to dump to a
-  /// file.
-  void DumpToFile(std::ostream& fout) const;
 }; // class VerilogGenerator
 
 }; // namespace ilang

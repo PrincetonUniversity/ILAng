@@ -355,7 +355,7 @@ VlgSglTgtGen::VlgSglTgtGen(
     for ( size_t state_idx = 0; state_idx < _instr_ptr->host()->state_num() ; ++ state_idx )
       ila_state_names.insert( _instr_ptr->host()->state(state_idx)->name().str() );
 
-    for ( auto & i : nlohmann::json::iterator_wrapper(rf_vmap) ) {
+    for ( auto & i : (rf_vmap).items() ) {
       auto sname = i.key();
       if( not IN(sname, ila_state_names) )  {
         ILA_ERROR << sname << " is not a state of the ILA:" << _instr_ptr->host()->name().str();
@@ -383,7 +383,7 @@ VlgSglTgtGen::VlgSglTgtGen(
     for ( size_t state_idx = 0; state_idx < _instr_ptr->host()->state_num() ; ++ state_idx )
       ila_state_names.insert( _instr_ptr->host()->state(state_idx)->name().str() );
 
-    for ( auto & i : nlohmann::json::iterator_wrapper(rf_vmap) ) {
+    for ( auto & i : (rf_vmap).items() ) {
       auto sname = i.key();
       if( not IN(sname, ila_state_names) )  {
         ILA_ERROR << sname << " is not a state of the ILA:" << _instr_ptr->host()->name().str();

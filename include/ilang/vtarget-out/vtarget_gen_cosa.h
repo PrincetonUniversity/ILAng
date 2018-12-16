@@ -34,7 +34,7 @@ class Cosa_problem {
     prop_t       assertions;
   } problem_t;
   /// set of problems
-  typedef std::map<problem_name, problem_t> problemset_t;
+  typedef std::map<std::string, problem_t> problemset_t;
 
 protected:
   /// assumptions are shared

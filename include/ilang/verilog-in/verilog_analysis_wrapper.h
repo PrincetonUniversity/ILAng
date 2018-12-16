@@ -173,7 +173,7 @@ public:
   /// [in] the source files
   /// [in] the instance name given to the topmodule
   /// \param[in] an optional of the top module name, can be left empty
-  VerilogInfo(const path_vec_t & include_path, const path_vec_t & srcs, const std::string & top_module_inst_name, const std::string & optional_top_module );
+  VerilogInfo(const path_vec_t & include_path, const path_vec_t & srcs, const std::string & top_module_inst_name, const std::string & optional_top_module = "" );
   /// Please don't make a copy of it
   VerilogInfo(const VerilogInfo&) = delete;
   /// Please don't use assignment over it

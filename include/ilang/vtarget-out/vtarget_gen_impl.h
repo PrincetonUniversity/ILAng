@@ -145,7 +145,7 @@ public:
     /// Check if ila name and vlg name are type compatible (not including special directives)
     static unsigned TypeMatched(const ExprPtr & ila_var, const SignalInfoBase & vlg_var);
     /// get width of an ila node
-    static unsigned VlgSglTgtGen::get_width( const ExprPtr& n );
+    static unsigned get_width( const ExprPtr& n );
     /// Parse and modify a condition string 
     std::string ReplExpr(const std::string & expr , bool force_vlg_sts = false) ;
     /// handle a single string map (s-name/equ-string)
@@ -159,7 +159,7 @@ public:
     /// 4.  "ila-state":[ {"cond":,"map":}, ] 
     std::string GetStateVarMapExpr(const std::string & ila_state_name, nlohmann::json & m) ;
     /// Find the current instruction mapping
-    nlohmann::json & VlgSglTgtGen::get_current_instruction_rf();
+    nlohmann::json & get_current_instruction_rf();
 
 
   protected:
@@ -346,17 +346,11 @@ protected:
     /// Get instance name from rfmap
     void set_module_instantiation_name();
 
-
-    /// The way to add an assumption and assertion is tool-specific
-    virtual void add_an_assumption(const std::string & aspt) = 0;
-    /// The way to add an assumption and assertion is tool-specific
-    virtual void add_an_assertion (const std::string & asst) = 0;
-
   private:
     /// If it is in a bad state
     bool _bad_state;
-
-// not override -- should not be instantiated
+    /// okay it is fine to instantiate this class
+    virtual void do_not_instantiate() override {}
 
 }; // class VlgVerifTgtGen
 

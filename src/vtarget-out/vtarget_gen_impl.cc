@@ -29,7 +29,7 @@ namespace ilang {
       const std::string              & output_path,
       const InstrLvlAbsPtr           & ila_ptr,
       backend_selector                 backend,
-      const VerilogGenerator::VlgGenConfig& vlg_gen_config = VerilogGenerator::VlgGenConfig() 
+      const VerilogGenerator::VlgGenConfig& vlg_gen_config
       ):
   _vlg_impl_include_path(implementation_include_path),
   _vlg_impl_srcs        (implementation_srcs),
@@ -110,7 +110,7 @@ namespace ilang {
       std::string iname = instr["instruction"].get<std::string>();
       auto instr_ptr = _ila_ptr->instr(iname);
       if(instr_ptr == nullptr) {
-        ILA_ERROR << "ila:"<<ila_ptr->name().str()<<" has no instruction:"<< instr_ptr;
+        ILA_ERROR << "ila:"<<_ila_ptr->name().str()<<" has no instruction:"<< instr_ptr;
         continue;
       }
       if( _backend == backend_selector::COSA ) {
@@ -156,7 +156,7 @@ namespace ilang {
     if(bad_state_return()) return;
     // use the content in the refinement relations to determine the instance name
     auto & model_specified = rf_cond["models"];
-    for ( auto && name_description_pair: nlohmann::json::iterator_wrapper(model_specified)  ) {
+    for ( auto && name_description_pair: model_specified.items()  ) {
       if(name_description_pair.key() == "ILA" ) {
         _ila_mod_inst_name = name_description_pair.value();
       } else if (name_description_pair.key() == "VERILOG") {

@@ -229,7 +229,7 @@ std::string VlgSglTgtGen::GetStateVarMapExpr(const std::string & ila_state_name,
     if ( _sdr.isSpecialStateDir(m.get<std::string>()) ) {
       ILA_DLOG("VlgSglTgtGen.GetStateVarMapExpr") <<"map mem:" << ila_state_name; 
       // may be we need to log them here
-      return ;
+      return VLG_TRUE;
       // return ; // **MEM** should be fine
     } else { 
       // return the mapping variable 
@@ -246,7 +246,7 @@ std::string VlgSglTgtGen::GetStateVarMapExpr(const std::string & ila_state_name,
         all_mappings.push_back(mapping);
       } else if (item.is_array() || item.is_object() ) { // it should only by size of 2
         std::string cond(VLG_TRUE), vmap(VLG_TRUE);
-        for (const auto & i : nlohmann::json::iterator_wrapper(item)) {
+        for (const auto & i : (item).items()) {
           if (i.key() == "0" || i.key() == "cond") {
             cond = i.value().get<std::string>();  // set the condtion
             continue;
