@@ -22,6 +22,10 @@ if(${ILANG_BUILD_JSON})
   add_subdirectory(json-inout)
 endif()
 
+if(${ILANG_BUILD_VLOG} AND ${ILANG_BUILD_JSON})
+  add_subdirectory(vtarget-out)
+endif()
+
 if(${ILANG_BUILD_SYNTH})
   add_subdirectory(synth-interface)
 endif()

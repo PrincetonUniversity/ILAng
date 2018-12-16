@@ -198,6 +198,8 @@ public:
   module_io_vec_t get_top_module_io() const;
   /// Find a signal 
   SignalInfoBase get_signal(const std::string & net_name) const;
+  /// whether this analyzer is in bad state
+  bool in_bad_state() const;
 
 }; // class Verilog Info
 

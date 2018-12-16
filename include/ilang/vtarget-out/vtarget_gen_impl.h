@@ -68,6 +68,9 @@ public:
       const std::vector<std::string> & implementation_srcs
     );
 
+    /// Destructor: do nothing , most importantly it is virtual
+    virtual ~VlgSglTgtGen() {}
+
   protected:
     // --------------------- MEMBERS ---------------------------- //
     // the following are used to store info presented
@@ -257,6 +260,8 @@ public:
   /// brief Class of Verilog verification target generation, not to be used outside
 class VlgVerifTgtGen : public VlgVerifTgtGenBase {
   // --------------------- TYPE DEFINITIONS ---------------------------- //
+    /// tell us which backend to use
+    using backend_selector = VlgVerifTgtGenBase::backend_selector;
   public:
   // --------------------- CONSTRUCTOR ---------------------------- //
     ///
@@ -275,7 +280,8 @@ class VlgVerifTgtGen : public VlgVerifTgtGenBase {
       const std::string              & refinement_variable_mapping,
       const std::string              & refinement_conditions,
       const std::string              & output_path,
-      const InstrPtr                 & instr_ptr,
+      const InstrLvlAbsPtr           & ila_ptr,
+      backend_selector                 backend,
       const VerilogGenerator::VlgGenConfig& config = VerilogGenerator::VlgGenConfig() 
       );
 
@@ -287,7 +293,7 @@ class VlgVerifTgtGen : public VlgVerifTgtGenBase {
 
   // --------------------- DESTRUCTOR ---------------------------- //
     /// release verilog info pointer
-    ~VlgVerifTgtGen() { if(vlg_info_ptr) delete vlg_info_ptr; }
+    virtual ~VlgVerifTgtGen();
 
 
   protected:
@@ -305,13 +311,18 @@ class VlgVerifTgtGen : public VlgVerifTgtGenBase {
     /// output path, output the ila-verilog, wrapper-verilog, problem.txt, run-verify-by-???
     const std::string              _output_path; 
     /// The pointer to the instruction that is going to export
-    const InstrPtr               & _instr_ptr; 
+    const InstrLvlAbsPtr         & _ila_ptr;
     /// The name of verilog top module instance in the wrapper
     std::string                    _vlg_mod_inst_name; 
     /// The name of ila-verilog top module instance in the wrapper
     std::string                    _ila_mod_inst_name;
     /// A pointer to create verilog analyzer
-    VerilogInfo      *vlg_info_ptr;
+    VerilogInfo      *             vlg_info_ptr;
+    /// to store the verilog configuration
+    VerilogGenerator::VlgGenConfig _cfg;
+    /// to store the backend
+    backend_selector               _backend;
+
 
 protected:
     /// store the vmap info

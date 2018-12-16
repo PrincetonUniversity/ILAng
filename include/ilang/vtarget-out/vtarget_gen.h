@@ -14,7 +14,12 @@ namespace ilang {
 
 /// \brief VlgVerifTgtGenBase: do nothing, should not instantiate
 class VlgVerifTgtGenBase {
+  // ----------------------- Type Definition ----------------------- //
 public:
+  /// Type of the backend
+  typedef enum { NONE = 0, COSA = 1, JASPERGOLD = 2 } backend_selector;
+public:
+  // ----------------------- Constructor/Destructor ----------------------- //
   // constructor : do nothing
   VlgVerifTgtGenBase() {} 
   // destructor : do nothing (make it virtual !!!)
@@ -26,8 +31,8 @@ private:
 
 class VerilogVerificationTargetGenerator {
 public:
-  typedef enum { NONE = 0, COSA = 1, JASPERGOLD = 2 } backend_selector;
-
+  /// Type of the backend
+  using backend_selector = VlgVerifTgtGenBase::backend_selector;
 public:
   // --------------------- CONSTRUCTOR ---------------------------- //
   ///
@@ -53,6 +58,9 @@ public:
     );
   // --------------------- DECONSTRUCTOR ---------------------------- //
   ~VerilogVerificationTargetGenerator();
+
+  /// export all targets
+  void GenerateTargets(void);
 private:
   /// will be casted to different generator inside the implementation
   VlgVerifTgtGenBase * _generator;

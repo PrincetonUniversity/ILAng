@@ -53,6 +53,11 @@ namespace ilang {
     ILA_NOT_NULL(_ptr);
     return _ptr->get_signal(net_name);
   }
+  bool VerilogInfo::in_bad_state() const{
+    const VerilogAnalyzer * _ptr = dynamic_cast<const VerilogAnalyzer *>( _analyzer );
+    ILA_NOT_NULL(_ptr);
+    return _ptr->in_bad_state();
+  }
 
 
 /// overload the operator << for printing location

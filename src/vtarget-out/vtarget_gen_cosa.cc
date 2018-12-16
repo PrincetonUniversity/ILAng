@@ -2,6 +2,7 @@
 // --- Hongce Zhang
 
 #include <ilang/util/str_util.h>
+#include <ilang/util/container_shortcut.h>
 #include <ilang/vtarget-out/vtarget_gen_cosa.h>
 #include <ilang/util/fs.h>
 #include <algorithm>
@@ -196,10 +197,10 @@ namespace ilang {
     std::string line;
     auto vec_it = info.begin(); // what if it is end
     while (std::getline(fin, line) ) {
-      while(vec_it != info.end() and lineno == get<0>(*vec_it)) {
+      while(vec_it != info.end() and lineno == std::get<0>(*vec_it)) {
         // process it
-        auto vname = get<1>(*vec_it);
-        auto is_port = get<2>(*vec_it);
+        auto vname = std::get<1>(*vec_it);
+        auto is_port = std::get<2>(*vec_it);
 
         if(!is_port)
           line = "(* keep *)" + line;

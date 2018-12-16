@@ -19,7 +19,7 @@ VerilogVerificationTargetGenerator::VerilogVerificationTargetGenerator(
     const std::string              & output_path,
     const InstrPtr                 & instr_ptr,
     backend_selector                 backend,
-    const VerilogGenerator::VlgGenConfig& config = VlgGenConfig() 
+    const VerilogGenerator::VlgGenConfig& config = VerilogGenerator::VlgGenConfig() 
     ) : _generator(NULL) {
 
 	if (backend == backend_selector::COSA) {
