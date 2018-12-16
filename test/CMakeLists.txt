@@ -42,6 +42,7 @@ package_add_test(${ILANG_TEST_MAIN}
   unit-src/simple_cpu.cc
   unit-src/stream_buffer.cc
   unit-src/mcm_ilas.cc
+  unit-src/pipe_ila.cc
   t_api.cc
   t_crr.cc
   t_eq_check.cc
@@ -71,6 +72,7 @@ package_add_test(${ILANG_TEST_MAIN}
   t_verilog_gen.cc
   t_z3adapter.cc
   t_z3sanity.cc
+  t_vtarget_gen.cc
 )
 
 set(TEST_CONFIG_TEST_ROOT ${CMAKE_CURRENT_BINARY_DIR})
@@ -115,6 +117,32 @@ if(${ILANG_BUILD_VLOG})
   configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/unit-data/verilog_sample/t_ana_insta.v
     ${CMAKE_CURRENT_BINARY_DIR}/unit-data/verilog_sample/t_ana_insta.v
+  )
+
+  configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/unit-data/vpipe/simple_pipe.v
+    ${CMAKE_CURRENT_BINARY_DIR}/unit-data/vpipe/simple_pipe.v
+  )
+
+  configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/unit-data/vpipe/simple_pipe_wrong.v
+    ${CMAKE_CURRENT_BINARY_DIR}/unit-data/vpipe/simple_pipe_wrong.v
+  )
+
+
+  configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/unit-data/vpipe/rfmap/cond.json
+    ${CMAKE_CURRENT_BINARY_DIR}/unit-data/vpipe/rfmap/cond.json
+  )
+
+  configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/unit-data/vpipe/rfmap/vmap.json
+    ${CMAKE_CURRENT_BINARY_DIR}/unit-data/vpipe/rfmap/vmap.json
+  )
+
+  configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/unit-data/vpipe/verify/.placeholder
+    ${CMAKE_CURRENT_BINARY_DIR}/unit-data/vpipe/verify/.placeholder
   )
 
 endif()

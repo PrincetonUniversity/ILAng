@@ -190,7 +190,7 @@ public:
     /// This also include the assertions
     void ConstructWrapper_add_helper_memory();
     /// Add buffers and assumption/assertions about the 
-    void ConstructWrapper_add_uf_buffers();
+    void ConstructWrapper_add_uf_constraints();
     /// Call the above functions to make a wrapper (not yet export it)
     void ConstructWrapper() ;
 

@@ -83,9 +83,9 @@ VlgSglTgtGen::VlgSglTgtGen(
           << instr_ptr->name().str();
         _bad_state = true;
       }
-      if( IN( "flush constraint" ,instr) and instr["flush constraint"]) {
-        if ( IN( "pre-flush end" ,instr) and instr["pre-flush end"] and 
-             IN( "post-flush end" ,instr) and instr["post-flush end"] )
+      if( IN( "flush constraint" ,instr) and instr["flush constraint"].size() != 0) {
+        if ( IN( "pre-flush end" ,instr) and instr["pre-flush end"].size() != 0 and 
+             IN( "post-flush end" ,instr) and instr["post-flush end"].size() != 0 )
           has_flush = true; // requiring three items
         else {
           ILA_ERROR << "When using flushing, 'pre-flush end' and 'post-flush end' "
@@ -93,9 +93,9 @@ VlgSglTgtGen::VlgSglTgtGen(
           _bad_state = true;
         }
       }
-      if( IN("ready signal", instr) and instr["ready signal"] ) 
+      if( IN("ready signal", instr) and instr["ready signal"].size() != 0 ) 
         ready_type = (ready_type_t) ( ready_type | ready_type_t::READY_SIGNAL );
-      if( IN("ready bound", instr) and instr["ready bound"] )
+      if( IN("ready bound", instr) and instr["ready bound"].size() != 0 )
         ready_type = (ready_type_t) ( ready_type | ready_type_t::READY_BOUND );
       if( ready_type == ready_type_t::NA ) {
         ILA_ERROR << "refinement relation for:"<< instr_ptr->name().str()
@@ -400,7 +400,7 @@ VlgSglTgtGen::VlgSglTgtGen(
   void VlgSglTgtGen::ConstructWrapper_add_inv_assumptions() {
     ILA_ASSERT(target_type == target_type_t::INSTRUCTIONS) <<
       "Implementation bug: inv assumpt should only be used when verifying instructions.";
-    if ( not rf_cond["global invariants"] ) return; // no invariants to add
+    if ( rf_cond["global invariants"].size() == 0 ) return; // no invariants to add
     if ( not rf_cond["global invariants"].is_array() ) { 
       ILA_ERROR << "'global invariants' field in refinement relation has to be a JSON array.";
       return;
@@ -423,7 +423,7 @@ VlgSglTgtGen::VlgSglTgtGen(
   void VlgSglTgtGen::ConstructWrapper_add_inv_assertions() {
     ILA_ASSERT(target_type == target_type_t::INVARIANTS) <<
       "Implementation bug: should only be used when verifying invariants";
-    if ( not rf_cond["global invariants"] ) return; // no invariants to add
+    if ( rf_cond["global invariants"].size() == 0 ) return; // no invariants to add
     if ( not rf_cond["global invariants"].is_array() ) { 
       ILA_ERROR << "'global invariants' field in refinement relation has to be a JSON array.";
       return;
@@ -436,7 +436,13 @@ VlgSglTgtGen::VlgSglTgtGen(
 
   void VlgSglTgtGen::ConstructWrapper_add_additional_mapping_control() {
     if(IN("mapping control", rf_vmap)) {
+	  if(not rf_vmap["mapping control"].is_array()) 
+	  	ILA_ERROR << "mapping control field must be an array of string";
       for(auto && c : rf_vmap["mapping control"]) {
+	  	if(not c.is_string()) {
+	  	  ILA_ERROR << "mapping control field must be an array of string";
+		  continue;
+		}
         add_an_assumption( ReplExpr(c.get<std::string>()) , "additional mapping control assume" );
       }
     }
@@ -500,13 +506,25 @@ VlgSglTgtGen::VlgSglTgtGen(
     add_an_assumption( "~ __ISSUE__ || (" + vlg_ila.validName + ")" , "issue valid"); // __ISSUE__ |=> decode
 
     if(has_flush) {
-      ILA_ASSERT( instr["pre-flush end"] and instr["post-flush end"] ); // there has to be something
+      ILA_ASSERT( IN("pre-flush end",instr) and IN("post-flush end",instr) ); // there has to be something
 
-      auto issue_cond = "(" + ReplExpr( instr["pre-flush end"].get<std::string>() ) + ") && __RESETED__";
+      std::string issue_cond;
+	  if( instr["pre-flush end"].is_string () )
+	  	issue_cond = "(" + ReplExpr( instr["pre-flush end"].get<std::string>() ) + ") && __RESETED__";
+	  else {
+	  	issue_cond = VLG_TRUE;
+		ILA_ERROR<<"pre-flush end field should be a string!" ;
+	  }
       vlg_wrapper.add_wire("__ISSUE__" , 1);
       vlg_wrapper.add_assign_stmt( "__ISSUE__", issue_cond );
       
-      auto finish_cond = "(" + ReplExpr( instr["post-flush end"].get<std::string>() ) + ") && __ENDED__";
+      std::string finish_cond;
+	  if( instr["post-flush end"].is_string() )
+	  	finish_cond = "(" + ReplExpr( instr["post-flush end"].get<std::string>() ) + ") && __ENDED__";
+	  else {
+	  	finish_cond = VLG_TRUE;
+		ILA_ERROR<<"post-flush end field should be a string!" ;
+	  }
       vlg_wrapper.add_wire("__ENDFLUSH__" , 1);
       vlg_wrapper.add_assign_stmt( "__ENDFLUSH__", finish_cond );
 
@@ -557,6 +575,10 @@ VlgSglTgtGen::VlgSglTgtGen(
     // TODO ..
   }
 
+  void VlgSglTgtGen::ConstructWrapper_add_uf_constraints() {
+  	
+  }
+
   // for invariants or for instruction
   void VlgSglTgtGen::ConstructWrapper() {
     ILA_ASSERT(
@@ -601,7 +623,7 @@ VlgSglTgtGen::VlgSglTgtGen(
     ConstructWrapper_add_helper_memory();
 
     // 7. uni-functions
-    ConstructWrapper_add_uf_buffers();
+    ConstructWrapper_add_uf_constraints();
     
 
   }

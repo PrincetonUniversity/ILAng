@@ -1,0 +1,24 @@
+
+// additional mapping 
+"wr" : "**KEEP**" // by default
+"addr": "cmd_addr"
+"data_in": "cmd_data"
+"data_out": "**SO**"
+"ack": "**KEEP**"
+"stb": "**KEEP**"
+
+"xram_ack":"**KEEP**"
+"xram_data_out":"**MEM**xram.wdata"
+"xram_addr":"**MEM**xram.waddr"
+"xram_wr":"**KEEP**"
+"xram_stb":"**KEEP**"
+// add invariant:  (xram_wr&xram_stb) == xram.w_en
+// you need to create memory
+"xram_addr": "**MEM**xram.raddr.0"
+"xram_data_in": "**MEM**xram.rdata.0"
+
+
+"aes_state":"**SO**"
+"aes_addr":"**SO**"
+
+"mapping control" :["(xram_wr&xram_stb) == MEM_xram.wen"]

@@ -31,7 +31,7 @@ static bool startsWith(const std::string & str, const std::string & prefix)
 }
 
   /// Create a dir, true -> suceeded , ow false
-  bool os_portable_mkdir(const std::string dir) {
+  bool os_portable_mkdir(const std::string & dir) {
 #if defined(_WIN32) || defined(_WIN64)
   // on windows
   return _mkdir(dir.c_str()) == 0;
