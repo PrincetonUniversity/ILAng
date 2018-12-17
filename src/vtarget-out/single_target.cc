@@ -183,7 +183,7 @@ VlgSglTgtGen::VlgSglTgtGen(
     std::set<std::string> port_of_ila; // store the name of ila port also
 
     // .. record function
-    auto retStr = vlg_ila.moduleName + " " + _vlg_mod_inst_name + " (\n";
+    auto retStr = vlg_ila.moduleName + " " + _ila_mod_inst_name + " (\n";
 
     std::set<std::string> func_port_skip_set;
     for( auto && func_app : vlg_ila.ila_func_app) {
@@ -356,24 +356,34 @@ VlgSglTgtGen::VlgSglTgtGen(
 
     auto cnt_width = (int) std::ceil( std::log2 ( max_bound + 10 ) );
     vlg_wrapper.add_reg("__CYCLE_CNT__", cnt_width); // by default it will be an output reg
-    vlg_wrapper.add_always_stmt("if (rst) __CYCLE_CNT__ <= 0;");
-    vlg_wrapper.add_always_stmt("else if ( ( __START__ || __STARTED__ ) &&  __CYCLE_CNT__ < " + IntToStr(MAX_CYCLE_CTR+5) + ") __CYCLE_CNT__ <= __CYCLE_CNT__ + 1;");
-    
+    vlg_wrapper.add_stmt("always @(posedge clk) begin");
+    vlg_wrapper.add_stmt("if (rst) __CYCLE_CNT__ <= 0;");
+    vlg_wrapper.add_stmt("else if ( ( __START__ || __STARTED__ ) &&  __CYCLE_CNT__ < " + IntToStr(MAX_CYCLE_CTR+5) + ") __CYCLE_CNT__ <= __CYCLE_CNT__ + 1;");
+    vlg_wrapper.add_stmt("end");
+
     vlg_wrapper.add_reg("__START__", 1);
-    vlg_wrapper.add_always_stmt("if (rst) __START__ <= 0;");
-    vlg_wrapper.add_always_stmt("else if (__ISSUE__) __START__ <= 1;");
-    vlg_wrapper.add_always_stmt("else if (__START__ || __STARTED__) __START__ <= 0;");
+    vlg_wrapper.add_stmt("always @(posedge clk) begin");
+    vlg_wrapper.add_stmt("if (rst) __START__ <= 0;");
+    vlg_wrapper.add_stmt("else if (__ISSUE__) __START__ <= 1;");
+    vlg_wrapper.add_stmt("else if (__START__ || __STARTED__) __START__ <= 0;");
+    vlg_wrapper.add_stmt("end");
 
     vlg_wrapper.add_reg("__STARTED__", 1);
-    vlg_wrapper.add_always_stmt("if (rst) __STARTED__ <= 0;");
-    vlg_wrapper.add_always_stmt("else if (__START__) __STARTED__ <= 1;"); // will never return to zero
+    vlg_wrapper.add_stmt("always @(posedge clk) begin");
+    vlg_wrapper.add_stmt("if (rst) __STARTED__ <= 0;");
+    vlg_wrapper.add_stmt("else if (__START__) __STARTED__ <= 1;"); // will never return to zero
+    vlg_wrapper.add_stmt("end");
     
     vlg_wrapper.add_reg("__ENDED__", 1);
-    vlg_wrapper.add_always_stmt("if (rst) __ENDED__ <= 0;");
-    vlg_wrapper.add_always_stmt("else if (__IEND__) __ENDED__ <= 1;"); // will never return to zero
+    vlg_wrapper.add_stmt("always @(posedge clk) begin");
+    vlg_wrapper.add_stmt("if (rst) __ENDED__ <= 0;");
+    vlg_wrapper.add_stmt("else if (__IEND__) __ENDED__ <= 1;"); // will never return to zero
+    vlg_wrapper.add_stmt("end");
 
     vlg_wrapper.add_reg("__RESETED__", 1);
-    vlg_wrapper.add_always_stmt("if (rst) __RESETED__ <= 1;");
+    vlg_wrapper.add_stmt("always @(posedge clk) begin");
+    vlg_wrapper.add_stmt("if (rst) __RESETED__ <= 1;");
+    vlg_wrapper.add_stmt("end");
 
     // remember to generate
     // __RESETED__

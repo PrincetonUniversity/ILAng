@@ -161,42 +161,51 @@ std::string VlgSglTgtGen::ModifyCondExprAndRecordVlgName(const VarExtractor::tok
     return sname; // NC
   }
   else if (token_tp == VarExtractor::token_type::ILA_S) {
+    std::string quote = "";
+    if(_backend == backend_selector::COSA) 
+      quote = "'";
     // if it refers to ILA state
     if (_host->state(sname) ) 
-      return "__ILA_SO_" + sname;
+      return quote+"__ILA_SO_" + sname+quote;
     // if it uses the reference it self
     auto hierName = Split(sname, ".");
     if (hierName.size() == 2 ) // maybe it contains an unnecessary head
       if( (hierName[0] == _ila_mod_inst_name || hierName[0] == "ILA") && _host->state(hierName[1]) )
-        return "__ILA_SO_" + hierName[1];
+        return quote+"__ILA_SO_" + hierName[1]+quote;
     // should not reachable
     ILA_ASSERT(false) << "Implementation bug: should not be reachable. token_tp: ILA_S";
     return sname;
   }
   else if (token_tp == VarExtractor::token_type::ILA_IN) {
+    std::string quote = "";
+    if(_backend == backend_selector::COSA) 
+      quote = "'";
     // if it refers to ILA state
     if (_host->input(sname) ) 
-      return "__ILA_I_" + sname;
+      return quote+"__ILA_I_" + sname+quote;
     // if it uses the reference it self
     auto hierName = Split(sname, ".");
     if (hierName.size() == 2 ) // maybe it contains an unnecessary head
       if( (hierName[0] == _ila_mod_inst_name || hierName[0] == "ILA") && _host->input(hierName[1]) )
-        return "__ILA_I_" + hierName[1];
+        return quote+"__ILA_I_" + hierName[1]+quote;
     // should not reachable
     ILA_ASSERT(false) << "Implementation bug: should not be reachable. token_tp: ILA_IN";
     return sname;
   }
   else if (token_tp == VarExtractor::token_type::VLG_S)  {
+    std::string quote = "";
+    if(_backend == backend_selector::COSA) 
+      quote = "'";
 
     if(vlg_info_ptr->check_hierarchical_name_type(sname) 
        != VerilogInfo::hierarchical_name_type::NONE) {
       _all_referred_vlg_names.insert(sname);
-      return sname;
+      return quote+sname+quote;
     }
     if(vlg_info_ptr->check_hierarchical_name_type( _vlg_mod_inst_name + "." + sname) 
        != VerilogInfo::hierarchical_name_type::NONE) {
       _all_referred_vlg_names.insert(_vlg_mod_inst_name + "." + sname);
-      return _vlg_mod_inst_name + "." + sname;      
+      return quote+_vlg_mod_inst_name + "." + sname+quote;      
     }
     ILA_ASSERT(false) << "Implementation bug: should not be reachable. token_type: VLG_S";
     return  sname;
