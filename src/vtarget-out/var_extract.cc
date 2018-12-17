@@ -36,7 +36,7 @@ namespace ilang {
   }
 
   bool isStateCont(unsigned char c) {
-    return std::isalpha(c) || std::isdigit(c) || c == '.';
+    return std::isalpha(c) || std::isdigit(c) || c == '.' || c == '_';
   }
 
   bool isNumBegin(unsigned char c) {

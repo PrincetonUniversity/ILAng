@@ -15,6 +15,7 @@ namespace ilang {
     VlgSglTgtGen_Jasper::VlgSglTgtGen_Jasper(
     const std::string              & output_path, // will be a sub directory of the output_path of its parent
     const InstrPtr                 & instr_ptr, // which could be an empty pointer, and it will be used to verify invariants
+    const InstrLvlAbsPtr           & ila_ptr, 
     const VerilogGenerator::VlgGenConfig & config,
     nlohmann::json                 & _rf_vmap,
     nlohmann::json                 & _rf_cond,
@@ -22,11 +23,12 @@ namespace ilang {
     const std::string              & vlg_mod_inst_name,
     const std::string              & ila_mod_inst_name,
     const std::string              & wrapper_name,
-    const std::vector<std::string> & implementation_srcs
+    const std::vector<std::string> & implementation_srcs,
+    const std::vector<std::string> & implementation_include_path
   ):VlgSglTgtGen(
-      output_path, instr_ptr, config, _rf_vmap, _rf_cond,
+      output_path, instr_ptr, ila_ptr, config, _rf_vmap, _rf_cond,
       _vlg_info_ptr, vlg_mod_inst_name, ila_mod_inst_name,
-      wrapper_name, implementation_srcs )
+      wrapper_name, implementation_srcs, implementation_include_path )
   {
 
   }

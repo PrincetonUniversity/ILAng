@@ -244,5 +244,58 @@ TEST(TestVerilogAnalysis, GetTopIo) {
 
 }
 
+
+
+TEST(TestVerilogAnalysis, GetTopIoNewFashion) {
+
+  /* not generating
+  auto ila_ptr_ = SimpleCpu("proc");
+  ila_ptr_->NewBoolState("nouse");
+  // test 1 gen Add : internal mem
+  {
+    auto vgen = VerilogGenerator();
+    vgen.ExportIla(ila_ptr_);
+    write_to_file( "test/unit-data/verilog_sample/t_ana_ila.v" , vgen);
+  }
+  */
+
+  VerilogInfo va ( VerilogInfo::path_vec_t() , VerilogInfo::path_vec_t({std::string(TEST_CONFIG_TEST_ROOT) + "/unit-data/verilog_sample/t_pipe.v"}) , "m1");
+  ILA_DLOG("TestVerilogAnalysis.GetTopIoNewFashion") << "Top module name:" << va.get_top_module_name();
+  VerilogInfo::module_io_vec_t top_io = va.get_top_module_io();
+
+  EXPECT_TRUE ( IN( "clk" , top_io) );
+  EXPECT_TRUE ( IN( "rst" , top_io) );
+  EXPECT_TRUE ( IN( "inst" , top_io) );
+  EXPECT_TRUE ( IN( "dummy_read_rf" , top_io) );
+  EXPECT_TRUE ( IN( "dummy_rf_data" , top_io) );
+
+  #define EXPECT_IO_SIGNAL(mdname,name,width,isinput,isreg) { \
+    auto pos = top_io.find(name); EXPECT_FALSE(pos == top_io.end()); \
+    auto signal = pos->second; \
+    EXPECT_EQ(signal.get_signal_name() , name );  \
+    EXPECT_EQ(signal.get_hierarchical_name() , mdname "." name );  \
+    EXPECT_EQ(signal.get_width() , width );  \
+    EXPECT_EQ(signal.is_io_sig() , true  );  \
+    EXPECT_EQ(signal.is_reg()    , isreg ); \
+    EXPECT_EQ(VerilogAnalyzerBase::is_input(signal.get_type()) , isinput  );  }
+
+#define I true
+#define O false
+#define R true
+#define W false
+
+  EXPECT_IO_SIGNAL("m1","clk",           1,I,W);
+  EXPECT_IO_SIGNAL("m1","rst",           1,I,W);
+  EXPECT_IO_SIGNAL("m1","inst",          8,I,W);
+  EXPECT_IO_SIGNAL("m1","dummy_read_rf", 2,I,W);
+  EXPECT_IO_SIGNAL("m1","dummy_rf_data", 8,O,W);
+
+#undef I 
+#undef O
+#undef R
+#undef W
+
+}
+
 #endif
 };  // namespace ilang

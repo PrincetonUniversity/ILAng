@@ -14,7 +14,6 @@ namespace ilang {
 
 
 TEST(TestVlgTargetGen, AesIlaInfo) {
-  SetToStdErr(1);
 
   auto aesFile = std::string(TEST_CONFIG_TEST_ROOT) + "/unit-data/aes_v/all";
   auto aesuFile = std::string(TEST_CONFIG_TEST_ROOT) + "/unit-data/aes_v/allu";
@@ -44,7 +43,6 @@ TEST(TestVlgTargetGen, AesIlaInfo) {
   }
   ILA_DLOG("TestVlgTargetGen.IlaInfo") << std::endl;
 
-  SetToStdErr(0);
 }
 
 #ifdef VERILOG_IN_ENABLE

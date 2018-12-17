@@ -5,6 +5,7 @@
 #include <ilang/util/log.h>
 #include <ilang/util/fs.h>
 #include <ilang/util/str_util.h>
+#include <ilang/util/container_shortcut.h>
 #include <ilang/ila/expr_fuse.h>
 #include <ilang/vtarget-out/vtarget_gen_impl.h>
 #include <ilang/vtarget-out/vtarget_gen_cosa.h>
@@ -51,6 +52,61 @@ namespace ilang {
       ILA_ERROR<<"ILA should not be none";
       _bad_state = true;
     }
+    // check for json file -- global invariants
+    if(not IN("global invariants", rf_cond)) {
+      ILA_ERROR<<"'global invariants' must exist, can be an empty array";
+      _bad_state = true;
+    } else if (not rf_cond["global invariants"].is_array()) {
+      ILA_ERROR<<"'global invariants' must be an array of string";
+      _bad_state = true;
+    } else if ( rf_cond["global invariants"].size() != 0) {
+      if(not rf_cond["global invariants"][0].is_string() ) {
+        ILA_ERROR<<"'global invariants' must be an array of string";
+        _bad_state = true;
+      }
+    }
+    // check for json file -- instructions
+    if (not IN("instructions",rf_cond)) {
+      ILA_ERROR << "'instructions' must exist.";
+      _bad_state = true;
+    } else if ( not rf_cond["instructions"].is_array() ) {
+      ILA_ERROR << "'instructions' must be an array of objects.";
+      _bad_state = true;
+    } else if (rf_cond["instructions"].size() == 0) {
+      ILA_WARN<<"No instruction in the rf specification";
+    } else {
+      for ( auto && it : rf_cond["instructions"].items() ) {
+        if (not it.value().is_object()  ) {
+          ILA_ERROR << "'instructions' must be an array of objects.";
+          _bad_state = true;
+          break;
+        }
+        else {
+          if (not IN( "instruction", it.value() )) {
+            ILA_ERROR << "'instruction' field must exist in the rf object.";
+            _bad_state = true;
+            break;
+          }
+          else if ( not it.value()["instruction"].is_string() ) {
+            ILA_ERROR << "'instruction' field must be a string of instruction name.";
+            _bad_state = true;
+            break;
+          }
+        }
+      }
+    }
+
+    // check vmap
+    if (not IN("models", rf_vmap) || not rf_vmap["models"].is_object() ) {
+      ILA_ERROR << "'model' field must exist in vmap and be a map of ILA/VERILOG -> 'instance name' ";
+      _bad_state = true;
+    }
+    if(not IN("state mapping", rf_vmap) || not rf_vmap["state mapping"].is_object()) {
+      ILA_ERROR << "'state mapping' field must exist in vmap and be a map : ila_var -> impl_var";
+      _bad_state = true;
+    }
+    // TODO: check more 
+
   }
 
   VlgVerifTgtGen::~VlgVerifTgtGen()
@@ -77,6 +133,7 @@ namespace ilang {
       auto target = VlgSglTgtGen_Cosa(
         os_portable_append_dir( _output_path, "invariants" ),
         NULL, // invariant
+        _ila_ptr,
         _cfg,
         rf_vmap,
         rf_cond,
@@ -84,14 +141,17 @@ namespace ilang {
         _vlg_mod_inst_name,
         _ila_mod_inst_name,
         "wrapper",
-        _vlg_impl_srcs
+        _vlg_impl_srcs,
+        _vlg_impl_include_path
       );
+      target.ConstructWrapper();
       target.ExportAll("wrapper.v", "ila.v", "run.sh" , "problem.txt" , "absmem.v");
     }
     else if (_backend == backend_selector::JASPERGOLD ) {
       auto target = VlgSglTgtGen_Jasper(
         os_portable_append_dir( _output_path, "invariants" ),
         NULL, // invariant
+        _ila_ptr,
         _cfg,
         rf_vmap,
         rf_cond,
@@ -99,8 +159,10 @@ namespace ilang {
         _vlg_mod_inst_name,
         _ila_mod_inst_name,
         "wrapper",
-        _vlg_impl_srcs
+        _vlg_impl_srcs,
+        _vlg_impl_include_path
       );
+      target.ConstructWrapper();
       target.ExportAll("wrapper.v", "ila.v", "run.sh" , "do.tcl" , "absmem.v");
     }
 
@@ -116,7 +178,8 @@ namespace ilang {
       if( _backend == backend_selector::COSA ) {
             auto target = VlgSglTgtGen_Cosa(
               os_portable_append_dir( _output_path, iname ),
-              instr_ptr, // invariant
+              instr_ptr, // instruction
+              _ila_ptr,
               _cfg,
               rf_vmap,
               rf_cond,
@@ -124,14 +187,17 @@ namespace ilang {
               _vlg_mod_inst_name,
               _ila_mod_inst_name,
               "wrapper",
-              _vlg_impl_srcs
+              _vlg_impl_srcs,
+              _vlg_impl_include_path
             );
+            target.ConstructWrapper();
             target.ExportAll("wrapper.v", "ila.v", "run.sh" , "problem.txt" , "absmem.v");
           }
           else if (_backend == backend_selector::JASPERGOLD ) {
             auto target = VlgSglTgtGen_Jasper(
               os_portable_append_dir( _output_path, iname ),
-              instr_ptr, // invariant
+              instr_ptr, // instruction
+              _ila_ptr,
               _cfg,
               rf_vmap,
               rf_cond,
@@ -139,8 +205,10 @@ namespace ilang {
               _vlg_mod_inst_name,
               _ila_mod_inst_name,
               "wrapper",
-              _vlg_impl_srcs
+              _vlg_impl_srcs,
+              _vlg_impl_include_path
             );
+            target.ConstructWrapper();
             target.ExportAll("wrapper.v", "ila.v", "run.sh" , "do.tcl" , "absmem.v");
           }
     }// end for
@@ -155,7 +223,7 @@ namespace ilang {
   void VlgVerifTgtGen::set_module_instantiation_name() {
     if(bad_state_return()) return;
     // use the content in the refinement relations to determine the instance name
-    auto & model_specified = rf_cond["models"];
+    auto & model_specified = rf_vmap["models"];
     for ( auto && name_description_pair: model_specified.items()  ) {
       if(name_description_pair.key() == "ILA" ) {
         _ila_mod_inst_name = name_description_pair.value();

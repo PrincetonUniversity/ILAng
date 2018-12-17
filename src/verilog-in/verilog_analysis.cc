@@ -571,7 +571,9 @@ unsigned range_to_width(ast_range * range) {
 SignalInfoPort::SignalInfoPort (ast_port_declaration *def, const std::string & full_name , VerilogAnalyzerBase::hierarchical_name_type tp ) :
 SignalInfoBase(Split(full_name, ".").back(), full_name, range_to_width (def->range), tp,  VerilogAnalyzer::Meta2Loc(def->meta) ),
 _def(def)
-{ ILA_WARN_IF( _width == 0 ) << "Verilog Analyzer is not able to determine the width of signal:"<<full_name<<" @ "<<_loc; }
+{ //ILA_WARN_IF( def->range == NULL ) << "Verilog Analyzer: signal "<< full_name <<" has no range.";
+  ILA_WARN_IF( _width == 0 ) << "Verilog Analyzer is not able to determine the width of signal:"<<full_name<<" @ "<<_loc; 
+  }
 
 SignalInfoReg::SignalInfoReg (ast_reg_declaration *def, const std::string & full_name, VerilogAnalyzerBase::hierarchical_name_type tp):
 SignalInfoBase(Split(full_name, ".").back(), full_name, range_to_width (def->range), tp,  VerilogAnalyzer::Meta2Loc(def->meta) ),

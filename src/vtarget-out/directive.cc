@@ -24,7 +24,7 @@ namespace ilang {
     if(c == "**KEEP**") return true;
     if(c == "**NC**")   return true;
     if(c == "**SO**")   return vlg_sig.is_output();
-    if(c == "**RESET**" || c == "**CLOCK**") return vlg_sig.is_output();
+    if(c == "**RESET**" || c == "**CLOCK**") return (vlg_sig.is_input() and vlg_sig.get_width() == 1);
     if(beginsWith(c, "**MEM**")) {
       auto first_dot_loc = c.find(".");
       auto port_name = c.substr(first_dot_loc + 1);
@@ -175,8 +175,22 @@ namespace ilang {
         << " in refinement (special directive) does not match the verilog interface.";
 
       if (refstr == "**KEEP**") {
-        if(is_input)  ConnectModuleInputAddWire ("__VLG_I_" + short_name, width);
-        if(is_output) ConnectModuleOutputAddWire("__VLG_O_" + short_name, width);
+        if(is_input)  {
+          if(IN(short_name, mod_inst_rec)) {
+            ILA_ERROR << short_name << " has already been connected";
+          } else {
+            input_wires.push_back( {"__VLG_I_" + short_name, width} );
+            mod_inst_rec.insert( {short_name, inf_connector_t({ inf_dir_t::INPUT ,  "__VLG_I_" + short_name}) } );
+          } 
+        }
+        if(is_output) {
+          if( IN(short_name , mod_inst_rec ) ) 
+              ILA_ERROR << short_name << "is already connected. Ignored.";
+          else {
+            output_wires.push_back( {"__VLG_O_" + short_name, width} );
+            mod_inst_rec.insert( {short_name, inf_connector_t({ inf_dir_t::SO ,  "__VLG_O_" + short_name}) } );
+          }
+        } 
       } else if (refstr == "**NC**") {
         mod_inst_rec.insert( {short_name, inf_connector_t({ inf_dir_t::NC ,  ""}) } );
       } else if ( refstr == "**SO**" ) {
@@ -260,7 +274,7 @@ namespace ilang {
       // ILA_ERROR_IF( refstr is not an ila input )
       ILA_ERROR_IF( not chk(refstr, vlg_sig) ) 
         << "Uncompatible input refinement:" 
-        << refstr << "for " << short_name
+        << refstr << " for " << short_name
         << ". Connect anyway. Please check.";
 
       mod_inst_rec.insert( {short_name, { inf_dir_t::INPUT , "__ILA_I_" + refstr } } );

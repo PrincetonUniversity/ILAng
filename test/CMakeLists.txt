@@ -120,6 +120,11 @@ if(${ILANG_BUILD_VLOG})
   )
 
   configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/unit-data/verilog_sample/t_pipe.v
+    ${CMAKE_CURRENT_BINARY_DIR}/unit-data/verilog_sample/t_pipe.v
+  )
+
+  configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/unit-data/vpipe/simple_pipe.v
     ${CMAKE_CURRENT_BINARY_DIR}/unit-data/vpipe/simple_pipe.v
   )

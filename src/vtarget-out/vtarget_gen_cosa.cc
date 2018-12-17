@@ -14,6 +14,7 @@ namespace ilang {
     VlgSglTgtGen_Cosa::VlgSglTgtGen_Cosa(
     const std::string              & output_path, // will be a sub directory of the output_path of its parent
     const InstrPtr                 & instr_ptr, // which could be an empty pointer, and it will be used to verify invariants
+    const InstrLvlAbsPtr           & ila_ptr, 
     const VerilogGenerator::VlgGenConfig & config,
     nlohmann::json                 & _rf_vmap,
     nlohmann::json                 & _rf_cond,
@@ -21,11 +22,12 @@ namespace ilang {
     const std::string              & vlg_mod_inst_name,
     const std::string              & ila_mod_inst_name,
     const std::string              & wrapper_name,
-    const std::vector<std::string> & implementation_srcs
+    const std::vector<std::string> & implementation_srcs,
+    const std::vector<std::string> & implementation_include_path
   ):VlgSglTgtGen(
-      output_path, instr_ptr, config, _rf_vmap, _rf_cond,
+      output_path, instr_ptr, ila_ptr, config, _rf_vmap, _rf_cond,
       _vlg_info_ptr, vlg_mod_inst_name, ila_mod_inst_name,
-      wrapper_name, implementation_srcs )
+      wrapper_name, implementation_srcs, implementation_include_path )
   {
 
   }
@@ -33,14 +35,14 @@ namespace ilang {
 
   /// Add an assumption
   void VlgSglTgtGen_Cosa::add_an_assumption(const std::string & aspt, const std::string & dspt) {
-    auto assumption_wire_name = vlg_wrapper.sanitizeName(dspt);
+    auto assumption_wire_name = vlg_wrapper.sanitizeName(dspt) + new_mapping_id();
     vlg_wrapper.add_wire( assumption_wire_name , 1 );
     vlg_wrapper.add_assign_stmt( assumption_wire_name,  aspt );
     _problems.assumptions.push_back(assumption_wire_name);
   }
   /// Add an assertion
   void VlgSglTgtGen_Cosa::add_an_assertion (const std::string & asst, const std::string & dspt)  {
-    auto assrt_wire_name = vlg_wrapper.sanitizeName(dspt);
+    auto assrt_wire_name = vlg_wrapper.sanitizeName(dspt) + new_property_id();
     vlg_wrapper.add_wire( assrt_wire_name , 1 );
     vlg_wrapper.add_assign_stmt( assrt_wire_name,  asst );
 
@@ -94,10 +96,12 @@ namespace ilang {
 
     fout<<"[GENERAL]"<<std::endl;
     fout<<"model_file:";// 
-    fout << top_file_name << "[" << top_mod_name << "]," << ila_file_name  ;
-    fout << ",rst.ets";
+    fout << top_file_name << "[" << top_mod_name << "],"   ;
+    if(target_type != target_type_t::INVARIANTS )
+    	fout << ila_file_name<<",";
+    fout << "rst.ets";
     for(auto && fn : vlg_design_files)
-    fout << "," << fn;
+      fout << "," << os_portable_file_name_from_path(fn);
     fout << std::endl;
 
     fout<<"assume_if_true: True"<<std::endl;
@@ -107,11 +111,11 @@ namespace ilang {
     fout<<"precondition: reset_done"<<std::endl;
     fout<<std::endl;
 
-    std::string assmpt = Join(_problems.assumptions, "&");
+    std::string assmpt = Join(_problems.assumptions, " & ");
     for ( auto && pbname_prob_pair : _problems.probitem ) {
       const auto & prbname = pbname_prob_pair.first;
       const auto & prob    = pbname_prob_pair.second;
-      auto asst = Join(prob.assertions, "&" );
+      auto asst = Join(prob.assertions, " & " );
       auto prob_name = vlg_wrapper.sanitizeName(prbname);
       fout << "["<<prob_name<<"]" <<std::endl;
       fout << "description:\"" << prbname <<"\""  <<std::endl;
@@ -185,7 +189,8 @@ namespace ilang {
       rmw(fin,fout, fn_l_map[fn]);
     } // for (auto && fn : vlg_design_files)
     // .. (copy all the verilog file in the folder), this has to be os dependent
-    ILA_WARN << "Not copying includes.";
+    if(vlg_include_files_path.size() != 0)
+      ILA_WARN << "Not copying includes.";
     // maybe in the script
   } // Export_modify_verilog
 

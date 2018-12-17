@@ -12,6 +12,8 @@ namespace ilang {
 /// Unlike for cosa, we don't need a separate file
 /// although we do have some ...
 class VlgSglTgtGen_Jasper : public VlgSglTgtGen {
+  /// using the target type
+  using target_type_t = VlgSglTgtGen::target_type_t;
   
 public:
   // --------------------- CONSTRUCTOR ---------------------------- //
@@ -25,9 +27,11 @@ public:
   /// \param[in] verilog module name
   /// \param[in] ila module name,
   /// \param[in] all implementation sources
+  /// \param[in] all include paths
   VlgSglTgtGen_Jasper(
     const std::string              & output_path, // will be a sub directory of the output_path of its parent
     const InstrPtr                 & instr_ptr, // which could be an empty pointer, and it will be used to verify invariants
+    const InstrLvlAbsPtr           & ila_ptr, 
     const VerilogGenerator::VlgGenConfig & config,
     nlohmann::json                 & _rf_vmap,
     nlohmann::json                 & _rf_cond,
@@ -35,7 +39,8 @@ public:
     const std::string              & vlg_mod_inst_name,
     const std::string              & ila_mod_inst_name,
     const std::string              & wrapper_name,
-    const std::vector<std::string> & implementation_srcs
+    const std::vector<std::string> & implementation_srcs,
+    const std::vector<std::string> & include_dirs
   );
 
 protected:

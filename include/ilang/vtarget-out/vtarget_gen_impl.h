@@ -35,6 +35,7 @@ namespace ilang {
 /// \brief Generating a target (just the invairant or for an instruction)
 class VlgSglTgtGen {
     // --------------------- TYPE DEFINITION ------------------------ //
+public:
     /// Type of the target
     typedef enum { INVARIANTS, INSTRUCTIONS } target_type_t;
     /// Type of the ready condition
@@ -47,6 +48,7 @@ public:
     ///
     /// \param[in] output path (ila-verilog, wrapper-verilog, problem.txt, run-verify-by-???, modify-impl, it there is )
     /// \param[in] pointer to the instruction
+    /// \param[in] the host ila
     /// \param[in] the default configuration for outputing verilog
     /// \param[in] the variable map
     /// \param[in] the conditions
@@ -55,9 +57,11 @@ public:
     /// \param[in] ila module name
     /// \param[in] verilog wrapper module name
     /// \param[in] implemenation sources, can be used to modify and copy
+    /// \param[in] all include paths
     VlgSglTgtGen(
       const std::string              & output_path, // will be a sub directory of the output_path of its parent
       const InstrPtr                 & instr_ptr, // which could be an empty pointer, and it will be used to verify invariants
+      const InstrLvlAbsPtr           & ila_ptr, 
       const VerilogGenerator::VlgGenConfig & config,
       nlohmann::json                 & _rf_vmap,
       nlohmann::json                 & _rf_cond,
@@ -65,7 +69,8 @@ public:
       const std::string              & vlg_mod_inst_name,
       const std::string              & ila_mod_inst_name,
       const std::string              & wrapper_name,
-      const std::vector<std::string> & implementation_srcs
+      const std::vector<std::string> & implementation_srcs,
+      const std::vector<std::string> & implementation_include_path
     );
 
     /// Destructor: do nothing , most importantly it is virtual
@@ -78,6 +83,8 @@ public:
     const std::string              _output_path; 
     /// The pointer to the instruction that is going to export
     InstrPtr                       _instr_ptr;  // could be nullptr
+    /// The pointer to the host ila
+    InstrLvlAbsPtr                 _host;       // should not be nullptr
     /// The name of verilog top module instance in the wrapper
     const std::string              _vlg_mod_inst_name; 
     /// The name of ila-verilog top module instance in the wrapper
@@ -103,7 +110,7 @@ public:
     /// An empty json for default fallthrough cases
     nlohmann::json      empty_json;
     /// record all the referred vlg names, so you can add (*keep*) if needed
-    std::vector<std::string> _all_referred_vlg_names;
+    std::set<std::string> _all_referred_vlg_names;
     /// target type 
     target_type_t       target_type;
     /// a shortcut of whether rf has flush condition set
@@ -191,8 +198,7 @@ public:
     void ConstructWrapper_add_helper_memory();
     /// Add buffers and assumption/assertions about the 
     void ConstructWrapper_add_uf_constraints();
-    /// Call the above functions to make a wrapper (not yet export it)
-    void ConstructWrapper() ;
+
 
   protected:
     /// get the ila module instantiation string
@@ -208,9 +214,13 @@ public:
     std::string ila_file_name;
     /// design files
     std::vector<std::string> vlg_design_files; // mainly design file
+    /// include paths
+    std::vector<std::string> vlg_include_files_path;
 
 
   public:
+    /// Call the separate construct functions to make a wrapper (not yet export it)
+    void virtual ConstructWrapper() ;
     /// create the wrapper file
     void virtual Export_wrapper(const std::string & wrapper_name);
     /// export the ila verilog

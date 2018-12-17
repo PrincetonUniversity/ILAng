@@ -24,18 +24,18 @@ std::string VlgSglTgtGen::new_property_id() {
 }
 
 const ExprPtr VlgSglTgtGen::IlaGetState(const std::string &sname) const {
-  auto ptr = _instr_ptr->host()->state(sname);
-  ILA_ERROR_IF(ptr == nullptr) << "Cannot find state:"<<sname<<" in ila:"<<_instr_ptr->host()->name().str();
+  auto ptr = _host->state(sname);
+  ILA_ERROR_IF(ptr == nullptr) << "Cannot find state:"<<sname<<" in ila:"<<_host->name().str();
   return ptr;
 }
 const ExprPtr VlgSglTgtGen::IlaGetInput(const std::string &sname) const {
-  auto ptr = _instr_ptr->host()->input(sname);
-  ILA_ERROR_IF(ptr == nullptr) << "Cannot find state:"<<sname<<" in ila:"<<_instr_ptr->host()->name().str();
+  auto ptr = _host->input(sname);
+  ILA_ERROR_IF(ptr == nullptr) << "Cannot find input:"<<sname<<" in ila:"<<_host->name().str();
   return ptr;
 }
 
 std::pair<unsigned,unsigned> VlgSglTgtGen::GetMemInfo( const std::string &ila_mem_name ) const {
-  auto ptr_ =  _instr_ptr->host()->state(ila_mem_name);
+  auto ptr_ =  _host->state(ila_mem_name);
   if( ptr_ == nullptr  ) 
     return std::pair<unsigned,unsigned> ({0,0});
   if( ! ptr_->sort()->is_mem() ) 
@@ -45,11 +45,11 @@ std::pair<unsigned,unsigned> VlgSglTgtGen::GetMemInfo( const std::string &ila_me
 
 
 bool VlgSglTgtGen::TryFindIlaState(const std::string &sname) {
-  if (_instr_ptr->host()->state(sname) ) return true;
+  if (_host->state(sname) ) return true;
   // if it uses the reference it self
   auto hierName = Split(sname, ".");
   if (hierName.size() == 2 ) { // maybe it contains an unnecessary head
-    if( (hierName[0] == _ila_mod_inst_name || hierName[0] == "ILA") && _instr_ptr->host()->state(hierName[1]) )
+    if( (hierName[0] == _ila_mod_inst_name || hierName[0] == "ILA") && _host->state(hierName[1]) )
       return true;
     return false;
   }
@@ -57,11 +57,11 @@ bool VlgSglTgtGen::TryFindIlaState(const std::string &sname) {
 }
 
 bool VlgSglTgtGen::TryFindIlaInput(const std::string &sname) {
-  if (_instr_ptr->host()->input(sname) ) return true;
+  if (_host->input(sname) ) return true;
   // if it uses the reference it self
   auto hierName = Split(sname, ".");
   if (hierName.size() == 2 ) { // maybe it contains an unnecessary head
-    if( (hierName[0] == _ila_mod_inst_name || hierName[0] == "ILA") && _instr_ptr->host()->input(hierName[1]) )
+    if( (hierName[0] == _ila_mod_inst_name || hierName[0] == "ILA") && _host->input(hierName[1]) )
       return true;
     return false;
   }
@@ -98,12 +98,12 @@ std::string VlgSglTgtGen::ModifyCondExprAndRecordVlgName(const VarExtractor::tok
     return sname; // NC
   else if (token_tp == VarExtractor::token_type::ILA_S) {
     // if it refers to ILA state
-    if (_instr_ptr->host()->state(sname) ) 
+    if (_host->state(sname) ) 
       return "__ILA_SO_" + sname;
     // if it uses the reference it self
     auto hierName = Split(sname, ".");
     if (hierName.size() == 2 ) // maybe it contains an unnecessary head
-      if( (hierName[0] == _ila_mod_inst_name || hierName[0] == "ILA") && _instr_ptr->host()->state(hierName[1]) )
+      if( (hierName[0] == _ila_mod_inst_name || hierName[0] == "ILA") && _host->state(hierName[1]) )
         return "__ILA_SO_" + hierName[1];
     // should not reachable
     ILA_ASSERT(false) << "Implementation bug: should not be reachable. token_tp: ILA_S";
@@ -111,12 +111,12 @@ std::string VlgSglTgtGen::ModifyCondExprAndRecordVlgName(const VarExtractor::tok
   }
   else if (token_tp == VarExtractor::token_type::ILA_IN) {
     // if it refers to ILA state
-    if (_instr_ptr->host()->input(sname) ) 
+    if (_host->input(sname) ) 
       return "__ILA_I_" + sname;
     // if it uses the reference it self
     auto hierName = Split(sname, ".");
     if (hierName.size() == 2 ) // maybe it contains an unnecessary head
-      if( (hierName[0] == _ila_mod_inst_name || hierName[0] == "ILA") && _instr_ptr->host()->input(hierName[1]) )
+      if( (hierName[0] == _ila_mod_inst_name || hierName[0] == "ILA") && _host->input(hierName[1]) )
         return "__ILA_I_" + hierName[1];
     // should not reachable
     ILA_ASSERT(false) << "Implementation bug: should not be reachable. token_tp: ILA_IN";
@@ -126,12 +126,12 @@ std::string VlgSglTgtGen::ModifyCondExprAndRecordVlgName(const VarExtractor::tok
 
     if(vlg_info_ptr->check_hierarchical_name_type(sname) 
        != VerilogInfo::hierarchical_name_type::NONE) {
-      _all_referred_vlg_names.push_back(sname);
+      _all_referred_vlg_names.insert(sname);
       return sname;
     }
     if(vlg_info_ptr->check_hierarchical_name_type( _vlg_mod_inst_name + "." + sname) 
        != VerilogInfo::hierarchical_name_type::NONE) {
-      _all_referred_vlg_names.push_back(_vlg_mod_inst_name + "." + sname);
+      _all_referred_vlg_names.insert(_vlg_mod_inst_name + "." + sname);
       return _vlg_mod_inst_name + "." + sname;      
     }
     ILA_ASSERT(false) << "Implementation bug: should not be reachable. token_type: VLG_S";
@@ -156,14 +156,17 @@ unsigned VlgSglTgtGen::TypeMatched(const ExprPtr & ila_var, const SignalInfoBase
   }
   if(ila_sort->is_bool()) {
     if( vlg_var.get_width() == 1 ) return 1;
+    ILA_ERROR << "ila w:1, vlg w:"  << vlg_var.get_width();
     /*else*/ return 0; /*mismatch*/
   } /*else*/ 
   if(ila_sort->is_bv()) {
     if( ila_sort->bit_width() == vlg_var.get_width() ) return vlg_var.get_width();
+    ILA_ERROR << "ila w:"<< ila_sort->bit_width() <<", vlg w:"  << vlg_var.get_width();
     /*else*/ return 0; /*mismatch*/
   } /*else*/ 
   if (ila_sort->is_mem()) {
     if( ila_sort->data_width() == vlg_var.get_width() ) return vlg_var.get_width();
+    ILA_ERROR << "ila w:"<< ila_sort->data_width() <<", vlg w:"  << vlg_var.get_width();
     /*else*/ return 0; /*mismatch*/
   }
   ILA_ASSERT(false)<<"Implementation bug: unknown sort";

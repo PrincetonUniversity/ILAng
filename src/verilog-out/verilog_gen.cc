@@ -220,18 +220,20 @@ void VerilogGeneratorBase::DumpToFile(std::ostream& fout) const {
   fout << "module " << moduleName << "(\n";
 
   std::string separator; // input will not be empty of course, output won't either
-  for (auto const& sig_pair : inputs)
-    fout << sig_pair.first << ",\n"; // sig_pair.first is the name
-  for (auto const& sig_pair : outputs)
-    fout << sig_pair.first << ",\n"; // sig_pair.first is the name
-  for (auto const& sig_pair : mem_i)
-    fout << sig_pair.first << ",\n"; // sig_pair.first is the name
-  for (auto const& sig_pair : mem_o)
-    fout << sig_pair.first << ",\n"; // sig_pair.first is the name
-  for (auto const& sig_pair : regs) {
-    fout << separator << sig_pair.first;
-    separator = ",\n";
+
+  for (auto const& sig_pair : inputs) {
+    fout << separator << sig_pair.first ; // sig_pair.first is the name
+    separator = ",\n";    
   }
+  for (auto const& sig_pair : outputs)
+    fout << ",\n" << sig_pair.first ; // sig_pair.first is the name
+  for (auto const& sig_pair : mem_i)
+    fout << ",\n" << sig_pair.first ; // sig_pair.first is the name
+  for (auto const& sig_pair : mem_o)
+    fout << ",\n" << sig_pair.first ; // sig_pair.first is the name
+  for (auto const& sig_pair : regs) 
+    fout << ",\n" << sig_pair.first;
+  
   // let all registers to be output, so they can be acccessible from the port
 
   fout << "\n);\n";
@@ -268,39 +270,41 @@ void VerilogGeneratorBase::DumpToFile(std::ostream& fout) const {
   for (auto const& stmt : statements)
     fout << stmt << "\n";
 
-  fout << "always @(posedge " << clkName << ") begin\n";
-  fout << "   if(" << rstName << ") begin\n";
-  // init_stmts go in rst cycle
-  for (auto const& stmt : init_stmts)
-    fout << "       " << stmt << "\n";
-  //
-  fout << "   end\n";
-  
-  // whether to use start to control it
-  if (cfg_.start_signal)
-    fout << "   else if(" << validName << ") begin\n";
-  else
-    fout << "   else if(" << startName <<  " && " << validName << ") begin\n";
-  
-  for (auto const& stmt : always_stmts)
-    fout << "       " << stmt << "\n";
-  // we don't require ite statement has that
-  for (auto const& stmt : ite_stmts) {
-    fout << "       "
-         << "if (" << std::get<0>(stmt) << ") begin\n";
-    fout << "       "
-         << "    " << std::get<1>(stmt) << " ;\n";
-    fout << "       "
-         << "end\n";
-    if (std::get<2>(stmt) != "") {
+  if(init_stmts.size() != 0 || always_stmts.size() !=0 || ite_stmts.size() != 0 ) {
+    fout << "always @(posedge " << clkName << ") begin\n";
+    fout << "   if(" << rstName << ") begin\n";
+    // init_stmts go in rst cycle
+    for (auto const& stmt : init_stmts)
+      fout << "       " << stmt << "\n";
+    //
+    fout << "   end\n";
+    
+    // whether to use start to control it
+    if ( ! cfg_.start_signal)
+      fout << "   else if(" << (validName == "" ?  "1" : validName ) << ") begin\n";
+    else
+      fout << "   else if(" << startName <<  " && " << validName << ") begin\n";
+    
+    for (auto const& stmt : always_stmts)
+      fout << "       " << stmt << "\n";
+    // we don't require ite statement has that
+    for (auto const& stmt : ite_stmts) {
       fout << "       "
-           << "else begin\n            " << std::get<2>(stmt)
-           << " ;\n        end\n";
+           << "if (" << std::get<0>(stmt) << ") begin\n";
+      fout << "       "
+           << "    " << std::get<1>(stmt) << " ;\n";
+      fout << "       "
+           << "end\n";
+      if (std::get<2>(stmt) != "") {
+        fout << "       "
+             << "else begin\n            " << std::get<2>(stmt)
+             << " ;\n        end\n";
+      }
     }
-  }
 
-  fout << "   end\n";
-  fout << "end\n";
+    fout << "   end\n";
+    fout << "end\n";
+  }
 
   fout << "endmodule\n";
 }
