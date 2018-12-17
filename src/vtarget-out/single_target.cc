@@ -719,8 +719,8 @@ VlgSglTgtGen::VlgSglTgtGen(
     Export_wrapper(wrapper_name);
     if(target_type != target_type_t :: INVARIANTS)
       Export_ila_vlg(ila_vlg_name);
-    Export_script(script_name);
     Export_problem(extra_name);
+    Export_script(script_name);
     Export_modify_verilog();
     Export_mem(mem_name);
   }

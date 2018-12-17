@@ -36,14 +36,14 @@ namespace ilang {
   /// Add an assumption
   void VlgSglTgtGen_Cosa::add_an_assumption(const std::string & aspt, const std::string & dspt) {
     auto assumption_wire_name = vlg_wrapper.sanitizeName(dspt) + new_mapping_id();
-    vlg_wrapper.add_wire( assumption_wire_name , 1 );
+    vlg_wrapper.add_wire( assumption_wire_name , 1 , true );
     vlg_wrapper.add_assign_stmt( assumption_wire_name,  aspt );
     _problems.assumptions.push_back(assumption_wire_name);
   }
   /// Add an assertion
   void VlgSglTgtGen_Cosa::add_an_assertion (const std::string & asst, const std::string & dspt)  {
     auto assrt_wire_name = vlg_wrapper.sanitizeName(dspt) + new_property_id();
-    vlg_wrapper.add_wire( assrt_wire_name , 1 );
+    vlg_wrapper.add_wire( assrt_wire_name , 1 , true);
     vlg_wrapper.add_assign_stmt( assrt_wire_name,  asst );
 
     _problems.probitem[dspt].assertions.push_back(assrt_wire_name);
@@ -59,7 +59,7 @@ namespace ilang {
     }
     fout << "#!/bin/bash" << std::endl;
     if (cosa_prob_fname != "") 
-      fout << "CoSA -i " << cosa_prob_fname << std::endl;
+      fout << "CoSA --problem " << cosa_prob_fname << std::endl;
     else
       fout << "echo 'Nothing to check!'" << std::endl;
   }

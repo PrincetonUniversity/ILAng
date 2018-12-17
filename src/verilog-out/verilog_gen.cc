@@ -256,7 +256,7 @@ void VerilogGeneratorBase::DumpToFile(std::ostream& fout) const {
   for (auto const& sig_pair : wires) {
     auto pos  = wires_keep.find(sig_pair.first);
     if ( pos != wires_keep.end() && pos->second ) 
-    fout << "(* keep *)\n";
+    fout << "(* keep *) ";
     fout << "wire " << std::setw(10) << WidthToRange(sig_pair.second) << " "
          << (sig_pair.first) << ";\n";
   }

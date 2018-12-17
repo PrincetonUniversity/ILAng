@@ -135,6 +135,10 @@ namespace ilang {
           tp = UNKN_S;
         _tokens.push_back( { tp , subs } ); 
       }
+      else {
+        _tokens.push_back( {  token_type::KEEP ,subs} );
+      }
+
     }
   }
   
