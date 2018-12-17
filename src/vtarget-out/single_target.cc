@@ -149,7 +149,7 @@ VlgSglTgtGen::VlgSglTgtGen(
       const auto & name_  = input_->name().str();
       auto width_   = get_width( input_ );
 
-      vlg_wrapper.add_wire ( "__ILA_I_" + name_, width_);
+      vlg_wrapper.add_wire ( "__ILA_I_" + name_, width_, true);
       vlg_wrapper.add_input( "__ILA_I_" + name_, width_);
     }
     // remember to add ila_outputs (reg)
@@ -161,7 +161,7 @@ VlgSglTgtGen::VlgSglTgtGen(
         continue; // please ignore memory, they should not be connected this way
       auto width_ = get_width(state_);
 
-      vlg_wrapper.add_wire  ("__ILA_SO_" + name_, width_);
+      vlg_wrapper.add_wire  ("__ILA_SO_" + name_, width_, true);
       vlg_wrapper.add_output("__ILA_SO_" + name_, width_); 
       // remember to connect in the instantiation step
     }
@@ -172,8 +172,8 @@ VlgSglTgtGen::VlgSglTgtGen(
       return "";
 
     ILA_ASSERT(vlg_ila.decodeNames.size() == 1) << "Implementation bug: decode condition.";
-    vlg_wrapper.add_wire( vlg_ila.validName , 1 ); 
-    vlg_wrapper.add_wire( vlg_ila.decodeNames[0], 1 );
+    vlg_wrapper.add_wire( vlg_ila.validName , 1 , true); 
+    vlg_wrapper.add_wire( vlg_ila.decodeNames[0], 1 , true);
 
     // TODO: check whether all ports have been dealt with
     // TODO: check whether there are any extra ports we create
@@ -193,7 +193,7 @@ VlgSglTgtGen::VlgSglTgtGen(
       std::string func_reg_w = func_app.func_name + "_" + IntToStr(func_no) + "_result_wire";
       std::string func_reg   = func_app.func_name + "_" + IntToStr(func_no) + "_result_reg";
       vlg_wrapper.add_reg(func_reg, func_app.result.second);
-      vlg_wrapper.add_wire(func_reg_w, func_app.result.second);
+      vlg_wrapper.add_wire(func_reg_w, func_app.result.second, true);
       vlg_wrapper.add_always_stmt( "if( __START__ ) " + func_reg + " <= " + func_reg_w + ";" );
       
       retStr += "   ." + func_app.result.first + "(" + func_reg_w + "),\n";
@@ -206,7 +206,7 @@ VlgSglTgtGen::VlgSglTgtGen(
         std::string func_arg_w = func_app.func_name + "_" + IntToStr(func_no) + "_arg"+IntToStr(argNo)+"_wire";
         std::string func_arg   = func_app.func_name + "_" + IntToStr(func_no) + "_arg"+IntToStr(argNo)+"_reg";
         vlg_wrapper.add_reg(func_arg, arg.second);
-        vlg_wrapper.add_wire(func_arg_w, arg.second);
+        vlg_wrapper.add_wire(func_arg_w, arg.second, true);
         vlg_wrapper.add_always_stmt( "if( __START__ ) " + func_arg + " <= " + func_arg_w + ";" );
       
 
@@ -263,8 +263,8 @@ VlgSglTgtGen::VlgSglTgtGen(
         auto raw = "__IMEM_" + ila_name + "_" + IntToStr(no) + "_raddr";
         // auto rew = "__IMEM_" + ila_name + "_" + IntToStr(no) + "_ren"; no need, r_en is the start signal
 
-        vlg_wrapper.add_wire( rdw, dw );
-        vlg_wrapper.add_wire( raw, aw );
+        vlg_wrapper.add_wire( rdw, dw, true );
+        vlg_wrapper.add_wire( raw, aw, true );
 
         retStr += "   ." + port.rdata + "(" + rdw + "),\n";
         retStr += "   ." + port.raddr + "(" + raw + "),\n";
@@ -291,9 +291,9 @@ VlgSglTgtGen::VlgSglTgtGen(
         auto waw = "__IMEM_" + ila_name + "_" + IntToStr(no) + "_waddr";
         auto wew = "__IMEM_" + ila_name + "_" + IntToStr(no) + "_wen"; 
 
-        vlg_wrapper.add_wire( wdw, dw );
-        vlg_wrapper.add_wire( wdw, aw );
-        vlg_wrapper.add_wire( wew, 1 );
+        vlg_wrapper.add_wire( wdw, dw, true );
+        vlg_wrapper.add_wire( wdw, aw, true );
+        vlg_wrapper.add_wire( wew, 1 , true);
 
         retStr += "   ." + port.wdata + "(" + wdw + "),\n";
         retStr += "   ." + port.waddr + "(" + waw + "),\n";
@@ -538,7 +538,7 @@ VlgSglTgtGen::VlgSglTgtGen(
           << _instr_ptr->name().str() 
           << " has to a positive integer";
     } // end of ready bound/condition
-    vlg_wrapper.add_wire( "__IEND__" , 1 );
+    vlg_wrapper.add_wire( "__IEND__" , 1 , true);
     vlg_wrapper.add_assign_stmt("__IEND__" , "(" + iend_cond + ") && __STARTED__");
     
     add_an_assumption( "~ __ISSUE__ || (" + vlg_ila.decodeNames[0] + ")" , "issue_decode" ); // __ISSUE__ |=> decode
@@ -554,7 +554,7 @@ VlgSglTgtGen::VlgSglTgtGen(
       issue_cond = VLG_TRUE;
     ILA_ERROR<<"pre-flush end field should be a string!" ;
     }
-      vlg_wrapper.add_wire("__ISSUE__" , 1);
+      vlg_wrapper.add_wire("__ISSUE__" , 1, true);
       vlg_wrapper.add_assign_stmt( "__ISSUE__", issue_cond );
       
       std::string finish_cond;
@@ -564,7 +564,7 @@ VlgSglTgtGen::VlgSglTgtGen(
       finish_cond = VLG_TRUE;
     ILA_ERROR<<"post-flush end field should be a string!" ;
     }
-      vlg_wrapper.add_wire("__ENDFLUSH__" , 1);
+      vlg_wrapper.add_wire("__ENDFLUSH__" , 1, true);
       vlg_wrapper.add_assign_stmt( "__ENDFLUSH__", finish_cond );
 
       // enforcing flush constraints
@@ -586,7 +586,7 @@ VlgSglTgtGen::VlgSglTgtGen(
       add_an_assumption ("~ ( __ENDED__ ) || (" + flush_enforcement + ")", "flush_enforce_post");
 
     } else {
-      vlg_wrapper.add_wire("__ISSUE__" , 1);
+      vlg_wrapper.add_wire("__ISSUE__" , 1, true);
       vlg_wrapper.add_assign_stmt( "__ISSUE__", VLG_TRUE ); // issue ASAP
       // start decode -- issue enforce (e.g. valid, input)
     } // end of no flush
