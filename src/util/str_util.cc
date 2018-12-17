@@ -28,9 +28,9 @@ bool StrToBool(const std::string& str) {
   return (up == "TRUE");
 }
 
-int StrToInt(const std::string& str) {
+int StrToInt(const std::string& str, int base) {
   try {
-    return std::stoi(str);
+    return std::stoi(str, NULL, base);
   } catch (const std::exception& e) {
     ILA_ERROR << "Converting non-numeric value " << str << " to int.\n";
     return 0;
@@ -63,6 +63,22 @@ std::string Join(const std::vector<std::string> & in, const std::string& delim)
     d = delim;
   }
   return ret;
+}
+
+
+/// Replace all occurrance of substring a by substring b
+std::string ReplaceAll(const std::string & str, const std::string & a, const std::string & b)
+{
+    std::string result;
+    size_t find_len = a.size();
+    size_t pos,from=0;
+    while ( std::string::npos != ( pos=str.find(a,from) ) ) {
+        result.append( str, from, pos-from );
+        result.append( b );
+        from = pos + find_len;
+    }
+    result.append( str, from , std::string::npos );
+    return result;
 }
 
 // GCC supports this after 4.9.0

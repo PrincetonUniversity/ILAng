@@ -142,7 +142,8 @@ namespace ilang {
         _ila_mod_inst_name,
         "wrapper",
         _vlg_impl_srcs,
-        _vlg_impl_include_path
+        _vlg_impl_include_path,
+        _backend
       );
       target.ConstructWrapper();
       target.ExportAll("wrapper.v", "ila.v", "run.sh" , "problem.txt" , "absmem.v");
@@ -160,7 +161,8 @@ namespace ilang {
         _ila_mod_inst_name,
         "wrapper",
         _vlg_impl_srcs,
-        _vlg_impl_include_path
+        _vlg_impl_include_path,
+        _backend
       );
       target.ConstructWrapper();
       target.ExportAll("wrapper.v", "ila.v", "run.sh" , "do.tcl" , "absmem.v");
@@ -188,7 +190,8 @@ namespace ilang {
               _ila_mod_inst_name,
               "wrapper",
               _vlg_impl_srcs,
-              _vlg_impl_include_path
+              _vlg_impl_include_path,
+              _backend
             );
             target.ConstructWrapper();
             target.ExportAll("wrapper.v", "ila.v", "run.sh" , "problem.txt" , "absmem.v");
@@ -206,7 +209,8 @@ namespace ilang {
               _ila_mod_inst_name,
               "wrapper",
               _vlg_impl_srcs,
-              _vlg_impl_include_path
+              _vlg_impl_include_path,
+              _backend
             );
             target.ConstructWrapper();
             target.ExportAll("wrapper.v", "ila.v", "run.sh" , "do.tcl" , "absmem.v");

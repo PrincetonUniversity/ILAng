@@ -38,7 +38,8 @@ VlgSglTgtGen::VlgSglTgtGen(
       const std::string              & ila_mod_inst_name,
       const std::string              & wrapper_name,
       const std::vector<std::string> & implementation_srcs,
-      const std::vector<std::string> & implementation_include_path    
+      const std::vector<std::string> & implementation_include_path,
+      backend_selector                 backend    
     ) : 
   _output_path(output_path), _instr_ptr(instr_ptr), _host(ila_ptr),
   _vlg_mod_inst_name(vlg_mod_inst_name),
@@ -75,6 +76,7 @@ VlgSglTgtGen::VlgSglTgtGen(
   top_mod_name(wrapper_name),
   vlg_design_files(implementation_srcs),
   vlg_include_files_path(implementation_include_path),
+  _backend(backend),
   _bad_state(false)
    {
     ILA_NOT_NULL(_host);
@@ -131,7 +133,7 @@ VlgSglTgtGen::VlgSglTgtGen(
 
       if( IN("ready signal", instr) and instr["ready signal"].size() != 0 ) // whether a none-empty string or array... 
         ready_type = (ready_type_t) ( ready_type | ready_type_t::READY_SIGNAL );
-      if( IN("ready bound", instr) and instr["ready bound"].size() != 0 )
+      if( IN("ready bound", instr) and instr["ready bound"].is_number_integer() )
         ready_type = (ready_type_t) ( ready_type | ready_type_t::READY_BOUND );
       if( ready_type == ready_type_t::NA ) {
         ILA_ERROR << "refinement relation for:"<< instr_ptr->name().str()
@@ -194,7 +196,8 @@ VlgSglTgtGen::VlgSglTgtGen(
       std::string func_reg   = func_app.func_name + "_" + IntToStr(func_no) + "_result_reg";
       vlg_wrapper.add_reg(func_reg, func_app.result.second);
       vlg_wrapper.add_wire(func_reg_w, func_app.result.second, true);
-      vlg_wrapper.add_always_stmt( "if( __START__ ) " + func_reg + " <= " + func_reg_w + ";" );
+      add_reg_cassign_assumption("__START__" , func_reg , func_reg_w , "func_result");
+      //vlg_wrapper.add_always_stmt( "if( __START__ ) " + func_reg + " <= " + func_reg_w + ";" );
       
       retStr += "   ." + func_app.result.first + "(" + func_reg_w + "),\n";
 
@@ -207,7 +210,8 @@ VlgSglTgtGen::VlgSglTgtGen(
         std::string func_arg   = func_app.func_name + "_" + IntToStr(func_no) + "_arg"+IntToStr(argNo)+"_reg";
         vlg_wrapper.add_reg(func_arg, arg.second);
         vlg_wrapper.add_wire(func_arg_w, arg.second, true);
-        vlg_wrapper.add_always_stmt( "if( __START__ ) " + func_arg + " <= " + func_arg_w + ";" );
+        add_reg_cassign_assumption("__START__" , func_arg , func_arg_w , "func_arg");
+        //vlg_wrapper.add_always_stmt( "if( __START__ ) " + func_arg + " <= " + func_arg_w + ";" );
       
 
         retStr += "   ." + arg.first + "(" + func_arg_w + "),\n";
@@ -346,8 +350,8 @@ VlgSglTgtGen::VlgSglTgtGen(
 
     auto & instr = get_current_instruction_rf();
 
-    if(! instr.is_null() and instr["ready bound"]) 
-      max_bound = StrToInt(instr["ready bound"]);
+    if(! instr.is_null() and IN( "ready bound", instr) and instr["ready bound"].is_number_integer()) 
+      max_bound = instr["ready bound"].get<int>();
     else
       max_bound = MAX_CYCLE_CTR;
 
@@ -539,7 +543,7 @@ VlgSglTgtGen::VlgSglTgtGen(
           << " has to a positive integer";
     } // end of ready bound/condition
     vlg_wrapper.add_wire( "__IEND__" , 1 , true);
-    vlg_wrapper.add_assign_stmt("__IEND__" , "(" + iend_cond + ") && __STARTED__");
+    add_wire_assign_assumption("__IEND__" , "(" + iend_cond + ") && __STARTED__" , "IEND");
     
     add_an_assumption( "~ __ISSUE__ || (" + vlg_ila.decodeNames[0] + ")" , "issue_decode" ); // __ISSUE__ |=> decode
     add_an_assumption( "~ __ISSUE__ || (" + vlg_ila.validName + ")" , "issue_valid"); // __ISSUE__ |=> decode
@@ -551,24 +555,24 @@ VlgSglTgtGen::VlgSglTgtGen(
     if( instr["pre-flush end"].is_string () )
       issue_cond = "(" + ReplExpr( instr["pre-flush end"].get<std::string>() ) + ") && __RESETED__";
     else {
-      issue_cond = VLG_TRUE;
+      issue_cond = "1";
     ILA_ERROR<<"pre-flush end field should be a string!" ;
     }
       vlg_wrapper.add_wire("__ISSUE__" , 1, true);
-      vlg_wrapper.add_assign_stmt( "__ISSUE__", issue_cond );
+      add_wire_assign_assumption( "__ISSUE__", issue_cond , "ISSUE");
       
       std::string finish_cond;
     if( instr["post-flush end"].is_string() )
       finish_cond = "(" + ReplExpr( instr["post-flush end"].get<std::string>() ) + ") && __ENDED__";
     else {
-      finish_cond = VLG_TRUE;
+      finish_cond = "1";
     ILA_ERROR<<"post-flush end field should be a string!" ;
     }
       vlg_wrapper.add_wire("__ENDFLUSH__" , 1, true);
-      vlg_wrapper.add_assign_stmt( "__ENDFLUSH__", finish_cond );
+      add_wire_assign_assumption( "__ENDFLUSH__", finish_cond, "ENDFLUSH" );
 
       // enforcing flush constraints
-      std::string flush_enforcement = VLG_TRUE;
+      std::string flush_enforcement = VLG_TRUE " == 1";
       if( instr["flush constraints"].is_string() ) {
         flush_enforcement += "&& (" + ReplExpr(instr["flush constraints"].get<std::string>()) + ")"; 
       } else if (instr["flush constraints"].is_array() )  {
@@ -587,7 +591,7 @@ VlgSglTgtGen::VlgSglTgtGen(
 
     } else {
       vlg_wrapper.add_wire("__ISSUE__" , 1, true);
-      vlg_wrapper.add_assign_stmt( "__ISSUE__", VLG_TRUE ); // issue ASAP
+      add_wire_assign_assumption( "__ISSUE__", "1", "ISSUE"); // issue ASAP
       // start decode -- issue enforce (e.g. valid, input)
     } // end of no flush
   }
@@ -627,44 +631,58 @@ VlgSglTgtGen::VlgSglTgtGen(
       target_type == target_type_t::INSTRUCTIONS );
 
     if(bad_state_return()) return;
-
+    ILA_INFO<<1;
     // 0. The headers you may need to have
     ConstructWrapper_generate_header();
+    ILA_INFO<<2;
 
     // 1. add input
     if(target_type == target_type_t::INVARIANTS)
       vlg_wrapper.add_input ("dummy_reset", 1);
 
+    ILA_INFO<<3;
     // -- find out the inputs
     ConstructWrapper_add_vlg_input_output();
+    ILA_INFO<<4;
     ConstructWrapper_add_ila_input();
+    ILA_INFO<<5;
 
     // 2. add some monitors (bound cnt)
     // 3. add assumptions & assertions
     if(target_type == target_type_t::INSTRUCTIONS) {
+
+    ILA_INFO<<5.1;
       ConstructWrapper_add_cycle_count_moniter();
+    ILA_INFO<<5.2;
       ConstructWrapper_add_varmap_assumptions();
+    ILA_INFO<<5.3;
       ConstructWrapper_add_varmap_assertions();
+    ILA_INFO<<5.4;
       ConstructWrapper_add_inv_assumptions();
     }
     else if (target_type == target_type_t::INVARIANTS) {
       ConstructWrapper_add_inv_assertions();
       max_bound = MAX_CYCLE_CTR;
     }
+    ILA_INFO<<6;
     // 4. additional mapping if any 
     ConstructWrapper_add_additional_mapping_control();
 
+    ILA_INFO<<7;
     // if invariants, will do nothing
     ConstructWrapper_add_condition_signals();
 
+    ILA_INFO<<8;
     // 5. module instantiation
     ConstructWrapper_add_module_instantiation();
 
+    ILA_INFO<<9;
     // 6. helper memory
     ConstructWrapper_add_helper_memory(); // need to decide what is the target type
 
     // 7. uni-functions
 
+    ILA_INFO<<10;
     if(target_type == target_type_t::INSTRUCTIONS) {
       ConstructWrapper_add_uf_constraints();
     }
@@ -697,10 +715,19 @@ VlgSglTgtGen::VlgSglTgtGen(
       return;
     }
 
+
     ila_file_name = ila_vlg_name;
-    std::ofstream fout( os_portable_append_dir(_output_path,ila_vlg_name) );
+    std::ofstream fout;
+    std::string fn;
+    if(_backend == backend_selector::COSA ) {
+      fn = os_portable_append_dir(_output_path, top_file_name);
+      fout.open(fn,std::ios_base::app);
+    }else if( _backend == backend_selector::JASPERGOLD  ) {
+      fn = os_portable_append_dir(_output_path,ila_vlg_name);
+      fout.open(fn);
+    }
     if(! fout.is_open() ) {
-      ILA_ERROR << "Error writing file: " << os_portable_append_dir(_output_path,ila_vlg_name);
+      ILA_ERROR << "Error writing ila to file: " << fn;
       return;
     }    
     vlg_ila.DumpToFile(fout);
@@ -718,10 +745,10 @@ VlgSglTgtGen::VlgSglTgtGen(
     // you don't need to worry about the path and names
     Export_wrapper(wrapper_name);
     if(target_type != target_type_t :: INVARIANTS)
-      Export_ila_vlg(ila_vlg_name);
+      Export_ila_vlg(ila_vlg_name); // this has to be after Export_wrapper
     Export_problem(extra_name);
     Export_script(script_name);
-    Export_modify_verilog();
+    Export_modify_verilog(); // this must be after Export_wrapper
     Export_mem(mem_name);
   }
 

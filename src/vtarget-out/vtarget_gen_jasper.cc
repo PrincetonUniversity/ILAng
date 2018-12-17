@@ -24,15 +24,25 @@ namespace ilang {
     const std::string              & ila_mod_inst_name,
     const std::string              & wrapper_name,
     const std::vector<std::string> & implementation_srcs,
-    const std::vector<std::string> & implementation_include_path
+    const std::vector<std::string> & implementation_include_path,
+    backend_selector                 backend
   ):VlgSglTgtGen(
       output_path, instr_ptr, ila_ptr, config, _rf_vmap, _rf_cond,
       _vlg_info_ptr, vlg_mod_inst_name, ila_mod_inst_name,
-      wrapper_name, implementation_srcs, implementation_include_path )
+      wrapper_name, implementation_srcs, implementation_include_path,
+      backend )
   {
 
   }
 
+  void VlgSglTgtGen_Jasper::add_wire_assign_assumption(const std::string & varname, const std::string & expression, const std::string & dspt ) {
+
+  }
+
+
+  void VlgSglTgtGen_Jasper::add_reg_cassign_assumption(const std::string & varname, const std::string & expression, const std::string & cond, const std::string & dspt ) {
+
+  }
 
   /// Add an assumption
   void VlgSglTgtGen_Jasper::add_an_assumption(const std::string & aspt, const std::string & dspt) {

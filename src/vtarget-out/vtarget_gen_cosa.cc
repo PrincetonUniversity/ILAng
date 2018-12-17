@@ -11,6 +11,9 @@
 
 namespace ilang {
 
+#define VLG_TRUE "`true"
+#define VLG_FALSE "`false"
+
     VlgSglTgtGen_Cosa::VlgSglTgtGen_Cosa(
     const std::string              & output_path, // will be a sub directory of the output_path of its parent
     const InstrPtr                 & instr_ptr, // which could be an empty pointer, and it will be used to verify invariants
@@ -23,30 +26,59 @@ namespace ilang {
     const std::string              & ila_mod_inst_name,
     const std::string              & wrapper_name,
     const std::vector<std::string> & implementation_srcs,
-    const std::vector<std::string> & implementation_include_path
+    const std::vector<std::string> & implementation_include_path,
+    backend_selector                 backend
   ):VlgSglTgtGen(
       output_path, instr_ptr, ila_ptr, config, _rf_vmap, _rf_cond,
       _vlg_info_ptr, vlg_mod_inst_name, ila_mod_inst_name,
-      wrapper_name, implementation_srcs, implementation_include_path )
+      wrapper_name, implementation_srcs, implementation_include_path,
+      backend )
   {
 
   }
 
+  std::string convert_expr_to_cosa(const std::string & in) {
+    return  
+      ReplaceAll(
+          ReplaceAll(
+            ReplaceAll(
+              ReplaceAll(
+                ReplaceAll(
+                  ReplaceAll(in, "&&", "&"), 
+                                   "||", "|"),
+                                   "~",  "!"),
+                                   "==", "="),
+                                   VLG_TRUE,"True"),
+                                   VLG_FALSE, "False");
+  }
+  void VlgSglTgtGen_Cosa::add_wire_assign_assumption(const std::string & varname, const std::string & expression, const std::string & dspt ) {
+    _problems.assumptions.push_back( varname + " = " + convert_expr_to_cosa(expression) );
+  }
+
+
+  void VlgSglTgtGen_Cosa::add_reg_cassign_assumption(const std::string & varname, const std::string & expression, const std::string & cond, const std::string & dspt ) {
+    vlg_wrapper.add_always_stmt( varname + " <= " + varname + ";" );
+    _problems.assumptions.push_back(
+      "(!( " + convert_expr_to_cosa(cond) + " ) | (" + varname +" = " + 
+        convert_expr_to_cosa(expression) + "))" );
+  }
 
   /// Add an assumption
   void VlgSglTgtGen_Cosa::add_an_assumption(const std::string & aspt, const std::string & dspt) {
-    auto assumption_wire_name = vlg_wrapper.sanitizeName(dspt) + new_mapping_id();
+    /*auto assumption_wire_name = vlg_wrapper.sanitizeName(dspt) + new_mapping_id();
     vlg_wrapper.add_wire( assumption_wire_name , 1 , true );
     vlg_wrapper.add_assign_stmt( assumption_wire_name,  aspt );
-    _problems.assumptions.push_back(assumption_wire_name);
+    _problems.assumptions.push_back(assumption_wire_name);*/
+    _problems.assumptions.push_back( convert_expr_to_cosa(aspt) );
+
   }
   /// Add an assertion
   void VlgSglTgtGen_Cosa::add_an_assertion (const std::string & asst, const std::string & dspt)  {
-    auto assrt_wire_name = vlg_wrapper.sanitizeName(dspt) + new_property_id();
+    /* auto assrt_wire_name = vlg_wrapper.sanitizeName(dspt) + new_property_id();
     vlg_wrapper.add_wire( assrt_wire_name , 1 , true);
     vlg_wrapper.add_assign_stmt( assrt_wire_name,  asst );
-
-    _problems.probitem[dspt].assertions.push_back(assrt_wire_name);
+    _problems.probitem[dspt].assertions.push_back(assrt_wire_name);*/
+    _problems.probitem[dspt].assertions.push_back( convert_expr_to_cosa(asst) );
   }
 
   /// export the script to run the verification
@@ -97,11 +129,11 @@ namespace ilang {
     fout<<"[GENERAL]"<<std::endl;
     fout<<"model_file:";// 
     fout << top_file_name << "[" << top_mod_name << "],"   ;
-    if(target_type != target_type_t::INVARIANTS )
-    	fout << ila_file_name<<",";
+    //if(target_type != target_type_t::INVARIANTS )
+    //	fout << ila_file_name<<","; // will be combined
     fout << "rst.ets";
-    for(auto && fn : vlg_design_files)
-      fout << "," << os_portable_file_name_from_path(fn);
+    //for(auto && fn : vlg_design_files) // will be combined
+    //  fout << "," << os_portable_file_name_from_path(fn);
     fout << std::endl;
 
     fout<<"assume_if_true: True"<<std::endl;
@@ -170,9 +202,9 @@ namespace ilang {
 
     // now let's do the job
     for (auto && fn : vlg_design_files) {
-      auto outfn = os_portable_append_dir( _output_path , os_portable_file_name_from_path(fn) );
+      auto outfn = os_portable_append_dir( _output_path , top_file_name );
       std::ifstream fin(fn);
-      std::ofstream fout(outfn);
+      std::ofstream fout(outfn, std::ios_base::app); // append
       if(!fin.is_open()) {
         ILA_ERROR<<"Cannot read file:"<<fn;
         continue;

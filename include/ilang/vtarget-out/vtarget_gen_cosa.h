@@ -72,6 +72,7 @@ public:
   /// \param[in] ila module name,
   /// \param[in] all implementation sources
   /// \param[in] all include paths
+    /// \param[in] which backend to use, it needs this info to gen proper properties
   VlgSglTgtGen_Cosa(
     const std::string              & output_path, // will be a sub directory of the output_path of its parent
     const InstrPtr                 & instr_ptr, // which could be an empty pointer, and it will be used to verify invariants
@@ -84,7 +85,8 @@ public:
     const std::string              & ila_mod_inst_name,
     const std::string              & wrapper_name,
     const std::vector<std::string> & implementation_srcs,
-    const std::vector<std::string> & include_dirs
+    const std::vector<std::string> & include_dirs,
+    backend_selector                 backend
   );
 
 protected:
@@ -98,6 +100,12 @@ protected:
   virtual void add_an_assumption(const std::string & aspt, const std::string & dspt) override;
   /// Add an assertion
   virtual void add_an_assertion (const std::string & asst, const std::string & dspt) override;
+  /// Add an assignment which in JasperGold could be an assignment, but in CoSA has to be an assumption
+  virtual void add_wire_assign_assumption(const std::string & varname, const std::string & expression, const std::string & dspt ) override;
+  /// Add an assignment to a register which in JasperGold could be an assignment, but in CoSA has to be an assumption
+  virtual void add_reg_cassign_assumption(const std::string & varname, const std::string & expression, const std::string & cond, const std::string & dspt ) override;
+  
+  
 
   /// export the script to run the verification
   virtual void Export_script(const std::string & script_name) override;

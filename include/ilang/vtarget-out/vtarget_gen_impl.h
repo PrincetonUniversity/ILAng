@@ -34,6 +34,7 @@ namespace ilang {
 
 /// \brief Generating a target (just the invairant or for an instruction)
 class VlgSglTgtGen {
+
     // --------------------- TYPE DEFINITION ------------------------ //
 public:
     /// Type of the target
@@ -42,6 +43,8 @@ public:
     typedef enum { NA = 0, READY_SIGNAL = 1, READY_BOUND = 2, BOTH = 3 }  ready_type_t;
     /// Per func apply counter
     typedef std::map<std::string, unsigned>  func_app_cnt_t;
+    /// Type of the backend
+    using backend_selector = VlgVerifTgtGenBase::backend_selector;
 
 public:
     // --------------------- CONSTRUCTOR ---------------------------- //
@@ -58,6 +61,7 @@ public:
     /// \param[in] verilog wrapper module name
     /// \param[in] implemenation sources, can be used to modify and copy
     /// \param[in] all include paths
+    /// \param[in] which backend to use, it needs this info to gen proper properties
     VlgSglTgtGen(
       const std::string              & output_path, // will be a sub directory of the output_path of its parent
       const InstrPtr                 & instr_ptr, // which could be an empty pointer, and it will be used to verify invariants
@@ -70,7 +74,8 @@ public:
       const std::string              & ila_mod_inst_name,
       const std::string              & wrapper_name,
       const std::vector<std::string> & implementation_srcs,
-      const std::vector<std::string> & implementation_include_path
+      const std::vector<std::string> & implementation_include_path,
+      backend_selector                 backend
     );
 
     /// Destructor: do nothing , most importantly it is virtual
@@ -216,6 +221,8 @@ public:
     std::vector<std::string> vlg_design_files; // mainly design file
     /// include paths
     std::vector<std::string> vlg_include_files_path;
+    /// Store the selection of backend
+    backend_selector _backend;
 
 
   public:
@@ -248,6 +255,13 @@ public:
     virtual void add_an_assumption(const std::string & aspt, const std::string & dspt) = 0;
     /// Add an assertion
     virtual void add_an_assertion (const std::string & asst, const std::string & dspt) = 0;
+    /// Add an assignment which in JasperGold could be an assignment, but in CoSA has to be an assumption
+    virtual void add_wire_assign_assumption(const std::string & varname, const std::string & expression, const std::string & dspt ) = 0;
+    /// Add an assignment to a register which in JasperGold could be an assignment, but in CoSA has to be an assumption
+    virtual void add_reg_cassign_assumption(const std::string & varname, const std::string & expression, const std::string & cond, const std::string & dspt ) = 0;
+  
+  
+
 
   private:
     // Do not instantiate 

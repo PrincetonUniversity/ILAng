@@ -8,6 +8,7 @@
 #include <ilang/ila/expr_fuse.h>
 #include <ilang/vtarget-out/vtarget_gen_impl.h>
 #include <ilang/util/str_util.h>
+#include <cmath>
 
 namespace ilang {
 
@@ -80,6 +81,8 @@ bool VlgSglTgtGen::TryFindVlgState(const std::string &sname) {
   return false;
 }
 
+#define SIN(sub,s) (s.find(sub) != std::string::npos)
+
 // for ila state: add __ILA_SO_
 // for verilog signal: keep as it is should be fine
 // btw, record all referred vlg name
@@ -93,9 +96,57 @@ std::string VlgSglTgtGen::ModifyCondExprAndRecordVlgName(const VarExtractor::tok
     return sname;
   }
   else if (token_tp == VarExtractor::token_type::KEEP || 
-      token_tp == VarExtractor::token_type::UNKN_S ||
-      token_tp == VarExtractor::token_type::NUM ) 
+      token_tp == VarExtractor::token_type::UNKN_S)
     return sname; // NC
+  else if (token_tp == VarExtractor::token_type::NUM )  {
+    if(_backend == backend_selector::COSA) {
+      if( SIN("'",sname) ) {
+        auto l = Split(sname,"'");
+
+        auto & num_l = l.back();
+        auto num = num_l.substr(1); // [1:]
+        int base = 16;
+        if (num_l[0] == 'd') base = 10;
+        else if (num_l[0] == 'h') base = 16;
+        else if (num_l[0] == 'b') base = 2;
+        else if (num_l[0] == 'o') base = 8;
+        else ILA_ERROR<<"unknown base in "<<sname<<", assuming 16";
+
+        unsigned n = StrToInt(num,base);
+        unsigned int w;
+        if(l.size() == 2) {
+          w = StrToInt(l[0]);
+        } else {
+          w = ((unsigned int) std::floor(std::log2(n)))+1;
+          ILA_WARN<<sname<<" is considered to be of width "<<w;
+        }
+        return IntToStr(n)+"_"+IntToStr(w);
+      }
+      else {
+        if( SIN("_", sname) ) 
+          return sname; // already changed to 0_1
+        else {
+          auto n = StrToInt(sname);
+          unsigned int w = ((unsigned int) std::floor(std::log2(n)))+1;
+          ILA_WARN<<sname<<" is considered to be of width "<<w;
+          return IntToStr(n)+"_"+IntToStr(w);
+        }
+
+      }
+    } else if(_backend == backend_selector::JASPERGOLD) {
+      if( SIN("'",sname) ) 
+        return sname;
+      else {
+        if( SIN("_", sname) ) {
+          return Split(sname,"_").front(); // remove the bitwidth, let jaspergold itself decide
+        }
+        else
+          return sname;
+      }
+    }
+    // else
+    return sname; // NC
+  }
   else if (token_tp == VarExtractor::token_type::ILA_S) {
     // if it refers to ILA state
     if (_host->state(sname) ) 
@@ -205,7 +256,7 @@ std::string VlgSglTgtGen::PerStateMap(const std::string & ila_state_name_or_equ,
 
     std::string map_sig = new_mapping_id();
     vlg_wrapper.add_wire(map_sig, 1);
-    vlg_wrapper.add_assign_stmt(map_sig, new_expr );
+    add_wire_assign_assumption(map_sig, new_expr , "vmap");
     return map_sig;
   } 
   // else it is a vlg signal name
@@ -221,7 +272,7 @@ std::string VlgSglTgtGen::PerStateMap(const std::string & ila_state_name_or_equ,
   // add signal
   std::string map_sig = new_mapping_id();
   vlg_wrapper.add_wire(map_sig, 1);
-  vlg_wrapper.add_assign_stmt(map_sig, ReplExpr(vlg_state_name, true) + " == __ILA_SO_" + ila_state->name().str() );
+  add_wire_assign_assumption(map_sig, ReplExpr(vlg_state_name, true) + " == __ILA_SO_" + ila_state->name().str() , "vmap");
   return map_sig;
 } // PerStateMap
 
