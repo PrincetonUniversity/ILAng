@@ -19,8 +19,8 @@
 	      "~( m1.reg_2_w_stage == 2'b00 ) || (m1.registers[2]  == m0.r2)"],
     "r3":
 
-	    [ {"cond":" m1.reg_3_w_stage == 2'b10 " , "map":" m1.ex_alu_result "},
-	      {"cond":" m1.reg_3_w_stage == 2'b11 " , "map":" ex_alu_result "},
+	    [ {"cond":" m1.reg_3_w_stage == 2'b10 " , "map":"m1.ex_alu_result"},
+	      {"cond":" m1.reg_3_w_stage == 2'b11 " , "map":"ex_alu_result"},
 	      {"cond":" m1.reg_3_w_stage == 2'b01 " , "map":" m1.ex_wb_val     == m0.r3"},
 	      {"cond":" m1.reg_3_w_stage == 2'b00 " , "map":" m1.registers[3]  == m0.r3"}]},
 
