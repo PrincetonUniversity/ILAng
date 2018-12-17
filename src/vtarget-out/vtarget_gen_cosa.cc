@@ -143,11 +143,11 @@ namespace ilang {
     fout<<"precondition: reset_done"<<std::endl;
     fout<<std::endl;
 
-    std::string assmpt = Join(_problems.assumptions, " & ");
+    std::string assmpt = "(" + Join(_problems.assumptions, ") & (") + ")";
     for ( auto && pbname_prob_pair : _problems.probitem ) {
       const auto & prbname = pbname_prob_pair.first;
       const auto & prob    = pbname_prob_pair.second;
-      auto asst = Join(prob.assertions, " & " );
+      auto asst =  "(" + Join(prob.assertions, ") & (" ) + ")";
       auto prob_name = vlg_wrapper.sanitizeName(prbname);
       fout << "["<<prob_name<<"]" <<std::endl;
       fout << "description:\"" << prbname <<"\""  <<std::endl;

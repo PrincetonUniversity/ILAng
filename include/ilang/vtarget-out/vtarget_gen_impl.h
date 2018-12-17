@@ -152,6 +152,8 @@ public:
     bool TryFindIlaInput(const std::string &sname);
     /// Test if a string represents a Verilog signal name
     bool TryFindVlgState(const std::string &sname);
+    /// Try to find a ILA var according to a name 
+    ExprPtr TryFindIlaVarName(const std::string &sname);
     /// Modify a token and record its use
     std::string ModifyCondExprAndRecordVlgName(const VarExtractor::token &t );
     /// Check if ila name and vlg name are type compatible (not including special directives)

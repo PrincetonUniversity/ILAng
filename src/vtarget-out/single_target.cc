@@ -218,7 +218,6 @@ VlgSglTgtGen::VlgSglTgtGen(
         argNo ++;
       }
 
-
     }
 
     // handle input
@@ -323,7 +322,7 @@ VlgSglTgtGen::VlgSglTgtGen(
     retStr += "\n);";
     // TODO: check port_conencted and port_ila
     // currently not
-
+    return retStr;
   } // ConstructWrapper_get_ila_module_inst()
 
   void VlgSglTgtGen::ConstructWrapper_add_vlg_input_output() {
@@ -398,7 +397,7 @@ VlgSglTgtGen::VlgSglTgtGen(
     for ( size_t state_idx = 0; state_idx < _host->state_num() ; ++ state_idx )
       ila_state_names.insert( _host->state(state_idx)->name().str() );
 
-    for ( auto & i : (rf_vmap).items() ) {
+    for ( auto & i : (rf_vmap["state mapping"]).items() ) {
       auto sname = i.key();
       if( not IN(sname, ila_state_names) )  {
         ILA_ERROR << sname << " is not a state of the ILA:" << _host->name().str();
@@ -406,8 +405,10 @@ VlgSglTgtGen::VlgSglTgtGen(
       }
       ila_state_names.erase(sname);
       // ISSUE ==> vmap
+      ILA_INFO<<sname;
       add_an_assumption( "~ __START__ || (" + GetStateVarMapExpr(sname, i.value()) +")" , "variable_map_assume" );
     }
+    ILA_INFO<<"5.2.2";
     // check for unmapped states
     if( not ila_state_names.empty() ) {
       ILA_ERROR<<"Refinement relation: missing state mapping for the following states:";
@@ -426,7 +427,7 @@ VlgSglTgtGen::VlgSglTgtGen(
     for ( size_t state_idx = 0; state_idx < _host->state_num() ; ++ state_idx )
       ila_state_names.insert( _host->state(state_idx)->name().str() );
 
-    for ( auto & i : (rf_vmap).items() ) {
+    for ( auto & i : (rf_vmap["state mapping"]).items() ) {
       auto sname = i.key();
       if( not IN(sname, ila_state_names) )  {
         ILA_ERROR << sname << " is not a state of the ILA:" << _host->name().str();
@@ -637,8 +638,10 @@ VlgSglTgtGen::VlgSglTgtGen(
     ILA_INFO<<2;
 
     // 1. add input
-    if(target_type == target_type_t::INVARIANTS)
+    if(target_type == target_type_t::INSTRUCTIONS) {
       vlg_wrapper.add_input ("dummy_reset", 1);
+      vlg_wrapper.add_wire  ("dummy_reset", 1, true);
+    }
 
     ILA_INFO<<3;
     // -- find out the inputs

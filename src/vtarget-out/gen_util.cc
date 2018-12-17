@@ -69,6 +69,19 @@ bool VlgSglTgtGen::TryFindIlaInput(const std::string &sname) {
   return false;
 }
 
+ExprPtr VlgSglTgtGen::TryFindIlaVarName(const std::string &sname){
+  if (_host->input(sname) ) return _host->input(sname);
+  if (_host->state(sname) ) return _host->state(sname);
+  auto hierName = Split(sname, ".");
+  if (hierName.size() == 2 ) { // maybe it contains an unnecessary head
+    if( (hierName[0] == _ila_mod_inst_name || hierName[0] == "ILA") && _host->input(hierName[1]) )
+      return _host->input(hierName[1]);
+    if( (hierName[0] == _ila_mod_inst_name || hierName[0] == "ILA") && _host->state(hierName[1]) )
+      return _host->state(hierName[1]);
+  }
+  return NULL;
+}
+
 
 bool VlgSglTgtGen::TryFindVlgState(const std::string &sname) {
 
@@ -248,19 +261,19 @@ std::string VlgSglTgtGen::ReplExpr(const std::string & expr , bool force_vlg_sts
           return ModifyCondExprAndRecordVlgName(t); } );
 }
 
-std::string VlgSglTgtGen::PerStateMap(const std::string & ila_state_name_or_equ, const std::string & vlg_st_name ) {
+std::string VlgSglTgtGen::PerStateMap(const std::string & ila_state_name, const std::string & vlg_st_name ) {
 
-  if( isEqu(ila_state_name_or_equ) ) { // is equ
+  if( isEqu(vlg_st_name) ) { // is equ
     // not using re here
-    auto new_expr = ReplExpr(ila_state_name_or_equ);
+    auto new_expr = ReplExpr(vlg_st_name);
 
     std::string map_sig = new_mapping_id();
-    vlg_wrapper.add_wire(map_sig, 1);
+    vlg_wrapper.add_wire(map_sig, 1, true);
     add_wire_assign_assumption(map_sig, new_expr , "vmap");
     return map_sig;
   } 
   // else it is a vlg signal name
-  auto ila_state = IlaGetState(ila_state_name_or_equ); 
+  auto ila_state = TryFindIlaVarName(ila_state_name); 
   if (!ila_state) return VLG_TRUE;
   if ( ila_state->sort()->is_mem() ) { ILA_ERROR << "Please use **MEM**.? directive for memory state matching"; return VLG_TRUE; }
   // check for state match
@@ -268,10 +281,10 @@ std::string VlgSglTgtGen::PerStateMap(const std::string & ila_state_name_or_equ,
   if (vlg_state_name.find(".") == std::string::npos )  { 
     vlg_state_name = _vlg_mod_inst_name + "." + vlg_state_name ; } // auto-add module name
   auto vlg_sig_info = vlg_info_ptr->get_signal( vlg_state_name );
-  ILA_ERROR_IF( !TypeMatched(ila_state, vlg_sig_info ) ) << "ila state:" << ila_state_name_or_equ <<" has mismatched type w. verilog signal:" << vlg_state_name;
+  ILA_ERROR_IF( !TypeMatched(ila_state, vlg_sig_info ) ) << "ila state:" << ila_state_name <<" has mismatched type w. verilog signal:" << vlg_state_name;
   // add signal
   std::string map_sig = new_mapping_id();
-  vlg_wrapper.add_wire(map_sig, 1);
+  vlg_wrapper.add_wire(map_sig, 1, true);
   add_wire_assign_assumption(map_sig, ReplExpr(vlg_state_name, true) + " == __ILA_SO_" + ila_state->name().str() , "vmap");
   return map_sig;
 } // PerStateMap
@@ -294,9 +307,10 @@ std::string VlgSglTgtGen::GetStateVarMapExpr(const std::string & ila_state_name,
     std::vector<std::string> all_mappings;
     std::string prev_neg; // make sure it is a priority condition lists
 
-    for (auto & item: m) {
+    for (auto & num_item_pair: m.items() ) {
+      auto & item = num_item_pair.value();
       if (item.is_string() ) {
-        auto mapping = ReplExpr(m.get<std::string>());
+        auto mapping = ReplExpr(item.get<std::string>());
         all_mappings.push_back(mapping);
       } else if (item.is_array() || item.is_object() ) { // it should only by size of 2
         std::string cond(VLG_TRUE), vmap(VLG_TRUE);
