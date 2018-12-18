@@ -325,7 +325,7 @@ std::string VlgSglTgtGen::GetStateVarMapExpr(const std::string & ila_state_name,
         std::string cond(VLG_TRUE), vmap(VLG_TRUE);
         for (const auto & i : (item).items()) {
           if (i.key() == "0" || i.key() == "cond") {
-            cond = i.value().get<std::string>();  // set the condtion
+            cond = ReplExpr(i.value().get<std::string>());  // set the condtion
             continue;
           }
           if (i.key() == "1" || i.key() == "map") {

@@ -354,7 +354,7 @@ VlgSglTgtGen::VlgSglTgtGen(
     else
       max_bound = MAX_CYCLE_CTR;
 
-    auto cnt_width = (int) std::ceil( std::log2 ( max_bound + 10 ) );
+    cnt_width = (int) std::ceil( std::log2 ( max_bound + 10 ) );
     vlg_wrapper.add_reg("__CYCLE_CNT__", cnt_width); // by default it will be an output reg
     vlg_wrapper.add_stmt("always @(posedge clk) begin");
     vlg_wrapper.add_stmt("if (rst) __CYCLE_CNT__ <= 0;");
@@ -541,7 +541,7 @@ VlgSglTgtGen::VlgSglTgtGen(
         int bound = instr["ready bound"].get<int>();
         if( bound > 0 ) {
           // okay now we enforce the bound
-          iend_cond += "|| ( __CYCLE_CNT__ == " + IntToStr(bound) + ")";
+          iend_cond += "|| ( __CYCLE_CNT__ == " + ReplExpr(IntToStr(cnt_width) + "'d" + IntToStr(bound)) + ")";
         }
         else
           ILA_ERROR << "ready bound field of instruction: " 

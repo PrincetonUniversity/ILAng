@@ -126,6 +126,8 @@ public:
     func_app_cnt_t      func_cnt;
     /// max bound , default 127
     unsigned            max_bound;
+    /// the width of the counter
+    unsigned            cnt_width;
 
 
   private:
