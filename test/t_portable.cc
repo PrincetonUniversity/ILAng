@@ -12,8 +12,8 @@ TEST(TestPortable, AES) {
   SetToStdErr(1);
   DebugLog::Enable("Portable");
 
-  auto aes_file = std::string(TEST_CONFIG_TEST_ROOT) + "/unit-data/aes_v/all";
-  auto aesu_file = std::string(TEST_CONFIG_TEST_ROOT) + "/unit-data/aes_v/allu";
+  auto aes_file = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/aes_v/all";
+  auto aesu_file = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/aes_v/allu";
 
   auto aes_ila = ImportSynthAbsFromFile(aes_file, "AES");
   auto aesu_ila = ImportSynthAbsFromFileHier(aesu_file, aes_ila, "AES_U");

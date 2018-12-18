@@ -11,7 +11,7 @@
 namespace ilang {
 
 TEST(TestCase, AES_V_C_EQ) {
-  SetToStdErr(1);
+  SetToStdErr(0);
   DebugLog::Enable("CaseAesEq");
   DebugLog::Enable("EqCheck");
   DebugLog::Enable("Verbose-CrrEqCheck");
