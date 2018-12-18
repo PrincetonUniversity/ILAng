@@ -1,0 +1,33 @@
+.names:  blk_cnt 1 enc_data 1 rd_data 1 uaes_ctr 1 .names_end
+.inps:  cmd ( bvVar cmd 2 ) ( ) cmdaddr ( bvVar cmdaddr 16 ) ( ) cmddata ( bvVar cmddata 8 ) ( ) .inps_end
+.regs: 
+aes_addr ( bvVar aes_addr 16 ) ( bvVar aes_addr 16 ) ( bvVar aes_addr 16 )
+aes_ctr ( bvVar aes_ctr 128 ) ( bvVar aes_ctr 128 ) ( bvVar aes_ctr 128 )
+aes_key0 ( bvVar aes_key0 128 ) ( bvVar aes_key0 128 ) ( bvVar aes_key0 128 )
+aes_len ( bvVar aes_len 16 ) ( bvVar aes_len 16 ) ( bvVar aes_len 16 )
+aes_state ( bvVar aes_state 2 ) ( bvVar aes_state 2 ) ( bvOp $n611 if ( boolOp $n495 eq ( bvVar aes_state 2 ) ( bvConst $n494 2 3 ) ) ( bvOp $n608 if ( boolOp $n607 ugt ( bvVar aes_len 16 ) ( bvOp $n603 + ( bvVar blk_cnt 16 ) ( bvConst $n602 16 15 ) ) ) ( bvConst $n595 2 1 ) ( bvConst $n594 2 0 ) ) ( bvOp $n610 if ( boolOp $n493 eq ( bvVar aes_state 2 ) ( bvConst $n492 2 2 ) ) ( bvConst $n582 2 3 ) ( bvOp $n609 if ( boolOp $n491 eq ( bvVar aes_state 2 ) ( bvConst $n490 2 1 ) ) ( bvConst $n566 2 2 ) ( bvVar aes_state 2 ) ) ) )
+blk_cnt ( bvVar blk_cnt 16 ) ( bvConst $n489 16 0 ) ( bvOp $n705 if ( boolOp $n495 eq ( bvVar aes_state 2 ) ( bvConst $n494 2 3 ) ) ( bvOp $n703 if ( boolOp $n702 ugt ( bvVar aes_len 16 ) ( bvOp $n698 + ( bvVar blk_cnt 16 ) ( bvConst $n697 16 16 ) ) ) ( bvOp $n698 + ( bvVar blk_cnt 16 ) ( bvConst $n697 16 16 ) ) ( bvVar blk_cnt 16 ) ) ( bvVar blk_cnt 16 ) )
+enc_data ( bvVar enc_data 128 ) ( bvVar enc_data 128 ) ( bvOp $n521 if ( boolOp $n520 eq ( bvVar aes_state 2 ) ( bvConst $n519 2 2 ) ) ( bvOp $n518 apply_fun ( funcVar aes 128 <- ( 128, 128, 128 ) ) ( bvVar uaes_ctr 128 ) ( bvVar aes_key0 128 ) ( bvVar rd_data 128 ) ) ( bvVar enc_data 128 ) )
+rd_data ( bvVar rd_data 128 ) ( bvVar rd_data 128 ) ( bvOp $n735 if ( boolOp $n491 eq ( bvVar aes_state 2 ) ( bvConst $n490 2 1 ) ) ( bvOp $n726 read-block ( memVar XRAM 16 8 ) ( bvOp $n725 + ( bvVar aes_addr 16 ) ( bvVar blk_cnt 16 ) ) #16 #1 ) ( bvVar rd_data 128 ) )
+uaes_ctr ( bvVar uaes_ctr 128 ) ( bvVar aes_ctr 128 ) ( bvOp $n642 if ( boolOp $n495 eq ( bvVar aes_state 2 ) ( bvConst $n494 2 3 ) ) ( bvOp $n640 + ( bvVar uaes_ctr 128 ) ( bvConst $n639 128 16 ) ) ( bvVar uaes_ctr 128 ) )
+.regs_end
+.bits: 
+.bits_end
+.mems: 
+XRAM ( memVar XRAM 16 8 ) ( memVar XRAM 16 8 ) ( memOp $n765 ite #0  ( boolOp $n495 eq ( bvVar aes_state 2 ) ( bvConst $n494 2 3 ) ) ( memOp $n763 storeblock #1  ( memVar XRAM 16 8 ) ( bvOp $n761 + ( bvVar aes_addr 16 ) ( bvVar blk_cnt 16 ) ) ( bvVar enc_data 128 ) ) ( memVar XRAM 16 8 ) )
+.mems_end
+.funs: 
+aes ( funcVar aes 128 <- ( 128, 128, 128 ) )
+.funs_end
+.fetchExpr: ( bvVar aes_state 2 )
+.fetchValid: ( boolOp $n342 neq ( bvVar aes_state 2 ) ( bvConst $n341 2 0 ) )
+.decode: 
+0 ( boolOp $n491 eq ( bvVar aes_state 2 ) ( bvConst $n490 2 1 ) )
+1 ( boolOp $n493 eq ( bvVar aes_state 2 ) ( bvConst $n492 2 2 ) )
+2 ( boolOp $n495 eq ( bvVar aes_state 2 ) ( bvConst $n494 2 3 ) )
+.decode_end
+.assumps: 
+0 ( boolOp $n342 neq ( bvVar aes_state 2 ) ( bvConst $n341 2 0 ) )
+.assumps_end
+.uabs:
+.uabs_end

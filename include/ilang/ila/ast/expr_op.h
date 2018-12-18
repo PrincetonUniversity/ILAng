@@ -5,7 +5,6 @@
 #define EXPR_OP_H__
 
 #include <ilang/ila/ast/expr.h>
-#include <ilang/util/log.h>
 
 /// \namespace ilang
 namespace ilang {
@@ -58,7 +57,7 @@ protected:
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
-  InstrLvlAbsPtr GetHost(const ExprPtrVec& args) const;
+  InstrLvlAbsPtr GetHost(const ExprSet& args) const;
 
 }; // class ExprOp
 

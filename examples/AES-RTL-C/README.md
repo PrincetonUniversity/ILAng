@@ -167,7 +167,7 @@ Instructions
       out the holes in the template. The generated ILA intemediate representation (IR)
       will be stored under folder `vILA`.
         
-   3. Next, let's synthesize ILA from a C implementation (under folder `$ILAROOT/examples/AES-RTL-C/C`). Run
+   3. Next, let's synthesize ILA from a C implementation (under folder `$ILAROOT/examples/AES-RTL-C`). Run
       ```  
       time python syn_C.py
       ```

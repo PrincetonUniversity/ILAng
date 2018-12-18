@@ -43,6 +43,7 @@ package_add_test(${ILANG_TEST_MAIN}
   unit-src/stream_buffer.cc
   unit-src/mcm_ilas.cc
   t_api.cc
+  t_case_aes_eq.cc
   t_crr.cc
   t_eq_check.cc
   t_expr.cc
@@ -55,7 +56,6 @@ package_add_test(${ILANG_TEST_MAIN}
   t_ila.cc
   t_instr.cc
   t_instr_seq.cc
-  t_jsonio.cc
   t_keyvec.cc
   t_legacy_bmc.cc
   t_log.cc
@@ -63,6 +63,7 @@ package_add_test(${ILANG_TEST_MAIN}
   t_mapset.cc
   t_mcm.cc
   t_op_sanity.cc
+  t_portable.cc
   t_sort.cc
   t_symbol.cc
   t_unroll_seq.cc
@@ -73,31 +74,20 @@ package_add_test(${ILANG_TEST_MAIN}
   t_z3sanity.cc
 )
 
-set(TEST_CONFIG_TEST_ROOT ${CMAKE_CURRENT_BINARY_DIR})
+if(${ILANG_BUILD_SYNTH})
+  target_sources(${ILANG_TEST_MAIN} PRIVATE
+    t_synth_import.cc
+  )
+endif()
+
+set(ILANG_TEST_SRC_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
+set(ILANG_TEST_BIN_ROOT ${CMAKE_CURRENT_BINARY_DIR})
 
 configure_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/unit-src/config.h.in
   ${CMAKE_CURRENT_SOURCE_DIR}/unit-include/config.h
   IMMEDIATE @ONLY
 )
-
-if(${ILANG_BUILD_SYNTH})
-
-  target_sources(${ILANG_TEST_MAIN} PRIVATE
-    t_synth_import.cc
-  )
-
-  configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/unit-data/aes_v/all
-    ${CMAKE_CURRENT_BINARY_DIR}/unit-data/aes_v/all
-  )
-
-  configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/unit-data/aes_v/allu
-    ${CMAKE_CURRENT_BINARY_DIR}/unit-data/aes_v/allu
-  )
-
-endif()
 
 target_link_libraries(${ILANG_TEST_MAIN} ${ILANG_LIB_NAME})
 

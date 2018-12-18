@@ -1,10 +1,10 @@
 /// \file
 /// Source for generating verification condition for equivalecne checking.
 
+#include <ilang/util/log.h>
 #include <ilang/verification/abs_knob.h>
 #include <ilang/verification/eq_check_crr.h>
 #include <ilang/verification/unroller.h>
-#include <ilang/util/log.h>
 #include <tuple>
 
 namespace ilang {
@@ -598,7 +598,7 @@ bool CommDiag::SanityCheckRelation(const RelPtr rel, const InstrLvlAbsPtr ma,
   for (auto it = rel_vars.begin(); it != rel_vars.end(); it++) {
     auto pos = ref_vars.find(*it);
     if (pos == ref_vars.end()) { // rel has var not in ref
-      ILA_ERROR << "Relation depends on var not defined in refinement.";
+      ILA_ERROR << "Relation depends on " << *it << " -- not in refinement.";
       return false;
     }
   }

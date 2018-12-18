@@ -2,6 +2,7 @@
 /// The source for the class InstrLvlAbs.
 
 #include <ilang/ila/instr_lvl_abs.h>
+#include <ilang/util/log.h>
 
 // Do the simplification by hashing AST sub-trees.
 static const bool kUnifyAst = true;
