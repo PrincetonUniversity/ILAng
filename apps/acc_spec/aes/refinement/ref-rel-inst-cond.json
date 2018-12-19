@@ -1,0 +1,49 @@
+{
+  "global invariants": [],
+
+  "instructions": [
+    {
+      "instruction" : "WRITE_LENGTH",
+      "start decode": ["aes_state_idle == 1"], 
+      "ready signal": [],  
+      "ready bound" : 1,
+    },
+    {
+      "instruction" : "WRITE_KEY",
+      "start decode": ["aes_state_idle == 1"], 
+      "ready signal": [],  
+      "ready bound" : 1,
+    },
+    {
+      "instruction" : "WRITE_COUNTER",
+      "start decode": ["aes_state_idle == 1"], 
+      "ready signal": [],  
+      "ready bound" : 1,
+    },
+    {
+      "instruction" : "WRITE_ADDRESS",
+      "start decode": ["aes_state_idle == 1"], 
+      "ready signal": [],  
+      "ready bound" : 1,
+    },
+    {
+      "instruction" : "READ_LENGTH",
+      "start decode": ["aes_state_idle == 1"], 
+      "ready signal": [],  
+      "ready bound" : 1,
+    },
+    {
+      "instruction" : "READ_ADDRESS",
+      "start decode": ["aes_state_idle == 1"], 
+      "ready signal": [],  
+      "ready bound" : 1,
+    },
+    {
+      "instruction" : "START_ENCRYPT",
+      "start decode": ["aes_state_idle == 1"], 
+      "ready signal": [],  
+      "ready bound" : 1,
+    }
+  ]
+}
+
