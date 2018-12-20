@@ -28,9 +28,9 @@ matrix:
       dist: xenial
       compiler: clang
 
-    - name: "trusty49"
+    - name: "gcc49"
       os: linux
-      dist: trusty
+      dist: xenial
       addons:
         apt: 
           sources:
@@ -39,19 +39,12 @@ matrix:
             - g++-4.9
             - lcov
             - flex
+            - bison
             - libboost-all-dev
       env:
         - MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9"
       before_install:
         - eval "${MATRIX_EVAL}"
-        - sudo apt remove bison
-        - cd $TRAVIS_BUILD_DIR/../
-        - wget http://ftp.gnu.org/gnu/bison/bison-3.0.4.tar.gz
-        - tar zxvf bison-3.0.4.tar.gz
-        - cd bison-3.0.4
-        - ./configure
-        - make
-        - sudo make install
 
     - name: "osx"
       os: osx
