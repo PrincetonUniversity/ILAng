@@ -2,7 +2,7 @@
 /// The ILA model of a simple processor.
 
 #include "../unit-include/simple_cpu.h"
-#include <ilang/cpp_api.h>
+#include <ilang/ilang++.h>
 #include <ilang/util/log.h>
 
 /*
@@ -45,7 +45,7 @@ std::shared_ptr<InstrLvlAbs> SimpleCpu(const std::string& name) {
   auto arg2 = fetch(1, 0);
   auto imm = fetch(3, 0);
 
-  {  // Instr: Load (arg0 is src reg; imm is the address)
+  { // Instr: Load (arg0 is src reg; imm is the address)
     auto instr = m.NewInstr("Load");
     instr.SetDecode(op == OP::LOAD);
 
@@ -61,7 +61,7 @@ std::shared_ptr<InstrLvlAbs> SimpleCpu(const std::string& name) {
     }
   }
 
-  {  // Instr: Add (arg0 is dst reg; arg1 is input 1; arg2 is input 2)
+  { // Instr: Add (arg0 is dst reg; arg1 is input 1; arg2 is input 2)
     auto instr = m.NewInstr("Add");
     instr.SetDecode(op == OP::ADD);
 
@@ -86,7 +86,7 @@ std::shared_ptr<InstrLvlAbs> SimpleCpu(const std::string& name) {
     }
   }
 
-  {  // Instr: Store (arg0 is src reg; imm is address)
+  { // Instr: Store (arg0 is src reg; imm is address)
     auto instr = m.NewInstr("Store");
     instr.SetDecode(op == OP::STORE);
 
@@ -140,4 +140,4 @@ int GenStore(const int& src, const int& addr) {
   return w;
 }
 
-}  // namespace ilang
+} // namespace ilang

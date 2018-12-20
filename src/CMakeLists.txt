@@ -2,7 +2,7 @@
 # TARGET
 # archive library 
 # ---------------------------------------------------------------------------- #
-add_library(${ILANG_LIB_NAME} cpp_api.cc)
+add_library(${ILANG_LIB_NAME} ilang++.cc)
 add_library(${PROJECT_NAME}::${ILANG_LIB_NAME} ALIAS ${ILANG_LIB_NAME})
 
 ##
@@ -200,16 +200,19 @@ configure_file(
   @ONLY
 )
 
-install(
-  FILES ${ILANG_INCLUDE_BUILD_DIR}/ilang/cpp_api.h
-  DESTINATION ${ILANG_INCLUDE_INSTALL_DIR}
-  RENAME ila++.h
-)
-
 if(${ILANG_INSTALL_DEV})
+
   install(
     DIRECTORY ${ILANG_INCLUDE_BUILD_DIR}/ilang
     DESTINATION ${ILANG_INCLUDE_INSTALL_DIR}
   )
+
+else()
+
+  install(
+    FILES ${ILANG_INCLUDE_BUILD_DIR}/ilang/ilang++.h
+    DESTINATION ${ILANG_INCLUDE_INSTALL_DIR}/ilang
+  )
+
 endif()
 
