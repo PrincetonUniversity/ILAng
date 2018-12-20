@@ -37,6 +37,9 @@ matrix:
             - ubuntu-toolchain-r-test
           packages:
             - g++-4.9
+            - lcov
+            - flex
+            - libboost-all-dev
       env:
         - MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9"
       before_install:
@@ -49,6 +52,7 @@ matrix:
         - ./configure
         - make
         - sudo make install
+
     - name: "osx"
       os: osx
       before_install:
