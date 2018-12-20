@@ -2,7 +2,7 @@
   "models": { "ILA":"m0" , "VERILOG": "m1" },
   "instruction mapping": [],
   "state mapping": { 
-    "state"          : "{6'b0, aes_reg_state}",
+    "state"          : "aes_reg_state",
     "opaddr"         : "aes_reg_oplen_i.reg_out",
     "oplen"          : "aes_reg_oplen_i.reg_out",
     "ctr"            : "aes_reg_ctr_i.reg_out",
