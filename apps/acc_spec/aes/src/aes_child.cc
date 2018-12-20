@@ -49,12 +49,12 @@ void AES::AddChild( InstrRef & inst) {
     instr.SetUpdate( enc_data, aes128( enc_ctr , key ) ^ rd_data );
 
     instr.SetUpdate( blk_cnt,  blk_cnt );
-    
+
     instr.SetUpdate( state, BvConst(AES_STATE_WRITE_DATA,2) ) ;
 
   }
 
-  { // store byte by byte
+  { // store byte-by-byte
     auto instr = child.NewInstr("STORE");
 
     instr.SetDecode( state == AES_STATE_WRITE_DATA );
