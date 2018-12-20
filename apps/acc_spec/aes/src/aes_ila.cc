@@ -49,8 +49,9 @@ outdata ( model.NewBvState('outdata',   8 ) ),
 
     // guarantee no change
     instr.SetUpdate( oplen, oplen );
-    instr.SetUpdate( key,   key ); 
-    // but not for state and counter
+    instr.SetUpdate( key,   key   ); 
+    instr.SetUpdate( ctr,   ctr   );
+    // but not for state
   }
 
   { // WRITE_LENGTH
@@ -66,11 +67,11 @@ outdata ( model.NewBvState('outdata',   8 ) ),
     // guarantee no change
     instr.SetUpdate( opaddr, opaddr );
     instr.SetUpdate( key,   key ); 
-    // but not for state and counter
+    instr.SetUpdate( ctr,   ctr   );
+    // but not for state
     // you can explicitly state how much you know about it
     // these are the non-deterministics in the spec
     instr.SetUpdate( state, Ite(is_idle, state, unknown(2)() ) );
-    instr.SetUpdate( ctr,   Ite(is_idle, ctr,   unknown_choice(ctr, ctr + 16 ) ) );
   }
 
   { // WRITE_KEY
@@ -86,7 +87,8 @@ outdata ( model.NewBvState('outdata',   8 ) ),
     // guarantee no change
     instr.SetUpdate( opaddr, opaddr );
     instr.SetUpdate( oplen,  oplen  ); 
-    // but not for state and counter
+    instr.SetUpdate( ctr,   ctr   );
+    // but not for state
   }
 
   { // WRITE_KEY
@@ -106,8 +108,8 @@ outdata ( model.NewBvState('outdata',   8 ) ),
     // guarantee no change
     instr.SetUpdate( key,    key    ); 
     instr.SetUpdate( opaddr, opaddr );
-    instr.SetUpdate( oplen,  oplen  ); 
-    // but not for state and counter
+    instr.SetUpdate( ctr,   ctr   );
+    // but not for state
   }
 
   { // READ_LENGTH
