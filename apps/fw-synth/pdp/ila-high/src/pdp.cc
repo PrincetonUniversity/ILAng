@@ -1,11 +1,11 @@
 // The ILA for the NVDLA planar data processor (PDP)
 
-#include "ila++.h"
-#include "z3++.h"
 #include "../include/addr_space.h"
+#include "z3++.h"
+#include <ilang/ilang++.h>
 #include <iostream>
 
-using namespace ila;
+using namespace ilang;
 
 #define MMIO_ADDR_SIZE 16
 #define MMIO_DATA_SIZE 32
@@ -147,8 +147,7 @@ void GenPdpIla() {
 int main() {
   try {
     GenPdpIla();
-  }
-  catch (...) {
+  } catch (...) {
     std::cout << "unexpected error.\n";
   }
 

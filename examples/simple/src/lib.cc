@@ -1,7 +1,7 @@
 // lib.cc
 // Synopsis: implementation of the library
 
-#include <ila++.h>
+#include <ilang/ilang++.h>
 #include <iostream>
 #include <simple/lib.h>
 
