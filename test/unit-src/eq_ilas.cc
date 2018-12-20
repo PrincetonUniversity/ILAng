@@ -2,8 +2,7 @@
 /// Source for constructing equivalent ILAs.
 
 #include "../unit-include/eq_ilas.h"
-//#include "ila++.h"
-#include <ilang/cpp_api.h>
+#include <ilang/ilang++.h>
 
 namespace ilang {
 
@@ -36,14 +35,14 @@ InstrLvlAbsPtr EqIlaGen::GetIlaFlat1(const std::string& name) {
   //  * copy the value of %reg n-1 to %reg n (for all n = [1:15])
   auto instr_1 = ila->NewInstr();
 
-  {  // decode
+  { // decode
     auto decode_start = ExprFuse::Eq(start, ExprFuse::BoolConst(true));
     auto decode_opcode = ExprFuse::Eq(opcode, ExprFuse::BvConst(1, 3));
     auto decode = ExprFuse::And(decode_start, decode_opcode);
     instr_1->set_decode(decode);
   }
 
-  {  // updates
+  { // updates
     instr_1->set_update(regs[0], regs[0]);
     for (auto i = 1; i < reg_num_; i++) {
       instr_1->set_update(regs[i], regs[i - 1]);
@@ -55,14 +54,14 @@ InstrLvlAbsPtr EqIlaGen::GetIlaFlat1(const std::string& name) {
   //  * if (%counter == 0) then copy %reg 15 to %reg 0
 
   auto instr_2 = ila->NewInstr();
-  {  // decode
+  { // decode
     auto decode_start = ExprFuse::Eq(start, ExprFuse::BoolConst(true));
     auto decode_opcode = ExprFuse::Eq(opcode, ExprFuse::BvConst(2, 3));
     auto decode = ExprFuse::And(decode_start, decode_opcode);
     instr_2->set_decode(decode);
   }
 
-  {  // updates
+  { // updates
     for (auto i = 0; i < reg_num_; i++) {
       auto cnd_i = ExprFuse::Eq(cnt, ExprFuse::BvConst(i, 8));
       ExprPtr next_i = NULL;
@@ -80,14 +79,14 @@ InstrLvlAbsPtr EqIlaGen::GetIlaFlat1(const std::string& name) {
   //  - (n == %counter)
   auto instr_3 = ila->NewInstr();
 
-  {  // decode
+  { // decode
     auto decode_start = ExprFuse::Eq(start, ExprFuse::BoolConst(true));
     auto decode_opcode = ExprFuse::Eq(opcode, ExprFuse::BvConst(3, 3));
     auto decode = ExprFuse::And(decode_start, decode_opcode);
     instr_3->set_decode(decode);
   }
 
-  {  // updates
+  { // updates
     auto mem_val = ExprFuse::Load(mem, addr);
     for (auto i = 0; i < reg_num_; i++) {
       auto cnd_i = ExprFuse::Eq(cnt, ExprFuse::BvConst(i, 8));
@@ -108,14 +107,14 @@ InstrLvlAbsPtr EqIlaGen::GetIlaFlat1(const std::string& name) {
   //  - sum up the value in %register [0-14] and store to %register 15.
   auto instr_4 = ila->NewInstr();
 
-  {  // decode
+  { // decode
     auto decode_start = ExprFuse::Eq(start, ExprFuse::BoolConst(true));
     auto decode_opcode = ExprFuse::Eq(opcode, ExprFuse::BvConst(4, 3));
     auto decode = ExprFuse::And(decode_start, decode_opcode);
     instr_4->set_decode(decode);
   }
 
-  {  // updates
+  { // updates
     auto sum = regs[0];
     for (auto i = 1; i < reg_num_; i++) {
       sum = ExprFuse::Add(sum, regs[i]);
@@ -155,14 +154,14 @@ InstrLvlAbsPtr EqIlaGen::GetIlaFlat2(const std::string& name) {
   //  * copy the value of %reg n-1 to %reg n (for all n = [1:15])
   auto instr_1 = ila->NewInstr();
 
-  {  // decode
+  { // decode
     auto decode_start = ExprFuse::Eq(start, ExprFuse::BoolConst(true));
     auto decode_opcode = ExprFuse::Eq(opcode, ExprFuse::BvConst(1, 3));
     auto decode = ExprFuse::And(decode_start, decode_opcode);
     instr_1->set_decode(decode);
   }
 
-  {  // updates
+  { // updates
     instr_1->set_update(regs[0], regs[0]);
     for (auto i = 1; i < reg_num_; i++) {
       instr_1->set_update(regs[i], regs[i - 1]);
@@ -174,14 +173,14 @@ InstrLvlAbsPtr EqIlaGen::GetIlaFlat2(const std::string& name) {
   //  * if (%counter == 0) then copy %reg 15 to %reg 0
   auto instr_2 = ila->NewInstr();
 
-  {  // decode
+  { // decode
     auto decode_start = ExprFuse::Eq(start, ExprFuse::BoolConst(true));
     auto decode_opcode = ExprFuse::Eq(opcode, ExprFuse::BvConst(2, 3));
     auto decode = ExprFuse::And(decode_start, decode_opcode);
     instr_2->set_decode(decode);
   }
 
-  {  // updates
+  { // updates
     for (auto i = 0; i < reg_num_; i++) {
       auto cnd_i = ExprFuse::Eq(cnt, ExprFuse::BvConst(i, 8));
       ExprPtr next_i = NULL;
@@ -199,14 +198,14 @@ InstrLvlAbsPtr EqIlaGen::GetIlaFlat2(const std::string& name) {
   //  - (n == %counter)
   auto instr_3 = ila->NewInstr();
 
-  {  // decode
+  { // decode
     auto decode_start = ExprFuse::Eq(start, ExprFuse::BoolConst(true));
     auto decode_opcode = ExprFuse::Eq(opcode, ExprFuse::BvConst(3, 3));
     auto decode = ExprFuse::And(decode_start, decode_opcode);
     instr_3->set_decode(decode);
   }
 
-  {  // updates
+  { // updates
     auto mem_val = ExprFuse::Load(mem, addr);
     for (auto i = 0; i < reg_num_; i++) {
       auto cnd_i = ExprFuse::Eq(cnt, ExprFuse::BvConst(i, 8));
@@ -227,14 +226,14 @@ InstrLvlAbsPtr EqIlaGen::GetIlaFlat2(const std::string& name) {
   //  - sum up the value in %register [0-14] and store to %register 15.
   auto instr_4 = ila->NewInstr();
 
-  {  // decode
+  { // decode
     auto decode_start = ExprFuse::Eq(start, ExprFuse::BoolConst(true));
     auto decode_opcode = ExprFuse::Eq(opcode, ExprFuse::BvConst(4, 3));
     auto decode = ExprFuse::And(decode_start, decode_opcode);
     instr_4->set_decode(decode);
   }
 
-  {  // updates
+  { // updates
     auto sum = regs[reg_num_ - 2];
     for (auto i = reg_num_ - 3; i >= 0; i--) {
       sum = ExprFuse::Add(sum, regs[i]);
@@ -277,7 +276,7 @@ InstrLvlAbsPtr EqIlaGen::GetIlaHier1(const std::string& name) {
   auto child_1 = m.NewChild("child1");
   instr_1.SetProgram(child_1);
 
-  {  // decode
+  { // decode
     auto decode_start = (start == true);
     auto decode_opcode = (opcode == k_opcode::op1);
     auto decode_bound = ((child_1_valid >= 0) & (child_1_valid < reg_num()));
@@ -285,11 +284,11 @@ InstrLvlAbsPtr EqIlaGen::GetIlaHier1(const std::string& name) {
     instr_1.SetDecode(decode);
   }
 
-  {  // updates
+  { // updates
     instr_1.SetUpdate(child_1_valid, child_1_valid + 1);
   }
 
-  {  // Child ILA 1
+  { // Child ILA 1
     auto& c = child_1;
 
     // child-states
@@ -301,10 +300,10 @@ InstrLvlAbsPtr EqIlaGen::GetIlaHier1(const std::string& name) {
     // 2. ucnt \in [0, reg_wid]
 
     // child-instrs
-    {  // instr_0
+    { // instr_0
       auto instr_0 = c.NewInstr("instr_0");
       // decode
-      instr_0.SetDecode((uptr == 0) & (ucnt != 0) & (!start));  // XXX start
+      instr_0.SetDecode((uptr == 0) & (ucnt != 0) & (!start)); // XXX start
       // updates
       instr_0.SetUpdate(uptr, BvConst(reg_num() - 1, reg_wid()));
       instr_0.SetUpdate(ucnt, ucnt - 1);
@@ -312,7 +311,7 @@ InstrLvlAbsPtr EqIlaGen::GetIlaHier1(const std::string& name) {
     for (auto i = 1; i < reg_num(); i++) {
       auto instr_i = c.NewInstr("instr_" + std::to_string(i));
       // decode
-      instr_i.SetDecode((uptr == i) & (!start));  // XXX start
+      instr_i.SetDecode((uptr == i) & (!start)); // XXX start
       // updates
       instr_i.SetUpdate(regs[i], regs[i - 1]);
       instr_i.SetUpdate(uptr, uptr - 1);
@@ -395,4 +394,4 @@ InstrLvlAbsPtr EqIlaGen::GetIlaHier2(const std::string& name) {
   return m.get();
 }
 
-}  // namespace ilang
+} // namespace ilang

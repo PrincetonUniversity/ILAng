@@ -1,14 +1,14 @@
 /// file
 /// Unit test for ExprOp
 
-#include <ilang/cpp_api.h>
 #include "unit-include/util.h"
 #include "z3++.h"
+#include <ilang/ilang++.h>
 
 namespace ilang {
 
 class TestExprOp : public ::testing::Test {
- public:
+public:
   TestExprOp() : s(ctx), unr(ctx) {}
   ~TestExprOp() {}
 
@@ -35,10 +35,10 @@ class TestExprOp : public ::testing::Test {
   ExprRef mx = m.NewMemState("mx", 8, 8);
   ExprRef my = m.NewMemState("my", 8, 8);
 
-};  // class TestExprOp
+}; // class TestExprOp
 
 TEST_F(TestExprOp, Load) {
-  {  // expr
+  { // expr
     auto valx = mx.Load(rx);
     auto z_valx = unr.GetZ3Expr(valx);
     auto z_memx = unr.GetZ3Expr(mx);
@@ -57,7 +57,7 @@ TEST_F(TestExprOp, Load) {
 
   s.reset();
 
-  {  // constant
+  { // constant
     auto valx = mx.Load(5);
     auto z_valx = unr.GetZ3Expr(valx);
     auto z_memx = unr.GetZ3Expr(mx);
@@ -75,7 +75,7 @@ TEST_F(TestExprOp, Load) {
 }
 
 TEST_F(TestExprOp, Store) {
-  {  // expr
+  { // expr
     auto storex = mx.Store(rx, ry);
     auto z_strx = unr.GetZ3Expr(storex);
     auto z_memx = unr.GetZ3Expr(mx);
@@ -97,7 +97,7 @@ TEST_F(TestExprOp, Store) {
 
   s.reset();
 
-  {  // constant
+  { // constant
     auto storex = mx.Store(4, 4);
     auto z_strx = unr.GetZ3Expr(storex);
     auto z_memx = unr.GetZ3Expr(mx);
@@ -113,7 +113,7 @@ TEST_F(TestExprOp, Store) {
 }
 
 TEST_F(TestExprOp, Append) {
-  {  // append
+  { // append
     auto append = rx.Append(ry);
     auto z_app = unr.GetZ3Expr(append);
     auto z_x = unr.GetZ3Expr(rx);
@@ -127,7 +127,7 @@ TEST_F(TestExprOp, Append) {
 
   s.reset();
 
-  {  // concat
+  { // concat
     auto concat = Concat(rx, ry);
     auto z_con = unr.GetZ3Expr(concat);
     auto z_x = unr.GetZ3Expr(rx);
@@ -143,7 +143,7 @@ TEST_F(TestExprOp, Append) {
 }
 
 TEST_F(TestExprOp, Extract) {
-  {  // range
+  { // range
     auto bfx = rx(4, 1);
     auto z_bfx = unr.GetZ3Expr(bfx);
     auto z_x = unr.GetZ3Expr(rx);
@@ -160,7 +160,7 @@ TEST_F(TestExprOp, Extract) {
 
   s.reset();
 
-  {  // single bit
+  { // single bit
     auto bx = rx(3);
     auto zbx = unr.GetZ3Expr(bx);
     auto z_x = unr.GetZ3Expr(rx);
@@ -261,7 +261,7 @@ TEST_F(TestExprOp, Complement) {
 }
 
 TEST_F(TestExprOp, And) {
-  {  // bv
+  { // bv
     auto x_and_y = rx & ry;
     auto z_and = unr.GetZ3Expr(x_and_y);
     auto z_x = unr.GetZ3Expr(rx);
@@ -275,7 +275,7 @@ TEST_F(TestExprOp, And) {
 
   s.reset();
 
-  {  // bool
+  { // bool
     auto x_and_y = fx & fy;
     auto z_and = unr.GetZ3Expr(x_and_y);
     auto z_x = unr.GetZ3Expr(fx);
@@ -287,7 +287,7 @@ TEST_F(TestExprOp, And) {
 
   s.reset();
 
-  {  // bool const
+  { // bool const
     auto x_and_y = fx & false;
     auto z_and = unr.GetZ3Expr(x_and_y);
     s.add(z_and);
@@ -298,7 +298,7 @@ TEST_F(TestExprOp, And) {
 }
 
 TEST_F(TestExprOp, Or) {
-  {  // bv
+  { // bv
     auto x_or_y = rx | ry;
     auto z_or = unr.GetZ3Expr(x_or_y);
     auto z_x = unr.GetZ3Expr(rx);
@@ -312,7 +312,7 @@ TEST_F(TestExprOp, Or) {
 
   s.reset();
 
-  {  // bool
+  { // bool
     auto x_or_y = fx | fy;
     auto z_or = unr.GetZ3Expr(x_or_y);
     auto z_x = unr.GetZ3Expr(fx);
@@ -324,7 +324,7 @@ TEST_F(TestExprOp, Or) {
 
   s.reset();
 
-  {  // bool const
+  { // bool const
     auto x_or_y = fx | true;
     auto z_or = unr.GetZ3Expr(x_or_y);
     s.add(!z_or);
@@ -335,7 +335,7 @@ TEST_F(TestExprOp, Or) {
 }
 
 TEST_F(TestExprOp, Xor) {
-  {  // bv
+  { // bv
     auto x_xor_y = rx ^ ry;
     auto z_xor = unr.GetZ3Expr(x_xor_y);
     auto z_x = unr.GetZ3Expr(rx);
@@ -349,7 +349,7 @@ TEST_F(TestExprOp, Xor) {
 
   s.reset();
 
-  {  // bool
+  { // bool
     auto x_xor_y = fx ^ fy;
     auto z_xor = unr.GetZ3Expr(x_xor_y);
     auto z_x = unr.GetZ3Expr(fx);
@@ -361,7 +361,7 @@ TEST_F(TestExprOp, Xor) {
 
   s.reset();
 
-  {  // bool const
+  { // bool const
     auto x_xor_y = fx ^ true;
     auto z_xor = unr.GetZ3Expr(x_xor_y);
     auto z_x = unr.GetZ3Expr(fx);
@@ -373,7 +373,7 @@ TEST_F(TestExprOp, Xor) {
 }
 
 TEST_F(TestExprOp, LeftShift) {
-  {  // expr
+  { // expr
     auto sh = rx << ry;
     auto z_sh = unr.GetZ3Expr(sh);
     auto z_x = unr.GetZ3Expr(rx);
@@ -388,7 +388,7 @@ TEST_F(TestExprOp, LeftShift) {
 
   s.reset();
 
-  {  // const
+  { // const
     auto sh = rx << 4;
     auto z_sh = unr.GetZ3Expr(sh);
     auto z_x = unr.GetZ3Expr(rx);
@@ -401,7 +401,7 @@ TEST_F(TestExprOp, LeftShift) {
 }
 
 TEST_F(TestExprOp, RightShift) {
-  {  // expr
+  { // expr
     auto sh = rx >> ry;
     auto z_sh = unr.GetZ3Expr(sh);
     auto z_x = unr.GetZ3Expr(rx);
@@ -416,7 +416,7 @@ TEST_F(TestExprOp, RightShift) {
 
   s.reset();
 
-  {  // const
+  { // const
     auto sh = rx >> 4;
     auto z_sh = unr.GetZ3Expr(sh);
     auto z_x = unr.GetZ3Expr(rx);
@@ -430,7 +430,7 @@ TEST_F(TestExprOp, RightShift) {
 }
 
 TEST_F(TestExprOp, LogicRightShift) {
-  {  // expr
+  { // expr
     auto sh = Lshr(rx, ry);
     auto z_sh = unr.GetZ3Expr(sh);
     auto z_x = unr.GetZ3Expr(rx);
@@ -445,7 +445,7 @@ TEST_F(TestExprOp, LogicRightShift) {
 
   s.reset();
 
-  {  // const
+  { // const
     auto sh = Lshr(rx, 4);
     auto z_sh = unr.GetZ3Expr(sh);
 
@@ -457,7 +457,7 @@ TEST_F(TestExprOp, LogicRightShift) {
 }
 
 TEST_F(TestExprOp, Add) {
-  {  // expr
+  { // expr
     auto add = rx + ry;
     auto z_add = unr.GetZ3Expr(add);
     auto z_x = unr.GetZ3Expr(rx);
@@ -471,7 +471,7 @@ TEST_F(TestExprOp, Add) {
 
   s.reset();
 
-  {  // const
+  { // const
     auto add = rx + 0xf0;
     auto z_add = unr.GetZ3Expr(add);
     auto z_x = unr.GetZ3Expr(rx);
@@ -486,7 +486,7 @@ TEST_F(TestExprOp, Add) {
 }
 
 TEST_F(TestExprOp, Sub) {
-  {  // expr
+  { // expr
     auto sub = rx - ry;
     auto z_sub = unr.GetZ3Expr(sub);
     auto z_x = unr.GetZ3Expr(rx);
@@ -501,7 +501,7 @@ TEST_F(TestExprOp, Sub) {
 
   s.reset();
 
-  {  // const
+  { // const
     auto sub = rx - 0x0f;
     auto z_sub = unr.GetZ3Expr(sub);
     auto z_x = unr.GetZ3Expr(rx);
@@ -515,7 +515,7 @@ TEST_F(TestExprOp, Sub) {
 }
 
 TEST_F(TestExprOp, Equal) {
-  {  // bv expr
+  { // bv expr
     auto eq = (rx == ry);
     auto ze = unr.GetZ3Expr(eq);
     auto zx = unr.GetZ3Expr(rx);
@@ -530,7 +530,7 @@ TEST_F(TestExprOp, Equal) {
 
   s.reset();
 
-  {  // bv const
+  { // bv const
     auto eq = (rx == 0x00);
     auto ze = unr.GetZ3Expr(eq);
     auto zx = unr.GetZ3Expr(rx);
@@ -542,7 +542,7 @@ TEST_F(TestExprOp, Equal) {
 
   s.reset();
 
-  {  // bool expr
+  { // bool expr
     auto eq = (fx == fy);
     auto ze = unr.GetZ3Expr(eq);
     auto zx = unr.GetZ3Expr(fx);
@@ -555,7 +555,7 @@ TEST_F(TestExprOp, Equal) {
 
   s.reset();
 
-  {  // bool const
+  { // bool const
     auto eq = (fx == false);
     auto ze = unr.GetZ3Expr(eq);
     auto zx = unr.GetZ3Expr(fx);
@@ -568,7 +568,7 @@ TEST_F(TestExprOp, Equal) {
 }
 
 TEST_F(TestExprOp, NotEqual) {
-  {  // expr
+  { // expr
     auto ne = (rx != ry);
     auto zn = unr.GetZ3Expr(ne);
     auto zx = unr.GetZ3Expr(rx);
@@ -583,7 +583,7 @@ TEST_F(TestExprOp, NotEqual) {
 
   s.reset();
 
-  {  // const
+  { // const
     auto ne = (rx != 0x00);
     auto zn = unr.GetZ3Expr(ne);
     auto zx = unr.GetZ3Expr(rx);
@@ -596,7 +596,7 @@ TEST_F(TestExprOp, NotEqual) {
 }
 
 TEST_F(TestExprOp, LessThan) {
-  {  // expr
+  { // expr
     auto lt = rx < ry;
     auto zl = unr.GetZ3Expr(lt);
     auto zx = unr.GetZ3Expr(rx);
@@ -612,7 +612,7 @@ TEST_F(TestExprOp, LessThan) {
 
   s.reset();
 
-  {  // const
+  { // const
     auto lt = rx < 0x0f;
     auto zl = unr.GetZ3Expr(lt);
     auto zx = unr.GetZ3Expr(rx);
@@ -625,7 +625,7 @@ TEST_F(TestExprOp, LessThan) {
 }
 
 TEST_F(TestExprOp, GreaterThan) {
-  {  // expr
+  { // expr
     auto gt = rx > ry;
     auto zg = unr.GetZ3Expr(gt);
     auto zx = unr.GetZ3Expr(rx);
@@ -641,7 +641,7 @@ TEST_F(TestExprOp, GreaterThan) {
 
   s.reset();
 
-  {  // const
+  { // const
     auto gt = rx > 0x0f;
     auto zg = unr.GetZ3Expr(gt);
     auto zx = unr.GetZ3Expr(rx);
@@ -653,7 +653,7 @@ TEST_F(TestExprOp, GreaterThan) {
 }
 
 TEST_F(TestExprOp, LessThanOrEqual) {
-  {  // expr
+  { // expr
     auto le = rx <= ry;
     auto zl = unr.GetZ3Expr(le);
     auto zx = unr.GetZ3Expr(rx);
@@ -669,7 +669,7 @@ TEST_F(TestExprOp, LessThanOrEqual) {
 
   s.reset();
 
-  {  // const
+  { // const
     auto le = rx <= 0x0f;
     auto zl = unr.GetZ3Expr(le);
     auto zx = unr.GetZ3Expr(rx);
@@ -681,7 +681,7 @@ TEST_F(TestExprOp, LessThanOrEqual) {
 }
 
 TEST_F(TestExprOp, GreaterThanOrEqual) {
-  {  // expr
+  { // expr
     auto ge = rx >= ry;
     auto zg = unr.GetZ3Expr(ge);
     auto zx = unr.GetZ3Expr(rx);
@@ -697,7 +697,7 @@ TEST_F(TestExprOp, GreaterThanOrEqual) {
 
   s.reset();
 
-  {  // const
+  { // const
     auto ge = rx >= 0x0f;
     auto zg = unr.GetZ3Expr(ge);
     auto zx = unr.GetZ3Expr(rx);
@@ -710,7 +710,7 @@ TEST_F(TestExprOp, GreaterThanOrEqual) {
 }
 
 TEST_F(TestExprOp, UnsignedLessThan) {
-  {  // expr
+  { // expr
     auto lt = Ult(rx, ry);
     auto zl = unr.GetZ3Expr(lt);
     auto zx = unr.GetZ3Expr(rx);
@@ -726,7 +726,7 @@ TEST_F(TestExprOp, UnsignedLessThan) {
 
   s.reset();
 
-  {  // const
+  { // const
     auto lt = Ult(rx, 0x0f);
     auto zl = unr.GetZ3Expr(lt);
     auto zx = unr.GetZ3Expr(rx);
@@ -739,7 +739,7 @@ TEST_F(TestExprOp, UnsignedLessThan) {
 }
 
 TEST_F(TestExprOp, UnsignedGreaterThan) {
-  {  // expr
+  { // expr
     auto gt = Ugt(rx, ry);
     auto zg = unr.GetZ3Expr(gt);
     auto zx = unr.GetZ3Expr(rx);
@@ -755,7 +755,7 @@ TEST_F(TestExprOp, UnsignedGreaterThan) {
 
   s.reset();
 
-  {  // const
+  { // const
     auto gt = Ugt(rx, 0x0f);
     auto zg = unr.GetZ3Expr(gt);
     auto zx = unr.GetZ3Expr(rx);
@@ -767,7 +767,7 @@ TEST_F(TestExprOp, UnsignedGreaterThan) {
 }
 
 TEST_F(TestExprOp, UnsignedLessThanOrEqual) {
-  {  // expr
+  { // expr
     auto le = Ule(rx, ry);
     auto zl = unr.GetZ3Expr(le);
     auto zx = unr.GetZ3Expr(rx);
@@ -783,7 +783,7 @@ TEST_F(TestExprOp, UnsignedLessThanOrEqual) {
 
   s.reset();
 
-  {  // const
+  { // const
     auto le = Ule(rx, 0x0f);
     auto zl = unr.GetZ3Expr(le);
     auto zx = unr.GetZ3Expr(rx);
@@ -795,7 +795,7 @@ TEST_F(TestExprOp, UnsignedLessThanOrEqual) {
 }
 
 TEST_F(TestExprOp, UnsignedGreaterThanOrEqual) {
-  {  // expr
+  { // expr
     auto ge = Uge(rx, ry);
     auto zg = unr.GetZ3Expr(ge);
     auto zx = unr.GetZ3Expr(rx);
@@ -811,7 +811,7 @@ TEST_F(TestExprOp, UnsignedGreaterThanOrEqual) {
 
   s.reset();
 
-  {  // const
+  { // const
     auto ge = Uge(rx, 0x0f);
     auto zg = unr.GetZ3Expr(ge);
     auto zx = unr.GetZ3Expr(rx);
@@ -837,7 +837,7 @@ TEST_F(TestExprOp, Imply) {
 }
 
 TEST_F(TestExprOp, Ite) {
-  {  // bv
+  { // bv
     auto ite = Ite(fx, rx, ry);
     auto zi = unr.GetZ3Expr(ite);
     auto zx = unr.GetZ3Expr(rx);
@@ -853,7 +853,7 @@ TEST_F(TestExprOp, Ite) {
 
   s.reset();
 
-  {  // bool
+  { // bool
     auto ite = Ite(rx == ry, fx, fy);
     auto zi = unr.GetZ3Expr(ite);
     auto zx = unr.GetZ3Expr(fx);
@@ -870,7 +870,7 @@ TEST_F(TestExprOp, Ite) {
 
   s.reset();
 
-  {  // mem
+  { // mem
     auto ite = Ite(fx, mx, my);
     auto zi = unr.GetZ3Expr(ite);
     auto zx = unr.GetZ3Expr(mx);
@@ -884,4 +884,4 @@ TEST_F(TestExprOp, Ite) {
   }
 }
 
-}  // namespace ilang
+} // namespace ilang
