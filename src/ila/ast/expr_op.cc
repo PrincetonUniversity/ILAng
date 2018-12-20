@@ -4,6 +4,7 @@
 #include <ilang/ila/ast/expr_op.h>
 #include <ilang/ila/ast/func.h>
 #include <ilang/ila/instr_lvl_abs.h>
+#include <ilang/util/log.h>
 
 namespace ilang {
 
@@ -52,7 +53,11 @@ ExprOp::ExprOp(const ExprPtrVec& args) {
   // args
   set_args(args);
   // host
-  set_host(GetHost(args));
+  ExprSet args_set = {};
+  for (auto arg_i : args) {
+    args_set.insert(arg_i);
+  }
+  set_host(GetHost(args_set));
 }
 
 ExprOp::~ExprOp() {}
@@ -79,25 +84,32 @@ SortPtr ExprOp::GetSortBinaryComparison(const ExprPtr e0, const ExprPtr e1) {
   return Sort::MakeBoolSort();
 }
 
-ExprOp::InstrLvlAbsPtr ExprOp::GetHost(const ExprPtrVec& args) const {
-  return NULL; // XXX Do we need to know host for op?
-#if 0
-  // FIXME This only works for non-hierarchical ILAs.
-  ILA_ASSERT(!args.empty()) << "Get host from no argument.";
-  auto h = args[0]->host();
-  for (size_t i = 1; i != args.size(); i++) {
-    auto h_i = args[i]->host();
-    if (h_i) { // h_i not NULL
-      if (h) { // h not NULL
-        if (h != h_i)
-          return NULL;
-      } else { // h is NULL
-        h = h_i;
-      }
-    } // ignore if h_i is NULL
+ExprOp::InstrLvlAbsPtr ExprOp::GetHost(const ExprSet& args) const {
+  // get all hosts
+  std::set<InstrLvlAbsPtr> hosts;
+  for (auto arg_i : args) {
+    auto host_i = arg_i->host();
+    if (host_i) {
+      hosts.insert(host_i);
+    }
   }
-  return h;
-#endif
+  // find host with no child in the hosts ("one of" the leaf hosts)
+  InstrLvlAbsPtr leaf = NULL;
+  for (auto host_i : hosts) {
+    if (host_i->child_num() == 0) { // XXX pick one if multiple leaves
+      return host_i;
+    } else {
+      auto is_leaf = true;
+      for (auto j = 0; j != host_i->child_num(); j++) {
+        auto child_ij = host_i->child(j);
+        is_leaf &= (hosts.find(child_ij) == hosts.end());
+      }
+      if (is_leaf) {
+        return host_i;
+      }
+    }
+  }
+  return leaf;
 }
 
 // ------------------------- Class ExprOpNeg -------------------------------- //

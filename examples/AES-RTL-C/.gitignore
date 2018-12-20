@@ -2,3 +2,7 @@ vILA/*
 Verilog/obj_dir
 Verilog/AESsim
 AESsim
+cILA/*
+C/Cinst.c
+C/test
+test

@@ -3,6 +3,7 @@
 
 #include <ilang/ila/instr.h>
 #include <ilang/ila/instr_lvl_abs.h>
+#include <ilang/util/log.h>
 
 namespace ilang {
 
