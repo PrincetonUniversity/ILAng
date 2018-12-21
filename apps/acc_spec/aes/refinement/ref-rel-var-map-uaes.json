@@ -1,10 +1,10 @@
 {
   "models": { "ILA":"m0" , "VERILOG": "m1" },
   "state mapping": { 
-    "state"          : "aes_reg_state",
-    "opaddr"         : "aes_reg_oplen_i.reg_out",
-    "oplen"          : "aes_reg_oplen_i.reg_out",
-    "ctr"            : "aes_reg_ctr_i.reg_out",
+    "status"         : "aes_reg_state",
+    "address"        : "aes_reg_oplen_i.reg_out",
+    "length"         : "aes_reg_oplen_i.reg_out",
+    "counter"        : "aes_reg_ctr_i.reg_out",
     "key"            : "aes_reg_key0_i.reg_out",
     "xram"           : "**MEM**",
     "outdata"        : "data_out",
@@ -41,12 +41,12 @@
   },
 
   "mapping control" : [ "m1.xram_wr & m1.xram_stb == MEM_xram.wen" , 
-                        "~ ( m0.cmd == 1 ) || ( m1.wr == 1)" , 
-                        "~ ( m0.cmd == 2 ) || ( m1.wr == 0)",
+                        "~ ( m0.cmd == 2'd1 ) || ( m1.wr == 1)" , 
+                        "~ ( m0.cmd == 2'd2 ) || ( m1.wr == 0)",
                         " m1.xram_addr ==  MEM_xram.raddr ",
                         " m1.xram_addr ==  MEM_xram.waddr ",
-                        " aes_reg_state == 2 -> func_aes128_result_reg == aes_out ", // add func here
-                        " aes_reg_state == 2 -> xram_ack == 0"
+                        " aes_reg_state == 2'd2 -> func_aes128_result_reg == aes_out ", // add func here
+                        " aes_reg_state == 2'd2 -> xram_ack == 0"
                       ],
 
   "monitors" : {

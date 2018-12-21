@@ -1,10 +1,10 @@
 {
   "models": { "ILA":"m0" , "VERILOG": "m1" },
   "state mapping": { 
-    "state"          : "aes_reg_state",
-    "opaddr"         : "aes_reg_oplen_i.reg_out",
-    "oplen"          : "aes_reg_oplen_i.reg_out",
-    "ctr"            : "aes_reg_ctr_i.reg_out",
+    "status"         : "aes_reg_state",
+    "address"        : "aes_reg_oplen_i.reg_out",
+    "length"         : "aes_reg_oplen_i.reg_out",
+    "counter"        : "aes_reg_ctr_i.reg_out",
     "key"            : "aes_reg_key0_i.reg_out",
     "xram"           : "**MEM**",
     "outdata"        : "data_out"
