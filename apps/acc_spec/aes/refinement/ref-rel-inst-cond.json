@@ -1,0 +1,47 @@
+{
+  "global invariants": [],
+
+  "instructions": [
+    {
+      "instruction" : "WRITE_LENGTH",
+      "ready bound" : 1
+    },
+    {
+      "instruction" : "WRITE_KEY",
+      "ready bound" : 1
+    },
+    {
+      "instruction" : "WRITE_COUNTER",
+      "ready bound" : 1
+    },
+    {
+      "instruction" : "WRITE_ADDRESS",
+      "ready bound" : 1
+    },
+    {
+      "instruction" : "READ_LENGTH",
+      "ready bound" : 0
+    },
+    {
+      "instruction" : "READ_ADDRESS",
+      "ready bound" : 0
+    },
+    {
+      "instruction" : "READ_KEY",
+      "ready bound" : 0
+    },
+    {
+      "instruction" : "READ_COUNTER",
+      "ready bound" : 0
+    },
+    {
+      "instruction" : "GET_STATUS",
+      "ready bound" : 0
+    },
+    {
+      "instruction" : "START_ENCRYPT",
+      "ready bound" : 1
+    }
+  ]
+}
+
