@@ -4,7 +4,7 @@
 #include <ilang/verilog-in/verilog_parse.h>
 
 extern "C" {
-#include "verilog_parser.h"
+#include <verilogparser/verilog_parser.h>
 }
 
 namespace ilang {
@@ -16,3 +16,4 @@ int TestParseVerilogFrom(std::FILE* fp) {
 }
 
 }; // namespace ilang
+

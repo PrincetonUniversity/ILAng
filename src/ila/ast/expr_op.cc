@@ -53,7 +53,7 @@ ExprOp::ExprOp(const ExprPtrVec& args) {
   // args
   set_args(args);
   // host
-  ExprSet args_set = {};
+  auto args_set = ExprSet();
   for (auto arg_i : args) {
     args_set.insert(arg_i);
   }

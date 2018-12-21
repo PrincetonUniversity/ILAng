@@ -15,7 +15,7 @@
 namespace ilang {
 
 #ifdef VERILOG_IN_ENABLE
-void parseable(const std::string &fname, VerilogGenerator &vgen) {
+void parseable(const std::string& fname, VerilogGenerator& vgen) {
   std::ofstream fout(fname);
   if (fout.is_open()) {
     vgen.DumpToFile(fout);
@@ -23,12 +23,13 @@ void parseable(const std::string &fname, VerilogGenerator &vgen) {
   } else
     ILA_WARN << "Cannot write tmpfile:" << fname << " for vlog-gen test.";
 
-  std::FILE *fp = std::fopen(fname.c_str(), "r");
+  std::FILE* fp = std::fopen(fname.c_str(), "r");
   if (fp) {
     int result = TestParseVerilogFrom(fp);
     std::fclose(fp);
     EXPECT_EQ(result, 0);
-    if (result != 0) ILA_INFO << "ParseErrorFileName = " << fname;
+    if (result != 0)
+      ILA_INFO << "ParseErrorFileName = " << fname;
   } else
     ILA_WARN << "Cannot read tmpfile:" << fname << " for vlog-gen test.";
 }
@@ -113,7 +114,7 @@ TEST(TestVerilogGen, ParseInst) {
     vgen.DumpToFile(ILA_DLOG("TestVerilogGen.ParseInst"));
 #endif
   }
-}  // TEST (ParseInst)
+} // TEST (ParseInst)
 
 TEST(TestVerilogGen, ParseIla) {
   auto ila_ptr_ = SimpleCpu("proc");
@@ -139,7 +140,7 @@ TEST(TestVerilogGen, ParseIla) {
     vgen.DumpToFile(ILA_DLOG("TestVerilogGen.ParseILA"));
 #endif
   }
-}  // TEST: ParseILA
+} // TEST: ParseILA
 TEST(TestVerilogGen, FlattenIla) {
   EqIlaGen ila_gen;
   auto ila_ptr = ila_gen.GetIlaHier1("CpReg");
@@ -157,6 +158,6 @@ TEST(TestVerilogGen, FlattenIla) {
   vgen.DumpToFile(ILA_DLOG("TestVerilogGen.FlattenIla"));
 #endif
 
-}  // TEST: FlattenILA
+} // TEST: FlattenILA
 
-};  // namespace ilang
+}; // namespace ilang
