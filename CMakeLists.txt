@@ -21,7 +21,6 @@ project(ilang VERSION     1.0.0
 # build configuration
 # ---------------------------------------------------------------------------- #
 option(ILANG_FETCH_DEPS  "Fetch source of dependencies at config time."      ON)
-option(ILANG_BUILD_VLOG  "Build Verilog I/O."                                ON)
 option(ILANG_BUILD_DOCS  "Build documentations."                            OFF)
 option(ILANG_BUILD_SYNTH "Build the synthesis engine."                       ON)
 option(ILANG_INSTALL_DEV "Install dev features."                            OFF)
@@ -55,10 +54,7 @@ set(ILANG_CMAKE_VERSION_CONFIG_FILE
 set(ILANG_CMAKE_PROJECT_CONFIG_FILE  
   "${ILANG_CMAKE_CONFIG_DIR}/${PROJECT_NAME}Config.cmake")
 
-if(${ILANG_BUILD_VLOG})
-  set(VERILOG_IN_ENABLE TRUE)
-endif()
-
+set(VERILOG_IN_ENABLE TRUE)
 
 # ---------------------------------------------------------------------------- #
 # External dependencies
