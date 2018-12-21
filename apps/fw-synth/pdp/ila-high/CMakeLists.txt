@@ -22,25 +22,6 @@ set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 ##
 find_package(ilang REQUIRED)
 
-##
-## Python (required if CMake version < 3.12)
-##
-if(${CMAKE_VERSION} VERSION_LESS 3.12)
-
-  if(NOT TARGET Python::Python)
-    add_library(Python::Python IMPORTED INTERFACE)
-
-    set_property(TARGET Python::Python 
-      PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${PYTHON_INCLUDE_DIRECTORIES}
-    )
-
-    set_property(TARGET Python::Python
-      PROPERTY INTERFACE_LINK_LIBRARIES ${PYTHON_LIBRARIES}
-    )
-    
-  endif()
-
-endif()
 
 # ---------------------------------------------------------------------------- #
 # TARGET

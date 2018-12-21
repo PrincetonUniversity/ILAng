@@ -115,55 +115,6 @@ if(${ILANG_BUILD_SYNTH})
 
 endif()
 
-##
-## Boost python
-##
-if(${ILANG_BUILD_PYAPI})
-
-  set(Boost_USE_STATIC_LIBS OFF)
-  set(Boost_USE_MULTITHREADED ON)
-  set(Boost_USE_STATIC_RUNTIME OFF)
-
-  find_package(Boost 1.50 REQUIRED COMPONENTS python)
-
-  target_link_libraries(${ILANG_LIB_NAME} PRIVATE Boost::python)
-
-endif() # ILANG_BUILD_PYAPI
-
-
-##
-## Python
-##
-if(${ILANG_BUILD_PYAPI})
-
-  if(${CMAKE_VERSION} VERSION_LESS 3.12)
-    
-    find_package(PythonLibs 2.7 REQUIRED)
-
-    if(NOT TARGET Python::Python)
-
-      add_library(Python::Python IMPORTED INTERFACE)
-
-      set_property(TARGET Python::Python
-        PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${PYTHON_INCLUDE_DIRS}
-      )
-
-      set_property(TARGET Python::Python
-        PROPERTY INTERFACE_LINK_LIBRARIES ${PYTHON_LIBRARIES}
-      )
-
-    endif()
-
-  else()
-
-    find_package(Python 2.7 REQUIRED COMPONENTS Development)
-
-  endif()
-
-  target_link_libraries(${ILANG_LIB_NAME} PRIVATE Python::Python)
-
-endif()
-
 
 # ---------------------------------------------------------------------------- #
 # INSTALL
