@@ -5,28 +5,30 @@
 #ifndef AES_ILA_H__
 #define AES_ILA_H__
 
-#include <ilang/cpp_api.h>
+#include <ilang/ilang++.h>
 
 using namespace ilang;
 
+
+#define AES_START  0xff00
+#define AES_STATE  0xff01
+#define AES_ADDR   0xff02
+#define AES_LENGTH 0xff04
+#define AES_KEY    0xff10
+#define AES_CNT    0xff20
+
+#define CMD_NOP    0
+#define CMD_READ   1
+#define CMD_WRITE  2
+
+#define AES_STATE_IDLE        0
+#define AES_STATE_READ_DATA   1
+#define AES_STATE_OPERATE     2
+#define AES_STATE_WRITE_DATA  3
+
+
 /// \brief the class of AES ila
 class AES {
-  
-constexpr AES_START = 0xff00;
-constexpr AES_STATE = 0xff01;
-constexpr AES_ADDR  = 0xff02;
-constexpr AES_LEN   = 0xff04;
-constexpr AES_KEY   = 0xff10;
-constexpr AES_CNT   = 0xff20;
-
-constexpr CMD_NOP   = 0;
-constexpr CMD_READ  = 1;
-constexpr CMD_WRITE = 2;
-
-constexpr AES_STATE_IDLE       = 0;
-constexpr AES_STATE_READ_DATA  = 1;
-constexpr AES_STATE_OPERATE    = 2;
-constexpr AES_STATE_WRITE_DATA = 3;
 
 protected:
   // --------------- MEMBERS ----------- //
@@ -40,7 +42,7 @@ public:
 private: 
   /// Called by the constructor to create the child-ILA
   /// for block encryption
-  void AES::AddChild(InstrRef & inst)
+  void AddChild(InstrRef & inst);
 
 protected:
   // --------------- HELPERS -------- //
@@ -80,9 +82,9 @@ protected:
   /// specify a nondeterministic value within range [low,high]
   ExprRef unknown_range(unsigned low, unsigned high);
   /// a nondeterministic choice of a or b
-  FuncRef AES::unknown_choice(const ExprRef & a, const ExprRef & b);
+  static ExprRef unknown_choice(const ExprRef & a, const ExprRef & b);
   /// a nondeterminstic bitvector const of width
-  FuncRef AES::unknown(unsigned width);
+  static FuncRef unknown(unsigned width);
 
 
 protected:
@@ -92,17 +94,17 @@ protected:
   ExprRef cmdaddr ;
   ExprRef cmddata ;
   // internal arch state.
-  ExprRef state   ;
-  ExprRef opaddr  ;
-  ExprRef oplen   ;
-  ExprRef ctr     ;
+  ExprRef status  ;
+  ExprRef address ;
+  ExprRef length  ;
+  ExprRef counter ;
   ExprRef key     ;
   // the memory
   ExprRef xram    ;
   // The encryption function : 
   // 128b plaintext x 128b key -> 128b ciphertext
   // FuncRef(name, range, domain1, domain2 )
-  ExprRef aes128  ; 
+  FuncRef aes128  ; 
   // the output
   ExprRef outdata ;
 
