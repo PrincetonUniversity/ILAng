@@ -1,7 +1,7 @@
 {
   "global invariants": [
-    "aes_step && (aes_state == aes_state_operate) |-> byte_counter == 0",
-    "(operated_bytes_count_next < aes_reg_oplen)  |-> operated_bytes_count == byte_counter",
+    "(aes_step == 1) && (aes_state == aes_state_operate) -> byte_counter == 0",
+    "(operated_bytes_count_next < aes_reg_oplen) -> operated_bytes_count == byte_counter",
     "uaes_ctr == aes_reg_ctr + block_ctr",
   ],
 
@@ -11,8 +11,9 @@
       "ready signal": "$xram_ack_monitor.delay_1",
     },
     {
-      "instruction" : "OPERATE",
-      "ready bound" : 1,
+      "instruction"         : "OPERATE",
+      "ready signal"        : "( aes_step == 1) && ( aes_reg_state_next == 2'd3 )",
+      "child instruction"   : { "trigger bound:" : 1 }
     },
     {
       "instruction" : "STORE",

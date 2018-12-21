@@ -1,6 +1,5 @@
 {
   "models": { "ILA":"m0" , "VERILOG": "m1" },
-  "instruction mapping": [],
   "state mapping": { 
     "state"          : "aes_reg_state",
     "opaddr"         : "aes_reg_oplen_i.reg_out",
@@ -46,8 +45,8 @@
                         "~ ( m0.cmd == 2 ) || ( m1.wr == 0)",
                         " m1.xram_addr ==  MEM_xram.raddr ",
                         " m1.xram_addr ==  MEM_xram.waddr ",
-                        " aes_reg_state == 2 |-> func_aes128_result_reg == aes_out ", // add func here
-                        " aes_reg_state == 2 |-> xram_ack == 0"
+                        " aes_reg_state == 2 -> func_aes128_result_reg == aes_out ", // add func here
+                        " aes_reg_state == 2 -> xram_ack == 0"
                       ],
 
   "monitors" : {
@@ -57,3 +56,5 @@
     }
   }
 }
+
+// if you don't write xram_ack_monitor
