@@ -33,19 +33,20 @@ public:
   // --------------------- TYPE DEFINITIONS ---------------------------- //
   /// let VlgVerifTgtGen use this module to generate the wrapper module
   friend class VlgSglTgtGen;
-  /// let IntefaceDirectiveRecorder use this module to generate the wrapper module
+  /// let IntefaceDirectiveRecorder use this module to generate the wrapper
+  /// module
   friend class IntefaceDirectiveRecorder;
   /// type of read port
-  typedef struct  {
+  typedef struct {
     /// what to connect for raddr
-    std::string raddr; 
+    std::string raddr;
     /// what to connect for rdata
     std::string rdata;
     /// what to connect for ren
     std::string ren;
   } rport_t;
   /// type of write port
-  typedef struct  {
+  typedef struct {
     /// what to connect for waddr
     std::string waddr;
     /// what to connect for wdata
@@ -111,7 +112,8 @@ public:
     /// ila func name
     const std::string func_name;
     /// constructor
-    function_app_t(const vlg_sig_t & res, const std::string fn) : result(res) , func_name(fn) {}
+    function_app_t(const vlg_sig_t& res, const std::string fn)
+        : result(res), func_name(fn) {}
   }; // struct function_app_t
   typedef std::vector<function_app_t> function_app_vec_t;
 
@@ -128,23 +130,19 @@ public:
     enum funcOption { Internal, External } fcOpt;
     /// whether to have the start signal
     bool start_signal;
-    
+
     /// Constructor, set default value, ExternalMem : false, function: internal
     /// module
     VlgGenConfig( // provide the default settings
         bool ExternalMem = false, funcOption funcOpt = funcOption::Internal,
-        bool gen_start = false )
+        bool gen_start = false)
         : extMem(ExternalMem), fcOpt(funcOpt), start_signal(gen_start) {}
     /// Overwrite configuration, used by vtarget gen
-    VlgGenConfig(
-        const VlgGenConfig & c, 
-        bool ExternalMem, 
-        funcOption funcOpt,
-        bool gen_start )
-        : extMem(ExternalMem), fcOpt(funcOpt), start_signal(gen_start) {} 
-        // set other fields if there are such need (?)
+    VlgGenConfig(const VlgGenConfig& c, bool ExternalMem, funcOption funcOpt,
+                 bool gen_start)
+        : extMem(ExternalMem), fcOpt(funcOpt), start_signal(gen_start) {}
+    // set other fields if there are such need (?)
   };
-
 
   // --------------------- HELPER for DEBUG PURPOSE ----------------------------
   //
@@ -215,7 +213,8 @@ protected:
   vlg_stmts_t always_stmts;
   /// statements to be used in the always block but out of the reset with ITE
   /// conditions
-  vlg_ite_stmts_t ite_stmts; // this stmt is only used in sequential always block
+  vlg_ite_stmts_t
+      ite_stmts; // this stmt is only used in sequential always block
   /// For auxiliary definitions
   vlg_stmt_t preheader;
   /// The map to cache the expression (we only need to store the name)
@@ -231,9 +230,9 @@ protected:
   vlg_sigs_set_t all_valid_names;
   /// To record which mem interface signal correspond to what...
   /// ila read ports
-  std::map<std::string,std::map<unsigned,rport_t> > ila_rports;
+  std::map<std::string, std::map<unsigned, rport_t>> ila_rports;
   /// ila write ports
-  std::map<std::string,std::map<unsigned,wport_t> > ila_wports;
+  std::map<std::string, std::map<unsigned, wport_t>> ila_wports;
   /// a collection of all function application
   function_app_vec_t ila_func_app;
 
@@ -249,14 +248,14 @@ protected:
   /// if the exprptr contains some meaning in its name, will try to incorporate
   /// that to the name;
   vlg_name_t new_id(const ExprPtr& e);
-  
+
 public:
   /// sanitize a name string, so it will generate illegal verilog identifier
   static vlg_name_t sanitizeName(const vlg_name_t& n);
   /// sanitize the name of an expr, so it will generate illegal verilog
   /// identifier
   static vlg_name_t sanitizeName(const ExprPtr& n);
-  
+
 protected:
   /// The id counter
   unsigned idCounter;
@@ -298,24 +297,23 @@ public:
   void add_external_mem(const vlg_name_t& mem_name, int addr_width,
                         int data_width);
   /// add an item to the preheader
-  void add_preheader(const vlg_stmt_t & stmt);
+  void add_preheader(const vlg_stmt_t& stmt);
+
 public:
   // --------------------- CONSTRUCTOR ---------------------------- //
   /// \param[in] Configuration
   /// \param[in] Top module name, if empty, get it from instruction name
   /// \param[in] clock signal name
   /// \param[in] reset signal name
-  VerilogGeneratorBase(
-                   const VlgGenConfig& config = VlgGenConfig(),
-                   const std::string& modName = "",
-                   const std::string& clk = "clk",
-                   const std::string& rst = "rst");
+  VerilogGeneratorBase(const VlgGenConfig& config = VlgGenConfig(),
+                       const std::string& modName = "",
+                       const std::string& clk = "clk",
+                       const std::string& rst = "rst");
 
   /// after parsing either the Instruction/ILA, use this function to dump to a
   /// file.
   virtual void DumpToFile(std::ostream& fout) const;
 }; // class VerilogGeneratorBase
-
 
 /// \brief Class of Verilog Generator
 class VerilogGenerator : public VerilogGeneratorBase {
@@ -354,7 +352,8 @@ public:
   /// This is type of a list of writes.
   using mem_write_entry_list_t = VerilogGeneratorBase::mem_write_entry_list_t;
   /// Type of a stack of writes use in visitMemNodes
-  using mem_write_entry_list_stack_t = VerilogGeneratorBase::mem_write_entry_list_stack_t;
+  using mem_write_entry_list_stack_t =
+      VerilogGeneratorBase::mem_write_entry_list_stack_t;
   /// This is the write and its associated condition.
   using mem_write_t = VerilogGeneratorBase::mem_write_t;
   /// List of writes w. associated conditions.
@@ -370,7 +369,6 @@ public:
   using function_app_vec_t = VerilogGeneratorBase::function_app_vec_t;
 
 private:
-  
   // --------------------- HELPER FUNCTIONS ---------------------------- //
   /// handle a input variable (memvar/bool/bv)
   void insertInput(const ExprPtr& input);

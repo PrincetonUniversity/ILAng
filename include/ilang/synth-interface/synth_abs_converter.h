@@ -118,4 +118,3 @@ typedef SynthAbsConverter::SynthAbsConverterPtr SynthAbsConverterPtr;
 }; // namespace ilang
 
 #endif // SYNTH_ABS_CONVERTER_H__
-

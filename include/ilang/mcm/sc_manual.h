@@ -5,8 +5,8 @@
 #ifndef SC_MANUAL_H__
 #define SC_MANUAL_H__
 
-#include <ilang/mcm/memory_model.h>
 #include <ilang/mcm/inter_ila_unroller.h>
+#include <ilang/mcm/memory_model.h>
 
 namespace ilang {
 

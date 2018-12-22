@@ -60,4 +60,3 @@ typedef PortableMngr::PortableMngrPtr PortableMngrPtr;
 }; // namespace ilang
 
 #endif // ILANG_PORTABLE_MNGR_H__
-

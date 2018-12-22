@@ -7,9 +7,9 @@
 #include "ilang/ila/instr_lvl_abs.h"
 
 #include <functional>
+#include <set>
 #include <unordered_map>
 #include <utility>
-#include <set>
 
 /// \namespace ilang
 namespace ilang {
