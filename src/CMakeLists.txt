@@ -147,11 +147,3 @@ else()
 
 endif()
 
-# TODO temporary for migrating legacy examples 
-install(
-  FILES ${ILANG_INCLUDE_BUILD_DIR}/ilang/ilang++.h
-  DESTINATION ${ILANG_INCLUDE_INSTALL_DIR}
-  RENAME ila++.h
-)
-
-

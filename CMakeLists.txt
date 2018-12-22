@@ -54,8 +54,6 @@ set(ILANG_CMAKE_VERSION_CONFIG_FILE
 set(ILANG_CMAKE_PROJECT_CONFIG_FILE  
   "${ILANG_CMAKE_CONFIG_DIR}/${PROJECT_NAME}Config.cmake")
 
-set(VERILOG_IN_ENABLE TRUE)
-
 # ---------------------------------------------------------------------------- #
 # External dependencies
 # ---------------------------------------------------------------------------- #

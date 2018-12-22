@@ -16,8 +16,6 @@
 
 namespace ilang {
 
-#ifdef VERILOG_IN_ENABLE
-
 TEST(TestVerilogAnalysis, Init) {
 
   VerilogInfo va(
@@ -298,5 +296,4 @@ TEST(TestVerilogAnalysis, GetTopIoNewFashion) {
 #undef W
 }
 
-#endif
 }; // namespace ilang
