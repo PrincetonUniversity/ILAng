@@ -1,8 +1,12 @@
 /// \file
-/// Header for SC memory model (constructed manually, rather than fully automaticated generation)
+/// Header for SC memory model (constructed manually, rather than fully
+/// automaticated generation)
 
 #ifndef SC_MANUAL_H__
 #define SC_MANUAL_H__
+
+#include <ilang/mcm/memory_model.h>
+#include <ilang/mcm/inter_ila_unroller.h>
 
 namespace ilang {
 
@@ -14,7 +18,8 @@ public:
   // ------------------------- MEMBERS -------------------------------------- //
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// To create a trace step (for inst, we don't need it for facet/init)
-  ScTraceStep(const InstrPtr & inst , ZExprVec & cstr, z3::context& ctx , size_t pos );
+  ScTraceStep(const InstrPtr& inst, ZExprVec& cstr, z3::context& ctx,
+              size_t pos);
 }; // class ScTraceStep
 
 /// \brief Class of TSO
@@ -24,7 +29,8 @@ public:
   typedef std::shared_ptr<ScTraceStep> ScTraceStepPtr;
   /// Type of trace steps, we need to collect the set of trace steps (WRITE)
   typedef std::set<ScTraceStepPtr> ScTraceStepPtrSet;
-  // -------------------------- TSO SELECTOR -------------------------------------- //
+  // -------------------------- TSO SELECTOR
+  // -------------------------------------- //
   /// \brief Declaration of memory model creator that chooses Sc
   static InterIlaUnroller::MemoryModelCreator ScModel;
 
@@ -33,34 +39,32 @@ protected:
   TraceStepPtrSet READ_list;
 
 public:
-  /// To create more view operations associated with an instruction, and also to add them to the set
-  void virtual RegisterSteps(size_t regIdx , const InstrVec & _inst_seq) override;
-  /// To do some extra bookkeeping work when it is known that no more instruction steps are needed.
+  /// To create more view operations associated with an instruction, and also to
+  /// add them to the set
+  void virtual RegisterSteps(size_t regIdx, const InstrVec& _inst_seq) override;
+  /// To do some extra bookkeeping work when it is known that no more
+  /// instruction steps are needed.
   void virtual FinishRegisterSteps() override;
   /// To apply the axioms, the complete program should be given
   void virtual ApplyAxioms() override;
-  // HZ note: All the step should be registered through the first function: RegisterSteps
+  // HZ note: All the step should be registered through the first function:
+  // RegisterSteps
   /// Set the final property, this is implementation-specific
-  void virtual SetFinalProperty( const ExprPtr & property ) override;
+  void virtual SetFinalProperty(const ExprPtr& property) override;
   /// Constructor
-  Sc(z3::context& ctx, 
-    ZExprVec & _cstrlist, 
-    const StateNameSet & shared_states, 
-    const ILANameStateNameSetMap & private_states, 
-    const InstrLvlAbsPtr & global_ila_ptr) :
-   MemoryModel(ctx, _cstrlist, shared_states, private_states, global_ila_ptr) { }
+  Sc(z3::context& ctx, ZExprVec& _cstrlist, const StateNameSet& shared_states,
+     const ILANameStateNameSetMap& private_states,
+     const InstrLvlAbsPtr& global_ila_ptr)
+      : MemoryModel(ctx, _cstrlist, shared_states, private_states,
+                    global_ila_ptr) {}
 
 private:
-  z3::expr RF( const TraceStepPtr &w,const TraceStepPtr &r);
-  z3::expr FR( const TraceStepPtr &r,const TraceStepPtr &w);
-  z3::expr CO( const TraceStepPtr &w1,const TraceStepPtr &w2);
+  z3::expr RF(const TraceStepPtr& w, const TraceStepPtr& r);
+  z3::expr FR(const TraceStepPtr& r, const TraceStepPtr& w);
+  z3::expr CO(const TraceStepPtr& w1, const TraceStepPtr& w2);
 
 }; // class Sc
 
-
-
-
-
-}
+} // namespace ilang
 
 #endif // SC_MANUAL_H__
