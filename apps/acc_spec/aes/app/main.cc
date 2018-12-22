@@ -1,5 +1,5 @@
-#include <aes_ila.h>
 #include <aes_128.h>
+#include <aes_ila.h>
 
 int main() {
   AES aes_ila_model;
