@@ -9,7 +9,7 @@ namespace ilang {
 class InstrLvlAbs;
 class Ila;
 
-class SimplePipe { 
+class SimplePipe {
 
 public:
   static Ila BuildModel();
@@ -18,5 +18,4 @@ public:
 
 }; // namespace ilang
 
-#endif //PIPE_ILA_H__
-
+#endif // PIPE_ILA_H__

@@ -1,9 +1,9 @@
 /// \file
 /// Unit test for ExprVar
 
-#include <ilang/ila/ast/expr_var.h>
 #include "unit-include/util.h"
 #include "z3++.h"
+#include <ilang/ila/ast/expr_var.h>
 
 namespace ilang {
 
@@ -113,4 +113,4 @@ TEST(TestExprVar, MemPrint) {
   EXPECT_EQ(ref_str, msg);
 }
 
-}  // namespace ilang
+} // namespace ilang

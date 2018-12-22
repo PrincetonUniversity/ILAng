@@ -1,14 +1,14 @@
 /// \file
 /// Unit test for function declaration.
 
+#include "unit-include/util.h"
 #include <ilang/ila/ast/func.h>
 #include <ilang/ila/expr_fuse.h>
-#include "unit-include/util.h"
 
 namespace ilang {
 
 class TestFunc : public ::testing::Test {
- public:
+public:
   TestFunc() {}
   ~TestFunc() {}
   void SetUp() {}
@@ -17,7 +17,7 @@ class TestFunc : public ::testing::Test {
   SortPtr b = Sort::MakeBoolSort();
   SortPtr bv = Sort::MakeBvSort(8);
   SortPtr mem = Sort::MakeMemSort(8, 8);
-};  // class TestFunc
+}; // class TestFunc
 
 TEST_F(TestFunc, Atom) {
   auto f = Func::New("func");
@@ -82,4 +82,4 @@ TEST_F(TestFunc, Multiple) {
   auto f_decl = f->GetZ3FuncDecl(c);
 }
 
-}  // namespace ilang
+} // namespace ilang

@@ -1,15 +1,15 @@
 /// \file
 /// Unit test for instruction sequencing
 
+#include "unit-include/util.h"
 #include <ilang/ila/expr_fuse.h>
 #include <ilang/ila/instr.h>
 #include <ilang/ila/transition.h>
-#include "unit-include/util.h"
 
 namespace ilang {
 
 class TestInstrSeq : public ::testing::Test {
- public:
+public:
   TestInstrSeq() {}
   ~TestInstrSeq() {}
 
@@ -62,7 +62,7 @@ class TestInstrSeq : public ::testing::Test {
   InstrPtr instr_4;
   InstrPtr instr_5;
 
-};  // class TestInstrSeq
+}; // class TestInstrSeq
 
 TEST_F(TestInstrSeq, ItEdge) {
   auto cnd = ExprFuse::Eq(counter, const_0);
@@ -125,4 +125,4 @@ TEST_F(TestInstrSeq, Sort) {
   auto sorted_seq = seq->Sort();
 }
 
-}  // namespace ilang
+} // namespace ilang
