@@ -453,7 +453,7 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assumptions() {
     ila_state_names.erase(sname);
     // ISSUE ==> vmap
     ILA_INFO << sname;
-    add_an_assumption("~ __START__ || (" +
+    add_an_assumption("~ ( __START__ == 1 ) || (" +
                           GetStateVarMapExpr(sname, i.value()) + ")",
                       "variable_map_assume");
   }

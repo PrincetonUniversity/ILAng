@@ -176,8 +176,8 @@ VlgSglTgtGen::ModifyCondExprAndRecordVlgName(const VarExtractor::token& t) {
     return sname; // NC
   } else if (token_tp == VarExtractor::token_type::ILA_S) {
     std::string quote = "";
-    if (_backend == backend_selector::COSA)
-      quote = "'";
+    //if (_backend == backend_selector::COSA)
+    //  quote = "'";
     // if it refers to ILA state
     if (_host->state(sname))
       return quote + "__ILA_SO_" + sname + quote;
@@ -193,8 +193,8 @@ VlgSglTgtGen::ModifyCondExprAndRecordVlgName(const VarExtractor::token& t) {
     return sname;
   } else if (token_tp == VarExtractor::token_type::ILA_IN) {
     std::string quote = "";
-    if (_backend == backend_selector::COSA)
-      quote = "'";
+    //if (_backend == backend_selector::COSA)
+    //  quote = "'";
     // if it refers to ILA state
     if (_host->input(sname))
       return quote + "__ILA_I_" + sname + quote;
@@ -210,8 +210,8 @@ VlgSglTgtGen::ModifyCondExprAndRecordVlgName(const VarExtractor::token& t) {
     return sname;
   } else if (token_tp == VarExtractor::token_type::VLG_S) {
     std::string quote = "";
-    if (_backend == backend_selector::COSA)
-      quote = "'";
+    //if (_backend == backend_selector::COSA)
+    //  quote = "'";
 
     if (vlg_info_ptr->check_hierarchical_name_type(sname) !=
         VerilogInfo::hierarchical_name_type::NONE) {

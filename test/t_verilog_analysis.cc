@@ -190,6 +190,19 @@ TEST(TestVerilogAnalysis, AnalyzeName) {
       << "Location of: m1.mem:" << va.name2loc("m1.mem");
   ILA_DLOG("TestVerilogAnalysis.AnalyzeName")
       << "Location of: m1.n26:" << va.name2loc("m1.n26");
+  ILA_DLOG("TestVerilogAnalysis.AnalyzeName")
+     << "Location of: m1.subm1:" << va.name2loc("m1.subm1");
+  ILA_DLOG("TestVerilogAnalysis.AnalyzeName")
+      << "Location of: m1.subm2:" << va.name2loc("m1.subm2");
+  ILA_DLOG("TestVerilogAnalysis.AnalyzeName")
+      << "Inst loc of m1.subm1" << va.get_module_inst_loc("m1.subm1");
+  ILA_DLOG("TestVerilogAnalysis.AnalyzeName")
+      << "Inst loc of m1.subm2" << va.get_module_inst_loc("m1.subm2");
+  ILA_DLOG("TestVerilogAnalysis.AnalyzeName")
+      << "Inst loc of m1.subm3" << va.get_module_inst_loc("m1.subm3");
+  ILA_DLOG("TestVerilogAnalysis.AnalyzeName")
+      << "Inst loc of m1.subm4" << va.get_module_inst_loc("m1.subm4");
+
 }
 
 TEST(TestVerilogAnalysis, GetTopIo) {

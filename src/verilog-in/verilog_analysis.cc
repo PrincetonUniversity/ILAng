@@ -260,7 +260,10 @@ VerilogAnalyzer::hierarchical_name_type VerilogAnalyzer::_check_hierarchical_nam
   } 
   auto last_level_name = level_names[level_names.size() -1]; // level_names[level_names.size() -1]
   if( IN(last_level_name, GetMapRef(modules_to_submodules_map,curr_mod_name)) ) {// found
-    name_decl_buffer[net_name] = GetMap(name_module_map,last_level_name);
+    // here we need to convert the instance name to the module name
+    auto module_name = GetMap( 
+      GetMapRef(modules_to_submodules_map,curr_mod_name), last_level_name);
+    name_decl_buffer[net_name] = GetMap(name_module_map, module_name);
     return hierarchical_name_type::MODULE;
   }
 
@@ -418,13 +421,73 @@ void * VerilogAnalyzer::find_declaration_of_name(const std::string & net_name) c
   return pos->second;
 }
 
+/// Return the location of a module instantiation
+VerilogAnalyzer::vlg_loc_t 
+VerilogAnalyzer::get_module_inst_loc(const std::string & inst_name) const {
+
+  std::vector<std::string> level_names = Split(inst_name, "." );
+  if(level_names[0] != top_inst_name) {
+    ILA_ERROR<<inst_name<<" not found.";
+    return vlg_loc_t();
+  }
+  if(level_names.size() == 1) { // already matched (so, we don't compare again) o.w. return above
+    name_decl_buffer[inst_name] = GetMap(name_module_map,top_module_name);
+    ILA_ERROR<<"Top module has no instance! Use the declaration location instead.";
+    return name2loc(inst_name);
+  }
+
+  // goes deep down the hierarchy
+  auto curr_mod_name = top_module_name;
+  for (unsigned hId = 1 ; hId < level_names.size() -1 ; hId ++) {
+    auto inst_name = level_names[hId];
+    auto pos = GetMapRef(modules_to_submodules_map,curr_mod_name).find(inst_name);
+    if(pos == GetMapRef(modules_to_submodules_map,curr_mod_name).end() ) {
+      ILA_ERROR<<inst_name<<" not found.";
+      return vlg_loc_t(); // this instance name does not exists
+    }
+    curr_mod_name = pos->second;
+  } 
+
+  auto last_level_name = level_names[level_names.size() -1]; // the last one
+  if( not IN(last_level_name, GetMapRef(modules_to_submodules_map,curr_mod_name)) ) {
+    ILA_ERROR<<inst_name<<" not found in the last level.";
+    return vlg_loc_t(); // this instance name does not exists
+  }
+
+  auto module_name = GetMap( GetMapRef(modules_to_submodules_map,curr_mod_name), last_level_name);
+
+  ILA_ASSERT( IN(curr_mod_name, name_module_map) );
+
+  ast_module_declaration * module_ast_ptr = GetMap(name_module_map, curr_mod_name);
+
+  for(unsigned int sm = 0; sm < module_ast_ptr -> module_instantiations -> items; sm ++)
+  {
+    ast_module_instantiation * submod = (ast_module_instantiation * )
+                    ast_list_get_not_null(module_ast_ptr -> module_instantiations, sm);
+    // goes into the instantiation and iterate over the instance name
+    for (unsigned int smi = 0; smi < submod->module_instances->items; smi ++) {
+      ast_module_instance * submod_inst = (ast_module_instance * )
+        ast_list_get_not_null( submod->module_instances, smi );
+      std::string submod_name_inst(ast_identifier_tostring(submod_inst->instance_identifier));
+      if (submod_name_inst == last_level_name) 
+        return Meta2Loc( submod_inst->instance_identifier->meta );
+    } // for each instance in the instantiation
+  } // for each module instantiation
+
+  ILA_ASSERT(false)<< "Implementation bug:" <<inst_name<<" not found in the instantiation.";
+  return vlg_loc_t(); // this instance name does not exists
+}
+
+
+
 VerilogAnalyzer::vlg_loc_t VerilogAnalyzer::name2loc(const std::string & net_name) const {
   if(_bad_state_return()) return vlg_loc_t();
   auto   tp_ = check_hierarchical_name_type(net_name);
   void * ptr_= find_declaration_of_name(net_name);
   ILA_NOT_NULL(ptr_);
 
-  if( is_module(tp_) )       return Meta2Loc( ((ast_module_declaration *)ptr_)->meta );
+  if( is_module(tp_) )       return Meta2Loc( ((ast_module_declaration *)ptr_)->identifier->meta ); 
+  // here we should use identifier's location                                    ^^^^
   if( no_internal_def(tp_) ) return Meta2Loc( ((ast_port_declaration *)  ptr_)->meta );
   if( is_reg(tp_) )          return Meta2Loc( ((ast_reg_declaration *)   ptr_)->meta );
   if( is_wire(tp_) )         return Meta2Loc( ((ast_net_declaration *)   ptr_)->meta );

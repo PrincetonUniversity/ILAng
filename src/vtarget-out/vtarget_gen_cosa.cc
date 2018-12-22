@@ -149,7 +149,7 @@ void VlgSglTgtGen_Cosa::Export_problem(const std::string& extra_name) {
     fout << "[" << prob_name << "]" << std::endl;
     fout << "description:\"" << prbname << "\"" << std::endl;
     fout << "formula:" << asst << std::endl;
-    if (assmpt != "")
+    if (assmpt != "()")
       fout << "assumptions:" << assmpt << std::endl;
     fout << "prove: True" << std::endl;
     fout << "verification: safety" << std::endl;

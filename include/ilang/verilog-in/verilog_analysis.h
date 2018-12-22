@@ -158,6 +158,8 @@ public:
   void* find_declaration_of_name(const std::string& net_name) const;
   /// Return the location of a hierarchical name
   vlg_loc_t name2loc(const std::string& net_name) const;
+  /// Return the location of a module instantiation
+  vlg_loc_t get_module_inst_loc(const std::string& inst_name) const;
   /// Return top module name
   std::string get_top_module_name() const { return top_module_name; }
   /// Return top module signal
