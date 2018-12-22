@@ -7,24 +7,23 @@
 #ifndef VAR_EXTRACT_H__
 #define VAR_EXTRACT_H__
 
+#include <functional>
 #include <string>
 #include <vector>
-#include <functional>
-
 
 namespace ilang {
 
-class VarExtractor{
-  
+class VarExtractor {
+
 public:
   /// Type of tokens
   typedef enum { KEEP = 0, ILA_S, ILA_IN, VLG_S, UNKN_S, NUM } token_type;
   /// Tokens
   typedef std::pair<token_type, std::string> token;
   /// Type of function pointer of string judger
-  typedef std::function<bool(const std::string &)> str_j;
+  typedef std::function<bool(const std::string&)> str_j;
   /// Type of function pointer of string replacer
-  typedef std::function<std::string(const token &)> str_r;
+  typedef std::function<std::string(const token&)> str_r;
 
 protected:
   /// token from parsed string
@@ -38,25 +37,32 @@ protected:
 
 public:
   // ---------------------- CONSTRUCTOR ----------------- //
-  VarExtractor( str_j is_ila_state, str_j is_ila_input, str_j is_vlg_sig  );
+  VarExtractor(str_j is_ila_state, str_j is_ila_input, str_j is_vlg_sig);
   // ---------------------- METHODS ----------------- //
-  /// Parse a string and populate the token vector, will clear the _tokens storage
-  void ParseToExtract(const std::string & in, bool force_vlg_statename = false); // the later is only used in dealing w. invariants
+  /// Parse a string and populate the token vector, will clear the _tokens
+  /// storage
+  void
+  ParseToExtract(const std::string& in,
+                 bool force_vlg_statename =
+                     false); // the later is only used in dealing w. invariants
   /// Traverse the tokens, see if replace is needed
-  void ForEachTokenReplace( str_r replacer ) ; // you can return the same so it will not be replaced
+  void ForEachTokenReplace(
+      str_r replacer); // you can return the same so it will not be replaced
   /// Get back string
-  std::string GenString () const;
+  std::string GenString() const;
   /// A shortcut to do all at once
-  std::string Replace(const std::string & in, bool force_vlg_statename, str_r replacer) { 
+  std::string Replace(const std::string& in, bool force_vlg_statename,
+                      str_r replacer) {
     ParseToExtract(in, force_vlg_statename);
     ForEachTokenReplace(replacer);
-    return GenString(); }
- // ---------------------- HELPERS ----------------- //
-  static bool contains_mod_inst_name(const std::string & s, const std::string & mi);
+    return GenString();
+  }
+  // ---------------------- HELPERS ----------------- //
+  static bool contains_mod_inst_name(const std::string& s,
+                                     const std::string& mi);
 
 }; // class VarExtractor
 
 }; // namespace ilang
-
 
 #endif // VAR_EXTRACT_H__

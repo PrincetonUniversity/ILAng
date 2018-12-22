@@ -9,49 +9,33 @@
 namespace ilang {
 
 VerilogVerificationTargetGenerator::VerilogVerificationTargetGenerator(
-	const std::vector<std::string> & implementation_include_path,
-	const std::vector<std::string> & implementation_srcs,
-	const std::string              & implementation_top_module,
-	const std::string              & refinement_variable_mapping,
-	const std::string              & refinement_conditions,
-	const std::string              & output_path,
-	const InstrLvlAbsPtr           & ila_ptr,
-	backend_selector                 backend,
-	const VerilogGenerator::VlgGenConfig& config
-	): 
-    _generator(new VlgVerifTgtGen(
-          implementation_include_path,
-          implementation_srcs,
-          implementation_top_module,
-          refinement_variable_mapping,
-          refinement_conditions,
-          output_path,
-          ila_ptr,
-          backend,
-          config )) {
-}
+    const std::vector<std::string>& implementation_include_path,
+    const std::vector<std::string>& implementation_srcs,
+    const std::string& implementation_top_module,
+    const std::string& refinement_variable_mapping,
+    const std::string& refinement_conditions, const std::string& output_path,
+    const InstrLvlAbsPtr& ila_ptr, backend_selector backend,
+    const VerilogGenerator::VlgGenConfig& config)
+    : _generator(new VlgVerifTgtGen(
+          implementation_include_path, implementation_srcs,
+          implementation_top_module, refinement_variable_mapping,
+          refinement_conditions, output_path, ila_ptr, backend, config)) {}
 
-VerilogVerificationTargetGenerator::~VerilogVerificationTargetGenerator()
-{ 
+VerilogVerificationTargetGenerator::~VerilogVerificationTargetGenerator() {
   if (_generator)
-  	delete _generator; 
+    delete _generator;
 }
 
-
-void VerilogVerificationTargetGenerator::GenerateTargets(void)
-{ 
-  VlgVerifTgtGen * ptr_ = dynamic_cast<VlgVerifTgtGen *>(_generator);
+void VerilogVerificationTargetGenerator::GenerateTargets(void) {
+  VlgVerifTgtGen* ptr_ = dynamic_cast<VlgVerifTgtGen*>(_generator);
   ILA_NOT_NULL(ptr_);
-	ptr_->GenerateTargets();
+  ptr_->GenerateTargets();
 }
 
-bool VerilogVerificationTargetGenerator::in_bad_state(void) const
-{ 
-  VlgVerifTgtGen * ptr_ = dynamic_cast<VlgVerifTgtGen *>(_generator);
+bool VerilogVerificationTargetGenerator::in_bad_state(void) const {
+  VlgVerifTgtGen* ptr_ = dynamic_cast<VlgVerifTgtGen*>(_generator);
   ILA_NOT_NULL(ptr_);
-	return ptr_->in_bad_state();
+  return ptr_->in_bad_state();
 }
-
-
 
 }; // namespace ilang

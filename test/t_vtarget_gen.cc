@@ -46,7 +46,6 @@ TEST(TestVlgTargetGen, AesIlaInfo) {
 }
 
 #ifdef VERILOG_IN_ENABLE
-#ifdef JSON_INOUT_ENABLE
 
 TEST(TestVlgTargetGen, PipeExample) {
 	auto ila_model = SimplePipe::BuildModel();
@@ -73,7 +72,6 @@ TEST(TestVlgTargetGen, AesExample) {
 
 }
 
-#endif // JSON_INOUT_ENABLE
 #endif // VERILOG_IN_ENABLE
 
 }; // namespace ilang
