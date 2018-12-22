@@ -121,8 +121,8 @@ public:
   /// [in] the path to search for include
   /// [in] the source files
   /// [in] the instance name given to the topmodule
-  VerilogAnalyzer(const path_vec_t& include_path, const path_vec_t& srcs,
-                  const std::string& top_module_inst_name);
+VerilogAnalyzer(const path_vec_t & include_path, const path_vec_t & srcs, const std::string & top_module_inst_name , const std::string & optional_top_module);
+
   // --------------------- DESTRUCTOR ---------------------------- //
   /// Destructor: clear vlg parser things
   ~VerilogAnalyzer();
@@ -187,7 +187,9 @@ private:
   /// return the type of a name (used internally, not cached)
   hierarchical_name_type
   _check_hierarchical_name_type(const std::string& net_name) const;
-
+public:
+  /// whether this analyzer is in bad state
+  bool in_bad_state() const { return _bad_state; }
 private:
   /// Track if we are in a bad state. do nothing
   bool _bad_state;

@@ -16,8 +16,6 @@
 
 #include <ilang/config.h>
 
-#ifdef JSON_INOUT_ENABLE
-
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/verilog-in/verilog_analysis_wrapper.h>
 #include <ilang/verilog-out/verilog_gen.h>
@@ -386,6 +384,5 @@ protected:
 }; // namespace ilang
 
 
-#endif // JSON_INOUT_ENABLE
 
 #endif //VTARGET_GEN_IMPL_H__

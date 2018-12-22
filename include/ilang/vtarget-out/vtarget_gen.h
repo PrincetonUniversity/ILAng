@@ -7,8 +7,6 @@
 
 #include <ilang/config.h>
 
-#ifdef JSON_INOUT_ENABLE
-
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/verilog-out/verilog_gen.h>
 
@@ -73,7 +71,5 @@ private:
 }; // VerilogVerificationTargetGenerator
 
 }; // namespace ilang
-
-#endif // JSON_INOUT_ENABLE
 
 #endif // VTARGET_GEN_H__

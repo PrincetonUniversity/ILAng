@@ -9,7 +9,6 @@
 
 #include <ilang/config.h>
 
-#ifdef JSON_INOUT_ENABLE
 
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/vtarget-out/vtarget_gen_impl.h>
@@ -130,7 +129,5 @@ private:
 }; // class VlgVerifTgtGenCosa  
 
 }; // namespace ilang
-
-#endif // JSON_INOUT_ENABLE
 
 #endif // VTARGET_GEN_COSA_H__
