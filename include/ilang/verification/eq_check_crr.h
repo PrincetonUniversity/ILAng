@@ -5,9 +5,9 @@
 #define EQ_CHECK_CRR_H__
 
 #include "z3++.h"
-#include <ilang/verification/unroller.h>
 #include <ilang/ila/comp_ref_rel.h>
 #include <ilang/ila/instr_lvl_abs.h>
+#include <ilang/verification/unroller.h>
 
 /// \namespace ilang
 namespace ilang {

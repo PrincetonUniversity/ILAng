@@ -6,8 +6,8 @@
 
 /// \brief The class wrapper for constructing Mcm ILAs with behavior:
 /// No input variables (why you need them?)
-/// 
-/// state r0-r7 pc 
+///
+/// state r0-r7 pc
 /// decode is on pc
 /// this is just a simplify version
 
@@ -56,7 +56,7 @@ public:
   InstrLvlAbsPtr GetSys2Ila1();
   InstrLvlAbsPtr GetSys2Ila2();
   InstrLvlAbsPtr GetSys2Ila3();
-    };
-    } // namespace ilang
+};
+} // namespace ilang
 
 #endif // T_MCM_ILA_H__

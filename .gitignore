@@ -11,6 +11,9 @@
 *.gch
 *.pch
 
+# Git Merge Backup
+*.orig
+
 # Compiled Dynamic libraries
 *.so
 *.dylib
@@ -59,3 +62,5 @@ tags
 *.cubin
 *.fatbin
 
+# Test Outputs
+test/unit-data/vpipe/verify/*

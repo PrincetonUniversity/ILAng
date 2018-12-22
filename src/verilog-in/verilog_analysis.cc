@@ -43,7 +43,7 @@ bool VerilogAnalyzer::_bad_state_return() const{
 }
 
 VerilogAnalyzer::VerilogAnalyzer(const path_vec_t & include_path, const path_vec_t & srcs,
-    const std::string & top_module_inst_name  ):
+    const std::string & top_module_inst_name, const std::string & optional_top_module  ):
   vlg_include_path(include_path), vlg_src_files(srcs), top_inst_name(top_module_inst_name), _bad_state(false)
 {     
   instance_count ++;
@@ -58,7 +58,7 @@ VerilogAnalyzer::VerilogAnalyzer(const path_vec_t & include_path, const path_vec
   if(_bad_state_return()) return;
   create_module_submodule_map(yy_verilog_source_tree);
   if(_bad_state_return()) return;
-  find_top_module(yy_verilog_source_tree);
+  find_top_module(yy_verilog_source_tree, optional_top_module);
   if(_bad_state_return()) return;
 
 } // VerilogAnalyzer::VerilogAnalyzer
@@ -173,7 +173,7 @@ void VerilogAnalyzer::create_module_submodule_map(verilog_source_tree * source) 
 } // create_module_submodule_map
 
 // extract the top module name
-void VerilogAnalyzer::find_top_module(verilog_source_tree * source) {
+void VerilogAnalyzer::find_top_module(verilog_source_tree * source, const std::string & optional_top_module) {
   ILA_NOT_NULL(source);
   ILA_NOT_NULL(source->modules);
   for(auto && nm_pos :  name_module_map ) {
@@ -192,11 +192,11 @@ void VerilogAnalyzer::find_top_module(verilog_source_tree * source) {
     }
   }
 
-  std::vector<std::string> top_module_candidates;
+  std::set<std::string> top_module_candidates;
   for(auto && nm_pos :  name_module_map ) {
     auto name = nm_pos.first;
     if (module_to_whereuses_map.find(name) == module_to_whereuses_map.end() ) { // if not used
-      top_module_candidates.push_back( name );
+      top_module_candidates.insert( name );
     }
   }
   unsigned candidate_cnt = top_module_candidates.size() ;
@@ -204,14 +204,26 @@ void VerilogAnalyzer::find_top_module(verilog_source_tree * source) {
     ILA_ERROR << "VerilogAnalyzer thinks there is a loop in module instantiation.";
     _bad_state = true;
     return;
-  } else if (top_module_candidates.size() > 1) {
-    ILA_WARN << "VerilogAnalyzer finds multiple top module candidates. They are:" ;
-    for (auto && n : top_module_candidates) {
-      ILA_WARN << n; 
+  } else if(optional_top_module != "") {
+    if( ! IN(optional_top_module, name_module_map ) ) {
+      ILA_ERROR << "VerilogAnalyzer: the specified top module:"<< optional_top_module <<" is not found!";
+      _bad_state = true;
+      return;
     }
-    ILA_WARN << "The first one will be used.";
+    ILA_WARN_IF( !IN(optional_top_module, top_module_candidates) ) << "VerilogAnalyzer: the specified top module:"<< optional_top_module <<" has instantiations. Please consider cleaning the source tree!";
+    top_module_name = optional_top_module;
   }
-  top_module_name = top_module_candidates[0];
+  else {
+      if (top_module_candidates.size() > 1) {
+      ILA_WARN << "VerilogAnalyzer finds multiple top module candidates. They are:" ;
+      for (auto && n : top_module_candidates) {
+        ILA_WARN << n; 
+      }
+      ILA_WARN << "The first one will be used.";
+    }
+    top_module_name = *(top_module_candidates.begin());
+  }
+
 } // find_top_module
 
 VerilogAnalyzer::hierarchical_name_type VerilogAnalyzer::check_hierarchical_name_type(const std::string & net_name) const
@@ -421,6 +433,45 @@ VerilogAnalyzer::vlg_loc_t VerilogAnalyzer::name2loc(const std::string & net_nam
 
 
 
+  /// Find a signal 
+SignalInfoBase VerilogAnalyzer::get_signal(const std::string & net_name) const
+{
+  SignalInfoBase bad_signal("","",0,hierarchical_name_type::NONE, vlg_loc_t());
+
+  if(_bad_state_return()) return bad_signal;
+
+  void * ast_ptr = find_declaration_of_name(net_name);
+  auto tp_ = check_hierarchical_name_type(net_name);
+
+  if(ast_ptr == NULL) return bad_signal;
+  
+  switch(tp_) {
+    case I_WIRE_wo_INTERNAL_DEF: 
+    case O_WIRE_wo_INTERNAL_DEF:
+    case IO_WIRE_wo_INTERNAL_DEF:  
+      return SignalInfoPort( (ast_port_declaration *) ast_ptr, net_name, tp_  );
+
+    case I_WIRE_w_INTERNAL_DEF:
+    case O_WIRE_w_INTERNAL_DEF:
+    case IO_WIRE_w_INTERNAL_DEF: 
+    case WIRE:
+      return SignalInfoWire( (ast_net_declaration *) ast_ptr, net_name, tp_  );
+
+    case O_REG_wo_INTERNAL_DEF: 
+      return SignalInfoPort( (ast_port_declaration *) ast_ptr, net_name, tp_  );
+    case O_REG_w_INTERNAL_DEF: 
+    case REG:
+      return SignalInfoReg( (ast_reg_declaration *) ast_ptr, net_name, tp_  );
+    case MODULE:
+      ILA_ERROR <<"Module instance:"<<net_name <<" is not a signal.";
+    default:
+      ILA_ERROR <<"Does not know how to handle:"<<net_name <<", which is not a signal.";
+      return bad_signal;
+  }
+  // should not be reachable
+  return bad_signal;
+}
+
 
   /// Return top module signal
 VerilogAnalyzer::module_io_vec_t VerilogAnalyzer::get_top_module_io() const {
@@ -520,7 +571,9 @@ unsigned range_to_width(ast_range * range) {
 SignalInfoPort::SignalInfoPort (ast_port_declaration *def, const std::string & full_name , VerilogAnalyzerBase::hierarchical_name_type tp ) :
 SignalInfoBase(Split(full_name, ".").back(), full_name, range_to_width (def->range), tp,  VerilogAnalyzer::Meta2Loc(def->meta) ),
 _def(def)
-{ ILA_WARN_IF( _width == 0 ) << "Verilog Analyzer is not able to determine the width of signal:"<<full_name<<" @ "<<_loc; }
+{ //ILA_WARN_IF( def->range == NULL ) << "Verilog Analyzer: signal "<< full_name <<" has no range.";
+  ILA_WARN_IF( _width == 0 ) << "Verilog Analyzer is not able to determine the width of signal:"<<full_name<<" @ "<<_loc; 
+  }
 
 SignalInfoReg::SignalInfoReg (ast_reg_declaration *def, const std::string & full_name, VerilogAnalyzerBase::hierarchical_name_type tp):
 SignalInfoBase(Split(full_name, ".").back(), full_name, range_to_width (def->range), tp,  VerilogAnalyzer::Meta2Loc(def->meta) ),

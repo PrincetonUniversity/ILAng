@@ -24,4 +24,3 @@ InstrLvlAbsPtr ImportPortableFromFile(const std::string& file);
 }; // namespace ilang
 
 #endif // ILANG_PORTABLE_INTERFACE_H__
-

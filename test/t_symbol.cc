@@ -1,8 +1,8 @@
 /// \file
 /// Unit test for class Symbol.
 
-#include <ilang/ila/symbol.h>
 #include "unit-include/util.h"
+#include <ilang/ila/symbol.h>
 
 namespace ilang {
 
@@ -43,7 +43,7 @@ TEST(TestSymbol, Accessors) {
   GET_STDERR_MSG(sym.to_int(), msg);
 #ifndef NDEBUG
   EXPECT_FALSE(msg.empty());
-#endif  // NDEBUG
+#endif // NDEBUG
 }
 
 TEST(TestSymbol, Copy) {
@@ -80,4 +80,4 @@ TEST(TestSymbol, Compare) {
   EXPECT_FALSE(post < pre);
 }
 
-}  // namespace ilang
+} // namespace ilang

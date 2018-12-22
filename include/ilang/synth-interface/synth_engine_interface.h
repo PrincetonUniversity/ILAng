@@ -31,4 +31,3 @@ InstrLvlAbsPtr ImportSynthAbsFromFileHier(const std::string& file_name,
 }; // namespace ilang
 
 #endif // SYNTH_ENGINE_INTERFACE_H__
-

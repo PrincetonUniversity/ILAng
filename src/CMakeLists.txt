@@ -17,6 +17,7 @@ add_subdirectory(portable)
 
 if(${ILANG_BUILD_VLOG})
   add_subdirectory(verilog-in)
+  add_subdirectory(vtarget-out)
 endif()
 
 if(${ILANG_BUILD_SYNTH})
