@@ -1,6 +1,6 @@
 
 #include "../unit-include/pipe_ila.h"
-#include <ilang/cpp_api.h>
+#include <ilang/ilang++.h>
 #include <ilang/util/log.h>
 
 

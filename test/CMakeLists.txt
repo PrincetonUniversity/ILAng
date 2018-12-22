@@ -69,7 +69,6 @@ package_add_test(${ILANG_TEST_MAIN}
   t_symbol.cc
   t_unroll_seq.cc
   t_verilog_analysis.cc
-  t_verilog.cc
   t_verilog_gen.cc
   t_z3adapter.cc
   t_z3sanity.cc
@@ -89,52 +88,6 @@ configure_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/unit-src/config.h.in
   ${CMAKE_CURRENT_SOURCE_DIR}/unit-include/config.h
   IMMEDIATE @ONLY
-)
-
-configure_file(
-  ${CMAKE_CURRENT_SOURCE_DIR}/unit-data/verilog_sample/t_ana_ila.v
-  ${CMAKE_CURRENT_BINARY_DIR}/unit-data/verilog_sample/t_ana_ila.v
-)
-
-configure_file(
-  ${CMAKE_CURRENT_SOURCE_DIR}/unit-data/verilog_sample/t_ana_inst.v
-  ${CMAKE_CURRENT_BINARY_DIR}/unit-data/verilog_sample/t_ana_inst.v
-)
-
-configure_file(
-  ${CMAKE_CURRENT_SOURCE_DIR}/unit-data/verilog_sample/t_ana_insta.v
-  ${CMAKE_CURRENT_BINARY_DIR}/unit-data/verilog_sample/t_ana_insta.v
-)
-
-configure_file(
-  ${CMAKE_CURRENT_SOURCE_DIR}/unit-data/verilog_sample/t_pipe.v
-  ${CMAKE_CURRENT_BINARY_DIR}/unit-data/verilog_sample/t_pipe.v
-)
-
-configure_file(
-  ${CMAKE_CURRENT_SOURCE_DIR}/unit-data/vpipe/simple_pipe.v
-  ${CMAKE_CURRENT_BINARY_DIR}/unit-data/vpipe/simple_pipe.v
-)
-
-configure_file(
-  ${CMAKE_CURRENT_SOURCE_DIR}/unit-data/vpipe/simple_pipe_wrong.v
-  ${CMAKE_CURRENT_BINARY_DIR}/unit-data/vpipe/simple_pipe_wrong.v
-)
-
-
-configure_file(
-  ${CMAKE_CURRENT_SOURCE_DIR}/unit-data/vpipe/rfmap/cond.json
-  ${CMAKE_CURRENT_BINARY_DIR}/unit-data/vpipe/rfmap/cond.json
-)
-
-configure_file(
-  ${CMAKE_CURRENT_SOURCE_DIR}/unit-data/vpipe/rfmap/vmap.json
-  ${CMAKE_CURRENT_BINARY_DIR}/unit-data/vpipe/rfmap/vmap.json
-)
-
-configure_file(
-  ${CMAKE_CURRENT_SOURCE_DIR}/unit-data/vpipe/verify/.placeholder
-  ${CMAKE_CURRENT_BINARY_DIR}/unit-data/vpipe/verify/.placeholder
 )
 
 

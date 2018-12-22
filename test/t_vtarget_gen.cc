@@ -4,7 +4,7 @@
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/synth-interface/synth_engine_interface.h>
 #include <ilang/vtarget-out/vtarget_gen.h>
-#include <ilang/cpp_api.h>
+#include <ilang/ilang++.h>
 
 #include "unit-include/config.h"
 #include "unit-include/util.h"
@@ -15,8 +15,8 @@ namespace ilang {
 
 TEST(TestVlgTargetGen, AesIlaInfo) {
 
-  auto aesFile = std::string(TEST_CONFIG_TEST_ROOT) + "/unit-data/aes_v/all";
-  auto aesuFile = std::string(TEST_CONFIG_TEST_ROOT) + "/unit-data/aes_v/allu";
+  auto aesFile = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/aes_v/all";
+  auto aesuFile = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/aes_v/allu";
   auto aes = ImportSynthAbsFromFile(aesFile, "AES");
   auto aesu = ImportSynthAbsFromFile(aesuFile, "AES_U");
 
@@ -51,7 +51,7 @@ TEST(TestVlgTargetGen, AesIlaInfo) {
 TEST(TestVlgTargetGen, PipeExample) {
 	auto ila_model = SimplePipe::BuildModel();
 
-	auto dirName = std::string(TEST_CONFIG_TEST_ROOT) + "/unit-data/vpipe/";
+	auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/vpipe/";
 	VerilogVerificationTargetGenerator vg(
 		{}, // no include
 		{dirName+"simple_pipe.v"}, // 

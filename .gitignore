@@ -11,6 +11,9 @@
 *.gch
 *.pch
 
+# Merge Backup
+*.orig
+
 # Compiled Dynamic libraries
 *.so
 *.dylib

@@ -31,12 +31,12 @@ TEST(TestVerilogAnalysis, Init) {
   }
   */
 
-  VerilogInfo va ( VerilogInfo::path_vec_t() , VerilogInfo::path_vec_t({std::string(TEST_CONFIG_TEST_ROOT) + "/unit-data/verilog_sample/t_ana_inst.v"}) , "m1");
+  VerilogInfo va ( VerilogInfo::path_vec_t() , VerilogInfo::path_vec_t({std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/verilog_sample/t_ana_inst.v"}) , "m1");
 }
 
 #ifdef TEST_BAD_STATE
 TEST(TestVerilogAnalysis, BadState) {
-  VerilogInfo va ( VerilogInfo::path_vec_t() , VerilogInfo::path_vec_t({std::string(TEST_CONFIG_TEST_ROOT) + "/unit-data/verilog_sample/t_ana-nonexisting.v"}) , "m1");
+  VerilogInfo va ( VerilogInfo::path_vec_t() , VerilogInfo::path_vec_t({std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/verilog_sample/t_ana-nonexisting.v"}) , "m1");
   // The above will make it into bad state
   // but it should not affect other things
 
@@ -63,7 +63,7 @@ TEST(TestVerilogAnalysis, AnalyzeName) {
   }
   */
 
-  VerilogInfo va ( VerilogInfo::path_vec_t() , VerilogInfo::path_vec_t({std::string(TEST_CONFIG_TEST_ROOT) + "/unit-data/verilog_sample/t_ana_insta.v"}) , "m1");
+  VerilogInfo va ( VerilogInfo::path_vec_t() , VerilogInfo::path_vec_t({std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/verilog_sample/t_ana_insta.v"}) , "m1");
 
   { // output wire
     auto tp_ = va.check_hierarchical_name_type("m1.__ILA_proc_valid__");
@@ -184,7 +184,7 @@ TEST(TestVerilogAnalysis, GetTopIo) {
   }
   */
 
-  VerilogInfo va ( VerilogInfo::path_vec_t() , VerilogInfo::path_vec_t({std::string(TEST_CONFIG_TEST_ROOT) + "/unit-data/verilog_sample/t_ana_ila.v"}) , "m1");
+  VerilogInfo va ( VerilogInfo::path_vec_t() , VerilogInfo::path_vec_t({std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/verilog_sample/t_ana_ila.v"}) , "m1");
   ILA_DLOG("TestVerilogAnalysis.GetTopIo") << "Top module name:" << va.get_top_module_name();
   VerilogInfo::module_io_vec_t top_io = va.get_top_module_io();
 
@@ -259,7 +259,7 @@ TEST(TestVerilogAnalysis, GetTopIoNewFashion) {
   }
   */
 
-  VerilogInfo va ( VerilogInfo::path_vec_t() , VerilogInfo::path_vec_t({std::string(TEST_CONFIG_TEST_ROOT) + "/unit-data/verilog_sample/t_pipe.v"}) , "m1");
+  VerilogInfo va ( VerilogInfo::path_vec_t() , VerilogInfo::path_vec_t({std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/verilog_sample/t_pipe.v"}) , "m1");
   ILA_DLOG("TestVerilogAnalysis.GetTopIoNewFashion") << "Top module name:" << va.get_top_module_name();
   VerilogInfo::module_io_vec_t top_io = va.get_top_module_io();
 
