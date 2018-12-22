@@ -1,9 +1,9 @@
 /// \file
 /// Unit test for the class ExprFuse
 
+#include "unit-include/util.h"
 #include <ilang/ila/expr_fuse.h>
 #include <iostream>
-#include "unit-include/util.h"
 
 namespace ilang {
 
@@ -321,4 +321,4 @@ TEST(TestExprFuse, TopEq) {
   EXPECT_FALSE(TopEq(c, g));
 }
 
-}  // namespace ilang
+} // namespace ilang

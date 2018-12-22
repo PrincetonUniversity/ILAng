@@ -1,10 +1,10 @@
 /// file
 /// Unit test for ExprConst
 
-#include <ilang/ila/ast/expr_const.h>
-#include <ilang/ila/ast/sort_value.h>
 #include "unit-include/util.h"
 #include "z3++.h"
+#include <ilang/ila/ast/expr_const.h>
+#include <ilang/ila/ast/sort_value.h>
 
 namespace ilang {
 
@@ -160,4 +160,4 @@ TEST(TestExprConst, MemVal) {
   EXPECT_EQ(ref_str, msg);
 }
 
-}  // namespace ilang
+} // namespace ilang

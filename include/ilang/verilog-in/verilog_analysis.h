@@ -121,7 +121,9 @@ public:
   /// [in] the source files
   /// [in] the instance name given to the topmodule
   VerilogAnalyzer(const path_vec_t& include_path, const path_vec_t& srcs,
-                  const std::string& top_module_inst_name);
+                  const std::string& top_module_inst_name,
+                  const std::string& optional_top_module);
+
   // --------------------- DESTRUCTOR ---------------------------- //
   /// Destructor: clear vlg parser things
   ~VerilogAnalyzer();
@@ -131,7 +133,8 @@ protected:
   /// invoke the parser to parse the files
   void invoke_parser();
   /// extract the top module name
-  void find_top_module(verilog_source_tree* source);
+  void find_top_module(verilog_source_tree* source,
+                       const std::string& optional_top_module);
   /// check the result of module resolution and update the name_module_map;
   void check_resolve_modules(verilog_source_tree* source);
   /// Update the modules_to_submodules_map
@@ -159,6 +162,8 @@ public:
   std::string get_top_module_name() const { return top_module_name; }
   /// Return top module signal
   module_io_vec_t get_top_module_io() const;
+  /// Find a signal
+  SignalInfoBase get_signal(const std::string& net_name) const;
 
   // --------------------- HELPERS ---------------------------- //
   /// Print Meta info (Usage PrintMeta(os, ?? ) << ?? ;  )
@@ -184,6 +189,10 @@ private:
   /// return the type of a name (used internally, not cached)
   hierarchical_name_type
   _check_hierarchical_name_type(const std::string& net_name) const;
+
+public:
+  /// whether this analyzer is in bad state
+  bool in_bad_state() const { return _bad_state; }
 
 private:
   /// Track if we are in a bad state. do nothing

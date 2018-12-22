@@ -1,18 +1,18 @@
 /// \file
 /// Unit test for unrolling a sequence of instruction.
 
-#include <ilang/verification/unroller.h>
-#include <iostream>
 #include "unit-include/eq_ilas.h"
 #include "unit-include/simple_cpu.h"
 #include "unit-include/util.h"
+#include <ilang/verification/unroller.h>
+#include <iostream>
 
 namespace ilang {
 
 using namespace ExprFuse;
 
 class TestUnroll : public ::testing::Test {
- public:
+public:
   TestUnroll() {}
   ~TestUnroll() {}
   void SetUp() {
@@ -34,7 +34,7 @@ class TestUnroll : public ::testing::Test {
   z3::context ctx_;
   ExprPtr init_mem = NULL;
 
-};  // class TestUnroll
+}; // class TestUnroll
 
 TEST_F(TestUnroll, InsteSeqFlatSubs) {
   auto m = ila_gen_.GetIlaFlat1();
@@ -93,7 +93,7 @@ TEST_F(TestUnroll, InstrSeqSolve) {
   for (size_t i = 0; i != m0->init_num(); i++) {
     unroller->AddInitPred(m0->init(i));
   }
-  {  // BMC init
+  { // BMC init
     auto ir = m0->state("ir");
     unroller->AddInitPred(Eq(ir, init_mem));
   }
@@ -105,7 +105,7 @@ TEST_F(TestUnroll, InstrSeqSolve) {
   for (size_t i = 0; i != m1->init_num(); i++) {
     unroller->AddInitPred(m1->init(i));
   }
-  {  // BMC init
+  { // BMC init
     auto ir = m1->state("ir");
     unroller->AddInitPred(Eq(ir, init_mem));
   }
@@ -186,7 +186,7 @@ TEST_F(TestUnroll, MonoSolve) {
   for (size_t i = 0; i != m0->init_num(); i++) {
     unroller->AddInitPred(m0->init(i));
   }
-  {  // BMC init
+  { // BMC init
     auto ir = m0->state("ir");
     unroller->AddInitPred(Eq(ir, init_mem));
   }
@@ -198,7 +198,7 @@ TEST_F(TestUnroll, MonoSolve) {
   for (size_t i = 0; i != m1->init_num(); i++) {
     unroller->AddInitPred(m1->init(i));
   }
-  {  // BMC init
+  { // BMC init
     auto ir = m1->state("ir");
     unroller->AddInitPred(Eq(ir, init_mem));
   }
@@ -265,7 +265,7 @@ TEST_F(TestUnroll, PathMonoSolve) {
   for (size_t i = 0; i != m0->init_num(); i++) {
     path->AddInitPred(m0->init(i));
   }
-  {  // BMC init
+  { // BMC init
     auto ir = m0->state("ir");
     path->AddInitPred(Eq(ir, init_mem));
   }
@@ -276,7 +276,7 @@ TEST_F(TestUnroll, PathMonoSolve) {
   for (size_t i = 0; i != m1->init_num(); i++) {
     mono->AddInitPred(m1->init(i));
   }
-  {  // BMC init
+  { // BMC init
     auto ir = m1->state("ir");
     mono->AddInitPred(Eq(ir, init_mem));
   }
@@ -331,4 +331,4 @@ TEST_F(TestUnroll, PathMonoSolve) {
   }
 }
 
-}  // namespace ilang
+} // namespace ilang

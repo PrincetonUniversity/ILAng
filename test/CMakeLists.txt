@@ -42,6 +42,7 @@ package_add_test(${ILANG_TEST_MAIN}
   unit-src/simple_cpu.cc
   unit-src/stream_buffer.cc
   unit-src/mcm_ilas.cc
+  unit-src/pipe_ila.cc
   t_api.cc
   t_case_aes_eq.cc
   t_crr.cc
@@ -71,6 +72,7 @@ package_add_test(${ILANG_TEST_MAIN}
   t_verilog_gen.cc
   t_z3adapter.cc
   t_z3sanity.cc
+  t_vtarget_gen.cc
 )
 
 if(${ILANG_BUILD_SYNTH})
@@ -87,6 +89,7 @@ configure_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/unit-include/config.h
   IMMEDIATE @ONLY
 )
+
 
 target_link_libraries(${ILANG_TEST_MAIN} ${ILANG_LIB_NAME})
 

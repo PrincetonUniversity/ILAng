@@ -17,6 +17,6 @@ int GenLoad(const int& dst, const int& addr);
 int GenAdd(const int& dst, const int& in1, const int& in2);
 int GenStore(const int& src, const int& addr);
 
-};  // namespace ilang
+}; // namespace ilang
 
-#endif  // SIMPLE_CPU_H__
+#endif // SIMPLE_CPU_H__

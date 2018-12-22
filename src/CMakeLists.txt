@@ -13,6 +13,7 @@ add_subdirectory(ila)
 add_subdirectory(verification)
 add_subdirectory(verilog-in)
 add_subdirectory(verilog-out)
+add_subdirectory(vtarget-out)
 add_subdirectory(mcm)
 add_subdirectory(portable)
 

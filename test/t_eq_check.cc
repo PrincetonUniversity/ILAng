@@ -1,20 +1,20 @@
 /// \file
 /// Unit test for commutating diagram-based equivalence checking
 
-#include <ilang/verification/abs_knob.h>
-#include <ilang/verification/eq_check_crr.h>
-#include <ilang/verification/unroller.h>
 #include "unit-include/eq_ilas.h"
 #include "unit-include/stream_buffer.h"
 #include "unit-include/util.h"
 #include "z3++.h"
+#include <ilang/verification/abs_knob.h>
+#include <ilang/verification/eq_check_crr.h>
+#include <ilang/verification/unroller.h>
 
 namespace ilang {
 
 using namespace ExprFuse;
 
 class TestEqCheck : public ::testing::Test {
- public:
+public:
   TestEqCheck() {}
   ~TestEqCheck() {}
   void SetUp() {
@@ -144,9 +144,9 @@ RefPtr TestEqCheck::GetRefine(const InstrLvlAbsPtr top, const int& instr_idx,
                               bool comp, bool flat) {
   auto ref = RefinementMap::New();
   // target
-  if (comp) {  // compositional
+  if (comp) { // compositional
     ref->set_tgt(top->instr(instr_idx));
-  } else {  // monolithic
+  } else { // monolithic
     ref->set_tgt(top);
   }
   // apply
@@ -214,4 +214,4 @@ void TestEqCheck::CustH1(const RefPtr ref) {
   ref->set_step_appl(70);
 }
 
-}  // namespace ilang
+} // namespace ilang
