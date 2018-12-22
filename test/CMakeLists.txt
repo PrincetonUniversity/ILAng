@@ -44,6 +44,7 @@ package_add_test(${ILANG_TEST_MAIN}
   unit-src/mcm_ilas.cc
   unit-src/pipe_ila.cc
   t_api.cc
+  t_case_aes_eq.cc
   t_crr.cc
   t_eq_check.cc
   t_expr.cc
@@ -56,7 +57,6 @@ package_add_test(${ILANG_TEST_MAIN}
   t_ila.cc
   t_instr.cc
   t_instr_seq.cc
-  t_jsonio.cc
   t_keyvec.cc
   t_legacy_bmc.cc
   t_log.cc
@@ -64,6 +64,7 @@ package_add_test(${ILANG_TEST_MAIN}
   t_mapset.cc
   t_mcm.cc
   t_op_sanity.cc
+  t_portable.cc
   t_sort.cc
   t_symbol.cc
   t_unroll_seq.cc
@@ -75,7 +76,14 @@ package_add_test(${ILANG_TEST_MAIN}
   t_vtarget_gen.cc
 )
 
-set(TEST_CONFIG_TEST_ROOT ${CMAKE_CURRENT_BINARY_DIR})
+if(${ILANG_BUILD_SYNTH})
+  target_sources(${ILANG_TEST_MAIN} PRIVATE
+    t_synth_import.cc
+  )
+endif()
+
+set(ILANG_TEST_SRC_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
+set(ILANG_TEST_BIN_ROOT ${CMAKE_CURRENT_BINARY_DIR})
 
 configure_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/unit-src/config.h.in
@@ -83,74 +91,52 @@ configure_file(
   IMMEDIATE @ONLY
 )
 
-if(${ILANG_BUILD_SYNTH})
+configure_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/unit-data/verilog_sample/t_ana_ila.v
+  ${CMAKE_CURRENT_BINARY_DIR}/unit-data/verilog_sample/t_ana_ila.v
+)
 
-  target_sources(${ILANG_TEST_MAIN} PRIVATE
-    t_synth_import.cc
-  )
+configure_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/unit-data/verilog_sample/t_ana_inst.v
+  ${CMAKE_CURRENT_BINARY_DIR}/unit-data/verilog_sample/t_ana_inst.v
+)
 
-  configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/unit-data/aes_v/all
-    ${CMAKE_CURRENT_BINARY_DIR}/unit-data/aes_v/all
-  )
+configure_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/unit-data/verilog_sample/t_ana_insta.v
+  ${CMAKE_CURRENT_BINARY_DIR}/unit-data/verilog_sample/t_ana_insta.v
+)
 
-  configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/unit-data/aes_v/allu
-    ${CMAKE_CURRENT_BINARY_DIR}/unit-data/aes_v/allu
-  )
+configure_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/unit-data/verilog_sample/t_pipe.v
+  ${CMAKE_CURRENT_BINARY_DIR}/unit-data/verilog_sample/t_pipe.v
+)
 
-endif()
+configure_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/unit-data/vpipe/simple_pipe.v
+  ${CMAKE_CURRENT_BINARY_DIR}/unit-data/vpipe/simple_pipe.v
+)
 
-
-if(${ILANG_BUILD_VLOG})
-
-  configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/unit-data/verilog_sample/t_ana_ila.v
-    ${CMAKE_CURRENT_BINARY_DIR}/unit-data/verilog_sample/t_ana_ila.v
-  )
-
-  configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/unit-data/verilog_sample/t_ana_inst.v
-    ${CMAKE_CURRENT_BINARY_DIR}/unit-data/verilog_sample/t_ana_inst.v
-  )
-
-  configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/unit-data/verilog_sample/t_ana_insta.v
-    ${CMAKE_CURRENT_BINARY_DIR}/unit-data/verilog_sample/t_ana_insta.v
-  )
-
-  configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/unit-data/verilog_sample/t_pipe.v
-    ${CMAKE_CURRENT_BINARY_DIR}/unit-data/verilog_sample/t_pipe.v
-  )
-
-  configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/unit-data/vpipe/simple_pipe.v
-    ${CMAKE_CURRENT_BINARY_DIR}/unit-data/vpipe/simple_pipe.v
-  )
-
-  configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/unit-data/vpipe/simple_pipe_wrong.v
-    ${CMAKE_CURRENT_BINARY_DIR}/unit-data/vpipe/simple_pipe_wrong.v
-  )
+configure_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/unit-data/vpipe/simple_pipe_wrong.v
+  ${CMAKE_CURRENT_BINARY_DIR}/unit-data/vpipe/simple_pipe_wrong.v
+)
 
 
-  configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/unit-data/vpipe/rfmap/cond.json
-    ${CMAKE_CURRENT_BINARY_DIR}/unit-data/vpipe/rfmap/cond.json
-  )
+configure_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/unit-data/vpipe/rfmap/cond.json
+  ${CMAKE_CURRENT_BINARY_DIR}/unit-data/vpipe/rfmap/cond.json
+)
 
-  configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/unit-data/vpipe/rfmap/vmap.json
-    ${CMAKE_CURRENT_BINARY_DIR}/unit-data/vpipe/rfmap/vmap.json
-  )
+configure_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/unit-data/vpipe/rfmap/vmap.json
+  ${CMAKE_CURRENT_BINARY_DIR}/unit-data/vpipe/rfmap/vmap.json
+)
 
-  configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/unit-data/vpipe/verify/.placeholder
-    ${CMAKE_CURRENT_BINARY_DIR}/unit-data/vpipe/verify/.placeholder
-  )
+configure_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/unit-data/vpipe/verify/.placeholder
+  ${CMAKE_CURRENT_BINARY_DIR}/unit-data/vpipe/verify/.placeholder
+)
 
-endif()
 
 target_link_libraries(${ILANG_TEST_MAIN} ${ILANG_LIB_NAME})
 

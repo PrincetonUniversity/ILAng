@@ -4,8 +4,6 @@
 #ifndef WRAP_LOG_H__
 #define WRAP_LOG_H__
 
-#include <ilang/util/log.h>
-
 namespace ilang {
 namespace pyapi {
 

@@ -1,6 +1,7 @@
 /// \file
 /// Source for bounded model checking
 
+#include <ilang/util/log.h>
 #include <ilang/verification/legacy_bmc.h>
 
 namespace ilang {

@@ -1,8 +1,9 @@
 /// \file
 /// Source for the refinement relation
 
-#include <ilang/verification/abs_knob.h>
 #include <ilang/ila/comp_ref_rel.h>
+#include <ilang/util/log.h>
+#include <ilang/verification/abs_knob.h>
 
 namespace ilang {
 

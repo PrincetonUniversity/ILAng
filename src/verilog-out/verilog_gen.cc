@@ -3,6 +3,7 @@
 #include <cctype>
 #include <cmath>
 #include <ilang/ila/expr_fuse.h>
+#include <ilang/util/log.h>
 #include <ilang/verilog-out/verilog_gen.h>
 #include <iomanip>
 #include <string>
@@ -60,7 +61,7 @@ static std::string get_symbol_new() {
 }
 
 VerilogGeneratorBase::vlg_name_t
-  VerilogGeneratorBase::sanitizeName(const vlg_name_t& n) {
+VerilogGeneratorBase::sanitizeName(const vlg_name_t& n) {
 
   std::string outStr;
   for (unsigned idx = 0; idx < n.length(); ++idx) {

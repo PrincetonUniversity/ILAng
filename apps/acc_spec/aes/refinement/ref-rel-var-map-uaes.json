@@ -1,0 +1,59 @@
+{
+  "models": { "ILA":"m0" , "VERILOG": "m1" },
+  "instruction mapping": [],
+  "state mapping": { 
+    "state"          : "aes_reg_state",
+    "opaddr"         : "aes_reg_oplen_i.reg_out",
+    "oplen"          : "aes_reg_oplen_i.reg_out",
+    "ctr"            : "aes_reg_ctr_i.reg_out",
+    "key"            : "aes_reg_key0_i.reg_out",
+    "xram"           : "**MEM**",
+    "outdata"        : "data_out",
+
+    "rd_data"        : "mem_data_buf",
+    "enc_data"       : "encrypted_data_buf",
+    "byte_cnt"       : "byte_counter",
+    "blk_cnt"        : "block_counter"
+  },
+
+  "interface mapping": {
+     "rst"           :           "**RESET**", 
+     "clk"           :           "**CLOCK**",
+
+     "addr"          : "cmdaddr",
+     "data_in"       : "cmddata",
+
+     "xram_data_out" : "**MEM**xram.wdata",
+     "xram_data_in"  : "**MEM**xram.rdata",
+     "wr"            :                           "**KEEP**",
+     "ack"           :                           "**KEEP**",
+     "stb"           :                           "**KEEP**",
+     "xram_ack"      :                           "**KEEP**",
+     "xram_addr"     :                           "**KEEP**",
+     "xram_wr"       :                           "**KEEP**",
+     "xram_stb"      :                           "**KEEP**",
+     "data_out"      :           "**SO**",
+     "aes_state"     :           "**SO**",
+     "aes_addr"      :           "**SO**",
+     "aes_len"       :           "**SO**",
+     "aes_ctr"       :           "**SO**",
+     "aes_key0"      :           "**SO**",
+     "aes_step:"     :           "**SO**"
+  },
+
+  "mapping control" : [ "m1.xram_wr & m1.xram_stb == MEM_xram.wen" , 
+                        "~ ( m0.cmd == 1 ) || ( m1.wr == 1)" , 
+                        "~ ( m0.cmd == 2 ) || ( m1.wr == 0)",
+                        " m1.xram_addr ==  MEM_xram.raddr ",
+                        " m1.xram_addr ==  MEM_xram.waddr ",
+                        " aes_reg_state == 2 |-> func_aes128_result_reg == aes_out ", // add func here
+                        " aes_reg_state == 2 |-> xram_ack == 0"
+                      ],
+
+  "monitors" : {
+    "xram_ack_monitor": {
+      "$wait"    : {"init-on" : true,  "on": "", "off" : "$wait && xram_ack"},
+      "$delay_1" : {"init-on" : false, "on": "$wait && xram_ack", "off" : "$delay_1"}
+    }
+  }
+}

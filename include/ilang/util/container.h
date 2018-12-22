@@ -4,9 +4,9 @@
 #ifndef CONTAINER_H__
 #define CONTAINER_H__
 
-#include <ilang/util/log.h>
 #include <map>
 #include <memory>
+#include <set>
 #include <vector>
 
 /// \namespace ilang
@@ -62,20 +62,17 @@ public:
 
   // ------------------------- METHODS -------------------------------------- //
   /// Push back a data member. The name MUST NOT be registerd before.
-  void push_back(const Key& key, const T& data) {
-    auto pos = map_.find(key);
-    ILA_ASSERT(pos == map_.end()) << key << " already exists.\n";
-
+  bool push_back(const Key& key, const T& data) {
     auto idx = vec_.size();
-    vec_.push_back(data);
-    map_[key] = idx;
+    auto res = map_.emplace(key, idx);
+    if (res.second) {
+      vec_.push_back(data);
+    }
+    return res.second;
   }
 
   /// Get the data by index.
-  T operator[](const size_t& idx) const {
-    ILA_ASSERT(idx < vec_.size()) << "Access overflow.\n";
-    return vec_.at(idx);
-  }
+  T operator[](const size_t& idx) const { return vec_.at(idx); }
 
   /// Return the number of data stored.
   size_t size() const { return vec_.size(); }
@@ -142,11 +139,7 @@ public:
   void insert(const Key& k, const T& t) { map_[k].insert(t); }
 
   /// Return the set of T for the given key.
-  SetT get(const Key& k) const {
-    auto pos = map_.find(k);
-    ILA_ASSERT(pos != map_.end()) << "Key " << k << " not found.";
-    return pos->second;
-  }
+  SetT get(const Key& k) const { return map_.at(k); }
 
   /// Return the iterator at the starting point
   typename std::map<Key, std::set<T>>::iterator begin() { return map_.begin(); }

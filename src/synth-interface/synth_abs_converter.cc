@@ -323,7 +323,7 @@ void SynthAbsConverter::DecomposeExpr(const ExprPtr& src) {
   auto Compare = [this](const ExprPtr n) {
     // syntactically decompose at ITE nodes
     const ExprOpIte* expr_ite = NULL;
-    if (expr_ite = dynamic_cast<const ExprOpIte*>(n.get())) {
+    if ((expr_ite = dynamic_cast<const ExprOpIte*>(n.get()))) {
       // check if the condition argument is one of the entries
       auto condition = n->arg(0);
       for (auto entry : decom_entry_) {
@@ -663,9 +663,24 @@ void SynthAbsConverter::CnvtNodeToExprBvOp(const ilasynth::Node* n) {
   case ilasynth::BitvectorOp::Op::READMEM:
     expr = ExprFuse::Load(expr_args.at(0), expr_args.at(1));
     break;
-  case ilasynth::BitvectorOp::Op::READMEMBLOCK:
-    ILA_ERROR << "READMEMBLOCK not implemented.";
+  case ilasynth::BitvectorOp::Op::READMEMBLOCK: {
+    auto chunks = op_ptr->param(0);
+    auto endian = op_ptr->param(1);
+    for (auto i = 0; i < chunks; i++) {
+      auto addr_i = ExprFuse::Add(expr_args.at(1), i);
+      auto data_i = ExprFuse::Load(expr_args.at(0), addr_i);
+      if (i == 0) {
+        expr = data_i;
+      } else {
+        if (endian == ilasynth::endianness_t::LITTLE_E) {
+          expr = ExprFuse::Concat(data_i, expr);
+        } else {
+          expr = ExprFuse::Concat(expr, data_i);
+        }
+      }
+    }
     break;
+  }
   case ilasynth::BitvectorOp::Op::IF:
     expr = ExprFuse::Ite(expr_args.at(0), expr_args.at(1), expr_args.at(2));
     break;
@@ -712,12 +727,36 @@ void SynthAbsConverter::CnvtNodeToExprMemOp(const ilasynth::Node* n) {
   case ilasynth::MemOp::Op::STORE:
     expr = ExprFuse::Store(expr_args.at(0), expr_args.at(1), expr_args.at(2));
     break;
-  case ilasynth::MemOp::Op::STOREBLOCK:
-    ILA_ERROR << "STOREBLOCK not implemented.";
+
+  case ilasynth::MemOp::Op::STOREBLOCK: {
+    auto total_size = op_ptr->arg(2)->type.bitWidth;
+    auto chunk_size = op_ptr->arg(0)->type.dataWidth;
+    auto chunk_num = total_size / chunk_size;
+
+    auto bit_idx = (op_ptr->endian == ilasynth::endianness_t::LITTLE_E)
+                       ? 0
+                       : total_size - chunk_size;
+    auto bit_inc = (op_ptr->endian == ilasynth::endianness_t::LITTLE_E)
+                       ? chunk_size
+                       : -chunk_size;
+
+    expr = expr_args.at(0);
+    auto addr = expr_args.at(1);
+    auto data = expr_args.at(2);
+
+    for (auto i = 0; i < chunk_size; i++, bit_idx += bit_inc) {
+      auto addr_i = ExprFuse::Add(addr, i);
+      auto data_i = ExprFuse::Extract(data, bit_idx + chunk_size - 1, bit_idx);
+      expr = ExprFuse::Store(expr, addr_i, data_i);
+    }
+
     break;
+  }
+
   case ilasynth::MemOp::Op::ITE:
     expr = ExprFuse::Ite(expr_args.at(0), expr_args.at(1), expr_args.at(2));
     break;
+
   default:
     ILA_ERROR << "Cannot find corresponding Mem Op for " << n->getName();
     break;
