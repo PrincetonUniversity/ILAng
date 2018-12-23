@@ -68,6 +68,12 @@ namespace ilang {
     return _ptr->in_bad_state();
   }
 
+  /// Return the location of a module's endmodule statement
+  VerilogInfo::vlg_loc_t VerilogInfo::get_endmodule_loc (const std::string& inst_name) const {
+    const VerilogAnalyzer * _ptr = dynamic_cast<const VerilogAnalyzer *>( _analyzer );
+    ILA_NOT_NULL(_ptr);
+    return _ptr->get_endmodule_loc(inst_name);
+  }
 
 /// overload the operator << for printing location
 std::ostream & operator<<(std::ostream & os, const VerilogAnalyzerBase::vlg_loc_t & obj ) { return VerilogAnalyzerBase::PrintLoc(os,obj); }

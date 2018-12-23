@@ -166,6 +166,8 @@ public:
   module_io_vec_t get_top_module_io() const;
   /// Find a signal
   SignalInfoBase get_signal(const std::string& net_name) const;
+  /// Return the location of a module's endmodule statement
+  vlg_loc_t get_endmodule_loc (const std::string& inst_name) const;
 
   // --------------------- HELPERS ---------------------------- //
   /// Print Meta info (Usage PrintMeta(os, ?? ) << ?? ;  )

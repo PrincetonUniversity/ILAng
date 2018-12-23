@@ -258,7 +258,7 @@ std::string VlgSglTgtGen_Cosa::add_keep_to_port(const std::string& line_in,
   if (line_in.find(",") == std::string::npos)
     return line_in.substr(0, left) + " (* keep *) " + line_in.substr(left);
   // not handline port case
-  ILA_WARN << vname << "@" << line_in
+  ILA_ERROR << vname << "@" << line_in
            << " is a port name, please use the upper level signal name.";
   return line_in;
   /*

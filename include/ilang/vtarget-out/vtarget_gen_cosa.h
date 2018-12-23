@@ -10,6 +10,7 @@
 
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/vtarget-out/vtarget_gen_impl.h>
+#include <ilang/vtarget-out/vlg_mod.h>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -47,15 +48,10 @@ class VlgSglTgtGen_Cosa : public VlgSglTgtGen {
   /// using the target type
   using target_type_t = VlgSglTgtGen::target_type_t;
   /// a tuple to store all related info for modification
-  typedef std::tuple<long,        // lineno
-                     std::string, // varname (short name)
-                     bool>
-      info_t;
-
+  using info_t = VerilogModifier::info_t;
   /// filename -> (lineno, varname, is_port_sig) vec
-  typedef std::map<std::string, // file name
-                   std::vector<info_t>>
-      fn_l_map_t;
+  using fn_l_map_t = VerilogModifier::fn_l_map_t;
+
 
 public:
   // --------------------- CONSTRUCTOR ---------------------------- //
