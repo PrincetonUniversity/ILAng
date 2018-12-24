@@ -78,7 +78,6 @@ install:
   - git clone https://github.com/Z3Prover/z3.git
   - cd z3
   - git checkout tags/z3-4.7.1 -b v471
-  - export LD_LIBRARY_PATH=/usr/local/clang/lib:$LD_LIBRARY_PATH
   - python scripts/mk_make.py
   - if [[ "$TRAVIS_COMPILER" == "gcc" ]]; then python scripts/mk_make.py ; fi
   - if [[ "$TRAVIS_COMPILER" == "clang" ]]; then export LD_LIBRARY_PATH=/usr/local/clang/lib:$LD_LIBRARY_PATH ; fi
