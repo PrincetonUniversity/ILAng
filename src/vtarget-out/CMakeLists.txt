@@ -10,5 +10,6 @@ target_sources(${ILANG_LIB_NAME} PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/vtarget_gen_cosa.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/vtarget_gen_jasper.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/vtarget_gen.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/vlg_mod.cc
 )
 

@@ -73,6 +73,7 @@ package_add_test(${ILANG_TEST_MAIN}
   t_z3adapter.cc
   t_z3sanity.cc
   t_vtarget_gen.cc
+  t_verilog_mod.cc
 )
 
 if(${ILANG_BUILD_SYNTH})

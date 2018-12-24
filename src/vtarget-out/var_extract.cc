@@ -34,7 +34,7 @@ std::string VarExtractor::GenString() const {
 bool isStateBegin(unsigned char c) { return std::isalpha(c); }
 
 bool isStateCont(unsigned char c) {
-  return std::isalpha(c) || std::isdigit(c) || c == '.' || c == '_';
+  return std::isalpha(c) || std::isdigit(c) || c == '.' || c == '_' || c == '[' || c == ']';
 }
 
 bool isNumBegin(unsigned char c) { return isdigit(c) || c == '\''; }
@@ -83,11 +83,15 @@ void VarExtractor::ParseToExtract(const std::string& in,
         is_state = false;
         auto subs = in.substr(left, idx - left);
         token_type tp;
-        if (_is_ila_state(subs) && !force_vlg_statename)
+        // deal with []
+        auto left_p = subs.find('[');
+        auto check_s = subs.substr(0,left_p); // the string use to check no []
+
+        if (_is_ila_state(check_s) && !force_vlg_statename)
           tp = ILA_S;
-        else if (_is_ila_input(subs) && !force_vlg_statename)
+        else if (_is_ila_input(check_s) && !force_vlg_statename)
           tp = ILA_IN;
-        else if (_is_vlg_sig(subs))
+        else if (_is_vlg_sig(check_s))
           tp = VLG_S;
         else
           tp = UNKN_S;
@@ -125,11 +129,13 @@ void VarExtractor::ParseToExtract(const std::string& in,
       _tokens.push_back({token_type::NUM, subs});
     else if (is_state) {
       token_type tp;
-      if (_is_ila_state(subs) && !force_vlg_statename)
+      auto left_p = subs.find('[');
+      auto check_s = subs.substr(0,left_p); // the string use to check no []
+      if (_is_ila_state(check_s) && !force_vlg_statename)
         tp = ILA_S;
-      else if (_is_ila_input(subs) && !force_vlg_statename)
+      else if (_is_ila_input(check_s) && !force_vlg_statename)
         tp = ILA_IN;
-      else if (_is_vlg_sig(subs))
+      else if (_is_vlg_sig(check_s))
         tp = VLG_S;
       else
         tp = UNKN_S;

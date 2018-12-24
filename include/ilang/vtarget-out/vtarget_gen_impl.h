@@ -48,6 +48,11 @@ public:
   typedef std::map<std::string, unsigned> func_app_cnt_t;
   /// Type of the backend
   using backend_selector = VlgVerifTgtGenBase::backend_selector;
+  /// Type of record of extra info of a signal
+  struct ex_info_t {
+    std::string range;
+    ex_info_t(const std::string &r) : range(r) {}
+  };
 
 public:
   // --------------------- CONSTRUCTOR ---------------------------- //
@@ -115,7 +120,7 @@ protected:
   /// An empty json for default fallthrough cases
   nlohmann::json empty_json;
   /// record all the referred vlg names, so you can add (*keep*) if needed
-  std::set<std::string> _all_referred_vlg_names;
+  std::map<std::string, ex_info_t> _all_referred_vlg_names;
   /// target type
   target_type_t target_type;
   /// a shortcut of whether rf has flush condition set
@@ -203,6 +208,8 @@ protected:
   void ConstructWrapper_add_additional_mapping_control();
   /// Generate __ISSUE__, __IEND__, ... signals
   void ConstructWrapper_add_condition_signals();
+  /// Register the extra wires to the idr
+  void ConstructWrapper_register_extra_io_wire();
   /// Add instantiation statement of the two modules
   void ConstructWrapper_add_module_instantiation();
   /// Add instantiation of the memory and put the needed mem implementation in

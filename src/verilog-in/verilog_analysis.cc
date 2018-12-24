@@ -604,13 +604,19 @@ VerilogAnalyzer::module_io_vec_t VerilogAnalyzer::get_top_module_io() const {
 /// Return the location of a module's endmodule statement
 VerilogAnalyzer::vlg_loc_t VerilogAnalyzer::get_endmodule_loc (const std::string& inst_name) const {
   if(_bad_state_return()) return vlg_loc_t();
-  auto   tp_ = check_hierarchical_name_type(net_name);
-  void * ptr_= find_declaration_of_name(net_name);
+  auto   tp_ = check_hierarchical_name_type(inst_name);
+  void * ptr_= find_declaration_of_name(inst_name);
   ILA_NOT_NULL(ptr_);
   if( not is_module(tp_) ) {
     ILA_ERROR << inst_name << " should not be the argument of get_endmodule_loc, not a module instance name.";
     return vlg_loc_t();
   }
+  /*
+  if( ((ast_module_declaration *)ptr_)->meta-> == NULL ) {
+    vlg_loc_t tmp_loc;
+    tmp_loc.
+  } // this could happen, I don't know why // use the identifer's  meta 
+  */
   return Meta2Loc( ((ast_module_declaration *)ptr_)->meta );
 }
 

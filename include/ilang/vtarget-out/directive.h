@@ -124,6 +124,8 @@ public:
   void RegisterInterface(const SignalInfoBase& vlg_sig,
                          const std::string& refstr, ila_input_checker_t chk,
                          ila_mem_checker_t mget);
+  /// Register the extra wire to connect (for extra wire)
+  void RegisterExtraWire(const std::string & io_name, const std::string & outside_name);
 
 protected:
   /// a sanity check for module instantiation string gen, check if all the vlg

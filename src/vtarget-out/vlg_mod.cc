@@ -17,7 +17,7 @@ VerilogModifier::~VerilogModifier() {}
 
 
 /// do the work : read from fin and append to fout, fout needs to be open with append option
-void VerilogModifier::ReadModifyWrite(const std::string & fn, std::ifstream fin, std::ofstream fout ) {
+void VerilogModifier::ReadModifyWrite(const std::string & fn, std::ifstream & fin, std::ofstream & fout ) {
   /*
   if (not IN(fn, fn_l_map)) {
     // no need to modify, just copy
@@ -71,7 +71,9 @@ void VerilogModifier::ReadModifyWrite(const std::string & fn, std::ifstream fin,
         line = new_line;
         mod_decl_vec_it ++;
       } 
-      // else we will carry this to the next line
+      else
+        break;
+      // else we will stop handle it and carry this to the next line
     }
 
     while (mod_inst_vec_it != mod_inst_info.end() and lineno >= std::get<0>(*mod_inst_vec_it) ) {
@@ -82,6 +84,8 @@ void VerilogModifier::ReadModifyWrite(const std::string & fn, std::ifstream fin,
         line = new_line;
         mod_inst_vec_it ++;
       } 
+      else 
+        break;
       // else we will carry this to the next line
     }
 
@@ -93,7 +97,7 @@ void VerilogModifier::ReadModifyWrite(const std::string & fn, std::ifstream fin,
 } // ReadModifyWrite
 
 template <class T> 
-void compare_tuple(T const& t1, T const& T2)  {
+bool compare_tuple(T const& t1, T const& t2)  {
   return std::get<0>(t1) < std::get<0>(t2);
 }
 
@@ -143,6 +147,20 @@ std::string VerilogModifier::add_keep_to_port(const std::string& line_in,
     return line_in;
   }
 
+  if(std::string::npos == line_in.find('(') and 
+     std::string::npos == line_in.find(')') and
+     std::string::npos != line_in.find(';')) { 
+    // we are dealing with something like output a;
+    auto defl = Split(line_in,";");
+    for(auto & def: defl) {
+      if (def.find(vname) != std::string::npos) {
+        def = "(* keep *)" + def;
+        break;
+      }
+    }
+    return Join(defl,";") + ";";
+  }
+
   size_t left_p = 0;
   size_t right_p = std::string::npos;
   size_t mid_len = std::string::npos;
@@ -154,7 +172,7 @@ std::string VerilogModifier::add_keep_to_port(const std::string& line_in,
   }
 
   auto left_cut = line_in.substr(0,left_p);
-  auto right_cut = line_in.substr(right_p);
+  auto right_cut = right_p != std::string::npos ? line_in.substr(right_p) : "";
   auto middle = line_in.substr(left_p, mid_len);
 
   ILA_ASSERT(left_cut + middle + right_cut == line_in);
@@ -186,13 +204,13 @@ std::string VerilogModifier::add_keep_to_port(const std::string& line_in,
 
 
 /// record the name to add a keep there
-void VerilogModifier::RecordConnectSigName(const std::string & vlg_sig_name) {
+void VerilogModifier::RecordConnectSigName(const std::string & vlg_sig_name, const std::string & suffix) {
   auto vlg_sig_info = vlg_info_ptr->get_signal(vlg_sig_name); // will check it exists
   auto width = vlg_sig_info.get_width();
   auto short_name = vlg_sig_info.get_signal_name();
 
 
-  auto vname = ReplaceAll(vlg_sig_name, "." , "__DOT__"); // name for verilog
+  auto vname = ReplaceAll(vlg_sig_name, "." , "__DOT__") + ReplaceAll(ReplaceAll(suffix, "[","_"),"]","_"); // name for verilog
   auto mod_hier_name = Split(vlg_sig_name, ".");
   auto hier = mod_hier_name.size();
   auto last_level_name = mod_hier_name[ hier-1 ];
@@ -224,8 +242,8 @@ void VerilogModifier::RecordConnectSigName(const std::string & vlg_sig_name) {
   }
 
   // use the special location (mod_decl to add wires and ...)
-  auto loc = vlg_info_ptr->get_endmodule_loc(inst_name); // this the endmodule location
-  assign_map[loc.first].push_back( assign_item_t(loc.second, vname, width, short_name ) ) ;
+  loc = vlg_info_ptr->get_endmodule_loc(inst_name); // this the endmodule location
+  assign_map[loc.first].push_back( assign_item_t(loc.second, vname, width, short_name + suffix ) ) ;
 
 } // RecordConnectSigName
 
@@ -259,7 +277,7 @@ bool VerilogModifier::add_mod_decl_wire_to_this_line( const std::string & line_i
   if (pos == std::string::npos)
     return false; // unsuccessful
   auto pos_rp = line_in.rfind(')', pos);
-  if (pos == std::string::npos) {
+  if (pos_rp == std::string::npos) {
     ILA_ERROR << "unable to find the right ) to insert port decl, will continue.";
     line_out = line_in;
     return true;
@@ -267,7 +285,7 @@ bool VerilogModifier::add_mod_decl_wire_to_this_line( const std::string & line_i
   auto left = line_in.substr(0,pos_rp);
   auto right = line_in.substr(pos_rp);
 
-  auto wl = SplitSpaceTabEnter(line_in);
+  auto wl = SplitSpaceTabEnter(left); // should not go to the right
   bool new_style = false;
   if ( std::find(wl.begin(), wl.end(), "output") != wl.end() ) new_style = true;
   if ( std::find(wl.begin(), wl.end(), "input")  != wl.end() ) new_style = true;
@@ -300,7 +318,7 @@ bool VerilogModifier::add_mod_inst_wire_to_this_line( const std::string & line_i
   if (pos == std::string::npos)
     return false; // unsuccessful, try next line
   auto pos_rp = line_in.rfind(')', pos);
-  if (pos == std::string::npos) {
+  if (pos_rp == std::string::npos) {
     ILA_ERROR << "unable to find the right ) to insert port decl, will continue.";
     line_out = line_in;
     return true;

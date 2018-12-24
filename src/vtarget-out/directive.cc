@@ -143,6 +143,14 @@ void IntefaceDirectiveRecorder::ModuleInstSanityCheck(
                       << " is not declared. Implementation bug!";
   }
 }
+// register extra state out name
+void IntefaceDirectiveRecorder::RegisterExtraWire(const std::string & io_name, const std::string & outside_name) {
+  if( not IN(io_name, mod_inst_rec ))
+    mod_inst_rec.insert( { { io_name , inf_connector_t({ inf_dir_t::SO, outside_name})} } );
+  else {
+    ILA_ERROR<<io_name << " has been connected already.";
+  }
+}
 
 /// Used to tell this module about the refinement relations ,  , ila interface
 /// checker?

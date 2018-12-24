@@ -118,14 +118,7 @@ protected:
   /// For jasper, this means do nothing, for yosys, you need to add (*keep*)
   virtual void Export_modify_verilog() override;
 
-public:
-  /// A function not fully implemented !!!
-  static std::string add_keep_to_port(const std::string& line_in,
-                                      const std::string& vname);
-
 private:
-  /// helper to read-modify-write a file
-  void rmw(std::ifstream& fin, std::ofstream& fout, std::vector<info_t>& info);
   /// It is okay to instantiation
   virtual void do_not_instantiate(void) override{};
 

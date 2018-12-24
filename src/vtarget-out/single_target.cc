@@ -672,6 +672,19 @@ void VlgSglTgtGen::ConstructWrapper_add_condition_signals() {
   } // end of no flush
 }
 
+void VlgSglTgtGen::ConstructWrapper_register_extra_io_wire() {
+  for(auto && refered_vlg_item : _all_referred_vlg_names) {
+
+    auto vlg_sig_info = vlg_info_ptr->get_signal(refered_vlg_item.first);
+
+    auto vname = ReplaceAll(refered_vlg_item.first, "." , "__DOT__") + ReplaceAll(ReplaceAll(refered_vlg_item.second.range, "[","_"),"]","_"); // name for verilog
+    auto width = vlg_sig_info.get_width();
+
+    vlg_wrapper.add_wire( vname , width );
+    _idr.RegisterExtraWire(vname, vname);
+  }
+}
+
 void VlgSglTgtGen::ConstructWrapper_add_module_instantiation() {
   // instantiate ila module
   if (target_type == target_type_t::INSTRUCTIONS) {
@@ -683,7 +696,7 @@ void VlgSglTgtGen::ConstructWrapper_add_module_instantiation() {
   std::string verilog_inst_str =
       vlg_info_ptr->get_top_module_name() + " " + _vlg_mod_inst_name + "(\n";
 
-  _idr.VlgAddTopInteface(vlg_wrapper);
+  _idr.VlgAddTopInteface(vlg_wrapper ); // put the extra wire there, and it should add wire also 
   verilog_inst_str += _idr.GetVlgModInstString(vlg_wrapper);
   verilog_inst_str += ");";
 
@@ -746,6 +759,9 @@ void VlgSglTgtGen::ConstructWrapper() {
   ConstructWrapper_add_condition_signals();
 
   ILA_INFO << 8;
+  // 5.0 add the extra wires to the top module wrapper
+  ConstructWrapper_register_extra_io_wire();
+
   // 5. module instantiation
   ConstructWrapper_add_module_instantiation();
 

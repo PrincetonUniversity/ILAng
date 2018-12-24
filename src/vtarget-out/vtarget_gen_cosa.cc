@@ -30,7 +30,8 @@ VlgSglTgtGen_Cosa::VlgSglTgtGen_Cosa(
     : VlgSglTgtGen(output_path, instr_ptr, ila_ptr, config, _rf_vmap, _rf_cond,
                    _vlg_info_ptr, vlg_mod_inst_name, ila_mod_inst_name,
                    wrapper_name, implementation_srcs,
-                   implementation_include_path, backend) {}
+                   implementation_include_path, backend)
+    {}
 
 std::string convert_expr_to_cosa(const std::string& in) {
   return ReplaceAll(
@@ -44,36 +45,42 @@ std::string convert_expr_to_cosa(const std::string& in) {
 void VlgSglTgtGen_Cosa::add_wire_assign_assumption(
     const std::string& varname, const std::string& expression,
     const std::string& dspt) {
-  _problems.assumptions.push_back(varname + " = " +
-                                  convert_expr_to_cosa(expression));
+  //_problems.assumptions.push_back(varname + " = " +
+  //                                convert_expr_to_cosa(expression));
+  vlg_wrapper.add_assign_stmt(varname, expression);
+  ILA_ERROR_IF(expression.find(".") != std::string::npos) << "expression:" << expression <<" contains unfriendly dot.";
 }
 
 void VlgSglTgtGen_Cosa::add_reg_cassign_assumption(
     const std::string& varname, const std::string& expression,
     const std::string& cond, const std::string& dspt) {
-  vlg_wrapper.add_always_stmt(varname + " <= " + varname + ";");
-  _problems.assumptions.push_back("(!( " + convert_expr_to_cosa(cond) +
-                                  " ) | (" + varname + " = " +
-                                  convert_expr_to_cosa(expression) + "))");
+  // vlg_wrapper.add_always_stmt(varname + " <= " + varname + ";");
+  // _problems.assumptions.push_back("(!( " + convert_expr_to_cosa(cond) +
+  //                                 " ) | (" + varname + " = " +
+  //                                convert_expr_to_cosa(expression) + "))");
+  ILA_ERROR_IF(expression.find(".") != std::string::npos) << "expression:" << expression <<" contains unfriendly dot.";
+  vlg_wrapper.add_always_stmt("if (" + cond + ") " + varname + " <= " + expression + "; //" + dspt );
 }
 
 /// Add an assumption
 void VlgSglTgtGen_Cosa::add_an_assumption(const std::string& aspt,
                                           const std::string& dspt) {
-  /*auto assumption_wire_name = vlg_wrapper.sanitizeName(dspt) +
-  new_mapping_id(); vlg_wrapper.add_wire( assumption_wire_name , 1 , true );
+  auto assumption_wire_name = vlg_wrapper.sanitizeName(dspt) + new_mapping_id(); 
+  vlg_wrapper.add_wire( assumption_wire_name , 1 , true );
   vlg_wrapper.add_assign_stmt( assumption_wire_name,  aspt );
-  _problems.assumptions.push_back(assumption_wire_name);*/
-  _problems.assumptions.push_back(convert_expr_to_cosa(aspt));
+  ILA_ERROR_IF(aspt.find(".") != std::string::npos) << "aspt:" << aspt <<" contains unfriendly dot.";
+  _problems.assumptions.push_back(assumption_wire_name);
+  //_problems.assumptions.push_back(convert_expr_to_cosa(aspt));
 }
 /// Add an assertion
 void VlgSglTgtGen_Cosa::add_an_assertion(const std::string& asst,
                                          const std::string& dspt) {
-  /* auto assrt_wire_name = vlg_wrapper.sanitizeName(dspt) + new_property_id();
+  auto assrt_wire_name = vlg_wrapper.sanitizeName(dspt) + new_property_id();
   vlg_wrapper.add_wire( assrt_wire_name , 1 , true);
   vlg_wrapper.add_assign_stmt( assrt_wire_name,  asst );
-  _problems.probitem[dspt].assertions.push_back(assrt_wire_name);*/
-  _problems.probitem[dspt].assertions.push_back(convert_expr_to_cosa(asst));
+  _problems.probitem[dspt].assertions.push_back(assrt_wire_name);
+  ILA_ERROR_IF(asst.find(".") != std::string::npos) << "asst:" << asst <<" contains unfriendly dot.";
+  //_problems.probitem[dspt].assertions.push_back(convert_expr_to_cosa(asst));
 }
 
 /// export the script to run the verification
@@ -169,28 +176,13 @@ void VlgSglTgtGen_Cosa::Export_modify_verilog() {
   // open, read, count and write
   // if it is a port name, we will ask user to specify its upper level
   // signal name
+  VerilogModifier vlg_mod(vlg_info_ptr);
 
-  // filename -> (lineno, varname, portsig?) vec
-  fn_l_map_t fn_l_map;
-
-  for (auto&& vlg_sig_name : _all_referred_vlg_names) {
-    auto vlg_sig_info = vlg_info_ptr->get_signal(vlg_sig_name);
-    auto loc = vlg_info_ptr->name2loc(vlg_sig_name);
-    fn_l_map[loc.first].push_back(
-        info_t(loc.second,                     // lineno
-               vlg_sig_info.get_signal_name(), // variable name
-               vlg_sig_info.no_internal_def()  // is it a port
-               ));
+  for (auto&& refered_vlg_item : _all_referred_vlg_names) {
+    vlg_mod.RecordKeepSignalName( refered_vlg_item.first );
+    vlg_mod.RecordConnectSigName( refered_vlg_item.first, refered_vlg_item.second.range );
   }
-
-  // sort it according to lineno
-  for (auto&& fn_tp_pair : fn_l_map) {
-    auto& vec = fn_tp_pair.second;
-    std::sort(begin(vec), end(vec), [](info_t const& t1, info_t const& t2) {
-      return std::get<0>(t1) <
-             std::get<0>(t2); // or use a custom compare function
-    });
-  }
+  vlg_mod.FinishRecording();
 
   // now let's do the job
   for (auto&& fn : vlg_design_files) {
@@ -205,85 +197,12 @@ void VlgSglTgtGen_Cosa::Export_modify_verilog() {
       ILA_ERROR << "Cannot open file for write:" << outfn;
       continue;
     }
-    if (not IN(fn, fn_l_map)) {
-      // no need to modify, just copy
-      fout << fin.rdbuf();
-      continue;
-    }
-    rmw(fin, fout, fn_l_map[fn]);
+    vlg_mod.ReadModifyWrite( fn, fin, fout );
   } // for (auto && fn : vlg_design_files)
   // .. (copy all the verilog file in the folder), this has to be os dependent
   if (vlg_include_files_path.size() != 0)
     ILA_WARN << "Not copying includes.";
-  // maybe in the script
+
 } // Export_modify_verilog
-
-/// helper to read-modify-write a file
-/// I just don't want to make the above function too long
-void VlgSglTgtGen_Cosa::rmw(std::ifstream& fin, std::ofstream& fout,
-                            std::vector<info_t>& info) {
-  // really we need to deal with it
-  long lineno = 0;
-  std::string line;
-  auto vec_it = info.begin(); // what if it is end
-  while (std::getline(fin, line)) {
-    while (vec_it != info.end() and lineno == std::get<0>(*vec_it)) {
-      // process it
-      auto vname = std::get<1>(*vec_it);
-      auto is_port = std::get<2>(*vec_it);
-
-      if (!is_port)
-        line = "(* keep *)" + line;
-      else {
-        line = add_keep_to_port(line, vname);
-      }
-      // move to the next item on the same line
-      vec_it++;
-    }
-    fout << line << std::endl;
-    lineno++;
-  }
-}
-
-std::string VlgSglTgtGen_Cosa::add_keep_to_port(const std::string& line_in,
-                                                const std::string& vname) {
-  size_t left = 0;
-  if (line_in.find(vname) == std::string::npos) {
-    ILA_ERROR << "Implementation bug: not able to add keep to line:" << line_in
-              << " required varname:" << vname;
-    return line_in;
-  }
-  if (line_in.find("(") != std::string::npos)
-    left = line_in.find("(") + 1;
-  if (line_in.find(",") == std::string::npos)
-    return line_in.substr(0, left) + " (* keep *) " + line_in.substr(left);
-  // not handline port case
-  ILA_ERROR << vname << "@" << line_in
-           << " is a port name, please use the upper level signal name.";
-  return line_in;
-  /*
-  unsigned idx = left;
-  auto var_pos = line_in.find(vname);
-
-  while(idx < var_pos ) {
-    idx = line_in.find(",",left);
-    left = idx + 1;
-  }
-  ILA_ASSERT(idx  < line_in.size() ) << "Implementation bug.";
-  ILA_ASSERT(left < line_in.size() ) << "Implementation bug.";
-
-
-
-  for(unsigned idx = left; idx < line_in.size() ; ++ idx) {
-    auto c = line_in[idx];
-    if(c == ',')
-      left = idx + 1;
-    auto rest = line_in.substr(left);
-    auto var_pos = rest.find(vname);
-    if(  == std::string::npos )
-      ILA_ASSERT(false) << "Implementation bug.";
-    rest.find()
-  }*/
-}
 
 }; // namespace ilang

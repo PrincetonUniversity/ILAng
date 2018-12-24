@@ -124,6 +124,7 @@ VlgSglTgtGen::ModifyCondExprAndRecordVlgName(const VarExtractor::token& t) {
              token_tp == VarExtractor::token_type::UNKN_S)
     return sname; // NC
   else if (token_tp == VarExtractor::token_type::NUM) {
+    /*
     if (_backend == backend_selector::COSA) {
       if (SIN("'", sname)) {
         auto l = Split(sname, "'");
@@ -171,58 +172,71 @@ VlgSglTgtGen::ModifyCondExprAndRecordVlgName(const VarExtractor::token& t) {
         } else
           return sname;
       }
-    }
-    // else
+    }*/
+    // else -- only leave it here
     return sname; // NC
   } else if (token_tp == VarExtractor::token_type::ILA_S) {
     std::string quote = "";
+    auto left_p = sname.find('[');
+    auto check_s = sname.substr(0,left_p); 
+    auto range_s = left_p != std::string::npos ? sname.substr(left_p) : "";
     //if (_backend == backend_selector::COSA)
     //  quote = "'";
     // if it refers to ILA state
-    if (_host->state(sname))
-      return quote + "__ILA_SO_" + sname + quote;
+    if (_host->state(check_s))
+      return quote + "__ILA_SO_" + check_s + quote + range_s;
     // if it uses the reference it self
-    auto hierName = Split(sname, ".");
+    auto hierName = Split(check_s, ".");
     if (hierName.size() == 2) // maybe it contains an unnecessary head
       if ((hierName[0] == _ila_mod_inst_name || hierName[0] == "ILA") &&
           _host->state(hierName[1]))
-        return quote + "__ILA_SO_" + hierName[1] + quote;
+        return quote + "__ILA_SO_" + hierName[1] + quote + range_s;
     // should not reachable
     ILA_ASSERT(false)
         << "Implementation bug: should not be reachable. token_tp: ILA_S";
     return sname;
   } else if (token_tp == VarExtractor::token_type::ILA_IN) {
+    auto left_p = sname.find('[');
+    auto check_s = sname.substr(0,left_p); 
+    auto range_s = left_p != std::string::npos ? sname.substr(left_p) : "";
+
     std::string quote = "";
     //if (_backend == backend_selector::COSA)
     //  quote = "'";
     // if it refers to ILA state
-    if (_host->input(sname))
-      return quote + "__ILA_I_" + sname + quote;
+    if (_host->input(check_s))
+      return quote + "__ILA_I_" + check_s + quote + range_s;
     // if it uses the reference it self
-    auto hierName = Split(sname, ".");
+    auto hierName = Split(check_s, ".");
     if (hierName.size() == 2) // maybe it contains an unnecessary head
       if ((hierName[0] == _ila_mod_inst_name || hierName[0] == "ILA") &&
           _host->input(hierName[1]))
-        return quote + "__ILA_I_" + hierName[1] + quote;
+        return quote + "__ILA_I_" + hierName[1] + quote + range_s;
     // should not reachable
     ILA_ASSERT(false)
         << "Implementation bug: should not be reachable. token_tp: ILA_IN";
     return sname;
   } else if (token_tp == VarExtractor::token_type::VLG_S) {
     std::string quote = "";
+    auto left_p = sname.find('[');
+    auto check_s = sname.substr(0,left_p); 
+    auto range_s = left_p != std::string::npos ? sname.substr(left_p) : "";
     //if (_backend == backend_selector::COSA)
     //  quote = "'";
 
-    if (vlg_info_ptr->check_hierarchical_name_type(sname) !=
+    if (vlg_info_ptr->check_hierarchical_name_type(check_s) !=
         VerilogInfo::hierarchical_name_type::NONE) {
-      _all_referred_vlg_names.insert(sname);
-      return quote + sname + quote;
+      _all_referred_vlg_names.insert({check_s, ex_info_t(range_s)});
+      auto remove_dot_name = ReplaceAll(check_s, ".", "__DOT__");
+      // Convert the check_s to 
+      return quote + remove_dot_name + quote + range_s;
     }
     if (vlg_info_ptr->check_hierarchical_name_type(_vlg_mod_inst_name + "." +
-                                                   sname) !=
+                                                   check_s) !=
         VerilogInfo::hierarchical_name_type::NONE) {
-      _all_referred_vlg_names.insert(_vlg_mod_inst_name + "." + sname);
-      return quote + _vlg_mod_inst_name + "." + sname + quote;
+      _all_referred_vlg_names.insert({_vlg_mod_inst_name + "." + check_s , ex_info_t(range_s)});
+      auto remove_dot_name = ReplaceAll(check_s, ".", "__DOT__");
+      return quote + _vlg_mod_inst_name + "__DOT__" + remove_dot_name + quote + range_s;
     }
     ILA_ASSERT(false)
         << "Implementation bug: should not be reachable. token_type: VLG_S";
