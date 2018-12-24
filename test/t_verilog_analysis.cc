@@ -76,8 +76,8 @@ TEST(TestVerilogAnalysis, Include) {
                                "/unit-data/verilog_sample/m1.v"}),
       "m1");
 
-  ILA_INFO   << "Location of: m1.r1:" << va.name2loc("m1.r1");
-  ILA_INFO   << "End loc of m1:" << va.get_endmodule_loc("m1");
+  ILA_DLOG("TestVerilogAnalysis.Include")   << "Location of: m1.r1:" << va.name2loc("m1.r1");
+  ILA_DLOG("TestVerilogAnalysis.Include")   << "End loc of m1:" << va.get_endmodule_loc("m1");
 
 }
 
@@ -214,18 +214,18 @@ TEST(TestVerilogAnalysis, AnalyzeName) {
       << "Location of: m1.mem:" << va.name2loc("m1.mem");
   ILA_DLOG("TestVerilogAnalysis.AnalyzeName")
       << "Location of: m1.n26:" << va.name2loc("m1.n26");
-  //ILA_DLOG("TestVerilogAnalysis.AnalyzeName")
-  ILA_INFO   << "Location of: m1.subm1:" << va.name2loc("m1.subm1");
-  //ILA_DLOG("TestVerilogAnalysis.AnalyzeName")
-  ILA_INFO    << "Location of: m1.subm2:" << va.name2loc("m1.subm2");
-  //ILA_DLOG("TestVerilogAnalysis.AnalyzeName")
-  ILA_INFO    << "Inst loc of m1.subm1:" << va.get_module_inst_loc("m1.subm1");
-  //ILA_DLOG("TestVerilogAnalysis.AnalyzeName")
-  ILA_INFO    << "Inst loc of m1.subm2:" << va.get_module_inst_loc("m1.subm2");
-  //ILA_DLOG("TestVerilogAnalysis.AnalyzeName")
-  ILA_INFO    << "Inst loc of m1.subm3:" << va.get_module_inst_loc("m1.subm3");
-  //ILA_DLOG("TestVerilogAnalysis.AnalyzeName")
-  ILA_INFO    << "Inst loc of m1.subm4:" << va.get_module_inst_loc("m1.subm4");
+  ILA_DLOG("TestVerilogAnalysis.AnalyzeName")
+     << "Location of: m1.subm1:" << va.name2loc("m1.subm1");
+  ILA_DLOG("TestVerilogAnalysis.AnalyzeName")
+      << "Location of: m1.subm2:" << va.name2loc("m1.subm2");
+  ILA_DLOG("TestVerilogAnalysis.AnalyzeName")
+      << "Inst loc of m1.subm1:" << va.get_module_inst_loc("m1.subm1");
+  ILA_DLOG("TestVerilogAnalysis.AnalyzeName")
+      << "Inst loc of m1.subm2:" << va.get_module_inst_loc("m1.subm2");
+  ILA_DLOG("TestVerilogAnalysis.AnalyzeName")
+      << "Inst loc of m1.subm3:" << va.get_module_inst_loc("m1.subm3");
+  ILA_DLOG("TestVerilogAnalysis.AnalyzeName")
+      << "Inst loc of m1.subm4:" << va.get_module_inst_loc("m1.subm4");
 
 }
 

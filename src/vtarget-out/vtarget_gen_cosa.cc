@@ -69,7 +69,7 @@ void VlgSglTgtGen_Cosa::add_an_assumption(const std::string& aspt,
   vlg_wrapper.add_wire( assumption_wire_name , 1 , true );
   vlg_wrapper.add_assign_stmt( assumption_wire_name,  aspt );
   ILA_ERROR_IF(aspt.find(".") != std::string::npos) << "aspt:" << aspt <<" contains unfriendly dot.";
-  _problems.assumptions.push_back(assumption_wire_name);
+  _problems.assumptions.push_back(assumption_wire_name + " = 1_1");
   //_problems.assumptions.push_back(convert_expr_to_cosa(aspt));
 }
 /// Add an assertion
@@ -78,7 +78,7 @@ void VlgSglTgtGen_Cosa::add_an_assertion(const std::string& asst,
   auto assrt_wire_name = vlg_wrapper.sanitizeName(dspt) + new_property_id();
   vlg_wrapper.add_wire( assrt_wire_name , 1 , true);
   vlg_wrapper.add_assign_stmt( assrt_wire_name,  asst );
-  _problems.probitem[dspt].assertions.push_back(assrt_wire_name);
+  _problems.probitem[dspt].assertions.push_back(assrt_wire_name + " = 1_1");
   ILA_ERROR_IF(asst.find(".") != std::string::npos) << "asst:" << asst <<" contains unfriendly dot.";
   //_problems.probitem[dspt].assertions.push_back(convert_expr_to_cosa(asst));
 }

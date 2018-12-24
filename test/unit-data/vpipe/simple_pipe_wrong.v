@@ -17,7 +17,7 @@
 `define  OP_SUB 2'b10
 `define  OP_AND 2'b11
 
-module pipeline_v(input clk, input rst, input [7:0] inst, input [1:0] dummy_read_rf, output [7:0] dummy_rf_data , /*port_list_out*/);
+module pipeline_v(input clk, input rst, input [7:0] inst, input [1:0] dummy_read_rf, output [7:0] dummy_rf_data );
 
 wire [1:0] op; 
 wire [1:0] rs1;

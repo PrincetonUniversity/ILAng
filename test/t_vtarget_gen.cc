@@ -64,6 +64,22 @@ TEST(TestVlgTargetGen, PipeExample) {
   vg.GenerateTargets();
 }
 
+TEST(TestVlgTargetGen, PipeExampleNotEqu) {
+  auto ila_model = SimplePipe::BuildModel();
+
+  auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/vpipe/";
+  VerilogVerificationTargetGenerator vg(
+      {},                          // no include
+      {dirName + "simple_pipe_wrong.v"}, //
+      "pipeline_v",                // top_module_name
+      dirName + "rfmap/vmap.json", // variable mapping
+      dirName + "rfmap/cond.json", dirName + "disprove/", ila_model.get(),
+      VerilogVerificationTargetGenerator::backend_selector::COSA);
+
+  EXPECT_FALSE(vg.in_bad_state());
+
+  vg.GenerateTargets();
+}
 TEST(TestVlgTargetGen, AesExample) {}
 
 #endif // VERILOG_IN_ENABLE
