@@ -15,11 +15,13 @@ VerilogVerificationTargetGenerator::VerilogVerificationTargetGenerator(
     const std::string& refinement_variable_mapping,
     const std::string& refinement_conditions, const std::string& output_path,
     const InstrLvlAbsPtr& ila_ptr, backend_selector backend,
+    const vtg_config_t & vtg_config,
     const VerilogGenerator::VlgGenConfig& config)
     : _generator(new VlgVerifTgtGen(
           implementation_include_path, implementation_srcs,
           implementation_top_module, refinement_variable_mapping,
-          refinement_conditions, output_path, ila_ptr, backend, config)) {}
+          refinement_conditions, output_path, ila_ptr, backend, vtg_config,
+          config)) {}
 
 VerilogVerificationTargetGenerator::~VerilogVerificationTargetGenerator() {
   if (_generator)

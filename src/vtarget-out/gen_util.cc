@@ -221,22 +221,23 @@ VlgSglTgtGen::ModifyCondExprAndRecordVlgName(const VarExtractor::token& t) {
     auto left_p = sname.find('[');
     auto check_s = sname.substr(0,left_p); 
     auto range_s = left_p != std::string::npos ? sname.substr(left_p) : "";
+    auto range_underscore = ReplaceAll(ReplaceAll(range_s,"[","_"),"]","_");
     //if (_backend == backend_selector::COSA)
     //  quote = "'";
 
     if (vlg_info_ptr->check_hierarchical_name_type(check_s) !=
         VerilogInfo::hierarchical_name_type::NONE) {
-      _all_referred_vlg_names.insert({check_s, ex_info_t(range_s)});
+      _all_referred_vlg_names.insert({check_s+range_s, ex_info_t(range_s)});
       auto remove_dot_name = ReplaceAll(check_s, ".", "__DOT__");
       // Convert the check_s to 
-      return quote + remove_dot_name + quote + range_s;
+      return quote + remove_dot_name + quote + range_underscore;
     }
     if (vlg_info_ptr->check_hierarchical_name_type(_vlg_mod_inst_name + "." +
                                                    check_s) !=
         VerilogInfo::hierarchical_name_type::NONE) {
-      _all_referred_vlg_names.insert({_vlg_mod_inst_name + "." + check_s , ex_info_t(range_s)});
+      _all_referred_vlg_names.insert({_vlg_mod_inst_name + "." + check_s + range_s, ex_info_t(range_s)});
       auto remove_dot_name = ReplaceAll(check_s, ".", "__DOT__");
-      return quote + _vlg_mod_inst_name + "__DOT__" + remove_dot_name + quote + range_s;
+      return quote + _vlg_mod_inst_name + "__DOT__" + remove_dot_name + quote + range_underscore;
     }
     ILA_ASSERT(false)
         << "Implementation bug: should not be reachable. token_type: VLG_S";

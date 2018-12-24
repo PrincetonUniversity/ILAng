@@ -33,8 +33,17 @@ std::string VarExtractor::GenString() const {
 
 bool isStateBegin(unsigned char c) { return std::isalpha(c); }
 
-bool isStateCont(unsigned char c) {
-  return std::isalpha(c) || std::isdigit(c) || c == '.' || c == '_' || c == '[' || c == ']';
+bool isStateCont(unsigned char c, size_t idx, const std::string & s) {
+  if(std::isalpha(c) || std::isdigit(c) || c == '.' || c == '_' ||  c == ']')
+    return true;
+  else if(  c == '[' ) {
+    auto rp = s.find(']',idx);
+    auto rc = s.find(':',idx);
+    if(rc < rp)
+      return false;
+    return true;
+  }
+  return false;
 }
 
 bool isNumBegin(unsigned char c) { return isdigit(c) || c == '\''; }
@@ -66,7 +75,7 @@ void VarExtractor::ParseToExtract(const std::string& in,
     bool is_num_new =
         (is_num && isNumCont(in.at(idx))) || isNumBegin(in.at(idx));
     bool is_state_new =
-        (is_state && isStateCont(in.at(idx))) || isStateBegin(in.at(idx));
+        (is_state && isStateCont(in.at(idx), idx, in)) || isStateBegin(in.at(idx));
 
     if (is_num && is_state) {
       ILA_ASSERT(false) << "This should not be possible";

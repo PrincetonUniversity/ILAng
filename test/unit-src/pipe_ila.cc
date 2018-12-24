@@ -32,7 +32,11 @@ Ila SimplePipe::BuildModel() {
   auto rs2_val = Ite(rs2 == 0, r0, Ite(rs2 == 1, r1, Ite(rs2 == 2, r2, r3)));
 
   auto NOP = pipe_ila.NewInstr("NOP");
-  { NOP.SetDecode(op == BvConst(0, 2)); }
+  { NOP.SetDecode(op == BvConst(0, 2));
+    NOP.SetUpdate(r0,r0);
+    NOP.SetUpdate(r1,r1);
+    NOP.SetUpdate(r2,r2);
+    NOP.SetUpdate(r3,r3); }
 
   auto ADD = pipe_ila.NewInstr("ADD");
   {

@@ -25,12 +25,13 @@ VlgSglTgtGen_Cosa::VlgSglTgtGen_Cosa(
     VerilogInfo* _vlg_info_ptr, const std::string& vlg_mod_inst_name,
     const std::string& ila_mod_inst_name, const std::string& wrapper_name,
     const std::vector<std::string>& implementation_srcs,
-    const std::vector<std::string>& implementation_include_path,
+    const std::vector<std::string>& implementation_include_path, 
+    const vtg_config_t & vtg_config,
     backend_selector backend)
     : VlgSglTgtGen(output_path, instr_ptr, ila_ptr, config, _rf_vmap, _rf_cond,
                    _vlg_info_ptr, vlg_mod_inst_name, ila_mod_inst_name,
                    wrapper_name, implementation_srcs,
-                   implementation_include_path, backend)
+                   implementation_include_path, vtg_config, backend)
     {}
 
 std::string convert_expr_to_cosa(const std::string& in) {
@@ -179,8 +180,10 @@ void VlgSglTgtGen_Cosa::Export_modify_verilog() {
   VerilogModifier vlg_mod(vlg_info_ptr);
 
   for (auto&& refered_vlg_item : _all_referred_vlg_names) {
-    vlg_mod.RecordKeepSignalName( refered_vlg_item.first );
-    vlg_mod.RecordConnectSigName( refered_vlg_item.first, refered_vlg_item.second.range );
+    auto idx = refered_vlg_item.first.find("[");
+    auto removed_range_name = refered_vlg_item.first.substr(0,idx);
+    vlg_mod.RecordKeepSignalName( removed_range_name );
+    vlg_mod.RecordConnectSigName( removed_range_name, refered_vlg_item.second.range );
   }
   vlg_mod.FinishRecording();
 

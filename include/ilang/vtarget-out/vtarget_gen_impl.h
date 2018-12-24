@@ -48,6 +48,8 @@ public:
   typedef std::map<std::string, unsigned> func_app_cnt_t;
   /// Type of the backend
   using backend_selector = VlgVerifTgtGenBase::backend_selector;
+  /// Type of configuration
+  using vtg_config_t = VlgVerifTgtGenBase::vtg_config_t;
   /// Type of record of extra info of a signal
   struct ex_info_t {
     std::string range;
@@ -79,6 +81,7 @@ public:
       const std::string& ila_mod_inst_name, const std::string& wrapper_name,
       const std::vector<std::string>& implementation_srcs,
       const std::vector<std::string>& implementation_include_path,
+      const vtg_config_t & vtg_config,
       backend_selector backend);
 
   /// Destructor: do nothing , most importantly it is virtual
@@ -236,6 +239,8 @@ protected:
   std::vector<std::string> vlg_include_files_path;
   /// Store the selection of backend
   backend_selector _backend;
+  /// Store the configuration
+  vtg_config_t _vtg_config;
 
 public:
   /// Call the separate construct functions to make a wrapper (not yet export
@@ -308,6 +313,8 @@ class VlgVerifTgtGen : public VlgVerifTgtGenBase {
   // --------------------- TYPE DEFINITIONS ---------------------------- //
   /// tell us which backend to use
   using backend_selector = VlgVerifTgtGenBase::backend_selector;
+  /// Type of configuration
+  using vtg_config_t = VlgVerifTgtGenBase::vtg_config_t;
 
 public:
   // --------------------- CONSTRUCTOR ---------------------------- //
@@ -327,6 +334,7 @@ public:
                  const std::string& refinement_conditions,
                  const std::string& output_path, const InstrLvlAbsPtr& ila_ptr,
                  backend_selector backend,
+                 const vtg_config_t & vtg_config,
                  const VerilogGenerator::VlgGenConfig& config =
                      VerilogGenerator::VlgGenConfig());
 
@@ -366,6 +374,8 @@ protected:
   VerilogGenerator::VlgGenConfig _cfg;
   /// to store the backend
   backend_selector _backend;
+  /// to store the configuration
+  vtg_config_t _vtg_config;
 
 protected:
   /// store the vmap info

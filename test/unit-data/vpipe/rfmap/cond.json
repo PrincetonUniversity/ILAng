@@ -26,7 +26,7 @@
       "instruction": "NOP",
       "start decode": ["dummy_reset == 0"], 
       "ready signal": [],  
-      "ready bound": 3,
+      "ready bound": 1,
 
       "flush constraint": [],
       "pre-flush end":[],
@@ -36,7 +36,7 @@
       "instruction": "ADD",
       "start decode": ["dummy_reset == 0"], 
       "ready signal": [],  
-      "ready bound": 3,
+      "ready bound": 1,
 
       "flush constraint": []
     },
@@ -44,7 +44,7 @@
       "instruction": "SUB",
       "start decode": ["dummy_reset == 0"], 
       "ready signal": [],  
-      "ready bound": 3,
+      "ready bound": 1,
 
       "flush constraint": []
     },
@@ -52,7 +52,7 @@
       "instruction": "AND",
       "start decode": ["dummy_reset == 0"],
       "ready signal": [],
-      "ready bound": 3,
+      "ready bound": 1,
 
       "flush constraint": []
     }

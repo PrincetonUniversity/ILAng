@@ -129,6 +129,15 @@ void VerilogModifier::FinishRecording() {
 void VerilogModifier::RecordKeepSignalName(const std::string & vlg_sig_name) {
   auto vlg_sig_info = vlg_info_ptr->get_signal(vlg_sig_name);
   auto loc = vlg_info_ptr->name2loc(vlg_sig_name);
+
+  // check for repetition:
+  for(auto && info_item : fn_l_map[loc.first]) {
+    auto lineno = std::get<0>(info_item);
+    const auto & vname = std::get<1>(info_item);
+    if (lineno == loc.second && vname == vlg_sig_info.get_signal_name())
+      return; // we already add it
+  }
+
   fn_l_map[loc.first].push_back(
       info_t(loc.second,                     // lineno
              vlg_sig_info.get_signal_name(), // variable name
