@@ -186,6 +186,8 @@ protected:
   /// 4.  "ila-state":[ {"cond":,"map":}, ]
   std::string GetStateVarMapExpr(const std::string& ila_state_name,
                                  nlohmann::json& m);
+  /// add a start condition if it is given
+  void handle_start_condition(nlohmann::json& dc);
   /// Find the current instruction mapping
   nlohmann::json& get_current_instruction_rf();
 

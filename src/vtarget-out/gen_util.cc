@@ -415,6 +415,24 @@ std::string VlgSglTgtGen::GetStateVarMapExpr(const std::string& ila_state_name,
   return VLG_TRUE;
 } // GetStateVarMapExpr
 
+void VlgSglTgtGen::handle_start_condition(nlohmann::json& dc) {
+  if( not dc.is_array() ) {
+    ILA_ERROR << " not enforcing start condition: expect an array of strings.";
+    return;
+  }
+  for(auto && pr : dc.items()) {
+    if(not pr.value().is_string() ) {
+      ILA_ERROR << " not enforcing start condition: expect an array of strings.";
+      continue;
+    }
+    auto cond = pr.value().get<std::string>();
+    cond = ReplaceAll(
+            ReplaceAll(cond, "$decode$", vlg_ila.decodeNames[0]),
+            "$valid$", vlg_ila.validName);
+    add_an_assumption( ReplExpr(cond) , "start_condition" ); // ReplExpr?
+  }
+} // handle_start_condition
+
 // use instruction pointer and the rf_cond to get it (no need to provide)
 nlohmann::json& VlgSglTgtGen::get_current_instruction_rf() {
   auto& instrs = rf_cond["instructions"];

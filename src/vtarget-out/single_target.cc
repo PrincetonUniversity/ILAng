@@ -649,11 +649,16 @@ void VlgSglTgtGen::ConstructWrapper_add_condition_signals() {
   vlg_wrapper.add_wire("__IEND__", 1, true);
   add_wire_assign_assumption("__IEND__", "(" + iend_cond + ") && __STARTED__",
                              "IEND");
-
-  add_an_assumption("(~ __START__) || (" + vlg_ila.decodeNames[0] + ")",
-                    "issue_decode"); // __ISSUE__ |=> decode
-  add_an_assumption("(~ __START__) || (" + vlg_ila.validName + ")",
-                    "issue_valid"); // __ISSUE__ |=> decode
+  // handle start decode
+  ILA_ERROR_IF ( IN("start decode", instr ) ) << "'start decode' is replaced by start condition!";
+  if( IN("start condition", instr) ) {
+    handle_start_condition(instr["start condition"]);
+  } else {
+    add_an_assumption("(~ __START__) || (" + vlg_ila.decodeNames[0] + ")",
+                      "issue_decode"); // __ISSUE__ |=> decode
+    add_an_assumption("(~ __START__) || (" + vlg_ila.validName + ")",
+                      "issue_valid"); // __ISSUE__ |=> decode
+  }
 
   if (has_flush) {
     ILA_ASSERT(IN("pre-flush end", instr) and
