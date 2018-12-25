@@ -17,7 +17,7 @@ VerilogModifier::~VerilogModifier() {}
 
 
 /// do the work : read from fin and append to fout, fout needs to be open with append option
-void VerilogModifier::ReadModifyWrite(const std::string & fn, std::ifstream & fin, std::ofstream & fout ) {
+void VerilogModifier::ReadModifyWrite(const std::string & fn, std::istream & fin, std::ostream & fout ) {
   /*
   if (not IN(fn, fn_l_map)) {
     // no need to modify, just copy

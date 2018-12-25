@@ -7,7 +7,8 @@ namespace ilang {
 
   Ila MemorySwap::BuildModel() {
     // build the ila
-    auto memswap = ILA("MemorySwap");
+    auto memswap = Ila("MemorySwap");
+    memswap.SetValid( BoolConst(true) );
 
     auto addra = memswap.NewBvInput("addra", 32);
     auto addrb = memswap.NewBvInput("addrb", 32);
@@ -23,9 +24,9 @@ namespace ilang {
       auto dataa = Load(mema,addra);
       auto datab = Load(memb,addrb);
 
-      SWAP.SetUpdate(mema, addra, datab);
-      SWAP.SetUpdate(memb, addrb, dataa);
+      SWAP.SetUpdate(mema, Store(mema,addra, datab));
+      SWAP.SetUpdate(memb, Store(memb,addrb, dataa));
     }
-
+    return memswap; 
   }
 } // namespace ilang

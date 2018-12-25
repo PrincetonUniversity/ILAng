@@ -74,7 +74,7 @@ public:
   /// Destructor: do nothing
   ~VerilogModifier();
   /// do the work : read from fin and append to fout, fout needs to be open with append option
-  void ReadModifyWrite(const std::string & filename, std::ifstream & fin, std::ofstream & fout );
+  void ReadModifyWrite(const std::string & filename, std::istream & fin, std::ostream & fout );
   /// do some work (sorting)
   void FinishRecording();
   /// record the name to add a keep there

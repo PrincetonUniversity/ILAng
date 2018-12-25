@@ -2,7 +2,5 @@
 # Test Outputs
 verify/*
 disprove/*
-vmem/wrapper.v
-vmem/problem.txt
-vmem/run.sh
-vmem/rst.ets
+vmem/invariants
+vmem/SWAP

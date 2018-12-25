@@ -639,6 +639,7 @@ VerilogGenerator::vlg_name_t
         unsigned new_size_id = ila_rports[mem_var_name].size();
         ila_rports[mem_var_name][new_size_id].raddr = addr_name;
         ila_rports[mem_var_name][new_size_id].rdata = data_name;
+        ila_rports[mem_var_name][new_size_id].ren   = "__START__";
 
         add_assign_stmt(addr_name, arg2);
 
@@ -902,7 +903,7 @@ void VerilogGenerator::ExportCondWrites(const ExprPtr& mem_var,
       auto new_size_id = ila_wports[name].size();
       ila_wports[name][new_size_id].waddr = name + "_addr" + toStr(portIdx);
       ila_wports[name][new_size_id].wdata = name + "_data" + toStr(portIdx);
-      ila_wports[name][new_size_id].wen   = name + "_web"  + toStr(portIdx);
+      ila_wports[name][new_size_id].wen   = name + "_wen"  + toStr(portIdx);
 
     }
   }

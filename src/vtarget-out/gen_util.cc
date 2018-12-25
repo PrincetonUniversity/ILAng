@@ -355,14 +355,18 @@ std::string VlgSglTgtGen::PerStateMap(const std::string& ila_state_name,
 // ila-state -> ref (json)
 // return a verilog verilog, that should be asserted to be true for this purpose
 std::string VlgSglTgtGen::GetStateVarMapExpr(const std::string& ila_state_name,
-                                             nlohmann::json& m) {
+                                             nlohmann::json& m, bool is_assert) {
   if (m.is_string()) {
     if (_sdr.isSpecialStateDir(m.get<std::string>())) {
       ILA_DLOG("VlgSglTgtGen.GetStateVarMapExpr")
           << "map mem:" << ila_state_name;
       // may be we need to log them here
-      return VLG_TRUE;
-      // return ; // **MEM** should be fine
+      if (is_assert == false)
+        return VLG_TRUE; // no need for assumptions on memory
+      // handle memory: map vlg_ila.ila_wports && vlg_ila.ila_rports with _idr.abs_mems
+      auto mem_eq_assert = _idr.ConnectMemory( m.get<std::string>(), ila_state_name, vlg_ila.ila_rports[ila_state_name] , vlg_ila.ila_wports[ila_state_name] );
+      // wire will be added by the absmem
+      return mem_eq_assert;
     } else {
       // return the mapping variable
       return PerStateMap(ila_state_name, m.get<std::string>());
@@ -429,7 +433,8 @@ void VlgSglTgtGen::handle_start_condition(nlohmann::json& dc) {
     cond = ReplaceAll(
             ReplaceAll(cond, "$decode$", vlg_ila.decodeNames[0]),
             "$valid$", vlg_ila.validName);
-    add_an_assumption( ReplExpr(cond) , "start_condition" ); // ReplExpr?
+    add_an_assumption( "(~ __START__) || " +  ReplExpr(cond) , "start_condition" ); 
+    // ReplExpr: Yes, you need to translate it to the vlg names
   }
 } // handle_start_condition
 

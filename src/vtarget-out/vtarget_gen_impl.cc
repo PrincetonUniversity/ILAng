@@ -131,7 +131,17 @@ void VlgVerifTgtGen::GenerateTargets(void) {
 
   if(_vtg_config.target_select == vtg_config_t::BOTH || 
      _vtg_config.target_select == vtg_config_t::INV) {
-    if (_backend == backend_selector::COSA) {
+    // check if there are really invariants:
+    bool invariantExists = false;
+    if ( IN("global invariants", rf_cond) ) {
+      auto & inv = rf_cond["global invariants"];
+      if( inv.is_array() and inv.size() != 0 )
+        invariantExists = true;
+      else if(inv.is_string() and inv.get<std::string>() != "") 
+        invariantExists = true;
+    }
+
+    if (_backend == backend_selector::COSA and invariantExists) {
       auto target =
           VlgSglTgtGen_Cosa(os_portable_append_dir(_output_path, "invariants"),
                             NULL, // invariant
@@ -141,7 +151,7 @@ void VlgVerifTgtGen::GenerateTargets(void) {
                             _backend);
       target.ConstructWrapper();
       target.ExportAll("wrapper.v", "ila.v", "run.sh", "problem.txt", "absmem.v");
-    } else if (_backend == backend_selector::JASPERGOLD) {
+    } else if (_backend == backend_selector::JASPERGOLD and invariantExists) {
       auto target =
           VlgSglTgtGen_Jasper(os_portable_append_dir(_output_path, "invariants"),
                               NULL, // invariant

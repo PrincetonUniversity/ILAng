@@ -327,7 +327,7 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
       auto wew = "__IMEM_" + ila_name + "_" + IntToStr(no) + "_wen";
 
       vlg_wrapper.add_wire(wdw, dw, true);
-      vlg_wrapper.add_wire(wdw, aw, true);
+      vlg_wrapper.add_wire(waw, aw, true);
       vlg_wrapper.add_wire(wew, 1, true);
 
       retStr += "   ." + port.wdata + "(" + wdw + "),\n";
@@ -531,7 +531,10 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assertions() {
     if( _vtg_config. PerVariableProblemCosa )
       problem_name += sname;
 
-    add_an_assertion(precondition + "(" + GetStateVarMapExpr(sname, i.value()) +
+    // true below means it is for assertions (only different for mapping memory)
+    // if assumption, nothing to be done
+    // if assertions, ask _idr to connect and get the eq name
+    add_an_assertion(precondition + "(" + GetStateVarMapExpr(sname, i.value(), true) +
                          ")",
                      problem_name);
   }
@@ -816,13 +819,14 @@ void VlgSglTgtGen::ConstructWrapper() {
   if(_backend == backend_selector::COSA)
     ConstructWrapper_register_extra_io_wire();
 
-  // 5. module instantiation
-  ConstructWrapper_add_module_instantiation();
-
-  ILA_INFO << 9;
   // 6. helper memory
   ConstructWrapper_add_helper_memory(); // need to decide what is the target
                                         // type
+                                        // -- no need
+  ILA_INFO << 9;
+  // 5. module instantiation
+  ConstructWrapper_add_module_instantiation();
+
 
   // 7. uni-functions
 

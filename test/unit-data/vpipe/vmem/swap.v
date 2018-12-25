@@ -17,8 +17,7 @@ module swap (
 
   output  [31:0] mem_b_waddr,
   output  [7:0] mem_b_wdata,
-  output  mem_b_wen
-);
+  output  mem_b_wen);
 `define IDLE 2'd0
 `define SEND_READ 2'd1
 `define SEND_WRITE 2'd2
