@@ -1,8 +1,4 @@
 #!/bin/bash
-##
-## before install
-##
-DEBIAN_FRONTEND=noninteractive apt install --yes git
 
 export DOCKER_WORK_ROOT=$(pwd)
 export DOCKER_TOOL_ROOT=$DOCKER_WORK_ROOT/packages
