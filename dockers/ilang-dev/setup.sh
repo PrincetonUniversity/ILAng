@@ -2,13 +2,6 @@
 ##
 ## before install
 ##
-apt update --yes
-apt install --yes flex
-apt install --yes bison
-apt install --yes build-essential
-apt install --yes libboost-all-dev
-apt install --yes cmake
-apt install --yes vim
 DEBIAN_FRONTEND=noninteractive apt install --yes git
 
 export DOCKER_WORK_ROOT=$(pwd)
