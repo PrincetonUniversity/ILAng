@@ -12,7 +12,10 @@ class AES_128 {
   typedef std::vector<ExprRef> vec4;
 
 public:
+  // Constructor : build the model
   AES_128();
+  // then you are free to use this model
+  Ila model;
 
 private:
   // -------------- HELPER Functions ---------------- //

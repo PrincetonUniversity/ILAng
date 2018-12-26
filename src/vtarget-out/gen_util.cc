@@ -315,7 +315,11 @@ std::string VlgSglTgtGen::ReplExpr(const std::string& expr,
 
 std::string VlgSglTgtGen::PerStateMap(const std::string& ila_state_name,
                                       const std::string& vlg_st_name) {
-
+  if (vlg_st_name.size() == 0) {
+    ILA_INFO << "Skip mapping ila state:"<<ila_state_name;
+    return VLG_TRUE;
+  }
+  
   if (isEqu(vlg_st_name)) { // is equ
     // not using re here
     auto new_expr = ReplExpr(vlg_st_name);
@@ -356,6 +360,8 @@ std::string VlgSglTgtGen::PerStateMap(const std::string& ila_state_name,
 // return a verilog verilog, that should be asserted to be true for this purpose
 std::string VlgSglTgtGen::GetStateVarMapExpr(const std::string& ila_state_name,
                                              nlohmann::json& m, bool is_assert) {
+  if (m.is_null())
+    return VLG_TRUE;
   if (m.is_string()) {
     if (_sdr.isSpecialStateDir(m.get<std::string>())) {
       ILA_DLOG("VlgSglTgtGen.GetStateVarMapExpr")
@@ -386,19 +392,33 @@ std::string VlgSglTgtGen::GetStateVarMapExpr(const std::string& ila_state_name,
         std::string cond(VLG_TRUE), vmap(VLG_TRUE);
         for (const auto& i : (item).items()) {
           if (i.key() == "0" || i.key() == "cond") {
-            cond = ReplExpr(i.value().get<std::string>()); // set the condtion
-            continue;
+            if(i.value().is_null() )
+              continue;
+            else if(i.value().is_string()) {
+              cond = ReplExpr(i.value().get<std::string>()); // set the condtion
+              continue;
+            } else {
+              ILA_ERROR<<"Expecting the first element/`cond` to be a string/null";
+              continue;
+            }
           }
           if (i.key() == "1" || i.key() == "map") {
-            vmap = PerStateMap(ila_state_name, i.value().get<std::string>());
-            continue; // set the mapping
+            if(i.value().is_null() )
+              continue;
+            else if(i.value().is_string()) {
+              vmap = PerStateMap(ila_state_name, i.value().get<std::string>());
+              continue; // set the mapping
+            } else {
+              ILA_ERROR<<"Expecting the second element/`map` to be a string/null";
+              continue;
+            }
           }
           ILA_ERROR << "mapping for statename:" << ila_state_name
                     << " contains unsupported construct.";
           break;
         }
         // cond ==> vmap    i.e.  ~cond || vmap
-        all_mappings.push_back("~ (" + prev_neg + cond + ") || (" + vmap + ")");
+        all_mappings.push_back("~ (" + prev_neg + "(" + cond + ") ) || (" + vmap + ")");
         prev_neg += "~(" + cond + ")&&";
       } else {
         ILA_ERROR << "Unable to handle this piece of JSON input:" << item;

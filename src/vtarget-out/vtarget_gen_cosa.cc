@@ -8,6 +8,7 @@
 #include <ilang/util/log.h>
 #include <ilang/util/str_util.h>
 #include <ilang/vtarget-out/vtarget_gen_cosa.h>
+#include <ilang/vtarget-out/absmem.h>
 #include <iostream>
 
 namespace ilang {
@@ -169,7 +170,14 @@ void VlgSglTgtGen_Cosa::Export_problem(const std::string& extra_name) {
 
 /// export the memory abstraction (implementation)
 /// Yes, this is also implementation specific, (jasper may use a different one)
-void VlgSglTgtGen_Cosa::Export_mem(const std::string& mem_name) {}
+void VlgSglTgtGen_Cosa::Export_mem(const std::string& mem_name) {
+  // we will ignore the mem_name
+
+  auto outfn = os_portable_append_dir(_output_path, top_file_name);
+  std::ofstream fout(outfn, std::ios_base::app); // append
+
+  VlgAbsMem::OutputMemFile(fout);
+}
 
 /// For jasper, this means do nothing, for yosys, you need to add (*keep*)
 void VlgSglTgtGen_Cosa::Export_modify_verilog() {

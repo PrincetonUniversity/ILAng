@@ -391,6 +391,16 @@ std::string IntefaceDirectiveRecorder::ConnectMemory(
 } // ConnectMemory
 
 
+std::string IntefaceDirectiveRecorder::GetAbsMemInstString(VerilogGeneratorBase & gen) {
+  std::string ret;
+  for(auto && m : abs_mems) {
+    ret += "/*" + m.first +"*/\n";
+    ret += m.second.GeneratingMemModuleSignalsInstantiation(gen);
+  }
+  return ret;
+}
+
+
 // ------------------------------------------------------------------------
 
 // static function

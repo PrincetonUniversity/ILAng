@@ -757,7 +757,8 @@ void VlgSglTgtGen::ConstructWrapper_add_module_instantiation() {
 }
 
 void VlgSglTgtGen::ConstructWrapper_add_helper_memory() {
-  // TODO ..
+  auto stmt = _idr.GetAbsMemInstString(vlg_wrapper);
+  vlg_wrapper.add_stmt(stmt);
 }
 
 void VlgSglTgtGen::ConstructWrapper_add_uf_constraints() {}

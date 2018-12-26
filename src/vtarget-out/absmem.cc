@@ -61,7 +61,7 @@ std::string VlgAbsMem::GeneratingMemModuleSignalsInstantiation(VerilogGeneratorB
     moduleName = "absmemD" + std::to_string(concrete_level);
   ret << moduleName << " #( \n    .AW(" << addr_width << "),\n";
   ret << "    .DW("<<data_width<<"),\n";
-  ret << "    .TTS("<<std::pow(2,addr_width)<<") )\n";
+  ret << "    .TTS("<<(long long)(std::pow(2,addr_width))<<") )\n";
   ret << inst_name <<"(\n";
   ret << "    .clk(clk),\n";
   ret << "    .rst(rst),\n";
@@ -75,7 +75,7 @@ std::string VlgAbsMem::GeneratingMemModuleSignalsInstantiation(VerilogGeneratorB
 #define CONNECT(e,s,w) do {             \
     if( (e).size() == 0 ) {             \
       (e) = base_name + (s);              \
-      gen.add_wire((e), (w));}          \
+      gen.add_wire((e), (w), true);}          \
     ret << ",\n    .vlg" s "("<< (e) <<")";\
     }while(false)
 
@@ -125,7 +125,7 @@ std::string VlgAbsMem::GeneratingMemModuleSignalsInstantiation(VerilogGeneratorB
     ret << ",\n    .ila_ren  ("<< p.ren <<  ")";
   }
 
-  ret << " );";
+  ret << " );\n\n";
 
   checked = true;
   concrete_level_encountered.insert(concrete_level);

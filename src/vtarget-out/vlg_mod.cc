@@ -48,7 +48,7 @@ void VerilogModifier::ReadModifyWrite(const std::string & fn, std::istream & fin
       auto is_port = std::get<2>(*keep_vec_it);
 
       if (!is_port)
-        line = "(* keep *)" + line;
+        line = add_keep_to_a_line(line,vname);
       else 
         line = add_keep_to_port(line, vname);
       // move to the next item on the same line
@@ -134,8 +134,9 @@ void VerilogModifier::RecordKeepSignalName(const std::string & vlg_sig_name) {
   for(auto && info_item : fn_l_map[loc.first]) {
     auto lineno = std::get<0>(info_item);
     const auto & vname = std::get<1>(info_item);
-    if (lineno == loc.second && vname == vlg_sig_info.get_signal_name())
+    if (lineno == loc.second /*&& vname == vlg_sig_info.get_signal_name()*/ )
       return; // we already add it
+    // WARNING: we are not adding keep to the same line! 
   }
 
   fn_l_map[loc.first].push_back(
@@ -146,6 +147,28 @@ void VerilogModifier::RecordKeepSignalName(const std::string & vlg_sig_name) {
 } // RecordKeepSignalName
 
 
+std::string VerilogModifier::add_keep_to_a_line(const std::string& line_in,
+                                                const std::string& vname) {
+  if (line_in.find(vname) == std::string::npos) {
+    ILA_ERROR << "Implementation bug: not able to add keep to line:" << line_in
+              << " required varname:" << vname;
+    return line_in;
+  }
+  auto comment_start = line_in.find("//");
+  std::string comment;
+  if(comment_start != std::string::npos)
+    comment = line_in.substr(comment_start);
+  auto line = line_in.substr(0,comment_start);
+  auto decls = Split(line,";");
+  for (auto && decl : decls ) {
+    if( S_IN(vname,decl) && ( S_IN("reg", decl) || S_IN("wire", decl) ) ) {
+      decl = "(* keep *) " + decl;
+      break;
+    }
+  }
+  auto declcomb = decls.size() > 0 ? Join(decls,";") + ";" : "";
+  return ( declcomb + comment );
+}
 
 std::string VerilogModifier::add_keep_to_port(const std::string& line_in,
                                                 const std::string& vname) {

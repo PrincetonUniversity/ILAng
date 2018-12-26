@@ -99,6 +99,8 @@ protected:
   // --------------- HELPERS --------------------------- //
   static std::string add_keep_to_port(const std::string& line_in,
                                                 const std::string& vname);
+  static std::string add_keep_to_a_line(const std::string& line_in,
+                                                const std::string& vname);
   static std::string add_assign_wire_to_this_line( const std::string & line_in, const std::string & vname, unsigned width, const std::string & short_name);
   static bool add_mod_decl_wire_to_this_line( const std::string & line_in, std::string & line_out, const std::string & vname, unsigned width) ;
   static bool add_mod_inst_wire_to_this_line( const std::string & line_in, std::string & line_out, const std::string & vname, unsigned width) ;
