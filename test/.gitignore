@@ -1,1 +1,13 @@
 unit-include/config.h
+
+# test output
+unit-data/vpipe/disprove/ADD
+unit-data/vpipe/disprove/AND
+unit-data/vpipe/disprove/NOP
+unit-data/vpipe/disprove/SUB
+unit-data/vpipe/disprove/invariants
+unit-data/vpipe/verify/ADD
+unit-data/vpipe/verify/AND
+unit-data/vpipe/verify/NOP
+unit-data/vpipe/verify/SUB
+unit-data/vpipe/verify/invariants

@@ -48,6 +48,13 @@ public:
   typedef std::map<std::string, unsigned> func_app_cnt_t;
   /// Type of the backend
   using backend_selector = VlgVerifTgtGenBase::backend_selector;
+  /// Type of configuration
+  using vtg_config_t = VlgVerifTgtGenBase::vtg_config_t;
+  /// Type of record of extra info of a signal
+  struct ex_info_t {
+    std::string range;
+    ex_info_t(const std::string &r) : range(r) {}
+  };
 
 public:
   // --------------------- CONSTRUCTOR ---------------------------- //
@@ -74,6 +81,7 @@ public:
       const std::string& ila_mod_inst_name, const std::string& wrapper_name,
       const std::vector<std::string>& implementation_srcs,
       const std::vector<std::string>& implementation_include_path,
+      const vtg_config_t & vtg_config,
       backend_selector backend);
 
   /// Destructor: do nothing , most importantly it is virtual
@@ -115,7 +123,7 @@ protected:
   /// An empty json for default fallthrough cases
   nlohmann::json empty_json;
   /// record all the referred vlg names, so you can add (*keep*) if needed
-  std::set<std::string> _all_referred_vlg_names;
+  std::map<std::string, ex_info_t> _all_referred_vlg_names;
   /// target type
   target_type_t target_type;
   /// a shortcut of whether rf has flush condition set
@@ -177,7 +185,9 @@ protected:
   /// 3.  "ila-state":[ "cond&map" ]
   /// 4.  "ila-state":[ {"cond":,"map":}, ]
   std::string GetStateVarMapExpr(const std::string& ila_state_name,
-                                 nlohmann::json& m);
+                                 nlohmann::json& m, bool is_assert = false);
+  /// add a start condition if it is given
+  void handle_start_condition(nlohmann::json& dc);
   /// Find the current instruction mapping
   nlohmann::json& get_current_instruction_rf();
 
@@ -203,6 +213,8 @@ protected:
   void ConstructWrapper_add_additional_mapping_control();
   /// Generate __ISSUE__, __IEND__, ... signals
   void ConstructWrapper_add_condition_signals();
+  /// Register the extra wires to the idr
+  void ConstructWrapper_register_extra_io_wire();
   /// Add instantiation statement of the two modules
   void ConstructWrapper_add_module_instantiation();
   /// Add instantiation of the memory and put the needed mem implementation in
@@ -229,6 +241,8 @@ protected:
   std::vector<std::string> vlg_include_files_path;
   /// Store the selection of backend
   backend_selector _backend;
+  /// Store the configuration
+  vtg_config_t _vtg_config;
 
 public:
   /// Call the separate construct functions to make a wrapper (not yet export
@@ -301,6 +315,8 @@ class VlgVerifTgtGen : public VlgVerifTgtGenBase {
   // --------------------- TYPE DEFINITIONS ---------------------------- //
   /// tell us which backend to use
   using backend_selector = VlgVerifTgtGenBase::backend_selector;
+  /// Type of configuration
+  using vtg_config_t = VlgVerifTgtGenBase::vtg_config_t;
 
 public:
   // --------------------- CONSTRUCTOR ---------------------------- //
@@ -320,6 +336,7 @@ public:
                  const std::string& refinement_conditions,
                  const std::string& output_path, const InstrLvlAbsPtr& ila_ptr,
                  backend_selector backend,
+                 const vtg_config_t & vtg_config,
                  const VerilogGenerator::VlgGenConfig& config =
                      VerilogGenerator::VlgGenConfig());
 
@@ -359,6 +376,8 @@ protected:
   VerilogGenerator::VlgGenConfig _cfg;
   /// to store the backend
   backend_selector _backend;
+  /// to store the configuration
+  vtg_config_t _vtg_config;
 
 protected:
   /// store the vmap info

@@ -33,8 +33,17 @@ std::string VarExtractor::GenString() const {
 
 bool isStateBegin(unsigned char c) { return std::isalpha(c); }
 
-bool isStateCont(unsigned char c) {
-  return std::isalpha(c) || std::isdigit(c) || c == '.' || c == '_';
+bool isStateCont(unsigned char c, size_t idx, const std::string & s) {
+  if(std::isalpha(c) || std::isdigit(c) || c == '.' || c == '_' ||  c == ']')
+    return true;
+  else if(  c == '[' ) {
+    auto rp = s.find(']',idx);
+    auto rc = s.find(':',idx);
+    if(rc < rp)
+      return false;
+    return true;
+  }
+  return false;
 }
 
 bool isNumBegin(unsigned char c) { return isdigit(c) || c == '\''; }
@@ -66,7 +75,7 @@ void VarExtractor::ParseToExtract(const std::string& in,
     bool is_num_new =
         (is_num && isNumCont(in.at(idx))) || isNumBegin(in.at(idx));
     bool is_state_new =
-        (is_state && isStateCont(in.at(idx))) || isStateBegin(in.at(idx));
+        (is_state && isStateCont(in.at(idx), idx, in)) || isStateBegin(in.at(idx));
 
     if (is_num && is_state) {
       ILA_ASSERT(false) << "This should not be possible";
@@ -83,11 +92,15 @@ void VarExtractor::ParseToExtract(const std::string& in,
         is_state = false;
         auto subs = in.substr(left, idx - left);
         token_type tp;
-        if (_is_ila_state(subs) && !force_vlg_statename)
+        // deal with []
+        auto left_p = subs.find('[');
+        auto check_s = subs.substr(0,left_p); // the string use to check no []
+
+        if (_is_ila_state(check_s) && !force_vlg_statename)
           tp = ILA_S;
-        else if (_is_ila_input(subs) && !force_vlg_statename)
+        else if (_is_ila_input(check_s) && !force_vlg_statename)
           tp = ILA_IN;
-        else if (_is_vlg_sig(subs))
+        else if (_is_vlg_sig(check_s))
           tp = VLG_S;
         else
           tp = UNKN_S;
@@ -125,11 +138,13 @@ void VarExtractor::ParseToExtract(const std::string& in,
       _tokens.push_back({token_type::NUM, subs});
     else if (is_state) {
       token_type tp;
-      if (_is_ila_state(subs) && !force_vlg_statename)
+      auto left_p = subs.find('[');
+      auto check_s = subs.substr(0,left_p); // the string use to check no []
+      if (_is_ila_state(check_s) && !force_vlg_statename)
         tp = ILA_S;
-      else if (_is_ila_input(subs) && !force_vlg_statename)
+      else if (_is_ila_input(check_s) && !force_vlg_statename)
         tp = ILA_IN;
-      else if (_is_vlg_sig(subs))
+      else if (_is_vlg_sig(check_s))
         tp = VLG_S;
       else
         tp = UNKN_S;

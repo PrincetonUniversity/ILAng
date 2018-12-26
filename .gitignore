@@ -62,5 +62,3 @@ tags
 *.cubin
 *.fatbin
 
-# Test Outputs
-test/unit-data/vpipe/verify/*

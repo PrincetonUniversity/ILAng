@@ -35,6 +35,15 @@ namespace ilang {
   	return _ptr->name2loc(net_name);
   }
 
+  /// Return the location of a module instantiation
+  VerilogInfo::vlg_loc_t VerilogInfo::get_module_inst_loc(const std::string& inst_name) const
+  {
+    // get the raw and convert -- a bit dangerous but we won't delete it, so should be fine
+    const VerilogAnalyzer * _ptr = dynamic_cast<const VerilogAnalyzer *>( _analyzer );
+    ILA_NOT_NULL(_ptr);
+    return _ptr->get_module_inst_loc(inst_name);
+  }
+
   /// Return top module name
   std::string VerilogInfo::get_top_module_name() const {
   	const VerilogAnalyzer * _ptr = dynamic_cast<const VerilogAnalyzer *>( _analyzer );
@@ -59,6 +68,12 @@ namespace ilang {
     return _ptr->in_bad_state();
   }
 
+  /// Return the location of a module's endmodule statement
+  VerilogInfo::vlg_loc_t VerilogInfo::get_endmodule_loc (const std::string& inst_name) const {
+    const VerilogAnalyzer * _ptr = dynamic_cast<const VerilogAnalyzer *>( _analyzer );
+    ILA_NOT_NULL(_ptr);
+    return _ptr->get_endmodule_loc(inst_name);
+  }
 
 /// overload the operator << for printing location
 std::ostream & operator<<(std::ostream & os, const VerilogAnalyzerBase::vlg_loc_t & obj ) { return VerilogAnalyzerBase::PrintLoc(os,obj); }

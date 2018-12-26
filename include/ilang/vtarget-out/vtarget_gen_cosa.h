@@ -10,6 +10,7 @@
 
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/vtarget-out/vtarget_gen_impl.h>
+#include <ilang/vtarget-out/vlg_mod.h>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -47,15 +48,10 @@ class VlgSglTgtGen_Cosa : public VlgSglTgtGen {
   /// using the target type
   using target_type_t = VlgSglTgtGen::target_type_t;
   /// a tuple to store all related info for modification
-  typedef std::tuple<long,        // lineno
-                     std::string, // varname (short name)
-                     bool>
-      info_t;
-
+  using info_t = VerilogModifier::info_t;
   /// filename -> (lineno, varname, is_port_sig) vec
-  typedef std::map<std::string, // file name
-                   std::vector<info_t>>
-      fn_l_map_t;
+  using fn_l_map_t = VerilogModifier::fn_l_map_t;
+
 
 public:
   // --------------------- CONSTRUCTOR ---------------------------- //
@@ -83,7 +79,9 @@ public:
       const std::string& vlg_mod_inst_name,
       const std::string& ila_mod_inst_name, const std::string& wrapper_name,
       const std::vector<std::string>& implementation_srcs,
-      const std::vector<std::string>& include_dirs, backend_selector backend);
+      const std::vector<std::string>& include_dirs, 
+      const vtg_config_t & vtg_config,
+      backend_selector backend);
 
 protected:
   /// Cosa problem generate
@@ -122,14 +120,7 @@ protected:
   /// For jasper, this means do nothing, for yosys, you need to add (*keep*)
   virtual void Export_modify_verilog() override;
 
-public:
-  /// A function not fully implemented !!!
-  static std::string add_keep_to_port(const std::string& line_in,
-                                      const std::string& vname);
-
 private:
-  /// helper to read-modify-write a file
-  void rmw(std::ifstream& fin, std::ofstream& fout, std::vector<info_t>& info);
   /// It is okay to instantiation
   virtual void do_not_instantiate(void) override{};
 

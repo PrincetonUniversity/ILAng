@@ -39,6 +39,7 @@ set(ILANG_TEST_MAIN unit_tests)
 
 package_add_test(${ILANG_TEST_MAIN} 
   unit-src/eq_ilas.cc
+  unit-src/memswap.cc
   unit-src/simple_cpu.cc
   unit-src/stream_buffer.cc
   unit-src/mcm_ilas.cc
@@ -73,6 +74,7 @@ package_add_test(${ILANG_TEST_MAIN}
   t_z3adapter.cc
   t_z3sanity.cc
   t_vtarget_gen.cc
+  t_verilog_mod.cc
 )
 
 if(${ILANG_BUILD_SYNTH})

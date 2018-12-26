@@ -1,0 +1,19 @@
+{
+  "global invariants": [],
+
+  "instructions": [
+    {
+      "instruction" : "FirstRound",
+      "ready bound" : 1
+    },
+    {
+      "instruction" : "IntermediateRound",
+      "ready bound" : 2
+    },
+    {
+      "instruction" : "FinalRound",
+      "ready bound" : 2
+    }
+  ]
+}
+

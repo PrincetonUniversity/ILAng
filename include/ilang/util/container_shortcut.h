@@ -4,6 +4,7 @@
 #ifndef CONTAINER_SHORTCUT_H__
 #define CONTAINER_SHORTCUT_H__
 
+#include <string>
 #include <algorithm>
 #include <set>
 
@@ -22,5 +23,7 @@
 
 #define IN(e, s) ((s).find(e) != (s).end())
 #define IN_p(e, s) ((s)->find(e) != (s)->end())
+
+#define S_IN(sub,s) (s.find(sub) != s.npos)
 
 #endif // CONTAINER_SHORTCUT_H__
