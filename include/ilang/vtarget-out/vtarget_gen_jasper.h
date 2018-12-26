@@ -41,9 +41,8 @@ public:
       const std::string& vlg_mod_inst_name,
       const std::string& ila_mod_inst_name, const std::string& wrapper_name,
       const std::vector<std::string>& implementation_srcs,
-      const std::vector<std::string>& include_dirs, 
-      const vtg_config_t & vtg_config,
-      backend_selector backend);
+      const std::vector<std::string>& include_dirs,
+      const vtg_config_t& vtg_config, backend_selector backend);
 
 protected:
   /// internal storage of problems

@@ -7,8 +7,8 @@
 #include <ilang/util/fs.h>
 #include <ilang/util/log.h>
 #include <ilang/util/str_util.h>
-#include <ilang/vtarget-out/vtarget_gen_cosa.h>
 #include <ilang/vtarget-out/absmem.h>
+#include <ilang/vtarget-out/vtarget_gen_cosa.h>
 #include <iostream>
 
 namespace ilang {
@@ -26,14 +26,12 @@ VlgSglTgtGen_Cosa::VlgSglTgtGen_Cosa(
     VerilogInfo* _vlg_info_ptr, const std::string& vlg_mod_inst_name,
     const std::string& ila_mod_inst_name, const std::string& wrapper_name,
     const std::vector<std::string>& implementation_srcs,
-    const std::vector<std::string>& implementation_include_path, 
-    const vtg_config_t & vtg_config,
-    backend_selector backend)
+    const std::vector<std::string>& implementation_include_path,
+    const vtg_config_t& vtg_config, backend_selector backend)
     : VlgSglTgtGen(output_path, instr_ptr, ila_ptr, config, _rf_vmap, _rf_cond,
                    _vlg_info_ptr, vlg_mod_inst_name, ila_mod_inst_name,
                    wrapper_name, implementation_srcs,
-                   implementation_include_path, vtg_config, backend)
-    {}
+                   implementation_include_path, vtg_config, backend) {}
 
 std::string convert_expr_to_cosa(const std::string& in) {
   return ReplaceAll(
@@ -50,7 +48,8 @@ void VlgSglTgtGen_Cosa::add_wire_assign_assumption(
   //_problems.assumptions.push_back(varname + " = " +
   //                                convert_expr_to_cosa(expression));
   vlg_wrapper.add_assign_stmt(varname, expression);
-  ILA_ERROR_IF(expression.find(".") != std::string::npos) << "expression:" << expression <<" contains unfriendly dot.";
+  ILA_ERROR_IF(expression.find(".") != std::string::npos)
+      << "expression:" << expression << " contains unfriendly dot.";
 }
 
 void VlgSglTgtGen_Cosa::add_reg_cassign_assumption(
@@ -60,17 +59,20 @@ void VlgSglTgtGen_Cosa::add_reg_cassign_assumption(
   // _problems.assumptions.push_back("(!( " + convert_expr_to_cosa(cond) +
   //                                 " ) | (" + varname + " = " +
   //                                convert_expr_to_cosa(expression) + "))");
-  ILA_ERROR_IF(expression.find(".") != std::string::npos) << "expression:" << expression <<" contains unfriendly dot.";
-  vlg_wrapper.add_always_stmt("if (" + cond + ") " + varname + " <= " + expression + "; //" + dspt );
+  ILA_ERROR_IF(expression.find(".") != std::string::npos)
+      << "expression:" << expression << " contains unfriendly dot.";
+  vlg_wrapper.add_always_stmt("if (" + cond + ") " + varname +
+                              " <= " + expression + "; //" + dspt);
 }
 
 /// Add an assumption
 void VlgSglTgtGen_Cosa::add_an_assumption(const std::string& aspt,
                                           const std::string& dspt) {
-  auto assumption_wire_name = vlg_wrapper.sanitizeName(dspt) + new_mapping_id(); 
-  vlg_wrapper.add_wire( assumption_wire_name , 1 , true );
-  vlg_wrapper.add_assign_stmt( assumption_wire_name,  aspt );
-  ILA_ERROR_IF(aspt.find(".") != std::string::npos) << "aspt:" << aspt <<" contains unfriendly dot.";
+  auto assumption_wire_name = vlg_wrapper.sanitizeName(dspt) + new_mapping_id();
+  vlg_wrapper.add_wire(assumption_wire_name, 1, true);
+  vlg_wrapper.add_assign_stmt(assumption_wire_name, aspt);
+  ILA_ERROR_IF(aspt.find(".") != std::string::npos)
+      << "aspt:" << aspt << " contains unfriendly dot.";
   _problems.assumptions.push_back(assumption_wire_name + " = 1_1");
   //_problems.assumptions.push_back(convert_expr_to_cosa(aspt));
 }
@@ -78,10 +80,11 @@ void VlgSglTgtGen_Cosa::add_an_assumption(const std::string& aspt,
 void VlgSglTgtGen_Cosa::add_an_assertion(const std::string& asst,
                                          const std::string& dspt) {
   auto assrt_wire_name = vlg_wrapper.sanitizeName(dspt) + new_property_id();
-  vlg_wrapper.add_wire( assrt_wire_name , 1 , true);
-  vlg_wrapper.add_assign_stmt( assrt_wire_name,  asst );
+  vlg_wrapper.add_wire(assrt_wire_name, 1, true);
+  vlg_wrapper.add_assign_stmt(assrt_wire_name, asst);
   _problems.probitem[dspt].assertions.push_back(assrt_wire_name + " = 1_1");
-  ILA_ERROR_IF(asst.find(".") != std::string::npos) << "asst:" << asst <<" contains unfriendly dot.";
+  ILA_ERROR_IF(asst.find(".") != std::string::npos)
+      << "asst:" << asst << " contains unfriendly dot.";
   //_problems.probitem[dspt].assertions.push_back(convert_expr_to_cosa(asst));
 }
 
@@ -189,9 +192,10 @@ void VlgSglTgtGen_Cosa::Export_modify_verilog() {
 
   for (auto&& refered_vlg_item : _all_referred_vlg_names) {
     auto idx = refered_vlg_item.first.find("[");
-    auto removed_range_name = refered_vlg_item.first.substr(0,idx);
-    vlg_mod.RecordKeepSignalName( removed_range_name );
-    vlg_mod.RecordConnectSigName( removed_range_name, refered_vlg_item.second.range );
+    auto removed_range_name = refered_vlg_item.first.substr(0, idx);
+    vlg_mod.RecordKeepSignalName(removed_range_name);
+    vlg_mod.RecordConnectSigName(removed_range_name,
+                                 refered_vlg_item.second.range);
   }
   vlg_mod.FinishRecording();
 
@@ -208,7 +212,7 @@ void VlgSglTgtGen_Cosa::Export_modify_verilog() {
       ILA_ERROR << "Cannot open file for write:" << outfn;
       continue;
     }
-    vlg_mod.ReadModifyWrite( fn, fin, fout );
+    vlg_mod.ReadModifyWrite(fn, fin, fout);
   } // for (auto && fn : vlg_design_files)
   // .. (copy all the verilog file in the folder), this has to be os dependent
   if (vlg_include_files_path.size() != 0)

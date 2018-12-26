@@ -4,11 +4,10 @@
 #ifndef ABS_MEM_H__
 #define ABS_MEM_H__
 
-
 #include <ilang/verilog-out/verilog_gen.h>
 #include <ilang/vtarget-out/absmem.h>
-#include <set>
 #include <map>
+#include <set>
 #include <string>
 #include <tuple>
 
@@ -42,11 +41,14 @@ struct VlgAbsMem {
   std::string ila_map_name;
   /// which the name in rfmap
   std::string mem_name;
+
 private:
   /// Whether the module is checked to be okay
   bool checked;
-  /// track what kind of memory need to export, positive for w-abs, negative for r-w-abs
-  static std::set <int> concrete_level_encountered;
+  /// track what kind of memory need to export, positive for w-abs, negative for
+  /// r-w-abs
+  static std::set<int> concrete_level_encountered;
+
 public:
   // ------------------CONSTRUCTOR ----------- //
   /// do nothing
@@ -58,10 +60,11 @@ public:
   void SetDataWidth(unsigned w);
   /// Get the memeq signal name
   std::string MemEQSignalName() const;
-  /// 
-  std::string GeneratingMemModuleSignalsInstantiation(VerilogGeneratorBase & gen);
+  ///
+  std::string
+  GeneratingMemModuleSignalsInstantiation(VerilogGeneratorBase& gen);
 
-  static void OutputMemFile(std::ostream & os);
+  static void OutputMemFile(std::ostream& os);
 
 }; // class VlgAbsMem
 

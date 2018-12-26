@@ -29,4 +29,3 @@ json PortableMngr::GenJsonObjOfInstr(const InstrPtr& instr) {
 }
 
 } // namespace ilang
-

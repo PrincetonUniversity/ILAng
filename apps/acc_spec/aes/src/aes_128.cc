@@ -61,7 +61,7 @@ ExprRef AES_128::rcon(const ExprRef& rnd) {
 
   ExprRef ret = BvConst(rcon_table[0], 8);
   for (int i = 1; i < 10; i++)
-    ret = Ite(rnd == i+1, BvConst(rcon_table[i], 8), ret); // rnd : 1..10 
+    ret = Ite(rnd == i + 1, BvConst(rcon_table[i], 8), ret); // rnd : 1..10
   return ret;
 }
 
@@ -236,7 +236,8 @@ AES_128::AES_128() : model("AES_128_Rnd") {
 
   model.AddInit(round == 0);
   model.SetValid(
-      round <= 10); // 0: init  1-10 , all bvs are treated as unsigned number by default
+      round <=
+      10); // 0: init  1-10 , all bvs are treated as unsigned number by default
 
   // initial round
 

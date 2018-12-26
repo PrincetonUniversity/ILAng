@@ -233,7 +233,7 @@ public:
   /// Return the location of a module instantiation
   vlg_loc_t get_module_inst_loc(const std::string& inst_name) const;
   /// Return the location of a module's endmodule statement
-  vlg_loc_t get_endmodule_loc (const std::string& inst_name) const;
+  vlg_loc_t get_endmodule_loc(const std::string& inst_name) const;
   /// Return top module name
   std::string get_top_module_name() const;
   /// Return top module signal

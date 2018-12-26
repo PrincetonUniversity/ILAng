@@ -178,9 +178,9 @@ VlgSglTgtGen::ModifyCondExprAndRecordVlgName(const VarExtractor::token& t) {
   } else if (token_tp == VarExtractor::token_type::ILA_S) {
     std::string quote = "";
     auto left_p = sname.find('[');
-    auto check_s = sname.substr(0,left_p); 
+    auto check_s = sname.substr(0, left_p);
     auto range_s = left_p != std::string::npos ? sname.substr(left_p) : "";
-    //if (_backend == backend_selector::COSA)
+    // if (_backend == backend_selector::COSA)
     //  quote = "'";
     // if it refers to ILA state
     if (_host->state(check_s))
@@ -197,11 +197,11 @@ VlgSglTgtGen::ModifyCondExprAndRecordVlgName(const VarExtractor::token& t) {
     return sname;
   } else if (token_tp == VarExtractor::token_type::ILA_IN) {
     auto left_p = sname.find('[');
-    auto check_s = sname.substr(0,left_p); 
+    auto check_s = sname.substr(0, left_p);
     auto range_s = left_p != std::string::npos ? sname.substr(left_p) : "";
 
     std::string quote = "";
-    //if (_backend == backend_selector::COSA)
+    // if (_backend == backend_selector::COSA)
     //  quote = "'";
     // if it refers to ILA state
     if (_host->input(check_s))
@@ -219,25 +219,27 @@ VlgSglTgtGen::ModifyCondExprAndRecordVlgName(const VarExtractor::token& t) {
   } else if (token_tp == VarExtractor::token_type::VLG_S) {
     std::string quote = "";
     auto left_p = sname.find('[');
-    auto check_s = sname.substr(0,left_p); 
+    auto check_s = sname.substr(0, left_p);
     auto range_s = left_p != std::string::npos ? sname.substr(left_p) : "";
-    auto range_underscore = ReplaceAll(ReplaceAll(range_s,"[","_"),"]","_");
-    //if (_backend == backend_selector::COSA)
+    auto range_underscore = ReplaceAll(ReplaceAll(range_s, "[", "_"), "]", "_");
+    // if (_backend == backend_selector::COSA)
     //  quote = "'";
 
     if (vlg_info_ptr->check_hierarchical_name_type(check_s) !=
         VerilogInfo::hierarchical_name_type::NONE) {
-      _all_referred_vlg_names.insert({check_s+range_s, ex_info_t(range_s)});
+      _all_referred_vlg_names.insert({check_s + range_s, ex_info_t(range_s)});
       auto remove_dot_name = ReplaceAll(check_s, ".", "__DOT__");
-      // Convert the check_s to 
+      // Convert the check_s to
       return quote + remove_dot_name + quote + range_underscore;
     }
     if (vlg_info_ptr->check_hierarchical_name_type(_vlg_mod_inst_name + "." +
                                                    check_s) !=
         VerilogInfo::hierarchical_name_type::NONE) {
-      _all_referred_vlg_names.insert({_vlg_mod_inst_name + "." + check_s + range_s, ex_info_t(range_s)});
+      _all_referred_vlg_names.insert(
+          {_vlg_mod_inst_name + "." + check_s + range_s, ex_info_t(range_s)});
       auto remove_dot_name = ReplaceAll(check_s, ".", "__DOT__");
-      return quote + _vlg_mod_inst_name + "__DOT__" + remove_dot_name + quote + range_underscore;
+      return quote + _vlg_mod_inst_name + "__DOT__" + remove_dot_name + quote +
+             range_underscore;
     }
     ILA_ASSERT(false)
         << "Implementation bug: should not be reachable. token_type: VLG_S";
@@ -316,10 +318,10 @@ std::string VlgSglTgtGen::ReplExpr(const std::string& expr,
 std::string VlgSglTgtGen::PerStateMap(const std::string& ila_state_name,
                                       const std::string& vlg_st_name) {
   if (vlg_st_name.size() == 0) {
-    ILA_INFO << "Skip mapping ila state:"<<ila_state_name;
+    ILA_INFO << "Skip mapping ila state:" << ila_state_name;
     return VLG_TRUE;
   }
-  
+
   if (isEqu(vlg_st_name)) { // is equ
     // not using re here
     auto new_expr = ReplExpr(vlg_st_name);
@@ -359,7 +361,8 @@ std::string VlgSglTgtGen::PerStateMap(const std::string& ila_state_name,
 // ila-state -> ref (json)
 // return a verilog verilog, that should be asserted to be true for this purpose
 std::string VlgSglTgtGen::GetStateVarMapExpr(const std::string& ila_state_name,
-                                             nlohmann::json& m, bool is_assert) {
+                                             nlohmann::json& m,
+                                             bool is_assert) {
   if (m.is_null())
     return VLG_TRUE;
   if (m.is_string()) {
@@ -369,8 +372,12 @@ std::string VlgSglTgtGen::GetStateVarMapExpr(const std::string& ila_state_name,
       // may be we need to log them here
       if (is_assert == false)
         return VLG_TRUE; // no need for assumptions on memory
-      // handle memory: map vlg_ila.ila_wports && vlg_ila.ila_rports with _idr.abs_mems
-      auto mem_eq_assert = _idr.ConnectMemory( m.get<std::string>(), ila_state_name, vlg_ila.ila_rports[ila_state_name] , vlg_ila.ila_wports[ila_state_name] );
+      // handle memory: map vlg_ila.ila_wports && vlg_ila.ila_rports with
+      // _idr.abs_mems
+      auto mem_eq_assert =
+          _idr.ConnectMemory(m.get<std::string>(), ila_state_name,
+                             vlg_ila.ila_rports[ila_state_name],
+                             vlg_ila.ila_wports[ila_state_name]);
       // wire will be added by the absmem
       return mem_eq_assert;
     } else {
@@ -392,24 +399,26 @@ std::string VlgSglTgtGen::GetStateVarMapExpr(const std::string& ila_state_name,
         std::string cond(VLG_TRUE), vmap(VLG_TRUE);
         for (const auto& i : (item).items()) {
           if (i.key() == "0" || i.key() == "cond") {
-            if(i.value().is_null() )
+            if (i.value().is_null())
               continue;
-            else if(i.value().is_string()) {
+            else if (i.value().is_string()) {
               cond = ReplExpr(i.value().get<std::string>()); // set the condtion
               continue;
             } else {
-              ILA_ERROR<<"Expecting the first element/`cond` to be a string/null";
+              ILA_ERROR
+                  << "Expecting the first element/`cond` to be a string/null";
               continue;
             }
           }
           if (i.key() == "1" || i.key() == "map") {
-            if(i.value().is_null() )
+            if (i.value().is_null())
               continue;
-            else if(i.value().is_string()) {
+            else if (i.value().is_string()) {
               vmap = PerStateMap(ila_state_name, i.value().get<std::string>());
               continue; // set the mapping
             } else {
-              ILA_ERROR<<"Expecting the second element/`map` to be a string/null";
+              ILA_ERROR
+                  << "Expecting the second element/`map` to be a string/null";
               continue;
             }
           }
@@ -418,7 +427,8 @@ std::string VlgSglTgtGen::GetStateVarMapExpr(const std::string& ila_state_name,
           break;
         }
         // cond ==> vmap    i.e.  ~cond || vmap
-        all_mappings.push_back("~ (" + prev_neg + "(" + cond + ") ) || (" + vmap + ")");
+        all_mappings.push_back("~ (" + prev_neg + "(" + cond + ") ) || (" +
+                               vmap + ")");
         prev_neg += "~(" + cond + ")&&";
       } else {
         ILA_ERROR << "Unable to handle this piece of JSON input:" << item;
@@ -440,20 +450,20 @@ std::string VlgSglTgtGen::GetStateVarMapExpr(const std::string& ila_state_name,
 } // GetStateVarMapExpr
 
 void VlgSglTgtGen::handle_start_condition(nlohmann::json& dc) {
-  if( not dc.is_array() ) {
+  if (not dc.is_array()) {
     ILA_ERROR << " not enforcing start condition: expect an array of strings.";
     return;
   }
-  for(auto && pr : dc.items()) {
-    if(not pr.value().is_string() ) {
-      ILA_ERROR << " not enforcing start condition: expect an array of strings.";
+  for (auto&& pr : dc.items()) {
+    if (not pr.value().is_string()) {
+      ILA_ERROR
+          << " not enforcing start condition: expect an array of strings.";
       continue;
     }
     auto cond = pr.value().get<std::string>();
-    cond = ReplaceAll(
-            ReplaceAll(cond, "$decode$", vlg_ila.decodeNames[0]),
-            "$valid$", vlg_ila.validName);
-    add_an_assumption( "(~ __START__) || " +  ReplExpr(cond) , "start_condition" ); 
+    cond = ReplaceAll(ReplaceAll(cond, "$decode$", vlg_ila.decodeNames[0]),
+                      "$valid$", vlg_ila.validName);
+    add_an_assumption("(~ __START__) || " + ReplExpr(cond), "start_condition");
     // ReplExpr: Yes, you need to translate it to the vlg names
   }
 } // handle_start_condition

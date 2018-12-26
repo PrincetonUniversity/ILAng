@@ -16,4 +16,3 @@ int TestParseVerilogFrom(std::FILE* fp) {
 }
 
 }; // namespace ilang
-

@@ -1,9 +1,9 @@
 /// \file
 /// Source for unrolling ILA execution.
 
+#include <ilang/util/log.h>
 #include <ilang/verification/abs_knob.h>
 #include <ilang/verification/unroller.h>
-#include <ilang/util/log.h>
 #include <map>
 #include <vector>
 

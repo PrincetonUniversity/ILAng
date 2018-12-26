@@ -1,25 +1,26 @@
 /// \file Source for generating abstract memory
 // --- Hongce Zhang
 
-#include <ilang/util/log.h>
+#include <cmath>
 #include <ilang/util/container_shortcut.h>
+#include <ilang/util/log.h>
 #include <ilang/vtarget-out/absmem.h>
 #include <sstream>
-#include <cmath>
 
 namespace ilang {
 
 unsigned mem_count = 0;
 std::string get_m_inst_name() {
-  return std::string("mi") + std::to_string (mem_count ++ );
+  return std::string("mi") + std::to_string(mem_count++);
 }
 
 // ---------------------- class VlgAbsMem ------------------------------- //
-VlgAbsMem::VlgAbsMem() : concrete_level(1), data_width(0), addr_width(0), checked(false) {} 
+VlgAbsMem::VlgAbsMem()
+    : concrete_level(1), data_width(0), addr_width(0), checked(false) {}
 
 /// SetAddrWidth
 void VlgAbsMem::SetAddrWidth(unsigned w) {
-  if(addr_width != 0 && addr_width != w) {
+  if (addr_width != 0 && addr_width != w) {
     ILA_ERROR << "Address width incompatible!";
     return;
   }
@@ -27,102 +28,107 @@ void VlgAbsMem::SetAddrWidth(unsigned w) {
 }
 /// SetDataWidth
 void VlgAbsMem::SetDataWidth(unsigned w) {
-  if(data_width != 0 && data_width != w) {
+  if (data_width != 0 && data_width != w) {
     ILA_ERROR << "Data width incompatible!";
     return;
   }
   data_width = w;
 }
 
-
-std::string VlgAbsMem::MemEQSignalName() const {
-  return mem_name + "_EQ_";
-}
+std::string VlgAbsMem::MemEQSignalName() const { return mem_name + "_EQ_"; }
 
 // add signals and add instantiation statement;
-std::string VlgAbsMem::GeneratingMemModuleSignalsInstantiation(VerilogGeneratorBase & gen) {
+std::string
+VlgAbsMem::GeneratingMemModuleSignalsInstantiation(VerilogGeneratorBase& gen) {
   // eq ? signal
   // if not given,  use a name it self
-  if(addr_width == 0 || data_width == 0) {
-    ILA_ERROR << "Unknown data width for absmem : "<< ila_map_name;
+  if (addr_width == 0 || data_width == 0) {
+    ILA_ERROR << "Unknown data width for absmem : " << ila_map_name;
     return "";
   }
-  if (vlg_rports.size() > 1 || vlg_wports.size() > 1 || ila_rports.size() > 1 || ila_wports.size() > 1) {
-    ILA_ERROR << "Not implemented for support for abs mem w. more than 1 rport and 1 wport";
+  if (vlg_rports.size() > 1 || vlg_wports.size() > 1 || ila_rports.size() > 1 ||
+      ila_wports.size() > 1) {
+    ILA_ERROR << "Not implemented for support for abs mem w. more than 1 rport "
+                 "and 1 wport";
     return "";
   }
 
   std::stringstream ret;
   std::string moduleName;
   auto inst_name = get_m_inst_name();
-  if(concrete_level == 1)
+  if (concrete_level == 1)
     moduleName = "absmem";
   else
     moduleName = "absmemD" + std::to_string(concrete_level);
   ret << moduleName << " #( \n    .AW(" << addr_width << "),\n";
-  ret << "    .DW("<<data_width<<"),\n";
-  ret << "    .TTS("<<(long long)(std::pow(2,addr_width))<<") )\n";
-  ret << inst_name <<"(\n";
+  ret << "    .DW(" << data_width << "),\n";
+  ret << "    .TTS(" << (long long)(std::pow(2, addr_width)) << ") )\n";
+  ret << inst_name << "(\n";
   ret << "    .clk(clk),\n";
   ret << "    .rst(rst),\n";
   ret << "    .equal(" << MemEQSignalName() << "),\n";
-  ret << "    .compare(" << "__IEND__ || __ENDED__" << ")";
+  ret << "    .compare("
+      << "__IEND__ || __ENDED__"
+      << ")";
 
-  gen.add_wire(MemEQSignalName(),1,true);
+  gen.add_wire(MemEQSignalName(), 1, true);
 
   // connect ports, create
   // treat unconnected wire?
-#define CONNECT(e,s,w) do {             \
-    if( (e).size() == 0 ) {             \
-      (e) = base_name + (s);              \
-      gen.add_wire((e), (w), true);}          \
-    ret << ",\n    .vlg" s "("<< (e) <<")";\
-    }while(false)
+#define CONNECT(e, s, w)                                                       \
+  do {                                                                         \
+    if ((e).size() == 0) {                                                     \
+      (e) = base_name + (s);                                                   \
+      gen.add_wire((e), (w), true);                                            \
+    }                                                                          \
+    ret << ",\n    .vlg" s "(" << (e) << ")";                                  \
+  } while (false)
 
-  for(auto && np : vlg_wports) {
+  for (auto&& np : vlg_wports) {
     auto n = np.first;
-    auto & p = np.second;
+    auto& p = np.second;
     auto base_name = "__MEM_" +
-                VerilogGeneratorBase::sanitizeName(ila_map_name) +
-                "_" + std::to_string(n);
+                     VerilogGeneratorBase::sanitizeName(ila_map_name) + "_" +
+                     std::to_string(n);
 
     CONNECT(p.waddr, "_waddr", addr_width);
     CONNECT(p.wdata, "_wdata", data_width);
-    CONNECT(p.wen,   "_wen",   1);
+    CONNECT(p.wen, "_wen", 1);
   }
 
-  for(auto && np : vlg_rports) {
+  for (auto&& np : vlg_rports) {
     auto n = np.first;
-    auto & p = np.second;
+    auto& p = np.second;
     auto base_name = "__MEM_" +
-                VerilogGeneratorBase::sanitizeName(ila_map_name) +
-                "_" + std::to_string(n);
+                     VerilogGeneratorBase::sanitizeName(ila_map_name) + "_" +
+                     std::to_string(n);
 
     CONNECT(p.raddr, "_raddr", addr_width);
     CONNECT(p.rdata, "_rdata", data_width);
-    CONNECT(p.ren,   "_ren",   1);
+    CONNECT(p.ren, "_ren", 1);
   }
 
   // ila ports should have been fully connected
   // NOTE: in multi inst
-  for(auto && np : ila_wports) {
+  for (auto&& np : ila_wports) {
     auto n = np.first;
-    auto & p = np.second;
+    auto& p = np.second;
 
-    ret << ",\n    .ila_waddr("<< p.waddr <<")";
-    ret << ",\n    .ila_wdata("<< p.wdata <<")";
-    ret << ",\n    .ila_wen  ("<< p.wen <<  ")";
+    ret << ",\n    .ila_waddr(" << p.waddr << ")";
+    ret << ",\n    .ila_wdata(" << p.wdata << ")";
+    ret << ",\n    .ila_wen  (" << p.wen << ")";
   }
-  if( ila_wports.size() == 0 )
-    ret << ",\n    .ila_wen  ( 1'b0 )"; // make sure we don't do any writes if no write
+  if (ila_wports.size() == 0)
+    ret << ",\n    .ila_wen  ( 1'b0 )"; // make sure we don't do any writes if
+                                        // no write
 
-  for(auto && np : ila_rports) {
+  for (auto&& np : ila_rports) {
     auto n = np.first;
-    auto & p = np.second;
+    auto& p = np.second;
 
-    ret << ",\n    .ila_raddr("<< p.raddr <<")";
-    ret << ",\n    .ila_rdata("<< p.rdata <<")";
-    ret << ",\n    .ila_ren  ("<< p.ren <<  ")";
+    ret << ",\n    .ila_raddr(" << p.raddr << ")";
+    ret << ",\n    .ila_rdata(" << p.rdata << ")";
+    ret << ",\n    .ila_ren  (" << p.ren << ")";
   }
 
   ret << " );\n\n";
@@ -133,7 +139,7 @@ std::string VlgAbsMem::GeneratingMemModuleSignalsInstantiation(VerilogGeneratorB
   return (ret.str());
 }
 
-void VlgAbsMem::OutputMemFile(std::ostream & os) {
+void VlgAbsMem::OutputMemFile(std::ostream& os) {
 
   std::string d1model = R"**##**(
 
@@ -289,14 +295,15 @@ endmodule
 
   )**##**";
 
-  for (auto && cl : concrete_level_encountered) {
-    if (cl == 1 )
+  for (auto&& cl : concrete_level_encountered) {
+    if (cl == 1)
       os << d1model;
     else
-      ILA_ERROR << "depth :" << cl << " abs mem model is not developed. Future work.";
+      ILA_ERROR << "depth :" << cl
+                << " abs mem model is not developed. Future work.";
   }
 }
 
-std::set  <int>  VlgAbsMem::concrete_level_encountered;
+std::set<int> VlgAbsMem::concrete_level_encountered;
 
 }; // namespace ilang

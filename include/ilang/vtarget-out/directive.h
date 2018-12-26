@@ -88,15 +88,15 @@ public:
                          const std::string& refstr, ila_input_checker_t chk,
                          ila_mem_checker_t mget);
   /// Register the extra wire to connect (for extra wire)
-  void RegisterExtraWire(const std::string & io_name, const std::string & outside_name);
+  void RegisterExtraWire(const std::string& io_name,
+                         const std::string& outside_name);
   /// Register the connection of signals related to a memory
-  std::string ConnectMemory(
-  const std::string & directive, 
-  const std::string & ila_state_name,
-  const std::map<unsigned, rport_t> & rports, 
-  const std::map<unsigned, wport_t> & wports );
+  std::string ConnectMemory(const std::string& directive,
+                            const std::string& ila_state_name,
+                            const std::map<unsigned, rport_t>& rports,
+                            const std::map<unsigned, wport_t>& wports);
   /// Return the memory instantiation string
-  std::string GetAbsMemInstString(VerilogGeneratorBase & gen);
+  std::string GetAbsMemInstString(VerilogGeneratorBase& gen);
 
 protected:
   /// a sanity check for module instantiation string gen, check if all the vlg

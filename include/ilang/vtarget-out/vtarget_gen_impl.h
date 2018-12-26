@@ -53,7 +53,7 @@ public:
   /// Type of record of extra info of a signal
   struct ex_info_t {
     std::string range;
-    ex_info_t(const std::string &r) : range(r) {}
+    ex_info_t(const std::string& r) : range(r) {}
   };
 
 public:
@@ -81,8 +81,7 @@ public:
       const std::string& ila_mod_inst_name, const std::string& wrapper_name,
       const std::vector<std::string>& implementation_srcs,
       const std::vector<std::string>& implementation_include_path,
-      const vtg_config_t & vtg_config,
-      backend_selector backend);
+      const vtg_config_t& vtg_config, backend_selector backend);
 
   /// Destructor: do nothing , most importantly it is virtual
   virtual ~VlgSglTgtGen() {}
@@ -335,8 +334,7 @@ public:
                  const std::string& refinement_variable_mapping,
                  const std::string& refinement_conditions,
                  const std::string& output_path, const InstrLvlAbsPtr& ila_ptr,
-                 backend_selector backend,
-                 const vtg_config_t & vtg_config,
+                 backend_selector backend, const vtg_config_t& vtg_config,
                  const VerilogGenerator::VlgGenConfig& config =
                      VerilogGenerator::VlgGenConfig());
 

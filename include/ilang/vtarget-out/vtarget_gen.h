@@ -19,27 +19,27 @@ public:
   /// Type of the backend
   typedef enum { NONE = 0, COSA = 1, JASPERGOLD = 2 } backend_selector;
   /// Verilog Target Generation Configuration
-  typedef struct _vtg_config{
+  typedef struct _vtg_config {
     /// Set the targets: instructions/invariants/both
-    enum {INST,INV,BOTH} target_select;
+    enum { INST, INV, BOTH } target_select;
     /// If not an empty string, then only check for that instruction
     std::string CheckThisInstructionOnly;
     /// Ensure the instruction will not be reseted while
     /// in the whole execution of checking instruction
     /// from reseted --> to forever
-    bool InstructionNoReset;       // true
+    bool InstructionNoReset; // true
     /// Does not insert assertions of variable mapping
     /// if an instruction does not update that var
     bool OnlyCheckInstUpdatedVars; // true
     /// Do we set separate problems for different var map (CoSA only)
     bool PerVariableProblemCosa; // true
     /// Only enforce var eq on updated vars, should not be used
-    bool OnlyAssumeUpdatedVarsEq;  // should be false
+    bool OnlyAssumeUpdatedVarsEq; // should be false
     /// The default constructor for default values
-    _vtg_config() : target_select(BOTH), CheckThisInstructionOnly(""),
-    InstructionNoReset(true), OnlyCheckInstUpdatedVars(true),
-    PerVariableProblemCosa(false),
-    OnlyAssumeUpdatedVarsEq(false) {}
+    _vtg_config()
+        : target_select(BOTH), CheckThisInstructionOnly(""),
+          InstructionNoReset(true), OnlyCheckInstUpdatedVars(true),
+          PerVariableProblemCosa(false), OnlyAssumeUpdatedVarsEq(false) {}
   } vtg_config_t;
 
 public:
@@ -80,7 +80,7 @@ public:
       const std::string& refinement_variable_mapping,
       const std::string& refinement_conditions, const std::string& output_path,
       const InstrLvlAbsPtr& ila_ptr, backend_selector backend,
-      const vtg_config_t & vtg_config = vtg_config_t(),
+      const vtg_config_t& vtg_config = vtg_config_t(),
       const VerilogGenerator::VlgGenConfig& config =
           VerilogGenerator::VlgGenConfig());
   // --------------------- DECONSTRUCTOR ---------------------------- //
