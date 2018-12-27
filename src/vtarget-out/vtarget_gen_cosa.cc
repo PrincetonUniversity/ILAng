@@ -70,6 +70,7 @@ void VlgSglTgtGen_Cosa::add_an_assumption(const std::string& aspt,
                                           const std::string& dspt) {
   auto assumption_wire_name = vlg_wrapper.sanitizeName(dspt) + new_mapping_id();
   vlg_wrapper.add_wire(assumption_wire_name, 1, true);
+  vlg_wrapper.add_output(assumption_wire_name, 1 ); // I find it is necessary to connect to the output
   vlg_wrapper.add_assign_stmt(assumption_wire_name, aspt);
   ILA_ERROR_IF(aspt.find(".") != std::string::npos)
       << "aspt:" << aspt << " contains unfriendly dot.";
@@ -81,6 +82,7 @@ void VlgSglTgtGen_Cosa::add_an_assertion(const std::string& asst,
                                          const std::string& dspt) {
   auto assrt_wire_name = vlg_wrapper.sanitizeName(dspt) + new_property_id();
   vlg_wrapper.add_wire(assrt_wire_name, 1, true);
+  vlg_wrapper.add_output(assrt_wire_name, 1 ); // I find it is necessary to connect to the output
   vlg_wrapper.add_assign_stmt(assrt_wire_name, asst);
   _problems.probitem[dspt].assertions.push_back(assrt_wire_name + " = 1_1");
   ILA_ERROR_IF(asst.find(".") != std::string::npos)
@@ -148,7 +150,7 @@ void VlgSglTgtGen_Cosa::Export_problem(const std::string& extra_name) {
   fout << "assume_if_true: True" << std::endl;
   fout << "abstract_clock: True" << std::endl;
   fout << "[DEFAULT]" << std::endl;
-  fout << "bmc_length: " << std::to_string(max_bound) << std::endl;
+  fout << "bmc_length: " << std::to_string(max_bound+5) << std::endl;
   fout << "precondition: reset_done" << std::endl;
   fout << std::endl;
 
@@ -165,7 +167,10 @@ void VlgSglTgtGen_Cosa::Export_problem(const std::string& extra_name) {
       fout << "assumptions:" << assmpt << std::endl;
     fout << "prove: True" << std::endl;
     fout << "verification: safety" << std::endl;
-    fout << "strategy: ALL" << std::endl;
+    if ( VlgAbsMem::hasAbsMem() )
+      fout << "strategy: AUTO" << std::endl;
+    else
+      fout << "strategy: ALL" << std::endl;
     fout << "expected: True" << std::endl;
   }
 

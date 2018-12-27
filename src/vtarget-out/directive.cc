@@ -392,11 +392,11 @@ std::string IntefaceDirectiveRecorder::ConnectMemory(
 } // ConnectMemory
 
 std::string
-IntefaceDirectiveRecorder::GetAbsMemInstString(VerilogGeneratorBase& gen) {
+IntefaceDirectiveRecorder::GetAbsMemInstString(VerilogGeneratorBase& gen, const std::string & endCond) {
   std::string ret;
   for (auto&& m : abs_mems) {
     ret += "/*" + m.first + "*/\n";
-    ret += m.second.GeneratingMemModuleSignalsInstantiation(gen);
+    ret += m.second.GeneratingMemModuleSignalsInstantiation(gen, endCond);
   }
   return ret;
 }

@@ -920,7 +920,10 @@ void VerilogGenerator::ExportCondWrites(const ExprPtr& mem_var,
           cond + " ? (" + addr + ") : (" + addrStmt[portIdx] + ")";
       dataStmt[portIdx] =
           cond + " ? (" + data + ") : (" + dataStmt[portIdx] + ")";
-      enabStmt[portIdx] = cond + " ? ( 1'b1 ) : (" + enabStmt[portIdx] + ")";
+      std::string wen_start;
+      if(cfg_.start_signal)
+        wen_start = "&&" + startName;
+      enabStmt[portIdx] = "(" + cond + ")" + wen_start + " ? ( 1'b1 ) : (" + enabStmt[portIdx] + ")";
 
       portIdx++;
     }

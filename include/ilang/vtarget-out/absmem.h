@@ -60,11 +60,15 @@ public:
   void SetDataWidth(unsigned w);
   /// Get the memeq signal name
   std::string MemEQSignalName() const;
-  ///
+  /// Get the memory module instantiation string, it will also
+  /// add signals when necessary
   std::string
-  GeneratingMemModuleSignalsInstantiation(VerilogGeneratorBase& gen);
-
+  GeneratingMemModuleSignalsInstantiation(VerilogGeneratorBase& gen,
+      const std::string & endCond);
+  /// Output the memory module to the stream
   static void OutputMemFile(std::ostream& os);
+  /// Return true if there are abs mem used (strategy : ALL -> AUTO)
+  static bool hasAbsMem();
 
 }; // class VlgAbsMem
 

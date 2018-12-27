@@ -96,7 +96,7 @@ public:
                             const std::map<unsigned, rport_t>& rports,
                             const std::map<unsigned, wport_t>& wports);
   /// Return the memory instantiation string
-  std::string GetAbsMemInstString(VerilogGeneratorBase& gen);
+  std::string GetAbsMemInstString(VerilogGeneratorBase& gen, const std::string & endCond);
 
 protected:
   /// a sanity check for module instantiation string gen, check if all the vlg

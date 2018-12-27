@@ -597,6 +597,34 @@ void VlgSglTgtGen::ConstructWrapper_add_additional_mapping_control() {
   }
 } // ConstructWrapper_add_additional_mapping_control
 
+//  NON-FLUSH case
+//  1 RESET   
+//  2 ISSUE = true      RESETED (forever)
+//  3           START                     ---> assume varmap  ---> assume inv
+//  4                   STARTED
+//  5                   STARTED
+//  ...                   ...
+//  6           IEND                      ---> check varmap
+//  7                     ENDED
+
+
+//  FLUSH case
+//  1 RESET   
+//  2             RESETED                   ---> assume flush & preflush cond
+//  ...                                     ---> assume flush & preflush cond
+//  n ISSUE = pre-flush end                 ---> assume flush & preflush cond
+//  n+1           START                     ---> assume varmap  ---> assume inv (maybe globally?)
+//  n+2                   STARTED
+//  n+3                   STARTED
+//  ...                   ... (forever)
+//  m             IEND
+//  m+1                    ENDED            ---> assume flush & postflush cond
+//  ...                    ENDED (forever)  ---> assume flush & postflush cond
+//  l             ENDFLUSH = post-flush end ---> assume flush & postflush cond  ---> assert varmap
+//  l+1                    FLUSHENDED       ---> assume flush & postflush cond
+//                          
+
+
 void VlgSglTgtGen::ConstructWrapper_add_condition_signals() {
   // TODO
   // remember to generate
@@ -648,6 +676,7 @@ void VlgSglTgtGen::ConstructWrapper_add_condition_signals() {
       ILA_ERROR << "ready bound field of instruction: "
                 << _instr_ptr->name().str() << " has to a positive integer";
   } // end of ready bound/condition
+
   vlg_wrapper.add_wire("__IEND__", 1, true);
   add_wire_assign_assumption("__IEND__", "(" + iend_cond + ") && __STARTED__",
                              "IEND");
@@ -689,9 +718,16 @@ void VlgSglTgtGen::ConstructWrapper_add_condition_signals() {
     vlg_wrapper.add_wire("__ENDFLUSH__", 1, true);
     add_wire_assign_assumption("__ENDFLUSH__", finish_cond, "ENDFLUSH");
 
+    vlg_wrapper.add_reg("__FLUSHENDED__" , 1);
+    vlg_wrapper.add_stmt(
+      "always @(posedge clk) begin\n"
+      "if(rst) __FLUSHENDED__ <= 0;\n"
+      "else if( __ENDFLUSH__ && __ENDED__ ) __FLUSHENDED__ <= 1;\n end");
+
     // enforcing flush constraints
-    std::string flush_enforcement = VLG_TRUE " == 1";
-    if (instr["flush constraints"].is_string()) {
+    std::string flush_enforcement = VLG_TRUE;
+    if (instr["flush constraints"].is_null()) {} // do nothing. we are good
+    else if (instr["flush constraints"].is_string()) {
       flush_enforcement +=
           "&& (" + ReplExpr(instr["flush constraints"].get<std::string>()) +
           ")";
@@ -707,6 +743,8 @@ void VlgSglTgtGen::ConstructWrapper_add_condition_signals() {
       ILA_ERROR << "flush constraint field of instruction:"
                 << _instr_ptr->name().str()
                 << " must be string or array of string.";
+
+    // TODO: preflush and postflush
 
     add_an_assumption(
         "(~ ( __RESETED__ && ~ ( __START__  || __STARTED__ ) ) ) || (" +
@@ -762,7 +800,9 @@ void VlgSglTgtGen::ConstructWrapper_add_module_instantiation() {
 }
 
 void VlgSglTgtGen::ConstructWrapper_add_helper_memory() {
-  auto stmt = _idr.GetAbsMemInstString(vlg_wrapper);
+  auto endCond = has_flush ? "__ENDFLUSH__ || __FLUSHENDED__" : "__IEND__ || __ENDED__";
+
+  auto stmt = _idr.GetAbsMemInstString(vlg_wrapper, endCond);
   vlg_wrapper.add_stmt(stmt);
 }
 

@@ -39,7 +39,7 @@ std::string VlgAbsMem::MemEQSignalName() const { return mem_name + "_EQ_"; }
 
 // add signals and add instantiation statement;
 std::string
-VlgAbsMem::GeneratingMemModuleSignalsInstantiation(VerilogGeneratorBase& gen) {
+VlgAbsMem::GeneratingMemModuleSignalsInstantiation(VerilogGeneratorBase& gen, const std::string & endCond) {
   // eq ? signal
   // if not given,  use a name it self
   if (addr_width == 0 || data_width == 0) {
@@ -66,9 +66,18 @@ VlgAbsMem::GeneratingMemModuleSignalsInstantiation(VerilogGeneratorBase& gen) {
   ret << inst_name << "(\n";
   ret << "    .clk(clk),\n";
   ret << "    .rst(rst),\n";
+
+  auto vlg_rand_input_name = inst_name +"_vlg_r_rand_input";
+  auto ila_rand_input_name = inst_name +"_ila_r_rand_input";
+  gen.add_input(vlg_rand_input_name, data_width);
+  gen.add_input(ila_rand_input_name, data_width);
+
+  ret << "    .vlg_r_rand_input( "<< vlg_rand_input_name << "),\n";
+  ret << "    .ila_r_rand_input( "<< ila_rand_input_name << "),\n";
   ret << "    .equal(" << MemEQSignalName() << "),\n";
+  ret << "    .issue( __ISSUE__ ),\n";  
   ret << "    .compare("
-      << "__IEND__ || __ENDED__"
+      << endCond // "__IEND__ || __ENDED__"
       << ")";
 
   gen.add_wire(MemEQSignalName(), 1, true);
@@ -80,6 +89,7 @@ VlgAbsMem::GeneratingMemModuleSignalsInstantiation(VerilogGeneratorBase& gen) {
     if ((e).size() == 0) {                                                     \
       (e) = base_name + (s);                                                   \
       gen.add_wire((e), (w), true);                                            \
+      gen.add_input((e), (w));                                                 \
     }                                                                          \
     ret << ",\n    .vlg" s "(" << (e) << ")";                                  \
   } while (false)
@@ -114,9 +124,14 @@ VlgAbsMem::GeneratingMemModuleSignalsInstantiation(VerilogGeneratorBase& gen) {
     auto n = np.first;
     auto& p = np.second;
 
-    ret << ",\n    .ila_waddr(" << p.waddr << ")";
-    ret << ",\n    .ila_wdata(" << p.wdata << ")";
-    ret << ",\n    .ila_wen  (" << p.wen << ")";
+
+    auto base_name = "__IMEM_" +
+                     VerilogGeneratorBase::sanitizeName(ila_map_name) + "_" +
+                     std::to_string(n);
+
+    ret << ",\n    .ila_waddr(" << base_name + "_waddr" << ")";
+    ret << ",\n    .ila_wdata(" << base_name + "_wdata" << ")";
+    ret << ",\n    .ila_wen  (" << base_name + "_wen" << ")";
   }
   if (ila_wports.size() == 0)
     ret << ",\n    .ila_wen  ( 1'b0 )"; // make sure we don't do any writes if
@@ -126,9 +141,13 @@ VlgAbsMem::GeneratingMemModuleSignalsInstantiation(VerilogGeneratorBase& gen) {
     auto n = np.first;
     auto& p = np.second;
 
-    ret << ",\n    .ila_raddr(" << p.raddr << ")";
-    ret << ",\n    .ila_rdata(" << p.rdata << ")";
-    ret << ",\n    .ila_ren  (" << p.ren << ")";
+    auto base_name = "__IMEM_" +
+                     VerilogGeneratorBase::sanitizeName(ila_map_name) + "_" +
+                     std::to_string(n);
+
+    ret << ",\n    .ila_raddr(" << base_name + "_raddr" << ")";
+    ret << ",\n    .ila_rdata(" << base_name + "_rdata" << ")";
+    ret << ",\n    .ila_ren  (" << p.ren << ")"; // this is the start?
   }
 
   ret << " );\n\n";
@@ -137,6 +156,11 @@ VlgAbsMem::GeneratingMemModuleSignalsInstantiation(VerilogGeneratorBase& gen) {
   concrete_level_encountered.insert(concrete_level);
 
   return (ret.str());
+}
+
+
+bool VlgAbsMem::hasAbsMem() {
+  return concrete_level_encountered.size() > 0;
 }
 
 void VlgAbsMem::OutputMemFile(std::ostream& os) {
@@ -169,7 +193,8 @@ module absmem(
   ila_r_rand_input,
 
   compare,
-  equal
+  equal,
+  issue
   );
 
 
@@ -181,7 +206,7 @@ input clk;
 input rst;
 
 input  [AW-1:0] vlg_raddr;
-output [DW-1:0] vlg_rdata,
+output [DW-1:0] vlg_rdata;
 input           vlg_ren;
 input  [AW-1:0] vlg_waddr;
 input  [DW-1:0] vlg_wdata;
@@ -190,7 +215,7 @@ input  [DW-1:0] vlg_r_rand_input;
 
 
 input  [AW-1:0] ila_raddr;
-output [DW-1:0] ila_rdata,
+output [DW-1:0] ila_rdata;
 input           ila_ren;
 input  [AW-1:0] ila_waddr;
 input  [DW-1:0] ila_wdata;
@@ -199,6 +224,16 @@ input  [DW-1:0] ila_r_rand_input;
 
 input           compare;
 output          equal;
+input           issue;
+
+reg             start_and_on;
+
+always @(posedge clk) begin
+  if(rst)
+    start_and_on <= 1'b0;
+  else if(issue)
+    start_and_on <= 1'b1;
+end
 
 reg [DW-1:0] mem[0:TTS-1];
 
@@ -207,10 +242,10 @@ wire vlg_wen_real;
 wire ila_ren_real;
 wire ila_wen_real;
 
-assign vlg_ren_real = vlg_ren & ~compare;
-assign vlg_wen_real = vlg_wen & ~compare;
-assign ila_ren_real = ila_ren & ~compare;
-assign ila_wen_real = ila_wen & ~compare;
+assign vlg_ren_real = vlg_ren & ~compare & start_and_on;
+assign vlg_wen_real = vlg_wen & ~compare & start_and_on;
+assign ila_ren_real = ila_ren & ~compare & start_and_on;
+assign ila_wen_real = ila_wen & ~compare & start_and_on;
 
 
 assign vlg_rdata = vlg_ren_real ? 
