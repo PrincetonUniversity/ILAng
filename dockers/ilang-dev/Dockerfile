@@ -1,65 +1,75 @@
 FROM ubuntu:bionic as builder
 
-WORKDIR /app
+# var
+ENV VIRT_ENV ilang-env
+ENV BUILD_ROOT /ibuild
+ENV BUILD_PREF $BUILD_ROOT/$VIRT_ENV
 
-RUN apt-get update && apt-get install -y \
-  bison \
-  build-essential \
-  cmake \
-  flex \
-  git \
-  libboost-all-dev \
-  vim \
-  && rm -rf /var/lib/apt/lists/*
+# root dir
+WORKDIR $BUILD_ROOT
+
+# build packages
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    bison \
+    build-essential \
+    cmake \
+    flex \
+    git \
+    libboost-all-dev \
+    python-pip \
+    vim \
+    wget \
+    && rm -rf /var/lib/apt/lists/*
+
+# portable build result
+RUN pip install virtualenv 
+RUN virtualenv $VIRT_ENV
 
 # z3
-ENV Z3_TAG z3-4.7.1
-ENV Z3_DIR /app/z3
-
-RUN git clone -b $Z3_TAG https://github.com/Z3Prover/z3.git $Z3_DIR/
+ENV Z3_DIR $BUILD_ROOT/z3
+RUN wget https://github.com/Z3Prover/z3/releases/download/z3-4.7.1/z3-4.7.1.tar.gz
+RUN mkdir -p $Z3_DIR && tar zxvf z3-4.7.1.tar.gz -C $Z3_DIR --strip-components 1
 RUN cd $Z3_DIR && \
-    python scripts/mk_make.py --prefix=/app/local-build && \
+    $BUILD_PREF/bin/python scripts/mk_make.py --prefix=$BUILD_PREF --python && \
     cd build && \
     make -j$(nproc) && \
     make install
 
-# ilang
-ENV ILANG_DIR /app/ILA-Tools
-
+# ILAng
+ENV ILANG_DIR $BUILD_ROOT/ILA-Tools
 ADD https://api.github.com/repos/Bo-Yuan-Huang/ILA-Tools/git/refs/heads/master ilang_version.json
 RUN git clone --depth=1 https://github.com/Bo-Yuan-Huang/ILA-Tools.git $ILANG_DIR
 RUN cd $ILANG_DIR && \
     mkdir -p build && \
     cd build && \
-    cmake .. -DILANG_INSTALL_DEV=ON -DCMAKE_INSTALL_PREFIX=/app/local-build && \
+    cmake .. -DCMAKE_INSTALL_PREFIX=$BUILD_PREF -DILANG_INSTALL_DEV=ON && \
     make -j$(nproc) && \
     make install 
-RUN cp -r $ILANG_DIR/examples/simple /app/example
 
 #
-# multi stage
+# Deployment
 #
 FROM ubuntu:bionic
 
-WORKDIR /app
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    bison \
+    build-essential \
+    cmake \
+    flex \
+    libboost-all-dev \
+    vim \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN apt-get update && apt-get install -y \
-  bison \
-  build-essential \
-  cmake \
-  flex \
-  git \
-  libboost-all-dev \
-  vim \
-  && rm -rf /var/lib/apt/lists/*
+ENV VIRT_ENV ilang-env
+ENV BUILD_ROOT /ibuild
+ENV BUILD_PREF $BUILD_ROOT/$VIRT_ENV
 
-# add user account
-RUN groupadd -r ilang && useradd --no-log-init -r -g ilang ilang
-USER ilang
+WORKDIR $BUILD_ROOT
 
-# configure files
-COPY --from=builder /app/local-build/ /app/local-build/
-COPY --from=builder --chown=ilang /app/example/ /app/example/
+COPY --from=builder $BUILD_PREF $BUILD_PREF
+COPY --from=builder $BUILD_ROOT/ILA-Tools/examples/simple/ ./example/
+
+RUN echo "source $BUILD_PREF/bin/activate" >> ~/.bashrc
 
 # done
 CMD ["/bin/bash"]
