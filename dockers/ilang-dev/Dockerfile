@@ -22,7 +22,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # portable build result
-RUN pip install virtualenv 
+RUN pip install virtualenv
 RUN virtualenv $VIRT_ENV
 
 # z3
@@ -51,7 +51,7 @@ RUN cd $ILANG_DIR && \
 #
 FROM ubuntu:bionic
 
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     bison \
     build-essential \
     cmake \

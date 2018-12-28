@@ -78,7 +78,7 @@ RUN cd $COSA_DIR && \
 #
 FROM ubuntu:bionic
 
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     bison \
     build-essential \
     cmake \

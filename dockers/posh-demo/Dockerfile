@@ -85,7 +85,7 @@ RUN cd $COSA_DIR && \
 #
 FROM ubuntu:bionic
 
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     bison \
     flex \
     gawk \
@@ -105,7 +105,7 @@ ENV USER_HOME /home/$USER_NAME
 RUN groupadd -r $USER_NAME && useradd --create-home --no-log-init -r -g $USER_NAME $USER_NAME
 USER $USER_NAME
 
-WORKDIR ~
+WORKDIR $USER_HOME
 
 RUN echo "source $BUILD_PREF/bin/activate" >> $USER_HOME/.bashrc
 RUN echo "export PYTHONPATH=$BUILD_ROOT/CoSA/:\$PYTHONPATH" >> $USER_HOME/.bashrc
