@@ -88,9 +88,7 @@ FROM ubuntu:bionic
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     bison \
     flex \
-    gawk \
-    libreadline-dev \
-    libffi-dev \
+    libgomp1 \
     tcl-dev \
     vim \
     && rm -rf /var/lib/apt/lists/*
