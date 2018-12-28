@@ -1,94 +1,120 @@
 FROM ubuntu:bionic as builder
 
-WORKDIR /app
+# var
+ENV VIRT_ENV ilang-env
+ENV BUILD_ROOT /ibuild
+ENV BUILD_PREF $BUILD_ROOT/$VIRT_ENV
 
-RUN apt-get update && apt-get install -y \
-  bison \
-  build-essential \
-  cmake \
-  flex \
-  git \
-  libboost-all-dev \
-  python3-pip \
-  vim \
-  && rm -rf /var/lib/apt/lists/*
+# root dir
+WORKDIR $BUILD_ROOT
 
-#RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y expect
+# build packages
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    bison \
+    build-essential \
+    cmake \
+    expect \
+    flex \
+    gawk \
+    git \
+    graphviz \
+    libboost-all-dev \
+    libreadline-dev \
+    libffi-dev \
+    pkg-config \
+    python3 \
+    python3-pip \
+    tcl-dev \
+    vim \
+    wget \
+    xdot \
+    && rm -rf /var/lib/apt/lists/*
 
 # portable build result
-ENV VENV ilang-venv
-ENV PREF /app/$VENV
 RUN pip3 install virtualenv 
-RUN virtualenv $VENV
+RUN virtualenv $VIRT_ENV
 
 # z3
-ENV Z3_TAG z3-4.7.1
-ENV Z3_DIR /app/z3
-
-RUN git clone -b $Z3_TAG https://github.com/Z3Prover/z3.git $Z3_DIR/
+ENV Z3_DIR $BUILD_ROOT/z3
+RUN wget https://github.com/Z3Prover/z3/releases/download/z3-4.7.1/z3-4.7.1.tar.gz
+RUN mkdir -p $Z3_DIR && tar zxvf z3-4.7.1.tar.gz -C $Z3_DIR --strip-components 1
 RUN cd $Z3_DIR && \
-    python scripts/mk_make.py --prefix= $PREF && \
+    $BUILD_PREF/bin/python scripts/mk_make.py --prefix=$BUILD_PREF --python && \
     cd build && \
     make -j$(nproc) && \
     make install
 
-# ilang
-ENV ILANG_DIR /app/ILA-Tools
+# Yosys
+ENV YOSYS_DIR $BUILD_ROOT/yosys
+RUN wget https://github.com/cliffordwolf/yosys/archive/yosys-0.8.tar.gz
+RUN mkdir -p $YOSYS_DIR && tar zxvf yosys-0.8.tar.gz -C $YOSYS_DIR --strip-components 1
+RUN cd $YOSYS_DIR && \
+    make config-gcc && \
+    make -j$(nproc) && \
+    PREFIX=$BUILD_PREF make install
 
+# ILAng
+ENV ILANG_DIR $BUILD_ROOT/ILA-Tools
 ADD https://api.github.com/repos/Bo-Yuan-Huang/ILA-Tools/git/refs/heads/master ilang_version.json
 RUN git clone --depth=1 https://github.com/Bo-Yuan-Huang/ILA-Tools.git $ILANG_DIR
 RUN cd $ILANG_DIR && \
     mkdir -p build && \
     cd build && \
-    cmake .. -DILANG_INSTALL_DEV=ON -DCMAKE_INSTALL_PREFIX=$PREF && \
+    cmake .. -DCMAKE_INSTALL_PREFIX=$BUILD_PREF -DILANG_INSTALL_DEV=ON -DILANG_BUILD_TEST=OFF -DILANG_BUILD_SYNTH=OFF && \
     make -j$(nproc) && \
     make install 
-RUN cp -r $ILANG_DIR/examples/simple /app/example
 
-# cosa
-RUN $VENV/bin/pip3 install cosa
-
-# boolector
-ENV BTOR_DIR pysmt_solvers 
-ENV BTOR_PY --py3
-RUN mkdir $BTOR_DIR
-RUN git clone https://github.com/Boolector/boolector
-RUN $VENV/bin/pip3 install cython
-RUN cd boolector && \
-    ./contrib/setup-lingeling.sh && \
-    ./contrib/setup-cadical.sh && \
-    ./contrib/setup-btor2tools.sh && \
-    ./configure.sh --python $BTOR_PY && \
+# AES demo
+RUN cd $ILANG_DIR/apps/acc_spec/aes && \
+    mkdir -p build && \
     cd build && \
-    make -j$(nproc) && \
-    cp ./lib/* ../../$BTOR_DIR/
+    cmake .. -DCMAKE_PREFIX_PATH=$BUILD_PREF && \
+    make -j$(nproc) 
+    
+# CoSA
+ENV COSA_DIR $BUILD_ROOT/CoSA
+ADD https://api.github.com/repos/cristian-mattarei/CoSA/git/refs/heads/master cosa_version.json
+RUN git clone https://github.com/cristian-mattarei/CoSA.git $COSA_DIR
+RUN cd $COSA_DIR && \
+    git checkout remotes/origin/dev -b dev
+RUN cd $COSA_DIR && \
+    $BUILD_PREF/bin/pip3 install -e .
 
 #
-# multi stage
+# Deployment
 #
 FROM ubuntu:bionic
 
-WORKDIR /app
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    bison \
+    flex \
+    gawk \
+    libreadline-dev \
+    libffi-dev \
+    tcl-dev \
+    vim \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN apt-get update && apt-get install -y \
-  bison \
-  build-essential \
-  cmake \
-  flex \
-  git \
-  libboost-all-dev \
-  vim \
-  && rm -rf /var/lib/apt/lists/*
+ENV VIRT_ENV ilang-env
+ENV BUILD_ROOT /ibuild
+ENV BUILD_PREF $BUILD_ROOT/$VIRT_ENV
+ENV USER_NAME demo
+ENV USER_HOME /home/$USER_NAME
 
 # add user account
-RUN groupadd -r ilang && useradd --no-log-init -r -g ilang ilang
-USER ilang
+RUN groupadd -r $USER_NAME && useradd --create-home --no-log-init -r -g $USER_NAME $USER_NAME
+USER $USER_NAME
+
+WORKDIR ~
+
+RUN echo "source $BUILD_PREF/bin/activate" >> $USER_HOME/.bashrc
+RUN echo "export PYTHONPATH=$BUILD_ROOT/CoSA/:\$PYTHONPATH" >> $USER_HOME/.bashrc
+RUN echo "cd ~" >> $USER_HOME/.bashrc
 
 # configure files
-#COPY --from=builder /app/local-build/ /app/local-build/
-COPY --from=builder --chown=ilang /app/example/ /app/example/
-COPY --from=builder /app/ilang-venv/ /app/ilang-venv/
-COPY --from=builder /app/pysmt_solvers /app/pysmt_solvers
+COPY --from=builder --chown=demo $BUILD_PREF $BUILD_PREF
+COPY --from=builder --chown=demo $BUILD_ROOT/CoSA/ $BUILD_ROOT/CoSA/
+COPY --from=builder --chown=demo $BUILD_ROOT/ILA-Tools/apps/acc_spec/aes/ $USER_HOME/aes-demo/
 
 # done
 CMD ["/bin/bash"]
