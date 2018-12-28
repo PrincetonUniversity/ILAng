@@ -8,53 +8,12 @@
 #include <functional>
 #include <ilang/verilog-in/verilog_analysis_wrapper.h>
 #include <ilang/verilog-out/verilog_gen.h>
+#include <ilang/vtarget-out/absmem.h>
 #include <map>
 #include <string>
 #include <tuple>
 
 namespace ilang {
-
-/// \brief a struct to store abstract memory
-struct VlgAbsMem {
-  // ---------------------- TYPES --------------- //
-  /// type of read port
-  typedef struct {
-    /// what to connect for raddr
-    std::string raddr;
-    /// what to connect for rdata
-    std::string rdata;
-    /// what to connect for ren
-    std::string ren;
-  } rport_t;
-  /// type of write port
-  typedef struct {
-    /// what to connect for waddr
-    std::string waddr;
-    /// what to connect for wdata
-    std::string wdata;
-    /// what to connect for wen
-    std::string wen;
-  } wport_t;
-
-  // ---------------------- MEMBERS --------------- //
-  /// verilog read ports
-  std::map<unsigned, rport_t> vlg_rports;
-  /// verilog write ports
-  std::map<unsigned, wport_t> vlg_wports;
-  /// ila read ports
-  std::map<unsigned, rport_t> ila_rports;
-  /// ila write ports
-  std::map<unsigned, wport_t> ila_wports;
-
-  /// how many are considered to be concrete
-  unsigned concrete_level;
-  /// widths
-  unsigned data_width;
-  /// widths
-  unsigned addr_width;
-  /// which ila state it is mapped to
-  std::string ila_map_name;
-}; // class VlgAbsMem
 
 /// \brief Used in Verilog Verification Target Generation
 /// for dealing with interface directives
@@ -96,6 +55,10 @@ public:
   /// Type of call back function to find information about a memory
   typedef std::function<std::pair<unsigned, unsigned>(const std::string&)>
       ila_mem_checker_t;
+  /// type of read port
+  using rport_t = VerilogGeneratorBase::rport_t;
+  /// type of write port
+  using wport_t = VerilogGeneratorBase::wport_t;
 
 public:
   /// Return if a string 'c' begins with string 's'
@@ -124,6 +87,16 @@ public:
   void RegisterInterface(const SignalInfoBase& vlg_sig,
                          const std::string& refstr, ila_input_checker_t chk,
                          ila_mem_checker_t mget);
+  /// Register the extra wire to connect (for extra wire)
+  void RegisterExtraWire(const std::string & io_name, const std::string & outside_name);
+  /// Register the connection of signals related to a memory
+  std::string ConnectMemory(
+  const std::string & directive, 
+  const std::string & ila_state_name,
+  const std::map<unsigned, rport_t> & rports, 
+  const std::map<unsigned, wport_t> & wports );
+  /// Return the memory instantiation string
+  std::string GetAbsMemInstString(VerilogGeneratorBase & gen);
 
 protected:
   /// a sanity check for module instantiation string gen, check if all the vlg

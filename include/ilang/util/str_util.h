@@ -28,6 +28,9 @@ int StrToInt(const std::string& str, int base = 10);
 std::vector<std::string> Split(const std::string& str,
                                const std::string& delim);
 
+///  Python-style split behavior, delim: space tab enter and their combiniations
+std::vector<std::string> SplitSpaceTabEnter(const std::string& str);
+
 /// Python-style join, return a string that joins the list by the delim
 std::string Join(const std::vector<std::string>& in, const std::string& delim);
 

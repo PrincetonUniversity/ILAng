@@ -10,7 +10,10 @@ r2,
 r3,
 nouse,
 __COUNTER_start__n3
-);
+, m1__DOT__subm4__DOT__b, m1__DOT__n27, m1__DOT__ir);
+ output  m1__DOT__subm4__DOT__b;
+ output  m1__DOT__n27;
+ output [7:0] m1__DOT__ir;
 input            clk;
 input            rst;
 output            __ILA_proc_valid__;
@@ -21,14 +24,14 @@ output reg      [7:0] r1;
 output reg      [7:0] r2;
 output reg      [7:0] r3;
 output reg            nouse;
-output reg      [7:0] __COUNTER_start__n3;
+(* keep *)output reg      [7:0] __COUNTER_start__n3;
 wire            clk;
 wire            rst;
 wire            __ILA_proc_valid__;
 wire      [7:0] n0;
 wire      [1:0] n1;
 wire            n2;
-wire            __ILA_proc_decode_of_Add__;
+(* keep *)wire            __ILA_proc_decode_of_Add__;
 wire      [7:0] n4;
 wire      [1:0] n5;
 wire            n6;
@@ -82,7 +85,7 @@ subm_same
 subm_same 
   subm4(
     .in(n0[7:6]) , .out (n1) 
-    );
+     ,.m1__DOT__subm4__DOT__b(m1__DOT__subm4__DOT__b));
 //assign n14 = n0[1:0] ;
 assign n15 =  ( n14 ) == ( 2'd3 )  ;
 assign n16 =  ( n14 ) == ( 2'd2 )  ;
@@ -127,13 +130,16 @@ always @(posedge clk) begin
        end
    end
 end
+ assign m1__DOT__ir = ir;
+ assign m1__DOT__n27 = n27;
 endmodule
 
 
-module subm_same(input [1:0] in, output [1:0] out);
+module subm_same(input [1:0] in, output [1:0] out, output wire  m1__DOT__subm4__DOT__b);
 
-reg a;
+(* keep *)reg a;
 reg b;
 assign out = in;
 
+ assign m1__DOT__subm4__DOT__b = b;
 endmodule

@@ -1,0 +1,6 @@
+
+# Test Outputs
+verify/*
+disprove/*
+vmem/invariants
+vmem/SWAP

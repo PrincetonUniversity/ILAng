@@ -1,6 +1,7 @@
 /// \file
 /// Source for some utility functions for string formating.
 
+#include <sstream>
 #include <regex>
 #include <ilang/util/log.h>
 #include <ilang/util/str_util.h>
@@ -52,6 +53,16 @@ std::vector<std::string> Split(const std::string& str, const std::string& delim)
     }
     while (pos < str.length() && prev < str.length());
     return tokens;
+}
+
+
+std::vector<std::string> SplitSpaceTabEnter(const std::string& str) 
+{
+  std::vector<std::string> result;
+  std::istringstream iss(str);
+  for(std::string s; iss >> s; )
+    result.push_back(s);
+  return result;
 }
 
 std::string Join(const std::vector<std::string> & in, const std::string& delim)
