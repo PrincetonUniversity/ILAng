@@ -46,8 +46,6 @@ TEST(TestVlgTargetGen, AesIlaInfo) {
   ILA_DLOG("TestVlgTargetGen.IlaInfo") << std::endl;
 }
 
-#ifdef VERILOG_IN_ENABLE
-
 TEST(TestVlgTargetGen, PipeExample) {
   auto ila_model = SimplePipe::BuildModel();
 
@@ -105,7 +103,5 @@ TEST(TestVlgTargetGen, Memory) {
 
 
 TEST(TestVlgTargetGen, AesExample) {}
-
-#endif // VERILOG_IN_ENABLE
 
 }; // namespace ilang

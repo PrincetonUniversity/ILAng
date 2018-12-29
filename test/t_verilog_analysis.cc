@@ -14,19 +14,7 @@
 
 namespace ilang {
 
-#ifdef VERILOG_IN_ENABLE
-
 TEST(TestVerilogAnalysis, Init) {
-
-  /*
-  auto ila_ptr_ = SimpleCpu("proc");
-  // test 1 gen Add : internal mem
-  {
-    auto vgen = VerilogGenerator();
-    vgen.ExportTopLevelInstr(ila_ptr_->instr("Add"));
-    write_to_file( "test/unit-data/verilog_sample/t_ana_inst.v" , vgen);
-  }
-  */
 
   VerilogInfo va(
       VerilogInfo::path_vec_t(),
@@ -42,6 +30,7 @@ TEST(TestVerilogAnalysis, BadState) {
                      {std::string(ILANG_TEST_SRC_ROOT) +
                       "/unit-data/verilog_sample/t_ana-nonexisting.v"}),
                  "m1");
+
   // The above will make it into bad state
   // but it should not affect other things
 
@@ -82,18 +71,6 @@ TEST(TestVerilogAnalysis, Include) {
 }
 
 TEST(TestVerilogAnalysis, AnalyzeName) {
-
-  /*
-  auto ila_ptr_ = SimpleCpu("proc");
-  ila_ptr_->NewBoolState("nouse");
-  // test 1 gen Add : internal mem
-  {
-    auto vgen = VerilogGenerator();
-    vgen.ExportTopLevelInstr(ila_ptr_->instr("Add"));
-    write_to_file( "test/unit-data/verilog_sample/t_ana_insta.v" , vgen);
-  }
-  */
-
   VerilogInfo va(
       VerilogInfo::path_vec_t(),
       VerilogInfo::path_vec_t({std::string(ILANG_TEST_SRC_ROOT) +
@@ -231,17 +208,6 @@ TEST(TestVerilogAnalysis, AnalyzeName) {
 
 TEST(TestVerilogAnalysis, GetTopIo) {
 
-  /* not generating
-  auto ila_ptr_ = SimpleCpu("proc");
-  ila_ptr_->NewBoolState("nouse");
-  // test 1 gen Add : internal mem
-  {
-    auto vgen = VerilogGenerator();
-    vgen.ExportIla(ila_ptr_);
-    write_to_file( "test/unit-data/verilog_sample/t_ana_ila.v" , vgen);
-  }
-  */
-
   VerilogInfo va(
       VerilogInfo::path_vec_t(),
       VerilogInfo::path_vec_t({std::string(ILANG_TEST_SRC_ROOT) +
@@ -368,5 +334,4 @@ TEST(TestVerilogAnalysis, GetTopIoNewFashion) {
   ILA_INFO   << "End loc of m1:" << va.get_endmodule_loc("m1");
 }
 
-#endif
 }; // namespace ilang

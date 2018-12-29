@@ -11,14 +11,11 @@ add_library(${PROJECT_NAME}::${ILANG_LIB_NAME} ALIAS ${ILANG_LIB_NAME})
 add_subdirectory(util)
 add_subdirectory(ila)
 add_subdirectory(verification)
+add_subdirectory(verilog-in)
 add_subdirectory(verilog-out)
+add_subdirectory(vtarget-out)
 add_subdirectory(mcm)
 add_subdirectory(portable)
-
-if(${ILANG_BUILD_VLOG})
-  add_subdirectory(verilog-in)
-  add_subdirectory(vtarget-out)
-endif()
 
 if(${ILANG_BUILD_SYNTH})
   add_subdirectory(synth-interface)
@@ -89,19 +86,14 @@ endif()
 
 target_link_libraries(${ILANG_LIB_NAME} PRIVATE nlohmann_json::nlohmann_json)
 
-
 ##
 ## verilog parser
 ##
-if(${ILANG_BUILD_VLOG})
-
-  if(NOT TARGET verilogparser::verilogparser)
-    find_package(verilogparser REQUIRED)
-  endif()
-
-  target_link_libraries(${ILANG_LIB_NAME} PRIVATE verilogparser::verilogparser)
-
+if(NOT TARGET verilogparser::verilogparser)
+  find_package(verilogparser REQUIRED)
 endif()
+
+target_link_libraries(${ILANG_LIB_NAME} PRIVATE verilogparser::verilogparser)
 
 ##
 ## template-based synthesis
@@ -113,55 +105,6 @@ if(${ILANG_BUILD_SYNTH})
   endif()
 
   target_link_libraries(${ILANG_LIB_NAME} PRIVATE ilasynth::ilasynth) 
-
-endif()
-
-##
-## Boost python
-##
-if(${ILANG_BUILD_PYAPI})
-
-  set(Boost_USE_STATIC_LIBS OFF)
-  set(Boost_USE_MULTITHREADED ON)
-  set(Boost_USE_STATIC_RUNTIME OFF)
-
-  find_package(Boost 1.50 REQUIRED COMPONENTS python)
-
-  target_link_libraries(${ILANG_LIB_NAME} PRIVATE Boost::python)
-
-endif() # ILANG_BUILD_PYAPI
-
-
-##
-## Python
-##
-if(${ILANG_BUILD_PYAPI})
-
-  if(${CMAKE_VERSION} VERSION_LESS 3.12)
-    
-    find_package(PythonLibs 2.7 REQUIRED)
-
-    if(NOT TARGET Python::Python)
-
-      add_library(Python::Python IMPORTED INTERFACE)
-
-      set_property(TARGET Python::Python
-        PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${PYTHON_INCLUDE_DIRS}
-      )
-
-      set_property(TARGET Python::Python
-        PROPERTY INTERFACE_LINK_LIBRARIES ${PYTHON_LIBRARIES}
-      )
-
-    endif()
-
-  else()
-
-    find_package(Python 2.7 REQUIRED COMPONENTS Development)
-
-  endif()
-
-  target_link_libraries(${ILANG_LIB_NAME} PRIVATE Python::Python)
 
 endif()
 
@@ -203,12 +146,4 @@ else()
   )
 
 endif()
-
-# TODO temporary for migrating legacy examples 
-install(
-  FILES ${ILANG_INCLUDE_BUILD_DIR}/ilang/ilang++.h
-  DESTINATION ${ILANG_INCLUDE_INSTALL_DIR}
-  RENAME ila++.h
-)
-
 
