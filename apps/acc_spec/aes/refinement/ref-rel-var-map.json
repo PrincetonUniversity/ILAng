@@ -2,12 +2,12 @@
   "models": { "ILA":"m0" , "VERILOG": "m1" },
   "instruction mapping": [],
   "state mapping": { 
-    "state"          : "aes_reg_state",
-    "opaddr"         : "aes_reg_oplen_i.reg_out",
-    "oplen"          : "aes_reg_oplen_i.reg_out",
-    "ctr"            : "aes_reg_ctr_i.reg_out",
+    "status"         : "aes_reg_state",
+    "address"        : "aes_reg_oplen_i.reg_out",
+    "length"         : "aes_reg_oplen_i.reg_out",
+    "counter"        : "aes_reg_ctr_i.reg_out",
     "key"            : "aes_reg_key0_i.reg_out",
-    "xram"           : "**MEM**",
+    "xram"           : "**MEM**xram",
     "outdata"        : "data_out"
   },
 
@@ -36,10 +36,10 @@
      "aes_step:"     :           "**SO**"
   },
 
-  "mapping control" : [ "m1.xram_wr & m1.xram_stb == MEM_xram.wen" , 
-                        "~ ( m0.cmd == 1 ) || ( m1.wr == 1)" , 
-                        "~ ( m0.cmd == 2 ) || ( m1.wr == 0)",
-                        " m1.xram_addr ==  MEM_xram.raddr ",
-                        " m1.xram_addr ==  MEM_xram.waddr "
+  "mapping control" : [ "(m1.xram_wr & m1.xram_stb) == __MEM_xram_0_wen" , 
+                        "(~ ( m0.cmd == 1 )) || ( m1.wr == 1)" , 
+                        "(~ ( m0.cmd == 2 )) || ( m1.wr == 0)",
+                        " m1.xram_addr ==  __MEM_xram_0_raddr ",
+                        " m1.xram_addr ==  __MEM_xram_0_waddr "
                       ]
 }

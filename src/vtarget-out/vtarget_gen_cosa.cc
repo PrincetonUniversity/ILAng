@@ -199,8 +199,10 @@ void VlgSglTgtGen_Cosa::Export_modify_verilog() {
     auto idx = refered_vlg_item.first.find("[");
     auto removed_range_name = refered_vlg_item.first.substr(0, idx);
     vlg_mod.RecordKeepSignalName(removed_range_name);
+    //auto sig = // no use, this is too late, vlg_wrapper already exported
     vlg_mod.RecordConnectSigName(removed_range_name,
-                                 refered_vlg_item.second.range);
+                                  refered_vlg_item.second.range);
+    //vlg_wrapper.add_output(sig.first, sig.second);
   }
   vlg_mod.FinishRecording();
 

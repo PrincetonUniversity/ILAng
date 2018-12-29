@@ -52,7 +52,7 @@ std::map<char, std::string>
                    {'@', "__AT__"},    {'0', "__ZERO__"},  {'1', "__ONE__"},
                    {'2', "__TWO__"},   {'3', "__THREE__"}, {'4', "__FOUR__"},
                    {'5', "__FIVE__"},  {'6', "__SIX__"},   {'7', "__SEVEN__"},
-                   {'8', "__EIGHT__"}, {'9', "__NINE__"}});
+                   {'8', "__EIGHT__"}, {'9', "__NINE__"},{'$',"__DOLLAR__"}});
 
 unsigned symbol_cnt = 0;
 static std::string get_symbol_new() {
@@ -131,6 +131,10 @@ VerilogGeneratorBase::new_id(const ExprPtr& e) {
 
   auto name = e->name().str();
   auto pos = reference_name_set.find(name);
+  
+  if (cfg_.pass_node_name)
+    return "n" + toStr(idCounter++) + "__" + sanitizeName(name);
+
   if (pos ==
       reference_name_set.end()) // not registered to the refererence name set
     return new_id();            // just return the plain name

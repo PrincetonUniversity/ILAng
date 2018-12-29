@@ -3,6 +3,11 @@
 #include <ilang/vtarget-out/vtarget_gen.h>
 
 void verifyAES128(Ila& model) {
+  VerilogGeneratorBase::VlgGenConfig vlg_cfg;
+  VerilogVerificationTargetGenerator::vtg_config_t vtg_cfg;
+
+  vlg_cfg.pass_node_name = true;
+
   std::string RootPath = "..";
   std::string VerilogPath = RootPath + "/verilog/";
   std::string RefrelPath = RootPath + "/refinement/";
@@ -19,7 +24,9 @@ void verifyAES128(Ila& model) {
       RefrelPath + "ref-rel-inst-cond-aes128.json", // conditions of start/ready
       OutputPath,                                   // output path
       model.get(),                                  // model
-      VerilogVerificationTargetGenerator::backend_selector::COSA);
+      VerilogVerificationTargetGenerator::backend_selector::COSA, // backend: COSA
+      vtg_cfg,  // target generator configuration
+      vlg_cfg); // verilog generator configuration
 
   vg.GenerateTargets();
 }

@@ -8,21 +8,24 @@ AES::AES()
     : // construct the model
       model("AES"),
       // I/O interface: this is where the commands come from.
-      cmd(model.NewBvInput("cmd", 2)), cmdaddr(model.NewBvInput("cmdaddr", 16)),
-      cmddata(model.NewBvInput("cmddata", 8)),
+      cmd    (model.NewBvInput("cmd"    , 2 )), 
+      cmdaddr(model.NewBvInput("cmdaddr", 16)),
+      cmddata(model.NewBvInput("cmddata", 8 )),
       // internal arch state.
-      status(model.NewBvState("aes_status", 2)),
-      address(model.NewBvState("aes_address", 16)),
-      length(model.NewBvState("aes_length", 16)),
+      status (model.NewBvState("aes_status" , 2  )),
+      address(model.NewBvState("aes_address", 16 )),
+      length (model.NewBvState("aes_length" , 16 )),
       counter(model.NewBvState("aes_counter", 128)),
-      key(model.NewBvState("aes_key", 128)),
+      key    (model.NewBvState("aes_key"    , 128)),
       // the memory: shared state
-      xram(model.NewMemState("XRAM", 16, 8)),
+      xram   (model.NewMemState("XRAM"      , 16, 8)),
       // The encryption function :
       // 128b plaintext x 128b key -> 128b ciphertext
       // FuncRef(name, range, domain1, domain2 )
-      aes128(FuncRef("aes128", SortRef::BV(128), SortRef::BV(128),
-                     SortRef::BV(128))),
+      aes128(FuncRef("aes128",               // define a function
+                          SortRef::BV(128),  // range: 128-bit
+                          SortRef::BV(128),  // domain: 128-bit
+                          SortRef::BV(128))),//      by 128-bit
       // the output
       outdata(model.NewBvState("outdata", 8)) {
 
@@ -43,15 +46,22 @@ AES::AES()
                     (cmdaddr < AES_ADDR + 2));
 
     instr.SetUpdate(address,
-                    Ite(is_status_idle,
-                        slice_update(address, cmdaddr, cmddata, AES_ADDR, 2, 8),
-                        // update part of address, based on the cmdaddr
+                    Ite(is_status_idle, // update only when idle
+                        slice_update(address, cmdaddr, cmddata, AES_ADDR,   2,    8),
+                        //    target, slice-select, new-value, base-addr, #slice, slice-width
+                        //    - Update part (slice) of `target`, with `new-value`
+                        //      where `slice-select` choose the slice (after subtracted by 
+                        //      `base-addr`) 
+                        //    - `#slice`: number of slices in `target`
+                        //    - `slice-width`: the width of each slice
                         address));
 
     // guarantee no change
-    instr.SetUpdate(length, length);
-    instr.SetUpdate(key, key);
+    // if not specified, it means it allows any change
+    instr.SetUpdate(length , length );
+    instr.SetUpdate(key    , key    );
     instr.SetUpdate(counter, counter);
+
   }
 
   { // START_ENCRYPT

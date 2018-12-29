@@ -776,7 +776,10 @@ void VlgSglTgtGen::ConstructWrapper_register_extra_io_wire() {
     auto width = vlg_sig_info.get_width();
 
     vlg_wrapper.add_wire(vname, width, 1); // keep
-    _idr.RegisterExtraWire(vname, vname);
+    vlg_wrapper.add_output(vname, width); // add as output of the wrapper
+    _idr.RegisterExtraWire(vname, vname); 
+    // these will be connected to the verilog module, so register as extra wires
+    // so, later they will be connected
   }
 }
 

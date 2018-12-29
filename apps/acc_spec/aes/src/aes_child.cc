@@ -9,10 +9,10 @@ void AES::AddChild(InstrRef& inst) {
   child.SetValid(status != 0);
   child.SetFetch(status);
 
-  auto rd_data = child.NewBvState("rd_data", 128);
+  auto rd_data  = child.NewBvState("rd_data", 128);
   auto enc_data = child.NewBvState("enc_data", 128);
   auto byte_cnt = child.NewBvState("byte_cnt", 4);
-  auto blk_cnt = child.NewBvState("blk_cnt", 16);
+  auto blk_cnt  = child.NewBvState("blk_cnt", 16);
 
   // init conditions : when doing verification
   // should be exported as the status update of the higher-level

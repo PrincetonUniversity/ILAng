@@ -235,8 +235,10 @@ std::string VerilogModifier::add_keep_to_port(const std::string& line_in,
 } // add_keep_to_port
 
 /// record the name to add a keep there
-void VerilogModifier::RecordConnectSigName(const std::string& vlg_sig_name,
-                                           const std::string& suffix) {
+VerilogModifier::vlg_sig_t VerilogModifier::RecordConnectSigName(
+  const std::string& vlg_sig_name,
+  const std::string& suffix) 
+{
   auto vlg_sig_info =
       vlg_info_ptr->get_signal(vlg_sig_name); // will check it exists
   auto width = vlg_sig_info.get_width();
@@ -283,6 +285,7 @@ void VerilogModifier::RecordConnectSigName(const std::string& vlg_sig_name,
   assign_map[loc.first].push_back(
       assign_item_t(loc.second, vname, width, short_name + suffix));
 
+  return vlg_sig_t({vname,width});
 } // RecordConnectSigName
 
 std::string WidthToRange(unsigned w) {

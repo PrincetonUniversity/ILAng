@@ -130,17 +130,21 @@ public:
     enum funcOption { Internal, External } fcOpt;
     /// whether to have the start signal
     bool start_signal;
+    /// whether to set vlg name according to the node name
+    bool pass_node_name;
 
     /// Constructor, set default value, ExternalMem : false, function: internal
     /// module
     VlgGenConfig( // provide the default settings
         bool ExternalMem = false, funcOption funcOpt = funcOption::Internal,
-        bool gen_start = false)
-        : extMem(ExternalMem), fcOpt(funcOpt), start_signal(gen_start) {}
+        bool gen_start = false, bool pass_name = false)
+        : extMem(ExternalMem), fcOpt(funcOpt), start_signal(gen_start),
+          pass_node_name(pass_name) {}
     /// Overwrite configuration, used by vtarget gen
     VlgGenConfig(const VlgGenConfig& c, bool ExternalMem, funcOption funcOpt,
-                 bool gen_start)
-        : extMem(ExternalMem), fcOpt(funcOpt), start_signal(gen_start) {}
+                 bool gen_start )
+        : extMem(ExternalMem), fcOpt(funcOpt), start_signal(gen_start),
+          pass_node_name(c.pass_node_name) {}
     // set other fields if there are such need (?)
   };
 

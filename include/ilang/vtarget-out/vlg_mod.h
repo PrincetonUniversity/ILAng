@@ -65,6 +65,9 @@ public:
   typedef std::map<std::string, // file name
                    std::vector<assign_item_t>>
       assign_map_t;
+  
+  /// type of an wire name w. width
+  typedef std::pair<std::string, unsigned> vlg_sig_t;
 
 public:
   /// Constructor: do nothing
@@ -80,8 +83,8 @@ public:
   /// record the name to add a keep there
   void RecordKeepSignalName(const std::string& vname);
   /// record the name to add related wires
-  void RecordConnectSigName(const std::string& vlg_sig_name,
-                            const std::string& suffix = "");
+  vlg_sig_t RecordConnectSigName(const std::string& vlg_sig_name,
+                                 const std::string& suffix = "");
 
 protected:
   // --------------- MEMBERS ---------------------------- //
