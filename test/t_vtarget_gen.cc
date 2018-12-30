@@ -103,6 +103,48 @@ TEST(TestVlgTargetGen, Memory) {
 }
 
 
+TEST(TestVlgTargetGen, UndetValue) {
+  auto ila_model = UndetVal::BuildModel();
+
+  auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/vpipe/undetf/";
+  VerilogVerificationTargetGenerator vg(
+      {},                        // no include
+      {dirName + "val.v"},       // vlog files
+      "undetval",                // top_module_name
+      dirName + "vmap-val.json", // variable mapping
+      dirName + "cond-val.json", // cond path
+      dirName,                   // output path
+      ila_model.get(),
+      VerilogVerificationTargetGenerator::backend_selector::COSA);
+
+  EXPECT_FALSE(vg.in_bad_state());
+
+  vg.GenerateTargets();
+
+}
+
+
+
+TEST(TestVlgTargetGen, UndetFunc) {
+  auto ila_model = UndetFunc::BuildModel();
+
+  auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/vpipe/undetf/";
+  VerilogVerificationTargetGenerator vg(
+      {},                        // no include
+      {dirName + "func.v"},       // vlog files
+      "undetfunc",                // top_module_name
+      dirName + "vmap-func.json", // variable mapping
+      dirName + "cond-func.json", // cond path
+      dirName,                   // output path
+      ila_model.get(),
+      VerilogVerificationTargetGenerator::backend_selector::COSA);
+
+  EXPECT_FALSE(vg.in_bad_state());
+
+  vg.GenerateTargets();
+
+}
+
 
 TEST(TestVlgTargetGen, AesExample) {}
 

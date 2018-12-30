@@ -163,6 +163,10 @@ bool VlgAbsMem::hasAbsMem() {
   return concrete_level_encountered.size() > 0;
 }
 
+void VlgAbsMem::ClearAbsMemRecord() {
+  concrete_level_encountered.clear();
+}
+
 void VlgAbsMem::OutputMemFile(std::ostream& os) {
 
   std::string d1model = R"**##**(

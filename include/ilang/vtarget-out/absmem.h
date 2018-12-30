@@ -69,6 +69,8 @@ public:
   static void OutputMemFile(std::ostream& os);
   /// Return true if there are abs mem used (strategy : ALL -> AUTO)
   static bool hasAbsMem();
+  /// reset concrete_level (per-target).
+  static void ClearAbsMemRecord();
 
 }; // class VlgAbsMem
 

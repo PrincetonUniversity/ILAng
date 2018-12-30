@@ -1,0 +1,20 @@
+{
+  "models": { "ILA":"m0" , "VERILOG": "m1" },
+  "instruction mapping": [],
+  "state mapping": {  
+    "r0":"r0",
+    "r1":"r1",
+    "r2":"r2",
+    "r3":"r3",
+    "r4":"r4"},
+
+  "interface mapping": {
+  	 "rst":"**RESET**", 
+  	 "clk":"**CLOCK**",
+  	 "d":"**KEEP**"
+  },
+
+  "mapping control" : [],
+  "functions":{ "nondet8_1":[["__START__","res1"],["__START__","res3"]],
+                "nondet8_2":[["__START__","res4"],["__START__","res5"]] }
+}

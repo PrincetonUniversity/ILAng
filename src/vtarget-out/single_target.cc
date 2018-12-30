@@ -77,7 +77,11 @@ VlgSglTgtGen::VlgSglTgtGen(
       vlg_design_files(implementation_srcs),
       vlg_include_files_path(implementation_include_path),
       _vtg_config(vtg_config), _backend(backend), _bad_state(false) {
+
   ILA_NOT_NULL(_host);
+
+  // reset absmem's counter
+  VlgAbsMem::ClearAbsMemRecord();
 
   if (target_type == target_type_t::INSTRUCTIONS) {
 
@@ -196,6 +200,8 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
     func_port_skip_set.insert(func_app.result.first);
     port_connected.insert(func_app.result.first);
     /// new reg : put in when __START__
+    if(not IN(func_app.func_name, func_cnt )) 
+      func_cnt.insert({func_app.func_name,0});
     unsigned func_no = func_cnt[func_app.func_name]++;
 
     std::string func_reg_w =
@@ -204,7 +210,10 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
         func_app.func_name + "_" + IntToStr(func_no) + "_result_reg";
     vlg_wrapper.add_reg(func_reg, func_app.result.second);
     vlg_wrapper.add_wire(func_reg_w, func_app.result.second, true);
-    add_reg_cassign_assumption("__START__", func_reg, func_reg_w,
+    // add as a module input, also
+    vlg_wrapper.add_input(func_reg_w, func_app.result.second);
+
+    add_reg_cassign_assumption(func_reg, func_reg_w, "__START__",
                                "func_result");
     // vlg_wrapper.add_always_stmt( "if( __START__ ) " + func_reg + " <= " +
     // func_reg_w + ";" );
@@ -222,7 +231,7 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
                              "_arg" + IntToStr(argNo) + "_reg";
       vlg_wrapper.add_reg(func_arg, arg.second);
       vlg_wrapper.add_wire(func_arg_w, arg.second, true);
-      add_reg_cassign_assumption("__START__", func_arg, func_arg_w, "func_arg");
+      add_reg_cassign_assumption(func_arg, func_arg_w, "__START__", "func_arg");
       // vlg_wrapper.add_always_stmt( "if( __START__ ) " + func_arg + " <= " +
       // func_arg_w + ";" );
 
@@ -444,8 +453,8 @@ void VlgSglTgtGen::ConstructWrapper_add_cycle_count_moniter() {
 } // ConstructWrapper_add_cycle_count_moniter
 
 void VlgSglTgtGen::ConstructWrapper_generate_header() {
-  vlg_wrapper.add_preheader("\n`define true  1\n");
-  vlg_wrapper.add_preheader("\n`define false 0\n");
+  vlg_wrapper.add_preheader("\n`define true  1'b1\n");
+  vlg_wrapper.add_preheader("\n`define false 1'b0\n");
 } // ConstructWrapper_generate_header
 
 // for special memory, we don't need to do anything?
@@ -809,7 +818,83 @@ void VlgSglTgtGen::ConstructWrapper_add_helper_memory() {
   vlg_wrapper.add_stmt(stmt);
 }
 
-void VlgSglTgtGen::ConstructWrapper_add_uf_constraints() {}
+void VlgSglTgtGen::ConstructWrapper_add_uf_constraints() {
+  if( not IN ("functions" ,rf_vmap) ) return; // do nothing
+  auto & fm = rf_vmap["functions"];
+  if(not fm.is_object()) {
+    ILA_ERROR << "expect functions field to be funcName -> list of list of pair of (cond,val).";
+    return;
+  }
+
+  // convert vlg_ila.ila_func_app to  name->list of func_app
+  std::map<std::string, VerilogGeneratorBase::function_app_vec_t> name_to_fnapp_vec;
+  for (auto&& func_app : vlg_ila.ila_func_app) 
+    name_to_fnapp_vec[ func_app.func_name ].push_back(func_app);
+
+  for(auto && it : fm.items()) {
+    const auto & funcName = it.key();
+    const auto & list_of_time_of_apply = it.value();
+    if(not list_of_time_of_apply.is_array()) {
+      ILA_ERROR << funcName <<": expect functions field to be funcName -> list of list of pair of (cond,val).";
+      continue;
+    }
+    if(not IN(funcName,name_to_fnapp_vec)) {
+      ILA_ERROR << "uninterpreted function mapping:"<<funcName<<" does not exist.";
+      continue;
+    }
+    if(list_of_time_of_apply.size() != name_to_fnapp_vec[funcName].size()) {
+      ILA_ERROR << "uninterpreted function mapping:"<<funcName
+        <<" map:#"<<list_of_time_of_apply.size()
+        <<" use in ila:#"<<name_to_fnapp_vec[funcName].size()
+        <<" not matched. Skipped.";
+      continue;
+    }
+
+    auto & ila_app_list = name_to_fnapp_vec[funcName];
+
+    size_t idx = 0;
+    for(auto && each_apply : list_of_time_of_apply.items()) {
+      if( not each_apply.value().is_array() ) {
+        ILA_ERROR << funcName << ": expecting mapping to be list of pair of (cond,val).";
+        idx ++;
+        continue;
+      }
+      auto & ila_app_item = ila_app_list[idx];
+      idx ++;
+      if( each_apply.value().size() != (ila_app_item.args.size() + 1)*2 ) {
+        ILA_ERROR << "ila func app expect: (1(retval) + "<<ila_app_item.args.size()<<"(args) )*2"
+                  << " items. Given:" << each_apply.value().size() << " items, for func: "<<funcName;
+        continue;
+      }
+      auto val_arg_map_str_vec = each_apply.value().get<std::vector<std::string> >();
+
+      std::string func_reg =
+          funcName + "_" + IntToStr(idx-1) + "_result_reg";
+      // okay now get the chance
+      auto val_cond = ReplExpr(val_arg_map_str_vec[0]);
+      auto val_map  = ReplExpr(val_arg_map_str_vec[1], true); // force vlg name on the mapping
+      auto res_map  = "~(" + val_cond +")||(" + func_reg + "==" + val_map +")";
+
+      std::string prep = VLG_TRUE;
+      for(size_t arg_idx = 2; arg_idx < val_arg_map_str_vec.size(); arg_idx += 2) {
+        const auto & cond = ReplExpr(val_arg_map_str_vec[arg_idx]);
+        const auto & map  = ReplExpr(val_arg_map_str_vec[arg_idx+1],true);
+
+        std::string func_arg = funcName + "_" + IntToStr(idx-1) +
+                              "_arg" + IntToStr(arg_idx/2-1) + "_reg";
+
+        prep += "&&("+cond+")&&(("+ func_arg + ") == (" + map + "))";
+      }
+      
+      add_an_assumption( "~(" + prep + ") || (" + res_map + ")" , "funcmap");
+    } // for each apply in the list of apply
+
+    name_to_fnapp_vec.erase(funcName); // remove from it
+  }
+  // check for unmapped func
+  for(auto && nf : name_to_fnapp_vec)
+    ILA_ERROR<< "lacking function map for func:"<<nf.first;
+} // ConstructWrapper_add_uf_constraints
 
 // for invariants or for instruction
 void VlgSglTgtGen::ConstructWrapper() {
@@ -864,6 +949,12 @@ void VlgSglTgtGen::ConstructWrapper() {
 
   ILA_INFO << 8;
 
+  // 7. uni-functions
+
+  ILA_INFO << 10;
+  if (target_type == target_type_t::INSTRUCTIONS)
+    ConstructWrapper_add_uf_constraints();
+
   // 5.0 add the extra wires to the top module wrapper
   if (_backend == backend_selector::COSA)
     ConstructWrapper_register_extra_io_wire();
@@ -876,12 +967,6 @@ void VlgSglTgtGen::ConstructWrapper() {
   // 5. module instantiation
   ConstructWrapper_add_module_instantiation();
 
-  // 7. uni-functions
-
-  ILA_INFO << 10;
-  if (target_type == target_type_t::INSTRUCTIONS) {
-    ConstructWrapper_add_uf_constraints();
-  }
 }
 
 bool VlgSglTgtGen::bad_state_return(void) {

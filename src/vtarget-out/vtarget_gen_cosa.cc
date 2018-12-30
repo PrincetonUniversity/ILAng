@@ -61,8 +61,12 @@ void VlgSglTgtGen_Cosa::add_reg_cassign_assumption(
   //                                convert_expr_to_cosa(expression) + "))");
   ILA_ERROR_IF(expression.find(".") != std::string::npos)
       << "expression:" << expression << " contains unfriendly dot.";
-  vlg_wrapper.add_always_stmt("if (" + cond + ") " + varname +
-                              " <= " + expression + "; //" + dspt);
+  //vlg_wrapper.add_always_stmt("if (" + cond + ") " + varname +
+  //                            " <= " + expression + "; //" + dspt);
+  // we prefer the following way, as we get the value instantaneously
+  vlg_wrapper.add_init_stmt(varname + " <= " + expression +";");
+  vlg_wrapper.add_always_stmt(varname + " <= " + varname + ";");
+  add_an_assumption( "(~(" + cond + ") || ((" + varname +") == (" +expression + ")))" , dspt);
 }
 
 /// Add an assumption
@@ -89,6 +93,18 @@ void VlgSglTgtGen_Cosa::add_an_assertion(const std::string& asst,
       << "asst:" << asst << " contains unfriendly dot.";
   //_problems.probitem[dspt].assertions.push_back(convert_expr_to_cosa(asst));
 }
+
+
+/// Add an assumption
+void VlgSglTgtGen_Cosa::add_a_direct_assumption(const std::string& aspt,
+                                const std::string& dspt) {
+  _problems.assumptions.push_back(aspt);
+                                }
+/// Add an assertion
+void VlgSglTgtGen_Cosa::add_a_direct_assertion(const std::string& asst,
+                              const std::string& dspt) {
+_problems.probitem[dspt].assertions.push_back(asst);
+                              }
 
 /// export the script to run the verification
 void VlgSglTgtGen_Cosa::Export_script(const std::string& script_name) {

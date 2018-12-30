@@ -328,6 +328,7 @@ std::string VlgSglTgtGen::PerStateMap(const std::string& ila_state_name,
 
     std::string map_sig = new_mapping_id();
     vlg_wrapper.add_wire(map_sig, 1, true);
+    vlg_wrapper.add_output(map_sig, 1);
     add_wire_assign_assumption(map_sig, new_expr, "vmap");
     return map_sig;
   }
@@ -351,6 +352,7 @@ std::string VlgSglTgtGen::PerStateMap(const std::string& ila_state_name,
   // add signal
   std::string map_sig = new_mapping_id();
   vlg_wrapper.add_wire(map_sig, 1, true);
+  vlg_wrapper.add_output(map_sig, 1);
   add_wire_assign_assumption(map_sig,
                              ReplExpr(vlg_state_name, true) + " == __ILA_SO_" +
                                  ila_state->name().str(),

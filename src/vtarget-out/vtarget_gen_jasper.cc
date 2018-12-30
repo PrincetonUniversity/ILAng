@@ -45,6 +45,17 @@ void VlgSglTgtGen_Jasper::add_an_assumption(const std::string& aspt,
 void VlgSglTgtGen_Jasper::add_an_assertion(const std::string& asst,
                                            const std::string& dspt) {}
 
+/// Add an assumption
+void VlgSglTgtGen_Jasper::add_a_direct_assumption(const std::string& aspt,
+                                const std::string& dspt) {
+                                  // TODO:
+                                }
+/// Add an assertion
+void VlgSglTgtGen_Jasper::add_a_direct_assertion(const std::string& asst,
+                              const std::string& dspt) {
+                                  // TODO:
+                              }
+
 /// export the script to run the verification
 void VlgSglTgtGen_Jasper::Export_script(const std::string& script_name) {}
 /// export extra things (problem)
