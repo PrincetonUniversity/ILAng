@@ -355,9 +355,19 @@ void VerilogGenerator::insertState(const ExprPtr& state) {
                        state->sort()->data_width());
     }
   } else if (state->is_bv()) {
-    add_reg(sanitizeName(state), state->sort()->bit_width());
+    auto reg_name = sanitizeName(state);
+    add_reg(reg_name, state->sort()->bit_width());
+    if(cfg_.reg_random_init) {
+      add_wire(reg_name + "_randinit", state->sort()->bit_width(), true);
+      add_init_stmt( reg_name + " <= " + reg_name + "_randinit ;" );
+    }
   } else if (state->is_bool()) {
-    add_reg(sanitizeName(state), 1);
+    auto reg_name = sanitizeName(state);
+    add_reg(reg_name, 1);
+    if(cfg_.reg_random_init) {
+      add_wire(reg_name + "_randinit", 1, true);
+      add_init_stmt( reg_name + " <= " + reg_name + "_randinit ;" );
+    }
   }
 }
 

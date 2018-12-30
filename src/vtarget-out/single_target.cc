@@ -48,12 +48,14 @@ VlgSglTgtGen::VlgSglTgtGen(
                       true,   // except overwriting these: external memory
                       VerilogGeneratorBase::VlgGenConfig::funcOption::
                           External, // function
-                      false),       // no start signal
+                      false,  // no start signal
+                      false), // no rand init       
                   wrapper_name),
       // use given, except for core options
       vlg_ila(VerilogGeneratorBase::VlgGenConfig(
           config, true,
-          VerilogGeneratorBase::VlgGenConfig::funcOption::External, true)),
+          VerilogGeneratorBase::VlgGenConfig::funcOption::External, true,
+          true)), // rand init
       // interface mapping directive
       _idr(instr_ptr == nullptr ? true
                                 : false), // if nullptr, verify inv., reset it
@@ -539,7 +541,7 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assertions() {
     if (_vtg_config.PerVariableProblemCosa)
       problem_name += sname;
 
-    // true below means it is for assertions (only different for mapping memory)
+    // 'true' below means it is for assertions (only different for mapping memory)
     // if assumption, nothing to be done
     // if assertions, ask _idr to connect and get the eq name
     add_an_assertion(precondition + "(" +
@@ -652,6 +654,7 @@ void VlgSglTgtGen::ConstructWrapper_add_condition_signals() {
 
   // __IEND__
   std::string iend_cond = VLG_FALSE;
+  bool no_started_signal = false;
   if (ready_type & ready_type_t::READY_SIGNAL) {
     if (instr["ready signal"].is_string()) {
       iend_cond += "|| (" +
@@ -678,17 +681,26 @@ void VlgSglTgtGen::ConstructWrapper_add_condition_signals() {
         iend_cond += "|| ( __CYCLE_CNT__ == " +
                      ReplExpr(IntToStr(cnt_width) + "'d" + IntToStr(bound)) +
                      ")";
-      } else
+      } 
+      else if(bound == 0) {
+        iend_cond += "|| (__START__)";
+        no_started_signal = true; // please don't use && STARTED
+      }
+      else
         ILA_ERROR << "ready bound field of instruction: "
-                  << _instr_ptr->name().str() << " has to a positive integer";
+                  << _instr_ptr->name().str() << " has to a non negative integer";
     } else
       ILA_ERROR << "ready bound field of instruction: "
-                << _instr_ptr->name().str() << " has to a positive integer";
+                << _instr_ptr->name().str() << " has to a non negative integer";
   } // end of ready bound/condition
 
   vlg_wrapper.add_wire("__IEND__", 1, true);
-  add_wire_assign_assumption("__IEND__", "(" + iend_cond + ") && __STARTED__",
-                             "IEND");
+  if(no_started_signal)
+    add_wire_assign_assumption("__IEND__", "(" + iend_cond + ")",
+                              "IEND");
+  else
+    add_wire_assign_assumption("__IEND__", "(" + iend_cond + ") && __STARTED__",
+                              "IEND");
   // handle start decode
   ILA_ERROR_IF(IN("start decode", instr))
       << "'start decode' is replaced by start condition!";
@@ -839,7 +851,7 @@ void VlgSglTgtGen::ConstructWrapper_add_uf_constraints() {
       continue;
     }
     if(not IN(funcName,name_to_fnapp_vec)) {
-      ILA_ERROR << "uninterpreted function mapping:"<<funcName<<" does not exist.";
+      ILA_WARN << "uninterpreted function mapping:"<<funcName<<" does not exist. Skipped.";
       continue;
     }
     if(list_of_time_of_apply.size() != name_to_fnapp_vec[funcName].size()) {

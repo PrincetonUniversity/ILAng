@@ -43,7 +43,7 @@ VlgAbsMem::GeneratingMemModuleSignalsInstantiation(VerilogGeneratorBase& gen, co
   // eq ? signal
   // if not given,  use a name it self
   if (addr_width == 0 || data_width == 0) {
-    ILA_ERROR << "Unknown data width for absmem : " << ila_map_name;
+    ILA_ERROR << "Unknown addr/data width for absmem : " << ila_map_name;
     return "";
   }
   if (vlg_rports.size() > 1 || vlg_wports.size() > 1 || ila_rports.size() > 1 ||

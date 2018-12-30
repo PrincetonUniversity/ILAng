@@ -189,17 +189,19 @@ ExprRef operator-(const ExprRef& a, const int& b);
 /******************************************************************************/
 // Binary comparison
 /******************************************************************************/
+/// Set the default behavior of operator <, <=, > and >=, by default, signed compare
+void SetUnsignedComparation(bool sign);
 /// Equal.
 ExprRef operator==(const ExprRef& a, const ExprRef& b);
 /// Not equal.
 ExprRef operator!=(const ExprRef& a, const ExprRef& b);
-/// Signed less than (bit-vectors only).
+/// Signed/Unsigned less than (bit-vectors only).
 ExprRef operator<(const ExprRef& a, const ExprRef& b);
-/// Signed greater than (bit-vectors only).
+/// Signed/Unsigned greater than (bit-vectors only).
 ExprRef operator>(const ExprRef& a, const ExprRef& b);
-/// Signed less than or equal to (bit-vectors only).
+/// Signed/Unsigned less than or equal to (bit-vectors only).
 ExprRef operator<=(const ExprRef& a, const ExprRef& b);
-/// Signed greater than or equal to (bit-vectors only).
+/// Signed/Unsigned greater than or equal to (bit-vectors only).
 ExprRef operator>=(const ExprRef& a, const ExprRef& b);
 /// Unsigned less than (bit-vectors only).
 ExprRef Ult(const ExprRef& a, const ExprRef& b);
@@ -209,6 +211,14 @@ ExprRef Ugt(const ExprRef& a, const ExprRef& b);
 ExprRef Ule(const ExprRef& a, const ExprRef& b);
 /// Unsigned greater than or equal to (bit-vectors only).
 ExprRef Uge(const ExprRef& a, const ExprRef& b);
+/// Signed less than (bit-vectors only).
+ExprRef Slt(const ExprRef& a, const ExprRef& b);
+/// Signed greater than (bit-vectors only).
+ExprRef Sgt(const ExprRef& a, const ExprRef& b);
+/// Signed less than or equal to (bit-vectors only).
+ExprRef Sle(const ExprRef& a, const ExprRef& b);
+/// Signed greater than or equal to (bit-vectors only).
+ExprRef Sge(const ExprRef& a, const ExprRef& b);
 
 // helper functions with constants
 /// Equal to Boolean constant.
@@ -217,13 +227,13 @@ ExprRef operator==(const ExprRef& a, const bool& b);
 ExprRef operator==(const ExprRef& a, const int& b);
 /// Not equal to int constant.
 ExprRef operator!=(const ExprRef& a, const int& b);
-/// Signed less than int constant (bit-vectors only).
+/// Signed/Unsigned less than int constant (bit-vectors only).
 ExprRef operator<(const ExprRef& a, const int& b);
-/// Signed greater than int constant (bit-vectors only).
+/// Signed/Unsigned greater than int constant (bit-vectors only).
 ExprRef operator>(const ExprRef& a, const int& b);
-/// Signed less than or equal to int constant (bit-vectors only).
+/// Signed/Unsigned less than or equal to int constant (bit-vectors only).
 ExprRef operator<=(const ExprRef& a, const int& b);
-/// Signed greater than or equal to int constant (bit-vectors only).
+/// Signed/Unsigned greater than or equal to int constant (bit-vectors only).
 ExprRef operator>=(const ExprRef& a, const int& b);
 /// Unsigned less than int constant (bit-vectors only).
 ExprRef Ult(const ExprRef& a, const int& b);
@@ -233,6 +243,14 @@ ExprRef Ugt(const ExprRef& a, const int& b);
 ExprRef Ule(const ExprRef& a, const int& b);
 /// Unsigned greater than or equal to int constant (bit-vectors only).
 ExprRef Uge(const ExprRef& a, const int& b);
+/// Signed less than int constant (bit-vectors only).
+ExprRef Slt(const ExprRef& a, const int& b);
+/// Signed greater than int constant (bit-vectors only).
+ExprRef Sgt(const ExprRef& a, const int& b);
+/// Signed less than or equal to int constant (bit-vectors only).
+ExprRef Sle(const ExprRef& a, const int& b);
+/// Signed greater than or equal to int constant (bit-vectors only).
+ExprRef Sge(const ExprRef& a, const int& b);
 
 /******************************************************************************/
 // Memory-related operations

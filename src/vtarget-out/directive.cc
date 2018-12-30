@@ -291,16 +291,17 @@ void IntefaceDirectiveRecorder::RegisterInterface(const SignalInfoBase& vlg_sig,
     internal_wires.push_back({new_wire_name, (w)});                            \
   } while (0);
 
+      abs_mems[ila_mem_name].SetDataWidth(data_w);
+      abs_mems[ila_mem_name].SetAddrWidth(addr_w);
+
       if (port_name == "rdata") {
         ADD_PORT_WIRE("rdata", data_w, "Data", "data", is_input,
                       abs_mems[ila_mem_name].vlg_rports[port_no].rdata,
                       inf_dir_t::MEM_R_D);
-        abs_mems[ila_mem_name].SetDataWidth(data_w);
       } else if (port_name == "raddr") {
         ADD_PORT_WIRE("raddr", addr_w, "Addr", "addr", is_output,
                       abs_mems[ila_mem_name].vlg_rports[port_no].raddr,
                       inf_dir_t::MEM_R_A);
-        abs_mems[ila_mem_name].SetAddrWidth(addr_w);
       } else if (port_name == "ren") {
         ADD_PORT_WIRE("ren", 1, "Enable signal", "en", is_output,
                       abs_mems[ila_mem_name].vlg_rports[port_no].ren,
@@ -309,12 +310,10 @@ void IntefaceDirectiveRecorder::RegisterInterface(const SignalInfoBase& vlg_sig,
         ADD_PORT_WIRE("wdata", data_w, "Data", "data", is_output,
                       abs_mems[ila_mem_name].vlg_wports[port_no].wdata,
                       inf_dir_t::MEM_W_D);
-        abs_mems[ila_mem_name].SetDataWidth(data_w);
       } else if (port_name == "waddr") {
         ADD_PORT_WIRE("waddr", addr_w, "Addr", "addr", is_output,
                       abs_mems[ila_mem_name].vlg_wports[port_no].waddr,
                       inf_dir_t::MEM_W_A);
-        abs_mems[ila_mem_name].SetAddrWidth(addr_w);
       } else if (port_name == "wen") {
         ADD_PORT_WIRE("wen", 1, "Enable signal", "en", is_output,
                       abs_mems[ila_mem_name].vlg_wports[port_no].wen,
@@ -363,7 +362,8 @@ void IntefaceDirectiveRecorder::Clear(bool reset_vlg) {
 std::string IntefaceDirectiveRecorder::ConnectMemory(
     const std::string& directive, const std::string& ila_state_name,
     const std::map<unsigned, rport_t>& rports,
-    const std::map<unsigned, wport_t>& wports) {
+    const std::map<unsigned, wport_t>& wports,
+    int ila_addr_width, int ila_data_width) {
   ILA_ASSERT(beginsWith(directive, "**"));
   if (not beginsWith(directive, "**MEM**")) {
     ILA_ERROR << directive << " is not a recognized directive!";
@@ -379,6 +379,8 @@ std::string IntefaceDirectiveRecorder::ConnectMemory(
 
   pos->second.mem_name = mem_name;
   pos->second.ila_map_name = ila_state_name;
+  pos->second.SetAddrWidth(ila_addr_width);
+  pos->second.SetDataWidth(ila_data_width);
   // copy the ports
   ILA_ERROR_IF(pos->second.ila_rports.size() != 0 ||
                pos->second.ila_wports.size() != 0)

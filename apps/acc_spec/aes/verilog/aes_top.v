@@ -361,4 +361,17 @@ begin
     end
 end
 
+// ---------- monitors ---------------- //
+
+reg [7:0] data_out_reg;
+always @(posedge clk) begin
+    data_out_reg <= data_out;
+end
+
+reg [7:0] xram_ack_delay_1;
+always @(posedge clk) begin
+    xram_ack_delay_1 <= xram_ack;
+end
+
+
 endmodule

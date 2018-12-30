@@ -98,8 +98,9 @@ AES::AES()
     instr.SetUpdate(key, key);
     instr.SetUpdate(address, address);
     instr.SetUpdate(length, length);
-    instr.SetUpdate(status, status);
-    instr.SetUpdate(counter, counter);
+    // but not the following two:
+    //instr.SetUpdate(status, status);
+    //instr.SetUpdate(counter, counter);
   }
 
   { // READ_ADDRESS
@@ -114,8 +115,9 @@ AES::AES()
     instr.SetUpdate(key, key);
     instr.SetUpdate(address, address);
     instr.SetUpdate(length, length);
-    instr.SetUpdate(status, status);
-    instr.SetUpdate(counter, counter);
+    // but not the following two:
+    // instr.SetUpdate(status, status);
+    // instr.SetUpdate(counter, counter);
   }
 
   { // READ_KEY
@@ -130,8 +132,10 @@ AES::AES()
     instr.SetUpdate(key, key);
     instr.SetUpdate(address, address);
     instr.SetUpdate(length, length);
-    instr.SetUpdate(status, status);
-    instr.SetUpdate(counter, counter);
+
+    // but not the following two:
+    // instr.SetUpdate(status, status);
+    // instr.SetUpdate(counter, counter);
   }
 
   { // READ_COUNTER
@@ -146,8 +150,6 @@ AES::AES()
     instr.SetUpdate(key, key);
     instr.SetUpdate(address, address);
     instr.SetUpdate(length, length);
-    instr.SetUpdate(status, status);
-    instr.SetUpdate(counter, counter);
   }
 
   { // GET_STATUS
@@ -162,8 +164,6 @@ AES::AES()
     instr.SetUpdate(key, key);
     instr.SetUpdate(address, address);
     instr.SetUpdate(length, length);
-    instr.SetUpdate(status, status);
-    instr.SetUpdate(counter, counter);
   }
 
   { // WRITE_LENGTH
@@ -204,8 +204,8 @@ AES::AES()
     // but not for status
   }
 
-  { // WRITE_KEY
-    auto instr = model.NewInstr("WRITE_CNT");
+  { // WRITE_COUNTER
+    auto instr = model.NewInstr("WRITE_COUNTER");
 
     instr.SetDecode((cmd == CMD_WRITE) & (cmdaddr >= AES_CNT) &
                     (cmdaddr < AES_CNT + 16));

@@ -175,7 +175,7 @@ void VlgVerifTgtGen::GenerateTargets(void) {
       auto instr_ptr = _ila_ptr->instr(iname);
       if (instr_ptr == nullptr) {
         ILA_ERROR << "ila:" << _ila_ptr->name().str()
-                  << " has no instruction:" << instr_ptr;
+                  << " has no instruction:" << iname;
         continue;
       }
       if (_backend == backend_selector::COSA) {

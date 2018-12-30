@@ -20,23 +20,23 @@
     },
     {
       "instruction" : "READ_LENGTH",
-      "ready bound" : 0
+      "ready bound" : 1
     },
     {
       "instruction" : "READ_ADDRESS",
-      "ready bound" : 0
+      "ready bound" : 1
     },
     {
       "instruction" : "READ_KEY",
-      "ready bound" : 0
+      "ready bound" : 1
     },
     {
       "instruction" : "READ_COUNTER",
-      "ready bound" : 0
+      "ready bound" :1
     },
     {
       "instruction" : "GET_STATUS",
-      "ready bound" : 0
+      "ready bound" : 1
     },
     {
       "instruction" : "START_ENCRYPT",

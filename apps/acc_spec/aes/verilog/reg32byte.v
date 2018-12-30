@@ -1,5 +1,7 @@
 // synopsys translate_off
-`include "oc8051_timescale.v"
+
+`timescale 1ns/10ps
+
 // synopsys translate_on
 
 module reg32byte(clk, rst, en, wr, addr, data_in, data_out, reg_out);

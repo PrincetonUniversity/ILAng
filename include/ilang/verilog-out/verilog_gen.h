@@ -132,19 +132,21 @@ public:
     bool start_signal;
     /// whether to set vlg name according to the node name
     bool pass_node_name;
+    /// whether to give random init to the register
+    bool reg_random_init; // this is also to avoid Yosys optimization
 
     /// Constructor, set default value, ExternalMem : false, function: internal
     /// module
     VlgGenConfig( // provide the default settings
         bool ExternalMem = false, funcOption funcOpt = funcOption::Internal,
-        bool gen_start = false, bool pass_name = false)
+        bool gen_start = false, bool pass_name = false, bool rand_init = false)
         : extMem(ExternalMem), fcOpt(funcOpt), start_signal(gen_start),
-          pass_node_name(pass_name) {}
+          pass_node_name(pass_name), reg_random_init(rand_init) {}
     /// Overwrite configuration, used by vtarget gen
     VlgGenConfig(const VlgGenConfig& c, bool ExternalMem, funcOption funcOpt,
-                 bool gen_start )
+                 bool gen_start, bool rand_init )
         : extMem(ExternalMem), fcOpt(funcOpt), start_signal(gen_start),
-          pass_node_name(c.pass_node_name) {}
+          pass_node_name(c.pass_node_name), reg_random_init(rand_init) {}
     // set other fields if there are such need (?)
   };
 

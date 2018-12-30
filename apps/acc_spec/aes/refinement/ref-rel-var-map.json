@@ -2,13 +2,13 @@
   "models": { "ILA":"m0" , "VERILOG": "m1" },
   "instruction mapping": [],
   "state mapping": { 
-    "status"         : "aes_reg_state",
-    "address"        : "aes_reg_oplen_i.reg_out",
-    "length"         : "aes_reg_oplen_i.reg_out",
-    "counter"        : "aes_reg_ctr_i.reg_out",
-    "key"            : "aes_reg_key0_i.reg_out",
-    "xram"           : "**MEM**xram",
-    "outdata"        : "data_out"
+    "aes_status"         : "m1.aes_reg_state",
+    "aes_address"        : "m1.aes_reg_opaddr_i.reg_out",
+    "aes_length"         : "m1.aes_reg_oplen_i.reg_out",
+    "aes_counter"        : "m1.aes_reg_ctr_i.reg_out",
+    "aes_key"            : "m1.aes_reg_key0_i.reg_out",
+    "XRAM"               : "**MEM**XRAM",
+    "outdata"            : "m1.data_out_reg"
   },
 
   "interface mapping": {
@@ -18,8 +18,8 @@
      "addr"          : "cmdaddr",
      "data_in"       : "cmddata",
 
-     "xram_data_out" : "**MEM**xram.wdata",
-     "xram_data_in"  : "**MEM**xram.rdata",
+     "xram_data_out" : "**MEM**XRAM.wdata",
+     "xram_data_in"  : "**MEM**XRAM.rdata",
      "wr"            :                           "**KEEP**",
      "ack"           :                           "**KEEP**",
      "stb"           :                           "**KEEP**",
@@ -36,10 +36,16 @@
      "aes_step:"     :           "**SO**"
   },
 
-  "mapping control" : [ "(m1.xram_wr & m1.xram_stb) == __MEM_xram_0_wen" , 
-                        "(~ ( m0.cmd == 1 )) || ( m1.wr == 1)" , 
-                        "(~ ( m0.cmd == 2 )) || ( m1.wr == 0)",
-                        " m1.xram_addr ==  __MEM_xram_0_raddr ",
-                        " m1.xram_addr ==  __MEM_xram_0_waddr "
-                      ]
+  "mapping control" : [ "(m1.xram_wr & m1.xram_stb) == __MEM_XRAM_0_wen" , 
+                        "(~ ( m0.cmd == 2 )) || ( m1.wr == 1)" , 
+                        "(~ ( m0.cmd == 1 )) || ( m1.wr == 0)",
+                        " m1.xram_addr ==  __MEM_XRAM_0_raddr ",
+                        " m1.xram_addr ==  __MEM_XRAM_0_waddr "
+                      ],
+
+  "functions":{
+      "unknown0":[["__IEND__","m1.aes_reg_state"]],
+      "unknown1":[["__IEND__","m1.aes_reg_state"]],
+      "unknown2":[["__IEND__","m1.aes_reg_ctr_i.reg_out"]]
+  }
 }
