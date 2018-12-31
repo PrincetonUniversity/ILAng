@@ -395,7 +395,8 @@ std::string VlgSglTgtGen::GetStateVarMapExpr(const std::string& ila_state_name,
                              vlg_ila.ila_rports[ila_state_name],
                              vlg_ila.ila_wports[ila_state_name],
                              ila_state->sort()->addr_width(),
-                             ila_state->sort()->data_width());
+                             ila_state->sort()->data_width(),
+                             _vtg_config.MemAbsReadAbstraction);
       // wire will be added by the absmem
       return mem_eq_assert;
     } else {

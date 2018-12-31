@@ -37,6 +37,7 @@ void verifyIO(Ila& model) {
   VerilogGeneratorBase::VlgGenConfig vlg_cfg;
   VerilogVerificationTargetGenerator::vtg_config_t vtg_cfg;
 
+  vtg_cfg.MemAbsReadAbstraction = true; // enable read abstraction
   vlg_cfg.pass_node_name = true;
 
   std::string RootPath = "..";
@@ -74,6 +75,7 @@ void verifyBlockLevel(Ila& model) {
   VerilogGeneratorBase::VlgGenConfig vlg_cfg;
   VerilogVerificationTargetGenerator::vtg_config_t vtg_cfg;
 
+  vtg_cfg.MemAbsReadAbstraction = true; // enable read abstraction
   vlg_cfg.pass_node_name = true;
 
   std::string RootPath = "..";

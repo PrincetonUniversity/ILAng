@@ -55,6 +55,8 @@ public:
   /// Type of call back function to find information about a memory
   typedef std::function<std::pair<unsigned, unsigned>(const std::string&)>
       ila_mem_checker_t;
+  /// Type of call back function to insert assumptions
+  typedef std::function<void(const std::string &)> assmpt_inserter_t;
   /// type of read port
   using rport_t = VerilogGeneratorBase::rport_t;
   /// type of write port
@@ -95,7 +97,11 @@ public:
                             const std::string& ila_state_name,
                             const std::map<unsigned, rport_t>& rports,
                             const std::map<unsigned, wport_t>& wports,
-                            int ila_addr_width, int ila_data_width);
+                            int ila_addr_width, int ila_data_width,
+                            bool abs_read);
+  /// Insert memory abstractions' assumptions
+  void InsertAbsMemAssmpt( assmpt_inserter_t inserter );
+
   /// Setting the memory abstraction name, but does not enforce any equality there
   void SetMemName(const std::string& directive, const std::string& ila_state_name);
   /// Return the memory instantiation string

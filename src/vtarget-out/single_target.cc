@@ -836,6 +836,12 @@ void VlgSglTgtGen::ConstructWrapper_add_helper_memory() {
 
   auto stmt = _idr.GetAbsMemInstString(vlg_wrapper, endCond);
   vlg_wrapper.add_stmt(stmt);
+
+  // check if we need to insert any assumptions
+  auto inserter = [this](const std::string & p) -> void {
+    add_an_assumption(p, "absmem");
+  };
+  _idr.InsertAbsMemAssmpt( inserter );
 }
 
 void VlgSglTgtGen::ConstructWrapper_add_uf_constraints() {

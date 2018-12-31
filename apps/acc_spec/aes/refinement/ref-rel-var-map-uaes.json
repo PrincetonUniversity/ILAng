@@ -41,8 +41,8 @@
      "aes_step:"     :           "**SO**"
   },
 
-  "mapping control" : [ "(m1.xram_wr & m1.xram_stb) == __MEM_XRAM_0_wen" , 
-                        "(~m1.xram_wr & m1.xram_stb) == __MEM_XRAM_0_ren" ,
+  "mapping control" : [ "(m1.xram_wr & m1.xram_stb & m1.xram_ack) == __MEM_XRAM_0_wen" , 
+                        "(~m1.xram_wr & m1.xram_stb & m1.xram_ack) == __MEM_XRAM_0_ren" ,
                         "(~ ( m0.cmd == 2 )) || ( m1.wr == 1)" , 
                         "(~ ( m0.cmd == 1 )) || ( m1.wr == 0)",
                         " m1.xram_addr ==  __MEM_XRAM_0_raddr ",

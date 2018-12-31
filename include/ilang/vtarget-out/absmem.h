@@ -8,6 +8,7 @@
 #include <ilang/vtarget-out/absmem.h>
 #include <map>
 #include <set>
+#include <vector>
 #include <string>
 #include <tuple>
 
@@ -31,6 +32,8 @@ struct VlgAbsMem {
   /// ila write ports
   std::map<unsigned, wport_t> ila_wports;
 
+  /// whether to abstract the memory read
+  bool read_abstract;
   /// how many are considered to be concrete
   unsigned concrete_level;
   /// widths , 0 stands for unknown
@@ -41,6 +44,8 @@ struct VlgAbsMem {
   std::string ila_map_name;
   /// which the name in rfmap
   std::string mem_name;
+  /// the assumptions it has
+  std::vector<std::string> assumpts;
 
 private:
   /// Whether the module is checked to be okay

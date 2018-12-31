@@ -33,13 +33,16 @@ public:
     bool OnlyCheckInstUpdatedVars; // true
     /// Do we set separate problems for different var map (CoSA only)
     bool PerVariableProblemCosa; // true
+    /// Whether to abstract the memory read
+    bool MemAbsReadAbstraction; // false
     /// Only enforce var eq on updated vars, should not be used
     bool OnlyAssumeUpdatedVarsEq; // should be false
     /// The default constructor for default values
     _vtg_config()
         : target_select(BOTH), CheckThisInstructionOnly(""),
           InstructionNoReset(true), OnlyCheckInstUpdatedVars(true),
-          PerVariableProblemCosa(false), OnlyAssumeUpdatedVarsEq(false) {}
+          PerVariableProblemCosa(false), MemAbsReadAbstraction(false),
+          OnlyAssumeUpdatedVarsEq(false) {}
   } vtg_config_t;
 
 public:

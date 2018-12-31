@@ -392,7 +392,8 @@ std::string IntefaceDirectiveRecorder::ConnectMemory(
     const std::string& directive, const std::string& ila_state_name,
     const std::map<unsigned, rport_t>& rports,
     const std::map<unsigned, wport_t>& wports,
-    int ila_addr_width, int ila_data_width) {
+    int ila_addr_width, int ila_data_width,
+    bool abs_read) {
   ILA_ASSERT(beginsWith(directive, "**"));
   if (not beginsWith(directive, "**MEM**")) {
     ILA_ERROR << directive << " is not a recognized directive!";
@@ -406,6 +407,7 @@ std::string IntefaceDirectiveRecorder::ConnectMemory(
     return VLG_TRUE;
   }
 
+  pos->second.read_abstract = abs_read;
   SetMemName(directive, ila_state_name);
   
   //pos->second.ila_map_name = ila_state_name;
@@ -432,6 +434,14 @@ IntefaceDirectiveRecorder::GetAbsMemInstString(VerilogGeneratorBase& gen, const 
   }
   return ret;
 }
+
+
+  void IntefaceDirectiveRecorder::InsertAbsMemAssmpt( assmpt_inserter_t inserter ) {
+    for(auto && nm_pair : abs_mems) {
+      for(auto && assumpt : nm_pair.second.assumpts)
+        inserter(assumpt);
+    }
+  }
 
 // ------------------------------------------------------------------------
 
