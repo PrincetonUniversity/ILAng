@@ -29,4 +29,28 @@ namespace ilang {
     }
     return memswap; 
   }
+
+
+  Ila MemorySwap::BuildRdModel() {
+    // build the ila
+    auto memswap = Ila("MemRd");
+    memswap.SetValid( BoolConst(true) );
+
+    auto addra = memswap.NewBvInput("addra", 32);
+    auto start = memswap.NewBvInput("start", 1);
+    auto membuf= memswap.NewBvState("membuf",8);
+
+    auto mema = memswap.NewMemState("mema",32,8);
+    
+    {
+      auto SWAP = memswap.NewInstr("Rd");
+      SWAP.SetDecode(start == 1);
+
+      auto dataa = Load(mema,addra);
+
+      SWAP.SetUpdate(membuf, dataa);
+    }
+    return memswap; 
+  }
+
 } // namespace ilang

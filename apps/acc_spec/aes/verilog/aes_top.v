@@ -205,7 +205,9 @@ wire [127:0] aes_key0 = aes_reg_key0;
 
 // keep track of the number of bytes operated upon.
 reg [15:0] operated_bytes_count;
-wire [15:0] operated_bytes_count_next = 
+wire [15:0] operated_bytes_count_next;
+
+assign operated_bytes_count_next = 
     start_op                                ? 0                         : 
     last_byte_acked && aes_state_write_data ? operated_bytes_count + 16 : 
     operated_bytes_count;
@@ -308,8 +310,10 @@ assign aes_time_enough = aes_time_counter >= 5'd10;
 // Actual encryption happens here.
 
 wire [127:0] aes_out;
-wire [127:0] encrypted_data = aes_out ^ mem_data_buf;
-wire [127:0] aes_curr_key = aes_reg_key0;
+wire [127:0] encrypted_data;
+assign encrypted_data = aes_out ^ mem_data_buf;
+wire [127:0] aes_curr_key;
+assign aes_curr_key = aes_reg_key0;
 aes_128 aes_128_i (
     .clk        (clk),
     .state      (uaes_ctr),
@@ -368,7 +372,7 @@ always @(posedge clk) begin
     data_out_reg <= data_out;
 end
 
-reg [7:0] xram_ack_delay_1;
+reg xram_ack_delay_1;
 always @(posedge clk) begin
     xram_ack_delay_1 <= xram_ack;
 end

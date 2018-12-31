@@ -13,6 +13,7 @@ class MemorySwap {
 
 public:
   static Ila BuildModel();
+  static Ila BuildRdModel();
 
 }; // class MemorySwap
 

@@ -1,23 +1,25 @@
 {
   "global invariants": [
-    "~(aes_step && (aes_state == aes_state_operate)) || ( byte_counter == 0 )",
-    "~(operated_bytes_count_next < aes_reg_oplen)  || (operated_bytes_count == byte_counter)",
-    "uaes_ctr == aes_reg_ctr + block_ctr",
+    "~(aes_step && aes_reg_state == 2) || ( byte_counter == 0 )",
+    "~(aes_reg_state != 0) || ((operated_bytes_count == block_counter))",
+    "~(aes_reg_state != 0) || (uaes_ctr == aes_reg_ctr + block_counter)",
+    "block_counter[3:0] == 4'd0",
+    "~(aes_reg_state == 2) || (aes_time_enough == 1)"
   ],
 
   "instructions": [
     {
       "instruction" : "LOAD",
-      "ready signal": "xram_ack_delay_1",
+      "ready signal": "xram_ack_delay_1"
     },
     {
       "instruction" : "OPERATE",
-      "ready bound" : 1,
+      "ready bound" : 1
     },
     {
       "instruction" : "STORE",
-      "ready bound" : "xram_ack_delay_1"
-    },
+      "ready signal" : "xram_ack_delay_1"
+    }
   ]
 }
 

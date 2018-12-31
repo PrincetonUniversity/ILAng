@@ -71,6 +71,32 @@ void verifyIO(Ila& model) {
 
 void verifyBlockLevel(Ila& model) {
 
+  VerilogGeneratorBase::VlgGenConfig vlg_cfg;
+  VerilogVerificationTargetGenerator::vtg_config_t vtg_cfg;
+
+  vlg_cfg.pass_node_name = true;
+
+  std::string RootPath = "..";
+  std::string VerilogPath = RootPath + "/verilog/";
+  std::string RefrelPath = RootPath + "/refinement/";
+  std::string OutputPath = RootPath + "/verification/";
+
+  VerilogVerificationTargetGenerator vg(
+      {}, // no include
+      {VerilogPath + "aes_top.v",   VerilogPath + "reg2byte.v",
+       VerilogPath + "reg16byte.v", VerilogPath + "reg32byte.v",
+       VerilogPath + "reg256byte.v",
+       VerilogPath + "aes_128_abs.v"},                // designs
+      "aes_top",                                      // top_module_name
+      RefrelPath + "ref-rel-var-map-uaes.json",            // variable mapping
+      RefrelPath + "ref-rel-inst-cond-uaes.json", // conditions of start/ready
+      OutputPath,                                   // output path
+      model.child(0).get(),                                  // model
+      VerilogVerificationTargetGenerator::backend_selector::COSA, // backend: COSA
+      vtg_cfg,  // target generator configuration
+      vlg_cfg); // verilog generator configuration
+
+  vg.GenerateTargets();
 }
 
 int main() {

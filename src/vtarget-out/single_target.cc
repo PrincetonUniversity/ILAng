@@ -527,6 +527,11 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assertions() {
     }
     if (_vtg_config.OnlyCheckInstUpdatedVars and
         _instr_ptr->update(sname) == nullptr) {
+
+      // do not skip memory, though we don't use the eq signal it returns
+      if( _host->state(sname)->is_mem() )
+       GetStateVarMapExpr(sname, i.value(), true);
+
       ILA_INFO << "Skip checking variable:" << sname
                << " for instruction:" << _instr_ptr->name().str();
       continue;
@@ -654,7 +659,7 @@ void VlgSglTgtGen::ConstructWrapper_add_condition_signals() {
 
   // __IEND__
   std::string iend_cond = VLG_FALSE;
-  bool no_started_signal = false;
+  //bool no_started_signal = false;
   if (ready_type & ready_type_t::READY_SIGNAL) {
     if (instr["ready signal"].is_string()) {
       iend_cond += "|| (" +
@@ -683,8 +688,9 @@ void VlgSglTgtGen::ConstructWrapper_add_condition_signals() {
                      ")";
       } 
       else if(bound == 0) {
-        iend_cond += "|| (__START__)";
-        no_started_signal = true; // please don't use && STARTED
+        // iend_cond += "|| (__START__)";
+        // no_started_signal = true; // please don't use && STARTED
+        ILA_ERROR << "Does not support bound : 0, please use a buffer to hold the signal.";
       }
       else
         ILA_ERROR << "ready bound field of instruction: "
@@ -695,12 +701,14 @@ void VlgSglTgtGen::ConstructWrapper_add_condition_signals() {
   } // end of ready bound/condition
 
   vlg_wrapper.add_wire("__IEND__", 1, true);
-  if(no_started_signal)
-    add_wire_assign_assumption("__IEND__", "(" + iend_cond + ")",
-                              "IEND");
-  else
-    add_wire_assign_assumption("__IEND__", "(" + iend_cond + ") && __STARTED__",
-                              "IEND");
+  //if(no_started_signal)
+  //  add_wire_assign_assumption("__IEND__", "(" + iend_cond + ")",
+  //                            "IEND");
+  //else
+  auto end_no_recur = has_flush ? "(~ __FLUSHENDED__ )" :"(~ __ENDED__)";
+
+  add_wire_assign_assumption("__IEND__", "(" + iend_cond + ") && __STARTED__ && " + end_no_recur,
+                            "IEND");
   // handle start decode
   ILA_ERROR_IF(IN("start decode", instr))
       << "'start decode' is replaced by start condition!";

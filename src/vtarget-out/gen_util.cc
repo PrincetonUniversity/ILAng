@@ -372,8 +372,10 @@ std::string VlgSglTgtGen::GetStateVarMapExpr(const std::string& ila_state_name,
       ILA_DLOG("VlgSglTgtGen.GetStateVarMapExpr")
           << "map mem:" << ila_state_name;
       // may be we need to log them here
-      if (is_assert == false)
+      if (is_assert == false) {
+        _idr.SetMemName(m.get<std::string>(), ila_state_name);
         return VLG_TRUE; // no need for assumptions on memory
+      }
       // handle memory: map vlg_ila.ila_wports && vlg_ila.ila_rports with
       // _idr.abs_mems
 

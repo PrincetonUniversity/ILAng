@@ -789,7 +789,7 @@ void VerilogGenerator::ParseNonMemUpdateExpr(
 // parent instruction
 bool VerilogGenerator::CheckMemUpdateNode(const ExprPtr& e,
                                           const std::string& mem_var_name) {
-  ILA_ASSERT(e->is_mem()); // require it to be memory
+  ILA_ASSERT(e->is_mem()) << mem_var_name << " has sort: " << e->sort(); // require it to be memory
   if (e->is_const())
     return false;
   else if (e->is_var()) {

@@ -359,6 +359,35 @@ void IntefaceDirectiveRecorder::Clear(bool reset_vlg) {
   _reset_vlg = reset_vlg;
 }
 
+void IntefaceDirectiveRecorder::SetMemName(
+    const std::string& directive, const std::string& ila_state_name) {
+
+  ILA_ASSERT(beginsWith(directive, "**"));
+  if (not beginsWith(directive, "**MEM**")) {
+    ILA_ERROR << directive << " is not a recognized directive!";
+    return;
+  }
+
+  auto mem_name = directive.substr(7);
+  auto pos = abs_mems.find(mem_name);
+  if (pos == abs_mems.end()) {
+    ILA_ERROR << directive << " refers to a nonexisting memory!";
+    return;
+  }
+  if(pos->second.mem_name == "")
+    pos->second.mem_name = mem_name;
+  if(pos->second.ila_map_name == "")
+    pos->second.ila_map_name = ila_state_name;
+  ILA_ERROR_IF(pos->second.mem_name != mem_name) << "Implementation bug,"
+    << " setting memory abstraction with a different name"
+    << " old:"<<pos->second.mem_name << ", new:"
+    << mem_name;  
+  ILA_ERROR_IF(pos->second.ila_map_name != ila_state_name) << "Implementation bug,"
+    << " setting memory abstraction with a different name"
+    << " old:"<<pos->second.ila_map_name << ", new:"
+    << ila_state_name;  
+}
+
 std::string IntefaceDirectiveRecorder::ConnectMemory(
     const std::string& directive, const std::string& ila_state_name,
     const std::map<unsigned, rport_t>& rports,
@@ -377,8 +406,9 @@ std::string IntefaceDirectiveRecorder::ConnectMemory(
     return VLG_TRUE;
   }
 
-  pos->second.mem_name = mem_name;
-  pos->second.ila_map_name = ila_state_name;
+  SetMemName(directive, ila_state_name);
+  
+  //pos->second.ila_map_name = ila_state_name;
   pos->second.SetAddrWidth(ila_addr_width);
   pos->second.SetDataWidth(ila_data_width);
   // copy the ports

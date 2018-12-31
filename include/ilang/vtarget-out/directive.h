@@ -96,6 +96,8 @@ public:
                             const std::map<unsigned, rport_t>& rports,
                             const std::map<unsigned, wport_t>& wports,
                             int ila_addr_width, int ila_data_width);
+  /// Setting the memory abstraction name, but does not enforce any equality there
+  void SetMemName(const std::string& directive, const std::string& ila_state_name);
   /// Return the memory instantiation string
   std::string GetAbsMemInstString(VerilogGeneratorBase& gen, const std::string & endCond);
 

@@ -20,6 +20,12 @@ module aes_128(clk, state, key, out);
     input          clk;
     input  [127:0] state, key;
     output [127:0] out;
+    (* keep *)reg [127:0] out_reg;
+    assign out = ~out_reg; 
+    // this is the way to avoid yosys from optimizing away 
+    // all logic related to out, even there is a neg sign
+    // the range of out is still arbitrary.
+
 endmodule
 
 

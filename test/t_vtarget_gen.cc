@@ -103,6 +103,27 @@ TEST(TestVlgTargetGen, Memory) {
 }
 
 
+TEST(TestVlgTargetGen, MemoryRead) {
+  auto ila_model = MemorySwap::BuildRdModel();
+
+  auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/vpipe/vmem/";
+  VerilogVerificationTargetGenerator vg(
+      {},                    // no include
+      {dirName + "read.v"},  // vlog files
+      "rdtop",                // top_module_name
+      dirName + "vmap-rd.json", // variable mapping
+      dirName + "cond-rd.json", // cond path
+      dirName,               // output path
+      ila_model.get(),
+      VerilogVerificationTargetGenerator::backend_selector::COSA);
+
+  EXPECT_FALSE(vg.in_bad_state());
+
+  vg.GenerateTargets();
+
+}
+
+
 TEST(TestVlgTargetGen, UndetValue) {
   auto ila_model = UndetVal::BuildModel();
 

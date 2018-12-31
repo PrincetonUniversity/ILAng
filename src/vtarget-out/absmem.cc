@@ -81,6 +81,8 @@ VlgAbsMem::GeneratingMemModuleSignalsInstantiation(VerilogGeneratorBase& gen, co
       << ")";
 
   gen.add_wire(MemEQSignalName(), 1, true);
+  if(ila_map_name == "")
+    ILA_ERROR_IF(ila_map_name == "") << "Empty mem abs name for ("<<mem_name <<")";
 
   // connect ports, create
   // treat unconnected wire?
@@ -105,6 +107,8 @@ VlgAbsMem::GeneratingMemModuleSignalsInstantiation(VerilogGeneratorBase& gen, co
     CONNECT(p.wdata, "_wdata", data_width);
     CONNECT(p.wen, "_wen", 1);
   }
+  if(vlg_wports.size() == 0) // avoid write arbitrarily
+    ret << ",\n    .vlg_wen(1'b0)";  
 
   for (auto&& np : vlg_rports) {
     auto n = np.first;
