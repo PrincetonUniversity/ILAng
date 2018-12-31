@@ -35,6 +35,8 @@ public:
     bool PerVariableProblemCosa; // true
     /// Whether to abstract the memory read
     bool MemAbsReadAbstraction; // false
+    // The bound of BMC, default 127
+    unsigned MaxBound;
     /// Only enforce var eq on updated vars, should not be used
     bool OnlyAssumeUpdatedVarsEq; // should be false
     /// The default constructor for default values
@@ -42,7 +44,7 @@ public:
         : target_select(BOTH), CheckThisInstructionOnly(""),
           InstructionNoReset(true), OnlyCheckInstUpdatedVars(true),
           PerVariableProblemCosa(false), MemAbsReadAbstraction(false),
-          OnlyAssumeUpdatedVarsEq(false) {}
+          MaxBound(127), OnlyAssumeUpdatedVarsEq(false) {}
   } vtg_config_t;
 
 public:

@@ -14,16 +14,16 @@ void verifyAES128(Ila& model) {
   std::string OutputPath = RootPath + "/verification/";
 
   VerilogVerificationTargetGenerator vg(
-      {}, // no include
+      {},                                                    // no include
       {VerilogPath + "aes_128.v", VerilogPath + "one_round.v",
        VerilogPath + "final_round.v", VerilogPath + "expand_key_128.v",
        VerilogPath + "S.v", VerilogPath + "S4.v", VerilogPath + "xS.v",
        VerilogPath + "table_lookup.v", VerilogPath + "T.v"}, // designs
       "aes_128",                                             // top_module_name
       RefrelPath + "ref-rel-var-map-aes128.json",            // variable mapping
-      RefrelPath + "ref-rel-inst-cond-aes128.json", // conditions of start/ready
-      OutputPath,                                   // output path
-      model.get(),                                  // model
+      RefrelPath + "ref-rel-inst-cond-aes128.json",          // conditions of start/ready
+      OutputPath,                                            // output path
+      model.get(),                                           // model
       VerilogVerificationTargetGenerator::backend_selector::COSA, // backend: COSA
       vtg_cfg,  // target generator configuration
       vlg_cfg); // verilog generator configuration
@@ -53,9 +53,9 @@ void verifyIO(Ila& model) {
        VerilogPath + "aes_128_abs.v"},                // designs
       "aes_top",                                      // top_module_name
       RefrelPath + "ref-rel-var-map.json",            // variable mapping
-      RefrelPath + "ref-rel-inst-cond.json", // conditions of start/ready
-      OutputPath,                                   // output path
-      model.get(),                                  // model
+      RefrelPath + "ref-rel-inst-cond.json",          // conditions of start/ready
+      OutputPath,                                     // output path
+      model.get(),                                    // model
       VerilogVerificationTargetGenerator::backend_selector::COSA, // backend: COSA
       vtg_cfg,  // target generator configuration
       vlg_cfg); // verilog generator configuration
@@ -63,12 +63,6 @@ void verifyIO(Ila& model) {
   vg.GenerateTargets();
 }
 
-/*
-, VerilogPath + "one_round.v",
-       VerilogPath + "final_round.v", VerilogPath + "expand_key_128.v",
-       VerilogPath + "S.v", VerilogPath + "S4.v", VerilogPath + "xS.v",
-       VerilogPath + "table_lookup.v", VerilogPath + "T.v"
-*/
 
 void verifyBlockLevel(Ila& model) {
 
@@ -76,7 +70,8 @@ void verifyBlockLevel(Ila& model) {
   VerilogVerificationTargetGenerator::vtg_config_t vtg_cfg;
 
   vtg_cfg.MemAbsReadAbstraction = true; // enable read abstraction
-  vlg_cfg.pass_node_name = true;
+  vtg_cfg.MaxBound = 40;                // bound of BMC
+  vlg_cfg.pass_node_name = true;	// whether to use node name in Verilog
 
   std::string RootPath = "..";
   std::string VerilogPath = RootPath + "/verilog/";
@@ -90,10 +85,10 @@ void verifyBlockLevel(Ila& model) {
        VerilogPath + "reg256byte.v",
        VerilogPath + "aes_128_abs.v"},                // designs
       "aes_top",                                      // top_module_name
-      RefrelPath + "ref-rel-var-map-uaes.json",            // variable mapping
-      RefrelPath + "ref-rel-inst-cond-uaes.json", // conditions of start/ready
-      OutputPath,                                   // output path
-      model.child(0).get(),                                  // model
+      RefrelPath + "ref-rel-var-map-uaes.json",       // variable mapping
+      RefrelPath + "ref-rel-inst-cond-uaes.json",     // conditions of start/ready
+      OutputPath,                                     // output path
+      model.child(0).get(),                           // model
       VerilogVerificationTargetGenerator::backend_selector::COSA, // backend: COSA
       vtg_cfg,  // target generator configuration
       vlg_cfg); // verilog generator configuration

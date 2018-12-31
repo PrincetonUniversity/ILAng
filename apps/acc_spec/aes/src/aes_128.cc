@@ -311,7 +311,7 @@ AES_128::AES_128() : model("AES_128_Rnd") {
   { // Midround
     auto instr = model.NewInstr("IntermediateRound");
 
-    instr.SetDecode(Ugt(round , 0) & Ule(round , 9));
+    instr.SetDecode(round == 1);//(Ugt(round , 0) & Ule(round , 9));
 
     instr.SetUpdate(ciphertext,
                     GetCipherUpdate_MidRound(ciphertext, round, round_key));

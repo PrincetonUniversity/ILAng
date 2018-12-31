@@ -10,7 +10,8 @@
   "instructions": [
     {
       "instruction" : "LOAD",
-      "ready signal": "xram_ack_delay_1"
+      "ready signal": "xram_ack_delay_1",
+      "max bound"   : 20
     },
     {
       "instruction" : "OPERATE",
@@ -18,7 +19,8 @@
     },
     {
       "instruction" : "STORE",
-      "ready signal" : "xram_ack_delay_1"
+      "ready signal": "xram_ack_delay_1",
+      "max bound"   : 20
     }
   ]
 }

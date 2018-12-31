@@ -1,12 +1,11 @@
 {
   "models": { "ILA":"m0" , "VERILOG": "m1" },
-  "instruction mapping": [],
   "state mapping": { 
-    "aes_status"         : "m1.aes_reg_state",
     "aes_address"        : "m1.aes_reg_opaddr_i.reg_out",
     "aes_length"         : "m1.aes_reg_oplen_i.reg_out",
     "aes_counter"        : "m1.aes_reg_ctr_i.reg_out",
     "aes_key"            : "m1.aes_reg_key0_i.reg_out",
+    "aes_status"         : "m1.aes_reg_state",
     "XRAM"               : "**MEM**XRAM",
     "outdata"            : "m1.data_out_reg",
 

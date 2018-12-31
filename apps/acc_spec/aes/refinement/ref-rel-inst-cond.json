@@ -3,6 +3,10 @@
 
   "instructions": [
     {
+      "instruction" : "WRITE_ADDRESS",
+      "ready bound" : 1
+    },
+    {
       "instruction" : "WRITE_LENGTH",
       "ready bound" : 1
     },
@@ -12,10 +16,6 @@
     },
     {
       "instruction" : "WRITE_COUNTER",
-      "ready bound" : 1
-    },
-    {
-      "instruction" : "WRITE_ADDRESS",
       "ready bound" : 1
     },
     {

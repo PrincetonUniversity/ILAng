@@ -12,11 +12,11 @@ AES::AES()
       cmdaddr(model.NewBvInput("cmdaddr", 16)),
       cmddata(model.NewBvInput("cmddata", 8 )),
       // internal arch state.
-      status (model.NewBvState("aes_status" , 2  )),
       address(model.NewBvState("aes_address", 16 )),
       length (model.NewBvState("aes_length" , 16 )),
-      counter(model.NewBvState("aes_counter", 128)),
       key    (model.NewBvState("aes_key"    , 128)),
+      counter(model.NewBvState("aes_counter", 128)),
+      status (model.NewBvState("aes_status" , 2  )),
       // the memory: shared state
       xram   (model.NewMemState("XRAM"      , 16, 8)),
       // The encryption function :
@@ -42,9 +42,28 @@ AES::AES()
   { // WRITE_ADDRESS
     auto instr = model.NewInstr("WRITE_ADDRESS");
 
-    instr.SetDecode((cmd == CMD_WRITE) & (cmdaddr >= AES_ADDR) &
-                    (cmdaddr < AES_ADDR + 2));
+    instr.SetDecode( (cmd == CMD_WRITE) & (cmdaddr >= AES_ADDR) & (cmdaddr < AES_ADDR + 2) );
 
+    instr.SetUpdate(address,
+                    Ite(is_status_idle, // update only when idle
+                        Concat(         // if idle, update a slice of the register
+                          Ite(cmdaddr == AES_ADDR + 1, cmddata, address(15,8) ),
+                          Ite(cmdaddr == AES_ADDR    , cmddata, address( 7,0) )
+                        ),
+                        address        // if not idle, no change
+                      )); // update a slice of the register: address, based on cmdaddr
+
+
+    // guarantee no change
+    // if not specified, it means it allows any change
+    instr.SetUpdate(length , length );
+    instr.SetUpdate(key    , key    );
+    instr.SetUpdate(counter, counter);
+
+  }
+
+  // in the above example, you can use :
+  /*  
     instr.SetUpdate(address,
                     Ite(is_status_idle, // update only when idle
                         slice_update(address, cmdaddr, cmddata, AES_ADDR,   2,    8),
@@ -55,14 +74,7 @@ AES::AES()
                         //    - `#slice`: number of slices in `target`
                         //    - `slice-width`: the width of each slice
                         address));
-
-    // guarantee no change
-    // if not specified, it means it allows any change
-    instr.SetUpdate(length , length );
-    instr.SetUpdate(key    , key    );
-    instr.SetUpdate(counter, counter);
-
-  }
+  */
 
   { // START_ENCRYPT
     // See child-ILA for details

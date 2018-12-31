@@ -18,7 +18,6 @@ namespace ilang {
 // ------------------------------ CONFIGURATIONS
 // --------------------------------- //
 
-#define MAX_CYCLE_CTR 127
 #define VLG_TRUE "`true"
 #define VLG_FALSE "`false"
 #define ONLY_INITIAL_INV true
@@ -408,7 +407,7 @@ void VlgSglTgtGen::ConstructWrapper_add_cycle_count_moniter() {
       instr["ready bound"].is_number_integer())
     max_bound = instr["ready bound"].get<int>();
   else
-    max_bound = MAX_CYCLE_CTR;
+    max_bound = _vtg_config.MaxBound;
 
   cnt_width = (int)std::ceil(std::log2(max_bound + 10));
   vlg_wrapper.add_reg("__CYCLE_CNT__",
@@ -700,6 +699,14 @@ void VlgSglTgtGen::ConstructWrapper_add_condition_signals() {
                 << _instr_ptr->name().str() << " has to a non negative integer";
   } // end of ready bound/condition
 
+  // max bound for max checking range
+  std::string max_bound_constr;
+  if(IN("max bound", instr)) {
+    if( instr["max bound"].is_number_integer() ) {
+      max_bound_constr = "&& ( __CYCLE_CNT__ <= " + IntToStr(instr["max bound"].get<int>()) + ")";
+    }
+  }
+
   vlg_wrapper.add_wire("__IEND__", 1, true);
   //if(no_started_signal)
   //  add_wire_assign_assumption("__IEND__", "(" + iend_cond + ")",
@@ -707,7 +714,7 @@ void VlgSglTgtGen::ConstructWrapper_add_condition_signals() {
   //else
   auto end_no_recur = has_flush ? "(~ __FLUSHENDED__ )" :"(~ __ENDED__)";
 
-  add_wire_assign_assumption("__IEND__", "(" + iend_cond + ") && __STARTED__ && " + end_no_recur,
+  add_wire_assign_assumption("__IEND__", "(" + iend_cond + ") && __STARTED__ && " + end_no_recur + max_bound_constr,
                             "IEND");
   // handle start decode
   ILA_ERROR_IF(IN("start decode", instr))
@@ -963,7 +970,7 @@ void VlgSglTgtGen::ConstructWrapper() {
     ConstructWrapper_add_inv_assumptions();
   } else if (target_type == target_type_t::INVARIANTS) {
     ConstructWrapper_add_inv_assertions();
-    max_bound = MAX_CYCLE_CTR;
+    max_bound = _vtg_config.MaxBound;
   }
   ILA_INFO << 6;
   // 4. additional mapping if any
