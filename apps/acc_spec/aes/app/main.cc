@@ -2,6 +2,7 @@
 #include <aes_ila.h>
 #include <ilang/vtarget-out/vtarget_gen.h>
 
+/// To verify the exact AES128 ILA
 void verifyAES128(Ila& model) {
   VerilogGeneratorBase::VlgGenConfig vlg_cfg;
   VerilogVerificationTargetGenerator::vtg_config_t vtg_cfg;
@@ -31,8 +32,7 @@ void verifyAES128(Ila& model) {
   vg.GenerateTargets();
 }
 
-
-
+/// To verify the IO ILA
 void verifyIO(Ila& model) {
   VerilogGeneratorBase::VlgGenConfig vlg_cfg;
   VerilogVerificationTargetGenerator::vtg_config_t vtg_cfg;
@@ -63,7 +63,7 @@ void verifyIO(Ila& model) {
   vg.GenerateTargets();
 }
 
-
+/// To verify the block level operation of ILA
 void verifyBlockLevel(Ila& model) {
 
   VerilogGeneratorBase::VlgGenConfig vlg_cfg;
@@ -96,13 +96,16 @@ void verifyBlockLevel(Ila& model) {
   vg.GenerateTargets();
 }
 
+/// Build the model
 int main() {
-  SetUnsignedComparation(true);
-
+  // set ilang option, operators like '<' will refer to unsigned arithmetics
+  SetUnsignedComparation(true); 
+  // build the aes model
   AES aes_ila_model;
-
+  // build the aes128 model
   AES_128 aes128;
-
+  // verify separately the hierarchical ILA
+  // from IO level down to the AES 128 function
   verifyIO(aes_ila_model.model);
   verifyBlockLevel(aes_ila_model.model);
   verifyAES128(aes128.model);

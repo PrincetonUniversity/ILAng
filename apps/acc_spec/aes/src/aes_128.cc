@@ -66,9 +66,6 @@ ExprRef AES_128::rcon(const ExprRef& rnd) {
   return ret;
 }
 
-bool printid = false;
-int pnn=-1;
-
 ExprRef AES_128::s_table_read(const ExprRef& idx) {
   assert(idx.bit_width() == 8);
 
@@ -85,11 +82,6 @@ ExprRef AES_128::xs_table_read(const ExprRef& idx) {
   ExprRef ret = BvConst(xS_table[0], 8);
   for (int i = 1; i < 256; i++) {
     ret = Ite(idx == i, BvConst(xS_table[i], 8), ret);
-    if(printid) {
-      std::cout<<i<<":"<<(ret.get())->name()<<' ';
-      std::cout<<(ret.get())->arg(0)->name();
-      std::cout<<std::endl;
-    }
   }
   return ret;
 }
@@ -132,13 +124,9 @@ ExprRef AES_128::S4(const ExprRef& inp) { // inp is 32bits
 AES_128::vec4 AES_128::T(const ExprRef& inp) { // inp: 8
   assert(inp.bit_width() == 8);
   auto sl0 = S(inp);
-  std::cout<<"sl0(out 31:24):"<<(sl0.get())->name()<<std::endl;
   auto sl1 = sl0;
-  std::cout<<"sl1(out 23:16):"<<(sl1.get())->name()<<std::endl;
   auto sl3 = xS(inp);
   auto sl2 = sl1 ^ sl3;
-  std::cout<<"sl2(out 15: 8):"<<(sl2.get())->name()<<std::endl;
-  std::cout<<"sl3(out  7: 0):"<<(sl3.get())->name()<<std::endl;
 
   return {sl0, sl1, sl2, sl3};
 }
@@ -183,32 +171,14 @@ ExprRef AES_128::expand_key_128_b(const ExprRef& in, const ExprRef& rc) {
 
 AES_128::vec4 AES_128::table_lookup(const ExprRef& s32) { // s32: 32 bit wide
   auto b = slice_32_to_8(s32);
-  if(pnn == 20) printid = true;
   auto rl = T(b[0]);
-  if(pnn == 20) printid = false;
   auto p0 = combine_vec4({rl[3], rl[0], rl[1], rl[2]});
-  std::cout<<"rl[3]:"<<(rl[3].get())->name()<<std::endl;
-  std::cout<<"rl[0]:"<<(rl[0].get())->name()<<std::endl;
-  std::cout<<"rl[1]:"<<(rl[1].get())->name()<<std::endl;
-  std::cout<<"rl[2]:"<<(rl[2].get())->name()<<std::endl;
   rl = T(b[1]);
   auto p1 = combine_vec4({rl[2], rl[3], rl[0], rl[1]});
-  std::cout<<"rl[2]:"<<(rl[2].get())->name()<<std::endl;
-  std::cout<<"rl[3]:"<<(rl[3].get())->name()<<std::endl;
-  std::cout<<"rl[0]:"<<(rl[0].get())->name()<<std::endl;
-  std::cout<<"rl[1]:"<<(rl[1].get())->name()<<std::endl;
   rl = T(b[2]);
   auto p2 = combine_vec4({rl[1], rl[2], rl[3], rl[0]});
-  std::cout<<"rl[1]:"<<(rl[1].get())->name()<<std::endl;
-  std::cout<<"rl[2]:"<<(rl[2].get())->name()<<std::endl;
-  std::cout<<"rl[3]:"<<(rl[3].get())->name()<<std::endl;
-  std::cout<<"rl[0]:"<<(rl[0].get())->name()<<std::endl;
   rl = T(b[3]);
   auto p3 = combine_vec4({rl[0], rl[1], rl[2], rl[3]});
-  std::cout<<"rl[0]:"<<(rl[0].get())->name()<<std::endl;
-  std::cout<<"rl[1]:"<<(rl[1].get())->name()<<std::endl;
-  std::cout<<"rl[2]:"<<(rl[2].get())->name()<<std::endl;
-  std::cout<<"rl[3]:"<<(rl[3].get())->name()<<std::endl;
 
   return {p0, p1, p2, p3};
 }
@@ -220,32 +190,10 @@ ExprRef AES_128::GetCipherUpdate_MidRound(const ExprRef& state_in,
   auto K0_4 = slice_128_to_32(enc_key);
   auto S0_4 = slice_128_to_32(state_in);
 
-  std::cout<<"p0:"<<std::endl;
   auto p0 = table_lookup(S0_4[0]);
-  std::cout<<"p0[0]:"<<(p0[0].get())->name()<<std::endl;
-  std::cout<<"p0[1]:"<<(p0[1].get())->name()<<std::endl;
-  std::cout<<"p0[2]:"<<(p0[2].get())->name()<<std::endl;
-  std::cout<<"p0[3]:"<<(p0[3].get())->name()<<std::endl;
-  std::cout<<"p1:"<<std::endl;
   auto p1 = table_lookup(S0_4[1]);
-  std::cout<<"p1[0]:"<<(p1[0].get())->name()<<std::endl;
-  std::cout<<"p1[1]:"<<(p1[1].get())->name()<<std::endl;
-  std::cout<<"p1[2]:"<<(p1[2].get())->name()<<std::endl;
-  std::cout<<"p1[3]:"<<(p1[3].get())->name()<<std::endl;
-  std::cout<<"p2:"<<std::endl;
-  pnn = 20;
   auto p2 = table_lookup(S0_4[2]);
-  std::cout<<"p2[0]:"<<(p2[0].get())->name()<<std::endl;
-  std::cout<<"p2[1]:"<<(p2[1].get())->name()<<std::endl;
-  std::cout<<"p2[2]:"<<(p2[2].get())->name()<<std::endl;
-  std::cout<<"p2[3]:"<<(p2[3].get())->name()<<std::endl;
-  std::cout<<"p3:"<<std::endl;
-  pnn = -1;
   auto p3 = table_lookup(S0_4[3]);
-  std::cout<<"p3[0]:"<<(p3[0].get())->name()<<std::endl;
-  std::cout<<"p3[1]:"<<(p3[1].get())->name()<<std::endl;
-  std::cout<<"p3[2]:"<<(p3[2].get())->name()<<std::endl;
-  std::cout<<"p3[3]:"<<(p3[3].get())->name()<<std::endl;
 
   auto z0 = p0[0] ^ p1[1] ^ p2[2] ^ p3[3] ^ K0_4[0];
   auto z1 = p0[3] ^ p1[0] ^ p2[1] ^ p3[2] ^ K0_4[1];
