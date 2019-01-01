@@ -15,7 +15,7 @@ void verifyAES128(Ila& model) {
 
   VerilogVerificationTargetGenerator vg(
       {},                                                    // no include
-      {VerilogPath + "aes_128.v", VerilogPath + "one_round.v",
+      {VerilogPath + "aes_abs.v", VerilogPath + "one_round.v",
        VerilogPath + "final_round.v", VerilogPath + "expand_key_128.v",
        VerilogPath + "S.v", VerilogPath + "S4.v", VerilogPath + "xS.v",
        VerilogPath + "table_lookup.v", VerilogPath + "T.v"}, // designs

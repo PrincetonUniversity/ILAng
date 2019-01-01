@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// This is an abstracted module, as the same sub-module
+// is used 10 times, we only verify one copy of it at a time
  
 // aes_128 : state , key --20d--> out
 module aes_128(clk, state, key, out);
@@ -62,9 +64,14 @@ module aes_128(clk, state, key, out);
     (* keep *) reg [127:0] k9_reg;
     (* keep *) reg [127:0] s9_reg;
 
+    always @(posedge clk) begin
+      k9_reg <= s9_reg;
+      s9_reg <= k9_reg;
+    end
+
     assign k9 = k9_reg;
     assign s9 = s9_reg;
-    
+
 endmodule
 
 
