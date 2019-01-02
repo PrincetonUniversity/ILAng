@@ -144,7 +144,7 @@ public:
           pass_node_name(pass_name), reg_random_init(rand_init) {}
     /// Overwrite configuration, used by vtarget gen
     VlgGenConfig(const VlgGenConfig& c, bool ExternalMem, funcOption funcOpt,
-                 bool gen_start, bool rand_init )
+                 bool gen_start, bool rand_init)
         : extMem(ExternalMem), fcOpt(funcOpt), start_signal(gen_start),
           pass_node_name(c.pass_node_name), reg_random_init(rand_init) {}
     // set other fields if there are such need (?)

@@ -359,8 +359,8 @@ void IntefaceDirectiveRecorder::Clear(bool reset_vlg) {
   _reset_vlg = reset_vlg;
 }
 
-void IntefaceDirectiveRecorder::SetMemName(
-    const std::string& directive, const std::string& ila_state_name) {
+void IntefaceDirectiveRecorder::SetMemName(const std::string& directive,
+                                           const std::string& ila_state_name) {
 
   ILA_ASSERT(beginsWith(directive, "**"));
   if (not beginsWith(directive, "**MEM**")) {
@@ -374,26 +374,25 @@ void IntefaceDirectiveRecorder::SetMemName(
     ILA_ERROR << directive << " refers to a nonexisting memory!";
     return;
   }
-  if(pos->second.mem_name == "")
+  if (pos->second.mem_name == "")
     pos->second.mem_name = mem_name;
-  if(pos->second.ila_map_name == "")
+  if (pos->second.ila_map_name == "")
     pos->second.ila_map_name = ila_state_name;
-  ILA_ERROR_IF(pos->second.mem_name != mem_name) << "Implementation bug,"
-    << " setting memory abstraction with a different name"
-    << " old:"<<pos->second.mem_name << ", new:"
-    << mem_name;  
-  ILA_ERROR_IF(pos->second.ila_map_name != ila_state_name) << "Implementation bug,"
-    << " setting memory abstraction with a different name"
-    << " old:"<<pos->second.ila_map_name << ", new:"
-    << ila_state_name;  
+  ILA_ERROR_IF(pos->second.mem_name != mem_name)
+      << "Implementation bug,"
+      << " setting memory abstraction with a different name"
+      << " old:" << pos->second.mem_name << ", new:" << mem_name;
+  ILA_ERROR_IF(pos->second.ila_map_name != ila_state_name)
+      << "Implementation bug,"
+      << " setting memory abstraction with a different name"
+      << " old:" << pos->second.ila_map_name << ", new:" << ila_state_name;
 }
 
 std::string IntefaceDirectiveRecorder::ConnectMemory(
     const std::string& directive, const std::string& ila_state_name,
     const std::map<unsigned, rport_t>& rports,
-    const std::map<unsigned, wport_t>& wports,
-    int ila_addr_width, int ila_data_width,
-    bool abs_read) {
+    const std::map<unsigned, wport_t>& wports, int ila_addr_width,
+    int ila_data_width, bool abs_read) {
   ILA_ASSERT(beginsWith(directive, "**"));
   if (not beginsWith(directive, "**MEM**")) {
     ILA_ERROR << directive << " is not a recognized directive!";
@@ -409,8 +408,8 @@ std::string IntefaceDirectiveRecorder::ConnectMemory(
 
   pos->second.read_abstract = abs_read;
   SetMemName(directive, ila_state_name);
-  
-  //pos->second.ila_map_name = ila_state_name;
+
+  // pos->second.ila_map_name = ila_state_name;
   pos->second.SetAddrWidth(ila_addr_width);
   pos->second.SetDataWidth(ila_data_width);
   // copy the ports
@@ -426,7 +425,8 @@ std::string IntefaceDirectiveRecorder::ConnectMemory(
 } // ConnectMemory
 
 std::string
-IntefaceDirectiveRecorder::GetAbsMemInstString(VerilogGeneratorBase& gen, const std::string & endCond) {
+IntefaceDirectiveRecorder::GetAbsMemInstString(VerilogGeneratorBase& gen,
+                                               const std::string& endCond) {
   std::string ret;
   for (auto&& m : abs_mems) {
     ret += "/*" + m.first + "*/\n";
@@ -435,13 +435,12 @@ IntefaceDirectiveRecorder::GetAbsMemInstString(VerilogGeneratorBase& gen, const 
   return ret;
 }
 
-
-  void IntefaceDirectiveRecorder::InsertAbsMemAssmpt( assmpt_inserter_t inserter ) {
-    for(auto && nm_pair : abs_mems) {
-      for(auto && assumpt : nm_pair.second.assumpts)
-        inserter(assumpt);
-    }
+void IntefaceDirectiveRecorder::InsertAbsMemAssmpt(assmpt_inserter_t inserter) {
+  for (auto&& nm_pair : abs_mems) {
+    for (auto&& assumpt : nm_pair.second.assumpts)
+      inserter(assumpt);
   }
+}
 
 // ------------------------------------------------------------------------
 

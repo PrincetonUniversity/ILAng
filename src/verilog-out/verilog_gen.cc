@@ -44,15 +44,15 @@ bool VerilogGeneratorBase::check_reserved_name(const vlg_name_t& n) const {
 }
 
 // static helper function
-std::map<char, std::string>
-    sanitizeTable({{'.', "__DOT__"},   {'<', "__LT__"},    {'>', "__GT__"},
-                   {'!', "__NOT__"},   {'~', "__NEG__"},   {'-', "__DASH__"},
-                   {'&', "__AND__"},   {'|', "__SEP__"},   {' ', "__SPACE__"},
-                   {'*', "__STAR__"},  {'%', "__PERC__"},  {'#', "__BANG__"},
-                   {'@', "__AT__"},    {'0', "__ZERO__"},  {'1', "__ONE__"},
-                   {'2', "__TWO__"},   {'3', "__THREE__"}, {'4', "__FOUR__"},
-                   {'5', "__FIVE__"},  {'6', "__SIX__"},   {'7', "__SEVEN__"},
-                   {'8', "__EIGHT__"}, {'9', "__NINE__"},{'$',"__DOLLAR__"}});
+std::map<char, std::string> sanitizeTable(
+    {{'.', "__DOT__"},   {'<', "__LT__"},    {'>', "__GT__"},
+     {'!', "__NOT__"},   {'~', "__NEG__"},   {'-', "__DASH__"},
+     {'&', "__AND__"},   {'|', "__SEP__"},   {' ', "__SPACE__"},
+     {'*', "__STAR__"},  {'%', "__PERC__"},  {'#', "__BANG__"},
+     {'@', "__AT__"},    {'0', "__ZERO__"},  {'1', "__ONE__"},
+     {'2', "__TWO__"},   {'3', "__THREE__"}, {'4', "__FOUR__"},
+     {'5', "__FIVE__"},  {'6', "__SIX__"},   {'7', "__SEVEN__"},
+     {'8', "__EIGHT__"}, {'9', "__NINE__"},  {'$', "__DOLLAR__"}});
 
 unsigned symbol_cnt = 0;
 static std::string get_symbol_new() {
@@ -131,7 +131,7 @@ VerilogGeneratorBase::new_id(const ExprPtr& e) {
 
   auto name = e->name().str();
   auto pos = reference_name_set.find(name);
-  
+
   if (cfg_.pass_node_name)
     return "n" + toStr(idCounter++) + "__" + sanitizeName(name);
 
@@ -357,16 +357,16 @@ void VerilogGenerator::insertState(const ExprPtr& state) {
   } else if (state->is_bv()) {
     auto reg_name = sanitizeName(state);
     add_reg(reg_name, state->sort()->bit_width());
-    if(cfg_.reg_random_init) {
+    if (cfg_.reg_random_init) {
       add_wire(reg_name + "_randinit", state->sort()->bit_width(), true);
-      add_init_stmt( reg_name + " <= " + reg_name + "_randinit ;" );
+      add_init_stmt(reg_name + " <= " + reg_name + "_randinit ;");
     }
   } else if (state->is_bool()) {
     auto reg_name = sanitizeName(state);
     add_reg(reg_name, 1);
-    if(cfg_.reg_random_init) {
+    if (cfg_.reg_random_init) {
       add_wire(reg_name + "_randinit", 1, true);
-      add_init_stmt( reg_name + " <= " + reg_name + "_randinit ;" );
+      add_init_stmt(reg_name + " <= " + reg_name + "_randinit ;");
     }
   }
 }
@@ -789,7 +789,8 @@ void VerilogGenerator::ParseNonMemUpdateExpr(
 // parent instruction
 bool VerilogGenerator::CheckMemUpdateNode(const ExprPtr& e,
                                           const std::string& mem_var_name) {
-  ILA_ASSERT(e->is_mem()) << mem_var_name << " has sort: " << e->sort(); // require it to be memory
+  ILA_ASSERT(e->is_mem()) << mem_var_name << " has sort: "
+                          << e->sort(); // require it to be memory
   if (e->is_const())
     return false;
   else if (e->is_var()) {
@@ -935,9 +936,10 @@ void VerilogGenerator::ExportCondWrites(const ExprPtr& mem_var,
       dataStmt[portIdx] =
           cond + " ? (" + data + ") : (" + dataStmt[portIdx] + ")";
       std::string wen_start;
-      if(cfg_.start_signal)
+      if (cfg_.start_signal)
         wen_start = "&&" + startName;
-      enabStmt[portIdx] = "(" + cond + ")" + wen_start + " ? ( 1'b1 ) : (" + enabStmt[portIdx] + ")";
+      enabStmt[portIdx] = "(" + cond + ")" + wen_start + " ? ( 1'b1 ) : (" +
+                          enabStmt[portIdx] + ")";
 
       portIdx++;
     }

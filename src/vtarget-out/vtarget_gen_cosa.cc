@@ -61,12 +61,13 @@ void VlgSglTgtGen_Cosa::add_reg_cassign_assumption(
   //                                convert_expr_to_cosa(expression) + "))");
   ILA_ERROR_IF(expression.find(".") != std::string::npos)
       << "expression:" << expression << " contains unfriendly dot.";
-  //vlg_wrapper.add_always_stmt("if (" + cond + ") " + varname +
+  // vlg_wrapper.add_always_stmt("if (" + cond + ") " + varname +
   //                            " <= " + expression + "; //" + dspt);
   // we prefer the following way, as we get the value instantaneously
-  vlg_wrapper.add_init_stmt(varname + " <= " + expression +";");
+  vlg_wrapper.add_init_stmt(varname + " <= " + expression + ";");
   vlg_wrapper.add_always_stmt(varname + " <= " + varname + ";");
-  add_an_assumption( "(~(" + cond + ") || ((" + varname +") == (" +expression + ")))" , dspt);
+  add_an_assumption(
+      "(~(" + cond + ") || ((" + varname + ") == (" + expression + ")))", dspt);
 }
 
 /// Add an assumption
@@ -74,7 +75,8 @@ void VlgSglTgtGen_Cosa::add_an_assumption(const std::string& aspt,
                                           const std::string& dspt) {
   auto assumption_wire_name = vlg_wrapper.sanitizeName(dspt) + new_mapping_id();
   vlg_wrapper.add_wire(assumption_wire_name, 1, true);
-  vlg_wrapper.add_output(assumption_wire_name, 1 ); // I find it is necessary to connect to the output
+  vlg_wrapper.add_output(assumption_wire_name,
+                         1); // I find it is necessary to connect to the output
   vlg_wrapper.add_assign_stmt(assumption_wire_name, aspt);
   ILA_ERROR_IF(aspt.find(".") != std::string::npos)
       << "aspt:" << aspt << " contains unfriendly dot.";
@@ -86,7 +88,8 @@ void VlgSglTgtGen_Cosa::add_an_assertion(const std::string& asst,
                                          const std::string& dspt) {
   auto assrt_wire_name = vlg_wrapper.sanitizeName(dspt) + new_property_id();
   vlg_wrapper.add_wire(assrt_wire_name, 1, true);
-  vlg_wrapper.add_output(assrt_wire_name, 1 ); // I find it is necessary to connect to the output
+  vlg_wrapper.add_output(assrt_wire_name,
+                         1); // I find it is necessary to connect to the output
   vlg_wrapper.add_assign_stmt(assrt_wire_name, asst);
   _problems.probitem[dspt].assertions.push_back(assrt_wire_name + " = 1_1");
   ILA_ERROR_IF(asst.find(".") != std::string::npos)
@@ -94,17 +97,16 @@ void VlgSglTgtGen_Cosa::add_an_assertion(const std::string& asst,
   //_problems.probitem[dspt].assertions.push_back(convert_expr_to_cosa(asst));
 }
 
-
 /// Add an assumption
 void VlgSglTgtGen_Cosa::add_a_direct_assumption(const std::string& aspt,
-                                const std::string& dspt) {
+                                                const std::string& dspt) {
   _problems.assumptions.push_back(aspt);
-                                }
+}
 /// Add an assertion
 void VlgSglTgtGen_Cosa::add_a_direct_assertion(const std::string& asst,
-                              const std::string& dspt) {
-_problems.probitem[dspt].assertions.push_back(asst);
-                              }
+                                               const std::string& dspt) {
+  _problems.probitem[dspt].assertions.push_back(asst);
+}
 
 /// export the script to run the verification
 void VlgSglTgtGen_Cosa::Export_script(const std::string& script_name) {
@@ -115,19 +117,19 @@ void VlgSglTgtGen_Cosa::Export_script(const std::string& script_name) {
     return;
   }
   fout << "#!/bin/bash" << std::endl;
-  if(not _vtg_config.CosaPyEnvironment.empty())
-    fout << "source "<<_vtg_config.CosaPyEnvironment<<std::endl;
+  if (not _vtg_config.CosaPyEnvironment.empty())
+    fout << "source " << _vtg_config.CosaPyEnvironment << std::endl;
 
   std::string cosa = "CoSA";
   std::string options;
 
-  if(not _vtg_config.CosaSolver.empty())
+  if (not _vtg_config.CosaSolver.empty())
     options += " --solver-name=" + _vtg_config.CosaSolver;
-  if(_vtg_config.CosaGenTraceVcd)
+  if (_vtg_config.CosaGenTraceVcd)
     options += " --vcd";
   options += " " + _vtg_config.CosaOtherSolverOptions;
 
-  if(not _vtg_config.CosaPath.empty()) {
+  if (not _vtg_config.CosaPath.empty()) {
     cosa = os_portable_append_dir(_vtg_config.CosaPath, cosa) + ".py";
   }
 
@@ -182,7 +184,7 @@ void VlgSglTgtGen_Cosa::Export_problem(const std::string& extra_name) {
   fout << "assume_if_true: True" << std::endl;
   fout << "abstract_clock: True" << std::endl;
   fout << "[DEFAULT]" << std::endl;
-  fout << "bmc_length: " << std::to_string(max_bound+5) << std::endl;
+  fout << "bmc_length: " << std::to_string(max_bound + 5) << std::endl;
   fout << "precondition: reset_done" << std::endl;
   fout << std::endl;
 
@@ -199,7 +201,7 @@ void VlgSglTgtGen_Cosa::Export_problem(const std::string& extra_name) {
       fout << "assumptions:" << assmpt << std::endl;
     fout << "prove: True" << std::endl;
     fout << "verification: safety" << std::endl;
-    if ( VlgAbsMem::hasAbsMem() )
+    if (VlgAbsMem::hasAbsMem())
       fout << "strategy: AUTO" << std::endl;
     else
       fout << "strategy: ALL" << std::endl;
@@ -231,10 +233,10 @@ void VlgSglTgtGen_Cosa::Export_modify_verilog() {
     auto idx = refered_vlg_item.first.find("[");
     auto removed_range_name = refered_vlg_item.first.substr(0, idx);
     vlg_mod.RecordKeepSignalName(removed_range_name);
-    //auto sig = // no use, this is too late, vlg_wrapper already exported
+    // auto sig = // no use, this is too late, vlg_wrapper already exported
     vlg_mod.RecordConnectSigName(removed_range_name,
-                                  refered_vlg_item.second.range);
-    //vlg_wrapper.add_output(sig.first, sig.second);
+                                 refered_vlg_item.second.range);
+    // vlg_wrapper.add_output(sig.first, sig.second);
   }
   vlg_mod.FinishRecording();
 

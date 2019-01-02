@@ -16,8 +16,8 @@ std::string get_m_inst_name() {
 
 // ---------------------- class VlgAbsMem ------------------------------- //
 VlgAbsMem::VlgAbsMem()
-    : read_abstract(false), concrete_level(1), data_width(0), 
-      addr_width(0), checked(false) {}
+    : read_abstract(false), concrete_level(1), data_width(0), addr_width(0),
+      checked(false) {}
 
 /// SetAddrWidth
 void VlgAbsMem::SetAddrWidth(unsigned w) {
@@ -40,7 +40,8 @@ std::string VlgAbsMem::MemEQSignalName() const { return mem_name + "_EQ_"; }
 
 // add signals and add instantiation statement;
 std::string
-VlgAbsMem::GeneratingMemModuleSignalsInstantiation(VerilogGeneratorBase& gen, const std::string & endCond) {
+VlgAbsMem::GeneratingMemModuleSignalsInstantiation(VerilogGeneratorBase& gen,
+                                                   const std::string& endCond) {
   // eq ? signal
   // if not given,  use a name it self
   if (addr_width == 0 || data_width == 0) {
@@ -70,32 +71,32 @@ VlgAbsMem::GeneratingMemModuleSignalsInstantiation(VerilogGeneratorBase& gen, co
   ret << "    .clk(clk),\n";
   ret << "    .rst(rst),\n";
 
-  auto vlg_rand_input_name = inst_name +"_vlg_r_rand_input";
-  auto ila_rand_input_name = inst_name +"_ila_r_rand_input";
-  auto read_assume_true    = inst_name +"_read_assume_true";
+  auto vlg_rand_input_name = inst_name + "_vlg_r_rand_input";
+  auto ila_rand_input_name = inst_name + "_ila_r_rand_input";
+  auto read_assume_true = inst_name + "_read_assume_true";
   gen.add_input(vlg_rand_input_name, data_width);
   gen.add_input(ila_rand_input_name, data_width);
   gen.add_output(read_assume_true, 1);
 
-  if(read_abstract)
+  if (read_abstract)
     assumpts.push_back(read_assume_true + "==1'b1");
 
-  ret << "    .vlg_r_rand_input( "<< vlg_rand_input_name << "),\n";
-  ret << "    .ila_r_rand_input( "<< ila_rand_input_name << "),\n";
+  ret << "    .vlg_r_rand_input( " << vlg_rand_input_name << "),\n";
+  ret << "    .ila_r_rand_input( " << ila_rand_input_name << "),\n";
   ret << "    .equal(" << MemEQSignalName() << "),\n";
-  ret << "    .issue( __ISSUE__ ),\n";  
-  if(read_abstract)
+  ret << "    .issue( __ISSUE__ ),\n";
+  if (read_abstract)
     ret << "    .read_assume_true(" << read_assume_true << "),\n";
-  ret << "    .compare("
-      << endCond // "__IEND__ || __ENDED__"
+  ret << "    .compare(" << endCond // "__IEND__ || __ENDED__"
       << ")";
 
   gen.add_wire(MemEQSignalName(), 1, true);
-  if(ila_map_name == "")
-    ILA_WARN_IF(ila_map_name == "") << "Empty mem abs name for ("<<mem_name <<")";
+  if (ila_map_name == "")
+    ILA_WARN_IF(ila_map_name == "")
+        << "Empty mem abs name for (" << mem_name << ")";
 
-  // connect ports, create
-  // treat unconnected wire?
+    // connect ports, create
+    // treat unconnected wire?
 #define CONNECT(e, s, w)                                                       \
   do {                                                                         \
     if ((e).size() == 0) {                                                     \
@@ -117,8 +118,8 @@ VlgAbsMem::GeneratingMemModuleSignalsInstantiation(VerilogGeneratorBase& gen, co
     CONNECT(p.wdata, "_wdata", data_width);
     CONNECT(p.wen, "_wen", 1);
   }
-  if(vlg_wports.size() == 0) // avoid write arbitrarily
-    ret << ",\n    .vlg_wen(1'b0)";  
+  if (vlg_wports.size() == 0) // avoid write arbitrarily
+    ret << ",\n    .vlg_wen(1'b0)";
 
   for (auto&& np : vlg_rports) {
     auto n = np.first;
@@ -138,14 +139,16 @@ VlgAbsMem::GeneratingMemModuleSignalsInstantiation(VerilogGeneratorBase& gen, co
     auto n = np.first;
     auto& p = np.second;
 
-
     auto base_name = "__IMEM_" +
                      VerilogGeneratorBase::sanitizeName(ila_map_name) + "_" +
                      std::to_string(n);
 
-    ret << ",\n    .ila_waddr(" << base_name + "_waddr" << ")";
-    ret << ",\n    .ila_wdata(" << base_name + "_wdata" << ")";
-    ret << ",\n    .ila_wen  (" << base_name + "_wen" << ")";
+    ret << ",\n    .ila_waddr(" << base_name + "_waddr"
+        << ")";
+    ret << ",\n    .ila_wdata(" << base_name + "_wdata"
+        << ")";
+    ret << ",\n    .ila_wen  (" << base_name + "_wen"
+        << ")";
   }
   if (ila_wports.size() == 0)
     ret << ",\n    .ila_wen  ( 1'b0 )"; // make sure we don't do any writes if
@@ -159,8 +162,10 @@ VlgAbsMem::GeneratingMemModuleSignalsInstantiation(VerilogGeneratorBase& gen, co
                      VerilogGeneratorBase::sanitizeName(ila_map_name) + "_" +
                      std::to_string(n);
 
-    ret << ",\n    .ila_raddr(" << base_name + "_raddr" << ")";
-    ret << ",\n    .ila_rdata(" << base_name + "_rdata" << ")";
+    ret << ",\n    .ila_raddr(" << base_name + "_raddr"
+        << ")";
+    ret << ",\n    .ila_rdata(" << base_name + "_rdata"
+        << ")";
     ret << ",\n    .ila_ren  (" << p.ren << ")"; // this is the start?
   }
 
@@ -168,19 +173,15 @@ VlgAbsMem::GeneratingMemModuleSignalsInstantiation(VerilogGeneratorBase& gen, co
 
   checked = true;
   // here negative means abstract its read
-  concrete_level_encountered.insert(  read_abstract ? -concrete_level : concrete_level);
+  concrete_level_encountered.insert(read_abstract ? -concrete_level
+                                                  : concrete_level);
 
   return (ret.str());
 }
 
+bool VlgAbsMem::hasAbsMem() { return concrete_level_encountered.size() > 0; }
 
-bool VlgAbsMem::hasAbsMem() {
-  return concrete_level_encountered.size() > 0;
-}
-
-void VlgAbsMem::ClearAbsMemRecord() {
-  concrete_level_encountered.clear();
-}
+void VlgAbsMem::ClearAbsMemRecord() { concrete_level_encountered.clear(); }
 
 void VlgAbsMem::OutputMemFile(std::ostream& os) {
 
@@ -348,7 +349,6 @@ assign equal = compare && ila_match_vlg && vlg_match_ila;
 endmodule
 
   )**##**";
-
 
   std::string d1ra = R"**##**(
 
@@ -581,7 +581,7 @@ endmodule
   for (auto&& cl : concrete_level_encountered) {
     if (cl == 1)
       os << d1model;
-    else if(cl == -1)
+    else if (cl == -1)
       os << d1ra;
     else
       ILA_ERROR << "depth :" << cl

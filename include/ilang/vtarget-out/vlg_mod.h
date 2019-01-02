@@ -32,15 +32,15 @@ public:
                    std::vector<info_t>>
       fn_l_map_t;
   /// type of a module decl modification item
-  typedef std::tuple<long, // lineno
-                           // std::string, // module name
+  typedef std::tuple<long,        // lineno
+                                  // std::string, // module name
                      std::string, // varname to add a__DOT__b__DOT__ ...
                      unsigned>    // width
       mod_decl_item_t;
 
   /// type of a module inst modification item
-  typedef std::tuple<long, // lineno
-                           // std::string, // instance name
+  typedef std::tuple<long,        // lineno
+                                  // std::string, // instance name
                      std::string, // varname to add a__DOT__b__DOT__ ...
                      unsigned>    // width
       mod_inst_item_t;
@@ -65,7 +65,7 @@ public:
   typedef std::map<std::string, // file name
                    std::vector<assign_item_t>>
       assign_map_t;
-  
+
   /// type of an wire name w. width
   typedef std::pair<std::string, unsigned> vlg_sig_t;
 

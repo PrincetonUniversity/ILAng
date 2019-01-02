@@ -56,7 +56,7 @@ public:
   typedef std::function<std::pair<unsigned, unsigned>(const std::string&)>
       ila_mem_checker_t;
   /// Type of call back function to insert assumptions
-  typedef std::function<void(const std::string &)> assmpt_inserter_t;
+  typedef std::function<void(const std::string&)> assmpt_inserter_t;
   /// type of read port
   using rport_t = VerilogGeneratorBase::rport_t;
   /// type of write port
@@ -100,12 +100,15 @@ public:
                             int ila_addr_width, int ila_data_width,
                             bool abs_read);
   /// Insert memory abstractions' assumptions
-  void InsertAbsMemAssmpt( assmpt_inserter_t inserter );
+  void InsertAbsMemAssmpt(assmpt_inserter_t inserter);
 
-  /// Setting the memory abstraction name, but does not enforce any equality there
-  void SetMemName(const std::string& directive, const std::string& ila_state_name);
+  /// Setting the memory abstraction name, but does not enforce any equality
+  /// there
+  void SetMemName(const std::string& directive,
+                  const std::string& ila_state_name);
   /// Return the memory instantiation string
-  std::string GetAbsMemInstString(VerilogGeneratorBase& gen, const std::string & endCond);
+  std::string GetAbsMemInstString(VerilogGeneratorBase& gen,
+                                  const std::string& endCond);
 
 protected:
   /// a sanity check for module instantiation string gen, check if all the vlg

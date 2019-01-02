@@ -280,10 +280,10 @@ protected:
   // helper function to be implemented by COSA/JASPER
   /// Add an assumption
   virtual void add_a_direct_assumption(const std::string& aspt,
-                                 const std::string& dspt) = 0;
+                                       const std::string& dspt) = 0;
   /// Add an assertion
   virtual void add_a_direct_assertion(const std::string& asst,
-                                const std::string& dspt) = 0;
+                                      const std::string& dspt) = 0;
 
   /// Add an assignment which in JasperGold could be an assignment, but in CoSA
   /// has to be an assumption

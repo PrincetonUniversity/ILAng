@@ -379,24 +379,22 @@ std::string VlgSglTgtGen::GetStateVarMapExpr(const std::string& ila_state_name,
       // handle memory: map vlg_ila.ila_wports && vlg_ila.ila_rports with
       // _idr.abs_mems
 
-
       auto ila_state = TryFindIlaVarName(ila_state_name);
       if (!ila_state) {
         ILA_ERROR << ila_state_name << " does not exist in ILA.";
         return VLG_TRUE;
       }
       if (not ila_state->sort()->is_mem()) {
-        ILA_ERROR << ila_state_name <<" is not memory, not compatible w. "<<m.get<std::string>();
+        ILA_ERROR << ila_state_name << " is not memory, not compatible w. "
+                  << m.get<std::string>();
         return VLG_TRUE;
       }
 
-      auto mem_eq_assert =
-          _idr.ConnectMemory(m.get<std::string>(), ila_state_name,
-                             vlg_ila.ila_rports[ila_state_name],
-                             vlg_ila.ila_wports[ila_state_name],
-                             ila_state->sort()->addr_width(),
-                             ila_state->sort()->data_width(),
-                             _vtg_config.MemAbsReadAbstraction);
+      auto mem_eq_assert = _idr.ConnectMemory(
+          m.get<std::string>(), ila_state_name,
+          vlg_ila.ila_rports[ila_state_name],
+          vlg_ila.ila_wports[ila_state_name], ila_state->sort()->addr_width(),
+          ila_state->sort()->data_width(), _vtg_config.MemAbsReadAbstraction);
       // wire will be added by the absmem
       return mem_eq_assert;
     } else {

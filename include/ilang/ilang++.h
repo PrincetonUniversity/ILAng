@@ -189,7 +189,8 @@ ExprRef operator-(const ExprRef& a, const int& b);
 /******************************************************************************/
 // Binary comparison
 /******************************************************************************/
-/// Set the default behavior of operator <, <=, > and >=, by default, signed compare
+/// Set the default behavior of operator <, <=, > and >=, by default, signed
+/// compare
 void SetUnsignedComparation(bool sign);
 /// Equal.
 ExprRef operator==(const ExprRef& a, const ExprRef& b);

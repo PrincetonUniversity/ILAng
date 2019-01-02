@@ -8,9 +8,9 @@
 #include <ilang/vtarget-out/absmem.h>
 #include <map>
 #include <set>
-#include <vector>
 #include <string>
 #include <tuple>
+#include <vector>
 
 namespace ilang {
 
@@ -69,7 +69,7 @@ public:
   /// add signals when necessary
   std::string
   GeneratingMemModuleSignalsInstantiation(VerilogGeneratorBase& gen,
-      const std::string & endCond);
+                                          const std::string& endCond);
   /// Output the memory module to the stream
   static void OutputMemFile(std::ostream& os);
   /// Return true if there are abs mem used (strategy : ALL -> AUTO)
