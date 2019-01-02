@@ -62,4 +62,76 @@ Ila SimplePipe::BuildModel() {
   return pipe_ila;
 }
 
+
+Ila UndetVal::BuildModel() {
+  auto m = Ila("undetval");
+  auto r0 = m.NewBvState("r0", 8);
+  auto r1 = m.NewBvState("r1", 8);
+  auto r2 = m.NewBvState("r2", 8);
+  auto r3 = m.NewBvState("r3", 8);
+  auto r4 = m.NewBvState("r4", 8);
+
+  auto f1 = FuncRef("nondet8_1",SortRef::BV(8));
+  auto f2 = FuncRef("nondet8_2",SortRef::BV(8));
+
+  auto nondet = f1();
+
+  auto INST = m.NewInstr("INST");
+  {
+    INST.SetDecode( BoolConst(true) );
+    INST.SetUpdate(r0, nondet + 1 ) ;
+    INST.SetUpdate(r1, nondet + 2) ;
+    INST.SetUpdate(r2, f1() + 3 ) ;
+    INST.SetUpdate(r3, f2() + 4) ;
+    INST.SetUpdate(r4, f2() + 5) ;
+  }
+
+  return  m;
+}
+
+
+
+Ila UndetFunc::BuildModel() {
+  auto m = Ila("undetfunc");
+  auto r0 = m.NewBvState("r0", 8);
+  auto r1 = m.NewBvState("r1", 8);
+  auto r2 = m.NewBvState("r2", 8);
+  auto r3 = m.NewBvState("r3", 8);
+  auto r4 = m.NewBvState("r4", 8);
+
+  auto f1 = FuncRef("nondet8_1",SortRef::BV(8), SortRef::BV(8));
+  auto f2 = FuncRef("nondet8_2",SortRef::BV(8), SortRef::BV(8), SortRef::BV(8));
+
+  auto nondet = f1(r0);
+
+  auto INST = m.NewInstr("INST2");
+  {
+    INST.SetDecode( BoolConst(true) );
+    INST.SetUpdate(r0, nondet    + 1) ;
+    INST.SetUpdate(r1, nondet    + 2) ;
+    INST.SetUpdate(r2, f1(r0)    + 1) ;
+    INST.SetUpdate(r3, f2(r1,r2) + 2) ;
+    INST.SetUpdate(r4, f2(r3,r4) + 3) ;
+  }
+
+  return  m;
+}
+
+
+Ila MonitorTest::BuildModel() {
+  auto m = Ila("monitortest");
+  auto en = m.NewBvInput("en", 1);
+  auto r0 = m.NewBvInput("r0", 8);
+  auto r1 = m.NewBvInput("r1", 8);
+  auto r2 = m.NewBvState("r2", 8);
+
+  auto INST = m.NewInstr("INST3");
+  {
+    INST.SetDecode( en == 1 );
+    INST.SetUpdate(r2, r1 + r2 ) ;
+  }
+
+  return  m;
+}
+
 } // namespace ilang

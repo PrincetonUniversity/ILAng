@@ -1,6 +1,5 @@
 {
   "models": { "ILA":"m0" , "VERILOG": "m1" },
-  "instruction mapping": [],
   "state mapping": { 
     "ciphertext"        : [["ILA.round == 0" ,null ],
                            ["ILA.round == 1" ,"s0" ],

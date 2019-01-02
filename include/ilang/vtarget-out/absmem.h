@@ -4,13 +4,13 @@
 #ifndef ABS_MEM_H__
 #define ABS_MEM_H__
 
-
 #include <ilang/verilog-out/verilog_gen.h>
 #include <ilang/vtarget-out/absmem.h>
-#include <set>
 #include <map>
+#include <set>
 #include <string>
 #include <tuple>
+#include <vector>
 
 namespace ilang {
 
@@ -32,6 +32,8 @@ struct VlgAbsMem {
   /// ila write ports
   std::map<unsigned, wport_t> ila_wports;
 
+  /// whether to abstract the memory read
+  bool read_abstract;
   /// how many are considered to be concrete
   unsigned concrete_level;
   /// widths , 0 stands for unknown
@@ -42,11 +44,16 @@ struct VlgAbsMem {
   std::string ila_map_name;
   /// which the name in rfmap
   std::string mem_name;
+  /// the assumptions it has
+  std::vector<std::string> assumpts;
+
 private:
   /// Whether the module is checked to be okay
   bool checked;
-  /// track what kind of memory need to export, positive for w-abs, negative for r-w-abs
-  static std::set <int> concrete_level_encountered;
+  /// track what kind of memory need to export, positive for w-abs, negative for
+  /// r-w-abs
+  static std::set<int> concrete_level_encountered;
+
 public:
   // ------------------CONSTRUCTOR ----------- //
   /// do nothing
@@ -58,10 +65,17 @@ public:
   void SetDataWidth(unsigned w);
   /// Get the memeq signal name
   std::string MemEQSignalName() const;
-  /// 
-  std::string GeneratingMemModuleSignalsInstantiation(VerilogGeneratorBase & gen);
-
-  static void OutputMemFile(std::ostream & os);
+  /// Get the memory module instantiation string, it will also
+  /// add signals when necessary
+  std::string
+  GeneratingMemModuleSignalsInstantiation(VerilogGeneratorBase& gen,
+                                          const std::string& endCond);
+  /// Output the memory module to the stream
+  static void OutputMemFile(std::ostream& os);
+  /// Return true if there are abs mem used (strategy : ALL -> AUTO)
+  static bool hasAbsMem();
+  /// reset concrete_level (per-target).
+  static void ClearAbsMemRecord();
 
 }; // class VlgAbsMem
 

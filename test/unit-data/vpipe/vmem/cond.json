@@ -5,7 +5,7 @@
     {
       "instruction": "SWAP",
       "start condition":["m1.state == 0" , "$valid$", "$decode$" ],
-      "ready bound": 1
+      "ready bound": 3
     }
   ]
 }

@@ -67,10 +67,10 @@ end
 
 assign mem_a_raddr = raddra_buf;
 assign mem_b_raddr = raddrb_buf;
-assign mem_a_waddr = raddrb_buf;
-assign mem_b_waddr = raddra_buf;
-assign mem_a_wdata = rdataa_buf;
-assign mem_b_wdata = rdatab_buf;
+assign mem_a_waddr = raddra_buf;
+assign mem_b_waddr = raddrb_buf;
+assign mem_a_wdata = rdatab_buf;
+assign mem_b_wdata = rdataa_buf;
 assign mem_a_wen   = state == `SEND_WRITE;
 assign mem_b_wen   = state == `SEND_WRITE;
 

@@ -9,12 +9,34 @@ namespace ilang {
 class InstrLvlAbs;
 class Ila;
 
+/// \brief the class to build a pipe's model
 class SimplePipe {
 
 public:
   static Ila BuildModel();
 
 }; // class SimplePipe
+
+/// \brief UndetExample
+class UndetVal {
+public:
+  static Ila BuildModel();
+};
+
+
+/// \brief UndetExample -- function
+class UndetFunc {
+public:
+  static Ila BuildModel();
+};
+
+
+/// \brief UndetExample -- building a monitor
+class MonitorTest {
+public:
+  static Ila BuildModel();
+};
+
 
 }; // namespace ilang
 

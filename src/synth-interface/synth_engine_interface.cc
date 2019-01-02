@@ -53,4 +53,3 @@ InstrLvlAbsPtr ImportSynthAbsFromFileHier(const std::string& fileName,
 }
 
 }; // namespace ilang
-
