@@ -74,35 +74,31 @@ endif() # NLOHMANN_JSON_FOUND
 #   SOURCE https://github.com/Bo-Yuan-Huang/verilog-parser.git
 #   PATH   extern/vlog-parser
 # ---------------------------------------------------------------------------- #
-if(${ILANG_BUILD_VLOG})
+# find installed package
+find_package(verilogparser QUIET)
 
-  # find installed package
-  find_package(verilogparser QUIET)
-  
-  # embed to build tree if not installed
-  if(NOT VERILOGPARSER_FOUND)
+# embed to build tree if not installed
+if(NOT VERILOGPARSER_FOUND)
 
-    # fetch from git
-    if(${ILANG_FETCH_DEPS})
+  # fetch from git
+  if(${ILANG_FETCH_DEPS})
 
-      execute_process(
-        COMMAND ${GIT_EXECUTABLE} submodule update --init vlog-parser
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        RESULT_VARIABLE GIT_SUBMOD_RESULT
-      )
+    execute_process(
+      COMMAND ${GIT_EXECUTABLE} submodule update --init vlog-parser
+      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+      RESULT_VARIABLE GIT_SUBMOD_RESULT
+    )
 
-      if(NOT GIT_SUBMOD_RESULT EQUAL "0")
-        message(FATAL_ERROR "Submodule update failed with ${GIT_SUBMOD_RESULT}")
-      endif()
+    if(NOT GIT_SUBMOD_RESULT EQUAL "0")
+      message(FATAL_ERROR "Submodule update failed with ${GIT_SUBMOD_RESULT}")
+    endif()
 
-    endif() # ILANG_FETCH_DEPS
+  endif() # ILANG_FETCH_DEPS
 
-    # embedded build
-    add_subdirectory(vlog-parser)
+  # embedded build
+  add_subdirectory(vlog-parser)
 
-  endif() # VERILOGPARSER_FOUND
-
-endif() # ILANG_BUILD_VLOG
+endif() # VERILOGPARSER_FOUND
 
 
 # ---------------------------------------------------------------------------- #
