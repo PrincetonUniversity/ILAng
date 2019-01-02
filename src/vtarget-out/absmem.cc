@@ -92,7 +92,7 @@ VlgAbsMem::GeneratingMemModuleSignalsInstantiation(VerilogGeneratorBase& gen, co
 
   gen.add_wire(MemEQSignalName(), 1, true);
   if(ila_map_name == "")
-    ILA_ERROR_IF(ila_map_name == "") << "Empty mem abs name for ("<<mem_name <<")";
+    ILA_WARN_IF(ila_map_name == "") << "Empty mem abs name for ("<<mem_name <<")";
 
   // connect ports, create
   // treat unconnected wire?

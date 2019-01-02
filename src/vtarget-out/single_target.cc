@@ -477,14 +477,14 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assumptions() {
     }
     if (_vtg_config.OnlyAssumeUpdatedVarsEq and
         _instr_ptr->update(sname) == nullptr) {
-      ILA_INFO << "Skip assume EQ on variable:" << sname
+      ILA_DLOG("VtargetGen") << "Skip assume EQ on variable:" << sname
                << " for instruction:" << _instr_ptr->name().str();
       continue;
     }
 
     ila_state_names.erase(sname);
     // __START__ ==> vmap
-    ILA_INFO << sname;
+    ILA_DLOG("VtargetGen.ConstructWrapper_add_varmap_assumptions") << sname;
 
     std::string problem_name = "variable_map_assume_";
     if (_vtg_config.PerVariableProblemCosa)
@@ -494,7 +494,7 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assumptions() {
                           GetStateVarMapExpr(sname, i.value()) + ")",
                       problem_name);
   }
-  ILA_INFO << "5.2.2";
+  ILA_DLOG("VtargetGen")  << "STEP:" <<"5.2.2";
   // check for unmapped states
   if (not ila_state_names.empty()) {
     ILA_ERROR << "Refinement relation: missing state mapping for the following "
@@ -531,7 +531,7 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assertions() {
       if( _host->state(sname)->is_mem() )
        GetStateVarMapExpr(sname, i.value(), true);
 
-      ILA_INFO << "Skip checking variable:" << sname
+      ILA_DLOG("VtargetGen")  << "Skip checking variable:" << sname
                << " for instruction:" << _instr_ptr->name().str();
       continue;
     }
@@ -936,10 +936,10 @@ void VlgSglTgtGen::ConstructWrapper() {
 
   if (bad_state_return())
     return;
-  ILA_INFO << 1;
+  ILA_DLOG("VtargetGen")  << "STEP:" << 1;
   // 0. The headers you may need to have
   ConstructWrapper_generate_header();
-  ILA_INFO << 2;
+  ILA_DLOG("VtargetGen")  << "STEP:" << 2;
 
   // 1. add input
   if (target_type == target_type_t::INSTRUCTIONS) {
@@ -949,42 +949,41 @@ void VlgSglTgtGen::ConstructWrapper() {
       add_an_assumption(" (~__RESETED__) || (dummy_reset == 0) ", "noreset");
   }
 
-  ILA_INFO << 3;
+  ILA_DLOG("VtargetGen")  << "STEP:" << 3;
   // -- find out the inputs
   ConstructWrapper_add_vlg_input_output();
-  ILA_INFO << 4;
+  ILA_DLOG("VtargetGen")  << "STEP:" << 4;
   ConstructWrapper_add_ila_input();
-  ILA_INFO << 5;
+  ILA_DLOG("VtargetGen")  << "STEP:" << 5;
 
   // 2. add some monitors (bound cnt)
   // 3. add assumptions & assertions
   if (target_type == target_type_t::INSTRUCTIONS) {
 
-    ILA_INFO << 5.1;
+    ILA_DLOG("VtargetGen")  << "STEP:" << 5.1;
     ConstructWrapper_add_cycle_count_moniter();
-    ILA_INFO << 5.2;
+    ILA_DLOG("VtargetGen")  << "STEP:" << 5.2;
     ConstructWrapper_add_varmap_assumptions();
-    ILA_INFO << 5.3;
+    ILA_DLOG("VtargetGen")  << "STEP:" << 5.3;
     ConstructWrapper_add_varmap_assertions();
-    ILA_INFO << 5.4;
+    ILA_DLOG("VtargetGen")  << "STEP:" << 5.4;
     ConstructWrapper_add_inv_assumptions();
   } else if (target_type == target_type_t::INVARIANTS) {
     ConstructWrapper_add_inv_assertions();
     max_bound = _vtg_config.MaxBound;
   }
-  ILA_INFO << 6;
+  ILA_DLOG("VtargetGen")  << "STEP:" << 6;
   // 4. additional mapping if any
   ConstructWrapper_add_additional_mapping_control();
 
-  ILA_INFO << 7;
+  ILA_DLOG("VtargetGen")  << "STEP:" << 7;
   // if invariants, will do nothing
   ConstructWrapper_add_condition_signals();
 
-  ILA_INFO << 8;
+  ILA_DLOG("VtargetGen")  << "STEP:" << 8;
 
   // 7. uni-functions
 
-  ILA_INFO << 10;
   if (target_type == target_type_t::INSTRUCTIONS)
     ConstructWrapper_add_uf_constraints();
 
@@ -996,7 +995,7 @@ void VlgSglTgtGen::ConstructWrapper() {
   ConstructWrapper_add_helper_memory(); // need to decide what is the target
                                         // type
                                         // -- no need
-  ILA_INFO << 9;
+  ILA_DLOG("VtargetGen")  << "STEP:" << 9;
   // 5. module instantiation
   ConstructWrapper_add_module_instantiation();
 

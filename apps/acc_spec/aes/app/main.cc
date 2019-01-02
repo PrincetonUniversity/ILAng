@@ -2,10 +2,12 @@
 #include <aes_ila.h>
 #include <ilang/vtarget-out/vtarget_gen.h>
 
+/// the function to parse commandline arguments
+VerilogVerificationTargetGenerator::vtg_config_t HandleArguments(int argc, char **argv);
+
 /// To verify the exact AES128 ILA
-void verifyAES128(Ila& model) {
+void verifyAES128(Ila& model, VerilogVerificationTargetGenerator::vtg_config_t vtg_cfg) {
   VerilogGeneratorBase::VlgGenConfig vlg_cfg;
-  VerilogVerificationTargetGenerator::vtg_config_t vtg_cfg;
 
   vlg_cfg.pass_node_name = true;
 
@@ -33,9 +35,8 @@ void verifyAES128(Ila& model) {
 }
 
 /// To verify the IO ILA
-void verifyIO(Ila& model) {
+void verifyIO(Ila& model, VerilogVerificationTargetGenerator::vtg_config_t vtg_cfg) {
   VerilogGeneratorBase::VlgGenConfig vlg_cfg;
-  VerilogVerificationTargetGenerator::vtg_config_t vtg_cfg;
 
   vtg_cfg.MemAbsReadAbstraction = true; // enable read abstraction
   vlg_cfg.pass_node_name = true;
@@ -64,10 +65,9 @@ void verifyIO(Ila& model) {
 }
 
 /// To verify the block level operation of ILA
-void verifyBlockLevel(Ila& model) {
+void verifyBlockLevel(Ila& model, VerilogVerificationTargetGenerator::vtg_config_t vtg_cfg) {
 
   VerilogGeneratorBase::VlgGenConfig vlg_cfg;
-  VerilogVerificationTargetGenerator::vtg_config_t vtg_cfg;
 
   vtg_cfg.MemAbsReadAbstraction = true; // enable read abstraction
   vtg_cfg.MaxBound = 40;                // bound of BMC
@@ -97,18 +97,42 @@ void verifyBlockLevel(Ila& model) {
 }
 
 /// Build the model
-int main() {
-  // set ilang option, operators like '<' will refer to unsigned arithmetics
-  SetUnsignedComparation(true); 
+int main(int argc, char **argv) {
+  // extract the configurations
+  auto vtg_cfg = HandleArguments(argc, argv);
+
   // build the aes model
   AES aes_ila_model;
   // build the aes128 model
   AES_128 aes128;
   // verify separately the hierarchical ILA
   // from IO level down to the AES 128 function
-  verifyIO(aes_ila_model.model);
-  verifyBlockLevel(aes_ila_model.model);
-  verifyAES128(aes128.model);
+  verifyIO(aes_ila_model.model, vtg_cfg);
+  verifyBlockLevel(aes_ila_model.model, vtg_cfg);
+  verifyAES128(aes128.model, vtg_cfg);
 
   return 0;
+}
+
+
+VerilogVerificationTargetGenerator::vtg_config_t HandleArguments(int argc, char **argv) {
+  // the solver, the cosa environment
+  // you can use a commandline parser if desired, but since it is not the main focus of
+  // this demo, we skip it
+
+  // set ilang option, operators like '<' will refer to unsigned arithmetics
+  SetUnsignedComparation(true); 
+  
+  VerilogVerificationTargetGenerator::vtg_config_t ret;
+
+  if(argc >= 2)
+    ret.CosaSolver = argv[1];
+  if(argc >= 3)
+    ret.CosaPath = argv[2];
+  if(argc >= 4)
+    ret.CosaPyEnvironment = argv[3];
+
+  ret.CosaGenTraceVcd = true;
+
+  return ret;
 }

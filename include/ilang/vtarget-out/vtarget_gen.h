@@ -39,12 +39,25 @@ public:
     unsigned MaxBound;
     /// Only enforce var eq on updated vars, should not be used
     bool OnlyAssumeUpdatedVarsEq; // should be false
+    // ----------- Options for CoSA script -------------- //
+    /// If not empty, the generated script will include the path of Cosa
+    std::string CosaPath;
+    /// If not empty, the generated script will include sourcing a script
+    std::string CosaPyEnvironment;
+    /// A choice of solver (in the script)
+    std::string CosaSolver;
+    /// Whether the Solver should generate vcd trace
+    bool CosaGenTraceVcd;
+    /// other CoSA options
+    std::string CosaOtherSolverOptions;
     /// The default constructor for default values
     _vtg_config()
         : target_select(BOTH), CheckThisInstructionOnly(""),
           InstructionNoReset(true), OnlyCheckInstUpdatedVars(true),
           PerVariableProblemCosa(false), MemAbsReadAbstraction(false),
-          MaxBound(127), OnlyAssumeUpdatedVarsEq(false) {}
+          MaxBound(127), OnlyAssumeUpdatedVarsEq(false), CosaPath(""),
+          CosaPyEnvironment(""), CosaSolver(""), CosaGenTraceVcd(true),
+          CosaOtherSolverOptions("") {}
   } vtg_config_t;
 
 public:

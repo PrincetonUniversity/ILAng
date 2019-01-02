@@ -115,8 +115,24 @@ void VlgSglTgtGen_Cosa::Export_script(const std::string& script_name) {
     return;
   }
   fout << "#!/bin/bash" << std::endl;
+  if(not _vtg_config.CosaPyEnvironment.empty())
+    fout << "source "<<_vtg_config.CosaPyEnvironment<<std::endl;
+
+  std::string cosa = "CoSA";
+  std::string options;
+
+  if(not _vtg_config.CosaSolver.empty())
+    options += " --solver-name=" + _vtg_config.CosaSolver;
+  if(_vtg_config.CosaGenTraceVcd)
+    options += " --vcd";
+  options += " " + _vtg_config.CosaOtherSolverOptions;
+
+  if(not _vtg_config.CosaPath.empty()) {
+    cosa = os_portable_append_dir(_vtg_config.CosaPath, cosa) + ".py";
+  }
+
   if (cosa_prob_fname != "")
-    fout << "CoSA --problem " << cosa_prob_fname << std::endl;
+    fout << cosa << " --problem " << cosa_prob_fname << options << std::endl;
   else
     fout << "echo 'Nothing to check!'" << std::endl;
 }
