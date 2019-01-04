@@ -1,6 +1,4 @@
 {
-  "global invariants": [],
-
   "instructions": [
     {
       "instruction" : "WRITE_ADDRESS",
@@ -42,6 +40,9 @@
       "instruction" : "START_ENCRYPT",
       "ready bound" : 1
     }
-  ]
+  ],
+  
+  "global invariants": []
+
 }
 

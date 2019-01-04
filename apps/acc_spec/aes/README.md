@@ -75,27 +75,73 @@ are the instructions and the outside visible states. The outside (e.g. a process
 can trigger these instructions and they can directly sees the visible states defined
 in this layer. 
 
-However, one instruction `START_ENCRYPT` is very complex. It implements the counter-mode
+However, one instruction: `START_ENCRYPT` is very complex. It implements the counter-mode
 block encryption. It operates block-by-block, first fetches one plaintext block 
 from a designated memory region (computed from the register `address` and the offset 
-baesd on the number of rounds). Invokes the AES128 function and do the following computation 
+baesd on the number of rounds). It invokes the AES128 function and does the following computation 
 and then stores ciphertext back into the memory. 
 
 C[i] = P[i] XOR AES128( COUNTER )
 
-After handling one block, it count up the counter and check if it should continue to the next block.
+After handling one block, it counts up the counter and checks if it should continue to the next block.
 
 So this instruction is modeled by 3 child-instructions, `LOAD`, `OPERATE` and `STORE`, in the 
 child-ILA.
 
-Finally, there are the AES 128 functions. The initial round is just a preprocessing step of the 
-encryption key, followed by 10 rounds of operations. The final round omits MixColumns so it is 
-different than the first 9 rounds. So it is modeled as a separate instruction `FinalRound`.
+Finally, there is the AES 128 function. The initial round is just one step of `AddRoundKey`, 
+followed by 10 rounds of operations. The final round omits MixColumns so it is 
+different than the first 9 rounds and is modeled as a separate instruction: `FinalRound`.
+
+
+
+Refinement Map (Refinement Relation)
+-------------------
+
+The verification is to check whether the per-instruction state update function matches
+the Verilog Design. It assumes a state mapping between the initial states of the two
+models (ILA and Verilog) and at the end of the instruction checks for the state mapping.
+It actually forms a commutative diagram as shown below.
+
+```
+
+  ILA state1 ------instr--------> ILA state2
+     ||                               ||
+     ||                               ||
+     ||                               ||
+     ||                               ||
+     ||                               ||
+     ||                               ||
+  Verilog s1 ----transitions----> Verilog sn
+
+
+```
+
+In the refinement relations, one must specify (1) the state mapping, and (2) in the Verilog,
+when should be regarded as the end of an instruction. These two parts are specified in 
+two files, both in JSON format.
+
+
+
+
 
 
 Verification Target Generation
 -------------------
 
+For the open-souce toolchain, we support CoSA (CoreIR Symbolic Analyzer). The generation functionality
+is triggered via instantiating a `VerilogVerificationTargetGenerator` object. The arguments of this 
+object constructors are:
+
+1. A list of paths to search for Verilog include files
+2. A list of Verilog design files
+3. The Verilog top module
+4. The variable mapping file (part of refinement relations)
+5. The instruction start/ready conditions (part of refinement relations)
+6. The output path of the verification targets
+7. The ILA model
+8. The backend (CoSA/JapserGold)
+9. (Optional) Target generator configurations
+10. (Optional) Verilog generator configurations
 
 
 
