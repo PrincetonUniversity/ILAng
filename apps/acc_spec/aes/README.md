@@ -189,18 +189,132 @@ cd verification
 The complete verification took around 15mins on a laptop with 
 Core-i5 8300H CPU and 32GB of RAM.
 
+After running 
 
 
 ### Synthetic Bug Insertion and Bug Finding Using ILA Verification  ###
 
 
+In this artifact, we provide two exammples of bugs. 
+
+Please first return to the example directory by:
+```
+cd ~/aes-demo/
+```
+
+
+#### Interface Bug ####
+
+This synthetic bug lies in the interface of the Verilog design. 
+Specifically, it allows the configuration registers, like encryption
+key, to be changed when the accelerator is operating. This is dangerous
+as it could potentially result in ciphertext that are not usable at all.
+In the ILA specification, it is specified that only when the core is idle
+can these configuration register get updated. 
+
+You can view the bug by:
+```
+vim patch/AllowWriteRegWhenNotIdle.patch
+```
+
+The difference between the buggy and correct design is that the buggy one does
+not use the `aes_state_idle` signal in the register write-enable signal. 
+
+Exit vim by typing `:q <Enter>`
+
+Now, you can insert this synthetic bug by:
+```
+patch verilog/aes_top.v patch/AllowWriteRegWhenNotIdle.patch
+```
+
+And now regenerate the verification targets and invoke CoSA by:
+```
+cd build
+./AESExe Solver=Btor
+cd ../verification
+. RunAll.sh
+```
+The print-out information will show that the implementation of instructions: 
+`WRITE_ADDRESS`, `WRITE_KEY`, and  `WRITE_LENGTH`, and sub-instructions `LOAD`, 
+`OPERATE` and `STORE`  are buggy now, along with the short trace showing how 
+the implementation transits to the buggy state (where the state variables 
+in ILA and Verilog do not match any more, in other words, `variable_map_assert`
+signal is low). A waveform (`trace[1]-variable_map_assert_.vcd`) is also 
+generated in the sub-folders of the failing instructions, which can be viewed 
+by waveform viewer such as GtkWave (not included in the docker image, but you 
+can transfer the waveform to the outside of the Docker using, for example:
+
+```
+scp "WRITE_LENGTH/trace[1]-variable_map_assert_.vcd" <server-name>:<path>
+```
+
+where `WRITE_LENGTH` could be replaced by the name of other buggy instructions and 
+`<server-name>:<path>` points to a path on a ssh server that you have access to)
+
+If you are using Ubuntu as the Host OS, you can use 
+[this guide](https://help.ubuntu.com/lts/serverguide/openssh-server.html.en) 
+to setup a SSH server locally.
+
+
+After testing with this interface bug, correct it by undoing the patch:
+```
+cd ~/aes-demo
+patch -R verilog/aes_top.v patch/AllowWriteRegWhenNotIdle.patch
+```
 
 
 
-Design Overview
--------------------
-This example is a manually constructed Verilog module that performs AES block encryption accelerator.
-The AES module works in Counter Mode, the counter is incremented for each block. This AES 
+#### Internal Logic Bug ####
+
+
+This synthetic bug lies in the internal logic of the ILA. Specifically,
+a lookup table entry is mistaken.
+
+
+You can view this bug by:
+```
+cd ~/aes-demo
+vim patch/WrongTableEntry.patch
+```
+
+The number 0x57 entry should be 0x5b, but was mistaken as 0x5c. You can
+inject this bug by (please first exit from vim)
+```
+patch verilog/S.v patch/WrongTableEntry.patch
+```
+
+Now regenerate the verification targets and invoke CoSA by:
+```
+cd build
+./AESExe Solver=Btor
+cd ../verification
+. RunAll.sh
+```
+
+The verification will show that two instructions `IntermediateRound` and
+`FinalRound` will fail as they both use the S-box lookup table. Similarly,
+waveform (`trace[1]-variable_map_assert_.vcd`) is generated in the sub-folders
+of the two failing instructions, which could be used to locate the bug.
+
+After testing with this logic bug, correct it by undoing the patch:
+```
+cd ~/aes-demo
+patch -R verilog/S.v patch/WrongTableEntry.patch
+```
+
+Besides the two bugs, you can also try modifying the
+Verilog yourself and see how our tool reacts to the changes.
+
+
+
+## Background Information ##
+
+
+
+### Design Overview ###
+
+This example is a manually written Verilog module that performs AES block encryption.
+This AES module works in Counter Mode, the counter is incremented for each block. This AES 
 accelerator is assumed to be connected through memory-mapped IO, while the memory interface 
 is the 8051 memory interface. The accelerator is assigned to the following address space. 
 After the encryption the plaintext in the memory will be overwritten by ciphertext.
@@ -220,8 +334,8 @@ The top module is `aes_top.v` which contains the interface and instantiate the
 accelerator registers and the aes128 function (`aes_128.v`).
 
 
-The AES ILA Model
--------------------
+### The AES ILA Model ###
+
 The AES ILA model is built as a hierarchical model. It has three layers. In the top layer
 there are the instructions and the outside visible states. The outside (e.g. a processor core)
 can trigger these instructions and they can directly sees the visible states (by reading the
@@ -249,8 +363,7 @@ The modeling of this AES module uses our ILA library functions. A complete speci
 of the library function that can be used in modeling can be found [here](https://).
 
 
-Refinement Map (Refinement Relation)
--------------------
+### Refinement Map (Refinement Relation) ###
 
 The verification is to check whether the per-instruction state update function matches
 the Verilog Design. It assumes a state mapping between the initial states of the two
@@ -280,8 +393,7 @@ The complete specification of the refinement map format in the JSON file can be 
 
 
 
-Verification Target Generation
--------------------
+### Verification Target Generation ###
 
 For the open-souce toolchain, we support CoSA (CoreIR Symbolic Analyzer) as the verifier. 
 Our tool will generate verification targets (Verilog and also properties) that CoSA can take as input.
