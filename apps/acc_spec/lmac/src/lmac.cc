@@ -56,27 +56,79 @@ void DefineArchState(Ila& m) {
   auto fmac_rx_byte_cnt_hi = m.NewBvState("FMAC_RX_BYTE_CNT_HI", MMIO_REG_SIZE);
   // TODO
 
+  // helpers
+  auto read_reg_cycle_cnt = m.NewBvState("lamc_read_reg_cycle_cnt", 8);
+  auto read_reg_cache_val =
+      m.NewBvState("lmac_read_reg_cache_val", MMIO_REG_SIZE);
+
   return;
 }
 
+// XXX invariant:
+// 1. read_reg_done_out & reg_read_start = 0
+// 2. reg_read_start should be 1 for only one cycle
+// 3. read_reg_done_out -> (lmac_read_reg_cycle_cnt == 0)
+//
+// XXX does the verification target generation handle edge dependent
+// properties? (one and exactly one cycle)
+
 void DefineInstruction(Ila& m) {
+  // child ILA for 5 cycle delay
+  auto reg_read_child = m.NewChild("reg_read_child");
+  {
+    auto& c = reg_read_child;
+
+    // valid
+    auto valid = c.state("lmac_read_reg_cycle_cnt") != 0;
+    reg_read_child.SetValid(valid);
+
+    // fetch
+    auto fetch = Concat(c.state("lmac_read_reg_cycle_cnt"),
+                        c.state("lmac_read_reg_cache_val"));
+    reg_read_child.SetFetch(fetch);
+
+    // instructions for 5 cycle delay
+    auto cnt = c.state("lmac_read_reg_cycle_cnt");
+    auto out = c.state("read_reg_done_out");
+
+    // cnt: 1 -> 2 -> 3 -> 4 -> 5 -> 0
+    // out: 0 -> 0 -> 0 -> 0 -> 1 -> 0
+
+    auto instr_delay_ini = c.NewInstr("reg_read_delay_ini");
+    {
+      instr_delay_ini.SetDecode((cnt > 0) & (cnt < 4));
+      instr_delay_ini.SetUpdate(cnt, cnt + 1);
+    }
+
+    auto instr_delay_out = c.NewInstr("reg_read_delay_out");
+    {
+      instr_delay_out.SetDecode(cnt == 4);
+      instr_delay_out.SetUpdate(cnt, cnt + 1);
+      instr_delay_out.SetUpdate(out, BoolConst(true));
+    }
+
+    auto instr_delay_end = c.NewInstr("reg_read_delay_end");
+    {
+      instr_delay_end.SetDecode(cnt == 5);
+      instr_delay_end.SetUpdate(cnt, BvConst(0, 8));
+    }
+  }
+
   auto instr_read_tx_pkt_cnt = m.NewInstr("READ_FMAC_TX_PKT_CNT");
   {
     // decode
-    auto decode = (m.input("read_reg_start") == 1) &
+    auto decode = (m.input("reg_read_start") == 1) &
+                  (m.state("read_reg_done_out") == 0) &
                   (m.input("host_addr") == LMAC_MMIO_OFFSET_FMAC_TX_PKT_CNT);
     instr_read_tx_pkt_cnt.SetDecode(decode);
-    // updates
-    auto data_val = m.state("fmac_tx_pkt_cnt");
-    instr_read_tx_pkt_cnt.SetUpdate(m.state("mac_reg_d_out"), data_val);
 
-    // XXX to model at the cycle accurate level (5 cycles delay), we can use
-    // child-instructions to model the 5 dummy instructios
-    // XXX does the verification target generation handle edge dependent
-    // properties? (one and exactly one cycle)
+    // updates
+    instr_read_tx_pkt_cnt.SetUpdate(m.state("lmac_read_reg_cache_val"),
+                                    m.state("fmac_tx_pkt_cnt"));
+    instr_read_tx_pkt_cnt.SetUpdate(m.state("lmac_read_reg_cycle_cnt"),
+                                    BvConst(1, 8));
   }
 
-  // TODO
   return;
 }
 
