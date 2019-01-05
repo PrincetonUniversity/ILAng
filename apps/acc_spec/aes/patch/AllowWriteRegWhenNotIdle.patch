@@ -1,0 +1,11 @@
+--- verilog/aes_top.v	2019-01-04 16:17:05.042402721 -0500
++++ patch/aes_top.v	2019-01-04 16:17:05.038402734 -0500
+@@ -136,7 +136,7 @@
+ wire aes_state_write_data = aes_reg_state == AES_STATE_WRITE_DATA;
+ 
+ // consider writes only when we are in the idle state. other writes ignored.
+-wire wren = wr && aes_state_idle;
++wire wren = wr;
+ wire start_op = sel_reg_start && data_in[0] && wren;
+ 
+    
