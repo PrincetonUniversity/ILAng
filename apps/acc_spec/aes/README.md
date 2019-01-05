@@ -1,8 +1,6 @@
 ILA vs Verilog Verification Tutorial
 ==================================================================================
 
-Hongce Zhang (hongcez @princeton.edu)
-
 
 ## What's inside the Artifact? ##
 
@@ -74,7 +72,7 @@ Upon successful installation, you will see a `Hello from Docker!` message.
 
 ### Download the Demo Docker Image ###
 
-Download our provided Docker using:
+Download our provided Docker image using:
 ```
 sudo docker pull byhuang/ilang:posh-demo
 ``` 
@@ -82,9 +80,8 @@ And then run it with:
 ```
 sudo docker run -it byhuang/ilang:posh-demo
 ```
-If you see a command line prompt starting with `(ilang-env)`, it means you have 
-successfully downloaded and started the docker image. 
-Now please proceed to the next section.
+If you see a command line prompt starting with `(ilang-env)`, you have 
+successfully downloaded and started the demo docker image.
 
 
 
@@ -92,7 +89,7 @@ Now please proceed to the next section.
 
 
 This is the demo we presented in the Tuesday meeting. The Verilog design is already bug-free w.r.t
-the ILA specification. First change directory to the AES example and list the files and the directory.
+the ILA specification. First change directory to the AES example and list what's in this directory.
 
 ```
 cd aes-demo
@@ -102,7 +99,6 @@ ls
 
 #### Directory Structure ####
 
-Here we briefly introduce to you what is inside the demo image.
 
 ```
 |- app
@@ -116,27 +112,27 @@ Here we briefly introduce to you what is inside the demo image.
 |
 |
 |- src
-|   \-+--aes_util.cc : provides some utility functions that 
-|     |                makes writing ILA expressions simple
-|     |--aes_ila.cc  : the model of the AES ILA instructions
-|     |                and their semantics
-|     |--aes_child.cc: the model of the child instructions
-|     |                that accomplish the START_ENCRYPT instruction
+|   \-+--aes_util.cc : provides some utility functions that makes
+|     |                writing AES ILA expressions simpler
+|     |--aes_ila.cc  : the model of the AES ILA instructions and
+|     |                their semantics
+|     |--aes_child.cc: the model of the child instructions that
+|     |                accomplish the START_ENCRYPT instruction
 |     |--aes_128.cc  : the model of the AES 128 function
 |
 |
 |- refinement
-|   \-+-- ref-rel-inst-cond.json : instruction start and end conditions of
-|     |                            the AES instructions
-|     |-- ref-rel-inst-cond-uaes.json : instruction start and end conditions
-|     |                            of the AES child instructions
+|   \-+-- ref-rel-inst-cond.json        : instruction start and end conditions of
+|     |                                   the AES instructions
+|     |-- ref-rel-inst-cond-uaes.json   : instruction start and end conditions
+|     |                                   of the AES child instructions
 |     |-- ref-rel-inst-cond-aes128.json : instruction start and end conditions
-|     |                            of the instructions in AES 128 functions
-|     |-- ref-rel-var-map.json : the variable mapping of the AES instructions
-|     |-- ref-rel-var-map-uaes.json : the variable mapping of the AES child 
-|     |                               instructions
-|     |-- ref-rel-var-map-aes128.json : the variable mapping for the AES 128
-|                                       functions
+|     |                                   of the instructions in AES 128 functions
+|     |-- ref-rel-var-map.json          : the variable mapping of the AES instructions
+|     |-- ref-rel-var-map-uaes.json     : the variable mapping of the AES child 
+|     |                                   instructions
+|     |-- ref-rel-var-map-aes128.json   : the variable mapping for the AES 128
+|                                         functions
 |
 |- verilog : the folder with the AES block encryption accelerator implementation.
 |
@@ -148,10 +144,10 @@ Here we briefly introduce to you what is inside the demo image.
 |
 |- cmake: contains a cmake script to help find Z3 (a SMT solver). You can safely ignore it.
 |
-|- build: the folder to contains the executable (AESExe) complied from the verification script provided
-|         in the `app` folder.
+|- build: the folder to contains the executable (AESExe) complied from the verification script 
+|         provided in the `app` folder.
 |
-|- patch: the folder of patches that you can use to make the Verilog design buggy.
+|- patch: the folder of two example bugs that can be inserted into the Verilog design.
 
 ```
 
@@ -189,15 +185,13 @@ cd verification
 The complete verification took around 15mins on a laptop with 
 Core-i5 8300H CPU and 32GB of RAM.
 
-After running 
-
 
 ### Synthetic Bug Insertion and Bug Finding Using ILA Verification  ###
 
 
 In this artifact, we provide two exammples of bugs. 
 
-Please first return to the example directory by:
+Please first return to the AES example directory by:
 ```
 cd ~/aes-demo/
 ```
@@ -218,7 +212,7 @@ vim patch/AllowWriteRegWhenNotIdle.patch
 ```
 
 The difference between the buggy and correct design is that the buggy one does
-not use the `aes_state_idle` signal in the register write-enable signal. 
+not use the `aes_state_idle` signal in the register-write-enable signal. 
 
 Exit vim by typing `:q <Enter>`
 
@@ -236,20 +230,22 @@ cd ../verification
 ```
 The print-out information will show that the implementation of instructions: 
 `WRITE_ADDRESS`, `WRITE_KEY`, and  `WRITE_LENGTH`, and sub-instructions `LOAD`, 
-`OPERATE` and `STORE`  are buggy now, along with the short trace showing how 
-the implementation transits to the buggy state (where the state variables 
-in ILA and Verilog do not match any more, in other words, `variable_map_assert`
-signal is low). A waveform (`trace[1]-variable_map_assert_.vcd`) is also 
+`OPERATE` and `STORE`  does not match the specification, along with short traces
+showing how the implementation transits to this buggy state (a state 
+where the state variables in ILA and Verilog do not match any more, 
+in other words, `variable_map_assert` signal is low). 
+
+The waveform (`trace[1]-variable_map_assert_.vcd`) demonstrating this bug is also 
 generated in the sub-folders of the failing instructions, which can be viewed 
-by waveform viewer such as GtkWave (not included in the docker image, but you 
+by waveform viewer such as GtkWave (not included in this docker image, but you 
 can transfer the waveform to the outside of the Docker using, for example:
 
 ```
 scp "WRITE_LENGTH/trace[1]-variable_map_assert_.vcd" <server-name>:<path>
 ```
 
-where `WRITE_LENGTH` could be replaced by the name of other buggy instructions and 
-`<server-name>:<path>` points to a path on a ssh server that you have access to)
+where `WRITE_LENGTH` can be replaced by the name of other buggy instructions and 
+`<server-name>:<path>` points to a path on a SSH server that you have access to)
 
 If you are using Ubuntu as the Host OS, you can use 
 [this guide](https://help.ubuntu.com/lts/serverguide/openssh-server.html.en) 
@@ -278,7 +274,7 @@ vim patch/WrongTableEntry.patch
 ```
 
 The number 0x57 entry should be 0x5b, but was mistaken as 0x5c. You can
-inject this bug by (please first exit from vim)
+inject this bug by: (please first exit from vim)
 ```
 patch verilog/S.v patch/WrongTableEntry.patch
 ```
