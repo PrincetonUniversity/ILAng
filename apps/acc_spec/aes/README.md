@@ -347,8 +347,7 @@ C[i] = P[i] XOR AES128( COUNTER )
 
 Where C[i] is the i-th ciphertext block and P[i] is the i-th plaintext block.
 
-After encrypting one block, it counts up the counter and checks whether it should continue to the next block or return to the idle state.
-
+After encrypting one block, it counts up the counter and checks whether it should continue to the next block or return to the idle state. 
 This `START_ENCRYPT` instruction triggers this process and it is modeled with the help of 3 child-instructions, `LOAD`, `OPERATE` and `STORE`.
 
 Finally, there is the AES-128 function. The initial round is just one step of `AddRoundKey`, 
@@ -356,7 +355,7 @@ followed by 10 rounds of operations. The final round omits MixColumns so it is
 different from the first 9 rounds and is modeled as a separate instruction: `FinalRound`.
 
 The modeling of this AES module uses our ILA library functions. A complete specification 
-of the library function that can be used in modeling can be found [here](https://).
+of the library function that can be used in modeling can be found here: [API for ILA modeling](https://rawgit.com/Bo-Yuan-Huang/ILA-Tools/master/docs/api-html/namespaceila.html) and [API for ILA verification](https://rawgit.com/Bo-Yuan-Huang/ILA-Tools/master/docs/impl-html/namespaceila.html).
 
 
 ### Refinement Map (Refinement Relation) ###
@@ -409,7 +408,7 @@ object constructors are:
 9. (Optional) Target generator configuration
 10. (Optional) Verilog generator configuration
 
-In the verification script you can find that there are three such objects (Line -, - , -), 
+In the verification script you can find that there are three such objects (Line 19--32, 50--63, 82--95), 
 corresponding to the checking of three layers of the model.
 
 
