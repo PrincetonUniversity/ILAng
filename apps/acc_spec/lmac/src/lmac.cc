@@ -65,7 +65,7 @@ void DefineArchState(Ila& m) {
 }
 
 // XXX invariant:
-// 1. read_reg_done_out & reg_read_start = 0
+// 1. read_reg_done_out & reg_read_start = 0 (unspecified behavior)
 // 2. reg_read_start should be 1 for only one cycle
 // 3. read_reg_done_out -> (lmac_read_reg_cycle_cnt == 0)
 //
@@ -118,7 +118,6 @@ void DefineInstruction(Ila& m) {
   {
     // decode
     auto decode = (m.input("reg_read_start") == 1) &
-                  (m.state("read_reg_done_out") == 0) &
                   (m.input("host_addr") == LMAC_MMIO_OFFSET_FMAC_TX_PKT_CNT);
     instr_read_tx_pkt_cnt.SetDecode(decode);
 
@@ -127,6 +126,20 @@ void DefineInstruction(Ila& m) {
                                     m.state("fmac_tx_pkt_cnt"));
     instr_read_tx_pkt_cnt.SetUpdate(m.state("lmac_read_reg_cycle_cnt"),
                                     BvConst(1, 8));
+  }
+
+  auto instr_read_rx_pkt_cnt_lo = m.NewInstr("READ_FMAC_RX_PKT_CNT_LO");
+  {
+    // decode
+    auto decode = (m.input("reg_read_start") == 1) &
+                  (m.input("host_addr") == LMAC_MMIO_OFFSET_FMAC_RX_PKT_CNT_LO);
+    instr_read_rx_pkt_cnt_lo.SetDecode(decode);
+
+    // updates
+    instr_read_rx_pkt_cnt_lo.SetUpdate(m.state("lmac_read_reg_cache_val"),
+                                       m.state("fmac_rx_pkt_cnt_lo"));
+    instr_read_rx_pkt_cnt_lo.SetUpdate(m.state("lmac_read_reg_cycle_cnt"),
+                                       BvConst(1, 8));
   }
 
   return;
