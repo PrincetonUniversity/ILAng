@@ -35,6 +35,7 @@ For API documentation, see the page [ILA-Tools-API](https://rawgit.com/Bo-Yuan-H
 
 For developers, implementation details can be found on [ILA-Tools-Impl](https://rawgit.com/Bo-Yuan-Huang/ILA-Tools/master/docs/impl-html/namespaceila.html).
 
+To write refinement mapping for verification, a draft document can be found on [Refinement Doc](https://github.com/Bo-Yuan-Huang/ILA-Tools/blob/master/docs/publications/How_to_Write_Refinement_Map_for_ILA_vs_Verilog_Verification.pdf).
 
 ### Publications:
 
