@@ -9,8 +9,8 @@
 #include <ilang/config.h>
 
 #include <ilang/ila/instr_lvl_abs.h>
-#include <ilang/vtarget-out/vtarget_gen_impl.h>
 #include <ilang/vtarget-out/vlg_mod.h>
+#include <ilang/vtarget-out/vtarget_gen_impl.h>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -52,7 +52,6 @@ class VlgSglTgtGen_Cosa : public VlgSglTgtGen {
   /// filename -> (lineno, varname, is_port_sig) vec
   using fn_l_map_t = VerilogModifier::fn_l_map_t;
 
-
 public:
   // --------------------- CONSTRUCTOR ---------------------------- //
   ///
@@ -79,9 +78,8 @@ public:
       const std::string& vlg_mod_inst_name,
       const std::string& ila_mod_inst_name, const std::string& wrapper_name,
       const std::vector<std::string>& implementation_srcs,
-      const std::vector<std::string>& include_dirs, 
-      const vtg_config_t & vtg_config,
-      backend_selector backend);
+      const std::vector<std::string>& include_dirs,
+      const vtg_config_t& vtg_config, backend_selector backend);
 
 protected:
   /// Cosa problem generate
@@ -96,6 +94,12 @@ protected:
   /// Add an assertion
   virtual void add_an_assertion(const std::string& asst,
                                 const std::string& dspt) override;
+  /// Add a direct assumption
+  virtual void add_a_direct_assumption(const std::string& aspt,
+                                       const std::string& dspt) override;
+  /// Add a direct assertion
+  virtual void add_a_direct_assertion(const std::string& asst,
+                                      const std::string& dspt) override;
   /// Add an assignment which in JasperGold could be an assignment, but in CoSA
   /// has to be an assumption
   virtual void add_wire_assign_assumption(const std::string& varname,

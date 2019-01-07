@@ -26,9 +26,8 @@ VlgVerifTgtGen::VlgVerifTgtGen(
     const std::string& refinement_variable_mapping,
     const std::string& refinement_conditions, const std::string& output_path,
     const InstrLvlAbsPtr& ila_ptr, backend_selector backend,
-    const vtg_config_t & vtg_config,
-    const VerilogGenerator::VlgGenConfig& vlg_gen_config
-    )
+    const vtg_config_t& vtg_config,
+    const VerilogGenerator::VlgGenConfig& vlg_gen_config)
     : _vlg_impl_include_path(implementation_include_path),
       _vlg_impl_srcs(implementation_srcs),
       _vlg_impl_top_name(implementation_top_module),
@@ -38,8 +37,7 @@ VlgVerifTgtGen::VlgVerifTgtGen(
       // configure is only for ila, generate the start signal
       vlg_info_ptr(
           NULL), // not creating it now, because we don't have the info to do so
-      _backend(backend), _cfg(vlg_gen_config),
-      _vtg_config(vtg_config),
+      _backend(backend), _cfg(vlg_gen_config), _vtg_config(vtg_config),
       _bad_state(false) {
   load_json(_rf_var_map_name, rf_vmap);
   load_json(_rf_cond_name, rf_cond);
@@ -129,81 +127,79 @@ void VlgVerifTgtGen::GenerateTargets(void) {
     return;
   }
 
-  if(_vtg_config.target_select == vtg_config_t::BOTH || 
-     _vtg_config.target_select == vtg_config_t::INV) {
+  if (_vtg_config.target_select == vtg_config_t::BOTH ||
+      _vtg_config.target_select == vtg_config_t::INV) {
     // check if there are really invariants:
     bool invariantExists = false;
-    if ( IN("global invariants", rf_cond) ) {
-      auto & inv = rf_cond["global invariants"];
-      if( inv.is_array() and inv.size() != 0 )
+    if (IN("global invariants", rf_cond)) {
+      auto& inv = rf_cond["global invariants"];
+      if (inv.is_array() and inv.size() != 0)
         invariantExists = true;
-      else if(inv.is_string() and inv.get<std::string>() != "") 
+      else if (inv.is_string() and inv.get<std::string>() != "")
         invariantExists = true;
     }
 
     if (_backend == backend_selector::COSA and invariantExists) {
-      auto target =
-          VlgSglTgtGen_Cosa(os_portable_append_dir(_output_path, "invariants"),
-                            NULL, // invariant
-                            _ila_ptr, _cfg, rf_vmap, rf_cond, vlg_info_ptr,
-                            _vlg_mod_inst_name, _ila_mod_inst_name, "wrapper",
-                            _vlg_impl_srcs, _vlg_impl_include_path, _vtg_config,
-                            _backend);
+      auto target = VlgSglTgtGen_Cosa(
+          os_portable_append_dir(_output_path, "invariants"),
+          NULL, // invariant
+          _ila_ptr, _cfg, rf_vmap, rf_cond, vlg_info_ptr, _vlg_mod_inst_name,
+          _ila_mod_inst_name, "wrapper", _vlg_impl_srcs, _vlg_impl_include_path,
+          _vtg_config, _backend);
       target.ConstructWrapper();
-      target.ExportAll("wrapper.v", "ila.v", "run.sh", "problem.txt", "absmem.v");
+      target.ExportAll("wrapper.v", "ila.v", "run.sh", "problem.txt",
+                       "absmem.v");
     } else if (_backend == backend_selector::JASPERGOLD and invariantExists) {
-      auto target =
-          VlgSglTgtGen_Jasper(os_portable_append_dir(_output_path, "invariants"),
-                              NULL, // invariant
-                              _ila_ptr, _cfg, rf_vmap, rf_cond, vlg_info_ptr,
-                              _vlg_mod_inst_name, _ila_mod_inst_name, "wrapper",
-                              _vlg_impl_srcs, _vlg_impl_include_path, _vtg_config,
-                              _backend);
+      auto target = VlgSglTgtGen_Jasper(
+          os_portable_append_dir(_output_path, "invariants"),
+          NULL, // invariant
+          _ila_ptr, _cfg, rf_vmap, rf_cond, vlg_info_ptr, _vlg_mod_inst_name,
+          _ila_mod_inst_name, "wrapper", _vlg_impl_srcs, _vlg_impl_include_path,
+          _vtg_config, _backend);
       target.ConstructWrapper();
       target.ExportAll("wrapper.v", "ila.v", "run.sh", "do.tcl", "absmem.v");
     } // end if backend...
-  } // end if if(_vtg_config.target_select == BOTH || _vtg_config.target_select == INV)
+  } // end if if(_vtg_config.target_select == BOTH || _vtg_config.target_select
+    // == INV)
 
   // now let's deal w. instructions in rf_cond
-  if ( _vtg_config.target_select == vtg_config_t::BOTH || 
-       _vtg_config.target_select == vtg_config_t::INST ) {
+  if (_vtg_config.target_select == vtg_config_t::BOTH ||
+      _vtg_config.target_select == vtg_config_t::INST) {
     auto& instrs = rf_cond["instructions"];
     for (auto&& instr : instrs) {
       std::string iname = instr["instruction"].get<std::string>();
-      if( _vtg_config.CheckThisInstructionOnly != "" and 
-          _vtg_config.CheckThisInstructionOnly != iname )
+      if (_vtg_config.CheckThisInstructionOnly != "" and
+          _vtg_config.CheckThisInstructionOnly != iname)
         continue; // skip, not checking this instruction
-      
+
       auto instr_ptr = _ila_ptr->instr(iname);
       if (instr_ptr == nullptr) {
         ILA_ERROR << "ila:" << _ila_ptr->name().str()
-                  << " has no instruction:" << instr_ptr;
+                  << " has no instruction:" << iname;
         continue;
       }
       if (_backend == backend_selector::COSA) {
-        auto target =
-            VlgSglTgtGen_Cosa(os_portable_append_dir(_output_path, iname),
-                              instr_ptr, // instruction
-                              _ila_ptr, _cfg, rf_vmap, rf_cond, vlg_info_ptr,
-                              _vlg_mod_inst_name, _ila_mod_inst_name, "wrapper",
-                              _vlg_impl_srcs, _vlg_impl_include_path, _vtg_config,
-                              _backend);
+        auto target = VlgSglTgtGen_Cosa(
+            os_portable_append_dir(_output_path, iname),
+            instr_ptr, // instruction
+            _ila_ptr, _cfg, rf_vmap, rf_cond, vlg_info_ptr, _vlg_mod_inst_name,
+            _ila_mod_inst_name, "wrapper", _vlg_impl_srcs,
+            _vlg_impl_include_path, _vtg_config, _backend);
         target.ConstructWrapper();
         target.ExportAll("wrapper.v", "ila.v", "run.sh", "problem.txt",
                          "absmem.v");
       } else if (_backend == backend_selector::JASPERGOLD) {
-        auto target =
-            VlgSglTgtGen_Jasper(os_portable_append_dir(_output_path, iname),
-                                instr_ptr, // instruction
-                                _ila_ptr, _cfg, rf_vmap, rf_cond, vlg_info_ptr,
-                                _vlg_mod_inst_name, _ila_mod_inst_name, "wrapper",
-                                _vlg_impl_srcs, _vlg_impl_include_path, _vtg_config,
-                                _backend);
+        auto target = VlgSglTgtGen_Jasper(
+            os_portable_append_dir(_output_path, iname),
+            instr_ptr, // instruction
+            _ila_ptr, _cfg, rf_vmap, rf_cond, vlg_info_ptr, _vlg_mod_inst_name,
+            _ila_mod_inst_name, "wrapper", _vlg_impl_srcs,
+            _vlg_impl_include_path, _vtg_config, _backend);
         target.ConstructWrapper();
         target.ExportAll("wrapper.v", "ila.v", "run.sh", "do.tcl", "absmem.v");
       }
     } // end for instrs
-  } // end if target select == ...
+  }   // end if target select == ...
 
   if (vlg_info_ptr) {
     delete vlg_info_ptr;

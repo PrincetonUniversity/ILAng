@@ -4,3 +4,7 @@ verify/*
 disprove/*
 vmem/invariants
 vmem/SWAP
+vmem/Rd
+undetf/INST
+undetf/INST2
+undetf/INST3

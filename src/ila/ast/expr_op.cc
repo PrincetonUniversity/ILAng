@@ -430,10 +430,10 @@ z3::expr ExprOpSExt::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
 }
 
 // ------------------------- Class ExprOpAppFunc ---------------------------- //
-ExprOpAppFunc::ExprOpAppFunc(const FuncPtr f, const ExprPtrVec& args)
-    : ExprOp(args) {
-  ILA_ASSERT(f->CheckSort(args));
-  set_sort(f->out());
+ExprOpAppFunc::ExprOpAppFunc(const FuncPtr _f, const ExprPtrVec& args)
+    : ExprOp(args), f(_f) {
+  ILA_ASSERT(_f->CheckSort(args));
+  set_sort(_f->out());
 }
 
 z3::expr ExprOpAppFunc::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,

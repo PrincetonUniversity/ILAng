@@ -8,21 +8,24 @@ AES::AES()
     : // construct the model
       model("AES"),
       // I/O interface: this is where the commands come from.
-      cmd(model.NewBvInput("cmd", 2)), cmdaddr(model.NewBvInput("cmdaddr", 16)),
-      cmddata(model.NewBvInput("cmddata", 8)),
+      cmd    (model.NewBvInput("cmd"    , 2 )), 
+      cmdaddr(model.NewBvInput("cmdaddr", 16)),
+      cmddata(model.NewBvInput("cmddata", 8 )),
       // internal arch state.
-      status(model.NewBvState("aes_status", 2)),
-      address(model.NewBvState("aes_address", 16)),
-      length(model.NewBvState("aes_length", 16)),
+      address(model.NewBvState("aes_address", 16 )),
+      length (model.NewBvState("aes_length" , 16 )),
+      key    (model.NewBvState("aes_key"    , 128)),
       counter(model.NewBvState("aes_counter", 128)),
-      key(model.NewBvState("aes_key", 128)),
+      status (model.NewBvState("aes_status" , 2  )),
       // the memory: shared state
-      xram(model.NewMemState("XRAM", 16, 8)),
+      xram   (model.NewMemState("XRAM"      , 16, 8)),
       // The encryption function :
       // 128b plaintext x 128b key -> 128b ciphertext
       // FuncRef(name, range, domain1, domain2 )
-      aes128(FuncRef("aes128", SortRef::BV(128), SortRef::BV(128),
-                     SortRef::BV(128))),
+      aes128(FuncRef("aes128",               // define a function
+                          SortRef::BV(128),  // range: 128-bit
+                          SortRef::BV(128),  // domain: 128-bit
+                          SortRef::BV(128))),//      by 128-bit
       // the output
       outdata(model.NewBvState("outdata", 8)) {
 
@@ -39,20 +42,39 @@ AES::AES()
   { // WRITE_ADDRESS
     auto instr = model.NewInstr("WRITE_ADDRESS");
 
-    instr.SetDecode((cmd == CMD_WRITE) & (cmdaddr >= AES_ADDR) &
-                    (cmdaddr < AES_ADDR + 2));
+    instr.SetDecode( (cmd == CMD_WRITE) & (cmdaddr >= AES_ADDR) & (cmdaddr < AES_ADDR + 2) );
 
     instr.SetUpdate(address,
-                    Ite(is_status_idle,
-                        slice_update(address, cmdaddr, cmddata, AES_ADDR, 2, 8),
-                        // update part of address, based on the cmdaddr
-                        address));
+                    Ite(is_status_idle, // Check if it is idle
+                        Concat(         // if idle, update one slice of the register at a time
+                          Ite(cmdaddr == AES_ADDR + 1, cmddata, address(15,8) ), // the upper 8-bits
+                          Ite(cmdaddr == AES_ADDR    , cmddata, address( 7,0) )  // the lower 8-bits
+                        ),
+                        address        // if not idle, no change
+                      )); // update a slice of the register. Slice selected by the cmd address
 
-    // guarantee no change
-    instr.SetUpdate(length, length);
-    instr.SetUpdate(key, key);
+
+    // guarantees no change
+    // if not specified, it means it allows any change
+    instr.SetUpdate(length , length );
+    instr.SetUpdate(key    , key    );
     instr.SetUpdate(counter, counter);
+
   }
+
+  // in the above example, you can use :
+  /*  
+    instr.SetUpdate(address,
+                    Ite(is_status_idle, // update only when idle
+                        slice_update(address, cmdaddr, cmddata, AES_ADDR,   2,    8),
+                        //    target, slice-select, new-value, base-addr, #slice, slice-width
+                        //    - Update part (slice) of `target`, with `new-value`
+                        //      where `slice-select` choose the slice (after subtracted by 
+                        //      `base-addr`) 
+                        //    - `#slice`: number of slices in `target`
+                        //    - `slice-width`: the width of each slice
+                        address));
+  */
 
   { // START_ENCRYPT
     // See child-ILA for details
@@ -88,8 +110,9 @@ AES::AES()
     instr.SetUpdate(key, key);
     instr.SetUpdate(address, address);
     instr.SetUpdate(length, length);
-    instr.SetUpdate(status, status);
-    instr.SetUpdate(counter, counter);
+    // but not the following two:
+    //instr.SetUpdate(status, status);
+    //instr.SetUpdate(counter, counter);
   }
 
   { // READ_ADDRESS
@@ -104,8 +127,9 @@ AES::AES()
     instr.SetUpdate(key, key);
     instr.SetUpdate(address, address);
     instr.SetUpdate(length, length);
-    instr.SetUpdate(status, status);
-    instr.SetUpdate(counter, counter);
+    // but not the following two:
+    // instr.SetUpdate(status, status);
+    // instr.SetUpdate(counter, counter);
   }
 
   { // READ_KEY
@@ -120,8 +144,10 @@ AES::AES()
     instr.SetUpdate(key, key);
     instr.SetUpdate(address, address);
     instr.SetUpdate(length, length);
-    instr.SetUpdate(status, status);
-    instr.SetUpdate(counter, counter);
+
+    // but not the following two:
+    // instr.SetUpdate(status, status);
+    // instr.SetUpdate(counter, counter);
   }
 
   { // READ_COUNTER
@@ -136,8 +162,6 @@ AES::AES()
     instr.SetUpdate(key, key);
     instr.SetUpdate(address, address);
     instr.SetUpdate(length, length);
-    instr.SetUpdate(status, status);
-    instr.SetUpdate(counter, counter);
   }
 
   { // GET_STATUS
@@ -152,8 +176,6 @@ AES::AES()
     instr.SetUpdate(key, key);
     instr.SetUpdate(address, address);
     instr.SetUpdate(length, length);
-    instr.SetUpdate(status, status);
-    instr.SetUpdate(counter, counter);
   }
 
   { // WRITE_LENGTH
@@ -194,8 +216,8 @@ AES::AES()
     // but not for status
   }
 
-  { // WRITE_KEY
-    auto instr = model.NewInstr("WRITE_CNT");
+  { // WRITE_COUNTER
+    auto instr = model.NewInstr("WRITE_COUNTER");
 
     instr.SetDecode((cmd == CMD_WRITE) & (cmdaddr >= AES_CNT) &
                     (cmdaddr < AES_CNT + 16));

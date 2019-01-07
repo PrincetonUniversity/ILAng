@@ -770,4 +770,3 @@ void SynthAbsConverter::CnvtNodeToExprMemOp(const ilasynth::Node* n) {
 }
 
 } // namespace ilang
-

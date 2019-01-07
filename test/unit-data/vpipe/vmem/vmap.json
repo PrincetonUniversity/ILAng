@@ -23,6 +23,5 @@
      "mem_b_wen":"**MEM**memb.wen"
   },
 
-  "mapping control" : ["__MEM_mema_0_ren == (m1.state == 0)", "__MEM_mema_0_ren == (m1.state == 0)"],
-  "functions":{ "f1":["condres","condarg0", "condarg1"] }
+  "mapping control" : ["__MEM_mema_0_ren == ((m1.state == 1)?1'b1:1'b0)", "__MEM_memb_0_ren == ((m1.state == 1)?1'b1:1'b0)"]
 }

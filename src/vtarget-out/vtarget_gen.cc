@@ -15,7 +15,7 @@ VerilogVerificationTargetGenerator::VerilogVerificationTargetGenerator(
     const std::string& refinement_variable_mapping,
     const std::string& refinement_conditions, const std::string& output_path,
     const InstrLvlAbsPtr& ila_ptr, backend_selector backend,
-    const vtg_config_t & vtg_config,
+    const vtg_config_t& vtg_config,
     const VerilogGenerator::VlgGenConfig& config)
     : _generator(new VlgVerifTgtGen(
           implementation_include_path, implementation_srcs,
