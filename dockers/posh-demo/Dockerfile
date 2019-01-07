@@ -80,6 +80,25 @@ RUN cd $COSA_DIR && \
 RUN cd $COSA_DIR && \
     $BUILD_PREF/bin/pip3 install -e .
 
+# Boolector
+ENV BTOR_DIR $BUILD_ROOT/Boolector
+ADD https://api.github.com/repos/Boolector/boolector/git/refs/heads/master btor_version.json
+RUN git clone --depth=1 https://github.com/Boolector/boolector.git $BTOR_DIR
+RUN $BUILD_PREF/bin/pip3 install cython
+RUN cd $BTOR_DIR && \
+    ./contrib/setup-lingeling.sh && \
+    ./contrib/setup-cadical.sh && \
+    ./contrib/setup-btor2tools.sh && \
+    ./configure.sh --python --py3 --prefix $BUILD_PREF
+RUN cd $BTOR_DIR/build && \
+    make -j$(nproc) && \
+    make install
+RUN export PYTHONPATH=$BUILD_PREF/lib:$PYTHONPATH
+
+# PySMT
+RUN wget https://raw.githubusercontent.com/makaimann/pysmt/fast/pysmt/solvers/btor.py
+
+
 #
 # Deployment
 #
@@ -87,8 +106,11 @@ FROM ubuntu:bionic
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     bison \
+    build-essential \
     flex \
     libgomp1 \
+    python3 \
+    python3-distutils \
     tcl-dev \
     vim \
     && rm -rf /var/lib/apt/lists/*
@@ -108,6 +130,7 @@ WORKDIR $USER_HOME
 RUN echo "source $BUILD_PREF/bin/activate" >> $USER_HOME/.bashrc
 RUN echo "export PYTHONPATH=$BUILD_ROOT/CoSA/:\$PYTHONPATH" >> $USER_HOME/.bashrc
 RUN echo "cd ~" >> $USER_HOME/.bashrc
+RUN echo "echo \"run 'pysmt-install --btor' to set up boolector\"" >> $USER_HOME/.bashrc
 
 # configure files
 COPY --from=builder --chown=demo $BUILD_PREF $BUILD_PREF
