@@ -97,7 +97,7 @@ RUN export PYTHONPATH=$BUILD_PREF/lib:$PYTHONPATH
 
 # PySMT
 RUN wget https://raw.githubusercontent.com/makaimann/pysmt/fast/pysmt/solvers/btor.py
-
+RUN cp btor.py $BUILD_PREF/lib/python3.6/site-packages/pysmt/solvers/btor.py
 
 #
 # Deployment
