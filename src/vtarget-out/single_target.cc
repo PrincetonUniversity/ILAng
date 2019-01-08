@@ -18,7 +18,6 @@ namespace ilang {
 // ------------------------------ CONFIGURATIONS
 // --------------------------------- //
 
-#define MAX_CYCLE_CTR 127
 #define VLG_TRUE "`true"
 #define VLG_FALSE "`false"
 #define ONLY_INITIAL_INV true
@@ -38,7 +37,7 @@ VlgSglTgtGen::VlgSglTgtGen(
     const std::string& ila_mod_inst_name, const std::string& wrapper_name,
     const std::vector<std::string>& implementation_srcs,
     const std::vector<std::string>& implementation_include_path,
-    backend_selector backend)
+    const vtg_config_t& vtg_config, backend_selector backend)
     : _output_path(output_path), _instr_ptr(instr_ptr), _host(ila_ptr),
       _vlg_mod_inst_name(vlg_mod_inst_name),
       _ila_mod_inst_name(ila_mod_inst_name),
@@ -48,12 +47,14 @@ VlgSglTgtGen::VlgSglTgtGen(
                       true,   // except overwriting these: external memory
                       VerilogGeneratorBase::VlgGenConfig::funcOption::
                           External, // function
-                      false),       // no start signal
+                      false,        // no start signal
+                      false),       // no rand init
                   wrapper_name),
       // use given, except for core options
       vlg_ila(VerilogGeneratorBase::VlgGenConfig(
           config, true,
-          VerilogGeneratorBase::VlgGenConfig::funcOption::External, true)),
+          VerilogGeneratorBase::VlgGenConfig::funcOption::External, true,
+          true)), // rand init
       // interface mapping directive
       _idr(instr_ptr == nullptr ? true
                                 : false), // if nullptr, verify inv., reset it
@@ -75,9 +76,13 @@ VlgSglTgtGen::VlgSglTgtGen(
       has_flush(false), ready_type(ready_type_t::NA), mapping_counter(0),
       property_counter(0), top_mod_name(wrapper_name),
       vlg_design_files(implementation_srcs),
-      vlg_include_files_path(implementation_include_path), _backend(backend),
-      _bad_state(false) {
+      vlg_include_files_path(implementation_include_path),
+      _vtg_config(vtg_config), _backend(backend), _bad_state(false) {
+
   ILA_NOT_NULL(_host);
+
+  // reset absmem's counter
+  VlgAbsMem::ClearAbsMemRecord();
 
   if (target_type == target_type_t::INSTRUCTIONS) {
 
@@ -196,6 +201,8 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
     func_port_skip_set.insert(func_app.result.first);
     port_connected.insert(func_app.result.first);
     /// new reg : put in when __START__
+    if (not IN(func_app.func_name, func_cnt))
+      func_cnt.insert({func_app.func_name, 0});
     unsigned func_no = func_cnt[func_app.func_name]++;
 
     std::string func_reg_w =
@@ -204,7 +211,10 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
         func_app.func_name + "_" + IntToStr(func_no) + "_result_reg";
     vlg_wrapper.add_reg(func_reg, func_app.result.second);
     vlg_wrapper.add_wire(func_reg_w, func_app.result.second, true);
-    add_reg_cassign_assumption("__START__", func_reg, func_reg_w,
+    // add as a module input, also
+    vlg_wrapper.add_input(func_reg_w, func_app.result.second);
+
+    add_reg_cassign_assumption(func_reg, func_reg_w, "__START__",
                                "func_result");
     // vlg_wrapper.add_always_stmt( "if( __START__ ) " + func_reg + " <= " +
     // func_reg_w + ";" );
@@ -222,7 +232,7 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
                              "_arg" + IntToStr(argNo) + "_reg";
       vlg_wrapper.add_reg(func_arg, arg.second);
       vlg_wrapper.add_wire(func_arg_w, arg.second, true);
-      add_reg_cassign_assumption("__START__", func_arg, func_arg_w, "func_arg");
+      add_reg_cassign_assumption(func_arg, func_arg_w, "__START__", "func_arg");
       // vlg_wrapper.add_always_stmt( "if( __START__ ) " + func_arg + " <= " +
       // func_arg_w + ";" );
 
@@ -243,12 +253,14 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
     else if (w.first ==
              vlg_ila.rstName) // .rst(rst) -- this does not need to be changed
       retStr += "   ." + vlg_ila.rstName + "(" + vlg_wrapper.rstName +
-                "),\n";                    // no init anyway!
-    else if (w.first == vlg_ila.startName) // .__START__(__START__)
-      retStr +=
-          "   ." + vlg_ila.startName + "(" + vlg_wrapper.startName + "),\n";
-    else
+                "),\n";                      // no init anyway!
+    else if (w.first == vlg_ila.startName) { // .__START__(__START__)
+      retStr += "   ." + vlg_ila.startName + "(" + "__START__" + "),\n";
+    } else {
+      ILA_ERROR_IF(not IN("__ILA_I_" + w.first, vlg_wrapper.wires))
+          << "__ILA_I_" + w.first << " has not been defined yet";
       retStr += "   ." + w.first + "(__ILA_I_" + w.first + "),\n";
+    }
   }
 
   // TODO:: FUnction here !
@@ -264,8 +276,13 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
                 "),\n";
     else if (w.first == vlg_ila.validName)
       retStr += "   ." + vlg_ila.validName + "(" + vlg_ila.validName + "),\n";
-    else
-      retStr += "   ." + w.first + "(__ILA_I_" + w.first + "),\n";
+    else {
+      // ILA_ERROR_IF( not IN ("__ILA_I_" + w.first , vlg_wrapper.wires) ) <<
+      // "__ILA_I_" + w.first << " has not been defined yet";
+      ILA_ERROR << "Does not know how to connect:" << w.first << ", ignored.";
+      // std::cout<< w.first<<std::endl;
+      retStr += "   ." + w.first + "(),\n"; // __ILA_I_" + w.first + "
+    }
   }
 
   // handle memory io - use internal storage for this purpose
@@ -317,7 +334,7 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
       auto wew = "__IMEM_" + ila_name + "_" + IntToStr(no) + "_wen";
 
       vlg_wrapper.add_wire(wdw, dw, true);
-      vlg_wrapper.add_wire(wdw, aw, true);
+      vlg_wrapper.add_wire(waw, aw, true);
       vlg_wrapper.add_wire(wew, 1, true);
 
       retStr += "   ." + port.wdata + "(" + wdw + "),\n";
@@ -335,6 +352,14 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
   // handle state-output
   std::string sep;
   for (auto&& r : vlg_ila.regs) {
+    if (not IN("__ILA_SO_" + r.first, vlg_wrapper.wires)) {
+      ILA_WARN << "__ILA_SO_" + r.first << " will be ignored";
+
+      retStr += sep + "   ." + r.first + "()"; // __ILA_SO_" + r.first + "
+      port_connected.insert(r.first);
+      sep = ",\n";
+      continue;
+    } // else
     retStr += sep + "   ." + r.first + "(__ILA_SO_" + r.first + ")";
     sep = ",\n";
     // reg out will be connected
@@ -382,7 +407,7 @@ void VlgSglTgtGen::ConstructWrapper_add_cycle_count_moniter() {
       instr["ready bound"].is_number_integer())
     max_bound = instr["ready bound"].get<int>();
   else
-    max_bound = MAX_CYCLE_CTR;
+    max_bound = _vtg_config.MaxBound;
 
   cnt_width = (int)std::ceil(std::log2(max_bound + 10));
   vlg_wrapper.add_reg("__CYCLE_CNT__",
@@ -391,14 +416,14 @@ void VlgSglTgtGen::ConstructWrapper_add_cycle_count_moniter() {
   vlg_wrapper.add_stmt("if (rst) __CYCLE_CNT__ <= 0;");
   vlg_wrapper.add_stmt(
       "else if ( ( __START__ || __STARTED__ ) &&  __CYCLE_CNT__ < " +
-      IntToStr(MAX_CYCLE_CTR + 5) + ") __CYCLE_CNT__ <= __CYCLE_CNT__ + 1;");
+      IntToStr(max_bound + 5) + ") __CYCLE_CNT__ <= __CYCLE_CNT__ + 1;");
   vlg_wrapper.add_stmt("end");
 
   vlg_wrapper.add_reg("__START__", 1);
   vlg_wrapper.add_stmt("always @(posedge clk) begin");
   vlg_wrapper.add_stmt("if (rst) __START__ <= 0;");
-  vlg_wrapper.add_stmt("else if (__ISSUE__) __START__ <= 1;");
   vlg_wrapper.add_stmt("else if (__START__ || __STARTED__) __START__ <= 0;");
+  vlg_wrapper.add_stmt("else if (__ISSUE__) __START__ <= 1;");
   vlg_wrapper.add_stmt("end");
 
   vlg_wrapper.add_reg("__STARTED__", 1);
@@ -429,8 +454,8 @@ void VlgSglTgtGen::ConstructWrapper_add_cycle_count_moniter() {
 } // ConstructWrapper_add_cycle_count_moniter
 
 void VlgSglTgtGen::ConstructWrapper_generate_header() {
-  vlg_wrapper.add_preheader("\n`define true  1\n");
-  vlg_wrapper.add_preheader("\n`define false 0\n");
+  vlg_wrapper.add_preheader("\n`define true  1'b1\n");
+  vlg_wrapper.add_preheader("\n`define false 1'b0\n");
 } // ConstructWrapper_generate_header
 
 // for special memory, we don't need to do anything?
@@ -450,14 +475,27 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assumptions() {
                 << " is not a state of the ILA:" << _host->name().str();
       continue;
     }
+    if (_vtg_config.OnlyAssumeUpdatedVarsEq and
+        _instr_ptr->update(sname) == nullptr) {
+      ILA_DLOG("VtargetGen") << "Skip assume EQ on variable:" << sname
+                             << " for instruction:" << _instr_ptr->name().str();
+      continue;
+    }
+
     ila_state_names.erase(sname);
-    // ISSUE ==> vmap
-    ILA_INFO << sname;
-    add_an_assumption("~ __START__ || (" +
+    // __START__ ==> vmap
+    ILA_DLOG("VtargetGen.ConstructWrapper_add_varmap_assumptions") << sname;
+
+    std::string problem_name = "variable_map_assume_";
+    if (_vtg_config.PerVariableProblemCosa)
+      problem_name += sname;
+
+    add_an_assumption("(~ __START__ )|| (" +
                           GetStateVarMapExpr(sname, i.value()) + ")",
-                      "variable_map_assume");
+                      problem_name);
   }
-  ILA_INFO << "5.2.2";
+  ILA_DLOG("VtargetGen") << "STEP:"
+                         << "5.2.2";
   // check for unmapped states
   if (not ila_state_names.empty()) {
     ILA_ERROR << "Refinement relation: missing state mapping for the following "
@@ -475,6 +513,8 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assertions() {
          "instructions.";
   std::set<std::string> ila_state_names;
 
+  // put the ila_states to the set, so we can know if state mapping
+  // refers to some wrong state names
   for (size_t state_idx = 0; state_idx < _host->state_num(); ++state_idx)
     ila_state_names.insert(_host->state(state_idx)->name().str());
 
@@ -485,13 +525,33 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assertions() {
                 << " is not a state of the ILA:" << _host->name().str();
       continue;
     }
+    if (_vtg_config.OnlyCheckInstUpdatedVars and
+        _instr_ptr->update(sname) == nullptr) {
+
+      // do not skip memory, though we don't use the eq signal it returns
+      if (_host->state(sname)->is_mem())
+        GetStateVarMapExpr(sname, i.value(), true);
+
+      ILA_DLOG("VtargetGen") << "Skip checking variable:" << sname
+                             << " for instruction:" << _instr_ptr->name().str();
+      continue;
+    }
+
     ila_state_names.erase(sname);
     // ISSUE ==> vmap
     std::string precondition =
-        has_flush ? "~ __ENDFLUSH__ || " : "~ __IEND__ || ";
-    add_an_assertion(precondition + "(" + GetStateVarMapExpr(sname, i.value()) +
-                         ")",
-                     "variable_map_assert");
+        has_flush ? "(~ __ENDFLUSH__) || " : "(~ __IEND__) || ";
+
+    std::string problem_name = "variable_map_assert_";
+    if (_vtg_config.PerVariableProblemCosa)
+      problem_name += sname;
+
+    // 'true' below means it is for assertions (only different for mapping
+    // memory) if assumption, nothing to be done if assertions, ask _idr to
+    // connect and get the eq name
+    add_an_assertion(precondition + "(" +
+                         GetStateVarMapExpr(sname, i.value(), true) + ")",
+                     problem_name);
   }
 } // ConstructWrapper_add_varmap_assertions
 
@@ -510,7 +570,7 @@ void VlgSglTgtGen::ConstructWrapper_add_inv_assumptions() {
     auto new_cond = ReplExpr(cond.get<std::string>(), true);
     std::string precondition;
     if (ONLY_INITIAL_INV)
-      precondition = has_flush ? "~ __RESETED__ || " : "~ __START__ || ";
+      precondition = has_flush ? "(~ __RESETED__) || " : "(~ __START__) || ";
     else
       precondition = ""; // always assme no matter what
 
@@ -553,6 +613,32 @@ void VlgSglTgtGen::ConstructWrapper_add_additional_mapping_control() {
   }
 } // ConstructWrapper_add_additional_mapping_control
 
+//  NON-FLUSH case
+//  1 RESET
+//  2 ISSUE = true      RESETED (forever)
+//  3           START                     ---> assume varmap  ---> assume inv
+//  4                   STARTED
+//  5                   STARTED
+//  ...                   ...
+//  6           IEND                      ---> check varmap
+//  7                     ENDED
+
+//  FLUSH case
+//  1 RESET
+//  2             RESETED                   ---> assume flush & preflush cond
+//  ...                                     ---> assume flush & preflush cond
+//  n ISSUE = pre-flush end                 ---> assume flush & preflush cond
+//  n+1           START                     ---> assume varmap  ---> assume inv
+//  (maybe globally?) n+2                   STARTED n+3 STARTED
+//  ...                   ... (forever)
+//  m             IEND
+//  m+1                    ENDED            ---> assume flush & postflush cond
+//  ...                    ENDED (forever)  ---> assume flush & postflush cond
+//  l             ENDFLUSH = post-flush end ---> assume flush & postflush cond
+//  ---> assert varmap l+1                    FLUSHENDED       ---> assume flush
+//  & postflush cond
+//
+
 void VlgSglTgtGen::ConstructWrapper_add_condition_signals() {
   // TODO
   // remember to generate
@@ -571,6 +657,7 @@ void VlgSglTgtGen::ConstructWrapper_add_condition_signals() {
 
   // __IEND__
   std::string iend_cond = VLG_FALSE;
+  // bool no_started_signal = false;
   if (ready_type & ready_type_t::READY_SIGNAL) {
     if (instr["ready signal"].is_string()) {
       iend_cond += "|| (" +
@@ -597,21 +684,52 @@ void VlgSglTgtGen::ConstructWrapper_add_condition_signals() {
         iend_cond += "|| ( __CYCLE_CNT__ == " +
                      ReplExpr(IntToStr(cnt_width) + "'d" + IntToStr(bound)) +
                      ")";
+      } else if (bound == 0) {
+        // iend_cond += "|| (__START__)";
+        // no_started_signal = true; // please don't use && STARTED
+        ILA_ERROR << "Does not support bound : 0, please use a buffer to hold "
+                     "the signal.";
       } else
         ILA_ERROR << "ready bound field of instruction: "
-                  << _instr_ptr->name().str() << " has to a positive integer";
+                  << _instr_ptr->name().str()
+                  << " has to a non negative integer";
     } else
       ILA_ERROR << "ready bound field of instruction: "
-                << _instr_ptr->name().str() << " has to a positive integer";
+                << _instr_ptr->name().str() << " has to a non negative integer";
   } // end of ready bound/condition
-  vlg_wrapper.add_wire("__IEND__", 1, true);
-  add_wire_assign_assumption("__IEND__", "(" + iend_cond + ") && __STARTED__",
-                             "IEND");
 
-  add_an_assumption("~ __ISSUE__ || (" + vlg_ila.decodeNames[0] + ")",
-                    "issue_decode"); // __ISSUE__ |=> decode
-  add_an_assumption("~ __ISSUE__ || (" + vlg_ila.validName + ")",
-                    "issue_valid"); // __ISSUE__ |=> decode
+  // max bound for max checking range
+  std::string max_bound_constr;
+  if (IN("max bound", instr)) {
+    if (instr["max bound"].is_number_integer()) {
+      max_bound_constr =
+          "&& ( __CYCLE_CNT__ <= " + IntToStr(instr["max bound"].get<int>()) +
+          ")";
+    }
+  }
+
+  vlg_wrapper.add_wire("__IEND__", 1, true);
+  // if(no_started_signal)
+  //  add_wire_assign_assumption("__IEND__", "(" + iend_cond + ")",
+  //                            "IEND");
+  // else
+  auto end_no_recur = has_flush ? "(~ __FLUSHENDED__ )" : "(~ __ENDED__)";
+
+  add_wire_assign_assumption("__IEND__",
+                             "(" + iend_cond + ") && __STARTED__ && " +
+                                 end_no_recur + max_bound_constr,
+                             "IEND");
+  // handle start decode
+  ILA_ERROR_IF(IN("start decode", instr))
+      << "'start decode' is replaced by start condition!";
+  if (IN("start condition", instr)) {
+    handle_start_condition(instr["start condition"]);
+  } else {
+    add_an_assumption("(~ __START__) || (" + vlg_ila.decodeNames[0] + ")",
+                      "issue_decode"); // __ISSUE__ |=> decode
+    add_an_assumption("(~ __START__) || (" + vlg_ila.validName + ")",
+                      "issue_valid"); // __ISSUE__ |=> decode
+  }
 
   if (has_flush) {
     ILA_ASSERT(IN("pre-flush end", instr) and
@@ -639,9 +757,17 @@ void VlgSglTgtGen::ConstructWrapper_add_condition_signals() {
     vlg_wrapper.add_wire("__ENDFLUSH__", 1, true);
     add_wire_assign_assumption("__ENDFLUSH__", finish_cond, "ENDFLUSH");
 
+    vlg_wrapper.add_reg("__FLUSHENDED__", 1);
+    vlg_wrapper.add_stmt(
+        "always @(posedge clk) begin\n"
+        "if(rst) __FLUSHENDED__ <= 0;\n"
+        "else if( __ENDFLUSH__ && __ENDED__ ) __FLUSHENDED__ <= 1;\n end");
+
     // enforcing flush constraints
-    std::string flush_enforcement = VLG_TRUE " == 1";
-    if (instr["flush constraints"].is_string()) {
+    std::string flush_enforcement = VLG_TRUE;
+    if (instr["flush constraints"].is_null()) {
+    } // do nothing. we are good
+    else if (instr["flush constraints"].is_string()) {
       flush_enforcement +=
           "&& (" + ReplExpr(instr["flush constraints"].get<std::string>()) +
           ")";
@@ -658,11 +784,13 @@ void VlgSglTgtGen::ConstructWrapper_add_condition_signals() {
                 << _instr_ptr->name().str()
                 << " must be string or array of string.";
 
+    // TODO: preflush and postflush
+
     add_an_assumption(
-        "~ ( __RESETED__ && ~ ( __START__  || __STARTED__ ) ) || (" +
+        "(~ ( __RESETED__ && ~ ( __START__  || __STARTED__ ) ) ) || (" +
             flush_enforcement + ")",
         "flush_enforce_pre");
-    add_an_assumption("~ ( __ENDED__ ) || (" + flush_enforcement + ")",
+    add_an_assumption("(~ ( __ENDED__ )) || (" + flush_enforcement + ")",
                       "flush_enforce_post");
 
   } else {
@@ -670,6 +798,29 @@ void VlgSglTgtGen::ConstructWrapper_add_condition_signals() {
     add_wire_assign_assumption("__ISSUE__", "1", "ISSUE"); // issue ASAP
     // start decode -- issue enforce (e.g. valid, input)
   } // end of no flush
+}
+
+void VlgSglTgtGen::ConstructWrapper_register_extra_io_wire() {
+  for (auto&& refered_vlg_item : _all_referred_vlg_names) {
+
+    auto idx = refered_vlg_item.first.find("[");
+    auto removed_range_name = refered_vlg_item.first.substr(0, idx);
+    auto vlg_sig_info = vlg_info_ptr->get_signal(removed_range_name);
+
+    auto vname = ReplaceAll(
+        ReplaceAll(ReplaceAll(refered_vlg_item.first, ".", "__DOT__"), "[",
+                   "_"),
+        "]", "_");
+    // + ReplaceAll(ReplaceAll(refered_vlg_item.second.range, "[","_"),"]","_");
+    // // name for verilog
+    auto width = vlg_sig_info.get_width();
+
+    vlg_wrapper.add_wire(vname, width, 1); // keep
+    vlg_wrapper.add_output(vname, width);  // add as output of the wrapper
+    _idr.RegisterExtraWire(vname, vname);
+    // these will be connected to the verilog module, so register as extra wires
+    // so, later they will be connected
+  }
 }
 
 void VlgSglTgtGen::ConstructWrapper_add_module_instantiation() {
@@ -683,7 +834,8 @@ void VlgSglTgtGen::ConstructWrapper_add_module_instantiation() {
   std::string verilog_inst_str =
       vlg_info_ptr->get_top_module_name() + " " + _vlg_mod_inst_name + "(\n";
 
-  _idr.VlgAddTopInteface(vlg_wrapper);
+  _idr.VlgAddTopInteface(
+      vlg_wrapper); // put the extra wire there, and it should add wire also
   verilog_inst_str += _idr.GetVlgModInstString(vlg_wrapper);
   verilog_inst_str += ");";
 
@@ -691,10 +843,107 @@ void VlgSglTgtGen::ConstructWrapper_add_module_instantiation() {
 }
 
 void VlgSglTgtGen::ConstructWrapper_add_helper_memory() {
-  // TODO ..
+  auto endCond =
+      has_flush ? "__ENDFLUSH__ || __FLUSHENDED__" : "__IEND__ || __ENDED__";
+
+  auto stmt = _idr.GetAbsMemInstString(vlg_wrapper, endCond);
+  vlg_wrapper.add_stmt(stmt);
+
+  // check if we need to insert any assumptions
+  auto inserter = [this](const std::string& p) -> void {
+    add_an_assumption(p, "absmem");
+  };
+  _idr.InsertAbsMemAssmpt(inserter);
 }
 
-void VlgSglTgtGen::ConstructWrapper_add_uf_constraints() {}
+void VlgSglTgtGen::ConstructWrapper_add_uf_constraints() {
+  if (not IN("functions", rf_vmap))
+    return; // do nothing
+  auto& fm = rf_vmap["functions"];
+  if (not fm.is_object()) {
+    ILA_ERROR << "expect functions field to be funcName -> list of list of "
+                 "pair of (cond,val).";
+    return;
+  }
+
+  // convert vlg_ila.ila_func_app to  name->list of func_app
+  std::map<std::string, VerilogGeneratorBase::function_app_vec_t>
+      name_to_fnapp_vec;
+  for (auto&& func_app : vlg_ila.ila_func_app)
+    name_to_fnapp_vec[func_app.func_name].push_back(func_app);
+
+  for (auto&& it : fm.items()) {
+    const auto& funcName = it.key();
+    const auto& list_of_time_of_apply = it.value();
+    if (not list_of_time_of_apply.is_array()) {
+      ILA_ERROR << funcName
+                << ": expect functions field to be funcName -> list of list of "
+                   "pair of (cond,val).";
+      continue;
+    }
+    if (not IN(funcName, name_to_fnapp_vec)) {
+      ILA_WARN << "uninterpreted function mapping:" << funcName
+               << " does not exist. Skipped.";
+      continue;
+    }
+    if (list_of_time_of_apply.size() != name_to_fnapp_vec[funcName].size()) {
+      ILA_ERROR << "uninterpreted function mapping:" << funcName << " map:#"
+                << list_of_time_of_apply.size() << " use in ila:#"
+                << name_to_fnapp_vec[funcName].size()
+                << " not matched. Skipped.";
+      continue;
+    }
+
+    auto& ila_app_list = name_to_fnapp_vec[funcName];
+
+    size_t idx = 0;
+    for (auto&& each_apply : list_of_time_of_apply.items()) {
+      if (not each_apply.value().is_array()) {
+        ILA_ERROR << funcName
+                  << ": expecting mapping to be list of pair of (cond,val).";
+        idx++;
+        continue;
+      }
+      auto& ila_app_item = ila_app_list[idx];
+      idx++;
+      if (each_apply.value().size() != (ila_app_item.args.size() + 1) * 2) {
+        ILA_ERROR << "ila func app expect: (1(retval) + "
+                  << ila_app_item.args.size() << "(args) )*2"
+                  << " items. Given:" << each_apply.value().size()
+                  << " items, for func: " << funcName;
+        continue;
+      }
+      auto val_arg_map_str_vec =
+          each_apply.value().get<std::vector<std::string>>();
+
+      std::string func_reg = funcName + "_" + IntToStr(idx - 1) + "_result_reg";
+      // okay now get the chance
+      auto val_cond = ReplExpr(val_arg_map_str_vec[0]);
+      auto val_map = ReplExpr(val_arg_map_str_vec[1],
+                              true); // force vlg name on the mapping
+      auto res_map = "~(" + val_cond + ")||(" + func_reg + "==" + val_map + ")";
+
+      std::string prep = VLG_TRUE;
+      for (size_t arg_idx = 2; arg_idx < val_arg_map_str_vec.size();
+           arg_idx += 2) {
+        const auto& cond = ReplExpr(val_arg_map_str_vec[arg_idx]);
+        const auto& map = ReplExpr(val_arg_map_str_vec[arg_idx + 1], true);
+
+        std::string func_arg = funcName + "_" + IntToStr(idx - 1) + "_arg" +
+                               IntToStr(arg_idx / 2 - 1) + "_reg";
+
+        prep += "&&(" + cond + ")&&((" + func_arg + ") == (" + map + "))";
+      }
+
+      add_an_assumption("~(" + prep + ") || (" + res_map + ")", "funcmap");
+    } // for each apply in the list of apply
+
+    name_to_fnapp_vec.erase(funcName); // remove from it
+  }
+  // check for unmapped func
+  for (auto&& nf : name_to_fnapp_vec)
+    ILA_ERROR << "lacking function map for func:" << nf.first;
+} // ConstructWrapper_add_uf_constraints
 
 // for invariants or for instruction
 void VlgSglTgtGen::ConstructWrapper() {
@@ -703,63 +952,68 @@ void VlgSglTgtGen::ConstructWrapper() {
 
   if (bad_state_return())
     return;
-  ILA_INFO << 1;
+  ILA_DLOG("VtargetGen") << "STEP:" << 1;
   // 0. The headers you may need to have
   ConstructWrapper_generate_header();
-  ILA_INFO << 2;
+  ILA_DLOG("VtargetGen") << "STEP:" << 2;
 
   // 1. add input
   if (target_type == target_type_t::INSTRUCTIONS) {
     vlg_wrapper.add_input("dummy_reset", 1);
     vlg_wrapper.add_wire("dummy_reset", 1, true);
+    if (_vtg_config.InstructionNoReset)
+      add_an_assumption(" (~__RESETED__) || (dummy_reset == 0) ", "noreset");
   }
 
-  ILA_INFO << 3;
+  ILA_DLOG("VtargetGen") << "STEP:" << 3;
   // -- find out the inputs
   ConstructWrapper_add_vlg_input_output();
-  ILA_INFO << 4;
+  ILA_DLOG("VtargetGen") << "STEP:" << 4;
   ConstructWrapper_add_ila_input();
-  ILA_INFO << 5;
+  ILA_DLOG("VtargetGen") << "STEP:" << 5;
 
   // 2. add some monitors (bound cnt)
   // 3. add assumptions & assertions
   if (target_type == target_type_t::INSTRUCTIONS) {
 
-    ILA_INFO << 5.1;
+    ILA_DLOG("VtargetGen") << "STEP:" << 5.1;
     ConstructWrapper_add_cycle_count_moniter();
-    ILA_INFO << 5.2;
+    ILA_DLOG("VtargetGen") << "STEP:" << 5.2;
     ConstructWrapper_add_varmap_assumptions();
-    ILA_INFO << 5.3;
+    ILA_DLOG("VtargetGen") << "STEP:" << 5.3;
     ConstructWrapper_add_varmap_assertions();
-    ILA_INFO << 5.4;
+    ILA_DLOG("VtargetGen") << "STEP:" << 5.4;
     ConstructWrapper_add_inv_assumptions();
   } else if (target_type == target_type_t::INVARIANTS) {
     ConstructWrapper_add_inv_assertions();
-    max_bound = MAX_CYCLE_CTR;
+    max_bound = _vtg_config.MaxBound;
   }
-  ILA_INFO << 6;
+  ILA_DLOG("VtargetGen") << "STEP:" << 6;
   // 4. additional mapping if any
   ConstructWrapper_add_additional_mapping_control();
 
-  ILA_INFO << 7;
+  ILA_DLOG("VtargetGen") << "STEP:" << 7;
   // if invariants, will do nothing
   ConstructWrapper_add_condition_signals();
 
-  ILA_INFO << 8;
-  // 5. module instantiation
-  ConstructWrapper_add_module_instantiation();
-
-  ILA_INFO << 9;
-  // 6. helper memory
-  ConstructWrapper_add_helper_memory(); // need to decide what is the target
-                                        // type
+  ILA_DLOG("VtargetGen") << "STEP:" << 8;
 
   // 7. uni-functions
 
-  ILA_INFO << 10;
-  if (target_type == target_type_t::INSTRUCTIONS) {
+  if (target_type == target_type_t::INSTRUCTIONS)
     ConstructWrapper_add_uf_constraints();
-  }
+
+  // 5.0 add the extra wires to the top module wrapper
+  if (_backend == backend_selector::COSA)
+    ConstructWrapper_register_extra_io_wire();
+
+  // 6. helper memory
+  ConstructWrapper_add_helper_memory(); // need to decide what is the target
+                                        // type
+                                        // -- no need
+  ILA_DLOG("VtargetGen") << "STEP:" << 9;
+  // 5. module instantiation
+  ConstructWrapper_add_module_instantiation();
 }
 
 bool VlgSglTgtGen::bad_state_return(void) {

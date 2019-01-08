@@ -9,10 +9,10 @@ void AES::AddChild(InstrRef& inst) {
   child.SetValid(status != 0);
   child.SetFetch(status);
 
-  auto rd_data = child.NewBvState("rd_data", 128);
+  auto rd_data  = child.NewBvState("rd_data", 128);
   auto enc_data = child.NewBvState("enc_data", 128);
   auto byte_cnt = child.NewBvState("byte_cnt", 4);
-  auto blk_cnt = child.NewBvState("blk_cnt", 16);
+  auto blk_cnt  = child.NewBvState("blk_cnt", 16);
 
   // init conditions : when doing verification
   // should be exported as the status update of the higher-level
@@ -63,7 +63,10 @@ void AES::AddChild(InstrRef& inst) {
 
     instr.SetUpdate(byte_cnt, byte_cnt + 1);
 
-    instr.SetUpdate(xram, slice_read(enc_data, byte_cnt, 0, 16, 8));
+    instr.SetUpdate(xram, 
+                    Store(xram,
+                          xram_write_addr,
+                          slice_read(enc_data, byte_cnt, 0, 16, 8)));
 
     instr.SetUpdate(blk_cnt,
                     Ite(byte_cnt == 15,
@@ -73,8 +76,8 @@ void AES::AddChild(InstrRef& inst) {
     instr.SetUpdate(status,
                     Ite(byte_cnt == 15, // the last byte has been written to
                         Ite(blk_cnt + 16 < length, // if we reach the length
-                            BvConst(AES_STATE_IDLE, 2), //
-                            BvConst(AES_STATE_READ_DATA, 2)),
+                            BvConst(AES_STATE_READ_DATA, 2), //
+                            BvConst(AES_STATE_IDLE, 2)),
                         status));
   }
 

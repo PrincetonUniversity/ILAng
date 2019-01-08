@@ -28,15 +28,13 @@ using namespace ilang;
 /// \brief the class of AES ila
 class AES {
 
-protected:
-  // --------------- MEMBERS ----------- //
-  /// the ila mode
-  Ila model;
-
 public:
   // --------------- CONSTRUCTOR ------ //
   /// add state, add instructions, add child
   AES();
+  // --------------- MEMBERS ----------- //
+  /// the ila mode
+  Ila model;
 
 private:
   /// Called by the constructor to create the child-ILA

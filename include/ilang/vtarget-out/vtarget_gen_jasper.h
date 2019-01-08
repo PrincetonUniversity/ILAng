@@ -41,7 +41,8 @@ public:
       const std::string& vlg_mod_inst_name,
       const std::string& ila_mod_inst_name, const std::string& wrapper_name,
       const std::vector<std::string>& implementation_srcs,
-      const std::vector<std::string>& include_dirs, backend_selector backend);
+      const std::vector<std::string>& include_dirs,
+      const vtg_config_t& vtg_config, backend_selector backend);
 
 protected:
   /// internal storage of problems
@@ -54,6 +55,13 @@ protected:
   /// Add an assertion
   virtual void add_an_assertion(const std::string& asst,
                                 const std::string& dspt) override;
+  /// Add a direct assumption
+  virtual void add_a_direct_assumption(const std::string& aspt,
+                                       const std::string& dspt) override;
+  /// Add a direct assertion
+  virtual void add_a_direct_assertion(const std::string& asst,
+                                      const std::string& dspt) override;
+
   /// Add an assignment which in JasperGold could be an assignment, but in CoSA
   /// has to be an assumption
   virtual void add_wire_assign_assumption(const std::string& varname,

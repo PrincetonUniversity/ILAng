@@ -58,20 +58,32 @@ reg      [7:0] ir[255:0];
 reg      [7:0] mem[255:0];
 assign __ILA_proc_valid__ = 1'b1 ;
 assign n0 =  (  ir [ pc ] )  ;
-assign n1 = n0[7:6] ;
+//assign n1 = n0[7:6] ;
 assign n2 =  ( n1 ) == ( 2'd1 )  ;
 assign __ILA_proc_decode_of_Add__ = n2 ;
 assign n4 =  ( pc ) + ( 8'd1 )  ;
 assign n5 = n0[5:4] ;
 assign n6 =  ( n5 ) == ( 2'd0 )  ;
-assign n7 = n0[3:2] ;
+// assign n7 = n0[3:2] ;
 assign n8 =  ( n7 ) == ( 2'd3 )  ;
 assign n9 =  ( n7 ) == ( 2'd2 )  ;
 assign n10 =  ( n7 ) == ( 2'd1 )  ;
 assign n11 =  ( n10 ) ? ( r1 ) : ( r0 ) ;
 assign n12 =  ( n9 ) ? ( r2 ) : ( n11 ) ;
 assign n13 =  ( n8 ) ? ( r3 ) : ( n12 ) ;
-assign n14 = n0[1:0] ;
+
+subm_same 
+  subm1(
+  .in(n0[1:0]) , .out (n14) ),
+  subm2(
+  .in(n0[3:2]) , .out (n7)  );
+
+
+subm_same 
+  subm4(
+    .in(n0[7:6]) , .out (n1) 
+    );
+//assign n14 = n0[1:0] ;
 assign n15 =  ( n14 ) == ( 2'd3 )  ;
 assign n16 =  ( n14 ) == ( 2'd2 )  ;
 assign n17 =  ( n14 ) == ( 2'd1 )  ;
@@ -115,4 +127,13 @@ always @(posedge clk) begin
        end
    end
 end
+endmodule
+
+
+module subm_same(input [1:0] in, output [1:0] out);
+
+reg a;
+reg b;
+assign out = in;
+
 endmodule

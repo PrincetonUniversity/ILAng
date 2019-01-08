@@ -1,0 +1,18 @@
+{
+  "models": { "ILA":"m0" , "VERILOG": "m1" },
+  "instruction mapping": [],
+  "state mapping": {  
+    "mema":"**MEM**mema",
+    "membuf":"rdataa_buf"},
+
+  "interface mapping": {
+  	 "rst":"**RESET**", 
+  	 "clk":"**CLOCK**",
+  	 "addra":"addra",
+     "start":"start",
+     "mem_a_raddr":"**MEM**mema.raddr",
+     "mem_a_rdata":"**MEM**mema.rdata"
+  },
+
+  "mapping control" : ["__MEM_mema_0_ren == ((m1.state == 1)?1'b1:1'b0)"]
+}

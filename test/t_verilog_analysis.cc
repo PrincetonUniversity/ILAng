@@ -10,8 +10,6 @@
 #include <ilang/verilog-out/verilog_gen.h>
 
 #include "unit-include/config.h"
-#include "unit-include/eq_ilas.h"
-#include "unit-include/simple_cpu.h"
 #include "unit-include/util.h"
 
 namespace ilang {
@@ -45,6 +43,32 @@ TEST(TestVerilogAnalysis, BadState) {
   va.check_hierarchical_name_type("m2.__ILA_proc_decode_of_Add__");
 }
 #endif
+
+TEST(TestVerilogAnalysis, FnameMeta) {
+  VerilogInfo va(
+      VerilogInfo::path_vec_t(),
+      VerilogInfo::path_vec_t({std::string(ILANG_TEST_SRC_ROOT) +
+                               "/unit-data/vpipe/simple_pipe.v"}),
+      "m1");
+
+  ILA_INFO   << "Location of: m1.ex_wb_rd:" << va.name2loc("m1.ex_wb_rd");
+  ILA_INFO   << "End loc of m1:" << va.get_endmodule_loc("m1");
+
+}
+
+
+TEST(TestVerilogAnalysis, Include) {
+  VerilogInfo va(
+      VerilogInfo::path_vec_t({std::string(ILANG_TEST_SRC_ROOT) +
+                               "/unit-data/verilog_sample/"}),
+      VerilogInfo::path_vec_t({std::string(ILANG_TEST_SRC_ROOT) +
+                               "/unit-data/verilog_sample/m1.v"}),
+      "m1");
+
+  ILA_DLOG("TestVerilogAnalysis.Include")   << "Location of: m1.r1:" << va.name2loc("m1.r1");
+  ILA_DLOG("TestVerilogAnalysis.Include")   << "End loc of m1:" << va.get_endmodule_loc("m1");
+
+}
 
 TEST(TestVerilogAnalysis, AnalyzeName) {
   VerilogInfo va(
@@ -167,6 +191,19 @@ TEST(TestVerilogAnalysis, AnalyzeName) {
       << "Location of: m1.mem:" << va.name2loc("m1.mem");
   ILA_DLOG("TestVerilogAnalysis.AnalyzeName")
       << "Location of: m1.n26:" << va.name2loc("m1.n26");
+  ILA_DLOG("TestVerilogAnalysis.AnalyzeName")
+     << "Location of: m1.subm1:" << va.name2loc("m1.subm1");
+  ILA_DLOG("TestVerilogAnalysis.AnalyzeName")
+      << "Location of: m1.subm2:" << va.name2loc("m1.subm2");
+  ILA_DLOG("TestVerilogAnalysis.AnalyzeName")
+      << "Inst loc of m1.subm1:" << va.get_module_inst_loc("m1.subm1");
+  ILA_DLOG("TestVerilogAnalysis.AnalyzeName")
+      << "Inst loc of m1.subm2:" << va.get_module_inst_loc("m1.subm2");
+  ILA_DLOG("TestVerilogAnalysis.AnalyzeName")
+      << "Inst loc of m1.subm3:" << va.get_module_inst_loc("m1.subm3");
+  ILA_DLOG("TestVerilogAnalysis.AnalyzeName")
+      << "Inst loc of m1.subm4:" << va.get_module_inst_loc("m1.subm4");
+
 }
 
 TEST(TestVerilogAnalysis, GetTopIo) {
@@ -294,6 +331,7 @@ TEST(TestVerilogAnalysis, GetTopIoNewFashion) {
 #undef O
 #undef R
 #undef W
+  ILA_INFO   << "End loc of m1:" << va.get_endmodule_loc("m1");
 }
 
 }; // namespace ilang

@@ -6,6 +6,7 @@
 
 #include <algorithm>
 #include <set>
+#include <string>
 
 #define UNION(a, b, r)                                                         \
   (std::set_union((a).begin(), (a).end(), (b).begin(), (b).end(),              \
@@ -22,5 +23,7 @@
 
 #define IN(e, s) ((s).find(e) != (s).end())
 #define IN_p(e, s) ((s)->find(e) != (s)->end())
+
+#define S_IN(sub, s) (s.find(sub) != s.npos)
 
 #endif // CONTAINER_SHORTCUT_H__

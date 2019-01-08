@@ -1,0 +1,22 @@
+/// \file
+/// Example model -- memory swap
+
+#ifndef MEM_SWAP_H__
+#define MEM_SWAP_H__
+
+namespace ilang {
+
+class InstrLvlAbs;
+class Ila;
+
+class MemorySwap {
+
+public:
+  static Ila BuildModel();
+  static Ila BuildRdModel();
+
+}; // class MemorySwap
+
+}; // namespace ilang
+
+#endif // MEM_SWAP_H__

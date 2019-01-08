@@ -5,7 +5,9 @@
 #include <ilang/util/log.h>
 
 // Do the simplification by hashing AST sub-trees.
-static const bool kUnifyAst = true;
+static const bool kUnifyAst = false;
+// please design a better hash function  -- HZ
+// ISSUE: hash collision on large designs like AES128 function
 
 namespace ilang {
 

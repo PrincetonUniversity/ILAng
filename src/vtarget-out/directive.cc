@@ -9,7 +9,10 @@
 
 namespace ilang {
 
-// static function
+#define VLG_TRUE "`true"
+
+// ---------------------- class IntefaceDirectiveRecorder
+// ------------------------------- // static function
 bool IntefaceDirectiveRecorder::beginsWith(const std::string& c,
                                            const std::string& s) {
   return c.find(s) == 0;
@@ -116,14 +119,14 @@ void IntefaceDirectiveRecorder::VlgAddTopInteface(
     VerilogGeneratorBase& gen) const {
   for (auto&& w : output_wires) {
     gen.add_output(w.first, w.second);
-    gen.add_wire(w.first, w.second);
+    gen.add_wire(w.first, w.second, true);
   }
   for (auto&& w : input_wires) {
     gen.add_input(w.first, w.second);
-    gen.add_wire(w.first, w.second);
+    gen.add_wire(w.first, w.second, true);
   }
   for (auto&& w : internal_wires) {
-    gen.add_wire(w.first, w.second);
+    gen.add_wire(w.first, w.second, true);
   }
 }
 
@@ -141,6 +144,16 @@ void IntefaceDirectiveRecorder::ModuleInstSanityCheck(
     ILA_ASSERT(false) << "Connecting signal: " << the_wire_connected_to_the_port
                       << " tp: " << conn_tp
                       << " is not declared. Implementation bug!";
+  }
+}
+// register extra state out name
+void IntefaceDirectiveRecorder::RegisterExtraWire(
+    const std::string& io_name, const std::string& outside_name) {
+  if (not IN(io_name, mod_inst_rec))
+    mod_inst_rec.insert(
+        {{io_name, inf_connector_t({inf_dir_t::SO, outside_name})}});
+  else {
+    ILA_ERROR << io_name << " has been connected already.";
   }
 }
 
@@ -278,6 +291,9 @@ void IntefaceDirectiveRecorder::RegisterInterface(const SignalInfoBase& vlg_sig,
     internal_wires.push_back({new_wire_name, (w)});                            \
   } while (0);
 
+      abs_mems[ila_mem_name].SetDataWidth(data_w);
+      abs_mems[ila_mem_name].SetAddrWidth(addr_w);
+
       if (port_name == "rdata") {
         ADD_PORT_WIRE("rdata", data_w, "Data", "data", is_input,
                       abs_mems[ila_mem_name].vlg_rports[port_no].rdata,
@@ -341,6 +357,89 @@ void IntefaceDirectiveRecorder::Clear(bool reset_vlg) {
   output_wires.clear();
   abs_mems.clear();
   _reset_vlg = reset_vlg;
+}
+
+void IntefaceDirectiveRecorder::SetMemName(const std::string& directive,
+                                           const std::string& ila_state_name) {
+
+  ILA_ASSERT(beginsWith(directive, "**"));
+  if (not beginsWith(directive, "**MEM**")) {
+    ILA_ERROR << directive << " is not a recognized directive!";
+    return;
+  }
+
+  auto mem_name = directive.substr(7);
+  auto pos = abs_mems.find(mem_name);
+  if (pos == abs_mems.end()) {
+    ILA_ERROR << directive << " refers to a nonexisting memory!";
+    return;
+  }
+  if (pos->second.mem_name == "")
+    pos->second.mem_name = mem_name;
+  if (pos->second.ila_map_name == "")
+    pos->second.ila_map_name = ila_state_name;
+  ILA_ERROR_IF(pos->second.mem_name != mem_name)
+      << "Implementation bug,"
+      << " setting memory abstraction with a different name"
+      << " old:" << pos->second.mem_name << ", new:" << mem_name;
+  ILA_ERROR_IF(pos->second.ila_map_name != ila_state_name)
+      << "Implementation bug,"
+      << " setting memory abstraction with a different name"
+      << " old:" << pos->second.ila_map_name << ", new:" << ila_state_name;
+}
+
+std::string IntefaceDirectiveRecorder::ConnectMemory(
+    const std::string& directive, const std::string& ila_state_name,
+    const std::map<unsigned, rport_t>& rports,
+    const std::map<unsigned, wport_t>& wports, int ila_addr_width,
+    int ila_data_width, bool abs_read) {
+  ILA_ASSERT(beginsWith(directive, "**"));
+  if (not beginsWith(directive, "**MEM**")) {
+    ILA_ERROR << directive << " is not a recognized directive!";
+    return VLG_TRUE;
+  }
+
+  auto mem_name = directive.substr(7);
+  auto pos = abs_mems.find(mem_name);
+  if (pos == abs_mems.end()) {
+    ILA_ERROR << directive << " refers to a nonexisting memory!";
+    return VLG_TRUE;
+  }
+
+  pos->second.read_abstract = abs_read;
+  SetMemName(directive, ila_state_name);
+
+  // pos->second.ila_map_name = ila_state_name;
+  pos->second.SetAddrWidth(ila_addr_width);
+  pos->second.SetDataWidth(ila_data_width);
+  // copy the ports
+  ILA_ERROR_IF(pos->second.ila_rports.size() != 0 ||
+               pos->second.ila_wports.size() != 0)
+      << mem_name << " seems to have been connected.";
+  // pos->second.ila_rports = rports;
+  pos->second.ila_rports.insert(rports.begin(), rports.end());
+  // pos->second.ila_wports = wports;
+  pos->second.ila_wports.insert(wports.begin(), wports.end());
+
+  return pos->second.MemEQSignalName();
+} // ConnectMemory
+
+std::string
+IntefaceDirectiveRecorder::GetAbsMemInstString(VerilogGeneratorBase& gen,
+                                               const std::string& endCond) {
+  std::string ret;
+  for (auto&& m : abs_mems) {
+    ret += "/*" + m.first + "*/\n";
+    ret += m.second.GeneratingMemModuleSignalsInstantiation(gen, endCond);
+  }
+  return ret;
+}
+
+void IntefaceDirectiveRecorder::InsertAbsMemAssmpt(assmpt_inserter_t inserter) {
+  for (auto&& nm_pair : abs_mems) {
+    for (auto&& assumpt : nm_pair.second.assumpts)
+      inserter(assumpt);
+  }
 }
 
 // ------------------------------------------------------------------------

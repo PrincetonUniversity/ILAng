@@ -1,0 +1,40 @@
+{
+  "models": { "ILA":"m0" , "VERILOG": "m1" },
+  "state mapping": { 
+    "ciphertext"        : [["ILA.round == 0" ,null ],
+                           ["ILA.round == 1" ,"s0" ],
+                           ["ILA.round == 2" ,"s1" ],
+                           ["ILA.round == 3" ,"s2" ],
+                           ["ILA.round == 4" ,"s3" ],
+                           ["ILA.round == 5" ,"s4" ],
+                           ["ILA.round == 6" ,"s5" ],
+                           ["ILA.round == 7" ,"s6" ],
+                           ["ILA.round == 8" ,"s7" ],
+                           ["ILA.round == 9" ,"s8" ],
+                           ["ILA.round == 10","s9" ],
+                           ["ILA.round == 11","out"] ],
+    "round_key"         : [["ILA.round == 0" , null],
+                           ["ILA.round == 1" ,"k0" ],
+                           ["ILA.round == 2" ,"k1" ],
+                           ["ILA.round == 3" ,"k2" ],
+                           ["ILA.round == 4" ,"k3" ],
+                           ["ILA.round == 5" ,"k4" ],
+                           ["ILA.round == 6" ,"k5" ],
+                           ["ILA.round == 7" ,"k6" ],
+                           ["ILA.round == 8" ,"k7" ],
+                           ["ILA.round == 9" ,"k8" ],
+                           ["ILA.round == 10","k9" ],
+                           ["ILA.round == 11", null] ],
+    "round"             : null 
+  },
+
+  "interface mapping": {
+     "clk":"**CLOCK**",
+     "key":"key_in",
+     "state":"plaintext",
+     "out":"**KEEP**"
+  },
+
+  "mapping control" : []
+
+}

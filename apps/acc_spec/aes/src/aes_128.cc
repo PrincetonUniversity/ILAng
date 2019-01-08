@@ -2,6 +2,7 @@
 ///  Hongce Zhang (hongcez@princeton.edu)
 
 #include "aes_128.h"
+#include <ilang/ila/ast/expr.h>
 
 #include <cassert>
 
@@ -60,8 +61,8 @@ ExprRef AES_128::rcon(const ExprRef& rnd) {
   assert(rnd.bit_width() == 4);
 
   ExprRef ret = BvConst(rcon_table[0], 8);
-  for (int i = 1; i < 256; i++)
-    ret = Ite(rnd == i, BvConst(rcon_table[i], 8), ret);
+  for (int i = 1; i < 10; i++)
+    ret = Ite(rnd == i + 1, BvConst(rcon_table[i], 8), ret); // rnd : 1..10
   return ret;
 }
 
@@ -69,8 +70,9 @@ ExprRef AES_128::s_table_read(const ExprRef& idx) {
   assert(idx.bit_width() == 8);
 
   ExprRef ret = BvConst(S_table[0], 8);
-  for (int i = 1; i < 256; i++)
+  for (int i = 1; i < 256; i++) {
     ret = Ite(idx == i, BvConst(S_table[i], 8), ret);
+  }
   return ret;
 }
 
@@ -78,8 +80,9 @@ ExprRef AES_128::xs_table_read(const ExprRef& idx) {
   assert(idx.bit_width() == 8);
 
   ExprRef ret = BvConst(xS_table[0], 8);
-  for (int i = 1; i < 256; i++)
+  for (int i = 1; i < 256; i++) {
     ret = Ite(idx == i, BvConst(xS_table[i], 8), ret);
+  }
   return ret;
 }
 
@@ -174,7 +177,7 @@ AES_128::vec4 AES_128::table_lookup(const ExprRef& s32) { // s32: 32 bit wide
   auto p1 = combine_vec4({rl[2], rl[3], rl[0], rl[1]});
   rl = T(b[2]);
   auto p2 = combine_vec4({rl[1], rl[2], rl[3], rl[0]});
-  rl = T(b[2]);
+  rl = T(b[3]);
   auto p3 = combine_vec4({rl[0], rl[1], rl[2], rl[3]});
 
   return {p0, p1, p2, p3};
@@ -183,7 +186,7 @@ AES_128::vec4 AES_128::table_lookup(const ExprRef& s32) { // s32: 32 bit wide
 ExprRef AES_128::GetCipherUpdate_MidRound(const ExprRef& state_in,
                                           const ExprRef rnd,
                                           const ExprRef& key) {
-  auto enc_key = expand_key_128_a(key, rcon(rnd));
+  auto enc_key = expand_key_128_b(key, rcon(rnd));
   auto K0_4 = slice_128_to_32(enc_key);
   auto S0_4 = slice_128_to_32(state_in);
 
@@ -203,7 +206,7 @@ ExprRef AES_128::GetCipherUpdate_MidRound(const ExprRef& state_in,
 ExprRef AES_128::GetCipherUpdate_FinalRound(const ExprRef& state_in,
                                             const ExprRef rnd,
                                             const ExprRef& key) {
-  auto enc_key = expand_key_128_a(key, rcon(rnd));
+  auto enc_key = expand_key_128_b(key, rcon(rnd));
   auto K0_4 = slice_128_to_32(enc_key);
   auto S0_4 = slice_128_to_32(state_in);
 
@@ -224,39 +227,39 @@ ExprRef AES_128::GetKeyUpdate_MidRound(const ExprRef& key, const ExprRef rnd) {
   return expand_key_128_b(key, rcon(rnd));
 }
 
-AES_128::AES_128() {
-  auto RndModel = Ila("AES_128_Rnd");
+AES_128::AES_128() : model("AES_128_Rnd") {
 
-  auto plaintext = RndModel.NewBvInput("plaintext", 128);
-  auto key_in = RndModel.NewBvInput("key_in", 128);
+  auto plaintext = model.NewBvInput("plaintext", 128);
+  auto key_in = model.NewBvInput("key_in", 128);
 
-  auto ciphertext = RndModel.NewBvState("ciphertext", 128);
-  auto round_key = RndModel.NewBvState("round_key", 128);
+  auto ciphertext = model.NewBvState("ciphertext", 128);
+  auto round_key = model.NewBvState("round_key", 128);
 
-  auto round = RndModel.NewBvState("round", 4); // maximum 10 round
+  auto round = model.NewBvState("round", 4); // maximum 10 round
 
-  RndModel.AddInit(round == 0);
-  RndModel.SetValid(
-      round < 10); // 0-9 , all bvs are treated as unsigned number by default
+  model.AddInit(round == 0);
+  model.SetValid(
+    Ule(round, 10) );  // round <= 10 (unsigned)
+  // 0: init  1-10 , all bvs are treated as unsigned number by default
 
   // initial round
 
   { // FirstRound : just an xor
-    auto instr = RndModel.NewInstr("FirstRound");
+    auto instr = model.NewInstr("FirstRound");
 
     instr.SetDecode(round == 0);
 
-    instr.SetUpdate(ciphertext, round_key ^ plaintext);
-    instr.SetUpdate(round_key, round_key);
+    instr.SetUpdate(ciphertext, key_in ^ plaintext);
+    instr.SetUpdate(round_key, key_in);
     instr.SetUpdate(round, round + 1);
   }
 
   // intermediate round
 
   { // Midround
-    auto instr = RndModel.NewInstr("IntermediateRound");
+    auto instr = model.NewInstr("IntermediateRound");
 
-    instr.SetDecode((round > 0) & (round < 9));
+    instr.SetDecode(round == 1);//(Ugt(round , 0) & Ule(round , 9));
 
     instr.SetUpdate(ciphertext,
                     GetCipherUpdate_MidRound(ciphertext, round, round_key));
@@ -265,9 +268,9 @@ AES_128::AES_128() {
   }
 
   { // FirstRound
-    auto instr = RndModel.NewInstr("FinalRound");
+    auto instr = model.NewInstr("FinalRound");
 
-    instr.SetDecode((round == 9));
+    instr.SetDecode((round == 10));
 
     instr.SetUpdate(ciphertext,
                     GetCipherUpdate_FinalRound(ciphertext, round, round_key));
