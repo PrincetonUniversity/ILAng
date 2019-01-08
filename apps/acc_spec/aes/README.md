@@ -79,15 +79,12 @@ sudo docker pull byhuang/ilang:posh-demo
 And then run it with:
 ```
 sudo docker run -it byhuang/ilang:posh-demo
+source init.sh
 ```
 If you see a command line prompt starting with `(ilang-env)`, you have 
 successfully downloaded and started the demo docker image.
 
-
-
 ### Checking Correctness Using ILA Verification ###
-
-
 This is the demo we presented in the Tuesday meeting. The Verilog design is already bug-free w.r.t
 the ILA specification. First change directory to the AES example and list what's in this directory.
 
@@ -96,9 +93,7 @@ cd aes-demo
 ls
 ```
 
-
 #### Directory Structure ####
-
 
 ```
 |- app
