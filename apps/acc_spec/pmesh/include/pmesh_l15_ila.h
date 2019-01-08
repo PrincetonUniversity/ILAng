@@ -27,33 +27,6 @@ private:
 
 protected:
   // --------------- HELPERS -------- //
-  /// To get a slide from the expression: reg
-  /// \param[in] reg: the register to slice
-  /// \param[in] idx: the address/index to select the slice
-  /// \param[in] base_addr: the address to be substracted from address
-  /// \param[in] no_slice: the number of slices
-  /// \param[in] slice_width: the width of slice
-  /// \return  the resulted read expression
-  static ExprRef slice_read(const ExprRef& reg, const ExprRef& idx,
-                            unsigned long base_addr, unsigned no_slice,
-                            unsigned slice_width);
-
-  /// update only part (slices) of a register
-  /// \param[in] reg: the register to slice
-  /// \param[in] idx: the address/index to select the slice
-  /// \param[in] input_slice: the slice used to update
-  /// \param[in] base_addr: the address to be substracted from address
-  /// \param[in] no_slice: the number of slices
-  /// \param[in] slice_width: the width of slice
-  /// \return  the resulted read expression
-  /// it assumes:
-  /// input_slice.width == slice_width
-  /// no_slice * slice_width == reg.width
-  static ExprRef slice_update(const ExprRef& reg, const ExprRef& idx,
-                              const ExprRef& input_slice,
-                              unsigned long base_addr, unsigned no_slice,
-                              unsigned slice_width);
-
   /// specify a nondeterministic value within range [low,high]
   ExprRef unknown_range(unsigned low, unsigned high);
   /// a nondeterministic choice of a or b
@@ -64,9 +37,13 @@ protected:
 protected:
   // ------------ STATE ------------ //
   // I/O interface: this is where the commands come from.
-  ExprRef cmd;
-  ExprRef cmdaddr;
-  ExprRef cmddata;
+  ExprRef address;
+  ExprRef data   ;
+  ExprRef nc     ;
+  ExprRef rqtype ;
+  ExprRef size   ;
+  ExprRef val    ;
+
   // internal arch state.
   ExprRef status;
   ExprRef address;

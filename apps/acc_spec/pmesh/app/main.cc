@@ -2,9 +2,10 @@
 #include <aes_ila.h>
 #include <ilang/vtarget-out/vtarget_gen.h>
 
-/// the function to parse commandline arguments
-VerilogVerificationTargetGenerator::vtg_config_t HandleArguments(int argc, char **argv);
+/// the function to generate configuration
+VerilogVerificationTargetGenerator::vtg_config_t SetConfiguration();
 
+/*
 /// To verify the exact AES128 ILA
 void verifyAES128(Ila& model, VerilogVerificationTargetGenerator::vtg_config_t vtg_cfg) {
   VerilogGeneratorBase::VlgGenConfig vlg_cfg;
@@ -95,57 +96,30 @@ void verifyBlockLevel(Ila& model, VerilogVerificationTargetGenerator::vtg_config
       vlg_cfg); // verilog generator configuration
 
   vg.GenerateTargets();
-}
+}*/
 
 /// Build the model
-int main(int argc, char **argv) {
+int main() {
   // extract the configurations
-  auto vtg_cfg = HandleArguments(argc, argv);
+  auto vtg_cfg = SetConfiguration();
 
-  // build the aes model
-  AES aes_ila_model;
-  // build the aes128 model
-  AES_128 aes128;
-  // verify separately the hierarchical ILA
-  // from IO level down to the AES 128 function
-  verifyIO(aes_ila_model.model, vtg_cfg);
-  verifyBlockLevel(aes_ila_model.model, vtg_cfg);
-  verifyAES128(aes128.model, vtg_cfg);
+  // build the model
+  PMESH_L15 l15_ila_model;
 
   return 0;
 }
 
 
 
-VerilogVerificationTargetGenerator::vtg_config_t HandleArguments(int argc, char **argv) {
-  // the solver, the cosa environment
-  // you can use a commandline parser if desired, but since it is not the main focus of
-  // this demo, we skip it
+VerilogVerificationTargetGenerator::vtg_config_t SetConfiguration() {
 
   // set ilang option, operators like '<' will refer to unsigned arithmetics
   SetUnsignedComparation(true); 
   
   VerilogVerificationTargetGenerator::vtg_config_t ret;
-
-  for(unsigned p = 1; p<argc; p++) {
-    std::string arg = argv[p];
-    auto split = arg.find("=");
-    auto argName = arg.substr(0,split);
-    auto param   = arg.substr(split+1);
-
-    if(argName == "Solver")
-      ret.CosaSolver = param;
-    else if(argName == "Env")
-      ret.CosaPyEnvironment = param;
-    else if(argName == "Cosa")
-      ret.CosaPath = param;
-    // else unknown
-    else {
-      std::cerr<<"Unknown argument:" << argName << std::endl;
-      std::cerr<<"Expecting Solver/Env/Cosa=???" << std::endl;
-    }
-  }
-
+  ret.CosaSolver = "btor";
+  ret.CosaPyEnvironment = "~/cosaEnv/bin/activate";
+  ret.CosaPath = "~/CoSA";
   ret.CosaGenTraceVcd = true;
 
   return ret;

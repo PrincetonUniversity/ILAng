@@ -49,6 +49,7 @@ endif()
 # ---------------------------------------------------------------------------- #
 add_library(${PMESHL15_TARGET}
   src/pmesh_l15_ila.cc
+  src/pmesh_util.cc
 )
 
 target_include_directories(${PMESHL15_TARGET} PRIVATE include)

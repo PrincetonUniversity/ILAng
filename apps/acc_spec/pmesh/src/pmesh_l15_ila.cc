@@ -2,12 +2,39 @@
 ///  Hongce Zhang (hongcez@princeton.edu)
 ///
 
-#include "aes_ila.h"
+#include "pmesh_l15_ila.h"
 
-AES::AES()
+// some assumptions on the interface:
+// amo_op : 0
+// blockinitstore : 0
+// blockstore : 0
+// csm_data : 0
+// data_next_entry : 0
+// invalidate_cacheline : 0
+// l1rplway : 0
+// prefetch : 0
+// threadid : 0
+
+// a request if not hit
+// go to the NoC
+// if hit, ?
+
+PMESH_L15::PMESH_L15()
     : // construct the model
-      model("AES"),
+      model("PMESH_L15"),
       // I/O interface: this is where the commands come from.
+      address(model.NewBvInput("transducer_l15_address", 40)),
+      data   (model.NewBvInput("transducer_l15_data",    64)),
+      nc     (model.NewBvInput("transducer_l15_nc",       1)),
+      rqtype (model.NewBvInput("transducer_l15_rqtype",   5)),
+      size   (model.NewBvInput("transducer_l15_size",     3)),
+      val    (model.NewBvInput("transducer_l15_val",      1)),
+
+
+
+
+
+
       cmd    (model.NewBvInput("cmd"    , 2 )), 
       cmdaddr(model.NewBvInput("cmdaddr", 16)),
       cmddata(model.NewBvInput("cmddata", 8 )),
