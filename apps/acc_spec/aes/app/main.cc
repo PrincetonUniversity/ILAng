@@ -36,6 +36,7 @@ void verifyAES128(Ila& model, VerilogVerificationTargetGenerator::vtg_config_t v
 
 /// To verify the IO ILA
 void verifyIO(Ila& model, VerilogVerificationTargetGenerator::vtg_config_t vtg_cfg) {
+
   VerilogGeneratorBase::VlgGenConfig vlg_cfg;
 
   vtg_cfg.MemAbsReadAbstraction = true; // enable read abstraction
@@ -115,6 +116,7 @@ int main(int argc, char **argv) {
 }
 
 
+
 VerilogVerificationTargetGenerator::vtg_config_t HandleArguments(int argc, char **argv) {
   // the solver, the cosa environment
   // you can use a commandline parser if desired, but since it is not the main focus of
@@ -125,12 +127,24 @@ VerilogVerificationTargetGenerator::vtg_config_t HandleArguments(int argc, char 
   
   VerilogVerificationTargetGenerator::vtg_config_t ret;
 
-  if(argc >= 2)
-    ret.CosaSolver = argv[1];
-  if(argc >= 3)
-    ret.CosaPath = argv[2];
-  if(argc >= 4)
-    ret.CosaPyEnvironment = argv[3];
+  for(unsigned p = 1; p<argc; p++) {
+    std::string arg = argv[p];
+    auto split = arg.find("=");
+    auto argName = arg.substr(0,split);
+    auto param   = arg.substr(split+1);
+
+    if(argName == "Solver")
+      ret.CosaSolver = param;
+    else if(argName == "Env")
+      ret.CosaPyEnvironment = param;
+    else if(argName == "Cosa")
+      ret.CosaPath = param;
+    // else unknown
+    else {
+      std::cerr<<"Unknown argument:" << argName << std::endl;
+      std::cerr<<"Expecting Solver/Env/Cosa=???" << std::endl;
+    }
+  }
 
   ret.CosaGenTraceVcd = true;
 
