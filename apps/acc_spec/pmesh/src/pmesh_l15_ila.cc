@@ -29,32 +29,22 @@ PMESH_L15::PMESH_L15()
       rqtype (model.NewBvInput("transducer_l15_rqtype",   5)),
       size   (model.NewBvInput("transducer_l15_size",     3)),
       val    (model.NewBvInput("transducer_l15_val",      1)),
-
-
-
-
-
-
-      cmd    (model.NewBvInput("cmd"    , 2 )), 
-      cmdaddr(model.NewBvInput("cmdaddr", 16)),
-      cmddata(model.NewBvInput("cmddata", 8 )),
-      // internal arch state.
-      address(model.NewBvState("aes_address", 16 )),
-      length (model.NewBvState("aes_length" , 16 )),
-      key    (model.NewBvState("aes_key"    , 128)),
-      counter(model.NewBvState("aes_counter", 128)),
-      status (model.NewBvState("aes_status" , 2  )),
-      // the memory: shared state
-      xram   (model.NewMemState("XRAM"      , 16, 8)),
-      // The encryption function :
-      // 128b plaintext x 128b key -> 128b ciphertext
-      // FuncRef(name, range, domain1, domain2 )
-      aes128(FuncRef("aes128",               // define a function
-                          SortRef::BV(128),  // range: 128-bit
-                          SortRef::BV(128),  // domain: 128-bit
-                          SortRef::BV(128))),//      by 128-bit
-      // the output
-      outdata(model.NewBvState("outdata", 8)) {
+      
+      
+      // Output states: l1.5 --> noc1 requests
+      l15_noc1buffer_req_address( model.NewBvState("l15_noc1buffer_req_address", 40) ),
+      l15_noc1buffer_req_data0  ( model.NewBvState("l15_noc1buffer_req_data0"  , 64) ),
+      l15_noc1buffer_req_data1  ( model.NewBvState("l15_noc1buffer_req_data1"  , 64) ),
+      l15_noc1buffer_csm_data   ( model.NewBvState("l15_noc1buffer_csm_data  " , 33) ),
+      l15_noc1buffer_csm_ticket ( model.NewBvState("l15_noc1buffer_csm_ticket" , 3) ),
+      l15_noc1buffer_req_homeid ( model.NewBvState("l15_noc1buffer_req_homeid" , 30) ),
+      l15_noc1buffer_req_mshrid ( model.NewBvState("l15_noc1buffer_req_mshrid" , 2) ),
+      l15_noc1buffer_req_noncacheable( model.NewBvState("l15_noc1buffer_req_noncacheable" , 1) ),
+      l15_noc1buffer_req_prefetch    ( model.NewBvState("l15_noc1buffer_req_prefetch    " , 1) ),
+      l15_noc1buffer_req_size        ( model.NewBvState("l15_noc1buffer_req_size        " , 3) ),
+      // l15_noc1buffer_req_threadid    ( model.NewBvState("") ), // not
+      l15_noc1buffer_req_type        ( model.NewBvState("l15_noc1buffer_req_type        " , 5) )
+    {
 
   // AES fetch function -- what corresponds to instructions
   model.SetFetch(Concat(cmd, Concat(cmdaddr, cmddata)));

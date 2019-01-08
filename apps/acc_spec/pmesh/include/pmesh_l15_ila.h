@@ -44,20 +44,20 @@ protected:
   ExprRef size   ;
   ExprRef val    ;
 
-  // internal arch state.
-  ExprRef status;
-  ExprRef address;
-  ExprRef length;
-  ExprRef counter;
-  ExprRef key;
-  // the memory
-  ExprRef xram;
-  // The encryption function :
-  // 128b plaintext x 128b key -> 128b ciphertext
-  // FuncRef(name, range, domain1, domain2 )
-  FuncRef aes128;
-  // the output
-  ExprRef outdata;
+  // arch state.
+  ExprRef l15_noc1buffer_req_address;
+  ExprRef l15_noc1buffer_req_data0  ;
+  ExprRef l15_noc1buffer_req_data1  ;
+  ExprRef l15_noc1buffer_csm_data   ;
+  ExprRef l15_noc1buffer_csm_ticket ;
+  ExprRef l15_noc1buffer_req_homeid ;
+  ExprRef l15_noc1buffer_req_mshrid ;
+  
+  ExprRef l15_noc1buffer_req_noncacheable;
+  ExprRef l15_noc1buffer_req_prefetch    ;
+  ExprRef l15_noc1buffer_req_size        ;
+  // ExprRef l15_noc1buffer_req_threadid ;
+  ExprRef l15_noc1buffer_req_type        ;
 
 }; // class AES
 
