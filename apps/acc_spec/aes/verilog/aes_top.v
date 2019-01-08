@@ -13,12 +13,6 @@
 `define AES_LEN	  16'hff04
 `define AES_KEY	  16'hff10
 `define AES_CNT	  16'hff20
-/*
- * AES module that interfaces with the oc8051.
- *
- * This wrapper was written by Pramod Subramanyan.
- * Email: psubrama@princeton.edu
- */ 
 
 // synopsys translate_off
 `timescale 1ns/10ps
