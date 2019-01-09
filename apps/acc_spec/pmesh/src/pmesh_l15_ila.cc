@@ -46,15 +46,36 @@ PMESH_L15::PMESH_L15()
       l15_noc1buffer_req_type        ( model.NewBvState("l15_noc1buffer_req_type        " , 5) )
     {
 
-  // AES fetch function -- what corresponds to instructions
-  model.SetFetch(Concat(cmd, Concat(cmdaddr, cmddata)));
-  // Valid instruction: cmd == 1 or cmd == 2
-  model.SetValid((cmd == 1) | (cmd == 2));
+  // L1.5 fetch function -- what corresponds to instructions on L1.5 PCX interface
+  model.SetFetch( lConcat({address, data, nc, rqtype, size, val })   );
+  // Valid instruction: what means to have valid command (valid = 1)
+  model.SetValid( val == 1 );
 
-  // some shortcuts
-  auto is_status_idle = status == AES_STATE_IDLE;
+  // 
+  // HZ's note about modeling cache
+  // This is in some sense a shared memory
+  // 1. we can model it as a memory, but this does not
+  // mean it must have that size (The same address
+  // and etc. of facet axiom function can be adjusted
+  // to factor in the conflict-eviction and etc.
+  // This part should be 
+  // 2. It is a shared state
+  // because we have multiple interface
+  // This is in some sence similar to the ViCL approach
+  // But hte difference is that we treat the Cache state
+  // as "state", and encode the updates as SMT queries
+  // 
+  // For the verification, we need to somehow use an uninterpreted
+  // function-like mapping on what it got from the mem
+  // 
 
   // add instructions
+  {
+    auto instr = model.NewInstr("LOAD_normal");
+
+
+  }
+
 
   { // WRITE_ADDRESS
     auto instr = model.NewInstr("WRITE_ADDRESS");

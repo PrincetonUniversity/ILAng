@@ -6,6 +6,7 @@
 #define PMESH_L15_ILA_H__
 
 #include <ilang/ilang++.h>
+#include <vector>
 
 using namespace ilang;
 
@@ -33,6 +34,9 @@ protected:
   static ExprRef unknown_choice(const ExprRef& a, const ExprRef& b);
   /// a nondeterminstic bitvector const of width
   static FuncRef unknown(unsigned width);
+  /// a helper function to concat a vector of express
+  static ExprRef lConcat(const std::vector<ExprRef> & l);
+
 
 protected:
   // ------------ STATE ------------ //
