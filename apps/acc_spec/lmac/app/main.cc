@@ -64,3 +64,32 @@ void VerifyReadFmacTxPktCnt(
 #endif
 }
 
+VerilogVerificationTargetGenerator::vtg_config_t HandleArguments(int argc, char **argv) {
+  // set ilang option, operators like '<' will refer to unsigned arithmetics
+  SetUnsignedComparation(true); 
+  
+  VerilogVerificationTargetGenerator::vtg_config_t ret;
+
+  for(unsigned p = 1; p<argc; p++) {
+    std::string arg = argv[p];
+    auto split = arg.find("=");
+    auto argName = arg.substr(0,split);
+    auto param   = arg.substr(split+1);
+
+    if(argName == "Solver")
+      ret.CosaSolver = param;
+    else if(argName == "Env")
+      ret.CosaPyEnvironment = param;
+    else if(argName == "Cosa")
+      ret.CosaPath = param;
+    // else unknown
+    else {
+      std::cerr<<"Unknown argument:" << argName << std::endl;
+      std::cerr<<"Expecting Solver/Env/Cosa=???" << std::endl;
+    }
+  }
+
+  ret.CosaGenTraceVcd = true;
+
+  return ret;
+}
