@@ -129,6 +129,9 @@ void VlgSglTgtGen_Cosa::Export_script(const std::string& script_name) {
     options += " --vcd";
   options += " " + _vtg_config.CosaOtherSolverOptions;
 
+  if(vlg_include_files_path.size() != 0)
+    options += " -I./";
+
   if (not _vtg_config.CosaPath.empty()) {
     cosa = os_portable_append_dir(_vtg_config.CosaPath, cosa) + ".py";
   }
@@ -256,8 +259,11 @@ void VlgSglTgtGen_Cosa::Export_modify_verilog() {
     vlg_mod.ReadModifyWrite(fn, fin, fout);
   } // for (auto && fn : vlg_design_files)
   // .. (copy all the verilog file in the folder), this has to be os dependent
-  if (vlg_include_files_path.size() != 0)
-    ILA_WARN << "Not copying includes.";
+  if (vlg_include_files_path.size() != 0) {
+    // copy the files and specify the -I commandline to the run.sh
+    for(auto && include_path : vlg_include_files_path )
+      os_portable_copy_dir(include_path, _output_path);
+  }
 
 } // Export_modify_verilog
 
