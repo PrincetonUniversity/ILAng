@@ -1,3 +1,5 @@
+![ILAng Logo](https://raw.githubusercontent.com/Bo-Yuan-Huang/ILA-Tools/page/docs/pics/ilang-logo.png)
+
 [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools)
 [![Coverage Status](https://coveralls.io/repos/github/Bo-Yuan-Huang/ILA-Tools/badge.svg?branch=master)](https://coveralls.io/github/Bo-Yuan-Huang/ILA-Tools?branch=master)
 [![Coverity Scan Build Status](https://img.shields.io/coverity/scan/14490.svg)](https://scan.coverity.com/projects/bo-yuan-huang-ila-tools)
@@ -72,13 +74,13 @@ brew install bison flex
 
 #### Tested Environments
 
-| OS           | Compiler    | z3    | Status |
-| ------------ | ----------- | ----- | ------ |
-| Ubuntu 14.04 | gcc 4.8.4   | 4.8.5 | [![Build Status](https://semaphoreci.com/api/v1/bo-yuan-huang/ila-tools/branches/master/shields_badge.svg)](https://semaphoreci.com/bo-yuan-huang/ila-tools) |
-| Ubuntu 16.04 | gcc 4.9.0   | 4.7.1 | [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools) |
-| Ubuntu 16.04 | gcc 5.4.0   | 4.7.1 | [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools) |
-| Ubuntu 16.04 | clang 7.0.0 | 4.7.1 | [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools) |
-| OSX 10.13.0  | clang 9.1.0 | 4.7.1 | [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools) |
+| OS           | Compiler    | z3     | Status |
+| ------------ | ----------- | ------ | ------ |
+| Ubuntu 14.04 | gcc 4.8.4   | latest | [![Build Status](https://semaphoreci.com/api/v1/bo-yuan-huang/ila-tools/branches/master/shields_badge.svg)](https://semaphoreci.com/bo-yuan-huang/ila-tools) |
+| Ubuntu 16.04 | gcc 4.9.0   | 4.7.1  | [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools) |
+| Ubuntu 16.04 | gcc 5.4.0   | 4.7.1  | [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools) |
+| Ubuntu 16.04 | clang 7.0.0 | 4.7.1  | [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools) |
+| OSX 10.13.0  | clang 9.1.0 | 4.7.1  | [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools) |
 
 ### Default Build
 
@@ -121,9 +123,16 @@ The docker images with pre-built ILAng platform and all dependencies can be fetc
 
 ``` bash
 docker pull byhuang/ilang:ilang-dev
-docker run -it byhuang/ilang:ilang-dev
+``` 
+
+Once the container is initiated, run 
+
+``` bash
 source init.sh
 ```
+
+to initialize the environment settings. 
+This docker image also contains the model checker [CoSA](https://github.com/cristian-mattarei/CoSA) and the SMT solvers [z3](https://github.com/Z3Prover/z3) and [Boolector](https://github.com/Boolector/boolector).
 
 ## Documentations
 - A list of related papers can be found in the [ILAng main page](https://bo-yuan-huang.github.io/ILA-Tools/).
