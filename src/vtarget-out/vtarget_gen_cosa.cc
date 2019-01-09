@@ -227,7 +227,7 @@ void VlgSglTgtGen_Cosa::Export_modify_verilog() {
   // open, read, count and write
   // if it is a port name, we will ask user to specify its upper level
   // signal name
-  VerilogModifier vlg_mod(vlg_info_ptr);
+  VerilogModifier vlg_mod(vlg_info_ptr, static_cast<VerilogModifier::port_decl_style_t>( _vtg_config.PortDeclStyle ));
 
   for (auto&& refered_vlg_item : _all_referred_vlg_names) {
     auto idx = refered_vlg_item.first.find("[");
