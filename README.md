@@ -1,4 +1,4 @@
-![ILAng Logo](https://raw.githubusercontent.com/Bo-Yuan-Huang/ILA-Tools/page/docs/pics/ilang-logo.png)
+<img src="https://raw.githubusercontent.com/Bo-Yuan-Huang/ILA-Tools/page/docs/pics/ilang-logo.png" alt="ILAng Logo" height="225"/>
 
 [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools)
 [![Coverage Status](https://coveralls.io/repos/github/Bo-Yuan-Huang/ILA-Tools/badge.svg?branch=master)](https://coveralls.io/github/Bo-Yuan-Huang/ILA-Tools?branch=master)
