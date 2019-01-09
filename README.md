@@ -103,12 +103,74 @@ make install
 - Use `-DILANG_INSTALL_DEV=ON` to enable installing working features. 
 
 ## CMake Integration
+You can use the `ilang::ilang` interface target in CMake. 
+This target populates the appropriate usage requirements for include directories, linked libraries, and compile features. 
+To use the ILAng library, `ilang++.h` is the file to include. 
+(This does not include working features.)
+
+``` c++
+#include <ilang/ilang++.h>
+
+void foo () {
+  auto m = ilang::Ila("new_ila_model");
+}
+```
 
 ### External
 
+To use the ILAng library from a CMake project, you can locate it directly with `find_package()` and use the namespaced imported target from the generated package configuration:
+
+``` cmake
+# CMakeLists.txt
+find_package(ilang REQUIRED)
+...
+add_library(my_proj ...)
+...
+target_link_libraries(my_proj PRIVATE ilang::ilang)
+```
+
 ### Embedded
 
+ILAng also supports embedded build, but is not recommended due to its size. 
+To embed the library directly into an existing CMake project, place the entire source tree in a subdirectory and call `add_subdirectory()` in your `CMakeLists.txt` file:
+
+``` cmake 
+add_subdirectory(ilang)
+...
+add_library(my_proj ...)
+...
+target_link_libraries(my_proj PRIVATE ilang::ilang)
+```
+
 ### Supporting Both
+
+To allow your project to support either an externally installed or an embedded library, you can use the following pattern:
+
+``` cmake
+# Top level CMakeLists.txt
+project(MY_PROJ)
+...
+option(MY_PROJ_USE_EXTERNAL_ILANG "Use an external ILAng library" OFF)
+...
+add_subdirectory(externals)
+...
+add_library(my_proj ...)
+...
+target_link_libraries(my_proj PRIVATE ilang::ilang)
+```
+
+``` cmake
+# externals/CMakeLists.txt
+...
+if(MY_PROJ_USE_EXTERNAL_ILANG)
+  find_package(ilang REQUIRED)
+else()
+  add_subdirectory(ilang)
+endif()
+...
+```
+
+`externals/ilang` is then a complete copy of this source tree, if enabled.
 
 ## Examples
 
