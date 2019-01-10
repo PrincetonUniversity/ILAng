@@ -19,6 +19,7 @@ void VerifyReadFmacTxPktCnt(
   std::string OutputPath = RootPath + "/verification/";
 
   std::vector<std::string> impl_srcs = {"LMAC_CORE_TOP.v",
+                                        "asynch_fifo.v",
                                         "br_sfifo4x32.v",
                                         "bsh32_dn_88.v",
                                         "bsh8_dn_64.v",
