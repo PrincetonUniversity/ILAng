@@ -129,6 +129,10 @@ void VlgSglTgtGen_Cosa::Export_script(const std::string& script_name) {
     options += " --vcd";
   options += " " + _vtg_config.CosaOtherSolverOptions;
 
+  // no need, copy is good enough
+  //if(vlg_include_files_path.size() != 0)
+  //  options += " -I./";
+
   if (not _vtg_config.CosaPath.empty()) {
     cosa = os_portable_append_dir(_vtg_config.CosaPath, cosa) + ".py";
   }
@@ -227,7 +231,7 @@ void VlgSglTgtGen_Cosa::Export_modify_verilog() {
   // open, read, count and write
   // if it is a port name, we will ask user to specify its upper level
   // signal name
-  VerilogModifier vlg_mod(vlg_info_ptr);
+  VerilogModifier vlg_mod(vlg_info_ptr, static_cast<VerilogModifier::port_decl_style_t>( _vtg_config.PortDeclStyle ));
 
   for (auto&& refered_vlg_item : _all_referred_vlg_names) {
     auto idx = refered_vlg_item.first.find("[");
@@ -256,8 +260,11 @@ void VlgSglTgtGen_Cosa::Export_modify_verilog() {
     vlg_mod.ReadModifyWrite(fn, fin, fout);
   } // for (auto && fn : vlg_design_files)
   // .. (copy all the verilog file in the folder), this has to be os dependent
-  if (vlg_include_files_path.size() != 0)
-    ILA_WARN << "Not copying includes.";
+  if (vlg_include_files_path.size() != 0) {
+    // copy the files and specify the -I commandline to the run.sh
+    for(auto && include_path : vlg_include_files_path )
+      os_portable_copy_dir(include_path, _output_path);
+  }
 
 } // Export_modify_verilog
 
