@@ -8,6 +8,8 @@
 #include <ilang/ilang++.h>
 #include <vector>
 
+#define MESI_INVALID 0
+
 using namespace ilang;
 
 /// \brief the class of PMESH L1.5 ila
@@ -62,6 +64,15 @@ protected:
   ExprRef l15_noc1buffer_req_size        ;
   // ExprRef l15_noc1buffer_req_threadid ;
   ExprRef l15_noc1buffer_req_type        ;
+
+  // output state l15->core
+  ExprRef l15_transducer_val       ;
+  ExprRef l15_transducer_returntype;
+  ExprRef l15_transducer_data_0    ;
+
+  // internal state : map (mem)
+  ExprRef mesi_state;
+  ExprRef data_state;
 
 }; // class AES
 

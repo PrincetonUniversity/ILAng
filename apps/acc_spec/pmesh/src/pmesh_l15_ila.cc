@@ -40,10 +40,20 @@ PMESH_L15::PMESH_L15()
       l15_noc1buffer_req_homeid ( model.NewBvState("l15_noc1buffer_req_homeid" , 30) ),
       l15_noc1buffer_req_mshrid ( model.NewBvState("l15_noc1buffer_req_mshrid" , 2) ),
       l15_noc1buffer_req_noncacheable( model.NewBvState("l15_noc1buffer_req_noncacheable" , 1) ),
-      l15_noc1buffer_req_prefetch    ( model.NewBvState("l15_noc1buffer_req_prefetch    " , 1) ),
-      l15_noc1buffer_req_size        ( model.NewBvState("l15_noc1buffer_req_size        " , 3) ),
+      l15_noc1buffer_req_prefetch    ( model.NewBvState("l15_noc1buffer_req_prefetch"     , 1) ),
+      l15_noc1buffer_req_size        ( model.NewBvState("l15_noc1buffer_req_size"         , 3) ),
       // l15_noc1buffer_req_threadid    ( model.NewBvState("") ), // not
-      l15_noc1buffer_req_type        ( model.NewBvState("l15_noc1buffer_req_type        " , 5) )
+      l15_noc1buffer_req_type        ( model.NewBvState("l15_noc1buffer_req_type"         , 5) ),
+      
+      l15_transducer_val             ( model.NewBvState("l15_transducer_val", 1) ),
+      l15_transducer_returntype      ( model.NewBvState("l15_transducer_returntype", 4) ), // 0 if hit
+      l15_transducer_data_0          ( model.NewBvState("l15_transducer_data_0", 64) ),
+
+      // We made the map as a mem (although in the design, it does not need to be so large)
+      mesi_state( model.NewMemState( "address_to_mesi_map", 40, 2 ) ),
+      data_state( model.NewMemState( "address_to_data_map", 40, 64) )
+      
+
     {
 
   // L1.5 fetch function -- what corresponds to instructions on L1.5 PCX interface
@@ -73,207 +83,36 @@ PMESH_L15::PMESH_L15()
   {
     auto instr = model.NewInstr("LOAD_normal");
 
+    instr.SetDecode( ( rqtype == 0) & (nc == 0) );
 
+    auto MESI_state = Load( mesi_state, address ); // Use the map
+    auto DATA_cache = Load( data_state, address ); // Use the map
+
+    auto hit = MESI_state != MESI_INVALID;
+
+    instr.SetUpdate(l15_noc1buffer_req_address,      Ite(! hit, address,       unknown(40)() ) );
+    instr.SetUpdate(l15_noc1buffer_req_noncacheable, Ite(! hit, BvConst(0,1) , unknown(1)()  ) );
+    instr.SetUpdate(l15_noc1buffer_req_size,         Ite(! hit, size ,         unknown(3)()  ) );
+    instr.SetUpdate(l15_noc1buffer_req_type,         Ite(! hit, rqtype ,       unknown(5)()  ) );
+
+
+// not specifying these updates:
+// l15_noc1buffer_req_data0  
+// l15_noc1buffer_req_data1  
+// l15_noc1buffer_csm_data   
+// l15_noc1buffer_csm_ticket 
+// l15_noc1buffer_req_homeid 
+// l15_noc1buffer_req_mshrid 
+// l15_noc1buffer_req_noncacheable
+// l15_noc1buffer_req_prefetch   
+// l15_noc1buffer_req_threadid 
+
+    // on the hit side ...
+
+    instr.SetUpdate( l15_transducer_val, Ite( hit , BvConst(1,1), unknown(1)() ) );
+    instr.SetUpdate( l15_transducer_returntype, Ite( hit , BvConst(0,4) , unknown(4)() ) );
+    instr.SetUpdate( l15_transducer_data_0, Ite( hit , DATA_cache , unknown(64)()  ) );
+    
   }
 
-
-  { // WRITE_ADDRESS
-    auto instr = model.NewInstr("WRITE_ADDRESS");
-
-    instr.SetDecode( (cmd == CMD_WRITE) & (cmdaddr >= AES_ADDR) & (cmdaddr < AES_ADDR + 2) );
-
-    instr.SetUpdate(address,
-                    Ite(is_status_idle, // Check if it is idle
-                        Concat(         // if idle, update one slice of the register at a time
-                          Ite(cmdaddr == AES_ADDR + 1, cmddata, address(15,8) ), // the upper 8-bits
-                          Ite(cmdaddr == AES_ADDR    , cmddata, address( 7,0) )  // the lower 8-bits
-                        ),
-                        address        // if not idle, no change
-                      )); // update a slice of the register. Slice selected by the cmd address
-
-
-    // guarantees no change
-    // if not specified, it means it allows any change
-    instr.SetUpdate(length , length );
-    instr.SetUpdate(key    , key    );
-    instr.SetUpdate(counter, counter);
-
-  }
-
-  // in the above example, you can use :
-  /*  
-    instr.SetUpdate(address,
-                    Ite(is_status_idle, // update only when idle
-                        slice_update(address, cmdaddr, cmddata, AES_ADDR,   2,    8),
-                        //    target, slice-select, new-value, base-addr, #slice, slice-width
-                        //    - Update part (slice) of `target`, with `new-value`
-                        //      where `slice-select` choose the slice (after subtracted by 
-                        //      `base-addr`) 
-                        //    - `#slice`: number of slices in `target`
-                        //    - `slice-width`: the width of each slice
-                        address));
-  */
-
-  { // START_ENCRYPT
-    // See child-ILA for details
-    auto instr = model.NewInstr("START_ENCRYPT");
-
-    instr.SetDecode((cmd == CMD_WRITE) & (cmdaddr == AES_START) &
-                    (cmddata == 1));
-    // if it is idle, we will start, if it is not idle, there is no guarantee
-    // what it may become
-    instr.SetUpdate(status, Ite(is_status_idle, BvConst(1, 2), unknown(2)()));
-
-    AddChild(instr);
-    // You can have a tighter guarantee there:
-    // instr.SetUpdate( status,
-    //    Ite( is_status_idle , BvConst(1,2) ,
-    //         unknown_choice( status + 1 , BvConst(0,2) ) ) );
-
-    // Another choice is that you make the is_status_idle condition as part of
-    // the instruction decode That means, this instruction only talks about the
-    // conidition when it is idle
-  }
-
-  { // READ_LENGTH
-    auto instr = model.NewInstr("READ_LENGTH");
-
-    instr.SetDecode((cmd == CMD_READ) & (cmdaddr >= AES_LENGTH) &
-                    (cmdaddr < AES_LENGTH + 2));
-
-    instr.SetUpdate(outdata, slice_read(length, cmdaddr, AES_LENGTH, 2, 8));
-
-    // guarantees no change when the instruction executes
-    // if you don't write them, that means no guarantees
-    instr.SetUpdate(key, key);
-    instr.SetUpdate(address, address);
-    instr.SetUpdate(length, length);
-    // but not the following two:
-    //instr.SetUpdate(status, status);
-    //instr.SetUpdate(counter, counter);
-  }
-
-  { // READ_ADDRESS
-    auto instr = model.NewInstr("READ_ADDRESS");
-
-    instr.SetDecode((cmd == CMD_READ) & (cmdaddr >= AES_ADDR) &
-                    (cmdaddr < AES_ADDR + 2));
-
-    instr.SetUpdate(outdata, slice_read(address, cmdaddr, AES_ADDR, 2, 8));
-
-    // guarantee no change
-    instr.SetUpdate(key, key);
-    instr.SetUpdate(address, address);
-    instr.SetUpdate(length, length);
-    // but not the following two:
-    // instr.SetUpdate(status, status);
-    // instr.SetUpdate(counter, counter);
-  }
-
-  { // READ_KEY
-    auto instr = model.NewInstr("READ_KEY");
-
-    instr.SetDecode((cmd == CMD_READ) & (cmdaddr >= AES_KEY) &
-                    (cmdaddr < AES_KEY + 16));
-
-    instr.SetUpdate(outdata, slice_read(key, cmdaddr, AES_KEY, 16, 8));
-
-    // guarantee no change
-    instr.SetUpdate(key, key);
-    instr.SetUpdate(address, address);
-    instr.SetUpdate(length, length);
-
-    // but not the following two:
-    // instr.SetUpdate(status, status);
-    // instr.SetUpdate(counter, counter);
-  }
-
-  { // READ_COUNTER
-    auto instr = model.NewInstr("READ_COUNTER");
-
-    instr.SetDecode((cmd == CMD_READ) & (cmdaddr >= AES_CNT) &
-                    (cmdaddr < AES_CNT + 16));
-
-    instr.SetUpdate(outdata, slice_read(counter, cmdaddr, AES_CNT, 16, 8));
-
-    // guarantee no change
-    instr.SetUpdate(key, key);
-    instr.SetUpdate(address, address);
-    instr.SetUpdate(length, length);
-  }
-
-  { // GET_STATUS
-    auto instr = model.NewInstr("GET_STATUS");
-
-    instr.SetDecode((cmd == CMD_READ) & (cmdaddr >= AES_CNT) &
-                    (cmdaddr < AES_CNT + 16));
-
-    instr.SetUpdate(outdata, slice_read(counter, cmdaddr, AES_CNT, 16, 8));
-
-    // guarantee no change
-    instr.SetUpdate(key, key);
-    instr.SetUpdate(address, address);
-    instr.SetUpdate(length, length);
-  }
-
-  { // WRITE_LENGTH
-    auto instr = model.NewInstr("WRITE_LENGTH");
-
-    instr.SetDecode((cmd == CMD_WRITE) & (cmdaddr >= AES_LENGTH) &
-                    (cmdaddr < AES_LENGTH + 2));
-
-    instr.SetUpdate(
-        length,
-        Ite(is_status_idle,
-            slice_update(length, cmdaddr, cmddata, AES_LENGTH, 2, 8), length));
-
-    // guarantee no change
-    instr.SetUpdate(address, address);
-    instr.SetUpdate(key, key);
-    instr.SetUpdate(counter, counter);
-    // but not for status
-    // you can explicitly status how much you know about it
-    // these are the non-deterministics in the spec
-    instr.SetUpdate(status, Ite(is_status_idle, status, unknown(2)()));
-  }
-
-  { // WRITE_KEY
-    auto instr = model.NewInstr("WRITE_KEY");
-
-    instr.SetDecode((cmd == CMD_WRITE) & (cmdaddr >= AES_KEY) &
-                    (cmdaddr < AES_KEY + 16));
-
-    instr.SetUpdate(
-        key, Ite(is_status_idle,
-                 slice_update(key, cmdaddr, cmddata, AES_KEY, 16, 8), key));
-
-    // guarantee no change
-    instr.SetUpdate(address, address);
-    instr.SetUpdate(length, length);
-    instr.SetUpdate(counter, counter);
-    // but not for status
-  }
-
-  { // WRITE_COUNTER
-    auto instr = model.NewInstr("WRITE_COUNTER");
-
-    instr.SetDecode((cmd == CMD_WRITE) & (cmdaddr >= AES_CNT) &
-                    (cmdaddr < AES_CNT + 16));
-
-    instr.SetUpdate(counter,
-                    Ite(is_status_idle,
-                        slice_update(counter, cmdaddr, cmddata, AES_CNT, 16, 8),
-                        unknown(128)()));
-
-    // if you want a more explicit sepcification
-    // you can replace the last line with
-    // unknown_choice(counter, counter + unknown_range(1,16) ) ) );
-
-    // guarantee no change
-    instr.SetUpdate(key, key);
-    instr.SetUpdate(address, address);
-    // but not for status
-  }
-
-  /// add child
 }
