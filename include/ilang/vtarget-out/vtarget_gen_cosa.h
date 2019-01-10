@@ -117,6 +117,10 @@ protected:
   /// export extra things (problem)
   virtual void
   Export_problem(const std::string& extra_name) override; // only for cosa
+  /// generate along-side a jg script that you can use in JasperGold
+  virtual void
+  Export_jg_tester_script(const std::string& extra_name);
+
   /// export the memory abstraction (implementation)
   /// Yes, this is also implementation specific, (jasper may use a different
   /// one)

@@ -231,6 +231,9 @@ std::string VerilogModifier::add_keep_to_port(const std::string& line_in,
 
   auto midMod = Join(midSplit, ",");
 
+  if( (middle.back() )==',')
+    midMod += ',';
+
   return left_cut + midMod + right_cut;
 } // add_keep_to_port
 

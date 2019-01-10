@@ -52,17 +52,8 @@ protected:
 
   // arch state.
   ExprRef l15_noc1buffer_req_address;
-  ExprRef l15_noc1buffer_req_data0  ;
-  ExprRef l15_noc1buffer_req_data1  ;
-  ExprRef l15_noc1buffer_csm_data   ;
-  ExprRef l15_noc1buffer_csm_ticket ;
-  ExprRef l15_noc1buffer_req_homeid ;
-  ExprRef l15_noc1buffer_req_mshrid ;
-  
   ExprRef l15_noc1buffer_req_noncacheable;
-  ExprRef l15_noc1buffer_req_prefetch    ;
   ExprRef l15_noc1buffer_req_size        ;
-  // ExprRef l15_noc1buffer_req_threadid ;
   ExprRef l15_noc1buffer_req_type        ;
 
   // output state l15->core

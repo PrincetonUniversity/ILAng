@@ -39,6 +39,8 @@ public:
     bool ForceInstCheckReset;
     /// For COSA target generator : whether to force NEW/OLD port declaration
     enum { AUTO = 0, NEW = 1, OLD = 2 } PortDeclStyle;
+    /// Generate a jg script to help validate cosa?
+    bool CosaGenJgTesterScript;
     // The bound of BMC, default 127
     unsigned MaxBound;
     /// Only enforce var eq on updated vars, should not be used
@@ -59,6 +61,7 @@ public:
         : target_select(BOTH), CheckThisInstructionOnly(""),
           InstructionNoReset(true), OnlyCheckInstUpdatedVars(true),
           PerVariableProblemCosa(false), MemAbsReadAbstraction(false),
+          CosaGenJgTesterScript(false),
           MaxBound(127), ForceInstCheckReset(false), PortDeclStyle(AUTO),
           OnlyAssumeUpdatedVarsEq(false), CosaPath(""),
           CosaPyEnvironment(""), CosaSolver(""), CosaGenTraceVcd(true),

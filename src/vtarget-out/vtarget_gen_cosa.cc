@@ -142,6 +142,55 @@ void VlgSglTgtGen_Cosa::Export_script(const std::string& script_name) {
   else
     fout << "echo 'Nothing to check!'" << std::endl;
 }
+
+void VlgSglTgtGen_Cosa::Export_jg_tester_script(const std::string& extra_name) {
+  if (_problems.probitem.size() == 0)
+    return;
+  
+  std::ofstream fout(os_portable_append_dir(_output_path, extra_name));
+  if (!fout.is_open()) {
+    ILA_ERROR << "Error writing file: "
+              << os_portable_append_dir(_output_path, extra_name);
+    return;
+  }
+  fout << "analyze -sva "<<top_file_name << std::endl;
+  fout << "elaborate -top "<<top_mod_name << std::endl;
+  fout << "clock clk" << std::endl;
+  fout << "reset rst" << std::endl;
+
+  decltype(_problems.assumptions) local_assumpt;
+  for(auto && p: _problems.assumptions) {
+    auto eq_idx = p.find('=');
+    auto rm_eq_p = p.substr(0,eq_idx);
+    local_assumpt.push_back(rm_eq_p);
+
+    fout << "assume { " << rm_eq_p <<" }" << std::endl;
+  }
+  // separate assumptions
+  // std::string assmpt = "(" + Join(local_assumpt, ") && (") + ")";
+
+
+
+
+  for (auto&& pbname_prob_pair : _problems.probitem) {
+    const auto& prbname = pbname_prob_pair.first;
+    const auto& prob = pbname_prob_pair.second;
+
+
+    decltype(prob.assertions) local_asst;
+    for(auto && p: prob.assertions) {
+      auto eq_idx = p.find('=');
+      auto rm_eq_p = p.substr(0,eq_idx);
+      local_asst.push_back(rm_eq_p);
+    }
+
+
+    auto asst = "(" + Join(local_asst, ") && (") + ")";
+    fout << "assert { " << asst << " }" << std::endl;
+  }
+
+}
+
 /// export extra things (problem)
 void VlgSglTgtGen_Cosa::Export_problem(const std::string& extra_name) {
   if (_problems.probitem.size() == 0) {
@@ -211,6 +260,9 @@ void VlgSglTgtGen_Cosa::Export_problem(const std::string& extra_name) {
       fout << "strategy: ALL" << std::endl;
     fout << "expected: True" << std::endl;
   }
+
+  if(_vtg_config.CosaGenJgTesterScript)
+    Export_jg_tester_script("jg.tcl");
 
 } // only for cosa
 
