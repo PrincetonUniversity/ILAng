@@ -101,7 +101,7 @@ VerilogVerificationTargetGenerator::vtg_config_t HandleArguments(int argc,
 
 int main(int argc, char** argv) {
   SetToStdErr(1);
-  SetLogLevel(2);
+  SetLogLevel(1);
   DebugLog::Enable("LMAC");
 
   // get the config
