@@ -33,14 +33,7 @@ PMESH_L15::PMESH_L15()
       
       // Output states: l1.5 --> noc1 requests
       l15_noc1buffer_req_address( model.NewBvState("l15_noc1buffer_req_address", 40) ),
-      l15_noc1buffer_req_data0  ( model.NewBvState("l15_noc1buffer_req_data0"  , 64) ),
-      l15_noc1buffer_req_data1  ( model.NewBvState("l15_noc1buffer_req_data1"  , 64) ),
-      l15_noc1buffer_csm_data   ( model.NewBvState("l15_noc1buffer_csm_data  " , 33) ),
-      l15_noc1buffer_csm_ticket ( model.NewBvState("l15_noc1buffer_csm_ticket" , 3) ),
-      l15_noc1buffer_req_homeid ( model.NewBvState("l15_noc1buffer_req_homeid" , 30) ),
-      l15_noc1buffer_req_mshrid ( model.NewBvState("l15_noc1buffer_req_mshrid" , 2) ),
       l15_noc1buffer_req_noncacheable( model.NewBvState("l15_noc1buffer_req_noncacheable" , 1) ),
-      l15_noc1buffer_req_prefetch    ( model.NewBvState("l15_noc1buffer_req_prefetch"     , 1) ),
       l15_noc1buffer_req_size        ( model.NewBvState("l15_noc1buffer_req_size"         , 3) ),
       // l15_noc1buffer_req_threadid    ( model.NewBvState("") ), // not
       l15_noc1buffer_req_type        ( model.NewBvState("l15_noc1buffer_req_type"         , 5) ),

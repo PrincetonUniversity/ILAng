@@ -7,6 +7,8 @@
 #include <ilang/verilog-in/verilog_analysis.h>
 #include <string>
 
+//extern int yy_flex_debug;
+
 namespace ilang {
 
 unsigned VerilogAnalyzer::instance_count = 0;
@@ -81,6 +83,7 @@ VerilogAnalyzer::~VerilogAnalyzer() {
   instance_count--;
 }
 
+
 void VerilogAnalyzer::invoke_parser() {
   // Initialise the parser.
   verilog_parser_init();
@@ -98,7 +101,7 @@ void VerilogAnalyzer::invoke_parser() {
       return;
     }
     verilog_preprocessor_set_file(yy_preproc, (char*)AllocCstr(src));
-
+    //yy_flex_debug = (1);
     int result = verilog_parse_file(fhandler);
     if (result != 0) {
       ILA_ERROR << "Verilog Analyzer encounters syntax error for " << src

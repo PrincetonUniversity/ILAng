@@ -41,13 +41,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //`timescale 1 ns / 10 ps
 `include "l15.tmp.h"
+`include "lsu.tmp.h"
 
 // /home/hongce/ila/openpiton/piton/verif/env/manycore/devices.xml
 
 
-`ifdef DEFAULT_NETTYPE_NONE
-`default_nettype none
-`endif
+
 module l15_pipeline(
     input wire clk,
     input wire rst_n,

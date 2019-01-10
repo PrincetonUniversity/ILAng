@@ -2,7 +2,7 @@
   "instructions": [
     {
       "instruction" : "LOAD_normal",
-      "ready signal": ""
+      "ready signal": "m1.l15_transducer_val || m1.l15.l15_noc1buffer_req_val"
     }
   ],
   

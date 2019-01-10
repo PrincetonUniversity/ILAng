@@ -57,7 +57,7 @@ VlgSglTgtGen::VlgSglTgtGen(
           true)), // rand init
       // interface mapping directive
       _idr(instr_ptr == nullptr ? true  // if nullptr, verify inv., reset it
-                                : _vtg_config.ForceInstCheckReset), 
+                                : (vtg_config.ForceInstCheckReset ? true : false) ) , 
                                 // if checking instruction: by default, we don't reset
                                 // but if forced, we do.
       // state mapping directive

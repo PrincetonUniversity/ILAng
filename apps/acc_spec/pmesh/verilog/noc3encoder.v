@@ -40,9 +40,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 `include "l15.tmp.h"
 `include "define.tmp.h"
 
-`ifdef DEFAULT_NETTYPE_NONE
-`default_nettype none // DEFAULT_NETTYPE_NONE
-`endif
 module noc3encoder(
     input wire clk,
     input wire rst_n,

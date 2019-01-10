@@ -33,9 +33,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // /home/hongce/ila/openpiton/piton/verif/env/manycore/devices.xml
 
 `include "define.tmp.h"
-`ifdef DEFAULT_NETTYPE_NONE
-`default_nettype none
-`endif
+
 module sram_l15_tag
 (
 input wire MEMCLK,
