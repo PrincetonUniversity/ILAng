@@ -129,7 +129,7 @@
     "__VLG_I_rtap_srams_bist_command == 0",
     "__VLG_I_rtap_srams_bist_data == 0",
 
-    "~ (__VLG_I_l15_transducer_ack) ||  ( __VLG_I_transducer_l15_req_ack == 1) "
+    "~ (__VLG_O_l15_transducer_ack) ||  ( __VLG_I_transducer_l15_req_ack == 1) "
     ],
 
   "functions":{

@@ -93,6 +93,7 @@ VerilogVerificationTargetGenerator::vtg_config_t SetConfiguration() {
 
   /// other configurations
   ret.PortDeclStyle = VlgVerifTgtGenBase::vtg_config_t::NEW;
+  ret.CosaGenJgTesterScript = true;
 
   return ret;
 }
