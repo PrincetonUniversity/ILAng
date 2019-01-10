@@ -9,6 +9,7 @@
 #include <ilang/util/log.h>
 #include <ilang/util/str_util.h>
 
+#include <cstdlib>
 #if defined(_WIN32) || defined(_WIN64)
 // on windows
 #include <direct.h>
@@ -75,6 +76,20 @@ std::string os_portable_file_name_from_path(const std::string& path) {
   sep = "/";
 #endif
   return Split(path, sep).back();
+}
+
+
+/// Copy all file from a source dir to the destination dir
+bool os_portable_copy_dir(const std::string &src, const std::string &dst) {
+  int ret;
+#if defined(_WIN32) || defined(_WIN64)
+  // on windows
+  ret = std::system(("xcopy " + os_portable_append_dir(src,"*") + " " + dst).c_str());
+#else
+  // on *nix
+  ret = std::system(("cp " + os_portable_append_dir(src,"*") + " " + dst).c_str());
+#endif
+  return ret == 0;
 }
 
 }; // namespace ilang

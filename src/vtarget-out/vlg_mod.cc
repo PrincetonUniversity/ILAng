@@ -10,8 +10,8 @@
 namespace ilang {
 
 /// Constructor: do nothing
-VerilogModifier::VerilogModifier(VerilogInfo* _vlg_info_ptr)
-    : vlg_info_ptr(_vlg_info_ptr) {}
+VerilogModifier::VerilogModifier(VerilogInfo* _vlg_info_ptr, port_decl_style_t port_decl_style)
+    : vlg_info_ptr(_vlg_info_ptr), _port_decl_style(port_decl_style) {}
 /// Destructor: do nothing
 VerilogModifier::~VerilogModifier() {}
 
@@ -332,10 +332,16 @@ bool VerilogModifier::add_mod_decl_wire_to_this_line(const std::string& line_in,
 
   auto wl = SplitSpaceTabEnter(left); // should not go to the right
   bool new_style = false;
-  if (std::find(wl.begin(), wl.end(), "output") != wl.end())
-    new_style = true;
-  if (std::find(wl.begin(), wl.end(), "input") != wl.end())
-    new_style = true;
+
+  if(_port_decl_style == port_decl_style_t::AUTO) {
+    new_style = false;
+    if (std::find(wl.begin(), wl.end(), "output") != wl.end())
+      new_style = true;
+    if (std::find(wl.begin(), wl.end(), "input") != wl.end())
+      new_style = true;
+  } else {
+    new_style = _port_decl_style == port_decl_style_t::NEW ? true : false;
+  }
 
   if (new_style) {
     auto text = ", output wire " + WidthToRange(width) + " " + vname;

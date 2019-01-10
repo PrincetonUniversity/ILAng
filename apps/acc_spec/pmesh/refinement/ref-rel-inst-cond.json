@@ -1,0 +1,12 @@
+{
+  "instructions": [
+    {
+      "instruction" : "LOAD_normal",
+      "ready signal": ""
+    }
+  ],
+  
+  "global invariants": []
+
+}
+
