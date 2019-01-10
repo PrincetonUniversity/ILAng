@@ -9,6 +9,13 @@ namespace ilang {
 Ila GetLmacIla(const std::string& name) {
   auto lmac = Ila(name);
   DefineArchState(lmac);
+
+  // valid
+  {
+    auto valid = (lmac.input("reg_read_start") == true); // XXX
+    lmac.SetValid(valid);
+  }
+
   DefineInstruction(lmac);
   return lmac;
 }
@@ -51,17 +58,21 @@ void DefineArchState(Ila& m) {
   // --- MMIO registers
 #define MMIO_REG_SIZE 32
   auto fmac_tx_pkt_cnt = m.NewBvState("FMAC_TX_PKT_CNT", MMIO_REG_SIZE);
+#if 0
   auto fmac_rx_pkt_cnt_lo = m.NewBvState("FMAC_RX_PKT_CNT_LO", MMIO_REG_SIZE);
   auto fmac_rx_pkt_cnt_hi = m.NewBvState("FMAC_RX_PKT_CNT_HI", MMIO_REG_SIZE);
   auto fmac_tx_byte_cnt = m.NewBvState("FMAC_TX_BYTE_CNT", MMIO_REG_SIZE);
   auto fmac_rx_byte_cnt_lo = m.NewBvState("FMAC_RX_BYTE_CNT_LO", MMIO_REG_SIZE);
   auto fmac_rx_byte_cnt_hi = m.NewBvState("FMAC_RX_BYTE_CNT_HI", MMIO_REG_SIZE);
+#endif
   // TODO
 
-  // helpers
+#if 0
+  // connection to child ILAs
   auto read_reg_cycle_cnt = m.NewBvState("lmac_read_reg_cycle_cnt", 8);
   auto read_reg_cache_val =
       m.NewBvState("lmac_read_reg_cache_val", MMIO_REG_SIZE);
+#endif
 
   return;
 }
@@ -75,6 +86,7 @@ void DefineArchState(Ila& m) {
 // properties? (one and exactly one cycle)
 
 void DefineInstruction(Ila& m) {
+#if 0
   // child ILA for 5 cycle delay
   ILA_DLOG("LMAC") << "child ILA";
   auto reg_read_child = m.NewChild("reg_read_child");
@@ -121,6 +133,7 @@ void DefineInstruction(Ila& m) {
       instr_delay_end.SetUpdate(cnt, BvConst(0, 8));
     }
   }
+#endif
 
   ILA_DLOG("LMAC") << "READ_FMAC_TX_PKT_CNT_SINGLE";
   auto instr_read_tx_pkt_cnt = m.NewInstr("READ_FMAC_TX_PKT_CNT_SINGLE");
@@ -152,7 +165,6 @@ void DefineInstruction(Ila& m) {
     instr_read_tx_pkt_cnt.SetUpdate(m.state("lmac_read_reg_cycle_cnt"),
                                     BvConst(1, 8));
   }
-#endif
 
   auto instr_read_rx_pkt_cnt_lo = m.NewInstr("READ_FMAC_RX_PKT_CNT_LO");
   {
@@ -167,6 +179,7 @@ void DefineInstruction(Ila& m) {
     instr_read_rx_pkt_cnt_lo.SetUpdate(m.state("lmac_read_reg_cycle_cnt"),
                                        BvConst(1, 8));
   }
+#endif
 
   ILA_DLOG("LMAC") << "Finish";
   return;

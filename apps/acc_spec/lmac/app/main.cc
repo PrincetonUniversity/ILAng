@@ -8,21 +8,6 @@ using namespace ilang;
 void VerifyReadFmacTxPktCnt(
     Ila& m, VerilogVerificationTargetGenerator::vtg_config_t vtg_cfg) {
 
-#if 0
-  // generate vlog
-  auto vgen = VerilogGenerator();
-  auto instr_ptr = m.instr("READ_FMAC_TX_PKT_CNT_INSTR").get();
-  ILA_DLOG("LMAC") << "export top level instr READ_FMAC_TX_PKT_CNT";
-  vgen.ExportTopLevelInstr(instr_ptr);
-
-  std::ofstream fout("ila_raed_fmac_tx_pkt_cnt.v");
-  if (fout.is_open()) {
-    ILA_DLOG("LMAC") << "dump vlog to file";
-    vgen.DumpToFile(fout);
-    fout.close();
-  }
-#endif
-
   ILA_DLOG("LMAC") << "Start generating verification targets";
   VerilogGeneratorBase::VlgGenConfig vlg_cfg;
 
@@ -116,6 +101,7 @@ VerilogVerificationTargetGenerator::vtg_config_t HandleArguments(int argc,
 
 int main(int argc, char** argv) {
   SetToStdErr(1);
+  SetLogLevel(2);
   DebugLog::Enable("LMAC");
 
   // get the config
