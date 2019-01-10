@@ -1,0 +1,16 @@
+{
+  "instructions": [
+    {
+      "instruction" : "READ_FMAC_TX_PKT_CNT_SINGLE",
+      "ready bound" : 5
+    },
+    {
+      "instruction" : "READ_FMAC_RX_PKT_CNT_LO",
+      "ready bound" : 5
+    }
+  ],
+  
+  "global invariants": []
+
+}
+

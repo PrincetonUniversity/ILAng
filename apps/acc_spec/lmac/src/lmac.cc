@@ -2,17 +2,19 @@
 /// The implementation for LMAC ILA.
 
 #include "lmac.h"
+#include <ilang/util/log.h>
 
 namespace ilang {
 
 Ila GetLmacIla(const std::string& name) {
-  auto lmac = Ila("LMAC");
+  auto lmac = Ila(name);
   DefineArchState(lmac);
   DefineInstruction(lmac);
   return lmac;
 }
 
 void DefineArchState(Ila& m) {
+  ILA_DLOG("LMAC") << "define arch state";
   // --- implementation dependent
   auto clk = m.NewBoolInput("clk");         // positive edge
   auto reg_clk = m.NewBoolInput("reg_clk"); // positive edge
@@ -57,7 +59,7 @@ void DefineArchState(Ila& m) {
   // TODO
 
   // helpers
-  auto read_reg_cycle_cnt = m.NewBvState("lamc_read_reg_cycle_cnt", 8);
+  auto read_reg_cycle_cnt = m.NewBvState("lmac_read_reg_cycle_cnt", 8);
   auto read_reg_cache_val =
       m.NewBvState("lmac_read_reg_cache_val", MMIO_REG_SIZE);
 
@@ -74,15 +76,18 @@ void DefineArchState(Ila& m) {
 
 void DefineInstruction(Ila& m) {
   // child ILA for 5 cycle delay
+  ILA_DLOG("LMAC") << "child ILA";
   auto reg_read_child = m.NewChild("reg_read_child");
   {
     auto& c = reg_read_child;
 
     // valid
+    ILA_DLOG("LMAC") << "valid";
     auto valid = c.state("lmac_read_reg_cycle_cnt") != 0;
     reg_read_child.SetValid(valid);
 
     // fetch
+    ILA_DLOG("LMAC") << "fetch";
     auto fetch = Concat(c.state("lmac_read_reg_cycle_cnt"),
                         c.state("lmac_read_reg_cache_val"));
     reg_read_child.SetFetch(fetch);
@@ -94,12 +99,14 @@ void DefineInstruction(Ila& m) {
     // cnt: 1 -> 2 -> 3 -> 4 -> 5 -> 0
     // out: 0 -> 0 -> 0 -> 0 -> 1 -> 0
 
+    ILA_DLOG("LMAC") << "child reg read delay ini";
     auto instr_delay_ini = c.NewInstr("reg_read_delay_ini");
     {
       instr_delay_ini.SetDecode((cnt > 0) & (cnt < 4));
       instr_delay_ini.SetUpdate(cnt, cnt + 1);
     }
 
+    ILA_DLOG("LMAC") << "child reg read delay out";
     auto instr_delay_out = c.NewInstr("reg_read_delay_out");
     {
       instr_delay_out.SetDecode(cnt == 4);
@@ -107,6 +114,7 @@ void DefineInstruction(Ila& m) {
       instr_delay_out.SetUpdate(out, BoolConst(true));
     }
 
+    ILA_DLOG("LMAC") << "child reg read delay end";
     auto instr_delay_end = c.NewInstr("reg_read_delay_end");
     {
       instr_delay_end.SetDecode(cnt == 5);
@@ -114,34 +122,53 @@ void DefineInstruction(Ila& m) {
     }
   }
 
+  ILA_DLOG("LMAC") << "READ_FMAC_TX_PKT_CNT_SINGLE";
+  auto instr_read_tx_pkt_cnt = m.NewInstr("READ_FMAC_TX_PKT_CNT_SINGLE");
+  {
+    // decode
+    auto decode = (m.input("reg_read_start") == true) &
+                  (m.input("host_addr") == LMAC_MMIO_OFFSET_FMAC_TX_PKT_CNT);
+    instr_read_tx_pkt_cnt.SetDecode(decode);
+
+    // updates
+    instr_read_tx_pkt_cnt.SetUpdate(m.state("read_reg_done_out"),
+                                    BoolConst(true));
+    instr_read_tx_pkt_cnt.SetUpdate(m.state("mac_reg_d_out"),
+                                    m.state("FMAC_TX_PKT_CNT"));
+  }
+
+#if 0
+  ILA_DLOG("LMAC") << "READ_FMAC_TX_PKT_CNT";
   auto instr_read_tx_pkt_cnt = m.NewInstr("READ_FMAC_TX_PKT_CNT");
   {
     // decode
-    auto decode = (m.input("reg_read_start") == 1) &
+    auto decode = (m.input("reg_read_start") == true) &
                   (m.input("host_addr") == LMAC_MMIO_OFFSET_FMAC_TX_PKT_CNT);
     instr_read_tx_pkt_cnt.SetDecode(decode);
 
     // updates
     instr_read_tx_pkt_cnt.SetUpdate(m.state("lmac_read_reg_cache_val"),
-                                    m.state("fmac_tx_pkt_cnt"));
+                                    m.state("FMAC_TX_PKT_CNT"));
     instr_read_tx_pkt_cnt.SetUpdate(m.state("lmac_read_reg_cycle_cnt"),
                                     BvConst(1, 8));
   }
+#endif
 
   auto instr_read_rx_pkt_cnt_lo = m.NewInstr("READ_FMAC_RX_PKT_CNT_LO");
   {
     // decode
-    auto decode = (m.input("reg_read_start") == 1) &
+    auto decode = (m.input("reg_read_start") == true) &
                   (m.input("host_addr") == LMAC_MMIO_OFFSET_FMAC_RX_PKT_CNT_LO);
     instr_read_rx_pkt_cnt_lo.SetDecode(decode);
 
     // updates
     instr_read_rx_pkt_cnt_lo.SetUpdate(m.state("lmac_read_reg_cache_val"),
-                                       m.state("fmac_rx_pkt_cnt_lo"));
+                                       m.state("FMAC_RX_PKT_CNT_LO"));
     instr_read_rx_pkt_cnt_lo.SetUpdate(m.state("lmac_read_reg_cycle_cnt"),
                                        BvConst(1, 8));
   }
 
+  ILA_DLOG("LMAC") << "Finish";
   return;
 }
 

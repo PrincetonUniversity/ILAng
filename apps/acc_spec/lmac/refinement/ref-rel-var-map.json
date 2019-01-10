@@ -1,0 +1,72 @@
+{
+  "models": { "ILA":"m0" , "VERILOG": "m1" },
+  "state mapping": { 
+    "read_reg_done_out" : "m1.reg_rd_done",
+    "mac_reg_d_out"     : "m1.FMAC_REGDOUT"
+  },
+
+  "interface mapping": {
+     "clk"              : "**CLOCK**",
+     "xauiA_clk"        : "**CLOCK**",
+     "gige_clk"         : "**CLOCK**",
+     "reset_"           : "**RESET**", 
+
+     "fmac_speed"       : "**KEEP**",
+     "TCORE_MODE"       : "**KEEP**",
+
+     "tx_mac_wr"        : "**KEEP**",
+		 "tx_mac_data"      : "**KEEP**",		
+		 "tx_mac_full"      : "**KEEP**",		
+		 "tx_mac_usedw"     : "**KEEP**",	
+
+     "rx_mac_data"      : "**KEEP**",
+		 "rx_mac_ctrl"	    : "**KEEP**",
+		 "rx_mac_empty"	    : "**KEEP**",
+		 "rx_mac_rd"        : "**KEEP**",
+		 "rx_mac_rd_cycle"  : "**KEEP**",	
+
+     "rx_mac_full_dbg"  : "**NC**",
+     "rx_mac_usedw_dbg" : "**NC**",
+
+     "cs_fifo_rd_en"    : "**KEEP**",
+     "cs_fifo_empty"    : "**KEEP**",
+     "ipcs_fifo_dout"   : "**KEEP**",
+
+     "gmii_txd"         : "**KEEP**",
+     "gmii_txc"         : "**KEEP**",
+     "gmii_tx_en"       : "**KEEP**",
+     "gmii_tx_vld"      : "**KEEP**",
+
+     "xram_data_out" : "**MEM**XRAM.wdata",
+     "xram_data_in"  : "**MEM**XRAM.rdata",
+     "wr"            :                           "**KEEP**",
+     "ack"           :                           "**KEEP**",
+     "stb"           :                           "**KEEP**",
+     "xram_ack"      :                           "**KEEP**",
+     "xram_addr"     :                           "**KEEP**",
+     "xram_wr"       :                           "**KEEP**",
+     "xram_stb"      :                           "**KEEP**",
+     "data_out"      :           "**SO**",
+     "aes_state"     :           "**SO**",
+     "aes_addr"      :           "**SO**",
+     "aes_len"       :           "**SO**",
+     "aes_ctr"       :           "**SO**",
+     "aes_key0"      :           "**SO**",
+     "aes_step:"     :           "**SO**"
+  },
+
+  "mapping control" : [ "(m1.xram_wr & m1.xram_stb) == __MEM_XRAM_0_wen" , 
+                        "(~ ( m0.cmd == 2 )) || ( m1.wr == 1)" , 
+                        "(~ ( m0.cmd == 1 )) || ( m1.wr == 0)",
+                        " m1.xram_addr ==  __MEM_XRAM_0_raddr ",
+                        " m1.xram_addr ==  __MEM_XRAM_0_waddr ",
+
+                        "(m1.TCORE_MORE == 1)"
+                      ],
+
+  "functions":{
+      "unknown0":[["__IEND__","m1.aes_reg_state"]],
+      "unknown1":[["__IEND__","m1.aes_reg_state"]],
+      "unknown2":[["__IEND__","m1.aes_reg_ctr_i.reg_out"]]
+  }
+}
