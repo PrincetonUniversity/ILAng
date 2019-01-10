@@ -129,8 +129,9 @@ void VlgSglTgtGen_Cosa::Export_script(const std::string& script_name) {
     options += " --vcd";
   options += " " + _vtg_config.CosaOtherSolverOptions;
 
-  if(vlg_include_files_path.size() != 0)
-    options += " -I./";
+  // no need, copy is good enough
+  //if(vlg_include_files_path.size() != 0)
+  //  options += " -I./";
 
   if (not _vtg_config.CosaPath.empty()) {
     cosa = os_portable_append_dir(_vtg_config.CosaPath, cosa) + ".py";
