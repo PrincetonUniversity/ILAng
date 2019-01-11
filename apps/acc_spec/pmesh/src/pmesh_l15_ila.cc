@@ -40,11 +40,11 @@ PMESH_L15::PMESH_L15()
       
       l15_transducer_val             ( model.NewBvState("l15_transducer_val", 1) ),
       l15_transducer_returntype      ( model.NewBvState("l15_transducer_returntype", 4) ), // 0 if hit
-      l15_transducer_data_0          ( model.NewBvState("l15_transducer_data_0", 64) ),
+      l15_transducer_data_0          ( model.NewBvState("l15_transducer_data_0", 64) )
 
       // We made the map as a mem (although in the design, it does not need to be so large)
-      mesi_state( model.NewMemState( "address_to_mesi_map", 40, 2 ) ),
-      data_state( model.NewMemState( "address_to_data_map", 40, 64) )
+      // mesi_state( model.NewMemState( "address_to_mesi_map", 40, 2 ) ),
+      // data_state( model.NewMemState( "address_to_data_map", 40, 64) )
       
 
     {
@@ -78,15 +78,15 @@ PMESH_L15::PMESH_L15()
 
     instr.SetDecode( ( rqtype == 0) & (nc == 0) );
 
-    auto MESI_state = Load( mesi_state, address ); // Use the map
-    auto DATA_cache = Load( data_state, address ); // Use the map
+    auto MESI_state = Map( "address_to_mesi_map",  2, address ); // Use the map
+    auto DATA_cache = Map( "address_to_data_map", 64, address ); // Use the map
 
     auto hit = MESI_state != MESI_INVALID;
 
     instr.SetUpdate(l15_noc1buffer_req_address,      Ite(! hit, address,       unknown(40)() ) );
     instr.SetUpdate(l15_noc1buffer_req_noncacheable, Ite(! hit, BvConst(0,1) , unknown(1)()  ) );
     instr.SetUpdate(l15_noc1buffer_req_size,         Ite(! hit, size ,         unknown(3)()  ) );
-    instr.SetUpdate(l15_noc1buffer_req_type,         Ite(! hit, rqtype ,       unknown(5)()  ) );
+    instr.SetUpdate(l15_noc1buffer_req_type,         Ite(! hit, BvConst(2,5) ,       unknown(5)()  ) );
 
 
 // not specifying these updates:

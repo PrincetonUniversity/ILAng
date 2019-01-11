@@ -129,19 +129,29 @@
     "__VLG_I_rtap_srams_bist_command == 0",
     "__VLG_I_rtap_srams_bist_data == 0",
 
-    "~ (__VLG_O_l15_transducer_ack) ||  ( __VLG_I_transducer_l15_req_ack == 1) "
+    "~ (__VLG_O_l15_transducer_ack) ||  ( __VLG_I_transducer_l15_req_ack == 1) ",
+
+    "m1.l15.pipeline.global_start == __START__",
+    "m1.l15.pipeline.global_started == __STARTED__",
+    "m1.l15.pipeline.global_rst == rst"
     ],
 
   "functions":{
-      "unknown0":[["__IEND__","m1.l15.l15_noc1buffer_req_address"]],
-      "unknown1":[["__IEND__","m1.l15.l15_noc1buffer_req_non_cacheable"]],
-      "unknown2":[["__IEND__","m1.l15.l15_noc1buffer_req_size"]],
-      "unknown3":[["__IEND__","m1.l15.l15_noc1buffer_req_type"]],
+      "unknown0":[["m1.l15.pipeline.monitor_s3","m1.l15.l15_noc1buffer_req_address"]],
+      "unknown1":[["m1.l15.pipeline.monitor_s3","m1.l15.l15_noc1buffer_req_non_cacheable"]],
+      "unknown2":[["m1.l15.pipeline.monitor_s3","m1.l15.l15_noc1buffer_req_size"]],
+      "unknown3":[["m1.l15.pipeline.monitor_s3","m1.l15.l15_noc1buffer_req_type"]],
 
-      "unknown4":[["__IEND__","m1.l15_transducer_val"]],
-      "unknown5":[["__IEND__","m1.l15_transducer_returntype"]],
-      "unknown6":[["__IEND__","m1.l15_transducer_data_0"]]
+      "unknown4":[["m1.l15.pipeline.monitor_s3","m1.l15_transducer_val"]],
+      "unknown5":[["m1.l15.pipeline.monitor_s3","m1.l15_transducer_returntype"]],
+      "unknown6":[["m1.l15.pipeline.monitor_s3","m1.l15_transducer_data_0"]],
 
+      "address_to_mesi_map":[[
+        "m1.l15.pipeline.monitor_s2 && ~ m1.l15.pipeline.monitor_s3", "m1.l15.pipeline.tagcheck_state_s2",
+        "__START__", "m1.transducer_l15_address"]],
+      "address_to_data_map":[[
+        "m1.l15.pipeline.monitor_s3 && ~ m1.l15.pipeline.monitor_s3_delay", "m1.l15.pipeline.dcache_l15_dout_s3[127:64]",
+        "__START__", "m1.transducer_l15_address"]]
   }
 
 
