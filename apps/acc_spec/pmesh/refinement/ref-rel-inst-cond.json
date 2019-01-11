@@ -10,7 +10,7 @@
          "m1.transducer_l15_address[1:0] == 0",
          "m1.l15.pipeline.stall_s1 == 0"],
 
-      "max bound":20
+      "max bound":34
     }
   ],
   

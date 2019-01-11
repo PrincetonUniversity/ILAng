@@ -31,6 +31,14 @@ ExprRef PMESH_L15::Map(const std::string & name, unsigned retLen, const ExprRef 
   return FuncRef(name, SortRef::BV(retLen), SortRef::BV(val.bit_width()) )( val );
 }
 
+
+/// build a map relation
+ExprRef PMESH_L15::NewMap(const std::string & name, unsigned inLen, unsigned outLen) {
+  return ExprRef(NULL); //model.NewMemState(name+"_mapmem", inLen, outLen);
+
+}
+
+
 unsigned nondet_counter = 0;
 
 FuncRef PMESH_L15::unknown(unsigned width) {

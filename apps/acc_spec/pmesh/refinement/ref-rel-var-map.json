@@ -8,10 +8,7 @@
 
     "l15_transducer_val"             : "m1.l15_transducer_val",
     "l15_transducer_returntype"      : "m1.l15_transducer_returntype",
-    "l15_transducer_data_0"          : "m1.l15_transducer_data_0",
-
-    "address_to_mesi_map"  : "**MEM**address_to_mesi_map",
-    "address_to_data_map"  : "**MEM**address_to_data_map"
+    "l15_transducer_data_0"          : "m1.l15_transducer_data_0"
   },
 
   "interface mapping": {
