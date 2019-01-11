@@ -25,6 +25,12 @@ ExprRef PMESH_L15::lConcat(const std::vector<ExprRef> & l) {
   return ret;
 }
 
+
+/// build a map relation
+ExprRef PMESH_L15::Map(const std::string & name, unsigned retLen, const ExprRef & val) {
+  return FuncRef(name, SortRef::BV(retLen), SortRef::BV(val.bit_width()) )( val );
+}
+
 unsigned nondet_counter = 0;
 
 FuncRef PMESH_L15::unknown(unsigned width) {

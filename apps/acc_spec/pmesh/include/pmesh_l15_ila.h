@@ -38,6 +38,8 @@ protected:
   static FuncRef unknown(unsigned width);
   /// a helper function to concat a vector of express
   static ExprRef lConcat(const std::vector<ExprRef> & l);
+  /// build a map relation
+  static ExprRef Map(const std::string & name, unsigned retLen, const ExprRef & val);
 
 
 protected:
@@ -62,8 +64,9 @@ protected:
   ExprRef l15_transducer_data_0    ;
 
   // internal state : map (mem)
-  ExprRef mesi_state;
-  ExprRef data_state;
+  // ExprRef mesi_state;
+  // ExprRef data_state;
+
 
 }; // class AES
 
