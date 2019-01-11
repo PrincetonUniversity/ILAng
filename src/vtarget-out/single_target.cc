@@ -56,8 +56,10 @@ VlgSglTgtGen::VlgSglTgtGen(
           VerilogGeneratorBase::VlgGenConfig::funcOption::External, true,
           true)), // rand init
       // interface mapping directive
-      _idr(instr_ptr == nullptr ? true
-                                : false), // if nullptr, verify inv., reset it
+      _idr(instr_ptr == nullptr ? true  // if nullptr, verify inv., reset it
+                                : (vtg_config.ForceInstCheckReset ? true : false) ) , 
+                                // if checking instruction: by default, we don't reset
+                                // but if forced, we do.
       // state mapping directive
       _sdr(), // currently no
       // verilog info
@@ -795,7 +797,11 @@ void VlgSglTgtGen::ConstructWrapper_add_condition_signals() {
 
   } else {
     vlg_wrapper.add_wire("__ISSUE__", 1, true);
-    add_wire_assign_assumption("__ISSUE__", "1", "ISSUE"); // issue ASAP
+    if(_vtg_config.ForceInstCheckReset) {
+      vlg_wrapper.add_input("__ISSUE__", 1);
+    }
+    else
+      add_wire_assign_assumption("__ISSUE__", "1", "ISSUE"); // issue ASAP
     // start decode -- issue enforce (e.g. valid, input)
   } // end of no flush
 }
@@ -932,7 +938,7 @@ void VlgSglTgtGen::ConstructWrapper_add_uf_constraints() {
         std::string func_arg = funcName + "_" + IntToStr(idx - 1) + "_arg" +
                                IntToStr(arg_idx / 2 - 1) + "_reg";
 
-        prep += "&&(" + cond + ")&&((" + func_arg + ") == (" + map + "))";
+        prep += "&&(~(" + cond + ")||((" + func_arg + ") == (" + map + ")))";
       }
 
       add_an_assumption("~(" + prep + ") || (" + res_map + ")", "funcmap");

@@ -7,6 +7,8 @@
 #include <ilang/verilog-in/verilog_analysis.h>
 #include <string>
 
+//extern int yy_flex_debug;
+
 namespace ilang {
 
 unsigned VerilogAnalyzer::instance_count = 0;
@@ -81,6 +83,7 @@ VerilogAnalyzer::~VerilogAnalyzer() {
   instance_count--;
 }
 
+
 void VerilogAnalyzer::invoke_parser() {
   // Initialise the parser.
   verilog_parser_init();
@@ -98,7 +101,7 @@ void VerilogAnalyzer::invoke_parser() {
       return;
     }
     verilog_preprocessor_set_file(yy_preproc, (char*)AllocCstr(src));
-
+    //yy_flex_debug = (1);
     int result = verilog_parse_file(fhandler);
     if (result != 0) {
       ILA_ERROR << "Verilog Analyzer encounters syntax error for " << src
@@ -332,8 +335,8 @@ VerilogAnalyzer::_check_hierarchical_name_type(
       void* ptr_from_list_ =
           ast_list_get_not_null(port_ptr->port_names, name_idx);
       ast_identifier port_id_ptr;
-      if (port_ptr
-              ->is_reg) { // in this case, it is not a list of ast_identifier
+      if (not port_ptr
+              ->is_list_id) { // in this case, it is not a list of ast_identifier
         // but a list of ast_single_assignment(ast_new_lvalue_id)
         ast_single_assignment* asm_ptr = (ast_single_assignment*)ptr_from_list_;
         ILA_ASSERT(asm_ptr->lval->type == ast_lvalue_type_e::NET_IDENTIFIER ||

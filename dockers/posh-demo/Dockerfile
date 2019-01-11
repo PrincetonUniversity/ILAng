@@ -80,6 +80,27 @@ RUN cd $COSA_DIR && \
 RUN cd $COSA_DIR && \
     $BUILD_PREF/bin/pip3 install -e .
 
+# Boolector
+ENV BTOR_DIR $BUILD_ROOT/Boolector
+ADD https://api.github.com/repos/Boolector/boolector/git/refs/heads/master btor_version.json
+RUN git clone --depth=1 https://github.com/Boolector/boolector.git $BTOR_DIR
+RUN pip3 install cython
+RUN cd $BTOR_DIR && ./contrib/setup-lingeling.sh 
+RUN cd $BTOR_DIR && ./contrib/setup-cadical.sh
+RUN cd $BTOR_DIR && ./contrib/setup-btor2tools.sh
+RUN cd $BTOR_DIR && ./configure.sh --python --py3 --prefix $BUILD_PREF
+RUN cd $BTOR_DIR/build && \
+    make -j$(nproc) && \
+    make install
+
+# PySMT
+RUN wget https://raw.githubusercontent.com/makaimann/pysmt/fast/pysmt/solvers/btor.py 
+RUN mv btor.py btor-solver.py
+RUN cp btor-solver.py $BUILD_PREF/lib/python3.6/site-packages/pysmt/solvers/btor.py
+RUN wget https://raw.githubusercontent.com/makaimann/pysmt/fast/pysmt/cmd/installers/btor.py 
+RUN mv btor.py btor-installer.py
+RUN cp btor-installer.py /ibuild/ilang-env/lib/python3.6/site-packages/pysmt/cmd/installers/btor.py
+
 #
 # Deployment
 #
@@ -87,33 +108,32 @@ FROM ubuntu:bionic
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     bison \
+#build-essential \
+#cmake \
     flex \
     libgomp1 \
+    python3 \
+    python3-pip \
     tcl-dev \
     vim \
+    wget \
     && rm -rf /var/lib/apt/lists/*
 
 ENV VIRT_ENV ilang-env
 ENV BUILD_ROOT /ibuild
 ENV BUILD_PREF $BUILD_ROOT/$VIRT_ENV
-ENV USER_NAME demo
-ENV USER_HOME /home/$USER_NAME
 
-# add user account
-RUN groupadd -r $USER_NAME && useradd --create-home --no-log-init -r -g $USER_NAME $USER_NAME
-USER $USER_NAME
+WORKDIR $BUILD_ROOT/demo
 
-WORKDIR $USER_HOME
-
-RUN echo "source $BUILD_PREF/bin/activate" >> $USER_HOME/.bashrc
-RUN echo "export PYTHONPATH=$BUILD_ROOT/CoSA/:\$PYTHONPATH" >> $USER_HOME/.bashrc
-RUN echo "cd ~" >> $USER_HOME/.bashrc
+RUN echo "source $BUILD_PREF/bin/activate" >> init.sh
+RUN echo "export PYTHONPATH=$BUILD_PREF/lib:\$PYTHONPATH" >> init.sh
+RUN echo "cd $(pwd)" >> init.sh
 
 # configure files
-COPY --from=builder --chown=demo $BUILD_PREF $BUILD_PREF
-COPY --from=builder --chown=demo $BUILD_ROOT/CoSA/ $BUILD_ROOT/CoSA/
-COPY --from=builder --chown=demo $BUILD_ROOT/ILA-Tools/apps/acc_spec/aes/ $USER_HOME/aes-demo/
+COPY --from=builder $BUILD_PREF $BUILD_PREF
+COPY --from=builder $BUILD_ROOT/CoSA/ $BUILD_ROOT/CoSA/
+COPY --from=builder $BUILD_ROOT/ILA-Tools/apps/acc_spec/aes/ ./aes-demo/
 
 # done
-CMD ["/bin/bash"]
+CMD echo "run 'source init.sh' to start" && /bin/bash
 

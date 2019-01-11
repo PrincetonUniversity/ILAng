@@ -1,7 +1,7 @@
 #!/bin/bash
-source ~/cosaEnv/bin/activate
+#source ~/cosaEnv/bin/activate
 curdir=`pwd`
-COSA="/home/hongce/CoSA/CoSA.py"
+COSA="CoSA"
 SOLVER=btor
 
 for subd in WRITE_ADDRESS GET_STATUS READ_ADDRESS READ_COUNTER READ_KEY READ_LENGTH START_ENCRYPT  WRITE_COUNTER WRITE_KEY WRITE_LENGTH; do

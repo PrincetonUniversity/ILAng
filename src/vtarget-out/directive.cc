@@ -33,7 +33,7 @@ bool IntefaceDirectiveRecorder::isSpecialInputDirCompatibleWith(
     return true;
   if (c == "**SO**")
     return vlg_sig.is_output();
-  if (c == "**RESET**" || c == "**CLOCK**")
+  if (c == "**RESET**" || c == "**NRESET**" || c == "**CLOCK**")
     return (vlg_sig.is_input() and vlg_sig.get_width() == 1);
   if (beginsWith(c, "**MEM**")) {
     auto first_dot_loc = c.find(".");
@@ -137,9 +137,15 @@ void IntefaceDirectiveRecorder::ModuleInstSanityCheck(
     const auto& the_wire_connected_to_the_port = signal_conn_pair.second.second;
     if (conn_tp == inf_dir_t::NC)
       continue; // no need to check them, will be declared
-
+    
     if (IN(the_wire_connected_to_the_port, gen.wires))
       continue; // if found okay
+
+    // handles ~x
+    if (the_wire_connected_to_the_port[0] == '~') {
+      if( IN(the_wire_connected_to_the_port.substr(1), gen.wires) )
+        continue;
+    }
 
     ILA_ASSERT(false) << "Connecting signal: " << the_wire_connected_to_the_port
                       << " tp: " << conn_tp
@@ -241,7 +247,15 @@ void IntefaceDirectiveRecorder::RegisterInterface(const SignalInfoBase& vlg_sig,
       else
         mod_inst_rec.insert(
             {short_name, inf_connector_t({inf_dir_t::RESET, "dummy_reset"})});
-    } else if (refstr == "**CLOCK**") {
+    } else if (refstr == "**NRESET**") {
+      if (_reset_vlg)
+        mod_inst_rec.insert(
+            {short_name, inf_connector_t({inf_dir_t::RESET, "~rst"})});
+      else
+        mod_inst_rec.insert(
+            {short_name, inf_connector_t({inf_dir_t::RESET, "~dummy_reset"})});
+    }
+    else if (refstr == "**CLOCK**") {
       mod_inst_rec.insert(
           {short_name, inf_connector_t({inf_dir_t::CLOCK, "clk"})});
     } else if (beginsWith(refstr, "**MEM**")) {
