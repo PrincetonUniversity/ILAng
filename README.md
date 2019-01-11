@@ -27,21 +27,19 @@
 ### Prerequisites
 
 ILAng requires CMake (3.8 or above) and compilers with CXX11 support.
-
-#### Boost
-
-[Boost](https://www.boost.org) (1.50 or above) is required for building the synthesis engine and the Python API.
-For UNIX:
+To install dependencies on Debian-based UNIX, execute:
 
 ``` bash
-apt-get install libboost-all-dev 
+apt-get install bison flex libboost-all-dev 
 ```
 
-For OSX:
+For OSX, execute:
 
 ``` bash
-brew install boost boost-python
+brew install bison flex boost boost-python
 ```
+
+Note that the [Boost](https://www.boost.org) package is required only for building the synthesis engine and the Python API. 
 
 #### z3
 
@@ -58,29 +56,16 @@ make
 make install
 ```
 
-#### Others
-
-For UNIX:
-
-``` bash
-apt-get install bison flex
-```
-
-For OSX:
-
-``` bash
-brew install bison flex
-```
-
 #### Tested Environments
 
-| OS           | Compiler    | z3     | Status |
-| ------------ | ----------- | ------ | ------ |
-| Ubuntu 14.04 | gcc 4.8.4   | latest | [![Build Status](https://semaphoreci.com/api/v1/bo-yuan-huang/ila-tools/branches/master/shields_badge.svg)](https://semaphoreci.com/bo-yuan-huang/ila-tools) |
-| Ubuntu 16.04 | gcc 4.9.0   | 4.7.1  | [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools) |
-| Ubuntu 16.04 | gcc 5.4.0   | 4.7.1  | [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools) |
-| Ubuntu 16.04 | clang 7.0.0 | 4.7.1  | [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools) |
-| OSX 10.13.0  | clang 9.1.0 | 4.7.1  | [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools) |
+| OS           | Compiler    | CMake   | z3     | Status |
+| ------------ | ----------- | ------- | ------ | ------ |
+| Ubuntu 14.04 | gcc 4.8.4   | latest  | latest | [![Build Status](https://semaphoreci.com/api/v1/bo-yuan-huang/ila-tools/branches/master/shields_badge.svg)](https://semaphoreci.com/bo-yuan-huang/ila-tools) |
+| Ubuntu 16.04 | gcc 4.9.0   | 3.12.4  | 4.7.1  | [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools) |
+| Ubuntu 16.04 | gcc 5.4.0   | 3.12.4  | 4.7.1  | [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools) |
+| Ubuntu 16.04 | clang 7.0.0 | 3.12.4  | 4.7.1  | [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools) |
+| Ubuntu 18.04 | gcc 7.3.0   | 3.10.2  | latest | [![Build status](https://ci.appveyor.com/api/projects/status/4jsh32isd8r89g3l/branch/master?svg=true)](https://ci.appveyor.com/project/Bo-Yuan-Huang/ila-tools/branch/master) |
+| OSX 10.13.0  | clang 9.1.0 | 3.11.4  | 4.7.1  | [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools) |
 
 ### Default Build
 
