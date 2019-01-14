@@ -61,6 +61,10 @@ protected:
   std::vector<std::string> additional_clock_expr;  // we don't put the "clk" here, as by default it will be there
   /// vector of clock signals that need to be taken care of
   std::vector<std::string> additional_reset_expr;  
+  /// Name of the problem file
+  std::string jg_script_name;
+  /// Name of the problem file
+  std::string abs_mem_name;
 
 protected:
   /// Add an assumption

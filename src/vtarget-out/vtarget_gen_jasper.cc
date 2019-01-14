@@ -77,17 +77,41 @@ void VlgSglTgtGen_Jasper::add_addition_reset_info(const std::string & reset_expr
 
 /// export the script to run the verification
 void VlgSglTgtGen_Jasper::Export_script(const std::string& script_name) {
-  std::ofstream fout(script_name);
+  auto fn = os_portable_append_dir(_output_path, script_name);
+
+  std::ofstream fout (fn);
   if(not fout.is_open()) {
-    ILA_ERROR << "Unable to open " << script_name << " for write.";
-    return;
+      ILA_ERROR << "Unable to open " << fn << " for write.";
+      return;
   }
-  fout << "analyze -sva \\" << std::endl;
+  fout << "jg -no_gui -fpv " << jg_script_name << std::endl;
+}
+/// export extra things (problem)
+void VlgSglTgtGen_Jasper::Export_problem(const std::string& extra_name) {
+  jg_script_name = extra_name;
+
+  auto fn = os_portable_append_dir(_output_path, extra_name);
+  std::ofstream fout(fn);
+  if(not fout.is_open()) {
+      ILA_ERROR << "Unable to open " << fn << " for write.";
+      return;
+  }
+  fout << "analyze -sva ";
   for (auto && design_name : vlg_design_files) {
     // remove the directory
     auto fn_no_dir = os_portable_file_name_from_path(design_name);
-    fout << "  " << fn_no_dir << std::endl;
+    fout << " \\\n  " << fn_no_dir ;
   }
+  if (ila_file_name != "")
+    fout << " \\\n  " << ila_file_name ;
+
+  if (top_file_name != "")
+    fout << " \\\n  " << top_file_name ;
+  
+  if (abs_mem_name != "")
+    fout <<" \\\n   " << abs_mem_name;
+
+  fout << "\n\n";
 
   fout << "elaborate -top " << top_mod_name << std::endl;
   if ( additional_clock_expr.empty() )
@@ -100,23 +124,26 @@ void VlgSglTgtGen_Jasper::Export_script(const std::string& script_name) {
   else
     fout << "reset -expression " << Join(additional_reset_expr, " ") << std::endl;
 
+  unsigned No = 0;
   for (auto && asmpt_dspt_pair : assumptions)
-    fout << "assume -name "<<asmpt_dspt_pair.second << " {" << asmpt_dspt_pair.first << "}" << std::endl;
+    fout << "assume -name "<<asmpt_dspt_pair.second + std::to_string(No++) << " {" << asmpt_dspt_pair.first << "}" << std::endl;
 
+  No = 0;
   for (auto && asst_dspt_pair : assertions)
-    fout << "assert -name "<<asst_dspt_pair.second << " {" << asst_dspt_pair.first << "}" << std::endl;
+    fout << "assert -name "<<asst_dspt_pair.second + std::to_string(No++) << " {" << asst_dspt_pair.first << "}" << std::endl;
 
-}
-/// export extra things (problem)
-void VlgSglTgtGen_Jasper::Export_problem(const std::string& extra_name) {
-  return; // do nothing: no such a thing
 } //
 /// export the memory abstraction (implementation)
 /// Yes, this is also implementation specific, (jasper may use a different one)
 void VlgSglTgtGen_Jasper::Export_mem(const std::string& mem_name) {
   // TODO;
-  auto outfn = os_portable_append_dir(_output_path, top_file_name);
-  std::ofstream fout(outfn, std::ios_base::app); // append
+  if(not VlgAbsMem::hasAbsMem())
+    return;
+
+  abs_mem_name = mem_name;
+
+  auto outfn = os_portable_append_dir(_output_path, mem_name);
+  std::ofstream fout(outfn); // will not append
 
   VlgAbsMem::OutputMemFile(fout);
 }
