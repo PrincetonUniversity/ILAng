@@ -6,6 +6,7 @@
 
 #include <ilang/util/container_shortcut.h>
 #include <ilang/verification/abs_knob.h>
+#include <ilang/verilog-in/verilog_parse.h>
 #include <ilang/verilog-in/verilog_analysis_wrapper.h>
 #include <ilang/verilog-out/verilog_gen.h>
 
@@ -13,6 +14,8 @@
 #include "unit-include/util.h"
 
 namespace ilang {
+
+TEST(TestVerilogAnalysis, ParserInit) { TestParseVerilog(); }
 
 TEST(TestVerilogAnalysis, Init) {
 
