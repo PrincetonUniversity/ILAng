@@ -53,12 +53,27 @@ TEST(TestUtil, DirAppend) {
 
 TEST(TestUtil, FileNameFromDir) {
 
-  EXPECT_EQ( os_portable_file_name_path("a"),     "a" );
-  EXPECT_EQ( os_portable_file_name_path("a/b"),   "b" );
-  EXPECT_EQ( os_portable_file_name_path("./a/b"), "b" );
+  EXPECT_EQ( os_portable_file_name_from_path("a"),     "a" );
+  EXPECT_EQ( os_portable_file_name_from_path("a/b"),   "b" );
+  EXPECT_EQ( os_portable_file_name_from_path("./a/b"), "b" );
 
-  EXPECT_ERROR( os_portable_file_name_path("a/") );
+  EXPECT_ERROR( os_portable_file_name_from_path("a/") );
 
+}
+
+TEST(TestUtil, RegularExpr) {
+  if(IsRExprUsable() ) {
+    auto l = ReFindList("s1 == 2", "[A-Za-z0-9]+");
+    EXPECT_EQ(l.size(), 2);
+    EXPECT_EQ(l[0], "s1");
+    EXPECT_EQ(l[1], "2");
+
+    auto l2 = ReFindAndDo("s1 == 2", "[A-Za-z0-9]+", [](std::string s) -> std::string {return s;} );
+
+    EXPECT_EQ(l2.size(), 2);
+    EXPECT_EQ(l2[0], "s1");
+    EXPECT_EQ(l2[1], "2");
+  }
 }
 
 } // namespace ilang

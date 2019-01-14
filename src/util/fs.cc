@@ -75,6 +75,10 @@ std::string os_portable_file_name_from_path(const std::string& path) {
   // on *nix
   sep = "/";
 #endif
+
+  ILA_ERROR_IF (path.back() == sep[0]) 
+    << "Extracting file name from path:"
+    <<path<< " that ends with:"<<sep;
   return Split(path, sep).back();
 }
 
