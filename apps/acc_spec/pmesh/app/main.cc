@@ -83,7 +83,7 @@ int main() {
 VerilogVerificationTargetGenerator::vtg_config_t SetConfiguration() {
 
   // set ilang option, operators like '<' will refer to unsigned arithmetics
-  SetUnsignedComparation(true); 
+  SetUnsignedComparison(true); 
   
   VerilogVerificationTargetGenerator::vtg_config_t ret;
   ret.CosaSolver = "btor";

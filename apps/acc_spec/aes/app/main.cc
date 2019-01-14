@@ -123,7 +123,7 @@ VerilogVerificationTargetGenerator::vtg_config_t HandleArguments(int argc, char 
   // this demo, we skip it
 
   // set ilang option, operators like '<' will refer to unsigned arithmetics
-  SetUnsignedComparation(true); 
+  SetUnsignedComparison(true); 
   
   VerilogVerificationTargetGenerator::vtg_config_t ret;
 
