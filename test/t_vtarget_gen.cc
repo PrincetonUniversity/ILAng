@@ -193,6 +193,32 @@ TEST(TestVlgTargetGen, MemoryReadAbsRead) {
 
 }
 
+
+TEST(TestVlgTargetGen, MemoryReadAbsReadJasperGold) {
+  VerilogVerificationTargetGenerator::vtg_config_t vtg_cfg;
+
+  vtg_cfg.MemAbsReadAbstraction = true; // enable read abstraction
+
+  auto ila_model = MemorySwap::BuildRdModel();
+
+  auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/vpipe/vmem/";
+  VerilogVerificationTargetGenerator vg(
+      {},                    // no include
+      {dirName + "read.v"},  // vlog files
+      "rdtop",                // top_module_name
+      dirName + "vmap-rd.json", // variable mapping
+      dirName + "cond-rd.json", // cond path
+      dirName + "rdabs_jg/",      // output path
+      ila_model.get(),
+      VerilogVerificationTargetGenerator::backend_selector::JASPERGOLD,
+      vtg_cfg);
+
+  EXPECT_FALSE(vg.in_bad_state());
+
+  vg.GenerateTargets();
+
+}
+
 TEST(TestVlgTargetGen, UndetValue) {
   auto ila_model = UndetVal::BuildModel();
 

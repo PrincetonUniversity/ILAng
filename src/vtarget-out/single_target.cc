@@ -1079,10 +1079,11 @@ void VlgSglTgtGen::ExportAll(const std::string& wrapper_name,
   Export_wrapper(wrapper_name);
   if (target_type != target_type_t ::INVARIANTS)
     Export_ila_vlg(ila_vlg_name); // this has to be after Export_wrapper
-  Export_problem(extra_name);
-  Export_script(script_name);
   Export_modify_verilog(); // this must be after Export_wrapper
   Export_mem(mem_name);
+
+  Export_problem(extra_name);
+  Export_script(script_name);
 }
 
 } // namespace ilang
