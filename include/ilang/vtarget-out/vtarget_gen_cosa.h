@@ -128,7 +128,7 @@ protected:
   /// For jasper, this means do nothing, for yosys, you need to add (*keep*)
   virtual void Export_modify_verilog() override;
 
-private:
+public:
   /// It is okay to instantiation
   virtual void do_not_instantiate(void) override{};
 

@@ -18,6 +18,10 @@ bool os_portable_mkdir(const std::string& dir);
 /// Copy all file from a source dir to the destination dir
 bool os_portable_copy_dir(const std::string &src, const std::string &dst);
 
+/// Copy one file to the destination dir
+bool os_portable_copy_file_to_dir(const std::string &src, const std::string &dst);
+
+
 /// Append two path (you have to decide whether it is / or \)
 std::string os_portable_append_dir(const std::string& dir1,
                                    const std::string& dir2);

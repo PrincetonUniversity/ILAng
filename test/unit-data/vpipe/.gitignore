@@ -1,6 +1,7 @@
 
 # Test Outputs
 verify/*
+verify_jg/*
 disprove/*
 vmem/invariants
 vmem/SWAP

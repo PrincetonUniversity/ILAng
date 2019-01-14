@@ -61,6 +61,27 @@ TEST(TestVlgTargetGen, PipeExample) {
   EXPECT_FALSE(vg.in_bad_state());
 
   vg.GenerateTargets();
+
+}
+
+// test all kinds of rfmap issue
+// test bad states
+
+TEST(TestVlgTargetGen, PipeExampleJasperGold) {
+  auto ila_model = SimplePipe::BuildModel();
+
+  auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/vpipe/";
+  VerilogVerificationTargetGenerator vg(
+      {},                          // no include
+      {dirName + "simple_pipe.v"}, //
+      "pipeline_v",                // top_module_name
+      dirName + "rfmap/vmap.json", // variable mapping
+      dirName + "rfmap/cond.json", dirName + "verify_jg/", ila_model.get(),
+      VerilogVerificationTargetGenerator::backend_selector::JASPERGOLD);
+
+  EXPECT_FALSE(vg.in_bad_state());
+
+  vg.GenerateTargets();
 }
 
 TEST(TestVlgTargetGen, PipeExampleNotEqu) {

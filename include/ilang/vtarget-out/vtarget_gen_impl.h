@@ -297,7 +297,7 @@ protected:
                                           const std::string& cond,
                                           const std::string& dspt) = 0;
 
-private:
+public:
   // Do not instantiate
   virtual void do_not_instantiate(void) = 0;
 

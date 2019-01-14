@@ -561,6 +561,8 @@ void VlgSglTgtGen::ConstructWrapper_add_inv_assumptions() {
   ILA_ASSERT(target_type == target_type_t::INSTRUCTIONS)
       << "Implementation bug: inv assumpt should only be used when verifying "
          "instructions.";
+  if (not IN("global invariants", rf_cond))
+    return;
   if (rf_cond["global invariants"].size() == 0)
     return; // no invariants to add
   if (not rf_cond["global invariants"].is_array()) {
@@ -587,6 +589,8 @@ void VlgSglTgtGen::ConstructWrapper_add_inv_assumptions() {
 void VlgSglTgtGen::ConstructWrapper_add_inv_assertions() {
   ILA_ASSERT(target_type == target_type_t::INVARIANTS)
       << "Implementation bug: should only be used when verifying invariants";
+  if (not IN("global invariants", rf_cond))
+    return;
   if (rf_cond["global invariants"].size() == 0)
     return; // no invariants to add
   if (not rf_cond["global invariants"].is_array()) {

@@ -92,4 +92,18 @@ bool os_portable_copy_dir(const std::string &src, const std::string &dst) {
   return ret == 0;
 }
 
+
+/// Copy all file from a source dir to the destination dir
+bool os_portable_copy_file_to_dir(const std::string &src, const std::string &dst) {
+  int ret;
+#if defined(_WIN32) || defined(_WIN64)
+  // on windows
+  ret = std::system(("xcopy " + src + " " + dst).c_str());
+#else
+  // on *nix
+  ret = std::system(("cp " + src + " " + dst).c_str());
+#endif
+  return ret == 0;
+}
+
 }; // namespace ilang

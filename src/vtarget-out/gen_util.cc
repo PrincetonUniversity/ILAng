@@ -217,6 +217,12 @@ VlgSglTgtGen::ModifyCondExprAndRecordVlgName(const VarExtractor::token& t) {
         << "Implementation bug: should not be reachable. token_tp: ILA_IN";
     return sname;
   } else if (token_tp == VarExtractor::token_type::VLG_S) {
+
+    // do nothing for JasperGold
+    // will not add to the all_referred name, so will not modify verilog
+    if(_backend == backend_selector::JASPERGOLD)
+      return sname;
+
     std::string quote = "";
     auto left_p = sname.find('[');
     auto check_s = sname.substr(0, left_p);
