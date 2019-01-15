@@ -14,29 +14,29 @@
 namespace ilang {
 
 
-void RecordLog() {
-  // precondition for log test
-  SetLogLevel(0); // log all
-  SetLogPath(""); // log to /tmp
-  SetToStdErr(1); // log to stderr for easy catching
-}
-
-void EndRecordLog() {
-  // reset to default condition
-  SetLogLevel(0); // log all
-  SetLogPath(""); // log to /tmp
-#ifndef NDEBUG
-  SetToStdErr(0); // still log to stderr
-#else               // NDEBUG
-  SetToStdErr(0); // not log to stderr
-#endif              // NDEBUG
-}
-
 #define EXPECT_ERROR( m ) do {        \
   RecordLog();                        \
   std::string error_msg;              \
   GET_STDERR_MSG( m , error_msg );    \
   EXPECT_FALSE(error_msg.empty());    \
+  EndRecordLog();                     \
+} while(0);
+
+#define EXPECT_ERROR_DEF( m )         \
+  RecordLog();                        \
+  std::string error_msg;              \
+  GET_STDERR_MSG( m , error_msg );    \
+  EXPECT_FALSE(error_msg.empty());    \
+  EndRecordLog();                     
+
+#define EXPECT_ERROR_MSG( m , msg ) do { \
+  RecordLog();                        \
+  std::string error_msg;              \
+  GET_STDERR_MSG( m , error_msg );    \
+  EXPECT_FALSE(error_msg.empty());    \
+  EXPECT_TRUE(                        \
+    error_msg.find(msg) !=            \
+    error_msg.npos );                 \
   EndRecordLog();                     \
 } while(0);
 
@@ -50,6 +50,15 @@ void EndRecordLog() {
 } while(0);
 
 
+#define EXPECT_NO_ERROR_DEF( m )      \
+  RecordLog();                        \
+  std::string error_msg;              \
+  GET_STDERR_MSG( m , error_msg );    \
+  EXPECT_TRUE(error_msg.empty());     \
+  EndRecordLog();                    
+
+
+
 TEST(TestVerilogAnalysisErrHandling, NoDoubleInstance) {
 
   VerilogInfo va1(
@@ -60,7 +69,7 @@ TEST(TestVerilogAnalysisErrHandling, NoDoubleInstance) {
 
   // you cannot create two instances 
   {
-    EXPECT_ERROR(
+    EXPECT_ERROR_DEF(
       VerilogInfo va2(
           VerilogInfo::path_vec_t(),
           VerilogInfo::path_vec_t({std::string(ILANG_TEST_SRC_ROOT) +
@@ -70,6 +79,18 @@ TEST(TestVerilogAnalysisErrHandling, NoDoubleInstance) {
 
     EXPECT_TRUE(va2.in_bad_state());
     EXPECT_FALSE(va1.in_bad_state());
+
+
+    EXPECT_ERROR(
+      EXPECT_EQ(
+        va2.check_hierarchical_name_type("nonexistingname"), 
+        VerilogAnalyzerBase::hierarchical_name_type::NONE));
+    EXPECT_ERROR(va2.get_module_inst_loc("nonexistingmodule"));
+    EXPECT_ERROR(EXPECT_EQ(va2.find_declaration_of_name("nonexistingname"), (void *)NULL));
+    EXPECT_ERROR(EXPECT_EQ(va2.name2loc("nonexistingname"), VerilogAnalyzerBase::vlg_loc_t()));
+    EXPECT_ERROR(va2.get_signal("nonexistingname"));
+    EXPECT_ERROR(va2.get_top_module_io());
+    EXPECT_ERROR(va2.get_endmodule_loc("nonexistingname"));
   }
 
 
@@ -79,7 +100,7 @@ TEST(TestVerilogAnalysisErrHandling, NoDoubleInstance) {
 
 
 TEST(TestVerilogAnalysisErrHandling, VerilogFileNotFound) {
-  EXPECT_ERROR(
+  EXPECT_ERROR_DEF(
     VerilogInfo va(
         VerilogInfo::path_vec_t(),
         VerilogInfo::path_vec_t({std::string(ILANG_TEST_SRC_ROOT) +
@@ -91,7 +112,7 @@ TEST(TestVerilogAnalysisErrHandling, VerilogFileNotFound) {
 }
 
 TEST(TestVerilogAnalysisErrHandling, VerilogSyntaxError) {
-  EXPECT_ERROR(
+  EXPECT_ERROR_DEF(
     VerilogInfo va(
         VerilogInfo::path_vec_t(),
         VerilogInfo::path_vec_t({std::string(ILANG_TEST_SRC_ROOT) +
@@ -103,7 +124,7 @@ TEST(TestVerilogAnalysisErrHandling, VerilogSyntaxError) {
 }
 
 TEST(TestVerilogAnalysisErrHandling, EmptyModuleName) {
-  EXPECT_ERROR(
+  EXPECT_ERROR_DEF(
     VerilogInfo va(
         VerilogInfo::path_vec_t(),
         VerilogInfo::path_vec_t({std::string(ILANG_TEST_SRC_ROOT) +
@@ -115,7 +136,7 @@ TEST(TestVerilogAnalysisErrHandling, EmptyModuleName) {
 }
 
 TEST(TestVerilogAnalysisErrHandling, ModuleRedecl) {
-  EXPECT_ERROR(
+  EXPECT_ERROR_DEF(
     VerilogInfo va(
         VerilogInfo::path_vec_t(),
         VerilogInfo::path_vec_t({std::string(ILANG_TEST_SRC_ROOT) +
@@ -123,13 +144,13 @@ TEST(TestVerilogAnalysisErrHandling, ModuleRedecl) {
         "m1")
   );
 
-  EXPECT_TRUE(va.in_bad_state());
+  EXPECT_FALSE(va.in_bad_state()); // will ignore the decl
 }
 
 
 TEST(TestVerilogAnalysisErrHandling, MissingModuleDecl) {
 
-  EXPECT_ERROR(
+  EXPECT_ERROR_DEF(
     VerilogInfo va(
         VerilogInfo::path_vec_t(),
         VerilogInfo::path_vec_t({std::string(ILANG_TEST_SRC_ROOT) +
@@ -137,12 +158,12 @@ TEST(TestVerilogAnalysisErrHandling, MissingModuleDecl) {
         "m1")
   );
 
-  EXPECT_TRUE(va.in_bad_state());
+  EXPECT_FALSE(va.in_bad_state()); // will ignore the error and continue
 }
 
 TEST(TestVerilogAnalysisErrHandling, ModuleDeclLoop) {
 
-  EXPECT_ERROR(
+  EXPECT_ERROR_DEF(
     VerilogInfo va(
         VerilogInfo::path_vec_t(),
         VerilogInfo::path_vec_t({std::string(ILANG_TEST_SRC_ROOT) +
@@ -157,7 +178,7 @@ TEST(TestVerilogAnalysisErrHandling, NoSuchModuleAsTop) {
 
   
   { // expect no error
-    EXPECT_NO_ERROR(
+    EXPECT_NO_ERROR_DEF(
       VerilogInfo va(
           VerilogInfo::path_vec_t(),
           VerilogInfo::path_vec_t({std::string(ILANG_TEST_SRC_ROOT) +
@@ -167,10 +188,37 @@ TEST(TestVerilogAnalysisErrHandling, NoSuchModuleAsTop) {
     );
 
     EXPECT_FALSE(va.in_bad_state());
+
+    EXPECT_EQ(
+      va.check_hierarchical_name_type("m1.f2.f"), 
+      VerilogAnalyzerBase::hierarchical_name_type::NONE);
+
+    EXPECT_EQ(
+      va.check_hierarchical_name_type("m1.f.f2"), 
+      VerilogAnalyzerBase::hierarchical_name_type::NONE);
+
+    EXPECT_EQ(
+      va.check_hierarchical_name_type("m1.f.f"), 
+      VerilogAnalyzerBase::hierarchical_name_type::MODULE);
+
+    EXPECT_EQ(
+      va.check_hierarchical_name_type("m1.f.in"), 
+      VerilogAnalyzerBase::hierarchical_name_type::I_WIRE_wo_INTERNAL_DEF);
+
+    EXPECT_TRUE(
+      va.name2loc("m1.f.in").second != 0);
+
+    auto sg_nonexisting_info = va.get_signal("nonexistingname");
+    auto sg_no_internal_wire = va.get_signal("m1.f.in");
+
+    EXPECT_ERROR( va.get_signal("m1.f") );
+
+    EXPECT_ERROR( va.get_endmodule_loc("m1.f.in") );  // not a module name
+
   }
 
   {
-    EXPECT_ERROR(
+    EXPECT_ERROR_DEF(
       VerilogInfo va(
           VerilogInfo::path_vec_t(),
           VerilogInfo::path_vec_t({std::string(ILANG_TEST_SRC_ROOT) +
@@ -183,26 +231,25 @@ TEST(TestVerilogAnalysisErrHandling, NoSuchModuleAsTop) {
   }
 }
 
-TEST(TestVerilogAnalysisErrHandling, BadStateFunction) {
+
+
+TEST(TestVerilogAnalysisErrHandling, UnknownPortDirection) {
+  // expect no error
+  EXPECT_NO_ERROR_DEF(
+    VerilogInfo va(
+        VerilogInfo::path_vec_t(),
+        VerilogInfo::path_vec_t({std::string(ILANG_TEST_SRC_ROOT) +
+                                 "/unit-data/verilog_sample/errors/unknown_port_dir.v"}),
+        "m1"
+        )
+  );
+
+  EXPECT_ERROR( va.check_hierarchical_name_type("m1.clk") );
+  EXPECT_ERROR( va.check_hierarchical_name_type("m1.rst") );
+  EXPECT_ERROR( va.check_hierarchical_name_type("m1.full") );
 
 }
 
-// a.b.c
-TEST(TestVerilogAnalysisErrHandling, NoSuchHierarchySignal) {
-
-}
-
-TEST(TestVerilogAnalysisErrHandling, LastLevelModule) {
-
-}
-
-TEST(TestVerilogAnalysisErrHandling, NameRedecl) {
-
-}
-
-TEST(TestVerilogAnalysisErrHandling, InputRegNotAllowed) {
-
-}
 
 
 

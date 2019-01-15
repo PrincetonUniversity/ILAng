@@ -10,6 +10,11 @@
 
 namespace ilang {
 
+/// \def Start to capture the log to stderr
+void RecordLog();
+/// \def Stop to capture the log to stderr
+void EndRecordLog();
+
 /// \def Capture standard output message for cmd to msg.
 #define GET_STDOUT_MSG(cmd, msg)                                               \
   ::testing::internal::CaptureStdout();                                        \

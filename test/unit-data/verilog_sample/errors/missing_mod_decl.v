@@ -1,4 +1,4 @@
-module counter(input clk, input rst, input en, output full) // no semicolon
+module counter(input clk, input rst, input en, output full); // no semicolon
 
 reg [3:0] cnt;
 
