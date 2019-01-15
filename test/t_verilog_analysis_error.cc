@@ -226,6 +226,11 @@ TEST(TestVerilogAnalysisErrHandling, NoSuchModuleAsTop) {
     EXPECT_EQ   ( sg_nonexisting_info.get_decl_loc().second , 0L) ;
     EXPECT_ERROR( va.get_endmodule_loc("m1.f.in") );  // not a module name
 
+    EXPECT_NO_ERROR(
+      EXPECT_TRUE( va.get_module_inst_loc("m1.f.f").second != 0) );
+    EXPECT_ERROR( va.get_module_inst_loc("m1.f1.f") );
+    EXPECT_ERROR( va.get_module_inst_loc("m1.f.f1") );
+    EXPECT_ERROR( va.get_module_inst_loc("m.f.f1") );
   }
 
   {

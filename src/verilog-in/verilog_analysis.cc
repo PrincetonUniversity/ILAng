@@ -138,7 +138,8 @@ void VerilogAnalyzer::check_resolve_modules(verilog_source_tree* source) {
     }
     name_module_map.insert({mod_name, module});
 
-    if (module->module_instantiations == NULL)
+    ILA_NOT_NULL (module->module_instantiations ); // other wise it is parser bug
+    if(module->module_instantiations->items == 0)
       continue;
 
     ILA_NOT_NULL(module->identifier);
