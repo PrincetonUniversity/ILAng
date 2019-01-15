@@ -17,6 +17,16 @@ namespace ilang {
 
 TEST(TestVerilogAnalysis, ParserInit) { TestParseVerilog(); }
 
+TEST(TestVerilogAnalysis, BaseFuncNoError) {
+  auto fn = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/verilog_sample/t_ana_inst.v";
+  std::FILE * fp = std::fopen(fn.c_str(), "r");
+
+  EXPECT_EQ( TestParseVerilogFrom(fp) , 0 );
+
+  std::fclose(fp);
+}
+
+
 TEST(TestVerilogAnalysis, Init) {
 
   VerilogInfo va(
@@ -221,6 +231,8 @@ TEST(TestVerilogAnalysis, AnalyzeName) {
       << "Inst loc of m1.subm3:" << va.get_module_inst_loc("m1.subm3");
   ILA_DLOG("TestVerilogAnalysis.AnalyzeName")
       << "Inst loc of m1.subm4:" << va.get_module_inst_loc("m1.subm4");
+
+  va.get_module_inst_loc("m1.subm1");
 
 }
 

@@ -127,13 +127,7 @@ void VerilogAnalyzer::check_resolve_modules(verilog_source_tree* source) {
     ast_module_declaration* module =
         (ast_module_declaration*)ast_list_get_not_null(source->modules, m);
 
-    if (module->identifier == NULL) {
-      PrintMetaAst(ILA_WARN
-                       << "Verilog Parser encounters a module without name @",
-                   module)
-          << " . Ignored.";
-      continue;
-    }
+    ILA_NOT_NULL(module->identifier); // otherwise it is the parser bug
 
     std::string mod_name(ast_identifier_tostring(module->identifier));
     if (IN(mod_name,
@@ -148,7 +142,7 @@ void VerilogAnalyzer::check_resolve_modules(verilog_source_tree* source) {
       continue;
 
     ILA_NOT_NULL(module->identifier);
-    ILA_NOT_NULL(module->module_instantiations);
+    //ILA_NOT_NULL(module->module_instantiations);
 
     for (unsigned int sm = 0; sm < module->module_instantiations->items; sm++) {
       ast_module_instantiation* submod =

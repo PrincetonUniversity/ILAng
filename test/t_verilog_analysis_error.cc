@@ -58,7 +58,6 @@ namespace ilang {
   EndRecordLog();                    
 
 
-
 TEST(TestVerilogAnalysisErrHandling, NoDoubleInstance) {
 
   VerilogInfo va1(
@@ -98,6 +97,17 @@ TEST(TestVerilogAnalysisErrHandling, NoDoubleInstance) {
 
 }
 
+TEST(TestVerilogAnalysisErrHandling, EmptyFile) {
+  EXPECT_ERROR_DEF(
+    VerilogInfo va(
+        VerilogInfo::path_vec_t(),
+        VerilogInfo::path_vec_t({std::string(ILANG_TEST_SRC_ROOT) +
+                                 "/unit-data/verilog_sample/errors/empty.v"}),
+        "m1")
+  );
+
+  EXPECT_TRUE(va.in_bad_state());
+}
 
 TEST(TestVerilogAnalysisErrHandling, VerilogFileNotFound) {
   EXPECT_ERROR_DEF(
@@ -212,7 +222,8 @@ TEST(TestVerilogAnalysisErrHandling, NoSuchModuleAsTop) {
     auto sg_no_internal_wire = va.get_signal("m1.f.in");
 
     EXPECT_ERROR( va.get_signal("m1.f") );
-
+    EXPECT_TRUE ( sg_nonexisting_info.is_bad_signal() );
+    EXPECT_EQ   ( sg_nonexisting_info.get_decl_loc().second , 0L) ;
     EXPECT_ERROR( va.get_endmodule_loc("m1.f.in") );  // not a module name
 
   }
@@ -232,6 +243,43 @@ TEST(TestVerilogAnalysisErrHandling, NoSuchModuleAsTop) {
 }
 
 
+TEST(TestVerilogAnalysisErrHandling, TwoTop) {
+  // expect no error
+  EXPECT_ERROR_DEF(
+    VerilogInfo va(
+        VerilogInfo::path_vec_t(),
+        VerilogInfo::path_vec_t({std::string(ILANG_TEST_SRC_ROOT) +
+                                 "/unit-data/verilog_sample/errors/whichtop.v"}),
+        "m1"
+        )
+  );
+
+  EXPECT_FALSE(va.in_bad_state());
+}
+
+
+TEST(TestVerilogAnalysisErrHandling, SigRedecl) {
+  // expect no error
+  EXPECT_NO_ERROR_DEF(
+    VerilogInfo va(
+        VerilogInfo::path_vec_t(),
+        VerilogInfo::path_vec_t({std::string(ILANG_TEST_SRC_ROOT) +
+                                 "/unit-data/verilog_sample/errors/sigredecl.v"}),
+        "m1"
+        )
+  );
+
+  EXPECT_FALSE(va.in_bad_state());
+
+  EXPECT_ERROR(va.check_hierarchical_name_type("m1.a"));
+  EXPECT_ERROR(va.check_hierarchical_name_type("m1.b"));
+  EXPECT_ERROR(va.check_hierarchical_name_type("m1.full"));
+  EXPECT_NO_ERROR(va.check_hierarchical_name_type("m1.p"));
+  EXPECT_NO_ERROR(va.check_hierarchical_name_type("m1.q"));
+  EXPECT_NO_ERROR(va.check_hierarchical_name_type("m1.ro"));
+  EXPECT_NO_ERROR(va.check_hierarchical_name_type("m1.roi"));
+
+}
 
 TEST(TestVerilogAnalysisErrHandling, UnknownPortDirection) {
   // expect no error
@@ -243,8 +291,8 @@ TEST(TestVerilogAnalysisErrHandling, UnknownPortDirection) {
         "m1"
         )
   );
-
-  EXPECT_ERROR( va.check_hierarchical_name_type("m1.clk") );
+  // this tells us if it is not defined inside, it will not be created
+  EXPECT_EQ ( va.check_hierarchical_name_type("m1.clk"), VerilogAnalyzerBase::hierarchical_name_type::NONE );
   EXPECT_ERROR( va.check_hierarchical_name_type("m1.rst") );
   EXPECT_ERROR( va.check_hierarchical_name_type("m1.full") );
 
