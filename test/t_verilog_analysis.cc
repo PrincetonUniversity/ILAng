@@ -73,6 +73,21 @@ TEST(TestVerilogAnalysis, Include) {
 
 }
 
+
+TEST(TestVerilogAnalysis, RangeAnalysis) {
+
+/*  VerilogInfo va(
+      VerilogInfo::path_vec_t({std::string(ILANG_TEST_SRC_ROOT) +
+                               "/unit-data/verilog_sample/"}),
+      VerilogInfo::path_vec_t({std::string(ILANG_TEST_SRC_ROOT) +
+                               "/unit-data/verilog_sample/m1.v"}),
+      "m1");
+
+  ILA_DLOG("TestVerilogAnalysis.Include")   << "Location of: m1.r1:" << va.name2loc("m1.r1");
+  ILA_DLOG("TestVerilogAnalysis.Include")   << "End loc of m1:" << va.get_endmodule_loc("m1");
+*/
+}
+
 TEST(TestVerilogAnalysis, AnalyzeName) {
   VerilogInfo va(
       VerilogInfo::path_vec_t(),

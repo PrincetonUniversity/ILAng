@@ -54,6 +54,7 @@ VerilogAnalyzer::VerilogAnalyzer(const path_vec_t& include_path,
       top_inst_name(top_module_inst_name), _bad_state(false) {
   instance_count++;
   if (instance_count != 1) {
+    _bad_state = true;
     ILA_ERROR << "Please don't keep multiple instances of analyzer, it will "
                  "mess up w. Verilog parser.";
     return; // do nothing
