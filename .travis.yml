@@ -82,8 +82,8 @@ install:
   - if [[ "$Z3_CACHED" == "0" ]] ; then cd z3 ; fi
   - if [[ "$Z3_CACHED" == "0" ]] ; then git checkout tags/z3-4.8.4 -b v484 ; fi
   - if [[ "$Z3_CACHED" == "0" ]] ; then python scripts/mk_make.py --prefix=$HOME/_cache ; fi
-  - if [[ "$Z3_CACHED" == "0" -a "$TRAVIS_COMPILER" == "clang" ]] ; then export LD_LIBRARY_PATH=/usr/local/clang/lib:$LD_LIBRARY_PATH ; fi
-  - if [[ "$Z3_CACHED" == "0" -a "$TRAVIS_COMPILER" == "clang" ]] ; then CXX=clang++ CC=clang python scripts/mk_make.py --prefix=$HOME/_cache ; fi
+  - if [[ "$Z3_CACHED" == "0" && "$TRAVIS_COMPILER" == "clang" ]] ; then export LD_LIBRARY_PATH=/usr/local/clang/lib:$LD_LIBRARY_PATH ; fi
+  - if [[ "$Z3_CACHED" == "0" && "$TRAVIS_COMPILER" == "clang" ]] ; then CXX=clang++ CC=clang python scripts/mk_make.py --prefix=$HOME/_cache ; fi
   - if [[ "$Z3_CACHED" == "0" ]] ; then cd build ; fi
   - if [[ "$Z3_CACHED" == "0" ]] ; then make -j$(nproc) ; fi
   - if [[ "$Z3_CACHED" == "0" ]] ; then make install ; fi
