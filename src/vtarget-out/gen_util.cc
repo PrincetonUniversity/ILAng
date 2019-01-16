@@ -220,7 +220,7 @@ VlgSglTgtGen::ModifyCondExprAndRecordVlgName(const VarExtractor::token& t) {
 
     // do nothing for JasperGold
     // will not add to the all_referred name, so will not modify verilog
-    if(_backend == backend_selector::JASPERGOLD)
+    if (_backend == backend_selector::JASPERGOLD)
       return sname;
 
     std::string quote = "";
@@ -332,8 +332,8 @@ std::string VlgSglTgtGen::PerStateMap(const std::string& ila_state_name,
     // not using re here
     auto new_expr = ReplExpr(vlg_st_name);
 
-    if(_backend == backend_selector::JASPERGOLD and 
-       new_expr.find('[') != new_expr.npos ) {
+    if (_backend == backend_selector::JASPERGOLD and
+        new_expr.find('[') != new_expr.npos) {
       // this is a jasper gold bug
       return new_expr;
     }
@@ -363,10 +363,10 @@ std::string VlgSglTgtGen::PerStateMap(const std::string& ila_state_name,
       << " has mismatched type w. verilog signal:" << vlg_state_name;
 
   // add signal -- account for jg's bug
-  if(_backend == backend_selector::JASPERGOLD and
-     vlg_state_name.find('[') != vlg_state_name.npos)
-    return  ReplExpr(vlg_state_name, true) + " == __ILA_SO_" +
-                                 ila_state->name().str();
+  if (_backend == backend_selector::JASPERGOLD and
+      vlg_state_name.find('[') != vlg_state_name.npos)
+    return ReplExpr(vlg_state_name, true) + " == __ILA_SO_" +
+           ila_state->name().str();
 
   std::string map_sig = new_mapping_id();
   vlg_wrapper.add_wire(map_sig, 1, true);

@@ -130,7 +130,7 @@ void VlgSglTgtGen_Cosa::Export_script(const std::string& script_name) {
   options += " " + _vtg_config.CosaOtherSolverOptions;
 
   // no need, copy is good enough
-  //if(vlg_include_files_path.size() != 0)
+  // if(vlg_include_files_path.size() != 0)
   //  options += " -I./";
 
   if (not _vtg_config.CosaPath.empty()) {
@@ -146,49 +146,43 @@ void VlgSglTgtGen_Cosa::Export_script(const std::string& script_name) {
 void VlgSglTgtGen_Cosa::Export_jg_tester_script(const std::string& extra_name) {
   if (_problems.probitem.size() == 0)
     return;
-  
+
   std::ofstream fout(os_portable_append_dir(_output_path, extra_name));
   if (!fout.is_open()) {
     ILA_ERROR << "Error writing file: "
               << os_portable_append_dir(_output_path, extra_name);
     return;
   }
-  fout << "analyze -sva "<<top_file_name << std::endl;
-  fout << "elaborate -top "<<top_mod_name << std::endl;
+  fout << "analyze -sva " << top_file_name << std::endl;
+  fout << "elaborate -top " << top_mod_name << std::endl;
   fout << "clock clk" << std::endl;
   fout << "reset rst" << std::endl;
 
   decltype(_problems.assumptions) local_assumpt;
-  for(auto && p: _problems.assumptions) {
+  for (auto&& p : _problems.assumptions) {
     auto eq_idx = p.find('=');
-    auto rm_eq_p = p.substr(0,eq_idx);
+    auto rm_eq_p = p.substr(0, eq_idx);
     local_assumpt.push_back(rm_eq_p);
 
-    fout << "assume { " << rm_eq_p <<" }" << std::endl;
+    fout << "assume { " << rm_eq_p << " }" << std::endl;
   }
   // separate assumptions
   // std::string assmpt = "(" + Join(local_assumpt, ") && (") + ")";
-
-
-
 
   for (auto&& pbname_prob_pair : _problems.probitem) {
     const auto& prbname = pbname_prob_pair.first;
     const auto& prob = pbname_prob_pair.second;
 
-
     decltype(prob.assertions) local_asst;
-    for(auto && p: prob.assertions) {
+    for (auto&& p : prob.assertions) {
       auto eq_idx = p.find('=');
-      auto rm_eq_p = p.substr(0,eq_idx);
+      auto rm_eq_p = p.substr(0, eq_idx);
       local_asst.push_back(rm_eq_p);
     }
-
 
     auto asst = "(" + Join(local_asst, ") && (") + ")";
     fout << "assert { " << asst << " }" << std::endl;
   }
-
 }
 
 /// export extra things (problem)
@@ -261,7 +255,7 @@ void VlgSglTgtGen_Cosa::Export_problem(const std::string& extra_name) {
     fout << "expected: True" << std::endl;
   }
 
-  if(_vtg_config.CosaGenJgTesterScript)
+  if (_vtg_config.CosaGenJgTesterScript)
     Export_jg_tester_script("jg.tcl");
 
 } // only for cosa
@@ -283,10 +277,10 @@ void VlgSglTgtGen_Cosa::Export_modify_verilog() {
   // open, read, count and write
   // if it is a port name, we will ask user to specify its upper level
   // signal name
-  VerilogModifier vlg_mod(
-    vlg_info_ptr,
-    static_cast<VerilogModifier::port_decl_style_t>( _vtg_config.PortDeclStyle ),
-    _vtg_config.CosaAddKeep);
+  VerilogModifier vlg_mod(vlg_info_ptr,
+                          static_cast<VerilogModifier::port_decl_style_t>(
+                              _vtg_config.PortDeclStyle),
+                          _vtg_config.CosaAddKeep);
 
   for (auto&& refered_vlg_item : _all_referred_vlg_names) {
     auto idx = refered_vlg_item.first.find("[");
@@ -317,7 +311,7 @@ void VlgSglTgtGen_Cosa::Export_modify_verilog() {
   // .. (copy all the verilog file in the folder), this has to be os dependent
   if (vlg_include_files_path.size() != 0) {
     // copy the files and specify the -I commandline to the run.sh
-    for(auto && include_path : vlg_include_files_path )
+    for (auto&& include_path : vlg_include_files_path)
       os_portable_copy_dir(include_path, _output_path);
   }
 

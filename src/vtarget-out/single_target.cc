@@ -56,10 +56,11 @@ VlgSglTgtGen::VlgSglTgtGen(
           VerilogGeneratorBase::VlgGenConfig::funcOption::External, true,
           true)), // rand init
       // interface mapping directive
-      _idr(instr_ptr == nullptr ? true  // if nullptr, verify inv., reset it
-                                : (vtg_config.ForceInstCheckReset ? true : false) ) , 
-                                // if checking instruction: by default, we don't reset
-                                // but if forced, we do.
+      _idr(instr_ptr == nullptr
+               ? true // if nullptr, verify inv., reset it
+               : (vtg_config.ForceInstCheckReset ? true : false)),
+      // if checking instruction: by default, we don't reset
+      // but if forced, we do.
       // state mapping directive
       _sdr(), // currently no
       // verilog info
@@ -801,10 +802,9 @@ void VlgSglTgtGen::ConstructWrapper_add_condition_signals() {
 
   } else {
     vlg_wrapper.add_wire("__ISSUE__", 1, true);
-    if(_vtg_config.ForceInstCheckReset) {
+    if (_vtg_config.ForceInstCheckReset) {
       vlg_wrapper.add_input("__ISSUE__", 1);
-    }
-    else
+    } else
       add_wire_assign_assumption("__ISSUE__", "1", "ISSUE"); // issue ASAP
     // start decode -- issue enforce (e.g. valid, input)
   } // end of no flush
@@ -1079,7 +1079,7 @@ void VlgSglTgtGen::ExportAll(const std::string& wrapper_name,
   Export_wrapper(wrapper_name);
   if (target_type != target_type_t ::INVARIANTS)
     Export_ila_vlg(ila_vlg_name); // this has to be after Export_wrapper
-  Export_modify_verilog(); // this must be after Export_wrapper
+  Export_modify_verilog();        // this must be after Export_wrapper
   Export_mem(mem_name);
 
   Export_problem(extra_name);

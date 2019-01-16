@@ -137,13 +137,13 @@ void IntefaceDirectiveRecorder::ModuleInstSanityCheck(
     const auto& the_wire_connected_to_the_port = signal_conn_pair.second.second;
     if (conn_tp == inf_dir_t::NC)
       continue; // no need to check them, will be declared
-    
+
     if (IN(the_wire_connected_to_the_port, gen.wires))
       continue; // if found okay
 
     // handles ~x
     if (the_wire_connected_to_the_port[0] == '~') {
-      if( IN(the_wire_connected_to_the_port.substr(1), gen.wires) )
+      if (IN(the_wire_connected_to_the_port.substr(1), gen.wires))
         continue;
     }
 
@@ -254,8 +254,7 @@ void IntefaceDirectiveRecorder::RegisterInterface(const SignalInfoBase& vlg_sig,
       else
         mod_inst_rec.insert(
             {short_name, inf_connector_t({inf_dir_t::RESET, "~dummy_reset"})});
-    }
-    else if (refstr == "**CLOCK**") {
+    } else if (refstr == "**CLOCK**") {
       mod_inst_rec.insert(
           {short_name, inf_connector_t({inf_dir_t::CLOCK, "clk"})});
     } else if (beginsWith(refstr, "**MEM**")) {

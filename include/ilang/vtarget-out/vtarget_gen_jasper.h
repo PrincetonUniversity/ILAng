@@ -48,19 +48,21 @@ public:
   /// the outer clock, you need to put them here,
   /// because the assumptions do not work in the jaspergold reset step
   /// (unlike COSA)
-  void add_addition_clock_info(const std::string & expr);
-  void add_addition_reset_info(const std::string & expr);
+  void add_addition_clock_info(const std::string& expr);
+  void add_addition_reset_info(const std::string& expr);
 
 protected:
   /// internal storage of problems
   /// vector of pairs of <assumption, description>
-  std::vector<std::pair<std::string, std::string> >  assumptions;
+  std::vector<std::pair<std::string, std::string>> assumptions;
   /// vector of pairs of <assertions, description>
-  std::vector<std::pair<std::string, std::string> >  assertions;
+  std::vector<std::pair<std::string, std::string>> assertions;
   /// vector of clock signals that need to be taken care of
-  std::vector<std::string> additional_clock_expr;  // we don't put the "clk" here, as by default it will be there
+  std::vector<std::string>
+      additional_clock_expr; // we don't put the "clk" here, as by default it
+                             // will be there
   /// vector of clock signals that need to be taken care of
-  std::vector<std::string> additional_reset_expr;  
+  std::vector<std::string> additional_reset_expr;
   /// Name of the problem file
   std::string jg_script_name;
   /// Name of the problem file
