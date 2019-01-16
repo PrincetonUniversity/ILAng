@@ -77,18 +77,16 @@ cache:
 install: 
   - mkdir -p $HOME/_cache
   - export Z3_CACHED="$(find $HOME/_cache/ -name z3 | grep -c "z3")"
-  - cd $HOME
+  - cd $HOME/_cache
   - if [[ "$Z3_CACHED" == "0" ]] ; then git clone https://github.com/Z3Prover/z3.git ; fi
-  - if [[ "$Z3_CACHED" == "0" ]] ; then cd z3 ; fi
+  - cd z3
   - if [[ "$Z3_CACHED" == "0" ]] ; then git checkout tags/z3-4.8.4 -b v484 ; fi
-  - if [[ "$Z3_CACHED" == "0" ]] ; then python scripts/mk_make.py --prefix=$HOME/_cache ; fi
+  - if [[ "$Z3_CACHED" == "0" ]] ; then python scripts/mk_make.py ; fi
   - if [[ "$Z3_CACHED" == "0" && "$TRAVIS_COMPILER" == "clang" ]] ; then export LD_LIBRARY_PATH=/usr/local/clang/lib:$LD_LIBRARY_PATH ; fi
-  - if [[ "$Z3_CACHED" == "0" && "$TRAVIS_COMPILER" == "clang" ]] ; then CXX=clang++ CC=clang python scripts/mk_make.py --prefix=$HOME/_cache ; fi
-  - if [[ "$Z3_CACHED" == "0" ]] ; then cd build ; fi
+  - if [[ "$Z3_CACHED" == "0" && "$TRAVIS_COMPILER" == "clang" ]] ; then CXX=clang++ CC=clang python scripts/mk_make.py ; fi
+  - cd build
   - if [[ "$Z3_CACHED" == "0" ]] ; then make -j$(nproc) ; fi
-  - if [[ "$Z3_CACHED" == "0" ]] ; then make install ; fi
-  - if [[ "$Z3_CACHED" == "0" ]] ; then cd $HOME/_cache ; fi
-  - if [[ "$Z3_CACHED" == "0" ]] ; then sudo cp -R * /usr ; fi
+  - sudo make install
   - which z3
   - z3 --version
 
