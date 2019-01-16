@@ -56,8 +56,10 @@ VlgSglTgtGen::VlgSglTgtGen(
           VerilogGeneratorBase::VlgGenConfig::funcOption::External, true,
           true)), // rand init
       // interface mapping directive
-      _idr(instr_ptr == nullptr ? true
-                                : false), // if nullptr, verify inv., reset it
+      _idr(instr_ptr == nullptr ? true  // if nullptr, verify inv., reset it
+                                : _vtg_config.ForceInstCheckReset), 
+                                // if checking instruction: by default, we don't reset
+                                // but if forced, we do.
       // state mapping directive
       _sdr(), // currently no
       // verilog info
