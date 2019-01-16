@@ -4,7 +4,6 @@
 [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools)
 [![Build status](https://ci.appveyor.com/api/projects/status/4jsh32isd8r89g3l/branch/master?svg=true)](https://ci.appveyor.com/project/Bo-Yuan-Huang/ila-tools/branch/master)
 [![Coverage Status](https://coveralls.io/repos/github/Bo-Yuan-Huang/ILA-Tools/badge.svg?branch=master)](https://coveralls.io/github/Bo-Yuan-Huang/ILA-Tools?branch=master)
-[![Coverity Scan Build Status](https://img.shields.io/coverity/scan/14490.svg)](https://scan.coverity.com/projects/bo-yuan-huang-ila-tools)
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active)
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/Bo-Yuan-Huang/ILA-Tools/blob/master/LICENSE)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/b120e2527cc04d4aacd1dc11581e2f30)](https://www.codacy.com/app/Bo-Yuan-Huang/ILA-Tools?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Bo-Yuan-Huang/ILA-Tools&amp;utm_campaign=Badge_Grade)
@@ -62,11 +61,11 @@ make install
 | OS                        | Compiler    | CMake   | z3     | Boost | Status |
 | ------------------------- | ----------- | ------- | ------ | ----- | ------ |
 | Ubuntu 14.04 (Trusty)     | gcc 4.8.4   | 3.8.0   | 4.7.1  | 1.54  | [![Build Status](https://semaphoreci.com/api/v1/bo-yuan-huang/ila-tools/branches/master/shields_badge.svg)](https://semaphoreci.com/bo-yuan-huang/ila-tools) |
-| Ubuntu 16.04 (Xenial)     | gcc 4.9.0   | 3.12.4  | latest | 1.58  | [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools) |
-| Ubuntu 16.04 (Xenial)     | gcc 5.4.0   | 3.12.4  | latest | 1.58  | [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools) |
-| Ubuntu 16.04 (Xenial)     | clang 7.0.0 | 3.12.4  | latest | 1.58  | [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools) |
+| Ubuntu 16.04 (Xenial)     | gcc 4.9.0   | 3.12.4  | 4.8.4  | 1.58  | [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools) |
+| Ubuntu 16.04 (Xenial)     | gcc 5.4.0   | 3.12.4  | 4.8.4  | 1.58  | [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools) |
+| Ubuntu 16.04 (Xenial)     | clang 7.0.0 | 3.12.4  | 4.8.4  | 1.58  | [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools) |
 | Ubuntu 18.04 (Bionic)     | gcc 7.3.0   | 3.10.2  | latest | 1.65  | [![Build status](https://ci.appveyor.com/api/projects/status/4jsh32isd8r89g3l/branch/master?svg=true)](https://ci.appveyor.com/project/Bo-Yuan-Huang/ila-tools/branch/master) |
-| OSX 10.13.0 (High Sierra) | Xcode 9.4.1 | 3.11.4  | latest | 1.68  | [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools) |
+| OSX 10.13.0 (High Sierra) | Xcode 9.4.1 | 3.11.4  | 4.8.4  | 1.68  | [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools) |
 
 ### Default Build
 
