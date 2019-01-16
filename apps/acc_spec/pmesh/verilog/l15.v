@@ -44,9 +44,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 `include "l15.tmp.h"
 `include "lsu.tmp.h"
 
-`ifdef DEFAULT_NETTYPE_NONE
-`default_nettype none
-`endif
+
 module l15 (
     input                                   clk,
     input                                   rst_n,
@@ -301,10 +299,10 @@ wire noc1encoder_l15_req_sent;
 wire l15_noc1buffer_req_val;
 wire [`NOC1_BUFFER_ACK_DATA_WIDTH-1:0] noc1encoder_l15_req_data_sent;
 
-wire [`L15_NOC1_REQTYPE_WIDTH-1:0] l15_noc1buffer_req_type;
+wire [4:0] l15_noc1buffer_req_type;
 wire [`L15_THREADID_MASK] l15_noc1buffer_req_threadid;
 wire [`L15_MSHR_ID_WIDTH-1:0] l15_noc1buffer_req_mshrid;
-wire [`L15_PADDR_HI:0] l15_noc1buffer_req_address;
+wire [39:0] l15_noc1buffer_req_address;
 wire l15_noc1buffer_req_non_cacheable;
 wire [2:0] l15_noc1buffer_req_size;
 wire l15_noc1buffer_req_prefetch;

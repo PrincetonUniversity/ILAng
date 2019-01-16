@@ -2,7 +2,15 @@
   "instructions": [
     {
       "instruction" : "LOAD_normal",
-      "ready signal": ""
+      "ready signal": "m1.l15.pipeline.end_of_pipeline && ( m1.l15_transducer_val || m1.l15.l15_noc1buffer_req_val )",
+      "start condition":
+        ["$valid$","$decode$", 
+         "m1.l15.pipeline.predecode_source_s1 == 2'd1",
+         "m1.transducer_l15_address[39:32] == 0",
+         "m1.transducer_l15_address[1:0] == 0",
+         "m1.l15.pipeline.stall_s1 == 0"],
+
+      "max bound":34
     }
   ],
   

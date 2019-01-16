@@ -10,8 +10,11 @@
 namespace ilang {
 
 /// Constructor: do nothing
-VerilogModifier::VerilogModifier(VerilogInfo* _vlg_info_ptr, port_decl_style_t port_decl_style)
-    : vlg_info_ptr(_vlg_info_ptr), _port_decl_style(port_decl_style) {}
+VerilogModifier::VerilogModifier(VerilogInfo* _vlg_info_ptr,
+                                 port_decl_style_t port_decl_style,
+                                 bool add_keep_or_not)
+    : vlg_info_ptr(_vlg_info_ptr), _port_decl_style(port_decl_style),
+      _add_keep_or_not(add_keep_or_not) {}
 /// Destructor: do nothing
 VerilogModifier::~VerilogModifier() {}
 
@@ -49,10 +52,12 @@ void VerilogModifier::ReadModifyWrite(const std::string& fn, std::istream& fin,
       auto vname = std::get<1>(*keep_vec_it);
       auto is_port = std::get<2>(*keep_vec_it);
 
-      if (!is_port)
-        line = add_keep_to_a_line(line, vname);
-      else
-        line = add_keep_to_port(line, vname);
+      if (_add_keep_or_not) {
+        if (!is_port)
+          line = add_keep_to_a_line(line, vname);
+        else
+          line = add_keep_to_port(line, vname);
+      }
       // move to the next item on the same line
       keep_vec_it++;
     }
@@ -231,6 +236,9 @@ std::string VerilogModifier::add_keep_to_port(const std::string& line_in,
 
   auto midMod = Join(midSplit, ",");
 
+  if ((middle.back()) == ',')
+    midMod += ',';
+
   return left_cut + midMod + right_cut;
 } // add_keep_to_port
 
@@ -333,7 +341,7 @@ bool VerilogModifier::add_mod_decl_wire_to_this_line(const std::string& line_in,
   auto wl = SplitSpaceTabEnter(left); // should not go to the right
   bool new_style = false;
 
-  if(_port_decl_style == port_decl_style_t::AUTO) {
+  if (_port_decl_style == port_decl_style_t::AUTO) {
     new_style = false;
     if (std::find(wl.begin(), wl.end(), "output") != wl.end())
       new_style = true;

@@ -34,10 +34,10 @@ module l15_wrap (
     input                                   rst_n,
 
     input [4:0]                             transducer_l15_rqtype,
-    input [`L15_AMO_OP_WIDTH-1:0]           transducer_l15_amo_op,
+    input [3:0]                             transducer_l15_amo_op,
     input                                   transducer_l15_nc,
     input [2:0]                             transducer_l15_size,
-    input [`L15_THREADID_MASK]              transducer_l15_threadid,
+    input [0:0]                             transducer_l15_threadid,
     input                                   transducer_l15_prefetch,
     input                                   transducer_l15_invalidate_cacheline,
     input                                   transducer_l15_blockstore,
@@ -47,7 +47,7 @@ module l15_wrap (
     input [39:0]                            transducer_l15_address,
     input [63:0]                            transducer_l15_data,
     input [63:0]                            transducer_l15_data_next_entry,
-    input [`TLB_CSM_WIDTH-1:0]              transducer_l15_csm_data,
+    input [32:0]                            transducer_l15_csm_data,
 
     output                                  l15_transducer_ack,
     output                                  l15_transducer_header_ack,
@@ -58,7 +58,7 @@ module l15_wrap (
     output [1:0]                            l15_transducer_error,
     output                                  l15_transducer_noncacheable,
     output                                  l15_transducer_atomic,
-    output [`L15_THREADID_MASK]             l15_transducer_threadid,
+    output [0:0]                            l15_transducer_threadid,
     output                                  l15_transducer_prefetch,
     output                                  l15_transducer_f4b,
     output [63:0]                           l15_transducer_data_0,
@@ -79,42 +79,42 @@ module l15_wrap (
 
     input                                   noc1_out_rdy,
     input                                   noc2_in_val,
-    input [`NOC_DATA_WIDTH-1:0]             noc2_in_data,
+    input [63:0]             noc2_in_data,
     input                                   noc3_out_rdy,
     input                                   dmbr_l15_stall,
-    input [`NOC_CHIPID_WIDTH-1:0]           chipid,
-    input [`NOC_X_WIDTH-1:0]                coreid_x,
-    input [`NOC_Y_WIDTH-1:0]                coreid_y,
+    input [13:0]           chipid,
+    input [7:0]                coreid_x,
+    input [7:0]                coreid_y,
 
     // input from config registers to pipeline
     input [63:0]                            config_l15_read_res_data_s3,
     input                                   config_csm_en,
     input [5:0]                             config_system_tile_count_5_0,
-    input [`HOME_ALLOC_METHOD_WIDTH-1:0]    config_home_alloc_method, 
-    input [`L15_HMT_BASE_ADDR_WIDTH-1:0]    config_hmt_base,
+    input [1:0]    config_home_alloc_method, 
+    input [21:0]    config_hmt_base,
 
     output                                  noc1_out_val,
-    output [`NOC_DATA_WIDTH-1:0]            noc1_out_data,
+    output [63:0]            noc1_out_data,
     output                                  noc2_in_rdy,
     output                                  noc3_out_val,
-    output [`NOC_DATA_WIDTH-1:0]            noc3_out_data,
+    output [63:0]            noc3_out_data,
     // output wire pcx_req_squashed,
     output                                  l15_dmbr_l1missIn,
-    output [`DMBR_TAG_WIDTH-1:0]            l15_dmbr_l1missTag,
+    output [3:0]            l15_dmbr_l1missTag,
     output                                  l15_dmbr_l2responseIn,
     output                                  l15_dmbr_l2missIn,
-    output [`DMBR_TAG_WIDTH-1:0]            l15_dmbr_l2missTag,
+    output [3:0]            l15_dmbr_l2missTag,
 
     // output to config registers to pipeline
     output                                  l15_config_req_val_s2,
     output                                  l15_config_req_rw_s2,
     output [63:0]                           l15_config_write_req_data_s2,
-    output [`CONFIG_REG_ADDRESS_MASK]       l15_config_req_address_s2,
+    output [15:8]       l15_config_req_address_s2,
 
     // sram interface
-    output [`SRAM_WRAPPER_BUS_WIDTH-1:0]    srams_rtap_data,
-    input  [`BIST_OP_WIDTH-1:0]             rtap_srams_bist_command,
-    input  [`SRAM_WRAPPER_BUS_WIDTH-1:0]    rtap_srams_bist_data
+    output [3:0]    srams_rtap_data,
+    input  [3:0]             rtap_srams_bist_command,
+    input  [3:0]    rtap_srams_bist_data
 );
 
     wire [31:0]   config_system_tile_count = {26'bx, config_system_tile_count_5_0};

@@ -6,6 +6,7 @@
 
 #include <ilang/util/container_shortcut.h>
 #include <ilang/verification/abs_knob.h>
+#include <ilang/verilog-in/verilog_parse.h>
 #include <ilang/verilog-in/verilog_analysis_wrapper.h>
 #include <ilang/verilog-out/verilog_gen.h>
 
@@ -13,6 +14,18 @@
 #include "unit-include/util.h"
 
 namespace ilang {
+
+TEST(TestVerilogAnalysis, ParserInit) { TestParseVerilog(); }
+
+TEST(TestVerilogAnalysis, BaseFuncNoError) {
+  auto fn = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/verilog_sample/t_ana_inst.v";
+  std::FILE * fp = std::fopen(fn.c_str(), "r");
+
+  EXPECT_EQ( TestParseVerilogFrom(fp) , 0 );
+
+  std::fclose(fp);
+}
+
 
 TEST(TestVerilogAnalysis, Init) {
 
@@ -68,6 +81,21 @@ TEST(TestVerilogAnalysis, Include) {
   ILA_DLOG("TestVerilogAnalysis.Include")   << "Location of: m1.r1:" << va.name2loc("m1.r1");
   ILA_DLOG("TestVerilogAnalysis.Include")   << "End loc of m1:" << va.get_endmodule_loc("m1");
 
+}
+
+
+TEST(TestVerilogAnalysis, RangeAnalysis) {
+
+/*  VerilogInfo va(
+      VerilogInfo::path_vec_t({std::string(ILANG_TEST_SRC_ROOT) +
+                               "/unit-data/verilog_sample/"}),
+      VerilogInfo::path_vec_t({std::string(ILANG_TEST_SRC_ROOT) +
+                               "/unit-data/verilog_sample/m1.v"}),
+      "m1");
+
+  ILA_DLOG("TestVerilogAnalysis.Include")   << "Location of: m1.r1:" << va.name2loc("m1.r1");
+  ILA_DLOG("TestVerilogAnalysis.Include")   << "End loc of m1:" << va.get_endmodule_loc("m1");
+*/
 }
 
 TEST(TestVerilogAnalysis, AnalyzeName) {
@@ -203,6 +231,8 @@ TEST(TestVerilogAnalysis, AnalyzeName) {
       << "Inst loc of m1.subm3:" << va.get_module_inst_loc("m1.subm3");
   ILA_DLOG("TestVerilogAnalysis.AnalyzeName")
       << "Inst loc of m1.subm4:" << va.get_module_inst_loc("m1.subm4");
+
+  va.get_module_inst_loc("m1.subm1");
 
 }
 

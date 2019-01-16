@@ -39,12 +39,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //==================================================================================================
 
-//`timescale 1 ns / 10 ps
+
 `include "l15.tmp.h"
 
-`ifdef DEFAULT_NETTYPE_NONE
-`default_nettype none
-`endif
 module l15_mshr(
     input wire clk,
     input wire rst_n,

@@ -106,9 +106,7 @@ public:
   /// do nothing!
   virtual ~VerilogAnalyzerBase(){};
 
-private:
   /// Please do not instantiate this class, only used as a pointer type
-  void virtual should_not_instantiate() = 0;
 };
 
 /// \brief Class to hold signal info
