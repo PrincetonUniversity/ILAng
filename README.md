@@ -4,9 +4,12 @@
 [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools)
 [![Build status](https://ci.appveyor.com/api/projects/status/4jsh32isd8r89g3l/branch/master?svg=true)](https://ci.appveyor.com/project/Bo-Yuan-Huang/ila-tools/branch/master)
 [![Coverage Status](https://coveralls.io/repos/github/Bo-Yuan-Huang/ILA-Tools/badge.svg?branch=master)](https://coveralls.io/github/Bo-Yuan-Huang/ILA-Tools?branch=master)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/b120e2527cc04d4aacd1dc11581e2f30)](https://www.codacy.com/app/Bo-Yuan-Huang/ILA-Tools?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Bo-Yuan-Huang/ILA-Tools&amp;utm_campaign=Badge_Grade)
+[![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/bo-yuan-huang/ila-tools.svg)](http://isitmaintained.com/project/bo-yuan-huang/ila-tools "Average time to resolve an issue")
+[![Percentage of issues still open](http://isitmaintained.com/badge/open/bo-yuan-huang/ila-tools.svg)](http://isitmaintained.com/project/bo-yuan-huang/ila-tools "Percentage of issues still open")
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active)
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/Bo-Yuan-Huang/ILA-Tools/blob/master/LICENSE)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/b120e2527cc04d4aacd1dc11581e2f30)](https://www.codacy.com/app/Bo-Yuan-Huang/ILA-Tools?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Bo-Yuan-Huang/ILA-Tools&amp;utm_campaign=Badge_Grade)
+
 
 - [Build](#build)
   - [Prerequisites](#prerequisites)
