@@ -1,19 +1,58 @@
-/// \file Verilog Verification Target Generator -- for JasperGold
+/// \file Verilog Verification Target Generator -- for Yosys 
+/// We use yosys to convert Verilog to smt-lib2, and then
+/// it will be converted to horn clause
+/// This file should not be included, as it requires the impl.
+/// Internally, we use the
 // ---Hongce Zhang
 
-#ifndef VTARGET_GEN_JASPER_H__
-#define VTARGET_GEN_JASPER_H__
+#ifndef VTARGET_GEN_YOSYS_H__
+#define VTARGET_GEN_YOSYS_H__
 
+#include <ilang/config.h>
+
+#include <ilang/ila/instr_lvl_abs.h>
+#include <ilang/vtarget-out/vlg_mod.h>
 #include <ilang/vtarget-out/vtarget_gen_impl.h>
+#include <iostream>
+#include <string>
+#include <vector>
 
 namespace ilang {
 
-/// \brief  Verilog Verification Target Generator -- for JasperGold
-/// Unlike for cosa, we don't need a separate file
-/// although we do have some ...
-class VlgSglTgtGen_Jasper : public VlgSglTgtGen {
+class VlgSglTgtGen_Yosys;
+
+/// \brief a class to store (and generate) the problem for Yosys
+class Yosys_problem {
+  friend class VlgSglTgtGen_Yosys;
+  /// Type of assertions and assumptions
+  typedef std::vector<std::string> prop_t;
+  /// Type of a problem --- we  can handle multiple several problems (may not
+  /// needed)
+  typedef struct {
+    // the name in [??]
+    // std::string  problem_name;
+    /// will be conjuncted and put in the question
+    prop_t assertions;
+  } problem_t;
+  /// set of problems
+  typedef std::map<std::string, problem_t> problemset_t;
+
+protected:
+  /// assumptions are shared
+  prop_t assumptions;
+  /// problems are splitted into items
+  problemset_t probitem;
+
+}; // Yosys_problem
+
+/// \brief a class to interface w.  COSA
+class VlgSglTgtGen_Yosys : public VlgSglTgtGen {
   /// using the target type
   using target_type_t = VlgSglTgtGen::target_type_t;
+  /// a tuple to store all related info for modification
+  using info_t = VerilogModifier::info_t;
+  /// filename -> (lineno, varname, is_port_sig) vec
+  using fn_l_map_t = VerilogModifier::fn_l_map_t;
 
 public:
   // --------------------- CONSTRUCTOR ---------------------------- //
@@ -30,7 +69,7 @@ public:
   /// \param[in] all include paths
   /// \param[in] which backend to use, it needs this info to gen proper
   /// properties
-  VlgSglTgtGen_Jasper(
+  VlgSglTgtGen_Yosys(
       const std::string& output_path, // will be a sub directory of the
                                       // output_path of its parent
       const InstrPtr& instr_ptr, // which could be an empty pointer, and it will
@@ -44,29 +83,11 @@ public:
       const std::vector<std::string>& include_dirs,
       const vtg_config_t& vtg_config, backend_selector backend);
 
-  /// if you have signals that are controled by assumptions to be equal as
-  /// the outer clock, you need to put them here,
-  /// because the assumptions do not work in the jaspergold reset step
-  /// (unlike COSA)
-  void add_addition_clock_info(const std::string& expr);
-  void add_addition_reset_info(const std::string& expr);
-
 protected:
-  /// internal storage of problems
-  /// vector of pairs of <assumption, description>
-  std::vector<std::pair<std::string, std::string>> assumptions;
-  /// vector of pairs of <assertions, description>
-  std::vector<std::pair<std::string, std::string>> assertions;
-  /// vector of clock signals that need to be taken care of
-  std::vector<std::string>
-      additional_clock_expr; // we don't put the "clk" here, as by default it
-                             // will be there
-  /// vector of clock signals that need to be taken care of
-  std::vector<std::string> additional_reset_expr;
-  /// Name of the problem file
-  std::string jg_script_name;
-  /// Name of the problem file
-  std::string abs_mem_name;
+  /// Yosys problem generate
+  Yosys_problem _problems;
+  /// Yosys problem file name
+  std::string yosys_prob_fname;
 
 protected:
   /// Add an assumption
@@ -81,26 +102,26 @@ protected:
   /// Add a direct assertion
   virtual void add_a_direct_assertion(const std::string& asst,
                                       const std::string& dspt) override;
-
-  /// Add an assignment which in JasperGold could be an assignment, but in CoSA
+  /// Add an assignment which in JasperGold could be an assignment, but in Yosys
   /// has to be an assumption
   virtual void add_wire_assign_assumption(const std::string& varname,
                                           const std::string& expression,
                                           const std::string& dspt) override;
   /// Add an assignment to a register which in JasperGold could be an
-  /// assignment, but in CoSA has to be an assumption
+  /// assignment, but in Yosys has to be an assumption
   virtual void add_reg_cassign_assumption(const std::string& varname,
                                           const std::string& expression,
                                           const std::string& cond,
                                           const std::string& dspt) override;
 
-  /// Pre export work : nothing for cosa
-  void virtual PreExportProcess() override {}
+  /// Pre export work : add assume and asssert to the top level
+  void virtual PreExportProcess() override;
   /// export the script to run the verification
   virtual void Export_script(const std::string& script_name) override;
-  /// export extra things (problem)
+  /// export extra things: the yosys script, the smt template
   virtual void
-  Export_problem(const std::string& extra_name) override; // only for cosa
+  Export_problem(const std::string& extra_name) override;
+
   /// export the memory abstraction (implementation)
   /// Yes, this is also implementation specific, (jasper may use a different
   /// one)
@@ -112,8 +133,8 @@ public:
   /// It is okay to instantiation
   virtual void do_not_instantiate(void) override{};
 
-}; // class VlgVerifTgtGenCosaJasper
+}; // class VlgVerifTgtGenYosys
 
 }; // namespace ilang
 
-#endif // VTARGET_GEN_JASPER_H__
+#endif // VTARGET_GEN_YOSYS_H__
