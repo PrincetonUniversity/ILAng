@@ -1073,6 +1073,7 @@ void VlgSglTgtGen::ExportAll(const std::string& wrapper_name,
                              const std::string& script_name,
                              const std::string& extra_name,
                              const std::string& mem_name) {
+  PreExportProcess();
   if (os_portable_mkdir(_output_path) == false)
     ILA_WARN << "Cannot create output directory:" << _output_path;
   // you don't need to worry about the path and names

@@ -17,7 +17,7 @@ class VlgVerifTgtGenBase {
   // ----------------------- Type Definition ----------------------- //
 public:
   /// Type of the backend
-  typedef enum { NONE = 0, COSA = 1, JASPERGOLD = 2 } backend_selector;
+  typedef enum { NONE = 0, COSA = 1, JASPERGOLD = 2, YOSYS = 3 } backend_selector;
   /// Verilog Target Generation Configuration
   typedef struct _vtg_config {
     /// Set the targets: instructions/invariants/both
@@ -59,6 +59,17 @@ public:
     bool CosaGenTraceVcd;
     /// other CoSA options
     std::string CosaOtherSolverOptions;
+    // ----------- Options for Yosys SMT-LIB2 Generator -------------- //
+    /// The path to yosys, if yosys is not in the PATH, default empty
+    std::string YosysPath;
+    /// Whether to use array sort on register file, not compatible with
+    /// BitVec in YosysSmtStateSort, default false
+    bool YosysSmtArrayForRegFile;
+    /// How to encode Verilog state
+    /// DataSort seems to use PDR engine, while bitvec seems Datalog
+    /// Not 100% sure of it
+    enum { UnintepretedFunc, DataSort, BitVec } YosysSmtStateSort;
+
     /// The default constructor for default values
     _vtg_config()
         : target_select(BOTH), CheckThisInstructionOnly(""),
@@ -67,7 +78,8 @@ public:
           CosaGenJgTesterScript(false), CosaAddKeep(true), MaxBound(127),
           ForceInstCheckReset(false), PortDeclStyle(AUTO),
           OnlyAssumeUpdatedVarsEq(false), CosaPath(""), CosaPyEnvironment(""),
-          CosaSolver(""), CosaGenTraceVcd(true), CosaOtherSolverOptions("") {}
+          CosaSolver(""), CosaGenTraceVcd(true), CosaOtherSolverOptions(""),
+          YosysSmtArrayForRegFile(false), YosysSmtStateSort(DataSort)  {}
   } vtg_config_t;
 
 public:

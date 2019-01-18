@@ -247,6 +247,8 @@ public:
   /// Call the separate construct functions to make a wrapper (not yet export
   /// it)
   void virtual ConstructWrapper();
+  /// PreExportWork (modification and etc.)
+  void virtual PreExportProcess() = 0;
   /// create the wrapper file
   void virtual Export_wrapper(const std::string& wrapper_name);
   /// export the ila verilog

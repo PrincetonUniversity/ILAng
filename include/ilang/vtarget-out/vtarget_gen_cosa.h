@@ -1,6 +1,5 @@
-/// \file Verilog Verification Target Generator -- for JasperGold
+/// \file Verilog Verification Target Generator -- for CoSA
 /// This file should not be included, as it requires the impl.
-/// Internally, we use the
 // ---Hongce Zhang
 
 #ifndef VTARGET_GEN_COSA_H__
@@ -112,6 +111,8 @@ protected:
                                           const std::string& cond,
                                           const std::string& dspt) override;
 
+  /// Pre export work : nothing for cosa
+  void virtual PreExportProcess() override {}
   /// export the script to run the verification
   virtual void Export_script(const std::string& script_name) override;
   /// export extra things (problem)

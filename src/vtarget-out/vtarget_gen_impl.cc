@@ -10,6 +10,7 @@
 #include <ilang/vtarget-out/vtarget_gen_cosa.h>
 #include <ilang/vtarget-out/vtarget_gen_impl.h>
 #include <ilang/vtarget-out/vtarget_gen_jasper.h>
+#include <ilang/vtarget-out/vtarget_gen_yosys.h>
 
 #include <cmath>
 #include <iostream>
@@ -122,7 +123,8 @@ void VlgVerifTgtGen::GenerateTargets(void) {
   }
 
   if (_backend != backend_selector::COSA &&
-      _backend != backend_selector::JASPERGOLD) {
+      _backend != backend_selector::JASPERGOLD &&
+      _backend != backend_selector::YOSYS ) {
     ILA_ERROR << "Unknown backend specification:" << _backend << ", quit.";
     return;
   }
@@ -158,7 +160,17 @@ void VlgVerifTgtGen::GenerateTargets(void) {
           _vtg_config, _backend);
       target.ConstructWrapper();
       target.ExportAll("wrapper.v", "ila.v", "run.sh", "do.tcl", "absmem.v");
-    } // end if backend...
+    } else if (_backend == backend_selector::YOSYS and invariantExists) {
+      auto target = VlgSglTgtGen_Yosys(
+          os_portable_append_dir(_output_path, "invariants"),
+          NULL, // invariant
+          _ila_ptr, _cfg, rf_vmap, rf_cond, vlg_info_ptr, _vlg_mod_inst_name,
+          _ila_mod_inst_name, "wrapper", _vlg_impl_srcs, _vlg_impl_include_path,
+          _vtg_config, _backend);
+      target.ConstructWrapper();
+      target.ExportAll("wrapper.v", "ila.v", "run.sh", "gensmt.ys", "absmem.v");
+    }
+    // end if backend...
   } // end if if(_vtg_config.target_select == BOTH || _vtg_config.target_select
     // == INV)
 
@@ -197,6 +209,15 @@ void VlgVerifTgtGen::GenerateTargets(void) {
             _vlg_impl_include_path, _vtg_config, _backend);
         target.ConstructWrapper();
         target.ExportAll("wrapper.v", "ila.v", "run.sh", "do.tcl", "absmem.v");
+      } else if (_backend == backend_selector::YOSYS) {
+        auto target = VlgSglTgtGen_Yosys(
+            os_portable_append_dir(_output_path, iname),
+            instr_ptr, // instruction
+            _ila_ptr, _cfg, rf_vmap, rf_cond, vlg_info_ptr, _vlg_mod_inst_name,
+            _ila_mod_inst_name, "wrapper", _vlg_impl_srcs,
+            _vlg_impl_include_path, _vtg_config, _backend);
+        target.ConstructWrapper();
+        target.ExportAll("wrapper.v", "ila.v", "run.sh", "gensmt.ys", "absmem.v");
       }
     } // end for instrs
   }   // end if target select == ...
