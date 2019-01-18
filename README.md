@@ -186,6 +186,6 @@ to initialize the environment settings.
 This docker image also contains the model checker [CoSA](https://github.com/cristian-mattarei/CoSA) with the SMT solvers [z3](https://github.com/Z3Prover/z3) and [Boolector](https://github.com/Boolector/boolector).
 
 ## Documentations
-- A list of related papers can be found in the [ILAng main page](https://bo-yuan-huang.github.io/ILA-Tools/).
-- Link to the C++ implementation annotation (powered by Doxygen). \[[LINK](https://bo-yuan-huang.github.io/ILA-Tools/doxygen-html/index.html)\]
+- A list of related papers can be found in the [ILAng main page](https://bo-yuan-huang.github.io/ILAng/).
+- Link to the C++ implementation annotation (powered by Doxygen). \[[LINK](https://bo-yuan-huang.github.io/ILAng/doxygen-html/namespaceilang.html)\]
 
