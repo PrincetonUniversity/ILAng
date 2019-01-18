@@ -61,11 +61,11 @@ sudo make install
 
 | OS                        | Compiler    | CMake   | z3     | Boost | Status |
 | ------------------------- | ----------- | ------- | ------ | ----- | ------ |
-| Ubuntu 14.04 (Trusty)     | gcc 4.8.4   | 3.8.0   | 4.7.1  | 1.54  | [![Build Status](https://semaphoreci.com/api/v1/bo-yuan-huang/ilang/branches/master/badge.svg)](https://semaphoreci.com/bo-yuan-huang/ilang) |
-| Ubuntu 16.04 (Xenial)     | gcc 5.4.0   | 3.12.4  | 4.8.4  | 1.58  | [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools) |
-| Ubuntu 16.04 (Xenial)     | clang 7.0.0 | 3.12.4  | 4.8.4  | 1.58  | [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools) |
+| Ubuntu 14.04 (Trusty)     | gcc 4.8.4   | 3.8.0   | 4.7.1  | 1.54  | [![Build Status](https://semaphoreci.com/api/v1/bo-yuan-huang/ilang/branches/master/shields_badge.svg)](https://semaphoreci.com/bo-yuan-huang/ilang) |
+| Ubuntu 16.04 (Xenial)     | gcc 5.4.0   | 3.12.4  | 4.8.4  | 1.58  | [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILAng.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILAng) |
+| Ubuntu 16.04 (Xenial)     | clang 7.0.0 | 3.12.4  | 4.8.4  | 1.58  | [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILAng.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILAng) |
 | Ubuntu 18.04 (Bionic)     | gcc 7.3.0   | 3.13.1  | latest | 1.65  | [![Build status](https://ci.appveyor.com/api/projects/status/4jsh32isd8r89g3l/branch/master?svg=true)](https://ci.appveyor.com/project/Bo-Yuan-Huang/ila-tools/branch/master) |
-| OSX 10.13.0 (High Sierra) | Xcode 9.4.1 | 3.11.4  | 4.8.4  | 1.68  | [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools) |
+| OSX 10.13.0 (High Sierra) | Xcode 9.4.1 | 3.11.4  | 4.8.4  | 1.68  | [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILAng.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILAng) |
 
 ### Default Build
 
@@ -188,4 +188,3 @@ This docker image also contains the model checker [CoSA](https://github.com/cris
 ## Documentations
 - A list of related papers can be found in the [ILAng main page](https://bo-yuan-huang.github.io/ILAng/).
 - Link to the C++ implementation annotation (powered by Doxygen). \[[LINK](https://bo-yuan-huang.github.io/ILAng/doxygen-html/namespaceilang.html)\]
-
