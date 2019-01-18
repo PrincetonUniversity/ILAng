@@ -77,6 +77,7 @@ package_add_test(${ILANG_TEST_MAIN}
   t_vtarget_gen.cc
   t_verilog_mod.cc
   t_util.cc
+  t_inv_syn.cc
 )
 
 if(${ILANG_BUILD_SYNTH})

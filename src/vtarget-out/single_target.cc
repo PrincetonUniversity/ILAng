@@ -1014,7 +1014,8 @@ void VlgSglTgtGen::ConstructWrapper() {
     ConstructWrapper_add_uf_constraints();
 
   // 5.0 add the extra wires to the top module wrapper
-  if (_backend == backend_selector::COSA)
+  if (_backend == backend_selector::COSA || 
+      _backend == backend_selector::YOSYS)
     ConstructWrapper_register_extra_io_wire();
 
   // 6. helper memory
@@ -1054,7 +1055,8 @@ void VlgSglTgtGen::Export_ila_vlg(const std::string& ila_vlg_name) {
   ila_file_name = ila_vlg_name;
   std::ofstream fout;
   std::string fn;
-  if (_backend == backend_selector::COSA) {
+  if (_backend == backend_selector::COSA ||
+      _backend == backend_selector::YOSYS) {
     fn = os_portable_append_dir(_output_path, top_file_name);
     fout.open(fn, std::ios_base::app);
   } else if (_backend == backend_selector::JASPERGOLD) {

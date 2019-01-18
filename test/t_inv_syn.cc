@@ -23,7 +23,7 @@ TEST(TestVlgVerifInvSyn, PipeExampleYosys) {
       {dirName + "simple_pipe.v"}, //
       "pipeline_v",                // top_module_name
       dirName + "rfmap/vmap.json", // variable mapping
-      dirName + "rfmap/cond-noinv.json", dirName + "verify/", ila_model.get(),
+      dirName + "rfmap/cond-noinv.json", dirName + "inv-syn/", ila_model.get(),
       VerilogVerificationTargetGenerator::backend_selector::YOSYS);
 
   EXPECT_FALSE(vg.in_bad_state());
