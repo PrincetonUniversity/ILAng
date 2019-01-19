@@ -28,6 +28,12 @@ public:
     /// in the whole execution of checking instruction
     /// from reseted --> to forever
     bool InstructionNoReset; // true
+    /// Tell whether we assume the invariants only on the initial state
+    /// when checking instructions
+    /// I couldn't think of a reason why not, maybe this is
+    /// faster for the solver? maybe
+    /// for Yosys, we will ignore this
+    bool OnlyEnforceInvariantsOnInitialStateOfInstrCheck; // true
     /// Does not insert assertions of variable mapping
     /// if an instruction does not update that var
     bool OnlyCheckInstUpdatedVars; // true
@@ -73,7 +79,9 @@ public:
     /// The default constructor for default values
     _vtg_config()
         : target_select(BOTH), CheckThisInstructionOnly(""),
-          InstructionNoReset(true), OnlyCheckInstUpdatedVars(true),
+          InstructionNoReset(true), 
+          OnlyEnforceInvariantsOnInitialStateOfInstrCheck(true),
+          OnlyCheckInstUpdatedVars(true),
           PerVariableProblemCosa(false), MemAbsReadAbstraction(false),
           CosaGenJgTesterScript(false), CosaAddKeep(true), MaxBound(127),
           ForceInstCheckReset(false), PortDeclStyle(AUTO),

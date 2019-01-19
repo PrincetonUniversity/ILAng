@@ -88,6 +88,8 @@ protected:
   Yosys_problem _problems;
   /// Yosys problem file name
   std::string yosys_prob_fname;
+  /// the file name to put the design temporarily
+  std::string tmp_design_file;
 
 protected:
   /// Add an assumption

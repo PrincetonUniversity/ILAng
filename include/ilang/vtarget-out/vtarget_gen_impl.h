@@ -36,7 +36,8 @@ class VlgSglTgtGen {
   // --------------------- TYPE DEFINITION ------------------------ //
 public:
   /// Type of the target
-  typedef enum { INVARIANTS, INSTRUCTIONS } target_type_t;
+  /// for yosys_syn, INST_INV_SYN will be used for every instruction
+  typedef enum { INVARIANTS, INSTRUCTIONS, INST_INV_SYN } target_type_t;
   /// Type of the ready condition
   typedef enum {
     NA = 0,
@@ -81,7 +82,8 @@ public:
       const std::string& ila_mod_inst_name, const std::string& wrapper_name,
       const std::vector<std::string>& implementation_srcs,
       const std::vector<std::string>& implementation_include_path,
-      const vtg_config_t& vtg_config, backend_selector backend);
+      const vtg_config_t& vtg_config, backend_selector backend,
+      const target_type_t& target_tp);
 
   /// Destructor: do nothing , most importantly it is virtual
   virtual ~VlgSglTgtGen() {}

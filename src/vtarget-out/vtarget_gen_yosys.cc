@@ -31,7 +31,8 @@ VlgSglTgtGen_Yosys::VlgSglTgtGen_Yosys(
     : VlgSglTgtGen(output_path, instr_ptr, ila_ptr, config, _rf_vmap, _rf_cond,
                    _vlg_info_ptr, vlg_mod_inst_name, ila_mod_inst_name,
                    wrapper_name, implementation_srcs,
-                   implementation_include_path, vtg_config, backend) {}
+                   implementation_include_path, vtg_config, backend),
+      tmp_design_file( "__design__.v") {  }
 
 
 void VlgSglTgtGen_Yosys::add_wire_assign_assumption(
@@ -72,7 +73,7 @@ void VlgSglTgtGen_Yosys::add_an_assumption(const std::string& aspt,
   vlg_wrapper.add_assign_stmt(assumption_wire_name, aspt);
   ILA_ERROR_IF(aspt.find(".") != std::string::npos)
       << "aspt:" << aspt << " contains unfriendly dot.";
-  _problems.assumptions.push_back(assumption_wire_name + " = 1'b1");
+  _problems.assumptions.push_back(assumption_wire_name + " == 1'b1");
   //_problems.assumptions.push_back(convert_expr_to_yosys(aspt));
 }
 /// Add an assertion
@@ -83,7 +84,7 @@ void VlgSglTgtGen_Yosys::add_an_assertion(const std::string& asst,
   vlg_wrapper.add_output(assrt_wire_name,
                          1); // I find it is necessary to connect to the output
   vlg_wrapper.add_assign_stmt(assrt_wire_name, asst);
-  _problems.probitem[dspt].assertions.push_back(assrt_wire_name + " = 1'b1");
+  _problems.probitem[dspt].assertions.push_back(assrt_wire_name + " == 1'b1");
   ILA_ERROR_IF(asst.find(".") != std::string::npos)
       << "asst:" << asst << " contains unfriendly dot.";
   //_problems.probitem[dspt].assertions.push_back(convert_expr_to_yosys(asst));
@@ -109,7 +110,7 @@ void VlgSglTgtGen_Yosys::PreExportProcess() {
   }
   
   //std::string assmpt = "(" + Join(_problems.assumptions, ") & (") + ")";
-  std::string all_assert_wire_content;
+  std::string all_assert_wire_content = "`true";
 
   for (auto&& pbname_prob_pair : _problems.probitem) {
     const auto& prbname = pbname_prob_pair.first;
@@ -290,9 +291,10 @@ void VlgSglTgtGen_Yosys::Export_problem(const std::string& extra_name) {
 
   fout << "read_verilog -sv "<<top_file_name<< std::endl;
   fout << "prep -top "<<top_mod_name<<std::endl;
-  fout << 
-    _vtg_config.YosysSmtArrayForRegFile ? 
-      yosysGenerateSmtScript_w_Array : yosysGenerateSmtScript_wo_Array ;
+  if(_vtg_config.YosysSmtArrayForRegFile)
+    fout << yosysGenerateSmtScript_w_Array;
+  else
+    fout << yosysGenerateSmtScript_wo_Array;
   fout << "write_smt2"<<write_smt2_options<<" wrapper.smt2";
 /*
 
@@ -369,22 +371,40 @@ void VlgSglTgtGen_Yosys::Export_modify_verilog() {
   }
   vlg_mod.FinishRecording();
 
+
+  //auto tmp_fn = os_portable_append_dir(_output_path, tmp_design_file);
+  auto tmp_fn = os_portable_append_dir(_output_path, top_file_name);
   // now let's do the job
   for (auto&& fn : vlg_design_files) {
-    auto outfn = os_portable_append_dir(_output_path, top_file_name);
     std::ifstream fin(fn);
-    std::ofstream fout(outfn, std::ios_base::app); // append
+    std::ofstream fout(tmp_fn, std::ios_base::app); // append to a temp file
     if (!fin.is_open()) {
       ILA_ERROR << "Cannot read file:" << fn;
       continue;
     }
     if (!fout.is_open()) {
-      ILA_ERROR << "Cannot open file for write:" << outfn;
+      ILA_ERROR << "Cannot open file for write:" << tmp_fn;
       continue;
     }
     vlg_mod.ReadModifyWrite(fn, fin, fout);
   } // for (auto && fn : vlg_design_files)
-  // .. (copy all the verilog file in the folder), this has to be os dependent
+
+  /*
+  // also make a copy to the top module
+  {
+    auto wrapper_file_name = os_portable_append_dir(_output_path, top_file_name);
+    std::ifstream fin (tmp_fn);
+    std::ofstream fout(wrapper_file_name, std::ios_base::app); // append to the wrapper file
+    ILA_ERROR_IF(fin.is_open()) << "Cannot open file for read:" << tmp_fn;
+    ILA_ERROR_IF(fout.is_open()) << "Cannot open file for write:" << wrapper_file_name;
+    if (fin.is_open() and fout.is_open())
+      fout << find.rdbuf();
+  }
+  */
+  
+
+  // handles the includes
+  // .. (copy all the verilog file in the folder), this has to be os independent
   if (vlg_include_files_path.size() != 0) {
     // copy the files and specify the -I commandline to the run.sh
     for (auto&& include_path : vlg_include_files_path)
