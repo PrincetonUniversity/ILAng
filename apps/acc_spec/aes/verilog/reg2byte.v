@@ -1,8 +1,4 @@
-/*
- * This wrapper was written by Pramod Subramanyan.
- *
- * Email: pramod.subramanyan@gmail.com
- */ 
+
 
 // synopsys translate_off
 

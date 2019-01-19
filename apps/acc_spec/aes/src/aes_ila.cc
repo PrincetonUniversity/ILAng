@@ -42,17 +42,17 @@ AES::AES()
   { // WRITE_ADDRESS
     auto instr = model.NewInstr("WRITE_ADDRESS");
 
-    instr.SetDecode( (cmd == CMD_WRITE) & (cmdaddr >= AES_ADDR) & (cmdaddr < AES_ADDR + 2) );
+    instr.SetDecode(
+      (cmd == CMD_WRITE) & (cmdaddr >= AES_ADDR) & (cmdaddr < AES_ADDR + 2) );
 
     instr.SetUpdate(address,
-                    Ite(is_status_idle, // Check if it is idle
-                        Concat(         // if idle, update one slice of the register at a time
-                          Ite(cmdaddr == AES_ADDR + 1, cmddata, address(15,8) ), // the upper 8-bits
-                          Ite(cmdaddr == AES_ADDR    , cmddata, address( 7,0) )  // the lower 8-bits
-                        ),
-                        address        // if not idle, no change
-                      )); // update a slice of the register. Slice selected by the cmd address
-
+      Ite(is_status_idle, // Check if it is idle
+          Concat(         // if idle, update one slice of the register at a time
+            Ite(cmdaddr == AES_ADDR + 1, cmddata, address(15,8) ), // the upper 8-bits
+            Ite(cmdaddr == AES_ADDR    , cmddata, address( 7,0) )  // the lower 8-bits
+          ),
+          address        // if not idle, no change
+        )); // update a slice of the register. Slice selected by the cmd address
 
     // guarantees no change
     // if not specified, it means it allows any change

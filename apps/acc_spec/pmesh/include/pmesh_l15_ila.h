@@ -38,6 +38,10 @@ protected:
   static FuncRef unknown(unsigned width);
   /// a helper function to concat a vector of express
   static ExprRef lConcat(const std::vector<ExprRef> & l);
+  /// use a relation
+  ExprRef Map(const std::string & name, unsigned retLen, const ExprRef & val);
+  /// build a map relation
+  ExprRef NewMap(const std::string & name, unsigned inLen, unsigned outLen);
 
 
 protected:
@@ -52,17 +56,8 @@ protected:
 
   // arch state.
   ExprRef l15_noc1buffer_req_address;
-  ExprRef l15_noc1buffer_req_data0  ;
-  ExprRef l15_noc1buffer_req_data1  ;
-  ExprRef l15_noc1buffer_csm_data   ;
-  ExprRef l15_noc1buffer_csm_ticket ;
-  ExprRef l15_noc1buffer_req_homeid ;
-  ExprRef l15_noc1buffer_req_mshrid ;
-  
   ExprRef l15_noc1buffer_req_noncacheable;
-  ExprRef l15_noc1buffer_req_prefetch    ;
   ExprRef l15_noc1buffer_req_size        ;
-  // ExprRef l15_noc1buffer_req_threadid ;
   ExprRef l15_noc1buffer_req_type        ;
 
   // output state l15->core
@@ -73,6 +68,7 @@ protected:
   // internal state : map (mem)
   ExprRef mesi_state;
   ExprRef data_state;
+
 
 }; // class AES
 

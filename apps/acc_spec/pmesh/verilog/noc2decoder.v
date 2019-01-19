@@ -39,9 +39,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 `include "iop.h"
 
-`ifdef DEFAULT_NETTYPE_NONE
-`default_nettype none
-`endif
+
 module noc2decoder(
     input wire clk,
     input wire rst_n,

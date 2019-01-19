@@ -32,26 +32,19 @@ PMESH_L15::PMESH_L15()
       
       
       // Output states: l1.5 --> noc1 requests
-      l15_noc1buffer_req_address( model.NewBvState("l15_noc1buffer_req_address", 40) ),
-      l15_noc1buffer_req_data0  ( model.NewBvState("l15_noc1buffer_req_data0"  , 64) ),
-      l15_noc1buffer_req_data1  ( model.NewBvState("l15_noc1buffer_req_data1"  , 64) ),
-      l15_noc1buffer_csm_data   ( model.NewBvState("l15_noc1buffer_csm_data  " , 33) ),
-      l15_noc1buffer_csm_ticket ( model.NewBvState("l15_noc1buffer_csm_ticket" , 3) ),
-      l15_noc1buffer_req_homeid ( model.NewBvState("l15_noc1buffer_req_homeid" , 30) ),
-      l15_noc1buffer_req_mshrid ( model.NewBvState("l15_noc1buffer_req_mshrid" , 2) ),
+      l15_noc1buffer_req_address     ( model.NewBvState("l15_noc1buffer_req_address"      , 40) ),
       l15_noc1buffer_req_noncacheable( model.NewBvState("l15_noc1buffer_req_noncacheable" , 1) ),
-      l15_noc1buffer_req_prefetch    ( model.NewBvState("l15_noc1buffer_req_prefetch"     , 1) ),
       l15_noc1buffer_req_size        ( model.NewBvState("l15_noc1buffer_req_size"         , 3) ),
       // l15_noc1buffer_req_threadid    ( model.NewBvState("") ), // not
       l15_noc1buffer_req_type        ( model.NewBvState("l15_noc1buffer_req_type"         , 5) ),
       
-      l15_transducer_val             ( model.NewBvState("l15_transducer_val", 1) ),
-      l15_transducer_returntype      ( model.NewBvState("l15_transducer_returntype", 4) ), // 0 if hit
-      l15_transducer_data_0          ( model.NewBvState("l15_transducer_data_0", 64) ),
+      l15_transducer_val             ( model.NewBvState("l15_transducer_val"              , 1) ),
+      l15_transducer_returntype      ( model.NewBvState("l15_transducer_returntype"       , 4) ), // 0 if hit
+      l15_transducer_data_0          ( model.NewBvState("l15_transducer_data_0"           , 64) ),
 
       // We made the map as a mem (although in the design, it does not need to be so large)
-      mesi_state( model.NewMemState( "address_to_mesi_map", 40, 2 ) ),
-      data_state( model.NewMemState( "address_to_data_map", 40, 64) )
+      mesi_state( NewMap( "address_to_mesi_map", 40, 2 ) ),
+      data_state( NewMap( "address_to_data_map", 40, 64) )
       
 
     {
@@ -85,15 +78,41 @@ PMESH_L15::PMESH_L15()
 
     instr.SetDecode( ( rqtype == 0) & (nc == 0) );
 
-    auto MESI_state = Load( mesi_state, address ); // Use the map
-    auto DATA_cache = Load( data_state, address ); // Use the map
+    auto MESI_state = Map( "address_to_mesi_map",  2, address ); // Use the map
+    auto DATA_cache = Map( "address_to_data_map", 64, address ); // Use the map
 
     auto hit = MESI_state != MESI_INVALID;
+
+    // on miss : send out noc1 request eventually
 
     instr.SetUpdate(l15_noc1buffer_req_address,      Ite(! hit, address,       unknown(40)() ) );
     instr.SetUpdate(l15_noc1buffer_req_noncacheable, Ite(! hit, BvConst(0,1) , unknown(1)()  ) );
     instr.SetUpdate(l15_noc1buffer_req_size,         Ite(! hit, size ,         unknown(3)()  ) );
-    instr.SetUpdate(l15_noc1buffer_req_type,         Ite(! hit, rqtype ,       unknown(5)()  ) );
+    instr.SetUpdate(l15_noc1buffer_req_type,         Ite(! hit, BvConst(2,5) , unknown(5)()  ) );
+
+    // on the hit side : return the data on cpx
+
+    instr.SetUpdate( l15_transducer_val,             Ite( hit , BvConst(1,1), unknown(1)() ) );
+    instr.SetUpdate( l15_transducer_returntype,      Ite( hit , BvConst(0,4) , unknown(4)() ) );
+    instr.SetUpdate( l15_transducer_data_0,          Ite( hit , DATA_cache , unknown(64)()  ) );
+
+    // update the address-->MESI map is done when it receive instruction from noc2
+
+    // instr.SetUpdate( "address_to_mesi_map", MapUpdate(mesi_state, address, 
+    //  Ite( hit, MESI_state, unknown_choice(MESI_SHARE, MESI_EXCLUSIVE) )  ) );
+
+    // It may also update other addresses (conflict eviction and etc.)
+    // But I treat that feature as micro-architectual behavior: related
+    // to cache size/associativity/lru policy/...
+    // So the current spec is free on that behavior (any hehavior is okay)
+
+    // ----------------------------------------------------------------------------
+    // update data : instr.SetUpdate( "address_to_data_map", MapUpdate() ); 
+    // this is different: if l1.5 only, will not (miss: will update after
+    // hear back from noc2, hit not either)
+    // if noc, will update (instruction will have a different complete time)
+    
+  }
 
 
 // not specifying these updates:
@@ -106,13 +125,4 @@ PMESH_L15::PMESH_L15()
 // l15_noc1buffer_req_noncacheable
 // l15_noc1buffer_req_prefetch   
 // l15_noc1buffer_req_threadid 
-
-    // on the hit side ...
-
-    instr.SetUpdate( l15_transducer_val, Ite( hit , BvConst(1,1), unknown(1)() ) );
-    instr.SetUpdate( l15_transducer_returntype, Ite( hit , BvConst(0,4) , unknown(4)() ) );
-    instr.SetUpdate( l15_transducer_data_0, Ite( hit , DATA_cache , unknown(64)()  ) );
-    
-  }
-
 }

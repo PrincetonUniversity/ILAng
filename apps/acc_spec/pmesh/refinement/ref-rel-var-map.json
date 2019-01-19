@@ -1,25 +1,14 @@
 {
   "models": { "ILA":"m0" , "VERILOG": "m1" },
   "state mapping": { 
-    "l15_noc1buffer_req_address": "m1.l15_noc1buffer_req_address" ,
-    "l15_noc1buffer_req_data0"  : "m1.l15_noc1buffer_req_data0" ,
-    "l15_noc1buffer_req_data1"  : "m1.l15_noc1buffer_req_data1" ,
-    "l15_noc1buffer_csm_data"   : "m1.l15_noc1buffer_csm_data" ,
-    "l15_noc1buffer_csm_ticket" : "m1.l15_noc1buffer_csm_ticket" ,
-    "l15_noc1buffer_req_homeid" : "m1.l15_noc1buffer_req_homeid" ,
-    "l15_noc1buffer_req_mshrid" : "m1.l15_noc1buffer_req_mshrid" ,
-
-    "l15_noc1buffer_req_noncacheable":"m1.l15_noc1buffer_req_noncacheable",
-    "l15_noc1buffer_req_prefetch"    :"m1.l15_noc1buffer_req_prefetch",
-    "l15_noc1buffer_req_size"        :"m1.l15_noc1buffer_req_size",
-    "l15_noc1buffer_req_type"        :"m1.l15_noc1buffer_req_type",
+    "l15_noc1buffer_req_address": "m1.l15.l15_noc1buffer_req_address" ,
+    "l15_noc1buffer_req_noncacheable":"m1.l15.l15_noc1buffer_req_non_cacheable",
+    "l15_noc1buffer_req_size"        :"m1.l15.l15_noc1buffer_req_size",
+    "l15_noc1buffer_req_type"        :"m1.l15.l15_noc1buffer_req_type",
 
     "l15_transducer_val"             : "m1.l15_transducer_val",
     "l15_transducer_returntype"      : "m1.l15_transducer_returntype",
-    "l15_transducer_data_0"          : "m1.l15_transducer_data_0",
-
-    "mesi_state"  : "**MEM**mesi_state",
-    "data_state"  : "**MEM**data_state"
+    "l15_transducer_data_0"          : "m1.l15_transducer_data_0"
   },
 
   "interface mapping": {
@@ -84,7 +73,7 @@
       "config_l15_read_res_data_s3":"**KEEP**",
       "config_csm_en":"**KEEP**",
       "config_system_tile_count_5_0":"**KEEP**",
-      "config_home_alloc_method,":"**KEEP**",
+      "config_home_alloc_method":"**KEEP**",
       "config_hmt_base":"**KEEP**",
 
       "noc1_out_val":"**KEEP**",
@@ -110,39 +99,58 @@
   },
 
   "mapping control" : [ 
-    "m1.transducer_l15_amo_op == 0",
-    "m1.transducer_l15_threadid == 0",
-    "m1.transducer_l15_prefetch == 0",
-    "m1.transducer_l15_invalidate_cacheline == 0",
-    "m1.transducer_l15_blockstore == 0",
-    "m1.transducer_l15_blockinitstore == 0",
-    "m1.transducer_l15_l1rplway == 0",
-    "m1.transducer_l15_data_next_entry == 0",
-    "m1.transducer_l15_csm_data == 0",
+    "__VLG_I_transducer_l15_amo_op == 0",
+    "__VLG_I_transducer_l15_threadid == 0",
+    "__VLG_I_transducer_l15_prefetch == 0",
+    "__VLG_I_transducer_l15_invalidate_cacheline == 0",
+    "__VLG_I_transducer_l15_blockstore == 0",
+    "__VLG_I_transducer_l15_blockinitstore == 0",
+    "__VLG_I_transducer_l15_l1rplway == 0",
+    "__VLG_I_transducer_l15_data_next_entry == 0",
+    "__VLG_I_transducer_l15_csm_data == 0",
 
-    "m1.noc1_out_rdy == 1",
-    "m1.noc3_out_rdy == 1",
-    "m1.noc2_in_val == 0",
-    "m1.dmbr_l15_stall == 0",
-    "m1.chipid == 0",
-    "m1.coreid_x == 0",
-    "m1.coreid_y == 0",
+    "__VLG_I_noc1_out_rdy == 1",
+    "__VLG_I_noc3_out_rdy == 1",
+    "__VLG_I_noc2_in_val == 0",
+    "__VLG_I_dmbr_l15_stall == 0",
+    "__VLG_I_chipid == 0",
+    "__VLG_I_coreid_x == 0",
+    "__VLG_I_coreid_y == 0",
 
-    "m1.config_l15_read_res_data_s3 == 0",
-    "m1.config_csm_en == 0",
-    "m1.config_system_tile_count_5_0 = 1",
-    "m1.config_home_alloc_method == 2'b11",
-    "m1.config_hmt_base == 0",
+    "__VLG_I_config_l15_read_res_data_s3 == 0",
+    "__VLG_I_config_csm_en == 0",
+    "__VLG_I_config_system_tile_count_5_0 == 1",
+    "__VLG_I_config_home_alloc_method == 2'b11",
+    "__VLG_I_config_hmt_base == 0",
 
-    "m1.rtap_srams_bist_command == 0",
-    "m1.rtap_srams_bist_data == 0",
+    "__VLG_I_rtap_srams_bist_command == 0",
+    "__VLG_I_rtap_srams_bist_data == 0",
 
-    "~ (m1.l15_transducer_ack) ||  ( m1.transducer_l15_req_ack == 1) "
+    "~ (__VLG_O_l15_transducer_ack) ||  ( __VLG_I_transducer_l15_req_ack == 1) ",
+
+    "m1.l15.pipeline.global_start == __START__",
+    "m1.l15.pipeline.global_started == __STARTED__",
+    "m1.l15.pipeline.global_rst == rst"
     ],
 
   "functions":{
-      "unknown0":[["__IEND__","m1.aes_reg_state"]],
-      "unknown1":[["__IEND__","m1.aes_reg_state"]],
-      "unknown2":[["__IEND__","m1.aes_reg_ctr_i.reg_out"]]
+      "unknown0":[["m1.l15.pipeline.monitor_s3","m1.l15.l15_noc1buffer_req_address"]],
+      "unknown1":[["m1.l15.pipeline.monitor_s3","m1.l15.l15_noc1buffer_req_non_cacheable"]],
+      "unknown2":[["m1.l15.pipeline.monitor_s3","m1.l15.l15_noc1buffer_req_size"]],
+      "unknown3":[["m1.l15.pipeline.monitor_s3","m1.l15.l15_noc1buffer_req_type"]],
+
+      "unknown4":[["m1.l15.pipeline.monitor_s3","m1.l15_transducer_val"]],
+      "unknown5":[["m1.l15.pipeline.monitor_s3","m1.l15_transducer_returntype"]],
+      "unknown6":[["m1.l15.pipeline.monitor_s3","m1.l15_transducer_data_0"]],
+
+      "address_to_mesi_map":[[
+        "m1.l15.pipeline.monitor_s2 && ~ m1.l15.pipeline.monitor_s3", "m1.l15.pipeline.tagcheck_state_s2",
+        "__START__", "m1.transducer_l15_address"]],
+      "address_to_data_map":[[
+        "m1.l15.pipeline.monitor_s3 && ~ m1.l15.pipeline.monitor_s3_delay", "m1.l15.pipeline.dcache_l15_dout_s3[127:64]",
+        "__START__", "m1.transducer_l15_address"]]
   }
+
+
+
 }

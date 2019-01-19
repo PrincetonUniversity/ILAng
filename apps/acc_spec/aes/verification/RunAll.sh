@@ -18,7 +18,7 @@ done
 echo 'Now on sub-ILA:AES_BLOCK'
 for subd in LOAD STORE OPERATE; do
     echo "------------------------------------------------"
-    echo "Start checking instruction:" $subd
+    echo "Start checking sub-instruction:" $subd
     cd "$subd"
     $COSA --problem problem.txt --solver-name=$SOLVER --vcd
     cd "$curdir"
@@ -30,7 +30,7 @@ done
 echo 'Now on sub-ILA:AES_128_Rnd'
 for subd in FirstRound IntermediateRound FinalRound; do
     echo "------------------------------------------------"
-    echo "Start checking instruction:" $subd
+    echo "Start checking sub-instruction:" $subd
     cd "$subd"
     $COSA --problem problem.txt --solver-name=$SOLVER --vcd
     cd "$curdir"

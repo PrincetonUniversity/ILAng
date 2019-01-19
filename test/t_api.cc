@@ -71,6 +71,15 @@ TEST(TestApi, Construct) {
   EXPECT_EQ(child.get(), ila.child("child").get());
 }
 
+/// helper function
+bool SameOp(const ExprRef & l , const ExprRef & r) {
+  std::shared_ptr<ExprOp> lp = std::dynamic_pointer_cast<ExprOp>( l.get() );
+  std::shared_ptr<ExprOp> rp = std::dynamic_pointer_cast<ExprOp>( r.get() );
+  ILA_NOT_NULL(lp);
+  ILA_NOT_NULL(rp);
+  return lp->op_name() == rp->op_name();
+}
+
 TEST(TestApi, ExprOps) {
   Ila ila("host");
 
@@ -141,15 +150,60 @@ TEST(TestApi, ExprOps) {
   auto n_gt_bv_c = n_add_bv > 1;
   auto n_le_bv_c = n_add_bv <= 3;
   auto n_ge_bv_c = n_add_bv >= 0;
+
+  SetUnsignedComparison(true);
+
+
+  auto n_unsigned_lt_bv = n_add_bv < n_sub_bv;
+  auto n_unsigned_gt_bv = n_add_bv > n_sub_bv;
+  auto n_unsigned_le_bv = n_add_bv <= n_sub_bv;
+  auto n_unsigned_ge_bv = n_add_bv >= n_sub_bv;
+  auto n_unsigned_lt_bv_c = n_add_bv < 2;
+  auto n_unsigned_gt_bv_c = n_add_bv > 1;
+  auto n_unsigned_le_bv_c = n_add_bv <= 3;
+  auto n_unsigned_ge_bv_c = n_add_bv >= 0;
+
+  SetUnsignedComparison(false);
+
   auto n_ult_bv = Ult(n_add_bv, n_sub_bv);
   auto n_ugt_bv = Ugt(n_add_bv, n_sub_bv);
   auto n_ule_bv = Ule(n_add_bv, n_sub_bv);
   auto n_uge_bv = Uge(n_add_bv, n_sub_bv);
+  auto n_slt_bv = Slt(n_add_bv, n_sub_bv);
+  auto n_sgt_bv = Sgt(n_add_bv, n_sub_bv);
+  auto n_sle_bv = Sle(n_add_bv, n_sub_bv);
+  auto n_sge_bv = Sge(n_add_bv, n_sub_bv);
+
   auto n_ult_bv_c = Ult(n_add_bv, 1);
   auto n_ugt_bv_c = Ugt(n_add_bv, 2);
   auto n_ule_bv_c = Ule(n_add_bv, 3);
   auto n_uge_bv_c = Uge(n_add_bv, 4);
+  auto n_slt_bv_c = Slt(n_add_bv, 1);
+  auto n_sgt_bv_c = Sgt(n_add_bv, 2);
+  auto n_sle_bv_c = Sle(n_add_bv, 3);
+  auto n_sge_bv_c = Sge(n_add_bv, 4);
 
+  EXPECT_TRUE(SameOp(n_lt_bv, n_slt_bv ));
+  EXPECT_TRUE(SameOp(n_gt_bv, n_sgt_bv ));
+  EXPECT_TRUE(SameOp(n_le_bv, n_sle_bv ));
+  EXPECT_TRUE(SameOp(n_ge_bv, n_sge_bv ));
+
+  EXPECT_TRUE(SameOp(n_unsigned_lt_bv, n_ult_bv ));
+  EXPECT_TRUE(SameOp(n_unsigned_gt_bv, n_ugt_bv ));
+  EXPECT_TRUE(SameOp(n_unsigned_le_bv, n_ule_bv ));
+  EXPECT_TRUE(SameOp(n_unsigned_ge_bv, n_uge_bv ));
+
+  EXPECT_TRUE(SameOp(n_lt_bv_c, n_slt_bv_c ));
+  EXPECT_TRUE(SameOp(n_gt_bv_c, n_sgt_bv_c ));
+  EXPECT_TRUE(SameOp(n_le_bv_c, n_sle_bv_c ));
+  EXPECT_TRUE(SameOp(n_ge_bv_c, n_sge_bv_c ));
+
+
+  EXPECT_TRUE(SameOp(n_unsigned_lt_bv_c, n_ult_bv_c ));
+  EXPECT_TRUE(SameOp(n_unsigned_gt_bv_c, n_ugt_bv_c ));
+  EXPECT_TRUE(SameOp(n_unsigned_le_bv_c, n_ule_bv_c ));
+  EXPECT_TRUE(SameOp(n_unsigned_ge_bv_c, n_uge_bv_c ));
+  
   auto n_load_bv = v_mem.Load(n_add_bv);
   auto n_load_bv_static = Load(v_mem, n_add_bv);
   auto n_store_mem = v_mem.Store(n_add_bv, n_load_bv);

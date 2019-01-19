@@ -7,6 +7,8 @@
 #include <ilang/verilog-in/verilog_analysis.h>
 #include <string>
 
+// extern int yy_flex_debug;
+
 namespace ilang {
 
 unsigned VerilogAnalyzer::instance_count = 0;
@@ -52,6 +54,7 @@ VerilogAnalyzer::VerilogAnalyzer(const path_vec_t& include_path,
       top_inst_name(top_module_inst_name), _bad_state(false) {
   instance_count++;
   if (instance_count != 1) {
+    _bad_state = true;
     ILA_ERROR << "Please don't keep multiple instances of analyzer, it will "
                  "mess up w. Verilog parser.";
     return; // do nothing
@@ -98,7 +101,7 @@ void VerilogAnalyzer::invoke_parser() {
       return;
     }
     verilog_preprocessor_set_file(yy_preproc, (char*)AllocCstr(src));
-
+    // yy_flex_debug = (1);
     int result = verilog_parse_file(fhandler);
     if (result != 0) {
       ILA_ERROR << "Verilog Analyzer encounters syntax error for " << src
@@ -123,13 +126,7 @@ void VerilogAnalyzer::check_resolve_modules(verilog_source_tree* source) {
     ast_module_declaration* module =
         (ast_module_declaration*)ast_list_get_not_null(source->modules, m);
 
-    if (module->identifier == NULL) {
-      PrintMetaAst(ILA_WARN
-                       << "Verilog Parser encounters a module without name @",
-                   module)
-          << " . Ignored.";
-      continue;
-    }
+    ILA_NOT_NULL(module->identifier); // otherwise it is the parser bug
 
     std::string mod_name(ast_identifier_tostring(module->identifier));
     if (IN(mod_name,
@@ -140,11 +137,12 @@ void VerilogAnalyzer::check_resolve_modules(verilog_source_tree* source) {
     }
     name_module_map.insert({mod_name, module});
 
-    if (module->module_instantiations == NULL)
+    ILA_NOT_NULL(module->module_instantiations); // other wise it is parser bug
+    if (module->module_instantiations->items == 0)
       continue;
 
     ILA_NOT_NULL(module->identifier);
-    ILA_NOT_NULL(module->module_instantiations);
+    // ILA_NOT_NULL(module->module_instantiations);
 
     for (unsigned int sm = 0; sm < module->module_instantiations->items; sm++) {
       ast_module_instantiation* submod =
@@ -332,8 +330,8 @@ VerilogAnalyzer::_check_hierarchical_name_type(
       void* ptr_from_list_ =
           ast_list_get_not_null(port_ptr->port_names, name_idx);
       ast_identifier port_id_ptr;
-      if (port_ptr
-              ->is_reg) { // in this case, it is not a list of ast_identifier
+      if (not port_ptr->is_list_id) { // in this case, it is not a list of
+                                      // ast_identifier
         // but a list of ast_single_assignment(ast_new_lvalue_id)
         ast_single_assignment* asm_ptr = (ast_single_assignment*)ptr_from_list_;
         ILA_ASSERT(asm_ptr->lval->type == ast_lvalue_type_e::NET_IDENTIFIER ||

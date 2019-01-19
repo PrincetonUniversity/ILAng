@@ -203,8 +203,6 @@ private:
   bool _bad_state;
   /// We prompt if it is in a bad state
   bool _bad_state_return() const;
-  /// we can instantiate this class
-  void virtual should_not_instantiate() override{};
 
 }; // class VerilogAnalyzer
 

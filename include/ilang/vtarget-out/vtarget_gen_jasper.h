@@ -44,9 +44,29 @@ public:
       const std::vector<std::string>& include_dirs,
       const vtg_config_t& vtg_config, backend_selector backend);
 
+  /// if you have signals that are controled by assumptions to be equal as
+  /// the outer clock, you need to put them here,
+  /// because the assumptions do not work in the jaspergold reset step
+  /// (unlike COSA)
+  void add_addition_clock_info(const std::string& expr);
+  void add_addition_reset_info(const std::string& expr);
+
 protected:
   /// internal storage of problems
-  // TODO:
+  /// vector of pairs of <assumption, description>
+  std::vector<std::pair<std::string, std::string>> assumptions;
+  /// vector of pairs of <assertions, description>
+  std::vector<std::pair<std::string, std::string>> assertions;
+  /// vector of clock signals that need to be taken care of
+  std::vector<std::string>
+      additional_clock_expr; // we don't put the "clk" here, as by default it
+                             // will be there
+  /// vector of clock signals that need to be taken care of
+  std::vector<std::string> additional_reset_expr;
+  /// Name of the problem file
+  std::string jg_script_name;
+  /// Name of the problem file
+  std::string abs_mem_name;
 
 protected:
   /// Add an assumption
@@ -86,7 +106,7 @@ protected:
   /// For jasper, this means do nothing, for yosys, you need to add (*keep*)
   virtual void Export_modify_verilog() override;
 
-private:
+public:
   /// It is okay to instantiation
   virtual void do_not_instantiate(void) override{};
 

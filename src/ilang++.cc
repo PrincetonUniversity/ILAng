@@ -14,8 +14,8 @@ namespace ilang {
 // Configuration
 /******************************************************************************/
 
-bool UnsignedComparation = false;
-void SetUnsignedComparation(bool sign) { UnsignedComparation = sign; }
+bool UnsignedComparison = false;
+void SetUnsignedComparison(bool sign) { UnsignedComparison = sign; }
 
 /******************************************************************************/
 // SortRef
@@ -216,27 +216,27 @@ ExprRef operator!=(const ExprRef& a, const ExprRef& b) {
 }
 
 ExprRef operator<(const ExprRef& a, const ExprRef& b) {
-  auto v = UnsignedComparation ? ExprFuse::Ult(a.get(), b.get())
-                               : ExprFuse::Lt(a.get(), b.get());
+  auto v = UnsignedComparison ? ExprFuse::Ult(a.get(), b.get())
+                              : ExprFuse::Lt(a.get(), b.get());
   return ExprRef(v);
 }
 
 ExprRef operator>(const ExprRef& a, const ExprRef& b) {
 
-  auto v = UnsignedComparation ? ExprFuse::Ugt(a.get(), b.get())
-                               : ExprFuse::Gt(a.get(), b.get());
+  auto v = UnsignedComparison ? ExprFuse::Ugt(a.get(), b.get())
+                              : ExprFuse::Gt(a.get(), b.get());
   return ExprRef(v);
 }
 
 ExprRef operator<=(const ExprRef& a, const ExprRef& b) {
-  auto v = UnsignedComparation ? ExprFuse::Ule(a.get(), b.get())
-                               : ExprFuse::Le(a.get(), b.get());
+  auto v = UnsignedComparison ? ExprFuse::Ule(a.get(), b.get())
+                              : ExprFuse::Le(a.get(), b.get());
   return ExprRef(v);
 }
 
 ExprRef operator>=(const ExprRef& a, const ExprRef& b) {
-  auto v = UnsignedComparation ? ExprFuse::Uge(a.get(), b.get())
-                               : ExprFuse::Ge(a.get(), b.get());
+  auto v = UnsignedComparison ? ExprFuse::Uge(a.get(), b.get())
+                              : ExprFuse::Ge(a.get(), b.get());
   return ExprRef(v);
 }
 
@@ -296,26 +296,26 @@ ExprRef operator!=(const ExprRef& a, const int& b) {
 }
 
 ExprRef operator<(const ExprRef& a, const int& b) {
-  auto v = UnsignedComparation ? ExprFuse::Ult(a.get(), b)
-                               : ExprFuse::Lt(a.get(), b);
+  auto v =
+      UnsignedComparison ? ExprFuse::Ult(a.get(), b) : ExprFuse::Lt(a.get(), b);
   return ExprRef(v);
 }
 
 ExprRef operator>(const ExprRef& a, const int& b) {
-  auto v = UnsignedComparation ? ExprFuse::Ugt(a.get(), b)
-                               : ExprFuse::Gt(a.get(), b);
+  auto v =
+      UnsignedComparison ? ExprFuse::Ugt(a.get(), b) : ExprFuse::Gt(a.get(), b);
   return ExprRef(v);
 }
 
 ExprRef operator<=(const ExprRef& a, const int& b) {
-  auto v = UnsignedComparation ? ExprFuse::Ule(a.get(), b)
-                               : ExprFuse::Le(a.get(), b);
+  auto v =
+      UnsignedComparison ? ExprFuse::Ule(a.get(), b) : ExprFuse::Le(a.get(), b);
   return ExprRef(v);
 }
 
 ExprRef operator>=(const ExprRef& a, const int& b) {
-  auto v = UnsignedComparation ? ExprFuse::Uge(a.get(), b)
-                               : ExprFuse::Ge(a.get(), b);
+  auto v =
+      UnsignedComparison ? ExprFuse::Uge(a.get(), b) : ExprFuse::Ge(a.get(), b);
   return ExprRef(v);
 }
 

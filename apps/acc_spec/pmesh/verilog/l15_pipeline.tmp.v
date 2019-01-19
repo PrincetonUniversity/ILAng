@@ -41,13 +41,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //`timescale 1 ns / 10 ps
 `include "l15.tmp.h"
+`include "lsu.tmp.h"
 
 // /home/hongce/ila/openpiton/piton/verif/env/manycore/devices.xml
 
 
-`ifdef DEFAULT_NETTYPE_NONE
-`default_nettype none
-`endif
+
 module l15_pipeline(
     input wire clk,
     input wire rst_n,
@@ -111,7 +110,7 @@ module l15_pipeline(
     output reg [(`L15_CACHE_INDEX_WIDTH+`L15_WAY_WIDTH)-1:0] l15_dcache_index_s2,
     output reg [`L15_UNPARAM_127_0] l15_dcache_write_data_s2,
     output reg [`L15_UNPARAM_127_0] l15_dcache_write_mask_s2,
-    input wire [`L15_UNPARAM_127_0] dcache_l15_dout_s3,
+    input wire [127:0] dcache_l15_dout_s3,
 
     // mesi
     output reg l15_mesi_read_val_s1,
@@ -193,7 +192,7 @@ module l15_pipeline(
     output reg [`L15_THREADID_MASK] l15_cpxencoder_threadid,
     output reg l15_cpxencoder_prefetch,
     output reg l15_cpxencoder_f4b,
-    output reg [`L15_UNPARAM_63_0] l15_cpxencoder_data_0,
+    output reg [63:0] l15_cpxencoder_data_0,
     output reg [`L15_UNPARAM_63_0] l15_cpxencoder_data_1,
     output reg [`L15_UNPARAM_63_0] l15_cpxencoder_data_2,
     output reg [`L15_UNPARAM_63_0] l15_cpxencoder_data_3,
@@ -2432,7 +2431,7 @@ reg tagcheck_way1_equals;
 reg tagcheck_way2_equals;
 reg tagcheck_way3_equals;
 
-reg [`L15_UNPARAM_1_0] tagcheck_state_s2;
+reg [1:0] tagcheck_state_s2;
 reg tagcheck_state_me_s2;
 reg tagcheck_state_mes_s2;
 reg tagcheck_state_s_s2;
@@ -4521,5 +4520,57 @@ begin
             `endif
     endcase
 end
+
+wire global_start;
+// this is the out startsignal
+wire global_started;
+wire global_rst;
+
+reg monitor_s1;
+reg monitor_s2;
+reg monitor_s3;
+reg monitor_s3_delay;
+wire end_of_pipeline;
+
+wire monitor_s3_nxt;
+assign monitor_s3_nxt = monitor_s2 && val_s2 && ~ stall_s2 && ( global_start || global_started ) ? 1'b1 : monitor_s3;
+
+always @(posedge clk) begin
+    if(global_rst)
+        monitor_s1 <= 1'b0;
+end
+
+
+always @(posedge clk) begin
+    if(global_rst)
+        monitor_s2 <= 1'b0;
+    else begin
+        if(val_s1 && ~stall_s1 && ( global_start || global_started ) )
+            monitor_s2 <= 1'b1;
+    end
+end
+
+always @(posedge clk) begin
+    if(global_rst)
+        monitor_s3 <= 1'b0;
+    else begin
+        monitor_s3 <= monitor_s3_nxt;
+    end
+end
+
+
+
+
+always @(posedge clk) begin
+  if(global_rst) begin
+    monitor_s3_delay <= 1'b0;
+  end
+  else begin
+    if(monitor_s3)
+        monitor_s3_delay <= 1'b1;
+  end
+end
+
+assign end_of_pipeline = monitor_s3 && val_s3 && ~monitor_s3_delay ;
 
 endmodule

@@ -75,19 +75,37 @@ std::string os_portable_file_name_from_path(const std::string& path) {
   // on *nix
   sep = "/";
 #endif
+
+  ILA_ERROR_IF(path.back() == sep[0])
+      << "Extracting file name from path:" << path << " that ends with:" << sep;
   return Split(path, sep).back();
 }
 
-
 /// Copy all file from a source dir to the destination dir
-bool os_portable_copy_dir(const std::string &src, const std::string &dst) {
+bool os_portable_copy_dir(const std::string& src, const std::string& dst) {
   int ret;
 #if defined(_WIN32) || defined(_WIN64)
   // on windows
-  ret = std::system(("xcopy " + os_portable_append_dir(src,"*") + " " + dst).c_str());
+  ret = std::system(
+      ("xcopy " + os_portable_append_dir(src, "*") + " " + dst).c_str());
 #else
   // on *nix
-  ret = std::system(("cp " + os_portable_append_dir(src,"*") + " " + dst).c_str());
+  ret = std::system(
+      ("cp " + os_portable_append_dir(src, "*") + " " + dst).c_str());
+#endif
+  return ret == 0;
+}
+
+/// Copy all file from a source dir to the destination dir
+bool os_portable_copy_file_to_dir(const std::string& src,
+                                  const std::string& dst) {
+  int ret;
+#if defined(_WIN32) || defined(_WIN64)
+  // on windows
+  ret = std::system(("xcopy " + src + " " + dst).c_str());
+#else
+  // on *nix
+  ret = std::system(("cp " + src + " " + dst).c_str());
 #endif
   return ret == 0;
 }

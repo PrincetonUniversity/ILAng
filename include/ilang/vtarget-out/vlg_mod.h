@@ -73,11 +73,12 @@ public:
   typedef enum { AUTO = 0, NEW = 1, OLD = 2 } port_decl_style_t;
 
 public:
-  /// \brief Constructor: 
+  /// \brief Constructor:
   /// \param[in] pointer to a verilog info  class
-  /// \param[in] the style: 0 auto deteremined, 1 Old, 2 New     
-  VerilogModifier(VerilogInfo* _vlg_info_ptr, port_decl_style_t port_decl_style); // 
-  /// Destructor: 
+  /// \param[in] the style: 0 auto deteremined, 1 Old, 2 New
+  VerilogModifier(VerilogInfo* _vlg_info_ptr, port_decl_style_t port_decl_style,
+                  bool add_keep_or_not); //
+  /// Destructor:
   ~VerilogModifier();
   /// do the work : read from fin and append to fout, fout needs to be open with
   /// append option
@@ -105,6 +106,8 @@ protected:
   VerilogInfo* vlg_info_ptr;
   /// cache the style
   port_decl_style_t _port_decl_style;
+  /// whether to add keep
+  bool _add_keep_or_not;
 
 protected:
   // --------------- HELPERS --------------------------- //
@@ -117,13 +120,11 @@ protected:
                                const std::string& vname, unsigned width,
                                const std::string& short_name);
   bool add_mod_decl_wire_to_this_line(const std::string& line_in,
-                                        std::string& line_out,
-                                        const std::string& vname,
-                                        unsigned width);
+                                      std::string& line_out,
+                                      const std::string& vname, unsigned width);
   bool add_mod_inst_wire_to_this_line(const std::string& line_in,
-                                        std::string& line_out,
-                                        const std::string& vname,
-                                        unsigned width);
+                                      std::string& line_out,
+                                      const std::string& vname, unsigned width);
 
 }; // class v
 

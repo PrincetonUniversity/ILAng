@@ -51,8 +51,8 @@ end
 
         default:
         begin
-            x_coord = `HOME_ID_X_POS_WIDTH'dX;
-            y_coord = `HOME_ID_Y_POS_WIDTH'dX;
+            x_coord = `HOME_ID_X_POS_WIDTH'd0;
+            y_coord = `HOME_ID_Y_POS_WIDTH'd0;
         end
         endcase
     end
