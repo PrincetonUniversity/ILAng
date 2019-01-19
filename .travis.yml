@@ -29,6 +29,8 @@ matrix:
       os: linux
       dist: xenial
       compiler: clang
+      before_install:
+        - export LD_LIBRARY_PATH=/usr/local/clang/lib:$LD_LIBRARY_PATH
 
     - name: "gcc49"
       os: linux
@@ -82,7 +84,6 @@ install:
   - cd z3
   - if [[ "$Z3_CACHED" == "0" ]] ; then git checkout tags/z3-4.8.4 -b v484 ; fi
   - if [[ "$Z3_CACHED" == "0" ]] ; then python scripts/mk_make.py ; fi
-  - if [[ "$Z3_CACHED" == "0" && "$TRAVIS_COMPILER" == "clang" ]] ; then export LD_LIBRARY_PATH=/usr/local/clang/lib:$LD_LIBRARY_PATH ; fi
   - if [[ "$Z3_CACHED" == "0" && "$TRAVIS_COMPILER" == "clang" ]] ; then CXX=clang++ CC=clang python scripts/mk_make.py ; fi
   - cd build
   - if [[ "$Z3_CACHED" == "0" ]] ; then make -j$(nproc) ; fi
