@@ -7,6 +7,8 @@ git:
   depth: 1
   submodules: false
 
+sudo: required
+
 language: cpp
 
 matrix:
@@ -27,6 +29,8 @@ matrix:
       os: linux
       dist: xenial
       compiler: clang
+      before_install:
+        - export LD_LIBRARY_PATH=/usr/local/clang/lib:$LD_LIBRARY_PATH
 
     - name: "gcc49"
       os: linux
@@ -37,7 +41,6 @@ matrix:
             - ubuntu-toolchain-r-test
           packages:
             - g++-4.9
-            - lcov
             - flex
             - bison
             - libboost-all-dev
@@ -52,8 +55,6 @@ matrix:
         - brew install bison
         - export PATH="/usr/local/opt/bison/bin:$PATH"
         - export LDFLAGS="-L/usr/local/opt/bison/lib"
-
-sudo: required
 
 addons:
   apt:
@@ -71,26 +72,31 @@ addons:
       - boost
       - boost-python
 
+cache:
+  directories:
+    - $HOME/_cache
+
 install: 
-  - export PARENT_DIR=$TRAVIS_BUILD_DIR/../
-  # z3 
-  - cd $PARENT_DIR
-  - git clone https://github.com/Z3Prover/z3.git
+  - mkdir -p $HOME/_cache
+  - export Z3_CACHED="$(find $HOME/_cache/ -name z3 | grep -c "z3")"
+  - cd $HOME/_cache
+  - if [[ "$Z3_CACHED" == "0" ]] ; then git clone https://github.com/Z3Prover/z3.git ; fi
   - cd z3
-  - git checkout tags/z3-4.7.1 -b v471
-  - python scripts/mk_make.py
-  - if [[ "$TRAVIS_COMPILER" == "gcc" ]]; then python scripts/mk_make.py ; fi
-  - if [[ "$TRAVIS_COMPILER" == "clang" ]]; then export LD_LIBRARY_PATH=/usr/local/clang/lib:$LD_LIBRARY_PATH ; fi
-  - if [[ "$TRAVIS_COMPILER" == "clang" ]]; then CXX=clang++ CC=clang python scripts/mk_make.py ; fi
+  - if [[ "$Z3_CACHED" == "0" ]] ; then git checkout tags/z3-4.8.4 -b v484 ; fi
+  - if [[ "$Z3_CACHED" == "0" ]] ; then python scripts/mk_make.py ; fi
+  - if [[ "$Z3_CACHED" == "0" && "$TRAVIS_COMPILER" == "clang" ]] ; then CXX=clang++ CC=clang python scripts/mk_make.py ; fi
   - cd build
-  - make && sudo make install
+  - if [[ "$Z3_CACHED" == "0" ]] ; then make -j$(nproc) ; fi
+  - sudo make install
+  - which z3
   - z3 --version
 
 script:
-  - mkdir -p $TRAVIS_BUILD_DIR/build
-  - cd $TRAVIS_BUILD_DIR/build
+  - cd $TRAVIS_BUILD_DIR
+  - mkdir -p build
+  - cd build
   - cmake .. -DILANG_BUILD_COV=ON -DCMAKE_BUILD_TYPE=Debug
-  - make 
+  - make -j$(nproc)
   - sudo make install
   - make run_test
   - ctest -R ExampleCMakeBuild
