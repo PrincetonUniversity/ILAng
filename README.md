@@ -1,4 +1,4 @@
-<img src="https://raw.githubusercontent.com/Bo-Yuan-Huang/ILA-Tools/page/docs/pics/ilang-logo.png" alt="ILAng Logo" height="225"/>
+<img src="https://raw.githubusercontent.com/Bo-Yuan-Huang/ILAng/master/docs/pics/ilang-logo.png" alt="ILAng Logo" height="225"/>
 
 [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILAng.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILAng)
 [![Build Status](https://semaphoreci.com/api/v1/bo-yuan-huang/ilang/branches/master/shields_badge.svg)](https://semaphoreci.com/bo-yuan-huang/ilang)
