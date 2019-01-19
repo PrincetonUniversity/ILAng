@@ -13,14 +13,18 @@
     -   [Prerequisites](#prerequisites)
     -   [Default Build](#default-build)
     -   [Options](#options)
+
 -   [CMake Integration](#cmake-integration)
     -   [External](#external)
     -   [Embedded](#embedded)
     -   [Supporting Both](#supporting-both)
+
 -   [Examples](#examples)
     -   [Modeling](#modeling)
     -   [Verification Target Generation](#verification-target-generation)
+
 -   [Download](#download)
+
 -   [Documentations](#documentations)
 
 ## Build
