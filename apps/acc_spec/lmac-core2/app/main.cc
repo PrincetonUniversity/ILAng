@@ -18,34 +18,43 @@ void VerifyReadFmacTxPktCnt(
   std::string RefrelPath = RootPath + "/refinement/";
   std::string OutputPath = RootPath + "/verification/";
 
-  std::vector<std::string> impl_srcs = {"LMAC_CORE_TOP.v",
-                                        "asynch_fifo.v",
-                                        "br_sfifo4x32.v",
-                                        "bsh32_dn_88.v",
-                                        "bsh8_dn_64.v",
-                                        "byte_reordering.v",
-                                        "crc32_d16s.v",
-                                        "crc32_d24s.v",
-                                        "crc32_d64.v",
-                                        "crc32_d8s.v",
-                                        "eth_crc32_gen.v",
-                                        "fmac_fifo4Kx64.v",
-                                        "fmac_fifo4Kx8.v",
-                                        "fmac_fifo512x64_2clk.v",
-                                        "fmac_register_if_LE2.v",
-                                        "fmac_saddr_filter.v",
-                                        "g2x_ctrl.v",
-                                        "gige_crc32x64.v",
-                                        "gige_rx.v",
-                                        "gige_s2p.v",
-                                        "gige_tx_encap.v",
-                                        "gige_tx_gmii.v",
-                                        "gigerx_bcnt_fifo256x16.v",
-                                        "gigerx_fifo256x64_2clk.v",
-                                        "gigerx_fifo256x8.v",
-                                        "rx_xgmii_LE2.v",
-                                        "tcore_fmac_core_LE2.v",
-                                        "txfifo_1024x64.v"};
+  std::vector<std::string> impl_srcs = {
+      "LMAC_CORE_TOP.v",
+      "asynch_fifo.v",
+      "br_sfifo4x32.v",
+      "bsh32_dn_88.v",
+      "bsh8_dn_64.v",
+      "byte_reordering.v",
+      "crc32_d16s.v",
+      "crc32_d24s.v",
+      "crc32_d64.v",
+      "crc32_d8s.v",
+      "ctrl_2G_5G.v",
+      "eth_crc32_gen.v",
+      "fmac_fifo4Kx64.v",
+      "fmac_fifo4Kx8.v",
+      "fmac_fifo512x64_2clk.v",
+      "fmac_register_if_LE2.v",
+      "fmac_saddr_filter.v",
+      "g2x_ctrl.v",
+      "gige_crc32x64.v",
+      "gige_s2p.v",
+      "gige_tx_encap.v",
+      "gige_tx_gmii.v",
+      "gigerx_bcnt_fifo256x16.v",
+      "gigerx_fifo256x64_2clk.v",
+      "gigerx_fifo256x8.v",
+      "rx_5G.v",
+      "rx_decap_LE2.v",
+      "rx_xgmii_LE2.v",
+      "tcore_fmac_core_LE2.v",
+      "tx_10G_wrap.v",
+      "tx_1G_wrap.v",
+      "tx_encap.v",
+      "tx_mac10g_crc32x64.v",
+      "tx_xgmii_LE2.v",
+      "txfifo_1024x64.v",
+  };
 
   for (auto i = 0; i < impl_srcs.size(); i++) {
     auto full_path = VerilogPath + impl_srcs.at(i);
@@ -102,7 +111,7 @@ VerilogVerificationTargetGenerator::vtg_config_t HandleArguments(int argc,
 
 int main(int argc, char** argv) {
   SetToStdErr(1);
-  SetLogLevel(2);
+  SetLogLevel(1);
   DebugLog::Enable("LMAC");
 
   // get the config
