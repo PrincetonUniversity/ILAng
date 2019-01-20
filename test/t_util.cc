@@ -1,6 +1,7 @@
 /// \file
 /// Unit test for utility functions
 
+#include "unit-include/config.h"
 #include "unit-include/util.h"
 #include <ilang/util/str_util.h>
 #include <ilang/util/fs.h>
@@ -59,6 +60,26 @@ TEST(TestUtil, FileNameFromDir) {
 
   EXPECT_ERROR( os_portable_file_name_from_path("a/") );
 
+}
+
+TEST(TestUtil, RemoveExtension) {
+
+  EXPECT_EQ( os_portable_remove_file_name_extension("a"),     "a" );
+  EXPECT_EQ( os_portable_remove_file_name_extension("a.txt"), "a" );
+  EXPECT_EQ( os_portable_remove_file_name_extension("/a.txt"),"/a");
+
+  EXPECT_EQ( os_portable_remove_file_name_extension("a/b.txt"),"a/b");
+  EXPECT_EQ( os_portable_remove_file_name_extension("./a/b.txt"),"./a/b");
+  EXPECT_EQ( os_portable_remove_file_name_extension("/a/.b.txt"),"/a/.b");
+
+  // Yes, we are not removing thoroughly
+  EXPECT_EQ( os_portable_remove_file_name_extension("/a/b.txt.1"),"/a/b.txt");
+}
+
+TEST(TestUtil, ExecShell) {
+  auto scriptName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/shell_ex/shell.sh";
+
+  EXPECT_TRUE(os_portable_execute_shell(scriptName));
 }
 
 TEST(TestUtil, RegularExpr) {

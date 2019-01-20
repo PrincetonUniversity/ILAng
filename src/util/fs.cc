@@ -13,10 +13,13 @@
 #if defined(_WIN32) || defined(_WIN64)
 // on windows
 #include <direct.h>
+#include <windows.h>
 #else
 // on *nix
+#include <unistd.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #endif
 
 namespace ilang {
@@ -108,6 +111,80 @@ bool os_portable_copy_file_to_dir(const std::string& src,
   ret = std::system(("cp " + src + " " + dst).c_str());
 #endif
   return ret == 0;
+}
+
+
+/// C:\\a.txt -> C:\\a   or  /a/b/c.txt -> a/b/c
+std::string os_portable_remove_file_name_extension(const std::string fname) {
+  std::string sep;
+#if defined(_WIN32) || defined(_WIN64)
+  // on windows
+  sep = "\\";
+#else
+  // on *nix
+  sep = "/";
+#endif
+  auto dot_pos = fname.rfind('.');
+  if(dot_pos == std::string::npos)
+    return fname; // no dot
+  
+  auto sep_pos = fname.rfind(sep);
+  
+  if (sep_pos == std::string::npos) // no sep and only dot
+    return fname.substr(0,dot_pos); // remove after dot
+
+  // no change ./../a -> ./../a
+  if(dot_pos < sep_pos)
+    return fname;
+
+  // /.asdfaf.d -> /.asdfaf  | /.a -> /.
+  return fname.substr(0,dot_pos);
+}
+
+
+bool os_portable_execute_shell(const std::string exec_name) {
+#ifdef defined(_WIN32) || defined(_WIN64)
+  // on windows
+  STARTUPINFO si;
+  PROCESS_INFORMATION pi;
+  ZeroMemory( &si, sizeof(si) );
+  si.cb = sizeof(si);
+  ZeroMemory( &pi, sizeof(pi) );
+
+  // Start the child process. 
+  if( !CreateProcess( NULL,   // No module name (use command line)
+      exec_name.c_str(),      // Command line
+      NULL,           // Process handle not inheritable
+      NULL,           // Thread handle not inheritable
+      FALSE,          // Set handle inheritance to FALSE
+      0,              // No creation flags
+      NULL,           // Use parent's environment block
+      NULL,           // Use parent's starting directory 
+      &si,            // Pointer to STARTUPINFO structure
+      &pi )           // Pointer to PROCESS_INFORMATION structure
+    )
+    return false; // failed
+  return true; 
+#else
+  // on *nix, spawn a child process to do this
+  pid_t pid = fork();
+  
+  if (pid == -1) // not able to create no process
+    return false;
+
+  if (pid == 0) {
+    // The child
+    // will replace the image and execute the bash
+    execlp("bash",exec_name.c_str(), NULL);
+  } else {
+    // The parent will wait for its end
+    int infop;
+    if( waitpid(pid, &infop, 0) == -1 )
+      return false; // failed call (should not happen normally)
+  }
+  return true;
+
+#endif
 }
 
 }; // namespace ilang

@@ -26,6 +26,12 @@ bool os_portable_copy_file_to_dir(const std::string& src,
 std::string os_portable_append_dir(const std::string& dir1,
                                    const std::string& dir2);
 
+/// C:\\a.txt -> C:\\a   or  /a/b/c.txt -> a/b/c
+std::string os_portable_remove_file_name_extension(const std::string fname);
+
+/// execute some executables that are shell scripts
+bool os_portable_execute_shell(const std::string exec_name);
+
 /// Extract filename from path
 /// C:\a\b\c.txt -> c.txt
 /// d/e/ghi  -> ghi
