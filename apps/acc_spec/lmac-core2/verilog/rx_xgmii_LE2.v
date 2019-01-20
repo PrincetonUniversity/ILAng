@@ -194,7 +194,7 @@ output			wr_nbyte	;
 output	[15:0]	nbytes_out		;
 input			rxfifo_full	;
 
-output			chk_crc;
+output	[31:0]  chk_crc;
 
 
 output			crc32_ok;

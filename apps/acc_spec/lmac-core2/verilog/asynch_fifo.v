@@ -54,7 +54,7 @@ module asynch_fifo # (parameter WIDTH = 8,         // considering 8X8 fifo
 
 );
 
-
+/* BYH: abstract for POSH hack
 
 //=== INTERNAL SIGNALS
 reg	[PTR  : 0]		wrusedw_i;	//async version
@@ -221,6 +221,8 @@ assign rdfull  = wrfull ? 1'b1 : 1'b0;
 			end
 
 	end
+
+*/
 
 endmodule
 

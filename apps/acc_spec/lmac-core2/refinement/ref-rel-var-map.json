@@ -2,75 +2,82 @@
   "models": { "ILA":"m0" , "VERILOG": "m1" },
   "state mapping": { 
     "link_up"           : "m1.xauiA_linkup",
-    "read_reg_done_out" : "m1.reg_rd_done",
+    "read_reg_done_out" : "m1.reg_rd_done_out",
     "mac_reg_d_out"     : "m1.FMAC_REGDOUT",
     "FMAC_TX_PKT_CNT"   : "m1.FMAC_TX_PKT_CNT"
   },
 
   "interface mapping": {
-     "clk"              : "**CLOCK**",
-     "xauiA_clk"        : "**CLOCK**",
-     "gige_clk"         : "**CLOCK**",
-     "reset_"           : "**RESET**", 
+      "clk"        : "**CLOCK**",
+      "xA_clk"     : "**CLOCK**",
+      "reset_"     : "**NRESET**", 
 
-     "fmac_speed"       : "**KEEP**",
-     "TCORE_MODE"       : "**KEEP**",
+      "mode_10G"   : "**KEEP**",
+      "mode_5G"    : "**KEEP**",
+      "mode_2p5G"  : "**KEEP**",
+      "mode_1G"    : "**KEEP**",
 
-     "tx_mac_wr"        : "**KEEP**",
-		 "tx_mac_data"      : "**KEEP**",		
-		 "tx_mac_full"      : "**KEEP**",		
-		 "tx_mac_usedw"     : "**KEEP**",	
+      "TCORE_MODE" : "**KEEP**",
 
-     "rx_mac_data"      : "**KEEP**",
-		 "rx_mac_ctrl"	    : "**KEEP**",
-		 "rx_mac_empty"	    : "**KEEP**",
-		 "rx_mac_rd"        : "**KEEP**",
-		 "rx_mac_rd_cycle"  : "**KEEP**",	
+      "tx_mac_wr"         : "**KEEP**",
+      "tx_mac_data"       : "**KEEP**",		
+      "tx_mac_full"       : "**KEEP**",		
+      "tx_mac_usedw"      : "**KEEP**",	
 
-     "rx_mac_full_dbg"  : "**NC**",
-     "rx_mac_usedw_dbg" : "**NC**",
+      "rx_mac_data"       : "**KEEP**",
+      "rx_mac_ctrl"	      : "**KEEP**",
+      "rx_mac_empty"	    : "**KEEP**",
+      "rx_mac_rd"         : "**KEEP**",
+      "rx_mac_rd_cycle"   : "**KEEP**",	
 
-     "cs_fifo_rd_en"    : "**KEEP**",
-     "cs_fifo_empty"    : "**KEEP**",
-     "ipcs_fifo_dout"   : "**KEEP**",
+      "rx_mac_full_dbg"   : "**NC**",
+      "rx_mac_usedw_dbg"  : "**NC**",
 
-     "gmii_txd"         : "**KEEP**",
-     "gmii_txc"         : "**KEEP**",
-     "gmii_tx_en"       : "**KEEP**",
-     "gmii_tx_vld"      : "**KEEP**",
+      "cs_fifo_rd_en"     : "**KEEP**",
+      "cs_fifo_empty"     : "**KEEP**",
+      "ipcs_fifo_dout"    : "**KEEP**",
 
-     "xauiA_linkup"     : "**SO**",
+      "xgmii_reset_"      : "**KEEP**",
+      "xgmii_txd"         : "**KEEP**",
+      "xgmii_txc"         : "**KEEP**",
 
-     "host_addr_reg"    : "host_addr",
-     "SYS_ADDR"         : "**KEEP**",
+      "xgmii_rxd"         : "**KEEP**",
+      "xgmii_rxc"         : "**KEEP**",
+      "xgmii_led_"        : "**KEEP**",	
 
-     "fail_over"        : "**KEEP**",
-     "fmac_ctrl"        : "mac_ctrl",
-     "fmac_ctrl1"       : "mac_ctrl_1",
+      "xauiA_linkup"      : "**SO**",
 
-     "fmac_rxd_en"      : "mac_rxv_en",
+      "host_addr_reg"     : "host_addr",
+      "SYS_ADDR"          : "**KEEP**",
 
-     "mac_pause_value"  : "**KEEP**",
-     "mac_addr0"        : "**KEEP**",
-     "mcast_saddr"      : "**KEEP**",
+      "fail_over"         : "**KEEP**",
+      "fmac_ctrl"         : "mac_ctrl",
+      "fmac_ctrl1"        : "mac_ctrl_1",
 
-     "reg_rd_start"     : "reg_read_start",
-     "reg_rd_done"      : "**SO**",
+      "fmac_rxd_en"       : "mac_rxv_en",
 
-     "FMAC_REGDOUT"     : "**SO**",
-     "FIFO_OV_IPEND"    : "**KEEP**",
+      "mac_pause_value"   : "**KEEP**",
+      "mac_addr0"         : "**KEEP**",
+      "mcast_saddr"       : "**KEEP**",
 
-     "gmii_rxd"         : "**KEEP**",
-		 "gmii_rxc"         : "**KEEP**",
-		 "gmii_rx_dv"       : "**KEEP**",
+      "reg_rd_start"      : "reg_read_start",
 
-     "sfp_los"          : "**KEEP**"
+      "reg_rd_done_out"   : "**SO**",
+
+      "FMAC_REGDOUT"      : "**SO**",
+      "FIFO_OV_IPEND"     : "**KEEP**"
+
   },
 
   "mapping control" : [ 
                         "(~ ((m0.reg_read_start == 1) && (m0.read_reg_done_out == 1)))",
                         "(m1.TCORE_MODE == 1)",
-                        "(m1.SYS_ADDR == 1)"
+                        "(m1.SYS_ADDR == 1)",
+                        "(m1.xgmii_txc == 0)",
+                        "(m1.mode_10G == 0)",
+                        "(m1.mode_5G == 0)", 
+                        "(m1.mode_2p5G == 0)",
+                        "(m1.mode_1G == 1)"
                       ],
 
   "functions":{}

@@ -449,6 +449,7 @@ always @(posedge usr_clk)
 // TRANSMIT PATH
 // txfifo -> tx_encap -> tx_xgmii
 // =========================================	
+/* BYH: abstract for POSH hack
 txfifo_1024x64 txfifo(
 	.data(txfifo_din),
 	.wrreq(txfifo_wr_en),
@@ -461,7 +462,7 @@ txfifo_1024x64 txfifo(
 	.rdempty(txfifo_empty),
 	.wrusedw(txfifo_usedw_int)
 	);
-	
+*/	
 	
 	
 tx_1G_wrap tx_1G_wrap(
@@ -537,6 +538,7 @@ assign	xaui_mode	= (mode_10G_buf);
 
 wire	rxfifo_wrempty156	;	
 
+/* BYH: abstract for POSH hack
 fmac_fifo4Kx64 rxfifo(                      
 	.aclr		(!usr_rst_ | !fmac_rxd_en)	,	//i-1	
 	.data		(pkt_data),                     //i-64 from RX_XGMII 
@@ -552,6 +554,7 @@ fmac_fifo4Kx64 rxfifo(
 	.wrfull		(),
 	.wrusedw	(rxfifo_wrusedw)				//o-12
 	);
+*/
 	
 wire	[7:0]	pktctrl_din	= {
 					6'h0	,	//7:2
@@ -562,6 +565,7 @@ wire	[7:0]	pktctrl_din	= {
 reg		[7:0]	rxfifo_ctrl_dout ;
 wire	[7:0]	rxfifo_ctrl_q ;
 
+/* BYH: abstract for POSH hack
 fmac_fifo4Kx8 pktctrl_fifo (
 	.aclr		(!usr_rst_ | !fmac_rxd_en)	,	//i-1
 	.data		(pktctrl_din ),					//i-8
@@ -577,6 +581,7 @@ fmac_fifo4Kx8 pktctrl_fifo (
 	.wrfull		(),
 	.wrusedw	()
 	);
+*/
 	
 	
 //always reserve 2048 bytes
@@ -617,6 +622,7 @@ wire	[63:0]	ipcs_fifo_din = {
 				
 
 //NOTE:  NBYTES is only correct for non_ip pkts
+/* BYH: abstract for POSH hack
 fmac_fifo512x64_2clk ipcs_fifo (
 	.aclr		(cs_fifo_rst),   	//i-1
 	.data		(ipcs_fifo_din ),   //i-64
@@ -632,9 +638,10 @@ fmac_fifo512x64_2clk ipcs_fifo (
 	.wrfull		(),
 	.wrusedw	(ipcs_fifo_wrusedw)	//o-9
 	);
+*/
 	
 				
-	
+/* BYH: abstract for POSH hack
 tcore_rx_xgmii #(RX_DRAM_DEPTH, RX_DRAM_ADDR_WIDTH)	
 	rx_xgmii(
 	.clk156		(x_clk),		// i-1
@@ -721,9 +728,10 @@ tcore_rx_xgmii #(RX_DRAM_DEPTH, RX_DRAM_ADDR_WIDTH)
     .fmac_rx_clr_en	(fmac_rx_clr_en)
 	
 	);	
+*/
 	
 	
-	
+/* BYH: abstract for POSH hack
 rx_decap #(FMAC_ID, RX_FIFO_DEPTH, RX_FIFO_ADDR_WIDTH, RX_DRAM_DEPTH, RX_DRAM_ADDR_WIDTH) 
 	rx_decap(
 	.clk250		(usr_clk),				// i-1
@@ -819,7 +827,7 @@ rx_decap #(FMAC_ID, RX_FIFO_DEPTH, RX_FIFO_ADDR_WIDTH, RX_DRAM_DEPTH, RX_DRAM_AD
 	.crc_ok 		(crc32_ok)
 	
 	);	
-
+*/
 	
 	
 	
