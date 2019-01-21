@@ -55,7 +55,7 @@ RUN mkdir -p $YOSYS_DIR
 RUN tar zxvf yosys-0.8.tar.gz -C $YOSYS_DIR --strip-components 1
 WORKDIR $YOSYS_DIR 
 RUN make config-gcc && \
-    make -j$(nproc) && \
+    make -j"$(nproc)" && \
     PREFIX=$BUILD_PREF make install
 
 # CoSA
@@ -73,13 +73,13 @@ WORKDIR $BUILD_ROOT
 ADD https://api.github.com/repos/Boolector/boolector/git/refs/heads/master btor_version.json
 RUN git clone --depth=1 https://github.com/Boolector/boolector.git $BTOR_DIR
 RUN pip3 install cython==0.29.3
-RUN cd $BTOR_DIR && ./contrib/setup-lingeling.sh 
 WORKDIR $BTOR_DIR
+RUN ./contrib/setup-lingeling.sh 
 RUN ./contrib/setup-cadical.sh
 RUN ./contrib/setup-btor2tools.sh
 RUN ./configure.sh --python --py3 --prefix $BUILD_PREF
 WORKDIR $BTOR_DIR/build
-RUN make -j$(nproc) && \
+RUN make -j"$(nproc)" && \
     make install
 
 # PySMT
@@ -99,8 +99,8 @@ RUN git clone --depth=1 https://github.com/Bo-Yuan-Huang/ILAng.git $ILANG_DIR
 WORKDIR $ILANG_DIR
 RUN mkdir -p build 
 WORKDIR $ILANG_DIR/build
-RUN cmake .. -DCMAKE_INSTALL_PREFIX=$BUILD_PREF -DILANG_INSTALL_DEV=ON && \
-    make -j$(nproc) && \
+RUN cmake .. -DCMAKE_INSTALL_PREFIX="$BUILD_PREF" -DILANG_INSTALL_DEV=ON && \
+    make -j"$(nproc)" && \
     make install 
 
 #
