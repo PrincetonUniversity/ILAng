@@ -1,9 +1,13 @@
-![ILAng-Overview](https://raw.githubusercontent.com/Bo-Yuan-Huang/ILA-Tools/master/docs/pics/ilang-overview.png)
+![ILAng-Logo](https://raw.githubusercontent.com/Bo-Yuan-Huang/ILAng/master/docs/pics/ilang-logo.png)
 
 ## About
 
 ILAng is a modeling and verification platform for systems-on-chips (SoCs) where **Instruction-Level Abstraction (ILA)** is used as the formal model for hardware components.
 A paper describing the ILA formal model [TODAES18](/papers/todaes18.pdf).
+
+## Architecture
+
+![ILAng-Overview](https://raw.githubusercontent.com/Bo-Yuan-Huang/ILA-Tools/master/docs/pics/ilang-overview.png)
 
 ## Download
 
