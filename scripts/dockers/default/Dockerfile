@@ -38,9 +38,11 @@ RUN virtualenv $VIRT_ENV
 # z3
 ENV Z3_DIR $BUILD_ROOT/z3
 WORKDIR $BUILD_ROOT
-RUN wget https://github.com/Z3Prover/z3/archive/z3-4.8.4.tar.gz
+#RUN wget https://github.com/Z3Prover/z3/archive/z3-4.8.4.tar.gz
+RUN wget https://github.com/Z3Prover/z3/releases/download/z3-4.7.1/z3-4.7.1.tar.gz
 RUN mkdir -p $Z3_DIR 
-RUN tar zxvf z3-4.8.4.tar.gz -C $Z3_DIR --strip-components 1
+#RUN tar zxvf z3-4.8.4.tar.gz -C $Z3_DIR --strip-components 1
+RUN tar zxvf z3-4.7.1.tar.gz -C $Z3_DIR --strip-components 1
 WORKDIR $Z3_DIR 
 RUN $BUILD_PREF/bin/python scripts/mk_make.py --prefix=$BUILD_PREF --python 
 WORKDIR $Z3_DIR/build
@@ -58,18 +60,6 @@ RUN make config-gcc && \
     make -j$(nproc) && \
     PREFIX=$BUILD_PREF make install
 
-# ILAng
-ENV ILANG_DIR $BUILD_ROOT/ILA-Tools
-WORKDIR $BUILD_ROOT
-ADD https://api.github.com/repos/Bo-Yuan-Huang/ILAng/git/refs/heads/master ilang_version.json
-RUN git clone --depth=1 https://github.com/Bo-Yuan-Huang/ILAng.git $ILANG_DIR
-WORKDIR $ILANG_DIR
-RUN mkdir -p build 
-WORKDIR $ILANG_DIR/build
-RUN cmake .. -DCMAKE_INSTALL_PREFIX=$BUILD_PREF -DILANG_INSTALL_DEV=ON && \
-    make -j$(nproc) && \
-    make install 
-
 # CoSA
 ENV COSA_DIR $BUILD_ROOT/CoSA
 WORKDIR $BUILD_ROOT
@@ -84,7 +74,7 @@ ENV BTOR_DIR $BUILD_ROOT/Boolector
 WORKDIR $BUILD_ROOT
 ADD https://api.github.com/repos/Boolector/boolector/git/refs/heads/master btor_version.json
 RUN git clone --depth=1 https://github.com/Boolector/boolector.git $BTOR_DIR
-RUN pip3 install cython=0.29.3
+RUN pip3 install cython==0.29.3
 RUN cd $BTOR_DIR && ./contrib/setup-lingeling.sh 
 WORKDIR $BTOR_DIR
 RUN ./contrib/setup-cadical.sh
@@ -102,6 +92,18 @@ RUN cp btor-solver.py $BUILD_PREF/lib/python3.6/site-packages/pysmt/solvers/btor
 RUN wget https://raw.githubusercontent.com/makaimann/pysmt/fast/pysmt/cmd/installers/btor.py 
 RUN mv btor.py btor-installer.py
 RUN cp btor-installer.py /ibuild/ilang-env/lib/python3.6/site-packages/pysmt/cmd/installers/btor.py
+
+# ILAng
+ENV ILANG_DIR $BUILD_ROOT/ILA-Tools
+WORKDIR $BUILD_ROOT
+ADD https://api.github.com/repos/Bo-Yuan-Huang/ILAng/git/refs/heads/master ilang_version.json
+RUN git clone --depth=1 https://github.com/Bo-Yuan-Huang/ILAng.git $ILANG_DIR
+WORKDIR $ILANG_DIR
+RUN mkdir -p build 
+WORKDIR $ILANG_DIR/build
+RUN cmake .. -DCMAKE_INSTALL_PREFIX=$BUILD_PREF -DILANG_INSTALL_DEV=ON && \
+    make -j$(nproc) && \
+    make install 
 
 #
 # Deployment
