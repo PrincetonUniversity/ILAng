@@ -44,7 +44,7 @@ RUN tar zxvf z3-4.7.1.tar.gz -C $Z3_DIR --strip-components 1
 WORKDIR $Z3_DIR 
 RUN $BUILD_PREF/bin/python scripts/mk_make.py --prefix=$BUILD_PREF --python 
 WORKDIR $Z3_DIR/build
-RUN make -j$(nproc) && \
+RUN make -j"$(nproc)" && \
     make install
 
 # Yosys
