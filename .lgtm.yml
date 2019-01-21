@@ -1,0 +1,11 @@
+path_classifiers:
+  test:
+    - tests
+
+  script:
+    - scripts
+
+  example:
+    - apps
+    - examples
+
