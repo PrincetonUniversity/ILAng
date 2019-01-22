@@ -27,12 +27,39 @@ VlgSglTgtGen_Yosys::VlgSglTgtGen_Yosys(
     const std::string& ila_mod_inst_name, const std::string& wrapper_name,
     const std::vector<std::string>& implementation_srcs,
     const std::vector<std::string>& implementation_include_path,
-    const vtg_config_t& vtg_config, backend_selector backend)
+    const vtg_config_t& vtg_config, backend_selector backend,
+    const target_type_t& target_tp)
     : VlgSglTgtGen(output_path, instr_ptr, ila_ptr, config, _rf_vmap, _rf_cond,
                    _vlg_info_ptr, vlg_mod_inst_name, ila_mod_inst_name,
                    wrapper_name, implementation_srcs,
-                   implementation_include_path, vtg_config, backend),
-      tmp_design_file( "__design__.v") {  }
+                   implementation_include_path, vtg_config, backend,
+                   target_tp) { 
+
+// initialize templates
+yosysGenerateSmtScript_wo_Array = R"***(
+flatten
+memory -nordff
+)***";
+
+yosysGenerateSmtScript_w_Array = R"***(
+hierarchy -check
+proc
+opt
+opt_expr -mux_undef
+opt
+opt
+memory_dff -wr_only
+memory_collect;
+flatten;
+memory_unpack
+splitnets -driver
+opt;;
+memory_collect;
+pmuxtree
+proc
+opt;;
+)***";
+                    }
 
 
 void VlgSglTgtGen_Yosys::add_wire_assign_assumption(
@@ -73,7 +100,7 @@ void VlgSglTgtGen_Yosys::add_an_assumption(const std::string& aspt,
   vlg_wrapper.add_assign_stmt(assumption_wire_name, aspt);
   ILA_ERROR_IF(aspt.find(".") != std::string::npos)
       << "aspt:" << aspt << " contains unfriendly dot.";
-  _problems.assumptions.push_back(assumption_wire_name + " == 1'b1");
+  _problems.assumptions[dspt].exprs.push_back(assumption_wire_name + " == 1'b1");
   //_problems.assumptions.push_back(convert_expr_to_yosys(aspt));
 }
 /// Add an assertion
@@ -84,7 +111,7 @@ void VlgSglTgtGen_Yosys::add_an_assertion(const std::string& asst,
   vlg_wrapper.add_output(assrt_wire_name,
                          1); // I find it is necessary to connect to the output
   vlg_wrapper.add_assign_stmt(assrt_wire_name, asst);
-  _problems.probitem[dspt].assertions.push_back(assrt_wire_name + " == 1'b1");
+  _problems.assertions[dspt].exprs.push_back(assrt_wire_name + " == 1'b1");
   ILA_ERROR_IF(asst.find(".") != std::string::npos)
       << "asst:" << asst << " contains unfriendly dot.";
   //_problems.probitem[dspt].assertions.push_back(convert_expr_to_yosys(asst));
@@ -93,29 +120,50 @@ void VlgSglTgtGen_Yosys::add_an_assertion(const std::string& asst,
 /// Add an assumption
 void VlgSglTgtGen_Yosys::add_a_direct_assumption(const std::string& aspt,
                                                 const std::string& dspt) {
-  _problems.assumptions.push_back(aspt);
+  _problems.assumptions[dspt].exprs.push_back(aspt);
 }
 /// Add an assertion
 void VlgSglTgtGen_Yosys::add_a_direct_assertion(const std::string& asst,
                                                const std::string& dspt) {
-  _problems.probitem[dspt].assertions.push_back(asst);
+  _problems.assertions[dspt].exprs.push_back(asst);
 }
 
 /// Pre export work : add assume and asssert to the top level
+/// collect the type of assumptions and assertions
+/// Assertions: variable_map_assert (no invariant_assert --- not for invariant target)
+/// Assumptions:
+///      1. global: noreset, funcmap, absmem, additonal_mapping_control_assume
+///      2. only at starting state:
+///          variable_map_assume, issue_decode, issue_valid
+///      Question: invariant assume? where to put it? Depends on ?
+
 void VlgSglTgtGen_Yosys::PreExportProcess() {
-  for (auto&& assmpt : _problems.assumptions) {
-    vlg_wrapper.add_stmt(
-      "assume property ("+assmpt+");\n"
-    );
+  // .. ??
+
+  std::string global_assume = "`true";
+  std::string start_assume  = "`true";
+
+/*
+  for(auto&& dspt_exprs_pair : _problems.assumptions) {
+    const auto & dspt = dspt_exprs_pair.first;
+    const auto & expr = dspt_exprs_pair.second;
+    for (auto&& p: expr.exprs)
+      vlg_wrapper.add_stmt(
+        "assume property ("+p+"); // " + dspt
+      );
   }
-  
+
   //std::string assmpt = "(" + Join(_problems.assumptions, ") & (") + ")";
+*/
   std::string all_assert_wire_content = "`true";
 
-  for (auto&& pbname_prob_pair : _problems.probitem) {
+  for (auto&& pbname_prob_pair : _problems.assertions) {
     const auto& prbname = pbname_prob_pair.first;
     const auto& prob = pbname_prob_pair.second;
-    for (auto&& p: prob.assertions) {
+    
+    ILA_ASSERT(prbname == "variable_map_assert"); // sanity check, in case I forget sth.
+
+    for (auto&& p: prob.exprs) {
       vlg_wrapper.add_stmt(
         "assert property ("+p+"); //" + prbname + "\n"
       );
@@ -126,10 +174,12 @@ void VlgSglTgtGen_Yosys::PreExportProcess() {
   vlg_wrapper.add_wire("__all_assert_wire__", 1, true);
   vlg_wrapper.add_output("__all_assert_wire__",1);
   vlg_wrapper.add_assign_stmt("__all_assert_wire__", all_assert_wire_content);
-}
+} // PreExportProcess
 
-/// export the script to run the verification
+/// export the script to run the verification0
 void VlgSglTgtGen_Yosys::Export_script(const std::string& script_name) {
+  yosys_run_script_name = script_name;
+
   auto fname = os_portable_append_dir(_output_path, script_name);
   std::ofstream fout(fname);
   if (!fout.is_open()) {
@@ -153,30 +203,6 @@ void VlgSglTgtGen_Yosys::Export_script(const std::string& script_name) {
     fout << "echo 'Nothing to check!'" << std::endl;
 }
 
-std::string yosysGenerateSmtScript_wo_Array = R"***(
-flatten
-memory -nordff
-)***";
-
-
-std::string yosysGenerateSmtScript_w_Array = R"***(
-hierarchy -check
-proc
-opt
-opt_expr -mux_undef
-opt
-opt
-memory_dff -wr_only
-memory_collect;
-flatten;
-memory_unpack
-splitnets -driver
-opt;;
-memory_collect;
-pmuxtree
-proc
-opt;;
-)***";
 
 // if we are not proving with arb state
 // (force initial state)
@@ -247,7 +273,7 @@ std::string dual_ind_inv_tmpl = R"***(
 /// export extra things (problem) : for yosys, it is the gensmt.ys (or
 /// its equivalence)
 void VlgSglTgtGen_Yosys::Export_problem(const std::string& extra_name) {
-  if (_problems.probitem.size() == 0) {
+  if (_problems.assertions.size() == 0) {
     ILA_ERROR << "Nothing to prove, no assertions inserted!";
     return;
   }
@@ -295,46 +321,11 @@ void VlgSglTgtGen_Yosys::Export_problem(const std::string& extra_name) {
     fout << yosysGenerateSmtScript_w_Array;
   else
     fout << yosysGenerateSmtScript_wo_Array;
-  fout << "write_smt2"<<write_smt2_options<<" wrapper.smt2";
-/*
+  fout << "write_smt2"<<write_smt2_options
+    << os_portable_remove_file_name_extension(top_file_name)
+        + ".smt2";
 
-  fout << "[GENERAL]" << std::endl;
-  fout << "model_file:"; //
-  fout << top_file_name << "[" << top_mod_name << "],";
-  // if(target_type != target_type_t::INVARIANTS )
-  //	fout << ila_file_name<<","; // will be combined
-  fout << "rst.ets";
-  // for(auto && fn : vlg_design_files) // will be combined
-  //  fout << "," << os_portable_file_name_from_path(fn);
-  fout << std::endl;
 
-  fout << "assume_if_true: True" << std::endl;
-  fout << "abstract_clock: True" << std::endl;
-  fout << "[DEFAULT]" << std::endl;
-  fout << "bmc_length: " << std::to_string(max_bound + 5) << std::endl;
-  fout << "precondition: reset_done" << std::endl;
-  fout << std::endl;
-
-  std::string assmpt = "(" + Join(_problems.assumptions, ") & (") + ")";
-  for (auto&& pbname_prob_pair : _problems.probitem) {
-    const auto& prbname = pbname_prob_pair.first;
-    const auto& prob = pbname_prob_pair.second;
-    auto asst = "(" + Join(prob.assertions, ") & (") + ")";
-    auto prob_name = vlg_wrapper.sanitizeName(prbname);
-    fout << "[" << prob_name << "]" << std::endl;
-    fout << "description:\"" << prbname << "\"" << std::endl;
-    fout << "formula:" << asst << std::endl;
-    if (assmpt != "()")
-      fout << "assumptions:" << assmpt << std::endl;
-    fout << "prove: True" << std::endl;
-    fout << "verification: safety" << std::endl;
-    if (VlgAbsMem::hasAbsMem())
-      fout << "strategy: AUTO" << std::endl;
-    else
-      fout << "strategy: ALL" << std::endl;
-    fout << "expected: True" << std::endl;
-  }
-*/
 
 } 
 
@@ -412,5 +403,6 @@ void VlgSglTgtGen_Yosys::Export_modify_verilog() {
   }
 
 } // Export_modify_verilog
+
 
 }; // namespace ilang
