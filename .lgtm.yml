@@ -2,6 +2,9 @@ path_classifiers:
   test:
     - tests
 
+  docs:
+    - docs
+
   script:
     - scripts
 
@@ -9,3 +12,31 @@ path_classifiers:
     - apps
     - examples
 
+extraction:
+  cpp:
+    prepare:
+      packages:
+        - build-essential
+        - libboost-all-dev
+        - bison
+        - flex
+
+    after_prepare:
+      - cd $$LGTM_SRC
+      - git clone https://github.com/Z3Prover/z3.git
+      - cd z3
+      - python scripts/mk_make.py
+      - cd build
+      - make -j$(nproc)
+      - sudo make install
+
+    configure:
+      command:
+        - cd $LGTM_SRC
+        - mkdir -p build
+        - cd build
+        - cmake ..
+
+    index:
+      build_command:
+        - $GNU_MAKE -j$(nproc)
