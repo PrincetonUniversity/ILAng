@@ -78,7 +78,8 @@ public:
       const std::string& ila_mod_inst_name, const std::string& wrapper_name,
       const std::vector<std::string>& implementation_srcs,
       const std::vector<std::string>& include_dirs,
-      const vtg_config_t& vtg_config, backend_selector backend);
+      const vtg_config_t& vtg_config, backend_selector backend,
+      const target_type_t& target_tp);
 
 protected:
   /// Cosa problem generate

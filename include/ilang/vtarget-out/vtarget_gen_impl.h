@@ -328,6 +328,8 @@ class VlgVerifTgtGen : public VlgVerifTgtGenBase {
   using backend_selector = VlgVerifTgtGenBase::backend_selector;
   /// Type of configuration
   using vtg_config_t = VlgVerifTgtGenBase::vtg_config_t;
+  /// Type of a target
+  using target_type_t = VlgSglTgtGen::target_type_t;
 
 public:
   // --------------------- CONSTRUCTOR ---------------------------- //

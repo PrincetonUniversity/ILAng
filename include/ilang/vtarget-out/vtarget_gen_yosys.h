@@ -20,10 +20,12 @@
 namespace ilang {
 
 class VlgSglTgtGen_Yosys;
+class VlgSglTgtGen_Yosys_design_only;
 
 /// \brief a class to store (and generate) the problem for Yosys
 class Yosys_problem {
   friend class VlgSglTgtGen_Yosys;
+  friend class VlgSglTgtGen_Yosys_design_only;
   /// Type of assertions and assumptions
   typedef std::vector<std::string> prop_t;
   /// Type of a problem --- we  can handle multiple several problems (may not
@@ -32,20 +34,29 @@ class Yosys_problem {
     // the name in [??]
     // std::string  problem_name;
     /// will be conjuncted and put in the question
-    prop_t assertions;
+    prop_t exprs;
   } problem_t;
   /// set of problems
   typedef std::map<std::string, problem_t> problemset_t;
 
 protected:
-  /// assumptions are shared
-  prop_t assumptions;
+  /// assumptions are not shared (unlike CoSA)
+  problemset_t assumptions;
   /// problems are splitted into items
-  problemset_t probitem;
+  problemset_t assertions;
 
 }; // Yosys_problem
 
-/// \brief a class to interface w.  COSA
+/// \brief the information that the design target
+/// can get for the instruction target
+struct YosysDesignSmtInfo {
+  /// Type of vector of names in the design verilog
+  typedef std::vector<std::string> pos_name_map_t;
+  /// The pos -> name map
+  pos_name_map_t state_pos_name_map; 
+};
+
+/// \brief a class to interface w.  Yosys
 class VlgSglTgtGen_Yosys : public VlgSglTgtGen {
   /// using the target type
   using target_type_t = VlgSglTgtGen::target_type_t;
@@ -81,15 +92,22 @@ public:
       const std::string& ila_mod_inst_name, const std::string& wrapper_name,
       const std::vector<std::string>& implementation_srcs,
       const std::vector<std::string>& include_dirs,
-      const vtg_config_t& vtg_config, backend_selector backend);
+      const vtg_config_t& vtg_config, backend_selector backend,
+      const target_type_t& target_tp);
 
 protected:
   /// Yosys problem generate
   Yosys_problem _problems;
   /// Yosys problem file name
   std::string yosys_prob_fname;
-  /// the file name to put the design temporarily
-  std::string tmp_design_file;
+  /// Yosys script 'run.sh' name
+  std::string yosys_run_script_name;
+
+protected:
+  /// template for generating yosys script wo arrays
+  std::string yosysGenerateSmtScript_wo_Array;
+  /// template for generating yosys script
+  std::string yosysGenerateSmtScript_w_Array;
 
 protected:
   /// Add an assumption
@@ -132,8 +150,89 @@ protected:
   virtual void Export_modify_verilog() override;
 
 public:
+  /// Need the smt info
+  /// Take care of exporting all of a single target
+  void virtual ExportAll(const std::string& wrapper_name,
+                         const std::string& ila_vlg_name,
+                         const std::string& script_name,
+                         const std::string& extra_name,
+                         const std::string& mem_name,
+                         const YosysDesignSmtInfo& smt_info);
+                         
+  /// Deprecation of the one without smt info
+  void virtual ExportAll(const std::string& wrapper_name,
+                         const std::string& ila_vlg_name,
+                         const std::string& script_name,
+                         const std::string& extra_name,
+                         const std::string& mem_name) override;
+  
+
   /// It is okay to instantiation
   virtual void do_not_instantiate(void) override{};
+
+}; // class VlgVerifTgtGenYosys
+
+
+/// \brief a class to interface w.  Yosys : generating the design itself only
+class VlgSglTgtGen_Yosys_design_only : public VlgSglTgtGen_Yosys {
+  /// using the target type
+  using target_type_t = VlgSglTgtGen::target_type_t;
+  /// a tuple to store all related info for modification
+  using info_t = VerilogModifier::info_t;
+  /// filename -> (lineno, varname, is_port_sig) vec
+  using fn_l_map_t = VerilogModifier::fn_l_map_t;
+
+public:
+  // --------------------- CONSTRUCTOR ---------------------------- //
+  ///
+  /// \param[in] output path (ila-verilog, wrapper-verilog, problem.txt,
+  /// run-verify-by-???, modify-impl, it there is ) \param[in] pointer to the
+  /// instruction \param[in] the default configuration for outputing verilog
+  /// \param[in] the variable map
+  /// \param[in] the conditions
+  /// \param[in] pointer to verify info class
+  /// \param[in] verilog module name
+  /// \param[in] ila module name,
+  /// \param[in] all implementation sources
+  /// \param[in] all include paths
+  /// \param[in] which backend to use, it needs this info to gen proper
+  /// properties
+  VlgSglTgtGen_Yosys_design_only(
+      const std::string& output_path, // will be a sub directory of the
+                                      // output_path of its parent
+      const InstrPtr& instr_ptr, // which could be an empty pointer, and it will
+                                 // be used to verify invariants
+      const InstrLvlAbsPtr& ila_ptr,
+      const VerilogGenerator::VlgGenConfig& config, nlohmann::json& _rf_vmap,
+      nlohmann::json& _rf_cond, VerilogInfo* _vlg_info_ptr,
+      const std::string& vlg_mod_inst_name,
+      const std::string& ila_mod_inst_name, const std::string& wrapper_name,
+      const std::vector<std::string>& implementation_srcs,
+      const std::vector<std::string>& include_dirs,
+      const vtg_config_t& vtg_config, backend_selector backend,
+      const target_type_t& target_tp);
+
+protected:
+  /// Pre export work : add assume and asssert to the top level
+  void virtual PreExportProcess() override;
+  /// export the script to run the verification
+  virtual void Export_script(const std::string& script_name) override;
+  /// export extra things: the yosys script, the smt template
+  virtual void
+  Export_problem(const std::string& extra_name) override;
+
+public:
+  // -------------- MEMBER functions -------------------- //
+  /// run the smt generation and get the yosys_design_info_that_is_used 
+  /// for the Yosys inv gen class
+  YosysDesignSmtInfo RunSmtGeneration();
+
+protected:
+  /// the generated smt_file_name 
+  /// not including directory name
+  /// - created by Export_problem
+  /// - used by RunSmtGeneration
+  std::string smt_file_name;
 
 }; // class VlgVerifTgtGenYosys
 

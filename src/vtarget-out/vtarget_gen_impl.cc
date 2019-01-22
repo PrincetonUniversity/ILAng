@@ -147,7 +147,7 @@ void VlgVerifTgtGen::GenerateTargets(void) {
           NULL, // invariant
           _ila_ptr, _cfg, rf_vmap, rf_cond, vlg_info_ptr, _vlg_mod_inst_name,
           _ila_mod_inst_name, "wrapper", _vlg_impl_srcs, _vlg_impl_include_path,
-          _vtg_config, _backend);
+          _vtg_config, _backend, target_type_t::INVARIANTS);
       target.ConstructWrapper();
       target.ExportAll("wrapper.v", "ila.v", "run.sh", "problem.txt",
                        "absmem.v");
@@ -157,7 +157,7 @@ void VlgVerifTgtGen::GenerateTargets(void) {
           NULL, // invariant
           _ila_ptr, _cfg, rf_vmap, rf_cond, vlg_info_ptr, _vlg_mod_inst_name,
           _ila_mod_inst_name, "wrapper", _vlg_impl_srcs, _vlg_impl_include_path,
-          _vtg_config, _backend);
+          _vtg_config, _backend, target_type_t::INVARIANTS);
       target.ConstructWrapper();
       target.ExportAll("wrapper.v", "ila.v", "run.sh", "do.tcl", "absmem.v");
     } else if (_backend == backend_selector::YOSYS and invariantExists) {
@@ -166,7 +166,7 @@ void VlgVerifTgtGen::GenerateTargets(void) {
           NULL, // invariant
           _ila_ptr, _cfg, rf_vmap, rf_cond, vlg_info_ptr, _vlg_mod_inst_name,
           _ila_mod_inst_name, "wrapper", _vlg_impl_srcs, _vlg_impl_include_path,
-          _vtg_config, _backend);
+          _vtg_config, _backend, target_type_t::INVARIANTS);
       target.ConstructWrapper();
       target.ExportAll("wrapper.v", "ila.v", "run.sh", "gensmt.ys", "absmem.v");
     }
@@ -196,7 +196,8 @@ void VlgVerifTgtGen::GenerateTargets(void) {
             instr_ptr, // instruction
             _ila_ptr, _cfg, rf_vmap, rf_cond, vlg_info_ptr, _vlg_mod_inst_name,
             _ila_mod_inst_name, "wrapper", _vlg_impl_srcs,
-            _vlg_impl_include_path, _vtg_config, _backend);
+            _vlg_impl_include_path, _vtg_config, _backend,
+            target_type_t::INSTRUCTIONS);
         target.ConstructWrapper();
         target.ExportAll("wrapper.v", "ila.v", "run.sh", "problem.txt",
                          "absmem.v");
@@ -206,16 +207,35 @@ void VlgVerifTgtGen::GenerateTargets(void) {
             instr_ptr, // instruction
             _ila_ptr, _cfg, rf_vmap, rf_cond, vlg_info_ptr, _vlg_mod_inst_name,
             _ila_mod_inst_name, "wrapper", _vlg_impl_srcs,
-            _vlg_impl_include_path, _vtg_config, _backend);
+            _vlg_impl_include_path, _vtg_config, _backend,
+            target_type_t::INSTRUCTIONS);
         target.ConstructWrapper();
         target.ExportAll("wrapper.v", "ila.v", "run.sh", "do.tcl", "absmem.v");
       } else if (_backend == backend_selector::YOSYS) {
+        // in this case we will have two targets to generate
+        // one is the target with only the design and
+        // and the second one should use the smt file it generates
+        // and create conversion (map) function
+
+        auto target = VlgSglTgtGen_Yosys_design_only(
+            os_portable_append_dir(_output_path, iname),
+            instr_ptr, // instruction
+            _ila_ptr, _cfg, rf_vmap, rf_cond, vlg_info_ptr, _vlg_mod_inst_name,
+            _ila_mod_inst_name, "wrapper", _vlg_impl_srcs,
+            _vlg_impl_include_path, _vtg_config, _backend,
+            target_type_t::INST_INV_SYN);
+        target.ConstructWrapper();
+        target.ExportAll("__design_wrapper.v", "__design_run.sh", "__design_gensmt.ys", "__design_absmem.v");
+        auto smt_info = target.RunSmtGeneration();
+        
+
         auto target = VlgSglTgtGen_Yosys(
             os_portable_append_dir(_output_path, iname),
             instr_ptr, // instruction
             _ila_ptr, _cfg, rf_vmap, rf_cond, vlg_info_ptr, _vlg_mod_inst_name,
             _ila_mod_inst_name, "wrapper", _vlg_impl_srcs,
-            _vlg_impl_include_path, _vtg_config, _backend);
+            _vlg_impl_include_path, _vtg_config, _backend,
+            target_type_t::INSTRUCTIONS);
         target.ConstructWrapper();
         target.ExportAll("wrapper.v", "ila.v", "run.sh", "gensmt.ys", "absmem.v");
       }
