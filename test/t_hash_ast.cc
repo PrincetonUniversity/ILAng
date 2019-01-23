@@ -147,7 +147,7 @@ TEST_F(TestHashApi, ExplicitName) {
   EXPECT_NE(rb, rs);
 }
 
-#if 1
+#if 0
 // Below are the tables used in AES
 // if you use two different variables
 // to index into the two tables, there
