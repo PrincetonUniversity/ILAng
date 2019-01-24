@@ -209,7 +209,9 @@ ExprOpShl::ExprOpShl(const ExprPtr bv, const ExprPtr n) : ExprOp(bv, n) {
 z3::expr ExprOpShl::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                               const std::string& suffix) const {
   ILA_ASSERT(expr_vec.size() == 2) << "Left shift is binary operation.";
-  return z3::shl(expr_vec[0], expr_vec[1]);
+  auto z3_ast = Z3_mk_bvshl(ctx, expr_vec[0], expr_vec[1]);
+  // return z3::shl(expr_vec[0], expr_vec[1]);
+  return z3::expr(ctx, z3_ast);
 }
 
 // ------------------------- Class ExprOpAshr ------------------------------- //
@@ -221,7 +223,9 @@ ExprOpAshr::ExprOpAshr(const ExprPtr bv, const ExprPtr n) : ExprOp(bv, n) {
 z3::expr ExprOpAshr::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                                const std::string& suffix) const {
   ILA_ASSERT(expr_vec.size() == 2) << "Right shift is binary operation.";
-  return z3::ashr(expr_vec[0], expr_vec[1]);
+  auto z3_ast = Z3_mk_bvashr(ctx, expr_vec[0], expr_vec[1]);
+  // return z3::ashr(expr_vec[0], expr_vec[1]);
+  return z3::expr(ctx, z3_ast);
 }
 
 // ------------------------- Class ExprOpLshr ------------------------------- //
@@ -233,7 +237,9 @@ ExprOpLshr::ExprOpLshr(const ExprPtr bv, const ExprPtr n) : ExprOp(bv, n) {
 z3::expr ExprOpLshr::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                                const std::string& suffix) const {
   ILA_ASSERT(expr_vec.size() == 2) << "Right shift is binary operation.";
-  return z3::lshr(expr_vec[0], expr_vec[1]);
+  auto z3_ast = Z3_mk_bvlshr(ctx, expr_vec[0], expr_vec[1]);
+  // return z3::lshr(expr_vec[0], expr_vec[1]);
+  return z3::expr(ctx, z3_ast);
 }
 
 // ------------------------- Class ExprOpAdd -------------------------------- //
@@ -408,7 +414,9 @@ z3::expr ExprOpZExt::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
   auto bv = expr_vec[0];
   auto org_wid = arg(0)->sort()->bit_width();
   unsigned wid = static_cast<unsigned>(param(0) - org_wid);
-  return z3::zext(bv, wid);
+  // return z3::zext(bv, wid);
+  auto z3_ast = Z3_mk_zero_ext(ctx, wid, bv);
+  return z3::expr(ctx, z3_ast);
 }
 
 // ------------------------- Class ExprOpSExt ------------------------------- //
@@ -426,7 +434,9 @@ z3::expr ExprOpSExt::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
   ILA_ASSERT(param_num() == 1) << "Extend need one parameter.";
   auto bv = expr_vec[0];
   unsigned wid = static_cast<unsigned>(param(0));
-  return z3::sext(bv, wid);
+  // return z3::sext(bv, wid);
+  auto z3_ast = Z3_mk_sign_ext(ctx, wid, bv);
+  return z3::expr(ctx, z3_ast);
 }
 
 // ------------------------- Class ExprOpAppFunc ---------------------------- //
@@ -460,7 +470,9 @@ z3::expr ExprOpImply::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
   ILA_ASSERT(expr_vec.size() == 2) << "Imply takes two arguments.";
   auto ante = expr_vec[0];
   auto cons = expr_vec[1];
-  return z3::implies(ante, cons);
+  // return z3::implies(ante, cons);
+  auto z3_ast = Z3_mk_implies(ctx, ante, cons);
+  return z3::expr(ctx, z3_ast);
 }
 
 // ------------------------- Class ExprOpIte -------------------------------- //
