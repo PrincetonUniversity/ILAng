@@ -1,6 +1,0 @@
-- Use verifier atomic to implement atomic
-- Use verifier atomic to implement context switch based partial order reduction
-- Use global variable instead of allocating memory
-
-- limit the number of interrupt (statically determined) instead of infinite loop
-- create interrupt thread only when triggered
