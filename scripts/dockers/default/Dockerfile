@@ -138,7 +138,7 @@ RUN echo "cd $(pwd)" >> init.sh
 # configure files
 COPY --from=builder $BUILD_PREF $BUILD_PREF
 COPY --from=builder $BUILD_ROOT/CoSA/ $BUILD_ROOT/CoSA/
-COPY --from=builder $BUILD_ROOT/ILAng/examples/simple/ ./simple/
+COPY --from=builder $BUILD_ROOT/ILAng/boilerplate/ ./simple/
 
 # done
 CMD echo "run 'source init.sh' to start" && /bin/bash
