@@ -1,6 +1,7 @@
 /// \file
 /// Source for bounded model checking
 
+#include <ilang/config.h>
 #include <ilang/util/log.h>
 #include <ilang/verification/legacy_bmc.h>
 
@@ -149,7 +150,12 @@ z3::expr LegacyBmc::Instr(const InstrPtr instr, const std::string& suffix_prev,
   ILA_NOT_NULL(decode_n);
   auto decode_e = gen_.GetExpr(decode_n, suffix_prev);
 
+#ifndef Z3_LEGACY_API
   auto instr_cnst = z3::implies(decode_e, cnst);
+#else
+  auto instr_cnst = z3::expr(ctx_, Z3_mk_implies(ctx_, decode_e, cnst));
+#endif
+
   return instr_cnst;
 }
 
@@ -174,7 +180,12 @@ z3::expr LegacyBmc::IlaOneHotFlat(const InstrLvlAbsPtr ila,
     cnst = cnst && instr_cnst;
   }
 
+#ifndef Z3_LEGACY_API
   auto ila_cnst = z3::implies(valid_e, cnst);
+#else
+  auto ila_cnst = z3::expr(ctx_, Z3_mk_implies(ctx_, valid_e, cnst));
+#endif
+
   return ila_cnst;
 }
 

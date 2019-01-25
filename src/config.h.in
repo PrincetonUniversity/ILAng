@@ -5,7 +5,7 @@
 #define CONFIG_CMAKE_DEFINE_H__
 
 //#cmakedefine VERILOG_IN_ENABLE
-#cmakedefine Z3_VERSION_ABOVE_450
+#cmakedefine Z3_LEGACY_API 
 
 #endif // CONFIG_CMAKE_DEFINE_H__
 
