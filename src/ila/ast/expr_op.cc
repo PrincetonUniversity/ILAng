@@ -1,11 +1,11 @@
 /// \file
 /// Source for the op expression
 
-#include <ilang/config.h>
 #include <ilang/ila/ast/expr_op.h>
 #include <ilang/ila/ast/func.h>
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/util/log.h>
+#include <ilang/util/z3_helper.h>
 
 namespace ilang {
 
@@ -210,12 +210,7 @@ ExprOpShl::ExprOpShl(const ExprPtr bv, const ExprPtr n) : ExprOp(bv, n) {
 z3::expr ExprOpShl::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                               const std::string& suffix) const {
   ILA_ASSERT(expr_vec.size() == 2) << "Left shift is binary operation.";
-#ifndef Z3_LEGACY_API
-  return z3::shl(expr_vec[0], expr_vec[1]);
-#else
-  auto z3_ast = Z3_mk_bvshl(ctx, expr_vec[0], expr_vec[1]);
-  return z3::expr(ctx, z3_ast);
-#endif
+  return Z3Shl(ctx, expr_vec[0], expr_vec[1]);
 }
 
 // ------------------------- Class ExprOpAshr ------------------------------- //
@@ -227,12 +222,7 @@ ExprOpAshr::ExprOpAshr(const ExprPtr bv, const ExprPtr n) : ExprOp(bv, n) {
 z3::expr ExprOpAshr::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                                const std::string& suffix) const {
   ILA_ASSERT(expr_vec.size() == 2) << "Right shift is binary operation.";
-#ifndef Z3_LEGACY_API
-  return z3::ashr(expr_vec[0], expr_vec[1]);
-#else
-  auto z3_ast = Z3_mk_bvashr(ctx, expr_vec[0], expr_vec[1]);
-  return z3::expr(ctx, z3_ast);
-#endif
+  return Z3Ashr(ctx, expr_vec[0], expr_vec[1]);
 }
 
 // ------------------------- Class ExprOpLshr ------------------------------- //
@@ -244,12 +234,7 @@ ExprOpLshr::ExprOpLshr(const ExprPtr bv, const ExprPtr n) : ExprOp(bv, n) {
 z3::expr ExprOpLshr::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                                const std::string& suffix) const {
   ILA_ASSERT(expr_vec.size() == 2) << "Right shift is binary operation.";
-#ifndef Z3_LEGACY_API
-  return z3::lshr(expr_vec[0], expr_vec[1]);
-#else
-  auto z3_ast = Z3_mk_bvlshr(ctx, expr_vec[0], expr_vec[1]);
-  return z3::expr(ctx, z3_ast);
-#endif
+  return Z3Lshr(ctx, expr_vec[0], expr_vec[1]);
 }
 
 // ------------------------- Class ExprOpAdd -------------------------------- //
@@ -424,12 +409,7 @@ z3::expr ExprOpZExt::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
   auto bv = expr_vec[0];
   auto org_wid = arg(0)->sort()->bit_width();
   unsigned wid = static_cast<unsigned>(param(0) - org_wid);
-#ifndef Z3_LEGACY_API
-  return z3::zext(bv, wid);
-#else
-  auto z3_ast = Z3_mk_zero_ext(ctx, wid, bv);
-  return z3::expr(ctx, z3_ast);
-#endif
+  return Z3ZExt(ctx, bv, wid);
 }
 
 // ------------------------- Class ExprOpSExt ------------------------------- //
@@ -447,12 +427,7 @@ z3::expr ExprOpSExt::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
   ILA_ASSERT(param_num() == 1) << "Extend need one parameter.";
   auto bv = expr_vec[0];
   unsigned wid = static_cast<unsigned>(param(0));
-#ifndef Z3_LEGACY_API
-  return z3::sext(bv, wid);
-#else
-  auto z3_ast = Z3_mk_sign_ext(ctx, wid, bv);
-  return z3::expr(ctx, z3_ast);
-#endif
+  return Z3SExt(ctx, bv, wid);
 }
 
 // ------------------------- Class ExprOpAppFunc ---------------------------- //
@@ -486,12 +461,7 @@ z3::expr ExprOpImply::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
   ILA_ASSERT(expr_vec.size() == 2) << "Imply takes two arguments.";
   auto ante = expr_vec[0];
   auto cons = expr_vec[1];
-#ifndef Z3_LEGACY_API
-  return z3::implies(ante, cons);
-#else
-  auto z3_ast = Z3_mk_implies(ctx, ante, cons);
-  return z3::expr(ctx, z3_ast);
-#endif
+  return Z3Implies(ctx, ante, cons);
 }
 
 // ------------------------- Class ExprOpIte -------------------------------- //

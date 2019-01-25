@@ -1,8 +1,8 @@
 /// \file
 /// Source for generating verification condition for equivalecne checking.
 
-#include <ilang/config.h>
 #include <ilang/util/log.h>
+#include <ilang/util/z3_helper.h>
 #include <ilang/verification/abs_knob.h>
 #include <ilang/verification/eq_check_crr.h>
 #include <ilang/verification/unroller.h>
@@ -106,13 +106,8 @@ bool CommDiag::IncCheck(const int& min, const int& max, const int& step) {
   auto assm = GetZ3Assm();
   auto prop = GetZ3Prop();
   // check only if complete
-#ifndef Z3_LEGACY_API
-  assm = z3::implies(cf, assm);
-  prop = z3::implies(cf, prop);
-#else
-  assm = z3::expr(ctx_, Z3_mk_implies(ctx_, cf, assm));
-  prop = z3::expr(ctx_, Z3_mk_implies(ctx_, cf, prop));
-#endif
+  assm = Z3Implies(ctx_, cf, assm);
+  prop = Z3Implies(ctx_, cf, prop);
 
   // incrementally unroll flushing
   for (auto i = min; i <= max; i += step) { // if (num < i) --> already fixed
@@ -158,21 +153,11 @@ bool CommDiag::IncCheck(const int& min, const int& max, const int& step) {
     s.pop();
 
     // push partial property
-#ifndef Z3_LEGACY_API
     auto partial_assm = GetZ3Assm();
-    auto partial_cmpl = z3::implies(cmpl_acc, partial_assm);
+    auto partial_cmpl = Z3Implies(ctx_, cmpl_acc, partial_assm);
     auto partial_prop = GetZ3Prop();
-    s.add(z3::implies(partial_cmpl && partial_assm, partial_prop));
+    s.add(Z3Implies(ctx_, partial_cmpl && partial_assm, partial_prop));
     s.push();
-#else
-    auto partial_assm = GetZ3Assm();
-    auto partial_cmpl =
-        z3::expr(ctx_, Z3_mk_implies(ctx_, cmpl_acc, partial_assm));
-    auto partial_prop = GetZ3Prop();
-    s.add(z3::expr(
-        ctx_, Z3_mk_implies(ctx_, partial_cmpl && partial_assm, partial_prop)));
-    s.push();
-#endif
 
     // check if num is sufficient (if not fixed yet) and increment accordingly
     for (UID uid : {A_OLD, A_NEW, B_OLD, B_NEW}) {
@@ -309,11 +294,7 @@ z3::expr CommDiag::GetZ3IncFlsh(const UID& uid) {
       auto s = un.GetZ3Expr(*it); // representative
       eq = eq && (s == s_i);
     }
-#ifndef Z3_LEGACY_API
-    auto mark = z3::implies(cmpl, eq);
-#else
-    auto mark = z3::expr(ctx_, Z3_mk_implies(ctx_, cmpl, eq));
-#endif
+    auto mark = Z3Implies(ctx_, cmpl, eq);
     tran = tran && mark;
   }
   return tran;
@@ -356,13 +337,8 @@ bool CommDiag::IncEqCheck(const int& min, const int& max, const int& step) {
   auto assm = GetZ3Assm();
   auto prop = GetZ3Prop();
   // check only if complete
-#ifndef Z3_LEGACY_API
-  assm = z3::implies(cf, assm);
-  prop = z3::implies(cf, prop);
-#else
-  assm = z3::expr(ctx_, Z3_mk_implies(ctx_, cf, assm));
-  prop = z3::expr(ctx_, Z3_mk_implies(ctx_, cf, prop));
-#endif
+  assm = Z3Implies(ctx_, cf, assm);
+  prop = Z3Implies(ctx_, cf, prop);
 
   // Incrementally unrolling and check
   ILA_ASSERT(max >= min) << "Invalid range [" << min << ", " << max << "]";
@@ -481,22 +457,12 @@ bool CommDiag::IncEqCheck(const int& min, const int& max, const int& step) {
     s.pop();
 
     // push partial property
-#ifndef Z3_LEGACY_API
     auto partial_assm = GetZ3Assm();
-    auto partial_cmpl = z3::implies(
-        cmpl_old_a && cmpl_new_a && cmpl_old_b && cmpl_new_b, partial_assm);
+    auto partial_cmpl =
+        Z3Implies(ctx_, cmpl_old_a && cmpl_new_a && cmpl_old_b && cmpl_new_b,
+                  partial_assm);
     auto partial_prop = GetZ3Prop();
-    s.add(z3::implies(partial_cmpl && partial_assm, partial_prop));
-#else
-    auto partial_assm = GetZ3Assm();
-    auto partial_cmpl = z3::expr(
-        ctx_, Z3_mk_implies(
-                  ctx_, cmpl_old_a && cmpl_new_a && cmpl_old_b && cmpl_new_b,
-                  partial_assm));
-    auto partial_prop = GetZ3Prop();
-    s.add(z3::expr(
-        ctx_, Z3_mk_implies(ctx_, partial_cmpl && partial_assm, partial_prop)));
-#endif
+    s.add(Z3Implies(ctx_, partial_cmpl && partial_assm, partial_prop));
     s.push();
 
     // check if num is sufficient (if not fixed yet) and increment accordingly
@@ -836,11 +802,7 @@ z3::expr CommDiag::GetZ3IncUnrl(MonoUnroll& un, const RefPtr ref,
       auto s = un.GetZ3Expr(*it); // representative
       eq = eq && (s == s_i);
     }
-#ifndef Z3_LEGACY_API
-    auto mark = z3::implies(cmpl, eq);
-#else
-    auto mark = z3::expr(ctx_, Z3_mk_implies(ctx_, cmpl, eq));
-#endif
+    auto mark = Z3Implies(ctx_, cmpl, eq);
     tran = tran && mark;
   }
   return tran;
@@ -929,11 +891,7 @@ z3::expr CommDiag::UnrollFlush(MonoUnroll& unroller, const RefPtr ref,
       auto s = unroller.GetZ3Expr(*it);
       eq = eq && (s == s_i);
     }
-#ifndef Z3_LEGACY_API
-    mark = mark && (z3::implies(cmpl_i, eq));
-#else
-    mark = mark && z3::expr(ctx_, Z3_mk_implies(ctx_, cmpl_i, eq));
-#endif
+    mark = mark && Z3Implies(ctx_, cmpl_i, eq);
   }
 
   // XXX complete proved to be one and exactly one
