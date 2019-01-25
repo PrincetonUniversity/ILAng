@@ -1,80 +1,196 @@
-# Instruction-Level Abstraction (ILA)
+<img src="https://raw.githubusercontent.com/Bo-Yuan-Huang/ILAng/master/docs/pics/ilang-logo.png" alt="ILAng Logo" height="225"/>
 
-A paper summarizing the formal definition and modeling case studies: [arXiv link](https://arxiv.org/abs/1801.01114).
-
-
-## Modeling and Verification Case Studies
-
-For some examples, see the [examples](https://github.com/Bo-Yuan-Huang/ILA-Tools/tree/master/examples) directory.
-
-## ILA description and C++ API 
-
-[![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILA-Tools)
-[![Coverage Status](https://coveralls.io/repos/github/Bo-Yuan-Huang/ILA-Tools/badge.svg?branch=master)](https://coveralls.io/github/Bo-Yuan-Huang/ILA-Tools?branch=master)
-[![Coverity Scan Build Status](https://img.shields.io/coverity/scan/14490.svg)](https://scan.coverity.com/projects/bo-yuan-huang-ila-tools)
-[![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active)
+[![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILAng.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILAng)
+[![Build Status](https://semaphoreci.com/api/v1/bo-yuan-huang/ilang/branches/master/shields_badge.svg)](https://semaphoreci.com/bo-yuan-huang/ilang)
+[![Build status](https://ci.appveyor.com/api/projects/status/cwhlq09513art6hw/branch/master?svg=true)](https://ci.appveyor.com/project/Bo-Yuan-Huang/ilang/branch/master)
+[![Coverage Status](https://coveralls.io/repos/github/Bo-Yuan-Huang/ILAng/badge.svg?branch=master)](https://coveralls.io/github/Bo-Yuan-Huang/ILAng?branch=master)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/b120e2527cc04d4aacd1dc11581e2f30)](https://www.codacy.com/app/Bo-Yuan-Huang/ILAng?utm_source=github.com&utm_medium=referral&utm_content=Bo-Yuan-Huang/ILAng&utm_campaign=Badge_Grade)
+[![Percentage of issues still open](http://isitmaintained.com/badge/open/bo-yuan-huang/ilang.svg)](http://isitmaintained.com/project/bo-yuan-huang/ilang "Percentage of issues still open")
+[![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/bo-yuan-huang/ilang.svg)](http://isitmaintained.com/project/bo-yuan-huang/ilang "Average time to resolve an issue")
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/Bo-Yuan-Huang/ILA-Tools/blob/master/LICENSE)
-[![Build Status](https://semaphoreci.com/api/v1/bo-yuan-huang/ila-tools/branches/master/shields_badge.svg)](https://semaphoreci.com/bo-yuan-huang/ila-tools)
 
-### Requirements:
-* [z3](https://github.com/Z3Prover/z3) 4.4.0 or above 
-* [CMake](https://cmake.org/download/) 2.8 or above
-* [glog](https://github.com/google/glog)
+-   [Build](#build)
+    -   [Prerequisites](#prerequisites)
+    -   [Default Build](#default-build)
+    -   [Options](#options)
 
-### Building with Cmake:
+-   [CMake Integration](#cmake-integration)
+    -   [External](#external)
+    -   [Embedded](#embedded)
+    -   [Supporting Both](#supporting-both)
+
+-   [Examples](#examples)
+    -   [Modeling](#modeling)
+    -   [Verification Target Generation](#verification-target-generation)
+
+-   [Download](#download)
+
+-   [Documentations](#documentations)
+
+## Build
+
+### Prerequisites
+
+ILAng requires CMake (3.8 or above) and compilers with CXX11 support.
+To install dependencies on Debian-based UNIX, execute:
+
 ```bash
-  mkdir -p build
-  cd build
-  cmake .. -DZ3_INCLUDE_DIR=<path/to/z3/header>
-  make install
+apt-get install bison flex libboost-all-dev 
 ```
 
-For tutorial, see [c++ api example](https://github.com/Bo-Yuan-Huang/ILA-Tools/tree/master/examples/c++).
+For OSX, execute:
 
-For API documentation, see the page [ILA-Tools-API](https://rawgit.com/Bo-Yuan-Huang/ILA-Tools/master/docs/api-html/namespaceila.html).
+```bash
+brew install bison flex boost boost-python
+```
 
-For developers, implementation details can be found on [ILA-Tools-Impl](https://rawgit.com/Bo-Yuan-Huang/ILA-Tools/master/docs/impl-html/namespaceila.html).
+Note that the [Boost](https://www.boost.org) package is required only for building the synthesis engine and the Python API. 
 
-To write refinement mapping for verification, a draft document can be found on [Refinement Doc](https://github.com/Bo-Yuan-Huang/ILA-Tools/blob/master/docs/publications/How_to_Write_Refinement_Map_for_ILA_vs_Verilog_Verification.pdf).
+#### z3
 
-### Publications:
+The [z3](https://github.com/Z3Prover/z3) SMT solver is required (including lib and header). 
+Detailed instructions for building z3 can be found [here](https://github.com/Z3Prover/z3).
 
-* __A Formal Instruction-Level GPU Model for Scalable Verification__.
-  Yue Xing, Bo-Yuan Huang, Aarti Gupta, and Sharad Malik.
-  *in* Proceedings of the International Conference On Computer Aided Design. (ICCAD 2018), San Diego, CA. Nov. 2018.
-  [[PDF](https://github.com/Bo-Yuan-Huang/ILA-Tools/blob/master/docs/publications/formal-instruction-level_camera_ready.pdf)]
+```bash
+git clone https://github.com/Z3Prover/z3.git
+cd z3
+python scripts/mk_make.py
+cd build
+make -j$(nproc)
+sudo make install
+```
 
-* __Integrating Memory Consistency Models with Instruction-Level Abstraction for Heterogeneous System-on-Chip Verification__.
-  Hongce Zhang, Caroline Trippel, Yatin Manerkar, Aarti Gupta, Margaret Martonosi, and Sharad Malik.
-  *in* Proceedings of Formal Methods in Computer-Aided Design. (FMCAD 2018), Austin, TX. Oct. 2018.
-  [[PDF](https://www.cs.utexas.edu/users/hunt/FMCAD/FMCAD18/papers/paper53.pdf)]
+#### Tested Environments
 
-* __Formal Security Verification of Concurrent Firmware in SoCs using Instruction-Level Abstraction for Hardware__.
-  Bo-Yuan Huang, Sayak Ray, Aarti Gupta, Jason Fung, and Sharad Malik.
-  *in* Proceedings of the Design Automation Conference. (DAC 2018), San Francisco, CA. June 2018.
-  [[PDF](https://github.com/Bo-Yuan-Huang/ILA-Tools/blob/master/docs/publications/54_1_Huang_finalpaper_03_28_2018_19_15.pdf)]
+| OS                        | Compiler    | CMake  | z3     | Boost | Status                                                                                                                                                                        |
+| ------------------------- | ----------- | ------ | ------ | ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Ubuntu 14.04 (Trusty)     | gcc 4.8.4   | 3.8.0  | 4.7.1  | 1.54  | [![Build Status](https://semaphoreci.com/api/v1/bo-yuan-huang/ilang/branches/master/shields_badge.svg)](https://semaphoreci.com/bo-yuan-huang/ilang)                          |
+| Ubuntu 16.04 (Xenial)     | gcc 5.4.0   | 3.12.4 | 4.8.4  | 1.58  | [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILAng.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILAng)                                                     |
+| Ubuntu 16.04 (Xenial)     | clang 7.0.0 | 3.12.4 | 4.8.4  | 1.58  | [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILAng.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILAng)                                                     |
+| Ubuntu 18.04 (Bionic)     | gcc 7.3.0   | 3.13.1 | latest | 1.65  | [![Build status](https://ci.appveyor.com/api/projects/status/4jsh32isd8r89g3l/branch/master?svg=true)](https://ci.appveyor.com/project/Bo-Yuan-Huang/ila-tools/branch/master) |
+| OSX 10.13.0 (High Sierra) | Xcode 9.4.1 | 3.11.4 | 4.8.4  | 1.68  | [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILAng.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILAng)                                                     |
 
-* __Instruction-Level Abstraction (ILA): A Uniform Specification for System-on-Chip (SoC) Verification__.
-  Bo-Yuan Huang, Hongce Zhang, Pramod Subramanyan, Yakir Vizel, Aarti Gupta, and Sharad Malik.
-  ACM Transactions on Design Automation of Electronic Systems (TODAES).
-  [[PDF](https://arxiv.org/pdf/1801.01114.pdf)]
+### Default Build
 
-* __Template-based Parameterized Synthesis of Uniform Instruction-Level Abstractions for SoC Verification__.
-  Pramod Subramanyan, Bo-Yuan Huang, Yakir Vizel, Aarti Gupta, and Sharad Malik.
-  IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems (TCAD), 2017.
-  [[PDF](https://github.com/Bo-Yuan-Huang/ILA-Tools/blob/master/docs/publications/Template-based%20Parameterized%20Synthesis%20of%20Uniform%20Instruction-Level%20Abstractions%20for%20SoC%20Verification.pdf)]
+To build ILAng with default configuration, create a build directory and execute:
 
-* __Invited: Specification and Modeling for Systems-on-Chip Security Verification__. 
-  Sharad Malik and Pramod Subramanyan.
-  *in* Proceedings of the Design Automation Conference. (DAC 2016), Austin, TX. June 2016. 
-  [[PDF](https://github.com/Bo-Yuan-Huang/ILA-Tools/blob/master/docs/publications/Invited_Specification_and_Modeling_for_Systems_on_Chip_Security_Verification.pdf)] 
+```bash
+mkdir -p build && cd build
+cmake .. 
+make -j$(nproc)
+```
 
-* __Verifying Information Flow Properties of Firmware using Symbolic Execution__. 
-  Pramod Subramanyan, Sharad Malik, Hareesh Khattri, Abhranil Maiti and Jason Fung.
-  *in* Proceedings of Design Automation and Test in Europe. (DATE 2016). Dresden, Germany, March 2016.
-  [[PDF](https://github.com/Bo-Yuan-Huang/ILA-Tools/blob/master/docs/publications/Verifying_Information_Flow_Properties_of_Firmware_using_Symbolic_Execution.pdf)]
+After the build complete, run unit tests and install the library. 
 
-* __Template-based Synthesis of Instruction-Level Abstractions for SoC Verification__. 
-  Pramod Subramanyan, Yakir Vizel, Sayak Ray and Sharad Malik.
-  *in* Proceedings of Formal Methods in Computer-Aided Design. (FMCAD 2015). Austin, TX, September 2015.
-  [[PDF](https://github.com/Bo-Yuan-Huang/ILA-Tools/blob/master/docs/publications/Template_based_Instruction_Level_Abstraction_for_SoC_Verification.pdf)]
+```bash
+make run_test
+sudo make install
+```
+
+### Options
+
+-   Use `-DILANG_FETCH_DEPS=OFF` to disable config-time updating submodules for in-source dependencies.
+-   Use `-DILANG_BUILD_TEST=OFF` to disalbe building the unit tests.
+-   Use `-DILANG_BUILD_SYNTH=OFF` to disable building the synthesis engine. 
+-   Use `-DILANG_INSTALL_DEV=ON` to enable installing working features. 
+
+## CMake Integration
+
+You can use the `ilang::ilang` interface target in CMake. 
+This target populates the appropriate usage requirements for include directories, linked libraries, and compile features. 
+To use the ILAng library, `ilang++.h` is the file to include. 
+(This does not include working features.)
+
+```c++
+// cxx source
+#include <ilang/ilang++.h>
+
+void foo () {
+  auto m = ilang::Ila("new_ila_model");
+}
+```
+
+### External
+
+To use the ILAng library from a CMake project, you can locate it directly with `find_package()` and use the namespaced imported target from the generated package configuration:
+
+```cmake
+# CMakeLists.txt
+find_package(ilang REQUIRED)
+...
+add_library(my_proj ...)
+...
+target_link_libraries(my_proj PRIVATE ilang::ilang)
+```
+
+### Embedded
+
+ILAng also supports embedded build, but is not recommended due to its size. 
+To embed the library directly into an existing CMake project, place the entire source tree in a subdirectory and call `add_subdirectory()` in your `CMakeLists.txt` file:
+
+```cmake
+# CMakeLists.txt
+add_subdirectory(ilang)
+...
+add_library(my_proj ...)
+...
+target_link_libraries(my_proj PRIVATE ilang::ilang)
+```
+
+### Supporting Both
+
+To allow your project to support either an externally installed or an embedded library, you can use the following pattern:
+
+```cmake
+# Top level CMakeLists.txt
+project(MY_PROJ)
+...
+option(MY_PROJ_USE_EXTERNAL_ILANG "Use an external ILAng library" OFF)
+...
+add_subdirectory(externals)
+...
+add_library(my_proj ...)
+...
+target_link_libraries(my_proj PRIVATE ilang::ilang)
+```
+
+```cmake
+# externals/CMakeLists.txt
+...
+if(MY_PROJ_USE_EXTERNAL_ILANG)
+  find_package(ilang REQUIRED)
+else()
+  add_subdirectory(ilang)
+endif()
+...
+```
+
+`externals/ilang` is then a complete copy of this source tree, if enabled.
+
+## Examples
+
+### Modeling
+
+### Verification Target Generation
+
+## Download
+
+An docker image with the ILAng platform and all dependencies can be fetched from [Docker Hub](https://cloud.docker.com/u/byhuang/repository/docker/byhuang/ilang).
+
+```bash
+docker pull byhuang/ilang:latest
+```
+
+Once the container is initiated, run 
+
+```bash
+source init.sh
+```
+
+to initialize the environment settings. 
+This docker image also contains the model checker [CoSA](https://github.com/cristian-mattarei/CoSA) with the SMT solvers [z3](https://github.com/Z3Prover/z3) and [Boolector](https://github.com/Boolector/boolector).
+
+## Documentations
+
+-   A list of related papers can be found in the [ILAng main page](https://bo-yuan-huang.github.io/ILAng/).
+-   Link to the C++ implementation annotation (powered by Doxygen). \[[LINK](https://bo-yuan-huang.github.io/ILAng/doxygen-html/namespaceilang.html)]
