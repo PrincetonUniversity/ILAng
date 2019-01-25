@@ -20,15 +20,8 @@ extraction:
         - libboost-all-dev
         - bison
         - flex
-
-    after_prepare:
-      - cd $$LGTM_SRC
-      - git clone https://github.com/Z3Prover/z3.git
-      - cd z3
-      - python scripts/mk_make.py
-      - cd build
-      - make -j$(nproc)
-      - sudo make install
+        - z3
+        - libz3-dev
 
     configure:
       command:
