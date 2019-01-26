@@ -5,6 +5,8 @@
 #include "ilang/mcm/inter_ila_unroller.h"
 #include "ilang/mcm/set_op.h"
 #include "ilang/util/log.h"
+#include <ilang/mcm/axiom_helper.h>
+#include <ilang/util/z3_helper.h>
 #include <string>
 
 namespace ilang {
@@ -199,10 +201,14 @@ std::string TraceStep::Print(z3::model& m) const {
   }
   retStr += " " + name() + " ";
   retStr += "@";
-  retStr += m.eval(timestamp).to_string();
+
+  retStr += Z3Expr2String(m.ctx(), m.eval(timestamp));
+
   if (TsPrintDecode && type() != TraceStepType::FINAL_EVT)
-    retStr += "   DECODE:" +
-              (m.eval(ConvertZ3OnThisStep(inst()->decode()))).to_string();
+    retStr +=
+        "   DECODE:" +
+        Z3Expr2String(m.ctx(), m.eval(ConvertZ3OnThisStep(inst()->decode())));
+
   retStr += " seq#" + std::to_string(_pos_suffix) + "\n";
   if (TsPrintReadSet) {
     // header
@@ -214,9 +220,8 @@ std::string TraceStep::Print(z3::model& m) const {
     for (auto sname : _inst_read_set) {
       retStr += sname;
       if (TsPrintReadVal) {
-        retStr +=
-            " : " +
-            (m.eval(ConvertZ3OnThisStep(host()->state(sname)))).to_string();
+        retStr += " : " + Z3Expr2String(m.ctx(), m.eval(ConvertZ3OnThisStep(
+                                                     host()->state(sname))));
         retStr += ",\n\t";
       } else
         retStr += ", ";
@@ -236,13 +241,15 @@ std::string TraceStep::Print(z3::model& m) const {
       for (auto sname : _write_state_set)
         retStr +=
             "\n\t" + sname + " : " +
-            m.eval(ConvertZ3OnThisStep(inst()->update(sname))).to_string();
+            Z3Expr2String(m.ctx(),
+                          m.eval(ConvertZ3OnThisStep(inst()->update(sname))));
     } else {
       retStr += "W set: ";
       for (auto sname : _inst_write_set)
         retStr +=
             "\n\t" + sname + " : " +
-            m.eval(ConvertZ3OnThisStep(inst()->update(sname))).to_string();
+            Z3Expr2String(m.ctx(),
+                          m.eval(ConvertZ3OnThisStep(inst()->update(sname))));
     }
   }
   return retStr;
@@ -554,7 +561,8 @@ void MemoryModel::SetLocalState(const std::vector<bool>& ordered)
               // if decode == true , either CO or FR
               z3constr =
                   z3constr &&
-                  z3::implies(
+                  Z3Implies(
+                      _ctx_,
                       ConvertZ3(decode_i, std::to_string(pos_i)), // decode =>
                       tstamp_i < tstamp_ ||
                           tstamp_i > ts_read->timestamp); // CO(i,w) \/ FR(r,i)
@@ -597,11 +605,11 @@ void MemoryModel::SetLocalState(const std::vector<bool>& ordered)
             auto& decode_i = std::get<1>(name_expr_pos_tuple_i);
             auto& tstamp_i = std::get<2>(name_expr_pos_tuple_i);
             auto& pos_i = std::get<3>(name_expr_pos_tuple_i);
-            z3constr =
-                z3constr &&
-                z3::implies(
-                    ConvertZ3(decode_i, std::to_string(pos_i)), // decode =>
-                    tstamp_i < tstamp_); // CO(i,w) \/ FR(r,i)
+            z3constr = z3constr &&
+                       Z3Implies(_ctx_,
+                                 ConvertZ3(decode_i,
+                                           std::to_string(pos_i)), // decode =>
+                                 tstamp_i < tstamp_); // CO(i,w) \/ FR(r,i)
 
           } // for the interference writer
           constr_exists_a_writer_ = constr_exists_a_writer_ || z3constr;

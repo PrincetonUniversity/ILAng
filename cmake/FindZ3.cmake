@@ -6,6 +6,7 @@
 #   Z3_FOUND
 #   Z3_INCLUDE_DIRS
 #   Z3_LIBRARIES
+#   Z3_VERSION
 #
 # and the following imported targets
 #
@@ -22,14 +23,17 @@ find_path(Z3_INCLUDE_DIR
 )
 
 find_library(Z3_LIBRARY 
-  NAMES z3 libz3
+  NAMES libz3
   HINTS ${PC_Z3_LIBDIR} ${PC_Z3_LIBRARY_DIRS}
   PATH_SUFFIXES z3
 )
 
-set(Z3_VERSION ${PC_Z3_VERSION})
+find_program(Z3_EXEC
+  NAMES z3
+  PATH_SUFFIXES z3
+)
 
-mark_as_advanced(Z3_FOUND Z3_INCLUDE_DIR Z3_LIBRARY Z3_VERSION)
+mark_as_advanced(Z3_FOUND Z3_INCLUDE_DIR Z3_LIBRARY Z3_EXEC)
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(Z3 DEFAULT_MSG 
@@ -38,9 +42,24 @@ find_package_handle_standard_args(Z3 DEFAULT_MSG
 )
 
 if(Z3_FOUND)
+
   set(Z3_INCLUDE_DIRS ${Z3_INCLUDE_DIR})
+
   set(Z3_LIBRARIES ${Z3_LIBRARY})
+
+  execute_process(
+    COMMAND ${Z3_EXEC} --version > ${Z3_VERSION_FILE}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    OUTPUT_VARIABLE Z3_VERSION
+  )
+  set(Z3_VERSION_REGEX "^Z3 version (.+)$")
+  string(REGEX REPLACE ${Z3_VERSION_REGEX} "\\1" Z3_VERSION "${Z3_VERSION}")
+
 endif()
+
+message(STATUS "Z3 version: ${Z3_VERSION}")
+message(STATUS "Z3 lib dir: ${Z3_LIBRARY}")
+message(STATUS "Z3 include dir: ${Z3_INCLUDE_DIR}")
 
 # create imported target z3::z3
 if(Z3_FOUND AND NOT TARGET z3::z3)

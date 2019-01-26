@@ -1,1 +1,0 @@
-( bvOp $n1005 if ( boolOp $n835 eq ( bvVar sha_state 3 ) ( bvConst $n834 3 1 ) ) ( bvOp $n991 read-block ( memVar XRAM 16 8 ) ( bvOp $n990 + ( bvVar sha_rdaddr 16 ) ( bvVar sha_bytes_read 16 ) ) #64 #2 ) ( bvVar sha_rd_data 512 ) )
