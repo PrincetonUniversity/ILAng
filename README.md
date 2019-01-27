@@ -65,8 +65,8 @@ sudo make install
 | OS                        | Compiler    | CMake  | z3     | Boost | Status                                                                                                                                                                    |
 | ------------------------- | ----------- | ------ | ------ | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Ubuntu 14.04 (Trusty)     | gcc 4.8.4   | 3.8.0  | 4.7.1  | 1.54  | [![Build Status](https://semaphoreci.com/api/v1/bo-yuan-huang/ilang/branches/master/shields_badge.svg)](https://semaphoreci.com/bo-yuan-huang/ilang)                      |
-| Ubuntu 16.04 (Xenial)     | gcc 5.4.0   | 3.12.4 | 4.8.4  | 1.58  | [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILAng.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILAng)                                                 |
-| Ubuntu 16.04 (Xenial)     | clang 7.0.0 | 3.12.4 | 4.8.4  | 1.58  | [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILAng.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILAng)                                                 |
+| Ubuntu 16.04 (Xenial)     | gcc 5.4.0   | 3.12.4 | 4.4.1  | 1.58  | [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILAng.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILAng)                                                 |
+| Ubuntu 16.04 (Xenial)     | clang 7.0.0 | 3.12.4 | 4.4.1  | 1.58  | [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILAng.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILAng)                                                 |
 | Ubuntu 18.04 (Bionic)     | gcc 7.3.0   | 3.13.1 | latest | 1.65  | [![Build status](https://ci.appveyor.com/api/projects/status/cwhlq09513art6hw/branch/master?svg=true)](https://ci.appveyor.com/project/Bo-Yuan-Huang/ilang/branch/master) |
 | OSX 10.13.0 (High Sierra) | Xcode 9.4.1 | 3.11.4 | 4.8.4  | 1.68  | [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILAng.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILAng)                                                 |
 
@@ -173,9 +173,13 @@ endif()
 
 ### Verification Target Generation
 
-## Download
+## Docker Image
 
-An docker image with the ILAng platform and all dependencies can be fetched from [Docker Hub](https://cloud.docker.com/u/byhuang/repository/docker/byhuang/ilang).
+[![docker-io](http://dockeri.co/image/byhuang/ilang)](https://hub.docker.com/r/byhuang/ilang)
+[![docker-image](https://images.microbadger.com/badges/image/byhuang/ilang.svg)](https://microbadger.com/images/byhuang/ilang "Get your own image badge on microbadger.com")
+[![docker-version](https://images.microbadger.com/badges/version/byhuang/ilang.svg)](https://microbadger.com/images/byhuang/ilang "Get your own version badge on microbadger.com")
+
+An docker image with the ILAng platform and all dependencies can be fetched from [Docker Hub](https://hub.docker.com/r/byhuang/ilang).
 
 ```bash
 docker pull byhuang/ilang:latest
