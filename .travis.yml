@@ -45,6 +45,8 @@ matrix:
             - flex
             - bison
             - libboost-all-dev
+            - z3
+            - libz3-dev
       env:
         - MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9"
       before_install:
@@ -65,6 +67,8 @@ addons:
       - flex
       - bison
       - libboost-all-dev
+      - z3
+      - libz3-dev
   homebrew:
     update: true
     packages:
@@ -72,25 +76,11 @@ addons:
       - python
       - boost
       - boost-python
+      - z3
 
 cache:
   directories:
     - $HOME/_cache
-
-install: 
-  - mkdir -p $HOME/_cache
-  - export Z3_CACHED="$(find $HOME/_cache/ -name z3 | grep -c "z3")"
-  - cd $HOME/_cache
-  - if [[ "$Z3_CACHED" == "0" ]] ; then git clone https://github.com/Z3Prover/z3.git ; fi
-  - cd z3
-  - if [[ "$Z3_CACHED" == "0" ]] ; then git checkout tags/z3-4.8.4 -b v484 ; fi
-  - if [[ "$Z3_CACHED" == "0" ]] ; then python scripts/mk_make.py ; fi
-  - if [[ "$Z3_CACHED" == "0" && "$TRAVIS_COMPILER" == "clang" ]] ; then CXX=clang++ CC=clang python scripts/mk_make.py ; fi
-  - cd build
-  - if [[ "$Z3_CACHED" == "0" ]] ; then make -j$(nproc) ; fi
-  - sudo make install
-  - which z3
-  - z3 --version
 
 script:
   - cd $TRAVIS_BUILD_DIR
