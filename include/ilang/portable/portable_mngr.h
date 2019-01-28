@@ -1,5 +1,5 @@
 /// \file
-/// The object to export and import ILA portable in JSON format.
+/// ILA Portable manager -- exporting/importing ILA to/from JSON format.
 
 #ifndef ILANG_PORTABLE_MNGR_H__
 #define ILANG_PORTABLE_MNGR_H__
@@ -14,7 +14,8 @@ using json = nlohmann::json;
 /// \namespace ilang
 namespace ilang {
 
-/// \brief The class for exporting and importing ILA portable in JSON format.
+/// \brief The class for exporting and importing ILA portable to/from JSON
+/// format.
 class PortableMngr {
 public:
   /// Pointer type for normal use of IlaPortableMngr.
@@ -35,9 +36,10 @@ public:
 
   // ------------------------- METHODS -------------------------------------- //
   /// \brief Export the ILA model to the file.
+  /// \param[in] m the source ILA model.
   /// \param[in] fileName the output file name for the exported ILA portable.
   /// \return Return true if export complete successfully.
-  bool ExportToFile(const std::string& fileName) const;
+  bool ExportToFile(const InstrLvlAbsPtr& m, const std::string& fileName) const;
 
   /// \brief Import the portable from the file and create the ILA model.
   /// \param[in] fileName the input file name for the ILA portable.
@@ -50,7 +52,11 @@ private:
   // ------------------------- HELPERS -------------------------------------- //
 
   // ------------------------- METHODS -------------------------------------- //
-  json GenJsonObjOfInstr(const InstrPtr& instr);
+  json SerSort(const SortPtr& s) const;
+  SortPtr DesSort(const json& j) const;
+
+  json SerExpr(const ExprPtr& e) const;
+  ExprPtr DesExpr(const json& j) const;
 
 }; // class PortableMngr
 

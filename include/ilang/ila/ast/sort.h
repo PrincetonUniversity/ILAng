@@ -19,6 +19,9 @@ public:
   /// Pointer type for storing/passing Sort.
   typedef std::shared_ptr<Sort> SortPtr;
 
+  /// ID for Sorts.
+  enum SORT_ID { BOOL = 1, BITVECTOR, MEMORY };
+
   // ------------------------- CONSTRUCTOR/DESTRUCTOR ----------------------- //
   /// Default constructor.
   Sort();
@@ -47,6 +50,9 @@ public:
   virtual int addr_width() const;
   /// Return the bit-width of the data (value).
   virtual int data_width() const;
+
+  /// Return the sort ID.
+  virtual SORT_ID sort_id() const = 0;
 
   // ------------------------- METHODS -------------------------------------- //
   /// Return z3::sort of the Sort.
@@ -86,6 +92,8 @@ public:
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return true since it is Boolean Sort.
   bool is_bool() const { return true; }
+  /// Return Sort ID BOOL.
+  SORT_ID sort_id() const { return SORT_ID::BOOL; }
 
   // ------------------------- METHODS -------------------------------------- //
   /// Return the z3::sort of Boolean Sort.
@@ -112,6 +120,8 @@ public:
   bool is_bv(const int& width) const {
     return (width == 0) ? true : (width == bit_width_);
   }
+  /// Return Sort ID BITVECTOR.
+  SORT_ID sort_id() const { return SORT_ID::BITVECTOR; }
 
   // ------------------------- METHODS -------------------------------------- //
   /// Return the bit-width.
@@ -142,6 +152,8 @@ public:
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
   /// Return true since it is memory (array) Sort.
   bool is_mem() const { return true; }
+  /// Return Sort ID MEMORY.
+  SORT_ID sort_id() const { return SORT_ID::MEMORY; }
 
   // ------------------------- METHODS -------------------------------------- //
   /// Return the bit-width of address (index).

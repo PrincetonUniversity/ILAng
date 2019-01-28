@@ -7,9 +7,9 @@
 namespace ilang {
 
 bool ExportPortableToFile(const InstrLvlAbsPtr& ila, const std::string& file) {
-
+  auto portMngr = PortableMngr::New();
+  portMngr->ExportToFile(ila, file);
   return true;
-  // TODO
 }
 
 InstrLvlAbsPtr ImportPortableFromFile(const std::string& file) {
