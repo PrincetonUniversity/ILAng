@@ -32,4 +32,4 @@ extraction:
 
     index:
       build_command:
-        - $GNU_MAKE -j$(nproc)
+        - make -j$(nproc)
