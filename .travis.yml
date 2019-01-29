@@ -78,10 +78,6 @@ addons:
       - boost-python
       - z3
 
-cache:
-  directories:
-    - $HOME/_cache
-
 script:
   - cd $TRAVIS_BUILD_DIR
   - mkdir -p build
