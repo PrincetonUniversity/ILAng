@@ -2,6 +2,9 @@ path_classifiers:
   test:
     - tests
 
+  external:
+    - extern
+
   docs:
     - docs
 
