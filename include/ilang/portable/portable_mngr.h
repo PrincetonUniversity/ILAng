@@ -52,10 +52,14 @@ private:
   // ------------------------- HELPERS -------------------------------------- //
 
   // ------------------------- METHODS -------------------------------------- //
+  /// \brief Serialize Sort to JSON.
   json SerSort(const SortPtr& s) const;
+  /// \brief Deserialize Sort from JSON.
   SortPtr DesSort(const json& j) const;
 
+  /// \brief Serialize Expr to JSON.
   json SerExpr(const ExprPtr& e) const;
+  /// \brief Deserialize Expr from JSON.
   ExprPtr DesExpr(const json& j) const;
 
 }; // class PortableMngr

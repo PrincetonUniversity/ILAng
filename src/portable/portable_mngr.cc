@@ -44,13 +44,16 @@ InstrLvlAbsPtr PortableMngr::ImportFromFile(const std::string& fileName) const {
 
 json PortableMngr::SerSort(const SortPtr& s) const {
   auto js = json::object();
+
   js.emplace("sort_id", s->sort_id());
+
   if (s->is_bv()) {
     js.emplace("width", s->bit_width());
   } else if (s->is_mem()) {
     js.emplace("addr_width", s->addr_width());
     js.emplace("data_width", s->data_width());
   }
+
   return js;
 }
 
@@ -73,8 +76,11 @@ SortPtr PortableMngr::DesSort(const json& j) const {
 
 json PortableMngr::SerExpr(const ExprPtr& e) const {
   auto je = json::object();
-  je["name"] = e->name().str();
-  je["sort"] = SerSort(e->sort());
+
+  je.emplace("name", e->name().str());
+  je.emplace("id", e->name()->id());
+  je.emplace("sort", SerSort(e->sort()));
+
   return je;
 }
 
