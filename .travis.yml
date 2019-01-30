@@ -12,6 +12,10 @@ sudo: required
 
 language: cpp
 
+cache:
+  directories:
+    - $HOME/_cache
+
 matrix:
   include:
     - name: "linux-gcc"
@@ -55,9 +59,17 @@ matrix:
     - name: "osx"
       os: osx
       before_install:
-        - brew install bison
-        - export PATH="/usr/local/opt/bison/bin:$PATH"
-        - export LDFLAGS="-L/usr/local/opt/bison/lib"
+        #- brew install bison
+        #- export PATH="/usr/local/opt/bison/bin:$PATH"
+        #- export LDFLAGS="-L/usr/local/opt/bison/lib"
+        - mkdir -p $HOME/_cache/bison
+        - export BISON_CACHED="$(find $HOME/_cache -name bison | grep -c "bison")"
+        - if [ $BISON_CACHED == "0" ] ; then wget http://ftp.gnu.org/gnu/bison/bison-3.2.4.tar.gz ; fi 
+        - if [ $BISON_CACHED == "0" ] ; then tar zxvf bison-3.2.4.tar.gz -C $HOME/_cache/bison --strip-components 1 ; fi 
+        - cd $HOME/_cache/bison
+        - if [ $BISON_CACHED == "0" ] ; then ./configure --prefix=/usr ; fi
+        - if [ $BISON_CACHED == "0" ] ; then make -j$(nproc) ; fi
+        - sudo make install
 
 addons:
   apt:
