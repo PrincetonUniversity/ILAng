@@ -23,7 +23,7 @@ find_path(Z3_INCLUDE_DIR
 )
 
 find_library(Z3_LIBRARY 
-  NAMES libz3
+  NAMES z3 libz3
   HINTS ${PC_Z3_LIBDIR} ${PC_Z3_LIBRARY_DIRS}
   PATH_SUFFIXES z3
 )
