@@ -212,6 +212,13 @@ public:
       const vtg_config_t& vtg_config, backend_selector backend,
       const target_type_t& target_tp);
 
+  /// recover the one without smt info
+  void virtual ExportAll(const std::string& wrapper_name,
+                         const std::string& ila_vlg_name,
+                         const std::string& script_name,
+                         const std::string& extra_name,
+                         const std::string& mem_name) override;
+
 protected:
   /// Pre export work : add assume and asssert to the top level
   void virtual PreExportProcess() override;

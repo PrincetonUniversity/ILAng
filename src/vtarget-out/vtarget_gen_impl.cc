@@ -225,7 +225,8 @@ void VlgVerifTgtGen::GenerateTargets(void) {
             _vlg_impl_include_path, _vtg_config, _backend,
             target_type_t::INST_INV_SYN);
         target.ConstructWrapper();
-        target.ExportAll("__design_wrapper.v", "__design_run.sh", "__design_gensmt.ys", "__design_absmem.v");
+        target.ExportAll("__design_wrapper.v", "__design_ila.v", /* this should not be used*/
+          "__design_run.sh", "__design_gensmt.ys", "__design_absmem.v");
         auto smt_info = target.RunSmtGeneration();
         
 
@@ -237,7 +238,7 @@ void VlgVerifTgtGen::GenerateTargets(void) {
             _vlg_impl_include_path, _vtg_config, _backend,
             target_type_t::INSTRUCTIONS);
         target.ConstructWrapper();
-        target.ExportAll("wrapper.v", "ila.v", "run.sh", "gensmt.ys", "absmem.v");
+        target.ExportAll("wrapper.v", "ila.v", "run.sh", "gensmt.ys", "absmem.v", smt_info);
       }
     } // end for instrs
   }   // end if target select == ...
