@@ -102,8 +102,14 @@ RUN cmake .. -DCMAKE_INSTALL_PREFIX=$BUILD_PREF -DILANG_INSTALL_DEV=ON -DILANG_B
     make -j"$(nproc)" && \
     make install 
 
+# IMDb
+ENV IMDB_DIR $BUILD_ROOT/IMDb
+WORKDIR $BUILD_ROOT
+ADD https://api.github.com/repos/PrincetonUniversity/IMDb/git/refs/heads/master imdb_version.json
+RUN git clone --depth=1 https://github.com/PrincetonUniversity/IMDb.git $IMDB_DIR
+
 # AES demo
-ENV DEMO_DIR $ILANG_DIR/apps/acc_spec/aes
+ENV DEMO_DIR $IMDB_DIR/tutorials/aes
 WORKDIR $DEMO_DIR
 RUN mkdir -p $DEMO_DIR/build
 WORKDIR $DEMO_DIR/build
@@ -139,7 +145,7 @@ RUN echo "cd $(pwd)" >> init.sh
 # configure files
 COPY --from=builder $BUILD_PREF $BUILD_PREF
 COPY --from=builder $BUILD_ROOT/CoSA/ $BUILD_ROOT/CoSA/
-COPY --from=builder $BUILD_ROOT/ILAng/apps/acc_spec/aes/ ./aes-demo/
+COPY --from=builder $BUILD_ROOT/IMDb/tutorials/aes/ ./aes-demo/
 
 # done
 CMD echo "run 'source init.sh' to start" && /bin/bash
