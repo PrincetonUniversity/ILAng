@@ -26,9 +26,9 @@ matrix:
         - gem install coveralls-lcov
       before_script:
         - mkdir -p $TRAVIS_BUILD_DIR/build 
-        - source $TRAVIS_BUILD_DIR/scripts/travis/clean-coverage.sh $TRAVIS_BUILD_DIR/build
+        - source $TRAVIS_BUILD_DIR/scripts/travis/clean-coverage.sh $TRAVIS_BUILD_DIR/build 
       after_success:
-        - source $TRAVIS_BUILD_DIR/scripts/travis/submit-coverage.sh $TRAVIS_BUILD_DIR/build
+        - source $TRAVIS_BUILD_DIR/scripts/travis/submit-coverage.sh $TRAVIS_BUILD_DIR/build 
 
     - name: "linux-clang"
       os: linux
