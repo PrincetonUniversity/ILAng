@@ -194,9 +194,9 @@ void VlgSglTgtGen_Yosys::Export_script(const std::string& script_name) {
   // if(vlg_include_files_path.size() != 0)
   //  options += " -I./";
 
-  if (not _vtg_config.YosysPath.empty()) {
-    yosys = os_portable_append_dir(_vtg_config.YosysPath, yosys) + ".py";
-  }
+  if (not _vtg_config.YosysPath.empty())
+    yosys = os_portable_append_dir(_vtg_config.YosysPath, yosys);
+
   if (yosys_prob_fname != "")
     fout << yosys << " "<< yosys_prob_fname  << std::endl;
   else
@@ -403,6 +403,65 @@ void VlgSglTgtGen_Yosys::Export_modify_verilog() {
   }
 
 } // Export_modify_verilog
+
+/// Need the smt info
+/// Take care of exporting all of a single target
+void VlgSglTgtGen_Yosys::ExportAll(const std::string& wrapper_name,
+                        const std::string& ila_vlg_name,
+                        const std::string& script_name,
+                        const std::string& extra_name,
+                        const std::string& mem_name,
+                        const YosysDesignSmtInfo& smt_info) {
+
+  if ( _vtg_config.ForceInstCheckReset ) {
+    ILA_ERROR
+      << "API misuse: when forcing reset state, "
+      << "please use the other ExportAll function "
+      << "that has no smt_info in its arg.";
+    return;
+  }
+
+  PreExportProcess();
+  if (os_portable_mkdir(_output_path) == false)
+    ILA_WARN << "Cannot create output directory:" << _output_path;
+  // you don't need to worry about the path and names
+  Export_wrapper(wrapper_name);
+  if (target_type == target_type_t::INSTRUCTIONS)
+    Export_ila_vlg(ila_vlg_name); // this has to be after Export_wrapper
+
+  // for Jasper, this will be put to multiple files
+  // for CoSA & Yosys, this will be put after the wrapper file (wrapper.v)
+  Export_modify_verilog();        // this must be after Export_wrapper
+  Export_mem(mem_name);
+
+  // you need to create the map function -- 
+  Export_problem(extra_name); // the gensmt.ys 
+  
+  Export_script(script_name);
+  ..// todo :
+  // 1. change the template for dual
+  // 2. gen map function
+  // 3. make sure the assumptions and assertions are used in good ways
+}
+                         
+/// Deprecation of the one without smt info
+void VlgSglTgtGen_Yosys::ExportAll(const std::string& wrapper_name,
+                        const std::string& ila_vlg_name,
+                        const std::string& script_name,
+                        const std::string& extra_name,
+                        const std::string& mem_name) {
+
+  if( not _vtg_config.ForceInstCheckReset ){
+    ILA_ERROR
+      << "API misuse: when not forcing reset state, "
+      << "please use the other ExportAll function "
+      << "that HAS smt_info in its arg.";
+    return;
+  }
+
+  ILA_ASSERT(false) 
+   << "Implementation bug: future work.";
+}
 
 
 }; // namespace ilang

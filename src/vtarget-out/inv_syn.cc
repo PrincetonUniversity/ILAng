@@ -42,7 +42,7 @@ VlgSglTgtGen_Yosys_design_only::VlgSglTgtGen_Yosys_design_only(
     ILA_ASSERT(backend == backend_selector::YOSYS);
     ILA_ASSERT(target_tp == target_type_t::INST_INV_SYN);
     ILA_ERROR_IF(_vtg_config.YosysSmtStateSort != vtg_config_t::DataSort)
-      << "Bug: future work--extract map function from non-data-sort.";
+      << "Bug: future work--extract map function from non-data-sort state variable encoding.";
   }
 
 
@@ -105,8 +105,6 @@ void VlgSglTgtGen_Yosys_design_only::Export_problem(const std::string& extra_nam
   fout << "read_verilog -sv "<<top_file_name<< std::endl;
   fout << "prep -top "<<top_mod_name<<std::endl;
 
-  fout << "read_verilog -sv "<<top_file_name<< std::endl;
-  fout << "prep -top "<<top_mod_name<<std::endl;
 
   if(_vtg_config.YosysSmtArrayForRegFile)
     fout << yosysGenerateSmtScript_w_Array;
@@ -123,7 +121,7 @@ YosysDesignSmtInfo VlgSglTgtGen_Yosys_design_only::RunSmtGeneration() {
   // run the script
   bool succeeded = 
     os_portable_execute_shell( script_path );
-  if(not succeeded) {
+  if (not succeeded) {
     ILA_ERROR << "Cannot execute script:"<<script_path;
     return YosysDesignSmtInfo(); // return an empty one
   }
@@ -182,6 +180,7 @@ void VlgSglTgtGen_Yosys_design_only::ExportAll(const std::string& wrapper_name,
     ILA_WARN << "Cannot create output directory:" << _output_path;
   // you don't need to worry about the path and names
   Export_wrapper(wrapper_name);
+  // // no need to export ila verilog
   // if (target_type == target_type_t::INSTRUCTIONS)
   //  Export_ila_vlg(ila_vlg_name); // this has to be after Export_wrapper
 
@@ -196,42 +195,5 @@ void VlgSglTgtGen_Yosys_design_only::ExportAll(const std::string& wrapper_name,
   Export_script(script_name);
 }
 
-// -----------------  VlgSglTgtGen_Yosys --------------- //
-/// Need the smt info
-/// Take care of exporting all of a single target
-void VlgSglTgtGen_Yosys::ExportAll(const std::string& wrapper_name,
-                        const std::string& ila_vlg_name,
-                        const std::string& script_name,
-                        const std::string& extra_name,
-                        const std::string& mem_name,
-                        const YosysDesignSmtInfo& smt_info) {
-  PreExportProcess();
-  if (os_portable_mkdir(_output_path) == false)
-    ILA_WARN << "Cannot create output directory:" << _output_path;
-  // you don't need to worry about the path and names
-  Export_wrapper(wrapper_name);
-  if (target_type == target_type_t::INSTRUCTIONS)
-    Export_ila_vlg(ila_vlg_name); // this has to be after Export_wrapper
-
-  // for Jasper, this will be put to multiple files
-  // for CoSA & Yosys, this will be put after the wrapper file (wrapper.v)
-  Export_modify_verilog();        // this must be after Export_wrapper
-  Export_mem(mem_name);
-
-  // you need to create the map function -- 
-  Export_problem(extra_name); // the gensmt.ys 
-  
-  Export_script(script_name);
-}
-                         
-/// Deprecation of the one without smt info
-void VlgSglTgtGen_Yosys::ExportAll(const std::string& wrapper_name,
-                        const std::string& ila_vlg_name,
-                        const std::string& script_name,
-                        const std::string& extra_name,
-                        const std::string& mem_name) {
-  ILA_ASSERT(false) 
-   << "Implementation bug: this function should not be used";
-}
 
 }; // namespace ilang
