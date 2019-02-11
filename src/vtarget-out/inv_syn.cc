@@ -114,6 +114,7 @@ void VlgSglTgtGen_Yosys_design_only::Export_problem(const std::string& extra_nam
 
 } // VlgSglTgtGen_Yosys_design_only::Export_problem
 
+
 // Export_script : the same as yosys gen
 YosysDesignSmtInfo VlgSglTgtGen_Yosys_design_only::RunSmtGeneration() {
   auto script_path = 
@@ -129,43 +130,12 @@ YosysDesignSmtInfo VlgSglTgtGen_Yosys_design_only::RunSmtGeneration() {
   // okay now we should open the smt file and parse it
   auto smt_file_path =
     os_portable_append_dir(_output_path, smt_file_name);
-  std::ifstream smt_fin(smt_file_path);
-  if(not smt_fin.is_open()) {
-    ILA_ERROR << "Cannot read SMT-LIB2:" << smt_file_path;
-    return YosysDesignSmtInfo(); // return an empty one
-  }
-  // readline- until
-  std::string line_in;
-  bool in_data_type = false;
-  unsigned argNo = 0;
 
   YosysDesignSmtInfo ret;
+  ret.top_mod_name = top_mod_name;
+  ret.state_pos_name_map = extract_state_info_from_smt(smt_file_path);
 
-  while (std::getline(smt_fin, line_in)) {
-    if( line_in.find("(declare-datatype") == 0 ) {
-      ILA_ASSERT(argNo == 0) << "Implementation bug.";
-      in_data_type = true;
-    } else if (line_in.find(")))") == 0) {
-      ILA_ERROR_IF(argNo <= 1) << "No state has been extracted from smt";
-      ILA_ASSERT(in_data_type);
-      break; // okay we are done
-    } else if (in_data_type) {
-      std::string state_name;
-      if(argNo == 0) {
-        state_name = "is_no_use";
-      } else {
-        auto pos = line_in.find("; \\");
-        pos += 3;
-        state_name = line_in.substr(pos); // till the end
-      }
-      ret.state_pos_name_map.push_back(state_name);
-      argNo ++;
-    }
-  }
-
-  ILA_ASSERT(in_data_type); // we must have got the datatype o.w. it is a bug
   return ret;
-
 } // RunSmtGeneration
 
                   

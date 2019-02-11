@@ -44,9 +44,11 @@ public:
     /// Whether to force the instruction check to start from reset state
     bool ForceInstCheckReset;
     /// For COSA target generator : whether to force NEW/OLD port declaration
-    enum { AUTO = 0, NEW = 1, OLD = 2 } PortDeclStyle;
+    /// or allow the verilog modify detect it (detection could fail or 
+    /// make mistakes, so you may want to force it)
+    enum { AUTO = 0, NEW = 1, OLD = 2 } PortDeclStyle; // default : AUTO
     /// Generate a jg script to help validate cosa?
-    bool CosaGenJgTesterScript;
+    bool CosaGenJgTesterScript; // default : false
     /// For CoSA backend: do we add (* keep *)? default true, however, it can be
     /// buggy, so you can disable it if you want
     bool CosaAddKeep;

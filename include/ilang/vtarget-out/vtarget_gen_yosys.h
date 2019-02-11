@@ -54,6 +54,8 @@ struct YosysDesignSmtInfo {
   typedef std::vector<std::string> pos_name_map_t;
   /// The pos -> name map
   pos_name_map_t state_pos_name_map; 
+  /// the top module name of the design_only_module
+  std::string top_mod_name;
 };
 
 /// \brief a class to interface w.  Yosys
@@ -142,12 +144,30 @@ protected:
   virtual void
   Export_problem(const std::string& extra_name) override;
 
+  /// export extra things: the yosys script, the smt template
+  /// for the dual ind-inv option
+  virtual void
+  Export_problem(const std::string& extra_name, const smt_info & smtinfo);
+
+  /// Export problem for getting the smt of the wrapper
+  virtual void Export_problem_smt(const std::string& extra_name);
+
+  /// Export script for getting the smt of the wrapper
+  virtual void Export_script_smt(const std::string& script_name);
+  
   /// export the memory abstraction (implementation)
   /// Yes, this is also implementation specific, (jasper may use a different
   /// one)
   virtual void Export_mem(const std::string& mem_name) override;
   /// For jasper, this means do nothing, for yosys, you need to add (*keep*)
   virtual void Export_modify_verilog() override;
+
+  /// extract state info from design
+  static YosysDesignSmtInfo::pos_name_map_t 
+  extract_state_info_from_smt(const std::string &fname);
+
+  /// generate smt encoding for the wrapper, return true if succeeded
+  virtual bool VlgSglTgtGen_Yosys::Gen_wrapper_smt() const;
 
 public:
   /// Need the smt info

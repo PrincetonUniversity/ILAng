@@ -221,7 +221,7 @@ void VlgVerifTgtGen::GenerateTargets(void) {
             os_portable_append_dir(_output_path, iname),
             instr_ptr, // instruction
             _ila_ptr, _cfg, rf_vmap, rf_cond, vlg_info_ptr, _vlg_mod_inst_name,
-            _ila_mod_inst_name, "wrapper", _vlg_impl_srcs,
+            _ila_mod_inst_name, "design_only", _vlg_impl_srcs,
             _vlg_impl_include_path, _vtg_config, _backend,
             target_type_t::INST_INV_SYN);
         target.ConstructWrapper();
