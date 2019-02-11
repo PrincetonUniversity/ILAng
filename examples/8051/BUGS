@@ -1,6 +1,0 @@
-Bug fixed in i8051.cc:
-    tempProduct = (unsigned short) (unsigned char) RAM[ACC] * 
-                  (unsigned short) (unsigned char) RAM[B];
-
-The casts to (unsigned char) are super important to avoid sign-extension.
-

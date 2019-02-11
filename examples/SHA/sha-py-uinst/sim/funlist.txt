@@ -1,1 +1,0 @@
-SRCS = subfun_cppUpdateFun_XRAM.cpp subfun_cppUpdateFun_dataout.cpp subfun_cppUpdateFun_sha_bytes_read.cpp subfun_cppUpdateFun_sha_hs_data.cpp subfun_cppUpdateFun_sha_len.cpp subfun_cppUpdateFun_sha_rd_data.cpp subfun_cppUpdateFun_sha_rdaddr.cpp subfun_cppUpdateFun_sha_state.cpp subfun_cppUpdateFun_sha_wraddr.cpp subfun_update.cpp

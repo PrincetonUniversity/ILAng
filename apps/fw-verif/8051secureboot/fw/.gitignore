@@ -1,6 +1,0 @@
-.z3-trace 
-*.bc
-tags
-fw.smt2
-tmp.smt2
-info/*

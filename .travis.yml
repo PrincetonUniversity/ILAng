@@ -2,6 +2,7 @@ branches:
   only:
     - master
     - travis
+    - pre-release
 
 git:
   depth: 1
@@ -10,6 +11,10 @@ git:
 sudo: required
 
 language: cpp
+
+cache:
+  directories:
+    - $HOME/_cache
 
 matrix:
   include:
@@ -21,9 +26,9 @@ matrix:
         - gem install coveralls-lcov
       before_script:
         - mkdir -p $TRAVIS_BUILD_DIR/build 
-        - source $TRAVIS_BUILD_DIR/scripts/clean-coverage.sh $TRAVIS_BUILD_DIR/build
+        - source $TRAVIS_BUILD_DIR/scripts/travis/clean-coverage.sh $TRAVIS_BUILD_DIR/build 
       after_success:
-        - source $TRAVIS_BUILD_DIR/scripts/submit-coverage.sh $TRAVIS_BUILD_DIR/build
+        - source $TRAVIS_BUILD_DIR/scripts/travis/submit-coverage.sh $TRAVIS_BUILD_DIR/build 
 
     - name: "linux-clang"
       os: linux
@@ -44,6 +49,8 @@ matrix:
             - flex
             - bison
             - libboost-all-dev
+            - z3
+            - libz3-dev
       env:
         - MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9"
       before_install:
@@ -51,10 +58,19 @@ matrix:
 
     - name: "osx"
       os: osx
-      before_install:
-        - brew install bison
-        - export PATH="/usr/local/opt/bison/bin:$PATH"
-        - export LDFLAGS="-L/usr/local/opt/bison/lib"
+      #before_install:
+        #- brew install bison
+        #- export PATH="/usr/local/opt/bison/bin:$PATH"
+        #- export LDFLAGS="-L/usr/local/opt/bison/lib"
+      install:
+        - export BISON_CACHED="$(find $HOME/_cache -name bison | grep -c "bison")"
+        - if [ $BISON_CACHED == "0" ] ; then mkdir -p $HOME/_cache/bison ; fi 
+        - if [ $BISON_CACHED == "0" ] ; then wget http://ftp.gnu.org/gnu/bison/bison-3.2.4.tar.gz ; fi 
+        - if [ $BISON_CACHED == "0" ] ; then tar zxvf bison-3.2.4.tar.gz -C $HOME/_cache/bison --strip-components 1 ; fi 
+        - cd $HOME/_cache/bison
+        - if [ $BISON_CACHED == "0" ] ; then ./configure ; fi
+        - if [ $BISON_CACHED == "0" ] ; then make ; fi
+        - sudo make install
 
 addons:
   apt:
@@ -64,6 +80,8 @@ addons:
       - flex
       - bison
       - libboost-all-dev
+      - z3
+      - libz3-dev
   homebrew:
     update: true
     packages:
@@ -71,25 +89,7 @@ addons:
       - python
       - boost
       - boost-python
-
-cache:
-  directories:
-    - $HOME/_cache
-
-install: 
-  - mkdir -p $HOME/_cache
-  - export Z3_CACHED="$(find $HOME/_cache/ -name z3 | grep -c "z3")"
-  - cd $HOME/_cache
-  - if [[ "$Z3_CACHED" == "0" ]] ; then git clone https://github.com/Z3Prover/z3.git ; fi
-  - cd z3
-  - if [[ "$Z3_CACHED" == "0" ]] ; then git checkout tags/z3-4.8.4 -b v484 ; fi
-  - if [[ "$Z3_CACHED" == "0" ]] ; then python scripts/mk_make.py ; fi
-  - if [[ "$Z3_CACHED" == "0" && "$TRAVIS_COMPILER" == "clang" ]] ; then CXX=clang++ CC=clang python scripts/mk_make.py ; fi
-  - cd build
-  - if [[ "$Z3_CACHED" == "0" ]] ; then make -j$(nproc) ; fi
-  - sudo make install
-  - which z3
-  - z3 --version
+      - z3
 
 script:
   - cd $TRAVIS_BUILD_DIR
