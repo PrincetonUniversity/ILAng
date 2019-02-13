@@ -2,6 +2,9 @@ path_classifiers:
   test:
     - tests
 
+  external:
+    - extern
+
   docs:
     - docs
 
@@ -25,11 +28,11 @@ extraction:
 
     configure:
       command:
-        - cd $LGTM_SRC
         - mkdir -p build
         - cd build
         - cmake ..
 
     index:
       build_command:
-        - $GNU_MAKE -j$(nproc)
+        - cd build # cwd is set to LGTM_SRC at the start of each build step
+        - make -j$(nproc)

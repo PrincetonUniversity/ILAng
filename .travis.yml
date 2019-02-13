@@ -12,6 +12,10 @@ sudo: required
 
 language: cpp
 
+cache:
+  directories:
+    - $HOME/_cache
+
 matrix:
   include:
     - name: "linux-gcc"
@@ -22,9 +26,9 @@ matrix:
         - gem install coveralls-lcov
       before_script:
         - mkdir -p $TRAVIS_BUILD_DIR/build 
-        - source $TRAVIS_BUILD_DIR/scripts/travis/clean-coverage.sh $TRAVIS_BUILD_DIR/build
+        - source $TRAVIS_BUILD_DIR/scripts/travis/clean-coverage.sh $TRAVIS_BUILD_DIR/build 
       after_success:
-        - source $TRAVIS_BUILD_DIR/scripts/travis/submit-coverage.sh $TRAVIS_BUILD_DIR/build
+        - source $TRAVIS_BUILD_DIR/scripts/travis/submit-coverage.sh $TRAVIS_BUILD_DIR/build 
 
     - name: "linux-clang"
       os: linux
@@ -54,10 +58,19 @@ matrix:
 
     - name: "osx"
       os: osx
-      before_install:
-        - brew install bison
-        - export PATH="/usr/local/opt/bison/bin:$PATH"
-        - export LDFLAGS="-L/usr/local/opt/bison/lib"
+      #before_install:
+        #- brew install bison
+        #- export PATH="/usr/local/opt/bison/bin:$PATH"
+        #- export LDFLAGS="-L/usr/local/opt/bison/lib"
+      install:
+        - export BISON_CACHED="$(find $HOME/_cache -name bison | grep -c "bison")"
+        - if [ $BISON_CACHED == "0" ] ; then mkdir -p $HOME/_cache/bison ; fi 
+        - if [ $BISON_CACHED == "0" ] ; then wget http://ftp.gnu.org/gnu/bison/bison-3.2.4.tar.gz ; fi 
+        - if [ $BISON_CACHED == "0" ] ; then tar zxvf bison-3.2.4.tar.gz -C $HOME/_cache/bison --strip-components 1 ; fi 
+        - cd $HOME/_cache/bison
+        - if [ $BISON_CACHED == "0" ] ; then ./configure ; fi
+        - if [ $BISON_CACHED == "0" ] ; then make ; fi
+        - sudo make install
 
 addons:
   apt:
@@ -77,10 +90,6 @@ addons:
       - boost
       - boost-python
       - z3
-
-cache:
-  directories:
-    - $HOME/_cache
 
 script:
   - cd $TRAVIS_BUILD_DIR

@@ -107,9 +107,9 @@ z3::expr LegacyBmc::UnrollCmplIla(InstrLvlAbsPtr m, const int& k,
   for (auto i = 0; i != k; i++) {
     auto suf_prev = std::to_string(pos + i);
     auto suf_next = std::to_string(pos + i + 1);
-    /// FIXME May not be one hot and flat -- based on flags.
+    /// XXX May not be one hot and flat -- based on flags.
     auto cnst_i = IlaOneHotFlat(m, suf_prev, suf_next);
-    /// FIXME Use rewrite for better performance -- based on flags (or def)
+    /// XXX Use rewrite for better performance -- based on flags (or def)
     cnst = cnst_i && cnst;
   }
 
