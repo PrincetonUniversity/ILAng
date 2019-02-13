@@ -40,13 +40,13 @@ public:
   /// Return the pointer of the sort.
   inline const SortPtr sort() const { return sort_; }
   /// Retrun the number of argument (arity).
-  inline const size_t arg_num() const { return args_.size(); }
+  inline size_t arg_num() const { return args_.size(); }
   /// Return the i-th argument.
   inline ExprPtr arg(const size_t& i) const { return args_.at(i); }
   /// Return the number of parameters.
-  inline const size_t param_num() const { return params_.size(); }
+  inline size_t param_num() const { return params_.size(); }
   /// Return the i-th paramter.
-  inline const int& param(const size_t& i) const { return params_.at(i); }
+  inline int param(const size_t& i) const { return params_.at(i); }
 
   /// Set the sort of the expression.
   void set_sort(const SortPtr sort);
