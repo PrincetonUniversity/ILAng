@@ -7,7 +7,10 @@
 /// \namespace ilang
 namespace ilang {
 
-enum EXPR_TYPE_ID { VAR = 1, CONST, OP };
+/// Ser/Des ID for Sort.
+enum SERDES_SORT_ID { BOOL = 1, BITVECTOR, MEMORY };
+/// Ser/Des ID for Expr.
+enum SERDES_EXPR_ID { VAR = 1, CONST, OP };
 
 }; // namespace ilang
 
