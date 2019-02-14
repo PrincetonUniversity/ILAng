@@ -1,9 +1,8 @@
 /// \file
 /// The implementation of the JSON to ILA deserializer.
 
-#include <ilang/portable/json_to_ila_deserializer.h>
-//#include <ilang/portable/serdes_config.h>
 #include <ilang/ila/ast_fuse.h>
+#include <ilang/portable/json_to_ila_deserializer.h>
 #include <ilang/util/log.h>
 
 namespace ilang {
@@ -15,7 +14,7 @@ J2IDes::~J2IDes() {}
 J2IDesPtr J2IDes::New() { return std::make_shared<J2IDes>(); }
 
 SortPtr J2IDes::DesSort(const json& j_sort) const {
-  switch (j_sort.at("sort_id").get<unsigned>()) {
+  switch (j_sort.at("sort_uid").get<unsigned>()) {
   case AST_UID_SORT::BOOL: {
     return Sort::MakeBoolSort();
   }

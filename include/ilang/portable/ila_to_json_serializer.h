@@ -36,11 +36,11 @@ public:
   /// \brief Serialize Sort to JSON.
   json SerSort(const SortPtr& i_sort) const;
   /// \brief Serialize Expr to JSON.
-  json SerExpr(const ExprPtr& i_expr) const;
+  json SerExpr(const ExprPtr& i_expr);
   /// \brief Serialize Instr to JSON.
-  json SerInstr(const InstrPtr& i_instr) const;
+  json SerInstr(const InstrPtr& i_instr);
   /// \brief Serialize InstrLvlAbs to JSON.
-  json SerInstrLvlAbs(const InstrLvlAbsPtr& i_ila) const;
+  json SerInstrLvlAbs(const InstrLvlAbsPtr& i_ila);
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
@@ -48,6 +48,10 @@ private:
   std::unordered_map<size_t, size_t> id_idx_map_;
   /// The list of all serialized expressions (j_expr array).
   json::array j_expr_arr_;
+
+  // ------------------------- METHODS -------------------------------------- //
+  /// Serialize constant value to JSON.
+  json SerConstVal(const ExprPtr& i_expr) const;
 
 }; // class I2JSer
 
