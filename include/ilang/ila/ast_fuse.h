@@ -13,14 +13,38 @@ namespace ilang {
 // Unified AST ID
 /******************************************************************************/
 /// Unified ID for Sort.
-enum AST_UID_SORT = {BOOL = 1, BV, MEM};
+enum AST_UID_SORT { BOOL = 1, BV, MEM };
 /// Unified ID for Expr type.
-enum AST_UID_EXPR = {VAR = 1, CONST, OP};
+enum AST_UID_EXPR { VAR = 1, CONST, OP };
 /// Unified ID for ExprOp.
-enum AST_UID_EXPR_OP = {
-    INVALID = 0, NEG,    NOT,     COMPL, AND,  OR,       XOR,   SHL, ASHR,
-    LSHR,        ADD,    SUB,     EQ,    LT,   GT,       ULT,   UGT, LOAD,
-    STORE,       CONCAT, EXTRACT, ZEXT,  SEXT, APP_FUNC, IMPLY, ITE};
+enum AST_UID_EXPR_OP {
+  INVALID = 0,
+  NEG,
+  NOT,
+  COMPL,
+  AND,
+  OR,
+  XOR,
+  SHL,
+  ASHR,
+  LSHR,
+  ADD,
+  SUB,
+  EQ,
+  LT,
+  GT,
+  ULT,
+  UGT,
+  LOAD,
+  STORE,
+  CONCAT,
+  EXTRACT,
+  ZEXT,
+  SEXT,
+  APP_FUNC,
+  IMPLY,
+  ITE
+};
 
 /******************************************************************************/
 // Wrapper for accessing the unified ID of the AST nodes

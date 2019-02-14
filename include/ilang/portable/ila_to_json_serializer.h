@@ -7,7 +7,7 @@
 #include <ilang/ila/instr_lvl_abs.h>
 #include <memory>
 #include <nlohmann/json.hpp>
-#include <unorderd_map>
+#include <unordered_map>
 #include <vector>
 
 using json = nlohmann::json;
@@ -47,15 +47,18 @@ private:
   /// A map from visited i_expr id to j_expr array index.
   std::unordered_map<size_t, size_t> id_idx_map_;
   /// The list of all serialized expressions (j_expr array).
-  json::array j_expr_arr_;
+  json j_expr_arr_;
 
   // ------------------------- METHODS -------------------------------------- //
   /// Serialize constant value to JSON.
   json SerConstVal(const ExprPtr& i_expr) const;
   /// Serialize one single Expr.
-  json SerExprUnit(const ExprPtr& i_expr) const;
+  json SerExprUnit(const ExprPtr& i_expr);
 
 }; // class I2JSer
+
+/// Pointer type for normal use of I2JSer.
+typedef I2JSer::I2JSerPtr I2JSerPtr;
 
 }; // namespace ilang
 

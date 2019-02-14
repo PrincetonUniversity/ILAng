@@ -3,7 +3,7 @@
 
 #include "unit-include/config.h"
 #include "unit-include/util.h"
-#include <ilang/portable/portable_interface.h>
+#include <ilang/portable/interface.h>
 #include <ilang/synth-interface/synth_engine_interface.h>
 
 namespace ilang {
@@ -19,7 +19,7 @@ TEST(TestPortable, AES) {
   auto aesu_ila = ImportSynthAbsFromFileHier(aesu_file, aes_ila, "AES_U");
 
   // TODO
-  EXPECT_TRUE(ExportPortableToFile(aes_ila, "ddd.txt"));
+  IlaSerDesMngr::Serialize(aes_ila);
 
   DebugLog::Disable("Portable");
   SetToStdErr(0);
