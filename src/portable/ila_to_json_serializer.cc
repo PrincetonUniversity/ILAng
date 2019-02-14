@@ -18,7 +18,7 @@ json I2JSer::SerSort(const SortPtr& i_sort) const {
 
   // sort type
   auto sort_uid = GetUidSort(i_sort);
-  j_sort.emplace("sort_uid", sort_uid);
+  j_sort.emplace("uid", sort_uid);
 
   switch (sort_uid) {
   // bit-vector
@@ -171,7 +171,7 @@ json I2JSer::SerExprUnit(const ExprPtr& i_expr) {
 
   // expr ast type
   auto expr_uid = GetUidExpr(i_expr);
-  j_expr.emplace("expr_uid", expr_uid);
+  j_expr.emplace("uid", expr_uid);
 
   switch (expr_uid) {
   // serialize var

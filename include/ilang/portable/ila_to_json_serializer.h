@@ -8,7 +8,6 @@
 #include <memory>
 #include <nlohmann/json.hpp>
 #include <unordered_map>
-#include <vector>
 
 using json = nlohmann::json;
 

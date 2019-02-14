@@ -5,9 +5,9 @@
 #define ILANG_PORTABLE_J2I_DES_H__
 
 #include <ilang/ila/instr_lvl_abs.h>
-#include <map>
 #include <memory>
 #include <nlohmann/json.hpp>
+#include <unordered_map>
 
 using json = nlohmann::json;
 
@@ -35,18 +35,21 @@ public:
   /// \brief Deserialize Sort from JSON.
   SortPtr DesSort(const json& j_sort) const;
   /// \brief Deserialize Expr from JSON.
-  ExprPtr DesExpr(const json& j_expr) const;
+  ExprPtr DesExpr(const json& j_expr);
   /// \brief Deserialize Instr from JSON.
   InstrPtr DesInstr(const json& j_instr) const;
   /// \brief Deserialize InstrLvlAbs from JSON.
-  InstrLvlAbsPtr DesInstrLvlAbs(const json& j_ila) const;
+  InstrLvlAbsPtr DesInstrLvlAbs(const json& j_ila);
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// A mapping from id to expressions.
-  std::map<unsigned, ExprPtr> i_expr_map_; // XXX unordered_map
+  std::unordered_map<size_t, ExprPtr> id_expr_map_;
 
 }; // class J2IDes
+
+/// Pointer type for normal use of J2IDes.
+typedef J2IDes::J2IDesPtr J2IDesPtr;
 
 }; // namespace ilang
 

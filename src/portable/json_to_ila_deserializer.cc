@@ -14,7 +14,7 @@ J2IDes::~J2IDes() {}
 J2IDesPtr J2IDes::New() { return std::make_shared<J2IDes>(); }
 
 SortPtr J2IDes::DesSort(const json& j_sort) const {
-  switch (j_sort.at("sort_uid").get<unsigned>()) {
+  switch (j_sort.at("uid").get<unsigned>()) {
   case AST_UID_SORT::BOOL: {
     return Sort::MakeBoolSort();
   }
@@ -30,12 +30,17 @@ SortPtr J2IDes::DesSort(const json& j_sort) const {
   };
 }
 
-ExprPtr J2IDes::DesExpr(const json& j) const {
+ExprPtr J2IDes::DesExpr(const json& j) {
   return NULL;
   //
 }
 
-InstrLvlAbsPtr J2IDes::DesInstrLvlAbs(const json& j_ila) const {
+InstrPtr J2IDes::DesInstr(const json& j_instr) const {
+  return NULL;
+  //
+}
+
+InstrLvlAbsPtr J2IDes::DesInstrLvlAbs(const json& j_ila) {
   return NULL;
   //
 }
