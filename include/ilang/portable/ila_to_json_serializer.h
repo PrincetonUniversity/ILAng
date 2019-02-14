@@ -35,7 +35,7 @@ public:
   // ------------------------- METHODS -------------------------------------- //
   /// \brief Serialize Sort to JSON.
   json SerSort(const SortPtr& i_sort) const;
-  /// \brief Serialize Expr to JSON.
+  /// \brief Serialize Expr to JSON (and all its sub-expressions).
   json SerExpr(const ExprPtr& i_expr);
   /// \brief Serialize Instr to JSON.
   json SerInstr(const InstrPtr& i_instr);
@@ -52,6 +52,8 @@ private:
   // ------------------------- METHODS -------------------------------------- //
   /// Serialize constant value to JSON.
   json SerConstVal(const ExprPtr& i_expr) const;
+  /// Serialize one single Expr.
+  json SerExprUnit(const ExprPtr& i_expr) const;
 
 }; // class I2JSer
 
