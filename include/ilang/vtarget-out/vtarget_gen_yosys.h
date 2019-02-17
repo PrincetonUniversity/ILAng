@@ -50,8 +50,18 @@ protected:
 /// \brief the information that the design target
 /// can get for the instruction target
 struct YosysDesignSmtInfo {
-  /// Type of vector of names in the design verilog
-  typedef std::vector<std::string> pos_name_map_t;
+  /// Type of a sig_tp_state record in smt
+  typedef struct sig_tp_state_t {
+    /// the name used to refer it in smt
+    std::string ref_name;
+    /// the verilog signal name it corresponds to
+    std::string vlg_name;
+    // constructor
+    sig_tp_state_t(const std::string &r, const std::string &v):
+      ref_name(r), vlg_name(v) {}
+  };
+  /// Type of map : vlg_sig_name ->  sig_tp_state_t
+  typedef std::map<std::string, sig_tp_state_t> pos_name_map_t;
   /// The pos -> name map
   pos_name_map_t state_pos_name_map; 
   /// the top module name of the design_only_module
@@ -147,13 +157,13 @@ protected:
   /// export extra things: the yosys script, the smt template
   /// for the dual ind-inv option
   virtual void
-  Export_problem(const std::string& extra_name, const smt_info & smtinfo);
+  Export_problem(const std::string& extra_name, const YosysDesignSmtInfo & smt_info);
 
   /// Export problem for getting the smt of the wrapper
-  virtual void Export_problem_smt(const std::string& extra_name);
+  virtual void Export_problem_design_smt(const std::string& extra_name);
 
   /// Export script for getting the smt of the wrapper
-  virtual void Export_script_smt(const std::string& script_name);
+  virtual void Export_script_design_smt(const std::string& script_name);
   
   /// export the memory abstraction (implementation)
   /// Yes, this is also implementation specific, (jasper may use a different
@@ -167,7 +177,10 @@ protected:
   extract_state_info_from_smt(const std::string &fname);
 
   /// generate smt encoding for the wrapper, return true if succeeded
-  virtual bool VlgSglTgtGen_Yosys::Gen_wrapper_smt() const;
+  virtual bool Gen_wrapper_smt() const;
+
+  /// output the template for dual inv syn
+  std::string get_smt_template(const YosysDesignSmtInfo & smtinfo);
 
 public:
   /// Need the smt info

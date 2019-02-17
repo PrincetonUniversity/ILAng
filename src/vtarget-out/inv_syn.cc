@@ -1,4 +1,4 @@
-/// \file Source of design synthesis utility
+/// \file Source of initial constraint synthesis utility
 // --- Hongce Zhang
 
 #include <algorithm>
@@ -48,32 +48,8 @@ VlgSglTgtGen_Yosys_design_only::VlgSglTgtGen_Yosys_design_only(
 
 /// Pre export work : add assume and asssert to the top level
 void VlgSglTgtGen_Yosys_design_only::PreExportProcess() {
-  for(auto&& dspt_exprs_pair : _problems.assumptions) {
-    const auto & dspt = dspt_exprs_pair.first;
-    const auto & expr = dspt_exprs_pair.second;
-    for (auto&& p: expr.exprs)
-      vlg_wrapper.add_stmt(
-        "assume property ("+p+"); // " + dspt
-      );
-  }
-
-  //std::string assmpt = "(" + Join(_problems.assumptions, ") & (") + ")";
-  std::string all_assert_wire_content = "`true";
-
-  for (auto&& pbname_prob_pair : _problems.assertions) {
-    const auto& prbname = pbname_prob_pair.first;
-    const auto& prob = pbname_prob_pair.second;
-    for (auto&& p: prob.exprs) {
-      vlg_wrapper.add_stmt(
-        "assert property ("+p+"); //" + prbname + "\n"
-      );
-      all_assert_wire_content += "&& ( " + p  + " ) ";
-    }
-  }
-
-  vlg_wrapper.add_wire("__all_assert_wire__", 1, true);
-  vlg_wrapper.add_output("__all_assert_wire__",1);
-  vlg_wrapper.add_assign_stmt("__all_assert_wire__", all_assert_wire_content);
+  // no assertions or assumptions
+  // they should not be used here
 }
 
 // generating the yosys script to generate smt expressions of the verilog design
@@ -138,18 +114,23 @@ YosysDesignSmtInfo VlgSglTgtGen_Yosys_design_only::RunSmtGeneration() {
   return ret;
 } // RunSmtGeneration
 
-                  
+/// TODO: two trans func may not be a good design!
+/// You may need to consider the hierarchical way
 /// Deprecation of the one without smt info
 void VlgSglTgtGen_Yosys_design_only::ExportAll(const std::string& wrapper_name,
                         const std::string& ila_vlg_name,
                         const std::string& script_name,
                         const std::string& extra_name,
                         const std::string& mem_name) {
-  PreExportProcess();
+  PreExportProcess(); // do nothing : no assumptions or assertions
   if (os_portable_mkdir(_output_path) == false)
     ILA_WARN << "Cannot create output directory:" << _output_path;
   // you don't need to worry about the path and names
   Export_wrapper(wrapper_name);
+  // this will include some logics that are not needed
+  // basically the top level wrapper and etc.
+
+
   // // no need to export ila verilog
   // if (target_type == target_type_t::INSTRUCTIONS)
   //  Export_ila_vlg(ila_vlg_name); // this has to be after Export_wrapper

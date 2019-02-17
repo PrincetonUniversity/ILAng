@@ -134,7 +134,7 @@ void VlgSglTgtGen_Yosys::add_a_direct_assertion(const std::string& asst,
 /// Assumptions:
 ///      1. global: noreset, funcmap, absmem, additonal_mapping_control_assume
 ///      2. only at starting state:
-///          variable_map_assume, issue_decode, issue_valid
+///          variable_map_assume, issue_decode, issue_valid, ...
 ///      Question: invariant assume? where to put it? Depends on ?
 
 void VlgSglTgtGen_Yosys::PreExportProcess() {
@@ -324,29 +324,28 @@ std::string dual_ind_inv_tmpl = R"***(
 
 %%
 
+; design smt
 %designSmt%
 
-;(define-fun |__MAP__w2v| ((|Sw| |%w%_s|) (|Sv| |%d%_s|)) (??))
-%mapFunc%
+; wrapper smt
+%wrapperSmt%
 
-; = (|| )
+; map function
+(define-fun |__MAP__w2v| ((|Sw| |%w%_s|) (|Sv| |%d%_s|)) %mapFunc%)
 
 ; additional mapping control
-
-; the design one is actually the invariant provided
-
-;(define-fun |__AMC__design|  ((|Sv| |%d%_s|)) (??))
-;(define-fun |__AMC__wrapper| ((|Sw| |%w%_s|)) (??))
+; |__AMC__design| is actually the invariants
+; 
+(define-fun |__AMC__design|  ((|Sv| |%d%_s|)) %amcFunc_design%)
+(define-fun |__AMC__wrapper| ((|Sw| |%w%_s|)) %amcFunc_wrapper%)
 
 ; includes the start_condition, issue_decode, issue_valid
 ;(define-fun |__ASPT__| ((|Sw| |%w%_s|)) (??)) 
-
+%ASPT%
 
 ; includes the variable_map_assert
 ;(define-fun |__ASST__| ((|Sw| |%w%_s|)) (??)) 
-
-%amcFunc% 
-
+%ASST%
 
 
 (declare-rel INV1 (|%d%_s|)) ; inv1 is on design
@@ -448,7 +447,7 @@ std::string dual_ind_inv_tmpl = R"***(
 )***";
 
 /// output the template for dual inv syn
-std::string VlgSglTgtGen_Yosys::get_smt_template(const smt_info & smtinfo) {
+std::string VlgSglTgtGen_Yosys::get_smt_template(const YosysDesignSmtInfo & smtinfo) {
 // 0. 
 //    analyzing the state sequence
 //    so you can decide the mapping
@@ -482,15 +481,62 @@ std::string VlgSglTgtGen_Yosys::get_smt_template(const smt_info & smtinfo) {
   }
 
 // 2. define map func
+  std::string map_func_def;
+  std::vector<std::string> map_item;
+  // when you map the state name, remember to put the "m0." there
+  const auto & design_top_mod_name = smtinfo.top_mod_name;
+  for (auto && vlg_sig_ref_pair : smtinfo.state_pos_name_map) {
+    auto top_lvl_vlg_name = _vlg_mod_inst_name + "." + vlg_sig_ref_pair.first; // vlg_name
+    auto sn_pos = state_name_vec.find(top_lvl_vlg_name);
+    ILA_ASSERT( sn_pos != state_name_vec.end() )
+      << "BUG: cannot find Verilog state name:"
+      << top_lvl_vlg_name << " in top level smt data sort";
 
+    map_item.push_back(
+      "(= " +
+      (
+        ( "(" + sn_pos->second.ref_name + " |Sw|)" )
+      +
+        ( "(" + vlg_sig_ref_pair.second.vlg_name + " |Sv|)" )
+      )
+      + ")" );
+  }
+
+  { // concat with (and A B)
+    ILA_ASSERT(not map_item.empty());
+    auto sz = map_item.size();
+    if(sz == 1) {
+      map_func_def = map_item[0];
+    } else {
+      map_func_def = "(and " + map_item[0] + " " +  map_item[1] + ")";
+      for (decltype(sz) idx = 2; idx < sz; ++ idx)
+        map_func_def = "(and " + map_func_def + " " + map_item[idx] + ")";
+    }
+  } // end concat
 
 // 3. define amc(d/w)/asst/aspt funcs
+  std::string amc_design;
+  std::string amc_wrapper;
+  std::string asst;
+  std::string aspt;
+  
+  // the invariant assert exists in this target
+  // should be the same as those exists in the other, but it is better to have
+  // this passed through smt_info
+  // (|%d%_invariant_assert| |Sv|)
+
+  {
+
+  }
+
+
 
 
 }
 
+// it needs to know the previous smt-info
 // generate the problem for dual inv syn
-void VlgSglTgtGen_Yosys::Export_problem(const std::string& extra_name, const smt_info & smtinfo) {
+void VlgSglTgtGen_Yosys::Export_problem(const std::string& extra_name, const YosysDesignSmtInfo & smt_info) {
 
   // should only be used when forcing reset (no inv syn).
   ILA_ASSERT( not _vtg_config.ForceInstCheckReset );
@@ -623,7 +669,7 @@ void VlgSglTgtGen_Yosys::Export_modify_verilog() {
 } // Export_modify_verilog
 
 // Export problem for getting the smt of the wrapper
-void VlgSglTgtGen_Yosys::Export_problem_smt(const std::string& extra_name) {
+void VlgSglTgtGen_Yosys::Export_problem_design_smt(const std::string& extra_name) {
   // should only be used when forcing reset (no inv syn).
   ILA_ASSERT( not _vtg_config.ForceInstCheckReset );
 
@@ -679,13 +725,13 @@ void VlgSglTgtGen_Yosys::Export_problem_smt(const std::string& extra_name) {
     <<    "__wrapper_"
         + os_portable_remove_file_name_extension(top_file_name)
         + ".smt2";
-} // Export_problem_smt
+} // Export_problem_design_smt
 
 
 
 // Export script for getting the smt of the wrapper
-void VlgSglTgtGen_Yosys::Export_script_smt(const std::string& script_name) {
-  // should only be used when forcing reset (no inv syn).
+void VlgSglTgtGen_Yosys::Export_script_design_smt(const std::string& script_name) {
+  // should not be used when forcing reset (no inv syn).
   ILA_ASSERT( not _vtg_config.ForceInstCheckReset );
 
   yosys_run_script_name = script_name;
@@ -713,7 +759,7 @@ void VlgSglTgtGen_Yosys::Export_script_smt(const std::string& script_name) {
 } // Export_script_smt
 
 // generate smt encoding for the wrapper, return true if success
-bool VlgSglTgtGen_Yosys::Gen_wrapper_smt() {
+bool VlgSglTgtGen_Yosys::Gen_wrapper_smt() const {
   ILA_ASSERT(yosys_run_script_name != "");
 
   auto script_path = 
@@ -727,7 +773,7 @@ bool VlgSglTgtGen_Yosys::Gen_wrapper_smt() {
   return succeeded;
 } // Gen_wrapper_smt
 
-/// Need the smt info
+/// Need the smt info, for the final SMT2 generation
 /// Take care of exporting all of a single target
 void VlgSglTgtGen_Yosys::ExportAll(const std::string& wrapper_name,
                         const std::string& ila_vlg_name,
@@ -760,9 +806,9 @@ void VlgSglTgtGen_Yosys::ExportAll(const std::string& wrapper_name,
   Export_mem(mem_name);
 
   // you need to create the map function -- 
-  Export_problem_smt(extra_name); // the gensmt.ys 
+  Export_problem_design_smt(extra_name); // the gensmt.ys 
   
-  Export_script_smt(script_name);
+  Export_script_design_smt(script_name); // the 
 
   // execute the script and get the smt
   if(not Gen_wrapper_smt()) {
@@ -849,6 +895,16 @@ VlgSglTgtGen_Yosys::extract_state_info_from_smt(const std::string &smt_file_path
       ILA_ASSERT(in_data_type);
       break; // okay we are done
     } else if (in_data_type) {
+      std::string ref_name;
+      {
+        auto pos = line_in.find("(");
+        ILA_ASSERT(pos != line_in.npos);
+        ++ pos;
+        auto epos = line_in.find(" ", pos);
+        ILA_ASSERT(epos != line_in.npos);
+        ref_name = line_in.substr(pos,epos);
+      }
+
       std::string state_name;
       if(argNo == 0) {
         state_name = "is_no_use";
@@ -857,7 +913,7 @@ VlgSglTgtGen_Yosys::extract_state_info_from_smt(const std::string &smt_file_path
         pos += 3;
         state_name = line_in.substr(pos); // till the end
       }
-      ret.push_back(state_name);
+      ret.insert( { state_name , sig_tp_state_t(ref_name, state_name)} );
       argNo ++;
     }
   }
