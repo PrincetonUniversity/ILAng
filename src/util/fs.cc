@@ -142,7 +142,7 @@ std::string os_portable_remove_file_name_extension(const std::string fname) {
 }
 
 
-bool os_portable_execute_shell(const std::string exec_name) {
+bool os_portable_execute_shell(const std::string exec_name, const std::string & linux_shell) {
 #ifdef defined(_WIN32) || defined(_WIN64)
   // on windows
   STARTUPINFO si;
@@ -175,12 +175,19 @@ bool os_portable_execute_shell(const std::string exec_name) {
   if (pid == 0) {
     // The child
     // will replace the image and execute the bash
-    execlp("bash",exec_name.c_str(), NULL);
+    exit(execlp(linux_shell.c_str(),exec_name.c_str(), NULL));
   } else {
     // The parent will wait for its end
     int infop;
     if( waitpid(pid, &infop, 0) == -1 )
       return false; // failed call (should not happen normally)
+    if(WEXITSTATUS(infop) != 0) {
+      ILA_ERROR 
+        << "Subprocess " << linux_shell 
+        << " failed with return code: "
+        << WEXITSTATUS(infop);
+      return false;
+    }
   }
   return true;
 

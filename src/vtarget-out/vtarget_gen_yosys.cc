@@ -1,4 +1,5 @@
 /// \file Source of generating Yosys accepted problem, vlg, mem, script
+/// the inv-syn related HC generation is located in inv_syn.cc
 // --- Hongce Zhang
 
 #include <algorithm>
@@ -15,6 +16,13 @@ namespace ilang {
 
 #define VLG_TRUE "`true"
 #define VLG_FALSE "`false"
+
+/// default constructor
+YosysDesignSmtInfo::YosysDesignSmtInfo() {}
+/// The move constructor
+YosysDesignSmtInfo::YosysDesignSmtInfo(YosysDesignSmtInfo && r) :
+  full_smt(std::move(r.full_smt)) {
+}
 
 VlgSglTgtGen_Yosys::VlgSglTgtGen_Yosys(
     const std::string&
@@ -34,11 +42,21 @@ VlgSglTgtGen_Yosys::VlgSglTgtGen_Yosys(
                    wrapper_name, implementation_srcs,
                    implementation_include_path, vtg_config, backend,
                    target_tp) { 
+    
+    ILA_ASSERT(not _vtg_config.YosysSmtArrayForRegFile)
+      << "Future work to support array in synthesis";
 
 // initialize templates
 yosysGenerateSmtScript_wo_Array = R"***(
-flatten
+hierarchy -check
+proc
+opt
+opt_expr -mux_undef
+opt
+opt
 memory -nordff
+proc
+opt;;
 )***";
 
 yosysGenerateSmtScript_w_Array = R"***(
@@ -50,7 +68,7 @@ opt
 opt
 memory_dff -wr_only
 memory_collect;
-flatten;
+
 memory_unpack
 splitnets -driver
 opt;;
@@ -100,7 +118,7 @@ void VlgSglTgtGen_Yosys::add_an_assumption(const std::string& aspt,
   vlg_wrapper.add_assign_stmt(assumption_wire_name, aspt);
   ILA_ERROR_IF(aspt.find(".") != std::string::npos)
       << "aspt:" << aspt << " contains unfriendly dot.";
-  _problems.assumptions[dspt].exprs.push_back(assumption_wire_name + " == 1'b1");
+  _problems.assumptions[dspt].exprs.push_back(assumption_wire_name);
   //_problems.assumptions.push_back(convert_expr_to_yosys(aspt));
 }
 /// Add an assertion
@@ -111,7 +129,7 @@ void VlgSglTgtGen_Yosys::add_an_assertion(const std::string& asst,
   vlg_wrapper.add_output(assrt_wire_name,
                          1); // I find it is necessary to connect to the output
   vlg_wrapper.add_assign_stmt(assrt_wire_name, asst);
-  _problems.assertions[dspt].exprs.push_back(assrt_wire_name + " == 1'b1");
+  _problems.assertions[dspt].exprs.push_back(assrt_wire_name);
   ILA_ERROR_IF(asst.find(".") != std::string::npos)
       << "asst:" << asst << " contains unfriendly dot.";
   //_problems.probitem[dspt].assertions.push_back(convert_expr_to_yosys(asst));
@@ -176,7 +194,8 @@ void VlgSglTgtGen_Yosys::PreExportProcess() {
   vlg_wrapper.add_assign_stmt("__all_assert_wire__", all_assert_wire_content);
 } // PreExportProcess
 
-/// export the script to run the verification0
+/// export the script to run the verification :
+/// like "yosys gemsmt.ys"
 void VlgSglTgtGen_Yosys::Export_script(const std::string& script_name) {
   yosys_run_script_name = script_name;
 
@@ -190,10 +209,6 @@ void VlgSglTgtGen_Yosys::Export_script(const std::string& script_name) {
 
   std::string yosys = "yosys";
 
-  // no need, copy is good enough
-  // if(vlg_include_files_path.size() != 0)
-  //  options += " -I./";
-
   if (not _vtg_config.YosysPath.empty())
     yosys = os_portable_append_dir(_vtg_config.YosysPath, yosys);
 
@@ -201,408 +216,8 @@ void VlgSglTgtGen_Yosys::Export_script(const std::string& script_name) {
     fout << yosys << " "<< yosys_prob_fname  << std::endl;
   else
     fout << "echo 'Nothing to check!'" << std::endl;
-}
+} // Export_script
 
-
-// if we are not proving with arb state
-// (force initial state)
-// then we only need a single ind-inv
-std::string single_ind_inv_tmpl = R"***(
-;----------------------------------------
-;  Single Inductive Invariant Synthesis
-;  Generated from ILAng
-;----------------------------------------
-
-%%
-
-;(declare-rel INIT (|%1%_s|))
-;(declare-rel T (|%1%_s|) (|%1%_s|))
-(declare-rel INV (|%1%_s|))
-(declare-rel fail ())
-
-
-(declare-var |__BI__| |%1%_s|)
-(declare-var |__I__| |%1%_s|)
-
-(declare-var |__S__| |%1%_s|)
-(declare-var |__S'__| |%1%_s|)
-
-;(rule (|%1%_is| |__S__|))
-(rule (=> (and (|%1%_n rst| |__BI__|) (|%1%_t| |__BI__| |__I__|)) (INV |__I__|)))
-(rule (=> (and (INV |__S__|) (|%1%_t| |__S__| |__S'__|)) (INV |__S'__|)))
-(rule (=> (and (INV |__S__|) (not (|%1%_a| |__S__|))) fail))
-;(rule (=> (INV |__S__|) (not (|%1%_a| |__S__|))))
-
-(query fail :print-certificate true)
-
-)***";
-
-
-/// export extra things (problem) : for yosys, it is the gensmt.ys 
-/// and also the template : for the single-ind-inv
-void VlgSglTgtGen_Yosys::Export_problem(const std::string& extra_name) {
-  // should only be used when forcing reset (no inv syn).
-  ILA_ASSERT( _vtg_config.ForceInstCheckReset );
-
-  if (_problems.assertions.size() == 0) {
-    ILA_ERROR << "Nothing to prove, no assertions inserted!";
-    return;
-  }
-  // First, write the template
-  std::string pdr_template_name = 
-    os_portable_append_dir(_output_path, "invSyn.tpl");
-  {
-    std::ofstream fout(pdr_template_name);
-    auto const & tmpl = 
-      //_vtg_config.ForceInstCheckReset ? 
-      single_ind_inv_tmpl; // : dual_ind_inv_tmpl;
-
-    fout << ReplaceAll(tmpl, "%1%", top_mod_name);
-  }
-
-
-
-  yosys_prob_fname = extra_name;
-
-  std::ofstream fout(os_portable_append_dir(_output_path, extra_name));
-  if (!fout.is_open()) {
-    ILA_ERROR << "Error writing file: "
-              << os_portable_append_dir(_output_path, extra_name);
-    return;
-  }
-
-  std::string write_smt2_options;
-
-  write_smt2_options += " -mem -bv -wires -tpl " + pdr_template_name ;
-  switch(_vtg_config.YosysSmtStateSort) {
-    case vtg_config_t::DataSort: write_smt2_options += " -stdt"; break;
-    case vtg_config_t::BitVec: write_smt2_options += " -stbv"; 
-      ILA_ERROR_IF(_vtg_config.YosysSmtArrayForRegFile)
-        << "Bitvector SMT encoding is not compatible w. option YosysSmtArrayForRegFile";
-      break;
-    case vtg_config_t::UnintepretedFunc: break; // do nothing
-    default: ILA_ERROR << "Unknown option for YosysSmtStateSort option";
-  }
-
-
-  fout << "read_verilog -sv "<<top_file_name<< std::endl;
-  fout << "prep -top "<<top_mod_name<<std::endl;
-  if(_vtg_config.YosysSmtArrayForRegFile)
-    fout << yosysGenerateSmtScript_w_Array;
-  else
-    fout << yosysGenerateSmtScript_wo_Array;
-  fout << "write_smt2"<<write_smt2_options
-    << os_portable_remove_file_name_extension(top_file_name)
-        + ".smt2";
-} 
-
-// -------------------------------------------
-// Summary of the assertions/assumptions we need to handle
-//
-// assert: variable_map_assert
-// 
-// assmpt:  noreset (AMC) 
-//          funcmap (AMC)
-//          absmem (AMC)
-//          additional_mapping_control_assume (AMC)
-//          invariant_assume (AMC_design)
-//          issue_decode (START -- ASPT)
-//          issue_valid  (START -- ASPT)
-//          start_condition (START -- ASPT)
-//          variable_map_assert (on final step)
-//
-// (AMC means should always be true)
-//
-
-// o.w. we need to find two ind-inv
-std::string dual_ind_inv_tmpl = R"***(
-;----------------------------------------
-;  Dual Inductive Invariant Synthesis
-;  Generated from ILAng
-;----------------------------------------
-
-
-%%
-
-; design smt
-%designSmt%
-
-; wrapper smt
-%wrapperSmt%
-
-; map function
-(define-fun |__MAP__w2v| ((|Sw| |%w%_s|) (|Sv| |%d%_s|)) %mapFunc%)
-
-; additional mapping control
-; |__AMC__design| is actually the invariants
-; 
-(define-fun |__AMC__design|  ((|Sv| |%d%_s|)) %amcFunc_design%)
-(define-fun |__AMC__wrapper| ((|Sw| |%w%_s|)) %amcFunc_wrapper%)
-
-; includes the start_condition, issue_decode, issue_valid
-;(define-fun |__ASPT__| ((|Sw| |%w%_s|)) (??)) 
-%ASPT%
-
-; includes the variable_map_assert
-;(define-fun |__ASST__| ((|Sw| |%w%_s|)) (??)) 
-%ASST%
-
-
-(declare-rel INV1 (|%d%_s|)) ; inv1 is on design
-(declare-rel INV2 (|%w%_s|)) ; inv2 is on wrapper
-(declare-rel fail ())
-
-(declare-var |__SvBI__| |%d%_s|) ; design
-(declare-var |__SvI__|  |%d%_s|) ; design
-(declare-var |__Sv__|   |%d%_s|) ; design
-(declare-var |__Sv'__|  |%d%_s|) ; design
-
-(declare-var |__SwBI__| |%w%_s|) ; wrapper : before init
-(declare-var |__SwI__|  |%w%_s|) ; wrapper : init state
-(declare-var |__Swst__| |%w%_s|) ; wrapper : starting -- __START__ signal is true
-(declare-var |__Sw__|   |%d%_s|) ; wrapper : generic state
-(declare-var |__Sw'__|  |%d%_s|) ; wrapper : new state
-(declare-var |__Svst__| |%d%_s|) ; design  : starting -- __START__ signal is true here
-
-
-; init => inv1
-(rule (=> 
-  (and 
-    (and
-      (|%d%_n rst| |__SvBI__|) 
-      (|%d%_t|     |__SvBI__| |__SvI__|))
-    (|__AMC__design| |__SvI__|)
-  ) (INV1 |__SvI__|)))
-
-; inv1 /\ T => inv1
-(rule (=> 
-  (and
-    (and
-      (and
-        (INV1    |__Sv__|)
-        (|%d%_t| |__Sv__| |__Sv'__|))
-      (|__AMC__design| |__Sv__|))
-    (|__AMC__design| |__Sv'__|))
-  (INV1 |__Sv'__|)))
-
-; init /\ inv1 => inv2
-(rule (=> 
-    (and
-      (and
-        (and
-          (and
-            (and
-              (and
-                (and
-                  (|%w%_n rst| |__SwBI__|)
-                  (|%w%_t|     |__SwBI__| |__SwI__|)
-                )
-                (|__AMC__wrapper| |__SwI__|)
-              )
-              (|%w%_t| |__SwI__| |__Swst__|)
-            )
-            (|__AMC__wrapper| |__Swst__|)
-          )
-          (|__ASPT__| |__Swst__|)
-        )
-        (|__MAP__w2v| |__Swst__| |__Svst__|)
-      )
-      (INV1 |__Svst|)
-    )
-    (INV2 |__Swst__|)
-  )
-)
-
-; inv2 /\ T => inv2
-(rule 
-  (=>
-    (and
-      (and
-        (and
-          (INV2 |__Sw__|)
-          (|%w%_t| |__Sw__| |__Sw'__|)
-        )
-        (|__AMC__wrapper| |__Sw__|)
-      )
-      (|__AMC__wrapper| |__Sw'__|)
-    )
-    (INV2 |__Sw'__|)
-  )
-)
-
-; inv2 /\ ~ assert => fail
-(rule 
-  (=> 
-    (and
-      (and 
-        (INV2             |__Sw__|)
-        (|__AMC__wrapper| |__Sw__|))
-      (not (|__ASST__|    |__Sw__|)))
-    fail)
-)
-
-
-(query fail :print-certificate true)
-
-)***";
-
-/// output the template for dual inv syn
-std::string VlgSglTgtGen_Yosys::get_smt_template(const YosysDesignSmtInfo & smtinfo) {
-// 0. 
-//    analyzing the state sequence
-//    so you can decide the mapping
-  auto smt_file_name = 
-      "__wrapper_"
-    + os_portable_remove_file_name_extension(top_file_name)
-    + ".smt2";
-
-  auto smt_file_path =
-    os_portable_append_dir(_output_path, smt_file_name);
-
-  auto state_name_vec = 
-    extract_state_info_from_smt(smt_file_path);
-
-// 1. import design_smt/wrapper_smt
-  std::string design_smt;
-  std::string wrapper_smt;
-
-  {
-    std::ifstream design_smt_fin(smtinfo.top_mod_name + ".smt2");
-    std::stringstream buffer;
-    buffer << design_smt_fin.rdbuf();
-    buffer >> design_smt;
-  }
-
-  {
-    std::ifstream wrapper_smt_fin(smt_file_name);
-    std::stringstream buffer;
-    buffer << wrapper_smt_fin.rdbuf();
-    buffer >> wrapper_smt;
-  }
-
-// 2. define map func
-  std::string map_func_def;
-  std::vector<std::string> map_item;
-  // when you map the state name, remember to put the "m0." there
-  const auto & design_top_mod_name = smtinfo.top_mod_name;
-  for (auto && vlg_sig_ref_pair : smtinfo.state_pos_name_map) {
-    auto top_lvl_vlg_name = _vlg_mod_inst_name + "." + vlg_sig_ref_pair.first; // vlg_name
-    auto sn_pos = state_name_vec.find(top_lvl_vlg_name);
-    ILA_ASSERT( sn_pos != state_name_vec.end() )
-      << "BUG: cannot find Verilog state name:"
-      << top_lvl_vlg_name << " in top level smt data sort";
-
-    map_item.push_back(
-      "(= " +
-      (
-        ( "(" + sn_pos->second.ref_name + " |Sw|)" )
-      +
-        ( "(" + vlg_sig_ref_pair.second.vlg_name + " |Sv|)" )
-      )
-      + ")" );
-  }
-
-  { // concat with (and A B)
-    ILA_ASSERT(not map_item.empty());
-    auto sz = map_item.size();
-    if(sz == 1) {
-      map_func_def = map_item[0];
-    } else {
-      map_func_def = "(and " + map_item[0] + " " +  map_item[1] + ")";
-      for (decltype(sz) idx = 2; idx < sz; ++ idx)
-        map_func_def = "(and " + map_func_def + " " + map_item[idx] + ")";
-    }
-  } // end concat
-
-// 3. define amc(d/w)/asst/aspt funcs
-  std::string amc_design;
-  std::string amc_wrapper;
-  std::string asst;
-  std::string aspt;
-  
-  // the invariant assert exists in this target
-  // should be the same as those exists in the other, but it is better to have
-  // this passed through smt_info
-  // (|%d%_invariant_assert| |Sv|)
-
-  {
-
-  }
-
-
-
-
-}
-
-// it needs to know the previous smt-info
-// generate the problem for dual inv syn
-void VlgSglTgtGen_Yosys::Export_problem(const std::string& extra_name, const YosysDesignSmtInfo & smt_info) {
-
-  // should only be used when forcing reset (no inv syn).
-  ILA_ASSERT( not _vtg_config.ForceInstCheckReset );
-  
-  if (_problems.assertions.size() == 0) {
-    ILA_ERROR << "Nothing to prove, no assertions inserted!";
-    return;
-  }
-  // First, write the template
-  std::string pdr_template_name = 
-    os_portable_append_dir(_output_path, "invSyn.tpl");
-  {
-    std::ofstream fout(pdr_template_name);
-    auto const & tmpl = 
-      _vtg_config.ForceInstCheckReset ? 
-      single_ind_inv_tmpl : dual_ind_inv_tmpl;
-
-    fout << ReplaceAll(tmpl, "%1%", top_mod_name);
-  }
-
-
-
-  yosys_prob_fname = extra_name;
-
-  std::ofstream fout(os_portable_append_dir(_output_path, extra_name));
-  if (!fout.is_open()) {
-    ILA_ERROR << "Error writing file: "
-              << os_portable_append_dir(_output_path, extra_name);
-    return;
-  }
-
-  std::string write_smt2_options;
-
-  write_smt2_options += " -mem -bv -wires -tpl " + pdr_template_name ;
-  switch(_vtg_config.YosysSmtStateSort) {
-    case vtg_config_t::DataSort: write_smt2_options += " -stdt"; break;
-    case vtg_config_t::BitVec: write_smt2_options += " -stbv"; 
-      ILA_ERROR_IF(_vtg_config.YosysSmtArrayForRegFile)
-        << "Bitvector SMT encoding is not compatible w. option YosysSmtArrayForRegFile";
-      break;
-    case vtg_config_t::UnintepretedFunc: break; // do nothing
-    default: ILA_ERROR << "Unknown option for YosysSmtStateSort option";
-  }
-
-
-  fout << "read_verilog -sv "<<top_file_name<< std::endl;
-  fout << "prep -top "<<top_mod_name<<std::endl;
-  if(_vtg_config.YosysSmtArrayForRegFile)
-    fout << yosysGenerateSmtScript_w_Array;
-  else
-    fout << yosysGenerateSmtScript_wo_Array;
-  fout << "write_smt2"<<write_smt2_options
-    << os_portable_remove_file_name_extension(top_file_name)
-        + ".smt2";
-} 
-
-/// export the memory abstraction (implementation)
-/// Yes, this is also implementation specific, (jasper may use a different one)
-void VlgSglTgtGen_Yosys::Export_mem(const std::string& mem_name) {
-  // we will ignore the mem_name
-
-  auto outfn = os_portable_append_dir(_output_path, top_file_name);
-  std::ofstream fout(outfn, std::ios_base::app); // append
-
-  VlgAbsMem::OutputMemFile(fout);
-}
 
 /// For jasper, this means do nothing, for yosys, you need to add (*keep*)
 void VlgSglTgtGen_Yosys::Export_modify_verilog() {
@@ -644,20 +259,16 @@ void VlgSglTgtGen_Yosys::Export_modify_verilog() {
     vlg_mod.ReadModifyWrite(fn, fin, fout);
   } // for (auto && fn : vlg_design_files)
 
-  /*
-  // also make a copy to the top module
-  {
+  { // also make a copy to the top module
     auto wrapper_file_name = os_portable_append_dir(_output_path, top_file_name);
     std::ifstream fin (tmp_fn);
     std::ofstream fout(wrapper_file_name, std::ios_base::app); // append to the wrapper file
     ILA_ERROR_IF(fin.is_open()) << "Cannot open file for read:" << tmp_fn;
     ILA_ERROR_IF(fout.is_open()) << "Cannot open file for write:" << wrapper_file_name;
     if (fin.is_open() and fout.is_open())
-      fout << find.rdbuf();
+      fout << fin.rdbuf();
   }
-  */
   
-
   // handles the includes
   // .. (copy all the verilog file in the folder), this has to be os independent
   if (vlg_include_files_path.size() != 0) {
@@ -668,258 +279,100 @@ void VlgSglTgtGen_Yosys::Export_modify_verilog() {
 
 } // Export_modify_verilog
 
-// Export problem for getting the smt of the wrapper
-void VlgSglTgtGen_Yosys::Export_problem_design_smt(const std::string& extra_name) {
-  // should only be used when forcing reset (no inv syn).
-  ILA_ASSERT( not _vtg_config.ForceInstCheckReset );
 
-  if (_problems.assertions.size() == 0) {
-    ILA_ERROR << "Nothing to prove, no assertions inserted!";
-    return;
-  }
+/// export the memory abstraction (implementation)
+/// Yes, this is also implementation specific, (jasper may use a different one)
+void VlgSglTgtGen_Yosys::Export_mem(const std::string& mem_name) {
+  // we will ignore the mem_name
 
+  auto outfn = os_portable_append_dir(_output_path, top_file_name);
+  std::ofstream fout(outfn, std::ios_base::app); // append
+
+  VlgAbsMem::OutputMemFile(fout);
+}
+
+
+// export the gensmt.ys
+void VlgSglTgtGen_Yosys::Export_problem(const std::string& extra_name) {
+  // used by export script!
   yosys_prob_fname = extra_name;
 
-  std::ofstream fout(os_portable_append_dir(_output_path, extra_name));
-  if (!fout.is_open()) {
-    ILA_ERROR << "Error writing file: "
-              << os_portable_append_dir(_output_path, extra_name);
-    return;
-  }
+  // generate tpl
+  if (_vtg_config.ForceInstCheckReset ) { // single-inv
+    single_inv_tpl("invSyn.tpl");
+    single_inv_problem(extra_name);
+  } else { // dual-inv
 
-  std::string write_smt2_options;
+    // first generate a temporary smt
+    // and extract from it the necessary info
+    auto smt_info = dual_inv_gen_smt("__design_smt.smt2","__gen_smt_script.ys");
+    auto final_smt_name = 
+      os_portable_append_dir(_output_path,
+        os_portable_remove_file_name_extension(top_file_name) + ".smt2" );
 
-  write_smt2_options += " -mem -bv -wires";
-
-  ILA_ASSERT(_vtg_config.YosysSmtStateSort == vtg_config_t::DataSort)
-    << "Not implemented: Yosys inv-syn for stbv/uf, future work.";
-  ILA_ASSERT(not _vtg_config.YosysSmtArrayForRegFile)
-    << "Not supporting array in Yosys inv-syn. Future work.";
-
-  write_smt2_options += " -stdt";
-
-
-  /*
-  switch(_vtg_config.YosysSmtStateSort) {
-    case vtg_config_t::DataSort: write_smt2_options += " -stdt"; break;
-    case vtg_config_t::BitVec: write_smt2_options += " -stbv"; 
-      ILA_ERROR_IF(_vtg_config.YosysSmtArrayForRegFile)
-        << "Bitvector SMT encoding is not compatible w. option YosysSmtArrayForRegFile";
-      break;
-    case vtg_config_t::UnintepretedFunc: break; // do nothing
-    default: ILA_ERROR << "Unknown option for YosysSmtStateSort option";
-  }*/
-
-
-  fout << "read_verilog -sv "<<top_file_name<< std::endl;
-  fout << "prep -top "<<top_mod_name<<std::endl;
-  fout << yosysGenerateSmtScript_wo_Array;
-
-  // // not supporting the arrays
-  //if(_vtg_config.YosysSmtArrayForRegFile)
-  //  fout << yosysGenerateSmtScript_w_Array;
-  //else
-  //  fout << yosysGenerateSmtScript_wo_Array;
-
-  fout << "write_smt2"<<write_smt2_options
-    <<    "__wrapper_"
-        + os_portable_remove_file_name_extension(top_file_name)
-        + ".smt2";
-} // Export_problem_design_smt
-
-
-
-// Export script for getting the smt of the wrapper
-void VlgSglTgtGen_Yosys::Export_script_design_smt(const std::string& script_name) {
-  // should not be used when forcing reset (no inv syn).
-  ILA_ASSERT( not _vtg_config.ForceInstCheckReset );
-
-  yosys_run_script_name = script_name;
-
-  auto fname = os_portable_append_dir(_output_path, script_name);
-  std::ofstream fout(fname);
-  if (!fout.is_open()) {
-    ILA_ERROR << "Error writing to file:" << fname;
-    return;
-  }
-  fout << "#!/bin/bash" << std::endl;
-
-  std::string yosys = "yosys";
-
-  // no need, copy is good enough
-  // if(vlg_include_files_path.size() != 0)
-  //  options += " -I./";
-
-  if (not _vtg_config.YosysPath.empty())
-    yosys = os_portable_append_dir(_vtg_config.YosysPath, yosys);
-
-  ILA_ASSERT (yosys_prob_fname != "");
-  fout << yosys << " "<< yosys_prob_fname  << std::endl;
-
-} // Export_script_smt
-
-// generate smt encoding for the wrapper, return true if success
-bool VlgSglTgtGen_Yosys::Gen_wrapper_smt() const {
-  ILA_ASSERT(yosys_run_script_name != "");
-
-  auto script_path = 
-    os_portable_append_dir(_output_path, yosys_run_script_name);
-
-  bool succeeded = 
-    os_portable_execute_shell( script_path );
-
-  ILA_ERROR_IF(not succeeded) << "Cannot execute script:"<<script_path;
-
-  return succeeded;
-} // Gen_wrapper_smt
-
-/// Need the smt info, for the final SMT2 generation
-/// Take care of exporting all of a single target
-void VlgSglTgtGen_Yosys::ExportAll(const std::string& wrapper_name,
-                        const std::string& ila_vlg_name,
-                        const std::string& script_name,
-                        const std::string& extra_name,
-                        const std::string& mem_name,
-                        const YosysDesignSmtInfo& smt_info) {
-
-  ILA_ASSERT(not has_flush) << "not implemented: future work.";
-
-  if ( _vtg_config.ForceInstCheckReset ) {
-    ILA_ERROR
-      << "API misuse: when forcing reset state, "
-      << "please use the other ExportAll function "
-      << "that has no smt_info in its arg.";
-    return;
-  }
-
-  PreExportProcess();
-  if (os_portable_mkdir(_output_path) == false)
-    ILA_WARN << "Cannot create output directory:" << _output_path;
-  // you don't need to worry about the path and names
-  Export_wrapper(wrapper_name);
-  if (target_type == target_type_t::INSTRUCTIONS) //  inv\instruction
-    Export_ila_vlg(ila_vlg_name); // this has to be after Export_wrapper
-
-  // for Jasper, this will be put to multiple files
-  // for CoSA & Yosys, this will be put after the wrapper file (wrapper.v)
-  Export_modify_verilog();        // this must be after Export_wrapper
-  Export_mem(mem_name);
-
-  // you need to create the map function -- 
-  Export_problem_design_smt(extra_name); // the gensmt.ys 
+    dual_inv_tpl(final_smt_name, smt_info);
+    dual_inv_problem(extra_name);
+  } // end of single/dual-inv
   
-  Export_script_design_smt(script_name); // the 
+} // Export_problem
 
-  // execute the script and get the smt
-  if(not Gen_wrapper_smt()) {
-    ILA_ERROR 
-      << "Cannot generate SMT-LIB2 encoding for wrapper. "
-      << "Quit invariant synthesis.";
-    return;
-  }
 
-  // extract the state info --- will be done in Export_problem
-
-  Export_problem(extra_name, smt_info);
-
-  Export_script(script_name);
-
-  ..// todo :
-  // 1. change the template for dual
-  // 2. gen map function
-  // 3. make sure the assumptions and assertions are used in good ways
-}
-                         
-/// Deprecation of the one without smt info
 void VlgSglTgtGen_Yosys::ExportAll(const std::string& wrapper_name,
                         const std::string& ila_vlg_name,
                         const std::string& script_name,
                         const std::string& extra_name,
                         const std::string& mem_name) {
+ ..// TODO:
+ // PreExportProcess()
+ // Export_wrapper()
+ // if(..) Export_ila_vlg()
+ // Export_modify_verilog()
+ // Export_mem()
+ // Export_problem()
+ // Export_script()
+                        }
 
-  if( not _vtg_config.ForceInstCheckReset ){
-    ILA_ERROR
-      << "API misuse: when not forcing reset state, "
-      << "please use the other ExportAll function "
-      << "that HAS smt_info in its arg.";
-    return;
-  }
 
-  ILA_ASSERT(false) 
-   << "Implementation bug: future work.";
-
-  .. // todo : please check the following code to ensure correctness!
-  PreExportProcess();
-  if (os_portable_mkdir(_output_path) == false)
-    ILA_WARN << "Cannot create output directory:" << _output_path;
-  // you don't need to worry about the path and names
-  Export_wrapper(wrapper_name);
-  if (target_type == target_type_t::INSTRUCTIONS)
-    Export_ila_vlg(ila_vlg_name); // this has to be after Export_wrapper
-
-  // for Jasper, this will be put to multiple files
-  // for CoSA & Yosys, this will be put after the wrapper file (wrapper.v)
-  Export_modify_verilog();        // this must be after Export_wrapper
-  Export_mem(mem_name);
-
-  // you need to create the map function -- 
-  Export_problem(extra_name); // the gensmt.ys 
+/// generate the wrapper's smt first
+YosysDesignSmtInfo VlgSglTgtGen_Yosys::dual_inv_gen_smt(
+  const std::string & smt_name,
+  const std::string & ys_script_name) {
   
-  Export_script(script_name);
-}
+  auto ys_full_name =
+      os_portable_append_dir(_output_path, ys_script_name);
+  { // export to ys_full_name
+    std::ofstream ys_script_fout( ys_full_name );
+    
+    std::string write_smt2_options = " -mem -bv -wires -stdt "; // future work : -stbv, or nothing
 
+    ys_script_fout << "read_verilog -sv " << top_file_name << std::endl;
+    ys_script_fout << "prep -top " << top_mod_name << std::endl;
+    ys_script_fout << yosysGenerateSmtScript_wo_Array;
+    ys_script_fout << "write_smt2"<<write_smt2_options << smt_name;   
+  } // finish writing
 
+  std::string yosys = "yosys";
 
-YosysDesignSmtInfo::pos_name_map_t 
-VlgSglTgtGen_Yosys::extract_state_info_from_smt(const std::string &smt_file_path)
-{
+  if (not _vtg_config.YosysPath.empty())
+    yosys = os_portable_append_dir(_vtg_config.YosysPath, yosys);
 
-  std::ifstream smt_fin(smt_file_path);
-  if(not smt_fin.is_open()) {
-    ILA_ERROR << "Cannot read SMT-LIB2:" << smt_file_path;
-    return YosysDesignSmtInfo::pos_name_map_t(); // return an empty one
-  }
-  // readline- until
-  std::string line_in;
-  bool in_data_type = false;
-  unsigned argNo = 0;
+  // execute it
+  ILA_ERROR_IF( not os_portable_execute_shell(yosys, ys_full_name) )
+    << "Executing Yosys failed!";
 
-  YosysDesignSmtInfo::pos_name_map_t ret;
+  YosysDesignSmtInfo ret;
+  { // now read in the file 
+    auto smt_in_fn = os_portable_append_dir(_output_path, smt_name);
+    std::ifstream smtfin( smt_in_fn );
 
-  while (std::getline(smt_fin, line_in)) {
-    if( line_in.find("(declare-datatype") == 0 ) {
-      ILA_ASSERT(argNo == 0) << "Implementation bug.";
-      in_data_type = true;
-    } else if (line_in.find(")))") == 0) {
-      ILA_ERROR_IF(argNo <= 1) << "No state has been extracted from smt";
-      ILA_ASSERT(in_data_type);
-      break; // okay we are done
-    } else if (in_data_type) {
-      std::string ref_name;
-      {
-        auto pos = line_in.find("(");
-        ILA_ASSERT(pos != line_in.npos);
-        ++ pos;
-        auto epos = line_in.find(" ", pos);
-        ILA_ASSERT(epos != line_in.npos);
-        ref_name = line_in.substr(pos,epos);
-      }
-
-      std::string state_name;
-      if(argNo == 0) {
-        state_name = "is_no_use";
-      } else {
-        auto pos = line_in.find("; \\");
-        pos += 3;
-        state_name = line_in.substr(pos); // till the end
-      }
-      ret.insert( { state_name , sig_tp_state_t(ref_name, state_name)} );
-      argNo ++;
+    if (not smtfin.is_open()) {
+      ILA_ERROR << "Cannot read from: " << smt_in_fn;
+      return YosysDesignSmtInfo();
     }
-  }
-
-  ILA_ASSERT(in_data_type); // we must have got the datatype o.w. it is a bug
+    ret.full_smt << smtfin.rdbuf();
+  } // finish file readin
   return ret;
-}
+  } // dual_inv_gen_smt
+
 
 }; // namespace ilang

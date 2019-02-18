@@ -30,7 +30,7 @@ std::string os_portable_append_dir(const std::string& dir1,
 std::string os_portable_remove_file_name_extension(const std::string fname);
 
 /// execute some executables that are shell scripts
-bool os_portable_execute_shell(const std::string exec_name);
+bool os_portable_execute_shell(const std::string exec_name, const std::string & linux_shell = "bash");
 
 /// Extract filename from path
 /// C:\a\b\c.txt -> c.txt

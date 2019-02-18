@@ -13,138 +13,385 @@
 
 namespace ilang {
 
-#define VLG_TRUE "`true"
-#define VLG_FALSE "`false"
+std::string single_ind_inv_tmpl = R"***(
+;----------------------------------------
+;  Single Inductive Invariant Synthesis
+;  Generated from ILAng
+;----------------------------------------
 
-// -----------------  VlgSglTgtGen_Yosys_design_only ------------ //
+%%
 
-VlgSglTgtGen_Yosys_design_only::VlgSglTgtGen_Yosys_design_only(
-  const std::string& output_path, // will be a sub directory of the
-                                  // output_path of its parent
-  const InstrPtr& instr_ptr, // which could be an empty pointer, and it will
-                              // be used to verify invariants
-  const InstrLvlAbsPtr& ila_ptr,
-  const VerilogGenerator::VlgGenConfig& config, nlohmann::json& _rf_vmap,
-  nlohmann::json& _rf_cond, VerilogInfo* _vlg_info_ptr,
-  const std::string& vlg_mod_inst_name,
-  const std::string& ila_mod_inst_name, const std::string& wrapper_name,
-  const std::vector<std::string>& implementation_srcs,
-  const std::vector<std::string>& include_dirs,
-  const vtg_config_t& vtg_config, backend_selector backend,
-  const target_type_t& target_tp) :
+;(declare-rel INIT (|%1%_s|))
+;(declare-rel T (|%1%_s|) (|%1%_s|))
+(declare-rel INV (|%1%_s|))
+(declare-rel fail ())
 
-  VlgSglTgtGen_Yosys(output_path, instr_ptr, ila_ptr, config, 
-    _rf_vmap, _rf_cond, _vlg_info_ptr, vlg_mod_inst_name,
-    ila_mod_inst_name, wrapper_name, implementation_srcs,
-    include_dirs, vtg_config, backend, target_tp
+
+(declare-var |__BI__| |%1%_s|)
+(declare-var |__I__| |%1%_s|)
+
+(declare-var |__S__| |%1%_s|)
+(declare-var |__S'__| |%1%_s|)
+
+;(rule (|%1%_is| |__S__|))
+(rule (=> (and (|%1%_n rst| |__BI__|) (|%1%_t| |__BI__| |__I__|)) (INV |__I__|)))
+(rule (=> (and (INV |__S__|) (|%1%_t| |__S__| |__S'__|)) (INV |__S'__|)))
+(rule (=> (and (INV |__S__|) (not (|%1%_a| |__S__|))) fail))
+;(rule (=> (INV |__S__|) (not (|%1%_a| |__S__|))))
+
+(query fail :print-certificate true)
+
+)***";
+
+
+// o.w. we need to find two ind-inv
+std::string dual_ind_inv_tmpl = R"***(
+;----------------------------------------
+;  Dual Inductive Invariant Synthesis
+;  Generated from ILAng
+;----------------------------------------
+
+; wrapper smt
+%wrapperSmt%
+
+
+; additional mapping control
+; |__AMC__design| is actually the invariants
+; 
+(define-fun |__AMC__design|  ((|__Sv__| |%d%_s|)) %amcFunc_design%)
+(define-fun |__AMC__wrapper| ((|__Sw__| |%w%_s|)) %amcFunc_wrapper%)
+
+; includes the start_condition, issue_decode, issue_valid
+(define-fun |__ASPT__| ((|__Sw__| |%w%_s|)) %ASPT%) 
+
+; includes the variable_map_assert
+(define-fun |__ASST__| ((|__Sw__| |%w%_s|)) %ASST%) 
+
+(declare-rel INV1 (|%d%_s|)) ; inv1 is on design
+(declare-rel INV2 (|%w%_s|)) ; inv2 is on wrapper
+(declare-rel fail ())
+
+(declare-var |__SvBI__| |%d%_s|) ; design
+(declare-var |__SvI__|  |%d%_s|) ; design
+(declare-var |__Sv__|   |%d%_s|) ; design
+(declare-var |__Sv'__|  |%d%_s|) ; design
+
+(declare-var |__SwBI__| |%w%_s|) ; wrapper : before init
+(declare-var |__SwI__|  |%w%_s|) ; wrapper : init state
+(declare-var |__Swst__| |%w%_s|) ; wrapper : starting -- __START__ signal is true
+(declare-var |__Sw__|   |%d%_s|) ; wrapper : generic state
+(declare-var |__Sw'__|  |%d%_s|) ; wrapper : new state
+(declare-var |__Svst__| |%d%_s|) ; design  : starting -- __START__ signal is true here
+
+
+; init => inv1
+(rule (=> 
+  (and 
+    (|%d%_n rst| |__SvBI__|) 
+    (|%d%_t|     |__SvBI__| |__SvI__|)
+    (|__AMC__design| |__SvI__|)
+  ) (INV1 |__SvI__|)))
+
+; inv1 /\ T => inv1
+(rule (=> 
+  (and
+    (INV1    |__Sv__|)
+    (|%d%_t| |__Sv__| |__Sv'__|)
+    (|__AMC__design| |__Sv__|)
+    (|__AMC__design| |__Sv'__|))
+  (INV1 |__Sv'__|)))
+
+
+; init /\ inv1 => inv2
+(rule (=> 
+    (and
+      (|%w%_n rst|          |__SwBI__|)
+      (|%w%_t|              |__SwBI__| |__SwI__|)
+      (|__AMC__wrapper|     |__SwI__|)
+      (|%w%_t|              |__SwI__|  |__Swst__|)
+      (|__AMC__wrapper|     |__Swst__|)
+      (|__ASPT__|           |__Swst__|)
+      (INV1 (|%w%_h %subi%| |__Swst__|))
+    )
+    (INV2 |__Swst__|)
   )
-  {
-    ILA_ASSERT(backend == backend_selector::YOSYS);
-    ILA_ASSERT(target_tp == target_type_t::INST_INV_SYN);
-    ILA_ERROR_IF(_vtg_config.YosysSmtStateSort != vtg_config_t::DataSort)
-      << "Bug: future work--extract map function from non-data-sort state variable encoding.";
+)
+
+; inv2 /\ T => inv2
+(rule 
+  (=>
+    (and
+        (INV2 |__Sw__|)
+        (|%w%_t| |__Sw__| |__Sw'__|)
+        (|__AMC__wrapper| |__Sw__|)
+        (|__AMC__wrapper| |__Sw'__|)
+    )
+    (INV2 |__Sw'__|)
+  )
+)
+
+
+; inv2 /\ ~ assert => fail
+(rule 
+  (=> 
+    (and
+      (INV2             |__Sw__|)
+      (|__AMC__wrapper| |__Sw__|)
+      (not (|__ASST__|  |__Sw__|))
+    )
+    fail)
+)
+
+(query fail :print-certificate true)
+
+)***";
+
+/// generate the Yosys script for single invariant
+void VlgSglTgtGen_Yosys::single_inv_problem(const std::string& ys_script_name) {
+
+.. 
+  // no need, copy is good enough
+  // if(vlg_include_files_path.size() != 0)
+options += " -I./";
+
+  }
+  /// generate the template file
+  void VlgSglTgtGen_Yosys::single_inv_tpl(const std::string & tpl_name) {
+
+  }
+
+  /// generate the Yosys script for dual invariant
+  void VlgSglTgtGen_Yosys::dual_inv_problem(const std::string& ys_script_name) {
+
   }
 
 
-/// Pre export work : add assume and asssert to the top level
-void VlgSglTgtGen_Yosys_design_only::PreExportProcess() {
-  // no assertions or assumptions
-  // they should not be used here
-}
+// -------------------------------------------
+// Summary of the assertions/assumptions we need to handle
+//
+// assert: variable_map_assert
+//         invariant_assert -- should no be here
+// 
+// assmpt:  noreset (AMC) 
+//          funcmap (AMC)
+//          absmem (AMC)
+//          additional_mapping_control_assume (AMC)
+//          invariant_assume (AMC_design)
+//          issue_decode (START -- ASPT)
+//          issue_valid  (START -- ASPT)
+//          start_condition (START -- ASPT)
+//
+// (AMC means should always be true)
+//
+// -------------------------------------------
 
-// generating the yosys script to generate smt expressions of the verilog design
-void VlgSglTgtGen_Yosys_design_only::Export_problem(const std::string& extra_name) {
-  yosys_prob_fname = extra_name; // or the gensmt.ys name
+  /// generate the template file
+  void VlgSglTgtGen_Yosys::dual_inv_tpl(const std::string & tpl_name, YosysDesignSmtInfo & smt_info) {
+    // get a local copy of the stringstream
+    std::string all_smt = smt_info.full_smt.str();
+    // the Verilog top module
+    auto vlg_top_module_name = vlg_info_ptr->get_top_module_name();
+    
+    // define amc(d/w)/asst/aspt funcs
+    std::string amc_design;
+    std::string amc_wrapper;
+    std::string asst;
+    std::string aspt;
+    { // Construct the above four 
+      std::set<std::string> wn_amc_design_item; // wn stands for wire name
+      std::set<std::string> wn_amc_wrapper_item;
+      std::set<std::string> wn_asst_item; // assertions
+      std::set<std::string> wn_aspt_item; // assumptions
 
-  smt_file_name = os_portable_remove_file_name_extension(top_file_name) + ".smt2";
+      { // find the verilog signal name
+        for (auto&& pbname_prob_pair : _problems.assertions) {
+          const auto & dspt = pbname_prob_pair.first;
+          const auto & exprs = pbname_prob_pair.second;
 
-  std::ofstream fout(os_portable_append_dir(_output_path, extra_name));
-  if(!fout.is_open()) {
-    ILA_ERROR << "Error writing file: "
-              << os_portable_append_dir(_output_path, extra_name);
-    return;
-  }
+          if (dspt == "invariant_assert") {
+            ILA_ASSERT(false) << "Unanticipated dspt: " << dspt;
+          }
+          else if(dspt == "variable_map_assert") {
+            // 
+            for (const auto & expr : exprs.exprs) {
+              ILA_ASSERT( expr.find("=") == expr.npos ) 
+                << "Bug: should be pure name."
+                << "but get: " << expr;
 
-  std::string write_smt2_options;
-
-  write_smt2_options += " -mem -bv -wires" ;
-  switch(_vtg_config.YosysSmtStateSort) {
-    case vtg_config_t::DataSort: write_smt2_options += " -stdt"; break;
-    case vtg_config_t::BitVec: write_smt2_options += " -stbv"; 
-      ILA_ERROR_IF(_vtg_config.YosysSmtArrayForRegFile)
-        << "Bitvector SMT encoding is not compatible w. option YosysSmtArrayForRegFile";
-      break;
-    case vtg_config_t::UnintepretedFunc: break; // do nothing
-    default: ILA_ERROR << "Unknown option for YosysSmtStateSort option";
-  }
-
-  fout << "read_verilog -sv "<<top_file_name<< std::endl;
-  fout << "prep -top "<<top_mod_name<<std::endl;
-
-
-  if(_vtg_config.YosysSmtArrayForRegFile)
-    fout << yosysGenerateSmtScript_w_Array;
-  else
-    fout << yosysGenerateSmtScript_wo_Array;
-  fout << "write_smt2" << write_smt2_options << " " << smt_file_name;
-
-} // VlgSglTgtGen_Yosys_design_only::Export_problem
-
-
-// Export_script : the same as yosys gen
-YosysDesignSmtInfo VlgSglTgtGen_Yosys_design_only::RunSmtGeneration() {
-  auto script_path = 
-    os_portable_append_dir(_output_path, yosys_run_script_name);
-  // run the script
-  bool succeeded = 
-    os_portable_execute_shell( script_path );
-  if (not succeeded) {
-    ILA_ERROR << "Cannot execute script:"<<script_path;
-    return YosysDesignSmtInfo(); // return an empty one
-  }
-
-  // okay now we should open the smt file and parse it
-  auto smt_file_path =
-    os_portable_append_dir(_output_path, smt_file_name);
-
-  YosysDesignSmtInfo ret;
-  ret.top_mod_name = top_mod_name;
-  ret.state_pos_name_map = extract_state_info_from_smt(smt_file_path);
-
-  return ret;
-} // RunSmtGeneration
-
-/// TODO: two trans func may not be a good design!
-/// You may need to consider the hierarchical way
-/// Deprecation of the one without smt info
-void VlgSglTgtGen_Yosys_design_only::ExportAll(const std::string& wrapper_name,
-                        const std::string& ila_vlg_name,
-                        const std::string& script_name,
-                        const std::string& extra_name,
-                        const std::string& mem_name) {
-  PreExportProcess(); // do nothing : no assumptions or assertions
-  if (os_portable_mkdir(_output_path) == false)
-    ILA_WARN << "Cannot create output directory:" << _output_path;
-  // you don't need to worry about the path and names
-  Export_wrapper(wrapper_name);
-  // this will include some logics that are not needed
-  // basically the top level wrapper and etc.
+              wn_asst_item.insert(expr);
+            }
+          }
+          else
+            ILA_ASSERT(false) << "Unknown dspt:" << dspt;
 
 
-  // // no need to export ila verilog
-  // if (target_type == target_type_t::INSTRUCTIONS)
-  //  Export_ila_vlg(ila_vlg_name); // this has to be after Export_wrapper
+        } // end of parsing asserts
 
-  // for Jasper, this will be put to multiple files
-  // for CoSA & Yosys, this will be put after the wrapper file (wrapper.v)
-  Export_modify_verilog();        // this must be after Export_wrapper
-  Export_mem(mem_name);
+        for (auto && pbname_prob_pair : _problems.assumptions) {
+          const auto & dspt = pbname_prob_pair.first;
+          const auto & exprs = pbname_prob_pair.second;
+          for (const auto &expr : exprs.exprs) {
+            ILA_ASSERT( expr.find("=") == expr.npos ) // no "="
+              << "Bug: should be pure name."
+              << "but get: " << expr;
 
-  // you need to create the map function -- 
-  Export_problem(extra_name); // the gensmt.ys 
-  
-  Export_script(script_name);
-}
+            if(dspt == "invariant_assume")
+              wn_amc_design_item.insert(expr);
+            else if(
+              dspt == "noreset" ||
+              dspt == "funcmap" ||
+              dspt == "absmem" ||
+              dspt == "additional_mapping_control_assume"
+                )
+              wn_amc_wrapper_item.insert(expr);
+            else if(
+              dspt == "issue_decode" ||
+              dspt == "issue_valid"  ||
+              dspt == "start_condition"
+            )
+              wn_aspt_item.insert(expr);
+            else
+              ILA_ASSERT(false) << "Unknown dspt : " << dspt;
+          } // for expr
+        } // for assumptions
+
+      } // gen wire name
+
+      std::vector<std::string> amc_design_item; // no wn here : in the submodule 
+      std::vector<std::string> amc_wrapper_item; // in the top module
+      std::vector<std::string> asst_item; // assertions
+      std::vector<std::string> aspt_item; // assumptions
+      { // find number name --- smt name
+        // algo : go line by line, check in "wn_" or not, if so, add ow ignored
+        enum {BEFORE, SUBMODULE, TOPMODULE} state = BEFORE;
+        for (std::string line;  std::getline(smt_info.full_smt, line);) {
+          if ( state == BEFORE and
+              line.find("; yosys-smt2-module ") == 0) { // starts with it
+            // new module
+            auto modname = line.substr(strlen("; yosys-smt2-module "));
+            if (modname == vlg_top_module_name) 
+              state = SUBMODULE; // go to next state
+          } // find vlg module
+          else if (state == SUBMODULE) {
+            std::string search_target = "(define-fun |" + vlg_top_module_name + "#";
+            if (line.find(search_target) == 0) {
+              auto mark = line.find("; \\");
+              ILA_ASSERT(mark != std::string::npos) << "Error parsing SMT";
+              auto signame = line.substr(mark+3);
+              // it should not contain EOL
+              //signame = ReplaceAll(ReplaceAll(signame, "\n",""),"\r",""); 
+              if( IN(signame, wn_amc_design_item ) ) {
+                wn_amc_design_item.erase(signame); // remove it from the set
+
+                auto num_start = line.substr(search_target.size());
+                auto end = num_start.find('|');
+                auto num = num_start.substr(0,end);
+                auto signame = "|" + vlg_top_module_name + "#" + num + "|";
+
+                amc_design_item.push_back(signame); // |mod#n|
+              }
+            } // end of exists signal definition
+            else if(line.find("; yosys-smt2-module ") == 0) {
+              auto modname = line.substr(strlen("; yosys-smt2-module "));
+              if (modname == top_mod_name)
+                state = TOPMODULE; // go to next state
+            } // end of go to next module
+            // else do nothing
+            
+          } else if (state == TOPMODULE) {
+            std::string search_target = "(define-fun |" + top_mod_name + "#";
+            
+            if (line.find(search_target) == 0) {
+              auto mark = line.find("; \\");
+              ILA_ASSERT(mark != std::string::npos) << "Error parsing SMT";
+              auto signame = line.substr(mark+3);
+              // it should not contain EOL
+              //signame = ReplaceAll(ReplaceAll(signame, "\n",""),"\r",""); 
+              std::set<std::string> * wn_set = NULL;
+              std::vector<std::string> * it_vec = NULL;
+
+              if ( IN(signame, wn_amc_wrapper_item) ) {
+                ILA_ASSERT(wn_set == NULL);
+                wn_set = & wn_amc_wrapper_item;
+                it_vec = & amc_wrapper_item;
+              }
+              if ( IN(signame, wn_asst_item) ) {
+                ILA_ASSERT(wn_set == NULL); // should not exists in multiple sets
+                wn_set = & wn_asst_item;
+                it_vec = & asst_item;
+              }
+              if ( IN(signame, wn_aspt_item) ) {
+                ILA_ASSERT(wn_set == NULL); // should not exists in multiple sets
+                wn_set = & wn_aspt_item;
+                it_vec = & aspt_item;
+              }
+
+              if( wn_set ) {
+                ILA_NOT_NULL(it_vec) ;
+                wn_set->erase(signame); // remove it from the set
+
+                auto num_start = line.substr(search_target.size());
+                auto end = num_start.find('|');
+                auto num = num_start.substr(0,end);
+                auto signame = "|" + vlg_top_module_name + "#" + num + "|";
+
+                it_vec->push_back(signame); // |mod#n|
+              } // else no wire needed : do nothing
+
+            } // end of exists signal definition
+          }
+        } // end of for readline
+        ILA_ASSERT (state == TOPMODULE) << "BUG: Error in parsing smt-lib2 file!";
+      } //  find number name --- smt name
+
+      { // construct expressions
+        // (signame |%d%_s|) or (signame |%w%_s|), use " " to join and add "(and" ")"
+        amc_design = "(and";
+        for (auto && signame : amc_design_item) {
+          amc_design += " (" + signame + " |%d%_s|)";
+        }
+        amc_design += ")";
+
+        amc_wrapper = "(and";
+        for (auto && signame : amc_wrapper_item) {
+          amc_wrapper += " (" + signame + " |%w%_s|)";
+        }
+        amc_wrapper += ")";
+
+        aspt = "(and";
+        for (auto && signame : aspt_item) {
+          aspt += " (" + signame + " |%w%_s|)";
+        }
+        aspt += ")";
+
+        asst = "(and";
+        for (auto && signame : asst_item) {
+          asst += " (" + signame + " |%w%_s|)";
+        }
+        asst += ")";
+      } // construct expressions
+    } // Construct exprs done
+
+    std::string ret_tpl_smt;
+    { // now create the template 
+      // 1. func sub
+      ret_tpl_smt = ReplaceAll(ret_tpl_smt, "%wrapperSmt%", all_smt);
+      ret_tpl_smt = ReplaceAll(ret_tpl_smt, "%amcFunc_design%", amc_design);
+      ret_tpl_smt = ReplaceAll(ret_tpl_smt, "%amcFunc_wrapper%", amc_wrapper);
+      ret_tpl_smt = ReplaceAll(ret_tpl_smt, "%ASST%", asst);
+      ret_tpl_smt = ReplaceAll(ret_tpl_smt, "%ASST%", aspt);
+      // 2. name sub
+      ret_tpl_smt = ReplaceAll(ret_tpl_smt, "%d%", vlg_top_module_name);
+      ret_tpl_smt = ReplaceAll(ret_tpl_smt, "%w%", top_mod_name);
+    }
+
+    { // output the tpl
+      std::ofstream tpl_fout(tpl_name);
+      tpl_fout << ret_tpl_smt;
+    } // finish output
+
+  } // dual_inv_tpl 
+
 
 
 }; // namespace ilang
