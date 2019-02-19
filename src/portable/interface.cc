@@ -3,6 +3,7 @@
 
 #include <ilang/portable/ila_to_json_serializer.h>
 #include <ilang/portable/interface.h>
+#include <ilang/portable/json_to_ila_deserializer.h>
 
 namespace ilang {
 
@@ -13,8 +14,9 @@ json IlaSerDesMngr::Serialize(const InstrLvlAbsPtr& m) {
 }
 
 InstrLvlAbsPtr IlaSerDesMngr::Deserialize(const json& j) {
-  return NULL;
-  //
+  auto j2ides = J2IDes::New();
+  auto res = j2ides->DesInstrLvlAbs(j);
+  return res;
 }
 
 bool IlaSerDesMngr::SerToFile(const InstrLvlAbsPtr& m,

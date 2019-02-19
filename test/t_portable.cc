@@ -19,7 +19,8 @@ TEST(TestPortable, AES) {
   auto aesu_ila = ImportSynthAbsFromFileHier(aesu_file, aes_ila, "AES_U");
 
   // TODO
-  IlaSerDesMngr::Serialize(aes_ila);
+  auto ser_aes = IlaSerDesMngr::Serialize(aes_ila);
+  auto des_aes = IlaSerDesMngr::Deserialize(ser_aes);
 
   DebugLog::Disable("Portable");
   SetToStdErr(0);

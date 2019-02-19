@@ -8,6 +8,7 @@
 #include <memory>
 #include <nlohmann/json.hpp>
 #include <unordered_map>
+#include <unordered_set>
 
 using json = nlohmann::json;
 
@@ -32,12 +33,10 @@ public:
   static J2IDesPtr New();
 
   // ------------------------- METHODS -------------------------------------- //
-  /// \brief Deserialize Sort from JSON.
-  SortPtr DesSort(const json& j_sort) const;
   /// \brief Deserialize Expr from JSON.
-  ExprPtr DesExpr(const json& j_expr);
+  ExprPtr DesExpr(const json& j_expr, const InstrLvlAbsPtr& i_host);
   /// \brief Deserialize Instr from JSON.
-  InstrPtr DesInstr(const json& j_instr) const;
+  InstrPtr DesInstr(const json& j_instr, const InstrLvlAbsPtr& i_host) const;
   /// \brief Deserialize InstrLvlAbs from JSON.
   InstrLvlAbsPtr DesInstrLvlAbs(const json& j_ila);
 
@@ -45,6 +44,23 @@ private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// A mapping from id to expressions.
   std::unordered_map<size_t, ExprPtr> id_expr_map_;
+  /// The set of state variables.
+  std::unordered_set<size_t> state_id_set_;
+  /// The set of input variables.
+  std::unordered_set<size_t> input_id_set_;
+
+  // ------------------------- METHODS -------------------------------------- //
+  /// Deserialize ExprVar into state from JSON.
+  ExprPtr DesExprState(const json& j_sort, const std::string& name,
+                       const InstrLvlAbsPtr& i_host) const;
+  /// Deserialize ExprVar into input from JSON.
+  ExprPtr DesExprInput(const json& j_sort, const std::string& name,
+                       const InstrLvlAbsPtr& i_host) const;
+  /// Deserialize ExprConstant from JSON.
+  ExprPtr DesExprConst(const json& j_sort, const json& j_val) const;
+  /// Deserialize ExprOp from JSON.
+  ExprPtr DesExprOp(const unsigned& ast_expr_op_uid, const json& j_arg_arr,
+                    const json& j_param_arr) const;
 
 }; // class J2IDes
 

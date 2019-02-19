@@ -8,6 +8,8 @@
 
 namespace ilang {
 
+typedef size_t ID_t;
+
 I2JSer::I2JSer() {}
 
 I2JSer::~I2JSer() {}
@@ -37,7 +39,7 @@ json I2JSer::SerInstr(const InstrPtr& i_instr) {
 
   // decode
   auto j_decode = SerExpr(i_instr->decode());
-  j_instr.emplace(SERDES_INSTR_DECODE, j_decode);
+  j_instr.emplace(SERDES_INSTR_DECODE, j_decode.at(SERDES_EXPR_ID).get<ID_t>());
 
   // state updates
   auto j_update = json::object();
@@ -46,7 +48,8 @@ json I2JSer::SerInstr(const InstrPtr& i_instr) {
     auto i_state = host->state(i);
     auto i_next = i_instr->update(i_state);
     auto j_next = SerExpr(i_next);
-    j_update.emplace(i_state->name().str(), j_next);
+    j_update.emplace(i_state->name().str(),
+                     j_next.at(SERDES_EXPR_ID).get<ID_t>());
   }
   j_instr.emplace(SERDES_INSTR_UPDATE, j_update);
 
@@ -63,24 +66,26 @@ json I2JSer::SerInstrLvlAbs(const InstrLvlAbsPtr& i_ila) {
   // input
   auto j_inp_arr = json::array();
   for (auto i = 0; i < i_ila->input_num(); i++) {
-    j_inp_arr.push_back(SerExpr(i_ila->input(i)));
+    auto j_inp = SerExpr(i_ila->input(i));
+    j_inp_arr.push_back(j_inp.at(SERDES_EXPR_ID).get<ID_t>());
   }
   j_ila.emplace(SERDES_ILA_INPUT, j_inp_arr);
 
   // state
   auto j_state_arr = json::array();
   for (auto i = 0; i < i_ila->state_num(); i++) {
-    j_state_arr.push_back(SerExpr(i_ila->state(i)));
+    auto j_state = SerExpr(i_ila->state(i));
+    j_state_arr.push_back(j_state.at(SERDES_EXPR_ID).get<ID_t>());
   }
   j_ila.emplace(SERDES_ILA_STATE, j_state_arr);
 
   // fetch
   auto j_fetch = SerExpr(i_ila->fetch());
-  j_ila.emplace(SERDES_ILA_FETCH, j_fetch);
+  j_ila.emplace(SERDES_ILA_FETCH, j_fetch.at(SERDES_EXPR_ID).get<ID_t>());
 
   // valid
   auto j_valid = SerExpr(i_ila->valid());
-  j_ila.emplace(SERDES_ILA_VALID, j_valid);
+  j_ila.emplace(SERDES_ILA_VALID, j_valid.at(SERDES_EXPR_ID).get<ID_t>());
 
   // instructions
   auto j_instr_arr = json::array();
@@ -92,7 +97,8 @@ json I2JSer::SerInstrLvlAbs(const InstrLvlAbsPtr& i_ila) {
   // init
   auto j_init_arr = json::array();
   for (auto i = 0; i < i_ila->init_num(); i++) {
-    j_init_arr.push_back(SerExpr(i_ila->init(i)));
+    auto j_init = SerExpr(i_ila->init(i));
+    j_init_arr.push_back(j_init.at(SERDES_EXPR_ID).get<ID_t>());
   }
   j_ila.emplace(SERDES_ILA_INIT, j_init_arr);
 
@@ -100,8 +106,6 @@ json I2JSer::SerInstrLvlAbs(const InstrLvlAbsPtr& i_ila) {
 
   // all ast expressions
   j_ila.emplace(SERDES_ILA_AST, j_expr_arr_);
-
-  // ILA_DLOG("Portable") << j_ila.dump(2) << std::endl;
 
   return j_ila;
 }
@@ -175,7 +179,7 @@ json I2JSer::SerExprUnit(const ExprPtr& i_expr) {
   j_expr.emplace(SERDES_EXPR_UID, expr_uid);
 
   switch (expr_uid) {
-  // serialize var
+  // serialize variable
   case AST_UID_EXPR::VAR: {
     j_expr.emplace(SERDES_EXPR_SORT, SerSort(i_expr->sort()));
     j_expr.emplace(SERDES_EXPR_NAME, i_expr->name().str());
