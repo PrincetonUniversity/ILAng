@@ -3,9 +3,11 @@
 
 #include <cstdlib>
 #include <ilang/ila/ast_fuse.h>
+#include <ilang/ila/expr_fuse.h>
 #include <ilang/portable/json_to_ila_deserializer.h>
 #include <ilang/portable/serdes_config.h>
 #include <ilang/util/log.h>
+#include <vector>
 
 namespace ilang {
 
@@ -17,26 +19,6 @@ J2IDes::J2IDes() {}
 J2IDes::~J2IDes() {}
 
 J2IDesPtr J2IDes::New() { return std::make_shared<J2IDes>(); }
-
-#if 0
-SortPtr J2IDes::DesSort(const json& j_sort) const {
-  switch (j_sort.at(SERDES_SORT_UID).get<UID_t>()) {
-  case AST_UID_SORT::BOOL: {
-    return Sort::MakeBoolSort();
-  }
-  case AST_UID_SORT::BV: {
-    // auto width = j_sort.at(SERDES_SORT_WIDTH).get<int>();
-    auto width = j_sort.at(SERDES_SORT_WIDTH).get<int>();
-    return Sort::MakeBvSort(width);
-  }
-  case AST_UID_SORT::MEM: {
-    auto addr_width = j_sort.at(SERDES_SORT_ADDR_WIDTH).get<int>();
-    auto data_width = j_sort.at(SERDES_SORT_DATA_WIDTH).get<int>();
-    return Sort::MakeMemSort(addr_width, data_width);
-  }
-  };
-}
-#endif
 
 ExprPtr J2IDes::DesExpr(const json& j_expr, const InstrLvlAbsPtr& i_host) {
   // check if the expr has been des'ed
@@ -178,7 +160,99 @@ ExprPtr J2IDes::DesExprConst(const json& j_sort, const json& j_val) const {
 ExprPtr J2IDes::DesExprOp(const unsigned& ast_expr_op_uid,
                           const json& j_arg_arr,
                           const json& j_param_arr) const {
-  return NULL;
+  // arguments
+  auto args = std::vector<ExprPtr>();
+  for (auto it = j_arg_arr.begin(); it != j_arg_arr.end(); it++) {
+    auto arg_id = (*it).get<ID_t>();
+    auto arg_it = id_expr_map_.find(arg_id);
+    ILA_ASSERT(arg_it != id_expr_map_.end()) << "Missing arg " << arg_id;
+    args.push_back(arg_it->second);
+  }
+  // parameters
+  auto params = std::vector<int>();
+  for (auto it = j_param_arr.begin(); it != j_param_arr.end(); it++) {
+    auto param = (*it).get<int>();
+    params.push_back(param);
+  }
+  // construct ExprOp
+  switch (ast_expr_op_uid) {
+  case AST_UID_EXPR_OP::NEG: {
+    return ExprFuse::Negate(args.at(0));
+  }
+  case AST_UID_EXPR_OP::NOT: {
+    return ExprFuse::Not(args.at(0));
+  }
+  case AST_UID_EXPR_OP::COMPL: {
+    return ExprFuse::Complement(args.at(0));
+  }
+  case AST_UID_EXPR_OP::AND: {
+    return ExprFuse::And(args.at(0), args.at(1));
+  }
+  case AST_UID_EXPR_OP::OR: {
+    return ExprFuse::Or(args.at(0), args.at(1));
+  }
+  case AST_UID_EXPR_OP::XOR: {
+    return ExprFuse::Xor(args.at(0), args.at(1));
+  }
+  case AST_UID_EXPR_OP::SHL: {
+    return ExprFuse::Shl(args.at(0), args.at(1));
+  }
+  case AST_UID_EXPR_OP::ASHR: {
+    return ExprFuse::Ashr(args.at(0), args.at(1));
+  }
+  case AST_UID_EXPR_OP::LSHR: {
+    return ExprFuse::Lshr(args.at(0), args.at(1));
+  }
+  case AST_UID_EXPR_OP::ADD: {
+    return ExprFuse::Add(args.at(0), args.at(1));
+  }
+  case AST_UID_EXPR_OP::SUB: {
+    return ExprFuse::Sub(args.at(0), args.at(1));
+  }
+  case AST_UID_EXPR_OP::EQ: {
+    return ExprFuse::Eq(args.at(0), args.at(1));
+  }
+  case AST_UID_EXPR_OP::LT: {
+    return ExprFuse::Lt(args.at(0), args.at(1));
+  }
+  case AST_UID_EXPR_OP::GT: {
+    return ExprFuse::Gt(args.at(0), args.at(1));
+  }
+  case AST_UID_EXPR_OP::ULT: {
+    return ExprFuse::Ult(args.at(0), args.at(1));
+  }
+  case AST_UID_EXPR_OP::UGT: {
+    return ExprFuse::Ugt(args.at(0), args.at(1));
+  }
+  case AST_UID_EXPR_OP::LOAD: {
+    return ExprFuse::Load(args.at(0), args.at(1));
+  }
+  case AST_UID_EXPR_OP::STORE: {
+    return ExprFuse::Store(args.at(0), args.at(1), args.at(2));
+  }
+  case AST_UID_EXPR_OP::CONCAT: {
+    return ExprFuse::Concat(args.at(0), args.at(1));
+  }
+  case AST_UID_EXPR_OP::EXTRACT: {
+    return ExprFuse::Extract(args.at(0), params.at(0), params.at(1));
+  }
+  case AST_UID_EXPR_OP::ZEXT: {
+    return ExprFuse::ZExt(args.at(0), params.at(0));
+  }
+  case AST_UID_EXPR_OP::SEXT: {
+    return ExprFuse::SExt(args.at(0), params.at(0));
+  }
+  case AST_UID_EXPR_OP::IMPLY: {
+    return ExprFuse::Imply(args.at(0), args.at(1));
+  }
+  case AST_UID_EXPR_OP::ITE: {
+    return ExprFuse::Ite(args.at(0), args.at(1), args.at(2));
+  }
+  default: {
+    ILA_ERROR << "No Ser/Des (yet) for op " << ast_expr_op_uid;
+    return NULL;
+  }
+  }; // switch ast_expr_op_uid
 }
 
 }; // namespace ilang
