@@ -47,7 +47,7 @@ private:
   json j_expr_arr_;
 
   // ------------------------- METHODS -------------------------------------- //
-  /// \brief Serialize Sort to JSON.
+  /// Serialize Sort to JSON.
   json SerSort(const SortPtr& i_sort) const;
   /// Serialize constant value to JSON.
   json SerConstVal(const ExprPtr& i_expr) const;
