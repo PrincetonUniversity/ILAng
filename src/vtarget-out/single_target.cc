@@ -56,7 +56,6 @@ VlgSglTgtGen::VlgSglTgtGen(
           true)), // rand init
       // interface mapping directive
       _idr( target_tp == target_type_t::INVARIANTS ? true :
-            target_tp == target_type_t::INST_INV_SYN ? true :
             (vtg_config.ForceInstCheckReset ? true : false) ),
       // if checking instruction: by default, we don't reset
       // but if forced, we do.
@@ -83,8 +82,7 @@ VlgSglTgtGen::VlgSglTgtGen(
   
   ILA_ASSERT(
     target_type == target_type_t::INVARIANTS || 
-    target_type == target_type_t::INSTRUCTIONS || 
-    target_type == target_type_t::INST_INV_SYN
+    target_type == target_type_t::INSTRUCTIONS 
     ) << "Implementation bug: unrecognized target type!" ;
 
   // reset absmem's counter
@@ -163,18 +161,6 @@ VlgSglTgtGen::VlgSglTgtGen(
     ILA_WARN_IF(instr_ptr != nullptr) << "Provide an instruction "
       << "when verifying invariants. The instruction will not be used";
   }
-  else if(target_type == target_type_t::INST_INV_SYN) {
-    ILA_ASSERT(not _vtg_config.ForceInstCheckReset)
-      << "Implementation bug: should not generate inv syn "
-      << "target when forcing inst check!";
-    ILA_ASSERT(backend == backend_selector::YOSYS)
-      << "Implementation bug: this vlg design-only target "
-      << "should only be generated for invariant synthesis "
-      << "using Yosys-Smt-Horn path";
-    ILA_WARN_IF(instr_ptr != nullptr) << "Provide an instruction "
-      << "when generating invariant synthesis target. "
-      << "The instruction will not be used";
-  }
 
 
   // if you supply additional invariant in the invariant synthesis
@@ -215,8 +201,7 @@ void VlgSglTgtGen::ConstructWrapper_add_ila_input() {
 } // ConstructWrapper_add_ila_input
 
 std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
-  if (target_type == target_type_t::INVARIANTS ||
-      target_type == target_type_t::INST_INV_SYN)
+  if (target_type == target_type_t::INVARIANTS )
     return "";
 
   ILA_ASSERT(vlg_ila.decodeNames.size() == 1)
@@ -610,8 +595,7 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assertions() {
 } // ConstructWrapper_add_varmap_assertions
 
 void VlgSglTgtGen::ConstructWrapper_add_inv_assumptions() {
-  ILA_ASSERT(target_type == target_type_t::INSTRUCTIONS
-   || target_type == target_type_t::INST_INV_SYN)
+  ILA_ASSERT(target_type == target_type_t::INSTRUCTIONS)
       << "Implementation bug: inv assumpt should only be used when verifying "
          "instructions.";
   if (not IN("global invariants", rf_cond))
@@ -711,8 +695,7 @@ void VlgSglTgtGen::ConstructWrapper_add_condition_signals() {
   // __ENDFLUSH__ == (end flush condition ) && ENDED
   // flush : !( __ISSUE__ ? || __START__ || __STARTED__ ) |-> flush
 
-  if (target_type == target_type_t::INVARIANTS || 
-      target_type == target_type_t::INST_INV_SYN )
+  if (target_type == target_type_t::INVARIANTS )
     return;
   // we don't need additional signals, just make reset drives the design
 
@@ -1016,8 +999,7 @@ void VlgSglTgtGen::ConstructWrapper_add_uf_constraints() {
 // for invariants or for instruction
 void VlgSglTgtGen::ConstructWrapper() {
   ILA_ASSERT(target_type == target_type_t::INVARIANTS ||
-             target_type == target_type_t::INSTRUCTIONS || 
-             target_type == target_type_t::INST_INV_SYN );
+             target_type == target_type_t::INSTRUCTIONS  );
 
   if (bad_state_return())
     return;
@@ -1056,10 +1038,7 @@ void VlgSglTgtGen::ConstructWrapper() {
   } else if (target_type == target_type_t::INVARIANTS) {
     ConstructWrapper_add_inv_assertions();
     max_bound = _vtg_config.MaxBound;
-  } else if (target_type == target_type_t::INST_INV_SYN) {
-    ConstructWrapper_add_inv_assumptions();
-    max_bound = _vtg_config.MaxBound;
-  }
+  } 
   
   ILA_DLOG("VtargetGen") << "STEP:" << 6;
   // 4. additional mapping if any
