@@ -102,6 +102,8 @@ protected:
   std::string yosys_prob_fname;
   /// Yosys script 'run.sh' name
   std::string yosys_run_script_name;
+  /// the invariants on the design
+  std::vector<std::string> vlg_mod_inv_vec;
 
 protected:
   /// template for generating yosys script wo arrays

@@ -266,7 +266,8 @@ void VlgSglTgtGen_Yosys::single_inv_tpl(const std::string & tpl_name) {
             else if(
               dspt == "issue_decode" ||
               dspt == "issue_valid"  ||
-              dspt == "start_condition"
+              dspt == "start_condition" ||
+              dspt == "variable_map_assume"
             )
               wn_aspt_item.insert(expr);
             else

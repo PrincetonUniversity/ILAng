@@ -37,7 +37,7 @@ class VlgSglTgtGen {
 public:
   /// Type of the target
   /// for yosys_syn, INST_INV_SYN will be used for every instruction
-  typedef enum { INVARIANTS, INSTRUCTIONS, INST_INV_SYN } target_type_t;
+  typedef enum { INVARIANTS, INSTRUCTIONS } target_type_t;
   /// Type of the ready condition
   typedef enum {
     NA = 0,

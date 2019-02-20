@@ -529,9 +529,14 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assumptions() {
     // if we are targeting yosys, we should make sure they have the same problem_name
     // so the it knowns these are the assumptions for varmap
 
-    if (_backend == backend_selector::YOSYS)
-      add_an_assumption(GetStateVarMapExpr(sname, i.value()),
-                        problem_name);
+    if (_backend == backend_selector::YOSYS) {
+      ILA_ASSERT(target_type == target_type_t::INSTRUCTIONS);
+
+      add_a_direct_assumption(
+        GetStateVarMapExpr(sname, i.value()), problem_name);
+      // its signal reference will be replaced, but this should be fine
+      // because the names on any level is the same!
+    }
     else
       add_an_assumption("(~ __START__ )|| (" +
                             GetStateVarMapExpr(sname, i.value()) + ")",
