@@ -45,6 +45,11 @@ VlgSglTgtGen_Yosys::VlgSglTgtGen_Yosys(
     
     ILA_ASSERT(not _vtg_config.YosysSmtArrayForRegFile)
       << "Future work to support array in synthesis";
+    
+    ILA_ASSERT(
+      target_tp == target_type_t::INVARIANTS or
+      target_tp == target_type_t::INSTRUCTIONS )
+      << "Unknown target type: " << target_tp;
 
 // initialize templates
 yosysGenerateSmtScript_wo_Array = R"***(
@@ -173,21 +178,49 @@ void VlgSglTgtGen_Yosys::PreExportProcess() {
 
   //std::string assmpt = "(" + Join(_problems.assumptions, ") & (") + ")";
 */
+
   std::string all_assert_wire_content = "`true";
 
-  for (auto&& pbname_prob_pair : _problems.assertions) {
-    const auto& prbname = pbname_prob_pair.first;
-    const auto& prob = pbname_prob_pair.second;
-    
-    ILA_ASSERT(prbname == "variable_map_assert"); // sanity check, in case I forget sth.
+  if(target_type == target_type_t::INSTRUCTIONS) {
+    // this is to synthesize invariants
+    for (auto & pbname_prob_pair : _problems.assumptions) {
+      const auto& prbname = pbname_prob_pair.first;
+      auto& prob = pbname_prob_pair.second; // will be modified !!!
 
-    for (auto&& p: prob.exprs) {
-      vlg_wrapper.add_stmt(
-        "assert property ("+p+"); //" + prbname + "\n"
-      );
-      all_assert_wire_content += "&& ( " + p  + " ) ";
-    }
-  }
+      if (prbname == "invariant_assume") { // add to submodule ?
+        for (auto & p : prob.exprs) {
+          // p does not contain "top."
+
+          auto assumption_wire_name = 
+            vlg_wrapper.sanitizeName(prbname) + "_sub_" + new_mapping_id();
+
+          vlg_mod_inv_vec.push_back(
+            "wire " + assumption_wire_name + 
+            " = " + p );
+          
+          p = assumption_wire_name;
+        }
+      } // dspt == invariant_assume
+    } // for assumptions
+  } else if(target_type == target_type_t::INVARIANTS) {
+    // this is to check given invariants
+    for (auto&& pbname_prob_pair : _problems.assertions) {
+      const auto& prbname = pbname_prob_pair.first;
+      const auto& prob = pbname_prob_pair.second;
+      
+      ILA_ASSERT(prbname == "invariant_assert"); 
+      // sanity check, should only be invariant's related asserts
+
+      for (auto&& p: prob.exprs) {
+        vlg_wrapper.add_stmt(
+          "assert property ("+p+"); //" + prbname + "\n"
+        );
+        all_assert_wire_content += "&& ( " + p  + " ) ";
+      } // for expr
+    } // for problem
+  } // target_type == target_type_t::INVARIANTS
+
+
 
   vlg_wrapper.add_wire("__all_assert_wire__", 1, true);
   vlg_wrapper.add_output("__all_assert_wire__",1);
@@ -230,6 +263,10 @@ void VlgSglTgtGen_Yosys::Export_modify_verilog() {
                               _vtg_config.PortDeclStyle),
                           _vtg_config.CosaAddKeep);
 
+  // add mod stmt (wire something ... like that)
+  for (auto && stmt : vlg_mod_inv_vec)
+    vlg_mod.RecordAdditionalVlgModuleStmt(stmt, _vlg_mod_inst_name);
+
   for (auto&& refered_vlg_item : _all_referred_vlg_names) {
     auto idx = refered_vlg_item.first.find("[");
     auto removed_range_name = refered_vlg_item.first.substr(0, idx);
@@ -258,16 +295,6 @@ void VlgSglTgtGen_Yosys::Export_modify_verilog() {
     }
     vlg_mod.ReadModifyWrite(fn, fin, fout);
   } // for (auto && fn : vlg_design_files)
-
-  { // also make a copy to the top module
-    auto wrapper_file_name = os_portable_append_dir(_output_path, top_file_name);
-    std::ifstream fin (tmp_fn);
-    std::ofstream fout(wrapper_file_name, std::ios_base::app); // append to the wrapper file
-    ILA_ERROR_IF(fin.is_open()) << "Cannot open file for read:" << tmp_fn;
-    ILA_ERROR_IF(fout.is_open()) << "Cannot open file for write:" << wrapper_file_name;
-    if (fin.is_open() and fout.is_open())
-      fout << fin.rdbuf();
-  }
   
   // handles the includes
   // .. (copy all the verilog file in the folder), this has to be os independent
