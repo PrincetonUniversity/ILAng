@@ -157,7 +157,8 @@ void VlgSglTgtGen_Yosys::single_inv_problem(const std::string& ys_script_name, c
   std::string options;
   if ( not vlg_include_files_path.empty() )
     options += " -I./";
-  ys_fout << "read_verilog"<< options << " -sv "<<top_file_name<< std::endl;
+  ys_fout << "read_verilog"<< options << " -sv "
+    << os_portable_append_dir( _output_path , top_file_name)<< std::endl;
   ys_fout << "prep -top "<< top_mod_name <<std::endl;
   ys_fout << yosysGenerateSmtScript_w_Array; // Maybe yosysGenerateSmtScript_wo_Array ?
 
@@ -254,7 +255,8 @@ void VlgSglTgtGen_Yosys::single_inv_tpl(const std::string & tpl_name) {
           for (const auto &expr : exprs.exprs) {
             ILA_ASSERT( expr.find("=") == expr.npos ) // no "="
               << "Bug: should be pure name."
-              << "but get: " << expr;
+              << " but get: " << expr
+              << " dspt: " << dspt; 
 
             if(dspt == "invariant_assume")
               wn_amc_design_item.insert(expr);

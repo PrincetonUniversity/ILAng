@@ -515,9 +515,8 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assumptions() {
     // so the it knowns these are the assumptions for varmap
 
     if (_backend == backend_selector::YOSYS) {
-      ILA_ASSERT(target_type == target_type_t::INSTRUCTIONS);
 
-      add_a_direct_assumption(
+      add_an_assumption(
         GetStateVarMapExpr(sname, i.value()), problem_name);
       // its signal reference will be replaced, but this should be fine
       // because the names on any level is the same!
@@ -618,7 +617,7 @@ void VlgSglTgtGen::ConstructWrapper_add_inv_assumptions() {
       precondition = ""; // always assume no matter what
 
     if(_backend == backend_selector::YOSYS)
-      add_an_assumption(new_cond, "invariant_assume");
+      add_a_direct_assumption(new_cond, "invariant_assume"); // without new var added
     else
       add_an_assumption(precondition + "(" + new_cond + ")", "invariant_assume");
   }
