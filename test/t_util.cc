@@ -78,8 +78,9 @@ TEST(TestUtil, RemoveExtension) {
 
 TEST(TestUtil, ExecShell) {
   auto scriptName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/shell_ex/shell.sh";
-
-  EXPECT_TRUE(os_portable_execute_shell(scriptName));
+  std::vector<std::string> cmd;
+  cmd.push_back(scriptName);
+  EXPECT_TRUE(os_portable_execute_shell(cmd));
 }
 
 TEST(TestUtil, RegularExpr) {

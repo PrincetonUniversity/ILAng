@@ -386,7 +386,8 @@ YosysDesignSmtInfo VlgSglTgtGen_Yosys::dual_inv_gen_smt(
     ys_script_fout << "read_verilog -sv " << top_file_name << std::endl;
     ys_script_fout << "prep -top " << top_mod_name << std::endl;
     ys_script_fout << yosysGenerateSmtScript_wo_Array;
-    ys_script_fout << "write_smt2"<<write_smt2_options << smt_name;   
+    ys_script_fout << "write_smt2"<<write_smt2_options 
+      << os_portable_append_dir( _output_path, smt_name );   
   } // finish writing
 
   std::string yosys = "yosys";
@@ -395,7 +396,9 @@ YosysDesignSmtInfo VlgSglTgtGen_Yosys::dual_inv_gen_smt(
     yosys = os_portable_append_dir(_vtg_config.YosysPath, yosys);
 
   // execute it
-  ILA_ERROR_IF( not os_portable_execute_shell(yosys, ys_full_name) )
+  std::vector<std::string> cmd;
+  cmd.push_back(yosys); cmd.push_back("-s"); cmd.push_back(ys_full_name);
+  ILA_ERROR_IF( not os_portable_execute_shell( cmd ) )
     << "Executing Yosys failed!";
 
   YosysDesignSmtInfo ret;

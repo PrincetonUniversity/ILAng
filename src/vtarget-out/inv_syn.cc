@@ -161,10 +161,12 @@ void VlgSglTgtGen_Yosys::single_inv_problem(const std::string& ys_script_name, c
   ys_fout << "prep -top "<< top_mod_name <<std::endl;
   ys_fout << yosysGenerateSmtScript_w_Array; // Maybe yosysGenerateSmtScript_wo_Array ?
 
-  std::string write_smt2_options = " -mem -bv -wires -tpl " + pdr_template_name ;
+  std::string write_smt2_options = " -mem -bv -wires -tpl " + 
+    os_portable_append_dir( _output_path, pdr_template_name) ;
   ys_fout << "write_smt2"<<write_smt2_options
-    << os_portable_remove_file_name_extension(top_file_name)
-        + ".smt2";
+    << os_portable_append_dir( _output_path, 
+         os_portable_remove_file_name_extension(top_file_name)
+         + ".smt2");
 } // single_inv_problem
 
 /// generate the template file

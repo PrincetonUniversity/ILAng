@@ -142,7 +142,10 @@ std::string os_portable_remove_file_name_extension(const std::string fname) {
 }
 
 
-bool os_portable_execute_shell(const std::string exec_name, const std::string & linux_shell) {
+bool os_portable_execute_shell(const std::vector<std::string> & cmdargs) 
+{
+  auto cmdline = Join(cmdargs, ",");
+  ILA_ASSERT(not cmdargs.empty()) << "API misuse!";
 #ifdef defined(_WIN32) || defined(_WIN64)
   // on windows
   STARTUPINFO si;
@@ -153,7 +156,7 @@ bool os_portable_execute_shell(const std::string exec_name, const std::string & 
 
   // Start the child process. 
   if( !CreateProcess( NULL,   // No module name (use command line)
-      exec_name.c_str(),      // Command line
+      cmdline.c_str(),      // Command line
       NULL,           // Process handle not inheritable
       NULL,           // Thread handle not inheritable
       FALSE,          // Set handle inheritance to FALSE
@@ -175,7 +178,24 @@ bool os_portable_execute_shell(const std::string exec_name, const std::string & 
   if (pid == 0) {
     // The child
     // will replace the image and execute the bash
-    exit(execlp(linux_shell.c_str(),exec_name.c_str(), NULL));
+    ILA_INFO<<"Execute subprocess: [" << cmdline << "]";
+
+    // this is memory leak, but I have no other way...
+    // hope this will be reclaimed by OS
+    // + 1 for NULL
+
+    const int MAX_ARG = 64;
+    char * argv[MAX_ARG];
+    ILA_ASSERT(cmdargs.size() <= MAX_ARG) << "Too many args";
+
+    for(auto it = cmdargs.begin()+1; it != cmdargs.end(); ++ it) {
+      // this is memory leak, I know, but what can I do ?
+      argv[it-cmdargs.begin()-1] = new char[it->size() + 1];
+      strcpy(argv[it-cmdargs.begin()-1], it->c_str());
+    }
+    argv[ cmdargs.size() -1 ] = NULL;
+
+    exit( execvp(cmdargs[0].c_str(), argv));
   } else {
     // The parent will wait for its end
     int infop;
@@ -183,8 +203,8 @@ bool os_portable_execute_shell(const std::string exec_name, const std::string & 
       return false; // failed call (should not happen normally)
     if(WEXITSTATUS(infop) != 0) {
       ILA_ERROR 
-        << "Subprocess " << linux_shell 
-        << " failed with return code: "
+        << "Subprocess [" << cmdline 
+        << "] failed with return code: "
         << WEXITSTATUS(infop);
       return false;
     }
