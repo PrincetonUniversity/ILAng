@@ -175,14 +175,6 @@ private:
   
 
 public:
-  /// Need the smt info
-  /// Take care of exporting all of a single target
-  void virtual ExportAll(const std::string& wrapper_name,
-                         const std::string& ila_vlg_name,
-                         const std::string& script_name,
-                         const std::string& extra_name,
-                         const std::string& mem_name,
-                         const YosysDesignSmtInfo& smt_info);
                          
   /// Deprecation of the one without smt info
   void virtual ExportAll(const std::string& wrapper_name,
