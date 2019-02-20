@@ -141,7 +141,7 @@ void VerilogModifier::FinishRecording() {
   }
   for (auto&& fn_tp_pair : add_stmt_map) {
     auto& vec = fn_tp_pair.second;
-    std::sort(begin(vec), end(vec), compare_tuple<assign_item_t>);
+    std::sort(begin(vec), end(vec), compare_tuple<add_stmt_t>);
   }
 
 } // FinishRecording
