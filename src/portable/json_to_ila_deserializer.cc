@@ -39,11 +39,11 @@ ExprPtr J2IDes::DesExpr(const json& j_expr, const InstrLvlAbsPtr& i_host) {
     auto name = j_expr.at(SERDES_EXPR_NAME).get<std::string>();
     auto sort = j_expr.at(SERDES_EXPR_SORT);
     if (state_id_set_.find(id) != state_id_set_.end()) {
-      i_expr = DesExprState(name, sort, i_host);
+      i_expr = DesExprState(sort, name, i_host);
     } else {
       ILA_ASSERT(input_id_set_.find(id) != input_id_set_.end())
           << "State/input " << name << " not found.";
-      i_expr = DesExprInput(name, sort, i_host);
+      i_expr = DesExprInput(sort, name, i_host);
     }
     break;
   }
@@ -65,6 +65,7 @@ ExprPtr J2IDes::DesExpr(const json& j_expr, const InstrLvlAbsPtr& i_host) {
   }; // switch expr_uid
 
   // book keeping
+  ILA_NOT_NULL(i_expr);
   id_expr_map_.emplace(id, i_expr);
   return i_expr;
 }
@@ -97,8 +98,54 @@ InstrPtr J2IDes::DesInstr(const json& j_instr,
 }
 
 InstrLvlAbsPtr J2IDes::DesInstrLvlAbs(const json& j_ila) {
-  // update input state set
-  return NULL;
+  auto name = j_ila.at(SERDES_ILA_NAME).get<std::string>();
+  auto m = InstrLvlAbs::New(name); // XXX parent
+
+  // input
+  auto& j_inp_arr = j_ila.at(SERDES_ILA_INPUT);
+  for (auto& inp_id : j_inp_arr) {
+    input_id_set_.insert(inp_id.get<ID_t>());
+  }
+
+  // state
+  auto& j_state_arr = j_ila.at(SERDES_ILA_STATE);
+  for (auto& state_id : j_state_arr) {
+    state_id_set_.insert(state_id.get<ID_t>());
+  }
+
+  // ast expressions
+  auto& j_expr_arr = j_ila.at(SERDES_ILA_AST);
+  for (auto& expr : j_expr_arr) {
+    DesExpr(expr, m);
+  }
+
+  // fetch
+  auto fetch_id = j_ila.at(SERDES_ILA_FETCH).get<ID_t>();
+  auto fetch_it = id_expr_map_.find(fetch_id);
+  ILA_ASSERT(fetch_it != id_expr_map_.end()) << "Fetch not found";
+  m->SetFetch(fetch_it->second);
+
+  // valid
+  auto valid_id = j_ila.at(SERDES_ILA_VALID).get<ID_t>();
+  auto valid_it = id_expr_map_.find(valid_id);
+  ILA_ASSERT(valid_it != id_expr_map_.end()) << "Valid not found";
+  m->SetValid(valid_it->second);
+
+  // instructions
+  auto& j_instr_arr = j_ila.at(SERDES_ILA_INSTR);
+  for (auto& j_instr : j_instr_arr) {
+    auto instr = DesInstr(j_instr, m);
+  }
+
+  // init
+  auto& j_init_arr = j_ila.at(SERDES_ILA_INIT);
+  for (auto& j_init : j_init_arr) {
+    ILA_DLOG("Portable") << "Des init " << j_init.get<ID_t>();
+    auto init_expr_it = id_expr_map_.find(j_init.get<ID_t>());
+    ILA_ASSERT(init_expr_it != id_expr_map_.end()) << "Init not found";
+    ILA_DLOG("Portable") << init_expr_it->second;
+    m->AddInit(init_expr_it->second);
+  }
 }
 
 ExprPtr J2IDes::DesExprState(const json& j_sort, const std::string& name,
