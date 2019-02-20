@@ -217,19 +217,6 @@ void VlgVerifTgtGen::GenerateTargets(void) {
         // and the second one should use the smt file it generates
         // and create conversion (map) function
 
-        auto target = VlgSglTgtGen_Yosys_design_only(
-            os_portable_append_dir(_output_path, iname),
-            instr_ptr, // instruction
-            _ila_ptr, _cfg, rf_vmap, rf_cond, vlg_info_ptr, _vlg_mod_inst_name,
-            _ila_mod_inst_name, "design_only", _vlg_impl_srcs,
-            _vlg_impl_include_path, _vtg_config, _backend,
-            target_type_t::INST_INV_SYN);
-        target.ConstructWrapper();
-        target.ExportAll("__design_wrapper.v", "__design_ila.v", /* this should not be used*/
-          "__design_run.sh", "__design_gensmt.ys", "__design_absmem.v");
-        auto smt_info = target.RunSmtGeneration();
-        
-
         auto target = VlgSglTgtGen_Yosys(
             os_portable_append_dir(_output_path, iname),
             instr_ptr, // instruction
@@ -238,7 +225,7 @@ void VlgVerifTgtGen::GenerateTargets(void) {
             _vlg_impl_include_path, _vtg_config, _backend,
             target_type_t::INSTRUCTIONS);
         target.ConstructWrapper();
-        target.ExportAll("wrapper.v", "ila.v", "run.sh", "gensmt.ys", "absmem.v", smt_info);
+        target.ExportAll("wrapper.v", "ila.v", "run.sh", "gensmt.ys", "absmem.v");
       }
     } // end for instrs
   }   // end if target select == ...

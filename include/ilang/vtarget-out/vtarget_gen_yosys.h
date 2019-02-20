@@ -158,8 +158,8 @@ private:
   // dual_inv_tpl() :
 
 
-  /// generate the Yosys script for single invariant
-  void single_inv_problem(const std::string& ys_script_name);
+  /// generate the Yosys script for single invariant, please provide the tmplate name for reference
+  void single_inv_problem(const std::string& ys_script_name, const std::string & tpl_name);
   /// generate the Yosys script for dual invariant
   void dual_inv_problem(const std::string& ys_script_name);
 

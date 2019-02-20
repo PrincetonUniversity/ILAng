@@ -33,11 +33,11 @@ std::string single_ind_inv_tmpl = R"***(
 (declare-var |__S__| |%1%_s|)
 (declare-var |__S'__| |%1%_s|)
 
-;(rule (|%1%_is| |__S__|))
+; to do : no 
+
 (rule (=> (and (|%1%_n rst| |__BI__|) (|%1%_t| |__BI__| |__I__|)) (INV |__I__|)))
 (rule (=> (and (INV |__S__|) (|%1%_t| |__S__| |__S'__|)) (INV |__S'__|)))
 (rule (=> (and (INV |__S__|) (not (|%1%_a| |__S__|))) fail))
-;(rule (=> (INV |__S__|) (not (|%1%_a| |__S__|))))
 
 (query fail :print-certificate true)
 
@@ -147,22 +147,41 @@ std::string dual_ind_inv_tmpl = R"***(
 )***";
 
 /// generate the Yosys script for single invariant
-void VlgSglTgtGen_Yosys::single_inv_problem(const std::string& ys_script_name) {
+void VlgSglTgtGen_Yosys::single_inv_problem(const std::string& ys_script_name, const std::string & pdr_template_name) {
+  ILA_ASSERT ( not _vtg_config.YosysSmtArrayForRegFile)
+    << "Future work: unable to handle arrays";
 
-.. 
-  // no need, copy is good enough
-  // if(vlg_include_files_path.size() != 0)
-options += " -I./";
+  auto ys_fn_full = os_portable_append_dir( _output_path, ys_script_name );
+  std::ofstream ys_fout(ys_fn_full);
 
-  }
-  /// generate the template file
-  void VlgSglTgtGen_Yosys::single_inv_tpl(const std::string & tpl_name) {
+  std::string options;
+  if ( not vlg_include_files_path.empty() )
+    options += " -I./";
+  ys_fout << "read_verilog"<< options << " -sv "<<top_file_name<< std::endl;
+  ys_fout << "prep -top "<< top_mod_name <<std::endl;
+  ys_fout << yosysGenerateSmtScript_w_Array; // Maybe yosysGenerateSmtScript_wo_Array ?
 
-  }
+  std::string write_smt2_options = " -mem -bv -wires -tpl " + pdr_template_name ;
+  ys_fout << "write_smt2"<<write_smt2_options
+    << os_portable_remove_file_name_extension(top_file_name)
+        + ".smt2";
+} // single_inv_problem
+
+/// generate the template file
+void VlgSglTgtGen_Yosys::single_inv_tpl(const std::string & tpl_name) {
+  ILA_ERROR << "Todo: not taking assumptions into account: future work!";
+  { // First, write the template
+    std::string pdr_template_name = 
+      os_portable_append_dir(_output_path, tpl_name);
+    std::ofstream fout(pdr_template_name);
+    fout << ReplaceAll(single_ind_inv_tmpl, "%1%", top_mod_name);
+  } // finish write template
+} // single_inv_tpl
 
   /// generate the Yosys script for dual invariant
   void VlgSglTgtGen_Yosys::dual_inv_problem(const std::string& ys_script_name) {
-
+    // this is the yosys script for ? what?
+    return; // do nothing
   }
 
 

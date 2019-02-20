@@ -300,7 +300,7 @@ void VlgSglTgtGen_Yosys::Export_problem(const std::string& extra_name) {
   // generate tpl
   if (_vtg_config.ForceInstCheckReset ) { // single-inv
     single_inv_tpl("invSyn.tpl");
-    single_inv_problem(extra_name);
+    single_inv_problem(extra_name, "invSyn.tpl");
   } else { // dual-inv
 
     // first generate a temporary smt
@@ -322,15 +322,26 @@ void VlgSglTgtGen_Yosys::ExportAll(const std::string& wrapper_name,
                         const std::string& script_name,
                         const std::string& extra_name,
                         const std::string& mem_name) {
- ..// TODO:
- // PreExportProcess()
- // Export_wrapper()
- // if(..) Export_ila_vlg()
- // Export_modify_verilog()
- // Export_mem()
- // Export_problem()
- // Export_script()
-                        }
+
+  PreExportProcess();
+  if (os_portable_mkdir(_output_path) == false)
+    ILA_WARN << "Cannot create output directory:" << _output_path;
+
+  // you don't need to worry about the path and names
+  Export_wrapper(wrapper_name);
+  if (target_type == target_type_t::INSTRUCTIONS)
+    Export_ila_vlg(ila_vlg_name); // this has to be after Export_wrapper
+
+  // for Jasper, this will be put to multiple files
+  // for CoSA & Yosys, this will be put after the wrapper file (wrapper.v)
+  Export_modify_verilog();        // this must be after Export_wrapper
+  Export_mem(mem_name);
+
+  // you need to create the map function -- 
+  Export_problem(extra_name); // the gensmt.ys 
+  
+  Export_script(script_name);
+}
 
 
 /// generate the wrapper's smt first
