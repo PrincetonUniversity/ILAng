@@ -71,8 +71,29 @@ ExprPtr J2IDes::DesExpr(const json& j_expr, const InstrLvlAbsPtr& i_host) {
 
 InstrPtr J2IDes::DesInstr(const json& j_instr,
                           const InstrLvlAbsPtr& i_host) const {
-  return NULL;
-  //
+  auto name = j_instr.at(SERDES_INSTR_NAME).get<std::string>();
+  auto instr = i_host->NewInstr(name);
+
+  auto decode_id = j_instr.at(SERDES_INSTR_DECODE).get<ID_t>();
+  auto decode_pos = id_expr_map_.find(decode_id);
+  ILA_ASSERT(decode_pos != id_expr_map_.end())
+      << "No decode found for instruction " << name;
+  instr->set_decode(decode_pos->second);
+
+  auto update = j_instr.at(SERDES_INSTR_UPDATE);
+  for (auto i = 0; i < i_host->state_num(); i++) {
+    auto state = i_host->state(i);
+    // get the id of the update function
+    auto next_id_it = update.find(state->name().str());
+    ILA_ASSERT(next_id_it != update.end())
+        << "Update ID not found for " << state;
+    // get the expr of the update function
+    auto next_expr_it = id_expr_map_.find(next_id_it.value());
+    ILA_ASSERT(next_expr_it != id_expr_map_.end())
+        << "Update Expr not found for " << state;
+    // set the update function
+    instr->set_update(state, next_expr_it->second);
+  }
 }
 
 InstrLvlAbsPtr J2IDes::DesInstrLvlAbs(const json& j_ila) {
