@@ -54,18 +54,20 @@ std::string dual_ind_inv_tmpl = R"***(
 ; wrapper smt
 %wrapperSmt%
 
+; customized bv2bool
+(define-fun zbv2bool ((bv1b (_ BitVec 1))) Bool (= bv1b #b1)) 
 
 ; additional mapping control
 ; |__AMC__design| is actually the invariants
 ; 
-(define-fun |__AMC__design|  ((|__Sv__| |%d%_s|)) %amcFunc_design%)
-(define-fun |__AMC__wrapper| ((|__Sw__| |%w%_s|)) %amcFunc_wrapper%)
+(define-fun |__AMC__design| ((|__Sv__| |%d%_s|)) Bool %amcFunc_design%)
+(define-fun |__AMC__wrapper| ((|__Sw__| |%w%_s|)) Bool %amcFunc_wrapper%)
 
 ; includes the start_condition, issue_decode, issue_valid
-(define-fun |__ASPT__| ((|__Sw__| |%w%_s|)) %ASPT%) 
+(define-fun |__ASPT__| ((|__Sw__| |%w%_s|)) Bool %ASPT%) 
 
 ; includes the variable_map_assert
-(define-fun |__ASST__| ((|__Sw__| |%w%_s|)) %ASST%) 
+(define-fun |__ASST__| ((|__Sw__| |%w%_s|)) Bool %ASST%) 
 
 (declare-rel INV1 (|%d%_s|)) ; inv1 is on design
 (declare-rel INV2 (|%w%_s|)) ; inv2 is on wrapper
@@ -79,9 +81,9 @@ std::string dual_ind_inv_tmpl = R"***(
 (declare-var |__SwBI__| |%w%_s|) ; wrapper : before init
 (declare-var |__SwI__|  |%w%_s|) ; wrapper : init state
 (declare-var |__Swst__| |%w%_s|) ; wrapper : starting -- __START__ signal is true
-(declare-var |__Sw__|   |%d%_s|) ; wrapper : generic state
-(declare-var |__Sw'__|  |%d%_s|) ; wrapper : new state
-(declare-var |__Svst__| |%d%_s|) ; design  : starting -- __START__ signal is true here
+(declare-var |__Sw__|   |%w%_s|) ; wrapper : generic state
+(declare-var |__Sw'__|  |%w%_s|) ; wrapper : new state
+;(declare-var |__Svst__| |%d%_s|) ; design  : starting -- __START__ signal is true here
 
 
 ; init => inv1
@@ -145,6 +147,20 @@ std::string dual_ind_inv_tmpl = R"***(
 (query fail :print-certificate true)
 
 )***";
+
+// a local helper function to produce a list of and
+std::string JoinListWithAnd(const std::vector<std::string> & l) {
+  if (l.size() == 0)
+    return "true";
+  else if(l.size() == 1)
+    return l[0];
+  return "(and " + Join(l, " ")+")";
+}
+
+// a local helper function to return the type of a smt (define-fun ) stmt 
+bool isBoolDefine(const std::string & stmt) {
+
+}
 
 /// generate the Yosys script for single invariant
 void VlgSglTgtGen_Yosys::single_inv_problem(const std::string& ys_script_name, const std::string & pdr_template_name) {
@@ -300,20 +316,21 @@ void VlgSglTgtGen_Yosys::single_inv_tpl(const std::string & tpl_name) {
             std::string search_target = "(define-fun |" + vlg_top_module_name + "#";
             if (line.find(search_target) == 0) {
               auto mark = line.find("; \\");
-              ILA_ASSERT(mark != std::string::npos) << "Error parsing SMT";
-              auto signame = line.substr(mark+3);
-              // it should not contain EOL
-              //signame = ReplaceAll(ReplaceAll(signame, "\n",""),"\r",""); 
-              if( IN(signame, wn_amc_design_item ) ) {
-                wn_amc_design_item.erase(signame); // remove it from the set
+              if (mark != line.npos) {
+                auto signame = line.substr(mark+3);
+                // it should not contain EOL
+                //signame = ReplaceAll(ReplaceAll(signame, "\n",""),"\r",""); 
+                if( IN(signame, wn_amc_design_item ) ) {
+                  wn_amc_design_item.erase(signame); // remove it from the set
 
-                auto num_start = line.substr(search_target.size());
-                auto end = num_start.find('|');
-                auto num = num_start.substr(0,end);
-                auto signame = "|" + vlg_top_module_name + "#" + num + "|";
+                  auto num_start = line.substr(search_target.size());
+                  auto end = num_start.find('|');
+                  auto num = num_start.substr(0,end);
+                  auto signame = "|" + vlg_top_module_name + "#" + num + "|";
 
-                amc_design_item.push_back(signame); // |mod#n|
-              }
+                  amc_design_item.push_back(signame); // |mod#n|
+                }
+              } // found "; \\"
             } // end of exists signal definition
             else if(line.find("; yosys-smt2-module ") == 0) {
               auto modname = line.substr(strlen("; yosys-smt2-module "));
@@ -327,84 +344,89 @@ void VlgSglTgtGen_Yosys::single_inv_tpl(const std::string & tpl_name) {
             
             if (line.find(search_target) == 0) {
               auto mark = line.find("; \\");
-              ILA_ASSERT(mark != std::string::npos) << "Error parsing SMT";
-              auto signame = line.substr(mark+3);
-              // it should not contain EOL
-              //signame = ReplaceAll(ReplaceAll(signame, "\n",""),"\r",""); 
-              std::set<std::string> * wn_set = NULL;
-              std::vector<std::string> * it_vec = NULL;
+              if (mark != std::string::npos) 
+              {
+                auto signame = line.substr(mark+3);
+                // it should not contain EOL
+                //signame = ReplaceAll(ReplaceAll(signame, "\n",""),"\r",""); 
+                std::set<std::string> * wn_set = NULL;
+                std::vector<std::string> * it_vec = NULL;
 
-              if ( IN(signame, wn_amc_wrapper_item) ) {
-                ILA_ASSERT(wn_set == NULL);
-                wn_set = & wn_amc_wrapper_item;
-                it_vec = & amc_wrapper_item;
+                if ( IN(signame, wn_amc_wrapper_item) ) {
+                  ILA_ASSERT(wn_set == NULL);
+                  wn_set = & wn_amc_wrapper_item;
+                  it_vec = & amc_wrapper_item;
+                }
+                if ( IN(signame, wn_asst_item) ) {
+                  ILA_ASSERT(wn_set == NULL); // should not exists in multiple sets
+                  wn_set = & wn_asst_item;
+                  it_vec = & asst_item;
+                }
+                if ( IN(signame, wn_aspt_item) ) {
+                  ILA_ASSERT(wn_set == NULL); // should not exists in multiple sets
+                  wn_set = & wn_aspt_item;
+                  it_vec = & aspt_item;
+                }
+
+                if( wn_set ) {
+                  ILA_NOT_NULL(it_vec) ;
+                  wn_set->erase(signame); // remove it from the set
+
+                  auto num_start = line.substr(search_target.size());
+                  auto end = num_start.find('|');
+                  auto num = num_start.substr(0,end);
+                  auto signame = "|" + top_mod_name + "#" + num + "|";
+
+                  it_vec->push_back(signame); // |mod#n|
+                } // else no wire needed : do nothing
               }
-              if ( IN(signame, wn_asst_item) ) {
-                ILA_ASSERT(wn_set == NULL); // should not exists in multiple sets
-                wn_set = & wn_asst_item;
-                it_vec = & asst_item;
-              }
-              if ( IN(signame, wn_aspt_item) ) {
-                ILA_ASSERT(wn_set == NULL); // should not exists in multiple sets
-                wn_set = & wn_aspt_item;
-                it_vec = & aspt_item;
-              }
-
-              if( wn_set ) {
-                ILA_NOT_NULL(it_vec) ;
-                wn_set->erase(signame); // remove it from the set
-
-                auto num_start = line.substr(search_target.size());
-                auto end = num_start.find('|');
-                auto num = num_start.substr(0,end);
-                auto signame = "|" + vlg_top_module_name + "#" + num + "|";
-
-                it_vec->push_back(signame); // |mod#n|
-              } // else no wire needed : do nothing
-
             } // end of exists signal definition
           }
         } // end of for readline
-        ILA_ASSERT (state == TOPMODULE) << "BUG: Error in parsing smt-lib2 file!";
+        ILA_ASSERT (state == TOPMODULE) 
+          << "BUG: Error in parsing smt-lib2 file! "
+          << "Not reaching the top module.";
+        // sanity check -- if all sigs are found
+
+        ILA_ASSERT (
+          wn_amc_design_item.empty() and
+          wn_amc_wrapper_item.empty() and 
+          wn_asst_item.empty() and
+          wn_aspt_item.empty()
+          ) << "Missing signals in SMT parsing, HC gen will be incorrect";
       } //  find number name --- smt name
 
       { // construct expressions
         // (signame |%d%_s|) or (signame |%w%_s|), use " " to join and add "(and" ")"
-        amc_design = "(and";
-        for (auto && signame : amc_design_item) {
-          amc_design += " (" + signame + " |%d%_s|)";
-        }
-        amc_design += ")";
+        for_each(amc_design_item.begin(), amc_design_item.end(),
+          [](std::string & s) -> void {s = "("+s+" |__Sv__|)";} );
+        amc_design = JoinListWithAnd(amc_design_item);
 
-        amc_wrapper = "(and";
-        for (auto && signame : amc_wrapper_item) {
-          amc_wrapper += " (" + signame + " |%w%_s|)";
-        }
-        amc_wrapper += ")";
+        for_each(amc_wrapper_item.begin(), amc_wrapper_item.end(),
+          [](std::string & s) -> void {s = "("+s+" |__Sw__|)";} );
+        amc_wrapper = JoinListWithAnd(amc_wrapper_item);
+        
+        for_each(aspt_item.begin(), aspt_item.end(),
+          [](std::string & s) -> void {s = "("+s+" |__Sw__|)";} );
+        aspt = JoinListWithAnd(aspt_item);
 
-        aspt = "(and";
-        for (auto && signame : aspt_item) {
-          aspt += " (" + signame + " |%w%_s|)";
-        }
-        aspt += ")";
+        for_each(asst_item.begin(), asst_item.end(),
+          [](std::string & s) -> void {s = "("+s+" |__Sw__|)";} );
+        asst = JoinListWithAnd(asst_item);
 
-        asst = "(and";
-        for (auto && signame : asst_item) {
-          asst += " (" + signame + " |%w%_s|)";
-        }
-        asst += ")";
       } // construct expressions
     } // Construct exprs done
 
-    std::string ret_tpl_smt;
+    std::string ret_tpl_smt = dual_ind_inv_tmpl;
     { // now create the template 
       // 1. func sub
       ret_tpl_smt = ReplaceAll(ret_tpl_smt, "%wrapperSmt%", all_smt);
       ret_tpl_smt = ReplaceAll(ret_tpl_smt, "%amcFunc_design%", amc_design);
       ret_tpl_smt = ReplaceAll(ret_tpl_smt, "%amcFunc_wrapper%", amc_wrapper);
       ret_tpl_smt = ReplaceAll(ret_tpl_smt, "%ASST%", asst);
-      ret_tpl_smt = ReplaceAll(ret_tpl_smt, "%ASST%", aspt);
+      ret_tpl_smt = ReplaceAll(ret_tpl_smt, "%ASPT%", aspt);
       // 2. name sub
+      ret_tpl_smt = ReplaceAll(ret_tpl_smt, "%subi%", _vlg_mod_inst_name);
       ret_tpl_smt = ReplaceAll(ret_tpl_smt, "%d%", vlg_top_module_name);
       ret_tpl_smt = ReplaceAll(ret_tpl_smt, "%w%", top_mod_name);
     }
