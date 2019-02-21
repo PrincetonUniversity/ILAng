@@ -115,8 +115,8 @@ InstrLvlAbsPtr J2IDes::DesInstrLvlAbs(const json& j_ila) {
 
   // ast expressions
   auto& j_expr_arr = j_ila.at(SERDES_ILA_AST);
-  for (auto& expr : j_expr_arr) {
-    DesExpr(expr, m);
+  for (auto& j_expr : j_expr_arr) {
+    DesExpr(j_expr, m);
   }
 
   // fetch
@@ -134,16 +134,15 @@ InstrLvlAbsPtr J2IDes::DesInstrLvlAbs(const json& j_ila) {
   // instructions
   auto& j_instr_arr = j_ila.at(SERDES_ILA_INSTR);
   for (auto& j_instr : j_instr_arr) {
-    auto instr = DesInstr(j_instr, m);
+    ILA_WARN << "Explicit use: " << j_instr;
+    DesInstr(j_instr, m);
   }
 
   // init
   auto& j_init_arr = j_ila.at(SERDES_ILA_INIT);
   for (auto& j_init : j_init_arr) {
-    ILA_DLOG("Portable") << "Des init " << j_init.get<ID_t>();
     auto init_expr_it = id_expr_map_.find(j_init.get<ID_t>());
     ILA_ASSERT(init_expr_it != id_expr_map_.end()) << "Init not found";
-    ILA_DLOG("Portable") << init_expr_it->second;
     m->AddInit(init_expr_it->second);
   }
 }
@@ -182,9 +181,10 @@ ExprPtr J2IDes::DesExprInput(const json& j_sort, const std::string& name,
     return i_host->NewBvInput(name, width);
   }
   // memory (array)
-  default: {
-    ILA_ERROR << "Unknown sort for input " << name;
-    return NULL;
+  case AST_UID_SORT::MEM: {
+    auto addr_width = j_sort.at(SERDES_SORT_ADDR_WIDTH).get<int>();
+    auto data_width = j_sort.at(SERDES_SORT_DATA_WIDTH).get<int>();
+    return i_host->NewMemInput(name, addr_width, data_width);
   }
   }; // switch j_sort id
 }
