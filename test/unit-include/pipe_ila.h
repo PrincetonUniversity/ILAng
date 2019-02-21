@@ -17,25 +17,34 @@ public:
 
 }; // class SimplePipe
 
-/// \brief UndetExample
+/// \brief UndetVal -- 0-ary function
 class UndetVal {
 public:
   static Ila BuildModel();
 };
 
 
-/// \brief UndetExample -- function
+/// \brief UndetFunc -- function
 class UndetFunc {
 public:
   static Ila BuildModel();
 };
 
 
-/// \brief UndetExample -- building a monitor
+/// \brief MonitorTest -- building a monitor
 class MonitorTest {
 public:
   static Ila BuildModel();
 };
+
+/// \brief Counter -- just a counter
+/// with a single instruction:
+/// INC c <= c + 1
+class CntTest {
+public:
+  static Ila BuildModel();
+};
+
 
 
 }; // namespace ilang

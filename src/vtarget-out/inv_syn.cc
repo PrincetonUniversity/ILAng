@@ -159,7 +159,55 @@ std::string JoinListWithAnd(const std::vector<std::string> & l) {
 
 // a local helper function to return the type of a smt (define-fun ) stmt 
 bool isBoolDefine(const std::string & stmt) {
+ return false; // todo:
+}
 
+// extract 
+bool extractSigDefFromLine(
+  const std::string & mod_name,
+  const std::string & line,
+  std::set<std::string> & s, 
+  std::vector<std::string> & v) {
+  
+  bool found_match_state = false;
+  std::string search_target_wire_num = "(define-fun |" + mod_name + "#";
+  std::string search_target_n = "(define-fun |" + mod_name + "_n ";
+  if (line.find(search_target_wire_num) == 0) { // begins with it
+    auto mark = line.find("; \\");
+    if (mark != line.npos) {
+      auto signame = line.substr(mark+strlen("; \\"));
+      // it should not contain EOL
+      //signame = ReplaceAll(ReplaceAll(signame, "\n",""),"\r",""); 
+      if( IN(signame, s ) ) {
+        s.erase(signame); // remove it from the set
+
+        auto num_start = line.substr(search_target_wire_num.size());
+        auto end = num_start.find('|');
+        auto num = num_start.substr(0,end);
+        auto smt_expr = "|" + mod_name + "#" + num + "|";
+
+        v.push_back(smt_expr); // |mod#n|
+
+        found_match_state = true;
+      }
+    } // found "; \\"
+  } // end of exists signal definition type 1
+  else if (line.find(search_target_n) == 0) { // begins with it
+    auto len  = search_target_n.size();
+    auto mark = line.find('|',len);
+    auto signame = line.substr(len, mark-len);
+
+    if( IN(signame, s) ) {
+      s.erase(signame); // remove it from the set
+
+      auto smt_expr = "|" + mod_name + "_n " + signame + "|";
+
+      v.push_back(smt_expr);  // |mod_n signal|
+      found_match_state = true;
+    }
+  }
+
+  return found_match_state;
 }
 
 /// generate the Yosys script for single invariant
@@ -313,74 +361,24 @@ void VlgSglTgtGen_Yosys::single_inv_tpl(const std::string & tpl_name) {
               state = SUBMODULE; // go to next state
           } // find vlg module
           else if (state == SUBMODULE) {
-            std::string search_target = "(define-fun |" + vlg_top_module_name + "#";
-            if (line.find(search_target) == 0) {
-              auto mark = line.find("; \\");
-              if (mark != line.npos) {
-                auto signame = line.substr(mark+3);
-                // it should not contain EOL
-                //signame = ReplaceAll(ReplaceAll(signame, "\n",""),"\r",""); 
-                if( IN(signame, wn_amc_design_item ) ) {
-                  wn_amc_design_item.erase(signame); // remove it from the set
-
-                  auto num_start = line.substr(search_target.size());
-                  auto end = num_start.find('|');
-                  auto num = num_start.substr(0,end);
-                  auto signame = "|" + vlg_top_module_name + "#" + num + "|";
-
-                  amc_design_item.push_back(signame); // |mod#n|
-                }
-              } // found "; \\"
-            } // end of exists signal definition
+            if ( extractSigDefFromLine(
+                  vlg_top_module_name, line, wn_amc_design_item,
+                  amc_design_item) ) { /* do nothing */ }
             else if(line.find("; yosys-smt2-module ") == 0) {
               auto modname = line.substr(strlen("; yosys-smt2-module "));
               if (modname == top_mod_name)
                 state = TOPMODULE; // go to next state
             } // end of go to next module
-            // else do nothing
-            
-          } else if (state == TOPMODULE) {
-            std::string search_target = "(define-fun |" + top_mod_name + "#";
-            
-            if (line.find(search_target) == 0) {
-              auto mark = line.find("; \\");
-              if (mark != std::string::npos) 
-              {
-                auto signame = line.substr(mark+3);
-                // it should not contain EOL
-                //signame = ReplaceAll(ReplaceAll(signame, "\n",""),"\r",""); 
-                std::set<std::string> * wn_set = NULL;
-                std::vector<std::string> * it_vec = NULL;
-
-                if ( IN(signame, wn_amc_wrapper_item) ) {
-                  ILA_ASSERT(wn_set == NULL);
-                  wn_set = & wn_amc_wrapper_item;
-                  it_vec = & amc_wrapper_item;
-                }
-                if ( IN(signame, wn_asst_item) ) {
-                  ILA_ASSERT(wn_set == NULL); // should not exists in multiple sets
-                  wn_set = & wn_asst_item;
-                  it_vec = & asst_item;
-                }
-                if ( IN(signame, wn_aspt_item) ) {
-                  ILA_ASSERT(wn_set == NULL); // should not exists in multiple sets
-                  wn_set = & wn_aspt_item;
-                  it_vec = & aspt_item;
-                }
-
-                if( wn_set ) {
-                  ILA_NOT_NULL(it_vec) ;
-                  wn_set->erase(signame); // remove it from the set
-
-                  auto num_start = line.substr(search_target.size());
-                  auto end = num_start.find('|');
-                  auto num = num_start.substr(0,end);
-                  auto signame = "|" + top_mod_name + "#" + num + "|";
-
-                  it_vec->push_back(signame); // |mod#n|
-                } // else no wire needed : do nothing
-              }
-            } // end of exists signal definition
+            // else do nothing  
+          } // deal with submodule (verilog top) -- continue to the wrapper
+          else if (state == TOPMODULE) {
+            if ( extractSigDefFromLine( top_mod_name, line,
+                   wn_amc_wrapper_item, amc_wrapper_item ) ) { /* do nothing */ }
+            else if ( extractSigDefFromLine( top_mod_name, line,
+                   wn_asst_item, asst_item ) ) { /* do nothing */ }
+            else if ( extractSigDefFromLine( top_mod_name, line,
+                   wn_aspt_item, aspt_item ) ) { /* do nothing */ }
+            else { /* do nothing */ }
           }
         } // end of for readline
         ILA_ASSERT (state == TOPMODULE) 
@@ -399,11 +397,11 @@ void VlgSglTgtGen_Yosys::single_inv_tpl(const std::string & tpl_name) {
       { // construct expressions
         // (signame |%d%_s|) or (signame |%w%_s|), use " " to join and add "(and" ")"
         for_each(amc_design_item.begin(), amc_design_item.end(),
-          [](std::string & s) -> void {s = "("+s+" |__Sv__|)";} );
+          [](std::string & s) -> void {s = "(zbv2bool ("+s+" |__Sv__|))";} );
         amc_design = JoinListWithAnd(amc_design_item);
 
         for_each(amc_wrapper_item.begin(), amc_wrapper_item.end(),
-          [](std::string & s) -> void {s = "("+s+" |__Sw__|)";} );
+          [](std::string & s) -> void {s = "(zbv2bool ("+s+" |__Sw__|))";} );
         amc_wrapper = JoinListWithAnd(amc_wrapper_item);
         
         for_each(aspt_item.begin(), aspt_item.end(),
