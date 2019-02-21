@@ -134,7 +134,8 @@ InstrLvlAbsPtr J2IDes::DesInstrLvlAbs(const json& j_ila) {
   // instructions
   auto& j_instr_arr = j_ila.at(SERDES_ILA_INSTR);
   for (auto& j_instr : j_instr_arr) {
-    ILA_WARN << "Explicit use: " << j_instr;
+    // XXX need an explicit immediate use of j_instr, seg fault otherwise...
+    ILA_WARN << "(Explicit) Des: " << j_instr;
     DesInstr(j_instr, m);
   }
 
@@ -145,6 +146,8 @@ InstrLvlAbsPtr J2IDes::DesInstrLvlAbs(const json& j_ila) {
     ILA_ASSERT(init_expr_it != id_expr_map_.end()) << "Init not found";
     m->AddInit(init_expr_it->second);
   }
+
+  return m;
 }
 
 ExprPtr J2IDes::DesExprState(const json& j_sort, const std::string& name,
