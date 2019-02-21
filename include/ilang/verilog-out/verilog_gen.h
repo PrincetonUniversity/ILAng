@@ -26,11 +26,15 @@ typedef ExprHash VerilogGenHash;
 class VlgSglTgtGen;
 class VlgVerifTgtGen;
 class IntefaceDirectiveRecorder;
+class TestVerilogExport;
+
 
 /// \brief Base class of VerilogGenerator
 class VerilogGeneratorBase {
 public:
   // --------------------- TYPE DEFINITIONS ---------------------------- //
+  /// let the test class use this module
+  friend class TestVerilogExport;
   /// let VlgVerifTgtGen use this module to generate the wrapper module
   friend class VlgSglTgtGen;
   /// let IntefaceDirectiveRecorder use this module to generate the wrapper
@@ -325,6 +329,8 @@ public:
 class VerilogGenerator : public VerilogGeneratorBase {
 public:
   // --------------------- TYPE DEFINITIONS ---------------------------- //
+  /// let the test class use this module
+  friend class TestVerilogExport;
   /// Type of Verilog id names'
   using vlg_name_t = VerilogGeneratorBase::vlg_name_t;
   /// Type of Verilog statement
