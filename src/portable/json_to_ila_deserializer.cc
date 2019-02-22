@@ -95,6 +95,8 @@ InstrPtr J2IDes::DesInstr(const json& j_instr,
     // set the update function
     instr->set_update(state, next_expr_it->second);
   }
+
+  return instr;
 }
 
 InstrLvlAbsPtr J2IDes::DesInstrLvlAbs(const json& j_ila) {
@@ -161,13 +163,13 @@ ExprPtr J2IDes::DesExprState(const json& j_sort, const std::string& name,
     return i_host->NewBvState(name, width);
   }
   // memory (array)
-  // case AST_UID_SORT::MEM: {
-  default: {
+  case AST_UID_SORT::MEM: {
     auto addr_width = j_sort.at(SERDES_SORT_ADDR_WIDTH).get<int>();
     auto data_width = j_sort.at(SERDES_SORT_DATA_WIDTH).get<int>();
     return i_host->NewMemState(name, addr_width, data_width);
   }
-  }; // seitch j_sort id
+  default: { return NULL; }
+  }; // switch j_sort id
 }
 
 ExprPtr J2IDes::DesExprInput(const json& j_sort, const std::string& name,
@@ -183,12 +185,12 @@ ExprPtr J2IDes::DesExprInput(const json& j_sort, const std::string& name,
     return i_host->NewBvInput(name, width);
   }
   // memory (array)
-  // case AST_UID_SORT::MEM: {
-  default: {
+  case AST_UID_SORT::MEM: {
     auto addr_width = j_sort.at(SERDES_SORT_ADDR_WIDTH).get<int>();
     auto data_width = j_sort.at(SERDES_SORT_DATA_WIDTH).get<int>();
     return i_host->NewMemInput(name, addr_width, data_width);
   }
+  default: { return NULL; }
   }; // switch j_sort id
 }
 
@@ -206,8 +208,7 @@ ExprPtr J2IDes::DesExprConst(const json& j_sort, const json& j_val) const {
     return ExprFuse::BvConst(value, width);
   }
   // memory (array)
-  // case AST_UID_SORT::MEM: {
-  default: {
+  case AST_UID_SORT::MEM: {
     auto addr_width = j_sort.at(SERDES_SORT_ADDR_WIDTH).get<int>();
     auto data_width = j_sort.at(SERDES_SORT_DATA_WIDTH).get<int>();
 
@@ -226,6 +227,7 @@ ExprPtr J2IDes::DesExprConst(const json& j_sort, const json& j_val) const {
 
     return ExprFuse::MemConst(mem_val, addr_width, data_width);
   }
+  default: { return NULL; }
   }; // seitch j_sort id
 }
 
