@@ -1,5 +1,5 @@
 /// \file
-/// Source of the class ExpFusee
+/// Source of ExprFuse
 
 #include <ilang/ila/expr_fuse.h>
 #include <ilang/ila/hash_ast.h>

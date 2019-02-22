@@ -9,7 +9,7 @@
 [![Percentage of issues still open](http://isitmaintained.com/badge/open/bo-yuan-huang/ilang.svg)](http://isitmaintained.com/project/bo-yuan-huang/ilang "Percentage of issues still open")
 [![license](https://img.shields.io/github/license/bo-yuan-huang/ilang.svg?style=flat)](https://github.com/Bo-Yuan-Huang/ILA-Tools/blob/master/LICENSE)
 [![Documentation](https://img.shields.io/badge/docs-manual-blue.svg)](https://bo-yuan-huang.gitbook.io/ilang/)
-[![Documentation](https://img.shields.io/badge/docs-doxygen-blue.svg)](https://bo-yuan-huang.github.io/ILAng/doxygen-html/namespaceilang.html)
+[![Documentation](https://img.shields.io/badge/docs-doxygen-blue.svg)](https://bo-yuan-huang.github.io/ILAng-Doc/doxygen-output-html/namespaceilang.html)
 [![docker](https://images.microbadger.com/badges/image/byhuang/ilang.svg)](https://hub.docker.com/r/byhuang/ilang)
 
 -   [Build](#build)
