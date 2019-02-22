@@ -17,6 +17,9 @@ namespace ilang {
 TEST(TestVlgVerifInvSyn, SimpleCnt) {
   auto ila_model = CntTest::BuildModel();
 
+  VerilogVerificationTargetGenerator::vtg_config_t cfg;
+  cfg.CosaAddKeep = false;
+
   auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/inv_syn/";
   VerilogVerificationTargetGenerator vg(
       {},                          // no include
@@ -24,7 +27,8 @@ TEST(TestVlgVerifInvSyn, SimpleCnt) {
       "opposite",                // top_module_name
       dirName + "rfmap/vmap.json", // variable mapping
       dirName + "rfmap/cond-noinv.json", dirName + "out/", ila_model.get(),
-      VerilogVerificationTargetGenerator::backend_selector::YOSYS);
+      VerilogVerificationTargetGenerator::backend_selector::YOSYS,
+      cfg);
 
   EXPECT_FALSE(vg.in_bad_state());
 

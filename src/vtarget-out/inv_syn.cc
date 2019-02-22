@@ -91,6 +91,9 @@ std::string dual_ind_inv_tmpl = R"***(
   (and 
     (|%d%_n rst| |__SvBI__|) 
     (|%d%_t|     |__SvBI__| |__SvI__|)
+    ;(not (|%d%_n rst| |__SvI__|))    ; why not removed?
+    (|%d%_h| |__SvBI__|)
+    (|%d%_h| |__SvI__|)
     (|__AMC__design| |__SvI__|)
   ) (INV1 |__SvI__|)))
 
@@ -99,6 +102,8 @@ std::string dual_ind_inv_tmpl = R"***(
   (and
     (INV1    |__Sv__|)
     (|%d%_t| |__Sv__| |__Sv'__|)
+    (|%d%_h| |__Sv__|)
+    (|%d%_h| |__Sv'__|)
     (|__AMC__design| |__Sv__|)
     (|__AMC__design| |__Sv'__|))
   (INV1 |__Sv'__|)))
@@ -108,6 +113,11 @@ std::string dual_ind_inv_tmpl = R"***(
 (rule (=> 
     (and
       (|%w%_n rst|          |__SwBI__|)
+      ;(not (|%w%_n rst|     |__SwI__|))  ; why not removed?
+      ;(not (|%w%_n rst|     |__Swst__|)) ; why not removed?
+      (|%w%_h| |__SwBI__|)
+      (|%w%_h| |__SwI__|)
+      (|%w%_h| |__Swst__|)
       (|%w%_t|              |__SwBI__| |__SwI__|)
       (|__AMC__wrapper|     |__SwI__|)
       (|%w%_t|              |__SwI__|  |__Swst__|)
@@ -127,6 +137,8 @@ std::string dual_ind_inv_tmpl = R"***(
         (|%w%_t| |__Sw__| |__Sw'__|)
         (|__AMC__wrapper| |__Sw__|)
         (|__AMC__wrapper| |__Sw'__|)
+        (|%w%_h| |__Sw__|)
+        (|%w%_h| |__Sw'__|)
     )
     (INV2 |__Sw'__|)
   )
@@ -139,6 +151,7 @@ std::string dual_ind_inv_tmpl = R"***(
     (and
       (INV2             |__Sw__|)
       (|__AMC__wrapper| |__Sw__|)
+      (|%w%_h| |__Sw__|)
       (not (|__ASST__|  |__Sw__|))
     )
     fail)
