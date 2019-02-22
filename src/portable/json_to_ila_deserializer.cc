@@ -102,20 +102,20 @@ InstrLvlAbsPtr J2IDes::DesInstrLvlAbs(const json& j_ila) {
   auto m = InstrLvlAbs::New(name); // XXX parent
 
   // input
-  auto& j_inp_arr = j_ila.at(SERDES_ILA_INPUT);
-  for (auto& inp_id : j_inp_arr) {
+  auto j_inp_arr = j_ila.at(SERDES_ILA_INPUT);
+  for (auto inp_id : j_inp_arr) {
     input_id_set_.insert(inp_id.get<ID_t>());
   }
 
   // state
-  auto& j_state_arr = j_ila.at(SERDES_ILA_STATE);
-  for (auto& state_id : j_state_arr) {
+  auto j_state_arr = j_ila.at(SERDES_ILA_STATE);
+  for (auto state_id : j_state_arr) {
     state_id_set_.insert(state_id.get<ID_t>());
   }
 
   // ast expressions
-  auto& j_expr_arr = j_ila.at(SERDES_ILA_AST);
-  for (auto& j_expr : j_expr_arr) {
+  auto j_expr_arr = j_ila.at(SERDES_ILA_AST);
+  for (auto j_expr : j_expr_arr) {
     DesExpr(j_expr, m);
   }
 
@@ -132,16 +132,14 @@ InstrLvlAbsPtr J2IDes::DesInstrLvlAbs(const json& j_ila) {
   m->SetValid(valid_it->second);
 
   // instructions
-  auto& j_instr_arr = j_ila.at(SERDES_ILA_INSTR);
-  for (auto& j_instr : j_instr_arr) {
-    // XXX need an explicit immediate use of j_instr, seg fault otherwise...
-    ILA_WARN << "(Explicit) Des: " << j_instr;
+  auto j_instr_arr = j_ila.at(SERDES_ILA_INSTR);
+  for (auto j_instr : j_instr_arr) {
     DesInstr(j_instr, m);
   }
 
   // init
-  auto& j_init_arr = j_ila.at(SERDES_ILA_INIT);
-  for (auto& j_init : j_init_arr) {
+  auto j_init_arr = j_ila.at(SERDES_ILA_INIT);
+  for (auto j_init : j_init_arr) {
     auto init_expr_it = id_expr_map_.find(j_init.get<ID_t>());
     ILA_ASSERT(init_expr_it != id_expr_map_.end()) << "Init not found";
     m->AddInit(init_expr_it->second);
