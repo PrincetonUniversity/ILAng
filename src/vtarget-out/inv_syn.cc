@@ -113,8 +113,8 @@ std::string dual_ind_inv_tmpl = R"***(
 (rule (=> 
     (and
       (|%w%_n rst|          |__SwBI__|)
-      ;(not (|%w%_n rst|     |__SwI__|))  ; why not removed?
-      ;(not (|%w%_n rst|     |__Swst__|)) ; why not removed?
+      (not (|%w%_n rst|     |__SwI__|))  ; why not removed?
+      (not (|%w%_n rst|     |__Swst__|)) ; why not removed?
       (|%w%_h| |__SwBI__|)
       (|%w%_h| |__SwI__|)
       (|%w%_h| |__Swst__|)
@@ -137,6 +137,8 @@ std::string dual_ind_inv_tmpl = R"***(
         (|%w%_t| |__Sw__| |__Sw'__|)
         (|__AMC__wrapper| |__Sw__|)
         (|__AMC__wrapper| |__Sw'__|)
+        (not (|%w%_n rst|     |__Sw__|))  ; why not removed?
+        (not (|%w%_n rst|     |__Sw'__|)) ; why not removed?
         (|%w%_h| |__Sw__|)
         (|%w%_h| |__Sw'__|)
     )

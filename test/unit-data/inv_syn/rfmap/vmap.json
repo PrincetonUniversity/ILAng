@@ -1,7 +1,7 @@
 {
   "models": { "ILA":"m0" , "VERILOG": "m1" },
   "state mapping": {  
-  	"v":"v"
+  	"v":"out"
   },
 
   "interface mapping": {
