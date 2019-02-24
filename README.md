@@ -1,4 +1,4 @@
-<img src="https://raw.githubusercontent.com/Bo-Yuan-Huang/ILAng/master/docs/pics/ilang-logo.png" alt="ILAng Logo" height="225"/>
+[![ILAng](https://raw.githubusercontent.com/Bo-Yuan-Huang/ILAng/master/docs/pics/ilang-logo.png)](https://bo-yuan-huang.gitbook.io/ilang/)
 
 [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILAng.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILAng)
 [![Build Status](https://semaphoreci.com/api/v1/bo-yuan-huang/ilang/branches/master/shields_badge.svg)](https://semaphoreci.com/bo-yuan-huang/ilang)
@@ -29,33 +29,20 @@
 ### Prerequisites
 
 ILAng requires CMake (3.8 or above) and compilers with CXX11 support.
-To install dependencies on Debian-based UNIX, execute:
+To install dependencies on Debian-based UNIX:
 
 ```bash
 apt-get install bison flex libboost-all-dev z3 libz3-dev
 ```
 
-For OSX, execute:
+To install dependencies on OSX:
 
 ```bash
 brew install bison flex boost boost-python z3
 ```
 
-Note that the [Boost](https://www.boost.org) package is required only for building the synthesis engine and the Python API. 
-
-#### z3
-
-The [z3](https://github.com/Z3Prover/z3) SMT solver (over 4.4.0) is required. 
-Detailed instructions for building latest z3 can be found [here](https://github.com/Z3Prover/z3).
-
-```bash
-git clone https://github.com/Z3Prover/z3.git
-cd z3
-python scripts/mk_make.py
-cd build
-make -j$(nproc)
-sudo make install
-```
+-   The [z3](https://github.com/Z3Prover/z3) SMT solver (over 4.4.0) is required. Detailed instruction for building latest z3 can be found [here](https://github.com/Z3prover/z3#building-z3-using-make-and-gccclang).
+-   The [Boost](https://www.boost.org) package is required only for building the synthesis engine and the Python API. 
 
 #### Tested Environments
 
