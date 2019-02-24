@@ -41,21 +41,8 @@ To install dependencies on OSX:
 brew install bison flex boost boost-python z3
 ```
 
-Note that the [Boost](https://www.boost.org) package is required only for building the synthesis engine and the Python API. 
-
-#### z3
-
-The [z3](https://github.com/Z3Prover/z3) SMT solver (over 4.4.0) is required. 
-Detailed instructions for building latest z3 can be found [here](https://github.com/Z3Prover/z3).
-
-```bash
-git clone https://github.com/Z3Prover/z3.git
-cd z3
-python scripts/mk_make.py
-cd build
-make -j$(nproc)
-sudo make install
-```
+-   The [z3](https://github.com/Z3Prover/z3) SMT solver (over 4.4.0) is required. Detailed instruction for building latest z3 can be found [here](https://github.com/Z3prover/z3#building-z3-using-make-and-gccclang).
+-   The [Boost](https://www.boost.org) package is required only for building the synthesis engine and the Python API. 
 
 #### Tested Environments
 
