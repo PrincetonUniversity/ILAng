@@ -47,6 +47,9 @@ TEST(TestVlgTargetGen, AesIlaInfo) {
 }
 
 TEST(TestVlgTargetGen, PipeExample) {
+  auto config = VerilogVerificationTargetGenerator::vtg_config_t();
+  config.CosaGenJgTesterScript = true; // generate a jg tester script
+
   auto ila_model = SimplePipe::BuildModel();
 
   auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/vpipe/";
@@ -55,8 +58,9 @@ TEST(TestVlgTargetGen, PipeExample) {
       {dirName + "simple_pipe.v"}, //
       "pipeline_v",                // top_module_name
       dirName + "rfmap/vmap.json", // variable mapping
-      dirName + "rfmap/cond.json", dirName + "verify/", ila_model.get(),
-      VerilogVerificationTargetGenerator::backend_selector::COSA);
+      dirName + "rfmap/cond-noinv.json", dirName + "verify/", ila_model.get(),
+      VerilogVerificationTargetGenerator::backend_selector::COSA,
+      config);
 
   EXPECT_FALSE(vg.in_bad_state());
 

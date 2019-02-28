@@ -33,7 +33,8 @@ bool IntefaceDirectiveRecorder::isSpecialInputDirCompatibleWith(
     return true;
   if (c == "**SO**")
     return vlg_sig.is_output();
-  if (c == "**RESET**" || c == "**NRESET**" || c == "**CLOCK**")
+  if (c == "**RESET**" || c == "**NRESET**" 
+   || c == "**CLOCK**" || c == "**START**")
     return (vlg_sig.is_input() and vlg_sig.get_width() == 1);
   if (beginsWith(c, "**MEM**")) {
     auto first_dot_loc = c.find(".");
@@ -137,6 +138,9 @@ void IntefaceDirectiveRecorder::ModuleInstSanityCheck(
     const auto& the_wire_connected_to_the_port = signal_conn_pair.second.second;
     if (conn_tp == inf_dir_t::NC)
       continue; // no need to check them, will be declared
+    
+    if (conn_tp == inf_dir_t::START)
+      continue; // this is connected to __START__ | __STARTED__ // hope it will be fine
 
     if (IN(the_wire_connected_to_the_port, gen.wires))
       continue; // if found okay
@@ -235,6 +239,11 @@ void IntefaceDirectiveRecorder::RegisterInterface(const SignalInfoBase& vlg_sig,
       }
     } else if (refstr == "**NC**") {
       mod_inst_rec.insert({short_name, inf_connector_t({inf_dir_t::NC, ""})});
+    } else if (refstr == "**START**") {
+      mod_inst_rec.insert(
+        {short_name,
+          inf_connector_t({inf_dir_t::START, "__START__ | __STARTED__"})}
+      );
     } else if (refstr == "**SO**") {
       ILA_ERROR_IF(!is_output)
           << "Forcing a non-output signal to be connected as output:"

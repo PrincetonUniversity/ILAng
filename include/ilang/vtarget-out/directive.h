@@ -39,7 +39,8 @@ public:
     MEM_R_EN,
     MEM_W_A,
     MEM_W_D,
-    MEM_W_EN
+    MEM_W_EN,
+    START
   } inf_dir_t;
   /// Type of interface connector
   typedef std::pair<inf_dir_t, std::string> inf_connector_t;
