@@ -17,7 +17,7 @@
 `define  OP_SUB 2'b10
 `define  OP_AND 2'b11
 
-module pipeline_v(input clk, input rst, input [7:0] inst, input [1:0] dummy_read_rf, output [7:0] dummy_rf_data );
+module pipeline_v(input clk, input rst, input [7:0] inst, input [1:0] dummy_read_rf, output [7:0] dummy_rf_data, input __START__ );
 
 wire [1:0] op; 
 wire [1:0] rs1;
@@ -87,7 +87,7 @@ always @(posedge clk) begin
     if (rst) 
         // reset
         reg_0_w_stage <= 2'b0;
-    else  begin
+    else if (__START__) begin
         if(id_wen && rd == 0)
             reg_0_w_stage <= reg_0_w_stage_nxt | 2'b10;
         else
@@ -99,7 +99,7 @@ always @(posedge clk) begin
     if (rst) 
         // reset
         reg_1_w_stage <= 2'b0;
-    else  begin
+    else if (__START__) begin
         if(id_wen && rd == 1)
             reg_1_w_stage <= reg_1_w_stage_nxt | 2'b10;
         else
@@ -111,7 +111,7 @@ always @(posedge clk) begin
     if (rst) 
         // reset
         reg_2_w_stage <= 2'b0;
-    else  begin
+    else if (__START__) begin
         if(id_wen && rd == 2)
             reg_2_w_stage <= reg_2_w_stage_nxt | 2'b10;
         else
@@ -123,7 +123,7 @@ always @(posedge clk) begin
     if (rst) 
         // reset
         reg_3_w_stage <= 2'b0;
-    else  begin
+    else if (__START__) begin
         if(id_wen && rd == 3)
             reg_3_w_stage <= reg_3_w_stage_nxt | 2'b10;
         else
@@ -167,7 +167,7 @@ always @(posedge clk) begin
     if(rst) begin
         id_ex_reg_wen <= 1'b0;
     end
-    else begin
+    else if (__START__) begin
         id_ex_op <= op;
         id_ex_reg_wen <= id_wen;
         id_ex_rd <= rd;
@@ -187,7 +187,7 @@ always @(posedge clk) begin
         // reset
         ex_wb_reg_wen <= 1'b0;
     end
-    else begin
+    else if (__START__) begin
         ex_wb_reg_wen <= id_ex_reg_wen;
         ex_wb_val <= ex_alu_result;
         ex_wb_rd <= id_ex_rd;
@@ -203,7 +203,8 @@ always @(posedge clk ) begin
         registers[2] <= 8'd0;
         registers[3] <= 8'd0;
     end
-    else if (ex_wb_reg_wen) begin
+    else if (__START__) begin
+     if (ex_wb_reg_wen) begin
         case (ex_wb_rd)
         2'd0: registers[0] <= ex_wb_val;
         2'd1: registers[1] <= ex_wb_val;
@@ -211,6 +212,7 @@ always @(posedge clk ) begin
         2'd3: registers[3] <= ex_wb_val;
         default: registers[0] <= ex_wb_val; // nouse
         endcase
+     end
     end
 end
 

@@ -29,7 +29,8 @@
   	 "clk":"**CLOCK**",
   	 "inst":"inst",
   	 "dummy_read_rf":"**KEEP**",
-  	 "dummy_rf_data":"**SO**"
+  	 "dummy_rf_data":"**SO**",
+     "__START__" : "**START**"
   },
 
   "mapping control" : []

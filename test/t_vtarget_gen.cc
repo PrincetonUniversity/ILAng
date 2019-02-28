@@ -58,7 +58,7 @@ TEST(TestVlgTargetGen, PipeExample) {
       {dirName + "simple_pipe.v"}, //
       "pipeline_v",                // top_module_name
       dirName + "rfmap/vmap.json", // variable mapping
-      dirName + "rfmap/cond-noinv.json", dirName + "verify/", ila_model.get(),
+      dirName + "rfmap/cond.json", dirName + "verify/", ila_model.get(),
       VerilogVerificationTargetGenerator::backend_selector::COSA,
       config);
 
