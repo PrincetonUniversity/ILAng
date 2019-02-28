@@ -202,16 +202,13 @@ void VlgSglTgtGen_Cosa::Export_problem(const std::string& extra_name) {
               << os_portable_append_dir(_output_path, "rst.ets");
     return;
   }
-  rstf << "I: rst = 0_1" << std::endl;
-  rstf << "I: reset_done = False" << std::endl;
-  rstf << "S1: rst = 1_1" << std::endl;
-  rstf << "S1: reset_done = False" << std::endl;
-  rstf << "S2: rst = 0_1" << std::endl;
-  rstf << "S2: reset_done = True" << std::endl;
+  rstf << "I: rst = 1_1" << std::endl;
+  rstf << "I: reset_done = 0_1" << std::endl;
+  rstf << "S1: rst = 0_1" << std::endl;
+  rstf << "S1: reset_done = 1_1" << std::endl;
   rstf << "# TRANS" << std::endl;
   rstf << "I -> S1" << std::endl;
-  rstf << "S1 -> S2" << std::endl;
-  rstf << "S2 -> S2" << std::endl;
+  rstf << "S1 -> S1" << std::endl;
 
   std::ofstream fout(os_portable_append_dir(_output_path, extra_name));
   if (!fout.is_open()) {
@@ -234,7 +231,7 @@ void VlgSglTgtGen_Cosa::Export_problem(const std::string& extra_name) {
   fout << "abstract_clock: True" << std::endl;
   fout << "[DEFAULT]" << std::endl;
   fout << "bmc_length: " << std::to_string(max_bound + 5) << std::endl;
-  fout << "precondition: reset_done" << std::endl;
+  fout << "precondition: reset_done = 1_1" << std::endl;
   fout << std::endl;
 
   std::string assmpt = "(" + Join(_problems.assumptions, ") & (") + ")";
