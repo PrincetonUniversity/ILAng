@@ -97,20 +97,26 @@ TEST(TestVerilogAnalysis, RangeAnalysis) {
                                 "/unit-data/verilog_sample/range.v"}),
         "m1");
 
-    IS_WIDTH("r1", 8); // F -- just `A:0 should not fail!  --> need to debug!
-    IS_WIDTH("r2", 8); // F
-    IS_WIDTH("r3", 8); // F
+    IS_WIDTH("r1", 8);
+    IS_WIDTH("r2", 8);
+    IS_WIDTH("r3", 8);
     IS_WIDTH("r4", 8);
 
-    IS_WIDTH("r12", 8); // F
-    IS_WIDTH("r22", 8); // F
-    IS_WIDTH("r32", 8); // F
+    IS_WIDTH("r12", 8);
+    IS_WIDTH("r22", 8);
+    IS_WIDTH("r32", 8);
     IS_WIDTH("r42", 8);
 
-    IS_WIDTH("r14", 9); // F
-    IS_WIDTH("r24", 7); // F
-    IS_WIDTH("r34", 8); // F
-    IS_WIDTH("r44", 8); // F  (same F seq for the other)
+    IS_WIDTH("r14", 9); 
+    IS_WIDTH("r24", 7);
+    IS_WIDTH("r34", 8);
+    IS_WIDTH("r44", 8); 
+
+    IS_WIDTH("rm", 2); 
+    IS_WIDTH("a", 1); // F  
+    IS_WIDTH("b", 1); // F  
+    IS_WIDTH("c", 1); // F 
+    IS_WIDTH("d", 1); // F  
   } // end of test1
   { // test 2
     VerilogInfo va(

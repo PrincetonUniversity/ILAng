@@ -21,5 +21,10 @@ reg  [`R24-1:0] r24;
 wire [`R34:0] r34;
 wire [`R44] r44;
 
+wire [1*2/2+2%2:0] rm;
+wire [-1:0] a;
+wire [d:0] b;
+wire [0?2:1:0] c;
+wire [1<<1:0] d;
 
 endmodule
