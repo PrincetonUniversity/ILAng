@@ -4,6 +4,7 @@
 #include <ilang/util/container_shortcut.h>
 #include <ilang/util/log.h>
 #include <ilang/util/str_util.h>
+#include <ilang/verilog-in/verilog_const_parser.h>
 #include <ilang/verilog-in/verilog_analysis.h>
 #include <string>
 
@@ -738,31 +739,11 @@ unsigned range_to_width(ast_range* range) {
   ast_expression* left = range->upper;
   ast_expression* right = range->lower;
 
-  ILA_DLOG("VerilogAnalyzer.range_to_width") << "left  type:" << left->type;
-  ILA_DLOG("VerilogAnalyzer.range_to_width") << "right type:" << right->type;
+  VerilogConstantExprEval leval(left);
+  VerilogConstantExprEval reval(right);
 
-  if (left->type != ast_expression_type_e::PRIMARY_EXPRESSION)
-    return 0; // not able to determine
-  if (right->type != ast_expression_type_e::PRIMARY_EXPRESSION)
-    return 0;
-
-  ILA_DLOG("VerilogAnalyzer.range_to_width")
-      << "left  rep:" << (left->primary->value.number->representation);
-  ILA_DLOG("VerilogAnalyzer.range_to_width")
-      << "right rep:" << (right->primary->value.number->representation);
-
-  ILA_DLOG("VerilogAnalyzer.range_to_width")
-      << "left:" << ast_expression_tostring(left);
-  ILA_DLOG("VerilogAnalyzer.range_to_width")
-      << "right:" << ast_expression_tostring(right);
-
-  if (left->primary->value.number->base != ast_number_base_e::BASE_DECIMAL)
-    return 0;
-  if (right->primary->value.number->base != ast_number_base_e::BASE_DECIMAL)
-    return 0;
-
-  unsigned lr = StrToInt(ast_expression_tostring(left));
-  unsigned rr = StrToInt(ast_expression_tostring(right));
+  unsigned lr = leval.Eval();
+  unsigned rr = reval.Eval();
 
   return std::max(lr, rr) - std::min(lr, rr) + 1;
 }
