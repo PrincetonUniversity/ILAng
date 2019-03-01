@@ -1,1 +1,0 @@
-( bvOp $n3916 if ( boolOp $n198 eq ( bvOp $n19 extract ( bvOp $n18 readmem ( memVar mem 32 64 ) ( bvOp $n17 zero-extend ( bvOp $n16 extract ( bvVar pc 32 ) #31 #3 ) #32 ) ) #31 #22 ) ( bvConst $n197 10 56 ) ) ( bvOp $n3908 + ( bvVar pc 32 ) ( bvConst $n3907 32 4 ) ) ( bvVar pc 32 ) )

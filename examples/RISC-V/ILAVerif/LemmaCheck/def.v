@@ -1,1 +1,0 @@
-`define RANDOMIZE_REG_INIT 1

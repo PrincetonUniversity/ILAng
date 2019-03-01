@@ -68,6 +68,12 @@ endif()
 
 target_link_libraries(${ILANG_LIB_NAME} PUBLIC z3::z3)
 
+if(${Z3_VERSION} VERSION_LESS 4.6.0)
+  set(Z3_LEGACY_API TRUE)
+else()
+  set(Z3_LEGACY_API FALSE)
+endif()
+
 ##
 ## glog
 ##
@@ -84,7 +90,11 @@ if(NOT TARGET nlohmann_json::nlohmann_json)
   find_package(nlohmann_json REQUIRED)
 endif()
 
-target_link_libraries(${ILANG_LIB_NAME} PRIVATE nlohmann_json::nlohmann_json)
+if (${ILANG_BUILD_TEST} OR ${ILANG_INSTALL_DEV}) 
+  target_link_libraries(${ILANG_LIB_NAME} PUBLIC nlohmann_json::nlohmann_json)
+else()
+  target_link_libraries(${ILANG_LIB_NAME} PRIVATE nlohmann_json::nlohmann_json)
+endif()
 
 ##
 ## verilog parser
@@ -93,7 +103,11 @@ if(NOT TARGET verilogparser::verilogparser)
   find_package(verilogparser REQUIRED)
 endif()
 
-target_link_libraries(${ILANG_LIB_NAME} PRIVATE verilogparser::verilogparser)
+if (${ILANG_BUILD_TEST} OR ${ILANG_INSTALL_DEV}) 
+  target_link_libraries(${ILANG_LIB_NAME} PUBLIC verilogparser::verilogparser)
+else()
+  target_link_libraries(${ILANG_LIB_NAME} PRIVATE verilogparser::verilogparser)
+endif()
 
 ##
 ## template-based synthesis

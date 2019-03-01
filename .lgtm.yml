@@ -1,0 +1,38 @@
+path_classifiers:
+  test:
+    - tests
+
+  external:
+    - extern
+
+  docs:
+    - docs
+
+  script:
+    - scripts
+
+  example:
+    - apps
+    - examples
+
+extraction:
+  cpp:
+    prepare:
+      packages:
+        - build-essential
+        - libboost-all-dev
+        - bison
+        - flex
+        - z3
+        - libz3-dev
+
+    configure:
+      command:
+        - mkdir -p build
+        - cd build
+        - cmake ..
+
+    index:
+      build_command:
+        - cd build # cwd is set to LGTM_SRC at the start of each build step
+        - make -j$(nproc)

@@ -7,6 +7,7 @@
 #include <ilang/mcm/set_op.h>
 #include <ilang/mcm/tso_manual.h>
 #include <ilang/util/log.h>
+#include <ilang/util/z3_helper.h>
 #include <memory>
 #include <set>
 #include <string>
@@ -164,11 +165,12 @@ void Tso::ApplyAxioms() {
           if (!w2->Access(AccessType::WRITE, s))
             continue;
           ZExpr var3 = Z3Implies(
-              _ctx_.bool_val(true),
-              z3::implies(((SameAddress(*r, *w2, s, AxiomFuncHint::HINT_READ,
-                                        AxiomFuncHint::HINT_WRITE) &&
-                            Decode(*w2))),
-                          (CO(w2, w) || FR(r, w2))));
+              _ctx_, _ctx_.bool_val(true),
+              Z3Implies(_ctx_,
+                        ((SameAddress(*r, *w2, s, AxiomFuncHint::HINT_READ,
+                                      AxiomFuncHint::HINT_WRITE) &&
+                          Decode(*w2))),
+                        (CO(w2, w) || FR(r, w2))));
           var4_L.push_back(var3);
         }
         ZExpr var5 = Z3ForallList(var4_L);
@@ -183,7 +185,7 @@ void Tso::ApplyAxioms() {
         var6_L.push_back(var2);
       }
       ZExpr var7 = Z3ExistsList(var6_L);
-      ZExpr var1 = Z3Implies(_ctx_.bool_val(true), var7);
+      ZExpr var1 = Z3Implies(_ctx_, _ctx_.bool_val(true), var7);
       var8_L.push_back(var1);
     }
     ZExpr var9 = Z3ForallList(var8_L);
@@ -210,9 +212,9 @@ void Tso::ApplyAxioms() {
       if (!SameCore(*w1, *w2))
         continue;
       ZExpr var14 =
-          Z3Implies(_ctx_.bool_val(true),
-                    z3::implies(((SameCore(*w1, *w2) && HB(*w1, *w2))),
-                                HB(*__wfe_global(w1), *__wfe_global(w2))));
+          Z3Implies(_ctx_, _ctx_.bool_val(true),
+                    Z3Implies(_ctx_, ((SameCore(*w1, *w2) && HB(*w1, *w2))),
+                              HB(*__wfe_global(w1), *__wfe_global(w2))));
       var15_L.push_back(var14);
     }
     ZExpr var16 = Z3ForallList(var15_L);
@@ -228,8 +230,8 @@ void Tso::ApplyAxioms() {
     for (auto&& w : WRITE_list) { // forall w : WRITE_list
       if (!SameCore(*w, *f))
         continue;
-      var19_L.push_back(z3::implies(((SameCore(*w, *f) && HB(*w, *f))),
-                                    HB(*__wfe_global(w), *f)));
+      var19_L.push_back(Z3Implies(_ctx_, ((SameCore(*w, *f) && HB(*w, *f))),
+                                  HB(*__wfe_global(w), *f)));
     }
     ZExpr var20 = Z3ForallList(var19_L);
     var21_L.push_back(var20);
