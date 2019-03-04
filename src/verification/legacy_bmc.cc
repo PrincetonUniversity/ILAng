@@ -2,6 +2,7 @@
 /// Source for bounded model checking
 
 #include <ilang/util/log.h>
+#include <ilang/util/z3_helper.h>
 #include <ilang/verification/legacy_bmc.h>
 
 namespace ilang {
@@ -106,9 +107,9 @@ z3::expr LegacyBmc::UnrollCmplIla(InstrLvlAbsPtr m, const int& k,
   for (auto i = 0; i != k; i++) {
     auto suf_prev = std::to_string(pos + i);
     auto suf_next = std::to_string(pos + i + 1);
-    /// FIXME May not be one hot and flat -- based on flags.
+    /// XXX May not be one hot and flat -- based on flags.
     auto cnst_i = IlaOneHotFlat(m, suf_prev, suf_next);
-    /// FIXME Use rewrite for better performance -- based on flags (or def)
+    /// XXX Use rewrite for better performance -- based on flags (or def)
     cnst = cnst_i && cnst;
   }
 
@@ -148,8 +149,7 @@ z3::expr LegacyBmc::Instr(const InstrPtr instr, const std::string& suffix_prev,
   auto decode_n = instr->decode();
   ILA_NOT_NULL(decode_n);
   auto decode_e = gen_.GetExpr(decode_n, suffix_prev);
-
-  auto instr_cnst = z3::implies(decode_e, cnst);
+  auto instr_cnst = Z3Implies(ctx_, decode_e, cnst);
   return instr_cnst;
 }
 
@@ -174,7 +174,7 @@ z3::expr LegacyBmc::IlaOneHotFlat(const InstrLvlAbsPtr ila,
     cnst = cnst && instr_cnst;
   }
 
-  auto ila_cnst = z3::implies(valid_e, cnst);
+  auto ila_cnst = Z3Implies(ctx_, valid_e, cnst);
   return ila_cnst;
 }
 

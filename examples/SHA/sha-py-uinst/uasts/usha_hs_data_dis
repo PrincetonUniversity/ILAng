@@ -1,1 +1,0 @@
-( bvOp $n1028 if ( boolOp $n839 eq ( bvVar sha_state 3 ) ( bvConst $n838 3 3 ) ) ( bvOp $n1024 apply_fun ( funcVar sha 160 <- ( 512 ) ) ( bvVar sha_rd_data 512 ) ) ( bvVar sha_hs_data 160 ) )

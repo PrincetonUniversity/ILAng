@@ -6,6 +6,7 @@
 #include "ilang/mcm/inter_ila_unroller.h"
 #include "ilang/mcm/memory_model.h"
 #include "ilang/mcm/set_op.h"
+#include <ilang/util/z3_helper.h>
 #include <memory>
 #include <set>
 #include <string>
@@ -121,11 +122,12 @@ void Sc::ApplyAxioms() {
           if (!w2->Access(AccessType::WRITE, s))
             continue;
           ZExpr var3 = Z3Implies(
-              _ctx_.bool_val(true),
-              z3::implies(((SameAddress(*r, *w2, s, AxiomFuncHint::HINT_READ,
-                                        AxiomFuncHint::HINT_WRITE) &&
-                            Decode(*w2))),
-                          (CO(w2, w) || FR(r, w2))));
+              _ctx_, _ctx_.bool_val(true),
+              Z3Implies(_ctx_,
+                        ((SameAddress(*r, *w2, s, AxiomFuncHint::HINT_READ,
+                                      AxiomFuncHint::HINT_WRITE) &&
+                          Decode(*w2))),
+                        (CO(w2, w) || FR(r, w2))));
           var4_L.push_back(var3);
         }
         ZExpr var5 = Z3ForallList(var4_L);
@@ -140,7 +142,7 @@ void Sc::ApplyAxioms() {
         var6_L.push_back(var2);
       }
       ZExpr var7 = Z3ExistsList(var6_L);
-      ZExpr var1 = Z3Implies(_ctx_.bool_val(true), var7);
+      ZExpr var1 = Z3Implies(_ctx_, _ctx_.bool_val(true), var7);
       var8_L.push_back(var1);
     }
     ZExpr var9 = Z3ForallList(var8_L);

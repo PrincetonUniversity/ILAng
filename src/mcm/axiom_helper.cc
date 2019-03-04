@@ -5,16 +5,13 @@
 #include <ilang/mcm/memory_model.h>
 #include <ilang/mcm/set_op.h>
 #include <ilang/util/log.h>
+#include <ilang/util/z3_helper.h>
 
 namespace ilang {
 
 /******************************************************************************/
 // Helper Functions
 /******************************************************************************/
-
-z3::expr Z3Implies(const z3::expr& a, const z3::expr& b) {
-  return z3::implies(a, b);
-}
 z3::expr Z3And(const z3::expr& a, const z3::expr& b) { return a && b; }
 
 /******************************************************************************/
@@ -278,10 +275,11 @@ z3::expr MemoryModel::MemVarSameData(
     for (auto& addr_data_pair_ : rightRAddrDataVec) {
       match_of_data_ =
           match_of_data_ &&
-          z3::implies(traceL.ConvertZ3OnThisStep(leftWAddr) ==
-                          traceR.ConvertZ3OnThisStep(addr_data_pair_.first),
-                      traceL.ConvertZ3OnThisStep(leftWData) ==
-                          traceR.ConvertZ3OnThisStep(addr_data_pair_.second));
+          Z3Implies(ctx(),
+                    traceL.ConvertZ3OnThisStep(leftWAddr) ==
+                        traceR.ConvertZ3OnThisStep(addr_data_pair_.first),
+                    traceL.ConvertZ3OnThisStep(leftWData) ==
+                        traceR.ConvertZ3OnThisStep(addr_data_pair_.second));
     }
     retVal = retVal && match_of_data_;
   }
@@ -292,12 +290,12 @@ z3::expr MemoryModel::MemVarSameData(
     for (auto& addr_data_pair_ : leftRAddrDataVec) {
       match_of_data_ =
           match_of_data_ &&
-          z3::implies(
-              traceR.ConvertZ3OnThisStep(rightWAddr) ==
-                  traceL.ConvertZ3OnThisStep(addr_data_pair_.first), // =>
-              (traceR.ConvertZ3OnThisStep(rightWData) ==
-               traceL.ConvertZ3OnThisStep(
-                   addr_data_pair_.second)) // first is the address
+          Z3Implies(ctx(),
+                    traceR.ConvertZ3OnThisStep(rightWAddr) ==
+                        traceL.ConvertZ3OnThisStep(addr_data_pair_.first), // =>
+                    (traceR.ConvertZ3OnThisStep(rightWData) ==
+                     traceL.ConvertZ3OnThisStep(
+                         addr_data_pair_.second)) // first is the address
           );
     }
     retVal = retVal && match_of_data_; // add it to the constraints
@@ -308,15 +306,17 @@ z3::expr MemoryModel::MemVarSameData(
   if (!RWMatchedFlag) {
     // now we check for RR match or WW match
     if (leftWData && rightWData) // WW matching
-      retVal = z3::implies(traceL.ConvertZ3OnThisStep(leftWAddr) ==
-                               traceR.ConvertZ3OnThisStep(rightWAddr),
-                           traceL.ConvertZ3OnThisStep(leftWData) ==
-                               traceR.ConvertZ3OnThisStep(rightWData));
+      retVal = Z3Implies(ctx(),
+                         traceL.ConvertZ3OnThisStep(leftWAddr) ==
+                             traceR.ConvertZ3OnThisStep(rightWAddr),
+                         traceL.ConvertZ3OnThisStep(leftWData) ==
+                             traceR.ConvertZ3OnThisStep(rightWData));
     else { // RR matching
       for (auto& addr_data_pair_L : leftRAddrDataVec)
         for (auto& addr_data_pair_R : rightRAddrDataVec) {
           retVal = retVal &&
-                   z3::implies(
+                   Z3Implies(
+                       ctx(),
                        traceL.ConvertZ3OnThisStep(addr_data_pair_L.first) ==
                            traceR.ConvertZ3OnThisStep(addr_data_pair_R.first),
                        traceL.ConvertZ3OnThisStep(addr_data_pair_L.second) ==

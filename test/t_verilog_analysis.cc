@@ -86,17 +86,65 @@ TEST(TestVerilogAnalysis, Include) {
 
 TEST(TestVerilogAnalysis, RangeAnalysis) {
 
-/*  VerilogInfo va(
-      VerilogInfo::path_vec_t({std::string(ILANG_TEST_SRC_ROOT) +
-                               "/unit-data/verilog_sample/"}),
-      VerilogInfo::path_vec_t({std::string(ILANG_TEST_SRC_ROOT) +
-                               "/unit-data/verilog_sample/m1.v"}),
-      "m1");
+#define IS_WIDTH(n,w) EXPECT_EQ( va.get_signal("m1." n).get_width() , w )
 
-  ILA_DLOG("TestVerilogAnalysis.Include")   << "Location of: m1.r1:" << va.name2loc("m1.r1");
-  ILA_DLOG("TestVerilogAnalysis.Include")   << "End loc of m1:" << va.get_endmodule_loc("m1");
-*/
+
+  { // test 1
+    VerilogInfo va(
+        VerilogInfo::path_vec_t({std::string(ILANG_TEST_SRC_ROOT) +
+                                "/unit-data/verilog_sample/"}),
+        VerilogInfo::path_vec_t({std::string(ILANG_TEST_SRC_ROOT) +
+                                "/unit-data/verilog_sample/range.v"}),
+        "m1");
+
+    IS_WIDTH("r1", 8);
+    IS_WIDTH("r2", 8);
+    IS_WIDTH("r3", 8);
+    IS_WIDTH("r4", 8);
+
+    IS_WIDTH("r12", 8);
+    IS_WIDTH("r22", 8);
+    IS_WIDTH("r32", 8);
+    IS_WIDTH("r42", 8);
+
+    IS_WIDTH("r14", 9); 
+    IS_WIDTH("r24", 7);
+    IS_WIDTH("r34", 8);
+    IS_WIDTH("r44", 8); 
+
+    IS_WIDTH("rm", 2); 
+    IS_WIDTH("a", 1); // F  
+    IS_WIDTH("b", 1); // F  
+    IS_WIDTH("c", 1); // F 
+    IS_WIDTH("d", 1); // F  
+  } // end of test1
+  { // test 2
+    VerilogInfo va(
+        VerilogInfo::path_vec_t({std::string(ILANG_TEST_SRC_ROOT) +
+                                "/unit-data/verilog_sample/"}),
+        VerilogInfo::path_vec_t({std::string(ILANG_TEST_SRC_ROOT) +
+                                "/unit-data/verilog_sample/range2.v"}),
+        "m1");
+
+    IS_WIDTH("r1", 8);
+    IS_WIDTH("r2", 8);
+    IS_WIDTH("r3", 8);
+    IS_WIDTH("r4", 8);
+
+    IS_WIDTH("r12", 8);
+    IS_WIDTH("r22", 8);
+    IS_WIDTH("r32", 8);
+    IS_WIDTH("r42", 8);
+
+    IS_WIDTH("r14", 9);
+    IS_WIDTH("r24", 7);
+    IS_WIDTH("r34", 8);
+    IS_WIDTH("r44", 8);
+  } // end of test2
+
 }
+
+
 
 TEST(TestVerilogAnalysis, AnalyzeName) {
   VerilogInfo va(
