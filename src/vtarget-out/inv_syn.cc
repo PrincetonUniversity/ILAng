@@ -45,6 +45,121 @@ std::string single_ind_inv_tmpl = R"***(
 
 
 // o.w. we need to find two ind-inv
+std::string dual_ind_inv_reset_start_tmpl = R"***(
+;----------------------------------------
+;  Dual Inductive Invariant Synthesis
+;  Generated from ILAng
+;----------------------------------------
+
+; wrapper smt
+%wrapperSmt%
+
+; customized bv2bool
+(define-fun zbv2bool ((bv1b (_ BitVec 1))) Bool (= bv1b #b1)) 
+
+; additional mapping control
+; |__AMC__design| is actually the invariants
+; 
+(define-fun |__AMC__design| ((|__Sv__| |%d%_s|)) Bool %amcFunc_design%)
+(define-fun |__AMC__wrapper| ((|__Sw__| |%w%_s|)) Bool %amcFunc_wrapper%)
+
+; includes the start_condition, issue_decode, issue_valid
+(define-fun |__ASPT__| ((|__Sw__| |%w%_s|)) Bool %ASPT%) 
+
+; includes the variable_map_assert
+(define-fun |__ASST__| ((|__Sw__| |%w%_s|)) Bool %ASST%) 
+
+(declare-rel INV1 (|%d%_s|)) ; inv1 is on design
+(declare-rel INV2 (|%w%_s|)) ; inv2 is on wrapper
+(declare-rel fail ())
+
+(declare-var |__SvBI__| |%d%_s|) ; design
+(declare-var |__SvI__|  |%d%_s|) ; design
+(declare-var |__Sv__|   |%d%_s|) ; design
+(declare-var |__Sv'__|  |%d%_s|) ; design
+
+(declare-var |__SwBI__| |%w%_s|) ; wrapper : before init
+(declare-var |__Swst__| |%w%_s|) ; wrapper : starting -- __START__ signal is true
+(declare-var |__Sw__|   |%w%_s|) ; wrapper : generic state
+(declare-var |__Sw'__|  |%w%_s|) ; wrapper : new state
+;(declare-var |__Svst__| |%d%_s|) ; design  : starting -- __START__ signal is true here
+
+
+; init => inv1
+(rule (=> 
+  (and 
+    (|%d%_n rst| |__SvBI__|) 
+    (|%d%_t|     |__SvBI__| |__SvI__|)
+    ;(not (|%d%_n rst| |__SvI__|))    ; why not removed?
+    (|%d%_h| |__SvBI__|)
+    (|%d%_h| |__SvI__|)
+    (|__AMC__design| |__SvI__|)
+  ) (INV1 |__SvI__|)))
+
+; inv1 /\ T => inv1
+(rule (=> 
+  (and
+    (INV1    |__Sv__|)
+    (|%d%_t| |__Sv__| |__Sv'__|)
+    (|%d%_h| |__Sv__|)
+    (|%d%_h| |__Sv'__|)
+    (|__AMC__design| |__Sv__|)
+    (|__AMC__design| |__Sv'__|))
+  (INV1 |__Sv'__|)))
+
+
+; init /\ inv1 => inv2
+(rule (=> 
+    (and
+      (|%w%_n rst|          |__SwBI__|)
+      (not (|%w%_n rst|     |__Swst__|)) ; why not removed?
+      (|%w%_h| |__SwBI__|)
+      (|%w%_h| |__Swst__|)
+      (|%w%_t|              |__SwBI__| |__Swst__|)
+      (|__AMC__wrapper|     |__Swst__|)
+      (|__ASPT__|           |__Swst__|)
+      (INV1 (|%w%_h %subi%| |__Swst__|))
+    )
+    (INV2 |__Swst__|)
+  )
+)
+
+; inv2 /\ T => inv2
+(rule 
+  (=>
+    (and
+        (INV2 |__Sw__|)
+        (|%w%_t| |__Sw__| |__Sw'__|)
+        (|__AMC__wrapper| |__Sw__|)
+        (|__AMC__wrapper| |__Sw'__|)
+        (not (|%w%_n rst|     |__Sw__|))  ; why not removed?
+        (not (|%w%_n rst|     |__Sw'__|)) ; why not removed?
+        (|%w%_h| |__Sw__|)
+        (|%w%_h| |__Sw'__|)
+    )
+    (INV2 |__Sw'__|)
+  )
+)
+
+
+; inv2 /\ ~ assert => fail
+(rule 
+  (=> 
+    (and
+      (INV2             |__Sw__|)
+      (|__AMC__wrapper| |__Sw__|)
+      (|%w%_h| |__Sw__|)
+      (not (|__ASST__|  |__Sw__|))
+    )
+    fail)
+)
+
+(query fail :print-certificate true)
+
+)***";
+
+
+// o.w. we need to find two ind-inv
 std::string dual_ind_inv_tmpl = R"***(
 ;----------------------------------------
 ;  Dual Inductive Invariant Synthesis
@@ -430,7 +545,11 @@ void VlgSglTgtGen_Yosys::single_inv_tpl(const std::string & tpl_name) {
       } // construct expressions
     } // Construct exprs done
 
-    std::string ret_tpl_smt = dual_ind_inv_tmpl;
+    std::string ret_tpl_smt;
+    if (_vtg_config.VerificationSettingAvoidIssueStage)
+      ret_tpl_smt = dual_ind_inv_reset_start_tmpl;
+    else
+      ret_tpl_smt = dual_ind_inv_tmpl;
     { // now create the template 
       // 1. func sub
       ret_tpl_smt = ReplaceAll(ret_tpl_smt, "%wrapperSmt%", all_smt);

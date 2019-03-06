@@ -172,6 +172,10 @@ VlgSglTgtGen::VlgSglTgtGen(
       << "Future work.";
     _bad_state = true;
   }
+
+  ILA_ERROR_IF(has_flush and vtg_config.VerificationSettingAvoidIssueStage)
+    << "it is impossible to avoid issue stage for flushing refinement map, "
+    << "ignore this configuration option.";
 } // END of constructor
 
 void VlgSglTgtGen::ConstructWrapper_add_ila_input() {
@@ -442,9 +446,16 @@ void VlgSglTgtGen::ConstructWrapper_add_cycle_count_moniter() {
 
   vlg_wrapper.add_reg("__START__", 1);
   vlg_wrapper.add_stmt("always @(posedge clk) begin");
-  vlg_wrapper.add_stmt("if (rst) __START__ <= 0;");
-  vlg_wrapper.add_stmt("else if (__START__ || __STARTED__) __START__ <= 0;");
-  vlg_wrapper.add_stmt("else if (__ISSUE__) __START__ <= 1;");
+  // how start is triggered
+  if (_vtg_config.VerificationSettingAvoidIssueStage) {
+    vlg_wrapper.add_stmt("if (rst) __START__ <= 1;");
+    vlg_wrapper.add_stmt("else if (__START__ || __STARTED__) __START__ <= 0;");
+  }
+  else {
+    vlg_wrapper.add_stmt("if (rst) __START__ <= 0;");
+    vlg_wrapper.add_stmt("else if (__START__ || __STARTED__) __START__ <= 0;");
+    vlg_wrapper.add_stmt("else if (__ISSUE__) __START__ <= 1;");
+  }
   vlg_wrapper.add_stmt("end");
 
   vlg_wrapper.add_reg("__STARTED__", 1);

@@ -77,6 +77,8 @@ public:
     /// DataSort seems to use PDR engine, while bitvec seems Datalog
     /// Not 100% sure of it
     enum { UnintepretedFunc, DataSort, BitVec } YosysSmtStateSort;
+    /// whether to remove the extra issue cycle and starts from reset
+    bool VerificationSettingAvoidIssueStage;
 
     /// The default constructor for default values
     _vtg_config()
@@ -89,7 +91,8 @@ public:
           ForceInstCheckReset(false), PortDeclStyle(AUTO),
           OnlyAssumeUpdatedVarsEq(false), CosaPath(""), CosaPyEnvironment(""),
           CosaSolver(""), CosaGenTraceVcd(true), CosaOtherSolverOptions(""),
-          YosysSmtArrayForRegFile(false), YosysSmtStateSort(DataSort)  {}
+          YosysSmtArrayForRegFile(false), YosysSmtStateSort(DataSort),
+          VerificationSettingAvoidIssueStage(false)  {}
   } vtg_config_t;
 
 public:

@@ -1,0 +1,17 @@
+{
+  "models": { "ILA":"m0" , "VERILOG": "m1" },
+  "state mapping": {  
+  	"v":"out"
+  },
+
+  "interface mapping": {
+  	 "rst":"**RESET**", 
+  	 "clk":"**CLOCK**",
+  	 "en":"en",
+  	 "out":"**SO**",
+     "ui":"**KEEP**"
+  },
+
+  "instruction mapping": [],
+  "mapping control" : []
+}
