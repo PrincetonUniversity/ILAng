@@ -285,7 +285,11 @@ ExprPtr ExprFuse::Store(const ExprPtr mem, const int& addr, const int& data) {
 }
 
 ExprPtr ExprFuse::Concat(const ExprPtr hi, const ExprPtr lo) {
-  return std::make_shared<ExprOpConcat>(hi, lo);
+  auto const_zero = ExprFuse::BvConst(0x0, 1);
+  auto const_one = ExprFuse::BvConst(0x1, 1);
+  auto bv_hi = hi->is_bool() ? ExprFuse::Ite(hi, const_one, const_zero) : hi;
+  auto bv_lo = hi->is_bool() ? ExprFuse::Ite(lo, const_one, const_zero) : lo;
+  return std::make_shared<ExprOpConcat>(bv_hi, bv_lo);
 }
 
 ExprPtr ExprFuse::Extract(const ExprPtr bv, const int& hi, const int& lo) {
