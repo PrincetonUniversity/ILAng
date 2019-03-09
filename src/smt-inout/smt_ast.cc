@@ -159,17 +159,26 @@ std::string str_iterator::read_till_pos(unsigned pos) {
 
 std::string str_iterator::extract_untill_stack_empty(char push_symbol, char pop_symbol) {
   skip();
-  unsigned stack = 0;
-  auto start = pnt;
-  do {
-    if(head() == push_symbol)
-      stack ++;
-    else if(head() == pop_symbol)
-      stack --;
-    pnt ++ ;
-  } while(! ( is_end() || stack == 0) );
-  ILA_ERROR_IF(stack != 0) << "Error reading from string, unmatched " << push_symbol;
-  return buf.substr(start, pnt - start);
+  
+  if (head() == push_symbol) {
+    unsigned stack = 0;
+    auto start = pnt;
+    do {
+      if(head() == push_symbol)
+        stack ++;
+      else if(head() == pop_symbol) {
+        ILA_ASSERT (stack > 0);
+        stack --;
+      }
+      pnt ++ ;
+    } while(! ( is_end() || stack == 0) );
+    ILA_ASSERT(stack == 0) << "Error reading from string, unmatched " << push_symbol;
+    return buf.substr(start, pnt - start);
+  } // else
+  ILA_ASSERT(head() != '|') ; // not handling this case
+  auto word = head_word(") \n\t\r");
+  skip_m(word);
+  return word;
 }
 
 std::string line_comment::toString() const {
@@ -228,7 +237,7 @@ state_var_t state_var_t::ParseFromString(str_iterator &it, const std::string & d
     it.accept(raw_name);
   }
   
-  ILA_INFO << "Parse state:"<<raw_name;
+  ILA_DLOG("Smt.Parse") << "Parse state:"<<raw_name;
   ret._type = var_type::ParseFromString(it);
   it.skip();
   it.accept(")");
@@ -324,6 +333,9 @@ std::string func_def_t::toString() const {
   ret += " " + func_body;
   ret += ")";
 
+  if (not extra_comment.empty())
+    ret += " ; " + extra_comment;
+
   return ret;
 }
 
@@ -355,7 +367,7 @@ void ParseFromString(str_iterator & it, smt_file & smt) {
         std::make_shared<line_comment>();
       ptr->comment = it.readline_no_eol();
       smt.items.push_back(ptr);
-      ILA_INFO<<"Parsed comment:"<<ptr->comment;
+      ILA_DLOG("Smt.Parse")<<"Parsed comment:"<<ptr->comment;
 
       
     }
@@ -367,7 +379,7 @@ void ParseFromString(str_iterator & it, smt_file & smt) {
         std::make_shared<func_def_t>();
       func_def_t::ParseFromString(it,*ptr);
       smt.items.push_back(ptr);
-      ILA_INFO<<"Parsed func:"<<ptr->func_name;
+      ILA_DLOG("Smt.Parse")<<"Parsed func:"<<ptr->func_name;
     }
     else {
       ILA_ERROR << "Unrecognized:" << h <<". Stop.";
