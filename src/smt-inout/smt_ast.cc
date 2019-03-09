@@ -40,8 +40,9 @@ bool str_iterator::is_end(unsigned pos) const {
 
 
 void str_iterator::expect(const std::string &c) const {
+  auto substr = buf.substr(pnt,10);
   ILA_ASSERT( buf.find(c,pnt) == pnt ) << "Expect '"<< c 
-    << "', but get " << head_word();
+    << "', but get '" << substr << "'";
 }
 
 
@@ -57,6 +58,24 @@ unsigned str_iterator::next_non_space_pos(const std::string &s, unsigned pos) co
   return pos;
 } // next_non_space_pos
 
+std::string str_iterator::readline_no_eol() {
+  if (is_end()) return "";
+  auto start = pnt;
+  unsigned end;
+  while (!is_end()) {
+    if( head() != '\n' and head() != '\r' )
+      pnt ++;
+    else {
+      end = pnt;
+      while(not is_end() and 
+        (head() == '\n' or 
+         head() == '\r' ) )
+        ++ pnt;
+      break;
+    }
+  } // while
+  return buf.substr(start,end-start);
+}
 
 unsigned str_iterator::next_non_space_pos(const std::string &s) const {
   return next_non_space_pos(s, pnt); 
@@ -163,7 +182,7 @@ var_type var_type::ParseFromString(str_iterator & it) {
   it.skip(); // skip spaces
   if(it.head() == '(') {
     // bitvector
-    it.accept("(_ Bitvec ");
+    it.accept("(_ BitVec ");
     auto width = it.head_word(")");
     it.skip_m(width);
     it.accept(")");
@@ -194,25 +213,40 @@ std::string var_type::ToString() const {
 
 // something like this : (|counter__DOT__INC_is| Bool)
 // or (|counter__DOT__INC#0| (_ BitVec 8)) ; \__COUNTER_start__n1
-state_var_t state_var_t::ParseFromString(str_iterator &it) {
+state_var_t state_var_t::ParseFromString(str_iterator &it, const std::string & default_module_name) {
   state_var_t ret;
 
   it.skip();
   it.accept("(");
-  auto raw_name = it.head_word();
-  it.skip_m(raw_name);
+  it.skip();
+
+  std::string raw_name;
+  if(it.head() == '|')
+    raw_name = it.accept_current_and_read_untill("|");
+  else {
+    raw_name = it.head_word();
+    it.accept(raw_name);
+  }
+  
+  ILA_INFO << "Parse state:"<<raw_name;
   ret._type = var_type::ParseFromString(it);
   it.skip();
   it.accept(")");
 
-  ret.internal_name = raw_name;
-  unsigned pos_end = raw_name.find("#");
-  if(pos_end == raw_name.npos)
-    pos_end = raw_name.find("_is|");
-  ILA_ASSERT(pos_end != raw_name.npos);
+  // if it is a module
+  if (ret._type._type == var_type::tp::Datatype) {
+    // use the backup modulename (won't determine from inside)
+    ret.module_name = default_module_name;
+  } else {
+    ret.internal_name = raw_name;
+    unsigned pos_end = raw_name.find("#");
+    unsigned end_2   = raw_name.find("_is|");
+    pos_end = pos_end < end_2 ? pos_end : end_2;
+    ILA_ASSERT(pos_end != raw_name.npos);
 
-  // to extract the module name here
-  ret.module_name = raw_name.substr(1,pos_end-1);
+    // to extract the module name here
+    ret.module_name = raw_name.substr(1,pos_end-1);
+  }
 
   auto next_line_break = it.next("\n");
   next_line_break = it.next("\r") < next_line_break ? it.next("\r") : next_line_break;
@@ -224,8 +258,9 @@ state_var_t state_var_t::ParseFromString(str_iterator &it) {
   else { // from comment, extract state
     it.jump_to_next(";");
     it.accept("; \\");
-    auto state_name = it.head_word();
-    it.skip_m(state_name);
+    // todo : read a line
+    auto state_name = it.readline_no_eol();
+    auto pos = state_name.find("\n");
     ret.verilog_name = state_name;
   }
   return ret;
@@ -259,7 +294,7 @@ void func_def_t::ParseFromString(str_iterator & it, func_def_t & f) {
   else { // from comment, extract state
     it.jump_to_next(";");
     it.accept(";");
-    f.extra_comment = it.accept_current_and_read_untill("\n\r");
+    f.extra_comment = it.readline_no_eol();
   } // handle the comment
   // compute the module name
   auto end_pos = f.func_name.find("|",1);
@@ -297,12 +332,13 @@ void ParseFromString(str_iterator & it, datatypes_t & dtype) {
  it.accept("(declare-datatype ");
  auto mod_name = it.head_word();
  auto module_name = mod_name.substr(1,mod_name.length()-3-1); // remove | _s|
+ it.skip_m(mod_name);
  it.skip();
  it.accept( "((" + mod_name.substr(0,mod_name.length()-2) + "mk|" );
  it.skip();
  std::vector<state_var_t> & l = dtype[module_name];
  while( it.head() == '(') {
-   auto state_var_def = state_var_t::ParseFromString(it); // it could be datatype
+   auto state_var_def = state_var_t::ParseFromString(it, module_name); // it could be datatype
    it.skip();
    // processing
    l.push_back(state_var_def);
@@ -314,23 +350,28 @@ void ParseFromString(str_iterator & it, smt_file & smt) {
   it.skip();
   while(not it.is_end()) {
     auto h = it.head_word();
-    if (h == ";") {
+    if (h.find(";") == 0) {
       std::shared_ptr<line_comment> ptr =
         std::make_shared<line_comment>();
-      ptr->comment = it.accept_current_and_read_untill("\n\r");
+      ptr->comment = it.readline_no_eol();
       smt.items.push_back(ptr);
+      ILA_INFO<<"Parsed comment:"<<ptr->comment;
+
+      
     }
     else if (h == "(declare-datatype") {
       ParseFromString(it,smt.datatypes);
     }
-    else if (h == "(declare-fun") {
+    else if (h == "(define-fun") {
       std::shared_ptr<func_def_t> ptr =
         std::make_shared<func_def_t>();
       func_def_t::ParseFromString(it,*ptr);
       smt.items.push_back(ptr);
+      ILA_INFO<<"Parsed func:"<<ptr->func_name;
     }
     else {
-      ILA_ERROR << "Unrecognized:" << h <<". Ignored.";
+      ILA_ERROR << "Unrecognized:" << h <<". Stop.";
+      break;
     }
   }
 } // ParseFromString

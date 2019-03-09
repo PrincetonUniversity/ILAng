@@ -15,7 +15,7 @@ namespace ilang {
   /// string iterator
   struct str_iterator {
     /// the buffer
-    const std::string &buf;
+    const std::string buf;
     /// the pointer
     unsigned pnt;
     /// constructor 1
@@ -57,6 +57,8 @@ namespace ilang {
     std::string read_till_pos(unsigned pos);
     /// read until the stack is empty
     std::string extract_untill_stack_empty(char push_symbol, char pop_symbol);
+    /// read a line, consume all the \n\r but will not include them in the returned string
+    std::string readline_no_eol();
     
   }; // struct str_iterator
 
@@ -102,7 +104,7 @@ namespace ilang {
     var_type    _type;
     // ------------- FUNCTIONS ---------------- //
     /// contruct from 
-    static state_var_t ParseFromString(str_iterator &); // will update the iterator
+    static state_var_t ParseFromString(str_iterator &, const std::string & default_module_name); // will update the iterator
   }; // struct state_var_t
   
    // declaration of datatypes

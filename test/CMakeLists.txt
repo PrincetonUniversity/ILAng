@@ -78,6 +78,8 @@ package_add_test(${ILANG_TEST_MAIN}
   t_verilog_mod.cc
   t_util.cc
   t_inv_syn.cc
+  t_smt_in.cc
+  t_smt_trans.cc
 )
 
 if(${ILANG_BUILD_SYNTH})
