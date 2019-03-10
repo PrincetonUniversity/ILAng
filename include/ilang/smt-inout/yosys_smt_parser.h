@@ -7,10 +7,13 @@
 #ifndef YOSYS_SMT_PARSER_H__
 #define YOSYS_SMT_PARSER_H__
 
+#include <ilang/smt-inout/smt_ast.h>
+
 #include <iostream>
 #include <string>
 
 namespace ilang {
+namespace smt {
 
 /// \brief to parse an smt file
 /// this will only work on the yosys's generated smt
@@ -18,15 +21,25 @@ namespace ilang {
 class YosysSmtParser {
   // ---------------- TYPE DEFs -------------------- //
 protected:
-  /// the internal buffer
-  std::string _buf;
+  /// the internal smt-ast
+  smt_file smt_ast;
+  /// the datatype defs without datatypes
+  datatypes_t flatten_datatype;
   // ------------- HELPER FUNCTIONS ---------------- //
-  /// parse the 
+  /// construct flatten_datatype (hierarchically)
+  void construct_flatten_dataype();
+  /// replace function body and argument 
+  void replace_function_arg_body();
+  /// add the no-change-function (hierarchically)
+  void add_no_change_function();
 public:
   // -------------- CONSTRUCTOR -------------------- //
   YosysSmtParser(const std::string & buf);
+  /// 
+  
 }; // class YosysSmtParser
 
+}; // namespace smt
 }; // namespace ilang
 
 #endif

@@ -11,7 +11,8 @@
 #include <memory>
 
 namespace ilang {
-
+namespace smt{
+  
   /// string iterator
   struct str_iterator {
     /// the buffer
@@ -89,7 +90,7 @@ namespace ilang {
     /// contruct from 
     static var_type ParseFromString(str_iterator &); // will update the iterator
     /// convert to string
-    std::string ToString() const;
+    std::string toString() const;
   }; // struct var_type
 
   /// and item in declare-datatype
@@ -107,19 +108,26 @@ namespace ilang {
     static state_var_t ParseFromString(str_iterator &, const std::string & default_module_name); // will update the iterator
   }; // struct state_var_t
   
-   // declaration of datatypes
+  // declaration of datatypes
+  /// datatype collection
   typedef std::map<std::string, std::vector<state_var_t>> datatypes_t;
+  /// store the order to traverse the map
+  typedef std::vector<std::string> data_type_order_t;
 
   /// argument used in a function def
   struct arg_t{
-    /// argument's name
+    /// argument's name // from internal name
     std::string arg_name;
-    /// arg type
+    /// arg type // from the type
     var_type arg_type;
     // ------------- FUNCTIONS ---------------- //
+    std::string toString() const;
     /// construct from input string
     static arg_t ParseFromString(str_iterator &);
   }; // struct arg_t
+
+  // translate a whole arg to text
+  std::string toString(const std::vector<arg_t> & va);
 
   /// a function
   struct func_def_t : public smt_item {
@@ -150,14 +158,20 @@ namespace ilang {
     std::vector<smt_item_ptr>  items;
     /// the data types include in the smt_file
     datatypes_t datatypes;
+    /// the order that the datatypes are declared
+    /// it is also the module hierarchy order
+    data_type_order_t data_type_order;
     // ------------- MEMBER FUNCTIONS ---------------- //
     /// output to string 
     std::string toString() const;
   }; // struct smt_file
 
-  void ParseFromString(str_iterator & it, datatypes_t & dtype);
+  /// parse from string to datatype (return the module name, index to the map)
+  std::string ParseFromString(str_iterator & it, datatypes_t & dtype);
+  /// parse from string to smt-ast
   void ParseFromString(str_iterator & it, smt_file & smt);
 
+}; // namespace smt
 }; // namespace ilang
   
 #endif // SMT_AST_H__

@@ -11,7 +11,7 @@
 #include <ilang/smt-inout/smt_ast.h>
 
 namespace ilang {
-
+namespace smt{
 // remember datatype could be defining other datatype ...
 
 str_iterator::str_iterator(const std::string &_buf, unsigned _pnt) :
@@ -210,7 +210,7 @@ var_type var_type::ParseFromString(str_iterator & it) {
   return ret;
 } // ParseFromString
 
-std::string var_type::ToString() const {
+std::string var_type::toString() const {
   if(_type == tp::Bool) return "Bool";
   else if(_type == tp::BV)
     return "(_ BitVec " + std::to_string(_width) +")";
@@ -218,6 +218,23 @@ std::string var_type::ToString() const {
     return "|" + module_name + "_s|";
   ILA_ASSERT(false) << "Unknown type";
   return "";
+}
+
+arg_t arg_t::ParseFromString(str_iterator &) {
+  ILA_ASSERT(false) << "not implemented.";
+}
+
+std::string arg_t::toString() const {
+  ILA_ERROR_IF (arg_type._type == var_type::tp::Datatype)
+    << "Should not be used on unconverted datatype";
+  return "(" + arg_name  + " " + arg_type.toString() + ")";
+}
+
+std::string toString(const std::vector<arg_t> & va) {
+  std::vector<std::string> retv;
+  for (auto && v : va)
+    retv.push_back(v.toString());
+  return "(" + Join(retv, " ") + ")";
 }
 
 // something like this : (|counter__DOT__INC_is| Bool)
@@ -325,11 +342,11 @@ std::string func_def_t::toString() const {
     ret += "(";
     std::vector<std::string> vec_arg;
     for (auto && arg : args)
-      vec_arg.push_back("(" + arg.arg_name + " " + arg.arg_type.ToString() + ")");
+      vec_arg.push_back("(" + arg.arg_name + " " + arg.arg_type.toString() + ")");
     ret += Join(vec_arg," ");
     ret += ")";
   }
-  ret += " " + ret_type.ToString();
+  ret += " " + ret_type.toString();
   ret += " " + func_body;
   ret += ")";
 
@@ -339,23 +356,24 @@ std::string func_def_t::toString() const {
   return ret;
 }
 
-void ParseFromString(str_iterator & it, datatypes_t & dtype) {
- it.skip();
- it.accept("(declare-datatype ");
- auto mod_name = it.head_word();
- auto module_name = mod_name.substr(1,mod_name.length()-3-1); // remove | _s|
- it.skip_m(mod_name);
- it.skip();
- it.accept( "((" + mod_name.substr(0,mod_name.length()-2) + "mk|" );
- it.skip();
- std::vector<state_var_t> & l = dtype[module_name];
- while( it.head() == '(') {
-   auto state_var_def = state_var_t::ParseFromString(it, module_name); // it could be datatype
-   it.skip();
-   // processing
-   l.push_back(state_var_def);
- }
- it.accept(")))");
+std::string ParseFromString(str_iterator & it, datatypes_t & dtype) {
+  it.skip();
+  it.accept("(declare-datatype ");
+  auto mod_name = it.head_word();
+  auto module_name = mod_name.substr(1,mod_name.length()-3-1); // remove | _s|
+  it.skip_m(mod_name);
+  it.skip();
+  it.accept( "((" + mod_name.substr(0,mod_name.length()-2) + "mk|" );
+  it.skip();
+  std::vector<state_var_t> & l = dtype[module_name];
+  while( it.head() == '(') {
+    auto state_var_def = state_var_t::ParseFromString(it, module_name); // it could be datatype
+    it.skip();
+    // processing
+    l.push_back(state_var_def);
+  }
+  it.accept(")))");
+  return module_name;
 }
 
 void ParseFromString(str_iterator & it, smt_file & smt) {
@@ -372,7 +390,8 @@ void ParseFromString(str_iterator & it, smt_file & smt) {
       
     }
     else if (h == "(declare-datatype") {
-      ParseFromString(it,smt.datatypes);
+      smt.data_type_order.push_back(
+        ParseFromString(it,smt.datatypes) );
     }
     else if (h == "(define-fun") {
       std::shared_ptr<func_def_t> ptr =
@@ -385,6 +404,7 @@ void ParseFromString(str_iterator & it, smt_file & smt) {
       ILA_ERROR << "Unrecognized:" << h <<". Stop.";
       break;
     }
+    it.skip();
   }
 } // ParseFromString
 
@@ -399,5 +419,5 @@ std::string smt_file::toString() const {
   }
   return ret;
 }
-
+}; // namespace smt
 }; // namespace ilang
