@@ -120,14 +120,16 @@ namespace smt{
     std::string arg_name;
     /// arg type // from the type
     var_type arg_type;
+    // ------------- CONSTRUCTOR -------------- //
+    arg_t(const std::string &, const var_type &);
     // ------------- FUNCTIONS ---------------- //
     std::string toString() const;
+    /// translate a whole arg to text
+    static std::string toString(const std::vector<arg_t> & va);
     /// construct from input string
     static arg_t ParseFromString(str_iterator &);
   }; // struct arg_t
 
-  // translate a whole arg to text
-  std::string toString(const std::vector<arg_t> & va);
 
   /// a function
   struct func_def_t : public smt_item {

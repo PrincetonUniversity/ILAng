@@ -55,7 +55,6 @@ void YosysSmtParser::replace_function_arg_body() {
   // (|??| state) -> internal_name
   std::string cached_func_module; // ""
   std::string cached_arg_text;
-  std::string cached_arg_replace;
   std::vector<arg_t> cached_args;
   std::map<std::string,std::string> cached_body_replace;
 
@@ -69,12 +68,45 @@ void YosysSmtParser::replace_function_arg_body() {
       cached_func_module = fn->func_module;
       cached_arg_text = "((state |" + cached_func_module+"_s|)";
       { // for all state (flattened), add to arg and also cached_body_replace
+        cached_args.clear();
         ILA_ASSERT(IN(cached_func_module, flatten_datatype));
-        auto & all_flattened_state_var = flatten_datatype[cached_func_module];
-        
+        const auto & all_flattened_state_var = flatten_datatype[cached_func_module];
+        for (auto && st : all_flattened_state_var ) {
+          cached_args.push_back( arg_t(st.internal_name, st._type) );
+        } // add flatten to arg
+      } 
+      { // for all unflattened state, add to body replace, watch out for
+        // tp::Datatype
+        cached_body_replace.clear();
+        ILA_ASSERT(IN(cached_func_module, smt_ast.datatypes));
+        const auto & origin_dt = smt_ast.datatypes[cached_func_module];
+        for (auto && st : origin_dt) {
+          if (st._type._type == var_type::tp::Datatype) {
+            const auto & mod_tp_name = st._type.module_name;
+            auto tp_mod_name = mod_tp_name.substr(1, mod_tp_name.length()-4); // | _s|
+            ILA_ASSERT(IN(tp_mod_name, flatten_datatype));
+            const auto & sub_mod_state_var_vec = flatten_datatype[tp_mod_name];
+            std::vector<std::string> sub_st_vec;
+            for(const auto & sub_mod_state_var : sub_mod_state_var_vec)
+              sub_st_vec.push_back(sub_mod_state_var.internal_name);
+            cached_body_replace.insert (
+              std::make_pair(
+                "(" + st.internal_name + " state)",
+                Join(sub_st_vec, " ")));
+          } // handle (|mod_h inst| state) or (|mod#?| state)
+          else {
+            cached_body_replace.insert(
+              std::make_pair(
+                "(" + st.internal_name + " state)",
+                st.internal_name
+              ));
+          } // end of special datatype
+        } // for all st
       }
-      cached_arg_replace = "(" + toString(cached_args) + ")";
     } // end of re-cache
+    // now we assume that we have re-target the cached func
+    // so do the replacement
+    ..
   } // for one_smt_item_ptr
 } // replace_function_arg_body
 /// add the no-change-function (hierarchically)

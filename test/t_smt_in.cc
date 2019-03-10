@@ -18,14 +18,14 @@ TEST(TestSmtParse, Parse) {
   std::stringstream buffer;
   buffer << fin.rdbuf();
 
-  smt_file smt;
-  str_iterator smt_string_iterator(buffer.str());
-  ParseFromString(smt_string_iterator, smt);
+  smt::smt_file smtinfo;
+  smt::str_iterator smt_string_iterator(buffer.str());
+  smt::ParseFromString(smt_string_iterator, smtinfo);
 
   {
     std::ofstream fout(fo);
     ILA_ERROR_IF(not fout.is_open()) << "Error writing to: " << fo;
-    fout << smt.toString();
+    fout << smtinfo.toString();
   }
   // Expect no error...
 }

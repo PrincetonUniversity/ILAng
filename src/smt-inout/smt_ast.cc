@@ -220,6 +220,9 @@ std::string var_type::toString() const {
   return "";
 }
 
+arg_t::arg_t(const std::string & name, const var_type & type) :
+  arg_name(name), arg_type(type) { }
+
 arg_t arg_t::ParseFromString(str_iterator &) {
   ILA_ASSERT(false) << "not implemented.";
 }
@@ -230,7 +233,7 @@ std::string arg_t::toString() const {
   return "(" + arg_name  + " " + arg_type.toString() + ")";
 }
 
-std::string toString(const std::vector<arg_t> & va) {
+std::string arg_t::toString(const std::vector<arg_t> & va) {
   std::vector<std::string> retv;
   for (auto && v : va)
     retv.push_back(v.toString());
@@ -335,17 +338,11 @@ std::string func_def_t::toString() const {
   std::string ret = "(define-fun ";
   ret += func_name + " ";
   // args
-  if ( this->args.empty() ) { // not converted yet
+  if ( args.empty() )  // not converted yet
     ret += args_text;
-  }
-  else {
-    ret += "(";
-    std::vector<std::string> vec_arg;
-    for (auto && arg : args)
-      vec_arg.push_back("(" + arg.arg_name + " " + arg.arg_type.toString() + ")");
-    ret += Join(vec_arg," ");
-    ret += ")";
-  }
+  else 
+    ret += arg_t::toString(args);
+    
   ret += " " + ret_type.toString();
   ret += " " + func_body;
   ret += ")";
