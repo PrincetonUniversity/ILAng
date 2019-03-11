@@ -262,12 +262,12 @@ state_var_t state_var_t::ParseFromString(str_iterator &it, const std::string & d
   it.skip();
   it.accept(")");
 
+  ret.internal_name = raw_name;
   // if it is a module
   if (ret._type._type == var_type::tp::Datatype) {
     // use the backup modulename (won't determine from inside)
     ret.module_name = default_module_name;
   } else {
-    ret.internal_name = raw_name;
     unsigned pos_end = raw_name.find("#");
     unsigned end_2   = raw_name.find("_is|");
     pos_end = pos_end < end_2 ? pos_end : end_2;
@@ -329,9 +329,14 @@ void func_def_t::ParseFromString(str_iterator & it, func_def_t & f) {
   // compute the module name
   auto end_pos = f.func_name.find("|",1);
   auto space_pos = f.func_name.find(" ",1);
-  end_pos = end_pos < space_pos ? end_pos : space_pos;
-  end_pos -= 3; // "_n " or "_u|" or similar
-  f.func_module = f.func_name.substr(1, end_pos-1);
+  auto bang_pos = f.func_name.find("#",1);
+  if (bang_pos == std::string::npos) {
+    end_pos = end_pos < space_pos ? end_pos : space_pos;
+    end_pos -= 2; // "_n " or "_u|" or similar
+    f.func_module = f.func_name.substr(1, end_pos-1);
+  } else { // #nnn|
+    f.func_module = f.func_name.substr(1, bang_pos-1);
+  }
 } // ParseFromString
 
 std::string func_def_t::toString() const {
@@ -357,9 +362,15 @@ std::string func_def_t::toString() const {
 std::string ParseFromString(str_iterator & it, datatypes_t & dtype) {
   it.skip();
   it.accept("(declare-datatype ");
-  auto mod_name = it.head_word();
+  std::string mod_name;
+  if(it.head() == '|') {
+    mod_name = it.accept_current_and_read_untill("|");
+  } else {
+    mod_name = it.head_word();
+    it.skip_m(mod_name);
+  }
   auto module_name = mod_name.substr(1,mod_name.length()-3-1); // remove | _s|
-  it.skip_m(mod_name);
+  
   it.skip();
   it.accept( "((" + mod_name.substr(0,mod_name.length()-2) + "mk|" );
   it.skip();

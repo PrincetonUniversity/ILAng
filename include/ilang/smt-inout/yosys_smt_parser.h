@@ -42,6 +42,8 @@ protected:
   /// add a suffix (for next state)
   static std::string st_name_add_suffix (const std::string & stname,
     const std::string & suffix);
+  /// extract list from a space seped text 
+  static std::vector<std::string> str_to_list(const std::string & in);
 
   // ----------- HELPER FUNCTIONS - Low Level ----- //
   /// replace : handle a func_body

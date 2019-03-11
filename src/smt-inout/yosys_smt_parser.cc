@@ -15,8 +15,8 @@
 namespace ilang {
 namespace smt {
 
-#define get_mod_name(s) ((s).substr(1,(s).length()-4))
-
+//#define get_mod_name(s) ((s).substr(1,(s).length()-4))
+#define get_mod_name(s) (s)
 
 /// construct flatten_datatype (hierarchically)
 void YosysSmtParser::construct_flatten_dataype() {
@@ -70,6 +70,34 @@ std::string YosysSmtParser::st_name_add_suffix(
   return stname + suffix;
 } // st_name_add_suffix
 
+#define sep(c) ((c) == ' ' || (c) == '\t' || (c) == '\n' || (c) == '\r')
+std::vector<std::string> YosysSmtParser::str_to_list(const std::string & in) {
+  std::vector<std::string> ret_l;
+  std::string cur;
+  bool in_sep = false;
+  for (auto c : in) {
+    if(c == '|' and in_sep == false) {
+      ILA_ASSERT(cur.empty());
+      in_sep = true;
+      cur += c;
+    } else if (c == '|' and in_sep == true) {
+      cur += c;
+      in_sep = false;
+    } else if ( sep(c) and in_sep) {
+      cur += c;
+    } else if (  sep(c) and not in_sep ) {
+      if(not cur.empty()) {
+        ret_l.push_back(cur);
+        cur = "";
+      }
+    } else
+      cur += c;
+  }
+  if (not cur.empty())
+    ret_l.push_back(cur);
+  return ret_l;
+}
+
 // it should also have knowledge of the current 
 std::string YosysSmtParser::replace_a_body( 
     const std::string & current_module,
@@ -103,7 +131,7 @@ std::string YosysSmtParser::replace_a_body(
         if (not IN(leaf_text_w_para, cached_no_replace) and
             not IN(leaf_text_w_para, cached_body_replace)) {
           // if it is first time encounter
-          auto leaf_vec = SplitSpaceTabEnter(leaf_text);
+          auto leaf_vec = str_to_list(leaf_text);//SplitSpaceTabEnter(leaf_text);
           if( leaf_vec.size() == 2 ) {
             if( leaf_vec[1] == arg_def[0] ) {
               // state
@@ -122,18 +150,43 @@ std::string YosysSmtParser::replace_a_body(
               } else if ( IN(pred, current_mod_state_var_idx)) {
                 const auto & st = current_mod_state_var_idx.at(pred);
                 if(st._type._type == var_type::tp::Datatype) {
-
+                  
                   const auto & mod_full_name = st._type.module_name;
                   auto module_name = get_mod_name(mod_full_name); // | _s|
                   const auto & dt = flatten_datatype[module_name];
 
                   std::vector<std::string> arg_name_vec;
-                  for (auto && arg : dt)
-                    arg_name_vec.push_back(arg.internal_name);
-
-                  cached_body_replace.insert(
-                    std::make_pair(leaf_text_w_para, Join(arg_name_vec, " ")));
+                  bool special_case = false;
                   
+                  { // a special case here:
+                    // (|simplePipe__DOT__ADD_is| (|wrapper_h m0| state))
+                    // where : |simplePipe__DOT__ADD_is| a state pred
+                    if(left_pos_stack.size() >= 2 && 
+                       idx + 1 < len && body_text.at(idx + 1)) {
+                      auto left = *(left_pos_stack.rbegin()+1);
+                      auto right = *(left_pos_stack.rbegin());
+                      auto outer_pred = body_text.substr(left+1,right-2-left);
+                      const auto & st_vec = smt_ast.datatypes[module_name];
+                      for (const auto & st_sub : st_vec ) {
+                        if (st_sub.internal_name == outer_pred){
+                          auto orig_text = body_text.substr(left,idx+2-left);
+                          cached_body_replace.insert(
+                            std::make_pair(orig_text, outer_pred ));
+                          special_case = true;
+                          break;
+                        }
+                      } // for (search for st)
+                    }
+                  } // end special case
+
+                  if (not special_case) {
+                  // if found the special case, we will skip the normal 
+                    for (auto && arg : dt)
+                      arg_name_vec.push_back(arg.internal_name);
+
+                    cached_body_replace.insert(
+                      std::make_pair(leaf_text_w_para, Join(arg_name_vec, " ")));
+                  }
                   // find the flattened
                 } else { // a normal replacement
                   cached_body_replace.insert(
@@ -207,6 +260,8 @@ void YosysSmtParser::replace_a_func(
     convert_flatten_datatype_to_arg_vec(flatten_datatype[current_module],fn->args,"_next");
   } else
     ILA_ASSERT(false) << "unhandled: arg" << fn->args_text;
+  fn->func_body = 
+    replace_a_body(current_module, current_mod_state_var_idx, arg_def, defined_func, fn->func_body );
 } // replace_a_func
 
 /// replace function body and argument 
@@ -233,9 +288,11 @@ void YosysSmtParser::replace_all_function_arg_body() {
       module_cached = fn->func_module;
       current_mod_state_var_cached.clear();
 
-      for (const auto & st : flatten_datatype[module_cached])
+      for (const auto & st : smt_ast.datatypes[module_cached]) {
+        ILA_ASSERT(not st.internal_name.empty());
         current_mod_state_var_cached.insert(
           std::make_pair( st.internal_name , st ));
+      }
     } // end of re-cache
     replace_a_func(fn, fn->func_module, current_mod_state_var_cached, defined_func );
     defined_func.insert(fn->func_name);
