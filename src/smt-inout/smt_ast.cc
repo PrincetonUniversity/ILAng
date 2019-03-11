@@ -304,8 +304,9 @@ void func_def_t::ParseFromString(str_iterator & it, func_def_t & f) {
   /// initially we will just read the args_text
   it.skip();
   it.expect("((state "); // not reading in
-  auto text_end_pos = it.next("))");
-  f.args_text = it.read_till_pos(text_end_pos + 2);
+  //auto text_end_pos = it.next("))");
+  //f.args_text = it.read_till_pos(text_end_pos + 2);
+  f.args_text = it.extract_untill_stack_empty('(',')');
   f.ret_type = var_type::ParseFromString(it);
   it.skip();
   f.func_body = it.extract_untill_stack_empty('(',')');
@@ -342,7 +343,7 @@ std::string func_def_t::toString() const {
     ret += args_text;
   else 
     ret += arg_t::toString(args);
-    
+
   ret += " " + ret_type.toString();
   ret += " " + func_body;
   ret += ")";

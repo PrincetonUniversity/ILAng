@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include <string>
+#include <set>
 
 namespace ilang {
 namespace smt {
@@ -29,13 +30,44 @@ protected:
   /// construct flatten_datatype (hierarchically)
   void construct_flatten_dataype();
   /// replace function body and argument 
-  void replace_function_arg_body();
+  void replace_all_function_arg_body();
   /// add the no-change-function (hierarchically)
   void add_no_change_function();
+
+  // ----------- HELPER FUNCTIONS - Low Level ----- //
+  /// convert a flatten_datatype to arg
+  static void convert_flatten_datatype_to_arg_vec(
+    const std::vector<state_var_t> & , std::vector<arg_t> &,
+    const std::string & suffix);
+  /// add a suffix (for next state)
+  static std::string st_name_add_suffix (const std::string & stname,
+    const std::string & suffix);
+
+  // ----------- HELPER FUNCTIONS - Low Level ----- //
+  /// replace : handle a func_body
+  std::string replace_a_body( 
+    const std::string & current_module,
+    const std::map<std::string,state_var_t> & current_mod_state_var_idx,
+    const std::vector<std::string> & arg_def, // [state] or [state,next_state]
+    const std::set<std::string> & defined_func, 
+    const std::string & body_text );
+  /// replace : handle a func (arg) and invoke the body repl part
+  void replace_a_func( 
+    std::shared_ptr<func_def_t> fn,
+    const std::string & current_module, 
+    // string -> state_var of current map
+    const std::map<std::string,state_var_t> & current_mod_state_var_idx,
+    const std::set<std::string> & defined_func);
+
 public:
   // -------------- CONSTRUCTOR -------------------- //
   YosysSmtParser(const std::string & buf);
-  /// 
+  /// Process (replace and add)
+  void BreakDatatypes();
+  /// Add the no change function
+  void AddNoChangeStateUpdateFunction();
+  /// Export to string
+  std::string Export();
   
 }; // class YosysSmtParser
 

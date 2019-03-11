@@ -11,8 +11,11 @@
 #include <ilang/util/container_shortcut.h>
 #include <ilang/smt-inout/yosys_smt_parser.h>
 
+
 namespace ilang {
 namespace smt {
+
+#define get_mod_name(s) ((s).substr(1,(s).length()-4))
 
 
 /// construct flatten_datatype (hierarchically)
@@ -29,7 +32,7 @@ void YosysSmtParser::construct_flatten_dataype() {
       for (const auto & state_var : state_var_vec) {
         if(state_var._type._type == var_type::tp::Datatype) {
           const auto & mod_tp_name = state_var._type.module_name;
-          auto tp_mod_name = mod_tp_name.substr(1, mod_tp_name.length()-4); // | _s|
+          auto tp_mod_name = get_mod_name(mod_tp_name); // | _s|
           ILA_ASSERT(IN(tp_mod_name, flatten_datatype));
           auto & sub_mod_state_var_vec = flatten_datatype[tp_mod_name];
           // from there, insert all the state here
@@ -44,8 +47,170 @@ void YosysSmtParser::construct_flatten_dataype() {
   } // for all module in order
 } // construct_flatten_dataype
 
+
+void YosysSmtParser::convert_flatten_datatype_to_arg_vec(
+    const std::vector<state_var_t> & all_flattened_state_var, 
+    std::vector<arg_t> & args, const std::string & suffix) {
+  for (auto && st : all_flattened_state_var ){
+    ILA_ASSERT(st._type._type != var_type::tp::Datatype); 
+    // should already flattened.
+    args.push_back( arg_t( st_name_add_suffix( st.internal_name, suffix) , st._type) );
+  } // just use its internal_name as the arg name
+} // convert_flatten_datatype_to_arg_vec
+
+std::string YosysSmtParser::st_name_add_suffix(
+  const std::string & stname,
+  const std::string & suffix
+) {
+  if (suffix.empty())
+    return stname;
+  if(stname.front() == '|' and stname.back() == '|' )
+    return stname.substr(0,stname.length()-1) + suffix + "|";
+  // else
+  return stname + suffix;
+} // st_name_add_suffix
+
+// it should also have knowledge of the current 
+std::string YosysSmtParser::replace_a_body( 
+    const std::string & current_module,
+    // string -> state_var of current map
+    const std::map<std::string,state_var_t> & current_mod_state_var_idx,
+    const std::vector<std::string> & arg_def, // [state] or [state,next_state]
+    const std::set<std::string> & defined_func, 
+    const std::string & body_text ) {
+  
+  std::string ret(body_text);
+  std::vector<unsigned> left_pos_stack;
+  std::vector<bool> leaf_level_flag_stack;
+  std::map<std::string,std::string> cached_body_replace;
+  std::set<std::string> cached_no_replace;
+  auto len = body_text.length();
+  const auto & datatype = smt_ast.datatypes[current_module];
+
+  for (decltype(len) idx = 0; idx < len; ++ idx) {
+    if(body_text.at(idx) == '(') {
+      if(not leaf_level_flag_stack.empty())
+        leaf_level_flag_stack.back() = false;
+      leaf_level_flag_stack.push_back(true);
+      left_pos_stack.push_back(idx);
+    } else if (body_text.at(idx) == ')') {
+      if (leaf_level_flag_stack.back()) {
+        // if it is really a leaf
+        auto start_pos = left_pos_stack.back() + 1; // not including '('
+        auto leaf_text = body_text.substr(start_pos , idx - start_pos );
+        auto leaf_text_w_para = "(" + leaf_text + ")";
+        // then ?
+        if (not IN(leaf_text_w_para, cached_no_replace) and
+            not IN(leaf_text_w_para, cached_body_replace)) {
+          // if it is first time encounter
+          auto leaf_vec = SplitSpaceTabEnter(leaf_text);
+          if( leaf_vec.size() == 2 ) {
+            if( leaf_vec[1] == arg_def[0] ) {
+              // state
+              const auto & pred = leaf_vec[0];
+              // check if it is a function name
+              // or if it is a datatype name
+              if (IN(pred, defined_func)) { // --> (pred bv1 bv2 bv3)
+                std::string arg_use;
+                for (auto && st : flatten_datatype[current_module])
+                  arg_use += " " + st.internal_name;
+                cached_body_replace.insert(
+                  std::make_pair(
+                    leaf_text_w_para,
+                    "(" + pred + arg_use + ")"
+                  ));
+              } else if ( IN(pred, current_mod_state_var_idx)) {
+                const auto & st = current_mod_state_var_idx.at(pred);
+                if(st._type._type == var_type::tp::Datatype) {
+
+                  const auto & mod_full_name = st._type.module_name;
+                  auto module_name = get_mod_name(mod_full_name); // | _s|
+                  const auto & dt = flatten_datatype[module_name];
+
+                  std::vector<std::string> arg_name_vec;
+                  for (auto && arg : dt)
+                    arg_name_vec.push_back(arg.internal_name);
+
+                  cached_body_replace.insert(
+                    std::make_pair(leaf_text_w_para, Join(arg_name_vec, " ")));
+                  
+                  // find the flattened
+                } else { // a normal replacement
+                  cached_body_replace.insert(
+                    std::make_pair(leaf_text_w_para, pred ));
+                } // if datatype or BV/Bool
+
+              } else {
+                ILA_ERROR << pred << " is unknown, will not replace";
+                cached_no_replace.insert(leaf_text_w_para);
+              } // func or datatype element
+            } else if (arg_def.size() == 2 and leaf_vec[1] == arg_def[1] ) {
+              // next_state
+              const auto & pred = leaf_vec[0];
+              ILA_ASSERT(not IN(pred, defined_func));
+              ILA_ASSERT(IN(pred, current_mod_state_var_idx));
+              const auto & st = current_mod_state_var_idx.at(pred);
+              if(st._type._type == var_type::tp::Datatype) {
+                const auto & mod_full_name = st._type.module_name;
+                auto module_name = get_mod_name(mod_full_name); // | _s|
+                const auto & dt = flatten_datatype[module_name];
+
+                std::vector<std::string> arg_name_vec;
+                for (auto && arg : dt)
+                  arg_name_vec.push_back( st_name_add_suffix( arg.internal_name , "_next" ) );
+
+                cached_body_replace.insert(
+                  std::make_pair(leaf_text_w_para, Join(arg_name_vec, " ")));
+                
+                // find the flattened
+              } else { // a normal replacement
+                cached_body_replace.insert(
+                  std::make_pair(leaf_text_w_para, st_name_add_suffix(pred, "_next") ));
+              } // if datatype or BV/Bool
+            } else
+              cached_no_replace.insert(leaf_text_w_para);
+          } else 
+            cached_no_replace.insert(leaf_text_w_para);
+        } // else : cached already, do nothing
+      } // else : not a leaf : do nothing
+      //
+      left_pos_stack.pop_back();
+      leaf_level_flag_stack.pop_back();
+    } // else if( right paranthesis)
+  } // for (idx)
+  for (const auto & orig_new_pair : cached_body_replace) {
+    ILA_ASSERT(not IN(orig_new_pair.first, cached_no_replace));
+    ret = ReplaceAll(ret, orig_new_pair.first, orig_new_pair.second);
+  }
+  return ret;
+} // replace_a_body
+    
+
+void YosysSmtParser::replace_a_func( 
+    std::shared_ptr<func_def_t> fn,
+    const std::string & current_module, 
+    // string -> state_var of current map
+    const std::map<std::string,state_var_t> & current_mod_state_var_idx,
+    const std::set<std::string> & defined_func
+    ) {
+  ILA_ASSERT(fn->args.empty());
+  std::vector<std::string> arg_def; // [state] or [state,next_state]
+  auto single_state = "((state |" + current_module + "_s|))";
+  auto double_state = "((state |" + current_module + "_s|) (next_state |" + current_module+"_s|))";
+  if ( fn->args_text == single_state ) {
+    arg_def.push_back("state");
+    convert_flatten_datatype_to_arg_vec(flatten_datatype[current_module],fn->args,"");
+  } else if (fn->args_text == double_state) {
+    arg_def.push_back("state");
+    arg_def.push_back("next_state");
+    convert_flatten_datatype_to_arg_vec(flatten_datatype[current_module],fn->args,"");
+    convert_flatten_datatype_to_arg_vec(flatten_datatype[current_module],fn->args,"_next");
+  } else
+    ILA_ASSERT(false) << "unhandled: arg" << fn->args_text;
+} // replace_a_func
+
 /// replace function body and argument 
-void YosysSmtParser::replace_function_arg_body() {
+void YosysSmtParser::replace_all_function_arg_body() {
   // now we have flatten_datatype for reference
   // a function should only refer to a mod's own datatype
   // prepare a replace map for it 
@@ -53,72 +218,104 @@ void YosysSmtParser::replace_function_arg_body() {
   // ((state |mod_s|)) -> (flattened, but var name)
     // arg_name, arg_type
   // (|??| state) -> internal_name
-  std::string cached_func_module; // ""
-  std::string cached_arg_text;
-  std::vector<arg_t> cached_args;
-  std::map<std::string,std::string> cached_body_replace;
 
+  std::map<std::string,state_var_t> current_mod_state_var_cached;
+  std::string module_cached;
+  std::set<std::string> defined_func;
+  
   for (auto && one_smt_item_ptr : smt_ast.items) {
     std::shared_ptr<func_def_t> fn = 
       std::dynamic_pointer_cast<func_def_t>(one_smt_item_ptr);
     if (not fn) // only handle functions
       continue; 
     ILA_ASSERT(not fn->func_module.empty());
-    if( fn->func_module != cached_func_module) { // re-cached
-      cached_func_module = fn->func_module;
-      cached_arg_text = "((state |" + cached_func_module+"_s|)";
-      { // for all state (flattened), add to arg and also cached_body_replace
-        cached_args.clear();
-        ILA_ASSERT(IN(cached_func_module, flatten_datatype));
-        const auto & all_flattened_state_var = flatten_datatype[cached_func_module];
-        for (auto && st : all_flattened_state_var ) {
-          cached_args.push_back( arg_t(st.internal_name, st._type) );
-        } // add flatten to arg
-      } 
-      { // for all unflattened state, add to body replace, watch out for
-        // tp::Datatype
-        cached_body_replace.clear();
-        ILA_ASSERT(IN(cached_func_module, smt_ast.datatypes));
-        const auto & origin_dt = smt_ast.datatypes[cached_func_module];
-        for (auto && st : origin_dt) {
-          if (st._type._type == var_type::tp::Datatype) {
-            const auto & mod_tp_name = st._type.module_name;
-            auto tp_mod_name = mod_tp_name.substr(1, mod_tp_name.length()-4); // | _s|
-            ILA_ASSERT(IN(tp_mod_name, flatten_datatype));
-            const auto & sub_mod_state_var_vec = flatten_datatype[tp_mod_name];
-            std::vector<std::string> sub_st_vec;
-            for(const auto & sub_mod_state_var : sub_mod_state_var_vec)
-              sub_st_vec.push_back(sub_mod_state_var.internal_name);
-            cached_body_replace.insert (
-              std::make_pair(
-                "(" + st.internal_name + " state)",
-                Join(sub_st_vec, " ")));
-          } // handle (|mod_h inst| state) or (|mod#?| state)
-          else {
-            cached_body_replace.insert(
-              std::make_pair(
-                "(" + st.internal_name + " state)",
-                st.internal_name
-              ));
-          } // end of special datatype
-        } // for all st
-      }
-    } // end of re-cache
-    // now we assume that we have re-target the cached func
-    // so do the replacement
-    ..
-  } // for one_smt_item_ptr
-} // replace_function_arg_body
-/// add the no-change-function (hierarchically)
-void YosysSmtParser::add_no_change_function() {
+    if (fn->func_module != module_cached) { // re-cache  
+      module_cached = fn->func_module;
+      current_mod_state_var_cached.clear();
 
-}
+      for (const auto & st : flatten_datatype[module_cached])
+        current_mod_state_var_cached.insert(
+          std::make_pair( st.internal_name , st ));
+    } // end of re-cache
+    replace_a_func(fn, fn->func_module, current_mod_state_var_cached, defined_func );
+    defined_func.insert(fn->func_name);
+  } // for smt_item
+} // replace_function_arg_body
+
+
+/// add the no-change-function (hierarchically)
+/// should be after the replace_func_arg_body
+void YosysSmtParser::add_no_change_function() {
+  var_type bool_type;
+  bool_type._type = var_type::tp::Bool;
+
+  for (const auto & module_name : smt_ast.data_type_order) 
+  { // do this in order
+    ILA_ASSERT( IN(module_name, smt_ast.datatypes) ) ;
+    ILA_ASSERT( IN(module_name, flatten_datatype) );
+    const auto & st_vec = smt_ast.datatypes[module_name];
+    const auto & flatten_st_vec = flatten_datatype[module_name];
+    // add a nc function
+    std::shared_ptr<func_def_t> fn = std::make_shared<func_def_t>();
+    // func_name
+    fn->func_name = "|" + module_name + "_k|"; // keep (NC)
+    // func_module
+    fn->func_module = module_name;
+    // args
+    convert_flatten_datatype_to_arg_vec( flatten_st_vec , fn->args, "");
+    convert_flatten_datatype_to_arg_vec( flatten_st_vec , fn->args, "_next");
+    // ret_type
+    fn->ret_type = bool_type;
+    // func_body
+    fn->func_body = "(and ";
+    std::vector<std::string> eqlist;
+    for (auto && st: st_vec) {
+      if (st._type._type == var_type::tp::Datatype) {
+        // add a hierarchy func call
+        std::string hier_func_call = "(" + 
+          ("|" + get_mod_name(st._type.module_name) + "_k|");
+        auto module_name = get_mod_name(st._type.module_name);
+        ILA_ASSERT(IN(module_name, flatten_datatype));
+        const auto & st_vec_sub = flatten_datatype[module_name];
+        for (const auto & sub_st : st_vec_sub)
+          hier_func_call += " "+sub_st.internal_name;
+        // let's do it twice
+        for (const auto & sub_st : st_vec_sub)
+          hier_func_call += " "+ st_name_add_suffix( sub_st.internal_name , "_next" );
+        hier_func_call += ")";
+        eqlist.push_back(hier_func_call);
+      } // end if datatypes
+      else { // add a =
+        std::string eq = "(=";
+        eq += " " + st.internal_name;
+        eq += " " + st_name_add_suffix(st.internal_name, "_next");
+        eq += ")";
+        eqlist.push_back(eq);
+      } // BV-Bool / datatype
+    } // for all state
+    fn->func_body += Join(eqlist, " ") + ")";
+  } // for all module, add keep function
+} // add_no_change_function
 
 // -------------- CONSTRUCTOR -------------------- //
 YosysSmtParser::YosysSmtParser(const std::string & buf) {
   // parse from string
   str_iterator iter(buf);
   ParseFromString(iter, smt_ast);
+  construct_flatten_dataype();
+}
+
+
+void YosysSmtParser::BreakDatatypes() {
+  replace_all_function_arg_body();
+}
+/// Add the no change function
+void YosysSmtParser::AddNoChangeStateUpdateFunction() {
+  add_no_change_function();
+}
+/// Export to string
+std::string YosysSmtParser::Export() {
+  return smt_ast.toString();
 }
 
 }; // namespace smt
