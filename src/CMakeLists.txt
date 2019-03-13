@@ -111,6 +111,19 @@ else()
 endif()
 
 ##
+## verilog parser
+##
+if(NOT TARGET vcdparser::vcdparser)
+  find_package(vcdparser REQUIRED)
+endif()
+
+if (${ILANG_BUILD_TEST} OR ${ILANG_INSTALL_DEV}) 
+  target_link_libraries(${ILANG_LIB_NAME} PUBLIC vcdparser::vcdparser)
+else()
+  target_link_libraries(${ILANG_LIB_NAME} PRIVATE vcdparser::vcdparser)
+endif()
+
+##
 ## template-based synthesis
 ##
 if(${ILANG_BUILD_SYNTH})
