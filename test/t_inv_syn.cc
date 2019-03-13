@@ -84,17 +84,72 @@ TEST(TestVlgVerifInvSyn, DirectStart) {
 
 }
 
-TEST(TestVlgVerifInvSyn, PipeExampleYosys) {
+TEST(TestVlgVerifInvSyn, PipeExample) {
   auto ila_model = SimplePipe::BuildModel();
 
   auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/vpipe/";
+  auto outDir  = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/inv_syn/vpipe-out1/";
   VerilogVerificationTargetGenerator vg(
       {},                          // no include
       {dirName + "simple_pipe.v"}, //
       "pipeline_v",                // top_module_name
       dirName + "rfmap/vmap.json", // variable mapping
-      dirName + "rfmap/cond-noinv.json", dirName + "inv-syn/", ila_model.get(),
+      dirName + "rfmap/cond-noinv.json", outDir, ila_model.get(),
       VerilogVerificationTargetGenerator::backend_selector::YOSYS);
+
+  EXPECT_FALSE(vg.in_bad_state());
+
+  vg.GenerateTargets();
+
+}
+
+// This tests uses no extract start cycle
+TEST(TestVlgVerifInvSyn, PipeExampleDirect) {
+  auto ila_model = SimplePipe::BuildModel();
+
+  VerilogVerificationTargetGenerator::vtg_config_t cfg;
+  cfg.CosaAddKeep = false;
+  cfg.VerificationSettingAvoidIssueStage = true;
+
+  auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/vpipe/";
+  auto outDir  = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/inv_syn/vpipe-out2/";
+
+  VerilogVerificationTargetGenerator vg(
+      {},                          // no include
+      {dirName + "simple_pipe.v"}, //
+      "pipeline_v",                // top_module_name
+      dirName + "rfmap/vmap.json", // variable mapping
+      dirName + "rfmap/cond-noinv.json", outDir, ila_model.get(),
+      VerilogVerificationTargetGenerator::backend_selector::YOSYS,
+      cfg);
+
+  EXPECT_FALSE(vg.in_bad_state());
+
+  vg.GenerateTargets();
+
+}
+
+
+// This tests uses no extract start cycle
+// This test works on wrong implementation
+TEST(TestVlgVerifInvSyn, PipeExampleCex) {
+  auto ila_model = SimplePipe::BuildModel();
+
+  VerilogVerificationTargetGenerator::vtg_config_t cfg;
+  cfg.CosaAddKeep = false;
+  cfg.VerificationSettingAvoidIssueStage = false;
+
+  auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/vpipe/";
+  auto outDir  = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/inv_syn/vpipe-out3-cex/";
+
+  VerilogVerificationTargetGenerator vg(
+      {},                          // no include
+      {dirName + "simple_pipe_wrong.v"}, //
+      "pipeline_v",                // top_module_name
+      dirName + "rfmap/vmap.json", // variable mapping
+      dirName + "rfmap/cond-noinv.json", outDir, ila_model.get(),
+      VerilogVerificationTargetGenerator::backend_selector::YOSYS,
+      cfg);
 
   EXPECT_FALSE(vg.in_bad_state());
 
