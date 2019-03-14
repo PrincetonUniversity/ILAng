@@ -96,6 +96,11 @@ target_include_directories(${LIBRARY_NAME}
 )
 
 # ------------------------------------------------------------------------
+# Add FindGMP
+
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
+
+# ------------------------------------------------------------------------
 
 if (SMT_PARSER_BUILD_YICES) 
   
@@ -104,6 +109,8 @@ if (SMT_PARSER_BUILD_YICES)
   find_package(GMP REQUIRED)
 
   add_executable(${EXECUTABLE_NAME} smtlib2yices.c yicesmain.c)
+
+  target_include_directories(${EXECUTABLE_NAME} PRIVATE ${GMP_C_INCLUDES})
 
   target_compile_options(${EXECUTABLE_NAME} PRIVATE -Wall)
   target_compile_options(${EXECUTABLE_NAME} PRIVATE -W)

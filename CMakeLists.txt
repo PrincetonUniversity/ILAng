@@ -25,10 +25,6 @@ set(LIBRARY_NAME ${PROJECT_NAME})
 
 add_subdirectory(./src)
 
-# ------------------------------------------------------------------------
-# Add FindGMP
-
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
 # ------------------------------------------------------------------------
 # install
