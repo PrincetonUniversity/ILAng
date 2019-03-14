@@ -169,8 +169,41 @@ if(NOT VCDPARSER_FOUND)
   # embedded build
   add_subdirectory(vcd-parser)
 
-endif() # VERILOGPARSER_FOUND
+endif() # VCDPARSER_FOUND
 
+
+# ---------------------------------------------------------------------------- #
+# SMT Parser
+# 
+#   TARGET smtparser::smtparser
+#   SOURCE https://github.com/zhanghongce/smtlib2parser.git
+#   PATH   extern/smt-parser
+# ---------------------------------------------------------------------------- #
+# find installed package
+find_package(smtparser QUIET)
+
+# embed to build tree if not installed
+if(NOT SMTPARSER_FOUND)
+
+  # fetch from git
+  if(${ILANG_FETCH_DEPS})
+
+    execute_process(
+      COMMAND ${GIT_EXECUTABLE} submodule update --init smt-parser
+      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+      RESULT_VARIABLE GIT_SUBMOD_RESULT
+    )
+
+    if(NOT GIT_SUBMOD_RESULT EQUAL "0")
+      message(FATAL_ERROR "Submodule update failed with ${GIT_SUBMOD_RESULT}")
+    endif()
+
+  endif() # ILANG_FETCH_DEPS
+
+  # embedded build
+  add_subdirectory(smt-parser)
+
+endif() # SMTPARSER_FOUND
 
 # ---------------------------------------------------------------------------- #
 # Google Test

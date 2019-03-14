@@ -111,7 +111,7 @@ else()
 endif()
 
 ##
-## verilog parser
+## vcd parser
 ##
 if(NOT TARGET vcdparser::vcdparser)
   find_package(vcdparser REQUIRED)
@@ -121,6 +121,19 @@ if (${ILANG_BUILD_TEST} OR ${ILANG_INSTALL_DEV})
   target_link_libraries(${ILANG_LIB_NAME} PUBLIC vcdparser::vcdparser)
 else()
   target_link_libraries(${ILANG_LIB_NAME} PRIVATE vcdparser::vcdparser)
+endif()
+
+##
+## smt parser
+##
+if(NOT TARGET smtparser::smtparser)
+  find_package(smtparser REQUIRED)
+endif()
+
+if (${ILANG_BUILD_TEST} OR ${ILANG_INSTALL_DEV}) 
+  target_link_libraries(${ILANG_LIB_NAME} PUBLIC smtparser::smtparser)
+else()
+  target_link_libraries(${ILANG_LIB_NAME} PRIVATE smtparser::smtparser)
 endif()
 
 ##

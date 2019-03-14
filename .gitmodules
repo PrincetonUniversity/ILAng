@@ -16,3 +16,6 @@
 [submodule "extern/vcd-parser"]
 	path = extern/vcd-parser
 	url = https://github.com/zhanghongce/verilog-vcd-parser.git
+[submodule "extern/smt-parser"]
+	path = extern/smt-parser
+	url = https://github.com/zhanghongce/smtlib2parser.git
