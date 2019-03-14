@@ -104,42 +104,57 @@ InstrLvlAbsPtr J2IDes::DesInstrLvlAbs(const json& j_ila) {
   auto m = InstrLvlAbs::New(name); // XXX parent
 
   // input
+  ILA_DLOG("Portable") << "Deserialize input variables";
   auto j_inp_arr = j_ila.at(SERDES_ILA_INPUT);
   for (auto inp_id : j_inp_arr) {
     input_id_set_.insert(inp_id.get<ID_t>());
   }
 
   // state
+  ILA_DLOG("Portable") << "Deserialize state variables";
   auto j_state_arr = j_ila.at(SERDES_ILA_STATE);
   for (auto state_id : j_state_arr) {
     state_id_set_.insert(state_id.get<ID_t>());
   }
 
   // ast expressions
+  ILA_DLOG("Portable") << "Deserialize ast nodes";
   auto j_expr_arr = j_ila.at(SERDES_ILA_AST);
   for (auto j_expr : j_expr_arr) {
     DesExpr(j_expr, m);
   }
 
   // fetch
-  auto fetch_id = j_ila.at(SERDES_ILA_FETCH).get<ID_t>();
-  auto fetch_it = id_expr_map_.find(fetch_id);
-  ILA_ASSERT(fetch_it != id_expr_map_.end()) << "Fetch not found";
-  m->SetFetch(fetch_it->second);
+  ILA_DLOG("Portable") << "Deserialize fetch function";
+  try {
+    auto fetch_id = j_ila.at(SERDES_ILA_FETCH).get<ID_t>();
+    auto fetch_it = id_expr_map_.find(fetch_id);
+    ILA_WARN_IF(fetch_it == id_expr_map_.end()) << "Fetch not found";
+    m->SetFetch(fetch_it->second);
+  } catch (...) {
+    ILA_WARN << "Fetch not defined";
+  }
 
   // valid
-  auto valid_id = j_ila.at(SERDES_ILA_VALID).get<ID_t>();
-  auto valid_it = id_expr_map_.find(valid_id);
-  ILA_ASSERT(valid_it != id_expr_map_.end()) << "Valid not found";
-  m->SetValid(valid_it->second);
+  ILA_DLOG("Portable") << "Deserialize valid function";
+  try {
+    auto valid_id = j_ila.at(SERDES_ILA_VALID).get<ID_t>();
+    auto valid_it = id_expr_map_.find(valid_id);
+    ILA_WARN_IF(valid_it == id_expr_map_.end()) << "Valid not found";
+    m->SetValid(valid_it->second);
+  } catch (...) {
+    ILA_WARN << "Valid not defined";
+  }
 
   // instructions
+  ILA_DLOG("Portable") << "Deserialize instructions";
   auto j_instr_arr = j_ila.at(SERDES_ILA_INSTR);
   for (auto j_instr : j_instr_arr) {
     DesInstr(j_instr, m);
   }
 
   // init
+  ILA_DLOG("Portable") << "Deserialize initial condition";
   auto j_init_arr = j_ila.at(SERDES_ILA_INIT);
   for (auto j_init : j_init_arr) {
     auto init_expr_it = id_expr_map_.find(j_init.get<ID_t>());

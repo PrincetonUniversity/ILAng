@@ -485,7 +485,7 @@ public:
 
   // ------------------------- GENERATORS --------------------------------- //
   /// \brief Export an ILA as Verilog
-  /// \param[in] filename the file name of the generated Verilog source
+  /// \param[in] fout the output stream of the generated Verilog source.
   void ExportToVerilog(std::ostream& fout) const;
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
@@ -541,6 +541,18 @@ std::ostream& operator<<(std::ostream& out, const ExprRef& expr);
 std::ostream& operator<<(std::ostream& out, const InstrRef& instr);
 /// Print out the ILA.
 std::ostream& operator<<(std::ostream& out, const Ila& ila);
+
+/******************************************************************************/
+// Converters
+/******************************************************************************/
+/// \brief Export the ILA portable to file.
+/// \param[in] ila the source ILA model to export.
+/// \param[in] file_name the name of the exported ILA portable (JSON) file.
+bool ExportIlaPortable(const Ila& ila, const std::string& file_name);
+
+/// \brief Import the ILA portable from file.
+/// \param[in] file_name the name of the ILA portable (JSON) file to import.
+Ila ImportIlaPortable(const std::string& file_name);
 
 /******************************************************************************/
 // Verification.

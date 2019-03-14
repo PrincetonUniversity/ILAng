@@ -47,6 +47,7 @@ json I2JSer::SerInstr(const InstrPtr& i_instr) {
   for (auto i = 0; i < host->state_num(); i++) {
     auto i_state = host->state(i);
     auto i_next = i_instr->update(i_state);
+    i_next = i_next ? i_next : i_state; // NULL is unchanged
     auto j_next = SerExpr(i_next);
     j_update.emplace(i_state->name().str(),
                      j_next.at(SERDES_EXPR_ID).get<ID_t>());
@@ -64,6 +65,7 @@ json I2JSer::SerInstrLvlAbs(const InstrLvlAbsPtr& i_ila) {
   j_ila.emplace(SERDES_ILA_NAME, i_ila->name().str());
 
   // input
+  ILA_DLOG("Portable") << "Serialize input variables";
   auto j_inp_arr = json::array();
   for (auto i = 0; i < i_ila->input_num(); i++) {
     auto j_inp = SerExpr(i_ila->input(i));
@@ -72,6 +74,7 @@ json I2JSer::SerInstrLvlAbs(const InstrLvlAbsPtr& i_ila) {
   j_ila.emplace(SERDES_ILA_INPUT, j_inp_arr);
 
   // state
+  ILA_DLOG("Portable") << "Serialize state variables";
   auto j_state_arr = json::array();
   for (auto i = 0; i < i_ila->state_num(); i++) {
     auto j_state = SerExpr(i_ila->state(i));
@@ -80,14 +83,19 @@ json I2JSer::SerInstrLvlAbs(const InstrLvlAbsPtr& i_ila) {
   j_ila.emplace(SERDES_ILA_STATE, j_state_arr);
 
   // fetch
-  auto j_fetch = SerExpr(i_ila->fetch());
-  j_ila.emplace(SERDES_ILA_FETCH, j_fetch.at(SERDES_EXPR_ID).get<ID_t>());
+  ILA_DLOG("Portable") << "Serialize fetch function";
+  if (i_ila->fetch()) {
+    auto j_fetch = SerExpr(i_ila->fetch());
+    j_ila.emplace(SERDES_ILA_FETCH, j_fetch.at(SERDES_EXPR_ID).get<ID_t>());
+  }
 
   // valid
+  ILA_DLOG("Portable") << "Serialize valid function";
   auto j_valid = SerExpr(i_ila->valid());
   j_ila.emplace(SERDES_ILA_VALID, j_valid.at(SERDES_EXPR_ID).get<ID_t>());
 
   // instructions
+  ILA_DLOG("Portable") << "Serialize instructions";
   auto j_instr_arr = json::array();
   for (auto i = 0; i < i_ila->instr_num(); i++) {
     j_instr_arr.push_back(SerInstr(i_ila->instr(i)));
@@ -95,6 +103,7 @@ json I2JSer::SerInstrLvlAbs(const InstrLvlAbsPtr& i_ila) {
   j_ila.emplace(SERDES_ILA_INSTR, j_instr_arr);
 
   // init
+  ILA_DLOG("Portable") << "Serialize initial condition";
   auto j_init_arr = json::array();
   for (auto i = 0; i < i_ila->init_num(); i++) {
     auto j_init = SerExpr(i_ila->init(i));
@@ -105,6 +114,7 @@ json I2JSer::SerInstrLvlAbs(const InstrLvlAbsPtr& i_ila) {
   // XXX child
 
   // all ast expressions
+  ILA_DLOG("Portable") << "Serialize all ast nodes";
   j_ila.emplace(SERDES_ILA_AST, j_expr_arr_);
 
   return j_ila;

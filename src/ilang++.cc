@@ -3,6 +3,7 @@
 
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/ilang++.h>
+#include <ilang/portable/interface.h>
 #include <ilang/util/log.h>
 #include <ilang/verification/abs_knob.h>
 #include <ilang/verification/unroller.h>
@@ -632,6 +633,15 @@ std::ostream& operator<<(std::ostream& out, const InstrRef& instr) {
 
 std::ostream& operator<<(std::ostream& out, const Ila& ila) {
   return out << ila.get();
+}
+
+bool ExportIlaPortable(const Ila& ila, const std::string& file_name) {
+  return IlaSerDesMngr::SerToFile(ila.get(), file_name);
+}
+
+Ila ImportIlaPortable(const std::string& file_name) {
+  auto m = IlaSerDesMngr::DesFromFile(file_name);
+  return Ila(m);
 }
 
 IlaZ3Unroller::IlaZ3Unroller(z3::context& ctx, const std::string& suff)
