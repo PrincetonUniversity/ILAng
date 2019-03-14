@@ -66,9 +66,9 @@ smtlib2_term smtlib2_make_term_from_identifier(
 %debug
 %verbose
 
-%parse-param {yyscan_t scanner}
+%parse-param {void * scanner}
 %parse-param {smtlib2_parser_interface *parser}
-%lex-param {yyscan_t scanner}
+%lex-param {void * scanner}
 
 %union {
     char *string;
