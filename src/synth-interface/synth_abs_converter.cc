@@ -226,19 +226,25 @@ void SynthAbsConverter::PortInits(const ilasynth::Abstraction& abs,
     auto var_name = var_expr->name().str();
 
     // initial value
-    auto init_val_node = abs.getInit(var_name)->node;
-
-    if (init_val_node) {
-      auto init_val_expr = ConvertSynthNodeToIlangExpr(init_val_node, ila);
-      ila->AddInit(ExprFuse::Eq(var_expr, init_val_expr));
+    try {
+      auto init_val_node = abs.getInit(var_name)->node;
+      if (init_val_node) {
+        auto init_val_expr = ConvertSynthNodeToIlangExpr(init_val_node, ila);
+        ila->AddInit(ExprFuse::Eq(var_expr, init_val_expr));
+      }
+    } catch (...) {
+      ILA_DLOG("SynthImport") << "No initial value for " << var_name;
     }
 
     // initial predicate
-    auto init_pred_node = abs.getIpred(var_name)->node;
-
-    if (init_pred_node) {
-      auto init_pred_expr = ConvertSynthNodeToIlangExpr(init_pred_node, ila);
-      ila->AddInit(init_pred_expr);
+    try {
+      auto init_pred_node = abs.getIpred(var_name)->node;
+      if (init_pred_node) {
+        auto init_pred_expr = ConvertSynthNodeToIlangExpr(init_pred_node, ila);
+        ila->AddInit(init_pred_expr);
+      }
+    } catch (...) {
+      ILA_DLOG("SynthImport") << "No initial predicate for " << var_name;
     }
   }
 
@@ -667,8 +673,7 @@ void SynthAbsConverter::CnvtNodeToExprBvOp(const ilasynth::Node* n) {
     expr = ExprFuse::Ashr(expr_args.at(0), expr_args.at(1));
     break;
   case ilasynth::BitvectorOp::Op::MUL:
-    ILA_ERROR << "MUL not implemented.";
-    // expr = ExprFuse::Mul(expr_args.at(0), expr_args.at(1));
+    expr = ExprFuse::Mul(expr_args.at(0), expr_args.at(1));
     break;
   case ilasynth::BitvectorOp::Op::CONCAT:
     expr = ExprFuse::Concat(expr_args.at(0), expr_args.at(1));
