@@ -121,6 +121,10 @@ ExprPtr ExprFuse::Sub(const ExprPtr l, const ExprPtr r) {
   return std::make_shared<ExprOpSub>(l, r);
 }
 
+ExprPtr ExprFuse::Mul(const ExprPtr l, const ExprPtr r) {
+  return std::make_shared<ExprOpMul>(l, r);
+}
+
 ExprPtr ExprFuse::And(const ExprPtr l, const bool& r) {
   auto rc = ExprFuse::BoolConst(r);
   return ExprFuse::And(l, rc);
@@ -159,6 +163,11 @@ ExprPtr ExprFuse::Add(const ExprPtr l, const int& r) {
 ExprPtr ExprFuse::Sub(const ExprPtr l, const int& r) {
   auto rc = ExprFuse::BvConst(r, l->sort()->bit_width());
   return ExprFuse::Sub(l, rc);
+}
+
+ExprPtr ExprFuse::Mul(const ExprPtr l, const int& r) {
+  auto rc = ExprFuse::BvConst(r, l->sort()->bit_width());
+  return ExprFuse::Mul(l, rc);
 }
 
 ExprPtr ExprFuse::Eq(const ExprPtr l, const ExprPtr r) {

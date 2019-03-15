@@ -166,6 +166,11 @@ ExprRef operator-(const ExprRef& a, const ExprRef& b) {
   return ExprRef(v);
 }
 
+ExprRef operator*(const ExprRef& a, const ExprRef& b) {
+  auto v = ExprFuse::Mul(a.get(), b.get());
+  return ExprRef(v);
+}
+
 ExprRef operator&(const ExprRef& a, const bool& b) {
   auto v = ExprFuse::And(a.get(), b);
   return ExprRef(v);
@@ -203,6 +208,11 @@ ExprRef operator+(const ExprRef& a, const int& b) {
 
 ExprRef operator-(const ExprRef& a, const int& b) {
   auto v = ExprFuse::Sub(a.get(), b);
+  return ExprRef(v);
+}
+
+ExprRef operator*(const ExprRef& a, const int& b) {
+  auto v = ExprFuse::Mul(a.get(), b);
   return ExprRef(v);
 }
 

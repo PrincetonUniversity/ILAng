@@ -168,6 +168,8 @@ ExprRef Lshr(const ExprRef& a, const ExprRef& b);
 ExprRef operator+(const ExprRef& a, const ExprRef& b);
 /// Unsigned subtraction for bit-vectors.
 ExprRef operator-(const ExprRef& a, const ExprRef& b);
+/// Unsigned multiply for bit-vectors.
+ExprRef operator*(const ExprRef& a, const ExprRef& b);
 
 /// Logical AND with Boolean constant.
 ExprRef operator&(const ExprRef& a, const bool& b);
@@ -185,6 +187,8 @@ ExprRef Lshr(const ExprRef& a, const int& b);
 ExprRef operator+(const ExprRef& a, const int& b);
 /// Unsigned subtraction with int constant.
 ExprRef operator-(const ExprRef& a, const int& b);
+/// Unsigned multiply with int constant.
+ExprRef operator*(const ExprRef& a, const int& b);
 
 /******************************************************************************/
 // Binary comparison

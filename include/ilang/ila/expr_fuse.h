@@ -101,6 +101,8 @@ ExprPtr Lshr(const ExprPtr l, const int& r);
 ExprPtr Add(const ExprPtr l, const int& r);
 /// Arithmetic subtraction with int.
 ExprPtr Sub(const ExprPtr l, const int& r);
+/// Arithmetic unsigned multiply with int (bv only).
+ExprPtr Mul(const ExprPtr l, const int& r);
 
 /******************************************************************************/
 // Comparison

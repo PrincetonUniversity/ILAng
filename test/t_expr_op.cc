@@ -514,6 +514,37 @@ TEST_F(TestExprOp, Sub) {
   }
 }
 
+TEST_F(TestExprOp, Mul) {
+  { // expr
+    auto mul = rx * ry;
+    auto z_mul = unr.GetZ3Expr(mul);
+    auto z_x = unr.GetZ3Expr(rx);
+    auto z_y = unr.GetZ3Expr(ry);
+
+    s.add(z_x > 0);
+    s.add(z_y > 0);
+    s.add(z_x < 0x0f);
+    s.add(z_y < 0x04);
+    s.add(z_mul == 0);
+    EXPECT_EQ(z3::unsat, s.check());
+  }
+
+  s.reset();
+
+  { // const
+    auto mul = rx * 0x2;
+    auto z_mul = unr.GetZ3Expr(mul);
+    auto z_x = unr.GetZ3Expr(rx);
+
+    s.add(z_x > 0x0);
+    s.add(z_x < 0x0f);
+    s.add(z_mul > 0x40);
+    EXPECT_EQ(z3::unsat, s.check());
+
+    m.SetFetch(mul);
+  }
+}
+
 TEST_F(TestExprOp, Equal) {
   { // bv expr
     auto eq = (rx == ry);
