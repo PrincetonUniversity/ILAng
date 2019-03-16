@@ -37,6 +37,7 @@ namespace ilang {
 #define SERDES_ILA_INSTR "instr"
 #define SERDES_ILA_INIT "init"
 #define SERDES_ILA_AST "a"
+#define SERDES_ILA_CHILD "c"
 
 // ConstVal
 #define SERDES_CONST_VAL "v"

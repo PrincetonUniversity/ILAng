@@ -36,7 +36,7 @@ public:
   json SerExpr(const ExprPtr& i_expr);
   /// \brief Serialize Instr to JSON.
   json SerInstr(const InstrPtr& i_instr);
-  /// \brief Serialize InstrLvlAbs to JSON.
+  /// \brief Serialize InstrLvlAbs, including its children, to JSON.
   json SerInstrLvlAbs(const InstrLvlAbsPtr& i_ila);
 
 private:
@@ -53,6 +53,8 @@ private:
   json SerConstVal(const ExprPtr& i_expr) const;
   /// Serialize one single Expr.
   json SerExprUnit(const ExprPtr& i_expr);
+  /// Serialize InstrLvlAbs and its children, excluding the AST list.
+  json SerInstrLvlAbsNoAst(const InstrLvlAbsPtr& i_ila);
 
 }; // class I2JSer
 

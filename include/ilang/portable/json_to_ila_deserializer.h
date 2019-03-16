@@ -39,15 +39,23 @@ public:
   InstrPtr DesInstr(const json& j_instr, const InstrLvlAbsPtr& i_host) const;
   /// \brief Deserialize InstrLvlAbs from JSON.
   InstrLvlAbsPtr DesInstrLvlAbs(const json& j_ila);
+#if 0
+  /// \brief Deserialize top level (parent only) InstrLvlAbs from JSON.
+  InstrLvlAbsPtr DesInstrLvlAbsTop(const json& j_ila);
+#endif
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// A mapping from id to expressions.
   std::unordered_map<size_t, ExprPtr> id_expr_map_;
+#if 0
   /// The set of state variables.
   std::unordered_set<size_t> state_id_set_;
   /// The set of input variables.
   std::unordered_set<size_t> input_id_set_;
+#endif
+  /// The mapping from ila name to pointer.
+  std::unordered_map<std::string, const InstrLvlAbsPtr> ila_name_ptr_map_;
 
   // ------------------------- METHODS -------------------------------------- //
   /// Deserialize ExprVar into state from JSON.
@@ -61,6 +69,13 @@ private:
   /// Deserialize ExprOp from JSON.
   ExprPtr DesExprOp(const unsigned& ast_expr_op_uid, const json& j_arg_arr,
                     const json& j_param_arr) const;
+
+  void DesVarHier(const json& j_ila, const json& j_ast_list,
+                  const InstrLvlAbsPtr& i_parent);
+
+  void DesIlaHier(const json& j_ila);
+
+  void DesIlaUnit(const json& j_ila);
 
 }; // class J2IDes
 
