@@ -30,6 +30,7 @@ enum AST_UID_EXPR_OP {
   LSHR,
   ADD,
   SUB,
+  MUL,
   EQ,
   LT,
   GT,
