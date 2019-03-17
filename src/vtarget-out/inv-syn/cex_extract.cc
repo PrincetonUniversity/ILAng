@@ -2,6 +2,7 @@
 // ---Hongce Zhang
 
 #include <ilang/util/log.h>
+#include <ilang/util/str_util.h>
 #include <ilang/vtarget-out/cex_extract.h>
 
 #include <vcdparser/VCDFileParser.hpp>
@@ -110,7 +111,9 @@ CexExtractor::CexExtractor(const std::string & vcd_file_name, const std::string 
 std::string CexExtractor::GenInvAssert(const std::string & sub_mod_inst_name) const {
   std::string ret = "(1'b1 == 1'b1)"; // true
   for (auto && nv : cex) {
-    ret += "&& (" + prepend(sub_mod_inst_name, nv.first) + " == " + nv.second + ")";
+    
+    ret += "&& (" + prepend(sub_mod_inst_name, 
+      ReplaceAll( nv.first , "[0:0]" , "" ) ) + " == " + nv.second + ")";
   }
   return ret;
 }
