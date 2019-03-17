@@ -30,8 +30,10 @@ public:
   /// \brief Serialize the ILA model to the given file.
   /// \param[in] m the ILA model to serialize.
   /// \param[in] file_name the output file name.
+  /// \param[in] indent the number of space to indent.
   /// \return Return true if complete sucessfully.
-  static bool SerToFile(const InstrLvlAbsPtr& m, const std::string& file_name);
+  static bool SerToFile(const InstrLvlAbsPtr& m, const std::string& file_name,
+                        const int& indent = -1);
 
   /// \brief Deserialize the ILA model from the given file.
   /// \param[in] file_name the input file name.

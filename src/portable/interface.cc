@@ -21,13 +21,16 @@ InstrLvlAbsPtr IlaSerDesMngr::Deserialize(const json& j) {
 }
 
 bool IlaSerDesMngr::SerToFile(const InstrLvlAbsPtr& m,
-                              const std::string& file_name) {
-  auto fout = std::ofstream();
-  fout.open(file_name);
+                              const std::string& file_name, const int& indent) {
+  std::ofstream fout(file_name);
 
   if (fout.is_open()) {
     auto j_ila = Serialize(m);
-    fout << j_ila.dump(2);
+    if (indent == -1) {
+      fout << j_ila.dump();
+    } else {
+      fout << j_ila.dump(indent);
+    }
   }
 
   fout.close();
@@ -35,8 +38,7 @@ bool IlaSerDesMngr::SerToFile(const InstrLvlAbsPtr& m,
 }
 
 InstrLvlAbsPtr IlaSerDesMngr::DesFromFile(const std::string& file_name) {
-  auto fin = std::ifstream();
-  fin.open(file_name);
+  std::ifstream fin(file_name);
 
   if (fin.is_open()) {
     auto j_ila = json::object();
