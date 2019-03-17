@@ -4,7 +4,6 @@
 #ifndef INV_SYN_CEGAR_H__
 #define INV_SYN_CEGAR_H__
 
-//#include <ilang/vtarget-out/cex_extract.h>
 #include <ilang/vtarget-out/vtarget_gen.h>
 
 #include <string>
@@ -26,6 +25,8 @@ public:
   /// next to verify, wait_for_verify_result
   /// next to synthesis, wait_for_synthesis_result
   typedef enum {NEXT_V, V_RES, NEXT_S, S_RES} cegar_status;
+  /// Type of advanced parameter
+  using advanced_parameters_t = VlgVerifTgtGenBase::advanced_parameters_t;
 
 public:
   // -------------------- CONSTRUCTOR ------------------ //
@@ -42,6 +43,11 @@ public:
     const vtg_config_t& vtg_config = vtg_config_t(),
     const VerilogGenerator::VlgGenConfig& config =
         VerilogGenerator::VlgGenConfig());
+  /// no copy constructor, please.
+  InvariantSynthesizerCegar(const InvariantSynthesizerCegar&) = delete;
+  /// no assignment, please.
+  InvariantSynthesizerCegar& operator=(const InvariantSynthesizerCegar&) = delete;
+  
 public:
   // -------------------- HELPERs ------------------ //
   // to do things separately, you can provide the run function your self
@@ -66,11 +72,13 @@ public:
 protected:
   // -------------------- MEMBERS ------------------ //
   /// the found invariants, in Verilog expression
-  std::vector<std::string> invariants;
+  InvariantObject inv_obj;
   /// the status of the loop
   cegar_status status;
   /// is in back state?
   bool bad_state;
+  /// the round id
+  unsigned round_id;
 
   // --------------------------------------------------
   // for book-keeping purpose

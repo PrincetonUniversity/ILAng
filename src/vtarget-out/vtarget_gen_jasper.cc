@@ -13,8 +13,8 @@
 namespace ilang {
 
 VlgSglTgtGen_Jasper::VlgSglTgtGen_Jasper(
-    const std::string&
-        output_path, // will be a sub directory of the output_path of its parent
+    const std::string& output_path, 
+      // will be a sub directory of the output_path of its parent
     const InstrPtr& instr_ptr, // which could be an empty pointer, and it will
                                // be used to verify invariants
     const InstrLvlAbsPtr& ila_ptr, const VerilogGenerator::VlgGenConfig& config,
@@ -24,12 +24,13 @@ VlgSglTgtGen_Jasper::VlgSglTgtGen_Jasper(
     const std::vector<std::string>& implementation_srcs,
     const std::vector<std::string>& implementation_include_path,
     const vtg_config_t& vtg_config, backend_selector backend,
-    const target_type_t& target_tp)
+    const target_type_t& target_tp,
+    advanced_parameters_t * adv_ptr)
     : VlgSglTgtGen(output_path, instr_ptr, ila_ptr, config, _rf_vmap, _rf_cond,
                    _vlg_info_ptr, vlg_mod_inst_name, ila_mod_inst_name,
                    wrapper_name, implementation_srcs,
                    implementation_include_path, vtg_config, backend,
-                   target_tp) {}
+                   target_tp, adv_ptr) {}
 
 void VlgSglTgtGen_Jasper::add_wire_assign_assumption(
     const std::string& varname, const std::string& expression,

@@ -28,12 +28,13 @@ VlgSglTgtGen_Cosa::VlgSglTgtGen_Cosa(
     const std::vector<std::string>& implementation_srcs,
     const std::vector<std::string>& implementation_include_path,
     const vtg_config_t& vtg_config, backend_selector backend,
-    const target_type_t& target_tp)
+    const target_type_t& target_tp,
+    advanced_parameters_t * adv_ptr)
     : VlgSglTgtGen(output_path, instr_ptr, ila_ptr, config, _rf_vmap, _rf_cond,
                    _vlg_info_ptr, vlg_mod_inst_name, ila_mod_inst_name,
                    wrapper_name, implementation_srcs,
                    implementation_include_path, vtg_config, backend,
-                   target_tp) {}
+                   target_tp, adv_ptr) {}
 
 std::string convert_expr_to_cosa(const std::string& in) {
   return ReplaceAll(

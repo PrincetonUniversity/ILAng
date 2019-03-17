@@ -9,6 +9,7 @@
 
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/verilog-out/verilog_gen.h>
+#include <ilang/vtarget-out/inv-syn/inv_obj.h>
 
 namespace ilang {
 
@@ -95,6 +96,17 @@ public:
           VerificationSettingAvoidIssueStage(false)  {}
   } vtg_config_t;
 
+  /// NOTE: this function can be inherited
+  /// and only expose a visible interface to the outside
+  typedef struct _adv_parameters {
+    /// inv-obj
+    InvariantObject * _inv_obj_ptr;
+    /// The default constructor for default values
+    _adv_parameters() : _inv_obj_ptr(NULL) {}
+    /// virtual destructor
+    virtual ~_adv_parameters() {};
+  } advanced_parameters_t;
+
 public:
   // ----------------------- Constructor/Destructor ----------------------- //
   // constructor : do nothing
@@ -113,6 +125,8 @@ public:
   using backend_selector = VlgVerifTgtGenBase::backend_selector;
   /// Type of configuration
   using vtg_config_t = VlgVerifTgtGenBase::vtg_config_t;
+  /// Type of advanced parameter
+  using advanced_parameters_t = VlgVerifTgtGenBase::advanced_parameters_t;
 
 public:
   // --------------------- CONSTRUCTOR ---------------------------- //
@@ -123,9 +137,11 @@ public:
   /// leave "" to allow auto analysis \param[in] where to get variable mapping
   /// \param[in] where to get refinement relation
   /// \param[in] output path (ila-verilog, wrapper-verilog, problem.txt,
-  /// run-verify-by-???, modify-impl, it there is ) \param[in] pointer to the
-  /// ila \param[in] the backend selector \param[in] (optional) the default
-  /// configuration for outputing verilog
+  /// run-verify-by-???, modify-impl, it there is ) 
+  /// \param[in] pointer to the ila
+  /// \param[in] the backend selector 
+  /// \param[in] (optional) the default configuration for outputing verilog
+  /// \param[in] (optional) pointer to an advance parameter
   VerilogVerificationTargetGenerator(
       const std::vector<std::string>& implementation_include_path,
       const std::vector<std::string>& implementation_srcs,
@@ -135,7 +151,8 @@ public:
       const InstrLvlAbsPtr& ila_ptr, backend_selector backend,
       const vtg_config_t& vtg_config = vtg_config_t(),
       const VerilogGenerator::VlgGenConfig& config =
-          VerilogGenerator::VlgGenConfig());
+          VerilogGenerator::VlgGenConfig(),
+      advanced_parameters_t * adv_ptr = NULL);
   // --------------------- DECONSTRUCTOR ---------------------------- //
   virtual ~VerilogVerificationTargetGenerator();
 

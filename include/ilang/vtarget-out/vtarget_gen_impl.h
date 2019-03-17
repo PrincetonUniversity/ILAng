@@ -56,6 +56,8 @@ public:
     std::string range;
     ex_info_t(const std::string& r) : range(r) {}
   };
+  /// Type of advanced parameter
+  using advanced_parameters_t = VlgVerifTgtGenBase::advanced_parameters_t;
 
 public:
   // --------------------- CONSTRUCTOR ---------------------------- //
@@ -83,7 +85,8 @@ public:
       const std::vector<std::string>& implementation_srcs,
       const std::vector<std::string>& implementation_include_path,
       const vtg_config_t& vtg_config, backend_selector backend,
-      const target_type_t& target_tp);
+      const target_type_t& target_tp,
+      advanced_parameters_t * adv_ptr);
 
   /// Destructor: do nothing , most importantly it is virtual
   virtual ~VlgSglTgtGen() {}
@@ -137,6 +140,8 @@ protected:
   unsigned max_bound;
   /// the width of the counter
   unsigned cnt_width;
+  /// to store the advanced parameter configurations
+  advanced_parameters_t * _advanced_param_ptr;
 
 private:
   /// Counter of mapping
@@ -330,6 +335,8 @@ class VlgVerifTgtGen : public VlgVerifTgtGenBase {
   using vtg_config_t = VlgVerifTgtGenBase::vtg_config_t;
   /// Type of a target
   using target_type_t = VlgSglTgtGen::target_type_t;
+  /// Type of advanced parameter
+  using advanced_parameters_t = VlgVerifTgtGenBase::advanced_parameters_t;
 
 public:
   // --------------------- CONSTRUCTOR ---------------------------- //
@@ -350,7 +357,8 @@ public:
                  const std::string& output_path, const InstrLvlAbsPtr& ila_ptr,
                  backend_selector backend, const vtg_config_t& vtg_config,
                  const VerilogGenerator::VlgGenConfig& config =
-                     VerilogGenerator::VlgGenConfig());
+                     VerilogGenerator::VlgGenConfig(),
+                 advanced_parameters_t * adv_ptr = NULL);
 
   /// no copy constructor, please
   VlgVerifTgtGen(const VlgVerifTgtGen&) = delete;
@@ -390,6 +398,8 @@ protected:
   backend_selector _backend;
   /// to store the configuration
   vtg_config_t _vtg_config;
+  /// to store the advanced parameter configurations
+  advanced_parameters_t * _advanced_param_ptr;
 
 protected:
   /// store the vmap info

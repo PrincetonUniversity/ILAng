@@ -50,6 +50,8 @@ class VlgSglTgtGen_Cosa : public VlgSglTgtGen {
   using info_t = VerilogModifier::info_t;
   /// filename -> (lineno, varname, is_port_sig) vec
   using fn_l_map_t = VerilogModifier::fn_l_map_t;
+  /// Type of advanced parameter
+  using advanced_parameters_t = VlgVerifTgtGenBase::advanced_parameters_t;
 
 public:
   // --------------------- CONSTRUCTOR ---------------------------- //
@@ -79,7 +81,8 @@ public:
       const std::vector<std::string>& implementation_srcs,
       const std::vector<std::string>& include_dirs,
       const vtg_config_t& vtg_config, backend_selector backend,
-      const target_type_t& target_tp);
+      const target_type_t& target_tp,
+      advanced_parameters_t * adv_ptr);
 
 protected:
   /// Cosa problem generate

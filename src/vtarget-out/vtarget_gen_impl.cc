@@ -28,7 +28,8 @@ VlgVerifTgtGen::VlgVerifTgtGen(
     const std::string& refinement_conditions, const std::string& output_path,
     const InstrLvlAbsPtr& ila_ptr, backend_selector backend,
     const vtg_config_t& vtg_config,
-    const VerilogGenerator::VlgGenConfig& vlg_gen_config)
+    const VerilogGenerator::VlgGenConfig& vlg_gen_config,
+    advanced_parameters_t * adv_ptr)
     : _vlg_impl_include_path(implementation_include_path),
       _vlg_impl_srcs(implementation_srcs),
       _vlg_impl_top_name(implementation_top_module),
@@ -39,6 +40,7 @@ VlgVerifTgtGen::VlgVerifTgtGen(
       vlg_info_ptr(
           NULL), // not creating it now, because we don't have the info to do so
       _backend(backend), _cfg(vlg_gen_config), _vtg_config(vtg_config),
+      _advanced_param_ptr(adv_ptr),
       _bad_state(false) {
   load_json(_rf_var_map_name, rf_vmap);
   load_json(_rf_cond_name, rf_cond);
@@ -147,7 +149,8 @@ void VlgVerifTgtGen::GenerateTargets(void) {
           NULL, // invariant
           _ila_ptr, _cfg, rf_vmap, rf_cond, vlg_info_ptr, _vlg_mod_inst_name,
           _ila_mod_inst_name, "wrapper", _vlg_impl_srcs, _vlg_impl_include_path,
-          _vtg_config, _backend, target_type_t::INVARIANTS);
+          _vtg_config, _backend, target_type_t::INVARIANTS,
+          _advanced_param_ptr);
       target.ConstructWrapper();
       target.ExportAll("wrapper.v", "ila.v", "run.sh", "problem.txt",
                        "absmem.v");
@@ -157,7 +160,8 @@ void VlgVerifTgtGen::GenerateTargets(void) {
           NULL, // invariant
           _ila_ptr, _cfg, rf_vmap, rf_cond, vlg_info_ptr, _vlg_mod_inst_name,
           _ila_mod_inst_name, "wrapper", _vlg_impl_srcs, _vlg_impl_include_path,
-          _vtg_config, _backend, target_type_t::INVARIANTS);
+          _vtg_config, _backend, target_type_t::INVARIANTS,
+          _advanced_param_ptr);
       target.ConstructWrapper();
       target.ExportAll("wrapper.v", "ila.v", "run.sh", "do.tcl", "absmem.v");
     } else if (_backend == backend_selector::YOSYS and invariantExists) {
@@ -166,7 +170,8 @@ void VlgVerifTgtGen::GenerateTargets(void) {
           NULL, // invariant
           _ila_ptr, _cfg, rf_vmap, rf_cond, vlg_info_ptr, _vlg_mod_inst_name,
           _ila_mod_inst_name, "wrapper", _vlg_impl_srcs, _vlg_impl_include_path,
-          _vtg_config, _backend, target_type_t::INVARIANTS);
+          _vtg_config, _backend, target_type_t::INVARIANTS,
+          _advanced_param_ptr);
       target.ConstructWrapper();
       target.ExportAll("wrapper.v", "ila.v", "run.sh", "gensmt.ys", "absmem.v");
     }
@@ -197,7 +202,8 @@ void VlgVerifTgtGen::GenerateTargets(void) {
             _ila_ptr, _cfg, rf_vmap, rf_cond, vlg_info_ptr, _vlg_mod_inst_name,
             _ila_mod_inst_name, "wrapper", _vlg_impl_srcs,
             _vlg_impl_include_path, _vtg_config, _backend,
-            target_type_t::INSTRUCTIONS);
+            target_type_t::INSTRUCTIONS,
+            _advanced_param_ptr);
         target.ConstructWrapper();
         target.ExportAll("wrapper.v", "ila.v", "run.sh", "problem.txt",
                          "absmem.v");
@@ -208,7 +214,8 @@ void VlgVerifTgtGen::GenerateTargets(void) {
             _ila_ptr, _cfg, rf_vmap, rf_cond, vlg_info_ptr, _vlg_mod_inst_name,
             _ila_mod_inst_name, "wrapper", _vlg_impl_srcs,
             _vlg_impl_include_path, _vtg_config, _backend,
-            target_type_t::INSTRUCTIONS);
+            target_type_t::INSTRUCTIONS,
+            _advanced_param_ptr);
         target.ConstructWrapper();
         target.ExportAll("wrapper.v", "ila.v", "run.sh", "do.tcl", "absmem.v");
       } else if (_backend == backend_selector::YOSYS) {
@@ -223,7 +230,8 @@ void VlgVerifTgtGen::GenerateTargets(void) {
             _ila_ptr, _cfg, rf_vmap, rf_cond, vlg_info_ptr, _vlg_mod_inst_name,
             _ila_mod_inst_name, "wrapper", _vlg_impl_srcs,
             _vlg_impl_include_path, _vtg_config, _backend,
-            target_type_t::INSTRUCTIONS);
+            target_type_t::INSTRUCTIONS,
+            _advanced_param_ptr);
         target.ConstructWrapper();
         target.ExportAll("wrapper.v", "ila.v", "run.sh", "gensmt.ys", "absmem.v");
       }

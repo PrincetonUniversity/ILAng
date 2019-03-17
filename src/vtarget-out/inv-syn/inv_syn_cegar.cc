@@ -2,7 +2,7 @@
 // Hongce Zhang
 
 #include <ilang/util/log.h>
-#include <ilang/vtarget-out/inv_syn_cegar.h>
+#include <ilang/vtarget-out/inv-syn/inv_syn_cegar.h>
 
 namespace ilang {
 
@@ -20,6 +20,7 @@ InvariantSynthesizerCegar::InvariantSynthesizerCegar(
   const vtg_config_t& vtg_config,
   const VerilogGenerator::VlgGenConfig& config):
     status(cegar_status::NEXT_V), bad_state(false),
+    round_id(0),
     // book-keeping
     implementation_incl_path(implementation_include_path),
     implementation_srcs_path(implementation_srcs),
@@ -45,7 +46,7 @@ InvariantSynthesizerCegar::InvariantSynthesizerCegar(
     // Future work : all instructions and re-use
     // we allow both inv and inst, but you need to specify the instruction
     if(_vtg_config.CheckThisInstructionOnly.empty()) {
-      ILA_ERROR << << "You must specify which instruction to check.";
+      ILA_ERROR << "You must specify which instruction to check.";
       bad_state = true;
       return;
     }
@@ -54,21 +55,20 @@ InvariantSynthesizerCegar::InvariantSynthesizerCegar(
   } // end of constructor
 
 bool InvariantSynthesizerCegar::check_in_bad_state() const {
-  if(bad_state)
-    ILA_ERROR << "In bad state, cannot proceed.";
-  return !bad_state;
+  ILA_ERROR_IF(bad_state) << "In bad state, cannot proceed.";
+  return bad_state;
 }
 
 // to do things separately, you can provide the run function yourself
 // or even do it step by step
 /// to generate targets using the current invariants
 void InvariantSynthesizerCegar::GenerateVerificationTarget() {
-  GenerateVerificationTarget(invariants);
-}
-/// to generate targets using the provided invariants
-void InvariantSynthesizerCegar::GenerateVerificationTarget(const std::vector<std::string> & invs) {
   // generate a target -- based on selection
   if (check_in_bad_state()) return;
+
+  // to send in the invariants
+  advanced_parameters_t adv_param;
+  adv_param._inv_obj_ptr = &inv_obj; 
   
   VerilogVerificationTargetGenerator vg(
       implementation_incl_path,         // include
@@ -78,11 +78,19 @@ void InvariantSynthesizerCegar::GenerateVerificationTarget(const std::vector<std
       refinement_condition_path,        // conditions
       _output_path,                     // output path
       _host,                            // ILA
-      v_backend,
-      _vtg_config,
-      _vlg_config);
+      v_backend,                        // verification backend setting
+      _vtg_config,                      // target configuration
+      _vlg_config,                      // verilog generator configuration
+      &adv_param                        // advanced parameter
+      );
   
   vg.GenerateTargets();
+}
+/// to generate targets using the provided invariants
+void InvariantSynthesizerCegar::GenerateVerificationTarget(const std::vector<std::string> & invs) {
+  for(auto && inv : invs)
+    inv_obj.AddInvariantFromVerilog(std::to_string(round_id), inv);
+  GenerateVerificationTarget();
 }
 
 /// to extract result 

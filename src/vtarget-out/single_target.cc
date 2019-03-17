@@ -36,7 +36,8 @@ VlgSglTgtGen::VlgSglTgtGen(
     const std::vector<std::string>& implementation_srcs,
     const std::vector<std::string>& implementation_include_path,
     const vtg_config_t& vtg_config, backend_selector backend,
-    const target_type_t& target_tp)
+    const target_type_t& target_tp,
+    advanced_parameters_t * adv_ptr)
     : _output_path(output_path), _instr_ptr(instr_ptr), _host(ila_ptr),
       _vlg_mod_inst_name(vlg_mod_inst_name),
       _ila_mod_inst_name(ila_mod_inst_name),
@@ -72,7 +73,9 @@ VlgSglTgtGen::VlgSglTgtGen(
       rf_vmap(_rf_vmap), rf_cond(_rf_cond), empty_json(nullptr),
       target_type( target_tp ), // whether it is
                                                       // invariant/instructions
-      has_flush(false), ready_type(ready_type_t::NA), mapping_counter(0),
+      has_flush(false), ready_type(ready_type_t::NA),
+      _advanced_param_ptr(adv_ptr),
+      mapping_counter(0),
       property_counter(0), top_mod_name(wrapper_name),
       vlg_design_files(implementation_srcs),
       vlg_include_files_path(implementation_include_path),
@@ -608,30 +611,43 @@ void VlgSglTgtGen::ConstructWrapper_add_inv_assumptions() {
   ILA_ASSERT(target_type == target_type_t::INSTRUCTIONS)
       << "Implementation bug: inv assumpt should only be used when verifying "
          "instructions.";
-  if (not IN("global invariants", rf_cond))
-    return;
-  if (rf_cond["global invariants"].size() == 0)
-    return; // no invariants to add
-  if (not rf_cond["global invariants"].is_array()) {
-    ILA_ERROR << "'global invariants' field in refinement relation has to be a "
-                 "JSON array.";
-    return;
-  }
-  for (auto& cond : rf_cond["global invariants"]) {
-    auto new_cond = ReplExpr(cond.get<std::string>(), true);
 
-    // inv-syn will ignore the precondition anyway
-    std::string precondition;
-    if (_vtg_config.OnlyEnforceInvariantsOnInitialStateOfInstrCheck)
-      precondition = has_flush ? "(~ __RESETED__) || " : "(~ __START__) || ";
-    else
-      precondition = ""; // always assume no matter what
+  // the precondition of invariants
+  std::string precondition;
+  if (_vtg_config.OnlyEnforceInvariantsOnInitialStateOfInstrCheck)
+    precondition = has_flush ? "(~ __RESETED__) || " : "(~ __START__) || ";
+  else
+    precondition = ""; // always assume no matter what
 
-    if(_backend == backend_selector::YOSYS)
-      add_a_direct_assumption(new_cond, "invariant_assume"); // without new var added
-    else
-      add_an_assumption(precondition + "(" + new_cond + ")", "invariant_assume");
-  }
+  if ( IN("global invariants", rf_cond) 
+    && rf_cond["global invariants"].size() > 0 ) {
+    if (not rf_cond["global invariants"].is_array()) {
+        ILA_ERROR << "'global invariants' field in refinement relation has to be a "
+                    "JSON array.";
+        return;
+    } // type check of global invariants
+    
+    for (auto& cond : rf_cond["global invariants"]) {
+      auto new_cond = ReplExpr(cond.get<std::string>(), true);
+      // inv-syn will ignore the precondition anyway
+      if(_backend == backend_selector::YOSYS)
+        add_a_direct_assumption(new_cond, "invariant_assume"); // without new var added
+      else
+        add_an_assumption(precondition + "(" + new_cond + ")", "invariant_assume");
+    } // for inv in global invariants field
+  } // insert from global invariant
+  
+  // check the additional invariants
+  if (_advanced_param_ptr && _advanced_param_ptr->_inv_obj_ptr) {
+    // do you need to provide sub-module instance name?
+    auto new_cond = ReplExpr(
+      _advanced_param_ptr->_inv_obj_ptr->GenerateVlgConstraints(), true);
+
+    ILA_ASSERT(_backend != backend_selector::YOSYS) 
+      << "YOSYS target is for non-cegar-loop invariant synthesis,"
+      << "Please use CHC target instead.";
+    add_an_assumption(precondition + "(" + new_cond + ")", "invariant_assume");
+  } // end of adding additional invariants
 } // ConstructWrapper_add_inv_assumptions
 
 //
@@ -641,6 +657,10 @@ void VlgSglTgtGen::ConstructWrapper_add_inv_assumptions() {
 void VlgSglTgtGen::ConstructWrapper_add_inv_assertions() {
   ILA_ASSERT(target_type == target_type_t::INVARIANTS)
       << "Implementation bug: should only be used when verifying invariants";
+  
+  ILA_WARN_IF (_advanced_param_ptr && _advanced_param_ptr->_inv_obj_ptr) 
+    << "additional invariants will not be checked here.";
+
   if (not IN("global invariants", rf_cond))
     return;
   if (rf_cond["global invariants"].size() == 0)
