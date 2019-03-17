@@ -13,6 +13,12 @@ namespace ilang {
 #define SERDES_SORT_ADDR_WIDTH "a"
 #define SERDES_SORT_DATA_WIDTH "d"
 
+// Func
+#define SERDES_FUNC_ID "i"
+#define SERDES_FUNC_NAME "n"
+#define SERDES_FUNC_OUT "o"
+#define SERDES_FUNC_ARGS "a"
+
 // Expr
 #define SERDES_EXPR_ID "i"
 #define SERDES_EXPR_UID "u"
@@ -22,6 +28,7 @@ namespace ilang {
 #define SERDES_EXPR_OP "o"
 #define SERDES_EXPR_ARGS "a"
 #define SERDES_EXPR_PARAMS "p"
+#define SERDES_EXPR_FUNC "f"
 
 // Instr
 #define SERDES_INSTR_NAME "n"
@@ -36,13 +43,17 @@ namespace ilang {
 #define SERDES_ILA_VALID "v"
 #define SERDES_ILA_INSTR "instr"
 #define SERDES_ILA_INIT "init"
-#define SERDES_ILA_AST "a"
 #define SERDES_ILA_CHILD "c"
 
 // ConstVal
 #define SERDES_CONST_VAL "v"
 #define SERDES_CONST_DEF "d"
 #define SERDES_CONST_MAP "m"
+
+// Global
+#define SERDES_GLOBAL_AST "a"
+#define SERDES_GLOBAL_FUNC "f"
+#define SERDES_GLOBAL_TOP "t"
 
 }; // namespace ilang
 

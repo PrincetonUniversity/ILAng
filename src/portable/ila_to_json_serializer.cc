@@ -60,13 +60,21 @@ json I2JSer::SerInstr(const InstrPtr& i_instr) {
 json I2JSer::SerInstrLvlAbs(const InstrLvlAbsPtr& i_ila) {
   ILA_NOT_NULL(i_ila);
 
-  auto j_ila = SerInstrLvlAbsNoAst(i_ila);
+  auto j_global = json::object();
+
+  // top-level ila
+  auto j_top = SerInstrLvlAbsNoAst(i_ila);
+  j_global.emplace(SERDES_GLOBAL_TOP, j_top);
 
   // all ast expressions
   ILA_DLOG("Portable") << "Serialize all ast nodes";
-  j_ila.emplace(SERDES_ILA_AST, j_expr_arr_);
+  j_global.emplace(SERDES_GLOBAL_AST, j_expr_arr_);
 
-  return j_ila;
+  // all func
+  ILA_DLOG("Portable") << "Serialize all func";
+  j_global.emplace(SERDES_GLOBAL_FUNC, j_func_arr_);
+
+  return j_global;
 }
 
 json I2JSer::SerSort(const SortPtr& i_sort) const {
@@ -91,6 +99,44 @@ json I2JSer::SerSort(const SortPtr& i_sort) const {
   }; // switch sort_uid
 
   return j_sort;
+}
+
+json I2JSer::SerFunc(const FuncPtr& i_func) {
+  // func id
+  auto id = i_func->name().id();
+
+  // check if i_func has been visited
+  auto pos = func_id_idx_map_.find(id);
+  if (pos != func_id_idx_map_.end()) {
+    return j_func_arr_.at(pos->second);
+  }
+
+  // i_func has not been serialized yet, create a new JSON object
+  auto j_func = json::object();
+  j_func.emplace(SERDES_FUNC_ID, id);
+
+  // func name
+  auto func_name = i_func->name().str();
+  j_func.emplace(SERDES_FUNC_NAME, func_name);
+
+  // output sort (range)
+  auto i_out_sort = i_func->out();
+  auto j_out_sort = SerSort(i_out_sort);
+  j_func.emplace(SERDES_FUNC_OUT, j_out_sort);
+
+  // arguments sort (domain)
+  auto j_arg_sort_arr = json::array();
+  for (auto i = 0; i < i_func->arg_num(); i++) {
+    auto i_arg_sort = i_func->arg(i);
+    auto j_arg_sort = SerSort(i_arg_sort);
+    j_arg_sort_arr.push_back(j_arg_sort);
+  }
+  j_func.emplace(SERDES_FUNC_ARGS, j_arg_sort_arr);
+
+  // book keeping
+  j_func_arr_.push_back(j_func);
+
+  return j_func;
 }
 
 json I2JSer::SerConstVal(const ExprPtr& i_expr) const {
@@ -170,6 +216,14 @@ json I2JSer::SerExprUnit(const ExprPtr& i_expr) {
       j_param_arr.push_back(i_expr->param(i));
     }
     j_expr.emplace(SERDES_EXPR_PARAMS, j_param_arr);
+
+    // only for apply function
+    if (expr_op_uid == AST_UID_EXPR_OP::APP_FUNC) {
+      auto i_expr_op_appfunc = std::dynamic_pointer_cast<ExprOpAppFunc>(i_expr);
+      ILA_NOT_NULL(i_expr_op_appfunc);
+      auto j_func = SerFunc(i_expr_op_appfunc->func());
+      j_expr.emplace(SERDES_EXPR_FUNC, j_func.at(SERDES_FUNC_ID).get<ID_t>());
+    }
     break;
   }
   }; // switch expr_uid
