@@ -149,3 +149,22 @@ VCDValue * VCDFile::get_signal_value_at (
 
     return tr;
 }
+
+/*!
+*/
+VCDSignalValues * VCDFile::get_signal_value (
+    VCDSignalHash hash ) {
+
+    if(this -> val_map.find(hash) == this -> val_map.end()) {
+        return nullptr;
+    }
+    
+    VCDSignalValues * vals = this -> val_map[hash];
+
+    if(vals -> size() == 0) {
+        return nullptr;
+    }
+
+    return vals;
+    
+    }

@@ -100,6 +100,12 @@ class VCDFile {
             VCDTime       time
         );
 
+        /*!
+        @brief Get the values of a particular signal in all time.
+        */
+        VCDSignalValues * get_signal_value (
+            VCDSignalHash hash
+        );
         
         /*!
         @brief Return a pointer to the set of timestamp samples present in
@@ -116,6 +122,7 @@ class VCDFile {
         @brief Return a flattened vector of all signals in the file.
         */
         std::vector<VCDSignal*>* get_signals();
+
 
     protected:
         
