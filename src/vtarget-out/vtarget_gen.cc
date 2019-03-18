@@ -41,4 +41,10 @@ bool VerilogVerificationTargetGenerator::in_bad_state(void) const {
   return ptr_->in_bad_state();
 }
 
+std::string VerilogVerificationTargetGenerator::GetVlgModuleInstanceName(void) const {
+  VlgVerifTgtGen* ptr_ = dynamic_cast<VlgVerifTgtGen*>(_generator);
+  ILA_NOT_NULL(ptr_);
+  return ptr_->GetVlgModuleInstanceName();
+}
+
 }; // namespace ilang

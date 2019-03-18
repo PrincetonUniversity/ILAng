@@ -18,6 +18,14 @@ namespace smt {
 //#define get_mod_name(s) ((s).substr(1,(s).length()-4))
 #define get_mod_name(s) (s)
 
+// |module1 inst| -> inst
+std::string get_mod_inst_name(const std::string & in) {
+  ILA_ASSERT(S_IN(' ',in));
+  ILA_ASSERT(in.back() == '|');
+  auto pos = in.find(' ');
+  return in.substr(pos, in.length()-pos-1);
+} // get_mod_inst_name
+
 /// construct flatten_datatype (hierarchically)
 void YosysSmtParser::construct_flatten_dataype() {
   for (auto && module_name : smt_ast.data_type_order) {
@@ -32,12 +40,20 @@ void YosysSmtParser::construct_flatten_dataype() {
       for (const auto & state_var : state_var_vec) {
         if(state_var._type._type == var_type::tp::Datatype) {
           const auto & mod_tp_name = state_var._type.module_name;
+          auto inst_name = get_mod_inst_name( state_var.internal_name );
           auto tp_mod_name = get_mod_name(mod_tp_name); // | _s|
           ILA_ASSERT(IN(tp_mod_name, flatten_datatype));
           auto & sub_mod_state_var_vec = flatten_datatype[tp_mod_name];
           // from there, insert all the state here
           for(const auto & sub_mod_state_var : sub_mod_state_var_vec) {
             flatten_datatype[module_name].push_back(sub_mod_state_var);
+            // you need to rename it
+            auto & sub_st_var = flatten_datatype[module_name].back();
+            sub_st_var.internal_name = 
+              st_name_add_prefix(sub_st_var.internal_name, inst_name + ".");
+            // sub_st_var.module_name = ? // no one use it
+            sub_st_var.verilog_name = inst_name + "." + sub_st_var.verilog_name;
+            ILA_ASSERT(sub_st_var._type._type != var_type::tp::Datatype);
           }
         } // if itself is a datatype
         else
@@ -47,6 +63,13 @@ void YosysSmtParser::construct_flatten_dataype() {
   } // for all module in order
 } // construct_flatten_dataype
 
+void YosysSmtParser::convert_datatype_to_type_vec(
+    const std::vector<state_var_t> & all_flattened_state_var,
+    std::vector<var_type> & args) {
+  for (auto && st : all_flattened_state_var ){
+    args.push_back( st._type );
+  } // just use its internal_name as the arg name
+} // convert_datatype_to_type_vec
 
 void YosysSmtParser::convert_flatten_datatype_to_arg_vec(
     const std::vector<state_var_t> & all_flattened_state_var, 
@@ -69,6 +92,19 @@ std::string YosysSmtParser::st_name_add_suffix(
   // else
   return stname + suffix;
 } // st_name_add_suffix
+
+std::string YosysSmtParser::st_name_add_prefix(
+  const std::string & stname,
+  const std::string & prefix
+) {
+  if (prefix.empty())
+    return stname;
+  if(stname.front() == '|' and stname.back() == '|' )
+    return "|" + prefix + stname.substr(1);
+  // else
+  return prefix + stname;
+} // st_name_add_suffix
+
 
 #define sep(c) ((c) == ' ' || (c) == '\t' || (c) == '\n' || (c) == '\r')
 std::vector<std::string> YosysSmtParser::str_to_list(const std::string & in) {
@@ -374,6 +410,20 @@ void YosysSmtParser::AddNoChangeStateUpdateFunction() {
 std::string YosysSmtParser::Export() {
   return smt_ast.toString();
 }
+
+
+/// return a reference to module def order
+const std::vector<std::string> & YosysSmtParser::get_module_def_orders() const {
+  return smt_ast.data_type_order;
+}
+/// return a module's flatten datatypes
+const std::vector<state_var_t> & YosysSmtParser::get_module_flatten_dt(const std::string & mod_name) const {
+  ILA_ASSERT(not flatten_datatype.empty() ) << "BUG: use before flatten datatypes";
+  auto pos = flatten_datatype.find(mod_name);
+  ILA_ASSERT( pos != flatten_datatype.end() );
+  return pos->second;
+}
+
 
 }; // namespace smt
 }; // namespace ilang

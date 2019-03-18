@@ -10,6 +10,7 @@
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/verilog-out/verilog_gen.h>
 #include <ilang/vtarget-out/inv-syn/inv_obj.h>
+#include <ilang/vtarget-out/inv-syn/cex_extract.h>
 
 namespace ilang {
 
@@ -19,6 +20,8 @@ class VlgVerifTgtGenBase {
 public:
   /// Type of the backend
   typedef enum { NONE = 0, COSA = 1, JASPERGOLD = 2, YOSYS = 3 } backend_selector;
+  /// Type of invariant synthesis backend
+  typedef enum {Z3, FreqHorn} synthesis_backend_selector;
   /// Verilog Target Generation Configuration
   typedef struct _vtg_config {
     /// Set the targets: instructions/invariants/both
@@ -99,10 +102,12 @@ public:
   /// NOTE: this function can be inherited
   /// and only expose a visible interface to the outside
   typedef struct _adv_parameters {
-    /// inv-obj
+    /// invariant object
     InvariantObject * _inv_obj_ptr;
+    /// counterexample object
+    CexExtractor * _cex_obj_ptr;
     /// The default constructor for default values
-    _adv_parameters() : _inv_obj_ptr(NULL) {}
+    _adv_parameters() : _inv_obj_ptr(NULL), _cex_obj_ptr(NULL) {}
     /// virtual destructor
     virtual ~_adv_parameters() {};
   } advanced_parameters_t;
@@ -160,6 +165,8 @@ public:
   void GenerateTargets(void);
   /// return true if the generator's in a bad state and cannot proceed.
   bool in_bad_state(void) const;
+  /// get vlg-module instance name
+  std::string GetVlgModuleInstanceName(void) const;
 
 private:
   /// will be casted to different generator inside the implementation

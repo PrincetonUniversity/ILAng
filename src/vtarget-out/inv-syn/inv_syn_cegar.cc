@@ -65,6 +65,7 @@ bool InvariantSynthesizerCegar::check_in_bad_state() const {
 void InvariantSynthesizerCegar::GenerateVerificationTarget() {
   // generate a target -- based on selection
   if (check_in_bad_state()) return;
+  ILA_WARN_IF(status != cegar_status::NEXT_V) << "CEGAR-loop: repeated verification step.";
 
   // to send in the invariants
   advanced_parameters_t adv_param;
@@ -85,18 +86,31 @@ void InvariantSynthesizerCegar::GenerateVerificationTarget() {
       );
   
   vg.GenerateTargets();
+
+  vlg_mod_inst_name = vg.GetVlgModuleInstanceName();
+
+  status = cegar_status::V_RES;
 }
 /// to generate targets using the provided invariants
 void InvariantSynthesizerCegar::GenerateVerificationTarget(const std::vector<std::string> & invs) {
   for(auto && inv : invs)
     inv_obj.AddInvariantFromVerilog(std::to_string(round_id), inv);
   GenerateVerificationTarget();
-}
+} // to generate targets using the provided invariants
 
 /// to extract result 
 void InvariantSynthesizerCegar::ExtractVerificationResult(bool autodet, bool pass, const std::string & res_file) {
-  
-}
+  ILA_ASSERT(not autodet) << "Future work, not able to auto-determine verify result";
+  ILA_WARN_IF(status != cegar_status::V_RES) << "CEGAR-loop: repeated verification step.";
+
+  if(pass) {
+    status = cegar_status::DONE;
+    return;
+  }
+  // not passing
+  cex_extract = std::make_unique<CexExtractor>(res_file,vlg_mod_inst_name);
+} // extract result
+
 /// to generate synthesis target
 void InvariantSynthesizerCegar::GenerateSynthesisTarget() {
 

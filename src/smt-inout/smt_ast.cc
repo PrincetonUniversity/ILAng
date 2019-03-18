@@ -220,6 +220,14 @@ std::string var_type::toString() const {
   return "";
 }
 
+
+std::string var_type::toString(const std::vector<var_type> &tp_vec) {
+  std::vector<std::string> tp_str_vec;
+  for (auto && tp : tp_vec)
+    tp_str_vec.push_back(tp.toString());
+  return "(" + Join(tp_str_vec, " ") + ")";
+}
+
 arg_t::arg_t(const std::string & name, const var_type & type) :
   arg_name(name), arg_type(type) { }
 

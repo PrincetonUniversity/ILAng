@@ -91,6 +91,8 @@ namespace smt{
     static var_type ParseFromString(str_iterator &); // will update the iterator
     /// convert to string
     std::string toString() const;
+    /// convert a vec of var_type to string (used in declare-fun/var)
+    static std::string toString(const std::vector<var_type> &);
   }; // struct var_type
 
   /// and item in declare-datatype

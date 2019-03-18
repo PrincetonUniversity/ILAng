@@ -7,6 +7,7 @@
 #include <ilang/vtarget-out/vtarget_gen.h>
 
 #include <string>
+#include <memory>
 
 namespace ilang {
 
@@ -20,11 +21,11 @@ public:
   /// Type of configuration
   using vtg_config_t = VlgVerifTgtGenBase::vtg_config_t;
   /// Type of invariant synthesis backend
-  typedef enum {Z3, FreqHorn} synthesis_backend_selector;
+  using synthesis_backend_selector = VlgVerifTgtGenBase::synthesis_backend_selector;
   /// Type of the cegar loop status
   /// next to verify, wait_for_verify_result
   /// next to synthesis, wait_for_synthesis_result
-  typedef enum {NEXT_V, V_RES, NEXT_S, S_RES} cegar_status;
+  typedef enum {NEXT_V, V_RES, NEXT_S, S_RES, DONE, FAILED} cegar_status;
   /// Type of advanced parameter
   using advanced_parameters_t = VlgVerifTgtGenBase::advanced_parameters_t;
 
@@ -73,6 +74,10 @@ protected:
   // -------------------- MEMBERS ------------------ //
   /// the found invariants, in Verilog expression
   InvariantObject inv_obj;
+  /// the pointer to a cegar object
+  std::unique_ptr<CexExtractor> cex_extract;
+  /// vlg-module instance name;
+  std::string vlg_mod_inst_name;
   /// the status of the loop
   cegar_status status;
   /// is in back state?

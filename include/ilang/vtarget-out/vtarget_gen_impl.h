@@ -37,7 +37,10 @@ class VlgSglTgtGen {
 public:
   /// Type of the target
   /// for yosys_syn, INST_INV_SYN will be used for every instruction
-  typedef enum { INVARIANTS, INSTRUCTIONS } target_type_t;
+  typedef enum { INVARIANTS, INSTRUCTIONS, INV_SYN_DESIGN_ONLY } target_type_t;
+  // for inv-syn-design-only: inv & old-inv should be assume
+  // cex should be asserted
+
   /// Type of the ready condition
   typedef enum {
     NA = 0,
@@ -47,8 +50,10 @@ public:
   } ready_type_t;
   /// Per func apply counter
   typedef std::map<std::string, unsigned> func_app_cnt_t;
-  /// Type of the backend
+  /// Type of the verification backend
   using backend_selector = VlgVerifTgtGenBase::backend_selector;
+  /// Type of the synthesis backend
+  using synthesis_backend_selector = VlgVerifTgtGenBase::synthesis_backend_selector;
   /// Type of configuration
   using vtg_config_t = VlgVerifTgtGenBase::vtg_config_t;
   /// Type of record of extra info of a signal
@@ -414,6 +419,8 @@ public:
   void GenerateTargets(void);
   /// Return true if it is in bad state
   bool in_bad_state(void) const { return _bad_state; }
+  /// get vlg-module instance name
+  std::string GetVlgModuleInstanceName() const { return _vlg_mod_inst_name; }
 
 protected:
   /// If it is bad state, return true and display a message
