@@ -11,7 +11,7 @@ IEEE floating point number.
 */
 class VCDValue {
 
-
+public:
     //! Convert a VCDBit to a single char
     static char VCDBit2Char(VCDBit b) {
         switch(b) {
@@ -59,16 +59,19 @@ class VCDValue {
         
 
         //! Return the type of value stored by this class instance.
-        VCDValueType   get_type();
+        VCDValueType   get_type() const;
         
         //! Get the bit value of the instance.
-        VCDBit       get_value_bit();
+        VCDBit       get_value_bit() const;
         
         //! Get the vector value of the instance.
         VCDBitVector * get_value_vector();
 
+        //! Get the vector value of the constant instance.
+        const VCDBitVector * get_value_vector() const;
+
         //! Get the real value of the instance.
-        VCDReal      get_value_real();
+        VCDReal      get_value_real() const;
 
 
     protected:

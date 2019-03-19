@@ -30,14 +30,14 @@ VCDValue::VCDValue    (
 }
 
 
-VCDValueType   VCDValue::get_type(){
+VCDValueType   VCDValue::get_type() const{
     return this -> type;
 }
 
 
 /*!
 */
-VCDBit       VCDValue::get_value_bit(){
+VCDBit       VCDValue::get_value_bit() const{
     return this -> value.val_bit;
 }
 
@@ -48,10 +48,16 @@ VCDBitVector * VCDValue::get_value_vector(){
     return this -> value.val_vector;
 }
 
+/*!
+*/
+const VCDBitVector * VCDValue::get_value_vector() const{
+    return this -> value.val_vector;
+}
+
 
 /*!
 */
-VCDReal      VCDValue::get_value_real(){
+VCDReal      VCDValue::get_value_real() const{
     return this -> value.val_real;
 }
 
