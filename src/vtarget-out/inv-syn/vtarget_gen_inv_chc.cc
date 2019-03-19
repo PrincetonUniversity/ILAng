@@ -1,0 +1,542 @@
+/// \file Source of generating Yosys accepted problem, vlg, mem, script
+/// the inv-syn related HC generation is located in inv_syn.cc
+// --- Hongce Zhang
+
+#include <algorithm>
+#include <fstream>
+#include <ilang/util/container_shortcut.h>
+#include <ilang/util/fs.h>
+#include <ilang/util/log.h>
+#include <ilang/util/str_util.h>
+#include <ilang/vtarget-out/absmem.h>
+#include <ilang/vtarget-out/inv-syn/vtarget_gen_inv_chc.h>
+#include <ilang/smt-inout/yosys_smt_parser.h>
+#include <iostream>
+
+namespace ilang {
+
+#define VLG_TRUE "`true"
+#define VLG_FALSE "`false"
+
+
+std::string inv_syn_tmpl_datatypes = R"***(
+;----------------------------------------
+;  Single Inductive Invariant Synthesis
+;  Generated from ILAng
+;----------------------------------------
+
+%%
+
+;(declare-rel INIT (|%1%_s|))
+;(declare-rel T (|%1%_s|) (|%1%_s|))
+(declare-rel INV (|%1%_s|))
+(declare-rel fail ())
+
+
+(declare-var |__BI__| |%1%_s|)
+(declare-var |__I__| |%1%_s|)
+
+(declare-var |__S__| |%1%_s|)
+(declare-var |__S'__| |%1%_s|)
+
+; to do : no 
+
+(rule (=> (and (|%1%_n rst| |__BI__|) (|%1%_t| |__BI__| |__I__|)) (INV |__I__|)))
+(rule (=> (and (INV |__S__|) (|%1%_t| |__S__| |__S'__|)) (INV |__S'__|)))
+(rule (=> (and (INV |__S__|) (not (|%1%_a| |__S__|))) fail))
+
+(query fail :print-certificate true)
+
+)***";
+
+
+std::string inv_syn_tmpl_wo_datatypes = R"***(
+;----------------------------------------
+;  Single Inductive Invariant Synthesis
+;  Generated from ILAng
+;----------------------------------------
+
+%%
+
+(declare-rel INV %WrapperDataType%)
+(declare-rel fail ())
+
+%BeforeInitVar%
+%InitVar%
+;(declare-var |__BI__state| Type)
+;(declare-var |__I__state|  Type)
+
+%State%
+%StatePrime%
+;(declare-var |__S__state| Type)
+;(declare-var |__S'__state| Type)
+
+; to do : no 
+
+(rule (=> (and (|%WrapperName%_n rst| %BIs%) (|%WrapperName%_t| %BIs% %Is%)) (INV %Is%)))
+(rule (=> (and (INV %Ss%) (|%WrapperName%_t| %Ss% %Sps%)) (INV %Sps%)))
+(rule (=> (and (INV %Ss%) (not (|%WrapperName%_a| %Ss%))) fail))
+
+(query fail :print-certificate true)
+
+)***";
+
+
+VlgSglTgtGen_Chc::VlgSglTgtGen_Chc(
+    const std::string&
+        output_path, // will be a sub directory of the output_path of its parent
+    const InstrPtr& instr_ptr, // which could be an empty pointer, and it will
+                               // be used to verify invariants
+    const InstrLvlAbsPtr& ila_ptr, const VerilogGenerator::VlgGenConfig& config,
+    nlohmann::json& _rf_vmap, nlohmann::json& _rf_cond,
+    VerilogInfo* _vlg_info_ptr, const std::string& vlg_mod_inst_name,
+    const std::string& ila_mod_inst_name, const std::string& wrapper_name,
+    const std::vector<std::string>& implementation_srcs,
+    const std::vector<std::string>& implementation_include_path,
+    const vtg_config_t& vtg_config,  backend_selector vbackend,
+    synthesis_backend_selector sbackend,
+    const target_type_t& target_tp,
+    advanced_parameters_t* adv_ptr )
+    : VlgSglTgtGen(output_path, instr_ptr, ila_ptr, config, _rf_vmap, _rf_cond,
+                   _vlg_info_ptr, vlg_mod_inst_name, ila_mod_inst_name,
+                   wrapper_name, implementation_srcs,
+                   implementation_include_path, vtg_config, vbackend,
+                   target_tp, adv_ptr),
+      s_backend(sbackend) { 
+    
+    ILA_ASSERT(vbackend == backend_selector::YOSYS)
+      << "Only support using yosys for invariant synthesis";
+
+    ILA_ASSERT(not _vtg_config.YosysSmtArrayForRegFile)
+      << "Future work to support array in synthesis";
+    
+    ILA_ASSERT(
+      target_tp == target_type_t::INV_SYN_DESIGN_ONLY )
+      << "Unsupported target type: " << target_tp;
+
+    ILA_ASSERT (adv_ptr and adv_ptr->_cex_obj_ptr)
+      << "Cex object must be provided to synthesize.";
+
+    ILA_ASSERT (
+      sbackend == synthesis_backend_selector::FreqHorn or
+      sbackend == synthesis_backend_selector::Z3
+      ) << "Unknown synthesis backend:" << sbackend;
+
+// initialize templates
+chcGenerateSmtScript_wo_Array = R"***(
+hierarchy -check
+proc
+opt
+opt_expr -mux_undef
+opt
+opt
+memory -nordff
+proc
+opt;;
+)***";
+
+// should not be used
+chcGenerateSmtScript_w_Array = R"***(
+hierarchy -check
+proc
+opt
+opt_expr -mux_undef
+opt
+opt
+memory_dff -wr_only
+memory_collect;
+
+memory_unpack
+splitnets -driver
+opt;;
+memory_collect;
+pmuxtree
+proc
+opt;;
+)***";
+                    }
+
+
+void VlgSglTgtGen_Chc::add_wire_assign_assumption(
+    const std::string& varname, const std::string& expression,
+    const std::string& dspt) {
+
+  vlg_wrapper.add_assign_stmt(varname, expression);
+  ILA_ERROR_IF(expression.find(".") != std::string::npos)
+      << "expression:" << expression << " contains unfriendly dot.";
+}
+
+void VlgSglTgtGen_Chc::add_reg_cassign_assumption(
+    const std::string& varname, const std::string& expression,
+    const std::string& cond, const std::string& dspt) {
+
+  ILA_ERROR_IF(expression.find(".") != std::string::npos)
+      << "expression:" << expression << " contains unfriendly dot.";
+
+  vlg_wrapper.add_init_stmt(varname + " <= " + expression + ";");
+  vlg_wrapper.add_always_stmt(varname + " <= " + varname + ";");
+  add_an_assumption(
+      "(~(" + cond + ") || ((" + varname + ") == (" + expression + ")))", dspt);
+}
+
+/// Add an assumption
+void VlgSglTgtGen_Chc::add_an_assumption(const std::string& aspt,
+                                          const std::string& dspt) {
+  auto assumption_wire_name = vlg_wrapper.sanitizeName(dspt) + new_mapping_id();
+  
+  vlg_wrapper.add_wire(assumption_wire_name, 1, true);
+  // I find it is necessary to connect to the output
+  vlg_wrapper.add_output(assumption_wire_name, 1);
+  vlg_wrapper.add_assign_stmt(assumption_wire_name, aspt);
+
+  ILA_ERROR_IF(aspt.find(".") != std::string::npos)
+      << "aspt:" << aspt << " contains unfriendly dot.";
+  _problems.assumptions[dspt].exprs.push_back(assumption_wire_name);
+
+}
+/// Add an assertion
+void VlgSglTgtGen_Chc::add_an_assertion(const std::string& asst,
+                                         const std::string& dspt) {
+  auto assrt_wire_name = vlg_wrapper.sanitizeName(dspt) + new_property_id();
+  vlg_wrapper.add_wire(assrt_wire_name, 1, true);
+  vlg_wrapper.add_output(assrt_wire_name,
+                         1); // I find it is necessary to connect to the output
+  vlg_wrapper.add_assign_stmt(assrt_wire_name, asst);
+  _problems.assertions[dspt].exprs.push_back(assrt_wire_name);
+  ILA_ERROR_IF(asst.find(".") != std::string::npos)
+      << "asst:" << asst << " contains unfriendly dot.";
+}
+
+/// Add an assumption
+void VlgSglTgtGen_Chc::add_a_direct_assumption(const std::string& aspt,
+                                                const std::string& dspt) {
+  _problems.assumptions[dspt].exprs.push_back(aspt);
+}
+/// Add an assertion
+void VlgSglTgtGen_Chc::add_a_direct_assertion(const std::string& asst,
+                                               const std::string& dspt) {
+  _problems.assertions[dspt].exprs.push_back(asst);
+}
+
+void VlgSglTgtGen_Chc::PreExportProcess() {
+
+  std::string all_assert_wire_content;
+
+  ILA_ASSERT(target_type == target_type_t::INV_SYN_DESIGN_ONLY);
+  ILA_ERROR_IF(_problems.assertions.size() != 1) << "BUG in cex extract";
+
+  // this is to check given invariants
+  for (auto&& pbname_prob_pair : _problems.assertions) {
+    const auto& prbname = pbname_prob_pair.first;
+    const auto& prob = pbname_prob_pair.second;
+    
+    ILA_ASSERT(prbname == "cex_nonreachable_assert"); 
+    // sanity check, should only be invariant's related asserts
+
+    for (auto&& p: prob.exprs) {
+      vlg_wrapper.add_stmt(
+        "assert property ("+p+"); //" + prbname + "\n"
+      );
+      all_assert_wire_content = "( " + p  + " ) ";
+    } // for expr
+  } // for problem
+
+
+
+  vlg_wrapper.add_wire("__all_assert_wire__", 1, true);
+  vlg_wrapper.add_output("__all_assert_wire__",1);
+  vlg_wrapper.add_assign_stmt("__all_assert_wire__", all_assert_wire_content);
+} // PreExportProcess
+
+/// export the script to run the verification :
+/// like "yosys gemsmt.ys"
+void VlgSglTgtGen_Chc::Export_script(const std::string& script_name) {
+  chc_run_script_name = script_name;
+  /// TODO: BUG: modify this : use z3/freqHorn
+
+  auto fname = os_portable_append_dir(_output_path, script_name);
+  std::ofstream fout(fname);
+  if (!fout.is_open()) {
+    ILA_ERROR << "Error writing to file:" << fname;
+    return;
+  }
+  fout << "#!/bin/bash" << std::endl;
+
+  std::string runable;;
+  if (s_backend == synthesis_backend_selector::Z3) {
+    runable = "z3";
+    if (not _vtg_config.Z3Path.empty())
+      runable = os_portable_append_dir(_vtg_config.Z3Path, runable);
+  }
+  else if(s_backend == synthesis_backend_selector::FreqHorn) {
+    runable = "freqhorn";
+    if (not _vtg_config.FreqHornPath.empty())
+      runable = os_portable_append_dir(_vtg_config.FreqHornPath, runable);
+  }
+
+  if (chc_prob_fname != "")
+    fout << runable << " "<< chc_prob_fname  << std::endl;
+  else
+    fout << "echo 'Nothing to check!'" << std::endl;
+} // Export_script
+
+
+/// For jasper, this means do nothing, for yosys, you need to add (*keep*)
+void VlgSglTgtGen_Chc::Export_modify_verilog() {
+  // collect all locations: filename -> lineno
+  // open, read, count and write
+  // if it is a port name, we will ask user to specify its upper level
+  // signal name
+  VerilogModifier vlg_mod(vlg_info_ptr,
+    static_cast<VerilogModifier::port_decl_style_t>(_vtg_config.PortDeclStyle),
+    _vtg_config.CosaAddKeep);
+
+  for (auto&& refered_vlg_item : _all_referred_vlg_names) {
+    auto idx = refered_vlg_item.first.find("[");
+    auto removed_range_name = refered_vlg_item.first.substr(0, idx);
+    vlg_mod.RecordKeepSignalName(removed_range_name);
+    // auto sig = // no use, this is too late, vlg_wrapper already exported
+    vlg_mod.RecordConnectSigName(removed_range_name,
+                                 refered_vlg_item.second.range);
+    // vlg_wrapper.add_output(sig.first, sig.second);
+  }
+  vlg_mod.FinishRecording();
+
+
+  //auto tmp_fn = os_portable_append_dir(_output_path, tmp_design_file);
+  auto tmp_fn = os_portable_append_dir(_output_path, top_file_name);
+  // now let's do the job
+  for (auto&& fn : vlg_design_files) {
+    std::ifstream fin(fn);
+    std::ofstream fout(tmp_fn, std::ios_base::app); // append to a temp file
+    if (!fin.is_open()) {
+      ILA_ERROR << "Cannot read file:" << fn;
+      continue;
+    }
+    if (!fout.is_open()) {
+      ILA_ERROR << "Cannot open file for write:" << tmp_fn;
+      continue;
+    }
+    vlg_mod.ReadModifyWrite(fn, fin, fout);
+  } // for (auto && fn : vlg_design_files)
+  
+  // handles the includes
+  // .. (copy all the verilog file in the folder), this has to be os independent
+  if (vlg_include_files_path.size() != 0) {
+    // copy the files and specify the -I commandline to the run.sh
+    for (auto&& include_path : vlg_include_files_path)
+      os_portable_copy_dir(include_path, _output_path);
+  }
+
+} // Export_modify_verilog
+
+
+/// export the memory abstraction (implementation)
+/// Yes, this is also implementation specific, (jasper may use a different one)
+void VlgSglTgtGen_Chc::Export_mem(const std::string& mem_name) {
+  // we will ignore the mem_name
+
+  auto outfn = os_portable_append_dir(_output_path, top_file_name);
+  std::ofstream fout(outfn, std::ios_base::app); // append
+
+  VlgAbsMem::OutputMemFile(fout);
+}
+
+
+// export the chc file
+void VlgSglTgtGen_Chc::Export_problem(const std::string& extra_name) {
+  // used by export script!
+  chc_prob_fname = extra_name;
+
+  // first generate a temporary smt
+  // and extract from it the necessary info
+
+  // first generate a temporary smt
+  // and extract from it the necessary info
+  design_only_gen_smt("__design_smt.smt2", "__gen_smt_script.ys");
+  convert_smt_to_chc ("__design_smt.smt2", extra_name);
+
+} // Export_problem
+
+
+void VlgSglTgtGen_Chc::ExportAll(const std::string& wrapper_name, // wrapper.v
+                        const std::string& ila_vlg_name, // no use
+                        const std::string& script_name,  // the run.sh
+                        const std::string& extra_name,   // the chc
+                        const std::string& mem_name) {   // no use
+
+  PreExportProcess();
+
+  if (os_portable_mkdir(_output_path) == false)
+    ILA_WARN << "Cannot create output directory:" << _output_path;
+
+  // you don't need to worry about the path and names
+  Export_wrapper(wrapper_name);
+  // design only
+  //if (target_type == target_type_t::INSTRUCTIONS)
+  //  Export_ila_vlg(ila_vlg_name); // this has to be after Export_wrapper
+
+  // for Jasper, this will be put to multiple files
+  // for CoSA & Yosys, this will be put after the wrapper file (wrapper.v)
+  Export_modify_verilog();        // this must be after Export_wrapper
+  Export_mem(mem_name);
+
+  // you need to create the map function -- 
+  Export_problem(extra_name); // the gensmt.ys 
+  
+  Export_script(script_name);
+}
+
+/// generate the wrapper's smt first
+void VlgSglTgtGen_Chc::design_only_gen_smt(
+  const std::string & smt_name,
+  const std::string & ys_script_name) {
+  
+  auto ys_full_name =
+      os_portable_append_dir(_output_path, ys_script_name);
+  { // export to ys_full_name
+    std::ofstream ys_script_fout( ys_full_name );
+    
+    std::string write_smt2_options = " -mem -bv -wires -stdt "; // future work : -stbv, or nothing
+
+    ys_script_fout << "read_verilog -sv " 
+      << os_portable_append_dir( _output_path , top_file_name ) << std::endl;
+    ys_script_fout << "prep -top " << top_mod_name << std::endl;
+    ys_script_fout << chcGenerateSmtScript_wo_Array;
+    ys_script_fout << "write_smt2"<<write_smt2_options 
+      << os_portable_append_dir( _output_path, smt_name );   
+  } // finish writing
+
+  std::string yosys = "yosys";
+
+  if (not _vtg_config.YosysPath.empty())
+    yosys = os_portable_append_dir(_vtg_config.YosysPath, yosys);
+
+  // execute it
+  std::vector<std::string> cmd;
+  cmd.push_back(yosys); cmd.push_back("-s"); cmd.push_back(ys_full_name);
+  ILA_ERROR_IF( not os_portable_execute_shell( cmd ) )
+    << "Executing Yosys failed!";
+
+} // design_only_gen_smt
+
+
+
+void VlgSglTgtGen_Chc::convert_smt_to_chc(const std::string & smt_fname, const std::string & chc_fname) {
+  
+  std::stringstream ibuf;
+  { // read file
+    std::string smt_in_fn = os_portable_append_dir( _output_path , smt_fname);
+    std::ifstream smt_fin( smt_in_fn );
+    if(not smt_fin.is_open()) {
+      ILA_ERROR << "Cannot read from " << smt_in_fn;
+      return;
+    }
+    ibuf << smt_fin.rdbuf();
+  } // end read file
+
+  std::string smt_converted;
+  smt::YosysSmtParser smt_rewriter(ibuf.str());
+  if (s_backend == synthesis_backend_selector::FreqHorn) {
+    smt_rewriter.BreakDatatypes();
+    //smt_rewriter.AddNoChangeStateUpdateFunction();
+  }
+  smt_converted = smt_rewriter.Export();
+
+  std::string wrapper_mod_name = smt_rewriter.get_module_def_orders().back();
+  // construct the template
+  std::string chc;
+  if (s_backend == synthesis_backend_selector::FreqHorn) {
+    const auto & datatype_top_mod = smt_rewriter.get_module_flatten_dt(wrapper_mod_name);
+    chc = RewriteDatatypeChc(
+      inv_syn_tmpl_wo_datatypes,
+      datatype_top_mod, wrapper_mod_name);
+  } else if (s_backend == synthesis_backend_selector::Z3) {
+    chc = ReplaceAll(inv_syn_tmpl_datatypes,"%1%", wrapper_mod_name);
+    chc = ReplaceAll(chc, "%%", smt_converted );
+  } // end of z3 -- no convert
+
+  { // write file
+    std::string chc_out_fn = os_portable_append_dir( _output_path , chc_fname);
+    std::ofstream chc_fout(chc_out_fn);
+    if (not chc_fout.is_open()) {
+      ILA_ERROR << "Error writing to : "<< chc_out_fn;
+      return;
+    }
+    chc_fout << chc;
+  } // end write file
+
+} // convert_smt_to_chc
+
+// %WrapperName%
+// %WrapperDataType%
+// %BeforeInitVar%
+// %InitVar%
+// %State%
+// %StatePrime%
+// %BIs% %Is%  %Ss% %Sps%
+std::string RewriteDatatypeChc(
+  const std::string & tmpl, const std::vector<smt::state_var_t> & dt,
+  const std::string & wrapper_mod_name) {
+  
+  std::string chc = tmpl;
+
+  std::vector<smt::var_type> inv_tps;
+  smt::YosysSmtParser::convert_datatype_to_type_vec(dt, inv_tps);
+  auto WrapperDataType = smt::var_type::toString(inv_tps);
+
+  // %BeforeInitVar%
+  // %InitVar%
+  // %State%
+  // %StatePrime%
+  // declare-var s ...
+  std::string BeforeInitVar;
+  std::string InitVar;
+  std::string State;
+  std::string StatePrime;
+  // %BIs% %Is%  %Ss% %Sps%
+  std::string BIs;
+  std::string Is;
+  std::string Ss;
+  std::string Sps;
+  bool first = true;
+
+  std::set<std::string> name_set; // avoid repetition
+  for (auto && st : dt) {
+    auto st_name = st.verilog_name.empty() ? st.internal_name : st.verilog_name;
+    st_name = ReplaceAll(st_name, "|", ""); // remove its ||
+    // check no repetition is very important!
+    ILA_ASSERT(not IN(st_name, name_set)) << "Bug: name repetition!";
+    ILA_ASSERT(st._type._type != smt::var_type::tp::Datatype);
+    name_set.insert(st_name);
+    auto type_string = st._type.toString();
+    BeforeInitVar += "(declare-var |BI_" + st_name + "| " + type_string + ")\n";
+    InitVar       += "(declare-var |I_"  + st_name + "| " + type_string + ")\n";
+    State         += "(declare-var |S_"  + st_name + "| " + type_string + ")\n";
+    StatePrime    += "(declare-var |S'_" + st_name + "| " + type_string + ")\n";
+
+    if(not first) {
+      BIs += " "; Is  += " "; Ss  += " "; Sps += " ";
+    }
+    first = false;
+    BIs += "|BI_" + st_name + "|";
+    Is  += "|I_"  + st_name + "|";
+    Ss  += "|S_"  + st_name + "|";
+    Sps += "|S'_" + st_name + "|";
+  }
+  // Replacement
+  chc = ReplaceAll(chc, "%WrapperName%",     wrapper_mod_name);
+  chc = ReplaceAll(chc, "%WrapperDataType%", WrapperDataType);
+  chc = ReplaceAll(chc, "%BeforeInitVar%",   BeforeInitVar);
+  chc = ReplaceAll(chc, "%InitVar%",         InitVar);
+  chc = ReplaceAll(chc, "%State%",           State);
+  chc = ReplaceAll(chc, "%StatePrime%",      StatePrime);
+  chc = ReplaceAll(chc, "%BIs%",             BIs);
+  chc = ReplaceAll(chc, "%Is%",              Is);
+  chc = ReplaceAll(chc, "%Ss%",              Ss);
+  chc = ReplaceAll(chc, "%Sps%",             Sps);
+
+  return chc;  
+} // RewriteDatatypeChc
+
+}; // namespace ilang
