@@ -48,7 +48,7 @@ public:
   static std::string st_name_add_suffix (const std::string & stname,
     const std::string & suffix);
   /// add a prefix (for state name)
-  std::string YosysSmtParser::st_name_add_prefix(
+  static std::string st_name_add_prefix(
     const std::string & stname,
     const std::string & prefix);
   /// extract list from a space seped text 

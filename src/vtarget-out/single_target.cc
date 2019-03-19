@@ -24,6 +24,9 @@ namespace ilang {
 
 // ------------------------------ VlgSglTgtGen --------------- //
 
+/// Destructor: do nothing , most importantly it is virtual
+VlgSglTgtGen::~VlgSglTgtGen() {}
+
 VlgSglTgtGen::VlgSglTgtGen(
     const std::string&
         output_path, // will be a sub directory of the output_path of its parent

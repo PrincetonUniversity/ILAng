@@ -3,9 +3,9 @@
 
 #include <ilang/util/log.h>
 #include <ilang/util/str_util.h>
-#include <ilang/vtarget-out/cex_extract.h>
+#include <ilang/vtarget-out/inv-syn/cex_extract.h>
 
-#include <vcdparser/VCDFileParser.hpp>
+#include <VCDFileParser.hpp>
 
 #include <sstream>
 
@@ -13,22 +13,24 @@ namespace ilang {
 
 
 std::string val2str(const VCDValue & v) {
-  std::sstream ret;
+  std::stringstream ret;
 
   switch(v.get_type()) {
     case (VCD_SCALAR): 
-      ret << "1'b" << VCDValue::VCDBit2Char(v -> get_value_bit());
+      ret << "1'b" << VCDValue::VCDBit2Char(v.get_value_bit());
       break;
     case (VCD_VECTOR):
-      VCDBitVector * vecval = v -> get_value_vector();
-      ret << std::to_string(vecval->size())<< "'b" <<
-      for(auto it = vecval -> begin();
-               it != vecval -> end();
-               ++it)
-        ret << VCDValue::VCDBit2Char(*it);
+      {
+        const VCDBitVector * vecval = v.get_value_vector();
+        ret << std::to_string(vecval->size())<< "'b";
+        for(auto it = vecval -> begin();
+                it != vecval -> end();
+                ++it)
+          ret << VCDValue::VCDBit2Char(*it);
+      }
       break;
     case (VCD_REAL):
-      ret << val -> get_value_real();
+      ret << v.get_value_real();
       break;
     default:
       ILA_ERROR<<"Unknown value type!";
@@ -89,7 +91,7 @@ void CexExtractor::parse_from(const std::string & vcd_file_name, const std::stri
 
   VCDSignalValues * start_sig_vals = trace -> get_signal_value(start_sig_hash);
   VCDTime start_time = -1;
-  for (VCDTimedValue * tv : start_sig_vals) {
+  for (VCDTimedValue * tv : *start_sig_vals) {
     if ( val2str( *(tv -> value) ) == "1" ) {
       start_time = tv -> time;
       break;

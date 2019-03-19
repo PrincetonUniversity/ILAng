@@ -91,6 +91,10 @@ public:
       const target_type_t& target_tp,
       advanced_parameters_t * adv_ptr);
 
+  // --------------------- Destructor ---------------------------- //
+  /// do nothing
+  virtual ~VlgSglTgtGen_Chc();
+
 protected:
   /// Chc problem generate
   Chc_problem _problems;

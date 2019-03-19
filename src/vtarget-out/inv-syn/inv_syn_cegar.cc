@@ -2,7 +2,10 @@
 // Hongce Zhang
 
 #include <ilang/util/log.h>
+#include <ilang/vtarget-out/vtarget_gen_impl.h>
 #include <ilang/vtarget-out/inv-syn/inv_syn_cegar.h>
+
+#include <memory>
 
 namespace ilang {
 
@@ -71,7 +74,7 @@ void InvariantSynthesizerCegar::GenerateVerificationTarget() {
   advanced_parameters_t adv_param;
   adv_param._inv_obj_ptr = &inv_obj; 
   
-  VerilogVerificationTargetGenerator vg(
+  VlgVerifTgtGen vg(
       implementation_incl_path,         // include
       implementation_srcs_path,         // sources
       implementation_top_module_name,   // top_module_name
@@ -108,20 +111,46 @@ void InvariantSynthesizerCegar::ExtractVerificationResult(bool autodet, bool pas
     return;
   }
   // not passing
-  cex_extract = std::make_unique<CexExtractor>(res_file,vlg_mod_inst_name);
+  cex_extract = std::unique_ptr<CexExtractor>(
+    new CexExtractor(res_file,vlg_mod_inst_name));
+  // advance to synthesis stage
+  status = cegar_status::NEXT_S;
 } // extract result
 
 /// to generate synthesis target
 void InvariantSynthesizerCegar::GenerateSynthesisTarget() {
+  // generate a target -- based on selection
+  if (check_in_bad_state()) return;
+  ILA_WARN_IF(status != cegar_status::NEXT_S) << "CEGAR-loop: not expecting synthesis step.";
 
-}
+  // to send in the invariants
+  advanced_parameters_t adv_param;
+  adv_param._inv_obj_ptr = &inv_obj; 
+  adv_param._cex_obj_ptr = cex_extract.get();
+  
+  VlgVerifTgtGen vg(
+      implementation_incl_path,         // include
+      implementation_srcs_path,         // sources
+      implementation_top_module_name,   // top_module_name
+      refinement_variable_mapping_path, // variable mapping
+      refinement_condition_path,        // conditions
+      _output_path,                     // output path
+      _host,                            // ILA
+      verify_backend_selector::YOSYS,   // verification backend setting
+      _vtg_config,                      // target configuration
+      _vlg_config,                      // verilog generator configuration
+      &adv_param                        // advanced parameter
+      );
+  
+  vg.GenerateInvSynTargets(s_backend);
+} // GenerateSynthesisTarget
 /// run Verification
 bool InvariantSynthesizerCegar::RunVerifAuto() {
-
+  return true;
 }
 /// run Synthesis
 bool InvariantSynthesizerCegar::RunSynAuto() {
-
+  return true;
 }
 
 }; // namespace ilang

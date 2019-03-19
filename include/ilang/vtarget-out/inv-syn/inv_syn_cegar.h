@@ -57,10 +57,12 @@ public:
   void GenerateVerificationTarget();
   /// to generate targets using the provided invariants
   void GenerateVerificationTarget(const std::vector<std::string> & invs);
-  /// to extract result 
+  /// to extract verification result 
   void ExtractVerificationResult(bool autodet = true, bool pass = true, const std::string & res_file = "");
   /// to generate synthesis target
   void GenerateSynthesisTarget();
+  /// to extract reachability test result
+  void ExtractSynthesisResult(bool autodet = true, bool reachable = true, const std::string & res_file = "");
   /// run Verification : returns eq true/false
   bool virtual RunVerifAuto();
   /// run Synthesis : returns reachable/not

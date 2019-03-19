@@ -11,6 +11,8 @@
 #include <ilang/vtarget-out/vtarget_gen_impl.h>
 #include <ilang/vtarget-out/vtarget_gen_jasper.h>
 #include <ilang/vtarget-out/vtarget_gen_yosys.h>
+// for invariant synthesis
+#include <ilang/vtarget-out/inv-syn/vtarget_gen_inv_chc.h>
 
 #include <cmath>
 #include <iostream>
@@ -110,6 +112,33 @@ VlgVerifTgtGen::VlgVerifTgtGen(
 VlgVerifTgtGen::~VlgVerifTgtGen() {
   if (vlg_info_ptr)
     delete vlg_info_ptr;
+}
+
+void VlgVerifTgtGen::GenerateInvSynTargets(synthesis_backend_selector s_backend) {
+  if (vlg_info_ptr)
+    delete vlg_info_ptr;
+  
+  vlg_info_ptr = new VerilogInfo(_vlg_impl_include_path, _vlg_impl_srcs,
+                                 _vlg_mod_inst_name, _vlg_impl_top_name);
+  
+  if (vlg_info_ptr == NULL or vlg_info_ptr->in_bad_state()) {
+    ILA_ERROR << "Unable to generate targets. Verilog parser failed.";
+    return; //
+  }
+
+  ILA_ERROR_IF(_backend != backend_selector::YOSYS) ;
+
+  auto target = VlgSglTgtGen_Chc(
+      os_portable_append_dir(_output_path, "inv-syn/"),
+      NULL, // invariant
+      _ila_ptr, _cfg, rf_vmap, rf_cond, vlg_info_ptr, _vlg_mod_inst_name,
+      _ila_mod_inst_name, "wrapper", _vlg_impl_srcs, _vlg_impl_include_path,
+      _vtg_config, _backend, s_backend, target_type_t::INV_SYN_DESIGN_ONLY,
+      _advanced_param_ptr);
+
+  target.ConstructWrapper();
+  target.ExportAll("wrapper.v", "ila.v" /*USELESS*/, "run.sh", "wrapper.smt2",
+                    "absmem.v"  /*USELESS*/);
 }
 
 void VlgVerifTgtGen::GenerateTargets(void) {

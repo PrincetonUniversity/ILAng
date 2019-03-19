@@ -94,7 +94,7 @@ public:
       advanced_parameters_t * adv_ptr);
 
   /// Destructor: do nothing , most importantly it is virtual
-  virtual ~VlgSglTgtGen() {}
+  virtual ~VlgSglTgtGen();
 
 protected:
   // --------------------- MEMBERS ---------------------------- //
@@ -426,6 +426,8 @@ public:
   bool in_bad_state(void) const { return _bad_state; }
   /// get vlg-module instance name
   std::string GetVlgModuleInstanceName() const { return _vlg_mod_inst_name; }
+  /// generate inv-syn target
+  void GenerateInvSynTargets(synthesis_backend_selector s_backend); 
 
 protected:
   /// If it is bad state, return true and display a message
