@@ -42,6 +42,26 @@ std::string prepend(const std::string & prefix, const std::string sig_name ) {
   return prefix + "." + sig_name;
 }
 
+bool in_scope(VCDScope * sc, const std::string & sc_name) {
+  VCDScope * sc_traverse = sc;
+  while(sc_traverse) {
+    if (sc_traverse->name == sc_name)
+      return true;
+    sc_traverse = sc_traverse->parent;
+  }
+  return false;
+}
+
+std::string collect_scope(VCDScope * sc) {
+  std::string ret;
+  while(sc) {
+    ret = sc->name + "." + ret;
+    sc = sc->parent;
+  }
+  return ret;
+}
+
+
 void CexExtractor::parse_from(const std::string & vcd_file_name, const std::string & scope) {
 
   VCDFileParser parser;
@@ -85,17 +105,22 @@ void CexExtractor::parse_from(const std::string & vcd_file_name, const std::stri
 
 
   for ( VCDSignal * sig: *sigs) {
-    if (sig->scope->name != scope)
-      continue;
-    // here we found a signal
+
+    // ensure it is only register
     if (sig->type != VCDVarType::VCD_VAR_REG)
       continue;
-    // ensure it is only register
+
+    // check scope
+    if (not in_scope(sig->scope, scope))
+      continue;
+
+    auto scopes = collect_scope(sig->scope);
+
     std::string val = 
       val2str(
         * ( trace->get_signal_value_at( sig->hash, start_time)));
-
-    cex.insert( std::make_pair( sig->reference, val));
+    
+    cex.insert( std::make_pair( scopes + sig->reference, val));
     
   } // for sig
 

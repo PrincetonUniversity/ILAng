@@ -83,6 +83,12 @@ public:
     enum { UnintepretedFunc, DataSort, BitVec } YosysSmtStateSort;
     /// whether to remove the extra issue cycle and starts from reset
     bool VerificationSettingAvoidIssueStage;
+    // ----------- Options for Z3/FreqHorn Solver -------------- //
+    /// The path to Z3, if "z3" is not in the PATH, default empty
+    std::string Z3Path;
+    /// The path to FreqHorn, if "freqhorn" is not in the PATH, default empty
+    std::string FreqHornPath;
+
 
     /// The default constructor for default values
     _vtg_config()

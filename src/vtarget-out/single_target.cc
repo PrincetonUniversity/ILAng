@@ -56,10 +56,13 @@ VlgSglTgtGen::VlgSglTgtGen(
           VerilogGeneratorBase::VlgGenConfig::funcOption::External, true,
           true)), // rand init
       // interface mapping directive
-      _idr( target_tp == target_type_t::INVARIANTS ? true :
+      _idr( target_tp == target_type_t::INVARIANTS ||
+            target_tp == target_type_t::INV_SYN_DESIGN_ONLY ? true :
             (vtg_config.ForceInstCheckReset ? true : false) ),
       // if checking instruction: by default, we don't reset
-      // but if forced, we do.
+      // but if forced, we do; For the design only thing
+      // we do ensure reset also
+
       // state mapping directive
       _sdr(), // currently no
       // verilog info
@@ -85,7 +88,8 @@ VlgSglTgtGen::VlgSglTgtGen(
   
   ILA_ASSERT(
     target_type == target_type_t::INVARIANTS || 
-    target_type == target_type_t::INSTRUCTIONS 
+    target_type == target_type_t::INSTRUCTIONS ||
+    target_type == target_type_t::INV_SYN_DESIGN_ONLY
     ) << "Implementation bug: unrecognized target type!" ;
 
   // reset absmem's counter
@@ -208,7 +212,8 @@ void VlgSglTgtGen::ConstructWrapper_add_ila_input() {
 } // ConstructWrapper_add_ila_input
 
 std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
-  if (target_type == target_type_t::INVARIANTS )
+  if (target_type == target_type_t::INVARIANTS ||
+      target_type == target_type_t::INV_SYN_DESIGN_ONLY )
     return "";
 
   ILA_ASSERT(vlg_ila.decodeNames.size() == 1)
@@ -607,6 +612,52 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assertions() {
   }
 } // ConstructWrapper_add_varmap_assertions
 
+void VlgSglTgtGen::ConstructWrapper_inv_syn_add_cex_assertion() {
+  ILA_ASSERT(target_type == target_type_t::INV_SYN_DESIGN_ONLY);
+  ILA_ASSERT(_advanced_param_ptr and _advanced_param_ptr->_cex_obj_ptr);
+
+  auto new_cond = ReplExpr(
+    _advanced_param_ptr->_cex_obj_ptr->GenInvAssert(""), true); // force vlg state
+
+  add_an_assertion("~(" + new_cond + ")", "reachability_assert");
+}
+
+void VlgSglTgtGen::ConstructWrapper_inv_syn_add_inv_assumptions() {
+  ILA_ASSERT(target_type == target_type_t::INV_SYN_DESIGN_ONLY);
+
+  std::string precondition; // no condition
+
+  if ( IN("global invariants", rf_cond) 
+    && rf_cond["global invariants"].size() > 0 ) {
+    if (not rf_cond["global invariants"].is_array()) {
+        ILA_ERROR << "'global invariants' field in refinement relation has to be a "
+                    "JSON array.";
+        return;
+    } // type check of global invariants
+    
+    for (auto& cond : rf_cond["global invariants"]) {
+      auto new_cond = ReplExpr(cond.get<std::string>(), true);
+      // inv-syn will ignore the precondition anyway
+      if(_backend == backend_selector::YOSYS)
+        add_a_direct_assumption(new_cond, "invariant_assume"); // without new var added
+      else
+        add_an_assumption(precondition + "(" + new_cond + ")", "invariant_assume");
+    } // for inv in global invariants field
+  } // insert from global invariant
+
+  // check the additional invariants
+  if (_advanced_param_ptr && _advanced_param_ptr->_inv_obj_ptr) {
+    // do you need to provide sub-module instance name?
+    auto new_cond = ReplExpr(
+      _advanced_param_ptr->_inv_obj_ptr->GenerateVlgConstraints(), true);
+
+    ILA_ASSERT(_backend != backend_selector::YOSYS) 
+      << "YOSYS target is for non-cegar-loop invariant synthesis,"
+      << "Please use CHC target instead.";
+    add_an_assumption(precondition + "(" + new_cond + ")", "invariant_assume");
+  } // end of adding additional invariants
+} // ConstructWrapper_inv_syn_add_inv_assumptions
+
 void VlgSglTgtGen::ConstructWrapper_add_inv_assumptions() {
   ILA_ASSERT(target_type == target_type_t::INSTRUCTIONS)
       << "Implementation bug: inv assumpt should only be used when verifying "
@@ -674,7 +725,7 @@ void VlgSglTgtGen::ConstructWrapper_add_inv_assertions() {
     auto new_cond = ReplExpr(cond.get<std::string>(), true); // force vlg state
     add_an_assertion("(" + new_cond + ")", "invariant_assert");
   }
-}
+} // ConstructWrapper_add_inv_assertions
 
 void VlgSglTgtGen::ConstructWrapper_add_additional_mapping_control() {
   if (IN("mapping control", rf_vmap)) {
@@ -725,8 +776,7 @@ void VlgSglTgtGen::ConstructWrapper_add_condition_signals() {
   // __ENDFLUSH__ == (end flush condition ) && ENDED
   // flush : !( __ISSUE__ ? || __START__ || __STARTED__ ) |-> flush
 
-  if (target_type == target_type_t::INVARIANTS )
-    return;
+  ILA_ASSERT (target_type == target_type_t::INSTRUCTIONS );
   // we don't need additional signals, just make reset drives the design
 
   // find the instruction
@@ -1029,7 +1079,8 @@ void VlgSglTgtGen::ConstructWrapper_add_uf_constraints() {
 // for invariants or for instruction
 void VlgSglTgtGen::ConstructWrapper() {
   ILA_ASSERT(target_type == target_type_t::INVARIANTS ||
-             target_type == target_type_t::INSTRUCTIONS  );
+             target_type == target_type_t::INSTRUCTIONS || 
+             target_type == target_type_t::INV_SYN_DESIGN_ONLY );
 
   if (bad_state_return())
     return;
@@ -1068,7 +1119,10 @@ void VlgSglTgtGen::ConstructWrapper() {
   } else if (target_type == target_type_t::INVARIANTS) {
     ConstructWrapper_add_inv_assertions();
     max_bound = _vtg_config.MaxBound;
-  } 
+  } else if (target_type == target_type_t::INV_SYN_DESIGN_ONLY) {
+    ConstructWrapper_inv_syn_add_inv_assumptions();
+    ConstructWrapper_inv_syn_add_cex_assertion();
+  }
   
   ILA_DLOG("VtargetGen") << "STEP:" << 6;
   // 4. additional mapping if any
@@ -1076,7 +1130,8 @@ void VlgSglTgtGen::ConstructWrapper() {
 
   ILA_DLOG("VtargetGen") << "STEP:" << 7;
   // if invariants, will do nothing
-  ConstructWrapper_add_condition_signals();
+  if (target_type == target_type_t::INSTRUCTIONS)
+    ConstructWrapper_add_condition_signals();
 
   ILA_DLOG("VtargetGen") << "STEP:" << 8;
 

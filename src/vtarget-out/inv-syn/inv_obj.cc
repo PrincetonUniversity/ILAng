@@ -23,7 +23,7 @@ void InvariantObject::AddInvariantFromVerilog(const std::string & tag, const std
 }
 /// generate invariants
 std::string InvariantObject::GenerateVlgConstraints() const {
-
+    return "`true";
 }
 
 }; // namespace ilang

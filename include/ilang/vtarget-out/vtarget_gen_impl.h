@@ -233,6 +233,11 @@ protected:
   void ConstructWrapper_add_helper_memory();
   /// Add buffers and assumption/assertions about the
   void ConstructWrapper_add_uf_constraints();
+  // -------------------------------------------------------------------------
+  /// Add invariants as assumptions -- for invariant-synthesis
+  void ConstructWrapper_inv_syn_add_inv_assumptions();
+  /// Add reachability assertions   -- for invariant-synthesis
+  void ConstructWrapper_inv_syn_add_cex_assertion();
 
 protected:
   /// get the ila module instantiation string
