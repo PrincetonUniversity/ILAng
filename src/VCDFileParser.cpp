@@ -29,6 +29,7 @@ VCDFile * VCDFileParser::parse_file(const std::string &filepath) {
     this -> fh -> root_scope = new VCDScope;
     this -> fh -> root_scope -> name = std::string("$root");
     this -> fh -> root_scope -> type = VCD_SCOPE_ROOT;
+    this -> fh -> root_scope -> parent = nullptr;
     
     this -> scopes.push(this -> fh -> root_scope);
     

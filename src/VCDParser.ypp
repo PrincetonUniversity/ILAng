@@ -150,6 +150,9 @@ declaration_command :
     new_signal -> reference = $5;
 
     VCDScope * scope = driver.scopes.top();
+    
+    new_signal -> scope     = scope;
+
     scope -> signals.push_back(new_signal);
 
     driver.fh -> add_signal(new_signal);

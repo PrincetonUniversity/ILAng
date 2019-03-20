@@ -74,7 +74,11 @@ void VCDFile::add_signal(
 VCDScope * VCDFile::get_scope(
     VCDScopeName name
 ){
-        return nullptr;
+    for (auto && sc : this->scopes) {
+        if (sc->name == name)
+            return sc;
+    }
+    return nullptr;
 }
 
 
