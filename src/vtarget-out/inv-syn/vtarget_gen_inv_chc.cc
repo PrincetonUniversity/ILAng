@@ -18,6 +18,51 @@ namespace ilang {
 #define VLG_TRUE "`true"
 #define VLG_FALSE "`false"
 
+// initialize templates
+std::string chcGenerateSmtScript_wo_Array = R"***(
+hierarchy -check
+proc
+opt
+opt_expr -mux_undef
+opt
+opt
+memory -nordff
+proc
+opt;;
+)***";
+
+std::string chcGenerateSmtScript_wo_Array_flatten = R"***(
+hierarchy -check
+proc
+opt
+opt_expr -mux_undef
+opt
+opt
+flatten;
+memory -nordff
+proc
+opt;;
+)***";
+
+// should not be used
+std::string chcGenerateSmtScript_w_Array = R"***(
+hierarchy -check
+proc
+opt
+opt_expr -mux_undef
+opt
+opt
+memory_dff -wr_only
+memory_collect;
+
+memory_unpack
+splitnets -driver
+opt;;
+memory_collect;
+pmuxtree
+proc
+opt;;
+)***";
 
 std::string inv_syn_tmpl_datatypes = R"***(
 ;----------------------------------------
@@ -41,9 +86,23 @@ std::string inv_syn_tmpl_datatypes = R"***(
 
 ; to do : no 
 
-(rule (=> (and (|%1%_n rst| |__BI__|) (|%1%_t| |__BI__| |__I__|)) (INV |__I__|)))
-(rule (=> (and (INV |__S__|) (|%1%_t| |__S__| |__S'__|)) (INV |__S'__|)))
-(rule (=> (and (INV |__S__|) (not (|%1%_a| |__S__|))) fail))
+(rule (=> (and 
+  (|%1%_n rst| |__BI__|) 
+  (|%1%_h| |__BI__|)
+  (|%1%_h| |__I__|)
+  (|%1%_t| |__BI__| |__I__|))
+  (INV |__I__|)))
+(rule (=> (and 
+  (INV |__S__|) 
+  (|%1%_h| |__S__|)
+  (|%1%_h| |__S'__|)
+  (|%1%_t| |__S__| |__S'__|)) 
+  (INV |__S'__|)))
+(rule (=> (and 
+  (INV |__S__|) 
+  (|%1%_h| |__S__|)
+  (not (|%1%_a| |__S__|)))
+  fail))
 
 (query fail :print-certificate true)
 
@@ -130,38 +189,6 @@ VlgSglTgtGen_Chc::VlgSglTgtGen_Chc(
       sbackend == synthesis_backend_selector::Z3
       ) << "Unknown synthesis backend:" << sbackend;
 
-// initialize templates
-chcGenerateSmtScript_wo_Array = R"***(
-hierarchy -check
-proc
-opt
-opt_expr -mux_undef
-opt
-opt
-memory -nordff
-proc
-opt;;
-)***";
-
-// should not be used
-chcGenerateSmtScript_w_Array = R"***(
-hierarchy -check
-proc
-opt
-opt_expr -mux_undef
-opt
-opt
-memory_dff -wr_only
-memory_collect;
-
-memory_unpack
-splitnets -driver
-opt;;
-memory_collect;
-pmuxtree
-proc
-opt;;
-)***";
                     }
 
 
@@ -448,8 +475,10 @@ void VlgSglTgtGen_Chc::convert_smt_to_chc(const std::string & smt_fname, const s
   if (s_backend == synthesis_backend_selector::FreqHorn) {
     smt_rewriter.BreakDatatypes();
     //smt_rewriter.AddNoChangeStateUpdateFunction();
+    smt_converted = smt_rewriter.Export();
+  } else if (s_backend == synthesis_backend_selector::Z3) {
+    smt_converted = ibuf.str();
   }
-  smt_converted = smt_rewriter.Export();
 
   std::string wrapper_mod_name = smt_rewriter.get_module_def_orders().back();
   // construct the template

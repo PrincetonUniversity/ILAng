@@ -2,6 +2,7 @@
 // ---Hongce Zhang
 
 #include <ilang/util/log.h>
+#include <ilang/util/container_shortcut.h>
 #include <ilang/util/str_util.h>
 #include <ilang/vtarget-out/inv-syn/cex_extract.h>
 
@@ -64,7 +65,10 @@ std::string collect_scope(VCDScope * sc) {
 }
 
 
-void CexExtractor::parse_from(const std::string & vcd_file_name, const std::string & scope) {
+void CexExtractor::parse_from(const std::string & vcd_file_name, 
+  const std::string & scope, is_reg_t is_reg) {
+
+  cex.clear();
 
   VCDFileParser parser;
   VCDFile * trace = parser.parse_file(vcd_file_name);
@@ -73,6 +77,8 @@ void CexExtractor::parse_from(const std::string & vcd_file_name, const std::stri
     ILA_ERROR << "Error while reading waveform from: "<< vcd_file_name;
     return;
   }
+
+  ILA_NOT_NULL(trace -> get_scope("$root"));
 
   // determine the start signal time
   std::string start_sig_hash;
@@ -92,7 +98,7 @@ void CexExtractor::parse_from(const std::string & vcd_file_name, const std::stri
   VCDSignalValues * start_sig_vals = trace -> get_signal_value(start_sig_hash);
   VCDTime start_time = -1;
   for (VCDTimedValue * tv : *start_sig_vals) {
-    if ( val2str( *(tv -> value) ) == "1" ) {
+    if ( val2str( *(tv -> value) ) == "1'b1" ) {
       start_time = tv -> time;
       break;
     }
@@ -117,20 +123,42 @@ void CexExtractor::parse_from(const std::string & vcd_file_name, const std::stri
       continue;
 
     auto scopes = collect_scope(sig->scope);
+    auto vlg_name = ReplaceAll(
+      scopes + sig->reference, "$root.", "");
+    
+    std::string check_name = vlg_name;
+    {
+      auto pos = check_name.find('[');
+      if (pos != std::string::npos)
+        check_name = check_name.substr(0,pos);
+    }
+
+    if(not is_reg(check_name) )
+      continue;
+
+    auto vlg_val_ptr = trace->get_signal_value_at( sig->hash, start_time);
+
+    if (vlg_val_ptr == nullptr) {
+      ILA_INFO << "Parsing VCD: " << vlg_name << " gets Xs. Ignored.";
+      continue;
+    }
 
     std::string val = 
       val2str(
-        * ( trace->get_signal_value_at( sig->hash, start_time)));
+        * vlg_val_ptr );
     
-    cex.insert( std::make_pair( scopes + sig->reference, val));
+    cex.insert( std::make_pair( vlg_name, val) );
     
   } // for sig
+
+  ILA_ASSERT(not cex.empty()) << "No counterexample is extracted!";
 
 } // parse_from
 
 
-CexExtractor::CexExtractor(const std::string & vcd_file_name, const std::string & scope) {
-  parse_from(vcd_file_name, scope);
+CexExtractor::CexExtractor(const std::string & vcd_file_name, 
+  const std::string & scope, is_reg_t is_reg) {
+  parse_from(vcd_file_name, scope, is_reg);
 }
 
 // -------------------- MEMBERS ------------------ //

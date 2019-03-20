@@ -622,13 +622,11 @@ void VlgSglTgtGen::ConstructWrapper_inv_syn_add_cex_assertion() {
   auto new_cond = ReplExpr(
     _advanced_param_ptr->_cex_obj_ptr->GenInvAssert(""), true); // force vlg state
 
-  add_an_assertion("~(" + new_cond + ")", "reachability_assert");
+  add_an_assertion("~(" + new_cond + ")", "cex_nonreachable_assert");
 }
 
 void VlgSglTgtGen::ConstructWrapper_inv_syn_add_inv_assumptions() {
   ILA_ASSERT(target_type == target_type_t::INV_SYN_DESIGN_ONLY);
-
-  std::string precondition; // no condition
 
   if ( IN("global invariants", rf_cond) 
     && rf_cond["global invariants"].size() > 0 ) {
@@ -640,11 +638,7 @@ void VlgSglTgtGen::ConstructWrapper_inv_syn_add_inv_assumptions() {
     
     for (auto& cond : rf_cond["global invariants"]) {
       auto new_cond = ReplExpr(cond.get<std::string>(), true);
-      // inv-syn will ignore the precondition anyway
-      if(_backend == backend_selector::YOSYS)
-        add_a_direct_assumption(new_cond, "invariant_assume"); // without new var added
-      else
-        add_an_assumption(precondition + "(" + new_cond + ")", "invariant_assume");
+      add_a_direct_assumption(new_cond, "invariant_assume"); // without new var added
     } // for inv in global invariants field
   } // insert from global invariant
 
@@ -654,10 +648,7 @@ void VlgSglTgtGen::ConstructWrapper_inv_syn_add_inv_assumptions() {
     auto new_cond = ReplExpr(
       _advanced_param_ptr->_inv_obj_ptr->GenerateVlgConstraints(), true);
 
-    ILA_ASSERT(_backend != backend_selector::YOSYS) 
-      << "YOSYS target is for non-cegar-loop invariant synthesis,"
-      << "Please use CHC target instead.";
-    add_an_assumption(precondition + "(" + new_cond + ")", "invariant_assume");
+    add_an_assumption( new_cond , "invariant_assume");
   } // end of adding additional invariants
 } // ConstructWrapper_inv_syn_add_inv_assumptions
 

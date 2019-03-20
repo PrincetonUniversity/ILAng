@@ -6,6 +6,7 @@
 
 #include <string>
 #include <map>
+#include <functional>
 
 namespace ilang {
 
@@ -17,6 +18,9 @@ public:
   typedef std::string vlg_val;
   /// val_name -> val
   typedef std::map<std::string, vlg_val>  cex_t;
+  /// a function to determine if some name is a true signal
+  /// and a register in the original design or not
+  typedef std::function<bool(const std::string &)> is_reg_t;
 
 protected:
   /// the stored cex
@@ -24,14 +28,16 @@ protected:
   /// the helper function to extract info from vcd
   /// for future extension, you can replace this function
   /// to deal with other file format
-  void virtual parse_from(const std::string & vcd_file_name, const std::string & scope);
+  void virtual parse_from(const std::string & vcd_file_name, 
+    const std::string & scope, is_reg_t is_reg);
 
 public:
   // -------------------- CONSTRUCTOR ------------------ //
   /// \brief to specify the input vcd name
   /// and also the scope name (the submodule instance name)
   /// to look at
-  CexExtractor(const std::string & vcd_file_name, const std::string & scope);
+  CexExtractor(const std::string & vcd_file_name, 
+    const std::string & scope, is_reg_t is_reg);
 
   // -------------------- MEMBERS ------------------ //
   /// return a string to be added to the design

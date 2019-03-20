@@ -108,12 +108,6 @@ protected:
   synthesis_backend_selector s_backend;
 
 protected:
-  /// template for generating chc script wo arrays
-  std::string chcGenerateSmtScript_wo_Array;
-  /// template for generating chc script
-  std::string chcGenerateSmtScript_w_Array;
-
-protected:
   /// Add an assumption -- needed by base class
   virtual void add_an_assumption(const std::string& aspt,
                                  const std::string& dspt) override;

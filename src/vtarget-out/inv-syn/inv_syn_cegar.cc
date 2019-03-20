@@ -2,6 +2,7 @@
 // Hongce Zhang
 
 #include <ilang/util/log.h>
+#include <ilang/verilog-in/verilog_analysis.h>
 #include <ilang/vtarget-out/vtarget_gen_impl.h>
 #include <ilang/vtarget-out/inv-syn/inv_syn_cegar.h>
 
@@ -45,15 +46,6 @@ InvariantSynthesizerCegar::InvariantSynthesizerCegar(
     // we need to have the vcd generated
     _vtg_config.CosaGenTraceVcd = true;
     // for other backend, enable similar options
-
-    // Future work : all instructions and re-use
-    // we allow both inv and inst, but you need to specify the instruction
-    if(_vtg_config.CheckThisInstructionOnly.empty()) {
-      ILA_ERROR << "You must specify which instruction to check.";
-      bad_state = true;
-      return;
-    }
-
 
   } // end of constructor
 
@@ -102,17 +94,35 @@ void InvariantSynthesizerCegar::GenerateVerificationTarget(const std::vector<std
 } // to generate targets using the provided invariants
 
 /// to extract result 
-void InvariantSynthesizerCegar::ExtractVerificationResult(bool autodet, bool pass, const std::string & res_file) {
+void InvariantSynthesizerCegar::ExtractVerificationResult(bool autodet, bool pass, 
+  const std::string & res_file, const std::string & mod_inst_name ) {
   ILA_ASSERT(not autodet) << "Future work, not able to auto-determine verify result";
   ILA_WARN_IF(status != cegar_status::V_RES) << "CEGAR-loop: repeated verification step.";
+
+  vlg_mod_inst_name = vlg_mod_inst_name.empty() ? mod_inst_name : vlg_mod_inst_name;
+  if (vlg_mod_inst_name.empty()) {
+    ILA_ERROR << "Instance name in vcd is unknown and not specified";
+    bad_state = true;
+    return;
+  }
 
   if(pass) {
     status = cegar_status::DONE;
     return;
   }
+  // we still need to create a verilog info analyzer
+  VerilogAnalyzer va(
+      implementation_incl_path, implementation_srcs_path,
+      vlg_mod_inst_name, implementation_top_module_name );
+
+  auto is_reg = [&](const std::string & n) {
+    return VerilogAnalyzerBase::is_reg(
+      va.check_hierarchical_name_type(n));
+  };
+
   // not passing
   cex_extract = std::unique_ptr<CexExtractor>(
-    new CexExtractor(res_file,vlg_mod_inst_name));
+    new CexExtractor(res_file,vlg_mod_inst_name, is_reg));
   // advance to synthesis stage
   status = cegar_status::NEXT_S;
 } // extract result

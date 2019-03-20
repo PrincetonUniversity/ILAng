@@ -134,6 +134,8 @@ class VerilogVerificationTargetGenerator {
 public:
   /// Type of the backend
   using backend_selector = VlgVerifTgtGenBase::backend_selector;
+  /// Type of the synthesis backend
+  using synthesis_backend_selector = VlgVerifTgtGenBase::synthesis_backend_selector;
   /// Type of configuration
   using vtg_config_t = VlgVerifTgtGenBase::vtg_config_t;
   /// Type of advanced parameter

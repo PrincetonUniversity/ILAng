@@ -3,8 +3,8 @@
 
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/ilang++.h>
-#include <ilang/synth-interface/synth_engine_interface.h>
 #include <ilang/vtarget-out/vtarget_gen.h>
+#include <ilang/vtarget-out/inv-syn/inv_syn_cegar.h>
 
 #include "unit-include/config.h"
 #include "unit-include/pipe_ila.h"
@@ -156,5 +156,35 @@ TEST(TestVlgVerifInvSyn, PipeExampleCex) {
   vg.GenerateTargets();
 
 }
+
+// This test works uses CEGAR loop
+// This tests uses no extract start cycle
+TEST(TestVlgVerifInvSyn, CegarPipelineExample) {
+  auto ila_model = SimplePipe::BuildModel();
+
+  VerilogVerificationTargetGenerator::vtg_config_t cfg;
+  cfg.CosaAddKeep = false;
+  cfg.VerificationSettingAvoidIssueStage = true;
+
+  auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/vpipe/";
+  auto outDir  = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/inv_syn/vpipe-out4/";
+
+  InvariantSynthesizerCegar vg(
+      {},                          // no include
+      {dirName + "simple_pipe.v"}, //
+      "pipeline_v",                // top_module_name
+      dirName + "rfmap/vmap.json", // variable mapping
+      dirName + "rfmap/cond-noinv.json", outDir, ila_model.get(),
+      VerilogVerificationTargetGenerator::backend_selector::COSA,
+      VerilogVerificationTargetGenerator::synthesis_backend_selector::Z3,
+      cfg);
+
+  EXPECT_FALSE(vg.in_bad_state());
+
+  vg.ExtractVerificationResult(false,false,outDir+"ADD/trace[1]-variable_map_assert.vcd", "m1");
+  vg.GenerateSynthesisTarget();
+}
+
+
 
 }; // namespace ilang
