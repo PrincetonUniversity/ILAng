@@ -163,4 +163,22 @@ bool InvariantSynthesizerCegar::RunSynAuto() {
   return true;
 }
 
+
+void InvariantSynthesizerCegar::ExtractSynthesisResult(bool autodet, bool reachable, 
+  const std::string & res_file) {
+  
+  ILA_ASSERT(not autodet) << "Future work, not able to auto-determine synthesis result";
+  ILA_WARN_IF(status != cegar_status::S_RES) << "CEGAR-loop: expecting synthesis result.";
+
+  if (reachable) {
+    ILA_ERROR << "Verification failed with true counterexample!";
+    status = cegar_status::FAILED;
+    return;
+  }
+
+  // ...
+
+
+} // ExtractSynthesisResult
+
 }; // namespace ilang
