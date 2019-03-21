@@ -22,7 +22,7 @@ namespace smt {
 std::string get_mod_inst_name(const std::string & in) {
   ILA_ASSERT(S_IN(' ',in));
   ILA_ASSERT(in.back() == '|');
-  auto pos = in.find(' ');
+  auto pos = in.find(' ')+1;
   return in.substr(pos, in.length()-pos-1);
 } // get_mod_inst_name
 
@@ -186,9 +186,9 @@ std::string YosysSmtParser::replace_a_body(
               } else if ( IN(pred, current_mod_state_var_idx)) {
                 const auto & st = current_mod_state_var_idx.at(pred);
                 if(st._type._type == var_type::tp::Datatype) {
-                  
                   const auto & mod_full_name = st._type.module_name;
                   auto module_name = get_mod_name(mod_full_name); // | _s|
+                  auto mod_inst_name = get_mod_inst_name(pred);
                   const auto & dt = flatten_datatype[module_name];
 
                   std::vector<std::string> arg_name_vec;
@@ -207,7 +207,7 @@ std::string YosysSmtParser::replace_a_body(
                         if (st_sub.internal_name == outer_pred){
                           auto orig_text = body_text.substr(left,idx+2-left);
                           cached_body_replace.insert(
-                            std::make_pair(orig_text, outer_pred ));
+                            std::make_pair(orig_text, st_name_add_prefix(outer_pred, mod_inst_name + ".") ));
                           special_case = true;
                           break;
                         }
@@ -216,9 +216,9 @@ std::string YosysSmtParser::replace_a_body(
                   } // end special case
 
                   if (not special_case) {
-                  // if found the special case, we will skip the normal 
+                  // if not found to be the special case, we will do the normal 
                     for (auto && arg : dt)
-                      arg_name_vec.push_back(arg.internal_name);
+                      arg_name_vec.push_back( st_name_add_prefix( arg.internal_name, mod_inst_name + "."));
 
                     cached_body_replace.insert(
                       std::make_pair(leaf_text_w_para, Join(arg_name_vec, " ")));
@@ -242,11 +242,14 @@ std::string YosysSmtParser::replace_a_body(
               if(st._type._type == var_type::tp::Datatype) {
                 const auto & mod_full_name = st._type.module_name;
                 auto module_name = get_mod_name(mod_full_name); // | _s|
+                auto mod_inst_name = get_mod_inst_name(pred);
                 const auto & dt = flatten_datatype[module_name];
 
                 std::vector<std::string> arg_name_vec;
                 for (auto && arg : dt)
-                  arg_name_vec.push_back( st_name_add_suffix( arg.internal_name , "_next" ) );
+                  arg_name_vec.push_back( 
+                    st_name_add_prefix(
+                      st_name_add_suffix( arg.internal_name , "_next" ), mod_inst_name + ".") );
 
                 cached_body_replace.insert(
                   std::make_pair(leaf_text_w_para, Join(arg_name_vec, " ")));

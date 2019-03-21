@@ -80,7 +80,11 @@ public:
     /// How to encode Verilog state
     /// DataSort seems to use PDR engine, while bitvec seems Datalog
     /// Not 100% sure of it
-    enum { UnintepretedFunc, DataSort, BitVec } YosysSmtStateSort;
+    enum { 
+      UnintepretedFunc /*not supported*/ , 
+      DataSort, /*by default*/
+      BitVec /*not supported*/
+      } YosysSmtStateSort;
     /// whether to remove the extra issue cycle and starts from reset
     bool VerificationSettingAvoidIssueStage;
     // ----------- Options for Z3/FreqHorn Solver -------------- //
@@ -88,6 +92,10 @@ public:
     std::string Z3Path;
     /// The path to FreqHorn, if "freqhorn" is not in the PATH, default empty
     std::string FreqHornPath;
+    /// Whether to flatten the module hierarchy
+    bool YosysSmtFlattenHierarchy;
+    /// Whether to flatten the datatypes
+    bool YosysSmtFlattenDatatype;
 
 
     /// The default constructor for default values
@@ -102,7 +110,8 @@ public:
           OnlyAssumeUpdatedVarsEq(false), CosaPath(""), CosaPyEnvironment(""),
           CosaSolver(""), CosaGenTraceVcd(true), CosaOtherSolverOptions(""),
           YosysSmtArrayForRegFile(false), YosysSmtStateSort(DataSort),
-          VerificationSettingAvoidIssueStage(false)  {}
+          VerificationSettingAvoidIssueStage(false), YosysSmtFlattenHierarchy(false),
+          YosysSmtFlattenDatatype(false)  {}
   } vtg_config_t;
 
   /// NOTE: this function can be inherited

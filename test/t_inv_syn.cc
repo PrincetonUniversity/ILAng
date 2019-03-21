@@ -130,7 +130,7 @@ TEST(TestVlgVerifInvSyn, PipeExampleDirect) {
 }
 
 
-// This tests uses no extract start cycle
+// This tests has no extra start cycle
 // This test works on wrong implementation
 TEST(TestVlgVerifInvSyn, PipeExampleCex) {
   auto ila_model = SimplePipe::BuildModel();
@@ -157,14 +157,16 @@ TEST(TestVlgVerifInvSyn, PipeExampleCex) {
 
 }
 
-// This test works uses CEGAR loop
-// This tests uses no extract start cycle
+// This test uses CEGAR loop
+// This tests has no extra start cycle
 TEST(TestVlgVerifInvSyn, CegarPipelineExample) {
   auto ila_model = SimplePipe::BuildModel();
 
   VerilogVerificationTargetGenerator::vtg_config_t cfg;
   cfg.CosaAddKeep = false;
   cfg.VerificationSettingAvoidIssueStage = true;
+  cfg.YosysSmtFlattenDatatype = false;
+  cfg.YosysSmtFlattenHierarchy = true;
 
   auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/vpipe/";
   auto outDir  = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/inv_syn/vpipe-out4/";

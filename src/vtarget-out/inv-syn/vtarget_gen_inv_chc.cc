@@ -26,19 +26,7 @@ opt
 opt_expr -mux_undef
 opt
 opt
-memory -nordff
-proc
-opt;;
-)***";
-
-std::string chcGenerateSmtScript_wo_Array_flatten = R"***(
-hierarchy -check
-proc
-opt
-opt_expr -mux_undef
-opt
-opt
-flatten;
+%flatten%
 memory -nordff
 proc
 opt;;
@@ -84,29 +72,35 @@ std::string inv_syn_tmpl_datatypes = R"***(
 (declare-var |__S__| |%1%_s|)
 (declare-var |__S'__| |%1%_s|)
 
-; to do : no 
+; --------------------------------
 
+; init => inv
 (rule (=> (and 
-  (|%1%_n rst| |__BI__|) 
-  (|%1%_h| |__BI__|)
-  (|%1%_h| |__I__|)
+  (|%1%_n rst| |__BI__|)
+  <!>(|%1%_h| |__BI__|)<!>
+  <!>(|%1%_h| |__I__|)<!>
   (|%1%_t| |__BI__| |__I__|))
   (INV |__I__|)))
+
+; inv /\ T => inv
 (rule (=> (and 
   (INV |__S__|) 
-  (|%1%_h| |__S__|)
-  (|%1%_h| |__S'__|)
+  <!>(|%1%_h| |__S__|)<!>
+  <!>(|%1%_h| |__S'__|)<!>
   (|%1%_t| |__S__| |__S'__|)) 
   (INV |__S'__|)))
+
+; inv /\ ~p => \bot
 (rule (=> (and 
   (INV |__S__|) 
-  (|%1%_h| |__S__|)
+  <!>(|%1%_h| |__S__|)<!>
   (not (|%1%_a| |__S__|)))
   fail))
 
 (query fail :print-certificate true)
 
 )***";
+
 
 
 std::string inv_syn_tmpl_wo_datatypes = R"***(
@@ -130,15 +124,35 @@ std::string inv_syn_tmpl_wo_datatypes = R"***(
 ;(declare-var |__S__state| Type)
 ;(declare-var |__S'__state| Type)
 
-; to do : no 
+; same for flattened
 
-(rule (=> (and (|%WrapperName%_n rst| %BIs%) (|%WrapperName%_t| %BIs% %Is%)) (INV %Is%)))
-(rule (=> (and (INV %Ss%) (|%WrapperName%_t| %Ss% %Sps%)) (INV %Sps%)))
-(rule (=> (and (INV %Ss%) (not (|%WrapperName%_a| %Ss%))) fail))
+; init => inv
+(rule (=> (and 
+  (|%WrapperName%_n rst| %BIs%) 
+  <!>(|%WrapperName%_h| %BIs%)<!> 
+  <!>(|%WrapperName%_h| %Is%)<!>
+  (|%WrapperName%_t| %BIs% %Is%)) 
+  (INV %Is%)))
+
+; inv /\ T => inv
+(rule (=> (and 
+  (INV %Ss%) 
+  <!>(|%WrapperName%_h| %Ss%)<!>
+  <!>(|%WrapperName%_h| %Sps%)<!>
+  (|%WrapperName%_t| %Ss% %Sps%)) 
+  (INV %Sps%)))
+
+; inv /\ ~p => \bot
+(rule (=> (and 
+  (INV %Ss%)
+  <!>(|%WrapperName%_h| %Ss%)<!>
+  (not (|%WrapperName%_a| %Ss%))) 
+  fail))
 
 (query fail :print-certificate true)
 
 )***";
+
 
 std::string RewriteDatatypeChc(
   const std::string & tmpl, const std::vector<smt::state_var_t> & dt,
@@ -188,8 +202,11 @@ VlgSglTgtGen_Chc::VlgSglTgtGen_Chc(
       sbackend == synthesis_backend_selector::FreqHorn or
       sbackend == synthesis_backend_selector::Z3
       ) << "Unknown synthesis backend:" << sbackend;
-
-                    }
+    
+    if (sbackend == synthesis_backend_selector::FreqHorn)
+      ILA_ASSERT (vtg_config.YosysSmtFlattenDatatype)
+        << "For FreqHorn, datatype must be flattened!";
+ }
 
 
 void VlgSglTgtGen_Chc::add_wire_assign_assumption(
@@ -265,7 +282,8 @@ void VlgSglTgtGen_Chc::PreExportProcess() {
     const auto& prbname = pbname_prob_pair.first;
     const auto& prob = pbname_prob_pair.second;
     
-    ILA_ASSERT(prbname == "cex_nonreachable_assert"); 
+    ILA_ASSERT(prbname == "cex_nonreachable_assert")
+      << "BUG: assertion can only be cex reachability queries.";
     // sanity check, should only be invariant's related asserts
 
     for (auto&& p: prob.exprs) {
@@ -437,7 +455,9 @@ void VlgSglTgtGen_Chc::design_only_gen_smt(
     ys_script_fout << "read_verilog -sv " 
       << os_portable_append_dir( _output_path , top_file_name ) << std::endl;
     ys_script_fout << "prep -top " << top_mod_name << std::endl;
-    ys_script_fout << chcGenerateSmtScript_wo_Array;
+    ys_script_fout << 
+      ReplaceAll(chcGenerateSmtScript_wo_Array, "%flatten%", 
+        _vtg_config.YosysSmtFlattenHierarchy ? "flatten;" : "");
     ys_script_fout << "write_smt2"<<write_smt2_options 
       << os_portable_append_dir( _output_path, smt_name );   
   } // finish writing
@@ -472,26 +492,38 @@ void VlgSglTgtGen_Chc::convert_smt_to_chc(const std::string & smt_fname, const s
 
   std::string smt_converted;
   smt::YosysSmtParser smt_rewriter(ibuf.str());
-  if (s_backend == synthesis_backend_selector::FreqHorn) {
+  if (_vtg_config.YosysSmtFlattenDatatype) {
     smt_rewriter.BreakDatatypes();
     //smt_rewriter.AddNoChangeStateUpdateFunction();
     smt_converted = smt_rewriter.Export();
-  } else if (s_backend == synthesis_backend_selector::Z3) {
+  } else {
     smt_converted = ibuf.str();
   }
 
   std::string wrapper_mod_name = smt_rewriter.get_module_def_orders().back();
   // construct the template
+
   std::string chc;
-  if (s_backend == synthesis_backend_selector::FreqHorn) {
+  if (_vtg_config.YosysSmtFlattenDatatype) {
     const auto & datatype_top_mod = smt_rewriter.get_module_flatten_dt(wrapper_mod_name);
+    auto tmpl = inv_syn_tmpl_wo_datatypes;
+    tmpl = ReplaceAll(tmpl, "<!>(|%WrapperName%_h| %Ss%)<!>"  ,_vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%WrapperName%_h| %Ss%)" );
+    tmpl = ReplaceAll(tmpl, "<!>(|%WrapperName%_h| %Sps%)<!>" ,_vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%WrapperName%_h| %Sps%)" );
+    tmpl = ReplaceAll(tmpl, "<!>(|%WrapperName%_h| %BIs%)<!>" ,_vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%WrapperName%_h| %BIs%)" );
+    tmpl = ReplaceAll(tmpl, "<!>(|%WrapperName%_h| %Is%)<!>"  ,_vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%WrapperName%_h| %Is%)" );
     chc = RewriteDatatypeChc(
-      inv_syn_tmpl_wo_datatypes,
+      tmpl,
       datatype_top_mod, wrapper_mod_name);
-  } else if (s_backend == synthesis_backend_selector::Z3) {
-    chc = ReplaceAll(inv_syn_tmpl_datatypes,"%1%", wrapper_mod_name);
     chc = ReplaceAll(chc, "%%", smt_converted );
-  } // end of z3 -- no convert
+  } else {
+    chc = inv_syn_tmpl_datatypes;
+    chc = ReplaceAll(chc, "<!>(|%1%_h| |__BI__|)<!>", _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__BI__|)");
+    chc = ReplaceAll(chc, "<!>(|%1%_h| |__I__|)<!>" , _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__I__|)");
+    chc = ReplaceAll(chc, "<!>(|%1%_h| |__S__|)<!>" , _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__S__|)");
+    chc = ReplaceAll(chc, "<!>(|%1%_h| |__S'__|)<!>", _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__S'__|)");
+    chc = ReplaceAll(chc,"%1%", wrapper_mod_name);
+    chc = ReplaceAll(chc, "%%", smt_converted );
+  } // end of ~_vtg_config.YosysSmtFlattenDatatype -- no convert
 
   { // write file
     std::string chc_out_fn = os_portable_append_dir( _output_path , chc_fname);
@@ -540,7 +572,7 @@ std::string RewriteDatatypeChc(
 
   std::set<std::string> name_set; // avoid repetition
   for (auto && st : dt) {
-    auto st_name = st.verilog_name.empty() ? st.internal_name : st.verilog_name;
+    auto st_name = st.verilog_name.back() == '.' || st.verilog_name.empty() ? st.internal_name : st.verilog_name;
     st_name = ReplaceAll(st_name, "|", ""); // remove its ||
     // check no repetition is very important!
     ILA_ASSERT(not IN(st_name, name_set)) << "Bug: name repetition!";

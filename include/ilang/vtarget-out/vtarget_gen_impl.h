@@ -328,8 +328,6 @@ public:
 protected:
   /// If it is bad state, return true and display a message
   bool bad_state_return(void);
-
-private:
   /// If it is in a bad state
   bool _bad_state;
 

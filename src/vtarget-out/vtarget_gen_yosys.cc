@@ -51,6 +51,12 @@ VlgSglTgtGen_Yosys::VlgSglTgtGen_Yosys(
       target_tp == target_type_t::INVARIANTS or
       target_tp == target_type_t::INSTRUCTIONS )
       << "Unknown target type: " << target_tp;
+    
+    ILA_ASSERT(not vtg_config.YosysSmtFlattenHierarchy) 
+      << "Monolithic synthesis requires not to flatten hierarchy";
+
+    ILA_ASSERT(not vtg_config.YosysSmtFlattenDatatype)
+      << "BUG: not implemented, future work.";
 
 // initialize templates
 yosysGenerateSmtScript_wo_Array = R"***(
