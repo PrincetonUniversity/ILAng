@@ -185,6 +185,31 @@ std::string line_comment::toString() const {
   return comment;
 }
 
+
+bool var_type::eqtype(const var_type & l, const var_type & r) {
+  if (l._type == tp::Bool) {
+    if (r._type == tp::Bool)
+      return true;
+    return false;
+  } else if (l._type == tp::BV) {
+    if (r._type == tp::BV && l._width == r._width)
+      return true;
+    return false;
+  }
+  // else datatype
+  return l.module_name == r.module_name;
+}
+// ------------- CONSTRUCTOR ---------------- //
+// default constructor
+var_type::var_type() {}
+// complete constructor
+var_type::var_type(tp vtype, unsigned width, const std::string mod_name ) :
+  _type(vtype), _width(width), module_name(mod_name) {}
+// copy constructor
+var_type:: var_type(const var_type & vp) :
+  _type(vp._type), _width(vp._width), module_name(vp.module_name) {}
+
+
 var_type var_type::ParseFromString(str_iterator & it) {
   var_type ret;
 

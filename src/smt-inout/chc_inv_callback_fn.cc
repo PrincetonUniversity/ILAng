@@ -70,9 +70,9 @@ smtlib2_sort proxy_make_sort(smtlib2_parser_interface *p,
   smtlib2_sort ret = (smtlib2_sort) (
     ((smtlib2_abstract_parser_wrapper *) p)->inv_parser->make_sort(
       sortname,idxv));
-  free((void *)sortname);
-  if(index)
-    smtlib2_vector_delete(index);  
+  // free((void *)sortname);
+  // if(index)
+  //   smtlib2_vector_delete(index);  
   // free the content?
 }
 
@@ -82,7 +82,7 @@ void proxy_declare_variable(smtlib2_parser_interface *p,
                                               smtlib2_sort sort) {
   ((smtlib2_abstract_parser_wrapper *) p)->inv_parser->declare_quantified_variable(
     name, (var_type *) sort);
-  free((void *)name);
+  // free((void *)name);
 }
 
 
@@ -97,11 +97,11 @@ smtlib2_term proxy_mk_function(smtlib2_context ctx,
   smtlib2_term ret = (smtlib2_term) (
     ((smtlib2_abstract_parser_wrapper *) ctx)->inv_parser->mk_function(
       symbol, (var_type *) sort, idxv, argsv));
-  free(symbol);
-  if(index)
-    smtlib2_vector_delete(index);
-  if(args)
-    smtlib2_vector_delete(args);
+  // free(symbol);
+  // if(index)
+  //   smtlib2_vector_delete(index);
+  // if(args)
+  //   smtlib2_vector_delete(args);
   return ret;
 }
 
@@ -112,7 +112,7 @@ smtlib2_term proxy_mk_number(smtlib2_context ctx,
   smtlib2_term ret = (smtlib2_term) (
     ((smtlib2_abstract_parser_wrapper *) ctx)->inv_parser->mk_number(
       rep, width, base));
-  free(rep);
+  // free(rep);
   return ret;
 }
                                   
@@ -126,18 +126,16 @@ smtlib2_term smt_to_vlg_mk_##name ( \
   auto idxv = make_vector<int>(idx); \
   auto argsv = make_vector<SmtTermInfoVlgPtr>(args); \
   smtlib2_term ret = (smtlib2_term) ( \
-    ((smtlib2_abstract_parser_wrapper *) ctx)->inv_parser->name( \
+    ((smtlib2_abstract_parser_wrapper *) ctx)->inv_parser->mk_##name ( \
       symbol, (var_type *) sort,  \
-      midxv, argsv ) ); \
-  free(symbol); \
-  if(idx) \
-    smtlib2_vector_delete(idx); \
-  if(args) \
-    smtlib2_vector_delete(args); \
+      idxv, argsv ) ); \
   return ret; \
 }
 
 // handle the operators
+SMTLIB2_VERILOG_DEFHANDLER(true);
+SMTLIB2_VERILOG_DEFHANDLER(false);
+
 SMTLIB2_VERILOG_DEFHANDLER(and);
 SMTLIB2_VERILOG_DEFHANDLER(or);
 SMTLIB2_VERILOG_DEFHANDLER(not);
@@ -176,6 +174,7 @@ SMTLIB2_VERILOG_DEFHANDLER(bvshl);
 SMTLIB2_VERILOG_DEFHANDLER(bvlshr);
 SMTLIB2_VERILOG_DEFHANDLER(bvashr);
 SMTLIB2_VERILOG_DEFHANDLER(extract);
+SMTLIB2_VERILOG_DEFHANDLER(bit2bool);
 SMTLIB2_VERILOG_DEFHANDLER(repeat);
 SMTLIB2_VERILOG_DEFHANDLER(zero_extend);
 SMTLIB2_VERILOG_DEFHANDLER(sign_extend);

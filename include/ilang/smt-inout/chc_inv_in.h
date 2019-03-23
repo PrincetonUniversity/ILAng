@@ -37,7 +37,13 @@ struct SmtTermInfo{
   /// the type uptill now
   var_type _type;
   /// the context -- all predefined datatypes/predicates/functions
-  YosysSmtParser * _context;
+  SmtlibInvariantParser * _context;
+  // --------------- CONSTRUCTOR -------------- //
+  /// default constructor
+  SmtTermInfo() {}
+  /// complete constructor
+  SmtTermInfo(const T & trans, const var_type & p, SmtlibInvariantParser * c ) :
+    _translate(trans), _type(p), _context(c) {}
 }; // struct SmtContext
 
 /// For verilog, it will be just std::string
@@ -61,9 +67,12 @@ public:
   typedef std::vector<quantifier_temp_def_t> quantifier_def_stack_t;
   /// the sort container
   typedef std::map<std::string,var_type> sort_container_t;
+  /// the container of temporary variables
+  typedef std::map<std::string, SmtTermInfoVerilog> local_vars_t;
+  
 public:
   // -------------- CONSTRUCTOR ------------------- //
-  SmtlibInvariantParser();
+  SmtlibInvariantParser(YosysSmtParser * yosys_smt_info, bool _flatten_datatype, bool _flatten_hierarchy);
   /// no copy constructor
   SmtlibInvariantParser(const SmtlibInvariantParser &) = delete;
   /// no assignment
@@ -84,6 +93,20 @@ protected:
   sort_container_t sort_container;
   /// the temporary def stacks
   quantifier_def_stack_t quantifier_def_stack;
+  /// to hold the local variables
+  local_vars_t local_vars;
+  /// a counter to get local variable name
+  std::string get_a_new_local_var_name();
+  /// the idx to it
+  unsigned local_var_idx;
+
+  /// a pointer to get the knowlege of the context
+  YosysSmtParser * design_smt_info_ptr;
+  /// whether we are on a design w. datatype flattened
+  bool datatype_flattened;
+  /// whether we are on a design w. hierarchy flattened
+  bool hierarchy_flattened;
+
   /// bad state
   bool _bad_state;
   /// If it is bad state, return true and display a message
@@ -114,6 +137,10 @@ public:
 #define DECLARE_OPERATOR(name) \
   SmtTermInfoVlgPtr mk_##name(const std::string & symbol, var_type * sort, \
     const std::vector<int> & idx, const std::vector<SmtTermInfoVlgPtr> & args) 
+
+  // I hope it will expand lexically
+  DECLARE_OPERATOR(true);
+  DECLARE_OPERATOR(false);
 
   DECLARE_OPERATOR(and);
   DECLARE_OPERATOR(or);
@@ -153,6 +180,7 @@ public:
   DECLARE_OPERATOR(bvlshr);
   DECLARE_OPERATOR(bvashr);
   DECLARE_OPERATOR(extract);
+  DECLARE_OPERATOR(bit2bool);
   DECLARE_OPERATOR(repeat);
   DECLARE_OPERATOR(zero_extend);
   DECLARE_OPERATOR(sign_extend);

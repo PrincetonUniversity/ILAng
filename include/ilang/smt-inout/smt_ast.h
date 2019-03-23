@@ -93,6 +93,17 @@ namespace smt{
     std::string toString() const;
     /// convert a vec of var_type to string (used in declare-fun/var)
     static std::string toString(const std::vector<var_type> &);
+    // ------------- MEMBER ---------------- //
+    /// whether the types are the same
+    static bool eqtype(const var_type & l, const var_type & r);
+    // ------------- CONSTRUCTOR ---------------- //
+    // default constructor
+    var_type();
+    // complete constructor
+    var_type(tp vtype, unsigned width, const std::string mod_name );
+    // copy constructor
+    var_type(const var_type & vp);
+
   }; // struct var_type
 
   /// and item in declare-datatype
