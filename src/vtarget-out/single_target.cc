@@ -645,10 +645,15 @@ void VlgSglTgtGen::ConstructWrapper_inv_syn_add_inv_assumptions() {
   // check the additional invariants
   if (_advanced_param_ptr && _advanced_param_ptr->_inv_obj_ptr) {
     // do you need to provide sub-module instance name?
-    auto new_cond = ReplExpr(
-      _advanced_param_ptr->_inv_obj_ptr->GenerateVlgConstraints(), true);
-
-    add_an_assumption( new_cond , "invariant_assume");
+    for (auto && name_expr_pair : _advanced_param_ptr->_inv_obj_ptr->GetExtraVarDefs() ){
+      vlg_wrapper.add_wire(name_expr_pair.first, 1, true);
+      vlg_wrapper.add_assign_stmt(name_expr_pair.first, 
+        ReplExpr(name_expr_pair.second, true) );
+    }
+    for (auto && inv_expr : _advanced_param_ptr->_inv_obj_ptr->GetVlgConstraints) {
+      auto new_cond = ReplExpr( inv_expr, true );
+      add_an_assumption( new_cond , "invariant_assume");
+    }
   } // end of adding additional invariants
 } // ConstructWrapper_inv_syn_add_inv_assumptions
 
@@ -685,13 +690,20 @@ void VlgSglTgtGen::ConstructWrapper_add_inv_assumptions() {
   // check the additional invariants
   if (_advanced_param_ptr && _advanced_param_ptr->_inv_obj_ptr) {
     // do you need to provide sub-module instance name?
-    auto new_cond = ReplExpr(
-      _advanced_param_ptr->_inv_obj_ptr->GenerateVlgConstraints(), true);
 
     ILA_ASSERT(_backend != backend_selector::YOSYS) 
       << "YOSYS target is for non-cegar-loop invariant synthesis,"
       << "Please use CHC target instead.";
-    add_an_assumption(precondition + "(" + new_cond + ")", "invariant_assume");
+
+    for (auto && name_expr_pair : _advanced_param_ptr->_inv_obj_ptr->GetExtraVarDefs() ){
+      vlg_wrapper.add_wire(name_expr_pair.first, 1, true);
+      vlg_wrapper.add_assign_stmt(name_expr_pair.first, 
+        ReplExpr(name_expr_pair.second, true) );
+    }
+    for (auto && inv_expr : _advanced_param_ptr->_inv_obj_ptr->GetVlgConstraints) {
+      auto new_cond = ReplExpr( inv_expr, true );
+      add_an_assumption( precondition + "(" + new_cond + ")" , "invariant_assume");
+    }
   } // end of adding additional invariants
 } // ConstructWrapper_add_inv_assumptions
 
