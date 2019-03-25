@@ -650,7 +650,7 @@ void VlgSglTgtGen::ConstructWrapper_inv_syn_add_inv_assumptions() {
       vlg_wrapper.add_assign_stmt(name_expr_pair.first, 
         ReplExpr(name_expr_pair.second, true) );
     }
-    for (auto && inv_expr : _advanced_param_ptr->_inv_obj_ptr->GetVlgConstraints) {
+    for (auto && inv_expr : _advanced_param_ptr->_inv_obj_ptr->GetVlgConstraints()) {
       auto new_cond = ReplExpr( inv_expr, true );
       add_an_assumption( new_cond , "invariant_assume");
     }
@@ -700,7 +700,7 @@ void VlgSglTgtGen::ConstructWrapper_add_inv_assumptions() {
       vlg_wrapper.add_assign_stmt(name_expr_pair.first, 
         ReplExpr(name_expr_pair.second, true) );
     }
-    for (auto && inv_expr : _advanced_param_ptr->_inv_obj_ptr->GetVlgConstraints) {
+    for (auto && inv_expr : _advanced_param_ptr->_inv_obj_ptr->GetVlgConstraints()) {
       auto new_cond = ReplExpr( inv_expr, true );
       add_an_assumption( precondition + "(" + new_cond + ")" , "invariant_assume");
     }

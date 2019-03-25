@@ -203,7 +203,7 @@ var_type * SmtlibInvariantParser::make_sort(const std::string &name, const std::
     return nullptr; // should not be reachable
   } else {
     // if not flattened, there should only be one sort
-    auto top_module = design_smt_info_ptr->get_module_def_orders.back();
+    auto top_module = design_smt_info_ptr->get_module_def_orders().back();
     auto top_module_sort = "|" + top_module+"_s|";
     ILA_ASSERT(name == top_module_sort) 
       << "Unknown sort:" << name << " in unflattened smt."
@@ -226,7 +226,7 @@ void SmtlibInvariantParser::declare_quantified_variable(const std::string &name,
   auto top = quantifier_def_stack.back();
   if (datatype_flattened) {
     // we need to extract the name from verilog
-    auto top_module = design_smt_info_ptr->get_module_def_orders.back();
+    auto top_module = design_smt_info_ptr->get_module_def_orders().back();
     auto vlg_name = ( 
       design_smt_info_ptr->get_module_flatten_dt(top_module)
       [quantifier_var_def_idx_stack.back()])

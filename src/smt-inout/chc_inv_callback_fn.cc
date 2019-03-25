@@ -22,9 +22,9 @@ std::vector<T> make_vector(smtlib2_vector *iv) {
 
   auto l = SMTLIB2_VECTOR_SIZE(iv);
   ret.reserve(l);
-  T * ptr = SMTLIB2_VECTOR_ARRAY(iv);
+  intptr_t * ptr = SMTLIB2_VECTOR_ARRAY(iv);
   for (decltype(l) idx = 0; idx < l ; ++ idx)
-    ret[idx] = ptr[idx];
+    ret[idx] = (T) (ptr[idx]);
   return ret;
 }
 

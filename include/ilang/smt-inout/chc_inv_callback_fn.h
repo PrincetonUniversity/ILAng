@@ -11,10 +11,6 @@
 #include <ilang/smt-inout/chc_inv_in.h>
 
 
-extern "C" {
-#include "smtlib2abstractparser_private.h"
-}
-
 
 namespace ilang {
 namespace smt {

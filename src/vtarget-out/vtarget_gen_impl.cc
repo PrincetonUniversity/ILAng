@@ -123,7 +123,7 @@ std::shared_ptr<smt::YosysSmtParser> VlgVerifTgtGen::GenerateInvSynTargets(synth
   
   if (vlg_info_ptr == NULL or vlg_info_ptr->in_bad_state()) {
     ILA_ERROR << "Unable to generate targets. Verilog parser failed.";
-    return; //
+    return nullptr; //
   }
 
   ILA_ERROR_IF(_backend != backend_selector::YOSYS) ;
@@ -139,7 +139,7 @@ std::shared_ptr<smt::YosysSmtParser> VlgVerifTgtGen::GenerateInvSynTargets(synth
   target.ConstructWrapper();
   target.ExportAll("wrapper.v", "ila.v" /*USELESS*/, "run.sh", "wrapper.smt2",
                     "absmem.v"  /*USELESS*/);
-                    
+
   return target.GetDesignSmtInfo();
 }
 
