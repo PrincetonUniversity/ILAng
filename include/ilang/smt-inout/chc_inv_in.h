@@ -81,6 +81,18 @@ public:
   // -------------- DESTRUCTOR ------------------- //
   ~SmtlibInvariantParser();
 
+  // -------------- METHODS ------------------- //
+  // parse from a file, we will add something there to make
+  // if sat --> failed (return false)
+  // if unsat --> add the (assert ...)
+  bool ParseInvResultFromFile(const std::string & fname);
+  // parse from a string: assume we have the (assert ...) there
+  void ParseSmtResultFromString(const std::string & text);
+  /// get the translate result
+  std::string GetFinalTranslateResult() const;
+  /// get the local variable definitions
+  const local_vars_t & GetLocalVarDefs() const;
+
 protected:
   // ----------------- MEMBERS ------------------- //
   /// the parser interface
@@ -100,7 +112,7 @@ protected:
   /// a counter to get local variable name
   std::string get_a_new_local_var_name();
   /// the idx to it
-  unsigned local_var_idx;
+  static unsigned local_var_idx;
   /// the final translated result
   std::string final_translate_result;
 

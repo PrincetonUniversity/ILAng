@@ -7,17 +7,24 @@
 #include <ilang/smt-inout/chc_inv_in.h>
 #include <ilang/smt-inout/chc_inv_callback_fn.h>
 
+#include <fstream>
+#include <cstdio>
+
 namespace ilang {
 namespace smt {
 
 
 // -------------- SmtlibInvariantParser ---------------- //
 
+// we need to make sure this variable is shared
+// and it is globally unique... so when invoking
+// we can won't have multiple var with the same name
+unsigned SmtlibInvariantParser::local_var_idx = 0;
+
 SmtlibInvariantParser::SmtlibInvariantParser(YosysSmtParser * yosys_smt_info,
   bool _flatten_datatype, bool _flatten_hierarchy) :
 
   parser_wrapper(new smtlib2_abstract_parser_wrapper()),
-  local_var_idx(0),
   design_smt_info_ptr(yosys_smt_info),
   datatype_flattened(_flatten_datatype), hierarchy_flattened(_flatten_hierarchy),
   _bad_state(false) {
@@ -67,6 +74,7 @@ SmtlibInvariantParser::SmtlibInvariantParser(YosysSmtParser * yosys_smt_info,
   // forall (A ())  make_sort -- declare_variable  -- push_quantifier_scope
   //
   //
+  pi->assert_formula = proxy_assert_formula;
   pi->make_forall_term = proxy_make_forall_term;
   pi->make_exists_term = proxy_make_exists_term;
   pi->push_quantifier_scope = proxy_push_quantifier_scope;
@@ -776,5 +784,51 @@ DEFINE_OPERATOR(rotate_right) {
 }
 
 #undef DEFINE_OPERATOR
+
+
+// ---------------------- METHODS ------------------------- //
+
+// parse from a file, we will add something there to make
+// if sat --> failed (return false)
+// if unsat --> add the (assert ...)
+bool SmtlibInvariantParser::ParseInvResultFromFile(const std::string & fname) {
+  std::ifstream fin(fname);
+  char result[11];
+  fin.getline(result, 10 );
+  if (result != std::string("unsat") )
+    return false; // unknown result, possibly failed
+
+  std::stringstream sbuf;
+  sbuf << "(assert ";
+  sbuf << fin.rdbuf();
+  sbuf << ")";
+  ParseSmtResultFromString(sbuf.str());
+  return true;
+}
+// parse from a string: assume we have the (assert ...) there
+void SmtlibInvariantParser::ParseSmtResultFromString(const std::string & text) {
+  auto len = text.size()+1;
+  char * buffer = new char[len];
+  strncpy(buffer,text.c_str(),len);
+  ILA_ASSERT(buffer[len-1] == '\0');
+  std::FILE * fp = fmemopen((void * )buffer, len * sizeof(char), "r" );
+
+  smtlib2_abstract_parser_parse((smtlib2_abstract_parser *) parser_wrapper, fp);
+
+  fclose(fp);
+  delete [] buffer;
+}
+
+
+std::string SmtlibInvariantParser::GetFinalTranslateResult() const {
+  return final_translate_result;
+}
+/// get the local variable definitions
+const SmtlibInvariantParser::local_vars_t & 
+SmtlibInvariantParser::GetLocalVarDefs() const {
+  return local_vars;
+}
+
+
 }; // namespace smt
 }; // namespace ilang
