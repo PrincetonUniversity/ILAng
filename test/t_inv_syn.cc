@@ -185,6 +185,8 @@ TEST(TestVlgVerifInvSyn, CegarPipelineExample) {
 
   vg.ExtractVerificationResult(false,false,outDir+"ADD/trace[1]-variable_map_assert.vcd", "m1");
   vg.GenerateSynthesisTarget();
+  // we
+  vg.ExtractSynthesisResult(false,false,outDir+"ADD/z3_res.txt");
 }
 
 

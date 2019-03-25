@@ -18,13 +18,16 @@
 
 #include "nlohmann/json.hpp"
 #include <ilang/ila/instr_lvl_abs.h>
+#include <ilang/smt-inout/yosys_smt_parser.h>
 #include <ilang/verilog-in/verilog_analysis_wrapper.h>
 #include <ilang/verilog-out/verilog_gen.h>
 #include <ilang/vtarget-out/directive.h>
 #include <ilang/vtarget-out/var_extract.h>
 #include <ilang/vtarget-out/vtarget_gen.h>
+
 #include <list>
 #include <map>
+#include <memory>
 #include <unordered_map>
 #include <vector>
 
@@ -425,7 +428,7 @@ public:
   /// get vlg-module instance name
   std::string GetVlgModuleInstanceName() const { return _vlg_mod_inst_name; }
   /// generate inv-syn target
-  void GenerateInvSynTargets(synthesis_backend_selector s_backend); 
+  std::shared_ptr<smt::YosysSmtParser> GenerateInvSynTargets(synthesis_backend_selector s_backend); 
 
 protected:
   /// If it is bad state, return true and display a message

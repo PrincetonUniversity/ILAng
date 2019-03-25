@@ -89,7 +89,7 @@ void InvariantSynthesizerCegar::GenerateVerificationTarget() {
 /// to generate targets using the provided invariants
 void InvariantSynthesizerCegar::GenerateVerificationTarget(const std::vector<std::string> & invs) {
   for(auto && inv : invs)
-    inv_obj.AddInvariantFromVerilog(std::to_string(round_id), inv);
+    inv_obj.AddInvariantFromVerilogExpr(std::to_string(round_id), inv);
   GenerateVerificationTarget();
 } // to generate targets using the provided invariants
 
@@ -152,7 +152,7 @@ void InvariantSynthesizerCegar::GenerateSynthesisTarget() {
       &adv_param                        // advanced parameter
       );
   
-  vg.GenerateInvSynTargets(s_backend);
+  design_smt_info = vg.GenerateInvSynTargets(s_backend);
 } // GenerateSynthesisTarget
 /// run Verification
 bool InvariantSynthesizerCegar::RunVerifAuto() {
@@ -170,14 +170,22 @@ void InvariantSynthesizerCegar::ExtractSynthesisResult(bool autodet, bool reacha
   ILA_ASSERT(not autodet) << "Future work, not able to auto-determine synthesis result";
   ILA_WARN_IF(status != cegar_status::S_RES) << "CEGAR-loop: expecting synthesis result.";
 
+  if (design_smt_info == nullptr) {
+    ILA_ERROR << "Design SMT-LIB2 info is not available. "
+      << "You need to run `GenerateSynthesisTarget` first.";
+    return;
+  }
+
   if (reachable) {
     ILA_ERROR << "Verification failed with true counterexample!";
     status = cegar_status::FAILED;
     return;
   }
 
-  // ...
-
+  inv_obj.AddInvariantFromChcResultFile(
+    *design_smt_info, "", res_file, 
+    _vtg_config.YosysSmtFlattenDatatype,
+    _vtg_config.YosysSmtFlattenHierarchy );
 
 } // ExtractSynthesisResult
 

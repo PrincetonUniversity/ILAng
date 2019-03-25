@@ -14,9 +14,11 @@
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/vtarget-out/vlg_mod.h>
 #include <ilang/vtarget-out/vtarget_gen_impl.h>
+#include <ilang/smt-inout/yosys_smt_parser.h>
 #include <iostream>
 #include <string>
 #include <vector>
+#include <memory>
 
 namespace ilang {
 
@@ -106,6 +108,8 @@ protected:
   std::vector<std::string> vlg_mod_inv_vec;
   /// the synthesis backend
   synthesis_backend_selector s_backend;
+  /// the smt info of the design
+  std::shared_ptr<smt::YosysSmtParser> design_smt_info;
 
 protected:
   /// Add an assumption -- needed by base class
@@ -163,8 +167,8 @@ public:
                          const std::string& script_name,
                          const std::string& extra_name,
                          const std::string& mem_name) override;
-  
-
+  /// accessor of the design info 
+  std::shared_ptr<smt::YosysSmtParser> GetDesignSmtInfo() const;
   /// It is okay to instantiation
   virtual void do_not_instantiate(void) override{};
 

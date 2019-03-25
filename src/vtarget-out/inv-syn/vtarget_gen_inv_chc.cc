@@ -10,7 +10,6 @@
 #include <ilang/util/str_util.h>
 #include <ilang/vtarget-out/absmem.h>
 #include <ilang/vtarget-out/inv-syn/vtarget_gen_inv_chc.h>
-#include <ilang/smt-inout/yosys_smt_parser.h>
 #include <iostream>
 
 namespace ilang {
@@ -411,6 +410,9 @@ void VlgSglTgtGen_Chc::Export_problem(const std::string& extra_name) {
 
 } // Export_problem
 
+std::shared_ptr<smt::YosysSmtParser> VlgSglTgtGen_Chc::GetDesignSmtInfo() const {
+  return design_smt_info;
+}
 
 void VlgSglTgtGen_Chc::ExportAll(const std::string& wrapper_name, // wrapper.v
                         const std::string& ila_vlg_name, // no use
@@ -491,21 +493,21 @@ void VlgSglTgtGen_Chc::convert_smt_to_chc(const std::string & smt_fname, const s
   } // end read file
 
   std::string smt_converted;
-  smt::YosysSmtParser smt_rewriter(ibuf.str());
+  design_smt_info = std::make_shared<smt::YosysSmtParser> (ibuf.str());
   if (_vtg_config.YosysSmtFlattenDatatype) {
-    smt_rewriter.BreakDatatypes();
+    design_smt_info->BreakDatatypes();
     //smt_rewriter.AddNoChangeStateUpdateFunction();
-    smt_converted = smt_rewriter.Export();
+    smt_converted = design_smt_info->Export();
   } else {
     smt_converted = ibuf.str();
   }
 
-  std::string wrapper_mod_name = smt_rewriter.get_module_def_orders().back();
+  std::string wrapper_mod_name = design_smt_info->get_module_def_orders().back();
   // construct the template
 
   std::string chc;
   if (_vtg_config.YosysSmtFlattenDatatype) {
-    const auto & datatype_top_mod = smt_rewriter.get_module_flatten_dt(wrapper_mod_name);
+    const auto & datatype_top_mod = design_smt_info->get_module_flatten_dt(wrapper_mod_name);
     auto tmpl = inv_syn_tmpl_wo_datatypes;
     tmpl = ReplaceAll(tmpl, "<!>(|%WrapperName%_h| %Ss%)<!>"  ,_vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%WrapperName%_h| %Ss%)" );
     tmpl = ReplaceAll(tmpl, "<!>(|%WrapperName%_h| %Sps%)<!>" ,_vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%WrapperName%_h| %Sps%)" );

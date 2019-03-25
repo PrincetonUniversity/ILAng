@@ -114,7 +114,7 @@ VlgVerifTgtGen::~VlgVerifTgtGen() {
     delete vlg_info_ptr;
 }
 
-void VlgVerifTgtGen::GenerateInvSynTargets(synthesis_backend_selector s_backend) {
+std::shared_ptr<smt::YosysSmtParser> VlgVerifTgtGen::GenerateInvSynTargets(synthesis_backend_selector s_backend) {
   if (vlg_info_ptr)
     delete vlg_info_ptr;
   
@@ -139,6 +139,8 @@ void VlgVerifTgtGen::GenerateInvSynTargets(synthesis_backend_selector s_backend)
   target.ConstructWrapper();
   target.ExportAll("wrapper.v", "ila.v" /*USELESS*/, "run.sh", "wrapper.smt2",
                     "absmem.v"  /*USELESS*/);
+                    
+  return target.GetDesignSmtInfo();
 }
 
 void VlgVerifTgtGen::GenerateTargets(void) {

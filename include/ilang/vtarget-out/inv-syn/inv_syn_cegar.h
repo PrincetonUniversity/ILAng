@@ -4,6 +4,7 @@
 #ifndef INV_SYN_CEGAR_H__
 #define INV_SYN_CEGAR_H__
 
+#include <ilang/smt-inout/yosys_smt_parser.h>
 #include <ilang/vtarget-out/vtarget_gen.h>
 
 #include <string>
@@ -84,6 +85,8 @@ protected:
   std::string vlg_mod_inst_name;
   /// the status of the loop
   cegar_status status;
+  /// the SMT-LIB2 information of the design
+  std::shared_ptr<smt::YosysSmtParser> design_smt_info;
   /// is in back state?
   bool bad_state;
   /// the round id
