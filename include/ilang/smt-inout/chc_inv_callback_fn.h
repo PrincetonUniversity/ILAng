@@ -35,6 +35,17 @@ smtlib2_term proxy_push_quantifier_scope(smtlib2_parser_interface *p);
 // ) ; end of forall
 smtlib2_term proxy_pop_quantifier_scope(smtlib2_parser_interface *p);
 
+// the special function dealing with the final term in a forall term
+smtlib2_term proxy_make_forall_term(smtlib2_parser_interface *parser,
+                                     smtlib2_term term);
+
+// the special function dealing with the final term in an exists term
+smtlib2_term proxy_make_exists_term(smtlib2_parser_interface *parser,
+                                     smtlib2_term term);
+
+// we will treat everything as an assert, although it does nothing
+void proxy_assert_formula(smtlib2_parser_interface *parser, smtlib2_term term);
+
 // 
 smtlib2_sort proxy_make_sort(smtlib2_parser_interface *p,
                                                const char *sortname,

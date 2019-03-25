@@ -67,6 +67,8 @@ SmtlibInvariantParser::SmtlibInvariantParser(YosysSmtParser * yosys_smt_info,
   // forall (A ())  make_sort -- declare_variable  -- push_quantifier_scope
   //
   //
+  pi->make_forall_term = proxy_make_forall_term;
+  pi->make_exists_term = proxy_make_exists_term;
   pi->push_quantifier_scope = proxy_push_quantifier_scope;
   pi->pop_quantifier_scope  = proxy_pop_quantifier_scope;
   pi->make_sort = proxy_make_sort;
@@ -150,26 +152,100 @@ std::string SmtlibInvariantParser::get_a_new_local_var_name() {
 }
 
 
-
+/// this function receives the final assert result
+void SmtlibInvariantParser::assert_formula(SmtTermInfoVlgPtr result) {
+  final_translate_result = result->_translate;
+}
 
 /// call back function to handle (forall
 SmtTermInfoVlgPtr SmtlibInvariantParser::push_quantifier_scope() {
-
+  quantifier_def_stack.push_back(quantifier_temp_def_t());
+  quantifier_var_def_idx_stack.push_back(0);
+  return nullptr; // no body cares this
 }
 /// call back function to handle ) of forall
 SmtTermInfoVlgPtr SmtlibInvariantParser::pop_quantifier_scope() {
-
+  quantifier_def_stack.pop_back();
+  quantifier_var_def_idx_stack.pop_back();
+  return nullptr; // if we return null, it will not overwrite the make_forall_term result
 }
+
 /// call back function to create a sort
-var_type * SmtlibInvariantParser::make_sort(const std::string &name, const std::vector<int> &) {
+var_type * SmtlibInvariantParser::make_sort(const std::string &name, const std::vector<int> & idx) {
+  ILA_ASSERT(not quantifier_def_stack.empty());
+  ILA_ASSERT(not quantifier_var_def_idx_stack.empty());
+  if (datatype_flattened) {
+    // should should only be BitVec or Bool
+    if (name == "Bool") {
+      if (not IN("Bool", sort_container))
+        sort_container.insert(std::make_pair(std::string("Bool"),
+          var_type(var_type::tp::Bool, 1, "")));
+      return & (sort_container["Bool"]);
+    }
+    else if (name == "BitVec") {
+      ILA_ASSERT(idx.size() == 1);
+      ILA_ASSERT(idx[0] > 0);
+      std::string sortIdxName = "BV"+std::to_string(idx[0]);
+      if (not IN(sortIdxName, sort_container))
+        sort_container.insert(std::make_pair(sortIdxName,
+          var_type(var_type::tp::BV, idx[0], "")));
+      return & (sort_container[sortIdxName]);
+    }
+    ILA_ASSERT(false) << "Unknown sort:" << name << " in flattened smt.";
+    return nullptr; // should not be reachable
+  } else {
+    // if not flattened, there should only be one sort
+    auto top_module = design_smt_info_ptr->get_module_def_orders.back();
+    auto top_module_sort = "|" + top_module+"_s|";
+    ILA_ASSERT(name == top_module_sort) 
+      << "Unknown sort:" << name << " in unflattened smt."
+      << " Expecting:" << top_module_sort;
+    
+    if (not IN(top_module_sort, sort_container))
+      sort_container.insert(std::make_pair(top_module_sort,
+        var_type(var_type::tp::Datatype, 0, top_module)));
+    return & (sort_container[top_module_sort]);
+  }
+} // make_sort
 
-}
 /// call back function to create a temporary (quantified variable)
 // for the flattened-datatype, this should be the same as the datatype order
 // 
 void SmtlibInvariantParser::declare_quantified_variable(const std::string &name, var_type * sort ) {
+  ILA_ASSERT(not quantifier_def_stack.empty());
+  ILA_ASSERT(not quantifier_var_def_idx_stack.empty());
+  // I assume it has nothing to do with hierarchy flattening
+  auto top = quantifier_def_stack.back();
+  if (datatype_flattened) {
+    // we need to extract the name from verilog
+    auto top_module = design_smt_info_ptr->get_module_def_orders.back();
+    auto vlg_name = ( 
+      design_smt_info_ptr->get_module_flatten_dt(top_module)
+      [quantifier_var_def_idx_stack.back()])
+      .verilog_name;
 
+    top.insert(std::make_pair(name,
+      SmtTermInfoVerilog(vlg_name,*sort,this)));
+
+    quantifier_var_def_idx_stack.back() ++;
+  } else {
+    // if not flattened, there should only be one sort
+    top.insert(std::make_pair(name,
+      SmtTermInfoVerilog("",*sort,this))); // itself could not be translated
+  }
 }
+
+SmtTermInfoVlgPtr SmtlibInvariantParser::search_quantified_var_stack(const std::string & name) {
+  for (auto mp_pos = quantifier_def_stack.rbegin(); 
+    mp_pos != quantifier_def_stack.rend(); ++ mp_pos) {
+    
+    if (IN(name,*mp_pos))
+      return & ( (*mp_pos) [name] );
+  }
+  return nullptr;
+} // search_quantified_var_stack
+
+
 /// call back function to apply an uninterpreted function
 /// fall-through case if it is not an defined op, if failed, return NULL
 /// for unflattened-hierarchy: this should be the place where things are called
@@ -178,7 +254,25 @@ void SmtlibInvariantParser::declare_quantified_variable(const std::string &name,
 SmtTermInfoVlgPtr SmtlibInvariantParser::mk_function(
   const std::string &name, var_type * sort, 
   const std::vector<int> & idx, const std::vector<SmtTermInfoVlgPtr> & args) {
-
+  // we don't really rely on the sort here: actually it should be NULL
+  if (args.empty() and idx.empty()) {
+    // first let's check if it is referring to a quantifier-bound variable
+    auto term_ptr = search_quantified_var_stack(name);
+    if (term_ptr)
+      return term_ptr;
+    ILA_ASSERT(false) << "unknown symbol:"<<name;
+    return nullptr; // no use
+  }
+  if (datatype_flattened) {
+    ILA_ASSERT(false) << "Fun:" << name <<" called in flattened smt.";
+    return nullptr; // should not be reachable
+  }
+  else {
+    ILA_ASSERT(args.size() == 1);
+    ILA_ASSERT(args[0]->_type._type == var_type::tp::Datatype);
+    // get it from the module_name
+    args[0]->_type.module_name
+  }
 }
 /// call back function to make a number term
 SmtTermInfoVlgPtr SmtlibInvariantParser::mk_number(const std::string & rep, int width, int base) {

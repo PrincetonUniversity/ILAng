@@ -93,12 +93,16 @@ protected:
   sort_container_t sort_container;
   /// the temporary def stacks
   quantifier_def_stack_t quantifier_def_stack;
+  /// the quantifier declare index (order)
+  std::vector<unsigned> quantifier_var_def_idx_stack;
   /// to hold the local variables
   local_vars_t local_vars;
   /// a counter to get local variable name
   std::string get_a_new_local_var_name();
   /// the idx to it
   unsigned local_var_idx;
+  /// the final translated result
+  std::string final_translate_result;
 
   /// a pointer to get the knowlege of the context
   YosysSmtParser * design_smt_info_ptr;
@@ -133,6 +137,10 @@ public:
     const std::vector<int> & idx, const std::vector<SmtTermInfoVlgPtr> & args);
   /// call back function to make a number term
   SmtTermInfoVlgPtr mk_number(const std::string & rep, int width, int base);
+  /// find if a certain var is a quantified variable
+  SmtTermInfoVlgPtr search_quantified_var_stack(const std::string & name);
+  /// this function receives the final assert result
+  void assert_formula(SmtTermInfoVlgPtr result);
 
 #define DECLARE_OPERATOR(name) \
   SmtTermInfoVlgPtr mk_##name(const std::string & symbol, var_type * sort, \

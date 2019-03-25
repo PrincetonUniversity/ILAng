@@ -39,6 +39,25 @@ smtlib2_term proxy_pop_quantifier_scope(smtlib2_parser_interface *p) {
   return (smtlib2_term)(((smtlib2_abstract_parser_wrapper *) p)->inv_parser->pop_quantifier_scope());
 }
 
+
+// we will treat everything as an assert, although it does nothing
+void proxy_assert_formula(smtlib2_parser_interface *parser, smtlib2_term term) {
+  // here it should be where we get our result
+  ((smtlib2_abstract_parser_wrapper *) parser)->inv_parser->assert_formula(
+    (SmtTermInfoVlgPtr) term );
+}
+
+
+// the special function dealing with the final term in a forall term
+smtlib2_term proxy_make_forall_term(smtlib2_parser_interface *parser,
+                                     smtlib2_term term) {
+  return term;}
+
+// the special function dealing with the final term in an exists term
+smtlib2_term proxy_make_exists_term(smtlib2_parser_interface *parser,
+                                     smtlib2_term term) {
+  ILA_ERROR<<"should not contain exists"; return term; }
+
 /*
 
 a_sort : 
