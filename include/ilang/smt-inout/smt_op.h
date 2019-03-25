@@ -47,11 +47,11 @@
   ILA_ASSERT((args)[1]->_type._type == var_type::tp::BV); 
 
 #define MAKE_BOOL_RESULT(vlg_expr) \
-std::string search_name = "##bool_"  + vlg_expr; \
+std::string search_name = "##bool_"  + (vlg_expr); \
   if (not IN(search_name, term_container)) { \
     term_container.insert( std::make_pair( search_name, \
       SmtTermInfoVerilog( \
-        vlg_expr , \
+        (vlg_expr) , \
         var_type(var_type::tp::Bool,1,""), \
         this ) ) ); \
   } \
@@ -69,16 +69,19 @@ std::string search_name = "##bool_"  + vlg_expr; \
   }
 
 
-#define MAKE_BV_RESULT_TYPE_AS_ARG0(vlg_expr, args) \
-  std::string search_name = "##bv"+std::to_string(args[0]->_type._width) + "_"  + (vlg_expr); \
+
+#define MAKE_BV_RESULT_TYPE_AS_ARGN(vlg_expr, args, n) \
+  std::string search_name = "##bv"+std::to_string(args[(n)]->_type._width) + "_"  + (vlg_expr); \
   if (not IN(search_name, term_container)) { \
     term_container.insert( std::make_pair( search_name,  \
       SmtTermInfoVerilog( \
         vlg_expr ,  \
-        args[0]->_type,  \
+        args[(n)]->_type,  \
         this ) ) ); \
   } \
   return & ( term_container[search_name] )
+
+#define MAKE_BV_RESULT_TYPE_AS_ARG0(vlg_expr, args) MAKE_BV_RESULT_TYPE_AS_ARGN(vlg_expr,args,0)
 
 
 #endif // SMT_OP_H__

@@ -266,8 +266,18 @@ DEFINE_OPERATOR(ite) {
   ILA_ASSERT(args.size() == 3);
   ILA_ASSERT(args[0]->_type._type == var_type::tp::Bool);
   ILA_ASSERT(var_type::eqtype(args[1]->_type,args[2]->_type));
-  ..
+  
+  auto vlg_expr = "(" + args[0]->_translate + ") ? ("
+    + args[1]->_translate + ") : (" + args[2]->_translate + ")";
+
+  if (args[1]->_type._type == var_type::tp::Bool) {
+    MAKE_BOOL_RESULT(vlg_expr);
+  } else if (args[1]->_type._type == var_type::tp::BV) {
+    MAKE_BV_RESULT_TYPE_AS_ARGN(vlg_expr,args,1);
+  } // diff on type
+  // should not be executed...
 }
+
 DEFINE_OPERATOR(xor) {
   CHECK_BOOL_TWO_ARG(idx,args);
   
@@ -291,10 +301,31 @@ DEFINE_OPERATOR(nand) {
 DEFINE_OPERATOR(concat) {
   ILA_ASSERT(idx.empty());
   ILA_ASSERT(args.size() >= 2);
-  for(auto && arg:args) 
-    ILA_ASSERT(arg->_type._type == var_type::tp::BV);
   
-}
+  std::string vlg_expr = "{";
+  unsigned total_width = 0;
+  bool first = true; 
+  for(auto && arg:(args)) {
+    ILA_ASSERT(arg->_type._type == (var_type::tp::BV)); 
+    if (first)
+      (vlg_expr) += arg->_translate ;
+    else
+      (vlg_expr) += " , " + arg->_translate ;
+    first = false;
+    total_width += arg->_type._width;
+  } // arg
+  vlg_expr += "}";
+
+  std::string search_name = "##bv"+std::to_string(total_width) + "_"  + (vlg_expr);
+  if (not IN(search_name, term_container)) {
+    term_container.insert( std::make_pair( search_name,
+      SmtTermInfoVerilog(
+        vlg_expr ,
+        var_type(var_type::tp::BV, total_width, ""),
+        this ) ) );
+  } // not in, then add it
+  return & ( term_container[search_name] );
+} // concat
 
 DEFINE_OPERATOR(bvnot) {
   CHECK_BV_ONE_ARG(idx,args);
@@ -482,19 +513,22 @@ DEFINE_OPERATOR(bvsrem) {
 // width the same as args[0]
 DEFINE_OPERATOR(bvshl) {
   CHECK_BV_TWO_ARG_DIFF_WIDTH(idx,args);
-  
+  std::string vlg_expr = 
+   "(" + args[0]->_translate + ") << (" = args[1]->_translate + ")";
   MAKE_BV_RESULT_TYPE_AS_ARG0(vlg_expr,args);
 } // bvshl
 
 DEFINE_OPERATOR(bvlshr) {
   CHECK_BV_TWO_ARG_DIFF_WIDTH(idx,args);
-  
+  std::string vlg_expr = 
+   "(" + args[0]->_translate + ") >> (" = args[1]->_translate + ")";
   MAKE_BV_RESULT_TYPE_AS_ARG0(vlg_expr,args);
 } // bvlshr
 
 DEFINE_OPERATOR(bvashr) {
   CHECK_BV_TWO_ARG_DIFF_WIDTH(idx,args);
-  
+  std::string vlg_expr = 
+   "(" + args[0]->_translate + ") >>> (" = args[1]->_translate + ")";
   MAKE_BV_RESULT_TYPE_AS_ARG0(vlg_expr,args);
 } // bvashr
 
