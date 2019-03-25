@@ -237,8 +237,7 @@ void SmtlibInvariantParser::declare_quantified_variable(const std::string &name,
 
 SmtTermInfoVlgPtr SmtlibInvariantParser::search_quantified_var_stack(const std::string & name) {
   for (auto mp_pos = quantifier_def_stack.rbegin(); 
-    mp_pos != quantifier_def_stack.rend(); ++ mp_pos) {
-    
+    mp_pos != quantifier_def_stack.rend(); ++ mp_pos) { // search from the closest binding
     if (IN(name,*mp_pos))
       return & ( (*mp_pos) [name] );
   }
@@ -263,6 +262,7 @@ SmtTermInfoVlgPtr SmtlibInvariantParser::mk_function(
     ILA_ASSERT(false) << "unknown symbol:"<<name;
     return nullptr; // no use
   }
+  // if it is function call
   if (datatype_flattened) {
     ILA_ASSERT(false) << "Fun:" << name <<" called in flattened smt.";
     return nullptr; // should not be reachable
@@ -271,9 +271,32 @@ SmtTermInfoVlgPtr SmtlibInvariantParser::mk_function(
     ILA_ASSERT(args.size() == 1);
     ILA_ASSERT(args[0]->_type._type == var_type::tp::Datatype);
     // get it from the module_name
-    args[0]->_type.module_name
-  }
-}
+    const auto & module_name = args[0]->_type.module_name;
+    const auto & dts = design_smt_info_ptr->get_module_flatten_dt(module_name);
+    for (auto && dt : dts) {
+      if (dt.internal_name == name) {
+        // make the new variable here
+        std::string search_name;
+        if (dt._type._type == var_type::tp::Bool)
+          search_name = "##bool_";
+        else if (dt._type._type == var_type::tp::BV)
+          search_name = "##bv" + std::to_string(dt._type._width) + "_";
+        else
+          ILA_ASSERT(false) << "unexpected type!";
+        search_name += dt.verilog_name;
+
+        if(not IN(search_name, term_container)) {
+          term_container.insert(std::make_pair(search_name,
+            SmtTermInfoVerilog(dt.verilog_name, dt._type ,this)));
+        }
+        return & ( term_container[search_name] );
+      } // if name matched
+    } // for all datatypes
+    ILA_ASSERT(false) << "unknown symbol:"<<name;
+    return nullptr; // should not be reachable
+  } // end of else 
+} // mk_function
+
 /// call back function to make a number term
 SmtTermInfoVlgPtr SmtlibInvariantParser::mk_number(const std::string & rep, int width, int base) {
   ILA_ASSERT(width > 0) << "Unable to translate Integer!";
