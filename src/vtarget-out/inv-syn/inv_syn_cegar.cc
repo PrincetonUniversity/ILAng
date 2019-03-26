@@ -183,9 +183,12 @@ void InvariantSynthesizerCegar::ExtractSynthesisResult(bool autodet, bool reacha
   }
 
   inv_obj.AddInvariantFromChcResultFile(
-    *design_smt_info, "", res_file, 
+    *(design_smt_info.get()), "", res_file, 
     _vtg_config.YosysSmtFlattenDatatype,
     _vtg_config.YosysSmtFlattenHierarchy );
+  
+  for (auto && v : inv_obj.GetVlgConstraints() )
+    std::cout << v << std::endl;
 
 } // ExtractSynthesisResult
 

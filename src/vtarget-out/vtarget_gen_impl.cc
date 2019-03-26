@@ -114,6 +114,11 @@ VlgVerifTgtGen::~VlgVerifTgtGen() {
     delete vlg_info_ptr;
 }
 
+
+const std::vector<std::string> & VlgVerifTgtGen::GetRunnableScriptName() const {
+  return runnable_script_name;
+}
+
 std::shared_ptr<smt::YosysSmtParser> VlgVerifTgtGen::GenerateInvSynTargets(synthesis_backend_selector s_backend) {
   if (vlg_info_ptr)
     delete vlg_info_ptr;
@@ -140,12 +145,19 @@ std::shared_ptr<smt::YosysSmtParser> VlgVerifTgtGen::GenerateInvSynTargets(synth
   target.ExportAll("wrapper.v", "ila.v" /*USELESS*/, "run.sh", "wrapper.smt2",
                     "absmem.v"  /*USELESS*/);
 
+  runnable_script_name.clear();
+  runnable_script_name.push_back(
+    os_portable_append_dir(
+      os_portable_append_dir(_output_path, "inv-syn/"), "run.sh"));
+
   return target.GetDesignSmtInfo();
 }
 
 void VlgVerifTgtGen::GenerateTargets(void) {
   if (bad_state_return())
     return;
+
+  runnable_script_name.clear();
 
   vlg_info_ptr = new VerilogInfo(_vlg_impl_include_path, _vlg_impl_srcs,
                                  _vlg_mod_inst_name, _vlg_impl_top_name);
@@ -173,10 +185,10 @@ void VlgVerifTgtGen::GenerateTargets(void) {
       else if (inv.is_string() and inv.get<std::string>() != "")
         invariantExists = true;
     }
-
+    auto sub_output_path = os_portable_append_dir(_output_path, "invariants");
     if (_backend == backend_selector::COSA and invariantExists) {
       auto target = VlgSglTgtGen_Cosa(
-          os_portable_append_dir(_output_path, "invariants"),
+          sub_output_path,
           NULL, // invariant
           _ila_ptr, _cfg, rf_vmap, rf_cond, vlg_info_ptr, _vlg_mod_inst_name,
           _ila_mod_inst_name, "wrapper", _vlg_impl_srcs, _vlg_impl_include_path,
@@ -187,7 +199,7 @@ void VlgVerifTgtGen::GenerateTargets(void) {
                        "absmem.v");
     } else if (_backend == backend_selector::JASPERGOLD and invariantExists) {
       auto target = VlgSglTgtGen_Jasper(
-          os_portable_append_dir(_output_path, "invariants"),
+          sub_output_path,
           NULL, // invariant
           _ila_ptr, _cfg, rf_vmap, rf_cond, vlg_info_ptr, _vlg_mod_inst_name,
           _ila_mod_inst_name, "wrapper", _vlg_impl_srcs, _vlg_impl_include_path,
@@ -197,7 +209,7 @@ void VlgVerifTgtGen::GenerateTargets(void) {
       target.ExportAll("wrapper.v", "ila.v", "run.sh", "do.tcl", "absmem.v");
     } else if (_backend == backend_selector::YOSYS and invariantExists) {
       auto target = VlgSglTgtGen_Yosys(
-          os_portable_append_dir(_output_path, "invariants"),
+          sub_output_path,
           NULL, // invariant
           _ila_ptr, _cfg, rf_vmap, rf_cond, vlg_info_ptr, _vlg_mod_inst_name,
           _ila_mod_inst_name, "wrapper", _vlg_impl_srcs, _vlg_impl_include_path,
@@ -206,6 +218,9 @@ void VlgVerifTgtGen::GenerateTargets(void) {
       target.ConstructWrapper();
       target.ExportAll("wrapper.v", "ila.v", "run.sh", "gensmt.ys", "absmem.v");
     }
+
+    runnable_script_name.push_back(
+      os_portable_append_dir(sub_output_path, "run.sh"));
     // end if backend...
   } // end if if(_vtg_config.target_select == BOTH || _vtg_config.target_select
     // == INV)
@@ -226,9 +241,12 @@ void VlgVerifTgtGen::GenerateTargets(void) {
                   << " has no instruction:" << iname;
         continue;
       }
+
+      auto sub_output_path = os_portable_append_dir(_output_path, iname);
+
       if (_backend == backend_selector::COSA) {
         auto target = VlgSglTgtGen_Cosa(
-            os_portable_append_dir(_output_path, iname),
+            sub_output_path,
             instr_ptr, // instruction
             _ila_ptr, _cfg, rf_vmap, rf_cond, vlg_info_ptr, _vlg_mod_inst_name,
             _ila_mod_inst_name, "wrapper", _vlg_impl_srcs,
@@ -240,7 +258,7 @@ void VlgVerifTgtGen::GenerateTargets(void) {
                          "absmem.v");
       } else if (_backend == backend_selector::JASPERGOLD) {
         auto target = VlgSglTgtGen_Jasper(
-            os_portable_append_dir(_output_path, iname),
+            sub_output_path,
             instr_ptr, // instruction
             _ila_ptr, _cfg, rf_vmap, rf_cond, vlg_info_ptr, _vlg_mod_inst_name,
             _ila_mod_inst_name, "wrapper", _vlg_impl_srcs,
@@ -256,7 +274,7 @@ void VlgVerifTgtGen::GenerateTargets(void) {
         // and create conversion (map) function
 
         auto target = VlgSglTgtGen_Yosys(
-            os_portable_append_dir(_output_path, iname),
+            sub_output_path,
             instr_ptr, // instruction
             _ila_ptr, _cfg, rf_vmap, rf_cond, vlg_info_ptr, _vlg_mod_inst_name,
             _ila_mod_inst_name, "wrapper", _vlg_impl_srcs,
@@ -265,7 +283,9 @@ void VlgVerifTgtGen::GenerateTargets(void) {
             _advanced_param_ptr);
         target.ConstructWrapper();
         target.ExportAll("wrapper.v", "ila.v", "run.sh", "gensmt.ys", "absmem.v");
-      }
+      } // end case backend
+      runnable_script_name.push_back(
+        os_portable_append_dir(sub_output_path, "run.sh"));
     } // end for instrs
   }   // end if target select == ...
 

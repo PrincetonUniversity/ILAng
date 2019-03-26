@@ -74,6 +74,8 @@ protected:
 public:
   // -------------- CONSTRUCTOR -------------------- //
   YosysSmtParser(const std::string & buf);
+  // -------------- DESTRUCTOR -------------------- //
+  virtual ~YosysSmtParser();
   // -------------- Procedures -------------------- //
   /// Process (replace and add)
   void BreakDatatypes();

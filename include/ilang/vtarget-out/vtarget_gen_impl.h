@@ -411,6 +411,8 @@ protected:
   vtg_config_t _vtg_config;
   /// to store the advanced parameter configurations
   advanced_parameters_t * _advanced_param_ptr;
+  /// to store the generate script name
+  std::vector<std::string> runnable_script_name;
 
 protected:
   /// store the vmap info
@@ -429,6 +431,8 @@ public:
   std::string GetVlgModuleInstanceName() const { return _vlg_mod_inst_name; }
   /// generate inv-syn target
   std::shared_ptr<smt::YosysSmtParser> GenerateInvSynTargets(synthesis_backend_selector s_backend); 
+  /// generate the runable script name
+  const std::vector<std::string> & GetRunnableScriptName() const;
 
 protected:
   /// If it is bad state, return true and display a message

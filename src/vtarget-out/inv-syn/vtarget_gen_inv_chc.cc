@@ -449,6 +449,9 @@ void VlgSglTgtGen_Chc::design_only_gen_smt(
   
   auto ys_full_name =
       os_portable_append_dir(_output_path, ys_script_name);
+
+  auto ys_output_full_name =
+      os_portable_append_dir(_output_path, "__yosys_exec_result.txt");
   { // export to ys_full_name
     std::ofstream ys_script_fout( ys_full_name );
     
@@ -472,7 +475,7 @@ void VlgSglTgtGen_Chc::design_only_gen_smt(
   // execute it
   std::vector<std::string> cmd;
   cmd.push_back(yosys); cmd.push_back("-s"); cmd.push_back(ys_full_name);
-  ILA_ERROR_IF( not os_portable_execute_shell( cmd ) )
+  ILA_ERROR_IF( not os_portable_execute_shell( cmd, ys_output_full_name ) )
     << "Executing Yosys failed!";
 
 } // design_only_gen_smt

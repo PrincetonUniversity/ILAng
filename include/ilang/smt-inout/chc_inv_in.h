@@ -73,7 +73,9 @@ public:
   
 public:
   // -------------- CONSTRUCTOR ------------------- //
-  SmtlibInvariantParser(YosysSmtParser * yosys_smt_info, bool _flatten_datatype, bool _flatten_hierarchy);
+  SmtlibInvariantParser(YosysSmtParser * yosys_smt_info, 
+    bool _flatten_datatype, bool _flatten_hierarchy,
+    const std::set<std::string> & _inv_pred_name);
   /// no copy constructor
   SmtlibInvariantParser(const SmtlibInvariantParser &) = delete;
   /// no assignment
@@ -106,6 +108,10 @@ protected:
   sort_container_t sort_container;
   /// the temporary def stacks
   quantifier_def_stack_t quantifier_def_stack;
+  /// sentry -- probably no use
+  unsigned mask;
+  /// a collection of functions that should be treated as inv predicates
+  const std::set<std::string> inv_pred_name;
   /// the quantifier declare index (order)
   std::vector<unsigned> quantifier_var_def_idx_stack;
   /// to hold the local variables

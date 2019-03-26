@@ -17,6 +17,7 @@
 #else
 // on *nix
 #include <unistd.h>
+#include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -142,7 +143,9 @@ std::string os_portable_remove_file_name_extension(const std::string fname) {
 }
 
 
-bool os_portable_execute_shell(const std::vector<std::string> & cmdargs) 
+bool os_portable_execute_shell(
+  const std::vector<std::string> & cmdargs,
+  const std::string & redirect_output_file) 
 {
   auto cmdline = Join(cmdargs, ",");
   ILA_ASSERT(not cmdargs.empty()) << "API misuse!";
@@ -153,7 +156,8 @@ bool os_portable_execute_shell(const std::vector<std::string> & cmdargs)
   ZeroMemory( &si, sizeof(si) );
   si.cb = sizeof(si);
   ZeroMemory( &pi, sizeof(pi) );
-
+  ILA_ERROR_IF(not redirect_output_file.empty()) 
+    << "Does not support redirect on WIN platform";
   // Start the child process. 
   if( !CreateProcess( NULL,   // No module name (use command line)
       cmdline.c_str(),      // Command line
@@ -179,6 +183,17 @@ bool os_portable_execute_shell(const std::vector<std::string> & cmdargs)
     // The child
     // will replace the image and execute the bash
     ILA_INFO<<"Execute subprocess: [" << cmdline << "]";
+    if (not redirect_output_file.empty()) {
+      ILA_INFO<<"Redirect to:" << redirect_output_file;
+      int fd;
+      fd = open(redirect_output_file.c_str(), O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR );
+      if (fd < 0) {
+        ILA_ERROR << "Failed to open " << redirect_output_file;
+        exit(1);
+      }
+      dup2(fd, STDOUT_FILENO);
+      close(fd);
+    }
 
     // this is memory leak, but I have no other way...
     // hope this will be reclaimed by OS

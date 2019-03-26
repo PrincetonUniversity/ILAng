@@ -20,8 +20,11 @@ void InvariantObject::AddInvariantFromChcResultFile(
     const std::string & tag, const std::string & chc_result_fn,
     bool flatten_datatype, bool flatten_hierarchy ) {
 
-  smt::SmtlibInvariantParser parser(&design_info,flatten_datatype, flatten_hierarchy);
-  parser.ParseInvResultFromFile(chc_result_fn);
+  smt::SmtlibInvariantParser parser(&design_info,flatten_datatype, flatten_hierarchy, {"INV"});
+  if (not parser.ParseInvResultFromFile(chc_result_fn) ) {
+    ILA_ERROR << "No new invariant has been extracted!";
+    return;
+  }
   ILA_ASSERT(not parser.in_bad_state());
   inv_vlg_exprs.push_back( parser.GetFinalTranslateResult() );
   for (auto && name_vlg_pair : parser.GetLocalVarDefs()) {

@@ -401,6 +401,9 @@ YosysSmtParser::YosysSmtParser(const std::string & buf) {
   construct_flatten_dataype();
 }
 
+YosysSmtParser::~YosysSmtParser() {
+  std::cerr<< "############ Yosys smt DESTRUCT!!!!! #############" << std::endl;
+}
 
 void YosysSmtParser::BreakDatatypes() {
   replace_all_function_arg_body();

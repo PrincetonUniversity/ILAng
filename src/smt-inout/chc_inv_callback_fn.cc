@@ -21,10 +21,9 @@ std::vector<T> make_vector(smtlib2_vector *iv) {
   if (not iv) return ret;
 
   auto l = SMTLIB2_VECTOR_SIZE(iv);
-  ret.reserve(l);
   intptr_t * ptr = SMTLIB2_VECTOR_ARRAY(iv);
   for (decltype(l) idx = 0; idx < l ; ++ idx)
-    ret[idx] = (T) (ptr[idx]);
+    ret.push_back( (T) (ptr[idx]) );
   return ret;
 }
 
@@ -89,6 +88,7 @@ smtlib2_sort proxy_make_sort(smtlib2_parser_interface *p,
   smtlib2_sort ret = (smtlib2_sort) (
     ((smtlib2_abstract_parser_wrapper *) p)->inv_parser->make_sort(
       sortname,idxv));
+  return ret;
   // free((void *)sortname);
   // if(index)
   //   smtlib2_vector_delete(index);  
