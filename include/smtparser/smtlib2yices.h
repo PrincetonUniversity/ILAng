@@ -1,6 +1,6 @@
 /* -*- C -*-
  *
- * An abstract parser for the SMT-LIB v2 language
+ * SMT-LIB v2 interface to Yices 1
  *
  * Author: Alberto Griggio <griggio@fbk.eu>
  *
@@ -24,19 +24,35 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  */
-#ifndef SMTLIB2ABSTRACTPARSER_H_INCLUDED
-#define SMTLIB2ABSTRACTPARSER_H_INCLUDED
+#ifndef SMTLIB2YICES_H_INCLUDED
+#define SMTLIB2YICES_H_INCLUDED
 
-#include "smtlib2parserinterface.h"
-#include "smtlib2termparser.h"
-#include "smtlib2utils.h"
-#include <stdio.h>
+#include "smtparser/smtlib2abstractparser.h"
+#include "smtparser/smtlib2abstractparser_private.h"
+#include <gmp.h>
+#include "smtparser/yices_c.h"
 
-typedef struct smtlib2_abstract_parser smtlib2_abstract_parser;
+typedef struct smtlib2_yices_parser {
+    smtlib2_abstract_parser parent_;
+    yices_context ctx_;
+    smtlib2_hashtable *sorts_;
+    smtlib2_hashtable *parametric_sorts_;
+    int next_sort_idx_;
+    smtlib2_hashtable *numbers_;
+    smtlib2_vector *defines_;
+    smtlib2_vector *defines_sorts_;
+    smtlib2_hashtable *logics_arith_only_;
+    smtlib2_hashtable *named_terms_;
+    smtlib2_hashtable *term_names_;
+    smtlib2_hashtable *assertion_ids_;
+    smtlib2_vector *names_;
+    bool produce_unsat_cores_;
+    bool produce_assignments_;
+    bool produce_models_;
+} smtlib2_yices_parser;
 
-void smtlib2_abstract_parser_init(smtlib2_abstract_parser *p,
-                                  smtlib2_context ctx);
-void smtlib2_abstract_parser_deinit(smtlib2_abstract_parser *p);
-void smtlib2_abstract_parser_parse(smtlib2_abstract_parser *p, FILE *src);
 
-#endif /* SMTLIB2ABSTRACTPARSER_H_INCLUDED */
+smtlib2_yices_parser *smtlib2_yices_parser_new(void);
+void smtlib2_yices_parser_delete(smtlib2_yices_parser *p);
+
+#endif /* SMTLIB2YICES_H_INCLUDED */

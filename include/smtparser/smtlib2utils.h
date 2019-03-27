@@ -1,6 +1,6 @@
 /* -*- C -*-
  *
- * A (abstract) lexical scanner for the SMT-LIB v2 language
+ * Utility functions and data structures for the SMT-LIB v2 parser
  *
  * Author: Alberto Griggio <griggio@fbk.eu>
  *
@@ -24,17 +24,17 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  */
+#ifndef SMTLIB2UTILS_H_INCLUDED
+#define SMTLIB2UTILS_H_INCLUDED
 
-#ifndef SMTLIB2SCANNER_H_INCLUDED
-#define SMTLIB2SCANNER_H_INCLUDED
+#include "smtparser/smtlib2vector.h"
+#include "smtparser/smtlib2hashtable.h"
+#include "smtparser/smtlib2charbuf.h"
+#include "smtparser/smtlib2stream.h"
+#include <stdarg.h>
 
-#include "smtlib2parserinterface.h"
-#include "smtlib2stream.h"
+char *smtlib2_strdup(const char *src);
+char *smtlib2_sprintf(const char *fmt, ...);
+char *smtlib2_vsprintf(const char *fmt, va_list args);
 
-typedef struct smtlib2_scanner smtlib2_scanner;
-
-smtlib2_scanner *smtlib2_scanner_new(smtlib2_stream *source);
-void smtlib2_scanner_delete(smtlib2_scanner *s);
-void smtlib2_parse(smtlib2_scanner *scanner, smtlib2_parser_interface *parser);
-
-#endif /* SMTLIB2SCANNER_H_INCLUDED */
+#endif /* SMTLIB2UTILS_H_INCLUDED */

@@ -28,8 +28,8 @@
 #ifndef SMTLIB2TERMPARSER_H_INCLUDED
 #define SMTLIB2TERMPARSER_H_INCLUDED
 
-#include "smtlib2types.h"
-#include "smtlib2utils.h"
+#include "smtparser/smtlib2types.h"
+#include "smtparser/smtlib2utils.h"
 
 
 typedef struct smtlib2_term_parser smtlib2_term_parser;

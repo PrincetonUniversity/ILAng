@@ -25,7 +25,7 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#include "smtlib2charbuf.h"
+#include "smtparser/smtlib2charbuf.h"
 #include <string.h>
 
 SMTLIB2_DEFINE_VECTOR(smtlib2_charbuf, char)

@@ -25,7 +25,7 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#include "smtlib2yices.h"
+#include "smtparser/smtlib2yices.h"
 #include <stdlib.h>
 #include <string.h>
 

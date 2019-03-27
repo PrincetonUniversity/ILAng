@@ -24,7 +24,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  */
-#include "smtlib2utils.h"
+#include "smtparser/smtlib2utils.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>

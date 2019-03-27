@@ -25,7 +25,7 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#include "smtlib2hashtable.h"
+#include "smtparser/smtlib2hashtable.h"
 #include <stdlib.h>
 #include <string.h>
 

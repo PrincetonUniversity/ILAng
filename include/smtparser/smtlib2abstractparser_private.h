@@ -27,8 +27,8 @@
 #ifndef SMTLIB2ABSTRACTPARSER_PRIVATE_H_INCLUDED
 #define SMTLIB2ABSTRACTPARSER_PRIVATE_H_INCLUDED
 
-#include "smtlib2abstractparser.h"
-#include "smtlib2scanner.h"
+#include "smtparser/smtlib2abstractparser.h"
+#include "smtparser/smtlib2scanner.h"
 
 typedef enum {
     SMTLIB2_RESPONSE_SUCCESS,

@@ -1,6 +1,6 @@
 /* -*- C -*-
  *
- * SMT-LIB v2 interface to Yices 1
+ * Resizable arrays for the SMT-LIB v2 parser
  *
  * Author: Alberto Griggio <griggio@fbk.eu>
  *
@@ -24,35 +24,17 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  */
-#ifndef SMTLIB2YICES_H_INCLUDED
-#define SMTLIB2YICES_H_INCLUDED
+#ifndef SMTLIB2VECTOR_H_INCLUDED
+#define SMTLIB2VECTOR_H_INCLUDED
 
-#include "smtlib2abstractparser.h"
-#include "smtlib2abstractparser_private.h"
-#include <gmp.h>
-#include "yices_c.h"
+#include "smtparser/smtlib2genvector.h"
 
-typedef struct smtlib2_yices_parser {
-    smtlib2_abstract_parser parent_;
-    yices_context ctx_;
-    smtlib2_hashtable *sorts_;
-    smtlib2_hashtable *parametric_sorts_;
-    int next_sort_idx_;
-    smtlib2_hashtable *numbers_;
-    smtlib2_vector *defines_;
-    smtlib2_vector *defines_sorts_;
-    smtlib2_hashtable *logics_arith_only_;
-    smtlib2_hashtable *named_terms_;
-    smtlib2_hashtable *term_names_;
-    smtlib2_hashtable *assertion_ids_;
-    smtlib2_vector *names_;
-    bool produce_unsat_cores_;
-    bool produce_assignments_;
-    bool produce_models_;
-} smtlib2_yices_parser;
+SMTLIB2_DECLARE_VECTOR(smtlib2_vector, intptr_t)
 
+#define smtlib2_vector_size(v) SMTLIB2_VECTOR_SIZE(v)
+#define smtlib2_vector_capacity(v) SMTLIB2_VECTOR_CAPACITY(v)
+#define smtlib2_vector_at(v, i) (SMTLIB2_VECTOR_ARRAY(v)[(i)])
+#define smtlib2_vector_last(v) smtlib2_vector_at(v, SMTLIB2_VECTOR_SIZE(v)-1)
+#define smtlib2_vector_array(v) SMTLIB2_VECTOR_ARRAY(v)
 
-smtlib2_yices_parser *smtlib2_yices_parser_new(void);
-void smtlib2_yices_parser_delete(smtlib2_yices_parser *p);
-
-#endif /* SMTLIB2YICES_H_INCLUDED */
+#endif /* SMTLIB2VECTOR_H_INCLUDED */

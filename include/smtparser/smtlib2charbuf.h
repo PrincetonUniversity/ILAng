@@ -1,6 +1,6 @@
 /* -*- C -*-
  *
- * Resizable arrays for the SMT-LIB v2 parser
+ * Resizable arrays of characters for the SMT-LIB v2 parser
  *
  * Author: Alberto Griggio <griggio@fbk.eu>
  *
@@ -24,17 +24,16 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  */
-#ifndef SMTLIB2VECTOR_H_INCLUDED
-#define SMTLIB2VECTOR_H_INCLUDED
+#ifndef SMTLIB2CHARBUF_H_INCLUDED
+#define SMTLIB2CHARBUF_H_INCLUDED
 
-#include "smtlib2genvector.h"
+#include "smtparser/smtlib2genvector.h"
 
-SMTLIB2_DECLARE_VECTOR(smtlib2_vector, intptr_t)
+SMTLIB2_DECLARE_VECTOR(smtlib2_charbuf, char)
 
-#define smtlib2_vector_size(v) SMTLIB2_VECTOR_SIZE(v)
-#define smtlib2_vector_capacity(v) SMTLIB2_VECTOR_CAPACITY(v)
-#define smtlib2_vector_at(v, i) (SMTLIB2_VECTOR_ARRAY(v)[(i)])
-#define smtlib2_vector_last(v) smtlib2_vector_at(v, SMTLIB2_VECTOR_SIZE(v)-1)
-#define smtlib2_vector_array(v) SMTLIB2_VECTOR_ARRAY(v)
+char *smtlib2_charbuf_array_release(smtlib2_charbuf *v);
+void smtlib2_charbuf_push_str(smtlib2_charbuf *v, const char *s);
 
-#endif /* SMTLIB2VECTOR_H_INCLUDED */
+#define smtlib2_charbuf_array(v) SMTLIB2_VECTOR_ARRAY(v)
+
+#endif /* SMTLIB2CHARBUF_H_INCLUDED */

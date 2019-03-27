@@ -25,8 +25,8 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#include "smtlib2abstractparser.h"
-#include "smtlib2abstractparser_private.h"
+#include "smtparser/smtlib2abstractparser.h"
+#include "smtparser/smtlib2abstractparser_private.h"
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>

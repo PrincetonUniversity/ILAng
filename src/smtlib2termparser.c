@@ -25,7 +25,7 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#include "smtlib2termparser.h"
+#include "smtparser/smtlib2termparser.h"
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>

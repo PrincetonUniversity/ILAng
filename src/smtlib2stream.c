@@ -24,7 +24,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  */
-#include "smtlib2stream.h"
+#include "smtparser/smtlib2stream.h"
 #include <stdlib.h>
 
 static int smtlib2_fstream_getc(smtlib2_stream *s);

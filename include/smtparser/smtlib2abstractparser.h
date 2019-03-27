@@ -1,6 +1,6 @@
 /* -*- C -*-
  *
- * Resizable arrays of characters for the SMT-LIB v2 parser
+ * An abstract parser for the SMT-LIB v2 language
  *
  * Author: Alberto Griggio <griggio@fbk.eu>
  *
@@ -24,16 +24,19 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  */
-#ifndef SMTLIB2CHARBUF_H_INCLUDED
-#define SMTLIB2CHARBUF_H_INCLUDED
+#ifndef SMTLIB2ABSTRACTPARSER_H_INCLUDED
+#define SMTLIB2ABSTRACTPARSER_H_INCLUDED
 
-#include "smtlib2genvector.h"
+#include "smtparser/smtlib2parserinterface.h"
+#include "smtparser/smtlib2termparser.h"
+#include "smtparser/smtlib2utils.h"
+#include <stdio.h>
 
-SMTLIB2_DECLARE_VECTOR(smtlib2_charbuf, char)
+typedef struct smtlib2_abstract_parser smtlib2_abstract_parser;
 
-char *smtlib2_charbuf_array_release(smtlib2_charbuf *v);
-void smtlib2_charbuf_push_str(smtlib2_charbuf *v, const char *s);
+void smtlib2_abstract_parser_init(smtlib2_abstract_parser *p,
+                                  smtlib2_context ctx);
+void smtlib2_abstract_parser_deinit(smtlib2_abstract_parser *p);
+void smtlib2_abstract_parser_parse(smtlib2_abstract_parser *p, FILE *src);
 
-#define smtlib2_charbuf_array(v) SMTLIB2_VECTOR_ARRAY(v)
-
-#endif /* SMTLIB2CHARBUF_H_INCLUDED */
+#endif /* SMTLIB2ABSTRACTPARSER_H_INCLUDED */

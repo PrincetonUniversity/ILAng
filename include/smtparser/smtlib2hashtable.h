@@ -27,7 +27,7 @@
 #ifndef SMTLIB2HASHTABLE_H_INCLUDED
 #define SMTLIB2HASHTABLE_H_INCLUDED
 
-#include "smtlib2vector.h"
+#include "smtparser/smtlib2vector.h"
 #include <stdbool.h>
 
 typedef uint32_t (*smtlib2_hashfun)(intptr_t elem);

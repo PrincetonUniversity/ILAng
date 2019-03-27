@@ -1,6 +1,6 @@
 /* -*- C -*-
  *
- * Utility functions and data structures for the SMT-LIB v2 parser
+ * A unified header file for the smtlib2parser library
  *
  * Author: Alberto Griggio <griggio@fbk.eu>
  *
@@ -24,17 +24,19 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  */
-#ifndef SMTLIB2UTILS_H_INCLUDED
-#define SMTLIB2UTILS_H_INCLUDED
 
-#include "smtlib2vector.h"
-#include "smtlib2hashtable.h"
-#include "smtlib2charbuf.h"
-#include "smtlib2stream.h"
-#include <stdarg.h>
-
-char *smtlib2_strdup(const char *src);
-char *smtlib2_sprintf(const char *fmt, ...);
-char *smtlib2_vsprintf(const char *fmt, va_list args);
-
-#endif /* SMTLIB2UTILS_H_INCLUDED */
+#include "smtparser/smtlib2abstractparser.h"
+#include "smtparser/smtlib2abstractparser_private.h"
+#include "smtlib2bisonparser.h"
+#include "smtparser/smtlib2charbuf.h"
+#include "smtlib2flexlexer.h"
+#include "smtparser/smtlib2genlist.h"
+#include "smtparser/smtlib2genvector.h"
+#include "smtparser/smtlib2hashtable.h"
+#include "smtparser/smtlib2parserinterface.h"
+#include "smtparser/smtlib2scanner.h"
+#include "smtparser/smtlib2stream.h"
+#include "smtparser/smtlib2termparser.h"
+#include "smtparser/smtlib2types.h"
+#include "smtparser/smtlib2utils.h"
+#include "smtparser/smtlib2vector.h"

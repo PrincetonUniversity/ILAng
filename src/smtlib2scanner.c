@@ -25,7 +25,7 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#include "smtlib2scanner.h"
+#include "smtparser/smtlib2scanner.h"
 #include "smtlib2bisonparser.h"
 #include "smtlib2flexlexer.h"
 #include <stdlib.h>

@@ -22,7 +22,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  */
-#include "smtlib2yices.h"
+#include "smtparser/smtlib2yices.h"
 
 int main(void)
 {

@@ -27,9 +27,9 @@
   
 %{
 
-#include "smtlib2parserinterface.h"
+#include "smtparser/smtlib2parserinterface.h"
 #include "smtlib2bisonparser.h"
-#include "smtlib2utils.h"
+#include "smtparser/smtlib2utils.h"
 
 
 #define YY_INPUT(buf,result,max_size) \
