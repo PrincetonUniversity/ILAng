@@ -174,7 +174,7 @@ bool os_portable_execute_shell(
 {
   auto cmdline = Join(cmdargs, ",");
   ILA_ASSERT(not cmdargs.empty()) << "API misuse!";
-#ifdef defined(_WIN32) || defined(_WIN64)
+#if defined(_WIN32) || defined(_WIN64)
   HANDLE h;
   if (not redirect_output_file.empty() and rdt != redirect_t::NONE) {
     SECURITY_ATTRIBUTES sa;
@@ -233,7 +233,7 @@ bool os_portable_execute_shell(
     if (not redirect_output_file.empty()) {
       ILA_INFO<<"Redirect to:" << redirect_output_file;
       int fd;
-      fd = open(redirect_output_file.c_str(), O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR );
+      fd = open(redirect_output_file.c_str(), O_WRONLY | O_CREAT | O_TRUNC , S_IRUSR | S_IWUSR );
       if (fd < 0) {
         ILA_ERROR << "Failed to open " << redirect_output_file;
         exit(1);
@@ -324,7 +324,7 @@ std::string os_portable_read_last_line(const std::string  & filename) {
 /// Change current directory
 bool os_portable_chdir(const std::string  & dirname) {
 
-#ifdef defined(_WIN32) || defined(_WIN64)
+#if defined(_WIN32) || defined(_WIN64)
   // windows
   if (_chdir(dirname.c_str()) != 0) {
     ILA_ERROR << "Failed to change to dir:"<<dirname;
@@ -341,7 +341,7 @@ bool os_portable_chdir(const std::string  & dirname) {
 
 /// Get the current directory
 std::string os_portable_getcwd() {
-#ifdef defined(_WIN32) || defined(_WIN64)
+#if defined(_WIN32) || defined(_WIN64)
   // windows
   size_t len = GetCurrentDirectory(0,NULL);
   char * buffer = new char [len];

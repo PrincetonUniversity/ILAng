@@ -213,14 +213,16 @@ bool InvariantSynthesizerCegar::RunVerifAuto(unsigned problem_idx) {
   ILA_ASSERT(os_portable_chdir(cwd));
   // the last line contains the result
   // above it you should have *** TRACES ***
-  vcd_file_name = extract_vcd_name_from_cex(result_fn);
-  vcd_file_name = os_portable_append_dir(new_wd, vcd_file_name);
   // the vcd file resides within the new dir
   auto lastLine = os_portable_read_last_line(result_fn);
 
   ILA_ERROR_IF(lastLine.empty()) << "Unable to extract verification result.";
   if (S_IN("Verifications with unexpected result", lastLine)) {
     ILA_INFO << "Counterexample found.";
+
+    vcd_file_name = extract_vcd_name_from_cex(result_fn);
+    vcd_file_name = os_portable_append_dir(new_wd, vcd_file_name);
+
     verification_pass = false;
     return false;
   }
