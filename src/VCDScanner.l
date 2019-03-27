@@ -394,6 +394,7 @@ void VCDFileParser::scan_begin() {
         error("Cannot open "+filepath+": "+strerror(errno));
         exit(EXIT_FAILURE);
     }
+    yypush_buffer_state(yy_create_buffer( yyin, YY_BUF_SIZE ));
 }
 
 void VCDFileParser::scan_end() {
