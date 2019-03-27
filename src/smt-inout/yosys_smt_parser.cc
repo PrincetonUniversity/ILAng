@@ -402,7 +402,7 @@ YosysSmtParser::YosysSmtParser(const std::string & buf) {
 }
 
 YosysSmtParser::~YosysSmtParser() {
-  std::cerr<< "############ Yosys smt DESTRUCT!!!!! #############" << std::endl;
+  // do nothing
 }
 
 void YosysSmtParser::BreakDatatypes() {
