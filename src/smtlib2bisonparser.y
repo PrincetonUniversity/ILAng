@@ -505,14 +505,12 @@ plain_term :
 | term_symbol
   {
       smtlib2_indexed_identifier *id = (smtlib2_indexed_identifier *)$1;
-      printf("invoking make term w. NULL arg\n");
       $$ = smtlib2_make_term_from_identifier(parser, id, NULL);
       smtlib2_indexed_identifier_delete(id);
   }
 | '(' term_symbol term_list ')'
   {
       smtlib2_indexed_identifier *id = (smtlib2_indexed_identifier *)$2;
-      printf("invoking make term w. arg:%d\n", SMTLIB2_VECTOR_SIZE($3) );
       $$ = smtlib2_make_term_from_identifier(parser, id, $3);
       smtlib2_indexed_identifier_delete(id);
       smtlib2_vector_delete($3);
@@ -706,13 +704,11 @@ term_list :
   {
       $$ = smtlib2_vector_new();
       smtlib2_vector_push($$, (intptr_t)$1);
-      printf("make a new term_list of size 1\n");
   }
 | term_list a_term
   {
       smtlib2_vector_push($1, (intptr_t)$2);
       $$ = $1;
-      printf("appending term_list, new size %d\n", SMTLIB2_VECTOR_SIZE($$));
   }
 ;
 
