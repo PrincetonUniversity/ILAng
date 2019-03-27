@@ -6,7 +6,7 @@
 #include <ilang/util/str_util.h>
 #include <ilang/vtarget-out/inv-syn/cex_extract.h>
 
-#include <VCDFileParser.hpp>
+#include <vcdparser/VCDFileParser.hpp>
 
 #include <sstream>
 

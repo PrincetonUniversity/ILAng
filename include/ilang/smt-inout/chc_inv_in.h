@@ -11,8 +11,8 @@
 #include <string>
 
 extern "C" {
-#include "smtlib2abstractparser.h"
-#include "smtlib2abstractparser_private.h"
+#include "smtparser/smtlib2abstractparser.h"
+#include "smtparser/smtlib2abstractparser_private.h"
 }
 
 namespace ilang {
