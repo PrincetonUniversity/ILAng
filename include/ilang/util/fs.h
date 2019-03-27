@@ -30,13 +30,33 @@ std::string os_portable_append_dir(const std::string& dir1,
 /// C:\\a.txt -> C:\\a   or  /a/b/c.txt -> a/b/c
 std::string os_portable_remove_file_name_extension(const std::string fname);
 
+/// the type of redirect
+enum redirect_t {NONE = 0 , STDOUT = 1 , STDERR = 2, BOTH = 3};
 /// execute some executables that are shell scripts
-bool os_portable_execute_shell(const std::vector<std::string> & cmdargs, const std::string & redirect_output_file = "");
+bool os_portable_execute_shell(const std::vector<std::string> & cmdargs, 
+    const std::string & redirect_output_file = "", redirect_t rdt = redirect_t::BOTH);
 
 /// Extract filename from path
 /// C:\a\b\c.txt -> c.txt
 /// d/e/ghi  -> ghi
 std::string os_portable_file_name_from_path(const std::string& path);
+
+/// Extract path from path
+/// C:\a\b\c.txt -> C:\a\b\ 
+/// C:\a\b\c -> C:\a\b
+/// d/e/ghi  -> d/e/
+std::string os_portable_path_from_path(const std::string& path);
+
+/// read the last meaningful line from a file
+std::string os_portable_read_last_line(const std::string  & filename);
+
+/// Change current directory: true if success
+bool os_portable_chdir(const std::string  & dirname);
+
+/// Get the current directory
+std::string os_portable_getcwd();
+
+
 
 }; // namespace ilang
 

@@ -67,13 +67,16 @@ public:
   void ExtractSynthesisResult(bool autodet = true, bool reachable = true, 
     const std::string & res_file = "");
   /// run Verification : returns eq true/false
-  bool virtual RunVerifAuto();
+  bool virtual RunVerifAuto(unsigned problem_idx);
   /// run Synthesis : returns reachable/not
   bool virtual RunSynAuto();
   /// return back state
   bool in_bad_state() const {return bad_state;}
   /// check state
   bool check_in_bad_state() const ;
+  /// Here we directly expose the runnable script names (They will never be used as inputs)
+  const std::vector<std::string> & GetRunnableTargetScriptName() const;
+
 
 protected:
   // -------------------- MEMBERS ------------------ //
@@ -91,6 +94,16 @@ protected:
   bool bad_state;
   /// the round id
   unsigned round_id;
+  /// the runnable script name after each target gen
+  std::vector<std::string> runnable_script_name;
+  /// verification result
+  bool verification_pass;
+  /// verification result -- the vcd full name/path
+  std::string vcd_file_name;
+  /// synthesis result
+  bool cex_reachable;
+  /// the synthesis result file
+  std::string synthesis_result_fn;
 
   // --------------------------------------------------
   // for book-keeping purpose

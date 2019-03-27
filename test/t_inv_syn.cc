@@ -1,6 +1,7 @@
 /// \file
 /// Unit test for generating Verilog verification target
 
+#include <ilang/util/fs.h>
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/ilang++.h>
 #include <ilang/vtarget-out/vtarget_gen.h>
@@ -167,6 +168,9 @@ TEST(TestVlgVerifInvSyn, CegarPipelineExample) {
   cfg.VerificationSettingAvoidIssueStage = true;
   cfg.YosysSmtFlattenDatatype = false;
   cfg.YosysSmtFlattenHierarchy = true;
+  cfg.CosaPyEnvironment = "/home/hongce/cosaEnv/bin/activate";
+  cfg.CosaPath = "/home/hongce/CoSA/";
+  cfg.Z3Path = "/home/hongce/z3s/bin/";
 
   auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/vpipe/";
   auto outDir  = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/inv_syn/vpipe-out4/";
@@ -183,11 +187,16 @@ TEST(TestVlgVerifInvSyn, CegarPipelineExample) {
 
   EXPECT_FALSE(vg.in_bad_state());
 
-  vg.ExtractVerificationResult(false,false,outDir+"ADD/trace[1]-variable_map_assert.vcd", "m1");
-  vg.GenerateSynthesisTarget();
-  // we
-  vg.ExtractSynthesisResult(false,false,outDir+"inv-syn/z3_res.txt");
-
+    do{
+      vg.GenerateVerificationTarget();
+      if(vg.RunVerifAuto(1)) // the ADD
+        break; // no more cex found
+      vg.ExtractVerificationResult();
+      vg.GenerateSynthesisTarget();
+      if(vg.RunSynAuto())
+        break; // cex is really reachable!!!
+      vg.ExtractSynthesisResult();
+    }while(not vg.in_bad_state());
 }
 
 

@@ -218,9 +218,9 @@ void VlgVerifTgtGen::GenerateTargets(void) {
       target.ConstructWrapper();
       target.ExportAll("wrapper.v", "ila.v", "run.sh", "gensmt.ys", "absmem.v");
     }
-
-    runnable_script_name.push_back(
-      os_portable_append_dir(sub_output_path, "run.sh"));
+    if(invariantExists)
+      runnable_script_name.push_back(
+        os_portable_append_dir(sub_output_path, "run.sh"));
     // end if backend...
   } // end if if(_vtg_config.target_select == BOTH || _vtg_config.target_select
     // == INV)

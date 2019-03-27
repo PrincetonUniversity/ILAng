@@ -2,6 +2,8 @@
 // Hongce Zhang
 
 #include <ilang/util/log.h>
+#include <ilang/util/fs.h>
+#include <ilang/util/container_shortcut.h>
 #include <ilang/verilog-in/verilog_analysis.h>
 #include <ilang/vtarget-out/vtarget_gen_impl.h>
 #include <ilang/vtarget-out/inv-syn/inv_syn_cegar.h>
@@ -84,6 +86,8 @@ void InvariantSynthesizerCegar::GenerateVerificationTarget() {
 
   vlg_mod_inst_name = vg.GetVlgModuleInstanceName();
 
+  runnable_script_name = vg.GetRunnableScriptName();
+
   status = cegar_status::V_RES;
 }
 /// to generate targets using the provided invariants
@@ -95,8 +99,14 @@ void InvariantSynthesizerCegar::GenerateVerificationTarget(const std::vector<std
 
 /// to extract result 
 void InvariantSynthesizerCegar::ExtractVerificationResult(bool autodet, bool pass, 
-  const std::string & res_file, const std::string & mod_inst_name ) {
-  ILA_ASSERT(not autodet) << "Future work, not able to auto-determine verify result";
+  const std::string & vcd_file, const std::string & mod_inst_name ) {
+  if(check_in_bad_state()) return;
+
+  std::string res_file = vcd_file;
+  if (autodet) {
+    res_file = vcd_file_name;
+    pass = verification_pass;
+  }
   ILA_WARN_IF(status != cegar_status::V_RES) << "CEGAR-loop: repeated verification step.";
 
   vlg_mod_inst_name = vlg_mod_inst_name.empty() ? mod_inst_name : vlg_mod_inst_name;
@@ -107,9 +117,11 @@ void InvariantSynthesizerCegar::ExtractVerificationResult(bool autodet, bool pas
   }
 
   if(pass) {
+    ILA_INFO << "No counterexample has been found. CEGAR loop finishes.";
     status = cegar_status::DONE;
     return;
   }
+
   // we still need to create a verilog info analyzer
   VerilogAnalyzer va(
       implementation_incl_path, implementation_srcs_path,
@@ -153,21 +165,122 @@ void InvariantSynthesizerCegar::GenerateSynthesisTarget() {
       );
   
   design_smt_info = vg.GenerateInvSynTargets(s_backend);
+
+  runnable_script_name = vg.GetRunnableScriptName();
+
+  status = cegar_status::S_RES;
 } // GenerateSynthesisTarget
+
+/// a helper function (only locally available)
+/// to extract vcd file name from the output
+std::string extract_vcd_name_from_cex(const std::string & fn) {
+  std::ifstream fin(fn);
+  if (not fin.is_open()) {
+    ILA_ERROR<<"Unable to read from:"<<fn;
+    return "";
+  }
+  std::string line;
+  while(std::getline(fin,line)) {
+    if (S_IN("*** TRACES ***" , line))
+      break;
+  }
+  if(fin.eof()) {
+    ILA_ERROR << "Cannot extract vcd filename, incorrect format, expecting *** TRACES ***";
+    return "";
+  }
+  std::string fname;
+  fin >> fname; fin >> fname; // the first is garbage;
+  ILA_ERROR_IF (not S_IN(".vcd", fname)) << "Expecting vcd file name, get " << fname;
+  return fname;
+} // extract_vcd_name_from_cex
+
+
 /// run Verification
-bool InvariantSynthesizerCegar::RunVerifAuto() {
+bool InvariantSynthesizerCegar::RunVerifAuto(unsigned problem_idx) {
+  if(check_in_bad_state())
+    return true;
+  // Not implemented
+  auto result_fn = os_portable_append_dir(_output_path, "__verification_result.txt");
+
+  auto cwd = os_portable_getcwd();
+  auto new_wd = os_portable_path_from_path(runnable_script_name[problem_idx]);
+  ILA_ERROR_IF(not os_portable_chdir(os_portable_path_from_path(new_wd))) 
+    << "RunVerifAuto: cannot change dir to:" << os_portable_path_from_path;
+  ILA_INFO << "Executing verify script:" << runnable_script_name[problem_idx];
+  ILA_ERROR_IF(not os_portable_execute_shell({"bash", "-c", runnable_script_name[problem_idx]},
+   result_fn, redirect_t::BOTH))
+  << "Running verification script " << runnable_script_name[problem_idx] << " results in error."; 
+  ILA_ASSERT(os_portable_chdir(cwd));
+  // the last line contains the result
+  // above it you should have *** TRACES ***
+  vcd_file_name = extract_vcd_name_from_cex(result_fn);
+  vcd_file_name = os_portable_append_dir(new_wd, vcd_file_name);
+  // the vcd file resides within the new dir
+  auto lastLine = os_portable_read_last_line(result_fn);
+
+  ILA_ERROR_IF(lastLine.empty()) << "Unable to extract verification result.";
+  if (S_IN("Verifications with unexpected result", lastLine)) {
+    ILA_INFO << "Counterexample found.";
+    verification_pass = false;
+    return false;
+  }
+  verification_pass = true;
+  status = cegar_status::DONE;
+  ILA_INFO << "No counterexample has been found. CEGAR loop finishes.";
   return true;
 }
 /// run Synthesis
 bool InvariantSynthesizerCegar::RunSynAuto() {
-  return true;
+  if(check_in_bad_state())
+    return true;
+  
+  ILA_ASSERT(runnable_script_name.size() == 1) << "Please run GenerateInvSynTargets function first";
+  synthesis_result_fn = os_portable_append_dir(_output_path, "__synthesis_result.txt");
+
+  auto cwd = os_portable_getcwd();
+  auto new_wd = os_portable_path_from_path(runnable_script_name[0]);
+  ILA_ERROR_IF(not os_portable_chdir(os_portable_path_from_path(new_wd))) 
+    << "RunVerifAuto: cannot change dir to:" << os_portable_path_from_path;
+  ILA_INFO << "Executing verify script:" << runnable_script_name[0];
+  ILA_ERROR_IF(not os_portable_execute_shell({"bash","-c", runnable_script_name[0]},
+   synthesis_result_fn, redirect_t::BOTH))
+  << "Running synthesis script " << runnable_script_name[0] << " results in error."; 
+  ILA_ASSERT(os_portable_chdir(cwd));
+  
+  std::string line;
+  { // read the result
+    std::ifstream fin(synthesis_result_fn);
+    if (not fin.is_open()) {
+      ILA_ERROR << "Unable to read the synthesis result file:" << synthesis_result_fn;
+      status = cegar_status::FAILED;
+      bad_state = true;
+      return true; // reachable
+    } 
+    std::getline(fin,line);  
+  } // finish file reading
+  cex_reachable = true;
+  if (S_IN("unsat", line))
+    cex_reachable = false; // not reachable
+  // else reachable
+  return cex_reachable;
+}
+
+const std::vector<std::string> & InvariantSynthesizerCegar::GetRunnableTargetScriptName() const {
+  return runnable_script_name;
 }
 
 
 void InvariantSynthesizerCegar::ExtractSynthesisResult(bool autodet, bool reachable, 
-  const std::string & res_file) {
+  const std::string & given_smt_chc_result_txt) {
   
-  ILA_ASSERT(not autodet) << "Future work, not able to auto-determine synthesis result";
+  if(check_in_bad_state()) return;
+
+  std::string res_file = given_smt_chc_result_txt;
+  if (autodet) {
+    reachable = cex_reachable;
+    res_file = synthesis_result_fn;
+  }
+  
   ILA_WARN_IF(status != cegar_status::S_RES) << "CEGAR-loop: expecting synthesis result.";
 
   if (design_smt_info == nullptr) {

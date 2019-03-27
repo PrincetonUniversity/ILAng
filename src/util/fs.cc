@@ -9,10 +9,14 @@
 #include <ilang/util/log.h>
 #include <ilang/util/str_util.h>
 
+#include <fstream>
+#include <iomanip>
+
 #include <cstdlib>
 #if defined(_WIN32) || defined(_WIN64)
 // on windows
 #include <direct.h>
+#include <winbase.h>
 #include <windows.h>
 #else
 // on *nix
@@ -114,6 +118,26 @@ bool os_portable_copy_file_to_dir(const std::string& src,
   return ret == 0;
 }
 
+/// Extract path from path
+/// C:\a\b\c.txt -> C:\a\b\ 
+/// C:\a\b\c -> C:\a\b
+/// d/e/ghi  -> d/e/
+std::string os_portable_path_from_path(const std::string& path) {
+
+  std::string sep;
+#if defined(_WIN32) || defined(_WIN64)
+  // on windows
+  sep = "\\";
+#else
+  // on *nix
+  sep = "/";
+#endif
+  if (path.find(sep) == path.npos)
+    return "./";
+  auto pos = path.rfind(sep);
+  ILA_ASSERT(pos != path.npos);
+  return path.substr(0,pos+1); // include sep
+}
 
 /// C:\\a.txt -> C:\\a   or  /a/b/c.txt -> a/b/c
 std::string os_portable_remove_file_name_extension(const std::string fname) {
@@ -145,19 +169,40 @@ std::string os_portable_remove_file_name_extension(const std::string fname) {
 
 bool os_portable_execute_shell(
   const std::vector<std::string> & cmdargs,
-  const std::string & redirect_output_file) 
+  const std::string & redirect_output_file,
+  redirect_t rdt ) 
 {
   auto cmdline = Join(cmdargs, ",");
   ILA_ASSERT(not cmdargs.empty()) << "API misuse!";
 #ifdef defined(_WIN32) || defined(_WIN64)
+  HANDLE h;
+  if (not redirect_output_file.empty() and rdt != redirect_t::NONE) {
+    SECURITY_ATTRIBUTES sa;
+    sa.nLength = sizeof(sa);
+    sa.lpSecurityDescriptor = NULL;
+    sa.bInheritHandle = TRUE;
+    h = CreateFile(_T(redirect_output_file.c_str()),
+        FILE_APPEND_DATA,
+        FILE_SHARE_WRITE | FILE_SHARE_READ,
+        &sa,
+        OPEN_ALWAYS,
+        FILE_ATTRIBUTE_NORMAL,
+        NULL );
+  }
+
   // on windows
   STARTUPINFO si;
   PROCESS_INFORMATION pi;
   ZeroMemory( &si, sizeof(si) );
   si.cb = sizeof(si);
+  si.dwFlags |= STARTF_USESTDHANDLES;
+  si.hStdInput = NULL;
+  if (rdt & redirect_t::STDERR)
+    si.hStdError = h;
+  if (rdt & redirect_t::STDOUT)
+    si.hStdOutput = h;
+
   ZeroMemory( &pi, sizeof(pi) );
-  ILA_ERROR_IF(not redirect_output_file.empty()) 
-    << "Does not support redirect on WIN platform";
   // Start the child process. 
   if( !CreateProcess( NULL,   // No module name (use command line)
       cmdline.c_str(),      // Command line
@@ -171,6 +216,8 @@ bool os_portable_execute_shell(
       &pi )           // Pointer to PROCESS_INFORMATION structure
     )
     return false; // failed
+  CloseHandle(pi.hProcess);
+  CloseHandle(pi.hThread);
   return true; 
 #else
   // on *nix, spawn a child process to do this
@@ -191,10 +238,13 @@ bool os_portable_execute_shell(
         ILA_ERROR << "Failed to open " << redirect_output_file;
         exit(1);
       }
-      dup2(fd, STDOUT_FILENO);
+      if (rdt & redirect_t::STDOUT)
+        dup2(fd, STDOUT_FILENO);
+      if (rdt & redirect_t::STDERR)
+        dup2(fd, STDERR_FILENO);
       close(fd);
     }
-
+    
     // this is memory leak, but I have no other way...
     // hope this will be reclaimed by OS
     // + 1 for NULL
@@ -227,6 +277,95 @@ bool os_portable_execute_shell(
   return true;
 
 #endif
+}
+
+
+/// read the last meaningful line from a file
+std::string os_portable_read_last_line(const std::string  & filename) {
+  std::ifstream fin(filename);
+  if(not fin.is_open()) {
+    ILA_ERROR << "Error open for read:"<<filename;
+    return "";
+  }
+  fin.seekg(-1, std::ios_base::end);
+
+  bool keepLooping = true;
+  bool has_alnum = false;
+  while(keepLooping) {
+      char ch;
+      fin.get(ch);                            // Get current byte's data
+      if(std::isalnum(ch))
+        has_alnum = true;
+
+      if((int)fin.tellg() <= 1) {             // If the data was at or before the 0th byte
+          fin.seekg(0);                       // The first line is the last line
+          keepLooping = false;                // So stop there
+      }
+      else if(ch == '\r' && has_alnum) {
+        keepLooping = false; // \n\r or just  \r
+      }
+      else if(ch == '\n' && has_alnum ) {                   // If the data was a newline
+          fin.get(ch);
+          keepLooping = false;                // Stop at the current position.
+          if (ch != '\r')
+            fin.seekg(-1,std::ios_base::cur); // not \n\r, put it back
+      }
+      else {                                  // If the data was neither a newline nor at the 0 byte
+          fin.seekg(-2,std::ios_base::cur);   // Move to the front of that data, then to the front of the data before it
+      }
+  }
+
+  std::string lastLine;            
+  std::getline(fin,lastLine);         
+  fin.close();
+  return lastLine;
+}
+
+/// Change current directory
+bool os_portable_chdir(const std::string  & dirname) {
+
+#ifdef defined(_WIN32) || defined(_WIN64)
+  // windows
+  if (_chdir(dirname.c_str()) != 0) {
+    ILA_ERROR << "Failed to change to dir:"<<dirname;
+    return false;
+  }
+  return true;
+
+#else
+  int ret = chdir(dirname.c_str());
+  ILA_ERROR_IF(ret != 0) << "Failed to change to dir:"<<dirname;
+  return ret == 0;
+#endif 
+}
+
+/// Get the current directory
+std::string os_portable_getcwd() {
+#ifdef defined(_WIN32) || defined(_WIN64)
+  // windows
+  size_t len = GetCurrentDirectory(0,NULL);
+  char * buffer = new char [len];
+  if ( GetCurrentDirectory(buffer,len) == 0) {
+    ILA_ERROR << "Unable to get the current working directory.";
+    delete [] buffer;
+    return "";
+  }
+  std::string ret(buffer);
+  delete [] buffer;
+  return ret;
+#else
+  // *nix
+  size_t buff_size = 128;
+  char * buffer = new char[buff_size];
+  while(getcwd(buffer, buff_size) == NULL) {
+    delete [] buffer;
+    buff_size *= 2;
+    buffer = new char[buff_size]; // resize
+  }
+  std::string ret(buffer);
+  delete []buffer;
+  return ret;
+#endif 
 }
 
 }; // namespace ilang
