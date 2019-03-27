@@ -2,7 +2,7 @@
 #ifndef VCDValue_HPP
 #define VCDValue_HPP
 
-#include "VCDTypes.hpp"
+#include "vcdparser/VCDTypes.hpp"
 
 /*!
 @brief Represents a single value found in a VCD File.

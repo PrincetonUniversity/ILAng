@@ -3,8 +3,8 @@
 #include <string>
 #include <vector>
 
-#include "VCDTypes.hpp"
-#include "VCDValue.hpp"
+#include "vcdparser/VCDTypes.hpp"
+#include "vcdparser/VCDValue.hpp"
 
 #ifndef VCDFile_HPP
 #define VCDFile_HPP

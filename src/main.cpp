@@ -1,5 +1,5 @@
 
-#include "VCDFileParser.hpp"
+#include "vcdparser/VCDFileParser.hpp"
 /*!
 @brief Standalone test function to allow testing of the VCD file parser.
 */

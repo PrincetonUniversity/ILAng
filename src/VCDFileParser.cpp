@@ -3,7 +3,7 @@
 @brief Definition of the VCDFileParser class
 */
 
-#include "VCDFileParser.hpp"
+#include "vcdparser/VCDFileParser.hpp"
 
 VCDFileParser::VCDFileParser() {
 

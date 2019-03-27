@@ -1,7 +1,7 @@
 
 #include <iostream>
 
-#include "VCDFile.hpp"
+#include "vcdparser/VCDFile.hpp"
         
         
 //! Instance a new VCD file container.

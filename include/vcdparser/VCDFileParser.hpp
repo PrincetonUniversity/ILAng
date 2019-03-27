@@ -12,8 +12,8 @@
 #include <stack>
 
 #include "VCDParser.hpp"
-#include "VCDTypes.hpp"
-#include "VCDFile.hpp"
+#include "vcdparser/VCDTypes.hpp"
+#include "vcdparser/VCDFile.hpp"
 
 #define YY_DECL \
     VCDParser::parser::symbol_type yylex (VCDFileParser & driver)

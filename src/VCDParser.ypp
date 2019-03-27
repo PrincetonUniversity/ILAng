@@ -17,8 +17,8 @@
     #include <string>
     #include <map>
 
-    #include "VCDTypes.hpp"
-    #include "VCDFile.hpp"
+    #include "vcdparser/VCDTypes.hpp"
+    #include "vcdparser/VCDFile.hpp"
 
     class VCDFileParser;
 }
@@ -35,7 +35,7 @@
 
 %code{
 
-#include "VCDFileParser.hpp"
+#include "vcdparser/VCDFileParser.hpp"
 
 //! Current time while parsing the VCD file.
 VCDTime current_time = 0;
