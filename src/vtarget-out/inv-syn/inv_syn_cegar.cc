@@ -305,6 +305,8 @@ void InvariantSynthesizerCegar::ExtractSynthesisResult(bool autodet, bool reacha
   for (auto && v : inv_obj.GetVlgConstraints() )
     std::cout << v << std::endl;
 
+  status = cegar_status::NEXT_V;
+
 } // ExtractSynthesisResult
 
 }; // namespace ilang

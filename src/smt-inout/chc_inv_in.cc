@@ -213,9 +213,9 @@ var_type * SmtlibInvariantParser::make_sort(const std::string &name, const std::
 
     std::string top_module = module_def_order.back();
     std::string top_module_sort;
-    std::cerr << top_module << std::endl;
+    ILA_DLOG("SmtlibInvariantParser.make_sort") << top_module << std::endl;
     top_module_sort = top_module + std::string("_s");
-    std::cerr << top_module_sort << std::endl;
+    ILA_DLOG("SmtlibInvariantParser.make_sort") << top_module_sort << std::endl;
 
     ILA_ASSERT(name == top_module_sort || name == "|"+top_module_sort+"|") 
       << "Unknown sort:" << name << " in unflattened smt."
@@ -254,23 +254,20 @@ void SmtlibInvariantParser::declare_quantified_variable(const std::string &name,
     // if not flattened, there should only be one sort
     top.insert(std::make_pair(name,
       SmtTermInfoVerilog("",*sort,this))); // itself could not be translated
-    std::cerr << "make var :" << name << std::endl;
+    ILA_DLOG("SmtlibInvariantParser.declare_quantified_variable") << "make var :" << name << std::endl;
   }
 }
 
 SmtTermInfoVlgPtr SmtlibInvariantParser::search_quantified_var_stack(const std::string & name) {
 
   ILA_ASSERT(mask == 0xdeadbeaf);
-  std::cerr << "Begin search var:"<<name<<std::endl;
+  ILA_DLOG("SmtlibInvariantParser.search_var") << "Begin search var:"<<name<<std::endl;
   for (auto mp_pos = quantifier_def_stack.rbegin(); 
     mp_pos != quantifier_def_stack.rend(); ++ mp_pos) { // search from the closest binding
-    for (auto && p: *mp_pos) {
-      std::cerr << "Exists var:"<<p.first<<std::endl;
-    }
     if (IN(name,(*mp_pos) ))
       return & ( (*mp_pos) [name] );
   }
-  std::cerr << "Not found var:"<<name<<std::endl;
+  ILA_DLOG("SmtlibInvariantParser.search_var") << "Not found var:"<<name<<std::endl;
   return nullptr;
 } // search_quantified_var_stack
 
@@ -284,7 +281,7 @@ SmtTermInfoVlgPtr SmtlibInvariantParser::mk_function(
   const std::string &name, var_type * sort, 
   const std::vector<int> & idx, const std::vector<SmtTermInfoVlgPtr> & args) {
   // we don't really rely on the sort here: actually it should be NULL
-  std::cerr << "make func:" << name << ", #arg" << args.size() << std::endl;
+  ILA_DLOG("SmtlibInvariantParser.mk_function") << "make func:" << name << ", #arg" << args.size() << std::endl;
   if (args.empty() and idx.empty()) {
     // first let's check if it is referring to a quantifier-bound variable
     auto term_ptr = search_quantified_var_stack(name);
