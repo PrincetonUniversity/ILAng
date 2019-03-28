@@ -6,6 +6,9 @@ find_dependency(Z3 REQUIRED)
 find_dependency(glog REQUIRED)
 find_dependency(nlohmann_json REQUIRED)
 find_dependency(verilogparser REQUIRED)
+find_dependency(vcdparser REQUIRED)
+find_dependency(smtparser REQUIRED)
+
 
 if(@ILANG_BUILD_SYNTH@)
   find_dependency(ilasynth REQUIRED)
