@@ -193,8 +193,11 @@ TEST(TestVlgVerifInvSyn, CegarPipelineExample) {
         break; // no more cex found
       vg.ExtractVerificationResult();
       vg.GenerateSynthesisTarget();
-      if(vg.RunSynAuto())
-        break; // cex is really reachable!!!
+      if(vg.RunSynAuto()) {
+        EXPECT_TRUE(false); // cex is really reachable!!!
+        ILA_ERROR<<"Unexpected counterexample!";
+        break; 
+      }
       vg.ExtractSynthesisResult();
     }while(not vg.in_bad_state());
 }

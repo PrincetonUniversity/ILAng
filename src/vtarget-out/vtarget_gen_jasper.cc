@@ -154,7 +154,7 @@ void VlgSglTgtGen_Jasper::Export_mem(const std::string& mem_name) {
   auto outfn = os_portable_append_dir(_output_path, mem_name);
   std::ofstream fout(outfn); // will not append
 
-  VlgAbsMem::OutputMemFile(fout);
+  VlgAbsMem::OutputMemFile(fout, _vtg_config.MemAbsReadAbstraction);
 }
 /// For jasper, this means do nothing, for yosys, you need to add (*keep*)
 void VlgSglTgtGen_Jasper::Export_modify_verilog() {

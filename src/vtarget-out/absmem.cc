@@ -4,6 +4,7 @@
 #include <cmath>
 #include <ilang/util/container_shortcut.h>
 #include <ilang/util/log.h>
+#include <ilang/util/str_util.h>
 #include <ilang/vtarget-out/absmem.h>
 #include <sstream>
 
@@ -186,9 +187,12 @@ void VlgAbsMem::ClearAbsMemRecord() {
   concrete_level_encountered.clear(); 
 }
 
-void VlgAbsMem::OutputMemFile(std::ostream& os) {
+// the parameters are :
+// %%%AVOID_ISSUE%%%
+//
+//
 
-  std::string d1model = R"**##**(
+std::string d1model = R"**##**(
 
 // 1R 1W (x2) d=1 AW(V=I) DW(V=I) absmem
 // only work for CoSA
@@ -253,7 +257,7 @@ reg             start_and_on;
 
 always @(posedge clk) begin
   if(rst)
-    start_and_on <= 1'b0;
+    start_and_on <= 1'b%%%AVOID_ISSUE%%%;
   else if(issue)
     start_and_on <= 1'b1;
 end
@@ -422,7 +426,7 @@ reg             start_and_on;
 
 always @(posedge clk) begin
   if(rst)
-    start_and_on <= 1'b0;
+    start_and_on <= 1'b%%%AVOID_ISSUE%%%;
   else if(issue)
     start_and_on <= 1'b1;
 end
@@ -581,13 +585,16 @@ endmodule
 
     )**##**";
 
+
+void VlgAbsMem::OutputMemFile(std::ostream& os, bool avoid_issue_stage) {
+
   for (auto&& cl : concrete_level_encountered) {
     if (cl == 1)
-      os << d1model;
+      os << ReplaceAll(d1model,"%%%AVOID_ISSUE%%%", avoid_issue_stage?"1":"0" );
     else if (cl == -1)
-      os << d1ra;
+      os << ReplaceAll(d1ra,"%%%AVOID_ISSUE%%%", avoid_issue_stage?"1":"0" );
     else
-      ILA_ERROR << "depth :" << cl
+      ILA_ASSERT(false) << "depth :" << cl
                 << " abs mem model is not developed. Future work.";
   }
 }

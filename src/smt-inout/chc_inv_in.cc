@@ -695,8 +695,9 @@ DEFINE_OPERATOR(extract) {
   ILA_ASSERT(right >=0 and right < args[0]->_type._width);
 
   std::string bitslice = "[" + std::to_string(left) + ":" + std::to_string(right) + "]";
-  if (left == right)
-    bitslice = "[" + std::to_string(left)  + "]";
+  // this creates extra problem!
+  //if (left == right)
+  //  bitslice = "[" + std::to_string(left)  + "]";
 
   if (S_IN("(",args[0]->_translate )) 
   { // when we cannot put in one expression
@@ -743,7 +744,8 @@ DEFINE_OPERATOR(bit2bool) {
 
   auto bitidx = idx[0];
   ILA_ASSERT(bitidx >=0 and bitidx < args[0]->_type._width);
-  auto bitslice = "[" + std::to_string(bitidx)  + "]";
+  //auto bitslice = "[" + std::to_string(bitidx)  + "]";
+  auto bitslice = "[" + std::to_string(bitidx) + ":" + std::to_string(bitidx) + "]";
 
   if (S_IN("(",args[0]->_translate )) 
   { // when we cannot put in one expression

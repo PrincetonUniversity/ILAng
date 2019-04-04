@@ -71,7 +71,7 @@ public:
   GeneratingMemModuleSignalsInstantiation(VerilogGeneratorBase& gen,
                                           const std::string& endCond);
   /// Output the memory module to the stream
-  static void OutputMemFile(std::ostream& os);
+  static void OutputMemFile(std::ostream& os, bool avoid_issue_stage);
   /// Return true if there are abs mem used (strategy : ALL -> AUTO)
   static bool hasAbsMem();
   /// reset concrete_level (per-target).

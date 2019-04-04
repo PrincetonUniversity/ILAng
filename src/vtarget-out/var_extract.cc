@@ -41,7 +41,11 @@ bool isStateCont(unsigned char c, size_t idx, const std::string& s) {
     auto rc = s.find(':', idx);
     if (rc < rp)
       return false;
+    // s[a:b], for this type, we make sure the whole of s is connected
+    // basically, it assumes that the rf will not refer to multiple elements
+    // but actually we need to check
     return true;
+    // we are not sure of it actually
   }
   return false;
 }
