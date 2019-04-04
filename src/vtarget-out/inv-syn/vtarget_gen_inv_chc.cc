@@ -84,6 +84,8 @@ std::string inv_syn_tmpl_datatypes = R"***(
 ; inv /\ T => inv
 (rule (=> (and 
   (INV |__S__|) 
+  (|%1%_u| |__S__|)
+  (|%1%_u| |__S'__|)
   <!>(|%1%_h| |__S__|)<!>
   <!>(|%1%_h| |__S'__|)<!>
   (|%1%_t| |__S__| |__S'__|)) 
@@ -92,6 +94,7 @@ std::string inv_syn_tmpl_datatypes = R"***(
 ; inv /\ ~p => \bot
 (rule (=> (and 
   (INV |__S__|) 
+  (|%1%_u| |__S__|)
   <!>(|%1%_h| |__S__|)<!>
   (not (|%1%_a| |__S__|)))
   fail))
@@ -136,6 +139,8 @@ std::string inv_syn_tmpl_wo_datatypes = R"***(
 ; inv /\ T => inv
 (rule (=> (and 
   (INV %Ss%) 
+  (|%WrapperName%_u| %Ss%) 
+  (|%WrapperName%_u| %Sps%) 
   <!>(|%WrapperName%_h| %Ss%)<!>
   <!>(|%WrapperName%_h| %Sps%)<!>
   (|%WrapperName%_t| %Ss% %Sps%)) 
@@ -144,6 +149,7 @@ std::string inv_syn_tmpl_wo_datatypes = R"***(
 ; inv /\ ~p => \bot
 (rule (=> (and 
   (INV %Ss%)
+  (|%WrapperName%_u| %Ss%) 
   <!>(|%WrapperName%_h| %Ss%)<!>
   (not (|%WrapperName%_a| %Ss%))) 
   fail))
@@ -272,9 +278,26 @@ void VlgSglTgtGen_Chc::add_a_direct_assertion(const std::string& asst,
 void VlgSglTgtGen_Chc::PreExportProcess() {
 
   std::string all_assert_wire_content;
+  std::string all_assume_wire_content;
 
   ILA_ASSERT(target_type == target_type_t::INV_SYN_DESIGN_ONLY);
   ILA_ERROR_IF(_problems.assertions.size() != 1) << "BUG in cex extract";
+
+  // you need to add assumptions as well
+  for (auto&& pbname_prob_pair : _problems.assumptions) {
+    const auto & prbname = pbname_prob_pair.first;
+    const auto & prob = pbname_prob_pair.second;
+    ILA_DLOG("VlgSglTgtGen_Chc.PreExportProcess") << "Adding assumption:" << prbname;
+    
+    for (auto&& p: prob.exprs) {
+      vlg_wrapper.add_stmt(
+        "assume property ("+p+"); //" + prbname + "\n");
+      if (all_assume_wire_content.empty())
+        all_assume_wire_content = "(" + p + ")";
+      else
+        all_assume_wire_content += "&& (" + p + ")";
+    } // for prob.exprs
+  } // for _problems.assumption
 
   // this is to check given invariants
   for (auto&& pbname_prob_pair : _problems.assertions) {
@@ -288,16 +311,20 @@ void VlgSglTgtGen_Chc::PreExportProcess() {
     for (auto&& p: prob.exprs) {
       vlg_wrapper.add_stmt(
         "assert property ("+p+"); //" + prbname + "\n"
-      );
+      ); // there should be only one expression (actually)
+      ILA_ASSERT(all_assert_wire_content.empty());
       all_assert_wire_content = "( " + p  + " ) ";
     } // for expr
   } // for problem
-
-
-
+  // add assert wire (though no use : make sure will not optimized away)
   vlg_wrapper.add_wire("__all_assert_wire__", 1, true);
   vlg_wrapper.add_output("__all_assert_wire__",1);
   vlg_wrapper.add_assign_stmt("__all_assert_wire__", all_assert_wire_content);
+
+  vlg_wrapper.add_wire("__all_assume_wire__", 1, true);
+  vlg_wrapper.add_output("__all_assume_wire__",1);
+  vlg_wrapper.add_assign_stmt("__all_assume_wire__", all_assume_wire_content);
+  
 } // PreExportProcess
 
 /// export the script to run the verification :

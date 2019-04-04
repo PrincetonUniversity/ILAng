@@ -241,6 +241,8 @@ protected:
   void ConstructWrapper_inv_syn_add_inv_assumptions();
   /// Add reachability assertions   -- for invariant-synthesis
   void ConstructWrapper_inv_syn_add_cex_assertion();
+  /// Connect the memory even we don't care a lot about them
+  void ConstructWrapper_inv_syn_connect_mem();
 
 protected:
   /// get the ila module instantiation string

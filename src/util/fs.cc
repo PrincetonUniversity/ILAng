@@ -235,6 +235,7 @@ bool os_portable_execute_shell(
       int fd;
       fd = open(redirect_output_file.c_str(), O_WRONLY | O_CREAT | O_TRUNC , S_IRUSR | S_IWUSR );
       if (fd < 0) {
+        perror(NULL);
         ILA_ERROR << "Failed to open " << redirect_output_file;
         exit(1);
       }
@@ -251,14 +252,14 @@ bool os_portable_execute_shell(
 
     const int MAX_ARG = 64;
     char * argv[MAX_ARG];
-    ILA_ASSERT(cmdargs.size() <= MAX_ARG) << "Too many args";
+    ILA_ASSERT(cmdargs.size() < MAX_ARG) << "Too many args";
 
-    for(auto it = cmdargs.begin()+1; it != cmdargs.end(); ++ it) {
+    for(auto it = cmdargs.begin(); it != cmdargs.end(); ++ it) {
       // this is memory leak, I know, but what can I do ?
-      argv[it-cmdargs.begin()-1] = new char[it->size() + 1];
-      strcpy(argv[it-cmdargs.begin()-1], it->c_str());
+      argv[it-cmdargs.begin()] = new char[it->size() + 1];
+      strcpy(argv[it-cmdargs.begin()], it->c_str());
     }
-    argv[ cmdargs.size() -1 ] = NULL;
+    argv[ cmdargs.size() ] = NULL;
 
     exit( execvp(cmdargs[0].c_str(), argv));
   } else {

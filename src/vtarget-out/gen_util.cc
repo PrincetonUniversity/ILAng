@@ -386,12 +386,18 @@ std::string VlgSglTgtGen::GetStateVarMapExpr(const std::string& ila_state_name,
   if (m.is_null())
     return VLG_TRUE;
   if (m.is_string()) {
-    if (_sdr.isSpecialStateDir(m.get<std::string>())) {
+    std::string rfm = m.get<std::string>();
+    if (_sdr.isSpecialStateDir(rfm)) {
+      // currently we only support **MEM** as state directive
+      if(not _sdr.isSpecialStateDirMem(rfm)) {
+        ILA_ERROR<<"Unsupported state directive:"<<rfm;
+        return VLG_TRUE;
+      }
       ILA_DLOG("VlgSglTgtGen.GetStateVarMapExpr")
           << "map mem:" << ila_state_name;
       // may be we need to log them here
       if (is_assert == false) {
-        _idr.SetMemName(m.get<std::string>(), ila_state_name);
+        _idr.SetMemName(rfm, ila_state_name, _vtg_config.MemAbsReadAbstraction);
         return VLG_TRUE; // no need for assumptions on memory
       }
       // handle memory: map vlg_ila.ila_wports && vlg_ila.ila_rports with
@@ -404,12 +410,12 @@ std::string VlgSglTgtGen::GetStateVarMapExpr(const std::string& ila_state_name,
       }
       if (not ila_state->sort()->is_mem()) {
         ILA_ERROR << ila_state_name << " is not memory, not compatible w. "
-                  << m.get<std::string>();
+                  << rfm;
         return VLG_TRUE;
       }
 
       auto mem_eq_assert = _idr.ConnectMemory(
-          m.get<std::string>(), ila_state_name,
+          rfm, ila_state_name,
           vlg_ila.ila_rports[ila_state_name],
           vlg_ila.ila_wports[ila_state_name], ila_state->sort()->addr_width(),
           ila_state->sort()->data_width(), _vtg_config.MemAbsReadAbstraction);
@@ -417,7 +423,7 @@ std::string VlgSglTgtGen::GetStateVarMapExpr(const std::string& ila_state_name,
       return mem_eq_assert;
     } else {
       // return the mapping variable
-      return PerStateMap(ila_state_name, m.get<std::string>());
+      return PerStateMap(ila_state_name, rfm);
     }
   }                   /* else */
   if (m.is_array()) { // array of string or array of object/array

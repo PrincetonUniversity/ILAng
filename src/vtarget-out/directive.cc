@@ -382,7 +382,8 @@ void IntefaceDirectiveRecorder::Clear(bool reset_vlg) {
 }
 
 void IntefaceDirectiveRecorder::SetMemName(const std::string& directive,
-                                           const std::string& ila_state_name) {
+                                           const std::string& ila_state_name,
+                                           bool abs_read) {
 
   ILA_ASSERT(beginsWith(directive, "**"));
   if (not beginsWith(directive, "**MEM**")) {
@@ -396,10 +397,15 @@ void IntefaceDirectiveRecorder::SetMemName(const std::string& directive,
     ILA_ERROR << directive << " refers to a nonexisting memory!";
     return;
   }
+
+  pos->second.read_abstract = abs_read;
+
   if (pos->second.mem_name == "")
     pos->second.mem_name = mem_name;
   if (pos->second.ila_map_name == "")
     pos->second.ila_map_name = ila_state_name;
+  
+  // check no duplicate settings
   ILA_ERROR_IF(pos->second.mem_name != mem_name)
       << "Implementation bug,"
       << " setting memory abstraction with a different name"
@@ -428,8 +434,8 @@ std::string IntefaceDirectiveRecorder::ConnectMemory(
     return VLG_TRUE;
   }
 
-  pos->second.read_abstract = abs_read;
-  SetMemName(directive, ila_state_name);
+  //pos->second.read_abstract = abs_read;
+  SetMemName(directive, ila_state_name, abs_read);
 
   // pos->second.ila_map_name = ila_state_name;
   pos->second.SetAddrWidth(ila_addr_width);
@@ -469,6 +475,11 @@ void IntefaceDirectiveRecorder::InsertAbsMemAssmpt(assmpt_inserter_t inserter) {
 // static function
 bool StateMappingDirectiveRecorder::isSpecialStateDir(const std::string& c) {
   return IntefaceDirectiveRecorder::beginsWith(c, "**");
+}
+
+/// a function to determine if a state map refstr is special directie (**???)
+bool StateMappingDirectiveRecorder::isSpecialStateDirMem(const std::string& c) {
+  return IntefaceDirectiveRecorder::beginsWith(c, "**MEM**");
 }
 
 } // namespace ilang

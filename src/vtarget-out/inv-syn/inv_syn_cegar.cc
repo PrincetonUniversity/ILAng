@@ -201,14 +201,15 @@ bool InvariantSynthesizerCegar::RunVerifAuto(unsigned problem_idx) {
     return true;
   // Not implemented
   auto result_fn = os_portable_append_dir(_output_path, "__verification_result.txt");
-
+  auto redirect_fn = os_portable_append_dir("../", "__verification_result.txt");
   auto cwd = os_portable_getcwd();
   auto new_wd = os_portable_path_from_path(runnable_script_name[problem_idx]);
-  ILA_ERROR_IF(not os_portable_chdir(os_portable_path_from_path(new_wd))) 
-    << "RunVerifAuto: cannot change dir to:" << os_portable_path_from_path;
+  ILA_ERROR_IF(not os_portable_chdir(new_wd)) 
+    << "RunVerifAuto: cannot change dir to:" << new_wd;
   ILA_INFO << "Executing verify script:" << runnable_script_name[problem_idx];
-  ILA_ERROR_IF(not os_portable_execute_shell({"bash", "-c", runnable_script_name[problem_idx]},
-   result_fn, redirect_t::BOTH))
+  ILA_ERROR_IF(not os_portable_execute_shell({"bash", 
+    os_portable_file_name_from_path( runnable_script_name[problem_idx]) },
+   redirect_fn, redirect_t::BOTH))
   << "Running verification script " << runnable_script_name[problem_idx] << " results in error."; 
   ILA_ASSERT(os_portable_chdir(cwd));
   // the last line contains the result
@@ -238,14 +239,16 @@ bool InvariantSynthesizerCegar::RunSynAuto() {
   
   ILA_ASSERT(runnable_script_name.size() == 1) << "Please run GenerateInvSynTargets function first";
   synthesis_result_fn = os_portable_append_dir(_output_path, "__synthesis_result.txt");
+  auto redirect_fn = os_portable_append_dir("../", "__synthesis_result.txt");
 
   auto cwd = os_portable_getcwd();
   auto new_wd = os_portable_path_from_path(runnable_script_name[0]);
-  ILA_ERROR_IF(not os_portable_chdir(os_portable_path_from_path(new_wd))) 
-    << "RunVerifAuto: cannot change dir to:" << os_portable_path_from_path;
-  ILA_INFO << "Executing verify script:" << runnable_script_name[0];
-  ILA_ERROR_IF(not os_portable_execute_shell({"bash","-c", runnable_script_name[0]},
-   synthesis_result_fn, redirect_t::BOTH))
+  ILA_ERROR_IF(not os_portable_chdir(new_wd)) 
+    << "RunVerifAuto: cannot change dir to:" << new_wd;
+  ILA_INFO << "Executing synthesis script:" <<  runnable_script_name[0] ;
+  ILA_ERROR_IF(not os_portable_execute_shell({"bash",
+    os_portable_file_name_from_path( runnable_script_name[0] )},
+    redirect_fn, redirect_t::BOTH))
   << "Running synthesis script " << runnable_script_name[0] << " results in error."; 
   ILA_ASSERT(os_portable_chdir(cwd));
   

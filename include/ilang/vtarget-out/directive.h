@@ -106,7 +106,9 @@ public:
   /// Setting the memory abstraction name, but does not enforce any equality
   /// there
   void SetMemName(const std::string& directive,
-                  const std::string& ila_state_name);
+                  const std::string& ila_state_name,
+                  bool abs_read);
+  
   /// Return the memory instantiation string
   std::string GetAbsMemInstString(VerilogGeneratorBase& gen,
                                   const std::string& endCond);
@@ -150,6 +152,8 @@ public:
   // ------------------------------------//
   /// a function to determine if a state map refstr is special directie (**???)
   static bool isSpecialStateDir(const std::string& c);
+  /// a function to determine if a state map refstr is special directie (**???)
+  static bool isSpecialStateDirMem(const std::string& c);
 
 }; // class StateMappingDirectiveRecorder
 

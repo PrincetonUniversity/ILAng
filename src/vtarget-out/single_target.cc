@@ -501,6 +501,31 @@ void VlgSglTgtGen::ConstructWrapper_generate_header() {
   vlg_wrapper.add_preheader("\n`define false 1'b0\n");
 } // ConstructWrapper_generate_header
 
+void VlgSglTgtGen::ConstructWrapper_inv_syn_connect_mem() {
+  ILA_ASSERT(target_type == target_type_t::INV_SYN_DESIGN_ONLY
+    or target_type == target_type_t::INVARIANTS);
+
+  std::set<std::string> ila_mem_state_names;
+
+  for (size_t state_idx = 0; state_idx < _host->state_num(); ++state_idx) {
+    if (_host->state(state_idx)->is_mem())
+      ila_mem_state_names.insert(_host->state(state_idx)->name().str());
+  }
+
+  for (auto& i : (rf_vmap["state mapping"]).items()) {
+    auto sname = i.key(); // ila state name
+    if (not IN(sname, ila_mem_state_names))
+      continue; // we only care about the mem states
+    ila_mem_state_names.erase(sname);
+    // Connect memory here
+    _idr.SetMemName(i.value(), sname, _vtg_config.MemAbsReadAbstraction);
+  }
+
+  // check for unmapped memory
+  for (auto && m : ila_mem_state_names)
+    ILA_ERROR << "No mapping exists for memory : " << m;
+} // ConstructWrapper_inv_syn_connect_mem
+
 // for special memory, we don't need to do anything?
 void VlgSglTgtGen::ConstructWrapper_add_varmap_assumptions() {
   ILA_ASSERT(target_type == target_type_t::INSTRUCTIONS)
@@ -1123,9 +1148,11 @@ void VlgSglTgtGen::ConstructWrapper() {
     ILA_DLOG("VtargetGen") << "STEP:" << 5.4;
     ConstructWrapper_add_inv_assumptions();
   } else if (target_type == target_type_t::INVARIANTS) {
+    ConstructWrapper_inv_syn_connect_mem();
     ConstructWrapper_add_inv_assertions();
     max_bound = _vtg_config.MaxBound;
   } else if (target_type == target_type_t::INV_SYN_DESIGN_ONLY) {
+    ConstructWrapper_inv_syn_connect_mem();
     ConstructWrapper_inv_syn_add_inv_assumptions();
     ConstructWrapper_inv_syn_add_cex_assertion();
   }
