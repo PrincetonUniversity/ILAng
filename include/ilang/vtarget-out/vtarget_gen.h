@@ -96,6 +96,9 @@ public:
     bool YosysSmtFlattenHierarchy;
     /// Whether to flatten the datatypes
     bool YosysSmtFlattenDatatype;
+    /// Whether to assume the old invariants when check for reachability
+    /// It seems for Z3, setting this to be false is faster (I don't know why)
+    bool InvariantSynthesisReachableCheckKeepOldInvariant;
 
 
     /// The default constructor for default values
@@ -111,7 +114,7 @@ public:
           CosaSolver(""), CosaGenTraceVcd(true), CosaOtherSolverOptions(""),
           YosysSmtArrayForRegFile(false), YosysSmtStateSort(DataSort),
           VerificationSettingAvoidIssueStage(false), YosysSmtFlattenHierarchy(false),
-          YosysSmtFlattenDatatype(false)  {}
+          YosysSmtFlattenDatatype(false), InvariantSynthesisReachableCheckKeepOldInvariant(false)  {}
   } vtg_config_t;
 
   /// NOTE: this function can be inherited

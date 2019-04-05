@@ -649,6 +649,10 @@ void VlgSglTgtGen::ConstructWrapper_inv_syn_add_cex_assertion() {
 
 void VlgSglTgtGen::ConstructWrapper_inv_syn_add_inv_assumptions() {
   ILA_ASSERT(target_type == target_type_t::INV_SYN_DESIGN_ONLY);
+  if (not _vtg_config.InvariantSynthesisReachableCheckKeepOldInvariant) {
+    ILA_INFO << "Ignore existing invariants in cex check";
+    return;
+  }
 
   if ( IN("global invariants", rf_cond) 
     && rf_cond["global invariants"].size() > 0 ) {

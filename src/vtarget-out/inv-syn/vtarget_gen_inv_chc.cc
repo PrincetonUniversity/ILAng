@@ -317,14 +317,17 @@ void VlgSglTgtGen_Chc::PreExportProcess() {
     } // for expr
   } // for problem
   // add assert wire (though no use : make sure will not optimized away)
+  ILA_ASSERT(not all_assert_wire_content.empty());
+
   vlg_wrapper.add_wire("__all_assert_wire__", 1, true);
   vlg_wrapper.add_output("__all_assert_wire__",1);
   vlg_wrapper.add_assign_stmt("__all_assert_wire__", all_assert_wire_content);
 
-  vlg_wrapper.add_wire("__all_assume_wire__", 1, true);
-  vlg_wrapper.add_output("__all_assume_wire__",1);
-  vlg_wrapper.add_assign_stmt("__all_assume_wire__", all_assume_wire_content);
-  
+  if (not all_assume_wire_content.empty()) {
+    vlg_wrapper.add_wire("__all_assume_wire__", 1, true);
+    vlg_wrapper.add_output("__all_assume_wire__",1);
+    vlg_wrapper.add_assign_stmt("__all_assume_wire__", all_assume_wire_content);
+  }
 } // PreExportProcess
 
 /// export the script to run the verification :
