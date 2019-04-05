@@ -418,7 +418,7 @@ void VlgSglTgtGen_Chc::Export_mem(const std::string& mem_name) {
   auto outfn = os_portable_append_dir(_output_path, top_file_name);
   std::ofstream fout(outfn, std::ios_base::app); // append
 
-  VlgAbsMem::OutputMemFile(fout, _vtg_config.MemAbsReadAbstraction);
+  VlgAbsMem::OutputMemFile(fout, _vtg_config.VerificationSettingAvoidIssueStage);
 }
 
 

@@ -13,6 +13,8 @@
 
 namespace ilang {
 
+#define SET_GLOBAL_CONFIG (config.VerificationSettingAvoidIssueStage=true)
+
 TEST(TestVlgTargetGen, AesIlaInfo) {
 
   auto aesFile = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/aes_v/all";
@@ -48,6 +50,8 @@ TEST(TestVlgTargetGen, AesIlaInfo) {
 
 TEST(TestVlgTargetGen, PipeExample) {
   auto config = VerilogVerificationTargetGenerator::vtg_config_t();
+  SET_GLOBAL_CONFIG;
+
   config.CosaGenJgTesterScript = true; // generate a jg tester script
 
   auto ila_model = SimplePipe::BuildModel();
@@ -72,6 +76,9 @@ TEST(TestVlgTargetGen, PipeExample) {
 // test bad states
 
 TEST(TestVlgTargetGen, PipeExampleJasperGold) {
+  auto config = VerilogVerificationTargetGenerator::vtg_config_t();
+  SET_GLOBAL_CONFIG;
+
   auto ila_model = SimplePipe::BuildModel();
 
   auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/vpipe/";
@@ -81,7 +88,8 @@ TEST(TestVlgTargetGen, PipeExampleJasperGold) {
       "pipeline_v",                // top_module_name
       dirName + "rfmap/vmap.json", // variable mapping
       dirName + "rfmap/cond.json", dirName + "verify_jg/", ila_model.get(),
-      VerilogVerificationTargetGenerator::backend_selector::JASPERGOLD);
+      VerilogVerificationTargetGenerator::backend_selector::JASPERGOLD,
+      config);
 
   EXPECT_FALSE(vg.in_bad_state());
 
@@ -89,6 +97,9 @@ TEST(TestVlgTargetGen, PipeExampleJasperGold) {
 }
 
 TEST(TestVlgTargetGen, PipeExampleNotEqu) {
+  auto config = VerilogVerificationTargetGenerator::vtg_config_t();
+  SET_GLOBAL_CONFIG;
+
   auto ila_model = SimplePipe::BuildModel();
 
   auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/vpipe/";
@@ -98,7 +109,8 @@ TEST(TestVlgTargetGen, PipeExampleNotEqu) {
       "pipeline_v",                // top_module_name
       dirName + "rfmap/vmap.json", // variable mapping
       dirName + "rfmap/cond.json", dirName + "disprove/", ila_model.get(),
-      VerilogVerificationTargetGenerator::backend_selector::COSA);
+      VerilogVerificationTargetGenerator::backend_selector::COSA,
+      config);
 
   EXPECT_FALSE(vg.in_bad_state());
 
@@ -106,6 +118,9 @@ TEST(TestVlgTargetGen, PipeExampleNotEqu) {
 }
 
 TEST(TestVlgTargetGen, Memory) {
+  auto config = VerilogVerificationTargetGenerator::vtg_config_t();
+  SET_GLOBAL_CONFIG;
+
   auto ila_model = MemorySwap::BuildModel();
 
   auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/vpipe/vmem/";
@@ -117,7 +132,8 @@ TEST(TestVlgTargetGen, Memory) {
       dirName + "cond.json", // cond path
       dirName,               // output path
       ila_model.get(),
-      VerilogVerificationTargetGenerator::backend_selector::COSA);
+      VerilogVerificationTargetGenerator::backend_selector::COSA,
+      config);
 
   EXPECT_FALSE(vg.in_bad_state());
 
@@ -127,6 +143,9 @@ TEST(TestVlgTargetGen, Memory) {
 
 
 TEST(TestVlgTargetGen, MemoryRead) {
+  auto config = VerilogVerificationTargetGenerator::vtg_config_t();
+  SET_GLOBAL_CONFIG;
+
   auto ila_model = MemorySwap::BuildRdModel();
 
   auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/vpipe/vmem/";
@@ -138,7 +157,8 @@ TEST(TestVlgTargetGen, MemoryRead) {
       dirName + "cond-rd.json", // cond path
       dirName,               // output path
       ila_model.get(),
-      VerilogVerificationTargetGenerator::backend_selector::COSA);
+      VerilogVerificationTargetGenerator::backend_selector::COSA,
+      config);
 
   EXPECT_FALSE(vg.in_bad_state());
 
@@ -146,10 +166,11 @@ TEST(TestVlgTargetGen, MemoryRead) {
 
 }
 
-TEST(TestVlgTargetGen, MemoryAbsRead) {
-  VerilogVerificationTargetGenerator::vtg_config_t vtg_cfg;
+TEST(TestVlgTargetGen, MemorySwapAbsRead) {
+  VerilogVerificationTargetGenerator::vtg_config_t config;
+  SET_GLOBAL_CONFIG;
 
-  vtg_cfg.MemAbsReadAbstraction = true; // enable read abstraction
+  config.MemAbsReadAbstraction = true; // enable read abstraction
 
   auto ila_model = MemorySwap::BuildModel();
 
@@ -163,7 +184,7 @@ TEST(TestVlgTargetGen, MemoryAbsRead) {
       dirName + "rdabs/",          // output path
       ila_model.get(),
       VerilogVerificationTargetGenerator::backend_selector::COSA,
-      vtg_cfg);
+      config);
 
   EXPECT_FALSE(vg.in_bad_state());
 
@@ -173,9 +194,10 @@ TEST(TestVlgTargetGen, MemoryAbsRead) {
 
 
 TEST(TestVlgTargetGen, MemoryReadAbsRead) {
-  VerilogVerificationTargetGenerator::vtg_config_t vtg_cfg;
+  VerilogVerificationTargetGenerator::vtg_config_t config;
+  SET_GLOBAL_CONFIG;
 
-  vtg_cfg.MemAbsReadAbstraction = true; // enable read abstraction
+  config.MemAbsReadAbstraction = true; // enable read abstraction
 
   auto ila_model = MemorySwap::BuildRdModel();
 
@@ -189,7 +211,7 @@ TEST(TestVlgTargetGen, MemoryReadAbsRead) {
       dirName + "rdabs/",      // output path
       ila_model.get(),
       VerilogVerificationTargetGenerator::backend_selector::COSA,
-      vtg_cfg);
+      config);
 
   EXPECT_FALSE(vg.in_bad_state());
 
@@ -199,9 +221,10 @@ TEST(TestVlgTargetGen, MemoryReadAbsRead) {
 
 
 TEST(TestVlgTargetGen, MemoryReadAbsReadJasperGold) {
-  VerilogVerificationTargetGenerator::vtg_config_t vtg_cfg;
+  VerilogVerificationTargetGenerator::vtg_config_t config;
+  SET_GLOBAL_CONFIG;
 
-  vtg_cfg.MemAbsReadAbstraction = true; // enable read abstraction
+  config.MemAbsReadAbstraction = true; // enable read abstraction
 
   auto ila_model = MemorySwap::BuildRdModel();
 
@@ -215,7 +238,7 @@ TEST(TestVlgTargetGen, MemoryReadAbsReadJasperGold) {
       dirName + "rdabs_jg/",      // output path
       ila_model.get(),
       VerilogVerificationTargetGenerator::backend_selector::JASPERGOLD,
-      vtg_cfg);
+      config);
 
   EXPECT_FALSE(vg.in_bad_state());
 
@@ -224,6 +247,9 @@ TEST(TestVlgTargetGen, MemoryReadAbsReadJasperGold) {
 }
 
 TEST(TestVlgTargetGen, UndetValue) {
+  VerilogVerificationTargetGenerator::vtg_config_t config;
+  SET_GLOBAL_CONFIG;
+
   auto ila_model = UndetVal::BuildModel();
 
   auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/vpipe/undetf/";
@@ -235,7 +261,8 @@ TEST(TestVlgTargetGen, UndetValue) {
       dirName + "cond-val.json", // cond path
       dirName,                   // output path
       ila_model.get(),
-      VerilogVerificationTargetGenerator::backend_selector::COSA);
+      VerilogVerificationTargetGenerator::backend_selector::COSA,
+      config);
 
   EXPECT_FALSE(vg.in_bad_state());
 
@@ -246,6 +273,9 @@ TEST(TestVlgTargetGen, UndetValue) {
 
 
 TEST(TestVlgTargetGen, UndetFunc) {
+  VerilogVerificationTargetGenerator::vtg_config_t config;
+  SET_GLOBAL_CONFIG;
+
   auto ila_model = UndetFunc::BuildModel();
 
   auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/vpipe/undetf/";
@@ -257,7 +287,8 @@ TEST(TestVlgTargetGen, UndetFunc) {
       dirName + "cond-func.json", // cond path
       dirName,                   // output path
       ila_model.get(),
-      VerilogVerificationTargetGenerator::backend_selector::COSA);
+      VerilogVerificationTargetGenerator::backend_selector::COSA,
+      config);
 
   EXPECT_FALSE(vg.in_bad_state());
 

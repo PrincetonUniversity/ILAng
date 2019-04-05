@@ -176,14 +176,11 @@ VlgSglTgtGen::VlgSglTgtGen(
   // if you supply additional invariant in the invariant synthesis
   // there will still be a target for invariant generated. 
   // you can use it to verify the invariants if you like
-  if(has_flush and backend == backend_selector::YOSYS) {
-    ILA_ERROR 
+  ILA_ASSERT(not (has_flush and backend == backend_selector::YOSYS) ) 
       << "Currently does not support flushing in invariant synthesis."
       << "Future work.";
-    _bad_state = true;
-  }
 
-  ILA_ERROR_IF(has_flush and vtg_config.VerificationSettingAvoidIssueStage)
+  ILA_ASSERT(not (has_flush and vtg_config.VerificationSettingAvoidIssueStage))
     << "it is impossible to avoid issue stage for flushing refinement map, "
     << "ignore this configuration option.";
 } // END of constructor

@@ -36,11 +36,11 @@ namespace ilang {
     auto memswap = Ila("MemRd");
     memswap.SetValid( BoolConst(true) );
 
-    auto addra = memswap.NewBvInput("addra", 32);
-    auto start = memswap.NewBvInput("start", 1);
-    auto membuf= memswap.NewBvState("membuf",8);
+    auto addra = memswap.NewBvInput("addra", 32);// the address to read
+    auto start = memswap.NewBvInput("start", 1); // the decode function
+    auto membuf= memswap.NewBvState("membuf",8); // an internal vector
 
-    auto mema = memswap.NewMemState("mema",32,8);
+    auto mema = memswap.NewMemState("mema",32,8); // the memory (external)
     
     {
       auto SWAP = memswap.NewInstr("Rd");
