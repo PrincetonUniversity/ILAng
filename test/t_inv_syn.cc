@@ -164,6 +164,7 @@ TEST(TestVlgVerifInvSyn, CegarPipelineExample) {
   auto ila_model = SimplePipe::BuildModel();
 
   VerilogVerificationTargetGenerator::vtg_config_t cfg;
+  cfg.InvariantSynthesisReachableCheckKeepOldInvariant = false;
   cfg.CosaAddKeep = false;
   cfg.VerificationSettingAvoidIssueStage = true;
   cfg.YosysSmtFlattenDatatype = false;
