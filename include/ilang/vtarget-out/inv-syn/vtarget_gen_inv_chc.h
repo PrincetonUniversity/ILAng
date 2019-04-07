@@ -133,6 +133,7 @@ protected:
   /// assignment, but in Chc has to be an assumption -- needed by base class
   virtual void add_reg_cassign_assumption(const std::string& varname,
                                           const std::string& expression,
+                                          int width,
                                           const std::string& cond,
                                           const std::string& dspt) override;
 

@@ -247,7 +247,7 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
     // add as a module input, also
     vlg_wrapper.add_input(func_reg_w, func_app.result.second);
 
-    add_reg_cassign_assumption(func_reg, func_reg_w, "__START__",
+    add_reg_cassign_assumption(func_reg, func_reg_w, func_app.result.second, "__START__",
                                "func_result");
     // vlg_wrapper.add_always_stmt( "if( __START__ ) " + func_reg + " <= " +
     // func_reg_w + ";" );
@@ -265,7 +265,7 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
                              "_arg" + IntToStr(argNo) + "_reg";
       vlg_wrapper.add_reg(func_arg, arg.second);
       vlg_wrapper.add_wire(func_arg_w, arg.second, true);
-      add_reg_cassign_assumption(func_arg, func_arg_w, "__START__", "func_arg");
+      add_reg_cassign_assumption(func_arg, func_arg_w, arg.second, "__START__", "func_arg");
       // vlg_wrapper.add_always_stmt( "if( __START__ ) " + func_arg + " <= " +
       // func_arg_w + ";" );
 
@@ -984,7 +984,88 @@ void VlgSglTgtGen::ConstructWrapper_register_extra_io_wire() {
     // these will be connected to the verilog module, so register as extra wires
     // so, later they will be connected
   }
-}
+} // ConstructWrapper_register_extra_io_wire
+
+void VlgSglTgtGen::ConstructWrapper_add_post_value_holder() {
+  if(not IN("post-value-holder",rf_vmap))
+    return; // no need for it
+  auto & post_val_rec = rf_vmap["post-value-holder"];
+  if (not post_val_rec.is_object()) {
+    ILA_ERROR << "Expect post-value-holder to be map-type";
+    return;
+  }
+  for (auto && item : post_val_rec.items()) {
+    const auto & pv_name = item.key();
+    auto & pv_cond_val = item.value();
+    ILA_ERROR_IF(not ( pv_cond_val.is_array()  or pv_cond_val.is_object() ))
+      << "Expecting post_value_holder's content to be list or map type";
+    
+    std::string cond = VLG_TRUE;
+    std::string val = "'hx";
+    int width = 0;
+
+    for (auto && cond_val_pair : pv_cond_val.items()) {
+      if (cond_val_pair.key() == "0" || cond_val_pair.key() == "cond")
+        cond = ReplExpr(cond_val_pair.value(), true);
+      else if (cond_val_pair.key() == "1" || cond_val_pair.key() == "val")
+        val = ReplExpr(cond_val_pair.value(), true);
+      else if (cond_val_pair.key() == "2" || cond_val_pair.key() == "width")
+        width = cond_val_pair.value().get<int>();
+      else
+        ILA_ERROR<<"Unexpected key: " << cond_val_pair.key() << " in post-value-holder, expecting 0-2 or cond/val/width";
+    }
+    ILA_WARN_IF (val == "'hx") << "val field is not provided for " << pv_name;
+    ILA_WARN_IF (cond == VLG_TRUE) << "cond field is not provided for " << pv_name;
+    
+    if (width == 0) // error
+      ILA_ERROR << "width of post-value-holder `" << pv_name << "` is unknown!";
+    else {
+      vlg_wrapper.add_reg(pv_name,width);
+      add_reg_cassign_assumption(pv_name, val, width , cond, "post_value_holder");
+    }
+  } // for item
+} // ConstructWrapper_add_post_value_holder
+
+void VlgSglTgtGen::ConstructWrapper_add_vlg_monitor() {
+  if(not IN("verilog-inline-monitors",rf_vmap))
+    return; // no need for it
+
+  auto & monitor_rec = rf_vmap["verilog-inline-monitors"];
+  if (not monitor_rec.is_object()) {
+    ILA_ERROR << "Expect verilog-inline-monitors to be map-type";
+    return;
+  }
+
+  for (auto && m_rec : monitor_rec.items()) {
+    const auto & mname = m_rec.key();
+    auto & mdef =  m_rec.value();
+    ILA_ERROR_IF(not (mdef.is_object() or mdef.is_array())) << 
+      "Expect verilog-inline-monitors's element to be map/list type";
+    std::string vlg_expr;
+    std::vector<std::string> repl_list;
+    for (auto && vlg_inp_pair : mdef.items()) {
+      if ( vlg_inp_pair.key() == "0" || vlg_inp_pair.key() == "verilog" ) {
+        auto & vlg_field = vlg_inp_pair.value();
+        if (vlg_field.is_string()) {
+          vlg_expr = vlg_field.get<std::string>();
+        } else if (vlg_field.is_array() or vlg_field.is_object() ) {
+          for (auto && line : vlg_field.items())
+            vlg_expr += line.value().get<std::string>() + "\n";
+        } else 
+          ILA_ERROR << "Expecting string/list-of-string in verilog field of `verilog-inline-monitors`";
+      }
+      else if ( vlg_inp_pair.key() == "1" || vlg_inp_pair.key() == "refs" )
+        repl_list.push_back(vlg_inp_pair.value().get<std::string>());
+      else
+        ILA_ERROR<<"Unexpected key: " << vlg_inp_pair.key() << " in verilog-inline-monitors, expecting 0-1 or verilog/refs";
+    } // for vlg_inp_pair
+    for (const auto & w : repl_list) {
+      const std::string repl = ReplExpr(w,true);
+      vlg_expr = ReplaceAll(vlg_expr, w, repl);
+    }
+    vlg_wrapper.add_stmt(vlg_expr);
+  } // for monitor_rec.items()
+} // ConstructWrapper_add_vlg_monitor
 
 void VlgSglTgtGen::ConstructWrapper_add_module_instantiation() {
   // instantiate ila module
@@ -1183,6 +1264,11 @@ void VlgSglTgtGen::ConstructWrapper() {
   ConstructWrapper_add_helper_memory(); // need to decide what is the target
                                         // type
                                         // -- no need
+  // post value holder
+  ConstructWrapper_add_post_value_holder();
+  // add monitor
+  ConstructWrapper_add_vlg_monitor();
+
   ILA_DLOG("VtargetGen") << "STEP:" << 9;
   // 5. module instantiation
   ConstructWrapper_add_module_instantiation();

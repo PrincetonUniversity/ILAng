@@ -57,7 +57,7 @@ void VlgSglTgtGen_Cosa::add_wire_assign_assumption(
 
 void VlgSglTgtGen_Cosa::add_reg_cassign_assumption(
     const std::string& varname, const std::string& expression,
-    const std::string& cond, const std::string& dspt) {
+    int width, const std::string& cond, const std::string& dspt) {
   // vlg_wrapper.add_always_stmt(varname + " <= " + varname + ";");
   // _problems.assumptions.push_back("(!( " + convert_expr_to_cosa(cond) +
   //                                 " ) | (" + varname + " = " +
@@ -67,7 +67,11 @@ void VlgSglTgtGen_Cosa::add_reg_cassign_assumption(
   // vlg_wrapper.add_always_stmt("if (" + cond + ") " + varname +
   //                            " <= " + expression + "; //" + dspt);
   // we prefer the following way, as we get the value instantaneously
-  vlg_wrapper.add_init_stmt(varname + " <= " + expression + ";");
+  std::string rand_in_name = "__" + varname + "_init__";
+  vlg_wrapper.add_input(rand_in_name, width);
+  vlg_wrapper.add_wire (rand_in_name, width);
+  
+  vlg_wrapper.add_init_stmt(varname + " <= " + rand_in_name + ";");
   vlg_wrapper.add_always_stmt(varname + " <= " + varname + ";");
   add_an_assumption(
       "(~(" + cond + ") || ((" + varname + ") == (" + expression + ")))", dspt);

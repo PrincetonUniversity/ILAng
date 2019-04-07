@@ -236,6 +236,11 @@ protected:
   void ConstructWrapper_add_helper_memory();
   /// Add buffers and assumption/assertions about the
   void ConstructWrapper_add_uf_constraints();
+  /// Add post value holder (val @ cond == ...)
+  void ConstructWrapper_add_post_value_holder();
+  /// Add Verilog inline monitor
+  void ConstructWrapper_add_vlg_monitor();
+
   // -------------------------------------------------------------------------
   /// Add invariants as assumptions -- for invariant-synthesis
   void ConstructWrapper_inv_syn_add_inv_assumptions();
@@ -318,6 +323,7 @@ protected:
   /// assignment, but in CoSA has to be an assumption
   virtual void add_reg_cassign_assumption(const std::string& varname,
                                           const std::string& expression,
+                                          int width,
                                           const std::string& cond,
                                           const std::string& dspt) = 0;
 

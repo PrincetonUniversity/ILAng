@@ -112,6 +112,7 @@ protected:
   /// assignment, but in CoSA has to be an assumption
   virtual void add_reg_cassign_assumption(const std::string& varname,
                                           const std::string& expression,
+                                          int width,
                                           const std::string& cond,
                                           const std::string& dspt) override;
 
