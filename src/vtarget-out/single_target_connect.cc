@@ -303,7 +303,7 @@ void VlgSglTgtGen::ConstructWrapper_register_extra_io_wire() {
 
     auto idx = refered_vlg_item.first.find("[");
     auto removed_range_name = refered_vlg_item.first.substr(0, idx);
-    auto vlg_sig_info = vlg_info_ptr->get_signal(removed_range_name);
+    auto vlg_sig_info = vlg_info_ptr->get_signal(removed_range_name, sup_info.width_info);
 
     auto vname = ReplaceAll(
         ReplaceAll(ReplaceAll(refered_vlg_item.first, ".", "__DOT__"), "[",

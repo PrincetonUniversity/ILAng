@@ -18,7 +18,7 @@ VlgSglTgtGen_Jasper::VlgSglTgtGen_Jasper(
     const InstrPtr& instr_ptr, // which could be an empty pointer, and it will
                                // be used to verify invariants
     const InstrLvlAbsPtr& ila_ptr, const VerilogGenerator::VlgGenConfig& config,
-    nlohmann::json& _rf_vmap, nlohmann::json& _rf_cond,
+    nlohmann::json& _rf_vmap, nlohmann::json& _rf_cond, VlgTgtSupplementaryInfo & _sup_info,
     VerilogInfo* _vlg_info_ptr, const std::string& vlg_mod_inst_name,
     const std::string& ila_mod_inst_name, const std::string& wrapper_name,
     const std::vector<std::string>& implementation_srcs,
@@ -26,7 +26,7 @@ VlgSglTgtGen_Jasper::VlgSglTgtGen_Jasper(
     const vtg_config_t& vtg_config, backend_selector backend,
     const target_type_t& target_tp,
     advanced_parameters_t * adv_ptr)
-    : VlgSglTgtGen(output_path, instr_ptr, ila_ptr, config, _rf_vmap, _rf_cond,
+    : VlgSglTgtGen(output_path, instr_ptr, ila_ptr, config, _rf_vmap, _rf_cond,_sup_info,
                    _vlg_info_ptr, vlg_mod_inst_name, ila_mod_inst_name,
                    wrapper_name, implementation_srcs,
                    implementation_include_path, vtg_config, backend,

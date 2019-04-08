@@ -24,6 +24,7 @@
 #include <ilang/vtarget-out/directive.h>
 #include <ilang/vtarget-out/var_extract.h>
 #include <ilang/vtarget-out/vtarget_gen.h>
+#include <ilang/vtarget-out/supplementary_info.h>
 
 #include <list>
 #include <map>
@@ -86,8 +87,10 @@ public:
       const InstrPtr& instr_ptr, // which could be an empty pointer, and it will
                                  // be used to verify invariants
       const InstrLvlAbsPtr& ila_ptr,
-      const VerilogGenerator::VlgGenConfig& config, nlohmann::json& _rf_vmap,
-      nlohmann::json& _rf_cond, VerilogInfo* _vlg_info_ptr,
+      const VerilogGenerator::VlgGenConfig& config,
+      nlohmann::json& _rf_vmap,
+      nlohmann::json& _rf_cond, VlgTgtSupplementaryInfo & _sup_info,
+      VerilogInfo* _vlg_info_ptr,
       const std::string& vlg_mod_inst_name,
       const std::string& ila_mod_inst_name, const std::string& wrapper_name,
       const std::vector<std::string>& implementation_srcs,
@@ -132,6 +135,8 @@ protected:
   nlohmann::json& rf_vmap;
   /// refinement relation instruction conditions
   nlohmann::json& rf_cond;
+  /// refinement relation : supplementaryary information
+  VlgTgtSupplementaryInfo& sup_info;
   /// An empty json for default fallthrough cases
   nlohmann::json empty_json;
   /// record all the referred vlg names, so you can add (*keep*) if needed
@@ -430,6 +435,8 @@ protected:
   nlohmann::json rf_vmap;
   /// store the condition
   nlohmann::json rf_cond;
+  /// refinement relation : supplementaryary information
+  VlgTgtSupplementaryInfo sup_info;
 
 public:
   // --------------------- METHODS ---------------------------- //

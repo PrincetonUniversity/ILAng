@@ -33,7 +33,7 @@ VlgSglTgtGen::VlgSglTgtGen(
     const InstrPtr& instr_ptr, // which could be an empty pointer, and it will
                                // be used to verify invariants
     const InstrLvlAbsPtr& ila_ptr, const VerilogGenerator::VlgGenConfig& config,
-    nlohmann::json& _rf_vmap, nlohmann::json& _rf_cond,
+    nlohmann::json& _rf_vmap, nlohmann::json& _rf_cond, VlgTgtSupplementaryInfo & _sup_info,
     VerilogInfo* _vlg_info_ptr, const std::string& vlg_mod_inst_name,
     const std::string& ila_mod_inst_name, const std::string& wrapper_name,
     const std::vector<std::string>& implementation_srcs,
@@ -76,7 +76,9 @@ VlgSglTgtGen::VlgSglTgtGen(
           [this](const std::string& n) -> bool { return TryFindIlaInput(n); },
           [this](const std::string& n) -> bool { return TryFindVlgState(n); }),
       // ref to refmaps
-      rf_vmap(_rf_vmap), rf_cond(_rf_cond), empty_json(nullptr),
+      rf_vmap(_rf_vmap), rf_cond(_rf_cond),
+      sup_info( _sup_info ),
+      empty_json( nullptr ),
       target_type( target_tp ), // whether it is
                                                       // invariant/instructions
       has_flush(false), ready_type(ready_type_t::NA),

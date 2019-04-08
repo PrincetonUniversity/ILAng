@@ -12,9 +12,9 @@ namespace ilang {
 /// Constructor: do nothing
 VerilogModifier::VerilogModifier(VerilogInfo* _vlg_info_ptr,
                                  port_decl_style_t port_decl_style,
-                                 bool add_keep_or_not)
-    : vlg_info_ptr(_vlg_info_ptr), _port_decl_style(port_decl_style),
-      _add_keep_or_not(add_keep_or_not) {}
+                                 bool add_keep_or_not, const std::map<std::string, int> & _sup_width_info)
+    : vlg_info_ptr(_vlg_info_ptr), _port_decl_style(port_decl_style), 
+      _add_keep_or_not(add_keep_or_not), sup_width_info(_sup_width_info) {}
 /// Destructor: do nothing
 VerilogModifier::~VerilogModifier() {}
 

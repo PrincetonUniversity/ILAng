@@ -14,12 +14,17 @@ VerilogConstantExprEval::VerilogConstantExprEval(ast_expression * _s) :
   // do nothing
 }
 
-
-
 unsigned VerilogConstantExprEval::_eval(ast_expression * e) {
   // ..
   if ( e->type == ast_expression_type::PRIMARY_EXPRESSION ) {
-    return StrToInt(ast_expression_tostring(e));
+    std::string str(ast_expression_tostring(e));
+    try {
+      return std::stoi(str, NULL, 10);
+    } catch (const std::exception& e) {
+      ILA_ERROR << "Converting non-numeric value " << str << " to int.\n";
+      eval_error = true;
+    }
+    return -1;
   } else if ( e->type == ast_expression_type::UNARY_EXPRESSION ) {
     eval_error = true;
     error_str = ast_expression_tostring(e);
@@ -63,5 +68,6 @@ unsigned VerilogConstantExprEval::Eval() {
   return cached_value;
 }
 
+bool VerilogConstantExprEval::error() const { return eval_error; }
 
 }; // namespace ilang

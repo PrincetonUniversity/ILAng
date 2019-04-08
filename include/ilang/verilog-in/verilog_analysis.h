@@ -40,7 +40,8 @@ protected:
 public:
   /// Constructor: from ast_port_declaration
   SignalInfoPort(ast_port_declaration* def, const std::string& full_name,
-                 VerilogAnalyzerBase::hierarchical_name_type tp);
+                 VerilogAnalyzerBase::hierarchical_name_type tp,
+                 const std::map<std::string,int> * const width_info);
   /// Return its definition
   ast_port_declaration* get_def() { return _def; }
 }; // class SignalInfoPort
@@ -54,7 +55,8 @@ protected:
 public:
   /// Constructor: from ast_port_declaration
   SignalInfoReg(ast_reg_declaration* def, const std::string& full_name,
-                VerilogAnalyzerBase::hierarchical_name_type tp);
+                VerilogAnalyzerBase::hierarchical_name_type tp,
+                const std::map<std::string,int> * const width_info);
   /// Return its definition
   ast_reg_declaration* get_def() { return _def; }
 }; // class SignalInfoPort
@@ -68,7 +70,8 @@ protected:
 public:
   /// Constructor: from ast_port_declaration
   SignalInfoWire(ast_net_declaration* def, const std::string& full_name,
-                 VerilogAnalyzerBase::hierarchical_name_type tp);
+                 VerilogAnalyzerBase::hierarchical_name_type tp,
+                 const std::map<std::string,int> * const width_info);
   /// Return its definition
   ast_net_declaration* get_def() { return _def; }
 }; // class SignalInfoPort
@@ -163,9 +166,10 @@ public:
   /// Return top module name
   std::string get_top_module_name() const { return top_module_name; }
   /// Return top module signal
-  module_io_vec_t get_top_module_io() const;
+  module_io_vec_t get_top_module_io(const std::map<std::string,int> * const width_info = NULL) const;
   /// Find a signal
-  SignalInfoBase get_signal(const std::string& net_name) const;
+  SignalInfoBase get_signal(const std::string& net_name,
+    const std::map<std::string,int> * const width_info = NULL) const;
   /// Return the location of a module's endmodule statement
   vlg_loc_t get_endmodule_loc(const std::string& inst_name) const;
 

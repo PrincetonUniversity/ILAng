@@ -352,12 +352,13 @@ std::string VlgSglTgtGen::PerStateMap(const std::string& ila_state_name,
     ILA_ERROR << "Please use **MEM**.? directive for memory state matching";
     return VLG_TRUE;
   }
-  // check for state match
+  // check for state match -- (no '=' inside at this step)
   std::string vlg_state_name = vlg_st_name;
-  if (vlg_state_name.find(".") == std::string::npos) {
+  if (vlg_state_name.find(".") == std::string::npos && 
+      vlg_state_name.find("#") == std::string::npos) {
     vlg_state_name = _vlg_mod_inst_name + "." + vlg_state_name;
   } // auto-add module name
-  auto vlg_sig_info = vlg_info_ptr->get_signal(vlg_state_name);
+  auto vlg_sig_info = vlg_info_ptr->get_signal(vlg_state_name, sup_info.width_info );
   ILA_ERROR_IF(!TypeMatched(ila_state, vlg_sig_info))
       << "ila state:" << ila_state_name
       << " has mismatched type w. verilog signal:" << vlg_state_name;

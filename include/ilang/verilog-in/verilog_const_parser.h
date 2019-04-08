@@ -36,6 +36,8 @@ public:
   VerilogConstantExprEval(ast_expression * e);
   /// Get the value
   unsigned Eval();
+  /// Get parsing error
+  bool error() const;
 }; // class VerilogConstantExprEval
 
 }; // namespace ilang

@@ -46,6 +46,7 @@ VlgVerifTgtGen::VlgVerifTgtGen(
       _bad_state(false) {
   load_json(_rf_var_map_name, rf_vmap);
   load_json(_rf_cond_name, rf_cond);
+  sup_info.FromJson(rf_vmap);
   set_module_instantiation_name();
   if (_ila_ptr == nullptr) {
     ILA_ERROR << "ILA should not be none";
@@ -136,7 +137,7 @@ std::shared_ptr<smt::YosysSmtParser> VlgVerifTgtGen::GenerateInvSynTargets(synth
   auto target = VlgSglTgtGen_Chc(
       os_portable_append_dir(_output_path, "inv-syn/"),
       NULL, // invariant
-      _ila_ptr, _cfg, rf_vmap, rf_cond, vlg_info_ptr, _vlg_mod_inst_name,
+      _ila_ptr, _cfg, rf_vmap, rf_cond, sup_info , vlg_info_ptr, _vlg_mod_inst_name,
       _ila_mod_inst_name, "wrapper", _vlg_impl_srcs, _vlg_impl_include_path,
       _vtg_config, _backend, s_backend, target_type_t::INV_SYN_DESIGN_ONLY,
       _advanced_param_ptr);
@@ -190,7 +191,7 @@ void VlgVerifTgtGen::GenerateTargets(void) {
       auto target = VlgSglTgtGen_Cosa(
           sub_output_path,
           NULL, // invariant
-          _ila_ptr, _cfg, rf_vmap, rf_cond, vlg_info_ptr, _vlg_mod_inst_name,
+          _ila_ptr, _cfg, rf_vmap, rf_cond, sup_info , vlg_info_ptr, _vlg_mod_inst_name,
           _ila_mod_inst_name, "wrapper", _vlg_impl_srcs, _vlg_impl_include_path,
           _vtg_config, _backend, target_type_t::INVARIANTS,
           _advanced_param_ptr);
@@ -201,7 +202,7 @@ void VlgVerifTgtGen::GenerateTargets(void) {
       auto target = VlgSglTgtGen_Jasper(
           sub_output_path,
           NULL, // invariant
-          _ila_ptr, _cfg, rf_vmap, rf_cond, vlg_info_ptr, _vlg_mod_inst_name,
+          _ila_ptr, _cfg, rf_vmap, rf_cond, sup_info , vlg_info_ptr, _vlg_mod_inst_name,
           _ila_mod_inst_name, "wrapper", _vlg_impl_srcs, _vlg_impl_include_path,
           _vtg_config, _backend, target_type_t::INVARIANTS,
           _advanced_param_ptr);
@@ -211,7 +212,7 @@ void VlgVerifTgtGen::GenerateTargets(void) {
       auto target = VlgSglTgtGen_Yosys(
           sub_output_path,
           NULL, // invariant
-          _ila_ptr, _cfg, rf_vmap, rf_cond, vlg_info_ptr, _vlg_mod_inst_name,
+          _ila_ptr, _cfg, rf_vmap, rf_cond, sup_info , vlg_info_ptr, _vlg_mod_inst_name,
           _ila_mod_inst_name, "wrapper", _vlg_impl_srcs, _vlg_impl_include_path,
           _vtg_config, _backend, target_type_t::INVARIANTS,
           _advanced_param_ptr);
@@ -248,7 +249,7 @@ void VlgVerifTgtGen::GenerateTargets(void) {
         auto target = VlgSglTgtGen_Cosa(
             sub_output_path,
             instr_ptr, // instruction
-            _ila_ptr, _cfg, rf_vmap, rf_cond, vlg_info_ptr, _vlg_mod_inst_name,
+            _ila_ptr, _cfg, rf_vmap, rf_cond, sup_info , vlg_info_ptr, _vlg_mod_inst_name,
             _ila_mod_inst_name, "wrapper", _vlg_impl_srcs,
             _vlg_impl_include_path, _vtg_config, _backend,
             target_type_t::INSTRUCTIONS,
@@ -260,7 +261,7 @@ void VlgVerifTgtGen::GenerateTargets(void) {
         auto target = VlgSglTgtGen_Jasper(
             sub_output_path,
             instr_ptr, // instruction
-            _ila_ptr, _cfg, rf_vmap, rf_cond, vlg_info_ptr, _vlg_mod_inst_name,
+            _ila_ptr, _cfg, rf_vmap, rf_cond, sup_info , vlg_info_ptr, _vlg_mod_inst_name,
             _ila_mod_inst_name, "wrapper", _vlg_impl_srcs,
             _vlg_impl_include_path, _vtg_config, _backend,
             target_type_t::INSTRUCTIONS,
@@ -276,7 +277,7 @@ void VlgVerifTgtGen::GenerateTargets(void) {
         auto target = VlgSglTgtGen_Yosys(
             sub_output_path,
             instr_ptr, // instruction
-            _ila_ptr, _cfg, rf_vmap, rf_cond, vlg_info_ptr, _vlg_mod_inst_name,
+            _ila_ptr, _cfg, rf_vmap, rf_cond, sup_info , vlg_info_ptr, _vlg_mod_inst_name,
             _ila_mod_inst_name, "wrapper", _vlg_impl_srcs,
             _vlg_impl_include_path, _vtg_config, _backend,
             target_type_t::INSTRUCTIONS,
