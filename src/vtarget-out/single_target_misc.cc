@@ -246,6 +246,33 @@ void VlgSglTgtGen::ConstructWrapper_add_uf_constraints() {
     ILA_ERROR << "lacking function map for func:" << nf.first;
 } // ConstructWrapper_add_uf_constraints
 
+int VlgSglTgtGen::ConstructWrapper_add_post_value_holder_handle_obj(nlohmann::json & pv_cond_val,
+  const std::string & pv_name, int width, bool create_reg) {
+
+  std::string cond = VLG_TRUE;
+  std::string val = "'hx";
+
+  for (auto && cond_val_pair : pv_cond_val.items()) {
+    if (cond_val_pair.key() == "0" || cond_val_pair.key() == "cond")
+      cond = ReplExpr(cond_val_pair.value(), true);
+    else if (cond_val_pair.key() == "1" || cond_val_pair.key() == "val")
+      val = ReplExpr(cond_val_pair.value(), true);
+    else if (cond_val_pair.key() == "2" || cond_val_pair.key() == "width")
+      width = cond_val_pair.value().get<int>();
+    else
+      ILA_ERROR<<"Unexpected key: " << cond_val_pair.key() << " in post-value-holder, expecting 0-2 or cond/val/width";
+  }
+  ILA_WARN_IF (val == "'hx") << "val field is not provided for " << pv_name;
+  ILA_WARN_IF (cond == VLG_TRUE) << "cond field is not provided for " << pv_name;
+  ILA_ERROR_IF( width == 0 && create_reg) << "Cannot create signal for " << pv_name << " : unknown width!";
+  if (width != 0 && create_reg) { // error
+    //ILA_ERROR << "width of post-value-holder `" << pv_name << "` is unknown!";
+    vlg_wrapper.add_reg(pv_name,width);
+  } else {
+    add_reg_cassign_assumption(pv_name, val, width , cond, "post_value_holder");
+  }
+  return width;
+}
 
 void VlgSglTgtGen::ConstructWrapper_add_post_value_holder() {
   if(not IN("post-value-holder",rf_vmap))
@@ -260,29 +287,18 @@ void VlgSglTgtGen::ConstructWrapper_add_post_value_holder() {
     auto & pv_cond_val = item.value();
     ILA_ERROR_IF(not ( pv_cond_val.is_array()  or pv_cond_val.is_object() ))
       << "Expecting post_value_holder's content to be list or map type";
-    
-    std::string cond = VLG_TRUE;
-    std::string val = "'hx";
-    int width = 0;
-
-    for (auto && cond_val_pair : pv_cond_val.items()) {
-      if (cond_val_pair.key() == "0" || cond_val_pair.key() == "cond")
-        cond = ReplExpr(cond_val_pair.value(), true);
-      else if (cond_val_pair.key() == "1" || cond_val_pair.key() == "val")
-        val = ReplExpr(cond_val_pair.value(), true);
-      else if (cond_val_pair.key() == "2" || cond_val_pair.key() == "width")
-        width = cond_val_pair.value().get<int>();
-      else
-        ILA_ERROR<<"Unexpected key: " << cond_val_pair.key() << " in post-value-holder, expecting 0-2 or cond/val/width";
-    }
-    ILA_WARN_IF (val == "'hx") << "val field is not provided for " << pv_name;
-    ILA_WARN_IF (cond == VLG_TRUE) << "cond field is not provided for " << pv_name;
-    
-    if (width == 0) // error
-      ILA_ERROR << "width of post-value-holder `" << pv_name << "` is unknown!";
-    else {
-      vlg_wrapper.add_reg(pv_name,width);
-      add_reg_cassign_assumption(pv_name, val, width , cond, "post_value_holder");
+    if(pv_cond_val.is_array() and
+        (not pv_cond_val.empty() and 
+          ( pv_cond_val.begin()->is_array() or pv_cond_val.begin()->is_object() )) )
+    { // multiple condition
+      int w = 0;
+      bool first = true;
+      for(auto ptr = pv_cond_val.begin(); ptr != pv_cond_val.end() ; ++ ptr) {
+        w = ConstructWrapper_add_post_value_holder_handle_obj(*ptr, pv_name, w, first);
+        first = false;
+      }
+    } else { // it is just a single line
+      ConstructWrapper_add_post_value_holder_handle_obj(pv_cond_val, pv_name, 0, true);
     }
   } // for item
 } // ConstructWrapper_add_post_value_holder

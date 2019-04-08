@@ -238,6 +238,9 @@ protected:
   void ConstructWrapper_add_uf_constraints();
   /// Add post value holder (val @ cond == ...)
   void ConstructWrapper_add_post_value_holder();
+  /// A sub function of the above post-value-holder hanlder
+  int ConstructWrapper_add_post_value_holder_handle_obj(nlohmann::json & pv_cond_val,
+                            const std::string & pv_name, int width, bool create_reg);
   /// Add Verilog inline monitor
   void ConstructWrapper_add_vlg_monitor();
 

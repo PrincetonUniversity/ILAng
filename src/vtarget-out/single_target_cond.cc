@@ -104,11 +104,12 @@ void VlgSglTgtGen::ConstructWrapper_add_cycle_count_moniter() {
   vlg_wrapper.add_stmt("end");
 
   vlg_wrapper.add_reg ("__2ndENDED__", 1);
-  vlg_wrapper.add_wire("__FIRST_END__", 1);
   vlg_wrapper.add_stmt("always @(posedge clk) begin");
   vlg_wrapper.add_stmt("if (rst) __2ndENDED__ <= 1'b0;");
-  vlg_wrapper.add_stmt("else if (__ENDED__ && __EDCOND__)  __2ndENDED__ <= 1'b1; end");
-  vlg_wrapper.add_assign_stmt("__FIRST_END__", "__ENDED__ & __EDCOND__ & ~__2ndENDED__");
+  vlg_wrapper.add_stmt("else if (__ENDED__ && __EDCOND__ && ~__2ndENDED__)  __2ndENDED__ <= 1'b1; end");
+
+  vlg_wrapper.add_wire("__2ndIEND__", 1);
+  vlg_wrapper.add_assign_stmt("__2ndIEND__", "__ENDED__ & __EDCOND__ & ~__2ndENDED__");
 
   vlg_wrapper.add_reg("__RESETED__", 1);
   vlg_wrapper.add_stmt("always @(posedge clk) begin");
