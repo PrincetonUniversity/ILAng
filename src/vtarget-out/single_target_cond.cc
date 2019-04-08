@@ -109,7 +109,7 @@ void VlgSglTgtGen::ConstructWrapper_add_cycle_count_moniter() {
   vlg_wrapper.add_stmt("else if (__ENDED__ && __EDCOND__ && ~__2ndENDED__)  __2ndENDED__ <= 1'b1; end");
 
   vlg_wrapper.add_wire("__2ndIEND__", 1);
-  vlg_wrapper.add_assign_stmt("__2ndIEND__", "__ENDED__ & __EDCOND__ & ~__2ndENDED__");
+  vlg_wrapper.add_assign_stmt("__2ndIEND__", "__ENDED__ && __EDCOND__ && ~__2ndENDED__");
 
   vlg_wrapper.add_reg("__RESETED__", 1);
   vlg_wrapper.add_stmt("always @(posedge clk) begin");
@@ -203,7 +203,7 @@ void VlgSglTgtGen::ConstructWrapper_add_condition_signals() {
   auto end_no_recur = has_flush ? "(~ __FLUSHENDED__ )" : "(~ __ENDED__)";
   
   add_wire_assign_assumption("__EDCOND__",
-                             "(" + iend_cond + ") && __STARTED__ && " ,
+                             "(" + iend_cond + ") && __STARTED__ " ,
                              "EDCOND");
 
   add_wire_assign_assumption("__IEND__",

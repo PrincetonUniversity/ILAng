@@ -172,6 +172,7 @@ TEST(TestVlgVerifInvSyn, CegarPipelineExample) {
   cfg.CosaPyEnvironment = "/home/hongce/cosaEnv/bin/activate";
   cfg.CosaPath = "/home/hongce/CoSA/";
   cfg.Z3Path = "/home/hongce/z3s/bin/";
+  cfg.CosaSolver = "btor";
 
   auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/vpipe/";
   auto outDir  = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/inv_syn/vpipe-out4/";

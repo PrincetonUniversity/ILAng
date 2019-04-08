@@ -151,18 +151,22 @@ void VarExtractor::ParseToExtract(const std::string& in,
     if (is_num)
       _tokens.push_back({token_type::NUM, subs});
     else if (is_state) {
-      token_type tp;
-      auto left_p = subs.find('[');
-      auto check_s = subs.substr(0, left_p); // the string use to check no []
-      if (_is_ila_state(check_s) && !force_vlg_statename)
-        tp = ILA_S;
-      else if (_is_ila_input(check_s) && !force_vlg_statename)
-        tp = ILA_IN;
-      else if (_is_vlg_sig(check_s))
-        tp = VLG_S;
-      else
-        tp = UNKN_S;
-      _tokens.push_back({tp, subs});
+      if (not subs.empty() and subs.front() == '#' and subs.find('#',1) != subs.npos)
+          _tokens.push_back({ KEEP, ReplaceAll(subs,"#","")});
+      else {
+        token_type tp;
+        auto left_p = subs.find('[');
+        auto check_s = subs.substr(0, left_p); // the string use to check no []
+        if (_is_ila_state(check_s) && !force_vlg_statename)
+          tp = ILA_S;
+        else if (_is_ila_input(check_s) && !force_vlg_statename)
+          tp = ILA_IN;
+        else if (_is_vlg_sig(check_s))
+          tp = VLG_S;
+        else
+          tp = UNKN_S;
+        _tokens.push_back({tp, subs});
+      } // no # 
     } else {
       _tokens.push_back({token_type::KEEP, subs});
     }

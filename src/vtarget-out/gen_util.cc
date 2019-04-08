@@ -120,8 +120,7 @@ VlgSglTgtGen::ModifyCondExprAndRecordVlgName(const VarExtractor::token& t) {
     ILA_WARN << "In refinement relations: unknown reference to name:" << sname
              << " keep unchanged.";
     return sname;
-  } else if (token_tp == VarExtractor::token_type::KEEP ||
-             token_tp == VarExtractor::token_type::UNKN_S)
+  } else if (token_tp == VarExtractor::token_type::KEEP )
     return sname; // NC
   else if (token_tp == VarExtractor::token_type::NUM) {
     /*
@@ -343,7 +342,7 @@ std::string VlgSglTgtGen::PerStateMap(const std::string& ila_state_name,
     vlg_wrapper.add_output(map_sig, 1);
     add_wire_assign_assumption(map_sig, new_expr, "vmap");
     return map_sig;
-  }
+  } 
   // else it is a vlg signal name
   auto ila_state = TryFindIlaVarName(ila_state_name);
   if (!ila_state)
@@ -358,11 +357,17 @@ std::string VlgSglTgtGen::PerStateMap(const std::string& ila_state_name,
       vlg_state_name.find("#") == std::string::npos) {
     vlg_state_name = _vlg_mod_inst_name + "." + vlg_state_name;
   } // auto-add module name
-  auto vlg_sig_info = vlg_info_ptr->get_signal(vlg_state_name, sup_info.width_info );
-  ILA_ERROR_IF(!TypeMatched(ila_state, vlg_sig_info))
-      << "ila state:" << ila_state_name
-      << " has mismatched type w. verilog signal:" << vlg_state_name;
 
+  if (vlg_info_ptr->check_hierarchical_name_type(vlg_state_name) != VerilogInfo::hierarchical_name_type::NONE) {
+    // if this is truly a state name
+    auto vlg_sig_info = vlg_info_ptr->get_signal(vlg_state_name, sup_info.width_info );
+    ILA_ERROR_IF(!TypeMatched(ila_state, vlg_sig_info))
+        << "ila state:" << ila_state_name
+        << " has mismatched type w. verilog signal:" << vlg_state_name;
+  } else {
+    ILA_INFO << "rfmap: treating: "<< vlg_state_name << " as an expression.";
+  }
+  
   // add signal -- account for jg's bug
   if (_backend == backend_selector::JASPERGOLD and
       vlg_state_name.find('[') != vlg_state_name.npos)
