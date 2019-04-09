@@ -4,6 +4,7 @@
 #include <iostream>
 #include <sstream>
 #include <ilang/smt-inout/smt_ast.h>
+#include <ilang/smt-inout/chc_inv_in_wrapper.h>
 
 #include "unit-include/config.h"
 #include "unit-include/util.h"
@@ -29,5 +30,23 @@ TEST(TestSmtParse, Parse) {
   }
   // Expect no error...
 }
+
+TEST(TestSmtParse, ChcParse) {
+  auto fn     = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/smt/aes.smt2";
+  auto chc_fn = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/smt/aes-chc.chc";
+  bool flatten_datatype = false;
+  bool flatten_hierarchy = true;
+  
+  std::ifstream fin(fn);
+  std::stringstream buffer;
+  buffer << fin.rdbuf();
+  
+  smt::YosysSmtParser design_info(buffer.str());
+  smt::SmtlibInvariantParserInstance chc_parser(
+    &design_info,flatten_datatype,flatten_hierarchy,{"INV"});
+  chc_parser.ParseInvResultFromFile(chc_fn);
+  std::cerr << chc_parser.GetFinalTranslateResult();
+}
+
 
 }; // namespace ilang

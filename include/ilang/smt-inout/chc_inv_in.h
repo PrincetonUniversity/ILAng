@@ -4,6 +4,7 @@
 #ifndef CHC_INV_IN_H__
 #define CHC_INV_IN_H__
 
+#include <ilang/smt-inout/chc_inv_in_wrapper.h>
 #include <ilang/smt-inout/yosys_smt_parser.h>
 
 #include <functional>
@@ -54,7 +55,7 @@ typedef SmtTermInfo<std::string> SmtTermInfoVerilog;
 typedef SmtTermInfoVerilog * SmtTermInfoVlgPtr;
 
 /// \brief the class for parsing invariant
-class SmtlibInvariantParser {
+class SmtlibInvariantParser: public SmtlibInvariantParserBase {
 public:
   // -------------- TYPEs ------------------- //
   /// a function to map state name (internal name reference to verilog signal)
@@ -88,11 +89,11 @@ public:
   // parse from a file, we will add something there to make
   // if sat --> failed (return false)
   // if unsat --> add the (assert ...)
-  bool ParseInvResultFromFile(const std::string & fname);
+  bool ParseInvResultFromFile(const std::string & fname) override;
   // parse from a string: assume we have the (assert ...) there
-  void ParseSmtResultFromString(const std::string & text);
+  void ParseSmtResultFromString(const std::string & text) override;
   /// get the translate result
-  std::string GetFinalTranslateResult() const;
+  std::string GetFinalTranslateResult() const override;
   /// get the local variable definitions
   const local_vars_t & GetLocalVarDefs() const;
 
