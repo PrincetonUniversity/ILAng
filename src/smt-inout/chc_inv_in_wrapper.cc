@@ -15,10 +15,16 @@ SmtlibInvariantParserBase::~SmtlibInvariantParserBase() {} // do nothing
   // -------------- CONSTRUCTOR ------------------- //
 SmtlibInvariantParserInstance::SmtlibInvariantParserInstance(YosysSmtParser * yosys_smt_info, 
     bool _flatten_datatype, bool _flatten_hierarchy,
-    const std::set<std::string> & _inv_pred_name) :
+    const std::set<std::string> & _inv_pred_name,
+    const std::string & dut_inst_name) :
       _ptr(NULL) {
 
-    _ptr = new SmtlibInvariantParser(yosys_smt_info, _flatten_datatype, _flatten_hierarchy, _inv_pred_name );
+    _ptr = new SmtlibInvariantParser(
+      yosys_smt_info, 
+      _flatten_datatype, _flatten_hierarchy,
+      _inv_pred_name,
+      dut_inst_name);
+
     ILA_NOT_NULL(_ptr);
 }
 

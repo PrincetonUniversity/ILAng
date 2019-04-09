@@ -14,13 +14,22 @@ namespace ilang {
 InvariantObject::InvariantObject() {
   
 }
+
+void InvariantObject::set_dut_inst_name(const std::string & name) {
+  dut_inst_name = name;
+}
+
 /// add invariants from smt-like output
 void InvariantObject::AddInvariantFromChcResultFile(
     smt::YosysSmtParser & design_info, 
     const std::string & tag, const std::string & chc_result_fn,
     bool flatten_datatype, bool flatten_hierarchy ) {
 
-  smt::SmtlibInvariantParser parser(&design_info,flatten_datatype, flatten_hierarchy, {"INV"});
+  smt::SmtlibInvariantParser parser(
+    &design_info,
+    flatten_datatype, flatten_hierarchy,
+    {"INV"}, dut_inst_name);
+
   if (not parser.ParseInvResultFromFile(chc_result_fn) ) {
     ILA_ERROR << "No new invariant has been extracted!";
     return;

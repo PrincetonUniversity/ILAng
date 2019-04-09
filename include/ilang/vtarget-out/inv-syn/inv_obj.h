@@ -34,12 +34,16 @@ public:
   const inv_vec_t & GetVlgConstraints() const;
   /// get the vars
   const extra_var_def_vec_t & GetExtraVarDefs() const;
+  /// called by the target generator?
+  void set_dut_inst_name(const std::string & name);
 
 protected:
   /// the expressions
   std::vector <std::string> inv_vlg_exprs;
   /// the extra variables that are needed to ...
   std::vector <std::pair<std::string,std::string>> inv_extra_vlg_vars;
+  /// the buffered dut instance name
+  std::string dut_inst_name;
 
 };
 

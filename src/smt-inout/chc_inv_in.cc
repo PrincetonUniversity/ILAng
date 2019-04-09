@@ -23,10 +23,12 @@ unsigned SmtlibInvariantParser::local_var_idx = 0;
 
 SmtlibInvariantParser::SmtlibInvariantParser(YosysSmtParser * yosys_smt_info,
   bool _flatten_datatype, bool _flatten_hierarchy,
-  const std::set<std::string> & _inv_pred_name) :
+  const std::set<std::string> & _inv_pred_name,
+  const std::string & dut_instance_name) :
 
   parser_wrapper(new smtlib2_abstract_parser_wrapper()),
   inv_pred_name(_inv_pred_name),
+  dut_verilog_instance_name(dut_instance_name),
   design_smt_info_ptr(yosys_smt_info),
   datatype_flattened(_flatten_datatype), hierarchy_flattened(_flatten_hierarchy),
   _bad_state(false) {
@@ -317,11 +319,30 @@ SmtTermInfoVlgPtr SmtlibInvariantParser::mk_function(
           search_name = "##bv" + std::to_string(dt._type._width) + "_";
         else
           ILA_ASSERT(false) << "unexpected type!";
+
         search_name += dt.verilog_name;
+        auto repl_name = dt.verilog_name;
+        // here we need to make sure it is a good name
+        if (not dut_verilog_instance_name.empty()) {
+          auto dot_pos = dt.verilog_name.find('.');
+          if(dot_pos != std::string::npos and 
+             dt.verilog_name.substr(0,dot_pos) != dut_verilog_instance_name) {
+            
+            repl_name = ReplaceAll(dt.verilog_name, ".", "_dot_");
+            ILA_ASSERT(not IN(repl_name, free_vars))
+              << "Bug free var name reappearing: " << repl_name;
+            // not possible for datatype here
+            int width = dt._type._type == var_type::tp::BV ? dt._type._width : 1;
+            free_vars.insert(std::make_pair(repl_name,  width ));
+
+            ILA_ERROR << "Invariant refers to out-of-scope var : " << dt.verilog_name
+              << " replaced w. " << repl_name;
+          }
+        }
 
         if(not IN(search_name, term_container)) {
           term_container.insert(std::make_pair(search_name,
-            SmtTermInfoVerilog(dt.verilog_name, dt._type ,this)));
+            SmtTermInfoVerilog(repl_name, dt._type ,this)));
         }
         return & ( term_container[search_name] );
       } // if name matched

@@ -47,7 +47,8 @@ public:
   // -------------- CONSTRUCTOR ------------------- //
   SmtlibInvariantParserInstance(YosysSmtParser * yosys_smt_info, 
     bool _flatten_datatype, bool _flatten_hierarchy,
-    const std::set<std::string> & _inv_pred_name);
+    const std::set<std::string> & _inv_pred_name,
+    const std::string & dut_inst_name);
   /// no copy constructor
   SmtlibInvariantParserInstance(const SmtlibInvariantParserInstance &) = delete;
   /// no assignment

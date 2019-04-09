@@ -71,12 +71,15 @@ public:
   typedef std::map<std::string,var_type> sort_container_t;
   /// the container of temporary variables
   typedef std::map<std::string, SmtTermInfoVerilog> local_vars_t;
+  /// the container of all the free variables
+  typedef std::map<std::string, int> free_vars_t;
   
 public:
   // -------------- CONSTRUCTOR ------------------- //
   SmtlibInvariantParser(YosysSmtParser * yosys_smt_info, 
     bool _flatten_datatype, bool _flatten_hierarchy,
-    const std::set<std::string> & _inv_pred_name);
+    const std::set<std::string> & _inv_pred_name,
+    const std::string & dut_instance_name);
   /// no copy constructor
   SmtlibInvariantParser(const SmtlibInvariantParser &) = delete;
   /// no assignment
@@ -96,6 +99,8 @@ public:
   std::string GetFinalTranslateResult() const override;
   /// get the local variable definitions
   const local_vars_t & GetLocalVarDefs() const;
+  /// get the free variable definitions
+  const free_vars_t & GetFreeVarDefs() const;
 
 protected:
   // ----------------- MEMBERS ------------------- //
@@ -117,12 +122,16 @@ protected:
   std::vector<unsigned> quantifier_var_def_idx_stack;
   /// to hold the local variables
   local_vars_t local_vars;
+  /// to hold the free variables
+  free_vars_t  free_vars;
   /// a counter to get local variable name
   std::string get_a_new_local_var_name();
   /// the idx to it
   static unsigned local_var_idx;
   /// the final translated result
   std::string final_translate_result;
+  /// we need to store the right vlog instance name
+  const std::string dut_verilog_instance_name;
 
   /// a pointer to get the knowlege of the context
   YosysSmtParser * design_smt_info_ptr;

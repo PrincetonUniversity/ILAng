@@ -43,9 +43,11 @@ TEST(TestSmtParse, ChcParse) {
   
   smt::YosysSmtParser design_info(buffer.str());
   smt::SmtlibInvariantParserInstance chc_parser(
-    &design_info,flatten_datatype,flatten_hierarchy,{"INV"});
+    &design_info,flatten_datatype,flatten_hierarchy,{"INV"},
+    "m1");
   chc_parser.ParseInvResultFromFile(chc_fn);
-  std::cerr << chc_parser.GetFinalTranslateResult();
+  ILA_DLOG("TestSmtParse.ChcParse")
+    << chc_parser.GetFinalTranslateResult();
 }
 
 
