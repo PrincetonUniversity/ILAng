@@ -194,6 +194,23 @@ std::string extract_vcd_name_from_cex(const std::string & fn) {
   return fname;
 } // extract_vcd_name_from_cex
 
+/// a helper function (only locally available)
+/// to detect tool error (e.g., verilog parsing error)
+bool has_verify_tool_error_cosa(const std::string & fn) {
+  std::ifstream fin(fn);
+  if (not fin.is_open()) {
+    ILA_ERROR<<"Unable to read from:"<<fn;
+    return true;
+  }
+  
+  std::string line;
+  while(std::getline(fin,line)) {
+    if (S_IN("See yosys-err.log for more info." , line))
+      return true;
+  }
+  return false;
+}
+
 
 /// run Verification
 bool InvariantSynthesizerCegar::RunVerifAuto(unsigned problem_idx) {
@@ -215,8 +232,8 @@ bool InvariantSynthesizerCegar::RunVerifAuto(unsigned problem_idx) {
   // the last line contains the result
   // above it you should have *** TRACES ***
   // the vcd file resides within the new dir
+  ILA_ERROR_IF(has_verify_tool_error_cosa(result_fn)) << "----------- Verification tool reported error! Please check the log output!";
   auto lastLine = os_portable_read_last_line(result_fn);
-
   ILA_ERROR_IF(lastLine.empty()) << "Unable to extract verification result.";
   if (S_IN("Verifications with unexpected result", lastLine)) {
     ILA_INFO << "Counterexample found.";

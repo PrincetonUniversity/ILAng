@@ -207,7 +207,7 @@ void VlgSglTgtGen::ConstructWrapper_add_condition_signals() {
                              "EDCOND");
 
   add_wire_assign_assumption("__IEND__",
-                             "(" + iend_cond + ") && __STARTED__ && " +
+                             "(" + iend_cond + ") && __STARTED__ && __RESETED__ && " +
                                  end_no_recur + max_bound_constr,
                              "IEND");
   // handle start decode

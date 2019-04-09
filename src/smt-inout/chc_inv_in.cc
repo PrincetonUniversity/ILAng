@@ -232,7 +232,7 @@ var_type * SmtlibInvariantParser::make_sort(const std::string &name, const std::
 // for the flattened-datatype, this should be the same as the datatype order
 // 
 void SmtlibInvariantParser::declare_quantified_variable(const std::string &name, var_type * sort ) {
-
+  // check on the name part
   ILA_ASSERT(mask == 0xdeadbeaf);
   ILA_ASSERT(not quantifier_def_stack.empty());
   ILA_ASSERT(not quantifier_var_def_idx_stack.empty());

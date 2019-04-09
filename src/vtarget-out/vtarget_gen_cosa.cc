@@ -52,7 +52,7 @@ void VlgSglTgtGen_Cosa::add_wire_assign_assumption(
   //                                convert_expr_to_cosa(expression));
   vlg_wrapper.add_assign_stmt(varname, expression);
   ILA_ERROR_IF(expression.find(".") != std::string::npos)
-      << "expression:" << expression << " contains unfriendly dot.";
+      << "-------- expression:" << expression << " contains unfriendly dot.";
 }
 
 void VlgSglTgtGen_Cosa::add_reg_cassign_assumption(
@@ -63,7 +63,7 @@ void VlgSglTgtGen_Cosa::add_reg_cassign_assumption(
   //                                 " ) | (" + varname + " = " +
   //                                convert_expr_to_cosa(expression) + "))");
   ILA_ERROR_IF(expression.find(".") != std::string::npos)
-      << "expression:" << expression << " contains unfriendly dot.";
+      << "-------- expression:" << expression << " contains unfriendly dot.";
   // vlg_wrapper.add_always_stmt("if (" + cond + ") " + varname +
   //                            " <= " + expression + "; //" + dspt);
   // we prefer the following way, as we get the value instantaneously
@@ -84,9 +84,11 @@ void VlgSglTgtGen_Cosa::add_an_assumption(const std::string& aspt,
   vlg_wrapper.add_wire(assumption_wire_name, 1, true);
   vlg_wrapper.add_output(assumption_wire_name,
                          1); // I find it is necessary to connect to the output
-  vlg_wrapper.add_assign_stmt(assumption_wire_name, aspt);
+  
   ILA_ERROR_IF(aspt.find(".") != std::string::npos)
-      << "aspt:" << aspt << " contains unfriendly dot.";
+      << "-------- aspt:" << aspt << " contains unfriendly dot.";
+  
+  vlg_wrapper.add_assign_stmt(assumption_wire_name, ReplaceAll(aspt,".","_"));
   _problems.assumptions.push_back(assumption_wire_name + " = 1_1");
   //_problems.assumptions.push_back(convert_expr_to_cosa(aspt));
 }
@@ -100,7 +102,7 @@ void VlgSglTgtGen_Cosa::add_an_assertion(const std::string& asst,
   vlg_wrapper.add_assign_stmt(assrt_wire_name, asst);
   _problems.probitem[dspt].assertions.push_back(assrt_wire_name + " = 1_1");
   ILA_ERROR_IF(asst.find(".") != std::string::npos)
-      << "asst:" << asst << " contains unfriendly dot.";
+      << "-------- asst:" << asst << " contains unfriendly dot.";
   //_problems.probitem[dspt].assertions.push_back(convert_expr_to_cosa(asst));
 }
 

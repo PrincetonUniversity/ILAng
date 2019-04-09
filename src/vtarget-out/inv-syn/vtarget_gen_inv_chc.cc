@@ -219,8 +219,8 @@ void VlgSglTgtGen_Chc::add_wire_assign_assumption(
     const std::string& dspt) {
 
   vlg_wrapper.add_assign_stmt(varname, expression);
-  ILA_ERROR_IF(expression.find(".") != std::string::npos)
-      << "expression:" << expression << " contains unfriendly dot.";
+  ILA_ERROR_IF(expression.find(".") == std::string::npos)
+      << "-------- expression:" << expression << " contains unfriendly dot.";
 }
 
 void VlgSglTgtGen_Chc::add_reg_cassign_assumption(
@@ -228,7 +228,7 @@ void VlgSglTgtGen_Chc::add_reg_cassign_assumption(
     const std::string& cond, const std::string& dspt) {
 
   ILA_ERROR_IF(expression.find(".") != std::string::npos)
-      << "expression:" << expression << " contains unfriendly dot.";
+      << "-------- expression:" << expression << " contains unfriendly dot.";
 
   std::string rand_in_name = "__" + varname + "_init__";
   vlg_wrapper.add_input(rand_in_name, width);
@@ -251,7 +251,7 @@ void VlgSglTgtGen_Chc::add_an_assumption(const std::string& aspt,
   vlg_wrapper.add_assign_stmt(assumption_wire_name, aspt);
 
   ILA_ERROR_IF(aspt.find(".") != std::string::npos)
-      << "aspt:" << aspt << " contains unfriendly dot.";
+      << "-------- aspt:" << aspt << " contains unfriendly dot.";
   _problems.assumptions[dspt].exprs.push_back(assumption_wire_name);
 
 }
@@ -265,7 +265,7 @@ void VlgSglTgtGen_Chc::add_an_assertion(const std::string& asst,
   vlg_wrapper.add_assign_stmt(assrt_wire_name, asst);
   _problems.assertions[dspt].exprs.push_back(assrt_wire_name);
   ILA_ERROR_IF(asst.find(".") != std::string::npos)
-      << "asst:" << asst << " contains unfriendly dot.";
+      << "-------- asst:" << asst << " contains unfriendly dot.";
 }
 
 /// Add an assumption

@@ -99,7 +99,7 @@ void VlgSglTgtGen_Yosys::add_wire_assign_assumption(
   //                                convert_expr_to_yosys(expression));
   vlg_wrapper.add_assign_stmt(varname, expression);
   ILA_ERROR_IF(expression.find(".") != std::string::npos)
-      << "expression:" << expression << " contains unfriendly dot.";
+      << "-------- expression:" << expression << " contains unfriendly dot.";
 }
 
 void VlgSglTgtGen_Yosys::add_reg_cassign_assumption(
@@ -110,7 +110,7 @@ void VlgSglTgtGen_Yosys::add_reg_cassign_assumption(
   //                                 " ) | (" + varname + " = " +
   //                                convert_expr_to_yosys(expression) + "))");
   ILA_ERROR_IF(expression.find(".") != std::string::npos)
-      << "expression:" << expression << " contains unfriendly dot.";
+      << "-------- expression:" << expression << " contains unfriendly dot.";
   // vlg_wrapper.add_always_stmt("if (" + cond + ") " + varname +
   //                            " <= " + expression + "; //" + dspt);
   // we prefer the following way, as we get the value instantaneously  
@@ -134,7 +134,7 @@ void VlgSglTgtGen_Yosys::add_an_assumption(const std::string& aspt,
                          1); // I find it is necessary to connect to the output
   vlg_wrapper.add_assign_stmt(assumption_wire_name, aspt);
   ILA_ERROR_IF(aspt.find(".") != std::string::npos)
-      << "aspt:" << aspt << " contains unfriendly dot.";
+      << "-------- aspt:" << aspt << " contains unfriendly dot.";
   _problems.assumptions[dspt].exprs.push_back(assumption_wire_name);
   //_problems.assumptions.push_back(convert_expr_to_yosys(aspt));
 }
@@ -148,7 +148,7 @@ void VlgSglTgtGen_Yosys::add_an_assertion(const std::string& asst,
   vlg_wrapper.add_assign_stmt(assrt_wire_name, asst);
   _problems.assertions[dspt].exprs.push_back(assrt_wire_name);
   ILA_ERROR_IF(asst.find(".") != std::string::npos)
-      << "asst:" << asst << " contains unfriendly dot.";
+      << "-------- asst:" << asst << " contains unfriendly dot.";
   //_problems.probitem[dspt].assertions.push_back(convert_expr_to_yosys(asst));
 }
 
