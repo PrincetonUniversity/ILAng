@@ -7,6 +7,7 @@
 
 #include <ilang/smt-inout/yosys_smt_parser.h>
 
+#include <tuple>
 #include <vector>
 #include <string>
 
@@ -19,7 +20,9 @@ public:
   /// the vector of multiple invariants
   typedef std::vector <std::string> inv_vec_t;
   /// the vector of extra_var defs exprs
-  typedef std::vector <std::pair<std::string,std::string>> extra_var_def_vec_t;
+  typedef std::vector <std::tuple<std::string,std::string, int>> extra_var_def_vec_t;
+  /// the vector  of free var defs exprs
+  typedef std::map <std::string, int> extra_free_var_def_vec_t;
   // ----------- CONSTRUCTOR ---------- //
   /// empty invariants
   InvariantObject();
@@ -34,6 +37,8 @@ public:
   const inv_vec_t & GetVlgConstraints() const;
   /// get the vars
   const extra_var_def_vec_t & GetExtraVarDefs() const;
+  /// get the free vars
+  const extra_free_var_def_vec_t & GetExtraFreeVarDefs() const;
   /// called by the target generator?
   void set_dut_inst_name(const std::string & name);
 
@@ -41,7 +46,9 @@ protected:
   /// the expressions
   std::vector <std::string> inv_vlg_exprs;
   /// the extra variables that are needed to ...
-  std::vector <std::pair<std::string,std::string>> inv_extra_vlg_vars;
+  extra_var_def_vec_t inv_extra_vlg_vars;
+  /// the extra free variables // there might be repetition // check it
+  extra_free_var_def_vec_t inv_extra_free_vars;
   /// the buffered dut instance name
   std::string dut_inst_name;
 

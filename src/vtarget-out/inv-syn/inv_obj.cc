@@ -3,6 +3,7 @@
 // Hongce Zhang
 
 #include <ilang/util/str_util.h>
+#include <ilang/util/container_shortcut.h>
 #include <ilang/util/log.h>
 
 #include <ilang/vtarget-out/inv-syn/inv_obj.h>
@@ -37,9 +38,17 @@ void InvariantObject::AddInvariantFromChcResultFile(
   ILA_ASSERT(not parser.in_bad_state());
   inv_vlg_exprs.push_back( parser.GetFinalTranslateResult() );
   for (auto && name_vlg_pair : parser.GetLocalVarDefs()) {
-    inv_extra_vlg_vars.push_back(std::make_pair(
+    inv_extra_vlg_vars.push_back(std::make_tuple(
       name_vlg_pair.first,
-      name_vlg_pair.second._translate));
+      name_vlg_pair.second._translate,
+      name_vlg_pair.second._type.GetBoolBvWidth()));
+  }
+  for (auto && name_w_pair : parser.GetFreeVarDefs()) {
+    if( IN(name_w_pair.first, inv_extra_free_vars) )
+      ILA_ASSERT(inv_extra_free_vars[name_w_pair.first] == name_w_pair.second)
+        << "Overwriting free var:" << name_w_pair.first << " w. width: " << name_w_pair.second
+        << " old width:" << inv_extra_free_vars[name_w_pair.first];
+    inv_extra_free_vars.insert(name_w_pair);
   }
 } // AddInvariantFromChcResultFile
 
@@ -55,6 +64,11 @@ const InvariantObject::inv_vec_t & InvariantObject::GetVlgConstraints() const {
 /// get the vars
 const InvariantObject::extra_var_def_vec_t & InvariantObject::GetExtraVarDefs() const {
   return inv_extra_vlg_vars;
+}
+
+/// get the vars
+const InvariantObject::extra_free_var_def_vec_t & InvariantObject::GetExtraFreeVarDefs() const {
+  return inv_extra_free_vars;
 }
 
 

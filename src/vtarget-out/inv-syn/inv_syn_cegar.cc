@@ -56,6 +56,35 @@ bool InvariantSynthesizerCegar::check_in_bad_state() const {
   return bad_state;
 }
 
+/// to generate a target to validate the given and synthesize invariants
+void InvariantSynthesizerCegar::GenerateInvariantVerificationTarget() {
+  if (check_in_bad_state()) return;
+
+  // to send in the invariants
+  advanced_parameters_t adv_param;
+  adv_param._inv_obj_ptr = &inv_obj;
+
+  auto inv_gen_vtg_config = _vtg_config;
+  inv_gen_vtg_config.target_select = inv_gen_vtg_config.INV;
+  inv_gen_vtg_config.AutoValidateSynthesizedInvariant = true; // overwrite
+  
+  VlgVerifTgtGen vg(
+      implementation_incl_path,         // include
+      implementation_srcs_path,         // sources
+      implementation_top_module_name,   // top_module_name
+      refinement_variable_mapping_path, // variable mapping
+      refinement_condition_path,        // conditions
+      _output_path,                     // output path
+      _host,                            // ILA
+      v_backend,                        // verification backend setting
+      inv_gen_vtg_config,               // target configuration
+      _vlg_config,                      // verilog generator configuration
+      &adv_param                        // advanced parameter
+      );
+  
+  vg.GenerateTargets();
+}
+
 // to do things separately, you can provide the run function yourself
 // or even do it step by step
 /// to generate targets using the current invariants
@@ -91,6 +120,8 @@ void InvariantSynthesizerCegar::GenerateVerificationTarget() {
 
   status = cegar_status::V_RES;
 }
+
+
 /// to generate targets using the provided invariants
 void InvariantSynthesizerCegar::GenerateVerificationTarget(const std::vector<std::string> & invs) {
   for(auto && inv : invs)

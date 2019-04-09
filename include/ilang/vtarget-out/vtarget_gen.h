@@ -99,6 +99,10 @@ public:
     /// Whether to assume the old invariants when check for reachability
     /// It seems for Z3, setting this to be false is faster (I don't know why)
     bool InvariantSynthesisReachableCheckKeepOldInvariant;
+    /// Configure the behavior of INV target, if false,
+    /// will not check synthesized invariants by default (unless call generateInvariantVerificationTarget)
+    /// if true, will check by default
+    bool AutoValidateSynthesizedInvariant;
 
 
     /// The default constructor for default values
@@ -114,7 +118,8 @@ public:
           CosaSolver(""), CosaGenTraceVcd(true), CosaOtherSolverOptions(""),
           YosysSmtArrayForRegFile(false), YosysSmtStateSort(DataSort),
           VerificationSettingAvoidIssueStage(false), YosysSmtFlattenHierarchy(false),
-          YosysSmtFlattenDatatype(false), InvariantSynthesisReachableCheckKeepOldInvariant(false)  {}
+          YosysSmtFlattenDatatype(false), InvariantSynthesisReachableCheckKeepOldInvariant(false),
+          AutoValidateSynthesizedInvariant(false)  {}
   } vtg_config_t;
 
   /// NOTE: this function can be inherited

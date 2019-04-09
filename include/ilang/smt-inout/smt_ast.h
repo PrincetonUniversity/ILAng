@@ -96,6 +96,8 @@ namespace smt{
     // ------------- MEMBER ---------------- //
     /// whether the types are the same
     static bool eqtype(const var_type & l, const var_type & r);
+    /// return a verilog-use width
+    unsigned GetBoolBvWidth() const;
     // ------------- CONSTRUCTOR ---------------- //
     // default constructor
     var_type();

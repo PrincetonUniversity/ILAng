@@ -58,6 +58,8 @@ public:
   void GenerateVerificationTarget();
   /// to generate targets using the provided invariants
   void GenerateVerificationTarget(const std::vector<std::string> & invs);
+  /// to generate a target to validate the given and synthesize invariants
+  void GenerateInvariantVerificationTarget();
   /// to extract verification result 
   void ExtractVerificationResult(bool autodet = true, bool pass = true,
     const std::string & res_file = "", const std::string & mod_inst_name = "");

@@ -185,6 +185,12 @@ void VlgVerifTgtGen::GenerateTargets(void) {
         invariantExists = true;
       else if (inv.is_string() and inv.get<std::string>() != "")
         invariantExists = true;
+      else if (
+        _vtg_config.AutoValidateSynthesizedInvariant and
+        _advanced_param_ptr->_inv_obj_ptr != NULL and 
+        _advanced_param_ptr->_inv_obj_ptr != NULL and
+        ! _advanced_param_ptr->_inv_obj_ptr->GetVlgConstraints().empty())
+        invariantExists = true;
     }
     auto sub_output_path = os_portable_append_dir(_output_path, "invariants");
     if (_backend == backend_selector::COSA and invariantExists) {

@@ -202,6 +202,8 @@ TEST(TestVlgVerifInvSyn, CegarPipelineExample) {
       }
       vg.ExtractSynthesisResult();
     }while(not vg.in_bad_state());
+
+   vg.GenerateInvariantVerificationTarget();
 }
 
 

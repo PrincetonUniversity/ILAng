@@ -379,7 +379,7 @@ void VlgSglTgtGen::ConstructWrapper() {
     ILA_DLOG("VtargetGen") << "STEP:" << 5.4;
     ConstructWrapper_add_inv_assumptions();
   } else if (target_type == target_type_t::INVARIANTS) {
-    ConstructWrapper_inv_syn_connect_mem();
+    ConstructWrapper_inv_syn_connect_mem(); // the same as inv-syn so I add it here
     ConstructWrapper_add_inv_assertions();
     max_bound = _vtg_config.MaxBound;
   } else if (target_type == target_type_t::INV_SYN_DESIGN_ONLY) {

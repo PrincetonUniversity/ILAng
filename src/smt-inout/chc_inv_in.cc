@@ -885,6 +885,11 @@ SmtlibInvariantParser::GetLocalVarDefs() const {
   return local_vars;
 }
 
+/// get the local variable definitions
+const SmtlibInvariantParser::free_vars_t & 
+SmtlibInvariantParser::GetFreeVarDefs() const {
+  return free_vars;
+}
 
 }; // namespace smt
 }; // namespace ilang

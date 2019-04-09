@@ -186,6 +186,15 @@ std::string line_comment::toString() const {
 }
 
 
+unsigned var_type::GetBoolBvWidth() const {
+  if (_type == tp::BV)
+    return _width;
+  else if (_type == tp::Bool)
+    return 1;
+  ILA_ASSERT(false) << "Does not support vlog width on type:" << _type;
+  return 0;
+}
+
 bool var_type::eqtype(const var_type & l, const var_type & r) {
   if (l._type == tp::Bool) {
     if (r._type == tp::Bool)

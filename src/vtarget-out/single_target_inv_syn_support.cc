@@ -35,10 +35,29 @@ namespace ilang {
 void VlgSglTgtGen::ConstructWrapper_add_inv_assertions() {
   ILA_ASSERT(target_type == target_type_t::INVARIANTS)
       << "Implementation bug: should only be used when verifying invariants";
-  
-  ILA_WARN_IF (_advanced_param_ptr && _advanced_param_ptr->_inv_obj_ptr) 
-    << "additional invariants will not be checked here.";
 
+  if(_advanced_param_ptr and _advanced_param_ptr->_inv_obj_ptr
+    and not _advanced_param_ptr->_inv_obj_ptr->GetVlgConstraints().empty()
+    and _vtg_config.AutoValidateSynthesizedInvariant) {
+    // let's warn user of this case
+    ILA_WARN << "additional invariants will also be checked here.";
+    
+    for (auto && name_expr_pair : _advanced_param_ptr->_inv_obj_ptr->GetExtraVarDefs() ){
+      vlg_wrapper.add_wire(std::get<0>(name_expr_pair), std::get<2>(name_expr_pair), true);
+      vlg_wrapper.add_assign_stmt(std::get<0>(name_expr_pair), 
+        ReplExpr(std::get<1>(name_expr_pair), true) );
+    }
+    for (auto && name_w_pair : _advanced_param_ptr->_inv_obj_ptr->GetExtraFreeVarDefs()) {
+      vlg_wrapper.add_wire(name_w_pair.first, name_w_pair.second, true);
+      vlg_wrapper.add_input(name_w_pair.first, name_w_pair.second);
+    }
+    for (auto && inv_expr : _advanced_param_ptr->_inv_obj_ptr->GetVlgConstraints()) {
+      auto new_cond = ReplExpr( inv_expr, true );
+      add_an_assertion( new_cond , "invariant_assert");
+    }
+  } // additional invariants from synthesis
+
+  // the provided invariants
   if (not IN("global invariants", rf_cond))
     return;
   if (rf_cond["global invariants"].size() == 0)
@@ -52,6 +71,7 @@ void VlgSglTgtGen::ConstructWrapper_add_inv_assertions() {
     auto new_cond = ReplExpr(cond.get<std::string>(), true); // force vlg state
     add_an_assertion("(" + new_cond + ")", "invariant_assert");
   }
+
 } // ConstructWrapper_add_inv_assertions
 
 
@@ -94,9 +114,9 @@ void VlgSglTgtGen::ConstructWrapper_add_inv_assumptions() {
       << "Please use CHC target instead.";
 
     for (auto && name_expr_pair : _advanced_param_ptr->_inv_obj_ptr->GetExtraVarDefs() ){
-      vlg_wrapper.add_wire(name_expr_pair.first, 1, true);
-      vlg_wrapper.add_assign_stmt(name_expr_pair.first, 
-        ReplExpr(name_expr_pair.second, true) );
+      vlg_wrapper.add_wire(std::get<0>(name_expr_pair), std::get<2>(name_expr_pair), true);
+      vlg_wrapper.add_assign_stmt(std::get<0>(name_expr_pair), 
+        ReplExpr(std::get<1>(name_expr_pair), true) );
     }
     for (auto && inv_expr : _advanced_param_ptr->_inv_obj_ptr->GetVlgConstraints()) {
       auto new_cond = ReplExpr( inv_expr, true );
@@ -141,9 +161,13 @@ void VlgSglTgtGen::ConstructWrapper_inv_syn_add_inv_assumptions() {
   if (_advanced_param_ptr && _advanced_param_ptr->_inv_obj_ptr) {
     // do you need to provide sub-module instance name?
     for (auto && name_expr_pair : _advanced_param_ptr->_inv_obj_ptr->GetExtraVarDefs() ){
-      vlg_wrapper.add_wire(name_expr_pair.first, 1, true);
-      vlg_wrapper.add_assign_stmt(name_expr_pair.first, 
-        ReplExpr(name_expr_pair.second, true) );
+      vlg_wrapper.add_wire(std::get<0>(name_expr_pair), std::get<2>(name_expr_pair), true);
+      vlg_wrapper.add_assign_stmt(std::get<0>(name_expr_pair), 
+        ReplExpr(std::get<1>(name_expr_pair), true) );
+    }
+    for (auto && name_w_pair : _advanced_param_ptr->_inv_obj_ptr->GetExtraFreeVarDefs()) {
+      vlg_wrapper.add_wire(name_w_pair.first, name_w_pair.second, true);
+      vlg_wrapper.add_input(name_w_pair.first, name_w_pair.second);
     }
     for (auto && inv_expr : _advanced_param_ptr->_inv_obj_ptr->GetVlgConstraints()) {
       auto new_cond = ReplExpr( inv_expr, true );
