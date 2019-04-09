@@ -398,7 +398,7 @@ DEFINE_OPERATOR(not) {
 DEFINE_OPERATOR(implies) {
   CHECK_BOOL_TWO_ARG(idx,args);
   std::string vlg_expr = 
-   "~(" + args[0]->_translate + ") || (" = args[1]->_translate + ")";
+   "~(" + args[0]->_translate + ") || (" + args[1]->_translate + ")";
   MAKE_BOOL_RESULT(vlg_expr);
 }
 
@@ -433,7 +433,7 @@ DEFINE_OPERATOR(xor) {
   CHECK_BOOL_TWO_ARG(idx,args);
   
   std::string vlg_expr = 
-   "(" + args[0]->_translate + ") ^ (" = args[1]->_translate + ")";
+   "(" + args[0]->_translate + ") ^ (" + args[1]->_translate + ")";
    
   MAKE_BOOL_RESULT(vlg_expr);
 } // xor
@@ -519,21 +519,21 @@ DEFINE_OPERATOR(bvnor) {
 DEFINE_OPERATOR(bvxor) {
   CHECK_BV_TWO_ARG(idx,args);
   std::string vlg_expr = 
-   "(" + args[0]->_translate + ") ^ (" = args[1]->_translate + ")";
+   "(" + args[0]->_translate + ") ^ (" + args[1]->_translate + ")";
   MAKE_BV_RESULT_TYPE_AS_ARG0(vlg_expr,args);
 } // bvxor
 
 DEFINE_OPERATOR(bvxnor) {
   CHECK_BV_TWO_ARG(idx,args);  
   std::string vlg_expr = 
-   "~((" + args[0]->_translate + ") ^ (" = args[1]->_translate + "))";
+   "~((" + args[0]->_translate + ") ^ (" + args[1]->_translate + "))";
   MAKE_BV_RESULT_TYPE_AS_ARG0(vlg_expr,args);
 } // bvxnor
 
 DEFINE_OPERATOR(bvult) {
   CHECK_BV_COMPARE(idx,args);
   std::string vlg_expr = 
-   "(" + args[0]->_translate + ") < (" = args[1]->_translate + ")";
+   "(" + args[0]->_translate + ") < (" + args[1]->_translate + ")";
   MAKE_BOOL_RESULT(vlg_expr);
 } // bvult
 DEFINE_OPERATOR(bvslt) {
@@ -545,46 +545,46 @@ DEFINE_OPERATOR(bvslt) {
 DEFINE_OPERATOR(bvule) {
   CHECK_BV_COMPARE(idx,args);  
   std::string vlg_expr = 
-   "(" + args[0]->_translate + ") <= (" = args[1]->_translate + ")";
+   "(" + args[0]->_translate + ") <= (" + args[1]->_translate + ")";
   MAKE_BOOL_RESULT(vlg_expr);
 } // bvule
 DEFINE_OPERATOR(bvsle) {
   CHECK_BV_COMPARE(idx,args);  
   std::string vlg_expr = 
-   "$signed(" + args[0]->_translate + ") <= $signed(" = args[1]->_translate + ")";
+   "$signed(" + args[0]->_translate + ") <= $signed(" + args[1]->_translate + ")";
   MAKE_BOOL_RESULT(vlg_expr);
 } // bvsle
 DEFINE_OPERATOR(bvugt) {
   CHECK_BV_COMPARE(idx,args);  
   std::string vlg_expr = 
-   "(" + args[0]->_translate + ") > (" = args[1]->_translate + ")";
+   "(" + args[0]->_translate + ") > (" + args[1]->_translate + ")";
   MAKE_BOOL_RESULT(vlg_expr);
 } // bvugt
 
 DEFINE_OPERATOR(bvsgt) {
   CHECK_BV_COMPARE(idx,args);  
   std::string vlg_expr = 
-   "$signed(" + args[0]->_translate + ") > $signed(" = args[1]->_translate + ")";
+   "$signed(" + args[0]->_translate + ") > $signed(" + args[1]->_translate + ")";
   MAKE_BOOL_RESULT(vlg_expr);
 } // bvsgt
 DEFINE_OPERATOR(bvuge) {
   CHECK_BV_COMPARE(idx,args);  
   std::string vlg_expr = 
-   "(" + args[0]->_translate + ") >= (" = args[1]->_translate + ")";
+   "(" + args[0]->_translate + ") >= (" + args[1]->_translate + ")";
   MAKE_BOOL_RESULT(vlg_expr);
 } // bvuge
 
 DEFINE_OPERATOR(bvsge) {
   CHECK_BV_COMPARE(idx,args);  
   std::string vlg_expr = 
-   "$signed(" + args[0]->_translate + ") >= $signed(" = args[1]->_translate + ")";
+   "$signed(" + args[0]->_translate + ") >= $signed(" + args[1]->_translate + ")";
   MAKE_BOOL_RESULT(vlg_expr);
 } // bvsge
 
 DEFINE_OPERATOR(bvcomp) {
   CHECK_BV_COMPARE(idx,args);  
   std::string vlg_expr = 
-   "(" + args[0]->_translate + ") == (" = args[1]->_translate + ")";
+   "(" + args[0]->_translate + ") == (" + args[1]->_translate + ")";
   MAKE_BOOL_RESULT(vlg_expr);
 } // bvcomp
 
@@ -606,7 +606,7 @@ DEFINE_OPERATOR(bvadd) {
 DEFINE_OPERATOR(bvsub) {
   CHECK_BV_TWO_ARG(idx,args);
   std::string vlg_expr = 
-   "(" + args[0]->_translate + ") - (" = args[1]->_translate + ")";
+   "(" + args[0]->_translate + ") - (" + args[1]->_translate + ")";
   MAKE_BV_RESULT_TYPE_AS_ARG0(vlg_expr,args);
 } // bvsub
 
@@ -622,14 +622,14 @@ DEFINE_OPERATOR(bvmul) {
 DEFINE_OPERATOR(bvudiv) {
   CHECK_BV_TWO_ARG(idx,args);
   std::string vlg_expr = 
-   "(" + args[0]->_translate + ") / (" = args[1]->_translate + ")";
+   "(" + args[0]->_translate + ") / (" + args[1]->_translate + ")";
   MAKE_BV_RESULT_TYPE_AS_ARG0(vlg_expr,args);
 } // bvudiv
 
 DEFINE_OPERATOR(bvsdiv) {
   CHECK_BV_TWO_ARG(idx,args);
   std::string vlg_expr = 
-   "$signed(" + args[0]->_translate + ") / $signed(" = args[1]->_translate + ")";
+   "$signed(" + args[0]->_translate + ") / $signed(" + args[1]->_translate + ")";
   MAKE_BV_RESULT_TYPE_AS_ARG0(vlg_expr,args);
   
 } // bvsdiv
@@ -638,14 +638,14 @@ DEFINE_OPERATOR(bvsdiv) {
 DEFINE_OPERATOR(bvsmod) {
   CHECK_BV_TWO_ARG(idx,args);
   std::string vlg_expr = 
-   "$signed(" + args[0]->_translate + ") % $signed(" = args[1]->_translate + ")";
+   "$signed(" + args[0]->_translate + ") % $signed(" + args[1]->_translate + ")";
   MAKE_BV_RESULT_TYPE_AS_ARG0(vlg_expr,args);
 } // bvsmod
 
 DEFINE_OPERATOR(bvurem) {
   CHECK_BV_TWO_ARG(idx,args);
   std::string vlg_expr = 
-   "(" + args[0]->_translate + ") % (" = args[1]->_translate + ")";
+   "(" + args[0]->_translate + ") % (" + args[1]->_translate + ")";
   MAKE_BV_RESULT_TYPE_AS_ARG0(vlg_expr,args);
   // CHECK_BV_TWO_ARG(idx,args);
   // MAKE_BV_RESULT_TYPE_AS_ARG0(vlg_expr,args);
@@ -665,21 +665,21 @@ DEFINE_OPERATOR(bvsrem) {
 DEFINE_OPERATOR(bvshl) {
   CHECK_BV_TWO_ARG_DIFF_WIDTH(idx,args);
   std::string vlg_expr = 
-   "(" + args[0]->_translate + ") << (" = args[1]->_translate + ")";
+   "(" + args[0]->_translate + ") << (" + args[1]->_translate + ")";
   MAKE_BV_RESULT_TYPE_AS_ARG0(vlg_expr,args);
 } // bvshl
 
 DEFINE_OPERATOR(bvlshr) {
   CHECK_BV_TWO_ARG_DIFF_WIDTH(idx,args);
   std::string vlg_expr = 
-   "(" + args[0]->_translate + ") >> (" = args[1]->_translate + ")";
+   "(" + args[0]->_translate + ") >> (" + args[1]->_translate + ")";
   MAKE_BV_RESULT_TYPE_AS_ARG0(vlg_expr,args);
 } // bvlshr
 
 DEFINE_OPERATOR(bvashr) {
   CHECK_BV_TWO_ARG_DIFF_WIDTH(idx,args);
   std::string vlg_expr = 
-   "(" + args[0]->_translate + ") >>> (" = args[1]->_translate + ")";
+   "(" + args[0]->_translate + ") >>> (" + args[1]->_translate + ")";
   MAKE_BV_RESULT_TYPE_AS_ARG0(vlg_expr,args);
 } // bvashr
 
