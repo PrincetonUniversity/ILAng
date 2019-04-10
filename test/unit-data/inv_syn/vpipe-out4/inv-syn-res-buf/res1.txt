@@ -1,0 +1,93 @@
+# res --> 
+
+(1'b1) == (((m1.id_ex_reg_wen) == (1'b0)) ||(!((m1.id_ex_op) == (2'b00))))
+(1'b1) == (((m1.id_ex_rd[1:1]) ||(!((m1.id_ex_reg_wen) == (1'b1))) ||((m1.reg_0_w_stage[1:1]) == (1'b1)) ||(m1.id_ex_rd[0:0])) &&((m1.reg_0_w_stage[0:0]) ||(m1.ex_wb_rd[0:0]) ||(!((m1.ex_wb_reg_wen) == (1'b1))) ||((m1.ex_wb_rd[1:1]) == (1'b1))))
+(1'b1) == (((m1.id_ex_reg_wen) == (1'b1)) ||(!((m1.id_ex_op[0:0]) == (1'b1))) ||(!((m1.ex_wb_reg_wen) == (1'b1))))
+(1'b1) == ((!((m1.reg_1_w_stage[1:1]) == (1'b1))) ||((m1.id_ex_reg_wen) == (1'b1)))
+(1'b1) == (((m1.reg_3_w_stage[0:0]) ||(!((m1.ex_wb_rd) == (2'b11))) ||(!((m1.ex_wb_reg_wen) == (1'b1)))) &&((!((m1.id_ex_rd) == (2'b11))) ||(!((m1.id_ex_reg_wen) == (1'b1))) ||((m1.reg_3_w_stage[1:1]) == (1'b1))))
+(1'b1) == (((m1.id_ex_reg_wen) == (1'b1)) ||(!((m1.reg_3_w_stage[1:1]) == (1'b1))))
+(1'b1) == (((!((m1.reg_3_w_stage[0:0]) == (1'b1))) ||((m1.ex_wb_rd[0:0]) == (1'b1))) &&((!(m1.reg_3_w_stage[1:1])) ||((m1.id_ex_rd) == (2'b11))))
+(1'b1) == ((((m1.id_ex_reg_wen) == (1'b1)) ||(!(m1.reg_1_w_stage[1:1]))) &&((!((m1.reg_1_w_stage[0:0]) == (1'b1))) ||(!((m1.ex_wb_reg_wen) == (1'b0)))))
+(1'b1) == ((((m1.reg_2_w_stage[0:0]) == (1'b1)) ||(!((m1.ex_wb_reg_wen) == (1'b1))) ||(!((m1.ex_wb_rd) == (2'b10)))) &&((!((m1.id_ex_rd) == (2'b10))) ||(!((m1.id_ex_reg_wen) == (1'b1))) ||(m1.reg_2_w_stage[1:1])) &&((!((m1.id_ex_op) == (2'b00))) ||(!((m1.id_ex_reg_wen) == (1'b1)))))
+(1'b1) == ((((m1.id_ex_rd) == (2'b11)) ||(!(m1.reg_3_w_stage[1:1]))) &&(((m1.ex_wb_rd[1:1]) == (1'b1)) ||(!(m1.reg_3_w_stage[0:0]))))
+(1'b1) == (((!((m1.id_ex_op) == (2'b00))) ||(!((m1.id_ex_reg_wen) == (1'b1)))) &&((!(m1.reg_0_w_stage[1:1])) ||(!(m1.id_ex_rd[1:1]))) &&((!((m1.reg_0_w_stage[0:0]) == (1'b1))) ||(!((m1.ex_wb_rd[1:1]) == (1'b1)))))
+(1'b1) == ((((m1.id_ex_rd[1:1]) == (1'b1)) ||(!(m1.reg_2_w_stage[1:1]))) &&((!(m1.reg_2_w_stage[0:0])) ||(m1.ex_wb_rd[1:1])))
+(1'b1) == (((!(m1.reg_2_w_stage[0:0])) ||(!((m1.ex_wb_reg_wen) == (1'b0)))) &&(((m1.id_ex_reg_wen) == (1'b1)) ||(!(m1.reg_2_w_stage[1:1]))))
+(1'b1) == ((((m1.id_ex_rd[0:0]) == (1'b1)) ||(!(m1.reg_1_w_stage[1:1]))) &&((!(m1.reg_1_w_stage[0:0])) ||(m1.ex_wb_rd[0:0])))
+(1'b1) == ((!((m1.ex_wb_reg_wen) == (1'b1))) ||(!((m1.id_ex_reg_wen) == (1'b0))) ||(!((m1.id_ex_op[1:1]) == (1'b1))))
+(1'b1) == (((!(m1.reg_0_w_stage[0:0])) ||(!(m1.ex_wb_rd[0:0]))) &&((!(m1.reg_0_w_stage[1:1])) ||(!(m1.id_ex_rd[0:0]))) &&((!((m1.id_ex_op) == (2'b00))) ||(!((m1.id_ex_reg_wen) == (1'b1)))))
+(1'b1) == (((!(m1.reg_0_w_stage[0:0])) ||(!((m1.ex_wb_reg_wen) == (1'b0)))) &&((!(m1.reg_0_w_stage[1:1])) ||(!((m1.id_ex_reg_wen) == (1'b0)))))
+(1'b1) == ((((m1.reg_1_w_stage[0:0]) == (1'b1)) ||(!((m1.ex_wb_reg_wen) == (1'b1))) ||(!((m1.ex_wb_rd) == (2'b01)))) &&((!((m1.id_ex_rd) == (2'b01))) ||(!((m1.id_ex_reg_wen) == (1'b1))) ||(m1.reg_1_w_stage[1:1])))
+(1'b1) == (((!((m1.reg_1_w_stage[0:0]) == (1'b1))) ||(!(m1.ex_wb_rd[1:1]))) &&((!(m1.reg_1_w_stage[1:1])) ||(!((m1.id_ex_rd[1:1]) == (1'b1)))))
+(1'b1) == (((!((m1.reg_3_w_stage[0:0]) == (1'b1))) ||(!((m1.ex_wb_reg_wen) == (1'b0)))) &&(((m1.id_ex_reg_wen) == (1'b1)) ||(!(m1.reg_3_w_stage[1:1]))))
+(1'b1) == (((!((m1.id_ex_rd[0:0]) == (1'b1))) ||(!(m1.reg_2_w_stage[1:1]))) &&((!((m1.reg_2_w_stage[0:0]) == (1'b1))) ||(!(m1.ex_wb_rd[0:0]))))
+
+
+# UPDATES ------------- Apr 8
+
+(1'b1) == (((m1.id_ex_reg_wen) == (1'b0)) ||(!((m1.id_ex_op) == (2'b00))))
+(1'b1) == ((!((m1.reg_3_w_stage[1:1]) == (1'b1))) ||(!((m1.id_ex_reg_wen) == (1'b0))))
+(1'b1) == (((m1.id_ex_rd[1:1]) ||(!((m1.id_ex_reg_wen) == (1'b1))) ||(m1.reg_0_w_stage[1:1]) ||((m1.id_ex_rd[0:0]) == (1'b1))) &&((m1.reg_0_w_stage[0:0]) ||(!((m1.ex_wb_reg_wen) == (1'b1))) ||(m1.ex_wb_rd[0:0]) ||(m1.ex_wb_rd[1:1])))
+(1'b1) == (((!(m1.reg_0_w_stage[1:1])) ||(!((m1.id_ex_op) == (2'b00)))) &&(((m1.ex_wb_reg_wen) == (1'b1)) ||(!((m1.reg_0_w_stage[0:0]) == (1'b1)))) &&(((m1.id_ex_reg_wen) == (1'b1)) ||(!(m1.reg_0_w_stage[1:1]))))
+(1'b1) == (((!((m1.reg_3_w_stage[0:0]) == (1'b1))) ||((m1.ex_wb_rd[0:0]) == (1'b1))) &&((!(m1.reg_3_w_stage[1:1])) ||((m1.id_ex_rd[0:0]) == (1'b1))))
+(1'b1) == ((!((m1.reg_2_w_stage[1:1]) == (1'b1))) ||(!((m1.id_ex_reg_wen) == (1'b0))))
+(1'b1) == (((m1.reg_3_w_stage[1:1]) == (1'b1)) ||(!((m1.id_ex_rd) == (2'b11))) ||((m1.id_ex_reg_wen) == (1'b0)))
+(1'b1) == ((((m1.reg_1_w_stage[0:0]) == (1'b1)) ||(!((m1.ex_wb_rd) == (2'b01))) ||(!((m1.ex_wb_reg_wen) == (1'b1)))) &&((!((m1.reg_1_w_stage[1:1]) == (1'b0))) ||(!((m1.id_ex_reg_wen) == (1'b1))) ||(!((m1.id_ex_rd) == (2'b01)))))
+(1'b1) == (((!(m1.reg_0_w_stage[1:1])) ||(!(m1.id_ex_rd[0:0]))) &&((!((m1.id_ex_rd) == (m1.ex_wb_rd))) ||(!(m1.id_ex_rd[0:0])) ||(!(m1.reg_0_w_stage[0:0]))))
+
+
+# UPDATES 2 ------------- Apr 8 -- night
+
+(1'b1) == (((!(m1.reg_3_w_stage[0:0])) ||(!(m1.reg_1_w_stage[0:0]))) &&((!((m1.reg_3_w_stage[1:1]) == (1'b1))) ||(!(m1.reg_1_w_stage[1:1]))))
+(1'b1) == (((!(m1.reg_2_w_stage[0:0])) ||(!((m1.ex_wb_reg_wen) == (1'b0)))) &&(((m1.id_ex_reg_wen) == (1'b1)) ||(!(m1.reg_2_w_stage[1:1]))))
+(1'b1) == (((!((m1.reg_1_w_stage[0:0]) == (1'b1))) ||(!((m1.ex_wb_reg_wen) == (1'b0)))) &&(((m1.id_ex_reg_wen) == (1'b1)) ||(!(m1.reg_1_w_stage[1:1]))))
+(1'b1) == (((!((m1.reg_3_w_stage[0:0]) == (1'b1))) ||((m1.ex_wb_reg_wen) == (1'b1))) &&((!((m1.id_ex_op[0:0]) == (1'b1))) ||(!((m1.id_ex_reg_wen) == (1'b0))) ||(!((m1.ex_wb_reg_wen) == (1'b1)))) &&((!((m1.id_ex_op[1:1]) == (1'b1))) ||((m1.id_ex_reg_wen) == (1'b1)) ||(!((m1.ex_wb_reg_wen) == (1'b1)))) &&(((m1.id_ex_reg_wen) == (1'b1)) ||(!(m1.reg_3_w_stage[1:1]))))
+(1'b1) == (((m1.reg_2_w_stage[0:0]) ||(!((m1.ex_wb_rd) == (2'b10))) ||(!((m1.ex_wb_reg_wen) == (1'b1)))) &&((!((m1.id_ex_rd) == (2'b10))) ||(!((m1.id_ex_reg_wen) == (1'b1))) ||((m1.reg_2_w_stage[1:1]) == (1'b1))))
+(1'b1) == ((m1.id_ex_rd[1:1]) ||(!((m1.id_ex_reg_wen) == (1'b1))) ||(m1.reg_0_w_stage[1:1]) ||(m1.id_ex_rd[0:0]))
+(1'b1) == (((m1.reg_1_w_stage[0:0]) ||(!((m1.ex_wb_rd) == (2'b01))) ||(!((m1.ex_wb_reg_wen) == (1'b1)))) &&((!((m1.id_ex_rd) == (2'b01))) ||(!((m1.id_ex_reg_wen) == (1'b1))) ||(m1.reg_1_w_stage[1:1])))
+(1'b1) == (((!((m1.reg_2_w_stage[0:0]) == (1'b1))) ||(!(m1.ex_wb_rd[0:0]))) &&((!((m1.id_ex_rd[0:0]) == (1'b1))) ||(!(m1.reg_2_w_stage[1:1]))))
+(1'b1) == (((m1.ex_wb_rd[0:0]) ||(!(m1.reg_1_w_stage[0:0]))) &&((!(m1.reg_1_w_stage[1:1])) ||((m1.id_ex_rd[0:0]) == (1'b1))))
+(1'b1) == ((!((m1.id_ex_op) == (2'b00))) ||((m1.id_ex_reg_wen) == (1'b0)))
+(1'b1) == (((!((m1.reg_0_w_stage[0:0]) == (1'b1))) ||(!(m1.ex_wb_rd[0:0]))) &&((!(m1.reg_0_w_stage[1:1])) ||(!(m1.id_ex_rd[0:0]))))
+(1'b1) == (((m1.ex_wb_rd[1:1]) ||(!(m1.reg_2_w_stage[0:0]))) &&((!(m1.reg_2_w_stage[1:1])) ||((m1.id_ex_rd[1:1]) == (1'b1))))
+(1'b1) == (((m1.reg_3_w_stage[0:0]) ||(!((m1.ex_wb_rd) == (2'b11))) ||(!((m1.ex_wb_reg_wen) == (1'b1)))) &&((!((m1.id_ex_op) == (2'b00))) ||(!((m1.id_ex_reg_wen) == (1'b1)))) &&(((m1.reg_3_w_stage[1:1]) == (1'b1)) ||(!((m1.id_ex_reg_wen) == (1'b1))) ||(!((m1.id_ex_rd) == (2'b11)))))
+(1'b1) == (((m1.id_ex_rd[0:0]) == (1'b1)) ||(!((m1.reg_3_w_stage[1:1]) == (1'b1))))
+(1'b1) == (((m1.reg_0_w_stage[0:0]) ||(!((m1.ex_wb_reg_wen) == (1'b1))) ||(m1.ex_wb_rd[1:1]) ||(m1.ex_wb_rd[0:0])) &&((m1.id_ex_rd[1:1]) ||(!((m1.id_ex_reg_wen) == (1'b1))) ||(m1.reg_0_w_stage[1:1]) ||(m1.id_ex_rd[0:0])))
+(1'b1) == (((m1.ex_wb_rd[0:0]) ||(!((m1.reg_3_w_stage[0:0]) == (1'b1)))) &&(((m1.id_ex_rd[0:0]) == (1'b1)) ||(!(m1.reg_3_w_stage[1:1]))))
+(1'b1) == (((!(m1.reg_0_w_stage[0:0])) ||(!((m1.ex_wb_reg_wen) == (1'b0)))) &&((!((m1.id_ex_op[1:1]) == (1'b1))) ||(!((m1.reg_3_w_stage[0:0]) == (1'b1))) ||((m1.id_ex_reg_wen) == (1'b1))) &&((!((m1.reg_0_w_stage[1:1]) == (1'b1))) ||((m1.id_ex_reg_wen) == (1'b1))))
+(1'b1) == (((!((m1.reg_0_w_stage[0:0]) == (1'b1))) ||(!(m1.ex_wb_rd[1:1]))) &&((!(m1.reg_0_w_stage[1:1])) ||(!(m1.id_ex_rd[1:1]))))
+
+# UPDATES 2 ------------- Apr 9 -- afternoon (btor new z3)
+
+(1'b1) == (((!(m1.reg_0_w_stage[1:1])) ||(!((m1.id_ex_reg_wen) == (1'b0)))) &&((!((m1.id_ex_op[0:0]) == (1'b1))) ||(!((m1.reg_3_w_stage[0:0]) == (1'b1))) ||((m1.id_ex_reg_wen) == (1'b1))) &&((!((m1.id_ex_op[1:1]) == (1'b1))) ||(!((m1.reg_3_w_stage[0:0]) == (1'b1))) ||((m1.id_ex_reg_wen) == (1'b1))) &&((!((m1.reg_0_w_stage[0:0]) == (1'b1))) ||(!((m1.ex_wb_reg_wen) == (1'b0)))))
+(1'b1) == (((!((m1.reg_1_w_stage[0:0]) == (1'b1))) ||(!((m1.ex_wb_reg_wen) == (1'b0)))) &&((!((m1.reg_1_w_stage[1:1]) == (1'b1))) ||((m1.id_ex_reg_wen) == (1'b1))))
+(1'b1) == (((m1.reg_2_w_stage[0:0]) ||(!((m1.ex_wb_rd) == (2'b10))) ||(!((m1.ex_wb_reg_wen) == (1'b1)))) &&((m1.reg_2_w_stage[1:1]) ||(!((m1.id_ex_reg_wen) == (1'b1))) ||(!((m1.id_ex_rd) == (2'b10)))))
+(1'b1) == (((!(m1.reg_2_w_stage[0:0])) ||(!((m1.ex_wb_reg_wen) == (1'b0)))) &&((!((m1.id_ex_op[0:0]) == (1'b1))) ||(!((m1.reg_0_w_stage[0:0]) == (1'b1))) ||((m1.id_ex_reg_wen) == (1'b1))) &&(((m1.id_ex_reg_wen) == (1'b1)) ||(!(m1.reg_2_w_stage[1:1]))))
+(1'b1) == (((m1.reg_1_w_stage[0:0]) ||(!((m1.ex_wb_rd) == (2'b01))) ||(!((m1.ex_wb_reg_wen) == (1'b1)))) &&((!((m1.id_ex_rd) == (2'b01))) ||(!((m1.id_ex_reg_wen) == (1'b1))) ||((m1.reg_1_w_stage[1:1]) == (1'b1))))
+(1'b1) == (((!((m1.reg_1_w_stage[0:0]) == (1'b1))) ||(!(m1.ex_wb_rd[1:1]))) &&((!((m1.id_ex_rd[1:1]) == (1'b1))) ||(!(m1.reg_1_w_stage[1:1]))))
+(1'b1) == (((m1.reg_0_w_stage[0:0]) ||(!((m1.ex_wb_reg_wen) == (1'b1))) ||(m1.ex_wb_rd[0:0]) ||(m1.ex_wb_rd[1:1])) &&((m1.id_ex_rd[1:1]) ||(!((m1.id_ex_reg_wen) == (1'b1))) ||(m1.reg_0_w_stage[1:1]) ||(m1.id_ex_rd[0:0])))
+(1'b1) == (((!((m1.reg_2_w_stage[0:0]) == (1'b1))) ||(!(m1.ex_wb_rd[0:0]))) &&((!((m1.id_ex_rd[0:0]) == (1'b1))) ||(!(m1.reg_2_w_stage[1:1]))))
+(1'b1) == (((!(m1.reg_2_w_stage[0:0])) ||((m1.ex_wb_rd[1:1]) == (1'b1))) &&((!((m1.id_ex_op) == (2'b00))) ||(!((m1.id_ex_reg_wen) == (1'b1))) ||(!((m1.ex_wb_reg_wen) == (1'b1)))) &&((!((m1.reg_2_w_stage[1:1]) == (1'b1))) ||((m1.id_ex_rd[1:1]) == (1'b1))))
+(1'b1) == (
+    ((m1.registers[2][6:6]) == (1'b1)) ||
+    (!((m1.registers[3]) == (8'hcf))) ||
+    (!((m1.registers[1]) == (8'h4d))) ||
+    (!((m1.id_ex_rs2_val) == (8'h5f))) ||
+    (!((m1.id_ex_rs1_val) == (8'hc0))) ||
+    ((m1.reg_3_w_stage[0:0]) == (1'b1)) ||
+    ((m1.reg_1_w_stage[0:0]) == (1'b1)) ||
+    (m1.reg_0_w_stage[0:0]) ||
+    (m1.reg_2_w_stage[0:0]) ||
+    ((m1.registers[0][6:6]) == (1'b1)))
+(1'b1) == (((!(m1.reg_3_w_stage[0:0])) ||(!((m1.ex_wb_reg_wen) == (1'b0)))) &&(((m1.id_ex_reg_wen) == (1'b1)) ||(!(m1.reg_3_w_stage[1:1]))))
+(1'b1) == (((m1.reg_3_w_stage[0:0]) ||(!((m1.ex_wb_rd) == (2'b11))) ||(!((m1.ex_wb_reg_wen) == (1'b1)))) &&((!((m1.id_ex_rd) == (2'b11))) ||(!((m1.id_ex_reg_wen) == (1'b1))) ||((m1.reg_3_w_stage[1:1]) == (1'b1))))
+(1'b1) == (((m1.ex_wb_rd[1:1]) ||(!(m1.reg_3_w_stage[0:0]))) &&(((m1.id_ex_rd[1:1]) == (1'b1)) ||(!(m1.reg_3_w_stage[1:1]))))
+(1'b1) == (((!((m1.reg_1_w_stage[0:0]) == (1'b1))) ||(m1.ex_wb_rd[0:0])) &&(((m1.id_ex_rd[0:0]) == (1'b1)) ||(!((m1.reg_1_w_stage[1:1]) == (1'b1)))))
+(1'b1) == (((m1.id_ex_rd[0:0]) == (1'b1)) ||(!((m1.reg_3_w_stage[1:1]) == (1'b1))))
+(1'b1) == ((!((m1.reg_0_w_stage[1:1]) == (1'b1))) ||(!(m1.id_ex_rd[1:1])))
+(1'b1) == ((((m1.ex_wb_rd[0:0]) == (1'b1)) ||(!((m1.reg_3_w_stage[0:0]) == (1'b1)))) &&(((m1.id_ex_rd[0:0]) == (1'b1)) ||(!(m1.reg_3_w_stage[1:1]))))
+(1'b1) == (((!((m1.reg_0_w_stage[0:0]) == (1'b1))) ||(!(m1.ex_wb_rd[0:0]))) &&((!(m1.reg_0_w_stage[1:1])) ||(!(m1.id_ex_rd[0:0]))))
+(1'b1) == (((!(m1.reg_0_w_stage[1:1])) ||(!(m1.id_ex_rd[1:1]))) &&((!((m1.reg_0_w_stage[0:0]) == (1'b1))) ||(!(m1.ex_wb_rd[1:1]))))
+
+
+
