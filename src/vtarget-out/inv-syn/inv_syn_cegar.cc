@@ -361,4 +361,28 @@ void InvariantSynthesizerCegar::ExtractSynthesisResult(bool autodet, bool reacha
 
 } // ExtractSynthesisResult
 
+DesignStatistics InvariantSynthesizerCegar::GetDesignStatistics() const {
+  DesignStatistics ret;
+
+  if (design_smt_info == nullptr) {
+    ILA_ERROR << "Design information not available!";
+    return ret;
+  }
+  std::string query_mod_name = implementation_top_module_name;
+  
+  ILA_ERROR_IF(vlg_mod_inst_name.empty()) << "vlg_mod_inst_name is empty, will not distinguish in/out module state";
+
+  for (auto && st : design_smt_info->get_module_flatten_dt("wrapper")) {
+    
+    if ( st.verilog_name.find(vlg_mod_inst_name + ".") == 0 ) {
+      ret.NumOfDesignStateBits += st._type.GetBoolBvWidth();
+      ret.NumOfDesignStateVars ++;
+    } else {
+      ret.NumOfExtraStateBits += st._type.GetBoolBvWidth();
+      ret.NumOfExtraStateVars ++;
+    }
+  }
+  return ret;
+}
+
 }; // namespace ilang

@@ -12,6 +12,27 @@
 
 namespace ilang {
 
+/// \brief design statistics information 
+struct DesignStatistics {
+  /// the number of state variables
+  unsigned NumOfDesignStateVars;
+  /// the total width of these variables
+  unsigned NumOfDesignStateBits;
+  /// the number of state variables
+  unsigned NumOfExtraStateVars;
+  /// the total width of these variables
+  unsigned NumOfExtraStateBits;
+
+  /// Constructor -- reset all values to 0
+  DesignStatistics() : 
+    NumOfDesignStateVars(0),
+    NumOfDesignStateBits(0),
+    NumOfExtraStateVars(0),
+    NumOfExtraStateBits(0) {} 
+
+}; // struct DesignStatistics
+
+
 /// \brief the implementation of the synthesizer class
 class InvariantSynthesizerCegar {
 
@@ -78,7 +99,8 @@ public:
   bool check_in_bad_state() const ;
   /// Here we directly expose the runnable script names (They will never be used as inputs)
   const std::vector<std::string> & GetRunnableTargetScriptName() const;
-
+  /// Here you can get the design information
+  DesignStatistics GetDesignStatistics() const;
 
 protected:
   // -------------------- MEMBERS ------------------ //

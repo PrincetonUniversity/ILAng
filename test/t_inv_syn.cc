@@ -204,6 +204,12 @@ TEST(TestVlgVerifInvSyn, CegarPipelineExample) {
     }while(not vg.in_bad_state());
 
    vg.GenerateInvariantVerificationTarget();
+   auto design_stat = vg.GetDesignStatistics();
+   ILA_INFO << "========== Design Info ==========" ;
+   ILA_INFO << "#bits= " << design_stat.NumOfDesignStateBits;
+   ILA_INFO << "#vars=" << design_stat.NumOfDesignStateVars;
+   ILA_INFO << "#extra_bits= " << design_stat.NumOfExtraStateBits;
+   ILA_INFO << "#extra_vars=" << design_stat.NumOfExtraStateVars;
 }
 
 
