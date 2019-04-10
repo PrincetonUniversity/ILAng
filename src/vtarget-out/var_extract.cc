@@ -31,7 +31,7 @@ std::string VarExtractor::GenString() const {
   return ret;
 }
 
-bool isStateBegin(unsigned char c) { return std::isalpha(c) || c=='#'; }
+bool isStateBegin(unsigned char c) { return std::isalpha(c) || c=='#' || c == '_'; }
 
 bool isStateCont(unsigned char c, size_t idx, const std::string& s) {
   if (std::isalpha(c) || std::isdigit(c) || c == '.' || c == '_' || c == ']' )

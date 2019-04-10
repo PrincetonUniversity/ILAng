@@ -3,6 +3,7 @@ AND/*
 NOP/*
 SUB/*
 inv-syn/*
+inv-syn-test/*
 __synthesis_result.txt
 __verification_result.txt
 

@@ -1,0 +1,37 @@
+{
+  "models": { "ILA":"m0" , "VERILOG": "m1" },
+  "instruction mapping": [],
+  "state mapping": {  
+  	"r0":
+	    [ "~( m1.reg_0_w_stage == 2'b10 ) || (m1.ex_alu_result == m0.r0)",
+	      "~( m1.reg_0_w_stage == 2'b11 ) || (m1.ex_alu_result == m0.r0)",
+	      "~( m1.reg_0_w_stage == 2'b01 ) || (m1.ex_wb_val     == m0.r0)",
+	      "~( m1.reg_0_w_stage == 2'b00 ) || (m1.registers[0]  == m0.r0)"] ,
+    "r1":
+	    [ "~( m1.reg_1_w_stage == 2'b10 ) || (m1.ex_alu_result == m0.r1)",
+	      "~( m1.reg_1_w_stage == 2'b11 ) || (m1.ex_alu_result == m0.r1)",
+	      "~( m1.reg_1_w_stage == 2'b01 ) || (m1.ex_wb_val     == m0.r1)",
+	      "~( m1.reg_1_w_stage == 2'b00 ) || (m1.registers[1]  == m0.r1)"],
+    "r2":
+	    [ "~( m1.reg_2_w_stage == 2'b10 ) || (m1.ex_alu_result == m0.r2)",
+	      "~( m1.reg_2_w_stage == 2'b11 ) || (m1.ex_alu_result == m0.r2)",
+	      "~( m1.reg_2_w_stage == 2'b01 ) || (m1.ex_wb_val     == m0.r2)",
+	      "~( m1.reg_2_w_stage == 2'b00 ) || (m1.registers[2]  == m0.r2)"],
+    "r3":
+
+	    [ {"cond":" m1.reg_3_w_stage == 2'b10 " , "map":"m1.ex_alu_result"},
+	      {"cond":" m1.reg_3_w_stage == 2'b11 " , "map":"ex_alu_result"},
+	      {"cond":" m1.reg_3_w_stage == 2'b01 " , "map":" m1.ex_wb_val     == m0.r3"},
+	      {"cond":" m1.reg_3_w_stage == 2'b00 " , "map":" m1.registers[3]  == m0.r3"}]},
+
+  "interface mapping": {
+  	 "rst":"**RESET**", 
+  	 "clk":"**CLOCK**",
+  	 "inst":"inst",
+  	 "dummy_read_rf":"**KEEP**",
+  	 "dummy_rf_data":"**SO**",
+     "__START__" : "**START**"
+  },
+
+  "mapping control" : ["m1.rd != 0"]
+}
