@@ -101,6 +101,8 @@ public:
   const std::vector<std::string> & GetRunnableTargetScriptName() const;
   /// Here you can get the design information
   DesignStatistics GetDesignStatistics() const;
+  /// Here you can extract the invariants and export them if needed
+  const InvariantObject & GetInvariants() const;
 
 protected:
   // -------------------- MEMBERS ------------------ //

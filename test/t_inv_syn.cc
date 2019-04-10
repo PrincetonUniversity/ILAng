@@ -203,14 +203,38 @@ TEST(TestVlgVerifInvSyn, CegarPipelineExample) {
       vg.ExtractSynthesisResult();
     }while(not vg.in_bad_state());
 
-   vg.GenerateInvariantVerificationTarget();
-   auto design_stat = vg.GetDesignStatistics();
-   ILA_INFO << "========== Design Info ==========" ;
-   ILA_INFO << "#bits= " << design_stat.NumOfDesignStateBits;
-   ILA_INFO << "#vars=" << design_stat.NumOfDesignStateVars;
-   ILA_INFO << "#extra_bits= " << design_stat.NumOfExtraStateBits;
-   ILA_INFO << "#extra_vars=" << design_stat.NumOfExtraStateVars;
-}
+  vg.GenerateInvariantVerificationTarget();
+  auto design_stat = vg.GetDesignStatistics();
+  ILA_INFO << "========== Design Info ==========" ;
+  ILA_INFO << "#bits= " << design_stat.NumOfDesignStateBits;
+  ILA_INFO << "#vars=" << design_stat.NumOfDesignStateVars;
+  ILA_INFO << "#extra_bits= " << design_stat.NumOfExtraStateBits;
+  ILA_INFO << "#extra_vars=" << design_stat.NumOfExtraStateVars;
+
+  // test invariant import and export also here
+  InvariantObject invs(vg.GetInvariants());
+  invs.ExportToFile(outDir+"inv_results.txt");
+  invs.ClearAllInvariants();
+  invs.ImportFromFile(outDir+"inv_results.txt");
+  
+  // check they are the same
+  EXPECT_EQ(
+    vg.GetInvariants().GetVlgConstraints().size(), 
+    invs.GetVlgConstraints().size());
+  EXPECT_EQ(
+    vg.GetInvariants().GetExtraVarDefs().size(), 
+    invs.GetExtraVarDefs().size());
+  EXPECT_EQ(
+    vg.GetInvariants().GetExtraFreeVarDefs().size(), 
+    invs.GetExtraFreeVarDefs().size());
+
+  for (auto pos = invs.GetVlgConstraints().begin(), 
+        pos2 = vg.GetInvariants().GetVlgConstraints().begin(); 
+      pos != invs.GetVlgConstraints().end();
+      ++ pos, ++ pos2  ) {
+    EXPECT_EQ(*pos, *pos2);
+  }
+} // CegarPipelineExample
 
 
 

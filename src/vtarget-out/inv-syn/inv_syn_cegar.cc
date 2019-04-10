@@ -384,5 +384,8 @@ DesignStatistics InvariantSynthesizerCegar::GetDesignStatistics() const {
   }
   return ret;
 }
+const InvariantObject & InvariantSynthesizerCegar::GetInvariants() const {
+  return inv_obj;
+}
 
 }; // namespace ilang

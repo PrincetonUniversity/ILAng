@@ -26,6 +26,8 @@ public:
   // ----------- CONSTRUCTOR ---------- //
   /// empty invariants
   InvariantObject();
+  /// copy constructor = default
+  
   /// add invariants from smt-like output
   void AddInvariantFromChcResultFile(
     smt::YosysSmtParser & design_info, 
@@ -41,6 +43,12 @@ public:
   const extra_free_var_def_vec_t & GetExtraFreeVarDefs() const;
   /// called by the target generator?
   void set_dut_inst_name(const std::string & name);
+  /// clear all stored invariants
+  void ClearAllInvariants();
+  /// export invariants to a file
+  void ExportToFile(const std::string &fn) const;
+  /// import invariants that has been previous exported
+  void ImportFromFile(const std::string &fn);
 
 protected:
   /// the expressions
