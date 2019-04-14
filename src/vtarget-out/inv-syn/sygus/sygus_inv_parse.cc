@@ -25,14 +25,16 @@ SyGuSInvariantParser::SyGuSInvariantParser(YosysSmtParser * yosys_smt_info,
     // but it will create the var name correctly anyway
 
     // build all allowable names
-    const auto & top_sts = yosys_smt_info->get_module_flatten_dt( yosys_smt_info->get_module_def_orders().back() );
-    ILA_ASSERT(not top_sts.empty()) << "Empty top module states";
-    for (auto && st : top_sts) {
-      if ( st.verilog_name.empty() )
-        _all_allowable_names.insert(st.internal_name);
-      else
-        _all_allowable_names.insert(st.verilog_name);
-    }
+    if (not dut_verilog_instance_name.empty()) {
+      const auto & top_sts = yosys_smt_info->get_module_flatten_dt( dut_verilog_instance_name );
+      ILA_ASSERT(not top_sts.empty()) << "Empty top module states";
+      for (auto && st : top_sts) {
+        if ( st.verilog_name.empty() )
+          _all_allowable_names.insert(st.internal_name);
+        else
+          _all_allowable_names.insert(st.verilog_name);
+      }
+    } // only an optional checking
   }
 
 SyGuSInvariantParser::~SyGuSInvariantParser() {}
@@ -104,8 +106,9 @@ void SyGuSInvariantParser::declare_quantified_variable(const std::string &name, 
   }
   auto vlg_name = name.substr(1,name.length()-2) ; // verilog-name should be extracted from the name part
   // we don't explicitly check if this name is valid or not
-  ILA_ASSERT(IN(vlg_name,_all_allowable_names))
-    << "Expecting " << vlg_name << " in all allowable names.";
+  if (not dut_verilog_instance_name.empty())
+    ILA_ASSERT(IN(vlg_name,_all_allowable_names))
+      << "Expecting " << vlg_name << " in all allowable names.";
   /*( 
     design_smt_info_ptr->get_module_flatten_dt(top_module)
     [quantifier_var_def_idx_stack.back()])

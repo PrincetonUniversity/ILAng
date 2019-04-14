@@ -26,6 +26,12 @@ class SyGuSInvariantParser : public SmtlibInvariantParser {
 
 public:
   // -------------- CONSTRUCTOR ------------------- //
+  /// 1. the first argument : design_smt_info_ptr
+  ///    is only used for sanity check...
+  /// 2. _flatten_datatype : does not really affect the behavior
+  /// 3. _inv_pred_name : {INV} the function name
+  /// 4. if you give dut_verilog_instance_name, you can  
+  ///    disable the sanity check and safely set yosys_smt_info to NULL
   SyGuSInvariantParser(YosysSmtParser * yosys_smt_info, 
     bool _flatten_datatype, bool _flatten_hierarchy,
     const std::set<std::string> & _inv_pred_name,

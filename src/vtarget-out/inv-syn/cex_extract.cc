@@ -119,10 +119,16 @@ void CexExtractor::parse_from(const std::string & vcd_file_name,
       continue;
 
     // check scope
-    if (not in_scope(sig->scope, scope))
-      continue;
+    // if (not in_scope(sig->scope, scope))
+    //  continue;
 
     auto scopes = collect_scope(sig->scope);
+
+    // check scope -- only the top level
+    if ( not ( scopes.find("$root." +  scope + ".") == 0 ||
+               scopes.find( scope + ".") == 0 ))
+      continue;
+
     auto vlg_name = ReplaceAll(
       scopes + sig->reference, "$root.", "");
     
@@ -163,11 +169,11 @@ CexExtractor::CexExtractor(const std::string & vcd_file_name,
 
 // -------------------- MEMBERS ------------------ //
 /// return a string to be added to the design
-std::string CexExtractor::GenInvAssert(const std::string & sub_mod_inst_name) const {
+std::string CexExtractor::GenInvAssert(const std::string & prefix) const {
   std::string ret = "(1'b1 == 1'b1)"; // true
   for (auto && nv : cex) {
     
-    ret += "&& (" + prepend(sub_mod_inst_name, 
+    ret += "&& (" + prepend(prefix, 
       ReplaceAll( nv.first , "[0:0]" , "" ) ) + " == " + nv.second + ")";
   }
   return ret;
