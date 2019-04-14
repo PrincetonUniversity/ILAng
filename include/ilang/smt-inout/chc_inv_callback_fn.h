@@ -42,6 +42,11 @@ smtlib2_term proxy_make_exists_term(smtlib2_parser_interface *parser,
 // we will treat everything as an assert, although it does nothing
 void proxy_assert_formula(smtlib2_parser_interface *parser, smtlib2_term term);
 
+// in the case of CVC4 output, it will be a define-fun
+void proxy_define_func(smtlib2_parser_interface *parser,
+                            const char *name,
+                            smtlib2_vector *params,
+                            smtlib2_sort sort, smtlib2_term term);
 // 
 smtlib2_sort proxy_make_sort(smtlib2_parser_interface *p,
                                                const char *sortname,

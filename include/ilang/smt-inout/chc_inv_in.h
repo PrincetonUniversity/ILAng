@@ -86,7 +86,7 @@ public:
   SmtlibInvariantParser & operator=(const SmtlibInvariantParser &) = delete;
 
   // -------------- DESTRUCTOR ------------------- //
-  ~SmtlibInvariantParser();
+  virtual ~SmtlibInvariantParser();
 
   // -------------- METHODS ------------------- //
   // parse from a file, we will add something there to make
@@ -152,24 +152,28 @@ public:
 public:
   // ----------------- CALLBACK FUNS INTERFACE ------------------- //
   /// call back function to handle (forall
-  SmtTermInfoVlgPtr push_quantifier_scope();
+  virtual SmtTermInfoVlgPtr push_quantifier_scope();
   /// call back function to handle ) of forall
-  SmtTermInfoVlgPtr pop_quantifier_scope();
+  virtual SmtTermInfoVlgPtr pop_quantifier_scope();
   /// call back function to create a sort
-  var_type * make_sort(const std::string &name, const std::vector<int> &);
+  virtual var_type * make_sort(const std::string &name, const std::vector<int> &);
   /// call back function to create a temporary (quantified variable)
-  void declare_quantified_variable(const std::string &name, var_type * sort );
+  virtual void declare_quantified_variable(const std::string &name, var_type * sort );
   /// call back function to apply an uninterpreted function
   /// fall-through case if it is not an defined op, if failed, return NULL
-  SmtTermInfoVlgPtr mk_function(
+  virtual SmtTermInfoVlgPtr mk_function(
     const std::string &name, var_type * sort, 
     const std::vector<int> & idx, const std::vector<SmtTermInfoVlgPtr> & args);
   /// call back function to make a number term
-  SmtTermInfoVlgPtr mk_number(const std::string & rep, int width, int base);
+  virtual SmtTermInfoVlgPtr mk_number(const std::string & rep, int width, int base);
   /// find if a certain var is a quantified variable
-  SmtTermInfoVlgPtr search_quantified_var_stack(const std::string & name);
+  virtual SmtTermInfoVlgPtr search_quantified_var_stack(const std::string & name);
   /// this function receives the final assert result
-  void assert_formula(SmtTermInfoVlgPtr result);
+  virtual void assert_formula(SmtTermInfoVlgPtr result);
+  /// this function receives the final result
+  virtual void define_function(const std::string &func_name, 
+    const std::vector<SmtTermInfoVlgPtr> & args, var_type * ret_type,
+    SmtTermInfoVlgPtr func_body);
 
 #define DECLARE_OPERATOR(name) \
   SmtTermInfoVlgPtr mk_##name(const std::string & symbol, var_type * sort, \

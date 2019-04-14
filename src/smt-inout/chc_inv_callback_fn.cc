@@ -46,6 +46,19 @@ void proxy_assert_formula(smtlib2_parser_interface *parser, smtlib2_term term) {
     (SmtTermInfoVlgPtr) term );
 }
 
+void proxy_define_func(smtlib2_parser_interface *parser,
+                            const char *name,
+                            smtlib2_vector *params,
+                            smtlib2_sort sort, smtlib2_term term) {
+
+  auto idxv =  make_vector<SmtTermInfoVlgPtr>(params);
+  ((smtlib2_abstract_parser_wrapper *) parser)->inv_parser->define_function(
+    name, idxv, (var_type *) sort,  SmtTermInfoVlgPtr(term));
+  // check the idxv (params) type
+}
+
+
+
 
 // the special function dealing with the final term in a forall term
 smtlib2_term proxy_make_forall_term(smtlib2_parser_interface *parser,

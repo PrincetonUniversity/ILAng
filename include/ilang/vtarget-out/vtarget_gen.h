@@ -21,7 +21,7 @@ public:
   /// Type of the backend
   typedef enum { NONE = 0, COSA = 1, JASPERGOLD = 2, YOSYS = 3 } backend_selector;
   /// Type of invariant synthesis backend
-  typedef enum {Z3, FreqHorn} synthesis_backend_selector;
+  typedef enum {Z3, FreqHorn, CVC4} synthesis_backend_selector;
   /// Verilog Target Generation Configuration
   typedef struct _vtg_config {
     /// Set the targets: instructions/invariants/both
@@ -103,6 +103,48 @@ public:
     /// will not check synthesized invariants by default (unless call generateInvariantVerificationTarget)
     /// if true, will check by default
     bool AutoValidateSynthesizedInvariant;
+    // ----------- Options for SyGuS Solver for Invariant Synthesis ----------- //
+    /// The path to CVC4, if "cvc4" is not in the PATH, default empty
+    std::string Cvc4Path;
+    /// the SyGuS solver options --- not limited to CVC4
+    struct _sygus_options_t{
+      /// The type of synthesis (datapoint/transfer function)
+      enum {DataPoints, TransferFunc} SygusPassInfo;
+
+      /// whether to use bit extension
+      bool UseExtend;
+      /// the bit range to extract from
+      std::vector<std::pair<unsigned, unsigned>> ExtendFrom;
+      /// the bit range to extract to
+      std::vector<std::pair<unsigned, unsigned>> ExtendTo;
+      /// the vars to take into consideration
+      std::set<std::string> ExtendVars;
+
+      /// whether to use bit extraction
+      bool UseExtract;
+      /// the bit range to extract from
+      std::vector<std::pair<unsigned, unsigned>> ExtractFrom;
+      /// the bit range to extract to
+      std::vector<std::pair<unsigned, unsigned>> ExtractTo;
+      /// the vars to take into consideration
+      std::set<std::string> ExtractVars;
+
+      /// whether to use concatnation
+      bool UseConcat;
+      /// the vars to take into consideration
+      std::set<std::string> ConcatVars;
+
+      // future: use arithmetics?
+      enum {None, Level1, Recursive} UseArithmetics;
+
+      // default constructor
+      _sygus_options_t() :
+        SygusPassInfo(DataPoints),
+        UseExtend(false), UseExtract(false), 
+        UseConcat(false) , UseArithmetics(None) {}
+    }; // the options
+    _sygus_options_t SygusOptions;
+
 
 
     /// The default constructor for default values

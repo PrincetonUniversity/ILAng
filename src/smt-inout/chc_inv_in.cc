@@ -80,6 +80,7 @@ SmtlibInvariantParser::SmtlibInvariantParser(YosysSmtParser * yosys_smt_info,
   //
   //
   pi->assert_formula = proxy_assert_formula;
+  pi->define_function = proxy_define_func;
   pi->make_forall_term = proxy_make_forall_term;
   pi->make_exists_term = proxy_make_exists_term;
   pi->push_quantifier_scope = proxy_push_quantifier_scope;
@@ -171,6 +172,14 @@ std::string SmtlibInvariantParser::get_a_new_local_var_name() {
 void SmtlibInvariantParser::assert_formula(SmtTermInfoVlgPtr result) {
   final_translate_result = result->_translate;
 }
+
+void SmtlibInvariantParser::define_function(const std::string &func_name, 
+    const std::vector<SmtTermInfoVlgPtr> & args, var_type * ret_type,
+    SmtTermInfoVlgPtr func_body) {
+  
+  ILA_ASSERT(false)<<"Bug: CHC solver should not generate output containing define-fun!";
+  // we expect the forall style // for SyGuS, it is the opposite
+} // define_function
 
 /// call back function to handle (forall
 SmtTermInfoVlgPtr SmtlibInvariantParser::push_quantifier_scope() {
@@ -351,6 +360,7 @@ SmtTermInfoVlgPtr SmtlibInvariantParser::mk_function(
     return nullptr; // should not be reachable
   } // end of else 
 } // mk_function
+
 
 /// call back function to make a number term
 SmtTermInfoVlgPtr SmtlibInvariantParser::mk_number(const std::string & rep, int width, int base) {

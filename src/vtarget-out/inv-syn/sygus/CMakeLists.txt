@@ -1,0 +1,13 @@
+# ---------------------------------------------------------------------------- #
+# source
+# ---------------------------------------------------------------------------- #
+# This is the SyGuS for CVC4
+
+target_sources(${ILANG_LIB_NAME} PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/sygus_dp.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/sygus_inv_parse.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/sim_trace_extract.cc
+)
+
+
+
