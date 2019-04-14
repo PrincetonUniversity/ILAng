@@ -8,6 +8,7 @@
 #ifndef SYGUS_DP_H__
 #define SYGUS_DP_H__
 
+#include <ilang/vtarget-out/inv-syn/sygus/datapoint.h>
 #include <ilang/vtarget-out/vtarget_gen.h>
 #include <ilang/smt-inout/yosys_smt_parser.h>
 
@@ -17,21 +18,6 @@
 
 namespace ilang
 {
-  /// \brief the data point type
-  struct TraceDataPoints {
-    // ------------- TYPES ---------------- //
-    /// the type of values
-    /// the number here will be converted to #x... / #b... when needed
-    typedef std::pair<unsigned, smt::var_type> value_t;
-    /// the type of example collectors: name -> value
-    typedef std::map<std::string,value_t> example_map_t;
-    // ------------- MEMBER ---------------- //
-    /// The positive examples
-    example_map_t pos_ex;
-    /// The negative examples
-    example_map_t neg_ex;
-  };  // struct TraceDataPoints
-
   /// \brief to generate an input based on pos/neg examples
   class Cvc4SygusInputGenerator {
     /// the options it takes

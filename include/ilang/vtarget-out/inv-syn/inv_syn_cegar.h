@@ -6,6 +6,7 @@
 
 #include <ilang/smt-inout/yosys_smt_parser.h>
 #include <ilang/vtarget-out/vtarget_gen.h>
+#include <ilang/vtarget-out/inv-syn/sygus/datapoint.h>
 
 #include <string>
 #include <memory>
@@ -103,11 +104,27 @@ public:
   DesignStatistics GetDesignStatistics() const;
   /// Here you can extract the invariants and export them if needed
   const InvariantObject & GetInvariants() const;
+  /// to generate synthesis target (for using the whole transfer function)
+  void GenerateSynthesisTargetSygusTransFunc();
+  /// to generate synthesis target (for using the whole transfer function)
+  void GenerateSynthesisTargetSygusDatapoints();
+  /// to extract the synthesis attempt
+  void ExtractSygusDatapointSynthesisAttempt();
+  /// to validate if the previous attempt is good (inductive or not)
+  /// return true if the invariants are good/o.w. will auto load to datapoint's pos ex
+  bool ValidateSygusDatapointAttempt();
+  /// set the initial datapoints (can be empty, but we suggest using the sim_trace_extract)
+  void SetInitialDatapoint(const TraceDataPoints &dp);
+  /// set the sygus name lists (cannot be empty)
+  void SetSygusVarnameList(const std::vector<std::string> & sygus_var_name);
+
 
 protected:
   // -------------------- MEMBERS ------------------ //
   /// the found invariants, in Verilog expression
   InvariantObject inv_obj;
+  /// the temporary invariants (that might not be inductive)
+  InvariantObject inv_candidate;
   /// the pointer to a cegar object
   std::unique_ptr<CexExtractor> cex_extract;
   /// vlg-module instance name;
@@ -130,6 +147,14 @@ protected:
   bool cex_reachable;
   /// the synthesis result file
   std::string synthesis_result_fn;
+  /// the invariant type
+  enum cur_inv_tp { NONE, SYGUS_CEX, SYGUS_CHC, CHC } current_inv_type;
+  /// the datapoint
+  TraceDataPoints datapoints;
+  /// the sygus varname
+  std::vector<std::string> sygus_vars;
+  /// will also convert the above to a set (easier to index)
+  std::set<std::string> sygus_vars_set;
 
   // --------------------------------------------------
   // for book-keeping purpose

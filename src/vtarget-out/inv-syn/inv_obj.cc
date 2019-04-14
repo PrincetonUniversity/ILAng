@@ -7,7 +7,10 @@
 #include <ilang/util/log.h>
 
 #include <ilang/vtarget-out/inv-syn/inv_obj.h>
+// parser for Z3/freqhorn output
 #include <ilang/smt-inout/chc_inv_in.h>
+// parser for cvc4 output
+#include <ilang/vtarget-out/inv-syn/sygus/sygus_inv_parse.h>
 
 #include <fstream>
 
@@ -53,6 +56,38 @@ void InvariantObject::AddInvariantFromChcResultFile(
     inv_extra_free_vars.insert(name_w_pair);
   }
 } // AddInvariantFromChcResultFile
+
+/// add invariants from smt-like output
+void InvariantObject::AddInvariantFromSygusResultFile(
+    smt::YosysSmtParser & design_info, 
+    const std::string & tag, const std::string & chc_result_fn,
+    bool flatten_datatype, bool flatten_hierarchy ) {
+
+  smt::SyGuSInvariantParser parser(
+    &design_info,
+    flatten_datatype, flatten_hierarchy,
+    {"INV"}, dut_inst_name);
+
+  if (not parser.ParseInvResultFromFile(chc_result_fn) ) {
+    ILA_ERROR << "No new invariant has been extracted!";
+    return;
+  }
+  ILA_ASSERT(not parser.in_bad_state());
+  inv_vlg_exprs.push_back( parser.GetFinalTranslateResult() );
+  for (auto && name_vlg_pair : parser.GetLocalVarDefs()) {
+    inv_extra_vlg_vars.push_back(std::make_tuple(
+      name_vlg_pair.first,
+      name_vlg_pair.second._translate,
+      name_vlg_pair.second._type.GetBoolBvWidth()));
+  }
+  for (auto && name_w_pair : parser.GetFreeVarDefs()) {
+    if( IN(name_w_pair.first, inv_extra_free_vars) )
+      ILA_ASSERT(inv_extra_free_vars[name_w_pair.first] == name_w_pair.second)
+        << "Overwriting free var:" << name_w_pair.first << " w. width: " << name_w_pair.second
+        << " old width:" << inv_extra_free_vars[name_w_pair.first];
+    inv_extra_free_vars.insert(name_w_pair);
+  }
+} // AddInvariantFromSygusResultFile
 
 /// add invariants from verilog-like output
 void InvariantObject::AddInvariantFromVerilogExpr(const std::string & tag, const std::string & vlg_in) {

@@ -33,6 +33,13 @@ public:
     smt::YosysSmtParser & design_info, 
     const std::string & tag, const std::string & chc_result_fn,
     bool flatten_datatype, bool flatten_hierarchy );
+
+  /// add invariants from sygus output
+  void AddInvariantFromSygusResultFile(
+    smt::YosysSmtParser & design_info, 
+    const std::string & tag, const std::string & chc_result_fn,
+    bool flatten_datatype, bool flatten_hierarchy );
+
   /// add invariants from verilog-like output
   void AddInvariantFromVerilogExpr(const std::string & tag, const std::string & vlg_in);
   /// generate invariants

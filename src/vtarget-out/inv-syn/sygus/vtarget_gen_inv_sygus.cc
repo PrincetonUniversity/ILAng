@@ -19,7 +19,7 @@ namespace ilang {
 #define VLG_FALSE "`false"
 
 // initialize templates
-std::string chcGenerateSmtScript_wo_Array = R"***(
+std::string sygusGenerateSmtScript_wo_Array = R"***(
 hierarchy -check
 proc
 opt
@@ -33,7 +33,7 @@ opt;;
 )***";
 
 // should not be used
-std::string chcGenerateSmtScript_w_Array = R"***(
+std::string sygusGenerateSmtScript_w_Array = R"***(
 hierarchy -check
 proc
 opt
@@ -52,124 +52,14 @@ proc
 opt;;
 )***";
 
-std::string inv_syn_tmpl_datatypes = R"***(
-;----------------------------------------
-;  Single Inductive Invariant Synthesis
-;  Generated from ILAng
-;----------------------------------------
-
-%%
-
-;(declare-rel INIT (|%1%_s|))
-;(declare-rel T (|%1%_s|) (|%1%_s|))
-(declare-rel INV (|%1%_s|))
-(declare-rel fail ())
-
-
-(declare-var |__BI__| |%1%_s|)
-(declare-var |__I__| |%1%_s|)
-
-(declare-var |__S__| |%1%_s|)
-(declare-var |__S'__| |%1%_s|)
-
-; --------------------------------
-
-; init => inv
-(rule (=> (and 
-  (|%1%_n rst| |__BI__|)
-  <!>(|%1%_h| |__BI__|)<!>
-  <!>(|%1%_h| |__I__|)<!>
-  (|%1%_t| |__BI__| |__I__|))
-  (INV |__I__|)))
-
-; inv /\ T => inv
-(rule (=> (and 
-  (INV |__S__|) 
-  (|%1%_u| |__S__|)
-  (|%1%_u| |__S'__|)
-  <!>(|%1%_h| |__S__|)<!>
-  <!>(|%1%_h| |__S'__|)<!>
-  (|%1%_t| |__S__| |__S'__|)) 
-  (INV |__S'__|)))
-
-; inv /\ ~p => \bot
-(rule (=> (and 
-  (INV |__S__|) 
-  (|%1%_u| |__S__|)
-  <!>(|%1%_h| |__S__|)<!>
-  (not (|%1%_a| |__S__|)))
-  fail))
-
-(query fail :print-certificate true)
-
-)***";
 
 
 
-std::string inv_syn_tmpl_wo_datatypes = R"***(
-;----------------------------------------
-;  Single Inductive Invariant Synthesis
-;  Generated from ILAng
-;----------------------------------------
-
-%%
-
-(declare-rel INV %WrapperDataType%)
-(declare-rel fail ())
-
-%BeforeInitVar%
-%InitVar%
-;(declare-var |__BI__state| Type)
-;(declare-var |__I__state|  Type)
-
-%State%
-%StatePrime%
-;(declare-var |__S__state| Type)
-;(declare-var |__S'__state| Type)
-
-; same for flattened
-
-; init => inv
-(rule (=> (and 
-  (|%WrapperName%_n rst| %BIs%) 
-  <!>(|%WrapperName%_h| %BIs%)<!> 
-  <!>(|%WrapperName%_h| %Is%)<!>
-  (|%WrapperName%_t| %BIs% %Is%)) 
-  (INV %Is%)))
-
-; inv /\ T => inv
-(rule (=> (and 
-  (INV %Ss%) 
-  (|%WrapperName%_u| %Ss%) 
-  (|%WrapperName%_u| %Sps%) 
-  <!>(|%WrapperName%_h| %Ss%)<!>
-  <!>(|%WrapperName%_h| %Sps%)<!>
-  (|%WrapperName%_t| %Ss% %Sps%)) 
-  (INV %Sps%)))
-
-; inv /\ ~p => \bot
-(rule (=> (and 
-  (INV %Ss%)
-  (|%WrapperName%_u| %Ss%) 
-  <!>(|%WrapperName%_h| %Ss%)<!>
-  (not (|%WrapperName%_a| %Ss%))) 
-  fail))
-
-(query fail :print-certificate true)
-
-)***";
-
-
-std::string RewriteDatatypeChc(
-  const std::string & tmpl, const std::vector<smt::state_var_t> & dt,
-  const std::string & wrapper_mod_name);
-
-
-VlgSglTgtGen_Chc::~VlgSglTgtGen_Chc() {
+VlgSglTgtGen_Cvc4SyGuS::~VlgSglTgtGen_Cvc4SyGuS() {
   
 }
 
-VlgSglTgtGen_Chc::VlgSglTgtGen_Chc(
+VlgSglTgtGen_Cvc4SyGuS::VlgSglTgtGen_Cvc4SyGuS(
     const std::string&
         output_path, // will be a sub directory of the output_path of its parent
     const InstrPtr& instr_ptr, // which could be an empty pointer, and it will
@@ -183,13 +73,15 @@ VlgSglTgtGen_Chc::VlgSglTgtGen_Chc(
     const vtg_config_t& vtg_config,  backend_selector vbackend,
     synthesis_backend_selector sbackend,
     const target_type_t& target_tp,
-    advanced_parameters_t* adv_ptr )
+    advanced_parameters_t* adv_ptr,
+    TraceDataPoints * dp,
+    const std::vector<std::string> & var_name_set)
     : VlgSglTgtGen(output_path, instr_ptr, ila_ptr, config, _rf_vmap, _rf_cond, _sup_info,
                    _vlg_info_ptr, vlg_mod_inst_name, ila_mod_inst_name,
                    wrapper_name, implementation_srcs,
                    implementation_include_path, vtg_config, vbackend,
                    target_tp, adv_ptr),
-      s_backend(sbackend) { 
+      s_backend(sbackend), datapoints(dp), var_names(var_name_set) { 
     
     ILA_ASSERT(vbackend == backend_selector::YOSYS)
       << "Only support using yosys for invariant synthesis";
@@ -219,10 +111,14 @@ VlgSglTgtGen_Chc::VlgSglTgtGen_Chc(
          VlgVerifTgtGenBase::_vtg_config::_sygus_options_t::TransferFunc)
       ILA_ASSERT (vtg_config.YosysSmtFlattenDatatype)
         << "For SyGuS through passing transfer function, datatype must be flattened!";
+
+    if (_vtg_config.SygusOptions.SygusPassInfo == 
+         VlgVerifTgtGenBase::_vtg_config::_sygus_options_t::DataPoints)
+      ILA_NOT_NULL(dp); // if you choose the datapoint method, datapoint must be supplied
  }
 
 
-void VlgSglTgtGen_Chc::add_wire_assign_assumption(
+void VlgSglTgtGen_Cvc4SyGuS::add_wire_assign_assumption(
     const std::string& varname, const std::string& expression,
     const std::string& dspt) {
 
@@ -231,7 +127,7 @@ void VlgSglTgtGen_Chc::add_wire_assign_assumption(
       << "-------- expression:" << expression << " contains unfriendly dot.";
 }
 
-void VlgSglTgtGen_Chc::add_reg_cassign_assumption(
+void VlgSglTgtGen_Cvc4SyGuS::add_reg_cassign_assumption(
     const std::string& varname, const std::string& expression, int width,
     const std::string& cond, const std::string& dspt) {
 
@@ -249,7 +145,7 @@ void VlgSglTgtGen_Chc::add_reg_cassign_assumption(
 }
 
 /// Add an assumption
-void VlgSglTgtGen_Chc::add_an_assumption(const std::string& aspt,
+void VlgSglTgtGen_Cvc4SyGuS::add_an_assumption(const std::string& aspt,
                                           const std::string& dspt) {
   auto assumption_wire_name = vlg_wrapper.sanitizeName(dspt) + new_mapping_id();
   
@@ -264,7 +160,7 @@ void VlgSglTgtGen_Chc::add_an_assumption(const std::string& aspt,
 
 }
 /// Add an assertion
-void VlgSglTgtGen_Chc::add_an_assertion(const std::string& asst,
+void VlgSglTgtGen_Cvc4SyGuS::add_an_assertion(const std::string& asst,
                                          const std::string& dspt) {
   auto assrt_wire_name = vlg_wrapper.sanitizeName(dspt) + new_property_id();
   vlg_wrapper.add_wire(assrt_wire_name, 1, true);
@@ -277,17 +173,17 @@ void VlgSglTgtGen_Chc::add_an_assertion(const std::string& asst,
 }
 
 /// Add an assumption
-void VlgSglTgtGen_Chc::add_a_direct_assumption(const std::string& aspt,
+void VlgSglTgtGen_Cvc4SyGuS::add_a_direct_assumption(const std::string& aspt,
                                                 const std::string& dspt) {
   _problems.assumptions[dspt].exprs.push_back(aspt);
 }
 /// Add an assertion
-void VlgSglTgtGen_Chc::add_a_direct_assertion(const std::string& asst,
+void VlgSglTgtGen_Cvc4SyGuS::add_a_direct_assertion(const std::string& asst,
                                                const std::string& dspt) {
   _problems.assertions[dspt].exprs.push_back(asst);
 }
 
-void VlgSglTgtGen_Chc::PreExportProcess() {
+void VlgSglTgtGen_Cvc4SyGuS::PreExportProcess() {
 
   std::string all_assert_wire_content;
   std::string all_assume_wire_content;
@@ -299,7 +195,7 @@ void VlgSglTgtGen_Chc::PreExportProcess() {
   for (auto&& pbname_prob_pair : _problems.assumptions) {
     const auto & prbname = pbname_prob_pair.first;
     const auto & prob = pbname_prob_pair.second;
-    ILA_DLOG("VlgSglTgtGen_Chc.PreExportProcess") << "Adding assumption:" << prbname;
+    ILA_DLOG("VlgSglTgtGen_Cvc4SyGuS.PreExportProcess") << "Adding assumption:" << prbname;
     
     for (auto&& p: prob.exprs) {
       vlg_wrapper.add_stmt(
@@ -344,7 +240,7 @@ void VlgSglTgtGen_Chc::PreExportProcess() {
 
 /// export the script to run the verification :
 /// like "yosys gemsmt.ys"
-void VlgSglTgtGen_Chc::Export_script(const std::string& script_name) {
+void VlgSglTgtGen_Cvc4SyGuS::Export_script(const std::string& script_name) {
   sygus_run_script_name = script_name;
   /// TODO: BUG: modify this : use z3/freqHorn
 
@@ -356,27 +252,20 @@ void VlgSglTgtGen_Chc::Export_script(const std::string& script_name) {
   }
   fout << "#!/bin/bash" << std::endl;
 
-  std::string runnable;;
-  if (s_backend == synthesis_backend_selector::Z3) {
-    runnable = "z3";
-    if (not _vtg_config.Z3Path.empty())
-      runnable = os_portable_append_dir(_vtg_config.Z3Path, runable);
-  }
-  else if(s_backend == synthesis_backend_selector::FreqHorn) {
-    runnable = "freqhorn";
-    if (not _vtg_config.FreqHornPath.empty())
-      runnable = os_portable_append_dir(_vtg_config.FreqHornPath, runable);
-  }
+  std::string runnable = "cvc4";
 
-  if (chc_prob_fname != "")
-    fout << runnable << " "<< chc_prob_fname  << std::endl;
+  if (not _vtg_config.Cvc4Path.empty())
+    runnable = os_portable_append_dir(_vtg_config.Cvc4Path, runnable);
+
+  if (design_prob_fname != "")
+    fout << runnable << " "<< design_prob_fname  << std::endl;
   else
     fout << "echo 'Nothing to check!'" << std::endl;
 } // Export_script
 
 
 /// For jasper, this means do nothing, for yosys, you need to add (*keep*)
-void VlgSglTgtGen_Chc::Export_modify_verilog() {
+void VlgSglTgtGen_Cvc4SyGuS::Export_modify_verilog() {
   // collect all locations: filename -> lineno
   // open, read, count and write
   // if it is a port name, we will ask user to specify its upper level
@@ -427,7 +316,7 @@ void VlgSglTgtGen_Chc::Export_modify_verilog() {
 
 /// export the memory abstraction (implementation)
 /// Yes, this is also implementation specific, (jasper may use a different one)
-void VlgSglTgtGen_Chc::Export_mem(const std::string& mem_name) {
+void VlgSglTgtGen_Cvc4SyGuS::Export_mem(const std::string& mem_name) {
   // we will ignore the mem_name
 
   auto outfn = os_portable_append_dir(_output_path, top_file_name);
@@ -437,10 +326,10 @@ void VlgSglTgtGen_Chc::Export_mem(const std::string& mem_name) {
 }
 
 
-// export the chc file
-void VlgSglTgtGen_Chc::Export_problem(const std::string& extra_name) {
+// export the sygus file
+void VlgSglTgtGen_Cvc4SyGuS::Export_problem(const std::string& extra_name) {
   // used by export script!
-  chc_prob_fname = extra_name;
+  design_prob_fname = extra_name;
 
   // first generate a temporary smt
   // and extract from it the necessary info
@@ -453,18 +342,18 @@ void VlgSglTgtGen_Chc::Export_problem(const std::string& extra_name) {
        VlgVerifTgtGenBase::_vtg_config::_sygus_options_t::TransferFunc)
     convert_smt_to_chc_sygus ("__design_smt.smt2", extra_name);
   else  // datapoints
-    convert_datapoints_to_sygus("__design_smt.smt2", ...?datapoints ,extra_name);
+    convert_datapoints_to_sygus("__design_smt.smt2", datapoints ,extra_name);
 
 } // Export_problem
 
-std::shared_ptr<smt::YosysSmtParser> VlgSglTgtGen_Chc::GetDesignSmtInfo() const {
+std::shared_ptr<smt::YosysSmtParser> VlgSglTgtGen_Cvc4SyGuS::GetDesignSmtInfo() const {
   return design_smt_info;
 }
 
-void VlgSglTgtGen_Chc::ExportAll(const std::string& wrapper_name, // wrapper.v
+void VlgSglTgtGen_Cvc4SyGuS::ExportAll(const std::string& wrapper_name, // wrapper.v
                         const std::string& ila_vlg_name, // no use
                         const std::string& script_name,  // the run.sh
-                        const std::string& extra_name,   // the chc
+                        const std::string& extra_name,   // the sygus
                         const std::string& mem_name) {   // no use
 
   PreExportProcess();
@@ -492,7 +381,7 @@ void VlgSglTgtGen_Chc::ExportAll(const std::string& wrapper_name, // wrapper.v
 // --------------------------- HELPER FUNCTIONS ---------------------------- //
 
 /// generate the wrapper's smt first
-void VlgSglTgtGen_Chc::design_only_gen_smt(
+void VlgSglTgtGen_Cvc4SyGuS::design_only_gen_smt(
   const std::string & smt_name,
   const std::string & ys_script_name) {
   
@@ -510,7 +399,7 @@ void VlgSglTgtGen_Chc::design_only_gen_smt(
       << os_portable_append_dir( _output_path , top_file_name ) << std::endl;
     ys_script_fout << "prep -top " << top_mod_name << std::endl;
     ys_script_fout << 
-      ReplaceAll(chcGenerateSmtScript_wo_Array, "%flatten%", 
+      ReplaceAll(sygusGenerateSmtScript_wo_Array, "%flatten%", 
         _vtg_config.YosysSmtFlattenHierarchy ? "flatten;" : "");
     ys_script_fout << "write_smt2"<<write_smt2_options 
       << os_portable_append_dir( _output_path, smt_name );   
@@ -529,7 +418,7 @@ void VlgSglTgtGen_Chc::design_only_gen_smt(
 } // design_only_gen_smt
 
 
-void VlgSglTgtGen_Chc::load_smt_from_file(const std::string & smt_fname, std::string & smt_converted) {
+void VlgSglTgtGen_Cvc4SyGuS::load_smt_from_file(const std::string & smt_fname, std::string & smt_converted) {
   std::stringstream ibuf;
   { // read file
     std::string smt_in_fn = os_portable_append_dir( _output_path , smt_fname);
@@ -551,17 +440,22 @@ void VlgSglTgtGen_Chc::load_smt_from_file(const std::string & smt_fname, std::st
   }
 } // load_smt_from_file
 
-void VlgSglTgtGen_Chc::convert_datapoints_to_sygus(const std::string & smt_fname, TraceDataPoints * dp, const std::string & sygus_fname) {
+void VlgSglTgtGen_Cvc4SyGuS::convert_datapoints_to_sygus(const std::string & smt_fname, TraceDataPoints * dp, const std::string & sygus_fname) {
 
   std::string smt_converted;
   load_smt_from_file(smt_fname, smt_converted);
+
+  Cvc4SygusInputGenerator gen_sygus_input(*(design_smt_info.get()), var_names, _vtg_config.SygusOptions );
+  gen_sygus_input.ExportToFile(sygus_fname, dp);
 } // convert_datapoints_to_sygus
 
-void VlgSglTgtGen_Chc::convert_smt_to_chc_sygus(const std::string & smt_fname, const std::string & sygus_chc_fname) {
+void VlgSglTgtGen_Cvc4SyGuS::convert_smt_to_chc_sygus(const std::string & smt_fname, const std::string & sygus_chc_fname) {
 
   std::string smt_converted;
   load_smt_from_file(smt_fname, smt_converted);
 
+} // convert_smt_to_chc
+  
   /*
   std::string wrapper_mod_name = design_smt_info->get_module_def_orders().back();
 
@@ -599,8 +493,8 @@ void VlgSglTgtGen_Chc::convert_smt_to_chc_sygus(const std::string & smt_fname, c
     chc_fout << chc;
   } // end write file
  */
-} // convert_smt_to_chc
-  
+
+
 // %WrapperName%
 // %WrapperDataType%
 // %BeforeInitVar%
@@ -609,6 +503,12 @@ void VlgSglTgtGen_Chc::convert_smt_to_chc_sygus(const std::string & smt_fname, c
 // %StatePrime%
 // %BIs% %Is%  %Ss% %Sps%
 /*
+
+
+std::string RewriteDatatypeChc(
+  const std::string & tmpl, const std::vector<smt::state_var_t> & dt,
+  const std::string & wrapper_mod_name);
+  
 std::string RewriteDatatypeChc(
   const std::string & tmpl, const std::vector<smt::state_var_t> & dt,
   const std::string & wrapper_mod_name) {

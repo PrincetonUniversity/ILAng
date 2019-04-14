@@ -21,11 +21,11 @@
 
 namespace ilang {
 
-class VlgSglTgtGen_SyGuS;
+class VlgSglTgtGen_Cvc4SyGuS;
 
 /// \brief a class to store (and generate) the problem for Chc
 class design_problem {
-  friend class VlgSglTgtGen_Chc;
+  friend class VlgSglTgtGen_Cvc4SyGuS;
   /// Type of assertions and assumptions
   typedef std::vector<std::string> prop_t;
   /// Type of a problem --- we  can handle multiple several problems (may not
@@ -90,7 +90,9 @@ public:
       const vtg_config_t& vtg_config, backend_selector vbackend,
       synthesis_backend_selector sbackend,
       const target_type_t& target_tp,
-      advanced_parameters_t * adv_ptr);
+      advanced_parameters_t * adv_ptr,
+      TraceDataPoints * dp, // datapoint can be NULL if th configuration is transfer function
+      const std::vector<std::string> & var_name_set);
 
   // --------------------- Destructor ---------------------------- //
   /// do nothing
@@ -109,6 +111,10 @@ protected:
   synthesis_backend_selector s_backend;
   /// the smt info of the design
   std::shared_ptr<smt::YosysSmtParser> design_smt_info;
+  /// the sygus datapoint
+  TraceDataPoints * datapoints;
+  /// the var name set
+  const std::vector<std::string> & var_names;
 
 protected:
   /// Add an assumption -- needed by base class

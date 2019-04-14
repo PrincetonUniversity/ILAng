@@ -13,6 +13,7 @@
 #include <ilang/vtarget-out/vtarget_gen_yosys.h>
 // for invariant synthesis
 #include <ilang/vtarget-out/inv-syn/vtarget_gen_inv_chc.h>
+#include <ilang/vtarget-out/inv-syn/sygus/vtarget_gen_inv_sygus.h>
 
 #include <cmath>
 #include <iostream>
@@ -120,20 +121,56 @@ const std::vector<std::string> & VlgVerifTgtGen::GetRunnableScriptName() const {
   return runnable_script_name;
 }
 
-std::shared_ptr<smt::YosysSmtParser> VlgVerifTgtGen::GenerateInvSynTargets(synthesis_backend_selector s_backend) {
+// ------------------------- SYNTHESIS TARGET ------------------------- //
+
+
+std::shared_ptr<smt::YosysSmtParser> VlgVerifTgtGen::GenerateInvSynSygusTargets(synthesis_backend_selector s_backend,
+    TraceDataPoints * dp, const std::vector<std::string> & sygus_var_names) {
+  ILA_ASSERT(not sygus_var_names.empty()) << "BUG: must call SetSygusVarNames before _generate_sygus_inv_syn_target";
+
   if (vlg_info_ptr)
     delete vlg_info_ptr;
   
   vlg_info_ptr = new VerilogInfo(_vlg_impl_include_path, _vlg_impl_srcs,
                                  _vlg_mod_inst_name, _vlg_impl_top_name);
-  
   if (vlg_info_ptr == NULL or vlg_info_ptr->in_bad_state()) {
     ILA_ERROR << "Unable to generate targets. Verilog parser failed.";
     return nullptr; //
   }
+  auto target = VlgSglTgtGen_Cvc4SyGuS(
+      os_portable_append_dir(_output_path, "inv-syn-sygus/"),
+      NULL, // inst_ptr -- not for an instruction
+      _ila_ptr, _cfg, rf_vmap, rf_cond, sup_info , vlg_info_ptr, _vlg_mod_inst_name,
+      _ila_mod_inst_name, "wrapper", _vlg_impl_srcs, _vlg_impl_include_path,
+      _vtg_config, _backend, s_backend, target_type_t::INV_SYN_DESIGN_ONLY,
+      _advanced_param_ptr, 
+      (_vtg_config.SygusOptions.SygusPassInfo == 
+        VlgVerifTgtGenBase::_vtg_config::_sygus_options_t::TransferFunc ? 
+          NULL : dp) , // disable datapoint if using transfer function
+      sygus_var_names ); // no datapoints
+  target.ConstructWrapper();
+  target.ExportAll("wrapper.v", "ila.v" /*USELESS*/, "run.sh", "wrapper.smt2",
+                    "absmem.v"  /*USELESS*/);
+  runnable_script_name.clear();
+  runnable_script_name.push_back(
+    os_portable_append_dir(
+      os_portable_append_dir(_output_path, "inv-syn-sygus/"), "run.sh"));
 
-  ILA_ERROR_IF(_backend != backend_selector::YOSYS) ;
+  return target.GetDesignSmtInfo();
+}
 
+std::shared_ptr<smt::YosysSmtParser> VlgVerifTgtGen::GenerateInvSynTargets(synthesis_backend_selector s_backend) {
+  ILA_ERROR_IF(_backend != backend_selector::YOSYS) << "All inv-syn relies on yosys!";
+
+  if (vlg_info_ptr)
+    delete vlg_info_ptr;
+  
+  vlg_info_ptr = new VerilogInfo(_vlg_impl_include_path, _vlg_impl_srcs,
+                                 _vlg_mod_inst_name, _vlg_impl_top_name);
+  if (vlg_info_ptr == NULL or vlg_info_ptr->in_bad_state()) {
+    ILA_ERROR << "Unable to generate targets. Verilog parser failed.";
+    return nullptr; //
+  }
   auto target = VlgSglTgtGen_Chc(
       os_portable_append_dir(_output_path, "inv-syn/"),
       NULL, // invariant
@@ -141,11 +178,9 @@ std::shared_ptr<smt::YosysSmtParser> VlgVerifTgtGen::GenerateInvSynTargets(synth
       _ila_mod_inst_name, "wrapper", _vlg_impl_srcs, _vlg_impl_include_path,
       _vtg_config, _backend, s_backend, target_type_t::INV_SYN_DESIGN_ONLY,
       _advanced_param_ptr);
-
   target.ConstructWrapper();
   target.ExportAll("wrapper.v", "ila.v" /*USELESS*/, "run.sh", "wrapper.smt2",
                     "absmem.v"  /*USELESS*/);
-
   runnable_script_name.clear();
   runnable_script_name.push_back(
     os_portable_append_dir(
@@ -153,6 +188,8 @@ std::shared_ptr<smt::YosysSmtParser> VlgVerifTgtGen::GenerateInvSynTargets(synth
 
   return target.GetDesignSmtInfo();
 }
+
+// ------------------------- VERIFICATION TARGET ------------------------- //
 
 void VlgVerifTgtGen::GenerateTargets(void) {
   if (bad_state_return())

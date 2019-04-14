@@ -7,6 +7,7 @@
 #include <ilang/verilog-in/verilog_analysis.h>
 #include <ilang/vtarget-out/vtarget_gen_impl.h>
 #include <ilang/vtarget-out/inv-syn/inv_syn_cegar.h>
+#include <ilang/vtarget-out/inv-syn/sygus/inv_cex_extract.h>
 
 #include <memory>
 
@@ -49,12 +50,17 @@ InvariantSynthesizerCegar::InvariantSynthesizerCegar(
     _vtg_config.CosaGenTraceVcd = true;
     // for other backend, enable similar options
 
+    current_inv_type = cur_inv_tp::NONE;
+
   } // end of constructor
 
 bool InvariantSynthesizerCegar::check_in_bad_state() const {
   ILA_ERROR_IF(bad_state) << "In bad state, cannot proceed.";
   return bad_state;
 }
+
+
+// -------------------------------- VERIFICATION TARGETS ------------------------------------------- //
 
 /// to generate a target to validate the given and synthesize invariants
 void InvariantSynthesizerCegar::GenerateInvariantVerificationTarget() {
@@ -129,47 +135,8 @@ void InvariantSynthesizerCegar::GenerateVerificationTarget(const std::vector<std
   GenerateVerificationTarget();
 } // to generate targets using the provided invariants
 
-/// to extract result 
-void InvariantSynthesizerCegar::ExtractVerificationResult(bool autodet, bool pass, 
-  const std::string & vcd_file, const std::string & mod_inst_name ) {
-  if(check_in_bad_state()) return;
 
-  std::string res_file = vcd_file;
-  if (autodet) {
-    res_file = vcd_file_name;
-    pass = verification_pass;
-  }
-  ILA_WARN_IF(status != cegar_status::V_RES) << "CEGAR-loop: repeated verification step.";
-
-  vlg_mod_inst_name = vlg_mod_inst_name.empty() ? mod_inst_name : vlg_mod_inst_name;
-  if (vlg_mod_inst_name.empty()) {
-    ILA_ERROR << "Instance name in vcd is unknown and not specified";
-    bad_state = true;
-    return;
-  }
-
-  if(pass) {
-    ILA_INFO << "No counterexample has been found. CEGAR loop finishes.";
-    status = cegar_status::DONE;
-    return;
-  }
-
-  // we still need to create a verilog info analyzer
-  VerilogAnalyzer va(
-      implementation_incl_path, implementation_srcs_path,
-      vlg_mod_inst_name, implementation_top_module_name );
-
-  auto is_reg = [&](const std::string & n) {
-    return VerilogAnalyzerBase::is_reg(
-      va.check_hierarchical_name_type(n));
-  };
-
-  // not passing
-  cex_extract = std::unique_ptr<CexExtractor>(
-    new CexExtractor(res_file,vlg_mod_inst_name, is_reg));
-  // advance to synthesis stage
-  status = cegar_status::NEXT_S;
-} // extract result
+// -------------------------------- CHC SYNTHESIS TARGETS ------------------------------------------- //
 
 /// to generate synthesis target
 void InvariantSynthesizerCegar::GenerateSynthesisTarget() {
@@ -201,7 +168,54 @@ void InvariantSynthesizerCegar::GenerateSynthesisTarget() {
   runnable_script_name = vg.GetRunnableScriptName();
 
   status = cegar_status::S_RES;
+
+  current_inv_type = cur_inv_tp::CHC;
 } // GenerateSynthesisTarget
+
+// -------------------------------- EXTRACTIONS ------------------------------------------- //
+
+/// to extract result 
+void InvariantSynthesizerCegar::ExtractVerificationResult(bool autodet, bool pass, 
+  const std::string & vcd_file, const std::string & mod_inst_name ) {
+  if(check_in_bad_state()) return;
+
+  std::string res_file = vcd_file;
+  if (autodet) {
+    res_file = vcd_file_name;
+    pass = verification_pass;
+  }
+  ILA_WARN_IF(status != cegar_status::V_RES) << "CEGAR-loop: repeated verification step.";
+
+  vlg_mod_inst_name = vlg_mod_inst_name.empty() ? mod_inst_name : vlg_mod_inst_name;
+  if (vlg_mod_inst_name.empty()) {
+    ILA_ERROR << "Instance name in vcd is unknown and not specified";
+    bad_state = true;
+    return;
+  }
+
+  if(pass) {
+    ILA_INFO << "No counterexample has been found. CEGAR loop finishes.";
+    status = cegar_status::DONE;
+    return;
+  }
+
+  // we still need to create a verilog info analyzer
+  VerilogAnalyzer va(
+      implementation_incl_path, implementation_srcs_path,
+      vlg_mod_inst_name, implementation_top_module_name );
+
+  auto is_reg = [&](const std::string & n) -> bool {
+    return VerilogAnalyzerBase::is_reg(
+      va.check_hierarchical_name_type(n));
+  };
+
+  // not passing
+  cex_extract = std::unique_ptr<CexExtractor>(
+    new CexExtractor(res_file,vlg_mod_inst_name, is_reg));
+  // advance to synthesis stage
+  status = cegar_status::NEXT_S;
+} // extract result
+
 
 /// a helper function (only locally available)
 /// to extract vcd file name from the output
@@ -226,6 +240,56 @@ std::string extract_vcd_name_from_cex(const std::string & fn) {
   return fname;
 } // extract_vcd_name_from_cex
 
+
+void InvariantSynthesizerCegar::ExtractSynthesisResult(bool autodet, bool reachable, 
+  const std::string & given_smt_chc_result_txt) {
+  
+  if(check_in_bad_state()) return;
+
+  std::string res_file = given_smt_chc_result_txt;
+  if (autodet) {
+    reachable = cex_reachable;
+    res_file = synthesis_result_fn;
+  }
+  
+  ILA_WARN_IF(status != cegar_status::S_RES) << "CEGAR-loop: expecting synthesis result.";
+
+  if (design_smt_info == nullptr) {
+    ILA_ERROR << "Design SMT-LIB2 info is not available. "
+      << "You need to run `GenerateSynthesisTarget` first.";
+    return;
+  }
+
+  if (reachable) {
+    ILA_ERROR << "Verification failed with true counterexample!";
+    status = cegar_status::FAILED;
+    return;
+  }
+
+  if (current_inv_type == cur_inv_tp::CHC)
+    inv_obj.AddInvariantFromChcResultFile(
+      *(design_smt_info.get()), "", res_file, 
+      _vtg_config.YosysSmtFlattenDatatype,
+      _vtg_config.YosysSmtFlattenHierarchy );
+  else if (current_inv_type == cur_inv_tp::SYGUS_CHC
+       ||  current_inv_type == cur_inv_tp::SYGUS_CEX) // we reparse even for SyGuS cex
+    inv_obj.AddInvariantFromSygusResultFile(
+      *(design_smt_info.get()), "", res_file, 
+      _vtg_config.YosysSmtFlattenDatatype,
+      _vtg_config.YosysSmtFlattenHierarchy );
+  else
+    ILA_ERROR<<"Inv type unknown:" << current_inv_type;
+    
+  for (auto && v : inv_obj.GetVlgConstraints() )
+    std::cout << v << std::endl;
+
+  status = cegar_status::NEXT_V;
+  current_inv_type = cur_inv_tp::NONE; // we have extracted, reset this marker
+
+} // ExtractSynthesisResult
+
+// -------------------------------- AUTO RUNS ------------------------------------------- //
+
 /// a helper function (only locally available)
 /// to detect tool error (e.g., verilog parsing error)
 bool has_verify_tool_error_cosa(const std::string & fn) {
@@ -241,8 +305,7 @@ bool has_verify_tool_error_cosa(const std::string & fn) {
       return true;
   }
   return false;
-}
-
+} // has_verify_tool_error_cosa
 
 /// run Verification
 bool InvariantSynthesizerCegar::RunVerifAuto(unsigned problem_idx) {
@@ -319,47 +382,11 @@ bool InvariantSynthesizerCegar::RunSynAuto() {
   return cex_reachable;
 }
 
+// -------------------------------- MISCS ------------------------------------------- //
+
 const std::vector<std::string> & InvariantSynthesizerCegar::GetRunnableTargetScriptName() const {
   return runnable_script_name;
 }
-
-
-void InvariantSynthesizerCegar::ExtractSynthesisResult(bool autodet, bool reachable, 
-  const std::string & given_smt_chc_result_txt) {
-  
-  if(check_in_bad_state()) return;
-
-  std::string res_file = given_smt_chc_result_txt;
-  if (autodet) {
-    reachable = cex_reachable;
-    res_file = synthesis_result_fn;
-  }
-  
-  ILA_WARN_IF(status != cegar_status::S_RES) << "CEGAR-loop: expecting synthesis result.";
-
-  if (design_smt_info == nullptr) {
-    ILA_ERROR << "Design SMT-LIB2 info is not available. "
-      << "You need to run `GenerateSynthesisTarget` first.";
-    return;
-  }
-
-  if (reachable) {
-    ILA_ERROR << "Verification failed with true counterexample!";
-    status = cegar_status::FAILED;
-    return;
-  }
-
-  inv_obj.AddInvariantFromChcResultFile(
-    *(design_smt_info.get()), "", res_file, 
-    _vtg_config.YosysSmtFlattenDatatype,
-    _vtg_config.YosysSmtFlattenHierarchy );
-  
-  for (auto && v : inv_obj.GetVlgConstraints() )
-    std::cout << v << std::endl;
-
-  status = cegar_status::NEXT_V;
-
-} // ExtractSynthesisResult
 
 DesignStatistics InvariantSynthesizerCegar::GetDesignStatistics() const {
   DesignStatistics ret;
@@ -387,5 +414,196 @@ DesignStatistics InvariantSynthesizerCegar::GetDesignStatistics() const {
 const InvariantObject & InvariantSynthesizerCegar::GetInvariants() const {
   return inv_obj;
 }
+
+// -------------------------------- SYGUS SUPPORT ------------------------------------------- //
+
+/// set the initial datapoints (can be empty, but we suggest using the sim_trace_extract)
+void InvariantSynthesizerCegar::SetInitialDatapoint(const TraceDataPoints &dp) {
+  datapoints = dp;
+}
+/// set the sygus name lists (cannot be empty)
+void InvariantSynthesizerCegar::SetSygusVarnameList(const std::vector<std::string> & sygus_var_name) {
+  sygus_vars = sygus_var_name;
+  sygus_vars_set.clear();
+  for (auto && vname : sygus_var_name)
+    sygus_vars_set.insert(vname);
+}
+
+/// can be used for datapoints/transfer function
+void InvariantSynthesizerCegar::GenerateSynthesisTargetSygusTransFunc() {
+  // generate a target -- based on selection
+  if (check_in_bad_state()) return;
+  ILA_WARN_IF(status != cegar_status::NEXT_S) << "CEGAR-loop: not expecting synthesis step.";
+
+  // to send in the invariants
+  advanced_parameters_t adv_param;
+  adv_param._inv_obj_ptr = &inv_obj; 
+  adv_param._cex_obj_ptr = cex_extract.get();
+  
+  VlgVerifTgtGen vg(
+      implementation_incl_path,         // include
+      implementation_srcs_path,         // sources
+      implementation_top_module_name,   // top_module_name
+      refinement_variable_mapping_path, // variable mapping
+      refinement_condition_path,        // conditions
+      _output_path,                     // output path
+      _host,                            // ILA
+      verify_backend_selector::YOSYS,   // verification backend setting
+      _vtg_config,                      // target configuration
+      _vlg_config,                      // verilog generator configuration
+      &adv_param                        // advanced parameter
+      );
+  
+  design_smt_info = vg.GenerateInvSynSygusTargets(s_backend, NULL, sygus_vars);
+
+  runnable_script_name = vg.GetRunnableScriptName();
+
+  status = cegar_status::S_RES;
+
+  current_inv_type = cur_inv_tp::SYGUS_CHC;
+}
+
+
+/// can be used for datapoints/transfer function
+void InvariantSynthesizerCegar::GenerateSynthesisTargetSygusDatapoints() {
+  // generate a target -- based on selection
+  if (check_in_bad_state()) return;
+  ILA_WARN_IF(status != cegar_status::NEXT_S) << "CEGAR-loop: not expecting synthesis step.";
+
+  // to send in the invariants
+  advanced_parameters_t adv_param;
+  adv_param._inv_obj_ptr = &inv_obj; 
+  adv_param._cex_obj_ptr = cex_extract.get();
+
+  // TraceDataPoints dp_w_cex(datapoints);
+  // dp_w_cex.SetNegEx(* cex_extract.get() );
+
+  datapoints.SetNegEx(* cex_extract.get()); // you can reset the pos ex using SetInitialDatapoint 
+  
+  VlgVerifTgtGen vg(
+      implementation_incl_path,         // include
+      implementation_srcs_path,         // sources
+      implementation_top_module_name,   // top_module_name
+      refinement_variable_mapping_path, // variable mapping
+      refinement_condition_path,        // conditions
+      _output_path,                     // output path
+      _host,                            // ILA
+      verify_backend_selector::YOSYS,   // verification backend setting
+      _vtg_config,                      // target configuration
+      _vlg_config,                      // verilog generator configuration
+      &adv_param                        // advanced parameter
+      );
+  
+  design_smt_info = vg.GenerateInvSynSygusTargets(s_backend, &datapoints, sygus_vars);
+
+  runnable_script_name = vg.GetRunnableScriptName();
+
+  // status = cegar_status::S_RES; -- no yet
+  current_inv_type = cur_inv_tp::SYGUS_CEX;
+}
+
+
+/// to extract the synthesis attempt
+void InvariantSynthesizerCegar::ExtractSygusDatapointSynthesisAttempt() {
+  ILA_ERROR_IF(current_inv_type != cur_inv_tp::SYGUS_CEX ) << "Not using the SyGuS Datapoint synthesis method!";
+
+  if(check_in_bad_state()) return;
+
+  std::string res_file = synthesis_result_fn;
+  
+  ILA_WARN_IF(status != cegar_status::NEXT_S) << "CEGAR-loop: expecting synthesis result.";
+
+  if (design_smt_info == nullptr) {
+    ILA_ERROR << "Design SMT-LIB2 info is not available. "
+      << "You need to run `GenerateSynthesisTarget` first.";
+    return;
+  }
+
+  inv_candidate.ClearAllInvariants();
+  inv_candidate.AddInvariantFromSygusResultFile(
+    *(design_smt_info.get()), "", res_file, 
+    _vtg_config.YosysSmtFlattenDatatype,
+    _vtg_config.YosysSmtFlattenHierarchy );
+    
+  for (auto && v : inv_candidate.GetVlgConstraints() )
+    std::cout << v << std::endl;
+
+}
+/// to validate if the previous attempt is good (inductive or not)
+/// if not CTI will be extracted
+/// return true if this is okay...
+bool InvariantSynthesizerCegar::ValidateSygusDatapointAttempt() {
+  ILA_ERROR_IF(current_inv_type != cur_inv_tp::SYGUS_CEX ) 
+    << "Not using the SyGuS Datapoint synthesis method!";
+
+  if (check_in_bad_state()) return;
+
+  // to send in the invariants
+  advanced_parameters_t adv_param;
+  adv_param._inv_obj_ptr = &inv_candidate;
+
+  auto inv_gen_vtg_config = _vtg_config;
+  inv_gen_vtg_config.target_select = inv_gen_vtg_config.INV;
+  inv_gen_vtg_config.AutoValidateSynthesizedInvariant = true; // overwrite
+  
+  VlgVerifTgtGen vg(
+      implementation_incl_path,         // include
+      implementation_srcs_path,         // sources
+      implementation_top_module_name,   // top_module_name
+      refinement_variable_mapping_path, // variable mapping
+      refinement_condition_path,        // conditions
+      _output_path,                     // output path
+      _host,                            // ILA
+      v_backend,                        // verification backend setting
+      inv_gen_vtg_config,               // target configuration
+      _vlg_config,                      // verilog generator configuration
+      &adv_param                        // advanced parameter
+      );
+  
+  vg.GenerateTargets();
+  
+  auto inv_validate_script = vg.GetRunnableScriptName();
+  std::string inv_cex_path;
+  ILA_ASSERT(inv_validate_script.size() == 1) << "Only expect a single runnable";
+
+  // run the validating
+  auto result_fn = os_portable_append_dir(_output_path, "__verification_result.txt");
+  auto redirect_fn = os_portable_append_dir("../", "__verification_result.txt");
+  auto cwd = os_portable_getcwd();
+  auto new_wd = os_portable_path_from_path(inv_validate_script[0]);
+  ILA_ERROR_IF(not os_portable_chdir(new_wd)) 
+    << "RunVerifAuto: cannot change dir to:" << new_wd;
+  ILA_INFO << "Executing verify script:" << inv_validate_script[0];
+  ILA_ERROR_IF(not os_portable_execute_shell({"bash", 
+    os_portable_file_name_from_path( inv_validate_script[0]) },
+   redirect_fn, redirect_t::BOTH))
+  << "Running verification script " << inv_validate_script[0] << " results in error."; 
+  ILA_ASSERT(os_portable_chdir(cwd));
+  // the last line contains the result
+  // above it you should have *** TRACES ***
+  // the vcd file resides within the new dir
+  ILA_ERROR_IF(has_verify_tool_error_cosa(result_fn)) << "----------- Verification tool reported error! Please check the log output!";
+  auto lastLine = os_portable_read_last_line(result_fn);
+  ILA_ERROR_IF(lastLine.empty()) << "Unable to extract verification result.";
+  if (S_IN("Verifications with unexpected result", lastLine)) {
+    ILA_INFO << "SyGuS-attempt CTI found.";
+
+    inv_cex_path = extract_vcd_name_from_cex(result_fn);
+    inv_cex_path = os_portable_append_dir(new_wd, inv_cex_path);
+
+    // determine if a name is something we care about
+    auto is_coi = [&](const std::string & n) -> bool {
+      return IN(n,sygus_vars_set);
+    };
+
+    // load the cex from vcd file
+    InvCexExtractor cti_extract(inv_cex_path, vlg_mod_inst_name, is_coi );
+    datapoints.AddPosEx( cti_extract );
+
+    return false;
+  } // CTI found (you can start another round if you want )
+  return true;
+}
+
 
 }; // namespace ilang

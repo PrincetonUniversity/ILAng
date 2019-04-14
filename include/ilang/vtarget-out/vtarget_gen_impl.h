@@ -25,6 +25,7 @@
 #include <ilang/vtarget-out/var_extract.h>
 #include <ilang/vtarget-out/vtarget_gen.h>
 #include <ilang/vtarget-out/supplementary_info.h>
+#include <ilang/vtarget-out/inv-syn/sygus/datapoint.h>
 
 #include <list>
 #include <map>
@@ -435,7 +436,7 @@ protected:
   nlohmann::json rf_vmap;
   /// store the condition
   nlohmann::json rf_cond;
-  /// refinement relation : supplementaryary information
+  /// refinement relation : supplementary information
   VlgTgtSupplementaryInfo sup_info;
 
 public:
@@ -449,8 +450,21 @@ public:
   std::string GetVlgModuleInstanceName() const { return _vlg_mod_inst_name; }
   /// generate inv-syn target
   std::shared_ptr<smt::YosysSmtParser> GenerateInvSynTargets(synthesis_backend_selector s_backend); 
+  /// generate inv-syn-sygus target
+  std::shared_ptr<smt::YosysSmtParser> GenerateInvSynSygusTargets(synthesis_backend_selector s_backend,
+    TraceDataPoints * dp, const std::vector<std::string> & sygus_var_names); 
   /// generate the runable script name
   const std::vector<std::string> & GetRunnableScriptName() const;
+
+protected:
+  // --------------------- METHODS ---------------------------- //
+  /// subroutine for generating synthesis using chc targets
+  std::shared_ptr<smt::YosysSmtParser> _generate_chc_inv_syn_target(synthesis_backend_selector s_backend);
+  /// subroutine for generating synthesis using sygus targets --- one round
+  std::shared_ptr<smt::YosysSmtParser> _generate_sygus_inv_syn_target(synthesis_backend_selector s_backend);
+  /// subroutine for generating synthesis using sygus targets --- cex guided loop
+  std::shared_ptr<smt::YosysSmtParser> _generate_sygus_inv_syn_loop_target(synthesis_backend_selector s_backend);
+
 
 protected:
   /// If it is bad state, return true and display a message
