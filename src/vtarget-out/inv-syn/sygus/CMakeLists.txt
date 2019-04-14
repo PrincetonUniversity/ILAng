@@ -10,6 +10,7 @@ target_sources(${ILANG_LIB_NAME} PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/inv_cex_extract.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/sygus_chc.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/vtarget_gen_inv_sygus.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/datapoint.cc
 )
 
 

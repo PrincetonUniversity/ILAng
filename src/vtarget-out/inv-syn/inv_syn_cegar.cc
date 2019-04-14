@@ -536,7 +536,7 @@ bool InvariantSynthesizerCegar::ValidateSygusDatapointAttempt() {
   ILA_ERROR_IF(current_inv_type != cur_inv_tp::SYGUS_CEX ) 
     << "Not using the SyGuS Datapoint synthesis method!";
 
-  if (check_in_bad_state()) return;
+  if (check_in_bad_state()) return false;
 
   // to send in the invariants
   advanced_parameters_t adv_param;

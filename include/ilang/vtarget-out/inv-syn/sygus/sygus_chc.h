@@ -8,6 +8,7 @@
 #ifndef SYGUS_CHC_H__
 #define SYGUS_CHC_H__
 
+#include <ilang/vtarget-out/vtarget_gen.h>
 
 #include <string>
 #include <vector>
@@ -23,9 +24,9 @@ namespace ilang
     // ------------- Constructor ---------------- //
     Cvc4SygusChcGenerator();
     /// no copy constructor
-    Cvc4SygusChcGenerator(const Cvc4SygusInputGenerator &) = delete;
+    Cvc4SygusChcGenerator(const Cvc4SygusChcGenerator &) = delete;
     /// no assignment
-    Cvc4SygusChcGenerator operator=(const Cvc4SygusInputGenerator &) = delete;
+    Cvc4SygusChcGenerator operator=(const Cvc4SygusChcGenerator &) = delete;
     // ------------- Methods ---------------- //
   }; // class Cvc4SygusChcGenerator
 

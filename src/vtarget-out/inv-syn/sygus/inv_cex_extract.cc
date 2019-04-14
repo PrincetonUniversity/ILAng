@@ -15,11 +15,12 @@ namespace ilang {
 
 InvCexExtractor::value_t val2str(const VCDValue & v) {
   InvCexExtractor::value_t ret;
+  char ch;
 
   switch(v.get_type()) {
     case (VCD_SCALAR): 
       ret.second._type = smt::var_type::tp::Bool;
-      auto ch = VCDValue::VCDBit2Char(v.get_value_bit());
+      ch = VCDValue::VCDBit2Char(v.get_value_bit());
       ILA_WARN_IF(ch != '0' and ch != '1') << "Got " << ch << " in parsing VCD, treating as 0";
       ret.first = ch == '1' ? 1 : 0;
       break;
@@ -32,7 +33,7 @@ InvCexExtractor::value_t val2str(const VCDValue & v) {
         for(auto it = vecval -> begin();
                 it != vecval -> end();
                 ++it) {
-          auto ch = VCDValue::VCDBit2Char(*it);
+          ch = VCDValue::VCDBit2Char(*it);
           ILA_WARN_IF(ch != '0' and ch != '1') << "Got " << ch << " in parsing VCD, treating as 0";
           ret.first = (ret.first << 1) | (ch == '1' ? 1 :0);
         } // for
@@ -44,7 +45,7 @@ InvCexExtractor::value_t val2str(const VCDValue & v) {
   return ret;
 } // val2str
 
-std::string collect_scope(VCDScope * sc) {
+std::string collect_scope_inv_cex(VCDScope * sc) {
   std::string ret;
   while(sc) {
     ret = sc->name + "." + ret;
@@ -110,7 +111,7 @@ void InvCexExtractor::parse_from(const std::string & vcd_file_name,
     // if (not in_scope(sig->scope, scope))
     //  continue;
 
-    auto scopes = collect_scope(sig->scope);
+    auto scopes = collect_scope_inv_cex(sig->scope);
 
     // check scope -- only the top level
     if ( not ( scopes.find("$root." +  scope + ".") == 0 ||

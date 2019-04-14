@@ -56,8 +56,8 @@ TraceDataPoints::value_t vlg_val_to_smt_val(const std::string & v) {
 
 
 /// this function allows to insert the outer cegar result to this datapoint
-template <typename T>
-void TraceDataPoints::SetNegEx(const T &ex) {
+template <>
+void TraceDataPoints::SetNegEx<CexExtractor>(const CexExtractor &ex) {
   neg_ex.clear();
   for(auto && e : ex.GetCex() ) {
     neg_ex.insert(std::make_pair(e.first, vlg_val_to_smt_val(e.second)));
@@ -65,22 +65,32 @@ void TraceDataPoints::SetNegEx(const T &ex) {
 }
 /// the same as above
 
-template <typename T>
-void TraceDataPoints::AddPosEx(const T &ex) {
+template <>
+void TraceDataPoints::AddPosEx<CexExtractor>(const CexExtractor &ex) {
   pos_ex.push_back(example_map_t());
   for(auto && e : ex.GetCex() ) {
     pos_ex.back().insert(std::make_pair(e.first, vlg_val_to_smt_val(e.second)));
   }
 }
 
+
+// specialized instantiation
+template <> void TraceDataPoints::SetNegEx<InvCexExtractor> (const InvCexExtractor & ex) {
+  neg_ex.clear();
+  for(auto && e : ex.GetCex() ) {
+    neg_ex.insert(e);
+  }
+}
+
+// specialized instantiation
+template <> void TraceDataPoints::AddPosEx<InvCexExtractor> (const InvCexExtractor & ex) {
+  pos_ex.push_back(example_map_t());
+  for(auto && e : ex.GetCex() ) {
+    pos_ex.back().insert(e);
+  }
+}
+
 void TraceDataPoints::ClearPosEx() {
   pos_ex.clear();
 }
-
-// instantiate the templates
-template void TraceDataPoints::SetNegEx<CexExtractor> (const CexExtractor & ex);
-template void TraceDataPoints::AddPosEx<CexExtractor> (const CexExtractor & ex);
-template void TraceDataPoints::SetNegEx<InvCexExtractor> (const InvCexExtractor & ex);
-template void TraceDataPoints::AddPosEx<InvCexExtractor> (const InvCexExtractor & ex);
-
 }; // namespace ilang

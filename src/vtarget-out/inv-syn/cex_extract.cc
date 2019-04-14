@@ -181,4 +181,9 @@ std::string CexExtractor::GenInvAssert(const std::string & prefix) const {
   return ret;
 }
 
+
+const CexExtractor::cex_t & CexExtractor::GetCex() const {
+  return cex;
+}
+
 }; // namespace ilang
