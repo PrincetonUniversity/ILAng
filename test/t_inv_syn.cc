@@ -61,6 +61,61 @@ TEST(TestVlgVerifInvSyn, SimpleCntDeterministicReset) {
 }
 
 
+// This test uses CEGAR loop
+// This tests has no extra start cycle
+TEST(TestVlgVerifInvSyn, SimpleCntCegar) {
+  auto ila_model = CntTest::BuildModel();
+
+  VerilogVerificationTargetGenerator::vtg_config_t cfg;
+  cfg.InvariantSynthesisReachableCheckKeepOldInvariant = false;
+  cfg.CosaAddKeep = false;
+  cfg.VerificationSettingAvoidIssueStage = true;
+  cfg.YosysSmtFlattenDatatype = true; // let's test flatten datatype also
+  cfg.YosysSmtFlattenHierarchy = true;
+  cfg.CosaPyEnvironment = "/home/hongce/cosaEnv/bin/activate";
+  cfg.CosaPath = "/home/hongce/CoSA/";
+  cfg.Z3Path = "/home/hongce/z3s/bin/";
+  cfg.CosaSolver = "btor";
+
+  auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/inv_syn/cnt2/";
+  auto outDir  = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/inv_syn/cnt2-cegar/";
+
+  InvariantSynthesizerCegar vg(
+      {},                          // no include
+      {dirName + "verilog/opposite.v"}, //
+      "opposite",                // top_module_name
+      dirName + "rfmap/vmap.json", // variable mapping
+      dirName + "rfmap/cond-noinv.json", outDir, ila_model.get(),
+      VerilogVerificationTargetGenerator::backend_selector::COSA,
+      VerilogVerificationTargetGenerator::synthesis_backend_selector::Z3,
+      cfg);
+
+  EXPECT_FALSE(vg.in_bad_state());
+
+    do{
+      vg.GenerateVerificationTarget();
+      if(vg.RunVerifAuto(0)) // the ADD
+        break; // no more cex found
+      vg.ExtractVerificationResult();
+      vg.GenerateSynthesisTarget(); // you will need fp engine
+      if(vg.RunSynAuto()) {
+        EXPECT_TRUE(false); // cex is really reachable!!!
+        ILA_ERROR<<"Unexpected counterexample!";
+        break; 
+      }
+      vg.ExtractSynthesisResult(); // very weired, it throw away something in arg
+      break; // just one round
+    }while(not vg.in_bad_state());
+
+  vg.GenerateInvariantVerificationTarget();
+  auto design_stat = vg.GetDesignStatistics();
+  ILA_INFO << "========== Design Info ==========" ;
+  ILA_INFO << "#bits= " << design_stat.NumOfDesignStateBits;
+  ILA_INFO << "#vars=" << design_stat.NumOfDesignStateVars;
+  ILA_INFO << "#extra_bits= " << design_stat.NumOfExtraStateBits;
+  ILA_INFO << "#extra_vars=" << design_stat.NumOfExtraStateVars;
+} // CegarPipelineExample
+
 
 TEST(TestVlgVerifInvSyn, DirectStart) {
   auto ila_model = CntTest::BuildModel();
