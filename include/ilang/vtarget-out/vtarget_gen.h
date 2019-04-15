@@ -134,14 +134,22 @@ public:
       /// the vars to take into consideration
       std::set<std::string> ConcatVars;
 
-      // future: use arithmetics?
+      /// future: use arithmetics?
       enum {None, Level1, Recursive} UseArithmetics;
+
+      /// constants in the syntax
+      /// add all constants if it is or below this size
+      unsigned AllConstantUnderThisSize;
+
+      /// all other width : 0 1 half allone-1 allone
+      std::set<unsigned> SpecialValueForAllOtherWidth;
 
       // default constructor
       _sygus_options_t() :
         SygusPassInfo(DataPoints),
         UseExtend(false), UseExtract(false), 
-        UseConcat(false) , UseArithmetics(None) {}
+        UseConcat(false) , UseArithmetics(None),
+        AllConstantUnderThisSize(4) {}
     }; // the options
     _sygus_options_t SygusOptions;
 

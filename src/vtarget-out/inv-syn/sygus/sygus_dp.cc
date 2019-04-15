@@ -292,14 +292,82 @@ std::string Cvc4SygusInputGenerator::get_template_basic() {
         );
     } // for
   } // vals
-
 }
 
-std::string Cvc4SygusInputGenerator::generate_syntax_const(unsigned) const {
-  return ""; // TODO:
+std::string convert_to_binary(unsigned v, unsigned w) {
+  std::string ret;
+  for (int i = 0; i < w; ++i) {
+    ret = std::to_string(v&1) + ret;
+    v = v >> 1;
+  }
+  ILA_ASSERT(v == 0);
+  ILA_ASSERT(ret.size() == w);
+  return "#b" + ret;
+}
+
+std::string Cvc4SygusInputGenerator::generate_syntax_const(unsigned w) const {
+  ILA_ASSERT(w != 0);
+  unsigned max = ( 0x1 << w ) - 1 ;
+  std::vector<std::string> vals;
+  if (w <= options.AllConstantUnderThisSize) {
+    for (unsigned v = 0; v <= max; ++ v) {
+      vals.push_back(convert_to_binary(v,w));
+    }
+  } else {
+    std::set<unsigned> special_vals (options.SpecialValueForAllOtherWidth);
+    special_vals.insert(0);
+    special_vals.insert(1);
+    special_vals.insert(2);
+    special_vals.insert(max/2);
+    special_vals.insert(max/2-1);
+    special_vals.insert(max/2+1);
+    special_vals.insert(max-1);
+    special_vals.insert(max);
+    for (auto  v : special_vals)
+      vals.push_back(convert_to_binary(v,w));
+  } //   
+  return Join(vals, " "); // TODO:
 }
 std::string Cvc4SygusInputGenerator::generate_datapoint_constraints(TraceDataPoints * dpts) const {
-  return ""; // TODO:
+  // pos ex
+  const auto & var_idx = design_info.get_var_idx();
+  std::vector<std::string> constraints;
+  for(const auto & aframe : dpts->pos_ex ) {
+    std::vector<std::string> frame_vals;
+    for (const auto & vname : var_names) {
+      ILA_ASSERT(IN(vname, aframe)) << vname << " is not in the datapoint frame!";
+      ILA_ASSERT(IN(vname, var_idx)) << vname << " is not in the smt!";
+      auto data_type_ptr = var_idx.at(vname);
+      auto width = data_type_ptr->_type._width;
+      ILA_ASSERT( data_type_ptr->_type.GetBoolBvWidth() 
+        == aframe.at(vname).second.GetBoolBvWidth()) << "Bit-width does not match!";
+      if (data_type_ptr->_type.is_bool())
+        frame_vals.push_back( aframe.at(vname).first == 0 ? "false" : "true"  );
+      else
+        frame_vals.push_back( convert_to_binary(aframe.at(vname).first, width));
+    }
+    constraints.push_back( ReplaceAll(cnst_pos_template, 
+      "%pos_vals%", Join(frame_vals," ") ));
+  }
+
+  std::vector<std::string> frame_vals;
+  const auto & aframe = dpts->neg_ex;
+  for (const auto & vname : var_names) {
+    ILA_ASSERT(IN(vname, aframe)) << vname << " is not in the datapoint frame!";
+    ILA_ASSERT(IN(vname, var_idx)) << vname << " is not in the smt!";
+    auto data_type_ptr = var_idx.at(vname);
+    auto width = data_type_ptr->_type._width;
+    ILA_ASSERT( data_type_ptr->_type.GetBoolBvWidth() 
+      == aframe.at(vname).second.GetBoolBvWidth()) << "Bit-width does not match!";
+    if (data_type_ptr->_type.is_bool())
+      frame_vals.push_back( aframe.at(vname).first == 0 ? "false" : "true"  );
+    else
+      frame_vals.push_back( convert_to_binary(aframe.at(vname).first, width));
+  }
+  constraints.push_back( ReplaceAll(cnst_neg_template, 
+    "%neg_vals%", Join(frame_vals," ") ));
+
+  return Join(constraints,"\n"); // TODO:
 }
 
 void Cvc4SygusInputGenerator::ExportToFile(const std::string & fn, TraceDataPoints * dpts) {
@@ -317,6 +385,9 @@ void Cvc4SygusInputGenerator::ExportToFile(const std::string & fn, TraceDataPoin
   }
   // to do : add functions here
   // ignore those in dpts but not in inv_var_name_vec!
+  fout << get_template_basic();
+  fout << generate_datapoint_constraints(dpts);
+  fout << "\n(check-synth)\n";
 }
 
 
