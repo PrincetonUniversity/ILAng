@@ -195,6 +195,18 @@ unsigned var_type::GetBoolBvWidth() const {
   return 0;
 }
 
+bool var_type::is_bv() const {
+  return _type == tp::BV;
+}
+/// test if it is bv
+bool var_type::is_bool() const {
+  return _type == tp::Bool;
+}
+/// test if it is bv
+bool var_type::is_datatype() const {
+  return _type == tp::Datatype;
+}
+
 bool var_type::eqtype(const var_type & l, const var_type & r) {
   if (l._type == tp::Bool) {
     if (r._type == tp::Bool)

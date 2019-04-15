@@ -20,12 +20,16 @@ namespace smt {
 /// this will only work on the yosys's generated smt
 /// and not on the assemblied CHC
 class YosysSmtParser {
+public:
+  typedef std::map<std::string,state_var_t *> variable_idx_t;
   // ---------------- TYPE DEFs -------------------- //
 protected:
   /// the internal smt-ast
   smt_file smt_ast;
   /// the datatype defs without datatypes
   datatypes_t flatten_datatype;
+  /// the variable indices --- only top level
+  variable_idx_t variable_idx;
   // ------------- HELPER FUNCTIONS ---------------- //
   /// construct flatten_datatype (hierarchically)
   void construct_flatten_dataype();
@@ -33,6 +37,8 @@ protected:
   void replace_all_function_arg_body();
   /// add the no-change-function (hierarchically)
   void add_no_change_function();
+  /// create the variable indices
+  void create_variable_idx();
 
 public:
   // ----------- HELPER FUNCTIONS - Low Level ----- //
@@ -88,6 +94,8 @@ public:
   const std::vector<std::string> & get_module_def_orders() const;
   /// return a module's flatten datatypes
   const std::vector<state_var_t> & get_module_flatten_dt(const std::string & mod_name) const;
+  /// return the top module's variable index
+  const variable_idx_t & get_var_idx() const;
 }; // class YosysSmtParser
 
 }; // namespace smt

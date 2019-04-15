@@ -393,12 +393,26 @@ void YosysSmtParser::add_no_change_function() {
   } // for all module, add keep function
 } // add_no_change_function
 
+
+/// create the variable indices
+void YosysSmtParser::create_variable_idx() {
+  ILA_ASSERT(IN(smt_ast.data_type_order.back(), flatten_datatype));
+  for(auto && v : flatten_datatype[smt_ast.data_type_order.back()]) {
+    const auto & vname = v.verilog_name.empty() ? v.internal_name : v.verilog_name;
+    ILA_ASSERT(not IN(vname, variable_idx));
+    variable_idx.insert(std::make_pair(vname, &v ));
+    // we will try to avoid copying
+  }
+}
+
 // -------------- CONSTRUCTOR -------------------- //
 YosysSmtParser::YosysSmtParser(const std::string & buf) {
   // parse from string
   str_iterator iter(buf);
   ParseFromString(iter, smt_ast);
   construct_flatten_dataype();
+  // from the flatten datatype we extract the variable indices
+  create_variable_idx();
 }
 
 YosysSmtParser::~YosysSmtParser() {
@@ -428,6 +442,10 @@ const std::vector<state_var_t> & YosysSmtParser::get_module_flatten_dt(const std
   auto pos = flatten_datatype.find(mod_name);
   ILA_ASSERT( pos != flatten_datatype.end() );
   return pos->second;
+}
+
+const YosysSmtParser::variable_idx_t & YosysSmtParser::get_var_idx() const {
+  return variable_idx;
 }
 
 

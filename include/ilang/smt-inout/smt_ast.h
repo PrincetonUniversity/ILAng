@@ -98,6 +98,12 @@ namespace smt{
     static bool eqtype(const var_type & l, const var_type & r);
     /// return a verilog-use width
     unsigned GetBoolBvWidth() const;
+    /// test if it is bv
+    bool is_bv() const;
+    /// test if it is bv
+    bool is_bool() const;
+    /// test if it is bv
+    bool is_datatype() const;
     // ------------- CONSTRUCTOR ---------------- //
     // default constructor
     var_type();

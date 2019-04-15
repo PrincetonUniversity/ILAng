@@ -44,6 +44,21 @@ namespace ilang
     // ------------- Methods ---------------- //
     /// Export to a file
     void ExportToFile(const std::string & fn, TraceDataPoints * dpts);
+
+  protected:
+    // ------------- Members ---------------- //
+    /// get template based on the arithmetic it supported
+    std::string get_template_basic();
+    /// get template based on the arithmetic it supported
+    std::string get_template_lv1();
+    /// get template based on the arithmetic it supported
+    std::string get_template_lvR();
+    /// generate the constant in a syntax
+    std::string generate_syntax_const(unsigned) const;
+    /// generate the constraint based on the provided datapoints
+    std::string generate_datapoint_constraints(TraceDataPoints * dpts) const;
+
+
   }; // class Cvc4SygusInputGenerator
 
 }; // namespace ilang

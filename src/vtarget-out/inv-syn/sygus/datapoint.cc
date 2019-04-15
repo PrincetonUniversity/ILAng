@@ -9,6 +9,7 @@
 #include <ilang/vtarget-out/inv-syn/sygus/datapoint.h>
 #include <ilang/vtarget-out/inv-syn/cex_extract.h>
 #include <ilang/vtarget-out/inv-syn/sygus/inv_cex_extract.h>
+#include <ilang/vtarget-out/inv-syn/sygus/sim_trace_extract.h>
 
 #include <cmath>
 
@@ -87,6 +88,16 @@ template <> void TraceDataPoints::AddPosEx<InvCexExtractor> (const InvCexExtract
   pos_ex.push_back(example_map_t());
   for(auto && e : ex.GetCex() ) {
     pos_ex.back().insert(e);
+  }
+}
+
+
+// specialized instantiation
+template <> void TraceDataPoints::AddPosEx<SimTraceExtractor> (const SimTraceExtractor & ex) {
+  pos_ex.push_back(example_map_t());
+  for(auto && e : ex.GetEx() ) {
+    for(auto && var_value : e)
+      pos_ex.back().insert(std::make_pair(var_value.first, vlg_val_to_smt_val(var_value.second)));
   }
 }
 
