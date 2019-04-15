@@ -73,7 +73,7 @@ SCALAR_NUM          0|1|x|X|z|Z
 BIN_NUM             (b|B)(0|1|x|X|z|Z)+
 REAL_NUM            (r|r)(0-9)+[\.(0.9)+]
 IDENTIFIER_CODE     [a-zA-Z_0-9!/\,\.@':~#\*\(\)\+\{\}\$\%\[\]`\"&;<>=\?\-\^\(\)\|\\]+
-SCOPE_IDENTIFIER    [a-zA-Z_][a-zA-Z_0-9\(\)]+
+SCOPE_IDENTIFIER    [a-zA-Z_][a-zA-Z_0-9\(\)]*
 DECIMAL_NUM         [0-9]+
 
 COMMENT_TEXT        [^("$")]*
@@ -256,18 +256,18 @@ VERSION_TEXT        [^("$")]*
 
 <IN_VAR_PSIZE>{IDENTIFIER_CODE} {
     BEGIN(IN_VAR_PID);
-    //std::cout << yytext << ", ";
+    // std::cout << yytext << ", " ;
     return VCDParser::parser::make_TOK_IDENTIFIER(std::string(yytext),loc);
 }
 
 <IN_VAR_PID>{SCOPE_IDENTIFIER} {
-    //std::cout << yytext << ", ";
+    // std::cout << yytext << ", ";
     return VCDParser::parser::make_TOK_IDENTIFIER(std::string(yytext),loc);
 }
 
 <IN_VAR_PID>{BRACKET_O} {
     BEGIN(IN_VAR_RNG);
-    //std::cout << yytext << ", ";
+    // std::cout << yytext << ", ";
     return VCDParser::parser::make_TOK_BRACKET_O(loc);
 }
 
