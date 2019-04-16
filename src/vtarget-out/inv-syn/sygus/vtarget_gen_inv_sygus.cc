@@ -258,7 +258,7 @@ void VlgSglTgtGen_Cvc4SyGuS::Export_script(const std::string& script_name) {
     runnable = os_portable_append_dir(_vtg_config.Cvc4Path, runnable);
 
   if (design_prob_fname != "")
-    fout << runnable << " "<< design_prob_fname  << std::endl;
+    fout << runnable << " --lang=sygus "<< design_prob_fname  << std::endl;
   else
     fout << "echo 'Nothing to check!'" << std::endl;
 } // Export_script
@@ -336,13 +336,21 @@ void VlgSglTgtGen_Cvc4SyGuS::Export_problem(const std::string& extra_name) {
 
   // first generate a temporary smt
   // and extract from it the necessary info
-  design_only_gen_smt("__design_smt.smt2", "__gen_smt_script.ys");
+
+  design_only_gen_smt(
+    os_portable_append_dir(_output_path, "__design_smt.smt2"),
+    os_portable_append_dir(_output_path, "__gen_smt_script.ys"));
 
   if (_vtg_config.SygusOptions.SygusPassInfo == 
        VlgVerifTgtGenBase::_vtg_config::_sygus_options_t::TransferFunc)
-    convert_smt_to_chc_sygus ("__design_smt.smt2", extra_name);
+    convert_smt_to_chc_sygus (
+      os_portable_append_dir(_output_path, "__design_smt.smt2"), 
+      os_portable_append_dir(_output_path, extra_name));
   else  // datapoints
-    convert_datapoints_to_sygus("__design_smt.smt2", datapoints ,extra_name);
+    convert_datapoints_to_sygus(
+      os_portable_append_dir(_output_path, "__design_smt.smt2"), 
+      datapoints,
+      os_portable_append_dir(_output_path, extra_name));
 
 } // Export_problem
 
@@ -385,13 +393,10 @@ void VlgSglTgtGen_Cvc4SyGuS::design_only_gen_smt(
   const std::string & smt_name,
   const std::string & ys_script_name) {
   
-  auto ys_full_name =
-      os_portable_append_dir(_output_path, ys_script_name);
-
   auto ys_output_full_name =
       os_portable_append_dir(_output_path, "__yosys_exec_result.txt");
-  { // export to ys_full_name
-    std::ofstream ys_script_fout( ys_full_name );
+  { // export to ys_script_name
+    std::ofstream ys_script_fout( ys_script_name );
     
     std::string write_smt2_options = " -mem -bv -wires -stdt "; // future work : -stbv, or nothing
 
@@ -402,7 +407,7 @@ void VlgSglTgtGen_Cvc4SyGuS::design_only_gen_smt(
       ReplaceAll(sygusGenerateSmtScript_wo_Array, "%flatten%", 
         _vtg_config.YosysSmtFlattenHierarchy ? "flatten;" : "");
     ys_script_fout << "write_smt2"<<write_smt2_options 
-      << os_portable_append_dir( _output_path, smt_name );   
+      << smt_name;   
   } // finish writing
 
   std::string yosys = "yosys";
@@ -412,7 +417,7 @@ void VlgSglTgtGen_Cvc4SyGuS::design_only_gen_smt(
 
   // execute it
   std::vector<std::string> cmd;
-  cmd.push_back(yosys); cmd.push_back("-s"); cmd.push_back(ys_full_name);
+  cmd.push_back(yosys); cmd.push_back("-s"); cmd.push_back(ys_script_name);
   ILA_ERROR_IF( not os_portable_execute_shell( cmd, ys_output_full_name ) )
     << "Executing Yosys failed!";
 } // design_only_gen_smt
@@ -421,10 +426,9 @@ void VlgSglTgtGen_Cvc4SyGuS::design_only_gen_smt(
 void VlgSglTgtGen_Cvc4SyGuS::load_smt_from_file(const std::string & smt_fname, std::string & smt_converted) {
   std::stringstream ibuf;
   { // read file
-    std::string smt_in_fn = os_portable_append_dir( _output_path , smt_fname);
-    std::ifstream smt_fin( smt_in_fn );
+    std::ifstream smt_fin( smt_fname );
     if(not smt_fin.is_open()) {
-      ILA_ERROR << "Cannot read from " << smt_in_fn;
+      ILA_ERROR << "Cannot read from " << smt_fname;
       return;
     }
     ibuf << smt_fin.rdbuf();

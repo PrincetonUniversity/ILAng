@@ -439,8 +439,12 @@ void VlgSglTgtGen_Chc::Export_problem(const std::string& extra_name) {
 
   // first generate a temporary smt
   // and extract from it the necessary info
-  design_only_gen_smt("__design_smt.smt2", "__gen_smt_script.ys");
-  convert_smt_to_chc ("__design_smt.smt2", extra_name);
+  design_only_gen_smt(
+    os_portable_append_dir(_output_path, "__design_smt.smt2"),
+    os_portable_append_dir(_output_path, "__gen_smt_script.ys"));
+  convert_smt_to_chc (
+    os_portable_append_dir(_output_path, "__design_smt.smt2"),
+    os_portable_append_dir(_output_path, extra_name));
 
 } // Export_problem
 
@@ -481,13 +485,10 @@ void VlgSglTgtGen_Chc::design_only_gen_smt(
   const std::string & smt_name,
   const std::string & ys_script_name) {
   
-  auto ys_full_name =
-      os_portable_append_dir(_output_path, ys_script_name);
-
   auto ys_output_full_name =
       os_portable_append_dir(_output_path, "__yosys_exec_result.txt");
-  { // export to ys_full_name
-    std::ofstream ys_script_fout( ys_full_name );
+  { // export to ys_script_name
+    std::ofstream ys_script_fout( ys_script_name );
     
     std::string write_smt2_options = " -mem -bv -wires -stdt "; // future work : -stbv, or nothing
 
@@ -498,7 +499,7 @@ void VlgSglTgtGen_Chc::design_only_gen_smt(
       ReplaceAll(chcGenerateSmtScript_wo_Array, "%flatten%", 
         _vtg_config.YosysSmtFlattenHierarchy ? "flatten;" : "");
     ys_script_fout << "write_smt2"<<write_smt2_options 
-      << os_portable_append_dir( _output_path, smt_name );   
+      << smt_name;   
   } // finish writing
 
   std::string yosys = "yosys";
@@ -508,7 +509,7 @@ void VlgSglTgtGen_Chc::design_only_gen_smt(
 
   // execute it
   std::vector<std::string> cmd;
-  cmd.push_back(yosys); cmd.push_back("-s"); cmd.push_back(ys_full_name);
+  cmd.push_back(yosys); cmd.push_back("-s"); cmd.push_back(ys_script_name);
   ILA_ERROR_IF( not os_portable_execute_shell( cmd, ys_output_full_name ) )
     << "Executing Yosys failed!";
 
@@ -520,10 +521,9 @@ void VlgSglTgtGen_Chc::convert_smt_to_chc(const std::string & smt_fname, const s
   
   std::stringstream ibuf;
   { // read file
-    std::string smt_in_fn = os_portable_append_dir( _output_path , smt_fname);
-    std::ifstream smt_fin( smt_in_fn );
+    std::ifstream smt_fin( smt_fname );
     if(not smt_fin.is_open()) {
-      ILA_ERROR << "Cannot read from " << smt_in_fn;
+      ILA_ERROR << "Cannot read from " << smt_fname;
       return;
     }
     ibuf << smt_fin.rdbuf();
@@ -565,10 +565,9 @@ void VlgSglTgtGen_Chc::convert_smt_to_chc(const std::string & smt_fname, const s
   } // end of ~_vtg_config.YosysSmtFlattenDatatype -- no convert
 
   { // write file
-    std::string chc_out_fn = os_portable_append_dir( _output_path , chc_fname);
-    std::ofstream chc_fout(chc_out_fn);
+    std::ofstream chc_fout(chc_fname);
     if (not chc_fout.is_open()) {
-      ILA_ERROR << "Error writing to : "<< chc_out_fn;
+      ILA_ERROR << "Error writing to : "<< chc_fname;
       return;
     }
     chc_fout << chc;

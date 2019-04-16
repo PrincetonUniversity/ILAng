@@ -305,6 +305,7 @@ TEST(TestVlgVerifInvSyn, CegarPipelineExampleSygusDatapoint) {
   cfg.CosaPyEnvironment = "/home/hongce/cosaEnv/bin/activate";
   cfg.CosaPath = "/home/hongce/CoSA/";
   cfg.Z3Path = "/home/hongce/z3s/bin/";
+  cfg.Cvc4Path = "/home/hongce/cvc-installs/latest/bin/";
   cfg.CosaSolver = "btor";
   cfg.SygusOptions.SygusPassInfo = 
     VerilogVerificationTargetGenerator::vtg_config_t::_sygus_options_t::DataPoints;
@@ -334,11 +335,12 @@ TEST(TestVlgVerifInvSyn, CegarPipelineExampleSygusDatapoint) {
       if(vg.RunVerifAuto(1)) // the ADD
         break; // no more cex found
       vg.ExtractVerificationResult();
-      vg.SetInitialDatapoint(dp);
+      //vg.SetInitialDatapoint(dp);
       vg.SetSygusVarnameList(sygus_var_name);
       bool truly_inductive = false;
       while(!truly_inductive) {
         vg.GenerateSynthesisTargetSygusDatapoints();
+        vg.RunSynAuto();
         vg.ExtractSygusDatapointSynthesisAttempt();
         truly_inductive = vg.ValidateSygusDatapointAttempt();
       }

@@ -121,6 +121,7 @@ void InvariantSynthesizerCegar::GenerateVerificationTarget() {
 
   vlg_mod_inst_name = vg.GetVlgModuleInstanceName();
   inv_obj.set_dut_inst_name(vlg_mod_inst_name);
+  inv_candidate.set_dut_inst_name(vlg_mod_inst_name);
 
   runnable_script_name = vg.GetRunnableScriptName();
 

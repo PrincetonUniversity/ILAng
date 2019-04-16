@@ -9,6 +9,8 @@
 #include <ilang/util/str_util.h>
 #include <ilang/vtarget-out/inv-syn/sygus/sygus_inv_parse.h>
 
+#include <fstream>
+
 namespace ilang {
 namespace smt {
 
@@ -26,7 +28,9 @@ SyGuSInvariantParser::SyGuSInvariantParser(YosysSmtParser * yosys_smt_info,
 
     // build all allowable names
     if (not dut_verilog_instance_name.empty()) {
-      const auto & top_sts = yosys_smt_info->get_module_flatten_dt( dut_verilog_instance_name );
+      const auto & top_sts = yosys_smt_info->get_module_flatten_dt( 
+        yosys_smt_info->get_module_def_orders().back() // the top module name
+        );
       ILA_ASSERT(not top_sts.empty()) << "Empty top module states";
       for (auto && st : top_sts) {
         if ( st.verilog_name.empty() )
@@ -38,6 +42,36 @@ SyGuSInvariantParser::SyGuSInvariantParser(YosysSmtParser * yosys_smt_info,
   }
 
 SyGuSInvariantParser::~SyGuSInvariantParser() {}
+
+
+// parse from a file, we will add something there to make
+// if sat --> failed (return false)
+// if unsat --> add the (assert ...)
+bool SyGuSInvariantParser::ParseInvResultFromFile(const std::string & fname) {
+  std::ifstream fin(fname);
+  if (not fin.is_open()) {
+    ILA_ERROR << "Unable to read from : " << fname;
+    return false;
+  }
+
+  std::string result;
+  if (not std::getline(fin,result) || result != std::string("unsat") ) {
+    ILA_ERROR << "The cex is not unreachable, get result:" << result;
+    return false; // unknown result, possibly failed
+  }
+
+  std::stringstream sbuf;
+  sbuf << fin.rdbuf(); // different from original, it starts (define-fun)
+  ParseSmtResultFromString(correct_cvc4_bv_output(sbuf.str()));
+  return true;
+}
+
+
+std::string SyGuSInvariantParser::correct_cvc4_bv_output(const std::string & in) {
+  return ReplaceAll(in, "(BitVec", "(_ BitVec");
+}
+
+// ----------------------- CALLBACK FUNCTIONS ----------------- //
 
 /// this function receives the final assert result
 void SyGuSInvariantParser::assert_formula(SmtTermInfoVlgPtr result) {
@@ -96,19 +130,21 @@ void SyGuSInvariantParser::declare_quantified_variable(const std::string &name, 
   // we need to extract the name from verilog
   auto top_module = design_smt_info_ptr->get_module_def_orders().back();
   /// we need to check the format
-  ILA_ASSERT(name.size() > 2) << "Unexpected empty name: " << name;
-  ILA_ASSERT(name.front() == '|' and name.back() == '|') << "Name should be protected by | : " << name;
-  if (S_IN('.', name)) {
-    // check it starts with |top.|
-    auto starter = ("|" + design_smt_info_ptr->get_module_def_orders().back())+".";
-    ILA_ASSERT(name.find(starter) == 0)
-      << name << " should start w. " << starter;
+  std::string vlg_name = name;
+  if (name.front() == '|' and name.back() == '|') {
+    ILA_ASSERT(name.size() > 2) << "Unexpected empty name: " << name;
+    vlg_name = name.substr(1,name.length()-2) ; // verilog-name should be extracted from the name part
   }
-  auto vlg_name = name.substr(1,name.length()-2) ; // verilog-name should be extracted from the name part
+  if (S_IN('.', vlg_name)) {  
+      // check it starts with |top.|
+      auto starter = dut_verilog_instance_name+".";
+      ILA_ASSERT(vlg_name.find(starter) == 0)
+        << name << " should start w. " << starter;
+  }
   // we don't explicitly check if this name is valid or not
   if (not dut_verilog_instance_name.empty())
     ILA_ASSERT(IN(vlg_name,_all_allowable_names))
-      << "Expecting " << vlg_name << " in all allowable names.";
+      << "Expecting " << vlg_name << " in all allowable names, but actually not.";
   /*( 
     design_smt_info_ptr->get_module_flatten_dt(top_module)
     [quantifier_var_def_idx_stack.back()])

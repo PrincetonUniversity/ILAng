@@ -92,9 +92,9 @@ public:
   // parse from a file, we will add something there to make
   // if sat --> failed (return false)
   // if unsat --> add the (assert ...)
-  bool ParseInvResultFromFile(const std::string & fname) override;
+  bool virtual ParseInvResultFromFile(const std::string & fname) override;
   // parse from a string: assume we have the (assert ...) there
-  void ParseSmtResultFromString(const std::string & text) override;
+  void virtual ParseSmtResultFromString(const std::string & text) override;
   /// get the translate result
   std::string GetFinalTranslateResult() const override;
   /// get the local variable definitions

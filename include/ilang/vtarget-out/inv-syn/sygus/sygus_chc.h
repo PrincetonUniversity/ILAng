@@ -8,7 +8,7 @@
 #ifndef SYGUS_CHC_H__
 #define SYGUS_CHC_H__
 
-#include <ilang/vtarget-out/vtarget_gen.h>
+#include <ilang/vtarget-out/inv-syn/sygus/sygus_base.h>
 
 #include <string>
 #include <vector>
@@ -16,18 +16,24 @@
 
 namespace ilang
 {
-  /// \brief to generate an input based on pos/neg examples
-  class Cvc4SygusChcGenerator {
+  /// \brief to generate an input based on YosysSmt info
+  class Cvc4SygusChcGenerator : public Cvc4SygusBase {
     /// the options it takes
     using sygus_options_t = VlgVerifTgtGenBase::vtg_config_t::_sygus_options_t;
   public:
     // ------------- Constructor ---------------- //
-    Cvc4SygusChcGenerator();
+    Cvc4SygusChcGenerator(
+      const smt::YosysSmtParser & _design_info,       // the design info is needed
+      const std::vector<std::string> & _var_name_vec, // the variables we are going to consider
+      const sygus_options_t & SygusOptions           // the options
+      );
     /// no copy constructor
     Cvc4SygusChcGenerator(const Cvc4SygusChcGenerator &) = delete;
     /// no assignment
     Cvc4SygusChcGenerator operator=(const Cvc4SygusChcGenerator &) = delete;
     // ------------- Methods ---------------- //
+    /// Export to a file
+    virtual void ExportToFile(const std::string & fn, TraceDataPoints * dpts) override;
   }; // class Cvc4SygusChcGenerator
 
 }; // namespace ilang

@@ -31,6 +31,10 @@ void InvariantObject::AddInvariantFromChcResultFile(
     const std::string & tag, const std::string & chc_result_fn,
     bool flatten_datatype, bool flatten_hierarchy ) {
 
+  ILA_ASSERT(not dut_inst_name.empty()) 
+    << "BUG: duv instance name unknown. "
+    << "set_dut_inst_name should be called first!";
+    
   smt::SmtlibInvariantParser parser(
     &design_info,
     flatten_datatype, flatten_hierarchy,
@@ -62,6 +66,9 @@ void InvariantObject::AddInvariantFromSygusResultFile(
     smt::YosysSmtParser & design_info, 
     const std::string & tag, const std::string & chc_result_fn,
     bool flatten_datatype, bool flatten_hierarchy ) {
+  
+  ILA_ASSERT(not dut_inst_name.empty()) << "BUG: duv instance name unknown."
+    << "set_dut_inst_name should be called first!";
 
   smt::SyGuSInvariantParser parser(
     &design_info,
@@ -69,11 +76,13 @@ void InvariantObject::AddInvariantFromSygusResultFile(
     {"INV"}, dut_inst_name);
 
   if (not parser.ParseInvResultFromFile(chc_result_fn) ) {
-    ILA_ERROR << "No new invariant has been extracted!";
+    ILA_ERROR << "Parser failed to extract invariant, no new invariant has been extracted!";
     return;
   }
   ILA_ASSERT(not parser.in_bad_state());
-  inv_vlg_exprs.push_back( parser.GetFinalTranslateResult() );
+  auto inv_extracted = parser.GetFinalTranslateResult();
+  ILA_ASSERT(not inv_extracted.empty()) << "Parser failed to extract invariant, got empty string!";
+  inv_vlg_exprs.push_back( inv_extracted );
   for (auto && name_vlg_pair : parser.GetLocalVarDefs()) {
     inv_extra_vlg_vars.push_back(std::make_tuple(
       name_vlg_pair.first,

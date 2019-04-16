@@ -22,8 +22,8 @@ TraceDataPoints::value_t vlg_val_to_smt_val(const std::string & v) {
     return ret;
   }
   
-  if (S_IN('`',v)) {
-    auto sep_pos = v.find('`');
+  if (S_IN('\'',v)) {
+    auto sep_pos = v.find('\'');
     ILA_ERROR_IF(v.length() < sep_pos + 3 ) << "Unable to parse:" << v;
     char radix = v.at(sep_pos + 1);
     unsigned val = StrToInt(v.substr(sep_pos+2),
@@ -55,13 +55,25 @@ TraceDataPoints::value_t vlg_val_to_smt_val(const std::string & v) {
   return ret;  
 } // vlg_val_to_smt_val
 
+std::string vcd_remove_extra_bracket(const std::string & vname) {
+  if (not S_IN('[', vname))
+    return vname;
+  auto bracket_pos = vname.rfind('[');
+  auto colon_pos = vname.rfind(':');
+  if (colon_pos == std::string::npos) // a[3] (this should not be)
+    return vname;
+  ILA_ASSERT (colon_pos >= bracket_pos) // otherwise we cannot handle
+    << "BUG FIX needed: vname:" << vname << " has strange format";
+  return vname.substr(0,bracket_pos);
+}
+
 
 /// this function allows to insert the outer cegar result to this datapoint
 template <>
 void TraceDataPoints::SetNegEx<CexExtractor>(const CexExtractor &ex) {
   neg_ex.clear();
   for(auto && e : ex.GetCex() ) {
-    neg_ex.insert(std::make_pair(e.first, vlg_val_to_smt_val(e.second)));
+    neg_ex.insert(std::make_pair(vcd_remove_extra_bracket(e.first), vlg_val_to_smt_val(e.second)));
   }
 }
 /// the same as above
@@ -70,7 +82,7 @@ template <>
 void TraceDataPoints::AddPosEx<CexExtractor>(const CexExtractor &ex) {
   pos_ex.push_back(example_map_t());
   for(auto && e : ex.GetCex() ) {
-    pos_ex.back().insert(std::make_pair(e.first, vlg_val_to_smt_val(e.second)));
+    pos_ex.back().insert(std::make_pair(vcd_remove_extra_bracket(e.first), vlg_val_to_smt_val(e.second)));
   }
 }
 
@@ -79,7 +91,10 @@ void TraceDataPoints::AddPosEx<CexExtractor>(const CexExtractor &ex) {
 template <> void TraceDataPoints::SetNegEx<InvCexExtractor> (const InvCexExtractor & ex) {
   neg_ex.clear();
   for(auto && e : ex.GetCex() ) {
-    neg_ex.insert(e);
+    neg_ex.insert(std::make_pair(
+      vcd_remove_extra_bracket(e.first),
+      e.second
+    ));
   }
 }
 
@@ -87,7 +102,9 @@ template <> void TraceDataPoints::SetNegEx<InvCexExtractor> (const InvCexExtract
 template <> void TraceDataPoints::AddPosEx<InvCexExtractor> (const InvCexExtractor & ex) {
   pos_ex.push_back(example_map_t());
   for(auto && e : ex.GetCex() ) {
-    pos_ex.back().insert(e);
+    pos_ex.back().insert(std::make_pair(
+      vcd_remove_extra_bracket(e.first),
+      e.second));
   }
 }
 
@@ -97,7 +114,10 @@ template <> void TraceDataPoints::AddPosEx<SimTraceExtractor> (const SimTraceExt
   pos_ex.push_back(example_map_t());
   for(auto && e : ex.GetEx() ) {
     for(auto && var_value : e)
-      pos_ex.back().insert(std::make_pair(var_value.first, vlg_val_to_smt_val(var_value.second)));
+      pos_ex.back().insert(
+        std::make_pair(
+          vcd_remove_extra_bracket(var_value.first),
+          vlg_val_to_smt_val(var_value.second)));
   }
 }
 

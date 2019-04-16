@@ -48,7 +48,14 @@ protected:
   // -------------- MEMBERS ------------------- //
   // for correctness checking
   std::set<std::string> _all_allowable_names;
+  // to correct CVC4's output on BitVec
+  virtual std::string correct_cvc4_bv_output(const std::string & in);
 public: 
+  // -------------- INTERFACE ------------------- //
+  /// Interface function
+  bool virtual ParseInvResultFromFile(const std::string & fname) override;
+
+  // -------------- CALLBACK FNs ------------------- //
   /// call back function to handle (define-fun
   virtual SmtTermInfoVlgPtr push_quantifier_scope() override;
   /// call back function to handle ) of define-fun

@@ -8,9 +8,7 @@
 #ifndef SYGUS_DP_H__
 #define SYGUS_DP_H__
 
-#include <ilang/vtarget-out/inv-syn/sygus/datapoint.h>
-#include <ilang/vtarget-out/vtarget_gen.h>
-#include <ilang/smt-inout/yosys_smt_parser.h>
+#include <ilang/vtarget-out/inv-syn/sygus/sygus_base.h>
 
 #include <string>
 #include <vector>
@@ -19,17 +17,9 @@
 namespace ilang
 {
   /// \brief to generate an input based on pos/neg examples
-  class Cvc4SygusInputGenerator {
+  class Cvc4SygusInputGenerator : public Cvc4SygusBase {
     /// the options it takes
     using sygus_options_t = VlgVerifTgtGenBase::vtg_config_t::_sygus_options_t;
-  protected:
-    // ------------- MEMBER ---------------- //
-    /// the vocabulary -- the variables to consider
-    std::vector<std::string> var_names;
-    /// we need a pointer to smt-parsed data
-    const smt::YosysSmtParser & design_info;
-    /// a local copy of the options
-    sygus_options_t options;
   public:
     // ------------- Constructor ---------------- //
     Cvc4SygusInputGenerator(
@@ -43,21 +33,12 @@ namespace ilang
     Cvc4SygusInputGenerator operator=(const Cvc4SygusInputGenerator &) = delete;
     // ------------- Methods ---------------- //
     /// Export to a file
-    void ExportToFile(const std::string & fn, TraceDataPoints * dpts);
+    virtual void ExportToFile(const std::string & fn, TraceDataPoints * dpts) override;
 
   protected:
-    // ------------- Members ---------------- //
-    /// get template based on the arithmetic it supported
-    std::string get_template_basic();
-    /// get template based on the arithmetic it supported
-    std::string get_template_lv1();
-    /// get template based on the arithmetic it supported
-    std::string get_template_lvR();
-    /// generate the constant in a syntax
-    std::string generate_syntax_const(unsigned) const;
+    // ------------- New Members ---------------- //
     /// generate the constraint based on the provided datapoints
     std::string generate_datapoint_constraints(TraceDataPoints * dpts) const;
-
 
   }; // class Cvc4SygusInputGenerator
 
