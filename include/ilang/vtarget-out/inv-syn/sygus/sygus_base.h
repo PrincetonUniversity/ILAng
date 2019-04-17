@@ -43,8 +43,6 @@ namespace ilang
       );
     /// no copy constructor
     Cvc4SygusBase(const Cvc4SygusBase &) = delete;
-    /// no assignment
-    Cvc4SygusBase operator=(const Cvc4SygusBase &) = delete;
     
     virtual ~Cvc4SygusBase();
     // ------------- Methods ---------------- //

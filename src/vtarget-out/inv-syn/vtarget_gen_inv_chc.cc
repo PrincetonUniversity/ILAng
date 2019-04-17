@@ -159,7 +159,7 @@ std::string inv_syn_tmpl_wo_datatypes = R"***(
 )***";
 
 
-std::string RewriteDatatypeChc(
+static std::string RewriteDatatypeChc(
   const std::string & tmpl, const std::vector<smt::state_var_t> & dt,
   const std::string & wrapper_mod_name);
 
@@ -582,7 +582,7 @@ void VlgSglTgtGen_Chc::convert_smt_to_chc(const std::string & smt_fname, const s
 // %State%
 // %StatePrime%
 // %BIs% %Is%  %Ss% %Sps%
-std::string RewriteDatatypeChc(
+static std::string RewriteDatatypeChc(
   const std::string & tmpl, const std::vector<smt::state_var_t> & dt,
   const std::string & wrapper_mod_name) {
   

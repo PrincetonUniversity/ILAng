@@ -67,7 +67,7 @@ std::string inv_syn_tmpl_sygus = R"***(
 (check-synth)
 )***";
 
-std::string RewriteDatatypeChc(
+static std::string RewriteDatatypeSygusChc(
   const std::string & tmpl, const std::vector<smt::state_var_t> & dt,
   const std::string & wrapper_mod_name);
 
@@ -86,7 +86,7 @@ std::string Cvc4SygusChcGenerator::smt_var_trans() const {
   const auto & datatype_top_mod = design_info.get_module_flatten_dt(wrapper_mod_name);
   auto chc = ReplaceAll(
     inv_syn_tmpl_sygus, "%Syntax%", get_template()); // "%WrapperDataType%" will be available at this point
-  return RewriteDatatypeChc(chc, datatype_top_mod, wrapper_mod_name);
+  return RewriteDatatypeSygusChc(chc, datatype_top_mod, wrapper_mod_name);
 }
 
 
@@ -109,7 +109,7 @@ void Cvc4SygusChcGenerator::ExportToFile(const std::string & fn) {
 // %State%
 // %StatePrime%
 // %BIs% %Is%  %Ss% %Sps%
-std::string RewriteDatatypeChc(
+static std::string RewriteDatatypeSygusChc(
   const std::string & tmpl, const std::vector<smt::state_var_t> & dt,
   const std::string & wrapper_mod_name) {
   
@@ -171,7 +171,7 @@ std::string RewriteDatatypeChc(
   chc = ReplaceAll(chc, "%Sps%",             Sps);
 
   return chc;  
-} // RewriteDatatypeChc
+} // RewriteDatatypeSygusChc
 
 }; // namespace ilang
 
