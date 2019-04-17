@@ -449,15 +449,24 @@ void VlgSglTgtGen_Cvc4SyGuS::convert_datapoints_to_sygus(const std::string & smt
   std::string smt_converted;
   load_smt_from_file(smt_fname, smt_converted);
 
-  Cvc4SygusInputGenerator gen_sygus_input(*(design_smt_info.get()), var_names, _vtg_config.SygusOptions );
-  gen_sygus_input.ExportToFile(sygus_fname, dp);
+  Cvc4SygusInputGenerator gen_sygus_input(
+    *(design_smt_info.get()), var_names, _vtg_config.SygusOptions, dp );
+  gen_sygus_input.ExportToFile(sygus_fname);
 } // convert_datapoints_to_sygus
 
 void VlgSglTgtGen_Cvc4SyGuS::convert_smt_to_chc_sygus(const std::string & smt_fname, const std::string & sygus_chc_fname) {
+  
+  ILA_ASSERT (_vtg_config.YosysSmtFlattenDatatype)
+     << "For SyGuS through passing transfer function, datatype must be flattened!";
+  // now when you call load_smt_from_file, it has already been flattened
 
   std::string smt_converted;
   load_smt_from_file(smt_fname, smt_converted);
 
+  Cvc4SygusChcGenerator gen_sygus_input(
+    *(design_smt_info.get()), var_names, _vtg_config.SygusOptions,
+    smt_converted);
+  gen_sygus_input.ExportToFile(sygus_chc_fname);
 } // convert_smt_to_chc
   
   /*

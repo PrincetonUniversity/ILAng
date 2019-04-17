@@ -189,10 +189,13 @@ const std::string syntax_arithmetic_lvR = R"#!#!#(
 Cvc4SygusBase::Cvc4SygusBase(
   const smt::YosysSmtParser & smt_design_info,       // the design info is needed
   const std::vector<std::string> & inv_var_name_vec, // the variables we are going to consider
-  const sygus_options_t & SygusOptions           // the options
+  const sygus_options_t & SygusOptions,           // the options
+  const std::string & customized_invariant_arg
   ) : 
   var_names (inv_var_name_vec), design_info(smt_design_info), 
-  options(SygusOptions) {
+  options(SygusOptions),
+  inv_arg_customize(not customized_invariant_arg.empty()),
+  invariant_arg(customized_invariant_arg) {
 
   ILA_WARN_IF(SygusOptions.UseExtract) << "Not supported yet : extract";
   ILA_WARN_IF(SygusOptions.UseExtend)  << "Not supported yet : extend";
@@ -293,7 +296,7 @@ std::string Cvc4SygusBase::get_template_basic() const{
   add_vals(vals);
 
   auto ret = syntax_basic;
-  ret = ReplaceAll(ret,"%arg%",      args);
+  ret = ReplaceAll(ret,"%arg%",      inv_arg_customize ? args : invariant_arg);
   ret = ReplaceAll(ret,"%cmpOps%",   cmpOp);
   ret = ReplaceAll(ret,"%varOrVal%", varOrVal);
   ret = ReplaceAll(ret,"%vars%",     vars);
@@ -374,7 +377,7 @@ std::string Cvc4SygusBase::get_template_lv1() const{
   add_vals(vals);
 
   auto ret = syntax_arithmetic_lv1;
-  ret = ReplaceAll(ret,"%arg%",      args);
+  ret = ReplaceAll(ret,"%arg%",      inv_arg_customize ? args : invariant_arg);
   ret = ReplaceAll(ret,"%cmpOps%",   cmpOp);
   ret = ReplaceAll(ret,"%exps%",     exps);
   ret = ReplaceAll(ret,"%varOrVal%", varOrVal);
@@ -457,7 +460,7 @@ std::string Cvc4SygusBase::get_template_lvR() const {
   add_vals(vals);
 
   auto ret = syntax_arithmetic_lvR;
-  ret = ReplaceAll(ret,"%arg%",      args);
+  ret = ReplaceAll(ret,"%arg%",      inv_arg_customize ? args : invariant_arg);
   ret = ReplaceAll(ret,"%cmpOps%",   cmpOp);
   ret = ReplaceAll(ret,"%exps%",     exps);
   ret = ReplaceAll(ret,"%varOrVal%", varOrVal);

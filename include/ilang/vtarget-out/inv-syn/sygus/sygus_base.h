@@ -36,9 +36,10 @@ namespace ilang
   public:
     // ------------- Constructor ---------------- //
     Cvc4SygusBase(
-      const smt::YosysSmtParser & _design_info,       // the design info is needed
-      const std::vector<std::string> & _var_name_vec, // the variables we are going to consider
-      const sygus_options_t & SygusOptions           // the options
+      const smt::YosysSmtParser & _design_info,         // the design info is needed
+      const std::vector<std::string> & _var_name_vec,   // the variables we are going to consider
+      const sygus_options_t & SygusOptions,             // the options
+      const std::string & customized_invariant_arg      // whether to replace the %arg% w. something new
       );
     /// no copy constructor
     Cvc4SygusBase(const Cvc4SygusBase &) = delete;
@@ -48,7 +49,7 @@ namespace ilang
     virtual ~Cvc4SygusBase();
     // ------------- Methods ---------------- //
     /// Export to a file
-    virtual void ExportToFile(const std::string & fn, TraceDataPoints * dpts) = 0;
+    virtual void ExportToFile(const std::string & fn) = 0;
 
   protected:
     // ------------- Members ---------------- //
@@ -80,7 +81,12 @@ namespace ilang
 
   private:
     // ------------- Preprocessing step ---------------- //
+    /// convert vname to arg
     void arg_to_widx();
+    /// whether to replace 
+    const bool inv_arg_customize;
+    /// what to replace
+    const std::string invariant_arg;
     
 
   }; // class Cvc4SygusInputGenerator

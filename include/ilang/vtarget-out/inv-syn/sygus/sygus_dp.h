@@ -25,7 +25,8 @@ namespace ilang
     Cvc4SygusInputGenerator(
       const smt::YosysSmtParser & _design_info,       // the design info is needed
       const std::vector<std::string> & _var_name_vec, // the variables we are going to consider
-      const sygus_options_t & SygusOptions           // the options
+      const sygus_options_t & SygusOptions,           // the options
+      TraceDataPoints * datapoints
       );
     /// no copy constructor
     Cvc4SygusInputGenerator(const Cvc4SygusInputGenerator &) = delete;
@@ -33,12 +34,14 @@ namespace ilang
     Cvc4SygusInputGenerator operator=(const Cvc4SygusInputGenerator &) = delete;
     // ------------- Methods ---------------- //
     /// Export to a file
-    virtual void ExportToFile(const std::string & fn, TraceDataPoints * dpts) override;
+    virtual void ExportToFile(const std::string & fn) override;
 
   protected:
     // ------------- New Members ---------------- //
     /// generate the constraint based on the provided datapoints
     std::string generate_datapoint_constraints(TraceDataPoints * dpts) const;
+    /// the datapoint
+    TraceDataPoints * const dpts;
 
   }; // class Cvc4SygusInputGenerator
 

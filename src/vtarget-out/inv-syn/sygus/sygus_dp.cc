@@ -21,8 +21,12 @@ const std::string cnst_neg_template = "(constraint (not (INV %neg_vals%)))";
 Cvc4SygusInputGenerator::Cvc4SygusInputGenerator(
   const smt::YosysSmtParser & smt_design_info,       // the design info is needed
   const std::vector<std::string> & inv_var_name_vec, // the variables we are going to consider
-  const sygus_options_t & SygusOptions           // the options
-  ) : Cvc4SygusBase(smt_design_info, inv_var_name_vec, SygusOptions) { }
+  const sygus_options_t & SygusOptions,           // the options
+  TraceDataPoints * datapoints
+  ) : Cvc4SygusBase(smt_design_info, inv_var_name_vec, SygusOptions, ""),
+      dpts(datapoints)
+      // not customize inv arg
+  { }
 
 std::string Cvc4SygusInputGenerator::generate_datapoint_constraints(TraceDataPoints * dpts) const {
   // pos ex
@@ -66,7 +70,7 @@ std::string Cvc4SygusInputGenerator::generate_datapoint_constraints(TraceDataPoi
   return Join(constraints,"\n"); // TODO:
 }
 
-void Cvc4SygusInputGenerator::ExportToFile(const std::string & fn, TraceDataPoints * dpts) {
+void Cvc4SygusInputGenerator::ExportToFile(const std::string & fn) {
   ILA_NOT_NULL(dpts);
   
   if (dpts->neg_ex.empty()) {
