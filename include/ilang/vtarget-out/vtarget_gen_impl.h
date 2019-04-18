@@ -156,6 +156,12 @@ protected:
   unsigned cnt_width;
   /// to store the advanced parameter configurations
   advanced_parameters_t * _advanced_param_ptr;
+  /// has guessed synthesized invariant
+  const bool has_gussed_synthesized_invariant;
+  /// has confirmed synthesized invariant
+  const bool has_confirmed_synthesized_invariant;
+  /// has rf provided invariant
+  const bool has_rf_invariant;
 
 private:
   /// Counter of mapping
@@ -225,10 +231,11 @@ protected:
   void ConstructWrapper_add_varmap_assumptions();
   /// add state equ assertions
   void ConstructWrapper_add_varmap_assertions();
-  /// Add invariants as assumptions
-  void ConstructWrapper_add_inv_assumptions();
-  /// Add invariants as assertions
-  void ConstructWrapper_add_inv_assertions();
+  /// Add invariants as assumption/assertion when target is invariant
+  void ConstructWrapper_add_inv_assumption_or_assertion_target_invariant();
+  /// Add invariants as assumption/assertion when target is instruction
+  void ConstructWrapper_add_inv_assumption_or_assertion_target_instruction();
+
   /// Add more assumptions/assertions
   void ConstructWrapper_add_additional_mapping_control();
   /// Generate __ISSUE__, __IEND__, ... signals
@@ -251,16 +258,24 @@ protected:
   void ConstructWrapper_add_vlg_monitor();
 
   // -------------------------------------------------------------------------
-  /// Add invariants as assumptions -- for invariant-synthesis
-  void ConstructWrapper_inv_syn_add_inv_assumptions();
-  /// Add reachability assertions   -- for invariant-synthesis
-  void ConstructWrapper_inv_syn_add_cex_assertion();
+  /// Add invariants as assumption/assertion when target is inv_syn_design_only
+  void ConstructWrapper_add_inv_assumption_or_assertion_target_inv_syn_design_only();
   /// Connect the memory even we don't care a lot about them
   void ConstructWrapper_inv_syn_connect_mem();
 
 protected:
   /// get the ila module instantiation string
   std::string ConstructWrapper_get_ila_module_inst();
+  /// add an invariant object as assertion
+  void add_inv_obj_as_assertion( InvariantObject * inv_obj);
+  /// add an invariant object as an assumption
+  void add_inv_obj_as_assumption( InvariantObject * inv_obj);
+  /// add rf inv as assumptions (if there are)
+  void add_rf_inv_as_assumption();
+  /// add rf inv as assumptions (if there are)
+  void add_rf_inv_as_assertion();
+
+
 
 protected:
   // ----------------------- MEMBERS for Export ------------------- //
@@ -277,7 +292,7 @@ protected:
   /// Store the selection of backend
   backend_selector _backend;
   /// Store the configuration
-  vtg_config_t _vtg_config;
+  const vtg_config_t _vtg_config;
 
 public:
   /// Call the separate construct functions to make a wrapper (not yet export

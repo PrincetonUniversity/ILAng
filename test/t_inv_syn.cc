@@ -6,6 +6,7 @@
 #include <ilang/ilang++.h>
 #include <ilang/vtarget-out/vtarget_gen.h>
 #include <ilang/vtarget-out/inv-syn/inv_syn_cegar.h>
+#include <ilang/vtarget-out/inv-syn/sygus/sim_trace_extract.h>
 
 #include "unit-include/config.h"
 #include "unit-include/pipe_ila.h"
@@ -315,8 +316,129 @@ TEST(TestVlgVerifInvSyn, CegarPipelineExampleSygusDatapoint) {
     "m1.reg_0_w_stage", "m1.reg_1_w_stage", "m1.reg_2_w_stage", "m1.reg_3_w_stage",
     "m1.id_ex_reg_wen", "m1.id_ex_rd", "m1.ex_wb_reg_wen", "m1.ex_wb_rd" };
 
+  std::set<std::string> sim_var_name;
+  for (auto &&n : sygus_var_name)
+    sim_var_name.insert("sim." + n);
+
   auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/vpipe/";
   auto outDir  = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/inv_syn/vpipe-out-sygus-dp/";
+
+  SimTraceExtractor simtrace(
+    dirName + "sim/simtrace.vcd", "sim.m1",
+    sim_var_name,
+    [](double time, const SimTraceExtractor::ex_t &) -> bool {return time > 40;},
+    [](const std::string & name) -> std::string {return name.substr(4); } // remove sim.
+  );
+
+  dp.AddPosEx(simtrace);
+
+  InvariantSynthesizerCegar vg(
+      {},                          // no include
+      {dirName + "simple_pipe.v"}, //
+      "pipeline_v",                // top_module_name
+      dirName + "rfmap/vmap.json", // variable mapping
+      dirName + "rfmap/cond-noinv.json", outDir, ila_model.get(),
+      VerilogVerificationTargetGenerator::backend_selector::COSA,
+      VerilogVerificationTargetGenerator::synthesis_backend_selector::CVC4,
+      cfg);
+
+  EXPECT_FALSE(vg.in_bad_state());
+
+    do{
+      vg.GenerateVerificationTarget();
+      if(vg.RunVerifAuto(1)) // the ADD
+        break; // no more cex found
+      vg.ExtractVerificationResult();
+      vg.SetInitialDatapoint(dp);
+      vg.SetSygusVarnameList(sygus_var_name);
+      bool truly_inductive = false;
+      while(!truly_inductive) {
+        vg.GenerateSynthesisTargetSygusDatapoints();
+        vg.RunSynAuto();
+        vg.ExtractSygusDatapointSynthesisAttempt();
+        truly_inductive = vg.ValidateSygusDatapointAttempt();
+      }
+      vg.ExtractSynthesisResult();
+    }while(not vg.in_bad_state());
+  vg.GenerateInvariantVerificationTarget(); // finally we revalidate the result
+
+}
+
+
+TEST(TestVlgVerifInvSyn, CegarCntSygusTransFunc)  {
+  auto ila_model = CntTest::BuildModel();
+
+  VerilogVerificationTargetGenerator::vtg_config_t cfg;
+  cfg.InvariantSynthesisReachableCheckKeepOldInvariant = false;
+  cfg.CosaAddKeep = false;
+  cfg.VerificationSettingAvoidIssueStage = true;
+  cfg.YosysSmtFlattenDatatype = true; // if not using transfunc it does not matter
+  cfg.YosysSmtFlattenHierarchy = true;
+  cfg.CosaPyEnvironment = "/home/hongce/cosaEnv/bin/activate";
+  cfg.CosaPath = "/home/hongce/CoSA/";
+  cfg.Z3Path = "/home/hongce/z3s/bin/";
+  cfg.Cvc4Path = "/home/hongce/cvc-installs/latest/bin/";
+  cfg.CosaSolver = "btor";
+  cfg.SygusOptions.SygusPassInfo = 
+    VerilogVerificationTargetGenerator::vtg_config_t::_sygus_options_t::TransferFunc;
+  cfg.SygusOptions.UseArithmetics = VerilogVerificationTargetGenerator::vtg_config_t::_sygus_options_t::_use_arithmetics_t::Level1;
+
+  std::vector<std::string> sygus_var_name = {"m1.v", "m1.imp"};
+
+  auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/inv_syn/cnt2/";
+  auto outDir  = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/inv_syn/cnt2-sygus-tf/";
+
+  InvariantSynthesizerCegar vg(
+      {},                          // no include
+      {dirName + "verilog/opposite.v"}, //
+      "opposite",                // top_module_name
+      dirName + "rfmap/vmap.json", // variable mapping
+      dirName + "rfmap/cond-noinv.json", outDir, ila_model.get(),
+      VerilogVerificationTargetGenerator::backend_selector::COSA,
+      VerilogVerificationTargetGenerator::synthesis_backend_selector::CVC4,
+      cfg);
+
+  EXPECT_FALSE(vg.in_bad_state());
+
+    do{
+      vg.GenerateVerificationTarget();
+      if(vg.RunVerifAuto(0)) // the INC
+        break; // no more cex found
+      vg.ExtractVerificationResult();
+      //vg.SetInitialDatapoint(dp);
+      vg.SetSygusVarnameList(sygus_var_name);
+      vg.GenerateSynthesisTargetSygusTransFunc();
+      vg.RunSynAuto();
+      vg.ExtractSynthesisResult();
+    }while(not vg.in_bad_state());
+  vg.GenerateInvariantVerificationTarget(); // finally we revalidate the result
+} // CegarCntSygusTransFunc
+
+TEST(TestVlgVerifInvSyn, CegarPipelineExampleSygusTransFunc)  {
+
+  auto ila_model = SimplePipe::BuildModel();
+
+  VerilogVerificationTargetGenerator::vtg_config_t cfg;
+  cfg.InvariantSynthesisReachableCheckKeepOldInvariant = false;
+  cfg.CosaAddKeep = false;
+  cfg.VerificationSettingAvoidIssueStage = true;
+  cfg.YosysSmtFlattenDatatype = true; // if not using transfunc it does not matter
+  cfg.YosysSmtFlattenHierarchy = true;
+  cfg.CosaPyEnvironment = "/home/hongce/cosaEnv/bin/activate";
+  cfg.CosaPath = "/home/hongce/CoSA/";
+  cfg.Z3Path = "/home/hongce/z3s/bin/";
+  cfg.Cvc4Path = "/home/hongce/cvc-installs/latest/bin/";
+  cfg.CosaSolver = "btor";
+  cfg.SygusOptions.SygusPassInfo = 
+    VerilogVerificationTargetGenerator::vtg_config_t::_sygus_options_t::TransferFunc;
+
+  TraceDataPoints dp;
+  std::vector<std::string> sygus_var_name = {
+    "m1.reg_0_w_stage", "m1.reg_1_w_stage", "m1.reg_2_w_stage", "m1.reg_3_w_stage",
+    "m1.id_ex_reg_wen", "m1.id_ex_rd", "m1.ex_wb_reg_wen", "m1.ex_wb_rd" };
+
+  auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/vpipe/";
+  auto outDir  = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/inv_syn/vpipe-out-sygus-tf/";
 
   InvariantSynthesizerCegar vg(
       {},                          // no include
@@ -337,21 +459,11 @@ TEST(TestVlgVerifInvSyn, CegarPipelineExampleSygusDatapoint) {
       vg.ExtractVerificationResult();
       //vg.SetInitialDatapoint(dp);
       vg.SetSygusVarnameList(sygus_var_name);
-      bool truly_inductive = false;
-      while(!truly_inductive) {
-        vg.GenerateSynthesisTargetSygusDatapoints();
-        vg.RunSynAuto();
-        vg.ExtractSygusDatapointSynthesisAttempt();
-        truly_inductive = vg.ValidateSygusDatapointAttempt();
-      }
+      vg.GenerateSynthesisTargetSygusTransFunc();
+      vg.RunSynAuto();
       vg.ExtractSynthesisResult();
     }while(not vg.in_bad_state());
   vg.GenerateInvariantVerificationTarget(); // finally we revalidate the result
-
-}
-
-
-TEST(TestVlgVerifInvSyn, CegarPipelineExampleSygusTransFunc)  {
 
 }
 

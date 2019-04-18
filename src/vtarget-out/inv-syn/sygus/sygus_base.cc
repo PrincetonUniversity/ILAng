@@ -30,6 +30,7 @@ const std::string Val_template = R"#!#!#(
 
 // ------------------- basic templates --------------------- //
 
+
 const std::string cmpOp_template = R"#!#!#(
  (= Var%width% VarOrVal%width%)
  (bvult Var%width% VarOrVal%width%)
@@ -38,6 +39,9 @@ const std::string cmpOp_template = R"#!#!#(
  (bvuge Var%width% VarOrVal%width%) 
 )#!#!#";
 
+const std::string cmpOp_eqOnly_template = R"#!#!#(
+  (= Var%width% VarOrVal%width%)
+)#!#!#";
 
 const std::string cmpOp_template_Bool = R"#!#!#(
  (= VarBool Conj)
@@ -77,8 +81,11 @@ const std::string cmpOp_lv1_template = R"#!#!#(
  (= Exp%width% Exp%width%)
  (bvult Exp%width% Exp%width%)
  (bvule Exp%width% Exp%width%)
- (bvugt Exp%width% Exp%width%)
- (bvuge Exp%width% Exp%width%) 
+)#!#!#";
+
+
+const std::string cmpOp_lv1_eqOnly_template = R"#!#!#(
+  (= Exp%width% Exp%width%)
 )#!#!#";
 
 
@@ -98,6 +105,7 @@ const std::string exps_lv1_template = R"#!#!#(
                       (bvand VarOrVal%width% VarOrVal%width%)
                       (bvor VarOrVal%width% VarOrVal%width%)
                       (bvneg VarOrVal%width%)
+                      (bvnot VarOrVal%width%)))
 )#!#!#";
 
 const std::string syntax_arithmetic_lv1 = R"#!#!#(
@@ -119,6 +127,7 @@ const std::string syntax_arithmetic_lv1 = R"#!#!#(
 
 // ------------------- lvR templates --------------------- //
 
+const std::string & cmpOp_lvR_eqOnly_template = cmpOp_lv1_eqOnly_template;
 const std::string & cmpOp_lvR_template = cmpOp_lv1_template;
 const std::string & cmpOp_lvR_template_Bool = cmpOp_lv1_template_Bool;
 
@@ -137,7 +146,8 @@ const std::string exps_lvR_template = R"#!#!#(
                       (bvsub Exp%width% Exp%width%)
                       (bvand Exp%width% Exp%width%)
                       (bvor Exp%width% Exp%width%)
-                      (bvneg Exp%width%)
+                      (bvnot Exp%width%)
+                      (bvneg Exp%width%)))
 )#!#!#";
 
 // this is the recursive type...
@@ -226,7 +236,7 @@ void Cvc4SygusBase::arg_to_widx() {
 }
 
 // eec : extend/extract/concat
-void Cvc4SygusBase::add_val_or_var_no_eec(std::string varOrVal) const {
+void Cvc4SygusBase::add_val_or_var_no_eec(std::string & varOrVal) const {
     for(auto wn : width_to_names) {
       if(wn.first == 0) continue;
       varOrVal += ReplaceAll(VarOrVal_template, "%width%", std::to_string(wn.first));
@@ -234,7 +244,7 @@ void Cvc4SygusBase::add_val_or_var_no_eec(std::string varOrVal) const {
 } // add_val_or_var_no_eec
 
 // eec : extend/extract/concat
-void Cvc4SygusBase::add_vars_no_eec(std::string vars) const {
+void Cvc4SygusBase::add_vars_no_eec(std::string & vars) const {
     for(auto wn : width_to_names) {
       if(wn.first == 0) {
         vars += 
@@ -279,7 +289,9 @@ std::string Cvc4SygusBase::get_template_basic() const{
         cmpOp += cmpOp_template_Bool;
       }
       else {
-        std::string cmpOpSub = ReplaceAll(cmpOp_lv1_template, "%width%",
+        std::string cmpOpSub = ReplaceAll(
+          (options.UseEqOnlyBvComparison) ? cmpOp_eqOnly_template : cmpOp_template,
+          "%width%",
           std::to_string(w));
         cmpOp += cmpOpSub;
       }
@@ -296,7 +308,7 @@ std::string Cvc4SygusBase::get_template_basic() const{
   add_vals(vals);
 
   auto ret = syntax_basic;
-  ret = ReplaceAll(ret,"%arg%",      inv_arg_customize ? args : invariant_arg);
+  ret = ReplaceAll(ret,"%arg%",      inv_arg_customize ? invariant_arg : args );
   ret = ReplaceAll(ret,"%cmpOps%",   cmpOp);
   ret = ReplaceAll(ret,"%varOrVal%", varOrVal);
   ret = ReplaceAll(ret,"%vars%",     vars);
@@ -347,7 +359,9 @@ std::string Cvc4SygusBase::get_template_lv1() const{
         cmpOp += cmpOp_lv1_template_Bool;
       }
       else {
-        std::string cmpOpSub = ReplaceAll(cmpOp_lv1_template, "%width%",
+        std::string cmpOpSub = ReplaceAll( // remove the fancy comparators
+          (options.UseEqOnlyBvComparison) ? cmpOp_lv1_eqOnly_template : cmpOp_lv1_template,
+          "%width%",
           std::to_string(w));
         cmpOp += cmpOpSub;
       }
@@ -377,7 +391,7 @@ std::string Cvc4SygusBase::get_template_lv1() const{
   add_vals(vals);
 
   auto ret = syntax_arithmetic_lv1;
-  ret = ReplaceAll(ret,"%arg%",      inv_arg_customize ? args : invariant_arg);
+  ret = ReplaceAll(ret,"%arg%",      inv_arg_customize ? invariant_arg : args);
   ret = ReplaceAll(ret,"%cmpOps%",   cmpOp);
   ret = ReplaceAll(ret,"%exps%",     exps);
   ret = ReplaceAll(ret,"%varOrVal%", varOrVal);
@@ -430,8 +444,10 @@ std::string Cvc4SygusBase::get_template_lvR() const {
         cmpOp += cmpOp_lvR_template_Bool;
       }
       else {
-        std::string cmpOpSub = ReplaceAll(cmpOp_lvR_template, "%width%",
-          std::to_string(w));
+        std::string cmpOpSub = ReplaceAll(
+           (options.UseEqOnlyBvComparison) ? cmpOp_lvR_eqOnly_template : cmpOp_lvR_template,
+           "%width%",
+           std::to_string(w));
         cmpOp += cmpOpSub;
       }
     }
@@ -460,7 +476,7 @@ std::string Cvc4SygusBase::get_template_lvR() const {
   add_vals(vals);
 
   auto ret = syntax_arithmetic_lvR;
-  ret = ReplaceAll(ret,"%arg%",      inv_arg_customize ? args : invariant_arg);
+  ret = ReplaceAll(ret,"%arg%",      inv_arg_customize ? invariant_arg : args);
   ret = ReplaceAll(ret,"%cmpOps%",   cmpOp);
   ret = ReplaceAll(ret,"%exps%",     exps);
   ret = ReplaceAll(ret,"%varOrVal%", varOrVal);
@@ -472,11 +488,11 @@ std::string Cvc4SygusBase::get_template_lvR() const {
 
 
 std::string Cvc4SygusBase::get_template() const {
-  if (options.UseArithmetics == sygus_options_t::None)
+  if (options.UseArithmetics == sygus_options_t::_use_arithmetics_t::None)
     return get_template_basic();
-  if (options.UseArithmetics == sygus_options_t::Level1)
+  if (options.UseArithmetics == sygus_options_t::_use_arithmetics_t::Level1)
     return get_template_lv1();
-  if (options.UseArithmetics == sygus_options_t::Recursive)
+  if (options.UseArithmetics == sygus_options_t::_use_arithmetics_t::Recursive)
     return get_template_lvR();
   ILA_ASSERT(false) << "Incorrect sygus arithmetic syntax configuration: " << options.UseArithmetics;
   return "";

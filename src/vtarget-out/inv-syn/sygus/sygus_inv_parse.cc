@@ -33,8 +33,12 @@ SyGuSInvariantParser::SyGuSInvariantParser(YosysSmtParser * yosys_smt_info,
         );
       ILA_ASSERT(not top_sts.empty()) << "Empty top module states";
       for (auto && st : top_sts) {
-        if ( st.verilog_name.empty() )
-          _all_allowable_names.insert(st.internal_name);
+        if ( st.verilog_name.empty() ) {
+          auto n = st.internal_name;
+          if (n.front() == '|' and n.back() == '|')
+            n = n.substr(1,n.size()-2);
+          _all_allowable_names.insert(n);
+        }
         else
           _all_allowable_names.insert(st.verilog_name);
       }

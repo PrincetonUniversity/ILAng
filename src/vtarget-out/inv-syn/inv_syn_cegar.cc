@@ -69,10 +69,11 @@ void InvariantSynthesizerCegar::GenerateInvariantVerificationTarget() {
   // to send in the invariants
   advanced_parameters_t adv_param;
   adv_param._inv_obj_ptr = &inv_obj;
+  adv_param._candidate_inv_ptr = NULL;
 
   auto inv_gen_vtg_config = _vtg_config;
   inv_gen_vtg_config.target_select = inv_gen_vtg_config.INV;
-  inv_gen_vtg_config.AutoValidateSynthesizedInvariant = true; // overwrite
+  inv_gen_vtg_config.ValidateSynthesizedInvariant = vtg_config_t::_validate_synthesized_inv::ALL; // overwrite
   
   VlgVerifTgtGen vg(
       implementation_incl_path,         // include
@@ -545,7 +546,7 @@ bool InvariantSynthesizerCegar::ValidateSygusDatapointAttempt() {
 
   auto inv_gen_vtg_config = _vtg_config;
   inv_gen_vtg_config.target_select = inv_gen_vtg_config.INV;
-  inv_gen_vtg_config.AutoValidateSynthesizedInvariant = true; // overwrite
+  inv_gen_vtg_config.ValidateSynthesizedInvariant = vtg_config_t::_validate_synthesized_inv::CANDIDATE; // overwrite
   
   VlgVerifTgtGen vg(
       implementation_incl_path,         // include

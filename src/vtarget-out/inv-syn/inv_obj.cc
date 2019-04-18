@@ -118,6 +118,20 @@ const InvariantObject::extra_free_var_def_vec_t & InvariantObject::GetExtraFreeV
 }
 
 
+/// this is to support making candidate invariant as confirmed
+void InvariantObject::InsertFromAnotherInvObj(const InvariantObject & r) {
+  auto error_msg = "Potentially strange behavior in invariant object, unaccounted situation: ";
+  ILA_WARN_IF (not r.inv_extra_vlg_vars.empty()) << error_msg << "inv_extra_vlg_vars"; // should be okay I think
+  ILA_WARN_IF (not r.inv_extra_free_vars.empty()) << error_msg << "inv_extra_free_vars";
+  inv_extra_vlg_vars.insert(inv_extra_vlg_vars.end(), r.inv_extra_vlg_vars.begin(), r.inv_extra_vlg_vars.end());
+  for(auto && p : r.inv_extra_free_vars) {
+    ILA_ERROR_IF (IN(p.first,inv_extra_free_vars) and inv_extra_free_vars[p.first] != p.second )
+      << "Conflict for free var:" << p.first;
+    inv_extra_free_vars.insert(p);
+  }
+  inv_vlg_exprs.insert(inv_vlg_exprs.end(), r.inv_vlg_exprs.begin(), r.inv_vlg_exprs.end());
+}
+
 /// clear all stored invariants
 void InvariantObject::ClearAllInvariants() {
   inv_vlg_exprs.clear();

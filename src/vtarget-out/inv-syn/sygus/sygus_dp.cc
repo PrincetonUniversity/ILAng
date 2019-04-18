@@ -40,7 +40,9 @@ std::string Cvc4SygusInputGenerator::generate_datapoint_constraints(TraceDataPoi
       auto data_type_ptr = var_idx.at(vname);
       auto width = data_type_ptr->_type._width;
       ILA_ASSERT( data_type_ptr->_type.GetBoolBvWidth() 
-        == aframe.at(vname).second.GetBoolBvWidth()) << "Bit-width does not match!";
+        >= aframe.at(vname).second.GetBoolBvWidth()) << "Bit-width does not match!";
+      // they should match, but for iverilog, it does not always generate the right width
+      // iverilog's bug here!
       if (data_type_ptr->_type.is_bool())
         frame_vals.push_back( aframe.at(vname).first == 0 ? "false" : "true"  );
       else

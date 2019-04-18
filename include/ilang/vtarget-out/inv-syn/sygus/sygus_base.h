@@ -65,9 +65,9 @@ namespace ilang
     /// helper function
     static std::string convert_to_binary(unsigned v, unsigned w);
     /// make template : varOrValN
-    void add_val_or_var_no_eec(std::string varOrVal) const;
+    void add_val_or_var_no_eec(std::string & varOrVal) const;
     /// make template : vars
-    void add_vars_no_eec(std::string vars) const;
+    void add_vars_no_eec(std::string & vars) const;
     /// make template : vals
     void add_vals(std::string & val) const;
     

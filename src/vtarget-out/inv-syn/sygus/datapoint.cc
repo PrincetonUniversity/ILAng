@@ -111,8 +111,8 @@ template <> void TraceDataPoints::AddPosEx<InvCexExtractor> (const InvCexExtract
 
 // specialized instantiation
 template <> void TraceDataPoints::AddPosEx<SimTraceExtractor> (const SimTraceExtractor & ex) {
-  pos_ex.push_back(example_map_t());
   for(auto && e : ex.GetEx() ) {
+    pos_ex.push_back(example_map_t());
     for(auto && var_value : e)
       pos_ex.back().insert(
         std::make_pair(

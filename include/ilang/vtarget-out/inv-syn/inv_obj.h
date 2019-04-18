@@ -56,6 +56,8 @@ public:
   void ExportToFile(const std::string &fn) const;
   /// import invariants that has been previous exported
   void ImportFromFile(const std::string &fn);
+  /// this is to support making candidate invariant as confirmed
+  void InsertFromAnotherInvObj(const InvariantObject & r);
 
 protected:
   /// the expressions
@@ -66,7 +68,6 @@ protected:
   extra_free_var_def_vec_t inv_extra_free_vars;
   /// the buffered dut instance name
   std::string dut_inst_name;
-
 };
 
 }; // namespace ilang

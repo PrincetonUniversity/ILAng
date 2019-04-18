@@ -23,10 +23,14 @@ std::string inv_syn_tmpl_sygus = R"***(
 
 (set-logic BV)
 
-%SmtLib2%
-
+;------------------- SYNTAX ------------------------
 %Syntax%
 
+;------------------- DESIGN's SMT ------------------
+%SmtLib2%
+
+
+;--------------------- VAR DEFs --------------------
 %BeforeInitVar%
 %InitVar%
 ;(declare-var |__BI__state| Type)
@@ -38,6 +42,8 @@ std::string inv_syn_tmpl_sygus = R"***(
 ;(declare-var |__S'__state| Type)
 
 ; same for flattened
+
+;---------------- CHC-like CONSTRAINTS ----------------
 
 ; init => inv
 (constraint (=> (and 
@@ -57,14 +63,17 @@ std::string inv_syn_tmpl_sygus = R"***(
   (|%WrapperName%_t| %Ss% %Sps%)) 
   (INV %Sps%)))
 
-; inv /\ ~p => \bot
-(rule (=> (and 
+; inv => p
+(constraint (=> (and 
   (INV %Ss%)
   (|%WrapperName%_u| %Ss%) 
   (|%WrapperName%_h| %Ss%))
-  (not (|%WrapperName%_a| %Ss%))))
+  (|%WrapperName%_a| %Ss%)))
 
 (check-synth)
+
+
+;---------------- ==END== ----------------
 )***";
 
 static std::string RewriteDatatypeSygusChc(
@@ -86,7 +95,9 @@ std::string Cvc4SygusChcGenerator::smt_var_trans() const {
   const auto & datatype_top_mod = design_info.get_module_flatten_dt(wrapper_mod_name);
   auto chc = ReplaceAll(
     inv_syn_tmpl_sygus, "%Syntax%", get_template()); // "%WrapperDataType%" will be available at this point
-  return RewriteDatatypeSygusChc(chc, datatype_top_mod, wrapper_mod_name);
+  return 
+    ReplaceAll(RewriteDatatypeSygusChc(chc, datatype_top_mod, wrapper_mod_name),
+      "%SmtLib2%", smt_converted);
 }
 
 
@@ -115,9 +126,9 @@ static std::string RewriteDatatypeSygusChc(
   
   std::string chc = tmpl;
 
-  std::vector<smt::var_type> inv_tps;
-  smt::YosysSmtParser::convert_datatype_to_type_vec(dt, inv_tps);
-  auto WrapperDataType = smt::var_type::toString(inv_tps);
+  //std::vector<smt::var_type> inv_tps;
+  //smt::YosysSmtParser::convert_datatype_to_type_vec(dt, inv_tps);
+  std::string WrapperDataType; // = smt::var_type::toString(inv_tps);
 
   // %BeforeInitVar%
   // %InitVar%
@@ -150,13 +161,15 @@ static std::string RewriteDatatypeSygusChc(
     StatePrime    += "(declare-var |S'_" + st_name + "| " + type_string + ")\n";
 
     if(not first) {
-      BIs += " "; Is  += " "; Ss  += " "; Sps += " ";
+      BIs += " "; Is  += " "; Ss  += " "; Sps += " "; WrapperDataType += " ";
     }
     first = false;
     BIs += "|BI_" + st_name + "|";
     Is  += "|I_"  + st_name + "|";
     Ss  += "|S_"  + st_name + "|";
     Sps += "|S'_" + st_name + "|";
+
+    WrapperDataType += "(|"+st_name+"| " + type_string+")";
   }
   // Replacement
   chc = ReplaceAll(chc, "%WrapperName%",     wrapper_mod_name);

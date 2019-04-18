@@ -83,6 +83,17 @@ VlgSglTgtGen::VlgSglTgtGen(
                                                       // invariant/instructions
       has_flush(false), ready_type(ready_type_t::NA),
       _advanced_param_ptr(adv_ptr),
+      has_confirmed_synthesized_invariant(
+        adv_ptr && 
+        adv_ptr->_inv_obj_ptr && 
+        ! adv_ptr->_inv_obj_ptr->GetVlgConstraints().empty()),
+      has_gussed_synthesized_invariant(
+        adv_ptr && 
+        adv_ptr->_candidate_inv_ptr && 
+        ! adv_ptr->_candidate_inv_ptr->GetVlgConstraints().empty()),
+      has_rf_invariant(
+        IN("global invariants", _rf_cond) &&
+        rf_cond["global invariants"].size() != 0),
       mapping_counter(0),
       property_counter(0), top_mod_name(wrapper_name),
       vlg_design_files(implementation_srcs),
@@ -99,6 +110,14 @@ VlgSglTgtGen::VlgSglTgtGen(
 
   // reset absmem's counter
   VlgAbsMem::ClearAbsMemRecord();
+
+  if (has_rf_invariant && ! rf_cond["global invariants"].is_array()) {
+      ILA_ERROR << "'global invariants' field in refinement relation has to be a "
+                  "JSON array.";
+      _bad_state = true;
+      return;
+  }
+  
 
   if (target_type == target_type_t::INSTRUCTIONS) {
 
@@ -377,15 +396,14 @@ void VlgSglTgtGen::ConstructWrapper() {
     ILA_DLOG("VtargetGen") << "STEP:" << 5.3;
     ConstructWrapper_add_varmap_assertions();
     ILA_DLOG("VtargetGen") << "STEP:" << 5.4;
-    ConstructWrapper_add_inv_assumptions();
+    ConstructWrapper_add_inv_assumption_or_assertion_target_instruction();
   } else if (target_type == target_type_t::INVARIANTS) {
     ConstructWrapper_inv_syn_connect_mem(); // the same as inv-syn so I add it here
-    ConstructWrapper_add_inv_assertions();
+    ConstructWrapper_add_inv_assumption_or_assertion_target_invariant();
     max_bound = _vtg_config.MaxBound;
   } else if (target_type == target_type_t::INV_SYN_DESIGN_ONLY) {
     ConstructWrapper_inv_syn_connect_mem();
-    ConstructWrapper_inv_syn_add_inv_assumptions();
-    ConstructWrapper_inv_syn_add_cex_assertion();
+    ConstructWrapper_add_inv_assumption_or_assertion_target_inv_syn_design_only();    
   }
   
   ILA_DLOG("VtargetGen") << "STEP:" << 6;

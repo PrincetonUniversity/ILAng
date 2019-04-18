@@ -123,6 +123,7 @@ void SimTraceExtractor::parse_from(
     
     // build_and_check_frame(scope,rec_this_frame,renamer);
     _ex.push_back(ex_t());
+    bool successful = true;
 
     for ( VCDSignal * sig: *sigs) {
       auto scopes = collect_scope_sim(sig->scope);
@@ -143,7 +144,8 @@ void SimTraceExtractor::parse_from(
       auto hash = sig->hash;
       auto vlg_val_ptr = trace->get_signal_value_at(hash,cur_time);
       if (vlg_val_ptr == nullptr) {
-        ILA_WARN << "Parsing VCD: " << vlg_name << " gets Xs. Ignored.";
+        ILA_ERROR << "Parsing VCD: " << vlg_name << " gets Xs. Ignore this frame.";
+        successful = false;
         continue;
       }
       else {
@@ -157,7 +159,7 @@ void SimTraceExtractor::parse_from(
     } // frame is ready at this point
     ILA_ERROR_IF(_ex.back().size() != coi.size())
       << "Some COI signals are not recorded from VCD!";
-    if (not rec_this_frame(cur_time,_ex.back()))
+    if (not successful || not rec_this_frame(cur_time,_ex.back()))
       _ex.pop_back();
 
     // --------------- move to the next frame ----------------- //

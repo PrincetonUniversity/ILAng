@@ -32,149 +32,168 @@ namespace ilang {
 // should not have the flush condition set -- > because this should only be
 // called when target is invariants
 
-void VlgSglTgtGen::ConstructWrapper_add_inv_assertions() {
-  ILA_ASSERT(target_type == target_type_t::INVARIANTS)
-      << "Implementation bug: should only be used when verifying invariants";
+/*
 
-  if(_advanced_param_ptr and _advanced_param_ptr->_inv_obj_ptr
-    and not _advanced_param_ptr->_inv_obj_ptr->GetVlgConstraints().empty()
-    and _vtg_config.AutoValidateSynthesizedInvariant) {
-    // let's warn user of this case
-    ILA_WARN << "additional invariants will also be checked here.";
+What to assume and what to assert
+
+Target : INVARIANT (may not be inductive)
+
+           |  GUESSED  |  CONFIRMED |  RF provided |
+  --------------------------------------------------
+  ALL      |   assert  |   assert   |    assert    |
+  CONFIRM  |           |   assert   |    assume    |
+  CANDIDATE|   assert  |   assume   |    assume    |
+  NOINV    |           |            |    assert    |
+
+
+Target : INV_SYN_DESIGN_ONLY (reachability check)
+
+    * reset used
+
+  will call the following 3 functions
+    * ConstructWrapper_inv_syn_add_cex_assertion    --- use cex as assertion 
+    * ConstructWrapper_inv_syn_add_inv_assumptions  --- depends on InvariantSynthesisReachableCheckKeepOldInvariant
+    * ConstructWrapper_inv_syn_connect_mem (also used in INVARIANT)
+  
+  Potentially also used as invariant-Z3 flow...
+  then ConstructWrapper_inv_syn_add_cex_assertion use guessed invariant as assertion
+
+Target : INSTRUCTION
     
-    for (auto && name_expr_pair : _advanced_param_ptr->_inv_obj_ptr->GetExtraVarDefs() ){
+    * dummy_reset used
+
+  1. all will be assume
+  2. none will be assert
+  3. alert for using GUESSED
+
+*/
+
+void VlgSglTgtGen::add_inv_obj_as_assertion( InvariantObject * inv_obj) {
+  for (auto && name_expr_pair : inv_obj->GetExtraVarDefs() ){
+    vlg_wrapper.add_wire(std::get<0>(name_expr_pair), std::get<2>(name_expr_pair), true);
+    vlg_wrapper.add_assign_stmt(std::get<0>(name_expr_pair), 
+      ReplExpr(std::get<1>(name_expr_pair), true) );
+  }
+  for (auto && name_w_pair : inv_obj->GetExtraFreeVarDefs()) {
+    vlg_wrapper.add_wire(name_w_pair.first, name_w_pair.second, true);
+    vlg_wrapper.add_input(name_w_pair.first, name_w_pair.second);
+  }
+  for (auto && inv_expr : inv_obj->GetVlgConstraints()) {
+    auto new_cond = ReplExpr( inv_expr, true );
+    add_an_assertion( new_cond , "invariant_assert");
+  }
+} // add_inv_obj_as_assertion
+
+
+void VlgSglTgtGen::add_inv_obj_as_assumption( InvariantObject * inv_obj) {
+    // do you need to provide sub-module instance name?
+    for (auto && name_expr_pair : inv_obj->GetExtraVarDefs() ){
       vlg_wrapper.add_wire(std::get<0>(name_expr_pair), std::get<2>(name_expr_pair), true);
       vlg_wrapper.add_assign_stmt(std::get<0>(name_expr_pair), 
         ReplExpr(std::get<1>(name_expr_pair), true) );
     }
-    for (auto && name_w_pair : _advanced_param_ptr->_inv_obj_ptr->GetExtraFreeVarDefs()) {
+    for (auto && name_w_pair : inv_obj->GetExtraFreeVarDefs()) {
       vlg_wrapper.add_wire(name_w_pair.first, name_w_pair.second, true);
       vlg_wrapper.add_input(name_w_pair.first, name_w_pair.second);
     }
-    for (auto && inv_expr : _advanced_param_ptr->_inv_obj_ptr->GetVlgConstraints()) {
+    for (auto && inv_expr : inv_obj->GetVlgConstraints()) {
       auto new_cond = ReplExpr( inv_expr, true );
-      add_an_assertion( new_cond , "invariant_assert");
+      add_an_assumption( new_cond , "invariant_assume");
     }
-  } // additional invariants from synthesis
+} // add_inv_obj_as_assumption
 
-  // the provided invariants
-  if (not IN("global invariants", rf_cond))
-    return;
-  if (rf_cond["global invariants"].size() == 0)
-    return; // no invariants to add
-  if (not rf_cond["global invariants"].is_array()) {
-    ILA_ERROR << "'global invariants' field in refinement relation has to be a "
-                 "JSON array.";
-    return;
-  }
-  for (auto& cond : rf_cond["global invariants"]) {
-    auto new_cond = ReplExpr(cond.get<std::string>(), true); // force vlg state
-    add_an_assertion("(" + new_cond + ")", "invariant_assert");
-  }
-
-} // ConstructWrapper_add_inv_assertions
-
-
-void VlgSglTgtGen::ConstructWrapper_add_inv_assumptions() {
-  ILA_ASSERT(target_type == target_type_t::INSTRUCTIONS)
-      << "Implementation bug: inv assumpt should only be used when verifying "
-         "instructions.";
-
-  // the precondition of invariants
-  std::string precondition;
-  if (_vtg_config.OnlyEnforceInvariantsOnInitialStateOfInstrCheck)
-    precondition = has_flush ? "(~ __RESETED__) || " : "(~ __START__) || ";
-  else
-    precondition = ""; // always assume no matter what
-
-  if ( IN("global invariants", rf_cond) 
-    && rf_cond["global invariants"].size() > 0 ) {
-    if (not rf_cond["global invariants"].is_array()) {
-        ILA_ERROR << "'global invariants' field in refinement relation has to be a "
-                    "JSON array.";
-        return;
-    } // type check of global invariants
-    
-    for (auto& cond : rf_cond["global invariants"]) {
-      auto new_cond = ReplExpr(cond.get<std::string>(), true);
-      // inv-syn will ignore the precondition anyway
-      if(_backend == backend_selector::YOSYS)
-        add_a_direct_assumption(new_cond, "invariant_assume"); // without new var added
-      else
-        add_an_assumption(precondition + "(" + new_cond + ")", "invariant_assume");
-    } // for inv in global invariants field
-  } // insert from global invariant
-  
-  // check the additional invariants
-  if (_advanced_param_ptr && _advanced_param_ptr->_inv_obj_ptr) {
-    // do you need to provide sub-module instance name?
-
-    ILA_ASSERT(_backend != backend_selector::YOSYS) 
-      << "YOSYS target is for non-cegar-loop invariant synthesis,"
-      << "Please use CHC target instead.";
-
-    for (auto && name_expr_pair : _advanced_param_ptr->_inv_obj_ptr->GetExtraVarDefs() ){
-      vlg_wrapper.add_wire(std::get<0>(name_expr_pair), std::get<2>(name_expr_pair), true);
-      vlg_wrapper.add_assign_stmt(std::get<0>(name_expr_pair), 
-        ReplExpr(std::get<1>(name_expr_pair), true) );
-    }
-    for (auto && inv_expr : _advanced_param_ptr->_inv_obj_ptr->GetVlgConstraints()) {
-      auto new_cond = ReplExpr( inv_expr, true );
-      add_an_assumption( precondition + "(" + new_cond + ")" , "invariant_assume");
-    }
-  } // end of adding additional invariants
-} // ConstructWrapper_add_inv_assumptions
-
-
-void VlgSglTgtGen::ConstructWrapper_inv_syn_add_cex_assertion() {
-  ILA_ASSERT(target_type == target_type_t::INV_SYN_DESIGN_ONLY);
-  ILA_ASSERT(_advanced_param_ptr and _advanced_param_ptr->_cex_obj_ptr);
-
-  auto new_cond = ReplExpr(
-    _advanced_param_ptr->_cex_obj_ptr->GenInvAssert(""), true); // force vlg state
-
-  add_an_assertion("~(" + new_cond + ")", "cex_nonreachable_assert");
-}
-
-void VlgSglTgtGen::ConstructWrapper_inv_syn_add_inv_assumptions() {
-  ILA_ASSERT(target_type == target_type_t::INV_SYN_DESIGN_ONLY);
-  if (not _vtg_config.InvariantSynthesisReachableCheckKeepOldInvariant) {
-    ILA_INFO << "Ignore existing invariants in cex check";
-    return;
-  }
-
-  if ( IN("global invariants", rf_cond) 
-    && rf_cond["global invariants"].size() > 0 ) {
-    if (not rf_cond["global invariants"].is_array()) {
-        ILA_ERROR << "'global invariants' field in refinement relation has to be a "
-                    "JSON array.";
-        return;
-    } // type check of global invariants
-    
+void VlgSglTgtGen::add_rf_inv_as_assumption() {
+  if ( has_rf_invariant ) {    
     for (auto& cond : rf_cond["global invariants"]) {
       auto new_cond = ReplExpr(cond.get<std::string>(), true);
       add_a_direct_assumption(new_cond, "invariant_assume"); // without new var added
     } // for inv in global invariants field
-  } // insert from global invariant
+  }
+} // add_rf_inv_as_assumption
 
-  // check the additional invariants
-  if (_advanced_param_ptr && _advanced_param_ptr->_inv_obj_ptr) {
-    // do you need to provide sub-module instance name?
-    for (auto && name_expr_pair : _advanced_param_ptr->_inv_obj_ptr->GetExtraVarDefs() ){
-      vlg_wrapper.add_wire(std::get<0>(name_expr_pair), std::get<2>(name_expr_pair), true);
-      vlg_wrapper.add_assign_stmt(std::get<0>(name_expr_pair), 
-        ReplExpr(std::get<1>(name_expr_pair), true) );
+
+void VlgSglTgtGen::add_rf_inv_as_assertion() {
+  // the provided invariants
+  if (has_rf_invariant)
+    for (auto& cond : rf_cond["global invariants"]) {
+      auto new_cond = ReplExpr(cond.get<std::string>(), true); // force vlg state
+      add_an_assertion("(" + new_cond + ")", "invariant_assert");
     }
-    for (auto && name_w_pair : _advanced_param_ptr->_inv_obj_ptr->GetExtraFreeVarDefs()) {
-      vlg_wrapper.add_wire(name_w_pair.first, name_w_pair.second, true);
-      vlg_wrapper.add_input(name_w_pair.first, name_w_pair.second);
+} // add_rf_inv_as_assertion
+
+// this is for cosa 
+void VlgSglTgtGen::ConstructWrapper_add_inv_assumption_or_assertion_target_invariant () {
+  ILA_ASSERT (target_type == target_type_t::INVARIANTS);
+  if (_vtg_config.ValidateSynthesizedInvariant == vtg_config_t::_validate_synthesized_inv::NOINV && ! has_rf_invariant) {
+    ILA_ASSERT(false) << "No invariant to handle for INVARIANT target, this is a bug!";
+  }
+
+  if (_vtg_config.ValidateSynthesizedInvariant == vtg_config_t::_validate_synthesized_inv::ALL) {
+    ILA_ASSERT ( has_confirmed_synthesized_invariant || has_gussed_synthesized_invariant || has_rf_invariant )
+      << "No invariant to handle for INVARIANT target, this is a bug!";    
+    if(has_confirmed_synthesized_invariant)
+      add_inv_obj_as_assertion(_advanced_param_ptr->_inv_obj_ptr);
+    if(has_gussed_synthesized_invariant)
+      add_inv_obj_as_assertion(_advanced_param_ptr->_candidate_inv_ptr);
+    add_rf_inv_as_assertion();
+
+  } else if (_vtg_config.ValidateSynthesizedInvariant == vtg_config_t::_validate_synthesized_inv::CANDIDATE) {
+    ILA_ASSERT(has_gussed_synthesized_invariant)  << "No invariant to handle for INVARIANT target, need candidate invariant!";
+    // check candidate
+    add_inv_obj_as_assertion(_advanced_param_ptr->_candidate_inv_ptr);
+    // assume rf and confirmed
+    if (has_confirmed_synthesized_invariant)
+      add_inv_obj_as_assumption(_advanced_param_ptr->_inv_obj_ptr);
+    add_rf_inv_as_assumption();
+
+  } else if (_vtg_config.ValidateSynthesizedInvariant == vtg_config_t::_validate_synthesized_inv::CONFIRMED) {
+    ILA_INFO_IF(has_confirmed_synthesized_invariant) << "Will ignore candidate invariants when checking confirmed invariants";
+    ILA_ASSERT(has_confirmed_synthesized_invariant)  << "No invariant to handle for INVARIANT target, need candidate invariant!";
+    // check confirmed
+    add_inv_obj_as_assertion(_advanced_param_ptr->_inv_obj_ptr);
+    // assume rf
+    add_rf_inv_as_assumption();
+  }
+}
+
+void VlgSglTgtGen::ConstructWrapper_add_inv_assumption_or_assertion_target_instruction () {
+  ILA_ASSERT (target_type == target_type_t::INSTRUCTIONS);
+  ILA_WARN_IF(has_gussed_synthesized_invariant) << "Using guessed invariants also, please check to confirm them!";
+  
+  // -- assertions -- //
+  // > NONE
+
+  // -- assumption -- //
+  if(has_confirmed_synthesized_invariant)
+    add_inv_obj_as_assumption(_advanced_param_ptr->_inv_obj_ptr);
+  if(has_gussed_synthesized_invariant)
+    add_inv_obj_as_assumption(_advanced_param_ptr->_candidate_inv_ptr);
+  add_rf_inv_as_assumption();
+}
+
+
+void VlgSglTgtGen::ConstructWrapper_add_inv_assumption_or_assertion_target_inv_syn_design_only () {
+  ILA_ASSERT (target_type == target_type_t::INV_SYN_DESIGN_ONLY);
+
+  // -- assertions -- //
+  ILA_ASSERT(_advanced_param_ptr and _advanced_param_ptr->_cex_obj_ptr); // cex must be available !
+  auto new_cond = ReplExpr(
+    _advanced_param_ptr->_cex_obj_ptr->GenInvAssert(""), true); // force vlg state
+
+  add_an_assertion("~(" + new_cond + ")", "cex_nonreachable_assert");
+
+  // -- assumption -- //
+  if (_vtg_config.InvariantSynthesisReachableCheckKeepOldInvariant) {
+    add_rf_inv_as_assumption();
+    if (has_confirmed_synthesized_invariant)
+      add_inv_obj_as_assumption(_advanced_param_ptr->_inv_obj_ptr);
+    if (has_confirmed_synthesized_invariant) {
+      ILA_WARN << "Using guessed invariants also, please check to confirm them!";
+      add_inv_obj_as_assumption(_advanced_param_ptr->_candidate_inv_ptr);
     }
-    for (auto && inv_expr : _advanced_param_ptr->_inv_obj_ptr->GetVlgConstraints()) {
-      auto new_cond = ReplExpr( inv_expr, true );
-      add_an_assumption( new_cond , "invariant_assume");
-    }
-  } // end of adding additional invariants
-} // ConstructWrapper_inv_syn_add_inv_assumptions
+  }
+}
+
 
 
 void VlgSglTgtGen::ConstructWrapper_inv_syn_connect_mem() {

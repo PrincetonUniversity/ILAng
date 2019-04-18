@@ -223,10 +223,18 @@ void VlgVerifTgtGen::GenerateTargets(void) {
       else if (inv.is_string() and inv.get<std::string>() != "")
         invariantExists = true;
       else if (
-        _vtg_config.AutoValidateSynthesizedInvariant and
-        _advanced_param_ptr->_inv_obj_ptr != NULL and 
-        _advanced_param_ptr->_inv_obj_ptr != NULL and
-        ! _advanced_param_ptr->_inv_obj_ptr->GetVlgConstraints().empty())
+        ( _vtg_config.ValidateSynthesizedInvariant == vtg_config_t::_validate_synthesized_inv::ALL or
+          _vtg_config.ValidateSynthesizedInvariant == vtg_config_t::_validate_synthesized_inv::CONFIRMED
+        ) and
+        (_advanced_param_ptr->_inv_obj_ptr != NULL and 
+          not _advanced_param_ptr->_inv_obj_ptr->GetVlgConstraints().empty()))
+        invariantExists = true;
+      else if (
+        ( _vtg_config.ValidateSynthesizedInvariant == vtg_config_t::_validate_synthesized_inv::ALL or
+          _vtg_config.ValidateSynthesizedInvariant == vtg_config_t::_validate_synthesized_inv::CANDIDATE
+        ) and
+        (_advanced_param_ptr->_candidate_inv_ptr != NULL and 
+          not _advanced_param_ptr->_candidate_inv_ptr->GetVlgConstraints().empty()))
         invariantExists = true;
     }
     auto sub_output_path = os_portable_append_dir(_output_path, "invariants");

@@ -102,14 +102,16 @@ public:
     /// Configure the behavior of INV target, if false,
     /// will not check synthesized invariants by default (unless call generateInvariantVerificationTarget)
     /// if true, will check by default
-    bool AutoValidateSynthesizedInvariant;
+    enum _validate_synthesized_inv { NOINV, CANDIDATE, CONFIRMED, ALL } ValidateSynthesizedInvariant;
     // ----------- Options for SyGuS Solver for Invariant Synthesis ----------- //
     /// The path to CVC4, if "cvc4" is not in the PATH, default empty
     std::string Cvc4Path;
     /// the SyGuS solver options --- not limited to CVC4
     struct _sygus_options_t{
       /// The type of synthesis (datapoint/transfer function)
-      enum {DataPoints, TransferFunc} SygusPassInfo;
+      enum _sygus_pass_info_t {DataPoints, TransferFunc} SygusPassInfo;
+      /// whether to use bvcomparison
+      bool UseEqOnlyBvComparison;
 
       /// whether to use bit extension
       bool UseExtend;
@@ -135,7 +137,7 @@ public:
       std::set<std::string> ConcatVars;
 
       /// future: use arithmetics?
-      enum {None, Level1, Recursive} UseArithmetics;
+      enum _use_arithmetics_t {None, Level1, Recursive} UseArithmetics;
 
       /// constants in the syntax
       /// add all constants if it is or below this size
@@ -146,9 +148,10 @@ public:
 
       // default constructor
       _sygus_options_t() :
-        SygusPassInfo(DataPoints),
+        SygusPassInfo(_sygus_pass_info_t::DataPoints),
+        UseEqOnlyBvComparison(true),
         UseExtend(false), UseExtract(false), 
-        UseConcat(false) , UseArithmetics(None),
+        UseConcat(false) , UseArithmetics(_use_arithmetics_t::None),
         AllConstantUnderThisSize(4) {}
     }; // the options
     _sygus_options_t SygusOptions;
@@ -169,7 +172,7 @@ public:
           YosysSmtArrayForRegFile(false), YosysSmtStateSort(DataSort),
           VerificationSettingAvoidIssueStage(false), YosysSmtFlattenHierarchy(false),
           YosysSmtFlattenDatatype(false), InvariantSynthesisReachableCheckKeepOldInvariant(false),
-          AutoValidateSynthesizedInvariant(false)  {}
+          ValidateSynthesizedInvariant(_validate_synthesized_inv::NOINV)  {}
   } vtg_config_t;
 
   /// NOTE: this function can be inherited
@@ -177,10 +180,15 @@ public:
   typedef struct _adv_parameters {
     /// invariant object
     InvariantObject * _inv_obj_ptr;
+    /// candidate invariants object
+    InvariantObject * _candidate_inv_ptr;
     /// counterexample object
     CexExtractor * _cex_obj_ptr;
     /// The default constructor for default values
-    _adv_parameters() : _inv_obj_ptr(NULL), _cex_obj_ptr(NULL) {}
+    _adv_parameters() : 
+      _inv_obj_ptr(NULL),
+      _candidate_inv_ptr(NULL),
+      _cex_obj_ptr(NULL) {}
     /// virtual destructor
     virtual ~_adv_parameters() {};
   } advanced_parameters_t;
