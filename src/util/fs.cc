@@ -167,14 +167,14 @@ std::string os_portable_remove_file_name_extension(const std::string fname) {
 }
 
 
-int child_pid;
-bool shared_time_out;
+volatile sig_atomic_t child_pid;
+volatile sig_atomic_t shared_time_out;
 
 #if defined(__unix__) || defined(unix) || defined(__APPLE__) || defined(__MACH__) || defined(__linux__) || defined(__FreeBSD__)
 void parent_alarm_handler(int signum) {
   if (child_pid != 0) {
     kill(child_pid, SIGKILL);
-    shared_time_out = true;
+    shared_time_out = 1;
   }
 }
 #endif
@@ -259,7 +259,6 @@ execute_result os_portable_execute_shell(
   if (pid == 0) {
     close(pipefd[0]); // close the read end
     int report_to_parent;
-    child_pid = pid;
 
     // The child
     // will replace the image and execute the bash
@@ -328,9 +327,11 @@ execute_result os_portable_execute_shell(
       return _ret;
     }
 
+    child_pid = pid;
+    
     // set alarm
     if(timeout != 0) {
-      shared_time_out = false;
+      shared_time_out = 0;
       new_act.sa_handler = parent_alarm_handler;
       sigemptyset (&new_act.sa_mask);
       new_act.sa_flags = 0;
@@ -346,14 +347,18 @@ execute_result os_portable_execute_shell(
       sigaction(SIGALRM, &old_act, NULL); // restore the old one
     }
     
-    if (wait_pid_res == -1) {
+    if (timeout == 0 && wait_pid_res == -1) {
       _ret.failure = execute_result::WAIT;
+      perror(NULL);
       return _ret;
     }
 
+    if (wait_pid_res != -1)
+      _ret.subexit_normal = WIFEXITED(infop);
+
     // read again, if exec suceeded, it should be EOF (read will fail)
     int sec_read = read(pipefd[0], (void *) &child_report, sizeof(child_report));
-    if (sec_read != -1) {
+    if (sec_read != 0) { // not eof
       _ret.failure = execute_result::EXEC;
       return _ret;
     }

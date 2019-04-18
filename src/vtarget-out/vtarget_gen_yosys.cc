@@ -412,8 +412,12 @@ YosysDesignSmtInfo VlgSglTgtGen_Yosys::dual_inv_gen_smt(
   // execute it
   std::vector<std::string> cmd;
   cmd.push_back(yosys); cmd.push_back("-s"); cmd.push_back(ys_full_name);
-  ILA_ERROR_IF( not os_portable_execute_shell( cmd ) )
-    << "Executing Yosys failed!";
+
+  auto res = os_portable_execute_shell( cmd ); // this does not redirect
+    ILA_ERROR_IF( res.failure != res.NONE  )
+      << "Executing Yosys failed!";
+    ILA_ERROR_IF( res.failure == res.NONE && res.ret != 0)
+      << "Yosys returns error code:" << res.ret;
 
   YosysDesignSmtInfo ret;
   { // now read in the file 

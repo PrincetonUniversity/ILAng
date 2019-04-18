@@ -38,6 +38,8 @@ struct execute_result {
   enum _failure {FORK, PREIO, ALARM, ARG, EXEC, WAIT, NONE } failure;
   /// return value
   unsigned ret;
+  /// true if it exits with _exit() call
+  bool subexit_normal;
 };
 
 /// the type of redirect

@@ -62,14 +62,14 @@ bool InvariantSynthesizerCegar::check_in_bad_state() const {
 
 // -------------------------------- VERIFICATION TARGETS ------------------------------------------- //
 
-/// to generate a target to validate the given and synthesize invariants
+/// to generate a target to validate the given and synthesize invariants and guessed ones
 void InvariantSynthesizerCegar::GenerateInvariantVerificationTarget() {
   if (check_in_bad_state()) return;
 
   // to send in the invariants
   advanced_parameters_t adv_param;
   adv_param._inv_obj_ptr = &inv_obj;
-  adv_param._candidate_inv_ptr = NULL;
+  adv_param._candidate_inv_ptr = &inv_candidate;
 
   auto inv_gen_vtg_config = _vtg_config;
   inv_gen_vtg_config.target_select = inv_gen_vtg_config.INV;
@@ -321,10 +321,11 @@ bool InvariantSynthesizerCegar::RunVerifAuto(unsigned problem_idx) {
   ILA_ERROR_IF(not os_portable_chdir(new_wd)) 
     << "RunVerifAuto: cannot change dir to:" << new_wd;
   ILA_INFO << "Executing verify script:" << runnable_script_name[problem_idx];
-  ILA_ERROR_IF(not os_portable_execute_shell({"bash", 
+  auto res = os_portable_execute_shell({"bash", 
     os_portable_file_name_from_path( runnable_script_name[problem_idx]) },
-   redirect_fn, redirect_t::BOTH))
-  << "Running verification script " << runnable_script_name[problem_idx] << " results in error."; 
+   redirect_fn, redirect_t::BOTH);
+  ILA_ERROR_IF(res.failure != execute_result::NONE)
+    << "Running verification script " << runnable_script_name[problem_idx] << " results in error."; 
   ILA_ASSERT(os_portable_chdir(cwd));
   // the last line contains the result
   // above it you should have *** TRACES ***
@@ -360,10 +361,11 @@ bool InvariantSynthesizerCegar::RunSynAuto() {
   ILA_ERROR_IF(not os_portable_chdir(new_wd)) 
     << "RunVerifAuto: cannot change dir to:" << new_wd;
   ILA_INFO << "Executing synthesis script:" <<  runnable_script_name[0] ;
-  ILA_ERROR_IF(not os_portable_execute_shell({"bash",
+  auto res = os_portable_execute_shell({"bash",
     os_portable_file_name_from_path( runnable_script_name[0] )},
-    redirect_fn, redirect_t::BOTH))
-  << "Running synthesis script " << runnable_script_name[0] << " results in error."; 
+    redirect_fn, redirect_t::BOTH);
+  ILA_ERROR_IF(res.failure != execute_result::NONE )
+    << "Running synthesis script " << runnable_script_name[0] << " results in error."; 
   ILA_ASSERT(os_portable_chdir(cwd));
   
   std::string line;
@@ -576,10 +578,11 @@ bool InvariantSynthesizerCegar::ValidateSygusDatapointAttempt() {
   ILA_ERROR_IF(not os_portable_chdir(new_wd)) 
     << "RunVerifAuto: cannot change dir to:" << new_wd;
   ILA_INFO << "Executing verify script:" << inv_validate_script[0];
-  ILA_ERROR_IF(not os_portable_execute_shell({"bash", 
+  auto res = os_portable_execute_shell({"bash", 
     os_portable_file_name_from_path( inv_validate_script[0]) },
-   redirect_fn, redirect_t::BOTH))
-  << "Running verification script " << inv_validate_script[0] << " results in error."; 
+   redirect_fn, redirect_t::BOTH);
+  ILA_ERROR_IF(res.failure != execute_result::NONE)
+    << "Running verification script " << inv_validate_script[0] << " results in error."; 
   ILA_ASSERT(os_portable_chdir(cwd));
   // the last line contains the result
   // above it you should have *** TRACES ***

@@ -510,9 +510,11 @@ void VlgSglTgtGen_Chc::design_only_gen_smt(
   // execute it
   std::vector<std::string> cmd;
   cmd.push_back(yosys); cmd.push_back("-s"); cmd.push_back(ys_script_name);
-  ILA_ERROR_IF( not os_portable_execute_shell( cmd, ys_output_full_name ) )
-    << "Executing Yosys failed!";
-
+  auto res = os_portable_execute_shell( cmd, ys_output_full_name );
+    ILA_ERROR_IF( res.failure != res.NONE  )
+      << "Executing Yosys failed!";
+    ILA_ERROR_IF( res.failure == res.NONE && res.ret != 0)
+      << "Yosys returns error code:" << res.ret;
 } // design_only_gen_smt
 
 

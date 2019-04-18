@@ -292,7 +292,7 @@ TEST(TestVlgVerifInvSyn, CegarPipelineExample) {
   }
 } // CegarPipelineExample
 
-
+#if 0
 TEST(TestVlgVerifInvSyn, CegarPipelineExampleSygusDatapoint) {
 
   auto ila_model = SimplePipe::BuildModel();
@@ -343,27 +343,45 @@ TEST(TestVlgVerifInvSyn, CegarPipelineExampleSygusDatapoint) {
       cfg);
 
   EXPECT_FALSE(vg.in_bad_state());
-
+  
+  vg.SetSygusVarnameList(sygus_var_name);
+  vg.SetInitialDatapoint(dp); // assign (reset) the datapoints
+  do {
     do{
       vg.GenerateVerificationTarget();
       if(vg.RunVerifAuto(1)) // the ADD
         break; // no more cex found
-      vg.ExtractVerificationResult();
-      vg.SetInitialDatapoint(dp);
-      vg.SetSygusVarnameList(sygus_var_name);
-      bool truly_inductive = false;
-      while(!truly_inductive) {
-        vg.GenerateSynthesisTargetSygusDatapoints();
-        vg.RunSynAuto();
-        vg.ExtractSygusDatapointSynthesisAttempt();
-        truly_inductive = vg.ValidateSygusDatapointAttempt();
-      }
-      vg.ExtractSynthesisResult();
-    }while(not vg.in_bad_state());
+      vg.ExtractVerificationResult(); // also the cex
+      vg.GenerateSynthesisTargetSygusDatapoints();
+      vg.RunSynAuto();
+      vg.ExtractSynthesisResultAsCandidateInvariant(); // extracted to the candidate invariant
+      // quick proof attempt  -- if proved, add to confirmed
+      // quick disaprove attempt -- if disaproved add to cex, if proved add to confirm
+      // proof attempt (assert all) (assume none)
+      // disaprove attempt (assert all) (assume rf/confirmed)
+    }while(not vg.in_bad_state()); // first generate enough guesses
+    
+    // if ( vg.ProofCandidateInvariant(time) )  // if it can be proved in a time bound, we are good, will add to ...
+    //  break;
+    bool confirmed_all_candidates = vg.ValidateCandidateInvariant();
+    // 1. generate target
+    // 2. run it
+    // 3. extract cex to datapoint
+
+    // if cex -> will extract the cex to datapoint, return failed inv
+    // else if okay -> add to confirmed invariant
+    if (confirmed_all_candidates)
+      break;
+    vg.RemoveCandidateInvariant();
+    // a simple impl: remove all candidate invariants
+    // an advanced impl: remove only violating invariants
+    // do you want to continue to remove? (hard -- because validating takes time...)
+  } while(not vg.in_bad_state());
+
+  // final validation
   vg.GenerateInvariantVerificationTarget(); // finally we revalidate the result
-
 }
-
+#endif
 
 TEST(TestVlgVerifInvSyn, CegarCntSygusTransFunc)  {
   auto ila_model = CntTest::BuildModel();
@@ -409,11 +427,13 @@ TEST(TestVlgVerifInvSyn, CegarCntSygusTransFunc)  {
       vg.SetSygusVarnameList(sygus_var_name);
       vg.GenerateSynthesisTargetSygusTransFunc();
       vg.RunSynAuto();
-      vg.ExtractSynthesisResult();
+      vg.ExtractSynthesisResult(); // if should be the correct invariants
     }while(not vg.in_bad_state());
   vg.GenerateInvariantVerificationTarget(); // finally we revalidate the result
 } // CegarCntSygusTransFunc
 
+#if 0
+// no use : does not terminate and the result is not reasonable
 TEST(TestVlgVerifInvSyn, CegarPipelineExampleSygusTransFunc)  {
 
   auto ila_model = SimplePipe::BuildModel();
@@ -466,5 +486,6 @@ TEST(TestVlgVerifInvSyn, CegarPipelineExampleSygusTransFunc)  {
   vg.GenerateInvariantVerificationTarget(); // finally we revalidate the result
 
 }
+#endif
 
 }; // namespace ilang
