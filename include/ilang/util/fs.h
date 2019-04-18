@@ -30,11 +30,23 @@ std::string os_portable_append_dir(const std::string& dir1,
 /// C:\\a.txt -> C:\\a   or  /a/b/c.txt -> a/b/c
 std::string os_portable_remove_file_name_extension(const std::string fname);
 
+/// the result from executing
+struct execute_result {
+  /// has timeout
+  bool timeout;
+  /// failed execution
+  enum _failure {FORK, PREIO, ALARM, ARG, EXEC, WAIT, NONE } failure;
+  /// return value
+  unsigned ret;
+};
+
 /// the type of redirect
 enum redirect_t {NONE = 0 , STDOUT = 1 , STDERR = 2, BOTH = 3};
-/// execute some executables that are shell scripts
-bool os_portable_execute_shell(const std::vector<std::string> & cmdargs, 
-    const std::string & redirect_output_file = "", redirect_t rdt = redirect_t::BOTH);
+/// execute some executables that are shell scripts,
+/// timeout (if 0 will wait forever)
+execute_result os_portable_execute_shell(const std::vector<std::string> & cmdargs, 
+    const std::string & redirect_output_file = "", redirect_t rdt = redirect_t::BOTH,
+    unsigned timeout = 0);
 
 /// Extract filename from path
 /// C:\a\b\c.txt -> c.txt

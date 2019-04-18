@@ -167,14 +167,34 @@ std::string os_portable_remove_file_name_extension(const std::string fname) {
 }
 
 
-bool os_portable_execute_shell(
+int child_pid;
+bool shared_time_out;
+
+#if defined(__unix__) || defined(unix) || defined(__APPLE__) || defined(__MACH__) || defined(__linux__) || defined(__FreeBSD__)
+void parent_alarm_handler(int signum) {
+  if (child_pid != 0) {
+    kill(child_pid, SIGKILL);
+    shared_time_out = true;
+  }
+}
+#endif
+
+execute_result os_portable_execute_shell(
   const std::vector<std::string> & cmdargs,
   const std::string & redirect_output_file,
-  redirect_t rdt ) 
+  redirect_t rdt,
+  unsigned timeout ) 
 {
+  int pipefd[2];
+  execute_result _ret;
+
+  _ret.timeout = false;
+  
   auto cmdline = Join(cmdargs, ",");
   ILA_ASSERT(not cmdargs.empty()) << "API misuse!";
+
 #if defined(_WIN32) || defined(_WIN64)
+  ILA_ERROR_IF(timeout != 0) << "Timeout feature is not supported on WIN.";
   HANDLE h;
   if (not redirect_output_file.empty() and rdt != redirect_t::NONE) {
     SECURITY_ATTRIBUTES sa;
@@ -214,19 +234,33 @@ bool os_portable_execute_shell(
       NULL,           // Use parent's starting directory 
       &si,            // Pointer to STARTUPINFO structure
       &pi )           // Pointer to PROCESS_INFORMATION structure
-    )
-    return false; // failed
+    ) {
+      _ret.failure = execute_result::EXEC;
+      return _ret;
+    }
   CloseHandle(pi.hProcess);
   CloseHandle(pi.hThread);
-  return true; 
+  _ret.failure = execute_result::NONE;
+  return _ret; 
 #else
+  // set up the pipe to transfer subprocess's information before exec
+  // so close on exec
+  pipe2(pipefd, O_CLOEXEC); // 
   // on *nix, spawn a child process to do this
   pid_t pid = fork();
   
-  if (pid == -1) // not able to create no process
-    return false;
+  if (pid == -1) {
+    _ret.failure = execute_result::FORK;
+    // not able to create no process
+    return _ret;
+  }
 
+  // now forked ...
   if (pid == 0) {
+    close(pipefd[0]); // close the read end
+    int report_to_parent;
+    child_pid = pid;
+
     // The child
     // will replace the image and execute the bash
     ILA_INFO<<"Execute subprocess: [" << cmdline << "]";
@@ -237,6 +271,8 @@ bool os_portable_execute_shell(
       if (fd < 0) {
         perror(NULL);
         ILA_ERROR << "Failed to open " << redirect_output_file;
+        report_to_parent = execute_result::PREIO;
+        write(pipefd[1], (void *) & report_to_parent, sizeof(report_to_parent));
         exit(1);
       }
       if (rdt & redirect_t::STDOUT)
@@ -252,7 +288,13 @@ bool os_portable_execute_shell(
 
     const int MAX_ARG = 64;
     char * argv[MAX_ARG];
-    ILA_ASSERT(cmdargs.size() < MAX_ARG) << "Too many args";
+    if (cmdargs.size() >= MAX_ARG) {
+      ILA_ERROR <<"Too many args";
+      report_to_parent = execute_result::ARG;
+      write(pipefd[1], (void *) & report_to_parent, sizeof(report_to_parent));
+      exit(1);
+    }
+    //ILA_ASSERT(cmdargs.size() < MAX_ARG) << "Too many args";
 
     for(auto it = cmdargs.begin(); it != cmdargs.end(); ++ it) {
       // this is memory leak, I know, but what can I do ?
@@ -261,22 +303,67 @@ bool os_portable_execute_shell(
     }
     argv[ cmdargs.size() ] = NULL;
 
-    exit( execvp(cmdargs[0].c_str(), argv));
+    report_to_parent = execute_result::NONE;
+    write(pipefd[1], (void *) & report_to_parent, sizeof(report_to_parent));
+
+    int ret = execvp(cmdargs[0].c_str(), argv);
+    // if not successful
+    if (ret == -1) {
+      report_to_parent = execute_result::NONE;
+      write(pipefd[1], (void *) & report_to_parent, sizeof(report_to_parent));
+    }
+    exit(ret);
   } else {
     // The parent will wait for its end
     int infop;
-    if( waitpid(pid, &infop, 0) == -1 )
-      return false; // failed call (should not happen normally)
-    if(WEXITSTATUS(infop) != 0) {
-      ILA_ERROR 
-        << "Subprocess [" << cmdline 
-        << "] failed with return code: "
-        << WEXITSTATUS(infop);
-      return false;
-    }
-  }
-  return true;
+    int child_report;
+    struct sigaction new_act;
+    struct sigaction old_act;
 
+    close(pipefd[1]); // close the write end
+    read(pipefd[0], (void *) &child_report, sizeof(child_report));
+    if (child_report != execute_result::NONE) {
+      // the child has error before exec
+      _ret.failure = static_cast<execute_result::_failure>( child_report) ;
+      return _ret;
+    }
+
+    // set alarm
+    if(timeout != 0) {
+      shared_time_out = false;
+      new_act.sa_handler = parent_alarm_handler;
+      sigemptyset (&new_act.sa_mask);
+      new_act.sa_flags = 0;
+
+      sigaction(SIGALRM, &new_act, &old_act);
+      alarm(timeout);
+    }
+    // wait for sub-process
+    int wait_pid_res = waitpid(pid, &infop, 0);
+    
+    if(timeout != 0) {
+      alarm(0); //cancel if previously set
+      sigaction(SIGALRM, &old_act, NULL); // restore the old one
+    }
+    
+    if (wait_pid_res == -1) {
+      _ret.failure = execute_result::WAIT;
+      return _ret;
+    }
+
+    // read again, if exec suceeded, it should be EOF (read will fail)
+    int sec_read = read(pipefd[0], (void *) &child_report, sizeof(child_report));
+    if (sec_read != -1) {
+      _ret.failure = execute_result::EXEC;
+      return _ret;
+    }
+
+    _ret.ret = WEXITSTATUS(infop);
+    _ret.failure = execute_result::NONE;
+    _ret.timeout = timeout != 0 && shared_time_out;
+
+    return _ret;
+  } // end of parent
 #endif
 }
 
