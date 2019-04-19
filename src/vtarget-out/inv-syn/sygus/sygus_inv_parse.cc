@@ -66,10 +66,13 @@ bool SyGuSInvariantParser::ParseInvResultFromFile(const std::string & fname) {
 
   std::stringstream sbuf;
   sbuf << fin.rdbuf(); // different from original, it starts (define-fun)
-  ParseSmtResultFromString(correct_cvc4_bv_output(sbuf.str()));
+  raw_string = correct_cvc4_bv_output(sbuf.str());
+  ParseSmtResultFromString(raw_string);
   return true;
 }
 
+
+std::string SyGuSInvariantParser::GetRawSmtString() const { return raw_string; }
 
 std::string SyGuSInvariantParser::correct_cvc4_bv_output(const std::string & in) {
   return ReplaceAll(in, "(BitVec", "(_ BitVec");

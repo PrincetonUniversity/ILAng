@@ -109,14 +109,19 @@ public:
   /// to generate synthesis target (for using the whole transfer function)
   void GenerateSynthesisTargetSygusDatapoints();
   /// to extract the synthesis attempt
-  void ExtractSygusDatapointSynthesisAttempt();
+  void ExtractSygusDatapointSynthesisResultAsCandidateInvariant();
   /// to validate if the previous attempt is good (inductive or not)
   /// return true if the invariants are good/o.w. will auto load to datapoint's pos ex
   bool ValidateSygusDatapointAttempt();
+  bool ValidateSygusDatapointCandidateInvariant();
   /// set the initial datapoints (can be empty, but we suggest using the sim_trace_extract)
   void SetInitialDatapoint(const TraceDataPoints &dp);
   /// set the sygus name lists (cannot be empty)
   void SetSygusVarnameList(const std::vector<std::string> & sygus_var_name);
+  /// Forcing to accept all the candidate invariants
+  void AcceptAllCandidateInvariant();
+  /// Remove potentially failing candidate invariants (conservative approach remove all candidates)
+  void RemoveCandidateInvariant();
 
 
 protected:

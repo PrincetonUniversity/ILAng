@@ -194,6 +194,8 @@ namespace smt{
   /// parse from string to smt-ast
   void ParseFromString(str_iterator & it, smt_file & smt);
 
+  /// helper function
+  std::string convert_to_binary(unsigned v, unsigned w);
 }; // namespace smt
 }; // namespace ilang
   

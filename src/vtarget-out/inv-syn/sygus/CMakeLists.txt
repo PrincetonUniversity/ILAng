@@ -12,6 +12,7 @@ target_sources(${ILANG_LIB_NAME} PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/sygus_dp.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/vtarget_gen_inv_sygus.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/datapoint.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/datapoint_inv_prune.cc
 )
 
 

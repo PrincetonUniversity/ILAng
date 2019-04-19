@@ -482,5 +482,19 @@ std::string smt_file::toString() const {
   }
   return ret;
 }
+
+
+std::string convert_to_binary(unsigned v, unsigned w) {
+  std::string ret;
+  for (int i = 0; i < w; ++i) {
+    ret = std::to_string(v&1) + ret;
+    v = v >> 1;
+  }
+  ILA_ASSERT(v == 0);
+  ILA_ASSERT(ret.size() == w);
+  return "#b" + ret;
+}
+
+
 }; // namespace smt
 }; // namespace ilang

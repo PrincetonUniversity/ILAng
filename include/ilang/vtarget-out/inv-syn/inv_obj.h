@@ -13,6 +13,7 @@
 
 namespace ilang {
 
+
 /// \brief the invariant object, it needs smt-info to parse
 class InvariantObject{
 public:
@@ -23,6 +24,8 @@ public:
   typedef std::vector <std::tuple<std::string,std::string, int>> extra_var_def_vec_t;
   /// the vector  of free var defs exprs
   typedef std::map <std::string, int> extra_free_var_def_vec_t;
+  /// the vector of original smt-formula for datapoint attempt
+  typedef std::vector <std::string>  smt_formula_vec_t;
   // ----------- CONSTRUCTOR ---------- //
   /// empty invariants
   InvariantObject();
@@ -48,6 +51,8 @@ public:
   const extra_var_def_vec_t & GetExtraVarDefs() const;
   /// get the free vars
   const extra_free_var_def_vec_t & GetExtraFreeVarDefs() const;
+  /// get the smt formula
+  const smt_formula_vec_t & GetSmtFormulae() const;
   /// called by the target generator?
   void set_dut_inst_name(const std::string & name);
   /// clear all stored invariants
@@ -58,6 +63,10 @@ public:
   void ImportFromFile(const std::string &fn);
   /// this is to support making candidate invariant as confirmed
   void InsertFromAnotherInvObj(const InvariantObject & r);
+  /// the number of invariants
+  size_t NumInvariant() const;
+  /// remove an invariant by its index
+  void RemoveInvByIdx(size_t idx);
 
 protected:
   /// the expressions
@@ -66,6 +75,8 @@ protected:
   extra_var_def_vec_t inv_extra_vlg_vars;
   /// the extra free variables // there might be repetition // check it
   extra_free_var_def_vec_t inv_extra_free_vars;
+  /// the original smt formula
+  smt_formula_vec_t smt_formula_vec;
   /// the buffered dut instance name
   std::string dut_inst_name;
 };

@@ -46,6 +46,8 @@ void InvariantObject::AddInvariantFromChcResultFile(
   }
   ILA_ASSERT(not parser.in_bad_state());
   inv_vlg_exprs.push_back( parser.GetFinalTranslateResult() );
+  smt_formula_vec.push_back( "" ); // empty string for chc (including sygus chc) : no need
+
   for (auto && name_vlg_pair : parser.GetLocalVarDefs()) {
     inv_extra_vlg_vars.push_back(std::make_tuple(
       name_vlg_pair.first,
@@ -83,6 +85,11 @@ void InvariantObject::AddInvariantFromSygusResultFile(
   auto inv_extracted = parser.GetFinalTranslateResult();
   ILA_ASSERT(not inv_extracted.empty()) << "Parser failed to extract invariant, got empty string!";
   inv_vlg_exprs.push_back( inv_extracted );
+
+  auto raw_smt = parser.GetRawSmtString();
+  ILA_ASSERT(not raw_smt.empty()) << "Parser failed to extract raw smt string, got empty string!";
+  smt_formula_vec.push_back( raw_smt );
+
   for (auto && name_vlg_pair : parser.GetLocalVarDefs()) {
     inv_extra_vlg_vars.push_back(std::make_tuple(
       name_vlg_pair.first,
@@ -103,6 +110,10 @@ void InvariantObject::AddInvariantFromVerilogExpr(const std::string & tag, const
   inv_vlg_exprs.push_back(vlg_in);
 }
 
+
+const InvariantObject::smt_formula_vec_t & InvariantObject::GetSmtFormulae() const {
+  return smt_formula_vec;
+}
 
 const InvariantObject::inv_vec_t & InvariantObject::GetVlgConstraints() const {
   return inv_vlg_exprs;
@@ -130,6 +141,7 @@ void InvariantObject::InsertFromAnotherInvObj(const InvariantObject & r) {
     inv_extra_free_vars.insert(p);
   }
   inv_vlg_exprs.insert(inv_vlg_exprs.end(), r.inv_vlg_exprs.begin(), r.inv_vlg_exprs.end());
+  smt_formula_vec.insert(smt_formula_vec.end(), r.smt_formula_vec.begin(), r.smt_formula_vec.end());
 }
 
 /// clear all stored invariants
@@ -137,10 +149,17 @@ void InvariantObject::ClearAllInvariants() {
   inv_vlg_exprs.clear();
   inv_extra_free_vars.clear();
   inv_extra_vlg_vars.clear();
+  smt_formula_vec.clear();
 }
+
+size_t InvariantObject::NumInvariant() const {
+  return inv_vlg_exprs.size();
+}
+
 /// export invariants to a file
 void InvariantObject::ExportToFile(const std::string &fn) const {
   std::ofstream fout(fn);
+  ILA_WARN << "Will not preserve the original smt formula";
   if (not fout.is_open()) {
     ILA_ERROR << "Failed to open:" << fn << " for write.";
     return;
@@ -202,8 +221,16 @@ void InvariantObject::ImportFromFile(const std::string &fn) {
       std::getline(fin,expr);
     }
     inv_vlg_exprs.push_back(expr);
+    smt_formula_vec.push_back(""); // empty
   }
+}
 
+
+void InvariantObject::RemoveInvByIdx(size_t idx) {
+  ILA_ASSERT(idx < inv_vlg_exprs.size()) << "Index out-of-range";
+
+  inv_vlg_exprs.erase(inv_vlg_exprs.begin()+idx);
+  smt_formula_vec.erase(smt_formula_vec.begin()+idx);
 }
 
 

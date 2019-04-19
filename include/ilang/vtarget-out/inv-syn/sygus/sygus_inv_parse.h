@@ -46,6 +46,8 @@ public:
 
 protected:
   // -------------- MEMBERS ------------------- //
+  // the raw result (not including the sat/unsat)
+  std::string raw_string;
   // for correctness checking
   std::set<std::string> _all_allowable_names;
   // to correct CVC4's output on BitVec
@@ -54,6 +56,8 @@ public:
   // -------------- INTERFACE ------------------- //
   /// Interface function
   bool virtual ParseInvResultFromFile(const std::string & fname) override;
+  /// return raw_string
+  std::string GetRawSmtString() const;
 
   // -------------- CALLBACK FNs ------------------- //
   /// call back function to handle (define-fun

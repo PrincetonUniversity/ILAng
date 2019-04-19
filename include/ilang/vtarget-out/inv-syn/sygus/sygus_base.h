@@ -62,8 +62,6 @@ namespace ilang
     /// auto decide arithmetic template
     std::string get_template() const;
 
-    /// helper function
-    static std::string convert_to_binary(unsigned v, unsigned w);
     /// make template : varOrValN
     void add_val_or_var_no_eec(std::string & varOrVal) const;
     /// make template : vars

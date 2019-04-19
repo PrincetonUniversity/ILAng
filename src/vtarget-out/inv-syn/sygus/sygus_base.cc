@@ -498,25 +498,13 @@ std::string Cvc4SygusBase::get_template() const {
   return "";
 }
 
-
-std::string Cvc4SygusBase::convert_to_binary(unsigned v, unsigned w) {
-  std::string ret;
-  for (int i = 0; i < w; ++i) {
-    ret = std::to_string(v&1) + ret;
-    v = v >> 1;
-  }
-  ILA_ASSERT(v == 0);
-  ILA_ASSERT(ret.size() == w);
-  return "#b" + ret;
-}
-
 std::string Cvc4SygusBase::generate_syntax_const(unsigned w) const {
   ILA_ASSERT(w != 0);
   unsigned max = ( 0x1 << w ) - 1 ;
   std::vector<std::string> vals;
   if (w <= options.AllConstantUnderThisSize) {
     for (unsigned v = 0; v <= max; ++ v) {
-      vals.push_back(convert_to_binary(v,w));
+      vals.push_back(smt::convert_to_binary(v,w));
     }
   } else {
     std::set<unsigned> special_vals (options.SpecialValueForAllOtherWidth);
@@ -529,7 +517,7 @@ std::string Cvc4SygusBase::generate_syntax_const(unsigned w) const {
     special_vals.insert(max-1);
     special_vals.insert(max);
     for (auto  v : special_vals)
-      vals.push_back(convert_to_binary(v,w));
+      vals.push_back(smt::convert_to_binary(v,w));
   } //   
   return Join(vals, " "); // TODO:
 }

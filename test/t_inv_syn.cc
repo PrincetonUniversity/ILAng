@@ -275,8 +275,8 @@ TEST(TestVlgVerifInvSyn, CegarPipelineExample) {
   
   // check they are the same
   EXPECT_EQ(
-    vg.GetInvariants().GetVlgConstraints().size(), 
-    invs.GetVlgConstraints().size());
+    vg.GetInvariants().NumInvariant(), 
+    invs.NumInvariant());
   EXPECT_EQ(
     vg.GetInvariants().GetExtraVarDefs().size(), 
     invs.GetExtraVarDefs().size());
@@ -292,7 +292,6 @@ TEST(TestVlgVerifInvSyn, CegarPipelineExample) {
   }
 } // CegarPipelineExample
 
-#if 0
 TEST(TestVlgVerifInvSyn, CegarPipelineExampleSygusDatapoint) {
 
   auto ila_model = SimplePipe::BuildModel();
@@ -351,27 +350,32 @@ TEST(TestVlgVerifInvSyn, CegarPipelineExampleSygusDatapoint) {
       vg.GenerateVerificationTarget();
       if(vg.RunVerifAuto(1)) // the ADD
         break; // no more cex found
+
+      std::cout << "EQ check cex found, query sygus for invariant candidate...";
       vg.ExtractVerificationResult(); // also the cex
-      vg.GenerateSynthesisTargetSygusDatapoints();
+      vg.GenerateSynthesisTargetSygusDatapoints(); // the cex is used in this step
       vg.RunSynAuto();
-      vg.ExtractSynthesisResultAsCandidateInvariant(); // extracted to the candidate invariant
+      vg.ExtractSygusDatapointSynthesisResultAsCandidateInvariant(); // extracted to the candidate invariant
       // quick proof attempt  -- if proved, add to confirmed
       // quick disaprove attempt -- if disaproved add to cex, if proved add to confirm
       // proof attempt (assert all) (assume none)
       // disaprove attempt (assert all) (assume rf/confirmed)
     }while(not vg.in_bad_state()); // first generate enough guesses
-    
+    std::cout << "No more EQ check cex found, begin validating candidate invariants...";
     // if ( vg.ProofCandidateInvariant(time) )  // if it can be proved in a time bound, we are good, will add to ...
     //  break;
-    bool confirmed_all_candidates = vg.ValidateCandidateInvariant();
+    bool confirmed_all_candidates = vg.ValidateSygusDatapointCandidateInvariant();
     // 1. generate target
     // 2. run it
     // 3. extract cex to datapoint
 
     // if cex -> will extract the cex to datapoint, return failed inv
     // else if okay -> add to confirmed invariant
-    if (confirmed_all_candidates)
+    if (confirmed_all_candidates) {
+      vg.AcceptAllCandidateInvariant(); // this is also done by validate actually, if it succeeded
       break;
+    }
+    
     vg.RemoveCandidateInvariant();
     // a simple impl: remove all candidate invariants
     // an advanced impl: remove only violating invariants
@@ -381,7 +385,8 @@ TEST(TestVlgVerifInvSyn, CegarPipelineExampleSygusDatapoint) {
   // final validation
   vg.GenerateInvariantVerificationTarget(); // finally we revalidate the result
 }
-#endif
+
+
 
 TEST(TestVlgVerifInvSyn, CegarCntSygusTransFunc)  {
   auto ila_model = CntTest::BuildModel();

@@ -8,6 +8,7 @@
 #include <ilang/vtarget-out/vtarget_gen_impl.h>
 #include <ilang/vtarget-out/inv-syn/inv_syn_cegar.h>
 #include <ilang/vtarget-out/inv-syn/sygus/inv_cex_extract.h>
+#include <ilang/vtarget-out/inv-syn/sygus/datapoint_inv_prune.h>
 
 #include <memory>
 
@@ -102,7 +103,8 @@ void InvariantSynthesizerCegar::GenerateVerificationTarget() {
 
   // to send in the invariants
   advanced_parameters_t adv_param;
-  adv_param._inv_obj_ptr = &inv_obj; 
+  adv_param._inv_obj_ptr = &inv_obj;
+  adv_param._candidate_inv_ptr = &inv_candidate; 
   
   VlgVerifTgtGen vg(
       implementation_incl_path,         // include
@@ -268,20 +270,23 @@ void InvariantSynthesizerCegar::ExtractSynthesisResult(bool autodet, bool reacha
     return;
   }
 
+  ILA_ASSERT(current_inv_type != cur_inv_tp::SYGUS_CEX) 
+    << "API misuse: should not use this function on SYGUS CEX output, they may not be the invariants, but just candidates!";
+    
   if (current_inv_type == cur_inv_tp::CHC)
     inv_obj.AddInvariantFromChcResultFile(
       *(design_smt_info.get()), "", res_file, 
       _vtg_config.YosysSmtFlattenDatatype,
       _vtg_config.YosysSmtFlattenHierarchy );
-  else if (current_inv_type == cur_inv_tp::SYGUS_CHC
-       ||  current_inv_type == cur_inv_tp::SYGUS_CEX) // we reparse even for SyGuS cex
+  else if (current_inv_type == cur_inv_tp::SYGUS_CHC) // we reparse even for SyGuS cex
     inv_obj.AddInvariantFromSygusResultFile(
       *(design_smt_info.get()), "", res_file, 
       _vtg_config.YosysSmtFlattenDatatype,
       _vtg_config.YosysSmtFlattenHierarchy );
   else
     ILA_ERROR<<"Inv type unknown:" << current_inv_type;
-    
+  
+  std::cout << "Confirmed synthesized invariants:" << std::endl;
   for (auto && v : inv_obj.GetVlgConstraints() )
     std::cout << v << std::endl;
 
@@ -473,6 +478,8 @@ void InvariantSynthesizerCegar::GenerateSynthesisTargetSygusDatapoints() {
   // generate a target -- based on selection
   if (check_in_bad_state()) return;
   ILA_WARN_IF(status != cegar_status::NEXT_S) << "CEGAR-loop: not expecting synthesis step.";
+  ILA_ASSERT(_vtg_config.SygusOptions.SygusPassInfo == _vtg_config.SygusOptions.DataPoints)
+    << "API misuse : you must select datapoint approach as the sygus options";
 
   // to send in the invariants
   advanced_parameters_t adv_param;
@@ -508,7 +515,7 @@ void InvariantSynthesizerCegar::GenerateSynthesisTargetSygusDatapoints() {
 
 
 /// to extract the synthesis attempt
-void InvariantSynthesizerCegar::ExtractSygusDatapointSynthesisAttempt() {
+void InvariantSynthesizerCegar::ExtractSygusDatapointSynthesisResultAsCandidateInvariant() {
   ILA_ERROR_IF(current_inv_type != cur_inv_tp::SYGUS_CEX ) << "Not using the SyGuS Datapoint synthesis method!";
 
   if(check_in_bad_state()) return;
@@ -523,12 +530,13 @@ void InvariantSynthesizerCegar::ExtractSygusDatapointSynthesisAttempt() {
     return;
   }
 
-  inv_candidate.ClearAllInvariants();
+  // inv_candidate.ClearAllInvariants();  -- we will keep the old ones
   inv_candidate.AddInvariantFromSygusResultFile(
     *(design_smt_info.get()), "", res_file, 
     _vtg_config.YosysSmtFlattenDatatype,
     _vtg_config.YosysSmtFlattenHierarchy );
     
+  std::cout << "INV candidate:" << std::endl;
   for (auto && v : inv_candidate.GetVlgConstraints() )
     std::cout << v << std::endl;
 
@@ -536,17 +544,24 @@ void InvariantSynthesizerCegar::ExtractSygusDatapointSynthesisAttempt() {
 /// to validate if the previous attempt is good (inductive or not)
 /// if not CTI will be extracted
 /// return true if this is okay...
-bool InvariantSynthesizerCegar::ValidateSygusDatapointAttempt() {
+bool InvariantSynthesizerCegar::ValidateSygusDatapointCandidateInvariant() {
   ILA_ERROR_IF(current_inv_type != cur_inv_tp::SYGUS_CEX ) 
     << "Not using the SyGuS Datapoint synthesis method!";
+
+  if(inv_candidate.NumInvariant() == 0) {
+    ILA_ERROR << "No candidate invariant to check";
+    return true;
+  }
 
   if (check_in_bad_state()) return false;
 
   // to send in the invariants
   advanced_parameters_t adv_param;
-  adv_param._inv_obj_ptr = &inv_candidate;
+  adv_param._inv_obj_ptr = &inv_obj;
+  adv_param._candidate_inv_ptr = &inv_candidate;
 
   auto inv_gen_vtg_config = _vtg_config;
+  // inv_gen_vtg_config.OnlyEnforceInvariantsOnInitialStateOfInstrCheck = false; // always true
   inv_gen_vtg_config.target_select = inv_gen_vtg_config.INV;
   inv_gen_vtg_config.ValidateSynthesizedInvariant = vtg_config_t::_validate_synthesized_inv::CANDIDATE; // overwrite
   
@@ -607,8 +622,29 @@ bool InvariantSynthesizerCegar::ValidateSygusDatapointAttempt() {
 
     return false;
   } // CTI found (you can start another round if you want )
+  // otherwise, we are good
+  
+  // make the candidate as confirmed
+  inv_obj.InsertFromAnotherInvObj(inv_candidate);
+  inv_candidate.ClearAllInvariants();
+
   return true;
 }
 
+void InvariantSynthesizerCegar::AcceptAllCandidateInvariant() {
+  if(inv_candidate.NumInvariant() != 0) {
+    inv_obj.InsertFromAnotherInvObj(inv_candidate);
+    inv_candidate.ClearAllInvariants();
+  } else 
+    ILA_INFO <<"All candidate invariants have been accepted.";
+}
+
+void InvariantSynthesizerCegar::RemoveCandidateInvariant() {
+  // future work : remove only obvious failing ones
+  // inv_candidate.ClearAllInvariants();
+  ILA_ASSERT(not sygus_vars.empty());
+  DatapointInvariantPruner pruner(inv_candidate,datapoints);
+  pruner.PruneByLastFramePosEx(*(design_smt_info.get()), sygus_vars);
+}
 
 }; // namespace ilang

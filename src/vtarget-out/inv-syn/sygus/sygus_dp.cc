@@ -46,7 +46,7 @@ std::string Cvc4SygusInputGenerator::generate_datapoint_constraints(TraceDataPoi
       if (data_type_ptr->_type.is_bool())
         frame_vals.push_back( aframe.at(vname).first == 0 ? "false" : "true"  );
       else
-        frame_vals.push_back( convert_to_binary(aframe.at(vname).first, width));
+        frame_vals.push_back( smt::convert_to_binary(aframe.at(vname).first, width));
     }
     constraints.push_back( ReplaceAll(cnst_pos_template, 
       "%pos_vals%", Join(frame_vals," ") ));
@@ -64,7 +64,7 @@ std::string Cvc4SygusInputGenerator::generate_datapoint_constraints(TraceDataPoi
     if (data_type_ptr->_type.is_bool())
       frame_vals.push_back( aframe.at(vname).first == 0 ? "false" : "true"  );
     else
-      frame_vals.push_back( convert_to_binary(aframe.at(vname).first, width));
+      frame_vals.push_back( smt::convert_to_binary(aframe.at(vname).first, width));
   }
   constraints.push_back( ReplaceAll(cnst_neg_template, 
     "%neg_vals%", Join(frame_vals," ") ));
