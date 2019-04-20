@@ -351,7 +351,7 @@ TEST(TestVlgVerifInvSyn, CegarPipelineExampleSygusDatapoint) {
       if(vg.RunVerifAuto(1)) // the ADD
         break; // no more cex found
 
-      std::cout << "EQ check cex found, query sygus for invariant candidate...";
+      std::cout << "EQ check cex found, query sygus for invariant candidate..."; std::cout.flush();
       vg.ExtractVerificationResult(); // also the cex
       vg.GenerateSynthesisTargetSygusDatapoints(); // the cex is used in this step
       vg.RunSynAuto();
@@ -361,25 +361,30 @@ TEST(TestVlgVerifInvSyn, CegarPipelineExampleSygusDatapoint) {
       // proof attempt (assert all) (assume none)
       // disaprove attempt (assert all) (assume rf/confirmed)
     }while(not vg.in_bad_state()); // first generate enough guesses
-    std::cout << "No more EQ check cex found, begin validating candidate invariants...";
+    std::cout << "No more EQ check cex found, begin validating candidate invariants...\n";
     // if ( vg.ProofCandidateInvariant(time) )  // if it can be proved in a time bound, we are good, will add to ...
     //  break;
-    bool confirmed_all_candidates = vg.ValidateSygusDatapointCandidateInvariant();
+    bool confirmed_all_candidates = vg.ProofCandidateInvariants();
+    if (confirmed_all_candidates) {
+      std::cout << "All candidate invariants have been proved!" << std::endl;
+      vg.AcceptAllCandidateInvariant(); // this is also done by validate actually, if it succeeded
+      break;
+    }
+    // else: find cex
+    vg.ValidateSygusDatapointCandidateInvariant();
     // 1. generate target
     // 2. run it
     // 3. extract cex to datapoint
 
     // if cex -> will extract the cex to datapoint, return failed inv
     // else if okay -> add to confirmed invariant
-    if (confirmed_all_candidates) {
-      vg.AcceptAllCandidateInvariant(); // this is also done by validate actually, if it succeeded
-      break;
-    }
-    
+
+    std::cout << "Validation failed, prune candidate invariants...\n";
     vg.RemoveCandidateInvariant();
     // a simple impl: remove all candidate invariants
     // an advanced impl: remove only violating invariants
     // do you want to continue to remove? (hard -- because validating takes time...)
+    std::cout << "Search for more invariants...\n";
   } while(not vg.in_bad_state());
 
   // final validation

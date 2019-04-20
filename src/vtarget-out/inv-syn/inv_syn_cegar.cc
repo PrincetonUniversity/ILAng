@@ -391,6 +391,7 @@ bool InvariantSynthesizerCegar::RunSynAuto() {
   return cex_reachable;
 }
 
+
 // -------------------------------- MISCS ------------------------------------------- //
 
 const std::vector<std::string> & InvariantSynthesizerCegar::GetRunnableTargetScriptName() const {
@@ -625,8 +626,7 @@ bool InvariantSynthesizerCegar::ValidateSygusDatapointCandidateInvariant() {
   // otherwise, we are good
   
   // make the candidate as confirmed
-  inv_obj.InsertFromAnotherInvObj(inv_candidate);
-  inv_candidate.ClearAllInvariants();
+  AcceptAllCandidateInvariant();
 
   return true;
 }
@@ -646,5 +646,86 @@ void InvariantSynthesizerCegar::RemoveCandidateInvariant() {
   DatapointInvariantPruner pruner(inv_candidate,datapoints);
   pruner.PruneByLastFramePosEx(*(design_smt_info.get()), sygus_vars);
 }
+
+
+/// to generate synthesis target
+bool InvariantSynthesizerCegar::ProofCandidateInvariants() {
+  // generate a target -- based on selection
+  if (check_in_bad_state()) return false;
+  ILA_WARN_IF(status != cegar_status::NEXT_S) << "CEGAR-loop: not expecting synthesis step.";
+
+  ILA_ERROR_IF(current_inv_type != cur_inv_tp::SYGUS_CEX ) 
+      << "Not using the SyGuS Datapoint synthesis method!";
+
+  // to send in the invariants
+  advanced_parameters_t adv_param;
+  adv_param._inv_obj_ptr = &inv_obj; 
+  adv_param._candidate_inv_ptr = &inv_candidate;
+  adv_param._cex_obj_ptr = NULL;
+
+  auto inv_proof_vtg_config = _vtg_config;
+  // inv_gen_vtg_config.OnlyEnforceInvariantsOnInitialStateOfInstrCheck = false; // always true
+  inv_proof_vtg_config.YosysSmtStateSort = inv_proof_vtg_config.BitVec;
+  inv_proof_vtg_config.YosysSmtFlattenHierarchy = true;
+  inv_proof_vtg_config.YosysSmtFlattenDatatype = false;
+  inv_proof_vtg_config.CosaGenTraceVcd = false;
+  // this does not matter actually
+  inv_proof_vtg_config.target_select = inv_proof_vtg_config.INV; 
+  // this does not matter either
+  inv_proof_vtg_config.ValidateSynthesizedInvariant = vtg_config_t::_validate_synthesized_inv::CANDIDATE; // overwrite
+ 
+  VlgVerifTgtGen vg(
+      implementation_incl_path,         // include
+      implementation_srcs_path,         // sources
+      implementation_top_module_name,   // top_module_name
+      refinement_variable_mapping_path, // variable mapping
+      refinement_condition_path,        // conditions
+      _output_path,                     // output path
+      _host,                            // ILA
+      verify_backend_selector::YOSYS,   // verification backend setting
+      inv_proof_vtg_config,             // target configuration
+      _vlg_config,                      // verilog generator configuration
+      &adv_param                        // advanced parameter
+      );
+  
+  vg.GenerateDesignOnlyCandidateInvChcCheckTargets(synthesis_backend_selector::Z3);
+
+  auto run_script = vg.GetRunnableScriptName();
+
+  ILA_ASSERT(run_script.size() == 1) << "Need exactly one script";
+  auto synthesis_result_fn = os_portable_append_dir(_output_path, "__chc_check_result.txt");
+  auto redirect_fn = os_portable_append_dir("../", "__chc_check_result.txt");
+
+  auto cwd = os_portable_getcwd();
+  auto new_wd = os_portable_path_from_path(run_script[0]);
+  ILA_ERROR_IF(not os_portable_chdir(new_wd)) 
+    << "RunVerifAuto: cannot change dir to:" << new_wd;
+  ILA_INFO << "Executing synthesis script:" <<  run_script[0] ;
+  auto res = os_portable_execute_shell({"bash",
+    os_portable_file_name_from_path( run_script[0] )}, redirect_fn);
+  ILA_ERROR_IF(res.failure != execute_result::NONE )
+    << "Running synthesis script " << run_script[0] << " results in error."; 
+  ILA_ASSERT(os_portable_chdir(cwd));
+  
+  std::string line;
+  { // read the result
+    std::ifstream fin(synthesis_result_fn);
+    if (not fin.is_open()) {
+      ILA_ERROR << "Unable to read the synthesis result file:" << synthesis_result_fn;
+      status = cegar_status::FAILED;
+      bad_state = true;
+      return true; // reachable
+    } 
+    std::getline(fin,line);  
+  } // finish file reading
+  if (S_IN("unsat", line))
+  {
+    AcceptAllCandidateInvariant();
+    return true;
+  }
+  // else reachable
+  return false;
+
+} // GenerateSynthesisTarget
 
 }; // namespace ilang

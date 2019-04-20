@@ -56,6 +56,8 @@ std::string inv_syn_tmpl_datatypes = R"***(
 ;  Single Inductive Invariant Synthesis
 ;  Generated from ILAng
 ;----------------------------------------
+(set-option :fp.engine spacer)
+
 
 %%
 
@@ -99,7 +101,7 @@ std::string inv_syn_tmpl_datatypes = R"***(
   (not (|%1%_a| |__S__|)))
   fail))
 
-(query fail :print-certificate true)
+; (query fail :print-certificate true)
 
 )***";
 
@@ -154,7 +156,7 @@ std::string inv_syn_tmpl_wo_datatypes = R"***(
   (not (|%WrapperName%_a| %Ss%))) 
   fail))
 
-(query fail :print-certificate true)
+; (query fail :print-certificate true)
 
 )***";
 
@@ -182,26 +184,38 @@ VlgSglTgtGen_Chc::VlgSglTgtGen_Chc(
     const vtg_config_t& vtg_config,  backend_selector vbackend,
     synthesis_backend_selector sbackend,
     const target_type_t& target_tp,
-    advanced_parameters_t* adv_ptr )
+    advanced_parameters_t* adv_ptr,
+    bool GenerateProof,
+    _chc_target_t chctarget )
     : VlgSglTgtGen(output_path, instr_ptr, ila_ptr, config, _rf_vmap, _rf_cond, _sup_info,
                    _vlg_info_ptr, vlg_mod_inst_name, ila_mod_inst_name,
                    wrapper_name, implementation_srcs,
                    implementation_include_path, vtg_config, vbackend,
                    target_tp, adv_ptr),
-      s_backend(sbackend) { 
+      s_backend(sbackend), generate_proof(GenerateProof), 
+      has_cex(adv_ptr and adv_ptr->_cex_obj_ptr), chc_target(chctarget) { 
     
     ILA_ASSERT(vbackend == backend_selector::YOSYS)
-      << "Only support using yosys for invariant synthesis";
+      << "Only support using yosys for chc target";
 
     ILA_ASSERT(not _vtg_config.YosysSmtArrayForRegFile)
       << "Future work to support array in synthesis";
     
-    ILA_ASSERT(
-      target_tp == target_type_t::INV_SYN_DESIGN_ONLY )
-      << "Unsupported target type: " << target_tp;
+    if(chctarget == CEX) {
+      ILA_ASSERT(
+        target_tp == target_type_t::INV_SYN_DESIGN_ONLY )
+        << "for cex chc, target type must be INV_SYN_DESIGN_ONLY: " << target_tp;
+      ILA_ASSERT(has_cex)
+        << "for cex chc, cex must be provided!";
+    }
+    else if (chctarget == INVCANDIDATE)
+      ILA_ASSERT(has_gussed_synthesized_invariant)
+        << "for inv candidate verification, the candidate invariant must be provided!";
+    else if (chctarget == GENERAL_PROPERTY) {
 
-    ILA_ASSERT (adv_ptr and adv_ptr->_cex_obj_ptr)
-      << "Cex object must be provided to synthesize.";
+    }
+    else
+      ILA_ASSERT(false) << "Unknown chc target:" << chctarget ;
 
     ILA_ASSERT (
       sbackend == synthesis_backend_selector::FreqHorn or
@@ -303,25 +317,32 @@ void VlgSglTgtGen_Chc::PreExportProcess() {
     } // for prob.exprs
   } // for _problems.assumption
 
+  bool first = true;
   // this is to check given invariants
   for (auto&& pbname_prob_pair : _problems.assertions) {
     const auto& prbname = pbname_prob_pair.first;
     const auto& prob = pbname_prob_pair.second;
     
-    ILA_ASSERT(prbname == "cex_nonreachable_assert")
-      << "BUG: assertion can only be cex reachability queries.";
+    // ILA_ASSERT(prbname == "cex_nonreachable_assert")
+    //  << "BUG: assertion can only be cex reachability queries.";
     // sanity check, should only be invariant's related asserts
 
     for (auto&& p: prob.exprs) {
       vlg_wrapper.add_stmt(
         "assert property ("+p+"); //" + prbname + "\n"
       ); // there should be only one expression (actually)
-      ILA_ASSERT(all_assert_wire_content.empty());
-      all_assert_wire_content = "( " + p  + " ) ";
+      // ILA_ASSERT(all_assert_wire_content.empty());
+      if (first)
+        all_assert_wire_content = p;
+      else
+        all_assert_wire_content += " && " + p;
+
+      first = false;
     } // for expr
   } // for problem
   // add assert wire (though no use : make sure will not optimized away)
-  ILA_ASSERT(not all_assert_wire_content.empty());
+  ILA_ASSERT(not all_assert_wire_content.empty())
+    << "no property to check!";
 
   vlg_wrapper.add_wire("__all_assert_wire__", 1, true);
   vlg_wrapper.add_output("__all_assert_wire__",1);
@@ -442,9 +463,16 @@ void VlgSglTgtGen_Chc::Export_problem(const std::string& extra_name) {
   design_only_gen_smt(
     os_portable_append_dir(_output_path, "__design_smt.smt2"),
     os_portable_append_dir(_output_path, "__gen_smt_script.ys"));
-  convert_smt_to_chc (
-    os_portable_append_dir(_output_path, "__design_smt.smt2"),
-    os_portable_append_dir(_output_path, extra_name));
+  if (_vtg_config.YosysSmtStateSort == _vtg_config.DataSort)
+    convert_smt_to_chc_datatype (
+      os_portable_append_dir(_output_path, "__design_smt.smt2"),
+      os_portable_append_dir(_output_path, extra_name));
+  else if (_vtg_config.YosysSmtStateSort == _vtg_config.BitVec)
+    convert_smt_to_chc_bitvec(
+      os_portable_append_dir(_output_path, "__design_smt.smt2"),
+      os_portable_append_dir(_output_path, extra_name), "wrapper");
+  else
+    ILA_ASSERT(false) << "I don't know how to generate CHC encoding";
 
 } // Export_problem
 
@@ -490,7 +518,14 @@ void VlgSglTgtGen_Chc::design_only_gen_smt(
   { // export to ys_script_name
     std::ofstream ys_script_fout( ys_script_name );
     
-    std::string write_smt2_options = " -mem -bv -wires -stdt "; // future work : -stbv, or nothing
+    std::string write_smt2_options = " -mem -bv -wires "; // future work : -stbv, or nothing
+    if (_vtg_config.YosysSmtStateSort == _vtg_config.DataSort)
+      write_smt2_options += "-stdt ";
+    else if (_vtg_config.YosysSmtStateSort == _vtg_config.BitVec)
+      write_smt2_options += "-stbv ";
+    else
+      ILA_ASSERT(false) << "Unsupported smt state sort encoding:" << _vtg_config.YosysSmtStateSort;
+
 
     ys_script_fout << "read_verilog -sv " 
       << os_portable_append_dir( _output_path , top_file_name ) << std::endl;
@@ -517,9 +552,52 @@ void VlgSglTgtGen_Chc::design_only_gen_smt(
       << "Yosys returns error code:" << res.ret;
 } // design_only_gen_smt
 
+void VlgSglTgtGen_Chc::convert_smt_to_chc_bitvec(
+    const std::string & smt_fname, const std::string & chc_fname, 
+    const std::string & wrapper_mod_name) {
+  
+  std::stringstream ibuf;
+  { // read file
+    std::ifstream smt_fin( smt_fname );
+    if(not smt_fin.is_open()) {
+      ILA_ERROR << "Cannot read from " << smt_fname;
+      return;
+    }
+    ibuf << smt_fin.rdbuf();
+  } // end read file
 
+  std::string smt_converted;
+  smt_converted = ibuf.str();
 
-void VlgSglTgtGen_Chc::convert_smt_to_chc(const std::string & smt_fname, const std::string & chc_fname) {
+  std::string chc;
+
+  chc = inv_syn_tmpl_datatypes;
+  chc = ReplaceAll(chc, "<!>(|%1%_h| |__BI__|)<!>", _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__BI__|)");
+  chc = ReplaceAll(chc, "<!>(|%1%_h| |__I__|)<!>" , _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__I__|)");
+  chc = ReplaceAll(chc, "<!>(|%1%_h| |__S__|)<!>" , _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__S__|)");
+  chc = ReplaceAll(chc, "<!>(|%1%_h| |__S'__|)<!>", _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__S'__|)");
+  chc = ReplaceAll(chc,"%1%", wrapper_mod_name);
+  chc = ReplaceAll(chc, "%%", smt_converted );
+
+  { // (query fail :print-certificate true)
+    if (generate_proof)
+      chc += "\n(query fail :print-certificate true)\n";
+    else
+      chc += "\n(query fail)\n";
+  }
+
+  { // write file
+    std::ofstream chc_fout(chc_fname);
+    if (not chc_fout.is_open()) {
+      ILA_ERROR << "Error writing to : "<< chc_fname;
+      return;
+    }
+    chc_fout << chc;
+  } // end write file
+}
+  
+
+void VlgSglTgtGen_Chc::convert_smt_to_chc_datatype(const std::string & smt_fname, const std::string & chc_fname) {
   
   std::stringstream ibuf;
   { // read file
@@ -543,6 +621,8 @@ void VlgSglTgtGen_Chc::convert_smt_to_chc(const std::string & smt_fname, const s
 
   std::string wrapper_mod_name = design_smt_info->get_module_def_orders().back();
   // construct the template
+  ILA_ASSERT(not (_vtg_config.YosysSmtFlattenDatatype && _vtg_config.YosysSmtStateSort != _vtg_config.DataSort ))
+    << "FlattenDatatype can only be used if choosing datatype state encoding";
 
   std::string chc;
   if (_vtg_config.YosysSmtFlattenDatatype) {
@@ -566,6 +646,13 @@ void VlgSglTgtGen_Chc::convert_smt_to_chc(const std::string & smt_fname, const s
     chc = ReplaceAll(chc, "%%", smt_converted );
   } // end of ~_vtg_config.YosysSmtFlattenDatatype -- no convert
 
+  { // (query fail :print-certificate true)
+    if (generate_proof)
+      chc += "\n(query fail :print-certificate true)\n";
+    else
+      chc += "\n(query fail)\n";
+  }
+
   { // write file
     std::ofstream chc_fout(chc_fname);
     if (not chc_fout.is_open()) {
@@ -575,7 +662,7 @@ void VlgSglTgtGen_Chc::convert_smt_to_chc(const std::string & smt_fname, const s
     chc_fout << chc;
   } // end write file
 
-} // convert_smt_to_chc
+} // convert_smt_to_chc_datatype
   
 // %WrapperName%
 // %WrapperDataType%

@@ -175,23 +175,39 @@ void VlgSglTgtGen::ConstructWrapper_add_inv_assumption_or_assertion_target_instr
 void VlgSglTgtGen::ConstructWrapper_add_inv_assumption_or_assertion_target_inv_syn_design_only () {
   ILA_ASSERT (target_type == target_type_t::INV_SYN_DESIGN_ONLY);
 
-  // -- assertions -- //
-  ILA_ASSERT(_advanced_param_ptr and _advanced_param_ptr->_cex_obj_ptr); // cex must be available !
-  auto new_cond = ReplExpr(
-    _advanced_param_ptr->_cex_obj_ptr->GenInvAssert(""), true); // force vlg state
-
-  add_an_assertion("~(" + new_cond + ")", "cex_nonreachable_assert");
-
-  // -- assumption -- //
-  if (_vtg_config.InvariantSynthesisReachableCheckKeepOldInvariant) {
-    add_rf_inv_as_assumption();
-    if (has_confirmed_synthesized_invariant)
-      add_inv_obj_as_assumption(_advanced_param_ptr->_inv_obj_ptr);
-    if (has_confirmed_synthesized_invariant) {
-      ILA_WARN << "Using guessed invariants also, please check to confirm them!";
-      add_inv_obj_as_assumption(_advanced_param_ptr->_candidate_inv_ptr);
+  if (_advanced_param_ptr and _advanced_param_ptr->_cex_obj_ptr) {
+    // this is cex reachability checking
+    // -- assertions -- //
+    auto new_cond = ReplExpr(
+      _advanced_param_ptr->_cex_obj_ptr->GenInvAssert(""), true); // force vlg state
+    add_an_assertion("~(" + new_cond + ")", "cex_nonreachable_assert");
+    // -- assumption -- //
+    if (_vtg_config.InvariantSynthesisReachableCheckKeepOldInvariant) {
+      add_rf_inv_as_assumption();
+      if (has_confirmed_synthesized_invariant)
+        add_inv_obj_as_assumption(_advanced_param_ptr->_inv_obj_ptr);
+      if (has_confirmed_synthesized_invariant) {
+        ILA_WARN << "Using guessed invariants also, please check to confirm them!";
+        add_inv_obj_as_assumption(_advanced_param_ptr->_candidate_inv_ptr);
+      }
     }
+  } // end of cex checking
+  else if (has_gussed_synthesized_invariant) { 
+    // if this is general design invariant checking checking
+    add_inv_obj_as_assertion(_advanced_param_ptr->_candidate_inv_ptr);
+
+    if(has_confirmed_synthesized_invariant)
+      add_inv_obj_as_assumption(_advanced_param_ptr->_inv_obj_ptr);
+    add_rf_inv_as_assumption();
+    /*
+    if(has_confirmed_synthesized_invariant)
+      add_inv_obj_as_assertion(_advanced_param_ptr->_inv_obj_ptr);
+    add_rf_inv_as_assertion();
+    */
   }
+  else
+    ILA_ASSERT(false) << "Unknown invariant handling for design_only target!";
+  
 }
 
 

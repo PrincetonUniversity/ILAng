@@ -59,6 +59,7 @@ VlgSglTgtGen::VlgSglTgtGen(
           VerilogGeneratorBase::VlgGenConfig::funcOption::External, true,
           true)), // rand init
       // interface mapping directive
+      // -------- CONTROLLING THE RESET CONNECTION ------------- //
       _idr( target_tp == target_type_t::INVARIANTS ||
             target_tp == target_type_t::INV_SYN_DESIGN_ONLY ? true :
             (vtg_config.ForceInstCheckReset ? true : false) ),

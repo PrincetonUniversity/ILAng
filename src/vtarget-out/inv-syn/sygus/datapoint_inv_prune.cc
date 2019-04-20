@@ -45,7 +45,7 @@ void DatapointInvariantPruner::PruneByLastFramePosEx(const smt::YosysSmtParser &
     else
       frame_vals.push_back( smt::convert_to_binary(last_frame.at(vname).first, width));
   }
-  auto assertion = "(assert INV(" + Join(frame_vals, " ") + "))";
+  auto assertion = "(assert (INV " + Join(frame_vals, " ") + "))";
 
   std::vector<unsigned> prune_num;
   unsigned idx = 0;
@@ -63,6 +63,8 @@ void DatapointInvariantPruner::PruneByLastFramePosEx(const smt::YosysSmtParser &
     }
     idx ++;
   } // iterate over assertions
+
+  ILA_INFO << "prune: " << prune_num.size() << "/" << invs.NumInvariant() ;
 
   unsigned removed_no = 0;
   for(auto ri : prune_num) {

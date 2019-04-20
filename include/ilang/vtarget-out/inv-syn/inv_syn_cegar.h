@@ -112,8 +112,9 @@ public:
   void ExtractSygusDatapointSynthesisResultAsCandidateInvariant();
   /// to validate if the previous attempt is good (inductive or not)
   /// return true if the invariants are good/o.w. will auto load to datapoint's pos ex
-  bool ValidateSygusDatapointAttempt();
   bool ValidateSygusDatapointCandidateInvariant();
+  /// Try proving candidate invariants
+  bool ProofCandidateInvariants();
   /// set the initial datapoints (can be empty, but we suggest using the sim_trace_extract)
   void SetInitialDatapoint(const TraceDataPoints &dp);
   /// set the sygus name lists (cannot be empty)

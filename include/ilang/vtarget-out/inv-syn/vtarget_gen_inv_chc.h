@@ -51,6 +51,8 @@ protected:
 
 /// \brief a class to interface w.  Chc
 class VlgSglTgtGen_Chc : public VlgSglTgtGen {
+
+public:
   /// using the target type
   using target_type_t = VlgSglTgtGen::target_type_t;
   /// a tuple to store all related info for modification
@@ -59,8 +61,9 @@ class VlgSglTgtGen_Chc : public VlgSglTgtGen {
   using fn_l_map_t = VerilogModifier::fn_l_map_t;
   /// Type of advanced parameter
   using advanced_parameters_t = VlgVerifTgtGenBase::advanced_parameters_t;
-  /// Type of synthesis_backend_selector
-
+  /// Type of chc target
+  enum _chc_target_t {CEX, INVCANDIDATE, GENERAL_PROPERTY};
+  
 public:
   // --------------------- CONSTRUCTOR ---------------------------- //
   ///
@@ -91,7 +94,9 @@ public:
       const vtg_config_t& vtg_config, backend_selector vbackend,
       synthesis_backend_selector sbackend,
       const target_type_t& target_tp,
-      advanced_parameters_t * adv_ptr);
+      advanced_parameters_t * adv_ptr,
+      bool generate_proof,
+      _chc_target_t chc_target);
 
   // --------------------- Destructor ---------------------------- //
   /// do nothing
@@ -110,6 +115,12 @@ protected:
   synthesis_backend_selector s_backend;
   /// the smt info of the design
   std::shared_ptr<smt::YosysSmtParser> design_smt_info;
+  /// whether to require a proof
+  bool generate_proof;
+  /// whether a cex is provided
+  bool has_cex;
+  /// what are the targets
+  _chc_target_t chc_target;
 
 protected:
   /// Add an assumption -- needed by base class
@@ -153,9 +164,12 @@ protected:
 
 private:
  
-  /// Convert the smt file to CHC
-  void convert_smt_to_chc(
+  /// Convert the smt file to CHC -- datatype encoding
+  void convert_smt_to_chc_datatype(
     const std::string & smt_fname, const std::string & chc_fname);
+  /// Convert the smt file to CHC -- bitvector encoding
+  void convert_smt_to_chc_bitvec(
+    const std::string & smt_fname, const std::string & chc_fname, const std::string & wrapper_mod_name);
   /// generate the wrapper's smt first
   void design_only_gen_smt(
     const std::string & smt_name,

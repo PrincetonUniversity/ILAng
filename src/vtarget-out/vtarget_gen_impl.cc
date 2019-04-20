@@ -177,7 +177,7 @@ std::shared_ptr<smt::YosysSmtParser> VlgVerifTgtGen::GenerateInvSynTargets(synth
       _ila_ptr, _cfg, rf_vmap, rf_cond, sup_info , vlg_info_ptr, _vlg_mod_inst_name,
       _ila_mod_inst_name, "wrapper", _vlg_impl_srcs, _vlg_impl_include_path,
       _vtg_config, _backend, s_backend, target_type_t::INV_SYN_DESIGN_ONLY,
-      _advanced_param_ptr);
+      _advanced_param_ptr, true, VlgSglTgtGen_Chc::_chc_target_t::CEX);
   target.ConstructWrapper();
   target.ExportAll("wrapper.v", "ila.v" /*USELESS*/, "run.sh", "wrapper.smt2",
                     "absmem.v"  /*USELESS*/);
@@ -187,6 +187,41 @@ std::shared_ptr<smt::YosysSmtParser> VlgVerifTgtGen::GenerateInvSynTargets(synth
       os_portable_append_dir(_output_path, "inv-syn/"), "run.sh"));
 
   return target.GetDesignSmtInfo();
+}
+
+
+void VlgVerifTgtGen::GenerateDesignOnlyCandidateInvChcCheckTargets(synthesis_backend_selector s_backend) {
+  ILA_ERROR_IF(_backend != backend_selector::YOSYS) << "All inv-syn relies on yosys!";
+  ILA_ASSERT(s_backend == synthesis_backend_selector::Z3) << "This is intended for Z3";
+  ILA_WARN_IF(_vtg_config.YosysSmtStateSort != _vtg_config::BitVec)
+    << "For better performance, please consider using Bitvec state encoding in YosysSmtStateSort";
+  ILA_ERROR_IF(_vtg_config.CosaGenTraceVcd)
+    << "No vcd can be generated.";
+
+  if (vlg_info_ptr)
+    delete vlg_info_ptr;
+  
+  vlg_info_ptr = new VerilogInfo(_vlg_impl_include_path, _vlg_impl_srcs,
+                                 _vlg_mod_inst_name, _vlg_impl_top_name);
+  if (vlg_info_ptr == NULL or vlg_info_ptr->in_bad_state()) {
+    ILA_ERROR << "Unable to generate targets. Verilog parser failed.";
+    return; //
+  }
+  auto target = VlgSglTgtGen_Chc(
+      os_portable_append_dir(_output_path, "chc-prop-check/"),
+      NULL, // invariant
+      _ila_ptr, _cfg, rf_vmap, rf_cond, sup_info , vlg_info_ptr, _vlg_mod_inst_name,
+      _ila_mod_inst_name, "wrapper", _vlg_impl_srcs, _vlg_impl_include_path,
+      _vtg_config, _backend, s_backend, target_type_t::INV_SYN_DESIGN_ONLY,
+      _advanced_param_ptr, false, VlgSglTgtGen_Chc::INVCANDIDATE);
+  target.ConstructWrapper();
+  target.ExportAll("wrapper.v", "ila.v" /*USELESS*/, "run.sh", "wrapper.smt2",
+                    "absmem.v"  /*USELESS*/);
+  runnable_script_name.clear();
+  runnable_script_name.push_back(
+    os_portable_append_dir(
+      os_portable_append_dir(_output_path, "chc-prop-check/"), "run.sh"));
+
 }
 
 // ------------------------- VERIFICATION TARGET ------------------------- //

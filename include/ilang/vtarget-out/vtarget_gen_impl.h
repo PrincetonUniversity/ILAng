@@ -181,7 +181,7 @@ protected:
   const ExprPtr IlaGetInput(const std::string& sname) const;
   /// Get (a,d) width of a memory, if not existing, (0,0)
   std::pair<unsigned, unsigned>
-  GetMemInfo(const std::string& ila_mem_name) const;
+    GetMemInfo(const std::string& ila_mem_name) const;
   /// Test if a string represents an ila state name
   bool TryFindIlaState(const std::string& sname);
   /// Test if a string represents an ila input name
@@ -470,17 +470,14 @@ public:
     TraceDataPoints * dp, const std::vector<std::string> & sygus_var_names); 
   /// generate the runable script name
   const std::vector<std::string> & GetRunnableScriptName() const;
+  /// check property using Z3 not cosa
+  void GenerateDesignOnlyCandidateInvChcCheckTargets(synthesis_backend_selector s_backend);
+
 
 protected:
   // --------------------- METHODS ---------------------------- //
   /// subroutine for generating synthesis using chc targets
-  std::shared_ptr<smt::YosysSmtParser> _generate_chc_inv_syn_target(synthesis_backend_selector s_backend);
-  /// subroutine for generating synthesis using sygus targets --- one round
-  std::shared_ptr<smt::YosysSmtParser> _generate_sygus_inv_syn_target(synthesis_backend_selector s_backend);
-  /// subroutine for generating synthesis using sygus targets --- cex guided loop
-  std::shared_ptr<smt::YosysSmtParser> _generate_sygus_inv_syn_loop_target(synthesis_backend_selector s_backend);
-
-
+  
 protected:
   /// If it is bad state, return true and display a message
   bool bad_state_return(void);
