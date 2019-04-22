@@ -25,7 +25,9 @@ public:
   DatapointInvariantPruner(InvariantObject & _invs, const TraceDataPoints & _dpts);
   /// to prune using the last frame of pos example
   void PruneByLastFramePosEx(const smt::YosysSmtParser & design_info,
-    std::vector<std::string> var_name_vec ); // the second is the argument order
+    std::vector<std::string> var_name_vec,
+    const std::map<std::string,int> & additional_width_info
+     ); // the second is the argument order
   
 }; // class DatapointInvariantPruner
 

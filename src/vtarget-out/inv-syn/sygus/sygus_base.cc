@@ -200,10 +200,12 @@ Cvc4SygusBase::Cvc4SygusBase(
   const smt::YosysSmtParser & smt_design_info,       // the design info is needed
   const std::vector<std::string> & inv_var_name_vec, // the variables we are going to consider
   const sygus_options_t & SygusOptions,           // the options
-  const std::string & customized_invariant_arg
+  const std::string & customized_invariant_arg,
+  const std::map<std::string, int> & width_info
   ) : 
   var_names (inv_var_name_vec), design_info(smt_design_info), 
   options(SygusOptions),
+  additional_width_info(width_info),
   inv_arg_customize(not customized_invariant_arg.empty()),
   invariant_arg(customized_invariant_arg) {
 
@@ -222,16 +224,23 @@ void Cvc4SygusBase::arg_to_widx() {
   const auto & var_idx = design_info.get_var_idx();
 
   for (auto && st : var_names) {
-    ILA_ASSERT(IN(st,var_idx)) << "statename:" << st << " not found in design's smt!";
-    const auto & var_tp_ptr = var_idx.at(st);
+    smt::var_type tp;
+    if (IN(st,var_idx)) {
+      tp = var_idx.at(st)->_type;
+    } else if (IN(st,additional_width_info)) {
+      tp._type = tp.BV;
+      tp._width = additional_width_info.at(st);
+    } else
+      ILA_ASSERT(false) << "statename:" << st << " not found in design's smt / additional info!";
+      
     auto vname = '|' + st + '|';
-    args_list.push_back( '(' + vname + ' ' + var_tp_ptr->_type.toString() + ')' );
-    if (var_tp_ptr->_type.is_bool())
+    args_list.push_back( '(' + vname + ' ' + tp.toString() + ')' );
+    if (tp.is_bool())
       width_to_names[0].push_back(vname);
-    else if (var_tp_ptr->_type.is_bv())
-      width_to_names[var_tp_ptr->_type._width].push_back(vname);
+    else if (tp.is_bv())
+      width_to_names[tp._width].push_back(vname);
     else
-      ILA_ASSERT(false) << "Unhandled type:" << var_tp_ptr->_type._type ;
+      ILA_ASSERT(false) << "Unhandled type:" << tp._type ;
   }
 }
 

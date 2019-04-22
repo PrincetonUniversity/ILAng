@@ -121,6 +121,11 @@ const std::vector<std::string> & VlgVerifTgtGen::GetRunnableScriptName() const {
   return runnable_script_name;
 }
 
+
+const VlgTgtSupplementaryInfo & VlgVerifTgtGen::GetSupplementaryInfo() const {
+  return sup_info;
+}
+
 // ------------------------- SYNTHESIS TARGET ------------------------- //
 
 

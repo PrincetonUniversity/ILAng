@@ -26,7 +26,8 @@ namespace ilang
       const smt::YosysSmtParser & _design_info,       // the design info is needed
       const std::vector<std::string> & _var_name_vec, // the variables we are going to consider
       const sygus_options_t & SygusOptions,           // the options
-      TraceDataPoints * datapoints
+      TraceDataPoints * datapoints,
+      const std::map<std::string, int> & additional_wdith_info
       );
     /// no copy constructor
     Cvc4SygusInputGenerator(const Cvc4SygusInputGenerator &) = delete;

@@ -20,7 +20,8 @@ DatapointInvariantPruner::DatapointInvariantPruner(InvariantObject & _invs, cons
 }
 /// to prune using the last frame of pos example
 void DatapointInvariantPruner::PruneByLastFramePosEx(const smt::YosysSmtParser & design_info,
-    std::vector<std::string> var_name_vec ) {
+    std::vector<std::string> var_name_vec,
+    const std::map<std::string,int> & additional_width_info ) {
 
   if (dpts.pos_ex.empty()) {
     ILA_ERROR << "No positive example to use.";
@@ -35,15 +36,23 @@ void DatapointInvariantPruner::PruneByLastFramePosEx(const smt::YosysSmtParser &
   std::vector<std::string> frame_vals;
   for (const auto & vname : var_name_vec ) {
     ILA_ASSERT(IN(vname, last_frame)) << vname << " is not in the datapoint frame!";
-    ILA_ASSERT(IN(vname, var_idx)) << vname << " is not in design's smt!";
+    
+    smt::var_type tp;
+    if (IN(vname,var_idx)) {
+      tp = var_idx.at(vname)->_type;
+    } else if (IN(vname,additional_width_info)) {
+      tp._type = tp.BV;
+      tp._width = additional_width_info.at(vname);
+    } else
+      ILA_ASSERT(false) << "statename:" << vname << " not found in design's smt / additional info!";
+   
+    auto width = tp._width;
 
-    auto data_type_ptr = var_idx.at(vname);
-    auto width = data_type_ptr->_type._width;
-
-    if (data_type_ptr->_type.is_bool())
-      frame_vals.push_back( last_frame.at(vname).first == 0 ? "false" : "true"  );
+    if (tp.is_bool())
+      frame_vals.push_back( last_frame.at(vname).first.val == "0" ? "false" : "true"  );
     else
-      frame_vals.push_back( smt::convert_to_binary(last_frame.at(vname).first, width));
+      frame_vals.push_back( smt::convert_to_binary(last_frame.at(vname).first.val,
+        last_frame.at(vname).first.radix, width));
   }
   auto assertion = "(assert (INV " + Join(frame_vals, " ") + "))";
 

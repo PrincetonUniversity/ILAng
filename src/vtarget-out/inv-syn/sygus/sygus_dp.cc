@@ -22,8 +22,9 @@ Cvc4SygusInputGenerator::Cvc4SygusInputGenerator(
   const smt::YosysSmtParser & smt_design_info,       // the design info is needed
   const std::vector<std::string> & inv_var_name_vec, // the variables we are going to consider
   const sygus_options_t & SygusOptions,           // the options
-  TraceDataPoints * datapoints
-  ) : Cvc4SygusBase(smt_design_info, inv_var_name_vec, SygusOptions, ""),
+  TraceDataPoints * datapoints,
+  const std::map<std::string, int> & additional_width_info
+  ) : Cvc4SygusBase(smt_design_info, inv_var_name_vec, SygusOptions, "", additional_width_info),
       dpts(datapoints)
       // not customize inv arg
   { }
@@ -36,17 +37,28 @@ std::string Cvc4SygusInputGenerator::generate_datapoint_constraints(TraceDataPoi
     std::vector<std::string> frame_vals;
     for (const auto & vname : var_names) {
       ILA_ASSERT(IN(vname, aframe)) << vname << " is not in the datapoint frame!";
-      ILA_ASSERT(IN(vname, var_idx)) << vname << " is not in the smt!";
-      auto data_type_ptr = var_idx.at(vname);
-      auto width = data_type_ptr->_type._width;
-      ILA_ASSERT( data_type_ptr->_type.GetBoolBvWidth() 
-        >= aframe.at(vname).second.GetBoolBvWidth()) << "Bit-width does not match!";
+
+
+      smt::var_type tp;
+      
+      if (IN (vname,var_idx) ) {
+        smt::state_var_t * data_type_ptr = var_idx.at(vname);
+        tp = data_type_ptr->_type;
+      } else if (IN (vname, additional_width_info)) {
+        tp._width = additional_width_info.at(vname);
+        tp._type = tp.BV;
+      } else {
+        tp = aframe.at(vname).second;
+        ILA_ERROR << vname << " is not in the smt! Using datapoints width:" << tp.GetBoolBvWidth();
+      }
+
+      auto width = tp._width;
       // they should match, but for iverilog, it does not always generate the right width
       // iverilog's bug here!
-      if (data_type_ptr->_type.is_bool())
-        frame_vals.push_back( aframe.at(vname).first == 0 ? "false" : "true"  );
+      if (tp.is_bool())
+        frame_vals.push_back( aframe.at(vname).first.val == "0" ? "false" : "true"  );
       else
-        frame_vals.push_back( smt::convert_to_binary(aframe.at(vname).first, width));
+        frame_vals.push_back( smt::convert_to_binary(aframe.at(vname).first.val, aframe.at(vname).first.radix, width));
     }
     constraints.push_back( ReplaceAll(cnst_pos_template, 
       "%pos_vals%", Join(frame_vals," ") ));
@@ -56,15 +68,26 @@ std::string Cvc4SygusInputGenerator::generate_datapoint_constraints(TraceDataPoi
   const auto & aframe = dpts->neg_ex;
   for (const auto & vname : var_names) {
     ILA_ASSERT(IN(vname, aframe)) << vname << " is not in the datapoint frame!";
-    ILA_ASSERT(IN(vname, var_idx)) << vname << " is not in the smt!";
-    auto data_type_ptr = var_idx.at(vname);
-    auto width = data_type_ptr->_type._width;
-    ILA_ASSERT( data_type_ptr->_type.GetBoolBvWidth() 
-      == aframe.at(vname).second.GetBoolBvWidth()) << "Bit-width does not match!";
-    if (data_type_ptr->_type.is_bool())
-      frame_vals.push_back( aframe.at(vname).first == 0 ? "false" : "true"  );
+    
+    smt::var_type tp;
+    
+    if (IN (vname,var_idx) ) {
+      smt::state_var_t * data_type_ptr = var_idx.at(vname);
+      tp = data_type_ptr->_type;
+    } else if (IN (vname, additional_width_info)) {
+      tp._width = additional_width_info.at(vname);
+      tp._type = tp.BV;
+    } else {
+      tp = aframe.at(vname).second;
+      ILA_ERROR << vname << " is not in the smt! Using datapoints width:" << tp.GetBoolBvWidth();
+    }
+     
+    //ILA_ASSERT( data_type_ptr->_type.GetBoolBvWidth() 
+    //  == aframe.at(vname).second.GetBoolBvWidth()) << "Bit-width does not match!";
+    if (tp.is_bool())
+      frame_vals.push_back( aframe.at(vname).first.val == "0" ? "false" : "true"  );
     else
-      frame_vals.push_back( smt::convert_to_binary(aframe.at(vname).first, width));
+      frame_vals.push_back( smt::convert_to_binary(aframe.at(vname).first.val, aframe.at(vname).first.radix, tp._width));
   }
   constraints.push_back( ReplaceAll(cnst_neg_template, 
     "%neg_vals%", Join(frame_vals," ") ));

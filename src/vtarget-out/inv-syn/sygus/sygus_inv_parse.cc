@@ -150,7 +150,7 @@ void SyGuSInvariantParser::declare_quantified_variable(const std::string &name, 
   }
   // we don't explicitly check if this name is valid or not
   if (not dut_verilog_instance_name.empty())
-    ILA_ASSERT(IN(vlg_name,_all_allowable_names))
+    ILA_ERROR_IF(not IN(vlg_name,_all_allowable_names))
       << "Expecting " << vlg_name << " in all allowable names, but actually not.";
   /*( 
     design_smt_info_ptr->get_module_flatten_dt(top_module)

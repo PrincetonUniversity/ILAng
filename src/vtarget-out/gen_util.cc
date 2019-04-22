@@ -517,6 +517,8 @@ void VlgSglTgtGen::handle_start_condition(nlohmann::json& dc) {
 
 // use instruction pointer and the rf_cond to get it (no need to provide)
 nlohmann::json& VlgSglTgtGen::get_current_instruction_rf() {
+  if (_instr_ptr == nullptr)
+    return empty_json;
   auto& instrs = rf_cond["instructions"];
   for (auto&& instr : instrs) {
     if (instr["instruction"] == _instr_ptr->name().str())

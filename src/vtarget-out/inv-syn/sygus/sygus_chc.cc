@@ -84,8 +84,9 @@ Cvc4SygusChcGenerator::Cvc4SygusChcGenerator(
   const smt::YosysSmtParser & smt_design_info,       // the design info is needed
   const std::vector<std::string> & inv_var_name_vec, // the variables we are going to consider
   const sygus_options_t & SygusOptions,           // the options
-  const std::string & flattened_smt
-  ) : Cvc4SygusBase(smt_design_info, inv_var_name_vec, SygusOptions, "%WrapperDataType%"),
+  const std::string & flattened_smt,
+  const std::map<std::string,int> & additional_width_info
+  ) : Cvc4SygusBase(smt_design_info, inv_var_name_vec, SygusOptions, "%WrapperDataType%", additional_width_info),
       // not customize inv arg
       smt_converted(flattened_smt) { }
 

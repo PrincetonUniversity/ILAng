@@ -53,6 +53,8 @@ public:
     enum { AUTO = 0, NEW = 1, OLD = 2 } PortDeclStyle; // default : AUTO
     /// Generate a jg script to help validate cosa?
     bool CosaGenJgTesterScript; // default : false
+    /// generate the trace for all variables?
+    bool CosaFullTrace;
     /// For CoSA backend: do we add (* keep *)? default true, however, it can be
     /// buggy, so you can disable it if you want
     bool CosaAddKeep;
@@ -80,11 +82,12 @@ public:
     /// How to encode Verilog state
     /// DataSort seems to use PDR engine, while bitvec seems Datalog
     /// Not 100% sure of it
-    enum { 
+    typedef enum  { 
       UnintepretedFunc /*not supported*/ , 
       DataSort, /*by default*/
       BitVec /*not supported*/
-      } YosysSmtStateSort;
+      } _state_sort_t;
+    _state_sort_t YosysSmtStateSort;
     /// whether to remove the extra issue cycle and starts from reset
     bool VerificationSettingAvoidIssueStage;
     // ----------- Options for Z3/FreqHorn Solver -------------- //
@@ -165,7 +168,8 @@ public:
           // OnlyEnforceInvariantsOnInitialStateOfInstrCheck(true),  // not used, always true
           OnlyCheckInstUpdatedVars(true),
           PerVariableProblemCosa(false), MemAbsReadAbstraction(false),
-          CosaGenJgTesterScript(false), CosaAddKeep(true), MaxBound(127),
+          CosaGenJgTesterScript(false), CosaFullTrace(false), 
+          CosaAddKeep(true), MaxBound(127),
           ForceInstCheckReset(false), PortDeclStyle(AUTO),
           OnlyAssumeUpdatedVarsEq(false), CosaPath(""), CosaPyEnvironment(""),
           CosaSolver(""), CosaGenTraceVcd(true), CosaOtherSolverOptions(""),

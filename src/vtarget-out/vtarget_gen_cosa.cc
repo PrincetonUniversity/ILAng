@@ -136,6 +136,8 @@ void VlgSglTgtGen_Cosa::Export_script(const std::string& script_name) {
     options += " --solver-name=" + _vtg_config.CosaSolver;
   if (_vtg_config.CosaGenTraceVcd)
     options += " --vcd";
+  if (_vtg_config.CosaFullTrace)
+    options += " --full-trace";
   options += " " + _vtg_config.CosaOtherSolverOptions;
 
   // no need, copy is good enough

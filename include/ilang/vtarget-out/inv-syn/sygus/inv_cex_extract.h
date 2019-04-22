@@ -18,7 +18,9 @@ class InvCexExtractor {
 public:
   // -------------------- TYPES ------------------ //
   /// a uniform value type (any radix/bool/bv should be fine)
-  typedef std::pair<unsigned, smt::var_type> value_t;
+  /// radix must be in 2 10 16
+  /// here we need to correct this
+  typedef std::pair<std::string , smt::var_type> value_t;
   /// val_name -> val
   typedef std::map<std::string, value_t>  cex_t;
   /// a function to determine if some name is a true signal

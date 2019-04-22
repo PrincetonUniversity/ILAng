@@ -1,5 +1,5 @@
 /// \file
-/// Unit test for generating Verilog verification target
+/// Unit test for invariant synthesis
 
 #include <ilang/util/fs.h>
 #include <ilang/ila/instr_lvl_abs.h>
@@ -364,8 +364,9 @@ TEST(TestVlgVerifInvSyn, CegarPipelineExampleSygusDatapoint) {
     std::cout << "No more EQ check cex found, begin validating candidate invariants...\n";
     // if ( vg.ProofCandidateInvariant(time) )  // if it can be proved in a time bound, we are good, will add to ...
     //  break;
-    bool confirmed_all_candidates = vg.ProofCandidateInvariants();
-    if (confirmed_all_candidates) {
+    auto confirmed_all_candidates = vg.ProofCandidateInvariants();
+    ILA_ASSERT(confirmed_all_candidates != vg.INV_UNKNOWN);
+    if (confirmed_all_candidates == vg.INV_PROVED) {
       std::cout << "All candidate invariants have been proved!" << std::endl;
       vg.AcceptAllCandidateInvariant(); // this is also done by validate actually, if it succeeded
       break;
@@ -380,7 +381,7 @@ TEST(TestVlgVerifInvSyn, CegarPipelineExampleSygusDatapoint) {
     // else if okay -> add to confirmed invariant
 
     std::cout << "Validation failed, prune candidate invariants...\n";
-    vg.RemoveCandidateInvariant();
+    vg.PruneCandidateInvariant();
     // a simple impl: remove all candidate invariants
     // an advanced impl: remove only violating invariants
     // do you want to continue to remove? (hard -- because validating takes time...)
@@ -389,6 +390,9 @@ TEST(TestVlgVerifInvSyn, CegarPipelineExampleSygusDatapoint) {
 
   // final validation
   vg.GenerateInvariantVerificationTarget(); // finally we revalidate the result
+  std::cout << "---------Synthesized Invariants----------\n";
+  for (auto && vlg: vg.GetInvariants().GetVlgConstraints() )
+    std::cout << vlg << std::endl;
 }
 
 

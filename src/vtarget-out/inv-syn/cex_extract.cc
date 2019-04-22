@@ -13,7 +13,7 @@
 namespace ilang {
 
 
-std::string val2str(const VCDValue & v) {
+static std::string val2str(const VCDValue & v) {
   std::stringstream ret;
 
   switch(v.get_type()) {
@@ -68,7 +68,7 @@ std::string collect_scope(VCDScope * sc) {
 
 
 void CexExtractor::parse_from(const std::string & vcd_file_name, 
-  const std::string & scope, is_reg_t is_reg) {
+  const std::string & scope, is_reg_t is_reg, bool reg_only) {
 
   cex.clear();
 
@@ -141,7 +141,9 @@ void CexExtractor::parse_from(const std::string & vcd_file_name,
         check_name = check_name.substr(0,pos);
     }
 
-    if(not is_reg(check_name) )
+    bool is_this_var_reg = is_reg(check_name);
+
+    if(reg_only && ! is_this_var_reg )
       continue;
 
     auto vlg_val_ptr = trace->get_signal_value_at( sig->hash, start_time);
@@ -156,6 +158,7 @@ void CexExtractor::parse_from(const std::string & vcd_file_name,
         * vlg_val_ptr );
     
     cex.insert( std::make_pair( vlg_name, val) );
+    cex_is_reg.insert( std::make_pair( vlg_name, is_this_var_reg));
     
   } // for sig
 
@@ -165,8 +168,8 @@ void CexExtractor::parse_from(const std::string & vcd_file_name,
 
 
 CexExtractor::CexExtractor(const std::string & vcd_file_name, 
-  const std::string & scope, is_reg_t is_reg) {
-  parse_from(vcd_file_name, scope, is_reg);
+  const std::string & scope, is_reg_t is_reg, bool reg_only) {
+  parse_from(vcd_file_name, scope, is_reg, reg_only);
 }
 
 // -------------------- MEMBERS ------------------ //
@@ -174,7 +177,8 @@ CexExtractor::CexExtractor(const std::string & vcd_file_name,
 std::string CexExtractor::GenInvAssert(const std::string & prefix) const {
   std::string ret = "(1'b1 == 1'b1)"; // true
   for (auto && nv : cex) {
-    
+    if (!cex_is_reg.at(nv.first))
+      continue;
     ret += "&& (" + prepend(prefix, 
       ReplaceAll( nv.first , "[0:0]" , "" ) ) + " == " + nv.second + ")";
   }

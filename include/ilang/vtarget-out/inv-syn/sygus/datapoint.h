@@ -19,7 +19,11 @@ namespace ilang
     // ------------- TYPES ---------------- //
     /// the type of values
     /// the number here will be converted to #x... / #b... when needed
-    typedef std::pair<unsigned, smt::var_type> value_t;
+    struct radix_val_t { std::string val; unsigned radix; 
+      radix_val_t() {}
+      radix_val_t(const std::string &v, unsigned r):val(v),radix(r){} };
+    /// radix must be in 2 10 16
+    typedef std::pair<radix_val_t, smt::var_type> value_t;
     /// the type of example collectors: var_name -> value
     typedef std::map<std::string,value_t> example_map_t;
     /// the type of multiple round of pos_ex

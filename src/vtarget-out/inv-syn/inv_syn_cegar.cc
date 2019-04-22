@@ -127,6 +127,8 @@ void InvariantSynthesizerCegar::GenerateVerificationTarget() {
   inv_candidate.set_dut_inst_name(vlg_mod_inst_name);
 
   runnable_script_name = vg.GetRunnableScriptName();
+  if (additional_width_info.empty())
+    additional_width_info = vg.GetSupplementaryInfo().width_info;
 
   status = cegar_status::V_RES;
 }
@@ -215,7 +217,7 @@ void InvariantSynthesizerCegar::ExtractVerificationResult(bool autodet, bool pas
 
   // not passing
   cex_extract = std::unique_ptr<CexExtractor>(
-    new CexExtractor(res_file,vlg_mod_inst_name, is_reg));
+    new CexExtractor(res_file,vlg_mod_inst_name, is_reg, not _vtg_config.CosaFullTrace));
   // advance to synthesis stage
   status = cegar_status::NEXT_S;
 } // extract result
@@ -299,13 +301,13 @@ void InvariantSynthesizerCegar::ExtractSynthesisResult(bool autodet, bool reacha
 
 /// a helper function (only locally available)
 /// to detect tool error (e.g., verilog parsing error)
-bool has_verify_tool_error_cosa(const std::string & fn) {
+bool static has_verify_tool_error_cosa(const std::string & fn) {
   std::ifstream fin(fn);
   if (not fin.is_open()) {
     ILA_ERROR<<"Unable to read from:"<<fn;
     return true;
   }
-  
+
   std::string line;
   while(std::getline(fin,line)) {
     if (S_IN("See yosys-err.log for more info." , line))
@@ -314,6 +316,22 @@ bool has_verify_tool_error_cosa(const std::string & fn) {
   return false;
 } // has_verify_tool_error_cosa
 
+  /// a helper function (only locally available)
+/// to detect tool error (e.g., verilog parsing error)
+bool static has_verify_tool_unknown_cosa(const std::string & fn) {
+  std::ifstream fin(fn);
+  if (not fin.is_open()) {
+    ILA_ERROR<<"Unable to read from:"<<fn;
+    return true;
+  }
+  
+  std::string line;
+  while(std::getline(fin,line)) {
+    if (S_IN("UNKNOWN != TRUE <<<---------| ERROR" , line))
+      return true;
+  }
+  return false;
+} // has_verify_tool_error_cosa
 /// run Verification
 bool InvariantSynthesizerCegar::RunVerifAuto(unsigned problem_idx) {
   if(check_in_bad_state())
@@ -336,6 +354,8 @@ bool InvariantSynthesizerCegar::RunVerifAuto(unsigned problem_idx) {
   // above it you should have *** TRACES ***
   // the vcd file resides within the new dir
   ILA_ERROR_IF(has_verify_tool_error_cosa(result_fn)) << "----------- Verification tool reported error! Please check the log output!";
+  ILA_ERROR_IF(has_verify_tool_unknown_cosa(result_fn)) << "UNKNOWN Verif result";
+
   auto lastLine = os_portable_read_last_line(result_fn);
   ILA_ERROR_IF(lastLine.empty()) << "Unable to extract verification result.";
   if (S_IN("Verifications with unexpected result", lastLine)) {
@@ -545,16 +565,16 @@ void InvariantSynthesizerCegar::ExtractSygusDatapointSynthesisResultAsCandidateI
 /// to validate if the previous attempt is good (inductive or not)
 /// if not CTI will be extracted
 /// return true if this is okay...
-bool InvariantSynthesizerCegar::ValidateSygusDatapointCandidateInvariant() {
+InvariantSynthesizerCegar::_inv_check_res_t InvariantSynthesizerCegar::ValidateSygusDatapointCandidateInvariant(unsigned timeout) {
   ILA_ERROR_IF(current_inv_type != cur_inv_tp::SYGUS_CEX ) 
     << "Not using the SyGuS Datapoint synthesis method!";
 
   if(inv_candidate.NumInvariant() == 0) {
     ILA_ERROR << "No candidate invariant to check";
-    return true;
+    return INV_UNKNOWN;
   }
 
-  if (check_in_bad_state()) return false;
+  if (check_in_bad_state()) return INV_UNKNOWN;
 
   // to send in the invariants
   advanced_parameters_t adv_param;
@@ -596,14 +616,18 @@ bool InvariantSynthesizerCegar::ValidateSygusDatapointCandidateInvariant() {
   ILA_INFO << "Executing verify script:" << inv_validate_script[0];
   auto res = os_portable_execute_shell({"bash", 
     os_portable_file_name_from_path( inv_validate_script[0]) },
-   redirect_fn, redirect_t::BOTH);
+   redirect_fn, redirect_t::BOTH, timeout);
   ILA_ERROR_IF(res.failure != execute_result::NONE)
     << "Running verification script " << inv_validate_script[0] << " results in error."; 
   ILA_ASSERT(os_portable_chdir(cwd));
+  if(res.timeout || ! res.subexit_normal)
+    return INV_UNKNOWN;
   // the last line contains the result
   // above it you should have *** TRACES ***
   // the vcd file resides within the new dir
   ILA_ERROR_IF(has_verify_tool_error_cosa(result_fn)) << "----------- Verification tool reported error! Please check the log output!";
+  if(has_verify_tool_unknown_cosa(result_fn))
+    return INV_UNKNOWN;
   auto lastLine = os_portable_read_last_line(result_fn);
   ILA_ERROR_IF(lastLine.empty()) << "Unable to extract verification result.";
   if (S_IN("Verifications with unexpected result", lastLine)) {
@@ -621,14 +645,14 @@ bool InvariantSynthesizerCegar::ValidateSygusDatapointCandidateInvariant() {
     InvCexExtractor cti_extract(inv_cex_path, vlg_mod_inst_name, is_coi );
     datapoints.AddPosEx( cti_extract );
 
-    return false;
+    return INV_INVALID;
   } // CTI found (you can start another round if you want )
   // otherwise, we are good
   
   // make the candidate as confirmed
   AcceptAllCandidateInvariant();
 
-  return true;
+  return INV_PROVED;
 }
 
 void InvariantSynthesizerCegar::AcceptAllCandidateInvariant() {
@@ -639,19 +663,28 @@ void InvariantSynthesizerCegar::AcceptAllCandidateInvariant() {
     ILA_INFO <<"All candidate invariants have been accepted.";
 }
 
-void InvariantSynthesizerCegar::RemoveCandidateInvariant() {
+void InvariantSynthesizerCegar::PruneCandidateInvariant() {
   // future work : remove only obvious failing ones
   // inv_candidate.ClearAllInvariants();
   ILA_ASSERT(not sygus_vars.empty());
+  
   DatapointInvariantPruner pruner(inv_candidate,datapoints);
-  pruner.PruneByLastFramePosEx(*(design_smt_info.get()), sygus_vars);
+  pruner.PruneByLastFramePosEx(*(design_smt_info.get()), sygus_vars, additional_width_info );
+}
+
+
+/// Supply Verilog candidate invariants
+void InvariantSynthesizerCegar::SupplyCandidateInvariant(const std::string &vlg_expr) {
+  ILA_WARN << "Verilog invariant cannot be pruned";
+  inv_candidate.AddInvariantFromVerilogExpr("",vlg_expr);
 }
 
 
 /// to generate synthesis target
-bool InvariantSynthesizerCegar::ProofCandidateInvariants() {
+InvariantSynthesizerCegar::_inv_check_res_t InvariantSynthesizerCegar::ProofCandidateInvariants(
+  unsigned timeout, _state_sort_t state_encoding, bool flatten_dp) {
   // generate a target -- based on selection
-  if (check_in_bad_state()) return false;
+  if (check_in_bad_state()) return INV_UNKNOWN;
   ILA_WARN_IF(status != cegar_status::NEXT_S) << "CEGAR-loop: not expecting synthesis step.";
 
   ILA_ERROR_IF(current_inv_type != cur_inv_tp::SYGUS_CEX ) 
@@ -665,9 +698,9 @@ bool InvariantSynthesizerCegar::ProofCandidateInvariants() {
 
   auto inv_proof_vtg_config = _vtg_config;
   // inv_gen_vtg_config.OnlyEnforceInvariantsOnInitialStateOfInstrCheck = false; // always true
-  inv_proof_vtg_config.YosysSmtStateSort = inv_proof_vtg_config.BitVec;
+  inv_proof_vtg_config.YosysSmtStateSort = state_encoding;
   inv_proof_vtg_config.YosysSmtFlattenHierarchy = true;
-  inv_proof_vtg_config.YosysSmtFlattenDatatype = false;
+  inv_proof_vtg_config.YosysSmtFlattenDatatype = flatten_dp;
   inv_proof_vtg_config.CosaGenTraceVcd = false;
   // this does not matter actually
   inv_proof_vtg_config.target_select = inv_proof_vtg_config.INV; 
@@ -702,29 +735,34 @@ bool InvariantSynthesizerCegar::ProofCandidateInvariants() {
     << "RunVerifAuto: cannot change dir to:" << new_wd;
   ILA_INFO << "Executing synthesis script:" <<  run_script[0] ;
   auto res = os_portable_execute_shell({"bash",
-    os_portable_file_name_from_path( run_script[0] )}, redirect_fn);
+    os_portable_file_name_from_path( run_script[0] )}, redirect_fn, BOTH, timeout);
+  
   ILA_ERROR_IF(res.failure != execute_result::NONE )
     << "Running synthesis script " << run_script[0] << " results in error."; 
   ILA_ASSERT(os_portable_chdir(cwd));
   
+  if (res.timeout || ! res.subexit_normal)
+    return INV_UNKNOWN;
   std::string line;
   { // read the result
     std::ifstream fin(synthesis_result_fn);
     if (not fin.is_open()) {
-      ILA_ERROR << "Unable to read the synthesis result file:" << synthesis_result_fn;
+      ILA_ASSERT(false) << "Unable to read the synthesis result file:" << synthesis_result_fn;
       status = cegar_status::FAILED;
       bad_state = true;
-      return true; // reachable
+      return INV_UNKNOWN; // reachable
     } 
     std::getline(fin,line);  
   } // finish file reading
   if (S_IN("unsat", line))
   {
     AcceptAllCandidateInvariant();
-    return true;
+    return INV_PROVED;
   }
+  if (S_IN("(error", line))
+    return INV_UNKNOWN;
   // else reachable
-  return false;
+  return INV_INVALID;
 
 } // GenerateSynthesisTarget
 

@@ -453,7 +453,7 @@ void VlgSglTgtGen_Cvc4SyGuS::convert_datapoints_to_sygus(const std::string & smt
   load_smt_from_file(smt_fname, smt_converted);
 
   Cvc4SygusInputGenerator gen_sygus_input(
-    *(design_smt_info.get()), var_names, _vtg_config.SygusOptions, dp );
+    *(design_smt_info.get()), var_names, _vtg_config.SygusOptions, dp, sup_info.width_info );
   gen_sygus_input.ExportToFile(sygus_fname);
 } // convert_datapoints_to_sygus
 
@@ -468,7 +468,7 @@ void VlgSglTgtGen_Cvc4SyGuS::convert_smt_to_chc_sygus(const std::string & smt_fn
 
   Cvc4SygusChcGenerator gen_sygus_input(
     *(design_smt_info.get()), var_names, _vtg_config.SygusOptions,
-    smt_converted);
+    smt_converted, sup_info.width_info);
   gen_sygus_input.ExportToFile(sygus_chc_fname);
 } // convert_smt_to_chc
   

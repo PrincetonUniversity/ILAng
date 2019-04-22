@@ -39,7 +39,8 @@ namespace ilang
       const smt::YosysSmtParser & _design_info,         // the design info is needed
       const std::vector<std::string> & _var_name_vec,   // the variables we are going to consider
       const sygus_options_t & SygusOptions,             // the options
-      const std::string & customized_invariant_arg      // whether to replace the %arg% w. something new
+      const std::string & customized_invariant_arg,      // whether to replace the %arg% w. something new
+      const std::map<std::string, int> & additional_width_info
       );
     /// no copy constructor
     Cvc4SygusBase(const Cvc4SygusBase &) = delete;
@@ -74,6 +75,8 @@ namespace ilang
     std::map<unsigned, std::vector<std::string>> width_to_names;
     // the list of all args
     std::vector<std::string> args_list;
+    // additional width info
+    const std::map<std::string, int> & additional_width_info;
 
   private:
     // ------------- Preprocessing step ---------------- //

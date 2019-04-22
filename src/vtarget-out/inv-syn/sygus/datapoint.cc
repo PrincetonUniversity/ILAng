@@ -12,6 +12,7 @@
 #include <ilang/vtarget-out/inv-syn/sygus/sim_trace_extract.h>
 
 #include <cmath>
+#include <iostream>
 
 namespace ilang {
 
@@ -26,11 +27,11 @@ TraceDataPoints::value_t vlg_val_to_smt_val(const std::string & v) {
     auto sep_pos = v.find('\'');
     ILA_ERROR_IF(v.length() < sep_pos + 3 ) << "Unable to parse:" << v;
     char radix = v.at(sep_pos + 1);
-    unsigned val = StrToInt(v.substr(sep_pos+2),
-      (radix == 'h' ? 16 :
+    int radix_unsigned = (radix == 'h' ? 16 :
         (radix == 'x' ? 16 : 
           (radix == 'o' ? 8 :
-            (radix == 'b' ? 2 : 10))))); // to the end
+            (radix == 'b' ? 2 : 10))));
+    std::string val = v.substr(sep_pos+2); // to the end
     ILA_ERROR_IF(not S_IN(radix, std::string("hxob") )) << "Unable to parse, unknown radix:" << v;
 
     unsigned width;
@@ -38,19 +39,21 @@ TraceDataPoints::value_t vlg_val_to_smt_val(const std::string & v) {
       width = StrToInt(v.substr(0,sep_pos));
     } else {
       width = 1;
-      if (val != 0)
-        width = (unsigned)(floor(log2(val))) + 1;
+      if (val != "0")
+        width = (unsigned)(floor(log2(StrToInt(val,radix_unsigned) ))) + 1;
     } // width
-    ret.first = val;
+    ret.first.val = val;
+    ret.first.radix = radix_unsigned;
     ret.second._type = smt::var_type::BV;
     ret.second._width = width;
   } else
   {
-    ret.first = StrToInt(v);
+    ret.first.val = v;
+    ret.first.radix = 10;
     ret.second._type = smt::var_type::BV;
     ret.second._width = 1; // if v == 0
-    if (ret.first != 0)
-      ret.second._width = (unsigned)(floor(log2(ret.first))) + 1;
+    if (ret.first.val != "0")
+      ret.second._width = (unsigned)(floor(log2(  StrToInt(ret.first.val,10)  ))) + 1;
   }
   return ret;  
 } // vlg_val_to_smt_val
@@ -93,7 +96,7 @@ template <> void TraceDataPoints::SetNegEx<InvCexExtractor> (const InvCexExtract
   for(auto && e : ex.GetCex() ) {
     neg_ex.insert(std::make_pair(
       vcd_remove_extra_bracket(e.first),
-      e.second
+      std::make_pair(radix_val_t(e.second.first,2),e.second.second)
     ));
   }
 }
@@ -101,10 +104,12 @@ template <> void TraceDataPoints::SetNegEx<InvCexExtractor> (const InvCexExtract
 // specialized instantiation
 template <> void TraceDataPoints::AddPosEx<InvCexExtractor> (const InvCexExtractor & ex) {
   pos_ex.push_back(example_map_t());
+  std::cout << "Adding pos ex:";
   for(auto && e : ex.GetCex() ) {
     pos_ex.back().insert(std::make_pair(
       vcd_remove_extra_bracket(e.first),
-      e.second));
+      std::make_pair(radix_val_t(e.second.first,2),e.second.second) ));
+    std::cout << vcd_remove_extra_bracket(e.first) << ":" << e.second.first << std::endl;
   }
 }
 

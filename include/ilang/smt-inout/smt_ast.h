@@ -195,7 +195,9 @@ namespace smt{
   void ParseFromString(str_iterator & it, smt_file & smt);
 
   /// helper function
-  std::string convert_to_binary(unsigned v, unsigned w);
+  std::string convert_to_binary(unsigned v, unsigned w); // if we have value here
+  /// if we have a string here
+  std::string convert_to_binary(const std::string v, unsigned radix, unsigned w);
 }; // namespace smt
 }; // namespace ilang
   

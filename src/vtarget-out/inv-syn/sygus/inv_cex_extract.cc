@@ -13,7 +13,7 @@
 namespace ilang {
 
 
-InvCexExtractor::value_t val2str(const VCDValue & v) {
+static InvCexExtractor::value_t val2str(const VCDValue & v) {
   InvCexExtractor::value_t ret;
   char ch;
 
@@ -22,7 +22,7 @@ InvCexExtractor::value_t val2str(const VCDValue & v) {
       ret.second._type = smt::var_type::tp::Bool;
       ch = VCDValue::VCDBit2Char(v.get_value_bit());
       ILA_WARN_IF(ch != '0' and ch != '1') << "Got " << ch << " in parsing VCD, treating as 0";
-      ret.first = ch == '1' ? 1 : 0;
+      ret.first = ch == '1' ? "1" : "0";
       break;
     case (VCD_VECTOR):
       {
@@ -35,7 +35,7 @@ InvCexExtractor::value_t val2str(const VCDValue & v) {
                 ++it) {
           ch = VCDValue::VCDBit2Char(*it);
           ILA_WARN_IF(ch != '0' and ch != '1') << "Got " << ch << " in parsing VCD, treating as 0";
-          ret.first = (ret.first << 1) | (ch == '1' ? 1 :0);
+          ret.first = ret.first + ch;
         } // for
       } // case vector
       break;
@@ -70,6 +70,29 @@ void InvCexExtractor::parse_from(const std::string & vcd_file_name,
 
   ILA_NOT_NULL(trace -> get_scope("$root"));
 
+  VCDTime reset_time = 1;
+
+  for (VCDSignal* root_sig : trace -> get_scope("$root") -> signals ) {
+    // find the hash of it
+    std::string vlg_name ( root_sig -> reference );
+
+    if (vlg_name != "rst")
+      continue; // if this is not an invariant assert signal
+    // now check if it fails
+    std::string inv_hash = root_sig -> hash;
+    bool found = false;
+    VCDSignalValues * start_sig_vals = trace -> get_signal_value(inv_hash);
+    for (VCDTimedValue * tv : *start_sig_vals) {
+      if ( val2str( *(tv -> value) ).first == "0" and tv -> time > reset_time) {
+        reset_time = tv -> time;
+        found = true;
+        break;
+      }
+    }
+    if(found)
+      break;
+  } // iterate over all root signals to find the `invariant_assert__`
+
   VCDTime failing_time = -1;
   // determine the start signal time
   for (VCDSignal* root_sig : trace -> get_scope("$root") -> signals ) {
@@ -83,7 +106,7 @@ void InvCexExtractor::parse_from(const std::string & vcd_file_name,
     bool found = false;
     VCDSignalValues * start_sig_vals = trace -> get_signal_value(inv_hash);
     for (VCDTimedValue * tv : *start_sig_vals) {
-      if ( val2str( *(tv -> value) ).first == 0 ) {
+      if ( val2str( *(tv -> value) ).first == "0" and tv->time > reset_time ) {
         failing_time = tv -> time;
         found = true;
         break;

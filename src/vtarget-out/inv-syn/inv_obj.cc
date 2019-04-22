@@ -108,6 +108,7 @@ void InvariantObject::AddInvariantFromSygusResultFile(
 /// add invariants from verilog-like output
 void InvariantObject::AddInvariantFromVerilogExpr(const std::string & tag, const std::string & vlg_in) {
   inv_vlg_exprs.push_back(vlg_in);
+  smt_formula_vec.push_back("");
 }
 
 

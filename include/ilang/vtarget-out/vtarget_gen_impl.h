@@ -472,7 +472,8 @@ public:
   const std::vector<std::string> & GetRunnableScriptName() const;
   /// check property using Z3 not cosa
   void GenerateDesignOnlyCandidateInvChcCheckTargets(synthesis_backend_selector s_backend);
-
+  /// return the result from parsing supplymentary information
+  const VlgTgtSupplementaryInfo & GetSupplementaryInfo() const;
 
 protected:
   // --------------------- METHODS ---------------------------- //

@@ -13,7 +13,7 @@
 
 namespace ilang {
 
-std::string val2str_sim(const VCDValue & v) {
+static std::string val2str_sim(const VCDValue & v) {
   std::stringstream ret;
 
   switch(v.get_type()) {
@@ -153,12 +153,17 @@ void SimTraceExtractor::parse_from(
           val2str_sim(
             * vlg_val_ptr );
         // insert to the last frame
+        if (S_IN('X',val)) {
+          ILA_WARN << "Parsing VCD: " << vlg_name << " gets Xs. Ignore this frame.";
+          successful = false;
+          continue;
+        }
         _ex.back().insert( std::make_pair( 
           renamer(check_name),val));
       }
     } // frame is ready at this point
-    ILA_ERROR_IF(_ex.back().size() != coi.size())
-      << "Some COI signals are not recorded from VCD!";
+    ILA_ERROR_IF( (_ex.back().size() != coi.size()) and successful)
+      << "Some COI signals are not recorded from VCD at time:" << cur_time;
     if (not successful || not rec_this_frame(cur_time,_ex.back()))
       _ex.pop_back();
 

@@ -495,6 +495,21 @@ std::string convert_to_binary(unsigned v, unsigned w) {
   return "#b" + ret;
 }
 
+std::string convert_to_binary(const std::string v, unsigned radix, unsigned w) {
+  ILA_ASSERT(radix == 2) << "Please fix this, future work!";
+
+  std::string ret = v;
+  if (v.length() == w)
+    return "#b" + ret;
+  if (v.length() < w ) {
+    for (int i = 0; i < w-v.length(); i++)
+      ret = "0" + ret;
+    return "#b" + ret;
+  }
+  ILA_ASSERT(false) << "string : " << v << "(" << v.length() << ") cast to width:" << w;
+  return "";
+}
+
 
 }; // namespace smt
 }; // namespace ilang

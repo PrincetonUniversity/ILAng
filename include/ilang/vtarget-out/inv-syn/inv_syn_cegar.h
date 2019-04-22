@@ -39,6 +39,7 @@ class InvariantSynthesizerCegar {
 
 public:
   // -------------------- TYPES ------------------ //
+  using _state_sort_t = VlgVerifTgtGenBase::_vtg_config::_state_sort_t;
   /// Type of the verification backend
   using verify_backend_selector = VlgVerifTgtGenBase::backend_selector;
   /// Type of configuration
@@ -51,6 +52,11 @@ public:
   typedef enum {NEXT_V, V_RES, NEXT_S, S_RES, DONE, FAILED} cegar_status;
   /// Type of advanced parameter
   using advanced_parameters_t = VlgVerifTgtGenBase::advanced_parameters_t;
+  /// the type of invariant check result
+  enum _inv_check_res_t {INV_PROVED, INV_INVALID, INV_UNKNOWN};
+  /// additional width info
+  typedef std::map<std::string,int> additional_width_info_t;
+
 
 public:
   // -------------------- CONSTRUCTOR ------------------ //
@@ -112,9 +118,10 @@ public:
   void ExtractSygusDatapointSynthesisResultAsCandidateInvariant();
   /// to validate if the previous attempt is good (inductive or not)
   /// return true if the invariants are good/o.w. will auto load to datapoint's pos ex
-  bool ValidateSygusDatapointCandidateInvariant();
+  _inv_check_res_t ValidateSygusDatapointCandidateInvariant(unsigned timeout = 0);
   /// Try proving candidate invariants
-  bool ProofCandidateInvariants();
+  _inv_check_res_t ProofCandidateInvariants(unsigned timeout = 0, 
+    _state_sort_t state_encoding = _state_sort_t::BitVec, bool flatten_dp = false);
   /// set the initial datapoints (can be empty, but we suggest using the sim_trace_extract)
   void SetInitialDatapoint(const TraceDataPoints &dp);
   /// set the sygus name lists (cannot be empty)
@@ -122,7 +129,9 @@ public:
   /// Forcing to accept all the candidate invariants
   void AcceptAllCandidateInvariant();
   /// Remove potentially failing candidate invariants (conservative approach remove all candidates)
-  void RemoveCandidateInvariant();
+  void PruneCandidateInvariant();
+  /// Supply Verilog candidate invariants
+  void SupplyCandidateInvariant(const std::string &vlg);
 
 
 protected:
@@ -139,6 +148,8 @@ protected:
   cegar_status status;
   /// the SMT-LIB2 information of the design
   std::shared_ptr<smt::YosysSmtParser> design_smt_info;
+  /// the supplementary information
+  additional_width_info_t additional_width_info;
   /// is in back state?
   bool bad_state;
   /// the round id
