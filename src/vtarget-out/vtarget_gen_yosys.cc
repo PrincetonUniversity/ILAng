@@ -251,6 +251,7 @@ void VlgSglTgtGen_Yosys::Export_script(const std::string& script_name) {
     return;
   }
   fout << "#!/bin/bash" << std::endl;
+  //fout << "trap \"trap - SIGTERM && kill -- -$$\" SIGINT SIGTERM"<<std::endl;
 
   std::string yosys = "yosys";
 

@@ -173,7 +173,7 @@ volatile sig_atomic_t shared_time_out;
 #if defined(__unix__) || defined(unix) || defined(__APPLE__) || defined(__MACH__) || defined(__linux__) || defined(__FreeBSD__)
 void parent_alarm_handler(int signum) {
   if (child_pid != 0) {
-    kill(child_pid, SIGKILL);
+    kill(-child_pid, SIGTERM);
     shared_time_out = 1;
   }
 }
@@ -257,6 +257,8 @@ execute_result os_portable_execute_shell(
 
   // now forked ...
   if (pid == 0) {
+    setpgid(0,0); // creates a new proces group 
+    
     close(pipefd[0]); // close the read end
     int report_to_parent;
 

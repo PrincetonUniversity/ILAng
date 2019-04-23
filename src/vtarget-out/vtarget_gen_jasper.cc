@@ -95,6 +95,7 @@ void VlgSglTgtGen_Jasper::Export_script(const std::string& script_name) {
     ILA_ERROR << "Unable to open " << fn << " for write.";
     return;
   }
+  //fout << "trap \"trap - SIGTERM && kill -- -$$\" SIGINT SIGTERM"<<std::endl;
   fout << "jg -no_gui -fpv " << jg_script_name << std::endl;
 }
 /// export extra things (problem)

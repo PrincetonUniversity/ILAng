@@ -386,13 +386,12 @@ void VlgSglTgtGen::ConstructWrapper() {
   ConstructWrapper_add_ila_input();
   ILA_DLOG("VtargetGen") << "STEP:" << 5;
 
-  ILA_DLOG("VtargetGen") << "STEP:" << 5.1;
-  ConstructWrapper_add_cycle_count_moniter();
-  
   // 2. add some monitors (bound cnt)
   // 3. add assumptions & assertions
   if (target_type == target_type_t::INSTRUCTIONS) {
 
+    ILA_DLOG("VtargetGen") << "STEP:" << 5.1;
+    ConstructWrapper_add_cycle_count_moniter();
     ILA_DLOG("VtargetGen") << "STEP:" << 5.2;
     ConstructWrapper_add_varmap_assumptions();
     ILA_DLOG("VtargetGen") << "STEP:" << 5.3;

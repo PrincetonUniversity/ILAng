@@ -266,14 +266,14 @@ void VlgVerifTgtGen::GenerateTargets(void) {
         ( _vtg_config.ValidateSynthesizedInvariant == vtg_config_t::_validate_synthesized_inv::ALL or
           _vtg_config.ValidateSynthesizedInvariant == vtg_config_t::_validate_synthesized_inv::CONFIRMED
         ) and
-        (_advanced_param_ptr->_inv_obj_ptr != NULL and 
+        (_advanced_param_ptr and _advanced_param_ptr->_inv_obj_ptr != NULL and 
           not _advanced_param_ptr->_inv_obj_ptr->GetVlgConstraints().empty()))
         invariantExists = true;
       else if (
         ( _vtg_config.ValidateSynthesizedInvariant == vtg_config_t::_validate_synthesized_inv::ALL or
           _vtg_config.ValidateSynthesizedInvariant == vtg_config_t::_validate_synthesized_inv::CANDIDATE
         ) and
-        (_advanced_param_ptr->_candidate_inv_ptr != NULL and 
+        (_advanced_param_ptr and  _advanced_param_ptr->_candidate_inv_ptr != NULL and 
           not _advanced_param_ptr->_candidate_inv_ptr->GetVlgConstraints().empty()))
         invariantExists = true;
     }

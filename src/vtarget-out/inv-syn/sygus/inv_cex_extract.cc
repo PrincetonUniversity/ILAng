@@ -106,8 +106,9 @@ void InvCexExtractor::parse_from(const std::string & vcd_file_name,
     bool found = false;
     VCDSignalValues * start_sig_vals = trace -> get_signal_value(inv_hash);
     for (VCDTimedValue * tv : *start_sig_vals) {
-      if ( val2str( *(tv -> value) ).first == "0" and tv->time > reset_time ) {
+      if ( val2str( *(tv -> value) ).first == "0" and tv->time >= reset_time ) {
         failing_time = tv -> time;
+        std::cout << "extracting inv-cex @ time : " << failing_time << std::endl;
         found = true;
         break;
       }

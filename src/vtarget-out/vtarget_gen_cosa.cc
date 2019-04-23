@@ -126,6 +126,8 @@ void VlgSglTgtGen_Cosa::Export_script(const std::string& script_name) {
     return;
   }
   fout << "#!/bin/bash" << std::endl;
+  //fout << "trap \"trap - SIGTERM && kill -- -$$\" SIGINT SIGTERM"<<std::endl;
+
   if (not _vtg_config.CosaPyEnvironment.empty())
     fout << "source " << _vtg_config.CosaPyEnvironment << std::endl;
 

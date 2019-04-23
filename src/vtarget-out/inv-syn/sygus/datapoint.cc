@@ -75,8 +75,14 @@ std::string vcd_remove_extra_bracket(const std::string & vname) {
 template <>
 void TraceDataPoints::SetNegEx<CexExtractor>(const CexExtractor &ex) {
   neg_ex.clear();
+  std::cout << "get eq cex:\n";
   for(auto && e : ex.GetCex() ) {
     neg_ex.insert(std::make_pair(vcd_remove_extra_bracket(e.first), vlg_val_to_smt_val(e.second)));
+    //std::cout << e.first << " = " << e.second << "\n";
+    auto name = vcd_remove_extra_bracket(e.first);
+    if (! pos_ex.empty() && IN(name,pos_ex[0])) {
+      std::cout << e.first << " = " << e.second << "\n";
+    }
   }
 }
 /// the same as above
@@ -116,14 +122,26 @@ template <> void TraceDataPoints::AddPosEx<InvCexExtractor> (const InvCexExtract
 
 // specialized instantiation
 template <> void TraceDataPoints::AddPosEx<SimTraceExtractor> (const SimTraceExtractor & ex) {
+  int saved = 0;
+  std::set<std::string> valset;
   for(auto && e : ex.GetEx() ) {
     pos_ex.push_back(example_map_t());
-    for(auto && var_value : e)
+    std::string v;
+    for(auto && var_value : e) {
       pos_ex.back().insert(
         std::make_pair(
           vcd_remove_extra_bracket(var_value.first),
           vlg_val_to_smt_val(var_value.second)));
+      v += var_value.second;
+    }
+    if (IN(v, valset)) {
+      pos_ex.pop_back();
+      saved ++;
+      continue;
+    }
+    valset.insert(v);
   }
+  std::cout << "Prune sim datapoint. Saved #:" << saved <<"\n";
 }
 
 void TraceDataPoints::ClearPosEx() {

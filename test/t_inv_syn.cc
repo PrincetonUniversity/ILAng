@@ -95,7 +95,7 @@ TEST(TestVlgVerifInvSyn, SimpleCntCegar) {
 
     do{
       vg.GenerateVerificationTarget();
-      if(vg.RunVerifAuto(0)) // the ADD
+      if(vg.RunVerifAuto("INC")) // the ADD
         break; // no more cex found
       vg.ExtractVerificationResult();
       vg.GenerateSynthesisTarget(); // you will need fp engine
@@ -247,7 +247,7 @@ TEST(TestVlgVerifInvSyn, CegarPipelineExample) {
 
     do{
       vg.GenerateVerificationTarget();
-      if(vg.RunVerifAuto(1)) // the ADD
+      if(vg.RunVerifAuto("ADD")) // the ADD
         break; // no more cex found
       vg.ExtractVerificationResult();
       vg.GenerateSynthesisTarget();
@@ -348,7 +348,7 @@ TEST(TestVlgVerifInvSyn, CegarPipelineExampleSygusDatapoint) {
   do {
     do{
       vg.GenerateVerificationTarget();
-      if(vg.RunVerifAuto(1)) // the ADD
+      if(vg.RunVerifAuto("ADD")) // the ADD
         break; // no more cex found
 
       std::cout << "EQ check cex found, query sygus for invariant candidate..."; std::cout.flush();
@@ -434,7 +434,7 @@ TEST(TestVlgVerifInvSyn, CegarCntSygusTransFunc)  {
 
     do{
       vg.GenerateVerificationTarget();
-      if(vg.RunVerifAuto(0)) // the INC
+      if(vg.RunVerifAuto("INC")) // the INC
         break; // no more cex found
       vg.ExtractVerificationResult();
       //vg.SetInitialDatapoint(dp);
@@ -488,7 +488,7 @@ TEST(TestVlgVerifInvSyn, CegarPipelineExampleSygusTransFunc)  {
 
     do{
       vg.GenerateVerificationTarget();
-      if(vg.RunVerifAuto(1)) // the ADD
+      if(vg.RunVerifAuto("ADD")) // the ADD
         break; // no more cex found
       vg.ExtractVerificationResult();
       //vg.SetInitialDatapoint(dp);

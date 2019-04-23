@@ -368,6 +368,7 @@ void VlgSglTgtGen_Chc::Export_script(const std::string& script_name) {
     return;
   }
   fout << "#!/bin/bash" << std::endl;
+  //fout << "trap \"trap - SIGTERM && kill -- -$$\" SIGINT SIGTERM"<<std::endl;
 
   std::string runable;;
   if (s_backend == synthesis_backend_selector::Z3) {

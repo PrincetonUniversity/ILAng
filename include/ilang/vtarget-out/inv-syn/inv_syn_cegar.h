@@ -97,7 +97,7 @@ public:
   void ExtractSynthesisResult(bool autodet = true, bool reachable = true, 
     const std::string & res_file = "");
   /// run Verification : returns eq true/false
-  bool virtual RunVerifAuto(unsigned problem_idx);
+  bool virtual RunVerifAuto(const std::string & script_selection);
   /// run Synthesis : returns reachable/not
   bool virtual RunSynAuto();
   /// return back state

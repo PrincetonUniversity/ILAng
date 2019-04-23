@@ -176,7 +176,7 @@ public:
           YosysSmtArrayForRegFile(false), YosysSmtStateSort(DataSort),
           VerificationSettingAvoidIssueStage(false), YosysSmtFlattenHierarchy(false),
           YosysSmtFlattenDatatype(false), InvariantSynthesisReachableCheckKeepOldInvariant(false),
-          ValidateSynthesizedInvariant(_validate_synthesized_inv::NOINV)  {}
+          ValidateSynthesizedInvariant(_validate_synthesized_inv::ALL)  {}
   } vtg_config_t;
 
   /// NOTE: this function can be inherited

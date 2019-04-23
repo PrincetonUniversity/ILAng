@@ -106,7 +106,7 @@ void VlgSglTgtGen::add_rf_inv_as_assumption() {
   if ( has_rf_invariant ) {    
     for (auto& cond : rf_cond["global invariants"]) {
       auto new_cond = ReplExpr(cond.get<std::string>(), true);
-      add_a_direct_assumption(new_cond, "invariant_assume"); // without new var added
+      add_an_assumption(new_cond, "invariant_assume"); // without new var added
     } // for inv in global invariants field
   }
 } // add_rf_inv_as_assumption
@@ -186,7 +186,7 @@ void VlgSglTgtGen::ConstructWrapper_add_inv_assumption_or_assertion_target_inv_s
       add_rf_inv_as_assumption();
       if (has_confirmed_synthesized_invariant)
         add_inv_obj_as_assumption(_advanced_param_ptr->_inv_obj_ptr);
-      if (has_confirmed_synthesized_invariant) {
+      if (has_gussed_synthesized_invariant) {
         ILA_WARN << "Using guessed invariants also, please check to confirm them!";
         add_inv_obj_as_assumption(_advanced_param_ptr->_candidate_inv_ptr);
       }

@@ -14,6 +14,23 @@
 
 namespace ilang {
 
+static std::string select_script_to_run(const std::vector<std::string> & scripts, const std::string sel) {
+  ILA_ASSERT(not sel.empty()) << "no selection is provided in RunVerifAuto";
+  std::vector<std::string>  sels;
+  for(auto && sc : scripts)
+    if (S_IN(sel,sc))
+      sels.push_back(sc);
+  ILA_ASSERT(not sels.empty()) << "Auto run: no selection!";
+  if (sels.size() > 1) {
+    ILA_ERROR << "Multi scripts selected!";
+    for(auto && sc : sels)
+      ILA_ERROR << sc;
+    ILA_ASSERT(false);
+  }
+  return sels[0];
+}
+
+
 // problem: you cannot create and keep the objs
 // so you need to keep the infos
 InvariantSynthesizerCegar::InvariantSynthesizerCegar(
@@ -333,22 +350,23 @@ bool static has_verify_tool_unknown_cosa(const std::string & fn) {
   return false;
 } // has_verify_tool_error_cosa
 /// run Verification
-bool InvariantSynthesizerCegar::RunVerifAuto(unsigned problem_idx) {
+bool InvariantSynthesizerCegar::RunVerifAuto(const std::string & script_selection) {
+  auto script_sel = select_script_to_run(runnable_script_name, script_selection );
   if(check_in_bad_state())
     return true;
   // Not implemented
   auto result_fn = os_portable_append_dir(_output_path, "__verification_result.txt");
   auto redirect_fn = os_portable_append_dir("../", "__verification_result.txt");
   auto cwd = os_portable_getcwd();
-  auto new_wd = os_portable_path_from_path(runnable_script_name[problem_idx]);
+  auto new_wd = os_portable_path_from_path(script_sel);
   ILA_ERROR_IF(not os_portable_chdir(new_wd)) 
     << "RunVerifAuto: cannot change dir to:" << new_wd;
-  ILA_INFO << "Executing verify script:" << runnable_script_name[problem_idx];
+  ILA_INFO << "Executing verify script:" << script_sel;
   auto res = os_portable_execute_shell({"bash", 
-    os_portable_file_name_from_path( runnable_script_name[problem_idx]) },
+    os_portable_file_name_from_path( script_sel) },
    redirect_fn, redirect_t::BOTH);
   ILA_ERROR_IF(res.failure != execute_result::NONE)
-    << "Running verification script " << runnable_script_name[problem_idx] << " results in error."; 
+    << "Running verification script " << script_sel << " results in error."; 
   ILA_ASSERT(os_portable_chdir(cwd));
   // the last line contains the result
   // above it you should have *** TRACES ***
