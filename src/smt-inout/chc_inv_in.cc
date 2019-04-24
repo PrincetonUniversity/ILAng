@@ -867,7 +867,8 @@ bool SmtlibInvariantParser::ParseInvResultFromFile(const std::string & fname) {
   sbuf << "(assert ";
   sbuf << fin.rdbuf();
   sbuf << ")";
-  ParseSmtResultFromString(sbuf.str());
+  raw_string = sbuf.str();
+  ParseSmtResultFromString(raw_string);
   return true;
 }
 // parse from a string: assume we have the (assert ...) there

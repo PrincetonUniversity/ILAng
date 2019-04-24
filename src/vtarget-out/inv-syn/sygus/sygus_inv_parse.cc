@@ -72,10 +72,11 @@ bool SyGuSInvariantParser::ParseInvResultFromFile(const std::string & fname) {
 }
 
 
-std::string SyGuSInvariantParser::GetRawSmtString() const { return raw_string; }
-
 std::string SyGuSInvariantParser::correct_cvc4_bv_output(const std::string & in) {
-  return ReplaceAll(in, "(BitVec", "(_ BitVec");
+  return ReplaceAll(
+          ReplaceAll(in, 
+            "(BitVec",    "(_ BitVec"),
+            "extract150", "(_ extract 15 0)" );
 }
 
 // ----------------------- CALLBACK FUNCTIONS ----------------- //

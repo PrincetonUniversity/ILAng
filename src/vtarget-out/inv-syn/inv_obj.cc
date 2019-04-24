@@ -46,8 +46,12 @@ void InvariantObject::AddInvariantFromChcResultFile(
   }
   ILA_ASSERT(not parser.in_bad_state());
   inv_vlg_exprs.push_back( parser.GetFinalTranslateResult() );
-  smt_formula_vec.push_back( "" ); // empty string for chc (including sygus chc) : no need
 
+
+  auto raw_smt = parser.GetRawSmtString();
+  ILA_ERROR_IF(raw_smt.empty()) << "Parser failed to extract raw CHC string, got empty string!";
+  smt_formula_vec.push_back( raw_smt );
+ 
   for (auto && name_vlg_pair : parser.GetLocalVarDefs()) {
     inv_extra_vlg_vars.push_back(std::make_tuple(
       name_vlg_pair.first,

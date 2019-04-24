@@ -588,8 +588,8 @@ InvariantSynthesizerCegar::_inv_check_res_t InvariantSynthesizerCegar::ValidateS
     << "Not using the SyGuS Datapoint synthesis method!";
 
   if(inv_candidate.NumInvariant() == 0) {
-    ILA_ERROR << "No candidate invariant to check";
-    return INV_UNKNOWN;
+    ILA_ERROR << "No more candidate invariant to check";
+    return INV_PROVED;
   }
 
   if (check_in_bad_state()) return INV_UNKNOWN;
@@ -602,6 +602,7 @@ InvariantSynthesizerCegar::_inv_check_res_t InvariantSynthesizerCegar::ValidateS
   auto inv_gen_vtg_config = _vtg_config;
   // inv_gen_vtg_config.OnlyEnforceInvariantsOnInitialStateOfInstrCheck = false; // always true
   inv_gen_vtg_config.target_select = inv_gen_vtg_config.INV;
+  inv_gen_vtg_config.CosaFullTrace = true;
   inv_gen_vtg_config.ValidateSynthesizedInvariant = vtg_config_t::_validate_synthesized_inv::CANDIDATE; // overwrite
   
   VlgVerifTgtGen vg(
@@ -707,6 +708,11 @@ InvariantSynthesizerCegar::_inv_check_res_t InvariantSynthesizerCegar::ProofCand
 
   ILA_ERROR_IF(current_inv_type != cur_inv_tp::SYGUS_CEX ) 
       << "Not using the SyGuS Datapoint synthesis method!";
+
+  if (inv_candidate.NumInvariant() == 0) {
+    ILA_ERROR << "No more candidate invariants to prove!";
+    return INV_PROVED;
+  }
 
   // to send in the invariants
   advanced_parameters_t adv_param;

@@ -74,10 +74,16 @@ std::string inv_syn_tmpl_datatypes = R"***(
 (declare-var |__S'__| |%1%_s|)
 
 ; --------------------------------
+; note if you want it a bit faster
+; if can try removing wrapper-u in rule 1
+; or remove the assume previous invariants
+; --------------------------------
 
 ; init => inv
 (rule (=> (and 
   (|%1%_n rst| |__BI__|)
+  (|%1%_u| |__BI__|)
+  (|%1%_u| |__I__|)
   <!>(|%1%_h| |__BI__|)<!>
   <!>(|%1%_h| |__I__|)<!>
   (|%1%_t| |__BI__| |__I__|))

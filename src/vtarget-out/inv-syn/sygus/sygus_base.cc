@@ -28,9 +28,113 @@ const std::string Val_template = R"#!#!#(
     (Val%width% (_ BitVec %width%) (%vals%))
 )#!#!#";
 
+// ------------------- hardwired templates --------------------- //
+const unsigned ctrl_data_sep_width = 4;
+
+const unsigned other_comp_sep_width = ctrl_data_sep_width;
+
+const std::vector<std::string> compOp({"bvult"});
+
+const std::map<int,std::set<unsigned>> nums(
+  {
+    {16,{0xff00,0xff01,0xff02, 0xff04, 0xff10, 0xff20}},
+    {128,{0x10}}
+  }
+);
+// bitwidth -> (op -> n-ary)
+const std::map<unsigned,std::map<std::string,unsigned>> arithmOp (
+  {
+    {16,{{"bvadd",2}} },
+    {128,{{"bvadd",2}} },
+    {2,{{"bvnot",1}} },
+    {4,{{"bvnot",1}} }
+  }
+);
+
+
+// to -> (op -> from)
+const std::map<unsigned, std::map<std::string,unsigned>> extractExtOp (
+  {
+    {16,{ {"extract150",128} }}
+  }
+);
+
+const std::vector<std::string> extra_heading (
+  {
+    "(define-fun extract150 ((x (_ BitVec 128))) (_ BitVec 16) ((_ extract 15 0) x))\n"
+  }
+);
+
+const std::string cmpOp_lv1_template_Bool_hw = R"#!#!#(
+ (= ExprBool Conj)
+ (not (= ExprBool Conj))
+ (= ExprBool true)
+ (= ExprBool false)
+)#!#!#";
+
+
+
+const std::string cmpOp_lv1_eqOnly_template_hw = R"#!#!#(
+  (= Exp%width% Exp%width%)
+)#!#!#";
+
+
+const std::string exps_lv1_template_Bool_hw = R"#!#!#(
+(ExprBool Bool (VarBool
+                true
+                false
+                (and VarBool VarBool)
+                (or VarBool VarBool)
+                (not VarBool)))
+)#!#!#";
+
+const std::string exps_lv1_template_Bv1_hw = R"#!#!#(
+ (Exp1 (_ BitVec 1) ( VarOrVal1
+                      (bvand VarOrVal1 VarOrVal1)
+                      (bvor VarOrVal1 VarOrVal1)
+                      (bvnot VarOrVal1)))
+)#!#!#";
+
+const std::string exps_lv1_template_hw = R"#!#!#(  
+ (Exp%width% (_ BitVec %width%) ( VarOrVal%width%
+                                  %extraOp%))
+)#!#!#";
+
+const std::string syntax_arithmetic_lv1_hw = R"#!#!#(
+%extraheading%
+
+(synth-fun INV (%arg%) Bool
+  ((Start Bool (IMP))
+
+  (IMP Bool (implies PreCond PostCond))
+
+; ---------- controls ------------
+   (PreCond Bool (true
+                  CtrlAtom
+                  CtrlConj))
+   (CtrlConj Bool ((and CtrlAtom CtrlAtom)))
+   (CtrlAtom Bool (CtrlJudgement
+                   (not CtrlJudgement)))   
+    (CtrlJudgement Bool (%ctrlCmpOps%))
+
+; ---------- data ------------
+    (PostCond Bool (DataAtom
+                  DataDisj))
+   (DataDisj Bool ((or DataAtom DataAtom)))
+   (DataAtom Bool (DataJudgement
+                   (not DataJudgement)))   
+   (DataJudgement Bool (%dataCmpOps%))
+
+; ---------- common ------------
+   %exps%
+   %varOrVal%
+   %vars%
+   %vals%))
+  
+)#!#!#";
+
+
 // ------------------- basic templates --------------------- //
-
-
 const std::string cmpOp_template = R"#!#!#(
  (= Var%width% VarOrVal%width%)
  (bvult Var%width% VarOrVal%width%)
@@ -167,6 +271,116 @@ const std::string syntax_arithmetic_lvR = R"#!#!#(
    %vals%))
 )#!#!#";
 
+
+// ------------------------------------ 
+
+
+
+
+const std::string template_hardwired = R"#!#!#(
+(define-fun extract150 ((x (_ BitVec 128))) (_ BitVec 16) ((_ extract 15 0) x))
+
+(synth-fun INV ((|m1.aes_step| (_ BitVec 1)) (|m1.aes_reg_state| (_ BitVec 2)) (|m1.byte_counter| (_ BitVec 4)) (|m1.operated_bytes_count| (_ BitVec 16)) (|m1.block_counter| (_ BitVec 128)) (|m1.uaes_ctr| (_ BitVec 128)) (|m1.aes_reg_ctr| (_ BitVec 128)) (|m1.aes_time_enough| (_ BitVec 1))) Bool
+  ((Start Bool (IMP))
+   (IMP Bool (implies PreCond PostCond))
+   (PreCond Bool (true
+                  CtrlAtom
+                  CtrlConj))
+   (CtrlConj Bool ((and CtrlAtom CtrlAtom)))
+   (CtrlAtom Bool (CtrlJudgement
+                   (not CtrlJudgement)))   
+   (CtrlJudgement Bool (
+  (= Exp1 Exp1)
+
+  (= Exp2 Exp2)
+
+  (= Exp4 Exp4)
+
+))
+
+   (PostCond Bool (DataAtom
+                  DataDisj))
+   (DataDisj Bool ((or DataAtom DataAtom)))
+   (DataAtom Bool (DataJudgement
+                   (not DataJudgement)))   
+   (DataJudgement Bool (
+  (= Exp1 Exp1)
+
+  (= Exp2 Exp2)
+
+  (= Exp4 Exp4)
+  
+  (= Exp16 Exp16)
+  (bvult Exp16 Exp16)
+
+  (= Exp128 Exp128)
+  (bvult Exp128 Exp128)
+
+))               
+  
+     
+ (Exp1 (_ BitVec 1) ( VarOrVal1
+                      (bvand VarOrVal1 VarOrVal1)
+                      (bvor VarOrVal1 VarOrVal1)
+                      (bvnot VarOrVal1)))
+  
+ (Exp2 (_ BitVec 2) ( VarOrVal2
+                      (bvnot VarOrVal2)))
+  
+ (Exp4 (_ BitVec 4) ( VarOrVal4
+                      (bvnot VarOrVal4)))
+  
+ (Exp16 (_ BitVec 16) ( VarOrVal16
+                      (bvadd VarOrVal16 VarOrVal16)
+                      (bvnot VarOrVal16)
+                      (extract150 Var128)
+                      ))
+  
+ (Exp128 (_ BitVec 128) ( VarOrVal128
+                      (bvadd VarOrVal128 VarOrVal128)
+                      (bvnot VarOrVal128)))
+
+   
+   (VarOrVal1 (_ BitVec 1) (Var1
+                            Val1))
+
+   (VarOrVal2 (_ BitVec 2) (Var2
+                            Val2))
+
+   (VarOrVal4 (_ BitVec 4) (Var4
+                            Val4))
+
+   (VarOrVal16 (_ BitVec 16) (Var16
+                            Val16))
+
+   (VarOrVal128 (_ BitVec 128) (Var128
+                            Val128))
+   
+    (Var1 (_ BitVec 1) (|m1.aes_step| |m1.aes_time_enough|))
+
+    (Var2 (_ BitVec 2) (|m1.aes_reg_state|))
+
+    (Var4 (_ BitVec 4) (|m1.byte_counter|))
+
+    (Var16 (_ BitVec 16) (|m1.operated_bytes_count|))
+
+    (Var128 (_ BitVec 128) (|m1.block_counter| |m1.uaes_ctr| |m1.aes_reg_ctr|))
+
+   
+    (Val1 (_ BitVec 1) (#b0 #b1))
+
+    (Val2 (_ BitVec 2) (#b00 #b01 #b10 #b11))
+
+    (Val4 (_ BitVec 4) (#b0000 #b0001 #b0010 #b0011 #b0100 #b0101 #b0110 #b0111 #b1000 #b1001 #b1010 #b1011 #b1100 #b1101 #b1110 #b1111))
+
+    (Val16 (_ BitVec 16) (#b0000000000000000 #xff00 #xff01 #xff02 #xff04 #xff10 #xff20 #b1111111111111111))
+
+    (Val128 (_ BitVec 128) (
+        #b00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 
+        #b00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000  
+        #b11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111))
+))
+)#!#!#";
 
 
 // the reset are 
@@ -495,8 +709,99 @@ std::string Cvc4SygusBase::get_template_lvR() const {
   return ret;
 }
 
+std::string Cvc4SygusBase::get_template_hardwired() const{
+  // args
+  std::string args = Join(args_list, " ");
+  
+  std::string dataCmpOp;
+  std::string ctrlCmpOp;
+  {
+    for(auto wn : width_to_names) {
+      auto w = wn.first;
+      if(w == 0) {
+        ctrlCmpOp += cmpOp_lv1_template_Bool_hw;
+      }
+      else {
+        auto compTempl = cmpOp_lv1_eqOnly_template_hw;
+        if (w > other_comp_sep_width) {
+          for (auto && op : compOp) {
+            compTempl += "(" + op +" Exp%width% Exp%width%)\n";
+          }
+        } // add sep
+        std::string cmpOpSub = ReplaceAll( // remove the fancy comparators
+          compTempl,
+          "%width%",
+          std::to_string(w));
+
+        if (w <= ctrl_data_sep_width) {
+          // it is control
+          ctrlCmpOp += cmpOpSub;          
+        } else {
+          // it could be data & control
+          dataCmpOp += cmpOpSub;
+          ctrlCmpOp += cmpOpSub;
+        }
+      }
+    }
+  } // cmpOp
+
+  // %exps%
+  std::string exps;
+  {
+    for (auto wn : width_to_names) {
+      if (wn.first == 0)
+        exps += exps_lv1_template_Bool_hw;
+      else if (wn.first == 1) {
+        exps += exps_lv1_template_Bv1_hw;
+      } else { // now index into the arithmOp
+        std::string extraOp = "";
+        auto width = wn.first;
+        if ( IN( width, arithmOp) && ! arithmOp.at(width).empty() ) {
+          for (auto && op_ary_pair : arithmOp.at(width)) {
+            extraOp += "(" + op_ary_pair.first;
+            for (size_t idx = 0; idx < op_ary_pair.second; ++ idx) 
+              extraOp += " VarOrVal%width%";
+            extraOp += ")\n";
+          }
+        } // 
+
+        auto expr_tmpl = ReplaceAll(exps_lv1_template_hw, "%extraOp%", extraOp);
+
+        exps += ReplaceAll(expr_tmpl, "%width%",
+          std::to_string(width) );
+      } // if-else
+    } // for
+  } // exps
+
+  std::string varOrVal;
+  add_val_or_var_no_eec(varOrVal);
+
+  std::string vars;
+  add_vars_no_eec(vars);
+
+  std::string vals;
+  add_vals(vals);
+
+  std::string heading;
+  for (auto && h : extra_heading)
+    heading += h + "\n";
+
+  auto ret = syntax_arithmetic_lv1_hw;
+  ret = ReplaceAll(ret,"%extraheading%", heading);
+  ret = ReplaceAll(ret,"%arg%",      inv_arg_customize ? invariant_arg : args);
+  ret = ReplaceAll(ret,"%ctrlCmpOps%",   ctrlCmpOp);
+  ret = ReplaceAll(ret,"%dataCmpOps%",   dataCmpOp);
+  ret = ReplaceAll(ret,"%exps%",     exps);
+  ret = ReplaceAll(ret,"%varOrVal%", varOrVal);
+  ret = ReplaceAll(ret,"%vars%",     vars);
+  ret = ReplaceAll(ret,"%vals%",     vals);
+  
+  return ret; // please check
+}
 
 std::string Cvc4SygusBase::get_template() const {
+  return template_hardwired;
+
   if (options.UseArithmetics == sygus_options_t::_use_arithmetics_t::None)
     return get_template_basic();
   if (options.UseArithmetics == sygus_options_t::_use_arithmetics_t::Level1)
@@ -516,6 +821,19 @@ std::string Cvc4SygusBase::generate_syntax_const(unsigned w) const {
       vals.push_back(smt::convert_to_binary(v,w));
     }
   } else {
+    ILA_WARN_IF (not options.SpecialValueForAllOtherWidth.empty())
+      << "FIXME: currently `SpecialValueForAllOtherWidth` is ignored!";
+    std::set<unsigned> special_vals;
+    special_vals.insert(0);
+
+    if (IN(w,nums)) {
+      for (auto n : nums.at(w))
+        special_vals.insert(n);
+    }
+
+    for (auto  v : special_vals)
+      vals.push_back(smt::convert_to_binary(v,w));
+    /*
     std::set<unsigned> special_vals (options.SpecialValueForAllOtherWidth);
     special_vals.insert(0);
     special_vals.insert(1);
@@ -526,7 +844,7 @@ std::string Cvc4SygusBase::generate_syntax_const(unsigned w) const {
     special_vals.insert(max-1);
     special_vals.insert(max);
     for (auto  v : special_vals)
-      vals.push_back(smt::convert_to_binary(v,w));
+      vals.push_back(smt::convert_to_binary(v,w));*/
   } //   
   return Join(vals, " "); // TODO:
 }

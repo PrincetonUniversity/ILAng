@@ -12,6 +12,9 @@ namespace smt {
 
 /// \brief this a base class, should not be instantiated
 class SmtlibInvariantParserBase {
+protected:
+  // the raw result (not including the sat/unsat)
+  std::string raw_string;
 public:
 
   // -------------- CONSTRUCTOR ------------------- //
@@ -35,6 +38,10 @@ public:
   virtual std::string GetFinalTranslateResult() const = 0;
   /// get the local variable definitions
   // virtual const local_vars_t & GetLocalVarDefs() const = 0;
+  
+  /// return raw_string
+  std::string GetRawSmtString() const;
+
 }; // class SmtlibInvariantParserBase
 
 

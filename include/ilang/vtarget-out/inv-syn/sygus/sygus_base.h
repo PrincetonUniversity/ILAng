@@ -58,6 +58,8 @@ namespace ilang
     std::string get_template_lv1() const;
     /// get template based on the arithmetic it supported
     std::string get_template_lvR() const;
+    /// a new style of template --- hardwired one
+    std::string get_template_hardwired() const;
     /// generate the constant in a syntax
     std::string generate_syntax_const(unsigned) const;
     /// auto decide arithmetic template

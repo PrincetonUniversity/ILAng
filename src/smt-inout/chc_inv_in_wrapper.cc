@@ -11,6 +11,11 @@ namespace smt {
 SmtlibInvariantParserBase::SmtlibInvariantParserBase() {} // do nothing
 SmtlibInvariantParserBase::~SmtlibInvariantParserBase() {} // do nothing
 
+/// return raw_string
+std::string SmtlibInvariantParserBase::GetRawSmtString() const {
+  return raw_string;
+}
+
 
   // -------------- CONSTRUCTOR ------------------- //
 SmtlibInvariantParserInstance::SmtlibInvariantParserInstance(YosysSmtParser * yosys_smt_info, 
@@ -47,6 +52,7 @@ std::string SmtlibInvariantParserInstance::GetFinalTranslateResult() const {
   ILA_NOT_NULL(_ptr);
   return _ptr->GetFinalTranslateResult();
 }
+
 
 
 

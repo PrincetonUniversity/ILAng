@@ -57,9 +57,9 @@ std::string inv_syn_tmpl_sygus = R"***(
 (constraint (=> (and 
   (INV %Ss%) 
   (|%WrapperName%_u| %Ss%) 
-  (|%WrapperName%_u| %Sps%) 
+  ;(|%WrapperName%_u| %Sps%) 
   (|%WrapperName%_h| %Ss%)
-  (|%WrapperName%_h| %Sps%)
+  ;(|%WrapperName%_h| %Sps%)
   (|%WrapperName%_t| %Ss% %Sps%)) 
   (INV %Sps%)))
 
