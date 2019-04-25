@@ -92,7 +92,8 @@ public:
       const target_type_t& target_tp,
       advanced_parameters_t * adv_ptr,
       TraceDataPoints * dp, // datapoint can be NULL if th configuration is transfer function
-      const std::vector<std::string> & var_name_set);
+      const std::vector<std::string> & var_name_set,
+      bool enumerate);
 
   // --------------------- Destructor ---------------------------- //
   /// do nothing
@@ -115,6 +116,8 @@ protected:
   TraceDataPoints * datapoints;
   /// the var name set
   const std::vector<std::string> & var_names;
+  /// how hard to try: try enumerate
+  bool enumerate;
 
 protected:
   /// Add an assumption -- needed by base class

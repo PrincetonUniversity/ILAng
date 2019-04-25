@@ -298,10 +298,12 @@ void InvariantSynthesizerCegar::ExtractSynthesisResult(bool autodet, bool reacha
       _vtg_config.YosysSmtFlattenDatatype,
       _vtg_config.YosysSmtFlattenHierarchy );
   else if (current_inv_type == cur_inv_tp::SYGUS_CHC) // we reparse even for SyGuS cex
-    inv_obj.AddInvariantFromSygusResultFile(
+    ILA_ASSERT(
+      inv_obj.AddInvariantFromSygusResultFile(
       *(design_smt_info.get()), "", res_file, 
       _vtg_config.YosysSmtFlattenDatatype,
-      _vtg_config.YosysSmtFlattenHierarchy );
+      _vtg_config.YosysSmtFlattenHierarchy ))
+    << "SyGuS solver failed to generate an invariant";
   else
     ILA_ERROR<<"Inv type unknown:" << current_inv_type;
   
@@ -404,9 +406,16 @@ bool InvariantSynthesizerCegar::RunSynAuto() {
   ILA_ERROR_IF(not os_portable_chdir(new_wd)) 
     << "RunVerifAuto: cannot change dir to:" << new_wd;
   ILA_INFO << "Executing synthesis script:" <<  runnable_script_name[0] ;
-  auto res = os_portable_execute_shell({"bash",
-    os_portable_file_name_from_path( runnable_script_name[0] )},
-    redirect_fn, redirect_t::BOTH);
+  execute_result res;
+  if (current_inv_type == SYGUS_CEX || current_inv_type == SYGUS_CHC) {
+    res = os_portable_execute_shell({"bash",
+      os_portable_file_name_from_path( runnable_script_name[0] )}); // we don't need to redirect
+  }
+  else {
+    res = os_portable_execute_shell({"bash",
+      os_portable_file_name_from_path( runnable_script_name[0] )},
+      redirect_fn, redirect_t::BOTH);
+  }
   ILA_ERROR_IF(res.failure != execute_result::NONE )
     << "Running synthesis script " << runnable_script_name[0] << " results in error."; 
   ILA_ASSERT(os_portable_chdir(cwd));
@@ -463,6 +472,26 @@ const InvariantObject & InvariantSynthesizerCegar::GetInvariants() const {
   return inv_obj;
 }
 
+
+/// Here you can extract the invariants and export them if needed
+const InvariantObject & InvariantSynthesizerCegar::GetCandidateInvariants() const {
+  return inv_candidate;
+}
+
+const TraceDataPoints & InvariantSynthesizerCegar::GetDatapoints() const {
+  return datapoints;
+}
+
+void InvariantSynthesizerCegar::LoadInvariantsFromFile(const std::string &fn) {
+  inv_obj.ImportFromFile(fn);
+}
+void InvariantSynthesizerCegar::LoadCandidateInvariantsFromFile(const std::string &fn) {
+  inv_candidate.ImportFromFile(fn);
+}
+void InvariantSynthesizerCegar::LoadDatapointFromFile(const std::string &fn) {
+  datapoints.ImportNonprovidedPosEx(fn);
+}
+
 // -------------------------------- SYGUS SUPPORT ------------------------------------------- //
 
 /// set the initial datapoints (can be empty, but we suggest using the sim_trace_extract)
@@ -478,7 +507,7 @@ void InvariantSynthesizerCegar::SetSygusVarnameList(const std::vector<std::strin
 }
 
 /// can be used for datapoints/transfer function
-void InvariantSynthesizerCegar::GenerateSynthesisTargetSygusTransFunc() {
+void InvariantSynthesizerCegar::GenerateSynthesisTargetSygusTransFunc(bool enumerate) {
   // generate a target -- based on selection
   if (check_in_bad_state()) return;
   ILA_WARN_IF(status != cegar_status::NEXT_S) << "CEGAR-loop: not expecting synthesis step.";
@@ -502,7 +531,7 @@ void InvariantSynthesizerCegar::GenerateSynthesisTargetSygusTransFunc() {
       &adv_param                        // advanced parameter
       );
   
-  design_smt_info = vg.GenerateInvSynSygusTargets(s_backend, NULL, sygus_vars);
+  design_smt_info = vg.GenerateInvSynSygusTargets(s_backend, NULL, sygus_vars, enumerate);
 
   runnable_script_name = vg.GetRunnableScriptName();
 
@@ -513,7 +542,7 @@ void InvariantSynthesizerCegar::GenerateSynthesisTargetSygusTransFunc() {
 
 
 /// can be used for datapoints/transfer function
-void InvariantSynthesizerCegar::GenerateSynthesisTargetSygusDatapoints() {
+void InvariantSynthesizerCegar::GenerateSynthesisTargetSygusDatapoints(bool enumerate) {
   // generate a target -- based on selection
   if (check_in_bad_state()) return;
   ILA_WARN_IF(status != cegar_status::NEXT_S) << "CEGAR-loop: not expecting synthesis step.";
@@ -544,7 +573,7 @@ void InvariantSynthesizerCegar::GenerateSynthesisTargetSygusDatapoints() {
       &adv_param                        // advanced parameter
       );
   
-  design_smt_info = vg.GenerateInvSynSygusTargets(s_backend, &datapoints, sygus_vars);
+  design_smt_info = vg.GenerateInvSynSygusTargets(s_backend, &datapoints, sygus_vars, enumerate);
 
   runnable_script_name = vg.GetRunnableScriptName();
 
@@ -554,10 +583,10 @@ void InvariantSynthesizerCegar::GenerateSynthesisTargetSygusDatapoints() {
 
 
 /// to extract the synthesis attempt
-void InvariantSynthesizerCegar::ExtractSygusDatapointSynthesisResultAsCandidateInvariant() {
+bool InvariantSynthesizerCegar::ExtractSygusDatapointSynthesisResultAsCandidateInvariant() {
   ILA_ERROR_IF(current_inv_type != cur_inv_tp::SYGUS_CEX ) << "Not using the SyGuS Datapoint synthesis method!";
 
-  if(check_in_bad_state()) return;
+  if(check_in_bad_state()) return false;
 
   std::string res_file = synthesis_result_fn;
   
@@ -566,19 +595,21 @@ void InvariantSynthesizerCegar::ExtractSygusDatapointSynthesisResultAsCandidateI
   if (design_smt_info == nullptr) {
     ILA_ERROR << "Design SMT-LIB2 info is not available. "
       << "You need to run `GenerateSynthesisTarget` first.";
-    return;
+    return false;
   }
 
   // inv_candidate.ClearAllInvariants();  -- we will keep the old ones
-  inv_candidate.AddInvariantFromSygusResultFile(
-    *(design_smt_info.get()), "", res_file, 
-    _vtg_config.YosysSmtFlattenDatatype,
-    _vtg_config.YosysSmtFlattenHierarchy );
+  if( inv_candidate.AddInvariantFromSygusResultFile(
+      *(design_smt_info.get()), "", res_file, 
+      _vtg_config.YosysSmtFlattenDatatype,
+      _vtg_config.YosysSmtFlattenHierarchy ) == false) {
+    return false; // sygus failed
+  }
     
   std::cout << "INV candidate:" << std::endl;
   for (auto && v : inv_candidate.GetVlgConstraints() )
     std::cout << v << std::endl;
-
+  return true;
 }
 /// to validate if the previous attempt is good (inductive or not)
 /// if not CTI will be extracted
@@ -782,6 +813,10 @@ InvariantSynthesizerCegar::_inv_check_res_t InvariantSynthesizerCegar::ProofCand
   {
     AcceptAllCandidateInvariant();
     return INV_PROVED;
+  }
+  if (S_IN("Terminated",line)) {
+    ILA_ERROR << "Z3 has terminated!";
+    return INV_UNKNOWN;
   }
   if (S_IN("(error", line))
     return INV_UNKNOWN;

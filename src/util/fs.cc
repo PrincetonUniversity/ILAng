@@ -326,6 +326,7 @@ execute_result os_portable_execute_shell(
     if (child_report != execute_result::NONE) {
       // the child has error before exec
       _ret.failure = static_cast<execute_result::_failure>( child_report) ;
+      close(pipefd[0]);
       return _ret;
     }
 
@@ -352,6 +353,7 @@ execute_result os_portable_execute_shell(
     if (timeout == 0 && wait_pid_res == -1) {
       _ret.failure = execute_result::WAIT;
       perror(NULL);
+      close(pipefd[0]);
       return _ret;
     }
 
@@ -362,6 +364,7 @@ execute_result os_portable_execute_shell(
     int sec_read = read(pipefd[0], (void *) &child_report, sizeof(child_report));
     if (sec_read != 0) { // not eof
       _ret.failure = execute_result::EXEC;
+      close(pipefd[0]);
       return _ret;
     }
 
@@ -369,6 +372,7 @@ execute_result os_portable_execute_shell(
     _ret.failure = execute_result::NONE;
     _ret.timeout = timeout != 0 && shared_time_out;
 
+    close(pipefd[0]);
     return _ret;
   } // end of parent
 #endif

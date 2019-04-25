@@ -70,6 +70,7 @@ void DatapointInvariantPruner::PruneByLastFramePosEx(const smt::YosysSmtParser &
     z3::context c;
     z3::solver s(c);
     auto check = defs + smt_string + "\n" + assertion;
+    //std::cout << check; std::cout.flush();
     s.from_string(check.c_str());
     auto res = s.check();
     if (res == z3::unsat) {

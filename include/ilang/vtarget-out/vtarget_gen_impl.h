@@ -467,7 +467,7 @@ public:
   std::shared_ptr<smt::YosysSmtParser> GenerateInvSynTargets(synthesis_backend_selector s_backend); 
   /// generate inv-syn-sygus target
   std::shared_ptr<smt::YosysSmtParser> GenerateInvSynSygusTargets(synthesis_backend_selector s_backend,
-    TraceDataPoints * dp, const std::vector<std::string> & sygus_var_names); 
+    TraceDataPoints * dp, const std::vector<std::string> & sygus_var_names, bool enumerate); 
   /// generate the runable script name
   const std::vector<std::string> & GetRunnableScriptName() const;
   /// check property using Z3 not cosa

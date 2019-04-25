@@ -130,7 +130,7 @@ const VlgTgtSupplementaryInfo & VlgVerifTgtGen::GetSupplementaryInfo() const {
 
 
 std::shared_ptr<smt::YosysSmtParser> VlgVerifTgtGen::GenerateInvSynSygusTargets(synthesis_backend_selector s_backend,
-    TraceDataPoints * dp, const std::vector<std::string> & sygus_var_names) {
+    TraceDataPoints * dp, const std::vector<std::string> & sygus_var_names, bool enumerate) {
   ILA_ASSERT(not sygus_var_names.empty()) << "BUG: must call SetSygusVarNames before _generate_sygus_inv_syn_target";
 
   if (vlg_info_ptr)
@@ -152,7 +152,7 @@ std::shared_ptr<smt::YosysSmtParser> VlgVerifTgtGen::GenerateInvSynSygusTargets(
       (_vtg_config.SygusOptions.SygusPassInfo == 
         VlgVerifTgtGenBase::_vtg_config::_sygus_options_t::TransferFunc ? 
           NULL : dp) , // disable datapoint if using transfer function
-      sygus_var_names ); // no datapoints
+      sygus_var_names, enumerate ); // no datapoints
   target.ConstructWrapper();
   target.ExportAll("wrapper.v", "ila.v" /*USELESS*/, "run.sh", "wrapper.smt2",
                     "absmem.v"  /*USELESS*/);

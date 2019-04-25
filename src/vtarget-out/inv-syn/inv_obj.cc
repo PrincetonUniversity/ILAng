@@ -68,7 +68,7 @@ void InvariantObject::AddInvariantFromChcResultFile(
 } // AddInvariantFromChcResultFile
 
 /// add invariants from smt-like output
-void InvariantObject::AddInvariantFromSygusResultFile(
+bool InvariantObject::AddInvariantFromSygusResultFile(
     smt::YosysSmtParser & design_info, 
     const std::string & tag, const std::string & chc_result_fn,
     bool flatten_datatype, bool flatten_hierarchy ) {
@@ -83,7 +83,7 @@ void InvariantObject::AddInvariantFromSygusResultFile(
 
   if (not parser.ParseInvResultFromFile(chc_result_fn) ) {
     ILA_ERROR << "Parser failed to extract invariant, no new invariant has been extracted!";
-    return;
+    return false;
   }
   ILA_ASSERT(not parser.in_bad_state());
   auto inv_extracted = parser.GetFinalTranslateResult();
@@ -107,6 +107,7 @@ void InvariantObject::AddInvariantFromSygusResultFile(
         << " old width:" << inv_extra_free_vars[name_w_pair.first];
     inv_extra_free_vars.insert(name_w_pair);
   }
+  return true;
 } // AddInvariantFromSygusResultFile
 
 /// add invariants from verilog-like output
@@ -163,6 +164,8 @@ size_t InvariantObject::NumInvariant() const {
 
 /// export invariants to a file
 void InvariantObject::ExportToFile(const std::string &fn) const {
+  ILA_ASSERT(smt_formula_vec.size() == inv_vlg_exprs.size())
+    << "# of smt formulae =/= # of vlg exprs ";
   std::ofstream fout(fn);
   ILA_WARN << "Will not preserve the original smt formula";
   if (not fout.is_open()) {
@@ -192,6 +195,14 @@ void InvariantObject::ExportToFile(const std::string &fn) const {
     ILA_ERROR_IF(S_IN("\n", vlg_var) || S_IN("\r", vlg_var))
       << "The expression contains line-break, cannot be handled correctly!";
     fout<< vlg_var << "\n";
+  }
+  for (auto && smt_str : smt_formula_vec) {
+    ILA_ERROR_IF(S_IN("\n", smt_str) || S_IN("\r", smt_str))
+      << "The expression contains line-break, cannot be handled correctly!";
+    if (smt_str.empty())
+      fout << "(get-info :name)\n" ;
+    else
+      fout << smt_str << "\n";
   }
 }
 /// import invariants that has been previous exported
@@ -226,7 +237,18 @@ void InvariantObject::ImportFromFile(const std::string &fn) {
       std::getline(fin,expr);
     }
     inv_vlg_exprs.push_back(expr);
-    smt_formula_vec.push_back(""); // empty
+  }
+  for (unsigned idx = 0; idx < num_expr; ++ idx) {
+    std::string expr;
+    std::getline(fin,expr);
+    if (expr.empty()) {
+      ILA_WARN << "Skipped an empty line in the input stream";
+      std::getline(fin,expr);
+    }
+    if (expr == "(get-info :name)")
+      smt_formula_vec.push_back(""); // not available
+    else
+      smt_formula_vec.push_back(expr);
   }
 }
 

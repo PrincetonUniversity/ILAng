@@ -59,14 +59,26 @@ bool SyGuSInvariantParser::ParseInvResultFromFile(const std::string & fname) {
   }
 
   std::string result;
-  if (not std::getline(fin,result) || result != std::string("unsat") ) {
-    ILA_ERROR << "The cex is not unreachable, get result:" << result;
+  if (not std::getline(fin,result) ) {
+    ILA_ASSERT(false) << "No output from the synthesizer!" << result;
     return false; // unknown result, possibly failed
   }
 
-  std::stringstream sbuf;
-  sbuf << fin.rdbuf(); // different from original, it starts (define-fun)
-  raw_string = correct_cvc4_bv_output(sbuf.str());
+  if (result != std::string("unsat") and result.find("(define-fun ") != 0) {
+    ILA_ERROR << "Unexpected output from the synthesizer:" << result;
+    return false; // unknown result, possibly failed
+  }
+
+  if (result.find("(define-fun ") == 0) {
+    // we don't get the unsat but we known it is and the rest should be the function
+    fin.seekg(0,fin.beg);
+    raw_string = correct_cvc4_bv_output(result);
+  } else {
+    std::stringstream sbuf;
+    sbuf << fin.rdbuf(); // different from original, it starts (define-fun)
+    raw_string = correct_cvc4_bv_output(sbuf.str());
+  }
+
   ParseSmtResultFromString(raw_string);
   return true;
 }

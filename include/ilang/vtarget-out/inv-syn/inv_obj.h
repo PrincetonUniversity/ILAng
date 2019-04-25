@@ -38,7 +38,7 @@ public:
     bool flatten_datatype, bool flatten_hierarchy );
 
   /// add invariants from sygus output
-  void AddInvariantFromSygusResultFile(
+  bool AddInvariantFromSygusResultFile(
     smt::YosysSmtParser & design_info, 
     const std::string & tag, const std::string & chc_result_fn,
     bool flatten_datatype, bool flatten_hierarchy );

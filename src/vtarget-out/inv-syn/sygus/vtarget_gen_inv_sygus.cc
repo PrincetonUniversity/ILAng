@@ -75,13 +75,15 @@ VlgSglTgtGen_Cvc4SyGuS::VlgSglTgtGen_Cvc4SyGuS(
     const target_type_t& target_tp,
     advanced_parameters_t* adv_ptr,
     TraceDataPoints * dp,
-    const std::vector<std::string> & var_name_set)
+    const std::vector<std::string> & var_name_set,
+    bool _enumerate)
     : VlgSglTgtGen(output_path, instr_ptr, ila_ptr, config, _rf_vmap, _rf_cond, _sup_info,
                    _vlg_info_ptr, vlg_mod_inst_name, ila_mod_inst_name,
                    wrapper_name, implementation_srcs,
                    implementation_include_path, vtg_config, vbackend,
                    target_tp, adv_ptr),
-      s_backend(sbackend), datapoints(dp), var_names(var_name_set) { 
+      s_backend(sbackend), datapoints(dp), var_names(var_name_set),
+      enumerate(_enumerate) { 
     
     ILA_ASSERT(vbackend == backend_selector::YOSYS)
       << "Only support using yosys for invariant synthesis";
@@ -254,14 +256,27 @@ void VlgSglTgtGen_Cvc4SyGuS::Export_script(const std::string& script_name) {
   //fout << "trap \"trap - SIGTERM && kill -- -$$\" SIGINT SIGTERM"<<std::endl;
 
   std::string runnable = "cvc4";
+  std::string redirect_file = "../__synthesis_result.txt";
+  std::string options = " --sygus-stream --sygus-pbe";
+  if (enumerate)
+    options = " --sygus-stream"; // force searching all 
 
   if (not _vtg_config.Cvc4Path.empty())
     runnable = os_portable_append_dir(_vtg_config.Cvc4Path, runnable);
 
   if (design_prob_fname != "")
-    fout << runnable << " --lang=sygus "<< design_prob_fname  << std::endl;
+    fout << runnable << options << " --lang=sygus "<< design_prob_fname  
+         << " > " << redirect_file << " &" << std::endl;
   else
     fout << "echo 'Nothing to check!'" << std::endl;
+
+  // we will always return as long as we see some answer
+  fout << "inotifywait " << redirect_file << " -e modify\n";
+  fout << "while [ ! -s \"" << redirect_file << "\" ]; do\n";
+  fout << "  echo \"Empty file ... +1s\"\n";
+  fout << "  sleep 1\n";
+  fout << "done\n";
+  fout << "trap 'kill $(jobs -p)' EXIT\n";
 } // Export_script
 
 

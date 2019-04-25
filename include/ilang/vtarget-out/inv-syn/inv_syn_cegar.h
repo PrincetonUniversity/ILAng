@@ -100,22 +100,12 @@ public:
   bool virtual RunVerifAuto(const std::string & script_selection);
   /// run Synthesis : returns reachable/not
   bool virtual RunSynAuto();
-  /// return back state
-  bool in_bad_state() const {return bad_state;}
-  /// check state
-  bool check_in_bad_state() const ;
-  /// Here we directly expose the runnable script names (They will never be used as inputs)
-  const std::vector<std::string> & GetRunnableTargetScriptName() const;
-  /// Here you can get the design information
-  DesignStatistics GetDesignStatistics() const;
-  /// Here you can extract the invariants and export them if needed
-  const InvariantObject & GetInvariants() const;
   /// to generate synthesis target (for using the whole transfer function)
-  void GenerateSynthesisTargetSygusTransFunc();
+  void GenerateSynthesisTargetSygusTransFunc(bool enumerate = false);
   /// to generate synthesis target (for using the whole transfer function)
-  void GenerateSynthesisTargetSygusDatapoints();
+  void GenerateSynthesisTargetSygusDatapoints(bool enumerate = false);
   /// to extract the synthesis attempt
-  void ExtractSygusDatapointSynthesisResultAsCandidateInvariant();
+  bool ExtractSygusDatapointSynthesisResultAsCandidateInvariant();
   /// to validate if the previous attempt is good (inductive or not)
   /// return true if the invariants are good/o.w. will auto load to datapoint's pos ex
   _inv_check_res_t ValidateSygusDatapointCandidateInvariant(unsigned timeout = 0);
@@ -133,7 +123,26 @@ public:
   /// Supply Verilog candidate invariants
   void SupplyCandidateInvariant(const std::string &vlg);
 
-
+  // -------------------- ACCESSOR ------------------ //
+  /// return back state
+  bool in_bad_state() const {return bad_state;}
+  /// check state
+  bool check_in_bad_state() const ;
+  /// Here we directly expose the runnable script names (They will never be used as inputs)
+  const std::vector<std::string> & GetRunnableTargetScriptName() const;
+  /// Here you can get the design information
+  DesignStatistics GetDesignStatistics() const;
+  /// Here you can extract the invariants and export them if needed
+  const InvariantObject & GetInvariants() const;
+  /// Here you can extract the invariants and export them if needed
+  const InvariantObject & GetCandidateInvariants() const;
+  /// here you can acess the internal datapoint object
+  const TraceDataPoints & GetDatapoints() const;
+  /// load states -- confirmed invariants
+  void LoadInvariantsFromFile(const std::string &fn);
+  void LoadCandidateInvariantsFromFile(const std::string &fn);
+  void LoadDatapointFromFile(const std::string &fn);
+  
 protected:
   // -------------------- MEMBERS ------------------ //
   /// the found invariants, in Verilog expression

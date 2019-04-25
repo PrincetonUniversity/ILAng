@@ -292,6 +292,107 @@ TEST(TestVlgVerifInvSyn, CegarPipelineExample) {
   }
 } // CegarPipelineExample
 
+TEST(TestVlgVerifInvSyn, InvariantImportExport) {
+
+  auto ila_model = SimplePipe::BuildModel();
+
+  VerilogVerificationTargetGenerator::vtg_config_t cfg;
+  cfg.InvariantSynthesisReachableCheckKeepOldInvariant = false;
+  cfg.CosaAddKeep = false;
+  cfg.VerificationSettingAvoidIssueStage = true;
+  cfg.YosysSmtFlattenDatatype = false;
+  cfg.YosysSmtFlattenHierarchy = true;
+  cfg.CosaPyEnvironment = "/home/hongce/cosaEnv/bin/activate";
+  cfg.CosaPath = "/home/hongce/CoSA/";
+  cfg.Z3Path = "/home/hongce/z3s/bin/";
+  cfg.CosaSolver = "btor";
+
+  auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/vpipe/";
+  auto outDir  = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/inv_syn/inv_obj_test/";
+
+  InvariantSynthesizerCegar vg(
+      {},                          // no include
+      {dirName + "simple_pipe.v"}, //
+      "pipeline_v",                // top_module_name
+      dirName + "rfmap/vmap.json", // variable mapping
+      dirName + "rfmap/cond-noinv.json", outDir, ila_model.get(),
+      VerilogVerificationTargetGenerator::backend_selector::COSA,
+      VerilogVerificationTargetGenerator::synthesis_backend_selector::Z3,
+      cfg);
+
+  EXPECT_FALSE(vg.in_bad_state());
+  vg.SupplyCandidateInvariant("(1'b1) == (((m1.reg_1_w_stage[0:0]) ||(!((m1.ex_wb_rd) == (2'b01))) ||(!((m1.ex_wb_reg_wen) == (1'b1)))) &&((!((m1.id_ex_rd) == (2'b01))) ||(!((m1.id_ex_reg_wen) == (1'b1))) ||((m1.reg_1_w_stage[1:1]) == (1'b1))))");
+  EXPECT_EQ( vg.ValidateSygusDatapointCandidateInvariant(), vg.INV_PROVED );
+  vg.SupplyCandidateInvariant("(1'b1) == ((!((m1.reg_3_w_stage[1:1]) == (1'b1))) ||((m1.id_ex_rd[1:1]) == (1'b1)))");
+
+  { // check confirmed inv
+    EXPECT_EQ(vg.GetInvariants().NumInvariant(),1);
+
+    InvariantObject invs(vg.GetInvariants());
+    invs.ExportToFile(outDir+"confirmed_inv_results.txt");
+    invs.ClearAllInvariants();
+    invs.ImportFromFile(outDir+"confirmed_inv_results.txt");
+    // check they are the same
+    EXPECT_EQ(
+      vg.GetInvariants().NumInvariant(), 
+      invs.NumInvariant());
+    EXPECT_EQ(
+      vg.GetInvariants().GetExtraVarDefs().size(), 
+      invs.GetExtraVarDefs().size());
+    EXPECT_EQ(
+      vg.GetInvariants().GetExtraFreeVarDefs().size(), 
+      invs.GetExtraFreeVarDefs().size());
+
+    for (auto pos = invs.GetVlgConstraints().begin(), 
+          pos2 = vg.GetInvariants().GetVlgConstraints().begin(); 
+        pos != invs.GetVlgConstraints().end();
+        ++ pos, ++ pos2  ) {
+      EXPECT_EQ(*pos, *pos2);
+    }
+
+    for (auto pos = invs.GetSmtFormulae().begin(), 
+          pos2 = vg.GetInvariants().GetSmtFormulae().begin(); 
+        pos != invs.GetSmtFormulae().end();
+        ++ pos, ++ pos2  ) {
+      EXPECT_EQ(*pos, *pos2);
+    }
+  } // finish check confirmed
+
+  { // check confirmed inv
+    EXPECT_EQ(vg.GetCandidateInvariants().NumInvariant(),1);
+
+    InvariantObject invs(vg.GetCandidateInvariants());
+    invs.ExportToFile(outDir+"confirmed_inv_results.txt");
+    invs.ClearAllInvariants();
+    invs.ImportFromFile(outDir+"confirmed_inv_results.txt");
+    // check they are the same
+    EXPECT_EQ(
+      vg.GetCandidateInvariants().NumInvariant(), 
+      invs.NumInvariant());
+    EXPECT_EQ(
+      vg.GetCandidateInvariants().GetExtraVarDefs().size(), 
+      invs.GetExtraVarDefs().size());
+    EXPECT_EQ(
+      vg.GetCandidateInvariants().GetExtraFreeVarDefs().size(), 
+      invs.GetExtraFreeVarDefs().size());
+
+    for (auto pos = invs.GetVlgConstraints().begin(), 
+          pos2 = vg.GetCandidateInvariants().GetVlgConstraints().begin(); 
+        pos != invs.GetVlgConstraints().end();
+        ++ pos, ++ pos2  ) {
+      EXPECT_EQ(*pos, *pos2);
+    }
+
+    for (auto pos = invs.GetSmtFormulae().begin(), 
+          pos2 = vg.GetCandidateInvariants().GetSmtFormulae().begin(); 
+        pos != invs.GetSmtFormulae().end();
+        ++ pos, ++ pos2  ) {
+      EXPECT_EQ(*pos, *pos2);
+    }
+  } // finish check confirmed
+  EXPECT_EQ( vg.ProofCandidateInvariants(), vg.INV_PROVED );
+}
+
 TEST(TestVlgVerifInvSyn, CegarPipelineExampleSygusDatapoint) {
 
   auto ila_model = SimplePipe::BuildModel();

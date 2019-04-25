@@ -13,6 +13,7 @@
 
 #include <cmath>
 #include <iostream>
+#include <fstream>
 
 namespace ilang {
 
@@ -142,9 +143,78 @@ template <> void TraceDataPoints::AddPosEx<SimTraceExtractor> (const SimTraceExt
     valset.insert(v);
   }
   std::cout << "Prune sim datapoint. Saved #:" << saved <<"\n";
+  // set marker
+  posExMarker = pos_ex.size();
 }
 
 void TraceDataPoints::ClearPosEx() {
+  posExMarker = 0;
   pos_ex.clear();
 }
+
+
+// export data point
+void TraceDataPoints::ExportNonprovidedPosEx(const std::string & fn) const {
+  int ex_size = (int)(pos_ex.size()) - (int)posExMarker;
+  ILA_ASSERT(ex_size >= 0) << "pos Ex Marker is too large:" << posExMarker <<","<<pos_ex.size();
+  std::ofstream fout (fn);
+  if (! fout.is_open()) {
+    ILA_ERROR << "cannot open " << fn << " for write";
+    return;
+  }
+  fout << ex_size << "\n";
+  for (auto pos = pos_ex.begin() + posExMarker; pos != pos_ex.end() ; ++ pos) {
+    fout << (pos->size()) << "\n";
+    for (auto && name_val_pair : *pos) {
+      fout << name_val_pair.first << " ";
+      fout << name_val_pair.second.first.val << " ";
+      fout << name_val_pair.second.first.radix << " ";
+      fout << (name_val_pair.second.second.is_bv()? "BV":"Bool") << " ";
+      fout << name_val_pair.second.second.GetBoolBvWidth() << "\n";
+    }
+  }
+  ILA_INFO << "Saved pos ex:" << ex_size;
+}
+// insert data point
+void TraceDataPoints::ImportNonprovidedPosEx(const std::string & fn) {
+  std::ifstream fin(fn);
+  if (! fin.is_open()) {
+    ILA_ERROR << "cannot open " << fn << " for read";
+    return;
+  }
+  unsigned ex_size;
+  fin >> ex_size;
+
+  std::string vname;
+  std::string val;
+  int radix;
+  std::string bvbool;
+  unsigned width;
+
+  for (unsigned idx = 0; idx < ex_size; ++ idx) {
+    unsigned var_map_size;
+    fin >> var_map_size;
+    for (unsigned vidx = 0; vidx < var_map_size; ++ vidx) {
+      fin >> vname;
+      fin >> val;
+      fin >> radix;
+      fin >> bvbool;
+      fin >> width;
+      smt::var_type tp;
+      tp._width = width;
+      if (bvbool == "BV") tp._type = tp.BV;
+      else if (bvbool == "Bool") tp._type = tp.Bool;
+      else ILA_ERROR << "Unknown type:" << bvbool;
+
+      ILA_ERROR_IF(width == 0 || vname.empty() || val.empty() || radix == 0 )
+        << "read format error!";
+      pos_ex.push_back(example_map_t());
+      pos_ex.back().insert(std::make_pair(
+        vname,
+        std::make_pair(radix_val_t(val,radix),tp)
+      ));
+    }
+  }
+}
+
 }; // namespace ilang

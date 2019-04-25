@@ -33,6 +33,7 @@ namespace ilang
     pos_t pos_ex;
     /// The negative examples
     example_map_t neg_ex;
+    // ------------- METHODS ---------------- //
     /// this function allows to insert the outer cegar result to this datapoint
     /// T could be CexExtractor/InvCexExtractor
     template <typename T> void SetNegEx(const T &);
@@ -40,6 +41,13 @@ namespace ilang
     template <typename T> void AddPosEx(const T &);
     /// pos_ex.clear();
     void ClearPosEx();
+    /// the marker of pos ex
+    unsigned posExMarker;
+    // export data point
+    void ExportNonprovidedPosEx(const std::string & fn) const;
+    // insert data point
+    void ImportNonprovidedPosEx(const std::string & fn);
+
   };  // struct TraceDataPoints
 
 }; // namespace ilang
