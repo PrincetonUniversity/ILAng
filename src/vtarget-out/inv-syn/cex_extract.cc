@@ -8,6 +8,7 @@
 
 #include <vcdparser/VCDFileParser.hpp>
 
+#include <fstream>
 #include <sstream>
 
 namespace ilang {
@@ -172,6 +173,24 @@ CexExtractor::CexExtractor(const std::string & vcd_file_name,
   parse_from(vcd_file_name, scope, is_reg, reg_only);
 }
 
+/// create from a existing file
+CexExtractor::CexExtractor(const std::string & fn) {
+  std::ifstream fin(fn);
+  if (not fin.is_open()) {
+    ILA_ERROR << "Failed to read : " << fn;
+    return;
+  }
+  unsigned pairs;
+  fin >> pairs;
+
+  std::string name, val;
+  for (unsigned idx = 0; idx < pairs; ++ idx ) {
+    fin >> name; fin >> val;
+    ILA_ERROR_IF(name.empty() || val.empty() )
+      << "Failed to read cex from file!";
+  }
+}
+
 // -------------------- MEMBERS ------------------ //
 /// return a string to be added to the design
 std::string CexExtractor::GenInvAssert(const std::string & prefix) const {
@@ -188,6 +207,27 @@ std::string CexExtractor::GenInvAssert(const std::string & prefix) const {
 
 const CexExtractor::cex_t & CexExtractor::GetCex() const {
   return cex;
+}
+
+// save to file
+void CexExtractor::StoreCexToFile(const std::string & fn, const cex_t & c) {
+  std::ofstream fout(fn);
+  
+  if (not fout.is_open()) {
+    ILA_ERROR << "Failed to read : " << fn;
+    return;
+  }
+
+  fout << c.size() << "\n";
+  for (auto && nv : c) {
+    ILA_ERROR_IF ( S_IN(' ', nv.first)  || S_IN('\r', nv.first) || S_IN('\t', nv.first)  || S_IN('\n', nv.first) )
+      << nv.first << " contains space!";
+    fout << nv.first << " " << nv.second << std::endl;
+  }
+}
+// save to file (invoke within)
+void CexExtractor::StoreCexToFile(const std::string & fn) const {
+  StoreCexToFile(fn,cex);
 }
 
 }; // namespace ilang
