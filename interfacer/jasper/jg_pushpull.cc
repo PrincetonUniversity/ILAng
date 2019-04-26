@@ -111,7 +111,17 @@ bool run_jg_till_fail(const std::string & assumefile) {
     fout << expect << std::endl;
   }
   { // remove the old counterexample
-    auto rm_cmd = "ssh %server% rm %dir%cex.vcd";
+    auto rm_cmd = "ssh %server% rm -f %dir%cex.vcd";
+    std::string rmcmd = 
+      ReplaceAll(
+      ReplaceAll(rm_cmd,
+        "%server%", server_name),
+        "%dir%", server_prj_dir);
+    std::system(rmcmd.c_str());
+  }
+
+  { // remove the old data
+    auto rm_cmd = "ssh  %server% rm -rf %dir%db  %dir%jgproject";
     std::string rmcmd = 
       ReplaceAll(
       ReplaceAll(rm_cmd,
@@ -168,8 +178,7 @@ void analyze_failed_property_and_time(const std::string & vcd_file_name,
   for (VCDTimedValue * tv : *prop_sig_vals) {
     if ( val2vlgstr( *(tv -> value) ) == "1'b1" ) {
       start_time = tv -> time;
-      std::cout << "Found starting time: @ " << start_time << std::endl;
-      return;
+      std::cout << "Found starting time: @ " << start_time << std::endl; break;
     }
   }
   //
@@ -234,8 +243,8 @@ bool get_why(const std::string &prop_signal, double failtime, double starttime,
     auto why =
       ReplaceAll(
       ReplaceAll(sbuf.str(), 
-        "%cycle%", std::to_string((int)(failtime/10))),
-        "%prop%", '"'+prop_signal+'"');
+        "%cycle%", std::to_string((int)(failtime/10)+1)),
+        "%prop%", prop_signal);
     
     fout << why << std::endl;
 
@@ -280,7 +289,7 @@ bool get_why(const std::string &prop_signal, double failtime, double starttime,
     std::string line;
     bool start = false;
     while (std::getline(fin,line)) {
-      if(!start && line.find("Cycle: " + std::to_string((int)starttime)) == 0) {
+      if(!start && line.find("Cycle: " + std::to_string((int)(starttime/10) + 1 )) == 0) {
         start = true;
       } else if (start) {
         if (line.find("-----------------") == 0) {
@@ -303,6 +312,13 @@ bool get_why(const std::string &prop_signal, double failtime, double starttime,
   return true;
 }
 
+void filter_sigs(const std::set<std::string> & in, std::set<std::string> &out, const std::string & beg) {
+  for (auto && n : in) {
+    if (n.find(beg) == 0)
+      out.insert(n);
+  }
+}
+
 void get_signal_value_list(
   const std::string & vcd_file_name,
   const std::string & scope, // "dut"
@@ -317,9 +333,6 @@ void get_signal_value_list(
   std::vector<VCDSignal*>* sigs = trace -> get_signals();
 
   for ( VCDSignal * sig: *sigs) {
-    // ensure it is only register
-    if (sig->type != VCDVarType::VCD_VAR_REG)
-      continue;
     // check scope
     auto scopes = collect_scope(sig->scope);
 
@@ -339,6 +352,10 @@ void get_signal_value_list(
     if (not IN(check_name, whysig))
       continue;
     local_why.erase(check_name);
+    
+    // ensure it is only register
+    if (sig->type != VCDVarType::VCD_VAR_REG)
+      continue;
 
     auto vlg_val_ptr = trace->get_signal_value_at( sig->hash, starttime);
 
@@ -375,11 +392,13 @@ int main() {
   std::string prop; double starttime, failtime;
   analyze_failed_property_and_time("cex.vcd",prop,failtime,starttime);
 
-  std::set<std::string> whysig;
+  std::set<std::string> whysig, dutsigs;
   get_why(prop,failtime, starttime,whysig);
 
+  filter_sigs(whysig, dutsigs, "dut.");
+
   ilang::CexExtractor::cex_t cex;
-  get_signal_value_list("cex.vcd","dut",whysig,starttime, cex);
+  get_signal_value_list("cex.vcd","dut",dutsigs,starttime, cex);
 
   CexExtractor::StoreCexToFile(cexfile, cex);
 
