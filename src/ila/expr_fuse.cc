@@ -294,6 +294,7 @@ ExprPtr ExprFuse::Store(const ExprPtr mem, const int& addr, const int& data) {
 }
 
 bool ExprFuse::SetMemSize(const ExprPtr mem, const int& size) {
+  ILA_ASSERT(mem->is_mem()) << "Set size to non-memory variable " << mem;
   ILA_ASSERT(size > 0) << "Setting non-positive memory size " << size;
 
   if (mem->param_num() != 0) {
@@ -306,6 +307,7 @@ bool ExprFuse::SetMemSize(const ExprPtr mem, const int& size) {
 }
 
 int ExprFuse::GetMemSize(const ExprPtr mem) {
+  ILA_ASSERT(mem->is_mem()) << "Get size from non-memory variable " << mem;
   if (mem->param_num() == 0) {
     return 0;
   } else {
