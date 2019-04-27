@@ -137,6 +137,11 @@ public:
   /// \brief Replace the original argument (must exist) with the new argument.
   void ReplaceArg(const ExprRef& org_arg, const ExprRef& new_arg);
 
+  /// \brief Set the entry number of the memory (size regardless of bit-width).
+  bool SetEntryNum(const int& num);
+  /// \brief GEt the entry number of the memory (size regardless of bit-width).
+  int GetEntryNum();
+
 }; // class ExprRef
 
 /******************************************************************************/

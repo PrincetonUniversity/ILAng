@@ -279,6 +279,28 @@ TEST(TestApi, ReplaceArg) {
   EXPECT_TRUE(TopEqual(x, y));
 }
 
+TEST(TestApi, EntryNum) {
+  Ila ila("hots");
+
+  auto mem = ila.NewMemState("mem", 16, 32);
+
+  EXPECT_EQ(0, mem.GetEntryNum());
+
+#ifndef NDEBUG
+  EXPECT_DEATH(mem.SetEntryNum(-1), ".*");
+#endif
+  EXPECT_TRUE(mem.SetEntryNum(8));
+  EXPECT_FALSE(mem.SetEntryNum(16));
+  EXPECT_EQ(8, mem.GetEntryNum());
+
+  auto bl = ila.NewBoolState("bl");
+
+#ifndef NDEBUG
+  EXPECT_DEATH(bl.SetEntryNum(8), ".*");
+  EXPECT_DEATH(bl.GetEntryNum(), ".*");
+#endif
+}
+
 TEST(TestApi, Unroll) {
   z3::context c;
   auto unroller = IlaZ3Unroller(c);

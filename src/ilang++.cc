@@ -111,6 +111,16 @@ void ExprRef::ReplaceArg(const ExprRef& org_arg, const ExprRef& new_arg) {
   get()->replace_arg(org_arg.get(), new_arg.get());
 }
 
+bool ExprRef::SetEntryNum(const int& num) {
+  auto res = ExprFuse::SetMemSize(get(), num);
+  return res;
+}
+
+int ExprRef::GetEntryNum() {
+  auto num = ExprFuse::GetMemSize(get());
+  return num;
+}
+
 ExprRef operator-(const ExprRef& a) {
   auto v = ExprFuse::Negate(a.get());
   return ExprRef(v);
