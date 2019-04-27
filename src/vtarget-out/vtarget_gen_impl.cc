@@ -420,7 +420,7 @@ bool VlgVerifTgtGen::bad_state_return(void) {
 } // bad_state_return
 
 // return npos if no comments in
-size_t find_comments(const std::string &line) {
+static size_t find_comments(const std::string &line) {
   enum state_t {PLAIN, STR, LEFT }  state, next_state;
   state = PLAIN;
   size_t ret = 0;

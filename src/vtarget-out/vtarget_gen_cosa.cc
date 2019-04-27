@@ -91,7 +91,9 @@ void VlgSglTgtGen_Cosa::add_an_assumption(const std::string& aspt,
   vlg_wrapper.add_assign_stmt(assumption_wire_name, aspt);
   _problems.assumptions.push_back(assumption_wire_name + " = 1_1");
   //_problems.assumptions.push_back(convert_expr_to_cosa(aspt));
-}
+} // add_an_assumption
+
+
 /// Add an assertion
 void VlgSglTgtGen_Cosa::add_an_assertion(const std::string& asst,
                                          const std::string& dspt) {

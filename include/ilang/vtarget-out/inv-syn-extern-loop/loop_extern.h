@@ -17,6 +17,11 @@
 #ifndef LOOP_EXTERN_H__
 #define LOOP_EXTERN_H__
 
+namespace ilang
+{
+    
+    
+}; // namespace ilang
 
 
 #endif // LOOP_EXTERN_H__

@@ -62,10 +62,7 @@ public:
   /// Type of configuration
   using vtg_config_t = VlgVerifTgtGenBase::vtg_config_t;
   /// Type of record of extra info of a signal
-  struct ex_info_t {
-    std::string range;
-    ex_info_t(const std::string& r) : range(r) {}
-  };
+  using ex_info_t = VlgVerifTgtGenBase::ex_info_t;
   /// Type of advanced parameter
   using advanced_parameters_t = VlgVerifTgtGenBase::advanced_parameters_t;
 

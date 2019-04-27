@@ -3,7 +3,6 @@
 #include <ilang/util/container_shortcut.h>
 #include <ilang/util/fs.h>
 #include <ilang/vtarget-out/inv-syn/cex_extract.h>
-#include <external-interface/jasper_verif_if.h>
 
 #include <vcdparser/VCDFileParser.hpp>
 

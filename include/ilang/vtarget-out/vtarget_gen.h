@@ -18,6 +18,11 @@ namespace ilang {
 class VlgVerifTgtGenBase {
   // ----------------------- Type Definition ----------------------- //
 public:
+  /// Type of record of extra info of a signal
+  struct ex_info_t {
+    std::string range;
+    ex_info_t(const std::string& r) : range(r) {}
+  };
   /// Type of the backend
   typedef enum { NONE = 0, COSA = 1, JASPERGOLD = 2, YOSYS = 3 } backend_selector;
   /// Type of invariant synthesis backend
