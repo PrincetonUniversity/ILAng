@@ -23,13 +23,24 @@ struct DesignStatistics {
   unsigned NumOfExtraStateVars;
   /// the total width of these variables
   unsigned NumOfExtraStateBits;
+  // ----------- The timing information ----------------
+  /// time for equivalence checking
+  double TimeOfEqCheck;
+  /// time for validation of invariants
+  double TimeOfInvValidate;
+  /// time for z3 proving attempt
+  double TimeOfInvProof;
+  /// the synthesis time of invariants : chc/sygus-chc/sygus-dp
+  double TimeOfInvSyn;
 
   /// Constructor -- reset all values to 0
   DesignStatistics() : 
     NumOfDesignStateVars(0),
     NumOfDesignStateBits(0),
     NumOfExtraStateVars(0),
-    NumOfExtraStateBits(0) {} 
+    NumOfExtraStateBits(0),
+    TimeOfEqCheck(0), TimeOfInvValidate(0), 
+    TimeOfInvProof(0), TimeOfInvSyn(0) {} 
 
 }; // struct DesignStatistics
 
@@ -207,6 +218,20 @@ protected:
   vtg_config_t _vtg_config;
   /// the verilog gnerator configuration
   VerilogGenerator::VlgGenConfig _vlg_config;
+
+
+  // --------------------------------------------------
+  // for statistics purpose
+  // --------------------------------------------------
+  /// time for equivalence checking
+  double eqcheck_time;
+  /// time for validation of invariants
+  double inv_validate_time;
+  /// time for z3 proving attempt
+  double inv_proof_attempt_time;
+  /// the synthesis time of invariants : chc/sygus-chc/sygus-dp
+  double inv_syn_time;
+
 
 }; // class InvariantSynthesizerCegar 
 

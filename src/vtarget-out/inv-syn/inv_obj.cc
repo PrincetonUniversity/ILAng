@@ -197,12 +197,11 @@ void InvariantObject::ExportToFile(const std::string &fn) const {
     fout<< vlg_var << "\n";
   }
   for (auto && smt_str : smt_formula_vec) {
-    ILA_ERROR_IF(S_IN("\n", smt_str) || S_IN("\r", smt_str))
-      << "The expression contains line-break, cannot be handled correctly!";
-    if (smt_str.empty())
+    auto smt_no_line_break = ReplaceAll(ReplaceAll(smt_str, "\n", " "), "\r", " ");
+    if (smt_no_line_break.empty())
       fout << "(get-info :name)\n" ;
     else
-      fout << smt_str << "\n";
+      fout << smt_no_line_break << "\n";
   }
 }
 /// import invariants that has been previous exported

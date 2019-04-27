@@ -54,7 +54,10 @@ InvariantSynthesizerCegar::InvariantSynthesizerCegar(
     refinement_condition_path(refinement_conditions),
     _output_path(output_path),
     _host(ila_ptr),v_backend(vbackend),s_backend(sbackend),
-    _vtg_config(vtg_config), _vlg_config(config)
+    _vtg_config(vtg_config), _vlg_config(config),
+    // ------------ statistics bookkeeping --------------- //
+    eqcheck_time(0), inv_validate_time(0), inv_proof_attempt_time(0), 
+    inv_syn_time(0) 
   {
     // detect some wrong settings here
     if(vbackend != verify_backend_selector::COSA) {
@@ -376,6 +379,8 @@ bool InvariantSynthesizerCegar::RunVerifAuto(const std::string & script_selectio
   ILA_ERROR_IF(has_verify_tool_error_cosa(result_fn)) << "----------- Verification tool reported error! Please check the log output!";
   ILA_ERROR_IF(has_verify_tool_unknown_cosa(result_fn)) << "UNKNOWN Verif result";
 
+  eqcheck_time += res.seconds;
+
   auto lastLine = os_portable_read_last_line(result_fn);
   ILA_ERROR_IF(lastLine.empty()) << "Unable to extract verification result.";
   if (S_IN("Verifications with unexpected result", lastLine)) {
@@ -420,6 +425,8 @@ bool InvariantSynthesizerCegar::RunSynAuto() {
     << "Running synthesis script " << runnable_script_name[0] << " results in error."; 
   ILA_ASSERT(os_portable_chdir(cwd));
   
+  inv_syn_time += res.seconds;
+
   std::string line;
   { // read the result
     std::ifstream fin(synthesis_result_fn);
@@ -447,6 +454,11 @@ const std::vector<std::string> & InvariantSynthesizerCegar::GetRunnableTargetScr
 
 DesignStatistics InvariantSynthesizerCegar::GetDesignStatistics() const {
   DesignStatistics ret;
+
+  ret.TimeOfEqCheck     = eqcheck_time;
+  ret.TimeOfInvProof    = inv_proof_attempt_time;
+  ret.TimeOfInvSyn      = inv_syn_time;
+  ret.TimeOfInvValidate = inv_validate_time;
 
   if (design_smt_info == nullptr) {
     ILA_ERROR << "Design information not available!";
@@ -670,6 +682,9 @@ InvariantSynthesizerCegar::_inv_check_res_t InvariantSynthesizerCegar::ValidateS
   ILA_ERROR_IF(res.failure != execute_result::NONE)
     << "Running verification script " << inv_validate_script[0] << " results in error."; 
   ILA_ASSERT(os_portable_chdir(cwd));
+
+  inv_validate_time += res.seconds;
+
   if(res.timeout || ! res.subexit_normal)
     return INV_UNKNOWN;
   // the last line contains the result
@@ -796,6 +811,8 @@ InvariantSynthesizerCegar::_inv_check_res_t InvariantSynthesizerCegar::ProofCand
     << "Running synthesis script " << run_script[0] << " results in error."; 
   ILA_ASSERT(os_portable_chdir(cwd));
   
+  inv_proof_attempt_time += res.seconds;
+
   if (res.timeout || ! res.subexit_normal)
     return INV_UNKNOWN;
   std::string line;

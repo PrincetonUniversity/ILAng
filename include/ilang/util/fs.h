@@ -40,6 +40,8 @@ struct execute_result {
   unsigned ret;
   /// true if it exits with _exit() call
   bool subexit_normal;
+  /// the execution time
+  double seconds;
 };
 
 /// the type of redirect

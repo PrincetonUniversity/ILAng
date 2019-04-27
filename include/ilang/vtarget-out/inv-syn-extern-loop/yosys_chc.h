@@ -44,7 +44,10 @@ public:
                  const std::string& refinement_variable_mapping,
                  const std::string& refinement_conditions,
                  const std::string& output_path,
-                 backend_selector backend, const vtg_config_t& vtg_config,
+                 const std::string& tmpl_top_mod_name,
+                 backend_selector backend, 
+                 synthesis_backend_selector sbackend,
+                 const vtg_config_t& vtg_config,
                  advanced_parameters_t * adv_ptr = NULL);
 
   /// no copy constructor, please
@@ -71,12 +74,16 @@ protected:
   /// output path, output the ila-verilog, wrapper-verilog, problem.txt,
   /// run-verify-by-???
   const std::string _output_path;
+  /// the module name of the provided wrapper template 
+  const std::string top_mod_name;
   /// The name of verilog top module instance in the wrapper
   std::string _vlg_mod_inst_name;
   /// A pointer to create verilog analyzer
   VerilogInfo* vlg_info_ptr;
   /// to store the backend
-  backend_selector _backend;
+  const backend_selector _backend;
+  /// to store the synthesis backend
+  const synthesis_backend_selector s_backend;
   /// to store the configuration
   vtg_config_t _vtg_config;
   /// to store the advanced parameter configurations
@@ -100,6 +107,8 @@ protected:
   const bool has_confirmed_synthesized_invariant;
   /// has rf provided invariant, we cannot decide it at the construction time
   bool has_rf_invariant;
+  /// has counterexample provided?
+  const bool has_cex;
 
 
 protected:
@@ -127,11 +136,13 @@ protected:
   void set_module_instantiation_name();
 
 protected:
-  // --------------------- for export purpose  ---------------------------- //
+  // --------------------- for Verilog export purpose  ---------------------------- //
   /// the wires we are going to add
   std::map<std::string, unsigned> wire_defs;
   /// the output we are going to add
   std::map<std::string, unsigned> output_defs;
+  /// the output we are going to add
+  std::map<std::string, unsigned> input_defs;
   /// the statements to add
   std::vector<std::string> stmt_defs;
   /// the assume property (...) that we are going to have
@@ -140,6 +151,8 @@ protected:
   std::vector<std::string> assert_props;
   /// top verilog module file name
   std::string top_file_name;
+  /// chc file name
+  std::string chc_prob_fname;
   // helper function to be implemented by COSA/JASPER
   /// Add an assumption
   virtual void add_an_assumption(const std::string& aspt,
@@ -147,7 +160,34 @@ protected:
   /// Add an assertion
   virtual void add_an_assertion(const std::string& asst,
                                 const std::string& dspt);
+  /// add an invariant object as assertion
+  void add_inv_obj_as_assertion( InvariantObject * inv_obj);
+  /// add an invariant object as an assumption
+  void add_inv_obj_as_assumption( InvariantObject * inv_obj);
+  /// add rf inv as assumptions (if there are)
+  void add_rf_inv_as_assumption();
+  /// add rf inv as assumptions (if there are)
+  void add_rf_inv_as_assertion();
+  /// add property to vlg
+  void add_property();
+  /// read in wrapper_tmpl_name and generate wrapper_name
+  void wrapper_tmpl_substitute(const std::string& wrapper_name, const std::string &wrapper_tmpl_name);
+  /// export the rest of modules and also copy includes if any
+  void export_modify_verilog(const std::string& wrapper_name);
 
+  // --------------------- for CHC export purpose  ---------------------------- //
+  /// the smt info
+  std::shared_ptr<smt::YosysSmtParser> design_smt_info;
+
+  void design_only_gen_smt(
+    const std::string & smt_name,
+    const std::string & ys_script_name);
+  void convert_smt_to_chc_bitvec(
+    const std::string & smt_fname, const std::string & chc_fname, 
+    const std::string & wrapper_mod_name);
+  void convert_smt_to_chc_datatype(
+    const std::string & smt_fname, const std::string & chc_fname) ;
+  void export_script(const std::string& script_name);
 public:
   // okay to instantiate
   void do_not_instantiate(void) {}
@@ -164,8 +204,20 @@ protected:
 
 
 public:
+  // ----------------------- STEPs -------------------- //
+  /// step 1: to verilog
+  void ConstructWrapper(
+    const std::string& wrapper_name,
+    const std::string& wrapper_tmpl_name);
+  /// step 2: to chc
+  void GenerateChc(
+    const std::string& chc_name,
+    const std::string& script_name);
+
   // ----------------------- ACCESSOR -------------------- //
+  /// get the script names (should be only 1)
   const std::vector<std::string> & GetRunnableScriptName() const;
+  /// get the parsed suppplementary information
   const VlgTgtSupplementaryInfo & GetSupplementaryInfo() const;
   
 }; // class ExternalChcTargetGen

@@ -5,7 +5,7 @@
 ///         the top level one: add to placeholder (%assert%) (%declare%)
 ///         the lowlevel one, do it according to vlg_mod
 ///         
-///         then generate smt -> chc -> auto run -> extract result -> to inv_obj
+///         (then generate verilog -> smt -> chc )-> auto run -> ( extract result -> to inv_obj )
 ///
 ///     2. eq check : add inv_obj as assumptions (%assumpt%) ?  to a tcl I think is enough
 ///                     push to server, run it, generate vcd (how?) fetch back, 

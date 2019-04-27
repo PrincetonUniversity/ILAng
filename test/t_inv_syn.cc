@@ -266,6 +266,10 @@ TEST(TestVlgVerifInvSyn, CegarPipelineExample) {
   ILA_INFO << "#vars=" << design_stat.NumOfDesignStateVars;
   ILA_INFO << "#extra_bits= " << design_stat.NumOfExtraStateBits;
   ILA_INFO << "#extra_vars=" << design_stat.NumOfExtraStateVars;
+  ILA_INFO << "t(eq)= " << design_stat.TimeOfEqCheck;
+  ILA_INFO << "t(syn)=" << design_stat.TimeOfInvSyn;
+  ILA_INFO << "t(proof)= " << design_stat.TimeOfInvProof;
+  ILA_INFO << "t(validate)=" << design_stat.TimeOfInvValidate;
 
   // test invariant import and export also here
   InvariantObject invs(vg.GetInvariants());
@@ -494,6 +498,17 @@ TEST(TestVlgVerifInvSyn, CegarPipelineExampleSygusDatapoint) {
   std::cout << "---------Synthesized Invariants----------\n";
   for (auto && vlg: vg.GetInvariants().GetVlgConstraints() )
     std::cout << vlg << std::endl;
+  
+  auto design_stat = vg.GetDesignStatistics();
+  ILA_INFO << "========== Design Info ==========" ;
+  ILA_INFO << "#bits= " << design_stat.NumOfDesignStateBits;
+  ILA_INFO << "#vars=" << design_stat.NumOfDesignStateVars;
+  ILA_INFO << "#extra_bits= " << design_stat.NumOfExtraStateBits;
+  ILA_INFO << "#extra_vars=" << design_stat.NumOfExtraStateVars;
+  ILA_INFO << "t(eq)= " << design_stat.TimeOfEqCheck;
+  ILA_INFO << "t(syn)=" << design_stat.TimeOfInvSyn;
+  ILA_INFO << "t(proof)= " << design_stat.TimeOfInvProof;
+  ILA_INFO << "t(validate)=" << design_stat.TimeOfInvValidate;
 }
 
 

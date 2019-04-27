@@ -25,6 +25,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <sys/time.h>
 #endif
 
 namespace ilang {
@@ -167,10 +168,11 @@ std::string os_portable_remove_file_name_extension(const std::string fname) {
 }
 
 
+#if defined(__unix__) || defined(unix) || defined(__APPLE__) || defined(__MACH__) || defined(__linux__) || defined(__FreeBSD__)
+
 volatile sig_atomic_t child_pid;
 volatile sig_atomic_t shared_time_out;
 
-#if defined(__unix__) || defined(unix) || defined(__APPLE__) || defined(__MACH__) || defined(__linux__) || defined(__FreeBSD__)
 void parent_alarm_handler(int signum) {
   if (child_pid != 0) {
     kill(-child_pid, SIGTERM);
@@ -187,7 +189,9 @@ execute_result os_portable_execute_shell(
 {
   int pipefd[2];
   execute_result _ret;
+  struct timeval Time1,Time2; // count the time
 
+  _ret.seconds = 0;
   _ret.timeout = false;
   
   auto cmdline = Join(cmdargs, ",");
@@ -245,6 +249,8 @@ execute_result os_portable_execute_shell(
 #else
   // set up the pipe to transfer subprocess's information before exec
   // so close on exec
+  gettimeofday(&Time1, NULL);
+
   pipe2(pipefd, O_CLOEXEC); // 
   // on *nix, spawn a child process to do this
   pid_t pid = fork();
@@ -345,6 +351,12 @@ execute_result os_portable_execute_shell(
     // wait for sub-process
     int wait_pid_res = waitpid(pid, &infop, 0);
     
+    gettimeofday(&Time2, NULL);
+    _ret.seconds = 
+      ( 
+        (Time2.tv_usec + Time2.tv_sec*1000000.0) -  
+        (Time1.tv_usec + Time1.tv_sec*1000000.0) ) / 1000000.0;
+
     if(timeout != 0) {
       alarm(0); //cancel if previously set
       sigaction(SIGALRM, &old_act, NULL); // restore the old one
@@ -371,6 +383,7 @@ execute_result os_portable_execute_shell(
     _ret.ret = WEXITSTATUS(infop);
     _ret.failure = execute_result::NONE;
     _ret.timeout = timeout != 0 && shared_time_out;
+    
 
     close(pipefd[0]);
     return _ret;
