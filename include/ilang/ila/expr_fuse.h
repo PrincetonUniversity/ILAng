@@ -165,6 +165,11 @@ ExprPtr Load(const ExprPtr mem, const int& addr);
 /// Memory store to constant address and data
 ExprPtr Store(const ExprPtr mem, const int& addr, const int& data);
 
+/// Set memory size.
+bool SetMemSize(const ExprPtr mem, const int& size = 0);
+/// Get memory size.
+int GetMemSize(const ExprPtr mem);
+
 /******************************************************************************/
 // Bit manipulation
 /******************************************************************************/

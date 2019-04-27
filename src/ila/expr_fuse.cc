@@ -293,6 +293,27 @@ ExprPtr ExprFuse::Store(const ExprPtr mem, const int& addr, const int& data) {
   return ExprFuse::Store(mem, ac, dc);
 }
 
+bool ExprFuse::SetMemSize(const ExprPtr mem, const int& size) {
+  ILA_ASSERT(size > 0) << "Setting non-positive memory size " << size;
+
+  if (mem->param_num() != 0) {
+    ILA_WARN << "Overwriting original paramters of " << mem;
+    return false;
+  }
+
+  mem->set_params({size});
+  return true;
+}
+
+int ExprFuse::GetMemSize(const ExprPtr mem) {
+  if (mem->param_num() == 0) {
+    return 0;
+  } else {
+    ILA_ASSERT(mem->param_num() == 1) << "Unrecognized memory parameter set";
+    return mem->param(0);
+  }
+}
+
 ExprPtr ExprFuse::Concat(const ExprPtr hi, const ExprPtr lo) {
   auto const_zero = ExprFuse::BvConst(0x0, 1);
   auto const_one = ExprFuse::BvConst(0x1, 1);
