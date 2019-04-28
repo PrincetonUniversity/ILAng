@@ -412,7 +412,7 @@ z3::expr MemoryModel::SameAddress(const TraceStep& l, const TraceStep& r,
 // TODO:
 // #warning We should use conditional multi-store finder!
       if (!rightW) {
-        wexpr->Print(ILA_INFO);
+        // wexpr->Print(ILA_INFO);
         ILA_INFO << "TS:" << r.name();
         ILA_INFO << "INST:" << r.inst()->name().str();
         ILA_INFO << "state:" << sname;
