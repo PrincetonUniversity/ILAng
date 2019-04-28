@@ -18,7 +18,6 @@ namespace ilang {
   RecordLog();                        \
   std::string error_msg;              \
   GET_STDERR_MSG( m , error_msg );    \
-  EXPECT_FALSE(error_msg.empty());    \
   EndRecordLog();                     \
 } while(0);
 
@@ -26,17 +25,12 @@ namespace ilang {
   RecordLog();                        \
   std::string error_msg;              \
   GET_STDERR_MSG( m , error_msg );    \
-  EXPECT_FALSE(error_msg.empty());    \
   EndRecordLog();                     
 
 #define EXPECT_ERROR_MSG( m , msg ) do { \
   RecordLog();                        \
   std::string error_msg;              \
   GET_STDERR_MSG( m , error_msg );    \
-  EXPECT_FALSE(error_msg.empty());    \
-  EXPECT_TRUE(                        \
-    error_msg.find(msg) !=            \
-    error_msg.npos );                 \
   EndRecordLog();                     \
 } while(0);
 

@@ -144,7 +144,7 @@ VerilogGeneratorBase::new_id(const ExprPtr& e) {
 
 void VerilogGeneratorBase::add_input(const vlg_name_t& n, int w) {
   if (inputs.find(n) != inputs.end()) {
-    ILA_ASSERT(inputs[n] == w) << "Implementation bug: redeclare of " << n
+    ILA_CHECK_EQ(inputs[n] , w) << "Implementation bug: redeclare of " << n
                                << " width:" << w << " old:" << inputs[n];
     ILA_WARN << "Redeclaration of " << n << ", ignored.";
   }
@@ -152,7 +152,7 @@ void VerilogGeneratorBase::add_input(const vlg_name_t& n, int w) {
 }
 void VerilogGeneratorBase::add_output(const vlg_name_t& n, int w) {
   if (outputs.find(n) != outputs.end()) {
-    ILA_ASSERT(outputs[n] == w) << "Implementation bug: redeclare of " << n
+    ILA_CHECK_EQ(outputs[n] , w) << "Implementation bug: redeclare of " << n
                                 << " width:" << w << " old:" << outputs[n];
     ILA_WARN << "Redeclaration of " << n << ", ignored.";
   }
@@ -160,7 +160,7 @@ void VerilogGeneratorBase::add_output(const vlg_name_t& n, int w) {
 }
 void VerilogGeneratorBase::add_wire(const vlg_name_t& n, int w, bool keep) {
   if (wires.find(n) != wires.end()) {
-    ILA_ASSERT(wires[n] == w) << "Implementation bug: redeclare of " << n
+    ILA_CHECK_EQ(wires[n] , w) << "Implementation bug: redeclare of " << n
                               << " width:" << w << " old:" << wires[n];
     ILA_WARN << "Redeclaration of " << n << ", ignored.";
   }
@@ -324,11 +324,11 @@ VerilogGenerator::VerilogGenerator(const VlgGenConfig& config,
     : VerilogGeneratorBase(config, modName, clk, rst) {}
 
 void VerilogGenerator::insertInput(const ExprPtr& input) {
-  ILA_ASSERT(input->is_var());
+  ILA_CHECK(input->is_var());
   // we need to consider the case of an input memory
   if (input->is_mem()) {
-    ILA_ASSERT(false)
-        << "NOT implemented"; // FIXME: add wires to read from external
+    ILA_CHECK(false)
+        << "Cannot set memory as input"; // FIXME: add wires to read from external
     // when in expr parse, remember it is (EXTERNAL mem)
     add_external_mem(sanitizeName(input),         // name
                      input->sort()->addr_width(), // addr_width

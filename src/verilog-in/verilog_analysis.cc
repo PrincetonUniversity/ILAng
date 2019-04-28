@@ -7,6 +7,7 @@
 #include <ilang/verilog-in/verilog_const_parser.h>
 #include <ilang/verilog-in/verilog_analysis.h>
 #include <string>
+#include <sstream>
 
 // extern int yy_flex_debug;
 
@@ -132,8 +133,10 @@ void VerilogAnalyzer::check_resolve_modules(verilog_source_tree* source) {
     std::string mod_name(ast_identifier_tostring(module->identifier));
     if (IN(mod_name,
            name_module_map)) { // the module has been encountered, redefinition
-      PrintMetaAst(ILA_ERROR << "Redeclaration of module @", module)
+      std::stringstream outinfo;
+      PrintMetaAst(outinfo << "Redeclaration of module @", module)
           << " . Ignored.";
+      ILA_ERROR << outinfo.str();
       continue;
     }
     name_module_map.insert({mod_name, module});
@@ -348,11 +351,14 @@ VerilogAnalyzer::_check_hierarchical_name_type(
       ILA_ASSERT(port_name != "")
           << "Get an empty port name from the verilog parser";
       if (port_name == last_level_name) {
-        if (isIO)
-          PrintMetaAst(ILA_ERROR
+        if (isIO) {
+          std::stringstream outinfo;
+          PrintMetaAst(outinfo
                            << "Signal:" << net_name
                            << " seems to have been mentioned multiple times.",
                        port_id_ptr);
+          ILA_ERROR << outinfo.rdbuf();
+        }
         isIO = true;
         io_port = port_ptr;
         isRegPort = port_ptr->is_reg;
@@ -374,10 +380,13 @@ VerilogAnalyzer::_check_hierarchical_name_type(
             mod_ast_ptr->reg_declarations, reg_decl_idx);
     if (ast_identifier_tostring(reg_decl_ptr->identifier) == last_level_name) {
       // now we know it is reg!
-      if (internalDef)
-        PrintMetaAst(ILA_ERROR << "Reg:" << net_name
+      if (internalDef) {
+        std::stringstream outbuf;
+        PrintMetaAst(outbuf << "Reg:" << net_name
                                << " seems to have been defined multiple times.",
                      reg_decl_ptr);
+        ILA_ERROR << outbuf.rdbuf();
+      }
       internalDef = true;
       isReg = true;
       reg_or_wire_ptr = reg_decl_ptr;
@@ -399,9 +408,11 @@ VerilogAnalyzer::_check_hierarchical_name_type(
           continue;
         }
         // else
-        PrintMetaAst(ILA_ERROR << "Wire:" << net_name
+        std::stringstream outinfo;
+        PrintMetaAst(outinfo << "Wire:" << net_name
                                << " has been declared multiple times",
                      net_decl_ptr);
+        ILA_ERROR << outinfo.rdbuf();
       }
       internalDef = true;
       isReg = false;
