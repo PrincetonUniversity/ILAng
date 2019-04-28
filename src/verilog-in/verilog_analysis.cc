@@ -7,6 +7,7 @@
 #include <ilang/verilog-in/verilog_const_parser.h>
 #include <ilang/verilog-in/verilog_analysis.h>
 #include <string>
+#include <sstream>
 
 // extern int yy_flex_debug;
 
@@ -132,8 +133,10 @@ void VerilogAnalyzer::check_resolve_modules(verilog_source_tree* source) {
     std::string mod_name(ast_identifier_tostring(module->identifier));
     if (IN(mod_name,
            name_module_map)) { // the module has been encountered, redefinition
-      PrintMetaAst(ILA_ERROR << "Redeclaration of module @", module)
+      std::stringstream outinfo;
+      PrintMetaAst(outinfo << "Redeclaration of module @", module)
           << " . Ignored.";
+      ILA_ERROR << outinfo.str();
       continue;
     }
     name_module_map.insert({mod_name, module});
