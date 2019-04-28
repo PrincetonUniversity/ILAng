@@ -106,7 +106,7 @@ const std::string syntax_arithmetic_lv1_hw = R"#!#!#(
 (synth-fun INV (%arg%) Bool
   ((Start Bool (IMP))
 
-  (IMP Bool (implies PreCond PostCond))
+  (IMP Bool ((=> PreCond PostCond)))
 
 ; ---------- controls ------------
    (PreCond Bool (true
@@ -282,7 +282,7 @@ const std::string template_hardwired = R"#!#!#(
 
 (synth-fun INV ((|m1.aes_step| (_ BitVec 1)) (|m1.aes_reg_state| (_ BitVec 2)) (|m1.byte_counter| (_ BitVec 4)) (|m1.operated_bytes_count| (_ BitVec 16)) (|m1.block_counter| (_ BitVec 128)) (|m1.uaes_ctr| (_ BitVec 128)) (|m1.aes_reg_ctr| (_ BitVec 128)) (|m1.aes_time_enough| (_ BitVec 1))) Bool
   ((Start Bool (IMP))
-   (IMP Bool (implies PreCond PostCond))
+   (IMP Bool ((=> PreCond PostCond)))
    (PreCond Bool (true
                   CtrlAtom
                   CtrlConj))

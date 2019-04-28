@@ -194,6 +194,7 @@ void TraceDataPoints::ImportNonprovidedPosEx(const std::string & fn) {
   for (unsigned idx = 0; idx < ex_size; ++ idx) {
     unsigned var_map_size;
     fin >> var_map_size;
+    pos_ex.push_back(example_map_t());
     for (unsigned vidx = 0; vidx < var_map_size; ++ vidx) {
       fin >> vname;
       fin >> val;
@@ -208,7 +209,6 @@ void TraceDataPoints::ImportNonprovidedPosEx(const std::string & fn) {
 
       ILA_ERROR_IF(width == 0 || vname.empty() || val.empty() || radix == 0 )
         << "read format error!";
-      pos_ex.push_back(example_map_t());
       pos_ex.back().insert(std::make_pair(
         vname,
         std::make_pair(radix_val_t(val,radix),tp)

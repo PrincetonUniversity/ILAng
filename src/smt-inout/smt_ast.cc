@@ -340,7 +340,11 @@ state_var_t state_var_t::ParseFromString(str_iterator &it, const std::string & d
   }
   else { // from comment, extract state
     it.jump_to_next(";");
-    it.accept("; \\");
+    auto w = it.head_word("\n\r");
+    if (w.find("; $") == 0) {
+      it.accept("; $");
+    } else 
+      it.accept("; \\");
     // todo : read a line
     auto state_name = it.readline_no_eol();
     auto pos = state_name.find("\n");

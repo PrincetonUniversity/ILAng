@@ -145,6 +145,8 @@ protected:
   std::map<std::string, unsigned> input_defs;
   /// the statements to add
   std::vector<std::string> stmt_defs;
+  /// the extra connection to add to instantiation
+  std::map<std::string,std::string> implport_def;
   /// the assume property (...) that we are going to have
   std::vector<std::string> assume_props;
   /// assertions
@@ -170,6 +172,8 @@ protected:
   void add_rf_inv_as_assertion();
   /// add property to vlg
   void add_property();
+  /// the wires referred needs to be added to wire/ports/implports
+  void register_extra_io_wire();
   /// read in wrapper_tmpl_name and generate wrapper_name
   void wrapper_tmpl_substitute(const std::string& wrapper_name, const std::string &wrapper_tmpl_name);
   /// export the rest of modules and also copy includes if any

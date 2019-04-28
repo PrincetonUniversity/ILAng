@@ -257,7 +257,6 @@ std::string ExternalChcTargetGen::ReplExpr(const std::string& expr, bool force_v
                        });
 }
 
-
 // --------------------- for export Verilog ---------------------------- //
 
 // some short cuts
@@ -347,8 +346,12 @@ void ExternalChcTargetGen::add_rf_inv_as_assertion() {
 
 void ExternalChcTargetGen::add_property() {
   if (has_cex) {
-    auto new_cond = ReplExpr(
-      _advanced_param_ptr->_cex_obj_ptr->GenInvAssert(""), true);
+    auto inv = _advanced_param_ptr->_cex_obj_ptr->GenInvAssert("");
+    {
+      std::ofstream fout(os_portable_append_dir(_output_path, "cex.tcl"));
+      fout << "assert { " << inv << " }; " << std::endl;
+    }
+    auto new_cond = ReplExpr(inv, true);
     add_an_assertion("~(" + new_cond + ")", "cex_nonreachable_assert");
     /// add rf_assumption
     if (_vtg_config.InvariantSynthesisReachableCheckKeepOldInvariant) {
@@ -379,6 +382,32 @@ void ExternalChcTargetGen::add_property() {
   
 }
 
+
+void ExternalChcTargetGen::register_extra_io_wire() {
+  for (auto&& refered_vlg_item : _all_referred_vlg_names) {
+
+    auto idx = refered_vlg_item.first.find("[");
+    auto removed_range_name = refered_vlg_item.first.substr(0, idx);
+    auto vlg_sig_info = vlg_info_ptr->get_signal(removed_range_name, sup_info.width_info);
+
+    auto vname = ReplaceAll(
+        ReplaceAll(ReplaceAll(refered_vlg_item.first, ".", "__DOT__"), "[",
+                   "_"),
+        "]", "_");
+    // + ReplaceAll(ReplaceAll(refered_vlg_item.second.range, "[","_"),"]","_");
+    // // name for verilog
+    auto width = vlg_sig_info.get_width();
+
+    ADD_WIRE(vname, width); // keep
+    ADD_OUTPUT(vname, width);  // add as output of the wrapper
+    implport_def.insert(std::make_pair(vname, vname));
+    // these will be connected to the verilog module, so register as extra wires
+    // so, later they will be connected
+  }
+} // ConstructWrapper_register_extra_io_wire
+
+
+
 /// convert a widith to a verilog string
 static std::string WidthToRange(int w) {
   if (w > 1)
@@ -401,9 +430,6 @@ void ExternalChcTargetGen::wrapper_tmpl_substitute(const std::string& wrapper_na
     ILA_ERROR_IF(not S_IN("%wires%",   tmpl)) << "Require %wires% field!";
     ILA_ERROR_IF(not S_IN("%inputs%",  tmpl)) << "Require %inputs% field!";
     ILA_ERROR_IF(not S_IN("%outputs%", tmpl)) << "Require %outputs% field!";
-    ILA_ERROR_IF(not S_IN("%stmts%",   tmpl)) << "Require %stmts% field!";
-    ILA_ERROR_IF(not S_IN("%assumes%", tmpl)) << "Require %assumes% field!";
-    ILA_ERROR_IF(not S_IN("%asserts%", tmpl)) << "Require %asserts% field!";
 
     std::string wires;
     std::string inputs;
@@ -457,8 +483,8 @@ void ExternalChcTargetGen::wrapper_tmpl_substitute(const std::string& wrapper_na
         continue; // no need to redeclare
       wires += "wire " + WidthToRange(wn.second) + " " + wn.first + ";\n";
     }
-    for (auto && p : port_wires)
-      ports += ",\n" + p;
+    //for (auto && p : port_wires)
+    //  ports += ",\n" + p;
     
     tmpl = ReplaceAll(tmpl, "%ports%" ,   ports);
     tmpl = ReplaceAll(tmpl, "%wires%" ,   wires);
@@ -483,6 +509,15 @@ void ExternalChcTargetGen::wrapper_tmpl_substitute(const std::string& wrapper_na
     tmpl = ReplaceAll(tmpl, "%assumes%" , assumes);
     tmpl = ReplaceAll(tmpl, "%asserts%" , asserts);
   } // replace stmt assumes asserts
+
+  { // replace , \n .n(n)
+    ILA_ERROR_IF(not S_IN("%implports%",tmpl)) << "Require %implports% field!";
+    std::string implports;
+    for (auto && arg : implport_def) {
+      implports += ",\n."+arg.first+"(" + arg.second+")";
+    }
+    tmpl = ReplaceAll(tmpl, "%implports%", implports);
+  }
 
   std::ofstream wrapper_out(wrapper_full_name);
   if (not wrapper_out.is_open()) { ILA_ERROR << "Unable to write to:" << wrapper_full_name; return;}
@@ -556,6 +591,8 @@ void ExternalChcTargetGen::ConstructWrapper(
   }
   // add cex / (if no cex) candidate ... prop to check
   add_property();
+  // register the wires...
+  register_extra_io_wire();
   // replace text &
   wrapper_tmpl_substitute(wrapper_name, wrapper_tmpl_name);
   // copy files/copy include
