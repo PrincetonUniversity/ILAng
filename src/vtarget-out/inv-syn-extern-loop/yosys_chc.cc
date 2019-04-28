@@ -475,9 +475,9 @@ void ExternalChcTargetGen::wrapper_tmpl_substitute(const std::string& wrapper_na
     for (auto && s : stmt_defs)
       stmts += s + "\n";
     for (auto && a : assert_props)
-      asserts += "assert property (" + a + ")";
+      asserts += "assert property (" + a + ");\n";
     for (auto && a : assume_props)
-      assumes += "assume property (" + a + ")";
+      assumes += "assume property (" + a + ");\n";
     
     tmpl = ReplaceAll(tmpl, "%stmts%" ,   stmts);
     tmpl = ReplaceAll(tmpl, "%assumes%" , assumes);
@@ -954,7 +954,7 @@ void ExternalChcTargetGen::export_script(const std::string& script_name) {
   runnable_script_name.push_back(fname);
 } 
 
-void ExternalChcTargetGen::GenerateChc(const std::string& chc_name,
+std::shared_ptr<smt::YosysSmtParser> ExternalChcTargetGen::GenerateChc(const std::string& chc_name,
     const std::string & script_name) {
   chc_prob_fname = chc_name;
   // export 1. yosysscript
@@ -975,6 +975,8 @@ void ExternalChcTargetGen::GenerateChc(const std::string& chc_name,
     ILA_ASSERT(false) << "I don't know how to generate CHC encoding";
   // generate chc run script
   export_script(script_name);
+  // inv_extract need this!
+  return design_smt_info;
 }
 
 

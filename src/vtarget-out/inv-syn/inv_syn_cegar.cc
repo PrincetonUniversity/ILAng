@@ -173,6 +173,7 @@ void InvariantSynthesizerCegar::GenerateSynthesisTarget() {
   // to send in the invariants
   advanced_parameters_t adv_param;
   adv_param._inv_obj_ptr = &inv_obj; 
+  adv_param._candidate_inv_ptr = NULL;
   adv_param._cex_obj_ptr = cex_extract.get();
   
   VlgVerifTgtGen vg(
@@ -527,6 +528,7 @@ void InvariantSynthesizerCegar::GenerateSynthesisTargetSygusTransFunc(bool enume
   // to send in the invariants
   advanced_parameters_t adv_param;
   adv_param._inv_obj_ptr = &inv_obj; 
+  adv_param._candidate_inv_ptr = NULL;
   adv_param._cex_obj_ptr = cex_extract.get();
   
   VlgVerifTgtGen vg(
@@ -564,6 +566,7 @@ void InvariantSynthesizerCegar::GenerateSynthesisTargetSygusDatapoints(bool enum
   // to send in the invariants
   advanced_parameters_t adv_param;
   adv_param._inv_obj_ptr = &inv_obj; 
+  adv_param._candidate_inv_ptr = NULL;
   adv_param._cex_obj_ptr = cex_extract.get();
 
   // TraceDataPoints dp_w_cex(datapoints);

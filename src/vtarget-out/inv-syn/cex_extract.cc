@@ -186,8 +186,12 @@ CexExtractor::CexExtractor(const std::string & fn) {
   std::string name, val;
   for (unsigned idx = 0; idx < pairs; ++ idx ) {
     fin >> name; fin >> val;
-    ILA_ERROR_IF(name.empty() || val.empty() )
-      << "Failed to read cex from file!";
+    if(name.empty() || val.empty() ) {
+      ILA_ERROR << "Failed to read cex from file!";
+      break;
+    }
+    cex.insert(std::make_pair(name,val));
+    cex_is_reg.insert(std::make_pair(name,true));
   }
 }
 

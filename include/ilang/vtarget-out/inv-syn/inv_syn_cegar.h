@@ -7,43 +7,12 @@
 #include <ilang/smt-inout/yosys_smt_parser.h>
 #include <ilang/vtarget-out/vtarget_gen.h>
 #include <ilang/vtarget-out/inv-syn/sygus/datapoint.h>
+#include <ilang/vtarget-out/design_stat.h>
 
 #include <string>
 #include <memory>
 
 namespace ilang {
-
-/// \brief design statistics information 
-struct DesignStatistics {
-  /// the number of state variables
-  unsigned NumOfDesignStateVars;
-  /// the total width of these variables
-  unsigned NumOfDesignStateBits;
-  /// the number of state variables
-  unsigned NumOfExtraStateVars;
-  /// the total width of these variables
-  unsigned NumOfExtraStateBits;
-  // ----------- The timing information ----------------
-  /// time for equivalence checking
-  double TimeOfEqCheck;
-  /// time for validation of invariants
-  double TimeOfInvValidate;
-  /// time for z3 proving attempt
-  double TimeOfInvProof;
-  /// the synthesis time of invariants : chc/sygus-chc/sygus-dp
-  double TimeOfInvSyn;
-
-  /// Constructor -- reset all values to 0
-  DesignStatistics() : 
-    NumOfDesignStateVars(0),
-    NumOfDesignStateBits(0),
-    NumOfExtraStateVars(0),
-    NumOfExtraStateBits(0),
-    TimeOfEqCheck(0), TimeOfInvValidate(0), 
-    TimeOfInvProof(0), TimeOfInvSyn(0) {} 
-
-}; // struct DesignStatistics
-
 
 /// \brief the implementation of the synthesizer class
 class InvariantSynthesizerCegar {

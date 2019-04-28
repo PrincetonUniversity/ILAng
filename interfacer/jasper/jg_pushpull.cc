@@ -379,10 +379,11 @@ void get_signal_value_list(
 
 int main() {
 
+  const std::string vardef = "vardef.v";
   const std::string assumefile = "assume.tcl";
   const std::string cexfile = "cex.sigs";
 
-  if (not push_assume_to_server(assumefile) )
+  if (not push_assume_to_server(assumefile) || not push_assume_to_server(vardef) )
     return 1; // failed connection
   bool has_cex = run_jg_till_fail(assumefile);
   if (!has_cex)

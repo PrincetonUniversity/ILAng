@@ -210,7 +210,7 @@ public:
     const std::string& wrapper_name,
     const std::string& wrapper_tmpl_name);
   /// step 2: to chc
-  void GenerateChc(
+  std::shared_ptr<smt::YosysSmtParser> GenerateChc(
     const std::string& chc_name,
     const std::string& script_name);
 
