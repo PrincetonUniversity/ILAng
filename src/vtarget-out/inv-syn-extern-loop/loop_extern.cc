@@ -109,7 +109,9 @@ void InvariantSynthesizerExternalCegar::GenerateChcSynthesisTarget() {
 	design_smt_info = vg.GenerateChc("wrapper.smt2", "run.sh");
 
 	runnable_script_name = vg.GetRunnableScriptName();
-
+  
+  vlg_mod_inst_name = vg.GetDesignUnderVerificationInstanceName();
+  inv_obj.set_dut_inst_name(vlg_mod_inst_name);
 }
 /// run Synthesis : returns reachable/not
 bool InvariantSynthesizerExternalCegar::RunSynAuto() {
@@ -118,7 +120,7 @@ bool InvariantSynthesizerExternalCegar::RunSynAuto() {
     return true;
   
   ILA_ASSERT(runnable_script_name.size() == 1) << "Please run GenerateInvSynTargets function first";
-  synthesis_result_fn = os_portable_append_dir(_output_path, "__synthesis_result.txt");
+  synthesis_result_fn = os_portable_append_dir(_output_path, "../__synthesis_result.txt");
   auto redirect_fn = os_portable_append_dir("../", "__synthesis_result.txt");
 
   auto cwd = os_portable_getcwd();
@@ -190,7 +192,8 @@ void InvariantSynthesizerExternalCegar::ExtractSynthesisResult(bool autodet, boo
     inv_obj.AddInvariantFromChcResultFile(
       *(design_smt_info.get()), "", res_file, 
       _vtg_config.YosysSmtFlattenDatatype,
-      _vtg_config.YosysSmtFlattenHierarchy );
+      _vtg_config.YosysSmtFlattenHierarchy,
+      false );
   else if (0 /*current_inv_type == cur_inv_tp::SYGUS_CHC*/) // we reparse even for SyGuS cex
     ILA_ASSERT(
       inv_obj.AddInvariantFromSygusResultFile(

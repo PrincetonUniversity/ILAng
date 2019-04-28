@@ -91,6 +91,10 @@ const VlgTgtSupplementaryInfo & ExternalChcTargetGen::GetSupplementaryInfo() con
   return sup_info;
 }
 
+std::string ExternalChcTargetGen::GetDesignUnderVerificationInstanceName() const {
+  return _vlg_mod_inst_name;
+}
+
 // --------------------- for rf parsing (not very useful)  ----------------- //
 
 // return npos if no comments in

@@ -311,10 +311,10 @@ const std::string template_hardwired = R"#!#!#(
   (= Exp4 Exp4)
   
   (= Exp16 Exp16)
-  ;(bvult Exp16 Exp16)
+  (bvult Exp16 Exp16)
 
   (= Exp128 Exp128)
-  ;(bvult Exp128 Exp128)
+  (bvult Exp128 Exp128)
 
 ))               
   
@@ -325,22 +325,22 @@ const std::string template_hardwired = R"#!#!#(
                       (bvnot VarOrVal1)))
   
  (Exp2 (_ BitVec 2) ( VarOrVal2
-                      ;(bvnot VarOrVal2)
+                      (bvnot VarOrVal2)
                       ))
   
  (Exp4 (_ BitVec 4) ( VarOrVal4
-                      ;(bvnot VarOrVal4)
+                      (bvnot VarOrVal4)
                       ))
   
  (Exp16 (_ BitVec 16) ( VarOrVal16
                       (bvadd VarOrVal16 VarOrVal16)
-                      ;(bvnot VarOrVal16)
+                      (bvnot VarOrVal16)
                       (extract150 Var128)
                       ))
   
  (Exp128 (_ BitVec 128) ( VarOrVal128
                       (bvadd VarOrVal128 VarOrVal128)
-                      ;(bvnot VarOrVal128)
+                      (bvnot VarOrVal128)
                       ))
 
    
@@ -377,13 +377,13 @@ const std::string template_hardwired = R"#!#!#(
     (Val4 (_ BitVec 4) (#b0000 #b0001 #b0010 #b0011 #b0100 #b0101 #b0110 #b0111 #b1000 #b1001 #b1010 #b1011 #b1100 #b1101 #b1110 #b1111))
 
     (Val16 (_ BitVec 16) (#b0000000000000000 
-      ;#xff00 #xff01 #xff02 #xff04 #xff10 #xff20 
+      #xff00 #xff01 #xff02 #xff04 #xff10 #xff20 
       #b1111111111111111))
 
     (Val128 (_ BitVec 128) (
-        ;#b00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 
+        #b00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 
         #b00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000  
-        ;#b11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111
+        #b11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111
         ))
 ))
 )#!#!#";

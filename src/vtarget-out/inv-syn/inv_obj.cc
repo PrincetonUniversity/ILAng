@@ -29,7 +29,8 @@ void InvariantObject::set_dut_inst_name(const std::string & name) {
 void InvariantObject::AddInvariantFromChcResultFile(
     smt::YosysSmtParser & design_info, 
     const std::string & tag, const std::string & chc_result_fn,
-    bool flatten_datatype, bool flatten_hierarchy ) {
+    bool flatten_datatype, bool flatten_hierarchy,
+    bool discourage_outside_var_referral ) {
 
   ILA_ASSERT(not dut_inst_name.empty()) 
     << "BUG: duv instance name unknown. "
@@ -38,7 +39,7 @@ void InvariantObject::AddInvariantFromChcResultFile(
   smt::SmtlibInvariantParser parser(
     &design_info,
     flatten_datatype, flatten_hierarchy,
-    {"INV"}, dut_inst_name);
+    {"INV"}, dut_inst_name, discourage_outside_var_referral);
 
   if (not parser.ParseInvResultFromFile(chc_result_fn) ) {
     ILA_ERROR << "No new invariant has been extracted!";
@@ -71,7 +72,8 @@ void InvariantObject::AddInvariantFromChcResultFile(
 bool InvariantObject::AddInvariantFromSygusResultFile(
     smt::YosysSmtParser & design_info, 
     const std::string & tag, const std::string & chc_result_fn,
-    bool flatten_datatype, bool flatten_hierarchy ) {
+    bool flatten_datatype, bool flatten_hierarchy,
+    bool discourage_outside_var_referral ) {
   
   ILA_ASSERT(not dut_inst_name.empty()) << "BUG: duv instance name unknown."
     << "set_dut_inst_name should be called first!";
@@ -79,7 +81,7 @@ bool InvariantObject::AddInvariantFromSygusResultFile(
   smt::SyGuSInvariantParser parser(
     &design_info,
     flatten_datatype, flatten_hierarchy,
-    {"INV"}, dut_inst_name);
+    {"INV"}, dut_inst_name, discourage_outside_var_referral);
 
   if (not parser.ParseInvResultFromFile(chc_result_fn) ) {
     ILA_ERROR << "Parser failed to extract invariant, no new invariant has been extracted!";

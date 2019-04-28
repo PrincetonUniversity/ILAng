@@ -18,9 +18,10 @@ namespace smt {
 SyGuSInvariantParser::SyGuSInvariantParser(YosysSmtParser * yosys_smt_info, 
   bool _flatten_datatype, bool _flatten_hierarchy,
   const std::set<std::string> & _inv_pred_name,
-  const std::string & dut_instance_name) :
+  const std::string & dut_instance_name,
+  bool discourage_outside_var) :
     SmtlibInvariantParser(yosys_smt_info, _flatten_datatype, _flatten_hierarchy,
-      _inv_pred_name, dut_instance_name)
+      _inv_pred_name, dut_instance_name, discourage_outside_var)
   { 
     // we don't care about whether data_type has been flatten or not
     // the SyGuS input gen part will require datatype flattened if use transfer function

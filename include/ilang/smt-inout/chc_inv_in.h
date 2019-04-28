@@ -79,7 +79,8 @@ public:
   SmtlibInvariantParser(YosysSmtParser * yosys_smt_info, 
     bool _flatten_datatype, bool _flatten_hierarchy,
     const std::set<std::string> & _inv_pred_name,
-    const std::string & dut_instance_name);
+    const std::string & dut_instance_name,
+    bool discourageOutOfScopeVariable = true);
   /// no copy constructor
   SmtlibInvariantParser(const SmtlibInvariantParser &) = delete;
   /// no assignment
@@ -136,9 +137,11 @@ protected:
   /// a pointer to get the knowlege of the context
   YosysSmtParser * design_smt_info_ptr;
   /// whether we are on a design w. datatype flattened
-  bool datatype_flattened;
+  const bool datatype_flattened;
   /// whether we are on a design w. hierarchy flattened
-  bool hierarchy_flattened;
+  const bool hierarchy_flattened;
+  /// discourage out-of-scope variable referall
+  const bool no_outside_var_refer;
 
   /// bad state
   bool _bad_state;

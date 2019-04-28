@@ -223,6 +223,8 @@ public:
   const std::vector<std::string> & GetRunnableScriptName() const;
   /// get the parsed suppplementary information
   const VlgTgtSupplementaryInfo & GetSupplementaryInfo() const;
+  /// get the D-U-V instance name
+  std::string GetDesignUnderVerificationInstanceName() const;
   
 }; // class ExternalChcTargetGen
 

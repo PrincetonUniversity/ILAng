@@ -24,13 +24,15 @@ unsigned SmtlibInvariantParser::local_var_idx = 0;
 SmtlibInvariantParser::SmtlibInvariantParser(YosysSmtParser * yosys_smt_info,
   bool _flatten_datatype, bool _flatten_hierarchy,
   const std::set<std::string> & _inv_pred_name,
-  const std::string & dut_instance_name) :
+  const std::string & dut_instance_name,
+  bool discourageOutOfScopeVariable) :
 
   parser_wrapper(new smtlib2_abstract_parser_wrapper()),
   inv_pred_name(_inv_pred_name),
   dut_verilog_instance_name(dut_instance_name),
   design_smt_info_ptr(yosys_smt_info),
   datatype_flattened(_flatten_datatype), hierarchy_flattened(_flatten_hierarchy),
+  no_outside_var_refer(discourageOutOfScopeVariable),
   _bad_state(false) {
   
   ILA_NOT_NULL(yosys_smt_info);
@@ -332,13 +334,13 @@ SmtTermInfoVlgPtr SmtlibInvariantParser::mk_function(
         search_name += dt.verilog_name;
         auto repl_name = dt.verilog_name;
         // here we need to make sure it is a good name
-        if (not dut_verilog_instance_name.empty()) {
+        if (! dut_verilog_instance_name.empty() && no_outside_var_refer) {
           auto dot_pos = dt.verilog_name.find('.');
           if(dot_pos != std::string::npos and 
              dt.verilog_name.substr(0,dot_pos) != dut_verilog_instance_name) {
             
             repl_name = ReplaceAll(dt.verilog_name, ".", "_dot_");
-            ILA_ASSERT(not IN(repl_name, free_vars))
+            ILA_ERROR_IF(IN(repl_name, free_vars))
               << "Bug free var name reappearing: " << repl_name;
             // not possible for datatype here
             int width = dt._type._type == var_type::tp::BV ? dt._type._width : 1;
@@ -346,8 +348,10 @@ SmtTermInfoVlgPtr SmtlibInvariantParser::mk_function(
 
             ILA_ERROR << "Invariant refers to out-of-scope var : " << dt.verilog_name
               << " replaced w. " << repl_name;
+          } else if (dot_pos == std::string::npos) {
+            ILA_ERROR << "Invariant refers to wrapper var: " << dt.verilog_name;
           }
-        }
+        } // check out-of-scope name
 
         if(not IN(search_name, term_container)) {
           term_container.insert(std::make_pair(search_name,

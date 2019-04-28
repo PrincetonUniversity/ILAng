@@ -35,7 +35,8 @@ public:
   SyGuSInvariantParser(YosysSmtParser * yosys_smt_info, 
     bool _flatten_datatype, bool _flatten_hierarchy,
     const std::set<std::string> & _inv_pred_name,
-    const std::string & dut_instance_name);
+    const std::string & dut_instance_name,
+    bool discourage_outside_var = true);
   /// no copy constructor
   SyGuSInvariantParser(const SyGuSInvariantParser &) = delete;
   /// no assignment

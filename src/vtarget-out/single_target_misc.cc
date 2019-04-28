@@ -268,9 +268,9 @@ int VlgSglTgtGen::ConstructWrapper_add_post_value_holder_handle_obj(nlohmann::js
   if (width != 0 && create_reg) { // error
     //ILA_ERROR << "width of post-value-holder `" << pv_name << "` is unknown!";
     vlg_wrapper.add_reg(pv_name,width);
-  } else {
-    add_reg_cassign_assumption(pv_name, val, width , cond, "post_value_holder");
   }
+  add_reg_cassign_assumption(pv_name, val, width , cond, "post_value_holder");
+
   return width;
 }
 
