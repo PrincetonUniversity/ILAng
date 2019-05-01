@@ -93,7 +93,7 @@ public:
   void GenerateSynthesisTargetSygusDatapoints(bool enumerate = false);
   /// to generate targets using the current invariants
   void ExportCandidateInvariantsToJasperAssertionFile(const std::string & fn,
-	  const std::string & var_fn);
+	  const std::string & var_fn, const std::string & pn_file);
   /// load inv pos ex from simtrace
   void LoadDatapointPosExFromSim(const SimTraceExtractor & sim);
   /// to extract the synthesis attempt

@@ -791,7 +791,7 @@ std::string Cvc4SygusBase::get_template_hardwired() const{
           for (auto && extractOp : extractExtOp.at(width) ) {
             extraOp += "(" + extractOp.reps + " VarOrVal%width%)\n";
             extra_heading.push_back(extractOp.exheading+"\n"); 
-            corrections.insert(std::pair(extractOp.reps, extractOp.smt));
+            corrections.insert(std::make_pair(extractOp.reps, extractOp.smt));
           }
         }
 

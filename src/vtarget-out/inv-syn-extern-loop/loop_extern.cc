@@ -240,7 +240,7 @@ void InvariantSynthesizerExternalCegar::PruneCandidateInvariant() {
 }
 
 /// to generate synthesis target (for using the whole transfer function)
-void InvariantSynthesizerExternalCegar::GenerateSynthesisTargetSygusDatapoints(bool enumerate = false) {
+void InvariantSynthesizerExternalCegar::GenerateSynthesisTargetSygusDatapoints(bool enumerate) {
   if (design_smt_info == nullptr) {
     ILA_ERROR << "Please first parse a design_smt_info";
     return;
@@ -256,13 +256,14 @@ void InvariantSynthesizerExternalCegar::GenerateSynthesisTargetSygusDatapoints(b
     design_smt_info,
     enumerate
   );
-  vg.GenerateSygusSynthesisTarget("run.sh","wrapper.smt2");  
+  sygus_gen_corrections = vg.GenerateSygusSynthesisTarget("run.sh","wrapper.smt2");  
 }
 
 /// to generate targets using the current invariants
 void InvariantSynthesizerExternalCegar::ExportCandidateInvariantsToJasperAssertionFile(const std::string & fn,
-  const std::string & var_fn) {
-	// format : assert { };
+  const std::string & var_fn, const std::string & pn_file) {
+	// format : assert -name p? { };
+  unsigned pn = 0;
 	{ // write to fout
 		std::ofstream fout(fn);
 		if (not fout.is_open()) {
@@ -270,9 +271,16 @@ void InvariantSynthesizerExternalCegar::ExportCandidateInvariantsToJasperAsserti
 			
 		for (auto && inv : inv_obj.GetVlgConstraints() ) {
 			auto inv_no_linebreak = ReplaceAll(ReplaceAll(inv, "\n" , " "), "\r", " ");
-			fout << "assert { " <<  inv_no_linebreak << " } \n";
+			fout << "assert -name p" <<(pn++)  << " { " <<  inv_no_linebreak << " } \n";
 		}
-	}
+	} // from the number of lines, you known how many there are
+  {
+    std::ofstream fout(pn_file);
+		if (not fout.is_open()) {
+			ILA_ERROR << "Fail to write to :" << fn; return; }
+    for(auto idx = 0; idx < pn; ++ idx)
+      fout << "p" <<(idx++) << "\n";
+  }
 	{ // write to vardefs
 		std::ofstream fout(var_fn);
 		if (not fout.is_open()) {
@@ -319,7 +327,8 @@ bool InvariantSynthesizerExternalCegar::ExtractSygusDatapointSynthesisResultAsCa
   if( inv_candidate.AddInvariantFromSygusResultFile(
       *(design_smt_info.get()), "", res_file, 
       _vtg_config.YosysSmtFlattenDatatype,
-      _vtg_config.YosysSmtFlattenHierarchy ) == false) {
+      _vtg_config.YosysSmtFlattenHierarchy,
+      false, sygus_gen_corrections ) == false) {
     return false; // sygus failed
   }
     

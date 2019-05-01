@@ -73,7 +73,8 @@ bool InvariantObject::AddInvariantFromSygusResultFile(
     smt::YosysSmtParser & design_info, 
     const std::string & tag, const std::string & chc_result_fn,
     bool flatten_datatype, bool flatten_hierarchy,
-    bool discourage_outside_var_referral ) {
+    bool discourage_outside_var_referral,
+    const correction_t & corrections ) {
   
   ILA_ASSERT(not dut_inst_name.empty()) << "BUG: duv instance name unknown."
     << "set_dut_inst_name should be called first!";
@@ -81,7 +82,8 @@ bool InvariantObject::AddInvariantFromSygusResultFile(
   smt::SyGuSInvariantParser parser(
     &design_info,
     flatten_datatype, flatten_hierarchy,
-    {"INV"}, dut_inst_name, discourage_outside_var_referral);
+    {"INV"}, dut_inst_name, discourage_outside_var_referral,
+    corrections);
 
   if (not parser.ParseInvResultFromFile(chc_result_fn) ) {
     ILA_ERROR << "Parser failed to extract invariant, no new invariant has been extracted!";
