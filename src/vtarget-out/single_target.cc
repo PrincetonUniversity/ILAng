@@ -423,6 +423,11 @@ void VlgSglTgtGen::ConstructWrapper() {
   if (target_type == target_type_t::INSTRUCTIONS)
     ConstructWrapper_add_uf_constraints();
 
+  // post value holder
+  ConstructWrapper_add_post_value_holder();
+  // add monitor
+  ConstructWrapper_add_vlg_monitor();
+  
   // 5.0 add the extra wires to the top module wrapper
   if (_backend == backend_selector::COSA || 
       _backend == backend_selector::YOSYS)
@@ -432,10 +437,6 @@ void VlgSglTgtGen::ConstructWrapper() {
   ConstructWrapper_add_helper_memory(); // need to decide what is the target
                                         // type
                                         // -- no need
-  // post value holder
-  ConstructWrapper_add_post_value_holder();
-  // add monitor
-  ConstructWrapper_add_vlg_monitor();
 
   ILA_DLOG("VtargetGen") << "STEP:" << 9;
   // 5. module instantiation

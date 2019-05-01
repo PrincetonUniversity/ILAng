@@ -19,9 +19,11 @@ SyGuSInvariantParser::SyGuSInvariantParser(YosysSmtParser * yosys_smt_info,
   bool _flatten_datatype, bool _flatten_hierarchy,
   const std::set<std::string> & _inv_pred_name,
   const std::string & dut_instance_name,
-  bool discourage_outside_var) :
+  bool discourage_outside_var,
+  const correction_t & _corrections) :
     SmtlibInvariantParser(yosys_smt_info, _flatten_datatype, _flatten_hierarchy,
-      _inv_pred_name, dut_instance_name, discourage_outside_var)
+      _inv_pred_name, dut_instance_name, discourage_outside_var),
+    corrections(_corrections)
   { 
     // we don't care about whether data_type has been flatten or not
     // the SyGuS input gen part will require datatype flattened if use transfer function
@@ -86,10 +88,10 @@ bool SyGuSInvariantParser::ParseInvResultFromFile(const std::string & fname) {
 
 
 std::string SyGuSInvariantParser::correct_cvc4_bv_output(const std::string & in) {
-  return ReplaceAll(
-          ReplaceAll(in, 
-            "(BitVec",    "(_ BitVec"),
-            "extract150", "(_ extract 15 0)" );
+  auto bv_cor =  ReplaceAll(in,  "(BitVec",    "(_ BitVec");
+  for (auto && or_pair : corrections) 
+    bv_cor = ReplaceAll(bv_cor, or_pair.first, or_pair.second);
+  return bv_cor;
 }
 
 // ----------------------- CALLBACK FUNCTIONS ----------------- //

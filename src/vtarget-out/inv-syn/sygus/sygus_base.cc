@@ -29,11 +29,11 @@ const std::string Val_template = R"#!#!#(
 )#!#!#";
 
 // ------------------- hardwired templates --------------------- //
-const unsigned ctrl_data_sep_width = 4;
+const unsigned ctrl_data_sep_width = 5;
 
 const unsigned other_comp_sep_width = ctrl_data_sep_width;
 
-const std::vector<std::string> compOp({"bvult"});
+const std::vector<std::string> compOp({});
 
 const std::map<int,std::set<unsigned>> nums(
   {
@@ -51,19 +51,36 @@ const std::map<unsigned,std::map<std::string,unsigned>> arithmOp (
   }
 );
 
+struct extract_op {
+  unsigned high;
+  unsigned low;
+  unsigned from;
+  unsigned to;
+  const std::string reps;
+  const std::string smt;
+  const std::string exheading;
+  extract_op (unsigned h, unsigned l, unsigned f, unsigned t) :
+    high(h),low(l),from(f),to(t),
+      reps("extract_" + std::to_string(high) + "_" 
+        + std::to_string(low) + "_" + std::to_string(from) + "_"
+        + std::to_string(to)),
+      smt("((_ extract "+ std::to_string(high) + " " + std::to_string(low) +") x)"),
+      exheading("(define-fun |" + reps + "| ((x (_ BitVec " + std::to_string(from) + ")))"
+        + " (_ BitVec " + std::to_string(to) + ")" + smt + ")")
+     { 
+      ILA_ASSERT(h-l+1 == t);
+      ILA_ASSERT(from >= to);
+      ILA_ASSERT(h>=l); }
+};
 
 // to -> (op -> from)
-const std::map<unsigned, std::map<std::string,unsigned>> extractExtOp (
+const std::map<unsigned, std::vector<extract_op>> extractExtOp (
   {
-    {16,{ {"extract150",128} }}
+    {16, {extract_op(15,0,128,16)} } //  extract_15_0_128_16
   }
 );
 
-const std::vector<std::string> extra_heading (
-  {
-    "(define-fun extract150 ((x (_ BitVec 128))) (_ BitVec 16) ((_ extract 15 0) x))\n"
-  }
-);
+std::vector<std::string> extra_heading;
 
 const std::string cmpOp_lv1_template_Bool_hw = R"#!#!#(
  (= ExprBool Conj)
@@ -769,7 +786,14 @@ std::string Cvc4SygusBase::get_template_hardwired() const{
               extraOp += " VarOrVal%width%";
             extraOp += ")\n";
           }
-        } // 
+        } // check normal op
+        if ( IN(width, extractExtOp) && ! extractExtOp.at(width).empty() ) {
+          for (auto && extractOp : extractExtOp.at(width) ) {
+            extraOp += "(" + extractOp.reps + " VarOrVal%width%)\n";
+            extra_heading.push_back(extractOp.exheading+"\n"); 
+            corrections.insert(std::pair(extractOp.reps, extractOp.smt));
+          }
+        }
 
         auto expr_tmpl = ReplaceAll(exps_lv1_template_hw, "%extraOp%", extraOp);
 
@@ -806,7 +830,7 @@ std::string Cvc4SygusBase::get_template_hardwired() const{
 }
 
 std::string Cvc4SygusBase::get_template() const {
-  return template_hardwired;
+  return get_template_hardwired();
 
   if (options.UseArithmetics == sygus_options_t::_use_arithmetics_t::None)
     return get_template_basic();
@@ -853,6 +877,11 @@ std::string Cvc4SygusBase::generate_syntax_const(unsigned w) const {
       vals.push_back(smt::convert_to_binary(v,w));*/
   } //   
   return Join(vals, " "); // TODO:
+}
+
+
+const Cvc4SygusBase::correction_t & Cvc4SygusBase::GetCorrectionMap() const {
+  return corrections;
 }
 
 

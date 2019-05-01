@@ -6,6 +6,7 @@
 #include <ilang/util/container_shortcut.h>
 #include <ilang/vtarget-out/inv-syn-extern-loop/loop_extern.h>
 #include <ilang/vtarget-out/inv-syn-extern-loop/yosys_chc.h>
+#include <ilang/vtarget-out/inv-syn/sygus/datapoint_inv_prune.h>
 
 #include <fstream>
 
@@ -84,7 +85,7 @@ void InvariantSynthesizerExternalCegar::LoadCexFromFile(const std::string & fn) 
 }
 
 /// generate chc target
-void InvariantSynthesizerExternalCegar::GenerateChcSynthesisTarget() {
+void InvariantSynthesizerExternalCegar::GenerateChcSynthesisTarget(const std::string & precond) {
   if (check_in_bad_state()) return;
 
   // to send in the invariants
@@ -99,19 +100,22 @@ void InvariantSynthesizerExternalCegar::GenerateChcSynthesisTarget() {
 		implementation_top_module_name,
 		refinement_variable_mapping_path,
 		refinement_condition_path,
-		_output_path,
+		os_portable_append_dir(_output_path,"inv-syn-cegar") ,
 		tmpl_top_module_name,
 		v_backend, s_backend,
 		_vtg_config, &adv_param		
 	);
 
-	vg.ConstructWrapper("wrapper.v", "wrapper.tpl");
+	vg.ConstructWrapper("wrapper.v", "wrapper.tpl", precond);
 	design_smt_info = vg.GenerateChc("wrapper.smt2", "run.sh");
 
 	runnable_script_name = vg.GetRunnableScriptName();
   
   vlg_mod_inst_name = vg.GetDesignUnderVerificationInstanceName();
   inv_obj.set_dut_inst_name(vlg_mod_inst_name);
+
+  if (additional_width_info.empty())
+    additional_width_info = vg.GetSupplementaryInfo().width_info;
 }
 /// run Synthesis : returns reachable/not
 bool InvariantSynthesizerExternalCegar::RunSynAuto() {
@@ -120,7 +124,7 @@ bool InvariantSynthesizerExternalCegar::RunSynAuto() {
     return true;
   
   ILA_ASSERT(runnable_script_name.size() == 1) << "Please run GenerateInvSynTargets function first";
-  synthesis_result_fn = os_portable_append_dir(_output_path, "../__synthesis_result.txt");
+  synthesis_result_fn = os_portable_append_dir(_output_path, "__synthesis_result.txt");
   auto redirect_fn = os_portable_append_dir("../", "__synthesis_result.txt");
 
   auto cwd = os_portable_getcwd();
@@ -212,6 +216,130 @@ void InvariantSynthesizerExternalCegar::ExtractSynthesisResult(bool autodet, boo
   // current_inv_type = cur_inv_tp::NONE; // we have extracted, reset this marker
 } // ExtractSynthesisResult
 
+
+
+// -------------------- SYGUS ------------------ //
+/// set the sygus name lists (cannot be empty)
+void InvariantSynthesizerExternalCegar::SetSygusVarnameList(const std::vector<std::string> & sygus_var_name) {
+  sygus_vars = sygus_var_name;
+  for (auto && v : sygus_vars)
+    sygus_vars_set.insert(v);
+}
+/// import datapoints from file (pos example) -- used to prune
+void InvariantSynthesizerExternalCegar::ImportDatapointsFromFile(const std::string & fn) {
+  CexExtractor cex_temp(fn);
+  datapoints.AddPosEx(cex_temp);
+}
+/// Remove potentially failing candidate invariants (conservative approach remove all candidates)
+void InvariantSynthesizerExternalCegar::PruneCandidateInvariant() {
+  ILA_ASSERT(not sygus_vars.empty());
+  
+  DatapointInvariantPruner pruner(inv_candidate,datapoints);
+  pruner.PruneByLastFramePosEx(*(design_smt_info.get()), sygus_vars, additional_width_info );
+
+}
+
+/// to generate synthesis target (for using the whole transfer function)
+void InvariantSynthesizerExternalCegar::GenerateSynthesisTargetSygusDatapoints(bool enumerate = false) {
+  if (design_smt_info == nullptr) {
+    ILA_ERROR << "Please first parse a design_smt_info";
+    return;
+  }
+  datapoints.SetNegEx(* cex_extract.get()); // you can reset the pos ex using SetInitialDatapoint 
+
+  ExternalSygusTargetGen vg(
+    os_portable_append_dir( _output_path, "inv-syn-sygus" ),
+    additional_width_info,
+    _vtg_config,
+    & datapoints,
+    sygus_vars,
+    design_smt_info,
+    enumerate
+  );
+  vg.GenerateSygusSynthesisTarget("run.sh","wrapper.smt2");  
+}
+
+/// to generate targets using the current invariants
+void InvariantSynthesizerExternalCegar::ExportCandidateInvariantsToJasperAssertionFile(const std::string & fn,
+  const std::string & var_fn) {
+	// format : assert { };
+	{ // write to fout
+		std::ofstream fout(fn);
+		if (not fout.is_open()) {
+			ILA_ERROR << "Fail to write to :" << fn; return; }
+			
+		for (auto && inv : inv_obj.GetVlgConstraints() ) {
+			auto inv_no_linebreak = ReplaceAll(ReplaceAll(inv, "\n" , " "), "\r", " ");
+			fout << "assert { " <<  inv_no_linebreak << " } \n";
+		}
+	}
+	{ // write to vardefs
+		std::ofstream fout(var_fn);
+		if (not fout.is_open()) {
+			ILA_ERROR << "Fail to write to :" << var_fn; return; }
+			
+		for (auto && vars : inv_obj.GetExtraFreeVarDefs() )
+			fout << "wire " << WidthToRange(vars.second) << " " << vars.first << " ; \n";
+		for (auto && vars : inv_obj.GetExtraVarDefs() ) {
+			fout << "wire " << WidthToRange(std::get<2>(vars)) << " " << std::get<0>(vars)
+				<< " = " << std::get<1>(vars) << " ;\n";
+		}
+	} // write to vardefs
+} // ExportCandidateInvariantsToJasperAssumptionFile
+
+/// load inv pos ex from simtrace
+void InvariantSynthesizerExternalCegar::LoadDatapointPosExFromSim(const SimTraceExtractor & sim) {
+  datapoints.AddPosEx(sim);
+}
+
+/// here you can acess the internal datapoint object
+const TraceDataPoints & InvariantSynthesizerExternalCegar::GetDatapoints() const {
+  return datapoints;
+}
+/// Here you can extract the invariants and export them if needed
+const InvariantObject & InvariantSynthesizerExternalCegar::GetCandidateInvariants() const {
+  return inv_candidate;
+}
+
+
+/// to extract the synthesis attempt
+bool InvariantSynthesizerExternalCegar::ExtractSygusDatapointSynthesisResultAsCandidateInvariant() {
+
+  if(check_in_bad_state()) return false;
+
+  std::string res_file = synthesis_result_fn;
+  
+  if (design_smt_info == nullptr) {
+    ILA_ERROR << "Design SMT-LIB2 info is not available. "
+      << "You need to run `LoadDesignSmtInfoFromSmt` first.";
+    return false;
+  }
+
+  // inv_candidate.ClearAllInvariants();  -- we will keep the old ones
+  if( inv_candidate.AddInvariantFromSygusResultFile(
+      *(design_smt_info.get()), "", res_file, 
+      _vtg_config.YosysSmtFlattenDatatype,
+      _vtg_config.YosysSmtFlattenHierarchy ) == false) {
+    return false; // sygus failed
+  }
+    
+  std::cout << "INV candidate:" << std::endl;
+  for (auto && v : inv_candidate.GetVlgConstraints() )
+    std::cout << v << std::endl;
+  return true;
+}
+
+/// load design smt info from a given design file 
+void InvariantSynthesizerExternalCegar::LoadDesignSmtInfoFromSmt(const std::string & fn) {
+  std::ifstream fin(fn);
+  if (not fin.is_open()) {
+    ILA_ERROR << "Cannot read from:" << fn;
+    return;
+  }
+  std::stringstream sbuf;
+  sbuf << fin.rdbuf();
+  design_smt_info = std::make_shared<smt::YosysSmtParser>(sbuf.str());
+}
 
   // -------------------- ACCESSOR ------------------ //
 bool InvariantSynthesizerExternalCegar::check_in_bad_state() const {

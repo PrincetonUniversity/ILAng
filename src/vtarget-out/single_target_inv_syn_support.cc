@@ -227,6 +227,10 @@ void VlgSglTgtGen::ConstructWrapper_inv_syn_connect_mem() {
     auto sname = i.key(); // ila state name
     if (not IN(sname, ila_mem_state_names))
       continue; // we only care about the mem states
+    if (i.value().is_null()) {
+      ILA_ERROR << "Ignore mapping memory: " << sname;
+      continue;
+    }
     ila_mem_state_names.erase(sname);
     // Connect memory here
     _idr.SetMemName(i.value(), sname, _vtg_config.MemAbsReadAbstraction);

@@ -171,7 +171,7 @@ protected:
   /// add rf inv as assumptions (if there are)
   void add_rf_inv_as_assertion();
   /// add property to vlg
-  void add_property();
+  void add_property(const std::string &precond);
   /// the wires referred needs to be added to wire/ports/implports
   void register_extra_io_wire();
   /// read in wrapper_tmpl_name and generate wrapper_name
@@ -212,7 +212,8 @@ public:
   /// step 1: to verilog
   void ConstructWrapper(
     const std::string& wrapper_name,
-    const std::string& wrapper_tmpl_name);
+    const std::string& wrapper_tmpl_name,
+    const std::string& precond);
   /// step 2: to chc
   std::shared_ptr<smt::YosysSmtParser> GenerateChc(
     const std::string& chc_name,

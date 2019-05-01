@@ -24,6 +24,9 @@ namespace ilang
   public:
     /// the options it takes
     using sygus_options_t = VlgVerifTgtGenBase::vtg_config_t::_sygus_options_t;
+    /// the corrections (mainly for cvc4 quirks, ex. extract )
+    typedef std::map<std::string,std::string> correction_t;
+
   protected:
     // ------------- MEMBER ---------------- //
     /// the vocabulary -- the variables to consider
@@ -32,6 +35,8 @@ namespace ilang
     const smt::YosysSmtParser & design_info;
     /// a local copy of the options
     sygus_options_t options;
+    /// record the corrections we have
+    mutable correction_t corrections;
     
   public:
     // ------------- Constructor ---------------- //
@@ -49,6 +54,8 @@ namespace ilang
     // ------------- Methods ---------------- //
     /// Export to a file
     virtual void ExportToFile(const std::string & fn) = 0;
+    /// the replacement needed 
+    const correction_t & GetCorrectionMap() const;
 
   protected:
     // ------------- Members ---------------- //

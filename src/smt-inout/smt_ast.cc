@@ -340,13 +340,24 @@ state_var_t state_var_t::ParseFromString(str_iterator &it, const std::string & d
   }
   else { // from comment, extract state
     it.jump_to_next(";");
+    std::string state_name;
     auto w = it.head_word("\n\r");
     if (w.find("; $") == 0) {
       it.accept("; $");
-    } else 
+      state_name = it.readline_no_eol();
+    } else if (w.find("; {") == 0) {
+      it.accept("; ");
+      state_name = it.readline_no_eol();
+      state_name = ReplaceAll(state_name,"{ \\", "{");
+      state_name = ReplaceAll(state_name," \\", ",");
+    } 
+    else if (w.find("; \\") == 0) {
       it.accept("; \\");
+      state_name = it.readline_no_eol();
+    } else {
+      ILA_ASSERT(false) << "Unexpected:" << w;
+    }
     // todo : read a line
-    auto state_name = it.readline_no_eol();
     auto pos = state_name.find("\n");
     ret.verilog_name = state_name;
   }

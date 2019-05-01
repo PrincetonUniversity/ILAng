@@ -19,6 +19,8 @@
 #include <ilang/smt-inout/yosys_smt_parser.h>
 #include <ilang/vtarget-out/vtarget_gen.h>
 #include <ilang/vtarget-out/inv-syn/sygus/datapoint.h>
+#include <ilang/vtarget-out/inv-syn/sygus/sim_trace_extract.h>
+#include <ilang/vtarget-out/inv-syn-extern-loop/cvc4_sygus.h>
 #include <ilang/vtarget-out/design_stat.h>
 
 // intentionally hide the header of yosys_chc.h here
@@ -43,6 +45,8 @@ public:
   enum _inv_check_res_t {INV_PROVED, INV_INVALID, INV_UNKNOWN};
   /// additional width info
   typedef std::map<std::string,int> additional_width_info_t;
+  /// the correction type
+  using correction_t = Cvc4SygusBase::correction_t;
 
 
 public:
@@ -71,12 +75,37 @@ public:
 	/// load return counterexample from file
 	void LoadCexFromFile(const std::string & fn);
 	/// generate chc target
-	void GenerateChcSynthesisTarget();
+	void GenerateChcSynthesisTarget(const std::string & precond);
 	/// run Synthesis : returns reachable/not
 	bool virtual RunSynAuto();
   /// to extract reachability test result
   void ExtractSynthesisResult(bool autodet = true, bool reachable = true, 
     const std::string & res_file = "");
+
+  // -------------------- SYGUS ------------------ //
+  /// set the sygus name lists (cannot be empty)
+  void SetSygusVarnameList(const std::vector<std::string> & sygus_var_name);
+  /// import datapoints from file (to the pos example)
+  void ImportDatapointsFromFile(const std::string & fn);
+  /// Remove potentially failing candidate invariants (conservative approach remove all candidates)
+  void PruneCandidateInvariant();
+  /// to generate synthesis target (for using the whole transfer function)
+  void GenerateSynthesisTargetSygusDatapoints(bool enumerate = false);
+  /// to generate targets using the current invariants
+  void ExportCandidateInvariantsToJasperAssertionFile(const std::string & fn,
+	  const std::string & var_fn);
+  /// load inv pos ex from simtrace
+  void LoadDatapointPosExFromSim(const SimTraceExtractor & sim);
+  /// to extract the synthesis attempt
+  bool ExtractSygusDatapointSynthesisResultAsCandidateInvariant();
+  /// load design smt info from a given design file 
+  void LoadDesignSmtInfoFromSmt(const std::string & fn);
+
+  /// here you can acess the internal datapoint object
+  const TraceDataPoints & GetDatapoints() const;
+  /// Here you can extract the invariants and export them if needed
+  const InvariantObject & GetCandidateInvariants() const;
+
   // -------------------- ACCESSOR ------------------ //
   /// return back state
   bool in_bad_state() const {return bad_state;}
@@ -88,6 +117,8 @@ public:
   const InvariantObject & GetInvariants() const;
   /// load states -- confirmed invariants
   void LoadInvariantsFromFile(const std::string &fn);
+  void LoadCandidateInvariantsFromFile(const std::string &fn);
+  void LoadDatapointFromFile(const std::string &fn);
 
 protected:
 	// -------------------- MEMBERS ------------------ //
@@ -105,6 +136,21 @@ protected:
   bool bad_state;
   /// the runnable script name after each target gen
   std::vector<std::string> runnable_script_name;
+  /// the corrections we need to apply from sygus_gen
+  correction_t sygus_gen_corrections;
+
+  // --------------------------------------------------
+  // for SyGuS
+  // --------------------------------------------------
+
+  /// the temporary invariants (that might not be inductive)
+  InvariantObject inv_candidate;
+  /// the datapoint
+  TraceDataPoints datapoints;
+  /// the sygus varname
+  std::vector<std::string> sygus_vars;
+  /// will also convert the above to a set (easier to index)
+  std::set<std::string> sygus_vars_set;
 
   // --------------------------------------------------
   // for book-keeping purpose

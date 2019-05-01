@@ -23,7 +23,8 @@ namespace smt {
 
 /// \brief this class is used to parse the result from CVC4 SyGuS
 class SyGuSInvariantParser : public SmtlibInvariantParser {
-
+  /// the corrections (mainly for cvc4 quirks, ex. extract )
+  typedef std::map<std::string,std::string> correction_t;
 public:
   // -------------- CONSTRUCTOR ------------------- //
   /// 1. the first argument : design_smt_info_ptr
@@ -36,7 +37,8 @@ public:
     bool _flatten_datatype, bool _flatten_hierarchy,
     const std::set<std::string> & _inv_pred_name,
     const std::string & dut_instance_name,
-    bool discourage_outside_var = true);
+    bool discourage_outside_var = true,
+    const correction_t & corrections = correction_t());
   /// no copy constructor
   SyGuSInvariantParser(const SyGuSInvariantParser &) = delete;
   /// no assignment
@@ -51,6 +53,8 @@ protected:
   std::set<std::string> _all_allowable_names;
   // to correct CVC4's output on BitVec
   virtual std::string correct_cvc4_bv_output(const std::string & in);
+  // the corrections
+  const correction_t corrections;
 public: 
   // -------------- INTERFACE ------------------- //
   /// Interface function

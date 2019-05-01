@@ -348,15 +348,21 @@ void ExternalChcTargetGen::add_rf_inv_as_assertion() {
     }
 } // add_rf_inv_as_assertion
 
-void ExternalChcTargetGen::add_property() {
+void ExternalChcTargetGen::add_property(const std::string &precond) {
   if (has_cex) {
     auto inv = _advanced_param_ptr->_cex_obj_ptr->GenInvAssert("");
     {
       std::ofstream fout(os_portable_append_dir(_output_path, "cex.tcl"));
-      fout << "assert { " << inv << " }; " << std::endl;
+      if (!precond.empty())
+        fout << "assert { " << precond << "|->" << inv << " }; " << std::endl;
+      else
+        fout << "assert { " << inv << " }; " << std::endl;
     }
     auto new_cond = ReplExpr(inv, true);
-    add_an_assertion("~(" + new_cond + ")", "cex_nonreachable_assert");
+    if (!precond.empty())
+      add_an_assertion("! (" + precond + ") || ( ~(" + new_cond + ") )", "cex_nonreachable_assert");
+    else
+      add_an_assertion("~(" + new_cond + ")", "cex_nonreachable_assert");
     /// add rf_assumption
     if (_vtg_config.InvariantSynthesisReachableCheckKeepOldInvariant) {
       add_rf_inv_as_assumption();
@@ -578,7 +584,8 @@ void ExternalChcTargetGen::export_modify_verilog(const std::string& wrapper_name
 } // export_modify_verilog
 
 void ExternalChcTargetGen::ConstructWrapper(
-  const std::string& wrapper_name, const std::string &wrapper_tmpl_name) {
+  const std::string& wrapper_name, const std::string &wrapper_tmpl_name,
+  const std::string & precond) {
 
   top_file_name = wrapper_name;
 
@@ -594,7 +601,7 @@ void ExternalChcTargetGen::ConstructWrapper(
     return; //
   }
   // add cex / (if no cex) candidate ... prop to check
-  add_property();
+  add_property(precond);
   // register the wires...
   register_extra_io_wire();
   // replace text &
