@@ -100,6 +100,10 @@ public:
   bool ExtractSygusDatapointSynthesisResultAsCandidateInvariant();
   /// load design smt info from a given design file 
   void LoadDesignSmtInfoFromSmt(const std::string & fn);
+  /// export the cex check to make sure cex is unreachable
+  void ExportCexCheck(const std::string & assertfile, const std::string &propfile);
+  /// accept all candidate invariants as confirmed ones
+  void AcceptAllCandidateInvariant();
 
   /// here you can acess the internal datapoint object
   const TraceDataPoints & GetDatapoints() const;

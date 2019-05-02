@@ -15,18 +15,23 @@
 
 using namespace ilang;
 
-const std::string server_name = "nobel";
-const std::string server_prj_dir =  "/u/hongcez/rv32i-inv-syn/";
+std::string server_name = "nobel";
+std::string server_prj_dir =  "/u/hongcez/rv32i-inv-syn/";
 
 /// run verification one-by-one
-const std::vector<std::string> props = {
-  "x0_nouse",
-  "x1_nro",
-  "x1_ro",
-  "x1_ld",
-  "pc_a",
-  "mem_match"
-};
+std::vector<std::string> props ;
+
+void load_property_name(const std::string &fn) {
+  std::ifstream fin(fn);
+  if (not fin.is_open()) {
+    ILA_ERROR << "Unable to read from:" << fn;
+    return;
+  }
+  std::string prop;
+  while(std::getline(fin,prop))
+    props.push_back(prop);
+}
+
 
 // --------------------------- HELPERS ------------------------------ //
 
@@ -377,11 +382,22 @@ void get_signal_value_list(
 }
 
 
-int main() {
+int main(int argc, char **argv) {
 
   const std::string vardef = "vardef.v";
   const std::string assumefile = "assume.tcl";
   const std::string cexfile = "cex.sigs";
+  const std::string propfile = "prop.txt";
+
+  if (argc < 3) {
+    std::cout << "Usage : " << argv[0] << " server path\n";
+    return 7;
+  }
+
+  server_name = argv[1];
+  server_prj_dir = argv[2];
+
+  load_property_name(propfile);
 
   if (not push_assume_to_server(assumefile) || not push_assume_to_server(vardef) )
     return 1; // failed connection

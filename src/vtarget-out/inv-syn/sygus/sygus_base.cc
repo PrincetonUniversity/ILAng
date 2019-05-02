@@ -756,17 +756,20 @@ std::string Cvc4SygusBase::get_template_hardwired() const{
           "%width%",
           std::to_string(w));
 
-        if (w <= ctrl_data_sep_width) {
-          // it is control
-          ctrlCmpOp += cmpOpSub;          
+        if (w > ctrl_data_sep_width) {
+          // it could be just data
+          dataCmpOp += cmpOpSub;    
         } else {
-          // it could be data & control
+          // it is control/data
           dataCmpOp += cmpOpSub;
-          ctrlCmpOp += cmpOpSub;
+          ctrlCmpOp += cmpOpSub;       
         }
       }
     }
-  } // cmpOp
+    if (dataCmpOp.empty()) dataCmpOp = "true";
+    if (ctrlCmpOp.empty()) ctrlCmpOp = "true";
+  } // cmpOp/dataOp
+
 
   // %exps%
   std::string exps;

@@ -236,7 +236,6 @@ void InvariantSynthesizerExternalCegar::PruneCandidateInvariant() {
   
   DatapointInvariantPruner pruner(inv_candidate,datapoints);
   pruner.PruneByLastFramePosEx(*(design_smt_info.get()), sygus_vars, additional_width_info );
-
 }
 
 /// to generate synthesis target (for using the whole transfer function)
@@ -307,6 +306,28 @@ const TraceDataPoints & InvariantSynthesizerExternalCegar::GetDatapoints() const
 /// Here you can extract the invariants and export them if needed
 const InvariantObject & InvariantSynthesizerExternalCegar::GetCandidateInvariants() const {
   return inv_candidate;
+}
+/// export the cex check to make sure cex is unreachable
+void InvariantSynthesizerExternalCegar::ExportCexCheck(const std::string & assertfile, const std::string &propfile) {
+  { // cex assert
+    std::ofstream fout(assertfile);
+    if (!fout.is_open()) { ILA_ERROR << "Cannot write to:" << assertfile ; return;}
+    fout << "assert -name cexblock {" << cex_extract->GenInvAssert("") + "}";
+  } // cex assert
+  { // prop
+    std::ofstream fout(propfile);
+    if (!fout.is_open()) { ILA_ERROR << "Cannot write to:" << propfile ; return;}
+    fout << "cexblock";
+  } // prop
+}
+
+/// accept all candidate invariants as confirmed ones
+void InvariantSynthesizerExternalCegar::AcceptAllCandidateInvariant() {
+  if(inv_candidate.NumInvariant() != 0) {
+    inv_obj.InsertFromAnotherInvObj(inv_candidate);
+    inv_candidate.ClearAllInvariants();
+  } else 
+    ILA_INFO <<"All candidate invariants have been accepted.";
 }
 
 

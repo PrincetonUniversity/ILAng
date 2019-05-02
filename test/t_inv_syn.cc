@@ -458,9 +458,18 @@ TEST(TestVlgVerifInvSyn, CegarPipelineExampleSygusDatapoint) {
 
       std::cout << "EQ check cex found, query sygus for invariant candidate..."; std::cout.flush();
       vg.ExtractVerificationResult(); // also the cex
-      vg.GenerateSynthesisTargetSygusDatapoints(); // the cex is used in this step
+
+      bool succeed = true;
+      bool prev_succeed;
+  retry:
+      prev_succeed = succeed;
+      vg.GenerateSynthesisTargetSygusDatapoints(!succeed); // the cex is used in this step
       vg.RunSynAuto();
-      vg.ExtractSygusDatapointSynthesisResultAsCandidateInvariant(); // extracted to the candidate invariant
+      succeed = vg.ExtractSygusDatapointSynthesisResultAsCandidateInvariant(); // extracted to the candidate invariant
+      if (not succeed) {
+        EXPECT_TRUE(prev_succeed);
+        goto retry;
+      }
       // quick proof attempt  -- if proved, add to confirmed
       // quick disaprove attempt -- if disaproved add to cex, if proved add to confirm
       // proof attempt (assert all) (assume none)

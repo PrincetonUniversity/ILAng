@@ -521,7 +521,10 @@ std::string convert_to_binary(const std::string v, unsigned radix, unsigned w) {
       ret = "0" + ret;
     return "#b" + ret;
   }
-  ILA_ASSERT(false) << "string : " << v << "(" << v.length() << ") cast to width:" << w;
+  if (v.length() > w) {
+    ILA_ERROR << "string : " << v << "(" << v.length() << ") cast to width:" << w;
+    return v.substr(v.length()-w);
+  }
   return "";
 }
 

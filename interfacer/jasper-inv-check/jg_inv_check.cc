@@ -15,8 +15,8 @@
 
 using namespace ilang;
 
-const std::string server_name = "nobel";
-const std::string server_prj_dir =  "/u/hongcez/fmcad19-exp/rv-inv-check/";
+std::string server_name = "nobel";
+std::string server_prj_dir =  "/u/hongcez/fmcad19-exp/rv-inv-check/";
 
 /// run verification one-by-one
 std::vector<std::string> props;
@@ -228,12 +228,20 @@ void load_property_name(const std::string &fn) {
     props.push_back(prop);
 }
 
-int main() {
+int main(int argc, char **argv) {
 
   const std::string vardef = "vardef.v";
   const std::string assumefile = "assert.tcl";
   const std::string cexfile = "cex.sigs";
   const std::string propfile = "prop.txt";
+
+  if (argc < 3) {
+    std::cout << "Usage : " << argv[0] << " server path\n";
+    return 7;
+  }
+
+  server_name = argv[1];
+  server_prj_dir = argv[2];
 
   load_property_name(propfile);
 
