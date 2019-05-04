@@ -26,7 +26,7 @@ RUN apt update && DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-
     python3-pip=9.0.1-2.3~ubuntu1 \
     tcl-dev=8.6.0+9 \
     vim=2:8.0.1453-1ubuntu1 \
-    wget=1.19.4-1ubuntu2.1 \
+    wget=1.19.4-1ubuntu2.2 \
     xdot=0.9-1 \
     && rm -rf /var/lib/apt/lists/*
 
@@ -124,12 +124,12 @@ FROM ubuntu:bionic
 RUN apt update && DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends \
     bison=2:3.0.4.dfsg-1build1 \
     flex=2.6.4-6 \
-    libgomp1=8.2.0-1ubuntu2~18.04 \
+    libgomp1=8.3.0-6ubuntu1~18.04 \
     python3=3.6.7-1~18.04 \
     python3-pip=9.0.1-2.3~ubuntu1 \
     tcl-dev=8.6.0+9 \
     vim=2:8.0.1453-1ubuntu1 \
-    wget=1.19.4-1ubuntu2.1 \
+    wget=1.19.4-1ubuntu2.2 \
     && rm -rf /var/lib/apt/lists/*
 
 ENV VIRT_ENV ilang-env
