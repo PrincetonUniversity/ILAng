@@ -9,8 +9,8 @@ void IlaSim::set_instr_lvl_abs(const InstrLvlAbsPtr &model_ptr) {
   model_ptr_ = model_ptr;
 }
 
-void IlaSim::sim_gen(string export_dir, bool external_mem) {
-  sim_gen_init(export_dir, external_mem);
+void IlaSim::sim_gen(string export_dir, bool external_mem, bool readable) {
+  sim_gen_init(export_dir, external_mem, readable);
   sim_gen_init_header();
   sim_gen_input();
   sim_gen_state();
@@ -21,7 +21,7 @@ void IlaSim::sim_gen(string export_dir, bool external_mem) {
   sim_gen_export();
 }
 
-void IlaSim::sim_gen_init(string export_dir, bool external_mem) {
+void IlaSim::sim_gen_init(string export_dir, bool external_mem, bool readable) {
   stringstream().swap(header_);
   stringstream().swap(mk_script_);
   stringstream().swap(obj_list_);
@@ -39,6 +39,7 @@ void IlaSim::sim_gen_init(string export_dir, bool external_mem) {
   ld_st_counter_ = 0;
   EXTERNAL_MEM_ = external_mem;
   export_dir_ = export_dir;
+  readable_ = readable;
 }
 
 void IlaSim::sim_gen_init_header() {

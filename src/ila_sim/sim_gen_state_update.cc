@@ -6,25 +6,37 @@ void IlaSim::create_state_update(const InstrPtr &instr_expr) {
   for (auto updated_state_name : instr_expr->updated_states()) {
     stringstream state_update_function;
     string indent = "";
+    string state_update_func_name;
     auto update_expr = instr_expr->update(updated_state_name);
     auto update_expr_id = update_expr->name().id();
     auto instr_decode_id = instr_expr->decode()->name().id();
+    auto updated_state = instr_expr->host()->state(updated_state_name);
+    if (readable_)
+      state_update_func_name = "decode_" + instr_expr->host()->name().str() +
+                               "_" + instr_expr->name().str() + "_update_" +
+                               updated_state->host()->name().str() + "_" +
+                               updated_state->name().str();
+    else
+      state_update_func_name =
+          "decode_" + to_string(instr_expr->decode()->name().id()) +
+          "_update_" + updated_state->host()->name().str() + "_" +
+          updated_state->name().str();
+
     if (load_from_store_analysis(update_expr))
       cout << "Error: there's load after store, not supported!" << endl;
-    auto updated_state = instr_expr->host()->state(updated_state_name);
     bool state_not_updated = updated_state->name().id() == update_expr_id;
     if (state_not_updated)
       continue;
     state_update_decl(state_update_function, indent, updated_state, update_expr,
-                      instr_expr);
+                      state_update_func_name);
     auto DfsKernel = [this, &state_update_function, &indent](const ExprPtr &e) {
       dfs_kernel(state_update_function, indent, e);
     };
     update_expr->DepthFirstVisit(DfsKernel);
     state_update_return(state_update_function, indent, updated_state,
                         update_expr);
-    state_update_export(state_update_function, updated_state, instr_expr);
-    state_update_mk_file(updated_state, instr_expr);
+    state_update_export(state_update_function, state_update_func_name);
+    state_update_mk_file(state_update_func_name);
   }
 }
 
@@ -73,35 +85,28 @@ void IlaSim::mem_state_update_decl(stringstream &state_update_function,
 }
 
 void IlaSim::state_update_export(stringstream &state_update_function,
-                                 const ExprPtr &updated_state,
-                                 const InstrPtr &instr_expr) {
+                                 string &state_update_func_name) {
   ofstream outFile;
   stringstream out_file;
-  string func_name = "decode_" + to_string(instr_expr->decode()->name().id()) +
-                     "_update_" + updated_state->host()->name().str() + "_" +
-                     updated_state->name().str();
-  outFile.open(export_dir_ + func_name + ".cc");
+  outFile.open(export_dir_ + state_update_func_name + ".cc");
   outFile << state_update_function.rdbuf();
   outFile.close();
 }
 
-void IlaSim::state_update_mk_file(const ExprPtr &updated_state,
-                                  const InstrPtr &instr_expr) {
-  string function_name =
-      "decode_" + to_string(instr_expr->decode()->name().id()) + "_update_" +
-      updated_state->host()->name().str() + "_" + updated_state->name().str();
+void IlaSim::state_update_mk_file(string &state_update_func_name) {
   mk_script_ << "g++ -I. -I /home/yuex/bin/systemc-2.3.1//include/ "
              << "-L. -L /home/yuex/bin/systemc-2.3.1//lib-linux64/ "
              << "-Wl,-rpath=/home/yuex/bin/systemc-2.3.1//lib-linux64/ "
-             << "-c -o " << function_name << ".o " << function_name << ".cc "
+             << "-c -o " << state_update_func_name << ".o "
+             << state_update_func_name << ".cc "
              << "-lsystemc" << endl;
-  obj_list_ << function_name << ".o ";
+  obj_list_ << state_update_func_name << ".o ";
 }
 
 void IlaSim::state_update_decl(stringstream &state_update_function,
                                string &indent, const ExprPtr &updated_state,
                                const ExprPtr &update_expr,
-                               const InstrPtr &instr_expr) {
+                               string &state_update_func_name) {
   searched_id_set_.clear();
   state_update_function << indent << "#include \"systemc.h\"" << endl;
   state_update_function << indent << "#include \"test.h\"" << endl;
@@ -113,9 +118,6 @@ void IlaSim::state_update_decl(stringstream &state_update_function,
     update_expr->DepthFirstVisit(MemStateUpdateDecl);
   }
 
-  string function_name =
-      "decode_" + to_string(instr_expr->decode()->name().id()) + "_update_" +
-      updated_state->host()->name().str() + "_" + updated_state->name().str();
   string return_type =
       (updated_state->is_bool())
           ? "bool "
@@ -126,24 +128,24 @@ void IlaSim::state_update_decl(stringstream &state_update_function,
   string arg_list =
       (updated_state->is_mem()) ? "(std::map<int, int>& mem_update_map)" : "()";
   state_update_function << indent << return_type << model_ptr_->name()
-                        << "::decode_" << instr_expr->decode()->name().id()
-                        << "_update_" << updated_state->host()->name() << "_"
-                        << updated_state->name() << arg_list << " {" << endl;
+                        << "::" << state_update_func_name << arg_list << " {"
+                        << endl;
   increase_indent(indent);
   string pre_dfs =
       (updated_state->is_mem()) ? indent + "mem_update_map.clear();\n" : "";
   state_update_function << pre_dfs;
 
   if (updated_state->is_mem())
-    header_ << header_indent_ << "std::map<int, int> " << function_name
+    header_ << header_indent_ << "std::map<int, int> " << state_update_func_name
             << "_map;" << endl;
 
-  header_ << header_indent_ << return_type << function_name << arg_list << ";"
-          << endl;
+  header_ << header_indent_ << return_type << state_update_func_name << arg_list
+          << ";" << endl;
 
   if (EXTERNAL_MEM_) {
-    header_ << header_indent_ << "int " << function_name << "_iter" << endl;
-    auto mem_map_str = function_name;
+    header_ << header_indent_ << "int " << state_update_func_name << "_iter"
+            << endl;
+    auto mem_map_str = state_update_func_name;
     auto mem_str =
         updated_state->host()->name().str() + "_" + updated_state->name().str();
     st_info store_info;

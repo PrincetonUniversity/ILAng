@@ -6,6 +6,7 @@
 //     ila_sim.set_instr_lvl_abs(your_ila_model_ptr);
 //     ila_sim.sim_gen("./");
 //
+// TODO(yuex): change id to instruction name for decode&state_update function
 
 #ifndef ILANG_ILA_SIM_ILA_SIM_H__
 #define ILANG_ILA_SIM_ILA_SIM_H__
@@ -37,11 +38,12 @@ public:
   IlaSim();
   IlaSim(const InstrLvlAbsPtr &model_ptr);
   void set_instr_lvl_abs(const InstrLvlAbsPtr &model_ptr);
-  void sim_gen(string export_dir, bool external_mem = false);
+  void sim_gen(string export_dir, bool external_mem = false,
+               bool readable = false);
 
 private:
   // Initialize all member variables for a new simulator generation pass.
-  void sim_gen_init(string export_dir, bool external_mem);
+  void sim_gen_init(string export_dir, bool external_mem, bool readable);
   // Create initial lines for the simulator's header file
   void sim_gen_init_header();
   void sim_gen_input();
@@ -65,28 +67,26 @@ private:
 
   void create_decode(const InstrPtr &instr_expr);
   void decode_decl(stringstream &decode_function, string &indent,
-                   const ExprPtr &decode_expr);
+                   string &decode_func_name);
   void decode_check_valid(stringstream &decode_function, string &indent,
                           const ExprPtr &valid_expr,
                           const InstrPtr &instr_expr);
   void decode_return(stringstream &decode_function, string &indent,
                      const ExprPtr &decode_expr, const InstrPtr &instr_expr);
-  void decode_export(stringstream &decode_function, const ExprPtr &decode_expr);
-  void decode_mk_file(const ExprPtr &decode_expr);
+  void decode_export(stringstream &decode_function, string &decode_func_name);
+  void decode_mk_file(string &decode_func_name);
 
   void create_state_update(const InstrPtr &instr_expr);
   void state_update_decl(stringstream &state_update_function, string &indent,
                          const ExprPtr &updated_state,
                          const ExprPtr &update_expr,
-                         const InstrPtr &instr_expr);
+                         string &state_update_func_name);
   void state_update_return(stringstream &state_update_function, string &indent,
                            const ExprPtr &updated_state,
                            const ExprPtr &update_expr);
   void state_update_export(stringstream &state_update_function,
-                           const ExprPtr &updated_state,
-                           const InstrPtr &instr_expr);
-  void state_update_mk_file(const ExprPtr &updated_state,
-                            const InstrPtr &instr_expr);
+                           string &state_update_func_name);
+  void state_update_mk_file(string &state_update_func_name);
   void mem_state_update_decl(stringstream &state_update_function,
                              string &indent, const ExprPtr &expr);
 
@@ -96,12 +96,12 @@ private:
   void execute_instruction(stringstream &execute_kernel, string &indent,
                            const InstrPtr &instr_expr, bool child = false);
   void execute_decode(stringstream &execute_kernel, string &indent,
-                      const ExprPtr &decode_expr);
+                      const InstrPtr &instr_expr);
   void execute_state_update_func(stringstream &execute_kernel, string &indent,
-                                 const ExprPtr &decode_expr,
+                                 const InstrPtr &instr_expr,
                                  const ExprPtr &updated_state);
   void execute_update_state(stringstream &execute_kernel, string &indent,
-                            const ExprPtr &decode_expr,
+                            const InstrPtr &instr_expr,
                             const ExprPtr &updated_state);
   void execute_external_mem_load_begin(stringstream &execute_kernel,
                                        string &indent,
@@ -178,6 +178,11 @@ private:
   int ld_st_counter_;
   bool EXTERNAL_MEM_;
   const int MEM_MAP_ARRAY_DIV = 16;
+  // Readable_ is used to control whether the generated function name is
+  // huname-readable. When being set true, function will be named based on the
+  // instruction name and the updated state name. However, there is potential
+  // same-name bug if setting true.
+  bool readable_;
 
   InstrLvlAbsPtr model_ptr_;
 };

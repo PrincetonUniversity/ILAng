@@ -4,8 +4,14 @@ namespace ilang {
 void IlaSim::create_decode(const InstrPtr &instr_expr) {
   stringstream decode_function;
   string indent = "";
+  string decode_func_name;
+  if (readable_)
+    decode_func_name = "decode_" + instr_expr->host()->name().str() + "_" +
+                       instr_expr->name().str();
+  else
+    decode_func_name = "decode_" + to_string(instr_expr->decode()->name().id());
   auto decode_expr = instr_expr->decode();
-  decode_decl(decode_function, indent, decode_expr);
+  decode_decl(decode_function, indent, decode_func_name);
   auto valid_expr = instr_expr->host()->valid();
   auto DfsKernel = [this, &decode_function, &indent](const ExprPtr &e) {
     dfs_kernel(decode_function, indent, e);
@@ -17,21 +23,21 @@ void IlaSim::create_decode(const InstrPtr &instr_expr) {
 
   decrease_indent(indent);
   decode_function << indent << "};" << endl;
-  decode_export(decode_function, decode_expr);
-  decode_mk_file(decode_expr);
+  decode_export(decode_function, decode_func_name);
+  decode_mk_file(decode_func_name);
   return;
 }
 
 void IlaSim::decode_decl(stringstream &decode_function, string &indent,
-                         const ExprPtr &decode_expr) {
+                         string &decode_func_name) {
   decode_function << "#include \"systemc.h\"" << endl;
   decode_function << "#include \"test.h\"" << endl;
-  decode_function << indent << "bool " << model_ptr_->name() << "::decode_"
-                  << decode_expr->name().id() << "() {" << endl;
+
+  decode_function << indent << "bool " << model_ptr_->name()
+                  << "::" << decode_func_name << "() {" << endl;
   increase_indent(indent);
   searched_id_set_.clear();
-  header_ << header_indent_ << "bool decode_" << decode_expr->name().id()
-          << "();" << endl;
+  header_ << header_indent_ << "bool " << decode_func_name << "();" << endl;
 }
 
 void IlaSim::decode_check_valid(stringstream &decode_function, string &indent,
@@ -71,22 +77,21 @@ void IlaSim::decode_return(stringstream &decode_function, string &indent,
 }
 
 void IlaSim::decode_export(stringstream &decode_function,
-                           const ExprPtr &decode_expr) {
+                           string &decode_func_name) {
   ofstream outFile;
   stringstream out_file;
-  outFile.open(export_dir_ + "decode_" + to_string(decode_expr->name().id()) +
-               ".cc");
+  outFile.open(export_dir_ + decode_func_name + ".cc");
   outFile << decode_function.rdbuf();
   outFile.close();
 }
 
-void IlaSim::decode_mk_file(const ExprPtr &decode_expr) {
-  string function_name = "decode_" + to_string(decode_expr->name().id());
+void IlaSim::decode_mk_file(string &decode_func_name) {
   mk_script_ << "g++ -I. -I /home/yuex/bin/systemc-2.3.1//include/ "
              << "-L. -L /home/yuex/bin/systemc-2.3.1//lib-linux64/ "
              << "-Wl,-rpath=/home/yuex/bin/systemc-2.3.1//lib-linux64/ "
-             << "-c -o " << function_name << ".o " << function_name << ".cc "
+             << "-c -o " << decode_func_name << ".o " << decode_func_name
+             << ".cc "
              << "-lsystemc" << endl;
-  obj_list_ << function_name << ".o ";
+  obj_list_ << decode_func_name << ".o ";
 }
 } // namespace ilang

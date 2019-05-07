@@ -36,14 +36,15 @@ void IlaSim::execute_instruction(stringstream &execute_kernel, string &indent,
   if (get_update_state_num(instr_expr) == 0)
     return;
   auto decode = instr_expr->decode();
-  execute_decode(execute_kernel, indent, decode);
+  execute_decode(execute_kernel, indent, instr_expr);
   increase_indent(indent);
   for (auto updated_state_name : instr_expr->updated_states()) {
     auto updated_state = instr_expr->host()->state(updated_state_name);
     auto update_expr = instr_expr->update(updated_state_name);
     if (updated_state->name().id() == update_expr->name().id())
       continue;
-    execute_state_update_func(execute_kernel, indent, decode, updated_state);
+    execute_state_update_func(execute_kernel, indent, instr_expr,
+                              updated_state);
   }
   if (EXTERNAL_MEM_)
     execute_external_mem_load_begin(execute_kernel, indent, instr_expr);
@@ -52,7 +53,7 @@ void IlaSim::execute_instruction(stringstream &execute_kernel, string &indent,
     auto update_expr = instr_expr->update(updated_state_name);
     if (updated_state->name().id() == update_expr->name().id())
       continue;
-    execute_update_state(execute_kernel, indent, decode, updated_state);
+    execute_update_state(execute_kernel, indent, instr_expr, updated_state);
   }
   if (child)
     execute_kernel << indent << "schedule_counter++;" << endl;
@@ -63,17 +64,22 @@ void IlaSim::execute_instruction(stringstream &execute_kernel, string &indent,
 }
 
 void IlaSim::execute_decode(stringstream &execute_kernel, string &indent,
-                            const ExprPtr &decode_expr) {
-  string decode_func_name = "decode_" + to_string(decode_expr->name().id());
+                            const InstrPtr &instr_expr) {
+  string decode_func_name;
+  if (readable_)
+    decode_func_name = "decode_" + instr_expr->host()->name().str() + "_" +
+                       instr_expr->name().str();
+  else
+    decode_func_name = "decode_" + to_string(instr_expr->decode()->name().id());
+
   execute_kernel << indent << "if (" << decode_func_name << "()) {" << endl;
   // TODO(yuex) delete the next line (generate debug code).
-  execute_kernel << "cout << \"decode " << decode_expr->name().id()
-                 << "\" << endl;" << endl;
+  execute_kernel << "cout << \"" << decode_func_name << "\" << endl;" << endl;
 }
 
 void IlaSim::execute_state_update_func(stringstream &execute_kernel,
                                        string &indent,
-                                       const ExprPtr &decode_expr,
+                                       const InstrPtr &instr_expr,
                                        const ExprPtr &updated_state) {
   string updated_state_type =
       (updated_state->is_bool())
@@ -84,7 +90,13 @@ void IlaSim::execute_state_update_func(stringstream &execute_kernel,
                 : "";
   string updated_state_name =
       updated_state->host()->name().str() + "_" + updated_state->name().str();
-  string decode_func_name = "decode_" + to_string(decode_expr->name().id());
+
+  string decode_func_name;
+  if (readable_)
+    decode_func_name = "decode_" + instr_expr->host()->name().str() + "_" +
+                       instr_expr->name().str();
+  else
+    decode_func_name = "decode_" + to_string(instr_expr->decode()->name().id());
   string state_update_func_name =
       decode_func_name + "_update_" + updated_state_name;
   string mem_update_map = state_update_func_name + "_map";
@@ -97,11 +109,16 @@ void IlaSim::execute_state_update_func(stringstream &execute_kernel,
 }
 
 void IlaSim::execute_update_state(stringstream &execute_kernel, string &indent,
-                                  const ExprPtr &decode_expr,
+                                  const InstrPtr &instr_expr,
                                   const ExprPtr &updated_state) {
   string updated_state_name =
       updated_state->host()->name().str() + "_" + updated_state->name().str();
-  string decode_func_name = "decode_" + to_string(decode_expr->name().id());
+  string decode_func_name;
+  if (readable_)
+    decode_func_name = "decode_" + instr_expr->host()->name().str() + "_" +
+                       instr_expr->name().str();
+  else
+    decode_func_name = "decode_" + to_string(instr_expr->decode()->name().id());
   string state_update_func_name =
       decode_func_name + "_update_" + updated_state_name;
   string mem_update_map = state_update_func_name + "_map";
