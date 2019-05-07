@@ -16,6 +16,7 @@ add_subdirectory(verilog-out)
 add_subdirectory(vtarget-out)
 add_subdirectory(mcm)
 add_subdirectory(portable)
+add_subdirectory(ila_sim)
 
 if(${ILANG_BUILD_SYNTH})
   add_subdirectory(synth-interface)
