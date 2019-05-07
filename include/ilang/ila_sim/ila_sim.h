@@ -7,8 +7,8 @@
 //     ila_sim.sim_gen("./");
 //
 
-#ifndef ILA_SIM_H__
-#define ILA_SIM_H__
+#ifndef ILANG_ILA_SIM_ILA_SIM_H__
+#define ILANG_ILA_SIM_ILA_SIM_H__
 
 #include <ilang/ila/ast_fuse.h>
 #include <ilang/ila/instr_lvl_abs.h>
