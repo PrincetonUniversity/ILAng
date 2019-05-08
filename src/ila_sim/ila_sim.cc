@@ -26,9 +26,9 @@ void IlaSim::sim_gen(string export_dir, bool external_mem, bool readable) {
 }
 
 void IlaSim::sim_gen_init(string export_dir, bool external_mem, bool readable) {
-  stringstream().swap(header_);
-  stringstream().swap(mk_script_);
-  stringstream().swap(obj_list_);
+  header_.str("");
+  mk_script_.str("");
+  obj_list_.str("");
   header_indent_ = "";
   searched_id_set_.clear();
   store_ite_set_.clear();
