@@ -154,9 +154,9 @@ void analyze_failed_property_and_time(const std::string & vcd_file_name,
 
   // determine the failing property time
   std::map<std::string,std::string> sig_hash_map;
-  for (VCDSignal* root_sig : trace -> get_scope("wrapper") -> signals ) {
+  for (VCDSignal* root_sig : trace -> get_scope("jasper::tcl_properties") -> signals ) {
     // find the hash of it
-    const auto & signame = root_sig -> reference;
+    auto signame = root_sig -> reference;
     if ( std::find(props.begin(),props.end(), signame) != props.end() ) {
       // if it is a signal name
       sig_hash_map.insert(std::make_pair(signame, root_sig -> hash));

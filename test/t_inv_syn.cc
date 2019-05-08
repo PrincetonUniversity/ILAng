@@ -71,7 +71,7 @@ TEST(TestVlgVerifInvSyn, SimpleCntCegar) {
   cfg.InvariantSynthesisReachableCheckKeepOldInvariant = false;
   cfg.CosaAddKeep = false;
   cfg.VerificationSettingAvoidIssueStage = true;
-  cfg.YosysSmtFlattenDatatype = true; // let's test flatten datatype also
+  cfg.YosysSmtFlattenDatatype = false; // let's test flatten datatype also
   cfg.YosysSmtFlattenHierarchy = true;
   cfg.CosaPyEnvironment = "/home/hongce/cosaEnv/bin/activate";
   cfg.CosaPath = "/home/hongce/CoSA/";
@@ -115,6 +115,10 @@ TEST(TestVlgVerifInvSyn, SimpleCntCegar) {
   ILA_INFO << "#vars=" << design_stat.NumOfDesignStateVars;
   ILA_INFO << "#extra_bits= " << design_stat.NumOfExtraStateBits;
   ILA_INFO << "#extra_vars=" << design_stat.NumOfExtraStateVars;
+  ILA_INFO << "t(eq)= " << design_stat.TimeOfEqCheck;
+  ILA_INFO << "t(syn)=" << design_stat.TimeOfInvSyn;
+  ILA_INFO << "t(proof)= " << design_stat.TimeOfInvProof;
+  ILA_INFO << "t(validate)=" << design_stat.TimeOfInvValidate;
 } // CegarPipelineExample
 
 
@@ -296,6 +300,65 @@ TEST(TestVlgVerifInvSyn, CegarPipelineExample) {
   }
 } // CegarPipelineExample
 
+
+
+TEST(TestVlgVerifInvSyn, CegarPipelineAbc) {
+  auto ila_model = SimplePipe::BuildModel();
+
+  VerilogVerificationTargetGenerator::vtg_config_t cfg;
+  cfg.InvariantSynthesisReachableCheckKeepOldInvariant = false;
+  cfg.CosaAddKeep = false;
+  cfg.VerificationSettingAvoidIssueStage = true;
+  cfg.YosysSmtFlattenDatatype = false;
+  cfg.YosysSmtFlattenHierarchy = true;
+  cfg.CosaPyEnvironment = "/home/hongce/cosaEnv/bin/activate";
+  cfg.CosaPath = "/home/hongce/CoSA/";
+  cfg.AbcPath = "/home/hongce/abc/";
+  cfg.CosaSolver = "btor";
+
+  auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/vpipe/";
+  auto outDir  = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/inv_syn/vpipe-out-abc/";
+
+  InvariantSynthesizerCegar vg(
+      {},                          // no include
+      {dirName + "simple_pipe.v"}, //
+      "pipeline_v",                // top_module_name
+      dirName + "rfmap/vmap.json", // variable mapping
+      dirName + "rfmap/cond-noinv.json", outDir, ila_model.get(),
+      VerilogVerificationTargetGenerator::backend_selector::COSA,
+      VerilogVerificationTargetGenerator::synthesis_backend_selector::ABC,
+      cfg);
+
+  EXPECT_FALSE(vg.in_bad_state());
+
+    do{
+      vg.GenerateVerificationTarget();
+      if(vg.RunVerifAuto("ADD")) // the ADD
+        break; // no more cex found
+      vg.ExtractVerificationResult();
+      vg.GenerateSynthesisTarget();
+      if(vg.RunSynAuto()) {
+        EXPECT_TRUE(false); // cex is really reachable!!!
+        ILA_ERROR<<"Unexpected counterexample!";
+        break; 
+      }
+      vg.ExtractSynthesisResult();
+    }while(not vg.in_bad_state());
+
+  vg.GenerateInvariantVerificationTarget();
+  auto design_stat = vg.GetDesignStatistics();
+  ILA_INFO << "========== Design Info ==========" ;
+  ILA_INFO << "#bits= " << design_stat.NumOfDesignStateBits;
+  ILA_INFO << "#vars=" << design_stat.NumOfDesignStateVars;
+  ILA_INFO << "#extra_bits= " << design_stat.NumOfExtraStateBits;
+  ILA_INFO << "#extra_vars=" << design_stat.NumOfExtraStateVars;
+  ILA_INFO << "t(eq)= " << design_stat.TimeOfEqCheck;
+  ILA_INFO << "t(syn)=" << design_stat.TimeOfInvSyn;
+  ILA_INFO << "t(proof)= " << design_stat.TimeOfInvProof;
+  ILA_INFO << "t(validate)=" << design_stat.TimeOfInvValidate;
+
+} // CegarPipelineExample
+
 TEST(TestVlgVerifInvSyn, InvariantImportExport) {
 
   auto ila_model = SimplePipe::BuildModel();
@@ -398,6 +461,9 @@ TEST(TestVlgVerifInvSyn, InvariantImportExport) {
 }
 
 TEST(TestVlgVerifInvSyn, CegarPipelineExampleSygusDatapoint) {
+  unsigned num_cegar = 0;
+  unsigned num_force = 0;
+  unsigned num_prune = 0;
 
   auto ila_model = SimplePipe::BuildModel();
 
@@ -456,6 +522,8 @@ TEST(TestVlgVerifInvSyn, CegarPipelineExampleSygusDatapoint) {
       if(vg.RunVerifAuto("ADD")) // the ADD
         break; // no more cex found
 
+      num_cegar ++;
+
       std::cout << "EQ check cex found, query sygus for invariant candidate..."; std::cout.flush();
       vg.ExtractVerificationResult(); // also the cex
 
@@ -468,6 +536,7 @@ TEST(TestVlgVerifInvSyn, CegarPipelineExampleSygusDatapoint) {
       succeed = vg.ExtractSygusDatapointSynthesisResultAsCandidateInvariant(); // extracted to the candidate invariant
       if (not succeed) {
         EXPECT_TRUE(prev_succeed);
+        num_force ++;
         goto retry;
       }
       // quick proof attempt  -- if proved, add to confirmed
@@ -496,6 +565,7 @@ TEST(TestVlgVerifInvSyn, CegarPipelineExampleSygusDatapoint) {
 
     std::cout << "Validation failed, prune candidate invariants...\n";
     vg.PruneCandidateInvariant();
+    num_prune ++;
     // a simple impl: remove all candidate invariants
     // an advanced impl: remove only violating invariants
     // do you want to continue to remove? (hard -- because validating takes time...)
@@ -508,6 +578,8 @@ TEST(TestVlgVerifInvSyn, CegarPipelineExampleSygusDatapoint) {
   for (auto && vlg: vg.GetInvariants().GetVlgConstraints() )
     std::cout << vlg << std::endl;
   
+  vg.GetInvariants().ExportToFile(outDir+"confirmed_inv.txt");
+
   auto design_stat = vg.GetDesignStatistics();
   ILA_INFO << "========== Design Info ==========" ;
   ILA_INFO << "#bits= " << design_stat.NumOfDesignStateBits;
@@ -518,6 +590,10 @@ TEST(TestVlgVerifInvSyn, CegarPipelineExampleSygusDatapoint) {
   ILA_INFO << "t(syn)=" << design_stat.TimeOfInvSyn;
   ILA_INFO << "t(proof)= " << design_stat.TimeOfInvProof;
   ILA_INFO << "t(validate)=" << design_stat.TimeOfInvValidate;
+
+  ILA_INFO << "#cegar= " << num_cegar;
+  ILA_INFO << "#force=" << num_force;
+  ILA_INFO << "#prune= " << num_prune;
 }
 
 

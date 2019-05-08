@@ -74,13 +74,21 @@ public:
 	  const std::string & var_fn);
 	/// load return counterexample from file
 	void LoadCexFromFile(const std::string & fn);
+
+  // -------------------- CEGAR CHC ------------------ //
 	/// generate chc target
 	void GenerateChcSynthesisTarget(const std::string & precond);
 	/// run Synthesis : returns reachable/not
-	bool virtual RunSynAuto();
+	bool virtual RunSynAuto(bool isSyGuS = false);
   /// to extract reachability test result
   void ExtractSynthesisResult(bool autodet = true, bool reachable = true, 
     const std::string & res_file = "");
+
+  // -------------------- CEGAR ABC ------------------ //
+	/// generate abc target
+  void GenerateAbcSynthesisTarget(const std::string & precond, const std::string & assume_reg, bool useGla);
+  bool RunSynAbcAuto();
+  void ExtractAbcSynthesisResult(const std::string & blifname, const std::string &ffmap_file);
 
   // -------------------- SYGUS ------------------ //
   /// set the sygus name lists (cannot be empty)
@@ -92,16 +100,20 @@ public:
   /// to generate synthesis target (for using the whole transfer function)
   void GenerateSynthesisTargetSygusDatapoints(bool enumerate = false);
   /// to generate targets using the current invariants
-  void ExportCandidateInvariantsToJasperAssertionFile(const std::string & fn,
+  void ExportCandidateInvariantsToJasperAssertionFile(
+    const std::string & precond,
+    const std::string & fn,
 	  const std::string & var_fn, const std::string & pn_file);
   /// load inv pos ex from simtrace
   void LoadDatapointPosExFromSim(const SimTraceExtractor & sim);
   /// to extract the synthesis attempt
-  bool ExtractSygusDatapointSynthesisResultAsCandidateInvariant();
+  bool ExtractSygusDatapointSynthesisResultAsCandidateInvariant(const std::string & duv_inst_name);
   /// load design smt info from a given design file 
   void LoadDesignSmtInfoFromSmt(const std::string & fn);
   /// export the cex check to make sure cex is unreachable
-  void ExportCexCheck(const std::string & assertfile, const std::string &propfile);
+  void ExportCexCheck(
+    const std::string & precond,
+    const std::string & assertfile, const std::string &propfile);
   /// accept all candidate invariants as confirmed ones
   void AcceptAllCandidateInvariant();
 

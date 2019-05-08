@@ -26,7 +26,7 @@ public:
   /// Type of the backend
   typedef enum { NONE = 0, COSA = 1, JASPERGOLD = 2, YOSYS = 3 } backend_selector;
   /// Type of invariant synthesis backend
-  typedef enum {Z3, FreqHorn, CVC4} synthesis_backend_selector;
+  typedef enum {Z3, FreqHorn, CVC4, ABC} synthesis_backend_selector;
   /// Verilog Target Generation Configuration
   typedef struct _vtg_config {
     /// Set the targets: instructions/invariants/both
@@ -95,11 +95,13 @@ public:
     _state_sort_t YosysSmtStateSort;
     /// whether to remove the extra issue cycle and starts from reset
     bool VerificationSettingAvoidIssueStage;
-    // ----------- Options for Z3/FreqHorn Solver -------------- //
+    // ----------- Options for Z3/FreqHorn/ABC Solver -------------- //
     /// The path to Z3, if "z3" is not in the PATH, default empty
     std::string Z3Path;
     /// The path to FreqHorn, if "freqhorn" is not in the PATH, default empty
     std::string FreqHornPath;
+    /// The path to ABC, if "abc" is not in the PATH, default empty
+    std::string AbcPath;
     /// Whether to flatten the module hierarchy
     bool YosysSmtFlattenHierarchy;
     /// Whether to flatten the datatypes

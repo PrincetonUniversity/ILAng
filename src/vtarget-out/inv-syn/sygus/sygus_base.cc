@@ -38,16 +38,12 @@ const std::vector<std::string> compOp({});
 const std::map<int,std::set<unsigned>> nums(
   {
     {16,{0xff00,0xff01,0xff02, 0xff04, 0xff10, 0xff20}},
-    {128,{0x10}}
+    {28,{0}}
   }
 );
 // bitwidth -> (op -> n-ary)
 const std::map<unsigned,std::map<std::string,unsigned>> arithmOp (
   {
-    {16,{{"bvadd",2}} },
-    {128,{{"bvadd",2}} },
-    {2,{{"bvnot",1}} },
-    {4,{{"bvnot",1}} }
   }
 );
 
@@ -58,15 +54,17 @@ struct extract_op {
   unsigned to;
   const std::string reps;
   const std::string smt;
+  const std::string replacement;
   const std::string exheading;
   extract_op (unsigned h, unsigned l, unsigned f, unsigned t) :
     high(h),low(l),from(f),to(t),
       reps("extract_" + std::to_string(high) + "_" 
         + std::to_string(low) + "_" + std::to_string(from) + "_"
         + std::to_string(to)),
+      replacement("(_ extract "+ std::to_string(high) + " " + std::to_string(low) +")"),
       smt("((_ extract "+ std::to_string(high) + " " + std::to_string(low) +") x)"),
       exheading("(define-fun |" + reps + "| ((x (_ BitVec " + std::to_string(from) + ")))"
-        + " (_ BitVec " + std::to_string(to) + ")" + smt + ")")
+        + " (_ BitVec " + std::to_string(to) + ") " + smt + ")")
      { 
       ILA_ASSERT(h-l+1 == t);
       ILA_ASSERT(from >= to);
@@ -74,9 +72,28 @@ struct extract_op {
 };
 
 // to -> (op -> from)
+// result_width : h,l, from, result_width
 const std::map<unsigned, std::vector<extract_op>> extractExtOp (
   {
-    {16, {extract_op(15,0,128,16)} } //  extract_15_0_128_16
+    {5, {
+      extract_op(11,7,32,5),
+      extract_op(19,15,32,5),
+      extract_op(24,20,32,5)} }, //  extract_15_0_128_16
+    {1, {
+      extract_op(31,31,32,1),
+      extract_op(20,20,32,1),
+      extract_op(15,15,32,1),
+      extract_op(7,7,32,1)
+      } },
+    {11, {extract_op(30,20,32,11)} },
+    {12, {extract_op(31,20,32,12)} },
+    {8, {extract_op(19,12,32,8)} },
+    {6, {extract_op(30,25,32,6)} },
+    {4, {
+      extract_op(11,8,32,4),
+      extract_op(19,16,32,4),
+      extract_op(24,21,32,4)} },
+    {31, {extract_op(31,1,32,31)} }
   }
 );
 
@@ -109,7 +126,8 @@ const std::string exps_lv1_template_Bv1_hw = R"#!#!#(
  (Exp1 (_ BitVec 1) ( VarOrVal1
                       (bvand VarOrVal1 VarOrVal1)
                       (bvor VarOrVal1 VarOrVal1)
-                      (bvnot VarOrVal1)))
+                      (bvnot VarOrVal1)
+                      %extraOp%))
 )#!#!#";
 
 const std::string exps_lv1_template_hw = R"#!#!#(  
@@ -733,6 +751,8 @@ std::string Cvc4SygusBase::get_template_lvR() const {
 }
 
 std::string Cvc4SygusBase::get_template_hardwired() const{
+  std::vector<std::string> extra_heading_local(extra_heading);
+
   // args
   std::string args = Join(args_list, " ");
   
@@ -778,7 +798,18 @@ std::string Cvc4SygusBase::get_template_hardwired() const{
       if (wn.first == 0)
         exps += exps_lv1_template_Bool_hw;
       else if (wn.first == 1) {
-        exps += exps_lv1_template_Bv1_hw;
+        std::string extraOp = "";
+        if ( IN(1, extractExtOp) && ! extractExtOp.at(1).empty() ) {
+          for (auto && extractOp : extractExtOp.at(1) ) {
+            if ( not IN( extractOp.from, width_to_names) ) continue;
+            extraOp += "(" + extractOp.reps + " VarOrVal" + std::to_string(extractOp.from) + ")\n";
+            extra_heading_local.push_back(extractOp.exheading+"\n"); 
+            corrections.insert(std::make_pair(extractOp.reps, extractOp.replacement));
+          }
+        }
+
+        auto expr_tmpl = ReplaceAll(exps_lv1_template_Bv1_hw, "%extraOp%", extraOp);
+        exps += expr_tmpl;
       } else { // now index into the arithmOp
         std::string extraOp = "";
         auto width = wn.first;
@@ -792,9 +823,10 @@ std::string Cvc4SygusBase::get_template_hardwired() const{
         } // check normal op
         if ( IN(width, extractExtOp) && ! extractExtOp.at(width).empty() ) {
           for (auto && extractOp : extractExtOp.at(width) ) {
-            extraOp += "(" + extractOp.reps + " VarOrVal%width%)\n";
-            extra_heading.push_back(extractOp.exheading+"\n"); 
-            corrections.insert(std::make_pair(extractOp.reps, extractOp.smt));
+            if ( not IN( extractOp.from, width_to_names) ) continue;
+            extraOp += "(" + extractOp.reps + " VarOrVal" + std::to_string(extractOp.from) + ")\n";
+            extra_heading_local.push_back(extractOp.exheading+"\n"); 
+            corrections.insert(std::make_pair(extractOp.reps, extractOp.replacement));
           }
         }
 
@@ -816,7 +848,7 @@ std::string Cvc4SygusBase::get_template_hardwired() const{
   add_vals(vals);
 
   std::string heading;
-  for (auto && h : extra_heading)
+  for (auto && h : extra_heading_local)
     heading += h + "\n";
 
   auto ret = syntax_arithmetic_lv1_hw;

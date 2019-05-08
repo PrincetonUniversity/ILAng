@@ -56,6 +56,8 @@ public:
   static void StoreCexToFile(const std::string & fn, const cex_t & c);
   // save to file (invoke within)
   void StoreCexToFile(const std::string & fn) const;
+  // generalize cex
+  void DropStates(const std::vector<std::string> & vnames);
 
 }; // class CexExtractor
 

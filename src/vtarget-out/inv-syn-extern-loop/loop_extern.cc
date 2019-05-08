@@ -6,6 +6,7 @@
 #include <ilang/util/container_shortcut.h>
 #include <ilang/vtarget-out/inv-syn-extern-loop/loop_extern.h>
 #include <ilang/vtarget-out/inv-syn-extern-loop/yosys_chc.h>
+#include <ilang/vtarget-out/inv-syn-extern-loop/yosys_abc.h>
 #include <ilang/vtarget-out/inv-syn/sygus/datapoint_inv_prune.h>
 
 #include <fstream>
@@ -117,8 +118,10 @@ void InvariantSynthesizerExternalCegar::GenerateChcSynthesisTarget(const std::st
   if (additional_width_info.empty())
     additional_width_info = vg.GetSupplementaryInfo().width_info;
 }
+
+
 /// run Synthesis : returns reachable/not
-bool InvariantSynthesizerExternalCegar::RunSynAuto() {
+bool InvariantSynthesizerExternalCegar::RunSynAuto(bool isSyGuS) {
 
   if(check_in_bad_state())
     return true;
@@ -133,7 +136,7 @@ bool InvariantSynthesizerExternalCegar::RunSynAuto() {
     << "RunVerifAuto: cannot change dir to:" << new_wd;
   ILA_INFO << "Executing synthesis script:" <<  runnable_script_name[0] ;
   execute_result res;
-  if (0 /* current_inv_type == SYGUS_CEX || current_inv_type == SYGUS_CHC */) {
+  if (isSyGuS) {
     res = os_portable_execute_shell({"bash",
       os_portable_file_name_from_path( runnable_script_name[0] )}); // we don't need to redirect
   }
@@ -198,13 +201,6 @@ void InvariantSynthesizerExternalCegar::ExtractSynthesisResult(bool autodet, boo
       _vtg_config.YosysSmtFlattenDatatype,
       _vtg_config.YosysSmtFlattenHierarchy,
       false );
-  else if (0 /*current_inv_type == cur_inv_tp::SYGUS_CHC*/) // we reparse even for SyGuS cex
-    ILA_ASSERT(
-      inv_obj.AddInvariantFromSygusResultFile(
-      *(design_smt_info.get()), "", res_file, 
-      _vtg_config.YosysSmtFlattenDatatype,
-      _vtg_config.YosysSmtFlattenHierarchy ))
-    << "SyGuS solver failed to generate an invariant";
   else
     ILA_ERROR<<"Inv type unknown ";// << current_inv_type;
   
@@ -215,6 +211,108 @@ void InvariantSynthesizerExternalCegar::ExtractSynthesisResult(bool autodet, boo
   // status = cegar_status::NEXT_V;
   // current_inv_type = cur_inv_tp::NONE; // we have extracted, reset this marker
 } // ExtractSynthesisResult
+
+
+// -------------------- CEGAR ABC ------------------------ //
+
+/// generate chc target
+void InvariantSynthesizerExternalCegar::GenerateAbcSynthesisTarget(
+  const std::string & precond, const std::string & assume_reg, bool useGla) {
+  if (check_in_bad_state()) return;
+
+  // to send in the invariants
+  advanced_parameters_t adv_param;
+  adv_param._inv_obj_ptr = &inv_obj; 
+	adv_param._candidate_inv_ptr = NULL;
+  adv_param._cex_obj_ptr = cex_extract.get();
+
+	ExternalAbcTargetGen vg(
+		implementation_incl_path,
+		implementation_srcs_path,
+		implementation_top_module_name,
+		refinement_variable_mapping_path,
+		refinement_condition_path,
+		os_portable_append_dir(_output_path,"inv-syn-cegar-abc") ,
+		tmpl_top_module_name,
+		v_backend, s_backend,
+		_vtg_config, &adv_param		
+	);
+
+	vg.ConstructWrapper("wrapper.v", "wrapper.tpl", precond, assume_reg);
+	vg.GenerateBlifProblem("wrapper.blif", "run.sh", "abccmd.txt", useGla);
+
+	runnable_script_name = vg.GetRunnableScriptName();
+  
+  vlg_mod_inst_name = vg.GetDesignUnderVerificationInstanceName();
+  inv_obj.set_dut_inst_name(vlg_mod_inst_name);
+
+  if (additional_width_info.empty())
+    additional_width_info = vg.GetSupplementaryInfo().width_info;
+}
+
+
+/// run Synthesis : returns reachable/not
+bool InvariantSynthesizerExternalCegar::RunSynAbcAuto() {
+
+  if(check_in_bad_state())
+    return true;
+  
+  ILA_ASSERT(runnable_script_name.size() == 1) << "Please run GenerateInvSynTargets function first";
+  synthesis_result_fn = os_portable_append_dir(_output_path, "__synthesis_result.txt");
+  auto redirect_fn = os_portable_append_dir("../", "__synthesis_result.txt");
+
+  auto cwd = os_portable_getcwd();
+  auto new_wd = os_portable_path_from_path(runnable_script_name[0]);
+  ILA_ERROR_IF(not os_portable_chdir(new_wd)) 
+    << "RunVerifAuto: cannot change dir to:" << new_wd;
+  ILA_INFO << "Executing synthesis script:" <<  runnable_script_name[0] ;
+  execute_result res;
+
+  res = os_portable_execute_shell({"bash",
+    os_portable_file_name_from_path( runnable_script_name[0] )},
+    redirect_fn, redirect_t::BOTH);
+      
+  ILA_ERROR_IF(res.failure != execute_result::NONE )
+    << "Running synthesis script " << runnable_script_name[0] << " results in error."; 
+  ILA_ASSERT(os_portable_chdir(cwd));
+  
+  inv_syn_time += res.seconds;
+
+  std::stringstream sbuf;
+  std::ifstream fin(synthesis_result_fn);
+  if (not fin.is_open()) {
+      ILA_ERROR << "Unable to read the synthesis result file:" << synthesis_result_fn;
+      bad_state = true;
+      return true; // reachable
+    } 
+  sbuf << fin.rdbuf();
+  cex_reachable = ! ( S_IN( "Property proved." , sbuf.str()) and S_IN( "Invariant contains " , sbuf.str()) );
+  
+  // else reachable
+  return cex_reachable;
+}
+
+
+/// to extract reachability test result
+void InvariantSynthesizerExternalCegar::ExtractAbcSynthesisResult(const std::string & blifname,
+  const std::string &ffmap_file) {
+
+  if(check_in_bad_state()) return;
+
+  if (cex_reachable) {
+    ILA_ERROR << "Verification failed with true counterexample! No invariants can be extracted.";
+    return;
+  }
+  // ILA_ASSERT(current_inv_type != cur_inv_tp::SYGUS_CEX) 
+  //   << "API misuse: should not use this function on SYGUS CEX output, they may not be the invariants, but just candidates!";
+    
+  inv_obj.AddInvariantFromAbcResultFile(blifname, ffmap_file, true, false);
+  
+  std::cout << "Confirmed synthesized invariants:" << std::endl;
+  for (auto && v : inv_obj.GetVlgConstraints() )
+    std::cout << v << std::endl;
+
+} // ExtractAbcSynthesisResult
 
 
 
@@ -256,10 +354,14 @@ void InvariantSynthesizerExternalCegar::GenerateSynthesisTargetSygusDatapoints(b
     enumerate
   );
   sygus_gen_corrections = vg.GenerateSygusSynthesisTarget("run.sh","wrapper.smt2");  
+
+	runnable_script_name = vg.GetRunnableScriptName();
 }
 
 /// to generate targets using the current invariants
-void InvariantSynthesizerExternalCegar::ExportCandidateInvariantsToJasperAssertionFile(const std::string & fn,
+void InvariantSynthesizerExternalCegar::ExportCandidateInvariantsToJasperAssertionFile(
+  const std::string & precond,
+  const std::string & fn,
   const std::string & var_fn, const std::string & pn_file) {
 	// format : assert -name p? { };
   unsigned pn = 0;
@@ -268,9 +370,9 @@ void InvariantSynthesizerExternalCegar::ExportCandidateInvariantsToJasperAsserti
 		if (not fout.is_open()) {
 			ILA_ERROR << "Fail to write to :" << fn; return; }
 			
-		for (auto && inv : inv_obj.GetVlgConstraints() ) {
+		for (auto && inv : inv_candidate.GetVlgConstraints() ) {
 			auto inv_no_linebreak = ReplaceAll(ReplaceAll(inv, "\n" , " "), "\r", " ");
-			fout << "assert -name p" <<(pn++)  << " { " <<  inv_no_linebreak << " } \n";
+			fout << "assert -name p" <<(pn++)  << " { " << precond << "|-> ( " <<  inv_no_linebreak << ") } \n";
 		}
 	} // from the number of lines, you known how many there are
   {
@@ -285,9 +387,9 @@ void InvariantSynthesizerExternalCegar::ExportCandidateInvariantsToJasperAsserti
 		if (not fout.is_open()) {
 			ILA_ERROR << "Fail to write to :" << var_fn; return; }
 			
-		for (auto && vars : inv_obj.GetExtraFreeVarDefs() )
+		for (auto && vars : inv_candidate.GetExtraFreeVarDefs() )
 			fout << "wire " << WidthToRange(vars.second) << " " << vars.first << " ; \n";
-		for (auto && vars : inv_obj.GetExtraVarDefs() ) {
+		for (auto && vars : inv_candidate.GetExtraVarDefs() ) {
 			fout << "wire " << WidthToRange(std::get<2>(vars)) << " " << std::get<0>(vars)
 				<< " = " << std::get<1>(vars) << " ;\n";
 		}
@@ -308,11 +410,13 @@ const InvariantObject & InvariantSynthesizerExternalCegar::GetCandidateInvariant
   return inv_candidate;
 }
 /// export the cex check to make sure cex is unreachable
-void InvariantSynthesizerExternalCegar::ExportCexCheck(const std::string & assertfile, const std::string &propfile) {
+void InvariantSynthesizerExternalCegar::ExportCexCheck(
+  const std::string & precond,
+  const std::string & assertfile, const std::string &propfile) {
   { // cex assert
     std::ofstream fout(assertfile);
     if (!fout.is_open()) { ILA_ERROR << "Cannot write to:" << assertfile ; return;}
-    fout << "assert -name cexblock {" << cex_extract->GenInvAssert("") + "}";
+    fout << "assert -name cexblock { " << precond << " |-> !(" << cex_extract->GenInvAssert("") + ") }";
   } // cex assert
   { // prop
     std::ofstream fout(propfile);
@@ -332,7 +436,8 @@ void InvariantSynthesizerExternalCegar::AcceptAllCandidateInvariant() {
 
 
 /// to extract the synthesis attempt
-bool InvariantSynthesizerExternalCegar::ExtractSygusDatapointSynthesisResultAsCandidateInvariant() {
+bool InvariantSynthesizerExternalCegar::ExtractSygusDatapointSynthesisResultAsCandidateInvariant(
+  const std::string & duv_inst_name) {
 
   if(check_in_bad_state()) return false;
 
@@ -344,6 +449,7 @@ bool InvariantSynthesizerExternalCegar::ExtractSygusDatapointSynthesisResultAsCa
     return false;
   }
 
+  inv_candidate.set_dut_inst_name(duv_inst_name);
   // inv_candidate.ClearAllInvariants();  -- we will keep the old ones
   if( inv_candidate.AddInvariantFromSygusResultFile(
       *(design_smt_info.get()), "", res_file, 
@@ -413,6 +519,13 @@ const InvariantObject & InvariantSynthesizerExternalCegar::GetInvariants() const
 /// load states -- confirmed invariants
 void InvariantSynthesizerExternalCegar::LoadInvariantsFromFile(const std::string &fn) {
   inv_obj.ImportFromFile(fn);
+}
+
+void InvariantSynthesizerExternalCegar::LoadCandidateInvariantsFromFile(const std::string &fn) {
+  inv_candidate.ImportFromFile(fn);
+}
+void InvariantSynthesizerExternalCegar::LoadDatapointFromFile(const std::string &fn) {
+  datapoints.ImportNonprovidedPosEx(fn);
 }
 
 

@@ -403,6 +403,7 @@ void VlgSglTgtGen::ConstructWrapper() {
     ConstructWrapper_add_inv_assumption_or_assertion_target_invariant();
     max_bound = _vtg_config.MaxBound;
   } else if (target_type == target_type_t::INV_SYN_DESIGN_ONLY) {
+    ConstructWrapper_inv_syn_cond_signals();
     ConstructWrapper_inv_syn_connect_mem();
     ConstructWrapper_add_inv_assumption_or_assertion_target_inv_syn_design_only();    
   }
@@ -423,7 +424,7 @@ void VlgSglTgtGen::ConstructWrapper() {
   if (target_type == target_type_t::INSTRUCTIONS)
     ConstructWrapper_add_uf_constraints();
 
-  // post value holder
+  // post value holder --- ABC cannot work on this
   ConstructWrapper_add_post_value_holder();
   // add monitor
   ConstructWrapper_add_vlg_monitor();

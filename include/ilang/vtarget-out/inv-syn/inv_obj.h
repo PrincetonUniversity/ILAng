@@ -48,6 +48,13 @@ public:
     bool discourage_outside_var_referral = true,
     const correction_t & corrections = correction_t() );
 
+  /// add invariants from abc result
+  bool AddInvariantFromAbcResultFile(
+    const std::string & blif_fname,
+    const std::string & abc_fname,
+    bool warning_outside_var,
+    bool replace_outside_var);
+
   /// add invariants from verilog-like output
   void AddInvariantFromVerilogExpr(const std::string & tag, const std::string & vlg_in);
   /// generate invariants

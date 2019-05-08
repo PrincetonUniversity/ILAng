@@ -11,6 +11,8 @@
 #include <ilang/smt-inout/chc_inv_in.h>
 // parser for cvc4 output
 #include <ilang/vtarget-out/inv-syn/sygus/sygus_inv_parse.h>
+// parser for ABC output
+#include <ilang/vtarget-out/inv-syn/inv_abc_parse.h>
 
 #include <fstream>
 
@@ -23,6 +25,38 @@ InvariantObject::InvariantObject() {
 
 void InvariantObject::set_dut_inst_name(const std::string & name) {
   dut_inst_name = name;
+}
+
+bool InvariantObject::AddInvariantFromAbcResultFile(
+  const std::string & blif_fname,
+  const std::string & abc_fname,
+  bool warning_outside_var,
+  bool replace_outside_var) {
+  
+  ILA_ASSERT(not dut_inst_name.empty()) 
+    << "BUG: duv instance name unknown. "
+    << "set_dut_inst_name should be called first!";
+
+  AbcInvariantParser parser(blif_fname, abc_fname, dut_inst_name, 
+    warning_outside_var, replace_outside_var);
+
+  auto inv = parser.GetParseResult();
+  ILA_ERROR_IF(inv.empty()) << "Get empty ABC invariants";
+  if (parser.get_parse_status() == false)
+    return false;
+
+  inv_vlg_exprs.push_back( inv );
+  smt_formula_vec.push_back( "" );
+
+  for (auto && name : parser.GetNewVarDefs()) {
+    if( IN(name, inv_extra_free_vars) )
+      ILA_ASSERT(inv_extra_free_vars[name] == 1)
+        << "Overwriting free var:" << name << " w. width: " << 1
+        << " old width:" << inv_extra_free_vars[name];
+    inv_extra_free_vars.insert(std::make_pair(name,1));
+  }
+
+  return true;
 }
 
 /// add invariants from smt-like output

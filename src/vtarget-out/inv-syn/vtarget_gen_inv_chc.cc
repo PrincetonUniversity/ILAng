@@ -336,7 +336,8 @@ void VlgSglTgtGen_Chc::PreExportProcess() {
     for (auto&& p: prob.exprs) {
       vlg_wrapper.add_stmt(
         "assert property ("+p+"); //" + prbname + "\n"
-      ); // there should be only one expression (actually)
+      );
+      // there should be only one expression (for cex target)
       // ILA_ASSERT(all_assert_wire_content.empty());
       if (first)
         all_assert_wire_content = p;
@@ -467,6 +468,7 @@ void VlgSglTgtGen_Chc::Export_problem(const std::string& extra_name) {
 
   // first generate a temporary smt
   // and extract from it the necessary info
+  // this is the CHC-style thing
   design_only_gen_smt(
     os_portable_append_dir(_output_path, "__design_smt.smt2"),
     os_portable_append_dir(_output_path, "__gen_smt_script.ys"));
@@ -532,7 +534,6 @@ void VlgSglTgtGen_Chc::design_only_gen_smt(
       write_smt2_options += "-stbv ";
     else
       ILA_ASSERT(false) << "Unsupported smt state sort encoding:" << _vtg_config.YosysSmtStateSort;
-
 
     ys_script_fout << "read_verilog -sv " 
       << os_portable_append_dir( _output_path , top_file_name ) << std::endl;

@@ -210,7 +210,12 @@ void VlgSglTgtGen::ConstructWrapper_add_inv_assumption_or_assertion_target_inv_s
   
 }
 
-
+void VlgSglTgtGen::ConstructWrapper_inv_syn_cond_signals() {
+  ILA_ASSERT(target_type == target_type_t::INV_SYN_DESIGN_ONLY
+    or target_type == target_type_t::INVARIANTS);
+  vlg_wrapper.add_input("__START__", 1);
+  vlg_wrapper.add_input("__STARTED__", 1);
+}
 
 void VlgSglTgtGen::ConstructWrapper_inv_syn_connect_mem() {
   ILA_ASSERT(target_type == target_type_t::INV_SYN_DESIGN_ONLY

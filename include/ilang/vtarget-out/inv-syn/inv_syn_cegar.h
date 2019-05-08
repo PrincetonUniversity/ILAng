@@ -71,6 +71,8 @@ public:
   /// to extract verification result 
   void ExtractVerificationResult(bool autodet = true, bool pass = true,
     const std::string & res_file = "", const std::string & mod_inst_name = "");
+  /// remove some states from cex
+  void CexGeneralizeRemoveStates(const std::vector<std::string> &);
   /// to generate synthesis target
   void GenerateSynthesisTarget();
   /// to extract reachability test result
@@ -108,6 +110,8 @@ public:
   bool in_bad_state() const {return bad_state;}
   /// check state
   bool check_in_bad_state() const ;
+  /// load the smt_design file
+  void LoadDesignSmtInfo(const std::string & fn);
   /// Here we directly expose the runnable script names (They will never be used as inputs)
   const std::vector<std::string> & GetRunnableTargetScriptName() const;
   /// Here you can get the design information
@@ -154,7 +158,7 @@ protected:
   /// the synthesis result file
   std::string synthesis_result_fn;
   /// the invariant type
-  enum cur_inv_tp { NONE, SYGUS_CEX, SYGUS_CHC, CHC } current_inv_type;
+  enum cur_inv_tp { NONE, SYGUS_CEX, SYGUS_CHC, CHC, CEGAR_ABC } current_inv_type;
   /// the datapoint
   TraceDataPoints datapoints;
   /// the sygus varname

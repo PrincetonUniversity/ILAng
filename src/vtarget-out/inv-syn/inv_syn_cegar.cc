@@ -190,13 +190,19 @@ void InvariantSynthesizerCegar::GenerateSynthesisTarget() {
       &adv_param                        // advanced parameter
       );
   
-  design_smt_info = vg.GenerateInvSynTargets(s_backend);
+  if (s_backend == synthesis_backend_selector::ABC) {
+    vg.GenerateInvSynTargetsAbc();
+    current_inv_type = cur_inv_tp::CEGAR_ABC;
+  }
+  else {
+    design_smt_info = vg.GenerateInvSynTargets(s_backend);
+    current_inv_type = cur_inv_tp::CHC;
+  }
 
   runnable_script_name = vg.GetRunnableScriptName();
 
   status = cegar_status::S_RES;
 
-  current_inv_type = cur_inv_tp::CHC;
 } // GenerateSynthesisTarget
 
 // -------------------------------- EXTRACTIONS ------------------------------------------- //
@@ -268,6 +274,10 @@ std::string extract_vcd_name_from_cex(const std::string & fn) {
 } // extract_vcd_name_from_cex
 
 
+void InvariantSynthesizerCegar::CexGeneralizeRemoveStates(const std::vector<std::string> & n) {
+  cex_extract->DropStates(n);
+}
+
 void InvariantSynthesizerCegar::ExtractSynthesisResult(bool autodet, bool reachable, 
   const std::string & given_smt_chc_result_txt) {
   
@@ -281,12 +291,6 @@ void InvariantSynthesizerCegar::ExtractSynthesisResult(bool autodet, bool reacha
   
   ILA_WARN_IF(status != cegar_status::S_RES) << "CEGAR-loop: expecting synthesis result.";
 
-  if (design_smt_info == nullptr) {
-    ILA_ERROR << "Design SMT-LIB2 info is not available. "
-      << "You need to run `GenerateSynthesisTarget` first.";
-    return;
-  }
-
   if (reachable) {
     ILA_ERROR << "Verification failed with true counterexample!";
     status = cegar_status::FAILED;
@@ -296,18 +300,34 @@ void InvariantSynthesizerCegar::ExtractSynthesisResult(bool autodet, bool reacha
   ILA_ASSERT(current_inv_type != cur_inv_tp::SYGUS_CEX) 
     << "API misuse: should not use this function on SYGUS CEX output, they may not be the invariants, but just candidates!";
     
-  if (current_inv_type == cur_inv_tp::CHC)
+  if (current_inv_type == cur_inv_tp::CHC) {
+    if (design_smt_info == nullptr) {
+      ILA_ERROR << "Design SMT-LIB2 info is not available. "
+        << "You need to run `GenerateSynthesisTarget` or Parse a design smt first first.";
+      return;
+    }
     inv_obj.AddInvariantFromChcResultFile(
       *(design_smt_info.get()), "", res_file, 
       _vtg_config.YosysSmtFlattenDatatype,
       _vtg_config.YosysSmtFlattenHierarchy );
-  else if (current_inv_type == cur_inv_tp::SYGUS_CHC) // we reparse even for SyGuS cex
+  } else if (current_inv_type == cur_inv_tp::SYGUS_CHC) { // we reparse even for SyGuS cex
+    if (design_smt_info == nullptr) {
+      ILA_ERROR << "Design SMT-LIB2 info is not available. "
+        << "You need to run `GenerateSynthesisTarget` or Parse a design smt first first.";
+      return;
+    }
     ILA_ASSERT(
       inv_obj.AddInvariantFromSygusResultFile(
       *(design_smt_info.get()), "", res_file, 
       _vtg_config.YosysSmtFlattenDatatype,
       _vtg_config.YosysSmtFlattenHierarchy ))
     << "SyGuS solver failed to generate an invariant";
+  } else if (current_inv_type == cur_inv_tp::CEGAR_ABC){
+    inv_obj.AddInvariantFromAbcResultFile( 
+      os_portable_append_dir( os_portable_path_from_path( runnable_script_name[0] ) , "wrapper.blif"),
+      os_portable_append_dir( os_portable_path_from_path( runnable_script_name[0] ) , "ffmap.info"),
+      true,true);
+  }
   else
     ILA_ERROR<<"Inv type unknown:" << current_inv_type;
   
@@ -413,11 +433,11 @@ bool InvariantSynthesizerCegar::RunSynAuto() {
     << "RunVerifAuto: cannot change dir to:" << new_wd;
   ILA_INFO << "Executing synthesis script:" <<  runnable_script_name[0] ;
   execute_result res;
-  if (current_inv_type == SYGUS_CEX || current_inv_type == SYGUS_CHC) {
+  if (current_inv_type == SYGUS_CEX || current_inv_type == SYGUS_CHC ) {
     res = os_portable_execute_shell({"bash",
       os_portable_file_name_from_path( runnable_script_name[0] )}); // we don't need to redirect
   }
-  else {
+  else { // or CHC / current_inv_type == CEGAR_ABC
     res = os_portable_execute_shell({"bash",
       os_portable_file_name_from_path( runnable_script_name[0] )},
       redirect_fn, redirect_t::BOTH);
@@ -428,26 +448,51 @@ bool InvariantSynthesizerCegar::RunSynAuto() {
   
   inv_syn_time += res.seconds;
 
-  std::string line;
-  { // read the result
+  if (current_inv_type == CEGAR_ABC) {
+    std::stringstream sbuf;
     std::ifstream fin(synthesis_result_fn);
     if (not fin.is_open()) {
-      ILA_ERROR << "Unable to read the synthesis result file:" << synthesis_result_fn;
-      status = cegar_status::FAILED;
-      bad_state = true;
-      return true; // reachable
-    } 
-    std::getline(fin,line);  
-  } // finish file reading
-  cex_reachable = true;
-  if (S_IN("unsat", line))
-    cex_reachable = false; // not reachable
+        ILA_ERROR << "Unable to read the synthesis result file:" << synthesis_result_fn;
+        status = cegar_status::FAILED;
+        bad_state = true;
+        return true; // reachable
+      } 
+    sbuf << fin.rdbuf();
+    cex_reachable = ! ( S_IN( "Property proved." , sbuf.str()) and S_IN( "Invariant contains " , sbuf.str()) );
+  }
+  else {
+    std::string line;
+    { // read the result
+      std::ifstream fin(synthesis_result_fn);
+      if (not fin.is_open()) {
+        ILA_ERROR << "Unable to read the synthesis result file:" << synthesis_result_fn;
+        status = cegar_status::FAILED;
+        bad_state = true;
+        return true; // reachable
+      } 
+      std::getline(fin,line);  
+    } // finish file reading
+    cex_reachable = true;
+    if (S_IN("unsat", line))
+      cex_reachable = false; // not reachable
+  }
   // else reachable
   return cex_reachable;
 }
 
 
 // -------------------------------- MISCS ------------------------------------------- //
+
+void InvariantSynthesizerCegar::LoadDesignSmtInfo(const std::string & fn) {
+  std::ifstream fin(fn);
+  if (not fin.is_open()) {
+    ILA_ERROR << "Unable to read from : " << fn;
+    return;
+  }
+  std::stringstream sbuf;
+  sbuf << fin.rdbuf();
+  design_smt_info = std::make_shared<smt::YosysSmtParser>(sbuf.str());
+}
 
 const std::vector<std::string> & InvariantSynthesizerCegar::GetRunnableTargetScriptName() const {
   return runnable_script_name;

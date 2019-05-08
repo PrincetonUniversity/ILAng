@@ -234,4 +234,14 @@ void CexExtractor::StoreCexToFile(const std::string & fn) const {
   StoreCexToFile(fn,cex);
 }
 
+// generalize cex
+void CexExtractor::DropStates(const std::vector<std::string> & vnames) {
+  for (auto && n : vnames) {
+    if (IN(n,cex)) {
+      cex.erase(n);
+      cex_is_reg.erase(n);
+    }
+  }
+}
+
 }; // namespace ilang

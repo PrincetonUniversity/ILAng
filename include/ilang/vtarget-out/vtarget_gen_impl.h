@@ -259,6 +259,8 @@ protected:
   void ConstructWrapper_add_inv_assumption_or_assertion_target_inv_syn_design_only();
   /// Connect the memory even we don't care a lot about them
   void ConstructWrapper_inv_syn_connect_mem();
+  /// Sometimes you need to add some signals that only appeared in Instruction target
+  void ConstructWrapper_inv_syn_cond_signals();
 
 protected:
   /// get the ila module instantiation string
@@ -460,6 +462,8 @@ public:
   bool in_bad_state(void) const { return _bad_state; }
   /// get vlg-module instance name
   std::string GetVlgModuleInstanceName() const { return _vlg_mod_inst_name; }
+  /// generate invariant synthesis target
+  void GenerateInvSynTargetsAbc();
   /// generate inv-syn target
   std::shared_ptr<smt::YosysSmtParser> GenerateInvSynTargets(synthesis_backend_selector s_backend); 
   /// generate inv-syn-sygus target

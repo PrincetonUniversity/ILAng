@@ -381,6 +381,17 @@ void get_signal_value_list(
   }
 }
 
+bool load_why(std::set<std::string> & whysig, const std::string & fn) {
+  std::ifstream fin(fn);
+  if (!fin.is_open()) { ILA_ERROR << "unable to read from " << fn; return false;}
+
+  std::string sig;
+  while(std::getline(fin,sig)) {
+    if (!sig.empty())
+      whysig.insert(sig);
+  }
+  return true;
+}
 
 int main(int argc, char **argv) {
 
@@ -393,6 +404,8 @@ int main(int argc, char **argv) {
     std::cout << "Usage : " << argv[0] << " server path\n";
     return 7;
   }
+
+  bool deduce_why = argc == 3;
 
   server_name = argv[1];
   server_prj_dir = argv[2];
@@ -409,9 +422,12 @@ int main(int argc, char **argv) {
   analyze_failed_property_and_time("cex.vcd",prop,failtime,starttime);
 
   std::set<std::string> whysig, dutsigs;
-  get_why(prop,failtime, starttime,whysig);
-
-  filter_sigs(whysig, dutsigs, "dut.");
+  if (deduce_why) {
+    get_why(prop,failtime, starttime,whysig);
+    filter_sigs(whysig, dutsigs, "dut.");
+  } else {
+    if (not load_why(dutsigs,argv[3]) ) return 2;
+  }
 
   ilang::CexExtractor::cex_t cex;
   get_signal_value_list("cex.vcd","dut",dutsigs,starttime, cex);

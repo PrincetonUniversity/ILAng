@@ -164,6 +164,12 @@ void SimTraceExtractor::parse_from(
     } // frame is ready at this point
     ILA_ERROR_IF( (_ex.back().size() != coi.size()) and successful)
       << "Some COI signals are not recorded from VCD at time:" << cur_time;
+    if (_ex.back().size() != coi.size()) {
+      for (auto && s : coi) {
+        if (not IN(renamer(s), _ex.back())) {
+          ILA_ERROR << "coi: " << s << " not recorded."; } }
+    } // end of check
+
     if (not successful || not rec_this_frame(cur_time,_ex.back()))
       _ex.pop_back();
 

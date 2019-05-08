@@ -35,6 +35,8 @@ public:
   /// the only function
   correction_t GenerateSygusSynthesisTarget(const std::string & script_name,
     const std::string & sygus_problem_name);
+  /// return the runnable script name
+  const std::vector<std::string> & GetRunnableScriptName() const;
 
 protected:
   /// the output path
@@ -51,6 +53,11 @@ protected:
   std::shared_ptr<smt::YosysSmtParser> design_smt_info;
   /// whether to force the tool to enumerate
   bool enumerate;
+  /// runnable script
+  std::vector<std::string> runnable_script_name;
+  /// generate script -- no need to call separately
+  void GenerateSygusScript(const std::string & script_name, 
+    const std::string & sygus_problem_name);
 }; // class ExternalSygusTargetGen
 
 }; // namespace ilang

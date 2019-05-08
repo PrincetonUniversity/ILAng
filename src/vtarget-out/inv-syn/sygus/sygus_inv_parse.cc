@@ -81,7 +81,7 @@ bool SyGuSInvariantParser::ParseInvResultFromFile(const std::string & fname) {
     sbuf << fin.rdbuf(); // different from original, it starts (define-fun)
     raw_string = correct_cvc4_bv_output(sbuf.str());
   }
-
+  // std::cout << raw_string;
   ParseSmtResultFromString(raw_string);
   return true;
 }

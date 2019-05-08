@@ -31,13 +31,16 @@ Cvc4SygusInputGenerator::Cvc4SygusInputGenerator(
 
 std::string Cvc4SygusInputGenerator::generate_datapoint_constraints(TraceDataPoints * dpts) const {
   // pos ex
+  std::vector<std::string> missing_signals;
   const auto & var_idx = design_info.get_var_idx();
   std::vector<std::string> constraints;
   for(const auto & aframe : dpts->pos_ex ) {
     std::vector<std::string> frame_vals;
     for (const auto & vname : var_names) {
-      ILA_ASSERT(IN(vname, aframe)) << vname << " is not in the datapoint frame!";
-
+      if (not IN(vname, aframe)) {
+        missing_signals.push_back(vname);
+        continue;
+      }
 
       smt::var_type tp;
       
@@ -60,6 +63,14 @@ std::string Cvc4SygusInputGenerator::generate_datapoint_constraints(TraceDataPoi
       else
         frame_vals.push_back( smt::convert_to_binary(aframe.at(vname).first.val, aframe.at(vname).first.radix, width));
     }
+
+    if (not missing_signals.empty()) {
+      ILA_ERROR << "The following signals are missing in PosEx frame:";
+      for (auto && v : missing_signals)
+        ILA_ERROR << v;
+      ILA_ASSERT(false) << "Missing signal in datapoint frame!";
+    }
+    
     constraints.push_back( ReplaceAll(cnst_pos_template, 
       "%pos_vals%", Join(frame_vals," ") ));
   }
@@ -67,27 +78,39 @@ std::string Cvc4SygusInputGenerator::generate_datapoint_constraints(TraceDataPoi
   std::vector<std::string> frame_vals;
   const auto & aframe = dpts->neg_ex;
   for (const auto & vname : var_names) {
-    ILA_ASSERT(IN(vname, aframe)) << vname << " is not in the datapoint frame!";
+    bool in_dataframe = IN(vname, aframe);
+    bool in_smt = IN (vname,var_idx);
+    bool in_additional_winfo = IN (vname, additional_width_info);
     
     smt::var_type tp;
     
-    if (IN (vname,var_idx) ) {
+    if (in_smt) {
       smt::state_var_t * data_type_ptr = var_idx.at(vname);
       tp = data_type_ptr->_type;
-    } else if (IN (vname, additional_width_info)) {
+    } else if (in_additional_winfo) {
       tp._width = additional_width_info.at(vname);
       tp._type = tp.BV;
-    } else {
+    } else if (in_dataframe) {
       tp = aframe.at(vname).second;
       ILA_ERROR << vname << " is not in the smt! Using datapoints width:" << tp.GetBoolBvWidth();
+    } else {
+      ILA_ASSERT(false) << "No width info for " << vname;
     }
-     
+    
+
     //ILA_ASSERT( data_type_ptr->_type.GetBoolBvWidth() 
     //  == aframe.at(vname).second.GetBoolBvWidth()) << "Bit-width does not match!";
-    if (tp.is_bool())
-      frame_vals.push_back( aframe.at(vname).first.val == "0" ? "false" : "true"  );
-    else
-      frame_vals.push_back( smt::convert_to_binary(aframe.at(vname).first.val, aframe.at(vname).first.radix, tp._width));
+    if (in_dataframe) {
+      if (tp.is_bool())
+        frame_vals.push_back( aframe.at(vname).first.val == "0" ? "false" : "true"  );
+      else
+        frame_vals.push_back( smt::convert_to_binary(aframe.at(vname).first.val, aframe.at(vname).first.radix, tp._width));
+    } else {
+       if (tp.is_bool())
+        frame_vals.push_back( "false" );
+      else
+        frame_vals.push_back( smt::convert_to_binary("0", 2, tp._width));
+    }
   }
   constraints.push_back( ReplaceAll(cnst_neg_template, 
     "%neg_vals%", Join(frame_vals," ") ));

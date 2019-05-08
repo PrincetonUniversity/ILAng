@@ -7,7 +7,7 @@
 #include <ilang/util/log.h>
 #include <ilang/util/container_shortcut.h>
 #include <ilang/util/fs.h>
-#include <ilang/vtarget-out/inv-syn-extern-loop/yosys_chc.h>
+#include <ilang/vtarget-out/inv-syn-extern-loop/yosys_abc.h>
 #include <ilang/vtarget-out/vlg_mod.h>
 
 #include <iostream>
@@ -17,12 +17,10 @@ namespace ilang{
 // ------------------------------------------
 /// temporary parameters
 
-const bool generate_proof = true;
-
 /// end of temporary parameters
 // ------------------------------------------
 
-ExternalChcTargetGen::ExternalChcTargetGen(const std::vector<std::string>& implementation_include_path,
+ExternalAbcTargetGen::ExternalAbcTargetGen(const std::vector<std::string>& implementation_include_path,
                 const std::vector<std::string>& implementation_srcs,
                 const std::string& implementation_top_module,
                 const std::string& refinement_variable_mapping,
@@ -78,20 +76,20 @@ ExternalChcTargetGen::ExternalChcTargetGen(const std::vector<std::string>& imple
 }
 
 
-ExternalChcTargetGen::~ExternalChcTargetGen() {
+ExternalAbcTargetGen::~ExternalAbcTargetGen() {
   if (vlg_info_ptr)
     delete vlg_info_ptr;
 }
 
-const std::vector<std::string> & ExternalChcTargetGen::GetRunnableScriptName() const {
+const std::vector<std::string> & ExternalAbcTargetGen::GetRunnableScriptName() const {
   return runnable_script_name;
 }
 
-const VlgTgtSupplementaryInfo & ExternalChcTargetGen::GetSupplementaryInfo() const {
+const VlgTgtSupplementaryInfo & ExternalAbcTargetGen::GetSupplementaryInfo() const {
   return sup_info;
 }
 
-std::string ExternalChcTargetGen::GetDesignUnderVerificationInstanceName() const {
+std::string ExternalAbcTargetGen::GetDesignUnderVerificationInstanceName() const {
   return _vlg_mod_inst_name;
 }
 
@@ -129,7 +127,7 @@ static size_t find_comments(const std::string &line) {
 }
 
 /// load json from a file name to the given j
-void ExternalChcTargetGen::load_json(const std::string& fname, nlohmann::json& j) {
+void ExternalAbcTargetGen::load_json(const std::string& fname, nlohmann::json& j) {
   if (bad_state_return())
     return;
   std::ifstream fin(fname);
@@ -154,7 +152,7 @@ void ExternalChcTargetGen::load_json(const std::string& fname, nlohmann::json& j
 } // load_json
 
 /// Get instance name from rfmap
-void ExternalChcTargetGen::set_module_instantiation_name() {
+void ExternalAbcTargetGen::set_module_instantiation_name() {
   if (bad_state_return())
     return;
   // use the content in the refinement relations to determine the instance name
@@ -178,12 +176,12 @@ void ExternalChcTargetGen::set_module_instantiation_name() {
 
 // --------------------- for adding constraints  ---------------------------- //
 /// Return a new variable name for property
-std::string ExternalChcTargetGen::new_property_id() {
+std::string ExternalAbcTargetGen::new_property_id() {
   return std::string("__p") + std::to_string(property_counter++) + "__";
 }
 
 /// Test if a string represents a Verilog signal name
-bool ExternalChcTargetGen::TryFindVlgState(const std::string& sname) {
+bool ExternalAbcTargetGen::TryFindVlgState(const std::string& sname) {
   if (vlg_info_ptr->check_hierarchical_name_type(sname) !=
       VerilogInfo::hierarchical_name_type::NONE)
     return true;
@@ -195,7 +193,7 @@ bool ExternalChcTargetGen::TryFindVlgState(const std::string& sname) {
 }
 
 /// Modify a token and record its use
-std::string ExternalChcTargetGen::ModifyCondExprAndRecordVlgName(const VarExtractor::token& t) {
+std::string ExternalAbcTargetGen::ModifyCondExprAndRecordVlgName(const VarExtractor::token& t) {
   // modify name and ...
   const auto& token_tp = t.first;
   const auto& sname = t.second;
@@ -254,7 +252,7 @@ std::string ExternalChcTargetGen::ModifyCondExprAndRecordVlgName(const VarExtrac
 } // ModifyCondExprAndRecordVlgName
 
 /// Parse and modify a condition string
-std::string ExternalChcTargetGen::ReplExpr(const std::string& expr, bool force_vlg_sts) {
+std::string ExternalAbcTargetGen::ReplExpr(const std::string& expr, bool force_vlg_sts) {
   return _vext.Replace(expr, force_vlg_sts,
                        [this](const VarExtractor::token& t) {
                          return ModifyCondExprAndRecordVlgName(t);
@@ -270,7 +268,7 @@ std::string ExternalChcTargetGen::ReplExpr(const std::string& expr, bool force_v
 #define ADD_ASSIGN(s,v) (stmt_defs.push_back( "assign " + (s) + " = " + (v) + ";" ))
 
 /// Add an assumption
-void ExternalChcTargetGen::add_an_assumption(const std::string& aspt,
+void ExternalAbcTargetGen::add_an_assumption(const std::string& aspt,
                                 const std::string& dspt) {
   auto assumption_wire_name = dspt + new_property_id();
   ADD_WIRE(assumption_wire_name, 1);
@@ -282,7 +280,7 @@ void ExternalChcTargetGen::add_an_assumption(const std::string& aspt,
 }
 
 /// Add an assertion
-void ExternalChcTargetGen::add_an_assertion(const std::string& asst,
+void ExternalAbcTargetGen::add_an_assertion(const std::string& asst,
                               const std::string& dspt) {
   auto assertion_wire_name = dspt + new_property_id();
   ADD_WIRE(assertion_wire_name, 1);
@@ -294,7 +292,7 @@ void ExternalChcTargetGen::add_an_assertion(const std::string& asst,
 }
 
 
-void ExternalChcTargetGen::add_inv_obj_as_assertion( InvariantObject * inv_obj) {
+void ExternalAbcTargetGen::add_inv_obj_as_assertion( InvariantObject * inv_obj) {
   for (auto && name_expr_pair : inv_obj->GetExtraVarDefs() ){
     ADD_WIRE(std::get<0>(name_expr_pair), std::get<2>(name_expr_pair) );
     ADD_OUTPUT(std::get<0>(name_expr_pair), std::get<2>(name_expr_pair));
@@ -312,7 +310,7 @@ void ExternalChcTargetGen::add_inv_obj_as_assertion( InvariantObject * inv_obj) 
 } // add_inv_obj_as_assertion
 
 
-void ExternalChcTargetGen::add_inv_obj_as_assumption( InvariantObject * inv_obj) {
+void ExternalAbcTargetGen::add_inv_obj_as_assumption( InvariantObject * inv_obj) {
     // do you need to provide sub-module instance name?
     for (auto && name_expr_pair : inv_obj->GetExtraVarDefs() ){
       ADD_WIRE(std::get<0>(name_expr_pair), std::get<2>(name_expr_pair));
@@ -330,7 +328,7 @@ void ExternalChcTargetGen::add_inv_obj_as_assumption( InvariantObject * inv_obj)
     }
 } // add_inv_obj_as_assumption
 
-void ExternalChcTargetGen::add_rf_inv_as_assumption() {
+void ExternalAbcTargetGen::add_rf_inv_as_assumption() {
   if ( has_rf_invariant ) {    
     for (auto& cond : rf_cond["global invariants"]) {
       auto new_cond = ReplExpr(cond.get<std::string>(), true);
@@ -339,7 +337,7 @@ void ExternalChcTargetGen::add_rf_inv_as_assumption() {
   }
 } // add_rf_inv_as_assumption
 
-void ExternalChcTargetGen::add_rf_inv_as_assertion() {
+void ExternalAbcTargetGen::add_rf_inv_as_assertion() {
   // the provided invariants
   if (has_rf_invariant)
     for (auto& cond : rf_cond["global invariants"]) {
@@ -348,21 +346,15 @@ void ExternalChcTargetGen::add_rf_inv_as_assertion() {
     }
 } // add_rf_inv_as_assertion
 
-void ExternalChcTargetGen::add_property(const std::string &precond) {
+void ExternalAbcTargetGen::add_property(const std::string &precond, const std::string &all_assume_reg) {
   if (has_cex) {
     auto inv = _advanced_param_ptr->_cex_obj_ptr->GenInvAssert("");
-    {
+    { // just for companion jaspergold check
       std::ofstream fout(os_portable_append_dir(_output_path, "cex.tcl"));
-      if (!precond.empty())
-        fout << "assert { " << precond << "|->" << inv << " }; " << std::endl;
-      else
-        fout << "assert { " << inv << " }; " << std::endl;
+      fout << "assert { " << precond << "|-> (" << all_assume_reg << " |-> ( " << inv << ") ) }; " << std::endl;
     }
     auto new_cond = ReplExpr(inv, true);
-    if (!precond.empty())
-      add_an_assertion("! (" + precond + ") || ( ~(" + new_cond + ") )", "cex_nonreachable_assert");
-    else
-      add_an_assertion("~(" + new_cond + ")", "cex_nonreachable_assert");
+    add_an_assertion("! (" + precond + ") || ( !(" + all_assume_reg +  ")||  ~(" + new_cond + ") )", "cex_nonreachable_assert");
     /// add rf_assumption
     if (_vtg_config.InvariantSynthesisReachableCheckKeepOldInvariant) {
       add_rf_inv_as_assumption();
@@ -393,7 +385,7 @@ void ExternalChcTargetGen::add_property(const std::string &precond) {
 }
 
 
-void ExternalChcTargetGen::register_extra_io_wire() {
+void ExternalAbcTargetGen::register_extra_io_wire() {
   for (auto&& refered_vlg_item : _all_referred_vlg_names) {
 
     auto idx = refered_vlg_item.first.find("[");
@@ -425,7 +417,7 @@ static std::string WidthToRange(int w) {
   return "";
 }
 
-void ExternalChcTargetGen::wrapper_tmpl_substitute(const std::string& wrapper_name, const std::string &wrapper_tmpl_name)
+void ExternalAbcTargetGen::wrapper_tmpl_substitute(const std::string& wrapper_name, const std::string &wrapper_tmpl_name)
 {
   // read in the template
   auto tmpl_full_name = os_portable_append_dir(_output_path, wrapper_tmpl_name);
@@ -512,8 +504,10 @@ void ExternalChcTargetGen::wrapper_tmpl_substitute(const std::string& wrapper_na
       stmts += s + "\n";
     for (auto && a : assert_props)
       asserts += "assert property (" + a + ");\n";
-    for (auto && a : assume_props)
-      assumes += "assume property (" + a + ");\n";
+    for (auto && a : assume_props) {
+      ILA_ERROR << "ABC does not accept assumptions: " << a;
+    }
+      // assumes += "assume property (" + a + ");\n";
     
     tmpl = ReplaceAll(tmpl, "%stmts%" ,   stmts);
     tmpl = ReplaceAll(tmpl, "%assumes%" , assumes);
@@ -536,7 +530,7 @@ void ExternalChcTargetGen::wrapper_tmpl_substitute(const std::string& wrapper_na
 } // wrapper_tmpl_substitute
 
 
-void ExternalChcTargetGen::export_modify_verilog(const std::string& wrapper_name) {
+void ExternalAbcTargetGen::export_modify_verilog(const std::string& wrapper_name) {
   // collect all locations: filename -> lineno
   // open, read, count and write
   // if it is a port name, we will ask user to specify its upper level
@@ -583,9 +577,9 @@ void ExternalChcTargetGen::export_modify_verilog(const std::string& wrapper_name
   }  
 } // export_modify_verilog
 
-void ExternalChcTargetGen::ConstructWrapper(
+void ExternalAbcTargetGen::ConstructWrapper(
   const std::string& wrapper_name, const std::string &wrapper_tmpl_name,
-  const std::string & precond) {
+  const std::string & precond, const std::string& all_assume_reg) {
 
   top_file_name = wrapper_name;
 
@@ -601,7 +595,7 @@ void ExternalChcTargetGen::ConstructWrapper(
     return; //
   }
   // add cex / (if no cex) candidate ... prop to check
-  add_property(precond);
+  add_property(precond, all_assume_reg);
   // register the wires...
   register_extra_io_wire();
   // replace text &
@@ -613,235 +607,135 @@ void ExternalChcTargetGen::ConstructWrapper(
 // --------------------- for CHC template ---------------------------- //
 
 // initialize templates
-std::string chcGenerateSmtScript_wo_Array = R"***(
-hierarchy -check
-proc
-opt
-opt_expr -mux_undef
-opt
-opt
-%flatten%
+std::string abcGenerateSmtScript_wo_Array = R"***(
+read_verilog -formal %topfile%
+prep -top %module%
+miter -assert %module%
+flatten
+sim -clock clk -reset rst -n 1 -w %module%
 memory -nordff
-proc
-opt;;
+techmap; opt -fast
+write_blif %blifname%
+)***";
+
+std::string abcCmdNoGLA = R"***(
+  read_blif %blifname%
+  strash
+  pdr
+  inv_print -v
 )***";
 
 
-std::string inv_syn_tmpl_datatypes = R"***(
-;----------------------------------------
-;  Single Inductive Invariant Synthesis
-;  Generated from ILAng
-;----------------------------------------
-(set-option :fp.engine spacer)
-
-
-%%
-
-;(declare-rel INIT (|%1%_s|))
-;(declare-rel T (|%1%_s|) (|%1%_s|))
-(declare-rel INV (|%1%_s|))
-(declare-rel fail ())
-
-
-(declare-var |__BI__| |%1%_s|)
-(declare-var |__I__| |%1%_s|)
-
-(declare-var |__S__| |%1%_s|)
-(declare-var |__S'__| |%1%_s|)
-
-; --------------------------------
-; note if you want it a bit faster
-; if can try removing wrapper-u in rule 1
-; or remove the assume previous invariants
-; --------------------------------
-
-; init => inv
-(rule (=> (and 
-  (|%1%_n rst| |__BI__|)
-  ;(|%1%_u| |__BI__|)
-  ;(|%1%_u| |__I__|)
-  <!>(|%1%_h| |__BI__|)<!>
-  <!>(|%1%_h| |__I__|)<!>
-  (|%1%_t| |__BI__| |__I__|))
-  (INV |__I__|)))
-
-; inv /\ T => inv
-(rule (=> (and 
-  (INV |__S__|) 
-  (|%1%_u| |__S__|)
-  (|%1%_u| |__S'__|)
-  <!>(|%1%_h| |__S__|)<!>
-  <!>(|%1%_h| |__S'__|)<!>
-  (|%1%_t| |__S__| |__S'__|)) 
-  (INV |__S'__|)))
-
-; inv /\ ~p => \bot
-(rule (=> (and 
-  (INV |__S__|) 
-  (|%1%_u| |__S__|)
-  <!>(|%1%_h| |__S__|)<!>
-  (not (|%1%_a| |__S__|)))
-  fail))
-
-; (query fail :print-certificate true)
-
+std::string abcCmdGLAnoCorr = R"***(
+  read_blif %blifname%
+  &get -n
+  &gla -T 450 -F 50 -v
+  &gla_derive
+  &put
+  dc2 -v
+  dc2 -v
+  dc2 -v
+  dc2 -v
+  dc2 -v
+  dc2 -v
+  dc2 -v
+  dc2 -v
+  dc2 -v
+  dc2 -v
+  pdr
+  inv_print -v
 )***";
 
-
-
-std::string inv_syn_tmpl_wo_datatypes = R"***(
-;----------------------------------------
-;  Single Inductive Invariant Synthesis
-;  Generated from ILAng
-;----------------------------------------
-
-%%
-
-(declare-rel INV %WrapperDataType%)
-(declare-rel fail ())
-
-%BeforeInitVar%
-%InitVar%
-;(declare-var |__BI__state| Type)
-;(declare-var |__I__state|  Type)
-
-%State%
-%StatePrime%
-;(declare-var |__S__state| Type)
-;(declare-var |__S'__state| Type)
-
-; same for flattened
-
-; init => inv
-(rule (=> (and 
-  (|%WrapperName%_n rst| %BIs%) 
-  <!>(|%WrapperName%_h| %BIs%)<!> 
-  <!>(|%WrapperName%_h| %Is%)<!>
-  (|%WrapperName%_t| %BIs% %Is%)) 
-  (INV %Is%)))
-
-; inv /\ T => inv
-(rule (=> (and 
-  (INV %Ss%) 
-  (|%WrapperName%_u| %Ss%) 
-  (|%WrapperName%_u| %Sps%) 
-  <!>(|%WrapperName%_h| %Ss%)<!>
-  <!>(|%WrapperName%_h| %Sps%)<!>
-  (|%WrapperName%_t| %Ss% %Sps%)) 
-  (INV %Sps%)))
-
-; inv /\ ~p => \bot
-(rule (=> (and 
-  (INV %Ss%)
-  (|%WrapperName%_u| %Ss%) 
-  <!>(|%WrapperName%_h| %Ss%)<!>
-  (not (|%WrapperName%_a| %Ss%))) 
-  fail))
-
-; (query fail :print-certificate true)
-
+std::string abcCmdGLA = R"***(
+  read_blif %blifname%
+  &get -n
+  &gla -T 450 -F 50 -v
+  &gla_derive
+  &put
+  dc2 -v
+  dc2 -v
+  dc2 -v
+  dc2 -v
+  dc2 -v
+  dc2 -v
+  dc2 -v
+  dc2 -v
+  scorr -v -l -k -F 4
+  dc2 -v
+  dc2 -v
+  dc2 -v
+  dc2 -v
+  lcorr -v
+  dc2 -v
+  dc2 -v
+  dc2 -v
+  dc2 -v
+  pdr
+  inv_print -v
 )***";
-
-// %WrapperName%
-// %WrapperDataType%
-// %BeforeInitVar%
-// %InitVar%
-// %State%
-// %StatePrime%
-// %BIs% %Is%  %Ss% %Sps%
-static std::string RewriteDatatypeChc(
-  const std::string & tmpl, const std::vector<smt::state_var_t> & dt,
-  const std::string & wrapper_mod_name) {
-  
-  std::string chc = tmpl;
-
-  std::vector<smt::var_type> inv_tps;
-  smt::YosysSmtParser::convert_datatype_to_type_vec(dt, inv_tps);
-  auto WrapperDataType = smt::var_type::toString(inv_tps);
-
-  // %BeforeInitVar%
-  // %InitVar%
-  // %State%
-  // %StatePrime%
-  // declare-var s ...
-  std::string BeforeInitVar;
-  std::string InitVar;
-  std::string State;
-  std::string StatePrime;
-  // %BIs% %Is%  %Ss% %Sps%
-  std::string BIs;
-  std::string Is;
-  std::string Ss;
-  std::string Sps;
-  bool first = true;
-
-  std::set<std::string> name_set; // avoid repetition
-  for (auto && st : dt) {
-    auto st_name = st.verilog_name.back() == '.' || st.verilog_name.empty() ? st.internal_name : st.verilog_name;
-    st_name = ReplaceAll(st_name, "|", ""); // remove its ||
-    // check no repetition is very important!
-    ILA_ASSERT(not IN(st_name, name_set)) << "Bug: name repetition!";
-    ILA_ASSERT(st._type._type != smt::var_type::tp::Datatype);
-    name_set.insert(st_name);
-    auto type_string = st._type.toString();
-    BeforeInitVar += "(declare-var |BI_" + st_name + "| " + type_string + ")\n";
-    InitVar       += "(declare-var |I_"  + st_name + "| " + type_string + ")\n";
-    State         += "(declare-var |S_"  + st_name + "| " + type_string + ")\n";
-    StatePrime    += "(declare-var |S'_" + st_name + "| " + type_string + ")\n";
-
-    if(not first) {
-      BIs += " "; Is  += " "; Ss  += " "; Sps += " ";
-    }
-    first = false;
-    BIs += "|BI_" + st_name + "|";
-    Is  += "|I_"  + st_name + "|";
-    Ss  += "|S_"  + st_name + "|";
-    Sps += "|S'_" + st_name + "|";
-  }
-  // Replacement
-  chc = ReplaceAll(chc, "%WrapperName%",     wrapper_mod_name);
-  chc = ReplaceAll(chc, "%WrapperDataType%", WrapperDataType);
-  chc = ReplaceAll(chc, "%BeforeInitVar%",   BeforeInitVar);
-  chc = ReplaceAll(chc, "%InitVar%",         InitVar);
-  chc = ReplaceAll(chc, "%State%",           State);
-  chc = ReplaceAll(chc, "%StatePrime%",      StatePrime);
-  chc = ReplaceAll(chc, "%BIs%",             BIs);
-  chc = ReplaceAll(chc, "%Is%",              Is);
-  chc = ReplaceAll(chc, "%Ss%",              Ss);
-  chc = ReplaceAll(chc, "%Sps%",             Sps);
-
-  return chc;  
-} // RewriteDatatypeChc
 
 // --------------------- for export CHC ---------------------------- //
 
-/// generate the wrapper's smt first
-void ExternalChcTargetGen::design_only_gen_smt(
-  const std::string & smt_name,
-  const std::string & ys_script_name) {
+  
+void ExternalAbcTargetGen::export_script(const std::string& script_name,
+  const std::string& abc_command_file_name, bool useGla, bool useCorr) {
+
+  runnable_script_name.clear();
+
+  auto fname = os_portable_append_dir(_output_path, script_name);
+  std::ofstream fout(fname);
+  if (!fout.is_open()) {
+    ILA_ERROR << "Error writing to file:" << fname;
+    return;
+  }
+  fout << "#!/bin/bash" << std::endl;
+  //fout << "trap \"trap - SIGTERM && kill -- -$$\" SIGINT SIGTERM"<<std::endl;
+
+  std::string runable;
+  ILA_ASSERT(s_backend == synthesis_backend_selector::ABC);
+
+  runable = "abc";
+  if (not _vtg_config.AbcPath.empty())
+    runable = os_portable_append_dir(_vtg_config.AbcPath, runable);
+
+
+  { // generate abc command
+    auto abc_cmd = useGla ? ( useCorr?  abcCmdGLA : abcCmdGLAnoCorr) : abcCmdNoGLA;
+    abc_cmd = ReplaceAll(abc_cmd, "%blifname%", blif_fname);
+    auto abc_cmd_fname = os_portable_append_dir(_output_path, abc_command_file_name);
+    std::ofstream abc_cmd_fn(abc_cmd_fname);
+    if (!abc_cmd_fn.is_open()) {
+      ILA_ERROR << "Error writing to file:" << abc_cmd_fname;
+      return;
+    }
+    abc_cmd_fn << abc_cmd;
+  } // generate abc command
+
+  if (blif_fname != "")
+    fout << runable << " -F "<< abc_command_file_name  << std::endl;
+  else
+    fout << "echo 'Nothing to check!'" << std::endl;
+
+  runnable_script_name.push_back(fname);
+} 
+
+
+void ExternalAbcTargetGen::generate_blif(
+  const std::string& blifname,
+  const std::string& ys_script_name) {
   
   auto ys_output_full_name =
       os_portable_append_dir(_output_path, "__yosys_exec_result.txt");
   { // export to ys_script_name
     std::ofstream ys_script_fout( ys_script_name );
     
-    std::string write_smt2_options = " -mem -bv -wires "; // future work : -stbv, or nothing
-    if (_vtg_config.YosysSmtStateSort == _vtg_config.DataSort)
-      write_smt2_options += "-stdt ";
-    else if (_vtg_config.YosysSmtStateSort == _vtg_config.BitVec)
-      write_smt2_options += "-stbv ";
-    else
-      ILA_ASSERT(false) << "Unsupported smt state sort encoding:" << _vtg_config.YosysSmtStateSort;
-
-
-    ys_script_fout << "read_verilog -sv " 
-      << os_portable_append_dir( _output_path , top_file_name ) << std::endl;
-    ys_script_fout << "prep -top " << top_mod_name << std::endl;
     ys_script_fout << 
-      ReplaceAll(chcGenerateSmtScript_wo_Array, "%flatten%", 
-        _vtg_config.YosysSmtFlattenHierarchy ? "flatten;" : "");
-    ys_script_fout << "write_smt2"<<write_smt2_options 
-      << smt_name;   
+      ReplaceAll(
+      ReplaceAll( 
+      ReplaceAll(abcGenerateSmtScript_wo_Array,
+        "%topfile%", os_portable_append_dir( _output_path , top_file_name ) ),
+        "%module%",  top_mod_name ),
+        "%blifname%",blifname);
   } // finish writing
 
   std::string yosys = "yosys";
@@ -857,186 +751,31 @@ void ExternalChcTargetGen::design_only_gen_smt(
       << "Executing Yosys failed!";
     ILA_ERROR_IF( res.failure == res.NONE && res.ret != 0)
       << "Yosys returns error code:" << res.ret;
-} // design_only_gen_smt
+  }
 
-void ExternalChcTargetGen::convert_smt_to_chc_bitvec(
-    const std::string & smt_fname, const std::string & chc_fname, 
-    const std::string & wrapper_mod_name) {
+
+void ExternalAbcTargetGen::GenerateBlifProblem(
+  const std::string& blif_name,
+  const std::string& bash_script_name,
+  const std::string& abc_command_file_name,
+  bool useGla, bool useCorr) {
   
-  std::stringstream ibuf;
-  { // read file
-    std::ifstream smt_fin( smt_fname );
-    if(not smt_fin.is_open()) {
-      ILA_ERROR << "Cannot read from " << smt_fname;
-      return;
-    }
-    ibuf << smt_fin.rdbuf();
-  } // end read file
-
-  std::string smt_converted;
-  smt_converted = ibuf.str();
-
-  std::string chc;
-
-  chc = inv_syn_tmpl_datatypes;
-  chc = ReplaceAll(chc, "<!>(|%1%_h| |__BI__|)<!>", _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__BI__|)");
-  chc = ReplaceAll(chc, "<!>(|%1%_h| |__I__|)<!>" , _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__I__|)");
-  chc = ReplaceAll(chc, "<!>(|%1%_h| |__S__|)<!>" , _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__S__|)");
-  chc = ReplaceAll(chc, "<!>(|%1%_h| |__S'__|)<!>", _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__S'__|)");
-  chc = ReplaceAll(chc,"%1%", wrapper_mod_name);
-  chc = ReplaceAll(chc, "%%", smt_converted );
-
-  { // (query fail :print-certificate true)
-    if (generate_proof)
-      chc += "\n(query fail :print-certificate true)\n";
-    else
-      chc += "\n(query fail)\n";
-  }
-
-  { // write file
-    std::ofstream chc_fout(chc_fname);
-    if (not chc_fout.is_open()) {
-      ILA_ERROR << "Error writing to : "<< chc_fname;
-      return;
-    }
-    chc_fout << chc;
-  } // end write file
-}
-  
-
-void ExternalChcTargetGen::convert_smt_to_chc_datatype(const std::string & smt_fname, const std::string & chc_fname) {
-  
-  std::stringstream ibuf;
-  { // read file
-    std::ifstream smt_fin( smt_fname );
-    if(not smt_fin.is_open()) {
-      ILA_ERROR << "Cannot read from " << smt_fname;
-      return;
-    }
-    ibuf << smt_fin.rdbuf();
-  } // end read file
-
-  std::string smt_converted;
-  design_smt_info = std::make_shared<smt::YosysSmtParser> (ibuf.str());
-  if (_vtg_config.YosysSmtFlattenDatatype) {
-    design_smt_info->BreakDatatypes();
-    //smt_rewriter.AddNoChangeStateUpdateFunction();
-    smt_converted = design_smt_info->Export();
-  } else {
-    smt_converted = ibuf.str();
-  }
-
-  std::string wrapper_mod_name = design_smt_info->get_module_def_orders().back();
-  // construct the template
-  ILA_ASSERT(not (_vtg_config.YosysSmtFlattenDatatype && _vtg_config.YosysSmtStateSort != _vtg_config.DataSort ))
-    << "FlattenDatatype can only be used if choosing datatype state encoding";
-
-  std::string chc;
-  if (_vtg_config.YosysSmtFlattenDatatype) {
-    const auto & datatype_top_mod = design_smt_info->get_module_flatten_dt(wrapper_mod_name);
-    auto tmpl = inv_syn_tmpl_wo_datatypes;
-    tmpl = ReplaceAll(tmpl, "<!>(|%WrapperName%_h| %Ss%)<!>"  ,_vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%WrapperName%_h| %Ss%)" );
-    tmpl = ReplaceAll(tmpl, "<!>(|%WrapperName%_h| %Sps%)<!>" ,_vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%WrapperName%_h| %Sps%)" );
-    tmpl = ReplaceAll(tmpl, "<!>(|%WrapperName%_h| %BIs%)<!>" ,_vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%WrapperName%_h| %BIs%)" );
-    tmpl = ReplaceAll(tmpl, "<!>(|%WrapperName%_h| %Is%)<!>"  ,_vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%WrapperName%_h| %Is%)" );
-    chc = RewriteDatatypeChc(
-      tmpl,
-      datatype_top_mod, wrapper_mod_name);
-    chc = ReplaceAll(chc, "%%", smt_converted );
-  } else {
-    chc = inv_syn_tmpl_datatypes;
-    chc = ReplaceAll(chc, "<!>(|%1%_h| |__BI__|)<!>", _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__BI__|)");
-    chc = ReplaceAll(chc, "<!>(|%1%_h| |__I__|)<!>" , _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__I__|)");
-    chc = ReplaceAll(chc, "<!>(|%1%_h| |__S__|)<!>" , _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__S__|)");
-    chc = ReplaceAll(chc, "<!>(|%1%_h| |__S'__|)<!>", _vtg_config.YosysSmtFlattenHierarchy ? "" : "(|%1%_h| |__S'__|)");
-    chc = ReplaceAll(chc,"%1%", wrapper_mod_name);
-    chc = ReplaceAll(chc, "%%", smt_converted );
-  } // end of ~_vtg_config.YosysSmtFlattenDatatype -- no convert
-
-  { // (query fail :print-certificate true)
-    if (generate_proof)
-      chc += "\n(query fail :print-certificate true)\n";
-    else
-      chc += "\n(query fail)\n";
-  }
-
-  { // write file
-    std::ofstream chc_fout(chc_fname);
-    if (not chc_fout.is_open()) {
-      ILA_ERROR << "Error writing to : "<< chc_fname;
-      return;
-    }
-    chc_fout << chc;
-  } // end write file
-
-} // convert_smt_to_chc_datatype
-  
-void ExternalChcTargetGen::export_script(const std::string& script_name) {
-  runnable_script_name.clear();
-
-  auto fname = os_portable_append_dir(_output_path, script_name);
-  std::ofstream fout(fname);
-  if (!fout.is_open()) {
-    ILA_ERROR << "Error writing to file:" << fname;
-    return;
-  }
-  fout << "#!/bin/bash" << std::endl;
-  //fout << "trap \"trap - SIGTERM && kill -- -$$\" SIGINT SIGTERM"<<std::endl;
-
-  std::string runable;
-  if (s_backend == synthesis_backend_selector::Z3) {
-    runable = "z3";
-    if (not _vtg_config.Z3Path.empty())
-      runable = os_portable_append_dir(_vtg_config.Z3Path, runable);
-  }
-  else if(s_backend == synthesis_backend_selector::FreqHorn) {
-    runable = "freqhorn";
-    if (not _vtg_config.FreqHornPath.empty())
-      runable = os_portable_append_dir(_vtg_config.FreqHornPath, runable);
-  }
-  if (chc_prob_fname != "")
-    fout << runable << " "<< chc_prob_fname  << std::endl;
-  else
-    fout << "echo 'Nothing to check!'" << std::endl;
-
-  runnable_script_name.push_back(fname);
-} 
-
-std::shared_ptr<smt::YosysSmtParser> ExternalChcTargetGen::GenerateChc(const std::string& chc_name,
-    const std::string & script_name) {
-
   ILA_WARN_IF(!os_portable_mkdir(_output_path) ) << "Cannot create folder: " << _output_path;
   
-  chc_prob_fname = chc_name;
-  // export 1. yosysscript
-  design_only_gen_smt(
-    os_portable_append_dir(_output_path, "__design_smt.smt2"),
-    os_portable_append_dir(_output_path, "__gen_smt_script.ys"));
-  // run yosys --> smt
-  // parse smt --> chc
-  if (_vtg_config.YosysSmtStateSort == _vtg_config.DataSort)
-    convert_smt_to_chc_datatype (
-      os_portable_append_dir(_output_path, "__design_smt.smt2"),
-      os_portable_append_dir(_output_path, chc_name));
-  else if (_vtg_config.YosysSmtStateSort == _vtg_config.BitVec)
-    convert_smt_to_chc_bitvec(
-      os_portable_append_dir(_output_path, "__design_smt.smt2"),
-      os_portable_append_dir(_output_path, chc_name), "wrapper");
-  else
-    ILA_ASSERT(false) << "I don't know how to generate CHC encoding";
-  // generate chc run script
-  export_script(script_name);
-  // inv_extract need this!
-  return design_smt_info;
+  blif_fname = blif_name;
+  generate_blif(
+    os_portable_append_dir(_output_path, blif_name),
+    os_portable_append_dir(_output_path, "__gen_blif_script.ys")
+  );
+
+  export_script(bash_script_name, abc_command_file_name, useGla, useCorr);
 }
-
-
 
 // ----------------------- BAD STATE -------------------- //
 /// If it is bad state, return true and display a message
-bool ExternalChcTargetGen::bad_state_return(void) {
+bool ExternalAbcTargetGen::bad_state_return(void) {
   ILA_ERROR_IF(_bad_state)
-      << "ExternalChcTargetGen is in a bad state, cannot proceed.";
+      << "ExternalAbcTargetGen is in a bad state, cannot proceed.";
   return _bad_state;
 } // bad_state_return
 
