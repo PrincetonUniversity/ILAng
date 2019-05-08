@@ -92,13 +92,13 @@ void IlaSim::create_state(const ExprPtr &state_expr) {
       state_expr->host()->name().str() + "_" + state_expr->name().str();
   auto uid = GetUidExpr(state_expr);
   if (uid != AST_UID_EXPR::VAR) {
-    cout << "Warning: " << state_name_str << " is not a variable."
-         << " It will not appear as an output port in simualtor." << endl;
+    ILA_WARN << "Warning: " << state_name_str << " is not a variable."
+             << " It will not appear as an output port in simualtor.";
   }
   auto state_sort_uid = GetUidSort(state_expr->sort());
   if (state_sort_uid == AST_UID_SORT::MEM) {
-    cout << "Warning: " << state_name_str << " is a mem variable."
-         << " It will not appear as an output port in simulator." << endl;
+    ILA_WARN << "Warning: " << state_name_str << " is a mem variable."
+             << " It will not appear as an output port in simulator.";
     if (!EXTERNAL_MEM_) {
       create_mem_state(state_expr);
     } else {
@@ -118,8 +118,8 @@ void IlaSim::create_child_state(const ExprPtr &state_expr) {
       state_expr->host()->name().str() + "_" + state_expr->name().str();
   auto uid = GetUidExpr(state_expr);
   if (uid != AST_UID_EXPR::VAR) {
-    cout << "Warning: " << state_name_str << " is not a variable."
-         << " It will not appear as an output port in simualtor." << endl;
+    ILA_WARN << "Warning: " << state_name_str << " is not a variable."
+             << " It will not appear as an output port in simualtor.";
   }
   auto state_sort_uid = GetUidSort(state_expr->sort());
 

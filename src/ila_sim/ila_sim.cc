@@ -81,21 +81,22 @@ void IlaSim::sim_gen_state() {
 void IlaSim::sim_gen_decode() {
   std::queue<InstrLvlAbsPtr> ila_queue;
   ila_queue.push(model_ptr_);
+  DebugLog::Enable("ILA hierarchy");
   while (!ila_queue.empty()) {
     auto current_ila = ila_queue.front();
     ila_queue.pop();
-    // TODO(yuex): cout -> ila_debug
-    cout << "current_ila_name:" << current_ila->name() << endl;
+    ILA_INFO << "current_ila_name:" << current_ila->name();
     for (int i = 0; i < current_ila->child_num(); i++) {
-      cout << "current_ila_child:" << current_ila->child(i)->name() << endl;
+      ILA_INFO << "current_ila_child:" << current_ila->child(i)->name();
       ila_queue.push(current_ila->child(i));
     }
     for (int i = 0; i < current_ila->instr_num(); i++) {
-      cout << "current_ila_instr:" << current_ila->instr(i)->name() << endl;
+      ILA_INFO << "current_ila_instr:" << current_ila->instr(i)->name();
       create_decode(current_ila->instr(i));
     }
-    cout << endl;
+    ILA_INFO << endl;
   }
+  DebugLog::Disable("ILA hierarchy");
 }
 
 void IlaSim::sim_gen_state_update() {

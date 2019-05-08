@@ -23,7 +23,7 @@ void IlaSim::create_state_update(const InstrPtr &instr_expr) {
           updated_state->name().str();
 
     if (load_from_store_analysis(update_expr))
-      cout << "Error: there's load after store, not supported!" << endl;
+      ILA_ERROR << "Error: there's load after store, not supported!";
     bool state_not_updated = updated_state->name().id() == update_expr_id;
     if (state_not_updated)
       continue;
