@@ -1,4 +1,4 @@
-#include "ila_sim.h"
+#include <ilang/ila_sim/ila_sim.h>
 
 namespace ilang {
 void IlaSim::create_decode(const InstrPtr &instr_expr) {

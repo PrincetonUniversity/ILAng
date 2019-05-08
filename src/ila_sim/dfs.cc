@@ -1,4 +1,4 @@
-#include "ila_sim.h"
+#include <ilang/ila_sim/ila_sim.h>
 
 namespace ilang {
 
@@ -199,9 +199,10 @@ void IlaSim::dfs_binary_op_non_mem(stringstream &dfs_simulator, string &indent,
                                               : (GetUidExprOp(expr) ==
                                                  AST_UID_EXPR_OP::SUB)
                                                     ? " - "
-                                                    : (GetUidExprOp(expr) ==
+                                                    /*TODO(yuex) check in the MUL_op
+						    : (GetUidExprOp(expr) ==
                                                        AST_UID_EXPR_OP::MUL)
-                                                          ? " * "
+                                                          ? " * "*/
                                                           : (GetUidExprOp(
                                                                  expr) ==
                                                              AST_UID_EXPR_OP::
@@ -411,7 +412,8 @@ void IlaSim::dfs_kernel(stringstream &dfs_simulator, string &indent,
                               (expr_op_uid == AST_UID_EXPR_OP::ASHR) ||
                               (expr_op_uid == AST_UID_EXPR_OP::LSHR) ||
                               (expr_op_uid == AST_UID_EXPR_OP::ADD) ||
-                              (expr_op_uid == AST_UID_EXPR_OP::MUL) ||
+			      /*TODO(yuex): check in MUL op.
+                              (expr_op_uid == AST_UID_EXPR_OP::MUL) ||*/
                               (expr_op_uid == AST_UID_EXPR_OP::CONCAT));
     bool binary_op_mem = ((expr_op_uid == AST_UID_EXPR_OP::LOAD) ||
                           (expr_op_uid == AST_UID_EXPR_OP::STORE));
