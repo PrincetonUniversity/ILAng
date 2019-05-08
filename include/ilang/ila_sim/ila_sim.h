@@ -38,6 +38,7 @@ public:
   IlaSim();
   IlaSim(const InstrLvlAbsPtr &model_ptr);
   void set_instr_lvl_abs(const InstrLvlAbsPtr &model_ptr);
+  void set_systemc_path(string systemc_path);
   void sim_gen(string export_dir, bool external_mem = false,
                bool readable = false);
 
@@ -158,12 +159,13 @@ private:
   bool load_from_store_analysis(const ExprPtr &expr);
   void declare_variable_with_id(size_t id, string v_type, string v_name);
 
+  string export_dir_;
+  string systemc_path_;
+
   stringstream header_;
   stringstream mk_script_;
   stringstream obj_list_;
   string header_indent_;
-
-  string export_dir_;
 
   set<size_t> searched_id_set_;
   set<size_t> store_ite_set_;

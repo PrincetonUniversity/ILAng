@@ -322,9 +322,9 @@ void IlaSim::execute_kernel_export(stringstream &execute_kernel) {
 }
 
 void IlaSim::execute_kernel_mk_file() {
-  mk_script_ << "g++ -I. -I /home/yuex/bin/systemc-2.3.1//include/ "
-             << "-L. -L /home/yuex/bin/systemc-2.3.1//lib-linux64/ "
-             << "-Wl,-rpath=/home/yuex/bin/systemc-2.3.1//lib-linux64/ "
+  mk_script_ << "g++ -I. -I " << systemc_path_ << "/include/ "
+             << "-L. -L " << systemc_path_ << "/lib-linux64/ "
+             << "-Wl,-rpath=" << systemc_path_ << "/lib-linux64/ "
              << "-c -o "
              << "compute.o compute.cc "
              << "-lsystemc" << endl;

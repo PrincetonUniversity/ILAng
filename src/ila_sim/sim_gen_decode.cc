@@ -86,9 +86,9 @@ void IlaSim::decode_export(stringstream &decode_function,
 }
 
 void IlaSim::decode_mk_file(string &decode_func_name) {
-  mk_script_ << "g++ -I. -I /home/yuex/bin/systemc-2.3.1//include/ "
-             << "-L. -L /home/yuex/bin/systemc-2.3.1//lib-linux64/ "
-             << "-Wl,-rpath=/home/yuex/bin/systemc-2.3.1//lib-linux64/ "
+  mk_script_ << "g++ -I. -I " << systemc_path_ << "/include/ "
+             << "-L. -L " << systemc_path_ << "/lib-linux64/ "
+             << "-Wl,-rpath=" << systemc_path_ << "/lib-linux64/ "
              << "-c -o " << decode_func_name << ".o " << decode_func_name
              << ".cc "
              << "-lsystemc" << endl;

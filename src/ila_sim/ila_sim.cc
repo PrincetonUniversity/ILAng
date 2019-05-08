@@ -9,6 +9,10 @@ void IlaSim::set_instr_lvl_abs(const InstrLvlAbsPtr &model_ptr) {
   model_ptr_ = model_ptr;
 }
 
+void IlaSim::set_systemc_path(string systemc_path) {
+  systemc_path_ = systemc_path;
+}
+
 void IlaSim::sim_gen(string export_dir, bool external_mem, bool readable) {
   sim_gen_init(export_dir, external_mem, readable);
   sim_gen_init_header();
@@ -163,16 +167,16 @@ void IlaSim::sim_gen_export() {
   outFile.open(export_dir_ + "test.h");
   outFile << header_.rdbuf();
   outFile.close();
-  mk_script_ << "g++ -I. -I /home/yuex/bin/systemc-2.3.1//include/ "
-             << "-L. -L /home/yuex/bin/systemc-2.3.1//lib-linux64/ "
-             << "-Wl,-rpath=/home/yuex/bin/systemc-2.3.1//lib-linux64/ "
+  mk_script_ << "g++ -I. -I " << systemc_path_ << "/include/ "
+             << "-L. -L " << systemc_path_ << "/lib-linux64/ "
+             << "-Wl,-rpath=" << systemc_path_ << "/lib-linux64/ "
              << "-c -o "
              << "test_tb.o test_tb.cc "
              << "-lsystemc" << endl;
 
-  mk_script_ << "g++ -I. -I /home/yuex/bin/systemc-2.3.1//include/ "
-             << "-L. -L /home/yuex/bin/systemc-2.3.1//lib-linux64/ "
-             << "-Wl,-rpath=/home/yuex/bin/systemc-2.3.1//lib-linux64/ "
+  mk_script_ << "g++ -I. -I " << systemc_path_ << "/include/ "
+             << "-L. -L " << systemc_path_ << "/lib-linux64/ "
+             << "-Wl,-rpath=" << systemc_path_ << "/lib-linux64/ "
              << "-o "
              << "test_tb test_tb.o " << obj_list_.rdbuf() << "-lsystemc"
              << endl;
