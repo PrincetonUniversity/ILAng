@@ -762,6 +762,8 @@ unsigned range_to_width(ast_range* range, int width = -1) {
   if (leval.error() or reval.error()) {
     if (width > 0) 
       return width;
+    else
+      return 0;
   }
 
   return std::max(lr, rr) - std::min(lr, rr) + 1;

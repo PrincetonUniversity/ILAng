@@ -564,6 +564,37 @@ void InvariantSynthesizerCegar::SetSygusVarnameList(const std::vector<std::strin
     sygus_vars_set.insert(vname);
 }
 
+std::set<std::string> InvariantSynthesizerCegar::SetSygusVarnameListAndDeduceWidth(
+  const std::vector<std::string> & sygus_var_name,
+  const std::string & top_module_instance_name) {
+  VerilogAnalyzer va(
+    implementation_incl_path,
+    implementation_srcs_path,
+    top_module_instance_name,
+    implementation_top_module_name);
+  
+  ILA_ERROR_IF(sygus_var_name.empty()) << "Giving empty sygus var names!";
+  std::set<std::string> missing_names;
+
+  sygus_vars = sygus_var_name;
+  sygus_vars_set.clear();
+  for (auto && vname : sygus_var_name)
+    sygus_vars_set.insert(vname);
+  for (auto && var : sygus_var_name) {
+    auto tp = va.check_hierarchical_name_type(var);
+    if (tp == va.NONE)
+      missing_names.insert(var);
+    auto sig_info = va.get_signal(var, & additional_width_info); // will use the RF provided one if available
+    if (IN(var, additional_width_info))
+      ILA_ERROR_IF (additional_width_info.at(var) != sig_info.get_width())
+        << "The width info in refinement does not match the width in design";
+    else
+      additional_width_info.insert(
+        std::make_pair(var,sig_info.get_width()));
+  }
+  return missing_names;
+}
+
 /// can be used for datapoints/transfer function
 void InvariantSynthesizerCegar::GenerateSynthesisTargetSygusTransFunc(bool enumerate) {
   // generate a target -- based on selection

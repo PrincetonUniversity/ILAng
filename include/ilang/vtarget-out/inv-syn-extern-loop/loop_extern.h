@@ -86,9 +86,9 @@ public:
 
   // -------------------- CEGAR ABC ------------------ //
 	/// generate abc target
-  void GenerateAbcSynthesisTarget(const std::string & precond, const std::string & assume_reg, bool useGla);
+  void GenerateAbcSynthesisTarget(const std::string & precond, const std::string & assume_reg, bool useGla, bool useCorr);
   bool RunSynAbcAuto();
-  void ExtractAbcSynthesisResult(const std::string & blifname, const std::string &ffmap_file);
+  bool ExtractAbcSynthesisResult(const std::string & blifname, const std::string &ffmap_file);
 
   // -------------------- SYGUS ------------------ //
   /// set the sygus name lists (cannot be empty)

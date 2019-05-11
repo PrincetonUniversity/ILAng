@@ -71,6 +71,7 @@ public:
   /// to extract verification result 
   void ExtractVerificationResult(bool autodet = true, bool pass = true,
     const std::string & res_file = "", const std::string & mod_inst_name = "");
+
   /// remove some states from cex
   void CexGeneralizeRemoveStates(const std::vector<std::string> &);
   /// to generate synthesis target
@@ -78,12 +79,15 @@ public:
   /// to extract reachability test result
   void ExtractSynthesisResult(bool autodet = true, bool reachable = true, 
     const std::string & res_file = "");
+
   /// run Verification : returns eq true/false
   bool virtual RunVerifAuto(const std::string & script_selection);
   /// run Synthesis : returns reachable/not
   bool virtual RunSynAuto();
+  
   /// to generate synthesis target (for using the whole transfer function)
   void GenerateSynthesisTargetSygusTransFunc(bool enumerate = false);
+
   /// to generate synthesis target (for using the whole transfer function)
   void GenerateSynthesisTargetSygusDatapoints(bool enumerate = false);
   /// to extract the synthesis attempt
@@ -94,10 +98,16 @@ public:
   /// Try proving candidate invariants
   _inv_check_res_t ProofCandidateInvariants(unsigned timeout = 0, 
     _state_sort_t state_encoding = _state_sort_t::BitVec, bool flatten_dp = false);
+
   /// set the initial datapoints (can be empty, but we suggest using the sim_trace_extract)
   void SetInitialDatapoint(const TraceDataPoints &dp);
   /// set the sygus name lists (cannot be empty)
   void SetSygusVarnameList(const std::vector<std::string> & sygus_var_name);
+  /// set the sygus name lists (but also auto-add width info)
+  std::set<std::string> SetSygusVarnameListAndDeduceWidth(
+    const std::vector<std::string> & sygus_var_name, 
+    const std::string & top_module_instance_name);
+
   /// Forcing to accept all the candidate invariants
   void AcceptAllCandidateInvariant();
   /// Remove potentially failing candidate invariants (conservative approach remove all candidates)

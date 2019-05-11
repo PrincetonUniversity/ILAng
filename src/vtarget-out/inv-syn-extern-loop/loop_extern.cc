@@ -217,7 +217,8 @@ void InvariantSynthesizerExternalCegar::ExtractSynthesisResult(bool autodet, boo
 
 /// generate chc target
 void InvariantSynthesizerExternalCegar::GenerateAbcSynthesisTarget(
-  const std::string & precond, const std::string & assume_reg, bool useGla) {
+  const std::string & precond, const std::string & assume_reg, bool useGla,
+  bool useCorr) {
   if (check_in_bad_state()) return;
 
   // to send in the invariants
@@ -239,7 +240,7 @@ void InvariantSynthesizerExternalCegar::GenerateAbcSynthesisTarget(
 	);
 
 	vg.ConstructWrapper("wrapper.v", "wrapper.tpl", precond, assume_reg);
-	vg.GenerateBlifProblem("wrapper.blif", "run.sh", "abccmd.txt", useGla);
+	vg.GenerateBlifProblem("wrapper.blif", "run.sh", "abccmd.txt", useGla, useCorr);
 
 	runnable_script_name = vg.GetRunnableScriptName();
   
@@ -294,24 +295,27 @@ bool InvariantSynthesizerExternalCegar::RunSynAbcAuto() {
 
 
 /// to extract reachability test result
-void InvariantSynthesizerExternalCegar::ExtractAbcSynthesisResult(const std::string & blifname,
+bool InvariantSynthesizerExternalCegar::ExtractAbcSynthesisResult(const std::string & blifname,
   const std::string &ffmap_file) {
 
-  if(check_in_bad_state()) return;
+  if(check_in_bad_state()) return false;
 
   if (cex_reachable) {
     ILA_ERROR << "Verification failed with true counterexample! No invariants can be extracted.";
-    return;
+    return false;
   }
   // ILA_ASSERT(current_inv_type != cur_inv_tp::SYGUS_CEX) 
   //   << "API misuse: should not use this function on SYGUS CEX output, they may not be the invariants, but just candidates!";
     
-  inv_obj.AddInvariantFromAbcResultFile(blifname, ffmap_file, true, false);
+  bool succeed = inv_obj.AddInvariantFromAbcResultFile(blifname, ffmap_file, true, false);
+  if (not succeed)
+    return false;
   
   std::cout << "Confirmed synthesized invariants:" << std::endl;
   for (auto && v : inv_obj.GetVlgConstraints() )
     std::cout << v << std::endl;
 
+  return true;
 } // ExtractAbcSynthesisResult
 
 
