@@ -142,7 +142,9 @@ bool run_jg_till_fail(const std::string & assumefile) {
 
 void analyze_failed_property_and_time(const std::string & vcd_file_name,
   std::string & failed_prop, double & time, const std::string & scope,
-  CexExtractor::cex_t & cex) {
+  CexExtractor::cex_t & cex, const std::set<std::string>  &required_sigs, bool allow_wire) {
+  
+  std::set<std::string>  local_required_sigs(required_sigs);
 
   VCDFileParser parser;
   VCDFile * trace = parser.parse_file(vcd_file_name);
@@ -177,7 +179,8 @@ void analyze_failed_property_and_time(const std::string & vcd_file_name,
         std::cout << "Found property:" << failed_prop << " failed @ " << time << std::endl;
       }
     }
-  } 
+  } // sig_hash_map
+
   ILA_ASSERT(time != -1) << "Unable to find failing time.";
 
   std::vector<VCDSignal*>* sigs = trace -> get_signals();
@@ -198,9 +201,13 @@ void analyze_failed_property_and_time(const std::string & vcd_file_name,
       if (pos != std::string::npos)
         check_name = check_name.substr(0,pos);
     }
+
+    if (not IN(check_name, required_sigs))
+      continue;
+    local_required_sigs.erase(check_name);
     
     // ensure it is only register
-    if (sig->type != VCDVarType::VCD_VAR_REG)
+    if (! allow_wire && sig->type != VCDVarType::VCD_VAR_REG)
       continue;
 
     auto vlg_val_ptr = trace->get_signal_value_at( sig->hash, time);
@@ -215,6 +222,13 @@ void analyze_failed_property_and_time(const std::string & vcd_file_name,
     
     cex.insert( std::make_pair( vlg_name, val) ); 
   } // end for signals 
+
+  if (not local_required_sigs.empty()) {
+    std::cout << "These signals are not found in vcd: ";
+    for (auto && n : local_required_sigs)
+      std::cout << n << ' ';
+    std::cout <<"\n";
+  }
 }
 
 void load_property_name(const std::string &fn) {
@@ -226,6 +240,19 @@ void load_property_name(const std::string &fn) {
   std::string prop;
   while(std::getline(fin,prop))
     props.push_back(prop);
+}
+
+
+bool load_sig_list(std::set<std::string> & siglist, const std::string & fn) {
+  std::ifstream fin(fn);
+  if (!fin.is_open()) { ILA_ERROR << "unable to read from " << fn; return false;}
+
+  std::string sig;
+  while(std::getline(fin,sig)) {
+    if (!sig.empty())
+      siglist.insert(sig);
+  }
+  return true;
 }
 
 int main(int argc, char **argv) {
@@ -254,7 +281,11 @@ int main(int argc, char **argv) {
   std::string prop;
   double failtime;
   ilang::CexExtractor::cex_t cex;
-  analyze_failed_property_and_time("cex.vcd",prop,failtime, "dut", cex);
+  std::set<std::string>  siglist;
+  bool do_load_sig_list = argc >=  4;
+  if (do_load_sig_list)
+    load_sig_list(siglist, argv[3]);
+  analyze_failed_property_and_time("cex.vcd",prop,failtime, "dut", cex, siglist, do_load_sig_list);
 
   CexExtractor::StoreCexToFile(cexfile, cex);
 

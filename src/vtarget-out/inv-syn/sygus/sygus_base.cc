@@ -37,7 +37,7 @@ const std::vector<std::string> compOp({});
 
 const std::map<int,std::set<unsigned>> nums(
   {
-    {16,{0xff00,0xff01,0xff02, 0xff04, 0xff10, 0xff20}},
+    //{16,{0xff00,0xff01,0xff02, 0xff04, 0xff10, 0xff20}},
     {28,{0}}
   }
 );
@@ -79,7 +79,7 @@ const std::map<unsigned, std::vector<extract_op>> extractExtOp (
       extract_op(11,7,32,5),
       extract_op(19,15,32,5),
       extract_op(24,20,32,5)} }, //  extract_15_0_128_16
-    {1, {
+    /*{1, {
       extract_op(31,31,32,1),
       extract_op(20,20,32,1),
       extract_op(15,15,32,1),
@@ -93,7 +93,7 @@ const std::map<unsigned, std::vector<extract_op>> extractExtOp (
       extract_op(11,8,32,4),
       extract_op(19,16,32,4),
       extract_op(24,21,32,4)} },
-    {31, {extract_op(31,1,32,31)} }
+    {31, {extract_op(31,1,32,31)} }*/
   }
 );
 
@@ -147,7 +147,8 @@ const std::string syntax_arithmetic_lv1_hw = R"#!#!#(
    (PreCond Bool (true
                   CtrlAtom
                   CtrlConj))
-   (CtrlConj Bool ((and CtrlAtom CtrlAtom)))
+   (CtrlConj Bool ((and CtrlAtom CtrlAtom)
+                   (and CtrlAtom CtrlAtom CtrlAtom)))
    (CtrlAtom Bool (CtrlJudgement
                    (not CtrlJudgement)))   
     (CtrlJudgement Bool (%ctrlCmpOps%))

@@ -92,7 +92,7 @@ std::string Cvc4SygusInputGenerator::generate_datapoint_constraints(TraceDataPoi
       tp._type = tp.BV;
     } else if (in_dataframe) {
       tp = aframe.at(vname).second;
-      ILA_ERROR << vname << " is not in the smt! Using datapoints width:" << tp.GetBoolBvWidth();
+      ILA_ERROR << vname << " is not in the smt! Using datapoint frame width:" << tp.GetBoolBvWidth();
     } else {
       ILA_ASSERT(false) << "No width info for " << vname;
     }
@@ -105,7 +105,8 @@ std::string Cvc4SygusInputGenerator::generate_datapoint_constraints(TraceDataPoi
         frame_vals.push_back( aframe.at(vname).first.val == "0" ? "false" : "true"  );
       else
         frame_vals.push_back( smt::convert_to_binary(aframe.at(vname).first.val, aframe.at(vname).first.radix, tp._width));
-    } else {
+    } else { // if it is not in data frame, then it means we need to block both 
+      ILA_ERROR << vname << " is not in neg data_frame!";
        if (tp.is_bool())
         frame_vals.push_back( "false" );
       else

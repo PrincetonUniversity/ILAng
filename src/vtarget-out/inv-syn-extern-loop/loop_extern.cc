@@ -4,6 +4,7 @@
 #include <ilang/util/fs.h>
 #include <ilang/util/str_util.h>
 #include <ilang/util/container_shortcut.h>
+#include <ilang/verilog-in/verilog_analysis.h>
 #include <ilang/vtarget-out/inv-syn-extern-loop/loop_extern.h>
 #include <ilang/vtarget-out/inv-syn-extern-loop/yosys_chc.h>
 #include <ilang/vtarget-out/inv-syn-extern-loop/yosys_abc.h>
@@ -327,6 +328,40 @@ void InvariantSynthesizerExternalCegar::SetSygusVarnameList(const std::vector<st
   for (auto && v : sygus_vars)
     sygus_vars_set.insert(v);
 }
+
+std::set<std::string> InvariantSynthesizerExternalCegar::SetSygusVarnameListAndDeduceWidth(
+  const std::vector<std::string> & sygus_var_name,
+  const std::string & top_module_instance_name) {
+  VerilogAnalyzer va(
+    implementation_incl_path,
+    implementation_srcs_path,
+    top_module_instance_name,
+    implementation_top_module_name);
+  
+  ILA_ERROR_IF(sygus_var_name.empty()) << "Giving empty sygus var names!";
+  std::set<std::string> missing_names;
+
+  sygus_vars = sygus_var_name;
+  sygus_vars_set.clear();
+  for (auto && vname : sygus_var_name)
+    sygus_vars_set.insert(vname);
+  for (auto && var : sygus_var_name) {
+    auto tp = va.check_hierarchical_name_type(var);
+    if (tp == va.NONE){
+      missing_names.insert(var);
+      continue;
+    }
+    auto sig_info = va.get_signal(var, & additional_width_info); // will use the RF provided one if available
+    if (IN(var, additional_width_info))
+      ILA_ERROR_IF (additional_width_info.at(var) != sig_info.get_width())
+        << "The width info in refinement does not match the width in design";
+    else
+      additional_width_info.insert(
+        std::make_pair(var,sig_info.get_width()));
+  }
+  return missing_names;
+}
+
 /// import datapoints from file (pos example) -- used to prune
 void InvariantSynthesizerExternalCegar::ImportDatapointsFromFile(const std::string & fn) {
   CexExtractor cex_temp(fn);

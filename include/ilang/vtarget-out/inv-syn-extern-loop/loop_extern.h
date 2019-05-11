@@ -93,6 +93,11 @@ public:
   // -------------------- SYGUS ------------------ //
   /// set the sygus name lists (cannot be empty)
   void SetSygusVarnameList(const std::vector<std::string> & sygus_var_name);
+  /// set the sygus name lists (but also auto-add width info)
+  std::set<std::string> SetSygusVarnameListAndDeduceWidth(
+    const std::vector<std::string> & sygus_var_name, 
+    const std::string & top_module_instance_name);
+
   /// import datapoints from file (to the pos example)
   void ImportDatapointsFromFile(const std::string & fn);
   /// Remove potentially failing candidate invariants (conservative approach remove all candidates)

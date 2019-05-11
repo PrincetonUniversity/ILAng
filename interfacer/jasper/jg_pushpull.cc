@@ -358,8 +358,8 @@ void get_signal_value_list(
     local_why.erase(check_name);
     
     // ensure it is only register
-    if (sig->type != VCDVarType::VCD_VAR_REG)
-      continue;
+    // if (sig->type != VCDVarType::VCD_VAR_REG)
+    //   continue;
 
     auto vlg_val_ptr = trace->get_signal_value_at( sig->hash, starttime);
 
