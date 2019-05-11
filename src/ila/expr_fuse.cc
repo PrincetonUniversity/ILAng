@@ -224,7 +224,8 @@ ExprPtr ExprFuse::Eq(const ExprPtr l, const bool& r) {
 }
 
 ExprPtr ExprFuse::Eq(const ExprPtr l, const int& r) {
-  auto rc = ExprFuse::BvConst(r, l->sort()->bit_width());
+  auto rc = (l->is_bool()) ? ExprFuse::BoolConst(r == 1)
+                           : ExprFuse::BvConst(r, l->sort()->bit_width());
   return ExprFuse::Eq(l, rc);
 }
 
