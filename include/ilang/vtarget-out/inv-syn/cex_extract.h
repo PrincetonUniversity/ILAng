@@ -6,6 +6,7 @@
 
 #include <string>
 #include <map>
+#include <set>
 #include <functional>
 
 namespace ilang {
@@ -49,7 +50,7 @@ public:
   // -------------------- MEMBERS ------------------ //
   /// return a string to be added to the design
   /// the argument actually has no use at all
-  std::string GenInvAssert(const std::string & prefix) const;
+  std::string GenInvAssert(const std::string & prefix, const std::set<std::string> & focus_name = std::set<std::string>()) const;
   /// allow direct access to the counterexample
   const cex_t & GetCex() const;
   // save to file

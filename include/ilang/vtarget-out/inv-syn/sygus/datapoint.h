@@ -39,6 +39,8 @@ namespace ilang
     template <typename T> void SetNegEx(const T &);
     /// the same as above
     template <typename T> void AddPosEx(const T &);
+    /// add positive examples and also check name completeness
+    template <typename T> bool AddPosEx(const T &, const std::vector<std::string> & n);
     /// pos_ex.clear();
     void ClearPosEx();
     /// the marker of pos ex
@@ -46,8 +48,8 @@ namespace ilang
     // export data point
     void ExportNonprovidedPosEx(const std::string & fn) const;
     // insert data point
-    void ImportNonprovidedPosEx(const std::string & fn);
-
+    void ImportNonprovidedPosEx(const std::string & fn, const std::vector<std::string> & required_var_name = std::vector<std::string>());
+   
   };  // struct TraceDataPoints
 
 }; // namespace ilang

@@ -7,12 +7,14 @@
 #include <ilang/util/log.h>
 
 #include <ilang/vtarget-out/inv-syn/inv_obj.h>
-// parser for Z3/freqhorn output
+// parser for Z3 output
 #include <ilang/smt-inout/chc_inv_in.h>
 // parser for cvc4 output
 #include <ilang/vtarget-out/inv-syn/sygus/sygus_inv_parse.h>
 // parser for ABC output
 #include <ilang/vtarget-out/inv-syn/inv_abc_parse.h>
+// parser for Freqhorn output
+#include <ilang/vtarget-out/inv-syn/freqhorn_inv_parse.h>
 
 #include <fstream>
 
@@ -101,6 +103,48 @@ void InvariantObject::AddInvariantFromChcResultFile(
     inv_extra_free_vars.insert(name_w_pair);
   }
 } // AddInvariantFromChcResultFile
+
+void InvariantObject::AddInvariantFromFreqHornResultFile(
+  smt::YosysSmtParser & design_info, 
+  const std::string & tag, const std::string & chc_result_fn,
+  bool discourage_outside_var_referral,
+  bool change_outside_var) {
+
+  ILA_ASSERT(not dut_inst_name.empty()) 
+    << "BUG: duv instance name unknown. "
+    << "set_dut_inst_name should be called first!";
+    
+  smt::FreqHornInvariantParser parser(
+    &design_info, dut_inst_name, 
+    discourage_outside_var_referral, change_outside_var);
+
+  if (not parser.ParseInvResultFromFile(chc_result_fn) ) {
+    ILA_ERROR << "No new invariant has been extracted!";
+    return;
+  }
+  ILA_ASSERT(not parser.in_bad_state());
+  inv_vlg_exprs.push_back( parser.GetFinalTranslateResult() );
+
+
+  auto raw_smt = parser.GetRawSmtString();
+  ILA_ERROR_IF(raw_smt.empty()) << "Parser failed to extract raw CHC string, got empty string!";
+  smt_formula_vec.push_back( "" ); // although we get it, we remove it here
+ 
+  for (auto && name_vlg_pair : parser.GetLocalVarDefs()) {
+    inv_extra_vlg_vars.push_back(std::make_tuple(
+      name_vlg_pair.first,
+      name_vlg_pair.second._translate,
+      name_vlg_pair.second._type.GetBoolBvWidth()));
+  }
+  for (auto && name_w_pair : parser.GetFreeVarDefs()) {
+    if( IN(name_w_pair.first, inv_extra_free_vars) )
+      ILA_ASSERT(inv_extra_free_vars[name_w_pair.first] == name_w_pair.second)
+        << "Overwriting free var:" << name_w_pair.first << " w. width: " << name_w_pair.second
+        << " old width:" << inv_extra_free_vars[name_w_pair.first];
+    inv_extra_free_vars.insert(name_w_pair);
+  }
+} // AddInvariantFromFreqHornResultFile
+
 
 /// add invariants from smt-like output
 bool InvariantObject::AddInvariantFromSygusResultFile(

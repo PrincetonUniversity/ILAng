@@ -4,6 +4,9 @@
 #ifndef DESIGN_STAT_H__
 #define DESIGN_STAT_H__
 
+#include <vector>
+#include <string>
+
 namespace ilang {
 
 /// \brief design statistics information 
@@ -25,6 +28,10 @@ struct DesignStatistics {
   double TimeOfInvProof;
   /// the synthesis time of invariants : chc/sygus-chc/sygus-dp
   double TimeOfInvSyn;
+  /// the series of time
+  std::vector<double> TimeOfInvSynSeries;
+  /// Total time
+  double TotalTime;
 
   /// Constructor -- reset all values to 0
   DesignStatistics() : 
@@ -33,7 +40,11 @@ struct DesignStatistics {
     NumOfExtraStateVars(0),
     NumOfExtraStateBits(0),
     TimeOfEqCheck(0), TimeOfInvValidate(0), 
-    TimeOfInvProof(0), TimeOfInvSyn(0) {} 
+    TimeOfInvProof(0), TimeOfInvSyn(0), TotalTime(0) {} 
+  
+  void StoreToFile(const std::string & fn) const;
+
+  void LoadFromFile(const std::string & fn);
 
 }; // struct DesignStatistics
 

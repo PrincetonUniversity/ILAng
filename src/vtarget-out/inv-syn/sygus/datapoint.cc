@@ -120,6 +120,43 @@ template <> void TraceDataPoints::AddPosEx<InvCexExtractor> (const InvCexExtract
   }
 }
 
+/// add positive examples and also check name completeness
+template <> bool TraceDataPoints::AddPosEx<SimTraceExtractor>(const SimTraceExtractor & ex, const std::vector<std::string> & required_names) {
+  int saved = 0;
+  std::set<std::string> valset; // the value hash
+  for(auto && e : ex.GetEx() ) {
+    pos_ex.push_back(example_map_t());
+    std::string v;
+    std::string missing_name;
+    // check if all required names are there, there could be more, we don't care
+    for (auto && vn : required_names ) {
+      if (not IN(vn, e)){
+        missing_name = vn;
+        break;
+      }
+    }
+    if(not missing_name.empty()) {
+      ILA_ERROR << "Sim datapoint missing name (at least):" << missing_name << " , ignore this frame";
+      continue; // ignore this frame
+    }
+    for(auto && var_value : e) {
+      pos_ex.back().insert(
+        std::make_pair(
+          vcd_remove_extra_bracket(var_value.first),
+          vlg_val_to_smt_val(var_value.second)));
+      v += var_value.second;
+    }
+    if (IN(v, valset)) {
+      pos_ex.pop_back();
+      saved ++;
+      continue;
+    }
+    valset.insert(v);
+  }
+  std::cout << "Prune sim datapoint. Saved #:" << saved <<"\n";
+  // set marker
+  posExMarker = pos_ex.size();
+}
 
 // specialized instantiation
 template <> void TraceDataPoints::AddPosEx<SimTraceExtractor> (const SimTraceExtractor & ex) {
@@ -175,8 +212,9 @@ void TraceDataPoints::ExportNonprovidedPosEx(const std::string & fn) const {
   }
   ILA_INFO << "Saved pos ex:" << ex_size;
 }
+
 // insert data point
-void TraceDataPoints::ImportNonprovidedPosEx(const std::string & fn) {
+void TraceDataPoints::ImportNonprovidedPosEx(const std::string & fn, const std::vector<std::string> & required_var_name ) {
   std::ifstream fin(fn);
   if (! fin.is_open()) {
     ILA_ERROR << "cannot open " << fn << " for read";
@@ -190,6 +228,10 @@ void TraceDataPoints::ImportNonprovidedPosEx(const std::string & fn) {
   int radix;
   std::string bvbool;
   unsigned width;
+
+  // statistics;
+  unsigned original_frame_size = pos_ex.size();
+  unsigned unfit_frame = 0;
 
   for (unsigned idx = 0; idx < ex_size; ++ idx) {
     unsigned var_map_size;
@@ -213,8 +255,20 @@ void TraceDataPoints::ImportNonprovidedPosEx(const std::string & fn) {
         vname,
         std::make_pair(radix_val_t(val,radix),tp)
       ));
-    }
-  }
-}
+    } // for all data item
+    // check if all required name exists
+    if(not required_var_name.empty()) {
+      for (auto && n : required_var_name) {
+        if (not IN(n, pos_ex.back())) {
+          ILA_ERROR << "At least required state: " << n << " is not log in the stored frame. Will not keep this frame.";
+          unfit_frame ++;
+          pos_ex.pop_back();
+        }
+      }
+    } // end of checking
+  } // end of a frame
+  if (unfit_frame == ex_size || pos_ex.size() == original_frame_size)
+    ILA_ERROR << "Note: Empty datapoint has been imported!" << (required_var_name.empty() ? "":" (after checking)") ;
+} // end of import function
 
 }; // namespace ilang

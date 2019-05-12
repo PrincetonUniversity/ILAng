@@ -377,20 +377,23 @@ void VlgSglTgtGen_Chc::Export_script(const std::string& script_name) {
   fout << "#!/bin/bash" << std::endl;
   //fout << "trap \"trap - SIGTERM && kill -- -$$\" SIGINT SIGTERM"<<std::endl;
 
-  std::string runable;;
+  std::string runable;
+  std::string options;
   if (s_backend == synthesis_backend_selector::Z3) {
     runable = "z3";
     if (not _vtg_config.Z3Path.empty())
       runable = os_portable_append_dir(_vtg_config.Z3Path, runable);
   }
   else if(s_backend == synthesis_backend_selector::FreqHorn) {
-    runable = "freqhorn";
+    runable = "bv";
     if (not _vtg_config.FreqHornPath.empty())
       runable = os_portable_append_dir(_vtg_config.FreqHornPath, runable);
+    for (auto && op : _vtg_config.FreqHornOptions)
+      options += " " + op;
   }
 
   if (chc_prob_fname != "")
-    fout << runable << " "<< chc_prob_fname  << std::endl;
+    fout << runable << " "<< chc_prob_fname << options  << std::endl;
   else
     fout << "echo 'Nothing to check!'" << std::endl;
 } // Export_script
@@ -475,13 +478,27 @@ void VlgSglTgtGen_Chc::Export_problem(const std::string& extra_name) {
   if (_vtg_config.YosysSmtStateSort == _vtg_config.DataSort)
     convert_smt_to_chc_datatype (
       os_portable_append_dir(_output_path, "__design_smt.smt2"),
-      os_portable_append_dir(_output_path, extra_name));
+      os_portable_append_dir(_output_path, 
+        s_backend == synthesis_backend_selector::FreqHorn ?
+         "freqhorn_prep.txt"  : extra_name));
   else if (_vtg_config.YosysSmtStateSort == _vtg_config.BitVec)
     convert_smt_to_chc_bitvec(
       os_portable_append_dir(_output_path, "__design_smt.smt2"),
       os_portable_append_dir(_output_path, extra_name), "wrapper");
   else
     ILA_ASSERT(false) << "I don't know how to generate CHC encoding";
+
+  // for freqhorn : convert wrapper# --> w wrapper_ --> w
+  if (s_backend == synthesis_backend_selector::FreqHorn) {
+    std::ifstream fin( os_portable_append_dir(_output_path, "freqhorn_prep.txt"));
+    std::ofstream fout(os_portable_append_dir(_output_path, extra_name));
+    if (!fin.is_open())  { ILA_ERROR << "Cannot read from : " << os_portable_append_dir(_output_path, "freqhorn_prep.txt"); return; }
+    if (!fout.is_open()) { ILA_ERROR << "Cannot write to : " << os_portable_append_dir(_output_path, extra_name); return; }
+    std::string line;
+    while(std::getline(fin,line)) {
+      fout << ReplaceAll(ReplaceAll(line,"wrapper#", "w"), "wrapper_", "w_") << "\n";
+    }
+  }
 
 } // Export_problem
 

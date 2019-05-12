@@ -447,6 +447,7 @@ bool InvariantSynthesizerCegar::RunSynAuto() {
   ILA_ASSERT(os_portable_chdir(cwd));
   
   inv_syn_time += res.seconds;
+  inv_syn_time_series.push_back(res.seconds);
 
   if (current_inv_type == CEGAR_ABC) {
     std::stringstream sbuf;
@@ -498,6 +499,23 @@ const std::vector<std::string> & InvariantSynthesizerCegar::GetRunnableTargetScr
   return runnable_script_name;
 }
 
+void InvariantSynthesizerCegar::LoadPrevStatisticsState(const std::string & fn) {
+  DesignStatistics local_info;
+  local_info.LoadFromFile(fn);
+  if ( eqcheck_time != 0 || 
+      inv_proof_attempt_time != 0 ||
+      inv_syn_time != 0 ||
+      inv_validate_time != 0 ||
+      ! inv_syn_time_series.empty() ) {
+    ILA_ERROR << "Not loading the statistics state from initial time!";
+    }
+  eqcheck_time += local_info.TimeOfEqCheck;
+  inv_proof_attempt_time += local_info.TimeOfInvProof;
+  inv_syn_time += local_info.TimeOfInvSyn;
+  inv_validate_time += local_info.TimeOfInvValidate;
+  inv_syn_time_series.insert(inv_syn_time_series.end(),local_info.TimeOfInvSynSeries.begin(), local_info.TimeOfInvSynSeries.end());
+}
+
 DesignStatistics InvariantSynthesizerCegar::GetDesignStatistics() const {
   DesignStatistics ret;
 
@@ -505,6 +523,7 @@ DesignStatistics InvariantSynthesizerCegar::GetDesignStatistics() const {
   ret.TimeOfInvProof    = inv_proof_attempt_time;
   ret.TimeOfInvSyn      = inv_syn_time;
   ret.TimeOfInvValidate = inv_validate_time;
+  ret.TimeOfInvSynSeries= inv_syn_time_series;
 
   if (design_smt_info == nullptr) {
     ILA_ERROR << "Design information not available!";
@@ -547,7 +566,7 @@ void InvariantSynthesizerCegar::LoadCandidateInvariantsFromFile(const std::strin
   inv_candidate.ImportFromFile(fn);
 }
 void InvariantSynthesizerCegar::LoadDatapointFromFile(const std::string &fn) {
-  datapoints.ImportNonprovidedPosEx(fn);
+  datapoints.ImportNonprovidedPosEx(fn, sygus_vars);
 }
 
 // -------------------------------- SYGUS SUPPORT ------------------------------------------- //

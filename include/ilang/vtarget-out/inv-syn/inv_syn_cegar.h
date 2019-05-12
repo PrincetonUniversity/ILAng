@@ -124,6 +124,8 @@ public:
   void LoadDesignSmtInfo(const std::string & fn);
   /// Here we directly expose the runnable script names (They will never be used as inputs)
   const std::vector<std::string> & GetRunnableTargetScriptName() const;
+  /// Here you can restore the design information
+  void LoadPrevStatisticsState(const std::string & fn) ;
   /// Here you can get the design information
   DesignStatistics GetDesignStatistics() const;
   /// Here you can extract the invariants and export them if needed
@@ -214,6 +216,8 @@ protected:
   double inv_proof_attempt_time;
   /// the synthesis time of invariants : chc/sygus-chc/sygus-dp
   double inv_syn_time;
+  /// the series of synthesis time
+  std::vector<double> inv_syn_time_series;
 
 
 }; // class InvariantSynthesizerCegar 

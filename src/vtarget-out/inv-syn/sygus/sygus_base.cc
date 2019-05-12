@@ -124,9 +124,9 @@ const std::string exps_lv1_template_Bool_hw = R"#!#!#(
 
 const std::string exps_lv1_template_Bv1_hw = R"#!#!#(
  (Exp1 (_ BitVec 1) ( VarOrVal1
-                      (bvand VarOrVal1 VarOrVal1)
-                      (bvor VarOrVal1 VarOrVal1)
-                      (bvnot VarOrVal1)
+                      ;(bvand VarOrVal1 VarOrVal1)
+                      ;(bvor VarOrVal1 VarOrVal1)
+                      ;(bvnot VarOrVal1)
                       %extraOp%))
 )#!#!#";
 
@@ -803,7 +803,7 @@ std::string Cvc4SygusBase::get_template_hardwired() const{
         if ( IN(1, extractExtOp) && ! extractExtOp.at(1).empty() ) {
           for (auto && extractOp : extractExtOp.at(1) ) {
             if ( not IN( extractOp.from, width_to_names) ) continue;
-            extraOp += "(" + extractOp.reps + " VarOrVal" + std::to_string(extractOp.from) + ")\n";
+            extraOp += "(" + extractOp.reps + " Var" + std::to_string(extractOp.from) + ")\n";
             extra_heading_local.push_back(extractOp.exheading+"\n"); 
             corrections.insert(std::make_pair(extractOp.reps, extractOp.replacement));
           }
@@ -825,7 +825,7 @@ std::string Cvc4SygusBase::get_template_hardwired() const{
         if ( IN(width, extractExtOp) && ! extractExtOp.at(width).empty() ) {
           for (auto && extractOp : extractExtOp.at(width) ) {
             if ( not IN( extractOp.from, width_to_names) ) continue;
-            extraOp += "(" + extractOp.reps + " VarOrVal" + std::to_string(extractOp.from) + ")\n";
+            extraOp += "(" + extractOp.reps + " Var" + std::to_string(extractOp.from) + ")\n";
             extra_heading_local.push_back(extractOp.exheading+"\n"); 
             corrections.insert(std::make_pair(extractOp.reps, extractOp.replacement));
           }

@@ -393,6 +393,25 @@ bool load_why(std::set<std::string> & whysig, const std::string & fn) {
   return true;
 }
 
+void suggest_remove(const std::set<std::string> & provided_why_sig,
+  const std::set<std::string> & jg_why_sig) {
+  
+  std::set<std::string> suggestion;
+  for (auto && n : provided_why_sig) {
+    if (not IN(n, jg_why_sig ))
+      suggestion.insert(n);
+  }
+  std::cout << "Suggest remove of #" << suggestion.size() << std::endl;
+  std::ofstream fout("suggest_remove.txt");
+  if (!fout.is_open()) {
+    std::cout << "cannot write to suggest_remove.txt\n"; return;
+  }
+  fout << suggestion.size() << std::endl;
+  for (auto && n : suggestion) {
+    fout << n << std::endl;
+  }
+}
+
 int main(int argc, char **argv) {
 
   const std::string vardef = "vardef.v";
@@ -426,7 +445,11 @@ int main(int argc, char **argv) {
     get_why(prop,failtime, starttime,whysig);
     filter_sigs(whysig, dutsigs, "dut.");
   } else {
+    std::set<std::string> jg_info_whysig, after_fileter;
     if (not load_why(dutsigs,argv[3]) ) return 2;
+    get_why(prop,failtime, starttime,jg_info_whysig);
+    filter_sigs(jg_info_whysig, after_fileter, "dut.");
+    suggest_remove(dutsigs, after_fileter);
   }
 
   ilang::CexExtractor::cex_t cex;

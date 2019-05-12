@@ -40,6 +40,14 @@ public:
     bool flatten_datatype, bool flatten_hierarchy,
     bool discourage_outside_var_referral = true );
 
+  
+  /// add invariants from smt-like output
+  void AddInvariantFromFreqHornResultFile(
+    smt::YosysSmtParser & design_info, 
+    const std::string & tag, const std::string & chc_result_fn,
+    bool discourage_outside_var_referral = true,
+    bool change_outside_var = true );
+
   /// add invariants from sygus output
   bool AddInvariantFromSygusResultFile(
     smt::YosysSmtParser & design_info, 

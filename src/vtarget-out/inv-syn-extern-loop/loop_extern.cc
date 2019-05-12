@@ -151,6 +151,7 @@ bool InvariantSynthesizerExternalCegar::RunSynAuto(bool isSyGuS) {
   ILA_ASSERT(os_portable_chdir(cwd));
   
   inv_syn_time += res.seconds;
+  inv_syn_time_series.push_back(res.seconds);
 
   std::string line;
   { // read the result
@@ -279,6 +280,7 @@ bool InvariantSynthesizerExternalCegar::RunSynAbcAuto() {
   ILA_ASSERT(os_portable_chdir(cwd));
   
   inv_syn_time += res.seconds;
+  inv_syn_time_series.push_back(res.seconds);
 
   std::stringstream sbuf;
   std::ifstream fin(synthesis_result_fn);
@@ -329,6 +331,30 @@ void InvariantSynthesizerExternalCegar::SetSygusVarnameList(const std::vector<st
     sygus_vars_set.insert(v);
 }
 
+void InvariantSynthesizerExternalCegar::FindRegAmongNames(
+  const std::string & top_module_instance_name,
+  std::set<std::string> & nameset) {
+
+  VerilogAnalyzer va(
+    implementation_incl_path,
+    implementation_srcs_path,
+    top_module_instance_name,
+    implementation_top_module_name);
+  
+  for (auto && var : nameset) {
+    auto tp = va.check_hierarchical_name_type(var);
+
+    if (tp == va.NONE){
+      nameset.erase(var);
+      ILA_ERROR << var << " is not a valid design net name!";
+      continue;
+    } else if (not VerilogAnalyzerBase::is_reg(tp)) {
+      std::cout << "remove non state: " << var << std::endl;
+      nameset.erase(var);
+    }
+  }
+}
+
 std::set<std::string> InvariantSynthesizerExternalCegar::SetSygusVarnameListAndDeduceWidth(
   const std::vector<std::string> & sygus_var_name,
   const std::string & top_module_instance_name) {
@@ -368,27 +394,51 @@ void InvariantSynthesizerExternalCegar::ImportDatapointsFromFile(const std::stri
   datapoints.AddPosEx(cex_temp);
 }
 /// Remove potentially failing candidate invariants (conservative approach remove all candidates)
-void InvariantSynthesizerExternalCegar::PruneCandidateInvariant() {
+void InvariantSynthesizerExternalCegar::PruneCandidateInvariant(const std::set<std::string> &drop_names) {
   ILA_ASSERT(not sygus_vars.empty());
   
   DatapointInvariantPruner pruner(inv_candidate,datapoints);
-  pruner.PruneByLastFramePosEx(*(design_smt_info.get()), sygus_vars, additional_width_info );
+  if (drop_names.empty())
+    pruner.PruneByLastFramePosEx(*(design_smt_info.get()), sygus_vars, additional_width_info );
+  else{
+    std::vector<std::string> local_vars;
+    { // remove those to drop
+      for (auto && vn : sygus_vars)
+        if (IN(vn, drop_names)) continue;
+        else local_vars.push_back(vn);
+    }
+      pruner.PruneByLastFramePosEx(*(design_smt_info.get()), local_vars, additional_width_info );
+  }
 }
 
+/// Remove potentially failing candidate invariants (conservative approach remove all candidates)
+void InvariantSynthesizerExternalCegar::RemoveAllCandidateInvariant(){
+  inv_candidate.ClearAllInvariants();
+}
+
+
 /// to generate synthesis target (for using the whole transfer function)
-void InvariantSynthesizerExternalCegar::GenerateSynthesisTargetSygusDatapoints(bool enumerate) {
+void InvariantSynthesizerExternalCegar::GenerateSynthesisTargetSygusDatapoints(
+    const std::set<std::string> &drop_names, bool enumerate) {
   if (design_smt_info == nullptr) {
     ILA_ERROR << "Please first parse a design_smt_info";
     return;
   }
   datapoints.SetNegEx(* cex_extract.get()); // you can reset the pos ex using SetInitialDatapoint 
 
+  std::vector<std::string> local_vars;
+  { // remove those to drop
+    for (auto && vn : sygus_vars)
+      if (IN(vn, drop_names)) continue;
+      else local_vars.push_back(vn);
+  }
+
   ExternalSygusTargetGen vg(
     os_portable_append_dir( _output_path, "inv-syn-sygus" ),
     additional_width_info,
     _vtg_config,
     & datapoints,
-    sygus_vars,
+    local_vars,
     design_smt_info,
     enumerate
   );
@@ -437,7 +487,10 @@ void InvariantSynthesizerExternalCegar::ExportCandidateInvariantsToJasperAsserti
 
 /// load inv pos ex from simtrace
 void InvariantSynthesizerExternalCegar::LoadDatapointPosExFromSim(const SimTraceExtractor & sim) {
-  datapoints.AddPosEx(sim);
+  if (not sygus_vars.empty())
+    datapoints.AddPosEx(sim, sygus_vars);
+  else
+    datapoints.AddPosEx(sim);
 }
 
 /// here you can acess the internal datapoint object
@@ -451,11 +504,18 @@ const InvariantObject & InvariantSynthesizerExternalCegar::GetCandidateInvariant
 /// export the cex check to make sure cex is unreachable
 void InvariantSynthesizerExternalCegar::ExportCexCheck(
   const std::string & precond,
-  const std::string & assertfile, const std::string &propfile) {
+  const std::string & assertfile,
+  const std::string &propfile,
+  const std::set<std::string> &drop_names ) {
   { // cex assert
     std::ofstream fout(assertfile);
     if (!fout.is_open()) { ILA_ERROR << "Cannot write to:" << assertfile ; return;}
-    fout << "assert -name cexblock { " << precond << " |-> !(" << cex_extract->GenInvAssert("") + ") }";
+
+    std::set<std::string> difference;
+    DIFFERENCE(sygus_vars_set,drop_names,difference);
+    ILA_ERROR_IF(sygus_vars_set.size() - drop_names.size() != difference.size())
+      << "Drop names is not a subset of sygus_var_set";
+    fout << "assert -name cexblock { " << precond << " |-> !(" << cex_extract->GenInvAssert("", difference) + ") }";
   } // cex assert
   { // prop
     std::ofstream fout(propfile);
@@ -522,6 +582,23 @@ bool InvariantSynthesizerExternalCegar::check_in_bad_state() const {
   return bad_state;
 }
 
+void InvariantSynthesizerExternalCegar::LoadPrevStatisticsState(const std::string & fn) {
+  DesignStatistics local_info;
+  local_info.LoadFromFile(fn);
+  if ( eqcheck_time != 0 || 
+      inv_proof_attempt_time != 0 ||
+      inv_syn_time != 0 ||
+      inv_validate_time != 0 ||
+      ! inv_syn_time_series.empty() ) {
+    ILA_ERROR << "Not loading the statistics state from initial time!";
+    }
+  eqcheck_time += local_info.TimeOfEqCheck;
+  inv_proof_attempt_time += local_info.TimeOfInvProof;
+  inv_syn_time += local_info.TimeOfInvSyn;
+  inv_validate_time += local_info.TimeOfInvValidate;
+  inv_syn_time_series.insert(inv_syn_time_series.end(),local_info.TimeOfInvSynSeries.begin(), local_info.TimeOfInvSynSeries.end());
+}
+
 /// Here you can get the design information
 DesignStatistics InvariantSynthesizerExternalCegar::GetDesignStatistics() const {
   DesignStatistics ret;
@@ -529,6 +606,7 @@ DesignStatistics InvariantSynthesizerExternalCegar::GetDesignStatistics() const 
   ret.TimeOfInvProof    = inv_proof_attempt_time;
   ret.TimeOfInvSyn      = inv_syn_time;
   ret.TimeOfInvValidate = inv_validate_time;
+  ret.TimeOfInvSynSeries= inv_syn_time_series;
 
   if (design_smt_info == nullptr) {
     ILA_ERROR << "Design information not available!";
@@ -564,7 +642,7 @@ void InvariantSynthesizerExternalCegar::LoadCandidateInvariantsFromFile(const st
   inv_candidate.ImportFromFile(fn);
 }
 void InvariantSynthesizerExternalCegar::LoadDatapointFromFile(const std::string &fn) {
-  datapoints.ImportNonprovidedPosEx(fn);
+  datapoints.ImportNonprovidedPosEx(fn, sygus_vars);
 }
 
 

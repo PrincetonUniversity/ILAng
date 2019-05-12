@@ -89,6 +89,8 @@ SmtlibInvariantParser::SmtlibInvariantParser(YosysSmtParser * yosys_smt_info,
   pi->pop_quantifier_scope  = proxy_pop_quantifier_scope;
   pi->make_sort = proxy_make_sort;
   pi->declare_variable = proxy_declare_variable;
+  pi->declare_function = proxy_declare_function;
+  pi->check_sat = proxy_check_sat;
 
   tp = parser_wrapper->parser.termparser_; // internal allocated already
 
@@ -173,6 +175,11 @@ std::string SmtlibInvariantParser::get_a_new_local_var_name() {
 /// this function receives the final assert result
 void SmtlibInvariantParser::assert_formula(SmtTermInfoVlgPtr result) {
   final_translate_result = result->_translate;
+}
+
+/// declare function (useful for FreqHorn)
+void SmtlibInvariantParser::declare_function(const std::string &name, var_type * sort) {
+  ILA_ASSERT(false)<<"Bug: CHC solver should not generate output containing declare-fun!";
 }
 
 void SmtlibInvariantParser::define_function(const std::string &func_name, 

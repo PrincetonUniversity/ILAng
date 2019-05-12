@@ -117,6 +117,17 @@ void proxy_declare_variable(smtlib2_parser_interface *p,
   // free((void *)name);
 }
 
+void proxy_declare_function(smtlib2_parser_interface *p,
+                                                  const char *name,
+                                                  smtlib2_sort sort) {
+  ((smtlib2_abstract_parser_wrapper *) p)->inv_parser->declare_function(
+    name, (var_type *) sort);
+}
+
+void proxy_check_sat(smtlib2_parser_interface *p) {
+  // do nothing
+}
+
 
 smtlib2_term proxy_mk_function(smtlib2_context ctx,
                                                 const char *symbol,

@@ -100,6 +100,8 @@ public:
     std::string Z3Path;
     /// The path to FreqHorn, if "freqhorn" is not in the PATH, default empty
     std::string FreqHornPath;
+    /// FreqHorn Configuration Options
+    std::vector<std::string> FreqHornOptions;
     /// The path to ABC, if "abc" is not in the PATH, default empty
     std::string AbcPath;
     /// Whether to flatten the module hierarchy

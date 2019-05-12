@@ -91,6 +91,10 @@ public:
   bool ExtractAbcSynthesisResult(const std::string & blifname, const std::string &ffmap_file);
 
   // -------------------- SYGUS ------------------ //
+  /// this function tells you what name are truly states
+  void FindRegAmongNames(
+    const std::string & top_module_instance_name,
+    std::set<std::string> & nameset);
   /// set the sygus name lists (cannot be empty)
   void SetSygusVarnameList(const std::vector<std::string> & sygus_var_name);
   /// set the sygus name lists (but also auto-add width info)
@@ -101,9 +105,13 @@ public:
   /// import datapoints from file (to the pos example)
   void ImportDatapointsFromFile(const std::string & fn);
   /// Remove potentially failing candidate invariants (conservative approach remove all candidates)
-  void PruneCandidateInvariant();
+  void PruneCandidateInvariant(const std::set<std::string> &drop_names = std::set<std::string>());
+  /// remove all of them
+  void RemoveAllCandidateInvariant();
   /// to generate synthesis target (for using the whole transfer function)
-  void GenerateSynthesisTargetSygusDatapoints(bool enumerate = false);
+  void GenerateSynthesisTargetSygusDatapoints(
+    const std::set<std::string> &drop_names,
+    bool enumerate = false);
   /// to generate targets using the current invariants
   void ExportCandidateInvariantsToJasperAssertionFile(
     const std::string & precond,
@@ -118,7 +126,8 @@ public:
   /// export the cex check to make sure cex is unreachable
   void ExportCexCheck(
     const std::string & precond,
-    const std::string & assertfile, const std::string &propfile);
+    const std::string & assertfile, const std::string &propfile,
+    const std::set<std::string> &drop_names );
   /// accept all candidate invariants as confirmed ones
   void AcceptAllCandidateInvariant();
 
@@ -134,6 +143,8 @@ public:
   bool check_in_bad_state() const ;
   /// Here you can get the design information
   DesignStatistics GetDesignStatistics() const;
+  /// Here you can restore the previous statistics
+  void LoadPrevStatisticsState(const std::string & fn);
   /// Here you can extract the invariants and export them if needed
   const InvariantObject & GetInvariants() const;
   /// load states -- confirmed invariants
@@ -208,6 +219,9 @@ protected:
   double inv_proof_attempt_time;
   /// the synthesis time of invariants : chc/sygus-chc/sygus-dp
   double inv_syn_time;
+  /// the time in the series
+  std::vector<double> inv_syn_time_series;
+
 
   // --------------------------------------------------
   // for looping purpose

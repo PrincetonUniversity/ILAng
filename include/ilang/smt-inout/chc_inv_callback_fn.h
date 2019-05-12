@@ -56,6 +56,11 @@ void proxy_declare_variable(smtlib2_parser_interface *p,
                                               const char *name,
                                               smtlib2_sort sort);  
 
+void proxy_declare_function(smtlib2_parser_interface *p,
+                                                  const char *name,
+                                                  smtlib2_sort sort);
+                                                  
+void proxy_check_sat(smtlib2_parser_interface *p);
 // --- for term parser
 
 smtlib2_term proxy_mk_function(smtlib2_context ctx,

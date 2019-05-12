@@ -197,13 +197,18 @@ CexExtractor::CexExtractor(const std::string & fn) {
 
 // -------------------- MEMBERS ------------------ //
 /// return a string to be added to the design
-std::string CexExtractor::GenInvAssert(const std::string & prefix) const {
+std::string CexExtractor::GenInvAssert(const std::string & prefix,
+    const std::set<std::string> & focus_name) const {
+
   std::string ret = "(1'b1 == 1'b1)"; // true
   for (auto && nv : cex) {
     if (!cex_is_reg.at(nv.first))
       continue;
-    ret += "&& (" + prepend(prefix, 
-      ReplaceAll( nv.first , "[0:0]" , "" ) ) + " == " + nv.second + ")";
+    auto fullname = prepend(prefix, 
+      ReplaceAll( nv.first , "[0:0]" , "" ) );
+    if (not IN(fullname, focus_name))
+      continue;
+    ret += "&& (" + fullname + " == " + nv.second + ")";
   }
   return ret;
 }
