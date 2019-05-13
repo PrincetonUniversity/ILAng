@@ -463,7 +463,7 @@ public:
   /// get vlg-module instance name
   std::string GetVlgModuleInstanceName() const { return _vlg_mod_inst_name; }
   /// generate invariant synthesis target
-  void GenerateInvSynTargetsAbc();
+  void GenerateInvSynTargetsAbc(bool useGla, bool useCorr);
   /// generate inv-syn target
   std::shared_ptr<smt::YosysSmtParser> GenerateInvSynTargets(synthesis_backend_selector s_backend); 
   /// generate inv-syn-sygus target

@@ -299,7 +299,7 @@ bool InvariantSynthesizerExternalCegar::RunSynAbcAuto() {
 
 /// to extract reachability test result
 bool InvariantSynthesizerExternalCegar::ExtractAbcSynthesisResult(const std::string & blifname,
-  const std::string &ffmap_file) {
+  const std::string &ffmap_file, const std::string & gla_file) {
 
   if(check_in_bad_state()) return false;
 
@@ -310,7 +310,7 @@ bool InvariantSynthesizerExternalCegar::ExtractAbcSynthesisResult(const std::str
   // ILA_ASSERT(current_inv_type != cur_inv_tp::SYGUS_CEX) 
   //   << "API misuse: should not use this function on SYGUS CEX output, they may not be the invariants, but just candidates!";
     
-  bool succeed = inv_obj.AddInvariantFromAbcResultFile(blifname, ffmap_file, true, false);
+  bool succeed = inv_obj.AddInvariantFromAbcResultFile(blifname, ffmap_file, true, false, gla_file);
   if (not succeed)
     return false;
   

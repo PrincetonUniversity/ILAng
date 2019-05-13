@@ -379,6 +379,7 @@ void VlgSglTgtGen_Chc::Export_script(const std::string& script_name) {
 
   std::string runable;
   std::string options;
+  std::string redirect;
   if (s_backend == synthesis_backend_selector::Z3) {
     runable = "z3";
     if (not _vtg_config.Z3Path.empty())
@@ -390,10 +391,11 @@ void VlgSglTgtGen_Chc::Export_script(const std::string& script_name) {
       runable = os_portable_append_dir(_vtg_config.FreqHornPath, runable);
     for (auto && op : _vtg_config.FreqHornOptions)
       options += " " + op;
+    redirect = " 2> ../freqhorn.result";
   }
 
   if (chc_prob_fname != "")
-    fout << runable << " "<< chc_prob_fname << options  << std::endl;
+    fout << runable << options << " " << chc_prob_fname << redirect << std::endl;
   else
     fout << "echo 'Nothing to check!'" << std::endl;
 } // Export_script

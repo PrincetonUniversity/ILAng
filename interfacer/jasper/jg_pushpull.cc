@@ -173,7 +173,7 @@ void analyze_failed_property_and_time(const std::string & vcd_file_name,
       // if it is a signal name
       sig_hash_map.insert(std::make_pair(signame, root_sig -> hash));
     }
-    if ( signame == "inst_begin" )
+    if ( signame == "inst_begin_cond" )
       starting_sig_hash = root_sig -> hash;
   }
 

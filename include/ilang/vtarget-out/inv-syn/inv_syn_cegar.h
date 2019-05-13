@@ -170,7 +170,7 @@ protected:
   /// the synthesis result file
   std::string synthesis_result_fn;
   /// the invariant type
-  enum cur_inv_tp { NONE, SYGUS_CEX, SYGUS_CHC, CHC, CEGAR_ABC } current_inv_type;
+  enum cur_inv_tp { NONE, SYGUS_CEX, SYGUS_CHC, FREQHORN_CHC, CHC, CEGAR_ABC } current_inv_type;
   /// the datapoint
   TraceDataPoints datapoints;
   /// the sygus varname

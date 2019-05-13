@@ -191,12 +191,12 @@ void InvariantSynthesizerCegar::GenerateSynthesisTarget() {
       );
   
   if (s_backend == synthesis_backend_selector::ABC) {
-    vg.GenerateInvSynTargetsAbc();
+    vg.GenerateInvSynTargetsAbc(_vtg_config.AbcUseGla, _vtg_config.AbcUseCorr);
     current_inv_type = cur_inv_tp::CEGAR_ABC;
   }
   else {
-    design_smt_info = vg.GenerateInvSynTargets(s_backend);
-    current_inv_type = cur_inv_tp::CHC;
+    design_smt_info = vg.GenerateInvSynTargets(s_backend); // general chc
+    current_inv_type = s_backend == synthesis_backend_selector::FreqHorn ? cur_inv_tp::FREQHORN_CHC : cur_inv_tp::CHC;
   }
 
   runnable_script_name = vg.GetRunnableScriptName();
@@ -315,18 +315,29 @@ void InvariantSynthesizerCegar::ExtractSynthesisResult(bool autodet, bool reacha
       ILA_ERROR << "Design SMT-LIB2 info is not available. "
         << "You need to run `GenerateSynthesisTarget` or Parse a design smt first first.";
       return;
-    }
+    } 
     ILA_ASSERT(
       inv_obj.AddInvariantFromSygusResultFile(
       *(design_smt_info.get()), "", res_file, 
       _vtg_config.YosysSmtFlattenDatatype,
       _vtg_config.YosysSmtFlattenHierarchy ))
     << "SyGuS solver failed to generate an invariant";
+  } else if (current_inv_type == cur_inv_tp::FREQHORN_CHC) {
+    if (design_smt_info == nullptr) {
+      ILA_ERROR << "Design SMT-LIB2 info is not available. "
+        << "You need to run `GenerateSynthesisTarget` or Parse a design smt first first.";
+      return;
+    }
+    inv_obj.AddInvariantFromFreqHornResultFile(
+      *(design_smt_info.get()), "", os_portable_append_dir(_output_path, "freqhorn.result"), 
+      true,
+      true );
   } else if (current_inv_type == cur_inv_tp::CEGAR_ABC){
     inv_obj.AddInvariantFromAbcResultFile( 
       os_portable_append_dir( os_portable_path_from_path( runnable_script_name[0] ) , "wrapper.blif"),
       os_portable_append_dir( os_portable_path_from_path( runnable_script_name[0] ) , "ffmap.info"),
-      true,true);
+      true,true, _vtg_config.AbcUseGla ? 
+        os_portable_append_dir( os_portable_path_from_path( runnable_script_name[0] ) , "glamap.info") : "" );
   }
   else
     ILA_ERROR<<"Inv type unknown:" << current_inv_type;
@@ -460,6 +471,18 @@ bool InvariantSynthesizerCegar::RunSynAuto() {
       } 
     sbuf << fin.rdbuf();
     cex_reachable = ! ( S_IN( "Property proved." , sbuf.str()) and S_IN( "Invariant contains " , sbuf.str()) );
+  } else if (current_inv_type == FREQHORN_CHC) {
+    std::stringstream sbuf;
+    std::ifstream fin(synthesis_result_fn);
+    if (not fin.is_open()) {
+        ILA_ERROR << "Unable to read the synthesis result file:" << synthesis_result_fn;
+        status = cegar_status::FAILED;
+        bad_state = true;
+        return true; // reachable
+    } 
+    sbuf << fin.rdbuf();
+    cex_reachable = !(S_IN("proved",sbuf.str()));
+    if (S_IN("unknown",sbuf.str())) cex_reachable = true;
   }
   else {
     std::string line;

@@ -88,7 +88,7 @@ public:
 	/// generate abc target
   void GenerateAbcSynthesisTarget(const std::string & precond, const std::string & assume_reg, bool useGla, bool useCorr);
   bool RunSynAbcAuto();
-  bool ExtractAbcSynthesisResult(const std::string & blifname, const std::string &ffmap_file);
+  bool ExtractAbcSynthesisResult(const std::string & blifname, const std::string &ffmap_file, const std::string & gla_file);
 
   // -------------------- SYGUS ------------------ //
   /// this function tells you what name are truly states

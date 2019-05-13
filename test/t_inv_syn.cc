@@ -122,6 +122,65 @@ TEST(TestVlgVerifInvSyn, SimpleCntCegar) {
 } // CegarPipelineExample
 
 
+
+TEST(TestVlgVerifInvSyn, SimpleCntCegarFreqHorn) {
+  auto ila_model = CntTest::BuildModel();
+
+  VerilogVerificationTargetGenerator::vtg_config_t cfg;
+  cfg.InvariantSynthesisReachableCheckKeepOldInvariant = false;
+  cfg.CosaAddKeep = false;
+  cfg.VerificationSettingAvoidIssueStage = true;
+  cfg.YosysSmtFlattenDatatype = true; // let's test flatten datatype also
+  cfg.YosysSmtFlattenHierarchy = true;
+  cfg.CosaPyEnvironment = "/home/hongce/cosaEnv/bin/activate";
+  cfg.CosaPath = "/home/hongce/CoSA/";
+  cfg.Z3Path = "N/A";
+  cfg.FreqHornPath = "/home/hongce/ila/aeval/build/tools/bv/";
+  cfg.FreqHornOptions = {"--eqs --bvnot"};
+  cfg.CosaSolver = "btor";
+
+  auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/inv_syn/cnt2/";
+  auto outDir  = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/inv_syn/cnt2-cegar-freqhorn/";
+
+  InvariantSynthesizerCegar vg(
+      {},                          // no include
+      {dirName + "verilog/opposite.v"}, //
+      "opposite",                // top_module_name
+      dirName + "rfmap/vmap.json", // variable mapping
+      dirName + "rfmap/cond-noinv.json", outDir, ila_model.get(),
+      VerilogVerificationTargetGenerator::backend_selector::COSA,
+      VerilogVerificationTargetGenerator::synthesis_backend_selector::FreqHorn,
+      cfg);
+
+  EXPECT_FALSE(vg.in_bad_state());
+
+    do{
+      vg.GenerateVerificationTarget();
+      if(vg.RunVerifAuto("INC")) // the ADD
+        break; // no more cex found
+      vg.ExtractVerificationResult();
+      vg.GenerateSynthesisTarget(); // you will need fp engine
+      if(vg.RunSynAuto()) {
+        EXPECT_TRUE(false); // cex is really reachable!!!
+        ILA_ERROR<<"Unexpected counterexample!";
+        break; 
+      }
+      vg.ExtractSynthesisResult(); // very weired, it throw away something in arg
+    }while(not vg.in_bad_state());
+
+  vg.GenerateInvariantVerificationTarget();
+  auto design_stat = vg.GetDesignStatistics();
+  ILA_INFO << "========== Design Info ==========" ;
+  ILA_INFO << "#bits= " << design_stat.NumOfDesignStateBits;
+  ILA_INFO << "#vars=" << design_stat.NumOfDesignStateVars;
+  ILA_INFO << "#extra_bits= " << design_stat.NumOfExtraStateBits;
+  ILA_INFO << "#extra_vars=" << design_stat.NumOfExtraStateVars;
+  ILA_INFO << "t(eq)= " << design_stat.TimeOfEqCheck;
+  ILA_INFO << "t(syn)=" << design_stat.TimeOfInvSyn;
+  ILA_INFO << "t(proof)= " << design_stat.TimeOfInvProof;
+  ILA_INFO << "t(validate)=" << design_stat.TimeOfInvValidate;
+} // CegarPipelineExample
+
 TEST(TestVlgVerifInvSyn, DirectStart) {
   auto ila_model = CntTest::BuildModel();
 
@@ -314,6 +373,8 @@ TEST(TestVlgVerifInvSyn, CegarPipelineAbc) {
   cfg.CosaPyEnvironment = "/home/hongce/cosaEnv/bin/activate";
   cfg.CosaPath = "/home/hongce/CoSA/";
   cfg.AbcPath = "/home/hongce/abc/";
+  cfg.AbcUseGla = true;
+  cfg.AbcUseCorr = false;
   cfg.CosaSolver = "btor";
 
   auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/vpipe/";
@@ -358,6 +419,92 @@ TEST(TestVlgVerifInvSyn, CegarPipelineAbc) {
   ILA_INFO << "t(validate)=" << design_stat.TimeOfInvValidate;
 
 } // CegarPipelineExample
+
+
+// This test uses CEGAR loop
+// This tests has no extra start cycle
+TEST(TestVlgVerifInvSyn, CegarPipelineExampleFreqHorn) {
+  auto ila_model = SimplePipe::BuildModel();
+
+  VerilogVerificationTargetGenerator::vtg_config_t cfg;
+  cfg.InvariantSynthesisReachableCheckKeepOldInvariant = false;
+  cfg.CosaAddKeep = false;
+  cfg.VerificationSettingAvoidIssueStage = true;
+  cfg.YosysSmtFlattenDatatype = true;
+  cfg.YosysSmtFlattenHierarchy = true;
+  cfg.CosaPyEnvironment = "/home/hongce/cosaEnv/bin/activate";
+  cfg.CosaPath = "/home/hongce/CoSA/";
+  cfg.Z3Path = "N/A";
+  cfg.FreqHornPath = "/home/hongce/ila/aeval/build/tools/bv/";
+  cfg.FreqHornOptions = {"--eqs --or --conc --impl --impl-or --dot-name --neqs --bw 4"};
+  cfg.CosaSolver = "btor";
+
+  auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/vpipe/";
+  auto outDir  = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/inv_syn/vpipe-out-freqhorn/";
+
+  InvariantSynthesizerCegar vg(
+      {},                          // no include
+      {dirName + "simple_pipe.v"}, //
+      "pipeline_v",                // top_module_name
+      dirName + "rfmap/vmap.json", // variable mapping
+      dirName + "rfmap/cond-noinv.json", outDir, ila_model.get(),
+      VerilogVerificationTargetGenerator::backend_selector::COSA,
+      VerilogVerificationTargetGenerator::synthesis_backend_selector::FreqHorn,
+      cfg);
+
+  EXPECT_FALSE(vg.in_bad_state());
+
+    do{
+      vg.GenerateVerificationTarget();
+      if(vg.RunVerifAuto("ADD")) // the ADD
+        break; // no more cex found
+      vg.ExtractVerificationResult();
+      vg.GenerateSynthesisTarget();
+      if(vg.RunSynAuto()) {
+        EXPECT_TRUE(false); // cex is really reachable!!!
+        ILA_ERROR<<"Unexpected counterexample!";
+        break; 
+      }
+      vg.ExtractSynthesisResult();
+    }while(not vg.in_bad_state());
+
+  vg.GenerateInvariantVerificationTarget();
+  auto design_stat = vg.GetDesignStatistics();
+  ILA_INFO << "========== Design Info ==========" ;
+  ILA_INFO << "#bits= " << design_stat.NumOfDesignStateBits;
+  ILA_INFO << "#vars=" << design_stat.NumOfDesignStateVars;
+  ILA_INFO << "#extra_bits= " << design_stat.NumOfExtraStateBits;
+  ILA_INFO << "#extra_vars=" << design_stat.NumOfExtraStateVars;
+  ILA_INFO << "t(eq)= " << design_stat.TimeOfEqCheck;
+  ILA_INFO << "t(syn)=" << design_stat.TimeOfInvSyn;
+  ILA_INFO << "t(proof)= " << design_stat.TimeOfInvProof;
+  ILA_INFO << "t(validate)=" << design_stat.TimeOfInvValidate;
+
+  // test invariant import and export also here
+  InvariantObject invs(vg.GetInvariants());
+  invs.ExportToFile(outDir+"inv_results.txt");
+  invs.ClearAllInvariants();
+  invs.ImportFromFile(outDir+"inv_results.txt");
+  
+  // check they are the same
+  EXPECT_EQ(
+    vg.GetInvariants().NumInvariant(), 
+    invs.NumInvariant());
+  EXPECT_EQ(
+    vg.GetInvariants().GetExtraVarDefs().size(), 
+    invs.GetExtraVarDefs().size());
+  EXPECT_EQ(
+    vg.GetInvariants().GetExtraFreeVarDefs().size(), 
+    invs.GetExtraFreeVarDefs().size());
+
+  for (auto pos = invs.GetVlgConstraints().begin(), 
+        pos2 = vg.GetInvariants().GetVlgConstraints().begin(); 
+      pos != invs.GetVlgConstraints().end();
+      ++ pos, ++ pos2  ) {
+    EXPECT_EQ(*pos, *pos2);
+  }
+} // CegarPipelineExample
+
 
 TEST(TestVlgVerifInvSyn, InvariantImportExport) {
 

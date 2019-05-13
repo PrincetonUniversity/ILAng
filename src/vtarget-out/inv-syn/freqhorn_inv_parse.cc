@@ -42,7 +42,7 @@ bool FreqHornInvariantParser::ParseInvResultFromFile(const std::string & fname) 
     ILA_ERROR << "Unable to read from : " << fname;
     return false;
   }
-
+/*
   std::string result;
   if (not std::getline(fin,result) ) {
     ILA_ASSERT(false) << "No output from the synthesizer!" << result;
@@ -56,7 +56,7 @@ bool FreqHornInvariantParser::ParseInvResultFromFile(const std::string & fname) 
       break;
     }
   } while (getline(fin,result));
-
+*/
   std::stringstream sbuf;
   sbuf << fin.rdbuf(); // different from original, it starts (define-fun)
   raw_string = sbuf.str();
@@ -127,7 +127,7 @@ void FreqHornInvariantParser::declare_function(const std::string &name, var_type
 
   // save it
   quantifier_def_stack.back().insert(std::make_pair(name,
-    SmtTermInfoVerilog(vlg_name,*sort,this)));
+    SmtTermInfoVerilog(converted_name,*sort,this)));
 } 
 
 // --------------------- DISABLE THESE FUNCTIONS ------------------------ //

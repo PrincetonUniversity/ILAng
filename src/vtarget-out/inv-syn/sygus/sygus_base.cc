@@ -56,7 +56,8 @@ struct extract_op {
   const std::string smt;
   const std::string replacement;
   const std::string exheading;
-  extract_op (unsigned h, unsigned l, unsigned f, unsigned t) :
+  const std::set<std::string> from_state_name;
+  extract_op (unsigned h, unsigned l, unsigned f, unsigned t, const std::set<std::string> & s = std::set<std::string>()) :
     high(h),low(l),from(f),to(t),
       reps("extract_" + std::to_string(high) + "_" 
         + std::to_string(low) + "_" + std::to_string(from) + "_"
@@ -64,7 +65,8 @@ struct extract_op {
       replacement("(_ extract "+ std::to_string(high) + " " + std::to_string(low) +")"),
       smt("((_ extract "+ std::to_string(high) + " " + std::to_string(low) +") x)"),
       exheading("(define-fun |" + reps + "| ((x (_ BitVec " + std::to_string(from) + ")))"
-        + " (_ BitVec " + std::to_string(to) + ") " + smt + ")")
+        + " (_ BitVec " + std::to_string(to) + ") " + smt + ")"),
+      from_state_name(s)
      { 
       ILA_ASSERT(h-l+1 == t);
       ILA_ASSERT(from >= to);
@@ -76,9 +78,9 @@ struct extract_op {
 const std::map<unsigned, std::vector<extract_op>> extractExtOp (
   {
     {5, {
-      extract_op(11,7,32,5),
-      extract_op(19,15,32,5),
-      extract_op(24,20,32,5)} }, //  extract_15_0_128_16
+      extract_op(11,7,32,5, {"dut.mem_reg_inst", "dut.wb_reg_inst", "dut.ex_reg_inst"}),
+      extract_op(19,15,32,5, {"dut.mem_reg_inst", "dut.wb_reg_inst", "dut.ex_reg_inst"}),
+      extract_op(24,20,32,5, {"dut.mem_reg_inst", "dut.wb_reg_inst", "dut.ex_reg_inst"})} }, //  extract_15_0_128_16
     /*{1, {
       extract_op(31,31,32,1),
       extract_op(20,20,32,1),
@@ -803,9 +805,20 @@ std::string Cvc4SygusBase::get_template_hardwired() const{
         if ( IN(1, extractExtOp) && ! extractExtOp.at(1).empty() ) {
           for (auto && extractOp : extractExtOp.at(1) ) {
             if ( not IN( extractOp.from, width_to_names) ) continue;
-            extraOp += "(" + extractOp.reps + " Var" + std::to_string(extractOp.from) + ")\n";
             extra_heading_local.push_back(extractOp.exheading+"\n"); 
             corrections.insert(std::make_pair(extractOp.reps, extractOp.replacement));
+            if (extractOp.from_state_name.empty())
+              extraOp += "(" + extractOp.reps + " Var" + std::to_string(extractOp.from) + ")\n";
+            else {
+              for(auto && vn : extractOp.from_state_name) {
+                for(auto && sn : width_to_names.at(extractOp.from)) {
+                  if ( sn.find(vn) != sn.npos ) {
+                    extraOp += "(" + extractOp.reps + " " + sn + ")\n";
+                  }
+                }
+              }
+            } // end if there specify the state
+            
           }
         }
 
@@ -825,9 +838,19 @@ std::string Cvc4SygusBase::get_template_hardwired() const{
         if ( IN(width, extractExtOp) && ! extractExtOp.at(width).empty() ) {
           for (auto && extractOp : extractExtOp.at(width) ) {
             if ( not IN( extractOp.from, width_to_names) ) continue;
-            extraOp += "(" + extractOp.reps + " Var" + std::to_string(extractOp.from) + ")\n";
             extra_heading_local.push_back(extractOp.exheading+"\n"); 
             corrections.insert(std::make_pair(extractOp.reps, extractOp.replacement));
+            if (extractOp.from_state_name.empty())
+              extraOp += "(" + extractOp.reps + " Var" + std::to_string(extractOp.from) + ")\n";
+            else {
+              for(auto && vn : extractOp.from_state_name) {
+                for(auto && sn : width_to_names.at(extractOp.from)) {
+                  if ( sn.find(vn) != sn.npos ) {
+                    extraOp += "(" + extractOp.reps + " " + sn + ")\n";
+                  }
+                }
+              }
+            } // end if there specify the state
           }
         }
 

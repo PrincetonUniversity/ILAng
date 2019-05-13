@@ -95,7 +95,8 @@ public:
       const target_type_t& target_tp,
       advanced_parameters_t * adv_ptr,
       bool generate_proof,
-      _chc_target_t Abc_target);
+      _chc_target_t Abc_target,
+      bool useGLA, bool useCORR);
 
   // --------------------- Destructor ---------------------------- //
   /// do nothing
@@ -118,6 +119,10 @@ protected:
   bool has_cex;
   /// what are the targets
   _chc_target_t chc_target;
+  /// Use abc gla?
+  const bool useGla;
+  /// Use abc corr
+  const bool useCorr;
 
 protected:
   /// Add an assumption -- needed by base class

@@ -61,7 +61,8 @@ public:
     const std::string & blif_fname,
     const std::string & abc_fname,
     bool warning_outside_var,
-    bool replace_outside_var);
+    bool replace_outside_var,
+    const std::string & gla_map_fname);
 
   /// add invariants from verilog-like output
   void AddInvariantFromVerilogExpr(const std::string & tag, const std::string & vlg_in);

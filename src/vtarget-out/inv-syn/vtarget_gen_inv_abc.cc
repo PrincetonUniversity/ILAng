@@ -30,6 +30,63 @@ write_blif %blifname%
 )***";
 
 
+std::string abcCmdNoGLA = R"***(
+  read_blif %blifname%
+  strash
+  pdr
+  inv_print -v
+)***";
+
+
+std::string abcCmdGLAnoCorr = R"***(
+  read_blif %blifname%
+  &get -n
+  &gla -T 450 -F 50 -v
+  &gla_derive
+  &put
+  dc2 -v
+  dc2 -v
+  dc2 -v
+  dc2 -v
+  dc2 -v
+  dc2 -v
+  dc2 -v
+  dc2 -v
+  dc2 -v
+  dc2 -v
+  pdr
+  inv_print -v
+)***";
+
+std::string abcCmdGLA = R"***(
+  read_blif %blifname%
+  &get -n
+  &gla -T 450 -F 50 -v
+  &gla_derive
+  &put
+  dc2 -v
+  dc2 -v
+  dc2 -v
+  dc2 -v
+  dc2 -v
+  dc2 -v
+  dc2 -v
+  dc2 -v
+  scorr -v -l -k -F 4
+  dc2 -v
+  dc2 -v
+  dc2 -v
+  dc2 -v
+  lcorr -v
+  dc2 -v
+  dc2 -v
+  dc2 -v
+  dc2 -v
+  pdr
+  inv_print -v
+)***";
+
+
 VlgSglTgtGen_Abc::~VlgSglTgtGen_Abc() {
   
 }
@@ -50,14 +107,15 @@ VlgSglTgtGen_Abc::VlgSglTgtGen_Abc(
     const target_type_t& target_tp,
     advanced_parameters_t* adv_ptr,
     bool GenerateProof,
-    _chc_target_t chctarget )
+    _chc_target_t chctarget, bool useGLA, bool useCORR )
     : VlgSglTgtGen(output_path, instr_ptr, ila_ptr, config, _rf_vmap, _rf_cond, _sup_info,
                    _vlg_info_ptr, vlg_mod_inst_name, ila_mod_inst_name,
                    wrapper_name, implementation_srcs,
                    implementation_include_path, vtg_config, vbackend,
                    target_tp, adv_ptr),
       s_backend(sbackend), generate_proof(GenerateProof), 
-      has_cex(adv_ptr and adv_ptr->_cex_obj_ptr), chc_target(chctarget) { 
+      has_cex(adv_ptr and adv_ptr->_cex_obj_ptr), chc_target(chctarget),
+      useGla(useGLA), useCorr(useCORR) { 
     
     ILA_ASSERT(vbackend == backend_selector::YOSYS)
       << "Only support using yosys for chc target";
@@ -245,11 +303,21 @@ void VlgSglTgtGen_Abc::Export_script(const std::string& script_name) {
   if (not _vtg_config.AbcPath.empty())
     runable = os_portable_append_dir(_vtg_config.AbcPath, runable);
 
-  std::string abc_cmd = "read_blif " + blif_fname + ";";
-  abc_cmd += "strash; pdr; inv_print -v";
+  auto abc_command_file_name = "abcCmd.txt";
+  { // generate abc command
+    auto abc_cmd = useGla ? ( useCorr?  abcCmdGLA : abcCmdGLAnoCorr) : abcCmdNoGLA;
+    abc_cmd = ReplaceAll(abc_cmd, "%blifname%", blif_fname);
+    auto abc_cmd_fname = os_portable_append_dir(_output_path, abc_command_file_name);
+    std::ofstream abc_cmd_fn(abc_cmd_fname);
+    if (!abc_cmd_fn.is_open()) {
+      ILA_ERROR << "Error writing to file:" << abc_cmd_fname;
+      return;
+    }
+    abc_cmd_fn << abc_cmd;
+  } // generate abc command
 
   if (blif_fname != "")
-    fout << runable << " -c '"<< abc_cmd  << "'" << std::endl;
+    fout << runable << " -F "<< abc_command_file_name  << std::endl;
   else
     fout << "echo 'Nothing to check!'" << std::endl;
 } // Export_script
@@ -317,6 +385,26 @@ void VlgSglTgtGen_Abc::Export_mem(const std::string& mem_name) {
 }
 
 
+static void correct_blif_remove_non_init(const std::string & fn, const std::string & fo) {
+  std::ifstream fin(fn);
+  std::ofstream fout(fo);
+  if (!fin.is_open()) { ILA_ERROR << "Unable to read " << fn; return;}
+  if (!fout.is_open()) { ILA_ERROR << "Unable to write " << fo; return;}
+  std::string line;
+  while(std::getline(fin,line)) {
+    if (line.find(".latch ") == 0) {
+      auto st_def = SplitSpaceTabEnter(line);
+      if ( st_def.back() == "2") {
+        st_def.back() = "0";
+        ILA_WARN << "Force state to be 0: " << st_def.at(2);
+        line = Join(st_def, " ");
+      }
+    }
+    // always write back
+    fout << line << "\n";
+  }
+} // correct_blif_remove_non_init
+
 // export the chc file
 void VlgSglTgtGen_Abc::Export_problem(const std::string& extra_name) {
   // used by export script!
@@ -326,8 +414,13 @@ void VlgSglTgtGen_Abc::Export_problem(const std::string& extra_name) {
   // and extract from it the necessary info
   // "yosys --> blif "
   generate_blif(
-    os_portable_append_dir(_output_path, blif_fname),
+    os_portable_append_dir(_output_path, "__blif_prepare.blif"),
     os_portable_append_dir(_output_path, "__gen_blif_script.ys")
+  );
+
+  correct_blif_remove_non_init(
+    os_portable_append_dir(_output_path, "__blif_prepare.blif"),
+    os_portable_append_dir(_output_path, blif_fname)
   );
 
 } // Export_problem

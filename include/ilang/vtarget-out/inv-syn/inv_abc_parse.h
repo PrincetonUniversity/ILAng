@@ -25,6 +25,12 @@ protected:
   void parse(
     const std::string & blif_name,
     const std::string & abc_result_fn);
+  
+  /// the real parsing parsing function
+  void parse(
+    const std::string & blif_name,
+    const std::string & abc_result_fn,
+    const std::string & gla_map_fn);
   /// dut name
   const std::string dut_name;
   /// whether to warn names
@@ -40,7 +46,8 @@ public:
     const std::string & abc_result_fn,
     const std::string & dut_name,
     bool discourage_outside_variable_reference,
-    bool replace_outside_variable_reference);
+    bool replace_outside_variable_reference,
+    const std::string & gla_abs_fn);
     
   std::string GetParseResult() const { return parse_result; }
 

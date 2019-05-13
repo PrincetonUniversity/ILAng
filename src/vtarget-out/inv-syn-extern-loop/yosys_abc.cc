@@ -633,14 +633,14 @@ std::string abcCmdGLAnoCorr = R"***(
   &gla_derive
   &put
   dc2 -v
-  dc2 -v
-  dc2 -v
-  dc2 -v
-  dc2 -v
-  dc2 -v
-  dc2 -v
-  dc2 -v
-  dc2 -v
+  dc2
+  dc2
+  dc2
+  dc2
+  dc2
+  dc2
+  dc2
+  dc2
   dc2 -v
   pdr
   inv_print -v
@@ -720,6 +720,26 @@ void ExternalAbcTargetGen::export_script(const std::string& script_name,
 } 
 
 
+static void correct_blif_remove_non_init(const std::string & fn, const std::string & fo) {
+  std::ifstream fin(fn);
+  std::ofstream fout(fo);
+  if (!fin.is_open()) { ILA_ERROR << "Unable to read " << fn; return;}
+  if (!fout.is_open()) { ILA_ERROR << "Unable to write " << fo; return;}
+  std::string line;
+  while(std::getline(fin,line)) {
+    if (line.find(".latch ") == 0) {
+      auto st_def = SplitSpaceTabEnter(line);
+      if ( st_def.back() == "2") {
+        st_def.back() = "0";
+        ILA_WARN << "Force state to be 0: " << st_def.at(2);
+        line = Join(st_def, " ");
+      }
+    }
+    // always write back
+    fout << line << "\n";
+  }
+} // correct_blif_remove_non_init
+
 void ExternalAbcTargetGen::generate_blif(
   const std::string& blifname,
   const std::string& ys_script_name) {
@@ -764,8 +784,13 @@ void ExternalAbcTargetGen::GenerateBlifProblem(
   
   blif_fname = blif_name;
   generate_blif(
-    os_portable_append_dir(_output_path, blif_name),
+    os_portable_append_dir(_output_path, "__blif_prepare.blif"),
     os_portable_append_dir(_output_path, "__gen_blif_script.ys")
+  );
+
+  correct_blif_remove_non_init(
+    os_portable_append_dir(_output_path, "__blif_prepare.blif"),
+    os_portable_append_dir(_output_path, blif_name)
   );
 
   export_script(bash_script_name, abc_command_file_name, useGla, useCorr);

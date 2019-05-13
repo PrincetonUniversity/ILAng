@@ -111,6 +111,10 @@ public:
     /// Whether to assume the old invariants when check for reachability
     /// It seems for Z3, setting this to be false is faster (I don't know why)
     bool InvariantSynthesisReachableCheckKeepOldInvariant;
+    /// ABC option : whether to use gate-level abstraction
+    bool AbcUseGla;
+    /// ABC option : whether to use correlation analysis
+    bool AbcUseCorr;    
     /// Configure the behavior of INV target, if false,
     /// will not check synthesized invariants by default (unless call generateInvariantVerificationTarget)
     /// if true, will check by default
@@ -185,7 +189,8 @@ public:
           YosysSmtArrayForRegFile(false), YosysSmtStateSort(DataSort),
           VerificationSettingAvoidIssueStage(false), YosysSmtFlattenHierarchy(false),
           YosysSmtFlattenDatatype(false), InvariantSynthesisReachableCheckKeepOldInvariant(false),
-          ValidateSynthesizedInvariant(_validate_synthesized_inv::ALL)  {}
+          ValidateSynthesizedInvariant(_validate_synthesized_inv::ALL) ,
+          AbcUseGla(true), AbcUseCorr(false) {}
   } vtg_config_t;
 
   /// NOTE: this function can be inherited

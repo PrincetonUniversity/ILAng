@@ -206,7 +206,11 @@ std::string CexExtractor::GenInvAssert(const std::string & prefix,
       continue;
     auto fullname = prepend(prefix, 
       ReplaceAll( nv.first , "[0:0]" , "" ) );
-    if (not IN(fullname, focus_name))
+    auto check_name = fullname; // remove further of [][:]
+    auto pos = check_name.rfind('[');
+    if (pos != std::string::npos)
+      check_name = check_name.substr(0,pos);
+    if (!focus_name.empty() && !IN(check_name, focus_name))
       continue;
     ret += "&& (" + fullname + " == " + nv.second + ")";
   }
