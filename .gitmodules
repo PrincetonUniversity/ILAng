@@ -1,6 +1,3 @@
-[submodule "extern/googletest"]
-	path = extern/googletest
-	url = https://github.com/abseil/googletest.git
 [submodule "extern/vlog-parser"]
 	path = extern/vlog-parser
 	url = https://github.com/Bo-Yuan-Huang/verilog-parser.git
