@@ -1,10 +1,12 @@
 /// \file
 /// The implementation of the elevated synthesis engine interface.
 
-#include <ilang/synth-interface/synth_abs_converter.h>
 #include <ilang/synth-interface/synth_engine_interface.h>
-#include <ilang/util/log.h>
+
 #include <sys/stat.h>
+
+#include <ilang/synth-interface/synth_abs_converter.h>
+#include <ilang/util/log.h>
 
 namespace ilang {
 
@@ -25,7 +27,7 @@ InstrLvlAbsPtr ImportSynthAbsFromFile(const std::string& fileName,
   auto converter = SynthAbsConverter::New();
   auto ila = converter->Convert(abs);
 
-  ILA_NOT_NULL(ila) << "Fail converting ila from " << fileName;
+  ILA_CHECK(ila) << "Fail converting ila from " << fileName;
 
   return ila;
 }

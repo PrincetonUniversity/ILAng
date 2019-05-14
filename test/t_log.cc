@@ -130,7 +130,6 @@ TEST_F(TestLog, Verbose) {
 #endif
 }
 
-#if 0
 TEST_F(TestLog, Death) {
   std::string msg;
 
@@ -139,14 +138,14 @@ TEST_F(TestLog, Death) {
 #ifndef NDEBUG
   EXPECT_TRUE(msg.empty());
 
-  EXPECT_DEATH(ILA_ASSERT(1 == 2), ".*");
+  EXPECT_DEATH((ILA_ASSERT(1 == 2)), ".*");
 #endif
 
   // Check (Debug/Release)
   GET_STDERR_MSG((ILA_CHECK(1 == 1) << "This is true.\n"), msg);
   EXPECT_TRUE(msg.empty());
 
-  EXPECT_DEATH(ILA_CHECK(1 == 2), ".*");
+  EXPECT_DEATH((ILA_CHECK(1 == 2)), ".*");
   EXPECT_DEATH(ILA_CHECK_EQ(3, 5), ".*");
   EXPECT_DEATH(ILA_CHECK_NE(4, 4), ".*");
   ILA_CHECK_STREQ("str", "str");
@@ -158,7 +157,6 @@ TEST_F(TestLog, Death) {
   EXPECT_DEATH(ILA_NOT_NULL(null_ptr.get()), ".*");
   EXPECT_DEATH(ILA_NOT_NULL(null_ptr), ".*");
 }
-#endif
 
 TEST_F(TestLog, DebugEnable) {
   std::string msg0;
