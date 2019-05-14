@@ -26,32 +26,16 @@ endif() # GLOG_FOUND
 # 
 #   TARGET nlohmann_json::nlohmann_json
 #   SOURCE https://github.com/nlohmann/json.git
-#   PATH   extern/json-lib
+#   PATH   extern/json
 # ---------------------------------------------------------------------------- #
 # find installed package
 find_package(nlohmann_json QUIET)
 
-# embed to build tree if not installed
+# build from embeded subtree (in-source)
 if(NOT NLOHMANN_JSON_FOUND)
 
-  # fetch from git
-  if(${ILANG_FETCH_DEPS})
-
-    execute_process(
-      COMMAND ${GIT_EXECUTABLE} submodule update --init json-lib
-      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-      RESULT_VARIABLE GIT_SUBMOD_RESULT
-    )
-
-    if(NOT GIT_SUBMOD_RESULT EQUAL "0")
-      message(FATAL_ERROR "Submodule update failed with ${GIT_SUBMOD_RESULT}")
-    endif()
-
-  endif() # ILANG_FETCH_DEPS
-
-  # embedded build
   set(JSON_BuildTests OFF CACHE INTERNAL "")
-  add_subdirectory(json-lib)
+  add_subdirectory(json)
 
 endif() # NLOHMANN_JSON_FOUND
 
@@ -127,12 +111,3 @@ if(${ILANG_BUILD_SYNTH})
 
 endif() # ILANG_BUILD_SYNTH
 
-
-# ---------------------------------------------------------------------------- #
-# Google Test
-#
-#   TARGET  N/A
-#   SOURCE  https://github.com/abseil/googletest
-#   PATH    extern/googletest
-# ---------------------------------------------------------------------------- #
-# removed
