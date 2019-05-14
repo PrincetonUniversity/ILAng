@@ -11,9 +11,8 @@ path_classifiers:
   script:
     - scripts
 
-  example:
+  application:
     - apps
-    - examples
 
 extraction:
   cpp:
@@ -30,7 +29,7 @@ extraction:
       command:
         - mkdir -p build
         - cd build
-        - cmake ..
+        - cmake .. -DILANG_STATIC=ON
 
     index:
       build_command:
