@@ -37,9 +37,9 @@ RUN virtualenv $VIRT_ENV
 
 # z3
 ENV Z3_DIR $BUILD_ROOT/z3
-RUN wget https://github.com/Z3Prover/z3/releases/download/z3-4.7.1/z3-4.7.1.tar.gz
-RUN mkdir -p $Z3_DIR 
-RUN tar zxvf z3-4.7.1.tar.gz -C $Z3_DIR --strip-components 1
+WORKDIR $BUILD_ROOT
+ADD https://api.github.com/repos/Z3Prover/z3/git/refs/heads/master z3_version.json
+RUN git clone https://github.com/Z3Prover/z3.git $Z3_DIR
 WORKDIR $Z3_DIR 
 RUN $BUILD_PREF/bin/python scripts/mk_make.py --prefix=$BUILD_PREF --python 
 WORKDIR $Z3_DIR/build
@@ -98,23 +98,9 @@ RUN git clone --depth=1 https://github.com/Bo-Yuan-Huang/ILAng.git $ILANG_DIR
 WORKDIR $ILANG_DIR
 RUN mkdir -p build 
 WORKDIR $ILANG_DIR/build
-RUN cmake .. -DCMAKE_INSTALL_PREFIX=$BUILD_PREF -DILANG_INSTALL_DEV=ON -DILANG_BUILD_TEST=OFF -DILANG_BUILD_SYNTH=OFF && \
+RUN cmake .. -DCMAKE_INSTALL_PREFIX="$BUILD_PREF" -DILANG_INSTALL_DEV=ON && \
     make -j"$(nproc)" && \
     make install 
-
-# IMDb
-ENV IMDB_DIR $BUILD_ROOT/IMDb
-WORKDIR $BUILD_ROOT
-ADD https://api.github.com/repos/PrincetonUniversity/IMDb/git/refs/heads/master imdb_version.json
-RUN git clone --depth=1 https://github.com/PrincetonUniversity/IMDb.git $IMDB_DIR
-
-# AES demo
-ENV DEMO_DIR $IMDB_DIR/tutorials/aes
-WORKDIR $DEMO_DIR
-RUN mkdir -p $DEMO_DIR/build
-WORKDIR $DEMO_DIR/build
-RUN cmake .. -DCMAKE_PREFIX_PATH=$BUILD_PREF && \
-    make -j"$(nproc)"
 
 #
 # Deployment
@@ -123,8 +109,13 @@ FROM ubuntu:bionic
 
 RUN apt update && DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends \
     bison=2:3.0.4.dfsg-1build1 \
+    build-essential=12.4ubuntu1 \
+    cmake=3.10.2-1ubuntu2 \
     flex=2.6.4-6 \
+    git=1:2.17.1-1ubuntu0.4 \
+    libboost-all-dev=1.65.1.0ubuntu1 \
     libgomp1=8.3.0-6ubuntu1~18.04 \
+    pkg-config=0.29.1-0ubuntu2 \
     python3=3.6.7-1~18.04 \
     python3-pip=9.0.1-2.3~ubuntu1 \
     tcl-dev=8.6.0+9 \
@@ -136,16 +127,17 @@ ENV VIRT_ENV ilang-env
 ENV BUILD_ROOT /ibuild
 ENV BUILD_PREF $BUILD_ROOT/$VIRT_ENV
 
-WORKDIR $BUILD_ROOT/demo
+WORKDIR /root/workspace
 
 RUN echo "source $BUILD_PREF/bin/activate" >> init.sh
 RUN echo "export PYTHONPATH=$BUILD_PREF/lib:\$PYTHONPATH" >> init.sh
+RUN echo "export CMAKE_PREFIX_PATH=$BUILD_PREF:\$CMAKE_PREFIX_PATH" >> init.sh
 RUN echo "cd $(pwd)" >> init.sh
 
 # configure files
 COPY --from=builder $BUILD_PREF $BUILD_PREF
 COPY --from=builder $BUILD_ROOT/CoSA/ $BUILD_ROOT/CoSA/
-COPY --from=builder $BUILD_ROOT/IMDb/tutorials/aes/ ./aes-demo/
+COPY --from=builder $BUILD_ROOT/ILAng/boilerplate/ ./simple/
 
 # done
 CMD echo "run 'source init.sh' to start" && /bin/bash
