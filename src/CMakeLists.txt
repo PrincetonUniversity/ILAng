@@ -2,7 +2,7 @@
 # TARGET
 # archive library 
 # ---------------------------------------------------------------------------- #
-if(${ILANG_STATIC})
+if(${ILANG_BUILD_STATIC})
   add_library(${ILANG_LIB_NAME} STATIC ilang++.cc)
 else()
   add_library(${ILANG_LIB_NAME} SHARED ilang++.cc)
