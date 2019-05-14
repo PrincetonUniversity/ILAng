@@ -130,6 +130,7 @@ TEST_F(TestLog, Verbose) {
 #endif
 }
 
+#if 0
 TEST_F(TestLog, Death) {
   std::string msg;
 
@@ -157,6 +158,7 @@ TEST_F(TestLog, Death) {
   EXPECT_DEATH(ILA_NOT_NULL(null_ptr.get()), ".*");
   EXPECT_DEATH(ILA_NOT_NULL(null_ptr), ".*");
 }
+#endif
 
 TEST_F(TestLog, DebugEnable) {
   std::string msg0;
