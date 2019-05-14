@@ -11,10 +11,6 @@ find_package(glog QUIET)
 # build from embeded subtree (in-source) 
 if(NOT GLOG_FOUND)
 
-  if(${ILANG_BUILD_STATIC})
-    set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "")
-  endif()
-
   set(WITH_GFLAGS OFF CACHE INTERNAL "")
   add_subdirectory(glog)
 

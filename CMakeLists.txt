@@ -20,12 +20,12 @@ project(ilang VERSION     0.9.0
 # OPTION
 # build configuration
 # ---------------------------------------------------------------------------- #
-option(ILANG_BUILD_STATIC "Build static libraries."                         OFF)
-option(ILANG_FETCH_DEPS   "Fetch source of dependencies at config time."     ON)
-option(ILANG_BUILD_DOCS   "Build documentations."                           OFF)
-option(ILANG_BUILD_SYNTH  "Build the synthesis engine."                      ON)
-option(ILANG_INSTALL_DEV  "Install dev features."                           OFF)
+option(ILANG_FETCH_DEPS  "Fetch source of dependencies at config time."      ON)
+option(ILANG_BUILD_DOCS  "Build documentations."                            OFF)
+option(ILANG_BUILD_SYNTH "Build the synthesis engine."                       ON)
+option(ILANG_INSTALL_DEV "Install dev features."                            OFF)
 option(ILANG_EXPORT_PACKAGE "Export CMake package if enabled."              OFF)
+option(BUILD_SHARED_LIBS "Build shared libraries."                           ON)
 
 include(CMakeDependentOption)
 
@@ -54,6 +54,11 @@ set(ILANG_CMAKE_VERSION_CONFIG_FILE
 
 set(ILANG_CMAKE_PROJECT_CONFIG_FILE  
   "${ILANG_CMAKE_CONFIG_DIR}/${PROJECT_NAME}Config.cmake")
+
+if(${BUILD_SHARED_LIBS})
+  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+  set(CMAKE_MACOSX_RPATH TRUE)
+endif()
 
 # ---------------------------------------------------------------------------- #
 # External dependencies
