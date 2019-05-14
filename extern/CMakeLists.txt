@@ -8,25 +8,14 @@
 # find installed package 
 find_package(glog QUIET)
 
-# embed to build tree if not installed
+# build from embeded subtree (in-source) 
 if(NOT GLOG_FOUND)
 
-  # fetch from git
-  if(${ILANG_FETCH_DEPS})
+  if(${ILANG_BUILD_STATIC})
+    set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "")
+  endif()
 
-    execute_process(
-      COMMAND ${GIT_EXECUTABLE} submodule update --init glog
-      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-      RESULT_VARIABLE GIT_SUBMOD_RESULT
-    )
-
-    if(NOT GIT_SUBMOD_RESULT EQUAL "0")
-      message(FATAL_ERROR "Submodule update failed with ${GIT_SUBMOD_RESULT}")
-    endif()
-
-  endif() # ILANG_FETCH_DEPS
-
-  # embedded build
+  set(WITH_GFLAGS OFF CACHE INTERNAL "")
   add_subdirectory(glog)
 
 endif() # GLOG_FOUND
