@@ -1,6 +1,8 @@
 /// \file
 /// Unit test for c++ API
 
+#include "unit-include/config.h"
+#include "unit-include/eq_ilas.h"
 #include "unit-include/simple_cpu.h"
 #include "unit-include/util.h"
 #include <ilang/ilang++.h>
@@ -72,9 +74,9 @@ TEST(TestApi, Construct) {
 }
 
 /// helper function
-bool SameOp(const ExprRef & l , const ExprRef & r) {
-  std::shared_ptr<ExprOp> lp = std::dynamic_pointer_cast<ExprOp>( l.get() );
-  std::shared_ptr<ExprOp> rp = std::dynamic_pointer_cast<ExprOp>( r.get() );
+bool SameOp(const ExprRef& l, const ExprRef& r) {
+  std::shared_ptr<ExprOp> lp = std::dynamic_pointer_cast<ExprOp>(l.get());
+  std::shared_ptr<ExprOp> rp = std::dynamic_pointer_cast<ExprOp>(r.get());
   ILA_NOT_NULL(lp);
   ILA_NOT_NULL(rp);
   return lp->op_name() == rp->op_name();
@@ -153,7 +155,6 @@ TEST(TestApi, ExprOps) {
 
   SetUnsignedComparison(true);
 
-
   auto n_unsigned_lt_bv = n_add_bv < n_sub_bv;
   auto n_unsigned_gt_bv = n_add_bv > n_sub_bv;
   auto n_unsigned_le_bv = n_add_bv <= n_sub_bv;
@@ -183,27 +184,26 @@ TEST(TestApi, ExprOps) {
   auto n_sle_bv_c = Sle(n_add_bv, 3);
   auto n_sge_bv_c = Sge(n_add_bv, 4);
 
-  EXPECT_TRUE(SameOp(n_lt_bv, n_slt_bv ));
-  EXPECT_TRUE(SameOp(n_gt_bv, n_sgt_bv ));
-  EXPECT_TRUE(SameOp(n_le_bv, n_sle_bv ));
-  EXPECT_TRUE(SameOp(n_ge_bv, n_sge_bv ));
+  EXPECT_TRUE(SameOp(n_lt_bv, n_slt_bv));
+  EXPECT_TRUE(SameOp(n_gt_bv, n_sgt_bv));
+  EXPECT_TRUE(SameOp(n_le_bv, n_sle_bv));
+  EXPECT_TRUE(SameOp(n_ge_bv, n_sge_bv));
 
-  EXPECT_TRUE(SameOp(n_unsigned_lt_bv, n_ult_bv ));
-  EXPECT_TRUE(SameOp(n_unsigned_gt_bv, n_ugt_bv ));
-  EXPECT_TRUE(SameOp(n_unsigned_le_bv, n_ule_bv ));
-  EXPECT_TRUE(SameOp(n_unsigned_ge_bv, n_uge_bv ));
+  EXPECT_TRUE(SameOp(n_unsigned_lt_bv, n_ult_bv));
+  EXPECT_TRUE(SameOp(n_unsigned_gt_bv, n_ugt_bv));
+  EXPECT_TRUE(SameOp(n_unsigned_le_bv, n_ule_bv));
+  EXPECT_TRUE(SameOp(n_unsigned_ge_bv, n_uge_bv));
 
-  EXPECT_TRUE(SameOp(n_lt_bv_c, n_slt_bv_c ));
-  EXPECT_TRUE(SameOp(n_gt_bv_c, n_sgt_bv_c ));
-  EXPECT_TRUE(SameOp(n_le_bv_c, n_sle_bv_c ));
-  EXPECT_TRUE(SameOp(n_ge_bv_c, n_sge_bv_c ));
+  EXPECT_TRUE(SameOp(n_lt_bv_c, n_slt_bv_c));
+  EXPECT_TRUE(SameOp(n_gt_bv_c, n_sgt_bv_c));
+  EXPECT_TRUE(SameOp(n_le_bv_c, n_sle_bv_c));
+  EXPECT_TRUE(SameOp(n_ge_bv_c, n_sge_bv_c));
 
+  EXPECT_TRUE(SameOp(n_unsigned_lt_bv_c, n_ult_bv_c));
+  EXPECT_TRUE(SameOp(n_unsigned_gt_bv_c, n_ugt_bv_c));
+  EXPECT_TRUE(SameOp(n_unsigned_le_bv_c, n_ule_bv_c));
+  EXPECT_TRUE(SameOp(n_unsigned_ge_bv_c, n_uge_bv_c));
 
-  EXPECT_TRUE(SameOp(n_unsigned_lt_bv_c, n_ult_bv_c ));
-  EXPECT_TRUE(SameOp(n_unsigned_gt_bv_c, n_ugt_bv_c ));
-  EXPECT_TRUE(SameOp(n_unsigned_le_bv_c, n_ule_bv_c ));
-  EXPECT_TRUE(SameOp(n_unsigned_ge_bv_c, n_uge_bv_c ));
-  
   auto n_load_bv = v_mem.Load(n_add_bv);
   auto n_load_bv_static = Load(v_mem, n_add_bv);
   auto n_store_mem = v_mem.Store(n_add_bv, n_load_bv);
@@ -277,6 +277,28 @@ TEST(TestApi, ReplaceArg) {
   y.ReplaceArg(b, a);
   y.ReplaceArg(1, b);
   EXPECT_TRUE(TopEqual(x, y));
+}
+
+TEST(TestApi, EntryNum) {
+  Ila ila("hots");
+
+  auto mem = ila.NewMemState("mem", 16, 32);
+
+  EXPECT_EQ(0, mem.GetEntryNum());
+
+#ifndef NDEBUG
+  EXPECT_DEATH(mem.SetEntryNum(-1), ".*");
+#endif
+  EXPECT_TRUE(mem.SetEntryNum(8));
+  EXPECT_FALSE(mem.SetEntryNum(16));
+  EXPECT_EQ(8, mem.GetEntryNum());
+
+  auto bl = ila.NewBoolState("bl");
+
+#ifndef NDEBUG
+  EXPECT_DEATH(bl.SetEntryNum(8), ".*");
+  EXPECT_DEATH(bl.GetEntryNum(), ".*");
+#endif
 }
 
 TEST(TestApi, Unroll) {
@@ -409,6 +431,24 @@ TEST(TestApi, Log) {
 #ifndef NDEBUG
   EXPECT_TRUE(msg.empty());
 #endif
+}
+
+TEST(TestApi, Portable) {
+  SetToStdErr(1);
+  EnableDebug("Portable");
+  auto example = EqIlaGen();
+  auto buff_spec = example.GetIlaFlat1("flat1");
+
+  auto portable_file_name =
+      std::string(ILANG_TEST_BIN_ROOT) + "/tmp_portable.json";
+
+  auto res = ExportIlaPortable(Ila(buff_spec), portable_file_name);
+  EXPECT_TRUE(res);
+
+  auto read_ila = ImportIlaPortable(portable_file_name);
+
+  DisableDebug("Portable");
+  SetToStdErr(0);
 }
 
 } // namespace ilang

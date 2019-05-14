@@ -89,7 +89,7 @@ void InstrLvlAbs::AddState(const ExprPtr state_var) {
   auto poss = states_.find(name);
   auto posi = inputs_.find(name);
   ILA_ASSERT(poss == states_.end() && posi == inputs_.end())
-      << "State variable " << state_var << "has been declared.";
+      << "State variable " << state_var << " has been declared.";
   // register to the simplifier
   auto var = Unify(state_var);
   // register to States

@@ -137,6 +137,11 @@ public:
   /// \brief Replace the original argument (must exist) with the new argument.
   void ReplaceArg(const ExprRef& org_arg, const ExprRef& new_arg);
 
+  /// \brief Set the entry number of the memory (size regardless of bit-width).
+  bool SetEntryNum(const int& num);
+  /// \brief GEt the entry number of the memory (size regardless of bit-width).
+  int GetEntryNum();
+
 }; // class ExprRef
 
 /******************************************************************************/
@@ -168,6 +173,8 @@ ExprRef Lshr(const ExprRef& a, const ExprRef& b);
 ExprRef operator+(const ExprRef& a, const ExprRef& b);
 /// Unsigned subtraction for bit-vectors.
 ExprRef operator-(const ExprRef& a, const ExprRef& b);
+/// Unsigned multiply for bit-vectors.
+ExprRef operator*(const ExprRef& a, const ExprRef& b);
 
 /// Logical AND with Boolean constant.
 ExprRef operator&(const ExprRef& a, const bool& b);
@@ -185,6 +192,8 @@ ExprRef Lshr(const ExprRef& a, const int& b);
 ExprRef operator+(const ExprRef& a, const int& b);
 /// Unsigned subtraction with int constant.
 ExprRef operator-(const ExprRef& a, const int& b);
+/// Unsigned multiply with int constant.
+ExprRef operator*(const ExprRef& a, const int& b);
 
 /******************************************************************************/
 // Binary comparison
@@ -485,7 +494,7 @@ public:
 
   // ------------------------- GENERATORS --------------------------------- //
   /// \brief Export an ILA as Verilog
-  /// \param[in] filename the file name of the generated Verilog source
+  /// \param[in] fout the output stream of the generated Verilog source.
   void ExportToVerilog(std::ostream& fout) const;
 
   // ------------------------- ACCESSORS/MUTATORS --------------------------- //
@@ -541,6 +550,18 @@ std::ostream& operator<<(std::ostream& out, const ExprRef& expr);
 std::ostream& operator<<(std::ostream& out, const InstrRef& instr);
 /// Print out the ILA.
 std::ostream& operator<<(std::ostream& out, const Ila& ila);
+
+/******************************************************************************/
+// Converters
+/******************************************************************************/
+/// \brief Export the ILA portable to file.
+/// \param[in] ila the source ILA model to export.
+/// \param[in] file_name the name of the exported ILA portable (JSON) file.
+bool ExportIlaPortable(const Ila& ila, const std::string& file_name);
+
+/// \brief Import the ILA portable from file.
+/// \param[in] file_name the name of the ILA portable (JSON) file to import.
+Ila ImportIlaPortable(const std::string& file_name);
 
 /******************************************************************************/
 // Verification.

@@ -101,6 +101,8 @@ ExprPtr Lshr(const ExprPtr l, const int& r);
 ExprPtr Add(const ExprPtr l, const int& r);
 /// Arithmetic subtraction with int.
 ExprPtr Sub(const ExprPtr l, const int& r);
+/// Arithmetic unsigned multiply with int (bv only).
+ExprPtr Mul(const ExprPtr l, const int& r);
 
 /******************************************************************************/
 // Comparison
@@ -162,6 +164,11 @@ ExprPtr Store(const ExprPtr mem, const ExprPtr addr, const ExprPtr data);
 ExprPtr Load(const ExprPtr mem, const int& addr);
 /// Memory store to constant address and data
 ExprPtr Store(const ExprPtr mem, const int& addr, const int& data);
+
+/// Set memory size.
+bool SetMemSize(const ExprPtr mem, const int& size = 0);
+/// Get memory size.
+int GetMemSize(const ExprPtr mem);
 
 /******************************************************************************/
 // Bit manipulation

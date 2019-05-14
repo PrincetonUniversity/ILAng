@@ -159,4 +159,18 @@ TEST(TestPortable, UAES) {
   SetToStdErr(0);
 }
 
+TEST(TestPortable, RBM) {
+  SetToStdErr(1);
+  // DebugLog::Enable("Portable");
+
+  auto rbm_portable_file =
+      std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/rbm/rbm.json";
+  auto rbm_ila = IlaSerDesMngr::DesFromFile(rbm_portable_file);
+
+  auto ser_rbm = IlaSerDesMngr::Serialize(rbm_ila);
+  auto des_rbm = IlaSerDesMngr::Deserialize(ser_rbm);
+
+  DebugLog::Disable("Portable");
+}
+
 } // namespace ilang

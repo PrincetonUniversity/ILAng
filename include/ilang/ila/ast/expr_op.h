@@ -185,7 +185,15 @@ public:
 
 // TODO ExprOpMod
 
-// TODO ExprOpMul
+/// \brief The wrapper for unsigned multiplication.
+class ExprOpMul : public ExprOp {
+public:
+  /// Constructor for MUL operation.
+  ExprOpMul(const ExprPtr arg0, const ExprPtr arg1);
+  std::string op_name() const { return "MUL"; }
+  z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                     const std::string& suffix = "") const;
+}; // class ExprOpMul
 
 /******************************************************************************/
 // Binary comparison
