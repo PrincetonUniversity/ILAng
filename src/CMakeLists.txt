@@ -2,7 +2,12 @@
 # TARGET
 # archive library 
 # ---------------------------------------------------------------------------- #
-add_library(${ILANG_LIB_NAME} ilang++.cc)
+if(${ILANG_STATIC})
+  add_library(${ILANG_LIB_NAME} STATIC ilang++.cc)
+else()
+  add_library(${ILANG_LIB_NAME} SHARED ilang++.cc)
+endif()
+
 add_library(${PROJECT_NAME}::${ILANG_LIB_NAME} ALIAS ${ILANG_LIB_NAME})
 
 ##

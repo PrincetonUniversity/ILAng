@@ -20,6 +20,7 @@ project(ilang VERSION     0.9.0
 # OPTION
 # build configuration
 # ---------------------------------------------------------------------------- #
+option(ILANG_STATIC      "Build static libraries."                          OFF)
 option(ILANG_FETCH_DEPS  "Fetch source of dependencies at config time."      ON)
 option(ILANG_BUILD_DOCS  "Build documentations."                            OFF)
 option(ILANG_BUILD_SYNTH "Build the synthesis engine."                       ON)
