@@ -102,7 +102,7 @@ if(${ILANG_BUILD_SYNTH})
 
     # embedded build
     if(${APPLE})
-      set(BUILD_SHARED_LIBS FALSE CACHE BOOL "")
+      set(BUILD_SHARED_LIBS FALSE CACHE BOOL "Disable shared libs in OSX" FORCE)
     endif()
     add_subdirectory(tmpl-synth)
 
