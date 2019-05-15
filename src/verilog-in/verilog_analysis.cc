@@ -533,11 +533,11 @@ VerilogAnalyzer::get_module_inst_loc(const std::string& inst_name) const {
   // goes deep down the hierarchy
   auto curr_mod_name = top_module_name;
   for (unsigned hId = 1; hId < level_names.size() - 1; hId++) {
-    auto inst_name = level_names[hId];
+    auto inst_name_i = level_names[hId];
     auto pos =
-        GetMapRef(modules_to_submodules_map, curr_mod_name).find(inst_name);
+        GetMapRef(modules_to_submodules_map, curr_mod_name).find(inst_name_i);
     if (pos == GetMapRef(modules_to_submodules_map, curr_mod_name).end()) {
-      ILA_ERROR << inst_name << " not found.";
+      ILA_ERROR << inst_name_i << " not found.";
       return vlg_loc_t(); // this instance name does not exists
     }
     curr_mod_name = pos->second;
