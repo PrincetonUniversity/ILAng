@@ -23,6 +23,7 @@
     -   [Supporting Both](#supporting-both)
 
 -   [Docker](#docker-image)
+-   [License](#license)
 
 ## Build
 
@@ -171,3 +172,41 @@ source init.sh
 
 to initialize the environment settings. 
 This docker image also contains the model checker [CoSA](https://github.com/cristian-mattarei/CoSA) with the SMT solvers [z3](https://github.com/Z3Prover/z3) and [Boolector](https://github.com/Boolector/boolector).
+
+## License
+
+ILAng is licensed under the [MIT license](https://opensource.org/licenses/MIT):
+
+Copyright &copy; 2019 [Princeton University ILA Team](https://sites.google.com/view/princeton-malik-group/people)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+* * *
+
+ILAng contains the Google logging module, which is licensed under [glog license](extern/glog/COPYING).
+Copyright (c) 2008, Google Inc.
+
+ILAng contains the Google Test project, which is licensed under [googletest license](extern/googletest/LICENSE).
+Copyright 2008, Google Inc.
+
+ILAng contains the JSON library from Niels Lohmann, which is licensed under the [MIT License](https://github.com/nlohmann/json/blob/develop/LICENSE.MIT). 
+Copyright &copy; 2013-2019 [Niels Lohmann](https://github.com/nlohmann).
+
+ILAng uses the Verilog parser from Ben Marshall, which is licensed under the [MIT License](https://github.com/ben-marshall/verilog-parser/blob/master/LICENSE.txt).
+Copyright &copy; 2016 [Ben Marshall](https://ben-marshall.github.io).
