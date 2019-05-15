@@ -115,6 +115,9 @@ public:
   /// Supply Verilog candidate invariants
   void SupplyCandidateInvariant(const std::string &vlg);
 
+  // -------------------- FreqHornChc ------------------ //
+  void ChangeFreqHornSyntax(const std::vector <std::string> & syn);
+
   // -------------------- ACCESSOR ------------------ //
   /// return back state
   bool in_bad_state() const {return bad_state;}

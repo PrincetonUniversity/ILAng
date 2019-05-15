@@ -86,8 +86,9 @@ public:
 
   // -------------------- CEGAR ABC ------------------ //
 	/// generate abc target
-  void GenerateAbcSynthesisTarget(const std::string & precond, const std::string & assume_reg, bool useGla, bool useCorr);
-  bool RunSynAbcAuto();
+  void GenerateAbcSynthesisTarget(const std::string & precond, const std::string & assume_reg, bool useGla, bool useCorr, unsigned gla_frame, unsigned gla_time);
+  bool RunSynAbcAuto(unsigned timeout);
+  void JumpStart_FromExtract(bool cex_r);
   bool ExtractAbcSynthesisResult(const std::string & blifname, const std::string &ffmap_file, const std::string & gla_file);
 
   // -------------------- SYGUS ------------------ //

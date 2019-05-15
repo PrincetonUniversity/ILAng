@@ -629,7 +629,7 @@ std::string abcCmdNoGLA = R"***(
 std::string abcCmdGLAnoCorr = R"***(
   read_blif %blifname%
   &get -n
-  &gla -T 450 -F 50 -v
+  &gla -T %glatime% -F %glaframe% -v
   &gla_derive
   &put
   dc2 -v
@@ -649,7 +649,7 @@ std::string abcCmdGLAnoCorr = R"***(
 std::string abcCmdGLA = R"***(
   read_blif %blifname%
   &get -n
-  &gla -T 450 -F 50 -v
+  &gla -T %glatime% -F %glaframe% -v
   &gla_derive
   &put
   dc2 -v
@@ -678,7 +678,8 @@ std::string abcCmdGLA = R"***(
 
   
 void ExternalAbcTargetGen::export_script(const std::string& script_name,
-  const std::string& abc_command_file_name, bool useGla, bool useCorr) {
+  const std::string& abc_command_file_name, bool useGla, bool useCorr,
+  unsigned gla_frame, unsigned gla_time) {
 
   runnable_script_name.clear();
 
@@ -701,7 +702,12 @@ void ExternalAbcTargetGen::export_script(const std::string& script_name,
 
   { // generate abc command
     auto abc_cmd = useGla ? ( useCorr?  abcCmdGLA : abcCmdGLAnoCorr) : abcCmdNoGLA;
-    abc_cmd = ReplaceAll(abc_cmd, "%blifname%", blif_fname);
+    abc_cmd = 
+      ReplaceAll(
+        ReplaceAll(
+          ReplaceAll(abc_cmd, "%blifname%", blif_fname),
+          "%glaframe%", std::to_string(gla_frame)),
+          "%glatime%", std::to_string(gla_time));
     auto abc_cmd_fname = os_portable_append_dir(_output_path, abc_command_file_name);
     std::ofstream abc_cmd_fn(abc_cmd_fname);
     if (!abc_cmd_fn.is_open()) {
@@ -778,7 +784,7 @@ void ExternalAbcTargetGen::GenerateBlifProblem(
   const std::string& blif_name,
   const std::string& bash_script_name,
   const std::string& abc_command_file_name,
-  bool useGla, bool useCorr) {
+  bool useGla, bool useCorr, unsigned gla_frame, unsigned gla_time) {
   
   ILA_WARN_IF(!os_portable_mkdir(_output_path) ) << "Cannot create folder: " << _output_path;
   
@@ -793,7 +799,7 @@ void ExternalAbcTargetGen::GenerateBlifProblem(
     os_portable_append_dir(_output_path, blif_name)
   );
 
-  export_script(bash_script_name, abc_command_file_name, useGla, useCorr);
+  export_script(bash_script_name, abc_command_file_name, useGla, useCorr, gla_frame, gla_time);
 }
 
 // ----------------------- BAD STATE -------------------- //

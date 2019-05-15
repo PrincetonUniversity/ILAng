@@ -391,6 +391,7 @@ void VlgSglTgtGen_Chc::Export_script(const std::string& script_name) {
       runable = os_portable_append_dir(_vtg_config.FreqHornPath, runable);
     for (auto && op : _vtg_config.FreqHornOptions)
       options += " " + op;
+    options += " --mod " + _vlg_mod_inst_name;
     redirect = " 2> ../freqhorn.result";
   }
 

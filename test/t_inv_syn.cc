@@ -426,6 +426,16 @@ TEST(TestVlgVerifInvSyn, CegarPipelineAbc) {
 TEST(TestVlgVerifInvSyn, CegarPipelineExampleFreqHorn) {
   auto ila_model = SimplePipe::BuildModel();
 
+  std::vector<std::vector<std::string>> level_of_syntax = 
+  {
+    {"--conc --impl --bw 4 --dot-name"},
+    {"--conc --impl --or --bw 4 --dot-name"},
+    {"--conc --impl --or --neqs --bw 4 --dot-name"},
+    {"--conc --impl --or --neqs --impl-or --bw 4 --dot-name"},
+    {"--conc --impl --or --neqs --impl-or --impl-or-simple --conj-impl --bw 4 --dot-name"},
+    {"--conc --impl --or --neqs --impl-or --impl-or-simple --conj-impl --conj-impl-or --bw 4 --dot-name"},
+  };
+
   VerilogVerificationTargetGenerator::vtg_config_t cfg;
   cfg.InvariantSynthesisReachableCheckKeepOldInvariant = false;
   cfg.CosaAddKeep = false;
@@ -436,7 +446,7 @@ TEST(TestVlgVerifInvSyn, CegarPipelineExampleFreqHorn) {
   cfg.CosaPath = "/home/hongce/CoSA/";
   cfg.Z3Path = "N/A";
   cfg.FreqHornPath = "/home/hongce/ila/aeval/build/tools/bv/";
-  cfg.FreqHornOptions = {"--eqs --or --conc --impl --impl-or --dot-name --neqs --bw 4"};
+  cfg.FreqHornOptions = level_of_syntax[0];
   cfg.CosaSolver = "btor";
 
   auto dirName = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/vpipe/";
@@ -459,10 +469,18 @@ TEST(TestVlgVerifInvSyn, CegarPipelineExampleFreqHorn) {
       if(vg.RunVerifAuto("ADD")) // the ADD
         break; // no more cex found
       vg.ExtractVerificationResult();
+
+      unsigned syntax_level = 0;
+freqhorn_retry:
       vg.GenerateSynthesisTarget();
       if(vg.RunSynAuto()) {
+        if (++syntax_level < level_of_syntax.size()) {
+          std::cout << "Upgrade to syntax level: " << syntax_level << std::endl;
+          vg.ChangeFreqHornSyntax(level_of_syntax[syntax_level]);
+          goto freqhorn_retry;
+        }
         EXPECT_TRUE(false); // cex is really reachable!!!
-        ILA_ERROR<<"Unexpected counterexample!";
+        ILA_ERROR<<"Unexpected counterexample! Probably the syntax is not good enough!";
         break; 
       }
       vg.ExtractSynthesisResult();

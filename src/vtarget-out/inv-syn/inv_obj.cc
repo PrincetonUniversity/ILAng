@@ -48,6 +48,11 @@ bool InvariantObject::AddInvariantFromAbcResultFile(
   if (parser.get_parse_status() == false)
     return false;
 
+  for (auto && prev_inv : inv_vlg_exprs) {
+    if (prev_inv == inv)
+      return false;
+  }
+
   inv_vlg_exprs.push_back( inv );
   smt_formula_vec.push_back( "" );
 

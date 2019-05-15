@@ -220,7 +220,7 @@ void InvariantSynthesizerExternalCegar::ExtractSynthesisResult(bool autodet, boo
 /// generate chc target
 void InvariantSynthesizerExternalCegar::GenerateAbcSynthesisTarget(
   const std::string & precond, const std::string & assume_reg, bool useGla,
-  bool useCorr) {
+  bool useCorr, unsigned gla_frame, unsigned gla_time) {
   if (check_in_bad_state()) return;
 
   // to send in the invariants
@@ -242,7 +242,8 @@ void InvariantSynthesizerExternalCegar::GenerateAbcSynthesisTarget(
 	);
 
 	vg.ConstructWrapper("wrapper.v", "wrapper.tpl", precond, assume_reg);
-	vg.GenerateBlifProblem("wrapper.blif", "run.sh", "abccmd.txt", useGla, useCorr);
+	vg.GenerateBlifProblem("wrapper.blif", "run.sh", "abccmd.txt", useGla, useCorr,
+    gla_frame, gla_time);
 
 	runnable_script_name = vg.GetRunnableScriptName();
   
@@ -255,7 +256,7 @@ void InvariantSynthesizerExternalCegar::GenerateAbcSynthesisTarget(
 
 
 /// run Synthesis : returns reachable/not
-bool InvariantSynthesizerExternalCegar::RunSynAbcAuto() {
+bool InvariantSynthesizerExternalCegar::RunSynAbcAuto(unsigned timeout) {
 
   if(check_in_bad_state())
     return true;
@@ -273,11 +274,16 @@ bool InvariantSynthesizerExternalCegar::RunSynAbcAuto() {
 
   res = os_portable_execute_shell({"bash",
     os_portable_file_name_from_path( runnable_script_name[0] )},
-    redirect_fn, redirect_t::BOTH);
+    redirect_fn, redirect_t::BOTH, timeout);
       
   ILA_ERROR_IF(res.failure != execute_result::NONE )
     << "Running synthesis script " << runnable_script_name[0] << " results in error."; 
   ILA_ASSERT(os_portable_chdir(cwd));
+
+  if (res.timeout) {
+    ILA_ERROR << "Set time out!";
+    return true;
+  }
   
   inv_syn_time += res.seconds;
   inv_syn_time_series.push_back(res.seconds);
@@ -296,6 +302,9 @@ bool InvariantSynthesizerExternalCegar::RunSynAbcAuto() {
   return cex_reachable;
 }
 
+void InvariantSynthesizerExternalCegar::JumpStart_FromExtract(bool cex_r) {
+  cex_reachable = cex_r;
+}
 
 /// to extract reachability test result
 bool InvariantSynthesizerExternalCegar::ExtractAbcSynthesisResult(const std::string & blifname,

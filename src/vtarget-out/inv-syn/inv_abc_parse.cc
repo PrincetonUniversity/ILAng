@@ -13,6 +13,8 @@
 
 namespace ilang {
 
+bool replace_everything_not_dut = true;
+
 static std::string handle_range_ref(const std::string & in) {
   // if there is only one [] , it must be bit selection
   // if there are multiple [], the last one is bit selection
@@ -61,8 +63,9 @@ void AbcInvariantParser::parse(
       std::stringstream ss(line);
       int flop;
       std::string cube;
-      bool cube_has_abnormal_var = false;
-      while(ss>>flop) {
+      bool cube_has_abnormal_var = false; // if the condition whether to remove this cube "| 1'b0 " means do not add it
+      bool remove_this_cube = false;
+      while(ss>>flop) { // for each cube (line)
         int neg = flop & 0x1;
         int flopno = flop >> 1;
         ILA_ASSERT(blif_state_order.size() > flopno)
@@ -73,17 +76,22 @@ void AbcInvariantParser::parse(
           literal = (neg ? "~" : "") +  handle_range_ref(ref_val_name);
         else {
           ILA_ERROR_IF(discourage_outside_var_ref) << "ABC inv referring to outside var:" << ref_val_name;
-          if ( ref_val_name == "__all_assumed_reg__" )
+          if ( ref_val_name == "__all_assumed_reg__" ) {
             literal = (neg ? "~" : "") + std::string("1'b0");
+            remove_this_cube = !neg; // if it is "& 1'b0" this cube is 0
+          }
           else if (ref_val_name.find("committed_inst") == 0) {
             cube_has_abnormal_var = true; 
             literal = (neg ? "~" : "") +  std::string("1'b1");
+            remove_this_cube = neg; // if it is "& ~1'b1" this cube is 0
             // literal = "1'b1"; // void the literal if abnormal
             // over-approximate it
           } else if (ref_val_name.find(".") != ref_val_name.npos) {
             // keep it
             literal = (neg ? "~" : "") +  handle_range_ref(ref_val_name);
-          }
+            remove_this_cube = true; // remove this cube (we don't know what to do actually)
+          } else 
+            remove_this_cube = true;
           /*
           if(replace_outside_var_ref && ref_val_name != "__all_assumed_reg__") {
             std::string new_var_name = ReplaceAll(ReplaceAll(ReplaceAll(ref_val_name, "." , "_dot_"), "[", "_"), "]","_");
@@ -101,16 +109,17 @@ void AbcInvariantParser::parse(
       // cube = "( " +  cube + ") "
 
       // void the cube if abnormal
-      if(cube_has_abnormal_var)
-        ; //cube = "1'b0"; // under-approximate it : total under-approximate
-      else
+      if( remove_this_cube) // cube_has_abnormal_var ||
+        cube = "1'b0" ; //cube = "1'b0"; // under-approximate it : total under-approximate
+      else {// if at least the cube has a normal var, it is a normal cube
         has_a_normal_cube = true;
-
-      if (parse_result.empty())
-        parse_result =  "(" + cube + ")";
-      else
-        parse_result = parse_result + " | (" + cube + ")";
-    }
+        // only if this cube is not removed, we will add it 
+        if (parse_result.empty())
+          parse_result =  "(" + cube + ")";
+        else
+          parse_result = parse_result + " | (" + cube + ")";
+      }
+    } // deal with a line
     ILA_ERROR_IF(has_a_normal_cube == false) << "No normal is deduced.";
     ILA_ERROR_IF(parse_result.empty()) << "No invariants are extracted!";
     if (!has_a_normal_cube || parse_result.empty() ) {
@@ -176,12 +185,12 @@ void AbcInvariantParser::parse(
 
     std::string line;
     bool has_a_normal_cube = false;
-
     while(std::getline(fin,line)) {
       std::stringstream ss(line);
       int flop;
       std::string cube;
       bool cube_has_abnormal_var = false;
+      bool remove_this_cube = false;
       while(ss>>flop) {
         int neg = flop & 0x1;
         int flopno = flop >> 1;
@@ -193,17 +202,22 @@ void AbcInvariantParser::parse(
           literal = (neg ? "~" : "") +  handle_range_ref(ref_val_name);
         else {
           ILA_ERROR_IF(discourage_outside_var_ref) << "ABC inv referring to outside var:" << ref_val_name;
-          if ( ref_val_name == "__all_assumed_reg__" )
+          if ( ref_val_name == "__all_assumed_reg__" ) {
             literal = (neg ? "~" : "") + std::string("1'b0");
+            remove_this_cube = !neg; // if it is "& 1'b0" this cube is 0
+          }
           else if (ref_val_name.find("committed_inst") == 0) {
             cube_has_abnormal_var = true; 
             literal = (neg ? "~" : "") +  std::string("1'b1");
+            remove_this_cube = neg; // if it is "& ~1'b1" this cube is 0
             // literal = "1'b1"; // void the literal if abnormal
             // over-approximate it
           } else if (ref_val_name.find(".") != ref_val_name.npos) {
             // keep it
             literal = (neg ? "~" : "") +  handle_range_ref(ref_val_name);
-          }
+            remove_this_cube = true; // remove this cube (we don't know what to do actually)
+          } else 
+            remove_this_cube = true;
           /*
           if(replace_outside_var_ref && ref_val_name != "__all_assumed_reg__") {
             std::string new_var_name = ReplaceAll(ReplaceAll(ReplaceAll(ref_val_name, "." , "_dot_"), "[", "_"), "]","_");
@@ -221,15 +235,15 @@ void AbcInvariantParser::parse(
       // cube = "( " +  cube + ") "
 
       // void the cube if abnormal
-      if(cube_has_abnormal_var)
-        ; //cube = "1'b0"; // under-approximate it : total under-approximate
-      else
+      if(remove_this_cube) // cube_has_abnormal_var ||
+        cube = "1'b0"; //cube = "1'b0"; // under-approximate it : total under-approximate
+      else {
         has_a_normal_cube = true;
-
-      if (parse_result.empty())
-        parse_result =  "(" + cube + ")";
-      else
-        parse_result = parse_result + " | (" + cube + ")";
+        if (parse_result.empty())
+          parse_result =  "(" + cube + ")";
+        else
+          parse_result = parse_result + " | (" + cube + ")";
+      }
     }
     ILA_ERROR_IF(has_a_normal_cube == false) << "No normal is deduced.";
     ILA_ERROR_IF(parse_result.empty()) << "No invariants are extracted!";

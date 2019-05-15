@@ -187,7 +187,8 @@ protected:
     const std::string & ys_script_name);  
 
   void export_script(const std::string& script_name,
-    const std::string& abc_command_file_name, bool useGla, bool useCorr);
+    const std::string& abc_command_file_name, bool useGla, bool useCorr,
+    unsigned gla_frame, unsigned gla_time);
 public:
   // okay to instantiate
   void do_not_instantiate(void) {}
@@ -216,7 +217,7 @@ public:
     const std::string& blif_name,
     const std::string& bash_script_name,
     const std::string& abc_command_file_name,
-    bool useGla, bool useCorr);
+    bool useGla, bool useCorr, unsigned gla_frame, unsigned gla_time);
 
   // ----------------------- ACCESSOR -------------------- //
   /// get the script names (should be only 1)

@@ -483,7 +483,7 @@ bool InvariantSynthesizerCegar::RunSynAuto() {
     sbuf << fin.rdbuf();
     cex_reachable = !(S_IN("proved",sbuf.str()));
     if (S_IN("unknown",sbuf.str())) cex_reachable = true;
-  }
+  } // end of freqhorn chc result
   else {
     std::string line;
     { // read the result
@@ -863,6 +863,12 @@ void InvariantSynthesizerCegar::PruneCandidateInvariant() {
 void InvariantSynthesizerCegar::SupplyCandidateInvariant(const std::string &vlg_expr) {
   ILA_WARN << "Verilog invariant cannot be pruned";
   inv_candidate.AddInvariantFromVerilogExpr("",vlg_expr);
+}
+
+
+// -------------------- FreqHornChc ------------------ //
+void InvariantSynthesizerCegar::ChangeFreqHornSyntax(const std::vector <std::string> & syn) {
+  _vtg_config.FreqHornOptions = syn;
 }
 
 
