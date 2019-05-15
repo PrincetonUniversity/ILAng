@@ -101,6 +101,9 @@ if(${ILANG_BUILD_SYNTH})
     endif() # ILANG_FETCH_DEPS
 
     # embedded build
+    if(${APPLE})
+      set(BUILD_SHARED_LIBS FALSE CACHE BOOL "")
+    endif()
     add_subdirectory(tmpl-synth)
 
   endif() # ILASYNTH_FOUND

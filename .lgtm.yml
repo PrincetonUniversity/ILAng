@@ -29,7 +29,7 @@ extraction:
       command:
         - mkdir -p build
         - cd build
-        - cmake .. -DILANG_STATIC=ON
+        - cmake ..
 
     index:
       build_command:
