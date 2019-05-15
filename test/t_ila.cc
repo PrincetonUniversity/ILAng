@@ -254,7 +254,7 @@ TEST(TestInstrLvlAbs, Child) {
   EXPECT_EQ(2, ila->child_num());
 
   // find non-existed
-  EXPECT_DEATH(ILA_NOT_NULL(ila->child("child3")), ".*");
+  EXPECT_DEATH((ILA_NOT_NULL(ila->child("child3"))), ".*");
 
   // find existed
   EXPECT_EQ(child1, ila->child("child1"));

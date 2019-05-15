@@ -2,6 +2,7 @@
 /// The implementation of the abstraction to ILA converter.
 
 #include <ilang/synth-interface/synth_abs_converter.h>
+
 #include <ilang/util/log.h>
 
 namespace ilang {
@@ -467,7 +468,7 @@ void SynthAbsConverter::CnvtNodeToExprConst(const ilasynth::Node* n) {
   };
 
   // update book keeping
-  ILA_NOT_NULL(expr) << "Fail converting constant node " << n->getName();
+  ILA_CHECK(expr) << "Fail converting constant node " << n->getName();
   auto res = node_expr_map_.emplace(n, expr);
   ILA_WARN_IF(!res.second) << "Expr of " << n->getName() << " exists.";
 
@@ -488,7 +489,7 @@ void SynthAbsConverter::CnvtNodeToExprBoolOp(const ilasynth::Node* n) {
 
   // construct Expr
   auto op_ptr = dynamic_cast<const ilasynth::BoolOp*>(n);
-  ILA_NOT_NULL(op_ptr) << "Fail casting " << n->getName() << " to Bool Op";
+  ILA_CHECK(op_ptr) << "Fail casting " << n->getName() << " to Bool Op";
 
   decltype(ExprFuse::BoolConst(true)) expr = NULL;
 
@@ -561,7 +562,7 @@ void SynthAbsConverter::CnvtNodeToExprBoolOp(const ilasynth::Node* n) {
     break;
   };
 
-  ILA_NOT_NULL(expr) << "Fail converting Bool Op node " << n->getName();
+  ILA_CHECK(expr) << "Fail converting Bool Op node " << n->getName();
   auto res = node_expr_map_.emplace(n, expr);
   ILA_WARN_IF(!res.second) << "Expr of " << n->getName() << " exists.";
 
@@ -589,7 +590,7 @@ void SynthAbsConverter::CnvtNodeToExprBvOp(const ilasynth::Node* n) {
 
   // construct Expr
   auto op_ptr = dynamic_cast<const ilasynth::BitvectorOp*>(n);
-  ILA_NOT_NULL(op_ptr) << "Fail casting " << n->getName() << " to Bv Op";
+  ILA_CHECK(op_ptr) << "Fail casting " << n->getName() << " to Bv Op";
 
   decltype(ExprFuse::BvConst(1, 1)) expr = NULL;
 
@@ -720,7 +721,7 @@ void SynthAbsConverter::CnvtNodeToExprBvOp(const ilasynth::Node* n) {
     break;
   };
 
-  ILA_NOT_NULL(expr) << "Fail converting Bv Op node " << n->getName();
+  ILA_CHECK(expr) << "Fail converting Bv Op node " << n->getName();
   auto res = node_expr_map_.emplace(n, expr);
   ILA_WARN_IF(!res.second) << "Expr of " << n->getName() << " exists.";
 
@@ -741,7 +742,7 @@ void SynthAbsConverter::CnvtNodeToExprMemOp(const ilasynth::Node* n) {
 
   // construct Expr
   auto op_ptr = dynamic_cast<const ilasynth::MemOp*>(n);
-  ILA_NOT_NULL(op_ptr) << "Fail casting " << n->getName() << " to Mem Op";
+  ILA_CHECK(op_ptr) << "Fail casting " << n->getName() << " to Mem Op";
 
   decltype(ExprFuse::MemConst(0, 8, 8)) expr = NULL;
 
@@ -784,7 +785,7 @@ void SynthAbsConverter::CnvtNodeToExprMemOp(const ilasynth::Node* n) {
     break;
   };
 
-  ILA_NOT_NULL(expr) << "Fail converting Mem Op node " << n->getName();
+  ILA_CHECK(expr) << "Fail converting Mem Op node " << n->getName();
   auto res = node_expr_map_.emplace(n, expr);
   ILA_WARN_IF(!res.second) << "Expr " << res.first->second << " exists.";
 

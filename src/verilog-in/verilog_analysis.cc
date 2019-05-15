@@ -1,13 +1,16 @@
 /// \file
 /// Verilog Analyzer
+
+#include <ilang/verilog-in/verilog_analysis.h>
+
 #include <cstdio>
+#include <sstream>
+#include <string>
+
 #include <ilang/util/container_shortcut.h>
 #include <ilang/util/log.h>
 #include <ilang/util/str_util.h>
 #include <ilang/verilog-in/verilog_const_parser.h>
-#include <ilang/verilog-in/verilog_analysis.h>
-#include <string>
-#include <sstream>
 
 // extern int yy_flex_debug;
 
@@ -114,7 +117,7 @@ void VerilogAnalyzer::invoke_parser() {
   }
   // derive the hierarchy.
   verilog_resolve_modules(yy_verilog_source_tree);
-  ILA_NOT_NULL(yy_verilog_source_tree) << "Parser returns empty AST";
+  ILA_NOT_NULL(yy_verilog_source_tree); // Parser returns empty AST
   ILA_ERROR_IF(yy_verilog_source_tree->modules == NULL)
       << "No Verilog module is found";
 }
@@ -383,7 +386,7 @@ VerilogAnalyzer::_check_hierarchical_name_type(
       if (internalDef) {
         std::stringstream outbuf;
         PrintMetaAst(outbuf << "Reg:" << net_name
-                               << " seems to have been defined multiple times.",
+                            << " seems to have been defined multiple times.",
                      reg_decl_ptr);
         ILA_ERROR << outbuf.rdbuf();
       }
@@ -410,7 +413,7 @@ VerilogAnalyzer::_check_hierarchical_name_type(
         // else
         std::stringstream outinfo;
         PrintMetaAst(outinfo << "Wire:" << net_name
-                               << " has been declared multiple times",
+                             << " has been declared multiple times",
                      net_decl_ptr);
         ILA_ERROR << outinfo.rdbuf();
       }
