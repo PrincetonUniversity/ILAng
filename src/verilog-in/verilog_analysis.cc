@@ -597,8 +597,10 @@ VerilogAnalyzer::name2loc(const std::string& net_name) const {
     return Meta2Loc(((ast_reg_declaration*)ptr_)->meta);
   if (is_wire(tp_))
     return Meta2Loc(((ast_net_declaration*)ptr_)->meta);
+
   ILA_ASSERT(false)
       << "Implementation bug: name2loc: should not be reachable. Type:" << tp_;
+  return vlg_loc_t("", 0);
 }
 
 /// Find a signal
