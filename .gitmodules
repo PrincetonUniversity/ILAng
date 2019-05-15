@@ -1,15 +1,6 @@
-[submodule "extern/glog"]
-	path = extern/glog
-	url = https://github.com/google/glog.git
-[submodule "extern/googletest"]
-	path = extern/googletest
-	url = https://github.com/abseil/googletest.git
 [submodule "extern/vlog-parser"]
 	path = extern/vlog-parser
 	url = https://github.com/Bo-Yuan-Huang/verilog-parser.git
-[submodule "extern/json-lib"]
-	path = extern/json-lib
-	url = https://github.com/nlohmann/json.git
 [submodule "extern/tmpl-synth"]
 	path = extern/tmpl-synth
 	url = https://github.com/PrincetonUniversity/ILA-Synthesis-Python.git

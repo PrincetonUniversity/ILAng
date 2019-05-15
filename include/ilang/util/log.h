@@ -1,12 +1,13 @@
 /// \file
 /// The header file for the debug/logging/asserting system.
 
-#ifndef LOG_H__
-#define LOG_H__
+#ifndef ILANG_UTIL_LOG_H__
+#define ILANG_UTIL_LOG_H__
 
-#include <glog/logging.h>
 #include <set>
 #include <string>
+
+#include <glog/logging.h>
 
 namespace ilang {
 
@@ -40,11 +41,11 @@ namespace ilang {
 #define ILA_CHECK_EQ(a, b) CHECK_EQ(a, b)
 /// Assert not equal with message logged to FATAL (lvl 3). (Debug/Release)
 #define ILA_CHECK_NE(a, b) CHECK_NE(a, b)
-/// Assert string equal with FATAL message (lvl 3). (Debug/Release)
+/// Assert string equal with message logged to FATAL (lvl 3). (Debug/Release)
 #define ILA_CHECK_STREQ(a, b) CHECK_STREQ(a, b)
-/// Assert point not NULL with FATAL message (lvl 3). (Debug/Release)
-//#define ILA_NOT_NULL(ptr) CHECK_NOTNULL(ptr)
-#define ILA_NOT_NULL(ptr) CHECK(ptr)
+/// Assert point not NULL -- FATAL (lvl 3). (Debug/Release)
+#define ILA_NOT_NULL(ptr) CHECK_NOTNULL(ptr)
+//#define ILA_NOT_NULL(ptr) CHECK(ptr)
 
 /// \brief Set the minimun log level.
 /// Log messages at or above this level will be logged. (Default: 0)
@@ -98,4 +99,4 @@ private:
 
 } // namespace ilang
 
-#endif // LOG_H__
+#endif // ILANG_UTIL_LOG_H__

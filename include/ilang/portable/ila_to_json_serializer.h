@@ -36,23 +36,31 @@ public:
   json SerExpr(const ExprPtr& i_expr);
   /// \brief Serialize Instr to JSON.
   json SerInstr(const InstrPtr& i_instr);
-  /// \brief Serialize InstrLvlAbs to JSON.
+  /// \brief Serialize InstrLvlAbs, including its children, to JSON.
   json SerInstrLvlAbs(const InstrLvlAbsPtr& i_ila);
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
   /// A map from visited i_expr id to j_expr array index.
   std::unordered_map<size_t, size_t> id_idx_map_;
+  /// A map from visited i_func id to j_func array index.
+  std::unordered_map<size_t, size_t> func_id_idx_map_;
   /// The list of all serialized expressions (j_expr array).
   json j_expr_arr_;
+  /// The list of all serialized functions (j_func array).
+  json j_func_arr_;
 
   // ------------------------- METHODS -------------------------------------- //
   /// Serialize Sort to JSON.
   json SerSort(const SortPtr& i_sort) const;
+  /// Serialize Func to JSON.
+  json SerFunc(const FuncPtr& i_func);
   /// Serialize constant value to JSON.
   json SerConstVal(const ExprPtr& i_expr) const;
   /// Serialize one single Expr.
   json SerExprUnit(const ExprPtr& i_expr);
+  /// Serialize InstrLvlAbs and its children, excluding the AST list.
+  json SerInstrLvlAbsNoAst(const InstrLvlAbsPtr& i_ila);
 
 }; // class I2JSer
 

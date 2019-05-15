@@ -8,15 +8,16 @@ add_library(${PROJECT_NAME}::${ILANG_LIB_NAME} ALIAS ${ILANG_LIB_NAME})
 ##
 ## source files
 ##
-add_subdirectory(util)
 add_subdirectory(ila)
+add_subdirectory(ila_sim)
+add_subdirectory(mcm)
+add_subdirectory(portable)
+add_subdirectory(target-c)
+add_subdirectory(util)
 add_subdirectory(verification)
 add_subdirectory(verilog-in)
 add_subdirectory(verilog-out)
 add_subdirectory(vtarget-out)
-add_subdirectory(mcm)
-add_subdirectory(portable)
-add_subdirectory(ila_sim)
 
 if(${ILANG_BUILD_SYNTH})
   add_subdirectory(synth-interface)

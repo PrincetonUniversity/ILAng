@@ -8,7 +8,6 @@
 #include <memory>
 #include <nlohmann/json.hpp>
 #include <unordered_map>
-#include <unordered_set>
 
 using json = nlohmann::json;
 
@@ -33,21 +32,25 @@ public:
   static J2IDesPtr New();
 
   // ------------------------- METHODS -------------------------------------- //
+  /// Deserialize Sort from JSON.
+  SortPtr DesSort(const json& j_sort);
+  /// Deserialize Func from JSON.
+  FuncPtr DesFunc(const json& j_func);
   /// \brief Deserialize Expr from JSON.
-  ExprPtr DesExpr(const json& j_expr, const InstrLvlAbsPtr& i_host);
+  ExprPtr DesExpr(const json& j_expr);
   /// \brief Deserialize Instr from JSON.
   InstrPtr DesInstr(const json& j_instr, const InstrLvlAbsPtr& i_host) const;
   /// \brief Deserialize InstrLvlAbs from JSON.
-  InstrLvlAbsPtr DesInstrLvlAbs(const json& j_ila);
+  InstrLvlAbsPtr DesInstrLvlAbs(const json& j_global);
 
 private:
   // ------------------------- MEMBERS -------------------------------------- //
-  /// A mapping from id to expressions.
+  /// A mapping from id to expression.
   std::unordered_map<size_t, ExprPtr> id_expr_map_;
-  /// The set of state variables.
-  std::unordered_set<size_t> state_id_set_;
-  /// The set of input variables.
-  std::unordered_set<size_t> input_id_set_;
+  /// A mapping from id to function.
+  std::unordered_map<size_t, FuncPtr> id_func_map_;
+  /// The mapping from ila name to pointer.
+  std::unordered_map<std::string, const InstrLvlAbsPtr> ila_name_ptr_map_;
 
   // ------------------------- METHODS -------------------------------------- //
   /// Deserialize ExprVar into state from JSON.
@@ -61,6 +64,22 @@ private:
   /// Deserialize ExprOp from JSON.
   ExprPtr DesExprOp(const unsigned& ast_expr_op_uid, const json& j_arg_arr,
                     const json& j_param_arr) const;
+  /// Deserialize ExprOpAppFunc from JSON.
+  ExprPtr DesExprOpAppFunc(const json& j_func_id, const json& j_arg_arr) const;
+
+  /// Deserialize state/input variables. Note: the ILA model will be
+  /// constructed on-the-fly.
+  void DesVarUnit(const json& j_ila, const json& j_ast_list,
+                  const InstrLvlAbsPtr& i_parent);
+  /// Deserialize state/input variables hierarchically. Note: ILA model will be
+  /// constructed on-the-fly.
+  void DesVarHier(const json& j_ila, const json& j_ast_list,
+                  const InstrLvlAbsPtr& i_parent);
+
+  /// Deserialize ILA info, e.g., fetch, valid, instructions, etc.
+  void DesIlaUnit(const json& j_ila);
+  /// Deserialize ILA info hierarchically.
+  void DesIlaHier(const json& j_ila);
 
 }; // class J2IDes
 

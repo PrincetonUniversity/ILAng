@@ -2,6 +2,7 @@
 /// The implementation of the abstraction to ILA converter.
 
 #include <ilang/synth-interface/synth_abs_converter.h>
+
 #include <ilang/util/log.h>
 
 namespace ilang {
@@ -91,6 +92,8 @@ SynthAbsConverter::ConvertSynthNodeToIlangExpr(const ilasynth::nptr_t& node,
 
 void SynthAbsConverter::PortInputs(const ilasynth::Abstraction& abs,
                                    const InstrLvlAbsPtr& ila) {
+  ILA_DLOG("SynthImport") << "Port input variables";
+
   auto inps_synth = abs.getInps();
   for (auto it : inps_synth) {
     auto node = it.second.var;
@@ -127,6 +130,8 @@ void SynthAbsConverter::PortInputs(const ilasynth::Abstraction& abs,
 
 void SynthAbsConverter::PortStates(const ilasynth::Abstraction& abs,
                                    const InstrLvlAbsPtr& ila) {
+  ILA_DLOG("SynthImport") << "Port state variables";
+
   // bool
   auto bits_synth = abs.getBits();
   for (auto it : bits_synth) {
@@ -193,43 +198,54 @@ void SynthAbsConverter::PortStates(const ilasynth::Abstraction& abs,
 
 void SynthAbsConverter::PortValid(const ilasynth::Abstraction& abs,
                                   const InstrLvlAbsPtr& ila) {
+  ILA_DLOG("SynthImport") << "Port valid function";
   auto valid_synth = abs.getFetchValidRef();
-  auto valid_ilang = ConvertSynthNodeToIlangExpr(valid_synth, ila);
-
-  ila->SetValid(valid_ilang);
+  if (valid_synth) {
+    auto valid_ilang = ConvertSynthNodeToIlangExpr(valid_synth, ila);
+    ila->SetValid(valid_ilang);
+  }
   return;
 }
 
 void SynthAbsConverter::PortFetch(const ilasynth::Abstraction& abs,
                                   const InstrLvlAbsPtr& ila) {
+  ILA_DLOG("SynthImport") << "Port fetch function";
   auto fetch_synth = abs.getFetchExprRef();
-  auto fetch_ilang = ConvertSynthNodeToIlangExpr(fetch_synth, ila);
-
-  ila->SetFetch(fetch_ilang);
+  if (fetch_synth) {
+    auto fetch_ilang = ConvertSynthNodeToIlangExpr(fetch_synth, ila);
+    ila->SetFetch(fetch_ilang);
+  }
   return;
 }
 
 void SynthAbsConverter::PortInits(const ilasynth::Abstraction& abs,
                                   const InstrLvlAbsPtr& ila) {
+  ILA_DLOG("SynthImport") << "Port initial conditions";
   // only add initial condition for state vars that are already defined
   for (auto i = 0; i != ila->state_num(); i++) {
     auto var_expr = ila->state(i);
     auto var_name = var_expr->name().str();
 
     // initial value
-    auto init_val_node = abs.getInit(var_name)->node;
-
-    if (init_val_node) {
-      auto init_val_expr = ConvertSynthNodeToIlangExpr(init_val_node, ila);
-      ila->AddInit(ExprFuse::Eq(var_expr, init_val_expr));
+    try {
+      auto init_val_node = abs.getInit(var_name)->node;
+      if (init_val_node) {
+        auto init_val_expr = ConvertSynthNodeToIlangExpr(init_val_node, ila);
+        ila->AddInit(ExprFuse::Eq(var_expr, init_val_expr));
+      }
+    } catch (...) {
+      ILA_DLOG("SynthImport") << "No initial value for " << var_name;
     }
 
     // initial predicate
-    auto init_pred_node = abs.getIpred(var_name)->node;
-
-    if (init_pred_node) {
-      auto init_pred_expr = ConvertSynthNodeToIlangExpr(init_pred_node, ila);
-      ila->AddInit(init_pred_expr);
+    try {
+      auto init_pred_node = abs.getIpred(var_name)->node;
+      if (init_pred_node) {
+        auto init_pred_expr = ConvertSynthNodeToIlangExpr(init_pred_node, ila);
+        ila->AddInit(init_pred_expr);
+      }
+    } catch (...) {
+      ILA_DLOG("SynthImport") << "No initial predicate for " << var_name;
     }
   }
 
@@ -238,6 +254,7 @@ void SynthAbsConverter::PortInits(const ilasynth::Abstraction& abs,
 
 void SynthAbsConverter::PortFuncs(const ilasynth::Abstraction& abs,
                                   const InstrLvlAbsPtr& ila) {
+  ILA_DLOG("SynthImport") << "Port uninterpreted functions";
   auto funs_synth = abs.getFuns();
   for (auto it : funs_synth) {
     auto node = it.second.var;
@@ -273,6 +290,7 @@ void SynthAbsConverter::PortFuncs(const ilasynth::Abstraction& abs,
 
 void SynthAbsConverter::PortInstructions(const ilasynth::Abstraction& abs,
                                          const InstrLvlAbsPtr& ila) {
+  ILA_DLOG("SynthImport") << "Port instructions";
   std::map<ExprPtr, InstrPtr> instr_map;
 
   // get the set of decode functions
@@ -295,8 +313,14 @@ void SynthAbsConverter::PortInstructions(const ilasynth::Abstraction& abs,
 
     // next state functions are conjuncted when being exported
     auto name = var->name().str();
-    auto next_node = abs.getNext(name)->node;
-    auto next_expr = ConvertSynthNodeToIlangExpr(next_node, ila);
+
+    auto next_expr = ExprPtr(NULL);
+    try {
+      auto next_node = abs.getNext(name)->node;
+      next_expr = ConvertSynthNodeToIlangExpr(next_node, ila);
+    } catch (...) { // catch exception if next func not specified
+      next_expr = var;
+    }
 
     // decompose the next state functions
     DecomposeExpr(next_expr);
@@ -444,7 +468,7 @@ void SynthAbsConverter::CnvtNodeToExprConst(const ilasynth::Node* n) {
   };
 
   // update book keeping
-  ILA_NOT_NULL(expr) << "Fail converting constant node " << n->getName();
+  ILA_CHECK(expr) << "Fail converting constant node " << n->getName();
   auto res = node_expr_map_.emplace(n, expr);
   ILA_WARN_IF(!res.second) << "Expr of " << n->getName() << " exists.";
 
@@ -465,7 +489,7 @@ void SynthAbsConverter::CnvtNodeToExprBoolOp(const ilasynth::Node* n) {
 
   // construct Expr
   auto op_ptr = dynamic_cast<const ilasynth::BoolOp*>(n);
-  ILA_NOT_NULL(op_ptr) << "Fail casting " << n->getName() << " to Bool Op";
+  ILA_CHECK(op_ptr) << "Fail casting " << n->getName() << " to Bool Op";
 
   decltype(ExprFuse::BoolConst(true)) expr = NULL;
 
@@ -538,7 +562,7 @@ void SynthAbsConverter::CnvtNodeToExprBoolOp(const ilasynth::Node* n) {
     break;
   };
 
-  ILA_NOT_NULL(expr) << "Fail converting Bool Op node " << n->getName();
+  ILA_CHECK(expr) << "Fail converting Bool Op node " << n->getName();
   auto res = node_expr_map_.emplace(n, expr);
   ILA_WARN_IF(!res.second) << "Expr of " << n->getName() << " exists.";
 
@@ -566,7 +590,7 @@ void SynthAbsConverter::CnvtNodeToExprBvOp(const ilasynth::Node* n) {
 
   // construct Expr
   auto op_ptr = dynamic_cast<const ilasynth::BitvectorOp*>(n);
-  ILA_NOT_NULL(op_ptr) << "Fail casting " << n->getName() << " to Bv Op";
+  ILA_CHECK(op_ptr) << "Fail casting " << n->getName() << " to Bv Op";
 
   decltype(ExprFuse::BvConst(1, 1)) expr = NULL;
 
@@ -650,8 +674,7 @@ void SynthAbsConverter::CnvtNodeToExprBvOp(const ilasynth::Node* n) {
     expr = ExprFuse::Ashr(expr_args.at(0), expr_args.at(1));
     break;
   case ilasynth::BitvectorOp::Op::MUL:
-    ILA_ERROR << "MUL not implemented.";
-    // expr = ExprFuse::Mul(expr_args.at(0), expr_args.at(1));
+    expr = ExprFuse::Mul(expr_args.at(0), expr_args.at(1));
     break;
   case ilasynth::BitvectorOp::Op::CONCAT:
     expr = ExprFuse::Concat(expr_args.at(0), expr_args.at(1));
@@ -698,7 +721,7 @@ void SynthAbsConverter::CnvtNodeToExprBvOp(const ilasynth::Node* n) {
     break;
   };
 
-  ILA_NOT_NULL(expr) << "Fail converting Bv Op node " << n->getName();
+  ILA_CHECK(expr) << "Fail converting Bv Op node " << n->getName();
   auto res = node_expr_map_.emplace(n, expr);
   ILA_WARN_IF(!res.second) << "Expr of " << n->getName() << " exists.";
 
@@ -719,7 +742,7 @@ void SynthAbsConverter::CnvtNodeToExprMemOp(const ilasynth::Node* n) {
 
   // construct Expr
   auto op_ptr = dynamic_cast<const ilasynth::MemOp*>(n);
-  ILA_NOT_NULL(op_ptr) << "Fail casting " << n->getName() << " to Mem Op";
+  ILA_CHECK(op_ptr) << "Fail casting " << n->getName() << " to Mem Op";
 
   decltype(ExprFuse::MemConst(0, 8, 8)) expr = NULL;
 
@@ -762,7 +785,7 @@ void SynthAbsConverter::CnvtNodeToExprMemOp(const ilasynth::Node* n) {
     break;
   };
 
-  ILA_NOT_NULL(expr) << "Fail converting Mem Op node " << n->getName();
+  ILA_CHECK(expr) << "Fail converting Mem Op node " << n->getName();
   auto res = node_expr_map_.emplace(n, expr);
   ILA_WARN_IF(!res.second) << "Expr " << res.first->second << " exists.";
 

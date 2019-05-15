@@ -3,6 +3,7 @@
 
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/ilang++.h>
+#include <ilang/portable/interface.h>
 #include <ilang/util/log.h>
 #include <ilang/verification/abs_knob.h>
 #include <ilang/verification/unroller.h>
@@ -110,6 +111,16 @@ void ExprRef::ReplaceArg(const ExprRef& org_arg, const ExprRef& new_arg) {
   get()->replace_arg(org_arg.get(), new_arg.get());
 }
 
+bool ExprRef::SetEntryNum(const int& num) {
+  auto res = ExprFuse::SetMemSize(get(), num);
+  return res;
+}
+
+int ExprRef::GetEntryNum() {
+  auto num = ExprFuse::GetMemSize(get());
+  return num;
+}
+
 ExprRef operator-(const ExprRef& a) {
   auto v = ExprFuse::Negate(a.get());
   return ExprRef(v);
@@ -165,6 +176,11 @@ ExprRef operator-(const ExprRef& a, const ExprRef& b) {
   return ExprRef(v);
 }
 
+ExprRef operator*(const ExprRef& a, const ExprRef& b) {
+  auto v = ExprFuse::Mul(a.get(), b.get());
+  return ExprRef(v);
+}
+
 ExprRef operator&(const ExprRef& a, const bool& b) {
   auto v = ExprFuse::And(a.get(), b);
   return ExprRef(v);
@@ -202,6 +218,11 @@ ExprRef operator+(const ExprRef& a, const int& b) {
 
 ExprRef operator-(const ExprRef& a, const int& b) {
   auto v = ExprFuse::Sub(a.get(), b);
+  return ExprRef(v);
+}
+
+ExprRef operator*(const ExprRef& a, const int& b) {
+  auto v = ExprFuse::Mul(a.get(), b);
   return ExprRef(v);
 }
 
@@ -632,6 +653,15 @@ std::ostream& operator<<(std::ostream& out, const InstrRef& instr) {
 
 std::ostream& operator<<(std::ostream& out, const Ila& ila) {
   return out << ila.get();
+}
+
+bool ExportIlaPortable(const Ila& ila, const std::string& file_name) {
+  return IlaSerDesMngr::SerToFile(ila.get(), file_name);
+}
+
+Ila ImportIlaPortable(const std::string& file_name) {
+  auto m = IlaSerDesMngr::DesFromFile(file_name);
+  return Ila(m);
 }
 
 IlaZ3Unroller::IlaZ3Unroller(z3::context& ctx, const std::string& suff)

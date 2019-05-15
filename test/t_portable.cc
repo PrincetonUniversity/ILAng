@@ -17,7 +17,7 @@ namespace ilang {
 
 TEST(TestPortable, AES) {
   SetToStdErr(0);
-  DebugLog::Enable("Portable");
+  // DebugLog::Enable("Portable");
 
   auto aes_file = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/aes_v/all";
   auto aes_ila = ImportSynthAbsFromFile(aes_file, "AES");
@@ -119,7 +119,7 @@ TEST(TestPortable, AES) {
 
 TEST(TestPortable, UAES) {
   SetToStdErr(1);
-  DebugLog::Enable("Portable");
+  // DebugLog::Enable("Portable");
 
   auto aesu_file = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/aes_v/allu";
   auto org_ila = ImportSynthAbsFromFile(aesu_file, "AESU");
@@ -157,6 +157,20 @@ TEST(TestPortable, UAES) {
 
   DebugLog::Disable("Portable");
   SetToStdErr(0);
+}
+
+TEST(TestPortable, RBM) {
+  SetToStdErr(1);
+  // DebugLog::Enable("Portable");
+
+  auto rbm_portable_file =
+      std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/rbm/rbm.json";
+  auto rbm_ila = IlaSerDesMngr::DesFromFile(rbm_portable_file);
+
+  auto ser_rbm = IlaSerDesMngr::Serialize(rbm_ila);
+  auto des_rbm = IlaSerDesMngr::Deserialize(ser_rbm);
+
+  DebugLog::Disable("Portable");
 }
 
 } // namespace ilang
