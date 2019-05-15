@@ -60,8 +60,7 @@ void IlaSim::dfs_uninterpreted_func_decl(const FuncPtr &func) {
       header_ << "sc_biguint<" << arg_sort->bit_width() << "> "
               << "arg_" << i;
     } else {
-      auto addr_size = 1;
-      addr_size <<= arg_sort->addr_width();
+      // TODO(yuex): add func_decl with memory arg.
       header_ << "sc_biguint<" << arg_sort->data_width() << "> "
               << "arg_" << i;
     }
@@ -294,7 +293,6 @@ void IlaSim::dfs_ext_op(stringstream &dfs_simulator, string &indent,
   auto id = expr->name().id();
   auto arg = expr->arg(0);
   string arg_str = get_arg_str(arg);
-  auto param = static_cast<unsigned>(expr->param(0));
   auto out_str = "c_" + to_string(expr->name().id());
   string out_type_str =
       (expr->is_bool())
