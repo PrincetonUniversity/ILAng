@@ -2,15 +2,15 @@
 import ply.lex as lex
 
 reserved = {
-    'forall':'FORALL',
-    'exists' : 'EXISTS',
+    'forall': 'FORALL',
+    'exists': 'EXISTS',
     'Define': 'DEFINE',
-    'Axiom' : 'AXIOM' ,
-    'InstructionSet' : 'INSTSET',
-    'ila-inst-read' : 'ILAREAD',
-    'ila-inst-write' : 'ILAWRITE',
-    'ila-inst-name' : 'ILANAME',
-    'with-facet-event' : 'WITHFACETEVENT'
+    'Axiom': 'AXIOM',
+    'InstructionSet': 'INSTSET',
+    'ila-inst-read': 'ILAREAD',
+    'ila-inst-write': 'ILAWRITE',
+    'ila-inst-name': 'ILANAME',
+    'with-facet-event': 'WITHFACETEVENT'
 }
 
 tokens = [
@@ -45,25 +45,28 @@ tokens = [
     'COLON'] + list(reserved.values())
 
 
-
 def t_MACRO(t):
     r'\%[a-zA-Z_][a-zA-Z_0-9\-]*'
     t.type = 'MACRO'
     return t
 
+
 def t_ID(t):
     r'[a-zA-Z_][a-zA-Z_0-9\-]*'
-    t.type = reserved.get(t.value,'ID')
+    t.type = reserved.get(t.value, 'ID')
     return t
+
 
 t_DOT = r'\.'
 t_COLON = r'\:'
 t_COMMA = r'\,'
 t_BAR = r'\|'
 
+
 def t_COMMENT(t):
     r'\#.*'
     pass
+
 
 t_LEFTPARA = r'\('
 t_RIGHTPARA = r'\)'
@@ -97,22 +100,27 @@ def t_newline(t):
     t.lexer.lineno += len(t.value)
 
 
-t_ignore  = ' \t'
+t_ignore = ' \t'
 # Error handling rule
+
+
 def t_error(t):
     print("Illegal character '%s'" % t.value[0])
     t.lexer.skip(1)
 
+
 # Build the lexer
 lexer = lex.lex()
 
+
 def test():
     with open('test.axiom') as w:
-        lexer.input( w.read() )
+        lexer.input(w.read())
     word = lexer.token()
     while word:
         print word
         word = lexer.token()
+
 
 if __name__ == '__main__':
     test()
