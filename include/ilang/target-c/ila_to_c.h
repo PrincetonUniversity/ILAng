@@ -1,12 +1,13 @@
 /// \file
 /// ILA to C target generator..
 
-#ifndef ILANG_TARGET_I2C_H__
-#define ILANG_TARGET_I2C_H__
+#ifndef ILANG_TARGET_C_ILA_TO_C_H__
+#define ILANG_TARGET_C_ILA_TO_C_H__
 
-#include <ilang/ila/instr_lvl_abs.h>
 #include <memory>
 #include <unordered_map>
+
+#include <ilang/ila/instr_lvl_abs.h>
 
 /// \namespace ilang
 namespace ilang {
@@ -50,5 +51,4 @@ typedef I2CMngr::I2CMngrPtr I2CMngrPtr;
 
 }; // namespace ilang
 
-#endif // ILANG_TARGET_I2C_H__
-
+#endif // ILANG_TARGET_C_ILA_TO_C_H__

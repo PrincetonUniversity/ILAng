@@ -1,30 +1,28 @@
-/// \file 
+/// \file
 /// Header for evaluate constant width
 // -- Hongce Zhang (hongcez@princeton.edu)
 
+#include <ilang/verilog-in/verilog_const_parser.h>
+
 #include <ilang/util/log.h>
 #include <ilang/util/str_util.h>
-#include <ilang/verilog-in/verilog_const_parser.h>
 
 namespace ilang {
 
-VerilogConstantExprEval::VerilogConstantExprEval(ast_expression * _s) :
-  eval_expr(_s), evaluated(false), cached_value(0), eval_error(false)
-{
+VerilogConstantExprEval::VerilogConstantExprEval(ast_expression* _s)
+    : eval_expr(_s), evaluated(false), cached_value(0), eval_error(false) {
   // do nothing
 }
 
-
-
-unsigned VerilogConstantExprEval::_eval(ast_expression * e) {
+unsigned VerilogConstantExprEval::_eval(ast_expression* e) {
   // ..
-  if ( e->type == ast_expression_type::PRIMARY_EXPRESSION ) {
+  if (e->type == ast_expression_type::PRIMARY_EXPRESSION) {
     return StrToInt(ast_expression_tostring(e));
-  } else if ( e->type == ast_expression_type::UNARY_EXPRESSION ) {
+  } else if (e->type == ast_expression_type::UNARY_EXPRESSION) {
     eval_error = true;
     error_str = ast_expression_tostring(e);
     return 0;
-  } else if ( e->type == ast_expression_type::BINARY_EXPRESSION ) {
+  } else if (e->type == ast_expression_type::BINARY_EXPRESSION) {
     unsigned left = _eval(e->left);
     unsigned right = _eval(e->right);
     if (e->operation == ast_operator::OPERATOR_STAR)
@@ -37,7 +35,7 @@ unsigned VerilogConstantExprEval::_eval(ast_expression * e) {
       return left / right;
     if (e->operation == ast_operator::OPERATOR_MOD)
       return left % right;
-    
+
     eval_error = true;
     error_str = ast_expression_tostring(e);
     return 0;
@@ -46,7 +44,6 @@ unsigned VerilogConstantExprEval::_eval(ast_expression * e) {
   eval_error = true;
   error_str = ast_expression_tostring(e);
   return 0;
-
 }
 
 unsigned VerilogConstantExprEval::Eval() {
@@ -62,6 +59,5 @@ unsigned VerilogConstantExprEval::Eval() {
 
   return cached_value;
 }
-
 
 }; // namespace ilang

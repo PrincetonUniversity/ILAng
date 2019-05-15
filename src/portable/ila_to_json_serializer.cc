@@ -1,8 +1,9 @@
 /// \file
 /// The implementation of the ILA to JSON serializer.
 
-#include <ilang/ila/ast_fuse.h>
 #include <ilang/portable/ila_to_json_serializer.h>
+
+#include <ilang/ila/ast_fuse.h>
 #include <ilang/portable/serdes_config.h>
 #include <ilang/util/log.h>
 
@@ -302,4 +303,3 @@ json I2JSer::SerInstrLvlAbsNoAst(const InstrLvlAbsPtr& i_ila) {
 }
 
 }; // namespace ilang
-

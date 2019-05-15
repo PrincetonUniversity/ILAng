@@ -1,14 +1,16 @@
 /// \file
 /// The implementation of the JSON to ILA deserializer.
 
-#include <cstdlib>
-#include <ilang/ila/ast_fuse.h>
-#include <ilang/ila/expr_fuse.h>
 #include <ilang/portable/json_to_ila_deserializer.h>
-#include <ilang/portable/serdes_config.h>
-#include <ilang/util/log.h>
+
+#include <cstdlib>
 #include <unordered_set>
 #include <vector>
+
+#include <ilang/ila/ast_fuse.h>
+#include <ilang/ila/expr_fuse.h>
+#include <ilang/portable/serdes_config.h>
+#include <ilang/util/log.h>
 
 namespace ilang {
 
@@ -516,4 +518,3 @@ void J2IDes::DesIlaHier(const json& j_ila) {
   }
 }
 }; // namespace ilang
-

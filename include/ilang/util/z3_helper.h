@@ -1,11 +1,12 @@
 /// \file
 /// Header for helpers for interfacing the z3 API
 
-#ifndef UTIL_Z3_HELPER_H__
-#define UTIL_Z3_HELPER_H__
+#ifndef ILANG_UTIL_Z3_HELPER_H__
+#define ILANG_UTIL_Z3_HELPER_H__
+
+#include <string>
 
 #include <ilang/config.h>
-#include <string>
 #include <z3++.h>
 
 namespace ilang {
@@ -76,5 +77,4 @@ inline std::string Z3Expr2String(z3::context& ctx, const z3::expr& e) {
 
 }; // namespace ilang
 
-#endif // UTIL_Z3_HELPER_H__
-
+#endif // ILANG_UTIL_Z3_HELPER_H__
