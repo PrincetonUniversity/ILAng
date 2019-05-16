@@ -1,4 +1,4 @@
-#include "ila_sim_test.h"
+#include "../unit-include/ila_sim_test.h"
 #include <string>
 IlaSimTest::IlaSimTest()
     : 
