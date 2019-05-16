@@ -1,14 +1,15 @@
 /// \file
 /// The header for the c++ API.
 
-#ifndef ILA_CPP_API_H__
-#define ILA_CPP_API_H__
+#ifndef ILANG_ILANG_CPP_H__
+#define ILANG_ILANG_CPP_H__
 
-#include "z3++.h"
 #include <map>
 #include <memory>
 #include <string>
 #include <vector>
+
+#include "z3++.h"
 
 /// \namespace ilang
 /// Defines the core data structure and APIs for constructing and storing ILA.
@@ -662,4 +663,4 @@ private:
 
 } // namespace ilang
 
-#endif // ILA_CPP_API_H__
+#endif // ILANG_ILANG_CPP_H__
