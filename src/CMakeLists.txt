@@ -26,13 +26,21 @@ endif()
 ##
 target_compile_features(${ILANG_LIB_NAME} PUBLIC cxx_std_11)
 
-if(${ILANG_BUILD_COV})
+set_property(
+  TARGET ${ILANG_LIB_NAME}
+  PROPERTY POSITION_INDEPENDENT_CODE ON
+)
 
-  if(${CMAKE_COMPILER_IS_GNUCXX})
+if(${CMAKE_COMPILER_IS_GNUCXX})
 
-    target_compile_options(${ILANG_LIB_NAME} PUBLIC -fprofile-arcs)
-    target_compile_options(${ILANG_LIB_NAME} PUBLIC -ftest-coverage)
+  if(${CMAKE_PROJECT_NAME} MATCHES ${PROJECT_NAME})
+    target_compile_options(${ILANG_LIB_NAME} PRIVATE "-Wall")
+    #target_compile_options(${ILANG_LIB_NAME} PRIVATE "-Werror")
+  endif()
 
+  if(${ILANG_BUILD_COV})
+    target_compile_options(${ILANG_LIB_NAME} PUBLIC "-fprofile-arcs")
+    target_compile_options(${ILANG_LIB_NAME} PUBLIC "-ftest-coverage")
   endif()
 
 endif()

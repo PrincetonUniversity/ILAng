@@ -45,7 +45,7 @@ json I2JSer::SerInstr(const InstrPtr& i_instr) {
   // state updates
   auto j_update = json::object();
   auto host = i_instr->host();
-  for (auto i = 0; i < host->state_num(); i++) {
+  for (decltype(host->state_num()) i = 0; i < host->state_num(); i++) {
     auto i_state = host->state(i);
     auto i_next = i_instr->update(i_state);
     i_next = i_next ? i_next : i_state; // NULL is unchanged
@@ -97,6 +97,11 @@ json I2JSer::SerSort(const SortPtr& i_sort) const {
     j_sort.emplace(SERDES_SORT_DATA_WIDTH, i_sort->data_width());
     break;
   }
+  // boolean
+  default: {
+    ILA_ASSERT(i_sort->is_bool()) << "unknown sort " << i_sort;
+    break;
+  }
   }; // switch sort_uid
 
   return j_sort;
@@ -127,7 +132,7 @@ json I2JSer::SerFunc(const FuncPtr& i_func) {
 
   // arguments sort (domain)
   auto j_arg_sort_arr = json::array();
-  for (auto i = 0; i < i_func->arg_num(); i++) {
+  for (decltype(i_func->arg_num()) i = 0; i < i_func->arg_num(); i++) {
     auto i_arg_sort = i_func->arg(i);
     auto j_arg_sort = SerSort(i_arg_sort);
     j_arg_sort_arr.push_back(j_arg_sort);
@@ -205,7 +210,7 @@ json I2JSer::SerExprUnit(const ExprPtr& i_expr) {
 
     // args
     auto j_arg_arr = json::array();
-    for (auto i = 0; i < i_expr->arg_num(); i++) {
+    for (decltype(i_expr->arg_num()) i = 0; i < i_expr->arg_num(); i++) {
       auto arg_id = i_expr->arg(i)->name().id();
       j_arg_arr.push_back(arg_id);
     }
@@ -213,7 +218,7 @@ json I2JSer::SerExprUnit(const ExprPtr& i_expr) {
 
     // params
     auto j_param_arr = json::array();
-    for (auto i = 0; i < i_expr->param_num(); i++) {
+    for (decltype(i_expr->param_num()) i = 0; i < i_expr->param_num(); i++) {
       j_param_arr.push_back(i_expr->param(i));
     }
     j_expr.emplace(SERDES_EXPR_PARAMS, j_param_arr);
@@ -246,7 +251,7 @@ json I2JSer::SerInstrLvlAbsNoAst(const InstrLvlAbsPtr& i_ila) {
   // input
   ILA_DLOG("Portable") << "Serialize input variables of " << i_ila;
   auto j_inp_arr = json::array();
-  for (auto i = 0; i < i_ila->input_num(); i++) {
+  for (decltype(i_ila->input_num()) i = 0; i < i_ila->input_num(); i++) {
     auto j_inp = SerExpr(i_ila->input(i));
     j_inp_arr.push_back(j_inp.at(SERDES_EXPR_ID).get<ID_t>());
   }
@@ -255,7 +260,7 @@ json I2JSer::SerInstrLvlAbsNoAst(const InstrLvlAbsPtr& i_ila) {
   // state
   ILA_DLOG("Portable") << "Serialize state variables of " << i_ila;
   auto j_state_arr = json::array();
-  for (auto i = 0; i < i_ila->state_num(); i++) {
+  for (decltype(i_ila->state_num()) i = 0; i < i_ila->state_num(); i++) {
     auto j_state = SerExpr(i_ila->state(i));
     j_state_arr.push_back(j_state.at(SERDES_EXPR_ID).get<ID_t>());
   }
@@ -276,7 +281,7 @@ json I2JSer::SerInstrLvlAbsNoAst(const InstrLvlAbsPtr& i_ila) {
   // instructions
   ILA_DLOG("Portable") << "Serialize instructions of " << i_ila;
   auto j_instr_arr = json::array();
-  for (auto i = 0; i < i_ila->instr_num(); i++) {
+  for (decltype(i_ila->instr_num()) i = 0; i < i_ila->instr_num(); i++) {
     j_instr_arr.push_back(SerInstr(i_ila->instr(i)));
   }
   j_ila.emplace(SERDES_ILA_INSTR, j_instr_arr);
@@ -284,7 +289,7 @@ json I2JSer::SerInstrLvlAbsNoAst(const InstrLvlAbsPtr& i_ila) {
   // init
   ILA_DLOG("Portable") << "Serialize initial condition of " << i_ila;
   auto j_init_arr = json::array();
-  for (auto i = 0; i < i_ila->init_num(); i++) {
+  for (decltype(i_ila->init_num()) i = 0; i < i_ila->init_num(); i++) {
     auto j_init = SerExpr(i_ila->init(i));
     j_init_arr.push_back(j_init.at(SERDES_EXPR_ID).get<ID_t>());
   }
@@ -293,7 +298,7 @@ json I2JSer::SerInstrLvlAbsNoAst(const InstrLvlAbsPtr& i_ila) {
   // child
   ILA_DLOG("Portable") << "Serialize child ILAs of " << i_ila;
   auto j_child_arr = json::array();
-  for (auto i = 0; i < i_ila->child_num(); i++) {
+  for (decltype(i_ila->child_num()) i = 0; i < i_ila->child_num(); i++) {
     auto j_child = SerInstrLvlAbsNoAst(i_ila->child(i));
     j_child_arr.push_back(j_child);
   }

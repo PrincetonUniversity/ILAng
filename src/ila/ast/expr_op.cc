@@ -101,7 +101,7 @@ ExprOp::InstrLvlAbsPtr ExprOp::GetHost(const ExprSet& args) const {
       return host_i;
     } else {
       auto is_leaf = true;
-      for (auto j = 0; j != host_i->child_num(); j++) {
+      for (decltype(host_i->child_num()) j = 0; j != host_i->child_num(); j++) {
         auto child_ij = host_i->child(j);
         is_leaf &= (hosts.find(child_ij) == hosts.end());
       }

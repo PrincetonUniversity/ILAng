@@ -135,7 +135,7 @@ InstrPtr J2IDes::DesInstr(const json& j_instr,
   instr->set_decode(decode_pos->second);
 
   auto update = j_instr.at(SERDES_INSTR_UPDATE);
-  for (auto i = 0; i < i_host->state_num(); i++) {
+  for (decltype(i_host->state_num()) i = 0; i < i_host->state_num(); i++) {
     auto state = i_host->state(i);
     // get the id of the update function
     auto next_id_it = update.find(state->name().str());
