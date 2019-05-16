@@ -564,6 +564,20 @@ bool ExportIlaPortable(const Ila& ila, const std::string& file_name);
 /// \param[in] file_name the name of the ILA portable (JSON) file to import.
 Ila ImportIlaPortable(const std::string& file_name);
 
+/// \brief Import the synthesized abstraction from file.
+/// \param[in] file_name the name of the synthesized abstraction (.ila) file.
+/// \param[in] ila_name the name of the generated ILA.
+Ila ImportSynthAbstraction(const std::string& file_name,
+                           const std::string& ila_name);
+
+/// \brief Import the synthesized (child-)abstraction from file, under the given
+/// parent ILA.
+/// \param[in] file_name the name of the synthesized child-abstraction.
+/// \param[in] parent the parent ILA.
+/// \param[in] ila_name the name pf the generated child-ILA.
+void ImportChildSynthAbstraction(const std::string& file_name, Ila& parent,
+                                 const std::string& ila_name);
+
 /******************************************************************************/
 // Verification.
 /******************************************************************************/
