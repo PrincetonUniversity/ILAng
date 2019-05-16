@@ -157,7 +157,8 @@ TEST(TestIlaSim, readable_file_name) {
   string test_decode_string;
   while (getline(ref_decode_stream, ref_decode_string)) {
     getline(test_decode_stream, test_decode_string);
-    EXPECT_EQ(test_decode_string, ref_decode_string);
+    EXPECT_EQ(get_word_number(test_decode_string),
+              get_word_number(ref_decode_string));
   }
 
   EXPECT_EQ(get_line_number(ref_update_stream),
@@ -166,7 +167,8 @@ TEST(TestIlaSim, readable_file_name) {
   string test_update_string;
   while (getline(ref_update_stream, ref_update_string)) {
     getline(test_update_stream, test_update_string);
-    EXPECT_EQ(test_update_string, ref_update_string);
+    EXPECT_EQ(get_word_number(test_update_string),
+              get_word_number(ref_update_string));
   }
 
   EXPECT_EQ(get_line_number(ref_header_stream),
@@ -175,7 +177,8 @@ TEST(TestIlaSim, readable_file_name) {
   string test_header_string;
   while (getline(ref_header_stream, ref_header_string)) {
     getline(test_header_stream, test_header_string);
-    EXPECT_EQ(test_header_string, ref_header_string);
+    EXPECT_EQ(get_word_number(test_header_string),
+              get_word_number(ref_header_string));
   }
 
   EXPECT_EQ(get_line_number(ref_mk_stream), get_line_number(test_mk_stream));
@@ -183,7 +186,7 @@ TEST(TestIlaSim, readable_file_name) {
   string test_mk_string;
   while (getline(ref_mk_stream, ref_mk_string)) {
     getline(test_mk_stream, test_mk_string);
-    EXPECT_EQ(test_mk_string, ref_mk_string);
+    EXPECT_EQ(get_word_number(test_mk_string), get_word_number(ref_mk_string));
   }
 }
 
