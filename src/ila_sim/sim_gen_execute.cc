@@ -307,7 +307,7 @@ void IlaSim::execute_write_output(stringstream &execute_kernel,
     auto state = model_ptr_->state(i);
     if (GetUidSort(state->sort()) == AST_UID_SORT::MEM) {
       ILA_WARNING << "internal mem state " << state->name().str()
-		  << "doesn't have output port";
+                  << "doesn't have output port";
     } else
       execute_kernel << indent << model_ptr_->name() << "_"
                      << model_ptr_->state(i)->name() << "_out.write("

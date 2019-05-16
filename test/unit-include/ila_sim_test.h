@@ -1,5 +1,10 @@
-#ifndef ILA_SIM_TEST_H__
-#define ILA_SIM_TEST_H__
+// A helper model containing all aspects of an ILA model, including
+// all sorts of states, all sorts of operations, and sharead/external memory.
+// This helper model will provide a complete test of ila_sim class.
+// Note: this model is not built for verification or other usage.
+
+#ifndef TEST_ILA_SIM_TEST_H__
+#define TEST_ILA_SIM_TEST_H__
 
 #include <ilang/ilang++.h>
 
@@ -24,19 +29,15 @@ public:
   Ila model;
 
 protected:
-  static ExprRef slice_read(const ExprRef& reg, const ExprRef& idx,
+  static ExprRef slice_read(const ExprRef &reg, const ExprRef &idx,
                             unsigned long base_addr, unsigned no_slice,
                             unsigned slice_width);
 
-  static ExprRef slice_update(const ExprRef& reg, const ExprRef& idx,
-                              const ExprRef& input_slice,
+  static ExprRef slice_update(const ExprRef &reg, const ExprRef &idx,
+                              const ExprRef &input_slice,
                               unsigned long base_addr, unsigned no_slice,
                               unsigned slice_width);
 
-  ExprRef unknown_range(unsigned low, unsigned high);
-  /// a nondeterministic choice of a or b
-  static ExprRef unknown_choice(const ExprRef& a, const ExprRef& b);
-  /// a nondeterminstic bitvector const of width
   FuncRef unknown(unsigned width);
 
 protected:
@@ -54,4 +55,4 @@ protected:
 
 }; // class IlaSimTest
 
-#endif // SIMGEN_TEST_H__
+#endif // TEST_ILA_SIM_TEST_H__
