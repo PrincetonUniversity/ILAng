@@ -1,14 +1,18 @@
 #include "../unit-include/ila_sim_test.h"
+#include <ilang/ila/expr_fuse.h>
 #include <string>
 IlaSimTest::IlaSimTest()
     : model("TEST"), cmd(model.NewBvInput("cmd", 2)),
       cmdaddr(model.NewBvInput("cmdaddr", 16)),
       cmddata(model.NewBvInput("cmddata", 8)),
+      cmdflag(model.NewBoolInput("cmdflag")),
+      flag(model.NewBoolState("flag")),
       address(model.NewBvState("address", 16)),
       length(model.NewBvState("length", 16)),
       counter(model.NewBvState("counter", 128)),
       status(model.NewBvState("status", 2)),
       xram(model.NewMemState("XRAM", 16, 8)),
+      big_ram(model.NewMemState("big_ram", 32, 32)),
       process128(FuncRef("process128", SortRef::BV(128), SortRef::BV(128),
                          SortRef::BV(128))) {
 
@@ -19,6 +23,8 @@ IlaSimTest::IlaSimTest()
 
   { // WRITE_ADDRESS
     auto instr = model.NewInstr("WRITE_ADDRESS");
+    auto flag_true = ExprFuse::BoolConst(true);
+    auto flag_false = ExprFuse::BoolConst(false);
 
     instr.SetDecode((cmd == CMD_WRITE) & (cmdaddr >= ADDR) &
                     (cmdaddr < ADDR + 2));
@@ -28,6 +34,11 @@ IlaSimTest::IlaSimTest()
                      Concat(Ite(cmdaddr == ADDR + 1, cmddata, address(15, 8)),
                             Ite(cmdaddr == ADDR, cmddata, address(7, 0))),
                      address));
+
+    instr.SetUpdate(
+        flag, Ite(is_status_idle, flag_true,
+                     flag_false));
+
 
     instr.SetUpdate(length, length);
     instr.SetUpdate(counter, counter);
@@ -76,9 +87,9 @@ IlaSimTest::IlaSimTest()
 
       child_instr.SetUpdate(byte_cnt, byte_cnt + 1);
 
-      child_instr.SetUpdate(xram,
-                            Store(xram, xram_write_addr,
-                                  slice_read(enc_data, byte_cnt, 0, 16, 8)));
+      child_instr.SetUpdate(xram, 
+                            Ite(flag, Store(xram, xram_write_addr,
+                                  slice_read(enc_data, byte_cnt, 0, 16, 8)), xram));
 
       child_instr.SetUpdate(
           blk_cnt,

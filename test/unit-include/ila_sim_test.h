@@ -44,11 +44,14 @@ protected:
   ExprRef cmd;
   ExprRef cmdaddr;
   ExprRef cmddata;
+  ExprRef cmdflag;
   ExprRef status;
   ExprRef address;
   ExprRef length;
   ExprRef counter;
   ExprRef xram;
+  ExprRef flag;
+  ExprRef big_ram;
   FuncRef process128;
 
   int nondet_counter;

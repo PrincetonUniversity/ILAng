@@ -65,8 +65,8 @@ void IlaSim::mem_state_update_decl(stringstream &state_update_function,
         increase_indent(indent);
         auto cond_arg = expr->arg(0);
         cond_arg->DepthFirstVisit(DfsKernel);
-        state_update_function << indent << "if (c_" << cond_arg->name().id()
-                              << ") {" << endl;
+	auto cond_str = get_arg_str(cond_arg);
+        state_update_function << indent << "if (" << cond_str << ") {" << endl;
         increase_indent(indent);
         auto true_arg = expr->arg(1);
         true_arg->DepthFirstVisit(DfsKernel);

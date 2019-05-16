@@ -44,7 +44,8 @@ int IlaSim::get_update_state_num(const InstrPtr &instr_expr) {
 
 bool IlaSim::load_from_store_analysis(const ExprPtr &expr) {
   ld_st_counter_ = 0;
-  dfs_load_from_store(expr);
+  auto DfsLoadFromStore = [this](const ExprPtr &e) { dfs_load_from_store(e); };
+  expr->DepthFirstVisit(DfsLoadFromStore);
   return ld_st_counter_ != 0;
 }
 

@@ -192,8 +192,7 @@ TEST(TestIlaSim, readable_file_name) {
 
 TEST(TestIlaSim, external_mem) {
   IlaSimTest ila_sim_test;
-  IlaSim ila_sim;
-  ila_sim.set_instr_lvl_abs(ila_sim_test.model.get());
+  IlaSim ila_sim(ila_sim_test.model.get());
   ila_sim.set_systemc_path("/home/yuex/bin/systemc-2.3.1/");
   ila_sim.sim_gen("/tmp/", true, false);
 
