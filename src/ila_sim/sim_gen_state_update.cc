@@ -142,7 +142,7 @@ void IlaSim::state_update_decl(stringstream &state_update_function,
   header_ << header_indent_ << return_type << state_update_func_name << arg_list
           << ";" << endl;
 
-  if (EXTERNAL_MEM_) {
+  if ((updated_state->is_mem()) && (EXTERNAL_MEM_)) {
     header_ << header_indent_ << "int " << state_update_func_name << "_iter"
             << endl;
     auto mem_map_str = state_update_func_name;
