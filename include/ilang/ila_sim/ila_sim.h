@@ -182,7 +182,7 @@ private:
   const int MEM_MAP_ARRAY_DIV = 16;
   // Readable_ is used to control whether the generated function name is
   // huname-readable. When being set true, function will be named based on the
-  // instruction name and the updated state name. However, there is potential
+  // instruction name and the updated state name. However, there is a potential
   // same-name bug if setting true.
   bool readable_;
 
