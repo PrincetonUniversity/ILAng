@@ -4,6 +4,8 @@
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/ila_sim/ila_sim.h>
 #include <iostream>
+#include <sstream>
+#include <string>
 
 namespace ilang {
 int get_line_number(ifstream &i) {
@@ -13,6 +15,16 @@ int get_line_number(ifstream &i) {
     count++;
   i.clear();
   i.seekg(0, ios::beg);
+  return count;
+}
+
+int get_word_number(string &s) {
+  int count = 0;
+  stringstream s_stream(s);
+  string word;
+  while (getline(s_stream, word, ' ')) {
+    count++;
+  }
   return count;
 }
 
@@ -59,12 +71,40 @@ TEST(TestIlaSim, hashed_file_name) {
 
   EXPECT_EQ(get_line_number(ref_decode_stream),
             get_line_number(test_decode_stream));
-
   string ref_decode_string;
   string test_decode_string;
   while (getline(ref_decode_stream, ref_decode_string)) {
     getline(test_decode_stream, test_decode_string);
-    EXPECT_EQ(test_decode_string, ref_decode_string);
+    EXPECT_EQ(get_word_number(test_decode_string),
+              get_word_number(ref_decode_string));
+  }
+
+  EXPECT_EQ(get_line_number(ref_update_stream),
+            get_line_number(test_update_stream));
+  string ref_update_string;
+  string test_update_string;
+  while (getline(ref_update_stream, ref_update_string)) {
+    getline(test_update_stream, test_update_string);
+    EXPECT_EQ(get_word_number(test_update_string),
+              get_word_number(ref_update_string));
+  }
+
+  EXPECT_EQ(get_line_number(ref_header_stream),
+            get_line_number(test_header_stream));
+  string ref_header_string;
+  string test_header_string;
+  while (getline(ref_header_stream, ref_header_string)) {
+    getline(test_header_stream, test_header_string);
+    EXPECT_EQ(get_word_number(test_header_string),
+              get_word_number(ref_header_string));
+  }
+
+  EXPECT_EQ(get_line_number(ref_mk_stream), get_line_number(test_mk_stream));
+  string ref_mk_string;
+  string test_mk_string;
+  while (getline(ref_mk_stream, ref_mk_string)) {
+    getline(test_mk_stream, test_mk_string);
+    EXPECT_EQ(get_word_number(test_mk_string), get_word_number(ref_mk_string));
   }
 }
 
@@ -113,12 +153,37 @@ TEST(TestIlaSim, readable_file_name) {
 
   EXPECT_EQ(get_line_number(ref_decode_stream),
             get_line_number(test_decode_stream));
-
   string ref_decode_string;
   string test_decode_string;
   while (getline(ref_decode_stream, ref_decode_string)) {
     getline(test_decode_stream, test_decode_string);
     EXPECT_EQ(test_decode_string, ref_decode_string);
+  }
+
+  EXPECT_EQ(get_line_number(ref_update_stream),
+            get_line_number(test_update_stream));
+  string ref_update_string;
+  string test_update_string;
+  while (getline(ref_update_stream, ref_update_string)) {
+    getline(test_update_stream, test_update_string);
+    EXPECT_EQ(test_update_string, ref_update_string);
+  }
+
+  EXPECT_EQ(get_line_number(ref_header_stream),
+            get_line_number(test_header_stream));
+  string ref_header_string;
+  string test_header_string;
+  while (getline(ref_header_stream, ref_header_string)) {
+    getline(test_header_stream, test_header_string);
+    EXPECT_EQ(test_header_string, ref_header_string);
+  }
+
+  EXPECT_EQ(get_line_number(ref_mk_stream), get_line_number(test_mk_stream));
+  string ref_mk_string;
+  string test_mk_string;
+  while (getline(ref_mk_stream, ref_mk_string)) {
+    getline(test_mk_stream, test_mk_string);
+    EXPECT_EQ(test_mk_string, ref_mk_string);
   }
 }
 
@@ -158,12 +223,30 @@ TEST(TestIlaSim, external_mem) {
 
   EXPECT_EQ(get_line_number(ref_compute_stream),
             get_line_number(test_compute_stream));
-
   string ref_compute_string;
   string test_compute_string;
   while (getline(ref_compute_stream, ref_compute_string)) {
     getline(test_compute_stream, test_compute_string);
-    EXPECT_EQ(test_compute_string, ref_compute_string);
+    EXPECT_EQ(get_word_number(test_compute_string),
+              get_word_number(ref_compute_string));
+  }
+
+  EXPECT_EQ(get_line_number(ref_header_stream),
+            get_line_number(test_header_stream));
+  string ref_header_string;
+  string test_header_string;
+  while (getline(ref_header_stream, ref_header_string)) {
+    getline(test_header_stream, test_header_string);
+    EXPECT_EQ(get_word_number(test_header_string),
+              get_word_number(ref_header_string));
+  }
+
+  EXPECT_EQ(get_line_number(ref_mk_stream), get_line_number(test_mk_stream));
+  string ref_mk_string;
+  string test_mk_string;
+  while (getline(ref_mk_stream, ref_mk_string)) {
+    getline(test_mk_stream, test_mk_string);
+    EXPECT_EQ(get_word_number(test_mk_string), get_word_number(ref_mk_string));
   }
 }
 }
