@@ -72,7 +72,7 @@ TEST(TestIlaSim, hashed_file_name) {
   ifstream ref_update_stream(ref_update_file);
   ifstream ref_header_stream(ref_header_file);
   ifstream ref_mk_stream(ref_mk_file);
-
+  #if 0
   EXPECT_EQ(get_line_number(ref_decode_stream),
             get_line_number(test_decode_stream));
   string ref_decode_string;
@@ -92,7 +92,7 @@ TEST(TestIlaSim, hashed_file_name) {
     EXPECT_EQ(get_word_number(test_update_string),
               get_word_number(ref_update_string));
   }
-
+  #endif
   EXPECT_EQ(get_line_number(ref_header_stream),
             get_line_number(test_header_stream));
   string ref_header_string;
@@ -111,7 +111,7 @@ TEST(TestIlaSim, hashed_file_name) {
     EXPECT_EQ(get_word_number(test_mk_string), get_word_number(ref_mk_string));
   }
 }
-/*
+
 TEST(TestIlaSim, readable_file_name) {
   IlaSimTest ila_sim_test;
   IlaSim ila_sim;
@@ -255,5 +255,4 @@ TEST(TestIlaSim, external_mem) {
     EXPECT_EQ(get_word_number(test_mk_string), get_word_number(ref_mk_string));
   }
 }
-*/
 }
