@@ -29,7 +29,9 @@ void IlaSim::dfs_external_mem_load(const ExprPtr &expr) {
   if (expr_uid == AST_UID_EXPR::OP) {
     auto expr_op = GetUidExprOp(expr);
     if (expr_op == AST_UID_EXPR_OP::LOAD) {
-      dfs_ld_search_set_.insert(expr->name().id());
+      auto expr_arg0_uid = GetUidExpr(expr->arg(0));
+      if (expr_arg0_uid == AST_UID_EXPR::VAR)
+        dfs_ld_search_set_.insert(expr->name().id());
     }
   }
 }
@@ -228,11 +230,12 @@ void IlaSim::dfs_binary_op_mem(stringstream &dfs_simulator, string &indent,
                 ? "sc_biguint<" + to_string(expr->sort()->bit_width()) + "> "
                 : "";
   bool is_load = GetUidExprOp(expr) == AST_UID_EXPR_OP::LOAD;
+  auto arg0_uid = GetUidExpr(expr->arg(0));
   if (is_load) {
     if (declared_id_set_.find(id) == declared_id_set_.end()) {
       declared_id_set_.insert(id);
       header_ << header_indent_ << out_type_str << out_str << ";" << endl;
-      if (EXTERNAL_MEM_) {
+      if ((EXTERNAL_MEM_) && (arg0_uid == AST_UID_EXPR::VAR)) {
         header_ << header_indent_ << "int " << out_str << "_ctrl;" << endl;
         ld_info current_load;
         current_load.mem_str = arg0_str;
@@ -243,7 +246,7 @@ void IlaSim::dfs_binary_op_mem(stringstream &dfs_simulator, string &indent,
     }
   }
   if (is_load) {
-    if (EXTERNAL_MEM_) {
+    if ((EXTERNAL_MEM_) && (AST_UID_EXPR::VAR)) {
       dfs_simulator << indent << "if (" << out_str << "_ctrl == 0"
                     << ") {" << endl;
       dfs_simulator << indent << "  " << out_str << "_ctrl = 1;" << endl;

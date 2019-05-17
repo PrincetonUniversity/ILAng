@@ -29,14 +29,16 @@ int get_word_number(string &s) {
 }
 
 TEST(TestIlaSim, hashed_file_name) {
+  // This test should be muted, if the basic structure of ILA is changed,
+  // such as how state/decode/state_update are changed.
   IlaSimTest ila_sim_test;
   IlaSim ila_sim;
   ila_sim.set_instr_lvl_abs(ila_sim_test.model.get());
   ila_sim.set_systemc_path("/home/yuex/bin/systemc-2.3.1/");
   ila_sim.sim_gen("/tmp/", false, false);
 
-  string test_decode_file = "/tmp/decode_97141.cc";
-  string test_update_file = "/tmp/decode_97141_update_TEST_address.cc";
+  string test_decode_file = "/tmp/decode_97151.cc";
+  string test_update_file = "/tmp/decode_97151_update_TEST_address.cc";
   string test_header_file = "/tmp/test.h";
   string test_mk_file = "/tmp/mk.sh";
 
@@ -55,10 +57,10 @@ TEST(TestIlaSim, hashed_file_name) {
   ifstream test_mk_stream(test_mk_file);
 
   string ref_decode_file = std::string(ILANG_TEST_SRC_ROOT) +
-                           "/unit-data/ila_sim_test/decode_97141.cc";
+                           "/unit-data/ila_sim_test/decode_97151.cc";
   string ref_update_file =
       std::string(ILANG_TEST_SRC_ROOT) +
-      "/unit-data/ila_sim_test/decode_97141_update_TEST_address.cc";
+      "/unit-data/ila_sim_test/decode_97151_update_TEST_address.cc";
   string ref_header_file =
       std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/ila_sim_test/test.h";
   string ref_mk_file =

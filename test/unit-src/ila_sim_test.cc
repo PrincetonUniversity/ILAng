@@ -5,8 +5,7 @@ IlaSimTest::IlaSimTest()
     : model("TEST"), cmd(model.NewBvInput("cmd", 2)),
       cmdaddr(model.NewBvInput("cmdaddr", 16)),
       cmddata(model.NewBvInput("cmddata", 8)),
-      cmdflag(model.NewBoolInput("cmdflag")),
-      flag(model.NewBoolState("flag")),
+      cmdflag(model.NewBoolInput("cmdflag")), flag(model.NewBoolState("flag")),
       address(model.NewBvState("address", 16)),
       length(model.NewBvState("length", 16)),
       counter(model.NewBvState("counter", 128)),
@@ -35,10 +34,7 @@ IlaSimTest::IlaSimTest()
                             Ite(cmdaddr == ADDR, cmddata, address(7, 0))),
                      address));
 
-    instr.SetUpdate(
-        flag, Ite(is_status_idle, flag_true,
-                     flag_false));
-
+    instr.SetUpdate(flag, Ite(is_status_idle, flag_true, flag_false));
 
     instr.SetUpdate(length, length);
     instr.SetUpdate(counter, counter);
@@ -78,6 +74,20 @@ IlaSimTest::IlaSimTest()
           status, Ite(byte_cnt == 15, BvConst(STATE_OPERATE, 2), status));
     }
 
+    {
+      auto child_instr = child_ila.NewInstr("ENC");
+      child_instr.SetDecode(
+          Imply(status == STATE_OPERATE, status == STATE_OPERATE));
+      std::map<int, int> const_map;
+      const_map[1] = 10;
+      auto const_mem = MemConst(0, const_map, 4, 128);
+      auto enc_ctr = counter + Load(const_mem, 1) + ZExt(blk_cnt, 128) +
+                     SExt(blk_cnt, 128);
+      child_instr.SetUpdate(enc_data, process128(enc_data, enc_ctr) ^ rd_data);
+      child_instr.SetUpdate(blk_cnt, blk_cnt);
+      child_instr.SetUpdate(status, BvConst(STATE_WRITE_DATA, 2));
+    }
+
     { // store
       auto child_instr = child_ila.NewInstr("STORE");
 
@@ -87,9 +97,10 @@ IlaSimTest::IlaSimTest()
 
       child_instr.SetUpdate(byte_cnt, byte_cnt + 1);
 
-      child_instr.SetUpdate(xram, 
-                            Ite(flag, Store(xram, xram_write_addr,
-                                  slice_read(enc_data, byte_cnt, 0, 16, 8)), xram));
+      child_instr.SetUpdate(
+          xram, Ite(flag, Store(xram, xram_write_addr,
+                                slice_read(enc_data, byte_cnt, 0, 16, 8)),
+                    xram));
 
       child_instr.SetUpdate(
           blk_cnt,
