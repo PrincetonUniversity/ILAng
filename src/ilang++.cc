@@ -1,9 +1,11 @@
 /// \file
 /// Source for the c++ API.
 
-#include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/ilang++.h>
+
+#include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/portable/interface.h>
+#include <ilang/synth-interface/synth_engine_interface.h>
 #include <ilang/util/log.h>
 #include <ilang/verification/abs_knob.h>
 #include <ilang/verification/unroller.h>
@@ -662,6 +664,19 @@ bool ExportIlaPortable(const Ila& ila, const std::string& file_name) {
 Ila ImportIlaPortable(const std::string& file_name) {
   auto m = IlaSerDesMngr::DesFromFile(file_name);
   return Ila(m);
+}
+
+Ila ImportSynthAbstraction(const std::string& file_name,
+                           const std::string& ila_name) {
+  auto m = ImportSynthAbsFromFile(file_name, ila_name);
+  return Ila(m);
+}
+
+void ImportChildSynthAbstraction(const std::string& file_name, Ila& parent,
+                                 const std::string& ila_name) {
+  auto m = ImportSynthAbsFromFileHier(file_name, parent.get(), ila_name);
+  ILA_NOT_NULL(m);
+  return;
 }
 
 IlaZ3Unroller::IlaZ3Unroller(z3::context& ctx, const std::string& suff)
