@@ -7,17 +7,17 @@
 /// For 0-ary func, they will be treated as nondet
 /// apply the same nondet func twice, will generate two variables
 /// if you do want to share the nondet val, please reuse the sub-tree
-///
 
-#ifndef VERILOG_GEN_H__
-#define VERILOG_GEN_H__
+#ifndef ILANG_VERILOG_OUT_VERILOG_GEN_H__
+#define ILANG_VERILOG_OUT_VERILOG_GEN_H__
 
-#include "z3++.h"
-#include <ilang/ila/instr_lvl_abs.h>
 #include <list>
 #include <map>
 #include <unordered_map>
 #include <vector>
+
+#include <ilang/ila/instr_lvl_abs.h>
+#include <z3++.h>
 
 /// \namespace ilang
 namespace ilang {
@@ -27,7 +27,6 @@ class VlgSglTgtGen;
 class VlgVerifTgtGen;
 class IntefaceDirectiveRecorder;
 class TestVerilogExport;
-
 
 /// \brief Base class of VerilogGenerator
 class VerilogGeneratorBase {
@@ -443,4 +442,4 @@ public:
 
 }; // namespace ilang
 
-#endif // VERILOG_GEN_H__
+#endif // ILANG_VERILOG_OUT_VERILOG_GEN_H__

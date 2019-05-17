@@ -1,14 +1,16 @@
 /// \file
 /// The implementation of the JSON to ILA deserializer.
 
-#include <cstdlib>
-#include <ilang/ila/ast_fuse.h>
-#include <ilang/ila/expr_fuse.h>
 #include <ilang/portable/json_to_ila_deserializer.h>
-#include <ilang/portable/serdes_config.h>
-#include <ilang/util/log.h>
+
+#include <cstdlib>
 #include <unordered_set>
 #include <vector>
+
+#include <ilang/ila/ast_fuse.h>
+#include <ilang/ila/expr_fuse.h>
+#include <ilang/portable/serdes_config.h>
+#include <ilang/util/log.h>
 
 namespace ilang {
 
@@ -133,7 +135,7 @@ InstrPtr J2IDes::DesInstr(const json& j_instr,
   instr->set_decode(decode_pos->second);
 
   auto update = j_instr.at(SERDES_INSTR_UPDATE);
-  for (auto i = 0; i < i_host->state_num(); i++) {
+  for (decltype(i_host->state_num()) i = 0; i < i_host->state_num(); i++) {
     auto state = i_host->state(i);
     // get the id of the update function
     auto next_id_it = update.find(state->name().str());
@@ -516,4 +518,3 @@ void J2IDes::DesIlaHier(const json& j_ila) {
   }
 }
 }; // namespace ilang
-

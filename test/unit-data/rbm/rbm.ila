@@ -1,0 +1,46 @@
+.names:  conf_done 0 conf_num_hidden 0 conf_num_loops 0 conf_num_movies 0 conf_num_testusers 0 conf_num_users 0 conf_num_visible 0 data 3 data_in 0 data_out 1 done 1 init_done 1 num_hidden 1 num_loops 1 num_movies 1 num_testusers 1 num_users 1 num_visible 1 predict_result 3 rd_complete 1 rd_grant 0 rd_granted 1 rd_index 1 rd_length 1 rd_request 1 rst 0 wr_complete 1 wr_grant 0 wr_granted 1 wr_index 1 wr_length 1 wr_request 1 .names_end
+.inps:  conf_done ( bvVar conf_done 1 ) ( ) conf_num_hidden ( bvVar conf_num_hidden 32 ) ( ) conf_num_loops ( bvVar conf_num_loops 32 ) ( ) conf_num_movies ( bvVar conf_num_movies 32 ) ( ) conf_num_testusers ( bvVar conf_num_testusers 32 ) ( ) conf_num_users ( bvVar conf_num_users 32 ) ( ) conf_num_visible ( bvVar conf_num_visible 32 ) ( ) data_in ( bvVar data_in 32 ) ( ) rd_grant ( bvVar rd_grant 1 ) ( ) rst ( bvVar rst 1 ) ( ) wr_grant ( bvVar wr_grant 1 ) ( ) .inps_end
+.regs: 
+data_out ( bvVar data_out 32 ) ( bvVar data_out 32 ) ( bvOp $n1014 if ( boolOp $n1013 eq ( bvOp $n1011 and ( bvVar wr_request 1 ) ( bvVar wr_grant 1 ) ) ( bvConst $n1012 1 1 ) ) ( bvOp $n1010 zero-extend ( bvOp $n1009 readmem ( memVar predict_result 7 8 ) ( bvConst $n1008 7 0 ) ) #32 ) ( bvVar data_out 32 ) )
+done ( bvVar done 1 ) ( bvConst $n50 1 0 ) ( bvVar done 1 )
+init_done ( bvVar init_done 1 ) ( bvConst $n50 1 0 ) ( bvOp $n64 if ( boolOp $n31 eq ( bvVar rst 1 ) ( bvConst $n30 1 1 ) ) ( bvConst $n50 1 0 ) ( bvOp $n63 if ( boolOp $n39 and ( boolOp $n36 and ( boolOp $n33 eq ( bvVar rst 1 ) ( bvConst $n32 1 0 ) ) ( boolOp $n35 eq ( bvVar init_done 1 ) ( bvConst $n34 1 0 ) ) ) ( boolOp $n38 eq ( bvVar conf_done 1 ) ( bvConst $n37 1 1 ) ) ) ( bvConst $n51 1 1 ) ( bvVar init_done 1 ) ) )
+num_hidden ( bvVar num_hidden 16 ) ( bvConst $n59 16 0 ) ( bvOp $n67 if ( boolOp $n31 eq ( bvVar rst 1 ) ( bvConst $n30 1 1 ) ) ( bvConst $n59 16 0 ) ( bvOp $n66 if ( boolOp $n39 and ( boolOp $n36 and ( boolOp $n33 eq ( bvVar rst 1 ) ( bvConst $n32 1 0 ) ) ( boolOp $n35 eq ( bvVar init_done 1 ) ( bvConst $n34 1 0 ) ) ) ( boolOp $n38 eq ( bvVar conf_done 1 ) ( bvConst $n37 1 1 ) ) ) ( bvOp $n65 extract ( bvVar conf_num_hidden 32 ) #15 #0 ) ( bvVar num_hidden 16 ) ) )
+num_loops ( bvVar num_loops 16 ) ( bvConst $n59 16 0 ) ( bvOp $n76 if ( boolOp $n31 eq ( bvVar rst 1 ) ( bvConst $n30 1 1 ) ) ( bvConst $n59 16 0 ) ( bvOp $n75 if ( boolOp $n39 and ( boolOp $n36 and ( boolOp $n33 eq ( bvVar rst 1 ) ( bvConst $n32 1 0 ) ) ( boolOp $n35 eq ( bvVar init_done 1 ) ( bvConst $n34 1 0 ) ) ) ( boolOp $n38 eq ( bvVar conf_done 1 ) ( bvConst $n37 1 1 ) ) ) ( bvOp $n74 extract ( bvVar conf_num_loops 32 ) #15 #0 ) ( bvVar num_loops 16 ) ) )
+num_movies ( bvVar num_movies 16 ) ( bvConst $n59 16 0 ) ( bvOp $n82 if ( boolOp $n31 eq ( bvVar rst 1 ) ( bvConst $n30 1 1 ) ) ( bvConst $n59 16 0 ) ( bvOp $n81 if ( boolOp $n39 and ( boolOp $n36 and ( boolOp $n33 eq ( bvVar rst 1 ) ( bvConst $n32 1 0 ) ) ( boolOp $n35 eq ( bvVar init_done 1 ) ( bvConst $n34 1 0 ) ) ) ( boolOp $n38 eq ( bvVar conf_done 1 ) ( bvConst $n37 1 1 ) ) ) ( bvOp $n80 extract ( bvVar conf_num_movies 32 ) #15 #0 ) ( bvVar num_movies 16 ) ) )
+num_testusers ( bvVar num_testusers 16 ) ( bvConst $n59 16 0 ) ( bvOp $n79 if ( boolOp $n31 eq ( bvVar rst 1 ) ( bvConst $n30 1 1 ) ) ( bvConst $n59 16 0 ) ( bvOp $n78 if ( boolOp $n39 and ( boolOp $n36 and ( boolOp $n33 eq ( bvVar rst 1 ) ( bvConst $n32 1 0 ) ) ( boolOp $n35 eq ( bvVar init_done 1 ) ( bvConst $n34 1 0 ) ) ) ( boolOp $n38 eq ( bvVar conf_done 1 ) ( bvConst $n37 1 1 ) ) ) ( bvOp $n77 extract ( bvVar conf_num_testusers 32 ) #15 #0 ) ( bvVar num_testusers 16 ) ) )
+num_users ( bvVar num_users 16 ) ( bvConst $n59 16 0 ) ( bvOp $n73 if ( boolOp $n31 eq ( bvVar rst 1 ) ( bvConst $n30 1 1 ) ) ( bvConst $n59 16 0 ) ( bvOp $n72 if ( boolOp $n39 and ( boolOp $n36 and ( boolOp $n33 eq ( bvVar rst 1 ) ( bvConst $n32 1 0 ) ) ( boolOp $n35 eq ( bvVar init_done 1 ) ( bvConst $n34 1 0 ) ) ) ( boolOp $n38 eq ( bvVar conf_done 1 ) ( bvConst $n37 1 1 ) ) ) ( bvOp $n71 extract ( bvVar conf_num_users 32 ) #15 #0 ) ( bvVar num_users 16 ) ) )
+num_visible ( bvVar num_visible 16 ) ( bvConst $n59 16 0 ) ( bvOp $n70 if ( boolOp $n31 eq ( bvVar rst 1 ) ( bvConst $n30 1 1 ) ) ( bvConst $n59 16 0 ) ( bvOp $n69 if ( boolOp $n39 and ( boolOp $n36 and ( boolOp $n33 eq ( bvVar rst 1 ) ( bvConst $n32 1 0 ) ) ( boolOp $n35 eq ( bvVar init_done 1 ) ( bvConst $n34 1 0 ) ) ) ( boolOp $n38 eq ( bvVar conf_done 1 ) ( bvConst $n37 1 1 ) ) ) ( bvOp $n68 extract ( bvVar conf_num_visible 32 ) #15 #0 ) ( bvVar num_visible 16 ) ) )
+rd_complete ( bvVar rd_complete 1 ) ( bvConst $n50 1 0 ) ( bvVar rd_complete 1 )
+rd_granted ( bvVar rd_granted 1 ) ( bvVar rd_granted 1 ) ( bvOp $n177 if ( boolOp $n44 and ( boolOp $n41 eq ( bvVar rd_request 1 ) ( bvConst $n40 1 1 ) ) ( boolOp $n43 eq ( bvVar rd_grant 1 ) ( bvConst $n42 1 1 ) ) ) ( bvConst $n51 1 1 ) ( bvVar rd_granted 1 ) )
+rd_index ( bvVar rd_index 32 ) ( bvVar rd_index 32 ) ( bvVar rd_index 32 )
+rd_length ( bvVar rd_length 32 ) ( bvVar rd_length 32 ) ( bvVar rd_length 32 )
+rd_request ( bvVar rd_request 1 ) ( bvVar rd_request 1 ) ( bvVar rd_request 1 )
+wr_complete ( bvVar wr_complete 1 ) ( bvConst $n50 1 0 ) ( bvVar wr_complete 1 )
+wr_granted ( bvVar wr_granted 1 ) ( bvVar wr_granted 1 ) ( bvOp $n1007 if ( boolOp $n1006 eq ( bvOp $n1004 and ( bvVar wr_request 1 ) ( bvVar wr_grant 1 ) ) ( bvConst $n1005 1 1 ) ) ( bvConst $n51 1 1 ) ( bvVar wr_granted 1 ) )
+wr_index ( bvVar wr_index 32 ) ( bvVar wr_index 32 ) ( bvVar wr_index 32 )
+wr_length ( bvVar wr_length 32 ) ( bvVar wr_length 32 ) ( bvVar wr_length 32 )
+wr_request ( bvVar wr_request 1 ) ( bvVar wr_request 1 ) ( bvVar wr_request 1 )
+.regs_end
+.bits: 
+.bits_end
+.mems: 
+data ( memVar data 9 8 ) ( memVar data 9 8 ) ( memOp $n176 ite #0  ( boolOp $n44 and ( boolOp $n41 eq ( bvVar rd_request 1 ) ( bvConst $n40 1 1 ) ) ( boolOp $n43 eq ( bvVar rd_grant 1 ) ( bvConst $n42 1 1 ) ) ) ( memOp $n175 store #0  ( memVar data 9 8 ) ( bvConst $n173 9 0 ) ( bvOp $n174 extract ( bvVar data_in 32 ) #7 #0 ) ) ( memVar data 9 8 ) )
+predict_result ( memVar predict_result 7 8 ) ( memVar predict_result 7 8 ) ( )
+.mems_end
+.funs: 
+.funs_end
+.fetchExpr: ( )
+.fetchValid: ( boolConst $n0 true )
+.decode: 
+0 ( boolOp $n31 eq ( bvVar rst 1 ) ( bvConst $n30 1 1 ) )
+1 ( boolOp $n39 and ( boolOp $n36 and ( boolOp $n33 eq ( bvVar rst 1 ) ( bvConst $n32 1 0 ) ) ( boolOp $n35 eq ( bvVar init_done 1 ) ( bvConst $n34 1 0 ) ) ) ( boolOp $n38 eq ( bvVar conf_done 1 ) ( bvConst $n37 1 1 ) ) )
+2 ( boolOp $n44 and ( boolOp $n41 eq ( bvVar rd_request 1 ) ( bvConst $n40 1 1 ) ) ( boolOp $n43 eq ( bvVar rd_grant 1 ) ( bvConst $n42 1 1 ) ) )
+3 ( boolOp $n49 and ( boolOp $n46 eq ( bvVar wr_request 1 ) ( bvConst $n45 1 1 ) ) ( boolOp $n48 eq ( bvVar wr_grant 1 ) ( bvConst $n47 1 1 ) ) )
+.decode_end
+.assumps: 
+.assumps_end
+.uabs:
+DMAload ( boolOp $n179 eq ( bvVar rd_granted 1 ) ( bvConst $n178 1 1 ) )
+compute ( boolOp $n89 and ( boolOp $n86 eq ( bvVar init_done 1 ) ( bvConst $n85 1 1 ) ) ( boolOp $n88 eq ( bvVar done 1 ) ( bvConst $n87 1 0 ) ) )
+store ( boolOp $n1016 eq ( bvVar wr_granted 1 ) ( bvConst $n1015 1 1 ) )
+.uabs_end

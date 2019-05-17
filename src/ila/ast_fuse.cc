@@ -1,14 +1,16 @@
 /// \file
 /// Source of AstFuse
 
+#include <ilang/ila/ast_fuse.h>
+
+#include <memory>
+
 #include <ilang/ila/ast/expr_const.h>
 #include <ilang/ila/ast/expr_op.h>
 #include <ilang/ila/ast/expr_var.h>
 #include <ilang/ila/ast/sort.h>
 #include <ilang/ila/ast/sort_value.h>
-#include <ilang/ila/ast_fuse.h>
 #include <ilang/util/log.h>
-#include <memory>
 
 namespace ilang {
 
@@ -96,4 +98,3 @@ AST_UID_EXPR_OP GetUidExprOp(const ExprPtr& expr) {
 }
 
 }; // namespace ilang
-

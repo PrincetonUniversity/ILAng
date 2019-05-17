@@ -48,6 +48,8 @@ package_add_test(${ILANG_TEST_MAIN}
   unit-src/ila_sim_test.cc
   t_api.cc
   t_case_aes_eq.cc
+  t_case_gb.cc
+  t_case_rbm.cc
   t_crr.cc
   t_eq_check.cc
   t_expr.cc

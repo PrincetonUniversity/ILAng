@@ -222,7 +222,7 @@ void SynthAbsConverter::PortInits(const ilasynth::Abstraction& abs,
                                   const InstrLvlAbsPtr& ila) {
   ILA_DLOG("SynthImport") << "Port initial conditions";
   // only add initial condition for state vars that are already defined
-  for (auto i = 0; i != ila->state_num(); i++) {
+  for (decltype(ila->state_num()) i = 0; i != ila->state_num(); i++) {
     auto var_expr = ila->state(i);
     auto var_name = var_expr->name().str();
 
@@ -272,7 +272,7 @@ void SynthAbsConverter::PortFuncs(const ilasynth::Abstraction& abs,
     // argument sort
     std::vector<decltype(Sort::MakeBvSort(1))> args_sort = {};
     auto& args_width = type.argsWidth;
-    for (auto i = 0; i != args_width.size(); i++) {
+    for (size_t i = 0; i != args_width.size(); i++) {
       args_sort.push_back(Sort::MakeBvSort(args_width.at(i)));
     }
 
@@ -308,7 +308,7 @@ void SynthAbsConverter::PortInstructions(const ilasynth::Abstraction& abs,
   }
 
   // get the next state function of each state var
-  for (auto i = 0; i != ila->state_num(); i++) {
+  for (decltype(ila->state_num()) i = 0; i != ila->state_num(); i++) {
     auto var = ila->state(i);
 
     // next state functions are conjuncted when being exported
@@ -478,7 +478,7 @@ void SynthAbsConverter::CnvtNodeToExprConst(const ilasynth::Node* n) {
 void SynthAbsConverter::CnvtNodeToExprBoolOp(const ilasynth::Node* n) {
   // get input arguments
   ExprPtrVec expr_args = {};
-  for (auto i = 0; i != n->nArgs(); i++) {
+  for (decltype(n->nArgs()) i = 0; i != n->nArgs(); i++) {
     auto node_arg_i = n->arg(i);
     auto pos = node_expr_map_.find(node_arg_i.get());
     ILA_ASSERT(pos != node_expr_map_.end()) << "Invalid DF-visit";
@@ -572,7 +572,7 @@ void SynthAbsConverter::CnvtNodeToExprBoolOp(const ilasynth::Node* n) {
 void SynthAbsConverter::CnvtNodeToExprBvOp(const ilasynth::Node* n) {
   // get input arguments
   ExprPtrVec expr_args = {};
-  for (auto i = 0; i != n->nArgs(); i++) {
+  for (decltype(n->nArgs()) i = 0; i != n->nArgs(); i++) {
     auto node_arg_i = n->arg(i);
 
     // APPLY_FUNC
@@ -731,7 +731,7 @@ void SynthAbsConverter::CnvtNodeToExprBvOp(const ilasynth::Node* n) {
 void SynthAbsConverter::CnvtNodeToExprMemOp(const ilasynth::Node* n) {
   // get input arguments
   ExprPtrVec expr_args = {};
-  for (auto i = 0; i != n->nArgs(); i++) {
+  for (decltype(n->nArgs()) i = 0; i != n->nArgs(); i++) {
     auto node_arg_i = n->arg(i);
     auto pos = node_expr_map_.find(node_arg_i.get());
     ILA_ASSERT(pos != node_expr_map_.end()) << "Invalid DF-visit";
@@ -754,7 +754,6 @@ void SynthAbsConverter::CnvtNodeToExprMemOp(const ilasynth::Node* n) {
   case ilasynth::MemOp::Op::STOREBLOCK: {
     auto total_size = op_ptr->arg(2)->type.bitWidth;
     auto chunk_size = op_ptr->arg(0)->type.dataWidth;
-    auto chunk_num = total_size / chunk_size;
 
     auto bit_idx = (op_ptr->endian == ilasynth::endianness_t::LITTLE_E)
                        ? 0

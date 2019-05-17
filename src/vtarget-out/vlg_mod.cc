@@ -140,7 +140,7 @@ void VerilogModifier::RecordKeepSignalName(const std::string& vlg_sig_name) {
   // check for repetition:
   for (auto&& info_item : fn_l_map[loc.first]) {
     auto lineno = std::get<0>(info_item);
-    const auto& vname = std::get<1>(info_item);
+    // const auto& vname = std::get<1>(info_item); // BYH: unused var
     if (lineno == loc.second /*&& vname == vlg_sig_info.get_signal_name()*/)
       return; // we already add it
     // WARNING: we are not adding keep to the same line!
@@ -178,7 +178,7 @@ std::string VerilogModifier::add_keep_to_a_line(const std::string& line_in,
 
 std::string VerilogModifier::add_keep_to_port(const std::string& line_in,
                                               const std::string& vname) {
-  size_t left = 0;
+  // size_t left = 0; // BYH: unused var
   if (line_in.find(vname) == std::string::npos) {
     ILA_ERROR << "Implementation bug: not able to add keep to line:" << line_in
               << " required varname:" << vname;
@@ -227,10 +227,12 @@ std::string VerilogModifier::add_keep_to_port(const std::string& line_in,
     }
     idx++;
   }
+#if 0 // BYH: foundIdx is unsigned, which would never be -1
   if (foundIdx == -1) {
     ILA_ERROR << "not able to modify line: '" << line_in << "' for :" << vname;
     return line_in;
   }
+#endif
 
   midSplit[foundIdx] = "(* keep *)" + midSplit[foundIdx];
 
