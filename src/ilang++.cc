@@ -3,6 +3,7 @@
 
 #include <ilang/ilang++.h>
 
+#include <ilang/config.h>
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/portable/interface.h>
 #include <ilang/synth-interface/synth_engine_interface.h>
@@ -671,12 +672,12 @@ Ila ImportSynthAbstraction(const std::string& file_name,
 #ifdef SYNTH_INTERFACE
   auto m = ImportSynthAbsFromFile(file_name, ila_name);
   return Ila(m);
-#else // SYNTH_INTERFACE
+#else  // SYNTH_INTERFACE
   auto m = Ila(ila_name);
   ILA_ERROR << "Synthesis interface not built.";
   ILA_ERROR << "Empty ILA " << ila_name << " is returned.";
   return m;
-#endif // SYNTH_INTERFACE 
+#endif // SYNTH_INTERFACE
 }
 
 void ImportChildSynthAbstraction(const std::string& file_name, Ila& parent,
