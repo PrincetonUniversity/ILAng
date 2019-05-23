@@ -131,6 +131,12 @@ if(${ILANG_BUILD_SYNTH})
 
 endif()
 
+if(${ILANG_BUILD_SYNTH})
+  set(SYNTH_INTERFACE TRUE)
+else()
+  set(SYNTH_INTERFACE FALSE)
+endif()
+
 
 # ---------------------------------------------------------------------------- #
 # INSTALL
