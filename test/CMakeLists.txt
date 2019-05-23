@@ -45,6 +45,7 @@ package_add_test(${ILANG_TEST_MAIN}
   unit-src/stream_buffer.cc
   unit-src/mcm_ilas.cc
   unit-src/pipe_ila.cc
+  unit-src/ila_sim_test.cc
   t_api.cc
   t_case_aes_eq.cc
   t_case_gb.cc
@@ -59,6 +60,7 @@ package_add_test(${ILANG_TEST_MAIN}
   t_func.cc
   t_hash_ast.cc
   t_ila.cc
+  t_ila_sim.cc
   t_instr.cc
   t_instr_seq.cc
   t_keyvec.cc
