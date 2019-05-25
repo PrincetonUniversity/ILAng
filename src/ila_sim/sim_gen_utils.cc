@@ -2,7 +2,7 @@
 
 namespace ilang {
 
-string IlaSim::get_arg_str(const ExprPtr &arg) {
+string IlaSim::get_arg_str(const ExprPtr& arg) {
   string arg_str;
   if (GetUidExpr(arg) == AST_UID_EXPR::VAR)
     arg_str = arg->host()->name().str() + "_" + arg->name().str();
@@ -24,14 +24,14 @@ string IlaSim::get_arg_str(const ExprPtr &arg) {
   return arg_str;
 }
 
-void IlaSim::increase_indent(string &indent) { indent += "  "; }
+void IlaSim::increase_indent(string& indent) { indent += "  "; }
 
-void IlaSim::decrease_indent(string &indent) {
+void IlaSim::decrease_indent(string& indent) {
   indent.pop_back();
   indent.pop_back();
 }
 
-int IlaSim::get_update_state_num(const InstrPtr &instr_expr) {
+int IlaSim::get_update_state_num(const InstrPtr& instr_expr) {
   int update_state_num = 0;
   for (auto updated_state_name : instr_expr->updated_states()) {
     auto update_expr = instr_expr->update(updated_state_name);
@@ -42,9 +42,9 @@ int IlaSim::get_update_state_num(const InstrPtr &instr_expr) {
   return update_state_num;
 }
 
-bool IlaSim::load_from_store_analysis(const ExprPtr &expr) {
+bool IlaSim::load_from_store_analysis(const ExprPtr& expr) {
   ld_st_counter_ = 0;
-  auto DfsLoadFromStore = [this](const ExprPtr &e) { dfs_load_from_store(e); };
+  auto DfsLoadFromStore = [this](const ExprPtr& e) { dfs_load_from_store(e); };
   expr->DepthFirstVisit(DfsLoadFromStore);
   return ld_st_counter_ != 0;
 }

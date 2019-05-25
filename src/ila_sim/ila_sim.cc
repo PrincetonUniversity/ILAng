@@ -1,11 +1,12 @@
 #include <ilang/ila_sim/ila_sim.h>
 
 namespace ilang {
+
 IlaSim::IlaSim() {}
 
-IlaSim::IlaSim(const InstrLvlAbsPtr &model_ptr) { model_ptr_ = model_ptr; }
+IlaSim::IlaSim(const InstrLvlAbsPtr& model_ptr) { model_ptr_ = model_ptr; }
 
-void IlaSim::set_instr_lvl_abs(const InstrLvlAbsPtr &model_ptr) {
+void IlaSim::set_instr_lvl_abs(const InstrLvlAbsPtr& model_ptr) {
   model_ptr_ = model_ptr;
 }
 
@@ -185,4 +186,5 @@ void IlaSim::sim_gen_export() {
   outFile << mk_script_.rdbuf();
   outFile.close();
 }
+
 }; // namespace ilang

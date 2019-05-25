@@ -2,7 +2,7 @@
 
 namespace ilang {
 
-void IlaSim::create_mem_state(const ExprPtr &expr) {
+void IlaSim::create_mem_state(const ExprPtr& expr) {
   auto state_name_str = expr->host()->name().str() + "_" + expr->name().str();
   auto id = expr->name().id();
   bool state_not_defined =
@@ -24,7 +24,7 @@ void IlaSim::create_mem_state(const ExprPtr &expr) {
   }
 }
 
-void IlaSim::create_bool_state(const ExprPtr &expr, bool child) {
+void IlaSim::create_bool_state(const ExprPtr& expr, bool child) {
   auto state_name_str = expr->host()->name().str() + "_" + expr->name().str();
   auto id = expr->name().id();
   bool state_not_defined =
@@ -39,7 +39,7 @@ void IlaSim::create_bool_state(const ExprPtr &expr, bool child) {
   }
 }
 
-void IlaSim::create_bv_state(const ExprPtr &expr, bool child) {
+void IlaSim::create_bv_state(const ExprPtr& expr, bool child) {
   auto state_name_str = expr->host()->name().str() + "_" + expr->name().str();
   auto state_type_str =
       "sc_biguint<" + to_string(expr->sort()->bit_width()) + "> ";
@@ -57,7 +57,7 @@ void IlaSim::create_bv_state(const ExprPtr &expr, bool child) {
   }
 }
 
-void IlaSim::create_external_mem_port(const ExprPtr &expr) {
+void IlaSim::create_external_mem_port(const ExprPtr& expr) {
   auto state_name_str = expr->host()->name().str() + "_" + expr->name().str();
   auto id = expr->name().id();
   auto pos = defined_state_set_.find(id);
@@ -87,7 +87,7 @@ void IlaSim::create_external_mem_port(const ExprPtr &expr) {
   }
 }
 
-void IlaSim::create_state(const ExprPtr &state_expr) {
+void IlaSim::create_state(const ExprPtr& state_expr) {
   auto state_name_str =
       state_expr->host()->name().str() + "_" + state_expr->name().str();
   auto uid = GetUidExpr(state_expr);
@@ -113,7 +113,7 @@ void IlaSim::create_state(const ExprPtr &state_expr) {
   }
 }
 
-void IlaSim::create_child_state(const ExprPtr &state_expr) {
+void IlaSim::create_child_state(const ExprPtr& state_expr) {
   auto state_name_str =
       state_expr->host()->name().str() + "_" + state_expr->name().str();
   auto uid = GetUidExpr(state_expr);
@@ -137,4 +137,5 @@ void IlaSim::create_child_state(const ExprPtr &state_expr) {
     create_bv_state(state_expr, true);
   }
 }
+
 }; // namespace ilang

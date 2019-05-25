@@ -2,15 +2,15 @@
 
 namespace ilang {
 
-void IlaSim::execute_parent_instructions(stringstream &execute_kernel,
-                                         string &indent) {
+void IlaSim::execute_parent_instructions(stringstream& execute_kernel,
+                                         string& indent) {
   for (int i = 0; i < model_ptr_->instr_num(); i++) {
     execute_instruction(execute_kernel, indent, model_ptr_->instr(i));
   }
 }
 
-void IlaSim::execute_child_instructions(stringstream &execute_kernel,
-                                        string &indent) {
+void IlaSim::execute_child_instructions(stringstream& execute_kernel,
+                                        string& indent) {
   std::queue<InstrLvlAbsPtr> child_ila_queue;
   execute_kernel << indent << "while (1) {" << endl;
   increase_indent(indent);
@@ -31,8 +31,8 @@ void IlaSim::execute_child_instructions(stringstream &execute_kernel,
   execute_kernel << indent << "}" << endl;
 }
 
-void IlaSim::execute_instruction(stringstream &execute_kernel, string &indent,
-                                 const InstrPtr &instr_expr, bool child) {
+void IlaSim::execute_instruction(stringstream& execute_kernel, string& indent,
+                                 const InstrPtr& instr_expr, bool child) {
   if (get_update_state_num(instr_expr) == 0)
     return;
   auto decode = instr_expr->decode();
@@ -63,8 +63,8 @@ void IlaSim::execute_instruction(stringstream &execute_kernel, string &indent,
   execute_kernel << indent << "}" << endl;
 }
 
-void IlaSim::execute_decode(stringstream &execute_kernel, string &indent,
-                            const InstrPtr &instr_expr) {
+void IlaSim::execute_decode(stringstream& execute_kernel, string& indent,
+                            const InstrPtr& instr_expr) {
   string decode_func_name;
   if (readable_)
     decode_func_name = "decode_" + instr_expr->host()->name().str() + "_" +
@@ -77,10 +77,10 @@ void IlaSim::execute_decode(stringstream &execute_kernel, string &indent,
   execute_kernel << "cout << \"" << decode_func_name << "\" << endl;" << endl;
 }
 
-void IlaSim::execute_state_update_func(stringstream &execute_kernel,
-                                       string &indent,
-                                       const InstrPtr &instr_expr,
-                                       const ExprPtr &updated_state) {
+void IlaSim::execute_state_update_func(stringstream& execute_kernel,
+                                       string& indent,
+                                       const InstrPtr& instr_expr,
+                                       const ExprPtr& updated_state) {
   string updated_state_type =
       (updated_state->is_bool())
           ? "bool "
@@ -108,9 +108,9 @@ void IlaSim::execute_state_update_func(stringstream &execute_kernel,
                    << "_next = " << state_update_func_name << "();" << endl;
 }
 
-void IlaSim::execute_update_state(stringstream &execute_kernel, string &indent,
-                                  const InstrPtr &instr_expr,
-                                  const ExprPtr &updated_state) {
+void IlaSim::execute_update_state(stringstream& execute_kernel, string& indent,
+                                  const InstrPtr& instr_expr,
+                                  const ExprPtr& updated_state) {
   string updated_state_name =
       updated_state->host()->name().str() + "_" + updated_state->name().str();
   string decode_func_name;
@@ -140,9 +140,9 @@ void IlaSim::execute_update_state(stringstream &execute_kernel, string &indent,
   }
 }
 
-void IlaSim::execute_external_mem_load_begin(stringstream &execute_kernel,
-                                             string &indent,
-                                             const InstrPtr &instr_expr) {
+void IlaSim::execute_external_mem_load_begin(stringstream& execute_kernel,
+                                             string& indent,
+                                             const InstrPtr& instr_expr) {
   dfs_ld_search_set_.clear();
   for (auto updated_state_name : instr_expr->updated_states()) {
     auto updated_state = instr_expr->host()->state(updated_state_name);
@@ -151,7 +151,7 @@ void IlaSim::execute_external_mem_load_begin(stringstream &execute_kernel,
         updated_state->name().id() == update_expr->name().id();
     if (state_not_updated)
       continue;
-    auto DfsExternalMemLoad = [this](const ExprPtr &e) {
+    auto DfsExternalMemLoad = [this](const ExprPtr& e) {
       dfs_external_mem_load(e);
     };
     update_expr->DepthFirstVisit(DfsExternalMemLoad);
@@ -168,8 +168,8 @@ void IlaSim::execute_external_mem_load_begin(stringstream &execute_kernel,
   }
 }
 
-void IlaSim::execute_external_mem_load_end(stringstream &execute_kernel,
-                                           string &indent) {
+void IlaSim::execute_external_mem_load_end(stringstream& execute_kernel,
+                                           string& indent) {
   if (!dfs_ld_search_set_.empty()) {
     dfs_ld_search_set_.clear();
     decrease_indent(indent);
@@ -177,8 +177,8 @@ void IlaSim::execute_external_mem_load_end(stringstream &execute_kernel,
   }
 }
 
-void IlaSim::execute_write_external_mem(stringstream &execute_kernel,
-                                        string &indent) {
+void IlaSim::execute_write_external_mem(stringstream& execute_kernel,
+                                        string& indent) {
   for (auto it = external_st_set_.begin(); it != external_st_set_.end(); it++) {
     string mem_iterator = it->mem_map + "_iter";
     string mem_map = it->mem_map + "_map";
@@ -216,8 +216,8 @@ void IlaSim::execute_write_external_mem(stringstream &execute_kernel,
   }
 }
 
-void IlaSim::execute_read_external_mem(stringstream &execute_kernel,
-                                       string &indent) {
+void IlaSim::execute_read_external_mem(stringstream& execute_kernel,
+                                       string& indent) {
   for (auto it = external_ld_set_.begin(); it != external_ld_set_.end(); it++) {
     auto mem_read_ctrl = it->dest_str + "_ctrl";
     auto mem_read_valid = it->mem_str + "_read_valid";
@@ -248,8 +248,8 @@ void IlaSim::execute_read_external_mem(stringstream &execute_kernel,
   }
 }
 
-void IlaSim::execute_external_mem_before_input(stringstream &execute_kernel,
-                                               string &indent) {
+void IlaSim::execute_external_mem_before_input(stringstream& execute_kernel,
+                                               string& indent) {
   execute_kernel << indent << "if (";
   for (auto it = external_ld_set_.begin(); it != external_ld_set_.end(); it++)
     execute_kernel << "(" << it->dest_str << "_ctrl == 0) & ";
@@ -257,13 +257,13 @@ void IlaSim::execute_external_mem_before_input(stringstream &execute_kernel,
   increase_indent(indent);
 }
 
-void IlaSim::execute_external_mem_after_output(stringstream &execute_kernel,
-                                               string &indent) {
+void IlaSim::execute_external_mem_after_output(stringstream& execute_kernel,
+                                               string& indent) {
   decrease_indent(indent);
   execute_kernel << indent << "}" << endl;
 }
 
-void IlaSim::execute_read_input(stringstream &execute_kernel, string &indent) {
+void IlaSim::execute_read_input(stringstream& execute_kernel, string& indent) {
   for (int i = 0; i < model_ptr_->input_num(); i++) {
     auto input = model_ptr_->input(i);
     execute_kernel << indent << model_ptr_->name() << "_" << input->name()
@@ -272,8 +272,8 @@ void IlaSim::execute_read_input(stringstream &execute_kernel, string &indent) {
   }
 }
 
-void IlaSim::execute_external_mem_return(stringstream &execute_kernel,
-                                         string &indent) {
+void IlaSim::execute_external_mem_return(stringstream& execute_kernel,
+                                         string& indent) {
   string unfinished_st_cond = "";
   for (auto it = external_st_set_.begin(); it != external_st_set_.end(); it++)
     unfinished_st_cond +=
@@ -301,8 +301,8 @@ void IlaSim::execute_external_mem_return(stringstream &execute_kernel,
   }
 }
 
-void IlaSim::execute_write_output(stringstream &execute_kernel,
-                                  string &indent) {
+void IlaSim::execute_write_output(stringstream& execute_kernel,
+                                  string& indent) {
   for (int i = 0; i < model_ptr_->state_num(); i++) {
     auto state = model_ptr_->state(i);
     if (GetUidSort(state->sort()) == AST_UID_SORT::MEM) {
@@ -316,7 +316,7 @@ void IlaSim::execute_write_output(stringstream &execute_kernel,
   }
 }
 
-void IlaSim::execute_kernel_export(stringstream &execute_kernel) {
+void IlaSim::execute_kernel_export(stringstream& execute_kernel) {
   ofstream outFile;
   outFile.open(export_dir_ + "compute.cc");
   outFile << execute_kernel.rdbuf();
@@ -336,4 +336,5 @@ void IlaSim::execute_kernel_mk_file() {
 void IlaSim::execute_kernel_header() {
   header_ << header_indent_ << "void compute();" << endl;
 }
+
 }; // namespace ilang
