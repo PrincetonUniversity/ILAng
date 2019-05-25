@@ -1,27 +1,31 @@
-// A class to generate SystemC simulator model from ILA model
-//
-// Example Use:
-//     InstrLvlAbsPtr your_ila_model_ptr;
-//     IlaSim ila_sim;
-//     ila_sim.set_instr_lvl_abs(your_ila_model_ptr);
-//     ila_sim.sim_gen("./");
-//
-// TODO(yuex): change id to instruction name for decode&state_update function
+/// \file
+/// The header for the class IlaSim
 
-#ifndef ILANG_ILA_SIM_ILA_SIM_H__
-#define ILANG_ILA_SIM_ILA_SIM_H__
+#ifndef ILANG_TARGET_SC_ILA_SIM_H__
+#define ILANG_TARGET_SC_ILA_SIM_H__
 
-#include <ilang/ila/ast_fuse.h>
-#include <ilang/ila/instr_lvl_abs.h>
-#include <ilang/util/log.h>
-#include <iostream>
-#include <queue>
+#include <set>
 #include <sstream>
+#include <string>
+#include <vector>
+
+#include <ilang/ila/instr_lvl_abs.h>
 
 #define EXTERNAL_MEM 0
 
+// FIXME do not use "using namespace std", especially in headers
 using namespace std;
+
 namespace ilang {
+
+// TODO(yuex): change id to instruction name for decode&state_update function
+
+/// \brief A class to generate SystemC simulator model from ILA model
+/// Example Use:
+/// - InstrLvlAbsPtr your_ila_model_ptr;
+/// - IlaSim ila_sim;
+/// - ila_sim.set_instr_lvl_abs(your_ila_model_ptr);
+/// - ila_sim.sim_gen("./");
 class IlaSim {
 public:
   typedef struct {
@@ -188,6 +192,7 @@ private:
 
   InstrLvlAbsPtr model_ptr_;
 };
+
 }; // namespace ilang
 
-#endif
+#endif // ILANG_TARGET_SC_ILA_SIM_H__
