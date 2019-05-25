@@ -35,8 +35,9 @@ set_property(
 if(${CMAKE_COMPILER_IS_GNUCXX})
 
   if(${CMAKE_PROJECT_NAME} MATCHES ${PROJECT_NAME})
-    target_compile_options(${ILANG_LIB_NAME} PRIVATE "-Wall")
-    #target_compile_options(${ILANG_LIB_NAME} PRIVATE "-Werror")
+    if(${CMAKE_BUILD_TYPE} MATCHES Debug)
+      target_compile_options(${ILANG_LIB_NAME} PRIVATE "-Wall")
+    endif()
   endif()
 
   if(${ILANG_BUILD_COV})
