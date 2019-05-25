@@ -4,8 +4,6 @@
 #include "unit-include/config.h"
 #include "unit-include/util.h"
 
-#include <cstdio>
-
 #include <ilang/ilang++.h>
 #include <ilang/util/fs.h>
 
@@ -25,7 +23,7 @@ TEST(TestCase, GB_Import_Export_Import) {
   ImportChildSynthAbstraction(gb_abst_child, gb_ila, "gb_child");
 
   // export
-  auto tmp_file_name = std::tmpnam(NULL);
+  auto tmp_file_name = GetRandomFileName(NULL);
   ExportIlaPortable(gb_ila, tmp_file_name);
 
   // import
