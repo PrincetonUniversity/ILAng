@@ -4,8 +4,6 @@
 #include "unit-include/config.h"
 #include "unit-include/util.h"
 
-#include <cstdio>
-
 #include <ilang/ilang++.h>
 #include <ilang/util/fs.h>
 
@@ -42,7 +40,7 @@ TEST(TestCase, RBM_Import_Export_Import) {
   ImportChildSynthAbstraction(store_file, rbm, "store");
 
   // export
-  auto tmp_file_name = std::tmpnam(NULL);
+  auto tmp_file_name = GetRandomFileName(NULL);
   ExportIlaPortable(rbm, tmp_file_name);
 
   // import
