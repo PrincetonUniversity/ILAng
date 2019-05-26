@@ -12,7 +12,6 @@ void IlaSim::create_state_update(const InstrPtr& instr_expr) {
     string state_update_func_name;
     auto update_expr = instr_expr->update(updated_state_name);
     auto update_expr_id = update_expr->name().id();
-    auto instr_decode_id = instr_expr->decode()->name().id();
     auto updated_state = instr_expr->host()->state(updated_state_name);
     if (readable_)
       state_update_func_name = "decode_" + instr_expr->host()->name().str() +

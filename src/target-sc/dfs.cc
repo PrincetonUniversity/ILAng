@@ -54,7 +54,7 @@ void IlaSim::dfs_uninterpreted_func_decl(const FuncPtr& func) {
             << "(";
   }
 
-  for (int i = 0; i < func->arg_num(); i++) {
+  for (unsigned int i = 0; i < func->arg_num(); i++) {
     if (i != 0) {
       header_ << ", ";
     }
@@ -83,14 +83,14 @@ void IlaSim::dfs_const_node(stringstream& dfs_simulator, string& indent,
     if (const_mem_not_defined) {
       const_mem_set_.insert(id);
       auto addr_width = sort->addr_width();
-      int array_size = 1;
+      unsigned int array_size = 1;
       array_size <<= addr_width;
       auto expr_const = dynamic_pointer_cast<ExprConst>(expr);
       auto val_map = expr_const->val_mem()->val_map();
       string const_mem_array =
           "c_" + to_string(id) + "[" + to_string(array_size) + "]";
       header_ << indent << "const " << const_mem_array << " = {";
-      for (int i = 0; i < array_size - 1; i++)
+      for (unsigned int i = 0; i < array_size - 1; i++)
         header_ << val_map[i] << ", ";
       header_ << val_map[array_size - 1] << "};" << endl;
     }
@@ -347,7 +347,7 @@ void IlaSim::dfs_func_op(stringstream& dfs_simulator, string& indent,
                 : "";
   declare_variable_with_id(id, out_type_str, out_str);
   dfs_simulator << indent << out_str << " = " << func_name << "(";
-  for (int i = 0; i < appfunc_expr->arg_num(); i++) {
+  for (unsigned int i = 0; i < appfunc_expr->arg_num(); i++) {
     if (i != 0)
       dfs_simulator << ", ";
     dfs_simulator << get_arg_str(appfunc_expr->arg(i));
