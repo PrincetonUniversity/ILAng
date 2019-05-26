@@ -199,14 +199,14 @@ SOFTWARE.
 
 * * *
 
-ILAng contains the Google logging module, which is licensed under [glog license](extern/glog/COPYING).
+ILAng contains the [Google logging module](https://github.com/google/glog), which is licensed under [glog license](extern/glog/COPYING).
 Copyright (c) 2008, Google Inc.
 
-ILAng contains the Google Test project, which is licensed under [googletest license](extern/googletest/LICENSE).
+ILAng contains the [Google Test project](https://github.com/google/googletest), which is licensed under [googletest license](extern/googletest/LICENSE).
 Copyright 2008, Google Inc.
 
-ILAng contains the JSON library from Niels Lohmann, which is licensed under the [MIT License](https://github.com/nlohmann/json/blob/develop/LICENSE.MIT). 
+ILAng contains the [JSON library](https://github.com/nlohmann/json) from Niels Lohmann, which is licensed under the [MIT License](https://github.com/nlohmann/json/blob/develop/LICENSE.MIT). 
 Copyright &copy; 2013-2019 [Niels Lohmann](https://github.com/nlohmann).
 
-ILAng uses the Verilog parser from Ben Marshall, which is licensed under the [MIT License](https://github.com/ben-marshall/verilog-parser/blob/master/LICENSE.txt).
+ILAng uses the [Verilog parser](https://github.com/ben-marshall/verilog-parser) from Ben Marshall, which is licensed under the [MIT License](https://github.com/ben-marshall/verilog-parser/blob/master/LICENSE.txt).
 Copyright &copy; 2016 [Ben Marshall](https://ben-marshall.github.io).
