@@ -30,7 +30,7 @@
 
 ### Prerequisites
 
-ILAng requires CMake (3.8 or above) and compilers with CXX11 support.
+ILAng requires CMake (3.9.6 or above) and compilers with CXX11 support.
 To install dependencies on Debian-based UNIX:
 
 ```bash
@@ -176,9 +176,11 @@ This docker image also contains the model checker [CoSA](https://github.com/cris
 
 ## License
 
+<img align="right" src="http://opensource.org/trademarks/opensource/OSI-Approved-License-100x137.png">
+
 ILAng is licensed under the [MIT license](https://opensource.org/licenses/MIT):
 
-Copyright &copy; 2019 [Princeton University ILA Team](https://sites.google.com/view/princeton-malik-group/people)
+Copyright &copy; 2018-2019 [Princeton University ILA Team](https://sites.google.com/view/princeton-malik-group/people)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
