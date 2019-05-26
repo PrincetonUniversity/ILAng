@@ -208,8 +208,8 @@ Copyright (c) 2008, Google Inc.
 ILAng contains the [Google Test project](https://github.com/google/googletest), which is licensed under [googletest license](extern/googletest/LICENSE).
 Copyright 2008, Google Inc.
 
-ILAng contains the [JSON library](https://github.com/nlohmann/json) from Niels Lohmann, which is licensed under the [MIT License](https://github.com/nlohmann/json/blob/develop/LICENSE.MIT). 
-Copyright &copy; 2013-2019 [Niels Lohmann](https://github.com/nlohmann).
+ILAng contains the [JSON library](https://github.com/nlohmann/json) from [Niels Lohmann](https://github.com/nlohmann), which is licensed under the [MIT License](https://github.com/nlohmann/json/blob/develop/LICENSE.MIT). 
+Copyright (c) 2013-2019 Niels Lohmann.
 
-ILAng uses the [Verilog parser](https://github.com/ben-marshall/verilog-parser) from Ben Marshall, which is licensed under the [MIT License](https://github.com/ben-marshall/verilog-parser/blob/master/LICENSE.txt).
-Copyright &copy; 2016 [Ben Marshall](https://ben-marshall.github.io).
+ILAng uses the [Verilog parser](https://github.com/ben-marshall/verilog-parser) from [Ben Marshall](https://ben-marshall.github.io), which is licensed under the [MIT License](https://github.com/ben-marshall/verilog-parser/blob/master/LICENSE.txt).
+Copyright (c) 2016 Ben Marshall.
