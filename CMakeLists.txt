@@ -11,7 +11,7 @@ endif()
 # PROJECT
 # name version language
 # ---------------------------------------------------------------------------- #
-project(ilang VERSION     0.9.0
+project(ilang VERSION     0.9.1
               LANGUAGES   CXX
 )
 

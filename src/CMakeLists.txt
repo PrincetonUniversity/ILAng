@@ -175,5 +175,10 @@ else()
     DESTINATION ${ILANG_INCLUDE_INSTALL_DIR}/ilang
   )
 
+  install(
+    FILES ${ILANG_INCLUDE_BUILD_DIR}/ilang/util/log.h
+    DESTINATION ${ILANG_INCLUDE_INSTALL_DIR}/ilang/util
+  )
+
 endif()
 
