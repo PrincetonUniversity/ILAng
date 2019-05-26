@@ -1,8 +1,11 @@
-#include <ilang/ila_sim/ila_sim.h>
+#include <ilang/target-sc/ila_sim.h>
+
+#include <ilang/ila/ast_fuse.h>
+#include <ilang/util/log.h>
 
 namespace ilang {
 
-void IlaSim::dfs_store_op(const ExprPtr &expr) {
+void IlaSim::dfs_store_op(const ExprPtr& expr) {
   auto expr_uid = GetUidExpr(expr);
   if (expr_uid == AST_UID_EXPR::OP) {
     auto expr_op = GetUidExprOp(expr);
@@ -13,7 +16,7 @@ void IlaSim::dfs_store_op(const ExprPtr &expr) {
   }
 }
 
-void IlaSim::dfs_load_from_store(const ExprPtr &expr) {
+void IlaSim::dfs_load_from_store(const ExprPtr& expr) {
   auto expr_uid = GetUidExpr(expr);
   if (expr_uid == AST_UID_EXPR::OP) {
     auto expr_op = GetUidExprOp(expr);
@@ -24,7 +27,7 @@ void IlaSim::dfs_load_from_store(const ExprPtr &expr) {
   }
 }
 
-void IlaSim::dfs_external_mem_load(const ExprPtr &expr) {
+void IlaSim::dfs_external_mem_load(const ExprPtr& expr) {
   auto expr_uid = GetUidExpr(expr);
   if (expr_uid == AST_UID_EXPR::OP) {
     auto expr_op = GetUidExprOp(expr);
@@ -36,7 +39,7 @@ void IlaSim::dfs_external_mem_load(const ExprPtr &expr) {
   }
 }
 
-void IlaSim::dfs_uninterpreted_func_decl(const FuncPtr &func) {
+void IlaSim::dfs_uninterpreted_func_decl(const FuncPtr& func) {
   auto func_name = func->name();
   auto func_out_sort = func->out();
   header_ << header_indent_;
@@ -70,8 +73,8 @@ void IlaSim::dfs_uninterpreted_func_decl(const FuncPtr &func) {
   header_ << ");" << endl;
 }
 
-void IlaSim::dfs_const_node(stringstream &dfs_simulator, string &indent,
-                            const ExprPtr &expr) {
+void IlaSim::dfs_const_node(stringstream& dfs_simulator, string& indent,
+                            const ExprPtr& expr) {
   auto id = expr->name().id();
   auto sort = expr->sort();
   if (GetUidSort(sort) == AST_UID_SORT::MEM) {
@@ -94,13 +97,13 @@ void IlaSim::dfs_const_node(stringstream &dfs_simulator, string &indent,
   }
 }
 
-void IlaSim::dfs_unary_op_check(const ExprPtr &expr) {
+void IlaSim::dfs_unary_op_check(const ExprPtr& expr) {
   if (expr->is_mem())
     ILA_ERROR << "Error: unary_op shouldn't output memory";
 }
 
-void IlaSim::dfs_unary_op(stringstream &dfs_simulator, string &indent,
-                          const ExprPtr &expr) {
+void IlaSim::dfs_unary_op(stringstream& dfs_simulator, string& indent,
+                          const ExprPtr& expr) {
   dfs_unary_op_check(expr);
   auto id = expr->name().id();
   string arg_str = get_arg_str(expr->arg(0));
@@ -124,13 +127,13 @@ void IlaSim::dfs_unary_op(stringstream &dfs_simulator, string &indent,
                 << endl;
 }
 
-void IlaSim::dfs_binary_op_bool_out_check(const ExprPtr &expr) {
+void IlaSim::dfs_binary_op_bool_out_check(const ExprPtr& expr) {
   if (!expr->is_bool())
     ILA_ERROR << "Error: EQ/LT/GT/ULT/UGT/IMPLY must use bool as output type.";
 }
 
-void IlaSim::dfs_binary_op_bool_out(stringstream &dfs_simulator, string &indent,
-                                    const ExprPtr &expr) {
+void IlaSim::dfs_binary_op_bool_out(stringstream& dfs_simulator, string& indent,
+                                    const ExprPtr& expr) {
   dfs_binary_op_bool_out_check(expr);
   auto id = expr->name().id();
   string arg0_str = get_arg_str(expr->arg(0));
@@ -160,15 +163,15 @@ void IlaSim::dfs_binary_op_bool_out(stringstream &dfs_simulator, string &indent,
   }
 }
 
-void IlaSim::dfs_binary_op_non_mem_check(const ExprPtr &expr) {
+void IlaSim::dfs_binary_op_non_mem_check(const ExprPtr& expr) {
   if (expr->is_mem())
     ILA_ERROR
         << "Error: AND/OR/XOR/SHL/LSHR/ASHR/ADD/MUL/CONCAT shouldn't output "
            "memory";
 }
 
-void IlaSim::dfs_binary_op_non_mem(stringstream &dfs_simulator, string &indent,
-                                   const ExprPtr &expr) {
+void IlaSim::dfs_binary_op_non_mem(stringstream& dfs_simulator, string& indent,
+                                   const ExprPtr& expr) {
   dfs_binary_op_non_mem_check(expr);
   auto id = expr->name().id();
   string arg0_str = get_arg_str(expr->arg(0));
@@ -214,14 +217,14 @@ void IlaSim::dfs_binary_op_non_mem(stringstream &dfs_simulator, string &indent,
                 << ");" << endl;
 }
 
-void IlaSim::dfs_binary_op_mem(stringstream &dfs_simulator, string &indent,
-                               const ExprPtr &expr) {
+void IlaSim::dfs_binary_op_mem(stringstream& dfs_simulator, string& indent,
+                               const ExprPtr& expr) {
   auto id = expr->name().id();
   string arg0_str = get_arg_str(expr->arg(0));
   string arg1_str = get_arg_str(expr->arg(1));
-  arg1_str = (arg1_str == "true") ? "1" : (arg1_str == "false")
-                                              ? "0"
-                                              : arg1_str + ".to_int()";
+  arg1_str = (arg1_str == "true")
+                 ? "1"
+                 : (arg1_str == "false") ? "0" : arg1_str + ".to_int()";
   string out_str = "c_" + to_string(expr->name().id());
   string out_type_str =
       (expr->is_bool())
@@ -265,16 +268,16 @@ void IlaSim::dfs_binary_op_mem(stringstream &dfs_simulator, string &indent,
                     << "];" << endl;
   } else {
     string arg2_str = get_arg_str(expr->arg(2));
-    arg2_str = (arg2_str == "true") ? "1" : (arg2_str == "false")
-                                                ? "0"
-                                                : arg2_str + ".to_int()";
+    arg2_str = (arg2_str == "true")
+                   ? "1"
+                   : (arg2_str == "false") ? "0" : arg2_str + ".to_int()";
     dfs_simulator << indent << "mem_update_map[" << arg1_str
                   << "] = " << arg2_str << ";" << endl;
   }
 }
 
-void IlaSim::dfs_extract_op(stringstream &dfs_simulator, string &indent,
-                            const ExprPtr &expr) {
+void IlaSim::dfs_extract_op(stringstream& dfs_simulator, string& indent,
+                            const ExprPtr& expr) {
   auto id = expr->name().id();
   string arg_str = get_arg_str(expr->arg(0));
   auto param0 = static_cast<unsigned>(expr->param(0));
@@ -291,8 +294,8 @@ void IlaSim::dfs_extract_op(stringstream &dfs_simulator, string &indent,
                 << ", " << param1 << ");" << endl;
 }
 
-void IlaSim::dfs_ext_op(stringstream &dfs_simulator, string &indent,
-                        const ExprPtr &expr) {
+void IlaSim::dfs_ext_op(stringstream& dfs_simulator, string& indent,
+                        const ExprPtr& expr) {
   auto id = expr->name().id();
   auto arg = expr->arg(0);
   string arg_str = get_arg_str(arg);
@@ -319,13 +322,13 @@ void IlaSim::dfs_ext_op(stringstream &dfs_simulator, string &indent,
   }
 }
 
-void IlaSim::dfs_func_op_check(const ExprPtr &expr) {
+void IlaSim::dfs_func_op_check(const ExprPtr& expr) {
   if (expr->is_mem())
     ILA_ERROR << "Error: APPFUNC shouldn't output memory";
 }
 
-void IlaSim::dfs_func_op(stringstream &dfs_simulator, string &indent,
-                         const ExprPtr &expr) {
+void IlaSim::dfs_func_op(stringstream& dfs_simulator, string& indent,
+                         const ExprPtr& expr) {
   dfs_func_op_check(expr);
   auto id = expr->name().id();
   auto appfunc_expr = dynamic_pointer_cast<ExprOpAppFunc>(expr);
@@ -352,8 +355,8 @@ void IlaSim::dfs_func_op(stringstream &dfs_simulator, string &indent,
   dfs_simulator << ");" << endl;
 }
 
-void IlaSim::dfs_ite_op(stringstream &dfs_simulator, string &indent,
-                        const ExprPtr &expr) {
+void IlaSim::dfs_ite_op(stringstream& dfs_simulator, string& indent,
+                        const ExprPtr& expr) {
   auto id = expr->name().id();
   auto cond_str = get_arg_str(expr->arg(0));
   auto true_str = get_arg_str(expr->arg(1));
@@ -378,8 +381,8 @@ void IlaSim::dfs_ite_op(stringstream &dfs_simulator, string &indent,
   }
 }
 
-void IlaSim::dfs_kernel(stringstream &dfs_simulator, string &indent,
-                        const ExprPtr &expr) {
+void IlaSim::dfs_kernel(stringstream& dfs_simulator, string& indent,
+                        const ExprPtr& expr) {
   auto expr_uid = GetUidExpr(expr);
   if (expr_uid == AST_UID_EXPR::VAR) {
     return;
@@ -454,4 +457,5 @@ void IlaSim::dfs_kernel(stringstream &dfs_simulator, string &indent,
     }
   }
 }
+
 }; // namespace ilang

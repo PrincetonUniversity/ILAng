@@ -1,14 +1,16 @@
-#include "unit-include/config.h"
-#include "unit-include/ila_sim_test.h"
-#include "unit-include/util.h"
-#include <ilang/ila/instr_lvl_abs.h>
-#include <ilang/ila_sim/ila_sim.h>
+#include <ilang/target-sc/ila_sim.h>
+
 #include <iostream>
 #include <sstream>
 #include <string>
 
+#include "unit-include/config.h"
+#include "unit-include/ila_sim_test.h"
+#include "unit-include/util.h"
+#include <ilang/ila/instr_lvl_abs.h>
+
 namespace ilang {
-int get_line_number(ifstream &i) {
+int get_line_number(ifstream& i) {
   int count = 0;
   string line;
   while (getline(i, line))
@@ -18,7 +20,7 @@ int get_line_number(ifstream &i) {
   return count;
 }
 
-int get_word_number(string &s) {
+int get_word_number(string& s) {
   int count = 0;
   stringstream s_stream(s);
   string word;
@@ -31,8 +33,8 @@ int get_word_number(string &s) {
 TEST(TestIlaSim, hashed_file_name) {
   // This test should be muted, if the basic structure of ILA is changed,
   // such as how state/decode/state_update are changed.
-  // Specifically, the test on "decode_stream" and "update_stream". 
-  
+  // Specifically, the test on "decode_stream" and "update_stream".
+
   IlaSimTest ila_sim_test;
   IlaSim ila_sim;
   ila_sim.set_instr_lvl_abs(ila_sim_test.model.get());
@@ -72,7 +74,7 @@ TEST(TestIlaSim, hashed_file_name) {
   ifstream ref_update_stream(ref_update_file);
   ifstream ref_header_stream(ref_header_file);
   ifstream ref_mk_stream(ref_mk_file);
-  #if 0
+#if 0
   EXPECT_EQ(get_line_number(ref_decode_stream),
             get_line_number(test_decode_stream));
   string ref_decode_string;
@@ -92,7 +94,7 @@ TEST(TestIlaSim, hashed_file_name) {
     EXPECT_EQ(get_word_number(test_update_string),
               get_word_number(ref_update_string));
   }
-  #endif
+#endif
   EXPECT_EQ(get_line_number(ref_header_stream),
             get_line_number(test_header_stream));
   string ref_header_string;
@@ -255,4 +257,4 @@ TEST(TestIlaSim, external_mem) {
     EXPECT_EQ(get_word_number(test_mk_string), get_word_number(ref_mk_string));
   }
 }
-}
+} // namespace ilang
