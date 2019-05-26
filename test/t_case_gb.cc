@@ -1,11 +1,13 @@
 /// file
 /// Unit test for the Gaussian Blur case study.
 
-#include "unit-include/config.h"
-#include "unit-include/util.h"
-
 #include <ilang/ilang++.h>
 #include <ilang/util/fs.h>
+
+#include <cstdio>
+
+#include "unit-include/config.h"
+#include "unit-include/util.h"
 
 namespace ilang {
 
@@ -23,11 +25,16 @@ TEST(TestCase, GB_Import_Export_Import) {
   ImportChildSynthAbstraction(gb_abst_child, gb_ila, "gb_child");
 
   // export
-  auto tmp_file_name = GetRandomFileName(NULL);
+  char tmp_file_template[] = "/tmp/gb_ila_XXXXXX";
+  auto tmp_file_name  = GetRandomFileName(tmp_file_template);
   ExportIlaPortable(gb_ila, tmp_file_name);
 
   // import
   auto read_back = ImportIlaPortable(tmp_file_name);
+
+  // clear
+  auto res = std::remove(tmp_file_name.c_str());
+  EXPECT_EQ(res, 0);
 
   EXPECT_EQ(read_back.state_num(), gb_ila.state_num());
   EXPECT_EQ(read_back.input_num(), gb_ila.input_num());
