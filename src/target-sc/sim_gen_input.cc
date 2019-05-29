@@ -9,11 +9,13 @@ void IlaSim::create_input(const ExprPtr& input_expr) {
   auto input_uid = GetUidExpr(input_expr);
   if (input_uid != AST_UID_EXPR::VAR) {
     ILA_ERROR << "Error: Input should be var.";
+    throw std::logic_error("ILA input sort should be var.");
   }
   auto input_sort = input_expr->sort();
   auto input_sort_uid = GetUidSort(input_sort);
   if (input_sort_uid == AST_UID_SORT::MEM) {
     ILA_ERROR << "Error: mem is not supported as input.";
+    throw std::logic_error("ILA input sort shouldn't be mem.");
   }
   if (input_sort_uid == AST_UID_SORT::BOOL) {
     create_bool_input(input_expr);

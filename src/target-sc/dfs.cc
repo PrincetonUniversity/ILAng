@@ -12,6 +12,7 @@ void IlaSim::dfs_store_op(const ExprPtr& expr) {
     if (expr_op == AST_UID_EXPR_OP::STORE) {
       ld_st_counter_ += 1;
       ILA_WARN << "Warning: store after load has not been implemented";
+      throw std::logic_error("Store-after-load is not supported in sc-target generation.");
     }
   }
 }
@@ -49,7 +50,6 @@ void IlaSim::dfs_uninterpreted_func_decl(const FuncPtr& func) {
     header_ << "sc_biguint<" << func_out_sort->bit_width() << "> " << func_name
             << "(";
   } else if (func_out_sort->is_mem()) {
-    ILA_WARN << "Warning: 2d array might have trouble as function output";
     header_ << "sc_biguint<" << func_out_sort->data_width() << "> " << func_name
             << "(";
   }
@@ -98,8 +98,10 @@ void IlaSim::dfs_const_node(stringstream& dfs_simulator, string& indent,
 }
 
 void IlaSim::dfs_unary_op_check(const ExprPtr& expr) {
-  if (expr->is_mem())
+  if (expr->is_mem()) {
     ILA_ERROR << "Error: unary_op shouldn't output memory";
+    throw std::logic_error("Memory sort is not supported as an unary operation's output.");
+  }
 }
 
 void IlaSim::dfs_unary_op(stringstream& dfs_simulator, string& indent,
@@ -128,8 +130,10 @@ void IlaSim::dfs_unary_op(stringstream& dfs_simulator, string& indent,
 }
 
 void IlaSim::dfs_binary_op_bool_out_check(const ExprPtr& expr) {
-  if (!expr->is_bool())
+  if (!expr->is_bool()) {
     ILA_ERROR << "Error: EQ/LT/GT/ULT/UGT/IMPLY must use bool as output type.";
+    throw std::logic_error("Output sort for EQ/LT/GT/ULT/UGT/IMPLY operation is not bool.");
+  }
 }
 
 void IlaSim::dfs_binary_op_bool_out(stringstream& dfs_simulator, string& indent,
@@ -164,10 +168,12 @@ void IlaSim::dfs_binary_op_bool_out(stringstream& dfs_simulator, string& indent,
 }
 
 void IlaSim::dfs_binary_op_non_mem_check(const ExprPtr& expr) {
-  if (expr->is_mem())
+  if (expr->is_mem()) {
     ILA_ERROR
         << "Error: AND/OR/XOR/SHL/LSHR/ASHR/ADD/MUL/CONCAT shouldn't output "
            "memory";
+    throw std::logic_error("AND/OR/XOR/SHL/LSHR/ASHR/ADD/MUL/CONCAT's output shouldn't have memory sort.");
+  }
 }
 
 void IlaSim::dfs_binary_op_non_mem(stringstream& dfs_simulator, string& indent,
@@ -323,8 +329,10 @@ void IlaSim::dfs_ext_op(stringstream& dfs_simulator, string& indent,
 }
 
 void IlaSim::dfs_func_op_check(const ExprPtr& expr) {
-  if (expr->is_mem())
+  if (expr->is_mem()) {
     ILA_ERROR << "Error: APPFUNC shouldn't output memory";
+    throw std::logic_error("Memory is not supported as APPFUNC's output sort");
+  }
 }
 
 void IlaSim::dfs_func_op(stringstream& dfs_simulator, string& indent,
@@ -453,7 +461,7 @@ void IlaSim::dfs_kernel(stringstream& dfs_simulator, string& indent,
     } else {
       ILA_ERROR << "Error: OP_ID = " << expr_op_uid
                 << " is not supported by ILA";
-      return;
+      throw std::logic_error("Unsupported operation sort.");
     }
   }
 }
