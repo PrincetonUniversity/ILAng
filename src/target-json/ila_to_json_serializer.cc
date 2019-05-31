@@ -1,10 +1,10 @@
 /// \file
 /// The implementation of the ILA to JSON serializer.
 
-#include <ilang/portable/ila_to_json_serializer.h>
+#include <ilang/target-json/ila_to_json_serializer.h>
+#include <ilang/target-json/serdes_config.h>
 
 #include <ilang/ila/ast_fuse.h>
-#include <ilang/portable/serdes_config.h>
 #include <ilang/util/log.h>
 
 namespace ilang {

@@ -1,7 +1,8 @@
 /// \file
 /// The implementation of the JSON to ILA deserializer.
 
-#include <ilang/portable/json_to_ila_deserializer.h>
+#include <ilang/target-json/json_to_ila_deserializer.h>
+#include <ilang/target-json/serdes_config.h>
 
 #include <cstdlib>
 #include <unordered_set>
@@ -9,7 +10,6 @@
 
 #include <ilang/ila/ast_fuse.h>
 #include <ilang/ila/expr_fuse.h>
-#include <ilang/portable/serdes_config.h>
 #include <ilang/util/log.h>
 
 namespace ilang {
@@ -40,9 +40,7 @@ SortPtr J2IDes::DesSort(const json& j_sort) {
     auto data_width = j_sort.at(SERDES_SORT_DATA_WIDTH).get<int>();
     return Sort::MakeMemSort(addr_width, data_width);
   }
-  default: {
-    return NULL;
-  }
+  default: { return NULL; }
   }; // switch j_sort id
 }
 
@@ -203,9 +201,7 @@ ExprPtr J2IDes::DesExprState(const json& j_sort, const std::string& name,
     auto data_width = j_sort.at(SERDES_SORT_DATA_WIDTH).get<int>();
     return i_host->NewMemState(name, addr_width, data_width);
   }
-  default: {
-    return NULL;
-  }
+  default: { return NULL; }
   }; // switch j_sort id
 }
 
@@ -227,9 +223,7 @@ ExprPtr J2IDes::DesExprInput(const json& j_sort, const std::string& name,
     auto data_width = j_sort.at(SERDES_SORT_DATA_WIDTH).get<int>();
     return i_host->NewMemInput(name, addr_width, data_width);
   }
-  default: {
-    return NULL;
-  }
+  default: { return NULL; }
   }; // switch j_sort id
 }
 
@@ -266,9 +260,7 @@ ExprPtr J2IDes::DesExprConst(const json& j_sort, const json& j_val) const {
 
     return ExprFuse::MemConst(mem_val, addr_width, data_width);
   }
-  default: {
-    return NULL;
-  }
+  default: { return NULL; }
   }; // seitch j_sort id
 }
 

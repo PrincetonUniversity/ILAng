@@ -1,13 +1,14 @@
 /// \file
 /// ILA to JSON serializer.
 
-#ifndef ILANG_PORTABLE_I2J_SER_H__
-#define ILANG_PORTABLE_I2J_SER_H__
+#ifndef ILANG_TARGET_JSON_I2J_SER_H__
+#define ILANG_TARGET_JSON_I2J_SER_H__
+
+#include <memory>
+#include <unordered_map>
 
 #include <ilang/ila/instr_lvl_abs.h>
-#include <memory>
 #include <nlohmann/json.hpp>
-#include <unordered_map>
 
 using json = nlohmann::json;
 
@@ -69,4 +70,4 @@ typedef I2JSer::I2JSerPtr I2JSerPtr;
 
 }; // namespace ilang
 
-#endif // ILANG_PORTABLE_I2J_SER_H__
+#endif // ILANG_TARGET_JSON_I2J_SER_H__

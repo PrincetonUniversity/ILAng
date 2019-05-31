@@ -10,7 +10,7 @@ add_library(${PROJECT_NAME}::${ILANG_LIB_NAME} ALIAS ${ILANG_LIB_NAME})
 ##
 add_subdirectory(ila)
 add_subdirectory(mcm)
-add_subdirectory(portable)
+add_subdirectory(target-json)
 add_subdirectory(target-sc)
 add_subdirectory(util)
 add_subdirectory(verification)

@@ -1,12 +1,13 @@
 /// \file
 /// The interface for Ser/Des ILA to/from ILA portable (JSON format).
 
-#ifndef ILANG_PORTABLE_INTERFACE_H__
-#define ILANG_PORTABLE_INTERFACE_H__
+#ifndef ILANG_TARGET_JSON_INTERFACE_H__
+#define ILANG_TARGET_JSON_INTERFACE_H__
+
+#include <string>
 
 #include <ilang/ila/instr_lvl_abs.h>
 #include <nlohmann/json.hpp>
-#include <string>
 
 /// \namespace ilang
 namespace ilang {
@@ -44,4 +45,4 @@ public:
 
 }; // namespace ilang
 
-#endif // ILANG_PORTABLE_INTERFACE_H__
+#endif // ILANG_TARGET_JSON_INTERFACE_H__
