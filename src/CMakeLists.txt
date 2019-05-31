@@ -19,7 +19,7 @@ add_subdirectory(verilog-out)
 add_subdirectory(vtarget-out)
 
 if(${ILANG_BUILD_SYNTH})
-  add_subdirectory(synth-interface)
+  add_subdirectory(target-itsy)
 endif()
 
 ##

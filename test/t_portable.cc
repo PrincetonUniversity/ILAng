@@ -1,7 +1,7 @@
 /// \file
 /// Unit tests for exporting and importing ILA portables.
 
-#include <ilang/synth-interface/synth_engine_interface.h>
+#include <ilang/target-itsy/interface.h>
 #include <ilang/target-json/interface.h>
 #include <ilang/verification/legacy_bmc.h>
 

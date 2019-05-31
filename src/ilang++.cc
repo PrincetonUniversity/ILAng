@@ -5,7 +5,7 @@
 
 #include <ilang/config.h>
 #include <ilang/ila/instr_lvl_abs.h>
-#include <ilang/synth-interface/synth_engine_interface.h>
+#include <ilang/target-itsy/interface.h>
 #include <ilang/target-json/interface.h>
 #include <ilang/util/log.h>
 #include <ilang/verification/abs_knob.h>
