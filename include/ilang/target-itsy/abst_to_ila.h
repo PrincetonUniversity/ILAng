@@ -1,8 +1,8 @@
 /// \file
 /// The object to convert an abstraction from the synthesis engine to an ILA.
 
-#ifndef ILANG_TARGET_ITSY_ABST_CONVERTER_H__
-#define ILANG_TARGET_ITSY_ABST_CONVERTER_H__
+#ifndef ILANG_TARGET_ITSY_ABST_TO_ILA_H__
+#define ILANG_TARGET_ITSY_ABST_TO_ILA_H__
 
 #include <memory>
 #include <string>
@@ -118,4 +118,4 @@ typedef SynthAbsConverter::SynthAbsConverterPtr SynthAbsConverterPtr;
 
 }; // namespace ilang
 
-#endif // ILANG_TARGET_ITSY_ABST_CONVERTER_H__
+#endif // ILANG_TARGET_ITSY_ABST_TO_ILA_H__
