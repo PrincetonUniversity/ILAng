@@ -170,7 +170,6 @@ void VlgSglTgtGen_Cosa::Export_jg_tester_script(const std::string& extra_name) {
   // std::string assmpt = "(" + Join(local_assumpt, ") && (") + ")";
 
   for (auto&& pbname_prob_pair : _problems.probitem) {
-    const auto& prbname = pbname_prob_pair.first;
     const auto& prob = pbname_prob_pair.second;
 
     decltype(prob.assertions) local_asst;
