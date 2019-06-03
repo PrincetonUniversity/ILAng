@@ -279,14 +279,14 @@ unsigned VlgSglTgtGen::TypeMatched(const ExprPtr& ila_var,
     /*else*/ return 0; /*mismatch*/
   }                    /*else*/
   if (ila_sort->is_bv()) {
-    if (ila_sort->bit_width() == vlg_var.get_width())
+    if ((unsigned) ila_sort->bit_width() == vlg_var.get_width())
       return vlg_var.get_width();
     ILA_ERROR << "ila w:" << ila_sort->bit_width()
               << ", vlg w:" << vlg_var.get_width();
     /*else*/ return 0; /*mismatch*/
   }                    /*else*/
   if (ila_sort->is_mem()) {
-    if (ila_sort->data_width() == vlg_var.get_width())
+    if ((unsigned) ila_sort->data_width() == vlg_var.get_width())
       return vlg_var.get_width();
     ILA_ERROR << "ila w:" << ila_sort->data_width()
               << ", vlg w:" << vlg_var.get_width();

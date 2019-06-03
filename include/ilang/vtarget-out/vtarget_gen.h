@@ -64,8 +64,9 @@ public:
         : target_select(BOTH), CheckThisInstructionOnly(""),
           InstructionNoReset(true), OnlyCheckInstUpdatedVars(true),
           PerVariableProblemCosa(false), MemAbsReadAbstraction(false),
+          ForceInstCheckReset(false),
+          PortDeclStyle(AUTO),
           CosaGenJgTesterScript(false), CosaAddKeep(true), MaxBound(127),
-          ForceInstCheckReset(false), PortDeclStyle(AUTO),
           OnlyAssumeUpdatedVarsEq(false), CosaPath(""), CosaPyEnvironment(""),
           CosaSolver(""), CosaGenTraceVcd(true), CosaOtherSolverOptions("") {}
   } vtg_config_t;
