@@ -1,11 +1,12 @@
 /// \file
 /// Elevated interface for the synthesis engine.
 
-#ifndef SYNTH_ENGINE_INTERFACE_H__
-#define SYNTH_ENGINE_INTERFACE_H__
+#ifndef ILANG_TARGET_ITSY_INTERFACE_H__
+#define ILANG_TARGET_ITSY_INTERFACE_H__
+
+#include <string>
 
 #include <ilang/ila/instr_lvl_abs.h>
-#include <string>
 
 /// \namespace ilang
 namespace ilang {
@@ -30,4 +31,4 @@ InstrLvlAbsPtr ImportSynthAbsFromFileHier(const std::string& file_name,
 
 }; // namespace ilang
 
-#endif // SYNTH_ENGINE_INTERFACE_H__
+#endif // ILANG_TARGET_ITSY_INTERFACE_H__

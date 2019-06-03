@@ -1,7 +1,11 @@
-#include <ilang/ila_sim/ila_sim.h>
+#include <ilang/target-sc/ila_sim.h>
+
+#include <ilang/ila/ast_fuse.h>
+#include <ilang/util/log.h>
 
 namespace ilang {
-void IlaSim::create_decode(const InstrPtr &instr_expr) {
+
+void IlaSim::create_decode(const InstrPtr& instr_expr) {
   stringstream decode_function;
   string indent = "";
   string decode_func_name;
@@ -13,7 +17,7 @@ void IlaSim::create_decode(const InstrPtr &instr_expr) {
   auto decode_expr = instr_expr->decode();
   decode_decl(decode_function, indent, decode_func_name);
   auto valid_expr = instr_expr->host()->valid();
-  auto DfsKernel = [this, &decode_function, &indent](const ExprPtr &e) {
+  auto DfsKernel = [this, &decode_function, &indent](const ExprPtr& e) {
     dfs_kernel(decode_function, indent, e);
   };
   valid_expr->DepthFirstVisit(DfsKernel);
@@ -28,8 +32,8 @@ void IlaSim::create_decode(const InstrPtr &instr_expr) {
   return;
 }
 
-void IlaSim::decode_decl(stringstream &decode_function, string &indent,
-                         string &decode_func_name) {
+void IlaSim::decode_decl(stringstream& decode_function, string& indent,
+                         string& decode_func_name) {
   decode_function << "#include \"systemc.h\"" << endl;
   decode_function << "#include \"test.h\"" << endl;
 
@@ -40,9 +44,9 @@ void IlaSim::decode_decl(stringstream &decode_function, string &indent,
   header_ << header_indent_ << "bool " << decode_func_name << "();" << endl;
 }
 
-void IlaSim::decode_check_valid(stringstream &decode_function, string &indent,
-                                const ExprPtr &valid_expr,
-                                const InstrPtr &instr_expr) {
+void IlaSim::decode_check_valid(stringstream& decode_function, string& indent,
+                                const ExprPtr& valid_expr,
+                                const InstrPtr& instr_expr) {
   string valid_str;
   auto valid_expr_uid = GetUidExpr(valid_expr);
   if (valid_expr_uid == AST_UID_EXPR::VAR)
@@ -59,9 +63,9 @@ void IlaSim::decode_check_valid(stringstream &decode_function, string &indent,
   decode_function << indent << "}" << endl;
 }
 
-void IlaSim::decode_return(stringstream &decode_function, string &indent,
-                           const ExprPtr &decode_expr,
-                           const InstrPtr &instr_expr) {
+void IlaSim::decode_return(stringstream& decode_function, string& indent,
+                           const ExprPtr& decode_expr,
+                           const InstrPtr& instr_expr) {
   string decode_str;
   auto decode_expr_uid = GetUidExpr(decode_expr);
   if (decode_expr_uid == AST_UID_EXPR::VAR)
@@ -76,8 +80,8 @@ void IlaSim::decode_return(stringstream &decode_function, string &indent,
   decode_function << indent << "return " << decode_str << ";" << endl;
 }
 
-void IlaSim::decode_export(stringstream &decode_function,
-                           string &decode_func_name) {
+void IlaSim::decode_export(stringstream& decode_function,
+                           string& decode_func_name) {
   ofstream outFile;
   stringstream out_file;
   outFile.open(export_dir_ + decode_func_name + ".cc");
@@ -85,7 +89,7 @@ void IlaSim::decode_export(stringstream &decode_function,
   outFile.close();
 }
 
-void IlaSim::decode_mk_file(string &decode_func_name) {
+void IlaSim::decode_mk_file(string& decode_func_name) {
   mk_script_ << "g++ -I. -I " << systemc_path_ << "/include/ "
              << "-L. -L " << systemc_path_ << "/lib-linux64/ "
              << "-Wl,-rpath=" << systemc_path_ << "/lib-linux64/ "
@@ -94,4 +98,5 @@ void IlaSim::decode_mk_file(string &decode_func_name) {
              << "-lsystemc" << endl;
   obj_list_ << decode_func_name << ".o ";
 }
+
 } // namespace ilang

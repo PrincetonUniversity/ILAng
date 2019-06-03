@@ -1,8 +1,11 @@
-#include <ilang/ila_sim/ila_sim.h>
+#include <ilang/target-sc/ila_sim.h>
+
+#include <ilang/ila/ast_fuse.h>
+#include <ilang/util/log.h>
 
 namespace ilang {
 
-void IlaSim::create_state_update(const InstrPtr &instr_expr) {
+void IlaSim::create_state_update(const InstrPtr& instr_expr) {
   for (auto updated_state_name : instr_expr->updated_states()) {
     stringstream state_update_function;
     string indent = "";
@@ -29,7 +32,7 @@ void IlaSim::create_state_update(const InstrPtr &instr_expr) {
       continue;
     state_update_decl(state_update_function, indent, updated_state, update_expr,
                       state_update_func_name);
-    auto DfsKernel = [this, &state_update_function, &indent](const ExprPtr &e) {
+    auto DfsKernel = [this, &state_update_function, &indent](const ExprPtr& e) {
       dfs_kernel(state_update_function, indent, e);
     };
     update_expr->DepthFirstVisit(DfsKernel);
@@ -40,9 +43,9 @@ void IlaSim::create_state_update(const InstrPtr &instr_expr) {
   }
 }
 
-void IlaSim::mem_state_update_decl(stringstream &state_update_function,
-                                   string &indent, const ExprPtr &expr) {
-  auto DfsKernel = [this, &state_update_function, &indent](const ExprPtr &e) {
+void IlaSim::mem_state_update_decl(stringstream& state_update_function,
+                                   string& indent, const ExprPtr& expr) {
+  auto DfsKernel = [this, &state_update_function, &indent](const ExprPtr& e) {
     dfs_kernel(state_update_function, indent, e);
   };
   auto expr_uid = GetUidExpr(expr);
@@ -65,7 +68,7 @@ void IlaSim::mem_state_update_decl(stringstream &state_update_function,
         increase_indent(indent);
         auto cond_arg = expr->arg(0);
         cond_arg->DepthFirstVisit(DfsKernel);
-	auto cond_str = get_arg_str(cond_arg);
+        auto cond_str = get_arg_str(cond_arg);
         state_update_function << indent << "if (" << cond_str << ") {" << endl;
         increase_indent(indent);
         auto true_arg = expr->arg(1);
@@ -84,8 +87,8 @@ void IlaSim::mem_state_update_decl(stringstream &state_update_function,
   }
 }
 
-void IlaSim::state_update_export(stringstream &state_update_function,
-                                 string &state_update_func_name) {
+void IlaSim::state_update_export(stringstream& state_update_function,
+                                 string& state_update_func_name) {
   ofstream outFile;
   stringstream out_file;
   outFile.open(export_dir_ + state_update_func_name + ".cc");
@@ -93,7 +96,7 @@ void IlaSim::state_update_export(stringstream &state_update_function,
   outFile.close();
 }
 
-void IlaSim::state_update_mk_file(string &state_update_func_name) {
+void IlaSim::state_update_mk_file(string& state_update_func_name) {
   mk_script_ << "g++ -I. -I " << systemc_path_ << "/include/ "
              << "-L. -L " << systemc_path_ << "/lib-linux64/ "
              << "-Wl,-rpath=" << systemc_path_ << "/lib-linux64/ "
@@ -103,16 +106,16 @@ void IlaSim::state_update_mk_file(string &state_update_func_name) {
   obj_list_ << state_update_func_name << ".o ";
 }
 
-void IlaSim::state_update_decl(stringstream &state_update_function,
-                               string &indent, const ExprPtr &updated_state,
-                               const ExprPtr &update_expr,
-                               string &state_update_func_name) {
+void IlaSim::state_update_decl(stringstream& state_update_function,
+                               string& indent, const ExprPtr& updated_state,
+                               const ExprPtr& update_expr,
+                               string& state_update_func_name) {
   searched_id_set_.clear();
   state_update_function << indent << "#include \"systemc.h\"" << endl;
   state_update_function << indent << "#include \"test.h\"" << endl;
   if (updated_state->is_mem()) {
     auto MemStateUpdateDecl = [this, &state_update_function,
-                               &indent](const ExprPtr &e) {
+                               &indent](const ExprPtr& e) {
       mem_state_update_decl(state_update_function, indent, e);
     };
     update_expr->DepthFirstVisit(MemStateUpdateDecl);
@@ -155,9 +158,9 @@ void IlaSim::state_update_decl(stringstream &state_update_function,
   }
 }
 
-void IlaSim::state_update_return(stringstream &state_update_function,
-                                 string &indent, const ExprPtr &updated_state,
-                                 const ExprPtr &update_expr) {
+void IlaSim::state_update_return(stringstream& state_update_function,
+                                 string& indent, const ExprPtr& updated_state,
+                                 const ExprPtr& update_expr) {
   string return_str;
   if (GetUidExpr(update_expr) == AST_UID_EXPR::VAR)
     return_str =
@@ -178,4 +181,5 @@ void IlaSim::state_update_return(stringstream &state_update_function,
   decrease_indent(indent);
   state_update_function << indent << "};" << endl;
 }
+
 }; // namespace ilang

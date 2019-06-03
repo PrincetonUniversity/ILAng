@@ -1,8 +1,8 @@
 /// \file
 /// ILA to JSON Ser/Des config, macro, etc.
 
-#ifndef ILANG_PORTABLE_SERDES_CONFIG_H__
-#define ILANG_PORTABLE_SERDES_CONFIG_H__
+#ifndef ILANG_TARGET_JSON_SERDES_CONFIG_H__
+#define ILANG_TARGET_JSON_SERDES_CONFIG_H__
 
 /// \namespace ilange
 namespace ilang {
@@ -57,4 +57,4 @@ namespace ilang {
 
 }; // namespace ilang
 
-#endif // ILANG_PORTABLE_SERDES_CONFIG_H__
+#endif // ILANG_TARGET_JSON_SERDES_CONFIG_H__

@@ -1,11 +1,11 @@
 /// \file
 /// The implementation of the elevated synthesis engine interface.
 
-#include <ilang/synth-interface/synth_engine_interface.h>
+#include <ilang/target-itsy/abst_to_ila.h>
+#include <ilang/target-itsy/interface.h>
 
 #include <sys/stat.h>
 
-#include <ilang/synth-interface/synth_abs_converter.h>
 #include <ilang/util/log.h>
 
 namespace ilang {

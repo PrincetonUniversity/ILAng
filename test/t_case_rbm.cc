@@ -1,13 +1,13 @@
 /// file
 /// Unit test for the RBM case study.
 
-#include "unit-include/config.h"
-#include "unit-include/util.h"
-
-#include <cstdio>
-
 #include <ilang/ilang++.h>
 #include <ilang/util/fs.h>
+
+#include <cstdlib>
+
+#include "unit-include/config.h"
+#include "unit-include/util.h"
 
 namespace ilang {
 
@@ -42,11 +42,16 @@ TEST(TestCase, RBM_Import_Export_Import) {
   ImportChildSynthAbstraction(store_file, rbm, "store");
 
   // export
-  auto tmp_file_name = std::tmpnam(NULL);
+  char tmp_file_template[] = "/tmp/rbm_ila_XXXXXX";
+  auto tmp_file_name = GetRandomFileName(tmp_file_template);
   ExportIlaPortable(rbm, tmp_file_name);
 
   // import
   auto read_back = ImportIlaPortable(tmp_file_name);
+
+  // clear
+  auto res = std::remove(tmp_file_name.c_str());
+  EXPECT_EQ(res, 0);
 
   EXPECT_EQ(read_back.state_num(), rbm.state_num());
   EXPECT_EQ(read_back.input_num(), rbm.input_num());

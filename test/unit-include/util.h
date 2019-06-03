@@ -3,10 +3,13 @@
 
 #include "gtest/gtest-spi.h"
 #include "gtest/gtest.h"
+
+#include <memory>
+#include <string>
+
 #include <ilang/config.h>
 #include <ilang/ila/expr_fuse.h>
 #include <ilang/util/log.h>
-#include <memory>
 
 namespace ilang {
 
@@ -26,5 +29,8 @@ void EndRecordLog();
   ::testing::internal::CaptureStderr();                                        \
   cmd;                                                                         \
   msg = ::testing::internal::GetCapturedStderr();
+
+
+std::string GetRandomFileName(char* file_name_template);
 
 } // namespace ilang

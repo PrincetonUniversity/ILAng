@@ -1,13 +1,14 @@
 /// \file
 /// JSON to ILA deserializer.
 
-#ifndef ILANG_PORTABLE_J2I_DES_H__
-#define ILANG_PORTABLE_J2I_DES_H__
+#ifndef ILANG_TARGET_JSON_J2I_DES_H__
+#define ILANG_TARGET_JSON_J2I_DES_H__
+
+#include <memory>
+#include <unordered_map>
 
 #include <ilang/ila/instr_lvl_abs.h>
-#include <memory>
 #include <nlohmann/json.hpp>
-#include <unordered_map>
 
 using json = nlohmann::json;
 
@@ -88,4 +89,4 @@ typedef J2IDes::J2IDesPtr J2IDesPtr;
 
 }; // namespace ilang
 
-#endif // ILANG_PORTABLE_J2i_DES_H__
+#endif // ILANG_TARGET_JSON_J2I_DES_H__

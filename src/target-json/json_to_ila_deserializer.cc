@@ -1,7 +1,8 @@
 /// \file
 /// The implementation of the JSON to ILA deserializer.
 
-#include <ilang/portable/json_to_ila_deserializer.h>
+#include <ilang/target-json/json_to_ila_deserializer.h>
+#include <ilang/target-json/serdes_config.h>
 
 #include <cstdlib>
 #include <unordered_set>
@@ -9,7 +10,6 @@
 
 #include <ilang/ila/ast_fuse.h>
 #include <ilang/ila/expr_fuse.h>
-#include <ilang/portable/serdes_config.h>
 #include <ilang/util/log.h>
 
 namespace ilang {

@@ -2,9 +2,10 @@
 /// The source for the ILA portable interface.
 
 #include <fstream>
-#include <ilang/portable/ila_to_json_serializer.h>
-#include <ilang/portable/interface.h>
-#include <ilang/portable/json_to_ila_deserializer.h>
+
+#include <ilang/target-json/ila_to_json_serializer.h>
+#include <ilang/target-json/interface.h>
+#include <ilang/target-json/json_to_ila_deserializer.h>
 
 namespace ilang {
 

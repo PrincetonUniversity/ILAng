@@ -1,9 +1,10 @@
 /// \file
 /// Unit tests for importing ILA from the synthesis engine
 
+#include <ilang/target-itsy/interface.h>
+
 #include "unit-include/config.h"
 #include "unit-include/util.h"
-#include <ilang/synth-interface/synth_engine_interface.h>
 
 namespace ilang {
 

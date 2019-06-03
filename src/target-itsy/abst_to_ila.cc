@@ -1,7 +1,7 @@
 /// \file
 /// The implementation of the abstraction to ILA converter.
 
-#include <ilang/synth-interface/synth_abs_converter.h>
+#include <ilang/target-itsy/abst_to_ila.h>
 
 #include <ilang/util/log.h>
 

@@ -14,7 +14,7 @@ def Format(top):
         print('dir {0} does not exist'.format(top))
         return
 
-    for root, dirs, files in os.walk(top):
+    for root, _, files in os.walk(top):
         for name in files:
             # check if is our source files
             if name[-3:] == '.cc':
