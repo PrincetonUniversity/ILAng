@@ -142,6 +142,17 @@ TEST(TestVerilogAnalysis, RangeAnalysis) {
     IS_WIDTH("r44", 8);
   } // end of test2
 
+  { // test 3 -- parameters
+    VerilogInfo va(
+        VerilogInfo::path_vec_t({std::string(ILANG_TEST_SRC_ROOT) +
+                                "/unit-data/verilog_sample/"}),
+        VerilogInfo::path_vec_t({std::string(ILANG_TEST_SRC_ROOT) +
+                                "/unit-data/verilog_sample/range3.v"}),
+        "m1");
+
+    IS_WIDTH("r1", 2);
+    IS_WIDTH("r2", 6);
+  } // end of test3
 }
 
 
