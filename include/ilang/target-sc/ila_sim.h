@@ -130,6 +130,7 @@ private:
 
   void dfs_store_op(const ExprPtr& expr);
   void dfs_load_from_store(const ExprPtr& expr);
+  void dfs_int_var_width(const ExprPtr& expr);
   void dfs_external_mem_load(const ExprPtr& expr);
   void dfs_kernel(stringstream& dfs_simulator, string& indent,
                   const ExprPtr& expr);
@@ -163,6 +164,7 @@ private:
   int get_update_state_num(const InstrPtr& instr_expr);
   bool load_from_store_analysis(const ExprPtr& expr);
   void declare_variable_with_id(size_t id, string v_type, string v_name);
+  void int_var_width_scan();
 
   string export_dir_;
   string systemc_path_;
@@ -185,11 +187,13 @@ private:
   int ld_st_counter_;
   bool EXTERNAL_MEM_;
   const int MEM_MAP_ARRAY_DIV = 16;
+  set<int> int_var_width_set_;
   // Readable_ is used to control whether the generated function name is
   // huname-readable. When being set true, function will be named based on the
   // instruction name and the updated state name. However, there is a potential
   // same-name bug if setting true.
   bool readable_;
+  bool qemu_device_;
 
   InstrLvlAbsPtr model_ptr_;
 };
