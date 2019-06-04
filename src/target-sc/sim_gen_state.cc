@@ -17,12 +17,22 @@ void IlaSim::create_mem_state(const ExprPtr& expr) {
     if (mem_addr_width <= MEM_MAP_ARRAY_DIV) {
       defined_state_set_.insert(id);
       auto array_size = (1 << mem_addr_width);
+      if (qemu_device_) {
+	header_ << header_indent_ << "uint" << mem_data_width << "_t "
+		<< state_name_str << "[" << array_size << "];" << endl;
+      } else {
       header_ << header_indent_ << "sc_biguint<" << mem_data_width << "> "
               << state_name_str << "[" << array_size << "];" << endl;
+      }
     } else {
+      if (qemu_device_) {
+	header_ << header_indent_ << "std::map<uint" << mem_addr_width << "_t, uint"
+		<< mem_data_width << "_t>" << state_name_str << ";" << endl;
+      } else {
       header_ << header_indent_ << "std::map< sc_biguint<" << mem_addr_width
               << ">, sc_biguint<" << mem_data_width << "> > " << state_name_str
               << ";" << endl;
+      }
     }
   }
 }
@@ -34,11 +44,15 @@ void IlaSim::create_bool_state(const ExprPtr& expr, bool child) {
       (defined_state_set_.find(id) == defined_state_set_.end());
   if (state_not_defined) {
     defined_state_set_.insert(id);
+    if (qemu_device_)
+      header_ << header_indent_ << "bool " << state_name_str << ";" << endl;
+    else {
     if (!child) {
       header_ << header_indent_ << "sc_out<bool> " << state_name_str << "_out;"
               << endl;
     }
     header_ << header_indent_ << "bool " << state_name_str << ";" << endl;
+    }
   }
 }
 
@@ -51,12 +65,17 @@ void IlaSim::create_bv_state(const ExprPtr& expr, bool child) {
       (defined_state_set_.find(id) == defined_state_set_.end());
   if (state_not_defined) {
     defined_state_set_.insert(id);
+    if (qemu_device_) {
+      header_ << header_indent_ << "uint" << expr->sort()->bit_width() << "_t "
+	      << state_name_str << ";" << endl; 
+    } else {
     if (!child) {
       header_ << header_indent_ << "sc_out< " << state_type_str << "> "
               << state_name_str << "_out;" << endl;
     }
     header_ << header_indent_ << state_type_str << state_name_str << ";"
             << endl;
+    }
   }
 }
 
