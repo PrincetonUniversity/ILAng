@@ -18,8 +18,8 @@ void IlaSim::set_systemc_path(string systemc_path) {
   systemc_path_ = systemc_path;
 }
 
-void IlaSim::sim_gen(string export_dir, bool external_mem, bool readable) {
-  sim_gen_init(export_dir, external_mem, readable);
+void IlaSim::sim_gen(string export_dir, bool external_mem, bool readable, bool qemu_device) {
+  sim_gen_init(export_dir, external_mem, readable, qemu_device);
   sim_gen_init_header();
   sim_gen_input();
   sim_gen_state();
@@ -49,14 +49,31 @@ void IlaSim::sim_gen_init(string export_dir, bool external_mem, bool readable) {
   EXTERNAL_MEM_ = external_mem;
   export_dir_ = export_dir;
   readable_ = readable;
+  qemu_device_ = qemu_device;
 }
 
 void IlaSim::sim_gen_init_header() {
+  if (!qemu_device_) {
   header_ << header_indent_ << "#include \"systemc.h\"" << endl;
   header_ << header_indent_ << "#include <map>" << endl;
   header_ << header_indent_ << "SC_MODULE(" << model_ptr_->name() << ") {"
           << std::endl;
   increase_indent(header_indent_);
+  } else {
+  header_ << header_indent_ << "#include <boost/multiprecision/cpp_int.hpp>" << endl;
+  header_ << header_indent_ << "using namespace boost::multiprecision;" << endl;
+  int_var_width_scan();
+  for(auto int_width = typedef_int_width_set_.begin; int_width != typedef_int_width_set_.end(); int_width++) {
+    if ((*int_width == 8) || (*int_width == 16) || (*int_width == 32) || (*int_width == 64) || (*int_width == 128) || (*int_width == 256) || (*int_width == 512) || (*int_width == 1024))
+      continue;
+    header << header_indent_ << "typedef number<cpp_int_backend<" << *int_width
+	   << ", " << *int_width << ", unsigned_magnitude, unchecked, void> > uint" << *int_width << "_t";
+  }
+  header_ << header_indent_ << "#include <map>" << endl;
+  header_ << header_indent_ << "class " << model_ptr_->name() << " {"
+          << std::endl;
+  increate_indent(header_indent_); 
+  }
 }
 
 void IlaSim::sim_gen_input() {

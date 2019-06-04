@@ -27,7 +27,17 @@ void IlaSim::dfs_load_from_store(const ExprPtr &expr) {
   }
 }
 
-void IlaSim::dfs_external_mem_load(const ExprPtr &expr) {
+void IlaSim::dfs_int_var_width(const ExprPtr& expr) {
+  auto expr_uid_sort = GetUidSort(expr->sort());
+  if (expr_uid_sort == AST_UID_SORT::BV) {
+    int_var_width_set_.insert(expr_uid_sort->bit_width());  
+  } else if (expr_uid_sort == AST_UID_SORT::MEM) {
+    int_var_width_set_.insert(expr_uid_sort->addr_width());
+    int_var_width_set_.insert(expr_uid_sort->data_width());
+  }
+}
+
+void IlaSim::dfs_external_mem_load(const ExprPtr& expr) {
   auto expr_uid = GetUidExpr(expr);
   if (expr_uid == AST_UID_EXPR::OP) {
     auto expr_op = GetUidExprOp(expr);
