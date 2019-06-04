@@ -58,4 +58,25 @@ void IlaSim::declare_variable_with_id(size_t id, string v_type, string v_name) {
   }
 }
 
+void IlaSim::int_var_width_scan() {
+  std::queue<InstrLvlAbsPtr> ila_queue;
+  ila_queue.push(model_ptr_);
+  while (!ila_queue.empty()) {
+    auto current_ila = ila_queue.front();
+    ila_queue.pop();
+    for (int i = 0; i < current_ila->child_num(); i++) 
+      ila_queue.push(current_ila->child(i);
+    for (int i = 0; i < current_ila->instr_num(); i++) {
+      auto current_instr = current_ila->instr(i);
+      auto DfsIntVarWidth = [this](const ExprPtr& e) {dfs_int_var_width(e); };
+      current_instr->decode()->DepthFirstVisit(DfsIntVarWidth);
+      for (auto updated_state_name : current_instr->updated_states()) {
+        current_instr->update(updated_state_name)->DepthFirstVisit(DfsIntVarWidth);
+      }
+    }
+  } 
+}
+
+
+
 }; // namespace ilang
