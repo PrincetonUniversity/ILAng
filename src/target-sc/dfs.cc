@@ -30,10 +30,10 @@ void IlaSim::dfs_load_from_store(const ExprPtr &expr) {
 void IlaSim::dfs_int_var_width(const ExprPtr& expr) {
   auto expr_uid_sort = GetUidSort(expr->sort());
   if (expr_uid_sort == AST_UID_SORT::BV) {
-    int_var_width_set_.insert(expr_uid_sort->bit_width());  
+    int_var_width_set_.insert(expr->sort()->bit_width());  
   } else if (expr_uid_sort == AST_UID_SORT::MEM) {
-    int_var_width_set_.insert(expr_uid_sort->addr_width());
-    int_var_width_set_.insert(expr_uid_sort->data_width());
+    int_var_width_set_.insert(expr->sort()->addr_width());
+    int_var_width_set_.insert(expr->sort()->data_width());
   }
 }
 

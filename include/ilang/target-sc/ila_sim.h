@@ -45,11 +45,11 @@ public:
   void set_instr_lvl_abs(const InstrLvlAbsPtr& model_ptr);
   void set_systemc_path(string systemc_path);
   void sim_gen(string export_dir, bool external_mem = false,
-               bool readable = false);
+               bool readable = false, bool qemu_device = false);
 
 private:
   // Initialize all member variables for a new simulator generation pass.
-  void sim_gen_init(string export_dir, bool external_mem, bool readable);
+  void sim_gen_init(string export_dir, bool external_mem, bool readable, bool qemu_device);
   // Create initial lines for the simulator's header file
   void sim_gen_init_header();
   void sim_gen_input();

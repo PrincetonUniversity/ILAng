@@ -26,11 +26,12 @@ void IlaSim::sim_gen(string export_dir, bool external_mem, bool readable, bool q
   sim_gen_decode();
   sim_gen_state_update();
   sim_gen_execute_kernel();
-  sim_gen_execute_invoke();
+  if (!qemu_device_)
+    sim_gen_execute_invoke();
   sim_gen_export();
 }
 
-void IlaSim::sim_gen_init(string export_dir, bool external_mem, bool readable) {
+void IlaSim::sim_gen_init(string export_dir, bool external_mem, bool readable, bool qemu_device) {
   header_.str("");
   mk_script_.str("");
   obj_list_.str("");
@@ -63,16 +64,16 @@ void IlaSim::sim_gen_init_header() {
   header_ << header_indent_ << "#include <boost/multiprecision/cpp_int.hpp>" << endl;
   header_ << header_indent_ << "using namespace boost::multiprecision;" << endl;
   int_var_width_scan();
-  for(auto int_width = typedef_int_width_set_.begin; int_width != typedef_int_width_set_.end(); int_width++) {
+  for(auto int_width = int_var_width_set_.begin(); int_width != int_var_width_set_.end(); int_width++) {
     if ((*int_width == 8) || (*int_width == 16) || (*int_width == 32) || (*int_width == 64) || (*int_width == 128) || (*int_width == 256) || (*int_width == 512) || (*int_width == 1024))
       continue;
-    header << header_indent_ << "typedef number<cpp_int_backend<" << *int_width
-	   << ", " << *int_width << ", unsigned_magnitude, unchecked, void> > uint" << *int_width << "_t";
+    header_ << header_indent_ << "typedef number<cpp_int_backend<" << *int_width
+	    << ", " << *int_width << ", unsigned_magnitude, unchecked, void> > uint" << *int_width << "_t";
   }
   header_ << header_indent_ << "#include <map>" << endl;
   header_ << header_indent_ << "class " << model_ptr_->name() << " {"
           << std::endl;
-  increate_indent(header_indent_); 
+  increase_indent(header_indent_); 
   }
 }
 
@@ -139,7 +140,8 @@ void IlaSim::sim_gen_state_update() {
 void IlaSim::sim_gen_execute_kernel() {
   stringstream execute_kernel;
   string indent = "";
-  execute_kernel << indent << "#include \"systemc.h\"" << endl;
+  if (!qemu_device_)
+    execute_kernel << indent << "#include \"systemc.h\"" << endl;
   execute_kernel << indent << "#include \"test.h\"" << endl;
   execute_kernel << indent << "void " << model_ptr_->name() << "::compute() {"
                  << endl;
@@ -149,15 +151,16 @@ void IlaSim::sim_gen_execute_kernel() {
     execute_read_external_mem(execute_kernel, indent);
     execute_external_mem_before_input(execute_kernel, indent);
   }
-  execute_read_input(execute_kernel, indent);
+  if (!qemu_device_)
+    execute_read_input(execute_kernel, indent);
   if (EXTERNAL_MEM_)
     execute_external_mem_after_output(execute_kernel, indent);
   execute_parent_instructions(execute_kernel, indent);
   execute_child_instructions(execute_kernel, indent);
   if (EXTERNAL_MEM_)
     execute_external_mem_return(execute_kernel, indent);
-
-  execute_write_output(execute_kernel, indent);
+  if(!qemu_device_)
+    execute_write_output(execute_kernel, indent);
   decrease_indent(indent);
   execute_kernel << indent << "};" << endl;
   execute_kernel_export(execute_kernel);
@@ -190,19 +193,21 @@ void IlaSim::sim_gen_export() {
   outFile.open(export_dir_ + "test.h");
   outFile << header_.rdbuf();
   outFile.close();
-  mk_script_ << "g++ -I. -I " << systemc_path_ << "/include/ "
-             << "-L. -L " << systemc_path_ << "/lib-linux64/ "
-             << "-Wl,-rpath=" << systemc_path_ << "/lib-linux64/ "
-             << "-c -o "
-             << "test_tb.o test_tb.cc "
-             << "-lsystemc" << endl;
+  if (!qemu_device_) {
+    mk_script_ << "g++ -I. -I " << systemc_path_ << "/include/ "
+               << "-L. -L " << systemc_path_ << "/lib-linux64/ "
+               << "-Wl,-rpath=" << systemc_path_ << "/lib-linux64/ "
+               << "-c -o "
+               << "test_tb.o test_tb.cc "
+               << "-lsystemc" << endl;
 
-  mk_script_ << "g++ -I. -I " << systemc_path_ << "/include/ "
-             << "-L. -L " << systemc_path_ << "/lib-linux64/ "
-             << "-Wl,-rpath=" << systemc_path_ << "/lib-linux64/ "
-             << "-o "
-             << "test_tb test_tb.o " << obj_list_.rdbuf() << "-lsystemc"
-             << endl;
+    mk_script_ << "g++ -I. -I " << systemc_path_ << "/include/ "
+               << "-L. -L " << systemc_path_ << "/lib-linux64/ "
+               << "-Wl,-rpath=" << systemc_path_ << "/lib-linux64/ "
+               << "-o "
+               << "test_tb test_tb.o " << obj_list_.rdbuf() << "-lsystemc"
+               << endl;
+  }
   outFile.open(export_dir_ + "mk.sh");
   outFile << mk_script_.rdbuf();
   outFile.close();
