@@ -93,6 +93,8 @@ void IlaSim::execute_state_update_func(stringstream& execute_kernel,
                 ? "sc_biguint<" +
                       to_string(updated_state->sort()->bit_width()) + "> "
                 : "";
+  if (qemu_device_)
+    updated_state_type = (updated_state->is_bv()) ? "uint" + to_string(updated_state->sort()->bit_width()) + "_t " : updated_state_type;
   string updated_state_name =
       updated_state->host()->name().str() + "_" + updated_state->name().str();
 
@@ -329,12 +331,15 @@ void IlaSim::execute_kernel_export(stringstream& execute_kernel) {
 }
 
 void IlaSim::execute_kernel_mk_file() {
-  mk_script_ << "g++ -I. -I " << systemc_path_ << "/include/ "
-             << "-L. -L " << systemc_path_ << "/lib-linux64/ "
-             << "-Wl,-rpath=" << systemc_path_ << "/lib-linux64/ "
-             << "-c -o "
-             << "compute.o compute.cc "
-             << "-lsystemc" << endl;
+  if (qemu_device_)
+    mk_script_ << "g++ -c -o compute.o compute.cc " << endl;
+  else
+    mk_script_ << "g++ -I. -I " << systemc_path_ << "/include/ "
+               << "-L. -L " << systemc_path_ << "/lib-linux64/ "
+               << "-Wl,-rpath=" << systemc_path_ << "/lib-linux64/ "
+               << "-c -o "
+               << "compute.o compute.cc "
+               << "-lsystemc" << endl;
   obj_list_ << "compute.o ";
 }
 

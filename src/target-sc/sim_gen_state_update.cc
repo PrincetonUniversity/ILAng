@@ -97,12 +97,16 @@ void IlaSim::state_update_export(stringstream& state_update_function,
 }
 
 void IlaSim::state_update_mk_file(string& state_update_func_name) {
-  mk_script_ << "g++ -I. -I " << systemc_path_ << "/include/ "
-             << "-L. -L " << systemc_path_ << "/lib-linux64/ "
-             << "-Wl,-rpath=" << systemc_path_ << "/lib-linux64/ "
-             << "-c -o " << state_update_func_name << ".o "
-             << state_update_func_name << ".cc "
-             << "-lsystemc" << endl;
+  if (qemu_device_)
+    mk_script_ << "g++ -c -o " << state_update_func_name << ".o "
+	       << state_update_func_name << ".cc" << endl;
+  else
+    mk_script_ << "g++ -I. -I " << systemc_path_ << "/include/ "
+               << "-L. -L " << systemc_path_ << "/lib-linux64/ "
+               << "-Wl,-rpath=" << systemc_path_ << "/lib-linux64/ "
+               << "-c -o " << state_update_func_name << ".o "
+               << state_update_func_name << ".cc "
+               << "-lsystemc" << endl;
   obj_list_ << state_update_func_name << ".o ";
 }
 
@@ -111,7 +115,8 @@ void IlaSim::state_update_decl(stringstream& state_update_function,
                                const ExprPtr& update_expr,
                                string& state_update_func_name) {
   searched_id_set_.clear();
-  state_update_function << indent << "#include \"systemc.h\"" << endl;
+  if (!qemu_device_)
+    state_update_function << indent << "#include \"systemc.h\"" << endl;
   state_update_function << indent << "#include \"test.h\"" << endl;
   if (updated_state->is_mem()) {
     auto MemStateUpdateDecl = [this, &state_update_function,
@@ -128,6 +133,8 @@ void IlaSim::state_update_decl(stringstream& state_update_function,
                 ? "void "
                 : ("sc_biguint<" +
                    to_string(updated_state->sort()->bit_width()) + "> ");
+  if (qemu_device_)
+    return_type = (updated_state->is_bv()) ? ("uint" + to_string(updated_state->sort()->bit_width()) + "_t ") : return_type;
   string arg_list =
       (updated_state->is_mem()) ? "(std::map<int, int>& mem_update_map)" : "()";
   state_update_function << indent << return_type << model_ptr_->name()

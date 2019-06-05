@@ -1,6 +1,7 @@
 #include <ilang/target-sc/ila_sim.h>
 
 #include <ilang/ila/ast_fuse.h>
+#include <queue>
 
 namespace ilang {
 
@@ -65,7 +66,7 @@ void IlaSim::int_var_width_scan() {
     auto current_ila = ila_queue.front();
     ila_queue.pop();
     for (int i = 0; i < current_ila->child_num(); i++) 
-      ila_queue.push(current_ila->child(i);
+      ila_queue.push(current_ila->child(i));
     for (int i = 0; i < current_ila->instr_num(); i++) {
       auto current_instr = current_ila->instr(i);
       auto DfsIntVarWidth = [this](const ExprPtr& e) {dfs_int_var_width(e); };
