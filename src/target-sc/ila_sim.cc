@@ -23,11 +23,11 @@ void IlaSim::sim_gen(string export_dir, bool external_mem, bool readable, bool q
   sim_gen_init_header();
   sim_gen_input();
   sim_gen_state();
+  sim_gen_init();
   sim_gen_decode();
   sim_gen_state_update();
   sim_gen_execute_kernel();
-  if (!qemu_device_)
-    sim_gen_execute_invoke();
+  sim_gen_execute_invoke();
   sim_gen_export();
 }
 
@@ -68,7 +68,7 @@ void IlaSim::sim_gen_init_header() {
     if ((*int_width == 8) || (*int_width == 16) || (*int_width == 32) || (*int_width == 64) || (*int_width == 128) || (*int_width == 256) || (*int_width == 512) || (*int_width == 1024))
       continue;
     header_ << header_indent_ << "typedef number<cpp_int_backend<" << *int_width
-	    << ", " << *int_width << ", unsigned_magnitude, unchecked, void> > uint" << *int_width << "_t";
+	    << ", " << *int_width << ", unsigned_magnitude, unchecked, void> > uint" << *int_width << "_t;" << endl;
   }
   header_ << header_indent_ << "#include <map>" << endl;
   header_ << header_indent_ << "class " << model_ptr_->name() << " {"
@@ -98,6 +98,20 @@ void IlaSim::sim_gen_state() {
       create_child_state(current_ila->state(i));
     for (unsigned int i = 0; i < current_ila->child_num(); i++)
       child_ila_queue.push(current_ila->child(i));
+  }
+}
+
+void IlaSim::sim_gen_init() {
+  std::queue<InstrLvlAbsPtr> child_ila_queue;
+  for (int i = 0; i < model_ptr_->child_num(); i++)
+    child_ila_queue.push(model_ptr_->child(i));
+  while(!child_ila_queue.empty()) {
+    auto current_ila = child_ila_queue.front();
+    child_ila_queue.pop();
+    create_init(current_ila);
+    for(int i = 0; i < current_ila->child_num(); i++) {
+      child_ila_queue.push(current_ila->child(i));
+    }
   }
 }
 
@@ -156,6 +170,7 @@ void IlaSim::sim_gen_execute_kernel() {
   if (EXTERNAL_MEM_)
     execute_external_mem_after_output(execute_kernel, indent);
   execute_parent_instructions(execute_kernel, indent);
+  execute_init(execute_kernel, indent);
   execute_child_instructions(execute_kernel, indent);
   if (EXTERNAL_MEM_)
     execute_external_mem_return(execute_kernel, indent);
@@ -169,20 +184,22 @@ void IlaSim::sim_gen_execute_kernel() {
 }
 
 void IlaSim::sim_gen_execute_invoke() {
-  header_ << header_indent_ << "SC_HAS_PROCESS(" << model_ptr_->name() << ");"
-          << endl;
-  header_ << header_indent_ << model_ptr_->name()
-          << "(sc_module_name name_) : sc_module(name_) {" << endl;
-  increase_indent(header_indent_);
-  header_ << header_indent_ << "SC_METHOD(compute);" << endl;
-  header_ << header_indent_ << "sensitive";
-  for (unsigned int i = 0; i < model_ptr_->input_num(); i++) {
-    header_ << " << " << model_ptr_->name() << "_"
-            << model_ptr_->input(i)->name() << "_in";
+  if (!qemu_device_) {
+    header_ << header_indent_ << "SC_HAS_PROCESS(" << model_ptr_->name() << ");"
+            << endl;
+    header_ << header_indent_ << model_ptr_->name()
+            << "(sc_module_name name_) : sc_module(name_) {" << endl;
+    increase_indent(header_indent_);
+    header_ << header_indent_ << "SC_METHOD(compute);" << endl;
+    header_ << header_indent_ << "sensitive";
+    for (int i = 0; i < model_ptr_->input_num(); i++) {
+      header_ << " << " << model_ptr_->name() << "_"
+              << model_ptr_->input(i)->name() << "_in";
+    }
+    header_ << ";" << endl;
+    decrease_indent(header_indent_);
+    header_ << header_indent_ << "}" << endl;
   }
-  header_ << ";" << endl;
-  decrease_indent(header_indent_);
-  header_ << header_indent_ << "}" << endl;
 
   decrease_indent(header_indent_);
   header_ << header_indent_ << "};" << endl;

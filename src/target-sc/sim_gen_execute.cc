@@ -7,6 +7,21 @@
 
 namespace ilang {
 
+void IlaSim::execute_init(stringstream& execute_kernel, string& indent) {
+  std::queue<InstrLvlAbsPtr> child_ila_queue;
+  for (int i = 0; i < model_ptr_->child_num(); i++) {
+    child_ila_queue.push(model_ptr_->child(i));
+  }
+  while(!child_ila_queue.empty()) {
+    auto current_ila = child_ila_queue.front();
+    child_ila_queue.pop();
+    for(int i = 0; i < current_ila->child_num(); i++) {
+      child_ila_queue.push(current_ila->child(i));
+    }
+    execute_kernel << indent << "init_" << current_ila->name() << "();" << endl; 
+  }
+}
+
 void IlaSim::execute_parent_instructions(stringstream& execute_kernel,
                                          string& indent) {
   for (unsigned int i = 0; i < model_ptr_->instr_num(); i++) {
@@ -79,7 +94,7 @@ void IlaSim::execute_decode(stringstream& execute_kernel, string& indent,
 
   execute_kernel << indent << "if (" << decode_func_name << "()) {" << endl;
   // TODO(yuex) delete the next line (generate debug code).
-  execute_kernel << "cout << \"" << decode_func_name << "\" << endl;" << endl;
+  // execute_kernel << "cout << \"" << decode_func_name << "\" << endl;" << endl;
 }
 
 void IlaSim::execute_state_update_func(stringstream& execute_kernel,
