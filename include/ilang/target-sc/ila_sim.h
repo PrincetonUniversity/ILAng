@@ -53,6 +53,7 @@ private:
   void sim_gen_init_header();
   void sim_gen_input();
   void sim_gen_state();
+  void sim_gen_init();
   void sim_gen_decode();
   void sim_gen_state_update();
   void sim_gen_execute_kernel();
@@ -69,6 +70,14 @@ private:
   void create_bool_state(const ExprPtr& expr, bool child = false);
   void create_bv_state(const ExprPtr& expr, bool child = false);
   void create_external_mem_port(const ExprPtr& expr);
+
+  void create_init(const InstrLvlAbsPtr& ila);
+  void init_decl(stringstream& valid_function, string& indent, string& valid_func_name);
+  void init_check_valid(stringstream& init_function, string& indent,
+		                                  const ExprPtr& valid_expr, const InstrLvlAbsPtr& ila);
+  void init_return(stringstream& init_function, string& indent);
+  void init_export(stringstream& init_function, string& init_func_name);
+  void init_mk_file(string& init_func_name);
 
   void create_decode(const InstrPtr& instr_expr);
   void decode_decl(stringstream& decode_function, string& indent,
@@ -95,6 +104,7 @@ private:
   void mem_state_update_decl(stringstream& state_update_function,
                              string& indent, const ExprPtr& expr);
 
+  void execute_init(stringstream& execute_kernel, string& indent);
   void execute_parent_instructions(stringstream& execute_kernel,
                                    string& indent);
   void execute_child_instructions(stringstream& execute_kernel, string& indent);
