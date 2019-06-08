@@ -7,6 +7,7 @@
 #include <ilang/util/fs.h>
 #include <ilang/util/log.h>
 #include <ilang/util/str_util.h>
+#include <ilang/mcm/ast_helper.h>
 #include <ilang/vtarget-out/vtarget_gen_impl.h>
 
 #include <cmath>
@@ -541,6 +542,21 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assertions() {
     }
 
     ila_state_names.erase(sname);
+
+
+    // report the need of refinement map
+    if ( _instr_ptr->update(sname)  ) {
+      FunctionApplicationFinder func_app_finder ( _instr_ptr->update(sname) );
+      for (auto && func_ptr : func_app_finder.GetReferredFunc()) {
+        ILA_ERROR_IF (!( 
+             IN("functions", rf_vmap) 
+          && rf_vmap["functions"].is_object()
+          && IN( func_ptr->name().str() , rf_vmap["functions"]))
+        ) << "uf: " << func_ptr->name().str() << " in " << _instr_ptr->name().str()
+          << " updating state:" << sname << " is not provided in rfmap!";
+      }
+    }
+
     // ISSUE ==> vmap
     std::string precondition =
         has_flush ? "(~ __ENDFLUSH__) || " : "(~ __IEND__) || ";

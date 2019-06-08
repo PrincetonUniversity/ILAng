@@ -130,6 +130,30 @@ bool NestedMemAddrDataAvoider::NotNested(const ExprPtr& node) {
 }
 
 /******************************************************************************/
+// Helper Class: FunctionApplicationFinder
+/******************************************************************************/
+
+FunctionApplicationFinder::FunctionApplicationFinder(const ExprPtr & expr) {
+  auto traversaler = [this](const ExprPtr & e) -> void {
+    if ( ! e->is_op() )
+      return;
+    std::shared_ptr<ExprOp> eop = std::dynamic_pointer_cast<ExprOp>(e);
+    if (!(eop && eop->op_name() == "APP")) 
+      return;
+    std::shared_ptr<ExprOpAppFunc> apply_op = std::dynamic_pointer_cast<ExprOpAppFunc>(eop);
+    if (!apply_op)
+      return;
+    // extract function and added it to the set
+    _func_refs.insert( apply_op->func() );
+  };
+  expr->DepthFirstVisit(traversaler);
+}
+  // get the set of the pointer of the functions
+const std::set<std::shared_ptr<Func>> FunctionApplicationFinder::GetReferredFunc() const {
+  return _func_refs;
+}
+
+/******************************************************************************/
 // Helper Class: NestedMemAddrDataAvoider
 /******************************************************************************/
 /* Seems not used, comment out for now
