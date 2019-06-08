@@ -42,6 +42,7 @@ bool os_portable_mkdir(const std::string& dir) {
   struct stat statbuff;
   if (stat(dir.c_str(), &statbuff) != -1) {
     if (S_ISDIR(statbuff.st_mode)) {
+      ILA_WARN << "Directory " << dir << " already exists.";
       return true;
     }
   }
