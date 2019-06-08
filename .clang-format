@@ -1,8 +1,8 @@
 ---
-Language:        Cpp
-BasedOnStyle:  LLVM
+Language:         Cpp
+BasedOnStyle:     LLVM
 PointerAlignment: Left
-Standard:        Cpp11
-UseTab:          Never
+Standard:         Cpp11
+UseTab:           Never
 ...
 
