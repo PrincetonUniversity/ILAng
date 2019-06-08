@@ -38,8 +38,7 @@ bool os_portable_mkdir(const std::string& dir) {
   return _mkdir(dir.c_str()) == 0;
 #else
   // on *nix
-  int ret = mkdir(dir.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-  return ret == 0 || ret == EEXIST;
+  return mkdir(dir.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == 0;
 #endif
 }
 
