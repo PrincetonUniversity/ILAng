@@ -434,7 +434,7 @@ TEST(TestApi, Log) {
 }
 
 TEST(TestApi, Portable) {
-  SetToStdErr(1);
+  // SetToStdErr(1);
   EnableDebug("Portable");
   auto example = EqIlaGen();
   auto buff_spec = example.GetIlaFlat1("flat1");
@@ -448,7 +448,6 @@ TEST(TestApi, Portable) {
   auto read_ila = ImportIlaPortable(portable_file_name);
 
   DisableDebug("Portable");
-  SetToStdErr(0);
 }
 
 } // namespace ilang
