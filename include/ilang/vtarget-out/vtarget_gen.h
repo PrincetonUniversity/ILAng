@@ -64,8 +64,7 @@ public:
         : target_select(BOTH), CheckThisInstructionOnly(""),
           InstructionNoReset(true), OnlyCheckInstUpdatedVars(true),
           PerVariableProblemCosa(false), MemAbsReadAbstraction(false),
-          ForceInstCheckReset(false),
-          PortDeclStyle(AUTO),
+          ForceInstCheckReset(false), PortDeclStyle(AUTO),
           CosaGenJgTesterScript(false), CosaAddKeep(true), MaxBound(127),
           OnlyAssumeUpdatedVarsEq(false), CosaPath(""), CosaPyEnvironment(""),
           CosaSolver(""), CosaGenTraceVcd(true), CosaOtherSolverOptions("") {}

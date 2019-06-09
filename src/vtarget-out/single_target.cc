@@ -3,6 +3,7 @@
 // --- Hongce Zhang
 
 #include <ilang/ila/expr_fuse.h>
+#include <ilang/mcm/ast_helper.h>
 #include <ilang/util/container_shortcut.h>
 #include <ilang/util/fs.h>
 #include <ilang/util/log.h>
@@ -116,15 +117,15 @@ VlgSglTgtGen::VlgSglTgtGen(
       _bad_state = true;
     }
 
-    if (IN("pre-flush end", instr) and not instr["pre-flush end"].is_array()) {
-      ILA_ERROR << "RF: 'pre-flush end' filed must be an array of string for "
+    if (IN("pre-flush end", instr) and not instr["pre-flush end"].is_string()) {
+      ILA_ERROR << "RF: 'pre-flush end' filed must be a string for "
                 << instr_ptr->name().str();
       _bad_state = true;
     }
 
     if (IN("post-flush end", instr) and
-        not instr["post-flush end"].is_array()) {
-      ILA_ERROR << "RF: 'post-flush end' filed must be an array of string for "
+        not instr["post-flush end"].is_string()) {
+      ILA_ERROR << "RF: 'post-flush end' filed must be a string for "
                 << instr_ptr->name().str();
       _bad_state = true;
     }
@@ -541,6 +542,20 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assertions() {
     }
 
     ila_state_names.erase(sname);
+
+    // report the need of refinement map
+    if (_instr_ptr->update(sname)) {
+      FunctionApplicationFinder func_app_finder(_instr_ptr->update(sname));
+      for (auto&& func_ptr : func_app_finder.GetReferredFunc()) {
+        ILA_ERROR_IF(!(IN("functions", rf_vmap) &&
+                       rf_vmap["functions"].is_object() &&
+                       IN(func_ptr->name().str(), rf_vmap["functions"])))
+            << "uf: " << func_ptr->name().str() << " in "
+            << _instr_ptr->name().str() << " updating state:" << sname
+            << " is not provided in rfmap!";
+      }
+    }
+
     // ISSUE ==> vmap
     std::string precondition =
         has_flush ? "(~ __ENDFLUSH__) || " : "(~ __IEND__) || ";
@@ -892,8 +907,8 @@ void VlgSglTgtGen::ConstructWrapper_add_uf_constraints() {
       continue;
     }
     if (not IN(funcName, name_to_fnapp_vec)) {
-      ILA_WARN << "uninterpreted function mapping:" << funcName
-               << " does not exist. Skipped.";
+      // ILA_WARN << "uninterpreted function mapping:" << funcName
+      //         << " does not exist. Skipped.";
       continue;
     }
     if (list_of_time_of_apply.size() != name_to_fnapp_vec[funcName].size()) {
