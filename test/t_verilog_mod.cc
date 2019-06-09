@@ -2,8 +2,8 @@
 /// Unit test for Verilog analyzer.
 #include <cstdio>
 #include <cstdlib>
-#include <iostream>
 #include <fstream>
+#include <iostream>
 
 #include <ilang/util/container_shortcut.h>
 #include <ilang/verification/abs_knob.h>
@@ -17,7 +17,6 @@
 namespace ilang {
 
 #ifdef VERILOG_IN_ENABLE
-
 
 TEST(TestVerilogMod, Modify) {
 
@@ -33,15 +32,12 @@ TEST(TestVerilogMod, Modify) {
   */
 
   std::string fn = std::string(ILANG_TEST_SRC_ROOT) +
-                               "/unit-data/verilog_sample/t_ana_insta.v";
+                   "/unit-data/verilog_sample/t_ana_insta.v";
   std::string ofn = std::string(ILANG_TEST_SRC_ROOT) +
-                               "/unit-data/verilog_sample/t_ana_insta_mod.v";
+                    "/unit-data/verilog_sample/t_ana_insta_mod.v";
 
-
-  VerilogInfo va(
-      VerilogInfo::path_vec_t(),
-      VerilogInfo::path_vec_t({fn}),
-      "m1");
+  VerilogInfo va(VerilogInfo::path_vec_t(), VerilogInfo::path_vec_t({fn}),
+                 "m1");
 
   VerilogModifier vm(&va);
 
@@ -56,20 +52,18 @@ TEST(TestVerilogMod, Modify) {
   std::ifstream fin(fn);
   std::ofstream fout(ofn);
 
-  if(!fin.is_open() ) {
+  if (!fin.is_open()) {
     ILA_ERROR << fn << " is not readable";
     return;
   }
 
-
-  if(!fout.is_open() ) {
+  if (!fout.is_open()) {
     ILA_ERROR << ofn << " is not readable";
     return;
   }
 
   vm.ReadModifyWrite(fn, fin, fout);
-
 }
 
 #endif // VERILOG_IN_ENABLE
-}; // namespace ilang
+};     // namespace ilang

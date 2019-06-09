@@ -6,6 +6,7 @@
 
 #include <cmath>
 #include <ilang/ila/expr_fuse.h>
+#include <ilang/util/container_shortcut.h>
 #include <ilang/util/log.h>
 #include <ilang/util/str_util.h>
 #include <ilang/vtarget-out/vtarget_gen_impl.h>
@@ -107,6 +108,21 @@ bool VlgSglTgtGen::TryFindVlgState(const std::string& sname) {
 
 #define SIN(sub, s) (s.find(sub) != std::string::npos)
 
+/// signals generated in the wrapper,
+/// it is normal that you cannot find
+/// them in the verilog
+std::set<std::string> wrapper_signals = {
+  "__START__",
+  "__IEND__",
+  "__ISSUE__",
+  "__STARTED__",
+  "__RESETED__",
+  "__ENDED__",
+  "__ENDFLUSH__",
+  "__FLUSHENDED__",
+  "__CYCLE_CNT__"
+};
+
 // for ila state: add __ILA_SO_
 // for verilog signal: keep as it is should be fine
 // btw, record all referred vlg name
@@ -117,8 +133,9 @@ VlgSglTgtGen::ModifyCondExprAndRecordVlgName(const VarExtractor::token& t) {
   const auto& sname = t.second;
 
   if (token_tp == VarExtractor::token_type::UNKN_S) {
-    ILA_WARN << "In refinement relations: unknown reference to name:" << sname
-             << " keep unchanged.";
+    ILA_WARN_IF(!IN(sname,wrapper_signals))
+        << "In refinement relations: unknown reference to name:" << sname
+        << " keep unchanged.";
     return sname;
   } else if (token_tp == VarExtractor::token_type::KEEP ||
              token_tp == VarExtractor::token_type::UNKN_S)
@@ -279,14 +296,14 @@ unsigned VlgSglTgtGen::TypeMatched(const ExprPtr& ila_var,
     /*else*/ return 0; /*mismatch*/
   }                    /*else*/
   if (ila_sort->is_bv()) {
-    if ((unsigned) ila_sort->bit_width() == vlg_var.get_width())
+    if ((unsigned)ila_sort->bit_width() == vlg_var.get_width())
       return vlg_var.get_width();
     ILA_ERROR << "ila w:" << ila_sort->bit_width()
               << ", vlg w:" << vlg_var.get_width();
     /*else*/ return 0; /*mismatch*/
   }                    /*else*/
   if (ila_sort->is_mem()) {
-    if ((unsigned) ila_sort->data_width() == vlg_var.get_width())
+    if ((unsigned)ila_sort->data_width() == vlg_var.get_width())
       return vlg_var.get_width();
     ILA_ERROR << "ila w:" << ila_sort->data_width()
               << ", vlg w:" << vlg_var.get_width();
