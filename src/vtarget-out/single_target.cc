@@ -117,15 +117,15 @@ VlgSglTgtGen::VlgSglTgtGen(
       _bad_state = true;
     }
 
-    if (IN("pre-flush end", instr) and not instr["pre-flush end"].is_array()) {
-      ILA_ERROR << "RF: 'pre-flush end' filed must be an array of string for "
+    if (IN("pre-flush end", instr) and not instr["pre-flush end"].is_string()) {
+      ILA_ERROR << "RF: 'pre-flush end' filed must be a string for "
                 << instr_ptr->name().str();
       _bad_state = true;
     }
 
     if (IN("post-flush end", instr) and
-        not instr["post-flush end"].is_array()) {
-      ILA_ERROR << "RF: 'post-flush end' filed must be an array of string for "
+        not instr["post-flush end"].is_string()) {
+      ILA_ERROR << "RF: 'post-flush end' filed must be a string for "
                 << instr_ptr->name().str();
       _bad_state = true;
     }
@@ -908,8 +908,8 @@ void VlgSglTgtGen::ConstructWrapper_add_uf_constraints() {
       continue;
     }
     if (not IN(funcName, name_to_fnapp_vec)) {
-      ILA_WARN << "uninterpreted function mapping:" << funcName
-               << " does not exist. Skipped.";
+      //ILA_WARN << "uninterpreted function mapping:" << funcName
+      //         << " does not exist. Skipped.";
       continue;
     }
     if (list_of_time_of_apply.size() != name_to_fnapp_vec[funcName].size()) {
