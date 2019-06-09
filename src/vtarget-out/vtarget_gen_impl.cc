@@ -239,13 +239,12 @@ bool VlgVerifTgtGen::bad_state_return(void) {
   return _bad_state;
 } // bad_state_return
 
-
 // return npos if no comments in
-static size_t find_comments(const std::string &line) {
-  enum state_t {PLAIN, STR, LEFT }  state, next_state;
+static size_t find_comments(const std::string& line) {
+  enum state_t { PLAIN, STR, LEFT } state, next_state;
   state = PLAIN;
   size_t ret = 0;
-  for (const auto & c : line) {
+  for (const auto& c : line) {
     if (state == PLAIN) {
       if (c == '/')
         next_state = LEFT;
@@ -259,14 +258,13 @@ static size_t find_comments(const std::string &line) {
     } else if (state == LEFT) {
       if (c == '/') {
         ILA_ASSERT(ret > 0);
-        return ret-1;
-      }
-      else
+        return ret - 1;
+      } else
         next_state = PLAIN;
     } else
       ILA_ASSERT(false);
     state = next_state;
-    ++ ret;
+    ++ret;
   }
   return std::string::npos;
 }
@@ -285,10 +283,10 @@ void VlgVerifTgtGen::load_json(const std::string& fname, nlohmann::json& j) {
   // remove the comments
   std::string contents;
   std::string line;
-  while(std::getline(fin,line)) {
+  while (std::getline(fin, line)) {
     auto comment_begin = find_comments(line);
     if (comment_begin != std::string::npos)
-      contents += line.substr(0,comment_begin);
+      contents += line.substr(0, comment_begin);
     else
       contents += line;
     contents += "\n";

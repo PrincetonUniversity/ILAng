@@ -38,9 +38,11 @@ protected:
   ast_port_declaration* _def;
 
 public:
-  /// Constructor: from ast_port_declaration -- will parse the parameters of itself
+  /// Constructor: from ast_port_declaration -- will parse the parameters of
+  /// itself
   SignalInfoPort(ast_port_declaration* def, const std::string& full_name,
-                 VerilogAnalyzerBase::hierarchical_name_type tp, ast_module_declaration *mod);
+                 VerilogAnalyzerBase::hierarchical_name_type tp,
+                 ast_module_declaration* mod);
   /// Return its definition
   ast_port_declaration* get_def() { return _def; }
 }; // class SignalInfoPort
@@ -52,9 +54,11 @@ protected:
   ast_reg_declaration* _def;
 
 public:
-  /// Constructor: from ast_port_declaration -- will parse the parameters of itself
+  /// Constructor: from ast_port_declaration -- will parse the parameters of
+  /// itself
   SignalInfoReg(ast_reg_declaration* def, const std::string& full_name,
-                VerilogAnalyzerBase::hierarchical_name_type tp, ast_module_declaration *mod);
+                VerilogAnalyzerBase::hierarchical_name_type tp,
+                ast_module_declaration* mod);
   /// Return its definition
   ast_reg_declaration* get_def() { return _def; }
 }; // class SignalInfoPort
@@ -66,9 +70,11 @@ protected:
   ast_net_declaration* _def;
 
 public:
-  /// Constructor: from ast_port_declaration -- will parse the parameters of itself
+  /// Constructor: from ast_port_declaration -- will parse the parameters of
+  /// itself
   SignalInfoWire(ast_net_declaration* def, const std::string& full_name,
-                 VerilogAnalyzerBase::hierarchical_name_type tp, ast_module_declaration *mod);
+                 VerilogAnalyzerBase::hierarchical_name_type tp,
+                 ast_module_declaration* mod);
   /// Return its definition
   ast_net_declaration* get_def() { return _def; }
 }; // class SignalInfoPort
@@ -169,7 +175,7 @@ public:
   /// Return the location of a module's endmodule statement
   vlg_loc_t get_endmodule_loc(const std::string& inst_name) const;
   /// Return the module name of a net --- will check if the module names are
-  std::string get_module_name_of_net_name(const std::string & net_name) const;
+  std::string get_module_name_of_net_name(const std::string& net_name) const;
 
   // --------------------- HELPERS ---------------------------- //
   /// Print Meta info (Usage PrintMeta(os, ?? ) << ?? ;  )

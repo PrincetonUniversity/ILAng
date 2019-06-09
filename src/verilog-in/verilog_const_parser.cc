@@ -77,33 +77,38 @@ static void* ast_list_get_not_null(ast_list* list, unsigned int item) {
   return ret;
 }
 
-/// parse only the current module's parameter definitions, will update param_defs
-void VerilogConstantExprEval::ParseCurrentModuleParameters(ast_module_declaration * m) {
+/// parse only the current module's parameter definitions, will update
+/// param_defs
+void VerilogConstantExprEval::ParseCurrentModuleParameters(
+    ast_module_declaration* m) {
   if (m == NULL)
     return;
-  ast_list * params = m->module_parameters;
+  ast_list* params = m->module_parameters;
   if (params == NULL)
     return;
-  for (unsigned pi = 0; pi < params->items; ++ pi) {
-    ast_parameter_declarations * param_item = (ast_parameter_declarations *) ast_list_get_not_null(params, pi);
-    // ILA_ASSERT(param_item->type == MOD_ITEM_PARAMETER_DECLARATION) 
+  for (unsigned pi = 0; pi < params->items; ++pi) {
+    ast_parameter_declarations* param_item =
+        (ast_parameter_declarations*)ast_list_get_not_null(params, pi);
+    // ILA_ASSERT(param_item->type == MOD_ITEM_PARAMETER_DECLARATION)
     //  << "Verilog parser bug: wrong type in param item";
-    //ILA_NOT_NULL(param_item->parameter_declaration);
-    ast_list * assigns = param_item->assignments;
+    // ILA_NOT_NULL(param_item->parameter_declaration);
+    ast_list* assigns = param_item->assignments;
     ILA_NOT_NULL(assigns);
     ILA_ASSERT(assigns->items > 0);
-    for (unsigned assignidx = 0; assignidx < assigns->items; ++ assignidx) {
-      ast_single_assignment * asn = (ast_single_assignment *) ast_list_get_not_null(assigns,assignidx);
-      std::string param_name = ast_identifier_tostring(asn->lval->data.identifier);
+    for (unsigned assignidx = 0; assignidx < assigns->items; ++assignidx) {
+      ast_single_assignment* asn =
+          (ast_single_assignment*)ast_list_get_not_null(assigns, assignidx);
+      std::string param_name =
+          ast_identifier_tostring(asn->lval->data.identifier);
       auto val = _eval(asn->expression);
-      if(eval_error) {
+      if (eval_error) {
         eval_error = false;
         continue; // if we encounter error, just skip it
       }
       param_defs.insert(std::make_pair(param_name, val));
     }
   }
-  return; 
+  return;
 }
 
 }; // namespace ilang

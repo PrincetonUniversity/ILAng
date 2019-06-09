@@ -38,8 +38,9 @@ public:
   // --------------------- CONSTRUCTOR ---------------------------- //
   /// input : the string to evaluate
   VerilogConstantExprEval(ast_expression* e);
-  /// parse only the current module's parameter definitions, will update param_defs
-  void ParseCurrentModuleParameters(ast_module_declaration * m);
+  /// parse only the current module's parameter definitions, will update
+  /// param_defs
+  void ParseCurrentModuleParameters(ast_module_declaration* m);
   /// parse a hierarchy
   // TODO: add function here
   /// Get the value

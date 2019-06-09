@@ -117,9 +117,9 @@ VlgSglTgtGen::ModifyCondExprAndRecordVlgName(const VarExtractor::token& t) {
   const auto& sname = t.second;
 
   if (token_tp == VarExtractor::token_type::UNKN_S) {
-    ILA_WARN_IF( ! ( sname == "__IEND__" || sname == "__START__") ) 
-      << "In refinement relations: unknown reference to name:" << sname
-      << " keep unchanged.";
+    ILA_WARN_IF(!(sname == "__IEND__" || sname == "__START__"))
+        << "In refinement relations: unknown reference to name:" << sname
+        << " keep unchanged.";
     return sname;
   } else if (token_tp == VarExtractor::token_type::KEEP ||
              token_tp == VarExtractor::token_type::UNKN_S)
@@ -280,14 +280,14 @@ unsigned VlgSglTgtGen::TypeMatched(const ExprPtr& ila_var,
     /*else*/ return 0; /*mismatch*/
   }                    /*else*/
   if (ila_sort->is_bv()) {
-    if ((unsigned) ila_sort->bit_width() == vlg_var.get_width())
+    if ((unsigned)ila_sort->bit_width() == vlg_var.get_width())
       return vlg_var.get_width();
     ILA_ERROR << "ila w:" << ila_sort->bit_width()
               << ", vlg w:" << vlg_var.get_width();
     /*else*/ return 0; /*mismatch*/
   }                    /*else*/
   if (ila_sort->is_mem()) {
-    if ((unsigned) ila_sort->data_width() == vlg_var.get_width())
+    if ((unsigned)ila_sort->data_width() == vlg_var.get_width())
       return vlg_var.get_width();
     ILA_ERROR << "ila w:" << ila_sort->data_width()
               << ", vlg w:" << vlg_var.get_width();

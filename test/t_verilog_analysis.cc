@@ -6,8 +6,8 @@
 
 #include <ilang/util/container_shortcut.h>
 #include <ilang/verification/abs_knob.h>
-#include <ilang/verilog-in/verilog_parse.h>
 #include <ilang/verilog-in/verilog_analysis_wrapper.h>
+#include <ilang/verilog-in/verilog_parse.h>
 #include <ilang/verilog-out/verilog_gen.h>
 
 #include "unit-include/config.h"
@@ -18,14 +18,14 @@ namespace ilang {
 TEST(TestVerilogAnalysis, ParserInit) { TestParseVerilog(); }
 
 TEST(TestVerilogAnalysis, BaseFuncNoError) {
-  auto fn = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/verilog_sample/t_ana_inst.v";
-  std::FILE * fp = std::fopen(fn.c_str(), "r");
+  auto fn = std::string(ILANG_TEST_SRC_ROOT) +
+            "/unit-data/verilog_sample/t_ana_inst.v";
+  std::FILE* fp = std::fopen(fn.c_str(), "r");
 
-  EXPECT_EQ( TestParseVerilogFrom(fp) , 0 );
+  EXPECT_EQ(TestParseVerilogFrom(fp), 0);
 
   std::fclose(fp);
 }
-
 
 TEST(TestVerilogAnalysis, Init) {
 
@@ -58,43 +58,38 @@ TEST(TestVerilogAnalysis, BadState) {
 #endif
 
 TEST(TestVerilogAnalysis, FnameMeta) {
-  VerilogInfo va(
-      VerilogInfo::path_vec_t(),
-      VerilogInfo::path_vec_t({std::string(ILANG_TEST_SRC_ROOT) +
-                               "/unit-data/vpipe/simple_pipe.v"}),
-      "m1");
+  VerilogInfo va(VerilogInfo::path_vec_t(),
+                 VerilogInfo::path_vec_t({std::string(ILANG_TEST_SRC_ROOT) +
+                                          "/unit-data/vpipe/simple_pipe.v"}),
+                 "m1");
 
-  ILA_INFO   << "Location of: m1.ex_wb_rd:" << va.name2loc("m1.ex_wb_rd");
-  ILA_INFO   << "End loc of m1:" << va.get_endmodule_loc("m1");
-
+  ILA_INFO << "Location of: m1.ex_wb_rd:" << va.name2loc("m1.ex_wb_rd");
+  ILA_INFO << "End loc of m1:" << va.get_endmodule_loc("m1");
 }
-
 
 TEST(TestVerilogAnalysis, Include) {
-  VerilogInfo va(
-      VerilogInfo::path_vec_t({std::string(ILANG_TEST_SRC_ROOT) +
-                               "/unit-data/verilog_sample/"}),
-      VerilogInfo::path_vec_t({std::string(ILANG_TEST_SRC_ROOT) +
-                               "/unit-data/verilog_sample/m1.v"}),
-      "m1");
+  VerilogInfo va(VerilogInfo::path_vec_t({std::string(ILANG_TEST_SRC_ROOT) +
+                                          "/unit-data/verilog_sample/"}),
+                 VerilogInfo::path_vec_t({std::string(ILANG_TEST_SRC_ROOT) +
+                                          "/unit-data/verilog_sample/m1.v"}),
+                 "m1");
 
-  ILA_DLOG("TestVerilogAnalysis.Include")   << "Location of: m1.r1:" << va.name2loc("m1.r1");
-  ILA_DLOG("TestVerilogAnalysis.Include")   << "End loc of m1:" << va.get_endmodule_loc("m1");
-
+  ILA_DLOG("TestVerilogAnalysis.Include")
+      << "Location of: m1.r1:" << va.name2loc("m1.r1");
+  ILA_DLOG("TestVerilogAnalysis.Include")
+      << "End loc of m1:" << va.get_endmodule_loc("m1");
 }
-
 
 TEST(TestVerilogAnalysis, RangeAnalysis) {
 
-#define IS_WIDTH(n,w) EXPECT_EQ( va.get_signal("m1." n).get_width() , w )
-
+#define IS_WIDTH(n, w) EXPECT_EQ(va.get_signal("m1." n).get_width(), w)
 
   { // test 1
     VerilogInfo va(
+        VerilogInfo::path_vec_t(
+            {std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/verilog_sample/"}),
         VerilogInfo::path_vec_t({std::string(ILANG_TEST_SRC_ROOT) +
-                                "/unit-data/verilog_sample/"}),
-        VerilogInfo::path_vec_t({std::string(ILANG_TEST_SRC_ROOT) +
-                                "/unit-data/verilog_sample/range.v"}),
+                                 "/unit-data/verilog_sample/range.v"}),
         "m1");
 
     IS_WIDTH("r1", 8);
@@ -107,23 +102,23 @@ TEST(TestVerilogAnalysis, RangeAnalysis) {
     IS_WIDTH("r32", 8);
     IS_WIDTH("r42", 8);
 
-    IS_WIDTH("r14", 9); 
+    IS_WIDTH("r14", 9);
     IS_WIDTH("r24", 7);
     IS_WIDTH("r34", 8);
-    IS_WIDTH("r44", 8); 
+    IS_WIDTH("r44", 8);
 
-    IS_WIDTH("rm", 2); 
-    IS_WIDTH("a", 1); // F  
-    IS_WIDTH("b", 1); // F  
-    IS_WIDTH("c", 1); // F 
-    IS_WIDTH("d", 1); // F  
-  } // end of test1
-  { // test 2
+    IS_WIDTH("rm", 2);
+    IS_WIDTH("a", 1); // F
+    IS_WIDTH("b", 1); // F
+    IS_WIDTH("c", 1); // F
+    IS_WIDTH("d", 1); // F
+  }                   // end of test1
+  {                   // test 2
     VerilogInfo va(
+        VerilogInfo::path_vec_t(
+            {std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/verilog_sample/"}),
         VerilogInfo::path_vec_t({std::string(ILANG_TEST_SRC_ROOT) +
-                                "/unit-data/verilog_sample/"}),
-        VerilogInfo::path_vec_t({std::string(ILANG_TEST_SRC_ROOT) +
-                                "/unit-data/verilog_sample/range2.v"}),
+                                 "/unit-data/verilog_sample/range2.v"}),
         "m1");
 
     IS_WIDTH("r1", 8);
@@ -144,18 +139,16 @@ TEST(TestVerilogAnalysis, RangeAnalysis) {
 
   { // test 3 -- parameters
     VerilogInfo va(
+        VerilogInfo::path_vec_t(
+            {std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/verilog_sample/"}),
         VerilogInfo::path_vec_t({std::string(ILANG_TEST_SRC_ROOT) +
-                                "/unit-data/verilog_sample/"}),
-        VerilogInfo::path_vec_t({std::string(ILANG_TEST_SRC_ROOT) +
-                                "/unit-data/verilog_sample/range3.v"}),
+                                 "/unit-data/verilog_sample/range3.v"}),
         "m1");
 
     IS_WIDTH("r1", 2);
     IS_WIDTH("r2", 6);
   } // end of test3
 }
-
-
 
 TEST(TestVerilogAnalysis, AnalyzeName) {
   VerilogInfo va(
@@ -279,7 +272,7 @@ TEST(TestVerilogAnalysis, AnalyzeName) {
   ILA_DLOG("TestVerilogAnalysis.AnalyzeName")
       << "Location of: m1.n26:" << va.name2loc("m1.n26");
   ILA_DLOG("TestVerilogAnalysis.AnalyzeName")
-     << "Location of: m1.subm1:" << va.name2loc("m1.subm1");
+      << "Location of: m1.subm1:" << va.name2loc("m1.subm1");
   ILA_DLOG("TestVerilogAnalysis.AnalyzeName")
       << "Location of: m1.subm2:" << va.name2loc("m1.subm2");
   ILA_DLOG("TestVerilogAnalysis.AnalyzeName")
@@ -292,7 +285,6 @@ TEST(TestVerilogAnalysis, AnalyzeName) {
       << "Inst loc of m1.subm4:" << va.get_module_inst_loc("m1.subm4");
 
   va.get_module_inst_loc("m1.subm1");
-
 }
 
 TEST(TestVerilogAnalysis, GetTopIo) {
@@ -420,7 +412,7 @@ TEST(TestVerilogAnalysis, GetTopIoNewFashion) {
 #undef O
 #undef R
 #undef W
-  ILA_INFO   << "End loc of m1:" << va.get_endmodule_loc("m1");
+  ILA_INFO << "End loc of m1:" << va.get_endmodule_loc("m1");
 }
 
 }; // namespace ilang

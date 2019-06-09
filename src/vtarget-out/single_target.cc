@@ -3,11 +3,11 @@
 // --- Hongce Zhang
 
 #include <ilang/ila/expr_fuse.h>
+#include <ilang/mcm/ast_helper.h>
 #include <ilang/util/container_shortcut.h>
 #include <ilang/util/fs.h>
 #include <ilang/util/log.h>
 #include <ilang/util/str_util.h>
-#include <ilang/mcm/ast_helper.h>
 #include <ilang/vtarget-out/vtarget_gen_impl.h>
 
 #include <cmath>
@@ -543,17 +543,16 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assertions() {
 
     ila_state_names.erase(sname);
 
-
     // report the need of refinement map
-    if ( _instr_ptr->update(sname)  ) {
-      FunctionApplicationFinder func_app_finder ( _instr_ptr->update(sname) );
-      for (auto && func_ptr : func_app_finder.GetReferredFunc()) {
-        ILA_ERROR_IF (!( 
-             IN("functions", rf_vmap) 
-          && rf_vmap["functions"].is_object()
-          && IN( func_ptr->name().str() , rf_vmap["functions"]))
-        ) << "uf: " << func_ptr->name().str() << " in " << _instr_ptr->name().str()
-          << " updating state:" << sname << " is not provided in rfmap!";
+    if (_instr_ptr->update(sname)) {
+      FunctionApplicationFinder func_app_finder(_instr_ptr->update(sname));
+      for (auto&& func_ptr : func_app_finder.GetReferredFunc()) {
+        ILA_ERROR_IF(!(IN("functions", rf_vmap) &&
+                       rf_vmap["functions"].is_object() &&
+                       IN(func_ptr->name().str(), rf_vmap["functions"])))
+            << "uf: " << func_ptr->name().str() << " in "
+            << _instr_ptr->name().str() << " updating state:" << sname
+            << " is not provided in rfmap!";
       }
     }
 
@@ -908,7 +907,7 @@ void VlgSglTgtGen::ConstructWrapper_add_uf_constraints() {
       continue;
     }
     if (not IN(funcName, name_to_fnapp_vec)) {
-      //ILA_WARN << "uninterpreted function mapping:" << funcName
+      // ILA_WARN << "uninterpreted function mapping:" << funcName
       //         << " does not exist. Skipped.";
       continue;
     }
