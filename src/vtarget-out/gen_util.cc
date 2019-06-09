@@ -117,8 +117,9 @@ VlgSglTgtGen::ModifyCondExprAndRecordVlgName(const VarExtractor::token& t) {
   const auto& sname = t.second;
 
   if (token_tp == VarExtractor::token_type::UNKN_S) {
-    ILA_WARN << "In refinement relations: unknown reference to name:" << sname
-             << " keep unchanged.";
+    ILA_WARN_IF( ! ( sname == "__IEND__" || sname == "__START__") ) 
+      << "In refinement relations: unknown reference to name:" << sname
+      << " keep unchanged.";
     return sname;
   } else if (token_tp == VarExtractor::token_type::KEEP ||
              token_tp == VarExtractor::token_type::UNKN_S)
