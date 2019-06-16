@@ -1,7 +1,7 @@
 /// \file
 /// Unit tests for exporting and importing ILA portables.
 
-#include <ilang/target-itsy/interface.h>
+#include <ilang/ilang++.h>
 #include <ilang/target-json/interface.h>
 #include <ilang/verification/legacy_bmc.h>
 
@@ -22,9 +22,9 @@ TEST(TestPortable, AES) {
   // DebugLog::Enable("Portable");
 
   auto aes_file = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/aes_v/all";
-  auto aes_ila = ImportSynthAbsFromFile(aes_file, "AES");
+  auto aes_ila = ImportSynthAbstraction(aes_file, "AES").get();
 
-  auto tmp_aes = ImportSynthAbsFromFile(aes_file, "AES_DES");
+  auto tmp_aes = ImportSynthAbstraction(aes_file, "AES_DES").get();
   auto ser_aes = IlaSerDesMngr::Serialize(tmp_aes);
   auto des_aes = IlaSerDesMngr::Deserialize(ser_aes);
 
@@ -124,9 +124,9 @@ TEST(TestPortable, UAES) {
   // DebugLog::Enable("Portable");
 
   auto aesu_file = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/aes_v/allu";
-  auto org_ila = ImportSynthAbsFromFile(aesu_file, "AESU");
+  auto org_ila = ImportSynthAbstraction(aesu_file, "AESU").get();
 
-  auto tmp_ila = ImportSynthAbsFromFile(aesu_file, "AESU_TMP");
+  auto tmp_ila = ImportSynthAbstraction(aesu_file, "AESU_TMP").get();
   auto ser_ila = IlaSerDesMngr::Serialize(tmp_ila);
 #if 0 // TODO APP_FUNC SER/DES not yet implemented
   auto des_ila = IlaSerDesMngr::Deserialize(ser_ila);
