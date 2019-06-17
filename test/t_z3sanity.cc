@@ -4,6 +4,7 @@
 #include "unit-include/util.h"
 #include <ilang/ila/expr_fuse.h>
 #include <ilang/ila/z3_expr_adapter.h>
+#include <ilang/util/log.h>
 
 namespace ilang {
 
@@ -94,6 +95,19 @@ TEST_F(TestZ3Expr, NegNeg) {
 
   auto expr_eq = gen->GetExpr(ast_eq);
   s->add(!expr_eq);
+  EXPECT_EQ(z3::unsat, s->check());
+}
+
+TEST_F(TestZ3Expr, Div) {
+  auto ast_div = ExprFuse::Div(bv_var_x, bv_var_y);
+  auto ast_div_ge_1 = ExprFuse::Ge(ast_div, 1);
+  auto ast_x_gt_y = ExprFuse::Gt(bv_var_x, bv_var_y);
+  auto ast_y_gt_0 = ExprFuse::Gt(bv_var_y, 0);
+  auto ast_cond = ExprFuse::And(ast_x_gt_y, ast_y_gt_0);
+  auto ast_target = ExprFuse::Ite(ast_cond, ast_div_ge_1, bool_true);
+
+  auto expr_target = gen->GetExpr(ast_target);
+  s->add(!expr_target);
   EXPECT_EQ(z3::unsat, s->check());
 }
 
