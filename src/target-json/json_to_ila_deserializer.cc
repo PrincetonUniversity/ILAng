@@ -316,6 +316,9 @@ ExprPtr J2IDes::DesExprOp(const unsigned& ast_expr_op_uid,
   case AST_UID_EXPR_OP::SUB: {
     return ExprFuse::Sub(args.at(0), args.at(1));
   }
+  case AST_UID_EXPR_OP::DIV: {
+    return ExprFuse::Div(args.at(0), args.at(1));
+  }
   case AST_UID_EXPR_OP::MUL: {
     return ExprFuse::Mul(args.at(0), args.at(1));
   }

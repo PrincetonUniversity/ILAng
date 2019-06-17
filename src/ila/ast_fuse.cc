@@ -62,6 +62,8 @@ AST_UID_EXPR_OP GetUidExprOp(const ExprPtr& expr) {
     return AST_UID_EXPR_OP::ADD;
   } else if (std::dynamic_pointer_cast<ExprOpSub>(expr_op)) {
     return AST_UID_EXPR_OP::SUB;
+  } else if (std::dynamic_pointer_cast<ExprOpDiv>(expr_op)) {
+    return AST_UID_EXPR_OP::DIV;
   } else if (std::dynamic_pointer_cast<ExprOpMul>(expr_op)) {
     return AST_UID_EXPR_OP::MUL;
   } else if (std::dynamic_pointer_cast<ExprOpEq>(expr_op)) {
