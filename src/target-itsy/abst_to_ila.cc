@@ -651,8 +651,7 @@ void SynthAbsConverter::CnvtNodeToExprBvOp(const ilasynth::Node* n) {
     ILA_ERROR << "SDIV not implemented.";
     break;
   case ilasynth::BitvectorOp::Op::UDIV:
-    ILA_ERROR << "UDIV not implemented.";
-    // expr = ExprFuse::Div(expr_args.at(0), expr_args.at(1));
+    expr = ExprFuse::Div(expr_args.at(0), expr_args.at(1));
     break;
   case ilasynth::BitvectorOp::Op::SREM:
     ILA_ERROR << "SREM not implemented.";

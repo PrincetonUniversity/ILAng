@@ -179,6 +179,11 @@ ExprRef operator-(const ExprRef& a, const ExprRef& b) {
   return ExprRef(v);
 }
 
+ExprRef operator/(const ExprRef& a, const ExprRef& b) {
+  auto v = ExprFuse::Div(a.get(), b.get());
+  return ExprRef(v);
+}
+
 ExprRef operator*(const ExprRef& a, const ExprRef& b) {
   auto v = ExprFuse::Mul(a.get(), b.get());
   return ExprRef(v);

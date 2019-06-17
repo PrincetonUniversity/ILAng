@@ -121,6 +121,10 @@ ExprPtr ExprFuse::Sub(const ExprPtr l, const ExprPtr r) {
   return std::make_shared<ExprOpSub>(l, r);
 }
 
+ExprPtr ExprFuse::Div(const ExprPtr l, const ExprPtr r) {
+  return std::make_shared<ExprOpDiv>(l, r);
+}
+
 ExprPtr ExprFuse::Mul(const ExprPtr l, const ExprPtr r) {
   return std::make_shared<ExprOpMul>(l, r);
 }

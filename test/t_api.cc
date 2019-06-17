@@ -135,6 +135,9 @@ TEST(TestApi, ExprOps) {
   auto n_add_bv_c = n_add_bv + 1;
   auto n_sub_bv_c = n_sub_bv - 5;
 
+  auto n_div_bv = n_add_bv / n_sub_bv;
+  auto n_mul_bv = n_sub_bv_c * n_add_bv_c;
+
   auto n_eq_bv = n_add_bv == n_sub_bv;
   auto n_eq_bool = n_xor_bool == n_eq_bv;
   auto n_eq_bv_c = n_add_bv == 3;

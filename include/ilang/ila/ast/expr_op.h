@@ -179,7 +179,15 @@ public:
                      const std::string& suffix = "") const;
 }; // class ExprOpSub
 
-// TODO ExprOpDiv
+/// \brief The wrapper for unsigned division.
+class ExprOpDiv : public ExprOp {
+public:
+  /// Constructor for DIV operation.
+  ExprOpDiv(const ExprPtr arg0, const ExprPtr arg1);
+  std::string op_name() const { return "DIV"; }
+  z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                     const std::string& suffix = "") const;
+}; // class ExprOpDiv
 
 // TODO ExprOpRem
 

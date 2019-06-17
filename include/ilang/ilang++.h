@@ -176,6 +176,8 @@ ExprRef operator+(const ExprRef& a, const ExprRef& b);
 ExprRef operator-(const ExprRef& a, const ExprRef& b);
 /// Unsigned multiply for bit-vectors.
 ExprRef operator*(const ExprRef& a, const ExprRef& b);
+/// Unsigned division for bit-vectors.
+ExprRef operator/(const ExprRef& a, const ExprRef& b);
 
 /// Logical AND with Boolean constant.
 ExprRef operator&(const ExprRef& a, const bool& b);

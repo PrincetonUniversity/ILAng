@@ -263,6 +263,19 @@ z3::expr ExprOpSub::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
   return expr_vec[0] - expr_vec[1];
 }
 
+// ------------------------- Class ExprOpDiv ------------------------------- //
+ExprOpDiv::ExprOpDiv(const ExprPtr arg0, const ExprPtr arg1)
+    : ExprOp(arg0, arg1) {
+  set_sort(GetSortBinaryOperation(arg0, arg1));
+}
+
+z3::expr ExprOpDiv::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                              const std::string& suffic) const {
+  ILA_ASSERT(expr_vec.size() == 2) << "Div is binary operation.";
+  ILA_ASSERT(is_bv()) << "Div can only be applied to bv.";
+  return expr_vec[0] / expr_vec[1];
+}
+
 // ------------------------- Class ExprOpMul ------------------------------- //
 ExprOpMul::ExprOpMul(const ExprPtr arg0, const ExprPtr arg1)
     : ExprOp(arg0, arg1) {
