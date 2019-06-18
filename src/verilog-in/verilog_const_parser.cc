@@ -28,7 +28,35 @@ double VerilogConstantExprEval::_eval(ast_expression* e) {
       }
       return pos->second;
     } // else
-    return StrToInt(ast_expression_tostring(e));
+    else if (e->primary->value_type == ast_primary_value_type::PRIMARY_NUMBER) {
+      char * resp = ast_expression_tostring(e);
+      double ret;
+      if (e->primary->value.number->representation == ast_number_representation_e::REP_BITS ||
+          e->primary->value.number->representation == ast_number_representation_e::REP_INTEGER) {
+        unsigned base = 
+          e->primary->value.number->base == ast_number_base_e::BASE_BINARY ? 2 :
+          e->primary->value.number->base == ast_number_base_e::BASE_OCTAL ? 8 :
+          e->primary->value.number->base == ast_number_base_e::BASE_DECIMAL ? 10 :
+          e->primary->value.number->base == ast_number_base_e::BASE_HEX ? 16 : 10;
+        ret = StrToInt(resp, base );
+      } else { // float
+        try{
+          ret = std::stod(resp);
+        } catch (const std::exception& e) {
+          error_str = resp; // id_name not found
+          eval_error = true;
+          return 0;
+        }
+      }
+      free(resp); 
+      // if it is number, it uses calloc inside, which requires us
+      // to explicitly free it
+      return ret;
+    } else { // parser error: unable to handle
+      error_str = ast_expression_tostring(e);
+      eval_error = true;
+      return 0;
+    }
   } else if (e->type == ast_expression_type::UNARY_EXPRESSION) {
     eval_error = true;
     error_str = ast_expression_tostring(e);
