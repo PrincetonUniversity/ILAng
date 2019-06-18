@@ -325,7 +325,7 @@ public:
                      const std::string& suffix = "") const;
 }; // class ExprOpZExtend
 
-/// \brief The calss wrapper for sign-extend.
+/// \brief The class wrapper for sign-extend.
 class ExprOpSExt : public ExprOp {
 public:
   /// Constructor for bitvector sign-extend.
@@ -334,6 +334,16 @@ public:
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                      const std::string& suffix = "") const;
 }; // class ExprOpSExt
+
+/// \brief The class wrapper for left-rotate.
+class ExprOpLRotate : public ExprOp {
+public:
+  /// Constructor for LRotate operation.
+  ExprOpLRotate(const ExprPtr bv, const int& immediate);
+  std::string op_name() const { return "LEFT_ROTATE"; }
+  z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                     const std::string& suffix = "") const;
+}; // class ExprOpLRotate
 
 /******************************************************************************/
 // Function usage

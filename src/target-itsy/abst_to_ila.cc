@@ -602,7 +602,7 @@ void SynthAbsConverter::CnvtNodeToExprBvOp(const ilasynth::Node* n) {
     expr = ExprFuse::Complement(expr_args.at(0));
     break;
   case ilasynth::BitvectorOp::Op::LROTATE:
-    ILA_ERROR << "LROTATE not implemented.";
+    expr = ExprFuse::LRotate(expr_args.at(0), op_ptr->param(0));
     break;
   case ilasynth::BitvectorOp::Op::RROTATE:
     ILA_ERROR << "RROTATE not implemented.";

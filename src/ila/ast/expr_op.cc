@@ -456,6 +456,23 @@ z3::expr ExprOpSExt::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
   return Z3SExt(ctx, bv, wid);
 }
 
+// ------------------------- Class ExprOpLRotate ---------------------------- //
+ExprOpLRotate::ExprOpLRotate(const ExprPtr bv, const int& immediate)
+    : ExprOp(bv, immediate) {
+  ILA_ASSERT(bv->is_bv()) << "Left-rotate can only be applied to bit-vector.";
+  ILA_ASSERT(immediate >= 0) << "Invalid number of times to rotate.";
+  set_sort(bv->sort());
+}
+
+z3::expr ExprOpLRotate::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec, 
+                                  const std::string& suffix) const {
+  ILA_ASSERT(expr_vec.size() == 1) << "Rotate takes 1 argument.";
+  ILA_ASSERT(param_num() == 1) << "Rotate takes 1 parameter.";
+  auto bv = expr_vec[0];
+  unsigned immediate = static_cast<unsigned>(param(0));
+  return bv.rotate_left(immediate);
+}
+
 // ------------------------- Class ExprOpAppFunc ---------------------------- //
 ExprOpAppFunc::ExprOpAppFunc(const FuncPtr _f, const ExprPtrVec& args)
     : ExprOp(args), f(_f) {

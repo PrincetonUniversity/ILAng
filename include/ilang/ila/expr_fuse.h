@@ -181,6 +181,8 @@ ExprPtr Extract(const ExprPtr bv, const int& hi, const int& lo);
 ExprPtr ZExt(const ExprPtr bv, const int& out_width);
 /// Sign extend the bitvector to the specified length.
 ExprPtr SExt(const ExprPtr bv, const int& out_width);
+/// Left rotate the bitvector to immediate number of times.
+ExprPtr LRotate(const ExprPtr bv, const int& immediate);
 
 /******************************************************************************/
 // Function usage

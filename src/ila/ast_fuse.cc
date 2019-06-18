@@ -88,6 +88,8 @@ AST_UID_EXPR_OP GetUidExprOp(const ExprPtr& expr) {
     return AST_UID_EXPR_OP::ZEXT;
   } else if (std::dynamic_pointer_cast<ExprOpSExt>(expr_op)) {
     return AST_UID_EXPR_OP::SEXT;
+  } else if (std::dynamic_pointer_cast<ExprOpLRotate>(expr_op)) {
+    return AST_UID_EXPR_OP::LROTATE;
   } else if (std::dynamic_pointer_cast<ExprOpAppFunc>(expr_op)) {
     return AST_UID_EXPR_OP::APP_FUNC;
   } else if (std::dynamic_pointer_cast<ExprOpImply>(expr_op)) {
