@@ -438,6 +438,11 @@ ExprRef LRotate(const ExprRef& bv, const int& immediate) {
   return ExprRef(v);
 }
 
+ExprRef RRotate(const ExprRef& bv, const int& immediate) {
+  auto v = ExprFuse::RRotate(bv.get(), immediate);
+  return ExprRef(v);
+}
+
 ExprRef Imply(const ExprRef& ante, const ExprRef& cons) {
   auto v = ExprFuse::Imply(ante.get(), cons.get());
   return ExprRef(v);

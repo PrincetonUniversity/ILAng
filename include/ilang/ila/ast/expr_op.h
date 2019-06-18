@@ -345,6 +345,16 @@ public:
                      const std::string& suffix = "") const;
 }; // class ExprOpLRotate
 
+/// \brief The class wrapper for right-rotate.
+class ExprOpRRotate : public ExprOp {
+public:
+  /// Constructor for LRotate operation.
+  ExprOpRRotate(const ExprPtr bv, const int& immediate);
+  std::string op_name() const { return "RIGHT_ROTATE"; }
+  z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                     const std::string& suffix = "") const;
+}; // class ExprOpRRotate
+
 /******************************************************************************/
 // Function usage
 /******************************************************************************/

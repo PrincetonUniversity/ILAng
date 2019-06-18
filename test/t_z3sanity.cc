@@ -124,6 +124,19 @@ TEST_F(TestZ3Expr, LRotate) {
   EXPECT_EQ(z3::unsat, s->check());
 }
 
+TEST_F(TestZ3Expr, RRotate) {
+  auto ast_b0 = ExprFuse::Extract(bv_var_x, 0, 0);
+  auto ast_b1 = ExprFuse::Extract(bv_var_x, 1, 1);
+  auto ast_cond = ExprFuse::Not(ExprFuse::Eq(ast_b0, ast_b1));
+
+  auto ast_rrotate = ExprFuse::RRotate(bv_var_x, 1);
+  auto ast_neq = ExprFuse::Not(ExprFuse::Eq(bv_var_x, ast_rrotate));
+  auto ast_target = ExprFuse::Ite(ast_cond, ast_neq, bool_true);
+  auto expr_target = gen->GetExpr(ast_target);
+  s->add(!expr_target);
+  EXPECT_EQ(z3::unsat, s->check());
+}
+
 TEST_F(TestZ3Expr, LoadStore) {
   auto ast_load = ExprFuse::Load(mem_var_x, bv_var_x);
   auto ast_store = ExprFuse::Store(mem_var_x, bv_var_x, ast_load);

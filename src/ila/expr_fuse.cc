@@ -346,6 +346,10 @@ ExprPtr ExprFuse::LRotate(const ExprPtr bv, const int& immediate) {
   return std::make_shared<ExprOpLRotate>(bv, immediate);
 }
 
+ExprPtr ExprFuse::RRotate(const ExprPtr bv, const int& immediate) {
+  return std::make_shared<ExprOpRRotate>(bv, immediate);
+}
+
 ExprPtr ExprFuse::AppFunc(const FuncPtr func) {
   return std::shared_ptr<ExprOpAppFunc>(new ExprOpAppFunc(func, {}));
 }

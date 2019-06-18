@@ -305,6 +305,10 @@ ExprRef SExt(const ExprRef& bv, const int& length);
 /// \param[in] bv source bit-vector
 /// \param[in] immediate number of times to rotate the bv
 ExprRef LRotate(const ExprRef& bv, const int& immediate);
+/// \brief Right-rotate the bit-vector with immediate number of times. 
+/// \param[in] bv source bit-vector
+/// \param[in] immediate number of times to rotate the bv
+ExprRef RRotate(const ExprRef& bv, const int& immediate);
 
 /******************************************************************************/
 // Others

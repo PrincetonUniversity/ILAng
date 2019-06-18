@@ -358,6 +358,9 @@ ExprPtr J2IDes::DesExprOp(const unsigned& ast_expr_op_uid,
   case AST_UID_EXPR_OP::LROTATE: {
     return ExprFuse::LRotate(args.at(0), params.at(0));
   }
+  case AST_UID_EXPR_OP::RROTATE: {
+    return ExprFuse::RRotate(args.at(0), params.at(0));
+  }
   case AST_UID_EXPR_OP::IMPLY: {
     return ExprFuse::Imply(args.at(0), args.at(1));
   }

@@ -183,6 +183,8 @@ ExprPtr ZExt(const ExprPtr bv, const int& out_width);
 ExprPtr SExt(const ExprPtr bv, const int& out_width);
 /// Left rotate the bitvector to immediate number of times.
 ExprPtr LRotate(const ExprPtr bv, const int& immediate);
+/// Right rotate the bitvector to immediate number of times.
+ExprPtr RRotate(const ExprPtr bv, const int& immediate);
 
 /******************************************************************************/
 // Function usage

@@ -223,6 +223,7 @@ TEST(TestApi, ExprOps) {
   auto n_sext_static = SExt(n_extract_single_bv, REG_SIZE);
   auto n_concat_bv = Concat(n_append_bv, n_extract_bv);
   auto n_lrotate_bv = LRotate(n_concat_bv, REG_SIZE);
+  auto n_rrotate_bv = RRotate(n_concat_bv, REG_SIZE);
 
   auto n_imply_bool = Imply(n_ne_bool, n_xor_bool);
   auto n_ite_bool = Ite(n_imply_bool, n_ne_bool, n_xor_bool);
