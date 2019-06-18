@@ -48,7 +48,9 @@ enum AST_UID_EXPR_OP {
   ITE,
   DIV,
   LROTATE,
-  RROTATE
+  RROTATE,
+  SREM,
+  UREM
 };
 
 /******************************************************************************/

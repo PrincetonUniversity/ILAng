@@ -197,6 +197,10 @@ ExprRef operator+(const ExprRef& a, const int& b);
 ExprRef operator-(const ExprRef& a, const int& b);
 /// Unsigned multiply with int constant.
 ExprRef operator*(const ExprRef& a, const int& b);
+/// Arithmetic signed remainder.
+ExprRef SRem(const ExprRef& a, const ExprRef& b);
+/// Arithmetic unsigned remainder.
+ExprRef URem(const ExprRef& a, const ExprRef& b);
 
 /******************************************************************************/
 // Binary comparison

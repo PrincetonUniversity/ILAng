@@ -654,11 +654,10 @@ void SynthAbsConverter::CnvtNodeToExprBvOp(const ilasynth::Node* n) {
     expr = ExprFuse::Div(expr_args.at(0), expr_args.at(1));
     break;
   case ilasynth::BitvectorOp::Op::SREM:
-    ILA_ERROR << "SREM not implemented.";
+    expr = ExprFuse::SRem(expr_args.at(0), expr_args.at(1));
     break;
   case ilasynth::BitvectorOp::Op::UREM:
-    ILA_ERROR << "UREM not implemented.";
-    // expr = ExprFuse::Rem(expr_args.at(0), expr_args.at(1));
+    expr = ExprFuse::URem(expr_args.at(0), expr_args.at(1));
     break;
   case ilasynth::BitvectorOp::Op::SMOD:
     ILA_ERROR << "SMOD not implemented.";

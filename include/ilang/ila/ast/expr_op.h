@@ -189,7 +189,25 @@ public:
                      const std::string& suffix = "") const;
 }; // class ExprOpDiv
 
-// TODO ExprOpRem
+// \brief The wrapper for signed remainder
+class ExprOpSRem : public ExprOp {
+public:
+  /// Constructor for SREM operation.
+  ExprOpSRem(const ExprPtr arg0, const ExprPtr arg1);
+  std::string op_name() const { return "SREM"; }
+  z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                     const std::string& suffix = "") const;
+}; // class ExprOpSRem
+
+// \brief The wrapper for unsigned remainder
+class ExprOpURem : public ExprOp {
+public:
+  /// Constructor for UREM operation.
+  ExprOpURem(const ExprPtr arg0, const ExprPtr arg1);
+  std::string op_name() const { return "UREM"; }
+  z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                     const std::string& suffix = "") const;
+}; // class ExprOpURem
 
 // TODO ExprOpMod
 

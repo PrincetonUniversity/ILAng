@@ -184,6 +184,16 @@ ExprRef operator/(const ExprRef& a, const ExprRef& b) {
   return ExprRef(v);
 }
 
+ExprRef SRem(const ExprRef& a, const ExprRef& b) {
+  auto v = ExprFuse::SRem(a.get(), b.get());
+  return ExprRef(v);
+}
+
+ExprRef URem(const ExprRef& a, const ExprRef& b) {
+  auto v = ExprFuse::URem(a.get(), b.get());
+  return ExprRef(v);
+}
+
 ExprRef operator*(const ExprRef& a, const ExprRef& b) {
   auto v = ExprFuse::Mul(a.get(), b.get());
   return ExprRef(v);

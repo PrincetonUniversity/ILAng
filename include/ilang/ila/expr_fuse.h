@@ -77,6 +77,10 @@ ExprPtr Add(const ExprPtr l, const ExprPtr r);
 ExprPtr Sub(const ExprPtr l, const ExprPtr r);
 /// Arithmetic unsigned division (bv only)
 ExprPtr Div(const ExprPtr l, const ExprPtr r);
+/// Arithmetic signed remainder (bv only)
+ExprPtr SRem(const ExprPtr l, const ExprPtr r);
+/// Arithmetic unsigned remainder (bv only)
+ExprPtr URem(const ExprPtr l, const ExprPtr r);
 /// Arithmetic unsigned remainder (bv only)
 ExprPtr Rem(const ExprPtr l, const ExprPtr r);
 /// Arithmetic unsigned modular (bv only)
