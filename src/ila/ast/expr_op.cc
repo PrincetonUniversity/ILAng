@@ -439,7 +439,7 @@ z3::expr ExprOpSExt::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
   ILA_ASSERT(expr_vec.size() == 1) << "Extend take 1 argument.";
   ILA_ASSERT(param_num() == 1) << "Extend need one parameter.";
   auto bv = expr_vec[0];
-  unsigned wid = static_cast<unsigned>(param(0));
+  auto org_wid = arg(0)->sort()->bit_width(); 
   return Z3SExt(ctx, bv, wid);
 }
 
