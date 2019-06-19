@@ -209,7 +209,17 @@ public:
                      const std::string& suffix = "") const;
 }; // class ExprOpURem
 
-// TODO ExprOpMod
+// \brief The wrapper for signed remainder
+class ExprOpSMod : public ExprOp {
+public:
+  /// Constructor for SREM operation.
+  ExprOpSMod(const ExprPtr arg0, const ExprPtr arg1);
+  std::string op_name() const { return "SMOD"; }
+  z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                     const std::string& suffix = "") const;
+}; // class ExprOpSMod
+
+// TODO ExprOpUMod
 
 /// \brief The wrapper for unsigned multiplication.
 class ExprOpMul : public ExprOp {

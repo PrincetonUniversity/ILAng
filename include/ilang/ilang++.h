@@ -201,6 +201,8 @@ ExprRef operator*(const ExprRef& a, const int& b);
 ExprRef SRem(const ExprRef& a, const ExprRef& b);
 /// Arithmetic unsigned remainder.
 ExprRef URem(const ExprRef& a, const ExprRef& b);
+/// Arithmetic signed modular.
+ExprRef SMod(const ExprRef& a, const ExprRef& b);
 
 /******************************************************************************/
 // Binary comparison

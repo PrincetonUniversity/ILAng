@@ -660,7 +660,7 @@ void SynthAbsConverter::CnvtNodeToExprBvOp(const ilasynth::Node* n) {
     expr = ExprFuse::URem(expr_args.at(0), expr_args.at(1));
     break;
   case ilasynth::BitvectorOp::Op::SMOD:
-    ILA_ERROR << "SMOD not implemented.";
+    expr = ExprFuse::SMod(expr_args.at(0), expr_args.at(1));
     break;
   case ilasynth::BitvectorOp::Op::SHL:
     expr = ExprFuse::Shl(expr_args.at(0), expr_args.at(1));

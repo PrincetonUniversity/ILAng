@@ -81,8 +81,8 @@ ExprPtr Div(const ExprPtr l, const ExprPtr r);
 ExprPtr SRem(const ExprPtr l, const ExprPtr r);
 /// Arithmetic unsigned remainder (bv only)
 ExprPtr URem(const ExprPtr l, const ExprPtr r);
-/// Arithmetic unsigned remainder (bv only)
-ExprPtr Rem(const ExprPtr l, const ExprPtr r);
+/// Arithmetic signed modular (bv only)
+ExprPtr SMod(const ExprPtr l, const ExprPtr r);
 /// Arithmetic unsigned modular (bv only)
 ExprPtr Mod(const ExprPtr l, const ExprPtr r);
 /// Arithmetic unsigned multiply (bv only)

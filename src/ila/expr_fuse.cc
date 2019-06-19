@@ -133,6 +133,10 @@ ExprPtr ExprFuse::URem(const ExprPtr l, const ExprPtr r) {
   return std::make_shared<ExprOpURem>(l, r);
 }
 
+ExprPtr ExprFuse::SMod(const ExprPtr l, const ExprPtr r) {
+  return std::make_shared<ExprOpSMod>(l, r);
+}
+
 ExprPtr ExprFuse::Mul(const ExprPtr l, const ExprPtr r) {
   return std::make_shared<ExprOpMul>(l, r);
 }

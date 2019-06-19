@@ -139,6 +139,7 @@ TEST(TestApi, ExprOps) {
   auto n_mul_bv = n_sub_bv_c * n_add_bv_c;
   auto n_srem_bv = SRem(n_div_bv, n_mul_bv);
   auto n_urem_bv = URem(n_div_bv, n_mul_bv);
+  auto n_smod_bv = SMod(n_div_bv, n_mul_bv);
 
   auto n_eq_bv = n_add_bv == n_sub_bv;
   auto n_eq_bool = n_xor_bool == n_eq_bv;

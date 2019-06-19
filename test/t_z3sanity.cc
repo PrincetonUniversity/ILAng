@@ -111,6 +111,20 @@ TEST_F(TestZ3Expr, Div) {
   EXPECT_EQ(z3::unsat, s->check());
 }
 
+TEST_F(TestZ3Expr, SRem) {
+  auto ast_urem = ExprFuse::URem(bv_var_x, bv_var_y);
+  auto ast_urem_eq_1 = ExprFuse::Eq(ast_urem, 1);
+  auto ast_y_plus_1 = ExprFuse::Add(bv_var_y, bv_const_1);
+  auto ast_x_eq_y_plus_1 = ExprFuse::Eq(bv_var_x, ast_y_plus_1);
+  auto ast_y_gt_1 = ExprFuse::Gt(bv_var_y, 1);
+  auto ast_x_gt_0 = ExprFuse::Gt(bv_var_x, 0);
+  auto ast_cond = ExprFuse::And(ExprFuse::And(ast_y_gt_1, ast_x_eq_y_plus_1), ast_x_gt_0);
+  auto ast_target = ExprFuse::Ite(ast_cond, ast_urem_eq_1, bool_true);
+  auto expr_target = gen->GetExpr(ast_target);
+  s->add(!expr_target);
+  EXPECT_EQ(z3::unsat, s->check());
+}
+
 TEST_F(TestZ3Expr, URem) {
   auto ast_urem = ExprFuse::URem(bv_var_x, bv_var_y);
   auto ast_urem_eq_1 = ExprFuse::Eq(ast_urem, 1);
@@ -119,6 +133,19 @@ TEST_F(TestZ3Expr, URem) {
   auto ast_y_gt_1 = ExprFuse::Gt(bv_var_y, 1);
   auto ast_cond = ExprFuse::And(ast_y_gt_1, ast_x_eq_y_plus_1);
   auto ast_target = ExprFuse::Ite(ast_cond, ast_urem_eq_1, bool_true);
+  auto expr_target = gen->GetExpr(ast_target);
+  s->add(!expr_target);
+  EXPECT_EQ(z3::unsat, s->check());
+}
+
+TEST_F(TestZ3Expr, SMod) {
+  auto ast_smod = ExprFuse::SMod(bv_var_x, bv_var_y);
+  auto ast_smod_gt_0 = ExprFuse::Gt(ast_smod, 0);
+  auto ast_y_gt_1 = ExprFuse::Gt(bv_var_y, 1);
+  auto ast_y_plus_1 = ExprFuse::Add(bv_var_y, bv_const_1);
+  auto ast_x_eq_y_plus_1 = ExprFuse::Eq(bv_var_x, ast_y_plus_1);
+  auto ast_cond = ExprFuse::And(ast_y_gt_1, ast_x_eq_y_plus_1);
+  auto ast_target = ExprFuse::Ite(ast_cond, ast_smod_gt_0, bool_true);
   auto expr_target = gen->GetExpr(ast_target);
   s->add(!expr_target);
   EXPECT_EQ(z3::unsat, s->check());
