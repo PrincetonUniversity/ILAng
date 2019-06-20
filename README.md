@@ -26,6 +26,8 @@
 
 -   [License](#license)
 
+-   [Contributing](#contributing)
+
 ## Build
 
 ### Prerequisites
@@ -53,7 +55,7 @@ brew install bison flex boost boost-python z3
 | Ubuntu 14.04 (Trusty)     | gcc 4.8.4   | 3.8.0  | 4.7.1  | 1.54  | [![Build Status](https://semaphoreci.com/api/v1/bo-yuan-huang/ilang/branches/master/shields_badge.svg)](https://semaphoreci.com/bo-yuan-huang/ilang)                      |
 | Ubuntu 16.04 (Xenial)     | gcc 5.4.0   | 3.12.4 | 4.4.1  | 1.58  | [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILAng.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILAng)                                                 |
 | Ubuntu 16.04 (Xenial)     | clang 7.0.0 | 3.12.4 | 4.4.1  | 1.58  | [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILAng.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILAng)                                                 |
-| Ubuntu 18.04 (Bionic)     | gcc 7.3.0   | 3.13.1 | latest | 1.65  | [![Build status](https://ci.appveyor.com/api/projects/status/cwhlq09513art6hw/branch/master?svg=true)](https://ci.appveyor.com/project/Bo-Yuan-Huang/ilang/branch/master) |
+| Ubuntu 18.04 (Bionic)     | gcc 7.4.0   | 3.14.4 | latest | 1.65  | [![Build status](https://ci.appveyor.com/api/projects/status/cwhlq09513art6hw/branch/master?svg=true)](https://ci.appveyor.com/project/Bo-Yuan-Huang/ilang/branch/master) |
 | OSX 10.13.0 (High Sierra) | Xcode 9.4.1 | 3.11.4 | 4.8.4  | 1.69  | [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILAng.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILAng)                                                 |
 
 ### Default Build
@@ -63,7 +65,7 @@ To build ILAng with default configuration, create a build directory and execute:
 ```bash
 mkdir -p build && cd build
 cmake .. 
-make -j$(nproc)
+make
 ```
 
 After the build complete, run unit tests and install the library. 
@@ -103,9 +105,9 @@ To use the ILAng library from a CMake project, you can locate it directly with `
 ```cmake
 # CMakeLists.txt
 find_package(ilang REQUIRED)
-...
+
 add_library(my_proj ...)
-...
+
 target_link_libraries(my_proj PRIVATE ilang::ilang)
 ```
 
@@ -117,9 +119,9 @@ To embed the library directly into an existing CMake project, place the entire s
 ```cmake
 # CMakeLists.txt
 add_subdirectory(ilang)
-...
+
 add_library(my_proj ...)
-...
+
 target_link_libraries(my_proj PRIVATE ilang::ilang)
 ```
 
@@ -130,25 +132,24 @@ To allow your project to support either an externally installed or an embedded l
 ```cmake
 # Top level CMakeLists.txt
 project(MY_PROJ)
-...
+
 option(MY_PROJ_USE_EXTERNAL_ILANG "Use an external ILAng library" OFF)
-...
+
 add_subdirectory(externals)
-...
+
 add_library(my_proj ...)
-...
+
 target_link_libraries(my_proj PRIVATE ilang::ilang)
 ```
 
 ```cmake
 # externals/CMakeLists.txt
-...
+
 if(MY_PROJ_USE_EXTERNAL_ILANG)
   find_package(ilang REQUIRED)
 else()
   add_subdirectory(ilang)
 endif()
-...
 ```
 
 `externals/ilang` is then a complete copy of this source tree, if enabled.
@@ -213,3 +214,7 @@ Copyright (c) 2013-2019 Niels Lohmann.
 
 ILAng uses the [Verilog parser](https://github.com/ben-marshall/verilog-parser), which is licensed under the [MIT License](https://github.com/ben-marshall/verilog-parser/blob/master/LICENSE.txt).
 Copyright (c) 2016 Ben Marshall.
+
+## Contributing
+
+Please refer to [CONTRIBUTING](docs/CONTRIBUTING.md) for further details. 
