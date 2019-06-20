@@ -628,6 +628,8 @@ VerilogGenerator::translateBvOp(const std::shared_ptr<ExprOp>& e) {
       result_stmt = vlg_stmt_t(" ( ") + arg1 + " ) + ( " + arg2 + " ) ";
     else if (op_name == "SUB")
       result_stmt = vlg_stmt_t(" ( ") + arg1 + " ) - ( " + arg2 + " ) ";
+    else if (op_name == "MUL")
+      result_stmt = vlg_stmt_t(" ( ") + arg1 + " ) * ( " + arg2 + " ) ";
     else if (op_name == "CONCAT")
       result_stmt = vlg_stmt_t(" { ( ") + arg1 + " ) , ( " + arg2 + " ) } ";
     else if (op_name == "LOAD") {
@@ -667,10 +669,10 @@ VerilogGenerator::translateBvOp(const std::shared_ptr<ExprOp>& e) {
 
         ILA_DLOG("VerilogGen.translateBvOp") << "Not found.";
       }
-    } // else if(op_name == "LOAD")
+    } // end of else if(op_name == "LOAD")
     else
       ILA_ASSERT(false) << op_name << " is not supported by VerilogGenerator";
-  } // else if(arg_num == 2)
+  } // end of else if(arg_num == 2)
   else if (arg_num == 3) {
     vlg_name_t arg1 = getArg(e, 0);
     vlg_name_t arg2 = getArg(e, 1);

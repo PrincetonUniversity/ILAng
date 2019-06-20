@@ -278,6 +278,7 @@ TEST_F(TestVerilogExport, OPs) {
     i1->set_update(y,
 
                    ExprFuse::Imply(ExprFuse::Xor(x, y), z));
+    i1->set_update(bv_z, ExprFuse::Mul(bv_x, bv_y));
 
     auto vgen = VerilogGenerator();
     vgen.ExportTopLevelInstr(i1);
