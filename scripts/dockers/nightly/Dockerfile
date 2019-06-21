@@ -28,7 +28,7 @@ RUN apt update && DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-
     python3=3.6.7-1~18.04 \
     python3-pip=9.0.1-2.3~ubuntu1.18.04.1 \
     tcl-dev=8.6.0+9 \
-    vim=2:8.0.1453-1ubuntu1 \
+    vim=2:8.0.1453-1ubuntu1.1 \
     wget=1.19.4-1ubuntu2.2 \
     xdot=0.9-1 \
     && rm -rf /var/lib/apt/lists/*
@@ -125,7 +125,7 @@ RUN apt update && DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-
     python3=3.6.7-1~18.04 \
     python3-pip=9.0.1-2.3~ubuntu1.18.04.1 \
     tcl-dev=8.6.0+9 \
-    vim=2:8.0.1453-1ubuntu1 \
+    vim=2:8.0.1453-1ubuntu1.1 \
     wget=1.19.4-1ubuntu2.2 \
     && rm -rf /var/lib/apt/lists/*
 
