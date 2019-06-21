@@ -26,9 +26,9 @@ RUN apt update && DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-
     libmpc-dev=1.1.0-1 \
     pkg-config=0.29.1-0ubuntu2 \
     python3=3.6.7-1~18.04 \
-    python3-pip=9.0.1-2.3~ubuntu1 \
+    python3-pip=9.0.1-2.3~ubuntu1.18.04.1 \
     tcl-dev=8.6.0+9 \
-    vim=2:8.0.1453-1ubuntu1 \
+    vim=2:8.0.1453-1ubuntu1.1 \
     wget=1.19.4-1ubuntu2.2 \
     xdot=0.9-1 \
     && rm -rf /var/lib/apt/lists/*
@@ -128,13 +128,13 @@ RUN apt update && DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-
     bison=2:3.0.4.dfsg-1build1 \
     flex=2.6.4-6 \
     libgmp-dev=2:6.1.2+dfsg-2 \
-    libgomp1=8.3.0-6ubuntu1~18.04 \
+    libgomp1=8.3.0-6ubuntu1~18.04.1 \
     libmpfr-dev=4.0.1-1 \
     libmpc-dev=1.1.0-1 \
     python3=3.6.7-1~18.04 \
-    python3-pip=9.0.1-2.3~ubuntu1 \
+    python3-pip=9.0.1-2.3~ubuntu1.18.04.1 \
     tcl-dev=8.6.0+9 \
-    vim=2:8.0.1453-1ubuntu1 \
+    vim=2:8.0.1453-1ubuntu1.1 \
     wget=1.19.4-1ubuntu2.2 \
     && rm -rf /var/lib/apt/lists/*
 
