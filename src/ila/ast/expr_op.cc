@@ -286,7 +286,7 @@ z3::expr ExprOpSRem::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                                const std::string& suffic) const {
   ILA_ASSERT(expr_vec.size() == 2) << "SRem is binary operation.";
   ILA_ASSERT(is_bv()) << "SRem can only be applied to bv.";
-  return z3::srem(expr_vec[0], expr_vec[1]);
+  return Z3SRem(ctx, expr_vec[0], expr_vec[1]);
 }
 
 // ------------------------- Class ExprOpURem ------------------------------- //
@@ -299,7 +299,7 @@ z3::expr ExprOpURem::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                                const std::string& suffic) const {
   ILA_ASSERT(expr_vec.size() == 2) << "URem is binary operation.";
   ILA_ASSERT(is_bv()) << "URem can only be applied to bv.";
-  return z3::urem(expr_vec[0], expr_vec[1]);
+  return Z3URem(ctx, expr_vec[0], expr_vec[1]);
 }
 
 // ------------------------- Class ExprOpSMod ------------------------------- //
@@ -312,7 +312,7 @@ z3::expr ExprOpSMod::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                                const std::string& suffic) const {
   ILA_ASSERT(expr_vec.size() == 2) << "SMod is binary operation.";
   ILA_ASSERT(is_bv()) << "SMod can only be applied to bv.";
-  return z3::smod(expr_vec[0], expr_vec[1]);
+  return Z3SMod(ctx, expr_vec[0], expr_vec[1]);
 }
 
 // ------------------------- Class ExprOpMul ------------------------------- //
@@ -510,7 +510,7 @@ z3::expr ExprOpLRotate::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
   ILA_ASSERT(param_num() == 1) << "Rotate takes 1 parameter.";
   auto bv = expr_vec[0];
   unsigned immediate = static_cast<unsigned>(param(0));
-  return bv.rotate_left(immediate);
+  return Z3LRotate(ctx, bv, immediate);
 }
 
 // ------------------------- Class ExprOpRRotate ---------------------------- //
@@ -527,7 +527,7 @@ z3::expr ExprOpRRotate::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
   ILA_ASSERT(param_num() == 1) << "Rotate takes 1 parameter.";
   auto bv = expr_vec[0];
   unsigned immediate = static_cast<unsigned>(param(0));
-  return bv.rotate_right(immediate);
+  return Z3RRotate(ctx, bv, immediate);
 }
 
 // ------------------------- Class ExprOpAppFunc ---------------------------- //
