@@ -34,26 +34,8 @@ WORKDIR $ITSY_DIR
 RUN bjam -j"$(nproc)"
 RUN cp build/ila.so $BUILD_PREF/lib
 
-#
-# Deployment
-# 
-FROM byhuang/ilang:cosabase
-
-# var
-ENV VIRT_ENV ilang-env
-ENV BUILD_ROOT /ibuild
-ENV BUILD_PREF $BUILD_ROOT/$VIRT_ENV
-
-RUN apt update && DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends \
-  libz3-dev \
-  z3 \
-  && rm -rf /var/lib/apt/lists/*
-
+# deploy
 WORKDIR /root/workspace
-
-# configure
-COPY --from=builder $BUILD_PREF $BUILD_PREF
-COPY --from=builder $BUILD_ROOT/ILAng/boilerplate/ ./simple/
 
 # done
 CMD echo "run 'source init.sh' to start" && /bin/bash
