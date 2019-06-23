@@ -189,7 +189,7 @@ public:
                      const std::string& suffix = "") const;
 }; // class ExprOpDiv
 
-// \brief The wrapper for signed remainder
+/// \brief The wrapper for signed remainder
 class ExprOpSRem : public ExprOp {
 public:
   /// Constructor for SREM operation.
@@ -199,7 +199,7 @@ public:
                      const std::string& suffix = "") const;
 }; // class ExprOpSRem
 
-// \brief The wrapper for unsigned remainder
+/// \brief The wrapper for unsigned remainder
 class ExprOpURem : public ExprOp {
 public:
   /// Constructor for UREM operation.
@@ -209,7 +209,7 @@ public:
                      const std::string& suffix = "") const;
 }; // class ExprOpURem
 
-// \brief The wrapper for signed remainder
+/// \brief The wrapper for signed remainder
 class ExprOpSMod : public ExprOp {
 public:
   /// Constructor for SREM operation.
