@@ -62,6 +62,12 @@ AST_UID_EXPR_OP GetUidExprOp(const ExprPtr& expr) {
     return AST_UID_EXPR_OP::ADD;
   } else if (std::dynamic_pointer_cast<ExprOpSub>(expr_op)) {
     return AST_UID_EXPR_OP::SUB;
+  } else if (std::dynamic_pointer_cast<ExprOpDiv>(expr_op)) {
+    return AST_UID_EXPR_OP::DIV;
+  } else if (std::dynamic_pointer_cast<ExprOpSRem>(expr_op)) {
+    return AST_UID_EXPR_OP::SREM;
+  } else if (std::dynamic_pointer_cast<ExprOpURem>(expr_op)) {
+    return AST_UID_EXPR_OP::UREM; 
   } else if (std::dynamic_pointer_cast<ExprOpMul>(expr_op)) {
     return AST_UID_EXPR_OP::MUL;
   } else if (std::dynamic_pointer_cast<ExprOpEq>(expr_op)) {
@@ -86,6 +92,10 @@ AST_UID_EXPR_OP GetUidExprOp(const ExprPtr& expr) {
     return AST_UID_EXPR_OP::ZEXT;
   } else if (std::dynamic_pointer_cast<ExprOpSExt>(expr_op)) {
     return AST_UID_EXPR_OP::SEXT;
+  } else if (std::dynamic_pointer_cast<ExprOpLRotate>(expr_op)) {
+    return AST_UID_EXPR_OP::LROTATE;
+  } else if (std::dynamic_pointer_cast<ExprOpRRotate>(expr_op)) {
+    return AST_UID_EXPR_OP::RROTATE; 
   } else if (std::dynamic_pointer_cast<ExprOpAppFunc>(expr_op)) {
     return AST_UID_EXPR_OP::APP_FUNC;
   } else if (std::dynamic_pointer_cast<ExprOpImply>(expr_op)) {
