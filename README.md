@@ -91,6 +91,7 @@ To use the ILAng library, `ilang++.h` is the file to include.
 
 ```c++
 // cxx source
+
 #include <ilang/ilang++.h>
 
 void foo () {
@@ -104,6 +105,7 @@ To use the ILAng library from a CMake project, you can locate it directly with `
 
 ```cmake
 # CMakeLists.txt
+
 find_package(ilang REQUIRED)
 
 add_library(my_proj ...)
@@ -118,6 +120,7 @@ To embed the library directly into an existing CMake project, place the entire s
 
 ```cmake
 # CMakeLists.txt
+
 add_subdirectory(ilang)
 
 add_library(my_proj ...)
@@ -131,6 +134,7 @@ To allow your project to support either an externally installed or an embedded l
 
 ```cmake
 # Top level CMakeLists.txt
+
 project(MY_PROJ)
 
 option(MY_PROJ_USE_EXTERNAL_ILANG "Use an external ILAng library" OFF)
@@ -214,6 +218,9 @@ Copyright (c) 2013-2019 Niels Lohmann.
 
 ILAng uses the [Verilog parser](https://github.com/ben-marshall/verilog-parser), which is licensed under the [MIT License](https://github.com/ben-marshall/verilog-parser/blob/master/LICENSE.txt).
 Copyright (c) 2016 Ben Marshall.
+
+ILAng uses [ItSy](https://github.com/PrincetonUniversity/ItSy), which is licensed under the [MIT License](https://github.com/PrincetonUniversity/ItSy/blob/master/LICENSE).
+Copyright (c) 2016 Princeton University ILA Team.
 
 ## Contributing
 
