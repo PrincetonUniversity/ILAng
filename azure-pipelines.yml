@@ -24,6 +24,13 @@ pool:
 
 steps:
 - script: |
+    apt-get update
+    apt-get install bison
+    apt-get install flex
+    apt-get install z3
+    apt-get install libz3-dev
+  displayName: 'package'
+- script: |
     mkdir -p build && cd build
     cmake ..
     make
