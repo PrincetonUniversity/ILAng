@@ -51,7 +51,7 @@ void IlaSim::init_decl(stringstream& init_function, string& indent,
                          string& init_func_name) {
   if (!qemu_device_)
     init_function << "#include \"systemc.h\"" << endl;
-  init_function << "#include \"test.h\"" << endl;
+  init_function << "#include \"" << model_ptr_->name() << ".h\"" << endl;
 
   init_function << indent << "void " << model_ptr_->name()
                  << "::" << init_func_name << "() {" << endl;
@@ -94,7 +94,7 @@ void IlaSim::init_export(stringstream& init_function,
 
 void IlaSim::init_mk_file(string& init_func_name) {
   if (qemu_device_)
-    mk_script_ << "g++ -c -o " << init_func_name << ".o " << init_func_name << ".cc" << endl;
+    mk_script_ << "g++ -I./ -c -o " << init_func_name << ".o " << init_func_name << ".cc" << endl;
   else 
     mk_script_ << "g++ -I. -I " << systemc_path_ << "/include/ "
                << "-L. -L " << systemc_path_ << "/lib-linux64/ "

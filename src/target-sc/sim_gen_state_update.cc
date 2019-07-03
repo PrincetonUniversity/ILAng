@@ -98,7 +98,7 @@ void IlaSim::state_update_export(stringstream& state_update_function,
 
 void IlaSim::state_update_mk_file(string& state_update_func_name) {
   if (qemu_device_)
-    mk_script_ << "g++ -c -o " << state_update_func_name << ".o "
+    mk_script_ << "g++ -I./ -c -o " << state_update_func_name << ".o "
 	       << state_update_func_name << ".cc" << endl;
   else
     mk_script_ << "g++ -I. -I " << systemc_path_ << "/include/ "
@@ -117,7 +117,7 @@ void IlaSim::state_update_decl(stringstream& state_update_function,
   searched_id_set_.clear();
   if (!qemu_device_)
     state_update_function << indent << "#include \"systemc.h\"" << endl;
-  state_update_function << indent << "#include \"test.h\"" << endl;
+  state_update_function << indent << "#include \"" << model_ptr_->name() << ".h\"" << endl;
   if (updated_state->is_mem()) {
     auto MemStateUpdateDecl = [this, &state_update_function,
                                &indent](const ExprPtr& e) {
