@@ -36,7 +36,7 @@ void IlaSim::decode_decl(stringstream& decode_function, string& indent,
                          string& decode_func_name) {
   if (!qemu_device_)
     decode_function << "#include \"systemc.h\"" << endl;
-  decode_function << "#include \"test.h\"" << endl;
+  decode_function << "#include \"" << model_ptr_->name() << ".h\"" << endl;
 
   decode_function << indent << "bool " << model_ptr_->name()
                   << "::" << decode_func_name << "() {" << endl;
@@ -92,7 +92,7 @@ void IlaSim::decode_export(stringstream& decode_function,
 
 void IlaSim::decode_mk_file(string& decode_func_name) {
   if (qemu_device_)
-    mk_script_ << "g++ -c -o " << decode_func_name << ".o " << decode_func_name << ".cc" << endl;
+    mk_script_ << "g++ -I./ -c -o " << decode_func_name << ".o " << decode_func_name << ".cc" << endl;
   else 
     mk_script_ << "g++ -I. -I " << systemc_path_ << "/include/ "
                << "-L. -L " << systemc_path_ << "/lib-linux64/ "

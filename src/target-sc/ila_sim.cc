@@ -73,6 +73,7 @@ void IlaSim::sim_gen_init_header() {
   header_ << header_indent_ << "#include <map>" << endl;
   header_ << header_indent_ << "class " << model_ptr_->name() << " {"
           << std::endl;
+  header_ << "public:" << std::endl;
   increase_indent(header_indent_); 
   }
 }
@@ -156,7 +157,7 @@ void IlaSim::sim_gen_execute_kernel() {
   string indent = "";
   if (!qemu_device_)
     execute_kernel << indent << "#include \"systemc.h\"" << endl;
-  execute_kernel << indent << "#include \"test.h\"" << endl;
+  execute_kernel << indent << "#include \"" << model_ptr_->name() << ".h\"" << endl;
   execute_kernel << indent << "void " << model_ptr_->name() << "::compute() {"
                  << endl;
   increase_indent(indent);
@@ -207,7 +208,7 @@ void IlaSim::sim_gen_execute_invoke() {
 
 void IlaSim::sim_gen_export() {
   ofstream outFile;
-  outFile.open(export_dir_ + "test.h");
+  outFile.open(export_dir_ + model_ptr_->name().str() + ".h");
   outFile << header_.rdbuf();
   outFile.close();
   if (!qemu_device_) {
