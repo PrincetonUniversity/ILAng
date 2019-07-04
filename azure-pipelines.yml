@@ -9,30 +9,41 @@ trigger:
 pr:
 - master
 
-strategy:
-  matrix:
-    linux:
-      imageName: "ubuntu-16.04"
-    mac:
-      imageName: "macos-10.13"
-    windows:
-      imageName: "vs2017-win2016"
-  maxParallel: 3
+i# File: azure-pipelines.yml
 
-pool:
-  vmImage: $(imageName)
+jobs:
+- job: macOS
+  pool:
+    vmImage: 'macOS-10.13'
+  steps:
+  - script: |
+      sudo brew update
+      sudo brew install bison
+      sudo brew install flex
+      sudo brew install boost
+      sudo brew install boost-python
+      sudo brew install z3
+      export PATH="/usr/local/opt/bison/bin:$PATH"
+      export LDFLAGS="-L/usr/local/opt/bison/lib"
+  - template: scripts/build.yml # Template reference
 
-steps:
-- script: |
-    sudo apt-get update
-    sudo apt-get install bison
-    sudo apt-get install flex
-    sudo apt-get install z3
-    sudo apt-get install libz3-dev
-  displayName: 'package'
-- script: |
-    mkdir -p build && cd build
-    cmake ..
-    make
-    make test
-  displayName: 'make'
+- job: Linux
+  pool:
+    vmImage: 'ubuntu-16.04'
+  steps:
+  - script: |
+      sudo apt-get update
+      sudo apt-get install bison
+      sudo apt-get install flex
+      sudo apt-get install libboost-all-dev
+      sudo apt-get install z3
+      sudo apt-get install libz3-dev
+    displayName: 'package'
+  - template: scripts/build.yml # Template reference
+
+- job: Windows
+  pool:
+    vmImage: 'vs2017-win2016'
+  steps:
+  - template: scripts/build.yml # Template reference
+
