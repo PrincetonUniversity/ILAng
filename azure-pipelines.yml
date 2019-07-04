@@ -17,12 +17,12 @@ jobs:
     vmImage: 'macOS-10.13'
   steps:
   - script: |
-      sudo brew update
-      sudo brew install bison
-      sudo brew install flex
-      sudo brew install boost
-      sudo brew install boost-python
-      sudo brew install z3
+      brew update
+      brew install bison
+      brew install flex
+      brew install boost
+      brew install boost-python
+      brew install z3
     displayName: 'package'
   - script: |
       export PATH="/usr/local/opt/bison/bin:$PATH"
@@ -52,6 +52,10 @@ jobs:
   pool:
     vmImage: 'vs2017-win2016'
   steps:
-  - script: choco install winflexbison3
+  - script: |
+      choco install winflexbison3
+      choco install python2
+      choco install boost-msvc-12
+    displayName: 'package'
   - template: scripts/build.yml # Template reference
 
