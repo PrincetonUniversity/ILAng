@@ -24,7 +24,7 @@ jobs:
       sudo brew install boost-python
       sudo brew install z3
     displayName: 'package'
-  - scripts: |
+  - script: |
       export PATH="/usr/local/opt/bison/bin:$PATH"
       export LDFLAGS="-L/usr/local/opt/bison/lib"
       mkdir -p build && cd build
@@ -52,6 +52,6 @@ jobs:
   pool:
     vmImage: 'vs2017-win2016'
   steps:
-  - scripts: choco install winflexbison3
+  - script: choco install winflexbison3
   - template: scripts/build.yml # Template reference
 
