@@ -9,7 +9,7 @@ trigger:
 pr:
 - master
 
-i# File: azure-pipelines.yml
+# File: azure-pipelines.yml
 
 jobs:
 - job: macOS
