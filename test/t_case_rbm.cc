@@ -11,6 +11,8 @@
 
 namespace ilang {
 
+#ifdef ILANG_BUILD_SYNTH
+
 TEST(TestCase, RBM_Import_Export_Import) {
   SetToStdErr(false);
 
@@ -60,6 +62,8 @@ TEST(TestCase, RBM_Import_Export_Import) {
 
   SetToStdErr(false);
 };
+
+#endif // ILANG_BUILD_SYNTH
 
 TEST(TestCase, RBM_Import) {
   SetToStdErr(false);

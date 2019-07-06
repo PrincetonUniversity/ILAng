@@ -11,6 +11,8 @@
 
 namespace ilang {
 
+#ifdef ILANG_BUILD_SYNTH
+
 TEST(TestCase, GB_Import_Export_Import) {
   SetToStdErr(false);
 
@@ -26,7 +28,7 @@ TEST(TestCase, GB_Import_Export_Import) {
 
   // export
   char tmp_file_template[] = "/tmp/gb_ila_XXXXXX";
-  auto tmp_file_name  = GetRandomFileName(tmp_file_template);
+  auto tmp_file_name = GetRandomFileName(tmp_file_template);
   ExportIlaPortable(gb_ila, tmp_file_name);
 
   // import
@@ -43,6 +45,8 @@ TEST(TestCase, GB_Import_Export_Import) {
 
   SetToStdErr(false);
 };
+
+#endif // ILANG_BUILD_SYNTH
 
 TEST(TestCase, GB_Import) {
   SetToStdErr(false);

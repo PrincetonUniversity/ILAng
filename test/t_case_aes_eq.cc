@@ -5,13 +5,34 @@
 #include <ilang/verification/abs_knob.h>
 #include <ilang/verification/eq_check_crr.h>
 
-#include <z3++.h>
 #include <ilang/util/fs.h>
+#include <z3++.h>
 
 #include "unit-include/config.h"
 #include "unit-include/util.h"
 
 namespace ilang {
+
+#ifdef ILANG_BUILD_SYNTH
+TEST(TestCase, AES_V_Synth) {
+  auto aes_v_dir = os_portable_append_dir(ILANG_TEST_DATA_DIR, "aes");
+
+  auto aes_v_top_abst_file =
+      os_portable_append_dir(aes_v_dir, "aes_v_top.abst");
+  auto aes_v_child_abst_file =
+      os_portable_append_dir(aes_v_dir, "aes_v_child.abst");
+  auto aes_v_from_abst = ImportSynthAbstraction(aes_v_top_abst_file, "AES_V");
+  ImportChildSynthAbstraction(aes_v_child_abst_file, aes_v_from_abst,
+                              "AES_V_U");
+
+  auto aes_v_ila_file = os_portable_append_dir(aes_v_dir, "aes_v.json");
+  auto aes_v_drom_json = ImportIlaPortable(aes_v_ila_file);
+
+  // check
+}
+#endif
+
+#ifdef ILANG_BUILD_SYNTH
 
 TEST(TestCase, AES_V_C_EQ) {
   SetToStdErr(0);
@@ -132,5 +153,7 @@ TEST(TestCase, AES_V_C_EQ) {
   DebugLog::Disable("EqCheck");
   DebugLog::Disable("Verbose-CrrEqCheck");
 };
+
+#endif // ILANG_BUILD_SYNTH
 
 }; // namespace ilang
