@@ -3,6 +3,7 @@
 
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/ilang++.h>
+#include <ilang/util/fs.h>
 #include <ilang/vtarget-out/vtarget_gen.h>
 
 #include "unit-include/config.h"
@@ -13,9 +14,9 @@
 namespace ilang {
 
 TEST(TestVlgTargetGen, AesIlaInfo) {
-
-  auto aesFile = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/aes_v/all";
-  auto aesuFile = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/aes_v/allu";
+  auto aes_dir = os_portable_append_dir(ILANG_TEST_DATA_DIR, "aes");
+  auto aesFile = os_portable_append_dir(aes_dir, "aes_v_top.abst");
+  auto aesuFile = os_portable_append_dir(aes_dir, "aes_v_child.abst");
   auto aes = ImportSynthAbstraction(aesFile, "AES").get();
   auto aesu = ImportSynthAbstraction(aesuFile, "AES_U").get();
 
