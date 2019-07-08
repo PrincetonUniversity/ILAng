@@ -31,27 +31,69 @@ public:
 }; // class TestSynthImport
 
 TEST_F(TestSynthImport, AES_V_top) {
-  //
+  auto abst_file = os_portable_append_dir(dir_aes, "aes_v_top.abst");
+  auto json_file = os_portable_append_dir(dir_aes, "aes_v_top.json");
+
+  auto top_abst = ImportSynthAbstraction(abst_file, "top");
+  auto top = ImportIlaPortable(json_file);
+
+  CheckIlaEqLegacy(top_abst.get(), top.get());
 }
 
 TEST_F(TestSynthImport, AES_V_child) {
-  //
+  auto abst_file = os_portable_append_dir(dir_aes, "aes_v_child.abst");
+  auto json_file = os_portable_append_dir(dir_aes, "aes_v_child.json");
+
+  auto child_abst = ImportSynthAbstraction(abst_file, "child");
+  auto child = ImportIlaPortable(json_file);
+
+  CheckIlaEqLegacy(child_abst.get(), child.get());
 }
 
 TEST_F(TestSynthImport, AES_V) {
-  //
+  auto top_abst_file = os_portable_append_dir(dir_aes, "aes_v_top.abst");
+  auto child_abst_file = os_portable_append_dir(dir_aes, "aes_v_child.abst");
+
+  auto aes_abst = ImportSynthAbstraction(top_abst_file, "top");
+  ImportChildSynthAbstraction(child_abst_file, aes_abst, "child");
+
+  auto json_file = os_portable_append_dir(dir_aes, "aes_v.json");
+  auto aes = ImportIlaPortable(json_file);
+
+  CheckIlaEqLegacy(aes_abst.get(), aes.get());
 }
 
 TEST_F(TestSynthImport, AES_C_top) {
-  //
+  auto abst_file = os_portable_append_dir(dir_aes, "aes_c_top.abst");
+  auto json_file = os_portable_append_dir(dir_aes, "aes_c_top.json");
+
+  auto top_abst = ImportSynthAbstraction(abst_file, "top");
+  auto top = ImportIlaPortable(json_file);
+
+  CheckIlaEqLegacy(top_abst.get(), top.get());
 }
 
 TEST_F(TestSynthImport, AES_C_child) {
-  //
+  auto abst_file = os_portable_append_dir(dir_aes, "aes_c_child.abst");
+  auto json_file = os_portable_append_dir(dir_aes, "aes_c_child.json");
+
+  auto child_abst = ImportSynthAbstraction(abst_file, "child");
+  auto child = ImportIlaPortable(json_file);
+
+  CheckIlaEqLegacy(child_abst.get(), child.get());
 }
 
 TEST_F(TestSynthImport, AES_C) {
-  //
+  auto top_abst_file = os_portable_append_dir(dir_aes, "aes_c_top.abst");
+  auto child_abst_file = os_portable_append_dir(dir_aes, "aes_c_child.abst");
+
+  auto aes_abst = ImportSynthAbstraction(top_abst_file, "top");
+  ImportChildSynthAbstraction(child_abst_file, aes_abst, "child");
+
+  auto json_file = os_portable_append_dir(dir_aes, "aes_c.json");
+  auto aes = ImportIlaPortable(json_file);
+
+  CheckIlaEqLegacy(aes_abst.get(), aes.get());
 }
 
 TEST_F(TestSynthImport, GB_low) {
