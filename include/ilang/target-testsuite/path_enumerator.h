@@ -16,14 +16,16 @@ struct PathElement{
 class PathEnumerator {
 public:
   PathEnumerator();
-  void dfs(const ExprPtr& e);
+  void dfs(std::vector<std::vector<PathElement>>& pc, std::vector<PathElement>& path, const ExprPtr& e);
   bool find_ite(const ExprPtr& e);
   std::vector<PathElement> current_path_;
   std::vector<std::vector<PathElement>> path_collector_;
+  void cross_product(PathEnumerator& pe);
+  std::vector<std::vector<PathElement>> cross_product(std::vector<std::vector<PathElement>>& path_a, std::vector<std::vector<PathElement>>& path_b);
 
 private:
   void insert_current_path();
-  void validate_path();
+  void validate_path(std::vector<std::vector<PathElement>>& pc);
 };
 }
 

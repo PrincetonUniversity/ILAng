@@ -123,7 +123,7 @@ void TargetTestSuite::golden_test_non_instr_state_constrain(PathUnroll* g_unroll
     for (auto iter = non_instr_state_constrains.begin(); iter != non_instr_state_constrains.end(); iter++)
     {
       g_solver.add(*iter);
-      cout << *iter << endl;
+      // cout << *iter << endl;
     }
   }
 }
@@ -284,15 +284,19 @@ void TargetTestSuite::random_test_gen(std::vector<InstrPtr>& instr_seq) {
 }
 
 void TargetTestSuite::path_complete_test_gen(std::vector<InstrPtr>& instr_seq) {
-  PathEnumerator pe; 
   auto updated_state_name_set = instr_seq[0]->updated_states();
+  PathEnumerator* pe_list = new PathEnumerator[updated_state_name_set.size()]; 
+  int pe_i = 0;
   for (auto state_name_iter = updated_state_name_set.begin(); state_name_iter != updated_state_name_set.end(); state_name_iter++) {
-    pe.dfs(instr_seq[0]->update(*state_name_iter)); 
+    pe_list[pe_i].dfs(pe_list[pe_i].path_collector_, pe_list[pe_i].current_path_, instr_seq[0]->update(*state_name_iter)); 
+    pe_i++;
   }
-  int path_i = 0;
-  cout << "path size" << pe.path_collector_.size() << endl;
-  for (auto path_i = 0; path_i < pe.path_collector_.size(); path_i++) {
-    auto path_cond_list = pe.path_collector_[path_i];
+  for (int i = 1; i < updated_state_name_set.size(); i++) {
+    pe_list[0].cross_product(pe_list[i]); 
+  }
+  cout << "path size" << pe_list[0].path_collector_.size() << endl;
+  for (auto path_i = 0; path_i < pe_list[0].path_collector_.size(); path_i++) {
+    auto path_cond_list = pe_list[0].path_collector_[path_i];
     stringstream testbench;
     string indent = "";
     testbench << indent << "#include <test.h>" << endl;
@@ -306,10 +310,11 @@ void TargetTestSuite::path_complete_test_gen(std::vector<InstrPtr>& instr_seq) {
     for (int i = 0; i < path_cond_list.size(); i++) {
       auto path_cond = path_cond_list[i].expr_ite->arg(0);
       auto z3_path_cond = golden_adapter.GetExpr(path_cond); 
-      cout << z3_path_cond << endl;
+      cout << z3_path_cond << "  " << path_cond_list[i].ite_eval << endl;
       golden_solver.add(z3::implies(z3_path_cond, path_cond_list[i].ite_eval) && z3::implies(path_cond_list[i].ite_eval, z3_path_cond));
       dfs_collect_state(instr_state_set, path_cond);
     }
+    cout << endl;
     golden_test_gen(golden_ctx, golden_unroller, golden_solver, instr_seq, instr_state_set);
     if (golden_solver.check() == z3::unsat)
       continue;
