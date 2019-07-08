@@ -58,6 +58,10 @@ void TargetTestSuite::dfs_collect_state(std::set<ExprPtr>& state_set, const Expr
     } else {
       state_set.insert(e);
     }
+  } else if (expr_uid == AST_UID_EXPR::OP) {
+    for (int i = 0; i < e->arg_num(); i++) {
+      dfs_collect_state(state_set, e->arg(i));
+    }
   } 
 }
 
@@ -84,6 +88,7 @@ void TargetTestSuite::golden_test_non_instr_state_constrain(PathUnroll* g_unroll
     auto DfsCollectState = [this, &instr_state_set](const ExprPtr& e) { dfs_collect_state(instr_state_set, e);};
     decode_func->DepthFirstVisit(DfsCollectState);
   }
+  // TODO(yuex) constrain_set is not complete
   std::set<ExprPtr> constrain_set;
   diff_set(state_set_, instr_state_set, constrain_set);
   diff_set(input_set_, instr_state_set, constrain_set);
@@ -101,7 +106,7 @@ void TargetTestSuite::golden_test_non_instr_state_constrain(PathUnroll* g_unroll
 	int bv_width = (*iter)->sort()->bit_width();
 	int n = bv_width / 31;
 	int rand_bv;
-	for (int i = 1; i < n; i++) {
+	for (int i = 1; i <= n; i++) {
 	  rand_bv = (rand() & 2147483647);
 	  z3::expr tmp = (unrolled_state.extract(i*31-1, (i-1)*31) == rand_bv);
 	  non_instr_state_constrains.push_back(tmp);
@@ -248,7 +253,15 @@ void TargetTestSuite::test_gen_tb_class(stringstream& testbench, string& indent,
   test_gen_tb_start_stim(testbench, indent);
 } 
 
-void TargetTestSuite::test_vec_gen(std::vector<InstrPtr>& instr_seq) {
+void TargetTestSuite::test_vec_gen(std::vector<InstrPtr>& instr_seq, int mode) {
+  if (mode == 0) {
+    random_test_gen(instr_seq);
+  } else if (mode == 1) {
+    path_complete_test_gen(instr_seq);
+  }
+}
+
+void TargetTestSuite::random_test_gen(std::vector<InstrPtr>& instr_seq) {
   stringstream testbench;
   string indent = "";
   testbench << indent << "#include <test.h>" << endl;
@@ -261,7 +274,6 @@ void TargetTestSuite::test_vec_gen(std::vector<InstrPtr>& instr_seq) {
   int seq_length = instr_seq.size();
   std::set<ExprPtr> instr_state_set;
   golden_test_gen(golden_ctx, golden_unroller, golden_solver, instr_seq, instr_state_set);
-
   auto golden_model = golden_solver.get_model();
   test_gen_init_state(testbench, indent, golden_ctx, golden_unroller, golden_model);
   test_gen_tb_class(testbench, indent, golden_ctx, golden_unroller, golden_model, seq_length); 
@@ -271,13 +283,14 @@ void TargetTestSuite::test_vec_gen(std::vector<InstrPtr>& instr_seq) {
   export_test(testbench, model_ptr_->instr(0)->name().str() + "_testbench.cc");
 }
 
-void TargetTestSuite::path_wise_test_gen(std::vector<InstrPtr>& instr_seq) {
+void TargetTestSuite::path_complete_test_gen(std::vector<InstrPtr>& instr_seq) {
   PathEnumerator pe; 
   auto updated_state_name_set = instr_seq[0]->updated_states();
   for (auto state_name_iter = updated_state_name_set.begin(); state_name_iter != updated_state_name_set.end(); state_name_iter++) {
     pe.dfs(instr_seq[0]->update(*state_name_iter)); 
   }
   int path_i = 0;
+  cout << "path size" << pe.path_collector_.size() << endl;
   for (auto path_i = 0; path_i < pe.path_collector_.size(); path_i++) {
     auto path_cond_list = pe.path_collector_[path_i];
     stringstream testbench;
@@ -293,18 +306,19 @@ void TargetTestSuite::path_wise_test_gen(std::vector<InstrPtr>& instr_seq) {
     for (int i = 0; i < path_cond_list.size(); i++) {
       auto path_cond = path_cond_list[i].expr_ite->arg(0);
       auto z3_path_cond = golden_adapter.GetExpr(path_cond); 
-      golden_solver.add(z3_path_cond == path_cond_list[i].ite_eval);
+      cout << z3_path_cond << endl;
+      golden_solver.add(z3::implies(z3_path_cond, path_cond_list[i].ite_eval) && z3::implies(path_cond_list[i].ite_eval, z3_path_cond));
       dfs_collect_state(instr_state_set, path_cond);
     }
     golden_test_gen(golden_ctx, golden_unroller, golden_solver, instr_seq, instr_state_set);
-
+    if (golden_solver.check() == z3::unsat)
+      continue;
     auto golden_model = golden_solver.get_model();
     test_gen_init_state(testbench, indent, golden_ctx, golden_unroller, golden_model);
     test_gen_tb_class(testbench, indent, golden_ctx, golden_unroller, golden_model, instr_seq.size()); 
     // interconnect wire with dut
     test_program_gen(testbench, indent);
     export_test(testbench, model_ptr_->instr(0)->name().str() + "_testbench_" + to_string(path_i) + ".cc");
-    path_i += 1;
   }
 }
 
@@ -417,6 +431,7 @@ void TargetTestSuite::get_ila_input_set() {
     auto input_sort_uid = GetUidSort(input_expr->sort());
     if (input_sort_uid != AST_UID_SORT::MEM)
       input_set_.insert(model_ptr_->input(i));
+    // TODO (yuex): else ILA_ERROR
   }
 }
 
@@ -427,7 +442,7 @@ void TargetTestSuite::test_gen() {
   for (int i = 0; i < 1; i++) {//model_ptr_->instr_num(); i++) {
     std::vector<InstrPtr> instr_seq;
     instr_seq.push_back(model_ptr_->instr(i)); 
-    test_vec_gen(instr_seq); 
+    test_vec_gen(instr_seq, 1); 
   }
 }
 }

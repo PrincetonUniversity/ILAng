@@ -34,9 +34,9 @@ private:
   void test_gen_connect_dut(stringstream& testbench, string& indent);
   void test_gen_connect_tb(stringstream& testbench, string& indent);
 
-
-  void test_vec_gen(std::vector<InstrPtr>& instr_seq);
-  void path_wise_test_gen(std::vector<InstrPtr>& instr_seq);
+  void test_vec_gen(std::vector<InstrPtr>& instr_seq, int mode);
+  void path_complete_test_gen(std::vector<InstrPtr>& instr_seq);
+  void random_test_gen(std::vector<InstrPtr>& instr_seq);
   void test_program_gen(stringstream& testbench, string& indent);
   void export_test(stringstream& testbench, string test_file_name);
   void increase_indent(string &indent);

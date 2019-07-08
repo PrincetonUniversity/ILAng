@@ -23,6 +23,7 @@ public:
 
 private:
   void insert_current_path();
+  void validate_path();
 };
 }
 

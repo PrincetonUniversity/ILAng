@@ -1,4 +1,5 @@
 #include <ilang/target-testsuite/path_enumerator.h>
+#include <ilang/ila/instr_lvl_abs.h>
 
 namespace ilang{
 
@@ -14,6 +15,7 @@ void PathEnumerator::dfs(const ExprPtr& e) {
       pe_t.ite_eval = true;
       pe_f.expr_ite = e;
       pe_f.ite_eval = false;
+      std::cout << e << std::endl;
       if (find_ite(e->arg(1))) {
 	current_path_.push_back(pe_t);
 	dfs(e->arg(1));
@@ -21,6 +23,7 @@ void PathEnumerator::dfs(const ExprPtr& e) {
       } else {
 	current_path_.push_back(pe_t);
 	insert_current_path();
+	std::cout << "true" << std::endl;
 	current_path_.pop_back();
       }
       if (find_ite(e->arg(2))) {
@@ -30,15 +33,37 @@ void PathEnumerator::dfs(const ExprPtr& e) {
       } else {
 	current_path_.push_back(pe_f);
 	insert_current_path();
+	std::cout << "false" << std::endl;
 	current_path_.pop_back();
       }
+    } else {
+      for (int i = 0; i < e->arg_num(); i++)
+	dfs(e->arg(i));
     }
   } 
+  validate_path();
 }
 
 void PathEnumerator::insert_current_path() {
   if (current_path_.size() > 0)
     path_collector_.push_back(current_path_);
+}
+
+void PathEnumerator::validate_path() {
+  for (auto path = path_collector_.begin(); path != path_collector_.end(); path++) {
+    z3::context ctx;
+    z3::solver slv(ctx);
+    Z3ExprAdapter adpt(ctx); 
+    for (auto cond = path->begin(); cond != path->end(); cond++) {
+      auto z3_cond = adpt.GetExpr(cond->expr_ite->arg(0));
+      auto ite_eval = cond->ite_eval;
+      slv.add(z3::implies(z3_cond, ite_eval) && z3::implies(ite_eval, z3_cond));
+    } 
+    if (slv.check() == z3::unsat) {
+      std::cout << "path_delete" << std::endl;
+      path_collector_.erase(path); 
+    }
+  }
 }
 
 /*
