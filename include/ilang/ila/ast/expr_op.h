@@ -179,11 +179,47 @@ public:
                      const std::string& suffix = "") const;
 }; // class ExprOpSub
 
-// TODO ExprOpDiv
+/// \brief The wrapper for unsigned division.
+class ExprOpDiv : public ExprOp {
+public:
+  /// Constructor for DIV operation.
+  ExprOpDiv(const ExprPtr arg0, const ExprPtr arg1);
+  std::string op_name() const { return "DIV"; }
+  z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                     const std::string& suffix = "") const;
+}; // class ExprOpDiv
 
-// TODO ExprOpRem
+/// \brief The wrapper for signed remainder
+class ExprOpSRem : public ExprOp {
+public:
+  /// Constructor for SREM operation.
+  ExprOpSRem(const ExprPtr arg0, const ExprPtr arg1);
+  std::string op_name() const { return "SREM"; }
+  z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                     const std::string& suffix = "") const;
+}; // class ExprOpSRem
 
-// TODO ExprOpMod
+/// \brief The wrapper for unsigned remainder
+class ExprOpURem : public ExprOp {
+public:
+  /// Constructor for UREM operation.
+  ExprOpURem(const ExprPtr arg0, const ExprPtr arg1);
+  std::string op_name() const { return "UREM"; }
+  z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                     const std::string& suffix = "") const;
+}; // class ExprOpURem
+
+/// \brief The wrapper for signed remainder
+class ExprOpSMod : public ExprOp {
+public:
+  /// Constructor for SREM operation.
+  ExprOpSMod(const ExprPtr arg0, const ExprPtr arg1);
+  std::string op_name() const { return "SMOD"; }
+  z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                     const std::string& suffix = "") const;
+}; // class ExprOpSMod
+
+// TODO ExprOpUMod
 
 /// \brief The wrapper for unsigned multiplication.
 class ExprOpMul : public ExprOp {
@@ -317,7 +353,7 @@ public:
                      const std::string& suffix = "") const;
 }; // class ExprOpZExtend
 
-/// \brief The calss wrapper for sign-extend.
+/// \brief The class wrapper for sign-extend.
 class ExprOpSExt : public ExprOp {
 public:
   /// Constructor for bitvector sign-extend.
@@ -326,6 +362,26 @@ public:
   z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
                      const std::string& suffix = "") const;
 }; // class ExprOpSExt
+
+/// \brief The class wrapper for left-rotate.
+class ExprOpLRotate : public ExprOp {
+public:
+  /// Constructor for LRotate operation.
+  ExprOpLRotate(const ExprPtr bv, const int& immediate);
+  std::string op_name() const { return "LEFT_ROTATE"; }
+  z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                     const std::string& suffix = "") const;
+}; // class ExprOpLRotate
+
+/// \brief The class wrapper for right-rotate.
+class ExprOpRRotate : public ExprOp {
+public:
+  /// Constructor for LRotate operation.
+  ExprOpRRotate(const ExprPtr bv, const int& immediate);
+  std::string op_name() const { return "RIGHT_ROTATE"; }
+  z3::expr GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                     const std::string& suffix = "") const;
+}; // class ExprOpRRotate
 
 /******************************************************************************/
 // Function usage

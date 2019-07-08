@@ -48,6 +48,33 @@ inline z3::expr Z3Lshr(z3::context& ctx, const z3::expr& a, const z3::expr& b) {
 #endif
 }
 
+/// \brief Interface z3 shl ast node construction.
+inline z3::expr Z3SRem(z3::context& ctx, const z3::expr& a, const z3::expr& b) {
+#ifndef Z3_LEGACY_API
+  return z3::srem(a, b);
+#else
+  return z3::expr(ctx, Z3_mk_bvsrem(ctx, a, b));
+#endif
+}
+
+/// \brief Interface z3 shl ast node construction.
+inline z3::expr Z3URem(z3::context& ctx, const z3::expr& a, const z3::expr& b) {
+#ifndef Z3_LEGACY_API
+  return z3::urem(a, b);
+#else
+  return z3::expr(ctx, Z3_mk_bvurem(ctx, a, b));
+#endif
+}
+
+/// \brief Interface z3 shl ast node construction.
+inline z3::expr Z3SMod(z3::context& ctx, const z3::expr& a, const z3::expr& b) {
+#ifndef Z3_LEGACY_API
+  return z3::smod(a, b);
+#else
+  return z3::expr(ctx, Z3_mk_bvsmod(ctx, a, b));
+#endif
+}
+
 /// \brief Interface z3 zext ast node construction.
 inline z3::expr Z3ZExt(z3::context& ctx, const z3::expr& e, const unsigned& w) {
 #ifndef Z3_LEGACY_API
@@ -63,6 +90,24 @@ inline z3::expr Z3SExt(z3::context& ctx, const z3::expr& e, const unsigned& w) {
   return z3::sext(e, w);
 #else
   return z3::expr(ctx, Z3_mk_sign_ext(ctx, w, e));
+#endif
+}
+
+/// \brief Interface z3 left rotate ast node construction.
+inline z3::expr Z3LRotate(z3::context& ctx, z3::expr& e, unsigned& w) {
+#ifndef Z3_LEGACY_API
+  return e.rotate_left(w);
+#else
+  return z3::expr(ctx, Z3_mk_rotate_left(ctx, w, e));
+#endif
+}
+
+/// \brief Interface z3 right rotate ast node construction.
+inline z3::expr Z3RRotate(z3::context& ctx, z3::expr& e, unsigned& w) {
+#ifndef Z3_LEGACY_API
+  return e.rotate_right(w);
+#else
+  return z3::expr(ctx, Z3_mk_rotate_right(ctx, w, e));
 #endif
 }
 

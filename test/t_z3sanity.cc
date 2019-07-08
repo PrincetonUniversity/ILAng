@@ -4,6 +4,7 @@
 #include "unit-include/util.h"
 #include <ilang/ila/expr_fuse.h>
 #include <ilang/ila/z3_expr_adapter.h>
+#include <ilang/util/log.h>
 
 namespace ilang {
 
@@ -94,6 +95,85 @@ TEST_F(TestZ3Expr, NegNeg) {
 
   auto expr_eq = gen->GetExpr(ast_eq);
   s->add(!expr_eq);
+  EXPECT_EQ(z3::unsat, s->check());
+}
+
+TEST_F(TestZ3Expr, Div) {
+  auto ast_div = ExprFuse::Div(bv_var_x, bv_var_y);
+  auto ast_div_ge_1 = ExprFuse::Ge(ast_div, 1);
+  auto ast_x_gt_y = ExprFuse::Gt(bv_var_x, bv_var_y);
+  auto ast_y_gt_0 = ExprFuse::Gt(bv_var_y, 0);
+  auto ast_cond = ExprFuse::And(ast_x_gt_y, ast_y_gt_0);
+  auto ast_target = ExprFuse::Ite(ast_cond, ast_div_ge_1, bool_true);
+
+  auto expr_target = gen->GetExpr(ast_target);
+  s->add(!expr_target);
+  EXPECT_EQ(z3::unsat, s->check());
+}
+
+TEST_F(TestZ3Expr, SRem) {
+  auto ast_urem = ExprFuse::URem(bv_var_x, bv_var_y);
+  auto ast_urem_eq_1 = ExprFuse::Eq(ast_urem, 1);
+  auto ast_y_plus_1 = ExprFuse::Add(bv_var_y, bv_const_1);
+  auto ast_x_eq_y_plus_1 = ExprFuse::Eq(bv_var_x, ast_y_plus_1);
+  auto ast_y_gt_1 = ExprFuse::Gt(bv_var_y, 1);
+  auto ast_x_gt_0 = ExprFuse::Gt(bv_var_x, 0);
+  auto ast_cond = ExprFuse::And(ExprFuse::And(ast_y_gt_1, ast_x_eq_y_plus_1), ast_x_gt_0);
+  auto ast_target = ExprFuse::Ite(ast_cond, ast_urem_eq_1, bool_true);
+  auto expr_target = gen->GetExpr(ast_target);
+  s->add(!expr_target);
+  EXPECT_EQ(z3::unsat, s->check());
+}
+
+TEST_F(TestZ3Expr, URem) {
+  auto ast_urem = ExprFuse::URem(bv_var_x, bv_var_y);
+  auto ast_urem_eq_1 = ExprFuse::Eq(ast_urem, 1);
+  auto ast_y_plus_1 = ExprFuse::Add(bv_var_y, bv_const_1);
+  auto ast_x_eq_y_plus_1 = ExprFuse::Eq(bv_var_x, ast_y_plus_1);
+  auto ast_y_gt_1 = ExprFuse::Gt(bv_var_y, 1);
+  auto ast_cond = ExprFuse::And(ast_y_gt_1, ast_x_eq_y_plus_1);
+  auto ast_target = ExprFuse::Ite(ast_cond, ast_urem_eq_1, bool_true);
+  auto expr_target = gen->GetExpr(ast_target);
+  s->add(!expr_target);
+  EXPECT_EQ(z3::unsat, s->check());
+}
+
+TEST_F(TestZ3Expr, SMod) {
+  auto ast_smod = ExprFuse::SMod(bv_var_x, bv_var_y);
+  auto ast_smod_gt_0 = ExprFuse::Gt(ast_smod, 0);
+  auto ast_y_gt_1 = ExprFuse::Gt(bv_var_y, 1);
+  auto ast_y_plus_1 = ExprFuse::Add(bv_var_y, bv_const_1);
+  auto ast_x_eq_y_plus_1 = ExprFuse::Eq(bv_var_x, ast_y_plus_1);
+  auto ast_cond = ExprFuse::And(ast_y_gt_1, ast_x_eq_y_plus_1);
+  auto ast_target = ExprFuse::Ite(ast_cond, ast_smod_gt_0, bool_true);
+  auto expr_target = gen->GetExpr(ast_target);
+  s->add(!expr_target);
+  EXPECT_EQ(z3::unsat, s->check());
+}
+
+TEST_F(TestZ3Expr, LRotate) {
+  auto ast_b0 = ExprFuse::Extract(bv_var_x, 0, 0);
+  auto ast_b1 = ExprFuse::Extract(bv_var_x, 1, 1);
+  auto ast_cond = ExprFuse::Not(ExprFuse::Eq(ast_b0, ast_b1));
+
+  auto ast_lrotate = ExprFuse::LRotate(bv_var_x, 1);
+  auto ast_neq = ExprFuse::Not(ExprFuse::Eq(bv_var_x, ast_lrotate));
+  auto ast_target = ExprFuse::Ite(ast_cond, ast_neq, bool_true);
+  auto expr_target = gen->GetExpr(ast_target);
+  s->add(!expr_target);
+  EXPECT_EQ(z3::unsat, s->check());
+}
+
+TEST_F(TestZ3Expr, RRotate) {
+  auto ast_b0 = ExprFuse::Extract(bv_var_x, 0, 0);
+  auto ast_b1 = ExprFuse::Extract(bv_var_x, 1, 1);
+  auto ast_cond = ExprFuse::Not(ExprFuse::Eq(ast_b0, ast_b1));
+
+  auto ast_rrotate = ExprFuse::RRotate(bv_var_x, 1);
+  auto ast_neq = ExprFuse::Not(ExprFuse::Eq(bv_var_x, ast_rrotate));
+  auto ast_target = ExprFuse::Ite(ast_cond, ast_neq, bool_true);
+  auto expr_target = gen->GetExpr(ast_target);
+  s->add(!expr_target);
   EXPECT_EQ(z3::unsat, s->check());
 }
 

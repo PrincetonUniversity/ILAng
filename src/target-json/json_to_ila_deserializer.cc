@@ -316,6 +316,18 @@ ExprPtr J2IDes::DesExprOp(const unsigned& ast_expr_op_uid,
   case AST_UID_EXPR_OP::SUB: {
     return ExprFuse::Sub(args.at(0), args.at(1));
   }
+  case AST_UID_EXPR_OP::DIV: {
+    return ExprFuse::Div(args.at(0), args.at(1));
+  }
+  case AST_UID_EXPR_OP::SREM: {
+    return ExprFuse::SRem(args.at(0), args.at(1));
+  }
+  case AST_UID_EXPR_OP::UREM: {
+    return ExprFuse::URem(args.at(0), args.at(1));
+  }
+  case AST_UID_EXPR_OP::SMOD: {
+    return ExprFuse::SMod(args.at(0), args.at(1));
+  } 
   case AST_UID_EXPR_OP::MUL: {
     return ExprFuse::Mul(args.at(0), args.at(1));
   }
@@ -351,6 +363,12 @@ ExprPtr J2IDes::DesExprOp(const unsigned& ast_expr_op_uid,
   }
   case AST_UID_EXPR_OP::SEXT: {
     return ExprFuse::SExt(args.at(0), params.at(0));
+  }
+  case AST_UID_EXPR_OP::LROTATE: {
+    return ExprFuse::LRotate(args.at(0), params.at(0));
+  }
+  case AST_UID_EXPR_OP::RROTATE: {
+    return ExprFuse::RRotate(args.at(0), params.at(0));
   }
   case AST_UID_EXPR_OP::IMPLY: {
     return ExprFuse::Imply(args.at(0), args.at(1));

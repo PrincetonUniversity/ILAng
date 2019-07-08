@@ -121,6 +121,22 @@ ExprPtr ExprFuse::Sub(const ExprPtr l, const ExprPtr r) {
   return std::make_shared<ExprOpSub>(l, r);
 }
 
+ExprPtr ExprFuse::Div(const ExprPtr l, const ExprPtr r) {
+  return std::make_shared<ExprOpDiv>(l, r);
+}
+
+ExprPtr ExprFuse::SRem(const ExprPtr l, const ExprPtr r) {
+  return std::make_shared<ExprOpSRem>(l, r);
+}
+
+ExprPtr ExprFuse::URem(const ExprPtr l, const ExprPtr r) {
+  return std::make_shared<ExprOpURem>(l, r);
+}
+
+ExprPtr ExprFuse::SMod(const ExprPtr l, const ExprPtr r) {
+  return std::make_shared<ExprOpSMod>(l, r);
+}
+
 ExprPtr ExprFuse::Mul(const ExprPtr l, const ExprPtr r) {
   return std::make_shared<ExprOpMul>(l, r);
 }
@@ -336,6 +352,14 @@ ExprPtr ExprFuse::ZExt(const ExprPtr bv, const int& out_width) {
 
 ExprPtr ExprFuse::SExt(const ExprPtr bv, const int& out_width) {
   return std::make_shared<ExprOpSExt>(bv, out_width);
+}
+
+ExprPtr ExprFuse::LRotate(const ExprPtr bv, const int& immediate) {
+  return std::make_shared<ExprOpLRotate>(bv, immediate);
+}
+
+ExprPtr ExprFuse::RRotate(const ExprPtr bv, const int& immediate) {
+  return std::make_shared<ExprOpRRotate>(bv, immediate);
 }
 
 ExprPtr ExprFuse::AppFunc(const FuncPtr func) {

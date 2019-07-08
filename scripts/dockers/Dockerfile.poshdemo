@@ -1,0 +1,68 @@
+FROM byhuang/ilang:cosabase as builder
+
+# var
+ENV VIRT_ENV ilang-env
+ENV BUILD_ROOT /ibuild
+ENV BUILD_PREF $BUILD_ROOT/$VIRT_ENV
+
+# root dir
+WORKDIR $BUILD_ROOT
+
+# build packages
+RUN apt update && DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends \
+    libz3-dev \
+    z3 \
+    && rm -rf /var/lib/apt/lists/*
+
+# ILAng
+ENV ILANG_DIR $BUILD_ROOT/ILAng
+WORKDIR $BUILD_ROOT
+ADD https://api.github.com/repos/Bo-Yuan-Huang/ILAng/git/refs/heads/master ilang_version.json
+RUN git clone --depth=1 https://github.com/Bo-Yuan-Huang/ILAng.git $ILANG_DIR
+WORKDIR $ILANG_DIR
+RUN mkdir -p build 
+WORKDIR $ILANG_DIR/build
+RUN cmake .. -DCMAKE_INSTALL_PREFIX=$BUILD_PREF -DILANG_INSTALL_DEV=ON -DILANG_BUILD_TEST=OFF -DILANG_BUILD_SYNTH=OFF && \
+    make -j"$(nproc)" && \
+    make install 
+
+# IMDb
+ENV IMDB_DIR $BUILD_ROOT/IMDb
+WORKDIR $BUILD_ROOT
+ADD https://api.github.com/repos/PrincetonUniversity/IMDb/git/refs/heads/master imdb_version.json
+RUN git clone --depth=1 https://github.com/PrincetonUniversity/IMDb.git $IMDB_DIR
+
+# AES demo
+ENV DEMO_DIR $IMDB_DIR/tutorials/aes
+WORKDIR $DEMO_DIR
+RUN mkdir -p $DEMO_DIR/build
+WORKDIR $DEMO_DIR/build
+RUN cmake .. -DCMAKE_PREFIX_PATH=$BUILD_PREF && \
+    make -j"$(nproc)"
+
+#
+# Deployment
+#
+FROM byhuang/ilang:cosabase
+
+RUN apt update && DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends \
+    libz3-dev \
+    z3 \
+    && rm -rf /var/lib/apt/lists/*
+
+ENV VIRT_ENV ilang-env
+ENV BUILD_ROOT /ibuild
+ENV BUILD_PREF $BUILD_ROOT/$VIRT_ENV
+
+WORKDIR $BUILD_ROOT/demo
+
+RUN echo "source $BUILD_PREF/bin/activate" >> init.sh
+RUN echo "export PYTHONPATH=$BUILD_PREF/lib:\$PYTHONPATH" >> init.sh
+RUN echo "cd $(pwd)" >> init.sh
+
+# configure files
+COPY --from=builder $BUILD_PREF $BUILD_PREF
+COPY --from=builder $BUILD_ROOT/IMDb/tutorials/aes/ ./aes-demo/
+
+# done
+CMD echo "run 'source init.sh' to start" && /bin/bash

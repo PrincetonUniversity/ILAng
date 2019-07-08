@@ -77,8 +77,12 @@ ExprPtr Add(const ExprPtr l, const ExprPtr r);
 ExprPtr Sub(const ExprPtr l, const ExprPtr r);
 /// Arithmetic unsigned division (bv only)
 ExprPtr Div(const ExprPtr l, const ExprPtr r);
+/// Arithmetic signed remainder (bv only)
+ExprPtr SRem(const ExprPtr l, const ExprPtr r);
 /// Arithmetic unsigned remainder (bv only)
-ExprPtr Rem(const ExprPtr l, const ExprPtr r);
+ExprPtr URem(const ExprPtr l, const ExprPtr r);
+/// Arithmetic signed modular (bv only)
+ExprPtr SMod(const ExprPtr l, const ExprPtr r);
 /// Arithmetic unsigned modular (bv only)
 ExprPtr Mod(const ExprPtr l, const ExprPtr r);
 /// Arithmetic unsigned multiply (bv only)
@@ -181,6 +185,10 @@ ExprPtr Extract(const ExprPtr bv, const int& hi, const int& lo);
 ExprPtr ZExt(const ExprPtr bv, const int& out_width);
 /// Sign extend the bitvector to the specified length.
 ExprPtr SExt(const ExprPtr bv, const int& out_width);
+/// Left rotate the bitvector to immediate number of times.
+ExprPtr LRotate(const ExprPtr bv, const int& immediate);
+/// Right rotate the bitvector to immediate number of times.
+ExprPtr RRotate(const ExprPtr bv, const int& immediate);
 
 /******************************************************************************/
 // Function usage

@@ -602,10 +602,10 @@ void SynthAbsConverter::CnvtNodeToExprBvOp(const ilasynth::Node* n) {
     expr = ExprFuse::Complement(expr_args.at(0));
     break;
   case ilasynth::BitvectorOp::Op::LROTATE:
-    ILA_ERROR << "LROTATE not implemented.";
+    expr = ExprFuse::LRotate(expr_args.at(0), op_ptr->param(0));
     break;
   case ilasynth::BitvectorOp::Op::RROTATE:
-    ILA_ERROR << "RROTATE not implemented.";
+    expr = ExprFuse::RRotate(expr_args.at(0), op_ptr->param(0));
     break;
   case ilasynth::BitvectorOp::Op::Z_EXT:
     expr = ExprFuse::ZExt(expr_args.at(0), op_ptr->param(0));
@@ -651,18 +651,16 @@ void SynthAbsConverter::CnvtNodeToExprBvOp(const ilasynth::Node* n) {
     ILA_ERROR << "SDIV not implemented.";
     break;
   case ilasynth::BitvectorOp::Op::UDIV:
-    ILA_ERROR << "UDIV not implemented.";
-    // expr = ExprFuse::Div(expr_args.at(0), expr_args.at(1));
+    expr = ExprFuse::Div(expr_args.at(0), expr_args.at(1));
     break;
   case ilasynth::BitvectorOp::Op::SREM:
-    ILA_ERROR << "SREM not implemented.";
+    expr = ExprFuse::SRem(expr_args.at(0), expr_args.at(1));
     break;
   case ilasynth::BitvectorOp::Op::UREM:
-    ILA_ERROR << "UREM not implemented.";
-    // expr = ExprFuse::Rem(expr_args.at(0), expr_args.at(1));
+    expr = ExprFuse::URem(expr_args.at(0), expr_args.at(1));
     break;
   case ilasynth::BitvectorOp::Op::SMOD:
-    ILA_ERROR << "SMOD not implemented.";
+    expr = ExprFuse::SMod(expr_args.at(0), expr_args.at(1));
     break;
   case ilasynth::BitvectorOp::Op::SHL:
     expr = ExprFuse::Shl(expr_args.at(0), expr_args.at(1));

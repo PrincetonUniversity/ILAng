@@ -179,6 +179,26 @@ ExprRef operator-(const ExprRef& a, const ExprRef& b) {
   return ExprRef(v);
 }
 
+ExprRef operator/(const ExprRef& a, const ExprRef& b) {
+  auto v = ExprFuse::Div(a.get(), b.get());
+  return ExprRef(v);
+}
+
+ExprRef SRem(const ExprRef& a, const ExprRef& b) {
+  auto v = ExprFuse::SRem(a.get(), b.get());
+  return ExprRef(v);
+}
+
+ExprRef URem(const ExprRef& a, const ExprRef& b) {
+  auto v = ExprFuse::URem(a.get(), b.get());
+  return ExprRef(v);
+}
+
+ExprRef SMod(const ExprRef& a, const ExprRef& b) {
+  auto v = ExprFuse::SMod(a.get(), b.get());
+  return ExprRef(v);
+}
+
 ExprRef operator*(const ExprRef& a, const ExprRef& b) {
   auto v = ExprFuse::Mul(a.get(), b.get());
   return ExprRef(v);
@@ -425,6 +445,16 @@ ExprRef ZExt(const ExprRef& bv, const int& length) {
 
 ExprRef SExt(const ExprRef& bv, const int& length) {
   auto v = ExprFuse::SExt(bv.get(), length);
+  return ExprRef(v);
+}
+
+ExprRef LRotate(const ExprRef& bv, const int& immediate) {
+  auto v = ExprFuse::LRotate(bv.get(), immediate);
+  return ExprRef(v);
+}
+
+ExprRef RRotate(const ExprRef& bv, const int& immediate) {
+  auto v = ExprFuse::RRotate(bv.get(), immediate);
   return ExprRef(v);
 }
 
