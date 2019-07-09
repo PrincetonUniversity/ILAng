@@ -96,12 +96,47 @@ TEST_F(TestSynthImport, AES_C) {
   CheckIlaEqLegacy(aes_abst.get(), aes.get());
 }
 
+TEST_F(TestSynthImport, GB_low_top) {
+  auto abst_file = os_portable_append_dir(dir_gb, "gb_low_top.abst");
+  auto json_file = os_portable_append_dir(dir_gb, "gb_low_top.json");
+
+  auto top_abst = ImportSynthAbstraction(abst_file, "top");
+  auto top = ImportIlaPortable(json_file);
+
+  CheckIlaEqLegacy(top_abst.get(), top.get());
+}
+
+TEST_F(TestSynthImport, GB_low_child) {
+  auto abst_file = os_portable_append_dir(dir_gb, "gb_low_child.abst");
+  auto json_file = os_portable_append_dir(dir_gb, "gb_low_child.json");
+
+  auto child_abst = ImportSynthAbstraction(abst_file, "child");
+  auto child = ImportIlaPortable(json_file);
+
+  CheckIlaEqLegacy(child_abst.get(), child.get());
+}
+
 TEST_F(TestSynthImport, GB_low) {
-  //
+  auto top_abst_file = os_portable_append_dir(dir_gb, "gb_low_top.abst");
+  auto child_abst_file = os_portable_append_dir(dir_gb, "gb_low_child.abst");
+
+  auto gb_abst = ImportSynthAbstraction(top_abst_file, "top");
+  ImportChildSynthAbstraction(child_abst_file, gb_abst, "child");
+
+  auto json_file = os_portable_append_dir(dir_gb, "gb_low.json");
+  auto gb = ImportIlaPortable(json_file);
+
+  CheckIlaEqLegacy(gb_abst.get(), gb.get());
 }
 
 TEST_F(TestSynthImport, GB_high) {
-  //
+  auto abst_file = os_portable_append_dir(dir_gb, "gb_high.abst");
+  auto json_file = os_portable_append_dir(dir_gb, "gb_high.json");
+
+  auto gb_abst = ImportSynthAbstraction(abst_file, "gb");
+  auto gb = ImportIlaPortable(json_file);
+
+  CheckIlaEqLegacy(gb_abst.get(), gb.get());
 }
 
 TEST_F(TestSynthImport, RBM_top) {
