@@ -43,4 +43,6 @@ TEST(TestPortable, GB_LOW) { SerDes("gb", "gb_low.json"); }
 
 TEST(TestPortable, RBM) { SerDes("rbm", "rbm.json"); }
 
+TEST(TestPortable, OC8051) { SerDes("oc", "oc.json"); }
+
 } // namespace ilang

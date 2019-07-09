@@ -27,6 +27,7 @@ public:
   const std::string dir_rbm =
       os_portable_append_dir(ILANG_TEST_DATA_DIR, "rbm");
   const std::string dir_gb = os_portable_append_dir(ILANG_TEST_DATA_DIR, "gb");
+  const std::string dir_oc = os_portable_append_dir(ILANG_TEST_DATA_DIR, "oc");
 
 }; // class TestSynthImport
 
@@ -228,6 +229,16 @@ TEST_F(TestSynthImport, RBM_hierarchy) {
   auto rbm = ImportIlaPortable(json_file);
 
   CheckIlaEqLegacy(rbm_abst.get(), rbm.get());
+}
+
+TEST_F(TestSynthImport, OC8051) {
+  auto abst_file = os_portable_append_dir(dir_oc, "oc.abst");
+  auto json_file = os_portable_append_dir(dir_oc, "oc.json");
+
+  auto oc_abst = ImportSynthAbstraction(abst_file, "oc");
+  auto oc = ImportIlaPortable(json_file);
+
+  // CheckIlaEqLegacy(oc_abst.get(), oc.get());
 }
 
 }; // namespace ilang
