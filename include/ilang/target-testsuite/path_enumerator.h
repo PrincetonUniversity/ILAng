@@ -13,35 +13,24 @@ struct PathElement{
   }
 };
 
+typedef std::vector<PathElement> Path;
+typedef std::vector<std::vector<PathElement>> PathCollector;
+
 class PathEnumerator {
 public:
+  Path current_path_;
+  PathCollector path_collector_;
+ 
   PathEnumerator();
+  void dfs(const ExprPtr& e);
   void dfs(std::vector<std::vector<PathElement>>& pc, std::vector<PathElement>& path, const ExprPtr& e);
   bool find_ite(const ExprPtr& e);
-  std::vector<PathElement> current_path_;
-  std::vector<std::vector<PathElement>> path_collector_;
   void cross_product(PathEnumerator& pe);
-  std::vector<std::vector<PathElement>> cross_product(std::vector<std::vector<PathElement>>& path_a, std::vector<std::vector<PathElement>>& path_b);
+  PathCollector cross_product(PathCollector& path_a, PathCollector& path_b);
 
 private:
-  void insert_current_path();
-  void validate_path(std::vector<std::vector<PathElement>>& pc);
+  void validate_all_path(PathCollector& pc);
 };
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 #endif

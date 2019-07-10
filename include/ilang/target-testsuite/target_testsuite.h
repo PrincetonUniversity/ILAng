@@ -48,6 +48,7 @@ private:
 
   std::set<ExprPtr> input_set_;
   std::set<ExprPtr> state_set_;
+  std::stringstream mk_file_;
   InstrLvlAbsPtr model_ptr_;
 
 };
