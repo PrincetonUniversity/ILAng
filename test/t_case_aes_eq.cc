@@ -5,8 +5,8 @@
 #include <ilang/verification/abs_knob.h>
 #include <ilang/verification/eq_check_crr.h>
 
-#include <z3++.h>
 #include <ilang/util/fs.h>
+#include <z3++.h>
 
 #include "unit-include/config.h"
 #include "unit-include/util.h"
@@ -20,23 +20,17 @@ TEST(TestCase, AES_V_C_EQ) {
   DebugLog::Enable("Verbose-CrrEqCheck");
 
   // get the ILA model
-  auto aes_v_dir = os_portable_append_dir(ILANG_TEST_DATA_DIR, "aes_v");
-  auto aes_c_dir = os_portable_append_dir(ILANG_TEST_DATA_DIR, "aes_c");
+  auto aes_dir = os_portable_append_dir(ILANG_TEST_DATA_DIR, "aes");
+  auto aes_v_file = os_portable_append_dir(aes_dir, "aes_v.json");
+  auto aes_c_file = os_portable_append_dir(aes_dir, "aes_c.json");
 
-  auto aes_v_top = os_portable_append_dir(aes_v_dir, "all");
-  auto aes_v_kid = os_portable_append_dir(aes_v_dir, "allu");
-  auto aes_v = ImportSynthAbstraction(aes_v_top, "AES_V");
-  ImportChildSynthAbstraction(aes_v_kid, aes_v, "AES_V_U");
-
-  auto aes_c_top = os_portable_append_dir(aes_c_dir, "all");
-  auto aes_c_kid = os_portable_append_dir(aes_c_dir, "allu");
-  auto aes_c = ImportSynthAbstraction(aes_c_top, "AES_C");
-  ImportChildSynthAbstraction(aes_c_kid, aes_c, "AES_C_U");
+  auto aes_v = ImportIlaPortable(aes_v_file);
+  auto aes_c = ImportIlaPortable(aes_c_file);
 
   auto m_v = aes_v.get();
   auto m_c = aes_c.get();
-  auto u_v = m_v->child("AES_V_U");
-  auto u_c = m_c->child("AES_C_U");
+  auto u_v = m_v->child(0);
+  auto u_c = m_c->child(0);
 
   ASSERT_NE(m_v, nullptr);
   ASSERT_NE(u_v, nullptr);
