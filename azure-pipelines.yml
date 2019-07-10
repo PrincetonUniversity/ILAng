@@ -1,8 +1,3 @@
-# C/C++ with GCC
-# Build your C/C++ project with GCC using make.
-# Add steps that publish test results, save build artifacts, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/apps/c-cpp/gcc
-
 trigger:
 - master
 
@@ -19,7 +14,6 @@ jobs:
   - script: |
       brew update
       brew install bison
-      brew install flex
       brew install boost
       brew install boost-python
       brew install z3
@@ -46,7 +40,13 @@ jobs:
       sudo apt-get install z3
       sudo apt-get install libz3-dev
     displayName: 'package'
-  - template: scripts/build.yml # Template reference
+  - script: |
+      mkdir -p build && cd build
+      cmake .. 
+      make 
+      sudo make install
+      make test
+    displayName: 'build'
 
 - job: Windows
   pool:
@@ -54,8 +54,13 @@ jobs:
   steps:
   - script: |
       choco install winflexbison3
-      choco install python2
-      choco install boost-msvc-12
+      choco install z3
     displayName: 'package'
-  - template: scripts/build.yml # Template reference
+  - script: |
+      mkdir -p build && cd build
+      cmake .. -DILANG_BUILD_SYNTH=OFF
+      make 
+      sudo make install
+      make test
+    displayName: 'build'
 
