@@ -190,7 +190,7 @@ void TargetTestSuite::test_gen_tb_io(stringstream& testbench, string& indent) {
   }
 }
 
-void TargetTestSuite::test_gen_tb_stim(stringstream& testbench, string& indent, z3::context &g_ctx, PathUnroll* g_unroller, z3::model &g_model, int seq_length) {
+void TargetTestSuite::test_gen_tb_stim(stringstream& testbench, string& indent, z3::context &g_ctx, PathUnroll* g_unroller, z3::model &g_model, std::vector<InstrPtr>& instr_seq) {
   testbench << indent << "void test_vector_gen() {" << endl;
   increase_indent(indent);
   testbench << indent << "wait(SC_ZERO_TIME);" << endl;
@@ -209,8 +209,9 @@ void TargetTestSuite::test_gen_tb_stim(stringstream& testbench, string& indent, 
   }
   testbench << indent << "wait(SC_ZERO_TIME);" << endl;
   testbench << indent << "wait(SC_ZERO_TIME);" << endl;
-  for (int i = 0; i < model_ptr_->state_num(); i++) {
-    auto state = model_ptr_->state(i);
+  auto updated_state_set = instr_seq[0]->updated_states();
+  for (auto state_name = updated_state_set.begin(); state_name != updated_state_set.end(); state_name++) {
+    auto state = model_ptr_->find_state(*state_name);
     auto state_sort_uid = GetUidSort(state->sort());
     if (state_sort_uid == AST_UID_SORT::MEM) {
       ILA_WARN << "mem is not supported for assertion in test";
@@ -222,12 +223,12 @@ void TargetTestSuite::test_gen_tb_stim(stringstream& testbench, string& indent, 
     else 
       state_type = "sc_biguint<" + to_string(state->sort()->bit_width()) + ">";
 
-    auto state_name = state->host()->name().str() + "_" + state->name().str();
-    auto z3_state = g_unroller->CurrState(state, seq_length);
+    auto state_name_str = state->host()->name().str() + "_" + state->name().str();
+    auto z3_state = g_unroller->CurrState(state, instr_seq.size());
     auto state_val = g_model.eval(z3_state);
     string state_val_str = Z3_ast_to_string(g_ctx, state_val);
     state_val_str.replace(0, 1, "0");
-    testbench << indent << "assert(" << state_name << "_out.read() == " << state_type << "(\"" << state_val_str << "\"));" << endl;
+    testbench << indent << "assert(" << state_name_str << "_out.read() == " << state_type << "(\"" << state_val_str << "\"));" << endl;
   }
 
   testbench << indent << "sc_stop();" << endl; 
@@ -244,12 +245,12 @@ void TargetTestSuite::test_gen_tb_start_stim(stringstream& testbench, string& in
   testbench << indent << "};" << endl;
 }
 
-void TargetTestSuite::test_gen_tb_class(stringstream& testbench, string& indent, z3::context& g_ctx, PathUnroll* g_unroller, z3::model& g_model, int seq_length) {
+void TargetTestSuite::test_gen_tb_class(stringstream& testbench, string& indent, z3::context& g_ctx, PathUnroll* g_unroller, z3::model& g_model, std::vector<InstrPtr>& instr_seq) {
   testbench << indent << "SC_MODULE(TB) {" << endl;
   increase_indent(indent);
   test_gen_tb_io(testbench, indent);
   testbench << endl;
-  test_gen_tb_stim(testbench, indent, g_ctx, g_unroller, g_model, seq_length);
+  test_gen_tb_stim(testbench, indent, g_ctx, g_unroller, g_model, instr_seq);
   test_gen_tb_start_stim(testbench, indent);
 } 
 
@@ -276,11 +277,11 @@ void TargetTestSuite::random_test_gen(std::vector<InstrPtr>& instr_seq) {
   golden_test_gen(golden_ctx, golden_unroller, golden_solver, instr_seq, instr_state_set);
   auto golden_model = golden_solver.get_model();
   test_gen_init_state(testbench, indent, golden_ctx, golden_unroller, golden_model);
-  test_gen_tb_class(testbench, indent, golden_ctx, golden_unroller, golden_model, seq_length); 
+  test_gen_tb_class(testbench, indent, golden_ctx, golden_unroller, golden_model, instr_seq); 
 
   // interconnect wire with dut
   test_program_gen(testbench, indent);
-  export_test(testbench, model_ptr_->instr(0)->name().str() + "_testbench");
+  export_test(testbench, instr_seq[0]->name().str() + "_testbench");
 }
 
 void TargetTestSuite::path_complete_test_gen(std::vector<InstrPtr>& instr_seq) {
@@ -323,10 +324,10 @@ void TargetTestSuite::path_complete_test_gen(std::vector<InstrPtr>& instr_seq) {
       continue;
     auto golden_model = golden_solver.get_model();
     test_gen_init_state(testbench, indent, golden_ctx, golden_unroller, golden_model);
-    test_gen_tb_class(testbench, indent, golden_ctx, golden_unroller, golden_model, instr_seq.size()); 
+    test_gen_tb_class(testbench, indent, golden_ctx, golden_unroller, golden_model, instr_seq); 
     // interconnect wire with dut
     test_program_gen(testbench, indent);
-    export_test(testbench, model_ptr_->instr(0)->name().str() + "_testbench_" + to_string(path_i++));
+    export_test(testbench, instr_seq[0]->name().str() + "_testbench_" + to_string(path_i++));
   }
 }
 
@@ -449,7 +450,7 @@ void TargetTestSuite::test_gen() {
   srand(time(NULL));
   get_ila_state_set();
   get_ila_input_set();
-  for (int i = 0; i < 1; i++) {//model_ptr_->instr_num(); i++) {
+  for (int i = 0; i < model_ptr_->instr_num(); i++) {
     std::vector<InstrPtr> instr_seq;
     instr_seq.push_back(model_ptr_->instr(i)); 
     test_vec_gen(instr_seq, 1); 
