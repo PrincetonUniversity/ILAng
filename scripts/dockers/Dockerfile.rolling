@@ -136,7 +136,6 @@ ENV BUILD_PREF $BUILD_ROOT/$VIRT_ENV
 WORKDIR /root/workspace
 
 RUN echo "source $BUILD_PREF/bin/activate" >> init.sh
-RUN echo "export PYTHONPATH=$BUILD_PREF/lib:\$PYTHONPATH" >> init.sh
 RUN echo "export CMAKE_PREFIX_PATH=$BUILD_PREF:\$CMAKE_PREFIX_PATH" >> init.sh
 RUN echo "cd $(pwd)" >> init.sh
 
