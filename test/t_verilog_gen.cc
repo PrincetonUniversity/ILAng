@@ -10,6 +10,7 @@
 
 #include "unit-include/eq_ilas.h"
 #include "unit-include/simple_cpu.h"
+#include "unit-include/config.h"
 #include "unit-include/util.h"
 
 namespace ilang {
@@ -22,15 +23,10 @@ void parseable(const std::string& fname, VerilogGenerator& vgen) {
   } else
     ILA_WARN << "Cannot write tmpfile:" << fname << " for vlog-gen test.";
 
-  std::FILE* fp = std::fopen(fname.c_str(), "r");
-  if (fp) {
-    int result = TestParseVerilogFrom(fp);
-    std::fclose(fp);
-    EXPECT_EQ(result, 0);
-    if (result != 0)
-      ILA_INFO << "ParseErrorFileName = " << fname;
-  } else
-    ILA_WARN << "Cannot read tmpfile:" << fname << " for vlog-gen test.";
+  int result = TestParseVerilogFrom(fname);
+  EXPECT_EQ(result, 0);
+  if (result != 0)
+    ILA_INFO << "ParseErrorFileName = " << fname;
 }
 
 TEST(TestVerilogGen, Init) { VerilogGenerator(); }
@@ -43,7 +39,7 @@ TEST(TestVerilogGen, ParseInst) {
     // DebugLog::Enable("VerilogGen.ParseNonMemUpdateExpr");
     vgen.ExportTopLevelInstr(ila_ptr_->instr("Add"));
 
-    parseable("Testing/Temporary/t_proc_Add.v", vgen);
+    parseable(std::string(ILANG_TEST_BIN_ROOT) + "/t_proc_Add.v", vgen);
   }
   // test 2 gen Add : external mem
   {
@@ -54,21 +50,21 @@ TEST(TestVerilogGen, ParseInst) {
     // DebugLog::Enable("VerilogGen.ParseNonMemUpdateExpr");
     vgen.ExportTopLevelInstr(ila_ptr_->instr("Add"));
 
-    parseable("Testing/Temporary/t_proc_Add_extmem.v", vgen);
+    parseable(std::string(ILANG_TEST_BIN_ROOT) + "/t_proc_Add_extmem.v", vgen);
   }
   // test 3 gen Load : internal mem
   {
     auto vgen = VerilogGenerator();
     // DebugLog::Enable("VerilogGen.ParseNonMemUpdateExpr");
     vgen.ExportTopLevelInstr(ila_ptr_->instr("Load"));
-    parseable("Testing/Temporary/t_proc_Load.v", vgen);
+    parseable(std::string(ILANG_TEST_BIN_ROOT) + "/t_proc_Load.v", vgen);
   }
   // test 4 gen Store : internal mem
   {
     auto vgen = VerilogGenerator();
     // DebugLog::Enable("VerilogGen.ParseNonMemUpdateExpr");
     vgen.ExportTopLevelInstr(ila_ptr_->instr("Store"));
-    parseable("Testing/Temporary/t_proc_Store.v", vgen);
+    parseable(std::string(ILANG_TEST_BIN_ROOT) + "/t_proc_Store.v", vgen);
   }
   // test 5 gen Load : external mem
   {
@@ -77,7 +73,7 @@ TEST(TestVerilogGen, ParseInst) {
     auto vgen = VerilogGenerator(config);
     // DebugLog::Enable("VerilogGen.ParseNonMemUpdateExpr");
     vgen.ExportTopLevelInstr(ila_ptr_->instr("Load"));
-    parseable("Testing/Temporary/t_proc_Load_extmem.v", vgen);
+    parseable(std::string(ILANG_TEST_BIN_ROOT) + "/t_proc_Load_extmem.v", vgen);
   }
   // test 6 gen Store : external mem
   {
@@ -86,7 +82,7 @@ TEST(TestVerilogGen, ParseInst) {
     auto vgen = VerilogGenerator(config);
     // DebugLog::Enable("VerilogGen.ParseNonMemUpdateExpr");
     vgen.ExportTopLevelInstr(ila_ptr_->instr("Store"));
-    parseable("Testing/Temporary/t_proc_Store_extmem.v", vgen);
+    parseable(std::string(ILANG_TEST_BIN_ROOT) + "/t_proc_Store_extmem.v", vgen);
   }
 } // TEST (ParseInst)
 
@@ -96,7 +92,7 @@ TEST(TestVerilogGen, ParseIla) {
   {
     auto vgen = VerilogGenerator();
     vgen.ExportIla(ila_ptr_);
-    parseable("Testing/Temporary/t_proc_all.v", vgen);
+    parseable(std::string(ILANG_TEST_BIN_ROOT) + "/t_proc_all.v", vgen);
   }
   // test 2 gen all : external mem
   {
@@ -104,7 +100,7 @@ TEST(TestVerilogGen, ParseIla) {
         true, VerilogGenerator::VlgGenConfig::funcOption::Internal);
     auto vgen = VerilogGenerator(config);
     vgen.ExportIla(ila_ptr_);
-    parseable("Testing/Temporary/t_proc_all_extmem.v", vgen);
+    parseable(std::string(ILANG_TEST_BIN_ROOT) + "/t_proc_all_extmem.v", vgen);
   }
 } // TEST: ParseILA
 TEST(TestVerilogGen, FlattenIla) {
@@ -118,7 +114,7 @@ TEST(TestVerilogGen, FlattenIla) {
   auto vgen = VerilogGenerator();
   vgen.ExportIla(dep_ila_ptr);
 
-  parseable("Testing/Temporary/t_proc_flatten.v", vgen);
+  parseable(std::string(ILANG_TEST_BIN_ROOT) + "/t_proc_flatten.v", vgen);
 
 } // TEST: FlattenILA
 

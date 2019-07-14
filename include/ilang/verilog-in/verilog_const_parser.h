@@ -6,6 +6,7 @@
 #define ILANG_VERILOG_IN_VERILOG_CONST_PARSER_H__
 
 #include <map>
+#include <vector>
 #include <string>
 
 extern "C" {
@@ -29,12 +30,6 @@ public:
   /// ordered paramater dictionary
   typedef std::vector<double> ordered_parameter_dict_t;
 protected:
-  /// the given expression
-  ast_expression* eval_expr;
-  /// whether it has been evaluated or not
-  bool evaluated;
-  /// if it has been evaluated store the value here
-  unsigned cached_value;
   /// record if there was an error in eval
   bool eval_error;
   /// record the errorneous part:
@@ -52,11 +47,11 @@ protected:
 public:
   // --------------------- CONSTRUCTOR ---------------------------- //
   /// input : the string to evaluate
-  VerilogConstantExprEval(ast_expression* e);
+  VerilogConstantExprEval();
   /// parse a hierarchy
   void PopulateParameterDefByHierarchy(const param_def_hierarchy & hier, ast_module_declaration * current_module);
   /// Get the value
-  double Eval();
+  double Eval(ast_expression* _s);
 }; // class VerilogConstantExprEval
 
 }; // namespace ilang

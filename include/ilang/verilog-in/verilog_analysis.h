@@ -32,6 +32,9 @@ extern "C" {
 
 namespace ilang {
 
+/// Declaration of VerilogAnalyzer
+class VerilogAnalyzer;
+
 /// \brief Class to convert port to signal info
 class SignalInfoPort : public SignalInfoBase {
 protected:
@@ -43,7 +46,7 @@ public:
   /// itself
   SignalInfoPort(ast_port_declaration* def, const std::string& full_name,
                  VerilogAnalyzerBase::hierarchical_name_type tp,
-                 ast_module_declaration* mod);
+                 const VerilogAnalyzer* _ana);
   /// Return its definition
   ast_port_declaration* get_def() { return _def; }
 }; // class SignalInfoPort
@@ -59,7 +62,7 @@ public:
   /// itself
   SignalInfoReg(ast_reg_declaration* def, const std::string& full_name,
                 VerilogAnalyzerBase::hierarchical_name_type tp,
-                ast_module_declaration* mod);
+                const VerilogAnalyzer* _ana);
   /// Return its definition
   ast_reg_declaration* get_def() { return _def; }
 }; // class SignalInfoPort
@@ -75,7 +78,7 @@ public:
   /// itself
   SignalInfoWire(ast_net_declaration* def, const std::string& full_name,
                  VerilogAnalyzerBase::hierarchical_name_type tp,
-                 ast_module_declaration* mod);
+                 const VerilogAnalyzer* _ana);
   /// Return its definition
   ast_net_declaration* get_def() { return _def; }
 }; // class SignalInfoPort
@@ -103,6 +106,10 @@ public:
   using name_decl_buffer_t = VerilogAnalyzerBase::name_decl_buffer_t;
   /// Top module signal list
   using module_io_vec_t = VerilogAnalyzerBase::module_io_vec_t;
+  /// type of instance_name -> instance_ast_node
+  typedef std::map<std::string, ast_module_instantiation *> mod_inst_ast_t;
+  /// A map of module name -> the instantiation ast
+  typedef std::map<std::string, mod_inst_ast_t> name_insts_ast_map_t;
 
 protected:
   /// include path for all verilog modules
@@ -117,6 +124,9 @@ protected:
   name_names_map_t module_to_whereuses_map;
   /// module -> all sub modules
   name_insts_map_t modules_to_submodules_map;
+  /// module -> all sub modules and their instantiation ast
+  name_insts_ast_map_t modules_to_submodule_inst_ast_map;
+
   /// we need to know what instance name we would give for the topmodule,
   /// inorder to resolve signal names;
   std::string top_inst_name;
@@ -193,8 +203,10 @@ public:
     return vlg_loc_t(md.file, md.line);
   }
   // --------------------- FOR verilog const parser ---------------------------- //
-  VerilogConstantExprEval::param_def_hierarchy GetHierarchyFromModuleName() const;
-
+  /// Get the hierarchy information needed by constant parser
+  /// returns true if succeed
+  bool get_hierarchy_from_full_name(const std::string & full_name,
+    VerilogConstantExprEval::param_def_hierarchy & hier, ast_module_declaration **lowest_level) const;
 
 private:
   // --------------------- MEMBERS ---------------------------- //

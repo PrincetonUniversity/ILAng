@@ -10,8 +10,8 @@
 
 namespace ilang {
 
-VerilogConstantExprEval::VerilogConstantExprEval(ast_expression* _s)
-    : eval_expr(_s), evaluated(false), cached_value(0), eval_error(false) {
+VerilogConstantExprEval::VerilogConstantExprEval()
+    : eval_error(false) {
   // do nothing
 }
 
@@ -50,8 +50,6 @@ double VerilogConstantExprEval::_eval(ast_expression* e, const named_parameter_d
           return 0;
         }
       }
-      free(resp); 
-      // if it is number, it uses calloc inside, which requires us
       // to explicitly free it
       return ret;
     } else { // parser error: unable to handle
@@ -87,18 +85,19 @@ double VerilogConstantExprEval::_eval(ast_expression* e, const named_parameter_d
   return 0;
 }
 
-double VerilogConstantExprEval::Eval() {
-  if (not evaluated) {
-    cached_value = _eval(eval_expr, current_module_param_defs);
-    evaluated = true;
-  }
-
+double VerilogConstantExprEval::Eval(ast_expression* _s) {
   if (eval_error) {
-    ILA_ERROR << "unable to parse: " << error_str;
+    ILA_ERROR << "unable to parse: `" << error_str << "` in the background";
     return 0; // error value
   }
 
-  return cached_value;
+  double val = _eval(_s, current_module_param_defs);
+  if (eval_error) {
+    ILA_ERROR << "unable to parse: " << error_str;
+    eval_error = false; // this is not the backgound error
+    return 0; // error value
+  }
+  return val;
 }
 
 static void* ast_list_get_not_null(ast_list* list, unsigned int item) {
