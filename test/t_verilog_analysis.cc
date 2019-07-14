@@ -146,7 +146,6 @@ TEST(TestVerilogAnalysis, RangeAnalysis) {
     IS_WIDTH("r2", 6);
   } // end of test3
 
-
   { // test 4 -- parameter and instantiation
     VerilogInfo va(
         VerilogInfo::path_vec_t(

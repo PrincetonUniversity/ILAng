@@ -8,9 +8,9 @@
 #include <ilang/verilog-in/verilog_parse.h>
 #include <ilang/verilog-out/verilog_gen.h>
 
+#include "unit-include/config.h"
 #include "unit-include/eq_ilas.h"
 #include "unit-include/simple_cpu.h"
-#include "unit-include/config.h"
 #include "unit-include/util.h"
 
 namespace ilang {
@@ -82,7 +82,8 @@ TEST(TestVerilogGen, ParseInst) {
     auto vgen = VerilogGenerator(config);
     // DebugLog::Enable("VerilogGen.ParseNonMemUpdateExpr");
     vgen.ExportTopLevelInstr(ila_ptr_->instr("Store"));
-    parseable(std::string(ILANG_TEST_BIN_ROOT) + "/t_proc_Store_extmem.v", vgen);
+    parseable(std::string(ILANG_TEST_BIN_ROOT) + "/t_proc_Store_extmem.v",
+              vgen);
   }
 } // TEST (ParseInst)
 

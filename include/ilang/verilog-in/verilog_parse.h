@@ -11,7 +11,7 @@
 namespace ilang {
 
 void TestParseVerilog();
-int TestParseVerilogFrom(const std::string & fn);
+int TestParseVerilogFrom(const std::string& fn);
 
 }; // namespace ilang
 

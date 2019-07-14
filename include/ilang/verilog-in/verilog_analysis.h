@@ -107,7 +107,7 @@ public:
   /// Top module signal list
   using module_io_vec_t = VerilogAnalyzerBase::module_io_vec_t;
   /// type of instance_name -> instance_ast_node
-  typedef std::map<std::string, ast_module_instantiation *> mod_inst_ast_t;
+  typedef std::map<std::string, ast_module_instantiation*> mod_inst_ast_t;
   /// A map of module name -> the instantiation ast
   typedef std::map<std::string, mod_inst_ast_t> name_insts_ast_map_t;
 
@@ -202,11 +202,14 @@ public:
   static vlg_loc_t Meta2Loc(const ast_metadata& md) {
     return vlg_loc_t(md.file, md.line);
   }
-  // --------------------- FOR verilog const parser ---------------------------- //
+  // --------------------- FOR verilog const parser ----------------------------
+  // //
   /// Get the hierarchy information needed by constant parser
   /// returns true if succeed
-  bool get_hierarchy_from_full_name(const std::string & full_name,
-    VerilogConstantExprEval::param_def_hierarchy & hier, ast_module_declaration **lowest_level) const;
+  bool get_hierarchy_from_full_name(
+      const std::string& full_name,
+      VerilogConstantExprEval::param_def_hierarchy& hier,
+      ast_module_declaration** lowest_level) const;
 
 private:
   // --------------------- MEMBERS ---------------------------- //

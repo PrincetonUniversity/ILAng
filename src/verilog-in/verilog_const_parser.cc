@@ -10,12 +10,13 @@
 
 namespace ilang {
 
-VerilogConstantExprEval::VerilogConstantExprEval()
-    : eval_error(false) {
+VerilogConstantExprEval::VerilogConstantExprEval() : eval_error(false) {
   // do nothing
 }
 
-double VerilogConstantExprEval::_eval(ast_expression* e, const named_parameter_dict_t & param_defs) {
+double
+VerilogConstantExprEval::_eval(ast_expression* e,
+                               const named_parameter_dict_t& param_defs) {
   // ..
   ILA_NOT_NULL(e);
   if (e->type == ast_expression_type::PRIMARY_EXPRESSION) {
@@ -31,18 +32,28 @@ double VerilogConstantExprEval::_eval(ast_expression* e, const named_parameter_d
       return pos->second;
     } // else
     else if (e->primary->value_type == ast_primary_value_type::PRIMARY_NUMBER) {
-      char * resp = ast_expression_tostring(e);
+      char* resp = ast_expression_tostring(e);
       double ret;
-      if (e->primary->value.number->representation == ast_number_representation_e::REP_BITS ||
-          e->primary->value.number->representation == ast_number_representation_e::REP_INTEGER) {
-        unsigned base = 
-          e->primary->value.number->base == ast_number_base_e::BASE_BINARY ? 2 :
-          e->primary->value.number->base == ast_number_base_e::BASE_OCTAL ? 8 :
-          e->primary->value.number->base == ast_number_base_e::BASE_DECIMAL ? 10 :
-          e->primary->value.number->base == ast_number_base_e::BASE_HEX ? 16 : 10;
-        ret = StrToInt(resp, base );
+      if (e->primary->value.number->representation ==
+              ast_number_representation_e::REP_BITS ||
+          e->primary->value.number->representation ==
+              ast_number_representation_e::REP_INTEGER) {
+        unsigned base =
+            e->primary->value.number->base == ast_number_base_e::BASE_BINARY
+                ? 2
+                : e->primary->value.number->base ==
+                          ast_number_base_e::BASE_OCTAL
+                      ? 8
+                      : e->primary->value.number->base ==
+                                ast_number_base_e::BASE_DECIMAL
+                            ? 10
+                            : e->primary->value.number->base ==
+                                      ast_number_base_e::BASE_HEX
+                                  ? 16
+                                  : 10;
+        ret = StrToInt(resp, base);
       } else { // float
-        try{
+        try {
           ret = std::stod(resp);
         } catch (const std::exception& e) {
           error_str = resp; // id_name not found
@@ -95,7 +106,7 @@ double VerilogConstantExprEval::Eval(ast_expression* _s) {
   if (eval_error) {
     ILA_ERROR << "unable to parse: " << error_str;
     eval_error = false; // this is not the backgound error
-    return 0; // error value
+    return 0;           // error value
   }
   return val;
 }
@@ -110,11 +121,12 @@ static void* ast_list_get_not_null(ast_list* list, unsigned int item) {
 /// param_defs
 void VerilogConstantExprEval::ParseCurrentModuleParameters(
     ast_module_declaration* m,
-    const named_parameter_dict_t & named_parameter_override,
-    const ordered_parameter_dict_t & ordered_parameter_override,
-    named_parameter_dict_t & output_parameter_dict) {
+    const named_parameter_dict_t& named_parameter_override,
+    const ordered_parameter_dict_t& ordered_parameter_override,
+    named_parameter_dict_t& output_parameter_dict) {
   // you cannot have ordered parameter and named parameter at the same time
-  ILA_ASSERT( named_parameter_override.empty() || ordered_parameter_override.empty() );
+  ILA_ASSERT(named_parameter_override.empty() ||
+             ordered_parameter_override.empty());
 
   if (m == NULL)
     return;
@@ -135,7 +147,7 @@ void VerilogConstantExprEval::ParseCurrentModuleParameters(
           (ast_single_assignment*)ast_list_get_not_null(assigns, assignidx);
       std::string param_name =
           ast_identifier_tostring(asn->lval->data.identifier);
-      
+
       double val;
       if (pi < ordered_parameter_override.size())
         val = ordered_parameter_override[pi];
@@ -154,46 +166,63 @@ void VerilogConstantExprEval::ParseCurrentModuleParameters(
 }
 
 /// parse a hierarchy
-void VerilogConstantExprEval::PopulateParameterDefByHierarchy(const param_def_hierarchy & hier, ast_module_declaration * current_module) {
+void VerilogConstantExprEval::PopulateParameterDefByHierarchy(
+    const param_def_hierarchy& hier, ast_module_declaration* current_module) {
   named_parameter_dict_t prev_named_param_defs;
   ordered_parameter_dict_t prev_ordered_param_defs;
   // start from top module
-  for (auto && item : hier) {
-    auto & module_ptr = item.first;
-    auto & instance_ptr = item.second;
-    if (instance_ptr->module_parameters == NULL || instance_ptr->module_parameters->module_parameter == NULL) {
+  for (auto&& item : hier) {
+    auto& module_ptr = item.first;
+    auto& instance_ptr = item.second;
+    if (instance_ptr->module_parameters == NULL ||
+        instance_ptr->module_parameters->module_parameter == NULL) {
       prev_named_param_defs.clear();
       prev_ordered_param_defs.clear();
-      continue; // no override to the next level, we do not need to evaluate the current level's parameter
+      continue; // no override to the next level, we do not need to evaluate the
+                // current level's parameter
     }
     named_parameter_dict_t current_module_param_defs;
-    ParseCurrentModuleParameters(module_ptr,prev_named_param_defs,prev_ordered_param_defs, current_module_param_defs);
+    ParseCurrentModuleParameters(module_ptr, prev_named_param_defs,
+                                 prev_ordered_param_defs,
+                                 current_module_param_defs);
     // parse the instantiation parameter override part
     prev_named_param_defs.clear();
     prev_ordered_param_defs.clear();
     if (instance_ptr->module_parameters->type == ORDERED_PARAMETER) {
-      for (unsigned param_ov_idx = 0; param_ov_idx < instance_ptr->module_parameters->module_parameter->items; ++ param_ov_idx) {
-        ast_expression * expr = (ast_expression *) ast_list_get_not_null(instance_ptr->module_parameters->module_parameter, param_ov_idx);
+      for (unsigned param_ov_idx = 0;
+           param_ov_idx <
+           instance_ptr->module_parameters->module_parameter->items;
+           ++param_ov_idx) {
+        ast_expression* expr = (ast_expression*)ast_list_get_not_null(
+            instance_ptr->module_parameters->module_parameter, param_ov_idx);
         double val = _eval(expr, current_module_param_defs);
         if (eval_error)
           return;
         prev_ordered_param_defs.push_back(val);
-      } // for param ovs
+      }      // for param ovs
     } else { // instance_ptr->module_parameters->type == NAMED_PARAMETER
-      for (unsigned param_ov_idx = 0; param_ov_idx < instance_ptr->module_parameters->module_parameter->items; ++ param_ov_idx) {
-        ast_port_connection * name_val_pair = (ast_port_connection *) ast_list_get_not_null(instance_ptr->module_parameters->module_parameter, param_ov_idx);
+      for (unsigned param_ov_idx = 0;
+           param_ov_idx <
+           instance_ptr->module_parameters->module_parameter->items;
+           ++param_ov_idx) {
+        ast_port_connection* name_val_pair =
+            (ast_port_connection*)ast_list_get_not_null(
+                instance_ptr->module_parameters->module_parameter,
+                param_ov_idx);
         ILA_NOT_NULL(name_val_pair->port_name);
-        std::string param_name = ast_identifier_tostring(name_val_pair->port_name);
-        double val = _eval(name_val_pair->expression, current_module_param_defs);
+        std::string param_name =
+            ast_identifier_tostring(name_val_pair->port_name);
+        double val =
+            _eval(name_val_pair->expression, current_module_param_defs);
         if (eval_error)
           return;
-        prev_named_param_defs.insert( std::make_pair(param_name,val) );
+        prev_named_param_defs.insert(std::make_pair(param_name, val));
       } // for param defs
-    } // for ordered/named override    
-  } // for each module->inst in the hierarchy
-  ParseCurrentModuleParameters(current_module, prev_named_param_defs, prev_ordered_param_defs, current_module_param_defs);
+    }   // for ordered/named override
+  }     // for each module->inst in the hierarchy
+  ParseCurrentModuleParameters(current_module, prev_named_param_defs,
+                               prev_ordered_param_defs,
+                               current_module_param_defs);
 }
-  
-
 
 }; // namespace ilang
