@@ -10,7 +10,6 @@
 #include <ilang/util/container_shortcut.h>
 #include <ilang/util/log.h>
 #include <ilang/util/str_util.h>
-#include <ilang/verilog-in/verilog_const_parser.h>
 
 // extern int yy_flex_debug;
 

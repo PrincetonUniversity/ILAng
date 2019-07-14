@@ -23,6 +23,7 @@
 // I have to put this include here, because it needs to know the class
 // VerilogAnalyzerBase
 #include <ilang/verilog-in/verilog_analysis_wrapper.h>
+#include <ilang/verilog-in/verilog_const_parser.h>
 
 extern "C" {
 #include <verilogparser/verilog_ast_util.h>
@@ -191,6 +192,9 @@ public:
   static vlg_loc_t Meta2Loc(const ast_metadata& md) {
     return vlg_loc_t(md.file, md.line);
   }
+  // --------------------- FOR verilog const parser ---------------------------- //
+  VerilogConstantExprEval::param_def_hierarchy GetHierarchyFromModuleName() const;
+
 
 private:
   // --------------------- MEMBERS ---------------------------- //
