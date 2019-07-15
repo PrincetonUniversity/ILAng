@@ -59,8 +59,10 @@ jobs:
   - script: |
       git clone https://github.com/Z3Prover/z3.git
       cd z3
-      python scripts/mk_make.py
+      md build
       cd build
+      call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" %1
+      cmake -G "NMake Makefiles" ../
       nmake
       nmake install
     displayName: 'z3'
