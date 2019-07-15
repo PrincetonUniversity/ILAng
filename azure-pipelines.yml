@@ -61,14 +61,14 @@ jobs:
       cd z3
       python scripts/mk_make.py
       cd build
-      make
-      make install
+      nmake
+      nmake install
     displayName: 'z3'
   - script: |
       mkdir -p build && cd build
       cmake .. -DILANG_BUILD_SYNTH=OFF
-      make 
-      make install
-      make test
+      nmake 
+      nmake install
+      nmake test
     displayName: 'build'
 
