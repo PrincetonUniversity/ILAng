@@ -69,7 +69,7 @@ jobs:
   - script: |
       mkdir -p build && cd build
       call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
-      cmake .. -DILANG_BUILD_SYNTH=OFF
+      cmake .. -DILANG_BUILD_SYNTH=OFF -DZ3_INCLUDE_DIR="C:\Program Files (x86)\Z3\include" -DZ3_LIBRARY="C:\Program Files (x86)\Z3\lib" -DZ3_VERSION=4.8.5
       nmake 
       nmake install
       nmake test
