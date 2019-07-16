@@ -1,9 +1,9 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.9.6)
 
-if(${CMAKE_VERSION} VERSION_LESS 3.12)
+if(${CMAKE_VERSION} VERSION_LESS 3.14)
   cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
 else()
-  cmake_policy(VERSION 3.12)
+  cmake_policy(VERSION 3.14)
 endif()
 
 
@@ -11,7 +11,7 @@ endif()
 # PROJECT
 # name version language
 # ---------------------------------------------------------------------------- #
-project(ilang VERSION     0.9.0
+project(ilang VERSION     0.9.2
               LANGUAGES   CXX
 )
 

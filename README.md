@@ -23,13 +23,16 @@
     -   [Supporting Both](#supporting-both)
 
 -   [Docker](#docker-image)
+
 -   [License](#license)
+
+-   [Contributing](#contributing)
 
 ## Build
 
 ### Prerequisites
 
-ILAng requires CMake (3.8 or above) and compilers with CXX11 support.
+ILAng requires CMake (3.9.6 or above) and compilers with CXX11 support.
 To install dependencies on Debian-based UNIX:
 
 ```bash
@@ -52,7 +55,7 @@ brew install bison flex boost boost-python z3
 | Ubuntu 14.04 (Trusty)     | gcc 4.8.4   | 3.8.0  | 4.7.1  | 1.54  | [![Build Status](https://semaphoreci.com/api/v1/bo-yuan-huang/ilang/branches/master/shields_badge.svg)](https://semaphoreci.com/bo-yuan-huang/ilang)                      |
 | Ubuntu 16.04 (Xenial)     | gcc 5.4.0   | 3.12.4 | 4.4.1  | 1.58  | [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILAng.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILAng)                                                 |
 | Ubuntu 16.04 (Xenial)     | clang 7.0.0 | 3.12.4 | 4.4.1  | 1.58  | [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILAng.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILAng)                                                 |
-| Ubuntu 18.04 (Bionic)     | gcc 7.3.0   | 3.13.1 | latest | 1.65  | [![Build status](https://ci.appveyor.com/api/projects/status/cwhlq09513art6hw/branch/master?svg=true)](https://ci.appveyor.com/project/Bo-Yuan-Huang/ilang/branch/master) |
+| Ubuntu 18.04 (Bionic)     | gcc 7.4.0   | 3.14.4 | latest | 1.65  | [![Build status](https://ci.appveyor.com/api/projects/status/cwhlq09513art6hw/branch/master?svg=true)](https://ci.appveyor.com/project/Bo-Yuan-Huang/ilang/branch/master) |
 | OSX 10.13.0 (High Sierra) | Xcode 9.4.1 | 3.11.4 | 4.8.4  | 1.69  | [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILAng.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILAng)                                                 |
 
 ### Default Build
@@ -62,7 +65,7 @@ To build ILAng with default configuration, create a build directory and execute:
 ```bash
 mkdir -p build && cd build
 cmake .. 
-make -j$(nproc)
+make
 ```
 
 After the build complete, run unit tests and install the library. 
@@ -88,6 +91,7 @@ To use the ILAng library, `ilang++.h` is the file to include.
 
 ```c++
 // cxx source
+
 #include <ilang/ilang++.h>
 
 void foo () {
@@ -101,10 +105,11 @@ To use the ILAng library from a CMake project, you can locate it directly with `
 
 ```cmake
 # CMakeLists.txt
+
 find_package(ilang REQUIRED)
-...
+
 add_library(my_proj ...)
-...
+
 target_link_libraries(my_proj PRIVATE ilang::ilang)
 ```
 
@@ -115,10 +120,11 @@ To embed the library directly into an existing CMake project, place the entire s
 
 ```cmake
 # CMakeLists.txt
+
 add_subdirectory(ilang)
-...
+
 add_library(my_proj ...)
-...
+
 target_link_libraries(my_proj PRIVATE ilang::ilang)
 ```
 
@@ -128,26 +134,26 @@ To allow your project to support either an externally installed or an embedded l
 
 ```cmake
 # Top level CMakeLists.txt
+
 project(MY_PROJ)
-...
+
 option(MY_PROJ_USE_EXTERNAL_ILANG "Use an external ILAng library" OFF)
-...
+
 add_subdirectory(externals)
-...
+
 add_library(my_proj ...)
-...
+
 target_link_libraries(my_proj PRIVATE ilang::ilang)
 ```
 
 ```cmake
 # externals/CMakeLists.txt
-...
+
 if(MY_PROJ_USE_EXTERNAL_ILANG)
   find_package(ilang REQUIRED)
 else()
   add_subdirectory(ilang)
 endif()
-...
 ```
 
 `externals/ilang` is then a complete copy of this source tree, if enabled.
@@ -175,9 +181,11 @@ This docker image also contains the model checker [CoSA](https://github.com/cris
 
 ## License
 
+<img align="right" src="http://opensource.org/trademarks/opensource/OSI-Approved-License-100x137.png">
+
 ILAng is licensed under the [MIT license](https://opensource.org/licenses/MIT):
 
-Copyright &copy; 2019 [Princeton University ILA Team](https://sites.google.com/view/princeton-malik-group/people)
+Copyright &copy; 2018-2019 [Princeton University ILA Team](https://sites.google.com/view/princeton-malik-group/people)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -199,14 +207,21 @@ SOFTWARE.
 
 * * *
 
-ILAng contains the Google logging module, which is licensed under [glog license](extern/glog/COPYING).
+ILAng contains the [Google logging module](https://github.com/google/glog), which is licensed under [glog license](extern/glog/COPYING).
 Copyright (c) 2008, Google Inc.
 
-ILAng contains the Google Test project, which is licensed under [googletest license](extern/googletest/LICENSE).
+ILAng contains the [Google Test project](https://github.com/google/googletest), which is licensed under [googletest license](extern/googletest/LICENSE).
 Copyright 2008, Google Inc.
 
-ILAng contains the JSON library from Niels Lohmann, which is licensed under the [MIT License](https://github.com/nlohmann/json/blob/develop/LICENSE.MIT). 
-Copyright &copy; 2013-2019 [Niels Lohmann](https://github.com/nlohmann).
+ILAng contains the [JSON library](https://github.com/nlohmann/json), which is licensed under the [MIT License](https://github.com/nlohmann/json/blob/develop/LICENSE.MIT). 
+Copyright (c) 2013-2019 Niels Lohmann.
 
-ILAng uses the Verilog parser from Ben Marshall, which is licensed under the [MIT License](https://github.com/ben-marshall/verilog-parser/blob/master/LICENSE.txt).
-Copyright &copy; 2016 [Ben Marshall](https://ben-marshall.github.io).
+ILAng uses the [Verilog parser](https://github.com/ben-marshall/verilog-parser), which is licensed under the [MIT License](https://github.com/ben-marshall/verilog-parser/blob/master/LICENSE.txt).
+Copyright (c) 2016 Ben Marshall.
+
+ILAng uses [ItSy](https://github.com/PrincetonUniversity/ItSy), which is licensed under the [MIT License](https://github.com/PrincetonUniversity/ItSy/blob/master/LICENSE).
+Copyright (c) 2016 Princeton University ILA Team.
+
+## Contributing
+
+Please refer to [CONTRIBUTING](docs/CONTRIBUTING.md) for further details. 

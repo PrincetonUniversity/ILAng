@@ -263,6 +263,58 @@ z3::expr ExprOpSub::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
   return expr_vec[0] - expr_vec[1];
 }
 
+// ------------------------- Class ExprOpDiv ------------------------------- //
+ExprOpDiv::ExprOpDiv(const ExprPtr arg0, const ExprPtr arg1)
+    : ExprOp(arg0, arg1) {
+  set_sort(GetSortBinaryOperation(arg0, arg1));
+}
+
+z3::expr ExprOpDiv::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                              const std::string& suffic) const {
+  ILA_ASSERT(expr_vec.size() == 2) << "Div is binary operation.";
+  ILA_ASSERT(is_bv()) << "Div can only be applied to bv.";
+  return expr_vec[0] / expr_vec[1];
+}
+
+// ------------------------- Class ExprOpSRem ------------------------------- //
+ExprOpSRem::ExprOpSRem(const ExprPtr arg0, const ExprPtr arg1)
+    : ExprOp(arg0, arg1) {
+  set_sort(GetSortBinaryOperation(arg0, arg1));
+}
+
+z3::expr ExprOpSRem::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                               const std::string& suffic) const {
+  ILA_ASSERT(expr_vec.size() == 2) << "SRem is binary operation.";
+  ILA_ASSERT(is_bv()) << "SRem can only be applied to bv.";
+  return Z3SRem(ctx, expr_vec[0], expr_vec[1]);
+}
+
+// ------------------------- Class ExprOpURem ------------------------------- //
+ExprOpURem::ExprOpURem(const ExprPtr arg0, const ExprPtr arg1)
+    : ExprOp(arg0, arg1) {
+  set_sort(GetSortBinaryOperation(arg0, arg1));
+}
+
+z3::expr ExprOpURem::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                               const std::string& suffic) const {
+  ILA_ASSERT(expr_vec.size() == 2) << "URem is binary operation.";
+  ILA_ASSERT(is_bv()) << "URem can only be applied to bv.";
+  return Z3URem(ctx, expr_vec[0], expr_vec[1]);
+}
+
+// ------------------------- Class ExprOpSMod ------------------------------- //
+ExprOpSMod::ExprOpSMod(const ExprPtr arg0, const ExprPtr arg1)
+    : ExprOp(arg0, arg1) {
+  set_sort(GetSortBinaryOperation(arg0, arg1));
+}
+
+z3::expr ExprOpSMod::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
+                               const std::string& suffic) const {
+  ILA_ASSERT(expr_vec.size() == 2) << "SMod is binary operation.";
+  ILA_ASSERT(is_bv()) << "SMod can only be applied to bv.";
+  return Z3SMod(ctx, expr_vec[0], expr_vec[1]);
+}
+
 // ------------------------- Class ExprOpMul ------------------------------- //
 ExprOpMul::ExprOpMul(const ExprPtr arg0, const ExprPtr arg1)
     : ExprOp(arg0, arg1) {
@@ -439,8 +491,43 @@ z3::expr ExprOpSExt::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec,
   ILA_ASSERT(expr_vec.size() == 1) << "Extend take 1 argument.";
   ILA_ASSERT(param_num() == 1) << "Extend need one parameter.";
   auto bv = expr_vec[0];
-  unsigned wid = static_cast<unsigned>(param(0));
+  auto org_wid = arg(0)->sort()->bit_width(); 
+  unsigned wid = static_cast<unsigned>(param(0) - org_wid);
   return Z3SExt(ctx, bv, wid);
+}
+
+// ------------------------- Class ExprOpLRotate ---------------------------- //
+ExprOpLRotate::ExprOpLRotate(const ExprPtr bv, const int& immediate)
+    : ExprOp(bv, immediate) {
+  ILA_ASSERT(bv->is_bv()) << "Left-rotate can only be applied to bit-vector.";
+  ILA_ASSERT(immediate >= 0) << "Invalid number of times to rotate.";
+  set_sort(bv->sort());
+}
+
+z3::expr ExprOpLRotate::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec, 
+                                  const std::string& suffix) const {
+  ILA_ASSERT(expr_vec.size() == 1) << "Rotate takes 1 argument.";
+  ILA_ASSERT(param_num() == 1) << "Rotate takes 1 parameter.";
+  auto bv = expr_vec[0];
+  unsigned immediate = static_cast<unsigned>(param(0));
+  return Z3LRotate(ctx, bv, immediate);
+}
+
+// ------------------------- Class ExprOpRRotate ---------------------------- //
+ExprOpRRotate::ExprOpRRotate(const ExprPtr bv, const int& immediate)
+    : ExprOp(bv, immediate) {
+  ILA_ASSERT(bv->is_bv()) << "Right-rotate can only be applied to bit-vector.";
+  ILA_ASSERT(immediate >= 0) << "Invalid number of times to rotate.";
+  set_sort(bv->sort());
+}
+
+z3::expr ExprOpRRotate::GetZ3Expr(z3::context& ctx, const Z3ExprVec& expr_vec, 
+                                  const std::string& suffix) const {
+  ILA_ASSERT(expr_vec.size() == 1) << "Rotate takes 1 argument.";
+  ILA_ASSERT(param_num() == 1) << "Rotate takes 1 parameter.";
+  auto bv = expr_vec[0];
+  unsigned immediate = static_cast<unsigned>(param(0));
+  return Z3RRotate(ctx, bv, immediate);
 }
 
 // ------------------------- Class ExprOpAppFunc ---------------------------- //

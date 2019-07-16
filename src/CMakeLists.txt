@@ -10,7 +10,7 @@ add_library(${PROJECT_NAME}::${ILANG_LIB_NAME} ALIAS ${ILANG_LIB_NAME})
 ##
 add_subdirectory(ila)
 add_subdirectory(mcm)
-add_subdirectory(portable)
+add_subdirectory(target-json)
 add_subdirectory(target-sc)
 add_subdirectory(util)
 add_subdirectory(verification)
@@ -19,7 +19,7 @@ add_subdirectory(verilog-out)
 add_subdirectory(vtarget-out)
 
 if(${ILANG_BUILD_SYNTH})
-  add_subdirectory(synth-interface)
+  add_subdirectory(target-itsy)
 endif()
 
 ##
@@ -173,6 +173,11 @@ else()
   install(
     FILES ${ILANG_INCLUDE_BUILD_DIR}/ilang/ilang++.h
     DESTINATION ${ILANG_INCLUDE_INSTALL_DIR}/ilang
+  )
+
+  install(
+    FILES ${ILANG_INCLUDE_BUILD_DIR}/ilang/util/log.h
+    DESTINATION ${ILANG_INCLUDE_INSTALL_DIR}/ilang/util
   )
 
 endif()

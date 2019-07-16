@@ -105,14 +105,14 @@ protected:
   VerilogGeneratorBase vlg_wrapper;
   /// Generator for the ila verilog
   VerilogGenerator vlg_ila;
-  /// Analyzer for the implementation
-  // we don't know the module name, before analyzing the rfmap. so we cannot
-  // initialize in the beginning
-  VerilogInfo* vlg_info_ptr;
   /// inteface directive recorder
   IntefaceDirectiveRecorder _idr;
   /// state directive recorder
   StateMappingDirectiveRecorder _sdr;
+  /// Analyzer for the implementation
+  // we don't know the module name, before analyzing the rfmap. so we cannot
+  // initialize in the beginning
+  VerilogInfo* vlg_info_ptr;
   /// variable extractor to handle property expressions
   VarExtractor _vext;
   /// refinement relation variable mapping
@@ -238,10 +238,10 @@ protected:
   std::vector<std::string> vlg_design_files; // mainly design file
   /// include paths
   std::vector<std::string> vlg_include_files_path;
-  /// Store the selection of backend
-  backend_selector _backend;
   /// Store the configuration
   vtg_config_t _vtg_config;
+  /// Store the selection of backend
+  backend_selector _backend;
 
 public:
   /// Call the separate construct functions to make a wrapper (not yet export
@@ -378,10 +378,10 @@ protected:
   std::string _ila_mod_inst_name;
   /// A pointer to create verilog analyzer
   VerilogInfo* vlg_info_ptr;
-  /// to store the verilog configuration
-  VerilogGenerator::VlgGenConfig _cfg;
   /// to store the backend
   backend_selector _backend;
+  /// to store the verilog configuration
+  VerilogGenerator::VlgGenConfig _cfg;
   /// to store the configuration
   vtg_config_t _vtg_config;
 

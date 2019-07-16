@@ -239,16 +239,59 @@ bool VlgVerifTgtGen::bad_state_return(void) {
   return _bad_state;
 } // bad_state_return
 
+// return npos if no comments in
+static size_t find_comments(const std::string& line) {
+  enum state_t { PLAIN, STR, LEFT } state, next_state;
+  state = PLAIN;
+  size_t ret = 0;
+  for (const auto& c : line) {
+    if (state == PLAIN) {
+      if (c == '/')
+        next_state = LEFT;
+      else
+        next_state = PLAIN;
+    } else if (state == STR) {
+      if (c == '"')
+        next_state = PLAIN;
+      else
+        next_state = STR;
+    } else if (state == LEFT) {
+      if (c == '/') {
+        ILA_ASSERT(ret > 0);
+        return ret - 1;
+      } else
+        next_state = PLAIN;
+    } else
+      ILA_ASSERT(false);
+    state = next_state;
+    ++ret;
+  }
+  return std::string::npos;
+}
+
 void VlgVerifTgtGen::load_json(const std::string& fname, nlohmann::json& j) {
   if (bad_state_return())
     return;
   std::ifstream fin(fname);
+
   if (!fin.is_open()) {
     ILA_ERROR << "Cannot read from file:" << fname;
     _bad_state = true;
     return;
   }
-  fin >> j;
+
+  // remove the comments
+  std::string contents;
+  std::string line;
+  while (std::getline(fin, line)) {
+    auto comment_begin = find_comments(line);
+    if (comment_begin != std::string::npos)
+      contents += line.substr(0, comment_begin);
+    else
+      contents += line;
+    contents += "\n";
+  }
+  j = nlohmann::json::parse(contents);
 } // load_json
 
 }; // namespace ilang

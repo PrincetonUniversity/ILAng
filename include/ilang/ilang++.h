@@ -176,6 +176,8 @@ ExprRef operator+(const ExprRef& a, const ExprRef& b);
 ExprRef operator-(const ExprRef& a, const ExprRef& b);
 /// Unsigned multiply for bit-vectors.
 ExprRef operator*(const ExprRef& a, const ExprRef& b);
+/// Unsigned division for bit-vectors.
+ExprRef operator/(const ExprRef& a, const ExprRef& b);
 
 /// Logical AND with Boolean constant.
 ExprRef operator&(const ExprRef& a, const bool& b);
@@ -195,6 +197,12 @@ ExprRef operator+(const ExprRef& a, const int& b);
 ExprRef operator-(const ExprRef& a, const int& b);
 /// Unsigned multiply with int constant.
 ExprRef operator*(const ExprRef& a, const int& b);
+/// Arithmetic signed remainder.
+ExprRef SRem(const ExprRef& a, const ExprRef& b);
+/// Arithmetic unsigned remainder.
+ExprRef URem(const ExprRef& a, const ExprRef& b);
+/// Arithmetic signed modular.
+ExprRef SMod(const ExprRef& a, const ExprRef& b);
 
 /******************************************************************************/
 // Binary comparison
@@ -299,6 +307,14 @@ ExprRef ZExt(const ExprRef& bv, const int& length);
 /// \param[in] bv source bit-vector.
 /// \param[in] length bit-width of the extended (result) bit-vector.
 ExprRef SExt(const ExprRef& bv, const int& length);
+/// \brief Left-rotate the bit-vector with immediate number of times. 
+/// \param[in] bv source bit-vector
+/// \param[in] immediate number of times to rotate the bv
+ExprRef LRotate(const ExprRef& bv, const int& immediate);
+/// \brief Right-rotate the bit-vector with immediate number of times. 
+/// \param[in] bv source bit-vector
+/// \param[in] immediate number of times to rotate the bv
+ExprRef RRotate(const ExprRef& bv, const int& immediate);
 
 /******************************************************************************/
 // Others

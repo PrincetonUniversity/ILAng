@@ -5,6 +5,7 @@
 #ifndef ILANG_VERILOG_IN_VERILOG_CONST_PARSER_H__
 #define ILANG_VERILOG_IN_VERILOG_CONST_PARSER_H__
 
+#include <map>
 #include <string>
 
 extern "C" {
@@ -28,15 +29,22 @@ protected:
   bool eval_error;
   /// record the errorneous part:
   std::string error_str;
+  /// to record the variable binding
+  std::map<std::string, double> param_defs;
   // --------------------- HELPER FUNC ---------------------------- //
-  unsigned virtual _eval(ast_expression* e);
+  double virtual _eval(ast_expression* e);
 
 public:
   // --------------------- CONSTRUCTOR ---------------------------- //
   /// input : the string to evaluate
   VerilogConstantExprEval(ast_expression* e);
+  /// parse only the current module's parameter definitions, will update
+  /// param_defs
+  void ParseCurrentModuleParameters(ast_module_declaration* m);
+  /// parse a hierarchy
+  // TODO: add function here
   /// Get the value
-  unsigned Eval();
+  double Eval();
 }; // class VerilogConstantExprEval
 
 }; // namespace ilang

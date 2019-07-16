@@ -1,12 +1,15 @@
 /// file
 /// Unit test for the AES Verlog vs C equivalence checking.
 
-#include "unit-include/config.h"
-#include "unit-include/util.h"
-#include <ilang/synth-interface/synth_engine_interface.h>
+#include <ilang/ilang++.h>
 #include <ilang/verification/abs_knob.h>
 #include <ilang/verification/eq_check_crr.h>
+
+#include <ilang/util/fs.h>
 #include <z3++.h>
+
+#include "unit-include/config.h"
+#include "unit-include/util.h"
 
 namespace ilang {
 
@@ -17,20 +20,21 @@ TEST(TestCase, AES_V_C_EQ) {
   DebugLog::Enable("Verbose-CrrEqCheck");
 
   // get the ILA model
-  auto test_data_path = std::string(ILANG_TEST_SRC_ROOT) + "/unit-data/";
-  auto file_abs_aes_v_top = test_data_path + "/aes_v/all";
-  auto file_abs_aes_v_child = test_data_path + "/aes_v/allu";
-  auto file_abs_aes_c_top = test_data_path + "/aes_c/all";
-  auto file_abs_aes_c_child = test_data_path + "/aes_c/allu";
+  auto aes_dir = os_portable_append_dir(ILANG_TEST_DATA_DIR, "aes");
+  auto aes_v_file = os_portable_append_dir(aes_dir, "aes_v.json");
+  auto aes_c_file = os_portable_append_dir(aes_dir, "aes_c.json");
 
-  auto m_v = ImportSynthAbsFromFile(file_abs_aes_v_top, "AES_V");
+  auto aes_v = ImportIlaPortable(aes_v_file);
+  auto aes_c = ImportIlaPortable(aes_c_file);
+
+  auto m_v = aes_v.get();
+  auto m_c = aes_c.get();
+  auto u_v = m_v->child(0);
+  auto u_c = m_c->child(0);
+
   ASSERT_NE(m_v, nullptr);
-  auto u_v = ImportSynthAbsFromFileHier(file_abs_aes_v_child, m_v, "AES_V_U");
   ASSERT_NE(u_v, nullptr);
-
-  auto m_c = ImportSynthAbsFromFile(file_abs_aes_c_top, "AES_C");
   ASSERT_NE(m_c, nullptr);
-  auto u_c = ImportSynthAbsFromFileHier(file_abs_aes_c_child, m_c, "AES_C_U");
   ASSERT_NE(u_c, nullptr);
 
   // determine which instruction is the start encrypt (i.e., cmdaddr == 0xff00)
@@ -52,6 +56,8 @@ TEST(TestCase, AES_V_C_EQ) {
         return ila->instr(i);
       }
     }
+    ILA_ERROR << "Fail finding start instruction";
+    return InstrPtr(NULL);
   };
 
   auto start_v = FindStartInstr(m_v);

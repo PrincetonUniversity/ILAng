@@ -23,20 +23,17 @@ public:
   static Ila BuildModel();
 };
 
-
 /// \brief UndetExample -- function
 class UndetFunc {
 public:
   static Ila BuildModel();
 };
 
-
 /// \brief UndetExample -- building a monitor
 class MonitorTest {
 public:
   static Ila BuildModel();
 };
-
 
 }; // namespace ilang
 
