@@ -78,14 +78,10 @@ endif()
 
 target_link_libraries(${ILANG_LIB_NAME} PUBLIC z3::z3)
 
-if(DEFINED Z3_VERSION)
-  if(${Z3_VERSION} VERSION_LESS 4.6.0)
-    set(Z3_LEGACY_API TRUE)
-  else()
-    set(Z3_LEGACY_API FALSE)
-  endif()
+if(${Z3_VERSION} VERSION_LESS 4.6.0)
+  set(Z3_LEGACY_API TRUE)
 else()
-    set(Z3_LEGACY_API FALSE)
+  set(Z3_LEGACY_API FALSE)
 endif()
 
 ##
