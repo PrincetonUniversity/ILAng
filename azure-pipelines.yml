@@ -56,11 +56,16 @@ jobs:
   steps:
   - script: |
       choco install winflexbison3
-      choco install wget
     displayName: 'package'
   - script: |
-      wget https://github.com/Z3Prover/z3/releases/download/Z3-4.8.5/z3-4.8.5-x64-win.zip
-      unzip z3-4.8.5-x64-win.zip
+      git clone https://github.com/Z3Prover/z3.git
+      cd z3
+      md build
+      cd build
+      call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
+      cmake .. -G "NMake Makefiles"
+      cmake --build .
+      cmake --build . --target install
     displayName: 'z3'
   - script: |
       git clone https://github.com/Bo-Yuan-Huang/verilog-parser.git 
@@ -72,9 +77,10 @@ jobs:
       cmake --build . --target install
     displayName: 'Verilog-parser'
   - script: |
-      mkdir -p build && cd build
+      md build
+      cd build
       call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
-      cmake .. -DILANG_BUILD_SYNTH=OFF -DZ3_INCLUDE_DIR="..\z3-4.8.5-x64-win\include" -DZ3_LIBRARY="..\z3-4.8.5-x64-win\bin\libz3.lib" -DZ3_EXEC="..\z3-4.8.5-x64-win\bin\z3.exe"
+      cmake .. -DILANG_BUILD_SYNTH=OFF 
       cmake --build .
       cmake --build . --target install
       cmake --build . --target test
