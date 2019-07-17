@@ -61,9 +61,18 @@ jobs:
       unzip z3-4.8.5-x64-win.zip
     displayName: 'z3'
   - script: |
+      git clone https://github.com/Bo-Yuan-Huang/verilog-parser.git 
+      cd verilog-parser
+      md build
+      cd build
+      cmake ..
+      cmake --build .
+      cmake --build . --target install
+    displayName: 'Verilog-parser'
+  - script: |
       mkdir -p build && cd build
       call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
-      cmake .. -DILANG_BUILD_SYNTH=OFF -DZ3_INCLUDE_DIR="..\z3-4.8.5-x64-win\include" -DZ3_LIBRARY="..\z3-4.8.5-x64-win\bin\libz3.dll" -DZ3_EXEC="..\z3-4.8.5-x64-win\bin\z3.exe"
+      cmake .. -DILANG_BUILD_SYNTH=OFF -DILANG_FETCH_DPES=OFF -DZ3_INCLUDE_DIR="..\z3-4.8.5-x64-win\include" -DZ3_LIBRARY="..\z3-4.8.5-x64-win\bin\libz3.dll" -DZ3_EXEC="..\z3-4.8.5-x64-win\bin\z3.exe"
       cmake --build .
       cmake --build . --target install
       cmake --build . --target test
