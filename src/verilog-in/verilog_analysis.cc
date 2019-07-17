@@ -557,8 +557,8 @@ VerilogAnalyzer::get_module_inst_loc(const std::string& inst_name) const {
   }
 
   auto last_level_name = level_names[level_names.size() - 1]; // the last one
-  if (not IN(last_level_name,
-             GetMapRef(modules_to_submodules_map, curr_mod_name))) {
+  if (!IN(last_level_name,
+          GetMapRef(modules_to_submodules_map, curr_mod_name))) {
     ILA_ERROR << inst_name << " not found in the last level.";
     return vlg_loc_t(); // this instance name does not exists
   }
@@ -757,7 +757,7 @@ VerilogAnalyzer::get_endmodule_loc(const std::string& inst_name) const {
   auto tp_ = check_hierarchical_name_type(inst_name);
   void* ptr_ = find_declaration_of_name(inst_name);
   ILA_NOT_NULL(ptr_);
-  if (not is_module(tp_)) {
+  if (!is_module(tp_)) {
     ILA_ERROR << inst_name
               << " should not be the argument of get_endmodule_loc, not a "
                  "module instance name.";

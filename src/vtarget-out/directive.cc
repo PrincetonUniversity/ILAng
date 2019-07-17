@@ -2,10 +2,11 @@
 /// Verification Target Generation
 // --- Hongce Zhang
 
+#include <ilang/vtarget-out/directive.h>
+
 #include <ilang/util/container_shortcut.h>
 #include <ilang/util/log.h>
 #include <ilang/util/str_util.h>
-#include <ilang/vtarget-out/directive.h>
 
 namespace ilang {
 
@@ -180,7 +181,7 @@ void IntefaceDirectiveRecorder::RegisterInterface(const SignalInfoBase& vlg_sig,
     ILA_WARN << "assuming " << short_name << " has width 1";
     width = 1;
   }
-  if (not is_input && !is_output)
+  if (!is_input && !is_output)
     ILA_ERROR << "Implementation bug: I/O direction is unknown for "
               << short_name;
 
