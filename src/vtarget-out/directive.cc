@@ -155,7 +155,7 @@ void IntefaceDirectiveRecorder::ModuleInstSanityCheck(
 // register extra state out name
 void IntefaceDirectiveRecorder::RegisterExtraWire(
     const std::string& io_name, const std::string& outside_name) {
-  if (not IN(io_name, mod_inst_rec))
+  if (!IN(io_name, mod_inst_rec))
     mod_inst_rec.insert(
         {{io_name, inf_connector_t({inf_dir_t::SO, outside_name})}});
   else {
@@ -349,7 +349,7 @@ void IntefaceDirectiveRecorder::RegisterInterface(const SignalInfoBase& vlg_sig,
   if (is_input) {
     // TODO: FIXME: NEED TO CHECK w. ILA
     // ILA_ERROR_IF( refstr is not an ila input )
-    ILA_ERROR_IF(not chk(refstr, vlg_sig))
+    ILA_ERROR_IF(!chk(refstr, vlg_sig))
         << "Uncompatible input refinement:" << refstr << " for " << short_name
         << ". Connect anyway. Please check.";
 
@@ -376,7 +376,7 @@ void IntefaceDirectiveRecorder::SetMemName(const std::string& directive,
                                            const std::string& ila_state_name) {
 
   ILA_ASSERT(beginsWith(directive, "**"));
-  if (not beginsWith(directive, "**MEM**")) {
+  if (!beginsWith(directive, "**MEM**")) {
     ILA_ERROR << directive << " is not a recognized directive!";
     return;
   }
@@ -407,7 +407,7 @@ std::string IntefaceDirectiveRecorder::ConnectMemory(
     const std::map<unsigned, wport_t>& wports, int ila_addr_width,
     int ila_data_width, bool abs_read) {
   ILA_ASSERT(beginsWith(directive, "**"));
-  if (not beginsWith(directive, "**MEM**")) {
+  if (!beginsWith(directive, "**MEM**")) {
     ILA_ERROR << directive << " is not a recognized directive!";
     return VLG_TRUE;
   }

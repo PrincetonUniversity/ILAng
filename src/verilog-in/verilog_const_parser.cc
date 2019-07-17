@@ -58,7 +58,7 @@ double VerilogConstantExprEval::_eval(ast_expression* e) {
 }
 
 double VerilogConstantExprEval::Eval() {
-  if (not evaluated) {
+  if (!evaluated) {
     cached_value = _eval(eval_expr);
     evaluated = true;
   }

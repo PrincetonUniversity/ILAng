@@ -47,7 +47,7 @@ static void* ast_list_get_not_null(ast_list* list, unsigned int item) {
 
 std::string VerilogAnalyzer::get_module_name_of_net_name(
     const std::string& net_name) const {
-  ILA_ERROR_IF(not S_IN(".", net_name))
+  ILA_ERROR_IF(!S_IN(".", net_name))
       << net_name << " is not a net name, no '.'";
   auto levels = Split(net_name, ".");
   levels.pop_back(); // remove the last element
@@ -350,8 +350,8 @@ VerilogAnalyzer::_check_hierarchical_name_type(
       void* ptr_from_list_ =
           ast_list_get_not_null(port_ptr->port_names, name_idx);
       ast_identifier port_id_ptr;
-      if (not port_ptr->is_list_id) { // in this case, it is not a list of
-                                      // ast_identifier
+      if (!port_ptr->is_list_id) { // in this case, it is not a list of
+                                   // ast_identifier
         // but a list of ast_single_assignment(ast_new_lvalue_id)
         ast_single_assignment* asm_ptr = (ast_single_assignment*)ptr_from_list_;
         ILA_ASSERT(asm_ptr->lval->type == ast_lvalue_type_e::NET_IDENTIFIER ||
