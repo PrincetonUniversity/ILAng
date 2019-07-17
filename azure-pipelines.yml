@@ -72,7 +72,7 @@ jobs:
   - script: |
       mkdir -p build && cd build
       call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
-      cmake .. -DILANG_BUILD_SYNTH=OFF -DILANG_FETCH_DPES=OFF -DZ3_INCLUDE_DIR="..\z3-4.8.5-x64-win\include" -DZ3_LIBRARY="..\z3-4.8.5-x64-win\bin\libz3.dll" -DZ3_EXEC="..\z3-4.8.5-x64-win\bin\z3.exe"
+      cmake .. -DILANG_BUILD_SYNTH=OFF -DILANG_FETCH_DEPS=OFF -DZ3_INCLUDE_DIR="..\z3-4.8.5-x64-win\include" -DZ3_LIBRARY="..\z3-4.8.5-x64-win\bin\libz3.lib" -DZ3_EXEC="..\z3-4.8.5-x64-win\bin\z3.exe"
       cmake --build .
       cmake --build . --target install
       cmake --build . --target test
