@@ -34,7 +34,7 @@ bool IntefaceDirectiveRecorder::isSpecialInputDirCompatibleWith(
   if (c == "**SO**")
     return vlg_sig.is_output();
   if (c == "**RESET**" || c == "**NRESET**" || c == "**CLOCK**")
-    return (vlg_sig.is_input() and vlg_sig.get_width() == 1);
+    return (vlg_sig.is_input() && vlg_sig.get_width() == 1);
   if (beginsWith(c, "**MEM**")) {
     auto first_dot_loc = c.find(".");
     auto port_name = c.substr(first_dot_loc + 1);
@@ -180,11 +180,11 @@ void IntefaceDirectiveRecorder::RegisterInterface(const SignalInfoBase& vlg_sig,
     ILA_WARN << "assuming " << short_name << " has width 1";
     width = 1;
   }
-  if (not is_input and not is_output)
+  if (not is_input && !is_output)
     ILA_ERROR << "Implementation bug: I/O direction is unknown for "
               << short_name;
 
-  if (is_input and is_output) {
+  if (is_input && is_output) {
     ILA_WARN << "not handling inout wire: " << short_name
              << ", will not be connected";
     // nc and skip
@@ -267,7 +267,7 @@ void IntefaceDirectiveRecorder::RegisterInterface(const SignalInfoBase& vlg_sig,
       }
       auto dirm = refstr.substr(7); // [7:]
       auto dirv = Split(dirm, ".");
-      if (dirv.size() < 2 or dirv.size() > 3) {
+      if (dirv.size() < 2 || dirv.size() > 3) {
         ILA_ERROR << "Bad mem directive:" << refstr;
         return;
       }
@@ -280,7 +280,7 @@ void IntefaceDirectiveRecorder::RegisterInterface(const SignalInfoBase& vlg_sig,
       //
 
       auto ila_minfo = mget(ila_mem_name);
-      if (ila_minfo.first == 0 or ila_minfo.second == 0) {
+      if (ila_minfo.first == 0 || ila_minfo.second == 0) {
         ILA_ERROR << "No such memory in ila:" << ila_mem_name
                   << " refered by refinement relation.";
         return;

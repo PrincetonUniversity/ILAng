@@ -103,13 +103,13 @@ VlgSglTgtGen::VlgSglTgtGen(
       _bad_state = true;
     }
     // check for fields in
-    if (not IN("instruction", instr) or not instr["instruction"].is_string()) {
+    if (not IN("instruction", instr) || !instr["instruction"].is_string()) {
       ILA_ERROR << "RF: instruction field must be a string for "
                 << instr_ptr->name().str();
       _bad_state = true;
     }
 
-    if (IN("flush constraint", instr) and
+    if (IN("flush constraint", instr) &&
         not instr["flush constraint"].is_array()) {
       ILA_ERROR
           << "RF: 'flush constraint' filed must be an array of string for "
@@ -117,23 +117,23 @@ VlgSglTgtGen::VlgSglTgtGen(
       _bad_state = true;
     }
 
-    if (IN("pre-flush end", instr) and not instr["pre-flush end"].is_string()) {
+    if (IN("pre-flush end", instr) && !instr["pre-flush end"].is_string()) {
       ILA_ERROR << "RF: 'pre-flush end' filed must be a string for "
                 << instr_ptr->name().str();
       _bad_state = true;
     }
 
-    if (IN("post-flush end", instr) and
+    if (IN("post-flush end", instr) &&
         not instr["post-flush end"].is_string()) {
       ILA_ERROR << "RF: 'post-flush end' filed must be a string for "
                 << instr_ptr->name().str();
       _bad_state = true;
     }
 
-    if (IN("flush constraint", instr) and
+    if (IN("flush constraint", instr) &&
         instr["flush constraint"].size() != 0) {
-      if (IN("pre-flush end", instr) and instr["pre-flush end"].size() != 0 and
-          IN("post-flush end", instr) and instr["post-flush end"].size() != 0)
+      if (IN("pre-flush end", instr) && instr["pre-flush end"].size() != 0 &&
+          IN("post-flush end", instr) && instr["post-flush end"].size() != 0)
         has_flush = true; // requiring three items
       else {
         ILA_ERROR
@@ -143,11 +143,11 @@ VlgSglTgtGen::VlgSglTgtGen(
       }
     }
 
-    if (IN("ready signal", instr) and
+    if (IN("ready signal", instr) &&
         instr["ready signal"].size() !=
             0) // whether a none-empty string or array...
       ready_type = (ready_type_t)(ready_type | ready_type_t::READY_SIGNAL);
-    if (IN("ready bound", instr) and instr["ready bound"].is_number_integer())
+    if (IN("ready bound", instr) && instr["ready bound"].is_number_integer())
       ready_type = (ready_type_t)(ready_type | ready_type_t::READY_BOUND);
     if (ready_type == ready_type_t::NA) {
       ILA_ERROR << "refinement relation for:" << instr_ptr->name().str()
@@ -296,7 +296,7 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
     const auto adw = GetMemInfo(ila_name);
     auto aw = adw.first;
     auto dw = adw.second; // address/data width
-    ILA_ASSERT(aw > 0 and dw > 0)
+    ILA_ASSERT(aw > 0 && dw > 0)
         << "Implementation bug: unable to find mem:" << ila_name;
 
     for (auto&& rport : rports) {
@@ -327,7 +327,7 @@ std::string VlgSglTgtGen::ConstructWrapper_get_ila_module_inst() {
     const auto adw = GetMemInfo(ila_name);
     auto aw = adw.first;
     auto dw = adw.second; // address/data width
-    ILA_ASSERT(aw > 0 and dw > 0)
+    ILA_ASSERT(aw > 0 && dw > 0)
         << "Implementation bug: unable to find mem:" << ila_name;
 
     for (auto&& wport : wports) {
@@ -407,7 +407,7 @@ void VlgSglTgtGen::ConstructWrapper_add_cycle_count_moniter() {
 
   auto& instr = get_current_instruction_rf();
 
-  if (!instr.is_null() and IN("ready bound", instr) and
+  if (!instr.is_null() && IN("ready bound", instr) &&
       instr["ready bound"].is_number_integer())
     max_bound = instr["ready bound"].get<int>();
   else
@@ -479,7 +479,7 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assumptions() {
                 << " is not a state of the ILA:" << _host->name().str();
       continue;
     }
-    if (_vtg_config.OnlyAssumeUpdatedVarsEq and
+    if (_vtg_config.OnlyAssumeUpdatedVarsEq &&
         _instr_ptr->update(sname) == nullptr) {
       ILA_DLOG("VtargetGen") << "Skip assume EQ on variable:" << sname
                              << " for instruction:" << _instr_ptr->name().str();
@@ -529,7 +529,7 @@ void VlgSglTgtGen::ConstructWrapper_add_varmap_assertions() {
                 << " is not a state of the ILA:" << _host->name().str();
       continue;
     }
-    if (_vtg_config.OnlyCheckInstUpdatedVars and
+    if (_vtg_config.OnlyCheckInstUpdatedVars &&
         _instr_ptr->update(sname) == nullptr) {
 
       // do not skip memory, though we don't use the eq signal it returns
@@ -754,7 +754,7 @@ void VlgSglTgtGen::ConstructWrapper_add_condition_signals() {
   }
 
   if (has_flush) {
-    ILA_ASSERT(IN("pre-flush end", instr) and
+    ILA_ASSERT(IN("pre-flush end", instr) &&
                IN("post-flush end", instr)); // there has to be something
 
     std::string issue_cond;

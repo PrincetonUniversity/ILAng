@@ -90,13 +90,12 @@ VlgVerifTgtGen::VlgVerifTgtGen(
   }
 
   // check vmap
-  if (not IN("models", rf_vmap) || not rf_vmap["models"].is_object()) {
+  if (!IN("models", rf_vmap) || !rf_vmap["models"].is_object()) {
     ILA_ERROR << "'model' field must exist in vmap and be a map of ILA/VERILOG "
                  "-> 'instance name' ";
     _bad_state = true;
   }
-  if (not IN("state mapping", rf_vmap) ||
-      not rf_vmap["state mapping"].is_object()) {
+  if (!IN("state mapping", rf_vmap) || !rf_vmap["state mapping"].is_object()) {
     ILA_ERROR << "'state mapping' field must exist in vmap and be a map : "
                  "ila_var -> impl_var";
     _bad_state = true;
@@ -133,13 +132,13 @@ void VlgVerifTgtGen::GenerateTargets(void) {
     bool invariantExists = false;
     if (IN("global invariants", rf_cond)) {
       auto& inv = rf_cond["global invariants"];
-      if (inv.is_array() and inv.size() != 0)
+      if (inv.is_array() && inv.size() != 0)
         invariantExists = true;
-      else if (inv.is_string() and inv.get<std::string>() != "")
+      else if (inv.is_string() && inv.get<std::string>() != "")
         invariantExists = true;
     }
 
-    if (_backend == backend_selector::COSA and invariantExists) {
+    if (_backend == backend_selector::COSA && invariantExists) {
       auto target = VlgSglTgtGen_Cosa(
           os_portable_append_dir(_output_path, "invariants"),
           NULL, // invariant
@@ -149,7 +148,7 @@ void VlgVerifTgtGen::GenerateTargets(void) {
       target.ConstructWrapper();
       target.ExportAll("wrapper.v", "ila.v", "run.sh", "problem.txt",
                        "absmem.v");
-    } else if (_backend == backend_selector::JASPERGOLD and invariantExists) {
+    } else if (_backend == backend_selector::JASPERGOLD && invariantExists) {
       auto target = VlgSglTgtGen_Jasper(
           os_portable_append_dir(_output_path, "invariants"),
           NULL, // invariant
@@ -168,7 +167,7 @@ void VlgVerifTgtGen::GenerateTargets(void) {
     auto& instrs = rf_cond["instructions"];
     for (auto&& instr : instrs) {
       std::string iname = instr["instruction"].get<std::string>();
-      if (_vtg_config.CheckThisInstructionOnly != "" and
+      if (_vtg_config.CheckThisInstructionOnly != "" &&
           _vtg_config.CheckThisInstructionOnly != iname)
         continue; // skip, not checking this instruction
 
