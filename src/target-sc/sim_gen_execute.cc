@@ -9,7 +9,7 @@ namespace ilang {
 
 void IlaSim::execute_parent_instructions(stringstream& execute_kernel,
                                          string& indent) {
-  for (int i = 0; i < model_ptr_->instr_num(); i++) {
+  for (unsigned int i = 0; i < model_ptr_->instr_num(); i++) {
     execute_instruction(execute_kernel, indent, model_ptr_->instr(i));
   }
 }
@@ -20,14 +20,14 @@ void IlaSim::execute_child_instructions(stringstream& execute_kernel,
   execute_kernel << indent << "while (1) {" << endl;
   increase_indent(indent);
   execute_kernel << indent << "int schedule_counter = 0;" << endl;
-  for (int i = 0; i < model_ptr_->child_num(); i++)
+  for (unsigned int i = 0; i < model_ptr_->child_num(); i++)
     child_ila_queue.push(model_ptr_->child(i));
   while (!child_ila_queue.empty()) {
     InstrLvlAbsPtr child_ila = child_ila_queue.front();
     child_ila_queue.pop();
-    for (int i = 0; i < child_ila->child_num(); i++)
+    for (unsigned int i = 0; i < child_ila->child_num(); i++)
       child_ila_queue.push(child_ila->child(i));
-    for (int i = 0; i < child_ila->instr_num(); i++)
+    for (unsigned int i = 0; i < child_ila->instr_num(); i++)
       execute_instruction(execute_kernel, indent, child_ila->instr(i), true);
   }
   execute_kernel << indent << "if (schedule_counter == 0) " << endl;
@@ -269,7 +269,7 @@ void IlaSim::execute_external_mem_after_output(stringstream& execute_kernel,
 }
 
 void IlaSim::execute_read_input(stringstream& execute_kernel, string& indent) {
-  for (int i = 0; i < model_ptr_->input_num(); i++) {
+  for (unsigned int i = 0; i < model_ptr_->input_num(); i++) {
     auto input = model_ptr_->input(i);
     execute_kernel << indent << model_ptr_->name() << "_" << input->name()
                    << " = " << model_ptr_->name() << "_" << input->name()
@@ -308,7 +308,7 @@ void IlaSim::execute_external_mem_return(stringstream& execute_kernel,
 
 void IlaSim::execute_write_output(stringstream& execute_kernel,
                                   string& indent) {
-  for (int i = 0; i < model_ptr_->state_num(); i++) {
+  for (unsigned int i = 0; i < model_ptr_->state_num(); i++) {
     auto state = model_ptr_->state(i);
     if (GetUidSort(state->sort()) == AST_UID_SORT::MEM) {
       ILA_WARN << "internal mem state " << state->name().str()

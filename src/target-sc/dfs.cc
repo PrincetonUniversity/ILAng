@@ -5,7 +5,7 @@
 
 namespace ilang {
 
-void IlaSim::dfs_store_op(const ExprPtr& expr) {
+void IlaSim::dfs_store_op(const ExprPtr &expr) {
   auto expr_uid = GetUidExpr(expr);
   if (expr_uid == AST_UID_EXPR::OP) {
     auto expr_op = GetUidExprOp(expr);
@@ -16,7 +16,7 @@ void IlaSim::dfs_store_op(const ExprPtr& expr) {
   }
 }
 
-void IlaSim::dfs_load_from_store(const ExprPtr& expr) {
+void IlaSim::dfs_load_from_store(const ExprPtr &expr) {
   auto expr_uid = GetUidExpr(expr);
   if (expr_uid == AST_UID_EXPR::OP) {
     auto expr_op = GetUidExprOp(expr);
@@ -27,7 +27,7 @@ void IlaSim::dfs_load_from_store(const ExprPtr& expr) {
   }
 }
 
-void IlaSim::dfs_external_mem_load(const ExprPtr& expr) {
+void IlaSim::dfs_external_mem_load(const ExprPtr &expr) {
   auto expr_uid = GetUidExpr(expr);
   if (expr_uid == AST_UID_EXPR::OP) {
     auto expr_op = GetUidExprOp(expr);
@@ -39,7 +39,7 @@ void IlaSim::dfs_external_mem_load(const ExprPtr& expr) {
   }
 }
 
-void IlaSim::dfs_uninterpreted_func_decl(const FuncPtr& func) {
+void IlaSim::dfs_uninterpreted_func_decl(const FuncPtr &func) {
   auto func_name = func->name();
   auto func_out_sort = func->out();
   header_ << header_indent_;
@@ -49,12 +49,11 @@ void IlaSim::dfs_uninterpreted_func_decl(const FuncPtr& func) {
     header_ << "sc_biguint<" << func_out_sort->bit_width() << "> " << func_name
             << "(";
   } else if (func_out_sort->is_mem()) {
-    ILA_WARN << "Warning: 2d array might have trouble as function output";
     header_ << "sc_biguint<" << func_out_sort->data_width() << "> " << func_name
             << "(";
   }
 
-  for (int i = 0; i < func->arg_num(); i++) {
+  for (unsigned int i = 0; i < func->arg_num(); i++) {
     if (i != 0) {
       header_ << ", ";
     }
@@ -73,8 +72,8 @@ void IlaSim::dfs_uninterpreted_func_decl(const FuncPtr& func) {
   header_ << ");" << endl;
 }
 
-void IlaSim::dfs_const_node(stringstream& dfs_simulator, string& indent,
-                            const ExprPtr& expr) {
+void IlaSim::dfs_const_node(stringstream &dfs_simulator, string &indent,
+                            const ExprPtr &expr) {
   auto id = expr->name().id();
   auto sort = expr->sort();
   if (GetUidSort(sort) == AST_UID_SORT::MEM) {
@@ -83,27 +82,27 @@ void IlaSim::dfs_const_node(stringstream& dfs_simulator, string& indent,
     if (const_mem_not_defined) {
       const_mem_set_.insert(id);
       auto addr_width = sort->addr_width();
-      int array_size = 1;
+      unsigned int array_size = 1;
       array_size <<= addr_width;
       auto expr_const = dynamic_pointer_cast<ExprConst>(expr);
       auto val_map = expr_const->val_mem()->val_map();
       string const_mem_array =
           "c_" + to_string(id) + "[" + to_string(array_size) + "]";
       header_ << indent << "const " << const_mem_array << " = {";
-      for (int i = 0; i < array_size - 1; i++)
+      for (unsigned int i = 0; i < array_size - 1; i++)
         header_ << val_map[i] << ", ";
       header_ << val_map[array_size - 1] << "};" << endl;
     }
   }
 }
 
-void IlaSim::dfs_unary_op_check(const ExprPtr& expr) {
-  if (expr->is_mem())
-    ILA_ERROR << "Error: unary_op shouldn't output memory";
+void IlaSim::dfs_unary_op_check(const ExprPtr &expr) {
+  ILA_CHECK(!expr->is_mem())
+      << "Memory sort is not supported as an unary operation's output.";
 }
 
-void IlaSim::dfs_unary_op(stringstream& dfs_simulator, string& indent,
-                          const ExprPtr& expr) {
+void IlaSim::dfs_unary_op(stringstream &dfs_simulator, string &indent,
+                          const ExprPtr &expr) {
   dfs_unary_op_check(expr);
   auto id = expr->name().id();
   string arg_str = get_arg_str(expr->arg(0));
@@ -127,13 +126,13 @@ void IlaSim::dfs_unary_op(stringstream& dfs_simulator, string& indent,
                 << endl;
 }
 
-void IlaSim::dfs_binary_op_bool_out_check(const ExprPtr& expr) {
-  if (!expr->is_bool())
-    ILA_ERROR << "Error: EQ/LT/GT/ULT/UGT/IMPLY must use bool as output type.";
+void IlaSim::dfs_binary_op_bool_out_check(const ExprPtr &expr) {
+  ILA_CHECK(expr->is_bool())
+      << "Output sort for EQ/LT/GT/ULT/UGT/IMPLY operation is not bool.";
 }
 
-void IlaSim::dfs_binary_op_bool_out(stringstream& dfs_simulator, string& indent,
-                                    const ExprPtr& expr) {
+void IlaSim::dfs_binary_op_bool_out(stringstream &dfs_simulator, string &indent,
+                                    const ExprPtr &expr) {
   dfs_binary_op_bool_out_check(expr);
   auto id = expr->name().id();
   string arg0_str = get_arg_str(expr->arg(0));
@@ -163,15 +162,13 @@ void IlaSim::dfs_binary_op_bool_out(stringstream& dfs_simulator, string& indent,
   }
 }
 
-void IlaSim::dfs_binary_op_non_mem_check(const ExprPtr& expr) {
-  if (expr->is_mem())
-    ILA_ERROR
-        << "Error: AND/OR/XOR/SHL/LSHR/ASHR/ADD/MUL/CONCAT shouldn't output "
-           "memory";
+void IlaSim::dfs_binary_op_non_mem_check(const ExprPtr &expr) {
+  ILA_CHECK(!expr->is_mem()) << "AND/OR/XOR/SHL/LSHR/ASHR/ADD/MUL/CONCAT's "
+                                "output shouldn't have memory sort.";
 }
 
-void IlaSim::dfs_binary_op_non_mem(stringstream& dfs_simulator, string& indent,
-                                   const ExprPtr& expr) {
+void IlaSim::dfs_binary_op_non_mem(stringstream &dfs_simulator, string &indent,
+                                   const ExprPtr &expr) {
   dfs_binary_op_non_mem_check(expr);
   auto id = expr->name().id();
   string arg0_str = get_arg_str(expr->arg(0));
@@ -217,14 +214,14 @@ void IlaSim::dfs_binary_op_non_mem(stringstream& dfs_simulator, string& indent,
                 << ");" << endl;
 }
 
-void IlaSim::dfs_binary_op_mem(stringstream& dfs_simulator, string& indent,
-                               const ExprPtr& expr) {
+void IlaSim::dfs_binary_op_mem(stringstream &dfs_simulator, string &indent,
+                               const ExprPtr &expr) {
   auto id = expr->name().id();
   string arg0_str = get_arg_str(expr->arg(0));
   string arg1_str = get_arg_str(expr->arg(1));
-  arg1_str = (arg1_str == "true")
-                 ? "1"
-                 : (arg1_str == "false") ? "0" : arg1_str + ".to_int()";
+  arg1_str = (arg1_str == "true") ? "1" : (arg1_str == "false")
+                                              ? "0"
+                                              : arg1_str + ".to_int()";
   string out_str = "c_" + to_string(expr->name().id());
   string out_type_str =
       (expr->is_bool())
@@ -268,16 +265,16 @@ void IlaSim::dfs_binary_op_mem(stringstream& dfs_simulator, string& indent,
                     << "];" << endl;
   } else {
     string arg2_str = get_arg_str(expr->arg(2));
-    arg2_str = (arg2_str == "true")
-                   ? "1"
-                   : (arg2_str == "false") ? "0" : arg2_str + ".to_int()";
+    arg2_str = (arg2_str == "true") ? "1" : (arg2_str == "false")
+                                                ? "0"
+                                                : arg2_str + ".to_int()";
     dfs_simulator << indent << "mem_update_map[" << arg1_str
                   << "] = " << arg2_str << ";" << endl;
   }
 }
 
-void IlaSim::dfs_extract_op(stringstream& dfs_simulator, string& indent,
-                            const ExprPtr& expr) {
+void IlaSim::dfs_extract_op(stringstream &dfs_simulator, string &indent,
+                            const ExprPtr &expr) {
   auto id = expr->name().id();
   string arg_str = get_arg_str(expr->arg(0));
   auto param0 = static_cast<unsigned>(expr->param(0));
@@ -294,8 +291,8 @@ void IlaSim::dfs_extract_op(stringstream& dfs_simulator, string& indent,
                 << ", " << param1 << ");" << endl;
 }
 
-void IlaSim::dfs_ext_op(stringstream& dfs_simulator, string& indent,
-                        const ExprPtr& expr) {
+void IlaSim::dfs_ext_op(stringstream &dfs_simulator, string &indent,
+                        const ExprPtr &expr) {
   auto id = expr->name().id();
   auto arg = expr->arg(0);
   string arg_str = get_arg_str(arg);
@@ -322,13 +319,13 @@ void IlaSim::dfs_ext_op(stringstream& dfs_simulator, string& indent,
   }
 }
 
-void IlaSim::dfs_func_op_check(const ExprPtr& expr) {
-  if (expr->is_mem())
-    ILA_ERROR << "Error: APPFUNC shouldn't output memory";
+void IlaSim::dfs_func_op_check(const ExprPtr &expr) {
+  ILA_CHECK(!expr->is_mem())
+      << "Memory is not supported as APPFUNC's output sort";
 }
 
-void IlaSim::dfs_func_op(stringstream& dfs_simulator, string& indent,
-                         const ExprPtr& expr) {
+void IlaSim::dfs_func_op(stringstream &dfs_simulator, string &indent,
+                         const ExprPtr &expr) {
   dfs_func_op_check(expr);
   auto id = expr->name().id();
   auto appfunc_expr = dynamic_pointer_cast<ExprOpAppFunc>(expr);
@@ -347,7 +344,7 @@ void IlaSim::dfs_func_op(stringstream& dfs_simulator, string& indent,
                 : "";
   declare_variable_with_id(id, out_type_str, out_str);
   dfs_simulator << indent << out_str << " = " << func_name << "(";
-  for (int i = 0; i < appfunc_expr->arg_num(); i++) {
+  for (unsigned int i = 0; i < appfunc_expr->arg_num(); i++) {
     if (i != 0)
       dfs_simulator << ", ";
     dfs_simulator << get_arg_str(appfunc_expr->arg(i));
@@ -355,8 +352,8 @@ void IlaSim::dfs_func_op(stringstream& dfs_simulator, string& indent,
   dfs_simulator << ");" << endl;
 }
 
-void IlaSim::dfs_ite_op(stringstream& dfs_simulator, string& indent,
-                        const ExprPtr& expr) {
+void IlaSim::dfs_ite_op(stringstream &dfs_simulator, string &indent,
+                        const ExprPtr &expr) {
   auto id = expr->name().id();
   auto cond_str = get_arg_str(expr->arg(0));
   auto true_str = get_arg_str(expr->arg(1));
@@ -381,8 +378,8 @@ void IlaSim::dfs_ite_op(stringstream& dfs_simulator, string& indent,
   }
 }
 
-void IlaSim::dfs_kernel(stringstream& dfs_simulator, string& indent,
-                        const ExprPtr& expr) {
+void IlaSim::dfs_kernel(stringstream &dfs_simulator, string &indent,
+                        const ExprPtr &expr) {
   auto expr_uid = GetUidExpr(expr);
   if (expr_uid == AST_UID_EXPR::VAR) {
     return;
@@ -453,7 +450,7 @@ void IlaSim::dfs_kernel(stringstream& dfs_simulator, string& indent,
     } else {
       ILA_ERROR << "Error: OP_ID = " << expr_op_uid
                 << " is not supported by ILA";
-      return;
+      ILA_CHECK(false) << "Unsupported operation sort.";
     }
   }
 }
