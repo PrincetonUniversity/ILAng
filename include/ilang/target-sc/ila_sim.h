@@ -8,6 +8,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <stdexcept>
 
 #include <ilang/ila/instr_lvl_abs.h>
 
