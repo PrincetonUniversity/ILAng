@@ -92,8 +92,9 @@ void IlaSim::decode_export(stringstream& decode_function,
 
 void IlaSim::decode_mk_file(string& decode_func_name) {
   if (qemu_device_)
-    mk_script_ << "g++ -I./ -c -o " << decode_func_name << ".o " << decode_func_name << ".cc" << endl;
-  else 
+    mk_script_ << "g++ -I./ -c -o " << decode_func_name << ".o "
+               << decode_func_name << ".cc" << endl;
+  else
     mk_script_ << "g++ -I. -I " << systemc_path_ << "/include/ "
                << "-L. -L " << systemc_path_ << "/lib-linux64/ "
                << "-Wl,-rpath=" << systemc_path_ << "/lib-linux64/ -std=c++11 "
