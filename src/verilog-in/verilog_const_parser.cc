@@ -8,8 +8,6 @@
 #include <ilang/util/log.h>
 #include <ilang/util/str_util.h>
 
-#include <iostream>
-
 namespace ilang {
 
 VerilogConstantExprEval::VerilogConstantExprEval() : eval_error(false) {
@@ -135,10 +133,12 @@ void VerilogConstantExprEval::ParseCurrentModuleParameters(
   ast_list* params = m->module_parameters;
   if (params == NULL)
     return;
-  std::cout << "For each param in ParseCurrentModuleParameters " << ast_identifier_tostring( m->identifier) << std::endl;
+  ILA_DLOG("vlg_cnst_parser")
+      << "For each param in ParseCurrentModuleParameters "
+      << ast_identifier_tostring(m->identifier) << std::endl;
   for (unsigned pi = 0; pi < params->items; ++pi) {
 
-    std::cout << "  For param " << pi << std::endl;
+    ILA_DLOG("vlg_cnst_parser") << "  For param " << pi << std::endl;
     ast_parameter_declarations* param_item =
         (ast_parameter_declarations*)ast_list_get_not_null(params, pi);
     // ILA_ASSERT(param_item->type == MOD_ITEM_PARAMETER_DECLARATION)
@@ -148,12 +148,14 @@ void VerilogConstantExprEval::ParseCurrentModuleParameters(
     ILA_NOT_NULL(assigns);
     ILA_ASSERT(assigns->items > 0);
 
-    std::cout << "  # assignment = " << assigns->items << std::endl;
+    ILA_DLOG("vlg_cnst_parser")
+        << "  # assignment = " << assigns->items << std::endl;
     for (unsigned assignidx = 0; assignidx < assigns->items; ++assignidx) {
       ast_single_assignment* asn =
           (ast_single_assignment*)ast_list_get_not_null(assigns, assignidx);
 
-      std::cout << "    for assignment #" << assignidx << std::endl;
+      ILA_DLOG("vlg_cnst_parser")
+          << "    for assignment #" << assignidx << std::endl;
       std::string param_name =
           ast_identifier_tostring(asn->lval->data.identifier);
 
@@ -169,12 +171,13 @@ void VerilogConstantExprEval::ParseCurrentModuleParameters(
         continue; // if we encounter error, just skip it
       }
 
-      std::cout << "  Done assignment" << std::endl;
+      ILA_DLOG("vlg_cnst_parser") << "  Done assignment" << std::endl;
       output_parameter_dict.insert(std::make_pair(param_name, val));
     }
   }
 
-  std::cout << "  Done ParseCurrentModuleParameters" << std::endl;
+  ILA_DLOG("vlg_cnst_parser")
+      << "  Done ParseCurrentModuleParameters" << std::endl;
   return;
 }
 
@@ -192,7 +195,7 @@ void VerilogConstantExprEval::PopulateParameterDefByHierarchy(
         instance_ptr->module_parameters->module_parameter == NULL) {
       prev_named_param_defs.clear();
       prev_ordered_param_defs.clear();
-      hier_idx ++ ;
+      hier_idx++;
       continue; // no override to the next level, we do not need to evaluate the
                 // current level's parameter
     }
@@ -203,13 +206,15 @@ void VerilogConstantExprEval::PopulateParameterDefByHierarchy(
     // parse the instantiation parameter override part
     prev_named_param_defs.clear();
     prev_ordered_param_defs.clear();
-    
+
     if (instance_ptr->module_parameters->type == ORDERED_PARAMETER) {
       for (unsigned param_ov_idx = 0;
            param_ov_idx <
            instance_ptr->module_parameters->module_parameter->items;
            ++param_ov_idx) {
-        std::cout <<"Hier " << hier_idx << " ast_list_get_not_null ORDERED" << std::endl;
+        ILA_DLOG("vlg_cnst_parser")
+            << "Hier " << hier_idx << " ast_list_get_not_null ORDERED"
+            << std::endl;
         ast_expression* expr = (ast_expression*)ast_list_get_not_null(
             instance_ptr->module_parameters->module_parameter, param_ov_idx);
         double val = _eval(expr, current_module_param_defs);
@@ -222,7 +227,9 @@ void VerilogConstantExprEval::PopulateParameterDefByHierarchy(
            param_ov_idx <
            instance_ptr->module_parameters->module_parameter->items;
            ++param_ov_idx) {
-      std::cout <<"Hier " << hier_idx << " ast_list_get_not_null NAMED" << std::endl;
+        ILA_DLOG("vlg_cnst_parser")
+            << "Hier " << hier_idx << " ast_list_get_not_null NAMED"
+            << std::endl;
         ast_port_connection* name_val_pair =
             (ast_port_connection*)ast_list_get_not_null(
                 instance_ptr->module_parameters->module_parameter,
@@ -237,8 +244,8 @@ void VerilogConstantExprEval::PopulateParameterDefByHierarchy(
         prev_named_param_defs.insert(std::make_pair(param_name, val));
       } // for param defs
     }   // for ordered/named override
-    hier_idx ++ ;
-  }     // for each module->inst in the hierarchy
+    hier_idx++;
+  } // for each module->inst in the hierarchy
   ParseCurrentModuleParameters(current_module, prev_named_param_defs,
                                prev_ordered_param_defs,
                                current_module_param_defs);

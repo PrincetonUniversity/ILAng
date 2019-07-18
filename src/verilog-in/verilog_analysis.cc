@@ -213,7 +213,6 @@ void VerilogAnalyzer::create_module_submodule_map(verilog_source_tree* source) {
         modules_to_submodule_inst_ast_map[name].insert(
             {submod_name_inst, submod});
 
-        std::cout << "submod_name_inst " << submod_name_inst << " parameter address:" << submod->module_parameters << std::endl;
       } // for each instance of sub module
     }   // for each sub module
   }     // for each module
@@ -828,7 +827,7 @@ unsigned range_to_width(ast_range* range, const std::string& full_name,
   VerilogConstantExprEval eval;
   VerilogConstantExprEval::param_def_hierarchy hierarchy;
   ast_module_declaration* mod;
-  if ( ! ( _ana->get_hierarchy_from_full_name(full_name, hierarchy, &mod) ) ) {
+  if (!(_ana->get_hierarchy_from_full_name(full_name, hierarchy, &mod))) {
     ILA_ERROR << full_name << " 's module is not found, cannot analyze width!";
     return 1;
   }
