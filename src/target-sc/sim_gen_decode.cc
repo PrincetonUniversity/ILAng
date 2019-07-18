@@ -96,7 +96,7 @@ void IlaSim::decode_mk_file(string& decode_func_name) {
   else 
     mk_script_ << "g++ -I. -I " << systemc_path_ << "/include/ "
                << "-L. -L " << systemc_path_ << "/lib-linux64/ "
-               << "-Wl,-rpath=" << systemc_path_ << "/lib-linux64/ "
+               << "-Wl,-rpath=" << systemc_path_ << "/lib-linux64/ -std=c++11 "
                << "-c -o " << decode_func_name << ".o " << decode_func_name
                << ".cc "
                << "-lsystemc" << endl;
