@@ -214,6 +214,11 @@ void IlaSim::sim_gen_export() {
   if (!qemu_device_) {
     mk_script_ << "g++ -I. -I " << systemc_path_ << "/include/ "
                << "-L. -L " << systemc_path_ << "/lib-linux64/ "
+               << "-Wl,-rpath=" << systemc_path_ << "/lib-linux64/ -std=c++11 "
+               << "-c -o " << "help.o ../../src/help.cc " << "-lsystemc" << endl;
+/*
+    mk_script_ << "g++ -I. -I " << systemc_path_ << "/include/ "
+               << "-L. -L " << systemc_path_ << "/lib-linux64/ "
                << "-Wl,-rpath=" << systemc_path_ << "/lib-linux64/ "
                << "-c -o "
                << "test_tb.o test_tb.cc "
@@ -225,6 +230,7 @@ void IlaSim::sim_gen_export() {
                << "-o "
                << "test_tb test_tb.o " << obj_list_.rdbuf() << "-lsystemc"
                << endl;
+*/
   }
   outFile.open(export_dir_ + "mk.sh");
   outFile << mk_script_.rdbuf();

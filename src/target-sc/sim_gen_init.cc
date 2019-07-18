@@ -98,7 +98,7 @@ void IlaSim::init_mk_file(string& init_func_name) {
   else 
     mk_script_ << "g++ -I. -I " << systemc_path_ << "/include/ "
                << "-L. -L " << systemc_path_ << "/lib-linux64/ "
-               << "-Wl,-rpath=" << systemc_path_ << "/lib-linux64/ "
+               << "-Wl,-rpath=" << systemc_path_ << "/lib-linux64/ -std=c++11 "
                << "-c -o " << init_func_name << ".o " << init_func_name
                << ".cc "
                << "-lsystemc" << endl;
