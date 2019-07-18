@@ -101,6 +101,22 @@ configure_file(
 
 target_link_libraries(${ILANG_TEST_MAIN} ${ILANG_LIB_NAME})
 
+if("${CMAKE_SYSTEM_NAME}" MATCHES "[Ww]indows")
+
+  # On Windows we need to copy the libraries
+  # into the same directory as the executable
+  # so that they can be found.
+  message(STATUS "Adding copy rule for ${ILANG_LIB_NAME}")
+  add_custom_command(TARGET ${ILANG_TEST_MAIN}
+    POST_BUILD
+    COMMAND
+      ${CMAKE_COMMAND} -E copy_if_different
+      $<TARGET_FILE:${ILANG_LIB_NAME}>
+      $<TARGET_FILE_DIR:test>
+  )
+
+endif()
+
 add_custom_target(run_test
   COMMAND "${CMAKE_CURRENT_BINARY_DIR}/${ILANG_TEST_MAIN}"
 )
