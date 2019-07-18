@@ -87,3 +87,10 @@ jobs:
       cmake --build .
       cmake --build . --target install
     displayName: 'build'
+  - script: |
+      cd build
+      call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
+      cmake .. -DILANG_BUILD_TEST=ON 
+      cmake --build .
+      cmake --build . --target test
+    displayName: 'test'
