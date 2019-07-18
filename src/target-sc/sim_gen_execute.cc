@@ -348,7 +348,8 @@ void IlaSim::execute_kernel_export(stringstream& execute_kernel) {
 void IlaSim::execute_kernel_mk_file() {
   if (qemu_device_) {
     mk_script_ << "g++ -I./ -c -o compute.o compute.cc " << endl;
-    mk_script_ << "g++ -I./ -c -o help.o ../../src/help.cc " << endl;
+    mk_script_ << "g++ -I./ -c -o help.o ../../uninterpreted_func/"
+	       << "uninterpreted_func.cc " << endl;
   }
   else
     mk_script_ << "g++ -I. -I " << systemc_path_ << "/include/ "
