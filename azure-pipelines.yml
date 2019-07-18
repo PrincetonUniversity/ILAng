@@ -59,17 +59,17 @@ jobs:
       choco install wget
     displayName: 'package'
   - script: |
-      git clone https://github.com/Z3Prover/z3.git
-      cd z3
-      call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
-      python scripts/mk_make.py -x
-      cd build
-      nmake
-      nmake install
-    displayName: 'z3'
-  - script: |
       wget https://github.com/Z3Prover/z3/releases/download/Z3-4.8.5/z3-4.8.5-x64-win.zip
       unzip z3-4.8.5-x64-win.zip
+    displayName: 'z3'
+  - script: |
+      git clone https://github.com/Bo-Yuan-Huang/verilog-parser.git
+      cd verilog-parser
+      md build
+      cd build
+      cmake ..
+      cmake --build .
+      cmake --build . --target install
     displayName: 'Verilog-parser'
   - script: |
       md build
