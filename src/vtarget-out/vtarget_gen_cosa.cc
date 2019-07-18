@@ -218,7 +218,7 @@ void VlgSglTgtGen_Cosa::Export_problem(const std::string& extra_name) {
   }
 
   fout << "[GENERAL]" << std::endl;
-  fout << "model_file:"; //
+  fout << "model_files:"; //
   fout << top_file_name << "[" << top_mod_name << "],";
   // if(target_type != target_type_t::INVARIANTS )
   //	fout << ila_file_name<<","; // will be combined
@@ -242,7 +242,7 @@ void VlgSglTgtGen_Cosa::Export_problem(const std::string& extra_name) {
     auto prob_name = vlg_wrapper.sanitizeName(prbname);
     fout << "[" << prob_name << "]" << std::endl;
     fout << "description:\"" << prbname << "\"" << std::endl;
-    fout << "formula:" << asst << std::endl;
+    fout << "properties:" << asst << std::endl;
     if (assmpt != "()")
       fout << "assumptions:" << assmpt << std::endl;
     fout << "prove: True" << std::endl;
