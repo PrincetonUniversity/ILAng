@@ -35,7 +35,6 @@ find_program(Z3_EXEC
 
 mark_as_advanced(Z3_FOUND Z3_INCLUDE_DIR Z3_LIBRARY Z3_EXEC)
 
-message(STATUS "OS: ${CMAKE_SYSTEM_NAME}")
 if("${CMAKE_SYSTEM_NAME}" MATCHES "[Ww]indows")
 
   find_package(Z3
@@ -50,20 +49,7 @@ if("${CMAKE_SYSTEM_NAME}" MATCHES "[Ww]indows")
   )
 
   set(Z3_INCLUDE_DIR ${Z3_CXX_INCLUDE_DIRS})
-
-  # On Windows we need to copy the Z3 libraries
-  # into the same directory as the executable
-  # so that they can be found.
-  foreach (z3_lib ${Z3_LIBRARIES})
-    message(STATUS "Adding copy rule for ${z3_lib}")
-    add_custom_command(TARGET cpp_example
-      POST_BUILD
-      COMMAND
-        ${CMAKE_COMMAND} -E copy_if_different
-        $<TARGET_FILE:${z3_lib}>
-        $<TARGET_FILE_DIR:cpp_example>
-    )
-  endforeach()
+  set(Z3_LIBRARY ${Z3_LIBRARIES})
 
 else()
 
@@ -76,10 +62,6 @@ else()
 endif()
 
 if(Z3_FOUND)
-
-  # set(Z3_INCLUDE_DIRS ${Z3_INCLUDE_DIR})
-
-  # set(Z3_LIBRARIES ${Z3_LIBRARY})
 
   execute_process(
     COMMAND ${Z3_EXEC} --version > ${Z3_VERSION_FILE}

@@ -83,7 +83,7 @@ jobs:
       md build
       cd build
       call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
-      cmake .. -DILANG_BUILD_SYNTH=OFF -DCMAKE_PREFIX_PATH=../local-install -DZ3_DIR=../local-install
+      cmake .. -DILANG_BUILD_SYNTH=OFF -DCMAKE_PREFIX_PATH=../local-install -DZ3_DIR=../local-install/lib/cmake/z3
       cmake --build .
       cmake --build . --target install
       cmake --build . --target test
