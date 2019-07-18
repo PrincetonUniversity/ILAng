@@ -133,7 +133,7 @@ TEST(TestVerilogAnalysis, RangeAnalysis) {
     IS_WIDTH("r34", 8);
     IS_WIDTH("r44", 8);
   } // end of test2
-
+  std::cout << "Macro handling done."<<std::endl;
   { // test 3 -- parameters
     VerilogInfo va(
         VerilogInfo::path_vec_t(
@@ -146,6 +146,7 @@ TEST(TestVerilogAnalysis, RangeAnalysis) {
     IS_WIDTH("r2", 6);
   } // end of test3
 
+  std::cout << "Parameter handling stage1 done."<<std::endl;
   { // test 4 -- parameter and instantiation
     VerilogInfo va(
         VerilogInfo::path_vec_t(
@@ -163,6 +164,7 @@ TEST(TestVerilogAnalysis, RangeAnalysis) {
     IS_WIDTH("i4.sig", 2);
     IS_WIDTH("i4.a", 5);
   } // end of test4
+  std::cout << "Parameter handling stage2 done."<<std::endl;
 }
 
 TEST(TestVerilogAnalysis, AnalyzeName) {
