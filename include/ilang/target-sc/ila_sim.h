@@ -49,7 +49,8 @@ public:
 
 private:
   // Initialize all member variables for a new simulator generation pass.
-  void sim_gen_init(string export_dir, bool external_mem, bool readable, bool qemu_device);
+  void sim_gen_init(string export_dir, bool external_mem, bool readable,
+                    bool qemu_device);
   // Create initial lines for the simulator's header file
   void sim_gen_init_header();
   void sim_gen_input();
@@ -73,9 +74,10 @@ private:
   void create_external_mem_port(const ExprPtr& expr);
 
   void create_init(const InstrLvlAbsPtr& ila);
-  void init_decl(stringstream& valid_function, string& indent, string& valid_func_name);
+  void init_decl(stringstream& valid_function, string& indent,
+                 string& valid_func_name);
   void init_check_valid(stringstream& init_function, string& indent,
-		                                  const ExprPtr& valid_expr, const InstrLvlAbsPtr& ila);
+                        const ExprPtr& valid_expr, const InstrLvlAbsPtr& ila);
   void init_return(stringstream& init_function, string& indent);
   void init_export(stringstream& init_function, string& init_func_name);
   void init_mk_file(string& init_func_name);

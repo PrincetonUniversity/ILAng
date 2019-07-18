@@ -30,7 +30,7 @@ void IlaSim::dfs_load_from_store(const ExprPtr &expr) {
 void IlaSim::dfs_int_var_width(const ExprPtr& expr) {
   auto expr_uid_sort = GetUidSort(expr->sort());
   if (expr_uid_sort == AST_UID_SORT::BV) {
-    int_var_width_set_.insert(expr->sort()->bit_width());  
+    int_var_width_set_.insert(expr->sort()->bit_width());
   } else if (expr_uid_sort == AST_UID_SORT::MEM) {
     int_var_width_set_.insert(expr->sort()->addr_width());
     int_var_width_set_.insert(expr->sort()->data_width());
@@ -58,17 +58,18 @@ void IlaSim::dfs_uninterpreted_func_decl(const FuncPtr &func) {
   } else if (func_out_sort->is_bv()) {
     if (qemu_device_)
       header_ << "uint" << func_out_sort->bit_width() << "_t " << func_name
-	      << "("; 
+              << "(";
     else
-      header_ << "sc_biguint<" << func_out_sort->bit_width() << "> " << func_name
-            << "(";
+      header_ << "sc_biguint<" << func_out_sort->bit_width() << "> "
+              << func_name << "(";
   } else if (func_out_sort->is_mem()) {
     ILA_WARN << "Warning: 2d array might have trouble as function output";
     if (qemu_device_)
-      header_ << "uint" << func_out_sort->bit_width() << "_t* " << func_name << "(";
-    else
-      header_ << "sc_biguint<" << func_out_sort->data_width() << ">* " << func_name
+      header_ << "uint" << func_out_sort->bit_width() << "_t* " << func_name
               << "(";
+    else
+      header_ << "sc_biguint<" << func_out_sort->data_width() << ">* "
+              << func_name << "(";
   }
 
   for (unsigned int i = 0; i < func->arg_num(); i++) {
@@ -80,14 +81,14 @@ void IlaSim::dfs_uninterpreted_func_decl(const FuncPtr &func) {
       header_ << "bool arg_" << i;
     } else if (arg_sort->is_bv()) {
       if (qemu_device_)
-	header_ << "uint" << arg_sort->bit_width() << "_t arg_" << i;
+        header_ << "uint" << arg_sort->bit_width() << "_t arg_" << i;
       else
         header_ << "sc_biguint<" << arg_sort->bit_width() << "> "
                 << "arg_" << i;
     } else {
       // TODO(yuex): add func_decl with memory arg.
       if (qemu_device_)
-	header_ << "uint" << arg_sort->data_width() << "_t arg_" << i;
+        header_ << "uint" << arg_sort->data_width() << "_t arg_" << i;
       else
         header_ << "sc_biguint<" << arg_sort->data_width() << "> "
                 << "arg_" << i;
@@ -112,19 +113,16 @@ void IlaSim::dfs_const_node(stringstream &dfs_simulator, string &indent,
       auto val_map = expr_const->val_mem()->val_map();
       string const_mem_array =
           "c_" + to_string(id) + "[" + to_string(array_size) + "]";
-<<<<<<< b749bcbb03225a33c3e1e49ef7108f15ffbde724
-      header_ << indent << "const " << const_mem_array << " = {";
-      for (unsigned int i = 0; i < array_size - 1; i++)
-=======
       if (qemu_device_) {
-	header_ << indent << "const " << "uint" << sort->data_width() << "_t "
-		<< const_mem_array << " = {";
+        header_ << indent << "const "
+                << "uint" << sort->data_width() << "_t " << const_mem_array
+                << " = {";
       } else {
-        header_ << indent << "const " << "sc_biguint<" << sort->data_width() 
-	        << "> " << const_mem_array << " = {";
+        header_ << indent << "const "
+                << "sc_biguint<" << sort->data_width() << "> "
+                << const_mem_array << " = {";
       }
       for (int i = 0; i < array_size - 1; i++)
->>>>>>> dfs expr for qemu-device-target
         header_ << val_map[i] << ", ";
       header_ << val_map[array_size - 1] << "};" << endl;
     }
@@ -156,7 +154,12 @@ void IlaSim::dfs_unary_op(stringstream &dfs_simulator, string &indent,
                 ? "sc_biguint<" + to_string(expr->sort()->bit_width()) + "> "
                 : "";
   if (qemu_device_)
-    out_type_str = (expr->is_bool()) ? "bool " : (expr->is_bv()) ? "uint" + to_string(expr->sort()->bit_width()) + "_t " : "";
+    out_type_str =
+        (expr->is_bool())
+            ? "bool "
+            : (expr->is_bv())
+                  ? "uint" + to_string(expr->sort()->bit_width()) + "_t "
+                  : "";
 
   declare_variable_with_id(id, out_type_str, out_str);
   dfs_simulator << indent << out_str << " = " << op_str << arg_str << ";"
@@ -218,7 +221,12 @@ void IlaSim::dfs_binary_op_non_mem(stringstream &dfs_simulator, string &indent,
                 ? "sc_biguint<" + to_string(expr->sort()->bit_width()) + "> "
                 : "";
   if (qemu_device_)
-    out_type_str = (expr->is_bool()) ? "bool ": (expr->is_bv()) ? "uint" + to_string(expr->sort()->bit_width()) + "_t " : "";
+    out_type_str =
+        (expr->is_bool())
+            ? "bool "
+            : (expr->is_bv())
+                  ? "uint" + to_string(expr->sort()->bit_width()) + "_t "
+                  : "";
   string op_str =
       (GetUidExprOp(expr) == AST_UID_EXPR_OP::AND)
           ? " & "
@@ -254,15 +262,17 @@ void IlaSim::dfs_binary_op_non_mem(stringstream &dfs_simulator, string &indent,
       auto arg0_width = expr->arg(0)->sort()->bit_width();
       auto arg1_width = expr->arg(1)->sort()->bit_width();
       auto out_width = arg0_width + arg1_width;
-      dfs_simulator << indent << out_str << " = (static_cast<uint" << out_width << "_t>(" << arg0_str << ") << "
-	            << arg1_width << ") + (static_cast<uint" << out_width << "_t>(" << arg1_str << "));" << endl;
+      dfs_simulator << indent << out_str << " = (static_cast<uint" << out_width
+                    << "_t>(" << arg0_str << ") << " << arg1_width
+                    << ") + (static_cast<uint" << out_width << "_t>("
+                    << arg1_str << "));" << endl;
     } else {
-      dfs_simulator << indent << out_str << " = (" << arg0_str << op_str << arg1_str
-	            << ");" << endl;
+      dfs_simulator << indent << out_str << " = (" << arg0_str << op_str
+                    << arg1_str << ");" << endl;
     }
   } else {
-    dfs_simulator << indent << out_str << " = (" << arg0_str << op_str << arg1_str
-                  << ");" << endl;
+    dfs_simulator << indent << out_str << " = (" << arg0_str << op_str
+                  << arg1_str << ");" << endl;
   }
 }
 
@@ -277,11 +287,12 @@ void IlaSim::dfs_binary_op_mem(stringstream &dfs_simulator, string &indent,
                                               : arg1_str + ".to_int()";
 =======
   if (qemu_device_)
-    arg1_str = (arg1_str == "true") ? "1" : (arg1_str == "false") ? "0" : arg1_str;
+    arg1_str =
+        (arg1_str == "true") ? "1" : (arg1_str == "false") ? "0" : arg1_str;
   else
-    arg1_str = (arg1_str == "true")
-                   ? "1"
-                   : (arg1_str == "false") ? "0" : arg1_str + ".to_int()";
+    arg1_str = (arg1_str == "true") ? "1" : (arg1_str == "false")
+                                                ? "0"
+                                                : arg1_str + ".to_int()";
 
 >>>>>>> dfs expr for qemu-device-target
   string out_str = "c_" + to_string(expr->name().id());
@@ -292,7 +303,12 @@ void IlaSim::dfs_binary_op_mem(stringstream &dfs_simulator, string &indent,
                 ? "sc_biguint<" + to_string(expr->sort()->bit_width()) + "> "
                 : "";
   if (qemu_device_)
-    out_type_str = (expr->is_bool()) ? "bool " : (expr->is_bv()) ? "uint" + to_string(expr->sort()->bit_width()) + "_t " : "";
+    out_type_str =
+        (expr->is_bool())
+            ? "bool "
+            : (expr->is_bv())
+                  ? "uint" + to_string(expr->sort()->bit_width()) + "_t "
+                  : "";
 
   bool is_load = GetUidExprOp(expr) == AST_UID_EXPR_OP::LOAD;
   auto arg0_uid = GetUidExpr(expr->arg(0));
@@ -336,12 +352,21 @@ void IlaSim::dfs_binary_op_mem(stringstream &dfs_simulator, string &indent,
                                                 : arg2_str + ".to_int()";
 =======
     if (qemu_device_)
+<<<<<<< 45f2f0c7ef214347e400b564dbe8d85c419f9ebe
       arg2_str = (arg2_str == "true") ? "1" : (arg2_str == "false") ? "0" : arg2_str;
     else 
       arg2_str = (arg2_str == "true")
                    ? "1"
                    : (arg2_str == "false") ? "0" : arg2_str + ".to_int()";
 >>>>>>> dfs expr for qemu-device-target
+=======
+      arg2_str =
+          (arg2_str == "true") ? "1" : (arg2_str == "false") ? "0" : arg2_str;
+    else
+      arg2_str = (arg2_str == "true") ? "1" : (arg2_str == "false")
+                                                  ? "0"
+                                                  : arg2_str + ".to_int()";
+>>>>>>> clang-format for the ila_sim header file
     dfs_simulator << indent << "mem_update_map[" << arg1_str
                   << "] = " << arg2_str << ";" << endl;
   }
@@ -361,17 +386,24 @@ void IlaSim::dfs_extract_op(stringstream &dfs_simulator, string &indent,
                 ? "sc_biguint<" + to_string(expr->sort()->bit_width()) + "> "
                 : "";
   if (qemu_device_)
-    out_type_str = (expr->is_bool()) ? "bool " : (expr->is_bv()) ? "uint" + to_string(expr->sort()->bit_width()) + "_t " : "";
-  declare_variable_with_id(id, out_type_str, out_str); 
+    out_type_str =
+        (expr->is_bool())
+            ? "bool "
+            : (expr->is_bv())
+                  ? "uint" + to_string(expr->sort()->bit_width()) + "_t "
+                  : "";
+  declare_variable_with_id(id, out_type_str, out_str);
   if (qemu_device_) {
     int cast_length = param0 - param1 + 1;
-    if (cast_length >= 64) 
+    if (cast_length >= 64)
       cout << "Error" << endl;
     uint64_t mask = (1 << cast_length) - 1;
-    dfs_simulator << indent << out_str << " = static_cast<uint" << (cast_length)<< "_t> ((" << arg_str << " >> " << param1 << ") & " << mask << ");" << endl;
+    dfs_simulator << indent << out_str << " = static_cast<uint" << (cast_length)
+                  << "_t> ((" << arg_str << " >> " << param1 << ") & " << mask
+                  << ");" << endl;
   } else {
-    dfs_simulator << indent << out_str << " = " << arg_str << ".range(" << param0
-                << ", " << param1 << ");" << endl;
+    dfs_simulator << indent << out_str << " = " << arg_str << ".range("
+                  << param0 << ", " << param1 << ");" << endl;
   }
 }
 
@@ -388,7 +420,12 @@ void IlaSim::dfs_ext_op(stringstream &dfs_simulator, string &indent,
                 ? "sc_biguint<" + to_string(expr->sort()->bit_width()) + "> "
                 : "";
   if (qemu_device_)
-    out_type_str = (expr->is_bool()) ? "bool " : (expr->is_bv()) ? "uint" + to_string(expr->sort()->bit_width()) + "_t " : "";
+    out_type_str =
+        (expr->is_bool())
+            ? "bool "
+            : (expr->is_bv())
+                  ? "uint" + to_string(expr->sort()->bit_width()) + "_t "
+                  : "";
 
   declare_variable_with_id(id, out_type_str, out_str);
 
@@ -396,25 +433,32 @@ void IlaSim::dfs_ext_op(stringstream &dfs_simulator, string &indent,
     dfs_simulator << indent << out_str << " = "
                   << "0;" << endl;
     if (qemu_device_) {
-      dfs_simulator << indent << out_str << " = " << "static_cast<uint" << expr->sort()->bit_width() << "_t>(" << arg_str << ");" << endl;
+      dfs_simulator << indent << out_str << " = "
+                    << "static_cast<uint" << expr->sort()->bit_width() << "_t>("
+                    << arg_str << ");" << endl;
     } else {
       dfs_simulator << indent << out_str << " = " << arg_str << ";" << endl;
     }
   } else {
     if (qemu_device_) {
-      dfs_simulator << indent << out_str << " = " << "static_cast<uint" << expr->sort()->bit_width() << "_t>(" << arg_str << ");" << endl; 
-      dfs_simulator << indent << out_str << " = (" << arg_str << " >> " << (arg->sort()->bit_width() - 1) 
-	            << ") ? static_cast<uint" << expr->sort()->bit_width() << "_t>(~" << arg_str << ") : " 
-		    << "static_cast<uint" << expr->sort()->bit_width() << "_t>(" << arg_str << ");" << endl;
-      dfs_simulator << indent << out_str << " = (" << arg_str << " >> " << (arg->sort()->bit_width() - 1) << ") ? (~" << out_str 
-	            << ") : " << out_str << ";" << endl;
+      dfs_simulator << indent << out_str << " = "
+                    << "static_cast<uint" << expr->sort()->bit_width() << "_t>("
+                    << arg_str << ");" << endl;
+      dfs_simulator << indent << out_str << " = (" << arg_str << " >> "
+                    << (arg->sort()->bit_width() - 1) << ") ? static_cast<uint"
+                    << expr->sort()->bit_width() << "_t>(~" << arg_str << ") : "
+                    << "static_cast<uint" << expr->sort()->bit_width() << "_t>("
+                    << arg_str << ");" << endl;
+      dfs_simulator << indent << out_str << " = (" << arg_str << " >> "
+                    << (arg->sort()->bit_width() - 1) << ") ? (~" << out_str
+                    << ") : " << out_str << ";" << endl;
     } else {
       dfs_simulator << indent << out_str << " = (" << arg_str << "["
-                    << (arg->sort()->bit_width() - 1) << "] == 1) ? (~" << arg_str
-                    << ") : " << arg_str << ";" << endl;
+                    << (arg->sort()->bit_width() - 1) << "] == 1) ? (~"
+                    << arg_str << ") : " << arg_str << ";" << endl;
       dfs_simulator << indent << out_str << " = (" << arg_str << "["
-                    << (arg->sort()->bit_width() - 1) << "] == 1) ? (~" << out_str
-                    << ") : " << out_str << ";" << endl;
+                    << (arg->sort()->bit_width() - 1) << "] == 1) ? (~"
+                    << out_str << ") : " << out_str << ";" << endl;
     }
   }
 }
@@ -443,7 +487,12 @@ void IlaSim::dfs_func_op(stringstream &dfs_simulator, string &indent,
                 ? "sc_biguint<" + to_string(expr->sort()->bit_width()) + "> "
                 : "";
   if (qemu_device_)
-    out_type_str = (expr->is_bool()) ? "bool " : (expr->is_bv()) ? "uint" + to_string(expr->sort()->bit_width()) + "_t " : ""; 
+    out_type_str =
+        (expr->is_bool())
+            ? "bool "
+            : (expr->is_bv())
+                  ? "uint" + to_string(expr->sort()->bit_width()) + "_t "
+                  : "";
   declare_variable_with_id(id, out_type_str, out_str);
   dfs_simulator << indent << out_str << " = " << func_name << "(";
   for (unsigned int i = 0; i < appfunc_expr->arg_num(); i++) {
@@ -468,8 +517,13 @@ void IlaSim::dfs_ite_op(stringstream &dfs_simulator, string &indent,
                 ? "sc_biguint<" + to_string(expr->sort()->bit_width()) + "> "
                 : "";
   if (qemu_device_)
-    out_type_str = (expr->is_bool()) ? "bool " : (expr->is_bv()) ? "uint" + to_string(expr->sort()->bit_width()) + "_t " : "";
- 
+    out_type_str =
+        (expr->is_bool())
+            ? "bool "
+            : (expr->is_bv())
+                  ? "uint" + to_string(expr->sort()->bit_width()) + "_t "
+                  : "";
+
   if (!expr->is_mem()) {
     declare_variable_with_id(id, out_type_str, out_str);
     dfs_simulator << indent << out_str << " = (" << cond_str << ") ? "
