@@ -55,9 +55,11 @@ if(Z3_FOUND)
   set(Z3_VERSION_REGEX "^Z3 version (.+)$")
   string(REGEX REPLACE ${Z3_VERSION_REGEX} "\\1" Z3_VERSION "${Z3_VERSION}")
 
-endif()
+# endif()
+else()
 
-if("${CMAKE_SYSTEM_NAME}" MATCHES "[Ww]indows")
+  message(STATUS "OS: ${CMAKE_SYSTEM_NAME}")
+# if("${CMAKE_SYSTEM_NAME}" MATCHES "[Ww]indows")
   
   find_package(Z3
     REQUIRED
