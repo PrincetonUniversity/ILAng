@@ -10,8 +10,8 @@ void IlaSim::create_init(const InstrLvlAbsPtr& ila) {
   string indent = "";
   string init_func_name;
   init_func_name = "init_" + ila->name().str();
-  
-  auto valid_expr = ila->valid(); 
+
+  auto valid_expr = ila->valid();
   init_decl(init_function, indent, init_func_name);
 
   auto DfsKernel = [this, &init_function, &indent](const ExprPtr& e) {
@@ -48,26 +48,25 @@ void IlaSim::create_init(const InstrLvlAbsPtr& ila) {
 }
 
 void IlaSim::init_decl(stringstream& init_function, string& indent,
-                         string& init_func_name) {
+                       string& init_func_name) {
   if (!qemu_device_)
     init_function << "#include \"systemc.h\"" << endl;
   init_function << "#include \"" << model_ptr_->name() << ".h\"" << endl;
 
   init_function << indent << "void " << model_ptr_->name()
-                 << "::" << init_func_name << "() {" << endl;
+                << "::" << init_func_name << "() {" << endl;
   increase_indent(indent);
   searched_id_set_.clear();
   header_ << header_indent_ << "void " << init_func_name << "();" << endl;
 }
 
 void IlaSim::init_check_valid(stringstream& init_function, string& indent,
-                                const ExprPtr& valid_expr,
-                                const InstrLvlAbsPtr& ila) {
+                              const ExprPtr& valid_expr,
+                              const InstrLvlAbsPtr& ila) {
   string valid_str;
   auto valid_expr_uid = GetUidExpr(valid_expr);
   if (valid_expr_uid == AST_UID_EXPR::VAR)
-    valid_str =
-        ila->name().str() + "_" + valid_expr->name().str();
+    valid_str = ila->name().str() + "_" + valid_expr->name().str();
   else if (valid_expr_uid == AST_UID_EXPR::OP)
     valid_str = "c_" + to_string(valid_expr->name().id());
   else {
@@ -80,11 +79,11 @@ void IlaSim::init_check_valid(stringstream& init_function, string& indent,
 }
 
 void IlaSim::init_return(stringstream& init_function, string& indent) {
-  init_function << indent << "return " << ";" << endl;
+  init_function << indent << "return "
+                << ";" << endl;
 }
 
-void IlaSim::init_export(stringstream& init_function,
-                           string& init_func_name) {
+void IlaSim::init_export(stringstream& init_function, string& init_func_name) {
   ofstream outFile;
   stringstream out_file;
   outFile.open(export_dir_ + init_func_name + ".cc");
@@ -94,8 +93,9 @@ void IlaSim::init_export(stringstream& init_function,
 
 void IlaSim::init_mk_file(string& init_func_name) {
   if (qemu_device_)
-    mk_script_ << "g++ -I./ -c -o " << init_func_name << ".o " << init_func_name << ".cc" << endl;
-  else 
+    mk_script_ << "g++ -I./ -c -o " << init_func_name << ".o " << init_func_name
+               << ".cc" << endl;
+  else
     mk_script_ << "g++ -I. -I " << systemc_path_ << "/include/ "
                << "-L. -L " << systemc_path_ << "/lib-linux64/ "
                << "-Wl,-rpath=" << systemc_path_ << "/lib-linux64/ -std=c++11 "

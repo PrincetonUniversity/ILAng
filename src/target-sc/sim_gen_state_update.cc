@@ -98,7 +98,7 @@ void IlaSim::state_update_export(stringstream &state_update_function,
 void IlaSim::state_update_mk_file(string& state_update_func_name) {
   if (qemu_device_)
     mk_script_ << "g++ -I./ -c -o " << state_update_func_name << ".o "
-	       << state_update_func_name << ".cc" << endl;
+               << state_update_func_name << ".cc" << endl;
   else
     mk_script_ << "g++ -I. -I " << systemc_path_ << "/include/ "
                << "-L. -L " << systemc_path_ << "/lib-linux64/ "
@@ -116,7 +116,8 @@ void IlaSim::state_update_decl(stringstream &state_update_function,
   searched_id_set_.clear();
   if (!qemu_device_)
     state_update_function << indent << "#include \"systemc.h\"" << endl;
-  state_update_function << indent << "#include \"" << model_ptr_->name() << ".h\"" << endl;
+  state_update_function << indent << "#include \"" << model_ptr_->name()
+                        << ".h\"" << endl;
   if (updated_state->is_mem()) {
     auto MemStateUpdateDecl = [this, &state_update_function,
                                &indent](const ExprPtr &e) {
@@ -133,7 +134,10 @@ void IlaSim::state_update_decl(stringstream &state_update_function,
                 : ("sc_biguint<" +
                    to_string(updated_state->sort()->bit_width()) + "> ");
   if (qemu_device_)
-    return_type = (updated_state->is_bv()) ? ("uint" + to_string(updated_state->sort()->bit_width()) + "_t ") : return_type;
+    return_type =
+        (updated_state->is_bv())
+            ? ("uint" + to_string(updated_state->sort()->bit_width()) + "_t ")
+            : return_type;
   string arg_list =
       (updated_state->is_mem()) ? "(std::map<int, int>& mem_update_map)" : "()";
   state_update_function << indent << return_type << model_ptr_->name()

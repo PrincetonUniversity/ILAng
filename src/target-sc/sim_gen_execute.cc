@@ -12,13 +12,13 @@ void IlaSim::execute_init(stringstream& execute_kernel, string& indent) {
   for (int i = 0; i < model_ptr_->child_num(); i++) {
     child_ila_queue.push(model_ptr_->child(i));
   }
-  while(!child_ila_queue.empty()) {
+  while (!child_ila_queue.empty()) {
     auto current_ila = child_ila_queue.front();
     child_ila_queue.pop();
-    for(int i = 0; i < current_ila->child_num(); i++) {
+    for (int i = 0; i < current_ila->child_num(); i++) {
       child_ila_queue.push(current_ila->child(i));
     }
-    execute_kernel << indent << "init_" << current_ila->name() << "();" << endl; 
+    execute_kernel << indent << "init_" << current_ila->name() << "();" << endl;
   }
 }
 
@@ -94,7 +94,8 @@ void IlaSim::execute_decode(stringstream& execute_kernel, string& indent,
 
   execute_kernel << indent << "if (" << decode_func_name << "()) {" << endl;
   // TODO(yuex) delete the next line (generate debug code).
-  // execute_kernel << "cout << \"" << decode_func_name << "\" << endl;" << endl;
+  // execute_kernel << "cout << \"" << decode_func_name << "\" << endl;" <<
+  // endl;
 }
 
 void IlaSim::execute_state_update_func(stringstream& execute_kernel,
@@ -109,7 +110,10 @@ void IlaSim::execute_state_update_func(stringstream& execute_kernel,
                       to_string(updated_state->sort()->bit_width()) + "> "
                 : "";
   if (qemu_device_)
-    updated_state_type = (updated_state->is_bv()) ? "uint" + to_string(updated_state->sort()->bit_width()) + "_t " : updated_state_type;
+    updated_state_type =
+        (updated_state->is_bv())
+            ? "uint" + to_string(updated_state->sort()->bit_width()) + "_t "
+            : updated_state_type;
   string updated_state_name =
       updated_state->host()->name().str() + "_" + updated_state->name().str();
 
@@ -349,9 +353,8 @@ void IlaSim::execute_kernel_mk_file() {
   if (qemu_device_) {
     mk_script_ << "g++ -I./ -c -o compute.o compute.cc " << endl;
     mk_script_ << "g++ -I./ -c -o help.o ../../uninterpreted_func/"
-	       << "uninterpreted_func.cc " << endl;
-  }
-  else
+               << "uninterpreted_func.cc " << endl;
+  } else
     mk_script_ << "g++ -I. -I " << systemc_path_ << "/include/ "
                << "-L. -L " << systemc_path_ << "/lib-linux64/ "
                << "-Wl,-rpath=" << systemc_path_ << "/lib-linux64/ -std=c++11 "
