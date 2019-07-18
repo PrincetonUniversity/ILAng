@@ -215,7 +215,8 @@ void IlaSim::sim_gen_export() {
     mk_script_ << "g++ -I. -I " << systemc_path_ << "/include/ "
                << "-L. -L " << systemc_path_ << "/lib-linux64/ "
                << "-Wl,-rpath=" << systemc_path_ << "/lib-linux64/ -std=c++11 "
-               << "-c -o " << "help.o ../../src/help.cc " << "-lsystemc" << endl;
+               << "-c -o " << "uninterpreted_func.o "
+	       << "../../src/uninterpreted_func.cc " << "-lsystemc" << endl;
 /*
     mk_script_ << "g++ -I. -I " << systemc_path_ << "/include/ "
                << "-L. -L " << systemc_path_ << "/lib-linux64/ "
