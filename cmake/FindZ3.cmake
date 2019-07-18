@@ -35,11 +35,45 @@ find_program(Z3_EXEC
 
 mark_as_advanced(Z3_FOUND Z3_INCLUDE_DIR Z3_LIBRARY Z3_EXEC)
 
-include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(Z3 DEFAULT_MSG 
-  Z3_INCLUDE_DIR 
-  Z3_LIBRARY
-)
+message(STATUS "OS: ${CMAKE_SYSTEM_NAME}")
+if("${CMAKE_SYSTEM_NAME}" MATCHES "[Ww]indows")
+
+  find_package(Z3
+    REQUIRED
+    CONFIG
+    # `NO_DEFAULT_PATH` is set so that -DZ3_DIR has to be passed to find Z3.
+    # This should prevent us from accidentally picking up an installed
+    # copy of Z3. This is here to benefit Z3's build system when building
+    # this project. When making your own project you probably shouldn't
+    # use this option.
+    NO_DEFAULT_PATH
+  )
+
+  set(Z3_INCLUDE_DIR ${Z3_CXX_INCLUDE_DIRS})
+
+  # On Windows we need to copy the Z3 libraries
+  # into the same directory as the executable
+  # so that they can be found.
+  foreach (z3_lib ${Z3_LIBRARIES})
+    message(STATUS "Adding copy rule for ${z3_lib}")
+    add_custom_command(TARGET cpp_example
+      POST_BUILD
+      COMMAND
+        ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:${z3_lib}>
+        $<TARGET_FILE_DIR:cpp_example>
+    )
+  endforeach()
+
+else()
+
+  include(FindPackageHandleStandardArgs)
+  find_package_handle_standard_args(Z3 DEFAULT_MSG 
+    Z3_INCLUDE_DIR 
+    Z3_LIBRARY
+  )
+
+endif()
 
 if(Z3_FOUND)
 
@@ -55,42 +89,6 @@ if(Z3_FOUND)
   set(Z3_VERSION_REGEX "^Z3 version (.+)$")
   string(REGEX REPLACE ${Z3_VERSION_REGEX} "\\1" Z3_VERSION "${Z3_VERSION}")
 
-# endif()
-else()
-
-  message(STATUS "OS: ${CMAKE_SYSTEM_NAME}")
-# if("${CMAKE_SYSTEM_NAME}" MATCHES "[Ww]indows")
-  
-  find_package(Z3
-    REQUIRED
-    CONFIG
-    # `NO_DEFAULT_PATH` is set so that -DZ3_DIR has to be passed to find Z3.
-    # This should prevent us from accidentally picking up an installed
-    # copy of Z3. This is here to benefit Z3's build system when building
-    # this project. When making your own project you probably shouldn't
-    # use this option.
-    NO_DEFAULT_PATH
-  )
-
-  set(Z3_INCLUDE_DIR ${Z3_CXX_INCLUDE_DIRS})
-
-  message(STATUS "Z3_FOUND: ${Z3_FOUND}")
-  message(STATUS "Found Z3 ${Z3_VERSION_STRING}")
-  message(STATUS "Z3_DIR: ${Z3_DIR}")
-
-  # On Windows we need to copy the Z3 libraries
-  # into the same directory as the executable
-  # so that they can be found.
-  foreach (z3_lib ${Z3_LIBRARIES})
-    message(STATUS "Adding copy rule for ${z3_lib}")
-    add_custom_command(TARGET cpp_example
-      POST_BUILD
-      COMMAND
-        ${CMAKE_COMMAND} -E copy_if_different
-        $<TARGET_FILE:${z3_lib}>
-        $<TARGET_FILE_DIR:cpp_example>
-    )
-  endforeach()
 endif()
 
 message(STATUS "Z3 version: ${Z3_VERSION}")
