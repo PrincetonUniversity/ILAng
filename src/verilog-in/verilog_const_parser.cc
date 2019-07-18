@@ -135,7 +135,7 @@ void VerilogConstantExprEval::ParseCurrentModuleParameters(
   ast_list* params = m->module_parameters;
   if (params == NULL)
     return;
-  std::cout << "For each param in ParseCurrentModuleParameters" << std::endl;
+  std::cout << "For each param in ParseCurrentModuleParameters " << ast_identifier_tostring( m->identifier) << std::endl;
   for (unsigned pi = 0; pi < params->items; ++pi) {
 
     std::cout << "  For param " << pi << std::endl;
