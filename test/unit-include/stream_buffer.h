@@ -2,6 +2,7 @@
 /// Example model -- simple stream buffer.
 
 #include <memory>
+#include <string>
 
 namespace ilang {
 
