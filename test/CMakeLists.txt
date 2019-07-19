@@ -79,6 +79,7 @@ package_add_test(${ILANG_TEST_MAIN}
   t_util.cc
   t_inv_syn.cc
   t_inv_syn_ex.cc
+  t_inv_extract.cc
   t_smt_in.cc
   t_smt_trans.cc
 )

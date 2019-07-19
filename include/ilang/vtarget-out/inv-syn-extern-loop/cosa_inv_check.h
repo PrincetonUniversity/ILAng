@@ -1,22 +1,23 @@
-/// \file Header Externally Provided Target for inv-syn
-/// to generate a synthesis target with (externally) provided wrapper template
-/// instead of constructing the template ourselves
+/// \file Header Externally Provided Target for inv-syn-check-using cosa
+/// to generate a invariant validation target with (externally) provided wrapper template
+/// instead of constructing the wrapper ourselves
 // Hongce Zhang (hongcez@princeton.edu)
 
-#ifndef EXT_YOSYS_ABC_H__
-#define EXT_YOSYS_ABC_H__
 
-#include <ilang/smt-inout/yosys_smt_parser.h>
+#ifndef COSA_INV_CHECK__
+#define COSA_INV_CHECK__
+
+
 #include <ilang/verilog-in/verilog_analysis_wrapper.h>
-#include <ilang/vtarget-out/supplementary_info.h>
-#include <ilang/vtarget-out/vtarget_gen.h>
 #include <ilang/vtarget-out/var_extract.h>
+#include <ilang/vtarget-out/vtarget_gen.h>
+#include <ilang/vtarget-out/supplementary_info.h>
 
 #include "nlohmann/json.hpp"
 
 namespace ilang {
 
-class ExternalAbcTargetGen : public VlgVerifTgtGenBase {
+class ExternalCosaInvValidateTargetGen : public VlgVerifTgtGenBase {
 public:
   // --------------------- TYPE DEFINITIONS ---------------------------- //
   /// tell us which backend to use
@@ -38,7 +39,7 @@ public:
   /// \param[in] output path (ila-verilog, wrapper-verilog, problem.txt,
   /// run-verify-by-???, modify-impl, it there is ) \param[in] pointer to the
   /// ila \param[in] (optional) the default configuration for outputing verilog
-  ExternalAbcTargetGen(const std::vector<std::string>& implementation_include_path,
+  ExternalCosaInvValidateTargetGen(const std::vector<std::string>& implementation_include_path,
                  const std::vector<std::string>& implementation_srcs,
                  const std::string& implementation_top_module,
                  const std::string& refinement_variable_mapping,
@@ -46,18 +47,17 @@ public:
                  const std::string& output_path,
                  const std::string& tmpl_top_mod_name,
                  backend_selector backend, 
-                 synthesis_backend_selector sbackend,
                  const vtg_config_t& vtg_config,
                  advanced_parameters_t * adv_ptr = NULL);
 
   /// no copy constructor, please
-  ExternalAbcTargetGen(const ExternalAbcTargetGen&) = delete;
+  ExternalCosaInvValidateTargetGen(const ExternalCosaInvValidateTargetGen&) = delete;
   /// no assignment, please. I don't want to mess up w. vlg_info_ptr
-  ExternalAbcTargetGen& operator=(const ExternalAbcTargetGen&) = delete;
+  ExternalCosaInvValidateTargetGen& operator=(const ExternalCosaInvValidateTargetGen&) = delete;
 
   // --------------------- DESTRUCTOR ---------------------------- //
   /// release verilog info pointer
-  virtual ~ExternalAbcTargetGen();
+  virtual ~ExternalCosaInvValidateTargetGen();
 
 protected:
   // --------------------- MEMBERS ---------------------------- //
@@ -82,8 +82,6 @@ protected:
   VerilogInfo* vlg_info_ptr;
   /// to store the backend
   const backend_selector _backend;
-  /// to store the synthesis backend
-  const synthesis_backend_selector s_backend;
   /// to store the configuration
   vtg_config_t _vtg_config;
   /// to store the advanced parameter configurations
@@ -127,6 +125,7 @@ protected:
   std::string ModifyCondExprAndRecordVlgName(const VarExtractor::token& t);
   /// Parse and modify a condition string
   std::string ReplExpr(const std::string& expr, bool force_vlg_sts = false);
+
   
 protected:
   // --------------------- for rf parsing (not very useful)  ----------------- //
@@ -154,7 +153,7 @@ protected:
   /// top verilog module file name
   std::string top_file_name;
   /// chc file name
-  std::string blif_fname;
+  std::string cosa_prob_fname;
   // helper function to be implemented by COSA/JASPER
   /// Add an assumption
   virtual void add_an_assumption(const std::string& aspt,
@@ -171,29 +170,17 @@ protected:
   /// add rf inv as assumptions (if there are)
   void add_rf_inv_as_assertion();
   /// add property to vlg
-  void add_property(const std::string &precond, const std::string &all_assume_reg,
-    const std::set<std::string> focus_set);
+  void add_property(const std::string &precond, const std::set<std::string> & focus_name);
   /// the wires referred needs to be added to wire/ports/implports
   void register_extra_io_wire();
   /// read in wrapper_tmpl_name and generate wrapper_name
   void wrapper_tmpl_substitute(const std::string& wrapper_name, const std::string &wrapper_tmpl_name);
   /// export the rest of modules and also copy includes if any
   void export_modify_verilog(const std::string& wrapper_name);
-
-  // --------------------- for ABC export purpose  ---------------------------- //
-
-  /// generate the wrapper's smt first
-  void generate_blif(
-    const std::string & blif_name,
-    const std::string & ys_script_name);  
-
-  void export_script(const std::string& script_name,
-    const std::string& abc_command_file_name, bool useGla, bool useCorr,
-    unsigned gla_frame, unsigned gla_time);
-public:
-  // okay to instantiate
-  void do_not_instantiate(void) {}
-
+  /// export the script to run the verification
+  void export_script(const std::string& script_name);
+  /// export extra things (problem)
+  void export_problem(const std::string& extra_name); // only for cosa
   // ----------------------- BAD STATE -------------------- //
 public:
   /// check if this module is in a bad state
@@ -212,14 +199,12 @@ public:
     const std::string& wrapper_name,
     const std::string& wrapper_tmpl_name,
     const std::string& precond,
-    const std::string& all_assume_reg,
-    const std::set<std::string> & focus_set);
-  /// step 2: to blif
-  void GenerateBlifProblem(
-    const std::string& blif_name,
-    const std::string& bash_script_name,
-    const std::string& abc_command_file_name,
-    bool useGla, bool useCorr, unsigned gla_frame, unsigned gla_time);
+    const std::set<std::string> & focus_name); // allow you to generalize using drop_var_set feature
+
+  /// step 2: to script/cosa problem
+  void GenerateVerifyTarget(
+    const std::string& cosa_problem_name,
+    const std::string& script_name);
 
   // ----------------------- ACCESSOR -------------------- //
   /// get the script names (should be only 1)
@@ -228,9 +213,12 @@ public:
   const VlgTgtSupplementaryInfo & GetSupplementaryInfo() const;
   /// get the D-U-V instance name
   std::string GetDesignUnderVerificationInstanceName() const;
-  
-}; // class ExternalAbcTargetGen
 
-}; // namesplace ilang
+  // okay to instantiate
+  void do_not_instantiate() override {};
+}; // class ExternalCosaInvValidateTargetGen
 
-#endif // EXT_YOSYS_ABC_H__
+
+}; //namespace ilang
+
+#endif // COSA_INV_CHECK__

@@ -431,7 +431,9 @@ TEST(TestVlgVerifInvSyn, CegarPipelineExampleFreqHorn) {
     {"--conc --impl --bw 4 --dot-name"},
     {"--conc --impl --or --bw 4 --dot-name"},
     {"--conc --impl --or --neqs --bw 4 --dot-name"},
+    {"--conc --impl --or --adds --bvnot --ext --bw 4 --dot-name"},
     {"--conc --impl --or --neqs --impl-or --bw 4 --dot-name"},
+    {"--conc --impl --or --neqs --impl-or --adds --bvnot --ext --bw 4 --dot-name"},
     {"--conc --impl --or --neqs --impl-or --impl-or-simple --conj-impl --bw 4 --dot-name"},
     {"--conc --impl --or --neqs --impl-or --impl-or-simple --conj-impl --conj-impl-or --bw 4 --dot-name"},
   };
@@ -471,6 +473,7 @@ TEST(TestVlgVerifInvSyn, CegarPipelineExampleFreqHorn) {
       vg.ExtractVerificationResult();
 
       unsigned syntax_level = 0;
+      vg.ChangeFreqHornSyntax(level_of_syntax[syntax_level]);
 freqhorn_retry:
       vg.GenerateSynthesisTarget();
       if(vg.RunSynAuto()) {

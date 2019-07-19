@@ -8,6 +8,7 @@
 #include <ilang/vtarget-out/inv-syn-extern-loop/loop_extern.h>
 #include <ilang/vtarget-out/inv-syn-extern-loop/yosys_chc.h>
 #include <ilang/vtarget-out/inv-syn-extern-loop/yosys_abc.h>
+#include <ilang/vtarget-out/inv-syn-extern-loop/cosa_inv_check.h>
 #include <ilang/vtarget-out/inv-syn/sygus/datapoint_inv_prune.h>
 
 #include <fstream>
@@ -220,7 +221,8 @@ void InvariantSynthesizerExternalCegar::ExtractSynthesisResult(bool autodet, boo
 /// generate chc target
 void InvariantSynthesizerExternalCegar::GenerateAbcSynthesisTarget(
   const std::string & precond, const std::string & assume_reg, bool useGla,
-  bool useCorr, unsigned gla_frame, unsigned gla_time) {
+  bool useCorr, unsigned gla_frame, unsigned gla_time,
+  const std::set<std::string> & focus_set) {
   if (check_in_bad_state()) return;
 
   // to send in the invariants
@@ -241,7 +243,7 @@ void InvariantSynthesizerExternalCegar::GenerateAbcSynthesisTarget(
 		_vtg_config, &adv_param		
 	);
 
-	vg.ConstructWrapper("wrapper.v", "wrapper.tpl", precond, assume_reg);
+	vg.ConstructWrapper("wrapper.v", "wrapper.tpl", precond, assume_reg, focus_set);
 	vg.GenerateBlifProblem("wrapper.blif", "run.sh", "abccmd.txt", useGla, useCorr,
     gla_frame, gla_time);
 
@@ -256,10 +258,10 @@ void InvariantSynthesizerExternalCegar::GenerateAbcSynthesisTarget(
 
 
 /// run Synthesis : returns reachable/not
-bool InvariantSynthesizerExternalCegar::RunSynAbcAuto(unsigned timeout) {
+InvariantSynthesizerExternalCegar::_inv_check_res_t InvariantSynthesizerExternalCegar::RunSynAbcAuto(unsigned timeout) {
 
   if(check_in_bad_state())
-    return true;
+    return _inv_check_res_t::INV_UNKNOWN;
   
   ILA_ASSERT(runnable_script_name.size() == 1) << "Please run GenerateInvSynTargets function first";
   synthesis_result_fn = os_portable_append_dir(_output_path, "__synthesis_result.txt");
@@ -282,7 +284,7 @@ bool InvariantSynthesizerExternalCegar::RunSynAbcAuto(unsigned timeout) {
 
   if (res.timeout) {
     ILA_ERROR << "Set time out!";
-    return true;
+    return _inv_check_res_t::INV_UNKNOWN;
   }
   
   inv_syn_time += res.seconds;
@@ -293,13 +295,13 @@ bool InvariantSynthesizerExternalCegar::RunSynAbcAuto(unsigned timeout) {
   if (not fin.is_open()) {
       ILA_ERROR << "Unable to read the synthesis result file:" << synthesis_result_fn;
       bad_state = true;
-      return true; // reachable
+      return _inv_check_res_t::INV_UNKNOWN; // reachable
     } 
   sbuf << fin.rdbuf();
   cex_reachable = ! ( S_IN( "Property proved." , sbuf.str()) and S_IN( "Invariant contains " , sbuf.str()) );
   
   // else reachable
-  return cex_reachable;
+  return cex_reachable ? _inv_check_res_t::INV_INVALID : _inv_check_res_t::INV_PROVED;
 }
 
 void InvariantSynthesizerExternalCegar::JumpStart_FromExtract(bool cex_r) {
@@ -319,7 +321,7 @@ bool InvariantSynthesizerExternalCegar::ExtractAbcSynthesisResult(const std::str
   // ILA_ASSERT(current_inv_type != cur_inv_tp::SYGUS_CEX) 
   //   << "API misuse: should not use this function on SYGUS CEX output, they may not be the invariants, but just candidates!";
     
-  bool succeed = inv_obj.AddInvariantFromAbcResultFile(blifname, ffmap_file, true, false, gla_file);
+  bool succeed = inv_obj.AddInvariantFromAbcResultFile(blifname, ffmap_file, true, true, gla_file);
   if (not succeed)
     return false;
   
@@ -331,6 +333,117 @@ bool InvariantSynthesizerExternalCegar::ExtractAbcSynthesisResult(const std::str
 } // ExtractAbcSynthesisResult
 
 
+// -------------------- SYGUS ------------------ //
+void InvariantSynthesizerExternalCegar::GenerateCexSimplifyTarget(
+  const std::string precond, const std::set<std::string> & focus_set ) {
+
+  // to send in the invariants
+  advanced_parameters_t adv_param;
+  adv_param._inv_obj_ptr = &inv_obj; 
+	adv_param._candidate_inv_ptr = NULL;
+  adv_param._cex_obj_ptr = cex_extract.get();
+
+	ExternalCosaInvValidateTargetGen vg(
+		implementation_incl_path,
+		implementation_srcs_path,
+		implementation_top_module_name,
+		refinement_variable_mapping_path,
+		refinement_condition_path,
+		os_portable_append_dir(_output_path,"cex-block") ,
+		tmpl_top_module_name,
+		v_backend,
+		_vtg_config, &adv_param		
+	);
+
+	vg.ConstructWrapper("wrapper.v", "wrapper.tpl", precond, focus_set);
+  vg.GenerateVerifyTarget("problem.txt", "run.sh");
+
+	runnable_script_name = vg.GetRunnableScriptName();
+
+  if (vlg_mod_inst_name.empty()) {
+    vlg_mod_inst_name = vg.GetDesignUnderVerificationInstanceName();
+    inv_obj.set_dut_inst_name(vlg_mod_inst_name);
+  }
+
+  if (additional_width_info.empty())
+    additional_width_info = vg.GetSupplementaryInfo().width_info;
+}
+
+// -------------------------------- AUTO RUNS ------------------------------------------- //
+
+/// a helper function (only locally available)
+/// to detect tool error (e.g., verilog parsing error)
+bool static has_verify_tool_error_cosa(const std::string & fn) {
+  std::ifstream fin(fn);
+  if (not fin.is_open()) {
+    ILA_ERROR<<"Unable to read from:"<<fn;
+    return true;
+  }
+
+  std::string line;
+  while(std::getline(fin,line)) {
+    if (S_IN("See yosys-err.log for more info." , line))
+      return true;
+  }
+  return false;
+} // has_verify_tool_error_cosa
+
+  /// a helper function (only locally available)
+/// to detect tool error (e.g., verilog parsing error)
+bool static has_verify_tool_unknown_cosa(const std::string & fn) {
+  std::ifstream fin(fn);
+  if (not fin.is_open()) {
+    ILA_ERROR<<"Unable to read from:"<<fn;
+    return true;
+  }
+  
+  std::string line;
+  while(std::getline(fin,line)) {
+    if (S_IN("UNKNOWN != TRUE <<<---------| ERROR" , line))
+      return true;
+  }
+  return false;
+} // has_verify_tool_error_cosa
+
+InvariantSynthesizerExternalCegar::_inv_check_res_t InvariantSynthesizerExternalCegar::RunVerifyAuto(unsigned timeout) {
+  ILA_ASSERT(runnable_script_name.size() == 1) << "No idea which script to run!";
+  auto script_sel = runnable_script_name [0];
+  if(check_in_bad_state())
+    return _inv_check_res_t::INV_UNKNOWN;
+  // Not implemented
+  auto result_fn = os_portable_append_dir(_output_path, "__verification_result.txt");
+  auto redirect_fn = os_portable_append_dir("../", "__verification_result.txt");
+  auto cwd = os_portable_getcwd();
+  auto new_wd = os_portable_path_from_path(script_sel);
+  ILA_ERROR_IF(not os_portable_chdir(new_wd)) 
+    << "RunVerifAuto: cannot change dir to:" << new_wd;
+  ILA_INFO << "Executing verify script:" << script_sel;
+  auto res = os_portable_execute_shell({"bash", 
+    os_portable_file_name_from_path( script_sel) },
+   redirect_fn, redirect_t::BOTH, timeout);
+  ILA_ERROR_IF(res.failure != execute_result::NONE)
+    << "Running verification script " << script_sel << " results in error."; 
+  ILA_ASSERT(os_portable_chdir(cwd));
+  // the last line contains the result
+  // above it you should have *** TRACES ***
+  // the vcd file resides within the new dir
+  ILA_ERROR_IF(has_verify_tool_error_cosa(result_fn)) << "----------- Verification tool reported error! Please check the log output!";
+  ILA_ERROR_IF(has_verify_tool_unknown_cosa(result_fn)) << "UNKNOWN Verif result";
+
+  eqcheck_time += res.seconds;
+  if (res.timeout)
+    return _inv_check_res_t::INV_UNKNOWN;
+
+  auto lastLine = os_portable_read_last_line(result_fn);
+  ILA_ERROR_IF(lastLine.empty()) << "Unable to extract verification result.";
+  if (S_IN("Verifications with unexpected result", lastLine))
+    return _inv_check_res_t::INV_INVALID;
+  return _inv_check_res_t::INV_PROVED;
+}
+
+void InvariantSynthesizerExternalCegar::AcceptNegCex(const std::set<std::string> & focus_var) {
+  inv_obj.AddInvariantFromVerilogExpr("", cex_extract->GenInvAssert("", focus_var) );
+}
 
 // -------------------- SYGUS ------------------ //
 /// set the sygus name lists (cannot be empty)

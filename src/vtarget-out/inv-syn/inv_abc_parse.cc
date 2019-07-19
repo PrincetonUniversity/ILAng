@@ -33,6 +33,7 @@ void AbcInvariantParser::parse(
     const std::string & abc_result_fn) {
   
   std::vector<std::string> blif_state_order;
+  std::vector<unsigned> blif_state_init;
   { // read blif
     std::ifstream fin(blif_name);
     if (! fin.is_open()) {
@@ -44,6 +45,7 @@ void AbcInvariantParser::parse(
       if (line.find(".latch ") == 0) {
         auto vec = SplitSpaceTabEnter(line);
         blif_state_order.push_back(vec.at(2));
+        blif_state_init.push_back(StrToInt(vec.at(5)));
       }
     }
   } // read blif
@@ -70,28 +72,34 @@ void AbcInvariantParser::parse(
         int flopno = flop >> 1;
         ILA_ASSERT(blif_state_order.size() > flopno)
           << "Referring #" << flopno << " flop, while size of blifstates:" << blif_state_order.size() ;
+        if (blif_state_init.at(flopno))
+          neg = !neg; // if its initial value is 1...
         const auto & ref_val_name = blif_state_order.at(flopno);
         std::string literal;
         if (ref_val_name.find(dut_name+".") == 0)
           literal = (neg ? "~" : "") +  handle_range_ref(ref_val_name);
         else {
           ILA_ERROR_IF(discourage_outside_var_ref) << "ABC inv referring to outside var:" << ref_val_name;
-          if ( ref_val_name == "__all_assumed_reg__" ) {
-            literal = (neg ? "~" : "") + std::string("1'b0");
-            remove_this_cube = !neg; // if it is "& 1'b0" this cube is 0
-          }
-          else if (ref_val_name.find("committed_inst") == 0) {
-            cube_has_abnormal_var = true; 
-            literal = (neg ? "~" : "") +  std::string("1'b1");
-            remove_this_cube = neg; // if it is "& ~1'b1" this cube is 0
-            // literal = "1'b1"; // void the literal if abnormal
-            // over-approximate it
-          } else if (ref_val_name.find(".") != ref_val_name.npos) {
-            // keep it
+          if (replace_outside_var_ref) {
+            if ( ref_val_name == "__all_assumed_reg__" ) {
+              literal = (neg ? "~" : "") + std::string("1'b0");
+              remove_this_cube = remove_this_cube ||  !neg; // if it is "& 1'b0" this cube is 0
+            }
+            else if (ref_val_name.find("committed_inst") == 0) {
+              cube_has_abnormal_var = true; 
+              literal = (neg ? "~" : "") +  std::string("1'b1");
+              remove_this_cube = remove_this_cube ||  neg; // if it is "& ~1'b1" this cube is 0
+              // literal = "1'b1"; // void the literal if abnormal
+              // over-approximate it
+            } else if (ref_val_name.find(".") != ref_val_name.npos) {
+              // keep it
+              literal = (neg ? "~" : "") +  handle_range_ref(ref_val_name);
+              remove_this_cube = true; // remove this cube (we don't know what to do actually)
+            } else 
+              remove_this_cube = true;
+          }else {
             literal = (neg ? "~" : "") +  handle_range_ref(ref_val_name);
-            remove_this_cube = true; // remove this cube (we don't know what to do actually)
-          } else 
-            remove_this_cube = true;
+          }
           /*
           if(replace_outside_var_ref && ref_val_name != "__all_assumed_reg__") {
             std::string new_var_name = ReplaceAll(ReplaceAll(ReplaceAll(ref_val_name, "." , "_dot_"), "[", "_"), "]","_");
@@ -140,6 +148,7 @@ void AbcInvariantParser::parse(
     const std::string & gla_map_fn) {
   
   std::vector<std::string> blif_state_order;
+  std::vector<unsigned> blif_state_init;
   { // read blif
     std::ifstream fin(blif_name);
     if (! fin.is_open()) {
@@ -151,6 +160,7 @@ void AbcInvariantParser::parse(
       if (line.find(".latch ") == 0) {
         auto vec = SplitSpaceTabEnter(line);
         blif_state_order.push_back(vec.at(2));
+        blif_state_init.push_back(StrToInt(vec.at(5)));
       }
     }
   } // read blif
@@ -196,28 +206,37 @@ void AbcInvariantParser::parse(
         int flopno = flop >> 1;
         ILA_ASSERT(new_id_to_old_id.size() > flopno)
           << "Referring #" << flopno << " flop, while size of abstract states:" << new_id_to_old_id.size() ;
+
+        if (blif_state_init.at(new_id_to_old_id[flopno]))
+          neg = !neg; // if its initial value is 1...
+
         const auto & ref_val_name = blif_state_order.at(new_id_to_old_id[flopno]);
         std::string literal;
         if (ref_val_name.find(dut_name+".") == 0)
           literal = (neg ? "~" : "") +  handle_range_ref(ref_val_name);
         else {
           ILA_ERROR_IF(discourage_outside_var_ref) << "ABC inv referring to outside var:" << ref_val_name;
-          if ( ref_val_name == "__all_assumed_reg__" ) {
-            literal = (neg ? "~" : "") + std::string("1'b0");
-            remove_this_cube = !neg; // if it is "& 1'b0" this cube is 0
-          }
-          else if (ref_val_name.find("committed_inst") == 0) {
-            cube_has_abnormal_var = true; 
-            literal = (neg ? "~" : "") +  std::string("1'b1");
-            remove_this_cube = neg; // if it is "& ~1'b1" this cube is 0
-            // literal = "1'b1"; // void the literal if abnormal
-            // over-approximate it
-          } else if (ref_val_name.find(".") != ref_val_name.npos) {
-            // keep it
+          if (replace_outside_var_ref) {
+            if ( ref_val_name == "__all_assumed_reg__" ) {
+              literal = (neg ? "~" : "") + std::string("1'b0");
+              remove_this_cube = remove_this_cube || !neg; // if it is "& 1'b0" this cube is 0
+            }
+            else if (ref_val_name.find("committed_inst") == 0) {
+              cube_has_abnormal_var = true; 
+              literal = (neg ? "~" : "") +  std::string("1'b1");
+              remove_this_cube = remove_this_cube || neg; // if it is "& ~1'b1" this cube is 0
+              // literal = "1'b1"; // void the literal if abnormal
+              // over-approximate it
+            } else if (ref_val_name.find(".") != ref_val_name.npos) {
+              // keep it
+              literal = (neg ? "~" : "") +  handle_range_ref(ref_val_name);
+              remove_this_cube = true; // remove this cube (we don't know what to do actually)
+            } else 
+              remove_this_cube = true;
+          } else {
             literal = (neg ? "~" : "") +  handle_range_ref(ref_val_name);
-            remove_this_cube = true; // remove this cube (we don't know what to do actually)
-          } else 
-            remove_this_cube = true;
+          }
+          
           /*
           if(replace_outside_var_ref && ref_val_name != "__all_assumed_reg__") {
             std::string new_var_name = ReplaceAll(ReplaceAll(ReplaceAll(ref_val_name, "." , "_dot_"), "[", "_"), "]","_");

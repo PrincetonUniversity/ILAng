@@ -1,33 +1,29 @@
-/// \file Source for Externally Provided Target for inv-syn
-/// to generate a synthesis target with (externally) provided wrapper template
-/// instead of constructing the template ourselves
+/// \file Source of Externally Provided Target for inv-syn-check-using cosa
+/// to generate a invariant validation target with (externally) provided wrapper template
+/// instead of constructing the wrapper ourselves
 // Hongce Zhang (hongcez@princeton.edu)
 
 #include <ilang/util/str_util.h>
 #include <ilang/util/log.h>
 #include <ilang/util/container_shortcut.h>
 #include <ilang/util/fs.h>
-#include <ilang/vtarget-out/inv-syn-extern-loop/yosys_abc.h>
+#include <ilang/vtarget-out/inv-syn-extern-loop/cosa_inv_check.h>
 #include <ilang/vtarget-out/vlg_mod.h>
 
 #include <iostream>
 
 namespace ilang{
 
-// ------------------------------------------
-/// temporary parameters
 
-/// end of temporary parameters
-// ------------------------------------------
-
-ExternalAbcTargetGen::ExternalAbcTargetGen(const std::vector<std::string>& implementation_include_path,
+ExternalCosaInvValidateTargetGen::ExternalCosaInvValidateTargetGen(
+                const std::vector<std::string>& implementation_include_path,
                 const std::vector<std::string>& implementation_srcs,
                 const std::string& implementation_top_module,
                 const std::string& refinement_variable_mapping,
                 const std::string& refinement_conditions,
                 const std::string& output_path,
                  const std::string& tmpl_top_mod_name,
-                backend_selector backend, synthesis_backend_selector sbackend,
+                backend_selector backend,
                 const vtg_config_t& vtg_config,
                 advanced_parameters_t * adv_ptr):
   _vlg_impl_include_path(implementation_include_path),
@@ -37,7 +33,7 @@ ExternalAbcTargetGen::ExternalAbcTargetGen(const std::vector<std::string>& imple
   _rf_cond_name(refinement_conditions),
   _output_path(output_path), top_mod_name(tmpl_top_mod_name),
   vlg_info_ptr(NULL), // not creating it now, because we don't have the info to do so
-  _backend(backend), s_backend(sbackend), _vtg_config(vtg_config),
+  _backend(backend), _vtg_config(vtg_config),
   _advanced_param_ptr(adv_ptr),
   has_confirmed_synthesized_invariant(
         adv_ptr && 
@@ -76,24 +72,26 @@ ExternalAbcTargetGen::ExternalAbcTargetGen(const std::vector<std::string>& imple
 }
 
 
-ExternalAbcTargetGen::~ExternalAbcTargetGen() {
+ExternalCosaInvValidateTargetGen::~ExternalCosaInvValidateTargetGen() {
   if (vlg_info_ptr)
     delete vlg_info_ptr;
 }
 
-const std::vector<std::string> & ExternalAbcTargetGen::GetRunnableScriptName() const {
+
+const std::vector<std::string> & ExternalCosaInvValidateTargetGen::GetRunnableScriptName() const {
   return runnable_script_name;
 }
 
-const VlgTgtSupplementaryInfo & ExternalAbcTargetGen::GetSupplementaryInfo() const {
+const VlgTgtSupplementaryInfo & ExternalCosaInvValidateTargetGen::GetSupplementaryInfo() const {
   return sup_info;
 }
 
-std::string ExternalAbcTargetGen::GetDesignUnderVerificationInstanceName() const {
+std::string ExternalCosaInvValidateTargetGen::GetDesignUnderVerificationInstanceName() const {
   return _vlg_mod_inst_name;
 }
 
 // --------------------- for rf parsing (not very useful)  ----------------- //
+
 
 // return npos if no comments in
 static size_t find_comments(const std::string &line) {
@@ -127,7 +125,7 @@ static size_t find_comments(const std::string &line) {
 }
 
 /// load json from a file name to the given j
-void ExternalAbcTargetGen::load_json(const std::string& fname, nlohmann::json& j) {
+void ExternalCosaInvValidateTargetGen::load_json(const std::string& fname, nlohmann::json& j) {
   if (bad_state_return())
     return;
   std::ifstream fin(fname);
@@ -152,7 +150,7 @@ void ExternalAbcTargetGen::load_json(const std::string& fname, nlohmann::json& j
 } // load_json
 
 /// Get instance name from rfmap
-void ExternalAbcTargetGen::set_module_instantiation_name() {
+void ExternalCosaInvValidateTargetGen::set_module_instantiation_name() {
   if (bad_state_return())
     return;
   // use the content in the refinement relations to determine the instance name
@@ -176,12 +174,13 @@ void ExternalAbcTargetGen::set_module_instantiation_name() {
 
 // --------------------- for adding constraints  ---------------------------- //
 /// Return a new variable name for property
-std::string ExternalAbcTargetGen::new_property_id() {
+std::string ExternalCosaInvValidateTargetGen::new_property_id() {
   return std::string("__p") + std::to_string(property_counter++) + "__";
 }
 
+
 /// Test if a string represents a Verilog signal name
-bool ExternalAbcTargetGen::TryFindVlgState(const std::string& sname) {
+bool ExternalCosaInvValidateTargetGen::TryFindVlgState(const std::string& sname) {
   if (vlg_info_ptr->check_hierarchical_name_type(sname) !=
       VerilogInfo::hierarchical_name_type::NONE)
     return true;
@@ -193,7 +192,7 @@ bool ExternalAbcTargetGen::TryFindVlgState(const std::string& sname) {
 }
 
 /// Modify a token and record its use
-std::string ExternalAbcTargetGen::ModifyCondExprAndRecordVlgName(const VarExtractor::token& t) {
+std::string ExternalCosaInvValidateTargetGen::ModifyCondExprAndRecordVlgName(const VarExtractor::token& t) {
   // modify name and ...
   const auto& token_tp = t.first;
   const auto& sname = t.second;
@@ -252,7 +251,7 @@ std::string ExternalAbcTargetGen::ModifyCondExprAndRecordVlgName(const VarExtrac
 } // ModifyCondExprAndRecordVlgName
 
 /// Parse and modify a condition string
-std::string ExternalAbcTargetGen::ReplExpr(const std::string& expr, bool force_vlg_sts) {
+std::string ExternalCosaInvValidateTargetGen::ReplExpr(const std::string& expr, bool force_vlg_sts) {
   return _vext.Replace(expr, force_vlg_sts,
                        [this](const VarExtractor::token& t) {
                          return ModifyCondExprAndRecordVlgName(t);
@@ -268,7 +267,7 @@ std::string ExternalAbcTargetGen::ReplExpr(const std::string& expr, bool force_v
 #define ADD_ASSIGN(s,v) (stmt_defs.push_back( "assign " + (s) + " = " + (v) + ";" ))
 
 /// Add an assumption
-void ExternalAbcTargetGen::add_an_assumption(const std::string& aspt,
+void ExternalCosaInvValidateTargetGen::add_an_assumption(const std::string& aspt,
                                 const std::string& dspt) {
   auto assumption_wire_name = dspt + new_property_id();
   ADD_WIRE(assumption_wire_name, 1);
@@ -280,7 +279,7 @@ void ExternalAbcTargetGen::add_an_assumption(const std::string& aspt,
 }
 
 /// Add an assertion
-void ExternalAbcTargetGen::add_an_assertion(const std::string& asst,
+void ExternalCosaInvValidateTargetGen::add_an_assertion(const std::string& asst,
                               const std::string& dspt) {
   auto assertion_wire_name = dspt + new_property_id();
   ADD_WIRE(assertion_wire_name, 1);
@@ -292,7 +291,7 @@ void ExternalAbcTargetGen::add_an_assertion(const std::string& asst,
 }
 
 
-void ExternalAbcTargetGen::add_inv_obj_as_assertion( InvariantObject * inv_obj) {
+void ExternalCosaInvValidateTargetGen::add_inv_obj_as_assertion( InvariantObject * inv_obj) {
   for (auto && name_expr_pair : inv_obj->GetExtraVarDefs() ){
     ADD_WIRE(std::get<0>(name_expr_pair), std::get<2>(name_expr_pair) );
     ADD_OUTPUT(std::get<0>(name_expr_pair), std::get<2>(name_expr_pair));
@@ -310,7 +309,7 @@ void ExternalAbcTargetGen::add_inv_obj_as_assertion( InvariantObject * inv_obj) 
 } // add_inv_obj_as_assertion
 
 
-void ExternalAbcTargetGen::add_inv_obj_as_assumption( InvariantObject * inv_obj) {
+void ExternalCosaInvValidateTargetGen::add_inv_obj_as_assumption( InvariantObject * inv_obj) {
     // do you need to provide sub-module instance name?
     for (auto && name_expr_pair : inv_obj->GetExtraVarDefs() ){
       ADD_WIRE(std::get<0>(name_expr_pair), std::get<2>(name_expr_pair));
@@ -328,7 +327,7 @@ void ExternalAbcTargetGen::add_inv_obj_as_assumption( InvariantObject * inv_obj)
     }
 } // add_inv_obj_as_assumption
 
-void ExternalAbcTargetGen::add_rf_inv_as_assumption() {
+void ExternalCosaInvValidateTargetGen::add_rf_inv_as_assumption() {
   if ( has_rf_invariant ) {    
     for (auto& cond : rf_cond["global invariants"]) {
       auto new_cond = ReplExpr(cond.get<std::string>(), true);
@@ -337,7 +336,7 @@ void ExternalAbcTargetGen::add_rf_inv_as_assumption() {
   }
 } // add_rf_inv_as_assumption
 
-void ExternalAbcTargetGen::add_rf_inv_as_assertion() {
+void ExternalCosaInvValidateTargetGen::add_rf_inv_as_assertion() {
   // the provided invariants
   if (has_rf_invariant)
     for (auto& cond : rf_cond["global invariants"]) {
@@ -346,16 +345,22 @@ void ExternalAbcTargetGen::add_rf_inv_as_assertion() {
     }
 } // add_rf_inv_as_assertion
 
-void ExternalAbcTargetGen::add_property(const std::string &precond, const std::string &all_assume_reg,
-    const std::set<std::string> focus_set) {
-  if (has_cex) {
-    auto inv = _advanced_param_ptr->_cex_obj_ptr->GenInvAssert("", focus_set);
-    { // just for companion jaspergold check
+void ExternalCosaInvValidateTargetGen::add_property(const std::string &precond,
+    const std::set<std::string> & focus_name) {
+  if (has_cex) { // you need to give the cex object, o.w. we will verify the guess invs
+    auto inv = _advanced_param_ptr->_cex_obj_ptr->GenInvAssert("", focus_name);
+    {
       std::ofstream fout(os_portable_append_dir(_output_path, "cex.tcl"));
-      fout << "assert { " << precond << "|-> (" << all_assume_reg << " |-> ( " << inv << ") ) }; " << std::endl;
+      if (!precond.empty())
+        fout << "assert { " << precond << "|->" << inv << " }; " << std::endl;
+      else
+        fout << "assert { " << inv << " }; " << std::endl;
     }
     auto new_cond = ReplExpr(inv, true);
-    add_an_assertion("! (" + precond + ") || ( !(" + all_assume_reg +  ")||  ~(" + new_cond + ") )", "cex_nonreachable_assert");
+    if (!precond.empty())
+      add_an_assertion("! (" + precond + ") || ( ~(" + new_cond + ") )", "cex_nonreachable_assert");
+    else
+      add_an_assertion("~(" + new_cond + ")", "cex_nonreachable_assert");
     /// add rf_assumption
     if (_vtg_config.InvariantSynthesisReachableCheckKeepOldInvariant) {
       add_rf_inv_as_assumption();
@@ -367,7 +372,7 @@ void ExternalAbcTargetGen::add_property(const std::string &precond, const std::s
       }
     }
     /// add 
-  } else if (has_gussed_synthesized_invariant) { 
+  } else if (has_gussed_synthesized_invariant) {
     // if this is general design invariant checking checking
     add_inv_obj_as_assertion(_advanced_param_ptr->_candidate_inv_ptr);
 
@@ -382,11 +387,10 @@ void ExternalAbcTargetGen::add_property(const std::string &precond, const std::s
   }
   else
     ILA_ASSERT(false) << "Unknown invariant handling for design_only target!";
-  
 }
 
 
-void ExternalAbcTargetGen::register_extra_io_wire() {
+void ExternalCosaInvValidateTargetGen::register_extra_io_wire() {
   for (auto&& refered_vlg_item : _all_referred_vlg_names) {
 
     auto idx = refered_vlg_item.first.find("[");
@@ -418,7 +422,8 @@ static std::string WidthToRange(int w) {
   return "";
 }
 
-void ExternalAbcTargetGen::wrapper_tmpl_substitute(const std::string& wrapper_name, const std::string &wrapper_tmpl_name)
+
+void ExternalCosaInvValidateTargetGen::wrapper_tmpl_substitute(const std::string& wrapper_name, const std::string &wrapper_tmpl_name)
 {
   // read in the template
   auto tmpl_full_name = os_portable_append_dir(_output_path, wrapper_tmpl_name);
@@ -496,23 +501,21 @@ void ExternalAbcTargetGen::wrapper_tmpl_substitute(const std::string& wrapper_na
 
   { // replace stmt assumes asserts
     ILA_ERROR_IF(not S_IN("%stmts%",   tmpl)) << "Require %stmts% field!";
-    ILA_ERROR_IF(not S_IN("%assumes%", tmpl)) << "Require %assumes% field!";
-    ILA_ERROR_IF(not S_IN("%asserts%", tmpl)) << "Require %asserts% field!";
+    // ILA_ERROR_IF(not S_IN("%assumes%", tmpl)) << "Require %assumes% field!";
+    // ILA_ERROR_IF(not S_IN("%asserts%", tmpl)) << "Require %asserts% field!";
     std::string stmts;
-    std::string assumes;
-    std::string asserts;
+    // std::string assumes;
+    // std::string asserts;
     for (auto && s : stmt_defs)
       stmts += s + "\n";
-    for (auto && a : assert_props)
-      asserts += "assert property (" + a + ");\n";
-    for (auto && a : assume_props) {
-      ILA_ERROR << "ABC does not accept assumptions: " << a;
-    }
-      // assumes += "assume property (" + a + ");\n";
+    // for (auto && a : assert_props)
+    //   asserts += "assert property (" + a + ");\n";
+    // for (auto && a : assume_props)
+    //   assumes += "assume property (" + a + ");\n";
     
     tmpl = ReplaceAll(tmpl, "%stmts%" ,   stmts);
-    tmpl = ReplaceAll(tmpl, "%assumes%" , assumes);
-    tmpl = ReplaceAll(tmpl, "%asserts%" , asserts);
+    // tmpl = ReplaceAll(tmpl, "%assumes%" , assumes);
+    // tmpl = ReplaceAll(tmpl, "%asserts%" , asserts);
   } // replace stmt assumes asserts
 
   { // replace , \n .n(n)
@@ -531,7 +534,7 @@ void ExternalAbcTargetGen::wrapper_tmpl_substitute(const std::string& wrapper_na
 } // wrapper_tmpl_substitute
 
 
-void ExternalAbcTargetGen::export_modify_verilog(const std::string& wrapper_name) {
+void ExternalCosaInvValidateTargetGen::export_modify_verilog(const std::string& wrapper_name) {
   // collect all locations: filename -> lineno
   // open, read, count and write
   // if it is a port name, we will ask user to specify its upper level
@@ -550,7 +553,6 @@ void ExternalAbcTargetGen::export_modify_verilog(const std::string& wrapper_name
     // vlg_wrapper.add_output(sig.first, sig.second);
   }
   vlg_mod.FinishRecording();
-
 
   //auto tmp_fn = os_portable_append_dir(_output_path, tmp_design_file);
   auto tmp_fn = os_portable_append_dir(_output_path, wrapper_name);
@@ -578,10 +580,12 @@ void ExternalAbcTargetGen::export_modify_verilog(const std::string& wrapper_name
   }  
 } // export_modify_verilog
 
-void ExternalAbcTargetGen::ConstructWrapper(
-  const std::string& wrapper_name, const std::string &wrapper_tmpl_name,
-  const std::string & precond, const std::string& all_assume_reg,
-  const std::set<std::string> & focus_set) {
+
+void ExternalCosaInvValidateTargetGen::ConstructWrapper(
+  const std::string& wrapper_name,
+  const std::string& wrapper_tmpl_name,
+  const std::string& precond,
+  const std::set<std::string> & focus_name) {
 
   top_file_name = wrapper_name;
 
@@ -597,7 +601,7 @@ void ExternalAbcTargetGen::ConstructWrapper(
     return; //
   }
   // add cex / (if no cex) candidate ... prop to check
-  add_property(precond, all_assume_reg, focus_set);
+  add_property(precond, focus_name);
   // register the wires...
   register_extra_io_wire();
   // replace text &
@@ -606,83 +610,9 @@ void ExternalAbcTargetGen::ConstructWrapper(
   export_modify_verilog(wrapper_name); 
 }
 
-// --------------------- for CHC template ---------------------------- //
 
-// initialize templates
-std::string abcGenerateSmtScript_wo_Array = R"***(
-read_verilog -formal %topfile%
-prep -top %module%
-miter -assert %module%
-flatten
-sim -clock clk -reset rst -n 1 -w %module%
-memory -nordff
-techmap; opt -fast
-write_blif %blifname%
-)***";
-
-std::string abcCmdNoGLA = R"***(
-  read_blif %blifname%
-  strash
-  pdr
-  inv_print -v
-)***";
-
-
-std::string abcCmdGLAnoCorr = R"***(
-  read_blif %blifname%
-  &get -n
-  &gla -T %glatime% -F %glaframe% -v
-  &gla_derive
-  &put
-  dc2 -v
-  dc2
-  dc2
-  dc2
-  dc2
-  dc2
-  dc2
-  dc2
-  dc2
-  dc2 -v
-  pdr
-  inv_print -v
-)***";
-
-std::string abcCmdGLA = R"***(
-  read_blif %blifname%
-  &get -n
-  &gla -T %glatime% -F %glaframe% -v
-  &gla_derive
-  &put
-  dc2 -v
-  dc2 -v
-  dc2 -v
-  dc2 -v
-  dc2 -v
-  dc2 -v
-  dc2 -v
-  dc2 -v
-  scorr -v -l -k -F 4
-  dc2 -v
-  dc2 -v
-  dc2 -v
-  dc2 -v
-  lcorr -v
-  dc2 -v
-  dc2 -v
-  dc2 -v
-  dc2 -v
-  pdr
-  inv_print -v
-)***";
-
-// --------------------- for export CHC ---------------------------- //
-
-  
-void ExternalAbcTargetGen::export_script(const std::string& script_name,
-  const std::string& abc_command_file_name, bool useGla, bool useCorr,
-  unsigned gla_frame, unsigned gla_time) {
-
+/// export the script to run the verification
+void ExternalCosaInvValidateTargetGen::export_script(const std::string& script_name) {
   runnable_script_name.clear();
 
   auto fname = os_portable_append_dir(_output_path, script_name);
@@ -694,124 +624,133 @@ void ExternalAbcTargetGen::export_script(const std::string& script_name,
   fout << "#!/bin/bash" << std::endl;
   //fout << "trap \"trap - SIGTERM && kill -- -$$\" SIGINT SIGTERM"<<std::endl;
 
-  std::string runable;
-  ILA_ASSERT(s_backend == synthesis_backend_selector::ABC);
+  if (not _vtg_config.CosaPyEnvironment.empty())
+    fout << "source " << _vtg_config.CosaPyEnvironment << std::endl;
 
-  runable = "abc";
-  if (not _vtg_config.AbcPath.empty())
-    runable = os_portable_append_dir(_vtg_config.AbcPath, runable);
+  std::string cosa = "CoSA";
+  std::string options;
 
+  if (not _vtg_config.CosaSolver.empty())
+    options += " --solver-name=" + _vtg_config.CosaSolver;
+  if (_vtg_config.CosaGenTraceVcd)
+    options += " --vcd";
+  if (_vtg_config.CosaFullTrace)
+    options += " --full-trace";
+  options += " " + _vtg_config.CosaOtherSolverOptions;
 
-  { // generate abc command
-    auto abc_cmd = useGla ? ( useCorr?  abcCmdGLA : abcCmdGLAnoCorr) : abcCmdNoGLA;
-    abc_cmd = 
-      ReplaceAll(
-        ReplaceAll(
-          ReplaceAll(abc_cmd, "%blifname%", blif_fname),
-          "%glaframe%", std::to_string(gla_frame)),
-          "%glatime%", std::to_string(gla_time));
-    auto abc_cmd_fname = os_portable_append_dir(_output_path, abc_command_file_name);
-    std::ofstream abc_cmd_fn(abc_cmd_fname);
-    if (!abc_cmd_fn.is_open()) {
-      ILA_ERROR << "Error writing to file:" << abc_cmd_fname;
-      return;
-    }
-    abc_cmd_fn << abc_cmd;
-  } // generate abc command
+  // no need, copy is good enough
+  // if(vlg_include_files_path.size() != 0)
+  //  options += " -I./";
 
-  if (blif_fname != "")
-    fout << runable << " -F "<< abc_command_file_name  << std::endl;
+  if (not _vtg_config.CosaPath.empty()) {
+    cosa = os_portable_append_dir(_vtg_config.CosaPath, cosa) + ".py";
+  }
+
+  if (cosa_prob_fname != "")
+    fout << cosa << " --problem " << cosa_prob_fname << options << std::endl;
   else
     fout << "echo 'Nothing to check!'" << std::endl;
 
   runnable_script_name.push_back(fname);
-} 
+}
 
-
-static void correct_blif_remove_non_init(const std::string & fn, const std::string & fo) {
-  std::ifstream fin(fn);
-  std::ofstream fout(fo);
-  if (!fin.is_open()) { ILA_ERROR << "Unable to read " << fn; return;}
-  if (!fout.is_open()) { ILA_ERROR << "Unable to write " << fo; return;}
-  std::string line;
-  while(std::getline(fin,line)) {
-    if (line.find(".latch ") == 0) {
-      auto st_def = SplitSpaceTabEnter(line);
-      if ( st_def.back() == "2") {
-        st_def.back() = "0";
-        ILA_WARN << "Force state to be 0: " << st_def.at(2);
-        line = Join(st_def, " ");
-      }
-    }
-    // always write back
-    fout << line << "\n";
-  }
-} // correct_blif_remove_non_init
-
-void ExternalAbcTargetGen::generate_blif(
-  const std::string& blifname,
-  const std::string& ys_script_name) {
-  
-  auto ys_output_full_name =
-      os_portable_append_dir(_output_path, "__yosys_exec_result.txt");
-  { // export to ys_script_name
-    std::ofstream ys_script_fout( ys_script_name );
-    
-    ys_script_fout << 
-      ReplaceAll(
-      ReplaceAll( 
-      ReplaceAll(abcGenerateSmtScript_wo_Array,
-        "%topfile%", os_portable_append_dir( _output_path , top_file_name ) ),
-        "%module%",  top_mod_name ),
-        "%blifname%",blifname);
-  } // finish writing
-
-  std::string yosys = "yosys";
-
-  if (not _vtg_config.YosysPath.empty())
-    yosys = os_portable_append_dir(_vtg_config.YosysPath, yosys);
-
-  // execute it
-  std::vector<std::string> cmd;
-  cmd.push_back(yosys); cmd.push_back("-s"); cmd.push_back(ys_script_name);
-  auto res = os_portable_execute_shell( cmd, ys_output_full_name );
-    ILA_ERROR_IF( res.failure != res.NONE  )
-      << "Executing Yosys failed!";
-    ILA_ERROR_IF( res.failure == res.NONE && res.ret != 0)
-      << "Yosys returns error code:" << res.ret;
+/// export extra things (problem)
+void ExternalCosaInvValidateTargetGen::export_problem(const std::string& extra_name) // only for cosa
+{
+  if (assert_props.size() == 0) {
+    ILA_ERROR << "Nothing to prove, no assertions inserted!";
+    return;
   }
 
+  cosa_prob_fname = extra_name;
 
-void ExternalAbcTargetGen::GenerateBlifProblem(
-  const std::string& blif_name,
-  const std::string& bash_script_name,
-  const std::string& abc_command_file_name,
-  bool useGla, bool useCorr, unsigned gla_frame, unsigned gla_time) {
-  
+  std::ofstream rstf(os_portable_append_dir(_output_path, "rst.ets"));
+  if (!rstf.is_open()) {
+    ILA_ERROR << "Error writing file: "
+              << os_portable_append_dir(_output_path, "rst.ets");
+    return;
+  }
+  rstf << "I: rst = 1_1" << std::endl;
+  rstf << "I: reset_done = 0_1" << std::endl;
+  rstf << "S1: rst = 0_1" << std::endl;
+  rstf << "S1: reset_done = 1_1" << std::endl;
+  rstf << "# TRANS" << std::endl;
+  rstf << "I -> S1" << std::endl;
+  rstf << "S1 -> S1" << std::endl;
+
+  std::ofstream fout(os_portable_append_dir(_output_path, extra_name));
+  if (!fout.is_open()) {
+    ILA_ERROR << "Error writing file: "
+              << os_portable_append_dir(_output_path, extra_name);
+    return;
+  }
+
+  fout << "[GENERAL]" << std::endl;
+  fout << "model_file:"; //
+  fout << top_file_name << "[" << top_mod_name << "],";
+  // if(target_type != target_type_t::INVARIANTS )
+  //  fout << ila_file_name<<","; // will be combined
+  fout << "rst.ets";
+  // for(auto && fn : vlg_design_files) // will be combined
+  //  fout << "," << os_portable_file_name_from_path(fn);
+  fout << std::endl;
+
+  fout << "assume_if_true: True" << std::endl;
+  fout << "abstract_clock: True" << std::endl;
+  fout << "[DEFAULT]" << std::endl;
+  fout << "bmc_length: " << std::to_string(_vtg_config.MaxBound + 5) << std::endl;
+  fout << "precondition: reset_done = 1_1" << std::endl;
+  fout << std::endl;
+
+  std::string assmpt;
+  std::string asst;
+  for (auto && a : assume_props) {
+    if (assmpt.empty())
+      assmpt = "(" + a + " = 1_1 )";
+    else
+      assmpt += "& (" + a + " = 1_1 )";
+  }
+  for (auto && a : assert_props) {
+    if (asst.empty())
+      asst = "(" + a + " = 1_1 )";
+    else
+      asst += "& (" + a + " = 1_1 )";
+  }
+
+  auto prob_name = has_cex ? "reachable_query" : "invariant_check";
+  fout << "[" << prob_name << "]" << std::endl;
+  fout << "description:\"" << prob_name << "\"" << std::endl;
+  fout << "formula:" << asst << std::endl;
+  if (!assmpt.empty())
+    fout << "assumptions:" << assmpt << std::endl;
+  fout << "prove: True" << std::endl;
+  fout << "verification: safety" << std::endl;
+  fout << "strategy: ALL" << std::endl;
+  fout << "expected: True" << std::endl;
+}
+
+
+/// step 2: to script/cosa problem
+void ExternalCosaInvValidateTargetGen::GenerateVerifyTarget(
+  const std::string& cosa_problem_name,
+  const std::string& script_name) {
+
   ILA_WARN_IF(!os_portable_mkdir(_output_path) ) << "Cannot create folder: " << _output_path;
-  
-  blif_fname = blif_name;
-  generate_blif(
-    os_portable_append_dir(_output_path, "__blif_prepare.blif"),
-    os_portable_append_dir(_output_path, "__gen_blif_script.ys")
-  );
 
-  correct_blif_remove_non_init(
-    os_portable_append_dir(_output_path, "__blif_prepare.blif"),
-    os_portable_append_dir(_output_path, blif_name)
-  );
+  cosa_prob_fname = cosa_problem_name;
 
-  export_script(bash_script_name, abc_command_file_name, useGla, useCorr, gla_frame, gla_time);
+  export_problem(cosa_problem_name);
+  export_script(script_name);
 }
 
 // ----------------------- BAD STATE -------------------- //
 /// If it is bad state, return true and display a message
-bool ExternalAbcTargetGen::bad_state_return(void) {
+bool ExternalCosaInvValidateTargetGen::bad_state_return(void) {
   ILA_ERROR_IF(_bad_state)
-      << "ExternalAbcTargetGen is in a bad state, cannot proceed.";
+      << "ExternalChcTargetGen is in a bad state, cannot proceed.";
   return _bad_state;
 } // bad_state_return
 
 
-}; // namespace ilang
 
+}; // namespace ilang

@@ -49,8 +49,11 @@ bool InvariantObject::AddInvariantFromAbcResultFile(
     return false;
 
   for (auto && prev_inv : inv_vlg_exprs) {
-    if (prev_inv == inv)
+    if (prev_inv == inv) {
+      ILA_ERROR << "Get repeated inv!";
+      ILA_ERROR << inv;
       return false;
+    }
   }
 
   inv_vlg_exprs.push_back( inv );

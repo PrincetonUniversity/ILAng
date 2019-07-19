@@ -86,10 +86,15 @@ public:
 
   // -------------------- CEGAR ABC ------------------ //
 	/// generate abc target
-  void GenerateAbcSynthesisTarget(const std::string & precond, const std::string & assume_reg, bool useGla, bool useCorr, unsigned gla_frame, unsigned gla_time);
-  bool RunSynAbcAuto(unsigned timeout);
+  void GenerateAbcSynthesisTarget(const std::string & precond, const std::string & assume_reg, bool useGla, bool useCorr, unsigned gla_frame, unsigned gla_time,
+    const std::set<std::string> & focus_set = std::set<std::string>() );
+  _inv_check_res_t RunSynAbcAuto(unsigned timeout);
   void JumpStart_FromExtract(bool cex_r);
   bool ExtractAbcSynthesisResult(const std::string & blifname, const std::string &ffmap_file, const std::string & gla_file);
+  
+  void GenerateCexSimplifyTarget(const std::string precond, const std::set<std::string> & removal_set );
+  _inv_check_res_t RunVerifyAuto(unsigned timeout);
+  void AcceptNegCex(const std::set<std::string> & focus_var);
 
   // -------------------- SYGUS ------------------ //
   /// this function tells you what name are truly states
