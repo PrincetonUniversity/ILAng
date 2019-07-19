@@ -91,6 +91,6 @@ jobs:
       cd starter
       md build
       cd build
-      cmake .. -DCMAKE_PREFIX_PATH=../../local-install
+      cmake .. -DCMAKE_PREFIX_PATH=../../local-install -DZ3_DIR=../../local-install/lib/cmake/z3
       cmake --build . 
     displayName: 'starter'
