@@ -112,7 +112,7 @@ if("${CMAKE_SYSTEM_NAME}" MATCHES "[Ww]indows")
     COMMAND
       ${CMAKE_COMMAND} -E copy_if_different
       $<TARGET_FILE:${ILANG_LIB_NAME}>
-      $<TARGET_FILE_DIR:test>
+      $<TARGET_FILE_DIR:${ILANG_TEST_MAIN}>
   )
 
 endif()
