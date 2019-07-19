@@ -88,9 +88,9 @@ jobs:
       cmake --build . --target install
     displayName: 'build'
   - script: |
-      cd boilerplate
+      cd starter
       md build
       cd build
-      cmake ..
+      cmake .. -DZ3_DIR=../../local-install/lib/cmake/z3
       cmake --build . 
     displayName: 'starter'

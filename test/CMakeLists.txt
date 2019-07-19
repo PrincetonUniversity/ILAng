@@ -114,7 +114,7 @@ add_test(
     ExampleCMakeBuild
   COMMAND
     "${CMAKE_CTEST_COMMAND}"
-      --build-and-test  "${PROJECT_SOURCE_DIR}/boilerplate"
+      --build-and-test  "${PROJECT_SOURCE_DIR}/starter"
                         "${CMAKE_CURRENT_BINARY_DIR}/simple"
       --build-generator "${CMAKE_GENERATOR}"
       --test-command    "${CMAKE_CTEST_COMMAND}"
