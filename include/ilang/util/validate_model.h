@@ -5,11 +5,8 @@
 #include <ilang/ila/z3_expr_adapter.h>
 
 namespace ilang {
-  bool deterministic_check(const InstrLvlAbsPtr& model_ptr_);  
-  bool complete_check(const InstrLvlAbsPtr& model_ptr_);
+bool deterministic_check(const InstrLvlAbsPtr& model_ptr_);
+bool complete_check(const InstrLvlAbsPtr& model_ptr_);
 }
-
-
-
 
 #endif
