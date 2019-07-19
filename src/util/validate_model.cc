@@ -53,4 +53,48 @@ bool complete_check(const InstrLvlAbsPtr& model_ptr) {
   }
   return true;
 }
+
+void complete_model(const InstrLvlAbsPtr& model_ptr,
+                    DEFAULT_UPDATE_METHOD dum) {
+  auto or_decode = ExprFuse::BoolConst(false);
+  for (int i = 0; i < model_ptr->instr_num(); i++) {
+    or_decode = (ExprFuse::Or(or_decode, model_ptr->instr(i)->decode()));
+  }
+  {
+    auto default_instr = model_ptr->NewInstr("DEFAULT_INSTR");
+    default_instr->set_decode(ExprFuse::Not(or_decode));
+    z3::context ctx;
+    Z3ExprAdapter z3_adapter(ctx);
+    std::cout << z3_adapter.GetExpr(or_decode) << std::endl;
+    if (dum == DEFAULT_UPDATE_METHOD::OLD_VALUE) {
+      for (int i = 0; i < model_ptr->state_num(); i++)
+        default_instr->set_update(model_ptr->state(i), model_ptr->state(i));
+    } else if (dum == DEFAULT_UPDATE_METHOD::NONDET_VALUE) {
+      for (int i = 0; i < model_ptr->state_num(); i++) {
+        auto state = model_ptr->state(i);
+        auto state_sort_uid = GetUidSort(state->sort());
+        if (state_sort_uid == AST_UID_SORT::BOOL) {
+          auto out_sort = Sort::MakeBoolSort();
+          auto func =
+              Func::New("default_update_" + state->name().str(), out_sort);
+          default_instr->set_update(state, ExprFuse::AppFunc(func));
+        } else if (state_sort_uid == AST_UID_SORT::BV) {
+          auto out_sort = Sort::MakeBvSort(state->sort()->bit_width());
+          auto func =
+              Func::New("default_update_" + state->name().str(), out_sort);
+          default_instr->set_update(state, ExprFuse::AppFunc(func));
+        } else if (state_sort_uid == AST_UID_SORT::MEM) {
+          auto out_sort = Sort::MakeMemSort(state->sort()->addr_width(),
+                                            state->sort()->data_width());
+          auto func =
+              Func::New("default_update_" + state->name().str(), out_sort);
+
+          default_instr->set_update(state, ExprFuse::AppFunc(func));
+        } else {
+          ILA_ERROR << "ILA state type must be one of bool, bitvector, memory.";
+        }
+      }
+    }
+  }
 }
+} // namespace ilang
