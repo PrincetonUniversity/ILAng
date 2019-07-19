@@ -125,20 +125,6 @@ void IlaSim::sim_gen_init() {
   }
 }
 
-void IlaSim::sim_gen_init() {
-  std::queue<InstrLvlAbsPtr> child_ila_queue;
-  for (int i = 0; i < model_ptr_->child_num(); i++)
-    child_ila_queue.push(model_ptr_->child(i));
-  while (!child_ila_queue.empty()) {
-    auto current_ila = child_ila_queue.front();
-    child_ila_queue.pop();
-    create_init(current_ila);
-    for (int i = 0; i < current_ila->child_num(); i++) {
-      child_ila_queue.push(current_ila->child(i));
-    }
-  }
-}
-
 void IlaSim::sim_gen_decode() {
   std::queue<InstrLvlAbsPtr> ila_queue;
   ila_queue.push(model_ptr_);

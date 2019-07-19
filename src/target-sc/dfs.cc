@@ -380,8 +380,8 @@ void IlaSim::dfs_extract_op(stringstream &dfs_simulator, string &indent,
     int cast_length = param0 - param1 + 1;
     if (cast_length >= 64)
       cout << "Error" << endl;
-    uint64_t mask;
-    uint64_t mask = (mask << cast_length) - 1;
+    uint64_t mask = 1;
+    mask = (mask << cast_length) - 1;
     dfs_simulator << indent << out_str << " = static_cast<uint" << (cast_length)
                   << "_t> ((" << arg_str << " >> " << param1 << ") & " << mask
                   << ");" << endl;
