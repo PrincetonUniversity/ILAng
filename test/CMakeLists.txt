@@ -47,6 +47,7 @@ package_add_test(${ILANG_TEST_MAIN}
   unit-src/simple_cpu.cc
   unit-src/stream_buffer.cc
   unit-src/util.cc
+  unit-src/validate_aes_model.cc
   t_api.cc
   t_case_aes_eq.cc
   t_crr.cc
@@ -74,6 +75,7 @@ package_add_test(${ILANG_TEST_MAIN}
   t_symbol.cc
   t_unroll_seq.cc
   t_util.cc
+  t_validate_model.cc
   t_verilog_analysis.cc
   t_verilog_analysis_error.cc
   t_verilog_gen.cc
