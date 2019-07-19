@@ -43,7 +43,7 @@ TEST(TestIlaSim, hashed_file_name) {
 
   string test_decode_file = "/tmp/decode_115572.cc";
   string test_update_file = "/tmp/decode_115572_update_TEST_address.cc";
-  string test_header_file = "/tmp/test.h";
+  string test_header_file = "/tmp/TEST.h";
   string test_mk_file = "/tmp/mk.sh";
 
   try {
@@ -124,7 +124,7 @@ TEST(TestIlaSim, readable_file_name) {
   string test_decode_file = "/tmp/decode_TEST_WRITE_ADDRESS.cc";
   string test_update_file =
       "/tmp/decode_TEST_WRITE_ADDRESS_update_TEST_address.cc";
-  string test_header_file = "/tmp/test.h";
+  string test_header_file = "/tmp/TEST.h";
   string test_mk_file = "/tmp/mk.sh";
 
   try {
@@ -203,7 +203,7 @@ TEST(TestIlaSim, external_mem) {
   ila_sim.sim_gen("/tmp/", true, false);
 
   string test_compute_file = "/tmp/compute.cc";
-  string test_header_file = "/tmp/test.h";
+  string test_header_file = "/tmp/TEST.h";
   string test_mk_file = "/tmp/mk.sh";
 
   try {
