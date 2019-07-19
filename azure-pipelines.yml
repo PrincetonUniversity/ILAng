@@ -91,7 +91,6 @@ jobs:
       cd starter
       md build
       cd build
-      call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
-      cmake .. -DCMAKE_PREFIX_PATH=../../local-install -DZ3_DIR=../../local-install/lib/cmake/z3
+      cmake .. -DZ3_DIR=../../local-install/lib/cmake/z3
       cmake --build . 
     displayName: 'starter'
