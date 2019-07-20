@@ -59,6 +59,7 @@ jobs:
       choco install wget
       md local-install
     displayName: 'package'
+
   - script: |
       git clone https://github.com/Z3Prover/z3.git 
       cd z3
@@ -69,28 +70,51 @@ jobs:
       cmake --build .
       cmake --build . --target install
     displayName: 'z3'
+
   - script: |
-      git clone https://github.com/Bo-Yuan-Huang/verilog-parser.git
-      cd verilog-parser
-      md build
-      cd build
-      call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
-      cmake .. -DCMAKE_INSTALL_PREFIX=../../local-install
-      cmake --build .
+      cd extern && cd glog
+      md build && cd build
+      cmake .. -DCMAKE_INSTALL_PREFIX=../../../local-install
       cmake --build . --target install
-    displayName: 'Verilog-parser'
+    displayName: 'glog'
+
+  - script: |
+      cd extern && cd json
+      md build && cd build
+      cmake .. -DCMAKE_INSTALL_PREFIX=../../../local-install
+      cmake --build . --target install
+    displayName: 'json'
+
+  - script: |
+      git submodule update --init --recursive
+    displayName: 'submodule'
+
+  - script: |
+      cd extern && cd vlog-parser
+      md build && cd build
+      cmake .. -DCMAKE_INSTALL_PREFIX=../../../local-install
+      cmake --build . --target install
+    displayName: 'vlog-parser'
+
+  - script: |
+      cd extern && cd tmpl-synth
+      md build && cd build
+      cmake .. -DCMAKE_INSTALL_PREFIX=../../../local-install
+      cmake --build . --target install
+    displayName: 'tmpl-synth'
+
   - script: |
       md build
       cd build
-      call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
-      cmake .. -DILANG_BUILD_SYNTH=OFF -DILANG_BUILD_TEST=OFF -DCMAKE_PREFIX_PATH=../local-install -DZ3_DIR=../local-install/lib/cmake/z3 -DCMAKE_INSTALL_PREFIX=../local-install
+      cmake .. -DILANG_BUILD_SYNTH=OFF -DILANG_BUILD_TEST=OFF -DCMAKE_PREFIX_PATH=../local-install -DZ3_DIR=../local-install/lib/cmake/z3 -DCMAKE_INSTALL_PREFIX=../local-include
       cmake --build .
       cmake --build . --target install
     displayName: 'build'
+
   - script: |
       cd starter
       md build
       cd build
-      cmake .. -DZ3_DIR=../../local-install/lib/cmake/z3 -DCMAKE_PREFIX_PATH=../../local-install/;../../local-install/lib/cmake/ilang
+      cmake .. -DZ3_DIR=../../local-install/lib/cmake/z3 -DCMAKE_PREFIX_PATH=../../local-install
       cmake --build . 
     displayName: 'starter'
