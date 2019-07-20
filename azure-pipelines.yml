@@ -76,7 +76,7 @@ jobs:
       cd glog
       md build 
       cd build
-      cmake .. -DCMAKE_INSTALL_PREFIX=../../../local-install
+      cmake .. 
       cmake --build . --target install
     displayName: 'glog'
 
@@ -85,7 +85,7 @@ jobs:
       cd json
       md build 
       cd build
-      cmake .. -DCMAKE_INSTALL_PREFIX=../../../local-install -DJSON_BuildTests=OFF
+      cmake .. -DJSON_BuildTests=OFF
       cmake --build . --target install
     displayName: 'json'
 
@@ -98,14 +98,14 @@ jobs:
       cd vlog-parser
       md build 
       cd build
-      cmake .. -DCMAKE_INSTALL_PREFIX=../../../local-install
+      cmake .. 
       cmake --build . --target install
     displayName: 'vlog-parser'
 
   - script: |
       md build
       cd build
-      cmake .. -DILANG_BUILD_SYNTH=OFF -DILANG_BUILD_TEST=OFF -DCMAKE_PREFIX_PATH=../local-install -DZ3_DIR=../local-install/lib/cmake/z3 -DCMAKE_INSTALL_PREFIX=../local-include
+      cmake .. -DILANG_BUILD_SYNTH=OFF -DILANG_BUILD_TEST=OFF -DZ3_DIR=../local-install/lib/cmake/z3 
       cmake --build .
       cmake --build . --target install
     displayName: 'build'
@@ -114,6 +114,6 @@ jobs:
       cd starter
       md build
       cd build
-      cmake .. -DZ3_DIR=../../local-install/lib/cmake/z3 -DCMAKE_PREFIX_PATH=../../local-install
+      cmake .. -DZ3_DIR=../../local-install/lib/cmake/z3 
       cmake --build . 
     displayName: 'starter'
