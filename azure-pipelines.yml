@@ -105,7 +105,7 @@ jobs:
   - script: |
       md build
       cd build
-      cmake .. -DILANG_BUILD_SYNTH=OFF -DILANG_BUILD_TEST=OFF -DZ3_DIR=../local-install/lib/cmake/z3 
+      cmake .. -DILANG_BUILD_SYNTH=OFF -DILANG_BUILD_TEST=OFF -DZ3_DIR=../local-install/lib/cmake/z3 -DZ3_EXEC=../local-install/bin/z3.exe
       cmake --build .
       cmake --build . --target install
     displayName: 'build'
