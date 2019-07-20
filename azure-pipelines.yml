@@ -81,7 +81,7 @@ jobs:
   - script: |
       cd extern && cd json
       md build && cd build
-      cmake .. -DCMAKE_INSTALL_PREFIX=../../../local-install
+      cmake .. -DCMAKE_INSTALL_PREFIX=../../../local-install -DJSON_BuildTests=OFF
       cmake --build . --target install
     displayName: 'json'
 
