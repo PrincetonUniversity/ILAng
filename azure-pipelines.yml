@@ -72,15 +72,19 @@ jobs:
     displayName: 'z3'
 
   - script: |
-      cd extern && cd glog
-      md build && cd build
+      cd extern 
+      cd glog
+      md build 
+      cd build
       cmake .. -DCMAKE_INSTALL_PREFIX=../../../local-install
       cmake --build . --target install
     displayName: 'glog'
 
   - script: |
-      cd extern && cd json
-      md build && cd build
+      cd extern 
+      cd json
+      md build 
+      cd build
       cmake .. -DCMAKE_INSTALL_PREFIX=../../../local-install -DJSON_BuildTests=OFF
       cmake --build . --target install
     displayName: 'json'
@@ -90,18 +94,13 @@ jobs:
     displayName: 'submodule'
 
   - script: |
-      cd extern && cd vlog-parser
-      md build && cd build
+      cd extern 
+      cd vlog-parser
+      md build 
+      cd build
       cmake .. -DCMAKE_INSTALL_PREFIX=../../../local-install
       cmake --build . --target install
     displayName: 'vlog-parser'
-
-  - script: |
-      cd extern && cd tmpl-synth
-      md build && cd build
-      cmake .. -DCMAKE_INSTALL_PREFIX=../../../local-install
-      cmake --build . --target install
-    displayName: 'tmpl-synth'
 
   - script: |
       md build
