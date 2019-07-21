@@ -7,9 +7,31 @@ pr:
 # File: azure-pipelines.yml
 
 jobs:
-- job: macOS
+- job: macOS-High-Sierra
   pool:
     vmImage: 'macOS-10.13'
+  steps:
+  - script: |
+      brew update
+      brew install bison
+      brew install boost
+      brew install boost-python
+      brew install z3
+    displayName: 'package'
+  - script: |
+      export PATH="/usr/local/opt/bison/bin:$PATH"
+      export LDFLAGS="-L/usr/local/opt/bison/lib"
+      mkdir -p build 
+      cd build
+      cmake ..
+      cmake --build .
+      cmake --build . --target install 
+      cmake --build . --target test
+    displayName: 'build'
+
+- job: macOS-Mojave
+  pool:
+    vmImage: 'macOS-10.14'
   steps:
   - script: |
       brew update
