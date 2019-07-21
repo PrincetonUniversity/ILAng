@@ -37,26 +37,10 @@ mark_as_advanced(Z3_FOUND Z3_INCLUDE_DIR Z3_LIBRARY Z3_EXEC)
 
 include(FindPackageHandleStandardArgs)
 
-  
-if("${CMAKE_SYSTEM_NAME}" MATCHES "[Ww]indows")
-
-  find_package(Z3
-    REQUIRED
-    CONFIG
-    NO_DEFAULT_PATH
-  )
-
-  set(Z3_INCLUDE_DIR ${Z3_CXX_INCLUDE_DIRS})
-  set(Z3_LIBRARY ${Z3_LIBRARIES})
-
-else()
-
-  find_package_handle_standard_args(Z3 DEFAULT_MSG 
-    Z3_INCLUDE_DIR 
-    Z3_LIBRARY
-  )
-
-endif()
+find_package_handle_standard_args(Z3 DEFAULT_MSG 
+  Z3_INCLUDE_DIR 
+  Z3_LIBRARY
+)
 
 if(Z3_FOUND)
 
