@@ -50,14 +50,17 @@ brew install bison flex boost boost-python z3
 
 #### Tested Environments
 
-| OS                        | Compiler    | CMake  | z3     | Boost | Status                                                                                                                                                                    |
-| ------------------------- | ----------- | ------ | ------ | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Ubuntu 14.04 (Trusty)     | gcc 4.8.4   | 3.8.0  | 4.7.1  | 1.54  | [![Build Status](https://semaphoreci.com/api/v1/bo-yuan-huang/ilang/branches/master/shields_badge.svg)](https://semaphoreci.com/bo-yuan-huang/ilang)                      |
-| Ubuntu 16.04 (Xenial)     | gcc 5.4.0   | 3.12.4 | 4.4.1  | 1.58  | [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILAng.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILAng)                                                 |
-| Ubuntu 16.04 (Xenial)     | clang 7.0.0 | 3.12.4 | 4.4.1  | 1.58  | [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILAng.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILAng)                                                 |
-| Ubuntu 18.04 (Bionic)     | gcc 7.4.0   | 3.14.4 | latest | 1.65  | [![Build status](https://ci.appveyor.com/api/projects/status/cwhlq09513art6hw/branch/master?svg=true)](https://ci.appveyor.com/project/Bo-Yuan-Huang/ilang/branch/master) |
-| OSX 10.13.0 (High Sierra) | Xcode 9.4.1 | 3.11.4 | 4.8.4  | 1.69  | [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILAng.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILAng)                                                 |
-| Windows Server 2016       | VS 2017     | 3.14.5 | 4.8.5  | 1.69  | [![Build Status](https://dev.azure.com/byhuang/ILAng/_apis/build/status/Bo-Yuan-Huang.ILAng?branchName=master)](https://dev.azure.com/byhuang/ILAng/_build/latest?definitionId=1&branchName=master)                                       |
+| OS                        | Compiler     | CMake  | z3     | Boost | Status                                                                                                                                                                                                 |
+| ------------------------- | ------------ | ------ | ------ | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Ubuntu 14.04 (Trusty)     | gcc 4.8.4    | 3.8.0  | 4.7.1  | 1.54  | [![Build Status](https://semaphoreci.com/api/v1/bo-yuan-huang/ilang/branches/master/shields_badge.svg)](https://semaphoreci.com/bo-yuan-huang/ilang)                                                   |
+| Ubuntu 16.04 (Xenial)     | gcc 5.4.0    | 3.12.4 | 4.4.1  | 1.58  | [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILAng.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILAng)                                                                              |
+| Ubuntu 16.04 (Xenial)     | clang 7.0.0  | 3.12.4 | 4.4.1  | 1.58  | [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILAng.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILAng)                                                                              |
+| Ubuntu 16.04 (Xenial)     | gcc 5.4.0    | 3.12.4 | 4.4.1  | 1.69  | [![Build Status](https://dev.azure.com/byhuang/ILAng/_apis/build/status/Bo-Yuan-Huang.ILAng?branchName=master)](https://dev.azure.com/byhuang/ILAng/_build/latest?definitionId=1&branchName=master)    |
+| Ubuntu 18.04 (Bionic)     | gcc 7.4.0    | 3.14.4 | latest | 1.65  | [![Build status](https://ci.appveyor.com/api/projects/status/cwhlq09513art6hw/branch/master?svg=true)](https://ci.appveyor.com/project/Bo-Yuan-Huang/ilang/branch/master)                              |
+| OSX 10.13.0 (High Sierra) | Xcode 9.4.1  | 3.11.4 | 4.8.4  | 1.69  | [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILAng.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILAng)                                                                              |
+| OSX 10.13.6 (High Sierra) | Xcode 10.1.0 | 3.6.4  | 4.8.5  | 1.70  | [![Build Status](https://dev.azure.com/byhuang/ILAng/_apis/build/status/Bo-Yuan-Huang.ILAng?branchName=master)](https://dev.azure.com/byhuang/ILAng/_build/latest?definitionId=1&branchName=master)    |
+| OSX 10.14.5 (Mojave)      | Xcode 10.2.1 | 3.6.4  | 4.8.5  | 1.70  | [![Build Status](https://dev.azure.com/byhuang/ILAng/_apis/build/status/Bo-Yuan-Huang.ILAng?branchName=master)](https://dev.azure.com/byhuang/ILAng/_build/latest?definitionId=1&branchName=master)    |
+| Windows Server 2016       | VS 2017      | 3.14.5 | 4.8.5  | -     | [![Build Status](https://dev.azure.com/byhuang/ILAng/_apis/build/status/Bo-Yuan-Huang.ILAng?branchName=master)](https://dev.azure.com/byhuang/ILAng/_build/latest?definitionId=1&branchName=master) \| |
 
 ### Default Build
 
@@ -186,7 +189,7 @@ This docker image also contains the model checker [CoSA](https://github.com/cris
 
 ILAng is licensed under the [MIT license](https://opensource.org/licenses/MIT):
 
-Copyright &copy; 2018-2019 [Princeton University ILA Team](https://sites.google.com/view/princeton-malik-group/people)
+Copyright © 2018-2019 [Princeton University ILA Team](https://sites.google.com/view/princeton-malik-group/people)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
