@@ -35,31 +35,11 @@ find_program(Z3_EXEC
 
 mark_as_advanced(Z3_FOUND Z3_INCLUDE_DIR Z3_LIBRARY Z3_EXEC)
 
-if("${CMAKE_SYSTEM_NAME}" MATCHES "[Ww]indows")
-
-  find_package(Z3
-    REQUIRED
-    CONFIG
-    # `NO_DEFAULT_PATH` is set so that -DZ3_DIR has to be passed to find Z3.
-    # This should prevent us from accidentally picking up an installed
-    # copy of Z3. This is here to benefit Z3's build system when building
-    # this project. When making your own project you probably shouldn't
-    # use this option.
-    NO_DEFAULT_PATH
-  )
-
-  set(Z3_INCLUDE_DIR ${Z3_CXX_INCLUDE_DIRS})
-  set(Z3_LIBRARY ${Z3_LIBRARIES})
-
-else()
-
-  include(FindPackageHandleStandardArgs)
-  find_package_handle_standard_args(Z3 DEFAULT_MSG 
-    Z3_INCLUDE_DIR 
-    Z3_LIBRARY
-  )
-
-endif()
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(Z3 DEFAULT_MSG 
+  Z3_INCLUDE_DIR 
+  Z3_LIBRARY
+)
 
 if(Z3_FOUND)
 

@@ -5,21 +5,7 @@ include(CMakeFindDependencyMacro)
 find_dependency(glog REQUIRED)
 find_dependency(nlohmann_json REQUIRED)
 find_dependency(verilogparser REQUIRED)
-
-if("${CMAKE_SYSTEM_NAME}" MATCHES "[Ww]indows")
-
-  find_package(Z3
-    REQUIRED
-    CONFIG
-    # `NO_DEFAULT_PATH` is set so that -DZ3_DIR has to be passed to find Z3.
-    NO_DEFAULT_PATH
-  )
-
-else()
-
-  find_dependency(Z3 REQUIRED)
-
-endif()
+find_dependency(Z3 REQUIRED)
 
 if(@ILANG_BUILD_SYNTH@)
   find_dependency(ilasynth REQUIRED)

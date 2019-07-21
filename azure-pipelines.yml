@@ -65,8 +65,7 @@ jobs:
       cd z3
       md build
       cd build
-      call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
-      cmake .. -DCMAKE_INSTALL_PREFIX=../../local-install
+      cmake .. 
       cmake --build .
       cmake --build . --target install
     displayName: 'z3'
@@ -105,7 +104,7 @@ jobs:
   - script: |
       md build
       cd build
-      cmake .. -DILANG_BUILD_SYNTH=OFF -DILANG_BUILD_TEST=OFF -DZ3_DIR=../local-install/lib/cmake/z3 -DZ3_EXEC=../local-install/bin/z3.exe
+      cmake .. -DILANG_BUILD_SYNTH=OFF -DILANG_BUILD_TEST=OFF 
       cmake --build .
       cmake --build . --target install
     displayName: 'build'
@@ -114,6 +113,6 @@ jobs:
       cd starter
       md build
       cd build
-      cmake .. -DZ3_DIR=../../local-install/lib/cmake/z3 
+      cmake .. 
       cmake --build . 
     displayName: 'starter'
