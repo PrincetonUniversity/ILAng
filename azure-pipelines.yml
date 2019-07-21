@@ -63,7 +63,7 @@ jobs:
   - script: |
       wget https://github.com/Z3Prover/z3/releases/download/Z3-4.8.5/z3-4.8.5-x86-win.zip
       unzip z3-4.8.5-x86-win.zip
-      move z3-4.8.6-x86-win z3
+      move z3-4.8.5-x86-win z3
     displayName: 'z3'
 
   - script: |
