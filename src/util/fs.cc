@@ -23,12 +23,12 @@
 namespace ilang {
 
 static bool endsWith(const std::string& str, const std::string& suffix) {
-  return str.size() >= suffix.size() and
+  return str.size() >= suffix.size() &&
          0 == str.compare(str.size() - suffix.size(), suffix.size(), suffix);
 }
 
 static bool startsWith(const std::string& str, const std::string& prefix) {
-  return str.size() >= prefix.size() and
+  return str.size() >= prefix.size() &&
          0 == str.compare(0, prefix.size(), prefix);
 }
 
@@ -63,7 +63,7 @@ std::string os_portable_append_dir(const std::string& dir1,
 #endif
   auto str1 = dir1;
   auto str2 = dir2;
-  if (not endsWith(str1, sep))
+  if (!endsWith(str1, sep))
     str1 += sep;
   if (startsWith(dir2, sep)) {
     ILA_ERROR << "appending root path:" << dir2 << " to " << dir1;

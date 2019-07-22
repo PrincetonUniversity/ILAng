@@ -1,10 +1,11 @@
 /// \file
 /// Some short cut for set operations
 
-#ifndef SET_OP_H__
-#define SET_OP_H__
+#ifndef MCM_SET_OP_H__
+#define MCM_SET_OP_H__
 
 #include <algorithm>
+#include <iterator>
 #include <set>
 
 #define UNION(a, b, r)                                                         \
@@ -23,4 +24,4 @@
 #define IN(e, s) ((s).find(e) != (s).end())
 #define IN_p(e, s) ((s)->find(e) != (s)->end())
 
-#endif // SET_OP_H__
+#endif // MCM_SET_OP_H__

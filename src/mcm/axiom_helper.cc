@@ -409,7 +409,8 @@ z3::expr MemoryModel::SameAddress(const TraceStep& l, const TraceStep& r,
         (rhint == AxiomFuncHint::HINT_READ) ? NULL : r.inst()->update(sname);
     if (wexpr) { // if it is indeed updated
       rightW = CheckAndPeel(wexpr, "STORE", ARG_ADDR);
-#warning We should use conditional multi-store finder!
+      // #warning We should use conditional multi-store finder!
+      ILA_WARN << "Should use conditional multi-store finder!";
       if (!rightW) {
         // wexpr->Print(ILA_INFO);
         ILA_INFO << "TS:" << r.name();
