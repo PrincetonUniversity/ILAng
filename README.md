@@ -48,19 +48,19 @@ brew install bison flex boost boost-python z3
 -   The [z3](https://github.com/Z3Prover/z3) SMT solver (over 4.4.0) is required. Detailed instruction for building latest z3 can be found [here](https://github.com/Z3prover/z3#building-z3-using-make-and-gccclang).
 -   The [Boost](https://www.boost.org) package is required only for building the synthesis engine and the Python API. 
 
-#### Tested Environments
+#### Regression Environments
 
-| OS                        | Compiler     | CMake  | z3     | Boost | Status                                                                                                                                                                                                 |
-| ------------------------- | ------------ | ------ | ------ | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Ubuntu 14.04 (Trusty)     | gcc 4.8.4    | 3.8.0  | 4.7.1  | 1.54  | [![Build Status](https://semaphoreci.com/api/v1/bo-yuan-huang/ilang/branches/master/shields_badge.svg)](https://semaphoreci.com/bo-yuan-huang/ilang)                                                   |
-| Ubuntu 16.04 (Xenial)     | gcc 5.4.0    | 3.12.4 | 4.4.1  | 1.58  | [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILAng.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILAng)                                                                              |
-| Ubuntu 16.04 (Xenial)     | clang 7.0.0  | 3.12.4 | 4.4.1  | 1.58  | [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILAng.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILAng)                                                                              |
-| Ubuntu 16.04 (Xenial)     | gcc 5.4.0    | 3.12.4 | 4.4.1  | 1.69  | [![Build Status](https://dev.azure.com/byhuang/ILAng/_apis/build/status/Bo-Yuan-Huang.ILAng?branchName=master)](https://dev.azure.com/byhuang/ILAng/_build/latest?definitionId=1&branchName=master)    |
-| Ubuntu 18.04 (Bionic)     | gcc 7.4.0    | 3.14.4 | latest | 1.65  | [![Build status](https://ci.appveyor.com/api/projects/status/cwhlq09513art6hw/branch/master?svg=true)](https://ci.appveyor.com/project/Bo-Yuan-Huang/ilang/branch/master)                              |
-| OSX 10.13.0 (High Sierra) | Xcode 9.4.1  | 3.11.4 | 4.8.4  | 1.69  | [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILAng.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILAng)                                                                              |
-| OSX 10.13.6 (High Sierra) | Xcode 10.1.0 | 3.14.5 | 4.8.5  | 1.70  | [![Build Status](https://dev.azure.com/byhuang/ILAng/_apis/build/status/Bo-Yuan-Huang.ILAng?branchName=master)](https://dev.azure.com/byhuang/ILAng/_build/latest?definitionId=1&branchName=master)    |
-| OSX 10.14.5 (Mojave)      | Xcode 10.2.1 | 3.14.5 | 4.8.5  | 1.70  | [![Build Status](https://dev.azure.com/byhuang/ILAng/_apis/build/status/Bo-Yuan-Huang.ILAng?branchName=master)](https://dev.azure.com/byhuang/ILAng/_build/latest?definitionId=1&branchName=master)    |
-| Windows Server 2016       | VS 2017      | 3.14.5 | 4.8.5  | -     | [![Build Status](https://dev.azure.com/byhuang/ILAng/_apis/build/status/Bo-Yuan-Huang.ILAng?branchName=master)](https://dev.azure.com/byhuang/ILAng/_build/latest?definitionId=1&branchName=master)    |
+| OS                        | Compiler     | CMake  | z3    | Boost | Bison | Flex   | Build   |
+| ------------------------- | ------------ | ------ | ----- | ----- | ----- | ------ | ------- |
+| Ubuntu 14.04 (Trusty)     | gcc 4.8.4    | 3.8.0  | 4.8.5 | 1.54  | 3.0.4 | 2.5.25 | Release |
+| Ubuntu 16.04 (Xenial)     | gcc 5.4.0    | 3.12.4 | 4.4.1 | 1.58  | 3.0.4 | 2.6.0  | Debug   |
+| Ubuntu 16.04 (Xenial)     | clang 7.0.0  | 3.12.4 | 4.4.1 | 1.58  | 3.0.4 | 2.6.0  | Debug   |
+| Ubuntu 16.04 (Xenial)     | gcc 5.4.0    | 3.12.4 | 4.4.1 | 1.69  | 3.0.4 | 2.6.0  | Default |
+| Ubuntu 18.04 (Bionic)     | gcc 7.4.0    | 3.14.4 | 4.4.1 | 1.65  | 3.0.4 | 2.6.4  | Default |
+| OSX 10.13.3 (High Sierra) | Xcode 9.4.1  | 3.11.3 | 4.8.5 | 1.70  | 3.4.1 | 2.5.35 | Debug   |
+| OSX 10.13.6 (High Sierra) | Xcode 10.1.0 | 3.14.5 | 4.8.5 | 1.70  | 3.4.1 | 2.5.35 | Default |
+| OSX 10.14.5 (Mojave)      | Xcode 10.2.1 | 3.14.5 | 4.8.5 | 1.70  | 3.4.1 | 2.5.35 | Default |
+| Windows Server 2016       | VS 2017      | 3.14.5 | 4.8.5 | -     | 3.3.2 | 2.6.4  | Default |
 
 ### Default Build
 
