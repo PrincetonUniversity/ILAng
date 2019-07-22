@@ -60,7 +60,7 @@ brew install bison flex boost boost-python z3
 | OSX 10.13.0 (High Sierra) | Xcode 9.4.1  | 3.11.4 | 4.8.4  | 1.69  | [![Build Status](https://travis-ci.org/Bo-Yuan-Huang/ILAng.svg?branch=master)](https://travis-ci.org/Bo-Yuan-Huang/ILAng)                                                                              |
 | OSX 10.13.6 (High Sierra) | Xcode 10.1.0 | 3.14.5 | 4.8.5  | 1.70  | [![Build Status](https://dev.azure.com/byhuang/ILAng/_apis/build/status/Bo-Yuan-Huang.ILAng?branchName=master)](https://dev.azure.com/byhuang/ILAng/_build/latest?definitionId=1&branchName=master)    |
 | OSX 10.14.5 (Mojave)      | Xcode 10.2.1 | 3.14.5 | 4.8.5  | 1.70  | [![Build Status](https://dev.azure.com/byhuang/ILAng/_apis/build/status/Bo-Yuan-Huang.ILAng?branchName=master)](https://dev.azure.com/byhuang/ILAng/_build/latest?definitionId=1&branchName=master)    |
-| Windows Server 2016       | VS 2017      | 3.14.5 | 4.8.5  | -     | [![Build Status](https://dev.azure.com/byhuang/ILAng/_apis/build/status/Bo-Yuan-Huang.ILAng?branchName=master)](https://dev.azure.com/byhuang/ILAng/_build/latest?definitionId=1&branchName=master) \| |
+| Windows Server 2016       | VS 2017      | 3.14.5 | 4.8.5  | -     | [![Build Status](https://dev.azure.com/byhuang/ILAng/_apis/build/status/Bo-Yuan-Huang.ILAng?branchName=master)](https://dev.azure.com/byhuang/ILAng/_build/latest?definitionId=1&branchName=master)    |
 
 ### Default Build
 
